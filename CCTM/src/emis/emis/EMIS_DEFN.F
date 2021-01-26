@@ -2367,65 +2367,82 @@ C and allowing the model to proceed.
          CHARACTER( 16 ), INTENT( IN )    :: SPEC
          CHARACTER( 200 )      :: XMSG
          INTEGER               :: X, SLASH_IND
+         
+         CHARACTER( 16 ) :: NUMER
+         CHARACTER( 16 ) :: DENOM
+         CHARACTER( 16 ) :: DENOM1
+         CHARACTER( 16 ) :: DENOM2
 
+         ! The Default Finding is an unknown Basis unit and conversion
+         ! equal to 1.0
          CONV = 1.0
+         BASIS = 'UNKNOWN'
+         IF ( UNITS .EQ. '' ) RETURN
+         
+         ! Capitalize UNITS string and remove any leading spaces 
+         CALL UPCASE( UNITS ) 
+         DO WHILE ( UNITS(1:1) .EQ. ' ' ) 
+             UNITS = UNITS(2:16) / ' '
+         END DO
 
-         CALL UPCASE( UNITS )
-
-         ! Find Break between numerator and denominator. If it's not a
-         ! slash, then it should be the first space
+         ! Find First Break between numerator and denominator. If it's not a
+         ! slash, then it should be the first space. 
          SLASH_IND = INDEX( UNITS, '/' )
          IF ( SLASH_IND .EQ. 0 ) SLASH_IND = INDEX( UNITS, ' ' )
          X = SLASH_IND - 1
+         NUMER = UNITS(1:X)
 
-         ! Check for Molar or Mass Units
-         IF ( UNITS(1:X) .EQ. 'MOLE' .OR. UNITS(1:X) .EQ. 'MOLES' .OR.
-     &        UNITS(1:X) .EQ. 'MOL' ) THEN
+         ! If there are no slashes or spaces, then exit
+         IF ( SLASH_IND .EQ. 0 ) RETURN
+
+         ! Check Numerator for Molar or Mass Units
+         IF ( NUMER .EQ. 'MOLE' .OR. NUMER .EQ. 'MOLES' .OR.
+     &        NUMER .EQ. 'MOL' ) THEN
             ! No Conversion Needed for Moles to Moles
             CONV = 1.0 
             BASIS = 'MOLE'
-         ELSE IF ( UNITS(1:X) .EQ. 'KMOLE' .OR. UNITS(1:X) .EQ. 'KMOLES' .OR.
-     &             UNITS(1:X) .EQ. 'KMOL' ) THEN
+         ELSE IF ( NUMER .EQ. 'KMOLE' .OR. NUMER .EQ. 'KMOLES' .OR.
+     &             NUMER .EQ. 'KMOL' ) THEN
             ! Convert kmol to mol
             CONV = 1000.0
             BASIS = 'MOLE'
-         ELSE IF ( UNITS(1:X) .EQ. 'MMOLE' .OR. UNITS(1:X) .EQ. 'MMOLES' .OR.
-     &             UNITS(1:X) .EQ. 'MMOL' ) THEN
+         ELSE IF ( NUMER .EQ. 'MMOLE' .OR. NUMER .EQ. 'MMOLES' .OR.
+     &             NUMER .EQ. 'MMOL' ) THEN
             ! Convert mmol to mol
             CONV = 1.0e-3
             BASIS = 'MOLE'
-         ELSE IF ( UNITS(1:X) .EQ. 'UMOLE' .OR. UNITS(1:X) .EQ. 'UMOLES' .OR.
-     &             UNITS(1:X) .EQ. 'UMOL' ) THEN
+         ELSE IF ( NUMER .EQ. 'UMOLE' .OR. NUMER .EQ. 'UMOLES' .OR.
+     &             NUMER .EQ. 'UMOL' ) THEN
             ! Convert umol to mol
             CONV = 1.0e-6
             BASIS = 'MOLE'
-         ELSE IF ( UNITS(1:X) .EQ. 'GRAM' .OR. UNITS(1:X) .EQ. 'GRAMS' .OR.
-     &             UNITS(1:X) .EQ. 'G'    .OR. UNITS(1:X) .EQ. 'GM'    .OR.
-     &             UNITS(1:X) .EQ. 'GMS'  .OR. UNITS(1:X) .EQ. 'GS'  ) THEN
+         ELSE IF ( NUMER .EQ. 'GRAM' .OR. NUMER .EQ. 'GRAMS' .OR.
+     &             NUMER .EQ. 'G'    .OR. NUMER .EQ. 'GM'    .OR.
+     &             NUMER .EQ. 'GMS'  .OR. NUMER .EQ. 'GS'  ) THEN
             ! No Conversion Needed for Grams to Grams
             CONV = 1.0
             BASIS = 'MASS'
-         ELSE IF ( UNITS(1:X) .EQ. 'KGRAM' .OR. UNITS(1:X) .EQ. 'KGRAMS' .OR.
-     &             UNITS(1:X) .EQ. 'KG'    .OR. UNITS(1:X) .EQ. 'KGM'    .OR.
-     &             UNITS(1:X) .EQ. 'KGMS'  .OR. UNITS(1:X) .EQ. 'KGS' ) THEN
+         ELSE IF ( NUMER .EQ. 'KGRAM' .OR. NUMER .EQ. 'KGRAMS' .OR.
+     &             NUMER .EQ. 'KG'    .OR. NUMER .EQ. 'KGM'    .OR.
+     &             NUMER .EQ. 'KGMS'  .OR. NUMER .EQ. 'KGS' ) THEN
             ! Convert kg -> g
             CONV = 1000.0
             BASIS = 'MASS'
-         ELSE IF ( UNITS(1:X) .EQ. 'MGRAM' .OR. UNITS(1:X) .EQ. 'MGRAMS' .OR.
-     &             UNITS(1:X) .EQ. 'MG'    .OR. UNITS(1:X) .EQ. 'MGM'    .OR.
-     &             UNITS(1:X) .EQ. 'MGMS'  .OR. UNITS(1:X) .EQ. 'MGS' ) THEN
+         ELSE IF ( NUMER .EQ. 'MGRAM' .OR. NUMER .EQ. 'MGRAMS' .OR.
+     &             NUMER .EQ. 'MG'    .OR. NUMER .EQ. 'MGM'    .OR.
+     &             NUMER .EQ. 'MGMS'  .OR. NUMER .EQ. 'MGS' ) THEN
             ! Convert mg -> g
             CONV = 1.0e-3
             BASIS = 'MASS'
-         ELSE IF ( UNITS(1:X) .EQ. 'UGRAM' .OR. UNITS(1:X) .EQ. 'UGRAMS' .OR.
-     &             UNITS(1:X) .EQ. 'UG'    .OR. UNITS(1:X) .EQ. 'UGM'    .OR.
-     &             UNITS(1:X) .EQ. 'UGMS'  .OR. UNITS(1:X) .EQ. 'UGS' ) THEN
+         ELSE IF ( NUMER .EQ. 'UGRAM' .OR. NUMER .EQ. 'UGRAMS' .OR.
+     &             NUMER .EQ. 'UG'    .OR. NUMER .EQ. 'UGM'    .OR.
+     &             NUMER .EQ. 'UGMS'  .OR. NUMER .EQ. 'UGS' ) THEN
             ! Convert ug -> g
             CONV = 1.0e-6
             BASIS = 'MASS'
-         ELSE IF ( UNITS(1:X) .EQ. 'NGRAM' .OR. UNITS(1:X) .EQ. 'NGRAMS' .OR.
-     &             UNITS(1:X) .EQ. 'NG'    .OR. UNITS(1:X) .EQ. 'NGM'    .OR.
-     &             UNITS(1:X) .EQ. 'NGMS'  .OR. UNITS(1:X) .EQ. 'NGS' ) THEN
+         ELSE IF ( NUMER .EQ. 'NGRAM' .OR. NUMER .EQ. 'NGRAMS' .OR.
+     &             NUMER .EQ. 'NG'    .OR. NUMER .EQ. 'NGM'    .OR.
+     &             NUMER .EQ. 'NGMS'  .OR. NUMER .EQ. 'NGS' ) THEN
             ! Convert ng -> g
             CONV = 1.0e-9
             BASIS = 'MASS'
@@ -2438,9 +2455,40 @@ C and allowing the model to proceed.
             CALL M3WARN( 'CHECK_EMIS_UNITS', 0, 0, XMSG )
             ! No Conversion and and Unknown Basis
             CONV = 1.0e0
-            BASIS = 'UKNOWN'
+            BASIS = 'UNKNOWN'
          END IF
-          
+         
+         ! Identify Denominator. Return from subroutine if the
+         ! denominator is empty.
+         DENOM = UNITS(X+2:)
+         IF ( DENOM .EQ. '' ) THEN
+            WRITE( XMSG,'(A,A16,A,I3,A11,A16,A,A,A)' ),
+     &              'ERROR: Surrogate Species ',TRIM(SPEC),' on emission stream ',
+     &              ISRM, ' has units ',TRIM(UNITS),' which are not recognized ',
+     &              'as an emission rate. If you wish to use this variable for ',
+     &              'emissions, please correct the units (e.g. g/s or moles/s).'
+            CALL M3WARN( 'CHECK_EMIS_UNITS', 0, 0, XMSG )
+            ! No Conversion and and Unknown Basis
+            CONV = CONV * 1.0e0
+            BASIS = 'UNKNOWN' 
+            RETURN
+         END IF
+
+         ! Remove Leading Spaces, if any
+         DO WHILE ( DENOM(1:1) .EQ. ' ' ) 
+             DENOM = DENOM(2:16) / ' '
+         END DO
+
+         ! Now split the Denominator into two parts, before and after
+         ! the slash or space. There will be at least one space because the
+         ! numerator has been cut from the units string.
+         SLASH_IND = INDEX( DENOM, '/' )
+         IF ( SLASH_IND .EQ. 0 ) SLASH_IND = INDEX( DENOM, ' ' )
+         X = SLASH_IND - 1 
+         DENOM1 = DENOM(1:X)
+         DENOM2 = DENOM(X+2:)
+
+
          ! Check for Time Units
          X = X + 2
          IF ( UNITS(X:) .EQ. 'S' .OR. UNITS(X:) .EQ. 'S-1' .OR.
