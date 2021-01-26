@@ -2137,6 +2137,15 @@ C and allowing the model to proceed.
                      ELSE
                         BASIS_FAC = BASIS_FAC
                      END IF
+                 ELSE
+                     ! Unknown Basis has been encountered. Need to exit.
+                     WRITE( XMSG,'(A,A16,A,I3,A,A,A)' ),
+     &                 'ERROR: Surrogate Species ',TRIM(EM_FILE_SURR(ISRM)%ARRY(ISUR) ),
+     &                 ' on emission stream ',ISRM, ' has units which are not recognized ',
+     &                 'as an emission rate. If you wish to use this variable for ',
+     &                 'emissions, please correct the units (e.g. g/s or moles/s).'
+                     CALL M3EXIT( 'EMIS_SPC_MAP', 0, 0, XMSG, 2 )
+ 
                  END IF
                  EM_FAC_ST( ISTR,ISRM )%BASIS = BASIS_FAC
 
@@ -2406,11 +2415,15 @@ C and allowing the model to proceed.
             CONV = 1.0e-9
             BASIS = 'MASS'
          ELSE
-            WRITE( XMSG,'(A,A16,A,/,I3,A11,A16,A,/,A)' ),
+            WRITE( XMSG,'(A,A16,A,I3,A11,A16,A,A,A)' ),
      &              'ERROR: Surrogate Species ',TRIM(SPEC),' on emission stream ',
-     &              ISRM, ' has units ',TRIM(UNITS),' which are unkown to CMAQ. ',
-     &              'Please correct them to proceed.'
-            CALL M3EXIT( 'CHECK_EMIS_UNITS', 0, 0, XMSG, 2 )
+     &              ISRM, ' has units ',TRIM(UNITS),' which are not recognized ',
+     &              'as an emission rate. If you wish to use this variable for ',
+     &              'emissions, please correct the units (e.g. g/s or moles/s).'
+            CALL M3WARN( 'CHECK_EMIS_UNITS', 0, 0, XMSG )
+            ! No Conversion and and Unknown Basis
+            CONV = 1.0e0
+            BASIS = 'UKNOWN'
          END IF
           
          ! Check for Time Units
@@ -2434,11 +2447,15 @@ C and allowing the model to proceed.
             ! Convert hours -> seconds
             CONV = CONV * 60.0
          ELSE
-            WRITE( XMSG,'(A,A,A,I3,A11,A,A,A)' ),
+            WRITE( XMSG,'(A,A16,A,I3,A11,A16,A,A,A)' ),
      &              'ERROR: Surrogate Species ',TRIM(SPEC),' on emission stream ',
-     &              ISRM, ' has units ',TRIM(UNITS),' which are unkown to CMAQ. ',
-     &              'Please correct them to proceed.'
-            CALL M3EXIT( 'CHECK_EMIS_UNITS', 0, 0, XMSG, 2 )
+     &              ISRM, ' has units ',TRIM(UNITS),' which are not recognized ',
+     &              'as an emission rate. If you wish to use this variable for ',
+     &              'emissions, please correct the units (e.g. g/s or moles/s).'
+            CALL M3WARN( 'CHECK_EMIS_UNITS', 0, 0, XMSG )
+            ! No Conversion and and Unknown Basis
+            CONV = CONV * 1.0e0
+            BASIS = 'UNKNOWN'
          END IF
 
          END SUBROUTINE CHECK_EMIS_UNITS
