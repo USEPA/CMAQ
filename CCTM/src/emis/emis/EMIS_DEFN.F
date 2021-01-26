@@ -2112,40 +2112,55 @@ C and allowing the model to proceed.
                  IF ( EM_BASIS( ISTR, ISRM, IFAC ) .EQ. 'UNIT' ) THEN
                      BASIS_FAC = BASIS_FAC
                  ELSE IF ( EM_BASIS( ISTR, ISRM, IFAC ) .EQ. 'MOLE' ) THEN
-                     IF ( EM_FILE_SURR( ISRM )%BASIS( MAP_EMtoSURR( ISTR,ISRM ) ) .EQ. 'MOLE' ) THEN
+                     IF ( EM_FILE_SURR( ISRM )%BASIS( ISUR ) .EQ. 'MOLE' ) THEN
                         BASIS_FAC = BASIS_FAC
-                     ELSE
+                     ELSE IF ( EM_FILE_SURR( ISRM )%BASIS( ISUR ) .EQ. 'MASS' ) THEN
                         ! Convert surrogate emission rate to moles
-                        BASIS_FAC = BASIS_FAC / SURR_MW  
+                        BASIS_FAC = BASIS_FAC / SURR_MW
+                     ELSE
+                        ! Unknown Basis has been encountered. Need to exit.
+                        WRITE( XMSG,'(A,A16,A,I3,A,A,A)' ),
+     &                     'ERROR: Surrogate Species ',TRIM(EM_FILE_SURR(ISRM)%ARRY(ISUR) ),
+     &                     ' on emission stream ',ISRM, ' has units which are not recognized ',
+     &                     'as an emission rate. If you wish to use this variable for ',
+     &                     'emissions, please correct the units (e.g. g/s or moles/s).'
+                        CALL M3EXIT( 'EMIS_SPC_MAP', 0, 0, XMSG, 2 )
                      END IF
+                     
+                     ! Check to see if this is an aerosol (mass-based)
+                     ! CMAQ species.
                      IF ( .NOT. DIFF_MASK_AERO( MAP_EMtoDIFF( ISTR ) ) ) THEN
                         BASIS_FAC = BASIS_FAC
                      ELSE
                         ! Convert species emission rate to mass
                         BASIS_FAC = BASIS_FAC * SPEC_MW
                      END IF
+
                  ELSE IF ( EM_BASIS( ISTR, ISRM, IFAC ) .EQ. 'MASS' ) THEN
-                     IF ( EM_FILE_SURR( ISRM )%BASIS( MAP_EMtoSURR( ISTR,ISRM ) ) .EQ. 'MOLE' ) THEN
+                     IF ( EM_FILE_SURR( ISRM )%BASIS( ISUR ) .EQ. 'MOLE' ) THEN
                         ! Convert surrogate emission rate to mass
                         BASIS_FAC = BASIS_FAC * SURR_MW
-                     ELSE
+                     ELSE IF ( EM_FILE_SURR( ISRM )%BASIS( ISUR ) .EQ. 'MASS' ) THEN
                         BASIS_FAC = BASIS_FAC
+                     ELSE
+                        ! Unknown Basis has been encountered. Need to exit.
+                        WRITE( XMSG,'(A,A16,A,I3,A,A,A)' ),
+     &                     'ERROR: Surrogate Species ',TRIM(EM_FILE_SURR(ISRM)%ARRY(ISUR) ),
+     &                     ' on emission stream ',ISRM, ' has units which are not recognized ',
+     &                     'as an emission rate. If you wish to use this variable for ',
+     &                     'emissions, please correct the units (e.g. g/s or moles/s).'
+                        CALL M3EXIT( 'EMIS_SPC_MAP', 0, 0, XMSG, 2 )
                      END IF
+
+                     ! Check to see if this is an aerosol (mass-based)
+                     ! CMAQ species.
                      IF ( .NOT. DIFF_MASK_AERO( MAP_EMtoDIFF( ISTR ) ) ) THEN
                         ! Convert species emission rate to moles
                         BASIS_FAC = BASIS_FAC / SPEC_MW
                      ELSE
                         BASIS_FAC = BASIS_FAC
                      END IF
-                 ELSE
-                     ! Unknown Basis has been encountered. Need to exit.
-                     WRITE( XMSG,'(A,A16,A,I3,A,A,A)' ),
-     &                 'ERROR: Surrogate Species ',TRIM(EM_FILE_SURR(ISRM)%ARRY(ISUR) ),
-     &                 ' on emission stream ',ISRM, ' has units which are not recognized ',
-     &                 'as an emission rate. If you wish to use this variable for ',
-     &                 'emissions, please correct the units (e.g. g/s or moles/s).'
-                     CALL M3EXIT( 'EMIS_SPC_MAP', 0, 0, XMSG, 2 )
- 
+               
                  END IF
                  EM_FAC_ST( ISTR,ISRM )%BASIS = BASIS_FAC
 
