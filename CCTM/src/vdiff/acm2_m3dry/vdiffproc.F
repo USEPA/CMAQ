@@ -96,7 +96,8 @@ C-----------------------------------------------------------------------
       USE PA_DEFN, Only: LIPR ! Process Anaylsis control and data variables
 
 #ifdef isam
-      USE SA_DEFN, Only: ITAG, N_SPCTAG, VNAM_SPCTAG, SA_DDEP
+      USE SA_DEFN, Only: ITAG, N_SPCTAG, VNAM_SPCTAG, SA_DDEP, SA_BIDI, ISAM, NTAG_SA, 
+     &                   VNAM_SPCTAG, NSPC_SA, SPC_NAME, OTHRTAG
 #endif
 
 #ifdef sens
@@ -159,6 +160,18 @@ C Local Variables
       INTEGER     MDATE, MTIME, MSTEP           ! internal simulation date&time
       CHARACTER(LEN=8), PARAMETER :: NAME_NH3_EMIS = 'NH3_Emis'
       CHARACTER(LEN=8), PARAMETER :: NAME_NH3_FLUX = 'NH3_Flux'
+
+#ifdef isam
+      REAL NH3_SUM
+      REAL, ALLOCATABLE, SAVE :: NH3_TAG_FRACTION( : )
+      INTEGER :: NH3_ISAM_IDX = 0
+      INTEGER, ALLOCATABLE, SAVE :: ISAM_DEPV( : )
+      INTEGER IBGN, JTAG
+      CHARACTER( 16 ) :: ISAM_SPECIES
+
+      INTEGER, SAVE :: NH3_DV2DF_SPC_IDX = 0
+
+#endif
 
       INTERFACE
          SUBROUTINE PA_UPDATE_EMIS ( PNAME, VDEMIS_DIFF, JDATE, JTIME, TSTEP )
@@ -337,6 +350,34 @@ C Set up for grav. settling
          SNGRD = 0.0
 #endif
 
+#ifdef isam
+        IF ( SA_BIDI ) THEN
+          NH3_ISAM_IDX  = INDEX1( 'NH3', NSPC_SA, SPC_NAME(:,OTHRTAG) )
+          ALLOCATE ( ISAM_DEPV( N_SPCTAG ), 
+     &               NH3_TAG_FRACTION( NTAG_SA ), STAT = ASTAT )
+          IF ( ASTAT .NE. 0 ) THEN
+            XMSG = 'Failure Allocating ISAM variables in VDIFF'
+            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+          END IF
+          ISAM_DEPV     = 0
+          DO ITAG = 1, N_SPCTAG
+            DO V = 1, N_SPC_DEPV
+              IBGN         = INDEX( VNAM_SPCTAG( ITAG ), '_', .FALSE. ) - 1
+              ISAM_SPECIES = VNAM_SPCTAG( ITAG )( 1:IBGN )
+              IF ( TRIM( ISAM_SPECIES ) .EQ. DV2DF_SPC( V ) ) THEN
+                ISAM_DEPV( ITAG ) = V
+              END IF
+            END DO
+          END DO
+
+          DO V = 1, N_SPC_DEPV
+            IF ( DV2DF_SPC( V ) .EQ.'NH3' ) THEN
+              NH3_DV2DF_SPC_IDX = V
+            ENDIF
+          END DO
+        ENDIF
+#endif
+
       END IF   !  if Firstime
 
       MDATE = JDATE
@@ -492,6 +533,34 @@ C If last call this hour:  write accumulated depositions:
                   DDEP( DD2DV(NH3_HIT),C,R ) = NH3_EMIS(C,R)+NH3_FLUX(C,R)
                END DO
             END DO
+#ifdef isam
+            IF ( SA_BIDI ) THEN
+              DO R = 1, NROWS
+                DO C = 1, NCOLS
+                  NH3_SUM = 0.0
+                  DO ITAG = 1, NTAG_SA
+                    NH3_SUM = NH3_SUM + ISAM( C,R,1,NH3_ISAM_IDX,ITAG )
+                  END DO
+                  IF ( NH3_SUM .GT. 1.0E-25 ) THEN
+                    DO ITAG = 1, NTAG_SA
+                      NH3_TAG_FRACTION( ITAG ) = ISAM( C,R,1,NH3_ISAM_IDX,ITAG ) / NH3_SUM
+                    END DO
+                  ELSE
+                    NH3_TAG_FRACTION = 0.0
+                  END IF
+ 
+                  JTAG = 0 
+                  DO ITAG = 1, N_SPCTAG
+                    V = ISAM_DEPV( ITAG )
+                    IF ( V .EQ. NH3_DV2DF_SPC_IDX ) THEN
+                      JTAG = JTAG + 1
+                      SA_DDEP( C,R,ITAG ) = SA_DDEP( C,R,ITAG ) + NH3_TAG_FRACTION( JTAG ) * NH3_EMIS(C,R)
+                    END IF
+                  END DO
+                END DO
+              END DO
+            END IF
+#endif
          ENDIF
          DO V = 1, N_SPC_DDEP
             S = DD2DV( V )
@@ -641,11 +710,6 @@ C Write other diagnostics
             CALL PA_UPDATE_DDEP ( 'VDIF', DDEP_PA, JDATE, JTIME, TSTEP )
          END IF
 
-C re-set dry deposition array to zero
-
-         DDEP = 0.0
-         ICMP = 0.0
-
 #ifdef isam
          WRDD = 0.0
          DO ITAG = 1, N_SPCTAG
@@ -661,9 +725,13 @@ C re-set dry deposition array to zero
                CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
             END IF
          END DO
-
          SA_DDEP = 0.0
 #endif
+
+C re-set dry deposition array to zero
+
+         DDEP = 0.0
+         ICMP = 0.0
 
 #ifdef sens
 C WT - write out dry deposition sensitivities

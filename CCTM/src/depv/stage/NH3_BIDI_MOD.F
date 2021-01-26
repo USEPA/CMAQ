@@ -62,9 +62,8 @@ C-------------------------------------------------------------------------------
 
       Implicit None
 ! shared variables
-
-! Private variables used in this module and subroutines  
-      Real, Save, Allocatable, Private :: frac_ir( :,: ) ! irrigated fraction of ag    
+      Real, Save, Allocatable :: frac_ir( :,: ) ! irrigated fraction of ag 
+! Private variables used in this module and subroutines     
       Real, Save,              Private :: C_gam           ! Canadian fertilizer facter   
       Real, Parameter,         Private :: maxgam   = 2.0e5 ! maximum soil gamm. It is assumed that any excess NH4 would from salts
       Real, Parameter,         Private :: natgam   = 20.0  ! Background soil gamma
@@ -194,6 +193,16 @@ C-------------------------------------------------------------------------------
          frac_ir = 0.0
          frac_ag = 0.0    
 
+! EPIC v1.4 does not always correctly write out m3badval in areas where there is no data. In these cases, 
+! EPIC writes out large negative values which can cause issues with the bidirectional exchange numerics. 
+! The following variables should always be positive and a floor of 0.0 is now set to mitigate numerical issues. 
+         Where( Nit1   .Lt. 0.0 ) Nit1   = 0.0
+         Where( Nit2   .Lt. 0.0 ) Nit2   = 0.0
+         Where( F1_NH4 .Lt. 0.0 ) F1_NH4 = 0.0
+         Where( F2_NH4 .Lt. 0.0 ) F2_NH4 = 0.0
+         Where( NH4ps1 .Lt. 0.0 ) NH4ps1 = 0.0
+         Where( NH4ps2 .Lt. 0.0 ) NH4ps2 = 0.0
+
 ! get fertilizer from the previous month to estimate soil NH4+        
 ! time in the files is not the same
          If ( .Not. MEDC_AVAIL ) Then
@@ -278,10 +287,8 @@ C-------------------------------------------------------------------------------
             If( GMN_AVAIL ) Then
 ! NH4 from organic N mineralization is not layer specific in Fest-C v1.4 therefore it is allocated proportionally
 ! to the organic N from which it was mineralized.
-               Where( GMN .Gt. 0.0 .And. L1_ON .Gt. 0.0 )
+               Where( GMN .Gt. 0.0 .And. L1_ON .Gt. 0.0 .And. L2_ON .Gt. 0.0 )
                   L1_MIN = GMN * L1_ON / ( L1_ON + L2_ON )
-               End Where
-               Where( GMN .Gt. 0.0 .And. L2_ON .Gt. 0.0 )
                   L2_MIN = GMN * L2_ON / ( L1_ON + L2_ON )
                End Where
 
@@ -325,7 +332,8 @@ C-------------------------------------------------------------------------------
                   frac_ir = frac_ir + Beld_ag( :,:,l )
                End If                    
             End Do
-            Where( frac_ag .gt. 0.0 .and. fagam1 .gt. 0.0 )
+
+            Where( frac_ag .gt. 0.0 )
                MHp1 = MHp1 / frac_ag
                MHp2 = MHp2 / frac_ag
                gamma1 = max( gamma1 + fagam1 / frac_ag, 630.0 )
@@ -334,6 +342,7 @@ C-------------------------------------------------------------------------------
                BDs2   = BDs2 / frac_ag
                frac_ir = frac_ir / frac_ag
             End Where
+
 ! Eliminate unrealistically low bulk density 
             Where( BDs1 .Lt. 1.0 ) BDs1 = 1.6
             Where( BDs2 .Lt. 1.0 ) BDs2 = 1.6
@@ -376,7 +385,7 @@ C-------------------------------------------------------------------------------
 !------------------------------------------------------------------------------
 ! Subroutine to get the soil and canopy compensation point for STAGE
 !------------------------------------------------------------------------------          
-         Subroutine Get_NH3_Comp( NH3_st, NH3_g, Rg, diff, r, c, l, s )
+         Subroutine Get_NH3_Comp( NH3_st, NH3_g, diff, r, c, l, s )
          
          Use UTILIO_DEFN
          Use Bidi_Mod, Only: gamma1, gamma2, MHp1, MHp2
@@ -391,7 +400,7 @@ C-------------------------------------------------------------------------------
          Real,    Intent( IN )  :: diff     ! NH3 diffusion in air m2/s
          Real,    Intent( OUT ) :: NH3_st   ! Stomatal Compensation point
          Real,    Intent( OUT ) :: NH3_g    ! ground Compensation point
-         Real,    Intent( OUT ) :: Rg       ! Soil diffusive resistance to soil water
+!         Real,    Intent( OUT ) :: Rg       ! Soil diffusive resistance to soil water
          
          Real                   :: cnh3g1, cnh3g2   ! NH3 compensation concentration for ground [ppm]
          Real                   :: mNH4         ! Soil total NH4+ mg N / Kg
@@ -454,15 +463,6 @@ C-------------------------------------------------------------------------------
          ldry_max = 0.02
 ! From Sakaguchi and Zeng 2009 JGR Equation 10
          ldry1 = ldry_max * ( Exp( ( 1.0 - wg_ir / GRID_DATA%WSAT( c,r ) ) ** 5 ) - 1.0 ) / 1.718
-         ldry1 = min(ldry1,zsoil1)
-
-         ldry2 = ( ldry_max - zsoil1 ) * ( Exp( ( 1.0 - w5cm / GRID_DATA%WSAT( c,r ) ) ** 5 ) - 1.0 ) / 1.718
-         
-         dp  = diff * GRID_DATA%WSAT( c,r )**2
-     &       * ( 1.0 - GRID_DATA%WRES( c,r ) / GRID_DATA%WSAT( c,r ) ) ** ( 2.0 + 3.0 / GRID_DATA%BSLP( c,r ) )         
-
-         rsoil1 = ldry1 / dp
-         rsoil2 = ldry2 / dp
 
 !> Compute compensation point. gamma is specified according to the amount of 
 !> cultivated vegetation               
@@ -585,12 +585,10 @@ C-------------------------------------------------------------------------------
 
          If( ldry1 .Le. zsoil1 ) Then
             NH3_g = cnh3g1
-            Rg = rsoil1
             wg = wg_ir
             zsoil = zsoil1
          Else
             NH3_g = cnh3g2
-            Rg = rsoil1 + rsoil2
             wg = w5cm
             zsoil = zsoil2
          End If
@@ -634,13 +632,13 @@ C-------------------------------------------------------------------------------
 ! get the correct soil temp
          If(zsoil .Eq. zsoil1 ) Then
             T_Soil = MET_DATA%SoiT1( C,R )
-            gam    = gamma1( C,R )
+            gam    = max( gamma1( C,R ), 630.0 )
             MHp    = MHp1( C,R )  
             Knit   = Knit1( C,R )
             gamma2( C,R ) = gamma2( C,R ) * exp( -Knit2( c,r ) * dt )
          Else
             T_Soil = MET_DATA%SoiT2( C,R )
-            gam    = gamma2( C,R )
+            gam    = max( gamma2( C,R ), 630.0 )
             MHp    = MHp2( C,R ) 
             Knit   = Knit2( C,R ) 
             gamma1( C,R ) = gamma1( C,R ) * exp( -Knit1( c,r ) * dt ) 
@@ -650,9 +648,8 @@ C-------------------------------------------------------------------------------
          If( MHp .Eq. 0.0 .Or. frac_ag( C,R ) .Lt. 1.0e-3 ) Return
 ! Note that the kg to g and m3 to L units cancel 
          MV_air       = MWAIR / MET_DATA%DENS1( C,R )
-! convert deposition from ppmv/s to mol/l/s
-         NH3_flux     = flux_ag * 1.0e-6 / MV_air
-!         Write(logdev,*) 'MV_air', MV_air
+! convert deposition from ppmv m/s to mol/l/s
+         NH3_flux     = flux_ag * 1.0e-6 / MV_air / zsoil
 ! Get the soil pH
          pHsl = -log10( MHp )
 

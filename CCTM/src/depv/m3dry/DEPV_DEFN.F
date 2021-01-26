@@ -51,6 +51,7 @@ C                          open CTM_DEPV_DIAG in parallel I/O implementation
 C   1 Feb 19 David Wong: Implemented centralized I/O approach, removed all MY_N
 C                        clauses
 C   12 Dec 19 S.L.Napelenok: ddm-3d implementation for version 5.3.1
+C   August 2020 J Pleim: Fixed timestep in call to m3dry. Corrects NH3 bidi emis, dep outputs
 C-------------------------------------------------------------------------------
       USE RUNTIME_VARS
 
@@ -75,16 +76,6 @@ C model-oriented bi-directional production [ppm-m/s]
 
 C  Dry dep flux of NH3 for bidi [kg/ha hr]
       REAL,    ALLOCATABLE, SAVE :: NH3_EMIS( :,: )
-
-!C flag for mosaic - luc specific deposition - within in-lining depv
-!      LOGICAL, SAVE :: MOSAIC = .FALSE.
-
-!C flag for mosaic - luc specific deposition - stomatal flux only - within in-lining depv
-!      LOGICAL, SAVE :: FST = .FALSE.      
-
-!      PUBLIC DEPV, DEPVJ, DEPVJ_FST, N_SPC_DEPV, DD_CONV, PLDV, CMP,
-!     &             ILDEPV, SFC_HONO, ABFLUX, MOSAIC, FST, N_GAS_DEPV,
-!     &             DEPV_INIT, GET_DEPV
 
       PUBLIC DEPV, N_SPC_DEPV, DD_CONV, PLDV, N_GAS_DEPV,
      &             DEPV_INIT, GET_DEPV, NH3_EMIS
@@ -217,8 +208,6 @@ C-----------------------------------------------------------------------
          S_PLDV = 0.0   ! array assignment
 #endif
 
-
-C DEPVEL_GAS is used also for non-ILDEPV in the sgtot calculation
          ALLOCATE ( DEPVEL_GAS( N_GAS_DEPV,NCOLS,NROWS ), STAT = ALLOCSTAT )
          IF ( ALLOCSTAT .NE. 0 ) THEN
             XMSG = 'Failure allocating DEPVEL_GAS array'
@@ -276,12 +265,6 @@ C Initialize
                SUCCESS = .FALSE.; RETURN
             END IF
          END IF
-
-         !IF ( ILDEPV ) THEN
-         !
-         !   CALL INIT_LSM( JDATE, JTIME )
-         !   CALL INIT_BIDI( )
-         !END IF   ! in-line depv
 
          INIT_GAS_DV:
      &   IF ( N_GAS_DEPV .GT. 0 ) THEN
@@ -495,7 +478,7 @@ C Local variables:
          INTEGER, SAVE :: WSTEP_MOS = 0  ! local write counter [HHMMSS]
          INTEGER       :: CDATE, CTIME   ! step beginning date and time
          INTEGER       :: WDATE, WTIME   ! write date and time
-
+         REAL   DTSEC
          CHARACTER( 16 )  :: PNAME = 'GET_DEPV        '
          CHARACTER( 120 ) :: XMSG = ' '
 
@@ -518,9 +501,10 @@ C Local variables:
                REAL,    POINTER       :: CGRID( :,:,:,: )
                REAL,    INTENT( OUT ) :: CGRIDL1( :,:,: )
             END SUBROUTINE CGRID_DEPV
-            SUBROUTINE M3DRY ( JDATE, JTIME, TSTEP, 
+            SUBROUTINE M3DRY ( JDATE, JTIME, DTSEC, 
      &                         CGRIDL1, DEPVEL_GAS, PVD, NH3_EMIS)
-               INTEGER, INTENT( IN )  :: JDATE, JTIME, TSTEP(3)
+               INTEGER, INTENT( IN )  :: JDATE, JTIME
+               REAL,    INTENT( IN )  :: dtsec
                REAL,    INTENT( IN )  :: CGRIDL1( :,:,: )
                REAL,    INTENT( OUT ) :: DEPVEL_GAS( :,:,: ), PVD( :,:,: ),NH3_EMIS(:,:)
             END SUBROUTINE M3DRY
@@ -537,7 +521,8 @@ C-----------------------------------------------------------------------
 ! Made default for Hg bidi JOB 9/12/11
          CALL CGRID_DEPV( GAS_DEPV_FOUND, GAS_DEPV_SUR, CGRID, CGRIDL1 )
 
-         CALL M3DRY ( JDATE, JTIME, TSTEP, 
+         DTSEC = FLOAT( TIME2SEC( TSTEP( 2 ) ) )
+         CALL M3DRY ( JDATE, JTIME, DTSEC, 
      &                CGRIDL1, DEPVEL_GAS, PVD, NH3_EMIS )
 
 #ifdef Verbose

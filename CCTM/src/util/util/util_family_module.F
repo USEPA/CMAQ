@@ -115,6 +115,8 @@
       CHARACTER( 300 ) :: EQNAME, XMSG
       INTEGER          :: EMCTRL_NML
       INTEGER          :: STAT, IFAM, INUM
+      CHARACTER( 200 ) :: TMPLINE
+
 
       ! Define Chemical Families
       NAMELIST / ChemicalFamilies / NChemFamilies, ChemFamilyName, 
@@ -140,11 +142,9 @@
       ! Retrieve the Name of the Emission Control File
       IF ( EMISSCTRL .EQ. "EMISSCTRL_NML" ) THEN
           XMSG = 'You have chosen not to indicate the location of an' //
-     &           'Emission Control namelist file. Default settings ' //
-     &           'will be assumed.'
-          CALL LOG_MESSAGE( LOGDEV, ' ' )
-          CALL LOG_MESSAGE( LOGDEV, XMSG )
-          RETURN
+     &              'Emission Control namelist file. You must give a value ' //
+     &              'for the EMISSCTRL variable in the CMAQ runscript.'
+          CALL M3EXIT( 'READ_EMISS_NAMELIST',0,0,XMSG,1 )
       END IF
  
       ! Open Emission Control Namelist File
@@ -162,10 +162,9 @@
       ! Read Chemical Family Specification Section
       REWIND( EMCTRL_NML )
       READ( NML = ChemicalFamilies, UNIT = EMCTRL_NML, IOSTAT=STAT )
-      IF ( STAT .NE. 0 ) THEN
-          XMSG = 'Warning! Something went wrong while reading the ' //
-     &           'ChemicalFamilies section of the Emissions Control ' //
-     &           'Namelist. Default values for this section will be ' //
+      IF ( STAT .EQ. -1 ) THEN
+          XMSG = 'Note: the ChemicalFamilies section of the Emissions Control ' //
+     &           'Namelist is missing. Default values for this section will be ' //
      &           'assumed.'
           CALL LOG_MESSAGE( LOGDEV, ' ' )
           CALL LOG_MESSAGE( LOGDEV, XMSG )
@@ -173,6 +172,19 @@
           ChemFamilyName     = ''
           ChemFamilyNum      = 0
           ChemFamilyMembers  = ''
+      ELSE IF ( STAT .NE. 0 ) THEN
+          ! Read Error Detected for RGN_NML
+          backspace( EMCTRL_NML )
+          read( EMCTRL_NML, fmt='(A)' ) tmpline
+          XMSG = 'ERROR: There was a syntax error reading the ChemicalFamilies '//
+     &           'variable for use by the DESID module. Please check the format of '//
+     &           'each line for syntax errors. The invalid line was likely: '
+          CALL LOG_MESSAGE( LOGDEV, ' ')
+          CALL LOG_MESSAGE( LOGDEV, XMSG )
+          WRITE( LOGDEV, '(8x,A)' ) TMPLINE
+          CALL M3EXIT ( 'Read_Emiss_Namelist', 0, 0, 'CMAQ must Crash until you '//
+     &                  'fix the Chemical Families', 1 ) 
+ 
       END IF
       ! Capitalize All Family and Member Names
       DO IFAM = 1,NChemFamilies
@@ -185,10 +197,9 @@
       ! Read Stream Family Specification Section
       REWIND( EMCTRL_NML )
       READ( NML = StreamFamilies, UNIT = EMCTRL_NML, IOSTAT=STAT )
-      IF ( STAT .NE. 0 ) THEN
-          XMSG = 'Warning! Something went wrong while reading the ' //
-     &           'StreamFamilies section of the Emissions Control ' //
-     &           'Namelist. Default values for this section will be ' //
+      IF ( STAT .EQ. -1 ) THEN
+          XMSG = 'Note: the StreamFamilies section of the Emissions Control ' //
+     &           'Namelist is missing. Default values for this section will be ' //
      &           'assumed.'
           CALL LOG_MESSAGE( LOGDEV, ' ' )
           CALL LOG_MESSAGE( LOGDEV, XMSG )
@@ -196,11 +207,24 @@
           StreamFamilyName     = ''
           StreamFamilyNum      = 0
           StreamFamilyMembers  = ''
+      ELSE IF ( STAT .NE. 0 ) THEN
+          ! Read Error Detected for RGN_NML
+          backspace( EMCTRL_NML )
+          read( EMCTRL_NML, fmt='(A)' ) tmpline
+          XMSG = 'ERROR: There was a syntax error reading the StreamFamilies '//
+     &           'variable for use by the DESID module. Please check the format of '//
+     &           'each line for syntax errors. The invalid line was likely: '
+          CALL LOG_MESSAGE( LOGDEV, ' ')
+          CALL LOG_MESSAGE( LOGDEV, XMSG )
+          WRITE( LOGDEV, '(8x,A)' ) TMPLINE
+          CALL M3EXIT ( 'Read_Emiss_Namelist', 0, 0, 'CMAQ must Crash until you '//
+     &                  'fix the Stream Families', 1 ) 
+ 
       END IF
       ! Capitalize All Family and Member Names
       DO IFAM = 1,NStreamFamilies
           CALL UPCASE( StreamFamilyName( IFAM ) )
-          DO INUM = 1,StreamFamilyNum( INUM )
+          DO INUM = 1,StreamFamilyNum( IFAM )
               CALL UPCASE( StreamFamilyMembers( IFAM,INUM ) )
           END DO
       END DO
@@ -208,10 +232,9 @@
       ! Read Region Family Specification Section
       REWIND( EMCTRL_NML )
       READ( NML = RegionFamilies, UNIT = EMCTRL_NML, IOSTAT=STAT )
-      IF ( STAT .NE. 0 ) THEN
-          XMSG = 'Warning! Something went wrong while reading the ' //
-     &           'RegionFamilies section of the Emissions Control ' //
-     &           'Namelist. Default values for this section will be '//
+      IF ( STAT .EQ. -1 ) THEN
+          XMSG = 'Note: the RegionFamilies section of the Emissions Control ' //
+     &           'Namelist is missing. Default values for this section will be '//
      &           'assumed.'
           CALL LOG_MESSAGE( LOGDEV, ' ' )
           CALL LOG_MESSAGE( LOGDEV, XMSG )
@@ -219,11 +242,24 @@
           RegionFamilyName     = ''
           RegionFamilyNum      = 0
           RegionFamilyMembers  = ''
+      ELSE IF ( STAT .NE. 0 ) THEN
+          ! Read Error Detected for RGN_NML
+          backspace( EMCTRL_NML )
+          read( EMCTRL_NML, fmt='(A)' ) tmpline
+          XMSG = 'ERROR: There was a syntax error reading the RegionFamilies '//
+     &           'variable for use by the DESID module. Please check the format of '//
+     &           'each line for syntax errors. The invalid line was likely: '
+          CALL LOG_MESSAGE( LOGDEV, ' ')
+          CALL LOG_MESSAGE( LOGDEV, XMSG )
+          WRITE( LOGDEV, '(8x,A)' ) TMPLINE
+          CALL M3EXIT ( 'Read_Emiss_Namelist', 0, 0, 'CMAQ must Crash until you '//
+     &                  'fix the Region Families', 1 ) 
+ 
       END IF
       ! Capitalize All Family and Member Names
       DO IFAM = 1,NRegionFamilies
           CALL UPCASE( RegionFamilyName( IFAM ) )
-          DO INUM = 1,RegionFamilyNum( INUM )
+          DO INUM = 1,RegionFamilyNum( IFAM )
               CALL UPCASE( RegionFamilyMembers( IFAM,INUM ) )
           END DO
       END DO
@@ -231,10 +267,9 @@
       ! Read Process Family Specification Section
       REWIND( EMCTRL_NML )
       READ( NML = ProcessFamilies, UNIT = EMCTRL_NML, IOSTAT=STAT )
-      IF ( STAT .NE. 0 ) THEN
-          XMSG = 'Warning! Something went wrong while reading the ' //
-     &           'ProcessFamilies section of the Emissions Control '//
-     &           'Namelist. Default values for this section will be '//
+      IF ( STAT .EQ. -1 ) THEN
+          XMSG = 'Note: the ProcessFamilies section of the Emissions Control '//
+     &           'Namelist is missing. Default values for this section will be '//
      &           'assumed.'
           CALL LOG_MESSAGE( LOGDEV, ' ' )
           CALL LOG_MESSAGE( LOGDEV, XMSG )
@@ -242,11 +277,24 @@
           ProcessFamilyName     = ''
           ProcessFamilyNum      = 0
           ProcessFamilyMembers  = ''
+      ELSE IF ( STAT .NE. 0 ) THEN
+          ! Read Error Detected for RGN_NML
+          backspace( EMCTRL_NML )
+          read( EMCTRL_NML, fmt='(A)' ) tmpline
+          XMSG = 'ERROR: There was a syntax error reading the ProcessFamilies '//
+     &           'variable for use by the DESID module. Please check the format of '//
+     &           'each line for syntax errors. The invalid line was likely: '
+          CALL LOG_MESSAGE( LOGDEV, ' ')
+          CALL LOG_MESSAGE( LOGDEV, XMSG )
+          WRITE( LOGDEV, '(8x,A)' ) TMPLINE
+          CALL M3EXIT ( 'Read_Emiss_Namelist', 0, 0, 'CMAQ must Crash until you '//
+     &                  'fix the Process Families', 1 ) 
+ 
       END IF
       ! Capitalize All Family and Member Names
       DO IFAM = 1,NProcessFamilies
           CALL UPCASE( ProcessFamilyName( IFAM ) )
-          DO INUM = 1,ProcessFamilyNum( INUM )
+          DO INUM = 1,ProcessFamilyNum( IFAM )
               CALL UPCASE( ProcessFamilyMembers( IFAM,INUM ) )
           END DO
       END DO

@@ -21,7 +21,7 @@ C RCS file, release, date & time of last delta, author, state, [and locker]
 C $Header: /project/work/rep/arc/CCTM/src/depv/m3dry/m3dry.F,v 1.12 2012/01/19 14:19:43 yoj Exp $
 
 C::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-      SUBROUTINE m3dry ( jdate, jtime, dt, cgridl1, depvel_gas, pvd, nh3_emis)
+      SUBROUTINE m3dry ( jdate, jtime, dtsec, cgridl1, depvel_gas, pvd, nh3_emis)
 
 C-------------------------------------------------------------------------------
 C Name:     Models-3 Dry Deposition
@@ -146,6 +146,7 @@ C                       ASX_DATA_MOD.
 C            June 2018  revised for v5.3 - removed mosaic, new epic-bidi - j pleim
 C          01 Feb 2019  D. Wong: Implemented centralized I/O approach, removed all MY_N clauses
 C          12 Dec 2019  S.L.Napelenok: update for cmaq 5.3.1
+C          August 2020  J Pleim: corrected TSTEP to be DTSEC. Corrects NH3 bidi emis, dep outputs
 C-------------------------------------------------------------------------------
 
       USE RUNTIME_VARS
@@ -181,7 +182,7 @@ C Arguments:
 
       INTEGER,     INTENT( IN )  :: jdate
       INTEGER,     INTENT( IN )  :: jtime
-      INTEGER,     INTENT( IN )  :: dt( 3 )      ! model time step
+      REAL,        INTENT( IN )  :: dtsec      ! model time step (sec)
       REAL,        INTENT( IN )  :: cgridl1( :,:,: )    ! layer 1 concentrations
       REAL,        INTENT( OUT ) :: depvel_gas( :,:,: )
       REAL,        INTENT( OUT ) :: pvd( :,:,: )
@@ -190,7 +191,7 @@ C Arguments:
 C Local Variables:
 
       INTEGER                    :: c,r,l,n              ! loop variables
-      INTEGER                    :: elapsedsec
+      INTEGER                    :: elapsedsec,idt
       INTEGER                    :: ifsnow               ! 1=snow
       INTEGER, SAVE, ALLOCATABLE :: lstwetdate( :,: )
       INTEGER, SAVE, ALLOCATABLE :: lstwettime( :,: )
@@ -383,7 +384,7 @@ C Loop over grid cells and calculate dry deposition.
 C-------------------------------------------------------------------------------
 
       effective = .TRUE.
-
+      idt = nint(dtsec)
       depvel_gas( :,:,: ) = 0.0  ! initialize for this time period
       pvd       ( :,:,: ) = 0.0  !     "       "    "    "    "
 
@@ -679,7 +680,7 @@ C--------------------------------------------------------------------------
                   CALL Get_Flux( cnh3,rwetsfc,rgw,r,c,l,tpvd,lnh3, rbc, rinc, 
      >                           rstom, delta(c,r),rgnd,femis )
                    pvd( n,c,r ) = tpvd * 0.001 * MolAir / (MolNH3 * Met_Data%DENS1( C,R ))
-                   nh3_emis(c,r) = nh3_emis(c,r) + femis * dt(2) * 1.0e-5  ! convert from microg/m2  to kg/ha
+                   nh3_emis(c,r) = nh3_emis(c,r) + femis * dtsec * 1.0e-5  ! convert from microg/m2  to kg/ha
                    depvel_gas( n,c,r ) = lnh3
                ELSE   ! water or snow covered
 !                   ddep_nh3(c,r) = ddep_nh3(c,r) + depvel_gas( n,c,r ) * cnh3 * dt(2) * 1.0e-5
@@ -780,8 +781,8 @@ C--------------------------------------------------------------------------
                   awhg  = hlconst( subname( l ), temp2p0cr, effective, hplus )* 0.08205 * temp2p0cr
 
 C************* Call the Hg air surface exchange subroutine *************************************************
-                  CALL ATX(rbc, rcut, rwetsfc, rinc,rsnow, rgw, ifsnow, xm, dvel, chg, awhg,
-     &                    dpvd, delta( c,r ),dt(2), c, r, l_HG, jdate, jtime )
+                 CALL ATX(rbc, rcut, rwetsfc, rinc,rsnow, rgw, ifsnow, xm, dvel, chg, awhg,
+     &                    dpvd, delta( c,r ),idt, c, r, l_HG, jdate, jtime )
 
                   pvd( n_HG,c,r ) = dpvd
 
@@ -804,7 +805,7 @@ C************* Call the Hg air surface exchange subroutine *********************
             vdhgII   = depvel_gas( n_HGII,c,r )
 
             CALL ASWX( chg, chgIIgas, vdhg, vdhgII, awhg,
-     &                 dpvd, c, r, jdate, jtime, dt(2) )
+     &                 dpvd, c, r, jdate, jtime, idt )
 
             pvd( n_Hg,c,r ) = dpvd
 

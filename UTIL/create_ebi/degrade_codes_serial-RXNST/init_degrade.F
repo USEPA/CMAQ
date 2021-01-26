@@ -79,7 +79,6 @@ C**********************************************************************
 
       IF ( FIRSTCALL ) THEN  ! initialize constants and allocate arrays
 
-
          MASS_TO_NUMBER = REAL( 1.0E-3*AVO / MWAIR, 8 )
          
          CONV_M2N       = 1.0D-6 * MASS_TO_NUMBER
@@ -92,7 +91,7 @@ C**********************************************************************
 
          FIRSTCALL = .FALSE.
 
-         EFFECTIVE_ZERO  = 5.0D0 * TINY( CONV_M2N )
+         EFFECTIVE_ZERO  = TINY( CONV_M2N )
 
       ENDIF
 

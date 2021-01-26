@@ -260,6 +260,15 @@ Please see the Emission Control file sections on ChemicalFamilies, StreamFamilie
 ```
 The other types of familes can be defined similarly. One additional note, if a chemical familiy is defined for use in an emission scaling rule, the user should be careful about confirming that the members of that family are present on the emission input file or the CMAQ model species list, depending on which the user is trying to modify. Since the names on the input files are often different than those on the CMAQ model species list, care is advised. DESID will print warnings to the CMAQ log file when it can't find species that it is looking for from a chemical family on an input file or in the list of CMAQ model species. Please confirm that the model is operating as you expect.  
 
+## B.6 Explicit and Lumped MOdel Output (ELMO) 
+The ELMO module makes aerosol diagnostic parameters as well as aggregated and highly proceed aerosol metrics available driectly in CMAQ output files rather than requiring follow-up post-processing steps.
+
+### B.6.1
+Prescribing features of instantaneous and average PM diagnostic files
+
+### B.6.2 
+Identifying aerosol parameters and aggregate metrics to be output
+
 <!-- BEGIN COMMENT -->
 
 [<< Previous Appendix](CMAQ_UG_appendixA_model_options.md) - [Home](../README.md) - [Next Appendix >>](CMAQ_UG_appendixC_spatial_data.md)<br>

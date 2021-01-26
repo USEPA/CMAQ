@@ -49,7 +49,6 @@ C
 C-----------------------------------------------------------------------
       Use grid_conf, Only: ncols, nrows, nlays
       Use runtime_vars, Only: adj_stmspc
-      Use rxns_data, only: mechname       ! chemical mechanism data
       Use aero_budget, Only: aero_cond, aero_npf
       Use aero_data, Only : aso4_idx, aso4aqh2o2_idx, aso4aqo3_idx,
      &                      aso4aqfemn_idx, aso4aqmhp_idx, aso4aqpaa_idx,
@@ -239,7 +238,6 @@ C-----------------------------------------------------------------------
 
       Use grid_conf, Only: ncols, nrows, nlays
       Use utilio_defn, Only: xstat1
-      Use rxns_data, only: mechname       ! chemical mechanism data
       Use aero_data, Only : aso4_idx, aso4aqh2o2_idx, aso4aqo3_idx,
      &                      aso4aqfemn_idx, aso4aqmhp_idx, aso4aqpaa_idx,
      &                      aso4gas_idx, aso4emis_idx, aso4icbc_idx,
