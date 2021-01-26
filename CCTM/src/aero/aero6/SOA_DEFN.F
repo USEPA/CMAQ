@@ -85,72 +85,78 @@ C-----------------------------------------------------------------------
          Real            :: alpha       ! Mass-based stoichiometric coefficients [ug/m^3]/[ug/m^3]
          Real            :: cstar       ! Effective saturation concentrations [ug/m^3] at 298 K
          Real            :: enth        ! Enthalphy of Vaporization [J/mol]
+         Real            :: otoc        ! O:C - Ratio of Oxygen and to Carbon
+         Real            :: OMtoOC      ! OM:OC - Ratio of Total Organic Mass to Organic Carbon Mass
+         Logical         :: primary     ! Flag identifying primary species
+         Logical         :: anthro      ! Flag identifying anthropogenic species
+         Logical         :: biog        ! Flag identifying biogenic species
          Logical         :: nonvol      ! Flag identifying nonvolatile species
       End Type oa_type
 
       Type( oa_type ), Allocatable, Save :: oaspc( : )
 
       Type( oa_type ), Save :: oa_list( n_oa_list ) = (/
-
-      !         PM          Vapor       Rxn Cntr     Alpha   CStar^    Enth-   Nonvol-     
-      !         Name        Name        Name*                           alpy    atile        
-      !        ----------  ----------  ----------   ------  --------  -------  -----    
-     & oa_type('AALK1  ', 'SVALK1  ', 'ALKRXN  ',  0.0334,   0.1472,  53.0E3,   F ),
-     & oa_type('AALK2  ', 'SVALK2  ', 'ALKRXN  ',  0.2164,  51.8775,  53.0E3,   F ),
-     & oa_type('AXYL1  ', 'SVXYL1  ', 'XYLNRXN ',  0.0310,   1.3140,  32.0E3,   F ),
-     & oa_type('AXYL2  ', 'SVXYL2  ', 'XYLNRXN ',  0.0900,  34.4830,  32.0E3,   F ),
-     & oa_type('ATOL1  ', 'SVTOL1  ', 'TOLNRXN ',  0.0580,   2.3260,  18.0E3,   F ),
-     & oa_type('ATOL2  ', 'SVTOL2  ', 'TOLNRXN ',  0.1130,  21.2770,  18.0E3,   F ),
-     & oa_type('ABNZ1  ', 'SVBNZ1  ', 'BNZNRXN ',  0.0720,   0.3020,  18.0E3,   F ),
-     & oa_type('ABNZ2  ', 'SVBNZ2  ', 'BNZNRXN ',  0.8880, 111.1100,  18.0E3,   F ),
-     & oa_type('APAH1  ', 'SVPAH1  ', 'PAHNRXN ',  0.2100,   1.6598,  18.0E3,   F ),
-     & oa_type('APAH2  ', 'SVPAH2  ', 'PAHNRXN ',  1.0700, 264.6675,  18.0E3,   F ),
-     & oa_type('ATRP1  ', 'SVTRP1  ', 'TRPRXN  ',  0.1393,  14.7920,  40.0E3,   F ),
-     & oa_type('ATRP2  ', 'SVTRP2  ', 'TRPRXN  ',  0.4542, 133.7297,  40.0E3,   F ),
-     & oa_type('AMT1   ', 'SVMT1   ', 'TRPRXN  ',   0.040,    0.010, 102.0E3,   F ),
-     & oa_type('AMT2   ', 'SVMT2   ', 'TRPRXN  ',   0.032,    0.100,  91.0E3,   F ),
-     & oa_type('AMT3   ', 'SVMT3   ', 'TRPRXN  ',   0.032,    1.000,  80.0E3,   F ),
-     & oa_type('AMT4   ', 'SVMT4   ', 'TRPRXN  ',   0.103,   10.000,  69.0E3,   F ),
-     & oa_type('AMT5   ', 'SVMT5   ', 'TRPRXN  ',   0.143,  100.000,  58.0E3,   F ),
-     & oa_type('AMT6   ', 'SVMT6   ', 'TRPRXN  ',   0.285, 1000.000,  47.0E3,   F ),
-     & oa_type('AMT7   ', 'SVMT7   ', 'TRPRXN  ',   0.160,10000.000,  36.0E3,   F ),
-     & oa_type('AMTNO3 ', 'MTNO3   ', '        ',     0.0,     12.0,  40.0E3,   F ),
-     & oa_type('AISOPNN', 'ISOPNN  ', '        ',     0.0,     8.9,   40.0E3,   F ),
-     & oa_type('AMTHYD ', '        ', '        ',     0.0,   1.E-10,   1.0E0,   T ),
-     & oa_type('AIETET ', '        ', '        ',     0.0,   1.E-10,   1.0E0,   T ),
-     & oa_type('AIEOS  ', '        ', '        ',     0.0,   1.E-10,   1.0E0,   T ),
-     & oa_type('ADIM   ', '        ', '        ',     0.0,   1.E-10,   1.0E0,   T ),
-     & oa_type('AIMGA  ', '        ', '        ',     0.0,   1.E-10,   1.0E0,   T ),
-     & oa_type('AIMOS  ', '        ', '        ',     0.0,   1.E-10,   1.0E0,   T ),
-     & oa_type('AISO1  ', 'SVISO1  ', 'ISOPRXN ',  0.2320, 116.0100,  40.0E3,   F ),
-     & oa_type('AISO2  ', 'SVISO2  ', 'ISOPRXN ',  0.0288,   0.6170,  40.0E3,   F ),
-     & oa_type('AISO3  ', '        ', '        ',     0.0,   1.e-10,   1.0E0,   T ),
-     & oa_type('ASQT   ', 'SVSQT   ', 'SESQRXN ',  1.5370,  24.9840,  40.0E3,   F ),
-     & oa_type('AGLY   ', '        ', '        ',     0.0,   1.E-10,   1.0E0,   T ),
-     & oa_type('AORGC  ', '        ', '        ',     0.0,   1.E-10,   1.0E0,   T ),
-     & oa_type('AXYL3  ', '        ', 'XYLNRXN ',  0.3600,   1.e-10,   1.0E0,   T ),
-     & oa_type('ATOL3  ', '        ', 'TOLNRXN ',  0.3000,   1.e-10,   1.0E0,   T ),
-     & oa_type('ABNZ3  ', '        ', 'BNZNRXN ',  0.3700,   1.e-10,   1.0E0,   T ),
-     & oa_type('APAH3  ', '        ', 'PAHNRXN ',  0.7300,   1.e-10,   1.0E0,   T ),
-     & oa_type('APOC   ', '        ', '        ',  0.0   ,   1.e-10,   1.0E0,   T ),
-     & oa_type('APNCOM ', '        ', '        ',  0.0   ,   1.e-10,   1.0E0,   T ),
-     & oa_type('APCSO  ', 'LVPCSOG ', 'PCSOARXN',  1.0   ,   1.e-05,  40.0E3,   F ),
-     & oa_type('ALVPO1 ', 'VLVPO1  ', '        ',  0.0000,    1.e-1,  96.0E3,   F ),
-     & oa_type('ASVPO1 ', 'VSVPO1  ', '        ',  0.0000,    1.e+0,  85.0E3,   F ),
-     & oa_type('ASVPO2 ', 'VSVPO2  ', '        ',  0.0000,    1.e+1,  74.0E3,   F ),
-     & oa_type('ASVPO3 ', 'VSVPO3  ', '        ',  0.0000,    1.e+2,  63.0E3,   F ),
-     & oa_type('AIVPO1 ', 'VIVPO1  ', '        ',  0.0000,    1.e+3,  52.0E3,   F ),
-     & oa_type('ALVOO1 ', 'VLVOO1  ', '        ',  0.0000,    1.e-2, 107.0E3,   F ),
-     & oa_type('ALVOO2 ', 'VLVOO2  ', '        ',  0.0000,    1.e-1,  96.0E3,   F ),
-     & oa_type('ASVOO1 ', 'VSVOO1  ', '        ',  0.0000,    1.e+0,  85.0E3,   F ),
-     & oa_type('ASVOO2 ', 'VSVOO2  ', '        ',  0.0000,    1.e+1,  74.0E3,   F ),
-     & oa_type('ASVOO3 ', 'VSVOO3  ', '        ',  0.0000,    1.e+2,  63.0E3,   F ),
-     & oa_type('AAVB1  ', 'SVAVB1  ', '        ',  0.0000,    0.010,  18.0E3,   F ),
-     & oa_type('AAVB2  ', 'SVAVB2  ', '        ',  0.0000,    1.000,  18.0E3,   F ),
-     & oa_type('AAVB3  ', 'SVAVB3  ', '        ',  0.0000,   10.000,  18.0E3,   F ),
-     & oa_type('AAVB4  ', 'SVAVB4  ', '        ',  0.0000,  100.000,  18.0E3,   F ),
-     & oa_type('AOLGA  ', '        ', '        ',  0.0000,   1.e-10,   1.0E0,   T ),
-     & oa_type('AOLGB  ', '        ', '        ',  0.0000,   1.e-10,   1.0E0,   T ) /)
+      !                                                                                  ANTHROPOGENIC
+      !                                                                                      | BIOGENIC
+      !         PM          Vapor       Rxn Cntr     Alpha   CStar^    Enth-   O:C OM:OC     |   |   Nonvol-     
+      !         Name        Name        Name*                           alpy             POA |   |   atile        
+      !        ----------  ----------  ----------   ------  --------  -------  --- ----- --- --- --- ---    
+     & oa_type('AALK1  ', 'SVALK1  ', 'ALKRXN  ',  0.0334,   0.1472,  53.0E3, .315,1.56, F,  T,  F,  F ),
+     & oa_type('AALK2  ', 'SVALK2  ', 'ALKRXN  ',  0.2164,  51.8775,  53.0E3, .203,1.42, F,  T,  F,  F ),
+     & oa_type('AXYL1  ', 'SVXYL1  ', 'XYLNRXN ',  0.0310,   1.3140,  32.0E3,1.002,2.42, F,  T,  F,  F ),
+     & oa_type('AXYL2  ', 'SVXYL2  ', 'XYLNRXN ',  0.0900,  34.4830,  32.0E3, .611,1.93, F,  T,  F,  F ),
+     & oa_type('ATOL1  ', 'SVTOL1  ', 'TOLNRXN ',  0.0580,   2.3260,  18.0E3, .875,2.26, F,  T,  F,  F ),
+     & oa_type('ATOL2  ', 'SVTOL2  ', 'TOLNRXN ',  0.1130,  21.2770,  18.0E3, .523,1.82, F,  T,  F,  F ),
+     & oa_type('ABNZ1  ', 'SVBNZ1  ', 'BNZNRXN ',  0.0720,   0.3020,  18.0E3,1.211,2.68, F,  T,  F,  F ),
+     & oa_type('ABNZ2  ', 'SVBNZ2  ', 'BNZNRXN ',  0.8880, 111.1100,  18.0E3, .851,2.23, F,  T,  F,  F ),
+     & oa_type('APAH1  ', 'SVPAH1  ', 'PAHNRXN ',  0.2100,   1.6598,  18.0E3, .371,1.63, F,  T,  F,  F ),
+     & oa_type('APAH2  ', 'SVPAH2  ', 'PAHNRXN ',  1.0700, 264.6675,  18.0E3, .259,1.49, F,  T,  F,  F ),
+     & oa_type('ATRP1  ', 'SVTRP1  ', 'TRPRXN  ',  0.1393,  14.7920,  40.0E3, .539,1.84, F,  F,  T,  F ),
+     & oa_type('ATRP2  ', 'SVTRP2  ', 'TRPRXN  ',  0.4542, 133.7297,  40.0E3, .531,1.83, F,  F,  T,  F ),
+     & oa_type('AMT1   ', 'SVMT1   ', 'TRPRXN  ',   0.040,    0.010, 102.0E3, .400,1.67, F,  F,  T,  F ),
+     & oa_type('AMT2   ', 'SVMT2   ', 'TRPRXN  ',   0.032,    0.100,  91.0E3, .400,1.67, F,  F,  T,  F ),
+     & oa_type('AMT3   ', 'SVMT3   ', 'TRPRXN  ',   0.032,    1.000,  80.0E3, .444,1.72, F,  F,  T,  F ),
+     & oa_type('AMT4   ', 'SVMT4   ', 'TRPRXN  ',   0.103,   10.000,  69.0E3, .300,1.53, F,  F,  T,  F ),
+     & oa_type('AMT5   ', 'SVMT5   ', 'TRPRXN  ',   0.143,  100.000,  58.0E3, .333,1.57, F,  F,  T,  F ),
+     & oa_type('AMT6   ', 'SVMT6   ', 'TRPRXN  ',   0.285, 1000.000,  47.0E3, .200,1.40, F,  F,  T,  F ),
+     & oa_type('AMT7   ', 'SVMT7   ', 'TRPRXN  ',   0.160,10000.000,  36.0E3, .222,1.43, F,  F,  T,  F ),
+     & oa_type('AMTNO3 ', 'MTNO3   ', '        ',     0.0,     12.0,  40.0E3, .587,1.90, F,  F,  T,  F ),
+     & oa_type('AISOPNN', 'ISOPNN  ', '        ',     0.0,     8.9,   40.0E3,2.107,3.80, F,  F,  T,  F ),
+     & oa_type('AMTHYD ', '        ', '        ',     0.0,   1.E-10,   1.0E0, .299,1.54, F,  F,  T,  T ),
+     & oa_type('AIETET ', '        ', '        ',     0.0,   1.E-10,   1.0E0, .883,2.27, F,  F,  T,  T ),
+     & oa_type('AIEOS  ', '        ', '        ',     0.0,   1.E-10,   1.0E0,1.947,3.60, F,  F,  T,  T ),
+     & oa_type('ADIM   ', '        ', '        ',     0.0,   1.E-10,   1.0E0, .723,2.07, F,  F,  T,  T ),
+     & oa_type('AIMGA  ', '        ', '        ',     0.0,   1.E-10,   1.0E0,1.067,2.50, F,  F,  T,  T ),
+     & oa_type('AIMOS  ', '        ', '        ',     0.0,   1.E-10,   1.0E0,2.403,4.17, F,  F,  T,  T ),
+     & oa_type('AISO1  ', 'SVISO1  ', 'ISOPRXN ',  0.2320, 116.0100,  40.0E3, .827,2.20, F,  F,  T,  F ),
+     & oa_type('AISO2  ', 'SVISO2  ', 'ISOPRXN ',  0.0288,   0.6170,  40.0E3, .851,2.23, F,  F,  T,  F ),
+     & oa_type('AISO3  ', '        ', '        ',     0.0,   1.e-10,   1.0E0,1.307,2.80, F,  F,  T,  T ),
+     & oa_type('ASQT   ', 'SVSQT   ', 'SESQRXN ',  1.5370,  24.9840,  40.0E3, .283,1.52, F,  F,  T,  F ),
+     & oa_type('AGLY   ', '        ', '        ',     0.0,   1.E-10,   1.0E0, .771,2.13, F,  F,  F,  T ),
+     & oa_type('AORGC  ', '        ', '        ',     0.0,   1.E-10,   1.0E0, .667,2.00, F,  F,  F,  T ),
+     & oa_type('AXYL3  ', '        ', 'XYLNRXN ',  0.3600,   1.e-10,   1.0E0, .907,2.30, F,  T,  F,  T ),
+     & oa_type('ATOL3  ', '        ', 'TOLNRXN ',  0.3000,   1.e-10,   1.0E0,1.227,2.70, F,  T,  F,  T ),
+     & oa_type('ABNZ3  ', '        ', 'BNZNRXN ',  0.3700,   1.e-10,   1.0E0,1.467,3.00, F,  T,  F,  T ),
+     & oa_type('APAH3  ', '        ', 'PAHNRXN ',  0.7300,   1.e-10,   1.0E0, .483,1.77, F,  T,  F,  T ),
+     & oa_type('APOC   ', '        ', '        ',  0.0   ,   1.e-10,   1.0E0, .000,1.00, T,  T,  F,  T ),
+     & oa_type('APNCOM ', '        ', '        ',  0.0   ,   1.e-10,   1.0E0, -1.0,-1.0, T,  T,  F,  T ),
+     & oa_type('APCSO  ', 'LVPCSOG ', 'PCSOARXN',  1.0   ,   1.e-05,  40.0E3, .667,2.00, F,  T,  F,  F ),
+     & oa_type('ALVPO1 ', 'VLVPO1  ', '        ',  0.0000,    1.e-1,  96.0E3, .185,1.39, T,  T,  F,  F ),
+     & oa_type('ASVPO1 ', 'VSVPO1  ', '        ',  0.0000,    1.e+0,  85.0E3, .123,1.32, T,  T,  F,  F ),
+     & oa_type('ASVPO2 ', 'VSVPO2  ', '        ',  0.0000,    1.e+1,  74.0E3, .073,1.26, T,  T,  F,  F ),
+     & oa_type('ASVPO3 ', 'VSVPO3  ', '        ',  0.0000,    1.e+2,  63.0E3, .032,1.21, T,  T,  F,  F ),
+     & oa_type('AIVPO1 ', 'VIVPO1  ', '        ',  0.0000,    1.e+3,  52.0E3, .000,1.17, T,  T,  F,  F ),
+     & oa_type('ALVOO1 ', 'VLVOO1  ', '        ',  0.0000,    1.e-2, 107.0E3, .886,2.27, F,  T,  F,  F ),
+     & oa_type('ALVOO2 ', 'VLVOO2  ', '        ',  0.0000,    1.e-1,  96.0E3, .711,2.06, F,  T,  F,  F ),
+     & oa_type('ASVOO1 ', 'VSVOO1  ', '        ',  0.0000,    1.e+0,  85.0E3, .567,1.88, F,  T,  F,  F ),
+     & oa_type('ASVOO2 ', 'VSVOO2  ', '        ',  0.0000,    1.e+1,  74.0E3, .447,1.73, F,  T,  F,  F ),
+     & oa_type('ASVOO3 ', 'VSVOO3  ', '        ',  0.0000,    1.e+2,  63.0E3, .345,1.60, F,  T,  F,  F ),
+     & oa_type('AAVB1  ', 'SVAVB1  ', '        ',  0.0000,    0.010,  18.0E3,1.227,2.70, F,  T,  F,  F ),
+     & oa_type('AAVB2  ', 'SVAVB2  ', '        ',  0.0000,    1.000,  18.0E3, .947,2.35, F,  T,  F,  F ),
+     & oa_type('AAVB3  ', 'SVAVB3  ', '        ',  0.0000,   10.000,  18.0E3, .803,2.17, F,  T,  F,  F ),
+     & oa_type('AAVB4  ', 'SVAVB4  ', '        ',  0.0000,  100.000,  18.0E3, .659,1.99, F,  T,  F,  F ),
+     & oa_type('AOLGA  ', '        ', '        ',  0.0000,   1.e-10,   1.0E0,1.067,2.50, F,  T,  F,  T ),
+     & oa_type('AOLGB  ', '        ', '        ',  0.0000,   1.e-10,   1.0E0, .747,2.10, F,  F,  T,  T ) /)
       ! Table Comments:
       ! *Reaction Counters are only needed if the vapor species is not formed
       !  directly in the gas-phase chemistry mechanism.
@@ -160,22 +166,14 @@ C-----------------------------------------------------------------------
       ! Identify Species Required for Isoprene and Monoterpene Chemistry
       Character( 16 ), Private, Parameter :: req_sviso1  = 'SVISO1'
       Character( 16 ), Private, Parameter :: req_sviso2  = 'SVISO2'
-      Character( 16 ), Private, Parameter :: req_mtno3   = 'MTNO3'
-      Character( 16 ), Private, Parameter :: req_isopnn  = 'ISOPNN'
       Character( 16 ), Private, Parameter :: req_aeiso1  = 'AISO1'
       Character( 16 ), Private, Parameter :: req_aeiso2  = 'AISO2'
       Character( 16 ), Private, Parameter :: req_aeiso3  = 'AISO3'
       Character( 16 ), Private, Parameter :: req_aeorgc  = 'AORGC'
-      Character( 16 ), Private, Parameter :: req_amtno3  = 'AMTNO3'
-      Character( 16 ), Private, Parameter :: req_aisopnn = 'AISOPNN'
 
       ! Variables for Carrying Indices of required species
       Integer :: iso1_idx
       Integer :: iso2_idx
-      Integer :: mtno3_idx
-      Integer :: isopnn_idx
-      Integer :: amtno3_idx
-      Integer :: aisopnn_idx
       Integer :: aiso1_idx
       Integer :: aiso2_idx
       Integer :: aiso3_idx
@@ -226,7 +224,6 @@ C BM  02/19/19 Major Revision to simplify the mapping procedure and
 C              remove redundat variables.
 C-----------------------------------------------------------------------
 
-      Use rxns_data, only: mechname
       Use aero_data, only: AE_eflag, findAero, aerospc_mw, n_aerospc
       Use aeromet_data, only: airdens, inv_mwair, min_gasconc
       Use cgrid_spcs, only: n_gc_spc, gc_spc, n_gc_g2ae, gc_g2ae, gc_strt, gc_molwt, gc_g2ae_map, 
@@ -338,21 +335,13 @@ C-----------------------------------------------------------------------
          End Do
 
          ! Find indices of required species
-         iso1_idx   = findVapor( req_sviso1 )
-         iso2_idx   = findVapor( req_sviso2 )
+         iso1_idx   = findVapor( req_sviso1, .True. )
+         iso2_idx   = findVapor( req_sviso2, .True. )
          aiso1_idx  = findAero( req_aeiso1, .True. )
          aiso2_idx  = findAero( req_aeiso2, .True. )
          aiso3_idx  = findAero( req_aeiso3, .True. )
          aorgc_idx  = findAero( req_aeorgc, .True. )
 
-         ! Look for Additional Isoprene Product Species if AE6i is being
-         ! used
-         If ( INDEX( MECHNAME,"SAPRC07TIC_AE6I" ) .Ne. 0 ) Then
-           mtno3_idx  = findVapor( req_mtno3  )
-           isopnn_idx = findVapor( req_isopnn )
-           amtno3_idx  = findAero( req_amtno3, .True. )
-           aisopnn_idx = findAero( req_aisopnn,.True. )
-         End If
       End If     ! mapping condition
 
 
@@ -441,7 +430,7 @@ C-----------------------------------------------------------------------
       End Subroutine update_orgvapor
 
 C-----------------------------------------------------------------------
-      Function findVapor( vname ) Result ( ndx )
+      Function findVapor( vname, required ) Result ( ndx )
 
 C  Finds the index of 'required' semivolatile species in the oaspc list
 
@@ -451,12 +440,13 @@ C     Prakash Bhave, Jeff Young, and Sergey Napelenok.
 C
 C SR  03/25/11 Replaced I/O API include files with UTILIO_DEFN
 C-----------------------------------------------------------------------
-
+      Use RUNTIME_VARS, only : logdev
       Implicit None
 
       ! Arguments:
       Character( 16 ) :: vname
       Integer ndx
+      Logical required
 
       ! Local Variables:
       Character( 80 ) :: xmsg
@@ -470,10 +460,19 @@ C-----------------------------------------------------------------------
          End If
       End Do
 
+      If ( .Not. required ) Then
+         xmsg = 'Optional Species '
+     &       // Trim( vname ) // 
+     &       ' is not found in the G2AE or N2AE values of GC or NR namelists.'
+         write(logdev,'(5x,a)') xmsg
+         Return
+      End If
+
       xmsg = 'FATAL:' // Trim( vname )
-     &  // ' is not found in the G2AE or N2AE values of GC or namelists'
+     &  // ' is not found in the G2AE or N2AE values of GC or NR namelists.'
       OA_eflag  = .True.
       Call m3warn( pname, 0, 0, xmsg )
+ 
 
       Return
       End Function findVapor
@@ -767,7 +766,6 @@ C Key Subroutines/Functions called:  newt, soabisection
       Use aero_data
       Use aeromet_data
       Use utilio_defn
-      Use rxns_data, only : MECHNAME
 
       Implicit None
 

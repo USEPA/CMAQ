@@ -97,7 +97,7 @@
       INTEGER         ,ALLOCATABLE :: EM_FILE_DATE( : )! Date to be read in from each emissions stream
       LOGICAL         ,ALLOCATABLE :: EM_FILE_FIRE( : )! Is this Emission Stream Representing Fires (1=Yes)
 
-      INTEGER              :: IBIOSRM, IMGSRM, ILTSRM, ISEASRM, IDUSTSRM
+      INTEGER              :: IBIOSRM, IMIOGSRM, IMGSRM, ILTSRM, ISEASRM, IDUSTSRM
       INTEGER, ALLOCATABLE :: IGSRM( : ), IPSRM( : ), ITSRM( : ), MAP_PTtoISRM( : )
 
       INTEGER, ALLOCATABLE :: MAP_EMtoSURR( :,: ), MAP_EMtoDIFF( : ), MAP_EMtoGAS( : )
@@ -277,6 +277,7 @@
 
       USE UTILIO_DEFN
       USE em_param_module
+      USE UTIL_FAMILY_MODULE
 
 
       IMPLICIT NONE
@@ -322,6 +323,8 @@
          IF ( ILTSRM  .GT.0 ) EM_STREAM_RULE( ILTSRM   ) = .TRUE.
          IF ( ISEASRM .GT.0 ) EM_STREAM_RULE( ISEASRM  ) = .TRUE.
          IF ( IDUSTSRM.GT.0 ) EM_STREAM_RULE( IDUSTSRM ) = .TRUE.
+         IF ( IMIOGSRM.GT.0 ) EM_STREAM_RULE( IMIOGSRM ) = .TRUE.
+
 
       ELSE
          ! Determine if the Stream Label Refers to A Family and if So, 

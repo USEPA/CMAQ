@@ -207,9 +207,13 @@ The following configuration settings may have multiple options. Select one optio
     CMAQ inline anthropogenic and natural emissions module. Inline emissions are activated by the user via the CCTM run script. Do not change this module setting. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#inline-stream-offline) for further information.
     -   `emis/emis`
 
+
 -   `ModBiog: [default: biog/beis3]`<a id=ModBiog></a>  
 Calculate biogenic emissions online with the BEIS3 model. Online biogenic emissions are activated in the CCTM run script. Do not change this module setting. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#biogenics) for further information.
     - `biog/beis3`
+-   `ModMegBiog: [default: biog/megan3]`<a id=ModMegBiog></a>  
+Calculate biogenic emissions online with the MEGAN3.1 model. Online biogenic emissions are activated in the CCTM run script. Do not change this module setting. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#biogenics) for further information.
+    - `biog/megan3`
 -   `ModPlmrs: [default: plrise/smoke]`<a id=ModPlmrs></a>  
 Calculate inline plume rise for large point sources using the Briggs algorithm as it is implemented in SMOKE. Inline emissions plume rise is controlled in the CCTM run script. Do not change this module setting. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#inline-stream-offline) for further information.
     - `plrise/smoke`  
@@ -465,8 +469,10 @@ Sets if the CCTM will run in multi-processor or serial mode.
      Y/N setting to include  surface HONO interactions.  See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#6.10.4_HONO) for further information. 
 -   `CTM_GRAV_SETL [default Y]`<a id=CTM_GRAV_SETL></a>  
     Y/N setting to activate gravitational sedimentation for aerosols. 
--   `CTM_BIOGEMIS [default: Y]`<a id=CTM_BIOGEMIS></a>  
-    Y/N setting to calculate biogenic emissions. If this option is activated, several additional variables must be set (see the online biogenic emissions configuration settings). See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#biogenics) for further information.
+-   `CTM_BIOGEMIS_BEIS [default: Y]`<a id=CTM_BIOGEMIS_BEIS></a>  
+    Y/N setting to calculate biogenic emissions using BEIS. If this option is activated, several additional variables must be set (see the online biogenic emissions configuration settings). See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#biogenics) for further information.
+-   `CTM_BIOGEMIS_MEGAN [default: N]`<a id=CTM_BIOGEMIS_MEGAN></a>  
+    Y/N setting to calculate biogenic emissions using MEGAN. If this option is activated, several additional variables must be set (see the online biogenic emissions configuration settings). See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#biogenics) for further information.
 -   `OPTICS_MIE_CALC  [default: N]`<a id=OPTICS_MIE_CALC></a>    
      In the inline option for photolysis rates, solve Mie Theory to calculate the optical properties of the aerosol modes based on uniformly mixed spheres.
 -   `CORE_SHELL_OPTICS [default: N]`<a id=CORE_SHELL_OPTICS></a>    
@@ -524,12 +530,7 @@ Sets if the CCTM will run in multi-processor or serial mode.
 
 <!-- END COMMENT -->
 
--   `CTM_PMDIAG [default: False]`<a id=CTM_PMDIAG></a>  
-    Output aerosol diagnostics and properties file. These data are required for post-processing the fraction of aerosol mass is in various size ranges (e.g. PM2.5, PM10, etc.). The file also includes physical parameters describing the aerosol size distribution like the following: dry diameter, wet diameter, standard deviation, wet second moment, dry second moment, wet thrid moment, dry third moment, and density.  
--   `CTM_APMDIAG [default: False]`<a id=CTM_APMDIAG></a>  
-    Output hourly average aerosol diagnostics and properties file. These data are required for post-processing the fraction of aerosol mass is in various size ranges (e.g. PM2.5, PM10, etc.). The file also includes physical parameters describing the aerosol size distribution like the following: dry diameter, wet diameter, standard deviation, wet second moment, dry second moment, wet thrid moment, dry third moment, and density.   
--   `APMDIAG_BLEV_ELEV [default: 0]`<a id=APMDIAG_BLEV_ELEV></a>  
-    Modeling grid domain layer range for the hourly average aerosol diagnostics and properties file. Set to the two digits representing the bottom and top layer numbers to bound the output domain. Comment out this variable or set it to 0 to output all layers. Set the value to "1 1" to output just the surface layer.
+    Aerosol Diagnostics are now handled by the Explicit and Lumped Model Output module (ELMO), which is directed by the Emission Control Interface (ECI). See [Appendix B.6: ELMO](Appendix/CMAQ_UG_appendixB_emissions_control.md) 
 
 <a id=Diagnostic_Output_Flags></a>
 
@@ -635,6 +636,14 @@ Sets if the CCTM will run in multi-processor or serial mode.
 
 <!-- END COMMENT -->
 
+-   `SOILOUT [default: [Out Directory/CCTM_SOILOUT_$RUNID_$TODAY]`<a id=SOILOUT></a>  
+    Directory path and file name of biogenic NO soil emissions output file. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#biogenics) for further information.   
+
+-   `SOILINP [default: [Out Directory/CCTM_SOILOUT_$RUNID_$YESTERDAY]`<a id=SOILINP></a>  
+    Directory path and file name of biogenic NO soil emissions input file. If NEW_START is set to N or F, the soil NO emissions file from the previous day's simulation will be a required input file. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#biogenics) for further information.   
+
+Options for use with BEIS:
+
 -   `GSPRO [default: Build Directory]`<a id=GSPRO></a>  
     Directory path and file name for input ASCII speciation profiles. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#biogenics) for further information. 
 
@@ -653,14 +662,50 @@ Sets if the CCTM will run in multi-processor or serial mode.
 -   `PX_VERSION [default: True]`<a id=PX_VERSION></a>  
     Setting to indicate whether the Pleim-Xiu land-surface model was used for the input meteorology. If this setting is set to Y the input meteorology data must include soil moisture (SOILM), soil temperature (SOILT), and soil type (ISLTYP) variables for use in the calculation of soil NO emissions.  
 
--   `SOILINP [default: [Out Directory/CCTM_SOILOUT_$RUNID_$YESTERDSY]`<a id=SOILINP></a>  
-    Directory path and file name of biogenic NO soil emissions file. If NEW_START is set to N or F, the soil NO emissions file from the previous day's simulation will be a required input file. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#biogenics) for further information.   
-
 -   `B3GTS_DIAG [default: False]`<a id=B3GTS_DIAG></a>  
     Write the online biogenic emissions (mass units) to a diagnostic netCDF output file (B3GTS_S). 
 
 -   `B3GTS_S [default: [Output Directory]/CCTM_B3GTS_$CTM_APPL.nc`<a id=B3GTS_S></a>  
     Diagnostic output netCDF file of biogenic emissions. This variable is ignored if B3GTS_DIAG is set to N.  
+
+Options for use with MEGAN:
+
+-   `USE_MEGAN_LAI [default: N]`<a id=USE_MEGAN_LAI></a>
+    By default MEGAN will use the same leaf area index information as the rest of CMAQ. Toggle if a separate LAI dataset is desired. When this option is enabled the user must also set the environment variable MEGAN_LAI. 
+    
+-   `IGNORE_SOILINP [default: N]`<a id=IGNORE_SOILINP></a>
+    Similar to the deprecated INITIAL_RUN option for BEIS, this option allows a user to perform a CMAQ restart without needing a SOILINP file for the previous day. Instanteous values of shortwave radiation and surface temperature will be used instead of the previous daily average, and soil NO variables are set to their initialization values as for a new run. 
+
+-   `USE_MEGAN_BDSNP [default: N ]`<a id=USE_MEGAN_BDSNP></a>
+    Toggle to use the Berkeley-Dalhousie Soil NOx Parameterization (BDSNP) instead of the default option based on Yinger and Levy (1995). If the BDSNP option is activated, several additional variables must be set (see below). See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#biogenics) for further information.
+
+-   `MEGAN_CTS`<a id=MEGAN_CTS></a>
+    Points to canopy file that was created using the MEGAN preprocessor.
+
+-   `MEGAN_EFS`<a id=MEGAN_EFS></a>
+    Points to emission factor file that was created using the MEGAN preprocessor.
+
+-   `MEGAN_LDF`<a id=MEGAN_LDF></a>
+    Points to light dependent fraction file that was created using the MEGAN preprocessor.
+
+-   `MEGAN_LAI`<a id=MEGAN_CTS></a>
+    Optional. Points to leaf area index file that was created using the MEGAN preprocessor.
+
+-   `MEGAN_ARID`<a id=MEGAN_ARID></a>
+    For BDSNP. Points to the ARID file that was created using the MEGAN preprocessor.
+
+-   `MEGAN_NONARID`<a id=MEGAN_NONARID></a>
+    For BDSNP. Points to the NONARID file that was created using the MEGAN preprocessor.
+
+-   `MEGAN_FERT`<a id=MEGAN_FERT></a>
+    For BDSNP. Points to the FERT file that was created using the MEGAN preprocessor.
+
+-   `MEGAN_LANDTYPE`<a id=MEGAN_FERT></a>
+    For BDSNP. Points to the LANDTYPE file that was created using the MEGAN preprocessor.
+
+-   `MEGAN_NDF`<a id=MEGAN_NDF></a>
+    For BDSNP. Points to the NDF file that was created using the MEGAN preprocessor.
+
 
 <a id=windblown_dust_config></a>
 
