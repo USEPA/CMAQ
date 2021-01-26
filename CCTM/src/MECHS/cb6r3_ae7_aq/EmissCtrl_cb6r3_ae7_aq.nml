@@ -288,6 +288,51 @@
    'EVERYWHERE', 'ALL'   ,'PMCOARSE_SOIL','ASOIL'     ,'COARSE',1.   ,'UNIT','a', 
    'EVERYWHERE', 'ALL' ,'PMCOARSE_SEACAT','ASEACAT'   ,'COARSE',1.   ,'UNIT','a', 
    
+   !Adding PFAS Emissions for CMAQ-PFAS by scaling rates to HF
+
+   'EVERYWHERE', 'PFAS_SOURCES'          ,'HF'   ,'TFE   '    ,'GAS'  ,  20.3368 ,'MASS','a',
+   'EVERYWHERE', 'PFAS_SOURCES'          ,'HF'   ,'HFPO  '    ,'GAS'  ,  14.0145 ,'MASS','a',
+   'EVERYWHERE', 'PFAS_SOURCES'          ,'HF'   ,'HFP   '    ,'GAS'  ,  11.1718 ,'MASS','a',
+   'EVERYWHERE', 'PFAS_SOURCES'          ,'HF'   ,'E2    '    ,'GAS'  ,   2.2082 ,'MASS','a',
+   'EVERYWHERE', 'PFAS_SOURCES'          ,'HF'   ,'PSEPVE'    ,'GAS'  ,   1.0900 ,'MASS','a',
+   'EVERYWHERE', 'PFAS_SOURCES'          ,'HF'   ,'COF2  '    ,'GAS'  ,   1.0137 ,'MASS','a',
+   'EVERYWHERE', 'PFAS_SOURCES'          ,'HF'   ,'PAF   '    ,'GAS'  ,   0.7733 ,'MASS','a',
+   'EVERYWHERE', 'PFAS_SOURCES'          ,'HF'   ,'CH3F  '    ,'GAS'  ,   0.7644 ,'MASS','a',
+   'EVERYWHERE', 'PFAS_SOURCES'          ,'HF'   ,'PPVE  '    ,'GAS'  ,   0.6549 ,'MASS','a',
+   'EVERYWHERE', 'PFAS_SOURCES'          ,'HF'   ,'PMVE  '    ,'GAS'  ,   0.6165 ,'MASS','a',
+   'EVERYWHERE', 'PFAS_SOURCES'          ,'HF'   ,'HFPODAF'   ,'GAS'  ,   0.3679 ,'MASS','a',
+   'EVERYWHERE', 'PFAS_SOURCES'          ,'HF'   ,'PEVE  '    ,'GAS'  ,   0.3536 ,'MASS','a',
+   'EVERYWHERE', 'PFAS_SOURCES'          ,'HF'   ,'CF3H  '    ,'GAS'  ,   0.2313 ,'MASS','a',
+   'EVERYWHERE', 'PFAS_SOURCES'          ,'HF'   ,'PFB   '    ,'GAS'  ,   0.2267 ,'MASS','a',
+   'EVERYWHERE', 'PFAS_SOURCES'          ,'HF'   ,'PMPF  '    ,'GAS'  ,   0.2161 ,'MASS','a',
+   'EVERYWHERE', 'PFAS_SOURCES'          ,'HF'   ,'TFF4  '    ,'GAS'  ,   0.1998 ,'MASS','a',
+   'EVERYWHERE', 'PFAS_SOURCES'          ,'HF'   ,'TAF2  '    ,'GAS'  ,   0.1940 ,'MASS','a',
+   'EVERYWHERE', 'PFAS_SOURCES'          ,'HF'   ,'EVE   '    ,'GAS'  ,   0.1909 ,'MASS','a',
+   'EVERYWHERE', 'PFAS_SOURCES'          ,'HF'   ,'F113  '    ,'GAS'  ,   0.1833 ,'MASS','a',
+   'EVERYWHERE', 'PFAS_SOURCES'          ,'HF'   ,'HFPODA'    ,'GAS'  ,   0.1602 ,'MASS','a',
+   'EVERYWHERE', 'PFAS_SOURCES'          ,'HF'   ,'E1    '    ,'GAS'  ,   0.1233 ,'MASS','a',
+   'EVERYWHERE', 'PFAS_SOURCES'          ,'HF'   ,'PEPF  '    ,'GAS'  ,   0.0902 ,'MASS','a',
+   'EVERYWHERE', 'PFAS_SOURCES'          ,'HF'   ,'DA    '    ,'GAS'  ,   0.0665 ,'MASS','a',
+   'EVERYWHERE', 'PFAS_SOURCES'          ,'HF'   ,'HFPOTA'    ,'GAS'  ,   0.0647 ,'MASS','a',
+   'EVERYWHERE', 'PFAS_SOURCES'          ,'HF'   ,'TAF   '    ,'GAS'  ,   0.0644 ,'MASS','a', 
+   'EVERYWHERE', 'PFAS_SOURCES'          ,'HF'   ,'MA    '    ,'GAS'  ,   0.0297 ,'MASS','a',
+   'EVERYWHERE', 'PFAS_SOURCES'          ,'HF'   ,'AHF   '    ,'ACC'  ,   1.0000 ,'MASS','a',
+   'EVERYWHERE', 'PFAS_SOURCES'          ,'HF'   ,'PFASOTHER' ,'GAS'  ,   0.0987 ,'MASS','a',
+   'EVERYWHERE', 'PFAS_SOURCES'          ,'HF'   ,'PFASGAS'   ,'GAS'  ,  55.3057 ,'MASS','a',
+   'EVERYWHERE', 'PFAS_SOURCES'          ,'HF'   ,'PFASGP '   ,'GAS'  ,  55.3057 ,'MASS','a',
+   'EVERYWHERE', 'PFAS_SOURCES'          ,'HF'   ,'APFASAERO' ,'ACC'  ,  55.3057 ,'MASS','a', 
+   'EVERYWHERE', 'PFAS_SOURCES'          ,'HF'   ,'APFAS_EXPTDAERO','ACC',5.6058 ,'MASS','a', 
+   'EVERYWHERE', 'PFAS_SOURCES'          ,'HF'   ,'PFASGASOTHER','GAS',   0.0090 ,'MASS','a', 
+
+   ! The HF emissions from the Chemours Fayetteville site were processed from the NEI through 
+   ! SMOKE. They were then determined to be a factor of 1.9375 too low compared to the mass
+   ! of HF emissions reported by Chemours. This is likely due to an inconsistency in the 
+   ! way SMOKE classifies stack emissions from the same source as point or gridded. As a remedy,
+   ! for this dataset and source, we multiply all PFAS emissions by 1.9375. In the Emmision
+   ! Control Files that live with the 2018 North Carolina inputs, this scale factor is embedded
+   ! within the scale factors for each species (they are al modified by 1.9357).
+   'EVERYWHERE', 'PFAS_SOURCES'          ,'HF'   ,'PFAS'      ,'ALL'  ,   1.9375 ,'MASS','m',
+
                                                                     
                             !> CUSTOM MAPPING EXAMPLES <!              
                                                                     
@@ -412,19 +457,23 @@
 !    The examples below may be uncommented and modified for your use.          !
 !------------------------------------------------------------------------------!
 
-!&ChemicalFamilies
-! NChemFamilies         = 1
-! ChemFamilyName(1)     = 'NOX'
-! ChemFamilyNum(1)      = 2
-! ChemFamilyMembers(1,:)= 'NO','NO2'
-!/
+! Define PFAS-relevant chemical Family
+&ChemicalFamilies
+ NChemFamilies         = 1
+ ChemFamilyName(1)     = 'PFAS'
+ ChemFamilyNum(1)      = 33 
+ ChemFamilyMembers(1,:)= 'HFPODA','HFPODAF','TFE','HFPO','HFP','E2','PSEPVE','PAF','CH3F','PPVE','PMVE','PEVE','PFB','PMPF',
+                         'TAF2','EVE','COF2','E1','PEPF','DA','HFPOTA','TAF','MA','F113','CF3H','TFF4','AHF','PFASOTHER',
+                         'PFASGAS','PFASGP','APFASAERO', 'APFAS_EXPTDAERO', 'PFASGASOTHER'
+/
 
-!&StreamFamilies
-! NStreamFamilies         = 1
-! StreamFamilyName(1)     = 'PT_SOURCES'
-! StreamFamilyNum(1)      = 3
-! StreamFamilyMembers(1,:)= 'PT_NONEGU','PT_EGU','PT_OTHER'
-!/
+! Define PFAS-relevant groups of sources
+&StreamFamilies
+ NStreamFamilies         = 1
+ StreamFamilyName(1)     = 'PFAS_SOURCES'
+ StreamFamilyNum(1)      = 5
+ StreamFamilyMembers(1,:)= 'PT_PFAS_CHEMOURSNC','PT_PFAS_CHEMOURSOTHER','PT_PFAS_DUPONT','PT_PFAS_STGOBAIN','PT_PFAS_OTHER'
+/
 
 !&RegionFamilies
 ! NRegionFamilies         = 1

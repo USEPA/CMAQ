@@ -318,7 +318,11 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   #> + Emission Control (DESID) Documentation in the CMAQ User's Guide: 
   #>   https://github.com/USEPA/CMAQ/blob/master/DOCS/Users_Guide/Appendix/CMAQ_UG_appendixB_emissions_control.md 
   #>
-  setenv EMISSCTRL_NML ${BLD}/EmissCtrl/EmissCtrl_cb6r3_ae7_aq_Controlled_${YYYYMMDD}.nml
+  # For the base PFAS simulaiton, use a day dependent set of Emission Control Files
+  setenv EMISSCTRL_NML $INPDIR/emis/cb6r3_ae6_20190605/EmissCtrl/EmissCtrl_cb6r3_ae7_aq_Controlled_${YYYYMMDD}.nml
+
+  # For the CarbAcid sensitivity simulation, use a modified set of emission control files
+  #setenv EMISSCTRL_NML $INPDIR/emis/cb6r3_ae6_20190605/EmissCtrl/EmissCtrl_cb6r3_ae7_aq_CarbAcid_${YYYYMMDD}.nml 
 
   #> Spatial Masks For Emissions Scaling
   #setenv CMAQ_MASKS $SZpath/12US1_surf.ncf
