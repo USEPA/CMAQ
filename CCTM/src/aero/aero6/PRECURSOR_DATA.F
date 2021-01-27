@@ -59,7 +59,7 @@ C-----------------------------------------------------------------------
          Logical         :: required           ! required for model run
       End Type precursor_type
 
-      Type ( precursor_type ), Private :: precursor( n_precursor ) = (/
+      Type ( precursor_type ) :: precursor( n_precursor ) = (/
 C                       Name    RxnCounter  Update  Required
 C                    ---------   ---------- ------  ------
      & precursor_type( 'NO2    ', .False. , .True., .True.  ),
@@ -343,9 +343,7 @@ C copy precursor_conc back to grid cell concentrations
                   ! Convert Budget Process Numbers from ug m-3 to ppmv
                   ! for application to process analysis and ISAM
                   COND_BUDGET( n )   = COND_BUDGET( n )   / vtmp
-                  COAG_BUDGET( n,: ) = COAG_BUDGET( n,: ) / vtmp
                   NPF_BUDGET( n )    = NPF_BUDGET( n )    / vtmp
-                  GROWTH_BUDGET( n ) = GROWTH_BUDGET( n ) / vtmp
                End If
             End If
          End If

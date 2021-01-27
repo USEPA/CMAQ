@@ -47,6 +47,10 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       INTEGER :: LACETONE_CO     = 0 
       INTEGER :: LACETONE_CH3CO  = 0
       
+      ! Variables passed to the PM diagnostic output module, ELMO
+      REAL, ALLOCATABLE, SAVE :: ELMO_AOD_550( :,: )   ! total aerosol optical depth at 550 nm (Angstrom Interpolation)
+      REAL, ALLOCATABLE, SAVE :: ELMO_EXT_550( :,:,: ) ! aerosol extinction at 550 nm for layer [1/m]
+
       CONTAINS
       
       SUBROUTINE INIT_PHOT_SHARED()

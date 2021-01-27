@@ -46,6 +46,12 @@ set CopySrc                            #> copy the source files into the build d
 #set CopySrcTree                       #> copy the source files and directory tree into the build directory
 #set MakeFileOnly                      #> uncomment to build a Makefile, but do not compile; 
                                        #>   comment out to compile the model (default if not set)
+#set build_mech                        #> uncomment to build mechanism source code files using the 
+                                       #>   chemmech utility.
+#set clobber_mech                      #> when commented, the bldit_mech.csh script will halt if 
+                                       #>   newly created mechanism files are attempting replace
+                                       #>   existing ones. When uncommented, the existing files
+                                       #>   will be overwritten.
 set ParOpt                             #> uncomment to build a multiple processor (MPI) executable; 
                                        #>   comment out for a single processor (serial) executable
 #set build_parallel_io                 #> uncomment to build with parallel I/O (pnetcdf); 
@@ -100,15 +106,27 @@ set make_options = "-j"                #> additional options for make command if
                                             #>     (see $CMAQ_MODEL/CCTM/src/depv)
  set ModEmis   = emis/emis                  #> in-line emissions module
  set ModBiog   = biog/beis3                 #> BEIS3 in-line emissions module 
+
+ set ModMegBiog   = biog/megan3                #> MEGAN3 in-line emissions module
+
  set ModPlmrs  = plrise/smoke               #> in-line emissions plume rise
  set ModCgrds  = spcs/cgrid_spcs_nml        #> chemistry species configuration module 
                                             #>     (see $CMAQ_MODEL/CCTM/src/spcs)
  set ModPhot   = phot/inline                #> photolysis calculation module 
                                             #>     (see $CMAQ_MODEL/CCTM/src/phot)
- set Mechanism = cb6r3_ae7_aq               #> chemical mechanism (see $CMAQ_MODEL/CCTM/src/MECHS)
- set ModGas    = gas/ebi_${Mechanism}       #> gas-phase chemistry solver (see $CMAQ_MODEL/CCTM/src/gas)
+
+ setenv Mechanism cb6r3_ae7_aq               #> chemical mechanism (see $CMAQ_MODEL/CCTM/src/MECHS)
+ set ModMech   = MECHS/${Mechanism}
+ 
+ set ChemSolver = ebi                       #> gas-phase chemistry solver (see $CMAQ_MODEL/CCTM/src/gas)
                                             #> use gas/ros3 or gas/smvgear for a solver independent 
-                                            #  of the photochemical mechanism
+                                            #> of the photochemical mechanism [ default: ebi ]
+ if ( $ChemSolver == ebi ) then             
+    set ModGas    = gas/${ChemSolver}_${Mechanism}   
+ else                                       
+    set ModGas    = gas/${ChemSolver}
+ endif
+    
  set ModAero   = aero/aero7                 #> aerosol chemistry module (see $CMAQ_MODEL/CCTM/src/aero)
  set ModCloud  = cloud/acm_ae7              #> cloud chemistry module (see $CMAQ_MODEL/CCTM/src/cloud)
                                             #>   overwritten below if using cb6r3m_ae7_kmtbr mechanism
@@ -244,11 +262,44 @@ set make_options = "-j"                #> additional options for make command if
     set SENS = ""
  endif
  
-#> Mechanism location
- set ModMech = MECHS/$Mechanism        #> chemical mechanism module
+#> Build Mechanism Files and instruct build-make to look
+#> in the CHEMMECH output folder for the files
+ if ( $?build_mech ) then
+
+    # Note: modifying existing or creating new chemical mechanisms
+    # can lead to unstable or highly inaccurate representations of 
+    # atmospheric chemical predictions when applying the EBI solvers.
+    # EBI solvers are highly characterized and tested before 
+    # application. The CMAQ development team recommends using the 
+    # generalized solvers, Rosenbrock or Gear, with user-defined
+    # mechanisms.
+
+    # Because the bldit_cctm script is executing the bldit_mech
+    # processor, we will assume that the source location for the new 
+    # mechanism files is in the CMAQ repo. There will also be an 
+    # error check for overwriting an existing mechanism that can be
+    # disabled using the mech_clobber variable above.
+    setenv MECH_SRC ${CMAQ_REPO}/CCTM/src/${ModMech}
+    setenv TRAC_NML ${CMAQ_REPO}/CCTM/src/MECHS/trac0/Species_Table_TR_0.nml
+    setenv MECH_OUT ${CMAQ_REPO}/CCTM/src/${ModMech}
+    setenv EBI_SOLVER_OUT ${CMAQ_REPO}/CCTM/src/${ModGas}
+    if ( $?clobber_mech ) then
+      setenv CLOBBER_MECH TRUE
+    else
+      setenv CLOBBER_MECH FALSE
+    endif
+
+    cd ${CMAQ_HOME}/CCTM/scripts
+    ./bldit_mech.csh ${compiler} ${compilerVrsn}
+    if ( $? != 0 ) then
+      echo ""
+      echo "bldit_mech did not finish correctly --> Build Process Halted"
+      exit 1
+    endif
+ endif
 
 #> Cloud chemistry options
- if ( $Mechanism == cb6r3m_ae7_kmtbr ) then
+ if ( ${Mechanism} == cb6r3m_ae7_kmtbr ) then
     set ModCloud = cloud/acm_ae7_kmtbr
  endif
 
@@ -346,6 +397,11 @@ set make_options = "-j"                #> additional options for make command if
     set ModVadv = vadv/local_cons              #> Vertical advection module
  endif
 
+ # Retrieve git repository sha ID for this source code version
+ set shaID   = `git --git-dir=${CMAQ_REPO}/.git rev-parse --short=10 HEAD`
+ if ( $? != 0 ) then
+    set shaID   = "not_a_repo"
+ endif
 
 # ============================================================================
 #> Create Config File 
@@ -362,6 +418,8 @@ set Cfile = ${Bld}/${CFG}.bld      # Config Filename
  echo "model        $EXEC;"                                        >> $Cfile
  echo                                                              >> $Cfile
  echo "repo        $CCTM_SRC;"                                     >> $Cfile
+ echo                                                              >> $Cfile
+ echo "sha_ID      $shaID;"                                        >> $Cfile
  echo                                                              >> $Cfile
  echo "mechanism   $Mechanism;"                                    >> $Cfile
  echo                                                              >> $Cfile
@@ -500,6 +558,11 @@ set Cfile = ${Bld}/${CFG}.bld      # Config Filename
  echo "Module ${ModBiog};"                                         >> $Cfile
  echo                                                              >> $Cfile
 
+ set text = "megan3"
+ echo "// options are" $text                                       >> $Cfile
+ echo "Module ${ModMegBiog};"                                      >> $Cfile
+ echo  
+
  set text = "smoke"
  echo "// options are" $text                                       >> $Cfile
  echo "Module ${ModPlmrs};"                                        >> $Cfile
@@ -517,7 +580,7 @@ set Cfile = ${Bld}/${CFG}.bld      # Config Filename
 
  set text = "gas chemistry solvers"
  echo "// " $text                                                  >> $Cfile
- set text = "smvgear, ros3, and ebi_<mech>; see 'gas chemistry mechanisms' for <mech>"
+ set text = "smvgear, ros3, and ebi; see 'gas chemistry mechanisms' for <mech>"
  echo "// options are" $text                                       >> $Cfile
  echo "Module ${ModGas};"                                          >> $Cfile
  echo                                                              >> $Cfile
@@ -661,7 +724,5 @@ set Cfile = ${Bld}/${CFG}.bld      # Config Filename
     mv $Bld/${CFG} $Bld/${CFG}.old
  endif
  mv ${CFG}.bld $Bld/${CFG}
-
-
 
 exit
