@@ -50,7 +50,8 @@
           REAL,            ALLOCATABLE :: MW( : )     ! Default MW from SPECIATE/SMOKE/MOVE
           LOGICAL,         ALLOCATABLE :: USED( : )   ! Whether or not the surrogate is used in CMAQ
           Real,            ALLOCATABLE :: CONV( : )   ! Conversion factor to account for kg -> g or hr -> s
-          CHARACTER( 4 ),  ALLOCATABLE :: BASIS( : )  ! 'MOLE' or 'MASS'
+          CHARACTER( 16 ), ALLOCATABLE :: BASIS( : )  ! 'MOLE', 'MASS', or 'UNKNOWN' 
+          LOGICAL,         ALLOCATABLE :: AREA( : )   ! Whether or not the variable is an area flux
       END TYPE EM_SURR_TYPE
       TYPE( EM_SURR_TYPE ),ALLOCATABLE :: EM_FILE_SURR( : )! Species to be read from each stream file
 
@@ -62,6 +63,8 @@
           REAL, ALLOCATABLE    :: BULK(:) ! Scale Factor for bulk emission without
                                           !   splitting for aerosols
           REAL, ALLOCATABLE    :: BASIS(:)! Conversion factor to account for mole or mass basis
+          LOGICAL, ALLOCATABLE :: AREA(:) ! True if the emission is a flux that needs to be multiplied 
+                                          !   by the grid cell area
           INTEGER, ALLOCATABLE :: REG(:)  ! Index Mapping this entry to a particlar region in EM_REGIONS
           INTEGER, ALLOCATABLE :: OP(:)   ! Operation to perform for this scaling
                                           !   (addition,'a' = 1, 

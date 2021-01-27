@@ -82,7 +82,8 @@ C-----------------------------------------------------------------------
       INTEGER       :: LDATE, LTIME  ! step start date/time (beis)
       INTEGER, SAVE :: NDATE, NTIME  ! step next date/time (beis)
 
-      REAL(8), SAVE   :: DX1, DX2          ! CX x1- and x2-cell widths
+      REAL(8), SAVE   :: DX1, DX2    ! CX x1- and x2-cell widths
+      REAL, SAVE      :: CELLAREA    ! Cell Area for Emission Fluxes
 
       CONTAINS
 
@@ -137,6 +138,7 @@ C-----------------------------------------------------------------------
             DX1 = XCELL_GD        ! in m.
             DX2 = YCELL_GD        ! in m.
          END IF
+         CELLAREA = REAL( DX1 * DX2, 4 )
 
 C Retrieve Number of Emission Files of Various Types (sectors)
          CALL EM_FILE_INIT( JDATE, JTIME )
@@ -870,6 +872,7 @@ C-----------------------------------------------------------------------
       INTEGER, ALLOCATABLE :: MAP_FACtoISTR( : )
       REAL    FAC
       LOGICAL, SAVE :: FIRSTIME = .TRUE.
+      LOGICAL :: LAREA
 
 
       IF ( FIRSTIME ) THEN
@@ -910,6 +913,12 @@ C-----------------------------------------------------------------------
                      FAC1( ISTR_TMP,L,:,: ) = EM_FAC_ST( ISTR,JSRM )%FAC( 1 )
      &                            * EM_REG_FAC( :,:,IRGN )
                    END IF
+
+                   ! If the emission variable is a flux, then multiply
+                   ! by grid cell area
+                   IF ( EM_FAC_ST( ISTR,JSRM )%AREA( 1 ) ) 
+     &                FAC1( ISTR_TMP,L,:,: ) = FAC1( ISTR_TMP,L,:,: ) * CELLAREA
+
                  END DO
                END IF
              END DO
@@ -954,23 +963,27 @@ C-----------------------------------------------------------------------
           FAC  = EM_FAC_ST( ISTR,ISRM )%FAC( IFAC )
           OP   = EM_FAC_ST( ISTR,ISRM )%OP ( IFAC )
           IRGN = EM_FAC_ST( ISTR,ISRM )%REG( IFAC )
+          LAREA= EM_FAC_ST( ISTR,ISRM )%AREA(IFAC )
 
           IF ( IRGN .EQ. 1 ) THEN
             !Apply scaling using EM_FAC_ST 
             IF ( OP .EQ. 1 .AND. NFAC( ISTR ) .EQ. 1 ) THEN ! Add New Emission
                 VDEMIS( ISTR,1:NL,:,: ) = VDEMIS0( ISTR,1:NL,:,: ) * FAC
             ELSE IF ( OP.EQ.1 ) THEN   ! Add Additional Emission 
+                IF ( LAREA ) FAC = FAC * CELLAREA
                 VDEMIS( ISTR,1:NL,:,: ) = VDEMIS( ISTR,1:NL,:,: ) +
      &                 VDEMIS0( ISTR,1:NL,:,: ) * FAC
             ELSE IF ( OP.EQ.2 ) THEN ! Multiply Emissions Rule
                 VDEMIS( ISTR,1:NL,:,: ) = VDEMIS( ISTR,1:NL,:,: ) * FAC
             ELSE IF ( OP.EQ.3 ) THEN ! Overwrite Existing Rule
+                IF ( LAREA ) FAC = FAC * CELLAREA
                 VDEMIS( ISTR,1:NL,:,: ) = VDEMIS0( ISTR,1:NL,:,: ) * FAC
             END IF
           ELSE
               
             !Apply scaling using EM_FAC_ST and VDEMIS_RGN
             IF ( OP.EQ.1 ) THEN   ! Add Additional Emission 
+              IF ( LAREA ) FAC = FAC * CELLAREA
               DO L = 1,NL
                 VDEMIS( ISTR,L,:,: ) = VDEMIS( ISTR,L,:,: ) +
      &             VDEMIS0( ISTR,L,:,: ) * FAC * EM_REG_FAC( :,:,IRGN )
@@ -982,6 +995,7 @@ C-----------------------------------------------------------------------
      &             VDEMIS( ISTR,L,:,: ) * FAC * EM_REG_FAC( :,:,IRGN )
               END DO
             ELSE IF ( OP.EQ.3 ) THEN ! Overwrite Existing Rule
+              IF ( LAREA ) FAC = FAC * CELLAREA
               DO L = 1,NL
                 VDEMIS( ISTR,L,:,: ) = VDEMIS( ISTR,L,:,: ) *
      &               (1.0 - EM_REG_FAC( :,:,IRGN ) ) +
@@ -1367,6 +1381,7 @@ C and allowing the model to proceed.
             ALLOCATE( EM_FILE_SURR( ISRM )%USED ( EM_FILE_SURR( ISRM )%LEN ) )
             ALLOCATE( EM_FILE_SURR( ISRM )%CONV ( EM_FILE_SURR( ISRM )%LEN ) )
             ALLOCATE( EM_FILE_SURR( ISRM )%BASIS( EM_FILE_SURR( ISRM )%LEN ) )
+            ALLOCATE( EM_FILE_SURR( ISRM )%AREA ( EM_FILE_SURR( ISRM )%LEN ) )
             EM_FILE_SURR( ISRM )%USED = .FALSE.
 
             DO ISUR = 1,EM_FILE_SURR( ISRM )%LEN
@@ -1404,7 +1419,8 @@ C and allowing the model to proceed.
      &                                EM_FILE_SURR( ISRM )%ARRY ( ISUR ),
      &                                EM_FILE_SURR( ISRM )%UNITS( ISUR ), 
      &                                EM_FILE_SURR( ISRM )%CONV ( ISUR ),
-     &                                EM_FILE_SURR( ISRM )%BASIS( ISUR ) )
+     &                                EM_FILE_SURR( ISRM )%BASIS( ISUR ),
+     &                                EM_FILE_SURR( ISRM )%AREA ( ISUR ) )
             END DO
          END DO
 
@@ -2079,12 +2095,14 @@ C and allowing the model to proceed.
                ALLOCATE( EM_FAC_ST( ISTR,ISRM )%FAC( NFAC ) )
                ALLOCATE( EM_FAC_ST( ISTR,ISRM )%BULK( NFAC ) )
                ALLOCATE( EM_FAC_ST( ISTR,ISRM )%BASIS( NFAC ) )
+               ALLOCATE( EM_FAC_ST( ISTR,ISRM )%AREA( NFAC ) )
                ALLOCATE( EM_FAC_ST( ISTR,ISRM )%REG( NFAC ) )
                ALLOCATE( EM_FAC_ST( ISTR,ISRM )%OP( NFAC ) )
                  
                EM_FAC_ST( ISTR,ISRM )%FAC  = 0.
                EM_FAC_ST( ISTR,ISRM )%BULK = 0.
                EM_FAC_ST( ISTR,ISRM )%BASIS= 1.
+               EM_FAC_ST( ISTR,ISRM )%AREA = .FALSE.
                EM_FAC_ST( ISTR,ISRM )%REG  = 1
                EM_FAC_ST( ISTR,ISRM )%OP   = 0
         
@@ -2098,6 +2116,7 @@ C and allowing the model to proceed.
                  EM_FAC_ST( ISTR,ISRM )%FAC( IFAC )    = EM_FAC ( ISTR, ISRM, IFAC ) 
                  EM_FAC_ST( ISTR,ISRM )%BULK( IFAC )   = EM_FAC_BULK( ISTR, ISRM, IFAC )
                  EM_FAC_ST( ISTR,ISRM )%REG( IFAC )    = EM_REG( ISTR, ISRM, IFAC )
+                 EM_FAC_ST( ISTR,ISRM )%AREA( IFAC )   = EM_FILE_SURR( ISRM )%AREA(ISUR)
                       
                    SELECT CASE ( EM_OP( ISTR, ISRM, IFAC ) )
                    CASE ( 'a' )
@@ -2352,7 +2371,8 @@ C and allowing the model to proceed.
       END SUBROUTINE EMIS_SPC_MAP
 
 !-----------------------------------------------------------------------
-         SUBROUTINE CHECK_EMIS_UNITS( ISRM, ISUR, SPEC, UNITS, CONV, BASIS )
+         SUBROUTINE CHECK_EMIS_UNITS( ISRM, ISUR, SPEC, UNITS, CONV, BASIS,
+     &                                LAREA_UNIT )
 
 ! This subroutine checks for invalid values of the operation parameter 
 ! in the rules from the emission control list
@@ -2360,7 +2380,8 @@ C and allowing the model to proceed.
          IMPLICIT NONE
 
          REAL, INTENT( OUT )              :: CONV
-         CHARACTER( 4 ) , INTENT( OUT )   :: BASIS
+         CHARACTER( 16 ) , INTENT( OUT )  :: BASIS
+         LOGICAL, INTENT( OUT )           :: LAREA_UNIT
          CHARACTER( 16 ), INTENT( INOUT ) :: UNITS
          INTEGER, INTENT( IN )            :: ISRM
          INTEGER, INTENT( IN )            :: ISUR
@@ -2372,10 +2393,13 @@ C and allowing the model to proceed.
          CHARACTER( 16 ) :: DENOM
          CHARACTER( 16 ) :: DENOM1
          CHARACTER( 16 ) :: DENOM2
+         LOGICAL         :: LTIME_UNIT
 
          ! The Default Finding is an unknown Basis unit and conversion
          ! equal to 1.0
          CONV = 1.0
+         LAREA_UNIT = .FALSE.
+         LTIME_UNIT = .FALSE.
          BASIS = 'UNKNOWN'
          IF ( UNITS .EQ. '' ) RETURN
          
@@ -2396,53 +2420,53 @@ C and allowing the model to proceed.
          IF ( SLASH_IND .EQ. 0 ) RETURN
 
          ! Check Numerator for Molar or Mass Units
-         IF ( NUMER .EQ. 'MOLE' .OR. NUMER .EQ. 'MOLES' .OR.
-     &        NUMER .EQ. 'MOL' ) THEN
+         IF ( NUMER(1:4) .EQ. 'MOLE' .OR. NUMER(1:5) .EQ. 'MOLES' .OR.
+     &        NUMER(1:3) .EQ. 'MOL' ) THEN
             ! No Conversion Needed for Moles to Moles
             CONV = 1.0 
             BASIS = 'MOLE'
-         ELSE IF ( NUMER .EQ. 'KMOLE' .OR. NUMER .EQ. 'KMOLES' .OR.
-     &             NUMER .EQ. 'KMOL' ) THEN
+         ELSE IF ( NUMER(1:5) .EQ. 'KMOLE' .OR. NUMER(1:6) .EQ. 'KMOLES' .OR.
+     &             NUMER(1:4) .EQ. 'KMOL' ) THEN
             ! Convert kmol to mol
             CONV = 1000.0
             BASIS = 'MOLE'
-         ELSE IF ( NUMER .EQ. 'MMOLE' .OR. NUMER .EQ. 'MMOLES' .OR.
-     &             NUMER .EQ. 'MMOL' ) THEN
+         ELSE IF ( NUMER(1:5) .EQ. 'MMOLE' .OR. NUMER(1:6) .EQ. 'MMOLES' .OR.
+     &             NUMER(1:4) .EQ. 'MMOL' ) THEN
             ! Convert mmol to mol
             CONV = 1.0e-3
             BASIS = 'MOLE'
-         ELSE IF ( NUMER .EQ. 'UMOLE' .OR. NUMER .EQ. 'UMOLES' .OR.
-     &             NUMER .EQ. 'UMOL' ) THEN
+         ELSE IF ( NUMER(1:5) .EQ. 'UMOLE' .OR. NUMER(1:6) .EQ. 'UMOLES' .OR.
+     &             NUMER(1:4) .EQ. 'UMOL' ) THEN
             ! Convert umol to mol
             CONV = 1.0e-6
             BASIS = 'MOLE'
-         ELSE IF ( NUMER .EQ. 'GRAM' .OR. NUMER .EQ. 'GRAMS' .OR.
-     &             NUMER .EQ. 'G'    .OR. NUMER .EQ. 'GM'    .OR.
-     &             NUMER .EQ. 'GMS'  .OR. NUMER .EQ. 'GS'  ) THEN
+         ELSE IF ( NUMER(1:4) .EQ. 'GRAM' .OR. NUMER(1:5) .EQ. 'GRAMS' .OR.
+     &             NUMER(1:1) .EQ. 'G'    .OR. NUMER(1:2) .EQ. 'GM'    .OR.
+     &             NUMER(1:3) .EQ. 'GMS'  .OR. NUMER(1:2) .EQ. 'GS'  ) THEN
             ! No Conversion Needed for Grams to Grams
             CONV = 1.0
             BASIS = 'MASS'
-         ELSE IF ( NUMER .EQ. 'KGRAM' .OR. NUMER .EQ. 'KGRAMS' .OR.
-     &             NUMER .EQ. 'KG'    .OR. NUMER .EQ. 'KGM'    .OR.
-     &             NUMER .EQ. 'KGMS'  .OR. NUMER .EQ. 'KGS' ) THEN
+         ELSE IF ( NUMER(1:5) .EQ. 'KGRAM' .OR. NUMER(1:6) .EQ. 'KGRAMS' .OR.
+     &             NUMER(1:2) .EQ. 'KG'    .OR. NUMER(1:3) .EQ. 'KGM'    .OR.
+     &             NUMER(1:4) .EQ. 'KGMS'  .OR. NUMER(1:3) .EQ. 'KGS' ) THEN
             ! Convert kg -> g
             CONV = 1000.0
             BASIS = 'MASS'
-         ELSE IF ( NUMER .EQ. 'MGRAM' .OR. NUMER .EQ. 'MGRAMS' .OR.
-     &             NUMER .EQ. 'MG'    .OR. NUMER .EQ. 'MGM'    .OR.
-     &             NUMER .EQ. 'MGMS'  .OR. NUMER .EQ. 'MGS' ) THEN
+         ELSE IF ( NUMER(1:5) .EQ. 'MGRAM' .OR. NUMER(1:6) .EQ. 'MGRAMS' .OR.
+     &             NUMER(1:2) .EQ. 'MG'    .OR. NUMER(1:3) .EQ. 'MGM'    .OR.
+     &             NUMER(1:4) .EQ. 'MGMS'  .OR. NUMER(1:3) .EQ. 'MGS' ) THEN
             ! Convert mg -> g
             CONV = 1.0e-3
             BASIS = 'MASS'
-         ELSE IF ( NUMER .EQ. 'UGRAM' .OR. NUMER .EQ. 'UGRAMS' .OR.
-     &             NUMER .EQ. 'UG'    .OR. NUMER .EQ. 'UGM'    .OR.
-     &             NUMER .EQ. 'UGMS'  .OR. NUMER .EQ. 'UGS' ) THEN
+         ELSE IF ( NUMER(1:5) .EQ. 'UGRAM' .OR. NUMER(1:6) .EQ. 'UGRAMS' .OR.
+     &             NUMER(1:2) .EQ. 'UG'    .OR. NUMER(1:3) .EQ. 'UGM'    .OR.
+     &             NUMER(1:3) .EQ. 'UGMS'  .OR. NUMER(1:3) .EQ. 'UGS' ) THEN
             ! Convert ug -> g
             CONV = 1.0e-6
             BASIS = 'MASS'
-         ELSE IF ( NUMER .EQ. 'NGRAM' .OR. NUMER .EQ. 'NGRAMS' .OR.
-     &             NUMER .EQ. 'NG'    .OR. NUMER .EQ. 'NGM'    .OR.
-     &             NUMER .EQ. 'NGMS'  .OR. NUMER .EQ. 'NGS' ) THEN
+         ELSE IF ( NUMER(1:5) .EQ. 'NGRAM' .OR. NUMER(1:6) .EQ. 'NGRAMS' .OR.
+     &             NUMER(1:2) .EQ. 'NG'    .OR. NUMER(1:3) .EQ. 'NGM'    .OR.
+     &             NUMER(1:4) .EQ. 'NGMS'  .OR. NUMER(1:3) .EQ. 'NGS' ) THEN
             ! Convert ng -> g
             CONV = 1.0e-9
             BASIS = 'MASS'
@@ -2462,11 +2486,12 @@ C and allowing the model to proceed.
          ! denominator is empty.
          DENOM = UNITS(X+2:)
          IF ( DENOM .EQ. '' ) THEN
-            WRITE( XMSG,'(A,A16,A,I3,A11,A16,A,A,A)' ),
+            WRITE( XMSG,'(A,A16,A,I3,A11,A16,A,A,A,A)' ),
      &              'ERROR: Surrogate Species ',TRIM(SPEC),' on emission stream ',
      &              ISRM, ' has units ',TRIM(UNITS),' which are not recognized ',
      &              'as an emission rate. If you wish to use this variable for ',
-     &              'emissions, please correct the units (e.g. g/s or moles/s).'
+     &              'emissions, please correct the units (e.g. g/s, moles/s, ',
+     &              'g/m2/s, or g/s/m2, etc.).'
             CALL M3WARN( 'CHECK_EMIS_UNITS', 0, 0, XMSG )
             ! No Conversion and and Unknown Basis
             CONV = CONV * 1.0e0
@@ -2481,48 +2506,145 @@ C and allowing the model to proceed.
 
          ! Now split the Denominator into two parts, before and after
          ! the slash or space. There will be at least one space because the
-         ! numerator has been cut from the units string.
+         ! numerator has been cut from the units string, thus leaving at
+         ! least one empty space.
          SLASH_IND = INDEX( DENOM, '/' )
          IF ( SLASH_IND .EQ. 0 ) SLASH_IND = INDEX( DENOM, ' ' )
          X = SLASH_IND - 1 
          DENOM1 = DENOM(1:X)
          DENOM2 = DENOM(X+2:)
-
-
-         ! Check for Time Units
-         X = X + 2
-         IF ( UNITS(X:) .EQ. 'S' .OR. UNITS(X:) .EQ. 'S-1' .OR.
-     &        UNITS(X:) .EQ. 'SEC'.OR.UNITS(X:) .EQ. 'SEC-1' .OR.
-     &        UNITS(X:) .EQ. 'SECOND'.OR.UNITS(X:) .EQ. 'SECOND-1' .OR.
-     &        UNITS(X:) .EQ. 'SECONDS'.OR.UNITS(X:) .EQ. 'SECONDS-1' ) THEN
-            ! No Conversion Necessary for seconds -> seconds
-            CONV = CONV * 1.0
-         ELSE IF ( UNITS(X:) .EQ. 'H' .OR. UNITS(X:) .EQ. 'H-1' .OR.
-     &             UNITS(X:) .EQ. 'HR'.OR.UNITS(X:) .EQ. 'HR-1' .OR.
-     &             UNITS(X:) .EQ. 'HOUR'.OR.UNITS(X:) .EQ. 'HOUR-1' .OR.
-     &             UNITS(X:) .EQ. 'HOURS'.OR.UNITS(X:) .EQ. 'HOURS-1' ) THEN
-            ! Convert hours -> seconds
-            CONV = CONV * 3600.0
-         ELSE IF ( UNITS(X:) .EQ. 'M' .OR. UNITS(X:) .EQ. 'M-1' .OR.
-     &             UNITS(X:) .EQ. 'MIN'.OR.UNITS(X:) .EQ. 'MIN-1' .OR.
-     &             UNITS(X:) .EQ. 'MINUTE'.OR.UNITS(X:) .EQ. 'MINUTE-1' .OR.
-     &             UNITS(X:) .EQ. 'MINUTES'.OR.UNITS(X:) .EQ. 'MINUTES-1' ) THEN
-            ! Convert hours -> seconds
-            CONV = CONV * 60.0
-         ELSE
-            WRITE( XMSG,'(A,A16,A,I3,A11,A16,A,A,A)' ),
+         
+         ! Parse the first Denominator and return attributes
+         CALL CHECK_UNIT_DENOMINATOR( DENOM1, LAREA_UNIT, LTIME_UNIT, 
+     &                                BASIS, CONV )
+         IF ( BASIS .EQ. 'UNKNOWN' ) THEN
+            WRITE( XMSG,'(A,A16,A,I3,A11,A16,A,A,A,A)' ),
      &              'ERROR: Surrogate Species ',TRIM(SPEC),' on emission stream ',
      &              ISRM, ' has units ',TRIM(UNITS),' which are not recognized ',
      &              'as an emission rate. If you wish to use this variable for ',
-     &              'emissions, please correct the units (e.g. g/s or moles/s).'
+     &              'emissions, please correct the units (e.g. g/s, moles/s, ',
+     &              'g/m2/s, or g/s/m2, etc.).'
             CALL M3WARN( 'CHECK_EMIS_UNITS', 0, 0, XMSG )
+            RETURN
+         END IF
+
+         ! Parse the second Denominator and return attributes
+         IF ( DENOM2 .NE. '' ) THEN
+            CALL CHECK_UNIT_DENOMINATOR( DENOM2, LAREA_UNIT, LTIME_UNIT, 
+     &                                   BASIS, CONV )
+            IF ( BASIS .EQ. 'UNKNOWN' ) RETURN
+               WRITE( XMSG,'(A,A16,A,I3,A11,A16,A,A,A,A)' ),
+     &                'ERROR: Surrogate Species ',TRIM(SPEC),' on emission stream ',
+     &                ISRM, ' has units ',TRIM(UNITS),' which are not recognized ',
+     &                'as an emission rate. If you wish to use this variable for ',
+     &                'emissions, please correct the units (e.g. g/s, moles/s, ',
+     &                'g/m2/s, or g/s/m2, etc.).'
+               CALL M3WARN( 'CHECK_EMIS_UNITS', 0, 0, XMSG )
+               RETURN
+            END IF
+         END IF
+
+         ! Check to make sure the time component has been defined 
+         IF ( .NOT. LTIME_UNIT ) THEN
+            WRITE( XMSG,'(A,A16,A,I3,A11,A16,A,A,A,A)' ),
+     &             'ERROR: Surrogate Species ',TRIM(SPEC),' on emission stream ',
+     &             ISRM, ' has units ',TRIM(UNITS),' which are not recognized ',
+     &             'as an emission rate. If you wish to use this variable for ',
+     &             'emissions, please correct the units (e.g. g/s, moles/s, ',
+     &             'g/m2/s, or g/s/m2, etc.).'
+            CALL M3WARN( 'CHECK_EMIS_UNITS', 0, 0, XMSG )
+            BASIS = 'UNKNOWN'
+            RETURN
+         END IF    
+
+         END SUBROUTINE CHECK_EMIS_UNITS
+ 
+!-----------------------------------------------------------------------
+         SUBROUTINE CHECK_UNIT_DENOMINATOR( DENOM, LAREA, LTIME, BASIS, CONV)
+
+! This subroutine compares the denominator from the units string of an
+! emission variables to potential time and area units and determines how
+! to convert the emissions online in DESID.
+!-----------------------------------------------------------------------
+
+         IMPLICIT NONE
+
+         CHARACTER(16), INTENT( IN )   :: DENOM
+         LOGICAL, INTENT( OUT )        :: LAREA
+         LOGICAL, INTENT( OUT )        :: LTIME
+         CHARACTER(16), INTENT( INOUT ):: BASIS
+         REAL, INTENT( INOUT)          :: CONV
+
+         ! Check 1st Denominator for Time Units
+         IF ( DENOM .EQ. 'S' .OR. DENOM .EQ. 'S-1' .OR.
+     &        DENOM .EQ. 'SEC'.OR.DENOM .EQ. 'SEC-1' .OR.
+     &        DENOM .EQ. 'SECOND'.OR.DENOM .EQ. 'SECOND-1' .OR.
+     &        DENOM .EQ. 'SECONDS'.OR.DENOM .EQ. 'SECONDS-1' ) THEN
+            ! No Conversion Necessary for seconds -> seconds
+            CONV = CONV * 1.0
+            LTIME_UNIT = .TRUE.
+         ELSE IF ( DENOM .EQ. 'H' .OR. DENOM .EQ. 'H-1' .OR.
+     &             DENOM .EQ. 'HR'.OR.DENOM .EQ. 'HR-1' .OR.
+     &             DENOM .EQ. 'HRS'.OR.DENOM .EQ. 'HRS-1' .OR.
+     &             DENOM .EQ. 'HOUR'.OR.DENOM .EQ. 'HOUR-1' .OR.
+     &             DENOM .EQ. 'HOURS'.OR.DENOM .EQ. 'HOURS-1' ) THEN
+            ! Convert hours -> seconds
+            CONV = CONV * 3600.0
+            LTIME_UNIT = .TRUE.
+         ELSE IF ( DENOM .EQ. 'M' .OR. DENOM .EQ. 'M-1' .OR.
+     &             DENOM .EQ. 'MIN'.OR.DENOM .EQ. 'MIN-1' .OR.
+     &             DENOM .EQ. 'MINUTE'.OR.DENOM .EQ. 'MINUTE-1' .OR.
+     &             DENOM .EQ. 'MINUTES'.OR.DENOM .EQ. 'MINUTES-1' ) THEN
+            ! Convert minutes -> seconds
+            CONV = CONV * 60.0
+            LTIME_UNIT = .TRUE.
+         ELSE IF ( DENOM .EQ. 'M2' .OR. DENOM .EQ. 'M-2' .OR.
+     &             DENOM .EQ. 'M^2'.OR.DENOM .EQ. 'METER-2' .OR.
+     &             DENOM .EQ. 'METER^2'.OR.DENOM .EQ. 'METER^-2' .OR.
+     &             DENOM .EQ. 'METER2'.OR.DENOM .EQ. 'METER-2' .OR.
+     &             DENOM .EQ. 'METERS^2'.OR.DENOM .EQ. 'METERS^-2' .OR.
+     &             DENOM .EQ. 'METERS2'.OR.DENOM .EQ. 'METERS-2' ) THEN
+            ! No conversion necessary for meters^2 -> meters^2
+            CONV = CONV * 1.0
+            LAREA_UNIT = .TRUE. 
+         ELSE IF ( DENOM .EQ. 'KM2' .OR. DENOM .EQ. 'KM-2' .OR.
+     &             DENOM .EQ. 'KM^2'.OR.DENOM .EQ. 'KM^-2' .OR.
+     &             DENOM .EQ. 'KILOMETER2'.OR.DENOM .EQ. 'KILOMETER-2' .OR.
+     &             DENOM .EQ. 'KILOMETER^2'.OR.DENOM .EQ. 'KILOMETER^-2' .OR.
+     &             DENOM .EQ. 'KILOMETERS2'.OR.DENOM .EQ. 'KILOMETERS-2' .OR.
+     &             DENOM .EQ. 'KILOMETERS^2'.OR.DENOM .EQ. 'KILOMETERS-2' ) THEN
+            ! Convert kilometers^2 -> meters^2
+            CONV = CONV * 1.0E6
+            LAREA_UNIT = .TRUE. 
+         ELSE IF ( DENOM .EQ. 'MI2' .OR. DENOM .EQ. 'MI-2' .OR.
+     &             DENOM .EQ. 'MI^2'.OR.DENOM .EQ. 'MI^-2' .OR.
+     &             DENOM .EQ. 'MILE2'.OR.DENOM .EQ. 'MILE-2' .OR.
+     &             DENOM .EQ. 'MILE^2'.OR.DENOM .EQ. 'MILE^-2' .OR.
+     &             DENOM .EQ. 'MILES2'.OR.DENOM .EQ. 'MILES-2' .OR.
+     &             DENOM .EQ. 'MILES^2'.OR.DENOM .EQ. 'MILES-2' ) THEN
+            ! Convert mile^2 -> meters^2
+            CONV = CONV * 2.59E6
+            LAREA_UNIT = .TRUE.  
+         ELSE IF ( DENOM .EQ. 'HA' .OR. DENOM .EQ. 'HA-1' .OR.
+     &             DENOM .EQ. 'HA^1'.OR.DENOM .EQ. 'HA^-1' .OR.
+     &             DENOM .EQ. 'HECTARE'.OR.DENOM .EQ. 'HECTARE-1' .OR.
+     &             DENOM .EQ. 'HECTARE^1'.OR.DENOM .EQ. 'HECTARE^-1' .OR.
+     &             DENOM .EQ. 'HECTARES'.OR.DENOM .EQ. 'HECTARES-1' .OR.
+     &             DENOM .EQ. 'HECTARES^1'.OR.DENOM .EQ. 'HECTARES^-1' ) THEN
+            ! Convert hectares -> meters^2
+            CONV = CONV * 10000.0
+            LAREA_UNIT = .TRUE.   
+         ELSE
             ! No Conversion and and Unknown Basis
             CONV = CONV * 1.0e0
             BASIS = 'UNKNOWN'
          END IF
-
-         END SUBROUTINE CHECK_EMIS_UNITS
  
+
+
+
+         END SUBROUTINE CHECK_UNIT_DENOMINATOR
+
 !-----------------------------------------------------------------------
          SUBROUTINE CHECK_OP( OP, IRULE )
 
