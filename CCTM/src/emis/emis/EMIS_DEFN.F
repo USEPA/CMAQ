@@ -2393,7 +2393,7 @@ C and allowing the model to proceed.
 
 !-----------------------------------------------------------------------
          SUBROUTINE CHECK_EMIS_UNITS( ISRM, ISUR, SPEC, UNITS, CONV, BASIS,
-     &                                LAREA_UNIT )
+     &                                LAREA )
 
 ! This subroutine checks for invalid values of the operation parameter 
 ! in the rules from the emission control list
@@ -2402,7 +2402,7 @@ C and allowing the model to proceed.
 
          REAL, INTENT( OUT )              :: CONV
          CHARACTER( 16 ) , INTENT( OUT )  :: BASIS
-         LOGICAL, INTENT( OUT )           :: LAREA_UNIT
+         LOGICAL, INTENT( INOUT )         :: LAREA
          CHARACTER( 16 ), INTENT( INOUT ) :: UNITS
          INTEGER, INTENT( IN )            :: ISRM
          INTEGER, INTENT( IN )            :: ISUR
@@ -2415,6 +2415,7 @@ C and allowing the model to proceed.
          CHARACTER( 16 ) :: DENOM1
          CHARACTER( 16 ) :: DENOM2
          LOGICAL         :: LTIME_UNIT
+         LOGICAL         :: LAREA_UNIT
 
          ! The Default Finding is an unknown Basis unit and conversion
          ! equal to 1.0
@@ -2427,7 +2428,7 @@ C and allowing the model to proceed.
          ! Capitalize UNITS string and remove any leading spaces 
          CALL UPCASE( UNITS ) 
          DO WHILE ( UNITS(1:1) .EQ. ' ' ) 
-             UNITS = UNITS(2:16) / ' '
+             UNITS = UNITS(2:16) // ' '
          END DO
 
          ! Find First Break between numerator and denominator. If it's not a
@@ -2522,7 +2523,7 @@ C and allowing the model to proceed.
 
          ! Remove Leading Spaces, if any
          DO WHILE ( DENOM(1:1) .EQ. ' ' ) 
-             DENOM = DENOM(2:16) / ' '
+             DENOM = DENOM(2:16) // ' '
          END DO
 
          ! Now split the Denominator into two parts, before and after
@@ -2546,6 +2547,7 @@ C and allowing the model to proceed.
      &              'emissions, please correct the units (e.g. g/s, moles/s, ',
      &              'g/m2/s, or g/s/m2, etc.).'
             CALL M3WARN( 'CHECK_EMIS_UNITS', 0, 0, XMSG )
+            LAREA = LAREA_UNIT
             RETURN
          END IF
 
@@ -2553,7 +2555,7 @@ C and allowing the model to proceed.
          IF ( DENOM2 .NE. '' ) THEN
             CALL CHECK_UNIT_DENOMINATOR( DENOM2, LAREA_UNIT, LTIME_UNIT, 
      &                                   BASIS, CONV )
-            IF ( BASIS .EQ. 'UNKNOWN' ) RETURN
+            IF ( BASIS .EQ. 'UNKNOWN' ) THEN
                WRITE( XMSG,'(A,A16,A,I3,A11,A16,A,A,A,A)' ),
      &                'ERROR: Surrogate Species ',TRIM(SPEC),' on emission stream ',
      &                ISRM, ' has units ',TRIM(UNITS),' which are not recognized ',
@@ -2561,6 +2563,7 @@ C and allowing the model to proceed.
      &                'emissions, please correct the units (e.g. g/s, moles/s, ',
      &                'g/m2/s, or g/s/m2, etc.).'
                CALL M3WARN( 'CHECK_EMIS_UNITS', 0, 0, XMSG )
+               LAREA = LAREA_UNIT
                RETURN
             END IF
          END IF
@@ -2574,9 +2577,12 @@ C and allowing the model to proceed.
      &             'emissions, please correct the units (e.g. g/s, moles/s, ',
      &             'g/m2/s, or g/s/m2, etc.).'
             CALL M3WARN( 'CHECK_EMIS_UNITS', 0, 0, XMSG )
+            LAREA = LAREA_UNIT
             BASIS = 'UNKNOWN'
             RETURN
-         END IF    
+         END IF 
+
+         LAREA = LAREA_UNIT
 
          END SUBROUTINE CHECK_EMIS_UNITS
  
@@ -2603,7 +2609,7 @@ C and allowing the model to proceed.
      &        DENOM .EQ. 'SECONDS'.OR.DENOM .EQ. 'SECONDS-1' ) THEN
             ! No Conversion Necessary for seconds -> seconds
             CONV = CONV * 1.0
-            LTIME_UNIT = .TRUE.
+            LTIME = .TRUE.
          ELSE IF ( DENOM .EQ. 'H' .OR. DENOM .EQ. 'H-1' .OR.
      &             DENOM .EQ. 'HR'.OR.DENOM .EQ. 'HR-1' .OR.
      &             DENOM .EQ. 'HRS'.OR.DENOM .EQ. 'HRS-1' .OR.
@@ -2611,14 +2617,14 @@ C and allowing the model to proceed.
      &             DENOM .EQ. 'HOURS'.OR.DENOM .EQ. 'HOURS-1' ) THEN
             ! Convert hours -> seconds
             CONV = CONV * 3600.0
-            LTIME_UNIT = .TRUE.
+            LTIME = .TRUE.
          ELSE IF ( DENOM .EQ. 'M' .OR. DENOM .EQ. 'M-1' .OR.
      &             DENOM .EQ. 'MIN'.OR.DENOM .EQ. 'MIN-1' .OR.
      &             DENOM .EQ. 'MINUTE'.OR.DENOM .EQ. 'MINUTE-1' .OR.
      &             DENOM .EQ. 'MINUTES'.OR.DENOM .EQ. 'MINUTES-1' ) THEN
             ! Convert minutes -> seconds
             CONV = CONV * 60.0
-            LTIME_UNIT = .TRUE.
+            LTIME = .TRUE.
          ELSE IF ( DENOM .EQ. 'M2' .OR. DENOM .EQ. 'M-2' .OR.
      &             DENOM .EQ. 'M^2'.OR.DENOM .EQ. 'METER-2' .OR.
      &             DENOM .EQ. 'METER^2'.OR.DENOM .EQ. 'METER^-2' .OR.
@@ -2627,7 +2633,7 @@ C and allowing the model to proceed.
      &             DENOM .EQ. 'METERS2'.OR.DENOM .EQ. 'METERS-2' ) THEN
             ! No conversion necessary for meters^2 -> meters^2
             CONV = CONV * 1.0
-            LAREA_UNIT = .TRUE. 
+            LAREA = .TRUE. 
          ELSE IF ( DENOM .EQ. 'KM2' .OR. DENOM .EQ. 'KM-2' .OR.
      &             DENOM .EQ. 'KM^2'.OR.DENOM .EQ. 'KM^-2' .OR.
      &             DENOM .EQ. 'KILOMETER2'.OR.DENOM .EQ. 'KILOMETER-2' .OR.
@@ -2636,7 +2642,7 @@ C and allowing the model to proceed.
      &             DENOM .EQ. 'KILOMETERS^2'.OR.DENOM .EQ. 'KILOMETERS-2' ) THEN
             ! Convert kilometers^2 -> meters^2
             CONV = CONV * 1.0E6
-            LAREA_UNIT = .TRUE. 
+            LAREA = .TRUE. 
          ELSE IF ( DENOM .EQ. 'MI2' .OR. DENOM .EQ. 'MI-2' .OR.
      &             DENOM .EQ. 'MI^2'.OR.DENOM .EQ. 'MI^-2' .OR.
      &             DENOM .EQ. 'MILE2'.OR.DENOM .EQ. 'MILE-2' .OR.
@@ -2645,7 +2651,7 @@ C and allowing the model to proceed.
      &             DENOM .EQ. 'MILES^2'.OR.DENOM .EQ. 'MILES-2' ) THEN
             ! Convert mile^2 -> meters^2
             CONV = CONV * 2.59E6
-            LAREA_UNIT = .TRUE.  
+            LAREA = .TRUE.  
          ELSE IF ( DENOM .EQ. 'HA' .OR. DENOM .EQ. 'HA-1' .OR.
      &             DENOM .EQ. 'HA^1'.OR.DENOM .EQ. 'HA^-1' .OR.
      &             DENOM .EQ. 'HECTARE'.OR.DENOM .EQ. 'HECTARE-1' .OR.
@@ -2654,7 +2660,7 @@ C and allowing the model to proceed.
      &             DENOM .EQ. 'HECTARES^1'.OR.DENOM .EQ. 'HECTARES^-1' ) THEN
             ! Convert hectares -> meters^2
             CONV = CONV * 10000.0
-            LAREA_UNIT = .TRUE.   
+            LAREA = .TRUE.   
          ELSE
             ! No Conversion and and Unknown Basis
             CONV = CONV * 1.0e0
