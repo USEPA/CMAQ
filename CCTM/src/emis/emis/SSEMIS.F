@@ -311,6 +311,7 @@ C can be printed in EMIS_MAP
             Allocate( Em_File_Surr( iseasrm )%used ( nssspc*2 ) )
             Allocate( Em_File_Surr( iseasrm )%conv ( nssspc*2 ) )
             Allocate( Em_File_Surr( iseasrm )%basis( nssspc*2 ) )
+            Allocate( Em_File_Surr( iseasrm )%larea( nssspc*2 ) )
             Em_File_Surr( iseasrm )%arry( : ) = 'NOT_AVAILABLE'
             do i = 1,nssspc
               IF ( sea_spc( i )%spcfac(1) .NE. 0.0 .or. i .EQ. nssspc ) 
@@ -326,6 +327,7 @@ C can be printed in EMIS_MAP
             Em_File_Surr( iseasrm )%used ( : ) = .FALSE.
             Em_File_Surr( iseasrm )%conv ( : ) = 1.0
             Em_File_Surr( iseasrm )%basis( : ) = 'MASS'
+            Em_File_Surr( iseasrm )%larea( : ) = .FALSE.
  
 C Allocate SS arrays using NSSSPC value
             ALLOCATE ( SSOUTM( NSSSPC*2,NCOLS,NROWS ),

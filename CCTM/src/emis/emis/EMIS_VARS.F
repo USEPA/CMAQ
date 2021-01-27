@@ -51,7 +51,7 @@
           LOGICAL,         ALLOCATABLE :: USED( : )   ! Whether or not the surrogate is used in CMAQ
           Real,            ALLOCATABLE :: CONV( : )   ! Conversion factor to account for kg -> g or hr -> s
           CHARACTER( 16 ), ALLOCATABLE :: BASIS( : )  ! 'MOLE', 'MASS', or 'UNKNOWN' 
-          LOGICAL,         ALLOCATABLE :: AREA( : )   ! Whether or not the variable is an area flux
+          LOGICAL,         ALLOCATABLE :: LAREA( : )  ! Whether or not the variable is an area flux
       END TYPE EM_SURR_TYPE
       TYPE( EM_SURR_TYPE ),ALLOCATABLE :: EM_FILE_SURR( : )! Species to be read from each stream file
 

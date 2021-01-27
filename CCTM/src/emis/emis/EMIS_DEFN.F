@@ -1400,8 +1400,9 @@ C and allowing the model to proceed.
             ALLOCATE( EM_FILE_SURR( ISRM )%USED ( EM_FILE_SURR( ISRM )%LEN ) )
             ALLOCATE( EM_FILE_SURR( ISRM )%CONV ( EM_FILE_SURR( ISRM )%LEN ) )
             ALLOCATE( EM_FILE_SURR( ISRM )%BASIS( EM_FILE_SURR( ISRM )%LEN ) )
-            ALLOCATE( EM_FILE_SURR( ISRM )%AREA ( EM_FILE_SURR( ISRM )%LEN ) )
+            ALLOCATE( EM_FILE_SURR( ISRM )%LAREA( EM_FILE_SURR( ISRM )%LEN ) )
             EM_FILE_SURR( ISRM )%USED = .FALSE.
+            EM_FILE_SURR( ISRM )%LAREA= .FALSE.
 
             DO ISUR = 1,EM_FILE_SURR( ISRM )%LEN
                ! Assign Default Molecular Weight to Each Surrogate Species
@@ -1439,7 +1440,7 @@ C and allowing the model to proceed.
      &                                EM_FILE_SURR( ISRM )%UNITS( ISUR ), 
      &                                EM_FILE_SURR( ISRM )%CONV ( ISUR ),
      &                                EM_FILE_SURR( ISRM )%BASIS( ISUR ),
-     &                                EM_FILE_SURR( ISRM )%AREA ( ISUR ) )
+     &                                EM_FILE_SURR( ISRM )%LAREA( ISUR ) )
             END DO
          END DO
 
@@ -2137,7 +2138,7 @@ C and allowing the model to proceed.
                  EM_FAC_ST( ISTR,ISRM )%FAC( IFAC )    = EM_FAC ( ISTR, ISRM, IFAC ) 
                  EM_FAC_ST( ISTR,ISRM )%BULK( IFAC )   = EM_FAC_BULK( ISTR, ISRM, IFAC )
                  EM_FAC_ST( ISTR,ISRM )%REG( IFAC )    = EM_REG( ISTR, ISRM, IFAC )
-                 EM_FAC_ST( ISTR,ISRM )%AREA( IFAC )   = EM_FILE_SURR( ISRM )%AREA(ISUR)
+                 EM_FAC_ST( ISTR,ISRM )%AREA( IFAC )   = EM_FILE_SURR( ISRM )%LAREA(ISUR)
                       
                    SELECT CASE ( EM_OP( ISTR, ISRM, IFAC ) )
                    CASE ( 'a' )
@@ -2393,7 +2394,7 @@ C and allowing the model to proceed.
 
 !-----------------------------------------------------------------------
          SUBROUTINE CHECK_EMIS_UNITS( ISRM, ISUR, SPEC, UNITS, CONV, BASIS,
-     &                                LAREA )
+     &                                LAREA_UNIT )
 
 ! This subroutine checks for invalid values of the operation parameter 
 ! in the rules from the emission control list
@@ -2402,7 +2403,7 @@ C and allowing the model to proceed.
 
          REAL, INTENT( OUT )              :: CONV
          CHARACTER( 16 ) , INTENT( OUT )  :: BASIS
-         LOGICAL, INTENT( INOUT )         :: LAREA
+         LOGICAL, INTENT( INOUT )         :: LAREA_UNIT
          CHARACTER( 16 ), INTENT( INOUT ) :: UNITS
          INTEGER, INTENT( IN )            :: ISRM
          INTEGER, INTENT( IN )            :: ISUR
@@ -2415,7 +2416,6 @@ C and allowing the model to proceed.
          CHARACTER( 16 ) :: DENOM1
          CHARACTER( 16 ) :: DENOM2
          LOGICAL         :: LTIME_UNIT
-         LOGICAL         :: LAREA_UNIT
 
          ! The Default Finding is an unknown Basis unit and conversion
          ! equal to 1.0
@@ -2547,7 +2547,6 @@ C and allowing the model to proceed.
      &              'emissions, please correct the units (e.g. g/s, moles/s, ',
      &              'g/m2/s, or g/s/m2, etc.).'
             CALL M3WARN( 'CHECK_EMIS_UNITS', 0, 0, XMSG )
-            LAREA = LAREA_UNIT
             RETURN
          END IF
 
@@ -2563,7 +2562,6 @@ C and allowing the model to proceed.
      &                'emissions, please correct the units (e.g. g/s, moles/s, ',
      &                'g/m2/s, or g/s/m2, etc.).'
                CALL M3WARN( 'CHECK_EMIS_UNITS', 0, 0, XMSG )
-               LAREA = LAREA_UNIT
                RETURN
             END IF
          END IF
@@ -2577,12 +2575,9 @@ C and allowing the model to proceed.
      &             'emissions, please correct the units (e.g. g/s, moles/s, ',
      &             'g/m2/s, or g/s/m2, etc.).'
             CALL M3WARN( 'CHECK_EMIS_UNITS', 0, 0, XMSG )
-            LAREA = LAREA_UNIT
             BASIS = 'UNKNOWN'
             RETURN
          END IF 
-
-         LAREA = LAREA_UNIT
 
          END SUBROUTINE CHECK_EMIS_UNITS
  
