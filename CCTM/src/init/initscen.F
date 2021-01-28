@@ -228,7 +228,14 @@ C Get tracer IC's
 C Test opening existing conc file for update
       CALL LOG_HEADING( LOGDEV, "Open or Create Concentration File" )
 
+C *** Open the aerosol parameters file (diameters and standard deviations).
+      IF ( L_PMDIAG .AND. IO_PE_INCLUSIVE ) THEN
+           CALL OPEN_PMDIAG ( JDATE, JTIME, TSTEP( 1 ) )
+           PMDIAG_AVRG_STEP = 0
+      END IF
+
       IF ( .NOT. OPEN3( CTM_CONC_1, FSRDWR3, PNAME ) ) THEN
+
 #ifndef twoway
          BACKSPACE( LOGDEV )
 #endif

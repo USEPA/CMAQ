@@ -719,7 +719,7 @@ C science process sequence:
 
       DO IREP = 1, NREPS
 
-            CALL SCIPROC ( CGRID, JDATE, JTIME, TSTEP, ASTEP )
+         CALL SCIPROC ( CGRID, JDATE, JTIME, TSTEP, ASTEP )
 
 #ifndef mpas
 C Use trapezoidal rule to time-average data
@@ -745,24 +745,26 @@ C Use trapezoidal rule to time-average data
      &      AVG_PRES( :,:,: ) = AVG_PRES + 2.0 * MET_DATA%PRES( :,:,ACONC_BLEV:ACONC_ELEV )
 
 #ifdef isam
-            ! average isam
-            DO ITAG = 1, NTAG_SA
-               DO V = 1, NSPC_SA
-                  L = 0
-                  DO K = AISAM_BLEV, AISAM_ELEV
-                     L = L + 1
-                     DO R = 1, NROWS
-                        DO C = 1, NCOLS
-                           AISAM( C,R,L,V,ITAG ) = AISAM( C,R,L,V,ITAG )
-     &                                           + 2.0 * ISAM( C,R,K,V,ITAG )
-                        END DO
+         ! average isam
+         DO ITAG = 1, NTAG_SA
+            DO V = 1, NSPC_SA
+               L = 0
+               DO K = AISAM_BLEV, AISAM_ELEV
+                  L = L + 1
+                  DO R = 1, NROWS
+                     DO C = 1, NCOLS
+                        AISAM( C,R,L,V,ITAG ) = AISAM( C,R,L,V,ITAG )
+     &                                        + 2.0 * ISAM( C,R,K,V,ITAG )
                      END DO
                   END DO
                END DO
             END DO
+         END DO
 #endif
 
 #endif
+         ! OUTPUT DIAGNOSTIC INFORMATION
+         IF ( L_PMDIAG ) CALL PMDIAG_DRIVER( CGRID, JDATE, JTIME )
 
       END DO
 
@@ -837,6 +839,12 @@ C write conc fields
 #ifdef sens
          CALL WR_ASENS ( JDATE, JTIME, TSTEP( 1 ) )
 #endif
+         IF ( L_PMDIAG .AND. WRITETIME ) THEN
+             CALL WRITE_PMDIAG( JDATE, JTIME, TSTEP )
+             PMDIAG_AVRG_STEP = 0
+             WRITETIME = .FALSE.
+         END IF
+
          IF ( LIPR .OR. LIRR ) CALL PA_OUTPUT ( CGRID, JDATE, JTIME )
          IF ( PRINT_PROC_TIME ) CALL TIMING_SPLIT ( CPU_TIME_START, 3 )
       END IF

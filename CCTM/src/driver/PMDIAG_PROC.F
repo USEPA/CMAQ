@@ -2722,6 +2722,122 @@
       END SUBROUTINE LOAD_PMDIAG
 
 !-------------------------------------------------------------------------
+      SUBROUTINE PMDIAG_DRIVER( CGRID, JDATE, JTIME )
+!     This subroutine maps the PM diagnostic variables that the user has
+!       requested to the entries in the PMDIAG_DATA table.
+!-------------------------------------------------------------------------
+
+      USE AERO_DATA, ONLY: AEROMODE_LNSG, DRY_AERO_DIAM, WET_AERO_DIAM,
+     &                     DRY_AERO_M2, WET_AERO_M2, DRY_AERO_M3, 
+     &                     WET_AERO_M3, N_MODE, MOMENT0_CONC, MOMENT2_CONC,
+     &                     MOMENT3_CONC, WET_AERO_DENS, AEROSPC_CONC,
+     &                     AH2O_IDX, AEROSPC, CALC_AERODIST_PARAMS
+      USE AEROMET_DATA, ONLY: AIRRH
+
+      IMPLICIT NONE
+
+      REAL, INTENT( IN )    :: CGRID( :,:,:,: ) ! Master concentration grid
+      INTEGER, INTENT( IN ) :: JDATE, JTIME     ! Date and time inputs to 
+                                                ! determine whether to write 
+                                                ! concentrations
+
+      ! Variable to set time step for writing visibility file
+      INTEGER, SAVE :: WSTEP  = 0          ! local write counter
+      LOGICAL, SAVE :: WRITETIME = .FALSE. ! local write flag
+
+      LOGICAL, SAVE :: FIRSTIME = .TRUE.
+    
+      ! Statement Function **************
+      REAL ESATL ! arithmetic statement function for vapor pressure [Pa]
+      REAL TT
+      ! Coefficients for the equation, ESATL defining saturation vapor pressure
+      REAL, PARAMETER :: AL = 610.94
+      REAL, PARAMETER :: BL = 17.625
+      REAL, PARAMETER :: CL = 243.04
+
+     ! values of AL, BL, and CL are from:
+     ! Alduchov and Eskridge, "Improved Magnus Form Approximations of
+     !                       Saturation Vapor Pressure,"
+     !                       Jour. of Applied Meteorology, vol. 35,
+     !                       pp 601-609, April, 1996.
+
+      ESATL( TT ) = AL * EXP( BL * ( TT - 273.15 ) / ( TT - 273.15 + CL ) )
+ 
+
+      IF ( FIRSTIME ) THEN
+          FIRSTIME = .FALSE.
+          ! Initialize Number of Steps Used for Calculating Average
+          PMDIAG_AVRG_STEP = 0
+      END IF
+
+      ! Determine if this is a write step
+      WSTEP = WSTEP + TIME2SEC( TSTEP( 2 ) )
+      IF ( WSTEP .GE. TIME2SEC( TSTEP( 1 ) ) ) THEN
+           WRITETIME = .TRUE.
+           WSTEP = 0
+      END IF
+      PMDIAG_AVRG_STEP = PMDIAG_AVRG_STEP + 1
+     
+      ! Get Meteorological Variables
+
+      ! pressure [Pa]
+      call interpolate_var ('PRES', mdate, mtime, PRES)
+
+      ! temperature [K]
+      call interpolate_var ('TA', mdate, mtime, TA)       ! Grid Cell Temp
+      call interpolate_var ('TEMP2',mdate, mtime, TEMP2 ) ! 2-m Temp
+
+      ! specific humidity [g H2O/g air]
+      call interpolate_var ('QV', mdate, mtime, QV)
+
+      ! air density [kg/m3]
+      call interpolate_var ('DENS', mdate, mtime, DENS)
+ 
+      
+      ! Process PM Diagnostics for Base Model
+
+      DO C = 1,NCOLS
+      DO R = 1,NROWS
+      DO L = 1,NLAYS
+         ! Grid cell meteorological data.
+         AIRTEMP  = TA   ( C,R,L )
+         SRFTEMP  = TEMP2( C,R )     ! 2-meter temperature (K)
+         AIRPRES  = PRES ( C,R,L )   ! Note pascals
+         AIRQV    = QV   ( C,R,L )
+         AIRDENS  = DENS ( C,R,L )
+         H2OSATVP = ESATL( AIRTEMP )
+         H2OVP    = AIRPRES * AIRQV / ( EPSWATER  + AIRQV )
+         AIRRH    = MAX( 0.005, MIN( 0.99, H2OVP / H2OSATVP ) ) ! 0-1
+ 
+         ! Extract Aerosols
+         CALL EXTRACT_AERO( CGRID( C,R,L,: ), .TRUE. )
+         
+         ! Populate Diagnostic Arrays
+         CALL LOAD_PMDIAG( C,R,L, CGRID(C,R,L,:), WRITETIME )
+
+      END DO
+      END DO
+      END DO
+
+      ! (Future Work) Process PM Diagnostics for ISAM
+
+      ! (Future Work) Process PM Diagnostics for DDM
+
+
+      IF ( WRITETIME ) THEN
+           IF ( L_PMDIAG ) CALL WRITE_PMDIAG( JDATE, JTIME, TSTEP )
+           PMDIAG_AVRG_STEP = 0
+           PMDIAG_AVRG = 0.0
+
+           !IF ( ISAM ) CALL WRITE_PMDIAG_ISAM( JDATE, JTIME, TSTEP )
+           !IF ( DDM3D ) CALL WRITE_PMDIAG_DDM( JDATE, JTIME, TSTEP )
+           WRITETIME = .FALSE.
+      END IF
+
+
+      END SUBROUTINE PMDIAG_DRIVER
+
+!-------------------------------------------------------------------------
       SUBROUTINE OPEN_PMDIAG ( JDATE, JTIME, TSTEP )
 ! Revision history
 !   ??? Frank Binkowski
