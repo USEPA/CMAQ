@@ -1,10 +1,11 @@
 CMAQ-PFAS (Built upon CMAQv5.3.2)
 =================================
 
-This version of the Community Multiscale Air Quality (CMAQ) model supports emission, transport, gas/particle partitioning, and deposition of Per- and Polyfluoroalkyl Substances (PFASs). The model has been applied and evaluated for one case study in Eastern North Carolina (D'Ambro et al., "Characterizing the Air Emissions, Transport, and Deposition of Per- and Polyfluoroalkyl Substances from a Fluoropolymer Manufacturing Facility", ES&T, 2021).
+This version of the Community Multiscale Air Quality (CMAQ) model supports emission, transport, gas/particle partitioning, and deposition of **Per- and Polyfluoroalkyl Substances (PFASs)**. The model has been applied and evaluated for one case study in Eastern North Carolina (D'Ambro et al., "Characterizing the Air Emissions, Transport, and Deposition of Per- and Polyfluoroalkyl Substances from a Fluoropolymer Manufacturing Facility", ES&T, 2021).
 
 
 
+## CMAQ System Overview
 Community Multiscale Air Quality Model US EPA CMAQ Website: (https://www.epa.gov/cmaq).
 
 CMAQ is an active open-source development project of the U.S. EPA's Office of Research and Development that consists of a suite of programs for conducting air quality model simulations.
