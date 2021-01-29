@@ -2344,7 +2344,7 @@
                 VAL = VAL + SUM( AEROSPC_CONC( MAP_OAtoAERO(IOA),: ),
      &                      MASK = AEROMODE(:)%FINE_MASK ) 
             END DO
-            OUTVAL = VAL
+            OUTVAL = VAL    
          
          ! Calculate PMF_ASOA - Fine-Mode Anthropogenic OA Mass
          CASE ( ID_PMF_ASOA )
