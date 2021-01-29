@@ -3033,8 +3033,14 @@
       END DO
 
       ! (Future Work) Process PM Diagnostics for ISAM
+      !   Extract Aero and Set Distribution Properties using 
+      !   base CGRID. Then loop over ISAM tags, load a CGRID style
+      !   vector with 0's where there are untagged species. Then
+      !   extract aero again and input then new CGRID and AEROSPC_CONC
+      !   to LOAD_PMDIAG.
 
       ! (Future Work) Process PM Diagnostics for DDM
+      !   Discuss with Sergey the best way to approach.
 
 
       IF ( WRITETIME ) THEN
