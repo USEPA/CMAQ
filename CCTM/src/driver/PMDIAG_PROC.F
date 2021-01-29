@@ -195,6 +195,15 @@
             INST_PARS_REG( INUM:N_END-1 ) = INST_PARS_REG( INUM+1:N_END )
             INST_PARS_REG( N_END ) = ''
             N_END = N_END - 1
+         ELSE IF ( INST_PARS_REG( INUM ) .EQ. 'ALLCONC' ) THEN
+            ! Add All Raw Output Species to the End of the Registry List
+            INST_PARS_REG( N_END+1:N_END+N_CGRID_SPC ) = CGRID_NAME(1:N_CGRID_SPC)
+            N_END = N_END + N_CGRID_SPC
+
+            ! Remove 'ALLCONC' Keyword from INST Parameter List
+            INST_PARS_REG( INUM:N_END-1 ) = INST_PARS_REG( INUM+1:N_END )
+            INST_PARS_REG( N_END ) = ''
+            N_END = N_END - 1 
          ELSE IF ( I1 .GT. 0 ) THEN
             ! Entry Matches a parameter on the PMDIAG list. 
             INUM = INUM + 1
@@ -325,6 +334,15 @@
             N_END = N_END + NCHEMFAMILIES
  
             ! Remove 'ALL' Keyword from AVRG Parameter List
+            AVRG_PARS_REG( INUM:N_END-1 ) = AVRG_PARS_REG( INUM+1:N_END )
+            AVRG_PARS_REG( N_END ) = ''
+            N_END = N_END - 1
+         ELSE IF ( AVRG_PARS_REG( INUM ) .EQ. 'ALLCONC' ) THEN
+            ! Add All Raw Output Species to the End of the Registry List
+            AVRG_PARS_REG( N_END+1:N_END+N_CGRID_SPC ) = CGRID_NAME(1:N_CGRID_SPC)
+            N_END = N_END + N_CGRID_SPC
+
+            ! Remove 'ALLCONC' Keyword from AVRG Parameter List
             AVRG_PARS_REG( INUM:N_END-1 ) = AVRG_PARS_REG( INUM+1:N_END )
             AVRG_PARS_REG( N_END ) = ''
             N_END = N_END - 1
