@@ -149,7 +149,7 @@ C Override default beginning time timestamp for ACONC?
  
       ! Write Vertical Velocity to Average Concentration File
       IF ( W_VEL ) THEN
-        IF ( .NOT. WRITE3( A_CONC_1, 'WVEL',
+        IF ( .NOT. WRITE3( A_CONC_1, 'W_VEL',
      &        MDATE, MTIME, AVG_WVEL ) ) THEN
               XMSG = 'Could not write Vertical Wind Velocity'
      &             // ' to ' // A_CONC_1

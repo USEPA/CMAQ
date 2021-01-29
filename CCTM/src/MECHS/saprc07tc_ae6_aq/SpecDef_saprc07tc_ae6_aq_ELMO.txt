@@ -105,69 +105,70 @@ ALK             ,ppbC      ,1000.*(2.*ALK1[1]+3.*ALK2[1]+4.*ALK3[1]+5.*ALK4[1]+8
 
 !-------------------------------------------!
 !--------------- Particles -----------------!
-!-------------------------------------------! 
+!-------------------------------------------!
 !! Crustal Elements
-AFEJ            ,ug m-3     ,AFEJ[1]
-AALJ            ,ug m-3     ,AALJ[1]
-ASIJ            ,ug m-3     ,ASIJ[1]
-ATIJ            ,ug m-3     ,ATIJ[1]
-ACAJ            ,ug m-3     ,ACAJ[1]
-AMGJ            ,ug m-3     ,AMGJ[1]
-AKJ             ,ug m-3     ,AKJ[1]
-AMNJ            ,ug m-3     ,AMNJ[1]
-ASOILJ          ,ug m-3     ,2.20*AALJ[1]+2.49*ASIJ[1]+1.63*ACAJ[1]+2.42*AFEJ[1]+1.94*ATIJ[1]
+PMF_FE          ,ug m-3    ,PMF_FE[3]
+PMF_AL          ,ug m-3    ,PMF_AL[3]
+PMF_SI          ,ug m-3    ,PMF_SI[3]
+PMF_TI          ,ug m-3    ,PMF_TI[3]
+PMF_CA          ,ug m-3    ,PMF_CA[3]
+PMF_MG          ,ug m-3    ,PMF_MG[3]
+PMF_K           ,ug m-3    ,PMF_K[3]
+PMF_MN          ,ug m-3    ,PMF_MN[3]
+PMF_SOILIMPV    ,ug m-3    ,PMF_SOILIMPV[3]
 
 !! Non-Crustal Inorganic Particle Species
-AHPLUSIJ        ,ug m-3    ,PMF_HP[3]
-ANAK            ,ug m-3    ,PMC_NA[3]
-AMGK            ,ug m-3    ,PMC_MG[3]
-AKK             ,ug m-3    ,PMC_K[3]
-ACAK            ,ug m-3    ,PMC_CA[3]
-ACLIJ           ,ug m-3    ,PMF_CL[3]
-AECIJ           ,ug m-3    ,PMF_EC[3]
-ANAIJ           ,ug m-3    ,PMF_NA[3]
-ANO3IJ          ,ug m-3    ,PMF_NO3[3]
-ANO3K           ,ug m-3    ,PMC_NO3[3]
+PMF_HP          ,ug m-3    ,PMF_HP[3]
+PMC_NA          ,ug m-3    ,PMC_NA[3]
+PMC_MG          ,ug m-3    ,PMC_MG[3]
+PMC_K           ,ug m-3    ,PMC_K[3]
+PMC_CA          ,ug m-3    ,PMC_CA[3]
+PMF_CL          ,ug m-3    ,PMF_CL[3]
+PMF_EC          ,ug m-3    ,PMF_EC[3]
+PMF_NA          ,ug m-3    ,PMF_NA[3]
+PMF_NO3         ,ug m-3    ,PMF_NO3[3]
+PMC_NO3         ,ug m-3    ,PMC_NO3[3]
+PMF_NH4         ,ug m-3    ,PMF_NH4[3]
+PMC_NH4         ,ug m-3    ,PMC_NH4[3]
+PMF_SO4         ,ug m-3    ,PMF_SO4[3]
+PMC_SO4         ,ug m-3    ,PMC_SO4[3]
+
 TNO3            ,ug m-3    ,TNO3[3]
-ANH4IJ          ,ug m-3    ,PMF_NH4[3]
-ANH4K           ,ug m-3    ,PMC_NH4[3]
-ASO4IJ          ,ug m-3    ,PMF_SO4[3]
-ASO4K           ,ug m-3    ,PMC_SO4[3]
 
 !! Organic Particle Species
-APOCIJ          ,ugC m-3   ,PMF_POC[3]
-APOMIJ          ,ug m-3    ,PMF_POA[3]
-ASOCIJ          ,ugC m-3   ,PMF_SOC[3]
-ASOMIJ          ,ug m-3    ,PMF_SOA[3]
-AOCIJ           ,ugC m-3   ,PMF_OC[3]
-AOMIJ           ,ug m-3    ,PMF_OA[3]
+PMF_POC         ,ugC m-3   ,PMF_POC[3]
+PMF_POA         ,ug m-3    ,PMF_POA[3]
+PMF_SOC         ,ugC m-3   ,PMF_SOC[3]
+PMF_SOA         ,ug m-3    ,PMF_SOA[3]
+PMF_OC          ,ugC m-3   ,PMF_OC[3]
+PMF_OA          ,ug m-3    ,PMF_OA[3]
 
 !!! Anthropogenic-VOC Derived Organic Aerosol
-AORGAJ          ,ug m-3    ,PMF_ASOA[3]
+PMF_ASOA        ,ug m-3    ,PMF_ASOA[3]
 
 !!! Biogenic-VOC Derived Organic Aerosol
-AORGBJ          ,ug m-3    ,PMF_BSOA[3]
+PMF_BSOA        ,ug m-3    ,PMF_BSOA[3]
 
 !!! Cloud-Processed  SOA
-AORGCJ          ,ug m-3    ,AORGCJ[1]
+PMF_ORGC        ,ug m-3    ,AORGCJ[1]
 
 !!! OM/OC ratios
-AOMOCRAT_TOT    ,          ,PMF_OMOC[3]
+PMF_OMOC        ,          ,PMF_OMOC[3]
 
 !! Total PM Aggregates
-ATOTI           ,ug m-3    ,PMAIT_MASS[3]
-ATOTJ           ,ug m-3    ,PMACC_MASS[3]
-ATOTK           ,ug m-3    ,PMC_MASS[3]
-ATOTIJ          ,ug m-3    ,PMF_MASS[3]
-ATOTIJK         ,ug m-3    ,PM_MASS[3]
+PMAIT_MASS      ,ug m-3    ,PMAIT_MASS[3]
+PMACC_MASS      ,ug m-3    ,PMACC_MASS[3]
+PMC_MASS        ,ug m-3    ,PMC_MASS[3]
+PMF_MASS        ,ug m-3    ,PMF_MASS[3]
+PM_MASS         ,ug m-3    ,PM_MASS[3]
 
 !! Unspeciated PM including non-carbon organic mass
-AUNSPEC1IJ      ,ug m-3    ,PMF_UN_IMPV1[3]
+PMF_UN_IMPV1    ,ug m-3    ,PMF_UN_IMPV1[3]
 !! Non-Carbon Organic Mass
-ANCOMIJ         ,ug m-3    ,PMF_NCOM[3]
+PMF_NCOM        ,ug m-3    ,PMF_NCOM[3]
 
 !! Unspeciated PM excluding non-carbon organic mass
-AUNSPEC2IJ      ,ug m-3    ,PMF_UN_IMPV2[3]
+PMF_UN_IMPV2    ,ug m-3    ,PMF_UN_IMPV2[3]
 
 !! AMS Projection of Output Concentrations
 PMAMS_CL        ,ug m-3    ,PMAMS_CL[3]
@@ -176,54 +177,52 @@ PMAMS_NO3       ,ug m-3    ,PMAMS_NO3[3]
 PMAMS_OA        ,ug m-3    ,PMAMS_OA[3]
 PMAMS_SO4       ,ug m-3    ,PMAMS_SO4[3]
 
-!! PM1 Cutoff Output
-PM1_TOT         ,ug m-3    ,PM1[3]
-
 !! Unused PM1 Species. Included Here for demonstration
-!PM1_EC         ,ug m-3    ,PM1_EC[3]
-!PM1_OC         ,ugC m-3   ,PM1_OC[3]
-!PM1_OM         ,ug m-3    ,PM1_OA[3]
+PM1             ,ug m-3    ,PM1[3]
 !PM1_SO4        ,ug m-3    ,PM1_SO4[3]
+!PM1_NO3        ,ug m-3    ,PM1_NO3[3]
+!PM1_NH4        ,ug m-3    ,PM1_NH4[3]
 !PM1_CL         ,ug m-3    ,PM1_CL[3]
 !PM1_NA         ,ug m-3    ,PM1_NA[3]
+!PM1_EC         ,ug m-3    ,PM1_EC[3]
+!PM1_OC         ,ugC m-3   ,PM1_OC[3]
+!PM1_OA         ,ug m-3    ,PM1_OA[3]
 !PM1_MG         ,ug m-3    ,PM1_MG[3]
 !PM1_K          ,ug m-3    ,PM1_K[3]
 !PM1_CA         ,ug m-3    ,PM1_CA[3]
-!PM1_NH4        ,ug m-3    ,PM1_NH4[3]
-!PM1_NO3        ,ug m-3    ,PM1_NO3[3]
 !PM1_SOIL       ,ug m-3    ,PM1_SOIL[3]
-!PM1_UNSPEC1    ,ug m-3    ,PM1_UNSP1[3]
+!PM1_UNSP1      ,ug m-3    ,PM1_UNSP1[3]
 !PM1_UNSPCRS    ,ug m-3    ,PM1_UNSPCRS[3]
 
 !! PM2.5 species computed using modeled size distribution
-PM25_HP         ,ug m-3    ,PM25_HP[3]
+PM25            ,ug m-3    ,PM25[3] 
+PM25_SO4        ,ug m-3    ,PM25_SO4[3] 
+PM25_NO3        ,ug m-3    ,PM25_NO3[3] 
+PM25_NH4        ,ug m-3    ,PM25_NH4[3] 
 PM25_CL         ,ug m-3    ,PM25_CL[3] 
-PM25_EC         ,ug m-3    ,PM25_EC[3] 
 PM25_NA         ,ug m-3    ,PM25_NA[3] 
+PM25_EC         ,ug m-3    ,PM25_EC[3] 
+PM25_OC         ,ugC m-3   ,PM25_OC[3] 
+PM25_OA         ,ug m-3    ,PM25_OA[3] 
 PM25_MG         ,ug m-3    ,PM25_MG[3] 
 PM25_K          ,ug m-3    ,PM25_K[3] 
 PM25_CA         ,ug m-3    ,PM25_CA[3] 
-PM25_NH4        ,ug m-3    ,PM25_NH4[3] 
-PM25_NO3        ,ug m-3    ,PM25_NO3[3] 
-PM25_OC         ,ugC m-3   ,PM25_OC[3] 
-PM25_OM         ,ug m-3    ,PM25_OA[3] 
 PM25_SOIL       ,ug m-3    ,PM25_SOIL[3] 
-PM25_SO4        ,ug m-3    ,PM25_SO4[3] 
-PM25_TOT        ,ug m-3    ,PM25[3] 
 PM25_UNSPEC1    ,ug m-3    ,PM25_UNSP1[3] 
 PM25_UNSPCRS    ,ug m-3    ,PM25_UNSPCRS[3] 
+PM25_HP         ,ug m-3    ,PM25_HP[3]
                            
 
 !! PM10.0 and Coarse-Sized Species
 PM10            ,ug m-3    ,PM10[3]
- 
-PMC_CL          ,ug m-3    ,PM25TO10_CL[3]
-PMC_NA          ,ug m-3    ,PM25TO10_NA[3]
-PMC_NH4         ,ug m-3    ,PM25TO10_NH4[3] 
-PMC_NO3         ,ug m-3    ,PM25TO10_NO3[3] 
-PMC_SO4         ,ug m-3    ,PM25TO10_SO4[3] 
-PMC_TOT         ,ug m-3    ,PM25TO10[3] 
+
+PM25TO10_CL     ,ug m-3    ,PM25TO10_CL[3]
+PM25TO10_NA     ,ug m-3    ,PM25TO10_NA[3]
+PM25TO10_NH4    ,ug m-3    ,PM25TO10_NH4[3] 
+PM25TO10_NO3    ,ug m-3    ,PM25TO10_NO3[3] 
+PM25TO10_SO4    ,ug m-3    ,PM25TO10_SO4[3] 
+PM25TO10        ,ug m-3    ,PM25TO10[3] 
  
 !! FRM PM Equivalent Calculation
-PMIJ_FRM        ,ug m-3    ,PMF_FRM[3]
+PMF_FRM         ,ug m-3    ,PMF_FRM[3]
 PM25_FRM        ,ug m-3    ,PM25_FRM[3]
