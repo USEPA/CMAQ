@@ -104,7 +104,7 @@ c control species
 
 
       INTEGER, SAVE              :: N_CGRID_SPC
-      CHARACTER( 16 ), ALLOCATABLE, SAVE :: CGRID_NAME     ( : )
+      CHARACTER( 16 ), ALLOCATABLE, SAVE :: CGRID_NAME( : )
       REAL,    ALLOCATABLE, SAVE :: CGRID_MW       ( : )
       LOGICAL, ALLOCATABLE, SAVE :: CGRID_MASK_GAS ( : )
       LOGICAL, ALLOCATABLE, SAVE :: CGRID_MASK_AERO( : )
@@ -112,6 +112,8 @@ c control species
       LOGICAL, ALLOCATABLE, SAVE :: CGRID_MASK_SRF ( : )
       LOGICAL, ALLOCATABLE, SAVE :: CGRID_MASK_NR  ( : )
       LOGICAL, ALLOCATABLE, SAVE :: CGRID_MASK_TRAC( : )
+      CHARACTER( 16 ), ALLOCATABLE, SAVE :: CGRID_CONC_UNIT ( : )
+      CHARACTER( 256), ALLOCATABLE, SAVE :: CGRID_CONC_DESC ( : )
 
 
       type, public :: base_type
@@ -393,7 +395,7 @@ c-------------------------------------------------------------------------------
 
             GC_FINI   = GC_STRT + N_GC_SPC - 1
             N_GC_SPCD = GC_FINI + 1
-
+            GC_SPC( N_GC_SPCD ) = 'AIR_DENSITY'
 
 
             ! Aerosol (AE) Namelist
@@ -985,7 +987,9 @@ c-------------------------------------------------------------------------------
      &                CGRID_MASK_NUM( N_CGRID_SPC ),
      &                CGRID_MASK_SRF( N_CGRID_SPC ),
      &                CGRID_MASK_NR( N_CGRID_SPC ),
-     &                CGRID_MASK_TRAC( N_CGRID_SPC ) )
+     &                CGRID_MASK_TRAC( N_CGRID_SPC ),
+     &                CGRID_CONC_UNIT( N_CGRID_SPC ),
+     &                CGRID_CONC_DESC( N_CGRID_SPC ) )
             CGRID_NAME = ''
             CGRID_MW   = 0.
             CGRID_MASK_GAS = .FALSE.
@@ -994,6 +998,8 @@ c-------------------------------------------------------------------------------
             CGRID_MASK_SRF = .FALSE.
             CGRID_MASK_NR  = .FALSE.
             CGRID_MASK_TRAC= .FALSE.
+            CGRID_CONC_UNIT= ''
+            CGRID_CONC_DESC= ''
 
             IGRID = 0
             DO ISPC = gc_strt,n_gc_spcd
@@ -1001,26 +1007,42 @@ c-------------------------------------------------------------------------------
                 CGRID_NAME( IGRID ) = GC_SPC( ISPC )
                 CGRID_MW( IGRID )   = GC_MOLWT( ISPC )
                 CGRID_MASK_GAS( IGRID )   = .TRUE.
+                CGRID_CONC_UNIT( IGRID )  = 'ppmV'
+                CGRID_CONC_DESC( IGRID )  = 'Molar Mixing Ratio of ' // CGRID_NAME
             END DO
             DO ISPC = 1,n_ae_spc
                 IGRID = IGRID + 1
                 CGRID_NAME( IGRID ) = AE_SPC( ISPC )
                 CGRID_MW( IGRID )   = AE_MOLWT( ISPC )
                 CGRID_MASK_AERO( IGRID )   = .TRUE.
-                IF ( INDEX( AE_SPC( ISPC ),'NUM') .NE. 0 ) CGRID_MASK_NUM( IGRID )   = .TRUE.
-                IF ( INDEX( AE_SPC( ISPC ),'SRF') .NE. 0 ) CGRID_MASK_SRF( IGRID )   = .TRUE.
+                CGRID_CONC_UNIT( IGRID )  = 'ug m-3'
+                CGRID_CONC_DESC( IGRID )  = 'PM Mass Concentration of ' // CGRID_NAME
+                IF ( INDEX( AE_SPC( ISPC ),'NUM') .NE. 0 ) THEN
+                    CGRID_MASK_NUM( IGRID )   = .TRUE.
+                    CGRID_CONC_UNIT( IGRID )  = 'm-3'
+                    CGRID_CONC_DESC( IGRID )  = 'PM Number Concentration of ' // CGRID_NAME
+                END IF
+                IF ( INDEX( AE_SPC( ISPC ),'SRF') .NE. 0 ) THEN
+                    CGRID_MASK_SRF( IGRID )   = .TRUE.
+                    CGRID_CONC_UNIT( IGRID )  = 'm2 m-3'
+                    CGRID_CONC_DESC( IGRID )  = 'PM Surface Area Concentration of ' // CGRID_NAME
+                END IF
             END DO
             DO ISPC = 1,n_nr_spc
                 IGRID = IGRID + 1
                 CGRID_NAME( IGRID ) = NR_SPC( ISPC )
                 CGRID_MW( IGRID )   = NR_MOLWT( ISPC )
                 CGRID_MASK_NR( IGRID )   = .TRUE.
+                CGRID_CONC_UNIT( IGRID )  = 'ppmV'
+                CGRID_CONC_DESC( IGRID )  = 'Molar Mixing Ratio of ' // CGRID_NAME
             END DO
             DO ISPC = 1,n_tr_spc
                 IGRID = IGRID + 1
                 CGRID_NAME( IGRID ) = TR_SPC( ISPC )
                 CGRID_MW( IGRID )   = TR_MOLWT( ISPC )
                 CGRID_MASK_TRAC( IGRID )   = .TRUE.
+                CGRID_CONC_UNIT( IGRID )  = 'ppmV'
+                CGRID_CONC_DESC( IGRID )  = 'Molar Mixing Ratio of ' // CGRID_NAME
             END DO
 
 

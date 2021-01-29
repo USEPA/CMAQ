@@ -54,7 +54,7 @@
 
       INTEGER, ALLOCATABLE, SAVE :: 
      &        MAP_INST2USED( : ), MAP_AVRG2USED( : ), 
-     &        USED_PMDIAG_PARS( : ), USED_PMDIAG_MODE( : ),
+     &        USED_PMDIAG_ID( : ), USED_PMDIAG_MODE( : ),
      &        INST_TYPE_OUT( : ), AVRG_TYPE_OUT( : ),
      &        MAP_ID2USED( :,: )
 
@@ -80,7 +80,7 @@
 
       CHARACTER( 16 ), SAVE :: PNAME = 'READ_PMDIAG_NML'
       CHARACTER( 200 )   :: XMSG
-      INTEGER ALLOCSTAT
+      INTEGER IOS
 
       NAMELIST / PMDIAG_ACTIVATE / INSTANT, AVERAGE !, OLDNAMES
       NAMELIST / PMDIAG_INST / INST_LAYER_TOP, 
@@ -88,23 +88,26 @@
       NAMELIST / PMDIAG_AVRG / AVRG_LAYER_TOP, 
      &                         AVRG_LAYER_BOT, AVRG_PARS_REG
 
-      ALLOCATE( INST_PARS_REG( N_REG ), AVRG_PARS_REG( N_REG ), STAT = ALLOCSTAT )
-      IF ( ALLOCSTAT .NE. 0 ) THEN
-           XMSG = 'Failure allocating INST_PARS_REG or AVRG_PARS_REG'
-           CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
-      END IF
+      ALLOCATE( INST_PARS_REG( N_REG ), STAT = IOS )
+      CALL CHECKMEM( IOS, 'INST_PARS_REG',PNAME )
+      ALLOCATE( AVRG_PARS_REG( N_REG ), STAT = IOS )
+      CALL CHECKMEM( IOS, 'AVRG_PARS_REG',PNAME )
  
 
       INST_ACTIVE      = .TRUE.
       INST_LAYER_TOP   = 1
       INST_LAYER_BOT   = 1
       INST_PARS_REG(:) = ''
-      INST_PARS_REG(1) = 'ALL'
+      INST_PARS_REG(1) = 'O3'
+      INST_PARS_REG(2) = 'PM25'
+      INST_PARS_REG(3) = 'PM10'
       AVRG_ACTIVE      = .TRUE.
       AVRG_LAYER_TOP   = 1
       AVRG_LAYER_BOT   = 1
       AVRG_PARS_REG(:) = ''
-      AVRG_PARS_REG(1) = 'ALL'
+      AVRG_PARS_REG(1) = 'O3'
+      AVRG_PARS_REG(2) = 'PM25'
+      AVRG_PARS_REG(3) = 'PM10'
 
       ! Retrieve the Name of the Emission Control File
       IF ( EMISSCTRL .EQ. "EMISSCTRL_NML" ) THEN
@@ -139,7 +142,6 @@
       END IF
       INST_ACTIVE = INSTANT
       AVRG_ACTIVE = AVERAGE
-  !    L_OLDNAMES  = OLDNAMES
       
       CALL POPULATE_PMDIAG_KEY
 
@@ -159,13 +161,37 @@
       INUM = 1
       DO WHILE ( INUM .LE. N_END )
          CALL UPCASE( INST_PARS_REG( INUM ) )
+         EXPAND_REG = .FALSE.
+         IF ( INST_PARS_REG( INUM )(1:1) .EQ. '*' ) THEN
+             EXPAND_REG = .TRUE.
+             INST_PARS_REG( INUM )(1:15) = INST_PARS_REG( INUM )(2:16)
+             INST_PARS_REG( INUM )(16) = ' '
+         END IF
+
          I1 = INDEX1( INST_PARS_REG( INUM ), N_PMDIAG_LIST, PMDIAG_LIST%NAME )
          I2 = INDEX1( INST_PARS_REG( INUM ), N_KEY, PMDIAG_KEY%WORD )
+         I3 = INDEX1( INST_PARS_REG( INUM ), N_CGRID_SPC, CGRID_NAME )
+         I4 = 0
+         IF ( NCHEMFAMILIES .GT. 0 ) 
+     &      I4 = INDEX1( INST_PARS_REG( INUM ), NCHEMFAMILIES, CHEMFAMILYNAME )
 
          IF ( INST_PARS_REG( INUM ) .EQ. 'ALL' ) THEN
-             ! Add All Parameters to the End of the Registry List
+            ! Add All Diagnostic Parameters to the End of the Registry List
             INST_PARS_REG( N_END+1:N_END+N_PMDIAG_LIST ) = PMDIAG_LIST%NAME
             N_END = N_END + N_PMDIAG_LIST
+            
+            ! Add All Raw Output Species to the End of the Registry List
+            INST_PARS_REG( N_END+1:N_END+N_CGRID_SPC ) = CGRID_NAME(1:N_CGRID_SPC)
+            N_END = N_END + N_CGRID_SPC
+
+            ! Add All Family Names defined in the Emission Control
+            ! Interface to the End of the Registry List
+            IF ( NCHEMFAMILIES .GT. 0 ) 
+     &           INST_PARS_REG( N_END+1:N_END+NCHEMFAMILIES ) = 
+     &                        CHEMFAMILYNAME(1:NCHEMFAMILIES)
+            N_END = N_END + NCHEMFAMILIES
+
+            ! Remove "All" Keyword
             INST_PARS_REG( INUM:N_END-1 ) = INST_PARS_REG( INUM+1:N_END )
             INST_PARS_REG( N_END ) = ''
             N_END = N_END - 1
@@ -173,13 +199,35 @@
             ! Entry Matches a parameter on the PMDIAG list. 
             INUM = INUM + 1
          ELSE IF ( I2 .GT. 0 ) THEN
-            ! Add Parameters associated with a keyword
+            ! PMDIAG Keyword. Add parameters associated with a keyword
             INST_PARS_REG( N_END+1:N_END+PMDIAG_KEY( I2 )%N ) =
      &                                   PMDIAG_KEY( I2 )%LIST
             N_END = N_END + PMDIAG_KEY( I2 )%N
             INST_PARS_REG( INUM:N_END-1 ) = INST_PARS_REG( INUM+1:N_END )
             INST_PARS_REG( N_END ) = ''
             N_END = N_END - 1
+         ELSE IF ( I3 .GT. 0 ) THEN
+            ! CMAQ Raw Model Species. Go to Next Entry
+            INUM = INUM + 1
+         ELSE IF ( I4 .GT. 0 ) THEN
+            ! CMAQ Chemical Family. Go to Next entry or expand if the * was
+            ! used
+            IF ( EXPAND_REG ) THEN
+               CALL MAP_CHEM_FAMILIES( INST_PARS_REG( INUM ),
+     &                     CGRID_NAME, N_CGRID_SPC, FAM_LIST )
+               DO J = 1,N_CGRID_SPC
+                  IF ( FAM_LIST(J) ) THEN
+                      N_END = N_END + 1
+                      INST_PARS_REG( N_END ) = CGRID_NAME( J )
+                  END IF
+               END DO   
+               ! Remove family Name after expansion
+               INST_PARS_REG( INUM:N_END-1 ) = INST_PARS_REG( INUM+1:N_END )
+               INST_PARS_REG( N_END ) = ''
+               N_END = N_END - 1
+            ELSE
+               INUM = INUM + 1
+            END IF
          ELSE
             ! Entry Doesn't Match any parameter or Keyword. Crash the
             ! model.
@@ -207,13 +255,10 @@
          END DO
       END DO
 
-      ! Populate INST_PARS parameters list
+      ! Populate Final INST_PARS parameters list
       N_PMDIAG_INST = INDEX1( '', N_REG, INST_PARS_REG ) - 1
-      ALLOCATE( INST_PARS( N_PMDIAG_INST ), STAT=ALLOCSTAT )
-      IF ( ALLOCSTAT .NE. 0 ) THEN
-           XMSG = 'Failure allocating INST_PARS'
-           CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
-      END IF
+      ALLOCATE( INST_PARS( N_PMDIAG_INST ), STAT=IOS )
+      CALL CHECKMEM( IOS, 'INST_PARS',PNAME )
       INST_PARS = INST_PARS_REG( 1:N_PMDIAG_INST )
 
       ! Check Top-Layer Specification
@@ -249,13 +294,37 @@
       INUM = 1
       DO WHILE ( INUM .LE. N_END )
          CALL UPCASE( AVRG_PARS_REG( INUM ) )
+         EXPAND_REG = .FALSE.
+         IF ( AVRG_PARS_REG( INUM )(1:1) .EQ. '*' ) THEN
+             EXPAND_REG = .TRUE.
+             AVRG_PARS_REG( INUM )(1:15) = AVRG_PARS_REG( INUM )(2:16)
+             AVRG_PARS_REG( INUM )(16) = ' '
+         END IF
+
          I1 = INDEX1( AVRG_PARS_REG( INUM ), N_PMDIAG_LIST, PMDIAG_LIST%NAME )
          I2 = INDEX1( AVRG_PARS_REG( INUM ), N_KEY, PMDIAG_KEY%WORD )
+         I3 = INDEX1( AVRG_PARS_REG( INUM ), N_CGRID_SPC, CGRID_NAME )
+         I4 = 0
+         IF ( NCHEMFAMILIES .GT. 0 ) 
+     &      I4 = INDEX1( AVRG_PARS_REG( INUM ), NCHEMFAMILIES, CHEMFAMILYNAME )
 
          IF ( AVRG_PARS_REG( INUM ) .EQ. 'ALL' ) THEN
              ! Add All Parameters to the End of the Registry List
             AVRG_PARS_REG( N_END+1:N_END+N_PMDIAG_LIST ) = PMDIAG_LIST%NAME
             N_END = N_END + N_PMDIAG_LIST
+
+            ! Add All Raw Output Species to the End of the Registry List
+            AVRG_PARS_REG( N_END+1:N_END+N_CGRID_SPC ) = CGRID_NAME(1:N_CGRID_SPC)
+            N_END = N_END + N_CGRID_SPC
+
+            ! Add All Family Names defined in the Emission Control
+            ! Interface to the End of the Registry List
+            IF ( NCHEMFAMILIES .GT. 0 ) 
+     &           AVRG_PARS_REG( N_END+1:N_END+NCHEMFAMILIES ) = 
+     &                        CHEMFAMILYNAME(1:NCHEMFAMILIES)
+            N_END = N_END + NCHEMFAMILIES
+ 
+            ! Remove 'ALL' Keyword from AVRG Parameter List
             AVRG_PARS_REG( INUM:N_END-1 ) = AVRG_PARS_REG( INUM+1:N_END )
             AVRG_PARS_REG( N_END ) = ''
             N_END = N_END - 1
@@ -270,6 +339,29 @@
             AVRG_PARS_REG( INUM:N_END-1 ) = AVRG_PARS_REG( INUM+1:N_END )
             AVRG_PARS_REG( N_END ) = ''
             N_END = N_END - 1
+         ELSE IF ( I3 .GT. 0 ) THEN
+            ! CMAQ Raw Model Species. Go to Next Entry
+            INUM = INUM + 1
+         ELSE IF ( I4 .GT. 0 ) THEN
+            ! CMAQ Chemical Family. Go to Next entry or expand if the * was
+            ! used
+            IF ( EXPAND_REG ) THEN
+               CALL MAP_CHEM_FAMILIES( AVRG_PARS_REG( INUM ),
+     &                     CGRID_NAME, N_CGRID_SPC, FAM_LIST )
+               DO J = 1,N_CGRID_SPC
+                  IF ( FAM_LIST(J) ) THEN
+                      N_END = N_END + 1
+                      AVRG_PARS_REG( N_END ) = CGRID_NAME( J )
+                  END IF
+               END DO   
+               ! Remove family Name after expansion
+               AVRG_PARS_REG( INUM:N_END-1 ) = AVRG_PARS_REG( INUM+1:N_END )
+               AVRG_PARS_REG( N_END ) = ''
+               N_END = N_END - 1
+            ELSE
+               INUM = INUM + 1
+            END IF
+ 
          ELSE
             ! Entry Doesn't Match any parameter or Keyword. Crash the
             ! model.
@@ -299,11 +391,8 @@
        
       ! Populate INST_PARS parameters list
       N_PMDIAG_AVRG = INDEX1( '', N_REG, AVRG_PARS_REG ) - 1
-      ALLOCATE( AVRG_PARS( N_PMDIAG_AVRG ) )
-      IF ( ALLOCSTAT .NE. 0 ) THEN
-           XMSG = 'Failure allocating AVRG_PARS'
-           CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
-      END IF
+      ALLOCATE( AVRG_PARS( N_PMDIAG_AVRG ), STAT = IOS )
+      CALL CHECKMEM( IOS, 'AVRG_PARS',PNAME )
       AVRG_PARS = AVRG_PARS_REG( 1:N_PMDIAG_AVRG )
  
       ! Check Top-Layer Specification
@@ -335,25 +424,19 @@
 
       IMPLICIT NONE
 
-      INTEGER ALLOCSTAT
+      INTEGER IOS
       CHARACTER(200) :: XMSG
       CHARACTER(16), SAVE :: PNAME = 'PMDIAG_KEY'
 
       N_KEY = 20
-      ALLOCATE( PMDIAG_KEY( N_KEY ), STAT=ALLOCSTAT )
-      IF ( ALLOCSTAT .NE. 0 ) THEN
-           XMSG = 'Failure allocating PMDIAG_KEY'
-           CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
-      END IF
+      ALLOCATE( PMDIAG_KEY( N_KEY ), STAT=IOS )
+      CALL CHECKMEM( IOS, 'PMDIAG_KEY',PNAME )
 
       ! Define AMET Variables
       PMDIAG_KEY( 1 )%WORD = 'DEFAULT'
       PMDIAG_KEY( 1 )%N = 12
-      ALLOCATE( PMDIAG_KEY( 1 )%LIST( 12 ),STAT=ALLOCSTAT )
-      IF ( ALLOCSTAT .NE. 0 ) THEN
-           XMSG = 'Failure allocating PMDIAG_KEY(1)'
-           CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
-      END IF
+      ALLOCATE( PMDIAG_KEY( 1 )%LIST( 12 ),STAT=IOS )
+      CALL CHECKMEM( IOS, 'PMDIAG_KEY(1)%LIST',PNAME )
 
       PMDIAG_KEY( 1 )%LIST = (/'AMET            ','CUTOFF_FRACTIONS',
      &      'MASS            ','PM_NUM          ','PMF_NUM         ',
@@ -363,11 +446,8 @@
 
       PMDIAG_KEY( 2 )%WORD = 'AMET'
       PMDIAG_KEY( 2 )%N = 35
-      ALLOCATE( PMDIAG_KEY( 2 )%LIST( 35 ), STAT=ALLOCSTAT )
-      IF ( ALLOCSTAT .NE. 0 ) THEN
-           XMSG = 'Failure allocating PMDIAG_KEY(2)'
-           CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
-      END IF
+      ALLOCATE( PMDIAG_KEY( 2 )%LIST( 35 ), STAT=IOS )
+      CALL CHECKMEM( IOS, 'PMDIAG_KEY(2)%LIST',PNAME )
 
       PMDIAG_KEY( 2 )%LIST = (/'PMF_MASS    ','PMF_FRM     ','PMC_MASS    ',
      &          'PMF_OC      ','PMF_EC      ','PMF_NA      ','PMF_CL      ',
@@ -381,33 +461,24 @@
 
       PMDIAG_KEY( 3 )%WORD = 'MASS'
       PMDIAG_KEY( 3 )%N = 9
-      ALLOCATE( PMDIAG_KEY( 3 )%LIST( 9 ), STAT=ALLOCSTAT )
-      IF ( ALLOCSTAT .NE. 0 ) THEN
-           XMSG = 'Failure allocating PMDIAG_KEY(3)'
-           CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
-      END IF
+      ALLOCATE( PMDIAG_KEY( 3 )%LIST( 9 ), STAT=IOS )
+      CALL CHECKMEM( IOS, 'PMDIAG_KEY(3)%LIST',PNAME )
 
       PMDIAG_KEY( 3 )%LIST = (/'PMF_MASS','PMC_MASS','PM01    ','PM1     ',
      &              'PM25    ','PM10    ','PM25TO10','PMU_MASS','PMAMS   ' /)
      
       PMDIAG_KEY( 4 )%WORD = 'NUMBER'
       PMDIAG_KEY( 4 )%N = 7
-      ALLOCATE( PMDIAG_KEY( 4 )%LIST( 7 ), STAT=ALLOCSTAT )
-      IF ( ALLOCSTAT .NE. 0 ) THEN
-           XMSG = 'Failure allocating PMDIAG_KEY(4)'
-           CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
-      END IF
+      ALLOCATE( PMDIAG_KEY( 4 )%LIST( 7 ), STAT=IOS )
+      CALL CHECKMEM( IOS, 'PMDIAG_KEY(4)%LIST',PNAME )
 
       PMDIAG_KEY( 4 )%LIST = (/'PM_NUM ','PMF_NUM','PMC_NUM','N10    ',
      &                         'N20    ','N40    ','N100   ' /)
      
       PMDIAG_KEY( 5 )%WORD = 'SIZE'
       PMDIAG_KEY( 5 )%N = 9
-      ALLOCATE( PMDIAG_KEY( 5 )%LIST( 9 ), STAT=ALLOCSTAT )
-      IF ( ALLOCSTAT .NE. 0 ) THEN
-           XMSG = 'Failure allocating PMDIAG_KEY(5)'
-           CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
-      END IF
+      ALLOCATE( PMDIAG_KEY( 5 )%LIST( 9 ), STAT=IOS )
+      CALL CHECKMEM( IOS, 'PMDIAG_KEY(5)%LIST',PNAME )
 
       PMDIAG_KEY( 5 )%LIST = (/'NUMBER  ','DRY_DG  ','WET_DG  ','STDEV   ',
      &              'DRY_M3  ','WET_M3  ','WET_M2  ','DRY_DENS','WET_DENS' /)
@@ -619,17 +690,21 @@
       ! parameters available on the PMDIAG_LIST. 
       N_PMDIAG = 0
       
-      ALLOCATE( USED_PMDIAG_MODE( N_PMDIAG_LIST*N_MODE ),
-     &          USED_PMDIAG_PARS( N_PMDIAG_LIST*N_MODE ),
-     &          MAP_ID2USED( N_PMDIAG_LIST,N_MODE ),
+      ALLOCATE( USED_PMDIAG_MODE( N_PMDIAG_LIST*N_MODE+N_CGRID_SPC+NCHEMFAMILIES ),
+     &          USED_PMDIAG_ID( N_PMDIAG_LIST*N_MODE+N_CGRID_SPC+NCHEMFAMILIES ),
+     &          USED_CGRID_ID( N_PMDIAG_LIST*N_MODE+N_CGRID_SPC+NCHEMFAMILIES ),
+     &          USED_FAM_ID( N_PMDIAG_LIST*N_MODE+N_CGRID_SPC+NCHEMFAMILIES ),
+     &          MAP_ID2USED( N_PMDIAG_LIST+N_CGRID_SPC+NCHEMFAMILIES,N_MODE ),
      &          STAT = ALLOCSTAT )
       IF ( ALLOCSTAT .NE. 0 ) THEN
-           XMSG = 'Failure allocating USED_PMDIAG_MODE, USED_PMDIAG_PARS, ' // 
+           XMSG = 'Failure allocating USED_PMDIAG_MODE, USED_PMDIAG_ID, ' // 
      &            'or MAP_ID2USED'
            CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
       END IF
       USED_PMDIAG_MODE = 0
-      USED_PMDIAG_PARS = 0
+      USED_PMDIAG_ID = 0
+      USED_CGRID_ID = 0
+      USED_FAM_ID = 0
       MAP_ID2USED = 0
 
       ! Map Parameter ID's to PMDIAG_List Entries
@@ -639,64 +714,106 @@
       END DO
 
       IF ( INST_ACTIVE ) THEN
-         ALLOCATE( MAP_INST2USED( N_PMDIAG_INST*N_MODE ),
-     &             INST_PARS_OUT( N_PMDIAG_INST*N_MODE ) ,
-     &             INST_TYPE_OUT( N_PMDIAG_INST*N_MODE ) ,
-     &             INST_UNIT_OUT( N_PMDIAG_INST*N_MODE ) ,
-     &             INST_DESC_OUT( N_PMDIAG_INST*N_MODE ),
+         ALLOCATE( MAP_INST2USED( N_PMDIAG_INST*N_MODE+N_CGRID_SPC+NCHEMFAMILIES ),
+     &             INST_PARS_OUT( N_PMDIAG_INST*N_MODE+N_CGRID_SPC+NCHEMFAMILIES ) ,
+     &             INST_TYPE_OUT( N_PMDIAG_INST*N_MODE+N_CGRID_SPC+NCHEMFAMILIES ) ,
+     &             INST_UNIT_OUT( N_PMDIAG_INST*N_MODE+N_CGRID_SPC+NCHEMFAMILIES ) ,
+     &             INST_DESC_OUT( N_PMDIAG_INST*N_MODE+N_CGRID_SPC+NCHEMFAMILIES ),
      &             STAT = ALLOCSTAT )
          IF ( ALLOCSTAT .NE. 0 ) THEN
               XMSG = 'Failure allocating MAP_INST2USED, etc., '
               CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
          END IF
+
+         ! Initialize number of Instantaneous Output Variables
          N_PMDIAG_INST_OUT = 0
+
+         ! Initialize number of IDs as equal to the number of Diagnostic
+         ! Parameters
+         NTOT_IDS = N_PMDIAG_LIST
+
+         ! Loop over all user-requested Instantaneous parameter and link
+         ! each to parameter IDs, Units, descriptions, etc.
          DO J = 1,N_PMDIAG_INST
              N = INDEX1( INST_PARS( J ), N_PMDIAG_LIST, PMDIAG_LIST%NAME )
-             IF ( N .NE. 0 ) THEN
-                ! Add Entry for this Parameter
-                N_PMDIAG = N_PMDIAG + 1
-                N_PMDIAG_INST_OUT = N_PMDIAG_INST_OUT + 1
-                USED_PMDIAG_PARS( N_PMDIAG ) = PMDIAG_LIST(N)%ID
-                USED_PMDIAG_MODE( N_PMDIAG ) = 1
-                MAP_ID2USED( PMDIAG_LIST(N)%ID,1 ) = N_PMDIAG
-                MAP_INST2USED( N_PMDIAG_INST_OUT ) = N_PMDIAG
+             S = INDEX1( INST_PARS( J ), N_CGRID_SPC, CGRID_NAME )
+             F = 0
+             IF ( NCHEMFAMILIES ) 
+     &          F = INDEX1( INST_PARS( J ), NCHEMFAMILIES, CHEMFAMILYNAME )
 
+             IF ( N .NE. 0 ) THEN
                 ! Add Room for the Other Modes if this Parameter is
                 ! Mode-Dependent
                 IF ( PMDIAG_LIST( N )%MODE ) THEN
-                    INST_PARS_OUT( N_PMDIAG_INST_OUT ) = 
-     &                          TRIM(INST_PARS( J )) // aeromode( 1 )%suff
-                    INST_TYPE_OUT( N_PMDIAG_INST_OUT ) = PMDIAG_LIST( N )%VAR_TYPE
-                    INST_UNIT_OUT( N_PMDIAG_INST_OUT ) = PMDIAG_LIST( N )%UNIT
-                    INST_DESC_OUT( N_PMDIAG_INST_OUT ) = PMDIAG_LIST( N )%DESC
+                   DO IM = 1,N_MODE
+                      ! Add Entry for this Parameter
+                      N_PMDIAG = N_PMDIAG + 1
+                      N_PMDIAG_INST_OUT = N_PMDIAG_INST_OUT + 1
+                      USED_PMDIAG_ID( N_PMDIAG ) = PMDIAG_LIST(N)%ID
+                      USED_PMDIAG_MODE( N_PMDIAG ) = IM
+                      MAP_ID2USED( PMDIAG_LIST(N)%ID,IM) = N_PMDIAG
+                      MAP_INST2USED( N_PMDIAG_INST_OUT ) = N_PMDIAG
 
-                    DO IM = 2,N_MODE
-                       N_PMDIAG = N_PMDIAG + 1
-                       N_PMDIAG_INST_OUT = N_PMDIAG_INST_OUT + 1
-                       USED_PMDIAG_PARS( N_PMDIAG ) = PMDIAG_LIST(N)%ID
-                       USED_PMDIAG_MODE( N_PMDIAG ) = IM
-                       MAP_ID2USED( PMDIAG_LIST(N)%ID,IM) = N_PMDIAG
-                       MAP_INST2USED( N_PMDIAG_INST_OUT ) = N_PMDIAG
-
-                       INST_PARS_OUT( N_PMDIAG_INST_OUT ) = 
-     &                          TRIM(INST_PARS( J )) // aeromode( IM )%suff
-                       INST_TYPE_OUT( N_PMDIAG_INST_OUT ) = PMDIAG_LIST( N )%VAR_TYPE
-                       INST_UNIT_OUT( N_PMDIAG_INST_OUT ) = PMDIAG_LIST( N )%UNIT
-                       INST_DESC_OUT( N_PMDIAG_INST_OUT ) = PMDIAG_LIST( N )%DESC
-                    END DO
+                      INST_PARS_OUT( N_PMDIAG_INST_OUT ) = 
+     &                         TRIM(INST_PARS( J )) // aeromode( IM )%suff
+                      INST_TYPE_OUT( N_PMDIAG_INST_OUT ) = PMDIAG_LIST( N )%VAR_TYPE
+                      INST_UNIT_OUT( N_PMDIAG_INST_OUT ) = PMDIAG_LIST( N )%UNIT
+                      INST_DESC_OUT( N_PMDIAG_INST_OUT ) = PMDIAG_LIST( N )%DESC
+                   END DO
                 ELSE
-                    INST_PARS_OUT( N_PMDIAG_INST_OUT ) = INST_PARS( J )
-                    INST_TYPE_OUT( N_PMDIAG_INST_OUT ) = PMDIAG_LIST( N )%VAR_TYPE 
-                    INST_UNIT_OUT( N_PMDIAG_INST_OUT ) = PMDIAG_LIST( N )%UNIT     
-                    INST_DESC_OUT( N_PMDIAG_INST_OUT ) = PMDIAG_LIST( N )%DESC     
+                   ! Add Entry for this Parameter
+                   N_PMDIAG = N_PMDIAG + 1
+                   N_PMDIAG_INST_OUT = N_PMDIAG_INST_OUT + 1
+                   USED_PMDIAG_ID( N_PMDIAG ) = PMDIAG_LIST(N)%ID
+                   USED_PMDIAG_MODE( N_PMDIAG ) = 1
+                   MAP_ID2USED( PMDIAG_LIST(N)%ID,1 ) = N_PMDIAG
+                   MAP_INST2USED( N_PMDIAG_INST_OUT ) = N_PMDIAG
+                   INST_PARS_OUT( N_PMDIAG_INST_OUT ) = INST_PARS( J )
+                   INST_TYPE_OUT( N_PMDIAG_INST_OUT ) = PMDIAG_LIST( N )%VAR_TYPE 
+                   INST_UNIT_OUT( N_PMDIAG_INST_OUT ) = PMDIAG_LIST( N )%UNIT     
+                   INST_DESC_OUT( N_PMDIAG_INST_OUT ) = PMDIAG_LIST( N )%DESC     
                 END IF
+             ELSEIF ( S .GT. 0 ) THEN
+                ! Add Entry for CMAQ Model Species
+                N_PMDIAG = N_PMDIAG + 1
+                N_PMDIAG_INST_OUT = N_PMDIAG_INST_OUT + 1
+                NTOT_IDS = NTOT_IDS + 1
+                USED_PMDIAG_ID( N_PMDIAG ) = NTOT_IDS
+                USED_CGRID_ID( N_PMDIAG ) = S
+                USED_PMDIAG_MODE( N_PMDIAG ) = 1
+                MAP_ID2USED( NTOT_IDS,1 ) = N_PMDIAG
+                MAP_INST2USED( N_PMDIAG_INST_OUT ) = N_PMDIAG
+
+                INST_PARS_OUT( N_PMDIAG_INST_OUT ) = INST_PARS( J )
+                INST_TYPE_OUT( N_PMDIAG_INST_OUT ) = M3REAL 
+                INST_UNIT_OUT( N_PMDIAG_INST_OUT ) = PMDIAG_LIST( N )%UNIT     
+                INST_DESC_OUT( N_PMDIAG_INST_OUT ) = 
+     &                         'Instantaneous ' // PMDIAG_LIST( N )%DESC     
+
+             ELSEIF ( F .GT. 0 ) THEN
+                ! Add Entry for Chemical Family
+                N_PMDIAG = N_PMDIAG + 1
+                N_PMDIAG_INST_OUT = N_PMDIAG_INST_OUT + 1
+                NTOT_IDS = NTOT_IDS + 1
+                USED_PMDIAG_ID( N_PMDIAG ) = NTOT_IDS
+                USED_FAM_ID( N_PMDIAG ) = F
+                USED_PMDIAG_MODE( N_PMDIAG ) = 1
+                MAP_ID2USED( NTOT_IDS,1 ) = N_PMDIAG
+                MAP_INST2USED( N_PMDIAG_INST_OUT ) = N_PMDIAG
+
+                INST_PARS_OUT( N_PMDIAG_INST_OUT ) = INST_PARS( J )
+                INST_TYPE_OUT( N_PMDIAG_INST_OUT ) = M3REAL 
+                INST_UNIT_OUT( N_PMDIAG_INST_OUT ) = 'ppmV for Gas. ug m-3 for PM'     
+                INST_DESC_OUT( N_PMDIAG_INST_OUT ) = 'Chemical Family. See Definition in Control File.' 
+
              ELSE
                 XMSG = 'An Instantaneous PMDIAG Parameter '//TRIM(INST_PARS(J))//
      &                 ' has been requested that does not exist.'
                 CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
              END IF
          END DO
-         ALLOCATE( PMDIAG_INST( NCOLS,NROWS,NLAY_PMDIAG_INST,N_PMDIAG_INST_OUT),STAT=ALLOCSTAT )
+         ALLOCATE( PMDIAG_INST( NCOLS,NROWS,NLAY_PMDIAG_INST,
+     &                          N_PMDIAG_INST_OUT),STAT=ALLOCSTAT )
          IF ( ALLOCSTAT .NE. 0 ) THEN
               XMSG = 'Failure allocating PMDIAG_INST' 
               CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
@@ -704,6 +821,7 @@
          PMDIAG_INST = 0.0
       END IF
       
+      ! Process Average Parameter User Input
       IF ( AVRG_ACTIVE ) THEN
          ALLOCATE( MAP_AVRG2USED( N_PMDIAG_AVRG*N_MODE ),
      &             AVRG_PARS_OUT( N_PMDIAG_AVRG*N_MODE ) ,
@@ -716,37 +834,36 @@
               CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
          END IF
 
+         ! Initialize number of Average output variables
          N_PMDIAG_AVRG_OUT = 0
+
+         ! Initialize number of IDs as equal to the number of Diagnostic
+         ! Parameters
+         NTOT_IDS = N_PMDIAG_LIST
+
+         ! Loop over all user-requested Average parameter and link
+         ! each to parameter IDs, Units, descriptions, etc.
          DO J = 1,N_PMDIAG_AVRG
              N = INDEX1( AVRG_PARS( J ), N_PMDIAG_LIST, PMDIAG_LIST%NAME ) 
+             S = INDEX1( INST_PARS( J ), N_CGRID_SPC, CGRID_NAME )
+             F = 0
+             IF ( NCHEMFAMILIES ) 
+     &          F = INDEX1( INST_PARS( J ), NCHEMFAMILIES, CHEMFAMILYNAME )
+
+             ! Check if this parameter is duplicated on the
+             ! instantaneous list. Don't need to duplicate calculation
+             ! but do need to add it to the output
              M = 0
              IF ( INST_ACTIVE ) 
      &            M = INDEX1( AVRG_PARS( J ), N_PMDIAG_INST, INST_PARS ) 
+
+
              IF ( N .NE. 0 ) THEN
-                ! Add Entry for this Parameter
-                N_PMDIAG_AVRG_OUT = N_PMDIAG_AVRG_OUT + 1
 
                 ! Add Room for the Other Modes if this Parameter is
                 ! Mode-Dependent
                 IF ( PMDIAG_LIST( N )%MODE ) THEN
-                    AVRG_PARS_OUT( N_PMDIAG_AVRG_OUT ) = 
-     &                             TRIM(AVRG_PARS( J )) // aeromode( 1 )%suff
-                    AVRG_TYPE_OUT( N_PMDIAG_AVRG_OUT ) = PMDIAG_LIST( N )%VAR_TYPE 
-                    AVRG_UNIT_OUT( N_PMDIAG_AVRG_OUT ) = PMDIAG_LIST( N )%UNIT     
-                    AVRG_DESC_OUT( N_PMDIAG_AVRG_OUT ) = PMDIAG_LIST( N )%DESC     
-                    IF ( M .EQ. 0 ) THEN
-                       N_PMDIAG = N_PMDIAG + 1
-                       USED_PMDIAG_MODE( N_PMDIAG ) = 1
-                       USED_PMDIAG_PARS( N_PMDIAG ) = PMDIAG_LIST(N)%ID
-                       MAP_ID2USED( PMDIAG_LIST(N)%ID,1 ) = N_PMDIAG
-                       MAP_AVRG2USED( N_PMDIAG_AVRG_OUT ) = N_PMDIAG
-                    ELSE
-                       P = INDEX1( AVRG_PARS_OUT( N_PMDIAG_AVRG_OUT ), 
-     &                             N_PMDIAG_INST_OUT, INST_PARS_OUT ) 
-                       MAP_AVRG2USED( N_PMDIAG_AVRG_OUT ) = MAP_INST2USED( P )
-                    END IF    
-
-                    DO IM = 2,N_MODE
+                    DO IM = 1,N_MODE
                        N_PMDIAG_AVRG_OUT = N_PMDIAG_AVRG_OUT + 1
                        AVRG_PARS_OUT( N_PMDIAG_AVRG_OUT ) = 
      &                           TRIM(AVRG_PARS( J )) // aeromode( IM )%suff
@@ -756,7 +873,7 @@
                        IF ( M .EQ. 0 ) THEN
                           N_PMDIAG = N_PMDIAG + 1
                           USED_PMDIAG_MODE( N_PMDIAG ) = IM
-                          USED_PMDIAG_PARS( N_PMDIAG ) = PMDIAG_LIST(N)%ID
+                          USED_PMDIAG_ID( N_PMDIAG ) = PMDIAG_LIST(N)%ID
                           MAP_ID2USED( PMDIAG_LIST(N)%ID,IM) = N_PMDIAG
                           MAP_AVRG2USED( N_PMDIAG_AVRG_OUT ) = N_PMDIAG
                        ELSE
@@ -766,13 +883,16 @@
                        END IF
                     END DO
                 ELSE
+                    ! Add Entry for this Parameter
+                    N_PMDIAG_AVRG_OUT = N_PMDIAG_AVRG_OUT + 1
+
                     AVRG_PARS_OUT( N_PMDIAG_AVRG_OUT ) = AVRG_PARS( J )
                     AVRG_TYPE_OUT( N_PMDIAG_AVRG_OUT ) = PMDIAG_LIST( N )%VAR_TYPE 
                     AVRG_UNIT_OUT( N_PMDIAG_AVRG_OUT ) = PMDIAG_LIST( N )%UNIT     
                     AVRG_DESC_OUT( N_PMDIAG_AVRG_OUT ) = PMDIAG_LIST( N )%DESC     
                     IF ( M .EQ. 0 ) THEN
                        N_PMDIAG = N_PMDIAG + 1
-                       USED_PMDIAG_PARS( N_PMDIAG ) = PMDIAG_LIST(N)%ID
+                       USED_PMDIAG_ID( N_PMDIAG ) = PMDIAG_LIST(N)%ID
                        USED_PMDIAG_MODE( N_PMDIAG ) = 1
                        MAP_ID2USED( PMDIAG_LIST(N)%ID,1 ) = N_PMDIAG
                        MAP_AVRG2USED( N_PMDIAG_AVRG_OUT ) = N_PMDIAG
@@ -782,39 +902,71 @@
                        MAP_AVRG2USED( N_PMDIAG_AVRG_OUT ) = MAP_INST2USED( P )
                     END IF   
                 END IF 
-
+            ELSEIF ( S .GT. 0 ) THEN
+                ! Add Entry for CMAQ Model Species
+                N_PMDIAG = N_PMDIAG + 1
+                AVRG_PARS_OUT( N_PMDIAG_AVRG_OUT ) = AVRG_PARS( J )
+                AVRG_TYPE_OUT( N_PMDIAG_AVRG_OUT ) = M3REAL 
+                AVRG_UNIT_OUT( N_PMDIAG_AVRG_OUT ) = PMDIAG_LIST( N )%UNIT     
+                AVRG_DESC_OUT( N_PMDIAG_AVRG_OUT ) = 
+     &                         'Average ' // PMDIAG_LIST( N )%DESC     
+                
+                IF ( M .EQ. 0 ) THEN
+                   N_PMDIAG_AVRG_OUT = N_PMDIAG_AVRG_OUT + 1
+                   NTOT_IDS = NTOT_IDS + 1
+                   USED_PMDIAG_ID( N_PMDIAG ) = NTOT_IDS
+                   USED_CGRID_ID( N_PMDIAG ) = S
+                   USED_PMDIAG_MODE( N_PMDIAG ) = 1
+                   MAP_ID2USED( NTOT_IDS,1 ) = N_PMDIAG
+                   MAP_AVRG2USED( N_PMDIAG_AVRG_OUT ) = N_PMDIAG
+                ELSE
+                   P = INDEX1( AVRG_PARS_OUT( N_PMDIAG_AVRG_OUT ), 
+     &                         N_PMDIAG_INST_OUT, INST_PARS_OUT ) 
+                   MAP_AVRG2USED( N_PMDIAG_AVRG_OUT ) = MAP_INST2USED( P )
+                END IF   
+             ELSEIF ( F .GT. 0 ) THEN
+                ! Add Entry for Chemical Family
+                N_PMDIAG_AVRG_OUT = N_PMDIAG_AVRG_OUT + 1
+                AVRG_PARS_OUT( N_PMDIAG_AVRG_OUT ) = INST_PARS( J )
+                AVRG_TYPE_OUT( N_PMDIAG_AVRG_OUT ) = M3REAL 
+                AVRG_UNIT_OUT( N_PMDIAG_AVRG_OUT ) = 'ppmV for Gas. ug m-3 for PM'     
+                AVRG_DESC_OUT( N_PMDIAG_AVRG_OUT ) = 'Chemical Family. See Definition in Control File.' 
+                
+                IF ( M .EQ. 0 ) THEN
+                   N_PMDIAG = N_PMDIAG + 1
+                   NTOT_IDS = NTOT_IDS + 1
+                   USED_PMDIAG_ID( N_PMDIAG ) = NTOT_IDS
+                   USED_FAM_ID( N_PMDIAG ) = F
+                   USED_PMDIAG_MODE( N_PMDIAG ) = 1
+                   MAP_ID2USED( NTOT_IDS,1 ) = N_PMDIAG
+                   MAP_AVRG2USED( N_PMDIAG_AVRG_OUT ) = N_PMDIAG
+                ELSE
+                   P = INDEX1( AVRG_PARS_OUT( N_PMDIAG_AVRG_OUT ), 
+     &                         N_PMDIAG_INST_OUT, INST_PARS_OUT ) 
+                   MAP_AVRG2USED( N_PMDIAG_AVRG_OUT ) = MAP_INST2USED( P )
+                END IF   
              ELSE
                 XMSG = 'An Average PMDIAG Parameter '//TRIM(AVRG_PARS(J))//
      &                 ' has been requested that does not exist.'
                 CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
              END IF
          END DO
-         ALLOCATE( PMDIAG_AVRG( NCOLS,NROWS,NLAY_PMDIAG_AVRG,N_PMDIAG_AVRG_OUT ), STAT=ALLOCSTAT )
-         IF ( ALLOCSTAT .NE. 0 ) THEN
-              XMSG = 'Failure allocating PMDIAG_AVRG' 
-              CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
-         END IF
+         ALLOCATE( PMDIAG_AVRG( NCOLS,NROWS,NLAY_PMDIAG_AVRG,
+     &                          N_PMDIAG_AVRG_OUT ), STAT=IOS )
+         CALL CHECKMEM( IOS, 'PMDIAG_AVRG',PNAME )
          PMDIAG_AVRG = 0.0
       END IF
       
       ! Allocate Local PMDIAG Array
-      ALLOCATE( PMDIAG_LOCAL( N_PMDIAG ), STAT=ALLOCSTAT )
-      IF ( ALLOCSTAT .NE. 0 ) THEN
-           XMSG = 'Failure allocating PMDIAG_LOCAL' 
-           CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
-      END IF
-      ALLOCATE( L_CALC( N_PMDIAG ), STAT=ALLOCSTAT )
-      IF ( ALLOCSTAT .NE. 0 ) THEN
-           XMSG = 'Failure allocating L_CALC'
-           CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
-      END IF
+      ALLOCATE( PMDIAG_LOCAL( N_PMDIAG ), STAT=IOS )
+      CALL CHECKMEM( IOS, 'PMDIAG_LOCAL',PNAME )
+      
+      ALLOCATE( L_CALC( N_PMDIAG ), STAT=IOS )
+      CALL CHECKMEM( IOS, 'L_CALC',PNAME )
 
       ! Allocate local image of CGRID so it can be used each time step
-      ALLOCATE( CONC_VEC( N_CGRID_SPC ), STAT=ALLOCSTAT )
-      IF ( ALLOCSTAT .NE. 0 ) THEN
-           XMSG = 'Failure allocating CONC_VEC' 
-           CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
-      END IF
+      ALLOCATE( CONC_VEC( N_CGRID_SPC ), STAT=IOS )
+      CALL CHECKMEM( IOS, 'CONC_VEC',PNAME )
 
       ! Map Diagnostic Variables to Model Species and Coefficients
       CALL MAP_PMDIAG_COEFFS
@@ -830,20 +982,22 @@
 
       IMPLICIT NONE
 
-      INTEGER IDG, N_VARS, ILIST
+      INTEGER IDG, N_VARS, IPMDIAG
 
       PMDIAG_COEFFS( : )%L_MAPPED = .FALSE.
       
       ! Save the number of PMDIAG parameters that should be output. In the
       ! course of mapping various parameters, it may be necessary to add
-      ! some used parameters that are intermediates to the desired
-      ! parameter. For example, PMF_MASS must be calculated in order to
+      ! some used parameters to N_PMDIAG that are intermediates to the desired
+      ! parameters. For example, PMF_MASS must be calculated in order to
       ! then calculate AUNSP1_IMPVIJ
       N_PMDIAG_OUT = N_PMDIAG
-
+                
       ! Loop through all available PMDIAG_LIST Parameters
-      DO ILIST = 1,N_PMDIAG_LIST
-          IDG = PMDIAG_LIST( ILIST )%ID
+      IPMDIAG = 0
+      DO WHILE ( IPMDIAG .LE. N_PMDIAG )
+          IPMDIAG = IPMDIAG + 1
+          IDG = USED_PMDIAG_ID( IPMDIAG )
           
           SELECT CASE ( IDG )
              
@@ -1605,6 +1759,33 @@
                CALL SET_PMDIAG_COEFF_MAP( IDG, 3, 'AERO', 'AISOPNN', 2.0*62.0/226.0 )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 4, 'AERO', 'AMTNO3', 62.0/231.0 )
  
+             ! Otherwise
+             CASE DEFAULT
+               ! If the IDG is less than N_PMDIAG_LIST, then do nothing
+               ! because it is a parameter that would have been defined
+               ! in one of the previous cases. If IDG is larger than
+               ! N_PMDIAG_LIST, then look through CMAQ model species and
+               ! Chemical Families to determine how to map it
+               IF ( IDG .GT. N_PMDIAG_LIST ) THEN
+                  S = USED_CGRID_ID( IPMDIAG )
+                  IF ( S .GT. 0 ) THEN
+                     ! CMAQ Species
+                     NVARS = 1
+                     CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'ALL' )
+                     CALL SET_PMDIAG_COEFF_MAP( IDG, 1,'SPC', CGRID_NAME(S), 1.0 )
+                  END IF
+
+                  F = USED_FAM_ID( IPMDIAG)
+                  IF ( F .GT. 0 ) THEN
+                     ! User-Defined Family
+                     NVARS = CHEMFAMILYNUM( F )
+                     CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'ALL' )
+                     DO IV = 1,NVARS
+                       CALL SET_PMDIAG_COEFF_MAP( IDG, IV, 'SPC',
+     &                          CHEMFAMILYMEMBERS(F,IV), 1.0 )
+                     END DO
+                  END IF
+               END IF
          END SELECT
 
       END DO
@@ -1645,6 +1826,7 @@
       PMDIAG_COEFFS( IDG )%N_VARS = N_VARS
       ALLOCATE( PMDIAG_COEFFS( IDG )%L_MODE( N_MODE ),
      &          PMDIAG_COEFFS( IDG )%L_GAS ( N_VARS ),
+     &          PMDIAG_COEFFS( IDG )%L_SPC ( N_VARS ),
      &          PMDIAG_COEFFS( IDG )%L_PREC( N_VARS ),
      &          PMDIAG_COEFFS( IDG )%L_AGG ( N_VARS ),
      &          PMDIAG_COEFFS( IDG )%I_SPEC( N_VARS ),
@@ -1656,6 +1838,7 @@
       END IF
 
       PMDIAG_COEFFS( IDG )%L_GAS  ( : )   = .FALSE.
+      PMDIAG_COEFFS( IDG )%L_SPC  ( : )   = .FALSE.
       PMDIAG_COEFFS( IDG )%L_PREC ( : )   = .FALSE.
       PMDIAG_COEFFS( IDG )%L_AGG  ( : )   = .FALSE.
       PMDIAG_COEFFS( IDG )%I_SPEC ( : )   = 0
@@ -1810,15 +1993,15 @@
              ! Found the Index. Save the ID for this entry on the PMDIAG_LIST
              PMDIAG_COEFFS( IDG )%I_SPEC( IVAR ) = PMDIAG_LIST( ISPEC )%ID
              
-             ! Check if it is used and add it to the USED_PMDIAG_PARS
+             ! Check if it is used and add it to the USED_PMDIAG_ID
              ! vector if not
              USED = .FALSE.
              DO JSPEC = 1,N_PMDIAG
-                IF ( PMDIAG_LIST( ISPEC )%ID .EQ. USED_PMDIAG_PARS( JSPEC ) ) USED = .TRUE.
+                IF ( PMDIAG_LIST( ISPEC )%ID .EQ. USED_PMDIAG_ID( JSPEC ) ) USED = .TRUE.
              END DO
              IF ( .NOT. USED ) THEN
                  N_PMDIAG = N_PMDIAG + 1
-                 USED_PMDIAG_PARS( N_PMDIAG ) = PMDIAG_LIST( ISPEC )%ID
+                 USED_PMDIAG_ID( N_PMDIAG ) = PMDIAG_LIST( ISPEC )%ID
              END IF
 
           ELSE
@@ -1833,6 +2016,12 @@
              CALL M3EXIT( 'MAP_PMDIAG_COEFFS', 0, 0, '', XSTAT1 )
           END IF          
   
+      ELSE IF ( TSPEC .EQ. 'SPC' ) THEN 
+          ! Map to a CGRID Species. No Special Instructions
+          PMDIAG_COEFFS( IDG )%L_SPC( IVAR ) = .TRUE.
+          ISPEC = INDEX1( CSPEC, N_CGRID_SPC, CGRID_NAME )
+          PMDIAG_COEFFS( IDG )%I_SPEC( IVAR ) = ISPEC
+
       ELSE
           ! Aerosol
           ISPEC = INDEX1( CSPEC, N_AEROSPC, AEROSPC(:)%BULKNAME )
@@ -1857,7 +2046,7 @@
       END SUBROUTINE SET_PMDIAG_COEFF_MAP
 
 !-------------------------------------------------------------------------
-      SUBROUTINE CALC_PMDIAG_AGG( IDG, VAL )
+      SUBROUTINE CALC_CONCOUT_AGG( IDG, VAL )
 !     This subroutine sums aggregate PM diagnostic parameters using the
 !         PMDIAG_COEFFS structure as a guide for summing aerosol
 !         components.          
@@ -1895,7 +2084,7 @@
      &          'sure it is being mapped to an actual calculation in CALC_PMDIAG ' //
      &          'or MAP_PMDIAG_COEFFS.'
          CALL LOG_MESSAGE( LOGDEV, XMSG )
-         CALL M3EXIT( 'CALC_PMDIAG_AGG', 0, 0, '', XSTAT1 )
+         CALL M3EXIT( 'CALC_CONCOUT_AGG', 0, 0, '', XSTAT1 )
       END IF
 
       ! Initialize value of aggregate parameter
@@ -1939,7 +2128,8 @@
           IF ( PMDIAG_COEFFS( IDG )%L_PREC( IVAR ) ) THEN
               VAL = VAL + REAL( PRECURSOR_CONC( ISPEC ), 4) * COEFF
           
-          ! Next check if this is a Gas from CGRID
+          ! Next check if this is a Gas from CGRID that should be
+          ! converted to mass concentration
           ELSE IF  ( PMDIAG_COEFFS( IDG )%L_GAS( IVAR ) ) THEN
               VAL = VAL + CONC_VEC( ISPEC ) * COEFF * AIRDENS
 
@@ -1947,6 +2137,11 @@
           ELSE IF  ( PMDIAG_COEFFS( IDG )%L_AGG( IVAR ) ) THEN
               CALL CALC_PMDIAG( ISPEC, 1, VAL2 )
               VAL = VAL + VAL2 * COEFF
+
+          ! Next check if this is a Species from CGRID that should be
+          ! added as-is
+          ELSE IF  ( PMDIAG_COEFFS( IDG )%L_SPC( IVAR ) ) THEN
+              VAL = VAL + CONC_VEC( ISPEC ) * COEFF
 
           ! Add Aerosol Components
           ELSE IF ( ISPEC .GT. 0 ) THEN
@@ -1963,7 +2158,7 @@
 
       END DO 
 
-      END SUBROUTINE CALC_PMDIAG_AGG
+      END SUBROUTINE CALC_CONCOUT_AGG
  
 !-------------------------------------------------------------------------
       RECURSIVE SUBROUTINE CALC_PMDIAG( IDG, IM, OUTVAL )
@@ -2625,7 +2820,7 @@
             ! most cases. Parameters in this category are linear
             ! combinations of CMAQ species. For example, PMF_SO4 = 
             ! ASO4I + ASO4J.
-            CALL CALC_PMDIAG_AGG( IDG, OUTVAL )
+            CALL CALC_CONCOUT_AGG( IDG, OUTVAL )
 
          END SELECT 
  
@@ -2681,7 +2876,7 @@
           ! can be used seamlessly with the CALC_PMDIAG internal order.
           DO IUSED = 1,N_PMDIAG_OUT
              IM  = USED_PMDIAG_MODE( IUSED ) ! Map to 
-             IDG = USED_PMDIAG_PARS( IUSED ) ! Map to Parameter ID numbers
+             IDG = USED_PMDIAG_ID( IUSED ) ! Map to Parameter ID numbers
        
              CALL CALC_PMDIAG( IDG, IM, PMDIAG_LOCAL( IUSED ) )
           END DO
@@ -2691,7 +2886,7 @@
      &         L.GE.AVRG_LAYER_BOT .AND. L.LE.AVRG_LAYER_TOP ) THEN
              AL = L - AVRG_LAYER_BOT + 1
              DO  IAVRG = 1,N_PMDIAG_AVRG_OUT
-                IF ( USED_PMDIAG_PARS( MAP_AVRG2USED( IAVRG )) .EQ. ID_PMF_PH
+                IF ( USED_PMDIAG_ID( MAP_AVRG2USED( IAVRG )) .EQ. ID_PMF_PH
      &               .AND. PMDIAG_LOCAL( MAP_AVRG2USED( IAVRG ) ) .LT. -100. ) THEN
                    ! Special Averageing for Particle pH
                    ! Add whatever the current average is right now.
