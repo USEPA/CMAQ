@@ -189,7 +189,7 @@ setenv EMISDIAG F            #> Print Emission Rates at the output time step aft
                              #>   Individual streams can be modified using the variables:
                              #>       GR_EMIS_DIAG_## | STK_EMIS_DIAG_## | BIOG_EMIS_DIAG
                              #>       MG_EMIS_DIAG    | LTNG_EMIS_DIAG   | DUST_EMIS_DIAG
-                             #>       SEASPRAY_EMIS_DIAG   
+                             #>       SEASPRAY_EMIS_DIAG | MIOG_EMIS_DIAG
                              #>   Note that these diagnostics are different than other emissions diagnostic
                              #>   output because they occur after scaling.
 setenv EMISDIAG_SUM F        #> Print Sum of Emission Rates to Gridded Diagnostic File
@@ -390,7 +390,16 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
 
 
   #> In-line biogenic emissions configuration
-  if ( $CTM_BIOGEMIS == 'Y' ) then   
+  if ( $CTM_BIOGEMIS_MEGAN == 'Y' ) then
+    setenv SOILINP    $OUTDIR/CCTM_SOILOUT_${RUNID}_${YESTERDAY}.nc
+                             #> Biogenic NO soil input file; ignore if INITIAL_RUN = Y
+                             #>                            ; ignore if IGNORE_SOILINP = Y
+         setenv MEGAN_CTS /work/MOD3DATA/2016_12US1/surface/megan/CT3_CONUS_12km.ncf
+         setenv MEGAN_EFS /work/MOD3DATA/2016_12US1/surface/megan/EFMAPS_CONUS_12km.ncf
+         setenv MEGAN_LAI /work/MOD3DATA/2016_12US1/surface/megan/LAI3_CONUS_12km.ncf
+         setenv MEGAN_LDF /work/MOD3DATA/2016_12US1/surface/megan/LDF_CONUS_12km.ncf
+  endif
+  if ( $CTM_BIOGEMIS_BEIS == 'Y' ) then   
      set IN_BEISpath = ${INPDIR}/surface
      setenv GSPRO      ${BLD}/gspro_biogenics.txt
      setenv B3GRD      $IN_BEISpath/b3grd.smoke30_beis361.12US1.2011NLCD_FIA5.1_CDL_norm_v3.ncf
