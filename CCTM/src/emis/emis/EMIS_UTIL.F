@@ -86,6 +86,8 @@
          IF ( ILTSRM  .GT.0 ) EM_STREAM_RULE( ILTSRM   ) = .TRUE.
          IF ( ISEASRM .GT.0 ) EM_STREAM_RULE( ISEASRM  ) = .TRUE.
          IF ( IDUSTSRM.GT.0 ) EM_STREAM_RULE( IDUSTSRM ) = .TRUE.
+         IF ( IMIOGSRM.GT.0 ) EM_STREAM_RULE( IMIOGSRM ) = .TRUE.
+
 
       ELSE
          ! Determine if the Stream Label Refers to A Family and if So, 

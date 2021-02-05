@@ -1503,7 +1503,7 @@ C and allowing the model to proceed.
 
             IF ( ISRM .EQ. ISEASRM .OR. ISRM .EQ. IBIOSRM .OR. 
      &           ISRM .EQ. IDUSTSRM.OR. ISRM .EQ. ILTSRM  .OR.
-     &           ISRM .EQ. IMGSRM .OR. ISRM .EQ. IMIOGSRM ) CYCLE
+     &           ISRM .EQ. IMGSRM  .OR. ISRM .EQ. IMIOGSRM ) CYCLE
 
             ALLOCATE( EM_FILE_SURR( ISRM )%MW   ( EM_FILE_SURR( ISRM )%LEN ) )
             ALLOCATE( EM_FILE_SURR( ISRM )%USED ( EM_FILE_SURR( ISRM )%LEN ) )
@@ -2684,15 +2684,6 @@ C stkemis_init.
              EM_FILE_ITYPE( ISRM ) = 9
              EM_FILE_LAB ( ISRM ) = 'MIOG'
              EM_FILE_DESC( ISRM ) = 'Megan Biogenic Emissions'
-
-
-             ! Retrieve Toggle for Outputing Biogenic Emissions
-             ! Diagnostic File
-             CALL GET_ENV( EM_FILE_LDIAG( ISRM ), "MIOG_EMIS_DIAG", EMISDIAG, LOGDEV )
-             EM_FILE_LDIAG( ISRM ) = RESOLVE_YN_TF_2D3D( EM_FILE_LDIAG( ISRM ) )
-             EM_DIAG_FILE( ISRM ) = "MIOG_EMDGFILE"
-             VALUE = SETENVVAR( EM_DIAG_FILE( ISRM ), TRIM( EM_DIAG_PREFIX ) // 
-     &           TRIM( EM_FILE_LAB( ISRM ) ) // TRIM( EM_DIAG_SUFFIX ) )
 
              IMIOGSRM = ISRM
          END IF

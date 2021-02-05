@@ -4965,14 +4965,7 @@ C   mminlu and num_land_cat are WRF global variables
          EmissDiagStreams = ''
          EmissDiagFmt     = ''  
          EmissDiagSpec    = ''
-======= 
  
-         ! Allocate and Initialize Region Namelist Variables
-         ALLOCATE( RGN_NML( N_REGIONS_REG ) )
-         RGN_NML%LABEL = ''
-         RGN_NML%FILE  = ''
-         RGN_NML%VAR   = ''
-
          ! Retrieve the Name of the Emission Control File
          IF ( EMISSCTRL .EQ. "EMISSCTRL_NML" ) THEN
              XMSG = 'You have chosen not to indicate the location of an' //
