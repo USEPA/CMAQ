@@ -518,8 +518,6 @@
   AVRG_PARS_REG  = 'DEFAULT'
 /
 
- 
- 
 !------------------------------------------------------------------------------!
 ! Emissions Diagnostic Output Parameters                                       !
 !    This seciton allows users to specify individual species for output on     !
@@ -568,21 +566,21 @@
 ! NO2, and total NOX will all be on the file.
 !  EmissDiagStreams(1,:)= 'ALL'
 !  EmissDiagFmt(1)      = '2DCOL'    ! Options: 2D, 2DCOL, 3D
-!  EmissDiagSpec(1,:)   = 'NO','NO2','NOX'
+!  EmissDiagSpec(1,:)   = 'NO','NO2','NOX','ASO4','CO'
   
 ! Expand the keyword TOTAL to all the streams in the simulation and create
 ! a diagnostic for each one. Each of these files will be 3D and will include
 ! three species: 'AEC' = AECI + AECJ + AECK; 'AECI'; and 'NO2'
 !  EmissDiagStreams(2,:)= '*TOTAL'
-!  EmissDiagFmt(2)      = '3D'    ! Options: 2D, 2DCOL, 3D
-!  EmissDiagSpec(2,:)   = 'AEC','AECI','NO2'
+!  EmissDiagFmt(2)      = '2D'    ! Options: 2D, 2DCOL, 3D
+!  EmissDiagSpec(2,:)   = 'AEC','AECI','NO2','ACLK','AMG','TERP'
   
 ! Create a diagnostic of the sum of the components of the PT_SOURCES family 
 ! (defined in the example above). This file will be column sums and will include
 ! all the emitted species appearing on at least one of the streams withint 
 ! PT_SOURCES.
 !  EmissDiagStreams(3,:)= 'PT_SOURCES'
-!  EmissDiagFmt(3)      = '2DCOL'    ! Options: 2D, 2DCOL, 3D
+!  EmissDiagFmt(3)      = '3D'    ! Options: 2D, 2DCOL, 3D
 !  EmissDiagSpec(3,:)   = '*ALL'
 !/
 

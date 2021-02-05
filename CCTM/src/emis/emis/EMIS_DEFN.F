@@ -278,7 +278,7 @@ C Return From Initialization
          INTEGER, INTENT( IN ) :: TSTEP( 3 )    ! time step vector (HHMMSS)
          REAL, POINTER :: CGRID( :,:,:,: )
          
-         LOGICAL         :: LDIAG
+         LOGICAL         :: L_DESID_DIAG
          LOGICAL         :: FIRST_TIME = .TRUE.
          INTEGER, SAVE   :: WSTEP, MDATE, MTIME
          LOGICAL         :: WRTIME
@@ -298,7 +298,7 @@ C Return From Initialization
             ! for the Initial Hour of the Day (Hour 0)
             VDEMIS_EMDIAG = 0.0
            WRITE( XMSG, '(A,I10,A,I10)' ),
-     &          'Calling Diagnostic Emissions at Date: ',MDATE,
+     &          '  Calling Diagnostic Emissions at Date: ',MDATE,
      &          '  and time: ',MTIME
            CALL LOG_MESSAGE( LOGDEV, XMSG )
             CALL GET_EMIS( MDATE, MTIME, TSTEP, CGRID, .TRUE. )
@@ -317,24 +317,26 @@ C Return From Initialization
            ! Execute DESID Emission Processor in Diagnostic Mode
            VDEMIS_EMDIAG = 0.0
            WRITE( XMSG, '(A,I10,A,I10)' ),
-     &          'Calling Diagnostic Emissions at Date: ',MDATE,
+     &          '  Calling Diagnostic Emissions at Date: ',MDATE,
      &          '  and time: ',MTIME
            CALL LOG_MESSAGE( LOGDEV, XMSG )
+           CALL LOG_MESSAGE( LOGDEV, '' )
            CALL GET_EMIS( MDATE, MTIME, TSTEP, CGRID, .TRUE. )
 
          END IF
  
          ! Execute DESID Emission Processor in Real Mode
            WRITE( XMSG, '(A,I10,A,I10)' ),
-     &          'Calling Real Emissions at Date: ',JDATE,
+     &          '  Calling Real Emissions at Date: ',JDATE,
      &          '  and time: ',JTIME
            CALL LOG_MESSAGE( LOGDEV, XMSG )
+           CALL LOG_MESSAGE( LOGDEV, '' )
          CALL GET_EMIS( JDATE, JTIME, TSTEP, CGRID, .FALSE. )
 
          END SUBROUTINE GET_EMIS_DRIVER
 
 !-----------------------------------------------------------------------
-         SUBROUTINE GET_EMIS ( JDATE, JTIME, TSTEP, CGRID, LDIAG )
+         SUBROUTINE GET_EMIS ( JDATE, JTIME, TSTEP, CGRID, L_DESID_DIAG )
 
 C Apply NML factors to all *input* emissions and inline plume rise, aero emis
 C biog, SeaSalt, Dust, and Lightning NO
@@ -383,7 +385,7 @@ C Arguments:
          INTEGER, INTENT( IN ) :: JDATE, JTIME  ! date (YYYYDDD), time (HHMMSS)
          INTEGER, INTENT( IN ) :: TSTEP( 3 )    ! time step vector (HHMMSS)
          REAL, POINTER :: CGRID( :,:,:,: )
-         LOGICAL               :: LDIAG
+         LOGICAL, INTENT( IN ) :: L_DESID_DIAG
 
 C Local Variables:
          REAL             DELT          ! interpolation factor
@@ -581,7 +583,7 @@ C Retrieve Emissions from All Stream Types
              CASE ( 1, 3 )
                NL = EM_GRID_LAYS( ISRM )
                CALL GRIDEMIS( JDATE, JTIME, TSTEP, EM_FILE_NAME( ISRM ), 
-     &                        NL, ISRM, VDEMIS_READ, LDIAG )
+     &                        NL, ISRM, VDEMIS_READ, L_DESID_DIAG )
                CALL EMISS_SCALING( VDEMIS_READ, ISRM, NL, VDEMIS_SCALED )
                CALL EMISS_SIZE_DIST( ISRM, VDEMIS_SCALED, NL )
 
@@ -589,13 +591,13 @@ C Retrieve Emissions from All Stream Types
              CASE ( 2 )
                NL = 1
                CALL GET_PT3D_EMIS ( JDATE, JTIME, TSTEP, EM_SURR( :,ISRM ), 
-     &                              ISRM, VDEMIS_READ, NL, LDIAG )
+     &                              ISRM, VDEMIS_READ, NL, L_DESID_DIAG )
                CALL EMISS_SCALING( VDEMIS_READ, ISRM, NL, VDEMIS_SCALED )
                CALL EMISS_SIZE_DIST( ISRM, VDEMIS_SCALED, NL )
              
              CASE ( 4 )
                NL = 1
-               CALL GET_BEIS ( JDATE, JTIME, TSTEP )
+               CALL GET_BEIS ( JDATE, JTIME, TSTEP, L_DESID_DIAG )
                FORALL( ISTR = 1:N_EMIS_ISTR, MAP_EMtoSURR( ISTR,ISRM ) .GT. 0 )
                   VDEMIS_READ( ISTR,1,:,: ) = VDEMIS_BI( MAP_EMtoSURR( ISTR,ISRM ),:,: ) 
                END FORALL
@@ -604,7 +606,7 @@ C Retrieve Emissions from All Stream Types
              ! Retrieve Marine Gas Emissions
              CASE ( 5 )
                NL = 1
-               CALL GET_MGEMIS ( JDATE, JTIME, TSTEP, CGRID )
+               CALL GET_MGEMIS ( JDATE, JTIME, TSTEP, CGRID, L_DESID_DIAG )
                FORALL( ISTR = 1:N_EMIS_ISTR, MAP_EMtoSURR( ISTR,ISRM ) .GT. 0 )
                   VDEMIS_READ( ISTR,1,:,: ) = VDEMIS_MG( MAP_EMtoSURR( ISTR,ISRM ),:,: ) 
                END FORALL
@@ -613,7 +615,7 @@ C Retrieve Emissions from All Stream Types
              ! Retrieve Lightning NO Emissions
              CASE ( 6 )
                NL = EMLAYS
-               CALL GET_LTNG ( JDATE, JTIME, TSTEP )
+               CALL GET_LTNG ( JDATE, JTIME, TSTEP, L_DESID_DIAG )
                DO L = 1,NL
                   FORALL( ISTR = 1:N_EMIS_ISTR, MAP_EMtoSURR( ISTR,ISRM ) .GT. 0 )
                      VDEMIS_READ( ISTR,L,:,: ) = VDEMIS_LT( :,:,L ) 
@@ -624,7 +626,8 @@ C Retrieve Emissions from All Stream Types
              ! Retrieve Sea Spray Aerosol Emissions 
              CASE ( 7 )
                NL = 1
-               CALL GET_SSEMIS ( JDATE, JTIME, TSTEP, CELLVOL( 1 ), CELLHGT( 1 ) )
+               CALL GET_SSEMIS ( JDATE, JTIME, TSTEP, CELLVOL( 1 ), 
+     &                           CELLHGT( 1 ), L_DESID_DIAG )
                FORALL( ISTR = 1:N_EMIS_ISTR, MAP_EMtoSURR( ISTR,ISRM ) .GT. 0 )
                   VDEMIS_READ( ISTR,1,:,: ) = SSOUTM( MAP_EMtoSURR( ISTR,ISRM ),:,: ) 
                END FORALL
@@ -634,7 +637,8 @@ C Retrieve Emissions from All Stream Types
              ! Retrieve Wind-Blown Dust Emissions 
              CASE ( 8 )
                NL = 1
-               CALL GET_DUST_EMIS ( JDATE, JTIME, TSTEP, Met_data%RJACM( :,:,1 ), CELLHGT( 1 ) )
+               CALL GET_DUST_EMIS ( JDATE, JTIME, TSTEP, Met_data%RJACM( :,:,1 ), 
+     &                              CELLHGT( 1 ), L_DESID_DIAG )
                FORALL( ISTR = 1:N_EMIS_ISTR, MAP_EMtoSURR( ISTR,ISRM ) .GT. 0 )
                   VDEMIS_READ( ISTR,1,:,: ) = DUSTOUTM( MAP_EMtoSURR( ISTR,ISRM ),:,: ) 
                END FORALL
@@ -655,7 +659,7 @@ C Retrieve Emissions from All Stream Types
            ! values, write out diagnostic file (if requested) and apply
            ! emissions to output array
            CALL EMISS_CONV_DIFF( VDEMIS_SCALED, NL, VDEMIS_CONV )
-           IF ( LDIAG ) CALL SUM_EMISS_DIAG( JDATE, JTIME, VDEMIS_CONV, ISRM, NL )
+           IF ( L_DESID_DIAG ) CALL SUM_EMISS_DIAG( JDATE, JTIME, VDEMIS_CONV, ISRM, NL )
 
            IF ( EM_FILE_LAPPLY( ISRM ) ) 
      &          VDEMIS_DIFF( :,1:NL,:,: ) = VDEMIS_DIFF( :,1:NL,:,: ) + VDEMIS_CONV( :,1:NL,:,: )
@@ -829,7 +833,7 @@ C Subset the emissions array for DDM-3D (by species and region)
          ERROR_NEG     = EMISS_NEG_CHECK( VDEMIS_DIFF, 1, EMLAYS )
          
          ! Write Out the Sum of All Aggregate Diagnostic Emissions to Files
-         IF ( LDIAG ) CALL WRITE_EMISS_DIAG( JDATE, JTIME )
+         IF ( L_DESID_DIAG ) CALL WRITE_EMISS_DIAG( JDATE, JTIME )
          
          END IF
 
@@ -839,7 +843,7 @@ C Subset the emissions array for DDM-3D (by species and region)
 
 !-----------------------------------------------------------------------
          SUBROUTINE GRIDEMIS ( JDATE, JTIME, TSTEP, EMIS_FNAME, FILE_LAYS, 
-     &                         FSTREAM, VDEMIS, LDIAG )
+     &                         FSTREAM, VDEMIS, L_DESID_DIAG )
 
          USE CGRID_SPCS          ! CGRID mechanism species
          USE UTILIO_DEFN
@@ -856,6 +860,7 @@ C Subset the emissions array for DDM-3D (by species and region)
          INTEGER, INTENT( IN ) :: FSTREAM
          CHARACTER( 100 ), INTENT( IN ) :: EMIS_FNAME
          INTEGER, INTENT( IN ) :: TSTEP( 3 )    ! time step vector (HHMMSS)
+         LOGICAL, INTENT( IN ) :: L_DESID_DIAG
 
 ! Output:
          REAL, INTENT( OUT )  :: VDEMIS( :,:,:,: )
@@ -870,7 +875,7 @@ C Subset the emissions array for DDM-3D (by species and region)
          CHARACTER( 200 ) :: XMSG = ' '
          LOGICAL, SAVE :: FIRSTIME = .TRUE.
          INTEGER, ALLOCATABLE, SAVE :: LOC_STDATE(:)
-         LOGICAL         :: LDIAG
+         LOGICAL         :: L_NEWDAY
 
 C-----------------------------------------------------------------------
 
@@ -886,11 +891,13 @@ C-----------------------------------------------------------------------
          END IF    !FirstTime
  
 C Ensure that the model and emissions timestamp dates stay synchronized
+         L_NEWDAY = .FALSE.
          IF (LOC_STDATE(FSTREAM) .NE. JDATE ) THEN !.AND. .NOT.LDIAG ) THEN
             NDATE = JDATE; NTIME = JTIME
             CALL NEXTIME( NDATE, NTIME, -TSTEP( 1 ) )       ! go back one output tstep
             CALL NEXTIME( EM_FILE_DATE( FSTREAM ), NTIME, TSTEP( 1 ) ) ! advance the start date one time step
             LOC_STDATE(FSTREAM) = EM_FILE_DATE( FSTREAM )
+            L_NEWDAY = .TRUE.
          END IF
 
 C Read & Interpolate Emissions 
@@ -917,6 +924,13 @@ C Store all emissions in mol/sec or g/sec and convert to ppmv/s later
            END IF
 
          END DO   ! ISTR
+
+         ! Reset the date of the gridded file if this is diagnostic mode
+         ! and the day has advanced
+         IF ( L_NEWDAY .AND. L_DESID_DIAG ) THEN
+            CALL NEXTIME( EM_FILE_DATE( FSTREAM ), NTIME, -TSTEP(1) )
+            LOC_STDATE(FSTREAM) = EM_FILE_DATE( FSTREAM )
+         END IF
 
          RETURN
 
