@@ -3226,9 +3226,8 @@ C Read the various categories of normalized emissions
                END IF
           end if
 
-
           
-          if (.not. NEW_START) then
+          if (.not. NEW_START .and. .not. IGNORE_SOILINP) then
              IF ( .NOT. OPEN3( SOILINP, FSREAD3, PNAME ) ) THEN
                 mesg = 'Open failure for ' // SOILINP
                 Call M3EXIT( PNAME, 0, 0, mesg, XSTAT1 )
@@ -3342,7 +3341,6 @@ C Read the various categories of normalized emissions
                    CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
                 END IF
              end if
-
 
           end if
 
