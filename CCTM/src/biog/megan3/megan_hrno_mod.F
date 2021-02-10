@@ -167,7 +167,7 @@ C for the Yienger and Levy algorithm
          RHOURS = MXRHRS
 
 C If initial run, initialize some variables, otherwise get them from file
-         IF ( NEW_START ) THEN
+         IF ( NEW_START .or. IGNORE_SOILINP ) THEN
 
             PULSEDATE = 0   ! array
             PULSETIME = 0   ! array
@@ -222,7 +222,7 @@ C data to compute precip adjustment
          CALL NEXTIME( RDATE, RTIME, METSTEP )
 
          RNTOT = 0.0   ! array assignment
-         IF ( NEW_START ) THEN
+         IF ( NEW_START .or. IGNORE_SOILINP) THEN
             IF ( IHR .LT. MXRHRS ) THEN
                INITIAL_DAY = .TRUE.
             ELSE
