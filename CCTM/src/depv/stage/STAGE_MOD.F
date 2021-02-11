@@ -449,7 +449,7 @@ C land use specific area fraction
                frac_lu = GRID_DATA%LUFRAC( c,r,l )  
                If( frac_lu .Eq. 0.0 ) Cycle lu_loop
 C land use specific column met data
-               ustar   = MOSAIC_DATA%USTAR( c,r,l )
+               ustar   = max( MOSAIC_DATA%USTAR( c,r,l ), 0.001 ) 
                lai     = MOSAIC_DATA%LAI( c,r,l )
 C land use specific land cover data
                wet     = Mosaic_Data%DELTA( c,r,l )
