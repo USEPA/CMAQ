@@ -935,7 +935,7 @@ CONTAINS    !!-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 !     &         Deltah, UnexposedLeafIRin, ExposedLeafIRin, IRin,IRout
       REAL :: cdepth , lwidth , llength , cheight , eps ,               &
                transpiretype , deltah , emissatm , irin , irout
-      REAL , DIMENSION(Layers) :: ldepth , wsh
+      REAL , DIMENSION(Layers) :: ldepth , wsh, wsh1
 !-----------------------------------------------------------------------
  
       cdepth = Canopychar(1,Cantype)
@@ -961,8 +961,12 @@ CONTAINS    !!-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
       Tairk(:) = Tairk0 + (Trate*ldepth(:))               ! check this
       Humidairpa(:) = Humidairpa0 + (deltah*ldepth(:))
  
-      wsh(:) = (cheight-ldepth(:)) - (Canopychar(16,Cantype)*cheight)
-      Ws(:) = (Ws0*LOG(wsh(:))/LOG(cheight-Canopychar(16,Cantype)*      &
+      wsh(:)  = (cheight-ldepth(:)) - (Canopychar(16,Cantype)*cheight)
+
+      wsh1(:) = wsh(:)
+      WHERE(wsh(:)<0.001)Wsh1(:) = 0.0009 ! to avoid undef for LOG(negative)
+
+      Ws(:) = (Ws0*LOG(wsh1(:))/LOG(cheight-Canopychar(16,Cantype)*      &
             & cheight))
       WHERE(wsh(:)<0.001)Ws(:) = 0.05
  
@@ -1044,7 +1048,7 @@ CONTAINS    !!-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
  
       ! Heat convection coefficient (W m-2 K-1) for forced convection.
       ! Nobel page 366
-      ghforced = 0.0259/(0.004*((Llength/Ws)**0.5))
+      ghforced = 0.0259/(0.004*((Llength/Ws1)**0.5))
  
       ! Stomatal resistence s m-1
       stomres = RESSC(Ppfd)
