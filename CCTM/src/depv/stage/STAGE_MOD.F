@@ -449,7 +449,7 @@ C land use specific area fraction
                frac_lu = GRID_DATA%LUFRAC( c,r,l )  
                If( frac_lu .Eq. 0.0 ) Cycle lu_loop
 C land use specific column met data
-               ustar   = max( MOSAIC_DATA%USTAR( c,r,l ), 0.001 ) 
+               ustar   = MOSAIC_DATA%USTAR( c,r,l ) 
                lai     = MOSAIC_DATA%LAI( c,r,l )
 C land use specific land cover data
                wet     = Mosaic_Data%DELTA( c,r,l )
@@ -599,8 +599,11 @@ C Calcuate Canopy Covered Soil Resistance Nemitz et al 2000 https://doi.org/10.1
 C Calcuate Bare Soil Resistance
 ! Soil quazi laminar boundary layer resistance with out canopy Nemitz et al 2000 https://doi.org/10.1016/S0168-1923(00)00206-9
                   scn    = k_vis / dif_T
-                  del0   = dif_T / ( karman * ustar )
-                  Rb   = ( scn - LOG( del0 / 0.10 ) ) / ( karman * ustar )
+! Limit the mimum ustar to be approximately at the maximum value for Rb. There is no attenuation of ustar due
+! vegetation here so ustar = ustg.
+                  ustg   = max( ustar, 0.001 )  
+                  del0   = dif_T / ( karman * ustg )
+                  Rb   = ( scn - LOG( del0 / 0.10 ) ) / ( karman * ustg )
          ! Wet Ground
                   If(ABFLUX .And. s .Eq. s_NH3) Then
                      Call Get_NH3_Comp( c_stom, c_grnd, rgdry, dif_T, r, c, l, s )
