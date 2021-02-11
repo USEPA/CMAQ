@@ -1799,6 +1799,7 @@
      &           "for in the Emmissions Control Namelist."
              !CALL LOG_MESSAGE( LOGDEV, XMSG )
              !CALL M3WARN( 'MAP_PMDIAG_COEFFS', 0, 0, '' )
+             PMDIAG_COEFFS( IDG )%L_GAS( IVAR )  = .FALSE.
           END IF
       
       ELSE IF ( TSPEC .EQ. 'AGG' ) THEN 
