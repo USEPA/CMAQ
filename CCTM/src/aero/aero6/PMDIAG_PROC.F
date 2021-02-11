@@ -610,13 +610,6 @@
       CHARACTER( 300 ) :: XMSG
       INTEGER ALLOCSTAT
 
-      ! Allocate local image of CGRID so it can be used each time step
-      ALLOCATE( CONC_VEC( N_CGRID_SPC ), STAT=ALLOCSTAT )
-      IF ( ALLOCSTAT .NE. 0 ) THEN
-           XMSG = 'Failure allocating CONC_VEC' 
-           CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
-      END IF
-
       ! Read User-Input from Namelist input file (Emission Control File
       ! For Now)
       CALL READ_PMDIAG_NML()
@@ -813,6 +806,13 @@
       ALLOCATE( L_CALC( N_PMDIAG ), STAT=ALLOCSTAT )
       IF ( ALLOCSTAT .NE. 0 ) THEN
            XMSG = 'Failure allocating L_CALC'
+           CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
+      END IF
+
+      ! Allocate local image of CGRID so it can be used each time step
+      ALLOCATE( CONC_VEC( N_CGRID_SPC ), STAT=ALLOCSTAT )
+      IF ( ALLOCSTAT .NE. 0 ) THEN
+           XMSG = 'Failure allocating CONC_VEC' 
            CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
       END IF
 
