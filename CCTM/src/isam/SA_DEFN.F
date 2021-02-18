@@ -477,7 +477,7 @@ c----------------------------------------------------------
         !SAPRC07TC_AE6_AQ
         ALLOCATE( ISAM_SPEC_VOC( 4 )%LIST( 41 ) )
         ISAM_SPEC_VOC( 4 )%LIST = (/'HCHO       ','CCHO       ',
-     &  'RCHO       ','xHCHO      ','xCHCO      ','xRCHO      ',
+     &  'RCHO       ','xHCHO      ','xCCHO      ','xRCHO      ',
      &  'ALK1       ','ALK2       ','ALK3       ','ALK4       ',
      &  'ALK5       ','ETHENE     ','ACETYLENE  ','PROPENE    ',
      &  'ISOPRENE   ','TERP       ','SESQ       ','APIN       ',
@@ -491,7 +491,7 @@ c----------------------------------------------------------
         !SAPRC07TIC_AE6I_AQ
         ALLOCATE( ISAM_SPEC_VOC( 5 )%LIST( 41 ) )
         ISAM_SPEC_VOC( 5 )%LIST = (/'HCHO       ','CCHO       ',
-     &  'RCHO       ','xHCHO      ','xCHCO      ','xRCHO      ',
+     &  'RCHO       ','xHCHO      ','xCCHO      ','xRCHO      ',
      &  'ALK1       ','ALK2       ','ALK3       ','ALK4       ',
      &  'ALK5       ','ETHENE     ','ACETYLENE  ','PROPENE    ',
      &  'ISOPRENE   ','TERP       ','SESQ       ','APIN       ',
@@ -505,7 +505,7 @@ c----------------------------------------------------------
         !SAPRC07TIC_AE7I_AQ
         ALLOCATE( ISAM_SPEC_VOC( 6 )%LIST( 41 ) )
         ISAM_SPEC_VOC( 6 )%LIST = (/'HCHO       ','CCHO       ',
-     &  'RCHO       ','xHCHO      ','xCHCO      ','xRCHO      ',
+     &  'RCHO       ','xHCHO      ','xCCHO      ','xRCHO      ',
      &  'ALK1       ','ALK2       ','ALK3       ','ALK4       ',
      &  'ALK5       ','ETHENE     ','ACETYLENE  ','PROPENE    ',
      &  'ISOPRENE   ','TERP       ','SESQ       ','APIN       ',
@@ -554,7 +554,7 @@ c----------------------------------------------------------
         ALLOCATE( ISAM_SPEC_NO3( 4 )%LIST( 25 ) )
         ISAM_SPEC_NO3( 4 )%LIST = (/'HNO3  ','NO    ','NO2   ','NO3   ',
      &   'HONO  ','N2O5  ','PAN   ','HNO4  ','RNO3  ','PAN2  ','CLNO  ',
-     &   'CLONO ','CLONO2','xNO2  ','MEO2  ','xMEO2 ','RO2C  ','RO2CX ',
+     &   'CLONO ','CLONO2','xNO2  ','MEO2  ','xMEO2 ','RO2C  ','RO2XC ',
      &   'MECO3 ','xMECO3','RCO3  ','xRCO3 ','BZCO3 ','PBZN  ','MACO3 '/ )
 
         !SAPRC07TIC_AE6I_AQ
@@ -564,7 +564,7 @@ c----------------------------------------------------------
      &        'RNO3    ','PAN2    ','CLNO    ','CLONO   ','CLONO2  ',
      &        'ETHLN   ','IMAE    ','IMAPAN  ','ISOPNN  ','MACRN   ',
      &        'NIT1    ','MVKN    ','PROPNN  ','MTNO3   ','xNO2    ',
-     &        'MEO2    ','xMEO2   ','RO2C    ','RO2CX   ','MECO3   ',
+     &        'MEO2    ','xMEO2   ','RO2C    ','RO2XC   ','MECO3   ',
      &        'xMECO3  ','RCO3    ','xRCO3   ','BZCO3   ','PBZN    ',
      &        'MACO3   ','TERPNRO2','ISOPO2  ','NISOPO2 ','MVKOO   ',
      &        'MACROO  ','RNO3I   '/)
@@ -576,7 +576,7 @@ c----------------------------------------------------------
      &        'RNO3    ','PAN2    ','CLNO    ','CLONO   ','CLONO2  ',
      &        'ETHLN   ','IMAE    ','IMAPAN  ','ISOPNN  ','MACRN   ',
      &        'NIT1    ','MVKN    ','PROPNN  ','MTNO3   ','xNO2    ',
-     &        'MEO2    ','xMEO2   ','RO2C    ','RO2CX   ','MECO3   ',
+     &        'MEO2    ','xMEO2   ','RO2C    ','RO2XC   ','MECO3   ',
      &        'xMECO3  ','RCO3    ','xRCO3   ','BZCO3   ','PBZN    ',
      &        'MACO3   ','TERPNRO2','ISOPO2  ','NISOPO2 ','MVKOO   ',
      &        'MACROO  ','RNO3I   '/)
