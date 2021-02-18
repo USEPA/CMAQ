@@ -108,6 +108,7 @@
 
       ! Grid and High-Level Model Parameters
       LOGICAL :: NEW_START       = .TRUE.   ! Start New Simulation. Not a Restart
+      LOGICAL :: IGNORE_SOILINP  = .FALSE.   ! In case you don't have prev day
       CHARACTER(1) :: ISAM_NEW_START = 'Y'  ! Start New Simulation. Not a Restart for ISAM
       CHARACTER(300):: EXECUTION_ID = ''    ! Execution ID
       CHARACTER(16) :: GRID_NAME = ''       ! grid name selected from GRIDDESC
@@ -167,15 +168,9 @@
       REAL    :: GLBL_RTOL = 1.0E-3  ! Relative Tolerance for Rosenbrock Solver
 
       ! Aerosols
-      LOGICAL :: AVISDIAG  = .FALSE. ! flag for PMDIAG and APMDIAG file [F], default
+      LOGICAL :: AVISDIAG  = .FALSE. ! flag for Average Visibility File [F], default
       LOGICAL :: ZERO_PCSOA= .FALSE. ! flag for Zeroing out pcSOA formation
       LOGICAL :: AOD       = .FALSE. ! flag for printing AOD file
-      LOGICAL :: PMDIAG    = .FALSE. ! flag for Instantaneous PM Diagnostic file
-      LOGICAL :: APMDIAG   = .FALSE. ! flag for Average PM Diagnostic file
-      INTEGER :: APMDIAG_ZLO  = 0    ! PM Diagnostic File Lower Layer
-      INTEGER :: APMDIAG_ZHI  = 0    ! PM Diagnostic File Upper Layer
-      INTEGER :: N_APMDIAG_SPC= 0    ! PM Diagnostic File Number of Species
-      CHARACTER(  16 ) :: APMDIAG_SPC( 200 ) = '' !PM Diagnostic File Species Names
 
       ! Cloud Parameters
       LOGICAL :: CLD_DIAG  = .FALSE. ! flag to output cloud diagnostic files
@@ -212,7 +207,9 @@
       INTEGER :: N_FILE_TR     = 0       ! NUmber of Tracer Emission Files
       LOGICAL :: EMISCHK       = .TRUE.  ! flag for checking that surrogate emissions 
                                                !   are present on emission files
-      LOGICAL :: BIOGEMIS      = .FALSE. ! flag to in-line biogenic VOC emissions
+      LOGICAL :: BIOGEMIS_BEIS = .FALSE. ! flag to in-line biogenic VOC emissions
+      LOGICAL :: BIOGEMIS_MEGAN= .FALSE. ! flag to in-line MEGAN biogenic emissions
+      LOGICAL :: USE_MEGAN_LAI = .FALSE. ! flag to use MEGAN LAI values
       CHARACTER(16) :: SPPRO   = 'DEFAULT' ! requested speciation profile name
       LOGICAL :: BIOGEMIS_SEASON=.FALSE. ! use frost switch file
       LOGICAL :: ASSUME_SUMMER = .TRUE.  ! use summer normalized emissions
@@ -343,6 +340,9 @@
  
       ! Determine if this run is a new start or a restart
       CALL GET_ENV ( NEW_START, 'NEW_START', NEW_START, VARDEV )
+
+      ! Determine if prev day soilinp is available for MEGAN
+      CALL GET_ENV ( IGNORE_SOILINP, 'IGNORE_SOILINP', IGNORE_SOILINP, VARDEV )
     
       ! Determine if this run is a new start or a restart
       CALL GET_ENV ( ISAM_NEW_START, 'ISAM_NEW_START', ISAM_NEW_START, VARDEV )
@@ -583,31 +583,6 @@
       ! Get AOD diagnostic file flag.
       CALL GET_ENV ( AOD, 'CTM_AOD', AOD, VARDEV )
 
-      ! Get flag for instantaneous PM diagnostic file.
-      CALL GET_ENV ( PMDIAG, 'CTM_PMDIAG', PMDIAG, VARDEV )
-
-      ! Get flag for average PM diagnostic file.
-      CALL GET_ENV ( APMDIAG, 'CTM_APMDIAG', APMDIAG, VARDEV )
-
-      ! APMDIAG Layer Specification 
-      CALL GET_ENV ( 'APMDIAG_BLEV_ELEV', NV, V_LIST2, VARDEV )
-      IF ( NV .LE. 0 ) THEN   ! assume 1:NLAYS
-         APMDIAG_ZLO = 1
-         APMDIAG_ZHI = -1
-      ELSE IF ( NV .EQ. 1 ) THEN ! Assume 1:CONC_BLEV_ELEV
-         APMDIAG_ZLO = 1
-         READ( V_LIST2( 2 ), '( I4 )' ) APMDIAG_ZHI
-      ELSE IF ( NV .EQ. 2 ) THEN ! Correct Input
-         READ( V_LIST2( 1 ), '( I4 )' ) APMDIAG_ZLO
-         READ( V_LIST2( 2 ), '( I4 )' ) APMDIAG_ZHI
-      ELSE 
-         XMSG = 'Environment variable error for APMDIAG_BLEV_ELEV'
-         CALL M3EXIT( 'INIT_ENV_VARS', JDATE, JTIME, XMSG, EXIT_STATUS )
-      END IF
-       
-      ! APMDIAG File Species List 
-      CALL GET_ENV ( 'AVG_PMDIAG_SPCS', N_APMDIAG_SPC, APMDIAG_SPC, VARDEV )
-
       !-------------------------------------------------------------------------------------------------------
       !>> sulfur tracking option
       !-------------------------------------------------------------------------------------------------------
@@ -744,8 +719,12 @@
       ! present on emissions files
       CALL GET_ENV (  EMISCHK, 'CTM_EMISCHK', EMISCHK, VARDEV )
  
-      ! CTM_BIOGEMIS
-      CALL GET_ENV ( BIOGEMIS, 'CTM_BIOGEMIS', BIOGEMIS, VARDEV )
+      ! CTM_BIOGEMIS_BEIS
+      CALL GET_ENV ( BIOGEMIS_BEIS, 'CTM_BIOGEMIS_BEIS', BIOGEMIS_BEIS, VARDEV )
+
+      ! CTM_BIOGEMIS_MEGAN
+      CALL GET_ENV(BIOGEMIS_MEGAN, 'CTM_BIOGEMIS_MEGAN', BIOGEMIS_MEGAN,VARDEV )
+      CALL GET_ENV(USE_MEGAN_LAI, 'USE_MEGAN_LAI',USE_MEGAN_LAI,VARDEV )
 
       ! Get the speciation profile to use
       CALL GET_ENV ( SPPRO, 'BIOG_SPRO', SPPRO, VARDEV )

@@ -17,10 +17,10 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+!:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       MODULE DEPV_DEFN
 
-C-----------------------------------------------------------------------
+!-----------------------------------------------------------------------
 C Function: deposition velocity interface to the chemistry-transport model
 
 C Revision History:
@@ -87,7 +87,7 @@ C  Dry dep flux of NH3 for bidi [kg/ha hr]
 !     &             ILDEPV, SFC_HONO, ABFLUX, MOSAIC, FST, N_GAS_DEPV,
 !     &             DEPV_INIT, GET_DEPV
 
-      PUBLIC DEPV, DD_CONV, PLDV, N_GAS_DEPV,
+      PUBLIC DEPV, N_SPC_DEPV, DD_CONV, PLDV, N_GAS_DEPV,
      &             DEPV_INIT, GET_DEPV, NH3_EMIS
       
       PRIVATE
@@ -217,8 +217,6 @@ C-----------------------------------------------------------------------
          S_PLDV = 0.0   ! array assignment
 #endif
 
-
-C DEPVEL_GAS is used also for non-ILDEPV in the sgtot calculation
          ALLOCATE ( DEPVEL_GAS( N_GAS_DEPV,NCOLS,NROWS ), STAT = ALLOCSTAT )
          IF ( ALLOCSTAT .NE. 0 ) THEN
             XMSG = 'Failure allocating DEPVEL_GAS array'
@@ -276,12 +274,6 @@ C Initialize
                SUCCESS = .FALSE.; RETURN
             END IF
          END IF
-
-         !IF ( ILDEPV ) THEN
-         !
-         !   CALL INIT_LSM( JDATE, JTIME )
-         !   CALL INIT_BIDI( )
-         !END IF   ! in-line depv
 
          INIT_GAS_DV:
      &   IF ( N_GAS_DEPV .GT. 0 ) THEN
