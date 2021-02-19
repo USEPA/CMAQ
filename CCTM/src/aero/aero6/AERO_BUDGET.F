@@ -30,7 +30,6 @@
 
       ! These Arrays are sorted in the same manner as CGRID so they may
       ! be directly applied in modules like Process Analysis and ISAM
-      REAL, ALLOCATABLE :: AERO_COAG_MODE( :,:,:,:,: ) ! Change in Species due to Coagulation
       REAL, ALLOCATABLE :: AERO_COAG  ( :,:,:,: )   ! Change in Species due to Coagulation
       REAL, ALLOCATABLE :: AERO_COND  ( :,:,:,: )   ! Change in Species due to Condensation
       REAL, ALLOCATABLE :: AERO_NPF   ( :,:,:,: )   ! Change in Species due to NPF

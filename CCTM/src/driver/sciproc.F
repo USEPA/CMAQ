@@ -118,12 +118,6 @@ C Local Variables:
             REAL, POINTER             :: CGRID( :,:,:,: )
             INTEGER, INTENT( IN )     :: JDATE, JTIME
          END SUBROUTINE CKSUMMER
-         !SUBROUTINE PA_UPDATE_PROC ( PID, CGRID, JDATE, JTIME, TSTEP )
-         !   INTEGER, INTENT( IN )     :: PID
-         !   REAL, POINTER             :: CGRID( :,:,:,: )
-         !   INTEGER, INTENT( IN )     :: JDATE, JTIME
-         !   INTEGER, INTENT( IN )     :: TSTEP( 3 )
-         !END SUBROUTINE PA_UPDATE_PROC
          SUBROUTINE HADV ( CGRID, JDATE, JTIME, TSTEP, ASTEP )
             REAL, POINTER             :: CGRID( :,:,:,: )
             INTEGER, INTENT( IN )     :: JDATE, JTIME

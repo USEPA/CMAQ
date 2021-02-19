@@ -111,7 +111,6 @@ C Local Variables:
       INTEGER NIRR      ! Loop index for IRR output variables
       INTEGER NFL       ! Loop index for no. of files
       INTEGER NOUT      ! Loop index for PA output variables
-      INTEGER ISV       ! Loop index for number cgrid concs saved
       INTEGER R         ! Loop index for rows
 #ifndef parallel
       INTEGER PC        ! index for window column

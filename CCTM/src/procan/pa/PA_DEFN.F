@@ -77,7 +77,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       INTEGER, PARAMETER :: IPR_NPF  = 13
       INTEGER, PARAMETER :: IPR_GROW = 14
  
-      CHARACTER(16), PARAMETER :: PROCNAME( NPRCS ) =
+      CHARACTER(4), PARAMETER :: PROCNAME( NPRCS ) =
      & (/'XADV','YADV','ZADV','HDIF','VDIF','EMIS','DDEP','DEFM',
      &   'CLDS','CHEM','COND','COAG','NPF ','GROW' /)
 

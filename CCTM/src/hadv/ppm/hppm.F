@@ -195,10 +195,16 @@ C Local variables:
       REAL, ALLOCATABLE, SAVE :: C6( : )   ! coefficient of second-order term
       REAL C0, C1
 
-      REAL :: F_LO_IN( : )  ! influx to domain
-      REAL :: F_LO_OUT(: ) ! outflux to domain
-      REAL :: F_HI_IN( : )  ! influx to domain
-      REAL :: F_HI_OUT(: ) ! outflux to domain
+      ! Boundary fluxes returned for budget calculations
+      ! Units of boundary fluxes are assumed to be 
+      ! density (aerosols) or mixing ratio (gases). These values
+      ! are in 'coupled' space, meaning they need to be decoupled
+      ! using the Jacobian and map scale factor in order to properly
+      ! contribute to total mass calculations.
+      REAL, INTENT( OUT) :: F_LO_IN( : )  ! influx to domain from left of row or bottom of column
+      REAL, INTENT( OUT) :: F_LO_OUT(: ) ! outflux to domain from left of row or bottom of column
+      REAL, INTENT( OUT) :: F_HI_IN( : )  ! influx to domain from right of row or bottom of top
+      REAL, INTENT( OUT) :: F_HI_OUT(: ) ! outflux to domain from right of row or bottom of top
 
       LOGICAL, SAVE :: BNDY_LO_PE, BNDY_HI_PE
 
@@ -439,7 +445,7 @@ C Update concentrations as in Equation (1.13)
       END DO
 
 C Store boundary fluxes in budget variables
-C   Units: change in concentration or mixing ratio
+C   Units: change in density (aerosols) or mixing ratio (gases)
       IF ( BUDGET_DIAG ) THEN
          F_LO_IN( : ) = FP( 0,: ) / DS
          F_LO_OUT( : ) = FM( 1,: ) / DS

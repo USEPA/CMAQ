@@ -121,7 +121,6 @@ C..Local Variables:
       INTEGER NIRR      ! Loop index for IRR outputs
       INTEGER NFL       ! Loop index for no. of files
       INTEGER NOUT      ! Loop index for process monitoring outputs
-      INTEGER ISV       ! Loop index for number cgout concs saved
       INTEGER NUMFLS    ! Number of PA or IRR output files needed
       INTEGER STATUS    ! Status Code
 

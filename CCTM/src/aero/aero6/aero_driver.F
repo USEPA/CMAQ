@@ -142,7 +142,7 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       USE PMDIAG_DATA, ONLY: L_PMDIAG, PMDIAG_AVRG_STEP
       USE PMDIAG_PROC
       USE RUNTIME_VARS, ONLY: LOGDEV, END_TIME
-      USE AERO_BUDGET, ONLY: AERO_COAG, AERO_COND, AERO_GROWTH, AERO_NPF, AERO_COAG_MODE
+      USE AERO_BUDGET, ONLY: AERO_COAG, AERO_COND, AERO_GROWTH, AERO_NPF
 
 #ifdef twoway
       USE twoway_data_module
@@ -287,7 +287,6 @@ C ------------------ begin body of AERO_DRIVER -------------------------
 
          ALLOCATE ( AERO_COND(   NCOLS,NROWS,NLAYS,NSPCSD ),
      &              AERO_COAG(   NCOLS,NROWS,NLAYS,NSPCSD ),
-     &              AERO_COAG_MODE(   NCOLS,NROWS,NLAYS,NSPCSD,N_MODE ),
      &              AERO_NPF (    NCOLS,NROWS,NLAYS,NSPCSD ),
      &              AERO_GROWTH ( NCOLS,NROWS,NLAYS,NSPCSD ),
      &              COND_BUDGET( NSPCSD ),
@@ -365,7 +364,6 @@ C *** air density [kg/m3]
 ! *** Initialize Shared Arrays for Aerosol Budget
       AERO_COND     = 0.
       AERO_COAG     = 0.
-      AERO_COAG_MODE= 0.
       AERO_NPF      = 0.
       AERO_GROWTH   = 0.
 
@@ -450,9 +448,6 @@ C *** OUTPUT DIAGNOSTIC INFORMATION
 
 ! *** Collect Aerosol Sub-Process Rates in shared arrays
                DO V = 1,N_CGRID_SPC
-                  DO IM = 1,N_MODE 
-                     AERO_COAG_MODE ( C,R,L,V,IM )=COAG_BUDGET( V,IM )
-                  END DO
                   AERO_COAG  ( C,R,L,V ) = SUM( COAG_BUDGET( V,: ) )
                   AERO_COND  ( C,R,L,V ) = COND_BUDGET( V )
                   AERO_NPF   ( C,R,L,V ) = NPF_BUDGET( V )

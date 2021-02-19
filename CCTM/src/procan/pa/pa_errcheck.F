@@ -817,8 +817,6 @@ C---------------------- Format Statements -----------------------------
 94460 FORMAT( '       Invalid operation name: ', A16 ) 
 94480 FORMAT( 'ERROR: Invalid species name for IPR_OUTPUT operation' )
 94500 FORMAT( '       Invalid name: ', A16 )
-94520 FORMAT( 'ERROR: Invalid operator name for IPR_OUTPUT operation' )
-94540 FORMAT( '       Invalid name: ', A16, ' for species ', A )
 94560 FORMAT( 'ERROR: The total number of reactions in the IRR_OUTPUT',
      &               ' operation exceeds the maximum allowable of 500' )
 94580 FORMAT( '       IRR_OUTPUT name ', I3, ': ', A16 )

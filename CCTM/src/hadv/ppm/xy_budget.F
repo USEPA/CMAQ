@@ -33,14 +33,19 @@
       REAL, ALLOCATABLE :: DELC_XADV  ( :,:,:,: ) ! Change in Species due to X Advection
       REAL, ALLOCATABLE :: DELC_YADV  ( :,:,:,: )   ! Change in Species due to Y Advection
 
-      REAL, ALLOCATABLE :: F_WEST_IN( :,: )
-      REAL, ALLOCATABLE :: F_WEST_OUT( :,: )
-      REAL, ALLOCATABLE :: F_EAST_IN( :,: )
-      REAL, ALLOCATABLE :: F_EAST_OUT( :,: )
-      REAL, ALLOCATABLE :: F_SOUTH_IN( :,: )
-      REAL, ALLOCATABLE :: F_SOUTH_OUT( :,: )
-      REAL, ALLOCATABLE :: F_NORTH_IN( :,: )
-      REAL, ALLOCATABLE :: F_NORTH_OUT( :,: )
+      ! Total burden change at boundaries due to advection. The units are
+      ! moles for gases, grams for particle mass, 1 for particle number, 
+      ! and m2 for particle surface area. The conversion total burden
+      ! must be done at this level because of variability in vertical
+      ! grid cell height over the model output time step.
+      REAL, ALLOCATABLE :: F_WEST_IN  ( :,: ) ! Mass entering the western boundary
+      REAL, ALLOCATABLE :: F_WEST_OUT ( :,: ) ! Mass leaving the western boundary
+      REAL, ALLOCATABLE :: F_EAST_IN  ( :,: ) ! Mass entering the eastern boundary
+      REAL, ALLOCATABLE :: F_EAST_OUT ( :,: ) ! Mass leaving the eastern boundary
+      REAL, ALLOCATABLE :: F_SOUTH_IN ( :,: ) ! Mass entering the southern boundary 
+      REAL, ALLOCATABLE :: F_SOUTH_OUT( :,: ) ! Mass leaving the southern boundary  
+      REAL, ALLOCATABLE :: F_NORTH_IN ( :,: ) ! Mass entering the northern boundary 
+      REAL, ALLOCATABLE :: F_NORTH_OUT( :,: ) ! Mass leaving the northern boundary  
 
 C-----------------------------------------------------------------------
 

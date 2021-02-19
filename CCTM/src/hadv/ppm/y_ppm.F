@@ -110,7 +110,6 @@ C Local Variables:
       CHARACTER( 96 ) :: XMSG = ' '
 
       REAL,    SAVE :: DX2, DX1, AX             ! dx2 (meters), dx1 (m), ax (m2)
-      INTEGER, SAVE :: ASPC                     ! RHOJ index in CGRID
 
       REAL, ALLOCATABLE, SAVE :: VELY( : ),     ! Velocities along a column
      &                           CONY( :,: )    ! Conc's along a column
@@ -187,10 +186,10 @@ C Required interface for allocatable array dummy arguments
             REAL,            INTENT( IN )     :: DT
             REAL,            INTENT( IN )     :: DS
             CHARACTER,       INTENT( IN )     :: ORI
-            REAL                              :: F_LO_IN( : )
-            REAL                              :: F_LO_OUT( : )
-            REAL                              :: F_HI_IN( : )
-            REAL                              :: F_HI_OUT( : )
+            REAL           , INTENT( OUT)     :: F_LO_IN( : )
+            REAL           , INTENT( OUT)     :: F_LO_OUT( : )
+            REAL           , INTENT( OUT)     :: F_HI_IN( : )
+            REAL           , INTENT( OUT)     :: F_HI_OUT( : )
          END SUBROUTINE HPPM
       END INTERFACE
 C-----------------------------------------------------------------------
@@ -204,7 +203,8 @@ C-----------------------------------------------------------------------
 C Get dx2 from HGRD_DEFN module
 
          IF ( GDTYP_GD .EQ. LATGRD3 ) THEN
-            DX1 = DG2M * XCELL_GD   ! in m.
+            DX1 = DG2M * XCELL_GD
+     &          * COS( PI180*( YORIG_GD + YCELL_GD*FLOAT( GL_NROWS/2 ))) ! in m.
             DX2 = DG2M * YCELL_GD   ! in m.
 
          ELSE
@@ -280,8 +280,6 @@ C Get dx2 from HGRD_DEFN module
 #endif
 #endif
 
-         ASPC = GC_STRT - 1 + N_GC_SPCD
-
 C Create global map to CGRID
 
          SPC = 0
@@ -302,7 +300,7 @@ C Create global map to CGRID
             ADV_MAP( SPC ) = TR_STRT - 1 + TR_ADV_MAP( VAR )
          END DO
 
-         ADV_MAP( N_SPC_ADV ) = ASPC
+         ADV_MAP( N_SPC_ADV ) = RHOJ_LOC
 
          CALL SUBST_HI_LO_BND_PE ( 'R', BNDY_PE_LOY, BNDY_PE_HIY )
 
@@ -514,17 +512,17 @@ C PPM scheme
      &                      + F_LO_OUT(I) / JACOBM( COL,1,LVL ) * VOL
                    ELSE
                       F_SOUTH_IN( LVL,A2C )  = F_SOUTH_IN( LVL,A2C ) 
-     &                      + F_LO_IN(I) / CGRID( COL,1,LVL,ASPC ) 
+     &                      + F_LO_IN(I) / CGRID( COL,1,LVL,RHOJ_LOC ) 
       !&                      + F_LO_IN(I) / CONY( 1,N_SPC_ADV ) 
      &                      * DENS( COL,1,LVL ) * VOL
       !&                      + F_LO_IN(I) / RHOJ( COL,1,LVL ) 
-      !&                      * CGRID( COL,1,LVL,ASPC )/JACOBM( COL,1,LVL )*MSFX2(COL,1)/MWAIR_SI * VOL
+      !&                      * CGRID( COL,1,LVL,RHOJ_LOC )/JACOBM( COL,1,LVL )*MSFX2(COL,1)/MWAIR_SI * VOL
                       F_SOUTH_OUT( LVL,A2C ) = F_SOUTH_OUT( LVL,A2C ) 
-     &                      + F_LO_OUT(I) / CGRID( COL,1,LVL,ASPC ) 
+     &                      + F_LO_OUT(I) / CGRID( COL,1,LVL,RHOJ_LOC ) 
       !&                      + F_LO_OUT(I) / CONY( 1,N_SPC_ADV ) 
      &                      * DENS( COL,1,LVL ) * VOL
       !&                      + F_LO_OUT(I) / RHOJ( COL,1,LVL ) 
-      !&                      * CGRID( COL,1,LVL,ASPC )/JACOBM( COL,1,LVL )*MSFX2(COL,1)/MWAIR_SI * VOL
+      !&                      * CGRID( COL,1,LVL,RHOJ_LOC )/JACOBM( COL,1,LVL )*MSFX2(COL,1)/MWAIR_SI * VOL
                    END IF
                 END DO
             END IF
@@ -547,17 +545,17 @@ C PPM scheme
      &                      + F_HI_OUT(I) / JACOBM( COL,NROWS,LVL ) * VOL
                    ELSE
                       F_NORTH_IN( LVL,A2C )  = F_NORTH_IN( LVL,A2C ) 
-     &                      + F_HI_IN(I) / CGRID( COL,NROWS,LVL,ASPC ) 
+     &                      + F_HI_IN(I) / CGRID( COL,NROWS,LVL,RHOJ_LOC ) 
       !&                      + F_HI_IN(I) / CONY( NROWS,N_SPC_ADV ) 
      &                      * DENS( COL,NROWS,LVL ) * VOL
       !&                      + F_HI_IN(I) / RHOJ( COL,NROWS,LVL ) 
-      !&                      * CGRID( COL,NROWS,LVL,ASPC )/JACOBM( COL,NROWS,LVL )*MSFX2(COL,NROWS)/MWAIR_SI * VOL
+      !&                      * CGRID( COL,NROWS,LVL,RHOJ_LOC )/JACOBM( COL,NROWS,LVL )*MSFX2(COL,NROWS)/MWAIR_SI * VOL
                       F_NORTH_OUT( LVL,A2C ) = F_NORTH_OUT( LVL,A2C ) 
-     &                      + F_HI_OUT(I) / CGRID( COL,NROWS,LVL,ASPC ) 
+     &                      + F_HI_OUT(I) / CGRID( COL,NROWS,LVL,RHOJ_LOC ) 
       !&                      + F_HI_OUT(I) / CONY( NROWS,N_SPC_ADV ) 
      &                      * DENS( COL,NROWS,LVL ) * VOL
       !&                      + F_HI_OUT(I) / RHOJ( COL,NROWS,LVL ) 
-      !&                      * CGRID( COL,NROWS,LVL,ASPC )/JACOBM( COL,NROWS,LVL )*MSFX2(COL,NROWS)/MWAIR_SI * VOL
+      !&                      * CGRID( COL,NROWS,LVL,RHOJ_LOC )/JACOBM( COL,NROWS,LVL )*MSFX2(COL,NROWS)/MWAIR_SI * VOL
                    END IF
                 END DO
             END IF

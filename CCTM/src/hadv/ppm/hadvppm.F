@@ -100,8 +100,6 @@ C Local Variables:
 
       INTEGER       ALLOCSTAT
 
-      INTEGER, SAVE :: ASPC                     ! RHOJ index in CGRID
-
       CHARACTER( 16 ) :: PNAME = 'HADVPPM'
       LOGICAL, SAVE :: FIRSTIME = .TRUE.
       LOGICAL, SAVE :: FIRST_BC = .TRUE.
@@ -168,8 +166,6 @@ C Get CGRID offsets
             XMSG = 'Failure allocating BCON'
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
-
-         ASPC = GC_STRT - 1 + N_GC_SPCD
 
          IF ( LIPR ) THEN
             ALLOCATE ( DELC_XADV( NCOLS,NROWS,NLAYS,NSPCSD ),

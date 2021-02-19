@@ -122,18 +122,18 @@ C-----------------------------------------------------------------------
      &              F_NORTH_OUT( NLAYS,N_CGRID_SPC ),
      &              CSAV( NCOLS,NROWS,NLAYS,N_CGRID_SPC ),
      &              STAT=ASTAT )
-          BDG_PROC = 0
-          BDG_JDATE0 = JDATE
-          BDG_JTIME0 = JTIME
-          F_WEST_IN = 0
-          F_WEST_OUT = 0
-          F_EAST_IN = 0
-          F_EAST_OUT = 0
-          F_SOUTH_IN = 0
-          F_SOUTH_OUT = 0
-          F_NORTH_IN = 0
-          F_NORTH_OUT = 0
-          CSAV  = CGRID
+          BDG_PROC    = 0.0
+          BDG_JDATE0  = JDATE
+          BDG_JTIME0  = JTIME
+          F_WEST_IN   = 0.0
+          F_WEST_OUT  = 0.0
+          F_EAST_IN   = 0.0
+          F_EAST_OUT  = 0.0
+          F_SOUTH_IN  = 0.0
+          F_SOUTH_OUT = 0.0
+          F_NORTH_IN  = 0.0
+          F_NORTH_OUT = 0.0
+          CSAV        = CGRID
           
           CALL STORE_BUDGET( BDGC0_ID, CONC, JDATE, JTIME, 0 )
           DEALLOCATE( CONC )
@@ -150,18 +150,18 @@ C-----------------------------------------------------------------------
               WRITE( BDG_UNIT, * )
           
               ! Write Execution ID and GridName
-              XMSG = "EXEC_ID: " // EXECUTION_ID
+              XMSG = "# EXEC_ID: " // EXECUTION_ID
               CALL LOG_MESSAGE( BDG_UNIT, XMSG )
-              XMSG = "GRIDNAME: " // GRID_NAME
+              XMSG = "# GRIDNAME: " // GRID_NAME
               CALL LOG_MESSAGE( BDG_UNIT, XMSG )
               WRITE( BDG_UNIT, * )
           
-              CALL LOG_MESSAGE( BDG_UNIT, 'All date-times are in '//
+              CALL LOG_MESSAGE( BDG_UNIT, '# All date-times are in '//
      &             'YYYYmmdd:HHMMSS format and in UTC time zone.' )
-              CALL LOG_MESSAGE( BDG_UNIT, 'Delta T (time) Units are hours.' )
-              CALL LOG_MESSAGE( BDG_UNIT, 'Gas and Aerosol Mass Units are kg' )
-              CALL LOG_MESSAGE( BDG_UNIT, 'Aerosol Number Units are total N' )
-              CALL LOG_MESSAGE( BDG_UNIT, 'Aerosol Surface Area Units are m2' )
+              CALL LOG_MESSAGE( BDG_UNIT, '# Delta T (time) Units are hours.' )
+              CALL LOG_MESSAGE( BDG_UNIT, '# Gas and Aerosol Mass Units are kg' )
+              CALL LOG_MESSAGE( BDG_UNIT, '# Aerosol Number Units are total N' )
+              CALL LOG_MESSAGE( BDG_UNIT, '# Aerosol Surface Area Units are m2' )
               WRITE( BDG_UNIT, * )
           
           
@@ -170,7 +170,7 @@ C-----------------------------------------------------------------------
      &         'T_FINAL',tab,'T_DELTA',tab,'M_START',tab,'M_FINAL',tab,
      &         'M_DELTA',tab,'WEST_IN',tab,'WEST_OUT',tab,'EAST_IN',tab,
      &         'EAST_OUT',tab,'SOUTH_IN',tab,'SOUTH_OUT',tab,'NORTH_IN',tab,
-     &         'NORTH_OUT',tab, TRIM(PROCNAME(1)),
+     &         'NORTH_OUT', 
      &         ( tab, TRIM(PROCNAME(i)),i=3,NPRCS),tab,'RESID'
           
               ! Debugging
@@ -296,9 +296,9 @@ C-----------------------------------------------------------------------
 
       ! Retrieve Cell Variables for converting concentrations to burden
       call interpolate_var ('ZF', jdate, jtime, ZF) ! height of layer top
-      CELLVOL( :,:,1 ) = REAL( XCELL_GD * YCELL_GD, 4 ) * ZF( :,:,1 ) * MSFX2(:,:)
+      CELLVOL( :,:,1 ) = REAL( XCELL_GD * YCELL_GD, 4 ) * ZF( :,:,1 ) / MSFX2(:,:)
       DO L = 2,NLAYS
-         CELLVOL( :,:,L ) = REAL( XCELL_GD * YCELL_GD,4) * MSFX2( :,: ) * 
+         CELLVOL( :,:,L ) = REAL( XCELL_GD * YCELL_GD,4) / MSFX2( :,: ) * 
      &                        ( ZF( :,:,L ) - ZF( :,:,L-1) )  ! m3
       END DO
 
@@ -405,7 +405,9 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       INTEGER DTHR, DTMIN, DTSEC
       INTEGER BDG_YEAR0, BDG_MONTH0, BDG_DAY0, BDG_YYYYMMDD0
       INTEGER BDG_YEAR1, BDG_MONTH1, BDG_DAY1, BDG_YYYYMMDD1
-      CHARACTER(15) :: BDG_TIME0, BDG_TIME1
+      INTEGER BDG_HOUR0, BDG_MIN0, BDG_SEC0
+      INTEGER BDG_HOUR1, BDG_MIN1, BDG_SEC1
+      CHARACTER(20) :: BDG_TIME0, BDG_TIME1
 
       REAL, ALLOCATABLE, SAVE :: BDG_BURDEN_OUT(:,:), BDG_PROC_OUT(:,:),
      &                           ADV_FLUXES_OUT(:,:), ADV_FLUXES(:,:)
@@ -454,15 +456,31 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       DTSEC = TSTEP(1) - DTHR*10000 - DTMIN*100
       DT = REAL( DTHR,4) + REAL( DTMIN,4 )/60.0 + REAL( DTSEC,4 )/3600.0
       
-      BDG_YEAR0 = BDG_JDATE0 / 1000
-      BDG_YEAR1 = BDG_JDATE1 / 1000
-      CALL DAYMON( BDG_JDATE0, BDG_MONTH0, BDG_DAY0 )
-      CALL DAYMON( BDG_JDATE1, BDG_MONTH1, BDG_DAY1 )
-      BDG_YYYYMMDD0 = BDG_YEAR0*10000 + BDG_MONTH0*100 + BDG_DAY0
-      BDG_YYYYMMDD1 = BDG_YEAR1*10000 + BDG_MONTH1*100 + BDG_DAY1
+      ! Format Beginning and Ending Date-Times
+      IF ( MYPE .EQ. 0 ) THEN
+        BDG_YEAR0 = BDG_JDATE0 / 1000
+        BDG_YEAR1 = BDG_JDATE1 / 1000
+        CALL DAYMON( BDG_JDATE0, BDG_MONTH0, BDG_DAY0 )
+        CALL DAYMON( BDG_JDATE1, BDG_MONTH1, BDG_DAY1 )
+        BDG_YYYYMMDD0 = BDG_YEAR0*10000 + BDG_MONTH0*100 + BDG_DAY0
+        BDG_YYYYMMDD1 = BDG_YEAR1*10000 + BDG_MONTH1*100 + BDG_DAY1
+        BDG_HOUR0 = BDG_JTIME0 / 10000
+        BDG_HOUR1 = BDG_JTIME1 / 10000
+        BDG_MIN0  = ( BDG_JTIME0 - BDG_HOUR0*10000 ) / 100
+        BDG_MIN1  = ( BDG_JTIME1 - BDG_HOUR1*10000 ) / 100
+        BDG_SEC0  =   BDG_JTIME0 - BDG_HOUR0*10000 - BDG_MIN0*100
+        BDG_SEC1  =   BDG_JTIME1 - BDG_HOUR1*10000 - BDG_MIN1*100
       
-      WRITE( BDG_TIME0, '(I8,A1,I6.6)' ), BDG_YYYYMMDD0,':',BDG_JTIME0
-      WRITE( BDG_TIME1, '(I8,A1,I6.6)' ), BDG_YYYYMMDD1,':',BDG_JTIME1
+        print *,BDG_JTIME0, BDG_SEC0
+        print *,BDG_JTIME1, BDG_SEC1
+
+        WRITE( BDG_TIME0, '(I4,A1,I2.2,A1,I2.2,A1,I2.2,A1,I2.2,A1,I2.2,A1)' ), 
+     &         BDG_YEAR0,'-',BDG_MONTH0,'-',BDG_DAY0,'T',BDG_HOUR0,':',
+     &         BDG_MIN0,':',BDG_SEC0,'Z'
+        WRITE( BDG_TIME1, '(I4,A1,I2.2,A1,I2.2,A1,I2.2,A1,I2.2,A1,I2.2,A1)' ), 
+     &         BDG_YEAR1,'-',BDG_MONTH1,'-',BDG_DAY1,'T',BDG_HOUR1,':',
+     &         BDG_MIN1,':',BDG_SEC1,'Z'
+      END IF
       
       ! Map CGRID Species to Budget Output Species
       BDG_PROC_OUT = 0.0

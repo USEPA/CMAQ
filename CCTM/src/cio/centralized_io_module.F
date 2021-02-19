@@ -5024,7 +5024,7 @@ C   mminlu and num_land_cat are WRF global variables
      &              'assumed.'
              BudgetVariables  = '*ALL'
          ELSE IF ( STAT .NE. 0 ) THEN
-             ! Read Error Detected for SD_NML
+             ! Read Error Detected for BudgetOptions
              backspace( EMCTRL_NML )
              read( EMCTRL_NML, fmt='(A)' ) tmpline
              XMSG = 'ERROR: There was a syntax error reading the BudgetOptions '//

@@ -283,15 +283,16 @@ C-----------------------------------------------------------------------
             CALL M3EXIT( PNAME, JDATE, JTIME, MSG, XSTAT1 )
          END IF
 
-         ! Get conversion factors for aero emissions; as of sep 03 release, incoming
+         ! Get conversion factors for aero emissions; incoming
          ! units are in ppmV/sec for ae species, #/mol/sec for
-         ! NUM, and m2/mol/sec for SRF.  Conversion factors convert to 
-         ! ug/m3 sec, #/m3 sec, and m2/m3 sec, respectively.
+         ! NUM, and m2/mol/sec for SRF. PA_EMIS_CONV Conversion 
+         ! factors convert to ug/kg sec, #/kg sec, and m2/kg 
+         ! sec, respectively.
          PA_EMIS_CONV = 1.0
          WHERE ( CGRID_MASK_NUM ) 
-             PA_EMIS_CONV( : ) = REFAC !* AVO / MGPG
+             PA_EMIS_CONV( : ) = REFAC 
          ELSEWHERE ( CGRID_MASK_SRF ) 
-             PA_EMIS_CONV( : ) = REFAC !1.0E+06 * REFAC / MGPG
+             PA_EMIS_CONV( : ) = REFAC 
          ELSEWHERE
              PA_EMIS_CONV( : ) = REFAC * CGRID_MW( : )
          END WHERE
