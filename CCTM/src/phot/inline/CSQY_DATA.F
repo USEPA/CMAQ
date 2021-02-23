@@ -2486,11 +2486,6 @@ C-----------------------------------------------------------------------
 !*** note that values are normalized by total qy at DENS = 0.0 but
 !    its values equals 1.0
 
-!           IQY_DENS0 = REAL( (1.0D0 + A1*DENS0 + A2) * (1.0D0 + A3*DENS0)
-!    &                / (1.0D0 + A2 + A3*DENS0 ) )
-!           QY_DENS_NUMB  = REAL( (1.0D0 + A2 + A3*R8_DENS)
-!    &                    / ((1.0D0 + A1*R8_DENS + A2)*(1.0D0 + A3*R8_DENS)) )
-
             IQY_DENS0 = REAL( (1.0 + A2 + A3*DENS0 )
      &                / ((1.0 + A1*DENS0 + A2)*(1.0 + A3*DENS0)) )
 
