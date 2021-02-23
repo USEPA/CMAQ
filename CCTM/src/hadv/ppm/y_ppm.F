@@ -497,9 +497,9 @@ C PPM scheme
                 call interpolate_var ('JACOBM', fdate, ftime, JACOBM)
                 call interpolate_var ('ZF', fdate, ftime, ZF)
                 IF ( LVL .EQ. 1 ) THEN
-                    VOL = AX * ZF( COL,1,1 ) !* MSFX2( COL,1 )
+                    VOL = AX * ZF( COL,1,1 ) / MSFX2( COL,1 )
                 ELSE
-                    VOL = AX * ( ZF( COL,1,LVL ) - ZF( COL,1,LVL-1 ) ) !* MSFX2(COL,1)
+                    VOL = AX * ( ZF( COL,1,LVL ) - ZF( COL,1,LVL-1 ) ) / MSFX2(COL,1)
                 END IF
                 call interpolate_var ('DENS', fdate, ftime, DENS)  ! kg m-3
                 DENS = DENS / MWAIR_SI ! mol m-3
@@ -512,17 +512,19 @@ C PPM scheme
      &                      + F_LO_OUT(I) / JACOBM( COL,1,LVL ) * VOL
                    ELSE
                       F_SOUTH_IN( LVL,A2C )  = F_SOUTH_IN( LVL,A2C ) 
-     &                      + F_LO_IN(I) / CGRID( COL,1,LVL,RHOJ_LOC ) 
-      !&                      + F_LO_IN(I) / CONY( 1,N_SPC_ADV ) 
-     &                      * DENS( COL,1,LVL ) * VOL
-      !&                      + F_LO_IN(I) / RHOJ( COL,1,LVL ) 
-      !&                      * CGRID( COL,1,LVL,RHOJ_LOC )/JACOBM( COL,1,LVL )*MSFX2(COL,1)/MWAIR_SI * VOL
+     &                      + F_LO_IN(I) / JACOBM( COL,1,LVL ) * VOL !/ CGRID( COL,1,LVL,RHOJ_LOC ) 
+     &                        / MWAIR_SI
+      !&                      * DENS( COL,1,LVL ) * VOL
+       !&                      + F_LO_IN(I) / CONY( 1,N_SPC_ADV ) 
+       !&                      + F_LO_IN(I) / RHOJ( COL,1,LVL ) 
+       !&                      * CGRID( COL,1,LVL,RHOJ_LOC )/JACOBM( COL,1,LVL )*MSFX2(COL,1)/MWAIR_SI * VOL
                       F_SOUTH_OUT( LVL,A2C ) = F_SOUTH_OUT( LVL,A2C ) 
-     &                      + F_LO_OUT(I) / CGRID( COL,1,LVL,RHOJ_LOC ) 
-      !&                      + F_LO_OUT(I) / CONY( 1,N_SPC_ADV ) 
-     &                      * DENS( COL,1,LVL ) * VOL
-      !&                      + F_LO_OUT(I) / RHOJ( COL,1,LVL ) 
-      !&                      * CGRID( COL,1,LVL,RHOJ_LOC )/JACOBM( COL,1,LVL )*MSFX2(COL,1)/MWAIR_SI * VOL
+     &                      + F_LO_OUT(I) / JACOBM( COL,1,LVL ) * VOL !/ CGRID( COL,1,LVL,RHOJ_LOC ) 
+     &                        / MWAIR_SI
+      !&                      * DENS( COL,1,LVL ) * VOL
+       !&                      + F_LO_OUT(I) / CONY( 1,N_SPC_ADV ) 
+       !&                      + F_LO_OUT(I) / RHOJ( COL,1,LVL ) 
+       !&                      * CGRID( COL,1,LVL,RHOJ_LOC )/JACOBM( COL,1,LVL )*MSFX2(COL,1)/MWAIR_SI * VOL
                    END IF
                 END DO
             END IF
@@ -530,9 +532,9 @@ C PPM scheme
                 call interpolate_var ('JACOBM', fdate, ftime, JACOBM)
                 call interpolate_var ('ZF', fdate, ftime, ZF)
                 IF ( LVL .EQ. 1 ) THEN
-                    VOL = AX * ZF( COL,NROWS,1 ) !* MSFX2( COL,NROWS )
+                    VOL = AX * ZF( COL,NROWS,1 ) / MSFX2( COL,NROWS )
                 ELSE
-                    VOL = AX * ( ZF( COL,NROWS,LVL ) - ZF( COL,NROWS,LVL-1 ) ) !* MSFX2(COL,NROWS)
+                    VOL = AX * ( ZF( COL,NROWS,LVL ) - ZF( COL,NROWS,LVL-1 ) ) / MSFX2(COL,NROWS)
                 END IF
                 call interpolate_var ('DENS', fdate, ftime, DENS)  ! kg m-3
                 DENS = DENS / MWAIR_SI ! mol m-3
@@ -545,17 +547,19 @@ C PPM scheme
      &                      + F_HI_OUT(I) / JACOBM( COL,NROWS,LVL ) * VOL
                    ELSE
                       F_NORTH_IN( LVL,A2C )  = F_NORTH_IN( LVL,A2C ) 
-     &                      + F_HI_IN(I) / CGRID( COL,NROWS,LVL,RHOJ_LOC ) 
-      !&                      + F_HI_IN(I) / CONY( NROWS,N_SPC_ADV ) 
-     &                      * DENS( COL,NROWS,LVL ) * VOL
-      !&                      + F_HI_IN(I) / RHOJ( COL,NROWS,LVL ) 
-      !&                      * CGRID( COL,NROWS,LVL,RHOJ_LOC )/JACOBM( COL,NROWS,LVL )*MSFX2(COL,NROWS)/MWAIR_SI * VOL
+     &                      + F_HI_IN(I) /JACOBM( COL,NROWS,LVL ) * VOL !/ CGRID( COL,NROWS,LVL,RHOJ_LOC ) 
+     &                        / MWAIR_SI
+      !&                      * DENS( COL,NROWS,LVL ) * VOL
+       !&                      + F_HI_IN(I) / CONY( NROWS,N_SPC_ADV ) 
+       !&                      + F_HI_IN(I) / RHOJ( COL,NROWS,LVL ) 
+       !&                      * CGRID( COL,NROWS,LVL,RHOJ_LOC )/JACOBM( COL,NROWS,LVL )*MSFX2(COL,NROWS)/MWAIR_SI * VOL
                       F_NORTH_OUT( LVL,A2C ) = F_NORTH_OUT( LVL,A2C ) 
-     &                      + F_HI_OUT(I) / CGRID( COL,NROWS,LVL,RHOJ_LOC ) 
-      !&                      + F_HI_OUT(I) / CONY( NROWS,N_SPC_ADV ) 
-     &                      * DENS( COL,NROWS,LVL ) * VOL
-      !&                      + F_HI_OUT(I) / RHOJ( COL,NROWS,LVL ) 
-      !&                      * CGRID( COL,NROWS,LVL,RHOJ_LOC )/JACOBM( COL,NROWS,LVL )*MSFX2(COL,NROWS)/MWAIR_SI * VOL
+     &                      + F_HI_OUT(I) / JACOBM( COL,NROWS,LVL ) * VOL !/ CGRID( COL,NROWS,LVL,RHOJ_LOC ) 
+     &                        / MWAIR_SI
+      !&                      * DENS( COL,NROWS,LVL ) * VOL
+       !&                      + F_HI_OUT(I) / CONY( NROWS,N_SPC_ADV ) 
+       !&                      + F_HI_OUT(I) / RHOJ( COL,NROWS,LVL ) 
+       !&                      * CGRID( COL,NROWS,LVL,RHOJ_LOC )/JACOBM( COL,NROWS,LVL )*MSFX2(COL,NROWS)/MWAIR_SI * VOL
                    END IF
                 END DO
             END IF

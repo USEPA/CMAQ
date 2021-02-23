@@ -48,7 +48,7 @@
       CONTAINS
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-      SUBROUTINE PA_UPDATE_PROC( IPR_ID, CGRID, JDATE, JTIME, TSTEP )
+      SUBROUTINE PA_UPDATE_PROC( IPR_ID, CGRID, JDATE, JTIME, TSTEP, LCOUPLE )
 
 C-----------------------------------------------------------------------
 C Function: Update the Process Analysis output arrays (for IPR only)
@@ -125,9 +125,7 @@ C-----------------------------------------------------------------------
                              ! TSTEP(2) = sciproc sync. step (chem)
                              ! TSTEP(3) = twoway model time step w.r.t. wrf time
                              !            step and wrf/cmaq call frequency
-
-      ! Flag for couple/decouple HADV, ZADV, and HDIFF
-      LOGICAL :: LCOUPLE
+      LOGICAL, INTENT( IN ) :: LCOUPLE ! Flag for couple/decouple HADV, ZADV, and HDIFF
 
       LOGICAL, SAVE :: FIRSTIME = .TRUE.
 
@@ -159,11 +157,14 @@ C-----------------------------------------------------------------------
 
       IF ( FIRSTIME ) THEN
          FIRSTIME = .FALSE.
-         ALLOCATE ( CNGRD( NCOLS,NROWS,NLAYS,N_CGRID_SPC ),
-     &              STAT = ASTAT )
-         IF ( ASTAT .NE. 0 ) THEN
-            MSG = '*** ERROR allocating CNGRD'
-            CALL M3EXIT( PNAME, JDATE, JTIME, MSG, XSTAT1 )
+
+         IF ( .NOT. ALLOCATED( CNGRD ) ) THEN
+           ALLOCATE ( CNGRD( NCOLS,NROWS,NLAYS,N_CGRID_SPC ),
+     &                STAT = ASTAT )
+           IF ( ASTAT .NE. 0 ) THEN
+              MSG = '*** ERROR allocating CNGRD'
+              CALL M3EXIT( PNAME, JDATE, JTIME, MSG, XSTAT1 )
+           END IF
          END IF
       END IF
 
@@ -179,16 +180,8 @@ C-----------------------------------------------------------------------
       
       ! Determine if concentrations need to converted from mixing
       ! ratios.
-      LCOUPLE = IPR_ID .EQ. IPR_ZADV .OR. 
-     &          IPR_ID .EQ. IPR_HDIF
-      IF ( LCOUPLE ) THEN
-         SDATE = JDATE; STIME = JTIME
-         CALL NEXTIME( SDATE, STIME, TSTEP( 2 ) )
-         CALL DECOUPLE_PA( CNGRD, JDATE, JTIME )
-         CALL STORE_BUDGET( IPR_ID, CNGRD, JDATE, JTIME, 1 )
-      ELSE
-         CALL STORE_BUDGET( IPR_ID, CNGRD, JDATE, JTIME, 0 )
-      END IF
+      CALL STORE_BUDGET( IPR_ID, CNGRD, JDATE, JTIME, LCOUPLE )
+      IF ( LCOUPLE ) CALL DECOUPLE_PA( CNGRD, JDATE, JTIME )
 
       ! Save Changes in Budget Array
 
@@ -277,6 +270,15 @@ C-----------------------------------------------------------------------
       IF ( FIRST_TIME ) THEN
          FIRST_TIME = .FALSE.
 
+         IF ( .NOT. ALLOCATED( CNGRD ) ) THEN
+           ALLOCATE ( CNGRD( NCOLS,NROWS,NLAYS,N_CGRID_SPC ),
+     &                STAT = ASTAT )
+           IF ( ASTAT .NE. 0 ) THEN
+              MSG = '*** ERROR allocating CNGRD'
+              CALL M3EXIT( PNAME, JDATE, JTIME, MSG, XSTAT1 )
+           END IF
+         END IF
+
          ALLOCATE ( PA_EMIS_CONV( N_CGRID_SPC ), STAT = ASTAT )
          IF ( ASTAT .NE. 0 ) THEN
             MSG = 'Failure allocating PA_EMIS_CONV'
@@ -299,31 +301,44 @@ C-----------------------------------------------------------------------
 
       END IF  ! LEMFIRST
 
-      ! Get midpoint of time step
-      MDATE = JDATE
-      MTIME = JTIME
-      CALL NEXTIME( MDATE, MTIME, SEC2TIME( TIME2SEC( TSTEP( 2 ) ) / 2 ) ) 
-
       ! Compute delta conc due to emissions and adjust vdiff or chem
       ! output if necessary for each output species
       DT = FLOAT( TIME2SEC( TSTEP( 2 ) ) )
 
       ! Get air density
-      call interpolate_var ('DENS', mdate, mtime, DENS)
+      call interpolate_var ('DENS', JDATE, JTIME, DENS)
       
       ! Convert Aerosol Emissions To Correct Units and Apply Species
-      ! Coefficients. ug m-3 | N m-3 | and m2 m-3
-      VEMIS = VEMIS  * DT
+      ! Coefficients. ug m-3 | N m-3 | and m2 m-3. Gas species will
+      ! be converted from kmol to kg later in the budget_write step.
+      CNGRD = VEMIS  * DT
       DO ICG = 1,N_CGRID_SPC
          IF ( CGRID_MASK_AERO( ICG ) ) 
-     &      VEMIS(:,:,:,ICG) = VEMIS(:,:,:,ICG) * DENS( :,:,: ) * PA_EMIS_CONV( ICG )
+     &      CNGRD(:,:,:,ICG) = CNGRD(:,:,:,ICG) * DENS( :,:,: ) * PA_EMIS_CONV( ICG )
       END DO
       
       ! Save Changes in Budget Array
-      CALL STORE_BUDGET( IPR_EMIS, VEMIS, JDATE, JTIME, 0 )
+      CALL STORE_BUDGET( IPR_EMIS, VEMIS, JDATE, JTIME, .FALSE. )
 
       ! Save Changes in Process Analysis Array
       IF ( LIPR ) THEN
+
+         ! Get midpoint of time step
+         MDATE = JDATE
+         MTIME = JTIME
+         CALL NEXTIME( MDATE, MTIME, SEC2TIME( TIME2SEC( TSTEP( 2 ) ) / 2 ) ) 
+
+         ! Get air density
+         call interpolate_var ('DENS', mdate, mtime, DENS)
+      
+         ! Convert Aerosol Emissions To Correct Units and Apply Species
+         ! Coefficients. ug m-3 | N m-3 | and m2 m-3
+         VEMIS = VEMIS  * DT
+         DO ICG = 1,N_CGRID_SPC
+            IF ( CGRID_MASK_AERO( ICG ) ) 
+     &         VEMIS(:,:,:,ICG) = VEMIS(:,:,:,ICG) * DENS( :,:,: ) * PA_EMIS_CONV( ICG )
+         END DO
+ 
          DO IPRV = 1,NIPRVAR
             IF ( MASK_IPR_PROC( IPRV,IPR_VDIF ) .OR. 
      &           MASK_IPR_PROC( IPRV,IPR_EMIS ) ) THEN
@@ -450,61 +465,76 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
         
       END IF  ! First Time
 
-
-C..get midpoint of time step
-      MDATE = JDATE
-      MTIME = JTIME
-      CALL NEXTIME( MDATE, MTIME, SEC2TIME( TIME2SEC( TSTEP( 2 ) ) / 2 ) )
-
-C..get density x jacobian and layer heights
-      call interpolate_var ('DENS', mdate, mtime, DENS)
-      call interpolate_var ('ZF', mdate, mtime, ZF)
+      ! Get density x jacobian and layer heights
+      call interpolate_var ('DENS', jdate, jtime, DENS)
+      call interpolate_var ('ZF', jdate, jtime, ZF)
 
       ! Convert DDEP to ppm, ug m-3, N m-3, and m2 m-3
-      DDEP = DDEP * CONVH2M 
+      CNGRD(:,:,1,: ) = -DDEP * CONVH2M 
+      CNGRD( :,:,2:NLAYS,: ) = 0.0
 
       DO ICG = 1,N_CGRID_SPC
          IF ( CGRID_MASK_AERO( ICG ) ) THEN
-            DDEP(:,:,ICG) = DDEP(:,:,ICG) * PA_DEPV_CONV( ICG ) / ZF( :,:,1 )
+            CNGRD(:,:,1,ICG) = CNGRD(:,:,1,ICG) * PA_DEPV_CONV( ICG ) / ZF( :,:,1 )
          ELSE
-            DDEP(:,:,ICG) = 1.0E+06 * DDEP(:,:,ICG) * PA_DEPV_CONV( ICG ) / DENS( :,:,1 ) / ZF(:,:,1)
+            CNGRD(:,:,1,ICG) = 1.0E+06 * CNGRD(:,:,1,ICG) * PA_DEPV_CONV( ICG ) / DENS( :,:,1 ) / ZF(:,:,1)
          END IF
       END DO
  
       ! Save Changes in Budget Array
-      CNGRD(:,:,1,: ) = -DDEP(:,:,:)
-      CNGRD( :,:,2:NLAYS,: ) = 0.0
-      CALL STORE_BUDGET( IPR_DDEP, CNGRD, JDATE, JTIME, 0 )
+      CALL STORE_BUDGET( IPR_DDEP, CNGRD, JDATE, JTIME, .FALSE. )
 
+
+C..Store Changes in Process Analysis Array      
       IF ( LIPR .AND. MY_BEGLEV .EQ. 1 ) THEN
-      ! Compute delta conc due to ddep and adjust vdiff output if necessary
-      DO IPRV = 1, NIPRVAR
-         IF ( MASK_IPR_PROC( IPRV,IPR_VDIF ) .OR. 
-     &        MASK_IPR_PROC( IPRV,IPR_DDEP ) ) THEN
-            ! Either VDIF or EMIS are needed for this IPR Variable.
-            IPRSPC = MAP_IPRVARtoSPC( IPRV ) 
+C..get midpoint of time step
+         MDATE = JDATE
+         MTIME = JTIME
+         CALL NEXTIME( MDATE, MTIME, SEC2TIME( TIME2SEC( TSTEP( 2 ) ) / 2 ) )
 
-            DO ISPC = 1, NCGRID( IPRSPC )                       
-               ICG = MAP_IPRtoCGRID( IPRSPC,ISPC )
+C..get density x jacobian and layer heights
+         call interpolate_var ('DENS', mdate, mtime, DENS)
+         call interpolate_var ('ZF', mdate, mtime, ZF)
+
+         ! Convert DDEP to ppm, ug m-3, N m-3, and m2 m-3
+         DDEP = -DDEP * CONVH2M 
+
+         DO ICG = 1,N_CGRID_SPC
+            IF ( CGRID_MASK_AERO( ICG ) ) THEN
+               DDEP(:,:,ICG) = DDEP(:,:,ICG) * PA_DEPV_CONV( ICG ) / ZF( :,:,1 )
+            ELSE
+               DDEP(:,:,ICG) = 1.0E+06 * DDEP(:,:,ICG) * PA_DEPV_CONV( ICG ) / DENS( :,:,1 ) / ZF(:,:,1)
+            END IF
+         END DO
+ 
+         ! Compute delta conc due to ddep and adjust vdiff output if necessary
+         DO IPRV = 1, NIPRVAR
+            IF ( MASK_IPR_PROC( IPRV,IPR_VDIF ) .OR. 
+     &           MASK_IPR_PROC( IPRV,IPR_DDEP ) ) THEN
+               ! Either VDIF or EMIS are needed for this IPR Variable.
+               IPRSPC = MAP_IPRVARtoSPC( IPRV ) 
+
+               DO ISPC = 1, NCGRID( IPRSPC )                       
+                  ICG = MAP_IPRtoCGRID( IPRSPC,ISPC )
 
 #ifdef parallel
-               CALL SUBST_DATA_COPY( DDEP, TDDEP, ICG )
+                  CALL SUBST_DATA_COPY( DDEP, TDDEP, ICG )
 #else
-               TDDEP = DDEP( PA_BEGCOL:PA_ENDCOL,
+                  TDDEP = DDEP( PA_BEGCOL:PA_ENDCOL,
      &                       PA_BEGROW:PA_ENDROW,
      &                       ICG )
 #endif
-               ! Adjust the process analysis output arrays
-               IF ( MASK_IPR_PROC( IPRV,IPR_DDEP ) )
-     &              DELC( :,:,1,IPRV ) = DELC( :,:,1,IPRV ) 
+                  ! Adjust the process analysis output arrays
+                  IF ( MASK_IPR_PROC( IPRV,IPR_DDEP ) )
+     &                 DELC( :,:,1,IPRV ) = DELC( :,:,1,IPRV ) 
      &                    - TDDEP( :,: ) * SPCOEF( IPRSPC,ISPC )
 
-               IF ( MASK_IPR_PROC( IPRV,IPR_VDIF ) )
-     &              DELC( :,:,1,IPRV ) = DELC( :,:,1,IPRV ) 
+                  IF ( MASK_IPR_PROC( IPRV,IPR_VDIF ) )
+     &                 DELC( :,:,1,IPRV ) = DELC( :,:,1,IPRV ) 
      &                    + TDDEP( :,: ) * SPCOEF( IPRSPC,ISPC )
-            END DO   ! ISPC
-         END IF
-      END DO   ! IPRV
+               END DO   ! ISPC
+            END IF
+         END DO   ! IPRV
       END IF
 
       RETURN
@@ -550,8 +580,8 @@ C..get density x jacobian and layer heights
       END DO
       SDATE = JDATE; STIME = JTIME
       CALL NEXTIME( SDATE, STIME, TSTEP( 2 ) )
+      CALL STORE_BUDGET( BDGSAVE_ID, CNGRD, JDATE, JTIME, .TRUE. )
       CALL DECOUPLE_PA( CNGRD, JDATE, JTIME )
-      CALL STORE_BUDGET( BDGSAVE_ID, CNGRD, JDATE, JTIME, 1 )
 
       IF ( LIPR ) THEN
          ! Convert X and Y Advection changes to mixing ratio and
@@ -563,8 +593,8 @@ C..get density x jacobian and layer heights
          CALL DECOUPLE_PA( DELC_YADV, SDATE, STIME )
 
          ! Save Changes in Budget Array
-         CALL STORE_BUDGET( IPR_XADV, DELC_XADV, SDATE, STIME, 1 )
-         CALL STORE_BUDGET( IPR_YADV, DELC_YADV, SDATE, STIME, 1 )
+         CALL STORE_BUDGET( IPR_XADV, DELC_XADV, SDATE, STIME, .FALSE. )
+         CALL STORE_BUDGET( IPR_YADV, DELC_YADV, SDATE, STIME, .FALSE. )
 
          DO IPRV = 1, NIPRVAR     ! foreach family
             IPRSPC = MAP_IPRVARtoSPC( IPRV ) 
@@ -643,12 +673,12 @@ C..get density x jacobian and layer heights
 
       ! Save Changes in Budget Array
       !CSAV = CGRID
-      CALL STORE_BUDGET( IPR_COAG, AERO_COAG, JDATE, JTIME, 0 )
-      CALL STORE_BUDGET( IPR_COND, AERO_COND, JDATE, JTIME, 0 )
-      CALL STORE_BUDGET( IPR_NPF,  AERO_NPF, JDATE, JTIME, 0 )
-      CALL STORE_BUDGET( IPR_GROW, AERO_GROWTH, JDATE, JTIME, 0 )
+      CALL STORE_BUDGET( IPR_COAG, AERO_COAG, JDATE, JTIME, .FALSE. )
+      CALL STORE_BUDGET( IPR_COND, AERO_COND, JDATE, JTIME, .FALSE. )
+      CALL STORE_BUDGET( IPR_NPF,  AERO_NPF, JDATE, JTIME, .FALSE. )
+      CALL STORE_BUDGET( IPR_GROW, AERO_GROWTH, JDATE, JTIME, .FALSE. )
 
-      CALL STORE_BUDGET( BDGSAVE_ID, CGRID, JDATE, JTIME, 0 )
+      CALL STORE_BUDGET( BDGSAVE_ID, CGRID, JDATE, JTIME, .FALSE. )
 
       IF ( LIPR ) THEN
       DO IPRV = 1, NIPRVAR     ! foreach family

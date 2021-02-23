@@ -136,6 +136,7 @@ C Local Variables:
 
       REAL, ALLOCATABLE, SAVE :: CNGRD( :,:,:,: )    ! cgrid aero in mixing ratio
       REAL, ALLOCATABLE, SAVE :: DDEP     ( :,:,: )   ! ddep accumulator
+      REAL, ALLOCATABLE, SAVE :: DDEP0    ( :,:,: )   ! ddep initial before call to vdiffacmx
       REAL, ALLOCATABLE, SAVE :: ICMP     ( :,:,: )   ! component flux accumlator 
       REAL, ALLOCATABLE, SAVE :: DDEPJ    ( :,:,:,: ) ! ddep for mosaic
       REAL, ALLOCATABLE, SAVE :: DDEPJ_FST( :,:,:,: ) ! ddep for stomtal/cuticular pathway
@@ -392,6 +393,9 @@ C EDDYV returned = Kz, where Kz is in m**2/sec
          END IF
       END IF
 
+C Store Deposition Change in Budget and Process Analysis Arrays
+      IF ( BUDGET_DIAG .OR. LIPR ) DDEP0 = DDEP
+
 C Calculate the change in concentration and dry dep from vertical diffusion and vsed
 C Note: cngrd is the argument keyword (from the INTERFACE); CNGRD is the actual argument
       IF ( .NOT. MOSAIC ) THEN
@@ -426,7 +430,20 @@ C Note: cngrd is the argument keyword (from the INTERFACE); CNGRD is the actual 
             END DO
          END IF
       END IF
-
+ 
+C Store Deposition Change in Budget and Process Analysis Arrays
+      IF ( BUDGET_DIAG .OR. LIPR ) THEN
+         DDEP_PA = 0.0
+         DO V = 1, N_SPC_DEPV
+            DO R = 1, NROWS
+               DO C = 1, NCOLS
+                  DDEP_PA( C,R,MAP_DEPVtoCGRID(V)) = DDEP( V,C,R ) - DDEP0( V,C,R )
+               END DO
+            END DO
+         END DO
+         CALL PA_UPDATE_DDEP ( DDEP_PA, JDATE, JTIME, TSTEP )
+      END IF
+ 
 C Revert non-molar mixing ratio species and re-order CGRID
       CALL REV_CGRID ( CNGRD, MDATE, MTIME, CGRID )
 
@@ -658,18 +675,6 @@ C Write other diagnostics
             CALL WRASX_MEDIA( MDATE, MTIME )
          END IF 
  
-         IF ( BUDGET_DIAG .OR. LIPR ) THEN
-            DDEP_PA = 0.0
-            DO V = 1, N_SPC_DEPV
-               DO R = 1, NROWS
-                  DO C = 1, NCOLS
-                     DDEP_PA( C,R,MAP_DEPVtoCGRID( V ) ) = DDEP( V,C,R )
-                  END DO
-               END DO
-            END DO
-            CALL PA_UPDATE_DDEP ( DDEP_PA, JDATE, JTIME, TSTEP )
-         END IF
-
          IF( ABFLUX ) THEN
 ! Swap diagnostic deposition and fluxes for NH3 to allow the same post processing scripts for
 ! both bidirectional and unidirectional simulations.

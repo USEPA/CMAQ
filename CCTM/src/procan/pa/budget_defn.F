@@ -64,7 +64,7 @@
       CONTAINS
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-      SUBROUTINE BUDGET_INIT( CGRID, JDATE, JTIME )
+      SUBROUTINE BUDGET_INIT( CGRID, JDATE, JTIME, TSTEP )
 
 C-----------------------------------------------------------------------
 C Function: Initialize the budget variables and output file
@@ -80,7 +80,7 @@ C-----------------------------------------------------------------------
       INCLUDE SUBST_CONST       ! Constants
       
       REAL, POINTER :: CGRID(:,:,:,:)
-      INTEGER, INTENT( IN ) :: JDATE, JTIME
+      INTEGER, INTENT( IN ) :: JDATE, JTIME, TSTEP(3)
 
 
       ! Local Variables:
@@ -92,6 +92,7 @@ C-----------------------------------------------------------------------
       INTEGER         :: ASTAT
       INTEGER         :: I, J
       LOGICAL, SAVE   :: FIRST_TIME = .TRUE.
+      INTEGER         :: SDATE, STIME
 
       CHARACTER( 16 ) :: BDGSPEC_TMP( 500 ), BDGVAR
       INTEGER :: MAP_toCGRID_TMP( 1000 )
@@ -135,7 +136,11 @@ C-----------------------------------------------------------------------
           F_NORTH_OUT = 0.0
           CSAV        = CGRID
           
-          CALL STORE_BUDGET( BDGC0_ID, CONC, JDATE, JTIME, 0 )
+
+          SDATE = JDATE
+          STIME = JTIME
+          CALL NEXTIME ( SDATE, STIME, TSTEP( 2 ) )
+          CALL STORE_BUDGET( BDGC0_ID, CONC, JDATE, JTIME, .FALSE. )
           DEALLOCATE( CONC )
           
           ! Open Output tab-separated file and print header
@@ -266,7 +271,7 @@ C-----------------------------------------------------------------------
       REAL                  :: CONC( :,:,:,: )
       INTEGER, INTENT( IN ) :: IPR_ID            ! Process ID
       INTEGER, INTENT( IN ) :: JDATE, JTIME
-      INTEGER, INTENT( IN ) :: LCOUPLE           ! Flag for whther or not to use 
+      LOGICAL, INTENT( IN ) :: LCOUPLE           ! Flag for whther or not to use 
                                                  ! rhoj from the CGRID array for 
                                                  ! the density calculation for gases
 
@@ -277,6 +282,8 @@ C-----------------------------------------------------------------------
       REAL, ALLOCATABLE, SAVE :: JACOBM( :,:,: ) ! Jacobian
       REAL, ALLOCATABLE, SAVE :: ZF( :,:,: )     ! height of layer top
       REAL, ALLOCATABLE, SAVE :: CELLVOL( :,:,: )! cell volume
+      REAL                    :: AERO_NORM
+      
       LOGICAL :: FIRST_TIME = .TRUE.
       INTEGER ASTAT
       INTEGER L, I, LAYS, R, C
@@ -302,15 +309,23 @@ C-----------------------------------------------------------------------
      &                        ( ZF( :,:,L ) - ZF( :,:,L-1) )  ! m3
       END DO
 
-      ! Calculate Density for Conversion of Gases from ppm to kg
-      IF ( LCOUPLE .GT. 0 ) THEN
+      ! Calculate Density for Conversion of Gases from ppm to kg. If 
+      IF ( LCOUPLE ) THEN
+          ! If LCOUPLE is true, then the gases are already in mol mol-1 kg m-2, 
+          ! which are the units of ppm * [air density] * [Jacobian]. In 
+          ! general, the Jacobian usedin CMAQ includes the map scale 
+          ! factor squared: JACOBM = J / msfx2
+          ! Aerosols are in units of ug m-2
           call interpolate_var ('JACOBM', jdate, jtime, JACOBM) ! Jacobian
-          DENS = CONC(:,:,:,RHOJ_LOC) / JACOBM
-     &            / MWAIR_SI * CELLVOL * 1.0E-6 * 1.0E-3 ! mol air
+          DENS = 1.0 / MWAIR_SI * 1.0E-6 * 1.0E-3 ! mol kg-1 air
+          CELLVOL = CELLVOL / JACOBM ! m2
+          AERO_NORM = 1.0
       ELSE
+          ! If LCOUPLE is false, then gases are in ppm and aerosols in 
+          ! ug m-3.
           call interpolate_var ('DENS', jdate, jtime, DENS) ! kg m-3
-          DENS = DENS / MWAIR_SI  ! mol m-3
-          DENS = DENS * CELLVOL * 1.0E-6 * 1.0E-3 ! mol air
+          DENS  = DENS / MWAIR_SI * 1.0E-6 * 1.0E-3 ! umol m-3 air
+          AERO_NORM = 1.0E-9
       END IF
 
       ! Convert Process Units to kg (mass), N (number), and m2 (surface
@@ -328,7 +343,8 @@ C-----------------------------------------------------------------------
             DO L = 1,LAYS
             DO R = 1,NROWS
             DO C = 1,NCOLS
-               BDG_MASS(C,R,L,I) = CONC(C,R,L,I) * DENS(C,R,L) * CGRID_MW(I)
+               BDG_MASS(C,R,L,I) = CONC(C,R,L,I) * DENS(C,R,L) 
+     &                             * CGRID_MW(I) * CELLVOL(C,R,L)
             END DO
             END DO
             END DO
@@ -341,7 +357,8 @@ C-----------------------------------------------------------------------
             DO L = 1,LAYS
             DO R = 1,NROWS
             DO C = 1,NCOLS
-               BDG_MASS(C,R,L,I) = CONC(C,R,L,I) * 1.0E-09 * CELLVOL(C,R,L)
+               BDG_MASS(C,R,L,I) = CONC(C,R,L,I) * AERO_NORM
+     &                             * CELLVOL(C,R,L) 
             END DO
             END DO
             END DO
@@ -351,12 +368,12 @@ C-----------------------------------------------------------------------
          ! Aerosol Surface Area: m2 m-3 -> m2 
          IF ( CGRID_MASK_NUM( I ) ) THEN
             DO L = 1,LAYS
-               BDG_MASS(:,:,L,I) = CONC(:,:,L,I) * CELLVOL(:,:,L)
+               BDG_MASS(:,:,L,I) = CONC(:,:,L,I) * CELLVOL(:,:,L) 
             END DO
          END IF
          IF ( CGRID_MASK_SRF( I ) ) THEN
             DO L = 1,LAYS
-               BDG_MASS(:,:,L,I) = CONC(:,:,L,I) * CELLVOL(:,:,L)
+               BDG_MASS(:,:,L,I) = CONC(:,:,L,I) * CELLVOL(:,:,L) 
             END DO
          END IF
       
@@ -423,7 +440,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       END IF
 
 
-      CALL STORE_BUDGET( BDGCF_ID, CONC, JDATE, JTIME, 0 )
+      CALL STORE_BUDGET( BDGCF_ID, CONC, JDATE, JTIME, .FALSE. )
       CSAV = CONC
 
       ! Correct VDIFF by subtracting emissions and dry deposition
@@ -471,9 +488,6 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
         BDG_SEC0  =   BDG_JTIME0 - BDG_HOUR0*10000 - BDG_MIN0*100
         BDG_SEC1  =   BDG_JTIME1 - BDG_HOUR1*10000 - BDG_MIN1*100
       
-        print *,BDG_JTIME0, BDG_SEC0
-        print *,BDG_JTIME1, BDG_SEC1
-
         WRITE( BDG_TIME0, '(I4,A1,I2.2,A1,I2.2,A1,I2.2,A1,I2.2,A1,I2.2,A1)' ), 
      &         BDG_YEAR0,'-',BDG_MONTH0,'-',BDG_DAY0,'T',BDG_HOUR0,':',
      &         BDG_MIN0,':',BDG_SEC0,'Z'
@@ -519,8 +533,11 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          ! than net change in mass
          !RESID( : ) = SUM( BDG_PROC_OUT(:,:),2 ) - BDG_BURDEN_OUT( :,3 )  
 
+         !RESID_F(:) = SUM( BDG_PROC_OUT(:,3:NPRCS),2 ) + SUM( ADV_FLUXES_OUT,2)
+         !&               - BDG_BURDEN_OUT( :,3 ) - BDG_PROC_OUT(:,IPR_DEFM) 
+
          RESID_F(:) = SUM( BDG_PROC_OUT(:,3:NPRCS),2 ) + SUM( ADV_FLUXES_OUT,2)
-     &               - BDG_BURDEN_OUT( :,3 ) - BDG_PROC_OUT(:,IPR_DEFM) 
+     &               - BDG_BURDEN_OUT( :,3 ) 
 
          ! Write Species Process Changes to tab-separated file
          DO I = 1,N_BDG_VAR
