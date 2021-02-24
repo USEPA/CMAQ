@@ -522,8 +522,8 @@ c----------------------------------------------------------
      &          'UALD   ','HC3    ','HC5    ','HC8    ','OLI    ',
      &          'OLT    ','ETH    ','ETE    ','ACE    ','ISO    ',
      &          'SESQ   ','LIM    ','API    ','EOH    ','MOH    ',
-     &          'GLY    ','MGLY   ','BENZENE','TOL    ','XYLMN  ',
-     &          'XYLO   ','XYLP   ','NAPH   ','DIEN   ','ACT    ',
+     &          'GLY    ','MGLY   ','BENZENE','TOL    ','XYM    ',
+     &          'XYO    ','XYP    ','NAPH   ','DIEN   ','ACT    ',
      &          'HKET   ','KET    ','MVK    ','MEK    ','MACR   ',
      &          'DCB1   ','DCB2   ','DCB3   ','SOAALK ','CO     '/ )
 
