@@ -156,7 +156,7 @@ c !! NO   and to populate the allocated arrays from the stnd gc_spc.ext  !!! NO
             integer, parameter :: spc_dim = 1000
             logical :: order = .true., found = .true.
             character( 120 ) :: xmsg
-            INTEGER :: ISPC, IGRID, IWDEP
+            INTEGER :: ISPC, JSPC, IGRID, IWDEP
 
 c namelist variables
             ! Namelist Registry Format for Gases and Nonreactives
@@ -380,7 +380,7 @@ c-------------------------------------------------------------------------------
                 IF ( LWDEP ) THEN
                     N_GC_WDEP = N_GC_WDEP + 1
                     GC_WDEP( N_GC_WDEP )     = GC_SPECIES_DATA( IGC )%SPECIES_NAME
-                    GC_WDEP_MAP( IGC ) = N_GC_WDEP
+                    GC_WDEP_MAP( N_GC_WDEP ) = IGC
                 END IF
                 
                 ! Gas - Output Concentration Field
@@ -595,7 +595,7 @@ c-------------------------------------------------------------------------------
                 IF ( LWDEP ) THEN
                     N_AE_WDEP = N_AE_WDEP + 1
                     AE_WDEP( N_AE_WDEP )     = AE_SPECIES_DATA( IAE )%SPECIES_NAME
-                    AE_WDEP_MAP( IAE ) = N_AE_WDEP
+                    AE_WDEP_MAP( N_AE_WDEP ) = IAE
                 END IF
                 
                 ! Aerosol - Output Concentration Field
@@ -785,7 +785,7 @@ c-------------------------------------------------------------------------------
                 IF ( LWDEP ) THEN
                     N_NR_WDEP = N_NR_WDEP + 1
                     NR_WDEP( N_NR_WDEP )     = NR_SPECIES_DATA( INR )%SPECIES_NAME
-                    NR_WDEP_MAP( INR ) = N_NR_WDEP
+                    NR_WDEP_MAP( N_NR_WDEP ) = INR
                 END IF
                 
                 ! Nonreactive - Output Concentration Field
@@ -958,7 +958,7 @@ c-------------------------------------------------------------------------------
                 IF ( LWDEP ) THEN
                     N_TR_WDEP = N_TR_WDEP + 1
                     TR_WDEP( N_TR_WDEP )     = TR_SPECIES_DATA( ITR )%SPECIES_NAME
-                    TR_WDEP_MAP( ITR ) = N_TR_WDEP
+                    TR_WDEP_MAP( N_TR_WDEP ) = ITR
                 END IF
                 
                 ! Tracer - Output Concentration Field
@@ -1006,10 +1006,12 @@ c-------------------------------------------------------------------------------
                 CGRID_NAME( IGRID ) = GC_SPC( ISPC )
                 CGRID_MW( IGRID )   = GC_MOLWT( ISPC )
                 CGRID_MASK_GAS( IGRID ) = .TRUE.
-                IF ( GC_WDEP_MAP( ISPC ) .NE. 0 ) THEN
+                DO JSPC = 1,N_GC_WDEP
+                  IF ( GC_WDEP_MAP( JSPC ) .EQ. ISPC ) THEN
                     IWDEP = IWDEP + 1
                     MAP_WDEPtoCGRID( IWDEP ) = IGRID
-                END IF
+                  END IF
+                ENDDO
             END DO
             DO ISPC = 1,n_ae_spc
                 IGRID = IGRID + 1
@@ -1018,30 +1020,36 @@ c-------------------------------------------------------------------------------
                 CGRID_MASK_AERO( IGRID )   = .TRUE.
                 IF ( INDEX( AE_SPC( ISPC ),'NUM') .NE. 0 ) CGRID_MASK_NUM( IGRID )   = .TRUE.
                 IF ( INDEX( AE_SPC( ISPC ),'SRF') .NE. 0 ) CGRID_MASK_SRF( IGRID )   = .TRUE.
-                IF ( AE_WDEP_MAP( ISPC ) .NE. 0 ) THEN
+                DO JSPC = 1,N_AE_WDEP
+                  IF ( AE_WDEP_MAP( JSPC ) .EQ. ISPC ) THEN
                     IWDEP = IWDEP + 1
                     MAP_WDEPtoCGRID( IWDEP ) = IGRID
-                END IF
+                  END IF
+                ENDDO
             END DO
             DO ISPC = 1,n_nr_spc
                 IGRID = IGRID + 1
                 CGRID_NAME( IGRID ) = NR_SPC( ISPC )
                 CGRID_MW( IGRID )   = NR_MOLWT( ISPC )
                 CGRID_MASK_NR( IGRID )   = .TRUE.
-                IF ( NR_WDEP_MAP( ISPC ) .NE. 0 ) THEN
+                DO JSPC = 1,N_NR_WDEP
+                  IF ( NR_WDEP_MAP( JSPC ) .EQ. ISPC ) THEN
                     IWDEP = IWDEP + 1
                     MAP_WDEPtoCGRID( IWDEP ) = IGRID
-                END IF
+                  END IF
+                ENDDO
             END DO
             DO ISPC = 1,n_tr_spc
                 IGRID = IGRID + 1
                 CGRID_NAME( IGRID ) = TR_SPC( ISPC )
                 CGRID_MW( IGRID )   = TR_MOLWT( ISPC )
                 CGRID_MASK_TRAC( IGRID )   = .TRUE.
-                IF ( TR_WDEP_MAP( ISPC ) .NE. 0 ) THEN
+                DO JSPC = 1,N_TR_WDEP
+                  IF ( TR_WDEP_MAP( JSPC ) .EQ. ISPC ) THEN
                     IWDEP = IWDEP + 1
                     MAP_WDEPtoCGRID( IWDEP ) = IGRID
-                END IF
+                  END IF
+                ENDDO
             END DO
             N_SPC_WDEP = IWDEP
 
