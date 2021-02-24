@@ -166,6 +166,15 @@ C-----------------------------------------------------------------------
               CALL M3EXIT( PNAME, JDATE, JTIME, MSG, XSTAT1 )
            END IF
          END IF
+         
+         IF ( .NOT. ALLOCATED( CSAV ) ) THEN
+           ALLOCATE ( CSAV( NCOLS,NROWS,NLAYS,N_CGRID_SPC ),
+     &                STAT = ASTAT )
+           IF ( ASTAT .NE. 0 ) THEN
+              MSG = '*** ERROR allocating CSAV'
+              CALL M3EXIT( PNAME, JDATE, JTIME, MSG, XSTAT1 )
+           END IF
+         END IF
       END IF
 
       DO I = 1,N_CGRID_SPC
@@ -497,7 +506,7 @@ C..get density x jacobian and layer heights
          call interpolate_var ('ZF', mdate, mtime, ZF)
 
          ! Convert DDEP to ppm, ug m-3, N m-3, and m2 m-3
-         DDEP = -DDEP * CONVH2M 
+         DDEP = DDEP * CONVH2M 
 
          DO ICG = 1,N_CGRID_SPC
             IF ( CGRID_MASK_AERO( ICG ) ) THEN

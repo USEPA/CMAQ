@@ -23,7 +23,7 @@
       USE UTILIO_DEFN           ! inherits PARUTILIO
       USE CGRID_SPCS, ONLY : CGRID_MASK_GAS, CGRID_MASK_AERO,
      &    CGRID_MASK_NUM, CGRID_MASK_SRF, CGRID_MASK_NR, CGRID_MASK_TRAC,
-     &    CGRID_MW, N_CGRID_SPC, CGRID_NAME, NSPCSD
+     &    CGRID_MW, N_CGRID_SPC, CGRID_NAME, NSPCSD, RHOJ_LOC
       USE VDIFF_MAP, ONLY : N_SPC_DIFF, DIFF_SPC, DIFF_MW,
      &                       DIFF_MASK_AERO, DIFF_MASK_NUM, DIFF_MASK_SRF
       USE CENTRALIZED_IO_MODULE
@@ -169,7 +169,6 @@ C-----------------------------------------------------------------------
               CALL LOG_MESSAGE( BDG_UNIT, '# Aerosol Surface Area Units are m2' )
               WRITE( BDG_UNIT, * )
           
-          
               ! Write Header
               WRITE( BDG_UNIT, '(55(A))' ), 'SPECIES',tab,'T_START',tab,
      &         'T_FINAL',tab,'T_DELTA',tab,'M_START',tab,'M_FINAL',tab,
@@ -177,12 +176,6 @@ C-----------------------------------------------------------------------
      &         'EAST_OUT',tab,'SOUTH_IN',tab,'SOUTH_OUT',tab,'NORTH_IN',tab,
      &         'NORTH_OUT', 
      &         ( tab, TRIM(PROCNAME(i)),i=3,NPRCS),tab,'RESID'
-          
-              ! Debugging
-!              WRITE( BDG_UNIT, '(48(A))' ), 'SPECIES',tab,'T_START',tab,
-!     &         'T_FINAL',tab,'T_DELTA',tab,'M_START',tab,'M_FINAL',tab,
-!     &         'M_DELTA',tab,'WEST_EAST',tab,'SOUTH_NORTH',
-!     &         ( tab,TRIM(PROCNAME(i)),i=1,NPRCS),tab,'RESID_F',tab,'RESID_ADV'
           
           END IF
           
@@ -262,7 +255,6 @@ C-----------------------------------------------------------------------
       SUBROUTINE STORE_BUDGET( IPR_ID, CONC, JDATE, JTIME, LCOUPLE )
 
       USE CENTRALIZED_IO_MODULE, ONLY : MSFX2
-      USE CGRID_SPCS, ONLY : RHOJ_LOC
 
       IMPLICIT NONE
 
@@ -339,7 +331,7 @@ C-----------------------------------------------------------------------
          IF ( ( CGRID_MASK_GAS( I ) .OR.
      &          CGRID_MASK_NR( I )  .OR.
      &          CGRID_MASK_TRAC( I ) ) .AND.
-     &          I .NE. NSPCSD ) THEN
+     &          I .NE. RHOJ_LOC ) THEN
             DO L = 1,LAYS
             DO R = 1,NROWS
             DO C = 1,NCOLS
@@ -432,7 +424,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
       IF ( FIRST_TIME ) THEN
           FIRST_TIME = .FALSE.
-          ALLOCATE ( RESID( N_CGRID_SPC ), RESID_F( N_CGRID_SPC ),
+          ALLOCATE ( RESID( N_CGRID_SPC ), RESID_F( N_BDG_VAR ),
      &               BDG_BURDEN_OUT( N_BDG_VAR,3 ),
      &               BDG_PROC_OUT( N_BDG_VAR,NPRCS ),
      &               ADV_FLUXES( N_CGRID_SPC,8 ), 
@@ -531,11 +523,6 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       IF ( MYPE .EQ. 0 ) THEN
          ! Positive Residual means sum of processes is greater 
          ! than net change in mass
-         !RESID( : ) = SUM( BDG_PROC_OUT(:,:),2 ) - BDG_BURDEN_OUT( :,3 )  
-
-         !RESID_F(:) = SUM( BDG_PROC_OUT(:,3:NPRCS),2 ) + SUM( ADV_FLUXES_OUT,2)
-         !&               - BDG_BURDEN_OUT( :,3 ) - BDG_PROC_OUT(:,IPR_DEFM) 
-
          RESID_F(:) = SUM( BDG_PROC_OUT(:,3:NPRCS),2 ) + SUM( ADV_FLUXES_OUT,2)
      &               - BDG_BURDEN_OUT( :,3 ) 
 
@@ -590,7 +577,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       USE RUNTIME_VARS, ONLY: LOGDEV
       USE UTILIO_DEFN
       USE EM_PARAM_MODULE
-      USE UTIL_FAMILY_MODULE 
+      USE UTIL_FAMILY_MODULE
 
       IMPLICIT NONE
 
@@ -615,6 +602,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       IF ( SPECIES .EQ. 'ALL' ) THEN
          ! Expand to Apply to All Species
          OUT_VEC = .TRUE.
+         OUT_VEC( RHOJ_LOC ) = .FALSE.
       ELSE     
          ! Determine if the Species Label Refers to A Family and if So, 
          ! Apply the Rule to all members of that Family
