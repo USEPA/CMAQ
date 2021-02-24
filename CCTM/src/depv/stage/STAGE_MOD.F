@@ -126,13 +126,8 @@ C Local variables:
 
          Call Map_Stage
 
-         IF ( .NOT. desc3( met_cro_2d ) ) THEN
-            xmsg = 'Could not get  met_cro_2d  file description'
-            CALL m3exit( pname, jdate, jtime, xmsg, xstat2 )
-         END IF
-
-         xcent = real( xcent3d, 4 )
-         ycent = real( ycent3d, 4 )
+         xcent = real( file_xcell(f_met), 4 )
+         ycent = real( file_xcell(f_met), 4 )
 
          IF ( abflux ) THEN
             CALL Init_NH3_Bidi( jdate, jtime )
@@ -295,6 +290,7 @@ C-----------------------------------------------------------------
          Use NH3_BIDI_MOD
          Use MOSAIC_MOD, Only: Tile_Data 
          Use HGSIM
+         Use Resist_Funcs
 
          Implicit None
 
@@ -305,75 +301,82 @@ C-----------------------------------------------------------------
          Real,    Intent( OUT ) :: cmp( : )        ! diagnostic component fluxes 
          Real,    Intent( OUT ) :: depvel_gas( : ) ! instantanious deposition velocity 
 C Parameters specific to gas_x. Currently based on m3dry but subject to change
-         Real, Parameter :: a0         = 8.0        ! [dim'less]
          Real, Parameter :: d3         = 1.38564e-2 ! [dim'less]
          Real, Parameter :: hplus_ap   = 1.0e-6     ! pH=6.0 leaf apoplast solution Ph (Massad et al 2008)      
          Real, Parameter :: hplus_def  = 1.0e-5     ! pH=5.0
          Real, Parameter :: hplus_east = 1.0e-5     ! pH=5.0
          Real, Parameter :: hplus_h2o  = 7.94328e-9 ! 10.0**(-8.1)
          Real, Parameter :: hplus_west = 3.16228e-6 ! 10.0**(-5.5)
-         Real, Parameter :: rcut0      = 3000.0     ! [s/m]
-         Real, Parameter :: rcw0       = 125000.0   ! acc'd'g to Padro and
-         Real, Parameter :: rg0        = 1000.0     ! [s/m]
-         Real, Parameter :: rsnow0     = 10000.0    ! to match the maximum snow deposition (0.01 cm/s) of D Helmig et al. 2007 
-                                                    ! this should be ~14000 for stage and 15000 for m3dry due to the relative reactivity adjustment
-         Real, Parameter :: rt25inK    = 1.0/(stdtemp + 25.0) ! 298.15K = 25C
-         Real, Parameter :: rwm = 31.5              ! Minimum NH3 cuticle resistance [s/m] from Massad et al. 2010
-         Real            :: rh_func                 ! functions of humidity
+
          Real            :: surf_bldg, surf_leaf, kno2, conc_no2
          Real            :: heff_ap, heff_wat, heff
          Real            :: hplus
-         Real            :: w10cm
-         Real            :: rwet, rcdry
-         Real            :: rawmt, rad_wat, rmsv, dif_T, k_vis, dwat_T ! mass transport between the air-water droplet interface
-         Real            :: rgdry, sm_func  
+         Real            :: sm_v5cm, sm_v1cm, sm_vsat, sm_vfc, sm_vwlt, sm_vres, sm_bslp ! soil volumetric hydraulic properties
+         Real            :: dif_T, k_vis, dwat_T ! mass transport between the air-water droplet interface
          Real            :: temp_g, temp_2m, q_2m, rh, ustar, lai ! column met data
-         Real            :: Ra, Rb, Rb_leaf, Rbgc, Rst, Rcut, Rgc, Rg, Rsnow, Rinc, Rwat ! land use and species specific bulk resistances
-         Real            :: snow, no_snow, wet, dry, veg, no_veg, ice_snow, melt_snow    ! fractional land coverage
-         Real            :: frac_lu                                                      ! fractional land use
-         Real            :: hcan, ustg, del0
-         Real            :: Flux
+         Real            :: vd ! deposition velocity
+         Real            :: Ra, Rb, Rwet, Rb_leaf, Rbgc, Rst, Rcut, Rgc, Rg, Rsnow, Rinc, Rwat, Rice, Rgnd ! land use and species specific bulk resistances
+         Real            :: snow, no_snow, wet, dry, veg, no_veg, frac_lu    ! fractional land coverage
+         Real            :: LU_Flux
          Real            :: c_atm, c_z0, c_leaf, c_stom, c_cut, c_grnd, c_wat ! Compensation points  
-         Real            :: cs0_z0, cs0_leaf                                  ! Compensation points with zero surface concentration
-         Real            :: ca0_z0, ca0_leaf                                  ! Compensation points with zero atmospheric concentration
-         Real            :: soil_emis, soil_dep, soil_flux                    ! soil emission and deposition for soil biogeochem
+         Real            :: soil_flux                                         ! soil emission and deposition for soil biogeochem
          Real            :: f_emis, f_dep, f_stom, f_cut, f_soil, flux_ag, f_nat, f_wat ! component fluxes
-         Real            :: ctemp2, lv, cp_air, tw, dw25, kvisw, dw, scw_pr_23, scn
-         Real            :: pChang, kwChang, ciodide, qiodide
+         Real            :: ctemp2, lv, cp_air, tw, dw25, kvisw
+         Real            :: ir_frac
          integer         :: l, n, s
          LOGICAL         :: effective  ! true=compute effective Henry's Law const
+         Logical         :: NH3_hit, O3_hit, Hg_hit ! logical vars for special cases
+         Logical         :: sea_ice
          Real, External  :: hlconst
 ! Hg bidi variables 
          Real            :: Hg_st, Hg_cut, Hg_grnd, Hg_wat, flux_hgII
    
          effective = .TRUE.
+         NH3_hit = .FALSE.
+         O3_hit = .FALSE.
+         Hg_hit = .FALSE.
+
+! initialize the bidi flux production term
+         Tile_Data%pol( :,:,c,r ) = 0.0  
 
 ! column met variables 
          temp_2m = Met_Data%TEMP2(c,r)
          q_2m    = MET_DATA%Q2( c,r )
          temp_g  = MET_DATA%TEMPG( c,r )
          rh      = MET_DATA%RH2( c,r )
+         sm_vsat = GRID_DATA%WSAT( c,r )
+         sm_vfc  = GRID_DATA%WFC( c,r )
+         sm_vwlt = GRID_DATA%WWLT( c,r )
+         sm_vres = GRID_DATA%WRES( c,r )
+         sm_bslp = max(GRID_DATA%BSLP( c,r ),1.0)
+         sm_v1cm = min(MET_DATA%SOIM1( c,r ),sm_vsat)
+         sm_v1cm = max(sm_v1cm,sm_vres)
+         If( ABFLUX ) Then
+            ir_frac = frac_ir( c,r )
+         Else
+            ir_frac = 0.0 ! no data available
+         End If
+         If( PX_LSM ) Then
+! simplified from Darcy's law assuming stationarity and only gravitational draining with the Campbell hydrological functions applied
+! 0.4 is the difference in the layer depths of 1cm and 5 cm
+            sm_v5cm = sm_v1cm * exp( (0.05-zsoil1) * GRAV )**(1.0/sm_bslp)
+            sm_v5cm = Min( sm_v5cm, sm_vsat )
+            sm_v5cm = Max( sm_v5cm, sm_vres )
+         Else If( CLM_LSM .OR. NOAH_LSM ) Then
+            sm_v5cm = MET_DATA%SOIM2( c,r )
+            sm_v5cm = Min( sm_v5cm, sm_vsat )
+            sm_v5cm = Max( sm_v5cm, sm_vres )
+         End If
+
          snow    = max( 0.0, MET_DATA%SNOCOV( c,r ) )
 ! total snow fraction
          no_snow = 1.0 - snow
-! Liquid snow fraction modeled as a system dominated by van der Walls forces following Dash et al. 1999 S. Rep. Prog. Phys. 
-! with a maximum fraction of the disordered interface acting as an aqueous solution as 20% following Conklin et al 1993 with
-! the negligible impact of the disordered interface depth of 2 nm following Roth et al 2004. The 2 nm depth was approximated 
-! to be around 263 degrees Celsius interpolated from figure 3 in Huthwelker et al 2006 doi:10.1021/cr020506v
-         IF( snow .GT. 0.0 ) Then
-            IF( stdtemp-temp_g .GT. 0.002 ) THEN
-               melt_snow = 0.025 / (stdtemp-temp_g)**(1.0/3.0)
-               melt_snow = MIN (melt_snow, 0.2)
-               melt_snow = MAX (melt_snow, 0.01)
-            ELSE
-               melt_snow = 0.2
-            ENDIF
-         Else
-            melt_snow = 0.0
-         End IF
-! frozen snow fraction
-         ice_snow  = 1.0 - melt_snow
-         rh_func = max( 0.0,( rh - 70.0 )/30.0 )
+
+         sea_ice = .TRUE.
+         IF (((GRID_DATA%OCEAN(c,r) + GRID_DATA%SZONE(c,r)) .GT. 0.0) .AND. (MET_DATA%SEAICE(c,r) .LE. 0.0)) THEN
+            sea_ice = .FALSE.
+         End If
+!
          IF ( ( ycent .GE.   30.0 ) .AND. ( ycent .LE.  45.0 ) .AND.
      &        ( xcent .GE. -120.0 ) .AND. ( xcent .LE. -70.0 ) ) THEN
             IF ( GRID_DATA%LON( c,r ) .GT. -100.0 ) THEN
@@ -397,35 +400,37 @@ C Parameters specific to gas_x. Currently based on m3dry but subject to change
          pvd = 0.0
          depvel_gas = 0.0
          spc_loop: Do s = 1, dep_gas_all
-            IF ( .NOT. asx_run_map( s ) ) CYCLE spc_loop
+            IF ( asx_run_map( s ) ) Then
             n = n + 1
+! Special cases
+            if( s .eq. s_NH3 ) NH3_hit = .True.
+            if( s .eq. s_O3 ) O3_hit  = .True.
+            if( s .eq. s_Hg ) Hg_hit  = .True.
 ! Following Fuller et al 1966. Here we use the LeBas molar volume which is similar to Fuller's diffusive volume
             dif_T   = 1.0e-7*temp_2m**1.75 * sqrt( 1.0/MWAIR + 1.0/molwt_all( s ) ) / 
      &                ( MOLVOL**(1.0/3.0) + LeBasM( s )**(1.0/3.0) )**2 
             scc_pr_23( s ) = ( ( k_vis / dif_T ) / pr ) ** twothirds
 
             c_atm = max( cgridl1( n ), 1.0e-30 )
-            f_emis = 0.0
-            f_dep  = 0.0
-            f_stom = 0.0
-            f_cut  = 0.0
-            f_soil = 0.0
+            f_emis    = 0.0
+            f_dep     = 0.0
+            f_stom    = 0.0
+            f_cut     = 0.0
+            f_soil    = 0.0
             flux_ag   = 0.0
             f_nat     = 0.0
             f_wat     = 0.0
-            soil_dep  = 0.0
             soil_flux = 0.0
-            soil_emis = 0.0
             heff_wat  = hlconst( H_name_all( s ), tw, effective, hplus_h2o )* 0.08205 * tw
             heff_ap   = hlconst( H_name_all( s ), temp_2m, effective, hplus_ap )
             heff      = hlconst( H_name_all( s ), temp_2m, effective, hplus )* 0.08205 * temp_2m
-            If ( HGBIDI .And. s .Eq. s_Hg ) Then
+            If ( HGBIDI .And. Hg_Hit ) Then
                Call  Get_Hg_Comp( Hg_st, Hg_cut, Hg_grnd, Hg_wat, c_atm, heff_wat, heff, r, c )
             End If
             lu_loop: Do l = 1, n_lufrac
                c_z0   = 0.0
                c_leaf = 0.0
-               If( HGBIDI .And. s .Eq. s_Hg) Then
+               If( HGBIDI .And. Hg_Hit) Then
                   c_stom = Hg_st
                   c_cut  = Hg_cut
                   c_grnd = Hg_grnd
@@ -443,10 +448,11 @@ C Parameters specific to gas_x. Currently based on m3dry but subject to change
                Rinc   = 0.0
                Rg     = 0.0
                Rgc    = 0.0                  
-               Rsnow  = 0.0       
+               Rsnow  = 0.0   
+               Rice   = 0.0    
 C land use specific area fraction 
                frac_lu = GRID_DATA%LUFRAC( c,r,l )  
-               If( frac_lu .Eq. 0.0 ) Cycle lu_loop
+               If( frac_lu .Gt. 0.0 ) Then
 C land use specific column met data
                ustar   = MOSAIC_DATA%USTAR( c,r,l )
                lai     = MOSAIC_DATA%LAI( c,r,l )
@@ -457,133 +463,76 @@ C land use specific land cover data
                no_veg  = 1.0 - veg
 C Get Ra
                Ra = MOSAIC_DATA%RA( c,r,l )
-C Calculate Rb
-               Rb  = 5.0 / ustar * scc_pr_23( s )
+
 !-------------------------------------------------------------------------------------------------
-! Resistance to air-water exchange
+! Quasi-laminar boundary layer resistance
+!-------------------------------------------------------------------------------------------------
+               Rb  = Calc_Rbw( ustar, scc_pr_23( s ) )
+!-------------------------------------------------------------------------------------------------
+! Air-water exchange
 !-------------------------------------------------------------------------------------------------
                If( Water( l ) ) Then
-!                  heff_wat  = heff_wat * 0.08205 * tw
-         ! from Hayduk and Laudie
-                  dw25 = 13.26e-5 / ( 0.8904**1.14 * LeBasM( s )**0.589 )
-                  kvisw = 0.017 * EXP( -0.025 * ( tw - stdtemp ) )
-                  dw    = dw25 * ( tw * rt25inK ) * ( 0.009025 / kvisw )
-                  scw_pr_23 = ( ( kvisw / dw ) / pr ) ** twothirds
-                  IF ( s .EQ. s_O3 ) THEN   !implement Chang et al(2004)
-c        pChang is a/H or alpha/H which would be 1/H in current model
-c        note that in Chang et al (2004) and Garland et al (1980) their H is Cair/Cwater with is
-c        the inverse of heff
-                     pChang = 1.75
-                     kwChang = (d3*ustar)/scw_pr_23
+!-------------------------------------------------------------------------------------------------
+! Resistance to surface water
+!-------------------------------------------------------------------------------------------------
+                  Rwat = Calc_Rwater( ustar, q_2m, temp_2m, temp_g, tw,  LeBasM( s ), heff_wat, O3_hit, 
+     &                                Hg_hit, sea_ice  )
 
-c        If a file of chlorophyll concentrations is provided, Iodide concentration are estimated from
-c        a fit to the Rebello et al 1990 data. The slope and correlation are given in the paper
-c        but not the intercept, so the data in Tables 3 & 4 were fit to get the relationship below.
-c        The regression gives the concentration in umol/L and is converted to mol/L for use in Chang et al eq.
-c        The slope and correlation are a slightly different than in Table 5.
-c        If chlorophyll concs are not available, a constant value for [I-] of 100e-9 mol/l is used
-c        Use ocean file variables to determine if the water cell is ocean or lake; method is only for ocean cells
-
-                     IF (((GRID_DATA%OCEAN(c,r) + GRID_DATA%SZONE(c,r)) .GT. 0) .AND. (MET_DATA%SEAICE(c,r) .LE. 0)) THEN
-c        Iodide in sea-water based on SST  (mol /dm-3)
-                        ciodide = 1.46E6 * EXP( -9134.0 / temp_g)
-                        qiodide = ( ( 2.0e9 * ciodide * dw * 1e-4 ) ** 0.5 ) * heff_wat
-                        Rwat = 1.0 / ( pChang * kwchang + qiodide )
-                     ELSE                  ! O3 over sea ice
-                        Rwat   = scw_pr_23 / ( heff_wat * d3 * ustar )
-                     END IF
-                  ELSE IF( s .EQ. s_Hg ) THEN
-                     Rwat = 1.0e6 ! surface waters are typically enriched in Hg(0) and act as an emission source
-                  ELSE                     ! other chems
-                     Rwat   = scw_pr_23 / ( heff_wat * d3 * ustar )
-                  END IF
-                  Flux     = (c_atm-c_wat)/( Ra + Rb + Rwat )                         ! positive values for deposition
-                  If(c_wat .Gt. 0.0 ) Then 
-                     Tile_Data%depvel_gasj( l,s,c,r ) = 1.0 / ( Ra + Rb + Rwat )
-                     Tile_Data%pol( l,s,c,r ) = c_wat / ( Ra + Rb + Rwat )
-                  Else
-                     Tile_Data%depvel_gasj( l,s,c,r ) = Flux / c_atm
+                  If(c_wat .Gt. 0.0 ) Then
+                     Tile_Data%pol( l,n,c,r ) = c_wat / ( Ra + Rb + Rwat )
                   End If
+
+                  Tile_Data%depvel_gasj( l,n,c,r ) = 1.0 / ( Ra + Rb + Rwat )
+
                   f_emis = f_emis + frac_lu *  c_wat / ( Ra + Rb + Rwat ) 
                   f_dep  = f_dep  + frac_lu *  c_atm / ( Ra + Rb + Rwat ) 
                   f_wat  = f_wat  + frac_lu * ( c_wat - c_atm ) / ( Ra + Rb + Rwat )   
-               Else ! Land
+               Else 
 !-------------------------------------------------------------------------------------------------
-! Resistance to air-snow exchange
+! Air-land exchange
 !-------------------------------------------------------------------------------------------------
-C Calcuate Rsnow
-                  Rsnow = rsnow0 * a0 / rel_rx( s )
 !-------------------------------------------------------------------------------------------------
-! Resistance to air-wet surface exchange
+! Resistance to wet surfaces
 !-------------------------------------------------------------------------------------------------
-C Calcuate Rwet
-                  rad_wat = 1.9e-4
-                  rmsv    = sqrt( 3.0 * RGASUNIV * 1.0e3 * temp_g / molwt_all( s ) ) 
-                  rawmt   = rad_wat / dif_T  + 4.0 / ( rmsv  * M_ac( s ) )
-                  rwet   = rawmt + rawmt/( heff * rad_wat )
 
+                  Rwet = Calc_Rwet( temp_g, molwt_all( s ), M_ac( s ), heff, dif_T )
+!-------------------------------------------------------------------------------------------------
+! Ice Resistance
+!-------------------------------------------------------------------------------------------------
+                  Rice = Calc_Rice( rel_rx( s ) )
+!-------------------------------------------------------------------------------------------------
+! Snow Resistance
+!-------------------------------------------------------------------------------------------------
+                  Rsnow = Calc_Rsnow( temp_g, Rwet, Rice, snow )
 !-------------------------------------------------------------------------------------------------
 ! Resistance to air-canopy exchange
 !-------------------------------------------------------------------------------------------------
 C Calculate Rst
                   If( lai .Gt. 0.0 ) Then
-
 !-------------------------------------------------------------------------------------------------
-! Quazi Laminar Resistance to leaf following Jensen and Hummelshoj 1995/1997 doi:10.1016/0168-1923(94)05083-I
+! Quazi Laminar Resistance to leaf 
 !-------------------------------------------------------------------------------------------------
-                     Rb_leaf = k_vis / ( dif_T * ustar ) * 
-     &                       ( l_leaf( l ) * ustar / (k_vis * max(lai,1.0)**2 ) )**(1.0/3.0)
+                     Rb_leaf = Calc_Rb_leaf( k_vis, dif_T, ustar, l_leaf( l ), lai )
 !-------------------------------------------------------------------------------------------------
 ! Resistance to air-stomatal exchange
 !-------------------------------------------------------------------------------------------------
-                     Rst = Mosaic_Data%RSTW( c,r,l ) * dwat_T / dif_T
-     &                        + 1.0 / ( heff_ap / 3000.0 + 100.0 * f0( s ) ) / lai
+                     Rst = Calc_Rst( Mosaic_Data%RSTW( c,r,l ), dwat_T, dif_T, heff_ap, f0( s ), lai )
+
 !-------------------------------------------------------------------------------------------------
 ! Resistance to air-cuticle exchange
 !-------------------------------------------------------------------------------------------------
-C Calcuate Rcut
-         ! wet Cuticle
-         ! If the surface is cold and wet, use dry snow.
-                     IF ( temp_g .GE. stdtemp ) THEN                    
-                        IF ( s .EQ. s_O3 ) THEN 
-         ! Canopy level wet resistence Rwet to ozone was found to be about 200 s/m on basis of Keysburg exp
-         ! Using LAI(1-sided) of about 6.25 measured at Keysburg gives leaf level rwet about 1250 s/m
-                           rwet = 1250.0    ! s/m
-         ! Leaf level rwet estimated from Altimir et al 2006 gives about 1350 s/m                           
-                        End If ! O3
-                     ELSE
-                        rwet = Rsnow
-                     END IF ! temp 
-         ! Dry Cuticle
-                     IF( s .Eq. s_O3 ) THEN
-         ! Leaf level rwet estimated from Altimir et al 2006 gives about 1350 s/m
-                        rcdry = 1.0 / ( ( 1.0 -rh_func) / ( rcut0 * a0 / rel_rx( s ) )  + rh_func / rwet )
-                     ELSE IF ( s .Eq. s_NH3 .And. ABFLUX ) THEN  
-         ! Massad et al. 2010 Cuticular resistance
-                        rcdry    = rwm * EXP( a_cut( l ) * ( 100.0 - rh ) )
-                     ELSE 
-                        rcdry = rcut0 * a0 / rel_rx( s )
-                     END IF ! O3 or NH3
+                     Rcut = Calc_Rcut( temp_g, rel_rx(s), Rwet, Rice, Rsnow, a_cut( l ), snow, no_snow, 
+     &                                 dry, wet, rh, lai, O3_hit, NH3_hit, ABFLUX )
 
-                     Rcut = no_snow / ( lai * ( dry / rcdry +  ! Dry Cuticle 
-     &                                       wet / rwet ) ) +                      ! Wet Cuticle 
-     &                                       snow * Rsnow                           ! Snow
 !-------------------------------------------------------------------------------------------------
 ! Resistance to in-canopy exchange
 !-------------------------------------------------------------------------------------------------
-! Calculate in canopy aerodynamic resistance based on the momentum attenuation coefficient derived 
-! by Yi 2008 https://doi.org/10.1175/2007JAMC1667.1
-                     Rinc =  Ra * ( Exp( lai / 2.0 ) - 1.0 )
+                     Rinc =  Calc_Rinc( Ra, lai )
+
 !-------------------------------------------------------------------------------------------------
 ! Resistance to air-canopy covered soil exchange
 !-------------------------------------------------------------------------------------------------
-C Calcuate Canopy Covered Soil Resistance Nemitz et al 2000 https://doi.org/10.1016/S0168-1923(00)00206-9
-         ! Soil quazi laminar boundary layer resistance with canopy 
-                     scn    = k_vis / dif_T
-         ! ustar at the soil surface following Yi 2008 https://doi.org/10.1175/2007JAMC1667.1
-                     ustg   = max( ustar * EXP( -lai / 2.0 ), 0.001 )         
-                     del0   = dif_T / ( karman * ustg )
-                     Rbgc   = ( scn - LOG( del0 / 0.10 ) ) / ( karman * ustg )
+                     Rbgc = Calc_Rbg( k_vis, dif_T, lai, ustar )
                   Else ! LAI = 0.0
                      Rst     = 1.0e6
                      Rcut    = 1.0e6
@@ -594,44 +543,20 @@ C Calcuate Canopy Covered Soil Resistance Nemitz et al 2000 https://doi.org/10.1
 !-------------------------------------------------------------------------------------------------
 ! Resistance to air-base soil exchange
 !-------------------------------------------------------------------------------------------------
-C Calcuate Bare Soil Resistance
-! Soil quazi laminar boundary layer resistance with out canopy Nemitz et al 2000 https://doi.org/10.1016/S0168-1923(00)00206-9
-                  scn    = k_vis / dif_T
-                  del0   = dif_T / ( karman * ustar )
-                  Rb   = ( scn - LOG( del0 / 0.10 ) ) / ( karman * ustar )
-         ! Wet Ground
-                  If(ABFLUX .And. s .Eq. s_NH3) Then
-                     Call Get_NH3_Comp( c_stom, c_grnd, rgdry, dif_T, r, c, l, s )
-                     Rgc = no_snow * rgdry +                                                   ! Snow free soil 
-     &                     snow * ( 1.0 / ( ice_snow / Rsnow + melt_snow / ( rsndiff + rwet ) ) ) +    ! Snow covered soil
-     &                     Rbgc + Rinc                                                                ! Incanopy resistances
+                  Rb   = Calc_Rbg( k_vis, dif_T, 0.0, ustar )
 
-                     Rg  = no_snow * rgdry +                                                   ! Snow free soil 
-     &                     snow * ( 1.0 / ( ice_snow / Rsnow + melt_snow / ( rsndiff+rwet ) ) ) +     ! Snow covered soil
-     &                     Rb                                                                         ! Qauzi Laminar Boundary Layer resistance
-                  Else ! not ABFLUX and NH3       
-                     IF( s .Eq. s_O3 ) THEN  
-! Following based on measurements Fares et al 2014 https://doi.org/10.1016/j.agrformet.2014.08.014 for sandy soil 
-! forests at 10cm measured soil moisture and Fumagalli et al. 20016 https://doi.org/10.1016/j.agrformet.2016.07.011 for sandy loam soils
-! Here an asymptotic function was applied to set lower and upper bounds in the resistance as repoerted by Fumagalli et al. 2016
-                           w10cm = min(MET_DATA%SOIM1( c,r ) * exp( 0.09 * GRAV )**(1.0/GRID_DATA%BSLP( c,r )),
-     &                                 GRID_DATA%WSAT( c,r ) )
-                           sm_func = max( tiny(0.0)**(1.0/GRID_DATA%BSLP( c,r )) * PI ,
-     &                                  ( w10cm-GRID_DATA%WWLT( c,r ) ) / GRID_DATA%WFC( c,r ) )
-                           rgdry   = 250.0 + 2000.0 * atan( sm_func**GRID_DATA%BSLP( c,r ) ) /PI  
-                     Else                   
-                        rgdry  = rg0 * a0 / rel_rx( s )     
-                     End If
-                     Rgc = no_snow * ( 1.0/ ( dry / rgdry +                                      ! Snow free dry soil 
-     &                     wet / rwet ) ) +                                                          ! Snow free wet soil 
-     &                     snow * ( 1.0 / ( ice_snow / Rsnow + melt_snow / ( rsndiff + rwet ) ) ) +  ! Snow covered soil
-     &                     Rbgc + Rinc                                                                ! Incanopy resistances
+                  Rgnd = Calc_Rg( dif_T, rel_rx( s ), Rsnow, Rwet, sm_v1cm,
+     &                          sm_v5cm, sm_vsat, sm_vfc, sm_vwlt, sm_vres, sm_bslp, zsoil1, ir_frac,
+     &                          dry, wet, snow, no_snow, O3_Hit, NH3_Hit, ABFLUX ) 
 
-                     Rg  = no_snow * ( 1.0/ ( dry / rgdry +                                       ! Snow free dry soil 
-     &                     wet / rwet ) ) +                                                          ! Snow free wet soil 
-     &                     snow * ( 1.0 / ( ice_snow / Rsnow + melt_snow / ( rsndiff+rwet ) ) ) +    ! Snow covered soil
-     &                     Rb                                                                         ! Qauzi Laminar Boundary Layer resistance
+                  If( ABFLUX .And. NH3_Hit ) Then
+                     Call Get_NH3_Comp( c_stom, c_grnd, dif_T, r, c, l, s )                                                                       ! Qauzi Laminar Boundary Layer resistance
                   End If ! ABFLUX and NH3
+
+                     Rgc = Rgnd + Rbgc + Rinc 
+
+                     Rg  = Rgnd +  Rb   
+
 !-------------------------------------------------------------------------------------------------
 ! Calcuate the compensation points follwing Nimitz et al 2001
 !-------------------------------------------------------------------------------------------------
@@ -651,49 +576,34 @@ C Calcuate Bare Soil Resistance
 ! Estimate air-surface flux
 !-------------------------------------------------------------------------------------------------         
 ! positive values for deposition                 
-                  Flux     = veg    * (c_atm-c_z0)/Ra +                 ! air-vegetation flux
+                  LU_Flux     = veg * (c_atm-c_z0)/Ra +                 ! air-vegetation flux
      &                       no_veg * (c_atm-c_grnd)/( Ra + Rg )        ! air-soil flux
+!-------------------------------------------------------------------------------------------------
+! Deposition velocity
+!-------------------------------------------------------------------------------------------------                                                               
+                  vd = veg / (Ra + 1.0/(1.0/(Rb_leaf+1.0/(1.0/Rcut+1.0/Rst))+1.0/Rgc)) +
+     &              no_veg / (Ra + Rg)
 !-------------------------------------------------------------------------------------------------
 ! NH3 bidirectional exchange diagnostic fluxes
 !-------------------------------------------------------------------------------------------------                                                               
-                  If(ABFLUX .And. s .Eq. s_NH3 ) Then     
-! Leaf compensation point if atmospheric conc were 0 for diagnostic emission and soil budget estiamtes
-                     ca0_leaf = (c_stom*(1.0/(Ra*Rst)+1.0/(Rb_leaf*Rst)+1.0/(Rgc*Rst))+                                                 
-     &                           c_cut*(1.0/(Ra*Rcut)+1.0/(Rb_leaf*Rcut)+1.0/(Rgc*Rcut))+                                                
-     &                           c_grnd/(Rb_leaf*Rgc))/                                                                                  
-     &                 (1.0/(Ra*Rb_leaf)+1.0/(Ra*Rst)+1.0/(Ra*Rcut)+1.0/(Rb_leaf*Rgc)+1.0/(Rb_leaf*Rcut)+
-     &                  1.0/(Rb_leaf*Rst)+1.0/(Rgc*Rst)+1.0/(Rgc*Rcut)) 
-                     ca0_z0     = (ca0_leaf/Rb_leaf+c_grnd/Rgc)/(1.0/Ra+1.0/Rb_leaf+1.0/Rgc)
-! Leaf compensation point if soil and vegetation  conc were 0 for diagnostic deposition and soil budget estiamtes
-                     cs0_leaf = c_atm/(Ra*Rb_leaf)/                                                                                     
-     &                 (1.0/(Ra*Rb_leaf)+1.0/(Ra*Rst)+1.0/(Ra*Rcut)+1.0/(Rb_leaf*Rgc)+1.0/(Rb_leaf*Rcut)+
-     &                  1.0/(Rb_leaf*Rst)+1.0/(Rgc*Rst)+1.0/(Rgc*Rcut)) 
-                     cs0_z0     = (c_atm/Ra+cs0_leaf/Rb_leaf)/(1.0/Ra+1.0/Rb_leaf+1.0/Rgc)
+                  If(ABFLUX .And. NH3_Hit ) Then     
                     If( Ag( l ) ) Then
                        flux_ag = flux_ag + frac_lu * ( veg * ( c_z0 - c_atm ) / Ra + 
-     &                                       no_veg * ( c_grnd - c_atm ) / Rg )
-                       soil_dep  = soil_dep + frac_lu * ( veg * cs0_z0 / Rgc
-     &                           + no_veg / ( Ra + Rg ) * c_atm )  ! soil layer
-                       soil_emis = soil_emis + max( frac_lu * ( veg * (c_grnd-ca0_z0) / Rgc  
-     &                           + no_veg / (Ra + Rg) * c_grnd ),0.0)             ! soil layer
+     &                                       no_veg * ( c_grnd - c_atm ) / ( Ra + Rg ) )
                        soil_flux  = soil_flux + veg * ( c_grnd - c_z0 ) / Rgc
      &                            + no_veg * ( c_grnd  - c_atm ) / ( Ra + Rg )  ! soil layer
                     Else
                        f_nat = f_nat + frac_lu * ( veg * ( c_z0 - c_atm ) / Ra - 
-     &                                            no_veg * c_atm / Rg )          
+     &                                          no_veg * ( c_grnd - c_atm ) / ( Ra + Rg ) )          
                     End If
-                    f_dep = f_dep + frac_lu * ( veg * ( c_atm - cs0_z0 ) / Ra + 
-     &                      no_veg * c_atm / ( Ra + Rg ) )
-                    f_emis = f_emis + frac_lu * ( veg * ca0_z0 / Ra +
-     &                       no_veg * c_grnd / ( Ra + Rg ) )
+                    f_dep  = f_dep  + frac_lu * vd * c_atm
                   End If ! ABFLUX and NH3
                   If( c_stom .Gt. 0.0 .Or. c_cut .Gt. 0.0 .Or. c_grnd .Gt. 0.0 ) Then
 !-------------------------------------------------------------------------------------------------
 ! Bidirectional exchange
 !-------------------------------------------------------------------------------------------------                                                               
-                     Tile_Data%pol( l,s,c,r ) = ( veg * c_z0 / Ra                        !Vegetation flux
-     &                       + no_snow * no_veg * c_grnd / ( Ra + Rg ) )                 !Bare soil flux w/ no snow emissions
-                     Tile_Data%depvel_gasj( l,s,c,r ) = veg / Ra + no_veg / ( Ra + Rg )  !Exchange velocity with compensation point
+                     Tile_Data%pol( l,n,c,r ) = max( vd * c_atm - LU_Flux, 0.0 )          ! should always be greater than 0
+                     Tile_Data%depvel_gasj( l,n,c,r ) = vd                                ! Deposition velocity
                      f_soil = f_soil + frac_lu * ( veg * ( ( c_grnd - c_z0 ) / Rgc ) + 
      &                                         no_veg * (c_grnd - c_atm)/( Ra + Rg ) )            ! air-soil flux
                      f_stom = f_stom + frac_lu * veg * ( c_stom - c_leaf ) / Rst 
@@ -702,17 +612,19 @@ C Calcuate Bare Soil Resistance
 !-------------------------------------------------------------------------------------------------
 ! Non bidirectional exchange
 !-------------------------------------------------------------------------------------------------   
-                     Tile_Data%depvel_gasj( l,s,c,r ) =  Flux / c_atm               
+                     Tile_Data%depvel_gasj( l,n,c,r ) =  vd
                   End If ! compensation points greater than 0
                End If ! Water    
 ! Generalization of the production and deposition velocity terms
-               pvd( n )        = pvd( n )        + frac_lu * Tile_Data%pol( l,s,c,r )
+               pvd( n )        = pvd( n )        + frac_lu * Tile_Data%pol( l,n,c,r )
                depvel_gas( n ) = depvel_gas( n ) + 
-     &                           frac_lu * Tile_Data%depvel_gasj( l,s,c,r )
+     &                           frac_lu * Tile_Data%depvel_gasj( l,n,c,r )
+            End If
+
             End Do lu_loop
-            If(ABFLUX .And. s .Eq. s_NH3 ) Then
-               cmp( 1 ) = max( f_emis, 0.0 )
-               cmp( 2 ) = max( f_dep, 0.0 )
+            If(ABFLUX .And. NH3_Hit ) Then
+               cmp( 1 ) = pvd( n )
+               cmp( 2 ) = f_dep
                cmp( 3 ) = f_stom
                cmp( 4 ) = f_cut
                cmp( 5 ) = f_soil
@@ -723,10 +635,10 @@ C Calcuate Bare Soil Resistance
                   Call Calc_Nitrif ( TStep, C, R, soil_flux )
                End If
             End If
-            If(HGBIDI .And. s .Eq. s_HG ) Then
+            If(HGBIDI .And. Hg_Hit ) Then
                flux_hgII = 0.0 
 ! negative values are deposition fluxes
-               flux_hgII = -Sum( Tile_Data%depvel_gasj( :,s_HgII,c,r ) * GRID_DATA%LUFRAC( c,r,: ), mask = WATER)
+               flux_hgII = -Sum( Tile_Data%depvel_gasj( :,n_HgII,c,r ) * GRID_DATA%LUFRAC( c,r,: ), mask = WATER)
 
                Call Hg_Surf_Update ( f_stom, f_cut, f_soil, f_wat, flux_hgII, 
      &                               Heff_wat, Heff, TStep, c, r, Jdate, Jtime )
@@ -783,6 +695,10 @@ C Calculate production (pvd) for HONO; unit = ppm * m/s
             ! Check for negative values or NaN's                  
             if(isnan(pvd(n))) write(logdev,*) 'NaN in ',vd_name( s ),' production term'
             if(isnan(depvel_gas(n))) write(logdev,*) 'NaN in ',vd_name( s ),' Vd term'
+            NH3_hit = .False.
+            O3_hit  = .False.
+            Hg_hit  = .False.
+            End If 
          End Do spc_loop
 
          Return         
@@ -814,6 +730,7 @@ C-----------------------------------------------------------------------
          USE GRID_CONF           ! horizontal & vertical domain specifications
          USE RXNS_DATA           ! chemical mechanism data
          Use MOSAIC_MOD, Only: Tile_Data 
+         Use Resist_Funcs, Only: RD_Veg, RD_Smooth, Aero_Depv
 
          IMPLICIT NONE
 
@@ -877,8 +794,6 @@ C modal sedimentation velocities for number, 2nd, and 3rd moment, or mass:
          REAL SC0                   ! Schmidt numbers for number
          REAL SC2                   ! Schmidt numbers for 2ND MOMENT
          REAL SC3                   ! Schmidt numbers for 3rd moment
-         REAL ST_VEG                ! Stokes numbers for vegetation 
-         REAL ST_SMOOTH             ! Stokes numbers for each mode following Pleim
          REAL RD0_VEG,RD0_SMOOTH    ! canopy resistance for number
          REAL RD2_VEG,RD2_SMOOTH    ! canopy resistance for 2nd moment
          REAL RD3_VEG,RD3_SMOOTH    ! canopy resisteance for 3rd moment
@@ -887,13 +802,11 @@ C modal sedimentation velocities for number, 2nd, and 3rd moment, or mass:
          REAL TWOXLM                ! 2 X atmospheric mean free path
          REAL Ra, Ustar, Wstar, lai ! Land use specific environmental variables
          REAL Lu_frac, Veg          ! Land use and vegetation coverage fraction
-         REAL V_fac                 ! Vegetation factor for deposition 
 
 C Parameters
          REAL, PARAMETER :: BHAT    = 1.246   ! Constant from Cunningham slip correction
          REAL, PARAMETER :: T0      = 288.15  ! [ K ] ! starting standard surface temp.
          REAL, PARAMETER :: THREEPI = 3.0 * PI
-         REAL, PARAMETER :: TWO3    = 2.0 / 3.0
 
 C Scalar variables for VARIABLE standard deviations.
 
@@ -914,7 +827,7 @@ C Scalar variables for VARIABLE standard deviations.
          REAL    ESM16               !        " **(-16)
          REAL    ESM20               !        " **(-20)
          REAL    ESM32               !        " **(-32)
-         REAL    EIM_VEG, EIM_SMOOTH ! Impaction efficiency
+!         REAL    EIM_VEG, EIM_SMOOTH ! Impaction efficiency
 
 C-----------------------------------------------------------------------
 
@@ -1014,48 +927,27 @@ C ***    Land use paramters
 C now calculate the deposition velocities
                UTSCALE = Ustar + 0.24 * Wstar**2 / Ustar
 
-C Estimate the vegetation deposition parameters for the 0th, 2nd, and 3rd moments
-               IF( veg .gt. 0.0 ) THEN ! EIM_Veg following Slinn 1982 equation 28
-                  V_fac   = max( lai, 1.0 )
-                  ST_VEG  = VGHAT0 * Ustar / ( GRAV * l_aero( l ) )
-                  EIM_Veg = ST_VEG**2 / ( 1.0 + ST_VEG**2 ) ! Slinn 1982 equation 28           
-                  RD0_Veg = 1.0 / ( V_fac * UTSCALE * ( SC0 ** ( -TWO3 ) + EIM_Veg ) )
+C get surace resistance for smooth and vegetative surfaces
+               If(lai .Gt. 0.0 ) Then
+                  RD0_Veg    = RD_Veg(   VGHAT0, Ustar, UTSCALE, SC0,l_aero( l ), lai)
+                  RD2_Veg    = RD_Veg(   VGHAT2, Ustar, UTSCALE, SC2,l_aero( l ), lai)
+                  RD3_Veg    = RD_Veg(   VGHAT3, Ustar, UTSCALE, SC3,l_aero( l ), lai)
+               End If
+               
+               RD0_SMOOTH = RD_Smooth(VGHAT0, Ustar, UTSCALE, SC0, NU )
+               RD2_SMOOTH = RD_Smooth(VGHAT2, Ustar, UTSCALE, SC2, NU )
+               RD3_SMOOTH = RD_Smooth(VGHAT3, Ustar, UTSCALE, SC3, NU )
 
-                  ST_VEG  = VGHAT2 * Ustar / ( GRAV * l_aero( l ) )
-                  EIM_Veg = ST_VEG**2 / ( 1.0 + ST_VEG**2 ) ! Slinn 1982 equation 28           
-                  RD2_Veg = 1.0 / ( V_fac * UTSCALE * ( SC2 ** ( -TWO3 ) + EIM_Veg ) )
-
-                  ST_VEG  = VGHAT3 * Ustar / ( GRAV * l_aero( l ) ) 
-                  EIM_Veg = ST_VEG**2 / ( 1.0 + ST_VEG**2 ) ! Slinn 1982 equation 28             
-                  RD3_Veg = 1.0 / ( V_fac * UTSCALE * ( SC3 ** ( -TWO3 ) + EIM_Veg ) )
-               END IF
-C EIM_SMOOTH following Giorgi 1986 Equation 17
-               ST_SMOOTH  = VGHAT0 * Ustar**2 / ( GRAV * NU )
-               EIM_SMOOTH = ST_SMOOTH**2 / ( 400.0 + ST_SMOOTH**2 )   ! Giorgi 1986 Equation 17  
-               RD0_SMOOTH = 1.0 / ( UTSCALE * ( SC0 ** ( -TWO3 ) + EIM_SMOOTH ) )
-
-               ST_SMOOTH  = VGHAT2 * Ustar**2 / ( GRAV * NU )
-               EIM_SMOOTH = ST_SMOOTH**2 / ( 400.0 + ST_SMOOTH**2 )   ! Giorgi 1986 Equation 17
-               RD2_SMOOTH = 1.0 / ( UTSCALE * ( SC2 ** ( -TWO3 ) + EIM_SMOOTH ) )
-
-               ST_SMOOTH  = VGHAT3 * Ustar**2 / ( GRAV * NU )
-               EIM_SMOOTH = ST_SMOOTH**2 / ( 400.0 + ST_SMOOTH**2 )   ! Giorgi 1986 Equation 17
-               RD3_SMOOTH = 1.0 / ( UTSCALE * ( SC3 ** ( -TWO3 ) + EIM_SMOOTH ) )
 C Parallel conductances are additive. Thus, the vegetated and non-vegetated deposition velocities are added. 
-C first do 0th moment for the deposition of number
-               VDEPJ( L,VDN( IM ) ) = veg   * VGHAT0 / ( 1.0 - EXP( -VGHAT0 * ( Ra + RD0_Veg ) ) ) + 
-     &                        ( 1.0 - veg ) * VGHAT0 / ( 1.0 - EXP( -VGHAT0 * ( Ra + RD0_Smooth ) ) )
-               VDEP( VDN( IM ) ) =  VDEP( VDN( IM ) ) + Lu_Frac * VDEPJ( L,VDN( IM ) )
+C first do 0th moment (number), second do 2nd moment (surface area), third do 3rd moment (mass)
+               VDEPJ( L,VDN( IM ) ) = aero_depv(veg, RD0_Veg, RD0_Smooth, Ra, VGHAT0 ) ! Nubmer
+               VDEPJ( L,VDS( IM ) ) = aero_depv(veg, RD2_Veg, RD2_Smooth, Ra, VGHAT2 ) ! Surface area
+               VDEPJ( L,VDM( IM ) ) = aero_depv(veg, RD3_Veg, RD3_Smooth, Ra, VGHAT3 ) ! Mass
 
-C now do 2nd moment for the deposition of surface area
-               VDEPJ( L,VDS( IM ) ) = veg   * VGHAT2 / ( 1.0 - EXP( -VGHAT2 * ( Ra + RD2_Veg ) ) ) + 
-     &                        ( 1.0 - veg ) * VGHAT2 / ( 1.0 - EXP( -VGHAT2 * ( Ra + RD2_Smooth ) ) )
-               VDEP( VDS( IM ) ) =  VDEP( VDS( IM ) ) + Lu_Frac * VDEPJ( L,VDS( IM ) )
-
-C now do 3rd moment for the deposition of mass
-               VDEPJ( L,VDM( IM ) ) = veg   * VGHAT3 / ( 1.0 - EXP( -VGHAT3 * ( Ra + RD3_Veg ) ) ) + 
-     &                        ( 1.0 - veg ) * VGHAT3 / ( 1.0 - EXP( -VGHAT3 * ( Ra + RD3_Smooth ) ) )
-               VDEP( VDM( IM ) ) =  VDEP( VDM( IM ) ) + Lu_Frac * VDEPJ( L,VDM( IM ) )
+C now integrate to the aera weighted grid cell
+               VDEP( VDN( IM ) )    =  VDEP( VDN( IM ) ) + Lu_Frac * VDEPJ( L,VDN( IM ) ) ! Number
+               VDEP( VDS( IM ) )    =  VDEP( VDS( IM ) ) + Lu_Frac * VDEPJ( L,VDS( IM ) ) ! Surface area
+               VDEP( VDM( IM ) )    =  VDEP( VDM( IM ) ) + Lu_Frac * VDEPJ( L,VDM( IM ) ) ! Mass
 
             END DO lu_loop ! n_lufrac
          END DO ! aerosol mode
@@ -1074,4 +966,5 @@ C Return dry deposition velocities for aerosols (first layer only).
                     
          Return
          END SUBROUTINE AERO_X
+
       END MODULE STAGE_MOD

@@ -6,10 +6,11 @@
 ! NATIONAL EXPOSURE RESEARCH LABORATORY, OFFICE OF RESEARCH AND DEVELOPMENT    !
 ! UNITED STATES ENVIRONMENTAL PROTECTION AGENCY                                !
 !                                                                              !
-! THIS VERSION CONSISTENT WITH THE RELEASE OF CMAQv5.3 (August 2019)           !
+! THIS VERSION CONSISTENT WITH THE RELEASE OF CMAQv5.3 (AUGUST 2019)           !
 !------------------------------------------------------------------------------!
 
 !------------------------------------------------------------------------------!
+! Detailed Emissions Scaling, Isolation, and Diagnostics (DESID) Module        !
 ! Emissions Scaling Specification Section                                      !
 !   Each rule is presented as a row of inputs. The syntax of the               !
 !   emissions scaling rules is the following:                                  !
@@ -90,7 +91,14 @@
 !                          'o' - find existing scaling instructions matching   !
 !                                this rule and overwrite them.                 !
 !                                                                              !
-!                                                                              !
+!    You may confirm the effect of the (default and custom) rules below by     !
+!       inspecting the processor-dependent log files ("CTM_LOG_XXX...") in the !
+!       section titled "EMISSIONS SCALING DIAGNOSTIC" or by outputting the     !
+!       gridded emission diagnostic files for each or all the streams. The     !
+!       latter is accomplished by setting the environment variables EMISDIAG   !
+!       (sum of all streams) or GR_EMIS_DIAG_XXX, STK_EMIS_DIAG_XXX,           !
+!       BIOG_EMIS_DIAG, etc (stream-specific). Please see runscript for        !
+!       output options.                                                        !
 !------------------------------------------------------------------------------!
 
 &EmissionScalingRules
@@ -142,14 +150,17 @@
    'EVERYWHERE', 'ALL'        ,'ACROLEIN','ACRO_PRIMARY','GAS'  ,1.  ,'UNIT','a', 
    'EVERYWHERE', 'ALL'     ,'BUTADIENE13','BUTADIENE13' ,'GAS'  ,1.  ,'UNIT','a', 
    'EVERYWHERE', 'ALL'         ,'TOLU'   ,'TOLU'        ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'HGNRVA' ,'HG'          ,'GAS'  ,1.  ,'UNIT','a',
+   'EVERYWHERE', 'ALL'         ,'HGIIGAS','HGIIGAS'     ,'GAS'  ,1.  ,'UNIT','a',
+   'EVERYWHERE', 'ALL'         ,'SULF'   ,'SULF'        ,'GAS'  ,0.  ,'UNIT','a',
 
    ! Optional Air Toxics in NR namelist, comment out species if the NR namelist
    ! does not include one or more of them.
-   'EVERYWHERE', 'ALL' ,'ACRYLONITRILE','ACRYLONITRILE',    'GAS'  ,1.  ,'UNIT','a',
+   'EVERYWHERE', 'ALL' ,'ACRYLONITRILE','ACRY_NITRILE',     'GAS'  ,1.  ,'UNIT','a',
    'EVERYWHERE', 'ALL' ,'CARBONTET','CARBONTET',            'GAS'  ,1.  ,'UNIT','a',
-   'EVERYWHERE', 'ALL' ,'PROPDICHLORIDE','PROPDICHLORIDE',  'GAS'  ,1.  ,'UNIT','a',
-   'EVERYWHERE', 'ALL' ,'DICHLOROPROPENE','DICHLOROPROPENE','GAS'  ,1.  ,'UNIT','a',
-   'EVERYWHERE', 'ALL' ,'CL4_ETHANE1122','CL4_ETHANE1122',  'GAS'  ,1.  ,'UNIT','a',
+   'EVERYWHERE', 'ALL' ,'PROPDICHLORIDE','PROPYL_DICL',     'GAS'  ,1.  ,'UNIT','a',
+   'EVERYWHERE', 'ALL' ,'DICHLOROPROPENE','DICL_PROPENE',   'GAS'  ,1.  ,'UNIT','a',
+   'EVERYWHERE', 'ALL' ,'CL4_ETHANE1122','CL4_ETHANE',      'GAS'  ,1.  ,'UNIT','a',
    'EVERYWHERE', 'ALL' ,'CHCL3','CHCL3',                    'GAS'  ,1.  ,'UNIT','a',
    'EVERYWHERE', 'ALL' ,'BR2_C2_12','BR2_C2_12',            'GAS'  ,1.  ,'UNIT','a',
    'EVERYWHERE', 'ALL' ,'CL2_C2_12','CL2_C2_12',            'GAS'  ,1.  ,'UNIT','a',
@@ -160,21 +171,21 @@
    'EVERYWHERE', 'ALL' ,'CL_ETHE','CL_ETHE',                'GAS'  ,1.  ,'UNIT','a',
    'EVERYWHERE', 'ALL' ,'NAPH','NAPHTHALENE',               'GAS'  ,1.  ,'UNIT','a',
    'EVERYWHERE', 'ALL' ,'QUINOLINE','QUINOLINE',            'GAS'  ,1.  ,'UNIT','a',
-   'EVERYWHERE', 'ALL' ,'HEXAMETHY_DIIS','HEXAMETHY_DIIS',  'GAS'  ,1.  ,'UNIT','a',
+   'EVERYWHERE', 'ALL' ,'HEXAMETHY_DIIS','HEXMETH_DIS',     'GAS'  ,1.  ,'UNIT','a',
    'EVERYWHERE', 'ALL' ,'HYDRAZINE','HYDRAZINE',            'GAS'  ,1.  ,'UNIT','a',
-   'EVERYWHERE', 'ALL' ,'MAL_ANHYDRIDE','MAL_ANHYDRIDE',    'GAS'  ,1.  ,'UNIT','a',
+   'EVERYWHERE', 'ALL' ,'MAL_ANHYDRIDE','MAL_ANHYDRID',     'GAS'  ,1.  ,'UNIT','a',
    'EVERYWHERE', 'ALL' ,'TOL_DIIS','TOL_DIIS',              'GAS'  ,1.  ,'UNIT','a',
-   'EVERYWHERE', 'ALL' ,'TRIETHYLAMINE','TRIETHYLAMINE',    'GAS'  ,1.  ,'UNIT','a',
-   'EVERYWHERE', 'ALL' ,'DICHLOROBENZENE','DICHLOROBENZENE','GAS'  ,1.  ,'UNIT','a',
-   'EVERYWHERE', 'ALL' ,'ACETONITRILE','ACETONITRILE',      'GAS'  ,1.  ,'UNIT','a',
+   'EVERYWHERE', 'ALL' ,'TRIETHYLAMINE','TRIETHYLAMIN',     'GAS'  ,1.  ,'UNIT','a',
+   'EVERYWHERE', 'ALL' ,'DICHLOROBENZENE','DICL_BENZENE',   'GAS'  ,1.  ,'UNIT','a',
+   'EVERYWHERE', 'ALL' ,'ACETONITRILE','ACET_NITRILE',      'GAS'  ,1.  ,'UNIT','a',
    'EVERYWHERE', 'ALL' ,'XYLENES','XYLENE',                 'GAS'  ,1.  ,'UNIT','a',
    'EVERYWHERE', 'ALL' ,'STYRENE','STYRENE',                'GAS'  ,1.  ,'UNIT','a',
-   'EVERYWHERE', 'ALL' ,'ACRYACID','ACRYACID',              'GAS'  ,1.  ,'UNIT','a',
-   'EVERYWHERE', 'ALL' ,'HEXANE','HEXANE','                  GAS'  ,1.  ,'UNIT','a',
+   'EVERYWHERE', 'ALL' ,'ACRYLICACID','ACRYACID',           'GAS'  ,1.  ,'UNIT','a',
+   'EVERYWHERE', 'ALL' ,'HEXANE','HEXANE',                  'GAS'  ,1.  ,'UNIT','a',
    'EVERYWHERE', 'ALL' ,'METHCHLORIDE','METHCHLORIDE',      'GAS'  ,1.  ,'UNIT','a',
    'EVERYWHERE', 'ALL' ,'CARBSULFIDE','CARBSULFIDE',        'GAS'  ,1.  ,'UNIT','a',
    'EVERYWHERE', 'ALL' ,'CHLOROPRENE','CHLOROPRENE',        'GAS'  ,1.  ,'UNIT','a',
-   'EVERYWHERE', 'ALL' ,'ETHYLBENZENE','ETHYLBENZENE',      'GAS'  ,1.  ,'UNIT','a',
+   'EVERYWHERE', 'ALL' ,'ETHYLBENZ','ETHYLBENZENE',         'GAS'  ,1.  ,'UNIT','a',
 
    ! Default Aerosols
    'EVERYWHERE', 'ALL'         ,'SULF'   ,'ASO4'        ,'FINE' ,1.  ,'MASS','a', 
@@ -202,30 +213,31 @@
    'EVERYWHERE', 'ALL'         ,'PMC'    ,'ACL'     ,'COARSE',0.00145,'UNIT','a', 
    'EVERYWHERE', 'ALL'         ,'PMC'    ,'AH2O'    ,'COARSE',0.00032,'UNIT','a', 
 
-   ! Particulate Hazardous Air Pollutants (HAPs)
-   'EVERYWHERE', 'ALL'         'NICKEL_F','ANI'         ,'FINE' ,1.  ,'UNIT','a', 
-   'EVERYWHERE', 'ALL'         'NICKEL_C','ANI'       ,'COARSE' ,1.  ,'UNIT','a', 
-   'EVERYWHERE', 'ALL'       'CHROMHEX_F','ACR_VI'      ,'FINE' ,1.  ,'UNIT','a', 
-   'EVERYWHERE', 'ALL'       'CHROMHEX_C','ACR_VI'    ,'COARSE' ,1.  ,'UNIT','a', 
-   'EVERYWHERE', 'ALL'       'CHROMTRI_F','ACR_III'     ,'FINE' ,1.  ,'UNIT','a', 
-   'EVERYWHERE', 'ALL'       'CHROMTRI_C','ACR_III'   ,'COARSE' ,1.  ,'UNIT','a', 
-   'EVERYWHERE', 'ALL'      'BERYLLIUM_F','ABE'         ,'FINE' ,1.  ,'UNIT','a', 
-   'EVERYWHERE', 'ALL'      'BERYLLIUM_C','ABE'       ,'COARSE' ,1.  ,'UNIT','a', 
-   'EVERYWHERE', 'ALL'           'LEAD_F','APB'         ,'FINE' ,1.  ,'UNIT','a', 
-   'EVERYWHERE', 'ALL'           'LEAD_C','APB'       ,'COARSE' ,1.  ,'UNIT','a', 
-   'EVERYWHERE', 'ALL'    'DIESEL_PMFINE','ADE_OTHR'    ,'FINE' ,1.  ,'UNIT','a', 
-   'EVERYWHERE', 'ALL'      'DIESEL_PMEC','ADE_EC'      ,'FINE' ,1.  ,'UNIT','a', 
-   'EVERYWHERE', 'ALL'      'DIESEL_PMOC','ADE_OC'      ,'FINE' ,1.  ,'UNIT','a', 
-   'EVERYWHERE', 'ALL'     'DIESEL_PMNO3','ADE_NO3'     ,'FINE' ,1.  ,'UNIT','a', 
-   'EVERYWHERE', 'ALL'     'DIESEL_PMSO4','ADE_SO4'     ,'FINE' ,1.  ,'UNIT','a', 
-   'EVERYWHERE', 'ALL'       'DIESEL_PMC','ADE_CORS'  ,'COARSE' ,1.  ,'UNIT','a', 
-   'EVERYWHERE', 'ALL'        'CADMIUM_F','ACD'         ,'FINE' ,1.  ,'UNIT','a', 
-   'EVERYWHERE', 'ALL'        'CADMIUM_C','ACD'       ,'COARSE' ,1.  ,'UNIT','a', 
-   'EVERYWHERE', 'ALL'      'MANGANESE_F','AMN'         ,'FINE' ,1.  ,'UNIT','a', 
-   'EVERYWHERE', 'ALL'      'MANGANESE_C','AMN'       ,'COARSE' ,1.  ,'UNIT','a', 
-   'EVERYWHERE', 'ALL'        'ARSENIC_F','AAS'         ,'FINE' ,1.  ,'UNIT','a', 
-   'EVERYWHERE', 'ALL'        'ARSENIC_C','AAS'       ,'COARSE' ,1.  ,'UNIT','a', 
-   'EVERYWHERE', 'ALL'           'PHGI_F','APHG'        ,'FINE' ,1.  ,'UNIT','a', 
+   ! Particulate Hazardous Air Pollutants (HAPs), can comment individual aerosol 
+   ! components across mode if AE namelist does not contain them
+   'EVERYWHERE', 'ALL'         'NICKEL_F','ANI'     ,'FINE'  ,1.  ,'UNIT','a',
+   'EVERYWHERE', 'ALL'         'NICKEL_C','ANI'     ,'COARSE',1.  ,'UNIT','a',
+   'EVERYWHERE', 'ALL'       'CHROMHEX_F','ACR_VI'  ,'FINE'  ,1.  ,'UNIT','a',
+   'EVERYWHERE', 'ALL'       'CHROMHEX_C','ACR_VI'  ,'COARSE',1.  ,'UNIT','a',
+   'EVERYWHERE', 'ALL'       'CHROMTRI_F','ACR_III' ,'FINE'  ,1.  ,'UNIT','a',
+   'EVERYWHERE', 'ALL'       'CHROMTRI_C','ACR_III' ,'COARSE',1.  ,'UNIT','a',
+   'EVERYWHERE', 'ALL'      'BERYLLIUM_F','ABE'     ,'FINE'  ,1.  ,'UNIT','a',
+   'EVERYWHERE', 'ALL'      'BERYLLIUM_C','ABE'     ,'COARSE',1.  ,'UNIT','a',
+   'EVERYWHERE', 'ALL'           'LEAD_F','APB'     ,'FINE'  ,1.  ,'UNIT','a',
+   'EVERYWHERE', 'ALL'           'LEAD_C','APB'     ,'COARSE',1.  ,'UNIT','a',
+   'EVERYWHERE', 'ALL'    'DIESEL_PMFINE','ADE_OTHR','FINE'  ,1.  ,'UNIT','a',
+   'EVERYWHERE', 'ALL'      'DIESEL_PMEC','ADE_EC'  ,'FINE'  ,1.  ,'UNIT','a',
+   'EVERYWHERE', 'ALL'      'DIESEL_PMOC','ADE_OC'  ,'FINE'  ,1.  ,'UNIT','a',
+   'EVERYWHERE', 'ALL'     'DIESEL_PMNO3','ADE_NO3' ,'FINE'  ,1.  ,'UNIT','a',
+   'EVERYWHERE', 'ALL'     'DIESEL_PMSO4','ADE_SO4' ,'FINE'  ,1.  ,'UNIT','a',
+   'EVERYWHERE', 'ALL'       'DIESEL_PMC','ADE_CORS','COARSE',1.  ,'UNIT','a',
+   'EVERYWHERE', 'ALL'        'CADMIUM_F','ACD'     ,'FINE'  ,1.  ,'UNIT','a',
+   'EVERYWHERE', 'ALL'        'CADMIUM_C','ACD'     ,'COARSE',1.  ,'UNIT','a',
+   'EVERYWHERE', 'ALL'      'MANGANESE_F','AMN_HAPS','FINE'  ,1.  ,'UNIT','a',
+   'EVERYWHERE', 'ALL'      'MANGANESE_C','AMN_HAPS','COARSE',1.  ,'UNIT','a',
+   'EVERYWHERE', 'ALL'        'ARSENIC_F','AAS'     ,'FINE'  ,1.  ,'UNIT','a',
+   'EVERYWHERE', 'ALL'        'ARSENIC_C','AAS'     ,'COARSE',1.  ,'UNIT','a',
+   'EVERYWHERE', 'ALL'             'PHGI','APHG'    ,'FINE'  ,1.  ,'UNIT','a',
 
    ! Fine-Mode Primary Organic Aerosol Scaling
    !   There are a series of species available for propagating emissions of primary
@@ -319,6 +331,19 @@
    'EVERYWHERE', 'ALL'    ,'PMFINE_H2O'  ,'AH2O'        ,'FINE',1.   ,'UNIT','a', 
    'EVERYWHERE', 'ALL'    ,'PMFINE_OTHR' ,'AOTHR'       ,'FINE',1.   ,'UNIT','a', 
 
+   ! Dust and SeaSpray Particulate Hazardous Air Pollutants (HAPs), can comment individual aerosol 
+   ! components across mode if AE namelist does not contain them
+
+   'EVERYWHERE', 'ALL'    ,'PMFINE_CR_III'  ,'ACR_III'  ,'FINE',1.   ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'    ,'PMFINE_CR_VI'   ,'ACR_VI'   ,'FINE',1.   ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'    ,'PMFINE_NI'      ,'ANI'      ,'FINE',1.   ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'    ,'PMFINE_AS'      ,'AAS'      ,'FINE',1.   ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'    ,'PMFINE_BE'      ,'ABE'      ,'FINE',1.   ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'    ,'PMFINE_PHG'     ,'APHG'     ,'FINE',1.   ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'    ,'PMFINE_PB'      ,'APB'      ,'FINE',1.   ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'    ,'PMFINE_CD'      ,'ACD'      ,'FINE',1.   ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'    ,'PMFINE_MN_HAPS' ,'AMN_HAPS' ,'FINE',1.   ,'UNIT','a', 
+
    ! :Scaling of Fine-Mode POA from Wind-Blown Dust or Sea Spray. Either the 
    ! :Nonvolatile POA should be propagated to the transport model, or the Low 
    ! :Volatility POA should be propagated, not both.
@@ -337,6 +362,18 @@
    'EVERYWHERE', 'ALL'    ,'PMCOARSE_H2O','AH2O'      ,'COARSE',1.   ,'UNIT','a', 
    'EVERYWHERE', 'ALL'   ,'PMCOARSE_SOIL','ASOIL'     ,'COARSE',1.   ,'UNIT','a', 
    'EVERYWHERE', 'ALL' ,'PMCOARSE_SEACAT','ASEACAT'   ,'COARSE',1.   ,'UNIT','a', 
+   ! Dust and SeaSpray Particulate Hazardous Air Pollutants (HAPs), can comment individual aerosol 
+   ! components across mode if AE namelist does not contain them
+
+   'EVERYWHERE', 'ALL'    ,'PMCOARSE_CR_III'  ,'ACR_III'  ,'COARSE',1.   ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'    ,'PMCOARSE_CR_VI'   ,'ACR_VI'   ,'COARSE',1.   ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'    ,'PMCOARSE_NI'      ,'ANI'      ,'COARSE',1.   ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'    ,'PMCOARSE_AS'      ,'AAS'      ,'COARSE',1.   ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'    ,'PMCOARSE_BE'      ,'ABE'      ,'COARSE',1.   ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'    ,'PMCOARSE_PHG'     ,'APHG'     ,'COARSE',1.   ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'    ,'PMCOARSE_PB'      ,'APB'      ,'COARSE',1.   ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'    ,'PMCOARSE_CD'      ,'ACD'      ,'COARSE',1.   ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'    ,'PMCOARSE_MN_HAPS' ,'AMN_HAPS' ,'COARSE',1.   ,'UNIT','a', 
    
                                                                     
                             !> CUSTOM MAPPING EXAMPLES <!              
@@ -482,4 +519,90 @@
 ! RegionFamilyNum(1)      = 2
 ! RegionFamilyMembers(1,:)= 'SURF','OPEN'
 !/
+ 
+!------------------------------------------------------------------------------!
+! Explicit and Lumped air quality Mode Output (ELMO) Synthesizer               !
+!    PM Diagnostic Output File Specifications                                  !
+!    This section allows you to customize or deactivate diagnostic species for !
+!    PM output. With ELMO's interface and underlying routines, you are able to !
+!    output upon request aggregate PM parameters like total PM2.5 mass, mass of!
+!    individual species in any fine aerosol mode, and even properties like     !
+!    aerosol pH, OM:OC, AOD, etc. With these feature, you may be able to       !
+!    deactivate the output of many individual PM species on your concentration !
+!    files if you are only interested in total values. For example, no need to !
+!    output AMT1-AMT6 if you only need total organics, PMF_OA.                 !
+!                                                                              !
+!    You may invoke individual parameters in the interface below, (see         !
+!    instructions) or you may also use keywords to invoke a group of pre-      !
+!    associated parameters. For instance, using the string "AMET" below as an  !
+!    output parameter will automatically activate all of the parameters needed !
+!    for an AMET evaluation of PM species.                                     !
+!                                                                              !
+!    Definition of Fields:                                                     !
+!     PMDIAG_ACTIVATE - turn files on and off                                  !
+!        'INSTANT' - If .TRUE., then the instantaneous PMDIAG output file will !
+!                    be printed. If .FALSE. it will not.                       !
+!        'AVERAGE' - If .TRUE., then the average PMDIAG output file will       !
+!                    be printed. If .FALSE. it will not.                       !
+!     PMDIAG_INST - set parameters for instantaneous output                    !
+!        'INST_LAYER_TOP' - highest CMAQ layer for instantaneous output        ! 
+!        'INST_LAYER_BOT' - lowest CMAQ layer for instantaneous output         !
+!        'INST_PARS_REG' - register of all parameters requested by the user.   !
+!             The following keywords and definitions are supported:            !
+!                 'ALL' - all possible parameters                              !
+!                 'DEFAULT' - parameters typically supported by COMBINE        !
+!                             post-processing in the past.                     !
+!                 'AMET' - parameters used for evaluation against AMET database!
+!                 'MASS' - parameters associated with mass aggregates (eg PM25,!
+!                          PM10, PMF_MASS, PMC_MASS, etc)                      !
+!                 'NUMBER' - parameters assoc. with number output like PMF_NUM,!
+!                            N40, N100, etc.                                   !
+!                 'SIZE' - parameters assoc. with size distributions like      !
+!                          DRY_DG, WET_M3, WET_DENS, etc                       !
+!                 'SURFACE' - parameters assoc. with PM surface area (e.g.     !
+!                             PM_SRF, PMF_SRF)                                 !
+!                 'ORGANIC' - organic-relevant parameters like PM1_OC, PM1_OA, !
+!                             PMF_OTOC, PMAMS_OA, etc                          !
+!                 'MET' - meteorlogical parameters: RH, T, 2m-T, P             !
+!                 'CHEM' - aerosol chemistry parameters like GAMMA_N2O5,       !
+!                          K_IEPOX, etc.                                       !
+!                 'FINE_SPECIES' - fine-mode speciation (e.g. PMF_SO4, etc)    !
+!                 'COARSE_SPECIES' - coarse-mode speciation (e.g. PMC_SO4, etc)!
+!                 'AMS_SPECIES' - AMS speciation (e.g. PMAMS_SO4, etc)         !
+!                 'PM1_SPECIES' - PM1.0 speciation (e.g. PM1_SO4, etc)         !
+!                 'PM25_SPECIES' - PM2.5 speciation (e.g. PM25_SO4, etc)       !
+!                 'PM25to10_SPECIES' - PM25to10 speciation (eg PM25to10_SO4,   !
+!                                      etc)                                    !
+!                 'OPTICAL' - AOD, Aerosol Extinction all at 550 nm            !
+!                 'FINE_ORG' - fine-mode organic aggregates like PMF_OC,       !
+!                              PMF_POA, PMF_ASOA, etc.                         !
+!                 'CUTOFF_FRACTIONS' - FPM01, FPM1, FPM25, FPM10, FPM25TO10,   !
+!                                      FAMS                                    !
+!                 'TOXICS' - Species output by the toxics version of CMAQ      !
+!                            (e.g. PM25_HBE, PM25_HNI, PM10_HDIESEL', etc      !
+!                                                                              !
+!     For the list of all supported parameters in ELMO, look in the PMDIAG_LIST!
+!       table within PMDIAG_DATA. For the list of all keywords and their       !
+!       contents refer to the POPULATE_PMDIAG_KEY subroutine in PMDIAG_PROC.   !
+!                                                                              !
+!------------------------------------------------------------------------------!
+
+&PMDIAG_ACTIVATE
+  INSTANT = .TRUE.
+  AVERAGE = .TRUE.
+/
+
+&PMDIAG_INST
+  INST_LAYER_TOP = 1
+  INST_LAYER_BOT = 1
+  INST_PARS_REG  = 'DEFAULT'
+/
+
+&PMDIAG_AVRG
+  AVRG_LAYER_TOP = 1
+  AVRG_LAYER_BOT = 1
+  AVRG_PARS_REG  = 'DEFAULT'
+/
+
+ 
  

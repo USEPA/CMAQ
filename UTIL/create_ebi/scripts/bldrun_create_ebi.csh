@@ -1,99 +1,250 @@
 #! /bin/csh -f
-# C-shell script to run CR_EBI_SOLVER 
 
- date; set timestamp; set echo 
-# current working directory assumed ${CMAQ_REPO}/UTIL/create_ebi;change if otherwise
- set BASE            = $cwd          
- set EXDIR           = ${BASE}/BLD  
- set EXEC            = cr_ebi_solver 
+# ============ CREATE_EBI_SOLVERv5.3.x Build Script ================= #
+# Usage: bldrun_create_ebi.csh [compiler] >&! bldrun_create_ebi.log   #
+# Options for [compiler]: intel | gcc | pgi                           #
+#                                                                     #
+# To report problems or request help with this script/program:        #
+#             http://www.cmascenter.org                               #
+# =================================================================== #
 
-#> option to set compiler and build a new executable (not required)
- setenv COMPILER  INTEL  #> INTEL, PGF90, or GFORT
+# =======================================================================
+#> Preliminary error checking and environment configuration
+# =======================================================================
 
-#Define environment variable for path to data module for photochemical mechanism
-# RXNS_DATA is the input directory containing the mechanism's data module
-# value will change based on user's goals
-set MECH             = 'cb6r3_ae7_aq'
-set RXNS_DATA        = ${BASE}/../../CCTM/src/MECHS/${MECH}
-setenv RXNS_DATA_SRC   ${RXNS_DATA}/RXNS_DATA_MODULE.F90
-
-if ( ! ( -e ${RXNS_DATA_SRC} ) )then
-       \ls ${RXNS_DATA_SRC}
-       exit()
-endif 
-
-# Define templates and scource code  directories
- setenv TMPLDIR         ${BASE}/template_RXNSU_OPT
- setenv DEGRADE_CODES   ${BASE}/degrade_codes_serial-RXNST
- setenv SRCDIR          ${BASE}/src_RXNSU
-
-# Define output directory;value will change based on user's goals
- set day = ` date "+%b-%d-%Y" `
- setenv OUTDIR  ${BASE}/output/ebi_${MECH}-${day}-${COMPILER}
- 
-#Set options about the photochemical mechanism
- setenv PAR_NEG_FLAG    T    # True for CB6 but false for SAPRC07t and RACM2 
- setenv DEGRADE_SUBS    T    # include calls for HAPs degrade routines (true cb6 mechanisms)  
- setenv SOLVER_DELT     2.5  # maximum time step (minutes) of solver integration up to four 
-                             # significant figures in general or scientific notation
-                             # For saprc07tic based mechanisms, 1.25 minutes is recommended.
-
-#Set the below compound names within the mechanism
-#                 #Mech   #   Mechanism          #   Mechanism     # Description
-#                  cb6r3  # SAPRC07/RACM2        # cb6r3/cb05      #
- setenv MECH_NO    NO     #  NO                  # NO              # Species name for nitric oxide
- setenv MECH_NO2   NO2    #  NO2                 # NO2             # Species name for nitrogen dioxide
- setenv MECH_O3    O3     #  O3                  # O3              # Species name for ozone
- setenv MECH_O3P   O      #  O3P                 # O               # Species name for ground state oxygen atom
- setenv MECH_O1D   O1D    #  O1D                 # O1D             # Species name for excited state oxygen atom
- setenv MECH_OH    OH     #  OH / HO             # OH              # Species name for hydroxyl radical
- setenv MECH_HO2   HO2    #  HO2                 # HO2             # Species name for hydroperoxy radical
- setenv MECH_HONO  HONO   #  HONO                # HONO            # Species name for nitrous acid
- setenv MECH_HNO4  PNA    #  HNO4                # PNA             # Species name for peroxynitric acid
- setenv MECH_PAN   PAN    #  PAN                 # PAN             # Species name for peroxy acetyl nitrate
- setenv MECH_C2O3  C2O3   #  MECO3 / ACO3        # C2O3            # Species name for peroxy acetyl radical
- setenv MECH_NO3   NO3    #  NO3                 # NO3             # Species name for nitrate radical
- setenv MECH_N2O5  N2O5   #  N2O5                # N2O5            # Species name for dinitrogen pentoxide
- 
- rm cr_ebi_solver
-
-#########################################################
- unalias rm
-
- if( -e ./BLD ) then
-    echo "Removing old BLD directory"
-    /bin/rm -rf ./BLD
+#> Check that the host system is Linux-based
+ set BLD_OS = `uname -s`        
+ if ($BLD_OS != 'Linux') then
+    echo "   $BLD_OS -> wrong bldit script for host!"
+    exit 1
  endif
 
- mkdir BLD
-
- cp makefile.v50XX  ./BLD/Makefile
-
- cd BLD
-
- make
-
- cd ..
- 
-set echo
-##########################################################
-
- if(  -e $OUTDIR  ) then
-
-    echo "Removing old solver files"
-    /bin/rm -f ${OUTDIR}/*.[f,F]
-
+#> Set Compiler Identity by User Input: Options -> intel | pgi | gcc
+ if ( $#argv == 1 ) then
+   setenv compiler $argv[1]
+   setenv compilerVrsn Empty
+ else if ( $#argv == 2 ) then
+   #> Compiler Name and Version have been provided
+   setenv compiler $1
+   setenv compilerVrsn $2
  else
-
-   mkdir -p $OUTDIR
-   \cp -f ${RXNS_DATA_SRC} $OUTDIR/.
-
+   setenv compiler intel
+   setenv compilerVrsn Empty
+   echo "compiler and version not set"
+   echo "usage: $0 <compiler>"
+   echo "setting compiler to intel"
  endif
 
- $EXDIR/$EXEC
+#> Source the config.cmaq file to set the build environment
+ if( -e ../../../config_cmaq.csh )then
+    cd ../../..
+    source ./config_cmaq.csh
+ else
+#work offline from CMAQ repository and build environment
+    setenv offline "Y"
+    echo ${offline}
+    setenv compilerString ${compiler}
+    setenv CMAQ_HOME $cwd/..
+ endif
+ echo ${CMAQ_HOME}
 
+#> Source Code Repository
+ if( ! ( $?offline ) )then
+   setenv REPOROOT ${CMAQ_REPO}/UTIL/create_ebi  #> location of the source code for CHEMMECH
+ else
+   setenv REPOROOT ${CMAQ_HOME}
+ endif
+
+#===============================================================================
+#> Begin User Input Section 
+#===============================================================================
+
+#> User choices: working directory and application ID
+ if ( ! $?MECH ) then
+   set MECH =     'cb6r3_ae7_aq'
+ endif
+ setenv CLEAR "TRUE" #> over-write existing output files
+
+#> Set working, input and output directories
+ if( ! ( $?offline ) )then
+   set WORKDIR = ${CMAQ_HOME}/UTIL/create_ebi
+ else
+   set WORKDIR = ${CMAQ_HOME}
+ endif
+ if ( ! $?INPDIR ) then
+   setenv INPDIR  ${WORKDIR}/input/${MECH}
+ endif
+ if ( ! $?OUTDIR ) then
+    setenv OUTDIR  ${WORKDIR}/output/ebi_${MECH}
+ endif 
+
+ set VRSN =     v532                       #> model version
+ setenv EXEC    CREATE_EBI_${VRSN}.exe     #> executable name for this application
+ setenv BLDIR   ${WORKDIR}/scripts/BLD_create_ebi_${VRSN}_${compilerString}
+
+#============================================================================================
+#> Set locations for source code and templates
+#============================================================================================
+
+ setenv SRCDIR          ${BLDIR}
+ setenv TMPLDIR         ${REPOROOT}/template_RXNSU_OPT
+ setenv DEGRADE_CODES   ${REPOROOT}/degrade_codes_serial-RXNST
+ set data_paths = ( ${TMPLDIR} ${DEGRADE_CODES} )
+ foreach data_dir ( ${data_paths} )
+    if( ! ( -e ${data_dir} ) )cp -r $data_dir ${WORKDIR}/.
+ end
+
+# Define environment variable for path to data module for photochemical mechanism
+# RXNS_DATA is the input directory containing the mechanism's data module
+# value will change based on user's goals. If the file is not found, this script
+# will check the output for CHEMMECH, and then check the CMAQ_REPO. If it is in 
+# neither of those places, the script aborts.
+ setenv RXNS_DATA_SRC   ${INPDIR}/RXNS_DATA_MODULE.F90
+
+ if ( ! -e ${RXNS_DATA_SRC} ) then
+     echo 'Below RXNS_DATA_MODULE input file does not exist'
+     echo ${RXNS_DATA_SRC}
+     exit 1
+ endif
+#============================================================================================
+#> Copy CREATE_EBI Source Code into new build folder and compile
+#============================================================================================
+ 
+ if ( -e "$BLDIR" ) then
+    echo "   *** build directory exist, deleting it***"
+    \rm -rf $BLDIR
+ endif
+ mkdir -pv $BLDIR
+ 
+ cp ${REPOROOT}/src/* ${BLDIR}/.
+ cd ${BLDIR}; make clean; make 
+ if( ! ( -e ${EXEC} ) )then
+    echo "failed to compile ${BLDIR}/${EXEC}"
+    exit 1
+ endif
+
+
+#============================================================================================
+#> Confiugre options for running CREATE_EBI
+#============================================================================================
+
+#Set options for the photochemical mechanism
+   setenv DEGRADE_SUBS    T    # include calls for HAPs degrade routines 
+
+ 
+#Set the below compound names within the mechanism
+ if ( ${MECH} =~ *"cb"* || ${MECH} =~ *"CB"* ) then
+   setenv PAR_NEG_FLAG    T    # True for CB6 but false for SAPRC07t and RACM2 
+   if ( ${MECH} =~ *"cb6r3m"* || ${MECH} =~ *"CB6R3M"* ) then
+      setenv SOLVER_DELT     1.25 # maximum time step (minutes) of solver integration up to four 
+                                  # significant figures in general or scientific notation
+                                  # For cb6r3m and saprc07tic based mechanisms, 1.25 minutes is recommended.
+   else
+      setenv SOLVER_DELT     2.50 # maximum time step (minutes) of solver integration up to four
+                                  # significant figures in general or scientific notation
+                                  # For saprc07tic based mechanisms, 1.25 minutes is recommended.
+   endif
+
+   #                 #Mech   # Description
+   #              cb6r3/cb05 #
+    setenv MECH_NO    NO     # Species name for nitric oxide
+    setenv MECH_NO2   NO2    # Species name for nitrogen dioxide
+    setenv MECH_O3    O3     # Species name for ozone
+    setenv MECH_O3P   O      # Species name for ground state oxygen atom
+    setenv MECH_O1D   O1D    # Species name for excited state oxygen atom
+    setenv MECH_OH    OH     # Species name for hydroxyl radical
+    setenv MECH_HO2   HO2    # Species name for hydroperoxy radical
+    setenv MECH_HONO  HONO   # Species name for nitrous acid
+    setenv MECH_HNO4  PNA    # Species name for peroxynitric acid
+    setenv MECH_PAN   PAN    # Species name for peroxy acetyl nitrate
+    setenv MECH_C2O3  C2O3   # Species name for peroxy acetyl radical
+    setenv MECH_NO3   NO3    # Species name for nitrate radical
+    setenv MECH_N2O5  N2O5   # Species name for dinitrogen pentoxide
+
+ else if ( ${MECH} =~ *"saprc"* || ${MECH} =~ *"SAPRC"* ) then
+   setenv PAR_NEG_FLAG    F    # True for CB6 but false for SAPRC07t and RACM2 
+   if ( ${MECH} =~ *"saprc07tic"* || ${MECH} =~ *"SAPRC07TIC"* ) then
+      setenv SOLVER_DELT     1.25 # maximum time step (minutes) of solver integration up to four 
+                                  # significant figures in general or scientific notation
+                                  # For cb6r3m and saprc07tic based mechanisms, 1.25 minutes is recommended.
+   else
+      setenv SOLVER_DELT     2.50 # maximum time step (minutes) of solver integration up to four
+                                  # significant figures in general or scientific notation
+                                  # For saprc07tic based mechanisms, 1.25 minutes is recommended.
+                                  # endif
+   endif
+
+   #                 #Mech   # Description
+   #                SAPRC07  #
+    setenv MECH_NO    NO     # Species name for nitric oxide
+    setenv MECH_NO2   NO2    # Species name for nitrogen dioxide
+    setenv MECH_O3    O3     # Species name for ozone
+    setenv MECH_O3P   O3P    # Species name for ground state oxygen atom
+    setenv MECH_O1D   O1D    # Species name for excited state oxygen atom
+    setenv MECH_OH    OH     # Species name for hydroxyl radical
+    setenv MECH_HO2   HO2    # Species name for hydroperoxy radical
+    setenv MECH_HONO  HONO   # Species name for nitrous acid
+    setenv MECH_HNO4  HNO4   # Species name for peroxynitric acid
+    setenv MECH_PAN   PAN    # Species name for peroxy acetyl nitrate
+    setenv MECH_C2O3  MECO3  # Species name for peroxy acetyl radical
+    setenv MECH_NO3   NO3    # Species name for nitrate radical
+    setenv MECH_N2O5  N2O5   # Species name for dinitrogen pentoxide 
+
+ else if ( ${MECH} =~ *"racm"* || ${MECH} =~ *"RACM"* ) then
+   setenv PAR_NEG_FLAG    F    # True for CB6 but false for SAPRC07t and RACM2 
+   setenv SOLVER_DELT     2.50 # maximum time step (minutes) of solver integration up to four 
+                               # significant figures in general or scientific notation
+                               # For cb6r3m and saprc07tic based mechanisms, 1.25 minutes is recommended.
+
+   #                 #Mech   # Description
+   #                 RACM2   #
+    setenv MECH_NO    NO     # Species name for nitric oxide
+    setenv MECH_NO2   NO2    # Species name for nitrogen dioxide
+    setenv MECH_O3    O3     # Species name for ozone
+    setenv MECH_O3P   O3P    # Species name for ground state oxygen atom
+    setenv MECH_O1D   O1D    # Species name for excited state oxygen atom
+    setenv MECH_OH    HO     # Species name for hydroxyl radical
+    setenv MECH_HO2   HO2    # Species name for hydroperoxy radical
+    setenv MECH_HONO  HONO   # Species name for nitrous acid
+    setenv MECH_HNO4  HNO4   # Species name for peroxynitric acid
+    setenv MECH_PAN   PAN    # Species name for peroxy acetyl nitrate
+    setenv MECH_C2O3  ACO3   # Species name for peroxy acetyl radical
+    setenv MECH_NO3   NO3    # Species name for nitrate radical
+    setenv MECH_N2O5  N2O5   # Species name for dinitrogen pentoxide 
+ 
+ else
+   echo 'Undetermined chemical mechanism: the user must include case defining its key species and options.'
+   echo 'Please update CREATE_EBI with new case'
+   exit 1
+ endif
+
+#============================================================================================
+#> Populate Output
+#============================================================================================
+
+ # Create Output Directory
+ if(  -e $OUTDIR  ) then
+   if( $CLEAR == "FALSE" )then
+      echo "Previous output exists; set CLEAR to TRUE to delete"
+      exit(1)
+   endif
+   echo "Removing old solver files"
+   /bin/rm -rf ${OUTDIR}
+ endif
+ mkdir -p $OUTDIR
+ \cp -f ${RXNS_DATA_SRC} $OUTDIR/.
+
+ # Run CREATE_EBI.EXE
+ $BLDIR/$EXEC
+
+ # Copy Static Degrade Codes to Output Directory, if necessary
  if( $DEGRADE_SUBS  == "T" )then
+     echo "copying DEGRADE routines to ${OUTDIR}"
      \cp -f ${DEGRADE_CODES}/*.[f,F]  ${OUTDIR}/.
  endif
+ 
+ if ( $? != 0 ) then
+    echo "CREATE_EBI ($BLDIR/$EXEC) failed for some reason. Halt Build Process!"
+    exit 1
+ endif
 
- exit() 

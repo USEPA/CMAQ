@@ -8,7 +8,7 @@
 # 11. Integrated Source Apportionment Method (CMAQ-ISAM)
 ## 11.1 Introduction
 
-The Integrated Source Apportionment Method (ISAM) calculates source attribution information for user specified ozone and particulate matter precursors within the CMAQ model.  CMAQ-ISAM has been substantially updated in the CMAQv5.3 release, and differs significantly from previous releases.
+The Integrated Source Apportionment Method (ISAM) calculates source attribution information for user specified ozone and particulate matter precursors within the CMAQ model.  CMAQ-ISAM has been substantially updated in the CMAQv5.3 release, and differs significantly from previous releases. The major changes to the ISAM chemistry solver are detailed in the [ISAM Chemistry Supplement](Supplement/CMAQ_ISAM_Chemistry_Supplemental_Equations.pdf). 
 
 The CMAQ model provides users the concentration and deposition fields of many pollutant species. These species are usually combinations of different types of primary emissions and secondary formation that have been physically and chemically transformed in the model. However, sometimes it is desirable to know specific source attribution information for the model outputs. For example, how much of the ozone in an urban area was formed due to nitrogen oxides emitted from motor vehicles in a neighboring state?
 
@@ -23,11 +23,11 @@ SULFATE   - ASO4J, ASO4I, SO2, SULF, SULRXN
 NITRATE   - ANO3J, ANO3I, HNO3, ANO3J, ANO3I, HNO3, NO, NO2, NO3, HONO, N2O5, PNA, PAN, PANX, NTR1, NTR2, INTR           
 AMMONIUM  - ANH4J, ANH4I, NH3       
 EC        - AECJ, AECI          
-OC        - APOCI, APNCOMI, APOCI, APNCOMJ                
+OC        - APOCI, APOCJ, APNCOMI, APNCOMJ                
 VOC       - Various species depending on mechanism. Now includes CO. (see CCTM/src/isam/SA_DEFN.F for complete list)      
-PM25_IONS - ANAI/J, AMGJ, AKJ, ACAJ, AFEJ, AALJ, ASIJ,A TIJ, AMNJ, AOTHRI/J      
+PM25_IONS - ANAI, ANAJ, AMGJ, AKJ, ACAJ, AFEJ, AALJ, ASIJ, ATIJ, AMNJ, AOTHRI, AOTHRJ      
 OZONE     - all NITRATE species + all VOC species     
-CHLORINE  - ACLI/J, HCL      
+CHLORINE  - ACLI, ACLJ, HCL      
 ```
 
 ## 11.2 Build Instructions
@@ -40,12 +40,12 @@ set ISAM_CCTM
 
 **A note about I/O API installation for ISAM applications**
 
-I/O APIv3.2  supports up to MXFILE3=64 open files, each with up to MXVARS3=2048. ISAM applications configured to calculate source attribution of a large number of sources may exceed this upper limit of model variables, leading to a model crash. To avoid this issue, users may use I/O API version 3.2 "large" that increases MXFILE3 to 512 and MXVARS3 to 16384. This version is available as a zip file from the following address:
+I/O APIv3.2  supports up to MXFILE3=64 open files, each with up to MXVARS3=2048. ISAM applications configured to calculate source attribution of a large number of sources may exceed this upper limit of model variables, leading to a model crash. To avoid this issue, users may use I/O API version 3.2 "large" that increases MXFILE3 to 512 and MXVARS3 to 16384. Instructions to build this version are found in [Chapter 3](https://github.com/USEPA/CMAQ/blob/master/DOCS/Users_Guide/CMAQ_UG_ch03_preparing_compute_environment.md#333-io-api-library).
+Note, using this ioapi-large version is not required for the CMAQ-ISAM Benchmark Case. 
+If a user needs to use larger setting for MXFILE3 and MXVAR3 to support their application, note that the memory requirements will be increased.
+This version is available as a zip file from the following address:
 
-https://www.cmascenter.org/ioapi/download/ioapi-3.2-large.tar.gz
-
-Installation instructions for I/O API v5.3-large are provided in README.txt in the .tar.gz file. 
-
+https://www.cmascenter.org/ioapi/download/ioapi-3.2-large-2020220.tar.gz
 
 ## 11.3 Run Instructions
 
@@ -70,6 +70,22 @@ To begin a CMAQ simulation with source apportionment enabled, the ISAM section o
 |SA_CGRID_1|path/filename|ISAM output for a restart file to continue the simulation further in time|
 
 Additionally, ISAM can track emissions confined to geographic regions.  This functionality can be enabled through CMAQ's `RegionsRegistry` set in the `EmissCtrl` namelist (Appendix B.4) and is discussed further below.
+
+#### ISAM and bidirectional NH<sub>3</sub> exchange
+
+ISAM in CMAQ v5.3 supports bidirectional NH<sub>3</sub> exchange using both M3Dry and STAGE deposition options. To run with this option the AMMONIUM species class must be set in the ISAM control file 
+
+```
+TAG CLASSES     |AMMONIUM
+```
+
+and the ABFLUX must be set in the run script.
+
+```
+setenv CTM_ABFLUX Y          #> ammonia bi-directional flux for in-line deposition
+```
+
+Setting these options will automatically set the BID tag for model output. Modeled species output with the BID tag represent the influence of NH<sub>3</sub> emissions from fertilizer and biogenic NH<sub>3</sub> emission sources. Biogenic NH<sub>3</sub> emissions include the evasion of NH<sub>3</sub> from non-agricultural vegetation and soil NH<sub>4</sub> pools as parameterized in the STAGE or M3Dry models.  
 
 ### 11.3.1 ISAM control file (SA_IOLIST)
 
@@ -113,13 +129,17 @@ The final line in the control file needs to be kept unchanged in order to aid th
 ENDLIST eof
 ```
 
-In addition to the user-specified list, ISAM will alway track and output three additional default tags with every simulation (note, that at least one valid user-specified tag must be defined, so a minimum of 4 tags are required):
+In addition to the user-specified list, ISAM will alway track and output three additional default tags with every simulation and the BID tag if the simultion includes both bidirectional NH<sub>3</sub> and the 'AMMONIUM' species class (note, that at least one valid user-specified tag must be defined, so a minimum of 4 tags are required):
 
 ```
 ICO - contribution from initial conditions specified for the first day of the simulation
 BCO - contribution from boundary conditions throughout the simulation
 OTH - contribution from all non-tagged emissions streams and other processes in the model.
+BID - contribution from bidirectional NH3 exchange 
 ```
+
+Please, note that, currently, ISAM results for the same user defined tag may differ depending on the overall configuration and content of the ISAM control file.  This weakness of the method is detailed in the last section of the [ISAM Chemistry Supplement](Supplement/CMAQ_ISAM_Chemistry_Supplemental_Equations.pdf).  Generally, tracking a larger number of tags produces more consistent apportionment results.  
+
 #### Interpretation of 'OTH' tag
 The OTH tag (e.g.“O3_OTH” in the ISAM benchmark) represents concentrations for that species attributed to 1) all other emissions streams, 2) precursor species not included in the specified tag class(es), and 3) other processes in the model.
 

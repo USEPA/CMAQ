@@ -46,7 +46,8 @@ C-----------------------------------------------------------------------
 
       USE CGRID_SPCS          ! CGRID mechanism species
       USE GRID_CONF
-      USE EMIS_VARS, ONLY : VDEMIS_DIFF, EMLAYS          
+      USE EMIS_VARS, ONLY : VDEMIS_DIFF, EMLAYS
+      USE EM_PARAM_MODULE, ONLY : N_EM_SRM
       USE DEPV_DEFN
       USE ASX_DATA_MOD
       USE VDIFF_MAP
@@ -178,7 +179,6 @@ C ACM Local Variables
       INTEGER, ALLOCATABLE, SAVE :: ISAM_DEPV( : )
       INTEGER, ALLOCATABLE, SAVE :: INDEX_SA_HONO( : )
       INTEGER, ALLOCATABLE, SAVE :: INDEX_SA_NH3( : )
-
 
       CHARACTER( 16 ) :: ISAM_SPECIES
 
@@ -533,7 +533,8 @@ C-----------------------------------------------------------------------
          END DO
 
          EMIS = 0.0      ! array assignment
-         EMIS( :,1:EMLAYS ) = DTS * VDEMIS_DIFF( :,:,C,R )
+         IF ( N_EM_SRM .GE. 1 ) 
+     &        EMIS( :,1:EMLAYS ) = DTS * VDEMIS_DIFF( :,:,C,R )
 
 #ifdef isam
          SAEMIS = 0.0
@@ -991,8 +992,8 @@ C Update ISAM Dry Deposition
                   SA_DDBF( JSPCTAG  ) = SA_DDBF( JSPCTAG )
      &                                + THBAR * DD_FAC( S ) *  SACONC( JSPCTAG,1 )
                   IF( S .NE. NO2_HIT .AND. S .NE. HNO3_HIT ) THEN
-                     SA_DDBF( JSPCTAG  ) = SA_DDBF( JSPCTAG )
-     &                                   - THBAR * DTDENS1 * SAFRAC( JSPCTAG ) * DD_CONV( S ) * PLDV( S,C,R )                         
+                    SA_DDBF( JSPCTAG  ) = SA_DDBF( JSPCTAG )
+     &                                  - THBAR * DTDENS1 * SAFRAC( JSPCTAG ) * DD_CONV( S ) * PLDV( S,C,R )                         
                   END IF
                END IF
             END DO

@@ -112,6 +112,7 @@
 
 C...modules
 
+      USE RUNTIME_VARS, ONLY : START_DATE => STDATE, START_TIME => STTIME
       USE RXNS_DATA            ! chemistry varaibles and data
       USE GRID_CONF            ! horizontal & vertical domain specifications
       USE CGRID_SPCS           ! CGRID species number and offsets
@@ -194,9 +195,11 @@ C...modules
       INTEGER IWL
       INTEGER L
       INTEGER V, N, MODE
-      LOGICAL JTIME_CHK            ! To check for JTIME to write RJ values
-      INTEGER ODATE                ! output date
-      INTEGER OTIME                ! output time
+      
+      LOGICAL :: JTIME_CHK   ! To check for JTIME to write RJ values
+      INTEGER, SAVE :: ODATE ! output date
+      INTEGER, SAVE :: OTIME ! output time
+      INTEGER, SAVE :: OSTEP ! time since last write diagnostics  
 
       INTEGER ALLOCSTAT
 
@@ -297,7 +300,6 @@ C...modules
       REAL, ALLOCATABLE, SAVE :: CLR_TRANSMISSION( :,: ) ! diffuse transmission coefficient of clouds
       REAL, ALLOCATABLE, SAVE :: CLR_REFLECTION  ( :,: ) ! reflection coefficient of cloud
       REAL, ALLOCATABLE, SAVE :: CLR_TRANS_DIRECT( :,: ) ! direct transmission coefficient of clouds
-      REAL, ALLOCATABLE, SAVE :: TAU_AERO_550    ( :,: ) ! total aerosol optical depth at 550 nm (Angstrom Interpolation)
 #ifdef phot_debug
       REAL, ALLOCATABLE, SAVE :: ASY_CLOUD_WL( :,:,: ) ! columm average of cloud asymmetry factor
       REAL, ALLOCATABLE, SAVE :: SSA_CLOUD_WL( :,:,: ) ! columm average of cloud single scattering albedo
@@ -307,11 +309,10 @@ C...modules
 
       REAL, ALLOCATABLE, SAVE :: AERO_SSA  ( :,:,:,: ) ! aerosol single scattering albedo
       REAL, ALLOCATABLE, SAVE :: AERO_ASYM ( :,:,:,: ) ! aerosol asymmetry factor
-      REAL, ALLOCATABLE, SAVE :: TOT_EXT   ( :,:,:,: ) ! total extinction for layer [1/m]
-      REAL, ALLOCATABLE, SAVE :: GAS_EXT   ( :,:,:,: ) ! clear sky extinction for layer [1/m]
-      REAL, ALLOCATABLE, SAVE :: AERO_EXT  ( :,:,:,: ) ! aerosol extinction for layer [1/m]
+      REAL, ALLOCATABLE, SAVE :: TOT_EXT   ( :,:,:,: ) ! total extinction for layer [1/Km]
+      REAL, ALLOCATABLE, SAVE :: GAS_EXT   ( :,:,:,: ) ! clear sky extinction for layer [1/Km]
+      REAL, ALLOCATABLE, SAVE :: AERO_EXT  ( :,:,:,: ) ! aerosol extinction for layer [1/Km]
       REAL, ALLOCATABLE, SAVE :: ACTINIC_FX( :,:,:,: ) ! net actinic flux [watts/m**2]
-      REAL, ALLOCATABLE, SAVE :: AERO_EXT_550( :,:,: ) ! aerosol extinction at 550 nm for layer [1/m]
       REAL, ALLOCATABLE, SAVE :: OUTPUT_BUFF ( :,:,: ) ! output buffer for DIAG2 and DIAG3 files
 
       INTERFACE
@@ -338,7 +339,7 @@ C...modules
          TSTEP  = TIME2SEC( DTSTEP( 1 ) ) ! output timestep for phot diagnostic files
 
 !...Set flag to initialize calculating aerosol extinction at 550 nm via Angstrom Exponents
-         CALCULATE_EXT_550 = PHOTDIAG
+         CALCULATE_EXT_550 = .TRUE. !PHOTDIAG
 
          PECOL_OFFSET = COLSD_PE( 1, MYPE+1 ) - 1
          PEROW_OFFSET = ROWSD_PE( 1, MYPE+1 ) - 1
@@ -391,6 +392,10 @@ C...modules
          ALLOCATE( TAU_TOT  ( NLAYS,NWL ) )
 
          ALLOCATE( TOTAL_OC ( NCOLS,NROWS ) )
+         ALLOCATE( TAU_AERO_550    ( NCOLS,NROWS ) )
+         ALLOCATE( ELMO_AOD_550    ( NCOLS,NROWS ) )
+         TAU_AERO_550  = 0.0
+         ELMO_AOD_550  = 0.0
 
          IF ( PHOTDIAG ) THEN
 
@@ -407,7 +412,6 @@ C...modules
             ALLOCATE( CLR_TRANSMISSION( NCOLS,NROWS ) )
             ALLOCATE( CLR_TRANS_DIRECT( NCOLS,NROWS ) )
             ALLOCATE( CLR_REFLECTION  ( NCOLS,NROWS ) )
-            ALLOCATE( TAU_AERO_550    ( NCOLS,NROWS ) )
             ALLOCATE( TAU_AERO_WL     ( NCOLS,NROWS,NWL ) )
             ALLOCATE( TAU_CLOUD_WL    ( NCOLS,NROWS,NWL ) )
 #ifdef phot_debug
@@ -420,7 +424,6 @@ C...modules
             N_EXCEED_TROPO3 = 0.0
             TROPO_O3_EXCEED = 0.0
             TSTEP_COUNT     = 0
-            TAU_AERO_550    = 0.0
             TROPO_OC        = 0.0
             CO_COLUMN       = 0.0
             SO2_COLUMN      = 0.0
@@ -536,12 +539,6 @@ C...modules
                CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             END IF
 
-            ALLOCATE ( AERO_EXT_550( NCOLS,NROWS,NLAYS_DIAG ), STAT = ALLOCSTAT )
-            IF ( ALLOCSTAT .NE. 0 ) THEN
-               XMSG = 'Failure allocating 3D AERO_EXT_550'
-               CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-            END IF
-
             ALLOCATE ( TOT_EXT( NCOLS,NROWS,NLAYS_DIAG,N_DIAG_WVL ), STAT = ALLOCSTAT )
             IF ( ALLOCSTAT .NE. 0 ) THEN
                XMSG = 'Failure allocating 3D TOT_EXT'
@@ -566,46 +563,59 @@ C...modules
                CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             END IF
 
-
-         VARNM = 'CO'
-         LGC_CO = INDEX1( VARNM, N_GC_SPC, GC_SPC )
-         IF ( LGC_CO .LE. 0 ) THEN
-            XMSG = 'Could not find ' // VARNM // 'in species table'
-            CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
-            WRITE(LOGDEV,95101)
-         END IF
-
-         VARNM = 'SO2'
-         LGC_SO2 = INDEX1( VARNM, N_GC_SPC, GC_SPC )
-         IF ( LGC_SO2 .LE. 0 ) THEN
-            XMSG = 'Could not find ' // VARNM // 'in species table'
-            CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
-            WRITE(LOGDEV,95101)
-         END IF
-
-         VARNM = 'HCHO'
-         LGC_HCHO = INDEX1( VARNM, N_GC_SPC, GC_SPC )
-         IF ( LGC_HCHO .LE. 0 ) THEN
-            VARNM = 'FORM'
-            LGC_HCHO = INDEX1( VARNM, N_GC_SPC, GC_SPC )
-            IF ( LGC_HCHO .LE. 0 ) THEN
-               XMSG = 'Could not find HCHO or FORM, i.e., formaldehyde, in species table'
+            VARNM = 'CO'
+            LGC_CO = INDEX1( VARNM, N_GC_SPC, GC_SPC )
+            IF ( LGC_CO .LE. 0 ) THEN
+               XMSG = 'Could not find ' // VARNM // 'in species table'
                CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
                WRITE(LOGDEV,95101)
             END IF
-         END IF
-!...open the photolysis rate diagnostic files
-
-            ODATE = JDATE; OTIME = JTIME
-#ifndef phot_extra_tstep
-            CALL NEXTIME ( ODATE, OTIME, DTSTEP( 1 ) )  ! output timestamp ending time
-#endif
+            
+            VARNM = 'SO2'
+            LGC_SO2 = INDEX1( VARNM, N_GC_SPC, GC_SPC )
+            IF ( LGC_SO2 .LE. 0 ) THEN
+               XMSG = 'Could not find ' // VARNM // 'in species table'
+               CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
+               WRITE(LOGDEV,95101)
+            END IF
+            
+            VARNM = 'HCHO'
+            LGC_HCHO = INDEX1( VARNM, N_GC_SPC, GC_SPC )
+            IF ( LGC_HCHO .LE. 0 ) THEN
+               VARNM = 'FORM'
+               LGC_HCHO = INDEX1( VARNM, N_GC_SPC, GC_SPC )
+               IF ( LGC_HCHO .LE. 0 ) THEN
+                  XMSG = 'Could not find HCHO or FORM, i.e., formaldehyde, in species table'
+                  CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
+                  WRITE(LOGDEV,95101)
+               END IF
+            END IF
+         
+!...open the photolysis diagnostic files
+            ODATE = START_DATE; OTIME = START_TIME; OSTEP = 0
+#ifdef phot_write_start
             IF ( IO_PE_INCLUSIVE ) CALL OPPHOT ( ODATE, OTIME, DTSTEP( 1 ) )
-
-            CALL SUBST_BARRIER
+#else
+            CALL NEXTIME ( ODATE, OTIME, DTSTEP( 1 ) )  ! output timestamp ending time
+            IF ( IO_PE_INCLUSIVE ) CALL OPPHOT ( ODATE, OTIME, DTSTEP( 1 ) )
+! reset ODATE and OTIME for counting 
+            ODATE = START_DATE; OTIME = START_TIME
+#endif
 
          END IF  ! photdiag
+         CALL SUBST_BARRIER
 
+         ALLOCATE ( AERO_EXT_550( NCOLS,NROWS,NLAYS ), STAT = ALLOCSTAT )
+         IF ( ALLOCSTAT .NE. 0 ) THEN
+             XMSG = 'Failure allocating 3D AERO_EXT_550'
+             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         END IF
+         
+         ALLOCATE ( ELMO_EXT_550( NCOLS,NROWS,NLAYS ), STAT = ALLOCSTAT )
+         IF ( ALLOCSTAT .NE. 0 ) THEN
+             XMSG = 'Failure allocating 3D ELMO_EXT_550'
+             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         END IF
 !...set pointers to species O3 and NO2 in CGRID
 
          VARNM = 'O3'
@@ -623,14 +633,6 @@ C...modules
          END IF
 
 
-
-#ifdef phot_extra_tstep
-      ELSE
-         IF ( PHOTDIAG ) THEN
-            ODATE = JDATE; OTIME = JTIME
-            CALL NEXTIME ( ODATE, OTIME, DTSTEP( 2 ) )  ! sync time step
-         END IF
-#endif
       END IF  ! firstime
 
       IF ( INT ( JD_STRAT_O3MIN ) .NE. JDATE ) THEN
@@ -674,12 +676,18 @@ C...modules
 
 !...SA  Write COSINE_ZENITH array at the end of each output tstep
 
+      JTIME_CHK         = .FALSE.
+      OSTEP  = OSTEP + TIME2SEC( DTSTEP( 2 ) )
+      JTIME_CHK = ( OSTEP .GE. TIME2SEC( DTSTEP( 1 ) ) )
+      IF ( JTIME_CHK ) THEN 
+        OSTEP = 0
+        CALL NEXTIME( ODATE, OTIME, DTSTEP( 1 ) )
+      END IF
+#ifdef phot_write_start
+      JTIME_CHK = ( ODATE .EQ. STDATE .AND. OTIME .EQ. STTIME )
+#endif 
+
       IF ( PHOTDIAG ) THEN
-#ifndef phot_extra_tstep
-         ODATE = JDATE; OTIME = JTIME
-         CALL NEXTIME ( ODATE, OTIME, DTSTEP( 2 ) )  ! sync time step
-#endif
-         JTIME_CHK = ( MOD( TIME2SEC( OTIME ), TSTEP ) .EQ. 0 )
 #ifdef parallel_io
          IF ( .NOT. IO_PE_INCLUSIVE ) THEN
             IF ( .NOT. OPEN3( CTM_RJ_1, FSREAD3, PNAME ) ) THEN
@@ -696,11 +704,9 @@ C...modules
             END IF
          END IF
 #endif
-      ELSE
-         JTIME_CHK         = .FALSE.
       END IF
 
-      CALCULATE_EXT_550 = JTIME_CHK
+      CALCULATE_EXT_550 = .TRUE. !JTIME_CHK
 
 !...If sun below horizon at all cells, zero photolysis rates & exit
 !...  (assumes sun below horizon at *all* levels!)
@@ -711,18 +717,17 @@ C...modules
          RJ_SUB = 0.0
          RJ_RES = 0.0
          ETOT_SFC_WL  = 0.0
-
+         AERO_EXT_550 = 0.0
+         TAU_AERO_550 = 0.0
 
 !...Initialize ETOT_SFC, TAU_AERO, TAU_TOT, TAUO3_TOP to 0.0
 
 !...Write data to output diagnostic file
 
-         IF ( JTIME_CHK ) THEN
+         IF ( JTIME_CHK .AND. PHOTDIAG ) THEN
 
             TAUO3_TOP_WL = 0.0
             TAU_AERO_WL  = 0.0
-! commented out because TAU_AERO_550 is set to zero after allocation and after written to PHOTDIAG1
-!           TAU_AERO_550 = 0.0
             TAU_CLOUD_WL = 0.0
 #ifdef phot_debug
             SSA_CLOUD_WL = 0.0
@@ -732,7 +737,6 @@ C...modules
             TOT_EXT      = 0.0
             GAS_EXT      = 0.0
             AERO_EXT     = 0.0
-            AERO_EXT_550 = 0.0
             AERO_SSA     = 0.0
             AERO_ASYM    = 0.0
             ACTINIC_FX   = 0.0
@@ -764,7 +768,7 @@ C...modules
                END DO
             END DO   
 
-         END IF  ! if JTIME_CHK
+         END IF  ! if JTIME_CHK and PHOTDIAG
 
       ELSE  ! all cells not dark
 
@@ -777,6 +781,8 @@ C...modules
 
                COSZEN = COSINE_ZENITH( COL,ROW ) ! local cosine of solar zenith angle
 
+               TAU_AERO_550( COL,ROW ) = 0.0
+               AERO_EXT_550( COL,ROW,: ) = 0.0
                IF ( COSZEN .LE. 0.0 ) THEN
 !...the cell is dark: set variables to zero and cycle
                   RJ( COL,ROW, :,: ) = 0.0
@@ -784,7 +790,7 @@ C...modules
                   RJ_SUB( COL,ROW, :,: ) = 0.0
                   ETOT_SFC_WL ( COL,ROW, : ) = 0.0
 
-                  IF ( JTIME_CHK ) THEN
+                  IF ( JTIME_CHK .AND. PHOTDIAG ) THEN
                      TAUO3_TOP_WL( COL,ROW, : ) = 0.0
                      TAU_AERO_WL ( COL,ROW, : ) = 0.0
                      TAU_CLOUD_WL( COL,ROW, : ) = 0.0
@@ -796,7 +802,6 @@ C...modules
                      TOT_EXT     ( COL,ROW, :,: ) = 0.0
                      GAS_EXT     ( COL,ROW, :,: ) = 0.0
                      AERO_EXT    ( COL,ROW, :,: ) = 0.0
-                     AERO_EXT_550( COL,ROW, : )   = 0.0
                      AERO_SSA    ( COL,ROW, :,: ) = 0.0
                      AERO_ASYM   ( COL,ROW, :,: ) = 0.0
                      ACTINIC_FX  ( COL,ROW, :,: ) = 0.0
@@ -947,6 +952,16 @@ C...modules
      &                           TAU_RAY, SSA, TAU_CLOUD, TOTAL_O3_COLUMN )
 
 !...load diagnostic file arrays
+               ! Aerosol extinction and optical depth are saved every
+               ! time step
+               FORALL ( L = 1:NLAYS )
+                  AERO_EXT_550( COL,ROW,L ) = 1000.0 * AERO_EXTI_550( L )
+               END FORALL
+               DO LEV = 1, NLAYS
+                  TAU_AERO_550 ( COL,ROW ) = TAU_AERO_550 ( COL,ROW )
+     &                                     + AERO_EXTI_550( LEV ) * BLKDZ( LEV )
+               END DO
+
                IF ( PHOTDIAG .AND. .NOT. STRATO3_MINS_MET ) THEN
                     N_EXCEED_TROPO3( COL,ROW ) =  N_EXCEED_TROPO3( COL,ROW ) + 1.0
                     TROPO_O3_EXCEED( COL,ROW ) = TROPO_O3_COLUMN/(MAX_TROPOO3_FRAC*TOTAL_O3_COLUMN) - 1.0
@@ -957,7 +972,7 @@ C...modules
                   ETOT_SFC_WL ( COL,ROW,IWL ) = IRRADIANCE( 1,IWL )
                END FORALL   
 
-               IF ( JTIME_CHK  ) THEN
+               IF ( JTIME_CHK .AND. PHOTDIAG  ) THEN
                   TOTAL_OC( COL,ROW )         = TOTAL_O3_COLUMN
                   TRANSMIS_DIFFUSE( COL,ROW ) = TRANSMISSION
                   TRANSMIS_DIRECT( COL,ROW )  = TRANS_DIRECT
@@ -975,13 +990,6 @@ C...modules
 #endif
                   END DO
 
-                  FORALL ( L = 1:NLAYS_DIAG )
-                     AERO_EXT_550( COL,ROW,L ) = 1000.0 * AERO_EXTI_550( L )
-                  END FORALL
-                  DO LEV = 1, NLAYS
-                     TAU_AERO_550 ( COL,ROW ) = TAU_AERO_550 ( COL,ROW )
-     &                                        + AERO_EXTI_550( LEV ) * BLKDZ( LEV )
-                  END DO
 
                   DO L = 1, N_DIAG_WVL
                      IWL = DIAG_WVL( L )
@@ -1002,7 +1010,7 @@ C...modules
                      END FORALL
                   END DO
                   IF ( COSZEN .LE. COS85 ) THEN 
-                  ! calculate because NEW_OPTICS sets BLKDZ and TROPO_O3_COLUMN to zero
+                     ! calculate because NEW_OPTICS sets BLKDZ and TROPO_O3_COLUMN to zero
                      BLKDZ( 1 ) = BLKZF( 2 )
                      DO L = 2, NLAYS
                         BLKDZ( L ) = BLKZF( L+1 ) - BLKZF( L )
@@ -1084,7 +1092,7 @@ C...modules
      &                                             + ACM_CLOUDS( COL,ROW ) * IRRADIANCE( 1,IWL )
                      END DO
 
-                     IF ( JTIME_CHK ) THEN
+                     IF ( JTIME_CHK .AND. PHOTDIAG ) THEN
 
                         TRANSMIS_DIRECT( COL,ROW )  = MSCALE * TRANSMIS_DIRECT( COL,ROW )
      &                                              + ACM_CLOUDS( COL,ROW ) * TRANS_DIRECT
@@ -1124,7 +1132,7 @@ C...modules
                   END IF
                END IF ! not USE_ACM_CLOUD and  ACM_CLOUDS > 0
 
-               IF ( JTIME_CHK ) THEN ! compute clear sky reflection and transmission coefficients
+               IF ( JTIME_CHK .AND. PHOTDIAG ) THEN ! compute clear sky reflection and transmission coefficients
                   IF ( ANY( CLOUDS ) ) THEN
                      IF ( CFRAC_2D( COL,ROW ) .GT. 0.0 ) THEN ! resolved and subgrid clouds exist
                         CLOUDS         = .FALSE.
@@ -1156,6 +1164,10 @@ C...modules
          END DO LOOP_ROWS
 
       END IF
+         
+      ! Store PM Diagnostic AOD and extinction
+      ELMO_AOD_550 = TAU_AERO_550
+      ELMO_EXT_550 = AERO_EXT_550
 
 !...report on whether stratospheric ozone column satisfies climatological minimums
       IF( N_TROPO_O3_TOGGLE .GT. 0 )THEN
@@ -1169,6 +1181,7 @@ C...modules
 !...write diagnostic data to output file at the end of every output tstep
 
       IF ( JTIME_CHK ) THEN
+        IF ( PHOTDIAG ) THEN
 
          VARNM = 'COSZENS'
          IF ( .NOT. WRITE3( CTM_RJ_1, VARNM, ODATE, OTIME,
@@ -1367,7 +1380,6 @@ C...modules
             XMSG = 'Error writing variable ' // VARNM
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
-         TAU_AERO_550 = 0.0
 
          WRITE( LOGDEV, '( /5X, 3( A, :, 1X ), I8, ":", I6.6 )' )
      &          'Photolysis Surface Summary written to', CTM_RJ_1,
@@ -1443,7 +1455,9 @@ C...modules
      &          'Radiative and Optical Data written to', CTM_RJ_3,
      &          'for date and time', ODATE, OTIME
 
+        END IF   ! PHOTDIAG
       END IF   ! if JTIME_CHK
+      TAU_AERO_550 = 0.0
 
 1003  FORMAT( 8X, 'Processor ',I4.4,' is in darkness at ', I8.7, ':', I6.6,
      &        1X, 'GMT - no photolysis')

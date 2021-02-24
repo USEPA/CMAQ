@@ -240,7 +240,7 @@ C...define sens wet deposition output descriptors for gaseous species
                  SPC = SPC + 1
                  DO NP = 1, NPMAX
                    SENNUM = ( SPC - 1 ) * NPMAX + NP
-                   VNAME3D ( SENNUM ) = TRIM( GC_WDEP( SPC )( 1:7 ) ) //'_'// SEN_PAR( NP )
+                   VNAME3D ( SENNUM ) = TRIM( GC_WDEP( SPC )( 1:12 ) ) //'_'// SEN_PAR( NP )
                    UNITS3D ( SENNUM ) = 'kg/hectare'
                    S_WETDEPSPC ( SENNUM ) = VNAME3D ( SENNUM )
                  END DO
@@ -254,7 +254,7 @@ C...define wet deposition output descriptors for aerosol species
                   SPC = SPC + 1
                   DO NP = 1, NPMAX
                      SENNUM = ( NPMAX * N_GC_WDEP ) + ( SPC - 1 ) *NPMAX + NP
-                     VNAME3D ( SENNUM ) = TRIM( AE_WDEP( SPC )( 1:7 ) ) //'_'// SEN_PAR( NP )
+                     VNAME3D ( SENNUM ) = TRIM( AE_WDEP( SPC )( 1:12 ) ) //'_'// SEN_PAR( NP )
                      IF ( INDEX( AE_WDEP( SPC ), 'NUM' ) .GT. 0 ) THEN
                         UNITS3D ( SENNUM ) = 'number/hectare'
                      ELSE IF ( INDEX( AE_WDEP( SPC ), 'SRF' ) .GT. 0 ) THEN
@@ -274,7 +274,7 @@ C...define wet deposition output descriptors for non-reactive species
                   SPC = SPC + 1
                   DO NP = 1, NPMAX
                      SENNUM = NPMAX * ( N_GC_WDEP + N_AE_WDEP ) + ( SPC - 1 ) * NPMAX + NP
-                     VNAME3D ( SENNUM ) = TRIM( NR_WDEP( SPC )( 1:7 ) ) //'_'// SEN_PAR( NP )
+                     VNAME3D ( SENNUM ) = TRIM( NR_WDEP( SPC )( 1:12 ) ) //'_'// SEN_PAR( NP )
                      UNITS3D ( SENNUM ) = 'kg/hectare'
                      S_WETDEPSPC ( SENNUM ) = VNAME3D ( SENNUM )
                   END DO
@@ -288,7 +288,7 @@ C...define wet deposition output descriptors for tracer species
                   SPC = SPC + 1
                   DO NP = 1, NPMAX
                      SENNUM = NPMAX * ( N_GC_WDEP + N_AE_WDEP + N_NR_WDEP ) + ( SPC - 1 ) * NPMAX + NP
-                     VNAME3D ( SENNUM ) = TRIM( TR_WDEP( SPC )( 1:7 ) ) //'_'// SEN_PAR( NP )
+                     VNAME3D ( SENNUM ) = TRIM( TR_WDEP( SPC )( 1:12 ) ) //'_'// SEN_PAR( NP )
                      UNITS3D ( SENNUM ) = 'kg/hectare'
                      S_WETDEPSPC ( SENNUM ) = VNAME3D ( SENNUM )
                   END DO

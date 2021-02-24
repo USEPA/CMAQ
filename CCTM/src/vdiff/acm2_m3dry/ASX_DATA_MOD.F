@@ -553,14 +553,17 @@ C-----------------------------------------------------------------------
          Grid_Data%LU_Type = cat_lu
          Grid_Data%WSAT    = 0.0
          Grid_Data%WFC     = 0.0
-
-         If ( ABFLUX  ) Then
+         
+         If ( ABFLUX .or. BIOGEMIS_MEGAN  ) Then
             ALLOCATE( Met_Data%SOIM2    ( NCOLS,NROWS ),
      &                STAT = ALLOCSTAT )
             If ( ALLOCSTAT .Ne. 0 ) Then
                XMSG = 'Failure allocating layer 2 soil moisture'
                Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             End If
+         END IF
+         
+         If ( ABFLUX ) Then
 
             ALLOCATE( Grid_Data%WWLT   ( NCOLS,NROWS ),
      &                Grid_Data%BSLP   ( NCOLS,NROWS ),
@@ -755,7 +758,7 @@ C Vegetation and surface vars
 C Soil vars
          call interpolate_var ('SOIM1', jdate, jtime, Met_Data%SOIM1)
 
-         If ( ABFLUX ) Then
+         If ( ABFLUX .or. BIOGEMIS_MEGAN) Then
             call interpolate_var ('SOIM2', jdate, jtime, Met_Data%SOIM2)
          End If
 
