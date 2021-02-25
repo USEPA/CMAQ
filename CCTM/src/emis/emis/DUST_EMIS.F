@@ -242,6 +242,7 @@ C   can be printed in EMIS_MAP
          Allocate( Em_File_Surr( IDUSTSRM )%conv ( ndust_spc*2 ) )
          Allocate( Em_File_Surr( IDUSTSRM )%basis( ndust_spc*2 ) )
          Allocate( Em_File_Surr( IDUSTSRM )%larea( ndust_spc*2 ) )
+         Allocate( Em_File_Surr( IDUSTSRM )%lareaadj( ndust_spc*2 ) )
          Em_File_Surr( IDUSTSRM )%arry( : ) = 'NOT_AVAILABLE'
          do i = 1,ndust_spc
             IF ( dust_spc( i )%spcfac(1) .NE. 0.0 ) 
@@ -258,6 +259,7 @@ C   can be printed in EMIS_MAP
          Em_File_Surr( IDUSTSRM )%conv ( : ) = 1.0
          Em_File_Surr( IDUSTSRM )%basis( : ) = 'MASS'
          Em_File_Surr( IDUSTSRM )%larea( : ) = .FALSE.
+         Em_File_Surr( IDUSTSRM )%lareaadj( : ) = .FALSE.
  
 C...Count the number of mass emissions species
         n_mass_emissions = 0

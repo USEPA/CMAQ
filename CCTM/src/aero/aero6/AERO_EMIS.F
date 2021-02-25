@@ -62,7 +62,7 @@ C   07 Nov 14 J.Bash: Updated for the ASX_DATA_MOD shared data module.
 C-----------------------------------------------------------------------
 
       USE AERO_DATA, ONLY: N_EM_AERO_REF, N_MODE
-      USE EMIS_VARS, ONLY: EMLAYS, EM_STREAM_SIZE, N_EM_SRM
+      USE EMIS_VARS, ONLY: EMLAYS, EM_STREAM_SIZE, N_EM_SRM, CELLVOL
 
       IMPLICIT NONE
       SAVE 
@@ -70,7 +70,7 @@ C aerosol emissions: [ppmv/s] for mass & number spcs, [m2/mol/s] for surface are
       PUBLIC EMISS_SIZE_DIST, AERO_EMIS_INIT,
      &       MAP_EMtoAERO, MAP_EMtoMODE, MAP_NUMtoEM, MAP_SRFtoEM,
      &       MAP_EMtoNUM, MAP_EMtoSRF, MAP_EMtoSD, EM_STREAM_SIZE, SD_SPLIT,
-     &       CELLVOL, CELLHGT, EM_SD_INIT
+     &       EM_SD_INIT
       PRIVATE
 
 C Variables for converting mass emissions rate to number emissions rate
@@ -82,10 +82,6 @@ C Variables for converting mass emissions rate to 2nd moment emissions rate
 C Variables for Saving split factors between emission modes
       REAL, ALLOCATABLE :: SD_SPLIT( :,: )
 
-C Variables for the thickness and volume of each grid cell
-      REAL,    ALLOCATABLE :: CELLHGT( : ) ! grid-cell height [sigma]
-      REAL,    ALLOCATABLE :: CELLVOL( : ) ! grid-cell volume [m2*sigma]
- 
 C Emission rate of all aerosol species interpolated to current time
       INTEGER, ALLOCATABLE :: MAP_EMtoAERO( : )   
       INTEGER, ALLOCATABLE :: MAP_EMtoMODE( : )   
@@ -202,10 +198,6 @@ C External Functions:
 C Local Variables:
          REAL  DGV, SG, SPLIT_ACCUM
 
-C Variables for calculating the volume of each grid cell
-         REAL  DX1, DX2                            ! grid-cell width and length [m]
-         REAL  CELLAREA                            ! grid-cell area [m2]
-
 C Domain decomposition info from emission and meteorology files
          INTEGER GXOFF, GYOFF          ! origin offset
 
@@ -310,44 +302,13 @@ C *** Set up emissions size distribution arrays
             END DO
          END IF
        END DO
-
-C *** Allocate memory for CELLHGT and CELLVOL
-         ALLOCATE ( CELLHGT( EMLAYS ),
-     &              CELLVOL( EMLAYS ), STAT = STATUS )
-         IF ( STATUS .NE. 0 ) THEN
-            XMSG = '*** CELLHGT or CELLVOL memory allocation failed'
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-         END IF
-         
-         ALLOCATE ( MAP_NUMtoEM ( N_MODE ),
-     &              MAP_SRFtoEM ( N_MODE ), STAT = STATUS )
-         IF ( STATUS .NE. 0 ) THEN
-            XMSG = '*** memory allocation failed for '
-     &           // 'NUM_MAP, NUM_FAC, SRF_MAP, SRF_FAC'
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-         END IF
-
-C *** Get length and width of each grid cell
-C     note: crude estimate is made for LAT/LONG coordinate systems
-         IF ( GDTYP_GD .EQ. LATGRD3 ) THEN
-            DX1 = DG2M * XCELL_GD ! in m
-            DX2 = DG2M * YCELL_GD
-     &          * COS( PI180*( YORIG_GD + YCELL_GD
-     &          * FLOAT( GL_NROWS/2 ) ) ) ! in m
-         ELSE
-            DX1 = XCELL_GD        ! in m
-            DX2 = YCELL_GD        ! in m
-         END IF
-
-C *** Get height of grid cell in each layer in sigma coordinates
-C     Multiply by grid area [m2] to obtain grid volume
-         CELLAREA = DX1 * DX2
-         DO L = 1, EMLAYS
-            CELLHGT( L ) = X3FACE_GD( L ) - X3FACE_GD( L-1 )
-            CELLVOL( L ) = CELLHGT( L ) * CELLAREA
-         END DO
-
-         END FUNCTION  AERO_EMIS_INIT
+                  
+       ALLOCATE ( MAP_NUMtoEM ( N_MODE ),
+     &            MAP_SRFtoEM ( N_MODE ), STAT = STATUS )
+       CALL CHECKMEM( STATUS, 'MAP_NUMtoEM', PNAME )
+       CALL CHECKMEM( STATUS, 'MAP_SRFtoEM', PNAME )
+ 
+       END FUNCTION  AERO_EMIS_INIT
 
 C-----------------------------------------------------------------------
 
@@ -553,7 +514,7 @@ C *** Calculate scaling factor for converting mass emissions into [ug/m3/s]
 C     note: RJACM converts grid heights from sigma coordinates to meters
 C     Also calculate scaling factors for converting to molar-mixing-ratio units
          DO LAY = 1,NL
-           GSFAC( LAY,:,: ) = Met_Data%RJACM( :,:,LAY ) / CELLVOL( LAY ) ![ug/s] to [ug/m3/s]
+           GSFAC( LAY,:,: ) = Met_Data%RJACM( :,:,LAY ) / CELLVOL( :,:,LAY ) ![ug/s] to [ug/m3/s]
          END DO
  
 C *** Apply Aerosol Size Distribution

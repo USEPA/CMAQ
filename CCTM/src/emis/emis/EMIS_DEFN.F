@@ -83,7 +83,6 @@ C-----------------------------------------------------------------------
       INTEGER, SAVE :: NDATE, NTIME  ! step next date/time (beis)
 
       REAL(8), SAVE   :: DX1, DX2    ! CX x1- and x2-cell widths
-      REAL, SAVE      :: CELLAREA    ! Cell Area for Emission Fluxes
 
       CONTAINS
 
@@ -109,6 +108,9 @@ C-----------------------------------------------------------------------
         USE DDM3D_DEFN, ONLY: NP, NPMAX, SVDEMIS_DIFF
 #endif
 
+#ifdef mpas
+        USE COUPLER_MODULE, ONLY : MPAS_CELL_AREA => CELL_AREA
+#endif
          IMPLICIT NONE
 
 C Includes:
@@ -125,21 +127,44 @@ C Local Variables:
          CHARACTER( 16 ) :: PNAME = 'EMIS_INIT'
          CHARACTER( 80 ) :: VARDESC   ! env variable description
          CHARACTER( 120 ) :: XMSG = ' '
-         INTEGER V, STATUS, ISRM
+         INTEGER V, L, STATUS, ISRM
 
 C-----------------------------------------------------------------------
 
          SUCCESS = .TRUE.
 
+         ! Define Projected Gridd Cell Areas
+         ALLOCATE( CELLAREA( NCOLS,NROWS ),STAT=STATUS )
+         CALL CHECKMEM( STATUS, 'CELLAREA', PNAME )
+         ALLOCATE( CELLHGT( NLAYS ),STAT=STATUS )
+         CALL CHECKMEM( STATUS, 'CELLHGT', PNAME )
+         ALLOCATE( CELLVOL( NCOLS,NROWS,NLAYS ),STAT=STATUS )
+         CALL CHECKMEM( STATUS, 'CELLVOL', PNAME )
+#ifdef mpas
+         CELLAREA(:,:) = MPAS_CELL_AREA(:,:)
+#else
          IF ( GDTYP_GD .EQ. LATGRD3 ) THEN
             DX1 = DG2M * XCELL_GD ! in m.
             DX2 = DG2M * YCELL_GD
-     &          * COS( PI180*( YORIG_GD + YCELL_GD*FLOAT( GL_NROWS/2 )))! in m.
+     &          * COS( PI180*( YORIG_GD + 
+     &            YCELL_GD*FLOAT( GL_NROWS/2 )))! in m.
          ELSE
             DX1 = XCELL_GD        ! in m.
             DX2 = YCELL_GD        ! in m.
          END IF
-         CELLAREA = REAL( DX1 * DX2, 4 )
+         CELLAREA(:,:) = REAL( DX1 * DX2, 4 )
+#endif
+         ! Get height of grid cell in each layer in sigma coordinates
+         ! Multiply by grid area [m2] to obtain grid volume
+         DO L = 1, NLAYS
+            CELLHGT( L ) = X3FACE_GD( L ) - X3FACE_GD( L-1 )
+            CELLVOL( :,:,L ) = CELLHGT( L ) * CELLAREA(:,:)
+         END DO
+ 
+         ! REMINDER: CELLAREA is projected grid cell area (e.g. 12 x 12
+         ! km^2). To get real area on the Earth for a conformal grid, you
+         ! should divide CELLAREA by the MAP SCALE FACTOR squared, typically
+         ! stored in CMAQ as MSFX2
 
 C Retrieve Number of Emission Files of Various Types (sectors)
          CALL EM_FILE_INIT( JDATE, JTIME )
@@ -562,7 +587,7 @@ C Retrieve Emissions from All Stream Types
              ! Retrieve Sea Spray Aerosol Emissions 
              CASE ( 7 )
                NL = 1
-               CALL GET_SSEMIS ( JDATE, JTIME, TSTEP, CELLVOL( 1 ), CELLHGT( 1 ) )
+               CALL GET_SSEMIS ( JDATE, JTIME, TSTEP, CELLVOL( :,:,1 ), CELLHGT( 1 ) )
                FORALL( ISTR = 1:N_EMIS_ISTR, MAP_EMtoSURR( ISTR,ISRM ) .GT. 0 )
                   VDEMIS_READ( ISTR,1,:,: ) = SSOUTM( MAP_EMtoSURR( ISTR,ISRM ),:,: ) 
                END FORALL
@@ -865,6 +890,7 @@ C-----------------------------------------------------------------------
 
 C     Apply region-dependent scaling of emissions rules.
 C-----------------------------------------------------------------------
+      USE CENTRALIZED_IO_MODULE, ONLY: MSFX2
           
       IMPLICIT NONE
 
@@ -886,15 +912,16 @@ C-----------------------------------------------------------------------
       TYPE ( FAC_ST ), ALLOCATABLE, SAVE :: EM_FAC1_ST( : )
 
       INTEGER ISTR, IFAC, L, NFAC_MAX, IRGN, OP, JSRM, ISTR_TMP, NISTR
-      INTEGER, ALLOCATABLE :: MAP_FACtoISTR( : )
-      REAL    FAC
+      INTEGER, ALLOCATABLE    :: MAP_FACtoISTR( : )
+      REAL, ALLOCATABLE, SAVE :: FAC( :,: )
       LOGICAL, SAVE :: FIRSTIME = .TRUE.
-      LOGICAL :: LAREA
+      LOGICAL :: LAREA, LAREAADJ
 
 
       IF ( FIRSTIME ) THEN
          FIRSTIME = .FALSE.
          ALLOCATE( NFAC( N_EMIS_ISTR ) )
+         ALLOCATE( FAC( NCOLS,NROWS ) )
 
          ! Build Array for primary factor. This algorithm is optimized
          ! by assuming that most instructions only have one factor (i.e.
@@ -934,7 +961,9 @@ C-----------------------------------------------------------------------
                    ! If the emission variable is a flux, then multiply
                    ! by grid cell area
                    IF ( EM_FAC_ST( ISTR,JSRM )%AREA( 1 ) ) 
-     &                FAC1( ISTR_TMP,L,:,: ) = FAC1( ISTR_TMP,L,:,: ) * CELLAREA
+     &                FAC1( ISTR_TMP,L,:,: ) = FAC1( ISTR_TMP,L,:,: ) * CELLAREA(:,:)
+                   IF ( EM_FAC_ST( ISTR,JSRM )%AREAADJ( 1 ) ) 
+     &                FAC1( ISTR_TMP,L,:,: ) = FAC1( ISTR_TMP,L,:,: ) / MSFX2(:,:)
 
                  END DO
                END IF
@@ -977,33 +1006,47 @@ C-----------------------------------------------------------------------
 
         DO IFAC = 2,NFAC( ISTR )      
 
-          FAC  = EM_FAC_ST( ISTR,ISRM )%FAC( IFAC )
-          OP   = EM_FAC_ST( ISTR,ISRM )%OP ( IFAC )
-          IRGN = EM_FAC_ST( ISTR,ISRM )%REG( IFAC )
-          LAREA= EM_FAC_ST( ISTR,ISRM )%AREA(IFAC )
+          FAC(:,:)= EM_FAC_ST( ISTR,ISRM )%FAC( IFAC )
+          OP      = EM_FAC_ST( ISTR,ISRM )%OP ( IFAC )
+          IRGN    = EM_FAC_ST( ISTR,ISRM )%REG( IFAC )
+          LAREA   = EM_FAC_ST( ISTR,ISRM )%AREA(IFAC )
+          LAREAADJ= EM_FAC_ST( ISTR,ISRM )%AREAADJ(IFAC )
 
           IF ( IRGN .EQ. 1 ) THEN
             !Apply scaling using EM_FAC_ST 
             IF ( OP .EQ. 1 .AND. NFAC( ISTR ) .EQ. 1 ) THEN ! Add New Emission
-                VDEMIS( ISTR,1:NL,:,: ) = VDEMIS0( ISTR,1:NL,:,: ) * FAC
+              DO L = 1,NL
+                 VDEMIS( ISTR,L,:,: ) = VDEMIS0( ISTR,L,:,: ) * FAC
+              END DO
             ELSE IF ( OP.EQ.1 ) THEN   ! Add Additional Emission 
-                IF ( LAREA ) FAC = FAC * CELLAREA
-                VDEMIS( ISTR,1:NL,:,: ) = VDEMIS( ISTR,1:NL,:,: ) +
-     &                 VDEMIS0( ISTR,1:NL,:,: ) * FAC
+              IF ( LAREA ) FAC = FAC * CELLAREA     
+              IF ( LAREAADJ ) FAC = FAC / MSFX2 
+              DO L = 1,NL
+                 VDEMIS( ISTR,L,:,: ) = VDEMIS( ISTR,L,:,: ) +
+     &                   VDEMIS0( ISTR,L,:,: ) * FAC(:,:)
+              END DO
             ELSE IF ( OP.EQ.2 ) THEN ! Multiply Emissions Rule
-                VDEMIS( ISTR,1:NL,:,: ) = VDEMIS( ISTR,1:NL,:,: ) * FAC
+              DO L = 1,NL
+                 VDEMIS( ISTR,L,:,: ) = VDEMIS( ISTR,L,:,: ) * FAC
+              END DO
             ELSE IF ( OP.EQ.3 ) THEN ! Overwrite Existing Rule
-                IF ( LAREA ) FAC = FAC * CELLAREA
-                VDEMIS( ISTR,1:NL,:,: ) = VDEMIS0( ISTR,1:NL,:,: ) * FAC
+              IF ( LAREA ) FAC = FAC * CELLAREA
+              IF ( LAREAADJ ) FAC = FAC / MSFX2 
+              DO L = 1,NL
+                 VDEMIS( ISTR,L,:,: ) = 
+     &                   VDEMIS0( ISTR,L,:,: ) * FAC(:,:)
+              END DO
             END IF
           ELSE
               
             !Apply scaling using EM_FAC_ST and VDEMIS_RGN
             IF ( OP.EQ.1 ) THEN   ! Add Additional Emission 
               IF ( LAREA ) FAC = FAC * CELLAREA
+              IF ( LAREAADJ ) FAC = FAC / MSFX2
               DO L = 1,NL
-                VDEMIS( ISTR,L,:,: ) = VDEMIS( ISTR,L,:,: ) +
-     &             VDEMIS0( ISTR,L,:,: ) * FAC * EM_REG_FAC( :,:,IRGN )
+                 VDEMIS( ISTR,L,:,: ) = VDEMIS( ISTR,L,:,: ) +
+     &                   VDEMIS0( ISTR,L,:,: ) * FAC(:,:) 
+     &                           * EM_REG_FAC( :,:,IRGN )
               END DO
             ELSE IF ( OP.EQ.2 ) THEN ! Multiply Emissions Rule
               DO L = 1,NL
@@ -1013,10 +1056,12 @@ C-----------------------------------------------------------------------
               END DO
             ELSE IF ( OP.EQ.3 ) THEN ! Overwrite Existing Rule
               IF ( LAREA ) FAC = FAC * CELLAREA
+              IF ( LAREAADJ ) FAC = FAC / MSFX2
               DO L = 1,NL
-                VDEMIS( ISTR,L,:,: ) = VDEMIS( ISTR,L,:,: ) *
-     &               (1.0 - EM_REG_FAC( :,:,IRGN ) ) +
-     &             VDEMIS0( ISTR,L,:,: ) * FAC * EM_REG_FAC( :,:,IRGN )
+                 VDEMIS( ISTR,L,:,: ) = VDEMIS( ISTR,L,:,: ) *
+     &                 (1.0 - EM_REG_FAC( :,:,IRGN ) ) +
+     &                  VDEMIS0( ISTR,L,:,: ) * FAC(:,:) 
+     &                          * EM_REG_FAC( :,:,IRGN )
               END DO
             END IF
 
@@ -1224,7 +1269,7 @@ C-----------------------------------------------------------------------
       DO L = 1,NL
         CNVTC( L,:,: ) = 1.0E3 / ( CNVTI( L ) * Met_Data%RRHOJ( :,:,L ) ) ! Gas Moles: ppmv/s -> mol/s
         CONVM( L,:,: ) = (1.0 / MWAIR) * GPKG * Met_Data%DENS( :,:,L )    ! Aer. Mass: ppmv/s -> umol/s
-     &                   / Met_Data%RJACM( :,:,L ) * CELLVOL( L )         ! m2/mol/s -> m2/s
+     &                   / Met_Data%RJACM( :,:,L ) * CELLVOL( :,:,L )     ! m2/mol/s -> m2/s
       END DO                                                                
       CONVN( 1:NL,:,: ) = CONVM( 1:NL,:,: )                               ! Aer. Num:  N/mol/s -> N/s
 
@@ -1309,7 +1354,7 @@ C-----------------------------------------------------------------------
          INTEGER, INTENT(IN)  :: JDATE, JTIME
          INTEGER    :: N_UNUSED, REGNUM, N_USED
 
-         INTEGER    :: STRT, PTSTRT, ISPC, IDX, IX, ISUR, IRULE,
+         INTEGER    :: STRT, PTSTRT, ISPC, IDX, IX, ISUR, IRULE, IAREA,
      &                 N, IM, IAERO, V, ISRM, NSPC, IA, IDIFF, JDX, JM,
      &                 ISTR, ISUR0, ISRM0, IEM, KDX, JSD, JEM, ISD,
      &                 IFAC, IRGN, ISTRN, NFAC, NCHEM, ICHEM, IFAM, F,
@@ -1353,7 +1398,7 @@ C-----------------------------------------------------------------------
          CHARACTER( 4 ), ALLOCATABLE :: EM_BASIS( :,:,: )
          REAL,  ALLOCATABLE          :: EM_CONV( :,:,: )
          INTEGER, ALLOCATABLE :: EM_REG( :,:,: )
-         INTEGER              :: N_EM_RULE
+         INTEGER              :: N_EM_RULE, N_EM_AREA
          LOGICAL              :: LREMOVE
 
 C Retrieve Environment Variable Letting User Ignore this Check
@@ -1396,13 +1441,15 @@ C and allowing the model to proceed.
      &           ISRM .EQ. IDUSTSRM.OR. ISRM .EQ. ILTSRM  .OR.
      &           ISRM .EQ. IMGSRM .OR. ISRM .EQ. IMIOGSRM ) CYCLE
 
-            ALLOCATE( EM_FILE_SURR( ISRM )%MW   ( EM_FILE_SURR( ISRM )%LEN ) )
-            ALLOCATE( EM_FILE_SURR( ISRM )%USED ( EM_FILE_SURR( ISRM )%LEN ) )
-            ALLOCATE( EM_FILE_SURR( ISRM )%CONV ( EM_FILE_SURR( ISRM )%LEN ) )
-            ALLOCATE( EM_FILE_SURR( ISRM )%BASIS( EM_FILE_SURR( ISRM )%LEN ) )
-            ALLOCATE( EM_FILE_SURR( ISRM )%LAREA( EM_FILE_SURR( ISRM )%LEN ) )
-            EM_FILE_SURR( ISRM )%USED = .FALSE.
-            EM_FILE_SURR( ISRM )%LAREA= .FALSE.
+            ALLOCATE( EM_FILE_SURR( ISRM )%MW      ( EM_FILE_SURR( ISRM )%LEN ) )
+            ALLOCATE( EM_FILE_SURR( ISRM )%USED    ( EM_FILE_SURR( ISRM )%LEN ) )
+            ALLOCATE( EM_FILE_SURR( ISRM )%CONV    ( EM_FILE_SURR( ISRM )%LEN ) )
+            ALLOCATE( EM_FILE_SURR( ISRM )%BASIS   ( EM_FILE_SURR( ISRM )%LEN ) )
+            ALLOCATE( EM_FILE_SURR( ISRM )%LAREA   ( EM_FILE_SURR( ISRM )%LEN ) )
+            ALLOCATE( EM_FILE_SURR( ISRM )%LAREAADJ( EM_FILE_SURR( ISRM )%LEN ) )
+            EM_FILE_SURR( ISRM )%USED    = .FALSE.
+            EM_FILE_SURR( ISRM )%LAREA   = .FALSE.
+            EM_FILE_SURR( ISRM )%LAREAADJ= .FALSE.
 
             DO ISUR = 1,EM_FILE_SURR( ISRM )%LEN
                ! Assign Default Molecular Weight to Each Surrogate Species
@@ -1441,9 +1488,60 @@ C and allowing the model to proceed.
      &                                EM_FILE_SURR( ISRM )%CONV ( ISUR ),
      &                                EM_FILE_SURR( ISRM )%BASIS( ISUR ),
      &                                EM_FILE_SURR( ISRM )%LAREA( ISUR ) )
+               ! Default for detecting area fluxes is to adjust to
+               ! projected grid
+               IF ( EM_FILE_SURR( ISRM )%LAREA( ISUR ) ) 
+     &              EM_FILE_SURR( ISRM )%LAREAADJ( ISUR ) = .TRUE.
             END DO
          END DO
 
+! Process Area Normalization User Controls. Override Automatic defaults
+! with forced area normalization and/or projection adjustment.
+         N_EM_AREA = 0
+         DO IAREA = 1,N_AREA_REG
+            IF( AREA_NML( IAREA )%STREAM .EQ. '' ) EXIT
+            N_EM_AREA = IAREA
+         END DO
+
+         ALLOCATE( EM_STREAM_RULE  ( N_EM_SRM   ) )
+         DO IAREA = 1,N_EM_AREA
+            LREMOVE = .FALSE.
+            CALL INTERPRET_EM_RULE_STREAM( AREA_NML( IAREA )%STREAM, IAREA, 
+     &              EM_STREAM_RULE, LREMOVE )
+            IF ( LREMOVE ) CYCLE
+
+            ! If the 'ALL' keyword was used, set all of the online
+            ! sources to false.
+            IF ( AREA_NML(IAREA)%STREAM .EQ. 'ALL' ) THEN
+               IF ( ISEASRM .GT. 0 )  EM_STREAM_RULE( ISEASRM  )  = .FALSE. 
+               IF ( IBIOSRM .GT. 0 )  EM_STREAM_RULE( IBIOSRM  )  = .FALSE. 
+               IF ( IDUSTSRM .GT. 0 ) EM_STREAM_RULE( IDUSTSRM  ) = .FALSE. 
+               IF ( ILTSRM .GT. 0 )   EM_STREAM_RULE( ILTSRM  )   = .FALSE. 
+               IF ( IMGSRM .GT. 0 )   EM_STREAM_RULE( IMGSRM  )   = .FALSE. 
+               IF ( IMIOGSRM .GT. 0 ) EM_STREAM_RULE( IMIOGSRM  ) = .FALSE. 
+            ENDIF   
+               
+            DO ISRM = 1,N_EM_SRM
+               IF ( EM_STREAM_RULE( ISRM ) ) THEN
+                  DO ISUR = 1,EM_FILE_SURR( ISRM )%LEN
+                     ! Override Area Normalization if Requested
+                     IF ( AREA_NML( IAREA )%AREA .EQ. 'TRUE' ) THEN
+                         EM_FILE_SURR( ISRM )%LAREA( ISUR ) = .TRUE.
+                     ELSEIF (AREA_NML( IAREA )%AREA .EQ. 'FALSE' ) THEN
+                         EM_FILE_SURR( ISRM )%LAREA( ISUR ) = .FALSE.
+                     END IF
+                     ! Override Area Adjustment if Requested
+                     IF ( AREA_NML( IAREA )%ADJ .EQ. 'TRUE' ) THEN
+                         EM_FILE_SURR( ISRM )%LAREAADJ( ISUR ) = .TRUE.
+                     ELSEIF (AREA_NML( IAREA )%ADJ .EQ. 'FALSE' ) THEN
+                         EM_FILE_SURR( ISRM )%LAREAADJ( ISUR ) = .FALSE.
+                     END IF
+                  END DO
+               END IF
+            END DO
+
+         END DO
+ 
 ! Write Out All Available Stream Families to the Log File
          WRITE( LOGDEV, '(/,5x,A)' ),'|> Emission Stream Family Definitions:'
          WRITE( LOGDEV, '(5x,A)'   ),'======================================'
@@ -1580,7 +1678,6 @@ C and allowing the model to proceed.
 
 
          ! Allocate Rule->Instruction Transform Masks
-         ALLOCATE( EM_STREAM_RULE  ( N_EM_SRM   ) )
          ALLOCATE( EM_SPEC_RULE ( N_SPC_DIFF ) )
          ALLOCATE( EM_SURR_RULE ( N_EM_SRM ) )
          ALLOCATE( EM_PHASE_RULE( N_EM_SRM ) )
@@ -2118,6 +2215,7 @@ C and allowing the model to proceed.
                ALLOCATE( EM_FAC_ST( ISTR,ISRM )%BULK( NFAC ) )
                ALLOCATE( EM_FAC_ST( ISTR,ISRM )%BASIS( NFAC ) )
                ALLOCATE( EM_FAC_ST( ISTR,ISRM )%AREA( NFAC ) )
+               ALLOCATE( EM_FAC_ST( ISTR,ISRM )%AREAADJ( NFAC ) )
                ALLOCATE( EM_FAC_ST( ISTR,ISRM )%REG( NFAC ) )
                ALLOCATE( EM_FAC_ST( ISTR,ISRM )%OP( NFAC ) )
                  
@@ -2125,6 +2223,7 @@ C and allowing the model to proceed.
                EM_FAC_ST( ISTR,ISRM )%BULK = 0.
                EM_FAC_ST( ISTR,ISRM )%BASIS= 1.
                EM_FAC_ST( ISTR,ISRM )%AREA = .FALSE.
+               EM_FAC_ST( ISTR,ISRM )%AREAADJ = .FALSE.
                EM_FAC_ST( ISTR,ISRM )%REG  = 1
                EM_FAC_ST( ISTR,ISRM )%OP   = 0
         
@@ -2139,6 +2238,7 @@ C and allowing the model to proceed.
                  EM_FAC_ST( ISTR,ISRM )%BULK( IFAC )   = EM_FAC_BULK( ISTR, ISRM, IFAC )
                  EM_FAC_ST( ISTR,ISRM )%REG( IFAC )    = EM_REG( ISTR, ISRM, IFAC )
                  EM_FAC_ST( ISTR,ISRM )%AREA( IFAC )   = EM_FILE_SURR( ISRM )%LAREA(ISUR)
+                 EM_FAC_ST( ISTR,ISRM )%AREAADJ( IFAC )= EM_FILE_SURR( ISRM )%LAREAADJ(ISUR)
                       
                    SELECT CASE ( EM_OP( ISTR, ISRM, IFAC ) )
                    CASE ( 'a' )

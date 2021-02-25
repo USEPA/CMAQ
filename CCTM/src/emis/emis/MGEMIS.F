@@ -155,6 +155,7 @@ C Allocate MG arrays using NMGSPC value
             ALLOCATE( EM_FILE_SURR( IMGSRM )%CONV ( NMGSPC ) )
             ALLOCATE( EM_FILE_SURR( IMGSRM )%BASIS( NMGSPC ) )
             ALLOCATE( EM_FILE_SURR( IMGSRM )%LAREA( NMGSPC ) )
+            ALLOCATE( EM_FILE_SURR( IMGSRM )%LAREAADJ( NMGSPC ) )
             
             EM_FILE_SURR( IMGSRM )%ARRY  = MG_SPC
             EM_FILE_SURR( IMGSRM )%UNITS = 'MOLES/S'
@@ -163,6 +164,7 @@ C Allocate MG arrays using NMGSPC value
             EM_FILE_SURR( IMGSRM )%CONV  = 1.0
             EM_FILE_SURR( IMGSRM )%BASIS = 'MOLE'
             EM_FILE_SURR( IMGSRM )%LAREA = .FALSE.
+            EM_FILE_SURR( IMGSRM )%LAREAADJ = .FALSE.
 
             ALLOCATE ( VDEMIS_MG( NMGSPC,NCOLS,NROWS), STAT = STATUS )
             IF ( STATUS .NE. 0 ) THEN

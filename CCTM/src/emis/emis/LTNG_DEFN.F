@@ -173,6 +173,7 @@
          ALLOCATE( EM_FILE_SURR( ILTSRM )%CONV ( 1 ) )
          ALLOCATE( EM_FILE_SURR( ILTSRM )%BASIS( 1 ) )
          ALLOCATE( EM_FILE_SURR( ILTSRM )%LAREA( 1 ) )
+         ALLOCATE( EM_FILE_SURR( ILTSRM )%LAREAADJ( 1 ) )
          
          EM_FILE_SURR( ILTSRM )%ARRY  = "NO"
          EM_FILE_SURR( ILTSRM )%UNITS = 'MOLES/S'
@@ -181,6 +182,7 @@
          EM_FILE_SURR( ILTSRM )%CONV  = 1.0
          EM_FILE_SURR( ILTSRM )%BASIS = 'MOLE'
          EM_FILE_SURR( ILTSRM )%LAREA = .FALSE.
+         EM_FILE_SURR( ILTSRM )%LAREAADJ = .FALSE.
  
 !C Read in scenario time/date
 

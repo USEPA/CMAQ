@@ -1491,7 +1491,7 @@
                    else
                       do i = 1, ncols
                          do k = 1, num_dist_layers(i,fnum)
-                            mpas_tdata(i,k) = temp_data_1d(i) * dist_frac(k,i,fnum) * cell_area(i,1)
+                            mpas_tdata(i,k) = temp_data_1d(i) * dist_frac(k,i,fnum) !* cell_area(i,1)
                          end do
                       end do
                    end if
@@ -1568,7 +1568,7 @@
                    else
                       do i = 1, ncols
                          do k = 1, num_dist_layers(i,fnum)
-                            mpas_tdata(i,k) = temp_data_1d(i) * dist_frac(k,i,fnum) * cell_area(i,1)
+                            mpas_tdata(i,k) = temp_data_1d(i) * dist_frac(k,i,fnum) !* cell_area(i,1)
                          end do
                       end do
                    end if
@@ -4932,6 +4932,7 @@ C   mminlu and num_land_cat are WRF global variables
 
          ! Define Emissions Rules Input from Emissions Control Namelist
          NAMELIST / EmissionScalingRules / EM_NML
+         NAMELIST / AreaNorm             / AREA_NML
          NAMELIST / SizeDistributions    / SD_NML 
          NAMELIST / RegionsRegistry      / RGN_NML
 
@@ -4949,6 +4950,12 @@ C   mminlu and num_land_cat are WRF global variables
          EM_NML%BASIS  = ''
          EM_NML%FAC    = 0.
 
+         ! Allocate and Initialize Area Normalization Namelist Variables
+         ALLOCATE( AREA_NML( N_AREA_REG ) )
+         AREA_NML%STREAM  = 'ALL'
+         AREA_NML%AREA    = 'AUTO'
+         AREA_NML%ADJ     = 'AUTO'
+ 
          ! Allocate and Initialize Size Distribution Namelist Variables
          ALLOCATE( SD_NML( N_SD_REG ) )
          SD_NML%STREAM   = ''
@@ -5007,7 +5014,34 @@ C   mminlu and num_land_cat are WRF global variables
      &                     'fix the Regions Registry', 1 ) 
  
          END IF
-
+ 
+         ! Read the Area Normalization Registry
+         REWIND( EMCTRL_NML )
+         READ( NML = AreaNorm, UNIT = EMCTRL_NML, IOSTAT=STAT )
+         IF ( STAT .EQ. -1 ) THEN
+             XMSG = 'Note: The Area Normalization section of the Emissions Control '//
+     &              'Interface is missing. Default values for this section will be '//
+     &              'assumed.'
+             CALL LOG_MESSAGE( LOGDEV,' ')
+             CALL LOG_MESSAGE( LOGDEV, XMSG )
+             AREA_NML%STREAM = 'ALL'
+             AREA_NML%AREA   = 'AUTO'
+             AREA_NML%ADJ    = 'AUTO'
+         ELSE IF ( STAT .NE. 0 ) THEN
+             ! Read Error Detected for AREA_NML
+             backspace( EMCTRL_NML )
+             read( EMCTRL_NML, fmt='(A)' ) tmpline
+             XMSG = 'ERROR: There was a syntax error reading the Area Normalization '//
+     &              'variable for use by the DESID module. Please check the format of '//
+     &              'each line for syntax errors. The invalid line was likely: '
+             CALL LOG_MESSAGE( LOGDEV, ' ')
+             CALL LOG_MESSAGE( LOGDEV, XMSG )
+             WRITE( LOGDEV, '(8x,A)' ) TMPLINE
+             CALL M3EXIT ( 'Read_Emiss_Namelist', 0, 0, 'CMAQ must Crash until you '//
+     &                     'fix the Area Normalization section', 1 ) 
+ 
+         END IF
+ 
          ! Read the size distribution specification section
          REWIND( EMCTRL_NML )
          READ( NML = SizeDistributions, UNIT = EMCTRL_NML, IOSTAT=STAT )
