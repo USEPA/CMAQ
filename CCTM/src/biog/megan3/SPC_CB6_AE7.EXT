@@ -19,7 +19,7 @@ C=======================================================================
       PARAMETER     (SPC_CB6AE7MECH = 'CB6_ae7         ')
 
       INTEGER        N_CB6_ae7_SPC
-      PARAMETER     (N_CB6_ae7_SPC = 35)
+      PARAMETER     (N_CB6_ae7_SPC = 37)
 
       CHARACTER*16   MECH_SPC_CB6_AE7( N_CB6_ae7_SPC )  ! Mechanism species name
       REAL           MECH_MWT_CB6_AE7( N_CB6_ae7_SPC )  ! Mechanism species molecular weight
@@ -60,4 +60,5 @@ C=======================================================================
       DATA  MECH_SPC_CB6_AE7( 33), MECH_MWT_CB6_AE7( 33) / 'CH3CL           ',  50.49  /
       DATA  MECH_SPC_CB6_AE7( 34), MECH_MWT_CB6_AE7( 34) / 'CH3I            ', 141.94  /
       DATA  MECH_SPC_CB6_AE7( 35), MECH_MWT_CB6_AE7( 35) / 'APIN            ', 136.24  /
-
+      DATA  MECH_SPC_CB6_AE7( 36), MECH_MWT_CB6_AE7( 36) / 'ALD2_PRIMARY    ',  44.05  /
+      DATA  MECH_SPC_CB6_AE7( 37), MECH_MWT_CB6_AE7( 37) / 'FORM_PRIMARY    ',  30.03  /

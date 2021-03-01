@@ -19,7 +19,7 @@ C=======================================================================
       PARAMETER     (SPC_CB6MECH = 'CB6             ')
 
       INTEGER        N_CB6_SPC
-      PARAMETER     (N_CB6_SPC = 34)
+      PARAMETER     (N_CB6_SPC = 36)
 
       CHARACTER*16   MECH_SPC_CB6( N_CB6_SPC )  ! Mechanism species name
       REAL           MECH_MWT_CB6( N_CB6_SPC )  ! Mechanism species molecular weight
@@ -59,3 +59,5 @@ C=======================================================================
       DATA  MECH_SPC_CB6( 32), MECH_MWT_CB6( 32) / 'CH3BR           ',  94.94  /
       DATA  MECH_SPC_CB6( 33), MECH_MWT_CB6( 33) / 'CH3CL           ',  50.49  /
       DATA  MECH_SPC_CB6( 34), MECH_MWT_CB6( 34) / 'CH3I            ', 141.94  /
+      DATA  MECH_SPC_CB6( 35), MECH_MWT_CB6( 35) / 'ALD2_PRIMARY    ',  44.05  /
+      DATA  MECH_SPC_CB6( 36), MECH_MWT_CB6( 36) / 'FORM_PRIMARY    ',  30.03  /

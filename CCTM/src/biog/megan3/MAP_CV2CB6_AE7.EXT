@@ -17,7 +17,7 @@ C=======================================================================
       PARAMETER     (MAP_CB6AE7MECH = 'CB6_ae7        ')
 
       INTEGER        N_CB6_AE7
-      PARAMETER     (N_CB6_AE7 = (145))        ! Number of map species
+      PARAMETER     (N_CB6_AE7 = (147))        ! Number of map species
 
       CHARACTER*16   SPMH_NAM_CB6_AE7( N_CB6_AE7 )   ! speciated species name
       INTEGER        SPMH_MAP_CB6_AE7( N_CB6_AE7 )   ! speciated species name
@@ -1043,3 +1043,16 @@ C=======================================================================
       DATA  CONV_FAC_CB6_AE7( 145)
      &    / 1       /
  
+      DATA  SPMH_NAM_CB6_AE7( 146)     , SPMH_MAP_CB6_AE7( 146)
+     &    / 'formaldehyde     ', 113           /
+      DATA  MECH_NAM_CB6_AE7( 146)     , MECH_MAP_CB6_AE7( 146)
+     &    / 'FORM_PRIMARY', 36           /
+      DATA  CONV_FAC_CB6_AE7( 146)
+     &    / 1       /
+
+      DATA  SPMH_NAM_CB6_AE7( 147)     , SPMH_MAP_CB6_AE7( 147)
+     &    / 'acetaldehyde     ', 90           /
+      DATA  MECH_NAM_CB6_AE7( 147)     , MECH_MAP_CB6_AE7( 147)
+     &    / 'ALD2_PRIMARY', 37           /
+      DATA  CONV_FAC_CB6_AE7( 147)
+     &    / 1       /

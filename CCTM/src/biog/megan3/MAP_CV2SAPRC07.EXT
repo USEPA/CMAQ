@@ -17,7 +17,7 @@ C=======================================================================
       PARAMETER     (MAP_SAPRC07MECH = 'SAPRC07            ')
 
       INTEGER        N_SAPRC07
-      PARAMETER     (N_SAPRC07 = (141))        ! Number of map species
+      PARAMETER     (N_SAPRC07 = (144))        ! Number of map species
 
       CHARACTER*16   SPMH_NAM_SAPRC07( N_SAPRC07 )   ! speciated species name
       INTEGER        SPMH_MAP_SAPRC07( N_SAPRC07 )   ! speciated species name
@@ -1015,3 +1015,23 @@ C=======================================================================
       DATA  CONV_FAC_SAPRC07( 141)
      &    / 1       /
  
+      DATA  SPMH_NAM_SAPRC07( 142)     , SPMH_MAP_SAPRC07( 142)
+     &    / 'pinene_a     ', 3           /
+      DATA  MECH_NAM_SAPRC07( 142)     , MECH_MAP_SAPRC07( 142)
+     &    / 'APIN      ', 45           /
+      DATA  CONV_FAC_SAPRC07( 142)
+     &    / 1       /
+
+      DATA  SPMH_NAM_SAPRC07( 143)     , SPMH_MAP_SAPRC07( 143)
+     &    / 'formaldehyde     ', 113           /
+      DATA  MECH_NAM_SAPRC07( 143)     , MECH_MAP_SAPRC07( 143)
+     &    / 'HCHO_PRIMARY', 46           /
+      DATA  CONV_FAC_SAPRC07( 143)
+     &    / 1       /
+
+      DATA  SPMH_NAM_SAPRC07( 144)     , SPMH_MAP_SAPRC07( 144)
+     &    / 'acetaldehyde     ', 90           /
+      DATA  MECH_NAM_SAPRC07( 144)     , MECH_MAP_SAPRC07( 144)
+     &    / 'CCHO_PRIMARY', 47           /
+      DATA  CONV_FAC_SAPRC07( 144)
+     &    / 1       /

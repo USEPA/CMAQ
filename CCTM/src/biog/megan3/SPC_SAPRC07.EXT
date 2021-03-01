@@ -17,7 +17,7 @@ C=======================================================================
       PARAMETER     (SPC_SAPRC07MECH = 'SAPRC07         ')
 
       INTEGER        N_SAPRC07_SPC
-      PARAMETER     (N_SAPRC07_SPC = 44)
+      PARAMETER     (N_SAPRC07_SPC = 47)
 
       CHARACTER*16   MECH_SPC_SAPRC07( N_SAPRC07_SPC )  ! Mechanism species name
       REAL           MECH_MWT_SAPRC07( N_SAPRC07_SPC )  ! Mechanism species molecular weight
@@ -69,3 +69,6 @@ C=======================================================================
       DATA  MECH_SPC_SAPRC07( 42), MECH_MWT_SAPRC07( 42) / 'NO              ', 46.00   /
       DATA  MECH_SPC_SAPRC07( 43), MECH_MWT_SAPRC07( 43) / 'NH3             ', 17.03   /
       DATA  MECH_SPC_SAPRC07( 44), MECH_MWT_SAPRC07( 44) / 'N2O             ', 44.01   /
+      DATA  MECH_SPC_SAPRC07( 45), MECH_MWT_SAPRC07( 45) / 'APIN            ', 136.24  /
+      DATA  MECH_SPC_SAPRC07( 46), MECH_MWT_SAPRC07( 46) / 'HCHO_PRIMARY    ', 30.03   /
+      DATA  MECH_SPC_SAPRC07( 47), MECH_MWT_SAPRC07( 47) / 'CCHO_PRIMARY    ', 44.05   /
