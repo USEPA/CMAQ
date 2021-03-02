@@ -561,8 +561,13 @@ C Map the user specified ISAM regions to available CMAQ regions
          END IF  ! First Time
 
 C Initialize Emissions Array
-         VDEMIS_DIFF = 0.0
-
+         WRTIME = .FALSE.
+         WSTEP  = WSTEP + TIME2SEC( TSTEP( 2 ) )
+         WRTIME = ( WSTEP .GE. TIME2SEC( TSTEP( 1 ) ) )
+         IF ( WRTIME ) THEN 
+           WSTEP = 0
+           CALL NEXTIME( MDATE, MTIME,  TSTEP( 1 ) )
+         END IF
 
 #ifdef isam
          SA_VDEMIS_DIFF = 0.0
@@ -574,6 +579,8 @@ C Initialize Emissions Array
 
 C Retrieve Emissions from All Stream Types
          IF ( N_EM_SRM .GT. 0 ) THEN
+         VDEMIS_DIFF = 0.0
+
          DO ISRM = 1,N_EM_SRM
            VDEMIS_READ = 0.0
 
