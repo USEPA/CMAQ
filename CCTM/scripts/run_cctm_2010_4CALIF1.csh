@@ -402,13 +402,17 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
 
   #> In-line biogenic emissions configuration
   if ( $CTM_BIOGEMIS_MEGAN == 'Y' ) then
+
     setenv SOILINP    $OUTDIR/CCTM_SOILOUT_${RUNID}_${YESTERDAY}.nc
                              #> Biogenic NO soil input file; ignore if INITIAL_RUN = Y
                              #>                            ; ignore if IGNORE_SOILINP = Y
-         setenv MEGAN_CTS # location of CTS input file
-         setenv MEGAN_EFS # location of EFS input file
-         setenv MEGAN_LAI # location of LAI input file (optional) 
-         setenv MEGAN_LDF # location of LDF input file
+         # Files for this domain are not available.They must be created using the MEGAN preprocessor
+          #setenv MEGAN_CTS # location of CTS input file
+          #setenv MEGAN_EFS # location of EFS input file
+          #setenv MEGAN_LAI # location of LAI input file (optional) 
+          #setenv MEGAN_LDF # location of LDF input file
+         echo "*** Selected MEGAN without required input files - run ABORTED ***"
+         exit 1
   endif
   if ( $CTM_BIOGEMIS_BEIS == 'Y' ) then   
      set IN_BEISpath = ${INPDIR}/surface
