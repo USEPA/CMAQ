@@ -208,7 +208,7 @@
  if ( ! -e $NETCDF_DIR/include ) ln -sfn $NETCDF_INCL_DIR $NETCDF_DIR/include
  if ( ! -d $NETCDFF_DIR )  mkdir $NETCDFF_DIR
  if ( ! -e $NETCDFF_DIR/lib ) ln -sfn $NETCDFF_LIB_DIR $NETCDFF_DIR/lib
- if ( ! -e $NETCDFF_DIR/include ) ln -sfn $NETCDFF_INCL_DIR $NETCDFF_DIR/includ
+ if ( ! -e $NETCDFF_DIR/include ) ln -sfn $NETCDFF_INCL_DIR $NETCDFF_DIR/include
  if ( ! -d $IOAPI_DIR ) then
     mkdir $IOAPI_DIR
     ln -sfn $IOAPI_INCL_DIR $IOAPI_DIR/include_files

@@ -703,13 +703,19 @@ set Cfile = ${Bld}/${CFG}.bld      # Config Filename
     set bld_flags = "${bld_flags} -isam_cctm"
  endif
 
+ if ( $?build_twoway ) then
+   set bld_flags = "${bld_flags} -twoway"
+ endif
+
 #> Run BLDMAKE with source code in build directory
  $Blder $bld_flags $Cfile   
 
 #> Rename Makefile to specify compiler option and link back to Makefile
- mv Makefile Makefile.$compilerString
- if ( -e Makefile.$compilerString && -e Makefile ) rm Makefile
- ln -s Makefile.$compilerString Makefile
+ if ( ! $?build_twoway ) then
+    mv Makefile Makefile.$compilerString
+    if ( -e Makefile.$compilerString && -e Makefile ) rm Makefile
+    ln -s Makefile.$compilerString Makefile
+ endif
 
 #> Alert user of error in BLDMAKE if it ocurred
  if ( $status != 0 ) then
