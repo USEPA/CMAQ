@@ -8,7 +8,7 @@
 !   Add MTNO3 formation following Pye et al. 2015 (from SAPRC07tic implementation)
 !   Update TRPRXN SOA yields in SOA_DEFN.F
 !   Documentation in Xu et al. 2018 ACPD: https://doi.org/10.5194/acp-2017-1109
-! 06-19-18 G.Sarwar
+! 03-04-21 G.Sarwar
 !    updated <HAL_OZONE>
 ! 080118 DJL
 !   1. Modified chlorine reactions (<CL1> to <CL31>) to match CB6r2, mimic
@@ -430,7 +430,7 @@ REACTIONS[CM] =
 <HET_N02> NO2 = 0.5*HONO + 0.5*HNO3 # 1.0~<HETERO_NO2>;
 
 ! updated reaction rate 
-<HAL_Ozone> O3 =  %H # 2.8964E-11@-11.9978 & 0.0E-0@-0.0;
+<HAL_Ozone> O3 =  %H # 6.7006E-11@-10.7435 & 3.4153E-08@0.6713;
 
 ! heterogeneous acid-catalyzed uptake of isoprene-epoxydiols 
 <HET_IEPOX>   EPOX = IEPOXP               # 1.0~<HETERO_IEPOX>;

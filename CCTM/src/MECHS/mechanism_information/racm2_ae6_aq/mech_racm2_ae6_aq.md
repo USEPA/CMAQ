@@ -394,7 +394,7 @@ Information is based on the mech.def file.
 | SA14   | IEPOX + HO ----> HO  |   5.78E-11e<sup>  -400.00/T</sup> |   1.5110E-11 |
 | HET_N2O5   | N2O5 ---->   2.000\*HNO3  | HETERO_N2O5IJ | Not Available<sup>2</sup> | 
 | HET_N02   | NO2 ---->   0.500\*HONO +    0.500\*HNO3  | HETERO_NO2 | Not Available<sup>2</sup> | 
-| HAL_Ozone   | O3 ----> | min( 2.896E-11e<sup> 1.200E+01P</sup>+ 0.000E+00e<sup> 0.000E+00P</sup>, <br>2.675E-6) |   2.4000E-06<sup>4</sup>| 
+| HAL_Ozone   | O3 ----> | min( 6.701E-11e<sup> 1.074E+01P</sup>+ 3.415E-08e<sup>-6.713E-01P</sup>, <br>2.000E-6) |   2.0000E-06<sup>4</sup>| 
 | HET_IEPOX   | IEPOX ----> AISO3J  | HETERO_IEPOX | Not Available<sup>2</sup> | 
 | OLIG_XYLENE1   | AXYL1J ---->   0.857\*AOLGAJ  |   9.4882E-06 |   9.4882E-06 |
 | OLIG_XYLENE2   | AXYL2J ---->   1.143\*AOLGAJ  |   9.4882E-06 |   9.4882E-06 |
