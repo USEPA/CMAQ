@@ -380,7 +380,7 @@
      &          'PMC_MASS    ','MET         ','Tsurf       ','AOD_550     ' /)
 
       PMDIAG_KEY( 3 )%WORD = 'MASS'
-      PMDIAG_KEY( 3 )%N = 9
+      PMDIAG_KEY( 3 )%N = 11
       ALLOCATE( PMDIAG_KEY( 3 )%LIST( 11 ), STAT=ALLOCSTAT )
       IF ( ALLOCSTAT .NE. 0 ) THEN
            XMSG = 'Failure allocating PMDIAG_KEY(3)'
