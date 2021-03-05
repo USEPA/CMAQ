@@ -381,14 +381,15 @@
 
       PMDIAG_KEY( 3 )%WORD = 'MASS'
       PMDIAG_KEY( 3 )%N = 9
-      ALLOCATE( PMDIAG_KEY( 3 )%LIST( 9 ), STAT=ALLOCSTAT )
+      ALLOCATE( PMDIAG_KEY( 3 )%LIST( 11 ), STAT=ALLOCSTAT )
       IF ( ALLOCSTAT .NE. 0 ) THEN
            XMSG = 'Failure allocating PMDIAG_KEY(3)'
            CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
       END IF
 
-      PMDIAG_KEY( 3 )%LIST = (/'PMF_MASS','PMC_MASS','PM01    ','PM1     ',
-     &              'PM25    ','PM10    ','PM25TO10','PMU_MASS','PMAMS   ' /)
+      PMDIAG_KEY( 3 )%LIST = (/'PMF_MASS  ','PMC_MASS  ','PM01      ','PM1       ',
+     &            'PM25      ','PM10      ','PM25TO10  ','PMU_MASS  ','PMAMS     ',
+     &            'PMAIT_MASS','PMACC_MASS' /)
      
       PMDIAG_KEY( 4 )%WORD = 'NUMBER'
       PMDIAG_KEY( 4 )%N = 7
