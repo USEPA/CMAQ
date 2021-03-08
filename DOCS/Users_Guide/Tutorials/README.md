@@ -13,3 +13,4 @@ A series of short tutorials provide practical examples of how to set up and run 
 - [Creating an OCEAN file](CMAQ_UG_tutorial_oceanfile.md): This tutorial describes methods to a CMAQ Ocean file.
 - [Adding an Inert Tracer Species to CMAQ](CMAQ_UG_tutorial_tracers.md): This tutorial will step you through the process of adding chemically inert tracers to the CMAQ model.  
 - [Create Initial and Boundary Conditions from Seasonal Average Hemispheric CMAQ Output](CMAQ_UG_tutorial_HCMAQ_IC_BC.md): This tutorial will step the user through the process of creating initial and boundary conditions from a seasonal average hemispheric CMAQ output file distributed through the CMAS data warehouse.
+- [Modifying a CMAQ Chemical Mechanism](CMAQ_UG_tutorial_chemicalmechanism.md): This tutorial describes how to modify a chemical mechanism in CMAQ and reflect the changes in Github.
