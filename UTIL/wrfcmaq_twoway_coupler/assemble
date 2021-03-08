@@ -80,65 +80,6 @@ if (-f mpif.h) then
    rm -f mpif.h
 endif
 
-cp ../wrfcmaq_twoway_coupler/misc/Makefile.twoway.part1 Makefile.twoway
-
-set cpp_begin_line  = `grep -n cpp_flags Makefile | sed 's/:/ /' `
-set cpp_end_line    = `grep -n lioapi Makefile | sed 's/:/ /' `
-set first_line      = `grep -n INCLUDES Makefile | sed 's/:/ /' `
-set second_line     = `grep -n SUBST_MPI Makefile | sed 's/:/ /' `
-set third_line      = `grep -n SUFFIXES Makefile | sed 's/:/ /' `
-set fourth_line     = `grep -n dependencies Makefile | sed 's/:/ /' `
-set total_line      = `wc -l Makefile`
-
-@ cpp_begin = $cpp_begin_line[1]
-@ cpp_end   = $cpp_end_line[1] - 1
-
-@ first     = $first_line[1]
-@ second    = $second_line[1] - 1
-@ second_p1 = $second_line[1] + 1
-@ third     = $third_line[1] - 1
-@ third_p4  = $third_line[1] + 4
-@ fourth    = $fourth_line[1]
-@ fifth     = $fourth + 2
-@ all_line  = $total_line[1]
-
-# this section deal with CPP flags
-@ diff = 1 + $cpp_end - $cpp_begin
-
-head -n $cpp_end Makefile | tail -n $diff | sed 's/-Dparallel/-Dparallel -Dtwoway/'  >> Makefile.twoway
-
-echo "BASE_INC = ." >> Makefile.twoway
-echo " "            >> Makefile.twoway
-
-# this section deal with INC path and INCLUDE lines
-@ diff = 1 + $second - $first
-
-head -n $second Makefile | tail -n $diff  >> Makefile.twoway
-
-echo '  -DSUBST_MPI=\"mpif.h\"' >> Makefile.twoway
-
-# this section deal with object file declaration
-@ diff = 1 + $third - $second_p1
-
-head -n $third Makefile    | \
-  tail -n $diff            | \
-  sed 's/  complex_number_module.o// ' >> Makefile.twoway
-
-cat ../wrfcmaq_twoway_coupler/misc/Makefile.twoway.part2 >> Makefile.twoway
-
-# this section deal with rules
-@ diff = 1 + $fourth - $third_p4
-
-head -n $fourth Makefile | tail -n $diff >> Makefile.twoway
-
-# this section include twoway code dependence but skip it from the Makefile
-cat ../wrfcmaq_twoway_coupler/misc/Makefile.twoway.part3 >> Makefile.twoway
-
-# this section include the rest of the dependence
-@ diff = 1 + $all_line - $fifth
-
-head -n $all_line Makefile | tail -n $diff >> Makefile.twoway
-
 cd ..
 
 set found_openmpi = `echo $LD_LIBRARY_PATH | grep openmpi  | wc -l `
