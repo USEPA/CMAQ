@@ -1156,7 +1156,8 @@ REACTIONS [CM] =
 
 ! Simplified ozone loss from oceanic halogens excluding chlorine
 
-<HAL_Ozone> O3 =  %H # 6.7006E-11@-10.7435 & 3.4153E-08@0.6713;
+<HAL_Ozone> O3 =  %H # 6.7006E-11@-10.7435 & 3.4153E-08@0.6713
+                                                & 2.0E-6;
 
 ! oligomerization reaction for secondary organic aerosols
 

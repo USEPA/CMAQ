@@ -145,17 +145,17 @@
          FALLOFF_T11 = K1 + K2 * CAIR + K3
          RETURN
        END FUNCTION FALLOFF_T11
-       REAL( 8 ) FUNCTION HALOGEN_FALLOFF(PRESS,A1,B1,A2,B2)
+       REAL( 8 ) FUNCTION HALOGEN_FALLOFF(PRESS,A1,B1,A2,B2,A3)
          IMPLICIT NONE
-         REAL( 8 ), PARAMETER    :: MAX_RATE = 2.0000D-06  ! Maximum loss rate (1/sec)
          REAL( 8 ), INTENT( IN ) :: PRESS
          REAL( 8 ), INTENT( IN ) :: A1
          REAL( 8 ), INTENT( IN ) :: B1
          REAL( 8 ), INTENT( IN ) :: A2
          REAL( 8 ), INTENT( IN ) :: B2
+         REAL( 8 ), INTENT( IN ) :: A3 ! Maximum loss rate (1/sec)
          INTRINSIC DEXP
          HALOGEN_FALLOFF = A1 * DEXP( B1 * PRESS ) + A2 * DEXP( B2 * PRESS )
-         HALOGEN_FALLOFF = DMIN1 (MAX_RATE, HALOGEN_FALLOFF )
+         HALOGEN_FALLOFF = DMIN1 (A3, HALOGEN_FALLOFF )
          RETURN
        END FUNCTION HALOGEN_FALLOFF
 
@@ -405,7 +405,7 @@
                 IF( .NOT. LAND( NCELL ) )THEN
 !  Reaction Label HAL_Ozone       
                    RKI( NCELL,  892) =  SFACT * HALOGEN_FALLOFF( BLKPRES( NCELL ),   6.7006D-11,   1.0743D+01,  & 
-     &                                                           3.4153D-08,        -6.7130D-01 )
+     &                                                           3.4153D-08,  -6.7130D-01,         2.0000D-06 )
                 END IF
 
             END DO 

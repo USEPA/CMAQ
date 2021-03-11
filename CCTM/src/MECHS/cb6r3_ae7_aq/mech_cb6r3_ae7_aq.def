@@ -430,7 +430,8 @@ REACTIONS[CM] =
 <HET_N02> NO2 = 0.5*HONO + 0.5*HNO3 # 1.0~<HETERO_NO2>;
 
 ! updated reaction rate 
-<HAL_Ozone> O3 =  %H # 6.7006E-11@-10.7435 & 3.4153E-08@0.6713;
+<HAL_Ozone> O3 =  %H # 6.7006E-11@-10.7435 & 3.4153E-08@0.6713
+                                                & 2.0E-6;
 
 ! heterogeneous acid-catalyzed uptake of isoprene-epoxydiols 
 <HET_IEPOX>   EPOX = IEPOXP               # 1.0~<HETERO_IEPOX>;

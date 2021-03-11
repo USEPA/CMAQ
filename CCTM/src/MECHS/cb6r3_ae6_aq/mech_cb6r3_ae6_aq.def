@@ -411,7 +411,8 @@ REACTIONS[CM] =
 <HET_N02> NO2 = 0.5*HONO + 0.5*HNO3 # 1.0~<HETERO_NO2>;
 
 ! updated reaction rate to v51 release
-<HAL_Ozone> O3 =  %H # 6.7006E-11@-10.7435 & 3.4153E-08@0.6713;
+<HAL_Ozone> O3 =  %H # 6.7006E-11@-10.7435 & 3.4153E-08@0.6713
+                                                & 2.0E-6;
 
 ! added het reaction based on EPOX 
 <HET_IEPOX> EPOX = AISO3J  # 1.0~<HETERO_IEPOX>;
