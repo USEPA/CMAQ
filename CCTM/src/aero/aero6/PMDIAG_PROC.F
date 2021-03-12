@@ -339,7 +339,7 @@
       CHARACTER(200) :: XMSG
       CHARACTER(16), SAVE :: PNAME = 'PMDIAG_KEY'
 
-      N_KEY = 20
+      N_KEY = 21
       ALLOCATE( PMDIAG_KEY( N_KEY ), STAT=ALLOCSTAT )
       IF ( ALLOCSTAT .NE. 0 ) THEN
            XMSG = 'Failure allocating PMDIAG_KEY'
