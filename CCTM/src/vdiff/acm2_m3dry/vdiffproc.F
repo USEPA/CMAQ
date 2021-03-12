@@ -221,6 +221,11 @@ C-----------------------------------------------------------------------
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
 
+         IF ( BUDGET_DIAG .OR. LIPR ) THEN
+            ALLOCATE( NH3_EMIS0( NCOLS,NROWS), STAT = ASTAT )
+            CALL CHECKMEM( ASTAT,'NH3_EMIS0',PNAME )
+         END IF
+
 C create global maps
          IF ( .NOT. VDIFF_MAP_INIT( ) ) THEN
             XMSG = 'Failure initializing index mapping module'

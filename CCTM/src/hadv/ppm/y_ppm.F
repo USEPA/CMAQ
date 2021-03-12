@@ -129,8 +129,6 @@ C Local Variables:
 
       REAL     :: JACOBM( NCOLS,NROWS,NLAYS )  !"total" Jacobian
       REAL     :: ZF( NCOLS,NROWS,NLAYS )      !Grid cell height
-      REAL     :: RHOJ( NCOLS,NROWS,NLAYS )    !Density * Jacobian
-      REAL     :: DENS( NCOLS,NROWS,NLAYS )    !Density
       REAL, PARAMETER :: MWAIR_SI = 0.02897    ! kg mol-1
       REAL     :: VOL, VOL2                    ! Grid Volume
 
