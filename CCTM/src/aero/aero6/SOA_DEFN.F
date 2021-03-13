@@ -160,9 +160,9 @@ C-----------------------------------------------------------------------
      & oa_type('AAVB2  ', 'SVAVB2  ', '        ',  0.0000,    1.000,  18.0E3, .947,2.35, F,  T,  F,  F ),
      & oa_type('AAVB3  ', 'SVAVB3  ', '        ',  0.0000,   10.000,  18.0E3, .803,2.17, F,  T,  F,  F ),
      & oa_type('AAVB4  ', 'SVAVB4  ', '        ',  0.0000,  100.000,  18.0E3, .659,1.99, F,  T,  F,  F ),
-     & oa_type('ABENAPY', 'BENAPY  ', '        ',  0.0000,   0.0396, 105.0E3, .000,1.00, F,  T,  F,  F ),
      & oa_type('AOLGA  ', '        ', '        ',  0.0000,   1.e-10,   1.0E0,1.067,2.50, F,  T,  F,  T ),
-     & oa_type('AOLGB  ', '        ', '        ',  0.0000,   1.e-10,   1.0E0, .747,2.10, F,  F,  T,  T ) /)
+     & oa_type('AOLGB  ', '        ', '        ',  0.0000,   1.e-10,   1.0E0, .747,2.10, F,  F,  T,  T ),
+     & oa_type('ABENAPY', 'BENAPY  ', '        ',  0.0000,   0.0396, 105.0E3, .000,1.00, F,  T,  F,  F ) /)
       ! Table Comments:
       ! *Reaction Counters are only needed if the vapor species is not formed
       !  directly in the gas-phase chemistry mechanism.
@@ -262,27 +262,30 @@ C-----------------------------------------------------------------------
       If ( .Not. mapped ) Then
           mapped = .TRUE.
 
-          ! First, the number and names of all active OA species must be
+          ! First, the number and names of present and nontracer OA species must be
           ! determined by checking the AEROSOL Table with the species names
           ! available from the OA_LIST table. 
           n_oa = 0
           Do spc = 1,n_oa_list
              n = findAero( oa_list( spc )%name, .False. )
              If ( n .Gt. 0 ) Then
-               If ( aerospc( n )%tracer ) Cycle
-               n_oa = n_oa + 1
-               map_OAtoOAlist( n_oa ) = spc
+               If ( aerospc( n )%om .And. .Not. aerospc( n )%tracer ) Then
+                  n_oa = n_oa + 1
+                  map_OAtoOAlist( n_oa ) = spc
+               End If
              End If
           End Do
 
           ! Place tracers at the end of the list map
+          n_oa_tracers = 0
           Do spc = 1,n_oa_list
              n = findAero( oa_list( spc )%name, .False. )
              If ( n .Gt. 0 ) Then
-               If ( .Not. aerospc( n )%tracer ) Cycle
-               n_oa = n_oa + 1
-               n_oa_tracers = n_oa_tracers + 1
-               map_OAtoOAlist( n_oa ) = spc
+               If ( aerospc( n )%om .And. aerospc( n )%tracer ) Then
+                  n_oa = n_oa + 1
+                  n_oa_tracers = n_oa_tracers + 1
+                  map_OAtoOAlist( n_oa ) = spc
+               End If
              End If
           End Do
           
@@ -1038,13 +1041,14 @@ C-----------------------------------------------------------------------
       ! Compute the number of nonvolatile and total organic compound
       ! moles in the system
       nsvol    = 0
-      totorgnv = sum( sum( aerospc_conc( :,1:2 ),2 ) * aerospc_mwinv( : ), 
-     &                     mask=lnonvol_oa( : ) )  
-      totorg   = sum( sum( aerospc_conc( :,1:2 ),2 ) * aerospc_mwinv( : ), 
-     &                     mask= l_oa( : ) ) 
+      totorgnv = sum( sum( aerospc_conc( :,1:2 ),2 ) / aerospc_mw( : ),
+     &                     mask=lnonvol_oa( : ) )
+      totorg   = sum( sum( aerospc_conc( :,1:2 ),2 ) * aerospc_mwinv( : ),
+     &                     mask=(aerospc(:)%om .and. .Not. aerospc(:)%tracer) )
+
       
      
-      frac_volatile = 1.0 ! - totorgnv /  totorg 
+      frac_volatile = 1.0 
 
       ! Calculate the Initial Partitioning of Each Semivolatile
       ! Compound
@@ -1164,10 +1168,6 @@ C-----------------------------------------------------------------------
 ! partition tracer semivolatiles based on Schell equation (8)
 ! assuming:
 !   1) orgmoles already include moles from tracers
-!   2) tracer is evenly divided between volatile and involatile component.
-!   the involatile part can not partition
-!      shell's visocity
-!                phi = aerospc_conc( aorgh2o_idx, 2 ) * aerospc_mwinv( aorgh2o_idx ) / orgmoles
               Do i = nsvol_NotTracers+1, nsvol
                  faer = svmw(i) * orgmoles 
      &                / ( c0( i ) + svmw(i) * orgmoles )
@@ -1896,7 +1896,6 @@ C    all dimensions now depend upon N only
          END DO
          IF ( AAMAX .EQ. 0.0 ) THEN
             WRITE( *,'(a)' ) '*** Singular matrix in ludcmp!'
-!           STOP
          END IF
          VV( I ) = 1.0 / AAMAX
       END DO
