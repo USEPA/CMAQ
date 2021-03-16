@@ -65,7 +65,8 @@ C-----------------------------------------------------------------------
 #else
       USE NOOP_MODULES          ! stenex (using NOOP_UTIL_MODULE)
 #endif
-      USE PA_DEFN, Only: LIPR, IPR_VDIF, IPR_ZADV, IPR_HDIF, IPR_CLDS, IPR_CHEM, IPR_DEFM   ! Process Analysis control and data variables
+      USE PA_DEFN, Only: LIPR, IPR_VDIF, IPR_ZADV, IPR_HDIF, IPR_CLDS, 
+     &                   IPR_CHEM, IPR_DEFM, IPR_PVO3   ! Process Analysis control and data variables
       USE PA_UPDATE
 #ifdef isam
       USE SA_DEFN, Only: ISAM
