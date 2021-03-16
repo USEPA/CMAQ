@@ -1245,7 +1245,7 @@ C-----------------------------------------------------------------------
             END IF
 
             ! Sum the column if requested
-            IF ( EM_LDIAG .EQ. '2DSUM' ) THEN
+            IF ( EM_LDIAG .EQ. '2DSUM' .or. EM_LDIAG .EQ. 'TRUE' ) THEN
                  VDEMIS( IVAR,1,:,: ) = SUM( VDEMIS( IVAR,1:NL,:,: ),1 )
                  LAYS = 1
             END IF 
@@ -2901,7 +2901,7 @@ C stkemis_init.
      &            ARG .EQ. 'YES'  .OR. ARG .EQ. 'Y' ) THEN
             ARGOUT = 'TRUE'
          ELSEIF ( ARG .EQ. '2D'  .OR. ARG .EQ. '2d' ) THEN
-            ARGOUT = 'TRUE'
+            ARGOUT = '2D'
          ELSEIF   ( ARG .EQ. '3D'  .OR. ARG .EQ. '3d' ) THEN
             ARGOUT = '3D'
          ELSEIF   ( ARG .EQ. '2DSUM' .OR. ARG .EQ. '2dSUM' .OR.
