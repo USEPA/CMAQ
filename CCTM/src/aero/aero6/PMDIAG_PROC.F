@@ -2113,6 +2113,7 @@
      &                 SUM( AEROSPC_CONC( :,IMODE ),
      &                      MASK=.NOT.AEROSPC(:)%TRACER ) ! ug m-3
      &                  - AEROSPC_CONC( AH2O_IDX,IMODE )
+                    IF ( AORH2O_IDX .GT. 0 ) OUTVAL = OUTVAL
      &                  - AEROSPC_CONC( AORGH2O_IDX,IMODE ) ! ug m-3
             END DO
 
@@ -2124,6 +2125,7 @@
      &                 SUM( AEROSPC_CONC( :,IMODE ),
      &                      MASK=.NOT.AEROSPC(:)%TRACER )
      &                  - AEROSPC_CONC( AH2O_IDX,IMODE )
+                    IF ( AORH2O_IDX .GT. 0 ) OUTVAL = OUTVAL
      &                  - AEROSPC_CONC( AORGH2O_IDX,IMODE ) ! ug m-3
             END DO
 
@@ -2135,6 +2137,7 @@
      &                 SUM( AEROSPC_CONC( :,IMODE ),
      &                      MASK=.NOT.AEROSPC(:)%TRACER ) ! ug m-3
      &                  - AEROSPC_CONC( AH2O_IDX,IMODE )
+                    IF ( AORH2O_IDX .GT. 0 ) OUTVAL = OUTVAL
      &                  - AEROSPC_CONC( AORGH2O_IDX,IMODE ) ! ug m-3
             END DO
 
@@ -2146,6 +2149,7 @@
      &                 SUM( AEROSPC_CONC( :,IMODE ),
      &                      MASK=.NOT.AEROSPC(:)%TRACER ) ! ug m-3
      &                  - AEROSPC_CONC( AH2O_IDX,IMODE )
+                    IF ( AORH2O_IDX .GT. 0 ) OUTVAL = OUTVAL
      &                  - AEROSPC_CONC( AORGH2O_IDX,IMODE ) ! ug m-3
             END DO
 
@@ -2157,6 +2161,7 @@
      &                 SUM( AEROSPC_CONC( :,IMODE ),
      &                      MASK=.NOT.AEROSPC(:)%TRACER ) ! ug m-3
      &                  - AEROSPC_CONC( AH2O_IDX,IMODE )
+                    IF ( AORH2O_IDX .GT. 0 ) OUTVAL = OUTVAL
      &                  - AEROSPC_CONC( AORGH2O_IDX,IMODE ) ! ug m-3
             END DO
 
@@ -2168,6 +2173,7 @@
      &                 SUM( AEROSPC_CONC( :,IMODE ),
      &                      MASK=.NOT.AEROSPC(:)%TRACER ) ! ug m-3
      &                  - AEROSPC_CONC( AH2O_IDX,IMODE )
+                    IF ( AORH2O_IDX .GT. 0 ) OUTVAL = OUTVAL
      &                  - AEROSPC_CONC( AORGH2O_IDX,IMODE ) ! ug m-3
             END DO
 
