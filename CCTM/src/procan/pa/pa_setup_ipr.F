@@ -171,6 +171,13 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
                MAP_IPRVARtoSPC_TMP( NIPRVAR )= NIPR
                MASK_IPR_PROC_TMP( NIPRVAR,IPR_CLDS ) = .TRUE.
 
+            ELSE IF ( IPR_OPNAME( NIPR,N )( 1:4 ) .EQ. 'PVO3' ) THEN
+               IPRNAME_TMP( NIPRVAR )  = 'PVO3_' // IPR_SPNAM( NIPR )
+               IPRDESC_TMP( NIPRVAR )  = 'Condensation for ' // 
+     &                                    IPR_SPNAM( NIPR )
+               MAP_IPRVARtoSPC_TMP( NIPRVAR )= NIPR
+               MASK_IPR_PROC_TMP( NIPRVAR,IPR_PVO3 ) = .TRUE.
+
             ELSE IF ( IPR_OPNAME( NIPR,N )( 1:4 ) .EQ. 'CHEM' ) THEN
                IPRNAME_TMP( NIPRVAR )  = 'CHEM_' // IPR_SPNAM( NIPR )
                IPRDESC_TMP( NIPRVAR )  = 'Chemistry of ' // 
