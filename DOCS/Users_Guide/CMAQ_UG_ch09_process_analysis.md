@@ -131,9 +131,9 @@ will be calculated for the sum of each species in the family.
 |14|GROW| change in aerosol species due to aerosol growth|
 |1+2|HADV| total horizontal advection|
 |1+2+3|MADV| Horizontal and vertical advection|
-|11+12+13+14|AERO| change due to aerosol processes|
 |4+5|TDIF| Total diffusion of species|
 |1+2+3+4+5| TRNM|Total mass-conserving transport of species|
+|11+12+13+14|AERO| change due to aerosol processes|
 
 ## 9.5 Parameters for IRR
 
