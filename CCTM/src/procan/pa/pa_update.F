@@ -327,7 +327,7 @@ C-----------------------------------------------------------------------
       END DO
       
       ! Save Changes in Budget Array
-      CALL STORE_BUDGET( IPR_EMIS, VEMIS, JDATE, JTIME, .FALSE. )
+      CALL STORE_BUDGET( IPR_EMIS, CNGRD, JDATE, JTIME, .FALSE. )
 
       ! Save Changes in Process Analysis Array
       IF ( LIPR ) THEN
