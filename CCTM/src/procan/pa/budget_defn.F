@@ -160,7 +160,7 @@ C-----------------------------------------------------------------------
               WRITE( BDG_UNIT, '(A1)' ),'#'
           
               WRITE( BDG_UNIT, '(A1,6x,A,A)' ),'#','All date-times are in ',
-     &             'YYYYmmdd:HHMMSS format and in UTC time zone.'
+     &             'YYYY-mm-ddTHH:MM:SSZ format and in UTC time zone.'
               WRITE( BDG_UNIT, '(A1,6x,A)' ),'#','Delta T (time) Units are hours.' 
               WRITE( BDG_UNIT, '(A1,6x,A)' ),'#','Gas and Aerosol Mass Units are kg'
               WRITE( BDG_UNIT, '(A1,6x,A)' ),'#','Aerosol Number Units are total N'
