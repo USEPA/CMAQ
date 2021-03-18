@@ -122,14 +122,14 @@ set make_options = "-j"                #> additional options for make command if
                                             #> use gas/ros3 or gas/smvgear for a solver independent 
                                             #> of the photochemical mechanism [ default: ebi ]
  if ( $ChemSolver == ebi ) then             
-    set ModGas    = gas/${ChemSolver}_${Mechanism}   
- else                                       
+    set ModGas    = gas/${ChemSolver}_${Mechanism}
+                                            #>   overwritten below if using cb6r3m_ae7_aq mechanism
+ else
     set ModGas    = gas/${ChemSolver}
  endif
     
  set ModAero   = aero/aero7                 #> aerosol chemistry module (see $CMAQ_MODEL/CCTM/src/aero)
  set ModCloud  = cloud/acm_ae7              #> cloud chemistry module (see $CMAQ_MODEL/CCTM/src/cloud)
-                                            #>   overwritten below if using cb6r3m_ae7_kmtbr mechanism
  set ModUtil   = util/util                  #> CCTM utility modules
  set ModDiag   = diag                       #> CCTM diagnostic modules
  set Tracer    = trac0                      #> tracer configuration directory under 
@@ -298,9 +298,9 @@ set make_options = "-j"                #> additional options for make command if
     endif
  endif
 
-#> Cloud chemistry options
- if ( ${Mechanism} == cb6r3m_ae7_kmtbr ) then
-    set ModCloud = cloud/acm_ae7_kmtbr
+#> Gas-phase chemistry solver options
+ if ( ${Mechanism} == cb6r3m_ae7_aq ) then
+    set ModGas   = gas/ros3
  endif
 
 #> Tracer configuration files
@@ -585,7 +585,7 @@ set Cfile = ${Bld}/${CFG}.bld      # Config Filename
  echo "Module ${ModGas};"                                          >> $Cfile
  echo                                                              >> $Cfile
 
- set MechList = " cb6mp_ae6_aq, cb6r3_ae6_aq, cb6r3_ae7_aq, cb6r3_ae7_aqkmt2, cb6r3m_ae7_kmtbr, racm2_ae6_aq, saprc07tc_ae6_aq, saprc07tic_ae6i_aq, saprc07tic_ae6i_aqkmti, saprc07tic_ae7i_aq, saprc07tic_ae7i_aqkmt2"
+ set MechList = " cb6mp_ae6_aq, cb6r3_ae6_aq, cb6r3_ae7_aq, cb6r3_ae7_aqkmt2, cb6r3m_ae7_aq, racm2_ae6_aq, saprc07tc_ae6_aq, saprc07tic_ae6i_aq, saprc07tic_ae6i_aqkmti, saprc07tic_ae7i_aq, saprc07tic_ae7i_aqkmt2"
  set text = "gas chemistry mechanisms"
  echo "// " $text                                                  >> $Cfile
  set text = "$MechList"

@@ -23,11 +23,11 @@ C*************************************************************************
 C
 C  FUNCTION:  Mechanism & solver data for EBI solver
 C
-C  PRECONDITIONS: For the CB6R3M_AE7_KMTBR mechanism
+C  PRECONDITIONS: For the CB6R3M_AE7_AQ mechanism
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, Mar 24, 2020
+C  REVISION HISTORY: Created by EBI solver program, Jan 25, 2021
 C
 C   18 Jul 14 B.Hutzell: revised to use real(8) variables for solution
 C*************************************************************************
@@ -266,33 +266,32 @@ c..Species indices
       INTEGER, PARAMETER :: BRNO3            =  153
       INTEGER, PARAMETER :: BRNO2            =  154
       INTEGER, PARAMETER :: FMBR             =  155
-      INTEGER, PARAMETER :: CH3BR            =  156
-      INTEGER, PARAMETER :: MB3              =  157
-      INTEGER, PARAMETER :: MB2              =  158
-      INTEGER, PARAMETER :: MB2C             =  159
-      INTEGER, PARAMETER :: MBC2             =  160
-      INTEGER, PARAMETER :: MBC              =  161
-      INTEGER, PARAMETER :: DMS              =  162
-      INTEGER, PARAMETER :: MSA              =  163
-      INTEGER, PARAMETER :: BRCL             =  164
-      INTEGER, PARAMETER :: ABRJ             =  165
-      INTEGER, PARAMETER :: I                =  166
-      INTEGER, PARAMETER :: IO               =  167
-      INTEGER, PARAMETER :: HI               =  168
-      INTEGER, PARAMETER :: I2               =  169
-      INTEGER, PARAMETER :: HOI              =  170
-      INTEGER, PARAMETER :: INO              =  171
-      INTEGER, PARAMETER :: INO2             =  172
-      INTEGER, PARAMETER :: INO3             =  173
-      INTEGER, PARAMETER :: OIO              =  174
-      INTEGER, PARAMETER :: I2O4             =  175
-      INTEGER, PARAMETER :: I2O2             =  176
-      INTEGER, PARAMETER :: I2O3             =  177
-      INTEGER, PARAMETER :: CH3I             =  178
-      INTEGER, PARAMETER :: ICL              =  179
-      INTEGER, PARAMETER :: IBR              =  180
-      INTEGER, PARAMETER :: MI2              =  181
-      INTEGER, PARAMETER :: MIB              =  182
-      INTEGER, PARAMETER :: MIC              =  183
+      INTEGER, PARAMETER :: MB3              =  156
+      INTEGER, PARAMETER :: MB2              =  157
+      INTEGER, PARAMETER :: MB2C             =  158
+      INTEGER, PARAMETER :: MBC2             =  159
+      INTEGER, PARAMETER :: MBC              =  160
+      INTEGER, PARAMETER :: DMS              =  161
+      INTEGER, PARAMETER :: MSA              =  162
+      INTEGER, PARAMETER :: BRCL             =  163
+      INTEGER, PARAMETER :: ABRJ             =  164
+      INTEGER, PARAMETER :: I                =  165
+      INTEGER, PARAMETER :: IO               =  166
+      INTEGER, PARAMETER :: HI               =  167
+      INTEGER, PARAMETER :: I2               =  168
+      INTEGER, PARAMETER :: HOI              =  169
+      INTEGER, PARAMETER :: INO              =  170
+      INTEGER, PARAMETER :: INO2             =  171
+      INTEGER, PARAMETER :: INO3             =  172
+      INTEGER, PARAMETER :: OIO              =  173
+      INTEGER, PARAMETER :: I2O4             =  174
+      INTEGER, PARAMETER :: I2O2             =  175
+      INTEGER, PARAMETER :: I2O3             =  176
+      INTEGER, PARAMETER :: CH3I             =  177
+      INTEGER, PARAMETER :: ICL              =  178
+      INTEGER, PARAMETER :: IBR              =  179
+      INTEGER, PARAMETER :: MI2              =  180
+      INTEGER, PARAMETER :: MIB              =  181
+      INTEGER, PARAMETER :: MIC              =  182
 
       END MODULE HRDATA
