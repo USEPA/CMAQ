@@ -322,6 +322,7 @@ C Parameters specific to gas_x. Currently based on m3dry but subject to change
          Real            :: soil_flux                                         ! soil emission and deposition for soil biogeochem
          Real            :: f_emis, f_dep, f_stom, f_cut, f_soil, flux_ag, f_nat, f_wat ! component fluxes
          Real            :: ctemp2, lv, cp_air, tw, dw25, kvisw
+         Real            :: ir_frac
          integer         :: l, n, s
          LOGICAL         :: effective  ! true=compute effective Henry's Law const
          Logical         :: NH3_hit, O3_hit, Hg_hit ! logical vars for special cases
@@ -350,6 +351,11 @@ C Parameters specific to gas_x. Currently based on m3dry but subject to change
          sm_bslp = max(GRID_DATA%BSLP( c,r ),1.0)
          sm_v1cm = min(MET_DATA%SOIM1( c,r ),sm_vsat)
          sm_v1cm = max(sm_v1cm,sm_vres)
+         If( ABFLUX ) Then
+            ir_frac = frac_ir( c,r )
+         Else
+            ir_frac = 0.0 ! no data available
+         End If
          If( PX_LSM ) Then
 ! simplified from Darcy's law assuming stationarity and only gravitational draining with the Campbell hydrological functions applied
 ! 0.4 is the difference in the layer depths of 1cm and 5 cm
@@ -540,7 +546,7 @@ C Calculate Rst
                   Rb   = Calc_Rbg( k_vis, dif_T, 0.0, ustar )
 
                   Rgnd = Calc_Rg( dif_T, rel_rx( s ), Rsnow, Rwet, sm_v1cm,
-     &                          sm_v5cm, sm_vsat, sm_vfc, sm_vwlt, sm_vres, sm_bslp, zsoil1, frac_ir( c,r ),
+     &                          sm_v5cm, sm_vsat, sm_vfc, sm_vwlt, sm_vres, sm_bslp, zsoil1, ir_frac,
      &                          dry, wet, snow, no_snow, O3_Hit, NH3_Hit, ABFLUX ) 
 
                   If( ABFLUX .And. NH3_Hit ) Then
