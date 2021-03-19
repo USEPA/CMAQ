@@ -1,8 +1,8 @@
 CMAQv5.3.2 Release Notes
 =====================================
-[Tutorial on installing and running the CMAQ test case](../Users_Guide/Tutorials/CMAQ_UG_tutorial_benchmark.md)  
 [CMAQv5.3.2 User's Guide](../Users_Guide/README.md)  
-[Frequently asked questions for upgrading to the latest CMAQ version](CMAQ_FAQ.md)  **- Updated for v5.3.2 release.**  
+[Tutorials on installing and running CMAQ](DOCS/Users_Guide/Tutorials/README.md) **- Tutorial on running CMAQ test case plus new tutorials on WRF-CMAQ, ISAM, and modifying a chemical mechanism.**  
+[Frequently asked questions for upgrading to the latest CMAQ version](CMAQ_FAQ.md)  **- Updated for v5.3.2 release.** 
 [CMAQv5.3.2 Known Issues](../Known_Issues/README.md) - Updated after the v5.3.2 release to alert users of issues that will be addressed with the next release. 
 
 # Summary of CMAQv5.3.2 Updates 
