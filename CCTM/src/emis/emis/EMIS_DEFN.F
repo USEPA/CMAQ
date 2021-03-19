@@ -953,11 +953,11 @@ C-----------------------------------------------------------------------
 
       ! For the Primary Scaling (IFAC = 1), apply the array operation
       NISTR = EM_FAC1_ST( ISRM )%NISTR
-      ALLOCATE( MAP_FACtoISTR( NISTR ) )
-      MAP_FACtoISTR = EM_FAC1_ST( ISRM )%MAP_FACtoISTR
-
-      VDEMIS( MAP_FACtoISTR,1:NL,:,: ) = VDEMIS0( MAP_FACtoISTR,1:NL,:,: ) * 
-     &        EM_FAC1_ST( ISRM )%FAC( 1:NISTR,1:NL,:,: )
+      DO ISTR = 1,NISTR
+         VDEMIS( EM_FAC1_ST( ISRM )%MAP_FACtoISTR( ISTR ),1:NL,:,: ) = 
+     &        VDEMIS0( EM_FAC1_ST( ISRM )%MAP_FACtoISTR( ISTR ),1:NL,:,: ) * 
+     &        EM_FAC1_ST( ISRM )%FAC( ISTR,1:NL,:,: )
+      END DO
 
       
       ! For Additional Scaling Operations (IFAC > 1), Loop through Instructions 
