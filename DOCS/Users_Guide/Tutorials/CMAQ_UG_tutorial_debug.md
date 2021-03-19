@@ -87,8 +87,8 @@ setenv NCFDIR ${CMAQ_HOME}/lib/x86_64/intel/netcdff
 setenv LD_LIBRARY_PATH ${NCDIR}/lib:$NCFDIR/lib:${LD_LIBRARY_PATH}
 ```
 
-### If the program did not completed successfully for another reason
-If the program did not completed successfully for another reason, you will need to check the per processor log files which begin with the name: CTM_LOG_\*.
+### If the program did not complete successfully for another reason
+If the program did not complete successfully for another reason, you will need to check the per processor log files which begin with the name: CTM_LOG_\*.
 * These files may either be located in the run directory, if the run script was aborted.
 * Or they may have been moved by the run script to a LOGS directory under the output directory. 
 
@@ -120,13 +120,45 @@ Use the grep command to find an error in any of the files
 grep -i error CTM_LOG*
 ```
 
-## If you encounter an error running CMAQ.
+## If you encounter an error running CMAQ
 * [Search the CMAS Forum](https://forum.cmascenter.org/search?expanded=true) for an error similar to the one that you are seeing in your CTM_LOG file.
 * [Review the CMAQ FAQ](https://www.epa.gov/cmaq/frequent-cmaq-questions)
 
 * If you don’t see a similar error reported in an issue or in a FAQ that provides enough information for you to troubleshoot and solve the issue then submit a new topic.
 
+## If the program crashed
+* If the program crashed (as opposed to aborting with an error message), you may get a stack trace similar to the following:
+```
+forrtl: severe (174): SIGSEGV, segmentation fault occurred
+Image              PC                Routine            Line        Source
+CCTM_s07tic_noche  00000000009AF90D  Unknown               Unknown  Unknown
+libpthread-2.18.s  00002AF0F5B4B6D0  Unknown               Unknown  Unknown
+CCTM_s07tic_noche  00000000006F3A8A  Unknown               Unknown  Unknown
+CCTM_s07tic_noche  0000000000605EF2  Unknown               Unknown  Unknown
+CCTM_s07tic_noche  00000000005FEC8C  Unknown               Unknown  Unknown
+CCTM_s07tic_noche  00000000005FD619  Unknown               Unknown  Unknown
+CCTM_s07tic_noche  0000000000406D9E  Unknown               Unknown  Unknown
+libc-2.18.so       00002AF0F6464D65  __libc_start_main     Unknown  Unknown
+CCTM_s07tic_noche  0000000000406CA9  Unknown               Unknown  Unknown
+```
+Please do not post an unreadable stack trace to the user forum! Instead, recompile the model in debug mode (uncomment "set Debug_CCTM" in bldit_cctm.csh) and rerun. The model will run much more slowly, but when a crash occurs, the stack trace will provide information which should help with debugging.  For example:
+```
+forrtl: severe (174): SIGSEGV, segmentation fault occurred
+Image              PC                Routine            Line        Source
+CCTM_s07tic_noche  0000000001A61C1D  Unknown               Unknown  Unknown
+libpthread-2.18.s  00002B8D9E0FC6D0  Unknown               Unknown  Unknown
+CCTM_s07tic_noche  0000000001551229  aero_                     503  aero_driver.F
+CCTM_s07tic_noche  0000000000E617C1  sciproc_                  298  sciproc.F
+CCTM_s07tic_noche  0000000000E48385  cmaq_driver_              679  driver.F
+CCTM_s07tic_noche  0000000000E40B84  MAIN__                     96  cmaq_main.F
+CCTM_s07tic_noche  0000000000406D9E  Unknown               Unknown  Unknown
+libc-2.18.so       00002B8D9EA15D65  __libc_start_main     Unknown  Unknown
+CCTM_s07tic_noche  0000000000406CA9  Unknown               Unknown  Unknown
+```
+This stack trace indicates that the error occurred on line 503 of the file aero_driver.F.
+
 ## Submit a new topic issue on the CMAS User Forum
+
 
 * [Visit the category](https://forum.cmascenter.org/categories) that best describes your issue.
 
@@ -137,8 +169,10 @@ grep -i error CTM_LOG*
 * Click on + New Topic in the upper right corner
 The Category will be pre-selected if you start a new topic request from within a category, if the category is “Uncategorized”, then use the pull-down menu to select the category for your topic.
 
+
 ### Selecting a category for your issue
 Selecting a category is important, as the CMAS Center and EPA staff are only monitoring topics submitted within a category that matches their expertise.
+
  
 * Type in a title for your topic that describes your CMAQ compiler environment
 Example Title: 
@@ -178,6 +212,7 @@ grep -B
 Error message encountered: 
 ```
 error while loading shared libraries  …  cannot open shared object file …
+
 ```
 
 ### Upload additional files by clicking on the up arrow icon in the menu underneath the Create New Topic Title including:
