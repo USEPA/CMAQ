@@ -120,7 +120,7 @@ C ...Tagging indices for bcon, others, icon
 
         INTEGER, PARAMETER, PRIVATE :: MAX_STRING     = 32  ! max length of tagclass name
         INTEGER, PARAMETER, PRIVATE :: MAX_TAGCLASSES = 200 ! max number of tagclasses
-        INTEGER, PARAMETER, PRIVATE :: NUMB_CLASSES   = 11  ! number of defined tagclasses
+        INTEGER, PARAMETER, PRIVATE :: NUMB_CLASSES   = 15  ! number of defined tagclasses
         
         CHARACTER( MAX_STRING ), PARAMETER, PRIVATE :: DEFINED_CLASSES( NUMB_CLASSES ) = 
      & (/ 'AMMONIUM ',
@@ -133,7 +133,10 @@ C ...Tagging indices for bcon, others, icon
      &    'VOC      ',
      &    'PM25_IONS',
      &    'ALL      ',
-     &    'PMTOT    '/)
+     &    'PMTOT    ',
+     &    'HAP_GAS  ',
+     &    'HAP_AERO ',
+     &    'HAP_TOT  '/)
         
       
       CONTAINS
@@ -406,7 +409,7 @@ c----------------------------------------------------------
         N_ISAM_MECH = 7
         ALLOCATE( ISAM_MECHLIST( N_ISAM_MECH ), ISAM_SPEC_OZONE( N_ISAM_MECH ),
      &            ISAM_SPEC_VOC( N_ISAM_MECH ), ISAM_SPEC_NO3  ( N_ISAM_MECH ),
-     &            ISAM_SPEC_SO4( N_ISAM_MECH ) )
+     &            ISAM_SPEC_SO4( N_ISAM_MECH ), ISAM_SPEC_HAGAS( N_ISAM_MECH ) )
 
         ISAM_MECHLIST = (/'CB6R3_AE6_AQ      ', 'CB6R3_AE7_AQ      ',
      &                    'CB6R3M_AE7_KMTBR  ', 'SAPRC07TC_AE6_AQ  ', 
@@ -616,6 +619,48 @@ c----------------------------------------------------------
         !RACM2_AE6_AQ
         ALLOCATE( ISAM_SPEC_SO4( 7 )%LIST( 1 ) )
         ISAM_SPEC_SO4( 7 )%LIST = (/'SO2'/ )
+
+        !PRESCRIBE HAP SPECIES
+        !CB6R3_AE6_AQ
+        ALLOCATE( ISAM_SPEC_HAPGAS( 1 )%LIST( 5 ) )
+        ISAM_SPEC_HAPGAS( 1 )%LIST = (/'FORM_PRIMARY','ALD2_PRIMARY',
+     &                  'ACROLEIN    ','BUTADIENE13 ','ACRO_PRIMARY'/)
+
+        !CB6R3_AE7_AQ
+        ALLOCATE( ISAM_SPEC_HAPGAS( 2 )%LIST( 5 ) )
+        ISAM_SPEC_HAPGAS( 2 )%LIST = (/'FORM_PRIMARY','ALD2_PRIMARY',
+     &                  'ACROLEIN    ','BUTADIENE13 ','ACRO_PRIMARY'/)
+
+        !CB6R3_AE7_KMTBR
+        ALLOCATE( ISAM_SPEC_HAPGAS( 3 )%LIST( 5 ) )
+        ISAM_SPEC_HAPGAS( 3 )%LIST = (/'FORM_PRIMARY','ALD2_PRIMARY',
+     &                  'ACROLEIN    ','BUTADIENE13 ','ACRO_PRIMARY'/)
+
+        !SAPRC07TC_AE6_AQ
+        ALLOCATE( ISAM_SPEC_HAPGAS( 4 )%LIST( 5 ) )
+        ISAM_SPEC_HAPGAS( 4 )%LIST = (/'HCHO_PRIMARY','CCHO_PRIMARY',
+     &                  'ACROLEIN    ','BUTADIENE13 ','ACRO_PRIMARY'/)
+
+        !SAPRC07TIC_AE6I_AQ
+        ALLOCATE( ISAM_SPEC_HAPGAS( 5 )%LIST( 5 ) )
+        ISAM_SPEC_HAPGAS( 5 )%LIST = (/'HCHO_PRIMARY','CCHO_PRIMARY',
+     &                  'ACROLEIN    ','BUTADIENE13 ','ACRO_PRIMARY'/)
+
+        !SAPRC07TIC_AE7I_AQ
+        ALLOCATE( ISAM_SPEC_HAPGAS( 6 )%LIST( 5 ) )
+        ISAM_SPEC_HAPGAS( 6 )%LIST = (/'HCHO_PRIMARY','CCHO_PRIMARY',
+     &                  'ACROLEIN    ','BUTADIENE13 ','ACRO_PRIMARY'/)
+
+        !RACM2_AE6_AQ
+        ALLOCATE( ISAM_SPEC_HAPGAS( 7 )%LIST( 5 ) )
+        ISAM_SPEC_HAPGAS( 7 )%LIST = (/'HCHO_PRIMARY','CCHO_PRIMARY',
+     &                  'ACROLEIN    ','BUTADIENE13 ','ACRO_PRIMARY'/)
+
+        !AEROSOL HAPS
+        ALLOCATE( ISAM_SPEC_HAPAERO( 16 ) )
+        ISAM_SPEC_HAPAERO = (/'ANI     ','ACR_VI  ','ACR_III ','ABE     ',
+     &  'APB     ','ADE_OTHR','ADE_EC  ','ADE_OC  ','ADE_NO3 ','ADE_SO4 ',
+     &  'ADE_CORS','ACD     ','AMN_HAPS','APHG    ','AAS     ','ABENAPY '
 
 
         ! Allocate Vecotrs for Species Names and Aerosol Precursors
@@ -849,6 +894,42 @@ c----------------------------------------------------------
           END DO 
         ENDIF
  
+        ! Add HAP Gases
+        IF ( INDEX( TAGCLASSES,'HAP_GAS' ) .NE. 0 .OR. 
+     &       INDEX( TAGCLASSES,'HAP_TOT' ) .NE. 0  ) THEN
+          IF ( IMECH .EQ. 0 ) THEN
+                XMSG = "ISAM ERROR: The gaseous HAPs tag group has been selected but the species "
+     &                // "for the " // TRIM( MECHNAME ) // " mechanism are not defined. Modify GET_NSPC_SA "
+     &                // "and GET_SPC_INDEX  subroutines to include MECHNAME cases for it."
+                CALL M3EXIT('GET_NSPC_SA', 0, 0, XMSG, XSTAT2 ) 
+          END IF
+
+          ! Add each VOC Species according to fields ISAM_SPEC_VOC arrays
+          DO ISPEC = 1,SIZE( ISAM_SPEC_HAPGAS( IMECH )%LIST )
+             IF ( INDEX1( ISAM_SPEC_HAPGAS(IMECH)%LIST(ISPEC), NSPC_SA, ISAM_SPEC(:,1) ) .EQ. 0 ) THEN
+                NSPC_SA = NSPC_SA + 1
+                ISAM_SPEC( NSPC_SA,: ) = 
+     &               ISAM_SPEC_HAPGAS( IMECH )%LIST( ISPEC )
+             END IF
+          END DO 
+        ENDIF
+ 
+        ! Add HAP Aerosols
+        IF ( INDEX( TAGCLASSES,'HAP_AERO') .NE. 0 .OR. 
+     &       INDEX( TAGCLASSES,'HAP_TOT' ) .NE. 0  ) THEN
+          DO JAERO = 1,SIZE( ISAM_SPEC_HAPAERO )
+             IAERO = INDEX1( ISAM_SPEC_HAPAERO( JAERO), N_AEROSPC, AEROSPC%BULKNAME )
+             IF ( IAERO .NE. 0 ) THEN
+                 L_ISAM_AERO( IAERO ) = .TRUE.
+             ELSE
+                XMSG = "ISAM ERROR: The aerosol HAPs tag group has been selected but the species "
+     &                // TRIM( ISAM_SPEC_HAPAERO( JAERO ) // " does not exist. Modify ISAM_SPEC_HAPAERO "
+     &                // "in SA_DEFN or the AERO_DATA aerosol table to include it."
+                CALL M3EXIT('GET_NSPC_SA', 0, 0, XMSG, XSTAT2 ) 
+          END DO
+        ENDIF
+ 
+
         ! Add Requested Aerosol Species as defined in L_ISAM_AERO
         ! Part of this procedure involves distributing the aerosol bulknames 
         ! associated with L_ISAM_AERO into mode-dependent names needed
