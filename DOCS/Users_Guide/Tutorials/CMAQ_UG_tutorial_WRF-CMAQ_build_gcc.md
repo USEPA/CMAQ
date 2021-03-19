@@ -323,7 +323,7 @@ gdrive download 1oZecf-4aRu9q0ZptNsyI63QU4KUrTFFl
 
 The WRF-CMAQ model is also available as a tarball (twoway.tar.gz) from the the US EPA annoymous ftp server:
 
-[ftp://newftp.epa.gov/exposure/CMAQ/V5_3_2/Benchmark/WRFv4.1.1-CMAQv5.3.2/](ftp://newftp.epa.gov/exposure/CMAQ/V5_3_2/Benchmark/WRFv4.1.1-CMAQv5.3.2/)
+[https://gaftp.epa.gov/exposure/CMAQ/V5_3_2/Benchmark/WRFv4.1.1-CMAQv5.3.2/](https://gaftp.epa.gov/exposure/CMAQ/V5_3_2/Benchmark/WRFv4.1.1-CMAQv5.3.2/)
 
 The following commands must be adjusted for the paths on your system.
 ```

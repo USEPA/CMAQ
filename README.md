@@ -3,6 +3,8 @@ CMAQv5.3.2
 
 Community Multiscale Air Quality Model US EPA CMAQ Website: (https://www.epa.gov/cmaq).
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.4081737.svg)](https://doi.org/10.5281/zenodo.4081737)
+
 CMAQ is an active open-source development project of the U.S. EPA's Office of Research and Development that consists of a suite of programs for conducting air quality model simulations.
 CMAQ is supported by the CMAS Center: (http://www.cmascenter.org).
 
@@ -15,6 +17,7 @@ particulates, toxics, and acid deposition.
 CMAQv5.3.2 includes significant updates to the CMAQ Integrated Source Apportionment Method (ISAM) and multiple minor fixes to address issues identified in CMAQv5.3.1. The new CMAQ-ISAM version includes substantial updates to the gas-phase chemistry apportionment algorithms that improves both physical and numerical aspects of the method. Users of ISAM are strongly encouraged to update to CMAQv5.3.2.
 * [CMAQv5.3.2 Release Notes](DOCS/Release_Notes/README.md)   
 * [Frequently asked questions for upgrading to the latest CMAQ version](DOCS/Release_Notes/CMAQ_FAQ.md) **- Updated for v5.3.2 release.** 
+* [Tutorials for setting up and running CMAQ](DOCS/Users_Guide/Tutorials/README.md) **- New tutorials on WRF-CMAQ, ISAM, and modifying a chemical mechanism.**
 * [CMAQv5.3.2 Known Issues](DOCS/Known_Issues/README.md) - Updated after the v5.3.2 release to alert users of issues that will be addressed with the next release. 
 
 ## New features in CMAQ version 5.3 include:
@@ -63,7 +66,7 @@ Benchmark/tutorial data for each CMAQ release version are available from the CMA
 |v5.3, v5.3.1|Output| Southeast US| July 1 - 14, 2016|https://doi.org/10.15139/S3/PDE4SS |
 |v5.3.2|Output| Southeast US| July 1 - 2, 2016|https://doi.org/10.15139/S3/PDE4SS |
 
-The benchmark data is also available form the US EPA annoymous ftp server: ftp://newftp.epa.gov/exposure/CMAQ/V5_3_2/Benchmark/WRFv4.1.1-CMAQv5.3.2/
+The benchmark data is also available form the US EPA annoymous ftp server: https://gaftp.epa.gov/exposure/CMAQ/V5_3_2/Benchmark/WRFv4.1.1-CMAQv5.3.2/
 
 ## Previous CMAQ Versions
 The followoing release versions of CMAQ are currently available on GitHub.  DOI values from Zenodo can be used when referencing a specific version.
