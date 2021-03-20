@@ -150,9 +150,10 @@ C-----------------------------------------------------------------------
       INTEGER SDATE     ! Date at end of timestep
       INTEGER STIME     ! Time at end of timestep
       INTEGER I
+      LOGICAL LCOUPLE_LOCAL
 
       REAL :: TCGRID  ( MY_PACOLS,MY_PAROWS,PALEVS )  
-
+      REAL, ALLOCATABLE, SAVE :: D_CNGRD( :,:,:,: )
 !-----------------------------------------------------------------------
 
       IF ( FIRSTIME ) THEN
@@ -161,39 +162,62 @@ C-----------------------------------------------------------------------
          IF ( .NOT. ALLOCATED( CNGRD ) ) THEN
            ALLOCATE ( CNGRD( NCOLS,NROWS,NLAYS,N_CGRID_SPC ),
      &                STAT = ASTAT )
-           IF ( ASTAT .NE. 0 ) THEN
-              MSG = '*** ERROR allocating CNGRD'
-              CALL M3EXIT( PNAME, JDATE, JTIME, MSG, XSTAT1 )
-           END IF
+           CALL CHECKMEM( ASTAT, 'CNGRD', PNAME )
          END IF
          
          IF ( .NOT. ALLOCATED( CSAV ) ) THEN
            ALLOCATE ( CSAV( NCOLS,NROWS,NLAYS,N_CGRID_SPC ),
      &                STAT = ASTAT )
-           IF ( ASTAT .NE. 0 ) THEN
-              MSG = '*** ERROR allocating CSAV'
-              CALL M3EXIT( PNAME, JDATE, JTIME, MSG, XSTAT1 )
-           END IF
+           CALL CHECKMEM( ASTAT, 'CSAV', PNAME )
          END IF
+       
+         ALLOCATE ( D_CNGRD( NCOLS,NROWS,NLAYS,N_CGRID_SPC ),
+     &              STAT = ASTAT )
+         CALL CHECKMEM( ASTAT, 'D_CNGRD', PNAME )
       END IF
 
+      ! Load local CGRID Array
       DO I = 1,N_CGRID_SPC
       DO L = 1,NLAYS
       DO R = 1,NROWS
       DO C = 1,NCOLS
-         CNGRD(C,R,L,I) = CGRID(C,R,L,I)  ! local copy (separate memory)
+         CNGRD(C,R,L,I) = CGRID(C,R,L,I) 
       END DO
       END DO
       END DO
       END DO
       
+      ! Account for Couple/Decouple Steps
+      LCOUPLE_LOCAL = LCOUPLE
+      IF ( IPR_ID .EQ. IPR_DEFM ) THEN
+          IF ( LCOUPLE ) THEN 
+            CALL DECOUPLE_PA( CNGRD, JDATE, JTIME )
+            LCOUPLE_LOCAL = .FALSE.
+          ELSE
+            CALL DECOUPLE_PA( CSAV, JDATE, JTIME )
+          END IF
+      END IF
+
+      ! Calculate change, and save for later
+      DO I = 1,N_CGRID_SPC
+      DO L = 1,NLAYS
+      DO R = 1,NROWS
+      DO C = 1,NCOLS
+         D_CNGRD(C,R,L,I) = CNGRD(C,R,L,I) - CSAV(C,R,L,I)
+         CSAV(C,R,L,I) = CNGRD(C,R,L,I)
+      END DO
+      END DO
+      END DO
+      END DO
+      
+      ! Account for Couple/Decouple Steps
       ! Determine if concentrations need to converted from mixing
       ! ratios.
-      CALL STORE_BUDGET( IPR_ID, CNGRD, JDATE, JTIME, LCOUPLE )
-      IF ( LCOUPLE ) CALL DECOUPLE_PA( CNGRD, JDATE, JTIME )
-
-      ! Save Changes in Budget Array
-
+      CALL STORE_BUDGET( IPR_ID, CNGRD, JDATE, JTIME, LCOUPLE_LOCAL )
+      
+      IF ( LCOUPLE_LOCAL ) CALL DECOUPLE_PA( D_CNGRD, JDATE, JTIME )
+ 
+      ! Compute Contribution for Process Analysis 
       IF ( LIPR ) THEN
          ! Compute delta conc for this process if requested
          DO IPRV = 1,NIPRVAR
@@ -201,28 +225,21 @@ C-----------------------------------------------------------------------
                IPRSPC = MAP_IPRVARtoSPC( IPRV )
                DO ISPC = 1, NCGRID( IPRSPC )
                   ICG = MAP_IPRtoCGRID( IPRSPC,ISPC )
+        
 #ifdef parallel
-                  CALL SUBST_DATA_COPY( CNGRD, TCGRID, ICG )
+                  CALL SUBST_DATA_COPY( D_CNGRD, TCGRID, ICG )
 #else        
-                  TCGRID( :,:,: ) = CNGRD( PA_BEGCOL:PA_ENDCOL,PA_BEGROW:PA_ENDROW,
+                  TCGRID( :,:,: ) = D_CNGRD( PA_BEGCOL:PA_ENDCOL,PA_BEGROW:PA_ENDROW,
      &                                     PA_BEGLEV:PA_ENDLEV,ICG )
 #endif
+                  
                   DELC( :,:,:,IPRV ) = DELC( :,:,:,IPRV ) + SPCOEF( IPRSPC,ISPC ) 
-     &                 * ( TCGRID( :,:,: ) - CSAV( :,:,:,ICG ) )
+     &                 * TCGRID( :,:,: ) 
                END DO
             END IF
          END DO
       END IF
 
-      DO I = 1,N_CGRID_SPC
-      DO L = 1,NLAYS
-      DO R = 1,NROWS
-      DO C = 1,NCOLS
-         CSAV(C,R,L,I) = CNGRD(C,R,L,I)
-      END DO
-      END DO
-      END DO
-      END DO
 
       RETURN
       END SUBROUTINE PA_UPDATE_PROC
@@ -417,7 +434,6 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       REAL, PARAMETER :: CONVMW = 1.0E+06 * MWAIR ! ug mol-1
 
       REAL :: DENS    ( NCOLS,NROWS,NLAYS )  ! Density of air
-      REAL :: DENSA_J ( NCOLS,NROWS,NLAYS )  ! Density of air
       REAL :: TDDEP   ( MY_PACOLS,MY_PAROWS )
       REAL :: ZF      ( NCOLS,NROWS,NLAYS )  ! Layer heights
 
@@ -559,6 +575,7 @@ C..get density x jacobian and layer heights
       USE UTILIO_DEFN
       USE PAGRD_DEFN
       USE CGRID_SPCS, ONLY : RHOJ_LOC
+      use CENTRALIZED_IO_MODULE, only : interpolate_var
 
       IMPLICIT NONE
 
@@ -570,11 +587,18 @@ C..get density x jacobian and layer heights
 
       REAL :: TXADV  ( MY_PACOLS,MY_PAROWS,PALEVS )  ! Computed emission rate
       REAL :: TYADV  ( MY_PACOLS,MY_PAROWS,PALEVS )  ! Computed emission rate
+      REAL,ALLOCATABLE,SAVE :: RHOJ   ( :,:,: )  ! Computed emission rate
 
       INTEGER :: IPRV
       INTEGER :: ICG, ISPC, IPRSPC, ISV
-      LOGICAL,SAVE :: FIRST_TIME = .TRUE.
-      INTEGER I, L, R, C
+      LOGICAL,SAVE :: FIRSTIME = .TRUE.
+      INTEGER I, L, R, C, ASTAT
+
+      IF ( FIRSTIME ) THEN 
+          FIRSTIME = .FALSE.
+          ALLOCATE( RHOJ( NCOLS,NROWS,NLAYS ),STAT=ASTAT )
+          CALL CHECKMEM( ASTAT, 'RHOJ', 'PA_UPDATE_HADV' )
+      END IF
 
       ! Convert scalars from trasnport process units to mixing ratio and
       ! concentration units.
@@ -590,20 +614,22 @@ C..get density x jacobian and layer heights
       SDATE = JDATE; STIME = JTIME
       CALL NEXTIME( SDATE, STIME, TSTEP( 2 ) )
       CALL STORE_BUDGET( BDGSAVE_ID, CNGRD, JDATE, JTIME, .TRUE. )
-      CALL DECOUPLE_PA( CNGRD, JDATE, JTIME )
-
+      CALL INTERPOLATE_VAR ('DENSA_J', JDATE, JTIME, RHOJ)
+      
       IF ( LIPR ) THEN
          ! Convert X and Y Advection changes to mixing ratio and
          ! concentration units. The DECOUPLE_PA routine needs to have the
          ! correct RHOJ so this is passed from CNGRD
+         
          DELC_XADV( :,:,:,RHOJ_LOC ) = CNGRD( :,:,:,RHOJ_LOC )
-         CALL DECOUPLE_PA( DELC_XADV, SDATE, STIME )
+         CALL DECOUPLE_PA( DELC_XADV, JDATE, JTIME )
+
          DELC_YADV( :,:,:,RHOJ_LOC ) = CNGRD( :,:,:,RHOJ_LOC )
-         CALL DECOUPLE_PA( DELC_YADV, SDATE, STIME )
+         CALL DECOUPLE_PA( DELC_YADV, JDATE, JTIME )
 
          ! Save Changes in Budget Array
-         CALL STORE_BUDGET( IPR_XADV, DELC_XADV, SDATE, STIME, .FALSE. )
-         CALL STORE_BUDGET( IPR_YADV, DELC_YADV, SDATE, STIME, .FALSE. )
+         CALL STORE_BUDGET( IPR_XADV, DELC_XADV, JDATE, JTIME, .FALSE. )
+         CALL STORE_BUDGET( IPR_YADV, DELC_YADV, JDATE, JTIME, .FALSE. )
 
          DO IPRV = 1, NIPRVAR     ! foreach family
             IPRSPC = MAP_IPRVARtoSPC( IPRV ) 
@@ -639,6 +665,9 @@ C..get density x jacobian and layer heights
          DELC_YADV = 0.0
       END IF
  
+      ! Decuople CNGRD so it can be saved for the next process
+      !CALL DECOUPLE_PA( CNGRD, JDATE, JTIME )
+
       DO I = 1,N_CGRID_SPC
       DO L = 1,NLAYS
       DO R = 1,NROWS
@@ -668,6 +697,7 @@ C..get density x jacobian and layer heights
       INTEGER, INTENT( IN ) :: JDATE, JTIME
 
       INTEGER :: ICG, IPRV, IPRSPC, ISPC, ISV
+      INTEGER :: I, R, C, L
       LOGICAL,SAVE :: FIRST_TIME = .TRUE.
 
       REAL :: TCOAG  ( MY_PACOLS,MY_PAROWS,PALEVS )  ! Computed emission ratedd
@@ -681,7 +711,6 @@ C..get density x jacobian and layer heights
       END IF
 
       ! Save Changes in Budget Array
-      !CSAV = CGRID
       CALL STORE_BUDGET( IPR_COAG, AERO_COAG, JDATE, JTIME, .FALSE. )
       CALL STORE_BUDGET( IPR_COND, AERO_COND, JDATE, JTIME, .FALSE. )
       CALL STORE_BUDGET( IPR_NPF,  AERO_NPF, JDATE, JTIME, .FALSE. )
@@ -731,7 +760,18 @@ C..get density x jacobian and layer heights
          END DO
       END DO
       END IF
-  
+       
+      ! Save Concentration in CSAV Array
+      DO I = 1,N_CGRID_SPC
+      DO L = 1,NLAYS
+      DO R = 1,NROWS
+      DO C = 1,NCOLS
+         CSAV(C,R,L,I) = CGRID(C,R,L,I)
+      END DO
+      END DO
+      END DO
+      END DO
+ 
       RETURN
  
       END SUBROUTINE PA_UPDATE_AERO
@@ -777,8 +817,8 @@ C Parameters:
 C External Functions:
 
 C File Variables:
-      REAL       RJACOBM( NCOLS,NROWS,NLAYS )  ! reciprocal midlayer Jacobian
-      REAL       RRHOJ  ( NCOLS,NROWS,NLAYS )  ! reciprocal Jacobian * air density
+      REAL       JACOBM( NCOLS,NROWS,NLAYS )  ! reciprocal midlayer Jacobian
+      REAL       RHOJ  ( NCOLS,NROWS,NLAYS )  ! reciprocal Jacobian * air density
 
 C Local Variables:
       CHARACTER( 16 ) :: PNAME = 'DECOUPLE_PA'
@@ -790,13 +830,9 @@ C Local Variables:
 C-----------------------------------------------------------------------
 
 C retrieve transported RhoJ
-      RRHOJ( :,:,: ) = CONC( :,:,:,RHOJ_LOC )
-      RRHOJ = 1.0 / RRHOJ   ! array assignment
+      CALL INTERPOLATE_VAR ('JACOBM', JDATE, JTIME, JACOBM)
+      CALL INTERPOLATE_VAR ('DENSA_J', JDATE, JTIME, RHOJ)
 
-      call interpolate_var ('JACOBM', jdate, jtime, RJACOBM)
-
-      RJACOBM = 1.0 / RJACOBM   ! array assignment
- 
 C decouple for chemistry and diffusion
 C The CONC array is ordered like CGRID but only the DIFF species should
 C be modified. Use DIFF_MAP
@@ -807,7 +843,7 @@ C be modified. Use DIFF_MAP
             DO R = 1,NROWS
             DO C = 1,NCOLS
                CONC( C,R,L,DIFF_MAP( V ) ) = 
-     &             CONC( C,R,L,DIFF_MAP( V ) ) * RJACOBM( C,R,L )
+     &             CONC( C,R,L,DIFF_MAP( V ) ) / JACOBM( C,R,L )
             END DO
             END DO
             END DO
@@ -817,7 +853,7 @@ C be modified. Use DIFF_MAP
             DO R = 1,NROWS
             DO C = 1,NCOLS
                CONC( C,R,L,DIFF_MAP( V ) ) = 
-     &             CONC( C,R,L,DIFF_MAP( V ) ) * CONV * RJACOBM( C,R,L )
+     &             CONC( C,R,L,DIFF_MAP( V ) ) * CONV / JACOBM( C,R,L )
             END DO
             END DO
             END DO
@@ -827,7 +863,7 @@ C be modified. Use DIFF_MAP
             DO R = 1,NROWS
             DO C = 1,NCOLS
                CONC( C,R,L,DIFF_MAP( V ) ) = 
-     &             CONC( C,R,L,DIFF_MAP( V ) ) * RRHOJ( C,R,L )
+     &             CONC( C,R,L,DIFF_MAP( V ) ) / RHOJ( C,R,L )
             END DO
             END DO
             END DO
