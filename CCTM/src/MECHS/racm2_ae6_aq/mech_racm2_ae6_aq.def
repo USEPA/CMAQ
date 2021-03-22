@@ -85,7 +85,7 @@
 ! 05-25-17 B.Hutzell
 !   1. updated the oligomerization reactions to be consistent with the 
 !      saprc07tic_ae6_aq mechanism.
-! 06-19-18 G.Sarwar
+! 03-04-21 G.Sarwar
 !    updated <HAL_OZONE>
 !------------------------------------------------------------------------------ 
 RACM2_AE6_AQ
@@ -1189,7 +1189,8 @@ REACTIONS[CM] =
 
 ! Simplified ozone loss from oceanic halogens excluding chlorine
 
-<HAL_Ozone> O3 =  %H # 2.8964E-11@-11.9978 & 0.0E-0@-0.0;
+<HAL_Ozone> O3 =  %H # 6.7006E-11@-10.7435 & 3.4153E-08@0.6713
+                                                & 2.0E-6;
 
 <HET_IEPOX> IEPOX = AISO3J  # 1.0~<HETERO_IEPOX>;
 

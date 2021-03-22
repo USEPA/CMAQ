@@ -8,8 +8,7 @@ This Fortran program combines fields from a set of IOAPI or wrfout input files t
 ```
  GENSPEC      Indicates to generate a new SPECIES_DEF file (does not generate OUTFILE)
               Choices are: Y, N. (e.g. setenv GENSPEC N)
- SPEC_DEP     Set location of species definition files for deposition species.
- SPEC_CONC    Set location of species definition files for concentration species.
+ SPECIES_DEF  Set location of species definition files.
  INFILE1      input file number 1
               The maximum number of IOAPI files is set to be one less than the global IOAPI parameter MXFILE3.
 	      Since this parameter is currently set to 64 (https://www.cmascenter.org/ioapi/documentation/all_versions/html/TUTORIAL.html),

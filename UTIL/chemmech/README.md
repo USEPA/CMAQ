@@ -191,7 +191,7 @@ Rate constant parameters begin with either a # sign or the expression, "%s#", wh
 | 9.1 | %3  #  A0^B0@E0&A1\^B1@E1&A2@E2 | A0\*(T/300)\*\*B0\*EXP(-E0/T)+A1\*(T/300)\*\*B1\*EXP(-E1/T)\*M+A2\*EXP(-E2/T) |  
 | 10  | #  A0^B0@E0&A1\^B1@E1&N&F       | [  ko\*M/(1+ko\*M/kinf)]F\*\*G  where  ko  =  A0\*(T/300)\*\*B0\*EXP(-E0/T),  kinf  =  A1\*(T/300)\*\*B1\*EXP(-E1/T)  and  G  =  G=1/[1+(log10(k0\*M/kinf)/n)**2)]  |  
 | 11  | #A?OPERATOR                    | A\*O |  
-| 12  |  %H  #  A0@E0&A1@E1            | A0\*EXP(-E0\*P)+A1\*EXP(-E1\*P)  if  the  sun  is  above  the  horizon  and  the  surface  is over  open  water  with  no  surf  zone.  0.0  if  otherwise |  
+| 12  |  %H  #  A0@E0&A1@E1&A2            | min(A0\*EXP(-E0\*P)+A1\*EXP(-E1\*P), A2)  if  the  sun  is  above  the  horizon  and  the  surface  is over  open  water  with  no  surf  zone.  0.0  if  otherwise |  
 | 13  | %4 # _Text String_     | Simple Fortran formula for rate constant | 
 
 **Notes:**   

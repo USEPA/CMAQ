@@ -576,20 +576,17 @@ C                 IPH(IP,2) to be resolved in caller (CHEMMECH.f)
                    RFDAT( NUMREALS,NFALLOFF ) = -1.0D0 * NUMBER
                END IF
             END IF
-!            IF( CHR .NE. '/' )THEN
-!               WRITE( *,2043 ) NXX, INBUF(LPOINT:IEOL)
-!               STOP
-!            ELSE
-!               CALL GETCHAR ( IMECH, INBUF, LPOINT, IEOL, CHR )
-!               IF ( CHR .EQ. '<' ) THEN
-!                  CALL GETLABEL ( IMECH, INBUF, LPOINT, IEOL, CHR, LABEL( NXX,2 ) )
-!               ELSE
-!                  WRITE( *,2007 ) NXX, INBUF
-!                  STOP
-!               END IF
-!           END IF
-!            write(*,'(A16,1X,4(ES12.4,1X),A16)')LABEL(NXX,1),RTDAT(1,NXX),RFDAT(1,NFALLOFF),
-!     &      RTDAT(2,NXX),RFDAT(2,NFALLOFF),LABEL(NXX,2)
+            IF( CHR .EQ. '&' )THEN
+               NUMREALS     = 3
+               CALL GETCHAR ( IMECH, INBUF, LPOINT, IEOL, CHR )
+               CALL GETREAL ( IMECH, INBUF, LPOINT, IEOL, CHR, NUMBER )
+               RTDAT( NUMREALS,NXX ) = NUMBER
+!           ELSE
+!              NUMREALS     = 3
+!              RTDAT( NUMREALS,NXX ) = 2.6000D-6
+            END IF
+!            write(*,'(A16,1X,5(ES12.4,1X),A16)')LABEL(NXX,1),RTDAT(1,NXX),RFDAT(1,NFALLOFF),
+!    &      RTDAT(2,NXX),RFDAT(2,NFALLOFF),RTDAT(3,NXX),LABEL(NXX,2)
             IF ( CHR .NE. ';' ) THEN
                WRITE( *,2017 ) NXX, INBUF
                STOP
