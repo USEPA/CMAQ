@@ -2,7 +2,9 @@ FORM_M_IUPAC13
 ! j(FORM_M) IUPAC(2013)                                            
 ! FORM = CO                                                        
 ! From IUPAC Subcommittee on Gas Kinetic Data Evaluation           
-! Data Sheet P1, updated 16th May, 2002                            
+! Data Sheet P1, updated 16th April, 2013
+! Note that QY was calculated using the difference between
+! total quantum yield and the yield for the radical channel.
 !These are point values                                            
 POINT
 !WL(nm) XSEC(cm2) QY
