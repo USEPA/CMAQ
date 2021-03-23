@@ -133,7 +133,7 @@ c end of the numeric string
          LENGTH = LENGTH + 1
       END IF
       NUMSTRING = NUMSTRING( 1:LENGTH ) // 'D0'
-       READ ( NUMSTRING( 1:LENGTH ), * ) NUMBER
+       READ ( NUMSTRING( 1:LENGTH ), *, ERR=1999 ) NUMBER
 !      READ( NUMSTRING( 1:LENGTH ), * )LOCAL_NUMBER
       IF( LZERO )THEN
          NUMBER = 0.0D+0
@@ -145,6 +145,9 @@ c end of the numeric string
       IF ( CHR .EQ. ' ' ) CALL GETCHAR ( IMECH, INBUF, LPOINT, IEOL, CHR )
 
       RETURN
+1999  WRITE(*,'("Error reading real number in the line: " / A)')TRIM( INBUF )
+      STOP
+
 C=======================================================================
 2001  FORMAT( / 5X, '*** ERROR: ',
      &              'Only one decimal point allowed in a number'
