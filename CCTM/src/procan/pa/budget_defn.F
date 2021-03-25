@@ -168,7 +168,7 @@ C-----------------------------------------------------------------------
               WRITE( BDG_UNIT, '(A1)' ),'#'
           
               ! Write Header
-              WRITE( BDG_UNIT, '(57(A))' ), 'SPECIES',tab,'T_START',tab,
+              WRITE( BDG_UNIT, '(59(A))' ), 'SPECIES',tab,'T_START',tab,
      &         'T_FINAL',tab,'T_DELTA',tab,'M_START',tab,'M_FINAL',tab,
      &         'M_DELTA',tab,'WEST_IN',tab,'WEST_OUT',tab,'EAST_IN',tab,
      &         'EAST_OUT',tab,'SOUTH_IN',tab,'SOUTH_OUT',tab,'NORTH_IN',tab,
@@ -527,7 +527,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          ! Write Species Process Changes to tab-separated file
          DO I = 1,N_BDG_VAR
             ! Default
-            WRITE( BDG_UNIT,'(3(A,A),F7.3,A,25(E15.8,A) )' ),TRIM(BDGSPEC(I)),tab, 
+            WRITE( BDG_UNIT,'(3(A,A),F7.3,A,26(E15.8,A) )' ),TRIM(BDGSPEC(I)),tab, 
      &         BDG_TIME0,tab,BDG_TIME1,tab, DT,tab, (BDG_BURDEN_OUT(I,J),tab,J=1,3 ),
      &         ( ADV_FLUXES_OUT(I,J),tab,J=1,8 ),
      &         ( BDG_PROC_OUT(I,J),tab,J=3,NPRCS ), RESID_F(I)

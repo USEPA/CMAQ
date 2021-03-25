@@ -157,12 +157,19 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
                MAP_IPRVARtoSPC_TMP( NIPRVAR )= NIPR
                MASK_IPR_PROC_TMP( NIPRVAR,IPR_DDEP ) = .TRUE.
 
-            ELSE IF ( IPR_OPNAME( NIPR,N )( 1:4 ) .EQ. 'DEFM' ) THEN
-               IPRNAME_TMP( NIPRVAR ) = 'DEFM_' // IPR_SPNAM( NIPR )
-               IPRDESC_TMP( NIPRVAR ) = 'Density Correction for ' // 
+            ELSE IF ( IPR_OPNAME( NIPR,N )( 1:4 ) .EQ. 'COUP' ) THEN
+               IPRNAME_TMP( NIPRVAR ) = 'COUP_' // IPR_SPNAM( NIPR )
+               IPRDESC_TMP( NIPRVAR ) = 'Coupled Density Correction for ' // 
      &                                   IPR_SPNAM( NIPR )
                MAP_IPRVARtoSPC_TMP( NIPRVAR )= NIPR
-               MASK_IPR_PROC_TMP( NIPRVAR,IPR_DEFM ) = .TRUE.
+               MASK_IPR_PROC_TMP( NIPRVAR,IPR_COUP ) = .TRUE.
+
+            ELSE IF ( IPR_OPNAME( NIPR,N )( 1:4 ) .EQ. 'DECP' ) THEN
+               IPRNAME_TMP( NIPRVAR ) = 'DECP_' // IPR_SPNAM( NIPR )
+               IPRDESC_TMP( NIPRVAR ) = 'Decoupled Density Correction for ' // 
+     &                                   IPR_SPNAM( NIPR )
+               MAP_IPRVARtoSPC_TMP( NIPRVAR )= NIPR
+               MASK_IPR_PROC_TMP( NIPRVAR,IPR_DECP ) = .TRUE.
 
             ELSE IF ( IPR_OPNAME( NIPR,N )( 1:4 ) .EQ. 'CLDS' ) THEN
                IPRNAME_TMP( NIPRVAR ) = 'CLDS_' // IPR_SPNAM( NIPR )

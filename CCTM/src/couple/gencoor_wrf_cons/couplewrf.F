@@ -54,6 +54,7 @@ C-----------------------------------------------------------------------
       USE CGRID_SPCS            ! CGRID mechanism species
       USE UTILIO_DEFN
       use CENTRALIZED_IO_MODULE, only : interpolate_var
+      USE PA_DEFN, ONLY : COUPLE_WRF
 #ifdef isam
       USE SA_DEFN, ONLY: ISAM, NSPC_SA, NTAG_SA, SPC_INDEX, TRANSPORT_SPC, ITAG
 #endif
@@ -119,6 +120,7 @@ C If ISPCA .ne. 0, then air is advected and concs. are adjusted
       IF ( FIRSTIME ) THEN
          FIRSTIME = .FALSE.
 
+         COUPLE_WRF = .TRUE.
          IF ( N_AE_SPC .GT. 0 ) THEN
 C create aerosol species pointers to distinguish micro-grams/m**3,
 C #/m**3 (number density), and m**2/m**3 (surface area) species
@@ -339,6 +341,7 @@ C retrieve transported RhoJ
             END DO
          END DO
       END DO
+      !call interpolate_var ('DENSA_J', JDATE, JTIME, RHOJ)
 
 C decouple for chemistry and diffusion
  

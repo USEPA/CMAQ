@@ -66,7 +66,7 @@ C-----------------------------------------------------------------------
       USE NOOP_MODULES          ! stenex (using NOOP_UTIL_MODULE)
 #endif
       USE PA_DEFN, Only: LIPR, IPR_VDIF, IPR_ZADV, IPR_HDIF, IPR_CLDS, 
-     &                   IPR_CHEM, IPR_DEFM, IPR_PVO3   ! Process Analysis control and data variables
+     &                   IPR_CHEM, IPR_COUP, IPR_DECP, IPR_PVO3   ! Process Analysis control and data variables
       USE PA_UPDATE
 #ifdef isam
       USE SA_DEFN, Only: ISAM
@@ -239,7 +239,7 @@ C DECOUPLE routine converts it back to ug/m3.
          CALL COUPLE ( CGRID, JDATE, JTIME, TSTEP )
          IF ( CKSUM ) CALL CKSUMMER ( 'COUPLE', CGRID, JDATE, JTIME )
          IF ( PRINT_PROC_TIME ) CALL TIMING_SPLIT ( CPU_TIME_START, 1, 'COUPLE' )
-         IF ( BUDGET_DIAG .OR. LIPR ) CALL PA_UPDATE_PROC ( IPR_DEFM, CGRID, JDATE, JTIME, TSTEP, .TRUE. )
+         IF ( BUDGET_DIAG .OR. LIPR ) CALL PA_UPDATE_PROC ( IPR_COUP, CGRID, JDATE, JTIME, TSTEP, .TRUE. )
 
          CALL SUBST_BARRIER()
          CALL HADV ( CGRID, JDATE, JTIME, TSTEP, ASTEP )
@@ -269,7 +269,7 @@ C decouple CGRID for cloud and chemistry
 
       END IF
       
-      IF ( BUDGET_DIAG .OR. LIPR ) CALL PA_UPDATE_PROC ( IPR_DEFM, CGRID, SDATE, STIME, TSTEP, .FALSE. )
+      IF ( BUDGET_DIAG .OR. LIPR ) CALL PA_UPDATE_PROC ( IPR_DECP, CGRID, SDATE, STIME, TSTEP, .FALSE. )
       
       CALL PHOT ( CGRID, JDATE, JTIME, TSTEP )
       IF ( CKSUM ) CALL CKSUMMER ( 'PHOT', CGRID, JDATE, JTIME )
