@@ -73,7 +73,7 @@ C----------------------------------------------------------------------
       CALL PA_SETUP_IRR
       CALL PA_COMPMECH
 !     CALL PA_WRTPADEFN
-      CALL PA_REPORT
+      IF ( MYPE .EQ. 0 ) CALL PA_REPORT
       CALL M3MESG( 'End of initial Process Analysis Control data generation' )
       CALL M3MESG( ' ' )
 
