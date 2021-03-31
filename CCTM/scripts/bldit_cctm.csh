@@ -115,15 +115,18 @@ set make_options = "-j"                #> additional options for make command if
  set ModPhot   = phot/inline                #> photolysis calculation module 
                                             #>     (see $CMAQ_MODEL/CCTM/src/phot)
 
- setenv Mechanism cb6r3_ae7_aq               #> chemical mechanism (see $CMAQ_MODEL/CCTM/src/MECHS)
+ setenv Mechanism cb6r3_ae7_aq              #> chemical mechanism (see $CMAQ_MODEL/CCTM/src/MECHS)
  set ModMech   = MECHS/${Mechanism}
  
- set ChemSolver = ebi                       #> gas-phase chemistry solver (see $CMAQ_MODEL/CCTM/src/gas)
-                                            #> use gas/ros3 or gas/smvgear for a solver independent 
-                                            #> of the photochemical mechanism [ default: ebi ]
+ if ( ${Mechanism} != cb6r3m_ae7_aq ) then  #> Gas-phase chemistry solver options
+     set ChemSolver = ebi                   #> gas-phase chemistry solver (see $CMAQ_MODEL/CCTM/src/gas)
+ else                                       #> use gas/ros3 or gas/smvgear for a solver independent
+     set ChemSolver = ros3                  #> of the photochemical mechanism [ default for most mechanisms: ebi ]
+ endif
+                                         
  if ( $ChemSolver == ebi ) then             
     set ModGas    = gas/${ChemSolver}_${Mechanism}
-                                            #>   overwritten below if using cb6r3m_ae7_aq mechanism
+                                            
  else
     set ModGas    = gas/${ChemSolver}
  endif
@@ -296,11 +299,6 @@ set make_options = "-j"                #> additional options for make command if
       echo "bldit_mech did not finish correctly --> Build Process Halted"
       exit 1
     endif
- endif
-
-#> Gas-phase chemistry solver options
- if ( ${Mechanism} == cb6r3m_ae7_aq ) then
-    set ModGas   = gas/ros3
  endif
 
 #> Tracer configuration files
