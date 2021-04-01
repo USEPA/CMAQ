@@ -39,25 +39,33 @@
             INCLUDE 'SPC_CB6.EXT'
             INCLUDE 'SPC_CB6_AE7.EXT'
             INCLUDE 'SPC_RACM2.EXT'        ! new in MEGAN3
-            INCLUDE 'SPC_SAPRC07.EXT'      ! new in MEGAN3
             INCLUDE 'MAP_CV2CB05.EXT'
+            INCLUDE 'SPC_SAPRC07.EXT'      ! new in MEGAN3
+            INCLUDE 'SPC_SAPRC07T.EXT'    ! new in MEGAN3
             INCLUDE 'MAP_CV2CB6.EXT'      
             INCLUDE 'MAP_CV2CB6_AE7.EXT'      
             INCLUDE 'MAP_CV2RACM2.EXT'
             INCLUDE 'MAP_CV2SAPRC07.EXT'
+            INCLUDE 'MAP_CV2SAPRC07T.EXT'
 
          CONTAINS
 
          subroutine MEGAN_MAP
 
          USE RXNS_DATA, ONLY : MECHNAME
+         USE RUNTIME_VARS, ONLY : LOGDEV
          USE UTILIO_DEFN
 
           IMPLICIT NONE
 
            CHARACTER( 16 ) :: MECHANISM              ! Mechanism name
            INTEGER ios,INDX
-         INTEGER,        PARAMETER :: NMECHS = 14   ! dimension for number of mechanisms considered
+         INTEGER,        PARAMETER :: NMECHS = 13   ! dimension for number of mechanisms considered
+
+         INTEGER I
+
+         CHARACTER( 256 ) :: XMSG
+         LOGICAL          :: EFLAG 
 
          TYPE MIOG_MECH_TYPE
               CHARACTER( 32 ) :: CHEMMECH
@@ -73,19 +81,22 @@
      &         MIOG_MECH_TYPE( 'CB6R3_AE7_AQ           ','CB6_ae7 '),
      &         MIOG_MECH_TYPE( 'CB6R3M_AE7_KMTBR       ','CB6_ae7 '),
      &         MIOG_MECH_TYPE( 'RACM2_AE6_AQ           ','RACM2   '),
-     &         MIOG_MECH_TYPE( 'SAPRC07TB_AE6_AQ       ','SAPRC07   '),
-     &         MIOG_MECH_TYPE( 'SAPRC07TC_AE6_AQ       ','SAPRC07   '),
-     &         MIOG_MECH_TYPE( 'SAPRC07TIC_AE6I_AQ     ','SAPRC07   '),
-     &         MIOG_MECH_TYPE( 'SAPRC07TIC_AE7I_AQ     ','SAPRC07   '),
-     &         MIOG_MECH_TYPE( 'SAPRC07TIC_AE6I_AQKMTI ','SAPRC07   ') /)
+     &         MIOG_MECH_TYPE( 'SAPRC07TB_AE6_AQ       ','SAPRC07T'),
+     &         MIOG_MECH_TYPE( 'SAPRC07TC_AE6_AQ       ','SAPRC07T'),
+     &         MIOG_MECH_TYPE( 'SAPRC07TIC_AEI6_AQ     ','SAPRC07T'),
+     &         MIOG_MECH_TYPE( 'SAPRC07TIC_AE7I_AQ     ','SAPRC07T') /)
 
             INDX = INDEX1( MECHNAME, NMECHS, MIOG_MECH_MAP%CHEMMECH )
             MECHANISM = MIOG_MECH_MAP( INDX )%MIOGMECH
-  
+            EFLAG = .FALSE.
+ 
           SELECT CASE ( TRIM(MECHANISM) )
             CASE ('SAPRC07')
               n_scon_spc = n_saprc07
               NMGNSPC = n_saprc07_spc
+            CASE ('SAPRC07T')
+              n_scon_spc = n_saprc07t
+              NMGNSPC = n_saprc07t_spc
             CASE ('CB05')
               n_scon_spc = n_cb05
               NMGNSPC = n_cb05_spc
@@ -99,6 +110,10 @@
               n_scon_spc = n_cb6_ae7
               NMGNSPC = n_cb6_ae7_spc
             CASE DEFAULT
+              EFLAG = .TRUE.
+              XMSG = "Mechanism," // TRIM( MECHNAME ) 
+     &             // ", is not identified."
+              WRITE(LOGDEV,'(A)')TRIM( XMSG )
           ENDSELECT
    
           ALLOCATE ( MEGAN_NAMES(NMGNSPC), STAT = ios )
@@ -138,6 +153,13 @@
               mech_spc(1:NMGNSPC)    = mech_spc_saprc07(1:NMGNSPC)
               mech_mwt(1:NMGNSPC)    = mech_mwt_saprc07(1:NMGNSPC)
               MEGAN_NAMES(1:NMGNSPC)     = mech_spc(1:NMGNSPC)
+            CASE ('SAPRC07T')
+              spmh_map(1:n_scon_spc) = spmh_map_saprc07t(1:n_scon_spc)
+              mech_map(1:n_scon_spc) = mech_map_saprc07t(1:n_scon_spc)
+              conv_fac(1:n_scon_spc) = conv_fac_saprc07t(1:n_scon_spc)
+              mech_spc(1:NMGNSPC)    = mech_spc_saprc07t(1:NMGNSPC)
+              mech_mwt(1:NMGNSPC)    = mech_mwt_saprc07t(1:NMGNSPC)
+              MEGAN_NAMES(1:NMGNSPC)     = mech_spc(1:NMGNSPC)
             CASE ('CB6_ae7')
               spmh_map(1:n_scon_spc) = spmh_map_cb6_ae7(1:n_scon_spc)
               mech_map(1:n_scon_spc) = mech_map_cb6_ae7(1:n_scon_spc)
@@ -145,6 +167,18 @@
               mech_spc(1:NMGNSPC)    = mech_spc_cb6_ae7(1:NMGNSPC)
               mech_mwt(1:NMGNSPC)    = mech_mwt_cb6_ae7(1:NMGNSPC)
               MEGAN_NAMES(1:NMGNSPC)     = mech_spc(1:NMGNSPC)
+            CASE DEFAULT 
+              EFLAG = .TRUE.
+              XMSG = "Mapping for Mechanism," // TRIM( MECHNAME )
+     &             // ", is unspecified."
+              WRITE(LOGDEV,'(A)')TRIM( XMSG )
           ENDSELECT
+          
+          IF( EFLAG )THEN
+             XMSG = 'Above Error(s) detected'
+             CALL M3EXIT('MAP_MEGAN', 0, 0, XMSG, XSTAT1 )
+          END IF
+
+
         End subroutine MEGAN_MAP
       END MODULE MEGAN_GSPRO

@@ -1,5 +1,6 @@
 module megan_fx
     
+      USE ASX_DATA_MOD, ONLY : Grid_Data
 ! Aggregated code from MEGAN3.1 by Francis S.Binkowski 
 ! with minor modifications where noted below.
 ! Implemented for CMAQ and proofed by Jeff Willison.
@@ -76,11 +77,17 @@ module megan_fx
 
 !-- WWLT is wilting point (M^3/M^3) (JN90)
 
-      REAL, PARAMETER  ::    WWLT(16) = (/               &        
-                            0.068, 0.075, 0.114, 0.179,  &
-                            0.155, 0.175, 0.218, 0.250,  &
-                            0.219, 0.283, 0.286, 0.286,  &
-                            0.286, 0.286, 0.286, 0.286   /)           
+!      REAL, PARAMETER  ::    WWLT(16) = (/               &        
+!                            0.068, 0.075, 0.114, 0.179,  &
+!                            0.155, 0.175, 0.218, 0.250,  &
+!                            0.219, 0.283, 0.286, 0.286,  &
+!                            0.286, 0.286, 0.286, 0.286   /)           
+!     REAL, PARAMETER  ::    WWLT(16) =   (/  
+!                            0.068, 0.075, 0.114, 0.179,  & 
+!                            0.150, 0.155, 0.175, 0.218,  &
+!                            0.250, 0.219, 0.283, 0.286,  &
+!                            0.155, 0.286, 0.286, 0.175 /)
+!
 
     !   Based upon  MEGVEA.EXT includes suggestions from CJC
 
@@ -3252,7 +3259,9 @@ SUBROUTINE MEGVEA(NCOLS,NROWS, LAYERS, JDATE, ZTIME,                &
 
            DO I = 1, NCOLS
              DO J = 1, NROWS
-               wilt = WWLT(SLTYP(I,J))
+
+               !wilt = WWLT(SLTYP(I,J))
+               wilt = Grid_Data%WWLT(I,J)
                t1 = wilt + d1
                IF ( SOILM2(I,J) < wilt ) THEN
                    GAMSM(I,J) = 0

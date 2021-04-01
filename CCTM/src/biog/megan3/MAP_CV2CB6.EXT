@@ -38,7 +38,7 @@ C=======================================================================
       DATA  SPMH_NAM_CB6( 2)     , SPMH_MAP_CB6( 2)
      &    / 'MBO_2m3e2ol     ', 2           /
       DATA  MECH_NAM_CB6( 2)     , MECH_MAP_CB6( 2)
-     &    / 'IOLE      ', 16           /
+     &    / 'OLE      ', 5           /
       DATA  CONV_FAC_CB6( 2)
      &    / 1       /
  
@@ -47,7 +47,7 @@ C=======================================================================
       DATA  MECH_NAM_CB6( 3)     , MECH_MAP_CB6( 3)
      &    / 'PAR      ', 3           /
       DATA  CONV_FAC_CB6( 3)
-     &    / 1       /
+     &    / 3       /
  
       DATA  SPMH_NAM_CB6( 4)     , SPMH_MAP_CB6( 4)
      &    / 'pinene_a     ', 3           /
@@ -255,9 +255,9 @@ C=======================================================================
       DATA  SPMH_NAM_CB6( 33)     , SPMH_MAP_CB6( 33)
      &    / 'octanol     ', 36           /
       DATA  MECH_NAM_CB6( 33)     , MECH_MAP_CB6( 33)
-     &    / 'TERP      ', 2           /
+     &    / 'PAR      ', 3           /
       DATA  CONV_FAC_CB6( 33)
-     &    / 1       /
+     &    / 8       /
  
       DATA  SPMH_NAM_CB6( 34)     , SPMH_MAP_CB6( 34)
      &    / 'estragole     ', 31           /
@@ -808,7 +808,7 @@ C=======================================================================
       DATA  SPMH_NAM_CB6( 112)     , SPMH_MAP_CB6( 112)
      &    / 'linalool     ', 150           /
       DATA  MECH_NAM_CB6( 112)     , MECH_MAP_CB6( 112)
-     &    / 'ISPD      ', 28           /
+     &    / 'TERP      ', 2           /
       DATA  CONV_FAC_CB6( 112)
      &    / 1       /
  
@@ -843,7 +843,7 @@ C=======================================================================
       DATA  SPMH_NAM_CB6( 117)     , SPMH_MAP_CB6( 117)
      &    / 'cineole_1_8     ', 133           /
       DATA  MECH_NAM_CB6( 117)     , MECH_MAP_CB6( 117)
-     &    / 'ISPD      ', 28           /
+     &    / 'TERP      ', 2           /
       DATA  CONV_FAC_CB6( 117)
      &    / 1       /
  
@@ -878,7 +878,7 @@ C=======================================================================
       DATA  SPMH_NAM_CB6( 122)     , SPMH_MAP_CB6( 122)
      &    / '2met_nonatriene     ', 137           /
       DATA  MECH_NAM_CB6( 122)     , MECH_MAP_CB6( 122)
-     &    / 'ISPD      ', 28           /
+     &    / 'TERP      ', 2           /
       DATA  CONV_FAC_CB6( 122)
      &    / 1       /
  
@@ -941,7 +941,7 @@ C=======================================================================
       DATA  SPMH_NAM_CB6( 131)     , SPMH_MAP_CB6( 131)
      &    / 'terpinyl_ACT_a     ', 197           /
       DATA  MECH_NAM_CB6( 131)     , MECH_MAP_CB6( 131)
-     &    / 'ISPD      ', 28           /
+     &    / 'TERP      ', 2           /
       DATA  CONV_FAC_CB6( 131)
      &    / 1       /
  
@@ -992,7 +992,7 @@ C=======================================================================
       DATA  MECH_NAM_CB6( 138)     , MECH_MAP_CB6( 138)
      &    / 'PAR      ', 3           /
       DATA  CONV_FAC_CB6( 138)
-     &    / 12       /
+     &    / 11       /
  
       DATA  SPMH_NAM_CB6( 139)     , SPMH_MAP_CB6( 139)
      &    / 'tetradecene_1     ', 198           /

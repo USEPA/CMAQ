@@ -810,14 +810,14 @@ C=======================================================================
       DATA  MECH_NAM_RACM2( 112)     , MECH_MAP_RACM2( 112)
      &    / 'MACR      ', 32           /
       DATA  CONV_FAC_RACM2( 112)
-     &    / 0.5       /
+     &    / 0.       /
  
       DATA  SPMH_NAM_RACM2( 113)     , SPMH_MAP_RACM2( 113)
      &    / 'linalool     ', 150           /
       DATA  MECH_NAM_RACM2( 113)     , MECH_MAP_RACM2( 113)
-     &    / 'MVK      ', 30           /
+     &    / 'OLI      ', 1           /
       DATA  CONV_FAC_RACM2( 113)
-     &    / 0.5       /
+     &    / 1       /
  
       DATA  SPMH_NAM_RACM2( 114)     , SPMH_MAP_RACM2( 114)
      &    / 'methacrolein     ', 153           /
