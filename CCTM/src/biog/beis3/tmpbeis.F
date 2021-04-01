@@ -81,6 +81,7 @@ C-----------------------------------------------------------------------
       USE UTILIO_DEFN
       USE BIOG_EMIS             ! beis
       USE centralized_io_module, only : AVGEMIS, AVGLAI, interpolate_var
+      Use ASX_DATA_MOD, only: MET_DATA
 
 #ifdef parallel
       USE SE_MODULES            ! stenex (using SE_UTIL_MODULE)
@@ -106,7 +107,7 @@ C Parameters:
       REAL,    PARAMETER :: HR2SEC = 1.0 / 3600.0
 
 C Gridded meteorology data:
-      INTEGER, ALLOCATABLE, SAVE :: SWITCH( :,: )     ! Seasonal switch
+      REAL, ALLOCATABLE, SAVE :: FSEAS( :,: )     ! Seasonal function
 
 C Gridded beis emissions
 !     REAL,    ALLOCATABLE, SAVE :: AVGEMIS( :,:,:,: ) ! avg emissions (3.12)
@@ -195,9 +196,9 @@ C Determine last timestamp
 C Open and check bioseason file if using
          IF ( BIOGEMIS_SEASON ) THEN
 
-            ALLOCATE( SWITCH( NCOLS,NROWS ), STAT=IOS )
-            CALL CHECKMEM( IOS, 'SWITCH', PNAME )
-            SWITCH = 0   ! array
+            ALLOCATE( FSEAS( NCOLS,NROWS ), STAT=IOS )
+            CALL CHECKMEM( IOS, 'FSEAS', PNAME )
+            FSEAS = 0   ! array
 
          END IF
 
@@ -304,15 +305,6 @@ C Allocate memory for arrays
          ALLOCATE( SLAI( NCOLS,NROWS,NLAI ), STAT=IOS )
          CALL CHECKMEM( IOS, 'SLAI', PNAME )
 
-C Initialize normalized emissons to be used 
-         IF ( ASSUME_SUMMER ) THEN
-            SEMIS = AVGEMIS( 1:NCOLS,1:NROWS,:,NSUMMER )
-            SLAI  = AVGLAI ( 1:NCOLS,1:NROWS,:,NSUMMER )
-         ELSE
-            SEMIS = AVGEMIS( 1:NCOLS,1:NROWS,:,NWINTER )
-            SLAI  = AVGLAI ( 1:NCOLS,1:NROWS,:,NWINTER )
-         END IF
-
          LDATE = 0
 
 #ifdef verbose_tmpbeis
@@ -350,29 +342,19 @@ C Loop thru the number of time steps (hourly)
 
          CALL WRDAYMSG( JDATE, MESG )               
 
-C If new date, read season switch 
-         IF ( BIOGEMIS_SEASON ) THEN
-            MESG = 'Reading gridded season switch data...'
-            CALL M3MSG2( MESG ) 
-             
-            call interpolate_var ('SEASON', jdate, 0, SWITCH)
+C calculate fseas based on deep soil temperature following WRF 3.8.1 PX 
+         Where( Met_Data%TEMP2 .Lt. 290.0 .And. Met_Data%TEMP2 .Gt. 282.0 )
+            FSEAS = 1.0 - 0.015625 * ( 290.0 - Met_Data%TEMP2 ) ** 2
+         Elsewhere( Met_Data%TEMP2 .Ge. 290.0 )
+            FSEAS = 1.0
+         Elsewhere
+            FSEAS = 0.0
+         End where
 
-            MESG = 'Applying gridded season switch data...' 
-            CALL M3MSG2( MESG )
-
-            DO R = 1, NROWS
-               DO C = 1, NCOLS
-                  IF ( SWITCH( C,R ) .EQ. 0 ) THEN   ! use winter normalized emissions
-                     SEMIS( C,R,1:NSEF-1 ) = AVGEMIS( C,R,1:NSEF-1,NWINTER )
-                     SLAI ( C,R,1:NLAI   ) =  AVGLAI( C,R,1:NLAI,  NWINTER )
-                  ELSE
-                     SEMIS( C,R,1:NSEF-1 ) = AVGEMIS( C,R,1:NSEF-1,NSUMMER )
-                     SLAI ( C,R,1:NLAI   ) =  AVGLAI( C,R,1:NLAI,  NSUMMER )
-                  END IF                      
-               END DO
-            END DO
- 
-         END IF   ! if using switch file
+         DO S = 1, NSEF-1 ! normalized emission factors
+            SEMIS( :,:,S ) =         FSEAS   * AVGEMIS( :,:,S,NSUMMER ) + ! Deciduous fraction
+     &                       ( 1.0 - FSEAS ) * AVGEMIS( :,:,S,NWINTER )   ! Evergreen fraction
+         END DO
 
       END IF   ! if new day
 

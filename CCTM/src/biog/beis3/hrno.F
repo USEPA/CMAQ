@@ -450,7 +450,7 @@ C Calculate NO emissions by going thru temperature cases
                      CFNO = CFNODRY + RATIO * ( CFNOWET - CFNODRY )
                      FAC1 = GROWAGNO( C,R ) * CFNO
      &                    * FERTILIZER_ADJ( JDATE )
-     &                    * VEG_ADJ( JDATE )
+     &                    * VEG_ADJ( MET_DATA%RS( C,R ) )
 
                   ELSE
                      FAC1 = 0.0
@@ -482,7 +482,7 @@ C Calculate NO emissions by going thru temperature cases
 
                   FAC1 = GROWAGNO( C,R ) * CFNO
      &                 * FERTILIZER_ADJ( JDATE )
-     &                 * VEG_ADJ( JDATE )
+     &                 * VEG_ADJ( MET_DATA%RS( C,R ) )
      
                   IF ( INITIAL_DAY ) THEN
                      FAC2 = 1.0
@@ -865,7 +865,7 @@ C-----------------------------------------------------------------------
 
 C-----------------------------------------------------------------------
 
-         REAL FUNCTION VEG_ADJ( DATE )
+         REAL FUNCTION VEG_ADJ( Rst )
 
 C Compute a vegetation adjustment factor for the given date in yyyyddd format.
 C The adjustment factor ranges from 0.5 to 1.0.
@@ -873,28 +873,11 @@ C The adjustment factor ranges from 0.5 to 1.0.
          IMPLICIT NONE
          
 C Function arguments:
-         INTEGER, INTENT( IN ) :: DATE
-
-C Local variables:
-         INTEGER  GDAY
+         REAL, INTENT( IN ) :: Rst
 
 C-----------------------------------------------------------------------
-
-         GDAY = GROWSEASON( DATE )
-         
-         IF ( GDAY .LE. 30 ) THEN
-            VEG_ADJ = 1.0
-         ELSE IF ( GDAY .GT. 30 .AND. GDAY .LT. 60 ) THEN
-            VEG_ADJ = 1.5 - ( FLOAT( GDAY ) / 60.0 )
-         ELSE IF ( GDAY .GE. 60 ) THEN
-            VEG_ADJ = 0.5
-         ELSE
-            WRITE( MESG,94010 ) 'Invalid date specified; date = ', DATE,
-     &                          'growing season day = ', GDAY
-            CALL M3EXIT( PNAME, 0, 0, MESG, 2 )
-         END IF
-
-94010    FORMAT( A, I8, 1X, A, I3 )
+        
+         VEG_ADJ = MIN(1.0 - 3.1*(1.0/Rst)**0.6, 0.5)   
 
          RETURN
       
