@@ -1046,13 +1046,13 @@ C=======================================================================
       DATA  SPMH_NAM_CB6( 146)     , SPMH_MAP_CB6( 146)
      &    / 'formaldehyde     ', 113           /
       DATA  MECH_NAM_CB6( 146)     , MECH_MAP_CB6( 146)
-     &    / 'FORM_PRIMARY', 35           /
+     &    / 'FORM_PRIMARY', 36           /
       DATA  CONV_FAC_CB6( 146)
      &    / 1       /
 
       DATA  SPMH_NAM_CB6( 147)     , SPMH_MAP_CB6( 147)
      &    / 'acetaldehyde     ', 90           /
       DATA  MECH_NAM_CB6( 147)     , MECH_MAP_CB6( 147)
-     &    / 'ALD2_PRIMARY', 36           /
+     &    / 'ALD2_PRIMARY', 35           /
       DATA  CONV_FAC_CB6( 147)
      &    / 1       /
