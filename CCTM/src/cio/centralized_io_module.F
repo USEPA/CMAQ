@@ -1558,20 +1558,11 @@
 
 ! de-normalized the data 
                    mpas_tdata = 0.0
-                   if ((cio_emis_file_name(fnum) .eq. exception1) .or. 
-     &             (cio_emis_file_name(fnum) .eq.  exception2)) then
-                      do i = 1, ncols
-                         do k = 1, num_dist_layers(i,fnum)
-                            mpas_tdata(i,k) = temp_data_1d(i) * dist_frac(k,i,fnum)
-                         end do
+                   do i = 1, ncols
+                      do k = 1, num_dist_layers(i,fnum)
+                         mpas_tdata(i,k) = temp_data_1d(i) * dist_frac(k,i,fnum)
                       end do
-                   else
-                      do i = 1, ncols
-                         do k = 1, num_dist_layers(i,fnum)
-                            mpas_tdata(i,k) = temp_data_1d(i) * dist_frac(k,i,fnum) !* cell_area(i,1)
-                         end do
-                      end do
-                   end if
+                   end do
 
                    t_beg = begin
                    t_end = begin + ncols - 1
