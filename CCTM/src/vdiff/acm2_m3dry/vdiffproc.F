@@ -97,7 +97,7 @@ C-----------------------------------------------------------------------
 
 #ifdef isam
       USE SA_DEFN, Only: ITAG, N_SPCTAG, VNAM_SPCTAG, SA_DDEP, SA_BIDI, ISAM, NTAG_SA, 
-     &                   VNAM_SPCTAG, NSPC_SA, SPC_NAME, OTHRTAG
+     &                   VNAM_SPCTAG, NSPC_SA, ISAM_SPEC, OTHRTAG
 #endif
 
 #ifdef sens
@@ -352,7 +352,7 @@ C Set up for grav. settling
 
 #ifdef isam
         IF ( SA_BIDI ) THEN
-          NH3_ISAM_IDX  = INDEX1( 'NH3', NSPC_SA, SPC_NAME(:,OTHRTAG) )
+          NH3_ISAM_IDX  = INDEX1( 'NH3', NSPC_SA, ISAM_SPEC(:,OTHRTAG) )
           ALLOCATE ( ISAM_DEPV( N_SPCTAG ), 
      &               NH3_TAG_FRACTION( NTAG_SA ), STAT = ASTAT )
           IF ( ASTAT .NE. 0 ) THEN

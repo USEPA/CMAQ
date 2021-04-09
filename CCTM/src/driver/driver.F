@@ -464,7 +464,7 @@ c        CALL GET_SA_LAYS ()
 
          N_SPCTAG = NSPC_SA * NTAG_SA
 
-         CALL GET_SPC_INDEX ()
+         CALL GET_MAP_SAtoCGR ()
 
 C Initialize PISAM
          IF ( .NOT. PISAM_INIT ( NSPC_SA, NTAG_SA ) ) THEN
