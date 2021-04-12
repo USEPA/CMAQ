@@ -286,7 +286,7 @@ C GET_AERO_EMIS has to apply factors - don`t do it at this level.
      &                       STREAM_TO_TAG, OTHRTAG, TAGSTREAMS_TEMP,
      &                       TAGSTREAMS_NUM, SA_VDEMIS_CONV,
      &                       SA_VDEMIS_CONV_OTHER,
-     &                       MAP_DIFFtoSA, SPC_NAME, NSPC_SA,
+     &                       MAP_DIFFtoSA, ISAM_SPEC, NSPC_SA,
      &                       ISAMRGN_TEMP, ISAMRGN, ISAMRGN_NUM,
      &                       ISAMRGN_MAP, TAGS_PER_STREAM,
      &                       ISAM_PVO3_MAP, L_OZONE
@@ -412,7 +412,7 @@ C Find emissions stream in the list of available streams
 C Develop a map of emitted/diffused ISAM species
             MAP_DIFFtoSA = 0
             DO SPC = 1, NSPC_SA
-              MAP_DIFFtoSA( SPC ) = INDEX1(TRIM(SPC_NAME(SPC,1)), N_SPC_DIFF, DIFF_SPC )
+              MAP_DIFFtoSA( SPC ) = INDEX1(TRIM(ISAM_SPEC(SPC,1)), N_SPC_DIFF, DIFF_SPC )
             END DO
 
 C Initialize geographic regions for ISAM tagging
