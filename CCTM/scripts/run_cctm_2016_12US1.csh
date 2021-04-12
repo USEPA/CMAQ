@@ -221,13 +221,13 @@ setenv CTM_WVEL Y            #> save derived vertical velocity component to conc
 #> Input Directories and Filenames
 # =====================================================================
 
-set ICpath    = $INPDIR/icbc                                       #> initial conditions input directory
-set BCpath    = $INPDIR/icbc                                       #> boundary conditions input directory
+set ICpath    = $INPDIR/icbc              #> initial conditions input directory
+set BCpath    = $INPDIR/icbc              #> boundary conditions input directory
 set EMISpath  = $INPDIR/emis/cb6r3_ae6_20190221/cmaq_ready/gridded #> surface emissions input directory
-set EMISpath2 = $INPDIR/emis/cb6r3_ae6_20190221/cmaq_ready/rwc	   #> surface residential wood combustion emissions directory
-set IN_PTpath = $INPDIR/emis/cb6r3_ae6_20190221/cmaq_ready         #> elevated emissions input directory (in-line point only)
-set IN_LTpath = $INPDIR/met/lightning                              #> lightning NOx input directory
-set METpath   = $INPDIR/met/mcip_v50_wrf_v411_ltng_compressed      #> meteorology input directory
+set EMISpath2 = $INPDIR/emis/cb6r3_ae6_20190221/cmaq_ready/rwc	#> surface residential wood combustion emissions directory
+set IN_PTpath = $INPDIR/emis/cb6r3_ae6_20190221/cmaq_ready  #> elevated emissions input directory (in-line point only)
+set IN_LTpath = $INPDIR/met/lightning     #> lightning NOx input directory
+set METpath   = $INPDIR/met/mcip_v43_wrf_v381_ltng              #> meteorology input directory
 #set JVALpath  = $INPDIR/jproc            #> offline photolysis rate table directory
 set OMIpath   = $BLD                      #> ozone column data for the photolysis model
 set LUpath    = $INPDIR/surface           #> BELD landuse data for windblown dust model
@@ -301,26 +301,15 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   set OPTfile = PHOT_OPTICS.dat
 
   #> MCIP meteorology files
-  setenv GRID_BDY_2D $METpath/GRIDBDY2D_$YYMMDD".nc4"
-  setenv GRID_CRO_2D $METpath/GRIDCRO2D_$YYMMDD".nc4"
-# setenv GRID_CRO_3D $METpath/GRIDCRO3D_$YYMMDD".nc4"
-  setenv GRID_DOT_2D $METpath/GRIDDOT2D_$YYMMDD".nc4"
-  setenv MET_CRO_2D  $METpath/METCRO2D_$YYMMDD".nc4"
-  setenv MET_CRO_3D  $METpath/METCRO3D_$YYMMDD".nc4"
-  setenv MET_DOT_3D  $METpath/METDOT3D_$YYMMDD".nc4"
-  setenv MET_BDY_3D  $METpath/METBDY3D_$YYMMDD".nc4"
-  setenv LUFRAC_CRO  $METpath/LUFRAC_CRO_$YYMMDD".nc4"
-
-  set MET_FILES = ( ${GRID_BDY_2D} ${GRID_CRO_2D} ${GRID_DOT_2D} \
-                    ${MET_CRO_2D}  ${MET_CRO_3D}  ${MET_DOT_3D}  ${MET_BDY_3D}  \
-                    ${LUFRAC_CRO} )
-
-  foreach met_file ( ${MET_FILES} )
-    if( ! ( -e ${met_file} ) )then
-      \ls $met_file
-      exit()
-    endif
-  end
+  setenv GRID_BDY_2D $METpath/GRIDBDY2D.$GRID_NAME.${NZ}L.$YYMMDD
+  setenv GRID_CRO_2D $METpath/GRIDCRO2D.$GRID_NAME.${NZ}L.$YYMMDD
+  setenv GRID_CRO_3D $METpath/GRIDCRO3D.$GRID_NAME.${NZ}L.$YYMMDD
+  setenv GRID_DOT_2D $METpath/GRIDDOT2D.$GRID_NAME.${NZ}L.$YYMMDD
+  setenv MET_CRO_2D  $METpath/METCRO2D.$GRID_NAME.${NZ}L.$YYMMDD
+  setenv MET_CRO_3D  $METpath/METCRO3D.$GRID_NAME.${NZ}L.$YYMMDD
+  setenv MET_DOT_3D  $METpath/METDOT3D.$GRID_NAME.${NZ}L.$YYMMDD
+  setenv MET_BDY_3D  $METpath/METBDY3D.$GRID_NAME.${NZ}L.$YYMMDD
+# setenv LUFRAC_CRO  $METpath/LUFRAC_CRO.$GRID_NAME.${NZ}L.$YYMMDD
 
   #> Emissions Control File
   #>
