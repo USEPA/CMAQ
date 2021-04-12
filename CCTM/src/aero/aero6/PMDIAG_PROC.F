@@ -339,7 +339,7 @@
       CHARACTER(200) :: XMSG
       CHARACTER(16), SAVE :: PNAME = 'PMDIAG_KEY'
 
-      N_KEY = 20
+      N_KEY = 21
       ALLOCATE( PMDIAG_KEY( N_KEY ), STAT=ALLOCSTAT )
       IF ( ALLOCSTAT .NE. 0 ) THEN
            XMSG = 'Failure allocating PMDIAG_KEY'
@@ -348,8 +348,8 @@
 
       ! Define AMET Variables
       PMDIAG_KEY( 1 )%WORD = 'DEFAULT'
-      PMDIAG_KEY( 1 )%N = 12
-      ALLOCATE( PMDIAG_KEY( 1 )%LIST( 12 ),STAT=ALLOCSTAT )
+      PMDIAG_KEY( 1 )%N = 14
+      ALLOCATE( PMDIAG_KEY( 1 )%LIST( 14 ),STAT=ALLOCSTAT )
       IF ( ALLOCSTAT .NE. 0 ) THEN
            XMSG = 'Failure allocating PMDIAG_KEY(1)'
            CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
@@ -359,7 +359,7 @@
      &      'MASS            ','PM_NUM          ','PMF_NUM         ',
      &      'PMC_NUM         ','MET             ','CHEM            ', 
      &      'FINE_SPECIES    ','COARSE_SPECIES  ','PM25_SPECIES    ',
-     &      'SIZE            ' /)
+     &      'SIZE            ','AMS             ','PM25TO10_SPECIES' /)
 
       PMDIAG_KEY( 2 )%WORD = 'AMET'
       PMDIAG_KEY( 2 )%N = 35
@@ -380,15 +380,16 @@
      &          'PMC_MASS    ','MET         ','Tsurf       ','AOD_550     ' /)
 
       PMDIAG_KEY( 3 )%WORD = 'MASS'
-      PMDIAG_KEY( 3 )%N = 9
-      ALLOCATE( PMDIAG_KEY( 3 )%LIST( 9 ), STAT=ALLOCSTAT )
+      PMDIAG_KEY( 3 )%N = 11
+      ALLOCATE( PMDIAG_KEY( 3 )%LIST( 11 ), STAT=ALLOCSTAT )
       IF ( ALLOCSTAT .NE. 0 ) THEN
            XMSG = 'Failure allocating PMDIAG_KEY(3)'
            CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
       END IF
 
-      PMDIAG_KEY( 3 )%LIST = (/'PMF_MASS','PMC_MASS','PM01    ','PM1     ',
-     &              'PM25    ','PM10    ','PM25TO10','PMU_MASS','PMAMS   ' /)
+      PMDIAG_KEY( 3 )%LIST = (/'PMF_MASS  ','PMC_MASS  ','PM01      ','PM1       ',
+     &            'PM25      ','PM10      ','PM25TO10  ','PMU_MASS  ','PMAMS     ',
+     &            'PMAIT_MASS','PMACC_MASS' /)
      
       PMDIAG_KEY( 4 )%WORD = 'NUMBER'
       PMDIAG_KEY( 4 )%N = 7
@@ -590,7 +591,18 @@
       END IF
 
       PMDIAG_KEY( 20 )%LIST = (/'PM25','PM10'/)
+ 
+      PMDIAG_KEY( 21 )%WORD = 'AMS'
+      PMDIAG_KEY( 21 )%N = 5
+      ALLOCATE( PMDIAG_KEY( 21 )%LIST( 5 ), STAT=ALLOCSTAT )
+      IF ( ALLOCSTAT .NE. 0 ) THEN
+           XMSG = 'Failure allocating PMDIAG_KEY(21)'
+           CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
+      END IF
 
+      PMDIAG_KEY( 21 )%LIST = (/'PMAMS_CL ','PMAMS_NH4','PMAMS_NO3',
+     &                          'PMAMS_OA ','PMAMS_SO4'/)
+ 
       END SUBROUTINE POPULATE_PMDIAG_KEY
 
 

@@ -2,7 +2,7 @@
 ! created for CMAQv5.2 and released in June 2017
 ! documented in https://www.epa.gov/cmaq
 ! Changes made for CMAQv5.3:
-! 06-19-18 G.Sarwar
+! 03-04-18 G.Sarwar
 !    updated <HAL_OZONE>
 ! 080118 DJL
 !   1. Modified chlorine reactions (<CL1> to <CL31>) to match CB6r2, mimic
@@ -411,7 +411,8 @@ REACTIONS[CM] =
 <HET_N02> NO2 = 0.5*HONO + 0.5*HNO3 # 1.0~<HETERO_NO2>;
 
 ! updated reaction rate to v51 release
-<HAL_Ozone> O3 =  %H # 2.8964E-11@-11.9978 & 0.0E-0@-0.0;
+<HAL_Ozone> O3 =  %H # 6.7006E-11@-10.7435 & 3.4153E-08@0.6713
+                                                & 2.0E-6;
 
 ! added het reaction based on EPOX 
 <HET_IEPOX> EPOX = AISO3J  # 1.0~<HETERO_IEPOX>;

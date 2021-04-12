@@ -560,7 +560,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
                 IF( IRRFALL( IDX ) .EQ. NXX )EXIT
              END DO
              WRITE(TABLE_UNIT,5120, ADVANCE = 'NO')RTDAT(1, NXX ),RFDAT(1, IDX),RTDAT(2, NXX ),
-     &       RFDAT(2, IDX)
+     &       RFDAT(2, IDX),RTDAT(3, NXX )
           CASE( 13 )
              DO IDX = 1, NRATE_STRING
                 IF( KSTRING( IDX ) .EQ. NXX )EXIT
@@ -699,7 +699,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 5119    FORMAT( ' k<sub>0</sub> = ', ES12.4,'*exp<sup>(',ES12.4,'/T)</sup>*(T/300)<sup>',ES12.4,'</sup>;',
      &          ' k<sub>2</sub> = ', ES12.4,'*exp<sup>(',ES12.4,'/T)</sup>*(T/300)<sup>',ES12.4,'</sup>;',
      &          ' k<sub>3</sub> = ', ES12.4,'*exp<sup>(',ES12.4,'/T)</sup>')
-5120   FORMAT('min(', ES10.3,'*exp<sup>(',ES10.3'*P),</sup> +', ES10.3,'*exp<sup>(',ES10.3'*P),</sup>, 2.675E-6)')
+5120   FORMAT('min(', ES10.3,'*exp<sup>(',ES10.3'*P),</sup> +', ES10.3,'*exp<sup>(',ES10.3'*P),</sup>, ',ES10.3')')
 
 5121   FORMAT('{|class="wikitable"',
      &        / '|-',
@@ -1228,7 +1228,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
                 IF( IRRFALL( IDX ) .EQ. NXX )EXIT
              END DO
              WRITE(TABLE_UNIT,5120, ADVANCE = 'NO')RTDAT(1, NXX ),RFDAT(1, IDX),RTDAT(2, NXX ),
-     &       RFDAT(2, IDX)
+     &       RFDAT(2, IDX),RTDAT(3, NXX)
           CASE( 13 )
              DO IDX = 1, NRATE_STRING
                 IF( KSTRING( IDX ) .EQ. NXX )EXIT
@@ -1366,7 +1366,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 5119    FORMAT( ' k<sub>0</sub> = ', ES12.4,'e<sup>(',ES12.4,'/T)</sup>(T/300)<sup>',ES12.4,'</sup>;',
      &          ' k<sub>2</sub> = ', ES12.4,'e<sup>(',ES12.4,'/T)</sup>(T/300)<sup>',ES12.4,'</sup>;',
      &          ' k<sub>3</sub> = ', ES12.4,'e<sup>(',ES12.4,'/T)</sup>')
-5120   FORMAT('min(', ES10.3,'e<sup>(',ES10.3'P),</sup> +', ES10.3,'e<sup>(',ES10.3'P),</sup>, 2.675E-6)')
+5120   FORMAT('min(', ES10.3,'e<sup>(',ES10.3'P),</sup> +', ES10.3,'e<sup>(',ES10.3'P),</sup>, ',ES10.3')')
 
 5121   FORMAT(  '|Reaction Number|Reaction Label|Reaction|Rate Constant Formula|Value at ',F6.2,' K; ',
      &           ES12.4,' molec/cm<sup>3</sup>; ', F6.2,' Atm.',
@@ -1568,7 +1568,7 @@ C   begin body of subroutine  UPCASE
           	       IF( IRRFALL( IDX ) .EQ. NXX )EXIT
           	    END DO
             	    RATE_CONSTANT( N,NXX ) = HALOGEN_FALLOFF( PRES( N ), RTDAT(1, NXX ),
-     &                                       RFDAT(1, IDX), RTDAT(2, NXX ), RFDAT(2, IDX))
+     &                                       RFDAT(1, IDX), RTDAT(2, NXX ), RFDAT(2, IDX), RTDAT(3, NXX))
                 CASE( 13 )
                     DO IDX = 1, NRATE_STRING
                        IF( KSTRING( IDX ) .EQ. NXX )EXIT
@@ -1943,17 +1943,18 @@ C   begin body of subroutine  UPCASE
          FALLOFF_T91 = K1 + K2 * CAIR + K3
          RETURN
        END FUNCTION FALLOFF_T91
-       REAL( 8 ) FUNCTION HALOGEN_FALLOFF(PRESS,A1,B1,A2,B2)
+       REAL( 8 ) FUNCTION HALOGEN_FALLOFF(PRESS,A1,B1,A2,B2,A3)
          IMPLICIT NONE
-         REAL( 8 ), PARAMETER    :: MAX_RATE = 2.4D-06  ! Maximum loss rate (1/sec)
          REAL( 8 ), INTENT( IN ) :: PRESS
          REAL( 8 ), INTENT( IN ) :: A1
          REAL( 8 ), INTENT( IN ) :: B1
          REAL( 8 ), INTENT( IN ) :: A2
          REAL( 8 ), INTENT( IN ) :: B2
+         REAL( 8 ), INTENT( IN ) :: A3 ! Maximum loss rate (1/sec)
+
          INTRINSIC DEXP
          HALOGEN_FALLOFF = A1 * DEXP( B1 * PRESS ) + A2 * DEXP( B2 * PRESS )
-         HALOGEN_FALLOFF = DMIN1 (MAX_RATE, HALOGEN_FALLOFF )
+         HALOGEN_FALLOFF = DMIN1 (A3, HALOGEN_FALLOFF )
          RETURN
        END FUNCTION HALOGEN_FALLOFF
 
@@ -2461,7 +2462,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
                 IF( IRRFALL( IDX ) .EQ. NXX )EXIT
              END DO
              WRITE(TABLE_UNIT,5120, ADVANCE = 'NO')RTDAT(1, NXX ),RFDAT(1, IDX),RTDAT(2, NXX ),
-     &       RFDAT(2, IDX)
+     &       RFDAT(2, IDX),RTDAT(3, NXX)
           CASE( 13 )
              DO IDX = 1, NRATE_STRING
                 IF( KSTRING( IDX ) .EQ. NXX )EXIT
@@ -2597,7 +2598,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 5119    FORMAT( ' k0 = ', ES12.4,'*exp(',ES12.4,'/T)*(T/300)^',ES12.4,';',
      &          ' k2 = ', ES12.4,'*exp(',ES12.4,'/T)*(T/300)^',ES12.4,';',
      &          ' k3 = ', ES12.4,'*exp(',ES12.4,'/T)')
-5120   FORMAT('min of ', ES10.3,'*exp(',ES10.3'*P), +', ES10.3,'*exp(',ES10.3'*P) and 2.675E-6')
+5120   FORMAT('min of ', ES10.3,'*exp(',ES10.3'*P), +', ES10.3,'*exp(',ES10.3'*P) and ',ES10.3'')
 
 5121   FORMAT(  'Reaction Number,Reaction Label,Reaction,Rate Constant Formula,Value at ',F6.2,' K; ',
      &           ES12.4,' molec/cm^3; ', F6.2,' Atm.',
@@ -3090,7 +3091,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
                 IF( IRRFALL( IDX ) .EQ. NXX )EXIT
              END DO
              WRITE(STRING,5120)RTDAT(1, NXX ),RFDAT(1, IDX),RTDAT(2, NXX ),
-     &       RFDAT(2, IDX)
+     &       RFDAT(2, IDX),RTDAT(3, NXX )
           CASE( 13 )
              DO IDX = 1, NRATE_STRING
                 IF( KSTRING( IDX ) .EQ. NXX )EXIT
@@ -3347,7 +3348,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 5119    FORMAT( ' k0 = ', ES12.4,'exp(',F9.2,'/T)(T/300)<sup>',F6.2,'</sup><br>',
      &          ' k2 = ', ES12.4,'exp(',F9.2,'/T)(T/300)<sup>',F6.2,'</sup><br>',
      &          ' k3 = ', ES12.4,'exp(',F9.2,'/T)')
-5120   FORMAT('min(', ES10.3,'exp(',ES10.3'P) +' ES10.3,'exp(',ES10.3'P), 2.675E-6)')
+5120   FORMAT('min(', ES10.3,'exp(',ES10.3'P) +' ES10.3,'exp(',ES10.3'P), ',ES10.3')')
 5121   FORMAT( 'Value (molecules/(sec*cm<sup>3</sup>)) <br> at ',
      &         F6.2,' K<br> ', ES12.4,' molec/cm<sup>3</sup><br> ', F6.2,' Atm.')
 
@@ -3885,7 +3886,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
                 IF( IRRFALL( IDX ) .EQ. NXX )EXIT
              END DO
              WRITE(TABLE_UNIT,5120, ADVANCE = 'NO')RTDAT(1, NXX ),RFDAT(1, IDX),RTDAT(2, NXX ),
-     &       RFDAT(2, IDX)
+     &       RFDAT(2, IDX),RTDAT(3, NXX)
           CASE( 13 )
              DO IDX = 1, NRATE_STRING
                 IF( KSTRING( IDX ) .EQ. NXX )EXIT
@@ -4052,7 +4053,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 5119    FORMAT( 'k<sub>0</sub>=', ES12.4,'e<sup>',F8.1,'/T</sup>(T/300)<sup>',F6.2,'</sup><br>',
      &          'k<sub>2</sub>=', ES12.4,'e<sup>',F8.1,'/T</sup>(T/300)<sup>',F6.2,'</sup><br>',
      &          'k<sub>3</sub>=', ES12.4,'e<sup>',F9.2,'/T</sup>')
-5120   FORMAT('min(', ES10.3,'e<sup>',ES10.3'P</sup>+', ES10.3,'e<sup>',ES10.3'P</sup>, <br>2.675E-6)')
+5120   FORMAT('min(', ES10.3,'e<sup>',ES10.3'P</sup>+', ES10.3,'e<sup>',ES10.3'P</sup>, <br>',ES10.3')')
 
 5121   FORMAT(  '|Label|Reaction            |Rate Constant Formula| Value<br> molecules/(sec*cm<sup>3</sup>)|   ',
      &        / '|:---|:-------------------|:--------------------|:----:|   ')
