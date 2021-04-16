@@ -767,7 +767,13 @@ C...modules
                   CALL O3TOTCOL ( LAT( COL,ROW ), LON( COL,ROW ), MIDDATE, MIDTIME, TOTAL_OC( COL,ROW ) )
                END DO
             END DO   
-
+         ELSE
+           DO ROW = 1, NROWS
+              DO COL = 1, NCOLS
+!...get total ozone column based on OMI observations
+                  CALL O3TOTCOL ( LAT( COL,ROW ), LON( COL,ROW ), MIDDATE,MIDTIME, TOTAL_OC( COL,ROW ) )
+              END DO
+           END DO
          END IF  ! if JTIME_CHK and PHOTDIAG
 
       ELSE  ! all cells not dark
