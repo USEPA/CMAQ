@@ -53,6 +53,10 @@ C      21 May 12 J.Young: Replaced IC_PARMS include file with an F90 module
 C      02 Nov 18 S.Roselle: Removed species mapping
 C      06 Nov 18 S.Roselle: Replaced UTILIO_DEFN with M3UTILIO
 C      10 June 19 F. Sidi : Corrected data type mismatch between IOAPI and ICON
+C      20 April 21 C. Hogrefe: Force height or pressure interpolation if either 
+C                              grid uses hybrid vertical coordinates. This
+C                              requires checking for MET_CRO_3D_CRS and 
+C                              MET_CRO_3D_FIN 
 
 C***********************************************************************
 
@@ -251,9 +255,11 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c   Check MET_CRO_3D_CRS (for input CCTM file) and MET_CRO_3D_FIN (for
-c   output IC file) if vertical grid types are different
+c   output IC file) if vertical grid types are different or use
+c   hybrid coordinates
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      IF ( VGTYP_GD .NE. VGTYP_IN .OR. VGTOP_GD .NE. VGTOP_IN ) THEN 
+      IF ( VGTYP_GD .NE. VGTYP_IN .OR. VGTOP_GD .NE. VGTOP_IN .OR.
+     &     VGTYP_GD .EQ. -9999 .OR. VGTYP_IN .EQ. -9999 ) THEN 
          CALL CK_CTMMET_FL ( LOGUNIT, SDATE, STIME, CTM_FL_NAME )
          CALL CK_ICMET_FL ( LOGUNIT, SDATE, STIME  )
       END IF
