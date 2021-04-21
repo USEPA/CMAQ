@@ -72,6 +72,8 @@ C     10 June 19 F. Sidi : - Commented out Integer STATUS because it is unused
 C                          - Resolved Memory Issue by looping over species instead
 C                          - Added First_Time logical and save statements to 
 C                            avoid re-printing of redundant write statements 
+C     20 April 21 C. Hogrefe: Force height or pressure interpolation if either 
+C                             grid uses hybrid vertical coordinates 
 
                     
 C***********************************************************************
@@ -219,6 +221,15 @@ c..the   following two lines are for testing only
         ELSE
            L_IDENTICAL  = .FALSE. 
         END IF
+
+C If either grid uses hybrid vertical coordinates, force height
+C or pressure interpolation
+
+        IF ( ( VGTYP_GD . EQ. -9999 ) .OR. ( VGTYP3D . EQ. -9999 ) ) THEN
+            L_IDENTICAL  = .FALSE.
+            L_SAME_SCALE = .FALSE.
+        ENDIF
+
 
       END IF ! END OF FIRST_TIME block 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
