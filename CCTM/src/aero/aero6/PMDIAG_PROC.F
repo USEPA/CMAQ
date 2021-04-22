@@ -2259,8 +2259,10 @@
                END IF
                PMAMS = PMAMS +  ( SUM( AEROSPC_CONC( :,IMODE ),
      &                                 MASK = .NOT.AEROSPC(:)%TRACER ) 
-     &                  - AEROSPC_CONC( AH2O_IDX,IMODE )
-     &                  - AEROSPC_CONC( AORGH2O_IDX,IMODE ) ) ! ug m-3
+     &                  - AEROSPC_CONC( AH2O_IDX,IMODE ) )
+     &                  * INLET_FRAC( IPMAMS,IMODE,IWET ) 
+                    IF ( AORGH2O_IDX .GT. 0 ) PMAMS = PMAMS
+     &                  - AEROSPC_CONC( AORGH2O_IDX,IMODE ) ! ug m-3
      &                  * INLET_FRAC( IPMAMS,IMODE,IWET ) 
             END DO
             OUTVAL = PMAMS
