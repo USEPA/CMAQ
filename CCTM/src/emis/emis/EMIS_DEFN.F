@@ -2430,11 +2430,12 @@ C and allowing the model to proceed.
             CONV = 1.0e-9
             BASIS = 'MASS'
          ELSE
-            WRITE( XMSG,'(A,A16,A,I3,A11,A16,A,A,A)' ),
-     &              'ERROR: Surrogate Species ',TRIM(SPEC),' on emission stream ',
+            WRITE( XMSG,'(A,A16,A,I3,A11,A16,A,A,A,A)' ),
+     &              'WARNING: Surrogate Species ',TRIM(SPEC),' on emission stream ',
      &              ISRM, ' has units ',TRIM(UNITS),' which are not recognized ',
      &              'as an emission rate. If you wish to use this variable for ',
-     &              'emissions, please correct the units (e.g. g/s or moles/s).'
+     &              'emissions, please correct the units. Otherwise grams will be ',
+     &              'assumed for particles and moles for gases.'
             CALL M3WARN( 'CHECK_EMIS_UNITS', 0, 0, XMSG )
             ! No Conversion and and Unknown Basis
             CONV = 1.0e0
@@ -2462,11 +2463,12 @@ C and allowing the model to proceed.
             ! Convert hours -> seconds
             CONV = CONV * 60.0
          ELSE
-            WRITE( XMSG,'(A,A16,A,I3,A11,A16,A,A,A)' ),
-     &              'ERROR: Surrogate Species ',TRIM(SPEC),' on emission stream ',
+            WRITE( XMSG,'(A,A16,A,I3,A11,A16,A,A,A,A)' ),
+     &              'WARNING: Surrogate Species ',TRIM(SPEC),' on emission stream ',
      &              ISRM, ' has units ',TRIM(UNITS),' which are not recognized ',
      &              'as an emission rate. If you wish to use this variable for ',
-     &              'emissions, please correct the units (e.g. g/s or moles/s).'
+     &              'emissions, please correct the units. Otherwise seconds will be ',
+     &              'assumed for the time interval for these emissions.'
             CALL M3WARN( 'CHECK_EMIS_UNITS', 0, 0, XMSG )
             ! No Conversion and and Unknown Basis
             CONV = CONV * 1.0e0
