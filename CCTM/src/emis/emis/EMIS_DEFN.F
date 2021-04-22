@@ -2365,7 +2365,7 @@ C and allowing the model to proceed.
          INTEGER, INTENT( IN )            :: ISRM
          INTEGER, INTENT( IN )            :: ISUR
          CHARACTER( 16 ), INTENT( IN )    :: SPEC
-         CHARACTER( 200 )      :: XMSG
+         CHARACTER( 400 )      :: XMSG
          INTEGER               :: X, SLASH_IND
 
          CONV = 1.0
