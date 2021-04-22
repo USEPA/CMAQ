@@ -2108,73 +2108,79 @@
          ! Retrieve Ultrafine Particle Mass
          CASE ( ID_PMU_MASS )
             DO IMODE = 1,N_MODE
-               IF ( AEROMODE( IMODE )%ULTRAFINE_MASK )
-     &              OUTVAL = OUTVAL +
+               IF ( AEROMODE( IMODE )%ULTRAFINE_MASK ) THEN
+                    OUTVAL = OUTVAL +
      &                 SUM( AEROSPC_CONC( :,IMODE ),
      &                      MASK=.NOT.AEROSPC(:)%TRACER ) ! ug m-3
      &                  - AEROSPC_CONC( AH2O_IDX,IMODE )
                     IF ( AORGH2O_IDX .GT. 0 ) OUTVAL = OUTVAL
      &                  - AEROSPC_CONC( AORGH2O_IDX,IMODE ) ! ug m-3
+               END IF
             END DO
 
          ! Retrieve Fine Particle Mass
          CASE ( ID_PMF_MASS )
             DO IMODE = 1,N_MODE
-               IF ( AEROMODE( IMODE )%FINE_MASK )
-     &              OUTVAL = OUTVAL +
+               IF ( AEROMODE( IMODE )%FINE_MASK ) THEN
+                    OUTVAL = OUTVAL +
      &                 SUM( AEROSPC_CONC( :,IMODE ),
      &                      MASK=.NOT.AEROSPC(:)%TRACER )
      &                  - AEROSPC_CONC( AH2O_IDX,IMODE )
                     IF ( AORGH2O_IDX .GT. 0 ) OUTVAL = OUTVAL
      &                  - AEROSPC_CONC( AORGH2O_IDX,IMODE ) ! ug m-3
+               END IF
             END DO
 
          ! Retrieve Coarse Particle Mass
          CASE ( ID_PMC_MASS )
             DO IMODE = 1,N_MODE
-               IF ( AEROMODE( IMODE )%COARSE_MASK )
-     &              OUTVAL = OUTVAL +
+               IF ( AEROMODE( IMODE )%COARSE_MASK ) THEN
+                    OUTVAL = OUTVAL +
      &                 SUM( AEROSPC_CONC( :,IMODE ),
      &                      MASK=.NOT.AEROSPC(:)%TRACER ) ! ug m-3
      &                  - AEROSPC_CONC( AH2O_IDX,IMODE )
                     IF ( AORGH2O_IDX .GT. 0 ) OUTVAL = OUTVAL
      &                  - AEROSPC_CONC( AORGH2O_IDX,IMODE ) ! ug m-3
+               END IF
             END DO
 
          ! Retrieve Nucleation-Mode Particle Mass
          CASE ( ID_PMNUC_MASS )
             DO IMODE = 1,N_MODE
-               IF ( AEROMODE( IMODE )%NUC_MASK )
-     &              OUTVAL = OUTVAL +
+               IF ( AEROMODE( IMODE )%NUC_MASK ) THEN
+                    OUTVAL = OUTVAL +
      &                 SUM( AEROSPC_CONC( :,IMODE ),
      &                      MASK=.NOT.AEROSPC(:)%TRACER ) ! ug m-3
      &                  - AEROSPC_CONC( AH2O_IDX,IMODE )
                     IF ( AORGH2O_IDX .GT. 0 ) OUTVAL = OUTVAL
      &                  - AEROSPC_CONC( AORGH2O_IDX,IMODE ) ! ug m-3
+               END IF
             END DO
 
          ! Retrieve Aitken-Mode Particle Mass
          CASE ( ID_PMAIT_MASS )
             DO IMODE = 1,N_MODE
-               IF ( AEROMODE( IMODE )%AITKEN_MASK )
-     &              OUTVAL = OUTVAL +
+               IF ( AEROMODE( IMODE )%AITKEN_MASK ) THEN
+                    OUTVAL = OUTVAL +
      &                 SUM( AEROSPC_CONC( :,IMODE ),
      &                      MASK=.NOT.AEROSPC(:)%TRACER ) ! ug m-3
      &                  - AEROSPC_CONC( AH2O_IDX,IMODE )
                     IF ( AORGH2O_IDX .GT. 0 ) OUTVAL = OUTVAL
      &                  - AEROSPC_CONC( AORGH2O_IDX,IMODE ) ! ug m-3
+               END IF
             END DO
 
          ! Retrieve Accumution-Mode Particle Mass
          CASE ( ID_PMACC_MASS )
             DO IMODE = 1,N_MODE
-               IF ( AEROMODE( IMODE )%ACCUM_MASK )
-     &              OUTVAL = OUTVAL +
+               IF ( AEROMODE( IMODE )%ACCUM_MASK ) THEN
+                    OUTVAL = OUTVAL +
      &                 SUM( AEROSPC_CONC( :,IMODE ),
      &                      MASK=.NOT.AEROSPC(:)%TRACER ) ! ug m-3
      &                  - AEROSPC_CONC( AH2O_IDX,IMODE )
                     IF ( AORGH2O_IDX .GT. 0 ) OUTVAL = OUTVAL
      &                  - AEROSPC_CONC( AORGH2O_IDX,IMODE ) ! ug m-3
+               END IF
             END DO
 
          ! Retrieve Dry Mode Density [kg m-3]
@@ -2261,7 +2267,7 @@
      &                                 MASK = .NOT.AEROSPC(:)%TRACER ) 
      &                  - AEROSPC_CONC( AH2O_IDX,IMODE ) )
      &                  * INLET_FRAC( IPMAMS,IMODE,IWET ) 
-                    IF ( AORGH2O_IDX .GT. 0 ) PMAMS = PMAMS
+               IF ( AORGH2O_IDX .GT. 0 ) PMAMS = PMAMS
      &                  - AEROSPC_CONC( AORGH2O_IDX,IMODE ) ! ug m-3
      &                  * INLET_FRAC( IPMAMS,IMODE,IWET ) 
             END DO
