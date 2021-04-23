@@ -322,7 +322,7 @@ C                     ---------- -------- ------- ------------------------------
      & spcs_list_type('ADE_CORS', cm_set, 2200.0, '      ','       ',0.0  ,'NVL',F,T,  0,  0.0, 0.0,F, 'DUST  ', 0.00), ! Diesel Coarse PM
      & spcs_list_type('ACD     ', cm_set, 2200.0, '      ','       ',0.0  ,'NVL',F,T,  0,  0.0, 0.0,F, 'DUST  ', 0.00), ! Cadmium
      & spcs_list_type('AMN_HAPS', cm_set, 2200.0, '      ','       ',0.0  ,'NVL',F,T,  0,  0.0, 0.0,F, 'DUST  ', 0.00), ! Manganese               #90
-     & spcs_list_type('APHG    ', cm_set, 2200.0, '      ','       ',0.0  ,'NVL',F,T,  0,  0.0, 0.0,F, 'DUST  ', 0.00), ! Mercury
+     & spcs_list_type('APHG    ', cm_set, 2200.0, 'HGIIAER','PHGRXN ',1.0 ,'IRV',F,T,  0,  0.0, 0.0,F, 'DUST  ', 0.00), ! Mercury
      & spcs_list_type('AAS     ', cm_set, 2200.0, '      ','       ',0.0  ,'NVL',F,T,  0,  0.0, 0.0,F, 'DUST  ', 0.00), ! Arsenic                 #92
      & spcs_list_type('ABENAPY ', cm_set, 1400.0, '      ','       ',0.0  ,'NVL',F,T,  0,  0.0, 0.0,F, 'DUST  ', 0.00), ! Benzo[a]pyrene          #93
 
