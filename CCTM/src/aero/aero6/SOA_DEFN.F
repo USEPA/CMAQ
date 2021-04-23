@@ -1124,9 +1124,11 @@ C-----------------------------------------------------------------------
              If ( nsvol_tracers .Gt. 0 ) Then
 ! partition tracer semivolatiles based on Schell equation (8)
 ! assuming:
-!   1) orgmoles already include moles from tracers
-!   2) tracer is evenly divided between volatile and involatile component.
-!   the involatile part can not partition
+!   1) the orgmoles from tracer species are already accounted in the orgmoles
+!   from non-tracers species.
+!   2) tracer is divided between volatile and nonvolatile components.
+!   the nonvolatile part can not partition. The division is given by the
+!   variable, frac_volatile.
 !      shell's visocity
                 orgmoles = totorgnv
                 Do i = 1, nsvol_NotTracers
@@ -1137,7 +1139,7 @@ C-----------------------------------------------------------------------
                    faer = svmw(i) * orgmoles 
      &                  / ( c0( i ) + svmw(i) * orgmoles )
                    caer( i )  = (1.0 - frac_volatile ) * caer0( i ) + ctotf( i ) * faer
-! update final concentration with involatile fraction
+! update final concentration with nonvolatile fraction
                    ctotf( i ) = ctotf( i ) + (1.0 - frac_volatile ) * caer0( i )
                 End Do  
              End If   
@@ -1172,7 +1174,7 @@ C-----------------------------------------------------------------------
                  faer = svmw(i) * orgmoles 
      &                / ( c0( i ) + svmw(i) * orgmoles )
                  caer( i ) = ( 1.0 - frac_volatile ) * caer0( i ) + ctotf( i ) * faer
-! update final concentration with involatile fraction
+! update final concentration with nonvolatile fraction
                  ctotf( i ) = ctotf( i ) + (1.0 - frac_volatile ) * caer0( i )
               End Do  
            End If  ! End OA paritioning solver METHOD selection
