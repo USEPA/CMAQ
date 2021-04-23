@@ -321,7 +321,7 @@ C Local Variables:
 
          CHARACTER( 16 ) :: VNAME
          CHARACTER( 16 ) :: PNAME = 'GET_EMIS'
-         CHARACTER( 120 ):: XMSG = ' '
+         CHARACTER( 300 ):: XMSG = ' '
          INTEGER         :: ERROR_NEG
          INTEGER, SAVE   :: WSTEP, MDATE, MTIME
          LOGICAL         :: WRTIME
@@ -681,8 +681,8 @@ C Retrieve Emissions from All Stream Types
      &                                SA_VDEMIS_CONV_OTHER( :,1:NL,:,: )
                ELSE
                   ! Some Part of the Remainder ("OTHER") is Invalid
-                  XMSG = " ISAM mass balance error for emissions - " //
-     &                     TRIM( EM_REGIONS(ISRM)%LABEL ) //
+                  XMSG = " ISAM mass balance error for emissions stream " //
+     &                     TRIM( EM_FILE_DESC( ISRM ) ) // 
      &                    " - check isam control file. "
                   CALL M3WARN( 'ISAM_EMISSIONS', 1, 1, XMSG )
 
