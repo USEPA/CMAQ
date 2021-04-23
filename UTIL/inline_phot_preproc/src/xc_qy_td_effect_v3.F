@@ -682,7 +682,7 @@
 
             REPLACE = .TRUE.
 
-         CASE( 'CCHO_R', 'ALD2_R_IUPAC10', 'CH3CHO_RACM2','CCHO_R1_MCMv32  ', 'CCHO_R2_MCMv32  '  )      ! 'CH3CHO -> CH3 + HCO'
+         CASE( 'CCHO_R', 'ALD2_R_IUPAC10', 'ALD2_R_IUPAC13', 'CH3CHO_RACM2','CCHO_R1_MCMv32  ', 'CCHO_R2_MCMv32  '  )      ! 'CH3CHO -> CH3 + HCO'
 
 ! density correction to quantum yield recommended in 
 ! http://iupac.pole-ether.fr/htdocs/datasheets/pdf/P2_CH3CHO+hv.pdf dated June 2013   
@@ -806,7 +806,7 @@
 
 
            REPLACE = .TRUE.
-         CASE( 'GLY_R_IUPAC10', 'GLYOX_R_CRI', 'GLYOX_M_CRI' )
+         CASE( 'GLY_R_IUPAC10', 'GLY_R_IUPAC13', 'GLYOX_R_CRI', 'GLYOX_M_CRI' )
 
 
            DO IW = 1, NW
@@ -1146,7 +1146,7 @@ C  Gardner et. al may support this conclusion.
 
          REPLACE = .TRUE.
 
-      CASE(  'HCHOR-06', 'HCHOR_06', 'FORM_R_IUPAC10', 'HCHO_R_SAPRC99', 'HCHO_RAD_RACM2' )  ! 'CH2O -> H + HCO' 
+      CASE(  'HCHOR-06', 'HCHOR_06', 'FORM_R_IUPAC10', 'FORM_R_IUPAC13', 'HCHO_R_SAPRC99', 'HCHO_RAD_RACM2' )  ! 'CH2O -> H + HCO' 
 
 
 ! temperature correction to cross-section 
@@ -1185,7 +1185,7 @@ C  Gardner et. al may support this conclusion.
 
           REPLACE = .TRUE.
 
-      CASE(  'HCHO_M_MCMv32', 'HCHOM-06', 'HCHOM_06', 'FORM_M_IUPAC10', 'HCHO_M_SAPRC99', 'HCHO_MOL_RACM2' )  ! 'CH2O -> H2 + CO'
+      CASE(  'HCHO_M_MCMv32', 'HCHOM-06', 'HCHOM_06', 'FORM_M_IUPAC10', 'FORM_M_IUPAC13', 'HCHO_M_SAPRC99', 'HCHO_MOL_RACM2')  ! 'CH2O -> H2 + CO'
 
 ! temperature correction to cross-section 
 
@@ -2632,11 +2632,11 @@ C-----------------------------------------------------------------------
 !*** note that values are normalized by total qy at DENS = 0.0 but
 !    its values equals 1.0
 
-            IQY_DENS0 = REAL( (1.0 + A1*DENS0 + A2) * (1.0 + A3*DENS0)
-     &                / (1.0 + A2 + A3*DENS0 ) )
+            IQY_DENS0 = REAL( (1.0 + A2 + A3*DENS0 ) 
+     &                / ((1.0 + A1*DENS0 + A2)*(1.0 + A3*DENS0)) )
 
-            QY_DENS_NUMB  = REAL( (1.0 + A2 + A3*R8_DENS) 
-     &                    / ((1.0 + A1*R8_DENS + A2)*(1.0 + A3*R8_DENS)) )
+            QY_DENS_NUMB  = REAL( (1.0 + A2 + A3*R8_DENS ) 
+     &                / ((1.0 + A1*R8_DENS + A2)*(1.0 + A3*R8_DENS)) )
 
             RQY_GLYOXAL  = QY_DENS_NUMB * IQY_DENS0
 

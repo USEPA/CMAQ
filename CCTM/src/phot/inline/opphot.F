@@ -490,21 +490,21 @@ C...assumes that lamba in nanometers is on order of 100 or less
 
             N = N + 1
             VNAME3D( N ) = 'EXT_W' // TRIM( LAMBDA )
-            UNITS3D( N ) = 'Mm-1'
+            UNITS3D( N ) = 'Km-1'
             VDESC3D( N ) = 'Total Extinction of layer for '
      &                   // TRIM( LAMBDA ) // ' nm'
             VTYPE3D( N ) = M3REAL
 
             N = N + 1
             VNAME3D( N ) = 'GAS_EXT_W' // TRIM( LAMBDA )
-            UNITS3D( N ) = 'Mm-1' 
+            UNITS3D( N ) = 'Km-1' 
             VDESC3D( N ) = 'Total Extinction from Rayleigh scattering NO2 and O3 in layer for '
      &                   // TRIM( LAMBDA ) // ' nm'
             VTYPE3D( N ) = M3REAL
  
             N = N + 1
             VNAME3D( N ) = 'EXT_AERO_W' // TRIM( LAMBDA )
-            UNITS3D( N ) = 'Mm-1'
+            UNITS3D( N ) = 'Km-1'
             VDESC3D( N ) = 'Aerosol Extinction in layer for '
      &                   // TRIM( LAMBDA ) // ' nm'
             VTYPE3D( N ) = M3REAL
@@ -526,7 +526,7 @@ C...assumes that lamba in nanometers is on order of 100 or less
 
          N = N + 1
          VNAME3D( N ) = 'EXT_AERO_W550'
-         UNITS3D( N ) = 'Mm-1'
+         UNITS3D( N ) = 'Km-1'
          VDESC3D( N ) = ' Aerosol Extinction of layer for '
      &                // '550 nm based on an Angstrom Interpolation'
          VTYPE3D( N ) = M3REAL

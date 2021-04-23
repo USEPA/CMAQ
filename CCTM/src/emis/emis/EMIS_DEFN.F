@@ -489,8 +489,6 @@ C Map the user specified ISAM regions to available CMAQ regions
          END IF  ! First Time
 
 C Initialize Emissions Array
-         VDEMIS_DIFF = 0.0
-
          WRTIME = .FALSE.
          WSTEP  = WSTEP + TIME2SEC( TSTEP( 2 ) )
          WRTIME = ( WSTEP .GE. TIME2SEC( TSTEP( 1 ) ) )
@@ -509,6 +507,8 @@ C Initialize Emissions Array
 
 C Retrieve Emissions from All Stream Types
          IF ( N_EM_SRM .GT. 0 ) THEN
+         VDEMIS_DIFF = 0.0
+
          DO ISRM = 1,N_EM_SRM
            VDEMIS_READ = 0.0
 
@@ -953,11 +953,11 @@ C-----------------------------------------------------------------------
 
       ! For the Primary Scaling (IFAC = 1), apply the array operation
       NISTR = EM_FAC1_ST( ISRM )%NISTR
-      ALLOCATE( MAP_FACtoISTR( NISTR ) )
-      MAP_FACtoISTR = EM_FAC1_ST( ISRM )%MAP_FACtoISTR
-
-      VDEMIS( MAP_FACtoISTR,1:NL,:,: ) = VDEMIS0( MAP_FACtoISTR,1:NL,:,: ) * 
-     &        EM_FAC1_ST( ISRM )%FAC( 1:NISTR,1:NL,:,: )
+      DO ISTR = 1,NISTR
+         VDEMIS( EM_FAC1_ST( ISRM )%MAP_FACtoISTR( ISTR ),1:NL,:,: ) = 
+     &        VDEMIS0( EM_FAC1_ST( ISRM )%MAP_FACtoISTR( ISTR ),1:NL,:,: ) * 
+     &        EM_FAC1_ST( ISRM )%FAC( ISTR,1:NL,:,: )
+      END DO
 
       
       ! For Additional Scaling Operations (IFAC > 1), Loop through Instructions 
@@ -1245,7 +1245,7 @@ C-----------------------------------------------------------------------
             END IF
 
             ! Sum the column if requested
-            IF ( EM_LDIAG .EQ. '2DSUM' ) THEN
+            IF ( EM_LDIAG .EQ. '2DSUM' .or. EM_LDIAG .EQ. 'TRUE' ) THEN
                  VDEMIS( IVAR,1,:,: ) = SUM( VDEMIS( IVAR,1:NL,:,: ),1 )
                  LAYS = 1
             END IF 
@@ -2901,7 +2901,7 @@ C stkemis_init.
      &            ARG .EQ. 'YES'  .OR. ARG .EQ. 'Y' ) THEN
             ARGOUT = 'TRUE'
          ELSEIF ( ARG .EQ. '2D'  .OR. ARG .EQ. '2d' ) THEN
-            ARGOUT = 'TRUE'
+            ARGOUT = '2D'
          ELSEIF   ( ARG .EQ. '3D'  .OR. ARG .EQ. '3d' ) THEN
             ARGOUT = '3D'
          ELSEIF   ( ARG .EQ. '2DSUM' .OR. ARG .EQ. '2dSUM' .OR.
