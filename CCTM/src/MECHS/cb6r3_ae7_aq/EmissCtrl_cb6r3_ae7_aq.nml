@@ -520,16 +520,16 @@
 
 !------------------------------------------------------------------------------!
 ! Emissions Diagnostic Output Parameters                                       !
-!    This seciton allows users to specify individual species for output on     !
+!    This section allows users to specify individual species for output on     !
 !    emissions diagnostic output files. In this way, users are able to         !
-!    probe emissions magnitudes and scaling changes for specific species of    !
+!    probe emissions magnitudes and scaling changes for species of             !
 !    interest while not sacrificing the hard disk space needed to save the     !
 !    emission rates of all species for every emission stream. It is also       !
 !    possible to combine components of chemical families or stream families as !
 !    the user's interest dictates.                                             !
 !  Description of Variables:                                                   !
 !   NEmissDiag - this is the number of diagnostic *instructions* that you are  !
-!                are giving. It will very likely be different than the number  !
+!                giving. It will very likely be different than the number      !
 !                of diagnostic emissions output files. For example, if you wish!
 !                to expand the streams using the ALL keyword, then all of the  !
 !                streams will have a file, but only one instruction is needed. !
