@@ -289,8 +289,7 @@ C-----------------------------------------------------------------------------
 C--- Part 3: Writing to soilout file
 C-----------------------------------------------------------------------------
 
-!      IF ( SECSDIFF( JDATE,JTIME, EDATE,ETIME ) .GT. TIME2SEC( TSTEP( 2 ) ) ) RETURN
-       IF ( SECSDIFF( JDATE,JTIME, EDATE,ETIME ) .ne.((TIME2SEC(TSTEP(2))/2))) RETURN
+      IF ( SECSDIFF( JDATE,JTIME, EDATE,ETIME ) .GT. TIME2SEC( TSTEP( 2 ) ) ) RETURN
 
 C Create rain data file for soil NO
 
