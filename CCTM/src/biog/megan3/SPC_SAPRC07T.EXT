@@ -17,7 +17,7 @@ C=======================================================================
       PARAMETER     (SPC_SAPRC07TMECH = 'SAPRC07T        ')
 
       INTEGER        N_SAPRC07T_SPC
-      PARAMETER     (N_SAPRC07T_SPC = 58)
+      PARAMETER     (N_SAPRC07T_SPC = 56)
 
       CHARACTER*16   MECH_SPC_SAPRC07T( N_SAPRC07T_SPC )  ! Mechanism species name
       REAL           MECH_MWT_SAPRC07T( N_SAPRC07T_SPC )  ! Mechanism species molecular weight
@@ -36,10 +36,10 @@ C=======================================================================
       DATA  MECH_SPC_SAPRC07T(  9), MECH_MWT_SAPRC07T(  9) / 'OLE2            ', 75.78   /
       DATA  MECH_SPC_SAPRC07T( 10), MECH_MWT_SAPRC07T( 10) / 'ISOPRENE        ', 68.12   /
       DATA  MECH_SPC_SAPRC07T( 11), MECH_MWT_SAPRC07T( 11) / 'TERP            ', 136.24  /
-      DATA  MECH_SPC_SAPRC07T( 12), MECH_MWT_SAPRC07T( 12) / 'BENZENE         ', 78.11   /
+      DATA  MECH_SPC_SAPRC07T( 12), MECH_MWT_SAPRC07T( 12) / 'BENZ            ', 78.11   /
       DATA  MECH_SPC_SAPRC07T( 13), MECH_MWT_SAPRC07T( 13) / 'ARO1            ', 95.16   /
-      DATA  MECH_SPC_SAPRC07T( 14), MECH_MWT_SAPRC07T( 14) / 'ARO2            ', 118.72  /
-      DATA  MECH_SPC_SAPRC07T( 15), MECH_MWT_SAPRC07T( 15) / 'ACETYLENE       ', 26.04   /
+      DATA  MECH_SPC_SAPRC07T( 14), MECH_MWT_SAPRC07T( 14) / 'ARO2MN          ', 118.72  /
+      DATA  MECH_SPC_SAPRC07T( 15), MECH_MWT_SAPRC07T( 15) / 'ACYE            ', 26.04   /
       DATA  MECH_SPC_SAPRC07T( 16), MECH_MWT_SAPRC07T( 16) / 'HCHO            ', 30.03   /
       DATA  MECH_SPC_SAPRC07T( 17), MECH_MWT_SAPRC07T( 17) / 'CCHO            ', 44.05   /
       DATA  MECH_SPC_SAPRC07T( 18), MECH_MWT_SAPRC07T( 18) / 'RCHO            ', 58.08   /
@@ -72,14 +72,13 @@ C=======================================================================
       DATA  MECH_SPC_SAPRC07T( 45), MECH_MWT_SAPRC07T( 45) / 'APIN            ', 136.24  /
       DATA  MECH_SPC_SAPRC07T( 46), MECH_MWT_SAPRC07T( 46) / 'HCHO_PRIMARY    ', 30.03   /
       DATA  MECH_SPC_SAPRC07T( 47), MECH_MWT_SAPRC07T( 47) / 'CCHO_PRIMARY    ', 44.05   /
-      DATA  MECH_SPC_SAPRC07T( 48), MECH_MWT_SAPRC07T( 48) / 'RCHO            ', 58.08   / ! 1
-      DATA  MECH_SPC_SAPRC07T( 49), MECH_MWT_SAPRC07T( 49) / 'MXYL            ', 70.09   / ! 2
-      DATA  MECH_SPC_SAPRC07T( 50), MECH_MWT_SAPRC07T( 50) / 'OXYL            ', 70.09   / ! 3
-      DATA  MECH_SPC_SAPRC07T( 51), MECH_MWT_SAPRC07T( 51) / 'PXLY            ', 70.09   / ! 4
-      DATA  MECH_SPC_SAPRC07T( 52), MECH_MWT_SAPRC07T( 52) / 'CRES            ', 108.14  / ! 5
-      DATA  MECH_SPC_SAPRC07T( 53), MECH_MWT_SAPRC07T( 53) / 'NAPHTHAL        ', 128.2   / ! 6 
-      DATA  MECH_SPC_SAPRC07T( 54), MECH_MWT_SAPRC07T( 54) / 'PRD2            ', 116.16  / ! 7
-      DATA  MECH_SPC_SAPRC07T( 55), MECH_MWT_SAPRC07T( 55) / 'TOLUENE         ', 92.10   / ! 8
-      DATA  MECH_SPC_SAPRC07T( 56), MECH_MWT_SAPRC07T( 56) / 'PROPENE         ', 42.10   / ! 9
-      DATA  MECH_SPC_SAPRC07T( 57), MECH_MWT_SAPRC07T( 57) / 'PYRYACID        ', 70.09   / ! 10 only saprc07tic assigned to BALD in saprc07t
-      DATA  MECH_SPC_SAPRC07T( 58), MECH_MWT_SAPRC07T( 58) / 'ETOH            ', 46.07   / ! 11
+      DATA  MECH_SPC_SAPRC07T( 48), MECH_MWT_SAPRC07T( 48) / 'MXYL            ', 70.09   / ! 1
+      DATA  MECH_SPC_SAPRC07T( 49), MECH_MWT_SAPRC07T( 49) / 'OXYL            ', 70.09   / ! 2
+      DATA  MECH_SPC_SAPRC07T( 50), MECH_MWT_SAPRC07T( 50) / 'PXYL            ', 70.09   / ! 3
+      DATA  MECH_SPC_SAPRC07T( 51), MECH_MWT_SAPRC07T( 51) / 'NAPHTHALENE     ', 128.2   / ! 4 
+      DATA  MECH_SPC_SAPRC07T( 52), MECH_MWT_SAPRC07T( 52) / 'OCS             ', 60.07   / ! 5
+      DATA  MECH_SPC_SAPRC07T( 53), MECH_MWT_SAPRC07T( 53) / 'TOLU            ', 92.10   / ! 6
+      DATA  MECH_SPC_SAPRC07T( 54), MECH_MWT_SAPRC07T( 54) / 'PROPENE         ', 42.10   / ! 7
+      DATA  MECH_SPC_SAPRC07T( 55), MECH_MWT_SAPRC07T( 55) / 'ETOH            ', 46.07   / ! 8
+      DATA  MECH_SPC_SAPRC07T( 56), MECH_MWT_SAPRC07T( 56) / 'PYRYACID        ', 70.09   / ! 9 only saprc07tic assigned to BALD in saprc07t
+                                                         

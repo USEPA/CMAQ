@@ -1,4 +1,4 @@
-C=======================================================================
+CRESC=======================================================================
 C  MAP_CV2SAPRC07.EXT
 C  This include file contains conversion table for 201 speciated species
 C  to SAPRC07 (CMAQ/CAMx) species
@@ -17,7 +17,7 @@ C=======================================================================
       PARAMETER     (MAP_SAPRC07TMECH = 'SAPRC07T           ')
 
       INTEGER        N_SAPRC07T
-      PARAMETER     (N_SAPRC07T = 169)        ! Number of map species
+      PARAMETER     (N_SAPRC07T = 170)        ! Number of map species
 
       CHARACTER*16   SPMH_NAM_SAPRC07T( N_SAPRC07T )   ! speciated species name
       INTEGER        SPMH_MAP_SAPRC07T( N_SAPRC07T )   ! speciated species name
@@ -117,19 +117,19 @@ C=======================================================================
       DATA  CONV_FAC_SAPRC07T(  22)  / 1       /           
                                                            
       DATA  SPMH_NAM_SAPRC07T(  23), SPMH_MAP_SAPRC07T(  23)  / 'cymene_p     ', 25 /
-      DATA  MECH_NAM_SAPRC07T(  23), MECH_MAP_SAPRC07T(  23)  / 'ARO2      ', 14 /
+      DATA  MECH_NAM_SAPRC07T(  23), MECH_MAP_SAPRC07T(  23)  / 'ARO2MN    ', 14 /
       DATA  CONV_FAC_SAPRC07T(  23)  / 1       /           
                                                            
       DATA  SPMH_NAM_SAPRC07T(  24), SPMH_MAP_SAPRC07T(  24)  / 'cymene_o     ', 24 /
-      DATA  MECH_NAM_SAPRC07T(  24), MECH_MAP_SAPRC07T(  24)  / 'ARO2      ', 14 /
+      DATA  MECH_NAM_SAPRC07T(  24), MECH_MAP_SAPRC07T(  24)  / 'ARO2MN    ', 14 /
       DATA  CONV_FAC_SAPRC07T(  24)  / 1       /           
                                                            
       DATA  SPMH_NAM_SAPRC07T(  25), SPMH_MAP_SAPRC07T(  25)  / 'meta-cymenene     ', 26 /
-      DATA  MECH_NAM_SAPRC07T(  25), MECH_MAP_SAPRC07T(  25)  / 'ARO2      ', 14 /
+      DATA  MECH_NAM_SAPRC07T(  25), MECH_MAP_SAPRC07T(  25)  / 'ARO2MN    ', 14 /
       DATA  CONV_FAC_SAPRC07T(  25)  / 1       /           
                                                            
       DATA  SPMH_NAM_SAPRC07T(  26), SPMH_MAP_SAPRC07T(  26)  / 'p-cymenene     ', 27 /
-      DATA  MECH_NAM_SAPRC07T(  26), MECH_MAP_SAPRC07T(  26)  / 'ARO2      ', 14 /
+      DATA  MECH_NAM_SAPRC07T(  26), MECH_MAP_SAPRC07T(  26)  / 'ARO2MN    ', 14 /
       DATA  CONV_FAC_SAPRC07T(  26)  / 1       /           
                                                            
       DATA  SPMH_NAM_SAPRC07T(  27), SPMH_MAP_SAPRC07T(  27)  / 'camphor     ', 30 /
@@ -381,7 +381,7 @@ C=======================================================================
       DATA  CONV_FAC_SAPRC07T(  88)  / 1       /           
                                                            
       DATA  SPMH_NAM_SAPRC07T(  89), SPMH_MAP_SAPRC07T(  89)  / 'ethanol     ', 91 /
-      DATA  MECH_NAM_SAPRC07T(  89), MECH_MAP_SAPRC07T(  89)  / 'ETOH      ', 58 /
+      DATA  MECH_NAM_SAPRC07T(  89), MECH_MAP_SAPRC07T(  89)  / 'ETOH      ', 55 /
       DATA  CONV_FAC_SAPRC07T(  89)  / 1       /           
                                                            
       DATA  SPMH_NAM_SAPRC07T(  90), SPMH_MAP_SAPRC07T(  90)  / 'acetaldehyde     ', 90 /
@@ -393,7 +393,7 @@ C=======================================================================
       DATA  CONV_FAC_SAPRC07T(  91)  / 1       /           
                                                            
       DATA  SPMH_NAM_SAPRC07T(  92), SPMH_MAP_SAPRC07T(  92)  / 'acetic_acid     ', 92 /
-      DATA  MECH_NAM_SAPRC07T(  92), MECH_MAP_SAPRC07T(  92)  / 'HCOOOH    ', 25 /
+      DATA  MECH_NAM_SAPRC07T(  92), MECH_MAP_SAPRC07T(  92)  / 'CCOOH    ', 25 /
       DATA  CONV_FAC_SAPRC07T(  92)  / 1       /           
                                                            
       DATA  SPMH_NAM_SAPRC07T(  93), SPMH_MAP_SAPRC07T(  93)  / 'ethane     ', 100 /
@@ -581,59 +581,59 @@ C=======================================================================
       DATA  CONV_FAC_SAPRC07T( 138)  / 1       /           
                                                            
       DATA  SPMH_NAM_SAPRC07T( 139), SPMH_MAP_SAPRC07T( 139)  / 'hexanal     ', 141          /
-      DATA  MECH_NAM_SAPRC07T( 139), MECH_MAP_SAPRC07T( 139)  / 'RCHO', 48 /
+      DATA  MECH_NAM_SAPRC07T( 139), MECH_MAP_SAPRC07T( 139)  / 'RCHO', 18 /
       DATA  CONV_FAC_SAPRC07T( 139)  / 1       /           
                                                            
       DATA  SPMH_NAM_SAPRC07T( 140), SPMH_MAP_SAPRC07T( 140)  / 'hexanal_c3     ', 143          /
-      DATA  MECH_NAM_SAPRC07T( 140), MECH_MAP_SAPRC07T( 140)  / 'RCHO', 48 /
+      DATA  MECH_NAM_SAPRC07T( 140), MECH_MAP_SAPRC07T( 140)  / 'RCHO', 18 /
       DATA  CONV_FAC_SAPRC07T( 140)  / 1       /           
                                                            
       DATA  SPMH_NAM_SAPRC07T( 141), SPMH_MAP_SAPRC07T( 141)  / 'hexanal_t2     ', 144          /
-      DATA  MECH_NAM_SAPRC07T( 141), MECH_MAP_SAPRC07T( 141)  / 'RCHO', 48 /
+      DATA  MECH_NAM_SAPRC07T( 141), MECH_MAP_SAPRC07T( 141)  / 'RCHO', 18 /
       DATA  CONV_FAC_SAPRC07T( 141)  / 1       /           
                                                            
       DATA  SPMH_NAM_SAPRC07T( 142), SPMH_MAP_SAPRC07T( 142)  / 'heptanal     ', 178          /
-      DATA  MECH_NAM_SAPRC07T( 142), MECH_MAP_SAPRC07T( 142)  / 'RCHO', 48 /
+      DATA  MECH_NAM_SAPRC07T( 142), MECH_MAP_SAPRC07T( 142)  / 'RCHO', 18 /
       DATA  CONV_FAC_SAPRC07T( 142)  / 1       /           
                                                            
       DATA  SPMH_NAM_SAPRC07T( 143), SPMH_MAP_SAPRC07T( 143)  / 'decanal     ', 104          /
-      DATA  MECH_NAM_SAPRC07T( 143), MECH_MAP_SAPRC07T( 143)  / 'RCHO', 48 /
+      DATA  MECH_NAM_SAPRC07T( 143), MECH_MAP_SAPRC07T( 143)  / 'RCHO', 18 /
       DATA  CONV_FAC_SAPRC07T( 143)        / 1       /     
                                                            
       DATA  SPMH_NAM_SAPRC07T( 144), SPMH_MAP_SAPRC07T( 144)  / 'nonanal     ', 108          /
-      DATA  MECH_NAM_SAPRC07T( 144), MECH_MAP_SAPRC07T( 144)  / 'RCHO', 48 /
+      DATA  MECH_NAM_SAPRC07T( 144), MECH_MAP_SAPRC07T( 144)  / 'RCHO', 18 /
       DATA  CONV_FAC_SAPRC07T( 144)  / 1       /           
                                                            
       DATA  SPMH_NAM_SAPRC07T( 145), SPMH_MAP_SAPRC07T( 145)  / 'octanal     ', 110         /
-      DATA  MECH_NAM_SAPRC07T( 145), MECH_MAP_SAPRC07T( 145)  / 'RCHO', 48 /
+      DATA  MECH_NAM_SAPRC07T( 145), MECH_MAP_SAPRC07T( 145)  / 'RCHO', 18 /
       DATA  CONV_FAC_SAPRC07T( 145)  / 1       /         
         
       DATA  SPMH_NAM_SAPRC07T( 146), SPMH_MAP_SAPRC07T( 146)  / 'pentanal     ', 111   / 
-      DATA  MECH_NAM_SAPRC07T( 146), MECH_MAP_SAPRC07T( 146)  / 'RCHO', 48 /
+      DATA  MECH_NAM_SAPRC07T( 146), MECH_MAP_SAPRC07T( 146)  / 'RCHO', 18 /
       DATA  CONV_FAC_SAPRC07T( 146)  / 1       /           
                                                            
       DATA  SPMH_NAM_SAPRC07T( 147), SPMH_MAP_SAPRC07T( 147)  / 'oxopentanal     ', 114          /
-      DATA  MECH_NAM_SAPRC07T( 147), MECH_MAP_SAPRC07T( 147)  / 'RCHO', 48 /
+      DATA  MECH_NAM_SAPRC07T( 147), MECH_MAP_SAPRC07T( 147)  / 'RCHO', 18 /
       DATA  CONV_FAC_SAPRC07T( 147)  / 1       /           
                                                            
       DATA  SPMH_NAM_SAPRC07T( 148), SPMH_MAP_SAPRC07T( 148)  / 'xylene     ', 166          /
-      DATA  MECH_NAM_SAPRC07T( 148), MECH_MAP_SAPRC07T( 148)  / 'MXLY', 49 /
+      DATA  MECH_NAM_SAPRC07T( 148), MECH_MAP_SAPRC07T( 148)  / 'MXYL', 48 /
       DATA  CONV_FAC_SAPRC07T( 148)  / 0.334       /       
                                                            
       DATA  SPMH_NAM_SAPRC07T( 149), SPMH_MAP_SAPRC07T( 149)  / 'xylene     ', 166          /
-      DATA  MECH_NAM_SAPRC07T( 149), MECH_MAP_SAPRC07T( 149)  / 'OXLY', 50 /
+      DATA  MECH_NAM_SAPRC07T( 149), MECH_MAP_SAPRC07T( 149)  / 'OXYL', 49 /
       DATA  CONV_FAC_SAPRC07T( 149)  / 0.333       /       
                                                            
       DATA  SPMH_NAM_SAPRC07T( 150), SPMH_MAP_SAPRC07T( 150)  / 'xylene     ', 166          /
-      DATA  MECH_NAM_SAPRC07T( 150), MECH_MAP_SAPRC07T( 150)  / 'PXLY', 51 /
+      DATA  MECH_NAM_SAPRC07T( 150), MECH_MAP_SAPRC07T( 150)  / 'PXYL', 50 /
       DATA  CONV_FAC_SAPRC07T( 150)  / 0.333       /       
                                                            
       DATA  SPMH_NAM_SAPRC07T( 151), SPMH_MAP_SAPRC07T( 151)  / 'naphthalene     ', 192          /
-      DATA  MECH_NAM_SAPRC07T( 151), MECH_MAP_SAPRC07T( 151)  / 'NAPHTHAL',  53          /
+      DATA  MECH_NAM_SAPRC07T( 151), MECH_MAP_SAPRC07T( 151)  / 'NAPHTHALENE',  51          /
       DATA  CONV_FAC_SAPRC07T( 151)  / 1       /           
 
       DATA  SPMH_NAM_SAPRC07T( 152), SPMH_MAP_SAPRC07T( 152)  / 'toluene     ', 166          /
-      DATA  MECH_NAM_SAPRC07T( 152), MECH_MAP_SAPRC07T( 152)  / 'TOLUENE', 55 /
+      DATA  MECH_NAM_SAPRC07T( 152), MECH_MAP_SAPRC07T( 152)  / 'TOLU', 53 /
       DATA  CONV_FAC_SAPRC07T( 152)  / 1       /           
                                                            
       DATA  SPMH_NAM_SAPRC07T( 153), SPMH_MAP_SAPRC07T( 153)  / 'phenol     ', 166          /
@@ -645,61 +645,65 @@ C=======================================================================
       DATA  CONV_FAC_SAPRC07T( 154)  / 1       /           
                                                            
       DATA  SPMH_NAM_SAPRC07T( 155), SPMH_MAP_SAPRC07T( 155)  / 'propene     ', 103          /
-      DATA  MECH_NAM_SAPRC07T( 155), MECH_MAP_SAPRC07T( 155)  / 'PROPENE', 56 /
+      DATA  MECH_NAM_SAPRC07T( 155), MECH_MAP_SAPRC07T( 155)  / 'PROPENE', 54 /
       DATA  CONV_FAC_SAPRC07T( 155)  / 1       /           
                                                            
       DATA  SPMH_NAM_SAPRC07T( 156), SPMH_MAP_SAPRC07T( 156)  / 'pyruvic_acid', 94         /
       DATA  MECH_NAM_SAPRC07T( 156), MECH_MAP_SAPRC07T( 156)  / 'BACL', 29 /
       DATA  CONV_FAC_SAPRC07T( 156)  / 1       /           
                                                            
-      DATA  SPMH_NAM_SAPRC07T( 157), SPMH_MAP_SAPRC07T( 157)  / 'ethanol', 91         /
-      DATA  MECH_NAM_SAPRC07T( 157), MECH_MAP_SAPRC07T( 157)  / 'ETOH', 58 /
-      DATA  CONV_FAC_SAPRC07T( 157)  / 1       /           
-                                                           
-      DATA  SPMH_NAM_SAPRC07T( 158), SPMH_MAP_SAPRC07T( 158)  / 'indole', 183         /
-      DATA  MECH_NAM_SAPRC07T( 158), MECH_MAP_SAPRC07T( 158)  / 'ARO1', 13 /
+      DATA  SPMH_NAM_SAPRC07T( 157), SPMH_MAP_SAPRC07T( 157)  / 'indole', 183         /
+      DATA  MECH_NAM_SAPRC07T( 157), MECH_MAP_SAPRC07T( 157)  / 'ARO1', 13 /
+      DATA  CONV_FAC_SAPRC07T( 157)  / 1       /       
+                                                       
+      DATA  SPMH_NAM_SAPRC07T( 158), SPMH_MAP_SAPRC07T( 158)  / '3_metfuran', 119         /
+      DATA  MECH_NAM_SAPRC07T( 158), MECH_MAP_SAPRC07T( 158)  / 'ALK5', 6 /
       DATA  CONV_FAC_SAPRC07T( 158)  / 1       /           
                                                            
-      DATA  SPMH_NAM_SAPRC07T( 159), SPMH_MAP_SAPRC07T( 159)  / '3_metfuran', 119         /
-      DATA  MECH_NAM_SAPRC07T( 159), MECH_MAP_SAPRC07T( 159)  / 'ALK5', 6 /
+      DATA  SPMH_NAM_SAPRC07T( 159), SPMH_MAP_SAPRC07T( 159)  / 'met_jasmonate', 155         /
+      DATA  MECH_NAM_SAPRC07T( 159), MECH_MAP_SAPRC07T( 159)  / 'OLE2', 9 /
       DATA  CONV_FAC_SAPRC07T( 159)  / 1       /           
                                                            
-      DATA  SPMH_NAM_SAPRC07T( 160), SPMH_MAP_SAPRC07T( 160)  / 'met_jasmonate', 155         /
-      DATA  MECH_NAM_SAPRC07T( 160), MECH_MAP_SAPRC07T( 160)  / 'OLE2', 9 /
+      DATA  SPMH_NAM_SAPRC07T( 160), SPMH_MAP_SAPRC07T( 160)  / 'linalool_OXD_t', 155         /
+      DATA  MECH_NAM_SAPRC07T( 160), MECH_MAP_SAPRC07T( 160)  / 'OLE1', 8          /
       DATA  CONV_FAC_SAPRC07T( 160)  / 1       /           
                                                            
-      DATA  SPMH_NAM_SAPRC07T( 161), SPMH_MAP_SAPRC07T( 161)  / 'linalool_OXD_t', 155         /
-      DATA  MECH_NAM_SAPRC07T( 161), MECH_MAP_SAPRC07T( 161)  / 'OLE1', 8          /
+      DATA  SPMH_NAM_SAPRC07T( 161), SPMH_MAP_SAPRC07T( 161)  / '1_petanol', 115         /
+      DATA  MECH_NAM_SAPRC07T( 161), MECH_MAP_SAPRC07T( 161)  / 'ALK5', 6          /
       DATA  CONV_FAC_SAPRC07T( 161)  / 1       /           
                                                            
-      DATA  SPMH_NAM_SAPRC07T( 162), SPMH_MAP_SAPRC07T( 162)  / '1_petanol', 115         /
-      DATA  MECH_NAM_SAPRC07T( 162), MECH_MAP_SAPRC07T( 162)  / 'ALK5', 6          /
+      DATA  SPMH_NAM_SAPRC07T( 162), SPMH_MAP_SAPRC07T( 162)  / '1_penten_3_one', 116         /
+      DATA  MECH_NAM_SAPRC07T( 162), MECH_MAP_SAPRC07T( 162)  / 'MEK',  21         /
       DATA  CONV_FAC_SAPRC07T( 162)  / 1       /           
                                                            
-      DATA  SPMH_NAM_SAPRC07T( 163), SPMH_MAP_SAPRC07T( 163)  / '1_penten_3_one', 116         /
-      DATA  MECH_NAM_SAPRC07T( 163), MECH_MAP_SAPRC07T( 163)  / 'MEK',  21         /
+      DATA  SPMH_NAM_SAPRC07T( 163), SPMH_MAP_SAPRC07T( 163)  / 't-2-octenal', 111         /
+      DATA  MECH_NAM_SAPRC07T( 163), MECH_MAP_SAPRC07T( 163)  / 'RCHO', 48          /
       DATA  CONV_FAC_SAPRC07T( 163)  / 1       /           
                                                            
-      DATA  SPMH_NAM_SAPRC07T( 164), SPMH_MAP_SAPRC07T( 164)  / 't-2-octenal', 111         /
-      DATA  MECH_NAM_SAPRC07T( 164), MECH_MAP_SAPRC07T( 164)  / 'RCHO', 48          /
+      DATA  SPMH_NAM_SAPRC07T( 164), SPMH_MAP_SAPRC07T( 164)  / 'neryl_acetone', 107 /
+      DATA  MECH_NAM_SAPRC07T( 164), MECH_MAP_SAPRC07T( 164)  / 'OLE2     ', 9 /
       DATA  CONV_FAC_SAPRC07T( 164)  / 1       /           
                                                            
-      DATA  SPMH_NAM_SAPRC07T( 165), SPMH_MAP_SAPRC07T( 165)  / 'neryl_acetone', 107 /
-      DATA  MECH_NAM_SAPRC07T( 165), MECH_MAP_SAPRC07T( 165)  / 'OLE2     ', 9 /
+      DATA  SPMH_NAM_SAPRC07T( 165), SPMH_MAP_SAPRC07T( 165)  / 'MBO_3m3e1ol     ', 191 /
+      DATA  MECH_NAM_SAPRC07T( 165), MECH_MAP_SAPRC07T( 165)  / 'OLE2      ', 9 /
       DATA  CONV_FAC_SAPRC07T( 165)  / 1       /           
                                                            
-      DATA  SPMH_NAM_SAPRC07T( 166), SPMH_MAP_SAPRC07T( 166)  / 'MBO_3m3e1ol     ', 191 /
-      DATA  MECH_NAM_SAPRC07T( 166), MECH_MAP_SAPRC07T( 166)  / 'OLE2      ', 9 /
+      DATA  SPMH_NAM_SAPRC07T( 166), SPMH_MAP_SAPRC07T( 166)  / 'santene     ', 195 /
+      DATA  MECH_NAM_SAPRC07T( 166), MECH_MAP_SAPRC07T( 166)  / 'APIN      ', 45          /
       DATA  CONV_FAC_SAPRC07T( 166)  / 1       /           
                                                            
-      DATA  SPMH_NAM_SAPRC07T( 167), SPMH_MAP_SAPRC07T( 167)  / 'santene     ', 195 /
-      DATA  MECH_NAM_SAPRC07T( 167), MECH_MAP_SAPRC07T( 167)  / 'APIN      ', 45          /
+      DATA  SPMH_NAM_SAPRC07T( 167), SPMH_MAP_SAPRC07T( 167)  / 'skatole     ', 196 /
+      DATA  MECH_NAM_SAPRC07T( 167), MECH_MAP_SAPRC07T( 167)  / 'ARO1      ', 13 /
       DATA  CONV_FAC_SAPRC07T( 167)  / 1       /           
                                                            
-      DATA  SPMH_NAM_SAPRC07T( 168), SPMH_MAP_SAPRC07T( 168)  / 'skatole     ', 196 /
-      DATA  MECH_NAM_SAPRC07T( 168), MECH_MAP_SAPRC07T( 168)  / 'ARO1      ', 13 /
-      DATA  CONV_FAC_SAPRC07T( 168)  / 1       /           
+      DATA  SPMH_NAM_SAPRC07T( 168), SPMH_MAP_SAPRC07T( 168)  / 'dodecene_1     ', 177 /
+      DATA  MECH_NAM_SAPRC07T( 168), MECH_MAP_SAPRC07T( 168)  / 'OLE1      ', 8 /
+      DATA  CONV_FAC_SAPRC07T( 168)  / 1       /                                                                                                                                 
                                                            
-      DATA  SPMH_NAM_SAPRC07T( 169), SPMH_MAP_SAPRC07T( 169)  / 'dodecene_1     ', 177 /
-      DATA  MECH_NAM_SAPRC07T( 169), MECH_MAP_SAPRC07T( 169)  / 'OLE1      ', 8 /
-      DATA  CONV_FAC_SAPRC07T( 169)  / 1       /                                                                      
+      DATA  SPMH_NAM_SAPRC07T( 169), SPMH_MAP_SAPRC07T( 169)  / 'benzene       ', 128 /
+      DATA  MECH_NAM_SAPRC07T( 169), MECH_MAP_SAPRC07T( 169)  / 'BENZ      ', 12 /
+      DATA  CONV_FAC_SAPRC07T( 169)  / 1       /                                                                                                                                 
+                                                           
+      DATA  SPMH_NAM_SAPRC07T( 170), SPMH_MAP_SAPRC07T( 170)  / 'carbonyl_2s   ', 171 /
+      DATA  MECH_NAM_SAPRC07T( 170), MECH_MAP_SAPRC07T( 170)  / 'OCS       ', 52 /
+      DATA  CONV_FAC_SAPRC07T( 170)  / 1       /                                                                                                                                 
