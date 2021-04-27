@@ -886,7 +886,7 @@ c----------------------------------------------------------
           END DO
           
           ! Warn if all species are missing
-          CALL ISAM_SPECIES_WARN( 'OA', FOUND_SPECIES, EFLAG )
+          CALL ISAM_SPECIES_WARN( 'OA_TOT', FOUND_SPECIES, EFLAG )
         END IF
 
         ! Activate Particulate Sulfate if Requested
