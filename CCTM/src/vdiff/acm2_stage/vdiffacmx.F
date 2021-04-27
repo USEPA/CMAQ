@@ -62,7 +62,7 @@ C-----------------------------------------------------------------------
       USE SA_DEFN, ONLY: N_SPCTAG, ISAM, VNAM_SPCTAG, TRANSPORT_SPC,
      &                   SA_VDEMIS_DIFF, ITAG, NTAG_SA, NSPC_SA,
      &                   S_SPCTAG, T_SPCTAG, SA_DDEP, OTHRTAG, ISAM_SPEC,
-     &                   L_NITRATE, SA_BIDI, BIDITAG, L_NH4
+     &                   L_NO3, SA_BIDI, BIDITAG, L_NH4
 #endif
 
       IMPLICIT NONE
@@ -508,7 +508,7 @@ C-----------------------------------------------------------------------
 #endif
 
 #ifdef isam
-         IF( L_NITRATE .AND. SFC_HONO ) THEN
+         IF( L_NO3 .AND. SFC_HONO ) THEN
 ! compute the flux partitioning for HONO from NO2 surface reaction
             DO ITAG = 1, NTAG_SA
                SA_NO2( ITAG ) = MAX( ISAM( C,R,1,ISAM_INDEX_NO2,ITAG ), 1.0E-30 )

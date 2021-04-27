@@ -79,13 +79,13 @@ c...Variables regarding the tag list
 c...Logical values for tagging species
       LOGICAL, SAVE :: L_EC      = .FALSE.
       LOGICAL, SAVE :: L_OC      = .FALSE.
-      LOGICAL, SAVE :: L_SFATE   = .FALSE.
-      LOGICAL, SAVE :: L_NITRATE = .FALSE.
+      LOGICAL, SAVE :: L_SO4     = .FALSE.
+      LOGICAL, SAVE :: L_NO3     = .FALSE.
       LOGICAL, SAVE :: L_NH4     = .FALSE.
       LOGICAL, SAVE :: L_PM25    = .FALSE.
       LOGICAL, SAVE :: L_OZONE   = .FALSE.
       LOGICAL, SAVE :: L_VOC     = .FALSE.
-      LOGICAL, SAVE :: L_CHLORINE  = .FALSE.
+      LOGICAL, SAVE :: L_CL      = .FALSE.
       
       LOGICAL, SAVE :: SA_BIDI = .FALSE.
 
@@ -120,20 +120,21 @@ C ...Tagging indices for bcon, others, icon
 
         INTEGER, PARAMETER, PRIVATE :: MAX_STRING     = 32  ! max length of tagclass name
         INTEGER, PARAMETER, PRIVATE :: MAX_TAGCLASSES = 200 ! max number of tagclasses
-        INTEGER, PARAMETER, PRIVATE :: NUMB_CLASSES   = 17  ! number of defined tagclasses
+        INTEGER, PARAMETER, PRIVATE :: NUMB_CLASSES   = 18  ! number of defined tagclasses
         
         CHARACTER( MAX_STRING ), PARAMETER, PRIVATE :: DEFINED_CLASSES( NUMB_CLASSES ) = 
      & (/ 'AMMONIUM  ',
-     &    'OC        ',
+     &    'OA_TOT    ',
+     &    'NVPOA     ',
      &    'CHLORINE  ',
      &    'EC        ',
      &    'SULFATE   ',
      &    'OZONE     ',
      &    'NITRATE   ',
      &    'VOC       ',
-     &    'PM25_IONS ',
+     &    'PM_IONS   ',
      &    'ALL       ',
-     &    'PMTOT     ',
+     &    'PM_TOT    ',
      &    'HAP_GAS   ',
      &    'HAP_AERO  ',
      &    'HAP_TOT   ',
@@ -790,9 +791,11 @@ c----------------------------------------------------------
 
         ! Initialize Control Variables
         L_VOC      = .FALSE.   
-        L_NITRATE  = .FALSE.
+        L_NO3      = .FALSE.
         L_NH4      = .FALSE.
         L_OZONE    = .FALSE.
+        L_SO4      = .FALSE.
+        L_CL       = .FALSE.
 
 
         ! Initalize Number of ISAM Species
@@ -815,15 +818,35 @@ c----------------------------------------------------------
         ENDIF
  
         ! Activate All Particulate Species if Requested
-        IF ( INDEX( TAGCLASSES,'PMTOT' ) .NE. 0 ) THEN
+        IF ( INDEX( TAGCLASSES,'PM_TOT' ) .NE. 0 ) THEN
           L_ISAM_AERO = .TRUE.
           L_VOC = .TRUE.
-          L_NITRATE   = .TRUE.
+          L_NO3 = .TRUE.
           L_NH4 = .TRUE.
+          L_SO4 = .TRUE.
+          L_CL  = .TRUE.
+        ENDIF
+ 
+        ! Activate Particulate Ions if Requested
+        IF ( INDEX( TAGCLASSES,'PM_IONS' ) .NE. 0 ) THEN
+          FOUND_SPECIES = .FALSE.
+          CALL ADD_ISAM_SPEC( 'ANA', FOUND_SPECIES )
+          CALL ADD_ISAM_SPEC( 'AMG', FOUND_SPECIES )
+          CALL ADD_ISAM_SPEC( 'AK', FOUND_SPECIES )
+          CALL ADD_ISAM_SPEC( 'ACA', FOUND_SPECIES )
+          CALL ADD_ISAM_SPEC( 'AFE', FOUND_SPECIES )
+          CALL ADD_ISAM_SPEC( 'AAL', FOUND_SPECIES )
+          CALL ADD_ISAM_SPEC( 'ASI', FOUND_SPECIES )
+          CALL ADD_ISAM_SPEC( 'ATI', FOUND_SPECIES )
+          CALL ADD_ISAM_SPEC( 'AMN', FOUND_SPECIES )
+          CALL ADD_ISAM_SPEC( 'AOTHR', FOUND_SPECIES )
+          
+          ! Warn if all species are missing
+          CALL ISAM_SPECIES_WARN( 'PM_IONS', FOUND_SPECIES, EFLAG )
         ENDIF
  
         ! Activate Particulate Chlorine if Requested
-        IF ( INDEX( TAGCLASSES,'CHLORINE' ) .NE. 0 ) THEN
+        IF ( INDEX( TAGCLASSES,'CHLORINE' ) .NE. 0 .OR. L_CL ) THEN
           FOUND_SPECIES = .FALSE.
           CALL ADD_ISAM_SPEC( 'ACL', FOUND_SPECIES )
           CALL ADD_ISAM_SPEC( 'HCL', FOUND_SPECIES )
@@ -841,14 +864,25 @@ c----------------------------------------------------------
           CALL ISAM_SPECIES_WARN( 'EC', FOUND_SPECIES, EFLAG )
         ENDIF
  
+        ! Activate Non-Volatile Primary Organic Aerosol if Requested
+        IF ( INDEX( TAGCLASSES,'NVPOA' ) .NE. 0 ) THEN
+          FOUND_SPECIES = .FALSE.
+
+          CALL ADD_ISAM_SPEC( 'AOC', FOUND_SPECIES )
+          CALL ADD_ISAM_SPEC( 'APNCOM', FOUND_SPECIES )
+          
+          ! Warn if all species are missing
+          CALL ISAM_SPECIES_WARN( 'NVPOA', FOUND_SPECIES, EFLAG )
+        END IF
+ 
         ! Activate Organic Aerosol if Requested
-        IF ( INDEX( TAGCLASSES,'OA' ) .NE. 0 ) THEN
+        IF ( INDEX( TAGCLASSES,'OA_TOT' ) .NE. 0 ) THEN
           L_VOC = .TRUE.
           FOUND_SPECIES = .FALSE.
 
-          DO IAERO = 1:N_AEROSPC
+          DO IAERO = 1,N_AEROSPC
              IF ( AEROSPC( IAERO )%OM )
-     &          CALL ADD_ISAM_SPEC( 'ASO4', FOUND_SPECIES )
+     &          CALL ADD_ISAM_SPEC( AEROSPC(IAERO)%BULKNAME, FOUND_SPECIES )
           END DO
           
           ! Warn if all species are missing
@@ -856,13 +890,12 @@ c----------------------------------------------------------
         END IF
 
         ! Activate Particulate Sulfate if Requested
-        IF ( INDEX( TAGCLASSES,'SULFATE' ) .NE. 0 .OR.
-     &       INDEX( TAGCLASSES,'PMTOT' )   .NE. 0  ) THEN
+        IF ( INDEX( TAGCLASSES,'SULFATE' ) .NE. 0 .OR. L_SO4  ) THEN
           
           FOUND_SPECIES = .FALSE.
           
           CALL ADD_ISAM_SPEC( 'ASO4', FOUND_SPECIES )
-          EFLAG = CHECK_MECH( 'SULFATE', IMECH, MECHNAME )
+          CALL CHECK_MECH( 'SULFATE', IMECH, MECHNAME, EFLAG )
           DO ISPEC = 1,SIZE( ISAM_SPEC_SO4( IMECH )%LIST )
             CALL ADD_ISAM_SPEC( ISAM_SPEC_SO4(IMECH)%LIST(ISPEC), FOUND_SPECIES )
           END DO
@@ -912,7 +945,7 @@ c----------------------------------------------------------
         ! Add Ozone if Requested
         IF ( INDEX( TAGCLASSES,'OZONE' ) .NE. 0 .OR. L_OZONE ) THEN
 
-          L_NITRATE = .TRUE.
+          L_NO3     = .TRUE.
           L_VOC     = .TRUE.
           FOUND_SPECIES = .FALSE.
           
@@ -929,8 +962,8 @@ c----------------------------------------------------------
 
 
         ! Add Nitrate Species
-        IF ( INDEX( TAGCLASSES,'NITRATE' ) .NE. 0 .OR. L_NITRATE ) THEN 
-          L_NITRATE = .TRUE. 
+        IF ( INDEX( TAGCLASSES,'NITRATE' ) .NE. 0 .OR. L_NO3 ) THEN 
+          L_NO3 = .TRUE. 
           FOUND_SPECIES = .FALSE.
 
           ! Check that the chemical mechanism name is valid
@@ -1004,7 +1037,7 @@ c----------------------------------------------------------
 
           ! Scan for NonReactive PAH tracers
           DO I = 1,SIZE( ISAM_SPEC_PAHTEQ%LIST )
-            CALL ADD_ISAM_SPEC( ISAM_SPEC_PAHTEQ%LUST(I), FOUND_SPECIES )
+            CALL ADD_ISAM_SPEC( ISAM_SPEC_PAHTEQ%LIST(I), FOUND_SPECIES )
           END DO
 
           ! Warn if all species are missing
@@ -1430,25 +1463,25 @@ c          END DO
 
         END SUBROUTINE GET_MAP_SAtoCGR
 
-     !-------------------------------------------------------------------------------------------   
+      !-------------------------------------------------------------------------------------------   
         SUBROUTINE CHECK_MECH( TAG_NAME, IMECH, MECHNAME, EFLAG )
-     !-------------------------------------------------------------------------------------------   
-     !  This function checks whether or not the the chemical mechanism
-     !  that the user has supplied is active for ISAM and reports an
-     !  error if not.
-     !-------------------------------------------------------------------------------------------   
+      !-------------------------------------------------------------------------------------------   
+      !  This subroutine checks whether or not the the chemical mechanism
+      !  that the user has supplied is active for ISAM and reports an
+      !  error if not.
+      !-------------------------------------------------------------------------------------------   
         USE RUNTIME_VARS
         
         IMPLICIT NONE
 
         INTEGER       :: IMECH
-        CHARACTER(50) :: TAG_NAME
+        CHARACTER(*)  :: TAG_NAME
         CHARACTER(32) :: MECHNAME
         LOGICAL       :: EFLAG
         CHARACTER(400):: XMSG
 
         IF ( IMECH .EQ. 0 ) THEN
-           XMSG = "ISAM ERROR: The ",TRIM(TAG_NAME), " tag group has been selected but the species "
+           XMSG = "ISAM ERROR: The " // TRIM(TAG_NAME) // " tag group has been selected but the species "
      &         // "for the " // TRIM( MECHNAME ) // " mechanism are not defined. Modify GET_NSPC_SA "
      &         // "and GET_SPC_INDEX  subroutines to include MECHNAME cases for it."
                 CALL LOG_MESSAGE( LOGDEV, XMSG )  
@@ -1456,18 +1489,21 @@ c          END DO
         END IF
         END SUBROUTINE
  
-     !-------------------------------------------------------------------------------------------   
+      !-------------------------------------------------------------------------------------------   
         SUBROUTINE ADD_ISAM_SPEC( CHEM_NAME, FOUND_SPECIES )
-     !-------------------------------------------------------------------------------------------   
-     !  This function checks whether or not the the chemical mechanism
-     !  that the user has supplied is active for ISAM and reports an
-     !  error if not.
-     !-------------------------------------------------------------------------------------------   
+      !-------------------------------------------------------------------------------------------   
+      !  This subroutine adds an aerosol or gas-phase species to the
+      !  ISAM species array and sends back a TRUE value for
+      !  FOUND_SPECIES if the input CHEM_NAME is a CMAQ modeled
+      !  species.
+      !-------------------------------------------------------------------------------------------   
         USE CGRID_SPCS
+        USE UTILIO_DEFN 
+        USE AERO_DATA, only : N_AEROSPC, AEROSPC
         
         IMPLICIT NONE
 
-        CHARACTER(16) :: CHEM_NAME
+        CHARACTER(*)  :: CHEM_NAME
         LOGICAL       :: FOUND_SPECIES
 
         INTEGER ISPEC, IAERO
@@ -1476,15 +1512,17 @@ c          END DO
         ISPEC = INDEX1( CHEM_NAME, NSPCSD, CGRID_NAME )
         IAERO = INDEX1( CHEM_NAME, N_AEROSPC, AEROSPC%BULKNAME )
 
-        IF ( ISPEC .GT. 0 .and. CGRID_MASK_AERO( ISPEC ) .EQ. .FALSE. ) THEN
-           ! Species is a gas model species
-           IF ( INDEX1( CHEM_NAME, NSPC_SA, ISAM_SPEC(:,1) ) .EQ. 0 ) THEN
-              NSPC_SA = NSPC_SA + 1
-              ISAM_SPEC( NSPC_SA,: ) = CHEM_NAME
-           END IF 
-           FOUND_SPECIES = .TRUE.
+        IF ( ISPEC .GT. 0 ) THEN
+           IF ( .NOT. CGRID_MASK_AERO( ISPEC ) ) THEN
+              ! Species is a gas model species
+              IF ( INDEX1( CHEM_NAME, NSPC_SA, ISAM_SPEC(:,1) ) .EQ. 0 ) THEN
+                 NSPC_SA = NSPC_SA + 1
+                 ISAM_SPEC( NSPC_SA,: ) = CHEM_NAME
+              END IF 
+              FOUND_SPECIES = .TRUE.
+           END IF
 
-        ELSEIF ( IAERO .GT. 0 ) THEN
+        ELSE IF ( IAERO .GT. 0 ) THEN
            ! Species is an aerosol model species
            L_ISAM_AERO( IAERO ) = .TRUE.
            FOUND_SPECIES = .TRUE.
@@ -1493,27 +1531,27 @@ c          END DO
 
         END SUBROUTINE
 
-     !-------------------------------------------------------------------------------------------   
+      !-------------------------------------------------------------------------------------------   
         SUBROUTINE ISAM_SPECIES_WARN( TAG_NAME, FOUND_SPECIES, EFLAG )
-     !-------------------------------------------------------------------------------------------   
-     !  This function checks whether or not the the chemical mechanism
-     !  that the user has supplied is active for ISAM and reports an
-     !  error if not.
-     !-------------------------------------------------------------------------------------------   
+      !-------------------------------------------------------------------------------------------   
+      !  This subroutine prints a warning if no species in a tag class
+      !  are found on CMAQ modeled species list.
+      !-------------------------------------------------------------------------------------------   
         USE RUNTIME_VARS
         
         IMPLICIT NONE
 
-        CHARACTER(50) :: TAG_NAME
+        CHARACTER(*)  :: TAG_NAME
         LOGICAL       :: FOUND_SPECIES
         LOGICAL       :: EFLAG
- 
+        CHARACTER(400):: XMSG
+
+
         IF ( .NOT. FOUND_SPECIES ) THEN
-              EFLAG = .TRUE.
-              XMSG = " ISAM ERROR: No member of ",TRIM(TAG_NAME)," tag class found "
-     &             // "in species namelists but control file requests the class."
-              CALL LOG_MESSAGE( LOGDEV, XMSG )
-          END IF
+           EFLAG = .TRUE.
+           XMSG = " ISAM ERROR: No member of "//TRIM(TAG_NAME)//" tag class found "
+     &          // "in species namelists but control file requests the class."
+           CALL LOG_MESSAGE( LOGDEV, XMSG )
         END IF
  
         END SUBROUTINE
