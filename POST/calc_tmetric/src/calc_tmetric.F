@@ -49,7 +49,7 @@ C local variables
       character*(16)  VUNITS_IN(MXVARS3)
       character*(16)  PNAME
       character*(16)  VERSION
-      real, allocatable :: in_data(:,:) 
+      real, allocatable :: in_data(:,:,:) 
       real, allocatable :: proc_data(:,:,:) 
       integer lfn
       integer i, s, t, idx, K, N
@@ -139,7 +139,7 @@ C... open output file as new
 C... start process loop
 
       ! allocate data array for 1 species
-      allocate( in_data(NCOLS3D, NROWS3D) )
+      allocate( in_data(NCOLS3D, NROWS3D, M3GRID % NLAYS) )
       allocate( proc_data(NCOLS3D, NROWS3D, M3GRID % NLAYS) )
 
       DO S = 1, NSPECVAR
@@ -147,21 +147,20 @@ C... start process loop
 
        PROC_DATA = 0.
        
-       DO K = 1, M3GRID % NLAYS
                
         DO N = 1, NSTEPS !number of time steps across all model files from module_tstep
 
          
            IF( .NOT. READ3( M3_FLNAME(STEP_FILE(N)), SPECVARS(s), 
-     &                   K, STEP_DATE(N), 
+     &                   ALLAYS3, STEP_DATE(N), 
      &                   STEP_TIME(N), IN_DATA ) ) THEN
      
-            MSG = 'Could not read input Models-3 file ' // M3_FLNAME(STEP_FILE(N))        
+            MSG = 'Could not read input Models-3 file ' // M3_FLNAME(STEP_FILE(N))
             CALL M3ERR( PNAME, STEP_DATE(N), STEP_TIME(N), MSG, .FALSE. )
           
            ELSE
          
-            PROC_DATA( : , : , K) = PROC_DATA( : , : , K) + IN_DATA
+            PROC_DATA = PROC_DATA + IN_DATA
                      
            ENDIF
           
@@ -171,12 +170,11 @@ C... start process loop
         Write(*,'(''Done reading for layer '',i0,'' species '',a)') 
      &                 k, VNAME3D(S)
         
-       ENDDO !K
 
 c      compute average if desired, write out the result for this variable
 
        IF ( C_PROC .EQ. 'AVG' ) PROC_DATA = PROC_DATA * (1. / FLOAT (NSTEPS) )
-       
+         
        IF ( .NOT. WRITE3('OUTFILE', VNAME3D(S), STEP_DATE(1),
      &                   STEP_TIME(1), PROC_DATA) ) THEN
         WRITE( *, '('' **Error** Cannot write to OUTFILE for species '', a)')
@@ -184,7 +182,6 @@ c      compute average if desired, write out the result for this variable
         KSWIT = SHUT3()
         STOP 
        ENDIF
-
 
       ENDDO !S
                
