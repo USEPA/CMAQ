@@ -579,8 +579,8 @@
 ! (defined in the example above). This file will be column sums and will include
 ! all the emitted species appearing on at least one of the streams within 
 ! PT_SOURCES.
-!  EmissDiagStreams(3,:)= 'COLSUM'
-!  EmissDiagFmt(3)      = '3D'   
+!  EmissDiagStreams(3,:)= 'PT_SOURCES'
+!  EmissDiagFmt(3)      = 'COLSUM'   
 !  EmissDiagSpec(3,:)   = '*ALL'
 !/
 
