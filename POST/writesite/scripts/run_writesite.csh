@@ -28,23 +28,23 @@
 #> Define RUNID as any combination of parameters above or others. By default,
 #> this information will be collected into this one string, $RUNID, for easy
 #> referencing in output binaries and log files as well as in other scripts.
- setenv RUNID  ${VRSN}_${compilerString}_${APPL}
+ set RUNID = ${VRSN}_${compilerString}_${APPL}
 
 #> Set the build directory if this was not set above 
 #> (this is where the executable is located by default).
  if ( ! $?BINDIR ) then
-  setenv BINDIR ${CMAQ_HOME}/POST/writesite/scripts/BLD_writesite_${VRSN}_${compilerString}
+  set BINDIR = ${CMAQ_HOME}/POST/writesite/scripts/BLD_writesite_${VRSN}_${compilerString}
  endif
 
 #> Set the name of the executable.
- setenv EXEC writesite_${VRSN}.exe
+ set EXEC = writesite_${VRSN}.exe
 
-#> Set location of CMAQ repo.  This will be used to point to the time zone file
-#> needed to run bldoverlay.  The v5.2.1 repo also contains a sample SITE_FILE text file.
- setenv REPO_HOME  ${CMAQ_REPO}
+#> Set location of CMAQ repo.  This will be used to point to the optional time zone file
+#> used by writesite. 
+ set REPO_HOME = ${CMAQ_REPO}
 
 #> Set output directory
- setenv POSTDIR    ${CMAQ_DATA}/POST     #> Location where writesite file will be written
+ set POSTDIR = ${CMAQ_DATA}/POST     #> Location where writesite file will be written
 
   if ( ! -e $POSTDIR ) then
 	  mkdir $POSTDIR
