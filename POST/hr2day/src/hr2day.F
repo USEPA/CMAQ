@@ -225,7 +225,6 @@ C... start loop to read and process each variable
           cDate = curDate
           cTime = hr1 * 10000
           offset = tzoffset
-          offset = offset + hroffset 
           if(useDST .and. isDSTime(cDate)) offset = offset - 1   ! adjustment for daylight savings time
           call NEXTIME(cDate,cTime,0) !reformat to make sure hours are between 0 and 23
           Do h=hr1,66
