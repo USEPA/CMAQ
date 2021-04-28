@@ -153,6 +153,7 @@ C... get species definitions from system variables
 
 C... create output file
       NLAYS3D = 1
+      SDATE3D = first_date 
       STIME3D = 000000 
       TSTEP3D = 240000
       NVARS3D = NSPECVAR
