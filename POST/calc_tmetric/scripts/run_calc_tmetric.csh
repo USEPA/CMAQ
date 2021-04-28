@@ -37,7 +37,7 @@
  endif
 
 #> Set the name of the executable.
- set EXEC c= alc_tmetric_${VRSN}.exe
+ set EXEC = calc_tmetric_${VRSN}.exe
 
 
 #> Set output directory
