@@ -344,15 +344,13 @@ C  routine to set map projection
 C****************************************************************************
       Subroutine SetProj(gdtype, alpha, beta, gamma, xcent, ycent) 
 
+      USE M3UTILIO
+
       IMPLICIT NONE
 
       ! arguments
       Integer gdtype
       Real alpha, beta, gamma, xcent, ycent
-
-      ! external functions
-      logical SETLAM
-      logical SETPOL
 
       !  check for LAT/LON projection
       if( gdtype .eq. 1 ) then
@@ -375,6 +373,14 @@ C****************************************************************************
         return
         endif
 
+      !  check for equatorial mercator projection
+      if( gdtype .eq. 7 ) then
+        if( .NOT. SETEQM( alpha, beta, gamma, xcent, ycent) ) then
+          Call m3err ('writeSite', 0, 0, 'Equatorial mercator projection setup error', .TRUE.)
+          endif
+        return
+        endif
+
       Call m3err ('writeSite', 0, 0, 'Unsupported map projection', .TRUE.)
 
       end Subroutine SetProj
@@ -385,15 +391,13 @@ C  routine to compute map projection from LAT/LON
 C****************************************************************************
       Subroutine ToProj(gdtype, longitude, latitude, x, y) 
 
+      USE M3UTILIO
+
       IMPLICIT NONE
 
       ! arguments
       Integer gdtype
       Real longitude, latitude, x, y
-
-      ! external functions
-      logical LL2LAM
-      logical LL2POL
 
       !  check for LAT/LON projection
       if( gdtype .eq. 1 ) then
@@ -418,6 +422,13 @@ C****************************************************************************
         return
         endif
 
+      !  check for polar stereographic projection
+      if( gdtype .eq. 7 ) then
+        if(.NOT.LL2EQM(longitude, latitude, x, y) ) then
+          Call m3err('writesite', 0, 0, 'Lat/Lon to equatorial mercator error', .TRUE.)
+          endif
+        return
+        endif
 
       Call m3err ('writeSite', 0, 0, 'Unsupported map projection', .TRUE.)
 
@@ -429,16 +440,14 @@ C  routine to compute LAT/LON from map projection
 C****************************************************************************
       Subroutine ToLL(gdtype, x, y, longitude, latitude)
 
+      USE M3UTILIO
+
       IMPLICIT NONE
 
       ! arguments
       Integer gdtype
       Real longitude, latitude, x, y
 
-      ! external functions
-      logical LAM2LL
-      logical POL2LL
-        
       !  check for LAT/LON projection
       if( gdtype .eq. 1 ) then
         longitude = x
@@ -458,6 +467,14 @@ C****************************************************************************
       if( gdtype .eq. 6 ) then
         if(.NOT.POL2LL(x, y, longitude, latitude) ) then
           Call m3err('writesite', 0, 0, 'Lat/Lon to polar stereographic error', .TRUE.)
+          endif
+        return
+        endif
+
+      !  check for equatorial mercator projection
+      if( gdtype .eq. 7 ) then
+        if(.NOT.EQM2LL(x, y, longitude, latitude) ) then
+          Call m3err('writesite', 0, 0, 'Lat/Lon to equatorial mercator error', .TRUE.)
           endif
         return
         endif

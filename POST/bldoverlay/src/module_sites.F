@@ -48,27 +48,73 @@ C*************************************************************************
 
          Integer id, column, row
 
-         REAL   X               ! x-coordinate for lambert projection
-         REAL   Y               ! y-coordinate for lambert projection
+         REAL   X               ! x-coordinate for projection
+         REAL   Y               ! y-coordinate for projection
          REAL   LONGITUDE       
          REAL   LATITUDE       
 
+         IF ( GDTYP3D .EQ. 1 ) THEN ! lat / lon grid
+
+          longitude = x
+          latitude  = y
+         
+         ELSEIF ( GDTYP3D .EQ. 2 ) THEN  ! Lambert conformal conic projection
  
          !  set lambert projection
-         IF( .NOT. SETLAM( SNGL(P_ALP3D), SNGL(P_BET3D), SNGL(P_GAM3D),
+          IF( .NOT. SETLAM( SNGL(P_ALP3D), SNGL(P_BET3D), SNGL(P_GAM3D),
      &                    SNGL(XCENT3D), SNGL(YCENT3D) ) ) THEN
            CALL M3EXIT( 'O3TOIOAPI', 0, 0, 'Lambert projection setup error', 2 )
            ENDIF
 
+          X = XORIG3D + (column-0.5) * XCELL3D
+          Y = YORIG3D + (row-0.5) * YCELL3D
 
-         X = XORIG3D + (column-0.5) * XCELL3D
-         Y = YORIG3D + (row-0.5) * YCELL3D
+          !..get the lat/lon coordinates using lambert conversion
+          IF( .NOT. LAM2LL( X, Y, longitude, latitude) ) THEN
+            CALL M3EXIT( 'O3TOIOAPI', 0, 0,
+     &                      'Lambert to lat/lon to conversion error', 2 )
+            endif           
 
-         !..get the lat/lon coordinates using lambert conversion
-         IF( .NOT. LAM2LL( X, Y, longitude, latitude) ) THEN
-           CALL M3EXIT( 'O3TOIOAPI', 0, 0,
-     &                      'Lat/Lon to Lambert to conversion error', 2 )
-           endif           
+         ELSEIF ( GDTYP3D .EQ. 6 ) THEN  ! polar stereographic projection
+ 
+         !  set polar stereographic projection
+          IF( .NOT. SETPOL( SNGL(P_ALP3D), SNGL(P_BET3D), SNGL(P_GAM3D),
+     &                    SNGL(XCENT3D), SNGL(YCENT3D) ) ) THEN
+           CALL M3EXIT( 'O3TOIOAPI', 0, 0, 'polar stereographic projection setup error', 2 )
+           ENDIF
+
+          X = XORIG3D + (column-0.5) * XCELL3D
+          Y = YORIG3D + (row-0.5) * YCELL3D
+
+          !..get the lat/lon coordinates using polar stereographic conversion
+          IF( .NOT. POL2LL( X, Y, longitude, latitude) ) THEN
+            CALL M3EXIT( 'O3TOIOAPI', 0, 0,
+     &                      'Polar stereographic to lat/lon conversion error', 2 )
+            endif           
+
+         ELSEIF ( GDTYP3D .EQ. 7 ) THEN  ! equatorial secant mercator projection
+ 
+         !  set equatorial mercator projection
+          IF( .NOT. SETEQM( SNGL(P_ALP3D), SNGL(P_BET3D), SNGL(P_GAM3D),
+     &                    SNGL(XCENT3D), SNGL(YCENT3D) ) ) THEN
+           CALL M3EXIT( 'O3TOIOAPI', 0, 0, 'equatorial mercator setup error', 2 )
+           ENDIF
+
+          X = XORIG3D + (column-0.5) * XCELL3D
+          Y = YORIG3D + (row-0.5) * YCELL3D
+
+          !..get the lat/lon coordinates using equatorial mercator  conversion
+          IF( .NOT. EQM2LL( X, Y, longitude, latitude) ) THEN
+            CALL M3EXIT( 'O3TOIOAPI', 0, 0,
+     &                      'equatorial mercator to lat/lon conversion error', 2 )
+            endif           
+
+         ELSE
+
+            CALL M3EXIT( 'O3TOIOAPI', 0, 0,
+     &                      'Grid projection not supported', 2 )
+
+         ENDIF
 
          Call addSite(id, longitude, latitude)
         
