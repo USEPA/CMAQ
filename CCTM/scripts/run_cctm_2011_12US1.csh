@@ -185,7 +185,7 @@ setenv IOAPI_OFFSET_64 YES   #> support large timestep records (>2GB/timestep re
 setenv IOAPI_CHECK_HEADERS N #> check file headers [ options: Y | N ]
 setenv CTM_EMISCHK N         #> Abort CMAQ if missing surrogates from emissions Input files
 setenv EMISDIAG F            #> Print Emission Rates at the output time step after they have been
-                             #>   scaled and modified by the user Rules [options: F | T or 2D | 3D | 2DSUM ]
+                             #>   scaled and modified by the user Rules [options: F | 2D | 3D | T or 2DSUM ]
                              #>   Individual streams can be modified using the variables:
                              #>       GR_EMIS_DIAG_## | STK_EMIS_DIAG_## | BIOG_EMIS_DIAG
                              #>       MG_EMIS_DIAG    | LTNG_EMIS_DIAG   | DUST_EMIS_DIAG
@@ -193,6 +193,7 @@ setenv EMISDIAG F            #> Print Emission Rates at the output time step aft
                              #>   Note that these diagnostics are different than other emissions diagnostic
                              #>   output because they occur after scaling.
 setenv EMISDIAG_SUM F        #> Print Sum of Emission Rates to Gridded Diagnostic File
+                             #>   [options: F | 2D | 3D | T or 2DSUM ]
  
 #> Diagnostic Output Flags
 setenv CTM_CKSUM Y           #> checksum report [ default: Y ]

@@ -159,7 +159,9 @@ The default location of the MCIP output files is the `$CMAQ_HOME/data/mcip/$Grid
 
 **Previous Versions of MCIP**
 
-MCIPv4.3 and MCIPv4.2 were released via the CMASCenter MCIP GitHub repository.  Beginning with version 4.5, MCIP is released as part of the CMAQ repository.  
-* [MCIP v4.5 (October 2018)](https://github.com/USEPA/CMAQ/tree/CMAQv5.3.b2_19Oct2018) - bundled under CMAQv5.3beta2 
+MCIPv4.3 and MCIPv4.2 were released via the CMASCenter MCIP GitHub repository.  Beginning with version 4.5, MCIP is released as part of the CMAQ repository.
+* [MCIPv5.1 (December 2019)](https://github.com/USEPA/CMAQ/blob/5.3.1/PREP/mcip/docs/ReleaseNotes) - bundled under CMAQv5.3.1
+* [MCIP v5.0 (August 2019)](https://github.com/USEPA/CMAQ/blob/5.3/PREP/mcip/docs/ReleaseNotes) - bundled under CMAQv5.3 
+* [MCIP v4.5 (October 2018)](https://github.com/USEPA/CMAQ/blob/CMAQv5.3.b2_19Oct2018/PREP/mcip/docs/ReleaseNotes) - bundled under CMAQv5.3beta2 
 * [MCIP v4.3 (November 2015)](https://github.com/CMASCenter/MCIP/tree/4.3) - available on CMASCenter GitHub repository
 * [MCIP v4.2 (December 2013)](https://github.com/CMASCenter/MCIP/tree/4.2) - available on CMASCenter GitHub repository

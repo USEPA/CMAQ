@@ -55,7 +55,7 @@ C-----------------------------------------------------------------------
       USE UTILIO_DEFN
       use CENTRALIZED_IO_MODULE, only : interpolate_var
 #ifdef isam
-      USE SA_DEFN, ONLY: ISAM, NSPC_SA, NTAG_SA, SPC_INDEX, TRANSPORT_SPC, ITAG
+      USE SA_DEFN, ONLY: ISAM, NSPC_SA, NTAG_SA, MAP_SAtoCGR, TRANSPORT_SPC, ITAG
 #endif
 
 #ifdef sens
@@ -298,7 +298,7 @@ C CGRID in mixing ratio [ppmV] -> (air density X "total" Jacobian) X mixing rati
 #ifdef isam
       DO SPC = 1, NSPC_SA
         IF ( TRANSPORT_SPC( SPC ) ) THEN
-          SPC_CGRID = SPC_INDEX(SPC,2)
+          SPC_CGRID = MAP_SAtoCGR(SPC)
           IF ( SPC_CGRID .LE. N_GC_SPC .OR. SPC_CGRID .GE. NR_STRT ) THEN ! this is not an aerosol
             DO ITAG = 1, NTAG_SA
               DO L = 1, NLAYS
@@ -466,7 +466,7 @@ C CGRID in mixing ratio [ppmV] X (air density X "total" jacobian) -> mixing rati
 #ifdef isam
       DO SPC = 1, NSPC_SA
         IF ( TRANSPORT_SPC( SPC ) ) THEN
-          SPC_CGRID = SPC_INDEX(SPC,2)
+          SPC_CGRID = MAP_SAtoCGR(SPC)
           IF ( SPC_CGRID .LE. N_GC_SPC .OR. SPC_CGRID .GE. NR_STRT ) THEN ! this is not an aerosol
             DO ITAG = 1, NTAG_SA
               DO L = 1, NLAYS

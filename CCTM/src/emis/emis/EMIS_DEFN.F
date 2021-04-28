@@ -286,7 +286,7 @@ C GET_AERO_EMIS has to apply factors - don`t do it at this level.
      &                       STREAM_TO_TAG, OTHRTAG, TAGSTREAMS_TEMP,
      &                       TAGSTREAMS_NUM, SA_VDEMIS_CONV,
      &                       SA_VDEMIS_CONV_OTHER,
-     &                       MAP_DIFFtoSA, SPC_NAME, NSPC_SA,
+     &                       MAP_DIFFtoSA, ISAM_SPEC, NSPC_SA,
      &                       ISAMRGN_TEMP, ISAMRGN, ISAMRGN_NUM,
      &                       ISAMRGN_MAP, TAGS_PER_STREAM,
      &                       ISAM_PVO3_MAP, L_OZONE
@@ -412,7 +412,7 @@ C Find emissions stream in the list of available streams
 C Develop a map of emitted/diffused ISAM species
             MAP_DIFFtoSA = 0
             DO SPC = 1, NSPC_SA
-              MAP_DIFFtoSA( SPC ) = INDEX1(TRIM(SPC_NAME(SPC,1)), N_SPC_DIFF, DIFF_SPC )
+              MAP_DIFFtoSA( SPC ) = INDEX1(TRIM(ISAM_SPEC(SPC,1)), N_SPC_DIFF, DIFF_SPC )
             END DO
 
 C Initialize geographic regions for ISAM tagging
@@ -953,11 +953,11 @@ C-----------------------------------------------------------------------
 
       ! For the Primary Scaling (IFAC = 1), apply the array operation
       NISTR = EM_FAC1_ST( ISRM )%NISTR
-      ALLOCATE( MAP_FACtoISTR( NISTR ) )
-      MAP_FACtoISTR = EM_FAC1_ST( ISRM )%MAP_FACtoISTR
-
-      VDEMIS( MAP_FACtoISTR,1:NL,:,: ) = VDEMIS0( MAP_FACtoISTR,1:NL,:,: ) * 
-     &        EM_FAC1_ST( ISRM )%FAC( 1:NISTR,1:NL,:,: )
+      DO ISTR = 1,NISTR
+         VDEMIS( EM_FAC1_ST( ISRM )%MAP_FACtoISTR( ISTR ),1:NL,:,: ) = 
+     &        VDEMIS0( EM_FAC1_ST( ISRM )%MAP_FACtoISTR( ISTR ),1:NL,:,: ) * 
+     &        EM_FAC1_ST( ISRM )%FAC( ISTR,1:NL,:,: )
+      END DO
 
       
       ! For Additional Scaling Operations (IFAC > 1), Loop through Instructions 
@@ -1245,7 +1245,7 @@ C-----------------------------------------------------------------------
             END IF
 
             ! Sum the column if requested
-            IF ( EM_LDIAG .EQ. '2DSUM' ) THEN
+            IF ( EM_LDIAG .EQ. '2DSUM' .or. EM_LDIAG .EQ. 'TRUE' ) THEN
                  VDEMIS( IVAR,1,:,: ) = SUM( VDEMIS( IVAR,1:NL,:,: ),1 )
                  LAYS = 1
             END IF 
@@ -2901,7 +2901,7 @@ C stkemis_init.
      &            ARG .EQ. 'YES'  .OR. ARG .EQ. 'Y' ) THEN
             ARGOUT = 'TRUE'
          ELSEIF ( ARG .EQ. '2D'  .OR. ARG .EQ. '2d' ) THEN
-            ARGOUT = 'TRUE'
+            ARGOUT = '2D'
          ELSEIF   ( ARG .EQ. '3D'  .OR. ARG .EQ. '3d' ) THEN
             ARGOUT = '3D'
          ELSEIF   ( ARG .EQ. '2DSUM' .OR. ARG .EQ. '2dSUM' .OR.
