@@ -26,18 +26,18 @@
 #> Set the build directory if this was not set above 
 #> (this is where the executable is located by default).
  if ( ! $?BINDIR ) then
-  setenv BINDIR ${CMAQ_HOME}/POST/bldoverlay/scripts/BLD_bldoverlay_${VRSN}_${compilerString}
+  set BINDIR = ${CMAQ_HOME}/POST/bldoverlay/scripts/BLD_bldoverlay_${VRSN}_${compilerString}
  endif
 
 #> Set the name of the executable.
- setenv EXEC bldoverlay_${VRSN}.exe
+ set EXEC = bldoverlay_${VRSN}.exe
 
 #> Set location of CMAQ repo.  This will be used to point to the time zone file
 #> needed to run bldoverlay.  The v5.2.1 repo also contains a sample input file.
- setenv REPO_HOME ${CMAQ_REPO}
+ set REPO_HOME = ${CMAQ_REPO}
 
 #> Set output directory
- setenv POSTDIR    ${CMAQ_DATA}/POST                      #> Location where overlay file will be written
+ set POSTDIR = ${CMAQ_DATA}/POST                      #> Location where overlay file will be written
 
   if ( ! -e $POSTDIR ) then
 	  mkdir $POSTDIR

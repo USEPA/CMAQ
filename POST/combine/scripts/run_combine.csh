@@ -29,24 +29,24 @@
 #> Define RUNID as any combination of parameters above or others. By default,
 #> this information will be collected into this one string, $RUNID, for easy
 #> referencing in output binaries and log files as well as in other scripts.
- setenv RUNID  ${VRSN}_${compilerString}_${APPL}
+ set RUNID = ${VRSN}_${compilerString}_${APPL}
 
 #> Set the build directory if this was not set above 
 #> (this is where the CMAQ executable is located by default).
  if ( ! $?BINDIR ) then
-  setenv BINDIR $CMAQ_HOME/POST/combine/scripts/BLD_combine_${VRSN}_${compilerString}
+  set BINDIR = $CMAQ_HOME/POST/combine/scripts/BLD_combine_${VRSN}_${compilerString}
  endif
 
 #> Set the name of the executable.
- setenv EXEC combine_${VRSN}.exe
+ set EXEC = combine_${VRSN}.exe
 
 #> Set location of CMAQ repo.  This will be used to point to the correct species definition files.
- setenv REPO_HOME  ${CMAQ_REPO}
+ set REPO_HOME = ${CMAQ_REPO}
 
 #> Set working, input and output directories
- setenv METDIR     ${CMAQ_DATA}/$APPL/met/mcip            #> Met Output Directory
- setenv CCTMOUTDIR ${CMAQ_DATA}/output_CCTM_${RUNID}      #> CCTM Output Directory
- setenv POSTDIR    ${CMAQ_DATA}/POST                      #> Location where combine file will be written
+ set METDIR     = ${CMAQ_DATA}/$APPL/met/mcip            #> Met Output Directory
+ set CCTMOUTDIR = ${CMAQ_DATA}/output_CCTM_${RUNID}      #> CCTM Output Directory
+ set POSTDIR    = ${CMAQ_DATA}/POST                      #> Location where combine file will be written
 
   if ( ! -e $POSTDIR ) then
 	  mkdir $POSTDIR
