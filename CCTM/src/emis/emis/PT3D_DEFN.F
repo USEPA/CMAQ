@@ -580,7 +580,8 @@ C=======================================================================
          LOGICAL, SAVE :: WRTIME
          INTEGER, SAVE :: NTICS = 0      ! no. of substeps within an output tstep
          LOGICAL, SAVE :: FIRSTIME = .TRUE.
-         LOGICAL       :: L_DESID_DIAG
+         LOGICAL       :: L_DESID_DIAG ! flag determining whether or not DESID
+                                       !   is in diagnostic mode              
          LOGICAL       :: L_NEWDAY
 
          INTEGER       :: NDATE, NTIME

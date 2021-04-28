@@ -370,8 +370,8 @@
 
          INTEGER JDATE, JTIME, TSTEP( 3 )
          INTEGER STATUS
-         LOGICAL, INTENT( IN ) :: L_DESID_DIAG
-
+         LOGICAL, INTENT( IN ) :: L_DESID_DIAG ! flag determining whether or not DESID
+                                               !   is in diagnostic mode              
          REAL,   PARAMETER :: CONVPA = 1.0E-2  ! convert Pa to hPa
 !        REAL,   PARAMETER :: WK = 8.0         ! shape parameter for weibull distribution
 !        REAL,   PARAMETER :: WLAMBDA = 700.0  ! scale parameter for weibull distribution

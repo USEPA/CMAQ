@@ -100,7 +100,7 @@
       LOGICAL         ,ALLOCATABLE :: EMDIAG_STREAM_MASK( :,: ) ! True if a stream contributes to a diagnostic
       CHARACTER( 16 ) ,ALLOCATABLE :: EMDIAG_LOGICAL( : )       ! I/O Logical Name for each diagnostic file
       CHARACTER( 6 )  ,ALLOCATABLE :: EMDIAG_FORMAT( : )        ! FALSE/TRUE/2D/3D/2DCOL
-      CHARACTER( 200 ),ALLOCATABLE :: EMDIAG_FILENAME( : )      ! Filename for diagnostic
+      CHARACTER( 300 ),ALLOCATABLE :: EMDIAG_FILENAME( : )      ! Filename for diagnostic
       CHARACTER( 32 ) ,ALLOCATABLE :: EMDIAG_LAB( : )           ! Shorthand Label for Diagnostic
       INTEGER         ,ALLOCATABLE :: EMDIAG_LAYS( : )          ! Layers for each diagnostic file
       INTEGER         ,ALLOCATABLE :: SUMDIAG( : )

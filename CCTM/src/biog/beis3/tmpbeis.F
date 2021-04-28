@@ -98,8 +98,8 @@ C Arguments:
       INTEGER, INTENT(  IN ) :: TSTEP( 3 )      ! timestep vector
       INTEGER, INTENT(  IN ) :: BEIS_MAP( : )   ! mapping from beis3 to model species
       REAL,    INTENT( OUT ) :: EMISL( :,:,: )  ! emissions in moles/sec
-      LOGICAL, INTENT(  IN ) :: L_DESID_DIAG
-
+      LOGICAL, INTENT(  IN ) :: L_DESID_DIAG ! flag determining whether or not DESID
+                                             !   is in diagnostic mode              
 C External Functions
       LOGICAL,         EXTERNAL :: CHKGRID
 

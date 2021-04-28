@@ -308,8 +308,8 @@
 ! ----------------------------------------------------------------------
       subroutine map_chem_families( species0, spec_vec, nvec, out_vec )
 ! ----------------------------------------------------------------------
-!     Return a vector outvec of size nvec, equal to the size of specvec.
-!     Outvec is a logical which maps the input species name "species" 
+!     Return a vector out_vec of size nvec, equal to the size of specvec.
+!     Out_vec is a logical which maps the input species name "species" 
 !     to specvec, expanding any chemical families or keywords.
 ! ----------------------------------------------------------------------
 

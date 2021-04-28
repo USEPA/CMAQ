@@ -543,16 +543,15 @@
 !        for all of the streams in that group.                                 !
 !   EmissDiagFmt(NEmissDiag) - the format of every stream created as a result  !
 !        of the instruction. Options are:                                      !
-!              - True = 3D output                                              !
-!              - False = Turn Off File                                         !
-!              - 2D = Just the first layer                                     !
-!              - 2DCOL = the column-sum                                        !
+!              - COLSUM = the column-sum                                       !
 !              - 3D = 3D output                                                !
+!              - LAYER1 = Just the surface layer                               !
+!              - OFF = Turn Off File                                           !
 !   EmissDiagSpec(NEmissDiag,:) - The species to be added to each diagnostic   !
 !        file. Species will only appear on a diagnostic file if the relevant   !
 !        stream or group of streams for the file have that species present.    !
 !        Chemical families may be used in this list. By default, CMAQ will sum !
-!        all of the components of a chemical family. You may preceed the       !
+!        all of the components of a chemical family. You may precede the       !
 !        species name with a '*' to instruct CMAQ to expand the field and      !
 !        include all of the components of that family separately. The keyword  !
 !        'ALL' may also be used to easily add all species of any stream.       !
@@ -565,22 +564,23 @@
 ! Sum up all streams to create a diagnostic file of 2D column sums. NO,
 ! NO2, and total NOX will all be on the file.
 !  EmissDiagStreams(1,:)= 'ALL'
-!  EmissDiagFmt(1)      = '2DCOL'    ! Options: 2D, 2DCOL, 3D
+!  EmissDiagFmt(1)      = 'COLSUM'    ! Options: 2D, 2DCOL, 3D
 !  EmissDiagSpec(1,:)   = 'NO','NO2','NOX','ASO4','CO'
   
-! Expand the keyword TOTAL to all the streams in the simulation and create
+! Activate all streams using the keyword TOTAL with the '*' expansion and create
 ! a diagnostic for each one. Each of these files will be 3D and will include
-! three species: 'AEC' = AECI + AECJ + AECK; 'AECI'; and 'NO2'
+! three variables: 'AEC' = AECI + AECJ + AECK; 'AECI'; 'NO2'; 'ACLK'; 'AMG' and
+! 'TERP' if those variables are avilable on the stream.
 !  EmissDiagStreams(2,:)= '*TOTAL'
-!  EmissDiagFmt(2)      = '2D'    ! Options: 2D, 2DCOL, 3D
+!  EmissDiagFmt(2)      = '3D'    
 !  EmissDiagSpec(2,:)   = 'AEC','AECI','NO2','ACLK','AMG','TERP'
   
 ! Create a diagnostic of the sum of the components of the PT_SOURCES family 
 ! (defined in the example above). This file will be column sums and will include
-! all the emitted species appearing on at least one of the streams withint 
+! all the emitted species appearing on at least one of the streams within 
 ! PT_SOURCES.
-!  EmissDiagStreams(3,:)= 'PT_SOURCES'
-!  EmissDiagFmt(3)      = '3D'    ! Options: 2D, 2DCOL, 3D
+!  EmissDiagStreams(3,:)= 'COLSUM'
+!  EmissDiagFmt(3)      = '3D'   
 !  EmissDiagSpec(3,:)   = '*ALL'
 !/
 

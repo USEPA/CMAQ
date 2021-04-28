@@ -266,8 +266,8 @@ C Return From Initialization
 !        This subroutine is meant to control whether GET_EMIS will be 
 !        executed to process emissions for input back to vdiff or if 
 !        it's being run in diagnostic mode. This distinction allows 
-!        emission diagnostics to be written on the Hour instead of
-!        during a predefined time step.
+!        emission diagnostics to be written directly on the output timestep 
+!        instead of during the time step preceding the output timestep.
 !-----------------------------------------------------------------------
 
          USE UTILIO_DEFN
@@ -295,7 +295,7 @@ C Return From Initialization
             MTIME = STTIME
            
             ! Execute DESID Emission Processor in Diagnostic Mode
-            ! for the Initial Hour of the Day (Hour 0)
+            ! for the Initial Hour of the Simulation (usually 0Z)
             VDEMIS_EMDIAG = 0.0
            WRITE( XMSG, '(A,I10,A,I10)' ),
      &          '  Calling Diagnostic Emissions at Date: ',MDATE,
@@ -338,9 +338,9 @@ C Return From Initialization
 !-----------------------------------------------------------------------
          SUBROUTINE GET_EMIS ( JDATE, JTIME, TSTEP, CGRID, L_DESID_DIAG )
 
-C Apply NML factors to all *input* emissions and inline plume rise, aero emis
-C biog, SeaSalt, Dust, and Lightning NO
-C GET_AERO_EMIS has to apply factors - don`t do it at this level.
+         ! Step through all emission sub-modules for each stream
+         ! (gridded and point offline, biog, SeaSalt, Dust, Lightning
+         ! NO, etc.) and apply scaling factors, unit conversions, etc.
 
          USE CGRID_SPCS          ! CGRID mechanism species
          USE AERO_EMIS           ! inherits GRID_CONF
@@ -362,7 +362,7 @@ C GET_AERO_EMIS has to apply factors - don`t do it at this level.
      &                       STREAM_TO_TAG, OTHRTAG, TAGSTREAMS_TEMP,
      &                       TAGSTREAMS_NUM, SA_VDEMIS_CONV,
      &                       SA_VDEMIS_CONV_OTHER,
-     &                       MAP_DIFFtoSA, SPC_NAME, NSPC_SA,
+     &                       MAP_DIFFtoSA, ISAM_SPEC, NSPC_SA,
      &                       ISAMRGN_TEMP, ISAMRGN, ISAMRGN_NUM,
      &                       ISAMRGN_MAP, TAGS_PER_STREAM,
      &                       ISAM_PVO3_MAP, L_OZONE
@@ -488,7 +488,7 @@ C Find emissions stream in the list of available streams
 C Develop a map of emitted/diffused ISAM species
             MAP_DIFFtoSA = 0
             DO SPC = 1, NSPC_SA
-              MAP_DIFFtoSA( SPC ) = INDEX1(TRIM(SPC_NAME(SPC,1)), N_SPC_DIFF, DIFF_SPC )
+              MAP_DIFFtoSA( SPC ) = INDEX1(TRIM(ISAM_SPEC(SPC,1)), N_SPC_DIFF, DIFF_SPC )
             END DO
 
 C Initialize geographic regions for ISAM tagging
@@ -559,15 +559,6 @@ C Map the user specified ISAM regions to available CMAQ regions
             END DO
 #endif
          END IF  ! First Time
-
-C Initialize Emissions Array
-         WRTIME = .FALSE.
-         WSTEP  = WSTEP + TIME2SEC( TSTEP( 2 ) )
-         WRTIME = ( WSTEP .GE. TIME2SEC( TSTEP( 1 ) ) )
-         IF ( WRTIME ) THEN 
-           WSTEP = 0
-           CALL NEXTIME( MDATE, MTIME,  TSTEP( 1 ) )
-         END IF
 
 #ifdef isam
          SA_VDEMIS_DIFF = 0.0
@@ -899,7 +890,7 @@ C-----------------------------------------------------------------------
  
 C Ensure that the model and emissions timestamp dates stay synchronized
          L_NEWDAY = .FALSE.
-         IF (LOC_STDATE(FSTREAM) .NE. JDATE ) THEN !.AND. .NOT.LDIAG ) THEN
+         IF (LOC_STDATE(FSTREAM) .NE. JDATE ) THEN 
             NDATE = JDATE; NTIME = JTIME
             CALL NEXTIME( NDATE, NTIME, -TSTEP( 1 ) )       ! go back one output tstep
             CALL NEXTIME( EM_FILE_DATE( FSTREAM ), NTIME, TSTEP( 1 ) ) ! advance the start date one time step
@@ -1038,11 +1029,11 @@ C-----------------------------------------------------------------------
 
       ! For the Primary Scaling (IFAC = 1), apply the array operation
       NISTR = EM_FAC1_ST( ISRM )%NISTR
-      ALLOCATE( MAP_FACtoISTR( NISTR ) )
-      MAP_FACtoISTR = EM_FAC1_ST( ISRM )%MAP_FACtoISTR
-
-      VDEMIS( MAP_FACtoISTR,1:NL,:,: ) = VDEMIS0( MAP_FACtoISTR,1:NL,:,: ) * 
-     &        EM_FAC1_ST( ISRM )%FAC( 1:NISTR,1:NL,:,: )
+      DO ISTR = 1,NISTR
+         VDEMIS( EM_FAC1_ST( ISRM )%MAP_FACtoISTR( ISTR ),1:NL,:,: ) = 
+     &        VDEMIS0( EM_FAC1_ST( ISRM )%MAP_FACtoISTR( ISTR ),1:NL,:,: ) * 
+     &        EM_FAC1_ST( ISRM )%FAC( ISTR,1:NL,:,: )
+      END DO
 
       
       ! For Additional Scaling Operations (IFAC > 1), Loop through Instructions 
@@ -1310,7 +1301,6 @@ C-----------------------------------------------------------------------
       FORALL ( I = 1:N_SPC_DIFF, DIFF_MASK_NUM( I ) )
      &    VDEMIS( I,1:NL,:,: ) = CONVN( 1:NL,:,: ) * VDEMIS0( I,1:NL,:,:)
 
-
       ! Write out this stream to its diagnostic file or sum emissions
       ! for an aggregate diagnostic
       DO IDIAG = 1,N_EMDIAG
@@ -1335,7 +1325,7 @@ C-----------------------------------------------------------------------
                 END IF
               END DO
 
-              IF ( EMDIAG_FORMAT( IDIAG ) .EQ. '2DCOL' )
+              IF ( EMDIAG_FORMAT( IDIAG ) .EQ. 'COLSUM' )
      &             VDEMIS_OUT(:,:,1) = SUM( VDEMIS_OUT( :,:,1:NL ),3 )
 
               IF ( EMDIAG_NSTREAM( IDIAG ) .EQ. 1 ) THEN
@@ -2754,7 +2744,7 @@ C stkemis_init.
 
         IMPLICIT NONE
 
-        CHARACTER( 200 ) :: PREFIX = 'CCTM_EMDIAG_'
+        CHARACTER( 200 ) :: PREFIX = 'CCTM_DESID'
         CHARACTER( 200 ) :: SUFFIX = '.nc'
         CHARACTER( 200 ) :: XMSG
         INTEGER          :: VALUE
@@ -2764,6 +2754,7 @@ C stkemis_init.
         LOGICAL          :: LREMOVE, LFOUND, EXPAND_STREAM
         LOGICAL          :: STREAM_VECTOR_TMP( N_EM_SRM ),
      &                      SPEC_VECTOR( N_SPC_DIFF )
+        CHARACTER( 3)    :: CDIAG
 
         ALLOCATE( EMDIAG_STREAM_MASK( N_EM_SRM, N_EMDIAG_REG ) )
         ALLOCATE( EMDIAG_SPEC ( N_EMDIAG_REG ) )
@@ -2777,7 +2768,7 @@ C stkemis_init.
         CALL LOG_SUBHEADING( LOGDEV,'Initialize Emissions Diagnostic Files' )
 
         EMDIAG_STREAM_MASK = .FALSE.
-        EMDIAG_FORMAT      = 'FALSE'
+        EMDIAG_FORMAT      = 'OFF'
         EMDIAG_FILENAME    = ''
         EMDIAG_NSTREAM     = 0
         EMDIAG_LAB         = ''
@@ -2790,7 +2781,18 @@ C stkemis_init.
         ! Find Number of Emissions Diagnostic Files Selected. 
         N_EMDIAG = 0
         NSUM = 0
-        DO IDIAG = 1,NEmissDiag
+        DO IDIAG = 1,NEmissDiag 
+           ! Error Check Value for Emission Diagnostic Format
+           CALL UPCASE( EmissDiagFmt( IDIAG ) )
+           IF ( EmissDiagFmt( IDIAG ) .NE. 'OFF' .AND. EmissDiagFmt( IDIAG ) .NE. '3D' .AND.
+     &          EmissDiagFmt( IDIAG ) .NE. 'COLSUM' .AND. EmissDiagFmt( IDIAG ) .NE. 'LAYER1' ) THEN
+               WRITE( LOGDEV, * )
+               WRITE( XMSG, '(A,I3,A,A)' ),
+     &             'The format for Emission Diagnostic group ',IDIAG,
+     &             ' is not allowed. Please correct:',TRIM( EmissDiagFmt(IDIAG))
+               CALL M3EXIT( 'Map_Emiss_Diag', 0, 0, XMSG, XSTAT1 )     
+           END IF
+
            ! Determine number of stream labels to expand
            NSTREAM = INDEX1( '', 20, EmissDiagStreams(IDIAG,:) ) - 1
            IF ( NSTREAM .LE. 0 ) THEN
@@ -2840,13 +2842,14 @@ C stkemis_init.
                         EMDIAG_NSTREAM( JDIAG ) = 1
                         EMDIAG_STREAM_MASK( ISRM,JDIAG ) = .TRUE.
                         EMDIAG_FORMAT( JDIAG ) = EmissDiagFmt( IDIAG )
-                        IF ( EMDIAG_FORMAT( JDIAG ) .EQ. '2D' .OR.
-     &                       EMDIAG_FORMAT( JDIAG ) .EQ. '2DCOL' ) 
+                        IF ( EMDIAG_FORMAT( JDIAG ) .EQ. 'COLSUM' .OR.
+     &                       EMDIAG_FORMAT( JDIAG ) .EQ. 'LAYER1' ) 
      &                       EMDIAG_LAYS( JDIAG ) = 1
 
                         EMDIAG_LAB( JDIAG ) = EM_FILE_LAB( ISRM )
-                        EMDIAG_FILENAME( JDIAG ) = TRIM( PREFIX ) // 
-     &                        TRIM( EMDIAG_LAB( JDIAG ) ) // TRIM( SUFFIX )
+                        WRITE( CDIAG, '(I0)' ), IDIAG
+                        EMDIAG_FILENAME( JDIAG ) = TRIM( PREFIX ) // TRIM(CDIAG) //
+     &                        '_' // TRIM( EMDIAG_LAB( JDIAG ) ) // TRIM( SUFFIX )
                         SUMDIAG( JDIAG ) = 0
             
                         ! Build Species Selection Array
@@ -2878,13 +2881,14 @@ C stkemis_init.
                  EMDIAG_NSTREAM( JDIAG ) = COUNT( STREAM_VECTOR )
                  EMDIAG_STREAM_MASK( :,JDIAG ) = STREAM_VECTOR
                  EMDIAG_FORMAT( JDIAG ) = EmissDiagFmt( IDIAG )
-                 IF ( EMDIAG_FORMAT( JDIAG ) .EQ. '2D' .OR.
-     &                EMDIAG_FORMAT( JDIAG ) .EQ. '2DCOL' ) 
+                 IF ( EMDIAG_FORMAT( JDIAG ) .EQ. 'COLSUM' .OR.
+     &                EMDIAG_FORMAT( JDIAG ) .EQ. 'LAYER1' ) 
      &                EMDIAG_LAYS( JDIAG ) = 1
 
                  EMDIAG_LAB( JDIAG ) = EmissDiagStreams( IDIAG,I )
-                 EMDIAG_FILENAME( JDIAG ) = TRIM( PREFIX ) // 
-     &                 TRIM( EMDIAG_LAB( JDIAG ) ) // TRIM( SUFFIX )
+                 WRITE( CDIAG, '(I0)' ), IDIAG
+                 EMDIAG_FILENAME( JDIAG ) = TRIM( PREFIX ) // TRIM(CDIAG) //
+     &                 '_' // TRIM( EMDIAG_LAB( JDIAG ) ) // TRIM( SUFFIX )
 
                  ! Build Species Selection Array
                  SPEC_VECTOR = .FALSE.
@@ -2947,8 +2951,7 @@ C stkemis_init.
                  NSPEC = NSPEC + 1
                  MAP_EMDIAGtoVDEMIS( ISPEC,IDIAG ) = NSPEC
               END DO
-              IF ( EMDIAG_FORMAT( IDIAG ) .EQ. '3D' .OR.
-     &             EMDIAG_FORMAT( IDIAG ) .EQ. 'TRUE' ) LAYS = NLAYS
+              IF ( EMDIAG_FORMAT( IDIAG ) .EQ. '3D' ) LAYS = NLAYS
             ENDIF
         END DO
         ALLOCATE( VDEMIS_EMDIAG( NSPEC,NCOLS,NROWS,LAYS ) )
@@ -2983,7 +2986,7 @@ C stkemis_init.
       DO IDIAG = 1,N_EMDIAG
       
         ! Test whether or not each file should be opened
-        IF ( EMDIAG_FORMAT( IDIAG ) .NE. 'FALSE' ) THEN
+        IF ( EMDIAG_FORMAT( IDIAG ) .NE. 'OFF' ) THEN
  
           ! Make File 2D by Default, but 3D if the user requests it
           NLAYERS = 1

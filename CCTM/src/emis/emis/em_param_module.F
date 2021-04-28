@@ -78,7 +78,7 @@
             INTEGER, PARAMETER :: N_EMDIAG_SPEC_REG = 80
             INTEGER         :: NEmissDiag            = 0
             CHARACTER( 32 ) :: EmissDiagStreams(N_EMDIAG_REG,20)
-            CHARACTER( 5 )  :: EmissDiagFmt( N_EMDIAG_REG )       
+            CHARACTER( 6 )  :: EmissDiagFmt( N_EMDIAG_REG )       
             CHARACTER( 16 ) :: EmissDiagSpec(N_EMDIAG_REG,N_EMDIAG_SPEC_REG) 
 
           end module em_param_module

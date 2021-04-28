@@ -351,8 +351,8 @@ C-----------------------------------------------------------------------
 C Arguments
             INTEGER, INTENT( IN ) :: JDATE, JTIME, TSTEP( 3 )
             REAL, POINTER         :: CGRID( :,:,:,: )         !  concentrations
-            LOGICAL, INTENT( IN ) :: L_DESID_DIAG
-
+            LOGICAL, INTENT( IN ) :: L_DESID_DIAG ! flag determining whether or not DESID
+                                                  !   is in diagnostic mode              
 C Includes:
             INCLUDE SUBST_FILES_ID  ! file name parameters
 
@@ -465,7 +465,9 @@ C Assume MET_CRO_2D file is already opened
 
            call interpolate_var ('SEAICE', jdate, jtime, SEAICE)
 
-          IF ( MGEMDIAG .AND. WSTEP .EQ. 0 .AND. .NOT. L_DESID_DIAG ) MGBF = 0.0
+           ! Only write out marine gas diagnostics if not in diagnostic
+           ! mode
+           IF ( MGEMDIAG .AND. WSTEP .EQ. 0 .AND. .NOT. L_DESID_DIAG ) MGBF = 0.0
 
 C Initialize marine gas output buffer
           DO R = 1, NROWS
