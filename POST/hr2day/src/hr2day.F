@@ -848,14 +848,14 @@ C... start loops to find daily sum
           maxValue = BADVAL3
           Do h = tzoffset(c,r)+startHr ,tzoffset(c,r)+endHr-1
             if( hrValues(h,c,r).gt.BADVAL3 .and. hrValues(h+1,c,r).gt.BADVAL3) then
-              count = 0
+              count = count + 1
               diff = ABS( hrValues(h+1,c,r) - hrValues(h,c,r) )
               if( diff .gt. maxValue ) then
                 maxValue = diff
                 endif
               endif
             endDo      ! end hour loop
-          if(partDay .or. count.ge.17) dayValues(c,r) = maxValue
+          if(partDay .or. count.ge.18) dayValues(c,r) = maxValue
           endDo      ! end row loop
         endDo      ! end column loop
 
