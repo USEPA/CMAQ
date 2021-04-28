@@ -133,6 +133,11 @@ c
      &                  Real(XCENT3D), Real(YCENT3D) )) then                                    
         Call m3err (PNAME, 0, 0, 'Polar Stereographic projection setup error', .TRUE.)
        endif  
+      elseif (GDTYP3D.eq.7) then !initialize equatorial mercator projection
+       if( .NOT. SETEQM( Real(P_ALP3D), Real(P_BET3D), Real(P_GAM3D),                            
+     &                  Real(XCENT3D), Real(YCENT3D) )) then                                    
+        Call m3err (PNAME, 0, 0, 'Equatorial mercator projection setup error', .TRUE.)
+       endif  
       else
        Call m3err (PNAME, 0, 0, 'Grid projection not supported', .TRUE.)   
       endif
@@ -194,6 +199,10 @@ C... Allocate memory for data arrays
              endif
             elseif (GDTYP3D.eq.6) then !convert polar stereographic coordinates to lat/lon
              if( .NOT. POL2LL(x, y, longitude, latitude) ) then
+              Call m3err (PNAME, 0, 0, 'Lat/Lon conversion error', .TRUE.)
+             endif
+            elseif (GDTYP3D.eq.7) then !convert equatorial mercator coordinates to lat/lon
+             if( .NOT. EQM2LL(x, y, longitude, latitude) ) then
               Call m3err (PNAME, 0, 0, 'Lat/Lon conversion error', .TRUE.)
              endif
             else
