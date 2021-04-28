@@ -115,7 +115,7 @@ set make_options = "-j"                #> additional options for make command if
  set ModPhot   = phot/inline                #> photolysis calculation module 
                                             #>     (see $CMAQ_MODEL/CCTM/src/phot)
 
- setenv Mechanism cb6r3_ae7_aq               #> chemical mechanism (see $CMAQ_MODEL/CCTM/src/MECHS)
+ setenv Mechanism cb6r5_ae7_aq               #> chemical mechanism (see $CMAQ_MODEL/CCTM/src/MECHS)
  set ModMech   = MECHS/${Mechanism}
  
  set ChemSolver = ebi                       #> gas-phase chemistry solver (see $CMAQ_MODEL/CCTM/src/gas)
@@ -585,7 +585,7 @@ set Cfile = ${Bld}/${CFG}.bld      # Config Filename
  echo "Module ${ModGas};"                                          >> $Cfile
  echo                                                              >> $Cfile
 
- set MechList = " cb6mp_ae6_aq, cb6r3_ae6_aq, cb6r3_ae7_aq, cb6r3_ae7_aqkmt2, cb6r3m_ae7_kmtbr, racm2_ae6_aq, saprc07tc_ae6_aq, saprc07tic_ae6i_aq, saprc07tic_ae6i_aqkmti, saprc07tic_ae7i_aq, saprc07tic_ae7i_aqkmt2"
+ set MechList = " cb6mp_ae6_aq, cb6r3_ae6_aq, cb6r3_ae7_aq, cb6r5_ae7_aq, cb6r3_ae7_aqkmt2, cb6r3m_ae7_kmtbr, racm2_ae6_aq, saprc07tc_ae6_aq, saprc07tic_ae6i_aq, saprc07tic_ae6i_aqkmti, saprc07tic_ae7i_aq, saprc07tic_ae7i_aqkmt2"
  set text = "gas chemistry mechanisms"
  echo "// " $text                                                  >> $Cfile
  set text = "$MechList"
