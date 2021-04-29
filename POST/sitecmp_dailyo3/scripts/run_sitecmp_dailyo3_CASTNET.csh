@@ -23,7 +23,7 @@
  set VRSN      = v532              #> Code Version
  set PROC      = mpi               #> serial or mpi
  set MECH      = cb6r3_ae7_aq      #> Mechanism ID
- set APPL      = 2016_12SE1        #> Application Name (e.g. Gridname)
+ set APPL      = Bench_2016_12SE1        #> Application Name (e.g. Gridname)
                                                       
 #> Define RUNID as any combination of parameters above or others. By default,
 #> this information will be collected into this one string, $RUNID, for easy
@@ -107,7 +107,7 @@
 #############################################################
 
 #> ioapi input files containing VNAMES (max of 10)
- setenv M3_FILE_1 ${CMAQ_DATA}/POST/COMBINE_ACONC_{RUNID}_201607.nc
+ setenv M3_FILE_1 ${CMAQ_DATA}/POST/COMBINE_ACONC_${RUNID}_201607.nc
         #[Add location of input file, e.g. COMBINE_ACONC file.]
 
 #> SITE FILE containing site-id, longitude, latitude, and optionally 
