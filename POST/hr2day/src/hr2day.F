@@ -126,20 +126,20 @@ c
       elseif (GDTYP3D.eq.2) then !initialize Lambert projection
        if( .NOT. SETLAM( Real(P_ALP3D), Real(P_BET3D), Real(P_GAM3D),                            
      &                  Real(XCENT3D), Real(YCENT3D) )) then                                    
-        Call m3err (PNAME, 0, 0, 'Lambert projection setup error', .TRUE.)
+        Call m3exit (PNAME, 0, 0, 'Lambert projection setup error', xstat2)
        endif     
       elseif (GDTYP3D.eq.6) then !initialize polar stereographic projection
        if( .NOT. SETPOL( Real(P_ALP3D), Real(P_BET3D), Real(P_GAM3D),                            
      &                  Real(XCENT3D), Real(YCENT3D) )) then                                    
-        Call m3err (PNAME, 0, 0, 'Polar Stereographic projection setup error', .TRUE.)
+        Call m3exit (PNAME, 0, 0, 'Polar Stereographic projection setup error', xstat2)
        endif  
       elseif (GDTYP3D.eq.7) then !initialize equatorial mercator projection
        if( .NOT. SETEQM( Real(P_ALP3D), Real(P_BET3D), Real(P_GAM3D),                            
      &                  Real(XCENT3D), Real(YCENT3D) )) then                                    
-        Call m3err (PNAME, 0, 0, 'Equatorial mercator projection setup error', .TRUE.)
+        Call m3exit (PNAME, 0, 0, 'Equatorial mercator projection setup error', xstat2)
        endif  
       else
-       Call m3err (PNAME, 0, 0, 'Grid projection not supported', .TRUE.)   
+       Call m3exit (PNAME, 0, 0, 'Grid projection not supported', xstat2)   
       endif
 
 C... store first and last day/time to process from module_tstep (across all input files)                    
@@ -195,18 +195,18 @@ C... Allocate memory for data arrays
              latitude=y
             elseif (GDTYP3D.eq.2) then ! convert Lambert coordinates to lat/lon
              if( .NOT. LAM2LL(x, y, longitude, latitude) ) then
-              Call m3err (PNAME, 0, 0, 'Lat/Lon conversion error', .TRUE.)
+              Call m3exit (PNAME, 0, 0, 'Lat/Lon conversion error', xstat2)
              endif
             elseif (GDTYP3D.eq.6) then !convert polar stereographic coordinates to lat/lon
              if( .NOT. POL2LL(x, y, longitude, latitude) ) then
-              Call m3err (PNAME, 0, 0, 'Lat/Lon conversion error', .TRUE.)
+              Call m3exit (PNAME, 0, 0, 'Lat/Lon conversion error', xstat2)
              endif
             elseif (GDTYP3D.eq.7) then !convert equatorial mercator coordinates to lat/lon
              if( .NOT. EQM2LL(x, y, longitude, latitude) ) then
-              Call m3err (PNAME, 0, 0, 'Lat/Lon conversion error', .TRUE.)
+              Call m3exit (PNAME, 0, 0, 'Lat/Lon conversion error', xstat2)
              endif
             else
-             Call m3err (PNAME, 0, 0, 'Grid projection not supported', .TRUE.)   
+             Call m3exit (PNAME, 0, 0, 'Grid projection not supported', xstat2)   
             endif
 
             tzoffset(c,r) = getTZ(longitude, latitude)
@@ -347,8 +347,8 @@ C... local variables
       Real sum
  
 C... start loops to find daily sum
-      Do c = 1, NCOLS3D
-        Do r = 1, NROWS3D
+      Do r = 1, NROWS3D
+        Do c = 1, NCOLS3D
           dayValues(c,r) = BADVAL3
           sum = 0.0
           count = 0
@@ -359,8 +359,8 @@ C... start loops to find daily sum
               endif
             endDo      ! end hour loop
           if(partDay .or. count.ge.18) dayValues(c,r) = sum
-          endDo      ! end row loop                                                         
-        endDo      ! end column loop 
+          endDo      ! end column loop
+        endDo      ! end row loop
 
       return
       end Subroutine sumValues
@@ -388,8 +388,8 @@ C... local variables
       Real sum
  
 C... start loops to find daily sum
-      Do c = 1, NCOLS3D
-        Do r = 1, NROWS3D
+      Do r = 1, NROWS3D
+        Do c = 1, NCOLS3D
           dayValues(c,r) = BADVAL3
           sum = 0.0
           count = 0
@@ -401,8 +401,8 @@ C... start loops to find daily sum
             endDo      ! end hour loop
           if( count.ge.18 ) dayValues(c,r) = sum/count
           if(partDay .and. count.ge.1) dayValues(c,r) = sum/count
-          endDo      ! end row loop                                                         
-        endDo      ! end column loop 
+          endDo      ! end column loop
+        endDo      ! end row loop
 
       return
       end Subroutine avgValues
@@ -430,8 +430,8 @@ C... local variables
       Real minValue
 
 C... start loops to find daily sum
-      Do c = 1, NCOLS3D
-        Do r = 1, NROWS3D
+      Do r = 1, NROWS3D
+        Do c = 1, NCOLS3D
           count = 0
           dayValues(c,r) = BADVAL3
           minValue = 1.0E32 
@@ -442,8 +442,8 @@ C... start loops to find daily sum
               endif
             endDo      ! end hour loop
           if(partDay .or. count.ge.18) dayValues(c,r) = minValue
-          endDo      ! end row loop
-        endDo      ! end column loop
+          endDo      ! end column loop
+        endDo      ! end row loop
 
       return
       end Subroutine minValues
@@ -472,9 +472,9 @@ C... local variables
       Real minHour 
 
 C... start loops to find daily sum
-      Do c = 1, NCOLS3D
-        Do r = 1, NROWS3D
-          count = 0
+      Do r = 1, NROWS3D
+        Do c = 1, NCOLS3D
+          count = 0 
           dayValues(c,r) = BADVAL3
           minValue = 1.0E32
           minHour = BADVAL3
@@ -488,8 +488,8 @@ C... start loops to find daily sum
               endif
             endDo      ! end hour loop
           if(partDay .or. count.ge.18) dayValues(c,r) = minHour 
-          endDo      ! end row loop
-        endDo      ! end column loop
+          endDo      ! end column loop
+        endDo      ! end row loop
 
       return
       end Subroutine minHrValues
@@ -518,8 +518,8 @@ C... local variables
       Real maxValue
 
 C... start loops to find daily sum
-      Do c = 1, NCOLS3D
-        Do r = 1, NROWS3D
+      Do r = 1, NROWS3D
+        Do c = 1, NCOLS3D
           maxValue = BADVAL3
           dayValues(c,r) = BADVAL3
           count = 0
@@ -530,8 +530,8 @@ C... start loops to find daily sum
               endif
             endDo      ! end hour loop
           if(partDay .or. count.ge.18) dayValues(c,r) = maxValue
-          endDo      ! end row loop
-        endDo      ! end column loop
+          endDo      ! end column loop
+        endDo      ! end row loop
 
       return
       end Subroutine maxValues
@@ -560,8 +560,8 @@ C... local variables
       Real maxHour 
 
 C... start loops to find daily sum
-      Do c = 1, NCOLS3D
-        Do r = 1, NROWS3D
+      Do r = 1, NROWS3D
+        Do c = 1, NCOLS3D
           maxValue = BADVAL3
           maxHour = BADVAL3
           dayValues(c,r) = BADVAL3
@@ -576,8 +576,8 @@ C... start loops to find daily sum
               endif
             endDo      ! end hour loop
           if(partDay .or. count.ge.18) dayValues(c,r) = maxHour 
-          endDo      ! end row loop
-        endDo      ! end column loop
+          endDo      ! end column loop
+        endDo      ! end row loop
 
       return
       end Subroutine maxHrValues
@@ -658,8 +658,8 @@ C... read temperature values and fill tvalues array
       enddo
          
 C... start loops to find maximum temperature for each cell
-      Do c = 1, NCOLS3D
-        Do r = 1, NROWS3D
+      Do r = 1, NROWS3D
+        Do c = 1, NCOLS3D
           dayValues(c,r) = BADVAL3
           maxTemp = BADVAL3
           value = BADVAL3
@@ -674,8 +674,8 @@ C... start loops to find maximum temperature for each cell
               endif
             endDo      ! end hour loop
           if(partDay .or. count.ge.18) dayValues(c,r) = value
-          endDo      ! end row loop
-        endDo      ! end column loop
+          endDo      ! end column loop
+        endDo      ! end row loop
 
       return
       end Subroutine maxTValues
@@ -761,8 +761,8 @@ C... read ozone values and fill tvalues array
       enddo
         
 C... start loops to find max 8-hr and save sum of hrValues
-      Do c = 1, NCOLS3D
-        Do r = 1, NROWS3D
+      Do r = 1, NROWS3D
+        Do c = 1, NCOLS3D
           dayValues(c,r) = BADVAL3
           maxValue = BADVAL3
           sumValue = BADVAL3
@@ -820,8 +820,8 @@ C... start loops to find max 8-hr and save sum of hrValues
 
           endif           
            
-          endDo      ! end row loop
-        endDo      ! end column loop
+          endDo      ! end column loop
+        endDo      ! end row loop
 
       return
       end Subroutine maxO3Values
@@ -850,8 +850,8 @@ C... local variables
       Real maxValue
 
 C... start loops to find daily sum
-      Do c = 1, NCOLS3D
-        Do r = 1, NROWS3D
+      Do r = 1, NROWS3D
+        Do c = 1, NCOLS3D
           count = 0
           dayValues(c,r) = BADVAL3
           maxValue = BADVAL3
@@ -865,8 +865,8 @@ C... start loops to find daily sum
               endif
             endDo      ! end hour loop
           if(partDay .or. count.ge.18) dayValues(c,r) = maxValue
-          endDo      ! end row loop
-        endDo      ! end column loop
+          endDo      ! end column loop
+        endDo      ! end row loop
 
       return
       end Subroutine maxDifValues
@@ -911,8 +911,8 @@ c        Stop
 c       Endif
 
 C... start loops to find max 8-hr 
-      Do c = 1, NCOLS3D
-        Do r = 1, NROWS3D
+      Do r = 1, NROWS3D
+        Do c = 1, NCOLS3D
           dayValues(c,r) = BADVAL3
           maxValue = BADVAL3
           nperiods = 0
@@ -957,8 +957,8 @@ C... start loops to find max 8-hr
             
           endif
            
-          endDo      ! end row loop
-        endDo      ! end column loop
+          endDo      ! end column loop
+        endDo      ! end row loop
 
       return
       end Subroutine max8hr
@@ -1005,8 +1005,8 @@ c        Stop
 c       Endif
 
 C... start loops to find max 8-hr 
-      Do c = 1, NCOLS3D
-        Do r = 1, NROWS3D
+      Do r = 1, NROWS3D
+        Do c = 1, NCOLS3D
           dayValues(c,r) = BADVAL3
           maxValue = BADVAL3
           maxHour = 0
@@ -1060,8 +1060,8 @@ C... start loops to find max 8-hr
           
           endif
 
-          endDo      ! end row loop
-        endDo      ! end column loop
+          endDo      ! end column loop
+        endDo      ! end row loop
 
       return
       end Subroutine max8hrHour
@@ -1097,8 +1097,8 @@ C... set factor value to covert to ppm
       if( INDEX(units,'ppb') .gt.0 ) factor = 0.001 ! to convert from ppb to ppm
 
 C... start loops to find daily sum
-      Do c = 1, NCOLS3D
-        Do r = 1, NROWS3D
+      Do r = 1, NROWS3D
+        Do c = 1, NCOLS3D
           sum = 0.0
           count = 0
           Do h = tzoffset(c,r)+8,tzoffset(c,r)+19     ! go from 8am to 7pm local time
@@ -1112,8 +1112,8 @@ C... start loops to find daily sum
           if( partDay .or. count.ge.9 ) then
             dayValues(c,r) = sum / factor
             endif
-          endDo      ! end row loop                                                         
-        endDo      ! end column loop                                          
+          endDo      ! end column loop
+        endDo      ! end row loop
                                                                               
       return                                                                  
       end Subroutine w126 
@@ -1146,8 +1146,8 @@ C... set minimum cutoff value
       if( INDEX(units,'ppb') .gt.0 ) minValue = 1000.0 * minValue
       
 C... start loops to find daily sum
-      Do c = 1, NCOLS3D
-        Do r = 1, NROWS3D
+      Do r = 1, NROWS3D
+        Do c = 1, NCOLS3D
           sum = 0.0
           count = 0
           Do h = tzoffset(c,r)+8,tzoffset(c,r)+20
@@ -1157,8 +1157,8 @@ C... start loops to find daily sum
               endif
             endDo      ! end hour loop
           dayValues(c,r) = sum
-          endDo      ! end row loop
-        endDo      ! end column loop
+          endDo      ! end column loop
+        endDo      ! end row loop
 
       return     
       end Subroutine sum06

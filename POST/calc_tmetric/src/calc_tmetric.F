@@ -139,8 +139,17 @@ C... open output file as new
 C... start process loop
 
       ! allocate data array for 1 species
-      allocate( in_data(NCOLS3D, NROWS3D, M3GRID % NLAYS) )
-      allocate( proc_data(NCOLS3D, NROWS3D, M3GRID % NLAYS) )
+      allocate( in_data(NCOLS3D, NROWS3D, M3GRID % NLAYS), stat=status )
+      IF ( status .NE. 0 ) THEN
+         MSG = 'Failure allocating in_data'
+         CALL M3EXIT ( PNAME, 0, 0, MSG, XSTAT2 )
+      END IF
+
+      allocate( proc_data(NCOLS3D, NROWS3D, M3GRID % NLAYS), stat=status )
+      IF ( status .NE. 0 ) THEN
+         MSG = 'Failure allocating proc_data'
+         CALL M3EXIT ( PNAME, 0, 0, MSG, XSTAT2 )
+      END IF
 
       DO S = 1, NSPECVAR
        write(*,'(''Processing species:'',a)') TRIM(SPECVARS(s))
