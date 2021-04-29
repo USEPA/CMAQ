@@ -23,7 +23,7 @@
  set VRSN      = v532              #> Code Version
  set PROC      = mpi               #> serial or mpi
  set MECH      = cb6r3_ae7_aq      #> Mechanism ID
- set APPL      = 2016_12SE1        #> Application Name (e.g. Gridname)
+ set APPL      = Bench_2016_12SE1        #> Application Name (e.g. Gridname)
                                                       
 #> Define RUNID as any combination of parameters above or others. By default,
 #> this information will be collected into this one string, $RUNID, for easy
@@ -88,8 +88,8 @@
  setenv PRT_XY   N         
 
 #> define time window
- set START_DATE = "2016-07-1"     #> first date to process (default is starting date of input file)
- set END_DATE   = "2016-07-1"     #> last date to process (default is ending date of input file)
+ set START_DATE = "2016-07-01"     #> first date to process (default is starting date of input file)
+ set END_DATE   = "2016-07-01"     #> last date to process (default is ending date of input file)
 
 #> Convert START_DATE and END_DATE to Julian day.
 #> (required format for writesite STARTDATE and ENDDATE environment variables)
