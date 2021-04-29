@@ -561,12 +561,18 @@ C-----------------------------------------------------------------------
                XMSG = 'Failure allocating layer 2 soil moisture'
                Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             End If
+            ALLOCATE( Grid_Data%WWLT   ( NCOLS,NROWS ),
+     &                STAT = ALLOCSTAT )
+            If ( ALLOCSTAT .Ne. 0 ) Then
+               XMSG = 'Failure allocating Soil grid vars'
+               Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+            End If
+            Grid_Data%WWLT    = 0.0
          END IF
          
          If ( ABFLUX ) Then
 
-            ALLOCATE( Grid_Data%WWLT   ( NCOLS,NROWS ),
-     &                Grid_Data%BSLP   ( NCOLS,NROWS ),
+            ALLOCATE( Grid_Data%BSLP   ( NCOLS,NROWS ),
      &                Grid_Data%WRES   ( NCOLS,NROWS ),
 !    &                Grid_Data%WFC    ( NCOLS,NROWS ),
      &                Grid_Data%LUFRAC ( NCOLS,NROWS,n_lufrac ),
@@ -575,7 +581,7 @@ C-----------------------------------------------------------------------
                XMSG = 'Failure allocating Soil grid vars'
                Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             End If
-            Grid_Data%WWLT    = 0.0
+
 !           Grid_Data%WFC     = 0.0
             Grid_Data%WRES    = 0.0
             Grid_Data%BSLP    = 0.0
@@ -643,13 +649,14 @@ C-----------------------------------------------------------------------
 
             Forall( C = 1:NCOLS, R = 1:NROWS, Grid_Data%SLTYP(C,R) .Le. N_SOIL_TYPE )
                Grid_Data%WSAT( C,R ) = WSAT( Grid_Data%SLTYP( C,R ) )
-               Grid_Data%WWLT( C,R ) = WWLT( Grid_Data%SLTYP( C,R ) )
                Grid_Data%WFC ( C,R ) = WFC ( Grid_Data%SLTYP( C,R ) )
                Grid_Data%WRES( C,R ) = WRES( Grid_Data%SLTYP( C,R ) )
                Grid_Data%BSLP( C,R ) = BSLP( Grid_Data%SLTYP( C,R ) )
+               Grid_Data%WWLT( C,R ) = WWLT( Grid_Data%SLTYP( C,R ) )
             End Forall
          Else
             Forall( C = 1:NCOLS, R = 1:NROWS, Grid_Data%SLTYP(C,R) .Le. N_SOIL_TYPE )
+               Grid_Data%WWLT( C,R ) = WWLT( Grid_Data%SLTYP( C,R ) )
                Grid_Data%WSAT( C,R ) = WSAT( Grid_Data%SLTYP( C,R ) )
                Grid_Data%WFC ( C,R ) = WFC ( Grid_Data%SLTYP( C,R ) )
             End Forall
