@@ -50,7 +50,7 @@ C-----------------------------------------------------------------------
       USE GRID_CONF, ONLY: NLAYS
       USE CGRID_SPCS            ! CGRID mechanism species
       USE UTILIO_DEFN
-      USE RUNTIME_VARS, ONLY : BUDGET_DIAG
+      USE PA_DEFN, ONLY : BUDGET_DIAG
       USE XY_BUDGET, ONLY : F_WEST_IN, F_WEST_OUT, F_EAST_IN, F_EAST_OUT
       use CENTRALIZED_IO_MODULE, only : interpolate_var, MSFX2
 

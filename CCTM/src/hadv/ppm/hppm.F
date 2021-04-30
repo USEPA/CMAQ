@@ -132,7 +132,7 @@ C----------------------------------------------------------------------
       
       USE HGRD_DEFN
       USE UTILIO_DEFN
-      USE RUNTIME_VARS, ONLY : BUDGET_DIAG
+      USE PA_DEFN, ONLY : BUDGET_DIAG
 #ifdef parallel
       USE SE_MODULES          ! stenex (using SE_UTIL_MODULE)
 #else
