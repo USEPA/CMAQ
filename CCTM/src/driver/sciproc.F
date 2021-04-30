@@ -59,14 +59,15 @@ C-----------------------------------------------------------------------
       USE RUNTIME_VARS, ONLY: LOGDEV, OUTDEV, MYPE, CKSUM, 
      &                        PRINT_PROC_TIME, WEEKDAY, 
      &                        LOG_MESSAGE, TIMING_SPLIT, STM,
-     &                        COLUMN_MODEL, BUDGET_DIAG
+     &                        COLUMN_MODEL
 #ifdef parallel
       USE SE_MODULES            ! stenex (using SE_UTIL_MODULE)
 #else
       USE NOOP_MODULES          ! stenex (using NOOP_UTIL_MODULE)
 #endif
       USE PA_DEFN, Only: LIPR, IPR_VDIF, IPR_ZADV, IPR_HDIF, IPR_CLDS, 
-     &                   IPR_CHEM, IPR_COUP, IPR_DECP, IPR_PVO3   ! Process Analysis control and data variables
+     &                   IPR_CHEM, IPR_COUP, IPR_DECP, IPR_PVO3,
+     &                   BUDGET_DIAG ! Process Analysis control and data variables
       USE PA_UPDATE
 #ifdef isam
       USE SA_DEFN, Only: ISAM

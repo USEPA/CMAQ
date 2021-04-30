@@ -4918,7 +4918,7 @@ C   mminlu and num_land_cat are WRF global variables
       use RUNTIME_VARS, only : EMISSCTRL, logdev
       use util_family_module
       use RUNTIME_VARS, only: EMISSCTRL, logdev, log_message, log_subheading
-      use PA_DEFN, ONLY : BudgetVariables, N_BUDGET_VARS_REG
+      use PA_DEFN, ONLY : BudgetVariables, N_BUDGET_VARS_REG, BUDGET_DIAG
 #ifdef mpas
       use util_module, only : junit, upcase
 #endif
@@ -4935,12 +4935,13 @@ C   mminlu and num_land_cat are WRF global variables
          NAMELIST / EmissionScalingRules / EM_NML
          NAMELIST / SizeDistributions    / SD_NML 
          NAMELIST / RegionsRegistry      / RGN_NML
-         NAMELIST / BudgetOptions        / BudgetVariables
+         NAMELIST / BudgetOptions        / Budget_Diag, BudgetVariables
          
          CALL LOG_MESSAGE( LOGDEV, ' ' )
          CALL LOG_SUBHEADING( LOGDEV, 'Reading Emission Control Namelist')
          
          ! Allocate and Initialize Budget Variables
+         Budget_Diag = .FALSE.
          ALLOCATE( BudgetVariables( N_Budget_Vars_Reg ) )
          BudgetVariables = ''
 
@@ -5022,6 +5023,7 @@ C   mminlu and num_land_cat are WRF global variables
      &              'Note: The BudgetOptions section of the Emissions Control ',
      &              'Namelist is missing. Default values for this section will be ',
      &              'assumed.'
+             Budget_Diag   = .FALSE.
              BudgetVariables  = '*ALL'
          ELSE IF ( STAT .NE. 0 ) THEN
              ! Read Error Detected for BudgetOptions
@@ -5040,7 +5042,7 @@ C   mminlu and num_land_cat are WRF global variables
          DO IFAM = 1,N_Budget_Vars_Reg
              CALL UPCASE( BudgetVariables( IFAM ) )
          END DO
- 
+
          ! Read the size distribution specification section
          REWIND( EMCTRL_NML )
          READ( NML = SizeDistributions, UNIT = EMCTRL_NML, IOSTAT=STAT )

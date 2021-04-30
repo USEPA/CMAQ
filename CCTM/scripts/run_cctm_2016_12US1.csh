@@ -197,7 +197,6 @@ setenv EMISDIAG_SUM F        #> Print Sum of Emission Rates to Gridded Diagnosti
 
 #> Diagnostic Output Flags
 setenv CTM_CKSUM Y           #> checksum report [ default: Y ]
-setenv CTM_BUDGET_DIAG N     #> domain-wide budget [ default: N ]
 setenv CLD_DIAG N            #> cloud diagnostic file [ default: N ]
 
 setenv CTM_PHOTDIAG N        #> photolysis diagnostic file [ default: N ]

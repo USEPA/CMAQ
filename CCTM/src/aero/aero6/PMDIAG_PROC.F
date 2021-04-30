@@ -1981,6 +1981,9 @@
       USE SOA_DEFN, ONLY : N_OA, OASPC, MAP_OAtoAERO
       USE PHOT_MOD, ONLY : ELMO_AOD_550, ELMO_EXT_550
       USE RUNTIME_VARS, ONLY : PHOTDIAG
+      USE ASX_DATA_MOD, ONLY : MET_DATA
+
+      IMPLICIT NONE
 
       INTEGER, INTENT( IN ) :: IDG, IM
       REAL, INTENT( INOUT ) :: OUTVAL
@@ -2617,6 +2620,14 @@
          ! Retrieve Air Pressure
          CASE ( ID_PRES )
             OUTVAL = AIRPRES
+
+         ! Retrieve Air Density x Jacobian/MSFX^2
+         CASE ( ID_RHOJ )
+            OUTVAL = MET_DATA%RHOJ( C1,R1,L1 )
+
+         ! Retrieve Air Density
+         CASE ( ID_DENS )
+            OUTVAL = MET_DATA%DENS( C1,R1,L1 ) ! kg m-3
 
          CASE DEFAULT
             ! For most parameters the PMDIAG_COEFF structure will

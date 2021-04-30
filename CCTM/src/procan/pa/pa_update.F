@@ -187,23 +187,8 @@ C-----------------------------------------------------------------------
       END DO
       END DO
       
-      ! Account for Couple Step Before Calculating Budget Change
-      !LCOUPLE_LOCAL = LCOUPLE
-      !IF ( IPR_ID .EQ. IPR_COUP ) THEN
-      !   CALL DECOUPLE_PA( IPR_COUP, CNGRD, JDATE, JTIME )
-      !   LCOUPLE_LOCAL = .FALSE.
-      !END IF
-
       ! Calculate Budget Change
-      CALL STORE_BUDGET( IPR_ID, CNGRD, JDATE, JTIME, LCOUPLE )
-      
-      ! Account for Decouple Step before Concentration Change
-      !IF ( IPR_ID .EQ. IPR_DECP ) THEN
-      !   SDATE = JDATE; STIME = JTIME
-      !   CALL NEXTIME( SDATE, STIME, -TSTEP( 2 ) )
-      !   CSAV( :,:,:,RHOJ_LOC ) = CNGRD( :,:,:,RHOJ_LOC )
-      !   CALL DECOUPLE_PA( IPR_DECP, CSAV, SDATE, STIME )
-      !END IF
+      IF (BUDGET_DIAG) CALL STORE_BUDGET( IPR_ID, CNGRD, JDATE, JTIME, LCOUPLE )
 
       IF ( LCOUPLE ) THEN
           CNGRD( :,:,:,RHOJ_LOC ) = CNGRD( :,:,:,RHOJ_LOC )
@@ -351,7 +336,7 @@ C-----------------------------------------------------------------------
       END DO
       
       ! Save Changes in Budget Array
-      CALL STORE_BUDGET( IPR_EMIS, CNGRD, JDATE, JTIME, .FALSE. )
+      IF (BUDGET_DIAG) CALL STORE_BUDGET( IPR_EMIS, CNGRD, JDATE, JTIME, .FALSE. )
 
       ! Save Changes in Process Analysis Array
       IF ( LIPR ) THEN
@@ -514,7 +499,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       END DO
  
       ! Save Changes in Budget Array
-      CALL STORE_BUDGET( IPR_DDEP, CNGRD, JDATE, JTIME, .FALSE. )
+      IF (BUDGET_DIAG) CALL STORE_BUDGET( IPR_DDEP, CNGRD, JDATE, JTIME, .FALSE. )
 
 
 C..Store Changes in Process Analysis Array      
@@ -618,10 +603,7 @@ C..get density x jacobian and layer heights
       END DO
       END DO
       END DO
-      !SDATE = JDATE; STIME = JTIME
-      !CALL NEXTIME( SDATE, STIME, TSTEP( 2 ) )
-      CALL STORE_BUDGET( BDGSAVE_ID, CNGRD, JDATE, JTIME, .TRUE. )
-      CALL INTERPOLATE_VAR ('DENSA_J', JDATE, JTIME, RHOJ)
+      IF (BUDGET_DIAG) CALL STORE_BUDGET( BDGSAVE_ID, CNGRD, JDATE, JTIME, .TRUE. )
       
       IF ( LIPR ) THEN
          ! Convert X and Y Advection changes to mixing ratio and
@@ -635,8 +617,8 @@ C..get density x jacobian and layer heights
          CALL DECOUPLE_PA( IPR_YADV, DELC_YADV, JDATE, JTIME )
 
          ! Save Changes in Budget Array
-         CALL STORE_BUDGET( IPR_XADV, DELC_XADV, JDATE, JTIME, .FALSE. )
-         CALL STORE_BUDGET( IPR_YADV, DELC_YADV, JDATE, JTIME, .FALSE. )
+         IF (BUDGET_DIAG) CALL STORE_BUDGET( IPR_XADV, DELC_XADV, JDATE, JTIME, .FALSE. )
+         IF (BUDGET_DIAG) CALL STORE_BUDGET( IPR_YADV, DELC_YADV, JDATE, JTIME, .FALSE. )
 
          DO IPRV = 1, NIPRVAR     ! foreach family
             IPRSPC = MAP_IPRVARtoSPC( IPRV ) 
@@ -718,12 +700,12 @@ C..get density x jacobian and layer heights
       END IF
 
       ! Save Changes in Budget Array
-      CALL STORE_BUDGET( IPR_COAG, AERO_COAG, JDATE, JTIME, .FALSE. )
-      CALL STORE_BUDGET( IPR_COND, AERO_COND, JDATE, JTIME, .FALSE. )
-      CALL STORE_BUDGET( IPR_NPF,  AERO_NPF, JDATE, JTIME, .FALSE. )
-      CALL STORE_BUDGET( IPR_GROW, AERO_GROWTH, JDATE, JTIME, .FALSE. )
+      IF (BUDGET_DIAG) CALL STORE_BUDGET( IPR_COAG, AERO_COAG, JDATE, JTIME, .FALSE. )
+      IF (BUDGET_DIAG) CALL STORE_BUDGET( IPR_COND, AERO_COND, JDATE, JTIME, .FALSE. )
+      IF (BUDGET_DIAG) CALL STORE_BUDGET( IPR_NPF,  AERO_NPF, JDATE, JTIME, .FALSE. )
+      IF (BUDGET_DIAG) CALL STORE_BUDGET( IPR_GROW, AERO_GROWTH, JDATE, JTIME, .FALSE. )
 
-      CALL STORE_BUDGET( BDGSAVE_ID, CGRID, JDATE, JTIME, .FALSE. )
+      IF (BUDGET_DIAG) CALL STORE_BUDGET( BDGSAVE_ID, CGRID, JDATE, JTIME, .FALSE. )
 
       IF ( LIPR ) THEN
       DO IPRV = 1, NIPRVAR     ! foreach family
