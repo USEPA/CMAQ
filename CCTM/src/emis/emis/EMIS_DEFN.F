@@ -500,6 +500,8 @@ C Initialize Emissions Array
 
 C Retrieve Emissions from All Stream Types
          IF ( N_EM_SRM .GT. 0 ) THEN
+         VDEMIS_DIFF = 0.0
+
          DO ISRM = 1,N_EM_SRM
            VDEMIS_READ = 0.0
 

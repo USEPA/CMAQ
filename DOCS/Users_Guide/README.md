@@ -9,6 +9,7 @@ Note: While this User's Guide is packaged with the code when it is downloaded or
 
 [CMAQ Tutorials:](Tutorials/README.md) A series of short tutorials provide practical examples of how to set up and run CMAQ. Tutorials include: 
 * Running the CMAQ Test Case
+* Running the CMAQ-ISAM Test Case
 * Building CMAQ for GNU and Intel
 * Building WRF-CMAQ for GNU
 * Debugging tips
@@ -16,6 +17,7 @@ Note: While this User's Guide is packaged with the code when it is downloaded or
 * Creating an OCEAN File
 * Adding an Inert Tracer Species
 * Creating IC/BCs from Seasonal Average Hemispheric CMAQ Output
+* Modifying a CMAQ Chemical Mechanism
 
 [Chapter 1 (Overview):](CMAQ_UG_ch01_overview.md) CMAQ background, features, requirements and support resources.
 
