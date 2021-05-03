@@ -92,8 +92,13 @@
  setenv OUTFILE ${POSTDIR}/AQS_overlay_${START_DATE}_${END_DATE}.nc
 
 #> Executable call: 
-${BINDIR}/${EXEC}
+ ${BINDIR}/${EXEC}
 
+ set progstat = ${status}
+ if ( ${progstat} ) then
+   echo "ERROR ${progstat} in $BINDIR/$EXEC"
+   exit( ${progstat} )
+ endif
 
  exit()
 

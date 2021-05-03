@@ -180,5 +180,11 @@
 
 #> Executable call:
  ${BINDIR}/${EXEC}
+
+ set progstat = ${status}
+ if ( ${progstat} ) then
+   echo "ERROR ${progstat} in $BINDIR/$EXEC"
+   exit( ${progstat} )
+ endif
    
  exit()
