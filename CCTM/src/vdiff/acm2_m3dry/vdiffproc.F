@@ -94,7 +94,7 @@ C-----------------------------------------------------------------------
       USE SEDIMENTATION
       USE VDIFF_DIAG
       USE PA_UPDATE
-      USE PA_DEFN, ONLY : LIPR
+      USE PA_DEFN, ONLY : LIPR, BUDGET_DIAG
 
 #ifdef isam
       USE SA_DEFN, Only: ITAG, N_SPCTAG, VNAM_SPCTAG, SA_DDEP, SA_BIDI, ISAM, NTAG_SA, 
