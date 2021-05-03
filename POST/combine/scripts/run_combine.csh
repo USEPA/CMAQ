@@ -155,6 +155,12 @@
   #> Executable call:
    ${BINDIR}/${EXEC}
 
+   set progstat = ${status}
+   if ( ${progstat} ) then
+     echo "ERROR ${progstat} in $BINDIR/$EXEC"
+     exit( ${progstat} )
+   endif
+
   #> Increment both Gregorian and Julian Days
    set TODAYG = `date -ud "${TODAYG}+1days" +%Y-%m-%d` #> Add a day for tomorrow
    set TODAYJ = `date -ud "${TODAYG}" +%Y%j` #> Convert YYYY-MM-DD to YYYYJJJ
