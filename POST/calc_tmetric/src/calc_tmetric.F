@@ -176,8 +176,8 @@ C... start process loop
         
         enddo !N
          
-        Write(*,'(''Done reading for layer '',i0,'' species '',a)') 
-     &                 k, VNAME3D(S)
+        Write(*,'(''Done reading for species '',a)') 
+     &                 VNAME3D(S)
         
 
 c      compute average if desired, write out the result for this variable
@@ -186,10 +186,8 @@ c      compute average if desired, write out the result for this variable
          
        IF ( .NOT. WRITE3('OUTFILE', VNAME3D(S), STEP_DATE(1),
      &                   STEP_TIME(1), PROC_DATA) ) THEN
-        WRITE( *, '('' **Error** Cannot write to OUTFILE for species '', a)')
-     &            VNAME3D(S)
-        KSWIT = SHUT3()
-        STOP 
+        MSG = ' Cannot write to OUTFILE for species ' // VNAME3D(S)
+        CALL M3EXIT( PNAME, STEP_DATE(1), STEP_TIME(1), MSG, 1 ) 
        ENDIF
 
       ENDDO !S
