@@ -185,8 +185,8 @@ C... Allocate memory for data arrays
       tzoffset = 0
       if( useLocal ) then
         write(*,'(/,''Computing timezone offsets for grid cells'',/)')
-        do c=1,NCOLS3D
-          do r=1,NROWS3D
+        do r=1,NROWS3D
+          do c=1,NCOLS3D
             x = XORIG3D + (c-0.5) * XCELL3D
             y = YORIG3D + (r-0.5) * YCELL3D
             
