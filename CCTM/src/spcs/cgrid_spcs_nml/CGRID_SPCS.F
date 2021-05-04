@@ -1002,7 +1002,9 @@ c-------------------------------------------------------------------------------
 
             IGRID = 0
             IDEPV = 0
-            DO ISPC = gc_strt,n_gc_spcd
+
+            ! Set Masks for Reactive Gases
+            DO ISPC = gc_strt,n_gc_spc
                 IGRID = IGRID + 1
                 CGRID_NAME( IGRID ) = GC_SPC( ISPC )
                 CGRID_MW( IGRID )   = GC_MOLWT( ISPC )
@@ -1014,6 +1016,13 @@ c-------------------------------------------------------------------------------
                    END IF
                 END DO
             END DO
+
+            ! Set Masks for Density x Jacobian/MSFX2
+            CGRID_NAME( RHOJ_LOC ) = 'RHOJ'
+            CGRID_MW( RHOJ_LOC )   = 28.96
+            CGRID_MASK_GAS( RHOJ_LOC ) = .TRUE.
+
+            ! Set Masks for Aerosols
             DO ISPC = 1,n_ae_spc
                 IGRID = IGRID + 1
                 CGRID_NAME( IGRID ) = AE_SPC( ISPC )
@@ -1028,6 +1037,8 @@ c-------------------------------------------------------------------------------
                    END IF
                 END DO
             END DO
+            
+            ! Set Masks for Nonreactive Variables
             DO ISPC = 1,n_nr_spc
                 IGRID = IGRID + 1
                 CGRID_NAME( IGRID ) = NR_SPC( ISPC )
@@ -1040,6 +1051,8 @@ c-------------------------------------------------------------------------------
                    END IF
                 END DO
             END DO
+
+            ! Set Masks for Tracers
             DO ISPC = 1,n_tr_spc
                 IGRID = IGRID + 1
                 CGRID_NAME( IGRID ) = TR_SPC( ISPC )

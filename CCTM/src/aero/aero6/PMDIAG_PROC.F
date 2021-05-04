@@ -1599,18 +1599,12 @@
              ! Map TNO3TOT - Total Inorganic+Organic Nitrate
              CASE ( ID_TNO3TOT ) 
                N_VARS = 4
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'ANO3', 1.0 )
                CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'ALL' )
+               CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'ANO3', 1.0 )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 2, 'GAS', 'HNO3', 2175.6 ) ! Scale by 1000*MW_HNO3/MW_Air
                CALL SET_PMDIAG_COEFF_MAP( IDG, 3, 'AERO', 'AISOPNN', 2.0*62.0/226.0 )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 4, 'AERO', 'AMTNO3', 62.0/231.0 )
  
-             ! Map RHOJ
-             CASE ( ID_RHOJ ) 
-               N_VARS = 1
-               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'ALL' )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'GAS', 'RHOJ', 1.0 ) 
-
          END SELECT
 
       END DO
@@ -1984,6 +1978,7 @@
      &                     AH2O_IDX, AORGH2O_IDX, AEROSPC, CALC_AERODIST_PARAMS,
      &                     AEROMODE, DRY_AERO_DENS, APOC_IDX, APNCOM_IDX
       USE AEROMET_DATA, ONLY: AIRRH, PI, AIRTEMP, SRFTEMP, AIRPRES
+      USE CGRID_SPCS, ONLY : RHOJ_LOC
       USE SOA_DEFN, ONLY : N_OA, OASPC, MAP_OAtoAERO
       USE PHOT_MOD, ONLY : ELMO_AOD_550, ELMO_EXT_550
       USE RUNTIME_VARS, ONLY : PHOTDIAG
@@ -2626,6 +2621,10 @@
          ! Retrieve Air Pressure
          CASE ( ID_PRES )
             OUTVAL = AIRPRES
+
+         ! Retrieve Air Density x Jacobian/MSFX2
+         CASE ( ID_RHOJ )
+            OUTVAL = CONC_VEC( RHOJ_LOC ) ! kg m-3
 
          ! Retrieve Air Density
          CASE ( ID_DENS )
