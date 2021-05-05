@@ -905,7 +905,6 @@ C Key Subroutines/Functions called:  newt, soabisection
       Real relhumid         ! relative humidity capped at 95% [fraction]
                             ! Cap represents conservative est of water uptake
                             ! and is consistent with IMPROVE visibility methods
-      Real frac_volatile    ! molar fraction of OA that is volatile
       
       ! Variables for updating 2nd and 3rd moments
       Real(8) m0_init( 2 )  ! initial 0 moment, wet [ mom/m3 ]
@@ -1048,8 +1047,6 @@ C-----------------------------------------------------------------------
 
       
      
-      frac_volatile = 1.0 
-
       ! Calculate the Initial Partitioning of Each Semivolatile
       ! Compound
       Do i = 1, n_oa
@@ -1061,13 +1058,8 @@ C-----------------------------------------------------------------------
           ! Sum particle-phase and total organic mass for this
           ! semivolatile species
           caer0( nsvol ) = aerospc_conc( n,2 ) + aerospc_conc( n,1 )
-          If ( i .Le. n_oa_NotTracers ) Then ! total aerosol conc can partition
-             ctoti( nsvol ) = og_conc( i ) + 
-     &                        aerospc_conc( n,2 ) + aerospc_conc( n,1 )
-          Else ! only fraction can partition
-             ctoti( nsvol ) = og_conc( i ) 
-     &                      + frac_volatile * ( aerospc_conc( n,2 ) + aerospc_conc( n,1 ) )
-          End If   
+          ctoti( nsvol ) = og_conc( i )
+     &                   + aerospc_conc( n,2 ) + aerospc_conc( n,1 )
 
           ! Calculate C* at current temperature
           tempcorr      = tt1 * Exp( oaspc( i )%enth * rgas1 * tt2 )
@@ -1138,9 +1130,9 @@ C-----------------------------------------------------------------------
                 Do i = nsvol_NotTracers+1, nsvol
                    faer = svmw(i) * orgmoles 
      &                  / ( c0( i ) + svmw(i) * orgmoles )
-                   caer( i )  = (1.0 - frac_volatile ) * caer0( i ) + ctotf( i ) * faer
+                   caer( i )  = ctotf( i ) * faer
 ! update final concentration with nonvolatile fraction
-                   ctotf( i ) = ctotf( i ) + (1.0 - frac_volatile ) * caer0( i )
+                   ctotf( i ) = ctotf( i )
                 End Do  
              End If   
  
@@ -1173,9 +1165,9 @@ C-----------------------------------------------------------------------
               Do i = nsvol_NotTracers+1, nsvol
                  faer = svmw(i) * orgmoles 
      &                / ( c0( i ) + svmw(i) * orgmoles )
-                 caer( i ) = ( 1.0 - frac_volatile ) * caer0( i ) + ctotf( i ) * faer
+                 caer( i ) = ctotf( i ) * faer
 ! update final concentration with nonvolatile fraction
-                 ctotf( i ) = ctotf( i ) + (1.0 - frac_volatile ) * caer0( i )
+                 ctotf( i ) = ctotf( i ) 
               End Do  
            End If  ! End OA paritioning solver METHOD selection
 
