@@ -1067,7 +1067,7 @@ C-----------------------------------------------------------------------
           prod( nsvol ) = oaspc( i )%alpha * totrog( i )   ! Total Vapor Produced [ug/m3]
           ctotf( nsvol )= ctoti( nsvol ) + prod( nsvol )   ! Vapor + Particle [ug/m3]
 
-          If ( i .Le. n_oa_NotTracers ) Then ! tracers partition based on NotTracer mass
+          If ( .Not. aerospc( n )%tracer ) Then ! partition only based on NotTracer mass
               threshold  = threshold +  ctotf( nsvol ) / c0( nsvol )
               ! Partition Nontracer semivolatile species accordingly
               faer   = totorg                                  ! initial fraction in aerosol
