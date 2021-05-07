@@ -1021,6 +1021,7 @@ c-------------------------------------------------------------------------------
             CGRID_NAME( RHOJ_LOC ) = 'RHOJ'
             CGRID_MW( RHOJ_LOC )   = 28.96
             CGRID_MASK_GAS( RHOJ_LOC ) = .TRUE.
+            IGRID = IGRID + 1
 
             ! Set Masks for Aerosols
             DO ISPC = 1,n_ae_spc
