@@ -644,6 +644,12 @@ C-----------------------------------------------------------------------
 
          Grid_Data%SLTYP = NINT( SOILCAT_A )
 
+         If ( ABFLUX .or. BIOGEMIS_MEGAN) Then
+            Forall( C = 1:NCOLS, R = 1:NROWS, Grid_Data%SLTYP(C,R) .Le. N_SOIL_TYPE )
+               Grid_Data%WWLT( C,R ) = WWLT( Grid_Data%SLTYP( C,R ) )
+            End Forall
+         End If
+
          If ( ABFLUX ) Then
             Grid_Data%LUFRAC = LUFRAC
 
@@ -652,11 +658,9 @@ C-----------------------------------------------------------------------
                Grid_Data%WFC ( C,R ) = WFC ( Grid_Data%SLTYP( C,R ) )
                Grid_Data%WRES( C,R ) = WRES( Grid_Data%SLTYP( C,R ) )
                Grid_Data%BSLP( C,R ) = BSLP( Grid_Data%SLTYP( C,R ) )
-               Grid_Data%WWLT( C,R ) = WWLT( Grid_Data%SLTYP( C,R ) )
             End Forall
          Else
             Forall( C = 1:NCOLS, R = 1:NROWS, Grid_Data%SLTYP(C,R) .Le. N_SOIL_TYPE )
-               Grid_Data%WWLT( C,R ) = WWLT( Grid_Data%SLTYP( C,R ) )
                Grid_Data%WSAT( C,R ) = WSAT( Grid_Data%SLTYP( C,R ) )
                Grid_Data%WFC ( C,R ) = WFC ( Grid_Data%SLTYP( C,R ) )
             End Forall
