@@ -923,6 +923,7 @@ C Build mapping to CGRID for each species in the master AeroList
 #endif
 
       aero_missing( :,: ) = .True.
+      aerospc_conc( :,: ) = conmin
 
       Do spc = 1, n_aerospc ! Loop through user-requested chemical species
          l = map_aerotolist( spc )

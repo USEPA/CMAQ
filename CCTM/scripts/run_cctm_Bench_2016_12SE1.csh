@@ -188,7 +188,7 @@ setenv EMISDIAG F            #> Print Emission Rates at the output time step aft
                              #>   Individual streams can be modified using the variables:
                              #>       GR_EMIS_DIAG_## | STK_EMIS_DIAG_## | BIOG_EMIS_DIAG
                              #>       MG_EMIS_DIAG    | LTNG_EMIS_DIAG   | DUST_EMIS_DIAG
-                             #>       SEASPRAY_EMIS_DIAG   
+                             #>       SEASPRAY_EMIS_DIAG | MIOG_EMIS_DIAG
                              #>   Note that these diagnostics are different than other emissions diagnostic
                              #>   output because they occur after scaling.
 setenv EMISDIAG_SUM F        #> Print Sum of Emission Rates to Gridded Diagnostic File
