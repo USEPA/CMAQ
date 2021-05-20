@@ -92,7 +92,7 @@ C-----------------------------------------------------------------------
 
          USE CGRID_SPCS          ! CGRID mechanism species
          USE BEIS_DEFN           ! biogenic emissions
-!         USE MEGAN_DEFN          ! biogenic emissions from MEGAN
+         USE MEGAN_DEFN          ! biogenic emissions from MEGAN
          USE MGEMIS              ! marine gas emissions
          USE LTNG_DEFN           ! NO emissions from lightning strikes
          USE PT3D_DEFN           ! plume rise emissions
@@ -184,10 +184,10 @@ C Initialize 3D Point Source Emissions
          IF ( BIOGEMIS_MEGAN ) THEN
 C Initialize Online Biogenic Emissions, MEGAN
           CALL LOG_SUBHEADING( LOGDEV, 'Initialize BEIS Biogenic Emissions' )
-!          IF ( .NOT. MEGAN_INIT( JDATE, JTIME, TSTEP ) ) THEN
-!             XMSG = 'Failure initializing biogenics emissions module'
-!             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-!          END IF
+          IF ( .NOT. MEGAN_INIT( JDATE, JTIME, TSTEP ) ) THEN
+             XMSG = 'Failure initializing biogenics emissions module'
+             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+          END IF
          END IF
          IF ( BIOGEMIS_BEIS ) THEN 
 C Initialize Online Biogenic Emissions, BEIS
@@ -345,7 +345,7 @@ C Return From Initialization
          USE CGRID_SPCS          ! CGRID mechanism species
          USE AERO_EMIS           ! inherits GRID_CONF
          USE BEIS_DEFN           ! biogenic emissions
-!         USE MEGAN_DEFN          ! biogenic emissions from MEGAN
+         USE MEGAN_DEFN          ! biogenic emissions from MEGAN
          USE BIOG_EMIS, ONLY: MSPCS
          USE SSEMIS
          USE DUST_EMIS
@@ -645,11 +645,11 @@ C Retrieve Emissions from All Stream Types
 
              CASE ( 9 )
                NL = 1
-!               CALL GET_MEGAN ( JDATE, JTIME, TSTEP )
-!               FORALL( ISTR = 1:N_EMIS_ISTR, MAP_EMtoSURR( ISTR,ISRM ) .GT. 0 )
-!                  VDEMIS_READ( ISTR,1,:,: ) = VDEMIS_ME( MAP_EMtoSURR( ISTR,ISRM ),:,: ) 
-!               END FORALL
-!               CALL EMISS_SCALING( VDEMIS_READ, ISRM, NL, VDEMIS_SCALED )
+               CALL GET_MEGAN ( JDATE, JTIME, TSTEP )
+               FORALL( ISTR = 1:N_EMIS_ISTR, MAP_EMtoSURR( ISTR,ISRM ) .GT. 0 )
+                  VDEMIS_READ( ISTR,1,:,: ) = VDEMIS_ME( MAP_EMtoSURR( ISTR,ISRM ),:,: ) 
+               END FORALL
+               CALL EMISS_SCALING( VDEMIS_READ, ISRM, NL, VDEMIS_SCALED )
 
            END SELECT
            

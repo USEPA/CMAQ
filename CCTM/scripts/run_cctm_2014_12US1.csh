@@ -391,7 +391,16 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   endif
 
   #> In-line biogenic emissions configuration
-  if ( $CTM_BIOGEMIS == 'Y' ) then   
+  if ( $CTM_BIOGEMIS_MEGAN == 'Y' ) then
+    setenv SOILINP    $OUTDIR/CCTM_SOILOUT_${RUNID}_${YESTERDAY}.nc
+                             #> Biogenic NO soil input file; ignore if INITIAL_RUN = Y
+                             #>                            ; ignore if IGNORE_SOILINP = Y
+         setenv MEGAN_CTS /work/MOD3DATA/2016_12US1/surface/megan/CT3_CONUS_12km.ncf
+         setenv MEGAN_EFS /work/MOD3DATA/2016_12US1/surface/megan/EFMAPS_CONUS_12km.ncf
+         setenv MEGAN_LAI /work/MOD3DATA/2016_12US1/surface/megan/LAI3_CONUS_12km.ncf
+         setenv MEGAN_LDF /work/MOD3DATA/2016_12US1/surface/megan/LDF_CONUS_12km.ncf
+  endif
+  if ( $CTM_BIOGEMIS_BEIS == 'Y' ) then   
      set IN_BEISpath = ${INPDIR}/surface
      setenv GSPRO      ${BLD}/gspro_biogenics.txt
      setenv B3GRD      $IN_BEISpath/b3grd.smoke30_beis361.12US1.2011_BELD4.1_foliage_biomass_species_new_em3.ncf

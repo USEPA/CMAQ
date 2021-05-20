@@ -173,7 +173,8 @@
      &                       EFMAPS(:,:,:),     ! from MEGANMAP data
      &                       CTF(:,:,:),        ! from MEGANMAP data
      &                       T24y(:,:),         ! from SOILINP data
-     &                       SW24y(:,:)         ! from SOILINP data
+     &                       SW24y(:,:),        ! from SOILINP data
+     &                       lai_y(:,:)         ! from SOILINP data
 
 
         integer, allocatable :: PTYPE(:,:),        ! from SOILINP data
@@ -3214,6 +3215,7 @@ C Read the various categories of normalized emissions
           if (BIOGEMIS_MEGAN) then
              ALLOCATE (t24y  ( ncols,nrows        ),
      &                 sw24y ( ncols,nrows        ),
+     &                 lai_y ( ncols,nrows        ),
      &              HRNO_SW  ( NCOLS,NROWS, mxhrs ),
      &              HRNO_T2M ( NCOLS,NROWS, mxhrs ),
      &                 stat=stat)
@@ -3224,9 +3226,8 @@ C Read the various categories of normalized emissions
                END IF
           end if
 
-
           
-          if (.not. NEW_START) then
+          if (.not. NEW_START .and. .not. IGNORE_SOILINP) then
              IF ( .NOT. OPEN3( SOILINP, FSREAD3, PNAME ) ) THEN
                 mesg = 'Open failure for ' // SOILINP
                 Call M3EXIT( PNAME, 0, 0, mesg, XSTAT1 )
@@ -3286,6 +3287,7 @@ C Read the various categories of normalized emissions
              if (BIOGEMIS_MEGAN) then
               sw24sum  = 0.0
               t24sum   = 0.0
+              lai_y    = 0.0
              end if
 
              DDTTM = ' '   ! array
@@ -3330,8 +3332,15 @@ C Read the various categories of normalized emissions
              if (BIOGEMIS_MEGAN .and. .not. IGNORE_SOILINP) then
                 sw24y = sw24sum/mxhrs
                 t24y  = t24sum/mxhrs
-             end if
 
+                IF ( .NOT. XTRACT3( SOILINP, 'LAI', 1, 1,
+     &                              STRTROWSTD, ENDROWSTD, STRTCOLSTD,ENDCOLSTD,
+     &                              0, 0, lai_y( :,: ) ) ) THEN
+                   MESG = 'Could not read "' // 'LAI' //
+     &                    '" from file "' // TRIM( SOILINP ) // '"'
+                   CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
+                END IF
+             end if
 
           end if
 
@@ -4345,16 +4354,17 @@ C   mminlu and num_land_cat are WRF global variables
              megan_day = sdate3d 
              megan_hr  = stime3d
 
+             megan_hr = 0
              do I=1,mxrec3d 
 
                    IF ( .NOT. XTRACT3( MEGAN_CTS, 'CTS', 
      &                                 1, 1, strtrow, endrow, strtcol, endcol, 
-     &                                 megan_day, megan_hr, ctf(I,:,:) ) ) THEN
+     &                                 0, megan_hr, ctf(I,:,:) ) ) THEN
                       mesg = 'Could not extract ' // MEGAN_CTS // ' file'
                       CALL M3EXIT ( PNAME, megan_day, megan_hr, mesg, XSTAT1 )
                    END IF
-
-                   call nextime (megan_day, megan_hr, tstep3d)
+                   megan_hr = megan_hr + 10000
+                   !call nextime (megan_day, megan_hr, tstep3d)
 
              end do
 
