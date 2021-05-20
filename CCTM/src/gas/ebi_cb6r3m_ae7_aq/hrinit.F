@@ -23,13 +23,13 @@ C***********************************************************************
 C
 C  FUNCTION: To initialize species tolerances, arrays, and indices
 C
-C  PRECONDITIONS: For the CB6R3M_AE7_KMTBR mechanism
+C  PRECONDITIONS: For the CB6R3M_AE7_AQ mechanism
 C
 C  RETURN VALUES: None
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, Mar 24, 2020
+C  REVISION HISTORY: Created by EBI solver program, Jan 25, 2021
 C   21 Jun 10 J.Young:   convert for Namelist redesign
 C   18 Jul 14 B.Hutzell: revised to use the RXNS_DATA and RXNS_FUNCTION
 C                        modules instead of include files
@@ -146,7 +146,7 @@ C***********************************************************************
 
 c..Allocate and define ebi species
 
-      N_EBISP  = 170
+      N_EBISP  = 169
       ALLOCATE( EBISP( N_EBISP ), STAT = IOS ) 
       IF ( IOS .NE. 0 ) THEN
          MSG = 'Error allocating EBISP' 
@@ -295,34 +295,33 @@ c..Allocate and define ebi species
       EBISP( 140 ) = BRNO3
       EBISP( 141 ) = BRNO2
       EBISP( 142 ) = FMBR
-      EBISP( 143 ) = CH3BR
-      EBISP( 144 ) = MB3
-      EBISP( 145 ) = MB2
-      EBISP( 146 ) = MB2C
-      EBISP( 147 ) = MBC2
-      EBISP( 148 ) = MBC
-      EBISP( 149 ) = DMS
-      EBISP( 150 ) = MSA
-      EBISP( 151 ) = BRCL
-      EBISP( 152 ) = ABRJ
-      EBISP( 153 ) = I
-      EBISP( 154 ) = IO
-      EBISP( 155 ) = HI
-      EBISP( 156 ) = I2
-      EBISP( 157 ) = HOI
-      EBISP( 158 ) = INO
-      EBISP( 159 ) = INO2
-      EBISP( 160 ) = INO3
-      EBISP( 161 ) = OIO
-      EBISP( 162 ) = I2O4
-      EBISP( 163 ) = I2O2
-      EBISP( 164 ) = I2O3
-      EBISP( 165 ) = CH3I
-      EBISP( 166 ) = ICL
-      EBISP( 167 ) = IBR
-      EBISP( 168 ) = MI2
-      EBISP( 169 ) = MIB
-      EBISP( 170 ) = MIC
+      EBISP( 143 ) = MB3
+      EBISP( 144 ) = MB2
+      EBISP( 145 ) = MB2C
+      EBISP( 146 ) = MBC2
+      EBISP( 147 ) = MBC
+      EBISP( 148 ) = DMS
+      EBISP( 149 ) = MSA
+      EBISP( 150 ) = BRCL
+      EBISP( 151 ) = ABRJ
+      EBISP( 152 ) = I
+      EBISP( 153 ) = IO
+      EBISP( 154 ) = HI
+      EBISP( 155 ) = I2
+      EBISP( 156 ) = HOI
+      EBISP( 157 ) = INO
+      EBISP( 158 ) = INO2
+      EBISP( 159 ) = INO3
+      EBISP( 160 ) = OIO
+      EBISP( 161 ) = I2O4
+      EBISP( 162 ) = I2O2
+      EBISP( 163 ) = I2O3
+      EBISP( 164 ) = CH3I
+      EBISP( 165 ) = ICL
+      EBISP( 166 ) = IBR
+      EBISP( 167 ) = MI2
+      EBISP( 168 ) = MIB
+      EBISP( 169 ) = MIC
 
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -331,7 +330,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       RTOL( NO2          ) = 5.0D-04
       RTOL( NO           ) = 5.0D-04
       RTOL( O            ) = 1.0D+00
-      RTOL( O3           ) = 5.0D-04
+      RTOL( O3           ) = 5.0D-04     
       RTOL( NO3          ) = 5.0D-04
       RTOL( O1D          ) = 1.0D+00
       RTOL( OH           ) = 5.0D-04
@@ -483,7 +482,6 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       RTOL( BRNO3        ) = 5.0D-04
       RTOL( BRNO2        ) = 5.0D-04
       RTOL( FMBR         ) = 5.0D-04
-      RTOL( CH3BR        ) = 5.0D-04
       RTOL( MB3          ) = 5.0D-04
       RTOL( MB2          ) = 5.0D-04
       RTOL( MB2C         ) = 5.0D-04
@@ -492,16 +490,16 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       RTOL( DMS          ) = 5.0D-04
       RTOL( MSA          ) = 5.0D-04
       RTOL( BRCL         ) = 5.0D-04
-      RTOL( ABRJ         ) = 5.0D-04
-      RTOL( I            ) = 5.0D-04
-      RTOL( IO           ) = 5.0D-04
+      RTOL( ABRJ         ) = 5.0D-04        
+      RTOL( I            ) = 1.0D-05  
+      RTOL( IO           ) = 1.0D-05
       RTOL( HI           ) = 5.0D-04
       RTOL( I2           ) = 5.0D-04
-      RTOL( HOI          ) = 5.0D-04
+      RTOL( HOI          ) = 1.0D-05    
       RTOL( INO          ) = 5.0D-04
       RTOL( INO2         ) = 5.0D-04
-      RTOL( INO3         ) = 5.0D-04
-      RTOL( OIO          ) = 5.0D-04
+      RTOL( INO3         ) = 1.0D-05
+      RTOL( OIO          ) = 5.0D-04     
       RTOL( I2O4         ) = 5.0D-04
       RTOL( I2O2         ) = 5.0D-04
       RTOL( I2O3         ) = 5.0D-04
