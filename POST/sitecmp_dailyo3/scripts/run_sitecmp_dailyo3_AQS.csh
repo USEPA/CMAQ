@@ -23,24 +23,24 @@
  set VRSN      = v532              #> Code Version
  set PROC      = mpi               #> serial or mpi
  set MECH      = cb6r3_ae7_aq      #> Mechanism ID
- set APPL      = 2016_12SE1        #> Application Name (e.g. Gridname)
+ set APPL      = Bench_2016_12SE1        #> Application Name (e.g. Gridname)
                                                       
 #> Define RUNID as any combination of parameters above or others. By default,
 #> this information will be collected into this one string, $RUNID, for easy
 #> referencing in output binaries and log files as well as in other scripts.
- setenv RUNID  ${VRSN}_${compilerString}_${APPL}
+ set RUNID = ${VRSN}_${compilerString}_${APPL}
 
 #> Set the build directory if this was not set above 
 #> (this is where the executable is located by default).
  if ( ! $?BINDIR ) then
-  setenv BINDIR ${CMAQ_HOME}/POST/sitecmp_dailyo3/scripts/BLD_sitecmp_dailyo3_${VRSN}_${compilerString}
+  set BINDIR = ${CMAQ_HOME}/POST/sitecmp_dailyo3/scripts/BLD_sitecmp_dailyo3_${VRSN}_${compilerString}
  endif
 
 #> Set the name of the executable.
- setenv EXEC sitecmp_dailyo3_${VRSN}.exe
+ set EXEC = sitecmp_dailyo3_${VRSN}.exe
 
 #> Set output directory
- setenv POSTDIR    ${CMAQ_DATA}/POST   #> Location where sitecmp_dailyo3 file will be written
+ set POSTDIR = ${CMAQ_DATA}/POST   #> Location where sitecmp_dailyo3 file will be written
 
   if ( ! -e $POSTDIR ) then
 	  mkdir $POSTDIR
@@ -63,8 +63,8 @@
  setenv OBS_FACTOR "1"    # Multiply by 1000 to convert ppm to ppb
 
 #> define time window
- setenv SDATE "2016-07-01"    #> beginning date (July 1, 2011)
- setenv EDATE "2016-07-14"  #> ending date    (July 14, 2011)
+ set SDATE = "2016-07-01"    #> beginning date (July 1, 2011)
+ set EDATE = "2016-07-14"  #> ending date    (July 14, 2011)
  setenv START_TIME 0      
  setenv END_TIME   230000   
 
@@ -139,5 +139,11 @@
 
 #> Executable call:
  ${BINDIR}/${EXEC}
+
+ set progstat = ${status}
+ if ( ${progstat} ) then
+   echo "ERROR ${progstat} in $BINDIR/$EXEC"
+   exit( ${progstat} )
+ endif
 
  exit()

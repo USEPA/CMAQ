@@ -23,28 +23,24 @@
  set VRSN      = v532              #> Code Version
  set PROC      = mpi               #> serial or mpi
  set MECH      = cb6r3_ae7_aq      #> Mechanism ID
- set APPL      = 2016_12SE1        #> Application Name (e.g. Gridname)
+ set APPL      = Bench_2016_12SE1        #> Application Name (e.g. Gridname)
                                                       
 #> Define RUNID as any combination of parameters above or others. By default,
 #> this information will be collected into this one string, $RUNID, for easy
 #> referencing in output binaries and log files as well as in other scripts.
- setenv RUNID  ${VRSN}_${compilerString}_${APPL}
+ set RUNID = ${VRSN}_${compilerString}_${APPL}
 
 #> Set the build directory if this was not set above 
 #> (this is where the executable is located by default).
  if ( ! $?BINDIR ) then
-  setenv BINDIR ${CMAQ_HOME}/POST/sitecmp/scripts/BLD_sitecmp_${VRSN}_${compilerString}
+  set BINDIR = ${CMAQ_HOME}/POST/sitecmp/scripts/BLD_sitecmp_${VRSN}_${compilerString}
  endif
 
 #> Set the name of the executable.
- setenv EXEC sitecmp_${VRSN}.exe
-
-#> Set location of CMAQ repo.  This will be used to point to the time zone file
-#> needed to run bldoverlay.  
- setenv REPO_HOME ${CMAQ_REPO}
+ set EXEC = sitecmp_${VRSN}.exe
 
 #> Set output directory
- setenv POSTDIR    ${CMAQ_DATA}/POST    #> Location where sitecmp file will be written
+ set POSTDIR = ${CMAQ_DATA}/POST    #> Location where sitecmp file will be written
 
   if ( ! -e $POSTDIR ) then
 	  mkdir $POSTDIR
@@ -123,8 +119,8 @@
 # ~~~~~~~~~~~~ END NETWORK SPECIFIC SECTION ~~~~~~~~~~~~~~~~~~~~~~~~~
 
 #> define time window
- setenv SDATE "2016-07-01"    #> beginning date (July 1, 2016)
- setenv EDATE "2016-07-14"  #> ending date    (July 14, 2016)
+ set SDATE = "2016-07-01"    #> beginning date (July 1, 2016)
+ set EDATE = "2016-07-14"  #> ending date    (July 14, 2016)
  setenv START_TIME 0      
  setenv END_TIME   230000   
 
@@ -187,5 +183,11 @@
 
 #> Executable call:
  ${BINDIR}/${EXEC}
+
+ set progstat = ${status}
+ if ( ${progstat} ) then
+   echo "ERROR ${progstat} in $BINDIR/$EXEC"
+   exit( ${progstat} )
+ endif
    
  exit()

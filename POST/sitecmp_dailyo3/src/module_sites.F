@@ -443,17 +443,6 @@ C..ARGUMENTS: None
 
 C..PARAMETERS: None
 
-C..EXTERNAL FUNCTIONS:
-C         CHARACTER*24  DT2STR    ! Convert M3 date & time to string
-
-C         INTEGER JUNIT           ! Get a Fortran unit number
-C         INTEGER TRIMLEN         ! Get last non-blank character pos in string
-
-C         LOGICAL SETLAM          ! Sets up Lambert projection
-C         LOGICAL LL2LAM          ! Gets Lambert projection from LAT/LON
-C         LOGICAL SETPOL          ! Sets up polar stereographic projection
-C         LOGICAL LL2POL          ! Gets polar stereographic projection from LAT/LON
-
 C..SAVED LOCAL VARIABLES: None
 
 C..SCRATCH LOCAL VARIABLES:
@@ -490,7 +479,7 @@ c            LONIN = MIN( SITES(N)%LON, -1.0 * SITES(N)%LON )
 
             
             IF( .NOT. SETLAM( SNGL( M3GRID % P_ALP ),     !  first, initialize
-     &                  SNGL( M3GRID % P_BET ),        !  for LAM2LL()
+     &                  SNGL( M3GRID % P_BET ),        !  for LL2LAM()
      &                  SNGL( M3GRID % P_GAM ),
      &                  SNGL( M3GRID % XCENT ), 
      &                  SNGL( M3GRID % YCENT ) ) ) THEN
@@ -528,7 +517,7 @@ c..find the row location
 
             
             IF( .NOT. SETPOL( SNGL( M3GRID % P_ALP ),     !  first, initialize
-     &                  SNGL( M3GRID % P_BET ),        !  for LAM2LL()
+     &                  SNGL( M3GRID % P_BET ),        !  for LL2POL()
      &                  SNGL( M3GRID % P_GAM ),
      &                  SNGL( M3GRID % XCENT ), 
      &                  SNGL( M3GRID % YCENT ) ) ) THEN
@@ -539,6 +528,44 @@ c..find the row location
 c..get the x,y coordinates using lat/lon to lambert conversion
             IF( .NOT. LL2POL( LONIN, LATIN, X, Y ) ) THEN
                MSG = 'Lat/Lon to polar stereographic to conversion error'
+               CALL M3EXIT( PNAME, 0, 0, MSG, 2 )
+            ENDIF         
+
+            SITES(N)%LAMBX = X
+            SITES(N)%LAMBY = Y
+
+c..find the column location 
+            SITES(N)%column  = 0
+            DO C = 1, NCOLS3D
+               XW = M3GRID % XORIG + FLOAT( C - 1 ) * M3GRID % XCELL 
+               XE = XW + M3GRID % XCELL
+               IF( X .GE. XW .AND. X .LT. XE ) SITES(N)%column = C
+            ENDDO
+
+c..find the row location 
+            SITES(N)%row = 0
+            DO R = 1, NROWS3D
+               YS = M3GRID % YORIG + FLOAT( R - 1 ) * M3GRID % YCELL 
+               YN = YS + M3GRID % YCELL
+               IF( Y .GE. YS .AND. Y .LT. YN ) SITES(N)%row = R
+            ENDDO
+            
+          ELSEIF ( M3GRID % GDTYP . eq . 7 ) THEN ! Equatorial mercator
+
+
+            
+            IF( .NOT. SETEQM( SNGL( M3GRID % P_ALP ),     !  first, initialize
+     &                  SNGL( M3GRID % P_BET ),        !  for LL2EQM()
+     &                  SNGL( M3GRID % P_GAM ),
+     &                  SNGL( M3GRID % XCENT ), 
+     &                  SNGL( M3GRID % YCENT ) ) ) THEN
+              MSG = 'Equatorial mercator projection setup error'
+              CALL M3EXIT( PNAME, 0, 0, MSG, 2 )
+            ENDIF
+         
+c..get the x,y coordinates using lat/lon to equatorial mercator conversion
+            IF( .NOT. LL2EQM( LONIN, LATIN, X, Y ) ) THEN
+               MSG = 'Lat/Lon to equatorial mercator to conversion error'
                CALL M3EXIT( PNAME, 0, 0, MSG, 2 )
             ENDIF         
 
