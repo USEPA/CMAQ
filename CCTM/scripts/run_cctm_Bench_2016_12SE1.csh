@@ -183,16 +183,6 @@ setenv PROMPTFLAG F          #> turn on I/O-API PROMPT*FILE interactive mode [ o
 setenv IOAPI_OFFSET_64 YES   #> support large timestep records (>2GB/timestep record) [ options: YES | NO ]
 setenv IOAPI_CHECK_HEADERS N #> check file headers [ options: Y | N ]
 setenv CTM_EMISCHK N         #> Abort CMAQ if missing surrogates from emissions Input files
-setenv EMISDIAG F            #> Print Emission Rates at the output time step after they have been
-                             #>   scaled and modified by the user Rules [options: F | 2D | 3D | T or 2DSUM ]
-                             #>   Individual streams can be modified using the variables:
-                             #>       GR_EMIS_DIAG_## | STK_EMIS_DIAG_## | BIOG_EMIS_DIAG
-                             #>       MG_EMIS_DIAG    | LTNG_EMIS_DIAG   | DUST_EMIS_DIAG
-                             #>       SEASPRAY_EMIS_DIAG | MIOG_EMIS_DIAG
-                             #>   Note that these diagnostics are different than other emissions diagnostic
-                             #>   output because they occur after scaling.
-setenv EMISDIAG_SUM F        #> Print Sum of Emission Rates to Gridded Diagnostic File
-                             #>   [options: F | 2D | 3D | T or 2DSUM ]
 
 #> Diagnostic Output Flags
 setenv CTM_CKSUM Y           #> checksum report [ default: Y ]
@@ -376,13 +366,6 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   setenv STK_EMIS_LAB_006 PT_OTHFIRES
   setenv STK_EMIS_LAB_007 PT_OILGAS
   setenv STK_EMIS_LAB_008 PT_CMV
-
-  # Stack emissions diagnostic files
-  #setenv STK_EMIS_DIAG_001 2DSUM
-  #setenv STK_EMIS_DIAG_002 2DSUM
-  #setenv STK_EMIS_DIAG_003 2DSUM
-  #setenv STK_EMIS_DIAG_004 2DSUM
-  #setenv STK_EMIS_DIAG_005 2DSUM
 
   # Allow CMAQ to Use Point Source files with dates that do not
   # match the internal model date
@@ -623,7 +606,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
         #echo "Deleting output file: $file"
         /bin/rm -f $file  
      end
-     /bin/rm -f ${OUTDIR}/CCTM_EMDIAG*${RUNID}_${YYYYMMDD}.nc
+     /bin/rm -f ${OUTDIR}/CCTM_DESID*${RUNID}_${YYYYMMDD}.nc
 
   else
      #> error if previous log files exist
