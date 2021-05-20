@@ -24,11 +24,11 @@ C
 C  FUNCTION: To solve for the concentration of HO, HO2, HONO, and
 C            HNO4 alebraically.
 C
-C  PRECONDITIONS: For the CB6R3M_AE7_KMTBR mechanism
+C  PRECONDITIONS: For the CB6R3M_AE7_AQ mechanism
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, Mar 24, 2020
+C  REVISION HISTORY: Created by EBI solver program, Jan 25, 2021
 C
 C   18 Jul 14 B.Hutzell: revised to use real(8) variables
 C**********************************************************************
@@ -138,7 +138,7 @@ c..Remaining HO production
      &   +    2.4400D-01 * RXRAT(   249 )      ! CL+XYLMN=0.2440D+00*OH+...
      &   +    2.4400D-01 * RXRAT(   250 )      ! CL+NAPH=0.2440D+00*OH+...
      &   +                 RXRAT(   371 )      ! HOBR=OH+BR
-     &   +                 RXRAT(   414 )      ! HOI=OH+I
+     &   +                 RXRAT(   419 )      ! HOI=OH+I
 
       P4 = YC0( OH ) + P4 * DTC
 
@@ -164,7 +164,7 @@ c..Production of HO2 from OH ( r5,4 terms )
      &     +    1.5500D-01 * RKI(   190 ) * YC ( NAPH         )   ! OH+NAPH=0.1550D+...
      &     +                 RKI(   195 ) * YC ( CRES         )   ! OH+CRES=HO2+...
      &     +    2.0000D-01 * RKI(   210 ) * YC ( CAT1         )   ! OH+CAT1=0.2000D+...
-     &     +                 RKI(   352 ) * YC ( BRO          )   ! OH+BRO=HO2+BR
+     &     +                 RKI(   353 ) * YC ( BRO          )   ! OH+BRO=HO2+BR
      &     +                 RKI(   365 ) * YC ( MB2          )   ! OH+MB2=HO2+...
      &     +                 RKI(   368 ) * YC ( MBC          )   ! OH+MBC=HO2+CL+CO+BR
 
@@ -238,7 +238,7 @@ c..Remaining HO2 production terms
      &   +    1.8000D-01 * RXRAT(   248 )      ! CL+TOL=0.1800D+00*HO2+...
      &   +    1.5500D-01 * RXRAT(   249 )      ! CL+XYLMN=0.1550D+00*HO2+...
      &   +    1.5500D-01 * RXRAT(   250 )      ! CL+NAPH=0.1550D+00*HO2+...
-     &   +                 RXRAT(   357 )      ! FORM+BR=HO2+HBR+CO
+     &   +                 RXRAT(   358 )      ! FORM+BR=HO2+HBR+CO
      &   +                 RXRAT(   377 )      ! FMBR=HO2+CO+BR
      &   +                 RXRAT(   378 )      ! MB3=HO2+0.3000D+01*BR+CO
      &   +                 RXRAT(   379 )      ! MB2C=HO2+CL+0.2000D+01*BR+CO
@@ -253,9 +253,11 @@ c..Production of HONO from OH (r19,4 terms )
 c..Remaining HONO production terms
       P19 =    2.0000D+00 * RXRAT(    41 )      ! NO+NO2=0.2000D+01*HONO
      &    +                 RXRAT(   201 )      ! CRON=HONO+HO2+FORM+OPEN
-     &    +    5.0000D-01 * RXRAT(   276 )      ! NO2=0.5000D+00*HONO+...
-     &    +                 RXRAT(   434 )      ! INO2+ACLJ=HONO+ICL
-     &    +                 RXRAT(   435 )      ! INO2+ABRJ=HONO+IBR
+     &    +    5.0000D-01 * RXRAT(   277 )      ! NO2=0.5000D+00*HONO+...
+     &    +                 RXRAT(   387 )      ! BRNO2+ACLJ=HONO+BRCL
+     &    +                 RXRAT(   388 )      ! BRNO2+ABRJ=HONO+BR2
+     &    +                 RXRAT(   444 )      ! INO2+ACLJ=HONO+ICL
+     &    +                 RXRAT(   445 )      ! INO2+ABRJ=HONO+IBR
 
       P19 = YC0( HONO ) + P19 * DTC
 
@@ -312,19 +314,18 @@ c..OH loss terms not in R5_4 & R19_4
      &   +                 RKI(   220 ) * YC ( ECH4         )   ! OH+ECH4=MEO2+RO2
      &   +                 RKI(   232 ) * YC ( FMCL         )   ! OH+FMCL=CL+CO
      &   +                 RKI(   247 ) * YC ( HCL          )   ! OH+HCL=CL
-     &   +                 RKI(   346 ) * YC ( HBR          )   ! OH+HBR=BR
-     &   +                 RKI(   351 ) * YC ( BR2          )   ! OH+BR2=HOBR+BR
-     &   +                 RKI(   361 ) * YC ( FMBR         )   ! OH+FMBR=BR+CO
-     &   +                 RKI(   363 ) * YC ( CH3BR        )   ! OH+CH3BR=BR+FORM
+     &   +                 RKI(   347 ) * YC ( HBR          )   ! OH+HBR=BR
+     &   +                 RKI(   352 ) * YC ( BR2          )   ! OH+BR2=HOBR+BR
+     &   +                 RKI(   362 ) * YC ( FMBR         )   ! OH+FMBR=BR+CO
      &   +                 RKI(   364 ) * YC ( MB3          )   ! OH+MB3=0.3000D+...
      &   +                 RKI(   366 ) * YC ( MB2C         )   ! OH+MB2C=0.2000D+...
      &   +                 RKI(   367 ) * YC ( MBC2         )   ! OH+MBC2=BR+...
-     &   +                 RKI(   387 ) * YC ( I2           )   ! OH+I2=HOI+I
-     &   +                 RKI(   388 ) * YC ( HI           )   ! OH+HI=I
-     &   +                 RKI(   389 ) * YC ( HOI          )   ! OH+HOI=IO
-     &   +                 RKI(   411 ) * YC ( CH3I         )   ! OH+CH3I=I+FORM
-     &   +                 RKI(   439 ) * YC ( DMS          )   ! OH+DMS=SO2+MEO2+FORM
-     &   +                 RKI(   440 ) * YC ( DMS          )   ! OH+DMS=0.7500D+...
+     &   +                 RKI(   392 ) * YC ( I2           )   ! OH+I2=HOI+I
+     &   +                 RKI(   393 ) * YC ( HI           )   ! OH+HI=I
+     &   +                 RKI(   394 ) * YC ( HOI          )   ! OH+HOI=IO
+     &   +                 RKI(   416 ) * YC ( CH3I         )   ! OH+CH3I=I+FORM
+     &   +                 RKI(   448 ) * YC ( DMS          )   ! OH+DMS=SO2+MEO2+FORM
+     &   +                 RKI(   449 ) * YC ( DMS          )   ! OH+DMS=0.7500D+...
 
       L4    = 1.0D0 + L4 * DTC + R5_4 + R19_4
 
@@ -345,10 +346,10 @@ c..HO2 loss terms not included in R4_5 & R21_5 (except for HO2+HO2 )
      &   +                 RKI(   198 ) * YC ( CRO          )   ! HO2+CRO=CRES
      &   +    5.6000D-01 * RKI(   215 ) * YC ( OPO3         )   ! HO2+OPO3=0.4400D+...
      &   +                 RKI(   230 ) * YC ( CLO          )   ! HO2+CLO=HOCL
-     &   +                 RKI(   344 ) * YC ( BRO          )   ! HO2+BRO=HOBR
-     &   +                 RKI(   345 ) * YC ( BR           )   ! HO2+BR=HBR
-     &   +                 RKI(   386 ) * YC ( I            )   ! HO2+I=HI
-     &   +                 RKI(   390 ) * YC ( IO           )   ! HO2+IO=HOI
+     &   +                 RKI(   345 ) * YC ( BRO          )   ! HO2+BRO=HOBR
+     &   +                 RKI(   346 ) * YC ( BR           )   ! HO2+BR=HBR
+     &   +                 RKI(   391 ) * YC ( I            )   ! HO2+I=HI
+     &   +                 RKI(   395 ) * YC ( IO           )   ! HO2+IO=HOI
 
       L5    = 1.0D0 + L5 * DTC + R4_5 + R21_5
 

@@ -20,8 +20,12 @@
 !
 ! 07-16-18 G.Sarwar, removed condensed halogen chemistry and added bromine/iodine and DMS chemistry
 ! 040319 HOT Pye: IEPOX uptake now consumes inorganic sulfate
+!
+! 07-04-20 G Sarwar, added an iodine reaction - (IO45)
+! 01/08/21 G Sarwar, removed the reaction of CH3BR ; there are no emissions
+!
 !---------------------------------
-CB6R3M_AE7_KMTBR
+CB6R3M_AE7_AQ
 
 REACTIONS[CM] =
 
@@ -390,7 +394,8 @@ REACTIONS[CM] =
 <CL30> CLNO3          = CLO + NO2                 # 1.0/<CLONO2_1>;
 <CL31> CLNO3          = CL + NO3                 # 1.0/<CLONO2_2>;
 
-! heterogeneous reactions from CB05eh51
+! heterogeneous reactions 
+<HET_CLNO3_WAI> CLNO3     = HOCL + HNO3               # 1.0~<HETERO_CLNO3_WAI>;
 <HET_CLNO3_WAJ> CLNO3     = HOCL + HNO3               # 1.0~<HETERO_CLNO3_WAJ>;
 
 ! SOA counter species and semivolatiles formed
@@ -578,7 +583,6 @@ REACTIONS[CM] =
 <BR19>  FMBR + OH          = BR + CO                  # 5.0E-12;
 <BR20>  BRO + MEO2         = 0.8*HOBR + 0.2*BR
                                       + FORM          # 2.7E-14 @-1600;
-<BR21>  CH3BR + OH         = BR + FORM                # 2.9E-12 @ 1230;
 <BR22>  MB3 + OH           = 3*BR + CO                # 1.0E-12 @ 388;
 <BR23>  MB2 + OH           = 2*BR + HO2 + CO          # 2.0E-12 @ 840;
 <BR24>  MB2C + OH          = 2*BR + CL + CO           # 9.0E-13 @ 420;
@@ -601,9 +605,14 @@ REACTIONS[CM] =
 <BR38>  MBC2               = BR + 2*CL + HO2 + CO     # 1.0/<MBC2_BLIDE98>;
 
 ! Heterogeneous reactions
+<HET_BRNO3_WAI> BRNO3 = HOBR + HNO3                   # 1.0~<HETERO_BRNO3_WAI>;
 <HET_BRNO3_WAJ> BRNO3 = HOBR + HNO3                   # 1.0~<HETERO_BRNO3_WAJ>;
 <HET_HOBR_CLJ>  HOBR + ACLJ = BRCL                    # 1.0~<HETERO_HOBR_CLJ>;
 <HET_HOBR_BRJ>  HOBR + ABRJ = BR2                     # 1.0~<HETERO_HOBR_BRJ>;
+<HET_BRNO3_CLJ> BRNO3 + ACLJ = BRCL + HNO3            # 1.0~<HETERO_BRNO3_CLJ>;
+<HET_BRNO3_BRJ> BRNO3 + ABRJ = BR2 + HNO3             # 1.0~<HETERO_BRNO3_BRJ>;
+<HET_BRNO2_CLJ> BRNO2 + ACLJ = BRCL + HONO            # 1.0~<HETERO_BRNO2_CLJ>;
+<HET_BRNO2_BRJ> BRNO2 + ABRJ = BR2 + HONO             # 1.0~<HETERO_BRNO2_BRJ>;
 
 ! Heterogeneous reaction of HBR
 <HET_HBR_BRJ>  HBR = ABRJ                             # 1.0~<HETERO_HBR_BRJ>;
@@ -630,7 +639,7 @@ REACTIONS[CM] =
 <IO18>  IO + IO            = 0.4*OIO + 0.4*I +
                              0.6*I2O2                 # 5.40E-11 @ -180;
 <IO19>  IO + OIO           = I2O3                     # 1.50E-10 @ 0;
-<IO20>  I2O2               = OIO + I                  # 2.54E+14 @ 9770;
+<IO20>  I2O2               = OIO + I                  # 2.50E+14 @ 9770;
 <IO21>  I2O4               = 2*OIO                    # 3.80E-02 @ 0;
 <IO22>  INO2               = I + NO2                  # 9.94E17 @ 11859;
 <IO23>  INO3               = IO + NO2                 # 2.10E+15 @ 13670;
@@ -664,10 +673,15 @@ REACTIONS[CM] =
 <IO42>  MI2                = 2.0*I + FORM             # 1.0/<MI2_IUPAC10>;
 <IO43>  MIB                = I + BR + FORM            # 1.0/<MIB_IUPAC10>;
 <IO44>  MIC                = I + CL + FORM            # 1.0/<MIC_IUPAC10>;
+<IO45>  HOI + NO3          = IO + HNO3                # 2.7E-12 ^ -2.66;
+<IO46>  I2O2               = IO + IO                  # 1.00E+12 @ 9770;
 
 ! heterogeneous reactions
+<HET_I2O2_AI>  I2O2 =                                 # 1.0~<HETERO_I2O2_AI>;
 <HET_I2O2_AJ>  I2O2 =                                 # 1.0~<HETERO_I2O2_AJ>;
+<HET_I2O3_AI>  I2O3 =                                 # 1.0~<HETERO_I2O3_AI>;
 <HET_I2O3_AJ>  I2O3 =                                 # 1.0~<HETERO_I2O3_AJ>;
+<HET_I2O4_AI>  I2O4 =                                 # 1.0~<HETERO_I2O4_AI>;
 <HET_I2O4_AJ>  I2O4 =                                 # 1.0~<HETERO_I2O4_AJ>;
 <HET_INO3_CLJ> INO3 + ACLJ = ICL + HNO3               # 1.0~<HETERO_INO3_CLJ>;
 <HET_INO3_BRJ> INO3 + ABRJ = IBR + HNO3               # 1.0~<HETERO_INO3_BRJ>;
@@ -675,7 +689,6 @@ REACTIONS[CM] =
 <HET_INO2_BRJ> INO2 + ABRJ = IBR + HONO               # 1.0~<HETERO_INO2_BRJ>;
 <HET_HOI_CLJ>  HOI + ACLJ = ICL                       # 1.0~<HETERO_HOI_CLJ>;
 <HET_HOI_BRJ>  HOI + ABRJ = IBR                       # 1.0~<HETERO_HOI_BRJ>;
-<HET_HI_AJ>    HI   =                                 # 1.0~<HETERO_HI_AJ>;
 
 ! DMS chemistry (IUPAC except DMS4 which is from Somariva and Glasow, 2012 )
 <DMS1>  DMS + OH           = SO2     + MEO2

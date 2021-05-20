@@ -269,6 +269,7 @@ Information is based on the mech.def file.
 | CL28   | CLO + NO2 ----> CLNO3  | k<sub>o</sub>=  1.80E-31e<sup>     0.0/T</sup>(T/300)<sup> -3.40</sup><br>k<sub>i</sub> =   1.50E-11e<sup>     0.0/T</sup>(T/300)<sup> -1.90</sup><br>n=     1.00;F=     0.60 |   2.3359E-12 |
 | CL30   | CLNO3 ----> CLO + NO2  | CLONO2_1 | Not Available<sup>1</sup> | 
 | CL31   | CLNO3 ----> CL + NO3  | CLONO2_2 | Not Available<sup>1</sup> | 
+| HET_CLNO3_WAI   | CLNO3 ----> HOCL + HNO3  | HETERO_CLNO3_WAI | Not Available<sup>2</sup> | 
 | HET_CLNO3_WAJ   | CLNO3 ----> HOCL + HNO3  | HETERO_CLNO3_WAJ | Not Available<sup>2</sup> | 
 | SA01   | TOLRO2 + NO ----> NO +    0.016\*SVAVB2 +    0.051\*SVAVB3 +    0.047\*SVAVB4  |   2.70E-12e<sup>   360.00/T</sup> |   9.0313E-12 |
 | SA02   | TOLRO2 + HO2 ----> HO2 +    0.140\*SVAVB1  |   1.90E-13e<sup>  1300.00/T</sup> |   1.4872E-11 |
@@ -377,7 +378,6 @@ Information is based on the mech.def file.
 | BR18   | ISOP + BR ----> FMBR + ISPD +    0.960\*XO2H +    0.040\*XO2N + RO2  |   5.0000E-12 |   5.0000E-12 |
 | BR19   | FMBR + OH ----> BR + CO  |   5.0000E-12 |   5.0000E-12 |
 | BR20   | BRO + MEO2 ---->   0.800\*HOBR +    0.200\*BR + FORM  |   2.70E-14e<sup>  1600.00/T</sup> |   5.7806E-12 |
-| BR21   | CH3BR + OH ----> BR + FORM  |   2.90E-12e<sup> -1230.00/T</sup> |   4.6854E-14 |
 | BR22   | MB3 + OH ---->   3.000\*BR + CO  |   1.00E-12e<sup>  -388.00/T</sup> |   2.7216E-13 |
 | BR23   | MB2 + OH ---->   2.000\*BR + HO2 + CO  |   2.00E-12e<sup>  -840.00/T</sup> |   1.1953E-13 |
 | BR24   | MB2C + OH ---->   2.000\*BR + CL + CO  |   9.00E-13e<sup>  -420.00/T</sup> |   2.2002E-13 |
@@ -395,9 +395,14 @@ Information is based on the mech.def file.
 | BR36   | MB3 ---->   3.000\*BR + HO2 + CO  | MB3_IUPAC10 | Not Available<sup>1</sup> | 
 | BR37   | MB2C ---->   2.000\*BR + CL + HO2 + CO  | MB2C_BLIDE98 | Not Available<sup>1</sup> | 
 | BR38   | MBC2 ----> BR +    2.000\*CL + HO2 + CO  | MBC2_BLIDE98 | Not Available<sup>1</sup> | 
+| HET_BRNO3_WAI   | BRNO3 ----> HOBR + HNO3  | HETERO_BRNO3_WAI | Not Available<sup>2</sup> | 
 | HET_BRNO3_WAJ   | BRNO3 ----> HOBR + HNO3  | HETERO_BRNO3_WAJ | Not Available<sup>2</sup> | 
 | HET_HOBR_CLJ   | HOBR + ACLJ ----> BRCL  | HETERO_HOBR_CLJ | Not Available<sup>2</sup> | 
 | HET_HOBR_BRJ   | HOBR + ABRJ ----> BR2  | HETERO_HOBR_BRJ | Not Available<sup>2</sup> | 
+| HET_BRNO3_CLJ   | BRNO3 + ACLJ ----> BRCL + HNO3  | HETERO_BRNO3_CLJ | Not Available<sup>2</sup> | 
+| HET_BRNO3_BRJ   | BRNO3 + ABRJ ----> BR2 + HNO3  | HETERO_BRNO3_BRJ | Not Available<sup>2</sup> | 
+| HET_BRNO2_CLJ   | BRNO2 + ACLJ ----> BRCL + HONO  | HETERO_BRNO2_CLJ | Not Available<sup>2</sup> | 
+| HET_BRNO2_BRJ   | BRNO2 + ABRJ ----> BR2 + HONO  | HETERO_BRNO2_BRJ | Not Available<sup>2</sup> | 
 | HET_HBR_BRJ   | HBR ----> ABRJ  | HETERO_HBR_BRJ | Not Available<sup>2</sup> | 
 | IO01   | I + O3 ----> IO  |   2.10E-11e<sup>  -830.00/T</sup> |   1.2978E-12 |
 | IO02   | I + HO2 ----> HI  |   1.50E-11e<sup> -1090.00/T</sup> |   3.8758E-13 |
@@ -418,7 +423,7 @@ Information is based on the mech.def file.
 | IO17   | OIO + NO ----> IO + NO2  |   1.10E-12e<sup>   542.00/T</sup> |   6.7746E-12 |
 | IO18   | IO + IO ---->   0.400\*OIO +    0.400\*I +    0.600\*I2O2  |   5.40E-11e<sup>   180.00/T</sup> |   9.8761E-11 |
 | IO19   | IO + OIO ----> I2O3  |   1.50E-10e<sup>     0.00/T</sup> |   1.5000E-10 |
-| IO20   | I2O2 ----> OIO + I  |   2.54E+14e<sup> -9770.00/T</sup> |   1.4913E+00 |
+| IO20   | I2O2 ----> OIO + I  |   2.50E+14e<sup> -9770.00/T</sup> |   1.4678E+00 |
 | IO21   | I2O4 ---->   2.000\*OIO  |   3.80E-02e<sup>     0.00/T</sup> |   3.8000E-02 |
 | IO22   | INO2 ----> I + NO2  |   9.94E+17e<sup>-11859.00/T</sup> |   5.2869E+00 |
 | IO23   | INO3 ----> IO + NO2  |   2.10E+15e<sup>-13670.00/T</sup> |   2.5708E-05 |
@@ -443,8 +448,13 @@ Information is based on the mech.def file.
 | IO42   | MI2 ---->   2.000\*I + FORM  | MI2_IUPAC10 | Not Available<sup>1</sup> | 
 | IO43   | MIB ----> I + BR + FORM  | MIB_IUPAC10 | Not Available<sup>1</sup> | 
 | IO44   | MIC ----> I + CL + FORM  | MIC_IUPAC10 | Not Available<sup>1</sup> | 
+| IO45   | HOI + NO3 ----> IO + HNO3  |   2.70E-12(T/300)<sup> -2.66</sup> |   2.7448E-12 |
+| IO46   | I2O2 ---->   2.000\*IO  |   1.00E+12e<sup> -9770.00/T</sup> |   5.8711E-03 |
+| HET_I2O2_AI   | I2O2 ----> | HETERO_I2O2_AI | Not Available<sup>2</sup> | 
 | HET_I2O2_AJ   | I2O2 ----> | HETERO_I2O2_AJ | Not Available<sup>2</sup> | 
+| HET_I2O3_AI   | I2O3 ----> | HETERO_I2O3_AI | Not Available<sup>2</sup> | 
 | HET_I2O3_AJ   | I2O3 ----> | HETERO_I2O3_AJ | Not Available<sup>2</sup> | 
+| HET_I2O4_AI   | I2O4 ----> | HETERO_I2O4_AI | Not Available<sup>2</sup> | 
 | HET_I2O4_AJ   | I2O4 ----> | HETERO_I2O4_AJ | Not Available<sup>2</sup> | 
 | HET_INO3_CLJ   | INO3 + ACLJ ----> ICL + HNO3  | HETERO_INO3_CLJ | Not Available<sup>2</sup> | 
 | HET_INO3_BRJ   | INO3 + ABRJ ----> IBR + HNO3  | HETERO_INO3_BRJ | Not Available<sup>2</sup> | 
@@ -452,9 +462,8 @@ Information is based on the mech.def file.
 | HET_INO2_BRJ   | INO2 + ABRJ ----> IBR + HONO  | HETERO_INO2_BRJ | Not Available<sup>2</sup> | 
 | HET_HOI_CLJ   | HOI + ACLJ ----> ICL  | HETERO_HOI_CLJ | Not Available<sup>2</sup> | 
 | HET_HOI_BRJ   | HOI + ABRJ ----> IBR  | HETERO_HOI_BRJ | Not Available<sup>2</sup> | 
-| HET_HI_AJ   | HI ----> | HETERO_HI_AJ | Not Available<sup>2</sup> | 
 | DMS1   | DMS + OH ----> SO2 + MEO2 + FORM  |   1.12E-11e<sup>  -250.00/T</sup> |   4.8424E-12 |
-| DMS2   | DMS + OH ---->   0.750\*SO2 +    0.250\*MSA + MEO2 | k<sub>o</sub>=  1.99E-39e<sup>  5270.0/T</sup>(T/300)<sup>  0.00</sup><br>k<sub>i</sub> =   1.26E-10e<sup>  -340.0/T</sup>(T/300)<sup>  0.00</sup><br>n=     1.00;F=     1.00 |   2.1985E-12 |
+| DMS2   | DMS + OH ---->   0.750\*SO2 +    0.250\*MSA + MEO2  | k<sub>o</sub>=  1.99E-39e<sup>  5270.0/T</sup>(T/300)<sup>  0.00</sup><br>k<sub>i</sub> =   1.26E-10e<sup>  -340.0/T</sup>(T/300)<sup>  0.00</sup><br>n=     1.00;F=     1.00 |   2.1985E-12 |
 | DMS3   | DMS + NO3 ----> SO2 + HNO3 + MEO2 + FORM  |   1.90E-13e<sup>   520.00/T</sup> |   1.0869E-12 |
 | DMS4   | DMS + CL ---->   0.860\*SO2 + MEO2 +    0.450\*FORM +    0.450\*HCL +    0.140\*MSA +    0.550\*CLO  |   3.40E-13e<sup>  2081.00/T</sup> |   3.6537E-10 |
 | DMS5   | DMS + CLO ---->   0.750\*SO2 +    0.250\*MSA + MEO2 + CL  |   1.70E-15e<sup>   340.00/T</sup> |   5.3174E-15 |

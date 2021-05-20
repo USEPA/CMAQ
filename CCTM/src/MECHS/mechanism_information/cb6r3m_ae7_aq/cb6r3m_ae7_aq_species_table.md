@@ -22,7 +22,6 @@
 |BRO                | bromine oxide           |   95.9    | E |
 | C2O3              | acetylperoxy radical                                                         | 75                   | E                      |
 | CAT1              | methyl catechols                                                             | 124.1                | L                      |
-|CH3BR              | methylbromide       |   94.9    | E |
 |CH3I               | methyl iodide       |  141.9    | E |
 | CL                | atomic chlorine                                                              | 35.5                 | E                      |
 | CL2               | molecular chlorine                                                           | 71                   | E                      |

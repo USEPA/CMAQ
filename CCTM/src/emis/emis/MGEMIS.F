@@ -477,7 +477,7 @@ C Initialize marine gas output buffer
 !            convert area fraction to an actual area
                      MARINE_AREA = MARINE_AREA * A
 
-                     CHLA      = CHLR ( C,R )
+                     CHLA      = MIN ( 1.0, CHLR ( C,R ) )
                      WSPD10    = U10( C,R )
                      WSPD10_M5 = MAX (5.0, WSPD10)
                      SST       = TSEASFC (C,R)
@@ -496,7 +496,7 @@ C.. calculate iodide in water
        SCN = 2674.0 - 147.12 * SSTC + 3.726 * SSTC * SSTC - 0.038 * SSTC * SSTC * SSTC
 
 !..    Calculate water-side DMS gas-transfer velocity following Liss and Merlivat,  1986 (unit - cm/hr)
-       IF ( WSPD10 .LE. 3.6 ) THEN 
+       IF ( WSPD10 .LE. 3.6 ) THEN
           KW = 0.17 * WSPD10 / ( (SCN * ONESIXHUNDREDS)**TWOTHIRDS)
         ELSE IF ( WSPD10 .GT. 3.6 .AND. WSPD10 .LE. 13.0 ) THEN
           KW = ( 2.85 * WSPD10 - 9.65 ) / SQRT(SCN * ONESIXHUNDREDS)
@@ -528,7 +528,7 @@ C.. calculate local hour
                      IF (LOCHR .LT.  0) LOCHR = LOCHR + 24
                      IF (LOCHR .GT. 23) LOCHR = LOCHR - 24
 
-                     DUMMY = 2.50E-8 * MARINE_AREA * FHRLY(LOCHR) * CHLA * SECS2HR  
+                     DUMMY = 4.31E-8 * MARINE_AREA * FHRLY(LOCHR) * CHLA * SECS2HR
 
 C.. Calculate MB3 emission rate in mole/s
                      VDEMIS_MG( IMB3, C, R ) = DUMMY * 2.00
