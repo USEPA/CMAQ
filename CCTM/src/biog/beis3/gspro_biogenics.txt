@@ -14,7 +14,7 @@
 #    Options -
 #      B10C5: CB05-based mechanisms
 #      B10C6: CB6r3-based mechanisms: ae6
-#      B10C6AE7: CB6r3- ae7 based mechanism
+#      B10C6AE7: CB6r[3,5] - ae7 based mechanism
 #             1/8/2018 HOTP modified to split out APIN and not include in TERP 
 #      B10RD: RACM2-based mechanisms
 #      B10SP: SAPRC07t-based mechanisms (aero6 and aero7 compatible)

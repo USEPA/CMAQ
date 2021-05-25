@@ -118,18 +118,21 @@ set make_options = "-j"                #> additional options for make command if
  setenv Mechanism cb6r5_ae7_aq               #> chemical mechanism (see $CMAQ_MODEL/CCTM/src/MECHS)
  set ModMech   = MECHS/${Mechanism}
  
- set ChemSolver = ebi                       #> gas-phase chemistry solver (see $CMAQ_MODEL/CCTM/src/gas)
-                                            #> use gas/ros3 or gas/smvgear for a solver independent 
-                                            #> of the photochemical mechanism [ default: ebi ]
+ if ( ${Mechanism} != cb6r3m_ae7_aq ) then  #> Gas-phase chemistry solver options
+     set ChemSolver = ebi                   #> gas-phase chemistry solver (see $CMAQ_MODEL/CCTM/src/gas)
+ else                                       #> use gas/ros3 or gas/smvgear for a solver independent
+     set ChemSolver = ros3                  #> of the photochemical mechanism [ default for most mechanisms: ebi ]
+ endif
+                                         
  if ( $ChemSolver == ebi ) then             
-    set ModGas    = gas/${ChemSolver}_${Mechanism}   
- else                                       
+    set ModGas    = gas/${ChemSolver}_${Mechanism}
+                                            
+ else
     set ModGas    = gas/${ChemSolver}
  endif
     
  set ModAero   = aero/aero7                 #> aerosol chemistry module (see $CMAQ_MODEL/CCTM/src/aero)
  set ModCloud  = cloud/acm_ae7              #> cloud chemistry module (see $CMAQ_MODEL/CCTM/src/cloud)
-                                            #>   overwritten below if using cb6r3m_ae7_kmtbr mechanism
  set ModUtil   = util/util                  #> CCTM utility modules
  set ModDiag   = diag                       #> CCTM diagnostic modules
  set Tracer    = trac0                      #> tracer configuration directory under 
@@ -296,11 +299,6 @@ set make_options = "-j"                #> additional options for make command if
       echo "bldit_mech did not finish correctly --> Build Process Halted"
       exit 1
     endif
- endif
-
-#> Cloud chemistry options
- if ( ${Mechanism} == cb6r3m_ae7_kmtbr ) then
-    set ModCloud = cloud/acm_ae7_kmtbr
  endif
 
 #> Tracer configuration files
@@ -585,7 +583,11 @@ set Cfile = ${Bld}/${CFG}.bld      # Config Filename
  echo "Module ${ModGas};"                                          >> $Cfile
  echo                                                              >> $Cfile
 
+<<<<<<< HEAD
  set MechList = " cb6mp_ae6_aq, cb6r3_ae6_aq, cb6r3_ae7_aq, cb6r5_ae7_aq, cb6r3_ae7_aqkmt2, cb6r3m_ae7_kmtbr, racm2_ae6_aq, saprc07tc_ae6_aq, saprc07tic_ae6i_aq, saprc07tic_ae6i_aqkmti, saprc07tic_ae7i_aq, saprc07tic_ae7i_aqkmt2"
+=======
+ set MechList = " cb6mp_ae6_aq, cb6r3_ae6_aq, cb6r3_ae7_aq, cb6r3_ae7_aqkmt2, cb6r3m_ae7_aq, racm2_ae6_aq, saprc07tc_ae6_aq, saprc07tic_ae6i_aq, saprc07tic_ae6i_aqkmti, saprc07tic_ae7i_aq, saprc07tic_ae7i_aqkmt2"
+>>>>>>> manage_github/research
  set text = "gas chemistry mechanisms"
  echo "// " $text                                                  >> $Cfile
  set text = "$MechList"
