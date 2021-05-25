@@ -1,0 +1,1058 @@
+C=======================================================================
+C  MAP_CV2CB6.EXT
+C  This include file contains conversion table for 201 speciated species
+C  to CB6 (CMAQ/CAMx) species
+C
+C
+C  MEGAN v3
+C
+C  History:
+C  Who          When       What
+C  ---------------------------------------------------------------------
+C  Tan          07/18/11 - Created for MEGANv2.10
+C  Ling Huang   06/13/17 - Updated for MEGANv3
+C=======================================================================
+
+      CHARACTER*16   MAP_CB6AE7MECH
+      PARAMETER     (MAP_CB6AE7MECH = 'CB6_ae7        ')
+
+      INTEGER        N_CB6_AE7
+      PARAMETER     (N_CB6_AE7 = (147))        ! Number of map species
+
+      CHARACTER*16   SPMH_NAM_CB6_AE7( N_CB6_AE7 )   ! speciated species name
+      INTEGER        SPMH_MAP_CB6_AE7( N_CB6_AE7 )   ! speciated species name
+                                              ! mapped to SPC_SPCAT.EXT
+      CHARACTER*16   MECH_NAM_CB6_AE7( N_CB6_AE7 )   ! mechanism species
+      INTEGER        MECH_MAP_CB6_AE7( N_CB6_AE7 )   ! mechanism species mapped
+
+      REAL           CONV_FAC_CB6_AE7( N_CB6_AE7 )   ! conversion factor
+
+ 
+      DATA  SPMH_NAM_CB6_AE7( 1)     , SPMH_MAP_CB6_AE7( 1)
+     &    / 'isoprene     ', 1           /
+      DATA  MECH_NAM_CB6_AE7( 1)     , MECH_MAP_CB6_AE7( 1)
+     &    / 'ISOP      ', 1           /
+      DATA  CONV_FAC_CB6_AE7( 1)
+     &    / 1       /
+ 
+      DATA  SPMH_NAM_CB6_AE7( 2)     , SPMH_MAP_CB6_AE7( 2)
+     &    / 'MBO_2m3e2ol     ', 2           /
+      DATA  MECH_NAM_CB6_AE7( 2)     , MECH_MAP_CB6_AE7( 2)
+     &    / 'OLE      ', 5           /
+      DATA  CONV_FAC_CB6_AE7( 2)
+     &    / 1       /
+ 
+      DATA  SPMH_NAM_CB6_AE7( 3)     , SPMH_MAP_CB6_AE7( 3)
+     &    / 'MBO_2m3e2ol     ', 2           /
+      DATA  MECH_NAM_CB6_AE7( 3)     , MECH_MAP_CB6_AE7( 3)
+     &    / 'PAR      ', 3           /
+      DATA  CONV_FAC_CB6_AE7( 3)
+     &    / 3       /
+ 
+      DATA  SPMH_NAM_CB6_AE7( 4)     , SPMH_MAP_CB6_AE7( 4)
+     &    / 'pinene_a     ', 3           /
+      DATA  MECH_NAM_CB6_AE7( 4)     , MECH_MAP_CB6_AE7( 4)
+     &    / 'APIN      ', 35           /
+      DATA  CONV_FAC_CB6_AE7( 4)
+     &    / 1       /
+ 
+      DATA  SPMH_NAM_CB6_AE7( 5)     , SPMH_MAP_CB6_AE7( 5)
+     &    / 'pinene_b     ', 4           /
+      DATA  MECH_NAM_CB6_AE7( 5)     , MECH_MAP_CB6_AE7( 5)
+     &    / 'TERP      ', 2           /
+      DATA  CONV_FAC_CB6_AE7( 5)
+     &    / 1       /
+ 
+      DATA  SPMH_NAM_CB6_AE7( 6)     , SPMH_MAP_CB6_AE7( 6)
+     &    / 'myrcene     ', 5           /
+      DATA  MECH_NAM_CB6_AE7( 6)     , MECH_MAP_CB6_AE7( 6)
+     &    / 'TERP      ', 2           /
+      DATA  CONV_FAC_CB6_AE7( 6)
+     &    / 1       /
+ 
+      DATA  SPMH_NAM_CB6_AE7( 7)     , SPMH_MAP_CB6_AE7( 7)
+     &    / 'ocimene_al     ', 6           /
+      DATA  MECH_NAM_CB6_AE7( 7)     , MECH_MAP_CB6_AE7( 7)
+     &    / 'TERP      ', 2           /
+      DATA  CONV_FAC_CB6_AE7( 7)
+     &    / 1       /
+ 
+      DATA  SPMH_NAM_CB6_AE7( 8)     , SPMH_MAP_CB6_AE7( 8)
+     &    / 'ocimene_c_b     ', 7           /
+      DATA  MECH_NAM_CB6_AE7( 8)     , MECH_MAP_CB6_AE7( 8)
+     &    / 'TERP      ', 2           /
+      DATA  CONV_FAC_CB6_AE7( 8)
+     &    / 1       /
+ 
+      DATA  SPMH_NAM_CB6_AE7( 9)     , SPMH_MAP_CB6_AE7( 9)
+     &    / 'ocimene_t_b     ', 8           /
+      DATA  MECH_NAM_CB6_AE7( 9)     , MECH_MAP_CB6_AE7( 9)
+     &    / 'TERP      ', 2           /
+      DATA  CONV_FAC_CB6_AE7( 9)
+     &    / 1       /
+ 
+      DATA  SPMH_NAM_CB6_AE7( 10)     , SPMH_MAP_CB6_AE7( 10)
+     &    / 'camphene     ', 10           /
+      DATA  MECH_NAM_CB6_AE7( 10)     , MECH_MAP_CB6_AE7( 10)
+     &    / 'TERP      ', 2           /
+      DATA  CONV_FAC_CB6_AE7( 10)
+     &    / 1       /
+ 
+      DATA  SPMH_NAM_CB6_AE7( 11)     , SPMH_MAP_CB6_AE7( 11)
+     &    / 'bornene     ', 9           /
+      DATA  MECH_NAM_CB6_AE7( 11)     , MECH_MAP_CB6_AE7( 11)
+     &    / 'TERP      ', 2           /
+      DATA  CONV_FAC_CB6_AE7( 11)
+     &    / 1       /
+ 
+      DATA  SPMH_NAM_CB6_AE7( 12)     , SPMH_MAP_CB6_AE7( 12)
+     &    / 'fenchene_a     ', 12           /
+      DATA  MECH_NAM_CB6_AE7( 12)     , MECH_MAP_CB6_AE7( 12)
+     &    / 'TERP      ', 2           /
+      DATA  CONV_FAC_CB6_AE7( 12)
+     &    / 1       /
+ 
+      DATA  SPMH_NAM_CB6_AE7( 13)     , SPMH_MAP_CB6_AE7( 13)
+     &    / 'tricyclene     ', 14           /
+      DATA  MECH_NAM_CB6_AE7( 13)     , MECH_MAP_CB6_AE7( 13)
+     &    / 'TERP      ', 2           /
+      DATA  CONV_FAC_CB6_AE7( 13)
+     &    / 1       /
+ 
+      DATA  SPMH_NAM_CB6_AE7( 14)     , SPMH_MAP_CB6_AE7( 14)
+     &    / 'carene_3     ', 11           /
+      DATA  MECH_NAM_CB6_AE7( 14)     , MECH_MAP_CB6_AE7( 14)
+     &    / 'TERP      ', 2           /
+      DATA  CONV_FAC_CB6_AE7( 14)
+     &    / 1       /
+ 
+      DATA  SPMH_NAM_CB6_AE7( 15)     , SPMH_MAP_CB6_AE7( 15)
+     &    / 'fenchene_b     ', 13           /
+      DATA  MECH_NAM_CB6_AE7( 15)     , MECH_MAP_CB6_AE7( 15)
+     &    / 'TERP      ', 2           /
+      DATA  CONV_FAC_CB6_AE7( 15)
+     &    / 1       /
+ 
+      DATA  SPMH_NAM_CB6_AE7( 16)     , SPMH_MAP_CB6_AE7( 16)
+     &    / 'phellandrene_a     ', 17           /
+      DATA  MECH_NAM_CB6_AE7( 16)     , MECH_MAP_CB6_AE7( 16)
+     &    / 'TERP      ', 2           /
+      DATA  CONV_FAC_CB6_AE7( 16)
+     &    / 1       /
+ 
+      DATA  SPMH_NAM_CB6_AE7( 17)     , SPMH_MAP_CB6_AE7( 17)
+     &    / 'terpinene_g     ', 20           /
+      DATA  MECH_NAM_CB6_AE7( 17)     , MECH_MAP_CB6_AE7( 17)
+     &    / 'TERP      ', 2           /
+      DATA  CONV_FAC_CB6_AE7( 17)
+     &    / 1       /
+ 
+      DATA  SPMH_NAM_CB6_AE7( 18)     , SPMH_MAP_CB6_AE7( 18)
+     &    / 'terpinene_a     ', 19           /
+      DATA  MECH_NAM_CB6_AE7( 18)     , MECH_MAP_CB6_AE7( 18)
+     &    / 'TERP      ', 2           /
+      DATA  CONV_FAC_CB6_AE7( 18)
+     &    / 1       /
+ 
+      DATA  SPMH_NAM_CB6_AE7( 19)     , SPMH_MAP_CB6_AE7( 19)
+     &    / 'limonene     ', 15           /
+      DATA  MECH_NAM_CB6_AE7( 19)     , MECH_MAP_CB6_AE7( 19)
+     &    / 'TERP      ', 2           /
+      DATA  CONV_FAC_CB6_AE7( 19)
+     &    / 1       /
+ 
+      DATA  SPMH_NAM_CB6_AE7( 20)     , SPMH_MAP_CB6_AE7( 20)
+     &    / 'phellandrene_b     ', 16           /
+      DATA  MECH_NAM_CB6_AE7( 20)     , MECH_MAP_CB6_AE7( 20)
+     &    / 'TERP      ', 2           /
+      DATA  CONV_FAC_CB6_AE7( 20)
+     &    / 1       /
+ 
+      DATA  SPMH_NAM_CB6_AE7( 21)     , SPMH_MAP_CB6_AE7( 21)
+     &    / 'terpinolene     ', 21           /
+      DATA  MECH_NAM_CB6_AE7( 21)     , MECH_MAP_CB6_AE7( 21)
+     &    / 'TERP      ', 2           /
+      DATA  CONV_FAC_CB6_AE7( 21)
+     &    / 1       /
+ 
+      DATA  SPMH_NAM_CB6_AE7( 22)     , SPMH_MAP_CB6_AE7( 22)
+     &    / 'thujene_a     ', 22           /
+      DATA  MECH_NAM_CB6_AE7( 22)     , MECH_MAP_CB6_AE7( 22)
+     &    / 'TERP      ', 2           /
+      DATA  CONV_FAC_CB6_AE7( 22)
+     &    / 1       /
+ 
+      DATA  SPMH_NAM_CB6_AE7( 23)     , SPMH_MAP_CB6_AE7( 23)
+     &    / 'sabinene     ', 18           /
+      DATA  MECH_NAM_CB6_AE7( 23)     , MECH_MAP_CB6_AE7( 23)
+     &    / 'TERP      ', 2           /
+      DATA  CONV_FAC_CB6_AE7( 23)
+     &    / 1       /
+ 
+      DATA  SPMH_NAM_CB6_AE7( 24)     , SPMH_MAP_CB6_AE7( 24)
+     &    / 'verbenene     ', 23           /
+      DATA  MECH_NAM_CB6_AE7( 24)     , MECH_MAP_CB6_AE7( 24)
+     &    / 'TERP      ', 2           /
+      DATA  CONV_FAC_CB6_AE7( 24)
+     &    / 1       /
+ 
+      DATA  SPMH_NAM_CB6_AE7( 25)     , SPMH_MAP_CB6_AE7( 25)
+     &    / 'cymene_p     ', 25           /
+      DATA  MECH_NAM_CB6_AE7( 25)     , MECH_MAP_CB6_AE7( 25)
+     &    / 'TERP      ', 2           /
+      DATA  CONV_FAC_CB6_AE7( 25)
+     &    / 1       /
+ 
+      DATA  SPMH_NAM_CB6_AE7( 26)     , SPMH_MAP_CB6_AE7( 26)
+     &    / 'cymene_o     ', 24           /
+      DATA  MECH_NAM_CB6_AE7( 26)     , MECH_MAP_CB6_AE7( 26)
+     &    / 'TERP      ', 2           /
+      DATA  CONV_FAC_CB6_AE7( 26)
+     &    / 1       /
+ 
+      DATA  SPMH_NAM_CB6_AE7( 27)     , SPMH_MAP_CB6_AE7( 27)
+     &    / 'meta-cymenene     ', 26           /
+      DATA  MECH_NAM_CB6_AE7( 27)     , MECH_MAP_CB6_AE7( 27)
+     &    / 'TERP      ', 2           /
+      DATA  CONV_FAC_CB6_AE7( 27)
+     &    / 1       /
+ 
+      DATA  SPMH_NAM_CB6_AE7( 28)     , SPMH_MAP_CB6_AE7( 28)
+     &    / 'p-cymenene     ', 27           /
+      DATA  MECH_NAM_CB6_AE7( 28)     , MECH_MAP_CB6_AE7( 28)
+     &    / 'TERP      ', 2           /
+      DATA  CONV_FAC_CB6_AE7( 28)
+     &    / 1       /
+ 
+      DATA  SPMH_NAM_CB6_AE7( 29)     , SPMH_MAP_CB6_AE7( 29)
+     &    / 'camphor     ', 30           /
+      DATA  MECH_NAM_CB6_AE7( 29)     , MECH_MAP_CB6_AE7( 29)
+     &    / 'TERP      ', 2           /
+      DATA  CONV_FAC_CB6_AE7( 29)
+     &    / 1       /
+ 
+      DATA  SPMH_NAM_CB6_AE7( 30)     , SPMH_MAP_CB6_AE7( 30)
+     &    / 'bornyl_ACT     ', 29           /
+      DATA  MECH_NAM_CB6_AE7( 30)     , MECH_MAP_CB6_AE7( 30)
+     &    / 'TERP      ', 2           /
+      DATA  CONV_FAC_CB6_AE7( 30)
+     &    / 1       /
+ 
+      DATA  SPMH_NAM_CB6_AE7( 31)     , SPMH_MAP_CB6_AE7( 31)
+     &    / 'piperitone     ', 38           /
+      DATA  MECH_NAM_CB6_AE7( 31)     , MECH_MAP_CB6_AE7( 31)
+     &    / 'TERP      ', 2           /
+      DATA  CONV_FAC_CB6_AE7( 31)
+     &    / 1       /
+ 
+      DATA  SPMH_NAM_CB6_AE7( 32)     , SPMH_MAP_CB6_AE7( 32)
+     &    / 'terpineol_a     ', 40           /
+      DATA  MECH_NAM_CB6_AE7( 32)     , MECH_MAP_CB6_AE7( 32)
+     &    / 'TERP      ', 2           /
+      DATA  CONV_FAC_CB6_AE7( 32)
+     &    / 1       /
+ 
+      DATA  SPMH_NAM_CB6_AE7( 33)     , SPMH_MAP_CB6_AE7( 33)
+     &    / 'octanol     ', 36           /
+      DATA  MECH_NAM_CB6_AE7( 33)     , MECH_MAP_CB6_AE7( 33)
+     &    / 'PAR      ', 3           /
+      DATA  CONV_FAC_CB6_AE7( 33)
+     &    / 8       /
+ 
+      DATA  SPMH_NAM_CB6_AE7( 34)     , SPMH_MAP_CB6_AE7( 34)
+     &    / 'estragole     ', 31           /
+      DATA  MECH_NAM_CB6_AE7( 34)     , MECH_MAP_CB6_AE7( 34)
+     &    / 'TERP      ', 2           /
+      DATA  CONV_FAC_CB6_AE7( 34)
+     &    / 1       /
+ 
+      DATA  SPMH_NAM_CB6_AE7( 35)     , SPMH_MAP_CB6_AE7( 35)
+     &    / 'borneol     ', 28           /
+      DATA  MECH_NAM_CB6_AE7( 35)     , MECH_MAP_CB6_AE7( 35)
+     &    / 'TERP      ', 2           /
+      DATA  CONV_FAC_CB6_AE7( 35)
+     &    / 1       /
+ 
+      DATA  SPMH_NAM_CB6_AE7( 36)     , SPMH_MAP_CB6_AE7( 36)
+     &    / 'thujone_b     ', 42           /
+      DATA  MECH_NAM_CB6_AE7( 36)     , MECH_MAP_CB6_AE7( 36)
+     &    / 'TERP      ', 2           /
+      DATA  CONV_FAC_CB6_AE7( 36)
+     &    / 1       /
+ 
+      DATA  SPMH_NAM_CB6_AE7( 37)     , SPMH_MAP_CB6_AE7( 37)
+     &    / 'thujone_a     ', 41           /
+      DATA  MECH_NAM_CB6_AE7( 37)     , MECH_MAP_CB6_AE7( 37)
+     &    / 'TERP      ', 2           /
+      DATA  CONV_FAC_CB6_AE7( 37)
+     &    / 1       /
+ 
+      DATA  SPMH_NAM_CB6_AE7( 38)     , SPMH_MAP_CB6_AE7( 38)
+     &    / 'terpineol_4     ', 39           /
+      DATA  MECH_NAM_CB6_AE7( 38)     , MECH_MAP_CB6_AE7( 38)
+     &    / 'TERP      ', 2           /
+      DATA  CONV_FAC_CB6_AE7( 38)
+     &    / 1       /
+ 
+      DATA  SPMH_NAM_CB6_AE7( 39)     , SPMH_MAP_CB6_AE7( 39)
+     &    / 'myrtenal     ', 35           /
+      DATA  MECH_NAM_CB6_AE7( 39)     , MECH_MAP_CB6_AE7( 39)
+     &    / 'TERP      ', 2           /
+      DATA  CONV_FAC_CB6_AE7( 39)
+     &    / 1       /
+ 
+      DATA  SPMH_NAM_CB6_AE7( 40)     , SPMH_MAP_CB6_AE7( 40)
+     &    / 'fenchone     ', 32           /
+      DATA  MECH_NAM_CB6_AE7( 40)     , MECH_MAP_CB6_AE7( 40)
+     &    / 'TERP      ', 2           /
+      DATA  CONV_FAC_CB6_AE7( 40)
+     &    / 1       /
+ 
+      DATA  SPMH_NAM_CB6_AE7( 41)     , SPMH_MAP_CB6_AE7( 41)
+     &    / 'octenol_1e3ol     ', 37           /
+      DATA  MECH_NAM_CB6_AE7( 41)     , MECH_MAP_CB6_AE7( 41)
+     &    / 'TERP      ', 2           /
+      DATA  CONV_FAC_CB6_AE7( 41)
+     &    / 1       /
+ 
+      DATA  SPMH_NAM_CB6_AE7( 42)     , SPMH_MAP_CB6_AE7( 42)
+     &    / 'ionone_b     ', 33           /
+      DATA  MECH_NAM_CB6_AE7( 42)     , MECH_MAP_CB6_AE7( 42)
+     &    / 'TERP      ', 2           /
+      DATA  CONV_FAC_CB6_AE7( 42)
+     &    / 1       /
+ 
+      DATA  SPMH_NAM_CB6_AE7( 43)     , SPMH_MAP_CB6_AE7( 43)
+     &    / 'ipsenol     ', 34           /
+      DATA  MECH_NAM_CB6_AE7( 43)     , MECH_MAP_CB6_AE7( 43)
+     &    / 'TERP      ', 2           /
+      DATA  CONV_FAC_CB6_AE7( 43)
+     &    / 1       /
+ 
+      DATA  SPMH_NAM_CB6_AE7( 44)     , SPMH_MAP_CB6_AE7( 44)
+     &    / 'caryophyllene_b     ', 51           /
+      DATA  MECH_NAM_CB6_AE7( 44)     , MECH_MAP_CB6_AE7( 44)
+     &    / 'SESQ      ', 30           /
+      DATA  CONV_FAC_CB6_AE7( 44)
+     &    / 1       /
+ 
+      DATA  SPMH_NAM_CB6_AE7( 45)     , SPMH_MAP_CB6_AE7( 45)
+     &    / 'caryophyllene_c_i     ', 52           /
+      DATA  MECH_NAM_CB6_AE7( 45)     , MECH_MAP_CB6_AE7( 45)
+     &    / 'SESQ      ', 30           /
+      DATA  CONV_FAC_CB6_AE7( 45)
+     &    / 1       /
+ 
+      DATA  SPMH_NAM_CB6_AE7( 46)     , SPMH_MAP_CB6_AE7( 46)
+     &    / 'cadinene_d     ', 48           /
+      DATA  MECH_NAM_CB6_AE7( 46)     , MECH_MAP_CB6_AE7( 46)
+     &    / 'SESQ      ', 30           /
+      DATA  CONV_FAC_CB6_AE7( 46)
+     &    / 1       /
+ 
+      DATA  SPMH_NAM_CB6_AE7( 47)     , SPMH_MAP_CB6_AE7( 47)
+     &    / 'cadinene_d     ', 48           /
+      DATA  MECH_NAM_CB6_AE7( 47)     , MECH_MAP_CB6_AE7( 47)
+     &    / 'SESQ      ', 30           /
+      DATA  CONV_FAC_CB6_AE7( 47)
+     &    / 1       /
+ 
+      DATA  SPMH_NAM_CB6_AE7( 48)     , SPMH_MAP_CB6_AE7( 48)
+     &    / 'bisabolene_b     ', 47           /
+      DATA  MECH_NAM_CB6_AE7( 48)     , MECH_MAP_CB6_AE7( 48)
+     &    / 'SESQ      ', 30           /
+      DATA  CONV_FAC_CB6_AE7( 48)
+     &    / 1       /
+ 
+      DATA  SPMH_NAM_CB6_AE7( 49)     , SPMH_MAP_CB6_AE7( 49)
+     &    / 'farnescene_a     ', 54           /
+      DATA  MECH_NAM_CB6_AE7( 49)     , MECH_MAP_CB6_AE7( 49)
+     &    / 'SESQ      ', 30           /
+      DATA  CONV_FAC_CB6_AE7( 49)
+     &    / 1       /
+ 
+      DATA  SPMH_NAM_CB6_AE7( 50)     , SPMH_MAP_CB6_AE7( 50)
+     &    / 'patchoulene_b     ', 65           /
+      DATA  MECH_NAM_CB6_AE7( 50)     , MECH_MAP_CB6_AE7( 50)
+     &    / 'SESQ      ', 30           /
+      DATA  CONV_FAC_CB6_AE7( 50)
+     &    / 1       /
+ 
+      DATA  SPMH_NAM_CB6_AE7( 51)     , SPMH_MAP_CB6_AE7( 51)
+     &    / 'elemene_b     ', 53           /
+      DATA  MECH_NAM_CB6_AE7( 51)     , MECH_MAP_CB6_AE7( 51)
+     &    / 'SESQ      ', 30           /
+      DATA  CONV_FAC_CB6_AE7( 51)
+     &    / 1       /
+ 
+      DATA  SPMH_NAM_CB6_AE7( 52)     , SPMH_MAP_CB6_AE7( 52)
+     &    / 'nerolidol_c     ', 63           /
+      DATA  MECH_NAM_CB6_AE7( 52)     , MECH_MAP_CB6_AE7( 52)
+     &    / 'SESQ      ', 30           /
+      DATA  CONV_FAC_CB6_AE7( 52)
+     &    / 1       /
+ 
+      DATA  SPMH_NAM_CB6_AE7( 53)     , SPMH_MAP_CB6_AE7( 53)
+     &    / 'farnesol     ', 56           /
+      DATA  MECH_NAM_CB6_AE7( 53)     , MECH_MAP_CB6_AE7( 53)
+     &    / 'SESQ      ', 30           /
+      DATA  CONV_FAC_CB6_AE7( 53)
+     &    / 1       /
+ 
+      DATA  SPMH_NAM_CB6_AE7( 54)     , SPMH_MAP_CB6_AE7( 54)
+     &    / 'humulene_a     ', 59           /
+      DATA  MECH_NAM_CB6_AE7( 54)     , MECH_MAP_CB6_AE7( 54)
+     &    / 'SESQ      ', 30           /
+      DATA  CONV_FAC_CB6_AE7( 54)
+     &    / 1       /
+ 
+      DATA  SPMH_NAM_CB6_AE7( 55)     , SPMH_MAP_CB6_AE7( 55)
+     &    / 'muurolene_a     ', 61           /
+      DATA  MECH_NAM_CB6_AE7( 55)     , MECH_MAP_CB6_AE7( 55)
+     &    / 'SESQ      ', 30           /
+      DATA  CONV_FAC_CB6_AE7( 55)
+     &    / 1       /
+ 
+      DATA  SPMH_NAM_CB6_AE7( 56)     , SPMH_MAP_CB6_AE7( 56)
+     &    / 'bergamotene_a     ', 44           /
+      DATA  MECH_NAM_CB6_AE7( 56)     , MECH_MAP_CB6_AE7( 56)
+     &    / 'SESQ      ', 30           /
+      DATA  CONV_FAC_CB6_AE7( 56)
+     &    / 1       /
+ 
+      DATA  SPMH_NAM_CB6_AE7( 57)     , SPMH_MAP_CB6_AE7( 57)
+     &    / 'germacrene_B     ', 57           /
+      DATA  MECH_NAM_CB6_AE7( 57)     , MECH_MAP_CB6_AE7( 57)
+     &    / 'SESQ      ', 30           /
+      DATA  CONV_FAC_CB6_AE7( 57)
+     &    / 1       /
+ 
+      DATA  SPMH_NAM_CB6_AE7( 58)     , SPMH_MAP_CB6_AE7( 58)
+     &    / 'selinene_b     ', 66           /
+      DATA  MECH_NAM_CB6_AE7( 58)     , MECH_MAP_CB6_AE7( 58)
+     &    / 'SESQ      ', 30           /
+      DATA  CONV_FAC_CB6_AE7( 58)
+     &    / 1       /
+ 
+      DATA  SPMH_NAM_CB6_AE7( 59)     , SPMH_MAP_CB6_AE7( 59)
+     &    / 'calarene     ', 50           /
+      DATA  MECH_NAM_CB6_AE7( 59)     , MECH_MAP_CB6_AE7( 59)
+     &    / 'SESQ      ', 30           /
+      DATA  CONV_FAC_CB6_AE7( 59)
+     &    / 1       /
+ 
+      DATA  SPMH_NAM_CB6_AE7( 60)     , SPMH_MAP_CB6_AE7( 60)
+     &    / 'farnescene_b     ', 55           /
+      DATA  MECH_NAM_CB6_AE7( 60)     , MECH_MAP_CB6_AE7( 60)
+     &    / 'SESQ      ', 30           /
+      DATA  CONV_FAC_CB6_AE7( 60)
+     &    / 1       /
+ 
+      DATA  SPMH_NAM_CB6_AE7( 61)     , SPMH_MAP_CB6_AE7( 61)
+     &    / 'acoradiene     ', 43           /
+      DATA  MECH_NAM_CB6_AE7( 61)     , MECH_MAP_CB6_AE7( 61)
+     &    / 'SESQ      ', 30           /
+      DATA  CONV_FAC_CB6_AE7( 61)
+     &    / 1       /
+ 
+      DATA  SPMH_NAM_CB6_AE7( 62)     , SPMH_MAP_CB6_AE7( 62)
+     &    / 'humulene_g     ', 60           /
+      DATA  MECH_NAM_CB6_AE7( 62)     , MECH_MAP_CB6_AE7( 62)
+     &    / 'SESQ      ', 30           /
+      DATA  CONV_FAC_CB6_AE7( 62)
+     &    / 1       /
+ 
+      DATA  SPMH_NAM_CB6_AE7( 63)     , SPMH_MAP_CB6_AE7( 63)
+     &    / 'muurolene_g     ', 62           /
+      DATA  MECH_NAM_CB6_AE7( 63)     , MECH_MAP_CB6_AE7( 63)
+     &    / 'SESQ      ', 30           /
+      DATA  CONV_FAC_CB6_AE7( 63)
+     &    / 1       /
+ 
+      DATA  SPMH_NAM_CB6_AE7( 64)     , SPMH_MAP_CB6_AE7( 64)
+     &    / 'germacrene_D     ', 58           /
+      DATA  MECH_NAM_CB6_AE7( 64)     , MECH_MAP_CB6_AE7( 64)
+     &    / 'SESQ      ', 30           /
+      DATA  CONV_FAC_CB6_AE7( 64)
+     &    / 1       /
+ 
+      DATA  SPMH_NAM_CB6_AE7( 65)     , SPMH_MAP_CB6_AE7( 65)
+     &    / 'cadinene_g     ', 49           /
+      DATA  MECH_NAM_CB6_AE7( 65)     , MECH_MAP_CB6_AE7( 65)
+     &    / 'SESQ      ', 30           /
+      DATA  CONV_FAC_CB6_AE7( 65)
+     &    / 1       /
+ 
+      DATA  SPMH_NAM_CB6_AE7( 66)     , SPMH_MAP_CB6_AE7( 66)
+     &    / 'nerolidol_t     ', 64           /
+      DATA  MECH_NAM_CB6_AE7( 66)     , MECH_MAP_CB6_AE7( 66)
+     &    / 'SESQ      ', 30           /
+      DATA  CONV_FAC_CB6_AE7( 66)
+     &    / 1       /
+ 
+      DATA  SPMH_NAM_CB6_AE7( 67)     , SPMH_MAP_CB6_AE7( 67)
+     &    / 'bergamotene_b     ', 45           /
+      DATA  MECH_NAM_CB6_AE7( 67)     , MECH_MAP_CB6_AE7( 67)
+     &    / 'SESQ      ', 30           /
+      DATA  CONV_FAC_CB6_AE7( 67)
+     &    / 1       /
+ 
+      DATA  SPMH_NAM_CB6_AE7( 68)     , SPMH_MAP_CB6_AE7( 68)
+     &    / 'bisabolene_a     ', 46           /
+      DATA  MECH_NAM_CB6_AE7( 68)     , MECH_MAP_CB6_AE7( 68)
+     &    / 'SESQ      ', 30           /
+      DATA  CONV_FAC_CB6_AE7( 68)
+     &    / 1       /
+ 
+      DATA  SPMH_NAM_CB6_AE7( 69)     , SPMH_MAP_CB6_AE7( 69)
+     &    / 'cedrol     ', 73           /
+      DATA  MECH_NAM_CB6_AE7( 69)     , MECH_MAP_CB6_AE7( 69)
+     &    / 'SESQ      ', 30           /
+      DATA  CONV_FAC_CB6_AE7( 69)
+     &    / 1       /
+ 
+      DATA  SPMH_NAM_CB6_AE7( 70)     , SPMH_MAP_CB6_AE7( 70)
+     &    / 'homosalate     ', 78           /
+      DATA  MECH_NAM_CB6_AE7( 70)     , MECH_MAP_CB6_AE7( 70)
+     &    / 'SESQ      ', 30           /
+      DATA  CONV_FAC_CB6_AE7( 70)
+     &    / 1       /
+ 
+      DATA  SPMH_NAM_CB6_AE7( 71)     , SPMH_MAP_CB6_AE7( 71)
+     &    / '2ethyl_hexyl_salate     ', 68           /
+      DATA  MECH_NAM_CB6_AE7( 71)     , MECH_MAP_CB6_AE7( 71)
+     &    / 'SESQ      ', 30           /
+      DATA  CONV_FAC_CB6_AE7( 71)
+     &    / 1       /
+ 
+      DATA  SPMH_NAM_CB6_AE7( 72)     , SPMH_MAP_CB6_AE7( 72)
+     &    / 'cedrene_a     ', 72           /
+      DATA  MECH_NAM_CB6_AE7( 72)     , MECH_MAP_CB6_AE7( 72)
+     &    / 'SESQ      ', 30           /
+      DATA  CONV_FAC_CB6_AE7( 72)
+     &    / 1       /
+ 
+      DATA  SPMH_NAM_CB6_AE7( 73)     , SPMH_MAP_CB6_AE7( 73)
+     &    / 'thujopsene     ', 83           /
+      DATA  MECH_NAM_CB6_AE7( 73)     , MECH_MAP_CB6_AE7( 73)
+     &    / 'SESQ      ', 30           /
+      DATA  CONV_FAC_CB6_AE7( 73)
+     &    / 1       /
+ 
+      DATA  SPMH_NAM_CB6_AE7( 74)     , SPMH_MAP_CB6_AE7( 74)
+     &    / 'longifolene     ', 81           /
+      DATA  MECH_NAM_CB6_AE7( 74)     , MECH_MAP_CB6_AE7( 74)
+     &    / 'SESQ      ', 30           /
+      DATA  CONV_FAC_CB6_AE7( 74)
+     &    / 1       /
+ 
+      DATA  SPMH_NAM_CB6_AE7( 75)     , SPMH_MAP_CB6_AE7( 75)
+     &    / 'cadinol_a     ', 71           /
+      DATA  MECH_NAM_CB6_AE7( 75)     , MECH_MAP_CB6_AE7( 75)
+     &    / 'SESQ      ', 30           /
+      DATA  CONV_FAC_CB6_AE7( 75)
+     &    / 1       /
+ 
+      DATA  SPMH_NAM_CB6_AE7( 76)     , SPMH_MAP_CB6_AE7( 76)
+     &    / 'zingiberene_a     ', 85           /
+      DATA  MECH_NAM_CB6_AE7( 76)     , MECH_MAP_CB6_AE7( 76)
+     &    / 'SESQ      ', 30           /
+      DATA  CONV_FAC_CB6_AE7( 76)
+     &    / 1       /
+ 
+      DATA  SPMH_NAM_CB6_AE7( 77)     , SPMH_MAP_CB6_AE7( 77)
+     &    / 'isolongifolene     ', 79           /
+      DATA  MECH_NAM_CB6_AE7( 77)     , MECH_MAP_CB6_AE7( 77)
+     &    / 'SESQ      ', 30           /
+      DATA  CONV_FAC_CB6_AE7( 77)
+     &    / 1       /
+ 
+      DATA  SPMH_NAM_CB6_AE7( 78)     , SPMH_MAP_CB6_AE7( 78)
+     &    / 'longicyclene     ', 87           /
+      DATA  MECH_NAM_CB6_AE7( 78)     , MECH_MAP_CB6_AE7( 78)
+     &    / 'SESQ      ', 30           /
+      DATA  CONV_FAC_CB6_AE7( 78)
+     &    / 1       /
+ 
+      DATA  SPMH_NAM_CB6_AE7( 79)     , SPMH_MAP_CB6_AE7( 79)
+     &    / 'copaene_a     ', 74           /
+      DATA  MECH_NAM_CB6_AE7( 79)     , MECH_MAP_CB6_AE7( 79)
+     &    / 'SESQ      ', 30           /
+      DATA  CONV_FAC_CB6_AE7( 79)
+     &    / 1       /
+ 
+      DATA  SPMH_NAM_CB6_AE7( 80)     , SPMH_MAP_CB6_AE7( 80)
+     &    / 'bourbonene_b     ', 70           /
+      DATA  MECH_NAM_CB6_AE7( 80)     , MECH_MAP_CB6_AE7( 80)
+     &    / 'SESQ      ', 30           /
+      DATA  CONV_FAC_CB6_AE7( 80)
+     &    / 1       /
+ 
+      DATA  SPMH_NAM_CB6_AE7( 81)     , SPMH_MAP_CB6_AE7( 81)
+     &    / 'longipinene     ', 82           /
+      DATA  MECH_NAM_CB6_AE7( 81)     , MECH_MAP_CB6_AE7( 81)
+     &    / 'SESQ      ', 30           /
+      DATA  CONV_FAC_CB6_AE7( 81)
+     &    / 1       /
+ 
+      DATA  SPMH_NAM_CB6_AE7( 82)     , SPMH_MAP_CB6_AE7( 82)
+     &    / 'cubebene_b     ', 76           /
+      DATA  MECH_NAM_CB6_AE7( 82)     , MECH_MAP_CB6_AE7( 82)
+     &    / 'SESQ      ', 30           /
+      DATA  CONV_FAC_CB6_AE7( 82)
+     &    / 1       /
+ 
+      DATA  SPMH_NAM_CB6_AE7( 83)     , SPMH_MAP_CB6_AE7( 83)
+     &    / 'ylangene_a     ', 84           /
+      DATA  MECH_NAM_CB6_AE7( 83)     , MECH_MAP_CB6_AE7( 83)
+     &    / 'SESQ      ', 30           /
+      DATA  CONV_FAC_CB6_AE7( 83)
+     &    / 1       /
+ 
+      DATA  SPMH_NAM_CB6_AE7( 84)     , SPMH_MAP_CB6_AE7( 84)
+     &    / 'cubebene_a     ', 75           /
+      DATA  MECH_NAM_CB6_AE7( 84)     , MECH_MAP_CB6_AE7( 84)
+     &    / 'SESQ      ', 30           /
+      DATA  CONV_FAC_CB6_AE7( 84)
+     &    / 1       /
+ 
+      DATA  SPMH_NAM_CB6_AE7( 85)     , SPMH_MAP_CB6_AE7( 85)
+     &    / 'copaene_b     ', 86           /
+      DATA  MECH_NAM_CB6_AE7( 85)     , MECH_MAP_CB6_AE7( 85)
+     &    / 'SESQ      ', 30           /
+      DATA  CONV_FAC_CB6_AE7( 85)
+     &    / 1       /
+ 
+      DATA  SPMH_NAM_CB6_AE7( 86)     , SPMH_MAP_CB6_AE7( 86)
+     &    / 'kaur_16_ene     ', 80           /
+      DATA  MECH_NAM_CB6_AE7( 86)     , MECH_MAP_CB6_AE7( 86)
+     &    / 'SESQ      ', 30           /
+      DATA  CONV_FAC_CB6_AE7( 86)
+     &    / 1       /
+ 
+      DATA  SPMH_NAM_CB6_AE7( 87)     , SPMH_MAP_CB6_AE7( 87)
+     &    / 'gurjunene_b     ', 77           /
+      DATA  MECH_NAM_CB6_AE7( 87)     , MECH_MAP_CB6_AE7( 87)
+     &    / 'SESQ      ', 30           /
+      DATA  CONV_FAC_CB6_AE7( 87)
+     &    / 1       /
+ 
+      DATA  SPMH_NAM_CB6_AE7( 88)     , SPMH_MAP_CB6_AE7( 88)
+     &    / 'aromadendrene     ', 69           /
+      DATA  MECH_NAM_CB6_AE7( 88)     , MECH_MAP_CB6_AE7( 88)
+     &    / 'SESQ      ', 30           /
+      DATA  CONV_FAC_CB6_AE7( 88)
+     &    / 1       /
+ 
+      DATA  SPMH_NAM_CB6_AE7( 89)     , SPMH_MAP_CB6_AE7( 89)
+     &    / 'methanol     ', 88           /
+      DATA  MECH_NAM_CB6_AE7( 89)     , MECH_MAP_CB6_AE7( 89)
+     &    / 'MEOH      ', 7           /
+      DATA  CONV_FAC_CB6_AE7( 89)
+     &    / 1       /
+ 
+      DATA  SPMH_NAM_CB6_AE7( 90)     , SPMH_MAP_CB6_AE7( 90)
+     &    / 'acetone     ', 89           /
+      DATA  MECH_NAM_CB6_AE7( 90)     , MECH_MAP_CB6_AE7( 90)
+     &    / 'ACET      ', 23           /
+      DATA  CONV_FAC_CB6_AE7( 90)
+     &    / 1       /
+ 
+      DATA  SPMH_NAM_CB6_AE7( 91)     , SPMH_MAP_CB6_AE7( 91)
+     &    / 'ethanol     ', 91           /
+      DATA  MECH_NAM_CB6_AE7( 91)     , MECH_MAP_CB6_AE7( 91)
+     &    / 'ETOH      ', 12           /
+      DATA  CONV_FAC_CB6_AE7( 91)
+     &    / 1       /
+ 
+      DATA  SPMH_NAM_CB6_AE7( 92)     , SPMH_MAP_CB6_AE7( 92)
+     &    / 'acetaldehyde     ', 90           /
+      DATA  MECH_NAM_CB6_AE7( 92)     , MECH_MAP_CB6_AE7( 92)
+     &    / 'ALD2      ', 11           /
+      DATA  CONV_FAC_CB6_AE7( 92)
+     &    / 1       /
+ 
+      DATA  SPMH_NAM_CB6_AE7( 93)     , SPMH_MAP_CB6_AE7( 93)
+     &    / 'formic_acid     ', 93           /
+      DATA  MECH_NAM_CB6_AE7( 93)     , MECH_MAP_CB6_AE7( 93)
+     &    / 'FACD      ', 26           /
+      DATA  CONV_FAC_CB6_AE7( 93)
+     &    / 1       /
+ 
+      DATA  SPMH_NAM_CB6_AE7( 94)     , SPMH_MAP_CB6_AE7( 94)
+     &    / 'acetic_acid     ', 92           /
+      DATA  MECH_NAM_CB6_AE7( 94)     , MECH_MAP_CB6_AE7( 94)
+     &    / 'AACD      ', 25           /
+      DATA  CONV_FAC_CB6_AE7( 94)
+     &    / 1       /
+ 
+      DATA  SPMH_NAM_CB6_AE7( 95)     , SPMH_MAP_CB6_AE7( 95)
+     &    / 'ethane     ', 100           /
+      DATA  MECH_NAM_CB6_AE7( 95)     , MECH_MAP_CB6_AE7( 95)
+     &    / 'ETHA      ', 18           /
+      DATA  CONV_FAC_CB6_AE7( 95)
+     &    / 1       /
+ 
+      DATA  SPMH_NAM_CB6_AE7( 96)     , SPMH_MAP_CB6_AE7( 96)
+     &    / 'ethene     ', 101           /
+      DATA  MECH_NAM_CB6_AE7( 96)     , MECH_MAP_CB6_AE7( 96)
+     &    / 'ETH      ', 19           /
+      DATA  CONV_FAC_CB6_AE7( 96)
+     &    / 1       /
+ 
+      DATA  SPMH_NAM_CB6_AE7( 97)     , SPMH_MAP_CB6_AE7( 97)
+     &    / 'propane     ', 102           /
+      DATA  MECH_NAM_CB6_AE7( 97)     , MECH_MAP_CB6_AE7( 97)
+     &    / 'PRPA      ', 21           /
+      DATA  CONV_FAC_CB6_AE7( 97)
+     &    / 1       /
+ 
+      DATA  SPMH_NAM_CB6_AE7( 98)     , SPMH_MAP_CB6_AE7( 98)
+     &    / 'butene     ', 97           /
+      DATA  MECH_NAM_CB6_AE7( 98)     , MECH_MAP_CB6_AE7( 98)
+     &    / 'OLE      ', 5           /
+      DATA  CONV_FAC_CB6_AE7( 98)
+     &    / 1       /
+ 
+      DATA  SPMH_NAM_CB6_AE7( 99)     , SPMH_MAP_CB6_AE7( 99)
+     &    / 'butene     ', 97           /
+      DATA  MECH_NAM_CB6_AE7( 99)     , MECH_MAP_CB6_AE7( 99)
+     &    / 'PAR      ', 3           /
+      DATA  CONV_FAC_CB6_AE7( 99)
+     &    / 2       /
+ 
+      DATA  SPMH_NAM_CB6_AE7( 100)     , SPMH_MAP_CB6_AE7( 100)
+     &    / 'propene     ', 103           /
+      DATA  MECH_NAM_CB6_AE7( 100)     , MECH_MAP_CB6_AE7( 100)
+     &    / 'OLE      ', 5           /
+      DATA  CONV_FAC_CB6_AE7( 100)
+     &    / 1       /
+ 
+      DATA  SPMH_NAM_CB6_AE7( 101)     , SPMH_MAP_CB6_AE7( 101)
+     &    / 'propene     ', 103           /
+      DATA  MECH_NAM_CB6_AE7( 101)     , MECH_MAP_CB6_AE7( 101)
+     &    / 'PAR      ', 3           /
+      DATA  CONV_FAC_CB6_AE7( 101)
+     &    / 1       /
+ 
+      DATA  SPMH_NAM_CB6_AE7( 102)     , SPMH_MAP_CB6_AE7( 102)
+     &    / '2_methylprop_1_ene     ', 95           /
+      DATA  MECH_NAM_CB6_AE7( 102)     , MECH_MAP_CB6_AE7( 102)
+     &    / 'OLE      ', 5           /
+      DATA  CONV_FAC_CB6_AE7( 102)
+     &    / 1       /
+ 
+      DATA  SPMH_NAM_CB6_AE7( 103)     , SPMH_MAP_CB6_AE7( 103)
+     &    / '2_methylprop_1_ene     ', 95           /
+      DATA  MECH_NAM_CB6_AE7( 103)     , MECH_MAP_CB6_AE7( 103)
+     &    / 'PAR      ', 3           /
+      DATA  CONV_FAC_CB6_AE7( 103)
+     &    / 2       /
+ 
+      DATA  SPMH_NAM_CB6_AE7( 104)     , SPMH_MAP_CB6_AE7( 104)
+     &    / 'butene_c2     ', 98           /
+      DATA  MECH_NAM_CB6_AE7( 104)     , MECH_MAP_CB6_AE7( 104)
+     &    / 'IOLE      ', 16           /
+      DATA  CONV_FAC_CB6_AE7( 104)
+     &    / 1       /
+ 
+      DATA  SPMH_NAM_CB6_AE7( 105)     , SPMH_MAP_CB6_AE7( 105)
+     &    / 'butene_t2     ', 99           /
+      DATA  MECH_NAM_CB6_AE7( 105)     , MECH_MAP_CB6_AE7( 105)
+     &    / 'IOLE      ', 16           /
+      DATA  CONV_FAC_CB6_AE7( 105)
+     &    / 1       /
+ 
+      DATA  SPMH_NAM_CB6_AE7( 106)     , SPMH_MAP_CB6_AE7( 106)
+     &    / 'formaldehyde     ', 113           /
+      DATA  MECH_NAM_CB6_AE7( 106)     , MECH_MAP_CB6_AE7( 106)
+     &    / 'FORM      ', 13           /
+      DATA  CONV_FAC_CB6_AE7( 106)
+     &    / 1       /
+ 
+      DATA  SPMH_NAM_CB6_AE7( 107)     , SPMH_MAP_CB6_AE7( 107)
+     &    / 'met_heptenone     ', 106           /
+      DATA  MECH_NAM_CB6_AE7( 107)     , MECH_MAP_CB6_AE7( 107)
+     &    / 'ISPD      ', 28           /
+      DATA  CONV_FAC_CB6_AE7( 107)
+     &    / 1       /
+ 
+      DATA  SPMH_NAM_CB6_AE7( 108)     , SPMH_MAP_CB6_AE7( 108)
+     &    / 'oxopentanal     ', 114           /
+      DATA  MECH_NAM_CB6_AE7( 108)     , MECH_MAP_CB6_AE7( 108)
+     &    / 'ISPD      ', 28           /
+      DATA  CONV_FAC_CB6_AE7( 108)
+     &    / 1       /
+ 
+      DATA  SPMH_NAM_CB6_AE7( 109)     , SPMH_MAP_CB6_AE7( 109)
+     &    / 'geranyl_acetone     ', 105           /
+      DATA  MECH_NAM_CB6_AE7( 109)     , MECH_MAP_CB6_AE7( 109)
+     &    / 'ISPD      ', 28           /
+      DATA  CONV_FAC_CB6_AE7( 109)
+     &    / 1       /
+ 
+      DATA  SPMH_NAM_CB6_AE7( 110)     , SPMH_MAP_CB6_AE7( 110)
+     &    / 'hexanal     ', 141           /
+      DATA  MECH_NAM_CB6_AE7( 110)     , MECH_MAP_CB6_AE7( 110)
+     &    / 'ISPD      ', 28           /
+      DATA  CONV_FAC_CB6_AE7( 110)
+     &    / 1       /
+ 
+      DATA  SPMH_NAM_CB6_AE7( 111)     , SPMH_MAP_CB6_AE7( 111)
+     &    / 'hydrogen_cyanide     ', 147           /
+      DATA  MECH_NAM_CB6_AE7( 111)     , MECH_MAP_CB6_AE7( 111)
+     &    / 'HCN      ', 27           /
+      DATA  CONV_FAC_CB6_AE7( 111)
+     &    / 1       /
+ 
+      DATA  SPMH_NAM_CB6_AE7( 112)     , SPMH_MAP_CB6_AE7( 112)
+     &    / 'linalool     ', 150           /
+      DATA  MECH_NAM_CB6_AE7( 112)     , MECH_MAP_CB6_AE7( 112)
+     &    / 'TERP      ', 2           /
+      DATA  CONV_FAC_CB6_AE7( 112)
+     &    / 1       /
+ 
+      DATA  SPMH_NAM_CB6_AE7( 113)     , SPMH_MAP_CB6_AE7( 113)
+     &    / 'methacrolein     ', 153           /
+      DATA  MECH_NAM_CB6_AE7( 113)     , MECH_MAP_CB6_AE7( 113)
+     &    / 'ISPD      ', 28           /
+      DATA  CONV_FAC_CB6_AE7( 113)
+     &    / 1       /
+ 
+      DATA  SPMH_NAM_CB6_AE7( 114)     , SPMH_MAP_CB6_AE7( 114)
+     &    / 'met_vinylketone     ', 158           /
+      DATA  MECH_NAM_CB6_AE7( 114)     , MECH_MAP_CB6_AE7( 114)
+     &    / 'ISPD      ', 28           /
+      DATA  CONV_FAC_CB6_AE7( 114)
+     &    / 1       /
+ 
+      DATA  SPMH_NAM_CB6_AE7( 115)     , SPMH_MAP_CB6_AE7( 115)
+     &    / 'hexanol_1     ', 142           /
+      DATA  MECH_NAM_CB6_AE7( 115)     , MECH_MAP_CB6_AE7( 115)
+     &    / 'ISPD      ', 28           /
+      DATA  CONV_FAC_CB6_AE7( 115)
+     &    / 1       /
+ 
+      DATA  SPMH_NAM_CB6_AE7( 116)     , SPMH_MAP_CB6_AE7( 116)
+     &    / 'met_salicylate     ', 156           /
+      DATA  MECH_NAM_CB6_AE7( 116)     , MECH_MAP_CB6_AE7( 116)
+     &    / 'ISPD      ', 28           /
+      DATA  CONV_FAC_CB6_AE7( 116)
+     &    / 1       /
+ 
+      DATA  SPMH_NAM_CB6_AE7( 117)     , SPMH_MAP_CB6_AE7( 117)
+     &    / 'cineole_1_8     ', 133           /
+      DATA  MECH_NAM_CB6_AE7( 117)     , MECH_MAP_CB6_AE7( 117)
+     &    / 'TERP      ', 2           /
+      DATA  CONV_FAC_CB6_AE7( 117)
+     &    / 1       /
+ 
+      DATA  SPMH_NAM_CB6_AE7( 118)     , SPMH_MAP_CB6_AE7( 118)
+     &    / 'hexenal_t2     ', 144           /
+      DATA  MECH_NAM_CB6_AE7( 118)     , MECH_MAP_CB6_AE7( 118)
+     &    / 'ISPD      ', 28           /
+      DATA  CONV_FAC_CB6_AE7( 118)
+     &    / 1       /
+ 
+      DATA  SPMH_NAM_CB6_AE7( 119)     , SPMH_MAP_CB6_AE7( 119)
+     &    / 'hexenol_c3     ', 145           /
+      DATA  MECH_NAM_CB6_AE7( 119)     , MECH_MAP_CB6_AE7( 119)
+     &    / 'ISPD      ', 28           /
+      DATA  CONV_FAC_CB6_AE7( 119)
+     &    / 1       /
+ 
+      DATA  SPMH_NAM_CB6_AE7( 120)     , SPMH_MAP_CB6_AE7( 120)
+     &    / 'hexenyl_ACT_c3     ', 146           /
+      DATA  MECH_NAM_CB6_AE7( 120)     , MECH_MAP_CB6_AE7( 120)
+     &    / 'ISPD      ', 28           /
+      DATA  CONV_FAC_CB6_AE7( 120)
+     &    / 1       /
+ 
+      DATA  SPMH_NAM_CB6_AE7( 121)     , SPMH_MAP_CB6_AE7( 121)
+     &    / 'hexenal_c3     ', 143           /
+      DATA  MECH_NAM_CB6_AE7( 121)     , MECH_MAP_CB6_AE7( 121)
+     &    / 'ISPD      ', 28           /
+      DATA  CONV_FAC_CB6_AE7( 121)
+     &    / 1       /
+ 
+      DATA  SPMH_NAM_CB6_AE7( 122)     , SPMH_MAP_CB6_AE7( 122)
+     &    / '2met_nonatriene     ', 137           /
+      DATA  MECH_NAM_CB6_AE7( 122)     , MECH_MAP_CB6_AE7( 122)
+     &    / 'TERP      ', 2           /
+      DATA  CONV_FAC_CB6_AE7( 122)
+     &    / 1       /
+ 
+      DATA  SPMH_NAM_CB6_AE7( 123)     , SPMH_MAP_CB6_AE7( 123)
+     &    / 'methane     ', 184           /
+      DATA  MECH_NAM_CB6_AE7( 123)     , MECH_MAP_CB6_AE7( 123)
+     &    / 'CH4      ', 8           /
+      DATA  CONV_FAC_CB6_AE7( 123)
+     &    / 1       /
+ 
+      DATA  SPMH_NAM_CB6_AE7( 124)     , SPMH_MAP_CB6_AE7( 124)
+     &    / 'met_bromide     ', 185           /
+      DATA  MECH_NAM_CB6_AE7( 124)     , MECH_MAP_CB6_AE7( 124)
+     &    / 'CH3BR      ', 32           /
+      DATA  CONV_FAC_CB6_AE7( 124)
+     &    / 1       /
+ 
+      DATA  SPMH_NAM_CB6_AE7( 125)     , SPMH_MAP_CB6_AE7( 125)
+     &    / 'met_chloride     ', 186           /
+      DATA  MECH_NAM_CB6_AE7( 125)     , MECH_MAP_CB6_AE7( 125)
+     &    / 'CH3CL      ', 33           /
+      DATA  CONV_FAC_CB6_AE7( 125)
+     &    / 1       /
+ 
+      DATA  SPMH_NAM_CB6_AE7( 126)     , SPMH_MAP_CB6_AE7( 126)
+     &    / 'met_iodide     ', 187           /
+      DATA  MECH_NAM_CB6_AE7( 126)     , MECH_MAP_CB6_AE7( 126)
+     &    / 'CH3I      ', 34           /
+      DATA  CONV_FAC_CB6_AE7( 126)
+     &    / 1       /
+ 
+      DATA  SPMH_NAM_CB6_AE7( 127)     , SPMH_MAP_CB6_AE7( 127)
+     &    / 'met_mercaptan     ', 188           /
+      DATA  MECH_NAM_CB6_AE7( 127)     , MECH_MAP_CB6_AE7( 127)
+     &    / 'TRS      ', 31           /
+      DATA  CONV_FAC_CB6_AE7( 127)
+     &    / 1       /
+ 
+      DATA  SPMH_NAM_CB6_AE7( 128)     , SPMH_MAP_CB6_AE7( 128)
+     &    / 'carbon_2s     ', 171           /
+      DATA  MECH_NAM_CB6_AE7( 128)     , MECH_MAP_CB6_AE7( 128)
+     &    / 'TRS      ', 31           /
+      DATA  CONV_FAC_CB6_AE7( 128)
+     &    / 1       /
+ 
+      DATA  SPMH_NAM_CB6_AE7( 129)     , SPMH_MAP_CB6_AE7( 129)
+     &    / '2met_s     ', 176           /
+      DATA  MECH_NAM_CB6_AE7( 129)     , MECH_MAP_CB6_AE7( 129)
+     &    / 'TRS      ', 31           /
+      DATA  CONV_FAC_CB6_AE7( 129)
+     &    / 1       /
+ 
+      DATA  SPMH_NAM_CB6_AE7( 130)     , SPMH_MAP_CB6_AE7( 130)
+     &    / 'butanone_2     ', 170           /
+      DATA  MECH_NAM_CB6_AE7( 130)     , MECH_MAP_CB6_AE7( 130)
+     &    / 'ISPD      ', 28           /
+      DATA  CONV_FAC_CB6_AE7( 130)
+     &    / 1       /
+ 
+      DATA  SPMH_NAM_CB6_AE7( 131)     , SPMH_MAP_CB6_AE7( 131)
+     &    / 'terpinyl_ACT_a     ', 197           /
+      DATA  MECH_NAM_CB6_AE7( 131)     , MECH_MAP_CB6_AE7( 131)
+     &    / 'TERP      ', 28           /
+      DATA  CONV_FAC_CB6_AE7( 131)
+     &    / 1       /
+ 
+      DATA  SPMH_NAM_CB6_AE7( 132)     , SPMH_MAP_CB6_AE7( 132)
+     &    / 'pentane     ', 193           /
+      DATA  MECH_NAM_CB6_AE7( 132)     , MECH_MAP_CB6_AE7( 132)
+     &    / 'PAR      ', 3           /
+      DATA  CONV_FAC_CB6_AE7( 132)
+     &    / 5       /
+ 
+      DATA  SPMH_NAM_CB6_AE7( 133)     , SPMH_MAP_CB6_AE7( 133)
+     &    / 'hexane     ', 181           /
+      DATA  MECH_NAM_CB6_AE7( 133)     , MECH_MAP_CB6_AE7( 133)
+     &    / 'PAR      ', 3           /
+      DATA  CONV_FAC_CB6_AE7( 133)
+     &    / 6       /
+ 
+      DATA  SPMH_NAM_CB6_AE7( 134)     , SPMH_MAP_CB6_AE7( 134)
+     &    / 'decane     ', 173           /
+      DATA  MECH_NAM_CB6_AE7( 134)     , MECH_MAP_CB6_AE7( 134)
+     &    / 'PAR      ', 3           /
+      DATA  CONV_FAC_CB6_AE7( 134)
+     &    / 10       /
+ 
+      DATA  SPMH_NAM_CB6_AE7( 135)     , SPMH_MAP_CB6_AE7( 135)
+     &    / 'heptane     ', 179           /
+      DATA  MECH_NAM_CB6_AE7( 135)     , MECH_MAP_CB6_AE7( 135)
+     &    / 'PAR      ', 3           /
+      DATA  CONV_FAC_CB6_AE7( 135)
+     &    / 7       /
+ 
+      DATA  SPMH_NAM_CB6_AE7( 136)     , SPMH_MAP_CB6_AE7( 136)
+     &    / 'carbonyl_s     ', 172           /
+      DATA  MECH_NAM_CB6_AE7( 136)     , MECH_MAP_CB6_AE7( 136)
+     &    / 'TRS      ', 31           /
+      DATA  CONV_FAC_CB6_AE7( 136)
+     &    / 1       /
+ 
+      DATA  SPMH_NAM_CB6_AE7( 137)     , SPMH_MAP_CB6_AE7( 137)
+     &    / '2met_2s     ', 175           /
+      DATA  MECH_NAM_CB6_AE7( 137)     , MECH_MAP_CB6_AE7( 137)
+     &    / 'TRS      ', 31           /
+      DATA  CONV_FAC_CB6_AE7( 137)
+     &    / 1       /
+ 
+      DATA  SPMH_NAM_CB6_AE7( 138)     , SPMH_MAP_CB6_AE7( 138)
+     &    / 'undecane     ', 199           /
+      DATA  MECH_NAM_CB6_AE7( 138)     , MECH_MAP_CB6_AE7( 138)
+     &    / 'PAR      ', 3           /
+      DATA  CONV_FAC_CB6_AE7( 138)
+     &    / 11       /
+ 
+      DATA  SPMH_NAM_CB6_AE7( 139)     , SPMH_MAP_CB6_AE7( 139)
+     &    / 'tetradecene_1     ', 198           /
+      DATA  MECH_NAM_CB6_AE7( 139)     , MECH_MAP_CB6_AE7( 139)
+     &    / 'PAR      ', 3           /
+      DATA  CONV_FAC_CB6_AE7( 139)
+     &    / 14       /
+ 
+      DATA  SPMH_NAM_CB6_AE7( 140)     , SPMH_MAP_CB6_AE7( 140)
+     &    / 'diallyl_2s     ', 174           /
+      DATA  MECH_NAM_CB6_AE7( 140)     , MECH_MAP_CB6_AE7( 140)
+     &    / 'TRS      ', 31           /
+      DATA  CONV_FAC_CB6_AE7( 140)
+     &    / 1       /
+ 
+      DATA  SPMH_NAM_CB6_AE7( 141)     , SPMH_MAP_CB6_AE7( 141)
+     &    / 'PPPP_2s     ', 194           /
+      DATA  MECH_NAM_CB6_AE7( 141)     , MECH_MAP_CB6_AE7( 141)
+     &    / 'TRS      ', 31           /
+      DATA  CONV_FAC_CB6_AE7( 141)
+     &    / 1       /
+ 
+      DATA  SPMH_NAM_CB6_AE7( 142)     , SPMH_MAP_CB6_AE7( 142)
+     &    / 'met_propenyl_2s     ', 189           /
+      DATA  MECH_NAM_CB6_AE7( 142)     , MECH_MAP_CB6_AE7( 142)
+     &    / 'TRS      ', 31           /
+      DATA  CONV_FAC_CB6_AE7( 142)
+     &    / 1       /
+ 
+      DATA  SPMH_NAM_CB6_AE7( 143)     , SPMH_MAP_CB6_AE7( 143)
+     &    / 'hydrogen_s     ', 182           /
+      DATA  MECH_NAM_CB6_AE7( 143)     , MECH_MAP_CB6_AE7( 143)
+     &    / 'TRS      ', 31           /
+      DATA  CONV_FAC_CB6_AE7( 143)
+     &    / 1       /
+ 
+      DATA  SPMH_NAM_CB6_AE7( 144)     , SPMH_MAP_CB6_AE7( 144)
+     &    / 'carbon_monoxide     ', 200           /
+      DATA  MECH_NAM_CB6_AE7( 144)     , MECH_MAP_CB6_AE7( 144)
+     &    / 'CO      ', 17           /
+      DATA  CONV_FAC_CB6_AE7( 144)
+     &    / 1       /
+ 
+      DATA  SPMH_NAM_CB6_AE7( 145)     , SPMH_MAP_CB6_AE7( 145)
+     &    / 'nitric_OXD     ', 201           /
+      DATA  MECH_NAM_CB6_AE7( 145)     , MECH_MAP_CB6_AE7( 145)
+     &    / 'NO      ', 10           /
+      DATA  CONV_FAC_CB6_AE7( 145)
+     &    / 1       /
+ 
+      DATA  SPMH_NAM_CB6_AE7( 146)     , SPMH_MAP_CB6_AE7( 146)
+     &    / 'formaldehyde     ', 113           /
+      DATA  MECH_NAM_CB6_AE7( 146)     , MECH_MAP_CB6_AE7( 146)
+     &    / 'FORM_PRIMARY', 37           /
+      DATA  CONV_FAC_CB6_AE7( 146)
+     &    / 1       /
+
+      DATA  SPMH_NAM_CB6_AE7( 147)     , SPMH_MAP_CB6_AE7( 147)
+     &    / 'acetaldehyde     ', 90           /
+      DATA  MECH_NAM_CB6_AE7( 147)     , MECH_MAP_CB6_AE7( 147)
+     &    / 'ALD2_PRIMARY', 36           /
+      DATA  CONV_FAC_CB6_AE7( 147)
+     &    / 1       /

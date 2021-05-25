@@ -518,7 +518,7 @@ C If wildfires, allocate fire parameters
 C=======================================================================
 
          SUBROUTINE GET_PT3D_EMIS ( JDATE, JTIME, TSTEP, EM_SURR_PT, ISRM,
-     &                            VDEMIS_PT, PT_LAYS )
+     &                            VDEMIS_PT, PT_LAYS, L_DESID_DIAG )
 
 ! Revision History.
 !     Aug 12, 15 D. Wong: added code to handle parallel I/O implementation
@@ -580,6 +580,9 @@ C=======================================================================
          LOGICAL, SAVE :: WRTIME
          INTEGER, SAVE :: NTICS = 0      ! no. of substeps within an output tstep
          LOGICAL, SAVE :: FIRSTIME = .TRUE.
+         LOGICAL       :: L_DESID_DIAG ! flag determining whether or not DESID
+                                       !   is in diagnostic mode              
+         LOGICAL       :: L_NEWDAY
 
          INTEGER       :: NDATE, NTIME
          INTEGER, ALLOCATABLE, SAVE :: PRE_EM_FILE_DATE(:)
@@ -679,7 +682,9 @@ C Initialize Output Array
          END IF
 
 C Ensure that the model and stack groups emissions timestamp dates stay synchronized
-         IF ( PRE_EM_FILE_DATE(ISRM) .NE. JDATE ) THEN
+         L_NEWDAY = .FALSE.
+         IF ( PRE_EM_FILE_DATE(ISRM) .NE. JDATE ) THEN 
+            L_NEWDAY = .TRUE.
             NDATE = JDATE; NTIME = JTIME
             CALL NEXTIME( NDATE, NTIME, -TSTEP( 1 ) )       ! go back one output tstep
             CALL NEXTIME( EM_FILE_DATE( ISRM ), NTIME, TSTEP( 1 ) ) ! advance the start date one time step
@@ -720,7 +725,14 @@ C Apportion emissions to the layers
          END DO ! End Loop on Species
 
          DEALLOCATE( TFRAC )
-
+         
+         ! Reset the date of the gridded file if this is diagnostic mode
+         ! and the day has advanced
+         IF ( L_NEWDAY .AND. L_DESID_DIAG ) THEN
+            CALL NEXTIME( EM_FILE_DATE( ISRM ), NTIME, -TSTEP(1) )
+            PRE_EM_FILE_DATE( ISRM ) = EM_FILE_DATE( ISRM )
+         END IF
+ 
 C Write Out Diagnostic Info            
          IF ( PT3DFRAC .AND. WRTIME ) THEN     ! Write out layer fractions
             IF ( .NOT. WRITE3_DISTR( PLAYNAME( N ), 'LFRAC', WDATE, WTIME,

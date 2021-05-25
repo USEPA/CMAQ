@@ -182,16 +182,6 @@ setenv PROMPTFLAG F          #> turn on I/O-API PROMPT*FILE interactive mode [ o
 setenv IOAPI_OFFSET_64 YES   #> support large timestep records (>2GB/timestep record) [ options: YES | NO ]
 setenv IOAPI_CHECK_HEADERS N #> check file headers [ options: Y | N ]
 setenv CTM_EMISCHK N         #> Abort CMAQ if missing surrogates from emissions Input files
-setenv EMISDIAG F            #> Print Emission Rates at the output time step after they have been
-                             #>   scaled and modified by the user Rules [options: F | 2D | 3D | T or 2DSUM ]
-                             #>   Individual streams can be modified using the variables:
-                             #>       GR_EMIS_DIAG_## | STK_EMIS_DIAG_## | BIOG_EMIS_DIAG
-                             #>       MG_EMIS_DIAG    | LTNG_EMIS_DIAG   | DUST_EMIS_DIAG
-                             #>       SEASPRAY_EMIS_DIAG   
-                             #>   Note that these diagnostics are different than other emissions diagnostic
-                             #>   output because they occur after scaling.
-setenv EMISDIAG_SUM F        #> Print Sum of Emission Rates to Gridded Diagnostic File
-                             #>   [options: F | 2D | 3D | T or 2DSUM ]
 
 #> Diagnostic Output Flags
 setenv CTM_CKSUM Y           #> checksum report [ default: Y ]
@@ -402,7 +392,20 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   endif
 
   #> In-line biogenic emissions configuration
-  if ( $CTM_BIOGEMIS == 'Y' ) then   
+  if ( $CTM_BIOGEMIS_MEGAN == 'Y' ) then
+
+    setenv SOILINP    $OUTDIR/CCTM_SOILOUT_${RUNID}_${YESTERDAY}.nc
+                             #> Biogenic NO soil input file; ignore if INITIAL_RUN = Y
+                             #>                            ; ignore if IGNORE_SOILINP = Y
+         # Files for this domain are not available.They must be created using the MEGAN preprocessor
+          #setenv MEGAN_CTS # location of CTS input file
+          #setenv MEGAN_EFS # location of EFS input file
+          #setenv MEGAN_LAI # location of LAI input file (optional) 
+          #setenv MEGAN_LDF # location of LDF input file
+         echo "*** Selected MEGAN without required input files - run ABORTED ***"
+         exit 1
+  endif
+  if ( $CTM_BIOGEMIS_BEIS == 'Y' ) then   
      set IN_BEISpath = ${INPDIR}/surface
      setenv GSPRO      $BLD/gspro_biogenics.txt
      setenv B3GRD      $IN_BEISpath/b3grd_4CALIF1_2011en_cb6_10.ncf
@@ -600,7 +603,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
         #echo "Deleting output file: $file"
         /bin/rm -f $file  
      end
-     /bin/rm -f ${OUTDIR}/CCTM_EMDIAG*${RUNID}_${YYYYMMDD}.nc
+     /bin/rm -f ${OUTDIR}/CCTM_DESID*${RUNID}_${YYYYMMDD}.nc
 
   else
      #> error if previous log files exist

@@ -1154,6 +1154,7 @@ C-----------------------------------------------------------------------
 
          kappaVorg = 0.0e0 ! units: m3.spec/m3.air
          totvol    = 0.0e0 ! units: m3.particle/m3.air
+         aerospc_conc( aorgh2o_idx,: ) = conmin
 
          im = 2 ! only compute water for accumulation mode OM
 
@@ -1189,8 +1190,6 @@ C-----------------------------------------------------------------------
          If( overallkappa .gt. 1e-6 ) then ! prevents situation of little uptake
             aerospc_conc( aorgh2o_idx, im ) = aerospc( aorgh2o_idx )%density
      &       * aw/(1.0-aw) * kappaVorg * 1.0e9
-         Else
-            aerospc_conc( aorgh2o_idx, im ) =  conmin ! no significant orgwater
          End If
 
       End If ! End organic water uptake
