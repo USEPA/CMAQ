@@ -235,8 +235,6 @@
       INTEGER :: PT_TIME       = 0       ! start time (HHMMSS)
       INTEGER :: IPVERT        = 0       ! Numerical flag for plume vertical spread method
       INTEGER :: REP_LAYR      = -1      ! Minimum layer for reporting srcs w/ high plumes
-      CHARACTER( 6 ) :: EMISDIAG = 'FALSE' ! Default Assumption for
-                                         !     Emissions Diagnostic File Output
       LOGICAL :: EMIS_SYM_DATE = .FALSE.  ! Overrider CMAQ not to check
                                           ! if the dates on the emissions file match that of 
                                           ! the interal model (representative day case)
@@ -802,9 +800,6 @@
 !        PLAY_BASE( NV ) = STRTEMP
 !     END DO
        
-      ! Determine user-defined default for emissions diagnostics
-      CALL GET_ENV ( EMISDIAG, 'EMISDIAG', EMISDIAG, VARDEV )
-
       ! Determine user-defined default for emissions date override for representative days
       CALL GET_ENV ( EMIS_SYM_DATE, 'EMIS_SYM_DATE', EMIS_SYM_DATE, VARDEV )
  
