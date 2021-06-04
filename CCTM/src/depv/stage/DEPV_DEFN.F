@@ -59,7 +59,7 @@ C model depositon velocites array
 
 C model depositon velocites array by land use category
       REAL,    ALLOCATABLE, SAVE :: DEPVJ( :,:,:,: )
-      REAL,    ALLOCATABLE, SAVE :: PLDVJ( :,:,:,: )      
+!      REAL,    ALLOCATABLE, SAVE :: PLDVJ( :,:,:,: )      
 
 C model depositon velocites array by land use category
       REAL,    ALLOCATABLE, SAVE :: DEPVJ_FST( :,:,:,: )         
@@ -75,7 +75,8 @@ C model-oriented bi-directional production [ppm-m/s]
       REAL,    ALLOCATABLE, SAVE :: PLDV( :,:,: )
       REAL,    ALLOCATABLE, SAVE :: CMP ( :,:,: )
 
-      PUBLIC DEPV, DEPVJ,PLDVJ, DEPVJ_FST, N_SPC_DEPV, DD_CONV, PLDV, CMP,
+!      PUBLIC DEPV, DEPVJ,PLDVJ, DEPVJ_FST, N_SPC_DEPV, DD_CONV, PLDV, CMP,
+      PUBLIC DEPV, DEPVJ, DEPVJ_FST, N_SPC_DEPV, DD_CONV, PLDV, CMP,
      &             N_GAS_DEPV, DEPV_INIT, GET_DEPV
       PRIVATE
 
@@ -276,15 +277,15 @@ C Initialize
 C Allocate additional arrays needed for mosaic and initialize land use parameters
          IF ( MOSAIC ) THEN
 
-            ALLOCATE ( DEPVJ( N_LUFRAC,N_SPC_DEPV+1,NCOLS,NROWS ),
-     &                 PLDVJ( N_LUFRAC,N_SPC_DEPV+1,NCOLS,NROWS ), STAT = ALLOCSTAT )
+            ALLOCATE ( DEPVJ( N_LUFRAC,N_SPC_DEPV+1,NCOLS,NROWS ), STAT = ALLOCSTAT )
+!     &                 PLDVJ( N_LUFRAC,N_SPC_DEPV+1,NCOLS,NROWS ), STAT = ALLOCSTAT )
             IF ( ALLOCSTAT .NE. 0 ) THEN
                XMSG = 'Failure allocating DEPVJ array'
                CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
                SUCCESS = .FALSE.; RETURN
             END IF
             DEPVJ = 0.0
-            PLDVJ = 0.0
+!            PLDVJ = 0.0
 
             IF ( FST ) THEN
                ALLOCATE ( DEPVJ_FST( N_LUFRAC,N_SPC_DEPV+1,NCOLS,NROWS ), STAT = ALLOCSTAT )
@@ -589,7 +590,7 @@ C-----------------------------------------------------------------------
 #endif
             IF ( MOSAIC ) THEN                        
                DEPVJ( :,V,:,: ) = GC_DEPV_FAC( N ) * Tile_Data%DEPVEL_GASJ( :,NDX,:,: )
-               PLDVJ( :,V,:,: ) = Tile_Data%pol( :,NDX,:,: )
+!               PLDVJ( :,V,:,: ) = Tile_Data%pol( :,NDX,:,: )
                IF ( FST )
      &             DEPVJ_FST( :,V,:,: ) = GC_DEPV_FAC( N ) * Tile_Data%VD_FST_GASJ( :,NDX,:,: )
                END IF
@@ -610,7 +611,7 @@ C-----------------------------------------------------------------------
 #endif
             IF ( MOSAIC ) THEN
                DEPVJ( :,V,:,: ) = NR_DEPV_FAC( N ) * Tile_Data%DEPVEL_GASJ( :,NDX,:,: )
-               PLDVJ( :,V,:,: ) = Tile_Data%pol( :,NDX,:,: )
+!               PLDVJ( :,V,:,: ) = Tile_Data%pol( :,NDX,:,: )
                IF ( FST )
      &            DEPVJ_FST( :,V,:,: ) = NR_DEPV_FAC( N ) * Tile_Data%VD_FST_GASJ( :,NDX,:,: )
             END IF
@@ -632,7 +633,7 @@ C-----------------------------------------------------------------------
 #endif
             IF ( MOSAIC ) THEN
                DEPVJ( :,V,:,: ) = TR_DEPV_FAC( N ) * Tile_Data%DEPVEL_GASJ( :,NDX,:,: )
-               PLDVJ( :,V,:,: ) = Tile_Data%pol( :,NDX,:,: )
+!               PLDVJ( :,V,:,: ) = Tile_Data%pol( :,NDX,:,: )
                IF ( FST )
      &            DEPVJ_FST( :,V,:,: ) = TR_DEPV_FAC( N ) * Tile_Data%VD_FST_GASJ( :,NDX,:,: )
             END IF

@@ -681,13 +681,13 @@ C Write other diagnostics
          IF( ABFLUX ) THEN
 ! Swap diagnostic deposition and fluxes for NH3 to allow the same post processing scripts for
 ! both bidirectional and unidirectional simulations.
-            IF ( .NOT. WRITE3( CTM_DRY_DEP_1, 'NH3',
-     &           MDATE, MTIME, ICMP( 2,:,: ) ) ) THEN
-               XMSG = 'Could not write ' // CTM_DRY_DEP_1 // ' file'
-               CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
-            END IF     
+!            IF ( .NOT. WRITE3( CTM_DRY_DEP_1, 'NH3',
+!     &           MDATE, MTIME, ICMP( 2,:,: ) ) ) THEN
+!               XMSG = 'Could not write ' // CTM_DRY_DEP_1 // ' file'
+!               CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
+!            END IF     
             IF ( .NOT. WRITE3( CTM_DRY_DEP_1, 'NH3_Flux',
-     &           MDATE, MTIME, DDEP(NH3_HIT,:,:) ) ) THEN
+     &           MDATE, MTIME, DDEP(NH3_HIT,:,:)-ICMP( 1,:,: ) ) ) THEN
                XMSG = 'Could not write ' // CTM_DRY_DEP_1 // ' file'
                CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
             END IF     

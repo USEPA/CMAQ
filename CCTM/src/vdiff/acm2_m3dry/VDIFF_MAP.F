@@ -65,7 +65,7 @@ C global dry dep species
       REAL,            ALLOCATABLE, SAVE :: DIFF_MW  ( : )
 
 C component flux output variables 
-      INTEGER, PARAMETER :: LCMP  = 8
+      INTEGER, PARAMETER :: LCMP  = 7
       CHARACTER( 16 ), SAVE :: CMPSPC( LCMP ) = ' '
 
       CONTAINS
@@ -250,13 +250,13 @@ C Local variables:
          END DO
 
          CMPSPC( 1 ) = 'NH3_Emis'
-         CMPSPC( 2 ) = 'NH3_Flux'
-         CMPSPC( 3 ) = 'NH3_Stom'
-         CMPSPC( 4 ) = 'NH3_Cut '
-         CMPSPC( 5 ) = 'NH3_Soil'
-         CMPSPC( 6 ) = 'NH3_Ag  '
-         CMPSPC( 7 ) = 'NH3_Nat '
-         CMPSPC( 8 ) = 'NH3_Wat '
+!         CMPSPC( 2 ) = 'NH3_Flux'
+         CMPSPC( 2 ) = 'NH3_Stom'
+         CMPSPC( 3 ) = 'NH3_Cut '
+         CMPSPC( 4 ) = 'NH3_Soil'
+         CMPSPC( 5 ) = 'NH3_Ag  '
+         CMPSPC( 6 ) = 'NH3_Nat '
+         CMPSPC( 7 ) = 'NH3_Wat '
 
 ! Populate Deposition Velocity Map and Species 
          S = 0

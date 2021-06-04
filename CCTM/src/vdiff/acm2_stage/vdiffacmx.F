@@ -132,8 +132,8 @@ C ACM Local Variables
       REAL     :: LFAC4( NLAYS )                ! intermediate factor for eddy
       REAL, ALLOCATABLE, SAVE :: DEPVCR     ( : )   ! dep vel in one cell
       REAL, ALLOCATABLE, SAVE :: DEPVJCR    ( :,: ) ! dep vel in one cell for each landuse
-      REAL, ALLOCATABLE, SAVE :: POLJ       ( :,: ) ! prodn/lossrate for each landuse
-                                                    ! category
+!      REAL, ALLOCATABLE, SAVE :: POLJ       ( :,: ) ! prodn/lossrate for each landuse
+!                                                    ! category
       REAL, ALLOCATABLE, SAVE :: DEPVJCR_FST( :,: ) ! dep vel (stomatal uptake only) in
                                                     ! one cell for each landuse category
       REAL, ALLOCATABLE, SAVE :: EFAC1 ( : )
@@ -240,8 +240,8 @@ C set auxiliary depv arrays
          IF ( XMOSAIC ) THEN
             ALLOCATE ( DD_FACJ( N_LUFRAC,N_SPC_DEPV ),
      &                 DDBFJ  ( N_LUFRAC,N_SPC_DEPV ),
-     &                 DEPVJCR( N_LUFRAC,N_SPC_DEPV ),
-     &                 POLJ   ( N_LUFRAC,N_SPC_DEPV ), STAT = ASTAT )
+     &                 DEPVJCR( N_LUFRAC,N_SPC_DEPV ), STAT = ASTAT )
+!     &                 POLJ   ( N_LUFRAC,N_SPC_DEPV ), STAT = ASTAT )
             IF ( ASTAT .NE. 0 ) THEN
                XMSG = 'Failure allocating DD_FACJ, DDBFJ or DEPVJCR'
                CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
@@ -635,10 +635,10 @@ C ----------------------------------------------------------------------
             DEPVJCR( :,: ) = DEPVJ( :,1:N_SPC_DEPV,C,R )           
             DO V = 1, N_SPC_DEPV
                WHERE( GRID_DATA%LUFRAC( c,r,: ) .GT. 0.0 .AND. DEPVJCR( :,V ) .GT. 0.0 ) 
-                  POLJ( :,V )    = PLDVJ( :,V,C,R ) / DEPVJCR( :,V )
+!                  POLJ( :,V )    = PLDVJ( :,V,C,R ) / DEPVJCR( :,V )
                   DD_FACJ( :,V ) = DTDENS1 * DD_CONV( V ) * DEPVJCR( :,V )
                ELSE WHERE
-                  POLJ( :,V )    = 0.0
+!                  POLJ( :,V )    = 0.0
                   DD_FACJ( :,V ) = 0.0
                END WHERE
             END DO
@@ -690,7 +690,8 @@ C --------- END of HET HONO RX ----------
                ELSE
                   S = DV2DF( V )
                   CONC( S,1 ) = POL( V ) + ( CONC( S,1 ) - POL( V ) ) * EFAC1( V )
-                  DDBF( V ) = DDBF( V ) + THETA * DD_FAC( V ) * ( CONC( S,1 ) - POL( V ) )
+! JOB                  DDBF( V ) = DDBF( V ) + THETA * DD_FAC( V ) * ( CONC( S,1 ) - POL( V ) )
+                  DDBF( V ) = DDBF( V ) + THETA * DD_FAC( V ) * CONC( S,1 )
 
                   IF ( ABFLUX .AND. V .EQ. NH3_HIT ) THEN
                      DO I = 1, LCMP        
@@ -708,20 +709,23 @@ C --------------- HET HONO RX -----------------
                      S = HNO3_MAP
                      WHERE( GRID_DATA%LUFRAC( c,r,: ) .GT. 0.0 ) 
                         DD_FACJ( :,V ) = DTDENS1 * DD_CONV( V ) * DEPVJCR( :,V ) + PLDV_HONO / CONC( NO2_MAP,1 )
-                        DDBFJ( :,V ) = DDBFJ( :,V ) + THETA * DD_FACJ( :,V ) * ( CONC( S,1 ) - POLJ( :,V ) )
+! JOB                        DDBFJ( :,V ) = DDBFJ( :,V ) + THETA * DD_FACJ( :,V ) * ( CONC( S,1 ) - POLJ( :,V ) )
+                        DDBFJ( :,V ) = DDBFJ( :,V ) + THETA * DD_FACJ( :,V ) * CONC( S,1 )
                      END WHERE
                   ELSE IF ( V .EQ. NO2_HIT ) THEN  
                      S = NO2_MAP
                      WHERE( GRID_DATA%LUFRAC( c,r,: ) .GT. 0.0 .AND.  DEPVJCR( :,V ) .GT. 0.0 ) 
-                        POLJ   ( :,V ) = PLDVJ( :,V,C,R ) / ( DEPVJCR( :,V ) + 2.0 * PLDV_HONO / CONC( S,1 ) )
-                        DDBFJ  ( :,V ) = DDBFJ( :,V ) + THETA * DD_FACJ( :,V ) * ( CONC( S,1 ) - POLJ( :,V ) )
+!                        POLJ   ( :,V ) = PLDVJ( :,V,C,R ) / ( DEPVJCR( :,V ) + 2.0 * PLDV_HONO / CONC( S,1 ) )
+! JOB                        DDBFJ  ( :,V ) = DDBFJ( :,V ) + THETA * DD_FACJ( :,V ) * ( CONC( S,1 ) - POLJ( :,V ) )
+                        DDBFJ  ( :,V ) = DDBFJ( :,V ) + THETA * DD_FACJ( :,V ) * CONC( S,1 )
                      END WHERE
 C --------------- END of HET HONO RX ----------
                   ELSE
                      S = DV2DF( V )
                      WHERE( GRID_DATA%LUFRAC( c,r,: ) .GT. 0.0 ) 
                         DDBFJ( :,V ) = DDBFJ( :,V )
-     &                               + THETA * DD_FACJ( :,V ) * ( CONC( S,1 ) - POLJ( :,V ) )
+!     &                               + THETA * DD_FACJ( :,V ) * ( CONC( S,1 ) - POLJ( :,V ) )
+     &                               + THETA * DD_FACJ( :,V ) * CONC( S,1 )
                      END WHERE
                   END IF
                END DO
@@ -928,7 +932,8 @@ C --------- END of HET HONO RX ----------
                ELSE
                   S = DV2DF( V )
                   CONC( S,1 ) = POL( V ) + ( CONC( S,1 ) - POL( V ) ) * EFAC2( V )
-                  DDBF( V ) = DDBF( V ) + THBAR * DD_FAC( V ) * ( CONC( S,1 ) - POL( V ) )
+! JOB                  DDBF( V ) = DDBF( V ) + THBAR * DD_FAC( V ) * ( CONC( S,1 ) - POL( V ) )
+                  DDBF( V ) = DDBF( V ) + THBAR * DD_FAC( V ) * CONC( S,1 )
 
                   IF ( ABFLUX .AND. V .EQ. NH3_HIT ) THEN
                      DO I = 1, LCMP
@@ -947,19 +952,22 @@ C --------- HET HONO RX -----------------
                      S = HNO3_MAP
                      WHERE( GRID_DATA%LUFRAC( c,r,: ) .GT. 0.0 )
                         DD_FACJ( :,V ) = DTDENS1 * DD_CONV( V ) * DEPVJCR( :,V ) + PLDV_HONO / CONC( NO2_MAP,1 )
-                        DDBFJ( :,V ) = DDBFJ( :,V ) + THBAR * DD_FACJ( :,V ) * ( CONC( S,1 ) - POLJ( :,V ) )
+! JOB                        DDBFJ( :,V ) = DDBFJ( :,V ) + THBAR * DD_FACJ( :,V ) * ( CONC( S,1 ) - POLJ( :,V ) )
+                        DDBFJ( :,V ) = DDBFJ( :,V ) + THBAR * DD_FACJ( :,V ) * CONC( S,1 )
                      END WHERE
                   ELSE IF ( V .EQ. NO2_HIT ) THEN  
                      S = NO2_MAP
                      WHERE( GRID_DATA%LUFRAC( c,r,: ) .GT. 0.0 .AND.  DEPVJCR( :,V ) .GT. 0.0 ) 
-                        POLJ   ( :,V ) = PLDVJ( :,V,C,R ) / ( DEPVJCR( :,V ) + 2.0 * PLDV_HONO / CONC( S,1 ) )
-                        DDBFJ  ( :,V ) = DDBFJ( :,V ) + THETA * DD_FACJ( :,V ) * ( CONC( S,1 ) - POLJ( :,V ) )
+!                        POLJ   ( :,V ) = PLDVJ( :,V,C,R ) / ( DEPVJCR( :,V ) + 2.0 * PLDV_HONO / CONC( S,1 ) )
+! JOB                        DDBFJ  ( :,V ) = DDBFJ( :,V ) + THETA * DD_FACJ( :,V ) * ( CONC( S,1 ) - POLJ( :,V ) )
+                        DDBFJ  ( :,V ) = DDBFJ( :,V ) + THETA * DD_FACJ( :,V ) * CONC( S,1 )
                      END WHERE
 C --------- END of HET HONO RX ----------
                   ELSE
                      S = DV2DF( V )
                      WHERE( GRID_DATA%LUFRAC( c,r,: ) .GT. 0.0 )
-                        DDBFJ( :,V ) = DDBFJ( :,V ) + THBAR * DD_FACJ( :,V ) * ( CONC( S,1 ) - POLJ( :,V ) )
+! JOB                        DDBFJ( :,V ) = DDBFJ( :,V ) + THBAR * DD_FACJ( :,V ) * ( CONC( S,1 ) - POLJ( :,V ) )
+                        DDBFJ( :,V ) = DDBFJ( :,V ) + THBAR * DD_FACJ( :,V ) * CONC( S,1 )
                      END WHERE
                   END IF
                END DO

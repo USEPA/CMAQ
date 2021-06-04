@@ -320,7 +320,8 @@ C Parameters specific to gas_x. Currently based on m3dry but subject to change
          Real            :: LU_Flux
          Real            :: c_atm, c_z0, c_leaf, c_stom, c_cut, c_grnd, c_wat ! Compensation points  
          Real            :: soil_flux                                         ! soil emission and deposition for soil biogeochem
-         Real            :: f_emis, f_dep, f_stom, f_cut, f_soil, flux_ag, f_nat, f_wat ! component fluxes
+!         Real            :: f_emis, f_dep, f_stom, f_cut, f_soil, flux_ag, f_nat, f_wat ! component fluxes
+         Real            :: f_emis, f_stom, f_cut, f_soil, flux_ag, f_nat, f_wat ! component fluxes
          Real            :: ctemp2, lv, cp_air, tw, dw25, kvisw
          Real            :: ir_frac
          integer         :: l, n, s
@@ -485,7 +486,7 @@ C Get Ra
                   Tile_Data%depvel_gasj( l,n,c,r ) = 1.0 / ( Ra + Rb + Rwat )
 
                   f_emis = f_emis + frac_lu *  c_wat / ( Ra + Rb + Rwat ) 
-                  f_dep  = f_dep  + frac_lu *  c_atm / ( Ra + Rb + Rwat ) 
+!                  f_dep  = f_dep  + frac_lu *  c_atm / ( Ra + Rb + Rwat ) 
                   f_wat  = f_wat  + frac_lu * ( c_wat - c_atm ) / ( Ra + Rb + Rwat )   
                Else 
 !-------------------------------------------------------------------------------------------------
@@ -596,7 +597,7 @@ C Calculate Rst
                        f_nat = f_nat + frac_lu * ( veg * ( c_z0 - c_atm ) / Ra - 
      &                                          no_veg * ( c_grnd - c_atm ) / ( Ra + Rg ) )          
                     End If
-                    f_dep  = f_dep  + frac_lu * vd * c_atm
+!                    f_dep  = f_dep  + frac_lu * vd * c_atm
                   End If ! ABFLUX and NH3
                   If( c_stom .Gt. 0.0 .Or. c_cut .Gt. 0.0 .Or. c_grnd .Gt. 0.0 ) Then
 !-------------------------------------------------------------------------------------------------
@@ -624,13 +625,13 @@ C Calculate Rst
             End Do lu_loop
             If(ABFLUX .And. NH3_Hit ) Then
                cmp( 1 ) = pvd( n )
-               cmp( 2 ) = f_dep
-               cmp( 3 ) = f_stom
-               cmp( 4 ) = f_cut
-               cmp( 5 ) = f_soil
-               cmp( 6 ) = flux_ag
-               cmp( 7 ) = f_nat
-               cmp( 8 ) = f_wat
+!               cmp( 2 ) = f_dep
+               cmp( 2 ) = f_stom
+               cmp( 3 ) = f_cut
+               cmp( 4 ) = f_soil
+               cmp( 5 ) = flux_ag
+               cmp( 6 ) = f_nat
+               cmp( 7 ) = f_wat
                If( sum(GRID_DATA%LUFRAC(c,r,:),mask=Ag) .Gt. 0.0 ) Then 
                   Call Calc_Nitrif ( TStep, C, R, soil_flux )
                End If
