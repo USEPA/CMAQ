@@ -307,13 +307,14 @@ cd BLD_WRFv4.3_CCTM_v532_gcc
 cp -rp $CMAQ_REPO/UTIL/wrfcmaq_twoway_coupler .
 ```
 
-### Step 9: run the following command
+### Step 9: Set environmnetal variable and run the coupler script
+
    ```
+    setenv wrf_path $CMAQ_HOME/CCTM/scripts/BLD_WRFv4.3_CCTM_v532_gcc
    ./wrfcmaq_twoway_coupler/assemble
    ```
    
   - This command will update all necessary files in WRF and CMAQ to create the WRF-CMAQ model. 
-  - You can find the original files inside twoway/misc/orig directory.
   - Verify that the path for the I/O API library is set correctly in the configure.wrf file and modify if needed.
     
  ```
@@ -323,11 +324,19 @@ LIOAPI  = Linux2_x86_64gfort_openmpi_4.0.1_gcc_9.1.0
     #### END for WRF-CMAQ twoway model
  ```
 
-### Step 10: Compile the WRF-CMAQ model
+### Step 10: Configure and Compile the WRF-CMAQ model
 
 ```
+setenv WRF_CMAQ 1
+./configure 
 ./compile em_real >& mylog
 ```
+
+####  If you have never configured WRF before, here are some guidelines
+
+   - choose the dmpar option with the appropriate compiler platform (34 for gcc case)
+   - For more information refer to the [WRF User Guide](https://www2.mmm.ucar.edu/wrf/users/docs/user_guide_v4/v4.0/contents.html)
+
 
   - If compilation is done successfully, you can find main/wrf.exe file.
 
