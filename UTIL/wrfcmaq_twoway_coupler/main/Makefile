@@ -14,7 +14,7 @@ include ../configure.wrf
 
 $(SOLVER)_wrf : wrf.o ../main/module_wrf_top.o
 	$(RANLIB) $(RLFLAGS) $(LIBWRFLIB)
-	$(LD) -o wrf.exe $(LDFLAGS) wrf.o ../main/module_wrf_top.o $(LIBWRFLIB) libcmaqlib.a $(LIB) 
+	$(LD) -o wrf.exe $(LDFLAGS) wrf.o ../main/module_wrf_top.o $(LIBWRFLIB) $(CMAQLIB) $(LIB) 
 
 $(SOLVER)_wrfplus : wrf.o ../main/module_wrf_top.o
 	$(RANLIB) $(RLFLAGS) $(LIBWRFLIB)
@@ -30,9 +30,9 @@ $(SOLVER)_ideal : module_initialize ideal_$(SOLVER).o
 
 $(SOLVER)_real : module_initialize ndown_$(SOLVER).o tc_$(SOLVER).o real_$(SOLVER).o
 	$(RANLIB) $(RLFLAGS) $(LIBWRFLIB)
-#$(LD) -o ndown.exe $(LDFLAGS) ndown_$(SOLVER).o  ../dyn_$(SOLVER)/module_initialize_$(IDEAL_CASE).o $(LIBWRFLIB) $(LIB)
-#	$(LD) -o tc.exe $(LDFLAGS) tc_$(SOLVER).o  ../dyn_$(SOLVER)/module_initialize_$(IDEAL_CASE).o $(LIBWRFLIB) $(LIB)
-#	$(LD) -o real.exe $(LDFLAGS) real_$(SOLVER).o ../dyn_$(SOLVER)/module_initialize_$(IDEAL_CASE).o $(LIBWRFLIB) $(LIB)
+	$(LD) -o ndown.exe $(LDFLAGS) ndown_$(SOLVER).o  ../dyn_$(SOLVER)/module_initialize_$(IDEAL_CASE).o $(LIBWRFLIB) $(LIB)
+	$(LD) -o tc.exe $(LDFLAGS) tc_$(SOLVER).o  ../dyn_$(SOLVER)/module_initialize_$(IDEAL_CASE).o $(LIBWRFLIB) $(LIB)
+	$(LD) -o real.exe $(LDFLAGS) real_$(SOLVER).o ../dyn_$(SOLVER)/module_initialize_$(IDEAL_CASE).o $(LIBWRFLIB) $(LIB)
 
 convert_em : convert_em.o
 	$(RANLIB) $(RLFLAGS) $(LIBWRFLIB)

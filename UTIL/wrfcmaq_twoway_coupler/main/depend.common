@@ -157,6 +157,10 @@ module_clear_halos.o: module_configure.o \
 
 # DEPENDENCIES for phys
 
+module_madwrf.o: ../share/module_model_constants.o \
+		../share/module_soil_pre.o \
+		../phys/module_mp_thompson.o
+
 module_bl_myjpbl.o: ../share/module_model_constants.o
 
 module_bl_myjurb.o: ../share/module_model_constants.o
@@ -449,6 +453,10 @@ module_sf_clm.o: module_cam_shr_kind_mod.o \
 		 ../frame/module_wrf_error.o  \
 		../frame/module_configure.o
 
+module_sf_ctsm.o: ../frame/module_dm.o \
+                  ../frame/module_configure.o \
+                  ../frame/module_wrf_error.o
+
 module_sf_ssib.o: ../share/module_model_constants.o  
 
 module_sf_noah_seaice_drv.o:	module_sf_noah_seaice.o
@@ -471,9 +479,9 @@ module_sf_noahmplsm.o:	../share/module_model_constants.o \
 
 module_sf_noahmp_groundwater.o:	module_sf_noahmplsm.o
 
-module_sf_bep.o: ../share/module_model_constants.o module_sf_urban.o
+module_sf_bep.o: ../share/module_model_constants.o module_sf_urban.o module_bep_bem_helper.o
 
-module_sf_bep_bem.o: ../share/module_model_constants.o module_sf_bem.o module_sf_urban.o
+module_sf_bep_bem.o: ../share/module_model_constants.o module_sf_bem.o module_sf_urban.o module_bep_bem_helper.o
 
 module_sf_bem.o: ../share/module_model_constants.o
 
@@ -481,14 +489,13 @@ module_sf_ruclsm.o: ../frame/module_wrf_error.o module_data_gocart_dust.o
 
 module_sf_pxlsm.o: ../share/module_model_constants.o module_sf_pxlsm_data.o
 
-module_twoway_ra_rrtmg_sw.o: module_ra_rrtmg_sw.o module_twoway_rrtmg_aero_optical_util.o
+module_twoway_ra_rrtmg_sw.o: module_twoway_rrtmg_aero_optical_util.o
 
 module_ra_rrtmg_sw.o: module_ra_rrtmg_lw.o
 module_ra_rrtmg_swf.o: module_ra_rrtmg_lwf.o
 module_ra_rrtmg_swk.o: module_ra_rrtmg_lwk.o module_ra_effective_radius.o
 
 module_ra_rrtmg_lw.o: ../share/module_model_constants.o \
-		 module_twoway_rrtmg_aero_optical_util.o \
 		 module_ra_clWRF_support.o 
 module_ra_rrtmg_lwf.o: ../share/module_model_constants.o \
 		 module_ra_clWRF_support.o 
@@ -533,6 +540,7 @@ module_physics_init.o : \
 		module_sf_noahlsm.o		\
 		module_sf_noahdrv.o		\
 		module_sf_clm.o			\
+                module_sf_ctsm.o                \
                 module_sf_ssib.o                \
 		module_sf_noahmplsm.o		\
 		module_sf_noahmpdrv.o		\
@@ -577,6 +585,7 @@ module_physics_init.o : \
 		module_mp_etanew.o		\
 		module_mp_fer_hires.o 		\
 		module_mp_HWRF.o		\
+		module_mp_fast_sbm.o		\
 		module_fdda_psufddagd.o		\
 		module_fdda_spnudging.o         \
 		module_fddaobs_rtfdda.o		\
@@ -621,6 +630,8 @@ module_microphysics_driver.o: \
                 module_mp_nssl_2mom.o         \
 		module_mp_wdm5.o module_mp_wdm6.o \
 		module_mp_cammgmp_driver.o \
+		module_irrigation.o \
+		module_mp_fast_sbm.o \
 		../frame/module_driver_constants.o \
 		../frame/module_state_description.o \
 		../frame/module_wrf_error.o \
@@ -680,6 +691,7 @@ module_pbl_driver.o:  \
 		module_bl_mynn.o \
 		module_bl_fogdes.o \
 		module_bl_gwdo.o \
+		module_bl_gwdo_gsl.o \
 		module_bl_temf.o \
 		module_bl_mfshconvpbl.o \
 		$(PHYS_BL) \
@@ -699,12 +711,13 @@ module_radiation_driver.o: \
 		module_ra_rrtm.o \
 		module_ra_rrtmg_lw.o \
 		module_ra_rrtmg_sw.o \
-                module_twoway_ra_rrtmg_sw.o \
+		module_twoway_ra_rrtmg_sw.o \
 		module_ra_rrtmg_lwf.o \
 		module_ra_rrtmg_swf.o \
                 module_ra_rrtmg_lwk.o \
                 module_ra_rrtmg_swk.o \
 		module_ra_cam.o \
+		module_ra_farms.o \
 		module_ra_gfdleta.o \
 		module_ra_HWRF.o \
 		module_ra_hs.o \
@@ -734,6 +747,7 @@ module_surface_driver.o: \
                 module_sf_noahmp_groundwater.o  \
 		module_sf_noahdrv.o		\
 		module_sf_clm.o			\
+                module_sf_ctsm.o                \
                 module_sf_ssib.o                \
 		module_sf_noahmpdrv.o		\
 		module_sf_ruclsm.o		\
@@ -750,6 +764,7 @@ module_surface_driver.o: \
 		module_sf_scmflux.o		\
 		module_sf_scmskintemp.o		\
 		module_sf_ocean_driver.o	\
+		module_irrigation.o             \
 		../frame/module_state_description.o \
 		../frame/module_configure.o \
 		../frame/module_cpl.o \
@@ -763,6 +778,7 @@ module_sf_ocean_driver.o : \
 module_diagnostics_driver.o: \
 		module_lightning_driver.o 		\
 		module_diag_misc.o 			\
+		module_diag_nwp.o 			\
 		module_diag_cl.o			\
 		module_diag_pld.o 			\
 		module_diag_zld.o 			\
@@ -770,6 +786,7 @@ module_diagnostics_driver.o: \
 		module_diag_hailcast.o 			\
                 module_diag_rasm.o                      \
                 module_diag_trad_fields.o               \
+                module_diag_solar.o                     \
 		../frame/module_comm_dm.o		\
 		../frame/module_state_description.o 	\
 		../frame/module_domain.o 		\
@@ -815,6 +832,9 @@ module_diag_rasm.o: \
 module_diag_trad_fields.o: \
 		module_diag_functions.o			\
 		../share/module_model_constants.o
+
+module_diag_solar.o: \
+                ../share/module_model_constants.o
 
 module_diag_refl.o: \
 		../frame/module_dm.o			\
@@ -1016,7 +1036,8 @@ module_soil_pre.o: module_date_time.o ../frame/module_state_description.o
 
 module_check_a_mundo.o: ../frame/module_configure.o ../frame/module_wrf_error.o \
 		../frame/module_state_description.o \
-		../share/module_model_constants.o
+		../share/module_model_constants.o \
+		../phys/module_bep_bem_helper.o
 
 dfi.o : 	../frame/module_wrf_error.o ../frame/module_configure.o \
 		../frame/module_state_description.o \

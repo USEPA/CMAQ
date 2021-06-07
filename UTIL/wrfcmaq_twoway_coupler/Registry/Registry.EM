@@ -3,7 +3,14 @@
 #INCLUDES
 include registry.dimspec
 include registry.em_shared_collection
-include registry.WRF-CMAQ-twoway
+
+# WRF-CMAQ coupled model
+rconfig  integer   wrf_cmaq_option      namelist,wrf_cmaq     1        0
+rconfig  integer   wrf_cmaq_freq        namelist,wrf_cmaq     1        1
+rconfig  integer   met_file_tstep       namelist,wrf_cmaq     1    10000
+
+rconfig  logical   direct_sw_feedback   namelist,wrf_cmaq     1  .false.
+rconfig  logical   feedback_restart     namelist,wrf_cmaq     1  .false.
 
 # added to output 5 for ESMF
 state   real   landmask            ij    misc          1     -     i0125rh056d=(interp_fcnm_imask)u=(copy_fcnm)   "LANDMASK"      "LAND MASK (1 FOR LAND, 0 FOR WATER)"  ""
@@ -34,6 +41,11 @@ state   real    tr17_5     ikjftb  tracer        1         -     irhusdf=(bdy_in
 state   real    tr17_6     ikjftb  tracer        1         -     irhusdf=(bdy_interp:dt)    "tr17_6"         "tr17_6"     "Dimensionless"
 state   real    tr17_7     ikjftb  tracer        1         -     irhusdf=(bdy_interp:dt)    "tr17_7"         "tr17_7"     "Dimensionless"
 state   real    tr17_8     ikjftb  tracer        1         -     irhusdf=(bdy_interp:dt)    "tr17_8"         "tr17_8"     "Dimensionless"
+
+# MAD-WRF
+state   real    tr_qc   ikjftb  tracer        1         -     irhusdf=(bdy_interp:dt)    "tr_qcloud"      "Tracer with the liquid content" "Kg Kg-1"
+state   real    tr_qi   ikjftb  tracer        1         -     irhusdf=(bdy_interp:dt)    "tr_qice"        "Tracer with the ice content" "Kg Kg-1"
+state   real    tr_qs   ikjftb  tracer        1         -     irhusdf=(bdy_interp:dt)    "tr_qsnow"       "Tracer with the snow content" "Kg Kg-1"
 
 package   tracer_test1  tracer_opt==2       -             tracer:tr17_1,tr17_2,tr17_3,tr17_4,tr17_5,tr17_6,tr17_7,tr17_8
 

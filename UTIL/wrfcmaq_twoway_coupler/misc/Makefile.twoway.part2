@@ -1,9 +1,0 @@
-LIBTARGET    =  cmaq
-TARGETDIR    =  ./
-$(LIBTARGET) :  $(OBJS)
-		$(AR) $(ARFLAGS) ../main/libcmaqlib.a $(OBJS)
-
-.SUFFIXES: .F .f .c .F90 .f90
-
-include ../configure.wrf
-
