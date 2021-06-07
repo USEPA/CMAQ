@@ -80,17 +80,17 @@ else
          # take care all the items in the list
          foreach item ($my_list)
            cp -p $wrfpath/$item $wrfpath/storage/$item
-           cp twoway/$item $wrfpath/$item
+           cp wrfcmaq_twoway_coupler/$item $wrfpath/$item
          end
 
          # take care this special file
          cp -p $wrfpath/external/io_netcdf/makefile $wrfpath/storage/external
-         cp twoway/external/makefile $wrfpath/external/io_netcdf/makefile
+         cp wrfcmaq_twoway_coupler/external/makefile $wrfpath/external/io_netcdf/makefile
 
          # take care three additional new files
-         cp twoway/Registry/registry.WRF-CMAQ-twoway $wrfpath/Registry
-         cp twoway/phys/complex_number_module.F $wrfpath/phys/complex_number_module.F
-         cp twoway/phys/module_twoway_rrtmg_aero_optical_util.F $wrfpath/phys/module_twoway_rrtmg_aero_optical_util.F
+         cp wrfcmaq_twoway_coupler/Registry/registry.WRF-CMAQ-twoway $wrfpath/Registry
+         cp wrfcmaq_twoway_coupler/phys/complex_number_module.F $wrfpath/phys/complex_number_module.F
+         cp wrfcmaq_twoway_coupler/phys/module_twoway_rrtmg_aero_optical_util.F $wrfpath/phys/module_twoway_rrtmg_aero_optical_util.F
 
       endif
    endif
