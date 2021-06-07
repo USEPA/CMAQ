@@ -70,6 +70,7 @@
 !                      variable the flexlible allows users to toggle the temporal 
 !                      frequency of their input meterology. 
 !  08/06/20, D. Wong:- fixed excessive reading of time independent boundary file data
+!  02/23/21, D. Wong:- used KZMIN setting to determine reading in PURB or not
 !------------------------------------------------------------------------!
 
 !------------------------------------------------------------------------!
@@ -2150,12 +2151,16 @@ C Read the various categories of normalized emissions
              Call M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
           END IF
 
-          IF ( .NOT. INTERPX( GRID_CRO_2D, 'PURB', PNAME,
-     &                        STRTCOLGC2, ENDCOLGC2, STRTROWGC2, ENDROWGC2, 1, 1 ,
-     &                        0, 0, PURB ) ) THEN
-             XMSG = ' Error interpolating variable PURB from ' // GRID_CRO_2D
-             Call M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
-          END IF
+          if (minkz) then
+             IF ( .NOT. INTERPX( GRID_CRO_2D, 'PURB', PNAME,
+     &                           STRTCOLGC2, ENDCOLGC2, STRTROWGC2, ENDROWGC2, 1, 1 ,
+     &                           0, 0, PURB ) ) THEN
+                XMSG = ' Error interpolating variable PURB from ' // GRID_CRO_2D
+                Call M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
+             END IF
+          else
+             purb = 0.0
+          end if
 
           IF ( .NOT. LUCRO_AVAIL ) THEN
 
@@ -2215,12 +2220,16 @@ C Read the various categories of normalized emissions
              Call M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
           END IF
 
-          IF ( .NOT. XTRACT3( GRID_CRO_2D, 'PURB',
-     &                        1, 1, STRTROWGC2, ENDROWGC2, STRTCOLGC2, ENDCOLGC2, 
-     &                        0, 0, PURB ) ) THEN
-             XMSG = ' Error interpolating variable PURB from ' // GRID_CRO_2D
-             Call M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
-          END IF
+          if (minkz) then
+             IF ( .NOT. XTRACT3( GRID_CRO_2D, 'PURB',
+     &                           1, 1, STRTROWGC2, ENDROWGC2, STRTCOLGC2, ENDCOLGC2, 
+     &                           0, 0, PURB ) ) THEN
+                XMSG = ' Error interpolating variable PURB from ' // GRID_CRO_2D
+                Call M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
+             END IF
+          else
+             purb = 0.0
+          end if
 
           IF ( .NOT. LUCRO_AVAIL ) THEN
 

@@ -764,10 +764,17 @@ C...modules
                END DO
             END DO   
 
+         ELSE
+            DO ROW = 1, NROWS
+               DO COL = 1, NCOLS
+!...get total ozone column based on OMI observations
+                  CALL O3TOTCOL ( LAT( COL,ROW ), LON( COL,ROW ), MIDDATE, MIDTIME, TOTAL_OC( COL,ROW ) )
+               END DO
+            END DO
          END IF  ! if JTIME_CHK
 
       ELSE  ! all cells not dark
-
+   
 !...MAIN loop over all rows and columns
          LOOP_ROWS: DO ROW = 1, NROWS
             LOOP_COLS: DO COL = 1, NCOLS
@@ -824,7 +831,7 @@ C...modules
                      CALL COLUMN_GAS( IGAS=LGC_O3, UNIT_FACTOR=MSCALE, COLUMN_DENSITY=TROPO_OC )                     
 !...get total ozone column based on OMI observations
                      CALL O3TOTCOL ( LAT( COL,ROW ), LON( COL,ROW ), MIDDATE, MIDTIME, TOTAL_OC( COL,ROW ) )
-                  END IF
+                  END IF   
 
                   CYCLE LOOP_COLS
 
