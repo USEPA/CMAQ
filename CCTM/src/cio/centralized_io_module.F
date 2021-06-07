@@ -71,6 +71,10 @@
 !                      frequency of their input meterology. 
 !  08/06/20, D. Wong:- fixed excessive reading of time independent boundary file data
 !  02/23/21, D. Wong:- used KZMIN setting to determine reading in PURB or not
+!  03/23/21. D. Wong:- modified code to accommodate a flexibility to allow each input 
+!                      can have different XORIG and YORIG settings than the simulation
+!                      domain if it can be overlapped with the simulation domain 
+!                      perfectly w.r.t. domain resolution
 !------------------------------------------------------------------------!
 
 !------------------------------------------------------------------------!
@@ -190,6 +194,10 @@
      &                                 cio_emis_var_name(:,:)
         integer, allocatable :: cio_emis_nvars(:)
         integer, allocatable :: cio_emis_file_layer(:)
+        integer, allocatable :: cio_emis_file_startcol(:)
+        integer, allocatable :: cio_emis_file_endcol(:)
+        integer, allocatable :: cio_emis_file_startrow(:)
+        integer, allocatable :: cio_emis_file_endrow(:)
         integer              :: cio_emis_nlays                     ! max value among cio_emis_file_layer
 
 ! - stack emission data
@@ -247,14 +255,16 @@
         INTEGER :: TEMPG_LOC
         INTEGER :: TSEASFC_LOC
 
-        integer :: STRTCOLSTD,  ENDCOLSTD,  STRTROWSTD,  ENDROWSTD,   ! this is for standard domain useful for coupled model
-     &             STRTCOLGC2,  ENDCOLGC2,  STRTROWGC2,  ENDROWGC2,
-     &             STRTCOLGD2,  ENDCOLGD2,  STRTROWGD2,  ENDROWGD2,
+        integer :: STRTCOLSTD,  ENDCOLSTD,  STRTROWSTD,  ENDROWSTD,
      &             STRTCOLMC2,  ENDCOLMC2,  STRTROWMC2,  ENDROWMC2,
      &             STRTCOLMC2x, ENDCOLMC2x, STRTROWMC2x, ENDROWMC2x,  ! extension setup for READMC2
      &             STRTCOLMC3,  ENDCOLMC3,  STRTROWMC3,  ENDROWMC3,
      &             STRTCOLMD3,  ENDCOLMD3,  STRTROWMD3,  ENDROWMD3,
-     &             STRTCOLMD3x, ENDCOLMD3x, STRTROWMD3x, ENDROWMD3x   ! extension setup for READMD3
+     &             STRTCOLMD3x, ENDCOLMD3x, STRTROWMD3x, ENDROWMD3x,  ! extension setup for READMD3
+     &             STRTCOLIC,   ENDCOLIC,   STRTROWIC,   ENDROWIC,    ! for ICFILE
+     &             STRTCOLISIC, ENDCOLISIC, STRTROWISIC, ENDROWISIC,  ! for ISAM ICFILE
+     &             STRTCOLLNT,  ENDCOLLNT,  STRTROWLNT,  ENDROWLNT,   ! for lightning strike file
+     &             STRTCOLBS,   ENDCOLBS,   STRTROWBS,   ENDROWBS     ! for bio-season file
 
         private :: gridded_files_setup,
      &             boundary_files_setup,
@@ -311,7 +321,7 @@
         subroutine gridded_files_setup
 
           USE UTILIO_DEFN
-          use HGRD_DEFN, only : ncols, nrows
+          use HGRD_DEFN, only : ncols, nrows, mype, colsx_pe, rowsx_pe
           USE VGRD_DEFN, only : VGTYP_GD, nlays
           USE RUNTIME_VARS, only : N_FILE_GR, BIOGEMIS, BIOGEMIS_SEASON,
      &                             STDATE, WB_DUST, ISAM_NEW_START,
@@ -345,8 +355,6 @@
           END IF
 
           n_grid_cro_data_vars = nvars3d
-          CALL SUBHFILE ( GRID_CRO_2D, GXOFF, GYOFF,
-     &                    STRTCOLGC2, ENDCOLGC2, STRTROWGC2, ENDROWGC2 )
 
           LAND_SCHEME = 'UNKNOWN'
 
@@ -382,8 +390,6 @@
              XMSG = 'Could not open '// GRID_DOT_2D // ' file'
              CALL M3EXIT ( PNAME, 0, 0, XMSG, XSTAT1 )
           END IF
-          CALL SUBHFILE ( GRID_DOT_2D, GXOFF, GYOFF,
-     &                    STRTCOLGD2, ENDCOLGD2, STRTROWGD2, ENDROWGD2 )
 
 ! lufrac cro file
           IF ( .NOT. OPEN3( LUFRAC_CRO, FSREAD3, PNAME ) ) THEN
@@ -399,9 +405,6 @@
                 XMSG = 'Could not get ' // LUFRAC_CRO //' file description'
                 CALL M3EXIT ( PNAME, 0, 0, XMSG, XSTAT1 )
              END IF
-
-             CALL SUBHFILE ( LUFRAC_CRO, GXOFF, GYOFF,
-     &                       STRTCOLGC2, ENDCOLGC2, STRTROWGC2, ENDROWGC2 )
           END IF
 
 ! met cro 2d file
@@ -642,6 +645,10 @@
 
           allocate (cio_emis_file_name(N_FILE_GR),
      &              cio_emis_nvars(N_FILE_GR),
+     &              cio_emis_file_startcol(N_FILE_GR),
+     &              cio_emis_file_endcol(N_FILE_GR),
+     &              cio_emis_file_startrow(N_FILE_GR),
+     &              cio_emis_file_endrow(N_FILE_GR),
      &              f_emis(N_FILE_GR),
      &              stat=stat)
 
@@ -662,6 +669,10 @@
                 XMSG = 'Could not get description of file  '// fname
                 CALL M3EXIT ( PNAME, 0, 0, XMSG, XSTAT1 )
              END IF
+
+             call subhfile ( cio_emis_file_name(n), gxoff, gyoff,
+     &                       cio_emis_file_startcol(n), cio_emis_file_endcol(n), 
+     &                       cio_emis_file_startrow(n), cio_emis_file_endrow(n) )
 
              file_sdate(f_emis(n)) = sdate3d
              file_stime(f_emis(n)) = stime3d
@@ -742,6 +753,8 @@
              emis_name(begin:begin, 1) = vname3d(1)
              emis_name(begin:begin, 2) = 'bs'          ! bs denote bio season
              emis_name(begin:begin, 3) = ' '           ! denote non met data
+             call subhfile ( bio_season_fname, gxoff, gyoff,
+     &                       STRTCOLBS, ENDCOLBS, STRTROWBS, ENDROWBS )
           end if
 
 ! setup initial condition file
@@ -756,7 +769,9 @@
              XMSG = 'Could not get description of file  '// ICFILE 
              CALL M3EXIT ( PNAME, 0, 0, XMSG, XSTAT1 )
           END IF
-          
+          call subhfile ( ICFILE, gxoff, gyoff,
+     &                    STRTCOLIC, ENDCOLIC, STRTROWIC, ENDROWIC )
+
 ! remove duplicate name from MET_CRO_3D file
           adj = nvars3d
           do v = nvars3d, 1, -1
@@ -779,9 +794,6 @@
           i3d_name(:,2) = 'ic'                  ! denote initial condition variable
           i3d_name(:,3) = ' '                   ! denote non met variable
 
-          CALL SUBHFILE ( ICFILE, GXOFF, GYOFF,
-     &                    STRTCOLSTD, ENDCOLSTD, STRTROWSTD, ENDROWSTD )
-
 ! setup initial condition file for ISAM
           n_is3d = 0
 
@@ -796,6 +808,9 @@
                 XMSG = 'Could not get description of file  '// ISAM_PREVDAY 
                 CALL M3EXIT ( PNAME, 0, 0, XMSG, XSTAT1 )
              END IF
+             call subhfile ( ISAM_PREVDAY, gxoff, gyoff,
+     &                       STRTCOLISIC, ENDCOLISIC, STRTROWISIC, ENDROWISIC )
+
              n_is3d = nvars3d
              allocate (is3d_name(n_is3d, 3), stat=stat)
              if (stat .ne. 0) then
@@ -866,6 +881,8 @@
                 XMSG = 'Could not get description of file  '// NLDN_STRIKES 
                 CALL M3EXIT ( PNAME, 0, 0, XMSG, XSTAT1 )
              END IF
+             call subhfile ( NLDN_STRIKES, gxoff, gyoff,
+     &                       STRTCOLLNT, ENDCOLLNT, STRTROWLNT, ENDROWLNT)
 
              file_sdate(f_ltng) = sdate3d
              file_stime(f_ltng) = stime3d
@@ -886,9 +903,9 @@
              ! Check to see what the lightning variable name is called
              ! backwards (NLDNstrk) & forwards compatible (LNT)  
              if ( index1('NLDNstrk', n_l2d ,l2d_name(:,1)) .gt. 0 ) then
-              lt_name = 'NLDNstrk'
+                lt_name = 'NLDNstrk'
              else
-              lt_name = 'LNT'
+                lt_name = 'LNT'
              end if
 
           end if
@@ -901,6 +918,11 @@
           size_c2d = cro_ncols * cro_nrows
 
 ! for standard domain
+          STRTCOLSTD = COLSX_PE( 1, MYPE+1 )
+          ENDCOLSTD  = COLSX_PE( 2, MYPE+1 )
+          STRTROWSTD = ROWSX_PE( 1, MYPE+1 )
+          ENDROWSTD  = ROWSX_PE( 2, MYPE+1 )
+
           s_cro_ncols = ENDCOLSTD - STRTCOLSTD + 1
           s_cro_nrows = ENDROWSTD - STRTROWSTD + 1
           size_s2d    = s_cro_ncols * s_cro_nrows
@@ -1424,6 +1446,7 @@
           CHARACTER( 256 ) :: MESG
           CHARACTER( 16 ) :: VAR
           INTEGER :: STAT, i, j, k
+          integer :: startcol, endcol, startrow, endrow, gxoff, gyoff
 
           ALLOCATE( AVGEMIS( NCOLS,NROWS,NSEF-1,NSEASONS ),
      &              AVGLAI( NCOLS,NROWS,NLAI,NSEASONS ), 
@@ -1440,6 +1463,9 @@
              CALL M3MESG( XMSG )
           END IF
 
+          call subhfile ( biogemis_fname, gxoff, gyoff,
+     &                    startcol, endcol, startrow, endrow )
+
 C Read the various categories of normalized emissions
           DO I = 1, NSEASONS
 
@@ -1447,7 +1473,7 @@ C Read the various categories of normalized emissions
                 VAR = 'AVG_' // TRIM( BIOTYPES( J ) ) // SEASON( I )
 
                 IF ( .NOT. XTRACT3( biogemis_fname, VAR,
-     &                              1,1, STRTROWSTD, ENDROWSTD, STRTCOLSTD, ENDCOLSTD,
+     &                              1,1, startrow, endrow, startcol, endcol,
      &                              0, 0, AVGEMIS( :,:,J,I ) ) ) THEN
                    MESG = 'Could not read "' // TRIM( VAR ) //
      &                    '" from file "' // TRIM( biogemis_fname ) // '"'
@@ -1459,7 +1485,7 @@ C Read the various categories of normalized emissions
                 VAR = 'LAI_' // TRIM( LAITYPES( K ) ) // SEASON( I )
   
                 IF ( .NOT. XTRACT3( biogemis_fname, VAR,
-     &                              1,1, STRTROWSTD, ENDROWSTD, STRTCOLSTD, ENDCOLSTD,
+     &                              1,1, startrow, endrow, startcol, endcol,
      &                              0, 0, AVGLAI( :,:,K,I ) ) ) THEN
                    MESG = 'Could not read "' // TRIM( VAR ) //
      &                    '" from file "' // TRIM( biogemis_fname ) // '"'
@@ -1483,6 +1509,7 @@ C Read the various categories of normalized emissions
           CHARACTER( 256 ) :: MESG
           CHARACTER( 16 ) :: VAR
           INTEGER :: STAT
+          integer :: startcol, endcol, startrow, endrow, gxoff, gyoff
 
           ALLOCATE( GROWAGNO( NCOLS,NROWS ),
      &              NGROWAGNO( NCOLS,NROWS ),
@@ -1495,9 +1522,12 @@ C Read the various categories of normalized emissions
           END IF
           n_opened_file = n_opened_file + 1
 
+          call subhfile ( fname, gxoff, gyoff,
+     &                    startcol, endcol, startrow, endrow )
+
           VAR = 'AVG_NOAG_GROW'
           IF ( .NOT. XTRACT3( fname, VAR,
-     &                        1,1, STRTROWSTD, ENDROWSTD, STRTCOLSTD, ENDCOLSTD,
+     &                        1,1, startrow, endrow, startcol, endcol,
      &                        0, 0, GROWAGNO ) ) THEN
              MESG = 'Could not read "' // TRIM( VAR ) //
      &              '" from file "' // TRIM( fname ) // '"'
@@ -1506,7 +1536,7 @@ C Read the various categories of normalized emissions
 
           VAR = 'AVG_NOAG_NONGROWNB3'
           IF ( .NOT. XTRACT3( fname, VAR,
-     &                        1,1, STRTROWSTD, ENDROWSTD, STRTCOLSTD, ENDCOLSTD,
+     &                        1,1, startrow, endrow, startcol, endcol,
      &                        0, 0, NGROWAGNO ) ) THEN
              MESG = 'Could not read "' // TRIM( VAR ) //
      &              '" from file "' // TRIM( fname ) // '"'
@@ -1515,7 +1545,7 @@ C Read the various categories of normalized emissions
 
           VAR = 'AVG_NONONAG'
           IF ( .NOT. XTRACT3( fname, VAR,
-     &                        1,1, STRTROWSTD, ENDROWSTD, STRTCOLSTD, ENDCOLSTD,
+     &                        1,1, startrow, endrow, startcol, endcol,
      &                        0, 0, NONAGNO ) ) THEN
              MESG = 'Could not read "' // TRIM( VAR ) //
      &              '" from file "' // TRIM( fname ) // '"'
@@ -1538,6 +1568,7 @@ C Read the various categories of normalized emissions
           CHARACTER( 256 ) :: MESG
           CHARACTER( 16 ) :: vname
           INTEGER :: STAT, i, j, k, jdate_yest
+          integer :: startcol, endcol, startrow, endrow, gxoff, gyoff
 
           Allocate ( Beld_ag ( ncols, nrows, e2c_cats ),
      &               pHs1 ( ncols, nrows, e2c_cats ),      ! for E2C_SOIL file
@@ -1552,10 +1583,13 @@ C Read the various categories of normalized emissions
           END IF
           n_opened_file = n_opened_file + 1
 
+          call subhfile ( E2C_LU, gxoff, gyoff,
+     &                    startcol, endcol, startrow, endrow )
+
           Do k = 1, e2c_cats
              vname = BELD_Names(k)
              IF ( .NOT. XTRACT3( E2C_LU, vname,
-     &                            1, 1, STRTROWSTD, ENDROWSTD, STRTCOLSTD, ENDCOLSTD,
+     &                            1, 1, startrow, endrow, startcol, endcol,
      &                            0, 0, Beld_ag( :,:,k ) ) ) Then
                 MESG = 'Could not read "' // TRIM( vname ) //
      &                 '" from file "' // TRIM( E2C_LU ) // '"'
@@ -1570,17 +1604,20 @@ C Read the various categories of normalized emissions
           End If
           n_opened_file = n_opened_file + 1
 
+          call subhfile ( E2C_SOIL, gxoff, gyoff,
+     &                    startcol, endcol, startrow, endrow )
+
           vname = 'L1_PH'
-          If ( .Not. Xtract3 ( E2C_SOIL, vname, 1, e2c_cats, STRTROWSTD, ENDROWSTD, 
-     &                         STRTCOLSTD, ENDCOLSTD, 0, 0, pHs1 ) ) Then
+          If ( .Not. Xtract3 ( E2C_SOIL, vname, 1, e2c_cats, startrow, endrow,
+     &                         startcol, endcol, 0, 0, pHs1 ) ) Then
              MESG = 'Could not read "' // TRIM( vname ) //
      &              '" from file "' // TRIM( E2C_SOIL ) // '"'
              CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
           End If
 
           vname = 'L2_PH'
-          If ( .Not. Xtract3 ( E2C_SOIL, vname, 1, e2c_cats, STRTROWSTD, ENDROWSTD, 
-     &                         STRTCOLSTD, ENDCOLSTD, 0, 0, pHs2 ) ) Then
+          If ( .Not. Xtract3 ( E2C_SOIL, vname, 1, e2c_cats, startrow, endrow,
+     &                         startcol, endcol, 0, 0, pHs2 ) ) Then
              MESG = 'Could not read "' // TRIM( vname ) //
      &              '" from file "' // TRIM( E2C_SOIL ) // '"'
              CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
@@ -1596,48 +1633,48 @@ C Read the various categories of normalized emissions
      &               STAT=STAT )
 
           vname = 'L1_Porosity'
-          If ( .Not. Xtract3 ( E2C_SOIL, vname, 1, e2c_cats, STRTROWSTD, ENDROWSTD, 
-     &                         STRTCOLSTD, ENDCOLSTD, 0, 0, por1 ) ) Then
+          If ( .Not. Xtract3 ( E2C_SOIL, vname, 1, e2c_cats, startrow, endrow,
+     &                         startcol, endcol, 0, 0, por1 ) ) Then
              MESG = 'Could not read "' // TRIM( vname ) //
      &              '" from file "' // TRIM( E2C_SOIL ) // '"'
              CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
           End If
 
           vname = 'L2_Porosity'
-          If ( .Not. Xtract3 ( E2C_SOIL, vname, 1, e2c_cats, STRTROWSTD, ENDROWSTD, 
-     &                         STRTCOLSTD, ENDCOLSTD, 0, 0, por2 ) ) Then
+          If ( .Not. Xtract3 ( E2C_SOIL, vname, 1, e2c_cats, startrow, endrow,
+     &                         startcol, endcol, 0, 0, por2 ) ) Then
              MESG = 'Could not read "' // TRIM( vname ) //
      &              '" from file "' // TRIM( E2C_SOIL ) // '"'
              CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
           End If
 
           vname = 'L1_Wilt_P'
-          If ( .Not. Xtract3 ( E2C_SOIL, vname, 1, e2c_cats, STRTROWSTD, ENDROWSTD, 
-     &                         STRTCOLSTD, ENDCOLSTD, 0, 0, wp1 ) ) Then
+          If ( .Not. Xtract3 ( E2C_SOIL, vname, 1, e2c_cats, startrow, endrow,
+     &                         startcol, endcol, 0, 0, wp1 ) ) Then
              MESG = 'Could not read "' // TRIM( vname ) //
      &              '" from file "' // TRIM( E2C_SOIL ) // '"'
              CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
           End If
 
           vname = 'L2_Wilt_P'
-          If ( .Not. Xtract3 ( E2C_SOIL, vname, 1, e2c_cats, STRTROWSTD, ENDROWSTD, 
-     &                         STRTCOLSTD, ENDCOLSTD, 0, 0, wp2 ) ) Then
+          If ( .Not. Xtract3 ( E2C_SOIL, vname, 1, e2c_cats, startrow, endrow,
+     &                         startcol, endcol, 0, 0, wp2 ) ) Then
              MESG = 'Could not read "' // TRIM( vname ) //
      &              '" from file "' // TRIM( E2C_SOIL ) // '"'
              CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
           End If
 
           vname = 'L1_Cation'
-          If ( .Not. Xtract3 ( E2C_SOIL, vname, 1, e2c_cats, STRTROWSTD, ENDROWSTD, 
-     &                         STRTCOLSTD, ENDCOLSTD, 0, 0, cec1 ) ) Then
+          If ( .Not. Xtract3 ( E2C_SOIL, vname, 1, e2c_cats, startrow, endrow,
+     &                         startcol, endcol, 0, 0, cec1 ) ) Then
              MESG = 'Could not read "' // TRIM( vname ) //
      &              '" from file "' // TRIM( E2C_SOIL ) // '"'
              CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
           End If
  
           vname = 'L2_Cation'
-          If ( .Not. Xtract3 ( E2C_SOIL, vname, 1, e2c_cats, STRTROWSTD, ENDROWSTD, 
-     &                         STRTCOLSTD, ENDCOLSTD, 0, 0, cec2 ) ) Then
+          If ( .Not. Xtract3 ( E2C_SOIL, vname, 1, e2c_cats, startrow, endrow,
+     &                         startcol, endcol, 0, 0, cec2 ) ) Then
              MESG = 'Could not read "' // TRIM( vname ) //
      &              '" from file "' // TRIM( E2C_SOIL ) // '"'
              CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
@@ -1657,22 +1694,25 @@ C Read the various categories of normalized emissions
              CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
           END IF
 
+          call subhfile ( E2C_CHEM, gxoff, gyoff,
+     &                    startcol, endcol, startrow, endrow )
+
           GMN_AVAIL = .false.
           if (index1 ('GMN', nvars3d, vname3d) .gt. 0) then
              GMN_AVAIL = .true.          
           end if
 
           vname = 'L1_NH3'
-          If ( .Not. Xtract3 (E2C_CHEM, vname, 1, e2c_cats, STRTROWSTD, ENDROWSTD, 
-     &                        STRTCOLSTD, ENDCOLSTD, cio_model_sdate, 0, NH4ps1) ) Then
+          If ( .Not. Xtract3 (E2C_CHEM, vname, 1, e2c_cats, startrow, endrow,
+     &                        startcol, endcol, cio_model_sdate, 0, NH4ps1) ) Then
              MESG = 'Could not read "' // TRIM( vname ) //
      &              '" from file "' // TRIM( E2C_CHEM ) // '"'
              CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
           End If
 
           vname = 'L2_NH3'
-          If ( .Not. Xtract3 (E2C_CHEM, vname, 1, e2c_cats, STRTROWSTD, ENDROWSTD, 
-     &                        STRTCOLSTD, ENDCOLSTD, cio_model_sdate, 0, NH4ps2) ) Then
+          If ( .Not. Xtract3 (E2C_CHEM, vname, 1, e2c_cats, startrow, endrow,
+     &                        startcol, endcol, cio_model_sdate, 0, NH4ps2) ) Then
              MESG = 'Could not read "' // TRIM( vname ) //
      &              '" from file "' // TRIM( E2C_CHEM ) // '"'
              CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
@@ -1686,24 +1726,24 @@ C Read the various categories of normalized emissions
      &               STAT=STAT )
 
           vname = 'L1_SW'
-          If ( .Not. Xtract3 (E2C_CHEM, vname, 1, e2c_cats, STRTROWSTD, ENDROWSTD, 
-     &                        STRTCOLSTD, ENDCOLSTD, cio_model_sdate, 0, wep1)) Then
+          If ( .Not. Xtract3 (E2C_CHEM, vname, 1, e2c_cats, startrow, endrow,
+     &                        startcol, endcol, cio_model_sdate, 0, wep1)) Then
              MESG = 'Could not read "' // TRIM( vname ) //
      &              '" from file "' // TRIM( E2C_CHEM ) // '"'
              CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
           End If
 
           vname = 'L2_SW'
-          If ( .Not. Xtract3 (E2C_CHEM, vname, 1, e2c_cats, STRTROWSTD, ENDROWSTD, 
-     &                        STRTCOLSTD, ENDCOLSTD, cio_model_sdate, 0, wep2)) Then
+          If ( .Not. Xtract3 (E2C_CHEM, vname, 1, e2c_cats, startrow, endrow,
+     &                        startcol, endcol, cio_model_sdate, 0, wep2)) Then
              MESG = 'Could not read "' // TRIM( vname ) //
      &              '" from file "' // TRIM( E2C_CHEM ) // '"'
              CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
           End If
 
           vname = 'L2_DEP'
-          If ( .Not. Xtract3 (E2C_CHEM, vname, 1, e2c_cats, STRTROWSTD, ENDROWSTD, 
-     &                        STRTCOLSTD, ENDCOLSTD, cio_model_sdate, 0, dep2)) Then
+          If ( .Not. Xtract3 (E2C_CHEM, vname, 1, e2c_cats, startrow, endrow,
+     &                        startcol, endcol, cio_model_sdate, 0, dep2)) Then
              MESG = 'Could not read "' // TRIM( vname ) //
      &              '" from file "' // TRIM( E2C_CHEM ) // '"'
              CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
@@ -1719,43 +1759,43 @@ C Read the various categories of normalized emissions
      &              STAT=STAT )
 
           vname = 'L1_NITR'
-          If ( .Not. Xtract3 (E2C_CHEM, vname, 1, e2c_cats, STRTROWSTD, ENDROWSTD, 
-     &                        STRTCOLSTD, ENDCOLSTD, cio_model_sdate, 0, Nit1 ) ) Then
+          If ( .Not. Xtract3 (E2C_CHEM, vname, 1, e2c_cats, startrow, endrow,
+     &                        startcol, endcol, cio_model_sdate, 0, Nit1 ) ) Then
              Write( mesg,9001 ) vname, E2C_CHEM
              CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
           End If
 
           vname = 'L2_NITR'
-          If ( .Not. Xtract3 (E2C_CHEM, vname, 1, e2c_cats, STRTROWSTD, ENDROWSTD, 
-     &                        STRTCOLSTD, ENDCOLSTD, cio_model_sdate, 0, Nit2 ) ) Then
+          If ( .Not. Xtract3 (E2C_CHEM, vname, 1, e2c_cats, startrow, endrow,
+     &                        startcol, endcol, cio_model_sdate, 0, Nit2 ) ) Then
              Write( mesg,9001 ) vname, E2C_CHEM
              CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
           End If
 
           vname = 'L1_ON'
-          If ( .Not. Xtract3 (E2C_CHEM, vname, 1, e2c_cats, STRTROWSTD, ENDROWSTD, 
-     &                        STRTCOLSTD, ENDCOLSTD, cio_model_sdate, 0, L1_ON ) ) Then
+          If ( .Not. Xtract3 (E2C_CHEM, vname, 1, e2c_cats, startrow, endrow,
+     &                        startcol, endcol, cio_model_sdate, 0, L1_ON ) ) Then
              Write( mesg,9001 ) vname, E2C_CHEM
              CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
           End If
 
           vname = 'L2_ON'
-          If ( .Not. Xtract3 (E2C_CHEM, vname, 1, e2c_cats, STRTROWSTD, ENDROWSTD, 
-     &                        STRTCOLSTD, ENDCOLSTD, cio_model_sdate, 0, L2_ON ) ) Then
+          If ( .Not. Xtract3 (E2C_CHEM, vname, 1, e2c_cats, startrow, endrow,
+     &                        startcol, endcol, cio_model_sdate, 0, L2_ON ) ) Then
              Write( mesg,9001 ) vname, E2C_CHEM
              CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
           End If
 
           vname = 'L1_BD'
-          If ( .Not. Xtract3 (E2C_CHEM, vname, 1, e2c_cats, STRTROWSTD, ENDROWSTD, 
-     &                        STRTCOLSTD, ENDCOLSTD, cio_model_sdate, 0, BDc1 ) ) Then
+          If ( .Not. Xtract3 (E2C_CHEM, vname, 1, e2c_cats, startrow, endrow,
+     &                        startcol, endcol, cio_model_sdate, 0, BDc1 ) ) Then
              Write( mesg,9001 ) vname, E2C_CHEM
              CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
           End If
 
           vname = 'L2_BD'
-          If ( .Not. Xtract3 (E2C_CHEM, vname, 1, e2c_cats, STRTROWSTD, ENDROWSTD, 
-     &                        STRTCOLSTD, ENDCOLSTD, cio_model_sdate, 0, BDc2 ) ) Then
+          If ( .Not. Xtract3 (E2C_CHEM, vname, 1, e2c_cats, startrow, endrow,
+     &                        startcol, endcol, cio_model_sdate, 0, BDc2 ) ) Then
              Write( mesg,9001 ) vname, E2C_CHEM
              CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
           End If
@@ -1768,8 +1808,8 @@ C Read the various categories of normalized emissions
              End If
 
              vname = 'GMN'
-             If ( .Not. Xtract3 (E2C_CHEM, vname, 1, e2c_cats, STRTROWSTD, ENDROWSTD, 
-     &                        STRTCOLSTD, ENDCOLSTD, cio_model_sdate, 0, GMN ) ) Then
+             If ( .Not. Xtract3 (E2C_CHEM, vname, 1, e2c_cats, startrow, endrow,
+     &                        startcol, endcol, cio_model_sdate, 0, GMN ) ) Then
                 Write( mesg,9001 ) vname, E2C_CHEM
                 CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
              End If
@@ -1783,30 +1823,33 @@ C Read the various categories of normalized emissions
      &              STAT=STAT )
 
           if ( MEDC_AVAIL ) then
+             call subhfile ( INIT_MEDC_1, gxoff, gyoff,
+     &                       startcol, endcol, startrow, endrow )
+
              vname = 'Gamma1'
-             If ( .Not. Xtract3 ( INIT_MEDC_1, vname, 1, 1, STRTROWSTD, ENDROWSTD, 
-     &                            STRTCOLSTD, ENDCOLSTD, cio_model_sdate, 0, gamma1 ) ) Then
+             If ( .Not. Xtract3 ( INIT_MEDC_1, vname, 1, 1, startrow, endrow,
+     &                            startcol, endcol, cio_model_sdate, 0, gamma1 ) ) Then
                 Write( mesg,9001 ) vname, INIT_MEDC_1
                 CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
              End If
 
              vname = 'Gamma2'
-             If ( .Not. Xtract3 ( INIT_MEDC_1, vname, 1, 1, STRTROWSTD, ENDROWSTD, 
-     &                            STRTCOLSTD, ENDCOLSTD, cio_model_sdate, 0, gamma2 ) ) Then
+             If ( .Not. Xtract3 ( INIT_MEDC_1, vname, 1, 1, startrow, endrow,
+     &                            startcol, endcol, cio_model_sdate, 0, gamma2 ) ) Then
                 Write( mesg,9001 ) vname, INIT_MEDC_1
                 CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
              End If
 
              vname = 'L1_ANH3'
-             If ( .Not. Xtract3 ( E2C_CHEM, vname, 1, e2c_cats, STRTROWSTD, ENDROWSTD, 
-     &                            STRTCOLSTD, ENDCOLSTD, cio_model_sdate, 0, F1_NH4 ) ) Then
+             If ( .Not. Xtract3 ( E2C_CHEM, vname, 1, e2c_cats, startrow, endrow,
+     &                            startcol, endcol, cio_model_sdate, 0, F1_NH4 ) ) Then
                 Write( mesg,9001 ) vname, E2C_CHEM
                 CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
              End If
 
              vname = 'L2_ANH3'
-             If ( .Not. Xtract3 ( E2C_CHEM, vname, 1, e2c_cats, STRTROWSTD, ENDROWSTD, 
-     &                            STRTCOLSTD, ENDCOLSTD, cio_model_sdate, 0, F2_NH4 ) ) Then
+             If ( .Not. Xtract3 ( E2C_CHEM, vname, 1, e2c_cats, startrow, endrow,
+     &                            startcol, endcol, cio_model_sdate, 0, F2_NH4 ) ) Then
                 Write( mesg,9001 ) vname, E2C_CHEM
                 CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
              End If
@@ -1848,30 +1891,36 @@ C Read the various categories of normalized emissions
                    CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
                 END IF
 
+                call subhfile ( E2C_CHEM, gxoff, gyoff,
+     &                          startcol, endcol, startrow, endrow )
+
                 vname = 'L1_AON'
-                If ( .Not. Xtract3 (E2C_CHEM, vname, 1, e2c_cats, STRTROWSTD, ENDROWSTD, 
-     &                              STRTCOLSTD, ENDCOLSTD, cio_model_sdate, 0, F1_ON ) ) Then
+                If ( .Not. Xtract3 (E2C_CHEM, vname, 1, e2c_cats, startrow, endrow,
+     &                              startcol, endcol, cio_model_sdate, 0, F1_ON ) ) Then
                    Write( mesg,9001 ) vname, E2C_CHEM
                    CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
                 End If
 
                 vname = 'L2_AON'
-                If ( .Not. Xtract3 (E2C_CHEM, vname, 1, e2c_cats, STRTROWSTD, ENDROWSTD, 
-     &                              STRTCOLSTD, ENDCOLSTD, cio_model_sdate, 0, F2_ON ) ) Then
+                If ( .Not. Xtract3 (E2C_CHEM, vname, 1, e2c_cats, startrow, endrow,
+     &                              startcol, endcol, cio_model_sdate, 0, F2_ON ) ) Then
                    Write( mesg,9001 ) vname, E2C_CHEM
                    CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
                 End If
 
+                call subhfile ( E2C_CHEM_YEST, gxoff, gyoff,
+     &                          startcol, endcol, startrow, endrow )
+
                 vname = 'L1_ON'
-                If ( .Not. Xtract3 (E2C_CHEM_YEST, vname, 1, e2c_cats, STRTROWSTD, ENDROWSTD, 
-     &                              STRTCOLSTD, ENDCOLSTD, jdate_yest, 0, L1_ON_Yest ) ) Then
+                If ( .Not. Xtract3 (E2C_CHEM_YEST, vname, 1, e2c_cats, startrow, endrow,
+     &                              startcol, endcol, jdate_yest, 0, L1_ON_Yest ) ) Then
                    Write( mesg,9001 ) vname, E2C_CHEM
                    CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
                 End If
 
                 vname = 'L2_ON'
-                If ( .Not. Xtract3 (E2C_CHEM_YEST, vname, 1, e2c_cats, STRTROWSTD, ENDROWSTD, 
-     &                              STRTCOLSTD, ENDCOLSTD, jdate_yest, 0, L2_ON_Yest ) ) Then
+                If ( .Not. Xtract3 (E2C_CHEM_YEST, vname, 1, e2c_cats, startrow, endrow,
+     &                              startcol, endcol, jdate_yest, 0, L2_ON_Yest ) ) Then
                    Write( mesg,9001 ) vname, E2C_CHEM
                    CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
                 End If
@@ -1902,6 +1951,7 @@ C Read the various categories of normalized emissions
           CHARACTER( 16 ) :: vname
           INTEGER :: STAT, i, m
           logical :: found, dust_lu_avail
+          integer :: startcol, endcol, startrow, endrow, gxoff, gyoff
 
           Allocate ( crop_ladut  ( ncols, nrows, nlcrp ),
      &               crplnd ( ncols, nrows, nlcrp ),
@@ -1915,11 +1965,14 @@ C Read the various categories of normalized emissions
           end if
 
           if (dust_lu_avail) then
+             call subhfile ( dust_lu_1, gxoff, gyoff,
+     &                       startcol, endcol, startrow, endrow )
+
              n_opened_file = n_opened_file + 1
 ! Read in 17 species crop land fraction
              do m = 1, nlcrp
                 if ( .not. xtract3( dust_lu_1, crop_vnmld( m ), 1, 1,
-     &                              STRTROWSTD, ENDROWSTD, STRTCOLSTD, ENDCOLSTD,
+     &                              startrow, endrow, startcol, endcol,
      &                              0, 0, crop_ladut( :,:,m ) ) ) then
                    xmsg = 'Could not read ' // trim( crop_vnmld( m ) ) // ' from ' // dust_lu_1
                    call m3exit ( pname, 0, 0, xmsg, xstat1 )
@@ -1931,18 +1984,19 @@ C Read the various categories of normalized emissions
 
 ! Open crop calendar
              do i = 1, 3
+                call subhfile ( crname( i ), gxoff, gyoff,
+     &                          startcol, endcol, startrow, endrow )
+
                 if ( .not. open3( crname( i ), fsread3, pname ) ) then
                    xmsg = 'Could not open ' // crname( i )
                    call m3exit( pname, cio_model_sdate, cio_model_stime, xmsg, xstat1 )
                 end if
                 n_opened_file = n_opened_file + 1
-             end do
 
 ! Read crop calendar: 1 = begin planting, 2 = end planting, 3 = end harvesting
-             do i = 1, 3
                 do m = 1, ncrop
                    if ( .not. xtract3( crname( i ), vcrop( m ), 1,1,
-     &                                 STRTROWSTD, ENDROWSTD, STRTCOLSTD, ENDCOLSTD,  
+     &                                 startrow, endrow, startcol, endcol,
      &                                 0, 0, cropdt( 1,1,m,i ) ) ) then
                       xmsg = 'Could not read ' // trim( vcrop( m ) ) // ' from ' // crname( i )
                       call m3exit ( pname, cio_model_sdate, cio_model_stime, xmsg, xstat1 )
@@ -1965,6 +2019,7 @@ C Read the various categories of normalized emissions
 
           CHARACTER( 256 ) :: xmsg
           integer :: v
+          integer :: startcol, endcol, startrow, endrow, gxoff, gyoff
 
           CALL INIT_BIDI( )
 
@@ -1974,9 +2029,12 @@ C Read the various categories of normalized emissions
           END IF
           n_opened_file = n_opened_file + 1
 
+          call subhfile ( INIT_MEDC_1, gxoff, gyoff,
+     &                    startcol, endcol, startrow, endrow )
+
           DO v = 1, Hg_TOT
             IF ( .NOT. Xtract3( INIT_MEDC_1, MEDIA_NAMES( V ), 1, 1, 
-     &                          STRTROWSTD, ENDROWSTD, STRTCOLSTD, ENDCOLSTD,  
+     &                          startrow, endrow, startcol, endcol,
      &                          cio_model_sdate, 0, CMEDIA(:,:,v) ) )THEN
                xmsg = 'Could not read ' // trim( MEDIA_NAMES( V ) )
      &                // ' from ' // trim( INIT_MEDC_1 )
@@ -2002,6 +2060,7 @@ C Read the various categories of normalized emissions
           CHARACTER( 16 )  :: var
           CHARACTER( 256 ) :: mesg
           integer :: stat, i, j, k
+          integer :: startcol, endcol, startrow, endrow, gxoff, gyoff
 
           ALLOCATE( PTYPE( NCOLS,NROWS ),
      &              PULSEDATE( NCOLS,NROWS ),
@@ -2041,9 +2100,12 @@ C Read the various categories of normalized emissions
 
 94010        FORMAT( A, F10.2, 1X, A, I3, ',', I3 )
 
+             call subhfile ( SOILINP, gxoff, gyoff,
+     &                       startcol, endcol, startrow, endrow )
+
              VAR = 'PTYPE'
              IF ( .NOT. XTRACT3( SOILINP, 'PTYPE', 1, 1,
-     &                           STRTROWSTD, ENDROWSTD, STRTCOLSTD, ENDCOLSTD,  
+     &                           startrow, endrow, startcol, endcol,
      &                           0, 0, PTYPE ) ) THEN
                 MESG = 'Could not read "' // TRIM( VAR ) //
      &                 '" from file "' // TRIM( SOILINP ) // '"'
@@ -2052,7 +2114,7 @@ C Read the various categories of normalized emissions
 
              VAR = 'PULSEDATE'
              IF ( .NOT. XTRACT3( SOILINP, VAR, 1, 1,
-     &                           STRTROWSTD, ENDROWSTD, STRTCOLSTD, ENDCOLSTD,  
+     &                           startrow, endrow, startcol, endcol,
      &                           0, 0, PULSEDATE ) ) THEN
                 MESG = 'Could not read "' // TRIM( VAR ) //
      &                 '" from file "' // TRIM( SOILINP ) // '"'
@@ -2061,7 +2123,7 @@ C Read the various categories of normalized emissions
 
              VAR = 'PULSETIME'
              IF ( .NOT. XTRACT3( SOILINP, VAR, 1, 1,
-     &                           STRTROWSTD, ENDROWSTD, STRTCOLSTD, ENDCOLSTD,  
+     &                           startrow, endrow, startcol, endcol,
      &                           0, 0, PULSETIME ) ) THEN
                 MESG = 'Could not read "' // TRIM( VAR ) //
      &                 '" from file "' // TRIM( SOILINP ) // '"'
@@ -2073,7 +2135,7 @@ C Read the various categories of normalized emissions
              DO I = 1, mxhrs
                 WRITE( VAR, '(A8,I2.2)' ) 'RAINFALL', I
                 IF ( .NOT. XTRACT3( SOILINP, VAR, 1, 1,
-     &                              STRTROWSTD, ENDROWSTD, STRTCOLSTD, ENDCOLSTD,  
+     &                              startrow, endrow, startcol, endcol,
      &                              0, 0, RAINFALL( :,:,I ) ) ) THEN
                    MESG = 'Could not read "' // TRIM( VAR ) //
      &                    '" from file "' // TRIM( SOILINP ) // '"'
@@ -2098,6 +2160,8 @@ C Read the various categories of normalized emissions
           INCLUDE SUBST_FILES_ID             ! file name parameters
 
           Character( 40 ), parameter :: pname = 'retrieve_grid_cro_2d_data'
+          integer :: gxoff, gyoff, 
+     &               STRTCOLGC2,  ENDCOLGC2,  STRTROWGC2,  ENDROWGC2,
 
           CHARACTER( 120 ) :: XMSG = ' '
           Character( 16 )  :: vname
@@ -2114,6 +2178,9 @@ C Read the various categories of normalized emissions
                XMSG = 'Failure allocating MSFX2 or other arrays'
                CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT3 )
           END IF
+
+          CALL SUBHFILE ( GRID_CRO_2D, GXOFF, GYOFF,
+     &                    STRTCOLGC2, ENDCOLGC2, STRTROWGC2, ENDROWGC2 )
 
 #ifdef twoway
           IF ( .NOT. INTERPX( GRID_CRO_2D, 'MSFX2', PNAME,
@@ -2265,6 +2332,7 @@ C Read the various categories of normalized emissions
           INCLUDE SUBST_FILES_ID             ! file name parameters
 
           Character( 40 ), parameter :: pname = 'retrieve_lufrac_cro_data'
+          integer :: startcol, endcol, startrow, endrow, gxoff, gyoff
 
           CHARACTER( 120 ) :: XMSG = ' '
           INTEGER          :: STAT
@@ -2277,12 +2345,15 @@ C Read the various categories of normalized emissions
                CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT3 )
           END IF
 
-           IF ( .Not. XTRACT3( LUFRAC_CRO, 'LUFRAC',
-     &                         1, n_lufrac, STRTROWGC2, ENDROWGC2, STRTCOLGC2, ENDCOLGC2, 
-     &                         0, 0, LUFRAC ) ) THEN
-              XMSG = 'Error interpolating variable LUFRAC from ' // LUFRAC_CRO
-              Call M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
-           END IF
+          CALL SUBHFILE ( LUFRAC_CRO, GXOFF, GYOFF,
+     &                    startcol, endcol, startrow, endrow )
+
+          IF ( .Not. XTRACT3( LUFRAC_CRO, 'LUFRAC',
+     &                        1, n_lufrac, startrow, endrow, startcol, endcol,
+     &                        0, 0, LUFRAC ) ) THEN
+             XMSG = 'Error interpolating variable LUFRAC from ' // LUFRAC_CRO
+             Call M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
+          END IF
 
         end subroutine retrieve_lufrac_cro_data
 
@@ -2298,6 +2369,8 @@ C Read the various categories of normalized emissions
 
           INTEGER          :: STAT
           CHARACTER( 120 ) :: XMSG = ' '
+          INTEGER          :: gxoff, gyoff, 
+     &                        STRTCOLGD2, ENDCOLGD2, STRTROWGD2, ENDROWGD2
 
           ALLOCATE ( MSFD2( NCOLS+1, NROWS+1 ), STAT = STAT )
           IF ( STAT .NE. 0 ) THEN
@@ -2305,21 +2378,25 @@ C Read the various categories of normalized emissions
              CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT3 )
           END IF
 
+          CALL SUBHFILE ( GRID_DOT_2D, GXOFF, GYOFF,
+     &                    STRTCOLGD2, ENDCOLGD2, STRTROWGD2, ENDROWGD2 )
+
 #ifdef twoway
           IF ( .NOT. INTERPX( GRID_DOT_2D, 'MSFD2', PNAME, 
-     &                        STRTCOLGD2, ENDCOLGD2,STRTROWGD2, ENDROWGD2, 1, 1,
+     &                        STRTCOLGD2, ENDCOLGD2, STRTROWGD2, ENDROWGD2, 1, 1,
      &                        0, 0, MSFD2 ) ) THEN
              XMSG = 'Could not interpolate MSFD2 from ' // GRID_DOT_2D
              CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
           END IF
 #else
           IF ( .NOT. XTRACT3( GRID_DOT_2D, 'MSFD2',
-     &                        1, 1, STRTROWGD2, ENDROWGD2, STRTCOLGD2, ENDCOLGD2, 
+     &                        1, 1, STRTROWGD2, ENDROWGD2, STRTCOLGD2, ENDCOLGD2,
      &                        0, 0, MSFD2 ) ) THEN
              XMSG = 'Could not interpolate MSFD2 from ' // GRID_DOT_2D
              CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
           END IF
 #endif
+
         end subroutine retrieve_grid_dot_2d_data
 
 ! -------------------------------------------------------------------------
@@ -2331,6 +2408,7 @@ C Read the various categories of normalized emissions
           INCLUDE SUBST_FILES_ID             ! file name parameters
 
           Character( 40 ), parameter :: pname = 'retrieve_ocean_data'
+          integer :: startcol, endcol, startrow, endrow, gxoff, gyoff
 
           INTEGER          :: STAT
           CHARACTER( 120 ) :: XMSG = ' '
@@ -2349,15 +2427,19 @@ C Read the various categories of normalized emissions
                 Call M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
              ELSE 
                 n_opened_file = n_opened_file + 1
+
+                call subhfile ( OCEAN_1, gxoff, gyoff,
+     &                          startcol, endcol, startrow, endrow )
+
                 IF ( .NOT. XTRACT3( OCEAN_1, 'OPEN',
-     &                        1, 1, STRTROWSTD, ENDROWSTD, STRTCOLSTD, ENDCOLSTD, 
+     &                        1, 1, startrow, endrow, startcol, endcol,
      &                        0, 0, ocean ) ) Then
                    XMSG = 'Could not read OPEN from ' // OCEAN_1
                    CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
                 END IF
 
                 IF ( .NOT. XTRACT3( OCEAN_1, 'SURF',
-     &                        1, 1, STRTROWSTD, ENDROWSTD, STRTCOLSTD, ENDCOLSTD, 
+     &                        1, 1, startrow, endrow, startcol, endcol,
      &                        0, 0, szone ) ) Then
                    XMSG = 'Could not interpolate SURF from ' // OCEAN_1
                    CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
@@ -2389,13 +2471,13 @@ C Read the various categories of normalized emissions
                 END IF
 
                 If ( .Not. XTRACT3( OCEAN_1, 'CHLO',
-     &                              1, 1, STRTROWSTD, ENDROWSTD, STRTCOLSTD, ENDCOLSTD, 
+     &                              1, 1, startrow, endrow, startcol, endcol,
      &                              0, 0, chlr ) ) Then
                    XMSG = 'Could not read CHLO from ' // OCEAN_1
                    Call M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
                 End If
                 If ( .Not. XTRACT3( OCEAN_1, 'DMS',
-     &                              1, 1, STRTROWSTD, ENDROWSTD, STRTCOLSTD, ENDCOLSTD, 
+     &                              1, 1, startrow, endrow, startcol, endcol,
      &                              0, 0, dmsl ) ) Then
                    XMSG = 'Could not read DMS from ' // OCEAN_1
                    Call M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
@@ -2418,6 +2500,7 @@ C Read the various categories of normalized emissions
 
           INTEGER          :: STAT
           CHARACTER( 120 ) :: XMSG = ' '
+          integer :: startcol, endcol, startrow, endrow, gxoff, gyoff
 
           allocate (OCEAN_MASK(ncols, nrows), 
      &              SLOPE(ncols, nrows), 
@@ -2438,50 +2521,53 @@ C Read the various categories of normalized emissions
           END IF
           n_opened_file = n_opened_file + 1
 
+          call subhfile ( LTNGPARMS_FILE, gxoff, gyoff,
+     &                    startcol, endcol, startrow, endrow )
+
           IF ( .NOT. XTRACT3( LTNGPARMS_FILE, "OCNMASK", 1, 1,
-     &                        STRTROWSTD, ENDROWSTD, STRTCOLSTD, ENDCOLSTD, 
+     &                        startrow, endrow, startcol, endcol,
      &                        0, 0, OCEAN_MASK ) ) Then
              XMSG = 'Could not interpolate OPEN from ' // LTNGPARMS_FILE
              Call M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
           End If
 
           IF ( .NOT. XTRACT3( LTNGPARMS_FILE, "SLOPE", 1, 1,
-     &                        STRTROWSTD, ENDROWSTD, STRTCOLSTD, ENDCOLSTD, 
+     &                        startrow, endrow, startcol, endcol,
      &                        0, 0, SLOPE ) ) Then
              XMSG = 'Could not interpolate OPEN from ' // LTNGPARMS_FILE
              Call M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
           End If
 
           IF ( .NOT. XTRACT3( LTNGPARMS_FILE, "INTERCEPT", 1, 1,
-     &                        STRTROWSTD, ENDROWSTD, STRTCOLSTD, ENDCOLSTD, 
+     &                        startrow, endrow, startcol, endcol,
      &                        0, 0, INTERCEPT ) ) Then
              XMSG = 'Could not interpolate OPEN from ' // LTNGPARMS_FILE
              Call M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
           End If
 
           IF ( .NOT. XTRACT3( LTNGPARMS_FILE, "SLOPE_lg", 1, 1,
-     &                        STRTROWSTD, ENDROWSTD, STRTCOLSTD, ENDCOLSTD, 
+     &                        startrow, endrow, startcol, endcol,
      &                        0, 0, SLOPE_lg ) ) Then
              XMSG = 'Could not interpolate OPEN from ' // LTNGPARMS_FILE
              Call M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
           End If
 
           IF ( .NOT. XTRACT3( LTNGPARMS_FILE, "INTERCEPT_lg", 1, 1,
-     &                        STRTROWSTD, ENDROWSTD, STRTCOLSTD, ENDCOLSTD, 
+     &                        startrow, endrow, startcol, endcol,
      &                        0, 0, INTERCEPT_lg ) ) Then
              XMSG = 'Could not interpolate OPEN from ' // LTNGPARMS_FILE
              Call M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
           End If
 
           IF ( .NOT. XTRACT3( LTNGPARMS_FILE, "ICCG_SUM", 1, 1,
-     &                        STRTROWSTD, ENDROWSTD, STRTCOLSTD, ENDCOLSTD, 
+     &                        startrow, endrow, startcol, endcol,
      &                        0, 0, ICCG_SUM ) ) Then
              XMSG = 'Could not interpolate OPEN from ' // LTNGPARMS_FILE
              Call M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
           End If
 
           IF ( .NOT. XTRACT3( LTNGPARMS_FILE, "ICCG_WIN", 1, 1,
-     &                        STRTROWSTD, ENDROWSTD, STRTCOLSTD, ENDCOLSTD, 
+     &                        startrow, endrow, startcol, endcol,
      &                        0, 0, ICCG_WIN ) ) Then
              XMSG = 'Could not interpolate OPEN from ' // LTNGPARMS_FILE
              Call M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
@@ -2659,8 +2745,9 @@ C Read the various categories of normalized emissions
                    data_jdate = loc_jdate(f_emis(fnum))
                    data_jtime = loc_jtime(f_emis(fnum))
 
-                   IF ( .NOT. XTRACT3( cio_emis_file_name(fnum), loc_vname,
-     &                                 1, 1, STRTROWSTD, ENDROWSTD, STRTCOLSTD, ENDCOLSTD, 
+                   IF ( .NOT. XTRACT3( cio_emis_file_name(fnum), loc_vname, 1, 1,
+     &                                 cio_emis_file_startrow(fnum), cio_emis_file_endrow(fnum),
+     &                                 cio_emis_file_startcol(fnum), cio_emis_file_endcol(fnum),
      &                                 data_jdate, data_jtime, cio_grid_data(begin:end) ) ) THEN
                       XMSG = 'Could not extract ' // cio_emis_file_name(fnum) // ' file'
                       CALL M3EXIT ( PNAME, data_jdate, data_jtime, XMSG, XSTAT1 )
@@ -2681,7 +2768,9 @@ C Read the various categories of normalized emissions
                    data_jtime = loc_jtime(f_emis(fnum))
 
                    IF ( .NOT. XTRACT3( cio_emis_file_name(fnum), loc_vname,
-     &                                 1, cio_emis_file_layer(fnum), STRTROWSTD, ENDROWSTD, STRTCOLSTD, ENDCOLSTD, 
+     &                                 1, cio_emis_file_layer(fnum), 
+     &                                 cio_emis_file_startrow(fnum), cio_emis_file_endrow(fnum),
+     &                                 cio_emis_file_startcol(fnum), cio_emis_file_endcol(fnum),
      &                                 data_jdate, data_jtime, cio_grid_data(begin:end) ) ) THEN
                       XMSG = 'Could not extract ' // cio_emis_file_name(fnum) // ' file'
                       CALL M3EXIT ( PNAME, data_jdate, data_jtime, XMSG, XSTAT1 )
@@ -2695,7 +2784,7 @@ C Read the various categories of normalized emissions
                    if (iter == 1) then
                    
                       IF ( .NOT. XTRACT3( ICFILE, cio_grid_var_name(v,1),
-     &                                    1, nlays, STRTROWSTD, ENDROWSTD, STRTCOLSTD, ENDCOLSTD, 
+     &                                    1, nlays, STRTROWIC, ENDROWIC, STRTCOLIC, ENDCOLIC, 
      &                                    data_jdate, data_jtime, cio_grid_data(begin:end) ) ) THEN
                          XMSG = 'Could not extract ' // ICFILE // ' file'
                          CALL M3EXIT ( PNAME, data_jdate, data_jtime, XMSG, XSTAT1 )
@@ -2710,7 +2799,7 @@ C Read the various categories of normalized emissions
                    if ((iter == 1) .and. (ISAM_NEW_START == 'N')) then
                       
                       IF ( .NOT. XTRACT3( ISAM_PREVDAY, cio_grid_var_name(v,1),
-     &                                    1, nlays, STRTROWSTD, ENDROWSTD, STRTCOLSTD, ENDCOLSTD, 
+     &                                    1, nlays, STRTROWISIC, ENDROWISIC, STRTCOLISIC, ENDCOLISIC, 
      &                                    data_jdate, data_jtime, cio_grid_data(begin:end) ) ) THEN
                          XMSG = 'Could not extract ' // ISAM_PREVDAY // ' file'
                          CALL M3EXIT ( PNAME, data_jdate, data_jtime, XMSG, XSTAT1 )
@@ -2723,7 +2812,7 @@ C Read the various categories of normalized emissions
                    data_jtime = loc_jtime(f_ltng)
 
                    IF ( .NOT. XTRACT3( NLDN_STRIKES, cio_grid_var_name(v,1), 
-     &                                 1, cio_LTLYRS, STRTROWSTD, ENDROWSTD, STRTCOLSTD, ENDCOLSTD, 
+     &                                 1, cio_LTLYRS, STRTROWLNT, ENDROWLNT, STRTCOLLNT, ENDCOLLNT, 
      &                                 data_jdate, data_jtime, cio_grid_data(begin:end) ) ) THEN
                       XMSG = 'Could not extract ' // NLDN_STRIKES // ' file'
                       CALL M3EXIT ( PNAME, data_jdate, data_jtime, XMSG, XSTAT1 )
@@ -2734,10 +2823,10 @@ C Read the various categories of normalized emissions
                    data_jdate = loc_jdate(f_bios)
                    data_jtime = 0
 
-                   allocate (tdata((ENDCOLSTD-STRTCOLSTD+1)*(ENDROWSTD-STRTROWSTD+1)), stat=stat)
+                   allocate (tdata((ENDCOLBS-STRTCOLBS+1)*(ENDROWBS-STRTROWBS+1)), stat=stat)
 
                    IF ( .NOT. XTRACT3( bio_season_fname, 'SEASON',
-     &                                 1, 1, STRTROWSTD, ENDROWSTD, STRTCOLSTD, ENDCOLSTD, 
+     &                                 1, 1, STRTROWBS, ENDROWBS, STRTCOLBS, ENDCOLBS, 
      &                                 data_jdate, data_jtime, tdata) ) then
                       XMSG = 'Could not extract ' // bio_season_fname // ' file'
                       CALL M3EXIT ( PNAME, data_jdate, data_jtime, XMSG, XSTAT1 )
