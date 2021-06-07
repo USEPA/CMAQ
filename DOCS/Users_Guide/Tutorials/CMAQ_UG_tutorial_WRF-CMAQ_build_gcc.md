@@ -186,7 +186,7 @@ BASEDIR = ${INSTALL}/ioapi-3.2-20200828
 ```
 
 ### Step 4: Install CMAQ
-     - follow these instructions to download the code, then use the modifications in Step 5:  [CMAQ Benchmark Tutorial](CMAQ_UG_tutorial_benchmark.md)
+  - Follow these instructions to download the code, then use the modifications in Step 5:  [CMAQ Benchmark Tutorial](CMAQ_UG_tutorial_benchmark.md)
 In the directory where you would like to install CMAQ, create the directory issue the following command to clone the EPA GitHub repository for CMAQv5.3.2:
 
 ```
@@ -275,10 +275,10 @@ set build_twoway                      #> uncomment to build WRF-CMAQ twoway;
 ```
 --->                  Executables successfully built                  <---
 
--rwxr-xr-x. 1 fsidi mod3dev 51139232 Jun  7 19:03 main/ndown.exe
--rwxr-xr-x. 1 fsidi mod3dev 51187088 Jun  7 19:03 main/real.exe
--rwxr-xr-x. 1 fsidi mod3dev 50445512 Jun  7 19:03 main/tc.exe
--rwxr-xr-x. 1 fsidi mod3dev 81349320 Jun  7 19:02 main/wrf.exe
+-rwxr-xr-x. 1 user home 51139232 Jun  7 19:03 main/ndown.exe
+-rwxr-xr-x. 1 user home 51187088 Jun  7 19:03 main/real.exe
+-rwxr-xr-x. 1 user home 50445512 Jun  7 19:03 main/tc.exe
+-rwxr-xr-x. 1 user home 81349320 Jun  7 19:02 main/wrf.exe
 
 ==========================================================================
 
@@ -286,6 +286,8 @@ set build_twoway                      #> uncomment to build WRF-CMAQ twoway;
 
   If the User sees this, the WRF-CMAQ model has been successfully compiled and built and they may skip to Step 12. If not, the User should double check the library paths above and try again. If it still fails, please reach post on the [CMAS Forum](https://forum.cmascenter.org/c/wrf-cmaq).
 
+
+Note: Steps 7-10 are **ONLY** for systems without [Git](https://git-scm.com/).
 
 ### Step 7: Download WRF 4.3 and install it
    - Please register at the WRF User site https://www2.mmm.ucar.edu/wrf/users/download/get_source.html
@@ -343,10 +345,10 @@ setenv WRF_CMAQ 1
 ```
 --->                  Executables successfully built                  <---
 
--rwxr-xr-x. 1 fsidi mod3dev 51139232 Jun  7 19:03 main/ndown.exe
--rwxr-xr-x. 1 fsidi mod3dev 51187088 Jun  7 19:03 main/real.exe
--rwxr-xr-x. 1 fsidi mod3dev 50445512 Jun  7 19:03 main/tc.exe
--rwxr-xr-x. 1 fsidi mod3dev 81349320 Jun  7 19:02 main/wrf.exe
+-rwxr-xr-x. 1 user home 51139232 Jun  7 19:03 main/ndown.exe
+-rwxr-xr-x. 1 user home 51187088 Jun  7 19:03 main/real.exe
+-rwxr-xr-x. 1 user home 50445512 Jun  7 19:03 main/tc.exe
+-rwxr-xr-x. 1 user home 81349320 Jun  7 19:02 main/wrf.exe
 
 ==========================================================================
 
