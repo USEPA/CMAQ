@@ -59,14 +59,13 @@ C global dry dep species
       LOGICAL, ALLOCATABLE, SAVE :: DIFF_MASK_TRAC( : ) !Tracers
 
       CHARACTER( 16 ), ALLOCATABLE, SAVE :: DDEP_SPC( : )
-      !CHARACTER( 16 ), ALLOCATABLE, SAVE :: DIFF_SPC( : )
       CHARACTER( 16 ), ALLOCATABLE, SAVE :: DEPV_SPC( : )
       CHARACTER( 16 ), ALLOCATABLE, SAVE :: DV2DF_SPC( : )
       REAL,            ALLOCATABLE, SAVE :: DIFF_MW  ( : )
 
 C component flux output variables 
-      INTEGER, PARAMETER :: LCMP  = 7
-      CHARACTER( 16 ), SAVE :: CMPSPC( LCMP ) = ' '
+      INTEGER,         SAVE :: LCMP, NH3_E, HG_E, HONO_E
+      CHARACTER( 16 ), SAVE :: CMPSPC( 4 ) = ' '
 
       CONTAINS
 
@@ -107,7 +106,6 @@ C Local variables:
          ALLOCATE ( DIFF_MAP( N_SPC_DIFF+1 ),
      &              DF2DV( N_SPC_DIFF+1 ),
      &              DIFF_MW( N_SPC_DIFF+1 ),
-    ! &              DF2EM( N_SPC_DIFF+1 ),
      &              DIFF_SPC( N_SPC_DIFF+1 ), stat = allocstat )
          IF ( ALLOCSTAT .NE. 0 ) THEN
             XMSG = 'Failure allocating DIFF_MAP, DF2DV or DIFF_SPC'
@@ -248,15 +246,24 @@ C Local variables:
                LERROR = .TRUE.
             END IF
          END DO
-
-         CMPSPC( 1 ) = 'NH3_Emis'
-!         CMPSPC( 2 ) = 'NH3_Flux'
-         CMPSPC( 2 ) = 'NH3_Stom'
-         CMPSPC( 3 ) = 'NH3_Cut '
-         CMPSPC( 4 ) = 'NH3_Soil'
-         CMPSPC( 5 ) = 'NH3_Ag  '
-         CMPSPC( 6 ) = 'NH3_Nat '
-         CMPSPC( 7 ) = 'NH3_Wat '
+         NH3_E  = 0
+         HG_ E  = 0
+         HONO_E = 0
+         IF ( ABFLUX ) THEN          
+            NH3_E = 1
+            LCMP = NH3_E
+            CMPSPC( NH3_E ) = 'NH3_Emis'
+         END IF
+         IF ( HGBIDI ) THEN
+            HG_E = NH3_E + 1 
+            LCMP = HG_E
+            CMPSPC( HG_E ) = 'HG_Emis'             
+         END IF   
+         IF ( SFC_HONO ) THEN
+            HONO_E = max(NH3_E,HG_E) + 1   
+            LCMP = HONO_E
+            CMPSPC( HONO_E ) = 'HONO_Het '                      
+         END IF    
 
 ! Populate Deposition Velocity Map and Species 
          S = 0

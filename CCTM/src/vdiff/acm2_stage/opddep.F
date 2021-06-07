@@ -58,8 +58,8 @@ C Local variables:
       CHARACTER( 96 ) :: XMSG = ' '
 
 ! component flux varialbes      
-      INTEGER, PARAMETER :: LCMP  = 8
-      CHARACTER( 16 ), SAVE :: CMPSPC( LCMP )
+      INTEGER,         SAVE :: LCMP 
+      CHARACTER( 16 ), SAVE :: CMPSPC( 4 )
 
       INTEGER      V, N, L     ! loop induction variables
       INTEGER      STRT, FINI  ! loop induction variables
@@ -69,15 +69,20 @@ C-----------------------------------------------------------------------
 C Try to open existing file for update
 
       IF ( .NOT. OPEN3( CTM_DRY_DEP_1, FSRDWR3, PNAME ) ) THEN
-      
-         CMPSPC( 1 ) = 'NH3_Emis'
-         CMPSPC( 2 ) = 'NH3_Flux '
-         CMPSPC( 3 ) = 'NH3_Stom'
-         CMPSPC( 4 ) = 'NH3_Cut '
-         CMPSPC( 5 ) = 'NH3_Soil'
-         CMPSPC( 6 ) = 'NH3_Ag  '
-         CMPSPC( 7 ) = 'NH3_Nat '
-         CMPSPC( 8 ) = 'NH3_Wat '
+
+         LCMP = 0
+         If( ABFLUX ) Then
+            LCMP = LCMP + 1
+            CMPSPC( LCMP ) = 'NH3_Emis'
+         End If 
+         If( HGBIDI ) Then
+            LCMP = LCMP + 1
+            CMPSPC( LCMP ) = 'HG_Emis'
+         End If 
+         If( SFC_HONO ) Then 
+            LCMP = LCMP + 1      
+            CMPSPC( LCMP ) = 'HONO_Het '
+         End If      
 
          XMSG = 'Could not open ' // CTM_DRY_DEP_1 // ' file for update - '
      &        // 'try to open new'
@@ -111,11 +116,9 @@ C Set output file characteristics based on COORD.EXT and open the dry dep file
          YCELL3D = YCELL_GD
          VGTYP3D = VGTYP_GD
          VGTOP3D = VGTOP_GD
-!        VGTPUN3D = VGTPUN_GD ! currently, not defined
          DO L = 1, NLAYS3D + 1
             VGLVS3D( L ) = VGLVS_GD( L )
          END DO
-!        GDNAM3D = GDNAME_GD
          GDNAM3D = GRID_NAME  ! from HGRD_DEFN
 
          N = 0
@@ -171,13 +174,33 @@ C Set output file characteristics based on COORD.EXT and open the dry dep file
          IF ( ABFLUX ) THEN
             N = 0   
             STRT = N_GC_DDEP + N_AE_DDEP + N_NR_DDEP + N_TR_DDEP + 1
-            FINI = N_GC_DDEP + N_AE_DDEP + N_NR_DDEP + N_TR_DDEP + LCMP
+            FINI = N_GC_DDEP + N_AE_DDEP + N_NR_DDEP + N_TR_DDEP + 1
             DO V = STRT, FINI
                N = N + 1
                VTYPE3D( V ) = M3REAL
                VNAME3D( V ) = CMPSPC( N )
                UNITS3D( V ) = 'kg/hectare'
-               VDESC3D( V ) = 'hourly dry deposition values'
+               VDESC3D( V ) = 'hourly emission values'
+            END DO
+         END IF
+         IF ( HGBIDI ) THEN
+            STRT = FINI + 1
+            FINI = FINI + 1
+            DO V = STRT, FINI
+               VTYPE3D( V ) = M3REAL
+               VNAME3D( V ) = 'HG_Emis'
+               UNITS3D( V ) = 'kg/hectare'
+               VDESC3D( V ) = 'hourly emission values'
+            END DO
+         END IF
+         IF ( SFC_HONO ) THEN
+            STRT = FINI + 1
+            FINI = FINI + 1
+            DO V = STRT, FINI
+               VTYPE3D( V ) = M3REAL
+               VNAME3D( V ) = 'HONO_Het '
+               UNITS3D( V ) = 'kg/hectare'
+               VDESC3D( V ) = 'hourly surface heterogenous production values'
             END DO
          END IF
 

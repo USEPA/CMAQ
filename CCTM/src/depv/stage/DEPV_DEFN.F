@@ -58,8 +58,7 @@ C model depositon velocites array
       REAL,    ALLOCATABLE, SAVE :: DEPV( :,:,: )
 
 C model depositon velocites array by land use category
-      REAL,    ALLOCATABLE, SAVE :: DEPVJ( :,:,:,: )
-!      REAL,    ALLOCATABLE, SAVE :: PLDVJ( :,:,:,: )      
+      REAL,    ALLOCATABLE, SAVE :: DEPVJ( :,:,:,: )   
 
 C model depositon velocites array by land use category
       REAL,    ALLOCATABLE, SAVE :: DEPVJ_FST( :,:,:,: )         
@@ -72,11 +71,10 @@ C ddep spc conversion factors
       REAL,    ALLOCATABLE, SAVE :: DD_CONV( : )
 
 C model-oriented bi-directional production [ppm-m/s]
-      REAL,    ALLOCATABLE, SAVE :: PLDV( :,:,: )
-      REAL,    ALLOCATABLE, SAVE :: CMP ( :,:,: )
+      REAL,    ALLOCATABLE, SAVE :: BIDI_VDEMIS( :,:,: )
 
 !      PUBLIC DEPV, DEPVJ,PLDVJ, DEPVJ_FST, N_SPC_DEPV, DD_CONV, PLDV, CMP,
-      PUBLIC DEPV, DEPVJ, DEPVJ_FST, N_SPC_DEPV, DD_CONV, PLDV, CMP,
+      PUBLIC DEPV, DEPVJ, DEPVJ_FST, N_SPC_DEPV, DD_CONV, BIDI_VDEMIS,
      &             N_GAS_DEPV, DEPV_INIT, GET_DEPV
       PRIVATE
 
@@ -84,7 +82,7 @@ C gas species (gas-phase and gas non-reactive) deposition velocities
       REAL,    ALLOCATABLE, SAVE :: DEPVEL_GAS( :,:,: )
 
 C m3dry-oriented bi-directional production [ppm-m/s]
-      REAL,    ALLOCATABLE, SAVE :: PVD( :,:,: )
+      REAL,    ALLOCATABLE, SAVE :: BIDI_EMIS( :,:,: )
 
 C CGRID for m3dry bi-directional flux calculation
       REAL,    ALLOCATABLE, SAVE :: CGRIDL1( :,:,: )
@@ -124,11 +122,9 @@ C-----------------------------------------------------------------------
          USE HGRD_DEFN
          USE RXNS_DATA           ! chemical mechanism data
          USE CGRID_SPCS          ! CGRID mechanism species
-!         USE DEPVVARS
          USE STAGE_DATA
          USE UTILIO_DEFN
-!         USE MOSAIC_MOD, Only: Init_Mosaic
-         USE LSM_MOD, Only: Init_LSM, n_lufrac !, PX_LSM, CLM_LSM, NOAH_LSM
+         USE LSM_MOD, Only: Init_LSM, n_lufrac 
          USE BIDI_MOD, Only: Init_Bidi
          USE STAGE_MOD, Only: INIT_STAGE
 
@@ -159,7 +155,6 @@ C Local variables:
          INTEGER          NDX, NDX2, NDX3      ! Temp index
          INTEGER          ALLOCSTAT
          INTEGER          J, L, N, S, V, STRT
-!         INTEGER, SAVE    :: n_spc_m3dry = ltotg       ! from DEPVVARS module
 
          INTERFACE
             SUBROUTINE OPDEPV_DIAG ( JDATE, JTIME, TSTEP,
@@ -203,10 +198,10 @@ C-----------------------------------------------------------------------
          N_GAS_DEPV = N_GC_DEPV + N_NR_DEPV + N_TR_DEPV
          N_SPC_DEPV = N_GAS_DEPV + N_AE_DEPV
 
-         ALLOCATE ( DEPV( N_SPC_DEPV+1,NCOLS,NROWS ),
-     &              PLDV( N_SPC_DEPV,NCOLS,NROWS ), STAT = ALLOCSTAT )
+         ALLOCATE ( DEPV       ( N_SPC_DEPV+1,NCOLS,NROWS ),
+     &              BIDI_VDEMIS( N_SPC_DEPV,NCOLS,NROWS ), STAT = ALLOCSTAT )
          IF ( ALLOCSTAT .NE. 0 ) THEN
-            XMSG = 'Failure allocating DEPV or PLDV arrays'
+            XMSG = 'Failure allocating DEPV or BIDI_VDEMIS arrays'
             CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
             SUCCESS = .FALSE.; RETURN
          END IF
@@ -221,8 +216,8 @@ C-----------------------------------------------------------------------
 C Initialize deposition velocities for nondeposited species to zero:
 C setting DEPV( N_SPC_DEPV+1,C,R ) = 0.0 accounts for dry dep. species names
 C as a subset of the vert. diffused species list
-         DEPV = 0.0   ! array assignment
-         PLDV = 0.0   ! array assignment
+         DEPV        = 0.0   ! array assignment
+         BIDI_VDEMIS = 0.0   ! array assignment
 
          ALLOCATE ( DD_CONV( N_SPC_DEPV+1 ), STAT = ALLOCSTAT )
          IF ( ALLOCSTAT .NE. 0 ) THEN
@@ -278,7 +273,6 @@ C Allocate additional arrays needed for mosaic and initialize land use parameter
          IF ( MOSAIC ) THEN
 
             ALLOCATE ( DEPVJ( N_LUFRAC,N_SPC_DEPV+1,NCOLS,NROWS ), STAT = ALLOCSTAT )
-!     &                 PLDVJ( N_LUFRAC,N_SPC_DEPV+1,NCOLS,NROWS ), STAT = ALLOCSTAT )
             IF ( ALLOCSTAT .NE. 0 ) THEN
                XMSG = 'Failure allocating DEPVJ array'
                CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
@@ -425,15 +419,14 @@ C Identify and remove multiple occurrences of aerosol deposition velocities
             write( logdev,* ) ' '
 #endif
 
-            ALLOCATE ( CGRIDL1( N_GAS_DEPV,NCOLS,NROWS ),
-     &                 PVD    ( N_GAS_DEPV,NCOLS,NROWS ), 
-     &                 CMP    ( LCMP,NCOLS,NROWS),STAT = ALLOCSTAT )
+            ALLOCATE ( CGRIDL1   ( N_GAS_DEPV,NCOLS,NROWS ),
+     &                 BIDI_EMIS ( N_GAS_DEPV,NCOLS,NROWS ), STAT = ALLOCSTAT )
             IF ( ALLOCSTAT .NE. 0 ) THEN
-               XMSG = 'Failure allocating CGRIDL1, CMP or PVD arrays'
+               XMSG = 'Failure allocating CGRIDL1 or BIDI_EMIS arrays'
                CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
                SUCCESS = .FALSE.; RETURN
             END IF
-            CGRIDL1 = 0.0   ! array assignment (PVD initalized in m3dry)
+            CGRIDL1 = 0.0   ! array assignment (BIDI_EMIS initialized in STAGE)
 
          END IF INIT_GAS_DV
 
@@ -491,10 +484,8 @@ C-----------------------------------------------------------------------
 
          USE HGRD_DEFN
          USE CGRID_SPCS          ! CGRID mechanism species
-!         USE DEPVVARS
          USE UTILIO_DEFN
          USE Mosaic_Mod
-!        USE Bidi_Mod, Only: HgBidi
          USE LSM_Mod,  Only: n_lufrac
          USE ASX_DATA_MOD, Only: GRID_DATA, MOSAIC_DATA
          Use STAGE_MOD,    Only: GAS_X, AERO_X
@@ -565,12 +556,12 @@ C-----------------------------------------------------------------------
          write( logdev,1033 ) cw, rw
 1033     format( /5x, 'Depv diagnostics for my_col, my_row:', i4, ', ', i4
      &           /6x, 'v', 3x, 'n', 1x, 'variable', 10x, 'ndx',
-     &            2x, 'depvel_gas', 4x, 'depv', 9x, 'pvd', 10x, 'pldv' )
+     &            2x, 'depvel_gas', 4x, 'depv', 9x, 'bidi_emis', 10x, 'bidi_vdemis' )
 #endif
          DTSEC  = FLOAT( TIME2SEC( TSTEP( 2 ) ) )
          DO R = 1, NROWS
             DO C = 1, NCOLS
-               CALL GAS_X ( JDATE, JTIME, DTSEC, C, R, CGRIDL1( :,C, R ), PVD( :,C,R ), CMP( :,C,R ), DEPVEL_GAS( :,C,R ) )
+               CALL GAS_X ( JDATE, JTIME, DTSEC, C, R, CGRIDL1( :,C, R ), BIDI_EMIS( :,C,R ), DEPVEL_GAS( :,C,R ) )
                IF ( N_AE_DEPV .GT. 0 ) CALL AERO_X( CGRID, JDATE, JTIME, TSTEP( 1 ), ADEPV( :,C,R ), C, R )
             END DO
          END DO
@@ -580,17 +571,16 @@ C-----------------------------------------------------------------------
          DO V = STRT, FINI
             N = N + 1
             NDX = GAS_DEPV_SUR( N )
-            DEPV( V,:,: ) = GC_DEPV_FAC( N ) * DEPVEL_GAS( NDX,:,: )
-            PLDV( V,:,: ) = PVD( NDX,:,: )
+            DEPV( V,:,: )        = GC_DEPV_FAC( N ) * DEPVEL_GAS( NDX,:,: )
+            BIDI_VDEMIS( V,:,: ) = BIDI_EMIS( NDX,:,: )
 #ifdef Verbose
             write( logdev,1039 ) v, n, gc_depv( n ), ndx,
      &                           depvel_gas( ndx,cw,rw ), depv( v,cw,rw ),
-     &                           pvd( ndx,cw,rw ), pldv( v,cw,rw )
+     &                           bidi_emis( ndx,cw,rw ), bidi_vdemis( v,cw,rw )
 1039        format( 3x, 2i4, 1x, a16, 1x, i3, 4( 1x, 1pe12.4 ) )
 #endif
             IF ( MOSAIC ) THEN                        
                DEPVJ( :,V,:,: ) = GC_DEPV_FAC( N ) * Tile_Data%DEPVEL_GASJ( :,NDX,:,: )
-!               PLDVJ( :,V,:,: ) = Tile_Data%pol( :,NDX,:,: )
                IF ( FST )
      &             DEPVJ_FST( :,V,:,: ) = GC_DEPV_FAC( N ) * Tile_Data%VD_FST_GASJ( :,NDX,:,: )
                END IF
@@ -602,16 +592,15 @@ C-----------------------------------------------------------------------
          DO V = STRT, FINI
             N = N + 1
             NDX = GAS_DEPV_SUR( N+N_GC_DEPV )
-            DEPV( V,:,: ) = NR_DEPV_FAC( N ) * DEPVEL_GAS( NDX,:,: )
-            PLDV( V,:,: ) = PVD( NDX,:,: )
+            DEPV( V,:,: )        = NR_DEPV_FAC( N ) * DEPVEL_GAS( NDX,:,: )
+            BIDI_VDEMIS( V,:,: ) = BIDI_EMIS( NDX,:,: )
 #ifdef Verbose
             write( logdev,1039 ) v, n, nr_depv( n ), ndx,
      &                           depvel_gas( ndx,cw,rw ), depv( v,cw,rw ),
-     &                           pvd( ndx,cw,rw ), pldv( v,cw,rw )
+     &                           bidi_emis( ndx,cw,rw ), bidi_vdemis( v,cw,rw )
 #endif
             IF ( MOSAIC ) THEN
                DEPVJ( :,V,:,: ) = NR_DEPV_FAC( N ) * Tile_Data%DEPVEL_GASJ( :,NDX,:,: )
-!               PLDVJ( :,V,:,: ) = Tile_Data%pol( :,NDX,:,: )
                IF ( FST )
      &            DEPVJ_FST( :,V,:,: ) = NR_DEPV_FAC( N ) * Tile_Data%VD_FST_GASJ( :,NDX,:,: )
             END IF
@@ -625,15 +614,14 @@ C-----------------------------------------------------------------------
             NDX = GAS_DEPV_SUR( N + N_GC_DEPV + N_NR_DEPV )
 
             DEPV( V,:,: ) = TR_DEPV_FAC( N ) * DEPVEL_GAS( NDX,:,: )
-            PLDV( V,:,: ) = PVD( NDX,:,: )
+            BIDI_VDEMIS( V,:,: ) = BIDI_EMIS( NDX,:,: )
 #ifdef Verbose
             write( logdev,1039 ) v, n, tr_depv( n ), ndx,
      &                           depvel_gas( ndx,cw,rw ), depv( v,cw,rw ),
-     &                           pvd( ndx,cw,rw ), pldv( v,cw,rw )
+     &                           bidi_emis( ndx,cw,rw ), bidi_vdemis( v,cw,rw )
 #endif
             IF ( MOSAIC ) THEN
                DEPVJ( :,V,:,: ) = TR_DEPV_FAC( N ) * Tile_Data%DEPVEL_GASJ( :,NDX,:,: )
-!               PLDVJ( :,V,:,: ) = Tile_Data%pol( :,NDX,:,: )
                IF ( FST )
      &            DEPVJ_FST( :,V,:,: ) = TR_DEPV_FAC( N ) * Tile_Data%VD_FST_GASJ( :,NDX,:,: )
             END IF
