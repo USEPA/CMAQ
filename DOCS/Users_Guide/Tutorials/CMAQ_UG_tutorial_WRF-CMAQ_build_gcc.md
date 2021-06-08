@@ -265,12 +265,18 @@ Enter selection [1-75] : -------------------------------------------------------
    - For more information refer to the [WRF User Guide](https://www2.mmm.ucar.edu/wrf/users/docs/user_guide_v4/v4.0/contents.html)
 
 ```
-source config_cmaq.csh
+source config_cmaq.csh gcc
 ```
 
 ### Step 6: Modify the bldit_cctm.csh 
 
-Uncomment the option to build WRF-CMAQ twoway:      
+Uncomment the option to build WRF-CMAQ twoway:     
+
+```
+cd CCTM/scripts
+```
+
+edit bldit_cctm.csh
       
 ```
 #> Two-way WRF-CMAQ 
