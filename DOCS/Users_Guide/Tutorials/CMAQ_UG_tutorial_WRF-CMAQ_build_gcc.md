@@ -95,7 +95,9 @@ https://cjcoats.github.io/ioapi/AVAIL.html
      git clone https://github.com/cjcoats/ioapi-3.2
      cd ioapi-3.2         ! change directory to ioapi-3.2
      git checkout -b 20200828   ! change branch to 20200828 for code updates
-     ln -s ioapi-3.2-20200828 ./ioapi-3.2  ! create a symbolic link to specify the tagged version
+     cd ..                      ! change directories to the level above ioapi-3.2
+     ln -s ioapi-3.2 ioapi-3.2-2020828 ! create a symbolic link to specify the tagged version
+     cd ioapi-3.2                      ! change back to the directory
      
 
 #### Change directories to the ioapi directory
@@ -133,6 +135,12 @@ BASEDIR = ${INSTALL}/ioapi-3.2-20200828
      mkdir $INSTALL/$BIN
       
  ### Edit the Makefile to add a path to the combined netCDF library directory
+ ### Note this is the Makefile at the ioapi-3.2 level. 
+ ### First need to copy Makefile.template Makefile
+ 
+ ```
+ cp Makefile.template Makefile
+ ```
  
  change
  
@@ -143,7 +151,7 @@ BASEDIR = ${INSTALL}/ioapi-3.2-20200828
  to
  
    ```
-   NCFLIBS    = -L /[your_install_path]/LIBRARIES/netcdf_combined/lib/ -lnetcdff -lnetcdf
+   NCFLIBS    = -L $NETCDF/lib/ -lnetcdff -lnetcdf   ! using the combined $NETCDF environment variable set above
    ```
  
  #### change into the ioapi directory and copy the existing Makeinclude.Linux2_x86_64gfort to have an extension that is the same as the BIN environment variable
@@ -167,6 +175,7 @@ BASEDIR = ${INSTALL}/ioapi-3.2-20200828
  
  
  ### Build ioapi using the following command
+ ### (Not clear where to run the make command.  Do you run it under ioapi-3.2 or ioapi-3.2/ioapi directory?
  
  
  ```
@@ -176,13 +185,17 @@ BASEDIR = ${INSTALL}/ioapi-3.2-20200828
  ### Verify that the libioapi.a and the m3tools have been successfully built
  
  ```
- ls -lrt /[your_install_path]/LIBRARIES/ioapi-3.2-20200828/Linux2_x86_64gfort_openmpi_4.0.1_gcc_9.1.0/libioapi.a
+ ls -lrt $INSTALL/ioapi-3.2-20200828/Linux2_x86_64gfort_openmpi_4.0.1_gcc_9.1.0/libioapi.a
  ```
  
  ### Note: If you get a shared object problem when trying to run m3tools such as the following:
  ```
 ./juldate
 ./juldate: error while loading shared libraries: libimf.so: cannot open shared object file: No such file or directory
+```
+### Be sure that the appropriate module is loaded, or that the LD_LIBRARY_PATH contains a path to the shared opject file that is missing.
+```
+module load openmpi_4.0.1/gcc_9.1.0
 ```
 
 ### Step 4: Install CMAQ
@@ -210,6 +223,8 @@ Now execute the script.
 Change directories to the CMAQ_HOME directory
 
 ### Step 5. Edit and source the config_cmaq.csh to specify the paths of the ioapi and netCDF libraries 
+### Go to the case [compiler] entry
+### for example, if running using the gcc compiler, go to line 148, or search for 'case gcc'
    
 ```
 #> I/O API and netCDF for WRF-CMAQ 
@@ -252,12 +267,18 @@ Enter selection [1-75] : -------------------------------------------------------
    - For more information refer to the [WRF User Guide](https://www2.mmm.ucar.edu/wrf/users/docs/user_guide_v4/v4.0/contents.html)
 
 ```
-source config_cmaq.csh
+source config_cmaq.csh gcc
 ```
 
 ### Step 6: Modify the bldit_cctm.csh 
 
-Uncomment the option to build WRF-CMAQ twoway:      
+Uncomment the option to build WRF-CMAQ twoway:     
+
+```
+cd CCTM/scripts
+```
+
+edit bldit_cctm.csh
       
 ```
 #> Two-way WRF-CMAQ 
