@@ -193,6 +193,10 @@ BASEDIR = ${INSTALL}/ioapi-3.2-20200828
 ./juldate
 ./juldate: error while loading shared libraries: libimf.so: cannot open shared object file: No such file or directory
 ```
+### Be sure that the appropriate module is loaded, or that the LD_LIBRARY_PATH contains a path to the shared opject file that is missing.
+```
+module load openmpi_4.0.1/gcc_9.1.0
+```
 
 ### Step 4: Install CMAQ
   - Follow these instructions to download the code, then use the modifications in Step 5:  [CMAQ Benchmark Tutorial](CMAQ_UG_tutorial_benchmark.md)
