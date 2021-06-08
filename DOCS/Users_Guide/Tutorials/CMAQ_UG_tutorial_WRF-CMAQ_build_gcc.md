@@ -128,6 +128,11 @@ BASEDIR = ${INSTALL}/ioapi-3.2-20200828
      setenv INSTALL [your_install_path]/LIBRARIES/openmpi_4.0.1_gcc_9.1.0
      setenv BIN  Linux2_x86_64gfort_openmpi_4.0.1_gcc_9.1.0
      
+     
+ ### set the CPLMODE environment variable
+ 
+     setenv CPLMODE nocpl
+     
 
  #### Make the installation directory
 
