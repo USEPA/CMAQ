@@ -254,7 +254,7 @@ C set auxiliary depv arrays
             END IF   ! if Fst
          END IF   ! if Mosaic
 
-         ALLOCATE ( TMP_BD_EMIS( LCMP ), STAT = ASTAT )
+         ALLOCATE ( TMP_BD_EMIS( N_BD_EMIS ), STAT = ASTAT )
          IF ( ASTAT .NE. 0 ) THEN
             XMSG = 'Failure allocating TMP_BD_EMIS'
             CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )

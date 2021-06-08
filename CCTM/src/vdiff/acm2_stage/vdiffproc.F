@@ -259,7 +259,7 @@ C Allocate and initialize dry deposition array
          END IF
          DDEP = 0.0   ! array assignment
   
-         ALLOCATE ( TOT_BD_EMIS( LCMP,NCOLS,NROWS ), STAT = ASTAT )
+         ALLOCATE ( TOT_BD_EMIS( N_BD_EMIS,NCOLS,NROWS ), STAT = ASTAT )
          IF ( ASTAT .NE. 0 ) THEN
             XMSG = 'Failure allocating TOT_BD_EMIS'
             CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
@@ -490,21 +490,21 @@ C If last call this hour:  write accumulated depositions:
          END DO 
 ! STAGE Diagnostic output
          IF ( ABFLUX ) THEN
-            IF ( .NOT. WRITE3( CTM_DRY_DEP_1, CMPSPC( NH3_E ),
+            IF ( .NOT. WRITE3( CTM_DRY_DEP_1, BD_EMIS_SPC( NH3_E ),
      &           MDATE, MTIME, TOT_BD_EMIS( NH3_E,:,: ) ) ) THEN
                XMSG = 'Could not write ' // CTM_DRY_DEP_1 // ' file'
                CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
             END IF     
          ENDIF
          IF ( HGBIDI ) THEN
-            IF ( .NOT. WRITE3( CTM_DRY_DEP_1, CMPSPC( HG_E ),
+            IF ( .NOT. WRITE3( CTM_DRY_DEP_1, BD_EMIS_SPC( HG_E ),
      &           MDATE, MTIME, TOT_BD_EMIS( HG_E,:,: ) ) ) THEN
                XMSG = 'Could not write ' // CTM_DRY_DEP_1 // ' file'
                CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
             END IF     
          ENDIF
          IF ( SFC_HONO ) THEN
-            IF ( .NOT. WRITE3( CTM_DRY_DEP_1, CMPSPC( HONO_E ),
+            IF ( .NOT. WRITE3( CTM_DRY_DEP_1, BD_EMIS_SPC( HONO_E ),
      &           MDATE, MTIME, TOT_BD_EMIS( HONO_E,:,: ) ) ) THEN
                XMSG = 'Could not write ' // CTM_DRY_DEP_1 // ' file'
                CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )

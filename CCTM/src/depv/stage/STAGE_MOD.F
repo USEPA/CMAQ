@@ -319,7 +319,7 @@ C Parameters specific to gas_x. Currently based on m3dry but subject to change
          Real            :: LU_Flux, LU_Emis
          Real            :: c_atm, c_z0, c_leaf, c_stom, c_cut, c_grnd, c_wat ! Compensation points  
          Real            :: soil_flux                                         ! soil emission and deposition for soil biogeochem
-         Real            :: f_stom, f_cut, f_soil ! component fluxes
+         Real            :: f_wat, f_stom, f_cut, f_soil ! component fluxes
          Real            :: ctemp2, lv, cp_air, tw, dw25, kvisw
          Real            :: ir_frac
          integer         :: i, l, n, s
@@ -410,6 +410,7 @@ C Parameters specific to gas_x. Currently based on m3dry but subject to change
             f_stom    = 0.0
             f_cut     = 0.0
             f_soil    = 0.0
+            f_wat     = 0.0
             soil_flux = 0.0
             heff_wat  = hlconst( H_name_all( s ), tw, effective, hplus_h2o )* 0.08205 * tw
             heff_ap   = hlconst( H_name_all( s ), temp_2m, effective, hplus_ap )
@@ -474,6 +475,7 @@ C Get Ra
                   End If
 
                   Tile_Data%depvel_gasj( l,n,c,r ) = 1.0 / ( Ra + Rb + Rwat ) 
+                  f_wat  = f_wat  + frac_lu * ( c_wat - c_atm ) / ( Ra + Rb + Rwat )   
                Else 
 !-------------------------------------------------------------------------------------------------
 ! Air-land exchange

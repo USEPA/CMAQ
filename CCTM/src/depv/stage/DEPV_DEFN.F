@@ -73,7 +73,6 @@ C ddep spc conversion factors
 C model-oriented bi-directional production [ppm-m/s]
       REAL,    ALLOCATABLE, SAVE :: BIDI_VDEMIS( :,:,: )
 
-!      PUBLIC DEPV, DEPVJ,PLDVJ, DEPVJ_FST, N_SPC_DEPV, DD_CONV, PLDV, CMP,
       PUBLIC DEPV, DEPVJ, DEPVJ_FST, N_SPC_DEPV, DD_CONV, BIDI_VDEMIS,
      &             N_GAS_DEPV, DEPV_INIT, GET_DEPV
       PRIVATE

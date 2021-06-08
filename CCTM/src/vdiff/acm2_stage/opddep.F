@@ -58,8 +58,8 @@ C Local variables:
       CHARACTER( 96 ) :: XMSG = ' '
 
 ! component flux varialbes      
-      INTEGER,         SAVE :: LCMP 
-      CHARACTER( 16 ), SAVE :: CMPSPC( 4 )
+      INTEGER,         SAVE :: N_BD_EMIS 
+      CHARACTER( 16 ), SAVE :: BD_EMIS_SPC( 4 )
 
       INTEGER      V, N, L     ! loop induction variables
       INTEGER      STRT, FINI  ! loop induction variables
@@ -70,18 +70,18 @@ C Try to open existing file for update
 
       IF ( .NOT. OPEN3( CTM_DRY_DEP_1, FSRDWR3, PNAME ) ) THEN
 
-         LCMP = 0
+         N_BD_EMIS = 0
          If( ABFLUX ) Then
-            LCMP = LCMP + 1
-            CMPSPC( LCMP ) = 'NH3_Emis'
+            N_BD_EMIS = N_BD_EMIS + 1
+            BD_EMIS_SPC( N_BD_EMIS ) = 'NH3_Emis'
          End If 
          If( HGBIDI ) Then
-            LCMP = LCMP + 1
-            CMPSPC( LCMP ) = 'HG_Emis'
+            N_BD_EMIS = N_BD_EMIS + 1
+            BD_EMIS_SPC( N_BD_EMIS ) = 'HG_Emis'
          End If 
          If( SFC_HONO ) Then 
-            LCMP = LCMP + 1      
-            CMPSPC( LCMP ) = 'HONO_Het '
+            N_BD_EMIS = N_BD_EMIS + 1      
+            BD_EMIS_SPC( N_BD_EMIS ) = 'HONO_Het '
          End If      
 
          XMSG = 'Could not open ' // CTM_DRY_DEP_1 // ' file for update - '
@@ -95,11 +95,7 @@ C Set output file characteristics based on COORD.EXT and open the dry dep file
          STIME3D = JTIME
          TSTEP3D = TSTEP
          CALL NEXTIME( SDATE3D, STIME3D, TSTEP3D ) !  start the next hour
-         IF ( ABFLUX ) THEN
-            NVARS3D = N_SPC_DDEP + LCMP 
-         ELSE 
-            NVARS3D = N_SPC_DDEP
-         END IF
+         NVARS3D = N_SPC_DDEP + N_BD_EMIS 
          NCOLS3D = GL_NCOLS
          NROWS3D = GL_NROWS
          NLAYS3D =     1
@@ -178,7 +174,7 @@ C Set output file characteristics based on COORD.EXT and open the dry dep file
             DO V = STRT, FINI
                N = N + 1
                VTYPE3D( V ) = M3REAL
-               VNAME3D( V ) = CMPSPC( N )
+               VNAME3D( V ) = BD_EMIS_SPC( N )
                UNITS3D( V ) = 'kg/hectare'
                VDESC3D( V ) = 'hourly emission values'
             END DO
