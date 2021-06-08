@@ -95,7 +95,9 @@ https://cjcoats.github.io/ioapi/AVAIL.html
      git clone https://github.com/cjcoats/ioapi-3.2
      cd ioapi-3.2         ! change directory to ioapi-3.2
      git checkout -b 20200828   ! change branch to 20200828 for code updates
-     ln -s ioapi-3.2-20200828 ./ioapi-3.2  ! create a symbolic link to specify the tagged version
+     cd ..                      ! change directories to the level above ioapi-3.2
+     ln -s ioapi-3.2 ioapi-3.2-2020828 ! create a symbolic link to specify the tagged version
+     cd ioapi-3.2                      ! change back to the directory
      
 
 #### Change directories to the ioapi directory
@@ -133,6 +135,12 @@ BASEDIR = ${INSTALL}/ioapi-3.2-20200828
      mkdir $INSTALL/$BIN
       
  ### Edit the Makefile to add a path to the combined netCDF library directory
+ ### Note this is the Makefile at the ioapi-3.2 level. 
+ ### First need to copy Makefile.template Makefile
+ 
+ ```
+ cp Makefile.template Makefile
+ ```
  
  change
  
@@ -143,7 +151,7 @@ BASEDIR = ${INSTALL}/ioapi-3.2-20200828
  to
  
    ```
-   NCFLIBS    = -L /[your_install_path]/LIBRARIES/netcdf_combined/lib/ -lnetcdff -lnetcdf
+   NCFLIBS    = -L $NETCDF/lib/ -lnetcdff -lnetcdf   ! using the combined $NETCDF environment variable set above
    ```
  
  #### change into the ioapi directory and copy the existing Makeinclude.Linux2_x86_64gfort to have an extension that is the same as the BIN environment variable
@@ -167,6 +175,7 @@ BASEDIR = ${INSTALL}/ioapi-3.2-20200828
  
  
  ### Build ioapi using the following command
+ ### (Not clear where to run the make command.  Do you run it under ioapi-3.2 or ioapi-3.2/ioapi directory?
  
  
  ```
