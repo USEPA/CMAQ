@@ -223,6 +223,8 @@ Now execute the script.
 Change directories to the CMAQ_HOME directory
 
 ### Step 5. Edit and source the config_cmaq.csh to specify the paths of the ioapi and netCDF libraries 
+### Go to the case [compiler] entry
+### for example, if running using the gcc compiler, go to line 148, or search for 'case gcc'
    
 ```
 #> I/O API and netCDF for WRF-CMAQ 
