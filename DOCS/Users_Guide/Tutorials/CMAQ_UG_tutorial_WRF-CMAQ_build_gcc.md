@@ -173,12 +173,19 @@ BASEDIR = ${INSTALL}/ioapi-3.2-20200828
  #OMPLIBS   = -fopenmp
  ```
  
+ ### Create the Makefile in the m3tools directory
+ 
+ ```
+ cd ../m3tools
+ cp Makefile.nocpl Makefile
+ ```
+ 
  
  ### Build ioapi using the following command
  ### (Not clear where to run the make command.  Do you run it under ioapi-3.2 or ioapi-3.2/ioapi directory?
  
- 
  ```
+ cd ..
  make |& tee make.log
  ```
  
