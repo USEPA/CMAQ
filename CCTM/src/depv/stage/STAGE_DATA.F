@@ -24,9 +24,6 @@ C Function: User-defined types
 C Revision History:
 C     26 June 2014 J.Bash: initial implementation
 
-!      Use GRID_CONF           ! horizontal & vertical domain specifications
-!      Use LSM_MOD             ! Land surface data
-
       Implicit None
       
       Type :: Map_Type
@@ -56,7 +53,7 @@ C     26 June 2014 J.Bash: initial implementation
       Type( Map_Type ), Save :: Map_Data 
 
       INTEGER, PARAMETER :: dep_gas_all = 177
-      INTEGER, PARAMETER :: LCMP = 8
+      INTEGER,         Save :: LCMP
       Character( 16 ), Save :: vd_name     ( dep_gas_all )       ! Deposition species name
       Real,            Save :: rel_rx      ( dep_gas_all )       ! reactivity relative to HNO3
       Real,            Save :: LeBasM      ( dep_gas_all )       ! Le Bas molar volume [cm3/mol ]
@@ -261,6 +258,17 @@ C     26 June 2014 J.Bash: initial implementation
          CHARACTER( 16 )       :: gc_depv_name( dep_gas_all )
          CHARACTER( 16 )  :: PNAME = 'Map_STAGE'
          CHARACTER( 120 ) :: XMSG = ' '
+
+         LCMP = 0
+         If( ABFLUX ) Then
+            LCMP = LCMP + 1
+         End If 
+         If( HGBIDI ) Then
+            LCMP = LCMP + 1
+         End If 
+         If( SFC_HONO ) Then
+            LCMP = LCMP + 1
+         End If
 
          molwt_all    = 0.0
          asx_run_map  = .FALSE.

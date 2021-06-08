@@ -17,7 +17,7 @@
 !------------------------------------------------------------------------!
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-      SUBROUTINE VDIFFACMX ( DTSEC, SEDDY, DDEP, ICMP, DDEPJ, DDEPJ_FST, CNGRD )
+      SUBROUTINE VDIFFACMX ( DTSEC, SEDDY, DDEP, TOT_BD_EMIS, DDEPJ, DDEPJ_FST, CNGRD )
 
 C-----------------------------------------------------------------------
 C Asymmetric Convective Model v2 (ACM2/ACM1) -- Pleim(2006/2014)
@@ -61,7 +61,7 @@ C-----------------------------------------------------------------------
 #ifdef isam
       USE SA_DEFN, ONLY: N_SPCTAG, ISAM, VNAM_SPCTAG, TRANSPORT_SPC,
      &                   SA_VDEMIS_DIFF, ITAG, NTAG_SA, NSPC_SA,
-     &                   S_SPCTAG, T_SPCTAG, SA_DDEP, OTHRTAG, SPC_NAME,
+     &                   S_SPCTAG, T_SPCTAG, SA_DDEP, OTHRTAG, ISAM_SPEC,
      &                   L_NITRATE, SA_BIDI, BIDITAG, L_NH4
 #endif
 
@@ -74,12 +74,12 @@ C-----------------------------------------------------------------------
 C Arguments:
       REAL, INTENT( IN )    :: DTSEC                ! model time step in seconds
 C--- SEDDY is strictly an input, but it gets modified here
-      REAL, INTENT( INOUT ) :: SEDDY    ( :,:,: )   ! flipped EDDYV
-      REAL, INTENT( INOUT ) :: DDEP     ( :,:,: )   ! ddep accumulator
-      REAL, INTENT( INOUT ) :: ICMP     ( :,:,: )   ! component flux accumlator 
+      REAL, INTENT( INOUT ) :: SEDDY       ( :,:,: )   ! flipped EDDYV
+      REAL, INTENT( INOUT ) :: DDEP        ( :,:,: )   ! ddep accumulator
+      REAL, INTENT( INOUT ) :: TOT_BD_EMIS ( :,:,: )   ! bidi emissions accumlator 
       REAL, INTENT( INOUT ), OPTIONAL :: DDEPJ    ( :,:,:,: ) ! ddep for mosaic
       REAL, INTENT( INOUT ), OPTIONAL :: DDEPJ_FST( :,:,:,: ) ! ddep for stomtal/cuticular pathway
-      REAL, INTENT( INOUT ) :: CNGRD    ( :,:,:,: ) ! cgrid replacement
+      REAL, INTENT( INOUT ) :: CNGRD       ( :,:,:,: ) ! cgrid replacement
 
 C Parameters:
 
@@ -103,7 +103,7 @@ C Local Variables:
       REAL, ALLOCATABLE, SAVE :: DDBF       ( : )   ! secondary DDEP
       REAL, ALLOCATABLE, SAVE :: DDBFJ      ( :,: ) ! secondary DDEP for mosaic
       REAL, ALLOCATABLE, SAVE :: DDBFJ_FST  ( :,: ) ! secondary DDEP for mosaic
-      REAl, ALLOCATABLE, SAVE :: CMPF       ( : )   ! intermediate CMP
+      REAl, ALLOCATABLE, SAVE :: TMP_BD_EMIS( : )   ! intermediate bidi emissions
       REAL, ALLOCATABLE, SAVE :: CONC       ( :,: ) ! secondary CGRID expression
       REAL, ALLOCATABLE, SAVE :: EMIS       ( :,: ) ! emissions subexpression
       REAL        DTDENS1                       ! DT * layer 1 air density
@@ -132,20 +132,18 @@ C ACM Local Variables
       REAL     :: LFAC4( NLAYS )                ! intermediate factor for eddy
       REAL, ALLOCATABLE, SAVE :: DEPVCR     ( : )   ! dep vel in one cell
       REAL, ALLOCATABLE, SAVE :: DEPVJCR    ( :,: ) ! dep vel in one cell for each landuse
-      REAL, ALLOCATABLE, SAVE :: POLJ       ( :,: ) ! prodn/lossrate for each landuse
-                                                    ! category
       REAL, ALLOCATABLE, SAVE :: DEPVJCR_FST( :,: ) ! dep vel (stomatal uptake only) in
                                                     ! one cell for each landuse category
       REAL, ALLOCATABLE, SAVE :: EFAC1 ( : )
       REAL, ALLOCATABLE, SAVE :: EFAC2 ( : )
-      REAL, ALLOCATABLE, SAVE :: POL   ( : )    ! prodn/lossrate = PLDV/DEPV
-      REAL        PLDV_HONO                     ! PLDV for HONO
-      REAL        DEPV_NO2                      ! dep vel of NO2
-      REAL        DEPV_HNO3                     ! dep vel of HNO3
-      REAL        FNL                           ! ACM2 Variable
+      REAL, ALLOCATABLE, SAVE :: EMIS_OVER_VD( : ) ! Bidi Emissions/DEPV (ppm)
+      REAL        PLDV_HONO                        ! PLDV for HONO
+      REAL        DEPV_NO2                         ! dep vel of NO2
+      REAL        DEPV_HNO3                        ! dep vel of HNO3
+      REAL        FNL                              ! ACM2 Variable
       INTEGER     NLP, NL, LCBL
       INTEGER, SAVE :: NO2_HIT, HONO_HIT, HNO3_HIT, NO2_MAP, HNO3_MAP
-      INTEGER, SAVE :: NH3_HIT
+      INTEGER, SAVE :: NH3_HIT, HG_HIT
       REAL        DTLIM, DTS, DTACM, RZ
 
       INTEGER     ASTAT
@@ -223,14 +221,14 @@ C-----------------------------------------------------------------------
 
 C set auxiliary depv arrays
 
-         ALLOCATE ( DD_FAC( N_SPC_DEPV  ),
-     &              DDBF  ( N_SPC_DEPV ),
-     &              DEPVCR( N_SPC_DEPV ),
-     &              EFAC1 ( N_SPC_DEPV ),
-     &              EFAC2 ( N_SPC_DEPV ),
-     &              POL   ( N_SPC_DEPV ), STAT = ASTAT )
+         ALLOCATE ( DD_FAC    ( N_SPC_DEPV  ),
+     &              DDBF      ( N_SPC_DEPV ),
+     &              DEPVCR    ( N_SPC_DEPV ),
+     &              EFAC1     ( N_SPC_DEPV ),
+     &              EFAC2     ( N_SPC_DEPV ),
+     &              EMIS_OVER_VD ( N_SPC_DEPV ), STAT = ASTAT )
          IF ( ASTAT .NE. 0 ) THEN
-            XMSG = 'Failure allocating DD_FAC, DDBF, DEPVCR, EFAC1, EFAC2, or POL'
+            XMSG = 'Failure allocating DD_FAC, DDBF, DEPVCR, EFAC1, EFAC2, or EMIS_OVER_VDs'
             CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
          END IF
 
@@ -240,8 +238,7 @@ C set auxiliary depv arrays
          IF ( XMOSAIC ) THEN
             ALLOCATE ( DD_FACJ( N_LUFRAC,N_SPC_DEPV ),
      &                 DDBFJ  ( N_LUFRAC,N_SPC_DEPV ),
-     &                 DEPVJCR( N_LUFRAC,N_SPC_DEPV ),
-     &                 POLJ   ( N_LUFRAC,N_SPC_DEPV ), STAT = ASTAT )
+     &                 DEPVJCR( N_LUFRAC,N_SPC_DEPV ), STAT = ASTAT )
             IF ( ASTAT .NE. 0 ) THEN
                XMSG = 'Failure allocating DD_FACJ, DDBFJ or DEPVJCR'
                CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
@@ -257,9 +254,9 @@ C set auxiliary depv arrays
             END IF   ! if Fst
          END IF   ! if Mosaic
 
-         ALLOCATE ( CMPF( LCMP ), STAT = ASTAT )
+         ALLOCATE ( TMP_BD_EMIS( N_BD_EMIS ), STAT = ASTAT )
          IF ( ASTAT .NE. 0 ) THEN
-            XMSG = 'Failure allocating CMPF'
+            XMSG = 'Failure allocating TMP_BD_EMIS'
             CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
          END IF
 
@@ -292,6 +289,8 @@ C set auxiliary depv arrays
                HNO3_MAP = DV2DF( V )
             ELSE IF ( DV2DF_SPC( V ) .EQ. 'NH3' ) THEN
                NH3_HIT = V
+            ELSE IF ( DV2DF_SPC( V ) .EQ. 'HG' ) THEN
+               HG_HIT = V
             END IF
          END DO
 
@@ -342,7 +341,7 @@ C set auxiliary depv arrays
 
 ! find NO2 in tracked species
          DO S = 1, NSPC_SA
-            IF( SPC_NAME( S,1 ) .EQ. 'NO2' )THEN
+            IF( ISAM_SPEC( S,1 ) .EQ. 'NO2' )THEN
                 ISAM_INDEX_NO2 = S
                 EXIT
             END IF            
@@ -350,7 +349,7 @@ C set auxiliary depv arrays
 ! find NH3 in tracked species
          IF ( SA_BIDI ) THEN
            DO S = 1, NSPC_SA
-              IF( SPC_NAME( S,1 ) .EQ. 'NH3' )THEN
+              IF( ISAM_SPEC( S,1 ) .EQ. 'NH3' )THEN
                   ISAM_INDEX_NH3 = S
                   EXIT
               END IF
@@ -539,11 +538,10 @@ C-----------------------------------------------------------------------
 #ifdef isam
          SAEMIS = 0.0
 
-! modify ground emissions for bidirectional species (for bidi, PLDV > 0.0)
+! modify ground emissions for bidirectional species (for bidi, BIDI_VDEMIS > 0.0)
          IF ( SA_BIDI ) THEN
            SA_VDEMIS_DIFF( ISAM_INDEX_NH3,1,C,R,BIDITAG )
-c    &             = PLDV(PLDV_INDEX_NH3,C,R) * Grid_Data%RDX3F( 1 )
-     &             = PLDV(PLDV_INDEX_NH3,C,R) * Met_Data%RDEPVHT( C,R )
+     &             = BIDI_VDEMIS(PLDV_INDEX_NH3,C,R) * Met_Data%RDEPVHT( C,R )
          END IF
 
 ! collapse ISAM emissions array
@@ -562,31 +560,35 @@ c    &             = PLDV(PLDV_INDEX_NH3,C,R) * Grid_Data%RDX3F( 1 )
             EDDY( L ) = SEDDY( L,C,R ) * DZFI(L)
          END DO
 
-         RP  = DFACP * Met_Data%RDEPVHT( C,R )
-         RQ  = DFACQ * Met_Data%RDEPVHT( C,R )
-         POL = 0.0
+         RP        = DFACP * Met_Data%RDEPVHT( C,R )
+         RQ        = DFACQ * Met_Data%RDEPVHT( C,R )
+         EMIS_OVER_VD = 0.0
          DO V = 1, N_SPC_DEPV
             DDBF( V )   = DDEP( V,C,R )
             DEPVCR( V ) = DEPV( V,C,R )
             DD_FAC( V ) = DTDENS1 * DD_CONV( V ) * DEPVCR( V )
             EFAC1 ( V ) = EXP( -DEPVCR( V ) * RP )
             EFAC2 ( V ) = EXP( -DEPVCR( V ) * RQ )
-            If( PLDV( V,C,R ) .Gt. 0.0 ) Then
+            If( BIDI_VDEMIS( V,C,R ) .Gt. 0.0 ) Then
                If(DEPVCR( V ) .Eq. 0.0) Then
                   Write(Logdev,*) 'Warning: A deposition velocity of 0 m/s was detected with a production term greater' 
                   Write(Logdev,*) 'than zero. Check for DEPV_FACs less than zero in the species name list for model species:'
-                  Write(Logdev,*) DV2DF_SPC( V ), 'depvcr', DEPVCR( V ), 'pldv', PLDV( V,C,R )
+                  Write(Logdev,*) DV2DF_SPC( V ), 'depvcr', DEPVCR( V ), 'bidi emissions', BIDI_VDEMIS( V,C,R )
                   DEPVCR( V ) = tiny( 0.0 )
                End If
-               POL   ( V ) = PLDV( V,C,R ) / DEPVCR( V )                        
+               EMIS_OVER_VD( V ) = BIDI_VDEMIS( V,C,R ) / DEPVCR( V )                        
             End If
-            IF ( ABFLUX .AND. V .EQ. NH3_HIT ) THEN
-               DO I = 1, LCMP          
-                  CMPF( I ) = ICMP( I,C,R )
-               END DO
-            END IF            
+            IF ( ABFLUX ) THEN
+               TMP_BD_EMIS( NH3_E ) = TOT_BD_EMIS( NH3_E,C,R )
+            END IF
+            IF ( HGBIDI ) THEN
+               TMP_BD_EMIS( HG_E ) = TOT_BD_EMIS( HG_E,C,R )
+            END IF   
+            IF ( SFC_HONO ) THEN         
+               TMP_BD_EMIS( HONO_E ) = TOT_BD_EMIS( HONO_E,C,R )
+            END IF                     
          END DO
-         PLDV_HONO = PLDV( HONO_HIT,C,R )
+         PLDV_HONO = BIDI_VDEMIS( HONO_HIT,C,R )
 
 #ifdef isam
          DO JSPCTAG = 1, N_SPCTAG
@@ -635,10 +637,8 @@ C ----------------------------------------------------------------------
             DEPVJCR( :,: ) = DEPVJ( :,1:N_SPC_DEPV,C,R )           
             DO V = 1, N_SPC_DEPV
                WHERE( GRID_DATA%LUFRAC( c,r,: ) .GT. 0.0 .AND. DEPVJCR( :,V ) .GT. 0.0 ) 
-                  POLJ( :,V )    = PLDVJ( :,V,C,R ) / DEPVJCR( :,V )
                   DD_FACJ( :,V ) = DTDENS1 * DD_CONV( V ) * DEPVJCR( :,V )
                ELSE WHERE
-                  POLJ( :,V )    = 0.0
                   DD_FACJ( :,V ) = 0.0
                END WHERE
             END DO
@@ -666,10 +666,10 @@ C HNO3 produced via the heterogeneous reaction sticks on surfaces and
 C is accounted as depositional loss; calculate increased deposition loss
                IF ( V .EQ. HNO3_HIT ) THEN
                   S = HNO3_MAP
-                  CONC( S,1 ) = POL( V ) + ( CONC( S,1 ) - POL( V ) ) * EFAC1( V )
-                  DEPV_HNO3 = DEPVCR( V ) + PLDV_HONO / CONC( NO2_MAP,1 )
+                  CONC( S,1 ) = EMIS_OVER_VD( V ) + ( CONC( S,1 ) - EMIS_OVER_VD( V ) ) * EFAC1( V )
+                  DEPV_HNO3   = DEPVCR( V ) + PLDV_HONO / CONC( NO2_MAP,1 )
                   DD_FAC( V ) = DTDENS1 * DD_CONV( V ) * DEPV_HNO3
-                  DDBF( V ) = DDBF( V ) + THETA * DD_FAC( V ) * CONC( S,1 )
+                  DDBF( V )   = DDBF( V ) + THETA * DD_FAC( V ) * CONC( S,1 )
 
 C Use special treatment for NO2
 C Loss of NO2 via the heterogeneous reaction is accounted for as an additional
@@ -677,25 +677,29 @@ C depositional loss. Add the loss of NO2 via the heterogeneous reaction
 C to the regular deposition velocity (increased dep. vel.).  This will
 C reduce the NO2 conc. in the atmosphere without affecting the depositional loss.
                ELSE IF ( V .EQ. NO2_HIT ) THEN
-                  S = NO2_MAP
-                  DEPV_NO2 = DEPVCR( V ) + 2.0 * PLDV_HONO / CONC( S,1 )
-                  EFAC1 ( V ) = EXP( -DEPV_NO2 * RP )
-                  EFAC2 ( V ) = EXP( -DEPV_NO2 * RQ )
-                  POL   ( V ) = PLDV( V,C,R ) / DEPV_NO2
-                  CONC( S,1 ) = POL( V ) + ( CONC( S,1 ) - POL( V ) ) * EFAC1( V )
-                  DDBF( V ) = DDBF( V ) + THETA * DD_FAC( V ) * CONC( S,1 )
+                  S              = NO2_MAP
+                  DEPV_NO2       = DEPVCR( V ) + 2.0 * PLDV_HONO / CONC( S,1 )
+                  EFAC1 ( V )    = EXP( -DEPV_NO2 * RP )
+                  EFAC2 ( V )    = EXP( -DEPV_NO2 * RQ )
+                  EMIS_OVER_VD( V ) = BIDI_VDEMIS( V,C,R ) / DEPV_NO2
+                  CONC( S,1 )    = EMIS_OVER_VD( V ) + ( CONC( S,1 ) - EMIS_OVER_VD( V ) ) * EFAC1( V )
+                  DDBF( V )      = DDBF( V ) + THETA * DD_FAC( V ) * CONC( S,1 )
   
 C --------- END of HET HONO RX ----------
 
                ELSE
                   S = DV2DF( V )
-                  CONC( S,1 ) = POL( V ) + ( CONC( S,1 ) - POL( V ) ) * EFAC1( V )
-                  DDBF( V ) = DDBF( V ) + THETA * DD_FAC( V ) * ( CONC( S,1 ) - POL( V ) )
+                  CONC( S,1 ) = EMIS_OVER_VD( V ) + ( CONC( S,1 ) - EMIS_OVER_VD( V ) ) * EFAC1( V )
+                  DDBF( V ) = DDBF( V ) + THETA * DD_FAC( V ) * CONC( S,1 )
 
                   IF ( ABFLUX .AND. V .EQ. NH3_HIT ) THEN
-                     DO I = 1, LCMP        
-                        CMPF( I ) = CMPF( I ) + THETA * CMP( I,C,R ) * DD_CONV( V ) * DTDENS1
-                     END DO
+                     TMP_BD_EMIS( NH3_E ) = TMP_BD_EMIS( NH3_E ) + THETA * BIDI_VDEMIS( V,C,R ) * DD_CONV( V ) * DTDENS1                   
+                  END IF
+                  IF ( HGBIDI .AND. V .EQ. HG_HIT ) THEN
+                     TMP_BD_EMIS( HG_E ) = TMP_BD_EMIS( HG_E ) + THETA * BIDI_VDEMIS( V,C,R ) * DD_CONV( V ) * DTDENS1                   
+                  END IF
+                  IF ( SFC_HONO .AND. V .EQ. HONO_HIT ) THEN
+                     TMP_BD_EMIS( HONO_E ) = TMP_BD_EMIS( HONO_E ) + THETA * BIDI_VDEMIS( V,C,R ) * DD_CONV( V ) * DTDENS1                   
                   END IF
                END IF
 
@@ -708,20 +712,19 @@ C --------------- HET HONO RX -----------------
                      S = HNO3_MAP
                      WHERE( GRID_DATA%LUFRAC( c,r,: ) .GT. 0.0 ) 
                         DD_FACJ( :,V ) = DTDENS1 * DD_CONV( V ) * DEPVJCR( :,V ) + PLDV_HONO / CONC( NO2_MAP,1 )
-                        DDBFJ( :,V ) = DDBFJ( :,V ) + THETA * DD_FACJ( :,V ) * ( CONC( S,1 ) - POLJ( :,V ) )
+                        DDBFJ( :,V ) = DDBFJ( :,V ) + THETA * DD_FACJ( :,V ) * CONC( S,1 )
                      END WHERE
                   ELSE IF ( V .EQ. NO2_HIT ) THEN  
                      S = NO2_MAP
                      WHERE( GRID_DATA%LUFRAC( c,r,: ) .GT. 0.0 .AND.  DEPVJCR( :,V ) .GT. 0.0 ) 
-                        POLJ   ( :,V ) = PLDVJ( :,V,C,R ) / ( DEPVJCR( :,V ) + 2.0 * PLDV_HONO / CONC( S,1 ) )
-                        DDBFJ  ( :,V ) = DDBFJ( :,V ) + THETA * DD_FACJ( :,V ) * ( CONC( S,1 ) - POLJ( :,V ) )
+                        DDBFJ  ( :,V ) = DDBFJ( :,V ) + THETA * DD_FACJ( :,V ) * CONC( S,1 )
                      END WHERE
 C --------------- END of HET HONO RX ----------
                   ELSE
                      S = DV2DF( V )
                      WHERE( GRID_DATA%LUFRAC( c,r,: ) .GT. 0.0 ) 
                         DDBFJ( :,V ) = DDBFJ( :,V )
-     &                               + THETA * DD_FACJ( :,V ) * ( CONC( S,1 ) - POLJ( :,V ) )
+     &                               + THETA * DD_FACJ( :,V ) * CONC( S,1 )
                      END WHERE
                   END IF
                END DO
@@ -758,12 +761,12 @@ C --------------- END of HET HONO RX ----------
                S = ISAM_DEPV( JSPCTAG )
                IF ( S .GT. 0 ) THEN
                   SACONC( JSPCTAG,1 ) = SACONC( JSPCTAG,1 ) * EFAC1( S )
-     &                                + SAFRAC( JSPCTAG ) * POL( S ) * ( 1.0 -  EFAC1( S ) )               
+     &                                + SAFRAC( JSPCTAG ) * EMIS_OVER_VD( S ) * ( 1.0 -  EFAC1( S ) )               
                   SA_DDBF( JSPCTAG  ) = SA_DDBF( JSPCTAG )
      &                                + THETA * DD_FAC( S ) *  SACONC( JSPCTAG,1 )
                   IF( S .NE. NO2_HIT .AND. S .NE. HNO3_HIT ) THEN
                      SA_DDBF( JSPCTAG  ) = SA_DDBF( JSPCTAG )
-     &                                   - THETA * DTDENS1 * SAFRAC( JSPCTAG ) * DD_CONV( S ) * PLDV( S,C,R )                        
+     &                                   - THETA * DTDENS1 * SAFRAC( JSPCTAG ) * DD_CONV( S ) * BIDI_VDEMIS( S,C,R )                        
                   END IF
                END IF
             END DO
@@ -915,25 +918,28 @@ C --------- HET HONO RX -----------------
 
                IF ( V .EQ. HNO3_HIT ) THEN
                   S = HNO3_MAP
-                  CONC( S,1 ) = POL( V ) + ( CONC( S,1 ) - POL( V ) ) * EFAC2( V )
-                  DDBF( V ) = DDBF( V ) + THBAR * DD_FAC( V ) * CONC( S,1 )
+                  CONC( S,1 ) = EMIS_OVER_VD( V ) + ( CONC( S,1 ) - EMIS_OVER_VD( V ) ) * EFAC2( V )
+                  DDBF( V )   = DDBF( V ) + THBAR * DD_FAC( V ) * CONC( S,1 )
 
                ELSE IF ( V .EQ. NO2_HIT ) THEN
                   S = NO2_MAP
-                  CONC( S,1 ) = POL( V ) + ( CONC( S,1 ) - POL( V ) ) * EFAC2( V )
-                  DDBF( V ) = DDBF( V ) + THBAR * DD_FAC( V ) * CONC( S,1 )
+                  CONC( S,1 ) = EMIS_OVER_VD( V ) + ( CONC( S,1 ) - EMIS_OVER_VD( V ) ) * EFAC2( V )
+                  DDBF( V )   = DDBF( V ) + THBAR * DD_FAC( V ) * CONC( S,1 )
 
 C --------- END of HET HONO RX ----------
 
                ELSE
                   S = DV2DF( V )
-                  CONC( S,1 ) = POL( V ) + ( CONC( S,1 ) - POL( V ) ) * EFAC2( V )
-                  DDBF( V ) = DDBF( V ) + THBAR * DD_FAC( V ) * ( CONC( S,1 ) - POL( V ) )
-
+                  CONC( S,1 ) = EMIS_OVER_VD( V ) + ( CONC( S,1 ) - EMIS_OVER_VD( V ) ) * EFAC2( V )
+                  DDBF( V ) = DDBF( V ) + THBAR * DD_FAC( V ) * CONC( S,1 )
                   IF ( ABFLUX .AND. V .EQ. NH3_HIT ) THEN
-                     DO I = 1, LCMP
-                        CMPF( I ) = CMPF( I ) + THBAR * CMP( I,C,R ) * DD_CONV( V ) * DTDENS1   
-                     END DO
+                     TMP_BD_EMIS( NH3_E ) = TMP_BD_EMIS( NH3_E ) + THBAR * BIDI_VDEMIS( V,C,R ) * DD_CONV( V ) * DTDENS1                   
+                  END IF
+                  IF ( HGBIDI .AND. V .EQ. HG_HIT ) THEN
+                     TMP_BD_EMIS( HG_E ) = TMP_BD_EMIS( HG_E ) + THBAR * BIDI_VDEMIS( V,C,R ) * DD_CONV( V ) * DTDENS1                   
+                  END IF
+                  IF ( SFC_HONO .AND. V .EQ. HONO_HIT ) THEN
+                     TMP_BD_EMIS( HONO_E ) = TMP_BD_EMIS( HONO_E ) + THBAR * BIDI_VDEMIS( V,C,R ) * DD_CONV( V ) * DTDENS1                   
                   END IF
 
                END IF
@@ -947,19 +953,18 @@ C --------- HET HONO RX -----------------
                      S = HNO3_MAP
                      WHERE( GRID_DATA%LUFRAC( c,r,: ) .GT. 0.0 )
                         DD_FACJ( :,V ) = DTDENS1 * DD_CONV( V ) * DEPVJCR( :,V ) + PLDV_HONO / CONC( NO2_MAP,1 )
-                        DDBFJ( :,V ) = DDBFJ( :,V ) + THBAR * DD_FACJ( :,V ) * ( CONC( S,1 ) - POLJ( :,V ) )
+                        DDBFJ( :,V ) = DDBFJ( :,V ) + THBAR * DD_FACJ( :,V ) * CONC( S,1 )
                      END WHERE
                   ELSE IF ( V .EQ. NO2_HIT ) THEN  
                      S = NO2_MAP
                      WHERE( GRID_DATA%LUFRAC( c,r,: ) .GT. 0.0 .AND.  DEPVJCR( :,V ) .GT. 0.0 ) 
-                        POLJ   ( :,V ) = PLDVJ( :,V,C,R ) / ( DEPVJCR( :,V ) + 2.0 * PLDV_HONO / CONC( S,1 ) )
-                        DDBFJ  ( :,V ) = DDBFJ( :,V ) + THETA * DD_FACJ( :,V ) * ( CONC( S,1 ) - POLJ( :,V ) )
+                        DDBFJ  ( :,V ) = DDBFJ( :,V ) + THETA * DD_FACJ( :,V ) * CONC( S,1 )
                      END WHERE
 C --------- END of HET HONO RX ----------
                   ELSE
                      S = DV2DF( V )
                      WHERE( GRID_DATA%LUFRAC( c,r,: ) .GT. 0.0 )
-                        DDBFJ( :,V ) = DDBFJ( :,V ) + THBAR * DD_FACJ( :,V ) * ( CONC( S,1 ) - POLJ( :,V ) )
+                        DDBFJ( :,V ) = DDBFJ( :,V ) + THBAR * DD_FACJ( :,V ) * CONC( S,1 )
                      END WHERE
                   END IF
                END DO
@@ -988,12 +993,12 @@ C Update ISAM Dry Deposition
                S = ISAM_DEPV( JSPCTAG )
                IF ( S .GT. 0 ) THEN
                   SACONC( JSPCTAG,1 ) = SACONC( JSPCTAG,1 ) * EFAC2( S )
-     &                                + SAFRAC( JSPCTAG ) * POL( S ) * ( 1.0 -  EFAC2( S ) )               
+     &                                + SAFRAC( JSPCTAG ) * EMIS_OVER_VD( S ) * ( 1.0 -  EFAC2( S ) )               
                   SA_DDBF( JSPCTAG  ) = SA_DDBF( JSPCTAG )
      &                                + THBAR * DD_FAC( S ) *  SACONC( JSPCTAG,1 )
                   IF( S .NE. NO2_HIT .AND. S .NE. HNO3_HIT ) THEN
                     SA_DDBF( JSPCTAG  ) = SA_DDBF( JSPCTAG )
-     &                                  - THBAR * DTDENS1 * SAFRAC( JSPCTAG ) * DD_CONV( S ) * PLDV( S,C,R )                         
+     &                                  - THBAR * DTDENS1 * SAFRAC( JSPCTAG ) * DD_CONV( S ) * BIDI_VDEMIS( S,C,R )                         
                   END IF
                END IF
             END DO
@@ -1017,12 +1022,16 @@ C Update ISAM Dry Deposition
          DO V = 1, N_SPC_DEPV
             DDEP( V,C,R ) = DDBF( V )
          END DO
- 
+
          IF ( ABFLUX ) THEN
-            DO I = 1, LCMP
-               ICMP( I,C,R ) = CMPF( I )
-            END DO
+            TOT_BD_EMIS( NH3_E,C,R ) = TMP_BD_EMIS( NH3_E )
          END IF
+         IF ( HGBIDI ) THEN
+            TOT_BD_EMIS( HG_E,C,R ) = TMP_BD_EMIS( HG_E )
+         END IF   
+         IF ( SFC_HONO ) THEN         
+            TOT_BD_EMIS( HONO_E,C,R ) = TMP_BD_EMIS( HONO_E )
+         END IF                     
  
          IF ( XMOSAIC ) THEN
             DDEPJ( :,:,C,R ) = DDBFJ( :,: )

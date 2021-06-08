@@ -290,7 +290,7 @@ C-----------------------------------------------------------------
 
          END SUBROUTINE INIT_STAGE
 
-         SUBROUTINE GAS_X( JDate, JTime, TStep, c, r, cgridl1, pvd, cmp, depvel_gas )    
+         SUBROUTINE GAS_X( JDate, JTime, TStep, c, r, cgridl1, bidi_emis, depvel_gas )    
         
          Use NH3_BIDI_MOD
          Use MOSAIC_MOD, Only: Tile_Data 
@@ -301,8 +301,8 @@ C-----------------------------------------------------------------
          Integer, Intent( IN )  :: JDate, JTime, c, r      ! internal simulation date&time
          REAL,    Intent( IN )  :: cgridl1( : )    ! layer 1 concentrations
          REAL,    Intent( IN )  :: TStep           ! Time step in seconds
-         Real,    Intent( OUT ) :: pvd( : )        ! model emissions term
-         Real,    Intent( OUT ) :: cmp( : )        ! diagnostic component fluxes 
+         Real,    Intent( OUT ) :: bidi_emis( : )        ! model emissions term
+!         Real,    Intent( OUT ) :: cmp( : )        ! diagnostic component fluxes 
          Real,    Intent( OUT ) :: depvel_gas( : ) ! instantanious deposition velocity 
 C Parameters specific to gas_x. Currently based on m3dry but subject to change
          Real, Parameter :: a0         = 8.0        ! [dim'less]
@@ -333,10 +333,10 @@ C Parameters specific to gas_x. Currently based on m3dry but subject to change
          Real            :: snow, no_snow, wet, dry, veg, no_veg, ice_snow, melt_snow    ! fractional land coverage
          Real            :: frac_lu                                                      ! fractional land use
          Real            :: hcan, ustg, del0
-         Real            :: LU_Flux, Grid_Flux
+         Real            :: LU_Flux, LU_Emis
          Real            :: c_atm, c_z0, c_leaf, c_stom, c_cut, c_grnd, c_wat ! Compensation points  
          Real            :: soil_flux                                         ! soil emission and deposition for soil biogeochem
-         Real            :: f_emis, f_dep, f_stom, f_cut, f_soil, flux_ag, f_nat, f_wat ! component fluxes
+         Real            :: f_wat, f_stom, f_cut, f_soil ! component fluxes
          Real            :: ctemp2, lv, cp_air, tw, dw25, kvisw, dw, scw_pr_23, scn
          Real            :: pChang, kwChang, ciodide, qiodide
          integer         :: l, n, s
@@ -348,7 +348,7 @@ C Parameters specific to gas_x. Currently based on m3dry but subject to change
          effective = .TRUE.
 
 ! initialize the bidi flux production term
-         Tile_Data%pol( :,:,c,r ) = 0.0  
+!         Tile_Data%pol( :,:,c,r ) = 0.0  
 
 ! column met variables 
          temp_2m = Met_Data%TEMP2(c,r)
@@ -395,8 +395,8 @@ C Parameters specific to gas_x. Currently based on m3dry but subject to change
          k_vis  = kvis*1.0e-4 * ( temp_2m/STDTEMP )**1.81 ! Following Massman 1999
          dwat_T    = dwat*1.0e-4 * ( temp_2m/STDTEMP )**1.81 ! Following Massman 1999
          n = 0
-         cmp = 0.0
-         pvd = 0.0
+!         cmp = 0.0
+         bidi_emis = 0.0
          depvel_gas = 0.0
          spc_loop: Do s = 1, dep_gas_all
             IF ( .NOT. asx_run_map( s ) ) CYCLE spc_loop
@@ -407,14 +407,9 @@ C Parameters specific to gas_x. Currently based on m3dry but subject to change
             scc_pr_23( s ) = ( ( k_vis / dif_T ) / pr ) ** twothirds
 
             c_atm = max( cgridl1( n ), 1.0e-30 )
-            Grid_Flux = 0.0
-            f_emis    = 0.0
-            f_dep     = 0.0
             f_stom    = 0.0
             f_cut     = 0.0
             f_soil    = 0.0
-            flux_ag   = 0.0
-            f_nat     = 0.0
             f_wat     = 0.0
             soil_flux = 0.0
             heff_wat  = hlconst( H_name_all( s ), tw, effective, hplus_h2o )* 0.08205 * tw
@@ -424,8 +419,9 @@ C Parameters specific to gas_x. Currently based on m3dry but subject to change
                Call  Get_Hg_Comp( Hg_st, Hg_cut, Hg_grnd, Hg_wat, c_atm, heff_wat, heff, r, c )
             End If
             lu_loop: Do l = 1, n_lufrac
-               c_z0   = 0.0
-               c_leaf = 0.0
+               c_z0    = 0.0
+               c_leaf  = 0.0
+               LU_Emis = 0.0
                If( HGBIDI .And. s .Eq. s_Hg) Then
                   c_stom = Hg_st
                   c_cut  = Hg_cut
@@ -501,11 +497,9 @@ c        Iodide in sea-water based on SST  (mol /dm-3)
                   LU_Flux     = (c_atm-c_wat)/( Ra + Rb + Rwat )                         ! positive values for deposition
                   vd =  1.0 / ( Ra + Rb + Rwat )
                   If(c_wat .Gt. 0.0 ) Then
-                     Tile_Data%pol( l,n,c,r ) = c_wat / ( Ra + Rb + Rwat )
+                     LU_Emis = c_wat / ( Ra + Rb + Rwat )
                   End If
                   Tile_Data%depvel_gasj( l,n,c,r ) = vd
-                  f_emis = f_emis + frac_lu *  c_wat / ( Ra + Rb + Rwat ) 
-                  f_dep  = f_dep  + frac_lu *  c_atm / ( Ra + Rb + Rwat ) 
                   f_wat  = f_wat  + frac_lu * ( c_wat - c_atm ) / ( Ra + Rb + Rwat )   
                Else ! Land
 !-------------------------------------------------------------------------------------------------
@@ -668,21 +662,15 @@ C Calcuate Bare Soil Resistance
 !-------------------------------------------------------------------------------------------------                                                               
                   If(ABFLUX .And. s .Eq. s_NH3 ) Then     
                     If( Ag( l ) ) Then
-                       flux_ag = flux_ag + frac_lu * ( veg * ( c_z0 - c_atm ) / Ra + 
-     &                                       no_veg * ( c_grnd - c_atm ) / ( Ra + Rg ) )
                        soil_flux  = soil_flux + veg * ( c_grnd - c_z0 ) / Rgc
-     &                            + no_veg * ( c_grnd  - c_atm ) / ( Ra + Rg )  ! soil layer
-                    Else
-                       f_nat = f_nat + frac_lu * ( veg * ( c_z0 - c_atm ) / Ra - 
-     &                                          no_veg * ( c_grnd - c_atm ) / ( Ra + Rg ) )          
+     &                            + no_veg * ( c_grnd  - c_atm ) / ( Ra + Rg )  ! soil layer       
                     End If
-                    f_dep  = f_dep  + frac_lu * vd * c_atm
                   End If ! ABFLUX and NH3
                   If( c_stom .Gt. 0.0 .Or. c_cut .Gt. 0.0 .Or. c_grnd .Gt. 0.0 ) Then
 !-------------------------------------------------------------------------------------------------
 ! Bidirectional exchange
 !-------------------------------------------------------------------------------------------------                                                               
-                     Tile_Data%pol( l,n,c,r ) = max( vd * c_atm - LU_Flux, 0.0 )          ! should always be greater than 0
+                     LU_Emis = max( vd * c_atm - LU_Flux, 0.0 )          ! should always be greater than 0
                      Tile_Data%depvel_gasj( l,n,c,r ) = vd                                ! Deposition velocity
                      f_soil = f_soil + frac_lu * ( veg * ( ( c_grnd - c_z0 ) / Rgc ) + 
      &                                         no_veg * (c_grnd - c_atm)/( Ra + Rg ) )            ! air-soil flux
@@ -696,20 +684,18 @@ C Calcuate Bare Soil Resistance
                   End If ! compensation points greater than 0
                End If ! Water    
 ! Generalization of the production and deposition velocity terms
-               Grid_Flux       = Grid_Flux + frac_lu * LU_Flux
-               pvd( n )        = pvd( n )        + frac_lu * Tile_Data%pol( l,n,c,r )
+               bidi_emis( n )  = bidi_emis( n ) + frac_lu * LU_Emis
                depvel_gas( n ) = depvel_gas( n ) + 
      &                           frac_lu * Tile_Data%depvel_gasj( l,n,c,r )
             End Do lu_loop
             If(ABFLUX .And. s .Eq. s_NH3 ) Then
-               cmp( 1 ) = pvd( n )
-               cmp( 2 ) = f_dep
-               cmp( 3 ) = f_stom
-               cmp( 4 ) = f_cut
-               cmp( 5 ) = f_soil
-               cmp( 6 ) = flux_ag
-               cmp( 7 ) = f_nat
-               cmp( 8 ) = f_wat
+!               cmp( 1 ) = pvd( n )
+!               cmp( 2 ) = f_dep
+!               cmp( 3 ) = f_stom
+!               cmp( 4 ) = f_cut
+!               cmp( 5 ) = f_soil
+!               cmp( 6 ) = flux_ag
+!               cmp( 8 ) = f_wat
                If( sum(GRID_DATA%LUFRAC(c,r,:),mask=Ag) .Gt. 0.0 ) Then 
                   Call Calc_Nitrif ( TStep, C, R, soil_flux )
                End If
@@ -767,12 +753,12 @@ C Determine NO2 concentration needed for HONO production term.
                   conc_no2 = cgridl1( n )
 
                END IF
-C Calculate production (pvd) for HONO; unit = ppm * m/s
-               IF ( s .EQ. s_HONO ) pvd( n ) = kno2 * conc_no2 * MET_DATA%ZF( c,r,1 )
+C Calculate production (bidi_emis) for HONO; unit = ppm * m/s
+               IF ( s .EQ. s_HONO ) bidi_emis( n ) = kno2 * conc_no2 * MET_DATA%ZF( c,r,1 )
             END IF
 
             ! Check for negative values or NaN's                  
-            if(isnan(pvd(n))) write(logdev,*) 'NaN in ',vd_name( s ),' production term'
+            if(isnan(bidi_emis(n))) write(logdev,*) 'NaN in ',vd_name( s ),' production term'
             if(isnan(depvel_gas(n))) write(logdev,*) 'NaN in ',vd_name( s ),' Vd term'
          End Do spc_loop
 
