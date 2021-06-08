@@ -684,37 +684,41 @@ set Cfile = ${Bld}/${CFG}.bld      # Config Filename
 
     cd $CMAQ_HOME/CCTM/scripts
   
-    # Downlad WRF repository from GitHub
+    # Downlad WRF repository from GitHub and put CMAQv5.3.X into it
     set WRF_BLD = BLD_WRFv4.3_CCTM_${VRSN}_${compilerString}
-    git clone --branch v4.3 https://github.com/wrf-model/WRF.git ./$WRF_BLD >& /dev/null
-    cd $WRF_BLD
-
-    # Transfer CMAQ Code to WRF Directory
-    mv $Bld ./cmaq
-    
-    # Set the WRF-Directory Path and appropriate options:
     setenv wrf_path ${CMAQ_HOME}/CCTM/scripts/${WRF_BLD}
     setenv WRF_CMAQ 1
 
-    # Link Coupler to WRF
-    cd ${CMAQ_REPO}/UTIL
-    ${CMAQ_REPO}/UTIL/wrfcmaq_twoway_coupler/assemble >& ${wrf_path}/myassemble.log
+    if ( ! -d $WRF_BLD ) then 
+      git clone --branch v4.3 https://github.com/wrf-model/WRF.git ./$WRF_BLD >& /dev/null
+      cd $wrf_path
+      mv $Bld ./cmaq
+
+      # Link Coupler to WRF
+        cd ${CMAQ_REPO}/UTIL
+        ${CMAQ_REPO}/UTIL/wrfcmaq_twoway_coupler/assemble >& ${wrf_path}/wrf-cmaq_buildlog.log
   
-    if ($? != 0) then
-      echo "Error running ${CMAQ_REPO}/UTIL/wrfcmaq_twoway_coupler/assemble look at myassemble.log." 
-      exit 1
-    endif
-    
-    cd $wrf_path 
- 
-    # Configure WRF
-    ./configure <<EOF
-    ${WRF_ARCH}
-    1
+        if ($? != 0) then
+          echo "Error running ${CMAQ_REPO}/UTIL/wrfcmaq_twoway_coupler/assemble look at wrf-cmaq_buildlog.log." 
+          exit 1
+        endif
+
+      cd $wrf_path
+  
+      # Configure WRF
+        ./configure <<EOF
+        ${WRF_ARCH}
+        1
 EOF
 
+    else
+      # Clean-up 
+      rm -r $Bld
+      cd $wrf_path
+    endif
+
      # Compile WRF-CMAQ
-     ./compile em_real |& tee wrf-cmaq_buildlog.log
+     ./compile em_real |& tee -a wrf-cmaq_buildlog.log
 
      cd ${CMAQ_HOME}/CCTM/scripts
 

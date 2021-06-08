@@ -38,6 +38,7 @@ else
        phys/Makefile \
        phys/module_ra_rrtmg_sw.F \
        phys/module_radiation_driver.F \
+       phys/module_sf_noahdrv.F \
        )
 
    if (! -d $wrfpath) then

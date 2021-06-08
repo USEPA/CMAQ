@@ -78,21 +78,21 @@
 
 #>  Intel fortran compiler......................................................
     case intel:
+
+       #> I/O API and netCDF root
+       setenv NETCDF netcdf_root_intel # Note please combine netCDF-C & Fortran Libraries 
+       setenv IOAPI  ioapi_root_intel  
+       setenv WRF_ARCH # [1-75] Optional, ONLY for WRF-CMAQ 
     
         #> I/O API, netCDF, and MPI library locations
-        setenv IOAPI_INCL_DIR   ioapi_inc_intel    #> I/O API include header files
-        setenv IOAPI_LIB_DIR    ioapi_lib_intel    #> I/O API libraries
-        setenv NETCDF_LIB_DIR   netcdf_lib_intel   #> netCDF C directory path
-        setenv NETCDF_INCL_DIR  netcdf_inc_intel   #> netCDF C directory path
-        setenv NETCDFF_LIB_DIR  netcdff_lib_intel  #> netCDF Fortran directory path
-        setenv NETCDFF_INCL_DIR netcdff_inc_intel  #> netCDF Fortran directory path
-        setenv MPI_LIB_DIR      mpi_lib_intel      #> MPI directory path
+        setenv IOAPI_INCL_DIR   ${IOAPI}/ioapi_inc_intel    #> I/O API include header files
+        setenv IOAPI_LIB_DIR    ${IOAPI}/ioapi_lib_intel    #> I/O API libraries
+        setenv NETCDF_LIB_DIR   ${NETCDF}/netcdf_lib_intel  #> netCDF C directory path
+        setenv NETCDF_INCL_DIR  ${NETCDF}/netcdf_inc_intel  #> netCDF C directory path
+        setenv NETCDFF_LIB_DIR  netcdff_lib_intel           #> netCDF Fortran directory path
+        setenv NETCDFF_INCL_DIR netcdff_inc_intel           #> netCDF Fortran directory path
+        setenv MPI_LIB_DIR      mpi_lib_intel               #> MPI directory path
     
-        #> I/O API and netCDF for WRF-CMAQ 
-         setenv NETCDF netcdf_root_intel # Note please combine netCDF-C & Fortran Libraries 
-         setenv IOAPI  ioapi_root_intel  
-         setenv WRF_ARCH # [1-75]  
- 
         #> Compiler Aliases and Flags
         #> set the compiler flag -qopt-report=5 to get a model optimization report in the build directory with the optrpt extension
         setenv myFC mpiifort
@@ -114,20 +114,20 @@
 #>  Portland Group fortran compiler.............................................
     case pgi:
 
-        #> I/O API, netCDF, and MPI library locations
-        setenv IOAPI_INCL_DIR   iopai_inc_pgi   #> I/O API include header files
-        setenv IOAPI_LIB_DIR    ioapi_lib_pgi   #> I/O API libraries
-        setenv NETCDF_LIB_DIR   netcdf_lib_pgi  #> netCDF C directory path
-        setenv NETCDF_INCL_DIR  netcdf_inc_pgi  #> netCDF C directory path
-        setenv NETCDFF_LIB_DIR  netcdff_lib_pgi #> netCDF Fortran directory path
-        setenv NETCDFF_INCL_DIR netcdff_inc_pgi #> netCDF Fortran directory path
-        setenv MPI_LIB_DIR      mpi_lib_pgi     #> MPI directory path
- 
         #> I/O API and netCDF for WRF-CMAQ 
         setenv NETCDF netcdf_root_pgi # Note please combine netCDF-C & Fortran Libraries 
         setenv IOAPI  ioapi_root_pgi  
-        setenv WRF_ARCH # [1-75]  
-    
+        setenv WRF_ARCH # [1-75] Optional, ONLY for WRF-CMAQ  
+ 
+        #> I/O API, netCDF, and MPI library locations
+        setenv IOAPI_INCL_DIR   ${IOAPI}/iopai_inc_pgi    #> I/O API include header files
+        setenv IOAPI_LIB_DIR    ${IOAPI}/ioapi_lib_pgi    #> I/O API libraries
+        setenv NETCDF_LIB_DIR   ${NETCDF}/netcdf_lib_pgi  #> netCDF C directory path
+        setenv NETCDF_INCL_DIR  ${NETCDF}/netcdf_inc_pgi  #> netCDF C directory path
+        setenv NETCDFF_LIB_DIR  netcdff_lib_pgi           #> netCDF Fortran directory path
+        setenv NETCDFF_INCL_DIR netcdff_inc_pgi           #> netCDF Fortran directory path
+        setenv MPI_LIB_DIR      mpi_lib_pgi               #> MPI directory path
+ 
         #> Compiler Aliases and Flags
         setenv myFC mpifort 
         setenv myCC pgcc
@@ -146,21 +146,21 @@
     
 #>  gfortran compiler............................................................
     case gcc:
-  
-        #> I/O API, netCDF, and MPI library locations
-        setenv IOAPI_INCL_DIR   iopai_inc_gcc   #> I/O API include header files
-        setenv IOAPI_LIB_DIR    ioapi_lib_gcc   #> I/O API libraries
-        setenv NETCDF_LIB_DIR   netcdf_lib_gcc  #> netCDF C directory path
-        setenv NETCDF_INCL_DIR  netcdf_inc_gcc  #> netCDF C directory path
-        setenv NETCDFF_LIB_DIR  netcdff_lib_gcc #> netCDF Fortran directory path
-        setenv NETCDFF_INCL_DIR netcdff_inc_gcc #> netCDF Fortran directory path
-        setenv MPI_LIB_DIR      mpi_lib_gcc     #> MPI directory path
-
+ 
         #> I/O API and netCDF for WRF-CMAQ 
         setenv NETCDF netcdf_root_gcc # Note please combine netCDF-C & Fortran Libraries 
         setenv IOAPI  ioapi_root_gcc  
-        setenv WRF_ARCH # [1-75]  
-    
+        setenv WRF_ARCH # [1-75] Optional, ONLY for WRF-CMAQ  
+  
+        #> I/O API, netCDF, and MPI library locations
+        setenv IOAPI_INCL_DIR   ${IOAPI}/iopai_inc_gcc    #> I/O API include header files
+        setenv IOAPI_LIB_DIR    ${IOAPI}/ioapi_lib_gcc    #> I/O API libraries
+        setenv NETCDF_LIB_DIR   ${NETCDF}/netcdf_lib_gcc  #> netCDF C directory path
+        setenv NETCDF_INCL_DIR  ${NETCDF}/netcdf_inc_gcc  #> netCDF C directory path
+        setenv NETCDFF_LIB_DIR  netcdff_lib_gcc           #> netCDF Fortran directory path
+        setenv NETCDFF_INCL_DIR netcdff_inc_gcc           #> netCDF Fortran directory path
+        setenv MPI_LIB_DIR      mpi_lib_gcc               #> MPI directory path
+
         #> Compiler Aliases and Flags
         #> set the compiler flag -fopt-info-missed to generate a missed optimization report in the bldit logfile
         setenv myFC mpifort
