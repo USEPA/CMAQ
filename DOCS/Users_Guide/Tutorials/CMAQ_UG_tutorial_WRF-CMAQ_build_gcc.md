@@ -193,6 +193,10 @@ BASEDIR = ${INSTALL}/ioapi-3.2-20200828
 ./juldate
 ./juldate: error while loading shared libraries: libimf.so: cannot open shared object file: No such file or directory
 ```
+### Be sure that the appropriate module is loaded, or that the LD_LIBRARY_PATH contains a path to the shared opject file that is missing.
+```
+module load openmpi_4.0.1/gcc_9.1.0
+```
 
 ### Step 4: Install CMAQ
   - Follow these instructions to download the code, then use the modifications in Step 5:  [CMAQ Benchmark Tutorial](CMAQ_UG_tutorial_benchmark.md)
@@ -261,12 +265,18 @@ Enter selection [1-75] : -------------------------------------------------------
    - For more information refer to the [WRF User Guide](https://www2.mmm.ucar.edu/wrf/users/docs/user_guide_v4/v4.0/contents.html)
 
 ```
-source config_cmaq.csh
+source config_cmaq.csh gcc
 ```
 
 ### Step 6: Modify the bldit_cctm.csh 
 
-Uncomment the option to build WRF-CMAQ twoway:      
+Uncomment the option to build WRF-CMAQ twoway:     
+
+```
+cd CCTM/scripts
+```
+
+edit bldit_cctm.csh
       
 ```
 #> Two-way WRF-CMAQ 
