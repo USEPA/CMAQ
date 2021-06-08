@@ -243,6 +243,18 @@ Change directories to the CMAQ_HOME directory
 setenv NETCDF netcdf_root_gcc # Note please combine netCDF-C & Fortran Libraries (e.g. /usr/local/netcdf-4.7.0)
 setenv IOAPI  ioapi_root_gcc  (e.g. /usr/local/ioapi-3.2)
 setenv WRF_ARCH 34              # [1-75]  64 Bit Linux_x86 Compiler/Architecture options
+
+ #> I/O API, netCDF, and MPI include and library locations
+ setenv IOAPI_INCL_DIR   $IOAPI/ioapi/fixed_src   #> I/O API include header files
+ setenv IOAPI_LIB_DIR    $IOAPI/Linux2_x86_64gfort_openmpi_4.0.1_gcc_9.1.0   #> I/O API libraries
+ setenv NETCDF_LIB_DIR   $NETCDF/lib  #> netCDF C directory path
+ setenv NETCDF_INCL_DIR  $NETCDF/include  #> netCDF C directory path
+ setenv NETCDFF_LIB_DIR  $NETCDF/lib #> netCDF Fortran directory path
+ setenv NETCDFF_INCL_DIR $NETCDF/include #> netCDF Fortran directory path
+ setenv MPI_LIB_DIR      mpi_lib_gcc
+ 
+#> MPI directory path
+
 ```
 
 *Note: WRF_ARCH environment variable is based on the following options:*
