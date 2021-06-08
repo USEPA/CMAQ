@@ -689,13 +689,7 @@ C Calcuate Bare Soil Resistance
      &                           frac_lu * Tile_Data%depvel_gasj( l,n,c,r )
             End Do lu_loop
             If(ABFLUX .And. s .Eq. s_NH3 ) Then
-!               cmp( 1 ) = pvd( n )
-!               cmp( 2 ) = f_dep
-!               cmp( 3 ) = f_stom
-!               cmp( 4 ) = f_cut
-!               cmp( 5 ) = f_soil
-!               cmp( 6 ) = flux_ag
-!               cmp( 8 ) = f_wat
+
                If( sum(GRID_DATA%LUFRAC(c,r,:),mask=Ag) .Gt. 0.0 ) Then 
                   Call Calc_Nitrif ( TStep, C, R, soil_flux )
                End If
