@@ -2161,7 +2161,7 @@ C Read the various categories of normalized emissions
 
           Character( 40 ), parameter :: pname = 'retrieve_grid_cro_2d_data'
           integer :: gxoff, gyoff, 
-     &               STRTCOLGC2,  ENDCOLGC2,  STRTROWGC2,  ENDROWGC2,
+     &               STRTCOLGC2,  ENDCOLGC2,  STRTROWGC2,  ENDROWGC2
 
           CHARACTER( 120 ) :: XMSG = ' '
           Character( 16 )  :: vname
