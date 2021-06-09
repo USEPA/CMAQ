@@ -1,6 +1,30 @@
 ## WRF-CMAQ Tutorial ## 
 
-### Procedure to build and run the WRF-CMAQ model using gnu compiler: ###
+## Note, in this new coupled model design, the namelist is used to modify settings for WRF.
+Environment variables such as WRF_CMAQ_FREQ are no longer used.  
+The following commonly modified namelist options for WRF are specified in the run script.
+
+    1. wrf_cmaq_option     (dictates how the coupled model execute)
+
+       0 = run WRF only
+       1 = run WRF only               w   producing MCIP like GRID and MET files
+       2 = run WRF-CMAQ coupled model w/o producing MCIP like GRID and MET files
+       3 = run WRF-CMAQ coupled model w   producing MCIP like GRID and MET files
+
+    2. wrf_cmaq_freq       (indicate how often WRF and CMAQ interact)
+
+    3. met_file_tstep      (time step size of MCIP like intermediate output files)
+
+    4. direct_sw_feedback  (indicate to turn on aerosol short wave direct effect)
+
+    5. feedback_restart    (indicate aerosol SW direct effect information is
+                            available in the WRF restart file or not)
+                            
+* two sample run scripts are provided; run-p.csh (for pure WRF model) and run-cs.csh (for coupled
+  model with SW feedback on.
+
+
+### Procedure to build the WRF-CMAQ model using gnu compiler: ###
 
 ### Step 1: choose your compiler, and load it using the module command if it is available on your system
 
