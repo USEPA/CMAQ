@@ -1,29 +1,5 @@
 ## WRF-CMAQ Tutorial ## 
 
-## Note, in this new coupled model design, the namelist is used to modify settings for WRF.
-Environment variables such as WRF_CMAQ_FREQ are no longer used.  
-The following commonly modified namelist options for WRF are specified in the run script.
-
-    1. wrf_cmaq_option     (dictates how the coupled model execute)
-
-       0 = run WRF only
-       1 = run WRF only               w   producing MCIP like GRID and MET files
-       2 = run WRF-CMAQ coupled model w/o producing MCIP like GRID and MET files
-       3 = run WRF-CMAQ coupled model w   producing MCIP like GRID and MET files
-
-    2. wrf_cmaq_freq       (indicate how often WRF and CMAQ interact)
-
-    3. met_file_tstep      (time step size of MCIP like intermediate output files)
-
-    4. direct_sw_feedback  (indicate to turn on aerosol short wave direct effect)
-
-    5. feedback_restart    (indicate aerosol SW direct effect information is
-                            available in the WRF restart file or not)
-                            
-* two sample run scripts are provided; run-p.csh (for pure WRF model) and run-cs.csh (for coupled
-  model with SW feedback on.
-
-
 ### Procedure to build the WRF-CMAQ model using gnu compiler: ###
 
 ### Step 1: choose your compiler, and load it using the module command if it is available on your system
@@ -446,18 +422,43 @@ setenv WRF_CMAQ 1
     
 ### Step 13: Run the WRF-CMAQ model
 
-  - Use the run.twoway_model_411_532_nf_run_script.16pe.csh script and the CMAQv5.3.2 input benchmark dataset to run CMAQ-WRF with no feedback
+### Note, in this new coupled model design, the namelist is used to modify settings for WRF.
+Environment variables such as WRF_CMAQ_FREQ are no longer used.  
+The following commonly modified namelist options for WRF are specified in the run script.
+
+    1. wrf_cmaq_option     (dictates how the coupled model execute)
+
+       0 = run WRF only
+       1 = run WRF only               w   producing MCIP like GRID and MET files
+       2 = run WRF-CMAQ coupled model w/o producing MCIP like GRID and MET files
+       3 = run WRF-CMAQ coupled model w   producing MCIP like GRID and MET files
+
+    2. wrf_cmaq_freq       (indicate how often WRF and CMAQ interact)
+
+    3. met_file_tstep      (time step size of MCIP like intermediate output files)
+
+    4. direct_sw_feedback  (indicate to turn on aerosol short wave direct effect)
+
+    5. feedback_restart    (indicate aerosol SW direct effect information is
+                            available in the WRF restart file or not)
+                            
+* two sample run scripts are provided; run-p.csh (for pure WRF model) and run-cs.csh (for coupled
+  model with SW feedback on, run-c-nswf.csh (for coupled model with SW feedback off).
+
+
+  - Start with the run-c-nswf.csh script  that specifies direct_sw_feedback = .false.
+  - and the CMAQv5.3.2 input benchmark dataset to run CMAQ-WRF with no feedback
   - It is configured to run on 16 processors and for 2 days of model simulation
   - Edit the script to specify the paths, modify the number of processors and batch queue commands
   - Verify that the OMIfile definition matches the latest release of CMAQv5.3.2
   
   Modify the following section to specify your local paths
   ```
-set ROOT_PATH   = /proj/ie/proj/CMAS/WRF-CMAQ/openmpi_4.0.1_gcc_9.1.0_debug/
-set WRF_DIR     = $ROOT_PATH/WRF-4.1.1  # WRF source code directory
+set WORKDIR     = /proj/ie/proj/CMAS/WRF-CMAQ/CMAQ_v5.3.2/CCTM/scripts
+set WRF_DIR     = $WORKDIR/BLD_WRFv4.3_CCTM_v532_gcc  # WRF source code directory
 set INPDIR      = /proj/ie/proj/CMAS/WRF-CMAQ/from_EPA/from_gdrive/CMAQv5.3.2_Benchmark_2Day_Input/2016_12SE1
 set OMIpath     = $WRF_DIR/cmaq                              # path optics related data files
-set OUTPUT_ROOT = $ROOT_PATH/WRF-4.1.1  # output root directory
+set OUTPUT_ROOT = $WORKDIR  # output root directory
 set NMLpath     = $WRF_DIR/cmaq                              # path with *.nml file mechanism dependent
 set NMLpath2    = $WRF_DIR/cmaq                              # path with Species_Table_TR_0.nml file
 set EMISSCTRL   = $WRF_DIR/cmaq                              # path of Emissions Control File
@@ -471,14 +472,14 @@ set EMISSCTRL   = $WRF_DIR/cmaq                              # path of Emissions
     
   - Submit the job using the batch queueing system
     ```
-    sbatch run.twoway_model_411_532_nf_run_script.16pe.csh
+    sbatch run-c-nswf.csh
     ```
 
 ### Step 14: Verify that the run was successful
    - look for the output directory
    
    ```
-   cd output_12km_nf_rrtmg_20_5_1_v411532_debug
+   cd output-nswf
    ```
    If the run was successful you will see the following output
    
