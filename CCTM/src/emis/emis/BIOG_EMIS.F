@@ -32,6 +32,7 @@ C     01 Feb 2019 D. Wong: Implemented centralized I/O approach, and
 C                          created a new module biog_emis_param_module 
 C                          (model_data_module.F) to hold some of information
 C                          originally stored here to avoid cyclic dependence
+C     7 June 2021 G. Sarwar: replaced "B10RD" with "B3V10" for RACM2
 C-----------------------------------------------------------------------
       USE RUNTIME_VARS
       USE EMIS_VARS
@@ -134,7 +135,7 @@ C Local variables
      &         BIOG_MECH_TYPE( 'CB6MP_AE6_AQ           ','B10C6   '),
      &         BIOG_MECH_TYPE( 'CB6R3_AE7_AQ           ','B10C6AE7'),     
      &         BIOG_MECH_TYPE( 'CB6R3M_AE7_KMTBR       ','B10C6AE7'),
-     &         BIOG_MECH_TYPE( 'RACM2_AE6_AQ           ','B10RD   '),
+     &         BIOG_MECH_TYPE( 'RACM2_AE6_AQ           ','B3V10   '),
      &         BIOG_MECH_TYPE( 'SAPRC07TB_AE6_AQ       ','B10SP   '),
      &         BIOG_MECH_TYPE( 'SAPRC07TC_AE6_AQ       ','B10SP   '),
      &         BIOG_MECH_TYPE( 'SAPRC07TIC_AE6I_AQ     ','B10SP   '),
