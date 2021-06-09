@@ -442,8 +442,8 @@ The following commonly modified namelist options for WRF are specified in the ru
     5. feedback_restart    (indicate aerosol SW direct effect information is
                             available in the WRF restart file or not)
                             
-* two sample run scripts are provided; run-p.csh (for pure WRF model) and run-cs.csh (for coupled
-  model with SW feedback on, run-c-nswf.csh (for coupled model with SW feedback off).
+* three sample run scripts are provided; run-p.csh (for pure WRF model), run-cs.csh (for coupled
+  model with SW feedback on, and run-c-nswf.csh (for coupled model with SW feedback off).
 
 
   - Start with the run-c-nswf.csh script  that specifies direct_sw_feedback = .false.
