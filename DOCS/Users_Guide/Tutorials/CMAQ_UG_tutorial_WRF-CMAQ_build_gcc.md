@@ -453,6 +453,7 @@ The following commonly modified namelist options for WRF are specified in the ru
   - Verify that the OMIfile definition matches the latest release of CMAQv5.3.2
   
   Modify the following section to specify your local paths
+  
   ```
 set WORKDIR     = /proj/ie/proj/CMAS/WRF-CMAQ/CMAQ_v5.3.2/CCTM/scripts
 set WRF_DIR     = $WORKDIR/BLD_WRFv4.3_CCTM_v532_gcc  # WRF source code directory
