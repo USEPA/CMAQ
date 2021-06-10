@@ -33,6 +33,7 @@ C                          created a new module biog_emis_param_module
 C                          (model_data_module.F) to hold some of information
 C                          originally stored here to avoid cyclic dependence
 C     10 Mar 2021 G. Sarwar: Changed CB6R3M_AE7_KMTBR to CB6R3M_AE7_AQ
+C     10 June 2021 G. Sarwar: Added CB6R5M_AE7_AQ
 C-----------------------------------------------------------------------
       USE RUNTIME_VARS
       USE EMIS_VARS
@@ -69,7 +70,7 @@ C (A line from the profile file is a record.)
          INTEGER,        PARAMETER :: NSEGS = 6  ! # of potential line segments (fields)
          INTEGER,        PARAMETER :: MXLINES = 100 ! max lines for requested sppro name
          INTEGER,        PARAMETER :: MXSPPOL = 10  ! max no. spc per pollutant
-         INTEGER,        PARAMETER :: NMECHS = 16   ! dimension for number of mechanisms considered
+         INTEGER,        PARAMETER :: NMECHS = 17   ! dimension for number of mechanisms considered
          CHARACTER,      PARAMETER :: CINVHDR = '#' ! Indicator for inventory hdr fields
 !        REAL,           PARAMETER :: GM2TON  = 1.0 / 907184.74  ! grams to tons
 
@@ -136,6 +137,7 @@ C Local variables
      &         BIOG_MECH_TYPE( 'CB6R3_AE7_AQ           ','B10C6AE7'),     
      &         BIOG_MECH_TYPE( 'CB6R3_AE7_AQKMT2       ','B10C6AE7'),     
      &         BIOG_MECH_TYPE( 'CB6R3M_AE7_AQ          ','B10C6AE7'),
+     &         BIOG_MECH_TYPE( 'CB6R5M_AE7_AQ          ','B10C6AE7'),
      &         BIOG_MECH_TYPE( 'RACM2_AE6_AQ           ','B10RD   '),
      &         BIOG_MECH_TYPE( 'SAPRC07TB_AE6_AQ       ','B10SP   '),
      &         BIOG_MECH_TYPE( 'SAPRC07TC_AE6_AQ       ','B10SP   '),
