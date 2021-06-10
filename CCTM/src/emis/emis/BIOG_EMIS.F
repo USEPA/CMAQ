@@ -32,7 +32,9 @@ C     01 Feb 2019 D. Wong: Implemented centralized I/O approach, and
 C                          created a new module biog_emis_param_module 
 C                          (model_data_module.F) to hold some of information
 C                          originally stored here to avoid cyclic dependence
-C     7 June 2021 G. Sarwar: replaced "B10RD" with "B3V10" for RACM2
+C      Xiaoyang Chen at Northeastern University notified that CMAQ is not generating any monoterpene 
+C             emissions when in-line option is enabled with RACM2
+C     07 June 2021 G. Sarwar: replaced "B10RD" with "B3V10" for RACM2
 C-----------------------------------------------------------------------
       USE RUNTIME_VARS
       USE EMIS_VARS

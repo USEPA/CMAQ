@@ -17,6 +17,8 @@
 #      B10C6AE7: CB6r3- ae7 based mechanism
 #             1/8/2018 HOTP modified to split out APIN and not include in TERP 
 #      B10RD: RACM2-based mechanisms
+#      Xiaoyang Chen at Northeastern University notified that CMAQ is not generating any monoterpene 
+#             emissions when in-line option is enabled with RACM2
 #      Replaced "B10RD" with "B3V10" for RACM2 (06/08/2021)
 #      B10SP: SAPRC07t-based mechanisms (aero6 and aero7 compatible)
 # POLNAM
