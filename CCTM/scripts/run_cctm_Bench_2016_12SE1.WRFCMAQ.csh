@@ -9,22 +9,6 @@
 #             http://www.cmascenter.org  (CMAS Website)
 # ===================================================================
 
-##SBATCH -J WRFCMAQ-cs
-##SBATCH -p compute
-##SBATCH -t 10:00:00
-## #SBATCH -p debug
-## #SBATCH -t 2:00:00
-##SBATCH -n 64
-##SBATCH --constraint=broadwell
-##SBATCH -A mod3dev
-##SBATCH -o /work/MOD3DEV/wdx/ptmp/fsidi/wrf-cmaq/run_cctm_Bench_2016_12SE1.WRFCMAQ.log
-##SBATCH -e /work/MOD3DEV/wdx/ptmp/fsidi/wrf-cmaq/run_cctm_Bench_2016_12SE1.WRFCMAQ.log
-##SBATCH -J 12km-sf
-##SBATCH -p compute
-##SBATCH -t 10:00:00
-##SBATCH -n 16 
-##SBATCH -A mod3dev
-
 set NPROCS = 64
 
 set wrfv    = 4.3
@@ -60,7 +44,6 @@ set EXEC      = wrf.exe
 
 # Set Working, Input, and Output Directories
 set WORKDIR     = /proj/ie/proj/CMAS/WRF-CMAQ/CMAQ_v5.3.2/CCTM/scripts
-#set WRF_DIR     = $WORKDIR/WRF-${wrfv}             # WRF source code directory
 set WRF_DIR     = $WORKDIR/BLD_WRFv4.3_CCTM_v532_gcc
 set INPDIR      = /proj/ie/proj/CMAS/WRF-CMAQ/from_EPA/from_gdrive/CMAQv5.3.2_Benchmark_2Day_Input/2016_12SE1                # Input directory
 set OMIpath     = $WRF_DIR/cmaq                           # path optics related data files
