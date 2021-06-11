@@ -11,4 +11,5 @@ The CMAQ release includes several optional utilities for model developers. Chemi
 * **[create_ebi](create_ebi/README.md)**: creates mechanisms-dependent EBI chemistry solver source code 
 * **[inline_phot_preproc](inline_phot_preproc/README.md)**: creates photolysis reaction parameter tables for the CCTM inline photlysis module
 * **[nml](nml/README.md)**: converts chemical mechanism csv output files from chemmech to the namelist files required by the CMAQ programs
-* **[jproc](jproc/README.md)**: calculates daily look-up tables containing clear-sky photolysis rates that are used by the tabular method for calculate photolysis rates in CMAQ CCTM.
+* **[jproc](jproc/README.md)**: calculates daily look-up tables containing clear-sky photolysis rates that are used by the tabular method for calculate photolysis rates in CMAQ CCTM
+* **[wrfcmaq_twoway_coupler](wrfcmaq_twoway_coupler/README.md)**: WRF-CMAQ code to couple WRFv4.3 and CMAQv5.3.3
