@@ -212,7 +212,7 @@ module load openmpi_4.0.1/gcc_9.1.0
 
 ### Step 4: Install CMAQ
   - Follow these instructions to download the code, then use the modifications in Step 5:  [CMAQ Benchmark Tutorial](CMAQ_UG_tutorial_benchmark.md)
-In the directory where you would like to install CMAQ, create the directory issue the following command to clone the EPA GitHub repository for CMAQv5.3.2:
+In the directory where you would like to install CMAQ, create the directory issue the following command to clone the EPA GitHub repository for CMAQv5.3.3:
 
 ```
 git clone -b master https://github.com/USEPA/CMAQ.git CMAQ_REPO
@@ -225,7 +225,7 @@ In the top level of CMAQ_REPO, the bldit_project.csh script will automatically r
 Edit bldit_project.csh, to modify the variable $CMAQ_HOME to identify the folder that you would like to install the CMAQ package under. For example:
 
 ```
-set CMAQ_HOME = /home/username/WRF-CMAQ/CMAQ_v5.3.2
+set CMAQ_HOME = /home/username/WRF-CMAQ/CMAQ_v5.3.3
 ```
 
 Now execute the script.
@@ -341,16 +341,16 @@ Note: Steps 7-10 are **ONLY** for systems without [Git](https://git-scm.com/).
    - extract the tar.gz file
    
    ```
-   cd /home/username/WRF-CMAQ/CMAQ_v5.3.2/scripts
-   tar -xzvf WRF-4.3.tar.gz ./BLD_WRFv4.3_CCTM_v532_gcc
+   cd /home/username/WRF-CMAQ/CMAQ_v5.3.3/scripts
+   tar -xzvf WRF-4.3.tar.gz ./BLD_WRFv4.3_CCTM_v533_gcc
    ```
    
-### Step 8: Move wrfcmaq_twoway_coupler and BLD_CCTM_v532_gcc into BLD_WRFv4.1.1_CCTM_v532_gcc
+### Step 8: Move wrfcmaq_twoway_coupler and BLD_CCTM_v533_gcc into BLD_WRFv4.3_CCTM_v533_gcc
 
 ```
 source ../../config_cmaq.csh
-mv BLD_CCTM_v532_gcc BLD_WRFv4.3_CCTM_v532_gcc/cmaq
-cd BLD_WRFv4.3_CCTM_v532_gcc
+mv BLD_CCTM_v533_gcc BLD_WRFv4.3_CCTM_v533_gcc/cmaq
+cd BLD_WRFv4.3_CCTM_v533_gcc
 cp -rp $CMAQ_REPO/UTIL/wrfcmaq_twoway_coupler .
 ```
 
@@ -366,7 +366,7 @@ cp -rp $CMAQ_REPO/UTIL/wrfcmaq_twoway_coupler .
     
  ```
     #### BEGIN for WRF-CMAQ twoway model
-IOAPI   = /proj/ie/proj/CMAS/WRFv4.1.1-CMAQv5.3.2_rel_debug/LIBRARIES/openmpi_4.0.1_gcc_9.1.0/ioapi-3.2-20200820
+IOAPI   = /proj/ie/proj/CMAS/WRFv4.3-CMAQv5.3.3_rel_debug/LIBRARIES/openmpi_4.0.1_gcc_9.1.0/ioapi-3.2-20200820
 LIOAPI  = Linux2_x86_64gfort_openmpi_4.0.1_gcc_9.1.0
     #### END for WRF-CMAQ twoway model
  ```
@@ -442,21 +442,21 @@ The following commonly modified namelist options for WRF are specified in the ru
     5. feedback_restart    (indicate aerosol SW direct effect information is
                             available in the WRF restart file or not)
                             
-* three sample run scripts are provided; run-p.csh (for pure WRF model), run-cs.csh (for coupled
-  model with SW feedback on, and run-c-nswf.csh (for coupled model with SW feedback off).
+* One sample run scripts is provided; run_cctm_Bench_2016_12SE1.WRFCMAQ.csh (for coupled
+  model with SW feedback on.
 
 
-  - Start with the run-c-nswf.csh script  that specifies direct_sw_feedback = .false.
-  - and the CMAQv5.3.2 input benchmark dataset to run CMAQ-WRF with no feedback
+  - Start with the run_cctm_Bench_2016_12SE1.WRFCMAQ.csh that specifies direct_sw_feedback = .true.
+  - and the CMAQv5.3.3 input benchmark dataset to run CMAQ-WRF with feedback
   - It is configured to run on 16 processors and for 2 days of model simulation
   - Edit the script to specify the paths, modify the number of processors and batch queue commands
-  - Verify that the OMIfile definition matches the latest release of CMAQv5.3.2
+  - Verify that the OMIfile definition matches the latest release of CMAQv5.3.3
   
   Modify the following section to specify your local paths
   
   ```
-     set WORKDIR     = /proj/ie/proj/CMAS/WRF-CMAQ/CMAQ_v5.3.2/CCTM/scripts
-     set WRF_DIR     = $WORKDIR/BLD_WRFv4.3_CCTM_v532_gcc  # WRF source code directory
+     set WORKDIR     = /proj/ie/proj/CMAS/WRF-CMAQ/CMAQ_v5.3.3/CCTM/scripts
+     set WRF_DIR     = $WORKDIR/BLD_WRFv4.3_CCTM_v533_gcc  # WRF source code directory
      set INPDIR      = /proj/ie/proj/CMAS/WRF-CMAQ/from_EPA/from_gdrive/CMAQv5.3.2_Benchmark_2Day_Input/2016_12SE1
      set OMIpath     = $WRF_DIR/cmaq                              # path optics related data files
      set OUTPUT_ROOT = $WORKDIR  # output root directory
@@ -473,14 +473,14 @@ The following commonly modified namelist options for WRF are specified in the ru
     
   - Submit the job using the batch queueing system
     ```
-    sbatch run-c-nswf.csh
+    sbatch run_cctm_Bench_2016_12SE1.WRFCMAQ.csh
     ```
 
 ### Step 14: Verify that the run was successful
    - look for the output directory
    
    ```
-   cd output-nswf
+   cd WRFCMAQ-output-sw_feedback
    ```
    If the run was successful you will see the following output
    
@@ -495,8 +495,8 @@ The following commonly modified namelist options for WRF are specified in the ru
 
      https://drive.google.com/drive/u/1/folders/1poigGFlABCfepaIjDw-6JOyznJ6xz1ck
 
-   - Compare CCTM_ACONC_v411532_20160702.nc files to your benchmark results
+   - Compare CCTM_ACONC_v43533_20160702.nc files to your benchmark results
 
    - Both debug and optimized benchmark outputs are provided for your comparisons.
 
-   - Note, the CMAQv5.3.2 output results will not directly compare to the no feedback (nf) WRF-CMAQ output, as different meterology and timesteps were used.  To do a comparison between CMAQv5.3.2 and WRF-CMAQ, use WRF-CMAQ to output the MCIP meteorology files, and then use those MCIP inputs with the CMAQv5.3.2 ICON and BCON inputs.
+   - Note, the CMAQv5.3.3 output results will not directly compare to the feedback (nf) WRF-CMAQ output, as different meterology and timesteps were used.  To do a comparison between CMAQv5.3.3 and WRF-CMAQ, use WRF-CMAQ to output the MCIP meteorology files, and then use those MCIP inputs with the CMAQv5.3.3 ICON and BCON inputs.
