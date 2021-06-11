@@ -1,4 +1,4 @@
-WRF-CMAQ Coupler: 
+# WRF-CMAQ Coupler: 
 
    The new coupled WRF-CMAQ model is based on WRF 4.3 and 
 CMAQ 5.3.3 (users cannot use prevoius versions CMAQv5.3 & CMAQv5.3.1).It supports 
