@@ -422,7 +422,7 @@ setenv WRF_CMAQ 1
     
 ### Step 13: Run the WRF-CMAQ model
 
-### Note, in this new coupled model design, the namelist is used to modify settings for WRF.
+## Note, in this new coupled model design, the namelist is used to modify settings for WRF.
 Environment variables such as WRF_CMAQ_FREQ are no longer used.  
 The following commonly modified namelist options for WRF are specified in the run script.
 
@@ -452,30 +452,31 @@ The following commonly modified namelist options for WRF are specified in the ru
   - Edit the script to specify the paths, modify the number of processors and batch queue commands
   - Verify that the OMIfile definition matches the latest release of CMAQv5.3.3
   
-  Modify the following section to specify your local paths
+  Modify the following section to specify your local paths:
   
   ```
-     set WORKDIR     = /proj/ie/proj/CMAS/WRF-CMAQ/CMAQ_v5.3.3/CCTM/scripts
+   set WORKDIR     = /proj/ie/proj/CMAS/WRF-CMAQ/CMAQ_v5.3.3/CCTM/scripts
      set WRF_DIR     = $WORKDIR/BLD_WRFv4.3_CCTM_v533_gcc  # WRF source code directory
      set INPDIR      = /proj/ie/proj/CMAS/WRF-CMAQ/from_EPA/from_gdrive/CMAQv5.3.2_Benchmark_2Day_Input/2016_12SE1
      set OMIpath     = $WRF_DIR/cmaq                              # path optics related data files
      set OUTPUT_ROOT = $WORKDIR  # output root directory
      set NMLpath     = $WRF_DIR/cmaq                              # path with *.nml file mechanism dependent
      set NMLpath2    = $WRF_DIR/cmaq                              # path with Species_Table_TR_0.nml file
-     set EMISSCTRL   = $WRF_DIR/cmaq                              # path of Emissions Control File
- ```
-    
-  - Verify the following settings
+     set EMISSCTRL   = $WRF_DIR/cmaq                              # path of Emissions Control Fil
+  
+  ```  
+  
+   - Verify the following settings
     ```
     set NPROCS =    16
     set OMIfile    = OMI_1979_to_2019.dat
     ```
     
-  - Submit the job using the batch queueing system
-    ```
-    sbatch run_cctm_Bench_2016_12SE1.WRFCMAQ.csh
-    ```
-
+  - Run the job (if you have a batch queuing system such as SLURM do:) 
+  ```
+  sbatch run_cctm_Bench_2016_12SE1.WRFCMAQ.csh
+  ```
+ 
 ### Step 14: Verify that the run was successful
    - look for the output directory
    
