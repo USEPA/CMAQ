@@ -19,3 +19,7 @@ lib, and share from C and Fortran portion, respectively.
 To build the WRF-CMAQ coupled model please see:
 
 https://github.com/USEPA/CMAQ/tree/master/DOCS/Users_Guide/Tutorials/CMAQ_UG_tutorial_WRF-CMAQ_build_gcc.md
+
+For further documentation see: 
+
+https://github.com/USEPA/CMAQ/tree/master/DOCS/Users_Guide/CMAQ_UG_ch13_WRF-CMAQ.md
