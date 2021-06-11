@@ -46,7 +46,6 @@ Files Modified:
 * DOCS/Users_Guide/CMAQ_UG_ch13_WRF-CMAQ.md
 * DOCS/Release_Notes/Coupled_WRF-CMAQ.md
 * UTIL/README.md
-* 
 
 # Internal Records
 #### Relevant Pull Requests:
