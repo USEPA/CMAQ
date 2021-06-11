@@ -140,7 +140,7 @@ C******************************************************************************
       read(field,'(f16.0)',iostat=stat) values(ihour)
       flag = ' '
       if( flagFld.gt.0 ) Call getField(record, ',', flagFld, flag)
-      Call LeftTrim(field)
+      Call LeftTrim(flag)
       Call rmQuots(flag)
       Call UCASE(QA_FLAG_STRING)
 
@@ -196,7 +196,8 @@ C******************************************************************************
         read(field,'(f16.0)',iostat=stat) values(ihr)
         flag = ' '
         if(flagFld.gt.0) Call getField(record, ',', flagFld, flag)  
-        Call rmQuots(field)
+        Call LeftTrim(flag)
+        Call rmQuots(flag)
         Call UCASE(QA_FLAG_STRING)
         if(stat.ne.0 .or. values(ihr).le.0 .or. INDEX(TRIM(QA_FLAG_STRING),flag(1:1)).gt.0) values(ihr)=-99.0
         endDo
