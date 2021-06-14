@@ -450,10 +450,10 @@ setenv BIOSEASON /home/user/path-to-file/bioseason.nc
 
 Additionally, when using the inline biogenic option, the user must point to the SOILOUT file from one day’s simulation as the SOILINP file for the next day. The user must also decide whether to write over SOILOUT files from previous days or create a uniquely named SOILOUT file for each day. The latter approach is recommended if the user wishes to retain the capability to restart simulations in the middle of a sequence of simulations.
 
-The INITIAL_RUN variable in the RunScript to Y if this is the first time that biogenic NO soil emissions will be calculated. If there is a previously created file, set to N.  When INITIAL_RUN is set to N, the directory path and file name of biogenic NO soil emissions file must be set in the RunScript:
+Set the NEW_START variable in the RunScript to TRUE if this is the first time that biogenic NO soil emissions will be calculated. If there is a previously created file, set to FALSE.  When NEW_START is set to FALSE, the directory path and file name of biogenic NO soil emissions file must be set in the RunScript:
 
 ```
-setenv INITIAL_RUN N
+setenv NEW_START FALSE
 ```
 
 ```
