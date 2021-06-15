@@ -190,25 +190,46 @@ C-----------------------------------------------------------------------
       ! Calculate Budget Change
       IF (BUDGET_DIAG) CALL STORE_BUDGET( IPR_ID, CNGRD, JDATE, JTIME, LCOUPLE )
 
-      IF ( LCOUPLE ) THEN
-          CNGRD( :,:,:,RHOJ_LOC ) = CNGRD( :,:,:,RHOJ_LOC )
-          CALL DECOUPLE_PA( IPR_ID, CNGRD, JDATE, JTIME )
+      IF ( IPR_ID .EQ. IPR_DENS ) THEN
+          IF ( LCOUPLE ) THEN
+            ! Convert the mew array to decoupled mass units using the 
+            ! met-file interpolated density.
+            CALL DECOUPLE_PA( IPR_ID, CNGRD, JDATE, JTIME, .FALSE. ) 
+            LCOUPLE = .FALSE.
+          ELSE
+            ! Convert the saved array to decoupled mass units using the 
+            ! advected density. For the local_cons approach. this will 
+            ! equal the interpolated density.
+            CALL DECOUPLE_PA( IPR_ID, CSAV, JDATE, JTIME, .TRUE. )
+          END IF
       END IF
- 
-      ! Calculate change, and save for later
+
+      ! Calculate change, and save for later. The arrays are in coupled
+      ! mass concentration space for all coupled processes and for the
+      ! call immediately after the 'decouple' step. Otherwise the arrays
+      ! are in decoupled mixing ratio units for gases and decoupled mass
+      ! concentration for aerosols.
       DO I = 1,N_CGRID_SPC
       DO L = 1,NLAYS
       DO R = 1,NROWS
       DO C = 1,NCOLS
          D_CNGRD(C,R,L,I) = CNGRD(C,R,L,I) - CSAV(C,R,L,I)
          CSAV(C,R,L,I) = CNGRD(C,R,L,I)
-         ! Note that CSAV from the IPR_COUP (coupling) process will be
+         ! Note that CSAV from the first IPR_DENS (coupling) process will be
          ! overwritten in pa_update_hadv for use after IPR_ZADV
       END DO
       END DO
       END DO
       END DO
       
+      ! Convert the change in coupled mass concentrations to change in
+      ! mixing ratio if this called after one of the coupled transport
+      ! processes.
+      IF ( LCOUPLE ) THEN
+          D_CNGRD( :,:,:,RHOJ_LOC ) = CNGRD( :,:,:,RHOJ_LOC )
+          CALL DECOUPLE_PA( IPR_ID, D_CNGRD, JDATE, JTIME, .TRUE. )
+      END IF
+ 
       ! Compute Contribution for Process Analysis 
       IF ( LIPR ) THEN
          ! Compute delta conc for this process if requested
@@ -611,10 +632,10 @@ C..get density x jacobian and layer heights
          ! correct RHOJ so this is passed from CNGRD
          
          DELC_XADV( :,:,:,RHOJ_LOC ) = CNGRD( :,:,:,RHOJ_LOC )
-         CALL DECOUPLE_PA( IPR_XADV, DELC_XADV, JDATE, JTIME )
+         CALL DECOUPLE_PA( IPR_XADV, DELC_XADV, JDATE, JTIME, .TRUE. )
 
          DELC_YADV( :,:,:,RHOJ_LOC ) = CNGRD( :,:,:,RHOJ_LOC )
-         CALL DECOUPLE_PA( IPR_YADV, DELC_YADV, JDATE, JTIME )
+         CALL DECOUPLE_PA( IPR_YADV, DELC_YADV, JDATE, JTIME, .TRUE. )
 
          ! Save Changes in Budget Array
          IF (BUDGET_DIAG) CALL STORE_BUDGET( IPR_XADV, DELC_XADV, JDATE, JTIME, .FALSE. )
@@ -654,9 +675,12 @@ C..get density x jacobian and layer heights
          DELC_YADV = 0.0
       END IF
  
-      ! Decuople CNGRD so it can be saved for the next process
-      CALL DECOUPLE_PA( IPR_ZADV, CNGRD, JDATE, JTIME )
+      ! Decouple CNGRD so it can be saved for the next process
+      !CALL DECOUPLE_PA( IPR_ZADV, CNGRD, JDATE, JTIME )
 
+      ! Save the coupled CNGRD array so it can be differenced and then 
+      ! decoupled (converted to mixing ratio) for the IPR_ZADV process
+      ! analysis quantityt.
       DO I = 1,N_CGRID_SPC
       DO L = 1,NLAYS
       DO R = 1,NROWS
@@ -766,7 +790,7 @@ C..get density x jacobian and layer heights
       END SUBROUTINE PA_UPDATE_AERO
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-      SUBROUTINE DECOUPLE_PA ( IPR_ID, CONC, JDATE, JTIME )
+      SUBROUTINE DECOUPLE_PA ( IPR_ID, CONC, JDATE, JTIME, LRHOJ )
 C-----------------------------------------------------------------------
 C Function:
 C   Convert units and decouple concentration values in CGRID from transport
@@ -787,7 +811,6 @@ C-----------------------------------------------------------------------
       USE VDIFF_MAP, ONLY : N_SPC_DIFF, DIFF_MASK_SRF, DIFF_MASK_NUM, DIFF_MAP,
      &                      DIFF_MASK_AERO
       use CENTRALIZED_IO_MODULE, only : interpolate_var
-      USE PA_DEFN, ONLY : IPR_DECP
 
       IMPLICIT NONE   
 
@@ -799,6 +822,7 @@ C Arguments:
       INTEGER, INTENT( IN ) :: JDATE      ! current model date, coded YYYYDDD
       INTEGER, INTENT( IN ) :: JTIME      ! current model time, coded HHMMSS
       INTEGER, INTENT( IN ) :: IPR_ID     ! Process ID
+      LOGICAL, INTENT( IN ) :: LRHOJ      ! Should the advected density be used to decouple
 
 C Parameters:
       REAL, PARAMETER :: GPKG = 1.0E+03   ! g/kg
@@ -823,7 +847,7 @@ C-----------------------------------------------------------------------
 C retrieve transported RhoJ and Jacobian
       CALL INTERPOLATE_VAR ('JACOBM', JDATE, JTIME, JACOBM)
 
-      IF ( COUPLE_WRF .AND. IPR_ID .NE. IPR_DECP ) THEN
+      IF ( LRHOJ ) THEN
         RHOJ( :,:,: ) = CONC( :,:,:,RHOJ_LOC )
       ELSE
         CALL INTERPOLATE_VAR ('DENSA_J', JDATE, JTIME, RHOJ)
