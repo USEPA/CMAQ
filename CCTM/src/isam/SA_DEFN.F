@@ -852,8 +852,8 @@ c            SPC_LIST( J_SPC ) = 'VIVPO1'
           SPC_LIST( J_SPC ) = 'SULF'    
           J_SPC = J_SPC + 1
           SPC_LIST( J_SPC ) = 'SULRXN'
-          IF ( ( MECHNAME .EQ. 'CB6R3M_AE7_AQ' .OR.
-     &         ( MECHNAME .EQ. 'CB6R5M_AE7_AQ ) THEN             
+          IF (  MECHNAME .EQ. 'CB6R3M_AE7_AQ' .OR.
+     &          MECHNAME .EQ. 'CB6R5M_AE7_AQ' ) THEN             
              J_SPC = J_SPC + 1
              SPC_LIST( J_SPC ) = 'DMS'
           END IF
