@@ -53,7 +53,7 @@ Once users have successfully completed installation and users can run a quick te
 Users should note, comparing the results of running WRF-CMAQ with the given input to the results of running CMAQ (offline) with the given input, while on the same domain, will include differences from other sources other than just the coupling of WRF and CMAQ. These differences are due to the version and nudging of WRF used to generate input files for CMAQ (offline) through MCIP, as well as the effect of windowing down to the south-east benchmark from the CONUS done for the CMAQ (offline) case. 
 
 
-# 13.6 WRF Namelist Options
+## 13.6 WRF Namelist Options
 
 New with this version of the coupled model (WRFv4.3-CMAQv5.3.3), all related runtime options are now controlled via the WRF namelist. For convenience these options are set as runscript variables and automatically duplicated when creating the WRF namelist. There are five parameters with varying options see below: 
   
