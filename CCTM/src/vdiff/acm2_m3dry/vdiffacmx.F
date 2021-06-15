@@ -44,6 +44,7 @@ C   07 Nov 14 J.Bash: Updated for the ASX_DATA_MOD shared data module.
 C   02 Nov 2018: L.Zhou, S.Napelenok: isam implementation
 C   May 2019  J.Pleim Changed from sigma coords to Z coords for compatability w/ MPAS and WRF
 C   12 Dec 19 S.L.Napelenok: ddm-3d implementation for version 5.3.1
+C   15 Jun 21 J. Pleim: implemented HONO fix for dry depsotion flux
 C-----------------------------------------------------------------------
 
       USE CGRID_SPCS          ! CGRID mechanism species
@@ -141,7 +142,7 @@ C ACM Local Variables
       REAL        DEPV_HNO3                     ! dep vel of HNO3
       REAL        FNL                           ! ACM2 Variable
       INTEGER     NLP, NL, LCBL
-      INTEGER, SAVE :: NO2_HIT = 0, HONO_HIT = 0, HNO3_HIT = 0, NO2_MAP= 0, HNO3_MAP = 0 
+      INTEGER, SAVE :: NO2_HIT = 0, HONO_HIT = 0, HNO3_HIT = 0, NO2_MAP= 0, HONO_MAP = 0, HNO3_MAP = 0
       INTEGER, SAVE :: O3_HIT = 0, O3_MAP = 0
       INTEGER, SAVE :: NH3_HIT = 0
       REAL        DTLIM, DTS, DTACM, RZ
@@ -256,13 +257,14 @@ C set auxiliary depv arrays
          DD = 0.0; UU = 0.0   ! array assignment
 
          HONO_HIT = 0; HNO3_HIT = 0; NO2_HIT  = 0; NH3_HIT = 0
-                       HNO3_MAP = 0; NO2_MAP  = 0
+         HONO_MAP = 0; HNO3_MAP = 0; NO2_MAP  = 0
          DO V = 1, N_SPC_DEPV
             IF ( DV2DF_SPC( V ) .EQ. 'NO2' ) THEN
                NO2_HIT = V
                NO2_MAP = DV2DF( V )
             ELSE IF ( DV2DF_SPC( V ) .EQ. 'HONO' ) THEN
                HONO_HIT = V
+               HONO_MAP = DV2DF( V )
             ELSE IF ( DV2DF_SPC( V ) .EQ. 'HNO3' ) THEN
                HNO3_HIT = V
                HNO3_MAP = DV2DF( V )
@@ -703,7 +705,19 @@ C reduce the NO2 conc. in the atmosphere without affecting the depositional loss
                      S_DDBF( V, NP ) = S_DDBF( V, NP ) + THETA * DD_FAC( V ) * SENS ( S,1,NP )
                   END DO
 #endif
-  
+
+               ELSE IF ( V .EQ. HONO_HIT ) THEN
+                  S = HONO_MAP
+                  CONC( S,1 ) = POL( V ) + ( CONC( S,1 ) - POL( V ) ) * EFAC1( V )
+                  DDBF( V ) = DDBF( V ) + THETA * DD_FAC( V ) * CONC( S,1 )
+C Don't add HONO emissions as negative dep flux
+!     &                      - DTDENS1 * DD_CONV( V ) * PLDV( V,C,R ) )
+#ifdef sens
+                  DO NP = 1, NPMAX
+                     SENS( S,1,NP ) = S_POL( NP,V ) + ( SENS( S,1,NP ) - S_POL( NP,V ) ) * EFAC1( V )
+                     S_DDBF( V, NP ) = S_DDBF( V, NP ) + THETA * DD_FAC( V ) * SENS ( S,1,NP )
+                  END DO
+#endif
 C --------- END of HET HONO RX ----------
 
                ELSE
@@ -1000,6 +1014,20 @@ C --------- HET HONO RX -----------------
                   S = NO2_MAP
                   CONC( S,1 ) = POL( V ) + ( CONC( S,1 ) - POL( V ) ) * EFAC2( V )
                   DDBF( V ) = DDBF( V ) + THBAR * DD_FAC( V ) * CONC( S,1 )
+
+#ifdef sens
+                  DO NP = 1, NPMAX
+                     SENS( S,1,NP ) = S_POL( NP,V ) + ( SENS( S,1,NP ) - S_POL( NP,V ) ) * EFAC2( V )
+                     S_DDBF( V,NP ) = S_DDBF( V,NP ) + THBAR * DD_FAC( V ) * SENS( S,1,NP )
+                  END DO
+#endif
+
+               ELSE  IF ( V .EQ. HONO_HIT ) THEN
+                  S = HONO_MAP
+                  CONC( S,1 ) = POL( V ) + ( CONC( S,1 ) - POL( V ) ) * EFAC2( V )
+                  DDBF( V ) = DDBF( V ) + THBAR * DD_FAC( V ) * CONC( S,1 )
+C Don't add HONO emissions as negative dep flux
+!     &                      - DTDENS1 * DD_CONV( V ) * PLDV( V,C,R ) )
 
 #ifdef sens
                   DO NP = 1, NPMAX
