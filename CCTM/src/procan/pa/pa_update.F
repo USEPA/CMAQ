@@ -186,16 +186,17 @@ C-----------------------------------------------------------------------
       END DO
       END DO
       END DO
-      
+      LCOUPLE_LOCAL = LCOUPLE
+
       ! Calculate Budget Change
-      IF (BUDGET_DIAG) CALL STORE_BUDGET( IPR_ID, CNGRD, JDATE, JTIME, LCOUPLE )
+      IF (BUDGET_DIAG) CALL STORE_BUDGET( IPR_ID, CNGRD, JDATE, JTIME, LCOUPLE_LOCAL )
 
       IF ( IPR_ID .EQ. IPR_DENS ) THEN
-          IF ( LCOUPLE ) THEN
+          IF ( LCOUPLE_LOCAL ) THEN
             ! Convert the mew array to decoupled mass units using the 
             ! met-file interpolated density.
             CALL DECOUPLE_PA( IPR_ID, CNGRD, JDATE, JTIME, .FALSE. ) 
-            LCOUPLE = .FALSE.
+            LCOUPLE_LOCAL = .FALSE.
           ELSE
             ! Convert the saved array to decoupled mass units using the 
             ! advected density. For the local_cons approach. this will 
@@ -225,7 +226,7 @@ C-----------------------------------------------------------------------
       ! Convert the change in coupled mass concentrations to change in
       ! mixing ratio if this called after one of the coupled transport
       ! processes.
-      IF ( LCOUPLE ) THEN
+      IF ( LCOUPLE_LOCAL ) THEN
           D_CNGRD( :,:,:,RHOJ_LOC ) = CNGRD( :,:,:,RHOJ_LOC )
           CALL DECOUPLE_PA( IPR_ID, D_CNGRD, JDATE, JTIME, .TRUE. )
       END IF
