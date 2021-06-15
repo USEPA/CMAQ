@@ -134,10 +134,10 @@ C-----------------------------------------------------------------------
      & oa_type('ASQT   ', 'SVSQT   ', 'SESQRXN ',  1.5370,  24.9840,  40.0E3, .283,1.52, F,  F,  T,  F ),
      & oa_type('AGLY   ', '        ', '        ',     0.0,   1.E-10,   1.0E0, .771,2.13, F,  F,  F,  T ),
      & oa_type('AORGC  ', '        ', '        ',     0.0,   1.E-10,   1.0E0, .667,2.00, F,  F,  F,  T ),
-     & oa_type('AXYL3  ', '        ', 'XYLNRXN ',  0.3600,   1.e-10,   1.0E0, .907,2.30, F,  T,  F,  T ),
-     & oa_type('ATOL3  ', '        ', 'TOLNRXN ',  0.3000,   1.e-10,   1.0E0,1.227,2.70, F,  T,  F,  T ),
-     & oa_type('ABNZ3  ', '        ', 'BNZNRXN ',  0.3700,   1.e-10,   1.0E0,1.467,3.00, F,  T,  F,  T ),
-     & oa_type('APAH3  ', '        ', 'PAHNRXN ',  0.7300,   1.e-10,   1.0E0, .483,1.77, F,  T,  F,  T ),
+     & oa_type('AXYL3  ', '        ', 'XYLHRXN ',  0.3600,   1.e-10,   1.0E0, .907,2.30, F,  T,  F,  T ),
+     & oa_type('ATOL3  ', '        ', 'TOLHRXN ',  0.3000,   1.e-10,   1.0E0,1.227,2.70, F,  T,  F,  T ),
+     & oa_type('ABNZ3  ', '        ', 'BNZHRXN ',  0.3700,   1.e-10,   1.0E0,1.467,3.00, F,  T,  F,  T ),
+     & oa_type('APAH3  ', '        ', 'PAHHRXN ',  0.7300,   1.e-10,   1.0E0, .483,1.77, F,  T,  F,  T ),
      & oa_type('APOC   ', '        ', '        ',  0.0   ,   1.e-10,   1.0E0, .000,1.00, T,  T,  F,  T ),
      & oa_type('APNCOM ', '        ', '        ',  0.0   ,   1.e-10,   1.0E0, -1.0,-1.0, T,  T,  F,  T ),
      & oa_type('APCSO  ', 'LVPCSOG ', 'PCSOARXN',  1.0   ,   1.e-05,  40.0E3, .667,2.00, F,  T,  F,  F ),
@@ -1154,6 +1154,7 @@ C-----------------------------------------------------------------------
 
          kappaVorg = 0.0e0 ! units: m3.spec/m3.air
          totvol    = 0.0e0 ! units: m3.particle/m3.air
+         aerospc_conc( aorgh2o_idx,: ) = conmin
 
          im = 2 ! only compute water for accumulation mode OM
 
@@ -1189,8 +1190,6 @@ C-----------------------------------------------------------------------
          If( overallkappa .gt. 1e-6 ) then ! prevents situation of little uptake
             aerospc_conc( aorgh2o_idx, im ) = aerospc( aorgh2o_idx )%density
      &       * aw/(1.0-aw) * kappaVorg * 1.0e9
-         Else
-            aerospc_conc( aorgh2o_idx, im ) =  conmin ! no significant orgwater
          End If
 
       End If ! End organic water uptake

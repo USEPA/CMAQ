@@ -18,7 +18,7 @@
 !------------------------------------------------------------------------!
 
 C::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-      SUBROUTINE HRNO( JDATE, JTIME, TSTEP, NOPOL )
+      SUBROUTINE HRNO( JDATE, JTIME, TSTEP, NOPOL, L_DESID_DIAG )
 
 C-----------------------------------------------------------------------
 C Description:
@@ -157,7 +157,8 @@ C Arguments:
       INTEGER, INTENT( IN )  :: JTIME         ! current simulation time (HHMMSS)
       INTEGER, INTENT( IN )  :: TSTEP( 3 )    ! time step vector (HHMMSS)
       REAL,    INTENT( OUT ) :: NOPOL( :,: )  ! output NO emissions
-
+      LOGICAL, INTENT( IN )  :: L_DESID_DIAG  ! flag determining whether or not DESID
+                                              !   is in diagnostic mode              
 C External Functions
       LOGICAL,         EXTERNAL :: CHKGRID
 
@@ -530,7 +531,7 @@ C Calculate NO emissions by going thru temperature cases
 
       END IF  ! growing season check
 
-      IF ( SECSDIFF( JDATE,JTIME, EDATE,ETIME ) .GT. TIME2SEC( TSTEP( 2 ) ) ) RETURN
+      IF ( SECSDIFF( JDATE,JTIME, EDATE,ETIME ) .GT. TIME2SEC( TSTEP( 2 ) ) .OR. L_DESID_DIAG ) RETURN
 
 C Create rain data file for soil NO
 

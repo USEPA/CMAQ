@@ -46,7 +46,8 @@ C-----------------------------------------------------------------------
 
       USE CGRID_SPCS          ! CGRID mechanism species
       USE GRID_CONF
-      USE EMIS_VARS, ONLY : VDEMIS_DIFF, EMLAYS          
+      USE EMIS_VARS, ONLY : VDEMIS_DIFF, EMLAYS
+      USE EM_PARAM_MODULE, ONLY : N_EM_SRM
       USE DEPV_DEFN
       USE ASX_DATA_MOD
       USE VDIFF_MAP
@@ -60,7 +61,7 @@ C-----------------------------------------------------------------------
 #ifdef isam
       USE SA_DEFN, ONLY: N_SPCTAG, ISAM, VNAM_SPCTAG, TRANSPORT_SPC,
      &                   SA_VDEMIS_DIFF, ITAG, NTAG_SA, NSPC_SA,
-     &                   S_SPCTAG, T_SPCTAG, SA_DDEP, OTHRTAG, SPC_NAME,
+     &                   S_SPCTAG, T_SPCTAG, SA_DDEP, OTHRTAG, ISAM_SPEC,
      &                   L_NITRATE, SA_BIDI, BIDITAG, L_NH4
 #endif
 
@@ -341,7 +342,7 @@ C set auxiliary depv arrays
 
 ! find NO2 in tracked species
          DO S = 1, NSPC_SA
-            IF( SPC_NAME( S,1 ) .EQ. 'NO2' )THEN
+            IF( ISAM_SPEC( S,1 ) .EQ. 'NO2' )THEN
                 ISAM_INDEX_NO2 = S
                 EXIT
             END IF            
@@ -349,7 +350,7 @@ C set auxiliary depv arrays
 ! find NH3 in tracked species
          IF ( SA_BIDI ) THEN
            DO S = 1, NSPC_SA
-              IF( SPC_NAME( S,1 ) .EQ. 'NH3' )THEN
+              IF( ISAM_SPEC( S,1 ) .EQ. 'NH3' )THEN
                   ISAM_INDEX_NH3 = S
                   EXIT
               END IF
@@ -532,7 +533,8 @@ C-----------------------------------------------------------------------
          END DO
 
          EMIS = 0.0      ! array assignment
-         EMIS( :,1:EMLAYS ) = DTS * VDEMIS_DIFF( :,:,C,R )
+         IF ( N_EM_SRM .GE. 1 ) 
+     &        EMIS( :,1:EMLAYS ) = DTS * VDEMIS_DIFF( :,:,C,R )
 
 #ifdef isam
          SAEMIS = 0.0

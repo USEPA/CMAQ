@@ -105,6 +105,7 @@ C-----------------------------------------------------------------------
 
       USE RXNS_DATA             ! chemical mechanism data
       USE BUDGET_DEFN
+      USE AERO_DATA
 #ifdef mpas
       USE CGRID_SPCS            ! CGRID mechanism species
       USE HGRD_DEFN, ONLY: MYPE
@@ -115,7 +116,6 @@ C-----------------------------------------------------------------------
       use mydata_module
       use get_env_module
       use lus_defn
-      USE AERO_DATA
       use mio_module
 #else
       USE PCGRID_DEFN           ! inherits GRID_CONF
@@ -381,6 +381,8 @@ C Set CGRID mechanism
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
          END IF
 
+         CALL MAP_AERO()
+
 #ifdef verbose_driver
          write( logdev,* ) ' MYPE -> NSPCS:    ', mype, nspcsd
 #endif
@@ -455,10 +457,6 @@ C Miscellaneous Configuration Operations
 c        CALL GET_SA_LAYS ()
          CALL SA_DIM()
 
-         N_SPCTAG = NSPC_SA * NTAG_SA
-
-         CALL GET_SPC_INDEX ()
-
 C Initialize PISAM
          IF ( .NOT. PISAM_INIT ( NSPC_SA, NTAG_SA ) ) THEN
             XMSG = 'Failure in defining SA horizontal domain'
@@ -466,17 +464,6 @@ C Initialize PISAM
          END IF
          ISAM => PISAM( 1:NCOLS,1:NROWS,:,:,: )
 
-C Allocate arrays of species indices, tagging indices, and
-C variable names for the combined species-tags
-C i.e. set s_spctag, t_spctag, and vnam_spctag
-         ALLOCATE ( S_SPCTAG( N_SPCTAG ) )
-         ALLOCATE ( T_SPCTAG( N_SPCTAG ) )
-         ALLOCATE ( VNAM_SPCTAG( N_SPCTAG ) )
-         ALLOCATE ( BCON_SPC( N_SPCTAG ) )
-
-C Assign BCON tag indicies used in advection
-         BCON_SPC = .FALSE.
-         BCON_SPC( ((BCONTAG - 1)*NSPC_SA+1) : (NSPC_SA*BCONTAG) ) = .TRUE.
 #endif
 
 C Initialize optional derived vertical velocity writes to conc file

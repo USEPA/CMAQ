@@ -30,6 +30,18 @@ This Fortran program generates a csv file from an IOAPI data file for a set of s
  SPECIES_#      list of species to output (e.g. setenv SPECIES_1 O3).  
                 To extract all species use: setenv SPECIES_1 ALL
 ```
+## Format of SITE_FILE:
+
+The SITE_FILE file has one line per location with the following format:
+
+`LABEL` `DELIMITER` `X` `DELIMITER` `Y`
+
+where
+* `LABEL` is a user-defined text string used to label each location. The text string is then used in the 'sideid' column of OUTFILE. It can represent a station ID associated with a given pair of latitude and longitude values, a string consisting of column and row numbers if `USECOLROW` is T, or any other unique string with a length up to 10 characters.
+* `DELIMITER` is defined by the associated environment variable.
+* `X`/`Y` are:
+  * By default, longitude/latitude in decimal degrees
+  * If `USECOLROW` is T, then `X` should be between (1, `NCOLS`) and `Y` should be between (1, `NROWS`).
 
 ## Run Time Environment variables (not required):
 ```

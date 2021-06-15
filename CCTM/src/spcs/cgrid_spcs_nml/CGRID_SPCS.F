@@ -108,6 +108,7 @@ c control species
       INTEGER, SAVE              :: RHOJ_LOC
       CHARACTER( 16 ), ALLOCATABLE, SAVE :: CGRID_NAME     ( : )
       REAL,    ALLOCATABLE, SAVE :: CGRID_MW       ( : )
+      CHARACTER( 16 ), ALLOCATABLE, SAVE :: CGRID_UNITS    ( : )
       LOGICAL, ALLOCATABLE, SAVE :: CGRID_MASK_GAS ( : )
       LOGICAL, ALLOCATABLE, SAVE :: CGRID_MASK_AERO( : )
       LOGICAL, ALLOCATABLE, SAVE :: CGRID_MASK_NUM ( : )
@@ -981,8 +982,9 @@ c-------------------------------------------------------------------------------
             
             ! Move Data To CGRID_xxx Master Arrays
             N_CGRID_SPC = NSPCSD
-            ALLOCATE( CGRID_NAME( N_CGRID_SPC ),
-     &                CGRID_MW  ( N_CGRID_SPC ),
+            ALLOCATE( CGRID_NAME ( N_CGRID_SPC ),
+     &                CGRID_MW   ( N_CGRID_SPC ),
+     &                CGRID_UNITS( N_CGRID_SPC ),
      &                CGRID_MASK_GAS( N_CGRID_SPC ),
      &                CGRID_MASK_AERO( N_CGRID_SPC ),
      &                CGRID_MASK_NUM( N_CGRID_SPC ),
@@ -999,6 +1001,7 @@ c-------------------------------------------------------------------------------
             CGRID_MASK_NR  = .FALSE.
             CGRID_MASK_TRAC= .FALSE.
             MAP_DEPVtoCGRID= 0
+            CGRID_UNITS = ''
 
             IGRID = 0
             IDEPV = 0
@@ -1015,6 +1018,7 @@ c-------------------------------------------------------------------------------
                       MAP_DEPVtoCGRID( IDEPV ) = IGRID
                    END IF
                 END DO
+                CGRID_UNITS( IGRID ) = 'ppmV'
             END DO
 
             ! Set Masks for Density x Jacobian/MSFX2
@@ -1037,6 +1041,15 @@ c-------------------------------------------------------------------------------
                       MAP_DEPVtoCGRID( IDEPV ) = IGRID
                    END IF
                 END DO
+                CGRID_UNITS( IGRID ) = 'ug m-3'
+                IF ( INDEX( AE_SPC( ISPC ),'NUM') .NE. 0 ) THEN 
+                    CGRID_MASK_NUM( IGRID )   = .TRUE.
+                    CGRID_UNITS( IGRID ) = 'm-3'
+                END IF
+                IF ( INDEX( AE_SPC( ISPC ),'SRF') .NE. 0 ) THEN
+                    CGRID_MASK_SRF( IGRID )   = .TRUE.
+                    CGRID_UNITS( IGRID ) = 'm2 m-3'
+                END IF
             END DO
             
             ! Set Masks for Nonreactive Variables
@@ -1051,6 +1064,7 @@ c-------------------------------------------------------------------------------
                       MAP_DEPVtoCGRID( IDEPV ) = IGRID
                    END IF
                 END DO
+                CGRID_UNITS( IGRID ) = 'ppmV'
             END DO
 
             ! Set Masks for Tracers
@@ -1065,6 +1079,7 @@ c-------------------------------------------------------------------------------
                       MAP_DEPVtoCGRID( IDEPV ) = IGRID
                    END IF
                 END DO
+                CGRID_UNITS( IGRID ) = 'ppmV'
             END DO
             N_SPC_DEPV = IDEPV
 

@@ -91,8 +91,8 @@ C-----------------------------------------------------------------------
       USE PHOT_MOD,      ONLY: RJ, RJ_RES, RJ_SUB, LH2O2, LHNO3
       USE CENTRALIZED_IO_MODULE
 #ifdef isam
-      USE SA_DEFN, ONLY: ISAM, NSPC_SA, NTAG_SA, SPC_INDEX, OTHRTAG, 
-     &                   SPC_NAME, DEPSUM_SAVE, DS4_SAVE, REMOV_SAVE,
+      USE SA_DEFN, ONLY: ISAM, NSPC_SA, NTAG_SA, MAP_SAtoCGR, OTHRTAG, 
+     &                   ISAM_SPEC, DEPSUM_SAVE, DS4_SAVE, REMOV_SAVE,
      &                   ITAG
 
 #endif
@@ -310,9 +310,9 @@ C...  the met timestep in hours
 #ifdef isam
 ! move all this somewhere else eventually
 
-        S_SO2  = INDEX1( 'SO2', NSPC_SA, SPC_NAME(:,OTHRTAG) )
-        S_SO4J = INDEX1( 'ASO4J', NSPC_SA, SPC_NAME(:,OTHRTAG) )
-        S_SULF = INDEX1( 'SULF', NSPC_SA, SPC_NAME(:,OTHRTAG) )
+        S_SO2  = INDEX1( 'SO2', NSPC_SA, ISAM_SPEC(:,OTHRTAG) )
+        S_SO4J = INDEX1( 'ASO4J', NSPC_SA, ISAM_SPEC(:,OTHRTAG) )
+        S_SULF = INDEX1( 'SULF', NSPC_SA, ISAM_SPEC(:,OTHRTAG) )
 
         C_SO2  = INDEX1( 'SO2',   N_GC_SPC, GC_SPC )
         C_SO4J = INDEX1( 'ASO4J', N_AE_SPC, AE_SPC ) + 1 + N_GC_SPC
@@ -611,7 +611,7 @@ C...  that were scavenged or that participated in cloud chemistry
 
 #ifdef isam
                 DO SPC = 1, NSPC_SA
-                  CSPC = SPC_INDEX(SPC,2)
+                  CSPC = MAP_SAtoCGR(SPC)
 c                 IF ( POLC( CSPC ) .GT. 1.0E-30 .AND. CEND( CSPC ) .GT. 1.0E-09 ) THEN
                   IF ( POLC( CSPC ) .GT. 1.0E-30 ) THEN
                     DO ITAG = 1, NTAG_SA
@@ -668,7 +668,7 @@ C...  mimic this for the ASO4GASJ tracking species
 
 #ifdef isam
                   DO SPC = 1, NSPC_SA ! general case
-                    CSPC = SPC_INDEX(SPC,2)
+                    CSPC = MAP_SAtoCGR(SPC)
                     DO ITAG = 1, NTAG_SA
 c                     IF ( POLC( CSPC ) .GT. 1.0E-30 .AND. CEND( CSPC ) .GT. 1.0E-09 ) THEN
                       IF ( POLC( CSPC ) .GT. 1.0E-30 ) THEN
@@ -732,7 +732,7 @@ C...  for gases
      &                         * M2PHA_OVER_GPKG
 #ifdef isam
                   CSPC = 0
-                  CSPC = INDEXINT1(VAR,NSPC_SA,SPC_INDEX(:,2))
+                  CSPC = INDEXINT1(VAR,NSPC_SA,MAP_SAtoCGR(:))
                   IF ( CSPC .GT. 0 ) THEN
                     DO ITAG = 1, NTAG_SA
                       SA_REMOV( CSPC,ITAG ) = SA_REMOV( CSPC,ITAG ) * GC_MOLWT( SPC )
@@ -777,7 +777,7 @@ C...  for aerosols
                   END IF
 #ifdef isam
                   CSPC = 0
-                  CSPC = INDEXINT1(VAR,NSPC_SA,SPC_INDEX(:,2))
+                  CSPC = INDEXINT1(VAR,NSPC_SA,MAP_SAtoCGR(:))
                   IF ( CSPC .GT. 0 ) THEN
                     DO ITAG = 1, NTAG_SA
                       SA_REMOV( CSPC,ITAG ) = SA_REMOV( CSPC,ITAG ) * AE_MOLWT( SPC )
@@ -798,7 +798,7 @@ C...  for non-reactives
      &                         * M2PHA_OVER_GPKG
 #ifdef isam
                   CSPC = 0
-                  CSPC = INDEXINT1(VAR,NSPC_SA,SPC_INDEX(:,2))
+                  CSPC = INDEXINT1(VAR,NSPC_SA,MAP_SAtoCGR(:))
                   IF ( CSPC .GT. 0 ) THEN
                     DO ITAG = 1, NTAG_SA
                       SA_REMOV( CSPC,ITAG ) = SA_REMOV( CSPC,ITAG ) * NR_MOLWT( SPC )

@@ -3190,8 +3190,9 @@ C ----------------------- Begin solution -------------------------------
          CALL GET_AERO_INLET( INLET, IM, WETNESS, VAL )
          PM = PM + VAL * ( SUM( AEROSPC_CONC( :,IM ), 
      &                  MASK = .NOT.AEROSPC(:)%TRACER )
-     &                  - AEROSPC_CONC( AH2O_IDX,IM )
-     &                  - AEROSPC_CONC( AORGH2O_IDX,IM ) ) ! ug m-3
+     &                  - AEROSPC_CONC( AH2O_IDX,IM ) )
+                    IF ( AORGH2O_IDX .GT. 0 ) PM = PM
+     &                  - VAL * AEROSPC_CONC( AORGH2O_IDX,IM ) ! ug m-3
       END DO
  
       END SUBROUTINE SUM_INLET_PM

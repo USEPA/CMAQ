@@ -339,7 +339,7 @@
       CHARACTER(200) :: XMSG
       CHARACTER(16), SAVE :: PNAME = 'PMDIAG_KEY'
 
-      N_KEY = 20
+      N_KEY = 21
       ALLOCATE( PMDIAG_KEY( N_KEY ), STAT=ALLOCSTAT )
       IF ( ALLOCSTAT .NE. 0 ) THEN
            XMSG = 'Failure allocating PMDIAG_KEY'
@@ -348,8 +348,8 @@
 
       ! Define AMET Variables
       PMDIAG_KEY( 1 )%WORD = 'DEFAULT'
-      PMDIAG_KEY( 1 )%N = 12
-      ALLOCATE( PMDIAG_KEY( 1 )%LIST( 12 ),STAT=ALLOCSTAT )
+      PMDIAG_KEY( 1 )%N = 14
+      ALLOCATE( PMDIAG_KEY( 1 )%LIST( 14 ),STAT=ALLOCSTAT )
       IF ( ALLOCSTAT .NE. 0 ) THEN
            XMSG = 'Failure allocating PMDIAG_KEY(1)'
            CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
@@ -359,7 +359,7 @@
      &      'MASS            ','PM_NUM          ','PMF_NUM         ',
      &      'PMC_NUM         ','MET             ','CHEM            ', 
      &      'FINE_SPECIES    ','COARSE_SPECIES  ','PM25_SPECIES    ',
-     &      'SIZE            ' /)
+     &      'SIZE            ','AMS             ','PM25TO10_SPECIES' /)
 
       PMDIAG_KEY( 2 )%WORD = 'AMET'
       PMDIAG_KEY( 2 )%N = 35
@@ -380,15 +380,16 @@
      &          'PMC_MASS    ','MET         ','Tsurf       ','AOD_550     ' /)
 
       PMDIAG_KEY( 3 )%WORD = 'MASS'
-      PMDIAG_KEY( 3 )%N = 9
-      ALLOCATE( PMDIAG_KEY( 3 )%LIST( 9 ), STAT=ALLOCSTAT )
+      PMDIAG_KEY( 3 )%N = 11
+      ALLOCATE( PMDIAG_KEY( 3 )%LIST( 11 ), STAT=ALLOCSTAT )
       IF ( ALLOCSTAT .NE. 0 ) THEN
            XMSG = 'Failure allocating PMDIAG_KEY(3)'
            CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
       END IF
 
-      PMDIAG_KEY( 3 )%LIST = (/'PMF_MASS','PMC_MASS','PM01    ','PM1     ',
-     &              'PM25    ','PM10    ','PM25TO10','PMU_MASS','PMAMS   ' /)
+      PMDIAG_KEY( 3 )%LIST = (/'PMF_MASS  ','PMC_MASS  ','PM01      ','PM1       ',
+     &            'PM25      ','PM10      ','PM25TO10  ','PMU_MASS  ','PMAMS     ',
+     &            'PMAIT_MASS','PMACC_MASS' /)
      
       PMDIAG_KEY( 4 )%WORD = 'NUMBER'
       PMDIAG_KEY( 4 )%N = 7
@@ -590,7 +591,18 @@
       END IF
 
       PMDIAG_KEY( 20 )%LIST = (/'PM25','PM10'/)
+ 
+      PMDIAG_KEY( 21 )%WORD = 'AMS'
+      PMDIAG_KEY( 21 )%N = 5
+      ALLOCATE( PMDIAG_KEY( 21 )%LIST( 5 ), STAT=ALLOCSTAT )
+      IF ( ALLOCSTAT .NE. 0 ) THEN
+           XMSG = 'Failure allocating PMDIAG_KEY(21)'
+           CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
+      END IF
 
+      PMDIAG_KEY( 21 )%LIST = (/'PMAMS_CL ','PMAMS_NH4','PMAMS_NO3',
+     &                          'PMAMS_OA ','PMAMS_SO4'/)
+ 
       END SUBROUTINE POPULATE_PMDIAG_KEY
 
 
@@ -2100,67 +2112,79 @@
          ! Retrieve Ultrafine Particle Mass
          CASE ( ID_PMU_MASS )
             DO IMODE = 1,N_MODE
-               IF ( AEROMODE( IMODE )%ULTRAFINE_MASK )
-     &              OUTVAL = OUTVAL +
+               IF ( AEROMODE( IMODE )%ULTRAFINE_MASK ) THEN
+                    OUTVAL = OUTVAL +
      &                 SUM( AEROSPC_CONC( :,IMODE ),
      &                      MASK=.NOT.AEROSPC(:)%TRACER ) ! ug m-3
      &                  - AEROSPC_CONC( AH2O_IDX,IMODE )
+                    IF ( AORGH2O_IDX .GT. 0 ) OUTVAL = OUTVAL
      &                  - AEROSPC_CONC( AORGH2O_IDX,IMODE ) ! ug m-3
+               END IF
             END DO
 
          ! Retrieve Fine Particle Mass
          CASE ( ID_PMF_MASS )
             DO IMODE = 1,N_MODE
-               IF ( AEROMODE( IMODE )%FINE_MASK )
-     &              OUTVAL = OUTVAL +
+               IF ( AEROMODE( IMODE )%FINE_MASK ) THEN
+                    OUTVAL = OUTVAL +
      &                 SUM( AEROSPC_CONC( :,IMODE ),
      &                      MASK=.NOT.AEROSPC(:)%TRACER )
      &                  - AEROSPC_CONC( AH2O_IDX,IMODE )
+                    IF ( AORGH2O_IDX .GT. 0 ) OUTVAL = OUTVAL
      &                  - AEROSPC_CONC( AORGH2O_IDX,IMODE ) ! ug m-3
+               END IF
             END DO
 
          ! Retrieve Coarse Particle Mass
          CASE ( ID_PMC_MASS )
             DO IMODE = 1,N_MODE
-               IF ( AEROMODE( IMODE )%COARSE_MASK )
-     &              OUTVAL = OUTVAL +
+               IF ( AEROMODE( IMODE )%COARSE_MASK ) THEN
+                    OUTVAL = OUTVAL +
      &                 SUM( AEROSPC_CONC( :,IMODE ),
      &                      MASK=.NOT.AEROSPC(:)%TRACER ) ! ug m-3
      &                  - AEROSPC_CONC( AH2O_IDX,IMODE )
+                    IF ( AORGH2O_IDX .GT. 0 ) OUTVAL = OUTVAL
      &                  - AEROSPC_CONC( AORGH2O_IDX,IMODE ) ! ug m-3
+               END IF
             END DO
 
          ! Retrieve Nucleation-Mode Particle Mass
          CASE ( ID_PMNUC_MASS )
             DO IMODE = 1,N_MODE
-               IF ( AEROMODE( IMODE )%NUC_MASK )
-     &              OUTVAL = OUTVAL +
+               IF ( AEROMODE( IMODE )%NUC_MASK ) THEN
+                    OUTVAL = OUTVAL +
      &                 SUM( AEROSPC_CONC( :,IMODE ),
      &                      MASK=.NOT.AEROSPC(:)%TRACER ) ! ug m-3
      &                  - AEROSPC_CONC( AH2O_IDX,IMODE )
+                    IF ( AORGH2O_IDX .GT. 0 ) OUTVAL = OUTVAL
      &                  - AEROSPC_CONC( AORGH2O_IDX,IMODE ) ! ug m-3
+               END IF
             END DO
 
          ! Retrieve Aitken-Mode Particle Mass
          CASE ( ID_PMAIT_MASS )
             DO IMODE = 1,N_MODE
-               IF ( AEROMODE( IMODE )%AITKEN_MASK )
-     &              OUTVAL = OUTVAL +
+               IF ( AEROMODE( IMODE )%AITKEN_MASK ) THEN
+                    OUTVAL = OUTVAL +
      &                 SUM( AEROSPC_CONC( :,IMODE ),
      &                      MASK=.NOT.AEROSPC(:)%TRACER ) ! ug m-3
      &                  - AEROSPC_CONC( AH2O_IDX,IMODE )
+                    IF ( AORGH2O_IDX .GT. 0 ) OUTVAL = OUTVAL
      &                  - AEROSPC_CONC( AORGH2O_IDX,IMODE ) ! ug m-3
+               END IF
             END DO
 
          ! Retrieve Accumution-Mode Particle Mass
          CASE ( ID_PMACC_MASS )
             DO IMODE = 1,N_MODE
-               IF ( AEROMODE( IMODE )%ACCUM_MASK )
-     &              OUTVAL = OUTVAL +
+               IF ( AEROMODE( IMODE )%ACCUM_MASK ) THEN
+                    OUTVAL = OUTVAL +
      &                 SUM( AEROSPC_CONC( :,IMODE ),
      &                      MASK=.NOT.AEROSPC(:)%TRACER ) ! ug m-3
      &                  - AEROSPC_CONC( AH2O_IDX,IMODE )
+                    IF ( AORGH2O_IDX .GT. 0 ) OUTVAL = OUTVAL
      &                  - AEROSPC_CONC( AORGH2O_IDX,IMODE ) ! ug m-3
+               END IF
             END DO
 
          ! Retrieve Dry Mode Density [kg m-3]
@@ -2245,8 +2269,10 @@
                END IF
                PMAMS = PMAMS +  ( SUM( AEROSPC_CONC( :,IMODE ),
      &                                 MASK = .NOT.AEROSPC(:)%TRACER ) 
-     &                  - AEROSPC_CONC( AH2O_IDX,IMODE )
-     &                  - AEROSPC_CONC( AORGH2O_IDX,IMODE ) ) ! ug m-3
+     &                  - AEROSPC_CONC( AH2O_IDX,IMODE ) )
+     &                  * INLET_FRAC( IPMAMS,IMODE,IWET ) 
+               IF ( AORGH2O_IDX .GT. 0 ) PMAMS = PMAMS
+     &                  - AEROSPC_CONC( AORGH2O_IDX,IMODE ) ! ug m-3
      &                  * INLET_FRAC( IPMAMS,IMODE,IWET ) 
             END DO
             OUTVAL = PMAMS

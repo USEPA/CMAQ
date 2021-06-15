@@ -173,7 +173,8 @@
      &                       EFMAPS(:,:,:),     ! from MEGANMAP data
      &                       CTF(:,:,:),        ! from MEGANMAP data
      &                       T24y(:,:),         ! from SOILINP data
-     &                       SW24y(:,:)         ! from SOILINP data
+     &                       SW24y(:,:),        ! from SOILINP data
+     &                       lai_y(:,:)         ! from SOILINP data
 
 
         integer, allocatable :: PTYPE(:,:),        ! from SOILINP data
@@ -3214,6 +3215,7 @@ C Read the various categories of normalized emissions
           if (BIOGEMIS_MEGAN) then
              ALLOCATE (t24y  ( ncols,nrows        ),
      &                 sw24y ( ncols,nrows        ),
+     &                 lai_y ( ncols,nrows        ),
      &              HRNO_SW  ( NCOLS,NROWS, mxhrs ),
      &              HRNO_T2M ( NCOLS,NROWS, mxhrs ),
      &                 stat=stat)
@@ -3224,9 +3226,8 @@ C Read the various categories of normalized emissions
                END IF
           end if
 
-
           
-          if (.not. NEW_START) then
+          if (.not. NEW_START .and. .not. IGNORE_SOILINP) then
              IF ( .NOT. OPEN3( SOILINP, FSREAD3, PNAME ) ) THEN
                 mesg = 'Open failure for ' // SOILINP
                 Call M3EXIT( PNAME, 0, 0, mesg, XSTAT1 )
@@ -3286,6 +3287,7 @@ C Read the various categories of normalized emissions
              if (BIOGEMIS_MEGAN) then
               sw24sum  = 0.0
               t24sum   = 0.0
+              lai_y    = 0.0
              end if
 
              DDTTM = ' '   ! array
@@ -3330,8 +3332,15 @@ C Read the various categories of normalized emissions
              if (BIOGEMIS_MEGAN .and. .not. IGNORE_SOILINP) then
                 sw24y = sw24sum/mxhrs
                 t24y  = t24sum/mxhrs
-             end if
 
+                IF ( .NOT. XTRACT3( SOILINP, 'LAI', 1, 1,
+     &                              STRTROWSTD, ENDROWSTD, STRTCOLSTD,ENDCOLSTD,
+     &                              0, 0, lai_y( :,: ) ) ) THEN
+                   MESG = 'Could not read "' // 'LAI' //
+     &                    '" from file "' // TRIM( SOILINP ) // '"'
+                   CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
+                END IF
+             end if
 
           end if
 
@@ -4345,16 +4354,17 @@ C   mminlu and num_land_cat are WRF global variables
              megan_day = sdate3d 
              megan_hr  = stime3d
 
+             megan_hr = 0
              do I=1,mxrec3d 
 
                    IF ( .NOT. XTRACT3( MEGAN_CTS, 'CTS', 
      &                                 1, 1, strtrow, endrow, strtcol, endcol, 
-     &                                 megan_day, megan_hr, ctf(I,:,:) ) ) THEN
+     &                                 0, megan_hr, ctf(I,:,:) ) ) THEN
                       mesg = 'Could not extract ' // MEGAN_CTS // ' file'
                       CALL M3EXIT ( PNAME, megan_day, megan_hr, mesg, XSTAT1 )
                    END IF
-
-                   call nextime (megan_day, megan_hr, tstep3d)
+                   megan_hr = megan_hr + 10000
+                   !call nextime (megan_day, megan_hr, tstep3d)
 
              end do
 
@@ -4930,12 +4940,14 @@ C   mminlu and num_land_cat are WRF global variables
          INTEGER          :: EMCTRL_NML
          INTEGER          :: STAT, IFAM, INUM, IRULE
          CHARACTER( 200 ) :: TMPLINE
-
+         
          ! Define Emissions Rules Input from Emissions Control Namelist
          NAMELIST / EmissionScalingRules / EM_NML
          NAMELIST / SizeDistributions    / SD_NML 
          NAMELIST / RegionsRegistry      / RGN_NML
          NAMELIST / BudgetOptions        / Budget_Diag, BudgetVariables
+         NAMELIST / EmissionDiagnostic   / NEmissDiag, EmissDiagStreams,
+     &                                     EmissDiagFmt, EmissDiagSpec
          
          CALL LOG_MESSAGE( LOGDEV, ' ' )
          CALL LOG_SUBHEADING( LOGDEV, 'Reading Emission Control Namelist')
@@ -4945,8 +4957,7 @@ C   mminlu and num_land_cat are WRF global variables
          ALLOCATE( BudgetVariables( N_Budget_Vars_Reg ) )
          BudgetVariables = ''
 
-         ! Allocate and Initialize Namelist Variables
-         ALLOCATE( EM_NML( N_EM_RULE_REG ) )
+         ! Initialize Namelist Variables
          EM_NML%REGION = ''
          EM_NML%STREAM = ''
          EM_NML%SURR   = ''
@@ -4956,18 +4967,22 @@ C   mminlu and num_land_cat are WRF global variables
          EM_NML%BASIS  = ''
          EM_NML%FAC    = 0.
 
-         ! Allocate and Initialize Size Distribution Namelist Variables
-         ALLOCATE( SD_NML( N_SD_REG ) )
+         ! Initialize Size Distribution Namelist Variables
          SD_NML%STREAM   = ''
          SD_NML%MODE     = ''
          SD_NML%MODE_REF = ''
- 
-         ! Allocate and Initialize Region Namelist Variables
-         ALLOCATE( RGN_NML( N_REGIONS_REG ) )
+
+         ! Initalize Region Namelist Variables
          RGN_NML%LABEL = ''
          RGN_NML%FILE  = ''
          RGN_NML%VAR   = ''
-
+         
+         ! Initalize Emissions Diagnostic Namelist Variables
+         NEmissDiag       = 0
+         EmissDiagStreams = ''
+         EmissDiagFmt     = ''  
+         EmissDiagSpec    = ''
+ 
          ! Retrieve the Name of the Emission Control File
          IF ( EMISSCTRL .EQ. "EMISSCTRL_NML" ) THEN
              XMSG = 'You have chosen not to indicate the location of an' //
@@ -5068,7 +5083,36 @@ C   mminlu and num_land_cat are WRF global variables
              CALL M3EXIT ( 'Read_Emiss_Namelist', 0, 0, 'CMAQ must Crash until you '//
      &                     'fix the Size Distribution Rule', 1 ) 
          END IF
-
+ 
+         ! Read the Emissions Diagnostic Section
+         REWIND( EMCTRL_NML )
+         READ( NML = EmissionDiagnostic, UNIT = EMCTRL_NML, IOSTAT=STAT )
+         IF ( STAT .EQ. -1 ) THEN
+             ! The Emissions Diagnostic Section was completely missing
+             XMSG = 'WARNING: There were no valid Emission Diagnostic Values specified '//
+     &              'for use by the DESID module. If you intended to specify '//
+     &              'diagnostic output in the emission control interface, check the '//
+     &              'file you have provided for EMISSCTRL_NML.' 
+             CALL LOG_MESSAGE( LOGDEV, ' ')
+             CALL LOG_MESSAGE( LOGDEV, XMSG )
+             NEmissDiag       = 0
+             EmissDiagStreams = ''
+             EmissDiagFmt     = ''  
+             EmissDiagSpec    = ''
+         ELSE IF ( STAT .NE. 0 ) THEN
+             ! Read Error for Emissions Diagnostic
+             backspace( EMCTRL_NML )
+             read( EMCTRL_NML, fmt='(A)' ) tmpline
+             XMSG = 'ERROR: There was a syntax error reading Emission Diagnostic '//
+     &              'Variables for output by the DESID module. Please check the format of '//
+     &              'each line for syntax errors. The invalid line was likely: '
+             CALL LOG_MESSAGE( LOGDEV, ' ')
+             CALL LOG_MESSAGE( LOGDEV, XMSG )
+             WRITE( LOGDEV, '(8x,A)' ) TMPLINE
+             CALL M3EXIT ( 'Read_Emiss_Namelist', 0, 0, 'CMAQ must Crash until you '//
+     &                     'fix the Emission Diagnostic Specification.', 1 )
+         END IF
+ 
          ! Read the Emissions Rules to inform scaling operations
          REWIND( EMCTRL_NML )
          READ( NML = EmissionScalingRules, UNIT = EMCTRL_NML, IOSTAT=STAT )
@@ -5192,8 +5236,8 @@ C   mminlu and num_land_cat are WRF global variables
              loc_tail = tail_stack_emis(var_loc, pt)
 
              if ((cio_stack_emis_data_tstamp(1, loc_tail, var_loc, pt) .lt. date) .or.
-     &           ((cio_stack_emis_data_tstamp(1, loc_tail, var_loc, pt) .eq. date) .and.
-     &            (cio_stack_emis_data_tstamp(2, loc_tail, var_loc, pt) .eq. 0)) .or.
+!     &           ((cio_stack_emis_data_tstamp(1, loc_tail, var_loc, pt) .eq. date) .and.
+!     &            (cio_stack_emis_data_tstamp(2, loc_tail, var_loc, pt) .eq. 0)) .or.
      &           ((cio_stack_emis_data_tstamp(2, loc_tail, var_loc, pt) .lt. time) .and.
      &            (cio_stack_emis_data_tstamp(1, loc_tail, var_loc, pt) .eq. date))) then
 
@@ -5401,6 +5445,7 @@ C   mminlu and num_land_cat are WRF global variables
                 loc_head = head_grid(var_loc)
                 loc_tail = tail_grid(var_loc)
 
+
                 if (cio_grid_var_name(var_loc,3) == 'm') then
                    loc_tstep = file_tstep(f_met) 
                 else if ((cio_grid_var_name(var_loc,2) == 'e2d') .or.
@@ -5440,6 +5485,7 @@ C   mminlu and num_land_cat are WRF global variables
 
                    cio_grid_data_tstamp(1, 2, var_loc) = date
                    cio_grid_data_tstamp(2, 2, var_loc) = time
+
 
                    if ((prev_time .ne. time) .or.
      &                 (prev_head_time .ne. cio_grid_data_tstamp(2, loc_head, var_loc))) then
@@ -5536,8 +5582,8 @@ C   mminlu and num_land_cat are WRF global variables
              loc_tail = tail_stack_emis(var_loc, pt)
 
              if ((cio_stack_emis_data_tstamp(1, loc_tail, var_loc, pt) .lt. date) .or.
-     &           ((cio_stack_emis_data_tstamp(1, loc_tail, var_loc, pt) .eq. date) .and.
-     &            (cio_stack_emis_data_tstamp(2, loc_tail, var_loc, pt) .eq. 0)) .or.
+!     &           ((cio_stack_emis_data_tstamp(1, loc_tail, var_loc, pt) .eq. date) .and.
+!     &            (cio_stack_emis_data_tstamp(2, loc_tail, var_loc, pt) .eq. 0)) .or.
      &           ((cio_stack_emis_data_tstamp(2, loc_tail, var_loc, pt) .lt. time) .and.
      &            (cio_stack_emis_data_tstamp(1, loc_tail, var_loc, pt) .eq. date))) then
 
