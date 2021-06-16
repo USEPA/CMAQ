@@ -694,6 +694,8 @@ C --------- END of HET HONO RX ----------
 
                   IF ( ABFLUX .AND. V .EQ. NH3_HIT ) THEN
                      TMP_BD_EMIS( NH3_E ) = TMP_BD_EMIS( NH3_E ) + THETA * BIDI_VDEMIS( V,C,R ) * DD_CONV( V ) * DTDENS1                   
+                     STAGE_Diag_Data%NH3_Diag_Out( C,R,: ) = STAGE_Diag_Data%NH3_Diag_Out( C,R,: ) +  
+     &                  THETA * STAGE_Diag_Data%NH3_Diag_Temp( C,R,: ) * DD_CONV( V ) * DTDENS1                   
                   END IF
                   IF ( HGBIDI .AND. V .EQ. HG_HIT ) THEN
                      TMP_BD_EMIS( HG_E ) = TMP_BD_EMIS( HG_E ) + THETA * BIDI_VDEMIS( V,C,R ) * DD_CONV( V ) * DTDENS1                   
@@ -934,6 +936,8 @@ C --------- END of HET HONO RX ----------
                   DDBF( V ) = DDBF( V ) + THBAR * DD_FAC( V ) * CONC( S,1 )
                   IF ( ABFLUX .AND. V .EQ. NH3_HIT ) THEN
                      TMP_BD_EMIS( NH3_E ) = TMP_BD_EMIS( NH3_E ) + THBAR * BIDI_VDEMIS( V,C,R ) * DD_CONV( V ) * DTDENS1                   
+                     STAGE_Diag_Data%NH3_Diag_Out( C,R,: ) = STAGE_Diag_Data%NH3_Diag_Out( C,R,: ) +  
+     &                  THETA * STAGE_Diag_Data%NH3_Diag_Temp( C,R,: ) * DD_CONV( V ) * DTDENS1                   
                   END IF
                   IF ( HGBIDI .AND. V .EQ. HG_HIT ) THEN
                      TMP_BD_EMIS( HG_E ) = TMP_BD_EMIS( HG_E ) + THBAR * BIDI_VDEMIS( V,C,R ) * DD_CONV( V ) * DTDENS1                   

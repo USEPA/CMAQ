@@ -51,6 +51,7 @@ C                          open CTM_DEPV_DIAG in parallel I/O implementation
 C   Feb 2019 D. Wong:    removed all MY_N clauses
 C-------------------------------------------------------------------------------
       USE RUNTIME_VARS
+      USE STAGE_DATA, Only: STAGE_Diag_Data
 
       IMPLICIT NONE
 
@@ -71,11 +72,10 @@ C ddep spc conversion factors
       REAL,    ALLOCATABLE, SAVE :: DD_CONV( : )
 
 C model-oriented bi-directional production [ppm-m/s]
-      REAL,    ALLOCATABLE, SAVE :: BIDI_VDEMIS( :,:,: )
+      REAL,    ALLOCATABLE, SAVE :: BIDI_VDEMIS  ( :,:,: )
 
-!      PUBLIC DEPV, DEPVJ,PLDVJ, DEPVJ_FST, N_SPC_DEPV, DD_CONV, PLDV, CMP,
       PUBLIC DEPV, DEPVJ, DEPVJ_FST, N_SPC_DEPV, DD_CONV, BIDI_VDEMIS,
-     &             N_GAS_DEPV, DEPV_INIT, GET_DEPV
+     &             N_GAS_DEPV, DEPV_INIT, GET_DEPV, STAGE_Diag_Data
       PRIVATE
 
 C gas species (gas-phase and gas non-reactive) deposition velocities
@@ -198,8 +198,8 @@ C-----------------------------------------------------------------------
          N_GAS_DEPV = N_GC_DEPV + N_NR_DEPV + N_TR_DEPV
          N_SPC_DEPV = N_GAS_DEPV + N_AE_DEPV
 
-         ALLOCATE ( DEPV       ( N_SPC_DEPV+1,NCOLS,NROWS ),
-     &              BIDI_VDEMIS( N_SPC_DEPV,NCOLS,NROWS ), STAT = ALLOCSTAT )
+         ALLOCATE ( DEPV        ( N_SPC_DEPV+1,NCOLS,NROWS ),
+     &              BIDI_VDEMIS ( N_SPC_DEPV,NCOLS,NROWS ),  STAT = ALLOCSTAT )
          IF ( ALLOCSTAT .NE. 0 ) THEN
             XMSG = 'Failure allocating DEPV or BIDI_VDEMIS arrays'
             CALL M3WARN( PNAME, JDATE, JTIME, XMSG )

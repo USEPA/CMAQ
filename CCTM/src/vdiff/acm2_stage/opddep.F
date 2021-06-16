@@ -59,7 +59,9 @@ C Local variables:
 
 ! component flux varialbes      
       INTEGER,         SAVE :: N_BD_EMIS 
-      CHARACTER( 16 ), SAVE :: BD_EMIS_SPC( 4 )
+      CHARACTER( 16 ), SAVE :: BD_EMIS_SPC( 3 )
+      INTEGER,         SAVE :: N_BD_FLUX 
+      CHARACTER( 16 ), SAVE :: BD_FLUX_SPC( 7 )
 
       INTEGER      V, N, L     ! loop induction variables
       INTEGER      STRT, FINI  ! loop induction variables
@@ -71,9 +73,18 @@ C Try to open existing file for update
       IF ( .NOT. OPEN3( CTM_DRY_DEP_1, FSRDWR3, PNAME ) ) THEN
 
          N_BD_EMIS = 0
+         N_BD_FLUX = 0
          If( ABFLUX ) Then
             N_BD_EMIS = N_BD_EMIS + 1
             BD_EMIS_SPC( N_BD_EMIS ) = 'NH3_Emis'
+            N_BD_FLUX = 7
+            BD_FLUX_SPC( 1 ) = 'NH3_Flux'
+            BD_FLUX_SPC( 2 ) = 'NH3_Stom'
+            BD_FLUX_SPC( 3 ) = 'NH3_Cut'
+            BD_FLUX_SPC( 4 ) = 'NH3_Soil'
+            BD_FLUX_SPC( 5 ) = 'NH3_Ag'
+            BD_FLUX_SPC( 6 ) = 'NH3_Nat'
+            BD_FLUX_SPC( 7 ) = 'NH3_Wat'              
          End If 
          If( HGBIDI ) Then
             N_BD_EMIS = N_BD_EMIS + 1
@@ -95,7 +106,7 @@ C Set output file characteristics based on COORD.EXT and open the dry dep file
          STIME3D = JTIME
          TSTEP3D = TSTEP
          CALL NEXTIME( SDATE3D, STIME3D, TSTEP3D ) !  start the next hour
-         NVARS3D = N_SPC_DDEP + N_BD_EMIS 
+         NVARS3D = N_SPC_DDEP + N_BD_EMIS + N_BD_FLUX
          NCOLS3D = GL_NCOLS
          NROWS3D = GL_NROWS
          NLAYS3D =     1
@@ -177,6 +188,16 @@ C Set output file characteristics based on COORD.EXT and open the dry dep file
                VNAME3D( V ) = BD_EMIS_SPC( N )
                UNITS3D( V ) = 'kg/hectare'
                VDESC3D( V ) = 'hourly emission values'
+            END DO
+            N = 0   
+            STRT = FINI + 1
+            FINI = FINI + N_BD_FLUX
+            DO V = STRT, FINI
+               N = N + 1
+               VTYPE3D( V ) = M3REAL
+               VNAME3D( V ) = BD_FLUX_SPC( N )
+               UNITS3D( V ) = 'kg/hectare'
+               VDESC3D( V ) = 'hourly flux values'
             END DO
          END IF
          IF ( HGBIDI ) THEN

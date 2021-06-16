@@ -164,6 +164,26 @@ C  Allocate arrays
             XMSG = 'Failure allocating DG, XXLSG, or PDENS'
             CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
+C NH3 bidirectional diagnostics
+         IF( ABFLUX ) THEN
+            STAGE_Diag_Data%n_spc    = 6
+            ALLOCATE ( STAGE_Diag_Data%NH3_Diag_Temp ( NCOLS, NROWS, 6 ),
+     &                 STAGE_Diag_Data%NH3_Diag_Out  ( NCOLS, NROWS, 6 ),
+     &                 STAGE_Diag_Data%dep_name ( 6 ),
+     &                 STAT = ALLOCSTAT )
+            IF ( ALLOCSTAT .NE. 0 ) THEN
+               XMSG = 'Failure allocating STAGE diagnostic output arrays'
+               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+            END IF         
+            STAGE_Diag_Data%dep_name( 1 ) = 'NH3_Stom'
+            STAGE_Diag_Data%dep_name( 2 ) = 'NH3_Cut'
+            STAGE_Diag_Data%dep_name( 3 ) = 'NH3_Soil'
+            STAGE_Diag_Data%dep_name( 4 ) = 'NH3_Ag'
+            STAGE_Diag_Data%dep_name( 5 ) = 'NH3_Nat'
+            STAGE_Diag_Data%dep_name( 6 ) = 'NH3_Wat'    
+            STAGE_Diag_Data%NH3_Diag_Temp = 0.0    
+            STAGE_Diag_Data%NH3_Diag_Out  = 0.0
+         END IF
 
 C Set the dep vel surrogate pointers
          DO S = 1, N_AE_DEPV
@@ -336,7 +356,7 @@ C Parameters specific to gas_x. Currently based on m3dry but subject to change
          Real            :: LU_Flux, LU_Emis
          Real            :: c_atm, c_z0, c_leaf, c_stom, c_cut, c_grnd, c_wat ! Compensation points  
          Real            :: soil_flux                                         ! soil emission and deposition for soil biogeochem
-         Real            :: f_wat, f_stom, f_cut, f_soil ! component fluxes
+         Real            :: f_wat, f_stom, f_cut, f_soil, f_nat, flux_ag ! component fluxes
          Real            :: ctemp2, lv, cp_air, tw, dw25, kvisw, dw, scw_pr_23, scn
          Real            :: pChang, kwChang, ciodide, qiodide
          integer         :: l, n, s
@@ -410,6 +430,8 @@ C Parameters specific to gas_x. Currently based on m3dry but subject to change
             f_stom    = 0.0
             f_cut     = 0.0
             f_soil    = 0.0
+            flux_ag   = 0.0
+            f_nat     = 0.0
             f_wat     = 0.0
             soil_flux = 0.0
             heff_wat  = hlconst( H_name_all( s ), tw, effective, hplus_h2o )* 0.08205 * tw
@@ -662,8 +684,13 @@ C Calcuate Bare Soil Resistance
 !-------------------------------------------------------------------------------------------------                                                               
                   If(ABFLUX .And. s .Eq. s_NH3 ) Then     
                     If( Ag( l ) ) Then
+                       flux_ag = flux_ag + frac_lu * ( veg * ( c_z0 - c_atm ) / Ra + 
+     &                                       no_veg * ( c_grnd - c_atm ) / ( Ra + Rg ) )
                        soil_flux  = soil_flux + veg * ( c_grnd - c_z0 ) / Rgc
-     &                            + no_veg * ( c_grnd  - c_atm ) / ( Ra + Rg )  ! soil layer       
+     &                            + no_veg * ( c_grnd  - c_atm ) / ( Ra + Rg )  ! soil layer
+                    Else
+                       f_nat = f_nat + frac_lu * ( veg * ( c_z0 - c_atm ) / Ra - 
+     &                                          no_veg * ( c_grnd - c_atm ) / ( Ra + Rg ) )                 
                     End If
                   End If ! ABFLUX and NH3
                   If( c_stom .Gt. 0.0 .Or. c_cut .Gt. 0.0 .Or. c_grnd .Gt. 0.0 ) Then
@@ -688,8 +715,14 @@ C Calcuate Bare Soil Resistance
                depvel_gas( n ) = depvel_gas( n ) + 
      &                           frac_lu * Tile_Data%depvel_gasj( l,n,c,r )
             End Do lu_loop
-            If(ABFLUX .And. s .Eq. s_NH3 ) Then
 
+            If(ABFLUX .And. s .Eq. s_NH3 ) Then
+               STAGE_Diag_Data%NH3_Diag_Temp ( c,r,1 ) = f_stom
+               STAGE_Diag_Data%NH3_Diag_Temp ( c,r,2 ) = f_cut
+               STAGE_Diag_Data%NH3_Diag_Temp ( c,r,3 ) = f_soil
+               STAGE_Diag_Data%NH3_Diag_Temp ( c,r,4 ) = flux_ag
+               STAGE_Diag_Data%NH3_Diag_Temp ( c,r,5 ) = f_nat
+               STAGE_Diag_Data%NH3_Diag_Temp ( c,r,6 ) = f_wat              
                If( sum(GRID_DATA%LUFRAC(c,r,:),mask=Ag) .Gt. 0.0 ) Then 
                   Call Calc_Nitrif ( TStep, C, R, soil_flux )
                End If
