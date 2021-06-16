@@ -1,4 +1,3 @@
-
 /***********************************************************************/
 /*  Portions of Models-3/CMAQ software were developed or based on      */
 /*  information from various groups: Federal Government employees,     */
@@ -17,17 +16,15 @@
 /*  permissions subject to the above restrictions.                     */
 /***********************************************************************/
 
-/* RCS file, release, date & time of last delta, author, state, [and locker] */
-/* $Header: /project/yoj/arc/CCTM/src/par/mpi/distr_env.c,v 1.2 2012/01/19 17:44:40 yoj Exp $  */
+/* Distributes the CCTM script run time environment from the machine   */
+/* that launched the script to the other participating machines        */
 
-/* what(1) key, module and SID; SCCS file; date and time of last delta: */
-/* %W% %P% %G% %U% */
-
-/* Distributes the CCTM script run time environment from the machine */
-/* that launched the script to the other participating machines      */
-
-/* Written by shanzhong zhu */
-/* Modified by David Wong, SAIC, Api 2003 */
+/* Revision History:                                                   */
+/* Written by shanzhong zhu                                            */
+/* Modified by David Wong, SAIC, Api 2003                              */
+/* Modified 06/2021: Bugfix from Steve Fine, US EPA-OAR                */
+/* Modified 06/2021: Fahim Sidi, US EPA, Enhanced portability to       */ 
+/* other arch(s) that do NOT use Feldman-style Fortran bindings        */
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -41,11 +38,15 @@
 #define DEBUG(s)
 #endif
 
+#ifdef FLDMN
+#define distr_env distr_env_
+#endif
+
 extern char **environ;
 #define TEMP_BUF_SIZE   102400
 #define CURR_STR_SIZE   10240
 
-extern void distr_env_ (int *myid_p, int *numprocs_p)
+extern void distr_env (int *myid_p, int *numprocs_p)
 {
    char **environ_ptr;
    int env_size, total_size, total_size_0, str_size, avail_size;
@@ -117,23 +118,19 @@ extern void distr_env_ (int *myid_p, int *numprocs_p)
        curr_name = strtok (curr_str, "=");
        curr_val = strtok (NULL, "\0");
        
+       if (curr_val) 
+       {
        if ( ret = setenv (curr_name, curr_val, 0) )
        {    
           printf ("error in setting environmental variable %s = %s. \n", curr_name, curr_val);
           exit (1);
        }
+       } 
          
        DEBUG( printf ("check the environmetal variable %s = %s. \n", curr_name, getenv(curr_name)); )
       }
 
-      /* MPI_Barrier (MPI_COMM_WORLD); */
    }
-/*
-   else
-   {  
-      MPI_Barrier (MPI_COMM_WORLD);
-   }
-*/
       MPI_Barrier (MPI_COMM_WORLD);
 
 }
