@@ -501,11 +501,6 @@ C If last call this hour:  write accumulated depositions:
      &           MDATE, MTIME, WRDD ) ) THEN
                XMSG = 'Could not write ' // CTM_DRY_DEP_1 // ' file'
                CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
-            END IF          
-            IF ( .NOT. WRITE3( CTM_DRY_DEP_1, BD_EMIS_SPC( NH3_E ),
-     &           MDATE, MTIME, TOT_BD_EMIS( NH3_E,:,: ) ) ) THEN
-               XMSG = 'Could not write ' // CTM_DRY_DEP_1 // ' file'
-               CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
             END IF     
             DO S = 1, STAGE_Diag_Data%n_spc
                IF ( .NOT. WRITE3( CTM_DRY_DEP_1, STAGE_Diag_Data%dep_name( S ),
