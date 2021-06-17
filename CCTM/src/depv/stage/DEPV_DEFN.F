@@ -51,6 +51,7 @@ C                          open CTM_DEPV_DIAG in parallel I/O implementation
 C   Feb 2019 D. Wong:    removed all MY_N clauses
 C-------------------------------------------------------------------------------
       USE RUNTIME_VARS
+      USE STAGE_DATA, Only: STAGE_Diag_Data
 
       IMPLICIT NONE
 
@@ -74,7 +75,7 @@ C model-oriented bi-directional production [ppm-m/s]
       REAL,    ALLOCATABLE, SAVE :: BIDI_VDEMIS( :,:,: )
 
       PUBLIC DEPV, DEPVJ, DEPVJ_FST, N_SPC_DEPV, DD_CONV, BIDI_VDEMIS,
-     &             N_GAS_DEPV, DEPV_INIT, GET_DEPV
+     &             N_GAS_DEPV, DEPV_INIT, GET_DEPV, STAGE_Diag_Data
       PRIVATE
 
 C gas species (gas-phase and gas non-reactive) deposition velocities
