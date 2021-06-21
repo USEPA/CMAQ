@@ -766,10 +766,6 @@ C --------------- END of HET HONO RX ----------
      &                                + SAFRAC( JSPCTAG ) * EMIS_OVER_VD( S ) * ( 1.0 -  EFAC1( S ) )               
                   SA_DDBF( JSPCTAG  ) = SA_DDBF( JSPCTAG )
      &                                + THETA * DD_FAC( S ) *  SACONC( JSPCTAG,1 )
-                  IF( S .NE. NO2_HIT .AND. S .NE. HNO3_HIT ) THEN
-                     SA_DDBF( JSPCTAG  ) = SA_DDBF( JSPCTAG )
-     &                                   - THETA * DTDENS1 * SAFRAC( JSPCTAG ) * DD_CONV( S ) * BIDI_VDEMIS( S,C,R )                        
-                  END IF
                END IF
             END DO
 
@@ -1000,10 +996,6 @@ C Update ISAM Dry Deposition
      &                                + SAFRAC( JSPCTAG ) * EMIS_OVER_VD( S ) * ( 1.0 -  EFAC2( S ) )               
                   SA_DDBF( JSPCTAG  ) = SA_DDBF( JSPCTAG )
      &                                + THBAR * DD_FAC( S ) *  SACONC( JSPCTAG,1 )
-                  IF( S .NE. NO2_HIT .AND. S .NE. HNO3_HIT ) THEN
-                    SA_DDBF( JSPCTAG  ) = SA_DDBF( JSPCTAG )
-     &                                  - THBAR * DTDENS1 * SAFRAC( JSPCTAG ) * DD_CONV( S ) * BIDI_VDEMIS( S,C,R )                         
-                  END IF
                END IF
             END DO
 #endif
