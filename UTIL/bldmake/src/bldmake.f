@@ -41,6 +41,7 @@
 !     Nov 2020 D. Wong: moified the code to build Makefile.twoay automatically
 !                       when build_twoway is turned on
 !     jan 2020 D. Wong: indlucded a help message for option -twoway
+!     June 2021 F. Sidi: Restore reading of MPICH string from cfg for mpi libraries 
 !-------------------------------------------------------------------------------
 
       Program bldmake
@@ -459,8 +460,8 @@
             Write( lfn, '( " LIBRARIES = $(IOAPI) $(NETCDF)")' )
          Else
 !            Write( lfn, '( " MPICH  = -L$(LIB)/",a,1x,a)' ) "mpich/lib", Trim( mpich )
-!            Write( lfn, '( " MPICH  = -L$(LIB)/",a,1x,a)' ) "mpi/lib", Trim( mpich )
-            Write( lfn, '( " LIBRARIES = $(IOAPI) $(NETCDF) ")' )
+            Write( lfn, '( " MPICH  = -L$(LIB)/",a,1x,a)' ) "mpi/lib", Trim( mpich )
+            Write( lfn, '( " LIBRARIES = $(IOAPI) $(NETCDF) $(MPICH)")' )
          End If
 
 !        Call writeLIB( lfn )
