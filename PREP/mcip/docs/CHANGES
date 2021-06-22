@@ -1,21 +1,7 @@
 CHANGES for MCIP
 
 
-MCIP Version 5.1.2 (21 September 2020)
-
-- Corrected error in logic for processing meteorology data at a time interval
-  that is coarser than the available data in the file.
-
-  Changed files:  mcip5/setgriddefs.f90
-
-
-- Updated version stamp.
-
-  Changed files:  mcip5/mcipparm_mod.f90
-
---------------------------------------------------------------------------------
-
-MCIP Version 5.1.1 (6 March 2020)
+MCIP Version 5.3.3 (17 June 2021)
 
 - Removed reliance on reading F (Coriolis parameter) from WRF output for
   PV scaling in CMAQ.  Instead, calculate F from latitude.
@@ -23,7 +9,33 @@ MCIP Version 5.1.1 (6 March 2020)
   Changed files:  mcip5/rdwrfem.f90
 
 
-- Updated version stamp.
+- Corrected error in logic for processing meteorology data at a time interval
+  that is coarser than the available data in the file.
+
+  Changed files:  mcip5/setgriddefs.f90
+
+
+- Updated description and units for potential vorticity to adhere to
+  constraints on character field in I/O API. Note that units do not conform
+  to MKS, but full explanation is given in the description field.
+
+  Changed files:  mcip5/init_ctm.f90
+
+
+- Corrected minor bug in assigning bounds for XCLAY_PX, as identified in
+  CMAS Center Forum.
+
+  Changed files:  mcip5/metvars2ctm.f90
+
+
+- Updated Makefile to reflect newer options for PGI.
+
+  Changed files:  mcip5/Makefile
+
+
+- Updated version stamp. With this release, the versioning for MCIP will
+  become consistent with the CMAQ system. The version skips from MCIPv5.1
+  to MCIPv5.3.3. (There is no MCIPv5.2 or MCIPv5.3.)
 
   Changed files:  mcip5/mcipparm_mod.f90
 
