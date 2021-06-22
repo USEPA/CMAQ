@@ -1,19 +1,23 @@
 ********************************************************************************
-Announcing the release of MCIP Version 5.1 (25 November 2019)
+Announcing the release of MCIP Version 5.3.3 (16 June 2021)
 ********************************************************************************
 
-The MCIP code is updated to version 5.1.  This is a minor update to MCIP.
+The MCIP code is updated to version 5.3.3.  This is a minor update to MCIP.
 These release notes and the CHANGES file reflect all changes that have been
-made to MCIP since MCIPv5.0 (the previous release).  Changes to MCIPv5.1
+made to MCIP since MCIPv5.0 (the previous release).  Changes to MCIPv5.3.3
 were made by Tanya Spero (U.S. EPA).
 
-MCIPv5.1 accompanies CMAQv5.3.1.  If you are using CMAQv5.3+, you should upgrade
-to use MCIPv5.0+.
+With this release, the version numbering for MCIP is changed to align with
+CMAQ to minimize confusion within the user community. Accordingly, there are
+no releases that are labeled MCIPv5.2, MCIPv5.3, MCIPv5.3.1, or MCIPv5.3.2.
 
-MCIPv5.0 requires I/O API version 3.1 or greater to support error-checking
+MCIPv5.3.3 accompanies CMAQv5.3.3.  If you are using CMAQv5.3+, you must
+upgrade to use MCIPv5.0+.
+
+MCIPv5.3.3 requires I/O API version 3.1 or greater to support error-checking
 within the I/O API.
 
-MCIPv5.0 requires the netCDF F90 module (rather than the F77 include).
+MCIPv5.3.3 requires the netCDF F90 module (rather than the F77 include).
 
 
 MCIP can be cited with the following reference:
@@ -22,13 +26,13 @@ MCIP can be cited with the following reference:
      Processor (MCIP) for the CMAQ modeling system: updates through
      MCIPv3.4.1.  Geoscientific Model Development, 3, 243-256.
 
-A DOI will also be available for CMAQv5.3.1 (which includes MCIPv5.1).
+A DOI will also be available for CMAQv5.3.3 (which includes MCIPv5.3.3).
 
 
 Background on MCIP and other useful information about the CMAQ system can be
 found online at http://www.epa.gov/cmaq.
 
-Inquiries related to potential bugs in MCIPv5.1 or questions related to
+Inquiries related to potential bugs in MCIPv5.3.3 or questions related to
 proper use of the code should be submitted to the MCIP Category in the
 Forum hosted by the CMAS Center:  https://forum.cmascenter.org/c/mcip.
 
@@ -38,19 +42,25 @@ before submitting new inquiries.
 
 
 
-MCIPv5.0 was tested with the following Fortran compilers under both debug
-and optimized options at various stages of development:  Intel 18.0, PGI 17.10,
-and GCC 6.0.1.  MCIPv5.0 was tested with netCDF 4.6.3, and I/O API 3.2.
+MCIPv5.3.3 was tested with the following Fortran compilers under both debug
+and optimized options (as shown in the Makefile):
+
+  Intel 19.0.5, netCDF 4.7.4, I/O API 3.2 (downloaded 11 October 2018)
+
+  PGI 19.10, netCDF 4.7.4, I/O API 3.2 (downloaded 28 August 2020)
+
+  GCC 6.1.0, netCDF 4.6.3, I/O API 3.2 (downloaded 11 October 2018)
 
 
-With MCIPv5.1, the following remain deprecated:
+
+With MCIPv5.3.3, the following remain deprecated:
   - Including "SOIM1", "SOIM2", "SOIT1", and "SOIT2" in METCRO2D.
     Those fields are now in a separate file that includes all soil layers and
     their associated depths (SOI_CRO).
   - Including "LUFRAC_xx" in GRIDCRO2D.  Those fields are now in a separate
     file that includes each fractional land use classification (LUFRAC_CRO).
 
-With MCIPv5.1, the following output variables in METCRO2D remain deprecated:
+With MCIPv5.3.3, the following output variables in METCRO2D remain deprecated:
      - 2-D cloud fraction (CFRAC)
      - cloud top (CLDT)
      - cloud bottom (CLDB)
@@ -59,16 +69,22 @@ They will be removed from METCRO2D in a forthcoming release of MCIP.
 
 
 Interactions with members of the CMAQ user community led to some of the changes
-that have been incorporated into MCIPv5.1.
+that have been incorporated into MCIPv5.3.3.
 
 
-The following is a summary of the changes in MCIPv5.1:
+The following is a summary of the changes in MCIPv5.3.3:
 
- 1.  Corrected an error in the MCIP script that interfered with reading
-     Geogrid files (introduced in MCIPv5.0).
+ 1.  Removed reliance on reading F (Coriolis parameter) from WRF output for
+     PV scaling in CMAQ. Instead, calculate F within MCIP from latitude.
 
- 2.  Corrected an error in filling the lateral boundaries of the WWIND and
-     CFRAC3D fields when CFRAC3D is available (introduced in MCIPv5.0).
+ 2.  Corrected an error in logic for processing meteorology data at a time
+     interval that is coarser than the available data in the file.
 
- 3.  Added support for processing surface FDDA fields generated with FASDAS
-     in WRF.
+ 3.  Updated description and units for potential vorticity to adhere to
+     constraints on character field in I/O API. Note that units do not
+     conform to MKS, but full explanation is given in the description field.
+
+ 4.  Corrected minor bug in assigning bounds for XCLAY_PX, as identied in
+     CMAS Center Forum.
+
+ 5.  Versioning for MCIP is changed to align with CMAQ.

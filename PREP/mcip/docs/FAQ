@@ -1,5 +1,70 @@
 Frequently Asked Questions for MCIP
 
+MCIP Version 5.3.3 (16 June 2021)
+
+What are the changes in this release?
+
+  The changes in MCIPv5.3.3 are summarized in the "ReleaseNotes" file and
+  in greater detail in the "CHANGES" file. Note that the versioning is changed
+  with this release to align versions of MCIP with the same numbering used
+  for CMAQ.
+
+
+What happened to MCIP version 5.1?
+
+  MCIP version 5.1 was released with CMAQv5.3, but the FAQ was not updated.
+
+
+What happened to MCIP versions 5.2 and 5.3?
+
+  Those versions do not exist. After MCIPv5.1, we decided to keep the version
+  numbering for MCIP consistent with the CMAQ system to minimize confusion.
+  Accordingly, we skip from MCIPv5.1 to MCIPv5.3.3 in the public releases on
+  GitHub.
+
+
+Do I need to update from MCIPv5.1 to MCIPv5.3.3?
+
+  Maybe. There are very minor changes between these releases, but there are
+  a handful of minor bug fixes that are addressed with this release. Please
+  read the "CHANGES" file to determine if those bugs apply to your work.
+
+
+MCIP crashed, and I don't understand my error. What should I do?
+
+  Clean up the directory with your MCIP executable and compiled object (.o)
+  files by using "make clean". Then recompile with the debug options turned
+  on, ensuring that you have the "traceback" or equivalent directive for
+  your compiler. Then rerun, and you should have a more meaningful error
+  message that may point you to the subroutine and specific line of code
+  that is causing your error.
+
+
+I think there is a bug in MCIP. How can I report it?
+
+  You can use the CMAS Center Forum to report bugs, get help from the
+  community, and communicate with developers. You can use the "MCIP"
+  category (upper-left corner on the Forum) for issues that are strictly
+  related to MCIP. Before opening a new thread on the Forum, please search
+  the Forum to see if the issue has already been raised and addressed. If
+  not, please open a new thread rather than amending an existing thread.
+
+
+Where can I get more information on the CMAQ system?
+
+  Please visit www.epa.gov/cmaq.
+
+
+Where can I get training on how to use the CMAQ system?
+
+  The CMAS Center provides periodic training on the use and utility of the
+  CMAQ system. Please visit www.cmascenter.org.
+
+
+Do you take user suggestions?
+
+  Yes! Please submit them via the CMAS Center Forum.
+
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
 

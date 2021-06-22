@@ -28,7 +28,12 @@ SUBROUTINE init_ctm
 !                        components are on the Arakawa-C staggered grid, and
 !                        the optional additional 3D winds are on the Arakawa-B
 !                        staggered grid.  Added optional variables from KF
-!                        convective scheme with radiative feedbacks.  (T. Spero)
+!                        convective scheme with radiative feedback.  (T. Spero)
+!           08 Oct 2020  Updated description and units for potential vorticity
+!                        to adhere to constraints on character field in
+!                        I/O API. Note that units do not conform to MKS, but
+!                        full explanation is given in the description field.
+!                        (T. Spero)
 !-------------------------------------------------------------------------------
 
   USE mcipparm
@@ -1047,8 +1052,8 @@ SUBROUTINE init_ctm
     c_pv%fld = fillreal
     c_pv%bdy = fillreal
     c_pv%fldname = 'PV'
-    c_pv%long_name = 'potential vorticity'
-    c_pv%units = 'm2 K kg-1 s-1 * E-6'  ! <-- need to fix with scale_factor
+    c_pv%long_name = 'potential vorticity (m2 K kg-1 s-1 * E-6)'
+    c_pv%units = 'm2 K mg-1 s-1'  ! <-- use scale_factor to change mg to kg
     c_pv%dimnames(1) = 'nx'
     c_pv%dimnames(2) = 'ny'
     c_pv%dimnames(3) = 'nz'
