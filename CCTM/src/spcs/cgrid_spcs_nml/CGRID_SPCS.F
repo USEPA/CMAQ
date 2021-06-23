@@ -29,7 +29,7 @@ C Shawn Roselle 16 Feb 11: replaced I/O API include files with UTILIO_DEFN
 C 07 Jul 14 B.Hutzell: replaced mechanism include file(s) with fortran module
 C 21 Apr 16 D.Luecken:  increased spc_dim to 1000
 C 07 Mar 2019 F. Sidi:  Split up ICBC for CMAQ species  namelist 
-C 10 Jun 2021 G. Sarwar: Added 'CB6R5M_AE7'
+C 10 June 2021 G. Sarwar: Replacd CB6R3M_AE7_AQ with CB6R5M_AE7_AQ
 c-----------------------------------------------------------------------
       USE RUNTIME_VARS
       Use rxns_data, only: mechname       ! chemical mechanism data
@@ -467,7 +467,6 @@ c-------------------------------------------------------------------------------
                If ( ( Index( mechname, 'SAPRC07TIC_AE6I' ) .Gt. 0 ) .OR.
      &              ( Index( mechname, 'SAPRC07TIC_AE7I' ) .Gt. 0 ) .OR.
      &              ( Index( mechname, 'CB6R3_AE7'       ) .Gt. 0 ) .OR.
-     &              ( Index( mechname, 'CB6R3M_AE7'      ) .Gt. 0 ) .OR. 
      &              ( Index( mechname, 'CB6R5M_AE7'      ) .Gt. 0 ) ) Then
                      
                   ORGANOSULF = .TRUE.

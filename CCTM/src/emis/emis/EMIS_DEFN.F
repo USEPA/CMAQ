@@ -2511,7 +2511,7 @@ C and allowing the model to proceed.
          ! Online Biogenic Emissions from MEGAN
          IF ( BIOGEMIS_MEGAN ) N_EM_SRM = N_EM_SRM + 1
 
-         ! Marine gas emissions; use online marine gas option only if CB6R3m is used
+         ! Marine gas emissions; use online marine gas option only if CB6R5M is used
          IF ( USE_MARINE_GAS_EMISSION ) N_EM_SRM = N_EM_SRM + 1
 
          ! Lightning NO Emissions

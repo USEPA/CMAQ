@@ -57,7 +57,7 @@ This release of CMAQ includes a runtime option that provides detailed informatio
 setenv STM_SO4TRACK Y
 ```
 
-Sulfur tracking species are added to the AE and NR groups at runtime if you enable this option.  Table 2 provides a list of inorganic sulfur tracking species.  Table 3 lists additional tracking species for the loss of inorganic sulfate to organosulfate for chemical mechanisms that include this loss pathway (SAPRC07TIC_AE6I, SAPRC07TIC_AE7I, CB6R3_AE7, or CB6R3M_AE7 mechanisms).
+Sulfur tracking species are added to the AE and NR groups at runtime if you enable this option.  Table 2 provides a list of inorganic sulfur tracking species.  Table 3 lists additional tracking species for the loss of inorganic sulfate to organosulfate for chemical mechanisms that include this loss pathway (SAPRC07TIC_AE6I, SAPRC07TIC_AE7I, CB6R3_AE7, or CB6R5M_AE7 mechanisms).
 
 Table 2. Sulfur Tracking Species
 
@@ -79,7 +79,7 @@ Table 2. Sulfur Tracking Species
 |AE           |ASO4ICBCK   | 96.0 |ASO4K from boundary and initial conditions |
 |NR           |SULF_ICBC   | 98.0 |Sulfuric acid vapor (SULF) from boundary and initial conditions |
 
-Table 3.  Additional Tracking Species Representing Loss of Inorganic Sulfate to Organosulfate (only included if using SAPRC07TIC_AE6I, SAPRC07TIC_AE7I, CB6R3_AE7, or CB6R3M_AE7 mechanisms).
+Table 3.  Additional Tracking Species Representing Loss of Inorganic Sulfate to Organosulfate (only included if using SAPRC07TIC_AE6I, SAPRC07TIC_AE7I, CB6R3_AE7, or CB6R5M_AE7 mechanisms).
 
 |Species Group|Species Name| MW   | Description |
 |:------------|:-----------|:-----|:------------|

@@ -82,6 +82,7 @@ C SR 12/14/2018 Added sulfur tracking option
 C SLN 12/30/2019 ddm-3d implementaiton for v 5.3.1
 C     10 Mar 2021 G. Sarwar: Changed CB6R3M_AE7_KMTBR to CB6R3M_AE7_AQ
 C     10 June 2021 G. Sarwar: Added CB6R5M_AE7_AQ
+C 23 Jun 21 G. Sarwar: Replaced CB6R3M with CB6R5M
 
 C References:
 C 1. Eddingsaas, N. C., Vandervelde, D. G., Wennberg, P. O., "Kinetics and
@@ -1045,8 +1046,7 @@ C Find indices of required species
          ae6isoa     = .False.
       End If
 
-       If ( ( Index( mechname, 'CB6R3M_AE7_AQ' ) .Gt. 0 ) .OR.
-     &      ( Index( mechname, 'CB6R5M_AE7_AQ' ) .Gt. 0 ) ) Then     
+       If ( Index( mechname, 'CB6R5M_AE7_AQ' ) .Gt. 0 ) Then     
          abr_idx     = findAero( req_br,     .True. )
          marine = .True.
       Else
@@ -1082,7 +1082,6 @@ C AORGH2O is not required, but highly recommended for aero7
          aso4icbc_idx   = findAero( req_so4icbc,   .True. )
          If ( ( ae6isoa ) .OR.
      &        ( Index( mechname, 'CB6R3_AE7'       ) .Gt. 0 ) .OR.
-     &        ( Index( mechname, 'CB6R3M_AE7'      ) .Gt. 0 ) .OR. 
      &        ( Index( mechname, 'CB6R5M_AE7'      ) .Gt. 0 ) ) Then
             oso4_idx       = findAero( req_oso4,       .True. )
             oso4aqh2o2_idx = findAero( req_oso4aqh2o2, .True. )

@@ -67,7 +67,6 @@ C                   across mechanisms.
 C    Aug 18 M. Qin, H. Pye: Removed oligomerization option here. Oligomerization
 C                   must be done in gas chemistry (mech.def). Added anthropogenic
 C                   SOA condensation for aero7.
-C   29 Aug 18 G. Sarwar: updated for CB6R3M
 C-----------------------------------------------------------------------
       Implicit None
 
