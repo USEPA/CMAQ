@@ -26,10 +26,9 @@ echo 'Start Model Run At ' `date`
 setenv CTM_DIAG_LVL 0 
 
 #> Set General Parameters and Labels for Configuring the Simulation
-set VRSN        = ${wrfv}532             #> Code Version
+set VRSN        = ${wrfv}533         #> Code Version
 set PROC        = mpi                #> serial or mpi
 set MECH        = cb6r3_ae7_aq       # Mechanism ID
-set EMIS        = 2011eh_saprc_10g   #> Emission Inventory Details
 set APPL        = SE53BENCH          #> Application Name (e.g. Domain)
 
 #> Define RUNID as any combination of parameters above or others. By default,
@@ -43,9 +42,9 @@ set EXEC      = wrf.exe
  if ( $CTM_DIAG_LVL != 0 ) set echo
 
 # Set Working, Input, and Output Directories
-set WORKDIR     = /proj/ie/proj/CMAS/WRF-CMAQ/CMAQ_v5.3.2/CCTM/scripts
-set WRF_DIR     = $WORKDIR/BLD_WRFv4.3_CCTM_v532_gcc
-set INPDIR      = /proj/ie/proj/CMAS/WRF-CMAQ/from_EPA/from_gdrive/CMAQv5.3.2_Benchmark_2Day_Input/2016_12SE1                # Input directory
+set WORKDIR     = .
+set WRF_DIR     = $WORKDIR/BLD_WRFv4.3_CCTM_v533_gcc
+set INPDIR      = /work/MOD3DATA/2016_12SE1               # Input directory
 set OMIpath     = $WRF_DIR/cmaq                           # path optics related data files
 set OUTPUT_ROOT = $WORKDIR                                # output root directory
 set NMLpath     = $WRF_DIR/cmaq                           # path with *.nml file mechanism dependent
