@@ -1,25 +1,10 @@
 # WRF-CMAQ Coupler: 
 
-   The new coupled WRF-CMAQ model is based on WRF 4.3 and 
-CMAQ 5.3.3 (users cannot use prevoius versions CMAQv5.3 & CMAQv5.3.1).It supports 
-only RRTMG radiation scheme for short wave aerosol direct effect. 
-It uses core-shell model to perform aerosol optics calculation rather 
-than volume mixing technique as in the previous version of the twoway model. 
-It is required to use version IOAPI 3.2 tagged as of 20200828 which also 
-supports true parallel I/O within CMAQ (make sure you have the appropriate 
-option build_parallel_io turn on if you want to utilize this feature).
+The new WRF-CMAQ model is based on WRF 4.3 and CMAQ 5.3.3 and supports the RRTMG radiation scheme for short wave aerosol direct effect. The new version uses a core-shell representation to perform aerosol optics calculations rather than the volume mixing technique applied in the previous versions of WRF-CMAQ. )
 
-   WRF model does not depend on a particular version of netCDF library.
-However, if you have built a version of netCDF library that splits C
-and Fortran portion of the netCDF library into two distinctive paths, 
-you need to create a brand new netCDF library with combining all the
-contents in each of the following four subdirectories: bin, include, 
-lib, and share from C and Fortran portion, respectively. 
+**Dependencies**
+* Users must upgrade to CMAQv5.3.3 to use the new WRF-CMAQ model
+* Users must use [IOAPI version 3.2 tagged as of 20200828](https://github.com/cjcoats/ioapi-3.2/releases/tag/20200828) which supports true parallel I/O within CMAQ.  Make sure you have the appropriate option build_parallel_io turn on if you want to utilize this feature.
+* The WRF model does not depend on a particular version of the netCDF library. However, if you have built a version of the netCDF library that splits the C and Fortran portion of the netCDF library into two distinctive paths, you need to create a new netCDF library that combines all the contents in each of the following four subdirectories: bin, include, lib, and share from the C and Fortran portion, respectively. 
 
-To build the WRF-CMAQ coupled model please see:
-
-https://github.com/USEPA/CMAQ/tree/master/DOCS/Users_Guide/Tutorials/CMAQ_UG_tutorial_WRF-CMAQ_build_gcc.md
-
-For further documentation see: 
-
-https://github.com/USEPA/CMAQ/tree/master/DOCS/Users_Guide/CMAQ_UG_ch13_WRF-CMAQ.md
+To build the WRF-CMAQ coupled model please see the [WRF-CMAQ Tutorial for GCC](../../DOCS/Users_Guide/Tutorials/CMAQ_UG_tutorial_WRF-CMAQ_build_gcc.md). For further documentation see [Chapter 13 of the CMAQ User's Guide](../../DOCS/Users_Guide/CMAQ_UG_ch13_WRF-CMAQ.md).
