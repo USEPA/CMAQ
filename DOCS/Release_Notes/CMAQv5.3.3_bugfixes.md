@@ -1,5 +1,5 @@
 # CMAQv5.3.3 Bugfixes
-=======
+
 ## 1. Bugfix, clean-up, and added option in bldscript for distr_env.c
 [Fahim Sidi](mailto:sidi.fahim@epa.gov), U.S. Environmental Protection Agency
 
