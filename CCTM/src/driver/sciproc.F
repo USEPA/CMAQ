@@ -124,6 +124,10 @@ C Local Variables:
             INTEGER, INTENT( IN )     :: JDATE, JTIME
             INTEGER, INTENT( IN )     :: TSTEP( 3 )
          END SUBROUTINE PA_UPDATE
+         SUBROUTINE PA_UPDATE_AERO ( CGRID, JDATE, JTIME )
+            REAL, POINTER             :: CGRID( :,:,:,: )
+            INTEGER, INTENT( IN )     :: JDATE, JTIME
+         END SUBROUTINE PA_UPDATE_AERO
          SUBROUTINE HADV ( CGRID, JDATE, JTIME, TSTEP, ASTEP )
             REAL, POINTER             :: CGRID( :,:,:,: )
             INTEGER, INTENT( IN )     :: JDATE, JTIME
@@ -302,7 +306,7 @@ C decouple CGRID for cloud and chemistry
 
       CALL AERO ( CGRID, JDATE, JTIME, TSTEP )
       IF ( CKSUM ) CALL CKSUMMER ( 'AERO', CGRID, JDATE, JTIME )
-      IF ( LIPR ) CALL PA_UPDATE_AERO ( CGRID, JDATE, JTIME, TSTEP )
+      IF ( LIPR ) CALL PA_UPDATE_AERO ( CGRID, JDATE, JTIME )
       IF ( PRINT_PROC_TIME ) CALL TIMING_SPLIT ( CPU_TIME_START, 1, 'AERO' )
       IF ( STM ) CALL STM_WRAP_AE ( CGRID, JDATE, JTIME )
 

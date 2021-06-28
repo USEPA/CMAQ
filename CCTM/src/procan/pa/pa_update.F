@@ -210,6 +210,7 @@ C Local Variables:
       INTEGER SDATE     ! Date at end of timestep
       INTEGER STIME     ! Time at end of timestep
       INTEGER UNIND     ! Index for unexpected processes
+      INTEGER I
 
       LOGICAL LAESP     ! Flag for AE species
 
@@ -377,13 +378,15 @@ C  units are in ppmV/sec for ae species, # aer x 10**6/ # molec air / sec for
 C  NUM, and m2/mol sec for SRF.  Conversion factors convert to 
 C  ug/m3 sec, #/m3 sec, and m2/m3 sec, respectively.
          IF ( LAE_EM_IPR ) THEN
-             WHERE ( DIFF_MASK_NUM ) 
-                 PA_EM_CONV( : ) = REFAC * AVO / MGPG
-             ELSEWHERE ( DIFF_MASK_SRF ) 
-                 PA_EM_CONV( : ) = 1.0E+06 * REFAC / MGPG
-             ELSEWHERE
-                 PA_EM_CONV( : ) = REFAC * DIFF_MW( : )
-             END WHERE
+             DO I = 1,N_SPC_DIFF
+               IF ( DIFF_MASK_NUM( I ) ) THEN
+                 PA_EM_CONV( I ) = REFAC * AVO / MGPG
+               ELSE IF ( DIFF_MASK_SRF( I ) ) THEN 
+                 PA_EM_CONV( I ) = 1.0E+06 * REFAC / MGPG
+               ELSE
+                 PA_EM_CONV( I ) = REFAC * DIFF_MW( I )
+               END IF
+             END DO
          END IF
 
       END IF  ! LEMFIRST
@@ -627,27 +630,56 @@ C..adjust the process analysis output arrays
       END SUBROUTINE PA_UPDATE
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-      SUBROUTINE PA_UPDATE_AERO ( JDATE, JTIME )
+      SUBROUTINE PA_UPDATE_AERO ( CGRID, JDATE, JTIME )
 
 C-----------------------------------------------------------------------
+      USE GRID_CONF             ! horizontal & vertical domain configuration
       USE AERO_BUDGET
       USE PA_DEFN
       USE UTILIO_DEFN
       USE PAGRD_DEFN
-
+      USE CGRID_SPCS, ONLY : NSPCSD
+#ifdef parallel
+      USE SE_MODULES            ! stenex (using SE_UTIL_MODULE, SE_DATA_COPY_MODULE)
+#else
+      USE NOOP_MODULES          ! stenex (using NOOP_UTIL_MODULE, NOOP_DATA_COPY_MODULE)
+#endif
 
       IMPLICIT NONE
 
+      REAL, POINTER :: CGRID( :,:,:,: )  ! Conc array
       INTEGER JDATE, JTIME
 
-      INTEGER :: PCOAG, PCOND, PNPF, PGROWTH
+      INTEGER, SAVE :: PCOAG, PCOND, PNPF, PGROWTH
       INTEGER :: IPCOAG, IPCOND, IPNPF, IPGROWTH
-      INTEGER :: NPA, NGR, ICG
+      INTEGER :: NPA, NGR, ICG, N
+      REAL, ALLOCATABLE, SAVE :: CNGRD( :,:,:,: )   
+      REAL :: ACOAG   ( NCOLS,NROWS,NLAYS,NSPCSD )  
+      REAL :: TCOAG   ( MY_PACOLS,MY_PAROWS,PALEVS )  
+      REAL :: TCOND   ( MY_PACOLS,MY_PAROWS,PALEVS )  
+      REAL :: TNPF    ( MY_PACOLS,MY_PAROWS,PALEVS )  
+      REAL :: TGROW   ( MY_PACOLS,MY_PAROWS,PALEVS )  
+      LOGICAL :: FIRST_TIME = .TRUE.
 
-      PCOAG  = INDEX1( 'COAG',NPRCS,PROCNAME )
-      PCOND  = INDEX1( 'COND',NPRCS,PROCNAME )
-      PNPF   = INDEX1( 'NPF' ,NPRCS,PROCNAME )
-      PGROWTH= INDEX1( 'GROW',NPRCS,PROCNAME )
+      CHARACTER( 16 ) :: PNAME = 'PA_UPDATE_AERO'
+      INTEGER ASTAT     ! Allocate status code
+      CHARACTER( 80 ) :: MSG                  ! Message for output log
+
+      IF ( FIRST_TIME ) THEN
+         FIRST_TIME = .FALSE.
+
+         PCOAG  = INDEX1( 'COAG',NPRCS,PROCNAME )
+         PCOND  = INDEX1( 'COND',NPRCS,PROCNAME )
+         PNPF   = INDEX1( 'NPF' ,NPRCS,PROCNAME )
+         PGROWTH= INDEX1( 'GROW',NPRCS,PROCNAME )
+
+         ALLOCATE ( CNGRD( NCOLS,NROWS,NLAYS,NSPCSD ), STAT = ASTAT )
+         IF ( ASTAT .NE. 0 ) THEN
+            MSG = '*** ERROR allocating CNGRD'
+            CALL M3EXIT( PNAME, JDATE, JTIME, MSG, XSTAT1 )
+         END IF
+
+      END IF
 
       DO NPA = 1, N_IPR_SPC              ! foreach family
           
@@ -661,25 +693,67 @@ C-----------------------------------------------------------------------
             ICG = IPR2GRD( NPA,NGR )       ! CGRID species index 
 
                ! Modify both the emiss process and the calling process
-               IF ( IPCOAG .NE. 0 )
-     &            DELC( :,:,:,IPCOAG ) = DELC( :,:,:,IPCOAG )
-     &                              + SPCOEF( NPA,NGR ) * SUM( AERO_COAG( :,:,:,ICG,: ),4 )
-               IF ( IPCOND .NE. 0 )
-     &            DELC( :,:,:,IPCOND ) = DELC( :,:,:,IPCOND )
-     &                              + SPCOEF( NPA,NGR ) * AERO_COND( :,:,:,ICG )
-               IF ( IPNPF .NE. 0 )
-     &            DELC( :,:,:,IPNPF  ) = DELC( :,:,:,IPNPF )
-     &                              + SPCOEF( NPA,NGR ) * AERO_NPF( :,:,:,ICG )
-               IF ( IPGROWTH .NE. 0 ) 
-     &            DELC( :,:,:,IPGROWTH)= DELC( :,:,:,IPGROWTH )
-     &                              + SPCOEF( NPA,NGR ) * AERO_GROWTH( :,:,:,ICG )
+               IF ( IPCOAG .NE. 0 ) THEN
+                  ACOAG = SUM( AERO_COAG,5 ) 
+#ifdef parallel
+                  CALL SUBST_DATA_COPY( ACOAG, TCOAG, ICG )
+#else
+                  TCOAG( :,:,: ) = ACOAG( PA_BEGCOL:PA_ENDCOL,
+     &                                   PA_BEGROW:PA_ENDROW,PA_BEGLEV:PA_ENDLEV,ICG )
+#endif
+                  DELC( :,:,:,IPCOAG ) = DELC( :,:,:,IPCOAG )
+     &                              + SPCOEF( NPA,NGR ) * TCOAG( :,:,: )
+               END IF
+
+               IF ( IPCOND .NE. 0 ) THEN
+#ifdef parallel
+                  CALL SUBST_DATA_COPY( AERO_COND, TCOND, ICG )
+#else
+                  TCOND( :,:,: ) = AERO_COND( PA_BEGCOL:PA_ENDCOL,
+     &                                   PA_BEGROW:PA_ENDROW,PA_BEGLEV:PA_ENDLEV,ICG )
+#endif
+                  DELC( :,:,:,IPCOND ) = DELC( :,:,:,IPCOND )
+     &                              + SPCOEF( NPA,NGR ) * TCOND( :,:,: )
+               END IF
+
+               IF ( IPNPF .NE. 0 ) THEN
+#ifdef parallel
+                  CALL SUBST_DATA_COPY( AERO_NPF, TNPF, ICG )
+#else
+                  TNPF( :,:,: ) = AERO_NPF( PA_BEGCOL:PA_ENDCOL,
+     &                                   PA_BEGROW:PA_ENDROW,PA_BEGLEV:PA_ENDLEV,ICG )
+#endif
+                  DELC( :,:,:,IPNPF  ) = DELC( :,:,:,IPNPF )
+     &                              + SPCOEF( NPA,NGR ) * TNPF( :,:,: )
+               END IF
+                  
+               IF ( IPGROWTH .NE. 0 ) THEN
+#ifdef parallel
+                  CALL SUBST_DATA_COPY( AERO_GROWTH, TGROW, ICG )
+#else
+                  TGROW( :,:,: ) = AERO_GROWTH( PA_BEGCOL:PA_ENDCOL,
+     &                                   PA_BEGROW:PA_ENDROW,PA_BEGLEV:PA_ENDLEV,ICG )
+#endif
+                  DELC( :,:,:,IPGROWTH)= DELC( :,:,:,IPGROWTH )
+     &                              + SPCOEF( NPA,NGR ) * TGROW( :,:,: )
+               END IF
          END DO
+      END DO
+ 
+C..Save concentrations for next delta c
+      CNGRD = CGRID
+      DO N = 1, NCSAVE
+         ICG = SAV2GRD( N )
+#ifdef parallel
+         CALL SUBST_DATA_COPY( CNGRD, CSAV, ICG, N )
+#else
+         CSAV( :,:,:,N ) = 
+     &       CNGRD( PA_BEGCOL:PA_ENDCOL,PA_BEGROW:PA_ENDROW,
+     &              PA_BEGLEV:PA_ENDLEV,ICG )
+#endif 
       END DO
 
       RETURN
- 
-
-
 
       END SUBROUTINE PA_UPDATE_AERO
 
