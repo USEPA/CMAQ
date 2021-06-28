@@ -48,6 +48,8 @@ set CopySrc                            #> copy the source files into the build d
                                        #>   comment out to compile the model (default if not set)
 set ParOpt                             #> uncomment to build a multiple processor (MPI) executable; 
                                        #>   comment out for a single processor (serial) executable
+#set DistrEnv                          #> uncomment to distribute environmental variables to multiple machines
+                                       #>   comment out for a single processor (serial) executable (MPI only)
 #set build_parallel_io                 #> uncomment to build with parallel I/O (pnetcdf); 
                                        #>   comment out to use standard netCDF I/O
 #set Debug_CCTM                        #> uncomment to compile CCTM with debug option equal to TRUE
@@ -220,6 +222,10 @@ set make_options = "-j"                #> additional options for make command if
     set LIB3 = "${mpi_lib} ${extra_lib}"
     set Str1 = (// Parallel / Include message passing definitions)
     set Str2 = (include SUBST_MPI mpif.h;)
+    # Distribute Environment to different machines if not done automatically 
+    if ( $?DistrEnv ) then
+      set PAR = ($PAR -Dcluster) 
+    endif
  else
     #Serial system configuration
     echo "   Not Parallel; set Serial (no-op) flags"
