@@ -271,6 +271,7 @@ C-----------------------------------------------------------------------
       REAL, ALLOCATABLE, SAVE :: BDG_MASS_SAVE( :,:,:,: )
       REAL, PARAMETER :: MWAIR_SI = MWAIR / 1.0E+03 ! kg mol-1
       REAL, ALLOCATABLE, SAVE :: DENS( :,:,: )   ! air density (kg m-3)
+      REAL, ALLOCATABLE, SAVE :: RHOJ( :,:,: )   ! air density * Jacobian (kg m-3)
       REAL, ALLOCATABLE, SAVE :: JACOBM( :,:,: ) ! Jacobian
       REAL, ALLOCATABLE, SAVE :: ZF( :,:,: )     ! height of layer top
       REAL, ALLOCATABLE, SAVE :: CELLVOL( :,:,: )! cell volume
@@ -287,6 +288,7 @@ C-----------------------------------------------------------------------
           ALLOCATE ( BDG_MASS( NCOLS,NROWS,NLAYS,N_CGRID_SPC ),
      &               BDG_MASS_SAVE( NCOLS,NROWS,NLAYS,N_CGRID_SPC ),
      &                DENS( NCOLS,NROWS,NLAYS ),
+     &                RHOJ( NCOLS,NROWS,NLAYS ),
      &                JACOBM( NCOLS,NROWS,NLAYS ),
      &                ZF( NCOLS,NROWS,NLAYS ),
      &                CELLVOL( NCOLS,NROWS,NLAYS ),
@@ -526,7 +528,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          RESID_F(:) = SUM( BDG_PROC_OUT(:,1:NPRCS),2 ) 
      &               - BDG_BURDEN_OUT( :,3 ) 
       !   RESID_F(:) = SUM( BDG_PROC_OUT(:,3:NPRCS),2 ) + SUM( ADV_FLUXES_OUT,2)
-      !&               - BDG_BURDEN_OUT( :,3 ) 
+      !&               - BDG_BURDEN_OUT( :,3 )  ! Use Adv Fluxes instead of total XADV and YADV
 
          ! Write Species Process Changes to tab-separated file
          DO I = 1,N_BDG_VAR

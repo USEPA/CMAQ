@@ -187,18 +187,45 @@ C-----------------------------------------------------------------------
       END DO
       END DO
 
-      ! Couple all concentrations arrays in decoupled space
-      IF ( .NOT. LCOUPLE ) 
-     &   CALL COUPLE_PA( IPR_ID, CNGRD, JDATE, JTIME, .FALSE. )      
-     
-      ! Make sure to couple the saved array if this is VDIFF, the first
-      ! process
-      IF ( IPR_ID .EQ. IPR_VDIF )
-     &   CALL COUPLE_PA( IPR_ID, CSAV, JDATE, JTIME, .FALSE. )      
-
       ! Calculate Budget Change
-      IF (BUDGET_DIAG) CALL STORE_BUDGET( IPR_ID, CNGRD, JDATE, JTIME, .TRUE. )
+      IF (BUDGET_DIAG) CALL STORE_BUDGET( IPR_ID, CNGRD, JDATE, JTIME, LCOUPLE )
 
+      !IF ( IPR_ID .EQ. IPR_DENS ) THEN
+      !    IF ( LCOUPLE ) THEN 
+            ! Coupling
+            ! Convert the saved array to coupled mass units using the 
+            ! met-file interpolated density.
+      !      CALL COUPLE_PA( IPR_ID, CSAV, JDATE, JTIME, .FALSE. ) 
+      !    ELSE
+            ! Decoupling
+            ! Convert the current CGRID array to coupled mass units using the 
+            ! advected density (WRF) or met-interpolated density (Local)
+      !      IF ( COUPLE_WRF ) THEN
+      !         CALL COUPLE_PA( IPR_ID, CNGRD, JDATE, JTIME, .TRUE. )
+      !      ELSE
+      !         CALL COUPLE_PA( IPR_ID, CNGRD, JDATE, JTIME, .FALSE. )
+      !      END IF
+      !    END IF
+      !END IF
+ 
+      IF ( IPR_ID .EQ. IPR_COUP ) THEN
+            ! Coupling
+            ! Convert the saved array to coupled mass units using the 
+            ! met-file interpolated density.
+            CALL COUPLE_PA( IPR_ID, CSAV, JDATE, JTIME, .FALSE. ) 
+      END IF
+
+      IF ( IPR_ID .EQ. IPR_DECP ) THEN
+            ! Decoupling
+            ! Convert the current CGRID array to coupled mass units using the 
+            ! advected density (WRF) or met-interpolated density (Local)
+            IF ( COUPLE_WRF ) THEN
+               CALL COUPLE_PA( IPR_ID, CNGRD, JDATE, JTIME, .TRUE. )
+            ELSE
+               CALL COUPLE_PA( IPR_ID, CNGRD, JDATE, JTIME, .FALSE. )
+            END IF
+      END IF
+ 
       ! Calculate change, and save for later. The arrays are in coupled
       ! mass concentration space for all coupled processes and for the
       ! call immediately after the 'decouple' step. Otherwise the arrays
@@ -218,10 +245,23 @@ C-----------------------------------------------------------------------
       END DO
       
       ! Convert the change in coupled mass concentrations to change in
-      ! mixing ratio 
-      D_CNGRD( :,:,:,RHOJ_LOC ) = CNGRD( :,:,:,RHOJ_LOC )
-      CALL DECOUPLE_PA( IPR_ID, D_CNGRD, JDATE, JTIME, .FALSE. )
+      ! mixing ratio if this called after one of the coupled transport
+      ! processes.
+      IF ( LCOUPLE ) THEN
+          D_CNGRD( :,:,:,RHOJ_LOC ) = CNGRD( :,:,:,RHOJ_LOC )
+          IF ( COUPLE_WRF .AND. IPR_ID .NE. IPR_ZADV .AND.
+     &         IPR_ID .NE. IPR_COUP ) THEN
+             CALL DECOUPLE_PA( IPR_ID, D_CNGRD, JDATE, JTIME, .TRUE. )
+          ELSE
+             CALL DECOUPLE_PA( IPR_ID, D_CNGRD, JDATE, JTIME, .FALSE. )
+          END IF
+      END IF
           
+      ! Reset the saved grid if this is the decoupling step after
+      ! transport.
+      !IF ( IPR_ID .EQ. IPR_DENS .AND. .NOT. LCOUPLE ) CSAV = CGRID
+      IF ( IPR_ID .EQ. IPR_DECP ) CSAV = CGRID
+ 
       ! Compute Contribution for Process Analysis 
       IF ( LIPR ) THEN
          ! Compute delta conc for this process if requested
@@ -605,7 +645,8 @@ C..get density x jacobian and layer heights
           CALL CHECKMEM( ASTAT, 'RHOJ', 'PA_UPDATE_HADV' )
       END IF
 
-      ! Load scalars in local array 
+      ! Convert scalars from trasnport process units to mixing ratio and
+      ! concentration units.
       DO I = 1,N_CGRID_SPC
       DO L = 1,NLAYS
       DO R = 1,NROWS
@@ -615,6 +656,7 @@ C..get density x jacobian and layer heights
       END DO
       END DO
       END DO
+      IF (BUDGET_DIAG) CALL STORE_BUDGET( BDGSAVE_ID, CNGRD, JDATE, JTIME, .TRUE. )
       
       IF ( LIPR ) THEN
          ! Convert X and Y Advection changes to mixing ratio and
@@ -664,10 +706,9 @@ C..get density x jacobian and layer heights
          DELC_XADV = 0.0
          DELC_YADV = 0.0
       END IF
-      ! Send the scalar array to the budget routine.
-      ! Remember these are coupled units coming after horizontal
-      ! advection.                   
-      IF (BUDGET_DIAG) CALL STORE_BUDGET( BDGSAVE_ID, CNGRD, JDATE, JTIME, .TRUE. )
+ 
+      ! Decouple CNGRD so it can be saved for the next process
+      !CALL DECOUPLE_PA( IPR_ZADV, CNGRD, JDATE, JTIME )
 
       ! Save the coupled CNGRD array so it can be differenced and then 
       ! decoupled (converted to mixing ratio) for the IPR_ZADV process
@@ -714,6 +755,14 @@ C..get density x jacobian and layer heights
           FIRST_TIME = .FALSE.
       END IF
 
+      ! Save Changes in Budget Array
+      IF (BUDGET_DIAG) CALL STORE_BUDGET( IPR_COAG, AERO_COAG, JDATE, JTIME, .FALSE. )
+      IF (BUDGET_DIAG) CALL STORE_BUDGET( IPR_COND, AERO_COND, JDATE, JTIME, .FALSE. )
+      IF (BUDGET_DIAG) CALL STORE_BUDGET( IPR_NPF,  AERO_NPF, JDATE, JTIME, .FALSE. )
+      IF (BUDGET_DIAG) CALL STORE_BUDGET( IPR_GROW, AERO_GROWTH, JDATE, JTIME, .FALSE. )
+
+      IF (BUDGET_DIAG) CALL STORE_BUDGET( BDGSAVE_ID, CGRID, JDATE, JTIME, .FALSE. )
+
       IF ( LIPR ) THEN
       DO IPRV = 1, NIPRVAR     ! foreach family
          IPRSPC = MAP_IPRVARtoSPC( IPRV ) 
@@ -756,35 +805,7 @@ C..get density x jacobian and layer heights
          END DO
       END DO
       END IF
- 
-      ! Convert scalars from trasnport process units to mixing ratio and
-      ! concentration units.
-      DO I = 1,N_CGRID_SPC
-      DO L = 1,NLAYS
-      DO R = 1,NROWS
-      DO C = 1,NCOLS
-         CNGRD(C,R,L,I) = CGRID(C,R,L,I)
-      END DO
-      END DO
-      END DO
-      END DO       
-
-      ! Save Changes in Budget Array
-      CALL COUPLE_PA( IPR_COAG, AERO_COAG, JDATE, JTIME, .FALSE. )      
-      IF (BUDGET_DIAG) CALL STORE_BUDGET( IPR_COAG, AERO_COAG, JDATE, JTIME, .TRUE. )
-      
-      CALL COUPLE_PA( IPR_COND, AERO_COND, JDATE, JTIME, .FALSE. )      
-      IF (BUDGET_DIAG) CALL STORE_BUDGET( IPR_COND, AERO_COND, JDATE, JTIME, .TRUE. )
-      
-      CALL COUPLE_PA( IPR_NPF, AERO_NPF, JDATE, JTIME, .FALSE. )      
-      IF (BUDGET_DIAG) CALL STORE_BUDGET( IPR_NPF,  AERO_NPF, JDATE, JTIME, .TRUE. )
-      
-      CALL COUPLE_PA( IPR_GROW, AERO_GROWTH, JDATE, JTIME, .FALSE. )      
-      IF (BUDGET_DIAG) CALL STORE_BUDGET( IPR_GROW, AERO_GROWTH, JDATE, JTIME, .TRUE. )
-
-      CALL COUPLE_PA( IPR_GROW, CNGRD, JDATE, JTIME, .FALSE. )      
-      IF (BUDGET_DIAG) CALL STORE_BUDGET( BDGSAVE_ID, CNGRD, JDATE, JTIME, .TRUE. )
-
+       
       ! Save Concentration in CSAV Array
       DO I = 1,N_CGRID_SPC
       DO L = 1,NLAYS
@@ -867,34 +888,34 @@ C retrieve transported RhoJ and Jacobian
 C decouple for chemistry and diffusion
 C The CONC array is ordered like CGRID but only the DIFF species should
 C be modified. Use DIFF_MAP
-      DO V = 1,N_CGRID_SPC
-          IF ( CGRID_MASK_NUM( V ) .OR. CGRID_MASK_SRF( V ) ) THEN 
+      DO V = 1,N_SPC_DIFF
+          IF ( DIFF_MASK_NUM( V ) .OR. DIFF_MASK_SRF( V ) ) THEN 
             ! Convert to N m-3 and m2 m-3
             DO L = 1,NLAYS
             DO R = 1,NROWS
             DO C = 1,NCOLS
-               CONC( C,R,L,V ) = 
-     &             CONC( C,R,L,V ) / JACOBM( C,R,L )
+               CONC( C,R,L,DIFF_MAP( V ) ) = 
+     &             CONC( C,R,L,DIFF_MAP( V ) ) / JACOBM( C,R,L )
             END DO
             END DO
             END DO
-          ELSE IF ( CGRID_MASK_AERO( V ) ) THEN
+          ELSE IF ( DIFF_MASK_AERO( V ) ) THEN
             ! Convert to ug m-3
             DO L = 1,NLAYS
             DO R = 1,NROWS
             DO C = 1,NCOLS
-               CONC( C,R,L,V ) = 
-     &             CONC( C,R,L,V ) * CONV / JACOBM( C,R,L )
+               CONC( C,R,L,DIFF_MAP( V ) ) = 
+     &             CONC( C,R,L,DIFF_MAP( V ) ) * CONV / JACOBM( C,R,L )
             END DO
             END DO
             END DO
-          ELSE IF ( V .NE. RHOJ_LOC ) THEN
+          ELSE IF ( DIFF_MAP( V ) .NE. RHOJ_LOC ) THEN
             ! Convert to ppmV
             DO L = 1,NLAYS
             DO R = 1,NROWS
             DO C = 1,NCOLS
-               CONC( C,R,L,V ) = 
-     &             CONC( C,R,L,V ) / RHOJ( C,R,L )
+               CONC( C,R,L,DIFF_MAP( V ) ) = 
+     &             CONC( C,R,L,DIFF_MAP( V ) ) / RHOJ( C,R,L )
             END DO
             END DO
             END DO
@@ -972,34 +993,34 @@ C retrieve transported RhoJ and Jacobian
 C decouple for chemistry and diffusion
 C The CONC array is ordered like CGRID but only the DIFF species should
 C be modified. Use DIFF_MAP
-      DO V = 1,N_CGRID_SPC
-          IF ( CGRID_MASK_NUM( V ) .OR. CGRID_MASK_SRF( V ) ) THEN 
+      DO V = 1,N_SPC_DIFF
+          IF ( DIFF_MASK_NUM( V ) .OR. DIFF_MASK_SRF( V ) ) THEN 
             ! Convert to N m-3 and m2 m-3
             DO L = 1,NLAYS
             DO R = 1,NROWS
             DO C = 1,NCOLS
-               CONC( C,R,L,V ) = 
-     &             CONC( C,R,L,V ) * JACOBM( C,R,L )
+               CONC( C,R,L,DIFF_MAP( V ) ) = 
+     &             CONC( C,R,L,DIFF_MAP( V ) ) * JACOBM( C,R,L )
             END DO
             END DO
             END DO
-          ELSE IF ( CGRID_MASK_AERO( V ) ) THEN
+          ELSE IF ( DIFF_MASK_AERO( V ) ) THEN
             ! Convert to ug m-3
             DO L = 1,NLAYS
             DO R = 1,NROWS
             DO C = 1,NCOLS
-               CONC( C,R,L,V ) = 
-     &             CONC( C,R,L,V ) / CONV * JACOBM( C,R,L )
+               CONC( C,R,L,DIFF_MAP( V ) ) = 
+     &             CONC( C,R,L,DIFF_MAP( V ) ) / CONV * JACOBM( C,R,L )
             END DO
             END DO
             END DO
-          ELSE IF ( V .NE. RHOJ_LOC ) THEN
+          ELSE IF ( DIFF_MAP( V ) .NE. RHOJ_LOC ) THEN
             ! Convert to ppmV
             DO L = 1,NLAYS
             DO R = 1,NROWS
             DO C = 1,NCOLS
-               CONC( C,R,L,V ) = 
-     &             CONC( C,R,L,V ) * RHOJ( C,R,L )
+               CONC( C,R,L,DIFF_MAP( V ) ) = 
+     &             CONC( C,R,L,DIFF_MAP( V ) ) * RHOJ( C,R,L )
             END DO
             END DO
             END DO
