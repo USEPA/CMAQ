@@ -2112,31 +2112,55 @@ C and allowing the model to proceed.
                  IF ( EM_BASIS( ISTR, ISRM, IFAC ) .EQ. 'UNIT' ) THEN
                      BASIS_FAC = BASIS_FAC
                  ELSE IF ( EM_BASIS( ISTR, ISRM, IFAC ) .EQ. 'MOLE' ) THEN
-                     IF ( EM_FILE_SURR( ISRM )%BASIS( MAP_EMtoSURR( ISTR,ISRM ) ) .EQ. 'MOLE' ) THEN
+                     IF ( EM_FILE_SURR( ISRM )%BASIS( ISUR ) .EQ. 'MOLE' ) THEN
                         BASIS_FAC = BASIS_FAC
-                     ELSE
+                     ELSE IF ( EM_FILE_SURR( ISRM )%BASIS( ISUR ) .EQ. 'MASS' ) THEN
                         ! Convert surrogate emission rate to moles
-                        BASIS_FAC = BASIS_FAC / SURR_MW  
+                        BASIS_FAC = BASIS_FAC / SURR_MW
+                     ELSE
+                        ! Unknown Basis has been encountered. Need to exit.
+                        WRITE( XMSG,'(A,A16,A,I3,A,A,A)' ),
+     &                     'ERROR: Surrogate Species ',TRIM(EM_FILE_SURR(ISRM)%ARRY(ISUR) ),
+     &                     ' on emission stream ',ISRM, ' has units which are not recognized ',
+     &                     'as an emission rate. If you wish to use this variable for ',
+     &                     'emissions, please correct the units (e.g. g/s or moles/s).'
+                        CALL M3EXIT( 'EMIS_SPC_MAP', 0, 0, XMSG, 2 )
                      END IF
+                     
+                     ! Check to see if this is an aerosol (mass-based)
+                     ! CMAQ species.
                      IF ( .NOT. DIFF_MASK_AERO( MAP_EMtoDIFF( ISTR ) ) ) THEN
                         BASIS_FAC = BASIS_FAC
                      ELSE
                         ! Convert species emission rate to mass
                         BASIS_FAC = BASIS_FAC * SPEC_MW
                      END IF
+
                  ELSE IF ( EM_BASIS( ISTR, ISRM, IFAC ) .EQ. 'MASS' ) THEN
-                     IF ( EM_FILE_SURR( ISRM )%BASIS( MAP_EMtoSURR( ISTR,ISRM ) ) .EQ. 'MOLE' ) THEN
+                     IF ( EM_FILE_SURR( ISRM )%BASIS( ISUR ) .EQ. 'MOLE' ) THEN
                         ! Convert surrogate emission rate to mass
                         BASIS_FAC = BASIS_FAC * SURR_MW
-                     ELSE
+                     ELSE IF ( EM_FILE_SURR( ISRM )%BASIS( ISUR ) .EQ. 'MASS' ) THEN
                         BASIS_FAC = BASIS_FAC
+                     ELSE
+                        ! Unknown Basis has been encountered. Need to exit.
+                        WRITE( XMSG,'(A,A16,A,I3,A,A,A)' ),
+     &                     'ERROR: Surrogate Species ',TRIM(EM_FILE_SURR(ISRM)%ARRY(ISUR) ),
+     &                     ' on emission stream ',ISRM, ' has units which are not recognized ',
+     &                     'as an emission rate. If you wish to use this variable for ',
+     &                     'emissions, please correct the units (e.g. g/s or moles/s).'
+                        CALL M3EXIT( 'EMIS_SPC_MAP', 0, 0, XMSG, 2 )
                      END IF
+
+                     ! Check to see if this is an aerosol (mass-based)
+                     ! CMAQ species.
                      IF ( .NOT. DIFF_MASK_AERO( MAP_EMtoDIFF( ISTR ) ) ) THEN
                         ! Convert species emission rate to moles
                         BASIS_FAC = BASIS_FAC / SPEC_MW
                      ELSE
                         BASIS_FAC = BASIS_FAC
                      END IF
+               
                  END IF
                  EM_FAC_ST( ISTR,ISRM )%BASIS = BASIS_FAC
 
@@ -2341,7 +2365,7 @@ C and allowing the model to proceed.
          INTEGER, INTENT( IN )            :: ISRM
          INTEGER, INTENT( IN )            :: ISUR
          CHARACTER( 16 ), INTENT( IN )    :: SPEC
-         CHARACTER( 200 )      :: XMSG
+         CHARACTER( 400 )      :: XMSG
          INTEGER               :: X, SLASH_IND
 
          CONV = 1.0
@@ -2406,11 +2430,16 @@ C and allowing the model to proceed.
             CONV = 1.0e-9
             BASIS = 'MASS'
          ELSE
-            WRITE( XMSG,'(A,A16,A,/,I3,A11,A16,A,/,A)' ),
-     &              'ERROR: Surrogate Species ',TRIM(SPEC),' on emission stream ',
-     &              ISRM, ' has units ',TRIM(UNITS),' which are unkown to CMAQ. ',
-     &              'Please correct them to proceed.'
-            CALL M3EXIT( 'CHECK_EMIS_UNITS', 0, 0, XMSG, 2 )
+            WRITE( XMSG,'(A,A16,A,I3,A11,A16,A,A,A,A)' ),
+     &              'WARNING: Surrogate Species ',TRIM(SPEC),' on emission stream ',
+     &              ISRM, ' has units ',TRIM(UNITS),' which are not recognized ',
+     &              'as an emission rate. If you wish to use this variable for ',
+     &              'emissions, please correct the units. Otherwise grams will be ',
+     &              'assumed for particles and moles for gases.'
+            CALL M3WARN( 'CHECK_EMIS_UNITS', 0, 0, XMSG )
+            ! No Conversion and and Unknown Basis
+            CONV = 1.0e0
+            BASIS = 'UKNOWN'
          END IF
           
          ! Check for Time Units
@@ -2434,11 +2463,16 @@ C and allowing the model to proceed.
             ! Convert hours -> seconds
             CONV = CONV * 60.0
          ELSE
-            WRITE( XMSG,'(A,A,A,I3,A11,A,A,A)' ),
-     &              'ERROR: Surrogate Species ',TRIM(SPEC),' on emission stream ',
-     &              ISRM, ' has units ',TRIM(UNITS),' which are unkown to CMAQ. ',
-     &              'Please correct them to proceed.'
-            CALL M3EXIT( 'CHECK_EMIS_UNITS', 0, 0, XMSG, 2 )
+            WRITE( XMSG,'(A,A16,A,I3,A11,A16,A,A,A,A)' ),
+     &              'WARNING: Surrogate Species ',TRIM(SPEC),' on emission stream ',
+     &              ISRM, ' has units ',TRIM(UNITS),' which are not recognized ',
+     &              'as an emission rate. If you wish to use this variable for ',
+     &              'emissions, please correct the units. Otherwise seconds will be ',
+     &              'assumed for the time interval for these emissions.'
+            CALL M3WARN( 'CHECK_EMIS_UNITS', 0, 0, XMSG )
+            ! No Conversion and and Unknown Basis
+            CONV = CONV * 1.0e0
+            BASIS = 'UNKNOWN'
          END IF
 
          END SUBROUTINE CHECK_EMIS_UNITS
