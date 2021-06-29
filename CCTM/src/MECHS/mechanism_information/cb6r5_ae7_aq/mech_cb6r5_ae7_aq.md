@@ -270,6 +270,7 @@ Information is based on the mech.def file.
 | CL28   | CLO + NO2 ----> CLNO3  | k<sub>o</sub>=  1.80E-31e<sup>     0.0/T</sup>(T/300)<sup> -3.40</sup><br>k<sub>i</sub> =   1.50E-11e<sup>     0.0/T</sup>(T/300)<sup> -1.90</sup><br>n=     1.00;F=     0.60 |   2.3359E-12 |
 | CL30   | CLNO3 ----> CLO + NO2  | CLONO2_1 | Not Available<sup>1</sup> | 
 | CL31   | CLNO3 ----> CL + NO3  | CLONO2_2 | Not Available<sup>1</sup> | 
+| HET_CLNO3_WAI   | CLNO3 ----> HOCL + HNO3  | HETERO_CLNO3_WAI | Not Available<sup>2</sup> | 
 | HET_CLNO3_WAJ   | CLNO3 ----> HOCL + HNO3  | HETERO_CLNO3_WAJ | Not Available<sup>2</sup> | 
 | SA01   | TOLRO2 + NO ----> NO +    0.016\*SVAVB2 +    0.051\*SVAVB3 +    0.047\*SVAVB4  |   2.70E-12e<sup>   360.00/T</sup> |   9.0313E-12 |
 | SA02   | TOLRO2 + HO2 ----> HO2 +    0.140\*SVAVB1  |   1.90E-13e<sup>  1300.00/T</sup> |   1.4872E-11 |

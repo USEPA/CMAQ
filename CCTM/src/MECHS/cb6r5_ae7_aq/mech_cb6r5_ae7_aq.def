@@ -19,6 +19,7 @@
 !   4. implemented temperature and pressure-dependent CS/QY for CLNO2
 ! 040319 HOT Pye: IEPOX uptake now consumes inorganic sulfate
 ! 2-9-21 G Sarwar, added a reaction for CB6r5 and updated many rate constants and some yeilds following Ramboll Report to TCEQ (07/30/2020)
+! 4-29-21 G Sarwar, added heterogeneous hydrolysis of ClNO3 on fine-mode aerosol (<HET_CLNO3_WAI>)
 !---------------------------------
 CB6R5_AE7_AQ
 
@@ -390,8 +391,8 @@ REACTIONS[CM] =
 <CL30> CLNO3          = CLO + NO2                 # 1.0/<CLONO2_1>;
 <CL31> CLNO3          = CL + NO3                 # 1.0/<CLONO2_2>;
 
-! heterogeneous reactions from CB05eh51
-
+! heterogeneous reactions
+<HET_CLNO3_WAI> CLNO3     = HOCL + HNO3               # 1.0~<HETERO_CLNO3_WAI>;
 <HET_CLNO3_WAJ> CLNO3     = HOCL + HNO3               # 1.0~<HETERO_CLNO3_WAJ>;
 
 ! SOA counter species and semivolatiles formed
