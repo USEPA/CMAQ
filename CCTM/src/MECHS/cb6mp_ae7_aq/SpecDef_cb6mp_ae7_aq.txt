@@ -38,13 +38,13 @@
 !-------------------------------------------!
 !------------- Meteorology -----------------!
 !-------------------------------------------!
-AIR_DENS        ,kg/m3     ,DENS[2]
+AIR_DENS        ,kg m-3    ,DENS[2]
 RH              ,%         ,100.00*RH[3]
 SFC_TMP         ,C         ,(TEMP2[4]-273.15)
 PBLH            ,m         ,PBL[4]
-SOL_RAD         ,WATTS/m2  ,RGRND[4]
+SOL_RAD         ,W m-2     ,RGRND[4]
 precip          ,cm        ,RC[4]>=0 ? RN[4]+RC[4] : RN[4]
-WSPD10          ,m/s       ,WSPD10[4]
+WSPD10          ,m s-1     ,WSPD10[4]
 WDIR10          ,deg       ,WDIR10[4]
 
 !-------------------------------------------!
@@ -58,15 +58,15 @@ ETHA            ,ppbV      ,1000.0*ETHA[1]
 FORM            ,ppbV      ,1000.0*FORM[1]
 H2O2            ,ppbV      ,1000.0*H2O2[1]
 HNO3            ,ppbV      ,1000.0*HNO3[1]
-HNO3_UGM3       ,ug/m3     ,1000.0*(HNO3[1]*2.1756*DENS[2])
+HNO3_UGM3       ,ug m-3    ,1000.0*(HNO3[1]*2.1756*DENS[2])
 HONO            ,ppbV      ,1000.0*HONO[1]
 HOX             ,ppbV      ,1000.0*(OH[1]+HO2[1])
 OH	            ,ppbV      ,1000.0*(OH[1])
 ISOP            ,ppbV      ,1000.0*ISOP[1]
 N2O5            ,ppbV      ,1000.0*N2O5[1]
 NH3             ,ppbV      ,1000.0*NH3[1]
-NH3_UGM3        ,ug/m3     ,1000.0*(NH3[1]*0.5880*DENS[2])
-NHX             ,ug/m3     ,1000.0*(NH3[1]*0.5880*DENS[2])+ANH4I[1]+ANH4J[1]+ANH4K[1]
+NH3_UGM3        ,ug m-3    ,1000.0*(NH3[1]*0.5880*DENS[2])
+NHX             ,ug m-3    ,1000.0*(NH3[1]*0.5880*DENS[2])+ANH4I[1]+ANH4J[1]+ANH4K[1]
 NO              ,ppbV      ,1000.0*NO[1]
 NO2             ,ppbV      ,1000.0*NO2[1]
 NOX             ,ppbV      ,1000.0*(NO[1] + NO2[1])
@@ -74,11 +74,11 @@ ANO3_PPB	,ppbV      ,(ANO3I[1]+ANO3J[1]+ANO3K[1])/(DENS[2]*(62.0/28.97))
 NTR             ,ppbV      ,1000.0*(NTR1[1]+NTR2[1]+INTR[1])
 PANS            ,ppbV      ,1000.0*(PAN[1]+PANX[1]+OPAN[1])
 NOY             ,ppbV      ,1000.0* (NO[1]+NO2[1]+NO3[1]+2*N2O5[1]+HONO[1]+HNO3[1]+PNA[1] \
-                                     +CRON[1]+CLNO2[1]) \
+                                     +CRON[1]+CLNO2[1]+CLNO3[1]) \
                                      +PANS[0]+NTR[0]+ANO3_PPB[0]
 O3              ,ppbV      ,1000.0*O3[1]
 SO2             ,ppbV      ,1000.0*SO2[1]
-SO2_UGM3        ,ug/m3     ,1000.0*(SO2[1]*2.2118*DENS[2])
+SO2_UGM3        ,ug m-3    ,1000.0*(SO2[1]*2.2118*DENS[2])
 TERP            ,ppbV      ,1000.0*TERP[1]
 TOL             ,ppbV      ,1000.0*TOL[1]
 XYL             ,ppbV      ,1000.0*XYLMN[1]
@@ -110,7 +110,7 @@ HCL             ,ppbV      ,1000.0*HCL[1]
 HEXMETH_DIS     ,ug/m3     ,1000.0*(HEXMETH_DIS[1]*5.8000*DENS[2]) 
 HYDRAZINE       ,ug/m3     ,1000.0*(HYDRAZINE[1]*3.3793*DENS[2])     
 MEOH            ,ppbV      ,1000.0*MEOH[1]                          
-XYLENE		,ppbV      ,1000.0*XYLENE[1]                       
+XYLENE          ,ppbV      ,1000.0*XYLENE[1]                       
 MAL_ANHYDRID    ,ug/m3     ,1000.0*(MAL_ANHYDRID[1]*3.3843*DENS[2])  
 NAPHTHALENE     ,ug/m3     ,1000.0*(NAPHTHALENE[1]*4.4253*DENS[2])   
 PROPY_DICL      ,ug/m3     ,1000.0*(PROPYL_DICL[1]*3.9006*DENS[2])  
@@ -173,7 +173,7 @@ AMNJ            ,ug m-3    ,PMF_MN[3]
 ASOILJ          ,ug m-3    ,PMF_SOILIMPV[3]
 
 !! Non-Crustal Inorganic Particle Species
-AHPLUSIJ        ,ug m-3    ,PMF_HP[3]
+AHPLUSIJ        ,umol m-3  ,PMF_HP[3]
 ANAK            ,ug m-3    ,PMC_NA[3]
 AMGK            ,ug m-3    ,PMC_MG[3]
 AKK             ,ug m-3    ,PMC_K[3]
@@ -281,7 +281,7 @@ PMC_TOT         ,ug m-3    ,PM25TO10[3]
 
 !! Deisel PM Species
 DIESEL_PM10     ,ug m-3    ,PM10_HDIESEL[3]
-DIESEL_PM25  	,ug m-3    ,PM25_HDIESEL[3]
+DIESEL_PM25  	  ,ug m-3    ,PM25_HDIESEL[3]
  
 !!Benzo-A-Pyrene, gas and aerosol species
 BAP_GAS          ,ng/m3           ,1000.0*GAS_BENAPY[3], gas phase benzo-a-pyrene

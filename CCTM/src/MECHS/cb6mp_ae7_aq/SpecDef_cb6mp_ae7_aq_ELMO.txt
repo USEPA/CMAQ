@@ -38,13 +38,13 @@
 !-------------------------------------------!
 !------------- Meteorology -----------------!
 !-------------------------------------------!
-AIR_DENS        ,kg/m3     ,DENS[2]
+AIR_DENS        ,kg m-3    ,DENS[2]
 RH              ,%         ,100.00*RH[3]
 SFC_TMP         ,C         ,(TEMP2[4]-273.15)
 PBLH            ,m         ,PBL[4]
-SOL_RAD         ,WATTS/m2  ,RGRND[4]
+SOL_RAD         ,W m-2     ,RGRND[4]
 precip          ,cm        ,RC[4]>=0 ? RN[4]+RC[4] : RN[4]
-WSPD10          ,m/s       ,WSPD10[4]
+WSPD10          ,m s-1     ,WSPD10[4]
 WDIR10          ,deg       ,WDIR10[4]
 
 !-------------------------------------------!
@@ -74,7 +74,7 @@ ANO3_PPB	,ppbV      ,(ANO3I[1]+ANO3J[1]+ANO3K[1])/(DENS[2]*(62.0/28.97))
 NTR             ,ppbV      ,1000.0*(NTR1[1]+NTR2[1]+INTR[1])
 PANS            ,ppbV      ,1000.0*(PAN[1]+PANX[1]+OPAN[1])
 NOY             ,ppbV      ,1000.0* (NO[1]+NO2[1]+NO3[1]+2*N2O5[1]+HONO[1]+HNO3[1]+PNA[1] \
-                                     +CRON[1]+CLNO2[1]) \
+                                     +CRON[1]+CLNO2[1]+CLNO3[1]) \
                                      +PANS[0]+NTR[0]+ANO3_PPB[0]
 O3              ,ppbV      ,1000.0*O3[1]
 SO2             ,ppbV      ,1000.0*SO2[1]
