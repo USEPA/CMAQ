@@ -14,9 +14,13 @@ The updates to the vertical interpolation approach change the vertical structure
 
 ## Affected Files
 
-* CCTM/scripts/bldit_cctm.csh
-* CCTM/src/MECHS/cb6r3m_ae7_kmtbr/AE_cb6r3m_ae7_kmtbr.nml
-* CCTM/src/MECHS/cb6r3m_ae7_kmtbr/CSQY_DATA_cb6r3m_ae7_kmtbr
+PREP/bcon/src/common/lat_lon.F
+PREP/bcon/src/m3conc/m3_driver.F
+PREP/bcon/src/m3conc/m3_vinterp.F
+PREP/icon/scripts/run_icon.csh
+PREP/icon/src/common/lat_lon.F
+PREP/icon/src/m3conc/m3_driver.F
+PREP/icon/src/m3conc/m3_vinterp.F
 
 
 ## References
@@ -28,10 +32,13 @@ N/A
 
 #### Relevant Pull Requests:
 
-to be added
+PR729
 
 #### Commit IDs:
 
-to be added
+929ae68cb922272f4caa4fc2d7b5b4fbe97a6aec 
+14459923332b1415f2a72cbfbb8f5c3c158e3b46 
+cd73f55ba439d32a70b9918e599855384ee438d0 
+
 
 -----
