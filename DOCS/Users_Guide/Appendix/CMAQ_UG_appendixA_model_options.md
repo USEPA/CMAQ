@@ -83,6 +83,9 @@ Note that for multiprocessor applications it is recommended that the Fortran MPI
 
 -   `MPI_LIB_DIR`<a id=MPI_LIB_DIR></a>
     Location of the Message Passing Interface Library on your Linux system
+    
+-   `MPI_INCL_DIR`<a id=MPI_INCL_DIR></a>
+    Location of the Message Passing Interface include files on your Linux system
 
 -   `ioapi_lib`<a id=ioapi_lib></a>
     Name of the I/O API library on your system; set to "-lioapi"
