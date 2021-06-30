@@ -116,4 +116,10 @@
 #> Executable call:
  time $BLD/$EXEC
 
+ set progstat = ${status}
+ if ( ${progstat} ) then
+   echo "ERROR ${progstat} in $BLD/$EXEC"
+   exit( ${progstat} )
+ endif
+
  exit() 
