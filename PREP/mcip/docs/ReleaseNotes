@@ -1,5 +1,5 @@
 ********************************************************************************
-Announcing the release of MCIP Version 5.3.3 (16 June 2021)
+Announcing the release of MCIP Version 5.3.3 (30 June 2021)
 ********************************************************************************
 
 The MCIP code is updated to version 5.3.3.  This is a minor update to MCIP.
@@ -87,4 +87,7 @@ The following is a summary of the changes in MCIPv5.3.3:
  4.  Corrected minor bug in assigning bounds for XCLAY_PX, as identied in
      CMAS Center Forum.
 
- 5.  Versioning for MCIP is changed to align with CMAQ.
+ 5.  Correct write statement for MCIP-generated GRIDDESC so that it can
+     accommodate modeling domains with more than 999 grid cells on a side.
+
+ 6.  Versioning for MCIP is changed to align with CMAQ.
