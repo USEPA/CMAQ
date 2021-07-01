@@ -9,7 +9,7 @@ Bug reported by Steve Fine, EPA-OAR, when using AWS to run CMAQ across multiple 
 
 The update also enables users on different architectures and systems that do not appended C routine names with an underscore to compile the CCTM code.
 
-### Solution in CMAQv5.3.2
+### Solution in CMAQv5.3.3
 
 Changed distr_env.c to only set environmental variables on other processors that are not blank, which resolved the segmentation fault. To fix manual addition of CPP Flag -Dcluster, a new bldscript option within CCTM that allows users to optionally invoke distr_env.c is added. This new option is called "DistrEnv", if set this option adds the CPP flag -Dcluster. It should be noted, that two conditions have to be met for the -Dcluster flag to be activiated:
 
@@ -46,5 +46,22 @@ The *sitecmp_dailyo3* code was updated to remove any quotes from the `OZONE_F` c
 POST/hr2day/src/hr2day.F
 POST/sitecmp_dailyo3/src/utilities.F
 
-## 3. Short description
+## 3. Updated bldmake & config_cmaq.csh to add mpi library in CCTM Makefile
+[Fahim Sidi](mailto:sidi.fahim@epa.gov), U.S. Environmental Protection Agency
+
+### Description of model issue
+
+Discrepancy reported by Liz Adams and Christos Efstathiou, CMAS, that CMAQ (namely CCTM only) didn’t have the capability to specify different paths to the mpi include files and mpi library directory in the config_cmaq.csh, both needed to compile CCTM. Instead to do this, you had to manually edit the Makefiles and recompile the model.
+
+The update enables users to specify, explicitly, paths to the MPI Library and include directories. 
+
+### Solution in CMAQv5.3.3
+
+Changed config_cmaq.csh to include new variable MPI_INCL_DIR, consistent with treatment of other external libraries used in CMAQ (I/O API & netCDF). A change is also made in bldmake to reflect this updated variable. 
+
+### Files Affected 
+UTIL/bldmake/src/bldmake.f<br>
+config_cmaq.csh 
+
+## 4. Short description
 [Firt Name Last Name](mailto:last.first@epa.gov), U.S. Environmental Protection Agency
