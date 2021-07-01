@@ -1,4 +1,4 @@
-# DMS chemistry wbug fix
+# DMS chemistry bug fix
 
 [Golam Sarwar](mailto:sarwar.golam@epa.gov), U.S. Environmental Protection Agency
 
