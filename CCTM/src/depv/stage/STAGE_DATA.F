@@ -24,9 +24,6 @@ C Function: User-defined types
 C Revision History:
 C     26 June 2014 J.Bash: initial implementation
 
-!      Use GRID_CONF           ! horizontal & vertical domain specifications
-!      Use LSM_MOD             ! Land surface data
-
       Implicit None
       
       Type :: Map_Type
@@ -46,17 +43,18 @@ C     26 June 2014 J.Bash: initial implementation
       End Type Map_Type      
 
       Type :: STAGE_Diag
-         Integer,       Allocatable :: vdiff_ind  ( : )      ! location in vdiff species vector
-         Real,          Allocatable :: lu_dep     ( :,:,: )  ! deposition to land use
-         Real,          Allocatable :: lu_frac    ( :,:,: )  ! land use fraction
-         Character(16), Allocatable :: dep_name   ( : )      ! Dep Species name
-         Character(16), Allocatable :: lu_name    ( : )      ! Land use name
+         Integer                    :: n_spc                    ! number of diagnostic species
+         Real,          Allocatable :: NH3_Diag_Temp ( :,:,: )  ! Instentanious NH3 Diagnostic output
+         Real,          Allocatable :: NH3_Diag_Out  ( :,:,: )  ! Accumulated NH3 Diagnostic output
+         Real                       :: dep_fac                  ! deposition factor from the namelist
+         Character(16), Allocatable :: dep_name  ( : )          ! Dep Species name
       End Type STAGE_Diag
 
       Type( Map_Type ), Save :: Map_Data 
 
+      Type( STAGE_Diag ),    Save :: STAGE_Diag_Data 
+
       INTEGER, PARAMETER :: dep_gas_all = 177
-      INTEGER, PARAMETER :: LCMP = 8
       Character( 16 ), Save :: vd_name     ( dep_gas_all )       ! Deposition species name
       Real,            Save :: rel_rx      ( dep_gas_all )       ! reactivity relative to HNO3
       Real,            Save :: LeBasM      ( dep_gas_all )       ! Le Bas molar volume [cm3/mol ]

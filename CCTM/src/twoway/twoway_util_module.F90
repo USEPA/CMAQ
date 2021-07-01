@@ -7,6 +7,9 @@
 !           31 Jan 2019  (David Wong)
 !              -- adopted the idea to process all twoway related environment
 !                 variables in one place
+!           30 Jun 2021  (David Wong)
+!              -- replaced 3i4 with 3i6 in the format statement 16 in subroutine 
+!                 setup_griddesc_file to handle ncols or nrow up to 99999
 !===============================================================================
 
   module twoway_util_module
@@ -111,7 +114,7 @@
                    g_ncols, g_nrows, ioapi_header%nthik
 !   write (10, 16) buffer, ioapi_header%xorig, ioapi_header%yorig, ioapi_header%xcell, ioapi_header%ycell, &
 !                  ioapi_header%nrows, ioapi_header%ncols, ioapi_header%nthik
- 16 format (a14, 4f14.3, 3i4)
+ 16 format (a14, 4f14.3, 3i6)
     write (10, 11) "' '"
     close (10)
 

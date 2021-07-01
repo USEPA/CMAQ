@@ -1,0 +1,111 @@
+#!/bin/csh
+
+# type fmm -h for help
+set exist_h = ` echo $argv | grep -e "-h" | wc -w `
+ 
+if ($exist_h != 0) then
+   goto usage
+endif
+
+if ( !($?wrf_path) ) then
+   echo ' '
+   echo ' Error: Environment variable wrf_path is not set.'
+   echo ' '
+   echo '        Please do this'
+   echo '          setenv wrf_path path_of_wrf_source_code'
+   echo ' '
+else
+   set wrfpath=$wrf_path
+
+   if ($#argv == 1) then
+      set reverse = 1
+   else
+      set reverse = 0
+   endif
+
+   set my_list = ( \
+       Makefile \
+       clean \
+       configure \
+       Registry/Registry.EM \
+       Registry/registry.em_shared_collection \
+       arch/Config.pl \
+       dyn_em/module_first_rk_step_part1.F \
+       dyn_em/solve_em.F \
+       dyn_nmm/module_PHYSICS_CALLS.F \
+       main/Makefile \
+       main/depend.common \
+       phys/Makefile \
+       phys/module_ra_rrtmg_sw.F \
+       phys/module_radiation_driver.F \
+       phys/module_sf_noahdrv.F \
+       )
+
+   if (! -d $wrfpath) then
+      echo ' '
+      echo " Error: path $wrfpath does not exist. "
+      echo ' '
+   else
+      if ($reverse) then
+         echo ' '
+         echo ' Perform reverse action '
+         echo ' '
+         if (! -d $wrfpath/storage) then
+            echo ' '
+            echo ' Error: directory storage does not exist'
+            echo '        reverse operation cannot be performed'
+            echo ' '
+         else
+            rm -f $wrfpath/Registry/registry.WRF-CMAQ-twoway
+            rm -f $wrfpath/phys/complex_number_module.F
+            rm -f $wrfpath/phys/module_twoway_rrtmg_aero_optical_util.F
+
+            cp -p $wrfpath/storage/external/makefile $wrfpath/external/io_netcdf/makefile 
+
+            foreach item ($my_list)
+              cp -p $wrfpath/storage/$item $wrfpath/$item 
+            end
+         endif
+      else
+         if (! -d $wrfpath/storage) then
+            mkdir $wrfpath/storage
+            mkdir $wrfpath/storage/Registry
+            mkdir $wrfpath/storage/arch
+            mkdir $wrfpath/storage/dyn_em
+            mkdir $wrfpath/storage/dyn_nmm
+            mkdir $wrfpath/storage/external
+            mkdir $wrfpath/storage/main
+            mkdir $wrfpath/storage/phys
+         endif
+
+         # take care all the items in the list
+         foreach item ($my_list)
+           cp -p $wrfpath/$item $wrfpath/storage/$item
+           cp wrfcmaq_twoway_coupler/$item $wrfpath/$item
+         end
+
+         # take care this special file
+         cp -p $wrfpath/external/io_netcdf/makefile $wrfpath/storage/external
+         cp wrfcmaq_twoway_coupler/external/makefile $wrfpath/external/io_netcdf/makefile
+
+         # take care three additional new files
+         cp wrfcmaq_twoway_coupler/Registry/registry.WRF-CMAQ-twoway $wrfpath/Registry
+         cp wrfcmaq_twoway_coupler/phys/complex_number_module.F $wrfpath/phys/complex_number_module.F
+         cp wrfcmaq_twoway_coupler/phys/module_twoway_rrtmg_aero_optical_util.F $wrfpath/phys/module_twoway_rrtmg_aero_optical_util.F
+
+      endif
+   endif
+endif
+
+exit
+
+usage:
+
+echo ' '
+echo ' assemble [ r ] [ -h ]'
+echo ' '
+echo '   -h  -- display usage information'
+echo '   with arguement r, it will restore to original files in the WRF directory'
+echo ' '
+
+exit
