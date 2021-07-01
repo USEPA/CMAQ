@@ -23,7 +23,7 @@
 !
 ! 07-04-20 G Sarwar, added an iodine reaction - (IO45)
 ! 01/08/21 G Sarwar, removed the reaction of CH3BR ; there are no emissions (BR21)
-! 12-20-20 G Sarwar, added a reaction for CB6r5 and updated many rate constants and some yeilds following Ramboll Report to TCEQ (07/30/2020)
+! 12-20-20 G Sarwar, added a reaction for CB6r5 and updated many rate constants and some yields following Ramboll Report to TCEQ (07/30/2020)
 !
 !---------------------------------
 CB6R5M_AE7_AQ
