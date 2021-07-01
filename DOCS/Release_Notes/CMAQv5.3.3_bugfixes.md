@@ -63,5 +63,17 @@ Changed config_cmaq.csh to include new variable MPI_INCL_DIR, consistent with tr
 UTIL/bldmake/src/bldmake.f<br>
 config_cmaq.csh 
 
-## 4. Short description
+## 4. Provide appropriate error message and abort if OMI photolysis file is missing
+[Chris Nolte](mailto:nolte.chris@epa.gov), U.S. Environmental Protection Agency
+
+### Description of model issue
+The photolysis module reads a data file from NASA's Ozone Monitoring Instrument (OMI) describing total column ozone. The model attempted to read the file prior to the check whether the file had been successfully opened, leading to a crash. 
+
+### Solution in CMAQv5.3.3
+The check has been moved prior to the first attempt to read the file, and the model aborts with an appropriate error if the OMI file is not found.  There is no impact on model results in the normal case, where the OMI file is present.
+
+### Files Affected 
+CCTM/src/phot/inline/o3totcol.f
+
+## 5. Short description
 [Firt Name Last Name](mailto:last.first@epa.gov), U.S. Environmental Protection Agency
