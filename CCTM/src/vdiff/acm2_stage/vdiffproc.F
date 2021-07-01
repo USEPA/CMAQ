@@ -133,11 +133,11 @@ C Local Variables:
 
       REAL             FCMSF                         ! loop local RMSFX4( C,R )
 
-      REAL, ALLOCATABLE, SAVE :: CNGRD( :,:,:,: )    ! cgrid aero in mixing ratio
-      REAL, ALLOCATABLE, SAVE :: DDEP     ( :,:,: )   ! ddep accumulator
-      REAL, ALLOCATABLE, SAVE :: ICMP     ( :,:,: )   ! component flux accumlator 
-      REAL, ALLOCATABLE, SAVE :: DDEPJ    ( :,:,:,: ) ! ddep for mosaic
-      REAL, ALLOCATABLE, SAVE :: DDEPJ_FST( :,:,:,: ) ! ddep for stomtal/cuticular pathway
+      REAL, ALLOCATABLE, SAVE :: CNGRD      ( :,:,:,: )    ! cgrid aero in mixing ratio
+      REAL, ALLOCATABLE, SAVE :: DDEP       ( :,:,: )   ! ddep accumulator
+      REAL, ALLOCATABLE, SAVE :: TOT_BD_EMIS( :,:,: )   ! bidi emissions accumlator 
+      REAL, ALLOCATABLE, SAVE :: DDEPJ      ( :,:,:,: ) ! ddep for mosaic
+      REAL, ALLOCATABLE, SAVE :: DDEPJ_FST  ( :,:,:,: ) ! ddep for stomtal/cuticular pathway
 
       REAL     :: WRDD( NCOLS,NROWS )                 ! ddep write buffer
       REAL     :: WRDDJ( NCOLS,NROWS,N_LUFRAC+1 )     ! mosaic ddep write buffer
@@ -187,11 +187,11 @@ C Local Variables
          SUBROUTINE EDDYX ( EDDYV )
             REAL,           INTENT( OUT ) :: EDDYV( :,:,: )
          END SUBROUTINE EDDYX
-         SUBROUTINE VDIFFACMX( dtsec, seddy, ddep, icmp, ddepj, ddepj_fst, cngrd )
+         SUBROUTINE VDIFFACMX( dtsec, seddy, ddep, TOT_BD_EMIS, ddepj, ddepj_fst, cngrd )
             REAL, INTENT( IN )    :: dtsec
             REAL, INTENT( INOUT ) :: seddy( :,:,: )
             REAL, INTENT( INOUT ) :: ddep ( :,:,: )
-            REAL, INTENT( INOUT ) :: icmp ( :,:,: )
+            REAL, INTENT( INOUT ) :: TOT_BD_EMIS ( :,:,: )
             REAL, INTENT( INOUT ), OPTIONAL :: ddepj    ( :,:,:,: )
             REAL, INTENT( INOUT ), OPTIONAL :: ddepj_fst( :,:,:,: )
             REAL, INTENT( INOUT ) :: cngrd( :,:,:,: )
@@ -259,12 +259,12 @@ C Allocate and initialize dry deposition array
          END IF
          DDEP = 0.0   ! array assignment
   
-         ALLOCATE ( ICMP( LCMP,NCOLS,NROWS ), STAT = ASTAT )
+         ALLOCATE ( TOT_BD_EMIS( N_BD_EMIS,NCOLS,NROWS ), STAT = ASTAT )
          IF ( ASTAT .NE. 0 ) THEN
-            XMSG = 'Failure allocating ICMP'
+            XMSG = 'Failure allocating TOT_BD_EMIS'
             CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
-         ICMP = 0.0   ! array assignment
+         TOT_BD_EMIS = 0.0   ! array assignment
 
          CALL LOG_HEADING( LOGDEV, "Initialize Emissions Module" )
 
@@ -395,7 +395,8 @@ C EDDYV returned = Kz, where Kz is in m**2/sec
 
       IF ( WSTEP .EQ. 0 ) THEN
          DDEP = 0.0                      ! array assignment
-         ICMP = 0.0                      ! array assignment
+         TOT_BD_EMIS = 0.0                      ! array assignment
+         IF( ABFLUX ) STAGE_Diag_Data%NH3_Diag_Out = 0.0
          IF ( MOSAIC ) THEN
             DDEPJ = 0.0                  ! array assignment
             IF ( FST ) DDEPJ_FST = 0.0   ! array assignment
@@ -405,14 +406,14 @@ C EDDYV returned = Kz, where Kz is in m**2/sec
 C Calculate the change in concentration and dry dep from vertical diffusion and vsed
 C Note: cngrd is the argument keyword (from the INTERFACE); CNGRD is the actual argument
       IF ( .NOT. MOSAIC ) THEN
-         CALL VDIFFACMX( DTSEC, SEDDY, DDEP, ICMP,
+         CALL VDIFFACMX( DTSEC, SEDDY, DDEP, TOT_BD_EMIS,
      &                   cngrd = CNGRD )
       ELSE
          IF ( .NOT. FST ) THEN
-            CALL VDIFFACMX( DTSEC, SEDDY, DDEP, ICMP,
+            CALL VDIFFACMX( DTSEC, SEDDY, DDEP, TOT_BD_EMIS,
      &                      ddepj = DDEPJ, cngrd = CNGRD )
          ELSE
-            CALL VDIFFACMX( DTSEC, SEDDY, DDEP, ICMP,
+            CALL VDIFFACMX( DTSEC, SEDDY, DDEP, TOT_BD_EMIS,
      &                      ddepj = DDEPJ, ddepj_fst = DDEPJ_FST, cngrd = CNGRD )
          END IF 
       END IF 
@@ -490,14 +491,38 @@ C If last call this hour:  write accumulated depositions:
          END DO 
 ! STAGE Diagnostic output
          IF ( ABFLUX ) THEN
-            DO I = 1, LCMP 
-               WRDD = ICMP( I,:,: )
-               IF ( .NOT. WRITE3( CTM_DRY_DEP_1, CMPSPC( I ),
-     &              MDATE, MTIME, WRDD ) ) THEN
+            IF ( .NOT. WRITE3( CTM_DRY_DEP_1, BD_EMIS_SPC( NH3_E ),
+     &           MDATE, MTIME, TOT_BD_EMIS( NH3_E,:,: ) ) ) THEN
+               XMSG = 'Could not write ' // CTM_DRY_DEP_1 // ' file'
+               CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
+            END IF
+            WRDD( :,: ) = DDEP(NH3_HIT,:,:) - TOT_BD_EMIS( NH3_E,:,: )
+            IF ( .NOT. WRITE3( CTM_DRY_DEP_1, 'NH3_Flux',
+     &           MDATE, MTIME, WRDD ) ) THEN
+               XMSG = 'Could not write ' // CTM_DRY_DEP_1 // ' file'
+               CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
+            END IF     
+            DO S = 1, STAGE_Diag_Data%n_spc
+               IF ( .NOT. WRITE3( CTM_DRY_DEP_1, STAGE_Diag_Data%dep_name( S ),
+     &              MDATE, MTIME, STAGE_Diag_Data%NH3_Diag_Out( :,:,S ) ) ) THEN
                   XMSG = 'Could not write ' // CTM_DRY_DEP_1 // ' file'
                   CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
                END IF     
-            END DO       
+            END DO
+         ENDIF
+         IF ( HGBIDI ) THEN
+            IF ( .NOT. WRITE3( CTM_DRY_DEP_1, BD_EMIS_SPC( HG_E ),
+     &           MDATE, MTIME, TOT_BD_EMIS( HG_E,:,: ) ) ) THEN
+               XMSG = 'Could not write ' // CTM_DRY_DEP_1 // ' file'
+               CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
+            END IF     
+         ENDIF
+         IF ( SFC_HONO ) THEN
+            IF ( .NOT. WRITE3( CTM_DRY_DEP_1, BD_EMIS_SPC( HONO_E ),
+     &           MDATE, MTIME, TOT_BD_EMIS( HONO_E,:,: ) ) ) THEN
+               XMSG = 'Could not write ' // CTM_DRY_DEP_1 // ' file'
+               CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
+            END IF     
          ENDIF
 ! End of STAGE Diagnostic output
          WRITE( LOGDEV, '( /5X, 3( A, :, 1X ), I8, ":", I6.6 )' )
@@ -678,25 +703,10 @@ C Write other diagnostics
             END DO
             CALL PA_UPDATE_DDEP ( 'VDIF', DDEP_PA, JDATE, JTIME, TSTEP )
          END IF
-         IF( ABFLUX ) THEN
-! Swap diagnostic deposition and fluxes for NH3 to allow the same post processing scripts for
-! both bidirectional and unidirectional simulations.
-            IF ( .NOT. WRITE3( CTM_DRY_DEP_1, 'NH3',
-     &           MDATE, MTIME, ICMP( 2,:,: ) ) ) THEN
-               XMSG = 'Could not write ' // CTM_DRY_DEP_1 // ' file'
-               CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
-            END IF     
-            IF ( .NOT. WRITE3( CTM_DRY_DEP_1, 'NH3_Flux',
-     &           MDATE, MTIME, DDEP(NH3_HIT,:,:) ) ) THEN
-               XMSG = 'Could not write ' // CTM_DRY_DEP_1 // ' file'
-               CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
-            END IF     
-         END IF
-
 C re-set dry deposition array to zero
 
          DDEP = 0.0
-         ICMP = 0.0
+         TOT_BD_EMIS = 0.0
          IF ( MOSAIC ) THEN
             DDEPJ = 0.0   ! array assignment
             IF ( FST ) DDEPJ_FST = 0.0   ! array assignment
