@@ -14,3 +14,12 @@ No impact on model results in the normal case, where the OMI file is present.
 
 ## Files Affected: 
 CCTM/src/phot/inline/o3totcol.f 
+
+-----
+## Internal Records:
+#### Relevant Pull Requests:
+682
+
+#### Commit 
+IDs:
+eedb5d6682d5d9a3a632fb24b598abf6614e2794
