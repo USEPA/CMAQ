@@ -1,6 +1,7 @@
 SUBROUTINE aqprep (grid, config_flags, t_phy_wrf, p_phy_wrf, rho_wrf,     &
                    z_at_w_wrf, dz8w_wrf, p8w_wrf, t8w_wrf,  &
                    numlu, release_version,                  &
+                   wrf_cmaq_option, wrf_cmaq_freq,          &
                    ids, ide, jds, jde, kds, kde,            &
                    ims, ime, jms, jme, kms, kme,            &
                    its, ite, jts, jte, kts, kte,            &
@@ -151,6 +152,16 @@ SUBROUTINE aqprep (grid, config_flags, t_phy_wrf, p_phy_wrf, rho_wrf,     &
   INTEGER, INTENT(IN)           :: numlu
   CHARACTER(LEN=*), INTENT(IN)  :: release_version
 
+  INTEGER, INTENT(IN)           :: wrf_cmaq_option     ! WRF-CMAQ coupled model option
+                                                       ! 0 = only run WRF
+                                                       ! 1 = run WRF-CMAQ coupled model to produce
+                                                       !     GRID and MET files only
+                                                       ! 2 = run WRF-CMAQ coupled model w/o producing
+                                                       !     GRID and MET files
+                                                       ! 3 = run WRF-CMAQ coupled model w producing
+                                                       !     GRID and MET files
+  INTEGER, INTENT(IN)           :: wrf_cmaq_freq
+
   INTEGER, INTENT(IN)           :: ids, ide, jds, jde, kds, kde
   INTEGER, INTENT(IN)           :: ims, ime, jms, jme, kms, kme
   INTEGER, INTENT(IN)           :: its, ite, jts, jte, kts, kte
@@ -272,12 +283,14 @@ SUBROUTINE aqprep (grid, config_flags, t_phy_wrf, p_phy_wrf, rho_wrf,     &
                      tsc_d, tec_d, tsr_d, ter_d,     &
                      tsc_e, tec_e, tsr_e, ter_e
 
-    integer :: lwater, lice
+    integer, save :: lwater, lice
     real, allocatable :: land_use_index(:,:)
 
     character(len=10) :: wrf_version
     logical   :: hybrid_vert, px_modis
     real      :: wrfv
+
+    logical, save :: file_opened = .false.
 
     interface
       SUBROUTINE bcldprc_ak (wrf_ncols, wrf_nrows, nlays,                &
@@ -350,6 +363,8 @@ SUBROUTINE aqprep (grid, config_flags, t_phy_wrf, p_phy_wrf, rho_wrf,     &
   tstep = tstep + 1
 
   IF ( first ) THEN
+
+     CALL TWOWAY_INIT_ENV_VARS
 
      call mpi_comm_rank (mpi_comm_world, twoway_mype, stat)
 
@@ -569,7 +584,7 @@ SUBROUTINE aqprep (grid, config_flags, t_phy_wrf, p_phy_wrf, rho_wrf,     &
 
      CALL setup_griddesc_file (cmaq_c_col_dim, cmaq_c_row_dim)
 
-     if (create_physical_file) then
+     if ((wrf_cmaq_option == 1) .or. (wrf_cmaq_option == 3)) then
         file_time_step_in_sec = time2sec (file_time_step)
 
         if (.not.  pio_init (colrow, cmaq_c_col_dim, cmaq_c_row_dim,    &
@@ -591,89 +606,91 @@ SUBROUTINE aqprep (grid, config_flags, t_phy_wrf, p_phy_wrf, rho_wrf,     &
 ! only need to do this once per run, not each step
 !-------------------------------------------------------------------------------
 
-     if (RUN_CMAQ_DRIVER) then
+     if (wrf_cmaq_option .gt. 1) then
         fname = 'GRID_CRO_2D'
      end if
-     if (create_physical_file) then
+     if ((wrf_cmaq_option == 1) .or. (wrf_cmaq_option == 3)) then
         pfname = 'PGRID_CRO_2D'
      end if
 
-     call aq_set_ioapi_header ('C', cmaq_c_ncols, cmaq_c_nrows)
+     if (.not. file_opened) then
+        call aq_set_ioapi_header ('C', cmaq_c_ncols, cmaq_c_nrows)
 
-     mxrec3d = 1
-     nlays3d = 1
+        mxrec3d = 1
+        nlays3d = 1
 
-     vname3d(1:n_gridcro2d_var) = gridcro2d_vlist
-     units3d(1:n_gridcro2d_var) = gridcro2d_units
+        vname3d(1:n_gridcro2d_var) = gridcro2d_vlist
+        units3d(1:n_gridcro2d_var) = gridcro2d_units
 
-     num_land_cat = config_flags%num_land_cat
+        num_land_cat = config_flags%num_land_cat
 
-     do v = 1, numlu
-        write (vname3d(v+n_gridcro2d_var), '(a7, i2.2)') 'LUFRAC_', v
-        units3d(v+n_gridcro2d_var) = '1'
-     end do
+        do v = 1, numlu
+           write (vname3d(v+n_gridcro2d_var), '(a7, i2.2)') 'LUFRAC_', v
+           units3d(v+n_gridcro2d_var) = '1'
+        end do
 
 ! this is particular for m3dry LUFRAC_01
-     units3d(1+n_gridcro2d_var) = '1'
+        units3d(1+n_gridcro2d_var) = '1'
 
-     nvars3d = numlu+n_gridcro2d_var
-     tstep3d = 0
-     vtype3d = ioapi_header%vtype
+        nvars3d = numlu+n_gridcro2d_var
+        tstep3d = 0
+        vtype3d = ioapi_header%vtype
 
-     allocate ( gridcro2d_data_wrf (wrf_c_ncols, wrf_c_nrows, nvars3d), stat=stat)
-     allocate ( gridcro2d_data_cmaq (cmaq_c_ncols, cmaq_c_nrows, nvars3d), stat=stat)
+        allocate ( gridcro2d_data_wrf (wrf_c_ncols, wrf_c_nrows, nvars3d), stat=stat)
+        allocate ( gridcro2d_data_cmaq (cmaq_c_ncols, cmaq_c_nrows, nvars3d), stat=stat)
 
-     if (RUN_CMAQ_DRIVER) then
-        if ( .not. open3 (fname, FSRDWR3, pname) ) then
-           print *, ' Error: Could not open file ', fname, 'for update'
-           if ( .not. open3 (fname, FSNEW3, pname) ) then
-              print *, ' Error: Could not open file ', fname
-           end if
-        end if
-     end if
-     if (create_physical_file) then
-        if (twoway_mype == 0) then
-           ncols3d = cmaq_c_col_dim
-           nrows3d = cmaq_c_row_dim
-           if ( .not. open3 (pfname, FSRDWR3, pname) ) then
-              print *, ' Error: Could not open file ', pfname, 'for update'
-              if ( .not. open3 (pfname, FSNEW3, pname) ) then
-                 print *, ' Error: Could not open file ', pfname
+        if (wrf_cmaq_option .gt. 1) then
+           if ( .not. open3 (fname, FSRDWR3, pname) ) then
+              print *, ' Error: Could not open file ', fname, 'for update'
+              if ( .not. open3 (fname, FSNEW3, pname) ) then
+                 print *, ' Error: Could not open file ', fname
               end if
            end if
         end if
-     end if
+        if ((wrf_cmaq_option == 1) .or. (wrf_cmaq_option == 3)) then
+           if (twoway_mype == 0) then
+              ncols3d = cmaq_c_col_dim
+              nrows3d = cmaq_c_row_dim
+              if ( .not. open3 (pfname, FSRDWR3, pname) ) then
+                 print *, ' Error: Could not open file ', pfname, 'for update'
+                 if ( .not. open3 (pfname, FSNEW3, pname) ) then
+                    print *, ' Error: Could not open file ', pfname
+                 end if
+              end if
+           end if
+        end if
 
-     if (config_flags%mminlu == 'USGS') then
-        lwater = 16
-        lice   = 24
-        if (config_flags%num_land_cat == 33) then
-           mminlu = 'USGS33'
-        else if (config_flags%num_land_cat == 24) then
-           mminlu = 'USGS24'
-        else if (config_flags%num_land_cat == 28) then
-           mminlu = 'USGS28'
-        end if 
-     else if (config_flags%mminlu == 'NLCD-MODIS') then
-        lwater = 17
-        lice   = 15
-        mminlu = config_flags%mminlu
-     else if ((config_flags%mminlu == 'MODIS') .or. (config_flags%mminlu == 'MODIFIED_IGBP_MODIS_NOAH')) then
-        lwater = 17
-        lice   = 15
-        mminlu = config_flags%mminlu
-     else if (config_flags%mminlu(1:4) == 'NLCD') then
-        if (config_flags%num_land_cat == 40) then
+        if (config_flags%mminlu == 'USGS') then
+           lwater = 16
+           lice   = 24
+           if (config_flags%num_land_cat == 33) then
+              mminlu = 'USGS33'
+           else if (config_flags%num_land_cat == 24) then
+              mminlu = 'USGS24'
+           else if (config_flags%num_land_cat == 28) then
+              mminlu = 'USGS28'
+           end if 
+        else if (config_flags%mminlu == 'NLCD-MODIS') then
            lwater = 17
            lice   = 15
-           mminlu = 'NLCD40'
-        else
-           lwater = 1
-           lice   = 2
            mminlu = config_flags%mminlu
+        else if ((config_flags%mminlu == 'MODIS') .or. (config_flags%mminlu == 'MODIFIED_IGBP_MODIS_NOAH')) then
+           lwater = 17
+           lice   = 15
+           mminlu = config_flags%mminlu
+        else if (config_flags%mminlu(1:4) == 'NLCD') then
+           if (config_flags%num_land_cat == 40) then
+              lwater = 17
+              lice   = 15
+              mminlu = 'NLCD40'
+           else
+              lwater = 1
+              lice   = 2
+              mminlu = config_flags%mminlu
+           end if
+        else
+           print *, ' Warning: Unknow landuse type ', config_flags%mminlu, grid%num_land_cat
         end if
-     else
-        print *, ' Warning: Unknow landuse type ', config_flags%mminlu, grid%num_land_cat
      end if
 
      allocate ( land_use_index (wrf_c_ncols, wrf_c_nrows), stat=stat)
@@ -770,13 +787,13 @@ SUBROUTINE aqprep (grid, config_flags, t_phy_wrf, p_phy_wrf, rho_wrf,     &
                             wrf_cmaq_c_send_to, wrf_cmaq_c_recv_from,                 &
                             wrf_cmaq_c_send_index_l, wrf_cmaq_c_recv_index_l, 1)
 
-     if (RUN_CMAQ_DRIVER) then
+     if (wrf_cmaq_option .gt. 1) then
         if ( .not. buf_write3 (fname, allvar3, jdate, jtime, gridcro2d_data_cmaq ) ) then
            print *, ' Error: Could not write to file ', fname
            stop
         end if
      end if
-     if (create_physical_file) then
+     if ((wrf_cmaq_option == 1) .or. (wrf_cmaq_option == 3)) then
         if ( .not. write3 (pfname, allvar3, jdate, jtime, gridcro2d_data_cmaq ) ) then
            print *, ' Error: Could not write to file ', pfname
            stop
@@ -792,47 +809,49 @@ SUBROUTINE aqprep (grid, config_flags, t_phy_wrf, p_phy_wrf, rho_wrf,     &
     ! factors that are readily available in WRF using four-point interpolation.
     !---------------------------------------------------------------------------
 
-     if (RUN_CMAQ_DRIVER) then
+     if (wrf_cmaq_option .gt. 1) then
         fname = 'GRID_DOT_2D'
      end if
-     if (create_physical_file) then
+     if ((wrf_cmaq_option == 1) .or. (wrf_cmaq_option == 3)) then
         pfname = 'PGRID_DOT_2D'
      end if
 
-     call aq_set_ioapi_header ('D', cmaq_d_ncols, cmaq_d_nrows)
+     if (.not. file_opened) then
+        call aq_set_ioapi_header ('D', cmaq_d_ncols, cmaq_d_nrows)
  
-     mxrec3d = 1
-     nlays3d = 1
+        mxrec3d = 1
+        nlays3d = 1
 
-     nvars3d = n_griddot2d_var
-     vname3d(1:nvars3d) = griddot2d_vlist
-     units3d(1:nvars3d) = griddot2d_units
-     tstep3d = 0
-     vtype3d = ioapi_header%vtype
+        nvars3d = n_griddot2d_var
+        vname3d(1:nvars3d) = griddot2d_vlist
+        units3d(1:nvars3d) = griddot2d_units
+        tstep3d = 0
+        vtype3d = ioapi_header%vtype
 
-     if (RUN_CMAQ_DRIVER) then
-        if ( .not. open3 (fname, FSRDWR3, pname) ) then
-           print *, ' Error: Could not open file ', fname, 'for update'
-           if ( .not. open3 (fname, FSNEW3, pname) ) then
-              print *, ' Error: Could not open file ', fname
-           end if
-        end if
-     end if
-     if (create_physical_file) then
-        if (twoway_mype == 0) then
-           ncols3d = cmaq_c_col_dim + 1
-           nrows3d = cmaq_c_row_dim + 1
-           if ( .not. open3 (pfname, FSRDWR3, pname) ) then
-              print *, ' Error: Could not open file ', pfname, 'for update'
-              if ( .not. open3 (pfname, FSNEW3, pname) ) then
-                 print *, ' Error: Could not open file ', pfname
+        if (wrf_cmaq_option .gt. 1) then
+           if ( .not. open3 (fname, FSRDWR3, pname) ) then
+              print *, ' Error: Could not open file ', fname, 'for update'
+              if ( .not. open3 (fname, FSNEW3, pname) ) then
+                 print *, ' Error: Could not open file ', fname
               end if
            end if
         end if
-     end if
+        if ((wrf_cmaq_option == 1) .or. (wrf_cmaq_option == 3)) then
+           if (twoway_mype == 0) then
+              ncols3d = cmaq_c_col_dim + 1
+              nrows3d = cmaq_c_row_dim + 1
+              if ( .not. open3 (pfname, FSRDWR3, pname) ) then
+                 print *, ' Error: Could not open file ', pfname, 'for update'
+                 if ( .not. open3 (pfname, FSNEW3, pname) ) then
+                    print *, ' Error: Could not open file ', pfname
+                 end if
+              end if
+           end if
+        end if
 
-     allocate ( griddot2d_data_wrf (wrf_d_ncols, wrf_d_nrows), stat=stat)
-     allocate ( griddot2d_data_cmaq (cmaq_d_ncols, cmaq_d_nrows), stat=stat)
+        allocate ( griddot2d_data_wrf (wrf_d_ncols, wrf_d_nrows), stat=stat)
+        allocate ( griddot2d_data_cmaq (cmaq_d_ncols, cmaq_d_nrows), stat=stat)
+     end if
 
      jj = sr_d - 1
      DO r = 1, wrf_d_nrows
@@ -855,13 +874,13 @@ SUBROUTINE aqprep (grid, config_flags, t_phy_wrf, p_phy_wrf, rho_wrf,     &
                             wrf_cmaq_d_send_to, wrf_cmaq_d_recv_from,                 &
                             wrf_cmaq_d_send_index_l, wrf_cmaq_d_recv_index_l, 2)
 
-     if (RUN_CMAQ_DRIVER) then
+     if (wrf_cmaq_option .gt. 1) then
         if ( .not. buf_write3 (fname, allvar3, jdate, jtime, griddot2d_data_cmaq ) ) then
            print *, ' Error: Could not write to file ', fname
            stop
         end if
      end if
-     if (create_physical_file) then
+     if ((wrf_cmaq_option == 1) .or. (wrf_cmaq_option == 3)) then
         tsc_d = 1
         if (east_bdy_pe) then
            tec_d = cmaq_d_domain_map(3,1,twoway_mype)
@@ -885,75 +904,80 @@ SUBROUTINE aqprep (grid, config_flags, t_phy_wrf, p_phy_wrf, rho_wrf,     &
 
   ENDIF  ! first
 
-  if (RUN_CMAQ_DRIVER) then
+  if (wrf_cmaq_option .gt. 1) then
      fname = 'MET_CRO_3D'
   end if
-  if (create_physical_file) then
+  if ((wrf_cmaq_option == 1) .or. (wrf_cmaq_option == 3)) then
      pfname = 'PMET_CRO_3D'
   end if
 
-  call aq_set_ioapi_header ('C', cmaq_ce_domain_map(3,1,twoway_mype), cmaq_ce_domain_map(3,2,twoway_mype))
+  if (.not. file_opened) then
+     call aq_set_ioapi_header ('C', cmaq_ce_domain_map(3,1,twoway_mype), cmaq_ce_domain_map(3,2,twoway_mype))
 
-  mxrec3d = nstep
+     mxrec3d = nstep
 
-  xorig3d = ioapi_header%xorig - ioapi_header%xcell
-  yorig3d = ioapi_header%yorig - ioapi_header%ycell
+     xorig3d = ioapi_header%xorig - ioapi_header%xcell
+     yorig3d = ioapi_header%yorig - ioapi_header%ycell
 
-  nlays3d = ioapi_header%nlays
-  nvars3d = n_metcro3d_var
-  vname3d(1:nvars3d) = metcro3d_vlist
-  units3d(1:nvars3d) = metcro3d_units
-  tstep3d = cmaq_tstep
-  vtype3d = ioapi_header%vtype
+     nlays3d = ioapi_header%nlays
+     nvars3d = n_metcro3d_var
+     vname3d(1:nvars3d) = metcro3d_vlist
+     units3d(1:nvars3d) = metcro3d_units
+     tstep3d = cmaq_tstep
+     vtype3d = ioapi_header%vtype
 
-  if (.not. allocated(metcro3d_data_wrf)) then
-     allocate ( metcro3d_data_wrf (wrf_c_ncols, wrf_c_nrows, nlays, nvars3d), stat=stat)
-     allocate ( metcro3d_data_cmaq (cmaq_ce_domain_map(3,1,twoway_mype), &
-                                    cmaq_ce_domain_map(3,2,twoway_mype), nlays, nvars3d), stat=stat)
+     if (.not. allocated(metcro3d_data_wrf)) then
+        allocate ( metcro3d_data_wrf (wrf_c_ncols, wrf_c_nrows, nlays, nvars3d), stat=stat)
+        allocate ( metcro3d_data_cmaq (cmaq_ce_domain_map(3,1,twoway_mype), &
+                                       cmaq_ce_domain_map(3,2,twoway_mype), nlays, nvars3d), stat=stat)
 
-     tsc_c = 2
-     tec_c = cmaq_ce_domain_map(3,1,twoway_mype) - 1
-     tsr_c = 2
-     ter_c = cmaq_ce_domain_map(3,2,twoway_mype) - 1
+        metcro3d_data_wrf = 0.0
 
-     tsc_e = 2
-     tec_e = cmaq_ce_domain_map(3,1,twoway_mype) - 1
-     tsr_e = 2
-     ter_e = cmaq_ce_domain_map(3,2,twoway_mype) - 1
+        tsc_c = 2
+        tec_c = cmaq_ce_domain_map(3,1,twoway_mype) - 1
+        tsr_c = 2
+        ter_c = cmaq_ce_domain_map(3,2,twoway_mype) - 1
 
-     if (west_bdy_pe) then
-        tsc_e = 1
+        tsc_e = 2
+        tec_e = cmaq_ce_domain_map(3,1,twoway_mype) - 1
+        tsr_e = 2
+        ter_e = cmaq_ce_domain_map(3,2,twoway_mype) - 1
+
+        if (west_bdy_pe) then
+           tsc_e = 1
+        end if
+        if (east_bdy_pe) then
+           tec_e = tec_e + 1
+        end if
+        if (south_bdy_pe) then
+           tsr_e = 1
+        end if
+        if (north_bdy_pe) then
+           ter_e = ter_e + 1
+        end if
+
      end if
-     if (east_bdy_pe) then
-        tec_e = tec_e + 1
-     end if
-     if (south_bdy_pe) then
-        tsr_e = 1
-     end if
-     if (north_bdy_pe) then
-        ter_e = ter_e + 1
-     end if
 
-  end if
-
-  if (RUN_CMAQ_DRIVER) then
-     if ( .not. open3 (fname, FSRDWR3, pname) ) then
-        print *, ' Error: Could not open file ', fname, 'for update'
-        if ( .not. open3 (fname, FSNEW3, pname) ) then
-           print *, ' Error: Could not open file ', fname
+     if (wrf_cmaq_option .gt. 1) then
+        if ( .not. open3 (fname, FSRDWR3, pname) ) then
+           print *, ' Error: Could not open file ', fname, 'for update'
+           if ( .not. open3 (fname, FSNEW3, pname) ) then
+              print *, ' Error: Could not open file ', fname
+           end if
         end if
      end if
-  end if
 
-  if (create_physical_file) then
-     if (twoway_mype == 0) then
-        ncols3d = cmaq_c_col_dim + 2
-        nrows3d = cmaq_c_row_dim + 2
-        tstep3d = file_time_step
-        if ( .not. open3 (pfname, FSRDWR3, pname) ) then
-           print *, ' Error: Could not open file ', pfname, 'for update'
-           if ( .not. open3 (pfname, FSNEW3, pname) ) then
-              print *, ' Error: Could not open file ', pfname
+     if ((wrf_cmaq_option == 1) .or. (wrf_cmaq_option == 3)) then
+        if (twoway_mype == 0) then
+           ncols3d = cmaq_c_col_dim + 2
+           nrows3d = cmaq_c_row_dim + 2
+           tstep3d = file_time_step
+
+           if ( .not. open3 (pfname, FSRDWR3, pname) ) then
+              print *, ' Error: Could not open file ', pfname, 'for update'
+              if ( .not. open3 (pfname, FSNEW3, pname) ) then
+                 print *, ' Error: Could not open file ', pfname
+              end if
            end if
         end if
      end if
@@ -1400,13 +1424,13 @@ SUBROUTINE aqprep (grid, config_flags, t_phy_wrf, p_phy_wrf, rho_wrf,     &
                          wrf_cmaq_ce_send_to, wrf_cmaq_ce_recv_from,                 &
                          wrf_cmaq_ce_send_index_l, wrf_cmaq_ce_recv_index_l, 3)
 
-  if (RUN_CMAQ_DRIVER) then
+  if (wrf_cmaq_option .gt. 1) then
      if ( .not. buf_write3 (fname, allvar3, jdate, jtime, metcro3d_data_cmaq ) ) then
         print *, ' Error: Could not write to file ', fname
         stop
      end if
   end if
-  if (create_physical_file) then
+  if ((wrf_cmaq_option == 1) .or. (wrf_cmaq_option == 3)) then
      if (mod(time2sec(jtime), file_time_step_in_sec) == 0) then
         write_to_physical_file = .true.
         if ( .not. write3 (pfname, allvar3, jdate, jtime, metcro3d_data_cmaq(tsc_e:tec_e, tsr_e:ter_e, :, :) ) ) then
@@ -1420,60 +1444,62 @@ SUBROUTINE aqprep (grid, config_flags, t_phy_wrf, p_phy_wrf, rho_wrf,     &
 
 ! --------------------------
 
-  if (RUN_CMAQ_DRIVER) then
+  if (wrf_cmaq_option .gt. 1) then
      fname = 'MET_DOT_3D'
   end if
-  if (create_physical_file) then
+  if ((wrf_cmaq_option == 1) .or. (wrf_cmaq_option == 3)) then
      pfname = 'PMET_DOT_3D'
   end if
 
-  call aq_set_ioapi_header ('D', cmaq_de_domain_map(3,1,twoway_mype), cmaq_de_domain_map(3,2,twoway_mype))
+  if (.not. file_opened) then
+     call aq_set_ioapi_header ('D', cmaq_de_domain_map(3,1,twoway_mype), cmaq_de_domain_map(3,2,twoway_mype))
 
-  mxrec3d = nstep
+     mxrec3d = nstep
 
-  nlays3d = ioapi_header%nlays
-  nvars3d = n_metdot3d_var
-  vname3d(1:nvars3d) = metdot3d_vlist
-  units3d(1:nvars3d) = metdot3d_units
-  tstep3d = cmaq_tstep
-  vtype3d = ioapi_header%vtype
+     nlays3d = ioapi_header%nlays
+     nvars3d = n_metdot3d_var
+     vname3d(1:nvars3d) = metdot3d_vlist
+     units3d(1:nvars3d) = metdot3d_units
+     tstep3d = cmaq_tstep
+     vtype3d = ioapi_header%vtype
 
-  if (.not. allocated(metdot3d_data_wrf)) then
-     allocate ( metdot3d_data_wrf (wrf_d_ncols, wrf_d_nrows, nlays, nvars3d), stat=stat)
-     allocate ( metdot3d_data_cmaq (cmaq_de_domain_map(3,1,twoway_mype), &
-                                    cmaq_de_domain_map(3,2,twoway_mype), nlays, nvars3d), stat=stat)
-     tsc_d = 2
-     if (east_bdy_pe) then
-        tec_d = cmaq_de_domain_map(3,1,twoway_mype) - 1
-     else
-        tec_d = cmaq_de_domain_map(3,1,twoway_mype) - 2
-     end if
-     tsr_d = 2
-     if (north_bdy_pe) then
-        ter_d = cmaq_de_domain_map(3,2,twoway_mype) - 1
-     else
-        ter_d = cmaq_de_domain_map(3,2,twoway_mype) - 2
-     end if
-  end if
-
-  if (RUN_CMAQ_DRIVER) then
-     if ( .not. open3 (fname, FSRDWR3, pname) ) then
-        print *, ' Error: Could not open file ', fname, 'for update'
-        if ( .not. open3 (fname, FSNEW3, pname) ) then
-           print *, ' Error: Could not open file ', fname
+     if (.not. allocated(metdot3d_data_wrf)) then
+        allocate ( metdot3d_data_wrf (wrf_d_ncols, wrf_d_nrows, nlays, nvars3d), stat=stat)
+        allocate ( metdot3d_data_cmaq (cmaq_de_domain_map(3,1,twoway_mype), &
+                                       cmaq_de_domain_map(3,2,twoway_mype), nlays, nvars3d), stat=stat)
+        tsc_d = 2
+        if (east_bdy_pe) then
+           tec_d = cmaq_de_domain_map(3,1,twoway_mype) - 1
+        else
+           tec_d = cmaq_de_domain_map(3,1,twoway_mype) - 2
+        end if
+        tsr_d = 2
+        if (north_bdy_pe) then
+           ter_d = cmaq_de_domain_map(3,2,twoway_mype) - 1
+        else
+           ter_d = cmaq_de_domain_map(3,2,twoway_mype) - 2
         end if
      end if
-  end if
 
-  if (create_physical_file) then
-     if (twoway_mype == 0) then
-        ncols3d = cmaq_c_col_dim + 1
-        nrows3d = cmaq_c_row_dim + 1
-        tstep3d = file_time_step
-        if ( .not. open3 (pfname, FSRDWR3, pname) ) then
-           print *, ' Error: Could not open file ', pfname, 'for update'
-           if ( .not. open3 (pfname, FSNEW3, pname) ) then
-              print *, ' Error: Could not open file ', pfname
+     if (wrf_cmaq_option .gt. 1) then
+        if ( .not. open3 (fname, FSRDWR3, pname) ) then
+           print *, ' Error: Could not open file ', fname, 'for update'
+           if ( .not. open3 (fname, FSNEW3, pname) ) then
+              print *, ' Error: Could not open file ', fname
+           end if
+        end if
+     end if
+
+     if ((wrf_cmaq_option == 1) .or. (wrf_cmaq_option == 3)) then
+        if (twoway_mype == 0) then
+           ncols3d = cmaq_c_col_dim + 1
+           nrows3d = cmaq_c_row_dim + 1
+           tstep3d = file_time_step
+           if ( .not. open3 (pfname, FSRDWR3, pname) ) then
+              print *, ' Error: Could not open file ', pfname, 'for update'
+              if ( .not. open3 (pfname, FSNEW3, pname) ) then
+                 print *, ' Error: Could not open file ', pfname
+              end if
            end if
         end if
      end if
@@ -1550,13 +1576,13 @@ SUBROUTINE aqprep (grid, config_flags, t_phy_wrf, p_phy_wrf, rho_wrf,     &
                          wrf_cmaq_de_send_to, wrf_cmaq_de_recv_from,               &
                          wrf_cmaq_de_send_index_l, wrf_cmaq_de_recv_index_l, 4)
 
-  if (RUN_CMAQ_DRIVER) then
+  if (wrf_cmaq_option .gt. 1) then
      if ( .not. buf_write3 (fname, allvar3, jdate, jtime, metdot3d_data_cmaq ) ) then
        print *, ' Error: Could not write to file ', fname
        stop
      end if
   end if
-  if (create_physical_file) then
+  if ((wrf_cmaq_option == 1) .or. (wrf_cmaq_option == 3)) then
      if (write_to_physical_file) then
         if ( .not. write3 (pfname, allvar3, jdate, jtime, metdot3d_data_cmaq(tsc_d:tec_d, tsr_d:ter_d, :, :) ) ) then
            print *, ' Error: Could not write to file ', pfname
@@ -1567,57 +1593,60 @@ SUBROUTINE aqprep (grid, config_flags, t_phy_wrf, p_phy_wrf, rho_wrf,     &
 
 ! ------------------
 
-  if (RUN_CMAQ_DRIVER) then
+  if (wrf_cmaq_option .gt. 1) then
      fname = 'MET_CRO_2D'
   end if
-  if (create_physical_file) then
+  if ((wrf_cmaq_option == 1) .or. (wrf_cmaq_option == 3)) then
      pfname = 'PMET_CRO_2D'
   end if
 
-  call aq_set_ioapi_header ('C', cmaq_ce_domain_map(3,1,twoway_mype), cmaq_ce_domain_map(3,2,twoway_mype))
+  if (.not. file_opened) then
+     call aq_set_ioapi_header ('C', cmaq_ce_domain_map(3,1,twoway_mype), cmaq_ce_domain_map(3,2,twoway_mype))
 
-  nlays3d = 1
-  mxrec3d = nstep
-  nvars3d = n_metcro2d_var
-  vname3d(1:nvars3d) = metcro2d_vlist
-  units3d(1:nvars3d) = metcro2d_units
-  tstep3d = cmaq_tstep
-  vtype3d = ioapi_header%vtype
+     nlays3d = 1
+     mxrec3d = nstep
+     nvars3d = n_metcro2d_var
+     vname3d(1:nvars3d) = metcro2d_vlist
+     units3d(1:nvars3d) = metcro2d_units
+     tstep3d = cmaq_tstep
+     vtype3d = ioapi_header%vtype
 
-  if (.not. allocated(metcro2d_data_wrf)) then
-     allocate ( metcro2d_data_wrf (wrf_c_ncols, wrf_c_nrows, nvars3d), stat=stat)
-     allocate ( metcro2d_data_cmaq (cmaq_ce_domain_map(3,1,twoway_mype),           &
-                                    cmaq_ce_domain_map(3,2,twoway_mype), nvars3d), &
-                temp_rainnc (cmaq_ce_domain_map(3,1,twoway_mype),                  &
-                             cmaq_ce_domain_map(3,2,twoway_mype)),                 &
-                temp_rainc (cmaq_ce_domain_map(3,1,twoway_mype),                   &
-                            cmaq_ce_domain_map(3,2,twoway_mype)),                  &
-                stat=stat)
-     temp_rainnc = 0.0
-     temp_rainc  = 0.0
-  end if
-
-  if (RUN_CMAQ_DRIVER) then
-     if ( .not. open3 (fname, FSRDWR3, pname) ) then
-        print *, ' Error: Could not open file ', fname, 'for update'
-        if ( .not. open3 (fname, FSNEW3, pname) ) then
-           print *, ' Error: Could not open file ', fname
-        end if
+     if (.not. allocated(metcro2d_data_wrf)) then
+        allocate ( metcro2d_data_wrf (wrf_c_ncols, wrf_c_nrows, nvars3d), stat=stat)
+        allocate ( metcro2d_data_cmaq (cmaq_ce_domain_map(3,1,twoway_mype),           &
+                                       cmaq_ce_domain_map(3,2,twoway_mype), nvars3d), &
+                   temp_rainnc (cmaq_ce_domain_map(3,1,twoway_mype),                  &
+                                cmaq_ce_domain_map(3,2,twoway_mype)),                 &
+                   temp_rainc (cmaq_ce_domain_map(3,1,twoway_mype),                   &
+                               cmaq_ce_domain_map(3,2,twoway_mype)),                  &
+                   stat=stat)
+        temp_rainnc = 0.0
+        temp_rainc  = 0.0
      end if
-  end if
 
-  if (create_physical_file) then
-     if (twoway_mype == 0) then
-        ncols3d = cmaq_c_col_dim
-        nrows3d = cmaq_c_row_dim
-        tstep3d = file_time_step
-        if ( .not. open3 (pfname, FSRDWR3, pname) ) then
-           print *, ' Error: Could not open file ', pfname, 'for update'
-           if ( .not. open3 (pfname, FSNEW3, pname) ) then
-              print *, ' Error: Could not open file ', pfname
+     if (wrf_cmaq_option .gt. 1) then
+        if ( .not. open3 (fname, FSRDWR3, pname) ) then
+           print *, ' Error: Could not open file ', fname, 'for update'
+           if ( .not. open3 (fname, FSNEW3, pname) ) then
+              print *, ' Error: Could not open file ', fname
            end if
         end if
      end if
+
+     if ((wrf_cmaq_option == 1) .or. (wrf_cmaq_option == 3)) then
+        if (twoway_mype == 0) then
+           ncols3d = cmaq_c_col_dim
+           nrows3d = cmaq_c_row_dim
+           tstep3d = file_time_step
+           if ( .not. open3 (pfname, FSRDWR3, pname) ) then
+              print *, ' Error: Could not open file ', pfname, 'for update'
+              if ( .not. open3 (pfname, FSNEW3, pname) ) then
+                 print *, ' Error: Could not open file ', pfname
+              end if
+           end if
+        end if
+     end if
+     file_opened = .true.
   end if
 
 !-------------------------------------------------------------------------------
@@ -1798,13 +1827,13 @@ SUBROUTINE aqprep (grid, config_flags, t_phy_wrf, p_phy_wrf, rho_wrf,     &
      temp_rainc  = temp_rainc  + metcro2d_data_cmaq(:,:,14)
   end if
 
-  if (RUN_CMAQ_DRIVER) then
+  if (wrf_cmaq_option .gt. 1) then
      if ( .not. buf_write3 (fname, allvar3, jdate, jtime, metcro2d_data_cmaq ) ) then
        print *, ' Error: Could not write to file ', fname
        stop
      end if
   end if
-  if (create_physical_file) then
+  if ((wrf_cmaq_option == 1) .or. (wrf_cmaq_option == 3)) then
      if (write_to_physical_file) then
         do v = 1, n_metcro2d_var   
            if (v == 13) then

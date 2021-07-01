@@ -604,9 +604,9 @@ C     accumulation mode number concentration, then modes are merged by
 C     renaming.
 
 ! *** Initialize Budget Variables
-      CBUDGET0_NUM  = MOMENT0_CONC
-      CBUDGET0_SRF  = MOMENT2_CONC
-      CBUDGET0_MASS = AEROSPC_CONC
+      CBUDGET0_NUM  = REAL( MOMENT0_CONC, 8 )
+      CBUDGET0_SRF  = REAL( MOMENT2_CONC, 8 )
+      CBUDGET0_MASS = REAL( AEROSPC_CONC, 8 )
 
 #ifdef nomm
       if ( .false. ) then
@@ -1142,17 +1142,17 @@ C *** Growth values for mode merge condition
       CGR( 2 ) = SO4FAC * SCONDRATE * OMEGA_AC_SO4
 
 ! *** Initialize Budget Counter Variables         
-      CBUDGET0_NUM( : ) = MOMENT0_CONC( : )
+      CBUDGET0_NUM( : ) = REAL( MOMENT0_CONC( : ), 8)
       CBUDGET0_NUM( 1 ) = CBUDGET0_NUM( 1 ) + DNDT * DELT
-      CBUDGET0_SRF( : ) = MOMENT2_CONC( : )
+      CBUDGET0_SRF( : ) = REAL( MOMENT2_CONC( : ), 8 )
       CBUDGET0_SRF( 1 ) = CBUDGET0_SRF( 1 ) + DM2DT * DELT
-      CBUDGET0_SO4( : ) = AEROSPC_CONC( ASO4_IDX, : )
+      CBUDGET0_SO4( : ) = REAL( AEROSPC_CONC( ASO4_IDX, : ), 8)
       CBUDGET0_SO4( 1 ) = CBUDGET0_SO4( 1 ) + DMDT_SO4 * DELT
-      CBUDGET0_NO3( : ) = AEROSPC_CONC( ANO3_IDX, : )
-      CBUDGET0_NH4( : ) = AEROSPC_CONC( ANH4_IDX, : )
-      CBUDGET0_CL ( : ) = AEROSPC_CONC( ACL_IDX , : )
-      CBUDGET0_H2O( : ) = AEROSPC_CONC( AH2O_IDX, : )
-      CBUDGET0_H3OP( : )= AEROSPC_CONC( AH3OP_IDX, : )
+      CBUDGET0_NO3( : ) = REAL( AEROSPC_CONC( ANO3_IDX, : ), 8)
+      CBUDGET0_NH4( : ) = REAL( AEROSPC_CONC( ANH4_IDX, : ), 8)
+      CBUDGET0_CL ( : ) = REAL( AEROSPC_CONC( ACL_IDX , : ), 8)
+      CBUDGET0_H2O( : ) = REAL( AEROSPC_CONC( AH2O_IDX, : ), 8)
+      CBUDGET0_H3OP( : )= REAL( AEROSPC_CONC( AH3OP_IDX, : ), 8)
 
 ! *** Diagnose Condensaiton Sink to Each Mode
       CONDSO4( 1 ) = OMEGA_AT_SO4 * SCONDRATE      
@@ -1648,14 +1648,14 @@ C     aerospc_conc variables. This should be for the wet distribution.
        
 ! *** Propagate Concentration Changes from Coarse-Mode Mass
 ! *** Transfer to Budget Vectors
-      DELNUM( : )  = MOMENT0_CONC( : ) - CBUDGET0_NUM( : )
-      DELSRF( : )  = MOMENT2_CONC( : ) - CBUDGET0_SRF( : )
-      DELSO4( : )  = AEROSPC_CONC( ASO4_IDX, : ) - CBUDGET0_SO4( : )
-      DELNH4( : )  = AEROSPC_CONC( ANH4_IDX, : ) - CBUDGET0_NH4( : )
-      DELNO3( : )  = AEROSPC_CONC( ANO3_IDX, : ) - CBUDGET0_NO3( : )
-      DELCL( : )   = AEROSPC_CONC( ACL_IDX , : ) - CBUDGET0_CL( : )
-      DELH2O( : )  = AEROSPC_CONC( AH2O_IDX, : ) - CBUDGET0_H2O( : )
-      DELH3OP( : ) = AEROSPC_CONC( AH3OP_IDX,: ) - CBUDGET0_H3OP( : )
+      DELNUM( : )  = REAL( MOMENT0_CONC( : ), 8 ) - CBUDGET0_NUM( : )
+      DELSRF( : )  = REAL( MOMENT2_CONC( : ), 8 ) - CBUDGET0_SRF( : )
+      DELSO4( : )  = REAL( AEROSPC_CONC( ASO4_IDX, : ), 8 ) - CBUDGET0_SO4( : )
+      DELNH4( : )  = REAL( AEROSPC_CONC( ANH4_IDX, : ), 8 ) - CBUDGET0_NH4( : )
+      DELNO3( : )  = REAL( AEROSPC_CONC( ANO3_IDX, : ), 8 ) - CBUDGET0_NO3( : )
+      DELCL( : )   = REAL( AEROSPC_CONC( ACL_IDX , : ), 8 ) - CBUDGET0_CL( : )
+      DELH2O( : )  = REAL( AEROSPC_CONC( AH2O_IDX, : ), 8 ) - CBUDGET0_H2O( : )
+      DELH3OP( : ) = REAL( AEROSPC_CONC( AH3OP_IDX,: ), 8 ) - CBUDGET0_H3OP( : )
 
       COND_BUDGET( AERONUM_MAP( : ) ) = REAL( DELNUM( : ), 4 )
       COND_BUDGET( AEROSRF_MAP( : ) ) = REAL( DELSRF( : ), 4 )
