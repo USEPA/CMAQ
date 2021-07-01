@@ -91,7 +91,8 @@
         setenv NETCDF_INCL_DIR  ${NETCDF}/netcdf_inc_intel  #> netCDF C directory path
         setenv NETCDFF_LIB_DIR  netcdff_lib_intel           #> netCDF Fortran directory path
         setenv NETCDFF_INCL_DIR netcdff_inc_intel           #> netCDF Fortran directory path
-        setenv MPI_LIB_DIR      mpi_lib_intel               #> MPI directory path
+        setenv MPI_INCL_DIR     mpi_incl_intel              #> MPI Include directory path
+        setenv MPI_LIB_DIR      mpi_lib_intel               #> MPI Lib directory path
     
         #> Compiler Aliases and Flags
         #> set the compiler flag -qopt-report=5 to get a model optimization report in the build directory with the optrpt extension
@@ -103,11 +104,7 @@
         setenv myFFLAGS "-fixed -132"
         setenv myFRFLAGS "-free"
         setenv myCFLAGS "-O2"
-        setenv extra_lib "-lcurl"
-        #setenv extra_lib ""
-        setenv mpi_lib ""    #> No Library specification needed for mpiifort
-                             #> -lmpich for mvapich 
-                             #> -lmpi for openmpi
+        setenv extra_lib ""
     
         breaksw
     
@@ -126,7 +123,8 @@
         setenv NETCDF_INCL_DIR  ${NETCDF}/netcdf_inc_pgi  #> netCDF C directory path
         setenv NETCDFF_LIB_DIR  netcdff_lib_pgi           #> netCDF Fortran directory path
         setenv NETCDFF_INCL_DIR netcdff_inc_pgi           #> netCDF Fortran directory path
-        setenv MPI_LIB_DIR      mpi_lib_pgi               #> MPI directory path
+        setenv MPI_INCL_DIR     mpi_incl_pgi              #> MPI Include directory path
+        setenv MPI_LIB_DIR      mpi_lib_pgi               #> MPI Lib directory path
  
         #> Compiler Aliases and Flags
         setenv myFC mpifort 
@@ -137,10 +135,7 @@
         setenv myFFLAGS "-Mfixed -Mextend -mcmodel=medium -tp px"
         setenv myFRFLAGS "-Mfree -Mextend -mcmodel=medium -tp px"
         setenv myCFLAGS "-O2"
-        #setenv extra_lib "-lextra"
-        #setenv mpi_lib "-lmpi"   #> -lmpich for mvapich or -lmpi for openmpi
         setenv extra_lib ""
-        setenv mpi_lib ""   #> -lmpich for mvapich or -lmpi for openmpi
     
         breaksw
     
@@ -159,7 +154,8 @@
         setenv NETCDF_INCL_DIR  ${NETCDF}/netcdf_inc_gcc  #> netCDF C directory path
         setenv NETCDFF_LIB_DIR  netcdff_lib_gcc           #> netCDF Fortran directory path
         setenv NETCDFF_INCL_DIR netcdff_inc_gcc           #> netCDF Fortran directory path
-        setenv MPI_LIB_DIR      mpi_lib_gcc               #> MPI directory path
+        setenv MPI_INCL_DIR     mpi_incl_gcc              #> MPI Include directory path
+        setenv MPI_LIB_DIR      mpi_lib_gcc               #> MPI Lib directory path
 
         #> Compiler Aliases and Flags
         #> set the compiler flag -fopt-info-missed to generate a missed optimization report in the bldit logfile
@@ -172,8 +168,6 @@
         setenv myCFLAGS "-O2"
         setenv myLINK_FLAG # "-fopenmp" openMP not supported w/ CMAQ
         setenv extra_lib ""
-        #setenv mpi_lib "-lmpi_mpifh"   #> -lmpich for mvapich or -lmpi for openmpi
-        setenv mpi_lib ""   #> -lmpich for mvapich or -lmpi for openmpi
     
         breaksw
 
@@ -200,6 +194,7 @@
  setenv netcdff_lib "-lnetcdff"
  setenv ioapi_lib "-lioapi"
  setenv pnetcdf_lib "-lpnetcdf"
+ setenv mpi_lib "-lmpi" #> -lmpich or -lmvapich 
 
 #> Query System Info and Current Working Directory
  setenv system "`uname -m`"
@@ -217,7 +212,9 @@
 #> Create Symbolic Links to Libraries
  if ( ! -d $CMAQ_LIB ) mkdir -p $CMAQ_LIB
  if (   -e $MPI_DIR  ) rm -rf $MPI_DIR
-     ln -s $MPI_LIB_DIR $MPI_DIR
+     mkdir $MPI_DIR
+     ln -s $MPI_LIB_DIR $MPI_DIR/lib
+     ln -s $MPI_INCL_DIR $MPI_DIR/include
  if ( ! -d $NETCDF_DIR )  mkdir $NETCDF_DIR
  if ( ! -e $NETCDF_DIR/lib ) ln -sfn $NETCDF_LIB_DIR $NETCDF_DIR/lib
  if ( ! -e $NETCDF_DIR/include ) ln -sfn $NETCDF_INCL_DIR $NETCDF_DIR/include
