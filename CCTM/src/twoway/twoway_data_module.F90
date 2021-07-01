@@ -35,7 +35,7 @@
     integer :: wrf_c_col_dim
     integer :: wrf_c_row_dim
     integer :: delta_x, delta_y
-    integer :: wrf_cmaq_freq
+!   integer :: wrf_cmaq_freq
     integer :: cmaq_sdate, cmaq_stime, file_time_step
 
 ! cmaq_c stands for cmaq cross grid
@@ -66,11 +66,11 @@
     real :: WRF_LC_REF_LAT
 
     logical :: wrf_convective_scheme,     &
-               CMAQ_WRF_FEEDBACK,         &
+               cmaq_wrf_feedback,         &    ! flag to indicate CMAQ provides aerosol information back to WRF
                sd_time_series,            &
-               create_physical_file,      &
-               run_cmaq_driver,           &
-               wrf_restart,               &
+!              create_physical_file,      &
+!              run_cmaq_driver,           &
+!              wrf_restart,               &
                turn_on_pv
 
     logical :: wrf_lightning_assim = .false.
