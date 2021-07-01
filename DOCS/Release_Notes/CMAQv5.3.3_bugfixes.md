@@ -75,5 +75,73 @@ The check has been moved prior to the first attempt to read the file, and the mo
 ### Files Affected 
 CCTM/src/phot/inline/o3totcol.f
 
-## 5. Short description
+
+## 5. Revise how the photolysis module checks write time for diagnostics. 
+[Bill Hutzell](mailto:hutzell.bill@epa.gov), U.S. Environmental Protection Agency
+
+### Description of model issue
+Both options of the photolysis module used a 'mod' function to determine whether 
+to write diagnostic outputs. The method can cause errors with
+higher resolution domains such as 1X1 km<sup>2</sup> and and 4X4 km<sup>2</sup>.
+
+### Solution in CMAQv5.3.3
+A more robust method was taken from CCTM/src/emis/emis/EMIS_DEFN.F. The change has no
+impact on model predictions. 
+
+### Files Affected 
+CCTM/src/phot/inline/phot.F
+CCTM/src/phot/table/phot.F
+
+## 6. Correct chemistry data for Reactive Tracers
+[Bill Hutzell](mailto:hutzell.bill@epa.gov), U.S. Environmental Protection Agency
+
+### Description of model issue
+For the cbr3_ae6_aq and cb6r3m_ae6_kmtbr mechanisms, the available gas chemistry solvers contain errors 
+in the loss reactions for several reactive tracers representing Hazardous Air Pollutants.
+
+1.   Destruction by OH was double counted for acetonitrile, acrylic acid, carbon sulfide
+ethyl benzene, hexane, methyl chloride, chloroprene and stryene.
+2.   Also for styrene, the OH reaction had an activation energy of OH reactions
+with the wrong sign based on Cho, J.; Roueintan, M.; Li, Z. J., Kinetic and Dynamic
+Investigations of OH Reaction with Styrene, J. Phys. Chem. A, 2014, vol 118,
+9460 - 9470.
+See the NIST webpage: https://kinetics.nist.gov/kinetics/Detail?id=2014CHO/ROU9460-9470:1.
+
+On a minor note, the cb6mp_e6_aq's emissions control file used incorrect emission surrogates
+or omitted them.
+
+### Solution in CMAQv5.3.3
+Corrections removed these errors in files containing the gas chemistry data for reactive tracers.
+
+Changes corrected the cb6mp_e6_aq's emissions control file.
+ 
+### Files Affected 
+CCTM/src/gas/smvgear/degrade_data.F
+CCTM/src/gas/ros3/degrade_data.F (_symbolic link to above file_)
+CCTM/src/gas/ebi_cb6r3_ae6_aq/degrade_data.F
+CCTM/src/gas/ebi_cb6mp_ae6_aq/degrade_data.F (_symbolic link to above file_)   
+CCTM/src/gas/ebi_cb6r3m_ae7_kmtbr/degrade_data.F
+CCTM/src/gas/smvgear/degrade_data.F
+CCTM/src/MECHS/cb6mp_ae6_aq/EmissCtrl_cb6mp_ae6_aq.nml
+
+
+## 7. Remove Differences in Predictions between PHOTDIAG True and False. 
+[Bill Hutzell](mailto:hutzell.bill@epa.gov), U.S. Environmental Protection Agency
+
+### Description of model issue
+For the inline option of the photolysis module, CCTM predictions can differ between when PHOTDIAG option equals True
+and False. For example, small ozone differences exist (less than 0.00005 ppmV) in simulations over the 
+hemispheric domain. Occurances appear dependent on the meteorological input files and minimum synchronization
+time-step. They occur because the O3TOTCOL routine saves the observed global total ozone columns with their date 
+and times from the last call. The saved information determines how to update data used to interpolate the observations 
+to the domain's vertical columns.
+
+### Solution in CMAQv5.3.3
+The solution added calls to the O3TOTCOL routine when all columns are DARK and PHOTDIAG is false. 
+When PHOTDIAG equals false, model predictions now match predictions when PHOTDIAG True.
+
+### Files Affected 
+CCTM/src/phot/inline/phot.F 
+
+## 8. Short description
 [Firt Name Last Name](mailto:last.first@epa.gov), U.S. Environmental Protection Agency
