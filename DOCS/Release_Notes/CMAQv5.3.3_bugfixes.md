@@ -143,5 +143,30 @@ When PHOTDIAG equals false, model predictions now match predictions when PHOTDIA
 ### Files Affected 
 CCTM/src/phot/inline/phot.F 
 
-## 8. Short description
+## 8. Correct O3 deposition to wet soil in the STAGE deposition option
+[Jesse O. Bash](mailto:bash.jesse@epa.gov), U.S. Environmental Protection Agency
+
+### Description of the model issue
+The wet cuticular resistance would overwrite the wet soil resistance due to using the same variable names, rwet, for ozone. This resulted in slightly faster deposition of ozone to wet soil surfaces when the leaf cuticles were also wet than intended. 
+
+### Solution in CMAQ v5.3.3
+A new variable was created for wet cuticular surfaces, rcwet, in STAGE_MOD.F. This results in slightly higher, typically less than 1ppb, ozone values primarily at night, early mornings and during precipitation events when both cuticular and soil surfaces are wet. 
+
+### Files Affected
+CCTM/src/depv/stage/STAGE_MOD.F
+
+## 9. Correct Mosaic Land Use Specific Dry Deposition Velocity Diagnostic Output
+
+[Jesse O. Bash](mailto:bash.jesse@epa.gov), U.S. Environmental Protection Agency
+### Description of the model issue
+An indexing error prevented the output arrays of some land use specific species deposition velocities in the Mosaic output arrays to be populated and resulted in values 0 being written to file. This bug did not impact modeled dry deposition or ambient concentrations. 
+
+### Solution in CMAQ v5.3.3
+The indexing error was corrected, and land use specific deposition velocities are now correctly populated and written to the Mosaic deposition velocity file when CTM_MOSAIC is set to Y. 
+
+### Files Affected
+CCTM/src/depv/stage/MOSAIC_MOD.F
+CCTM/src/depv/stage/STAGE_MOD.F
+
+## 10. Short description
 [Firt Name Last Name](mailto:last.first@epa.gov), U.S. Environmental Protection Agency
