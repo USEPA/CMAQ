@@ -70,6 +70,16 @@ Figure 2: Impact of CB6r5 on monthly mean Model Bias at AQS and CASTNET sites
 * CCTM/src/MECHS/mechanism_information/cb6r5_ae7_aq/cb6r5_ae7_aq_species_table.md 
 * CCTM/src/MECHS/mechanism_information/cb6r5_ae7_aq/mech_cb6r5_ae7_aq.md 
 
+Removed following mechanisms:
+* cb6r3_ae6_aq 
+* cb6mp_ae6_aq
+* cb6mp_ae7_aq
+* cb6r3_ae7_aqkmt2
+
+Added following mechanisms:
+* cb6r5_ae7_aqkmt2
+* cb6r5hap_ae7_aq
+
 References:
 1.	Yarwood, G.; Shi, Y.; Beardsley, R., 2020. Impact of CB6r5 mechanism changes on air pollutant modeling in Texas. Final Report for the Texas Commission on Environmental Quality, Work Order No. 582-20-11221-014.
 2.	Amedro, D., Berasategui, M., Bunkan, A. J. C., Pozzer, A., Lelieveld, J., and Crowley, J. N.: Kinetics of the OH + NO2 reaction: effect of water vapour and new parameterization for global modelling, Atmos. Chem. Phys., 20, 3091–3105, https://doi.org/10.5194/acp-20-3091-2020, 2020.
