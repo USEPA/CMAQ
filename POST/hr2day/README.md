@@ -12,10 +12,6 @@ This Fortran program creates gridded IOAPI files with daily values from gridded 
  PARTIAL_DAY   allow use of partial days when computing daily values. If this is set to N, 
                the program will require at least 18 out of 24 values to be present in the 
                time zone of interest to compute a daily value (default N)
- HROFFSET      constant hour offset between desired time zone and GMT to use when computing 
-               daily values.  For example, if one wants to compute daily values with respect 
-               to Eastern Standard Time (EST) and the time zone for the IOAPI input file is 
-               GMT, this should be set to 5 (default 0).  
  START_HOUR    starting hour to use when computing daily values (default 0)
  END_HOUR      ending hour to use when computing daily values (default 23)
  HOURS_8HRMAX  Number of 8hr values to use when computing daily maximum 8hr ozone.

@@ -509,7 +509,8 @@ C Open sea-salt emissions diagnostic file
          END SUBROUTINE OPSSEMIS
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-         SUBROUTINE GET_SSEMIS ( JDATE, JTIME, TSTEP, CELLVOL, CELLHGT )
+         SUBROUTINE GET_SSEMIS ( JDATE, JTIME, TSTEP, CELLVOL, CELLHGT,
+     &                           L_DESID_DIAG )
 
 C GET_SSEMIS calculates the sea-salt emission rates in a grid cell
 C given the fractional grid-cell area covered by open ocean and surf zone
@@ -575,8 +576,10 @@ C-----------------------------------------------------------------------
 
 C Arguments
             INTEGER, INTENT( IN ) :: JDATE, JTIME, TSTEP( 3 )
-            REAL,    INTENT( IN ) :: CELLVOL               ! grid-cell volume [m2*sigma]
-            REAL,    INTENT( IN ) :: CELLHGT               ! grid-cell height [sigma]
+            REAL,    INTENT( IN ) :: CELLVOL      ! grid-cell volume [m2*sigma]
+            REAL,    INTENT( IN ) :: CELLHGT      ! grid-cell height [sigma] 
+            LOGICAL, INTENT( IN ) :: L_DESID_DIAG ! flag for whether or not DESID 
+                                                  !     is in diagnostic mode
 
 C Includes:
             INCLUDE SUBST_FILES_ID  ! file name parameters
@@ -690,7 +693,7 @@ C Mathematical constants; statement function for ERF approximation
 C----------------------------- Begin calc ------------------------------
 
 C Initialize sea-salt output buffer
-            IF ( SSEMDIAG .AND. WSTEP .EQ. 0 ) SSBF = 0.0
+            IF ( SSEMDIAG .AND. WSTEP .EQ. 0 .AND. .NOT. L_DESID_DIAG ) SSBF = 0.0
             SEA_FACTNUM = 0.0
             SEA_FACTSRF = 0.0
 
@@ -894,7 +897,7 @@ C Multiply dry 2nd moment by PI to obtain dry surface area emission rate.
                   SEA_FACTSRF( 3,C,R ) = SSOUTS( 2,C,R ) / M3K
 
 C Update the SSBF array, for writing the diagnostic sea-salt-emission file.
-                  IF ( SSEMDIAG ) THEN
+                  IF ( SSEMDIAG .AND. .NOT. L_DESID_DIAG ) THEN
                      V = 0
                      DO N = 1, 2
                         DO S = 1, NSSSPC
@@ -928,7 +931,7 @@ C Update the SSBF array, for writing the diagnostic sea-salt-emission file.
 
 C If last call this hour, write out the total sea-salt emissions [g/s].
 C Then reset the sea-salt emissions array and local write counter.
-            IF ( SSEMDIAG ) THEN
+            IF ( SSEMDIAG .AND. .NOT. L_DESID_DIAG ) THEN
 
 #ifdef parallel_io
                IF ( FIRSTIME ) THEN

@@ -78,6 +78,7 @@ C    G. Sarwar: removed NACL (07/2018)
 C    G. Sarwar: made minor changes to halogen species and added several iodine species (12/2018)
 C    D. Wong: Implemented centralized I/O approach, removed all MY_N clauses, removed
 C             unnecessary SAVE attribute (02/2019)
+C    G. Sarwar: Removed CH3BR (03/2021)
 C-------------------------------------------------------------------------------
       Use RUNTIME_VARS
       Use GRID_CONF           ! horizontal & vertical domain specifications
@@ -407,12 +408,11 @@ C Land use information:
       DATA subname(170), dif0(170), ar(170), meso(170), lebas(170) / 'MIC             ',0.0773,    2.0,      0.0,  84.0/
       DATA subname(171), dif0(171), ar(171), meso(171), lebas(171) / 'BR2             ',0.0925,    2.0,      0.0,  63.0/
       DATA subname(172), dif0(172), ar(172), meso(172), lebas(172) / 'MB3             ',0.0705,    2.0,      0.0, 108.5/
-      DATA subname(173), dif0(173), ar(173), meso(173), lebas(173) / 'CH3BR           ',0.0980,    2.0,      0.0,  59.5/
-      DATA subname(174), dif0(174), ar(174), meso(174), lebas(174) / 'MB2             ',0.0804,    2.0,      0.0,  84.0/
-      DATA subname(175), dif0(175), ar(175), meso(175), lebas(175) / 'MB2C            ',0.0720,    2.0,      0.0, 101.5/
-      DATA subname(176), dif0(176), ar(176), meso(176), lebas(176) / 'MBC2            ',0.0739,    2.0,      0.0,  94.5/
-      DATA subname(177), dif0(177), ar(177), meso(177), lebas(177) / 'MBC             ',0.0834,    2.0,      0.0,  77.0/
-      DATA subname(178), dif0(178), ar(178), meso(178), lebas(178) / 'CLO             ',0.1288,    8.0,      0.0,  31.5/
+      DATA subname(173), dif0(173), ar(173), meso(173), lebas(173) / 'MB2             ',0.0804,    2.0,      0.0,  84.0/
+      DATA subname(174), dif0(174), ar(174), meso(174), lebas(174) / 'MB2C            ',0.0720,    2.0,      0.0, 101.5/
+      DATA subname(175), dif0(175), ar(175), meso(175), lebas(175) / 'MBC2            ',0.0739,    2.0,      0.0,  94.5/
+      DATA subname(176), dif0(176), ar(176), meso(176), lebas(176) / 'MBC             ',0.0834,    2.0,      0.0,  77.0/
+      DATA subname(177), dif0(177), ar(177), meso(177), lebas(177) / 'CLO             ',0.1288,    8.0,      0.0,  31.5/
 
       CONTAINS
 
@@ -561,12 +561,18 @@ C-----------------------------------------------------------------------
                XMSG = 'Failure allocating layer 2 soil moisture'
                Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             End If
+            ALLOCATE( Grid_Data%WWLT   ( NCOLS,NROWS ),
+     &                STAT = ALLOCSTAT )
+            If ( ALLOCSTAT .Ne. 0 ) Then
+               XMSG = 'Failure allocating Soil grid vars'
+               Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+            End If
+            Grid_Data%WWLT    = 0.0
          END IF
          
          If ( ABFLUX ) Then
 
-            ALLOCATE( Grid_Data%WWLT   ( NCOLS,NROWS ),
-     &                Grid_Data%BSLP   ( NCOLS,NROWS ),
+            ALLOCATE( Grid_Data%BSLP   ( NCOLS,NROWS ),
      &                Grid_Data%WRES   ( NCOLS,NROWS ),
 !    &                Grid_Data%WFC    ( NCOLS,NROWS ),
      &                Grid_Data%LUFRAC ( NCOLS,NROWS,n_lufrac ),
@@ -575,7 +581,7 @@ C-----------------------------------------------------------------------
                XMSG = 'Failure allocating Soil grid vars'
                Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             End If
-            Grid_Data%WWLT    = 0.0
+
 !           Grid_Data%WFC     = 0.0
             Grid_Data%WRES    = 0.0
             Grid_Data%BSLP    = 0.0
@@ -638,12 +644,17 @@ C-----------------------------------------------------------------------
 
          Grid_Data%SLTYP = NINT( SOILCAT_A )
 
+         If ( ABFLUX .or. BIOGEMIS_MEGAN) Then
+            Forall( C = 1:NCOLS, R = 1:NROWS, Grid_Data%SLTYP(C,R) .Le. N_SOIL_TYPE )
+               Grid_Data%WWLT( C,R ) = WWLT( Grid_Data%SLTYP( C,R ) )
+            End Forall
+         End If
+
          If ( ABFLUX ) Then
             Grid_Data%LUFRAC = LUFRAC
 
             Forall( C = 1:NCOLS, R = 1:NROWS, Grid_Data%SLTYP(C,R) .Le. N_SOIL_TYPE )
                Grid_Data%WSAT( C,R ) = WSAT( Grid_Data%SLTYP( C,R ) )
-               Grid_Data%WWLT( C,R ) = WWLT( Grid_Data%SLTYP( C,R ) )
                Grid_Data%WFC ( C,R ) = WFC ( Grid_Data%SLTYP( C,R ) )
                Grid_Data%WRES( C,R ) = WRES( Grid_Data%SLTYP( C,R ) )
                Grid_Data%BSLP( C,R ) = BSLP( Grid_Data%SLTYP( C,R ) )
