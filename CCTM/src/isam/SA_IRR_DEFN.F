@@ -200,7 +200,7 @@ C=======================================================
         SPC = 0
         
         DO S = 1, NSPC_SA
-           FIND_IN_ISAM( S ) = SPC_NAME( S,OTHRTAG )
+           FIND_IN_ISAM( S ) = ISAM_SPEC( S,OTHRTAG )
            ISAM_SPC_IDX( S ) = S
         END DO
         SPC = NSPC_SA
@@ -845,7 +845,7 @@ C..Includes:
              END DO ! ktag loop
              DO JSPC = 1, NSPC_SA 
                   TOTAL = SUM( ISAM( COL,ROW,LAY,JSPC,1:NTAG_SA ) )
-                  WRITE(ISAM_LOG,'(A16,11(1X,ES12.4))')SPC_NAME( JSPC,OTHRTAG ),
+                  WRITE(ISAM_LOG,'(A16,11(1X,ES12.4))')ISAM_SPEC( JSPC,OTHRTAG ),
      &            (ISAM( COL,ROW,LAY,JSPC,KTAG ),KTAG = 1, NTAG_SA), TOTAL
              END DO
              WRITE(ISAM_LOG,*)'EX: Initial Totals'
@@ -856,7 +856,7 @@ C..Includes:
                 DO KTAG = 1, NTAG_SA
                    TOTAL = TOTAL + ISAM( COL,ROW,LAY,SPC,KTAG )
                 END DO 
-                WRITE(ISAM_LOG,'(2(A16,1X),5(1X,ES12.4))')SPC_NAME( SPC,OTHRTAG ), CHEMISTRY_SPC(S), 
+                WRITE(ISAM_LOG,'(2(A16,1X),5(1X,ES12.4))')ISAM_SPEC( SPC,OTHRTAG ), CHEMISTRY_SPC(S), 
      &          TOTAL, CONC( S ),TOTAL-CONC( S ), TOTAL/CONC( S )
              END DO ! loop jspc
           END IF
@@ -924,7 +924,7 @@ C..Includes:
              END DO ! ktag loop
              DO JSPC = 1, NSPC_SA 
                   TOTAL = SUM( ISAM( COL,ROW,LAY,JSPC,1:NTAG_SA ) )
-                  WRITE(ISAM_LOG,'(A16,11(1X,ES12.4))')SPC_NAME( JSPC,OTHRTAG ),
+                  WRITE(ISAM_LOG,'(A16,11(1X,ES12.4))')ISAM_SPEC( JSPC,OTHRTAG ),
      &            (ISAM( COL,ROW,LAY,JSPC,KTAG ),KTAG = 1, NTAG_SA), TOTAL
              END DO
              WRITE(ISAM_LOG,*)'UP: Final Totals'
@@ -936,7 +936,7 @@ C..Includes:
                 DO KTAG = 1, NTAG_SA
                    TOTAL = TOTAL + ISAM( COL,ROW,LAY,SPC,KTAG )
                 END DO 
-                WRITE(ISAM_LOG,'(2(A16,1X),3(1X,ES12.4))')SPC_NAME( SPC,OTHRTAG ), CHEMISTRY_SPC(S), 
+                WRITE(ISAM_LOG,'(2(A16,1X),3(1X,ES12.4))')ISAM_SPEC( SPC,OTHRTAG ), CHEMISTRY_SPC(S), 
      &          TOTAL,TEMP_VALUE,TOTAL-TEMP_VALUE
              END DO ! loop jspc
           END IF

@@ -114,7 +114,7 @@ C Set output file characteristics based on COORD.EXT and open the dry dep file
            UNITS3D( JSPCTAG ) = 'kg/hectare'
            VDESC3D( JSPCTAG ) = 'hourly' // XMSG( 1:LEN_TRIM(XMSG) )
      &                  // 'deposition values'
-           write(*,*) VNAM_SPCTAG( JSPCTAG ),VNAME3D(JSPCTAG), UNITS3D( JSPCTAG ),VDESC3D( JSPCTAG )
+           !write(*,*) VNAM_SPCTAG( JSPCTAG ),VNAME3D(JSPCTAG), UNITS3D( JSPCTAG ),VDESC3D( JSPCTAG )
          END DO
 
          FDESC3D( 1 ) = 

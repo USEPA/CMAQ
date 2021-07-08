@@ -312,8 +312,12 @@ C Local variables:
             DIFF_SPC( S ) = AE_SPC( AE_TRNS_MAP( V ) )
             DIFF_MW ( S ) = AE_MOLWT( AE_TRNS_MAP( V ) )
             DIFF_MASK_AERO( S ) = .TRUE.
-            IF ( INDEX( DIFF_SPC( S ), 'NUM' ) .NE. 0 ) DIFF_MASK_NUM( S ) = .TRUE.
-            IF ( INDEX( DIFF_SPC( S ), 'SRF' ) .NE. 0 ) DIFF_MASK_SRF( S ) = .TRUE.
+            IF ( INDEX( DIFF_SPC( S ), 'NUM' ) .NE. 0 ) THEN
+                DIFF_MASK_NUM( S ) = .TRUE.
+            END IF
+            IF ( INDEX( DIFF_SPC( S ), 'SRF' ) .NE. 0 ) THEN
+                DIFF_MASK_SRF( S ) = .TRUE.
+            END IF
          END DO
          DO V = 1, N_NR_TRNS
             S = S + 1

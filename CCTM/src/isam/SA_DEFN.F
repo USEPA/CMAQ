@@ -33,8 +33,8 @@
       INTEGER ITAG
 
 c...Tagging maps
-      CHARACTER( 16 ), ALLOCATABLE :: SPC_NAME( :,: )
-      INTEGER, ALLOCATABLE, SAVE   :: SPC_INDEX( :,: )
+      CHARACTER( 16 ), ALLOCATABLE :: ISAM_SPEC( :,: )
+      INTEGER, ALLOCATABLE, SAVE   :: MAP_SAtoCGR( : )
       INTEGER, ALLOCATABLE, SAVE   :: MAP_CGRtoSA( : )
       INTEGER, ALLOCATABLE, SAVE   :: MAP_AEROtoSA( :,: )
       LOGICAL, ALLOCATABLE, SAVE   :: IS_SPC_AEROSOL( :,: )
@@ -502,7 +502,7 @@ c          NSPC_SA = NSPC_SA + 13  ! ALVPO1I,ALVPO1J,ASVPO1I,ASVPO1J,ASVPO2I,ASV
         IF ( BGN_SP .NE. 0 ) THEN
           L_SFATE  = .TRUE. 
           NSPC_SA = NSPC_SA + 5  ! ASO4J, ASO4I, SO2, SULF, SULRXN
-          IF ( MECHNAME .EQ. 'CB6R3M_AE7_KMTBR' ) NSPC_SA = NSPC_SA + 1  ! add DMS
+          IF ( MECHNAME .EQ. 'CB6R3M_AE7_AQ' ) NSPC_SA = NSPC_SA + 1  ! add DMS
         ENDIF
 
         BGN_SP = INDEX( TAGCLASSES,'OZONE',LBACK )
@@ -538,7 +538,7 @@ c          NSPC_SA = NSPC_SA + 13  ! ALVPO1I,ALVPO1J,ASVPO1I,ASVPO1J,ASVPO2I,ASV
 
         IF( L_NITRATE .OR. L_VOC .OR. L_OZONE )THEN ! determine if tag species are defined by mechanism's name
           SELECT CASE( MECHNAME ) 
-             CASE( 'CB6R3_AE6_AQ',     'CB6R3_AE7_AQ',      'CB6R3M_AE7_KMTBR', 
+             CASE( 'CB6R3_AE6_AQ',     'CB6R3_AE7_AQ',      'CB6R3M_AE7_AQ',
      &             'SAPRC07TC_AE6_AQ', 'SAPRC07TIC_AE6I_AQ', 'SAPRC07TIC_AE7I_AQ',
      &             'RACM2_AE6_AQ'                                               ) 
                 DEFINED = .TRUE.
@@ -550,7 +550,7 @@ c          NSPC_SA = NSPC_SA + 13  ! ALVPO1I,ALVPO1J,ASVPO1I,ASVPO1J,ASVPO2I,ASV
         IF( .NOT. DEFINED )THEN
             XMSG = "ISAM ERROR: Using L_NITRATE or L_VOC or L_OZONE tag group but their species "
      &          // "for the " // TRIM( MECHNAME ) // " mechanism not defined. Modify GET_NSPC_SA "
-     &          // "and GET_SPC_INDEX  subroutines to include MECHNAME cases for it."
+     &          // "and GET_MAP_SAtoCGR  subroutines to include MECHNAME cases for it."
             CALL M3EXIT('GET_NSPC_SA', 0, 0, XMSG, XSTAT2 )
         END IF
         
@@ -559,7 +559,7 @@ c          NSPC_SA = NSPC_SA + 13  ! ALVPO1I,ALVPO1J,ASVPO1I,ASVPO1J,ASVPO2I,ASV
              CASE( 'CB6R3_AE6_AQ', 'CB6R3_AE7_AQ' )
                 NSPC_SA = NSPC_SA + 13  
 !                NSPC_SA = NSPC_SA + 19
-             CASE( 'CB6R3M_AE7_KMTBR' )
+             CASE( 'CB6R3M_AE7_AQ' )
                 NSPC_SA = NSPC_SA + 18  
 !                NSPC_SA = NSPC_SA + 24  
              CASE( 'SAPRC07TC_AE6_AQ' ) 
@@ -577,7 +577,7 @@ c          NSPC_SA = NSPC_SA + 13  ! ALVPO1I,ALVPO1J,ASVPO1I,ASVPO1J,ASVPO2I,ASV
           SELECT CASE( MECHNAME )
              CASE( 'CB6R3_AE6_AQ' )
                 NSPC_SA = NSPC_SA + 25
-             CASE( 'CB6R3_AE7_AQ', 'CB6R3M_AE7_KMTBR' )
+             CASE( 'CB6R3_AE7_AQ', 'CB6R3M_AE7_AQ' )
                 NSPC_SA = NSPC_SA + 26
              CASE( 'RACM2_AE6_AQ') 
                 NSPC_SA = NSPC_SA + 37
@@ -740,7 +740,7 @@ C don't count until 1st char in string
 
 c===============================================================
 
-        SUBROUTINE GET_SPC_INDEX ()
+        SUBROUTINE GET_MAP_SAtoCGR ()
 
 C20140428  Map CGRID species index to ISAM tracer species index
 C         Called by driver.F
@@ -850,7 +850,7 @@ c            SPC_LIST( J_SPC ) = 'VIVPO1'
           SPC_LIST( J_SPC ) = 'SULF'    
           J_SPC = J_SPC + 1
           SPC_LIST( J_SPC ) = 'SULRXN'
-          IF ( MECHNAME .EQ. 'CB6R3M_AE7_KMTBR' ) THEN
+          IF ( MECHNAME .EQ. 'CB6R3M_AE7_AQ' ) THEN
              J_SPC = J_SPC + 1
              SPC_LIST( J_SPC ) = 'DMS'
           END IF
@@ -919,7 +919,7 @@ c            SPC_LIST( J_SPC ) = 'VIVPO1'
 !                SPC_LIST( J_SPC ) = 'EPX2'
 !                J_SPC = J_SPC + 1
 !                SPC_LIST( J_SPC ) = 'HCO3'                
-             CASE( 'CB6R3M_AE7_KMTBR' )
+             CASE( 'CB6R3M_AE7_AQ' )
                J_SPC = J_SPC + 1  
                SPC_LIST( J_SPC ) = 'NTR1'   
                J_SPC = J_SPC + 1  
@@ -1205,7 +1205,7 @@ c            SPC_LIST( J_SPC ) = 'VIVPO1'
                 SPC_LIST( J_SPC ) = 'GLYD'
                 J_SPC = J_SPC + 1
                 SPC_LIST( J_SPC ) = 'MEPX'                
-             CASE( 'CB6R3_AE7_AQ', 'CB6R3M_AE7_KMTBR' )
+             CASE( 'CB6R3_AE7_AQ', 'CB6R3M_AE7_AQ' )
                 J_SPC = J_SPC + 1
                 SPC_LIST( J_SPC ) = 'ALD2'
                 J_SPC = J_SPC + 1
@@ -1463,7 +1463,7 @@ c            SPC_LIST( J_SPC ) = 'VIVPO1'
           SPC_LIST( J_SPC ) = 'O1D'
           J_SPC = J_SPC + 1
           SELECT CASE( MECHNAME )
-             CASE( 'CB6R3_AE6_AQ', 'CB6R3_AE7_AQ', 'CB6R3M_AE7_KMTBR')
+             CASE( 'CB6R3_AE6_AQ', 'CB6R3_AE7_AQ', 'CB6R3M_AE7_AQ')
                 SPC_LIST( J_SPC ) = 'O'
              CASE( 'SAPRC07TC_AE6_AQ', 'RACM2_AE6_AQ', 'SAPRC07TIC_AE6I_AQ', 'SAPRC07TIC_AE7I_AQ' ) 
                 SPC_LIST( J_SPC ) = 'O3P'
@@ -1559,19 +1559,19 @@ c             WRITE(6,'(A,I4,1X,A16)')'ISAM_INIT: SPC_LIST: ',I_SPC,SPC_LIST( I_
         END DO
 
         IF ( EFLAG ) THEN
-          CALL M3EXIT( 'GET_SPC_INDEX', 0, 0, 'Above Fatal Error Encountered', XSTAT2 )
+          CALL M3EXIT( 'GET_MAP_SAtoCGR', 0, 0, 'Above Fatal Error Encountered', XSTAT2 )
         END IF 
 
 ! reset number of track species        
         NSPC_SA  = J_SPC
         N_SPCTAG = NSPC_SA * NTAG_SA
     
-        ALLOCATE ( SPC_NAME( NSPC_SA, NTAG_SA ), STAT = ALLOCSTAT )
-        CALL CHECKMEM( ALLOCSTAT, 'SPC_NAME', 'GET_SPC_INDEX' )
-        SPC_NAME = ' '
-        ALLOCATE ( SPC_INDEX( NSPC_SA,20 ), STAT = ALLOCSTAT )
-        CALL CHECKMEM( ALLOCSTAT, 'SPC_INDEX', 'GET_SPC_INDEX' )
-        SPC_INDEX = -1
+        ALLOCATE ( ISAM_SPEC( NSPC_SA, NTAG_SA ), STAT = ALLOCSTAT )
+        CALL CHECKMEM( ALLOCSTAT, 'ISAM_SPEC', 'GET_MAP_SAtoCGR' )
+        ISAM_SPEC = ' '
+        ALLOCATE ( MAP_SAtoCGR( NSPC_SA ), STAT = ALLOCSTAT )
+        CALL CHECKMEM( ALLOCSTAT, 'MAP_SAtoCGR', 'GET_MAP_SAtoCGR' )
+        MAP_SAtoCGR = -1
         ALLOCATE ( IS_SPC_AEROSOL( NSPC_SA,NTAG_SA ), STAT = ALLOCSTAT )
         CALL CHECKMEM( ALLOCSTAT, 'IS_SPC_AEROSOL', 'IS_SPC_AEROSOL' )
         IS_SPC_AEROSOL = .FALSE.
@@ -1585,16 +1585,16 @@ c             WRITE(6,'(A,I4,1X,A16)')'ISAM_INIT: SPC_LIST: ',I_SPC,SPC_LIST( I_
         DO K_SPC = 1, NLIST
            IF( SPC_KEEP( K_SPC ) )THEN
               I_SPC = I_SPC + 1
-              SPC_NAME( I_SPC,: ) = SPC_LIST( K_SPC )
+              ISAM_SPEC( I_SPC,: ) = SPC_LIST( K_SPC )
            END IF
         END DO
         DO I_SPC = 1, NSPC_SA 
-           WRITE(LOGDEV,'(I4,1X,A16)')I_SPC, SPC_NAME( I_SPC,1 )
+           WRITE(LOGDEV,'(I4,1X,A16)')I_SPC, ISAM_SPEC( I_SPC,1 )
         END DO
 
 
 C...Initialize species index
-        SPC_INDEX = -1
+        MAP_SAtoCGR = -1
 
 C..Determine which ISAM species are aerosols and are transported
         NSPC_TRANSPORT = 0
@@ -1603,22 +1603,22 @@ C..Determine which ISAM species are aerosols and are transported
            DO J_SPC = 1, NSPC_SA
               ISUM = ISUM + 1
               DO N = 1, N_AE_SPC
-                 IF( TRIM( SPC_NAME( J_SPC,ITAG ) ) .EQ. TRIM( AE_SPC( N ) ) )THEN
+                 IF( TRIM( ISAM_SPEC( J_SPC,ITAG ) ) .EQ. TRIM( AE_SPC( N ) ) )THEN
                      IS_SPC_AEROSOL( J_SPC,ITAG ) = .TRUE.
                  END IF
               END DO
               FOUND = .FALSE.        
               DO N = 1, N_GC_TRNS
-                 IF( TRIM( SPC_NAME( J_SPC,ITAG ) ) .EQ. TRIM( GC_TRNS( N ) ) )FOUND = .TRUE.
+                 IF( TRIM( ISAM_SPEC( J_SPC,ITAG ) ) .EQ. TRIM( GC_TRNS( N ) ) )FOUND = .TRUE.
               END DO
               DO N = 1, N_AE_TRNS
-                 IF( TRIM( SPC_NAME( J_SPC,ITAG ) ) .EQ. TRIM( AE_TRNS( N ) ) )FOUND = .TRUE.
+                 IF( TRIM( ISAM_SPEC( J_SPC,ITAG ) ) .EQ. TRIM( AE_TRNS( N ) ) )FOUND = .TRUE.
               END DO
               DO N = 1, N_NR_TRNS
-                 IF( TRIM( SPC_NAME( J_SPC,ITAG ) ) .EQ. TRIM( NR_TRNS( N ) ) )FOUND = .TRUE.
+                 IF( TRIM( ISAM_SPEC( J_SPC,ITAG ) ) .EQ. TRIM( NR_TRNS( N ) ) )FOUND = .TRUE.
               END DO
               DO N = 1, N_TR_ADV
-                 IF( TRIM( SPC_NAME( J_SPC,ITAG ) ) .EQ. TRIM( TR_ADV( N ) ) )FOUND = .TRUE.
+                 IF( TRIM( ISAM_SPEC( J_SPC,ITAG ) ) .EQ. TRIM( TR_ADV( N ) ) )FOUND = .TRUE.
               END DO
               TRANSPORT_SPC( ISUM ) = FOUND
               IF( FOUND )NSPC_TRANSPORT = NSPC_TRANSPORT + 1
@@ -1632,27 +1632,24 @@ C...Assign species index with CMAQ species mappings
         LOOP_FIND: DO N = 1, NSPCSD
           IF ( N .GE. GC_STRT .AND. N .LE. GC_FINI ) THEN
             DO J_SPC = 1, NSPC_SA
-              IF ( SPC_NAME( J_SPC,ICONTAG ) .EQ. GC_SPC( N ) ) THEN  
-                SPC_INDEX( J_SPC,1 ) = 1
-                SPC_INDEX( J_SPC,2 ) = N
+              IF ( ISAM_SPEC( J_SPC,ICONTAG ) .EQ. GC_SPC( N ) ) THEN  
+                MAP_SAtoCGR( J_SPC ) = N
                 MAP_CGRtoSA( N ) = J_SPC
                 CYCLE LOOP_FIND
-              END IF ! spc_name and gc_spc match
+              END IF ! ISAM_SPEC and gc_spc match
             END DO
           ELSE IF ( N .GE. AE_STRT .AND. N .LE. AE_FINI ) THEN
             DO J_SPC = 1, NSPC_SA
-              IF ( TRIM( SPC_NAME( J_SPC,ICONTAG ) ) .EQ. TRIM( AE_SPC( N-AE_STRT+1 ) ) ) THEN
-                SPC_INDEX( J_SPC,1 ) = 1
-                SPC_INDEX( J_SPC,2 ) = N
+              IF ( TRIM( ISAM_SPEC( J_SPC,ICONTAG ) ) .EQ. TRIM( AE_SPC( N-AE_STRT+1 ) ) ) THEN
+                MAP_SAtoCGR( J_SPC ) = N
                 MAP_CGRtoSA( N ) = J_SPC
                 CYCLE LOOP_FIND
-              END IF ! spc_name and ae_spc match
+              END IF ! ISAM_SPEC and ae_spc match
             END DO
           ELSE IF ( N .GE. NR_STRT .AND. N .LE. NR_FINI ) THEN
             DO J_SPC = 1, NSPC_SA
-              IF ( SPC_NAME( J_SPC,ICONTAG ) .EQ. NR_SPC( N-NR_STRT+1 ) ) THEN
-                SPC_INDEX( J_SPC,1 ) = 1
-                SPC_INDEX( J_SPC,2 ) = N
+              IF ( ISAM_SPEC( J_SPC,ICONTAG ) .EQ. NR_SPC( N-NR_STRT+1 ) ) THEN
+                MAP_SAtoCGR( J_SPC ) = N
                 MAP_CGRtoSA( N ) = J_SPC
                 CYCLE LOOP_FIND
               END IF
@@ -1661,9 +1658,9 @@ C...Assign species index with CMAQ species mappings
         END DO LOOP_FIND ! number of tagging species
 
         DO J_SPC = 1, NSPC_SA
-          IF ( SPC_INDEX( J_SPC,2 ) .LT. 1 ) THEN
+          IF ( MAP_SAtoCGR( J_SPC ) .LT. 1 ) THEN
              write(logdev,'(A)')'Tracked species '
-     &       // TRIM( SPC_NAME( J_SPC,ICONTAG ) ) //
+     &       // TRIM( ISAM_SPEC( J_SPC,ICONTAG ) ) //
      &          ' not found among model species '
              EFLAG = .TRUE.
           END IF
@@ -1707,24 +1704,24 @@ C...Map SA species for Advection
         DO ITAG = 1, NTAG_SA
            DO J_SPC = 1, NSPC_SA
               N = N + 1
-              MAP_ADVtoSA(N) = INDEX1( SPC_NAME(J_SPC,1), CMAQ_ADV, CMAQ_ADV_NAMES )
+              MAP_ADVtoSA(N) = INDEX1( ISAM_SPEC(J_SPC,1), CMAQ_ADV, CMAQ_ADV_NAMES )
               IF( MAP_ADVtoSA(N) .LT. 1 .AND. ITAG .LT. 2 )THEN
                  TRANS_WARN = .TRUE.
-                 XMSG = 'ISAM WARNING: Tagged Species, ' // TRIM( SPC_NAME(J_SPC,1) ) 
+                 XMSG = 'ISAM WARNING: Tagged Species, ' // TRIM( ISAM_SPEC(J_SPC,1) ) 
      &               // ' not transported. Modify species namelist(s) to include process.'
                  WRITE(LOGDEV,'(A)')TRIM( XMSG )
               END IF
-!              XMSG = 'For ' // SPC_NAME(J_SPC,1) // ' transported, adv_map = '
+!              XMSG = 'For ' // ISAM_SPEC(J_SPC,1) // ' transported, adv_map = '
 !              WRITE(LOGDEV,95000)NSPC_TRANSPORT, J_SPC, TRIM( XMSG ),
 !     &        TRANSPORT_SPC(J_SPC), MAP_ADVtoSA(N)
            END DO
         END DO
         
         IF ( TRANS_WARN ) THEN
-          CALL M3WARN( 'GET_SPC_INDEX', 0, 0, 'Above Problems Encountered' )
+          CALL M3WARN( 'GET_MAP_SAtoCGR', 0, 0, 'Above Problems Encountered' )
         END IF
         IF ( EFLAG ) THEN
-          CALL M3EXIT( 'GET_SPC_INDEX', 0, 0, 'Above Fatal Error Encountered', XSTAT2 )
+          CALL M3EXIT( 'GET_MAP_SAtoCGR', 0, 0, 'Above Fatal Error Encountered', XSTAT2 )
         END IF 
 
 95000    FORMAT(2(I3,1X),A,L4,1X,I4)
@@ -1769,15 +1766,15 @@ c       N = 0
 !       DO ITAG = 1, NTAG_SA
 c          DO J_SPC = 1, NSPC_SA
 c             N = N + 1
-c             MAP_DEPVtoSA(N) = INDEX1( SPC_NAME(J_SPC,1), CMAQ_DEPV, CMAQ_DEPV_NAMES )
+c             MAP_DEPVtoSA(N) = INDEX1( ISAM_SPEC(J_SPC,1), CMAQ_DEPV, CMAQ_DEPV_NAMES )
 c             IF( MAP_DEPVtoSA(N) .LT. 1 )THEN
-c                XMSG = 'ISAM WARNING: Tagged Species, ' // TRIM( SPC_NAME(J_SPC,1) )
+c                XMSG = 'ISAM WARNING: Tagged Species, ' // TRIM( ISAM_SPEC(J_SPC,1) )
 c    &               // ' not in DEPV list.'
 c                CALL M3EXIT ( 'MAP_DEPVtoSA', 0, 0, XMSG, XSTAT1 )
 c             END IF
 c          END DO
 !       END DO
 
-        END SUBROUTINE GET_SPC_INDEX
+        END SUBROUTINE GET_MAP_SAtoCGR
 
       END MODULE SA_DEFN

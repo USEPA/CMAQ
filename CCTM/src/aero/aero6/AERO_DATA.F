@@ -80,6 +80,7 @@ C             OM/OC ratios (Pye et al. 2017 ACP).
 C GS  08/17/81 Added bromide in seasalt
 C SR 12/14/2018 Added sulfur tracking option
 C SLN 12/30/2019 ddm-3d implementaiton for v 5.3.1
+C     10 Mar 2021 G. Sarwar: Changed CB6R3M_AE7_KMTBR to CB6R3M_AE7_AQ
 
 C References:
 C 1. Eddingsaas, N. C., Vandervelde, D. G., Wennberg, P. O., "Kinetics and
@@ -957,6 +958,7 @@ C Build mapping to CGRID for each species in the master AeroList
 #endif
 
       aero_missing( :,: ) = .True.
+      aerospc_conc( :,: ) = conmin
 
       Do spc = 1, n_aerospc ! Loop through user-requested chemical species
          l = map_aerotolist( spc )
@@ -1085,7 +1087,7 @@ C Find indices of required species
          ae6isoa     = .False.
       End If
 
-      If ( Index( mechname, 'CB6R3M_AE7_KMTBR' ) .Gt. 0 ) Then
+      If ( Index( mechname, 'CB6R3M_AE7_AQ' ) .Gt. 0 ) Then
          abr_idx     = findAero( req_br,     .True. )
          marine = .True.
       Else
