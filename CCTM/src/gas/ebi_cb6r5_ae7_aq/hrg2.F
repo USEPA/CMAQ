@@ -28,7 +28,7 @@ C  PRECONDITIONS: For the CB6R5_AE7_AQ mechanism
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, Apr 26, 2021
+C  REVISION HISTORY: Created by EBI solver program, Jul  8, 2021
 C
 C   18 Jul 14 B.Hutzell: revised to use real(8) variables
 C**********************************************************************
@@ -243,7 +243,7 @@ c..Production of HONO from OH (r19,4 terms )
 c..Remaining HONO production terms
       P19 =    2.0000D+00 * RXRAT(    41 )      ! NO+NO2=0.2000D+01*HONO
      &    +                 RXRAT(   201 )      ! CRON=HONO+HO2+FORM+OPEN
-     &    +    5.0000D-01 * RXRAT(   277 )      ! NO2=0.5000D+00*HONO+...
+     &    +    5.0000D-01 * RXRAT(   278 )      ! NO2=0.5000D+00*HONO+...
 
       P19 = YC0( HONO ) + P19 * DTC
 
