@@ -11,6 +11,9 @@
 * [Do I need to update from v5.3.1 to v5.3.2?](#why_update_v531_v532)
 * [What do I need to do to update from v5.3.1 to v5.3.2?](#update_v531_v532)
 * [What differences should I expect in my model results with v5.3.2 compared to v5.3.1?](#diff_v531_v532)
+* [Do I need to update from v5.3.2 to v5.3.3?](#why_update_v532_v533)
+* [What do I need to do to update from v5.3.2 to v5.3.3?](#update_v532_v533)
+* [What differences should I expect in my model results with v5.3.3 compared to v5.3.2?](#diff_v532_v533)
 * [Additional FAQ](#additional_faq)
 * [Technical support for CMAQ](#tech_support)
 
@@ -123,6 +126,17 @@ Five updates in v5.3.2 have the potential to change model output.
 4. The v5.3.2 release also features an update to the Ozone Monitoring Instrument (OMI) Column Data through 2019. Most users should observe no changes, however, those working with modeling data in 2018 could see a difference between their v5.3.1 and v5.3.2 simulations caused by a 1% difference in a few grid cells in the new OMI data compared to the older OMI data for overlapping time periods in 2018. For more information please visit the [OMI data Release Notes](OMI_through_2019.md).
 5. The v5.3.2 release dramatically changes the chemistry algorithms governing the propogation of tagged concentrations through the various chemical mechanisms in CMAQ. This release addresses the previously identified issue with ISAM where the method was ersoneously overattributing tagged math into the "OTHER" tag at the expense of user-specified tags.  ISAM applications using this release should expect drastically different and much more realistic tagged predictions of secondary gaseous polluants such as ozone.  For additional information, please refer the the [ISAM release notes](ISAM_gas_chemistry_v532.md).
 
+
+<a id=why_update_v532_v533></a>
+## Do I need to update from v5.3.2 to v5.3.3?
+CMAQv5.3.3 is a minor update to CMAQv5.3.1 that includes multiple bug fixes. See the [v5.3.3 Release Notes](README.md#summary-of-cmaqv533-updates) for a list of bug fixes and updates to pre- and post-processint utilities. See below for a description of the bug fixes that have an impact on model output. This release also includes a new version of the WRF-CMAQ coupled system with a streamlined build process. Users of WRF-CMAQ are strongly encouraged to try the latest version.
+
+<a id=update_v532_v533></a>
+## What do I need to do to update from v5.3.2 to v5.3.3?
+If you have already successfully migrated to v5.3, v5.3.1, or v5.3.2 you will not need to do anything special to maintain default behavior in v5.3.3. A new benchmark output dataset has been released to run the test case for WRFv4.3-CMAQv5.3.3. 
+
+<a id=diff_v532_v533></a>
+## What differences should I expect in my model results with v5.3.3 compared to v5.3.2?
 
 <a id=additional_faq></a>
 ## Additional FAQ
