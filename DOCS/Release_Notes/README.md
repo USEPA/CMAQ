@@ -1,10 +1,9 @@
 CMAQv5.3.3 Release Notes
 =====================================
 [CMAQv5.3.3 User's Guide](../Users_Guide/README.md)  
-[Tutorials on installing and running CMAQ](../Users_Guide/Tutorials/README.md) **- Tutorials on running CMAQ, WRF-CMAQ, and CMAQ-ISAM test case.**  
+[Tutorials on installing and running CMAQ](../Users_Guide/Tutorials/README.md) **- Tutorials on running CMAQ, WRF-CMAQ, and CMAQ-ISAM test case.** 
 [Frequently asked questions for upgrading to the latest CMAQ version](CMAQ_FAQ.md)  **- Updated for v5.3.3 release.** 
 [Frequently asked questions for upgrading to the latest MCIP version](../../PREP/mcip/docs/FAQ)  **- Updated for v5.3.3 release.** 
-
 [CMAQv5.3.3 Known Issues](../Known_Issues/README.md) - Updated after the v5.3.3 release to alert users of issues that will be addressed with the next release. 
 
 # Summary of CMAQv5.3.3 Updates 
