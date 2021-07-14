@@ -1,19 +1,26 @@
 CMAQv5.3.3 Release Notes
 =====================================
 [CMAQv5.3.3 User's Guide](../Users_Guide/README.md)  
-[Tutorials on installing and running CMAQ](../Users_Guide/Tutorials/README.md) **- Tutorial on running CMAQ test case plus new tutorials on WRF-CMAQ, ISAM, and modifying a chemical mechanism.**  
-[Frequently asked questions for upgrading to the latest CMAQ version](CMAQ_FAQ.md)  **- Updated for v5.3.2 release.** 
+[Tutorials on installing and running CMAQ](../Users_Guide/Tutorials/README.md) **- Tutorials on running CMAQ, WRF-CMAQ, and CMAQ-ISAM test case.**  
+[Frequently asked questions for upgrading to the latest CMAQ version](CMAQ_FAQ.md)  **- Updated for v5.3.3 release.** 
+[Frequently asked questions for upgrading to the latest MCIP version](../../PREP/mcip/docs/FAQ)  **- Updated for v5.3.3 release.** 
+
 [CMAQv5.3.3 Known Issues](../Known_Issues/README.md) - Updated after the v5.3.3 release to alert users of issues that will be addressed with the next release. 
 
 # Summary of CMAQv5.3.3 Updates 
-The Community Multiscale Air Quality (CMAQ) Model version 5.3.3 is a minor update to CMAQv5.3 that includes multiple bug fixes.
+The Community Multiscale Air Quality (CMAQ) Model version 5.3.3 is a minor update to CMAQv5.3 that includes multiple bug fixes. This release also includes a new version of the WRF-CMAQ coupled system with a streamlined build process.  Users of WRF-CMAQ are strongly encouraged to try the latest version.  
 
 * [CMAQv5.3.3 Bugfixes](CMAQv5.3.2_bugfixes.md)
+* [New WRFv4.3-CMAQv5.3.3 Coupled Model](CMAQv5.3.3_Coupled_WRF-CMAQ.md)
 * [BEIS in-line emissions for RACM2](CMAQv5.3.3_BEIS_in-line_emissions_for_RACM2_operational_branch.md)
-* [HONO Deposition Fix for the STAGE Deposition Option](CMAQv5.3.3_hono_deposition_fix_for_STAGE.md)
-* [HONO Deposition Fix for the M3DRY Deposition Option](CMAQv5.3.3_hono_deposition_fix_for_m3dry.md)
-* [Updates to ICON and BCON Pre-processing Utilities](CMAQv5.3.3_ICON_BCON_updates.md)
-* [Updates to Post-processing Utilities](CMAQv5.3.3_postprocessing_tools.md)
+* [DMS chemistry bug fix](CMAQv5.3.3_DMS_chemistry_bugfix.md)
+* [HONO deposition fix for the STAGE deposition option](CMAQv5.3.3_hono_deposition_fix_for_STAGE.md)
+* [HONO deposition fix for the M3DRY deposition option](CMAQv5.3.3_hono_deposition_fix_for_m3dry.md)
+* [KZMIN setting update](CMAQv5.3.3_KZMIN_setting_update.md)
+* [Windowing setting update](CMAQv5.3.3_windowing.md)
+* [Updates to ICON and BCON pre-processing utilities](CMAQv5.3.3_ICON_BCON_updates.md)
+* [Updates to MCIP meteorology pre-processor](../../PREP/mcip/docs/ReleaseNotes)
+* [Updates to post-processing utilities](CMAQv5.3.3_postprocessing_tools.md)
 
 # Summary of CMAQv5.3.2 Updates 
 
