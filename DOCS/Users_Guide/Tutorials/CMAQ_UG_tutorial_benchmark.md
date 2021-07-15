@@ -19,7 +19,7 @@ The following support software are required for compiling and running CMAQ.
 3. Latest release of [netCDF-C](https://www.unidata.ucar.edu/software/netcdf/docs/getting_and_building_netcdf.html) and [netCDF-Fortran](https://www.unidata.ucar.edu/software/netcdf/docs/building_netcdf_fortran.html) **built without netCDF4, HDF5, HDF4, DAP client, PnetCDF, or zlib support** 
 4. [I/O API](https://www.cmascenter.org/download/software/ioapi/ioapi_3-2.cfm?DB=TRUE) version 3.2 **tagged 20200828**
 (note: if you have not installed the above libraries, please see the CMAQ_UG_tutorial_build_[gcc/intel/pgi].md tutorials available here: 
-https://github.com/USEPA/CMAQ/tree/master/DOCS/Users_Guide/Tutorials
+https://github.com/USEPA/CMAQ/tree/main/DOCS/Users_Guide/Tutorials
 
 The suggested hardware requirements for running the CMAQ Southeast Benchmark case on a Linux workstation are:
 
@@ -32,14 +32,14 @@ The suggested hardware requirements for running the CMAQ Southeast Benchmark cas
 In the directory where you would like to install CMAQ, create the directory issue the following command to clone the EPA GitHub repository for CMAQv5.3.2:
 
 ```
-git clone -b master https://github.com/USEPA/CMAQ.git CMAQ_REPO
+git clone -b main https://github.com/USEPA/CMAQ.git CMAQ_REPO
 ```
 
 For instructions on installing CMAQ from Zip files, see [Chapter 5](../CMAQ_UG_ch05_running_a_simulation.md).
 
 ## Check Out a new Branch in the CMAQ Repository 
 
-Checking out a new branch is a good idea even if you are not doing code development, per se. It is likely that you will want to retrieve new updates in the future, and an easy way to do this is through the master branch in the git repo. Thus, it is beneficial to leave it unperturbed if possible.
+Checking out a new branch is a good idea even if you are not doing code development, per se. It is likely that you will want to retrieve new updates in the future, and an easy way to do this is through the main branch in the git repo. Thus, it is beneficial to leave it unperturbed if possible.
 ```
 cd CMAQ_REPO
 git checkout -b my_branch
