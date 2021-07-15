@@ -17,7 +17,7 @@ module load openmpi_4.0.1/gcc_9.1.0
    **Skip to Step 3, if you have a module for netCDF avialable on your system and you have loaded it**
 
    Follow the tutorial for building libraries to build netCDF C and Fortran Libraries
-   https://github.com/USEPA/CMAQ/blob/master/DOCS/Users_Guide/Tutorials/CMAQ_UG_tutorial_build_library_gcc.md
+   https://github.com/USEPA/CMAQ/blob/main/DOCS/Users_Guide/Tutorials/CMAQ_UG_tutorial_build_library_gcc.md
    
    - Follow these instructions to combine the libraries into a single combined directory
    
@@ -215,7 +215,7 @@ module load openmpi_4.0.1/gcc_9.1.0
 In the directory where you would like to install CMAQ, create the directory issue the following command to clone the EPA GitHub repository for CMAQv5.3.3:
 
 ```
-git clone -b master https://github.com/USEPA/CMAQ.git CMAQ_REPO
+git clone -b main https://github.com/USEPA/CMAQ.git CMAQ_REPO
 ```
 
 Build and run in a user-specified directory outside of the repository
