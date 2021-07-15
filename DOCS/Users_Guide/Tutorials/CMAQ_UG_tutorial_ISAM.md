@@ -55,7 +55,7 @@ https://www.cmascenter.org/ioapi/download/ioapi-3.2-20200828.tar.gz
 ### Step 5: Install CMAQ with ISAM
 
 ```
-git clone -b master https://github.com/USEPA/CMAQ.git CMAQ_REPO
+git clone -b main https://github.com/USEPA/CMAQ.git CMAQ_REPO
 ```
 
 Build and run in a user-specified directory outside of the repository
