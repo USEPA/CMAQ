@@ -22,7 +22,7 @@ Figure 1: Impact of updated KW on annual DMS emission (Percent difference betwee
 
 Figure 2: Impact of updated KW on annual mean DMS concentration (Absolute difference between the updated and existing annual mean DMS concentration)
 
-![SO2_concentration_change](difference_between_updated_and_existing_so2_concentration.jpg) 
+![SO2_concentration_change](difference_between_updated_and_existing_so2_concentratio.jpg) 
 
 Figure 3: Impact of updated KW on annual mean SO2 concentration (Absolute difference between the updated and existing annual mean SO2 concentration)
 
