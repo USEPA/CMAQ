@@ -80,17 +80,18 @@
     case intel:
 
        #> I/O API and netCDF root
-       setenv NETCDF netcdf_root_intel # Note please combine netCDF-C & Fortran Libraries 
+       setenv NCDIR  netcdf_c_directory_path
+       setenv NFDIR  netcdf_f_directory_path
        setenv IOAPI  ioapi_root_intel  
        setenv WRF_ARCH # [1-75] Optional, ONLY for WRF-CMAQ 
     
         #> I/O API, netCDF, and MPI library locations
         setenv IOAPI_INCL_DIR   ${IOAPI}/ioapi_inc_intel    #> I/O API include header files
         setenv IOAPI_LIB_DIR    ${IOAPI}/ioapi_lib_intel    #> I/O API libraries
-        setenv NETCDF_LIB_DIR   ${NETCDF}/netcdf_lib_intel  #> netCDF C directory path
-        setenv NETCDF_INCL_DIR  ${NETCDF}/netcdf_inc_intel  #> netCDF C directory path
-        setenv NETCDFF_LIB_DIR  netcdff_lib_intel           #> netCDF Fortran directory path
-        setenv NETCDFF_INCL_DIR netcdff_inc_intel           #> netCDF Fortran directory path
+        setenv NETCDF_LIB_DIR   ${NCDIR}/netcdf_lib_intel   #> netCDF C directory path
+        setenv NETCDF_INCL_DIR  ${NCDIR}/netcdf_inc_intel   #> netCDF C directory path
+        setenv NETCDFF_LIB_DIR  ${NFDIR}/netcdff_lib_intel  #> netCDF Fortran directory path
+        setenv NETCDFF_INCL_DIR ${NFDIR}/netcdff_inc_intel  #> netCDF Fortran directory path
         setenv MPI_INCL_DIR     mpi_incl_intel              #> MPI Include directory path
         setenv MPI_LIB_DIR      mpi_lib_intel               #> MPI Lib directory path
     
@@ -112,17 +113,18 @@
     case pgi:
 
         #> I/O API and netCDF for WRF-CMAQ 
-        setenv NETCDF netcdf_root_pgi # Note please combine netCDF-C & Fortran Libraries 
         setenv IOAPI  ioapi_root_pgi  
+        setenv NCDIR  netcdf_c_directory_path
+        setenv NFDIR  netcdf_f_directory_path
         setenv WRF_ARCH # [1-75] Optional, ONLY for WRF-CMAQ  
  
         #> I/O API, netCDF, and MPI library locations
         setenv IOAPI_INCL_DIR   ${IOAPI}/iopai_inc_pgi    #> I/O API include header files
         setenv IOAPI_LIB_DIR    ${IOAPI}/ioapi_lib_pgi    #> I/O API libraries
-        setenv NETCDF_LIB_DIR   ${NETCDF}/netcdf_lib_pgi  #> netCDF C directory path
-        setenv NETCDF_INCL_DIR  ${NETCDF}/netcdf_inc_pgi  #> netCDF C directory path
-        setenv NETCDFF_LIB_DIR  netcdff_lib_pgi           #> netCDF Fortran directory path
-        setenv NETCDFF_INCL_DIR netcdff_inc_pgi           #> netCDF Fortran directory path
+        setenv NETCDF_LIB_DIR   ${NCDIR}/netcdf_lib_pgi  #> netCDF C directory path
+        setenv NETCDF_INCL_DIR  ${NCDIR}/netcdf_inc_pgi  #> netCDF C directory path
+        setenv NETCDFF_LIB_DIR  ${NFDIR}netcdff_lib_pgi           #> netCDF Fortran directory path
+        setenv NETCDFF_INCL_DIR ${NFDIR}netcdff_inc_pgi           #> netCDF Fortran directory path
         setenv MPI_INCL_DIR     mpi_incl_pgi              #> MPI Include directory path
         setenv MPI_LIB_DIR      mpi_lib_pgi               #> MPI Lib directory path
  
@@ -143,17 +145,18 @@
     case gcc:
  
         #> I/O API and netCDF for WRF-CMAQ 
-        setenv NETCDF netcdf_root_gcc # Note please combine netCDF-C & Fortran Libraries 
+        setenv NCDIR netcdf_c_root_gcc 
+        setenv NFDIR  netcdf_f_directory_path
         setenv IOAPI  ioapi_root_gcc  
         setenv WRF_ARCH # [1-75] Optional, ONLY for WRF-CMAQ  
   
         #> I/O API, netCDF, and MPI library locations
         setenv IOAPI_INCL_DIR   ${IOAPI}/iopai_inc_gcc    #> I/O API include header files
         setenv IOAPI_LIB_DIR    ${IOAPI}/ioapi_lib_gcc    #> I/O API libraries
-        setenv NETCDF_LIB_DIR   ${NETCDF}/netcdf_lib_gcc  #> netCDF C directory path
-        setenv NETCDF_INCL_DIR  ${NETCDF}/netcdf_inc_gcc  #> netCDF C directory path
-        setenv NETCDFF_LIB_DIR  netcdff_lib_gcc           #> netCDF Fortran directory path
-        setenv NETCDFF_INCL_DIR netcdff_inc_gcc           #> netCDF Fortran directory path
+        setenv NETCDF_LIB_DIR   ${NCDIR}/netcdf_lib_gcc  #> netCDF C directory path
+        setenv NETCDF_INCL_DIR  ${NCDIR}/netcdf_inc_gcc  #> netCDF C directory path
+        setenv NETCDFF_LIB_DIR  ${NFDIR}/netcdff_lib_gcc           #> netCDF Fortran directory path
+        setenv NETCDFF_INCL_DIR ${NFDIR}/netcdff_inc_gcc           #> netCDF Fortran directory path
         setenv MPI_INCL_DIR     mpi_incl_gcc              #> MPI Include directory path
         setenv MPI_LIB_DIR      mpi_lib_gcc               #> MPI Lib directory path
 
