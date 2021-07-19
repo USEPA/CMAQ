@@ -169,7 +169,7 @@
         setenv myFFLAGS "-ffixed-form -ffixed-line-length-132 -funroll-loops -finit-character=32"
         setenv myFRFLAGS "-ffree-form -ffree-line-length-none -funroll-loops -finit-character=32"
         setenv myCFLAGS "-O2"
-        setenv myLINK_FLAG # "-fopenmp" openMP not supported w/ CMAQ
+        setenv myLINK_FLAG  "-fopenmp"  # openMP not supported w/ CMAQ
         setenv extra_lib ""
     
         breaksw
