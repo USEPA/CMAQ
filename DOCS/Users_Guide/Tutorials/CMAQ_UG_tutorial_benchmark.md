@@ -47,14 +47,14 @@ git checkout -b my_branch
 
 ## Configure the CMAQ build environment
 
-The user has two options for building an environment. She or he may build and run CMAQ components directly in the repository structure (object files and executables will be ignored with .gitignore), or they may extract the build and run scripts out of the repository and work in a separate location. If you would like to build directly in the repository, skip to "Install the CMAQ Libraries" below.
+The user has two options for building an environment. She or he may build and run CMAQ components directly in the repository structure (object files and executables will be ignored with .gitignore), or they may extract the build and run scripts out of the repository and work in a separate location. If you would like to build directly in the repository, skip to "Link the CMAQ Libraries" below.
 
 ### Build and run in a user-specified directory outside of the repository
 In the top level of CMAQ_REPO, the bldit_project.csh script will automatically replicate the CMAQ folder structure and copy every build and run script out of the repository so that you may modify them freely without version control.
 
 In bldit_project.csh, modify the variable $CMAQ_HOME to identify the folder that you would like to install the CMAQ package under. For example:
 ```
-set CMAQ_HOME = /home/username/CMAQ_v5.3.2
+set CMAQ_HOME = /home/username/CMAQ_v5.3.3
 ```
 Now execute the script.
 ```
