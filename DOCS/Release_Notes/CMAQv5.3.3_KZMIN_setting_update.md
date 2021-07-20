@@ -8,7 +8,7 @@ As described in [Appendix A](../Users_Guide/Appendix/CMAQ_UG_appendixA_model_opt
 Routine CIO within CCTM was updated to not read PURB data from the GRID_CRO_2D meteorology file but insetad assume PURB = 0.0 everywhere, if the correct KZMIN setting is set. 
 
 ## Significance and Impact  
-Both minimum eddy diffusivity in each grid cell and production of heterogenous Nitrous Acid (HONO) from the interaction of NO2 on ground surfaces (controlled by runtime variable [CTM_SFC_HONO](../Users_Guide/CMAQ_UG_ch06_model_configuration_options.md#6104-nitrous-acid-hono)) are dependent on PURB data. Due to the appropriate KZMIN setting, if PURB data is not read and assumed to be 0.0, users should expect lower predicated HONO as described by [Chapter 6](../Users_Guide/CMAQ_UG_ch06_model_configuration_options.md#6104-nitrous-acid-hono).
+Both minimum eddy diffusivity in each grid cell and production of heterogenous Nitrous Acid (HONO) from the interaction of NO2 on ground surfaces (controlled by runtime variable [CTM_SFC_HONO](../Users_Guide/CMAQ_UG_ch06_model_configuration_options.md#6104-nitrous-acid-hono)) are dependent on PURB data. If PURB data is not read-in and assumed to be 0.0 (controlled by appropriate KZMIN setting), users should expect lower predicated HONO as described by [Chapter 6](../Users_Guide/CMAQ_UG_ch06_model_configuration_options.md#6104-nitrous-acid-hono).
 
 ## Affected Files
 CCTM/scripts/run_cctm_2010_4CALIF1.csh
