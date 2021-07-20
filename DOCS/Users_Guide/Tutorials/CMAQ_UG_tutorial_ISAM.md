@@ -2,7 +2,7 @@
 
 ### Procedure to build and run the CMAQ-ISAM model using gnu compiler: ###
 
-### Step 1: Download and run the CMAQv5.3.2 benchmark case (without ISAM) to confirm that your model run is consistent with the provided benchmark output.
+### Step 1: Download and run the CMAQv5.3.3 benchmark case (without ISAM) to confirm that your model run is consistent with the provided benchmark output.
 - [CMAQ Benchmark Tutorial](CMAQ_UG_tutorial_benchmark.md)
 
 If you encounter any errors, try running the model in debug mode and refer to the CMAS User Forum to determine if any issues have been reported.
@@ -14,7 +14,7 @@ https://forum.cmascenter.org/
 
 Note: This benchmark is intended to demonstrate how to build and run CMAQ-ISAM with the provided input files:
 
-The following isam control file is provided in the CCTM/scripts directory when you obtain the CMAQv5.3.2 code from github (step 5 below):
+The following isam control file is provided in the CCTM/scripts directory when you obtain the CMAQv5.3.3 code from github (step 5 below):
 
 ```
 isam_control.txt
@@ -65,7 +65,7 @@ In the top level of CMAQ_REPO, the bldit_project.csh script will automatically r
 Edit bldit_project.csh, to modify the variable $CMAQ_HOME to identify the folder that you would like to install the CMAQ package under. For example:
 
 ```
-set CMAQ_HOME = /work/your_username/CMAQ_v5.3.2
+set CMAQ_HOME = /work/your_username/CMAQ_v5.3.3
 ```
 
 Now execute the script.
@@ -77,7 +77,7 @@ Now execute the script.
 Change directories to the CMAQ_HOME directory
 
 ```
-cd /work/your_username/CMAQ_v5.3.2
+cd /work/your_username/CMAQ_v5.3.3
 ```
 
 
