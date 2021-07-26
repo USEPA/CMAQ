@@ -347,7 +347,7 @@
 !C======================================================================
 !C Get NO produced from lightning in VDEMIS_LT
 
-         SUBROUTINE GET_LTNG ( JDATE, JTIME, TSTEP )
+         SUBROUTINE GET_LTNG ( JDATE, JTIME, TSTEP, L_DESID_DIAG )
 
          USE GRID_CONF             ! horizontal & vertical domain specifications
          USE UTILIO_DEFN
@@ -370,7 +370,8 @@
 
          INTEGER JDATE, JTIME, TSTEP( 3 )
          INTEGER STATUS
-
+         LOGICAL, INTENT( IN ) :: L_DESID_DIAG ! flag determining whether or not DESID
+                                               !   is in diagnostic mode              
          REAL,   PARAMETER :: CONVPA = 1.0E-2  ! convert Pa to hPa
 !        REAL,   PARAMETER :: WK = 8.0         ! shape parameter for weibull distribution
 !        REAL,   PARAMETER :: WLAMBDA = 700.0  ! scale parameter for weibull distribution
@@ -590,19 +591,21 @@ C statement function for ERF approximation
             END DO   ! rows
 
 !C Determine the time to read and/or write the hourly files
-            NTICS = NTICS + 1
-            TOT_TSTEP = TOT_TSTEP + TIME2SEC( TSTEP( 2 ) )
-            LASTTIC = TOT_TSTEP .GE. LT_TSTEP
-            IF ( LASTTIC ) THEN
-               MTICS = NTICS
-               NTICS = 0
-               TOT_TSTEP = 0
-               CALL NEXTIME( LDATE, LTIME, LT_TSTEP_F)
-               R_READY = .TRUE.
+            IF ( .NOT. L_DESID_DIAG ) THEN
+              NTICS = NTICS + 1
+              TOT_TSTEP = TOT_TSTEP + TIME2SEC( TSTEP( 2 ) )
+              LASTTIC = TOT_TSTEP .GE. LT_TSTEP
+              IF ( LASTTIC ) THEN
+                 MTICS = NTICS
+                 NTICS = 0
+                 TOT_TSTEP = 0
+                 CALL NEXTIME( LDATE, LTIME, LT_TSTEP_F)
+                 R_READY = .TRUE.
+              END IF
             END IF
 
 !C Write lightning NO to the diagnostic file
-            IF ( LTNGDIAG ) THEN 
+            IF ( LTNGDIAG .AND. .NOT. L_DESID_DIAG ) THEN 
                VDEMIS_DIAG = VDEMIS_DIAG + VDEMIS_LT   ! array assignment
                COLUMN_DIAG = COLUMN_DIAG + COLUMN_LTNG_NO
                IF ( LASTTIC ) THEN   ! time to write out

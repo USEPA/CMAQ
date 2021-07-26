@@ -25,11 +25,11 @@
 #> Set the build directory if this was not set above 
 #> (this is where the executable is located by default).
  if ( ! $?BINDIR ) then
-  setenv BINDIR ${CMAQ_HOME}/POST/appendwrf/scripts/BLD_appendwrf_${VRSN}_${compilerString}
+  set BINDIR = ${CMAQ_HOME}/POST/appendwrf/scripts/BLD_appendwrf_${VRSN}_${compilerString}
  endif
 
 #> Set the name of the executable.
- setenv EXEC appendwrf_${VRSN}.exe
+ set EXEC = appendwrf_${VRSN}.exe
 
 #> Set input and output directories
  set INDIR  = ${CMAQ_DATA}/met/mcip
@@ -53,6 +53,11 @@
 #> Executable call:
  ${BINDIR}/${EXEC}
 
+  set progstat = ${status}
+  if ( ${progstat} ) then
+    echo "ERROR ${progstat} in $BINDIR/$EXEC"
+    exit( ${progstat} )
+  endif
 
  exit()
 

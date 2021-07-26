@@ -315,7 +315,7 @@ C Open marine gas emissions diagnostic file
          END SUBROUTINE OPMGEMIS
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-         SUBROUTINE GET_MGEMIS ( JDATE, JTIME, TSTEP, CGRID )
+         SUBROUTINE GET_MGEMIS ( JDATE, JTIME, TSTEP, CGRID, L_DESID_DIAG )
 
 C GET_MGEMIS calculates the marine gas emission rates in a grid cell
 C given the fractional grid-cell area covered by open ocean and surf zone
@@ -351,7 +351,8 @@ C-----------------------------------------------------------------------
 C Arguments
             INTEGER, INTENT( IN ) :: JDATE, JTIME, TSTEP( 3 )
             REAL, POINTER         :: CGRID( :,:,:,: )         !  concentrations
-
+            LOGICAL, INTENT( IN ) :: L_DESID_DIAG ! flag determining whether or not DESID
+                                                  !   is in diagnostic mode              
 C Includes:
             INCLUDE SUBST_FILES_ID  ! file name parameters
 
@@ -464,7 +465,9 @@ C Assume MET_CRO_2D file is already opened
 
            call interpolate_var ('SEAICE', jdate, jtime, SEAICE)
 
-          IF ( MGEMDIAG .AND. WSTEP .EQ. 0 ) MGBF = 0.0
+           ! Only write out marine gas diagnostics if not in diagnostic
+           ! mode
+           IF ( MGEMDIAG .AND. WSTEP .EQ. 0 .AND. .NOT. L_DESID_DIAG ) MGBF = 0.0
 
 C Initialize marine gas output buffer
           DO R = 1, NROWS
@@ -474,7 +477,7 @@ C Initialize marine gas output buffer
 !            convert area fraction to an actual area
                      MARINE_AREA = MARINE_AREA * A
 
-                     CHLA      = CHLR ( C,R )
+                     CHLA      = MIN ( 1.0, CHLR ( C,R ) )
                      WSPD10    = U10( C,R )
                      WSPD10_M5 = MAX (5.0, WSPD10)
                      SST       = TSEASFC (C,R)
@@ -493,7 +496,7 @@ C.. calculate iodide in water
        SCN = 2674.0 - 147.12 * SSTC + 3.726 * SSTC * SSTC - 0.038 * SSTC * SSTC * SSTC
 
 !..    Calculate water-side DMS gas-transfer velocity following Liss and Merlivat,  1986 (unit - cm/hr)
-       IF ( WSPD10 .LE. 3.6 ) THEN 
+       IF ( WSPD10 .LE. 3.6 ) THEN
           KW = 0.17 * WSPD10 / ( (SCN * ONESIXHUNDREDS)**TWOTHIRDS)
         ELSE IF ( WSPD10 .GT. 3.6 .AND. WSPD10 .LE. 13.0 ) THEN
           KW = ( 2.85 * WSPD10 - 9.65 ) / SQRT(SCN * ONESIXHUNDREDS)
@@ -525,7 +528,7 @@ C.. calculate local hour
                      IF (LOCHR .LT.  0) LOCHR = LOCHR + 24
                      IF (LOCHR .GT. 23) LOCHR = LOCHR - 24
 
-                     DUMMY = 2.50E-8 * MARINE_AREA * FHRLY(LOCHR) * CHLA * SECS2HR  
+                     DUMMY = 4.31E-8 * MARINE_AREA * FHRLY(LOCHR) * CHLA * SECS2HR
 
 C.. Calculate MB3 emission rate in mole/s
                      VDEMIS_MG( IMB3, C, R ) = DUMMY * 2.00
@@ -578,7 +581,7 @@ C .. Calculate DMS emission rate in mole/s
                 END IF
 
 C Update the MGBF array, for writing the diagnostic marine gas emission file
-                IF ( MGEMDIAG ) THEN
+                IF ( MGEMDIAG .AND. .NOT. L_DESID_DIAG ) THEN
                    V = 0
                    DO S = 1, NMGSPC
                       V = V + 1
@@ -597,7 +600,7 @@ C Update the MGBF array, for writing the diagnostic marine gas emission file
 
 C If last call this hour, write out the total MG emissions [moles/s].
 C Then reset the MG emissions array and local write counter.
-         IF ( MGEMDIAG ) THEN
+         IF ( MGEMDIAG .AND. .NOT. L_DESID_DIAG ) THEN
 
              WSTEP = WSTEP + TIME2SEC( TSTEP( 2 ) )
 

@@ -590,7 +590,8 @@ C Open windblown dust emissions diagnostic file
          end subroutine opdust_emis
 
 C=======================================================================
-         subroutine get_dust_emis( jdate, jtime, tstep, rjacm, cellhgt )
+         subroutine get_dust_emis( jdate, jtime, tstep, rjacm, cellhgt,
+     &                             l_desid_diag)
 
          use grid_conf        ! horizontal & vertical domain specifications
          use asx_data_mod     ! meteorology data
@@ -603,11 +604,13 @@ C                       RC -> RCA and RN -> RNA and made it backward compatible
 C       8/12/15 D.Wong: added code to handle parallel I/O implementation
 
 C Arguments:
-         integer, intent( in ) :: jdate      ! current model date, coded YYYYDDD
-         integer, intent( in ) :: jtime      ! current model time, coded HHMMSS
-         integer, intent( in ) :: tstep( 3 ) ! output time step, sync step, 2way step
+         integer, intent( in ) :: jdate        ! current model date, coded YYYYDDD
+         integer, intent( in ) :: jtime        ! current model time, coded HHMMSS
+         integer, intent( in ) :: tstep( 3 )   ! output time step, sync step, 2way step
          real,    intent( in ) :: rjacm( ncols,nrows ) ! reciprocal Jacobian [1/m]
-         real,    intent( in ) :: cellhgt    ! grid-cell height [sigma]
+         real,    intent( in ) :: cellhgt      ! grid-cell height [sigma]
+         logical, intent( in ) :: l_desid_diag ! flag determining whether or not DESID 
+                                               !   is in diagnostic mode
 
 C Includes:
          include SUBST_FILES_ID  ! file name parameters
@@ -805,7 +808,7 @@ C   following the idea of Xi and Sokolik [JGR,2015]
 #endif
 
 C Initialize windblown dust diagnostics output buffer
-         if ( dustem_diag .and. wstep .eq. 0 ) then
+         if ( dustem_diag .and. wstep .eq. 0 .and. .not. l_desid_diag ) then
             dustbf = 0.0   ! array assignment
 #ifdef verbose_wbdust
             sdiagv = 0.0   ! array assignment
@@ -1073,7 +1076,7 @@ C 2nd moment multiplied by PI to obtain the surface area emissions rate.
             if ( m3j .ne. 0.0 ) dusthit = dusthit + 1
 #endif
 
-            if ( dustem_diag ) then
+            if ( dustem_diag .and. .not. l_desid_diag ) then
                do m = 1, n_dlcat+1
                   diagv( m ) = qam( c,r,m )             ! g/m**3/s
                end do
@@ -1158,7 +1161,7 @@ C to get a timestep average.
      &                                       dusthit, (c-1)*(r-1)
 #endif
 
-         if ( dustem_diag ) then
+         if ( dustem_diag .and. .not. l_desid_diag ) then
 
 C If last call this hour, write out the windblown dust emissions dignostics.
 C Then reset the emissions array and local write counter.
