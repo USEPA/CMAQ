@@ -3,15 +3,15 @@
 [Golam Sarwar](mailto:sarwar.golam@epa.gov), U.S. Environmental Protection Agency
 
 ### Description of model issue
-Dimethyl sulfide (DMS) emissions and chemistry was previously combined with CB6r3 and implemented into CMAQv53. It calculates DMS emissions using water-side DMS gas-transfer velocity (KW) following Liss and Merlivat (1986). However, the parameterization for KW at low wind speed (≤ 3.6 m/s) contains an error. 
+Dimethyl sulfide (DMS) emissions and chemistry was previously combined with chemical mechanism cb6r3m_ae7_kmtbr and implemented into CMAQv5.3. In v5.3 DMS emissions are calculated using water-side DMS gas-transfer velocity (KW) following Liss and Merlivat (1986). However, the parameterization for KW at low wind speed (≤ 3.6 m/s) contained an error. 
 
 ### Solution in CMAQv5.3.3
-The current model uses the following parameterization:      
-KW = 0.17 × WSPD10 / SQRT(SCN / 600.0)    
+CMAQv5.3-v5.3.2 uses the following parameterization:      
+ KW = 0.17 × WSPD10 / SQRT(SCN / 600.0)    
 Where, KW = water-side DMS gas-transfer velocity, WSPD10 = wind speed, SCN = Schmidt number of DMS.
 
-The updated model is corrected and uses the following parameterization:    
-KW = 0.17 × WSPD10 / (SCN / 600.0)^0.667   
+CMAQv5.3.3 is corrected and uses the following parameterization:    
+ KW = 0.17 × WSPD10 / (SCN / 600.0)<sup>0.667</sup>
 
 Additional information on the impact on model concentrations is documented in the [DMS Release Note](CMAQv5.3.3_DMS_chemistry_bugfix.md).
 
@@ -19,7 +19,7 @@ Additional information on the impact on model concentrations is documented in th
 CCTM/src/emis/emis/MGEMIS.F
 
 ## 2. HONO Deposition Fix for the STAGE Deposition Option
-[Golam Sarwar](mailto:sarwar.golam@epa.gov), U.S. Environmental Protection Agency
+[Jesse Bash](mailto:bash.jesse@epa.gov), U.S. Environmental Protection Agency
 
 ### Description of model issue
 The HONO dry deposition flux in CMAQ v5.3 to v5.3.2 can be negative when surface heterogeneous production exceeds deposition. Similar negative values are found in both M3DRY and STAGE. 
@@ -57,7 +57,7 @@ CMAQ/CCTM/CCTM/src/vdiff/acm2_m3dry/vdiffacmx.F
 [Golam Sarwar](mailto:sarwar.golam@epa.gov), U.S. Environmental Protection Agency
 
 ### Description of model issue
-CMAQ has two options for calculating in-line biogenic emissions: BEIS and MEGAN. For BEIS, CMAQ uses an emission profile for calculating in-line biogenic emissions. Xiaoyang Chen at Northeastern University notified that CMAQ (BEIS) is not generating any monoterpene emissions when in-line option is enabled with RACM2. Emission profile 'B10RD' is currently used for RACM2; however, it does not contain correct mapping which results in no monoterpene emissions. 
+Xiaoyang Chen at Northeastern University identified that the inline biogenics module in CMAQ (BEIS) is not generating any monoterpene emissions when inline option is enabled with RACM2. Emission profile 'B10RD' is currently used for RACM2; however, it does not contain correct mapping which results in no monoterpene emissions. 
 
 ### Solution in CMAQv5.3.3
 An emission profile 'B3V10' was generated when RACM2 was initially implemented in CMAQ which contains correct mapping of model species. The model is revised to remove emission profile 'B10RD' and add the emission profile 'B3V10'. Biogenic emissions calculation using MEGAN does not use this profile and works properly.
