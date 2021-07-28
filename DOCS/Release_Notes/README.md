@@ -11,7 +11,6 @@ The Community Multiscale Air Quality (CMAQ) Model version 5.3.3 is a minor updat
 
 * [CMAQv5.3.3 Bugfixes](CMAQv5.3.3_bugfixes.md)
 * [New WRFv4.3-CMAQv5.3.3 Coupled Model](CMAQv5.3.3_Coupled_WRF-CMAQ.md)
-* [BEIS in-line emissions for RACM2](CMAQv5.3.3_BEIS_in-line_emissions_for_RACM2_operational_branch.md)
 * [Updates to ICON and BCON pre-processing utilities](CMAQv5.3.3_ICON_BCON_updates.md)
 * [Updates to the Detailed Emission Scaling Isolation and Diagnostics (DESID) Module](CMAQv5.3.3_DESID_updates.md)
 * [Updates to MCIP meteorology pre-processor](../../PREP/mcip/docs/ReleaseNotes)
