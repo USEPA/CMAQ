@@ -13,7 +13,6 @@ The Community Multiscale Air Quality (CMAQ) Model version 5.3.3 is a minor updat
 * [New WRFv4.3-CMAQv5.3.3 Coupled Model](CMAQv5.3.3_Coupled_WRF-CMAQ.md)
 * [BEIS in-line emissions for RACM2](CMAQv5.3.3_BEIS_in-line_emissions_for_RACM2_operational_branch.md)
 * [DMS chemistry bug fix](CMAQv5.3.3_DMS_chemistry_bugfix.md)
-* [Process Analysis Reinitialization bug fix](CMAQv5.3.3_PA_MASS_CLOSURE_fix.md)
 * [HONO deposition fix for the STAGE deposition option](CMAQv5.3.3_hono_deposition_fix_for_STAGE.md)
 * [HONO deposition fix for the M3DRY deposition option](CMAQv5.3.3_hono_deposition_fix_for_m3dry.md)
 * [KZMIN setting update](CMAQv5.3.3_KZMIN_setting_update.md)
