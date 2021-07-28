@@ -87,8 +87,8 @@ Since DistrEnv is strictly an MPI option (containing MPI commands) it is only ne
 The second part of this update cleans-up the C code and adds C-Fortran Interoperability (Feldman Style Binding) that is consistent with the CPP flag provided in the Makefile (-DFLDMN) to compile this code with other architectures & compilers that don't append C code with underscore.  
 
 ### Files Affected 
-CCTM/scripts/bldit_cctm.csh<br>
-CCTM/src/par/mpi/distr_env.c
+CCTM/scripts/bldit_cctm.csh    
+CCTM/src/par/mpi/distr_env.c    
 
 ## 6. POST tool bug fixes in hr2day and sitecmp_dailyo3
 [Christian Hogrefe](mailto:hogrefe.christian@epa.gov), U.S. Environmental Protection Agency
@@ -109,8 +109,8 @@ The *sitecmp_dailyo3* code was updated to remove any quotes from the `OZONE_F` c
 
 ### Files Affected 
 
-POST/hr2day/src/hr2day.F
-POST/sitecmp_dailyo3/src/utilities.F
+POST/hr2day/src/hr2day.F    
+POST/sitecmp_dailyo3/src/utilities.F    
 
 ## 7. Updated bldmake & config_cmaq.csh to add mpi library in CCTM Makefile
 [Fahim Sidi](mailto:sidi.fahim@epa.gov), U.S. Environmental Protection Agency
@@ -126,8 +126,8 @@ The update enables users to specify, explicitly, paths to the MPI Library and in
 Changed config_cmaq.csh to include new variable MPI_INCL_DIR, consistent with treatment of other external libraries used in CMAQ (I/O API & netCDF). A change is also made in bldmake to reflect this updated variable. 
 
 ### Files Affected 
-UTIL/bldmake/src/bldmake.f<br>
-config_cmaq.csh 
+UTIL/bldmake/src/bldmake.f    
+config_cmaq.csh    
 
 ## 8. Provide appropriate error message and abort if OMI photolysis file is missing
 [Chris Nolte](mailto:nolte.chris@epa.gov), U.S. Environmental Protection Agency
@@ -139,7 +139,7 @@ The photolysis module reads a data file from NASA's Ozone Monitoring Instrument 
 The check has been moved prior to the first attempt to read the file, and the model aborts with an appropriate error if the OMI file is not found.  There is no impact on model results in the normal case, where the OMI file is present.
 
 ### Files Affected 
-CCTM/src/phot/inline/o3totcol.f
+CCTM/src/phot/inline/o3totcol.f    
 
 
 ## 9. Revise how the photolysis module checks write time for diagnostics. 
@@ -155,8 +155,8 @@ A more robust method was taken from CCTM/src/emis/emis/EMIS_DEFN.F. The change h
 impact on model predictions. 
 
 ### Files Affected 
-CCTM/src/phot/inline/phot.F
-CCTM/src/phot/table/phot.F
+CCTM/src/phot/inline/phot.F    
+CCTM/src/phot/table/phot.F     
 
 ## 10. Correct chemistry data for Reactive Tracers
 [Bill Hutzell](mailto:hutzell.bill@epa.gov), U.S. Environmental Protection Agency
@@ -182,13 +182,13 @@ Corrections removed these errors in files containing the gas chemistry data for 
 Changes corrected the cb6mp_e6_aq's emissions control file.
  
 ### Files Affected 
-CCTM/src/gas/smvgear/degrade_data.F
-CCTM/src/gas/ros3/degrade_data.F (_symbolic link to above file_)
-CCTM/src/gas/ebi_cb6r3_ae6_aq/degrade_data.F
-CCTM/src/gas/ebi_cb6mp_ae6_aq/degrade_data.F (_symbolic link to above file_)   
-CCTM/src/gas/ebi_cb6r3m_ae7_kmtbr/degrade_data.F
-CCTM/src/gas/smvgear/degrade_data.F
-CCTM/src/MECHS/cb6mp_ae6_aq/EmissCtrl_cb6mp_ae6_aq.nml
+CCTM/src/gas/smvgear/degrade_data.F    
+CCTM/src/gas/ros3/degrade_data.F    
+CCTM/src/gas/ebi_cb6r3_ae6_aq/degrade_data.F    
+CCTM/src/gas/ebi_cb6mp_ae6_aq/degrade_data.F     
+CCTM/src/gas/ebi_cb6r3m_ae7_kmtbr/degrade_data.F    
+CCTM/src/gas/smvgear/degrade_data.F    
+CCTM/src/MECHS/cb6mp_ae6_aq/EmissCtrl_cb6mp_ae6_aq.nml    
 
 
 ## 11. Remove Differences in Predictions between PHOTDIAG True and False. 
@@ -207,7 +207,7 @@ The solution added calls to the O3TOTCOL routine when all columns are DARK and P
 When PHOTDIAG equals false, model predictions now match predictions when PHOTDIAG True.
 
 ### Files Affected 
-CCTM/src/phot/inline/phot.F 
+CCTM/src/phot/inline/phot.F     
 
 ## 12. Correct O3 deposition to wet soil in the STAGE deposition option
 [Jesse O. Bash](mailto:bash.jesse@epa.gov), U.S. Environmental Protection Agency
@@ -219,7 +219,7 @@ The wet cuticular resistance would overwrite the wet soil resistance due to usin
 A new variable was created for wet cuticular surfaces, rcwet, in STAGE_MOD.F. This results in slightly higher, typically less than 1ppb, ozone values primarily at night, early mornings and during precipitation events when both cuticular and soil surfaces are wet. 
 
 ### Files Affected
-CCTM/src/depv/stage/STAGE_MOD.F
+CCTM/src/depv/stage/STAGE_MOD.F    
 
 ## 13. Correct Mosaic Land Use Specific Dry Deposition Velocity Diagnostic Output
 
@@ -231,8 +231,8 @@ An indexing error prevented the output arrays of some land use specific species 
 The indexing error was corrected, and land use specific deposition velocities are now correctly populated and written to the Mosaic deposition velocity file when CTM_MOSAIC is set to Y. 
 
 ### Files Affected
-CCTM/src/depv/stage/MOSAIC_MOD.F
-CCTM/src/depv/stage/STAGE_MOD.F
+CCTM/src/depv/stage/MOSAIC_MOD.F    
+CCTM/src/depv/stage/STAGE_MOD.F    
 
 ## 14. Resolve error in Process Analysis reintialization after aerosol processing
 [Ben Murphy](mailto:murphy.benjamin@epa.gov), U.S. Environmental Protection Agency
@@ -246,10 +246,10 @@ The main fix is in pa_update_aero and involves the calculation of csav. Other fi
 This update does not affect CMAQ predictions. It resolves a mass closure issues and ensures consistency in output.
 
 ### Files Affected
-CCTM/src/MECHS/cb6r3_ae7_aq/pa_cb6r3_ae7_aq.ctl
-CCTM/src/aero/aero6/aero_subs.F
-CCTM/src/driver/sciproc.F
-CCTM/src/procan/pa/pa_update.F
+CCTM/src/MECHS/cb6r3_ae7_aq/pa_cb6r3_ae7_aq.ctl    
+CCTM/src/aero/aero6/aero_subs.F    
+CCTM/src/driver/sciproc.F    
+CCTM/src/procan/pa/pa_update.F    
 
 ## 15. KZMIN setting update
 [David Wong](wong.david-c@epa.gov), U.S. Environmental Protection Agency
@@ -286,5 +286,5 @@ CMAQv5.3.3 reintroduces this functionality, allowing users to window gridded inp
 More details about this new feature can be found in the [Users Guide](../Users_Guide/CMAQ_UG_ch04_model_inputs.md#431-windowing-capability). 
 
 ## Files Affected
-CCTM/src/cio/centralized_io_module.F    
+CCTM/src/cio/centralized_io_module.F        
 CCTM/src/util/util/subhfile.F    
