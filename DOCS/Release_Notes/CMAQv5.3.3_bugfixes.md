@@ -1,6 +1,72 @@
 # CMAQv5.3.3 Bugfixes
+## 1. DMS chemistry bug fix
+[Golam Sarwar](mailto:sarwar.golam@epa.gov), U.S. Environmental Protection Agency
 
-## 1. Bugfix, clean-up, and added option in bldscript for distr_env.c
+### Description of model issue
+Dimethyl sulfide (DMS) emissions and chemistry was previously combined with CB6r3 and implemented into CMAQv53. It calculates DMS emissions using water-side DMS gas-transfer velocity (KW) following Liss and Merlivat (1986). However, the parameterization for KW at low wind speed (≤ 3.6 m/s) contains an error. 
+
+### Solution in CMAQv5.3.3
+The current model uses the following parameterization:      
+KW = 0.17 × WSPD10 / SQRT(SCN / 600.0)    
+Where, KW = water-side DMS gas-transfer velocity, WSPD10 = wind speed, SCN = Schmidt number of DMS.
+
+The updated model is corrected and uses the following parameterization:    
+KW = 0.17 × WSPD10 / (SCN / 600.0)^0.667   
+
+Additional information on the impact on model concentrations is documented in the [DMS Release Note](CMAQv5.3.3_DMS_chemistry_bugfix.md).
+
+### Files Affected 
+CCTM/src/emis/emis/MGEMIS.F
+
+## 2. HONO Deposition Fix for the STAGE Deposition Option
+[Golam Sarwar](mailto:sarwar.golam@epa.gov), U.S. Environmental Protection Agency
+
+### Description of model issue
+The HONO dry deposition flux in CMAQ v5.3 to v5.3.2 can be negative when surface heterogeneous production exceeds deposition. Similar negative values are found in both M3DRY and STAGE. 
+
+### Solution in CMAQv5.3.3
+This issue is fixed in CMAQv5.3.3.  Testing was done for the 2016 benchmark and CONUS domains with the STAGE option for all combinations of NH3 and Hg bidirectional exchange and heterogeneous HONO production options and with ISAM simulations. Predicted HONO dry deposition with CMAQv5.3.2 can be negative while HONO dry deposition with v5.3.3 is positive for all dry deposition, grid cell average and MOSAIC and ISAM outputs. Negative Hg dry deposition fluxes were removed from dry deposition, MOSAIC and ISAM outputs and negative NH3 dry deposition fluxes were removed from the MOSAIC deposition option. Two new variables were added to capture Hg emissions or heterogeneous HONO production, HG_Emis and HONO_Het respectively, if those options are selected in the run script. The diagnostic NH3 dry deposition flux in CMAQ v5.3 - v5.3.2 was replaced with the actual dry deposition flux resulting in up to a 2% change, more typically less than 1% for the CONUS domain, in the modeled deposition. Dry depositions of other chemical species and model concentrations are unaffected by the changes. 
+
+Additionally, several large redundant 4D arrays in MOSAIC were removed and some variables in vdiff/acm2_stage were renamed to more accurately indicate the data that they contain. 
+### Files Affected 
+CCTM/src/depv/stage/DEPV_DEFN.F    
+CCTM/src/depv/stage/HGSIM.F    
+CCTM/src/depv/stage/MOSAIC_MOD.F    
+CCTM/src/depv/stage/NH3_BIDI_MOD.F    
+CCTM/src/depv/stage/STAGE_DATA.F    
+CCTM/src/depv/stage/STAGE_MOD.F    
+CCTM/src/vdiff/acm2_stage/VDIFF_MAP.F    
+CCTM/src/vdiff/acm2_stage/opddep.F    
+CCTM/src/vdiff/acm2_stage/vdiffacmx.F    
+CCTM/src/vdiff/acm2_stage/vdiffproc.F    
+
+## 3. HONO Deposition Fix for the M3DRY Deposition Option
+[Golam Sarwar](mailto:sarwar.golam@epa.gov), U.S. Environmental Protection Agency
+
+### Description of model issue
+The HONO dry deposition flux in CMAQ v5.3 to v5.3.2 can be negative when surface heterogeneous production exceeds deposition. Similar negative values are found in both M3DRY and STAGE. 
+
+### Solution in CMAQv5.3.3
+This issue is fixed in CMAQv5.3.3.  Testing was done for the 2011 benchmark domain with the M3DRY option. Predicted HONO dry deposition with CMAQv5.3.2 can be negative while HONO dry deposition with the v5.3.3 is positive. Dry depositions of other chemical species and model concentrations are unaffected by the changes. It also removes the negative HONO deposition in the ISAM output.
+
+### Files Affected 
+CMAQ/CCTM/CCTM/src/vdiff/acm2_m3dry/vdiffacmx.F
+
+
+## 4. Correction to BEIS in-line emissions for RACM2 
+[Golam Sarwar](mailto:sarwar.golam@epa.gov), U.S. Environmental Protection Agency
+
+### Description of model issue
+CMAQ has two options for calculating in-line biogenic emissions: BEIS and MEGAN. For BEIS, CMAQ uses an emission profile for calculating in-line biogenic emissions. Xiaoyang Chen at Northeastern University notified that CMAQ (BEIS) is not generating any monoterpene emissions when in-line option is enabled with RACM2. Emission profile 'B10RD' is currently used for RACM2; however, it does not contain correct mapping which results in no monoterpene emissions. 
+
+### Solution in CMAQv5.3.3
+An emission profile 'B3V10' was generated when RACM2 was initially implemented in CMAQ which contains correct mapping of model species. The model is revised to remove emission profile 'B10RD' and add the emission profile 'B3V10'. Biogenic emissions calculation using MEGAN does not use this profile and works properly.
+
+### Files Affected 
+CCTM/CCTM/src/emis/emis/BIOG_EMIS.F    
+CMAQ/CCTM/CCTM/src/biog/beis3/gspro_biogenics.txt    
+
+## 5. Bugfix, clean-up, and added option in bldscript for distr_env.c
 [Fahim Sidi](mailto:sidi.fahim@epa.gov), U.S. Environmental Protection Agency
 
 ### Description of model issue
@@ -24,7 +90,7 @@ The second part of this update cleans-up the C code and adds C-Fortran Interoper
 CCTM/scripts/bldit_cctm.csh<br>
 CCTM/src/par/mpi/distr_env.c
 
-## 2. POST tool bug fixes in hr2day and sitecmp_dailyo3
+## 6. POST tool bug fixes in hr2day and sitecmp_dailyo3
 [Christian Hogrefe](mailto:hogrefe.christian@epa.gov), U.S. Environmental Protection Agency
 
 ### Description of model issue
@@ -46,7 +112,7 @@ The *sitecmp_dailyo3* code was updated to remove any quotes from the `OZONE_F` c
 POST/hr2day/src/hr2day.F
 POST/sitecmp_dailyo3/src/utilities.F
 
-## 3. Updated bldmake & config_cmaq.csh to add mpi library in CCTM Makefile
+## 7. Updated bldmake & config_cmaq.csh to add mpi library in CCTM Makefile
 [Fahim Sidi](mailto:sidi.fahim@epa.gov), U.S. Environmental Protection Agency
 
 ### Description of model issue
@@ -63,7 +129,7 @@ Changed config_cmaq.csh to include new variable MPI_INCL_DIR, consistent with tr
 UTIL/bldmake/src/bldmake.f<br>
 config_cmaq.csh 
 
-## 4. Provide appropriate error message and abort if OMI photolysis file is missing
+## 8. Provide appropriate error message and abort if OMI photolysis file is missing
 [Chris Nolte](mailto:nolte.chris@epa.gov), U.S. Environmental Protection Agency
 
 ### Description of model issue
@@ -76,7 +142,7 @@ The check has been moved prior to the first attempt to read the file, and the mo
 CCTM/src/phot/inline/o3totcol.f
 
 
-## 5. Revise how the photolysis module checks write time for diagnostics. 
+## 9. Revise how the photolysis module checks write time for diagnostics. 
 [Bill Hutzell](mailto:hutzell.bill@epa.gov), U.S. Environmental Protection Agency
 
 ### Description of model issue
@@ -92,7 +158,7 @@ impact on model predictions.
 CCTM/src/phot/inline/phot.F
 CCTM/src/phot/table/phot.F
 
-## 6. Correct chemistry data for Reactive Tracers
+## 10. Correct chemistry data for Reactive Tracers
 [Bill Hutzell](mailto:hutzell.bill@epa.gov), U.S. Environmental Protection Agency
 
 ### Description of model issue
@@ -125,7 +191,7 @@ CCTM/src/gas/smvgear/degrade_data.F
 CCTM/src/MECHS/cb6mp_ae6_aq/EmissCtrl_cb6mp_ae6_aq.nml
 
 
-## 7. Remove Differences in Predictions between PHOTDIAG True and False. 
+## 11. Remove Differences in Predictions between PHOTDIAG True and False. 
 [Bill Hutzell](mailto:hutzell.bill@epa.gov), U.S. Environmental Protection Agency
 
 ### Description of model issue
@@ -143,7 +209,7 @@ When PHOTDIAG equals false, model predictions now match predictions when PHOTDIA
 ### Files Affected 
 CCTM/src/phot/inline/phot.F 
 
-## 8. Correct O3 deposition to wet soil in the STAGE deposition option
+## 12. Correct O3 deposition to wet soil in the STAGE deposition option
 [Jesse O. Bash](mailto:bash.jesse@epa.gov), U.S. Environmental Protection Agency
 
 ### Description of the model issue
@@ -155,7 +221,7 @@ A new variable was created for wet cuticular surfaces, rcwet, in STAGE_MOD.F. Th
 ### Files Affected
 CCTM/src/depv/stage/STAGE_MOD.F
 
-## 9. Correct Mosaic Land Use Specific Dry Deposition Velocity Diagnostic Output
+## 13. Correct Mosaic Land Use Specific Dry Deposition Velocity Diagnostic Output
 
 [Jesse O. Bash](mailto:bash.jesse@epa.gov), U.S. Environmental Protection Agency
 ### Description of the model issue
@@ -168,7 +234,7 @@ The indexing error was corrected, and land use specific deposition velocities ar
 CCTM/src/depv/stage/MOSAIC_MOD.F
 CCTM/src/depv/stage/STAGE_MOD.F
 
-## 10. Resolve error in Process Analysis reintialization after aerosol processing
+## 14. Resolve error in Process Analysis reintialization after aerosol processing
 [Ben Murphy](mailto:murphy.benjamin@epa.gov), U.S. Environmental Protection Agency
 
 ### Description of model issue
@@ -185,3 +251,40 @@ CCTM/src/aero/aero6/aero_subs.F
 CCTM/src/driver/sciproc.F
 CCTM/src/procan/pa/pa_update.F
 
+## 15. KZMIN setting update
+[David Wong](wong.david-c@epa.gov), U.S. Environmental Protection Agency
+
+## Description of model issue
+As described in [Appendix A](../Users_Guide/Appendix/CMAQ_UG_appendixA_model_options.md#science-options), the runtime variable 'KZMIN' may be set to Y/N to control the minimum eddy diffusivity in each grid cell. Depending on the option set (Y/N), CCTM may or may not require percent urban land-use fraction (PURB) data from the GRID_CRO_2D meteorology file to calculate the minimum eddy diffusivity in each grid cell. Recent updates broke this design, causing CCTM to always require PURB data from the GRID_CRO_2D meteorology file, regardless of KZMIN setting. Hence, even if KZMIN was appropriately set, the model would crash if PURB data was not available. 
+
+### Solution in CMAQv5.3.3
+Routine CIO within CCTM was updated to not read PURB data from the GRID_CRO_2D meteorology file but insetad assume PURB = 0.0 everywhere, if the correct KZMIN setting is set. 
+
+Production of heterogenous Nitrous Acid (HONO) from the interaction of NO2 on ground surfaces (controlled by runtime variable [CTM_SFC_HONO](../Users_Guide/CMAQ_UG_ch06_model_configuration_options.md#6104-nitrous-acid-hono)) is dependent on PURB data (even if KZMIN is set appropriately). If PURB data is not read-in and assumed to be 0.0 (controlled by appropriate KZMIN setting), users should expect lower predicated HONO as described by [Chapter 6](../Users_Guide/CMAQ_UG_ch06_model_configuration_options.md#6104-nitrous-acid-hono).
+
+## Files Affected
+CCTM/scripts/run_cctm_2010_4CALIF1.csh    
+CCTM/scripts/run_cctm_2011_12US1.csh    
+CCTM/scripts/run_cctm_2014_12US1.csh    
+CCTM/scripts/run_cctm_2015_HEMI.csh    
+CCTM/scripts/run_cctm_2016_12US1.csh    
+CCTM/scripts/run_cctm_Bench_2011_12SE1.csh    
+CCTM/scripts/run_cctm_Bench_2016_12SE1.csh    
+CCTM/src/cio/centralized_io_module.F    
+
+## 16. Windowing setting update
+[David Wong](wong.david-c@epa.gov), U.S. Environmental Protection Agency
+
+## Description of model issue
+Previous versions of CCTM (before CMAQv5.3) allowed users to specify gridded inputs (horizontal only) which were larger than the simulated domain. The model would then check if the simulated domain input was contained in the larger domain input (checking for matching grid resolution and projection parameters). If so, the model would then have extracted data corresponding to the simulated domain from the larger horizontal domain input by identifying the corresponding subrectangle of the horizontal grid, online. This feature called "Windowing", is more often done offline, using I/O API tools such as [m3wndw](https://www.cmascenter.org/ioapi/documentation/all_versions/html/M3WNDW.html) and [bcwndw](https://www.cmascenter.org/ioapi/documentation/all_versions/html/BCWNDW.html) before running CMAQ.
+
+Recent versions of the model, CMAQv5.3+, broke this functionality, allowing users to only window gridded inputs offline using I/O API.
+
+### Solution in CMAQv5.3.3
+CMAQv5.3.3 reintroduces this functionality, allowing users to window gridded inputs online. Users must note, the windowing functionality does not apply to Chemical Boundary files. Users are responsible for generating their own domain specific Chemical boundary files!
+
+More details about this new feature can be found in the [Users Guide](../Users_Guide/CMAQ_UG_ch04_model_inputs.md#431-windowing-capability). 
+
+## Files Affected
+CCTM/src/cio/centralized_io_module.F    
+CCTM/src/util/util/subhfile.F    
