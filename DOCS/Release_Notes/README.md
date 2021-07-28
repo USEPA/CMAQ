@@ -9,7 +9,7 @@ CMAQv5.3.3 Release Notes
 # Summary of CMAQv5.3.3 Updates 
 The Community Multiscale Air Quality (CMAQ) Model version 5.3.3 is a minor update to CMAQv5.3 that includes multiple bug fixes. This release also includes a new version of the WRF-CMAQ coupled system with a streamlined build process.  Users of WRF-CMAQ are strongly encouraged to try the latest version.  
 
-* [CMAQv5.3.3 Bugfixes](CMAQv5.3.2_bugfixes.md)
+* [CMAQv5.3.3 Bugfixes](CMAQv5.3.3_bugfixes.md)
 * [New WRFv4.3-CMAQv5.3.3 Coupled Model](CMAQv5.3.3_Coupled_WRF-CMAQ.md)
 * [BEIS in-line emissions for RACM2](CMAQv5.3.3_BEIS_in-line_emissions_for_RACM2_operational_branch.md)
 * [DMS chemistry bug fix](CMAQv5.3.3_DMS_chemistry_bugfix.md)
