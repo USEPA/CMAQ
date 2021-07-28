@@ -252,18 +252,3 @@ DTSEC = FLOAT( TIME2SEC( TSTEP( 2 ) ) )
 CCTM/src/depv/m3dry/DEPV_DEFN.F
 CCTM/src/depv/m3dry/m3dry.F
 
-## 16. Resolve error in Process Analysis reintialization after aerosol processing
-[Ben Murphy](mailto:murphy.benjamin@epa.gov), U.S. Environmental Protection Agency
-
-### Description of model issue
-This bugfix resolves a problem demonstrated by a user where mass is not conserved in process analysis rates for species that have non-negligible aerosol condensation. The difference between the change in instantaneous concentrations and the sum of the process rates looked very much like (but not exactly equivalent to) the contribution from condensation. It turns out that the state of the concentration field was not saved after the aerosol process analysis subroutine (pa_update_aero) and so when the change due to vdiff in the next iteration of sciproc was calculated, it artificially included the impact of condensation/evaporation as well. This means that cond/evap were double-counted for every iteration of sciproc except for the first one of an output time step, meaning that the residual disappeared if the output time step were sufficiently small to ensure only one pass through sciproc (e.g. 5 minutes).
-
-### Solution in CMAQv5.3.2
-The main fix is in pa_update_aero and involves the calculation of csav. Other fixes that were applied including real 8 conversion in aero_subs, and the subs_data_copy in pa_update_aero did not have a detectable impact on process analysis results but are godd coding practice and consistent with existing approaches for other processes, respectively. The assignment of PA_EM_CONV was determined to lead to a seg fault when run with gcc in debug mode so this was revised as well.
-
-This update does not affect CMAQ predictions. It resolves a mass closure issues and ensures consistency in output.
-### Files Affected
-CCTM/src/MECHS/cb6r3_ae7_aq/pa_cb6r3_ae7_aq.ctl
-CCTM/src/aero/aero6/aero_subs.F
-CCTM/src/driver/sciproc.F
-CCTM/src/procan/pa/pa_update.F
