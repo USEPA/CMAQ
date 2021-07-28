@@ -3,7 +3,7 @@
 [Golam Sarwar](mailto:sarwar.golam@epa.gov), U.S. Environmental Protection Agency
 
 ### Description of model issue
-Dimethyl sulfide (DMS) emissions and chemistry was previously combined with chemical mechanism cb6r3m_ae7_kmtbr and implemented into CMAQv5.3. In v5.3 DMS emissions are calculated using water-side DMS gas-transfer velocity (KW) following Liss and Merlivat (1986). However, the parameterization for KW at low wind speed (≤ 3.6 m/s) contained an error. 
+Dimethyl sulfide (DMS) emissions and chemistry are included in chemical mechanism cb6r3m_ae7_kmtbr as part of CMAQv5.3. In v5.3 DMS emissions are calculated using water-side DMS gas-transfer velocity (KW) following Liss and Merlivat (1986). However, the parameterization for KW at low wind speed (≤ 3.6 m/s) contained an error. 
 
 ### Solution in CMAQv5.3.3
 CMAQv5.3-v5.3.2 uses the following parameterization:      
