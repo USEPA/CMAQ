@@ -7,7 +7,7 @@ CMAQv5.3.3 Release Notes
 [CMAQv5.3.3 Known Issues](../Known_Issues/README.md) - Updated after the v5.3.3 release to alert users of issues that will be addressed with the next release. 
 
 # Summary of CMAQv5.3.3 Updates 
-The Community Multiscale Air Quality (CMAQ) Model version 5.3.3 is a minor update to CMAQv5.3 that includes multiple bug fixes. This release also includes a new version of the WRF-CMAQ coupled system with a streamlined build process.  Users of WRF-CMAQ are strongly encouraged to try the latest version.  
+The Community Multiscale Air Quality (CMAQ) Model version 5.3.3 is a minor update to CMAQv5.3 that includes multiple bug fixes. This release also includes a new version of the WRF-CMAQ coupled system with a streamlined build process.  Users of WRF-CMAQ are strongly encouraged to try the latest version. Additionally, MCIP users should note that starting with this release we are aligning the version numbering between CMAQ and MCIP, i.e., the MCIP updates included in this release are labeled MCIPv5.3.3.  
 
 * [CMAQv5.3.3 Bugfixes](CMAQv5.3.3_bugfixes.md)
 * [New WRFv4.3-CMAQv5.3.3 Coupled Model](CMAQv5.3.3_Coupled_WRF-CMAQ.md)
@@ -18,7 +18,7 @@ The Community Multiscale Air Quality (CMAQ) Model version 5.3.3 is a minor updat
 
 # Summary of CMAQv5.3.2 Updates 
 
-CMAQv5.3.2 includes significant updates to the CMAQ Integrated Source Apportionment Method (ISAM) and multiple minor fixes to address issues identified in CMAQv5.3.1. The new CMAQ-ISAM version includes substantial updates to the gas-phase chemistry apportionment algorithms that improves both physical and numerical aspects of the method. Users of ISAM are strongly encouraged to update to CMAQv5.3.2.  Additionally, MCIP users should note that starting with this release we are aligning the version numbering between CMAQ and MCIP, i.e., the MCIP updates included in this release are labeled MCIPv5.3.3. 
+CMAQv5.3.2 includes significant updates to the CMAQ Integrated Source Apportionment Method (ISAM) and multiple minor fixes to address issues identified in CMAQv5.3.1. The new CMAQ-ISAM version includes substantial updates to the gas-phase chemistry apportionment algorithms that improves both physical and numerical aspects of the method. Users of ISAM are strongly encouraged to update to CMAQv5.3.2.  
 
 * [CMAQv5.3.2 Bugfixes](CMAQv5.3.2_bugfixes.md)
 * [Added ISAM support for bidirectional NH3 flux](CMAQv5.3.2_ISAM_bidi_support.md)
