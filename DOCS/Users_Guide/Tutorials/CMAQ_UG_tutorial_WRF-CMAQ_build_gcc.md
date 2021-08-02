@@ -225,7 +225,7 @@ In the top level of CMAQ_REPO, the bldit_project.csh script will automatically r
 Edit bldit_project.csh, to modify the variable $CMAQ_HOME to identify the folder that you would like to install the CMAQ package under. For example:
 
 ```
-set CMAQ_HOME = /home/username/WRF-CMAQ/CMAQ_v5.3.3
+set CMAQ_HOME = [[your_install_path]]/WRF-CMAQ/CMAQ_v5.3.3
 ```
 
 Now execute the script.
@@ -341,7 +341,7 @@ Note: Steps 7-10 are **ONLY** for systems without [Git](https://git-scm.com/).
    - extract the tar.gz file
    
    ```
-   cd /home/username/WRF-CMAQ/CMAQ_v5.3.3/scripts
+   cd [your_install_path]/WRF-CMAQ/CMAQ_v5.3.3/scripts
    tar -xzvf WRF-4.3.tar.gz ./BLD_WRFv4.3_CCTM_v533_gcc
    ```
    
