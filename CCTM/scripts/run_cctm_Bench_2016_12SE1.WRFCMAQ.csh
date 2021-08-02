@@ -44,7 +44,7 @@ set EXEC      = wrf.exe
 # Set Working, Input, and Output Directories
 set WORKDIR     = .
 set WRF_DIR     = $WORKDIR/BLD_WRFv4.3_CCTM_v533_gcc
-set INPDIR      = [your_install_dir]/WRF-CMAQ/CMAQ_v5.3.3/data/2016_12SE1                 # Input directory
+set INPDIR      = [your_install_dir]/WRF-CMAQ/CMAQ_v5.3.3/data/CMAQv5.3.2_Benchmark_2Day_Input/2016_12SE1                 # Input directory
 set OMIpath     = $WRF_DIR/cmaq                           # path optics related data files
 set OUTPUT_ROOT = $WORKDIR                                # output root directory
 set NMLpath     = $WRF_DIR/cmaq                           # path with *.nml file mechanism dependent
