@@ -17,7 +17,7 @@ CMAQv5.3.3 is a minor update to CMAQv5.3 that includes multiple bug fixes. This 
 * [Frequently asked questions for upgrading to the latest CMAQ version](DOCS/Release_Notes/CMAQ_FAQ.md) **- Updated for v5.3.3 release.** 
 * [Tutorials for setting up and running CMAQ](DOCS/Users_Guide/Tutorials/README.md) **- Tutorials on running CMAQ, WRF-CMAQ, and CMAQ-ISAM test case.**
 
-## New features in CMAQ version 5.3 include:
+## New features in CMAQ version 5.3.3 include:
 * Simplified emissions scaling
 * Improved representation of natural aerosols 
 * Expanded capability for ecological applications 
@@ -66,7 +66,7 @@ Benchmark/tutorial data for each CMAQ release version are available from the CMA
 The benchmark data is also available form the US EPA annoymous ftp server: https://gaftp.epa.gov/exposure/CMAQ/V5_3_2/Benchmark/WRFv4.1.1-CMAQv5.3.2/
 
 ## Previous CMAQ Versions
-The followoing release versions of CMAQ are currently available on GitHub.  DOI values from Zenodo can be used when referencing a specific version.
+The following release versions of CMAQ are currently available on GitHub.  DOI values from Zenodo can be used when referencing a specific version.
 * [v5.3.2 (October 2020)](https://github.com/USEPA/CMAQ/tree/5.3.2) - [doi:10.5281/zenodo.4081737]((https://doi.org/10.5281/zenodo.4081737) | [Users Guide](https://github.com/USEPA/CMAQ/blob/5.3.2/DOCS/Users_Guide/README.md) | [Release Notes](https://github.com/USEPA/CMAQ/blob/5.3.1/DOCS/Release_Notes/README.md) | [Tutorials](https://github.com/USEPA/CMAQ/blob/5.3.1/DOCS/Users_Guide/Tutorials/README.md) 
 * [v5.3.1 (December 2019)](https://github.com/USEPA/CMAQ/tree/5.3.1) - [doi:10.5281/zenodo.3585898](https://doi.org/10.5281/zenodo.3585898) | [Users Guide](https://github.com/USEPA/CMAQ/blob/5.3.1/DOCS/Users_Guide/README.md) | [Release Notes](https://github.com/USEPA/CMAQ/blob/5.3.1/DOCS/Release_Notes/README.md) | [Tutorials](https://github.com/USEPA/CMAQ/blob/5.3.1/DOCS/Users_Guide/Tutorials/README.md) 
 * [v5.3 (August 2019)](https://github.com/USEPA/CMAQ/tree/5.3) - [doi:10.5281/zenodo.1212601](https://doi.org/10.5281/zenodo.3379043) | [Users Guide](https://github.com/USEPA/CMAQ/blob/5.3/DOCS/Users_Guide/README.md) | [Release Notes](https://github.com/USEPA/CMAQ/blob/5.3/DOCS/Release_Notes/README.md) | [Tutorials](https://github.com/USEPA/CMAQ/blob/5.3/DOCS/Users_Guide/Tutorials/README.md) 
