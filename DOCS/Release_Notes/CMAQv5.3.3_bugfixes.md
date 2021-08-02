@@ -1,5 +1,22 @@
 # CMAQv5.3.3 Bugfixes
-## 1. DMS chemistry bug fix
+## 1. Domain windowing option restored
+[David Wong](wong.david-c@epa.gov), U.S. Environmental Protection Agency
+
+## Description of model issue
+Previous versions of CCTM (before CMAQv5.3) allowed users to provide gridded input files which were larger in horizontal extent than the simulated domain. The model would then check if the simulated domain input was contained in the larger domain input (checking for matching grid resolution and projection parameters). If so, the model would then extract data corresponding to the simulated domain from the larger horizontal domain input by identifying the corresponding subrectangle of the horizontal grid, online. This feature called "Windowing", is more often done offline, using I/O API tools such as [m3wndw](https://www.cmascenter.org/ioapi/documentation/all_versions/html/M3WNDW.html) and [bcwndw](https://www.cmascenter.org/ioapi/documentation/all_versions/html/BCWNDW.html) before running CMAQ.
+
+Recent versions of the model, CMAQv5.3+, broke this functionality, allowing users to only window gridded inputs offline using I/O API.
+
+### Solution in CMAQv5.3.3
+CMAQv5.3.3 reintroduces this functionality, allowing users to window gridded inputs online. Users must note, the windowing functionality does not apply to Chemical Boundary files. Users are responsible for generating their own domain specific Chemical boundary files!
+
+More details about this new feature can be found in the [Users Guide](../Users_Guide/CMAQ_UG_ch04_model_inputs.md#431-windowing-capability). 
+
+## Files Affected
+CCTM/src/cio/centralized_io_module.F        
+CCTM/src/util/util/subhfile.F    
+
+## 2. DMS chemistry bug fix
 [Golam Sarwar](mailto:sarwar.golam@epa.gov), U.S. Environmental Protection Agency
 
 ### Description of model issue
@@ -18,7 +35,7 @@ Additional information on the impact on model concentrations is documented in th
 ### Files Affected 
 CCTM/src/emis/emis/MGEMIS.F
 
-## 2. HONO Deposition Fix for the STAGE Deposition Option
+## 3. HONO Deposition Fix for the STAGE Deposition Option
 [Jesse Bash](mailto:bash.jesse@epa.gov), U.S. Environmental Protection Agency
 
 ### Description of model issue
@@ -40,7 +57,7 @@ CCTM/src/vdiff/acm2_stage/opddep.F
 CCTM/src/vdiff/acm2_stage/vdiffacmx.F    
 CCTM/src/vdiff/acm2_stage/vdiffproc.F    
 
-## 3. HONO Deposition Fix for the M3DRY Deposition Option
+## 4. HONO Deposition Fix for the M3DRY Deposition Option
 [Golam Sarwar](mailto:sarwar.golam@epa.gov), U.S. Environmental Protection Agency
 
 ### Description of model issue
@@ -53,7 +70,7 @@ This issue is fixed in CMAQv5.3.3.  Testing was done for the 2011 benchmark doma
 CMAQ/CCTM/CCTM/src/vdiff/acm2_m3dry/vdiffacmx.F
 
 
-## 4. Correction to BEIS in-line emissions for RACM2 
+## 5. Correction to BEIS in-line emissions for RACM2 
 [Golam Sarwar](mailto:sarwar.golam@epa.gov), U.S. Environmental Protection Agency
 
 ### Description of model issue
@@ -66,31 +83,30 @@ An emission profile 'B3V10' was generated when RACM2 was initially implemented i
 CCTM/CCTM/src/emis/emis/BIOG_EMIS.F    
 CMAQ/CCTM/CCTM/src/biog/beis3/gspro_biogenics.txt    
 
-## 5. Bugfix, clean-up, and added option in bldscript for distr_env.c
+## 6. Bugfix, clean-up, and added option in bldscript for distr_env.c
 [Fahim Sidi](mailto:sidi.fahim@epa.gov), U.S. Environmental Protection Agency
 
 ### Description of model issue
 
-Bug reported by Steve Fine, EPA-OAR, when using AWS to run CMAQ across multiple adjioned instances. The issue is related to blank environmental variables causing a segmentation fault on AWS when invoking the directive -Dcluster in the CCTM Makefile. Additionally, it was found that there was no bldscript options to invoke C code distr_env, causing users to manually invoke this option via editing CCTM Makefile to include CPP flag -Dcluster. 
+Bug reported by Steve Fine, EPA-OAR, when using Amazon Web Services (AWS) to run CMAQ across multiple adjoined instances. The issue is related to blank environmental variables causing a segmentation fault on AWS when invoking the directive -Dcluster in the CCTM Makefile. Additionally, it was found that there was no build script option to invoke C code distr_env, causing users to manually invoke this option via editing the CCTM Makefile to include the CPP flag -Dcluster. 
 
-The update also enables users on different architectures and systems that do not appended C routine names with an underscore to compile the CCTM code.
 
 ### Solution in CMAQv5.3.3
 
-Changed distr_env.c to only set environmental variables on other processors that are not blank, which resolved the segmentation fault. To fix manual addition of CPP Flag -Dcluster, a new bldscript option within CCTM that allows users to optionally invoke distr_env.c is added. This new option is called "DistrEnv", if set this option adds the CPP flag -Dcluster. It should be noted, that two conditions have to be met for the -Dcluster flag to be activiated:
+Changed distr_env.c to only set environmental variables on other processors that are not blank, which resolved the segmentation fault. To fix manual addition of the CPP Flag -Dcluster, a new bldscript option within CCTM that allows users to optionally invoke distr_env.c is added. This new option is called "DistrEnv", if set this option adds the CPP flag -Dcluster. It should be noted, that two conditions have to be met for the -Dcluster flag to be activiated:
 
 (1) DistrEnv is set
 (2) ParOpt is set (indicates this an MPI run)
 
 Since DistrEnv is strictly an MPI option (containing MPI commands) it is only needed if ParOpt is invoked. It has no use when running CMAQ serially.
 
-The second part of this update cleans-up the C code and adds C-Fortran Interoperability (Feldman Style Binding) that is consistent with the CPP flag provided in the Makefile (-DFLDMN) to compile this code with other architectures & compilers that don't append C code with underscore.  
+The second part of this update cleans up the C code and adds C-Fortran Interoperability (Feldman Style Binding) that is consistent with the CPP flag provided in the Makefile (-DFLDMN) to compile under other architectures and with compilers that do not append underscores to C function names.
 
 ### Files Affected 
 CCTM/scripts/bldit_cctm.csh    
 CCTM/src/par/mpi/distr_env.c    
 
-## 6. POST tool bug fixes in hr2day and sitecmp_dailyo3
+## 7. POST tool bug fixes in hr2day and sitecmp_dailyo3
 [Christian Hogrefe](mailto:hogrefe.christian@epa.gov), U.S. Environmental Protection Agency
 
 ### Description of model issue
@@ -112,7 +128,7 @@ The *sitecmp_dailyo3* code was updated to remove any quotes from the `OZONE_F` c
 POST/hr2day/src/hr2day.F    
 POST/sitecmp_dailyo3/src/utilities.F    
 
-## 7. Updated bldmake & config_cmaq.csh to add mpi library in CCTM Makefile
+## 8. Updated bldmake & config_cmaq.csh to add mpi library in CCTM Makefile
 [Fahim Sidi](mailto:sidi.fahim@epa.gov), U.S. Environmental Protection Agency
 
 ### Description of model issue
@@ -129,7 +145,7 @@ Changed config_cmaq.csh to include new variable MPI_INCL_DIR, consistent with tr
 UTIL/bldmake/src/bldmake.f    
 config_cmaq.csh    
 
-## 8. Provide appropriate error message and abort if OMI photolysis file is missing
+## 9. Provide appropriate error message and abort if OMI photolysis file is missing
 [Chris Nolte](mailto:nolte.chris@epa.gov), U.S. Environmental Protection Agency
 
 ### Description of model issue
@@ -142,7 +158,7 @@ The check has been moved prior to the first attempt to read the file, and the mo
 CCTM/src/phot/inline/o3totcol.f    
 
 
-## 9. Revise how the photolysis module checks write time for diagnostics. 
+## 10. Revise how the photolysis module checks write time for diagnostics. 
 [Bill Hutzell](mailto:hutzell.bill@epa.gov), U.S. Environmental Protection Agency
 
 ### Description of model issue
@@ -158,17 +174,16 @@ impact on model predictions.
 CCTM/src/phot/inline/phot.F    
 CCTM/src/phot/table/phot.F     
 
-## 10. Correct chemistry data for Reactive Tracers
+## 11. Correct chemistry data for Reactive Tracers
 [Bill Hutzell](mailto:hutzell.bill@epa.gov), U.S. Environmental Protection Agency
 
 ### Description of model issue
-For the cbr3_ae6_aq and cb6r3m_ae6_kmtbr mechanisms, the available gas chemistry solvers contain errors 
+For the cbr3_ae6_aq and cb6r3m_ae6_kmtbr mechanisms, the available gas chemistry solvers had errors 
 in the loss reactions for several reactive tracers representing Hazardous Air Pollutants.
 
-1.   Destruction by OH was double counted for acetonitrile, acrylic acid, carbon sulfide
+1.   Destruction by OH was double counted for acetonitrile, acrylic acid, carbon sulfide,
 ethyl benzene, hexane, methyl chloride, chloroprene and stryene.
-2.   Also for styrene, the OH reaction had an activation energy of OH reactions
-with the wrong sign based on Cho, J.; Roueintan, M.; Li, Z. J., Kinetic and Dynamic
+2.   Also for styrene, the OH reaction had an activation energy with the wrong sign based on Cho, J.; Roueintan, M.; Li, Z. J., Kinetic and Dynamic
 Investigations of OH Reaction with Styrene, J. Phys. Chem. A, 2014, vol 118,
 9460 - 9470.
 See the NIST webpage: https://kinetics.nist.gov/kinetics/Detail?id=2014CHO/ROU9460-9470:1.
@@ -191,29 +206,28 @@ CCTM/src/gas/smvgear/degrade_data.F
 CCTM/src/MECHS/cb6mp_ae6_aq/EmissCtrl_cb6mp_ae6_aq.nml    
 
 
-## 11. Remove Differences in Predictions between PHOTDIAG True and False. 
+## 12. Remove Differences in Predictions between PHOTDIAG True and False. 
 [Bill Hutzell](mailto:hutzell.bill@epa.gov), U.S. Environmental Protection Agency
 
 ### Description of model issue
-For the inline option of the photolysis module, CCTM predictions can differ between when PHOTDIAG option equals True
-and False. For example, small ozone differences exist (less than 0.00005 ppmV) in simulations over the 
-hemispheric domain. Occurances appear dependent on the meteorological input files and minimum synchronization
-time-step. They occur because the O3TOTCOL routine saves the observed global total ozone columns with their date 
-and times from the last call. The saved information determines how to update data used to interpolate the observations 
+For the inline option of the photolysis module, CCTM predictions differed depending on whether PHOTDIAG was TRUE or FALSE. For example, small differences in ozone occurred (less than 0.00005 ppmV) in simulations over the 
+hemispheric domain. Occurances appeared dependent on the meteorological input files and minimum synchronization
+time-step. They occured because the O3TOTCOL routine saved the observed global total ozone columns with their date 
+and times from the last call. The saved information determined how to update data used to interpolate the observations 
 to the domain's vertical columns.
 
 ### Solution in CMAQv5.3.3
-The solution added calls to the O3TOTCOL routine when all columns are DARK and PHOTDIAG is false. 
-When PHOTDIAG equals false, model predictions now match predictions when PHOTDIAG True.
+The solution added calls to the O3TOTCOL routine when all columns are DARK and PHOTDIAG is FALSE. 
+When PHOTDIAG equals FALSE, model predictions now match predictions when PHOTDIAG is TRUE.
 
 ### Files Affected 
 CCTM/src/phot/inline/phot.F     
 
-## 12. Correct O3 deposition to wet soil in the STAGE deposition option
+## 13. Correct O3 deposition to wet soil in the STAGE deposition option
 [Jesse O. Bash](mailto:bash.jesse@epa.gov), U.S. Environmental Protection Agency
 
 ### Description of the model issue
-The wet cuticular resistance would overwrite the wet soil resistance due to using the same variable names, rwet, for ozone. This resulted in slightly faster deposition of ozone to wet soil surfaces when the leaf cuticles were also wet than intended. 
+The wet cuticular resistance would overwrite the wet soil resistance due to using the same variable names, rwet, for ozone. This resulted in sslightly faster than intended deposition of ozone to wet soil surfaces when the leaf cuticles were also wet. 
 
 ### Solution in CMAQ v5.3.3
 A new variable was created for wet cuticular surfaces, rcwet, in STAGE_MOD.F. This results in slightly higher, typically less than 1ppb, ozone values primarily at night, early mornings and during precipitation events when both cuticular and soil surfaces are wet. 
@@ -221,11 +235,11 @@ A new variable was created for wet cuticular surfaces, rcwet, in STAGE_MOD.F. Th
 ### Files Affected
 CCTM/src/depv/stage/STAGE_MOD.F    
 
-## 13. Correct Mosaic Land Use Specific Dry Deposition Velocity Diagnostic Output
+## 14. Correct Mosaic Land Use Specific Dry Deposition Velocity Diagnostic Output
 
 [Jesse O. Bash](mailto:bash.jesse@epa.gov), U.S. Environmental Protection Agency
 ### Description of the model issue
-An indexing error prevented the output arrays of some land use specific species deposition velocities in the Mosaic output arrays to be populated and resulted in values 0 being written to file. This bug did not impact modeled dry deposition or ambient concentrations. 
+An indexing error prevented the output arrays of some land use specific species deposition velocities in the Mosaic output arrays to be populated and resulted in 0 values being written to the output file. This bug did not impact modeled dry deposition or ambient concentrations. 
 
 ### Solution in CMAQ v5.3.3
 The indexing error was corrected, and land use specific deposition velocities are now correctly populated and written to the Mosaic deposition velocity file when CTM_MOSAIC is set to Y. 
@@ -234,16 +248,16 @@ The indexing error was corrected, and land use specific deposition velocities ar
 CCTM/src/depv/stage/MOSAIC_MOD.F    
 CCTM/src/depv/stage/STAGE_MOD.F    
 
-## 14. Resolve error in Process Analysis reintialization after aerosol processing
+## 15. Resolve error in Process Analysis reintialization after aerosol processing
 [Ben Murphy](mailto:murphy.benjamin@epa.gov), U.S. Environmental Protection Agency
 
 ### Description of model issue
 This bugfix resolves a problem demonstrated by a user where mass is not conserved in process analysis rates for species that have non-negligible aerosol condensation. The difference between the change in instantaneous concentrations and the sum of the process rates looked very much like (but not exactly equivalent to) the contribution from condensation. It turns out that the state of the concentration field was not saved after the aerosol process analysis subroutine (pa_update_aero) and so when the change due to vdiff in the next iteration of sciproc was calculated, it artificially included the impact of condensation/evaporation as well. This means that cond/evap were double-counted for every iteration of sciproc except for the first one of an output time step, meaning that the residual disappeared if the output time step were sufficiently small to ensure only one pass through sciproc (e.g. 5 minutes).
 
 ### Solution in CMAQv5.3.3
-The main fix is in pa_update_aero and involves the calculation of csav. Other fixes that were applied including real 8 conversion in aero_subs, and the subs_data_copy in pa_update_aero did not have a detectable impact on process analysis results but are godd coding practice and consistent with existing approaches for other processes, respectively. The assignment of PA_EM_CONV was determined to lead to a seg fault when run with gcc in debug mode so this was revised as well.
+The main fix is in pa_update_aero and involves the calculation of csav. Other fixes that were applied including real 8 conversion in aero_subs, and the subs_data_copy in pa_update_aero did not have a detectable impact on process analysis results but are good coding practice and consistent with existing approaches for other processes, respectively. The assignment of PA_EM_CONV was determined to lead to a segmentation fault when run with gcc in debug mode so this was revised as well.
 
-This update does not affect CMAQ predictions. It resolves a mass closure issues and ensures consistency in output.
+This update does not affect CMAQ predictions. It resolves a mass closure issue and ensures consistency in output.
 
 ### Files Affected
 CCTM/src/MECHS/cb6r3_ae7_aq/pa_cb6r3_ae7_aq.ctl    
@@ -251,16 +265,16 @@ CCTM/src/aero/aero6/aero_subs.F
 CCTM/src/driver/sciproc.F    
 CCTM/src/procan/pa/pa_update.F    
 
-## 15. KZMIN setting update
+## 16. KZMIN setting update
 [David Wong](wong.david-c@epa.gov), U.S. Environmental Protection Agency
 
 ## Description of model issue
-As described in [Appendix A](../Users_Guide/Appendix/CMAQ_UG_appendixA_model_options.md#science-options), the runtime variable 'KZMIN' may be set to Y/N to control the minimum eddy diffusivity in each grid cell. Depending on the option set (Y/N), CCTM may or may not require percent urban land-use fraction (PURB) data from the GRID_CRO_2D meteorology file to calculate the minimum eddy diffusivity in each grid cell. Recent updates broke this design, causing CCTM to always require PURB data from the GRID_CRO_2D meteorology file, regardless of KZMIN setting. Hence, even if KZMIN was appropriately set, the model would crash if PURB data was not available. 
+As described in [Appendix A](../Users_Guide/Appendix/CMAQ_UG_appendixA_model_options.md#science-options), the runtime variable 'KZMIN' may be set to Y/N to control the minimum eddy diffusivity in each grid cell. Depending on the option set, CCTM does or does not require percent urban land-use fraction (PURB) data from the GRID_CRO_2D meteorology file to calculate the minimum eddy diffusivity in each grid cell. Recent updates broke this design, causing CCTM to always require PURB data from the GRID_CRO_2D meteorology file, regardless of KZMIN setting. Hence, even if KZMIN was appropriately set, the model would crash if PURB data was not available. 
 
 ### Solution in CMAQv5.3.3
-Routine CIO within CCTM was updated to not read PURB data from the GRID_CRO_2D meteorology file but insetad assume PURB = 0.0 everywhere, if the correct KZMIN setting is set. 
+Routine CIO within CCTM was updated to not read PURB data from the GRID_CRO_2D meteorology file but instead assume PURB = 0.0 everywhere, if the correct KZMIN setting is set. 
 
-Production of heterogenous Nitrous Acid (HONO) from the interaction of NO2 on ground surfaces (controlled by runtime variable [CTM_SFC_HONO](../Users_Guide/CMAQ_UG_ch06_model_configuration_options.md#6104-nitrous-acid-hono)) is dependent on PURB data (even if KZMIN is set appropriately). If PURB data is not read-in and assumed to be 0.0 (controlled by appropriate KZMIN setting), users should expect lower predicated HONO as described by [Chapter 6](../Users_Guide/CMAQ_UG_ch06_model_configuration_options.md#6104-nitrous-acid-hono).
+Heterogeneous production of nitric acid (HONO) from the interaction of NO2 on ground surfaces (controlled by runtime variable [CTM_SFC_HONO](../Users_Guide/CMAQ_UG_ch06_model_configuration_options.md#6104-nitrous-acid-hono)) is dependent on PURB data (even if KZMIN is set appropriately). If PURB data is not read in and assumed to be 0.0 (controlled by appropriate KZMIN setting), users should expect lower predicted HONO as described in [Chapter 6](../Users_Guide/CMAQ_UG_ch06_model_configuration_options.md#6104-nitrous-acid-hono).
 
 ## Files Affected
 CCTM/scripts/run_cctm_2010_4CALIF1.csh    
@@ -272,19 +286,4 @@ CCTM/scripts/run_cctm_Bench_2011_12SE1.csh
 CCTM/scripts/run_cctm_Bench_2016_12SE1.csh    
 CCTM/src/cio/centralized_io_module.F    
 
-## 16. Windowing setting update
-[David Wong](wong.david-c@epa.gov), U.S. Environmental Protection Agency
 
-## Description of model issue
-Previous versions of CCTM (before CMAQv5.3) allowed users to specify gridded inputs (horizontal only) which were larger than the simulated domain. The model would then check if the simulated domain input was contained in the larger domain input (checking for matching grid resolution and projection parameters). If so, the model would then have extracted data corresponding to the simulated domain from the larger horizontal domain input by identifying the corresponding subrectangle of the horizontal grid, online. This feature called "Windowing", is more often done offline, using I/O API tools such as [m3wndw](https://www.cmascenter.org/ioapi/documentation/all_versions/html/M3WNDW.html) and [bcwndw](https://www.cmascenter.org/ioapi/documentation/all_versions/html/BCWNDW.html) before running CMAQ.
-
-Recent versions of the model, CMAQv5.3+, broke this functionality, allowing users to only window gridded inputs offline using I/O API.
-
-### Solution in CMAQv5.3.3
-CMAQv5.3.3 reintroduces this functionality, allowing users to window gridded inputs online. Users must note, the windowing functionality does not apply to Chemical Boundary files. Users are responsible for generating their own domain specific Chemical boundary files!
-
-More details about this new feature can be found in the [Users Guide](../Users_Guide/CMAQ_UG_ch04_model_inputs.md#431-windowing-capability). 
-
-## Files Affected
-CCTM/src/cio/centralized_io_module.F        
-CCTM/src/util/util/subhfile.F    
