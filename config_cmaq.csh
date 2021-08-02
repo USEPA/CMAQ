@@ -145,9 +145,10 @@
     case gcc:
  
         #> I/O API and netCDF for WRF-CMAQ 
-        setenv NCDIR netcdf_c_root_gcc 
-        setenv NFDIR  netcdf_f_directory_path
-        setenv IOAPI  ioapi_root_gcc  
+        setenv NCDIR netcdf_c_root_gcc                  # C netCDF install path
+        setenv NFDIR  netcdf_f_directory_path           # Fortran netCDF install path for CMAQ
+	setenv NETCDF_COMBO netcdf_combined_path     # combined c and fortran libraries for WRF-CMAQ (see WRF-CMAQ tutoria)
+        setenv IOAPI  ioapi_root_gcc                    #
         setenv WRF_ARCH # [1-75] Optional, ONLY for WRF-CMAQ  
   
         #> I/O API, netCDF, and MPI library locations
@@ -157,6 +158,8 @@
         setenv NETCDF_INCL_DIR  ${NCDIR}/netcdf_inc_gcc  #> netCDF C directory path
         setenv NETCDFF_LIB_DIR  ${NFDIR}/netcdff_lib_gcc           #> netCDF Fortran directory path
         setenv NETCDFF_INCL_DIR ${NFDIR}/netcdff_inc_gcc           #> netCDF Fortran directory path
+	setenv NETCDF           ${NETCDF_COMBO}            # for WRF-CMAQ install
+
         setenv MPI_INCL_DIR     mpi_incl_gcc              #> MPI Include directory path
         setenv MPI_LIB_DIR      mpi_lib_gcc               #> MPI Lib directory path
 
