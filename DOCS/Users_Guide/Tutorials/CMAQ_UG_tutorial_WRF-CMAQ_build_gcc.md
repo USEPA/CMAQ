@@ -408,7 +408,7 @@ setenv WRF_CMAQ 1
 
 ### Step 12: Download the input data
 
-[Link to CMAQv5.3.2_Benchmark_2Day_Input.tar.gz input data on Google Drive](https://drive.google.com/file/d/1fp--3dVvQHUyB_BodpU2aHBv5LjlC6E4/view?usp=sharing)
+[Link to CMAQv5.3.2_Benchmark_2Day_Input.tar.gz input data on Google Drive](https://drive.google.com/file/d/1ex6Wr4dX6a0fgaDfhO0VEJNaCKqOflI5/view?usp=sharing)
 
   - Use the gdrive command to download the dataset.
   - If this is the first time that you are using gdrive, or if you have an issue with your token, please read the following instructions
@@ -416,7 +416,7 @@ setenv WRF_CMAQ 1
   
   
   ```
-  gdrive download 1fp--3dVvQHUyB_BodpU2aHBv5LjlC6E4
+  gdrive download 1ex6Wr4dX6a0fgaDfhO0VEJNaCKqOflI5
   ```
   
     
