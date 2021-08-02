@@ -12,7 +12,7 @@ particulates, toxics, and acid deposition.
 
 
 ## CMAQ version 5.3.3 Overview:
-CMAQv5.3.3 is a minor update to CMAQv5.3 that includes multiple bug fixes. This release also includes a new version of the WRF-CMAQ coupled system with a streamlined build process. Users of WRF-CMAQ are strongly encouraged to try the latest version.  Additionally, MCIP users should note that starting with this release we are aligning the version numbering between CMAQ and MCIP, i.e., the MCIP updates included in this release are labeled MCIPv5.3.3. 
+CMAQv5.3.3 is a minor update to CMAQv5.3 that includes multiple bug fixes. These updates include restoration of windowing capability, allowing users to provide gridded input files which were larger in horizontal extent than the simulated domain. This release also includes a new version of the WRF-CMAQ coupled system with a streamlined build process. Users of WRF-CMAQ are strongly encouraged to try the latest version.  Additionally, MCIP users should note that starting with this release we are aligning the version numbering between CMAQ and MCIP, i.e., the MCIP updates included in this release are labeled MCIPv5.3.3. 
 * [CMAQv5.3.3 Release Notes](DOCS/Release_Notes/README.md)   
 * [Frequently asked questions for upgrading to the latest CMAQ version](DOCS/Release_Notes/CMAQ_FAQ.md) **- Updated for v5.3.3 release.** 
 * [Tutorials for setting up and running CMAQ](DOCS/Users_Guide/Tutorials/README.md) **- Tutorials on running CMAQ, WRF-CMAQ, and CMAQ-ISAM test case.**
