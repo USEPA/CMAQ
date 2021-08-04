@@ -47,14 +47,14 @@ git checkout -b my_branch
 
 ## Configure the CMAQ build environment
 
-The user has two options for building an environment. She or he may build and run CMAQ components directly in the repository structure (object files and executables will be ignored with .gitignore), or they may extract the build and run scripts out of the repository and work in a separate location. If you would like to build directly in the repository, skip to "Install the CMAQ Libraries" below.
+The user has two options for building an environment. She or he may build and run CMAQ components directly in the repository structure (object files and executables will be ignored with .gitignore), or they may extract the build and run scripts out of the repository and work in a separate location. If you would like to build directly in the repository, skip to "Link the CMAQ Libraries" below.
 
 ### Build and run in a user-specified directory outside of the repository
 In the top level of CMAQ_REPO, the bldit_project.csh script will automatically replicate the CMAQ folder structure and copy every build and run script out of the repository so that you may modify them freely without version control.
 
 In bldit_project.csh, modify the variable $CMAQ_HOME to identify the folder that you would like to install the CMAQ package under. For example:
 ```
-set CMAQ_HOME = /home/username/CMAQ_v5.3.2
+set CMAQ_HOME = /home/username/CMAQ_v5.3.3
 ```
 Now execute the script.
 ```
@@ -109,11 +109,14 @@ The CMAQ benchmark test case is a two day simulation for July 1-2 2016 on a 100 
 - The benchmark data is also available form the US EPA annoymous ftp server: https://gaftp.epa.gov/exposure/CMAQ/V5_3_2/Benchmark/WRFv4.1.1-CMAQv5.3.2/
 - Metadata for the CMAQ benchmark test case is posted on the CMAS Center Dataverse site: https://doi.org/10.15139/S3/IQVABD 
 
+
 #### A note about differences in the v5.3+ and v5.3 benchmark data
 Starting with CMAQv5.3.2, the benchmark data contains a grid mask file for the United States  GRIDMASK_STATES_12SE1.nc, and new input tar file, but the only difference for the input tar file is the gridmask file.  
 The CMAQv5.3.2 output tar files are provided for the CMAQ-ISAM Benmark case, which includes the standard CMAQv5.3.2 output in addition to the new _SA_ output files.
 For CMAQv5.3.1, the benchmark data for the July 2016 test case over the Southeast US provided both input and output files.
 The CMAQv5.3.1 input datasets were identical to those released wtih v5.3 but additional files are now included in the .tar.gz files that will allow users to test the WRFv4.1.1-CMAQv5.3+ coupled model on the Southeast US benchmark domain. As a result, there is no need for users who have already downloaded the v5.3 Southeast benchmark input data to download the v5.3+ files unless they are planning to run the coupled model.  The Southeast benchmark output data for v5.3.2 is slightly different from what was released with v5.3.1 and v5.3 as described in the [CMAQv5.3.2 Release Notes FAQ](../../Release_Notes/CMAQ_FAQ.md).
+
+For CMAQv5.3.3 there is no new benchmark data for the base model or CMAQ-ISAM. Users can use the benchmark case released with v5.3.2 for tesing their CMAQv5.3.3 and CMAQv5.3.3-ISAM builds. Model output from running v5.3.3 with the benchmark case will be identical to the output from v5.3.2 with the exception of HONO dry deposition. The HONO dry depostion update in [M3DRY](../../Release_Notes/CMAQv5.3.3_bugfixes.md#4-hono-deposition-fix-for-the-m3dry-deposition-option) and [STAGE](../../Release_Notes/CMAQv5.3.3_bugfixes.md#3-hono-deposition-fix-for-the-stage-deposition-option) leads to small changes (on the order of 1e-5) in HONO dry deposition in the dry deposition output files for the base model and ISAM benchmark (i.e., CCTM_DRYDEP_v532_ISAM_gcc_Bench_2016_12SE1_2016, CCTM_SA_DRYDEP_v532_ISAM_gcc_Bench_2016_12SE1_2016).
 
 
 ## Compiling CMAQ

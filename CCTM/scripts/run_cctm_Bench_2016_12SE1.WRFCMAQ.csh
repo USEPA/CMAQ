@@ -42,11 +42,11 @@ set EXEC      = wrf.exe
  if ( $CTM_DIAG_LVL != 0 ) set echo
 
 # Set Working, Input, and Output Directories
-set WORKDIR     = .
+set WORKDIR     = [your install location]
 set WRF_DIR     = $WORKDIR/BLD_WRFv4.3_CCTM_v533_gcc
-set INPDIR      = /work/MOD3DATA/2016_12SE1               # Input directory
+set INPDIR      = [your_install_dir]/WRF-CMAQ/CMAQ_v5.3.3/data/CMAQv5.3.2_Benchmark_2Day_Input/2016_12SE1                 # Input directory
 set OMIpath     = $WRF_DIR/cmaq                           # path optics related data files
-set OUTPUT_ROOT = $WORKDIR                                # output root directory
+set OUTPUT_ROOT = [your output directory location]                                # output root directory
 set NMLpath     = $WRF_DIR/cmaq                           # path with *.nml file mechanism dependent
 set EMISSCTRL   = $WRF_DIR/cmaq                           # path of Emissions Control File
 

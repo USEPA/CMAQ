@@ -225,7 +225,7 @@ In the top level of CMAQ_REPO, the bldit_project.csh script will automatically r
 Edit bldit_project.csh, to modify the variable $CMAQ_HOME to identify the folder that you would like to install the CMAQ package under. For example:
 
 ```
-set CMAQ_HOME = /home/username/WRF-CMAQ/CMAQ_v5.3.3
+set CMAQ_HOME = [[your_install_path]]/WRF-CMAQ/CMAQ_v5.3.3
 ```
 
 Now execute the script.
@@ -341,7 +341,7 @@ Note: Steps 7-10 are **ONLY** for systems without [Git](https://git-scm.com/).
    - extract the tar.gz file
    
    ```
-   cd /home/username/WRF-CMAQ/CMAQ_v5.3.3/scripts
+   cd [your_install_path]/WRF-CMAQ/CMAQ_v5.3.3/scripts
    tar -xzvf WRF-4.3.tar.gz ./BLD_WRFv4.3_CCTM_v533_gcc
    ```
    
@@ -408,7 +408,7 @@ setenv WRF_CMAQ 1
 
 ### Step 12: Download the input data
 
-[Link to CMAQv5.3.2_Benchmark_2Day_Input.tar.gz input data on Google Drive](https://drive.google.com/file/d/1fp--3dVvQHUyB_BodpU2aHBv5LjlC6E4/view?usp=sharing)
+[Link to CMAQv5.3.2_Benchmark_2Day_Input.tar.gz input data on Google Drive](https://drive.google.com/file/d/1ex6Wr4dX6a0fgaDfhO0VEJNaCKqOflI5/view?usp=sharing)
 
   - Use the gdrive command to download the dataset.
   - If this is the first time that you are using gdrive, or if you have an issue with your token, please read the following instructions
@@ -416,7 +416,7 @@ setenv WRF_CMAQ 1
   
   
   ```
-  gdrive download 1fp--3dVvQHUyB_BodpU2aHBv5LjlC6E4
+  gdrive download 1ex6Wr4dX6a0fgaDfhO0VEJNaCKqOflI5
   ```
   
     
