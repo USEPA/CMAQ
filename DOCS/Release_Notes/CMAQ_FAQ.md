@@ -145,6 +145,10 @@ Six updates in v5.3.3 have the potential to change model output.
 5. The [bugfix to the inline photolyis module](CMAQv5.3.3_bugfixes.md#7-remove-differences-in-predictions-between-photdiag-true-and-false) can lead to small (<1% differences) in ozone and aerosol nitrate at select grid cell and timesteps.  This bugfix does not impact the model output of the 2016 Southeast benchmark dataset released with v5.3.2.
 6. HONO dry deposition flux in CMAQv5.3 to v5.3.2 can be negative when surface heterogeneous production exceeds deposition.  Updates to [M3DRY](CMAQv5.3.3_bugfixes.md#3-hono-deposition-fix-for-the-m3dry-deposition-option) and [STAGE](CMAQv5.3.3_bugfixes.md#2-hono-deposition-fix-for-the-stage-deposition-option) deposition options in v5.3.3 ensure the dry deposition flux is always positive, representing downward dry deposition rather than total flux. 
 
+Note that there is no new benchmark data for the base model or CMAQ-ISAM for v5.3.3.  Users can use the 2016 southeast benchmark case released with v5.3.2 for tesing their CMAQv5.3.3 and CMAQ-ISAM builds.  Model output for the southeast benchmark case for v5.3.3 is identical to the output from v5.3.2 with the exception of HONO dry deposition.  The HONO dry depostion update (item 6 above) leads to small changes (on the order of 1e-5) in HONO dry deposition in the dry deposition output files for the base model and ISAM benchmark (i.e., CCTM_DRYDEP_v532_ISAM_gcc_Bench_2016_12SE1_2016, CCTM_SA_DRYDEP_v532_ISAM_gcc_Bench_2016_12SE1_2016).  
+
+New benchmark data has been released for the new WRFv4.3-CMAQv5.3.3 model.  See the [WRF-CMAQ tutorial for more information.](../Users_Guide/Tutorials/CMAQ_UG_tutorial_WRF-CMAQ_build_gcc.md)
+
 <a id=additional_faq></a>
 ## Additional FAQ
 A more general list of Frequent CMAQ Questions can be found on our website: https://www.epa.gov/cmaq/frequent-cmaq-questions
