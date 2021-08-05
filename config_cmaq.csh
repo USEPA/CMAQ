@@ -96,12 +96,7 @@
            setenv NETCDF_INCL_DIR  ${NCDIR}/include            #> netCDF C directory path
            setenv NETCDFF_LIB_DIR  ${NFDIR}/lib                #> netCDF Fortran directory path
            setenv NETCDFF_INCL_DIR ${NFDIR}/include            #> netCDF Fortran directory path
-        else
-	   setenv NETCDF_LIB_DIR   ${NETCDF}/lib               #> netCDF C directory path
-	   setenv NETCDF_INCL_DIR  ${NETCDF}/include           #> netCDF C directory path
-	   setenv NETCDFF_LIB_DIR  ${NETCDF}/lib               #> netCDF Fortran directory path
-	   setenv NETCDFF_INCL_DIR ${NETCDF}/include           #> netCDF Fortran directory path
-        endif
+        endif 
 
         setenv MPI_INCL_DIR     mpi_incl_intel              #> MPI Include directory path
         setenv MPI_LIB_DIR      mpi_lib_intel               #> MPI Lib directory path
@@ -140,14 +135,7 @@
             setenv NETCDFF_INCL_DIR ${NFDIR}/include           #> netCDF Fortran directory path
             setenv MPI_INCL_DIR     mpi_incl_pgi              #> MPI Include directory path
             setenv MPI_LIB_DIR      mpi_lib_pgi               #> MPI Lib directory path
-        else
-	    setenv NETCDF_LIB_DIR   ${NETCDF}/lib             #> netCDF C directory path
-	    setenv NETCDF_INCL_DIR  ${NETCDF}/include         #> netCDF C directory path
-	    setenv NETCDFF_LIB_DIR  ${NETCDF}/lib             #> netCDF Fortran directory path
-	    setenv NETCDFF_INCL_DIR ${NETCDF}/include         #> netCDF Fortran directory path
-	    setenv MPI_INCL_DIR     mpi_incl_pgi              #> MPI Include directory path
-	    setenv MPI_LIB_DIR      mpi_lib_pgi               #> MPI Lib directory path
-        endif
+        endif 
 
 
  
@@ -182,12 +170,7 @@
             setenv NETCDF_INCL_DIR  ${NCDIR}/include                   #> netCDF C directory path
             setenv NETCDFF_LIB_DIR  ${NFDIR}/lib                       #> netCDF Fortran directory path
             setenv NETCDFF_INCL_DIR ${NFDIR}/include                   #> netCDF Fortran directory path
-        else
-            setenv NETCDF_LIB_DIR   ${NETCDF}/lib                      #> netCDF C directory path
-	    setenv NETCDF_INCL_DIR  ${NETCDF}/include                  #> netCDF C directory path
-	    setenv NETCDFF_LIB_DIR  ${NETCDF}/lib                      #> netCDF Fortran directory path
-	    setenv NETCDFF_INCL_DIR ${NETCDF}/include                  #> netCDF Fortran directory path
-        endif
+        endif 
 
         setenv MPI_INCL_DIR     mpi_incl_gcc              #> MPI Include directory path
         setenv MPI_LIB_DIR      mpi_lib_gcc               #> MPI Lib directory path
