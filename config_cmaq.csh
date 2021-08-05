@@ -107,7 +107,7 @@
         setenv myCC icc       
         setenv myFSTD "-O3 -fno-alias -mp1 -fp-model source -ftz -simd -align all -xHost -vec-guard-write -unroll-aggressive"
         setenv myDBG  "-O0 -g -check bounds -check uninit -fpe0 -fno-alias -ftrapuv -traceback"
-        setenv myLINK_FLAG #"-qopenmp-simd" openMP not supported w/ CMAQ
+        setenv myLINK_FLAG     # -qopenmp # openMP may be required if I/O API was built using this link flag.
         setenv myFFLAGS "-fixed -132"
         setenv myFRFLAGS "-free"
         setenv myCFLAGS "-O2"
@@ -142,7 +142,7 @@
         #> Compiler Aliases and Flags
         setenv myFC mpifort 
         setenv myCC pgcc
-        setenv myLINK_FLAG # "-mp" openMP not supported w/ CMAQ
+        setenv myLINK_FLAG # "-mp"  openMP may be required if I/O API was built using this link flag.
         setenv myFSTD "-O3"
         setenv myDBG  "-O0 -g -Mbounds -Mchkptr -traceback -Ktrap=fp"
         setenv myFFLAGS "-Mfixed -Mextend -mcmodel=medium -tp px"
@@ -184,7 +184,7 @@
         setenv myFFLAGS "-ffixed-form -ffixed-line-length-132 -funroll-loops -finit-character=32"
         setenv myFRFLAGS "-ffree-form -ffree-line-length-none -funroll-loops -finit-character=32"
         setenv myCFLAGS "-O2"
-        setenv myLINK_FLAG  "-fopenmp"  # openMP not supported w/ CMAQ
+        setenv myLINK_FLAG  # "-fopenmp"  # openMP may be required if I/O API was built using this link flag. 
         setenv extra_lib ""
     
         breaksw
