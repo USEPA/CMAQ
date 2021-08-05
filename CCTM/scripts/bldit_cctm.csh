@@ -272,11 +272,11 @@ set make_options = "-j"                #> additional options for make command if
 #> source code. Move current directory to that build directory.
  if ( $?Debug_CCTM ) then
     set MODE = debug
+    set Bld = $CMAQ_HOME/CCTM/scripts/BLD_CCTM_${VRSN}_${compilerString}_${MODE}
  else
-    set MODE = opt
+    set Bld = $CMAQ_HOME/CCTM/scripts/BLD_CCTM_${VRSN}_${compilerString}
  endif
 
- set Bld = $CMAQ_HOME/CCTM/scripts/BLD_CCTM_${VRSN}_${compilerString}_${MODE}
 
  if ( ! -e "$Bld" ) then
     mkdir $Bld
