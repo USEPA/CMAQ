@@ -721,15 +721,13 @@ C  function to return longitude value for site n
       !****************************************************************************
       Subroutine SetProj(gdtype, alpha, beta, gamma, xcent, ycent)
 
+      USE M3UTILIO
+
       IMPLICIT NONE
 
       ! arguments
       Integer gdtype
       Real alpha, beta, gamma, xcent, ycent
-
-      ! external functions
-      logical SETLAM
-      logical SETPOL
 
       !  check for LAT/LON projection
       if( gdtype .eq. 1 ) then
@@ -739,7 +737,7 @@ C  function to return longitude value for site n
       !  check for lambert projection
       if( gdtype .eq. 2 ) then
         if( .NOT. SETLAM( alpha, beta, gamma, xcent, ycent) ) then
-          Call m3err ('writeSite', 0, 0, 'Lambert projection setup error', .TRUE.)
+          Call m3exit ('sitecmp', 0, 0, 'Lambert projection setup error', xstat2)
           endif
         return
         endif
@@ -747,13 +745,21 @@ C  function to return longitude value for site n
       !  check for Polar projection
       if( gdtype .eq. 6 ) then
         if( .NOT. SETPOL( alpha, beta, gamma, xcent, ycent) ) then
-          Call m3err ('writeSite', 0, 0, 'Polar projection setup error', .TRUE.)
+          Call m3exit ('sitecmp', 0, 0, 'Polar projection setup error', xstat2)
+          endif
+        return
+        endif
+
+      !  check for equatorial mercator projection
+      if( gdtype .eq. 7 ) then
+        if( .NOT. SETEQM( alpha, beta, gamma, xcent, ycent) ) then
+          Call m3exit ('sitecmp', 0, 0, 'Equatorial mercator projection setup error', xstat2)
           endif
         return
         endif
 
 
-      Call m3err ('sitecmp', 0, 0, 'Map projection setup error', .TRUE.)
+      Call m3exit ('sitecmp', 0, 0, 'Unsupported map projection', xstat2)
 
       end Subroutine SetProj
 
@@ -763,15 +769,13 @@ C  function to return longitude value for site n
       !C****************************************************************************
       Subroutine ToProj(gdtype, longitude, latitude, x, y)
 
+      USE M3UTILIO
+
       IMPLICIT NONE
 
       ! arguments
       Integer gdtype
       Real longitude, latitude, x, y
-
-      ! external functions
-      logical LL2LAM
-      logical LL2POL
 
       !  check for LAT/LON projection
       if( gdtype .eq. 1 ) then
@@ -783,7 +787,7 @@ C  function to return longitude value for site n
       !  check for lambert projection
       if( gdtype .eq. 2 ) then
         if(.NOT.LL2LAM(longitude, latitude, x, y) ) then
-          Call m3err('sitecmp', 0, 0, 'Lat/Lon to Lambert error', .TRUE.)
+          Call m3exit('sitecmp', 0, 0, 'Lat/Lon to Lambert error', xstat2)
           endif
         return
         endif
@@ -791,12 +795,20 @@ C  function to return longitude value for site n
       !  check for polar projection
       if( gdtype .eq. 6 ) then
         if(.NOT.LL2POL(longitude, latitude, x, y) ) then
-          Call m3err('sitecmp', 0, 0, 'Lat/Lon to Polar error', .TRUE.)
+          Call m3exit('sitecmp', 0, 0, 'Lat/Lon to Polar error', xstat2)
           endif
         return
         endif
 
-      Call m3err ('writeSite', 0, 0, 'Map projection setup error', .TRUE.)
+      !  check for polar projection
+      if( gdtype .eq. 7 ) then
+        if(.NOT.LL2EQM(longitude, latitude, x, y) ) then
+          Call m3exit('sitecmp', 0, 0, 'Lat/Lon to equatorial mercator error', xstat2)
+          endif
+        return
+        endif
+
+      Call m3exit ('sitecmp', 0, 0, 'Unsupported map projection', xstat2)
 
       end Subroutine ToProj
 
@@ -806,15 +818,13 @@ C  function to return longitude value for site n
       !C****************************************************************************
       Subroutine ToLL(gdtype, x, y, longitude, latitude)
 
+      USE M3UTILIO
+
       IMPLICIT NONE
 
       ! arguments
       Integer gdtype
       Real longitude, latitude, x, y
-
-      ! external functions
-      logical LAM2LL
-      logical POL2LL
 
       !  check for LAT/LON projection
       if( gdtype .eq. 1 ) then
@@ -826,7 +836,7 @@ C  function to return longitude value for site n
       !  check for lambert projection
       if( gdtype .eq. 2 ) then
         if(.NOT.LAM2LL(x, y, longitude, latitude) ) then
-          Call m3err('sitecmp', 0, 0, 'Lat/Lon to Lambert error', .TRUE.)
+          Call m3exit('sitecmp', 0, 0, 'Lat/Lon to Lambert error', xstat2)
           endif
         return
         endif
@@ -834,12 +844,20 @@ C  function to return longitude value for site n
       !  check for polar projection
       if( gdtype .eq. 6 ) then
         if(.NOT.POL2LL(x, y, longitude, latitude) ) then
-          Call m3err('sitecmp', 0, 0, 'Lat/Lon to Polar error', .TRUE.)
+          Call m3exit('sitecmp', 0, 0, 'Lat/Lon to Polar error', xstat2)
           endif
         return
         endif
 
-      Call m3err ('writeSite', 0, 0, 'Map projection setup error', .TRUE.)
+      !  check for equatorial mercator projection
+      if( gdtype .eq. 7 ) then
+        if(.NOT.EQM2LL(x, y, longitude, latitude) ) then
+          Call m3exit('sitecmp', 0, 0, 'Lat/Lon to equatorial mercator error', xstat2)
+          endif
+        return
+        endif
+
+      Call m3exit ('sitecmp', 0, 0, 'Unsupported map projection', xstat2)
 
       end Subroutine ToLL
 
