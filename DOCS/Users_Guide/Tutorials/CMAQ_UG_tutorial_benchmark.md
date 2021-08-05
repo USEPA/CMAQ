@@ -96,7 +96,7 @@ source config_cmaq.csh gcc 9.1
 
 ## Install the CMAQ input reference/benchmark data
 
-Download the CMAQ two day reference data from the [CMAS Center Data Warehouse SE532BENCH](https://drive.google.com/drive/folders/1jAKw1EeEzxLSsmalMplNwYtUv08pwUYk?usp=sharing) Google Drive folder and copy to `$CMAQ_DATA`. Navigate to the `$CMAQ_DATA` directory, unzip and untar the two day benchmark input and output files:
+Download the CMAQ two day reference data from the [CMAS Center Data Warehouse SE533BENCH](https://drive.google.com/drive/folders/1K7f9WQEeavae5VlAWz9Z6nNrjgF6UKV8?usp=sharing) Google Drive folder and copy to `$CMAQ_DATA`. Navigate to the `$CMAQ_DATA` directory, unzip and untar the two day benchmark input and output files:
 
 ```
 cd $CMAQ_DATA
@@ -219,19 +219,19 @@ To confirm that the benchmark case ran to completion view the run.benchmark.log 
 Note: If you are running on multiple processors the log file for each processor is also moved from the $CMAQ_HOME/CCTM/scripts directory to the benchmark output directory: 
 
 ```
-$CMAQ_DATA/output_CCTM_v532_[compiler]_Bench_2016_12SE1
+$CMAQ_DATA/output_CCTM_v533_[compiler]_Bench_2016_12SE1
 ```
 and these log files have the name convention: 
 
 ```
-CTM_LOG_[ProcessorID].v532_[compiler]_[APPL]_[YYYYMMDD]
-CTM_LOG_[ProcessorID].v532_gcc_Bench_2016_12SE1_20160701
+CTM_LOG_[ProcessorID].v533_[compiler]_[APPL]_[YYYYMMDD]
+CTM_LOG_[ProcessorID].v533_gcc_Bench_2016_12SE1_20160701
 ```
 
 The benchmark output results will have been placed in the directory: 
 
 ```
-$CMAQ_DATA/output_CCTM_v532_[compiler]_Bench_2016_12SE1
+$CMAQ_DATA/output_CCTM_v533_[compiler]_Bench_2016_12SE1
 ```
 
 and can include upto 23 netCDF-type files: ACONC, AOD_DIAG, APMDIAG, APMVIS, B3GTS_S, CGRID, CONC, DEPV, DRYDEP, DUSTEMIS, LTNGCOL, LTNGHRLY, MEDIA_CONC, PHOTDIAG1, PHOTDIAG2, PMDIAG, PMVIS, SOILOUT, SSEMIS, VDIFF, VSED, WETDEP1, and WETDEP2.
@@ -251,11 +251,11 @@ To determine if CMAQ is correctly installed on your Linux system compare the res
 - GNU GCC compiler version 9.1.0, 16 processors with OpenMPIv4.0.1 and I/O APIv3.2 tagged version 20200828
 - Debug mode turned off (```set Debug_CCTM``` commented out in $CMAQ_HOME/CCTM/scripts/bldit_cctm.csh)
 - Debug mode turned on  (```set Debug_CCTM``` uncommented in $CMAQ_HOME/CCTM/scripts/bldit_cctm.csh)
-- CMAQv5.3.2
+- CMAQv5.3.3
 
-CMAQv.5.3.2 output for a two day benchmark case is provided for both the debug mode turned off (Optimized) and the debug mode turned on (Debug) version to allow the user to compare their answers to either. To reduce the impact of compiler flags on the model output, it is preferable to use the debug version. To compare model results obtained while achieving faster run times due to compiler optimization, the Optimized version output is also provided.
+CMAQv.5.3.3 output for a two day benchmark case is provided for both the debug mode turned off (Optimized) and the debug mode turned on (Debug) version to allow the user to compare their answers to either. To reduce the impact of compiler flags on the model output, it is preferable to use the debug version. To compare model results obtained while achieving faster run times due to compiler optimization, the Optimized version output is also provided.
 
-The CMAQv5.3.2 reference output data includes a set of CCTM_ACONC_\*.nc files with layer 1 average model species concentrations for each model hour for 226 variables and a set of CCTM_WETDEP1_\*.nc files with cumulative hourly wet deposition fluxes for an additional 136 variables. The CCTM_SA_ACONC_\*.nc, CCTM_SA_CGRID_\*.nc, CCTM_SA_CONC_\*.nc, CCTM_SA_WETDEP_\*.nc and CCTM_SA_DRYDEP_\*.nc are generated when you run the CMAQ-ISAM benchmark. See the [CMAQ-ISAM Tutorial](../Tutorials/CMAQ_UG_tutorial_ISAM.md) for more information.
+The CMAQv5.3.3 reference output data includes a set of CCTM_ACONC_\*.nc files with layer 1 average model species concentrations for each model hour for 226 variables and a set of CCTM_WETDEP1_\*.nc files with cumulative hourly wet deposition fluxes for an additional 136 variables. The CCTM_SA_ACONC_\*.nc, CCTM_SA_CGRID_\*.nc, CCTM_SA_CONC_\*.nc, CCTM_SA_WETDEP_\*.nc and CCTM_SA_DRYDEP_\*.nc are generated when you run the CMAQ-ISAM benchmark. See the [CMAQ-ISAM Tutorial](../Tutorials/CMAQ_UG_tutorial_ISAM.md) for more information.
 
 Use your netCDF evaluation tool of choice to evaluate your benchmark results. For example, [VERDI](https://www.verdi-tool.org/) is a visualization tool to view CCTM results as tile plots. Statistical comparison of the results can be made with the I/O API Tools or R. 
 
