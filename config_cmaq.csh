@@ -82,7 +82,7 @@
        #> I/O API and netCDF root
        setenv NCDIR  netcdf_c_directory_path
        setenv NFDIR  netcdf_f_directory_path
-       setenv NETCDF netcdf_combined_directory_path # if you have not combined the netcdf C and netcdf F into a single directory then don't change this setting
+       setenv NETCDF netcdf_combined_directory_path # Note only for  WRF-CMAQ as it requires combining the netcdf C and netcdf F into a single directory. CMAQ users - don't change this setting
        setenv IOAPI  ioapi_root_intel  
        setenv WRF_ARCH 15                           # [1-75] Optional, ONLY for WRF-CMAQ 
 
@@ -122,7 +122,7 @@
         setenv IOAPI  ioapi_root_pgi  
         setenv NCDIR  netcdf_c_directory_path
         setenv NFDIR  netcdf_f_directory_path
-	setenv NETCDF netcdf_combined_directory_path # if you have not combined the netcdf C and netcdf F into a single directory then don't change this setting
+	setenv NETCDF netcdf_combined_directory_path # Note only for  WRF-CMAQ as it requires combining the netcdf C and netcdf F into a single directory. CMAQ users - don't change this setting
         setenv WRF_ARCH 3                            # [1-75] Optional, ONLY for WRF-CMAQ  
  
         #> I/O API, netCDF, and MPI library locations
@@ -158,7 +158,7 @@
         #> I/O API and netCDF for WRF-CMAQ 
         setenv NCDIR netcdf_c_root_gcc                  # C netCDF install path
         setenv NFDIR  netcdf_f_directory_path           # Fortran netCDF install path for CMAQ
-	setenv NETCDF netcdf_combined_directory_path # if you have not combined the netcdf C and netcdf F into a single directory then don't change this setting
+	setenv NETCDF netcdf_combined_directory_path # Note only for  WRF-CMAQ as it requires combining the netcdf C and netcdf F into a single directory. CMAQ users - don't change this setting
         setenv IOAPI  ioapi_root_gcc                    # I/O API 
         setenv WRF_ARCH 34                              # [1-75] Optional, ONLY for WRF-CMAQ  
   
