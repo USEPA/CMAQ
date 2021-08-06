@@ -17,7 +17,6 @@
 #> directory.
 
 
- #set CMAQ_HOME = [your_install_path]/
  set CMAQ_HOME =  /[your_install_path]/
 
 #> This section allows users to choose explicitly which tools
