@@ -52,7 +52,7 @@ set ParOpt                             #> uncomment to build a multiple processo
                                        #>   comment out for a single processor (serial) executable (MPI only)
 #set build_parallel_io                 #> uncomment to build with parallel I/O (pnetcdf); 
                                        #>   comment out to use standard netCDF I/O
-#set Debug_CCTM                        #> uncomment to compile CCTM with debug option equal to TRUE
+#set Debug_CCTM                        #> uncomment to compile CCTM with debug option equal to TRUE, NOTE: to run using debug requires modify BLD and RUNID in run script 
                                        #>   comment out to use standard, optimized compile process
 set make_options = "-j"                #> additional options for make command if MakeFileOnly is not set
                                        #>   comment out if no additional options are wanted.
@@ -270,7 +270,14 @@ set make_options = "-j"                #> additional options for make command if
 
 #> Set and create the "BLD" directory for checking out and compiling 
 #> source code. Move current directory to that build directory.
- set Bld = $CMAQ_HOME/CCTM/scripts/BLD_CCTM_${VRSN}_${compilerString}
+ if ( $?Debug_CCTM ) then
+    set MODE = debug
+    set Bld = $CMAQ_HOME/CCTM/scripts/BLD_CCTM_${VRSN}_${compilerString}_${MODE}
+ else
+    set Bld = $CMAQ_HOME/CCTM/scripts/BLD_CCTM_${VRSN}_${compilerString}
+ endif
+
+
  if ( ! -e "$Bld" ) then
     mkdir $Bld
  else

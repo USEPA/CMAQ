@@ -82,7 +82,7 @@
        #> I/O API and netCDF root
        setenv NCDIR  netcdf_c_directory_path
        setenv NFDIR  netcdf_f_directory_path
-       setenv NETCDF netcdf_combined_directory_path # if you have not combined the netcdf C and netcdf F into a single directory then don't change this setting
+       setenv NETCDF netcdf_combined_directory_path # Note only for  WRF-CMAQ as it requires combining the netcdf C and netcdf F into a single directory. CMAQ users - don't change this setting
        setenv IOAPI  ioapi_root_intel  
        setenv WRF_ARCH 15                           # [1-75] Optional, ONLY for WRF-CMAQ 
 
@@ -96,12 +96,7 @@
            setenv NETCDF_INCL_DIR  ${NCDIR}/include            #> netCDF C directory path
            setenv NETCDFF_LIB_DIR  ${NFDIR}/lib                #> netCDF Fortran directory path
            setenv NETCDFF_INCL_DIR ${NFDIR}/include            #> netCDF Fortran directory path
-        else
-	   setenv NETCDF_LIB_DIR   ${NETCDF}/lib               #> netCDF C directory path
-	   setenv NETCDF_INCL_DIR  ${NETCDF}/include           #> netCDF C directory path
-	   setenv NETCDFF_LIB_DIR  ${NETCDF}/lib               #> netCDF Fortran directory path
-	   setenv NETCDFF_INCL_DIR ${NETCDF}/include           #> netCDF Fortran directory path
-        endif
+        endif 
 
         setenv MPI_INCL_DIR     mpi_incl_intel              #> MPI Include directory path
         setenv MPI_LIB_DIR      mpi_lib_intel               #> MPI Lib directory path
@@ -112,7 +107,7 @@
         setenv myCC icc       
         setenv myFSTD "-O3 -fno-alias -mp1 -fp-model source -ftz -simd -align all -xHost -vec-guard-write -unroll-aggressive"
         setenv myDBG  "-O0 -g -check bounds -check uninit -fpe0 -fno-alias -ftrapuv -traceback"
-        setenv myLINK_FLAG #"-qopenmp-simd" openMP not supported w/ CMAQ
+        setenv myLINK_FLAG     # -qopenmp # openMP may be required if I/O API was built using this link flag.
         setenv myFFLAGS "-fixed -132"
         setenv myFRFLAGS "-free"
         setenv myCFLAGS "-O2"
@@ -127,7 +122,7 @@
         setenv IOAPI  ioapi_root_pgi  
         setenv NCDIR  netcdf_c_directory_path
         setenv NFDIR  netcdf_f_directory_path
-	setenv NETCDF netcdf_combined_directory_path # if you have not combined the netcdf C and netcdf F into a single directory then don't change this setting
+	setenv NETCDF netcdf_combined_directory_path # Note only for  WRF-CMAQ as it requires combining the netcdf C and netcdf F into a single directory. CMAQ users - don't change this setting
         setenv WRF_ARCH 3                            # [1-75] Optional, ONLY for WRF-CMAQ  
  
         #> I/O API, netCDF, and MPI library locations
@@ -140,21 +135,14 @@
             setenv NETCDFF_INCL_DIR ${NFDIR}/include           #> netCDF Fortran directory path
             setenv MPI_INCL_DIR     mpi_incl_pgi              #> MPI Include directory path
             setenv MPI_LIB_DIR      mpi_lib_pgi               #> MPI Lib directory path
-        else
-	    setenv NETCDF_LIB_DIR   ${NETCDF}/lib             #> netCDF C directory path
-	    setenv NETCDF_INCL_DIR  ${NETCDF}/include         #> netCDF C directory path
-	    setenv NETCDFF_LIB_DIR  ${NETCDF}/lib             #> netCDF Fortran directory path
-	    setenv NETCDFF_INCL_DIR ${NETCDF}/include         #> netCDF Fortran directory path
-	    setenv MPI_INCL_DIR     mpi_incl_pgi              #> MPI Include directory path
-	    setenv MPI_LIB_DIR      mpi_lib_pgi               #> MPI Lib directory path
-        endif
+        endif 
 
 
  
         #> Compiler Aliases and Flags
         setenv myFC mpifort 
         setenv myCC pgcc
-        setenv myLINK_FLAG # "-mp" openMP not supported w/ CMAQ
+        setenv myLINK_FLAG # "-mp"  openMP may be required if I/O API was built using this link flag.
         setenv myFSTD "-O3"
         setenv myDBG  "-O0 -g -Mbounds -Mchkptr -traceback -Ktrap=fp"
         setenv myFFLAGS "-Mfixed -Mextend -mcmodel=medium -tp px"
@@ -170,7 +158,7 @@
         #> I/O API and netCDF for WRF-CMAQ 
         setenv NCDIR netcdf_c_root_gcc                  # C netCDF install path
         setenv NFDIR  netcdf_f_directory_path           # Fortran netCDF install path for CMAQ
-	setenv NETCDF netcdf_combined_directory_path # if you have not combined the netcdf C and netcdf F into a single directory then don't change this setting
+	setenv NETCDF netcdf_combined_directory_path # Note only for  WRF-CMAQ as it requires combining the netcdf C and netcdf F into a single directory. CMAQ users - don't change this setting
         setenv IOAPI  ioapi_root_gcc                    # I/O API 
         setenv WRF_ARCH 34                              # [1-75] Optional, ONLY for WRF-CMAQ  
   
@@ -182,12 +170,7 @@
             setenv NETCDF_INCL_DIR  ${NCDIR}/include                   #> netCDF C directory path
             setenv NETCDFF_LIB_DIR  ${NFDIR}/lib                       #> netCDF Fortran directory path
             setenv NETCDFF_INCL_DIR ${NFDIR}/include                   #> netCDF Fortran directory path
-        else
-            setenv NETCDF_LIB_DIR   ${NETCDF}/lib                      #> netCDF C directory path
-	    setenv NETCDF_INCL_DIR  ${NETCDF}/include                  #> netCDF C directory path
-	    setenv NETCDFF_LIB_DIR  ${NETCDF}/lib                      #> netCDF Fortran directory path
-	    setenv NETCDFF_INCL_DIR ${NETCDF}/include                  #> netCDF Fortran directory path
-        endif
+        endif 
 
         setenv MPI_INCL_DIR     mpi_incl_gcc              #> MPI Include directory path
         setenv MPI_LIB_DIR      mpi_lib_gcc               #> MPI Lib directory path
@@ -201,7 +184,7 @@
         setenv myFFLAGS "-ffixed-form -ffixed-line-length-132 -funroll-loops -finit-character=32"
         setenv myFRFLAGS "-ffree-form -ffree-line-length-none -funroll-loops -finit-character=32"
         setenv myCFLAGS "-O2"
-        setenv myLINK_FLAG  "-fopenmp"  # openMP not supported w/ CMAQ
+        setenv myLINK_FLAG  # "-fopenmp"  # openMP may be required if I/O API was built using this link flag. 
         setenv extra_lib ""
     
         breaksw

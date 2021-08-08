@@ -494,10 +494,8 @@ The following commonly modified namelist options for WRF are specified in the ru
  
    - Download WRF-CMAQ bencmark output data from the google drive folder
 
-     https://drive.google.com/drive/u/1/folders/1poigGFlABCfepaIjDw-6JOyznJ6xz1ck
+     https://drive.google.com/drive/u/1/folders/1ccNJ0GOH8cRCIfXN6dcFj0Dh-_hHXbo9
 
-   - Compare CCTM_ACONC_v43533_20160702.nc files to your benchmark results
+   - Compare CCTM_ACONC_4.3533_SE53BENCH_20160701.nc file, and other files to your benchmark results using the m3diff routine from I/O API Tools.
 
-   - Both debug and optimized benchmark outputs are provided for your comparisons.
-
-   - Note, the CMAQv5.3.3 output results will not directly compare to the feedback (nf) WRF-CMAQ output, as different meterology and timesteps were used.  To do a comparison between CMAQv5.3.3 and WRF-CMAQ, use WRF-CMAQ to output the MCIP meteorology files, and then use those MCIP inputs with the CMAQv5.3.3 ICON and BCON inputs.
+   - Note, the CMAQv5.3.3 output results will not directly compare to the no shortwave feedback (nosw) WRF-CMAQ output, as different meterology and timesteps were used.  To do a comparison between CMAQv5.3.3 and WRF-CMAQ, use WRF-CMAQ to output the MCIP meteorology files, and then use those MCIP inputs with the CMAQv5.3.3 ICON and BCON inputs.
