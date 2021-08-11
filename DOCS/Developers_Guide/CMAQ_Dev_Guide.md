@@ -34,7 +34,7 @@ The following sections outline the CMAQ code development and review process in g
 
 CMAQ uses a number versioning system for each release version branch, with major and minor increments. For example, in the case of hypothetical version 14.0 the first number (major version) and second number (minor version) refer to a stable release version. The minor version (second number) of CMAQ increments when one or many new science developments have been adopted. 
 Although these changes may significantly affect model results, the model will still be generally compatible with inputs developed for versions of the same major number. The major version (first number) of CMAQ increments when significant development changes to the code base have been adopted such that backward compatibility or comparability is no longer expected. Modifications to the publically released version without increment are prohibited in order to ensure consistency among published literature referring to a particular model version. 
-In between published releases the development team may publish solutions to model bugs and issues in the public repository under the folder [DOCS/Known_Issues](https://github.com/lizadams/CMAQ/tree/master/DOCS/Known_Issues). The README located in this folder describes existing known issues, their scope and impact, and how they may be solved.
+In between published releases the development team may publish solutions to model bugs and issues in the public repository under the folder [DOCS/Known_Issues](https://github.com/lizadams/CMAQ/tree/main/DOCS/Known_Issues). The README located in this folder describes existing known issues, their scope and impact, and how they may be solved.
 
 ## Development Versions
 
@@ -114,7 +114,7 @@ Documentation is of course an integral part of the integration of any contributi
 -   If the contribution is a new feature, developers are encouraged to publish its use in a peer-reviewed journal before submitting it to the CMAQ Public Repository.  
 
 *CMAQ Documentation Resources:*  
-Documentation for CMAQv5.3 is available at https://github.com/USEPA/CMAQ/tree/master/DOCS. Materials include:
+Documentation for CMAQv5.3 is available at https://github.com/USEPA/CMAQ/tree/main/DOCS. Materials include:
 -   User Guide which describes code structure and regular operation of the model.
 -   Release Notes describing code improvements relevant for this model release. 
 -   Tutorials that give specific instructions for common tasks like running CMAQ or adding chemical tracers.

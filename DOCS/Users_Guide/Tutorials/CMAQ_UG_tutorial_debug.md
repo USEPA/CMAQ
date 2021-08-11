@@ -32,7 +32,7 @@ Submit a new topic issue, even if you are having an issue similar to another use
 
 ## Running CMAQ:
 ### Prerequisite: Run the CMAQ Benchmark case
-[Follow Benchmark Tutorial instructions](https://github.com/USEPA/CMAQ/blob/master/DOCS/Users_Guide/Tutorials/CMAQ_UG_tutorial_benchmark.md) 
+[Follow Benchmark Tutorial instructions](https://github.com/USEPA/CMAQ/blob/main/DOCS/Users_Guide/Tutorials/CMAQ_UG_tutorial_benchmark.md) 
 (does not require running ICON/BCON as inputs are provided in the Benchmark Input Data):
 
 
@@ -120,7 +120,6 @@ Use the grep command to find an error in any of the files
 grep -i error CTM_LOG*
 ```
 
-
 ## If you encounter an error running CMAQ
 * [Search the CMAS Forum](https://forum.cmascenter.org/search?expanded=true) for an error similar to the one that you are seeing in your CTM_LOG file.
 * [Review the CMAQ FAQ](https://www.epa.gov/cmaq/frequent-cmaq-questions)
@@ -158,8 +157,8 @@ CCTM_s07tic_noche  0000000000406CA9  Unknown               Unknown  Unknown
 ```
 This stack trace indicates that the error occurred on line 503 of the file aero_driver.F.
 
-
 ## Submit a new topic issue on the CMAS User Forum
+
 
 * [Visit the category](https://forum.cmascenter.org/categories) that best describes your issue.
 
@@ -170,8 +169,10 @@ This stack trace indicates that the error occurred on line 503 of the file aero_
 * Click on + New Topic in the upper right corner
 The Category will be pre-selected if you start a new topic request from within a category, if the category is “Uncategorized”, then use the pull-down menu to select the category for your topic.
 
+
 ### Selecting a category for your issue
 Selecting a category is important, as the CMAS Center and EPA staff are only monitoring topics submitted within a category that matches their expertise.
+
  
 * Type in a title for your topic that describes your CMAQ compiler environment
 Example Title: 
@@ -211,6 +212,7 @@ grep -B
 Error message encountered: 
 ```
 error while loading shared libraries  …  cannot open shared object file …
+
 ```
 
 ### Upload additional files by clicking on the up arrow icon in the menu underneath the Create New Topic Title including:
