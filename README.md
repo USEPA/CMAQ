@@ -38,7 +38,7 @@ git clone -b main https://github.com/USEPA/CMAQ.git CMAQ_REPO
 ## CMAQ Repository Guide
 Source code and scripts are organized as follows:
 * **CCTM (CMAQ Chemical Transport Model):** code and scripts for running the 3D-CTM at the heart of CMAQ.
-* **DOCS:** Release notes for the release version of CMAQ, CMAQ User's Guide, developers guidance, short tutorials and known issues.
+* **DOCS:** Release notes for the release version of CMAQ, CMAQ User's Guide, developers guidance, and short tutorials.
 * **PREP:** Data preprocessing tools for important input files like initial and boundary conditions, meteorology, etc.
 * **POST:** Data postprocessing tools for aggregating and evaluating CMAQ output products (e.g. Combine, Site-Compare, etc)
 * **UTIL:** Utilities for generating code and using CMAQ (e.g. chemical mechanism generation)
@@ -48,7 +48,6 @@ Release Notes and code documentation are included within this repository (they a
 
 * [CMAQ User's Guide](DOCS/Users_Guide/README.md)   
 * [Release Notes](DOCS/Release_Notes/README.md)   
-* [Known Issues](DOCS/Known_Issues/README.md)   
 * [Tutorials](DOCS/Users_Guide/Tutorials/README.md)   
 * [Developers' Guide](DOCS/Developers_Guide/CMAQ_Dev_Guide.md)   
 * [FAQ for upgrading to the latest CMAQ version](DOCS/Release_Notes/CMAQ_FAQ.md) 
@@ -59,11 +58,10 @@ Benchmark/tutorial data for each CMAQ release version are available from the CMA
 |**CMAQ Version**|**Data Type**|**Domain**|**Simulation Dates**|**Dataverse DOI**| 
 |:----:|:----:|:--------------:|:----:|:--------:|
 |v5.3|Input| CONUS | Jan 1 - Dec 31, 2016 | https://doi.org/10.15139/S3/MHNUNE |
-|v5.3, v5.3.1, v5.3.2|Input| Southeast US| July 1 - 14, 2016| https://doi.org/10.15139/S3/IQVABD |
+|v5.3, v5.3.1, v5.3.2, v5.3.3|Input| Southeast US| July 1 - 14, 2016| https://doi.org/10.15139/S3/IQVABD |
 |v5.3, v5.3.1|Output| Southeast US| July 1 - 14, 2016|https://doi.org/10.15139/S3/PDE4SS |
 |v5.3.2|Output| Southeast US| July 1 - 2, 2016|https://doi.org/10.15139/S3/PDE4SS |
-
-The benchmark data is also available form the US EPA annoymous ftp server: https://gaftp.epa.gov/exposure/CMAQ/V5_3_2/Benchmark/WRFv4.1.1-CMAQv5.3.2/
+|v5.3.3|Output| Southeast US| July 1 - 2, 2016|https://doi.org/10.15139/S3/PDE4SS |
 
 ## Previous CMAQ Versions
 The following release versions of CMAQ are currently available on GitHub.  DOI values from Zenodo can be used when referencing a specific version.
