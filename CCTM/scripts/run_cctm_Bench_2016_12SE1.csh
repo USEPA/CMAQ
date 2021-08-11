@@ -1,5 +1,6 @@
 #!/bin/csh -f
 
+
 # ===================== CCTMv5.3.X Run Script ========================= 
 # Usage: run.cctm >&! cctm_Bench_2016_12SE1.log &                                
 #
@@ -33,7 +34,7 @@ echo 'Start Model Run At ' `date`
  cd CCTM/scripts
 
 #> Set General Parameters for Configuring the Simulation
- set VRSN      = v532              #> Code Version
+ set VRSN      = v533              #> Code Version - note this must be updated if using ISAM or DDM
  set PROC      = mpi               #> serial or mpi
  set MECH      = cb6r3_ae7_aq      #> Mechanism ID
  set APPL      = Bench_2016_12SE1  #> Application Name (e.g. Gridname)
@@ -469,7 +470,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
        setenv SA_CGRID_1      "$OUTDIR/CCTM_SA_CGRID_${CTM_APPL}.nc -v"
 
        #> Set optional ISAM regions files
-       #setenv ISAM_REGIONS $INPDIR/GRIDMASK_STATES_12SE1.nc
+       setenv ISAM_REGIONS $INPDIR/GRIDMASK_STATES_12SE1.nc
 
 
     endif
