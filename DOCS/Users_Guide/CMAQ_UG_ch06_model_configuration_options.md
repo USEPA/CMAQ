@@ -282,7 +282,11 @@ Sets the correct soil hydrological properties and soil layer information needed 
 
 CMAQ introduces emissions of trace gases and aerosols from a variety of important sources (e.g. electric generating utilities, vehicles, fires, trees, dust storms, farms, etc.). Some emissions are applied in the surface layer of the model grid, while others are applied at higher altitudes if, for example, they originate from point source like an elevated stack, or a large forest fire. Many sources that are related to local meteorology may be calculated online in CMAQ. However, most sources, especially anthropogenic ones, are preprocessed using software like the Sparse Matrix Operator Kerner Emissions (SMOKE) Modeling System. Once these external tools have calculated the offline emissions, they may merge them into larger aggregated files. We refer to emissions that are either calculated online or read into CMAQ from a file as emission "streams".
 
-Because CMAQ represents both primary and secondary pollutants, emissions are processed for a subset of the species CMAQ treats. The emissions chemical speciation must be compatible with the chemical mechanism chosen for CMAQ (e.g. cb6r3_ae7_aq) because different mechanisms represent large compounds like functionalized hydrocarbons with different surrogates. CMAQv5.3 has introduced new features that make the process of mapping emissions species to CMAQ species more transparent and flexible (see [Appendix B: Emission Control with DESID](Appendix/CMAQ_UG_appendixB_emissions_control.md)). In fact, users can now toggle, modify, and augment emissions from all available streams in order to better tailor their simulations to the questions they are asking CMAQ to help answer. For tutorials covering specific tasks, please see the [DESID tutorial page](Tutorials/CMAQ_UG_tutorial_emissions.md).
+Because CMAQ represents both primary and secondary pollutants, emissions are processed for a subset of the species CMAQ treats. The emissions chemical speciation must be compatible with the chemical mechanism chosen for CMAQ (e.g. cb6r3_ae7_aq) because different mechanisms represent large compounds like functionalized hydrocarbons with different surrogates. The emissions mapping is prescribed via the Emission Control File, and default versions of the Emission Control file are provided for every chemical mechanism. If the user does not provide an Emission Control File or the path to the file in the RunScript is incorrect, then zero emissions will be assumed for every stream. However, the precise configuration of various other scientific options in the RunScript may conspire to create non-physical values for the emission rates. If the user would like all emissions set to 0, it is recommended that they use the syntax outlined in Appendix B and the DESID tutorial to do so.  
+
+CMAQv5.3 has introduced new features that make the process of mapping emissions species to CMAQ species more transparent and flexible (see [Appendix B: Emission Control with DESID](Appendix/CMAQ_UG_appendixB_emissions_control.md)). In fact, users can now toggle, modify, and augment emissions from all available streams in order to better tailor their simulations to the questions they are asking CMAQ to help answer. For tutorials covering specific tasks, please see the [DESID tutorial page](Tutorials/CMAQ_UG_tutorial_emissions.md).  
+
+
 
 <a id=6.9.1_Emission_Streams></a>
 
@@ -297,7 +301,7 @@ Because CMAQ represents both primary and secondary pollutants, emissions are pro
 Depending on the nature of any stream and the information used to quantify its emissions, it may be treated as one of three types:
 
 #### Online Stream:
-CMAQ will calculate the emission rates from this source using information about local meteorology, land characteristics, etc. The streams that can be run online in CMAQ are: [biogenics (BEIS)](#BEIS),[ wind-blown dust](#Wind_Blown_Dust), [sea spray](#Sea_Spray), and [lightning NO](#Lightning_NO).
+CMAQ will calculate the emission rates from this source using information about local meteorology, land characteristics, etc. The streams that can be run online in CMAQ are: [biogenics (BEIS/MEGAN)](#BEIS/MEGAN),[ wind-blown dust](#Wind_Blown_Dust), [sea spray](#Sea_Spray), and [lightning NO](#Lightning_NO).
 
 #### Gridded Stream (offline):
 CMAQ will read emission rates from an input file, which is organized into an array that is identical in shape to the CMAQ model grid. Typically, these rates are stored at hourly time points and are then interpolated within CMAQ to each time step. These files may be 2D to represent just the surface layer emissions or they may be 3D. If 3D, the file may have the same number or fewer number of layers as the CMAQ grid. Some common examples of Gridded emissions include:
@@ -308,7 +312,7 @@ CMAQ will read emission rates from an input file, which is organized into an arr
 - Consumer product use (e.g. adhesives, personal care products, pesticides, etc.)
 - Agricultural (e.g. burning, dust, animal waste, etc.)
 - Road, Construction and mechanically generated dust
-- Biogenic VOCs (if not calculated online with BEIS)
+- Biogenic VOCs (if not calculated online with BEIS or MEGAN)
 
 Users add Gridded emissions to a simulation via the RunScript. First the variable N_EMIS_GR must be set to the number of Gridded Streams to be used:
 
@@ -400,20 +404,24 @@ If N_EMIS_PT is set 0, then CMAQ will run with no Inline emissions even if the v
 
 <!-- END COMMENT -->
 
-<a id=BEIS></a>
+<a id=BEIS/MEGAN></a>
 #### Biogenics
-To calculate online biogenic emissions, CMAQ uses the [Biogenic Emission Inventory System (BEIS)](https://www.epa.gov/air-emissions-modeling/biogenic-emission-inventory-system-beis). BEIS calculates emissions resulting from biological activity from land-based vegetative species as well as nitric oxide emissions produced by microbial activity from certain soil types.
+To calculate online biogenic emissions, CMAQ uses the [Biogenic Emission Inventory System (BEIS)](https://www.epa.gov/air-emissions-modeling/biogenic-emission-inventory-system-beis) and the [Model of Emissions of Gases and Aerosols from Nature (MEGAN)](https://bai.ess.uci.edu/megan). Before using the CMAQ online version of BEIS or MEGAN users should confirm that biogenic emissions are not already included in their emissions files from SMOKE to avoid double counting biogenic emissions.
 
-This biogenic model is based on the same model that is included in SMOKE. Before using the CMAQ online version of BEIS users should confirm that biogenic emissions are not already included in their emissions files from SMOKE to avoid double counting biogenic emissions.  User documentation for BEIS can be found in [Chapter 6.17 of the SMOKE manual](https://www.cmascenter.org/help/documentation.cfm?model=smoke&version=4.6). 
+#### BEIS
 
-Speciation of biogenic emissions is controlled by gspro_biogenics.txt under CCTM/src/biog/beis.
+BEIS calculates emissions resulting from biological activity from land-based vegetative species as well as nitric oxide emissions produced by microbial activity from certain soil types. This biogenic model is based on the same model that is included in SMOKE. User documentation for BEIS can be found in [Chapter 6.17 of the SMOKE manual](https://www.cmascenter.org/help/documentation.cfm?model=smoke&version=4.6). 
 
-Running CMAQ with online biogenics is controlled by the following RunScript flag:
+Speciation of biogenic emissions for BEIS is controlled by gspro_biogenics.txt under CCTM/src/biog/beis.
+
+Running CMAQ with BEIS is controlled by the following RunScript flag:
+
 
 ```
-setenv CTM_BIOGEMIS Y
+setenv CTM_BIOGEMIS_BEIS Y
 ```
-Running CMAQ with online biogenic emissions requires a user-supplied, gridded normalized biogenic emissions input netCDF file, B3GRD.  This file is created with the [normbeis3](https://www.cmascenter.org/smoke/documentation/4.6/html/ch06s12.html) program in SMOKE prior to running the inline biogenic option in CMAQ and contains winter and summer normalized emissions and Leaf Area Indices. The location of the B3GRD file is set in the RunScript:
+
+Running CMAQ with online BEIS requires a user-supplied, gridded normalized biogenic emissions input netCDF file, B3GRD.  This file is created with the [normbeis3](https://www.cmascenter.org/smoke/documentation/4.6/html/ch06s12.html) program in SMOKE prior to running the inline biogenic option in CMAQ and contains winter and summer normalized emissions and Leaf Area Indices. The location of the B3GRD file is set in the RunScript:
 
 ```
 setenv B3GRD /home/user/path-to-file/b3grd.nc
@@ -449,8 +457,43 @@ setenv NEW_START FALSE
 ```
 
 ```
-setenv SOILNP /home/user/path-to-file/cctm_soilout.nc
+setenv SOILINP /home/user/path-to-file/cctm_soilout.nc
 ```
+
+#### MEGAN
+
+MEGAN also calculates emissions resulting from biological activity from land-based vegetative species as well as nitric oxide emissions produced by microbial activity from certain soil types.  
+
+Speciation of biogenic emissions for MEGAN is controlled by mechanism specific *.EXT files under CCTM/src/biog/megan3.
+
+Running CMAQ with MEGAN is controlled by the following RunScript flag:
+
+
+```
+setenv CTM_BIOGEMIS_MEGAN Y
+```
+
+Running CMAQ with online MEGAN requires user-supplied input netCDF files that can be created with the [MEGAN preprocessor](https://bai.ess.uci.edu/megan/data-and-code). Three files are required:
+
+
+```
+setenv MEGAN_CTS /home/user/path-to-file/CTS.nc
+```
+
+```
+setenv MEGAN_EFS /home/user/path-to-file/EFS.nc
+```
+
+```
+setenv MEGAN_LDF /home/user/path-to-file/LDF.nc
+```
+
+These files describe the canopy type, the emission factors for each MEGAN species, and the light dependent fraction of each grid cell. The user may also choose to set MEGAN_LAI to use a MEGAN-formatted leaf area index dataset that they might prefer. 
+
+
+The SOILINP and SOILOUT functionality is the same as for BEIS (see above), with the addition of shortwave radiation and surface temperature values to the buffer files. The IGNORE_SOILINP option gives similar control to the user as the INITAL_RUN option described above.
+
+
 
 <a id=Wind_Blown_Dust></a>
 #### Wind-Blown Dust
@@ -572,10 +615,11 @@ Alternatively, users can also edit the emission control file by commenting out t
 #### Lightning NO
 In retrospective applications over the continental U.S., National Lightning Detection Network (NLDN) lightning data can be used directly to generate NO produced by lightning in CMAQ. For real-time forecasts or other applications where lightning data are not available, lightning NO is produced based on statistical relationships with the simulated convective rainfall rate (Kang et al., 2019).
 
-There are two options for including NO from lighting. Both options require setting the CTM_LTNG_NO flag to Y in the RunScript.
+There are two options for including NO from lighting.  Both options require setting the CTM_LTNG_NO flag to Y in the RunScript.
 ```
 setenv CTM_LTNG_NO Y
 ```
+
 
 ##### Option 1 - Inline NO with NLDN Data -- user uses hourly NLDN lightning strike netCDF file.
 
@@ -755,9 +799,7 @@ In CMAQ, HONO is produced from emissions, gas-phase chemical reactions, and a he
 setenv CTM_SFC_HONO Y 
 ```
 
-CMAQ uses a default setting of Y to include the production of HONO from the heterogeneous reaction on ground surface. Ground surface areas for buildings and other structures for urban environments is assumed to be proportional to the percent urban area in any grid cell. This data is usually available via MCIP represented by the variable PURB, however, in some instances this data may not be available. If the data is not available, the model assumes the percent urban area to be 0.0 which will inhibit the heterogeneous reaction on buildings and other structures for urban environments causing lower predicted HONO.
-
-The user can set it to N to exclude the heterogeneous production from the reaction. Note that the default setting for the inline deposition calculation (CTM_ILDEPV) flag is Y. If the flag is changed to N, then the production of HONO from the heterogeneous reaction on ground surface will not work properly. Additional description of the HONO chemistry in CMAQ can be found in Sarwar et al. (2008).
+CMAQ uses a default setting of Y to include the production of HONO from the heterogeneous reaction on ground surface. The user can set it to N to exclude the heterogeneous production from the reaction. Note that the default setting for the inline deposition calculation (CTM_ILDEPV) flag is Y. If the flag is changed to N, then the production of HONO from the heterogeneous reaction on ground surface will not work properly. Additional description of the HONO chemistry in CMAQ can be found in Sarwar et al. (2008).
 
 
 <a id=6.11_Aerosol_Dynamics></a>
