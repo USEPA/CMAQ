@@ -572,20 +572,12 @@ Alternatively, users can also edit the emission control file by commenting out t
 #### Lightning NO
 In retrospective applications over the continental U.S., National Lightning Detection Network (NLDN) lightning data can be used directly to generate NO produced by lightning in CMAQ. For real-time forecasts or other applications where lightning data are not available, lightning NO is produced based on statistical relationships with the simulated convective rainfall rate (Kang et al., 2019).
 
-There are three options for including NO from lighting.  All three options require setting the CTM_LTNG_NO flag to Y in the RunScript.
+There are two options for including NO from lighting. Both options require setting the CTM_LTNG_NO flag to Y in the RunScript.
 ```
 setenv CTM_LTNG_NO Y
 ```
 
-##### Option 1 - Offline NO -- user provides a gridded lightning NO emissions file calculated with a preprocessor external to the CMAQ repository
-
-For this option set the LTNGNO environment variable in the RunScript to the location of the gridded netCDF file of NO emissions:
-
-```
-setenv LTNGNO /home/user/path-to-file/ltngno_emiss_from_user.nc
-```
-
-##### Option 2 - Inline NO with NLDN Data -- user uses hourly NLDN lightning strike netCDF file.
+##### Option 1 - Inline NO with NLDN Data -- user uses hourly NLDN lightning strike netCDF file.
 
 Hourly NLDN lightning strike data can be purchased.
 In addition to the hourly lightning strike netCDF file, this option requires a lightning parameters netCDF file.  This file contains  the intercloud to cloud-to-ground flash ratios, which are the scaling factors for calculating flashes using the convective precipitation rate, land-ocean masks, and the moles of NO per flash (cloud-to-ground and intercloud).  The lightning parameters file for a domain over the continental US at 12km horizontal resolution (12US1) can be downloaded from the [CMAS Data Warehouse](https://drive.google.com/drive/folders/1R8ENVSpQiv4Bt4S0LFuUZWFzr3-jPEeY).  This file can be regridded to support other domains within the continental US. 
@@ -606,7 +598,7 @@ setenv NLDN_STRIKES /home/user/path-to-file/nldn_hourly_ltng_strikes.nc
 setenv LTNGPARMS_FILE /home/user/path-to-file/LTNG_AllParms_12US1.nc
 ```
 
-##### Option 3 - Inline NO without NLDN Data --  lightning NO is calculated within CCTM based on statistical relationships with the simulated convective rainfall rate.
+##### Option 2 - Inline NO without NLDN Data --  lightning NO is calculated within CCTM based on statistical relationships with the simulated convective rainfall rate.
 
 This option also requires a lightning parameters netCDF file which contains the linear regression parameters for generating lightning NO.  The lightning parameters file for the continental US at 12km horizontal resolution can be downloaded from the [CMAS Data Warehouse](https://drive.google.com/drive/folders/1R8ENVSpQiv4Bt4S0LFuUZWFzr3-jPEeY). This file can be regridded to support other domains within the continental US. 
 
@@ -642,7 +634,7 @@ Potential Combustion SOA (PCSOA) was added to CMAQv5.2 to account for missing PM
 
 <a id=a-pinene></a>
 #### &#945;-Pinene separated from other monoterpenes
-If using chemical mechanism CB6r3 and aerosol module AERO7 (cb6r3_ae7) with offline biogenic emissions, &#945;-pinene should be separated from all other monoterpenes. This will prevent overestimation in PM2.5 SOA as &#945;-pinene should not make SOA through nitrate radical reaction.  Users can use biogenic emission files created for older model versions by updating the emission control file to separate &#945;-pinene. No action is required for aerosol module AERO6 (any mechanism), in-line biogenics (any mechanism, any aerosol module), or aero7 with SAPRC mechanisms. See the [AERO7 overview release notes](../Release_Notes/aero7_overview.md) for further details. 
+If using chemical mechanism CB6r3 and aerosol module AERO7 (cb6r3_ae7) with offline biogenic emissions, &#945;-pinene should be separated from all other monoterpenes. This will prevent overestimation in PM2.5 SOA as &#945;-pinene should not make SOA through nitrate radical reaction.  Users can use biogenic emission files created for older model versions by updating the emission control file to separate &#945;-pinene. No action is required for aerosol module AERO6 (any mechanism), in-line biogenics (any mechanism, any aerosol module), or aero7 with SAPRC mechanisms. See the [AERO7 overview release notes](../Release_Notes/CMAQv5.3_aero7_overview.md) for further details. 
 
 <a id=6.10_Gas_Phase_Chem></a>
 

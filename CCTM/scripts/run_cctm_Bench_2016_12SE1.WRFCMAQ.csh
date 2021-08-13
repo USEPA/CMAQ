@@ -42,11 +42,11 @@ set EXEC      = wrf.exe
  if ( $CTM_DIAG_LVL != 0 ) set echo
 
 # Set Working, Input, and Output Directories
-set WORKDIR     = .
+set WORKDIR     = [your install location]
 set WRF_DIR     = $WORKDIR/BLD_WRFv4.3_CCTM_v533_gcc
-set INPDIR      = /work/MOD3DATA/2016_12SE1               # Input directory
+set INPDIR      = [your_install_dir]/WRF-CMAQ/CMAQ_v5.3.3/data/CMAQv5.3.2_Benchmark_2Day_Input/2016_12SE1                 # Input directory
 set OMIpath     = $WRF_DIR/cmaq                           # path optics related data files
-set OUTPUT_ROOT = $WORKDIR                                # output root directory
+set OUTPUT_ROOT = [your output directory location]                                # output root directory
 set NMLpath     = $WRF_DIR/cmaq                           # path with *.nml file mechanism dependent
 set EMISSCTRL   = $WRF_DIR/cmaq                           # path of Emissions Control File
 
@@ -395,11 +395,11 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   #> made when creating the emission files defined below and the desired representation of organic aerosols.
   #> For further information, please see:
   #> + AERO7 Release Notes section on 'Required emission updates':
-  #>   https://github.com/USEPA/CMAQ/blob/master/DOCS/Release_Notes/aero7_overview.md
+  #>   https://github.com/USEPA/CMAQ/blob/main/DOCS/Release_Notes/CMAQv5.3_aero7_overview.md
   #> + CMAQ User's Guide section 6.9.3 on 'Emission Compatability': 
-  #>   https://github.com/USEPA/CMAQ/blob/master/DOCS/Users_Guide/CMAQ_UG_ch06_model_configuration_options.md#6.9.3_Emission_Compatability
+  #>   https://github.com/USEPA/CMAQ/blob/main/DOCS/Users_Guide/CMAQ_UG_ch06_model_configuration_options.md#6.9.3_Emission_Compatability
   #> + Emission Control (DESID) Documentation in the CMAQ User's Guide: 
-  #>   https://github.com/USEPA/CMAQ/blob/master/DOCS/Users_Guide/Appendix/CMAQ_UG_appendixB_emissions_control.md 
+  #>   https://github.com/USEPA/CMAQ/blob/main/DOCS/Users_Guide/Appendix/CMAQ_UG_appendixB_emissions_control.md 
   #>
 # setenv EMISSCTRL_NML ${BLD}/cmaq/EmissCtrl_${MECH}.nml
 

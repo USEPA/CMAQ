@@ -15,7 +15,7 @@ were set to be consistent with what had been used in the Odum 2-product paramete
 of *aero6*. Formation of the semivolatiles is performed in the gas-phase mechanism, but note
 that molar yields are implemented. Documentation appears in Qin et al., *in prep*. 
 
-New aerosol species (also see [aero7 overview](aero7_overview.md)):  
+New aerosol species (also see [aero7 overview](CMAQv5.3_aero7_overview.md)):  
 AAVB1-4J  
 SVAVB1-4  
 

@@ -17,7 +17,7 @@ module load openmpi_4.0.1/gcc_9.1.0
    **Skip to Step 3, if you have a module for netCDF avialable on your system and you have loaded it**
 
    Follow the tutorial for building libraries to build netCDF C and Fortran Libraries
-   https://github.com/USEPA/CMAQ/blob/master/DOCS/Users_Guide/Tutorials/CMAQ_UG_tutorial_build_library_gcc.md
+   https://github.com/USEPA/CMAQ/blob/main/DOCS/Users_Guide/Tutorials/CMAQ_UG_tutorial_build_library_gcc.md
    
    - Follow these instructions to combine the libraries into a single combined directory
    
@@ -215,7 +215,7 @@ module load openmpi_4.0.1/gcc_9.1.0
 In the directory where you would like to install CMAQ, create the directory issue the following command to clone the EPA GitHub repository for CMAQv5.3.3:
 
 ```
-git clone -b master https://github.com/USEPA/CMAQ.git CMAQ_REPO
+git clone -b main https://github.com/USEPA/CMAQ.git CMAQ_REPO
 ```
 
 Build and run in a user-specified directory outside of the repository
@@ -225,7 +225,7 @@ In the top level of CMAQ_REPO, the bldit_project.csh script will automatically r
 Edit bldit_project.csh, to modify the variable $CMAQ_HOME to identify the folder that you would like to install the CMAQ package under. For example:
 
 ```
-set CMAQ_HOME = /home/username/WRF-CMAQ/CMAQ_v5.3.3
+set CMAQ_HOME = [[your_install_path]]/WRF-CMAQ/CMAQ_v5.3.3
 ```
 
 Now execute the script.
@@ -341,7 +341,7 @@ Note: Steps 7-10 are **ONLY** for systems without [Git](https://git-scm.com/).
    - extract the tar.gz file
    
    ```
-   cd /home/username/WRF-CMAQ/CMAQ_v5.3.3/scripts
+   cd [your_install_path]/WRF-CMAQ/CMAQ_v5.3.3/scripts
    tar -xzvf WRF-4.3.tar.gz ./BLD_WRFv4.3_CCTM_v533_gcc
    ```
    
@@ -408,7 +408,7 @@ setenv WRF_CMAQ 1
 
 ### Step 12: Download the input data
 
-[Link to CMAQv5.3.2_Benchmark_2Day_Input.tar.gz input data on Google Drive](https://drive.google.com/file/d/1fp--3dVvQHUyB_BodpU2aHBv5LjlC6E4/view?usp=sharing)
+[Link to CMAQv5.3.2_Benchmark_2Day_Input.tar.gz input data on Google Drive](https://drive.google.com/file/d/1ex6Wr4dX6a0fgaDfhO0VEJNaCKqOflI5/view?usp=sharing)
 
   - Use the gdrive command to download the dataset.
   - If this is the first time that you are using gdrive, or if you have an issue with your token, please read the following instructions
@@ -416,7 +416,7 @@ setenv WRF_CMAQ 1
   
   
   ```
-  gdrive download 1fp--3dVvQHUyB_BodpU2aHBv5LjlC6E4
+  gdrive download 1ex6Wr4dX6a0fgaDfhO0VEJNaCKqOflI5
   ```
   
     
@@ -494,10 +494,8 @@ The following commonly modified namelist options for WRF are specified in the ru
  
    - Download WRF-CMAQ bencmark output data from the google drive folder
 
-     https://drive.google.com/drive/u/1/folders/1poigGFlABCfepaIjDw-6JOyznJ6xz1ck
+     https://drive.google.com/drive/u/1/folders/1ccNJ0GOH8cRCIfXN6dcFj0Dh-_hHXbo9
 
-   - Compare CCTM_ACONC_v43533_20160702.nc files to your benchmark results
+   - Compare CCTM_ACONC_4.3533_SE53BENCH_20160701.nc file, and other files to your benchmark results using the m3diff routine from I/O API Tools.
 
-   - Both debug and optimized benchmark outputs are provided for your comparisons.
-
-   - Note, the CMAQv5.3.3 output results will not directly compare to the feedback (nf) WRF-CMAQ output, as different meterology and timesteps were used.  To do a comparison between CMAQv5.3.3 and WRF-CMAQ, use WRF-CMAQ to output the MCIP meteorology files, and then use those MCIP inputs with the CMAQv5.3.3 ICON and BCON inputs.
+   - Note, the CMAQv5.3.3 output results will not directly compare to the no shortwave feedback (nosw) WRF-CMAQ output, as different meterology and timesteps were used.  To do a comparison between CMAQv5.3.3 and WRF-CMAQ, use WRF-CMAQ to output the MCIP meteorology files, and then use those MCIP inputs with the CMAQv5.3.3 ICON and BCON inputs.
