@@ -312,6 +312,13 @@ cd ../$BIN
 ls -lrt libioapi.a
 ```
 
+12. If you need to do a make clean, to rebuild the I/O API Library, specify the HOME directory at the command line as follows
+
+```
+cd ../ioapi
+make 'HOME=[your_install_path]/LIBRARIES' clean 
+```
+
 12. Change directories to the m3tools directory
 ```
 cd ../m3tools
