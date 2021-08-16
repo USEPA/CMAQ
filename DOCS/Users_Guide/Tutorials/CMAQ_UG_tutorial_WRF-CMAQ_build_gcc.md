@@ -179,8 +179,8 @@ BASEDIR = ${INSTALL}/ioapi-3.2-20200828
  - comment out the following lines by adding a # before the setting
  
  ```
- #OMPFLAGS  = -fopenmp
- #OMPLIBS   = -fopenmp
+ OMPFLAGS  = # -fopenmp
+ OMPLIBS   = # -fopenmp
  ```
  
  ### Create the Makefile in the m3tools directory
