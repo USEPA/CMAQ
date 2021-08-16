@@ -138,6 +138,11 @@ BASEDIR = ${INSTALL}/ioapi-3.2-20200828
 
     
      mkdir $INSTALL/$BIN
+
+ ### Link the installation directory to the generic directory name supported by WRF-CMAQ 
+ 
+     cd $INSTALL
+     ln -s Linux2_x86_64gfort_openmpi_4.0.1_gcc_9.1.0 Linux2_x86_64gfort
       
  ### Edit the Makefile to add a path to the combined netCDF library directory
  ### Note this is the Makefile at the ioapi-3.2 level. 
