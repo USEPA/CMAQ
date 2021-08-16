@@ -283,11 +283,11 @@ cd ioapi
 cp Makeinclude.Linux2_x86_64ifort Makeinclude.Linux2_x86_64ifort_openmpi_3.1.4_intel18.2
 ```
 
-5. Edit the Makeinclude file, lines 27 and 28 to use -qopenmp instead of -openmp
+5. Edit the Makeinclude file, lines 27 and 28 to comment out the openmmp flag
 
 ```
-OMPFLAGS  = -qopenmp
-OMPLIBS   = -qopenmp
+OMPFLAGS  = # -qopenmp
+OMPLIBS   = # -qopenmp
 ```
 
 6. Set the environment variable BIN
@@ -297,13 +297,18 @@ setenv BIN Linux2_x86_64ifort_openmpi_3.1.4_intel18.2
 ```
 
 7. Create a BIN directory under the ioapi-3.2 directory
-
 ```
 cd ..
 mkdir $BIN
 ```
 
-8. Link the netcdf-C and netcdf-Fortran library in the $BIN directory
+8. Create a link to this $BIN directory for WRF-CMAQ
+
+```
+ln -s Linux2_x86_64ifort_openmpi_3.1.4_intel18.2 Linux2_x86_64ifort
+```
+
+9. Link the netcdf-C and netcdf-Fortran library in the $BIN directory
 
 ```
 cd $BIN
@@ -311,13 +316,13 @@ ln -s /home/netcdf-c-4.7.0-intel18.2/libnetcdff.a
 ln -s /home/netcdf-fortran-4.4.5-intel18.2/libnetcdf.a
 ```
 
-9. Run the make command to compile and link the ioapi library
+10. Run the make command to compile and link the ioapi library
 
 ```
 make all |& tee make.log
 ```
 
-10. Change directories to the $BIN dir and verify that both the libioapi.a and the m3tools were successfully built
+11. Change directories to the $BIN dir and verify that both the libioapi.a and the m3tools were successfully built
 
 ```
 cd $BIN
@@ -325,5 +330,5 @@ ls -lrt libioapi.a
 ls -rlt m3xtract
 ```
 
-11. After successfull completion of this tutorial, the user is now ready to proceed to the [CMAQ Installation & Benchmarking Tutorial](./CMAQ_UG_tutorial_benchmark.md). 
+12. After successfull completion of this tutorial, the user is now ready to proceed to the [CMAQ Installation & Benchmarking Tutorial](./CMAQ_UG_tutorial_benchmark.md). 
 
