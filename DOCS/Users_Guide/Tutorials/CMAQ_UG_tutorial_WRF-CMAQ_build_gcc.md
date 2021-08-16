@@ -179,8 +179,8 @@ BASEDIR = ${INSTALL}/ioapi-3.2-20200828
  - comment out the following lines by adding a # before the setting
  
  ```
- OMPFLAGS  = # -fopenmp
- OMPLIBS   = # -fopenmp
+# OMPFLAGS  =  -fopenmp
+# OMPLIBS   =  -fopenmp
  ```
  
  ### Create the Makefile in the m3tools directory
@@ -192,11 +192,10 @@ BASEDIR = ${INSTALL}/ioapi-3.2-20200828
  
  
  ### Build ioapi using the following command
- ### (Not clear where to run the make command.  Do you run it under ioapi-3.2 or ioapi-3.2/ioapi directory?
  
  ```
- cd ..
- make |& tee make.log
+ cd ioapi 
+ make HOME='[your_install_path]/LIBRARIES' |& tee make.log
  ```
  
  ### Verify that the libioapi.a and the m3tools have been successfully built

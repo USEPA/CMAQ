@@ -286,8 +286,8 @@ cp Makeinclude.Linux2_x86_64ifort Makeinclude.Linux2_x86_64ifort_openmpi_3.1.4_i
 5. Edit the Makeinclude file, lines 27 and 28 to comment out the openmmp flag
 
 ```
-OMPFLAGS  = # -qopenmp
-OMPLIBS   = # -qopenmp
+#OMPFLAGS  =  -qopenmp
+#OMPLIBS   =  -qopenmp
 ```
 
 6. Set the environment variable BIN
@@ -316,10 +316,11 @@ ln -s /home/netcdf-c-4.7.0-intel18.2/libnetcdff.a
 ln -s /home/netcdf-fortran-4.4.5-intel18.2/libnetcdf.a
 ```
 
-10. Run the make command to compile and link the ioapi library
+10. Run the make command, specifying the location of the ioapi-3.2 directory path to compile and link the ioapi library
 
 ```
-make all |& tee make.log
+cd ioapi
+make 'HOME=[your_install_path]/LIBRARIES' |& tee make.log
 ```
 
 11. Change directories to the $BIN dir and verify that both the libioapi.a and the m3tools were successfully built

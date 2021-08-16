@@ -281,8 +281,8 @@ cp Makeinclude.Linux2_x86_64gfort Makeinclude.Linux2_x86_64gfort_openmpi_4.0.1_g
 settings.  This will remove the need to link the shared memory OPENMP libraries when compiling CMAQ and WRF-CMAQ.
 
 ```
-OMPFLAGS  = # -fopenmp
-OMPLIBS   = # -fopenmp
+#OMPFLAGS  = -fopenmp
+#OMPLIBS   =  -fopenmp
 ```
 
 8. Create a BIN directory where the library and m3tools executables will be installed
