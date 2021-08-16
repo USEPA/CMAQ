@@ -331,5 +331,12 @@ ls -lrt libioapi.a
 ls -rlt m3xtract
 ```
 
-12. After successfull completion of this tutorial, the user is now ready to proceed to the [CMAQ Installation & Benchmarking Tutorial](./CMAQ_UG_tutorial_benchmark.md). 
+12. If you need to do a make clean, to rebuild the I/O API Library, specify the HOME directory at the command line as follows
+
+```
+cd ../ioapi
+make 'HOME=[your_install_path]/LIBRARIES' clean
+
+
+13. After successfull completion of this tutorial, the user is now ready to proceed to the [CMAQ Installation & Benchmarking Tutorial](./CMAQ_UG_tutorial_benchmark.md). 
 
