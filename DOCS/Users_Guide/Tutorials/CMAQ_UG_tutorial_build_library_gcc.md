@@ -278,7 +278,7 @@ cp Makeinclude.Linux2_x86_64gfort Makeinclude.Linux2_x86_64gfort_openmpi_4.0.1_g
 ```
 
 7. Edit the Makeinclude.Linux2_x86_64gfort_openmpi_4.0.1_gcc_9.1.0 to comment out OMPFLAG and OMPLIBS 
-ettings.  This will remove the need to link the shared memory OPENMP libraries when compiling CMAQ and WRF-CMAQ.
+settings.  This will remove the need to link the shared memory OPENMP libraries when compiling CMAQ and WRF-CMAQ.
 
 ```
 OMPFLAGS  = # -fopenmp
@@ -294,12 +294,14 @@ mkdir ../$BIN
 9. Link the BIN directory to a the gfort BIN directory - this step is needed for WRF-CMAQ.
 
 ```
+cd ../
 ln -s Linux2_x86_64gfort_openmpi_4.0.1_gcc_9.1.0 Linux2_x86_64gfort
 ```
 
 10. Set the HOME environment variable to be your LIBRARY install directory and run the make command to compile and link the ioapi library
 
 ```
+cd ioapi
 make 'HOME=[your_install_path]/LIBRARIES' |& tee make.log
 ```
 
