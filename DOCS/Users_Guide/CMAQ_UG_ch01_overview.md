@@ -60,9 +60,11 @@ In addition to the air pollutant concentration and deposition fields output by C
 4.  *[Integrated Process Rates (IPR)](CMAQ_UG_ch09_process_analysis.md)*: CMAQ can be configured to output the process rates for each of the modeled processes impacting change in ambient concentrations of modeled species. This essentially provides a breakdown of the various terms contributing to the overall species mass-balance and thus helps with species mass-budget analysis.
 5.  *[Integrated Reaction Rates (IRR)](CMAQ_UG_ch09_process_analysis.md)*: This technique involves integrating the rates of individual chemical reactions represented in the gas-phase chemical mechanism employed by CMAQ. As an example, this information can then be used to infer the relative importance of various precursor species contributing to ozone production in a grid cell or region.
 
+## 1.4 New Features in CMAQv5.3.3
 
-## 1.4 New Features in CMAQv5.3
-Building on previous versions of the modeling system, numerous updates to the process science and model structure have been implemented in CMAQv5.3 including:
+CMAQv5.3.3 is a minor update to CMAQv5.3 that includes multiple bug fixes. These updates include restoration of windowing capability, allowing users to provide gridded input files which were larger in horizontal extent than the simulated domain. This release also includes a new version of the WRF-CMAQ coupled system with a streamlined build process. Users of WRF-CMAQ are strongly encouraged to try the latest version. Additionally, MCIP users should note that starting with this release we are aligning the version numbering between CMAQ and MCIP, i.e., the MCIP updates included in this release are labeled MCIPv5.3.3.
+
+Numerous updates to the process science and model structure were implemented in CMAQv5.3 including:
 
 1.	Advances in the science of modeling particulate matter composition, size distribution and optical properties. These updates are encapsulated in a new version of the CMAQ aerosol module named AERO7.
 2.	Improvements and updates to the representation of multi-phase chemistry in the CMAQ modeling system, including incorporation of new gas-phase chemical mechanisms, expansion of aqueous chemistry pathways, incorporation of improved data sets to estimate photolysis rates, and updates to numerical integration schemes to improve runtime efficiency.
