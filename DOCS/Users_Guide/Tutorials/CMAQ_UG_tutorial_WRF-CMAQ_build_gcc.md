@@ -511,6 +511,10 @@ The following commonly modified namelist options for WRF are specified in the ru
 
      https://drive.google.com/drive/u/1/folders/1ccNJ0GOH8cRCIfXN6dcFj0Dh-_hHXbo9
 
+  - The WRF-CMAQ benchmark output is also available from the the US EPA anoymous ftp server:
+
+     https://gaftp.epa.gov/exposure/CMAQ/V5_3_3/Benchmark/WRFv4.3-CMAQv5.3.3/
+
    - Compare CCTM_ACONC_4.3533_SE53BENCH_20160701.nc file, and other files to your benchmark results using the m3diff routine from I/O API Tools.
 
    - Note, the CMAQv5.3.3 output results will not directly compare to the no shortwave feedback (nosw) WRF-CMAQ output, as different meterology and timesteps were used.  To do a comparison between CMAQv5.3.3 and WRF-CMAQ, use WRF-CMAQ to output the MCIP meteorology files, and then use those MCIP inputs with the CMAQv5.3.3 ICON and BCON inputs.
