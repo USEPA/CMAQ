@@ -102,6 +102,7 @@ The CMAQ benchmark test case is a two day simulation for July 1-2 2016 on a 100 
 - [Output data for CMAQv5.3.3](https://drive.google.com/drive/folders/1K7f9WQEeavae5VlAWz9Z6nNrjgF6UKV8?usp=sharing) 
 - Metadata for the CMAQ benchmark test case is posted on the CMAS Center Dataverse site: https://doi.org/10.15139/S3/IQVABD 
 
+The benchmark data is also available form the US EPA annoymous ftp server: https://gaftp.epa.gov/exposure/CMAQ/
 
 Copy the data to `$CMAQ_DATA`. Navigate to the `$CMAQ_DATA` directory, unzip and untar the two day benchmark input and output files:
 
