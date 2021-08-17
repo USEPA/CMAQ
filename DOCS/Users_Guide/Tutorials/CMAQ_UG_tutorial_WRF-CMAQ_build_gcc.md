@@ -22,7 +22,7 @@ module load openmpi_4.0.1/gcc_9.1.0
    - Follow these instructions to combine the libraries into a single combined directory
    
    ```
-   cd /[your_install_path]/openmpi_4.0.1_gcc_9.1.0/LIBRARIES
+   cd /[your_install_path]/LIBRARIES
    mkdir netcdf_combined
    cp -rp ./netcdf-fortran-4.4.5-gcc9.1.0/* ./netcdf_combined/
    cp -rp ./netcdf-c-4.7.0-gcc9.1.0/* ./netcdf_combined/
@@ -34,7 +34,7 @@ module load openmpi_4.0.1/gcc_9.1.0
    - set the following environment variables including the path to your combined netcdf libraries, include files
    
    ```
-   setenv NETCDF [your_install_path]/openmpi_4.0.1_gcc_9.1.0/Build_WRF/LIBRARIES/netcdf_combined
+   setenv NETCDF [your_install_path]/LIBRARIES/netcdf_combined
    setenv CC gcc
    setenv CXX g++
    setenv FC gfortran
@@ -62,7 +62,7 @@ module load openmpi_4.0.1/gcc_9.1.0
 
 ```
 #for gcc WRF-CMAQ build
-setenv NCF_COMBO /[your_install_path]/openmpi_4.0.1_gcc_9.1.0/LIBRARIES/netcdf_combined/
+setenv NCF_COMBO /[your_install_path]/LIBRARIES/netcdf_combined/
 setenv LD_LIBRARY_PATH ${NCF_COMBO}/lib:${LD_LIBRARY_PATH}
 ```
 
@@ -83,7 +83,8 @@ https://cjcoats.github.io/ioapi/AVAIL.html
 #### Follow the instructions on how to install I/O API available
 
 #### Method 1. Download the tar.gz file from the github site.
-     
+
+     cd /[your_install_path]/LIBRARIES     
      wget http://github.com/cjcoats/ioapi-3.2/archive/20200828.tar.gz
      tar -xzvf 20200828.tar.gz
      cd ioapi-3.2-20200828
@@ -91,7 +92,7 @@ https://cjcoats.github.io/ioapi/AVAIL.html
 
 #### Method 2. Use Git clone to obtain the code
     
-     
+     cd /[your_install_path]/LIBRARIES 
      git clone https://github.com/cjcoats/ioapi-3.2
      cd ioapi-3.2         ! change directory to ioapi-3.2
      git checkout -b 20200828   ! change branch to 20200828 for code updates
@@ -118,14 +119,14 @@ BASEDIR = ${HOME}/ioapi-3.2
 ````
 change to
 ```
-BASEDIR = ${INSTALL}/ioapi-3.2-20200828
+BASEDIR = ${INSTALL}/ioapi-3.2
 ```
      
      
  #### set the INSTALL and BIN environment variables:
      
      
-     setenv INSTALL [your_install_path]/LIBRARIES/openmpi_4.0.1_gcc_9.1.0
+     setenv INSTALL [your_install_path]/LIBRARIES
      setenv BIN  Linux2_x86_64gfort_openmpi_4.0.1_gcc_9.1.0
      
      
@@ -176,7 +177,7 @@ BASEDIR = ${INSTALL}/ioapi-3.2-20200828
  gedit Makeinclude.Linux2_x86_64gfort_openmpi_4.0.1_gcc_9.1.0
  ```
  
- - comment out the following lines by adding a # before the setting
+ - comment out the following lines by adding a #
  
  ```
 # OMPFLAGS  =  -fopenmp
@@ -191,11 +192,13 @@ BASEDIR = ${INSTALL}/ioapi-3.2-20200828
  ```
  
  
- ### Build ioapi using the following command
+ ### Build ioapi using one of the following commands
  
  ```
  cd ioapi 
- make HOME='[your_install_path]/LIBRARIES' |& tee make.log
+ make HOME='[your_install_path]/LIBRARIES' |& tee make.log ! method if you did not modify HOME variable in Makefile
+ or
+ make |& tee make.log     ! method if you did replace HOME variable with INSTALL
  ```
  
  ### Verify that the libioapi.a and the m3tools have been successfully built
@@ -213,6 +216,14 @@ BASEDIR = ${INSTALL}/ioapi-3.2-20200828
 ```
 module load openmpi_4.0.1/gcc_9.1.0
 ```
+
+ ### Note: If you need to rebuild the I/O API library to remove the dependency on OpenMP use
+ ```
+ cd ioapi
+ make HOME='[your_install_path]/LIBRARIES' clean ! if you have not modified the Makefile
+ or 
+ make clean ! if you have modified the Makefile to use the INSTALL environment variable and set it at the command line
+ ```
 
 ### Step 4: Install CMAQ
   - Follow these instructions to download the code, then use the modifications in Step 5:  [CMAQ Benchmark Tutorial](CMAQ_UG_tutorial_benchmark.md)
