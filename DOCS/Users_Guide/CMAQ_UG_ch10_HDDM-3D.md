@@ -48,6 +48,6 @@ Napelenok, S.L., Cohan, D.S., Hu, Y.T., & Russell, A.G. (2006). Decoupled direct
 <!-- BEGIN COMMENT -->
 
 [<< Previous Chapter](CMAQ_UG_ch09_process_analysis.md) - [Home](README.md) - [Next Chapter >>](CMAQ_UG_ch11_ISAM.md)<br>
-CMAQ User's Guide (c) 2020<br>
+CMAQ User's Guide (c) 2021<br>
 
 <!-- END COMMENT -->
