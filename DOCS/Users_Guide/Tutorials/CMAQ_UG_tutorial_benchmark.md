@@ -29,7 +29,7 @@ The suggested hardware requirements for running the CMAQ Southeast Benchmark cas
 
 ## Install CMAQ and Required Libraries 
 
-In the directory where you would like to install CMAQ, create the directory issue the following command to clone the EPA GitHub repository for CMAQv5.3.2:
+In the directory where you would like to install CMAQ, create the directory issue the following command to clone the EPA GitHub repository for CMAQv5.3.3:
 
 ```
 git clone -b main https://github.com/USEPA/CMAQ.git CMAQ_REPO
@@ -54,7 +54,7 @@ In the top level of CMAQ_REPO, the bldit_project.csh script will automatically r
 
 In bldit_project.csh, modify the variable $CMAQ_HOME to identify the folder that you would like to install the CMAQ package under. For example:
 ```
-set CMAQ_HOME = /home/username/CMAQ_v5.3.3
+set CMAQ_HOME = [your_install_path]/CMAQ_v5.3.3
 ```
 Now execute the script.
 ```

@@ -249,13 +249,13 @@ Program CR_EBI_SOLVER completed successfully
 if ( F == T ) then
 exit ( )
 ```
-and will write the hr*.F files to /work/MOD3DEV/eap/CMAQv533/UTIL/create_ebi/output/ebi_${Mechanism}-$DATE-${COMPILER}/. Copy the hr*.F files to $REPO/CCTM/src/gas/ebi_${Mechanism}/.
+and will write the hr*.F files to ${CMAQ_HOME}/CMAQv533/UTIL/create_ebi/output/ebi_${Mechanism}-$DATE-${COMPILER}/. Copy the hr*.F files to ${CMAQ_REPO}/CCTM/src/gas/ebi_${Mechanism}/.
 
 
 
 <a id=cctm_build></a>
 ### 15. Build the CCTM executable.
-See [Chapter 5](../CMAQ_UG_ch05_running_a_simulation.md) or the [Tutorials](README.md) for more information. This will include all of the new files from $CMAQ_REPO/CCTM/src/ in $CMAQ_PROJECT/CCTM/BLD.
+See [Chapter 5](../CMAQ_UG_ch05_running_a_simulation.md) or the [Tutorials](README.md) for more information. This will include all of the new files from ${CMAQ_REPO}/CCTM/src/ in $CMAQ_PROJECT/CCTM/BLD.
 
 
 <a id=cmaq_run></a>
