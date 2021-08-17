@@ -29,7 +29,7 @@ The suggested hardware requirements for running the CMAQ Southeast Benchmark cas
 
 ## Install CMAQ and Required Libraries 
 
-In the directory where you would like to install CMAQ, create the directory issue the following command to clone the EPA GitHub repository for CMAQv5.3.2:
+In the directory where you would like to install CMAQ, create the directory issue the following command to clone the EPA GitHub repository for CMAQv5.3.3:
 
 ```
 git clone -b main https://github.com/USEPA/CMAQ.git CMAQ_REPO
