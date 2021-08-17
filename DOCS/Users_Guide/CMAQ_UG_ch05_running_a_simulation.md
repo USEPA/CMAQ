@@ -463,6 +463,6 @@ Check the last few lines of the CCTM output log for messages to help diagnose wh
 <!-- BEGIN COMMENT -->
 
 [<< Previous Chapter](CMAQ_UG_ch04_model_inputs.md) - [Home](README.md) - [Next Chapter >>](CMAQ_UG_ch06_model_configuration_options.md)<br>
-CMAQ User's Guide (c) 2020<br>
+CMAQ User's Guide (c) 2021<br>
 
 <!-- END COMMENT -->

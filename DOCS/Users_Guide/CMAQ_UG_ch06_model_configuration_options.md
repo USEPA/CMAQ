@@ -988,6 +988,6 @@ Yi, C. (2008). Momentum transfer within canopies. J. App. Meteor. Clim., 47, 262
 
 [<< Previous Chapter](CMAQ_UG_ch05_running_a_simulation.md) - [Home](README.md) - [Next Chapter >>](CMAQ_UG_ch07_model_outputs.md)
 <br>
-CMAQ User's Guide (c) 2020<br>
+CMAQ User's Guide (c) 2021<br>
 
 <!-- END COMMENT -->
