@@ -65,7 +65,7 @@ In the top level of CMAQ_REPO, the bldit_project.csh script will automatically r
 Edit bldit_project.csh, to modify the variable $CMAQ_HOME to identify the folder that you would like to install the CMAQ package under. For example:
 
 ```
-set CMAQ_HOME = /work/your_username/CMAQ_v5.3.3
+set CMAQ_HOME = [your_install_path]/CMAQ_v5.3.3
 ```
 
 Now execute the script.
@@ -77,7 +77,7 @@ Now execute the script.
 Change directories to the CMAQ_HOME directory
 
 ```
-cd /work/your_username/CMAQ_v5.3.3
+cd [your_install_path]/CMAQ_v5.3.3
 ```
 
 

@@ -177,7 +177,7 @@ Selecting a category is important, as the CMAS Center and EPA staff are only mon
 * Type in a title for your topic that describes your CMAQ compiler environment
 Example Title: 
 ```
-CMAQv5.3.2 segmentation fault using gcc and openmpi
+CMAQv5.3.3 segmentation fault using gcc and openmpi
 ```
 
 ### Template for what to include in your new issue.
@@ -205,8 +205,8 @@ grep -B
 
 | | |
 |:--------:|:----------------:|
-| Compiler Version | GNU Fortran (GCC) 9.1.0 |
-|CMAQ Version | BLD_CCTM_v532_intel/CCTM_v532.exe |
+| Compiler Version | ifort version 18.0.1 |
+|CMAQ Version | BLD_CCTM_v533_intel/CCTM_v533.exe |
 | Run Script | run_cctm_Bench_2016_12SE1.csh|
 
 Error message encountered: 
@@ -222,7 +222,7 @@ error while loading shared libraries  …  cannot open shared object file …
 * Note You will need to rename any files to match one of the following extensions (jpg, jpeg, png, gif, csh, txt, csv), for instance, copy cmaq.log to cmaq.log.txt
 
 ```
-cp CTM_LOG_000.v532_intel_Bench_2016_12SE1_20160701 CTM_LOG_000.v532_intel_Bench_2016_12SE1_20160701.txt
+cp CTM_LOG_000.v533_intel_Bench_2016_12SE1_20160701 CTM_LOG_000.v533_intel_Bench_2016_12SE1_20160701.txt
 ```
 
 * When someone replies to your topic, you will receive an e-mail notification. 
