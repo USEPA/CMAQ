@@ -784,7 +784,7 @@ C Private variables for loading from and unloading to CGRID array
 ! Initial Reference Values for M2 and M3 used for Heterogenous Chemistry
 ! Module.
       REAL( 8 ), ALLOCATABLE, SAVE :: CHEM_M2DRY_INIT( :,:,:,: ),
-     &                                CHEM_M3DRY_INIT( :,:,:,: )
+     &                          CHEM_M3DRY_INIT( :,:,:,: )
 
       Contains
 
@@ -818,7 +818,8 @@ C Local Variables:
       Integer :: map_listtogrid( n_aerolist,n_mode )
       Integer :: map_aerotolist( n_aerolist )
 
-      Integer, Allocatable :: aerospc_in_dustlist( : )
+      Integer,       Allocatable :: aerospc_in_dustlist( : )
+      Character(16), Allocatable :: refractive_index( : )
 
       Integer l, m, n, spc, isea, idust
       Real    so4fac
@@ -831,6 +832,8 @@ C Local Variables:
       Logical ae6isoa
       Logical ae6hg
       Logical dust_match
+      Logical new_bulk_species
+      Logical replace_optics_surr
 
       Character(16) sn
 
@@ -852,6 +855,10 @@ C Local Variables:
       allocate( aerocgrid_rhoinv( n_ae_trns ), lbcnum( n_ae_trns ),
      &          lbcsrf( n_ae_trns ), lbcmass( n_ae_trns ),
      &          lbcmode( n_mode,n_ae_trns ), lbcdry( n_ae_trns ) )
+
+      Allocate( refractive_index( n_aerolist ) )
+      refractive_index( : ) = aerolist( : )%optic_surr
+
       aerocgrid_rhoinv = 0.
       lbcnum = .False.
       lbcsrf = .False.
@@ -862,6 +869,7 @@ C Local Variables:
 C Build mapping to CGRID for each species in the master AeroList
       Do spc = 1, n_aerolist
          ! Check to see if this species is in the namelist
+         replace_optics_surr = .False.
          do m = 1,n_mode
             if ( m .eq. n_mode .and. 
      &           (aerolist( spc )%bulkname .eq. 'ACORS'    .or.
@@ -876,13 +884,18 @@ C Build mapping to CGRID for each species in the master AeroList
             n = index1( sn, n_ae_spc, ae_spc )
 
             If ( n .Ne. 0 ) Then
+               If( Len_Trim( ae_optics( n ) ) .gt. 0 )Then
+                  replace_optics_surr  = .True.
+               End If   
                ! Species is on the NameList
-               If ( .Not. ( Any( map_listtogrid( spc,: ) .NE. 0 ) ) ) Then
+               new_bulk_species = ( .Not. Any( map_listtogrid( spc,: ) .NE. 0 ) )
+               If ( new_bulk_species ) Then
                   ! Add this species to the map if it does not exist already
                   n_aerospc = n_aerospc + 1
                   map_aerotolist( n_aerospc ) = spc
                   ! Set the Molecular Weight
                   mole_weight( spc ) = ae_molwt( n )
+                  If( replace_optics_surr )refractive_index( spc ) = ae_optics( n )                      
                Else If ( mole_weight( spc ) .Ne. ae_molwt( n ) ) Then
                   ! If the species already exists and the
                   ! molecular weight from this mode on the
@@ -896,6 +909,26 @@ C Build mapping to CGRID for each species in the master AeroList
      &                            'Expected value(', spc, ')= ', mole_weight( spc )
                   Call m3warn( pname, 0, 0, xmsg )
                   AE_eflag  = .True.
+               Else If ( replace_optics_surr ) Then 
+                  If ( refractive_index( spc ) .Ne. ae_optics( n ) ) Then
+                     ! If the species already exists and the
+                     ! namelist's refractive index for the mode
+                     ! does not match the new value,
+                     ! write message and set error flag
+                     xmsg = 'FATAL ERROR: In AErosol namelist, OPTICS value ' 
+     &                    // 'for bulk ' // Trim( aerolist( spc )%bulkname )
+     &                    // ' is inconsistent across modes. CORRECT the AE namelist'
+                     Call m3mesg( xmsg )
+                     If( Len_Trim( ae_optics( n ) ) .lt. 1 ) Then
+                        xmsg2 = 'blank'
+                     Else
+                        xmsg2 = Trim( ae_optics( n ) )
+                     End If
+                     Write( xmsg,* ) 'Bad Value is ', Trim( xmsg2 ),
+     &               '; Expected value is ', Trim( refractive_index( spc ) )
+                     Call m3mesg( xmsg )
+                     AE_eflag  = .True.
+                  End If   
                End If
                ! Update the map from CGRID to AeroList for this mode
                map_listtogrid( spc,m ) = ae_strt - 1 + n
@@ -908,6 +941,7 @@ C Build mapping to CGRID for each species in the master AeroList
             End If
          End Do
       End Do
+      Write(logdev,*)' '
 
       ! Migrate all of the user-requested aerosols from AeroList to
       ! AeroSpc. Begin by allocating all of the new arrays now that we
@@ -942,10 +976,18 @@ C Build mapping to CGRID for each species in the master AeroList
          aerospc( spc )%charge     = aerolist( l )%charge     
          aerospc( spc )%visual_idx = aerolist( l )%visual_idx 
          aerospc( spc )%visual_idx_large = aerolist( l )%visual_idx_large
-         aerospc( spc )%om         = aerolist( l )%om         
-         aerospc( spc )%optic_surr = aerolist( l )%optic_surr 
+         aerospc( spc )%om         = aerolist( l )%om
+         aerospc( spc )%optic_surr = refractive_index( l ) 
          aerospc( spc )%kappaorg   = aerolist( l )%kappaorg
          aerospc( spc )%name( : )  = ''
+
+         If ( aerospc( spc )%optic_surr .Ne. aerolist( l )%optic_surr ) Then
+            xmsg  = 'For aerosol species, ' // Trim( aerospc( spc )%bulkname )
+     &            // ', setting refactive index to '
+     &            // Trim( aerospc( spc )%optic_surr ) // ' instead of '
+     &            // Trim(  aerolist( l )%optic_surr )
+            write(logdev,'(a)')Trim( xmsg )
+         End If   
 
          ! Map mode-independent properties
          aerospc_mw( spc ) = mole_weight( l )
@@ -973,6 +1015,7 @@ C Build mapping to CGRID for each species in the master AeroList
          End Do
 
       End Do
+      Write(logdev,*)' '
 
 C Build mapping to CGRID for aero # and surf area variables
       aeronum_map = 0

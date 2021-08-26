@@ -52,6 +52,7 @@ ifdef ERROR1
  $(error $(ERROR1))
 endif
 
+CPP_FLAGS = -DCHEMMECH
 
 OBJECTS =\
     MECHANISM_PARMS.o \
@@ -111,7 +112,7 @@ $(MODEL): $(OBJECTS)
 	$(FC) $(F_FLAGS) -c $<
 
 .F.o:
-	$(FC) $(F_FLAGS) -c $<
+	$(FC) $(F_FLAGS) $(CPP_FLAGS) -c $<
 
 .c.o:
 	$(CC) $(C_FLAGS) -c $<
