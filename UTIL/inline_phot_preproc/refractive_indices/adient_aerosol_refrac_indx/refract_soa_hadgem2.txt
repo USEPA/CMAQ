@@ -1,5 +1,6 @@
- Refractive indices for Secondary organic aerosol (Dinar et al)
-Wvelen(um) Real Part  Imag Part
+SOA_HADGEM2
+! Refractive indices for Secondary organic aerosol (Dinar et al)
+!Wvelen(um) Real Part  Imag Part
 2.0000E-01 0.1430E+01 0.0000E+00
 2.5000E-01 0.1430E+01 0.0000E+00
 3.0000E-01 0.1430E+01 0.0000E+00

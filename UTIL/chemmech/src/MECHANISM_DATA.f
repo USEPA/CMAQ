@@ -18,35 +18,53 @@
          
          
          INTEGER KUNITS, 
-     &           KTYPE       ( MAXRXNUM ),
-     &           IRXBITS     ( MAXRXNUM ),
-     &           IORDER      ( MAXRXNUM ),
-     &           KTN1, KRX1  ( MAXRXNUM ), 
-     &           KTN2, KRX2  ( MAXRXNUM ), 
-     &           KTN3, KRX3  ( MAXRXNUM ),
-     &           KTN4, KRX4  ( MAXRXNUM ),
-     &           KTN5, KRX5  ( MAXRXNUM ),
-     &           KTN6, KRX6  ( MAXRXNUM ),
-     &           KTN7, KRX7  ( MAXRXNUM ),
-!    &           KCNV, KRXCNV( MAXRXNUM ),
-     &           NFALLOFF, 
-     &           IRRFALL( MAXFALLOFF ),
-     &           HAL_PHOTAB( MAXRXNUM )
+     &           KTN1,
+     &           KTN2,
+     &           KTN3,
+     &           KTN4,
+     &           KTN5,
+     &           KTN6,
+     &           KTN7,
+!    &           KCNV,
+     &           NFALLOFF
 
-         INTEGER         :: NRATE_STRING                 = 0
-         INTEGER         :: KSTRING( MAXFUNCTIONS )      = 0
-         CHARACTER( 81 ) :: RATE_STRING( MAXFUNCTIONS )  = ''
+         INTEGER, ALLOCATABLE :: 
+     &           KTYPE       ( : ),
+     &           IRXBITS     ( : ),
+     &           IORDER      ( : ),
+     &           KRX1  ( : ), 
+     &           KRX2  ( : ), 
+     &           KRX3  ( : ),
+     &           KRX4  ( : ),
+     &           KRX5  ( : ),
+     &           KRX6  ( : ),
+     &           KRX7  ( : ),
+!    &           KRXCNV( : ),
+     &           HAL_PHOTAB( : ),
+     &           IRRFALL( : )
 
-         INTEGER NWM,   NRXWM  ( MAX3BODIES )
-         INTEGER NWW,   NRXWW  ( MAX3BODIES )
-         INTEGER NWO2,  NRXWO2 ( MAX3BODIES )
-         INTEGER NWN2,  NRXWN2 ( MAX3BODIES )
-         INTEGER NWCH4, NRXWCH4( MAX3BODIES )
-         INTEGER NWH2,  NRXWH2 ( MAX3BODIES )
+         INTEGER :: NRATE_STRING                 = 0
+         
+         INTEGER, ALLOCATABLE         :: KSTRING( : )    
+         CHARACTER( 81 ), ALLOCATABLE :: RATE_STRING( : )
 
-         REAL( 8 ) :: RTDAT( 3,MAXRXNUM )
-         REAL( 8 ) :: RFDAT( 5,MAXFALLOFF )
-         REAL( 8 ) :: CONST( MAXCONSTS )        
+         INTEGER NWM
+         INTEGER NWW
+         INTEGER NWO2
+         INTEGER NWN2
+         INTEGER NWCH4
+         INTEGER NWH2
+
+         INTEGER, ALLOCATABLE :: NRXWM  ( : )
+         INTEGER, ALLOCATABLE :: NRXWW  ( : )
+         INTEGER, ALLOCATABLE :: NRXWO2 ( : )
+         INTEGER, ALLOCATABLE :: NRXWN2 ( : )
+         INTEGER, ALLOCATABLE :: NRXWCH4( : )
+         INTEGER, ALLOCATABLE :: NRXWH2 ( : )
+
+         REAL( 8 ), ALLOCATABLE :: RTDAT( :,: )
+         REAL( 8 ), ALLOCATABLE :: RFDAT( :,: )
+         REAL( 8 ), ALLOCATABLE :: CONST( : )        
           
          INTEGER         :: NPDERIV             = 0    ! number nonzero PD in mechanism
          INTEGER         :: NMPHOT                     ! number of photolysis reactions
@@ -59,9 +77,10 @@
          INTEGER         :: TWO_REACT_THERMAL    = 0   ! number second order reactions in thermal (non-sunlight-dependent) reactions
          INTEGER         :: THREE_REACT_THERMAL  = 0   ! number three reactant reactions in thermal (non-sunlight-dependent) reactions
          INTEGER         :: NSPECIAL_RXN               ! number of special rate constant reactions
-         INTEGER         :: ISPECIAL( MAXSPECRXNS,2 )
          INTEGER         :: NSPECIAL                   ! number of special rate expressions
          INTEGER         :: MSPECTERMS                 ! highest number of terms in the expressions
+
+         INTEGER, ALLOCATABLE :: ISPECIAL( :,: )
 
          INTEGER         :: NFUNCTIONS = 0                ! number of user defined functions
 
@@ -70,36 +89,36 @@
          INTEGER         :: TWO_REACT_REACTIONS   = 0  ! number second order reactions
          INTEGER         :: THREE_REACT_REACTIONS = 0  ! number three reactant reactions
 
-         CHARACTER( 16 ) :: SPECIAL( MAXSPECRXNS )     = ' '
-         CHARACTER( 16 ) :: FUNCTIONS( MAXFUNCTIONS )  = ' '   
-         CHARACTER( 500) :: FORMULA( MAXFUNCTIONS )    = ''  
+         CHARACTER( 16 ), ALLOCATABLE :: SPECIAL( : )   
+         CHARACTER( 16 ), ALLOCATABLE :: FUNCTIONS( : ) 
+         CHARACTER( 500), ALLOCATABLE :: FORMULA( : )   
 
-         INTEGER         :: NKC_TERMS(  MAXSPECRXNS )
-         CHARACTER( 16 ) :: KC_TERMS(   MAXSPECRXNS,  MAXSPECTERMS, 2)
-         INTEGER         :: INDEX_KTERM( MAXSPECRXNS, MAXSPECTERMS)
-         INTEGER         :: INDEX_CTERM( MAXSPECRXNS, MAXSPECTERMS)
-         REAL( 8 )       :: KC_COEFFS(  MAXSPECRXNS,  MAXSPECTERMS)
-         INTEGER         :: N_OPERATORS( MAXSPECRXNS )
-         INTEGER         :: OPERATORS( MAXSPECRXNS, MAXSPECTERMS )
-         REAL( 8 )       :: OPERATOR_COEFFS( MAXSPECRXNS, MAXSPECTERMS)
+         INTEGER,         ALLOCATABLE :: NKC_TERMS( : )
+         CHARACTER( 16 ), ALLOCATABLE :: KC_TERMS(   :,:,: )
+         INTEGER,         ALLOCATABLE :: INDEX_KTERM( :,: )
+         INTEGER,         ALLOCATABLE :: INDEX_CTERM( :,:)
+         REAL( 8 ),       ALLOCATABLE :: KC_COEFFS(   :,: )
+         INTEGER,         ALLOCATABLE :: N_OPERATORS( : )
+         INTEGER,         ALLOCATABLE :: OPERATORS( :,: )
+         REAL( 8 ),       ALLOCATABLE :: OPERATOR_COEFFS( :,: )
 
          INTEGER, ALLOCATABLE :: ORDER_SPECIAL( : )
          
-         INTEGER IPH( MAXPHOTRXNS,3 )
          INTEGER NPHOTAB                          ! no. of unique photolysis rates
-         CHARACTER( 16 ) :: PHOTAB( MAXPHOTRXNS ) ! photolysis rate name or label
+         INTEGER,         ALLOCATABLE :: IPH( :,: )
+         CHARACTER( 16 ), ALLOCATABLE :: PHOTAB( : ) ! photolysis rate name or label
 
-         INTEGER IHETERO( MAXPHOTRXNS,2 )         ! mapping bewtween reaction # and unique heteorogeneous rates
          INTEGER MHETERO                          ! no. of heteorogeneous reactions
          INTEGER NHETERO                          ! no. of unique heteorogeneous rates 
-         CHARACTER( 16 ) :: HETERO( MAXPHOTRXNS ) ! names of unique heteorogeneous rates
+         INTEGER,         ALLOCATABLE :: IHETERO( :,: )         ! mapping bewtween reaction # and unique heteorogeneous rates
+         CHARACTER( 16 ), ALLOCATABLE :: HETERO( : ) ! names of unique heteorogeneous rates
 
          INTEGER MXPRD                            ! max no. products
 
-         INTEGER   :: NPRDCT( MAXRXNUM )               ! no. of products for rx j
-         INTEGER   :: NREACT( MAXRXNUM )               ! no. of reactants for rx j
-         INTEGER   :: IRR( MAXRXNUM,MAXPRODS+3 )
-         REAL( 8 ) ::  SC ( MAXRXNUM,MAXPRODS )
+         INTEGER, ALLOCATABLE   :: NPRDCT( : )               ! no. of products for rx j
+         INTEGER, ALLOCATABLE   :: NREACT( : )               ! no. of reactants for rx j
+         INTEGER, ALLOCATABLE   :: IRR( :,: )
+         REAL( 8 ), ALLOCATABLE :: SC ( :,: )
 
          INTEGER,   ALLOCATABLE, SAVE :: IRR_NET    ( :,: )       ! species indices having net change from reaction
          REAL( 8 ), ALLOCATABLE, SAVE :: SC_NET     ( :,: )       ! stio coefficients for net species
@@ -109,22 +128,22 @@
 
 c.. Variables for steady-state species
          INTEGER         :: N_SS_SPC = 0                         ! No. of SS species
-         CHARACTER( 16 ) :: SS_SPC( MAXNLIST )                   ! List of SS pecies names
-         INTEGER         :: SS_RCT_COEF( MAXNLIST, MAXRXNUM )    ! Reactant coeffs for each SS species
-         REAL            :: SS_PRD_COEF( MAXNLIST, MAXRXNUM )    ! Product coeffs for each SS species
-         INTEGER         :: MAX_SS_LOSS = 0                      ! Max no of reactions for which 1 SS species
-                                                              ! appears as a reactant
-         INTEGER         :: MAX_SS_PROD = 0                      ! Max no of reactions for which 1 SS species
-                                                              ! appears as a product
-         INTEGER         :: N_LOSS_RXNS( MAXNLIST )              ! No. of loss rxns for each SS species
-         INTEGER         :: N_PROD_RXNS( MAXNLIST )              ! No. of prod rxns for each SS species
-         INTEGER         :: SS_LOSS_RXNS( MAXNLIST, MAXRXNUM )   ! List of rxns in which SS species is a reactant
-         INTEGER         :: SS_PROD_RXNS( MAXNLIST, MAXRXNUM )   ! List of rxns in which SS species is a product
-         INTEGER         :: SS_RCT_IND( MAXRXNUM )               ! SS spc ind that reacts w/ a non-SS spc
-         REAL            :: SS_PROD_COEF( MAXNLIST, MAXRXNUM )   ! Yields for rxns producing a SS species
+         INTEGER         :: MAX_SS_LOSS = 0                      ! Max no of reactions for which 1 SS species appears as a reactant
+         INTEGER         :: MAX_SS_PROD = 0                      ! Max no of reactions for which 1 SS species appears as a product
+
+         CHARACTER( 16 ), ALLOCATABLE ::  SS_SPC( : )                   ! List of SS pecies names
+         INTEGER,         ALLOCATABLE :: SS_RCT_COEF( :,: )    ! Reactant coeffs for each SS species
+         REAL,            ALLOCATABLE :: SS_PRD_COEF( :, : )    ! Product coeffs for each SS species
+
+         INTEGER, ALLOCATABLE :: N_LOSS_RXNS( : )              ! No. of loss rxns for each SS species
+         INTEGER, ALLOCATABLE :: N_PROD_RXNS( : )              ! No. of prod rxns for each SS species
+         INTEGER, ALLOCATABLE :: SS_LOSS_RXNS( :,: )   ! List of rxns in which SS species is a reactant
+         INTEGER, ALLOCATABLE :: SS_PROD_RXNS( :,: )   ! List of rxns in which SS species is a product
+         INTEGER, ALLOCATABLE :: SS_RCT_IND( : )               ! SS spc ind that reacts w/ a non-SS spc
+         REAL, ALLOCATABLE    :: SS_PROD_COEF( :,: )   ! Yields for rxns producing a SS species
          
 
-         CHARACTER( 16 ) RXLABEL( MAXRXNUM )   ! label for rx 
+         CHARACTER( 16 ), ALLOCATABLE :: RXLABEL( : )   ! label for rx 
 
          CHARACTER( 586 ) :: EQNAME_SPCS
          CHARACTER( 586 ) :: EQNAME_RXDT
@@ -315,7 +334,61 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C Initialize mechanism array variables
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-            CONST = 0.0D0
+
+         ALLOCATE( KTYPE       ( MAXRXNUM ),
+     &             IRXBITS     ( MAXRXNUM ),
+     &             IORDER      ( MAXRXNUM ),
+     &             KRX1  ( MAXRXNUM ), 
+     &             KRX2  ( MAXRXNUM ), 
+     &             KRX3  ( MAXRXNUM ),
+     &             KRX4  ( MAXRXNUM ),
+     &             KRX5  ( MAXRXNUM ),
+     &             KRX6  ( MAXRXNUM ),
+     &             KRX7  ( MAXRXNUM ),
+!    &              KRXCNV( MAXRXNUM ),
+     &             HAL_PHOTAB( MAXRXNUM ),
+     &             IRRFALL( MAXFALLOFF ) )
+
+         ALLOCATE( NRXWM  ( MAX3BODIES ) )
+         ALLOCATE( NRXWW  ( MAX3BODIES ) )
+         ALLOCATE( NRXWO2 ( MAX3BODIES ) )
+         ALLOCATE( NRXWN2 ( MAX3BODIES ) )
+         ALLOCATE( NRXWCH4( MAX3BODIES ) )
+         ALLOCATE( NRXWH2 ( MAX3BODIES ) )
+
+         ALLOCATE( RTDAT( 3,MAXRXNUM )   )
+         ALLOCATE( RFDAT( 5,MAXFALLOFF ) )
+         ALLOCATE( CONST( MAXCONSTS )    )
+         ALLOCATE( ISPECIAL( MAXSPECRXNS,2 ) )
+
+         CONST = 0.0D0
+
+         ALLOCATE( SPECIAL( MAXSPECRXNS )    ) 
+         SPECIAL( 1:MAXSPECRXNS ) = ' '
+         ALLOCATE( FUNCTIONS( MAXFUNCTIONS ) ) 
+         FUNCTIONS( 1:MAXFUNCTIONS ) = ' '   
+         ALLOCATE( FORMULA( MAXFUNCTIONS )   ) 
+         FORMULA( MAXFUNCTIONS ) = ''  
+
+         ALLOCATE( NKC_TERMS(  MAXSPECRXNS )                   )
+         ALLOCATE( KC_TERMS(   MAXSPECRXNS,  MAXSPECTERMS, 2)  )
+         ALLOCATE( INDEX_KTERM( MAXSPECRXNS, MAXSPECTERMS)     )
+         ALLOCATE( INDEX_CTERM( MAXSPECRXNS, MAXSPECTERMS)     )
+         ALLOCATE( KC_COEFFS(  MAXSPECRXNS,  MAXSPECTERMS)     )
+         ALLOCATE( N_OPERATORS( MAXSPECRXNS )                  )
+         ALLOCATE( OPERATORS( MAXSPECRXNS, MAXSPECTERMS )      )
+         ALLOCATE( OPERATOR_COEFFS( MAXSPECRXNS, MAXSPECTERMS) )
+
+         ALLOCATE( IPH( MAXPHOTRXNS,3 )  )
+         ALLOCATE( PHOTAB( MAXPHOTRXNS ) )
+
+         ALLOCATE( IHETERO( MAXPHOTRXNS,2 ) )
+         ALLOCATE( HETERO( MAXPHOTRXNS )    )
+
+         ALLOCATE( NPRDCT( MAXRXNUM )         )
+         ALLOCATE( NREACT( MAXRXNUM )         )
+         ALLOCATE( IRR( MAXRXNUM,MAXPRODS+3 ) ) 
+         ALLOCATE( SC ( MAXRXNUM,MAXPRODS )   )
 
             DO 101 IRX = 1, MAXRXNUM
                DO ISPC = 1, MAXPRODS+3
@@ -340,6 +413,13 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 101         CONTINUE
             HAL_PHOTAB = 0
             NFALLOFF   = 0
+
+          ALLOCATE ( KSTRING( MAXFUNCTIONS ) )
+          KSTRING( 1:MAXFUNCTIONS )  = 0
+          
+          ALLOCATE( RATE_STRING( MAXFUNCTIONS ) )
+          RATE_STRING( 1:MAXFUNCTIONS ) = ''
+
 
             DO 103 IRX = 1, MAXFALLOFF
                IRRFALL( IRX ) = 0   
@@ -406,13 +486,27 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
             NHETERO = 0
             HETERO  = '                '
             
+         ALLOCATE( SS_SPC( MAXNLIST )                 )
+         ALLOCATE( SS_RCT_COEF( MAXNLIST, MAXRXNUM )  )
+         ALLOCATE( SS_PRD_COEF( MAXNLIST, MAXRXNUM )  )
+         ALLOCATE( N_LOSS_RXNS( MAXNLIST )            )
+         ALLOCATE( N_PROD_RXNS( MAXNLIST )            )
+         ALLOCATE( SS_LOSS_RXNS( MAXNLIST, MAXRXNUM ) )
+         ALLOCATE( SS_PROD_RXNS( MAXNLIST, MAXRXNUM ) )
+         ALLOCATE( SS_RCT_IND( MAXRXNUM )             )
+         ALLOCATE( SS_PROD_COEF( MAXNLIST, MAXRXNUM ) )
+         
+
             SS_RCT_COEF = 0                 ! Array initialization
             SS_PRD_COEF = 0.0               ! Array initialization
             SS_RCT_IND  = 0                 ! Array initialization
             MAX_SS_LOSS = 0
             MAX_SS_PROD = 0
             
-            CALL CREATE_REACTION_LISTS()
+
+         ALLOCATE( RXLABEL( MAXRXNUM ) )
+
+         CALL CREATE_REACTION_LISTS()
 
          RETURN
          END SUBROUTINE INIT_MECH_DATA

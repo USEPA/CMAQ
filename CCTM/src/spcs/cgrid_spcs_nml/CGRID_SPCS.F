@@ -68,12 +68,14 @@ c surrogate species
      &                                      n_gc_scav = 0, n_ae_scav = 0, n_nr_scav = 0, n_tr_scav = 0,
      &                                      n_gc_g2ae = 0,                n_nr_n2ae = 0, n_tr_t2ae = 0,
      &                                      n_gc_g2aq = 0, n_ae_a2aq = 0, n_nr_n2aq = 0, n_tr_t2aq = 0
+      integer,                      save :: n_ae_optics = 0
       character( 16 ), allocatable, save :: gc_ic( : ),   ae_ic( : ),   nr_ic( : ),   tr_ic( : ), 
      &                                      gc_bc( : ),   ae_bc( : ),   nr_bc( : ),   tr_bc( : ),   
      &                                      gc_depv( : ), ae_depv( : ), nr_depv( : ), tr_depv( : ),
      &                                      gc_scav( : ), ae_scav( : ), nr_scav( : ), tr_scav( : ),
      &                                      gc_g2ae( : ),               nr_n2ae( : ), tr_t2ae( : ),
      &                                      gc_g2aq( : ), ae_a2aq( : ), nr_n2aq( : ), tr_t2aq( : )
+      character( 16 ), allocatable, save :: ae_optics( : )
       integer, allocatable,         save :: gc_ic_map( : ),   ae_ic_map( : ),   nr_ic_map( : ),   tr_ic_map( : ),
      &                                      gc_bc_map( : ),   ae_bc_map( : ),   nr_bc_map( : ),   tr_bc_map( : ),  
      &                                      gc_depv_map( : ), ae_depv_map( : ), nr_depv_map( : ), tr_depv_map( : ),
@@ -185,6 +187,7 @@ c namelist variables
             TYPE SPECIES_DATA_REG_2
                 CHARACTER( 16 ) :: SPECIES_NAME  ! CMAQ Species Name
                 REAL            :: MOLWT         ! g mol-1
+                CHARACTER( 16 ) :: OPTICS_SURR   ! material's refractive index surrogate
                 CHARACTER( 16 ) :: IC_SURR       ! IC Surrogate
                 REAL            :: IC_FAC        ! IC Scale Factor
                 CHARACTER( 16 ) :: BC_SURR       ! BC Surrogate
@@ -408,6 +411,7 @@ c-------------------------------------------------------------------------------
             AE_SPECIES_DATA%IC_FAC = 0.
             AE_SPECIES_DATA%BC_SURR = ''
             AE_SPECIES_DATA%BC_FAC = 0.
+            AE_SPECIES_DATA%OPTICS_SURR = ''
             AE_SPECIES_DATA%DEPV_SURR = ''
             AE_SPECIES_DATA%DEPV_FAC = 0.
             AE_SPECIES_DATA%SCAV_SURR = ''
@@ -507,6 +511,7 @@ c-------------------------------------------------------------------------------
      &      ae_spc( n_ae_spc ), ae_molwt( n_ae_spc ),
      &      ae_ic( n_ae_spc ),   ae_ic_map( n_ae_spc ),   ae_ic_fac( n_ae_spc ),
      &      ae_bc( n_ae_spc ),   ae_bc_map( n_ae_spc ),   ae_bc_fac( n_ae_spc ),
+     &      ae_optics( n_ae_spc ),
      &      ae_depv( n_ae_spc ), ae_depv_map( n_ae_spc ), ae_depv_fac( n_ae_spc ),
      &      ae_scav( n_ae_spc ), ae_scav_map( n_ae_spc ), ae_scav_fac( n_ae_spc ),
      &      ae_a2aq( n_ae_spc ), ae_a2aq_map( n_ae_spc ),
@@ -517,6 +522,7 @@ c-------------------------------------------------------------------------------
      &      stat = ios )
 
             ae_spc = bl; ae_molwt = 0.0                        !  .
+            ae_optics = bl
             ae_ic = bl;   ae_ic_map = 0;   ae_ic_fac = 0.0     !  .
             ae_bc = bl;   ae_bc_map = 0;   ae_bc_fac = 0.0     !  .
             ae_depv = bl; ae_depv_map = 0; ae_depv_fac = 0.0   !  .
@@ -528,7 +534,7 @@ c-------------------------------------------------------------------------------
             ae_conc = bl; ae_conc_map = 0                      !  .
 
             ! Pass Data from AE Namelist to Internal Variables
-            N_AE_IC = 0; N_AE_BC = 0; N_AE_DEPV = 0; N_AE_SCAV = 0
+            N_AE_OPTICS = 0;N_AE_IC = 0; N_AE_BC = 0; N_AE_DEPV = 0; N_AE_SCAV = 0
             N_AE_A2AQ = 0; N_AE_TRNS = 0; N_AE_DDEP = 0; N_AE_WDEP = 0
             N_AE_CONC = 0
 
@@ -552,6 +558,15 @@ c-------------------------------------------------------------------------------
                     AE_BC_MAP( N_AE_BC ) = IAE
                     AE_BC_FAC( N_AE_BC ) = AE_SPECIES_DATA( IAE )%BC_FAC
                 END IF
+
+                ! Aerosol Refractive Indices, blank if using default values in AERO_DATA module
+                IF ( AE_SPECIES_DATA( IAE )%OPTICS_SURR .NE. '' ) THEN
+                    N_AE_OPTICS = N_AE_OPTICS + 1
+                    AE_OPTICS( IAE ) = AE_SPECIES_DATA( IAE )%OPTICS_SURR
+                END IF 
+!               write(logdev,'(i3,1x,A16,1x,a16,1x,a16,1x,i2)')iae,AE_SPC( IAE ),AE_SPECIES_DATA( IAE )%OPTICS_SURR, 
+!    &                AE_OPTICS( IAE ), LEN_TRIM( AE_OPTICS( IAE ) )
+                
                 
                 ! Aerosol Dry Deposition Surrogates
                 IF ( AE_SPECIES_DATA( IAE )%DEPV_SURR .NE. '' ) THEN

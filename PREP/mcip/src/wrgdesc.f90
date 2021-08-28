@@ -33,6 +33,9 @@ SUBROUTINE wrgdesc
 !                        variable BLANK to BLNK to avoid conflict with F90
 !                        protected intrinsic.  (T. Otte)
 !           07 Sep 2011  Updated disclaimer.  (T. Otte)
+!           30 Jun 2021  Changed format for GRIDDESC to accommodate modeling
+!                        domains with more than 999 grid cells on a side.
+!                        (T. Spero)
 !-------------------------------------------------------------------------------
 
   USE coord
@@ -50,7 +53,7 @@ SUBROUTINE wrgdesc
 
   CHARACTER(LEN=256), PARAMETER :: f100 = "(a)"
   CHARACTER(LEN=256), PARAMETER :: f200 = "(i3, 5(1x, f13.3))"
-  CHARACTER(LEN=256), PARAMETER :: f300 = "( a, 4(1x, f13.3), 3(1x, i3))"
+  CHARACTER(LEN=256), PARAMETER :: f300 = "( a, 4(1x, f13.3), 3(1x, i4))"
 
 !-------------------------------------------------------------------------------
 ! Write grid description in two sets.  Reader uses two list-directed READ
