@@ -66,7 +66,7 @@ C-----------------------------------------------------------------------
       USE NOOP_MODULES          ! stenex (using NOOP_UTIL_MODULE)
 #endif
       USE PA_DEFN, Only: LIPR, IPR_VDIF, IPR_ZADV, IPR_HDIF, IPR_CLDS, 
-     &                   IPR_CHEM, IPR_DENS, IPR_PVO3,
+     &                   IPR_CHEM, IPR_PVO3,
      &                   BUDGET_DIAG ! Process Analysis control and data variables
       USE PA_UPDATE
 #ifdef isam
@@ -239,8 +239,8 @@ C DECOUPLE routine converts it back to ug/m3.
 
          CALL COUPLE ( CGRID, JDATE, JTIME, TSTEP )
          IF ( CKSUM ) CALL CKSUMMER ( 'COUPLE', CGRID, JDATE, JTIME )
+         IF ( BUDGET_DIAG .OR. LIPR ) CALL PA_UPDATE_PROC ( IPR_ZADV, CGRID, JDATE, JTIME, TSTEP, .TRUE. )
          IF ( PRINT_PROC_TIME ) CALL TIMING_SPLIT ( CPU_TIME_START, 1, 'COUPLE' )
-         IF ( BUDGET_DIAG .OR. LIPR ) CALL PA_UPDATE_PROC ( IPR_DENS, CGRID, JDATE, JTIME, TSTEP, .TRUE. )
 
          CALL SUBST_BARRIER()
          CALL HADV ( CGRID, JDATE, JTIME, TSTEP, ASTEP )
@@ -270,7 +270,7 @@ C decouple CGRID for cloud and chemistry
 
       END IF
       
-      IF ( BUDGET_DIAG .OR. LIPR ) CALL PA_UPDATE_PROC ( IPR_DENS, CGRID, SDATE, STIME, TSTEP, .FALSE. )
+      IF ( BUDGET_DIAG .OR. LIPR ) CALL PA_UPDATE_PROC ( IPR_ZADV, CGRID, SDATE, STIME, TSTEP, .FALSE. )
       
       CALL PHOT ( CGRID, JDATE, JTIME, TSTEP )
       IF ( CKSUM ) CALL CKSUMMER ( 'PHOT', CGRID, JDATE, JTIME )
@@ -302,12 +302,11 @@ C decouple CGRID for cloud and chemistry
       CALL AERO ( CGRID, JDATE, JTIME, TSTEP )
       IF ( CKSUM ) CALL CKSUMMER ( 'AERO', CGRID, JDATE, JTIME )
       IF ( BUDGET_DIAG .OR. LIPR ) CALL PA_UPDATE_AERO ( CGRID, SDATE, STIME )
-      IF ( PRINT_PROC_TIME ) CALL TIMING_SPLIT ( CPU_TIME_START, 1, 'AERO' )
       IF ( STM ) CALL STM_WRAP_AE ( CGRID, JDATE, JTIME )
-
 #ifdef isam
       CALL SA_WRAP_AE( CGRID0, CGRID, JDATE, JTIME, TSTEP )
 #endif
+      IF ( PRINT_PROC_TIME ) CALL TIMING_SPLIT ( CPU_TIME_START, 1, 'AERO' )
 
       CALL NEXTIME ( JDATE, JTIME, TSTEP( 2 ) )
       WRITE( LOGDEV,'(/ 5X, A, I8, I7.6)' ) NMSG, JDATE, JTIME

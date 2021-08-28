@@ -170,12 +170,12 @@ C-----------------------------------------------------------------------
               WRITE( BDG_UNIT, '(A1)' ),'#'
           
               ! Write Header
-              WRITE( BDG_UNIT, '(61(A))' ), 'SPECIES',tab,'T_START',tab,
+              WRITE( BDG_UNIT, '(55(A))' ), 'SPECIES',tab,'T_START',tab,
      &         'T_FINAL',tab,'T_DELTA',tab,'M_START',tab,'M_FINAL',tab,
      &         'M_DELTA',tab,'WEST_IN',tab,'WEST_OUT',tab,'EAST_IN',tab,
      &         'EAST_OUT',tab,'SOUTH_IN',tab,'SOUTH_OUT',tab,'NORTH_IN',tab,
      &         'NORTH_OUT', 
-     &         ( tab, TRIM(PROCNAME(i)),i=1,NPRCS),tab,'RESID'
+     &         ( tab, TRIM(PROCNAME(i)),i=3,NPRCS),tab,'RESID'
           
           END IF
           
@@ -525,18 +525,18 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       IF ( MYPE .EQ. 0 ) THEN
          ! Positive Residual means sum of processes is greater 
          ! than net change in mass
-         RESID_F(:) = SUM( BDG_PROC_OUT(:,1:NPRCS),2 ) 
-     &               - BDG_BURDEN_OUT( :,3 ) 
-      !   RESID_F(:) = SUM( BDG_PROC_OUT(:,3:NPRCS),2 ) + SUM( ADV_FLUXES_OUT,2)
-      !&               - BDG_BURDEN_OUT( :,3 )  ! Use Adv Fluxes instead of total XADV and YADV
+      !   RESID_F(:) = SUM( BDG_PROC_OUT(:,1:NPRCS),2 ) 
+      !&               - BDG_BURDEN_OUT( :,3 ) 
+         RESID_F(:) = SUM( BDG_PROC_OUT(:,3:NPRCS),2 ) + SUM( ADV_FLUXES_OUT,2)
+     &               - BDG_BURDEN_OUT( :,3 )  ! Use Adv Fluxes instead of total XADV and YADV
 
          ! Write Species Process Changes to tab-separated file
          DO I = 1,N_BDG_VAR
             ! Default
-            WRITE( BDG_UNIT,'(3(A,A),F7.3,A,27(E15.8,A) )' ),TRIM(BDGSPEC(I)),tab, 
+            WRITE( BDG_UNIT,'(3(A,A),F7.3,A,24(E15.8,A) )' ),TRIM(BDGSPEC(I)),tab, 
      &         BDG_TIME0,tab,BDG_TIME1,tab, DT,tab, (BDG_BURDEN_OUT(I,J),tab,J=1,3 ),
      &         ( ADV_FLUXES_OUT(I,J),tab,J=1,8 ),
-     &         ( BDG_PROC_OUT(I,J),tab,J=1,NPRCS ), RESID_F(I)
+     &         ( BDG_PROC_OUT(I,J),tab,J=3,NPRCS ), RESID_F(I)
 
             ! Debugging
 !            WRITE( BDG_UNIT,'(3(A,A),F7.3,A,21(E11.4,A) )' ),TRIM(BDGSPEC(I)),tab, 

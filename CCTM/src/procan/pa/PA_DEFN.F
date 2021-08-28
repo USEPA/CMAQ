@@ -60,7 +60,7 @@ c    SV2GRD    = Array of CTM indicies for saved concs
 c    SPCOEF    = Array of coefficients for IPR familys
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
-      INTEGER, PARAMETER :: NPRCS = 15
+      INTEGER, PARAMETER :: NPRCS = 14
  
       INTEGER, PARAMETER :: IPR_XADV = 1
       INTEGER, PARAMETER :: IPR_YADV = 2
@@ -69,17 +69,16 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       INTEGER, PARAMETER :: IPR_VDIF = 5
       INTEGER, PARAMETER :: IPR_EMIS = 6
       INTEGER, PARAMETER :: IPR_DDEP = 7
-      INTEGER, PARAMETER :: IPR_DENS = 8  ! Density/Jacobian Correction after couple
-      INTEGER, PARAMETER :: IPR_PVO3 = 9
-      INTEGER, PARAMETER :: IPR_CLDS = 10
-      INTEGER, PARAMETER :: IPR_CHEM = 11
-      INTEGER, PARAMETER :: IPR_COND = 12
-      INTEGER, PARAMETER :: IPR_COAG = 13
-      INTEGER, PARAMETER :: IPR_NPF  = 14
-      INTEGER, PARAMETER :: IPR_GROW = 15
+      INTEGER, PARAMETER :: IPR_PVO3 = 8
+      INTEGER, PARAMETER :: IPR_CLDS = 9
+      INTEGER, PARAMETER :: IPR_CHEM = 10
+      INTEGER, PARAMETER :: IPR_COND = 11
+      INTEGER, PARAMETER :: IPR_COAG = 12
+      INTEGER, PARAMETER :: IPR_NPF  = 13
+      INTEGER, PARAMETER :: IPR_GROW = 14
  
       CHARACTER(4), PARAMETER :: PROCNAME( NPRCS ) =
-     & (/'XADV','YADV','ZADV','HDIF','VDIF','EMIS','DDEP','DENS',
+     & (/'XADV','YADV','ZADV','HDIF','VDIF','EMIS','DDEP',
      &   'PVO3','CLDS','CHEM','COND','COAG','NPF ','GROW' /)
 
       REAL, ALLOCATABLE, SAVE :: CSAV( :,:,:,: )

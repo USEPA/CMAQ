@@ -210,8 +210,9 @@ C-----------------------------------------------------------------------
       DO C = 1,NCOLS
          D_CNGRD(C,R,L,I) = CNGRD(C,R,L,I) - CSAV(C,R,L,I)
          CSAV(C,R,L,I) = CNGRD(C,R,L,I)
-         ! Note that CSAV from the first IPR_DENS (coupling) process will be
-         ! overwritten in pa_update_hadv for use after IPR_ZADV
+         ! Note that CSAV from the first IPR_ZADV (coupling) process will be
+         ! overwritten in pa_update_hadv for use after the main IPR_ZADV
+         ! call
       END DO
       END DO
       END DO
