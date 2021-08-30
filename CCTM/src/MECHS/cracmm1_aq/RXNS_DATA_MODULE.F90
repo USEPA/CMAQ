@@ -8,6 +8,7 @@
 ! --------- Photochemical Mechanism Reactions, Rates, etc. DAT ---------
 ! Source file: /home/gsarwar/util/MP/MECHS/racm2_ae6_aq/mech_racm2_ae6_aq.def
 ! for Mechanism Name: RACM2_AE6_AQ                    
+! Renamed CRACMM1
 
 ! This file is used to create mechanism data and functions
 
@@ -84,7 +85,7 @@
 !    NHETERO   = Number of unique heteorogenous rate constants
 !    IHETERO   = Reactions list pointer to heteorogenous reactions and tables
 
-      CHARACTER( 32 ), PARAMETER :: MECHNAME = 'RACM2_AE6_AQ'
+      CHARACTER( 32 ), PARAMETER :: MECHNAME = 'CRACMM1_AQ'
 
       INTEGER, PARAMETER :: N_GAS_CHEM_SPC = 146
       INTEGER, PARAMETER :: NUMB_MECH_SPC  = 168

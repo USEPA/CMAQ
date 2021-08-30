@@ -1,3 +1,5 @@
+!! CRACMM version 1.0 mechanism developed 2021 by USEPA
+!! CRACMM builds upon RACM2 and RACM
 !! **********************************************************************
 !!  FILE:        RACM2.5M4.mch - update MACR scheme with geos-chem
 !!  DATE:        Sept 4, 2012 - update MVK + O3 rxn

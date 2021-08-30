@@ -5,7 +5,7 @@
 
 
 
-! Name of Mechanism RACM2_AE6_AQ
+! Name of Mechanism CRACMM1_AE6_AQ
 
        PUBLIC             :: CALC_RCONST, SPECIAL_RATES, MAP_CHEMISTRY_SPECIES
 
