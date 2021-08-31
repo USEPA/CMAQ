@@ -74,7 +74,6 @@ C-----------------------------------------------------------------------
 
          USE CGRID_SPCS   ! CGRID species number and offsets
          USE UTILIO_DEFN
-         USE DEPV_DEFN, ONLY : N_SPC_DEPV
 
          IMPLICIT NONE
 
