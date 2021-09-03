@@ -115,13 +115,28 @@ set make_options = "-j"                #> additional options for make command if
  set ModPhot   = phot/inline                #> photolysis calculation module 
                                             #>     (see $CMAQ_MODEL/CCTM/src/phot)
 
- setenv Mechanism cb6r3_ae7_aq              #> chemical mechanism (see $CMAQ_MODEL/CCTM/src/MECHS)
+ setenv Mechanism cracmm1_aq                    #> chemical mechanism (see $CMAQ_MODEL/CCTM/src/MECHS) excluding version number and "aq" for cracmm
+ #setenv Mechanism cb6r7_ae7_aq              #> chemical mechanism (see $CMAQ_MODEL/CCTM/src/MECHS) 
  set ModMech   = MECHS/${Mechanism}
+
+ if ( ${Mechanism} =~ *ae7* ) then          #> ae7 family of aero and cloud chem
+     set ModAero   = aero/aero7             # > aerosol chemistry module (see $CMAQ_MODEL/CCTM/src/aero)
+     set ModCloud  = cloud/acm_ae7          # > cloud chemistry module (see $CMAQ_MODEL/CCTM/src/cloud)
+ else if ( ${Mechanism} =~ *ae6* ) then     #> ae6 family of aero and cloud chem
+     set ModAero   = aero/aero6             # > aerosol chemistry module (see $CMAQ_MODEL/CCTM/src/aero)
+     set ModCloud  = cloud/acm_ae6          # > cloud chemistry module (see $CMAQ_MODEL/CCTM/src/cloud)
+ else if ( ${Mechanism} =~ *cracmm* ) then  #> CRACMM family of aero and cloud chem
+     set ModAero    = aero/cracmm           # > aerosol chemistry module (see $CMAQ_MODEL/CCTM/src/aero)
+     set ModCloud   = cloud/acm_cracmm      # > cloud chemistry module (see $CMAQ_MODEL/CCTM/src/cloud)
+ endif
+
  
- if ( ${Mechanism} != cb6r3m_ae7_aq ) then  #> Gas-phase chemistry solver options
-     set ChemSolver = ebi                   #> gas-phase chemistry solver (see $CMAQ_MODEL/CCTM/src/gas)
- else                                       #> use gas/ros3 or gas/smvgear for a solver independent
-     set ChemSolver = ros3                  #> of the photochemical mechanism [ default for most mechanisms: ebi ]
+ if ( ${Mechanism} == cb6r3m_ae7_aq ) then  #> Gas-phase chemistry solver options ($CMAQ_MODEL/CCTM/src/gas)
+     set ChemSolver = ros3                  #> ros3 (or smvgear) are system independent
+ else if ( ${Mechanism} == cracmm1_aq ) then
+     set ChemSolver = ros3                  #> ros3 for now 
+ else                                      
+     set ChemSolver = ebi                   #> [ default for most mechanisms: ebi ]
  endif
                                          
  if ( $ChemSolver == ebi ) then             
@@ -131,8 +146,6 @@ set make_options = "-j"                #> additional options for make command if
     set ModGas    = gas/${ChemSolver}
  endif
     
- set ModAero   = aero/aero7                 #> aerosol chemistry module (see $CMAQ_MODEL/CCTM/src/aero)
- set ModCloud  = cloud/acm_ae7              #> cloud chemistry module (see $CMAQ_MODEL/CCTM/src/cloud)
  set ModUtil   = util/util                  #> CCTM utility modules
  set ModDiag   = diag                       #> CCTM diagnostic modules
  set Tracer    = trac0                      #> tracer configuration directory under 
