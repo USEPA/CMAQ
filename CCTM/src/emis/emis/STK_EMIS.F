@@ -46,6 +46,11 @@ C-----------------------------------------------------------------------
       TYPE( CARRY1 ), ALLOCATABLE, SAVE :: STKSPC( : )    ! emitted species names
       TYPE( RARRY1 ), ALLOCATABLE, SAVE :: FIREVAR( : )   ! fire variables, just H-Flux
 
+      REAL, ALLOCATABLE, SAVE :: STKBUFF( : )
+      REAL, ALLOCATABLE, SAVE :: MY_STKBUFF( : )
+      INTEGER, ALLOCATABLE, SAVE :: MY_COLBUFF( : )
+      INTEGER, ALLOCATABLE, SAVE :: MY_ROWBUFF( : )
+
       INTEGER FGRPS
 
       CONTAINS
@@ -161,6 +166,15 @@ C-----------------------------------------------------------------------
             END IF
 
          END DO
+
+         ALLOCATE( STKBUFF( MAXVAL( NSRC_EMIS(:) ) ) )
+            CALL CHECKMEM( ASTAT, 'NSRC_EMIS', PNAME )
+         ALLOCATE( MY_STKBUFF( MAXVAL( STKEMIS(:)%LEN ) ) )
+            CALL CHECKMEM( ASTAT, 'MY_STKBUFF', PNAME )
+         ALLOCATE( MY_COLBUFF( MAXVAL( STKEMIS(:)%LEN ) ) )
+            CALL CHECKMEM( ASTAT, 'MY_COLBUFF', PNAME )
+         ALLOCATE( MY_ROWBUFF( MAXVAL( STKEMIS(:)%LEN ) ) )
+            CALL CHECKMEM( ASTAT, 'MY_ROWBUFF', PNAME )
 
          RETURN
 

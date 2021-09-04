@@ -110,6 +110,7 @@
       LOGICAL :: NEW_START       = .TRUE.   ! Start New Simulation. Not a Restart
       LOGICAL :: IGNORE_SOILINP  = .FALSE.   ! In case you don't have prev day
       CHARACTER(1) :: ISAM_NEW_START = 'Y'  ! Start New Simulation. Not a Restart for ISAM
+      CHARACTER(300):: EXECUTION_ID = ''    ! Execution ID
       CHARACTER(16) :: GRID_NAME = ''       ! grid name selected from GRIDDESC
       CHARACTER(16) :: PROGNAME  = 'DRIVER' ! Program name selected from GRIDDESC
       INTEGER :: RUNLEN          = 480000   ! Run Length
@@ -291,7 +292,7 @@
 
 
       INTEGER          :: STATUS      ! ENV... status
-      CHARACTER( 250 ) :: STRTEMP
+      CHARACTER( 400 ) :: STRTEMP
       CHARACTER( 80 )  :: PBASE     
       INTEGER, PARAMETER :: EXIT_STATUS = 1
       INTEGER          :: ERROR
@@ -343,6 +344,10 @@
       ! Determine if this run is a new start or a restart
       CALL GET_ENV ( ISAM_NEW_START, 'ISAM_NEW_START', ISAM_NEW_START, VARDEV )
     
+      ! Get Execution ID
+      CALL GET_ENV ( STRTEMP, 'EXECUTION_ID', EXECUTION_ID, VARDEV )
+      EXECUTION_ID = STRTEMP(1:300)
+
       ! Get Grid Name
       CALL GET_ENV ( STRTEMP, 'GRID_NAME', GRID_NAME, VARDEV )
       GRID_NAME = STRTEMP(1:16)
@@ -1081,6 +1086,8 @@
           ! Write Out The Time to Complete Each Sub-Process
           WRITE( XMSG, 1002 ),TRIM( CPROC ), CPU_TIME_FINISH-CPU_TIME_START
 1002      FORMAT ( 2x, A15, ' completed... ', F6.1, ' seconds' )
+          
+          CALL LOG_MESSAGE( LOGDEV, XMSG )  !BNM
 
       CASE ( 2 ) 
           ! Write out the time to complete the entire master time step
