@@ -530,9 +530,10 @@ C=======================================================================
 
          USE GRID_CONF, ONLY:  NCOLS, NROWS, IO_PE_INCLUSIVE
          USE STK_PRMS, ONLY :  MY_NSRC, MY_STRT_SRC, MY_END_SRC, 
-     &                         MY_STKCOL, MY_STKROW, SOURCE
+     &                         MY_STKCOL, MY_STKROW, SOURCE,
+     &                         MY_STKBUFF, MY_COLBUFF, MY_ROWBUFF 
          USE STK_EMIS, ONLY :  IPSRM, N_EMIS_ISTR, EM_FILE_SURR, EM_FILE_DATE, 
-     &                         STKBUFF, MY_STKBUFF, MY_COLBUFF, MY_ROWBUFF, NSRC_EMIS
+     &                         STKBUFF, NSRC_EMIS
          USE PTMET, ONLY    :  EMLAYS, PTMET_CONVT
          USE PRECURSOR_DATA, ONLY : PRECURSOR_MW, SULF_IDX
          USE RUNTIME_VARS, ONLY : LOGDEV, PT3DDIAG, PT3DFRAC, STDATE, STTIME
@@ -733,27 +734,9 @@ C Read Emissions for all sources on File N
      &                     +  MY_STKBUFF( S ) * TFRAC( 1:PTLAYS,S )
             END DO
 
-C Apportion emissions to the layers
-            !DO S = 1, MY_NSRC( N )
+            ! Save Emissions in Common Array
+            VDEMIS_PT( ISPC,1:PTLAYS,:,: ) = MY_STKEMIS( 1:PTLAYS,:,: )
 
-               ! Save Emissions in Common Array
-               VDEMIS_PT( ISPC,1:PTLAYS,:,: ) = MY_STKEMIS( 1:PTLAYS,:,: )
-
-      !         VDEMIS_PT( ISPC,1:EMLAYS,C,R ) = VDEMIS_PT( ISPC,1:EMLAYS,C,R )
-      !&                           + TFRAC(1:EMLAYS,S) * MY_STKBUFF( S )
-
-
-               !DO L = 1, EMLAYS
-               !   LFRC = TFRAC( L,S )
-               !   IF ( LFRC .LE. 0.0 ) CYCLE
-               !   PTLAYS = MAX( PTLAYS, L )
-
-                  ! Save Emissions in Common Array
-               !   VDEMIS_PT( ISPC,L,C,R ) = VDEMIS_PT( ISPC,L,C,R )
-      !&                              + LFRC * STKEMIS( N )%ARRY( SRC )
-
-      !         END DO  ! End Layers Loop
-            !END DO  ! End Sources Loop
          END DO ! End Loop on Species
 
          DEALLOCATE( TFRAC )
