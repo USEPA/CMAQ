@@ -4928,6 +4928,7 @@ C   mminlu and num_land_cat are WRF global variables
       use RUNTIME_VARS, only : EMISSCTRL, logdev
       use util_family_module
       use RUNTIME_VARS, only: EMISSCTRL, logdev, log_message, log_subheading
+      use PA_DEFN, ONLY : BudgetVariables, N_BUDGET_VARS_REG, BUDGET_DIAG
 #ifdef mpas
       use util_module, only : junit, upcase
 #endif
@@ -4944,11 +4945,17 @@ C   mminlu and num_land_cat are WRF global variables
          NAMELIST / EmissionScalingRules / EM_NML
          NAMELIST / SizeDistributions    / SD_NML 
          NAMELIST / RegionsRegistry      / RGN_NML
+         NAMELIST / BudgetOptions        / Budget_Diag, BudgetVariables
          NAMELIST / EmissionDiagnostic   / NEmissDiag, EmissDiagStreams,
      &                                     EmissDiagFmt, EmissDiagSpec
          
          CALL LOG_MESSAGE( LOGDEV, ' ' )
          CALL LOG_SUBHEADING( LOGDEV, 'Reading Emission Control Namelist')
+         
+         ! Allocate and Initialize Budget Variables
+         Budget_Diag = .FALSE.
+         ALLOCATE( BudgetVariables( N_Budget_Vars_Reg ) )
+         BudgetVariables = ''
 
          ! Initialize Namelist Variables
          EM_NML%REGION = ''
@@ -5023,6 +5030,34 @@ C   mminlu and num_land_cat are WRF global variables
  
          END IF
           
+         ! Read Budget Variables Specification Section
+         REWIND( EMCTRL_NML )
+         READ( NML = BudgetOptions, UNIT = EMCTRL_NML, IOSTAT=STAT )
+         IF ( STAT .EQ. -1 ) THEN
+             WRITE( LOGDEV, "(5x,A,/,5x,A,/,5x,A,/,5x,A)" ),
+     &              'Note: The BudgetOptions section of the Emissions Control ',
+     &              'Namelist is missing. Default values for this section will be ',
+     &              'assumed.'
+             Budget_Diag   = .FALSE.
+             BudgetVariables  = '*ALL'
+         ELSE IF ( STAT .NE. 0 ) THEN
+             ! Read Error Detected for BudgetOptions
+             backspace( EMCTRL_NML )
+             read( EMCTRL_NML, fmt='(A)' ) tmpline
+             XMSG = 'ERROR: There was a syntax error reading the BudgetOptions '//
+     &              'variable for use by the DESID module. Please check the format of '//
+     &              'each line for syntax errors. The invalid line was likely: '
+             CALL LOG_MESSAGE( LOGDEV, ' ')
+             CALL LOG_MESSAGE( LOGDEV, XMSG )
+             WRITE( LOGDEV, '(8x,A)' ) TMPLINE
+             CALL M3EXIT ( 'Read_Emiss_Namelist', 0, 0, 'CMAQ must Crash until you '//
+     &                     'fix the Budget Variables specification', 1 ) 
+         END IF
+         ! Capitalize All Budget Variables Names
+         DO IFAM = 1,N_Budget_Vars_Reg
+             CALL UPCASE( BudgetVariables( IFAM ) )
+         END DO
+
          ! Read the size distribution specification section
          REWIND( EMCTRL_NML )
          READ( NML = SizeDistributions, UNIT = EMCTRL_NML, IOSTAT=STAT )

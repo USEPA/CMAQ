@@ -670,3 +670,22 @@
 !  EmissDiagSpec(3,:)   = '*ALL'
 !/
  
+!------------------------------------------------------------------------------!
+! Budget Tool Variable and Family Definitions                                  !
+!    This section includes selections for species and families of CMAQ         !
+!    that may be grouped together when calculating budget values for the       !
+!    budget output file. Users may select any CMAQ chemical species, chemical  !
+!    family defined in the ChemicalFamilies section of this namelist or may    !
+!    use the ALL keyword to select all species.                                !
+!    If a Family name or the ALL keyword are provided, the sum of those species!
+!    will be output on the budget file. If a * proceeds the name (e.g. '*ALL') !
+!    then the keyword or Family name will be expanded and all of the species   !
+!    it comprises will be added separately. The default selection is for all   !
+!    chemical species to be output individually.                               !
+!------------------------------------------------------------------------------!
+
+&BudgetOptions
+  Budget_Diag = .TRUE.
+  BudgetVariables  = '*ALL'
+/
+ 
