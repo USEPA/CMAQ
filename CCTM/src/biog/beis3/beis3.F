@@ -230,8 +230,8 @@ C arrays
             DO I = 1, NLAI
 
                BTMP = LAITYPES( I )
-!               TLAI = SLAI( C,R,I ) 
-               TLAI = MET_DATA%LAI( C,R )
+               TLAI = SLAI( C,R,I ) 
+
 C Adjust methanol based on T. Pierce recommendation (1-16-03)
                IF ( BTMP == 'METH' ) THEN
                   TLAI = MAX( 3.0, TLAI )

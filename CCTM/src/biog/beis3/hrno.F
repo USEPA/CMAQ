@@ -18,7 +18,7 @@
 !------------------------------------------------------------------------!
 
 C::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-      SUBROUTINE HRNO( JDATE, JTIME, TSTEP, NOPOL )
+      SUBROUTINE HRNO( JDATE, JTIME, TSTEP, NOPOL, L_DESID_DIAG )
 
 C-----------------------------------------------------------------------
 C Description:
@@ -157,7 +157,8 @@ C Arguments:
       INTEGER, INTENT( IN )  :: JTIME         ! current simulation time (HHMMSS)
       INTEGER, INTENT( IN )  :: TSTEP( 3 )    ! time step vector (HHMMSS)
       REAL,    INTENT( OUT ) :: NOPOL( :,: )  ! output NO emissions
-
+      LOGICAL, INTENT( IN )  :: L_DESID_DIAG  ! flag determining whether or not DESID
+                                              !   is in diagnostic mode              
 C External Functions
       LOGICAL,         EXTERNAL :: CHKGRID
 
@@ -450,7 +451,7 @@ C Calculate NO emissions by going thru temperature cases
                      CFNO = CFNODRY + RATIO * ( CFNOWET - CFNODRY )
                      FAC1 = GROWAGNO( C,R ) * CFNO
      &                    * FERTILIZER_ADJ( JDATE )
-     &                    * VEG_ADJ( MET_DATA%RS( C,R ) )
+     &                    * VEG_ADJ( JDATE )
 
                   ELSE
                      FAC1 = 0.0
@@ -482,7 +483,7 @@ C Calculate NO emissions by going thru temperature cases
 
                   FAC1 = GROWAGNO( C,R ) * CFNO
      &                 * FERTILIZER_ADJ( JDATE )
-     &                 * VEG_ADJ( MET_DATA%RS( C,R ) )
+     &                 * VEG_ADJ( JDATE )
      
                   IF ( INITIAL_DAY ) THEN
                      FAC2 = 1.0
@@ -530,7 +531,7 @@ C Calculate NO emissions by going thru temperature cases
 
       END IF  ! growing season check
 
-      IF ( SECSDIFF( JDATE,JTIME, EDATE,ETIME ) .GT. TIME2SEC( TSTEP( 2 ) ) ) RETURN
+      IF ( SECSDIFF( JDATE,JTIME, EDATE,ETIME ) .GT. TIME2SEC( TSTEP( 2 ) ) .OR. L_DESID_DIAG ) RETURN
 
 C Create rain data file for soil NO
 
@@ -865,7 +866,7 @@ C-----------------------------------------------------------------------
 
 C-----------------------------------------------------------------------
 
-         REAL FUNCTION VEG_ADJ( Rst )
+         REAL FUNCTION VEG_ADJ( DATE )
 
 C Compute a vegetation adjustment factor for the given date in yyyyddd format.
 C The adjustment factor ranges from 0.5 to 1.0.
@@ -873,11 +874,28 @@ C The adjustment factor ranges from 0.5 to 1.0.
          IMPLICIT NONE
          
 C Function arguments:
-         REAL, INTENT( IN ) :: Rst
+         INTEGER, INTENT( IN ) :: DATE
+
+C Local variables:
+         INTEGER  GDAY
 
 C-----------------------------------------------------------------------
-        
-         VEG_ADJ = MIN(1.0 - 3.1*(1.0/Rst)**0.6, 0.5)   
+
+         GDAY = GROWSEASON( DATE )
+         
+         IF ( GDAY .LE. 30 ) THEN
+            VEG_ADJ = 1.0
+         ELSE IF ( GDAY .GT. 30 .AND. GDAY .LT. 60 ) THEN
+            VEG_ADJ = 1.5 - ( FLOAT( GDAY ) / 60.0 )
+         ELSE IF ( GDAY .GE. 60 ) THEN
+            VEG_ADJ = 0.5
+         ELSE
+            WRITE( MESG,94010 ) 'Invalid date specified; date = ', DATE,
+     &                          'growing season day = ', GDAY
+            CALL M3EXIT( PNAME, 0, 0, MESG, 2 )
+         END IF
+
+94010    FORMAT( A, I8, 1X, A, I3 )
 
          RETURN
       
