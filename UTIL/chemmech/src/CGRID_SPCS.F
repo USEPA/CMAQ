@@ -28,10 +28,11 @@ c Bill Hutzell 8 Oct 10: added Gas Chemistry consistency check
 C Shawn Roselle 16 Feb 11: replaced I/O API include files with UTILIO_DEFN
 C 07 Jul 14 B.Hutzell: replaced mechanism include file(s) with fortran module
 C 21 Apr 16 D.Luecken:  increased spc_dim to 1000
-C 10 Apr 19 F. Sidi  : Split up ICBC for CMAQ namelist species
+C 07 Mar 2019 F. Sidi:  Split up ICBC for CMAQ species  namelist 
 c-----------------------------------------------------------------------
-      
-      !USE RUNTIME_VARS
+#ifndef CHEMMECH
+      USE RUNTIME_VARS
+#endif
 
       implicit none
 
@@ -68,18 +69,21 @@ c surrogate species
      &                                      n_gc_scav = 0, n_ae_scav = 0, n_nr_scav = 0, n_tr_scav = 0,
      &                                      n_gc_g2ae = 0,                n_nr_n2ae = 0, n_tr_t2ae = 0,
      &                                      n_gc_g2aq = 0, n_ae_a2aq = 0, n_nr_n2aq = 0, n_tr_t2aq = 0
-      character( 16 ), allocatable, save :: gc_ic( : ),   ae_ic( : ),   nr_ic( : ),   tr_ic( : ),
-     &                                      gc_bc( : ),   ae_bc( : ),   nr_bc( : ),   tr_bc( : ),
+      integer,                      save :: n_ae_optics = 0
+      character( 16 ), allocatable, save :: gc_ic( : ),   ae_ic( : ),   nr_ic( : ),   tr_ic( : ), 
+     &                                      gc_bc( : ),   ae_bc( : ),   nr_bc( : ),   tr_bc( : ),   
      &                                      gc_depv( : ), ae_depv( : ), nr_depv( : ), tr_depv( : ),
      &                                      gc_scav( : ), ae_scav( : ), nr_scav( : ), tr_scav( : ),
      &                                      gc_g2ae( : ),               nr_n2ae( : ), tr_t2ae( : ),
      &                                      gc_g2aq( : ), ae_a2aq( : ), nr_n2aq( : ), tr_t2aq( : )
+      character( 16 ), allocatable, save :: ae_optics( : )
       integer, allocatable,         save :: gc_ic_map( : ),   ae_ic_map( : ),   nr_ic_map( : ),   tr_ic_map( : ),
-     &                                      gc_bc_map( : ),   ae_bc_map( : ),   nr_bc_map( : ),   tr_bc_map( : ),
+     &                                      gc_bc_map( : ),   ae_bc_map( : ),   nr_bc_map( : ),   tr_bc_map( : ),  
      &                                      gc_depv_map( : ), ae_depv_map( : ), nr_depv_map( : ), tr_depv_map( : ),
      &                                      gc_scav_map( : ), ae_scav_map( : ), nr_scav_map( : ), tr_scav_map( : ),
      &                                      gc_g2ae_map( : ),                   nr_n2ae_map( : ), tr_t2ae_map( : ),
      &                                      gc_g2aq_map( : ), ae_a2aq_map( : ), nr_n2aq_map( : ), tr_t2aq_map( : )
+
       real, allocatable,            save :: gc_ic_fac( : ),   ae_ic_fac( : ),   nr_ic_fac( : ),   tr_ic_fac( : ),
      &                                      gc_bc_fac( : ),   ae_bc_fac( : ),   nr_bc_fac( : ),   tr_bc_fac( : ),
      &                                      gc_depv_fac( : ), ae_depv_fac( : ), nr_depv_fac( : ), tr_depv_fac( : ),
@@ -141,39 +145,42 @@ c init routine to allocate the above allocatables
 c !! NO   and to populate the allocated arrays from the stnd gc_spc.ext  !!! NO
 
          function cgrid_spcs_init() result ( success )
-             
+#ifdef CHEMMECH         
             USE GET_ENV_VARS
             USE MECHANISM_DATA
-            
+#else
+            use UTILIO_DEFN
+#endif     
             implicit none
-
-            integer, save :: logdev = 6
 
             logical success
             integer, save :: dev_gc_nml, dev_ae_nml, dev_nr_nml, dev_tr_nml
-            integer i, i1, j, ios, IGC, IAE, INR, ITR
+            integer i,  i1, j, ios, IGC, IAE, INR, ITR
             character(  1 ), parameter :: bl = ' '
             integer, parameter :: spc_dim = 1000
             logical :: order = .true., found = .true.
             character( 120 ) :: xmsg
             INTEGER :: ISPC, IGRID
+#ifdef CHEMMECH
+            integer, save :: logdev = 6
+#endif
 
 c namelist variables
-            ! Namelist Registry Format for Gases and Nonreactives 
+            ! Namelist Registry Format for Gases and Nonreactives
             TYPE SPECIES_DATA_REG_1
                 CHARACTER( 16 ) :: SPECIES_NAME  ! CMAQ Species Name
                 REAL            :: MOLWT         ! g mol-1
                 CHARACTER( 16 ) :: IC_SURR       ! IC Surrogate
                 REAL            :: IC_FAC        ! IC Scale Factor
                 CHARACTER( 16 ) :: BC_SURR       ! BC Surrogate
-                REAL            :: BC_FAC        ! BC Scale Factor       
+                REAL            :: BC_FAC        ! BC Scale Factor
                 CHARACTER( 16 ) :: DEPV_SURR     ! Dry Deposition Surrogate
                 REAL            :: DEPV_FAC      ! Dry Deposition Scale Factor
                 CHARACTER( 16 ) :: SCAV_SURR     ! Wet Scavenging Surrogate
                 REAL            :: SCAV_FAC      ! Wet Scavenging Scale Factor
                 CHARACTER( 16 ) :: AERO_SURR     ! Aerosol Module Surrogate
                 CHARACTER( 16 ) :: CLOUD_SURR    ! Cloud Chemistry Surrogate
-                CHARACTER( 16 ) :: TRNS_FLAG     ! Do Transport?
+                CHARACTER( 16 ) :: TRNS_FLAG     ! Do Transport (ADV + DIFF)?
                 CHARACTER( 16 ) :: DDEP_FLAG     ! Output Dry Deposition Velocities
                 CHARACTER( 16 ) :: WDEP_FLAG     ! Output Wet Scavenging Fluxes
                 CHARACTER( 16 ) :: CONC_FLAG     ! Output Concentration
@@ -183,6 +190,7 @@ c namelist variables
             TYPE SPECIES_DATA_REG_2
                 CHARACTER( 16 ) :: SPECIES_NAME  ! CMAQ Species Name
                 REAL            :: MOLWT         ! g mol-1
+                CHARACTER( 16 ) :: OPTICS_SURR   ! material's refractive index surrogate
                 CHARACTER( 16 ) :: IC_SURR       ! IC Surrogate
                 REAL            :: IC_FAC        ! IC Scale Factor
                 CHARACTER( 16 ) :: BC_SURR       ! BC Surrogate
@@ -197,7 +205,7 @@ c namelist variables
                 CHARACTER( 16 ) :: WDEP_FLAG     ! Output Wet Scavenging Fluxes
                 CHARACTER( 16 ) :: CONC_FLAG     ! Output Concentration
             END TYPE SPECIES_DATA_REG_2
- 
+
             ! Namelist Registry Format for Tracers
             TYPE SPECIES_DATA_REG_3
                 CHARACTER( 16 ) :: SPECIES_NAME  ! CMAQ Species Name
@@ -218,22 +226,24 @@ c namelist variables
                 CHARACTER( 16 ) :: WDEP_FLAG     ! Output Wet Scavenging Fluxes
                 CHARACTER( 16 ) :: CONC_FLAG     ! Output Concentration
             END TYPE SPECIES_DATA_REG_3
- 
-            character( 16 ) :: gc_matrix = 'gc_matrix_nml'
-            character( 16 ) :: ae_matrix = 'ae_matrix_nml'
-            character( 16 ) :: nr_matrix = 'nr_matrix_nml'
-            character( 16 ) :: tr_matrix = 'tr_matrix_nml'
-            character( 256 ) :: eqname
 
-            integer, external :: junit
-            integer, external :: index1
-            
-            character( 16 ), allocatable     :: nml_spc  ( : )
-            character(  2 ), allocatable     :: nml_type ( : )
-            integer,         allocatable     :: nml_index( : )
+#ifdef CHEMMECH
+            character( 16 ) :: gc_matrix = 'gc_matrix_nml'           
+            character( 16 ) :: ae_matrix = 'ae_matrix_nml'      
+            character( 16 ) :: nr_matrix = 'nr_matrix_nml'      
+            character( 16 ) :: tr_matrix = 'tr_matrix_nml'      
+            character( 256 ) :: eqname                          
+                                                                
+            integer, external :: junit                          
+            integer, external :: index1                         
+                                                                
+            character( 16 ), allocatable     :: nml_spc  ( : )  
+            character(  2 ), allocatable     :: nml_type ( : )  
+            integer,         allocatable     :: nml_index( : )  
             logical,         allocatable     :: nml_convert( : )
-            real,            allocatable     :: nml_molwt( : )
-
+            real,            allocatable     :: nml_molwt( : )  
+#endif            
+ 
             TYPE (SPECIES_DATA_REG_1), ALLOCATABLE :: GC_SPECIES_DATA(:)
             TYPE (SPECIES_DATA_REG_2), ALLOCATABLE :: AE_SPECIES_DATA(:)
             TYPE (SPECIES_DATA_REG_1), ALLOCATABLE :: NR_SPECIES_DATA(:)
@@ -246,9 +256,11 @@ c namelist variables
 
 c----------------------------------------------------------------------------------------
             success = .true.
-
-            write( logdev,* ) "Retrieve Species Namelist" 
-
+#ifdef CHEMMECH
+            write( logdev,* ) "Retrieve Species Namelist"
+#else            
+            CALL LOG_HEADING( LOGDEV, "Retrieve Species Namelist" )
+#endif
             ! Gas (GC) Namelist
             ALLOCATE( GC_SPECIES_DATA( SPC_DIM ), STAT=IOS )
             GC_SPECIES_DATA%SPECIES_NAME = ''
@@ -268,21 +280,32 @@ c-------------------------------------------------------------------------------
             GC_SPECIES_DATA%WDEP_FLAG = ''
             GC_SPECIES_DATA%CONC_FLAG = ''
 
-            call value_name( gc_matrix, eqname )
-
-            write( logdev,* ) ' '
+#ifdef CHEMMECH
+            call value_name( gc_matrix, eqname )                                                                                                 
             write( logdev,* ) '    GC Species Namelist: ', trim( eqname )
-                                                                                             
             dev_gc_nml = junit()                                                             
             open( file = trim( eqname ), unit = dev_gc_nml,                             
      &            status = 'old', position = 'rewind' )                                      
-            read( nml = GC_nml, unit = dev_gc_nml )                                          
+#else                                                                                             
+            dev_gc_nml = junit()                                                             
+            open( file = trim( gc_namelist ), unit = dev_gc_nml,                             
+     &            status = 'old', position = 'rewind' )                                      
+#endif                                                      
+            read( nml = GC_nml, unit = dev_gc_nml )
                                                                                              
             ! Determine Number of Gas Species                                                
             N_GC_SPC = 0                                                                     
             DO IGC = 1,SPC_DIM                                                              
                 IF ( GC_SPECIES_DATA( IGC )%SPECIES_NAME .EQ. '' ) EXIT                      
-                N_GC_SPC = IGC                                                               
+                N_GC_SPC = IGC
+                IF ( GC_SPECIES_DATA( IGC )%IC_FAC .EQ. -1. )
+     &               GC_SPECIES_DATA( IGC )%IC_FAC = 0.
+                IF ( GC_SPECIES_DATA( IGC )%BC_FAC .EQ. -1. )
+     &               GC_SPECIES_DATA( IGC )%BC_FAC = 0.
+                IF ( GC_SPECIES_DATA( IGC )%DEPV_FAC .EQ. -1. )
+     &               GC_SPECIES_DATA( IGC )%DEPV_FAC = 0.
+                IF ( GC_SPECIES_DATA( IGC )%SCAV_FAC .EQ. -1. )
+     &               GC_SPECIES_DATA( IGC )%SCAV_FAC = 0.
             END DO                                                                           
                                                                                              
             ! Allocate and Initialize Permanent Variables
@@ -319,9 +342,87 @@ c-------------------------------------------------------------------------------
             N_GC_CONC = 0
 
             DO IGC = 1,N_GC_SPC
-            
+                
                 GC_SPC( IGC )      = GC_SPECIES_DATA( IGC )%SPECIES_NAME
                 GC_MOLWT( IGC )    = GC_SPECIES_DATA( IGC )%MOLWT
+
+                ! Gas ICs
+                IF ( GC_SPECIES_DATA( IGC )%IC_SURR .NE. '' ) THEN
+                    N_GC_IC = N_GC_IC + 1
+                    GC_IC( N_GC_IC )     = GC_SPECIES_DATA( IGC )%IC_SURR 
+                    GC_IC_MAP( N_GC_IC ) = IGC
+                    GC_IC_FAC( N_GC_IC ) = GC_SPECIES_DATA( IGC )%IC_FAC
+                END IF
+
+                ! Gas BCs
+                IF ( GC_SPECIES_DATA( IGC )%BC_SURR .NE. '' ) THEN
+                    N_GC_BC = N_GC_BC + 1
+                    GC_BC( N_GC_BC )     = GC_SPECIES_DATA( IGC )%BC_SURR 
+                    GC_BC_MAP( N_GC_BC ) = IGC
+                    GC_BC_FAC( N_GC_BC ) = GC_SPECIES_DATA( IGC )%BC_FAC
+                END IF
+                
+                ! Gas Dry Deposition Surrogates
+                IF ( GC_SPECIES_DATA( IGC )%DEPV_SURR .NE. '' ) THEN
+                    N_GC_DEPV = N_GC_DEPV + 1
+                    GC_DEPV( N_GC_DEPV )     = GC_SPECIES_DATA( IGC )%DEPV_SURR 
+                    GC_DEPV_MAP( N_GC_DEPV ) = IGC
+                    GC_DEPV_FAC( N_GC_DEPV ) = GC_SPECIES_DATA( IGC )%DEPV_FAC
+                END IF
+                 
+                ! Gas Wet Scavenging Surrogates
+                IF ( GC_SPECIES_DATA( IGC )%SCAV_SURR .NE. '' ) THEN
+                    N_GC_SCAV = N_GC_SCAV + 1
+                    GC_SCAV( N_GC_SCAV )     = GC_SPECIES_DATA( IGC )%SCAV_SURR 
+                    GC_SCAV_MAP( N_GC_SCAV ) = IGC
+                    GC_SCAV_FAC( N_GC_SCAV ) = GC_SPECIES_DATA( IGC )%SCAV_FAC
+                END IF
+                
+                ! Gas -to-Aerosol Module Surrogates
+                IF ( GC_SPECIES_DATA( IGC )%AERO_SURR .NE. '' ) THEN
+                    N_GC_G2AE = N_GC_G2AE + 1
+                    GC_G2AE( N_GC_G2AE )     = GC_SPECIES_DATA( IGC )%AERO_SURR 
+                    GC_G2AE_MAP( N_GC_G2AE ) = IGC
+                END IF
+                
+                ! Gas -to-Cloud Chemistry Surrogates
+                IF ( GC_SPECIES_DATA( IGC )%CLOUD_SURR .NE. '' ) THEN
+                    N_GC_G2AQ = N_GC_G2AQ + 1
+                    GC_G2AQ( N_GC_G2AQ )     = GC_SPECIES_DATA( IGC )%CLOUD_SURR 
+                    GC_G2AQ_MAP( N_GC_G2AQ ) = IGC
+                END IF
+                
+                ! Gas - Perform Transport
+                LTRNS = GET_LOGICAL_NML( GC_SPECIES_DATA( IGC )%TRNS_FLAG )
+                IF ( LTRNS ) THEN
+                    N_GC_TRNS = N_GC_TRNS + 1
+                    GC_TRNS( N_GC_TRNS )     = GC_SPECIES_DATA( IGC )%SPECIES_NAME
+                    GC_TRNS_MAP( N_GC_TRNS ) = IGC
+                END IF
+                
+                ! Gas - Output Deposition Velocity
+                LDDEP = GET_LOGICAL_NML( GC_SPECIES_DATA( IGC )%DDEP_FLAG )
+                IF ( LDDEP ) THEN
+                    N_GC_DDEP = N_GC_DDEP + 1
+                    GC_DDEP( N_GC_DDEP )     = GC_SPECIES_DATA( IGC )%SPECIES_NAME
+                    GC_DDEP_MAP( N_GC_DDEP ) = IGC
+                END IF
+                
+                ! Gas - Output Wet Scavenging Flux
+                LWDEP = GET_LOGICAL_NML( GC_SPECIES_DATA( IGC )%WDEP_FLAG )
+                IF ( LWDEP ) THEN
+                    N_GC_WDEP = N_GC_WDEP + 1
+                    GC_WDEP( N_GC_WDEP )     = GC_SPECIES_DATA( IGC )%SPECIES_NAME
+                    GC_WDEP_MAP( N_GC_WDEP ) = IGC
+                END IF
+                
+                ! Gas - Output Concentration Field
+                LCONC = GET_LOGICAL_NML( GC_SPECIES_DATA( IGC )%CONC_FLAG )
+                IF ( LCONC ) THEN
+                    N_GC_CONC = N_GC_CONC + 1
+                    GC_CONC( N_GC_CONC )     = GC_SPECIES_DATA( IGC )%SPECIES_NAME
+                    GC_CONC_MAP( N_GC_CONC ) = IGC
+                END IF
                 
             END DO
 
@@ -338,6 +439,7 @@ c-------------------------------------------------------------------------------
             AE_SPECIES_DATA%IC_FAC = 0.
             AE_SPECIES_DATA%BC_SURR = ''
             AE_SPECIES_DATA%BC_FAC = 0.
+            AE_SPECIES_DATA%OPTICS_SURR = ''
             AE_SPECIES_DATA%DEPV_SURR = ''
             AE_SPECIES_DATA%DEPV_FAC = 0.
             AE_SPECIES_DATA%SCAV_SURR = ''
@@ -348,23 +450,32 @@ c-------------------------------------------------------------------------------
             AE_SPECIES_DATA%WDEP_FLAG = ''
             AE_SPECIES_DATA%CONC_FLAG = ''
                                                                                              
-
-            call value_name( ae_matrix, eqname )
-
-            write( logdev,* ) ' '
+#ifdef CHEMMECH
+            call value_name( ae_matrix, eqname )                                                                                                 
             write( logdev,* ) '    AE Species Namelist: ', trim( eqname )
-
-!           open( file = 'ae_matrix.nml', unit = dev_ae_nml,
+            dev_ae_nml = junit()                                                             
+            open( file = trim( eqname ), unit = dev_ae_nml,                             
+     &            status = 'old', position = 'rewind' )                                      
+#else                                                                                             
             dev_ae_nml = junit()
-            open( file = trim( eqname ), unit = dev_ae_nml,
+            open( file = trim( ae_namelist ), unit = dev_ae_nml,
      &            status = 'old', position = 'rewind' )
-            read( nml = AE_nml, unit = dev_ae_nml ) 
+#endif                                                      
+            read( nml = AE_nml, unit = dev_ae_nml )
 
             ! Determine Number of Gas Species
             N_AE_SPC = 0
             DO IAE = 1,SPC_DIM
                 IF ( AE_SPECIES_DATA( IAE )%SPECIES_NAME .EQ. '' ) EXIT
                 N_AE_SPC = IAE
+                IF ( AE_SPECIES_DATA( IAE )%IC_FAC .EQ. -1. )
+     &               AE_SPECIES_DATA( IAE )%IC_FAC = 0.
+                IF ( AE_SPECIES_DATA( IAE )%BC_FAC .EQ. -1. )
+     &               AE_SPECIES_DATA( IAE )%BC_FAC = 0.
+                IF ( AE_SPECIES_DATA( IAE )%DEPV_FAC .EQ. -1. )
+     &               AE_SPECIES_DATA( IAE )%DEPV_FAC = 0.
+                IF ( AE_SPECIES_DATA( IAE )%SCAV_FAC .EQ. -1. )
+     &               AE_SPECIES_DATA( IAE )%SCAV_FAC = 0.
             END DO
 
             ! Allocate and Initialize Permanent Variables
@@ -372,6 +483,7 @@ c-------------------------------------------------------------------------------
      &      ae_spc( n_ae_spc ), ae_molwt( n_ae_spc ),
      &      ae_ic( n_ae_spc ),   ae_ic_map( n_ae_spc ),   ae_ic_fac( n_ae_spc ),
      &      ae_bc( n_ae_spc ),   ae_bc_map( n_ae_spc ),   ae_bc_fac( n_ae_spc ),
+     &      ae_optics( n_ae_spc ),
      &      ae_depv( n_ae_spc ), ae_depv_map( n_ae_spc ), ae_depv_fac( n_ae_spc ),
      &      ae_scav( n_ae_spc ), ae_scav_map( n_ae_spc ), ae_scav_fac( n_ae_spc ),
      &      ae_a2aq( n_ae_spc ), ae_a2aq_map( n_ae_spc ),
@@ -382,6 +494,7 @@ c-------------------------------------------------------------------------------
      &      stat = ios )
 
             ae_spc = bl; ae_molwt = 0.0                        !  .
+            ae_optics = bl
             ae_ic = bl;   ae_ic_map = 0;   ae_ic_fac = 0.0     !  .
             ae_bc = bl;   ae_bc_map = 0;   ae_bc_fac = 0.0     !  .
             ae_depv = bl; ae_depv_map = 0; ae_depv_fac = 0.0   !  .
@@ -393,7 +506,7 @@ c-------------------------------------------------------------------------------
             ae_conc = bl; ae_conc_map = 0                      !  .
 
             ! Pass Data from AE Namelist to Internal Variables
-            N_AE_IC = 0; N_AE_BC = 0; N_AE_DEPV = 0; N_AE_SCAV = 0
+            N_AE_OPTICS = 0;N_AE_IC = 0; N_AE_BC = 0; N_AE_DEPV = 0; N_AE_SCAV = 0
             N_AE_A2AQ = 0; N_AE_TRNS = 0; N_AE_DDEP = 0; N_AE_WDEP = 0
             N_AE_CONC = 0
 
@@ -401,6 +514,86 @@ c-------------------------------------------------------------------------------
 
                 AE_SPC( IAE )      = AE_SPECIES_DATA( IAE )%SPECIES_NAME
                 AE_MOLWT( IAE )    = AE_SPECIES_DATA( IAE )%MOLWT
+
+                ! Aerosol ICs
+                IF ( AE_SPECIES_DATA( IAE )%IC_SURR .NE. '' ) THEN
+                    N_AE_IC = N_AE_IC + 1
+                    AE_IC( N_AE_IC )     = AE_SPECIES_DATA( IAE )%IC_SURR 
+                    AE_IC_MAP( N_AE_IC ) = IAE
+                    AE_IC_FAC( N_AE_IC ) = AE_SPECIES_DATA( IAE )%IC_FAC
+                END IF
+
+                ! Aerosol BCs
+                IF ( AE_SPECIES_DATA( IAE )%BC_SURR .NE. '' ) THEN
+                    N_AE_BC = N_AE_BC + 1
+                    AE_BC( N_AE_BC )     = AE_SPECIES_DATA( IAE )%BC_SURR 
+                    AE_BC_MAP( N_AE_BC ) = IAE
+                    AE_BC_FAC( N_AE_BC ) = AE_SPECIES_DATA( IAE )%BC_FAC
+                END IF
+
+                ! Aerosol Refractive Indices, blank if using default values in AERO_DATA module
+                IF ( AE_SPECIES_DATA( IAE )%OPTICS_SURR .NE. '' ) THEN
+                    N_AE_OPTICS = N_AE_OPTICS + 1
+                    AE_OPTICS( IAE ) = AE_SPECIES_DATA( IAE )%OPTICS_SURR
+                END IF 
+!               write(logdev,'(i3,1x,A16,1x,a16,1x,a16,1x,i2)')iae,AE_SPC( IAE ),AE_SPECIES_DATA( IAE )%OPTICS_SURR, 
+!    &                AE_OPTICS( IAE ), LEN_TRIM( AE_OPTICS( IAE ) )
+                
+                
+                ! Aerosol Dry Deposition Surrogates
+                IF ( AE_SPECIES_DATA( IAE )%DEPV_SURR .NE. '' ) THEN
+                    N_AE_DEPV = N_AE_DEPV + 1
+                    AE_DEPV( N_AE_DEPV )     = AE_SPECIES_DATA( IAE )%DEPV_SURR 
+                    AE_DEPV_MAP( N_AE_DEPV ) = IAE
+                    AE_DEPV_FAC( N_AE_DEPV ) = AE_SPECIES_DATA( IAE )%DEPV_FAC
+                END IF
+                 
+                ! Aerosol Wet Scavenging Surrogates
+                IF ( AE_SPECIES_DATA( IAE )%SCAV_SURR .NE. '' ) THEN
+                    N_AE_SCAV = N_AE_SCAV + 1
+                    AE_SCAV( N_AE_SCAV )     = AE_SPECIES_DATA( IAE )%SCAV_SURR 
+                    AE_SCAV_MAP( N_AE_SCAV ) = IAE
+                    AE_SCAV_FAC( N_AE_SCAV ) = AE_SPECIES_DATA( IAE )%SCAV_FAC
+                END IF
+                
+                ! Aerosol -to-Cloud Chemistry Surrogates
+                IF ( AE_SPECIES_DATA( IAE )%CLOUD_SURR .NE. '' ) THEN
+                    N_AE_A2AQ = N_AE_A2AQ + 1
+                    AE_A2AQ( N_AE_A2AQ )     = AE_SPECIES_DATA( IAE )%CLOUD_SURR 
+                    AE_A2AQ_MAP( N_AE_A2AQ ) = IAE
+                END IF
+                
+                ! Aerosol - Perform Transport
+                LTRNS = GET_LOGICAL_NML( AE_SPECIES_DATA( IAE )%TRNS_FLAG )
+                IF ( LTRNS ) THEN
+                    N_AE_TRNS = N_AE_TRNS + 1
+                    AE_TRNS( N_AE_TRNS )     = AE_SPECIES_DATA( IAE )%SPECIES_NAME
+                    AE_TRNS_MAP( N_AE_TRNS ) = IAE
+                END IF
+                
+                ! Aerosol - Output Deposition Velocity
+                LDDEP = GET_LOGICAL_NML( AE_SPECIES_DATA( IAE )%DDEP_FLAG )
+                IF ( LDDEP ) THEN
+                    N_AE_DDEP = N_AE_DDEP + 1
+                    AE_DDEP( N_AE_DDEP )     = AE_SPECIES_DATA( IAE )%SPECIES_NAME
+                    AE_DDEP_MAP( N_AE_DDEP ) = IAE
+                END IF
+                
+                ! Aerosol - Output Wet Scavenging Flux
+                LWDEP = GET_LOGICAL_NML( AE_SPECIES_DATA( IAE )%WDEP_FLAG )
+                IF ( LWDEP ) THEN
+                    N_AE_WDEP = N_AE_WDEP + 1
+                    AE_WDEP( N_AE_WDEP )     = AE_SPECIES_DATA( IAE )%SPECIES_NAME
+                    AE_WDEP_MAP( N_AE_WDEP ) = IAE
+                END IF
+                
+                ! Aerosol - Output Concentration Field
+                LCONC = GET_LOGICAL_NML( AE_SPECIES_DATA( IAE )%CONC_FLAG )
+                IF ( LCONC ) THEN
+                    N_AE_CONC = N_AE_CONC + 1
+                    AE_CONC( N_AE_CONC )     = AE_SPECIES_DATA( IAE )%SPECIES_NAME
+                    AE_CONC_MAP( N_AE_CONC ) = IAE
+                END IF
                 
             END DO
 
@@ -428,22 +621,33 @@ c-------------------------------------------------------------------------------
             NR_SPECIES_DATA%WDEP_FLAG = ''
             NR_SPECIES_DATA%CONC_FLAG = ''
 
+#ifdef CHEMMECH
             call value_name( nr_matrix, eqname )
-
+            write( logdev,* ) '    NR Species Namelist: ', trim( eqname )            
             write( logdev,* ) ' '
-            write( logdev,* ) '    NR Species Namelist: ', trim( eqname )
-
-!           open( file = 'nr_matrix.nml', unit = dev_nr_nml,
-            dev_nr_nml = junit()
+            dev_nr_nml = junit()        
             open( file = trim( eqname ), unit = dev_nr_nml,
      &            status = 'old', position = 'rewind' )
-            read( nml = NR_nml, unit = dev_nr_nml ) 
-           
+#else
+            dev_nr_nml = junit()
+            open( file = trim( nr_namelist ), unit = dev_nr_nml,
+     &            status = 'old', position = 'rewind' )
+#endif           
+            read( nml = NR_nml, unit = dev_nr_nml )
+
             ! Determine Number of Gas Species
             N_NR_SPC = 0
             DO INR = 1,SPC_DIM
                 IF ( NR_SPECIES_DATA( INR )%SPECIES_NAME .EQ. '' ) EXIT
                 N_NR_SPC = INR
+                IF ( NR_SPECIES_DATA( INR )%IC_FAC .EQ. -1. )
+     &               NR_SPECIES_DATA( INR )%IC_FAC = 0.
+                IF ( NR_SPECIES_DATA( INR )%BC_FAC .EQ. -1. )
+     &               NR_SPECIES_DATA( INR )%BC_FAC = 0.
+                IF ( NR_SPECIES_DATA( INR )%DEPV_FAC .EQ. -1. )
+     &               NR_SPECIES_DATA( INR )%DEPV_FAC = 0.
+                IF ( NR_SPECIES_DATA( INR )%SCAV_FAC .EQ. -1. )
+     &               NR_SPECIES_DATA( INR )%SCAV_FAC = 0.
             END DO
 
             ! Allocate and Initialize Permanent Variables
@@ -482,6 +686,84 @@ c-------------------------------------------------------------------------------
 
                 NR_SPC( INR )      = NR_SPECIES_DATA( INR )%SPECIES_NAME
                 NR_MOLWT( INR )    = NR_SPECIES_DATA( INR )%MOLWT
+
+                ! Nonreactive ICs
+                IF ( NR_SPECIES_DATA( INR )%IC_SURR .NE. '' ) THEN
+                    N_NR_IC = N_NR_IC + 1
+                    NR_IC( N_NR_IC )     = NR_SPECIES_DATA( INR )%IC_SURR 
+                    NR_IC_MAP( N_NR_IC ) = INR
+                    NR_IC_FAC( N_NR_IC ) = NR_SPECIES_DATA( INR )%IC_FAC
+                END IF
+
+                ! Nonreactive BCs
+                IF ( NR_SPECIES_DATA( INR )%BC_SURR .NE. '' ) THEN
+                    N_NR_BC = N_NR_BC + 1
+                    NR_BC( N_NR_BC )     = NR_SPECIES_DATA( INR )%BC_SURR 
+                    NR_BC_MAP( N_NR_BC ) = INR
+                    NR_BC_FAC( N_NR_BC ) = NR_SPECIES_DATA( INR )%BC_FAC
+                END IF
+                
+                ! Nonreactive Dry Deposition Surrogates
+                IF ( NR_SPECIES_DATA( INR )%DEPV_SURR .NE. '' ) THEN
+                    N_NR_DEPV = N_NR_DEPV + 1
+                    NR_DEPV( N_NR_DEPV )     = NR_SPECIES_DATA( INR )%DEPV_SURR 
+                    NR_DEPV_MAP( N_NR_DEPV ) = INR
+                    NR_DEPV_FAC( N_NR_DEPV ) = NR_SPECIES_DATA( INR )%DEPV_FAC
+                END IF
+                 
+                ! Nonreactive Wet Scavenging Surrogates
+                IF ( NR_SPECIES_DATA( INR )%SCAV_SURR .NE. '' ) THEN
+                    N_NR_SCAV = N_NR_SCAV + 1
+                    NR_SCAV( N_NR_SCAV )     = NR_SPECIES_DATA( INR )%SCAV_SURR 
+                    NR_SCAV_MAP( N_NR_SCAV ) = INR
+                    NR_SCAV_FAC( N_NR_SCAV ) = NR_SPECIES_DATA( INR )%SCAV_FAC
+                END IF
+ 
+                ! Nonreactive -to-Aerosol Module Surrogates
+                IF ( NR_SPECIES_DATA( INR )%AERO_SURR .NE. '' ) THEN
+                    N_NR_N2AE = N_NR_N2AE + 1
+                    NR_N2AE( N_NR_N2AE )     = NR_SPECIES_DATA( INR )%AERO_SURR 
+                    NR_N2AE_MAP( N_NR_N2AE ) = INR
+                END IF
+                
+                ! Nonreactive -to-Cloud Chemistry Surrogates
+                IF ( NR_SPECIES_DATA( INR )%CLOUD_SURR .NE. '' ) THEN
+                    N_NR_N2AQ = N_NR_N2AQ + 1
+                    NR_N2AQ( N_NR_N2AQ )     = NR_SPECIES_DATA( INR )%CLOUD_SURR 
+                    NR_N2AQ_MAP( N_NR_N2AQ ) = INR
+                END IF
+                
+                ! Nonreactive - Perform Transport
+                LTRNS = GET_LOGICAL_NML( NR_SPECIES_DATA( INR )%TRNS_FLAG )
+                IF ( LTRNS ) THEN
+                    N_NR_TRNS = N_NR_TRNS + 1
+                    NR_TRNS( N_NR_TRNS )     = NR_SPECIES_DATA( INR )%SPECIES_NAME
+                    NR_TRNS_MAP( N_NR_TRNS ) = INR
+                END IF
+                
+                ! Nonreactive - Output Deposition Velocity
+                LDDEP = GET_LOGICAL_NML( NR_SPECIES_DATA( INR )%DDEP_FLAG )
+                IF ( LDDEP ) THEN
+                    N_NR_DDEP = N_NR_DDEP + 1
+                    NR_DDEP( N_NR_DDEP )     = NR_SPECIES_DATA( INR )%SPECIES_NAME
+                    NR_DDEP_MAP( N_NR_DDEP ) = INR
+                END IF
+                
+                ! Nonreactive - Output Wet Scavenging Flux
+                LWDEP = GET_LOGICAL_NML( NR_SPECIES_DATA( INR )%WDEP_FLAG )
+                IF ( LWDEP ) THEN
+                    N_NR_WDEP = N_NR_WDEP + 1
+                    NR_WDEP( N_NR_WDEP )     = NR_SPECIES_DATA( INR )%SPECIES_NAME
+                    NR_WDEP_MAP( N_NR_WDEP ) = INR
+                END IF
+                
+                ! Nonreactive - Output Concentration Field
+                LCONC = GET_LOGICAL_NML( NR_SPECIES_DATA( INR )%CONC_FLAG )
+                IF ( LCONC ) THEN
+                    N_NR_CONC = N_NR_CONC + 1
+                    NR_CONC( N_NR_CONC )     = NR_SPECIES_DATA( INR )%SPECIES_NAME
+                    NR_CONC_MAP( N_NR_CONC ) = INR
+                END IF
                 
             END DO
 
@@ -509,15 +791,18 @@ c-------------------------------------------------------------------------------
             TR_SPECIES_DATA%WDEP_FLAG = ''
             TR_SPECIES_DATA%CONC_FLAG = ''
 
+#ifdef CHEMMECH
             call value_name( tr_matrix, eqname )
-
+            write( logdev,* ) '    TR Species Namelist: ', trim( eqname )            
             write( logdev,* ) ' '
-            write( logdev,* ) '    TR Species Namelist: ', trim( eqname )
-
-!           open( file = 'tr_matrix.nml', unit = dev_tr_nml,
-            dev_tr_nml = junit()
+            dev_tr_nml = junit()        
             open( file = trim( eqname ), unit = dev_tr_nml,
      &            status = 'old', position = 'rewind' )
+#else
+            dev_tr_nml = junit()
+            open( file = trim( tr_namelist ), unit = dev_tr_nml,
+     &            status = 'old', position = 'rewind' )
+#endif
             read( nml = TR_nml, unit = dev_tr_nml )
 
             ! Determine Number of Gas Species
@@ -525,6 +810,14 @@ c-------------------------------------------------------------------------------
             DO ITR = 1,SPC_DIM
                 IF ( TR_SPECIES_DATA( ITR )%SPECIES_NAME .EQ. '' ) EXIT
                 N_TR_SPC = ITR
+                IF ( TR_SPECIES_DATA( ITR )%IC_FAC .EQ. -1. )
+     &               TR_SPECIES_DATA( ITR )%IC_FAC = 0.
+                IF ( TR_SPECIES_DATA( ITR )%BC_FAC .EQ. -1. )
+     &               TR_SPECIES_DATA( ITR )%BC_FAC = 0.
+                IF ( TR_SPECIES_DATA( ITR )%DEPV_FAC .EQ. -1. )
+     &               TR_SPECIES_DATA( ITR )%DEPV_FAC = 0.
+                IF ( TR_SPECIES_DATA( ITR )%SCAV_FAC .EQ. -1. )
+     &               TR_SPECIES_DATA( ITR )%SCAV_FAC = 0.
             END DO
 
             ! Allocate and Initialize Permanent Variables
@@ -558,13 +851,99 @@ c-------------------------------------------------------------------------------
 
             ! Pass Data from TR Namelist to Internal Variables
             N_TR_IC = 0; N_TR_BC = 0; N_TR_DEPV = 0; N_TR_SCAV = 0
-            N_TR_T2AE = 0; N_TR_T2AQ = 0; N_TR_ADV = 0; N_TR_DDEP = 0; N_TR_WDEP = 0
+            N_TR_T2AE = 0; N_TR_T2AQ = 0; N_TR_ADV = 0;  N_TR_DDEP = 0; N_TR_WDEP = 0
             N_TR_CONC = 0; N_TR_DIFF = 0
 
             DO ITR = 1,N_TR_SPC
 
                 TR_SPC( ITR )      = TR_SPECIES_DATA( ITR )%SPECIES_NAME
                 TR_MOLWT( ITR )    = TR_SPECIES_DATA( ITR )%MOLWT
+
+                ! Tracer IC
+                IF ( TR_SPECIES_DATA( ITR )%IC_SURR .NE. '' ) THEN
+                    N_TR_IC = N_TR_IC + 1
+                    TR_IC( N_TR_IC )     = TR_SPECIES_DATA( ITR )%IC_SURR 
+                    TR_IC_MAP( N_TR_IC ) = ITR
+                    TR_IC_FAC( N_TR_IC ) = TR_SPECIES_DATA( ITR )%IC_FAC
+                END IF
+
+                ! Tracer BC
+                IF ( TR_SPECIES_DATA( ITR )%BC_SURR .NE. '' ) THEN
+                    N_TR_BC = N_TR_BC + 1
+                    TR_BC( N_TR_BC )     = TR_SPECIES_DATA( ITR )%BC_SURR 
+                    TR_BC_MAP( N_TR_BC ) = ITR
+                    TR_BC_FAC( N_TR_BC ) = TR_SPECIES_DATA( ITR )%BC_FAC
+                END IF
+                                
+                ! Tracer Dry Deposition Surrogates
+                IF ( TR_SPECIES_DATA( ITR )%DEPV_SURR .NE. '' ) THEN
+                    N_TR_DEPV = N_TR_DEPV + 1
+                    TR_DEPV( N_TR_DEPV )     = TR_SPECIES_DATA( ITR )%DEPV_SURR 
+                    TR_DEPV_MAP( N_TR_DEPV ) = ITR
+                    TR_DEPV_FAC( N_TR_DEPV ) = TR_SPECIES_DATA( ITR )%DEPV_FAC
+                END IF
+                 
+                ! Tracer Wet Scavenging Surrogates
+                IF ( TR_SPECIES_DATA( ITR )%SCAV_SURR .NE. '' ) THEN
+                    N_TR_SCAV = N_TR_SCAV + 1
+                    TR_SCAV( N_TR_SCAV )     = TR_SPECIES_DATA( ITR )%SCAV_SURR 
+                    TR_SCAV_MAP( N_TR_SCAV ) = ITR
+                    TR_SCAV_FAC( N_TR_SCAV ) = TR_SPECIES_DATA( ITR )%SCAV_FAC
+                END IF
+ 
+                ! Tracer -to-Aerosol Module Surrogates
+                IF ( TR_SPECIES_DATA( ITR )%AERO_SURR .NE. '' ) THEN
+                    N_TR_T2AE = N_TR_T2AE + 1
+                    TR_T2AE( N_TR_T2AE )     = TR_SPECIES_DATA( ITR )%AERO_SURR 
+                    TR_T2AE_MAP( N_TR_T2AE ) = ITR
+                END IF
+                
+                ! Tracer -to-Cloud Chemistry Surrogates
+                IF ( TR_SPECIES_DATA( ITR )%CLOUD_SURR .NE. '' ) THEN
+                    N_TR_T2AQ = N_TR_T2AQ + 1
+                    TR_T2AQ( N_TR_T2AQ )     = TR_SPECIES_DATA( ITR )%CLOUD_SURR 
+                    TR_T2AQ_MAP( N_TR_T2AQ ) = ITR
+                END IF
+                
+                ! Tracer - Perform Advection?
+                LADVC = GET_LOGICAL_NML( TR_SPECIES_DATA( ITR )%ADVC_FLAG )
+                IF ( LADVC ) THEN
+                    N_TR_ADV = N_TR_ADV + 1
+                    TR_ADV( N_TR_ADV )     = TR_SPECIES_DATA( ITR )%SPECIES_NAME
+                    TR_ADV_MAP( N_TR_ADV ) = ITR
+                END IF
+                
+                ! Tracer - Perform Dispersion (i.e. Diffusion)?
+                LDIFF = GET_LOGICAL_NML( TR_SPECIES_DATA( ITR )%DIFF_FLAG )
+                IF ( LDIFF ) THEN
+                    N_TR_DIFF = N_TR_DIFF + 1
+                    TR_DIFF( N_TR_DIFF )     = TR_SPECIES_DATA( ITR )%SPECIES_NAME
+                    TR_DIFF_MAP( N_TR_DIFF ) = ITR
+                END IF
+                
+                ! Tracer - Output Deposition Velocity
+                LDDEP = GET_LOGICAL_NML( TR_SPECIES_DATA( ITR )%DDEP_FLAG )
+                IF ( LDDEP ) THEN
+                    N_TR_DDEP = N_TR_DDEP + 1
+                    TR_DDEP( N_TR_DDEP )     = TR_SPECIES_DATA( ITR )%SPECIES_NAME
+                    TR_DDEP_MAP( N_TR_DDEP ) = ITR
+                END IF
+                
+                ! Tracer - Output Wet Scavenging Flux
+                LWDEP = GET_LOGICAL_NML( TR_SPECIES_DATA( ITR )%WDEP_FLAG )
+                IF ( LWDEP ) THEN
+                    N_TR_WDEP = N_TR_WDEP + 1
+                    TR_WDEP( N_TR_WDEP )     = TR_SPECIES_DATA( ITR )%SPECIES_NAME
+                    TR_WDEP_MAP( N_TR_WDEP ) = ITR
+                END IF
+                
+                ! Tracer - Output Concentration Field
+                LCONC = GET_LOGICAL_NML( TR_SPECIES_DATA( ITR )%CONC_FLAG )
+                IF ( LCONC ) THEN
+                    N_TR_CONC = N_TR_CONC + 1
+                    TR_CONC( N_TR_CONC )     = TR_SPECIES_DATA( ITR )%SPECIES_NAME
+                    TR_CONC_MAP( N_TR_CONC ) = ITR
+                END IF
                 
             END DO
 
@@ -622,107 +1001,107 @@ c-------------------------------------------------------------------------------
                 CGRID_MASK_TRAC( IGRID )   = .TRUE.
             END DO
 
-            allocate ( cgrid_spc( nspcsd - 1 ), nml_spc( nspcsd - 1 ), 
-     &                 nml_index( nspcsd - 1 ), nml_type( nspcsd - 1 ), 
-     &                 nml_molwt( nspcsd - 1 ), type_index( nspcsd - 1 ),
-     &                 nml_convert( nspcsd - 1 ), stat = ios )
-           
-            allocate ( species_molwt( nspcsd - 1 ), convert_conc( nspcsd - 1 ), stat = ios )
-
-     
-            j = 0
-            cgrid_spc  = 'BLANK'
-            nml_index  = -1
-            type_index = -1
-            nml_type   = '??'
-            nml_molwt  = -1.0
-            convert_conc = .False.
-            
-            do i = 1, n_gc_spc ! load GC names and indices 
-               j = j + 1
-               cgrid_spc( i )   = gc_spc( i )
-               nml_index( j )  = i + gc_strt -1
-               type_index( j ) = i
-               nml_type( j )   = 'GC'
-               nml_molwt( j ) = gc_molwt( i )
-            end do  
-
-            do i = 1, n_ae_spc ! load AE names and indices 
-               j = j + 1
-               cgrid_spc( j )    = ae_spc( i )
-               nml_index( j )    = i + ae_strt - 1
-               nml_type( j )     = 'AE'
-               type_index( j )   = i
-               nml_molwt( j )    = ae_molwt( i )
-               nml_convert( j )  = .True.
-!              convert_conc( j ) = .True.
-            end do  
-
-            do i = 1, n_nr_spc ! load NR names and indices 
-               j = j + 1
-               cgrid_spc( j )   = nr_spc( i )
-               nml_index( j )   = i + nr_strt - 1
-               nml_type( j )    = 'NR'
-               type_index( j )  = i
-               nml_molwt( j ) = nr_molwt( i )
-            end do  
-
-            do i = 1, n_tr_spc ! load TR names and indices 
-               j = j + 1
-               cgrid_spc( j )   = tr_spc( i )
-               nml_index( j )   = i + tr_strt - 1
-               nml_type( j )    = 'TR'
-               type_index( j )  = i
-               nml_molwt( j )   = tr_molwt( i )
-            end do  
-
-            nml_spc( 1:(nspcsd-1) ) = cgrid_spc( 1:(nspcsd-1) )
-            
-            
-C determine if mechanism species are in cgrid species            
-
-            do i = 1, numb_mech_spcs
-               i1 = index1a( mechanism_spc( i ), (nspcsd-1), cgrid_spc )
-               if ( i1 .lt. 1 ) then
-                  found = .false.
-               else
-                  found = .true.
-                  cgrid_index( i )   = nml_index( i1 )
-                  species_type( i )  = nml_type ( i1 )
-                  species_molwt( i ) = nml_molwt( i1 )
-                  convert_conc( i )  = nml_convert( i1 )
-!                 if(   Trim( species_type( i ) ) .eq. 'AE' )then
-!                       convert_conc( i ) = .True.
-!                 else
-!                       convert_conc( i ) = .False.
-!                 end if
+#ifdef CHEMMECH
+            allocate ( cgrid_spc( nspcsd - 1 ), nml_spc( nspcsd - 1 ),                                       
+     &                 nml_index( nspcsd - 1 ), nml_type( nspcsd - 1 ),                                      
+     &                 nml_molwt( nspcsd - 1 ), type_index( nspcsd - 1 ),                                    
+     &                 nml_convert( nspcsd - 1 ), stat = ios )                                               
+                                                                                                             
+            allocate ( species_molwt( nspcsd - 1 ), convert_conc( nspcsd - 1 ), stat = ios )                 
+                                                                                                             
+                                                                                                             
+            j = 0                                                                                            
+            cgrid_spc  = 'BLANK'                                                                             
+            nml_index  = -1                                                                                  
+            type_index = -1                                                                                  
+            nml_type   = '??'                                                                                
+            nml_molwt  = -1.0                                                                                
+            convert_conc = .False.                                                                           
+                                                                                                             
+            do i = 1, n_gc_spc ! load GC names and indices                                                   
+               j = j + 1                                                                                     
+               cgrid_spc( i )   = gc_spc( i )                                                                
+               nml_index( j )  = i + gc_strt -1                                                              
+               type_index( j ) = i                                                                           
+               nml_type( j )   = 'GC'                                                                        
+               nml_molwt( j ) = gc_molwt( i )                                                                
+            end do                                                                                           
+                                                                                                             
+            do i = 1, n_ae_spc ! load AE names and indices                                                   
+               j = j + 1                                                                                     
+               cgrid_spc( j )    = ae_spc( i )                                                               
+               nml_index( j )    = i + ae_strt - 1                                                           
+               nml_type( j )     = 'AE'                                                                      
+               type_index( j )   = i                                                                         
+               nml_molwt( j )    = ae_molwt( i )                                                             
+               nml_convert( j )  = .True.                                                                    
+!              convert_conc( j ) = .True.                                                                    
+            end do                                                                                           
+                                                                                                             
+            do i = 1, n_nr_spc ! load NR names and indices                                                   
+               j = j + 1                                                                                     
+               cgrid_spc( j )   = nr_spc( i )                                                                
+               nml_index( j )   = i + nr_strt - 1                                                            
+               nml_type( j )    = 'NR'                                                                       
+               type_index( j )  = i                                                                          
+               nml_molwt( j ) = nr_molwt( i )                                                                
+            end do                                                                                           
+                                                                                                             
+            do i = 1, n_tr_spc ! load TR names and indices                                                   
+               j = j + 1                                                                                     
+               cgrid_spc( j )   = tr_spc( i )                                                                
+               nml_index( j )   = i + tr_strt - 1                                                            
+               nml_type( j )    = 'TR'                                                                       
+               type_index( j )  = i                                                                          
+               nml_molwt( j )   = tr_molwt( i )                                                              
+            end do                                                                                           
+                                                                                                             
+            nml_spc( 1:(nspcsd-1) ) = cgrid_spc( 1:(nspcsd-1) )                                              
+                                                                                                             
+                                                                                                             
+C determine if mechanism species are in cgrid species                                                        
+                                                                                                             
+            do i = 1, numb_mech_spcs                                                                         
+               i1 = index1a( mechanism_spc( i ), (nspcsd-1), cgrid_spc )                                     
+               if ( i1 .lt. 1 ) then                                                                         
+                  found = .false.                                                                            
+               else                                                                                          
+                  found = .true.                                                                             
+                  cgrid_index( i )   = nml_index( i1 )                                                       
+                  species_type( i )  = nml_type ( i1 )                                                       
+                  species_molwt( i ) = nml_molwt( i1 )                                                       
+                  convert_conc( i )  = nml_convert( i1 )                                                     
+!                 if(   Trim( species_type( i ) ) .eq. 'AE' )then                                            
+!                       convert_conc( i ) = .True.                                                           
+!                 else                                                                                       
+!                       convert_conc( i ) = .False.                                                          
+!                 end if                                                                                     
 !                 print*,' i, mechanism_spc( i ),species_type( i ),convert_conc( i ): ',i,mechanism_spc( i ),
-!    &            species_type( i ),convert_conc( i )
-               end if
-               if( index( mechanism_spc( i ), 'SRF') .gt. 0 )then
-                   found = .false.
-                   xmsg = '*** reactions cannot use modal aerosol surface area as species'
-                   write( logdev,'( /5x, a )' ) trim( xmsg )
-                   xmsg = trim( mechanism_spc( i ) )
-                   write( logdev,'( 9x, i4, 2x, a )' ) i, trim( xmsg )
-               end if
-               if( index( mechanism_spc( i ), 'NUM') .gt. 0 )then
-                   found = .false.
-                   xmsg = '*** reactions cannot use modal aerosol number density as species'
-                   write( logdev,'( /5x, a )' ) trim( xmsg )
-                   xmsg = trim( mechanism_spc( i ) )
-                   write( logdev,'( 9x, i4, 2x, a )' ) i, trim( xmsg )
-               end if
-               if ( .Not. found ) then
-                  xmsg = 'Fatal error: Mechanism Species found not in species namelist:'
-                  write( logdev,'( /5x, a )', ADVANCE = 'NO' ) trim( xmsg )
-                  xmsg = trim( mechanism_spc( i ) )
-                  write( logdev,'( 9x, i4, 2x, a )' ) i, trim( xmsg )
-                  success = found
-               end if
-            end do
-
-
+!    &            species_type( i ),convert_conc( i )                                                        
+               end if                                                                                        
+               if( index( mechanism_spc( i ), 'SRF') .gt. 0 )then                                            
+                   found = .false.                                                                           
+                   xmsg = '*** reactions cannot use modal aerosol surface area as species'                   
+                   write( logdev,'( /5x, a )' ) trim( xmsg )                                                 
+                   xmsg = trim( mechanism_spc( i ) )                                                         
+                   write( logdev,'( 9x, i4, 2x, a )' ) i, trim( xmsg )                                       
+               end if                                                                                        
+               if( index( mechanism_spc( i ), 'NUM') .gt. 0 )then                                            
+                   found = .false.                                                                           
+                   xmsg = '*** reactions cannot use modal aerosol number density as species'                 
+                   write( logdev,'( /5x, a )' ) trim( xmsg )                                                 
+                   xmsg = trim( mechanism_spc( i ) )                                                         
+                   write( logdev,'( 9x, i4, 2x, a )' ) i, trim( xmsg )                                       
+               end if                                                                                        
+               if ( .Not. found ) then                                                                       
+                  xmsg = 'Fatal error: Mechanism Species found not in species namelist:'                     
+                  write( logdev,'( /5x, a )', ADVANCE = 'NO' ) trim( xmsg )                                  
+                  xmsg = trim( mechanism_spc( i ) )                                                          
+                  write( logdev,'( 9x, i4, 2x, a )' ) i, trim( xmsg )                                        
+                  success = found                                                                            
+               end if                                                                                        
+            end do                                                                                           
+#endif
          return
 
          end function cgrid_spcs_init
@@ -759,7 +1138,6 @@ c 2) IC, BC, DEPV, SCAV  [any order]               <- surrogate type 1 (surr nam
 c 3) x2AE, x2AQ  [any order]                       <- surrogate type 2 (surr name only )
 c 4) DIFF, DDEP, WDEP, CONC  [any order]           <- control type
 
-            !use UTILIO_DEFN
 
             implicit none
 
@@ -909,7 +1287,7 @@ c-------------------------------------------------------------------------------
 
             integer, intent( in ) :: n
             integer, intent( in out ) :: ia( n )
-            character( * ), intent( inout ) :: aa( n )
+            character( * ), intent( in out ) :: aa( n )
             character( 8 ) :: at
             integer i, it
             logical :: no_swap

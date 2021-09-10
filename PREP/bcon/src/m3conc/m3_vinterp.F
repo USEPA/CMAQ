@@ -57,6 +57,8 @@ C                      eliminate malloc calls
 C    13 Jul 11 J.Young: Replaced I/O API include files with M3UTILIO
 C    23 May 12 J.Young: Replaced BC_PARMS include file with an F90 module
 C    10 June 19 F. Sidi: Commented out INTEGER STATUS unused variable
+C    20 April 21 C. Hogrefe: Force height or pressure interpolation if either 
+C                            grid uses hybrid vertical coordinates 
                     
 C*************************************************************************
 
@@ -207,6 +209,14 @@ C The following two lines are for testing only
          ELSE
             L_IDENTICAL  = .FALSE. 
          END IF
+	 
+C If either grid uses hybrid vertical coordinates, force height
+C or pressure vertical interpolation
+
+         IF ( ( VGTYP_GD . EQ. -9999 ) .OR. ( VGTYP3D . EQ. -9999 ) ) THEN
+            L_IDENTICAL  = .FALSE.
+            L_SAME_SCALE = .FALSE.
+         ENDIF
             
 C For same grids, simply report
          IF ( L_IDENTICAL ) THEN
@@ -250,7 +260,7 @@ C For different types, check for files
          ELSE
 
             IF ( .NOT. DESC3( MET_CRO_3D_CRS ) ) THEN
-               MSG = 'Could not read DESC of  ' // CTM_FL_NAME( 1 ) 
+               MSG = 'Could not read DESC of  ' // MET_CRO_3D_CRS 
      &            // ' file'
                CALL M3EXIT ( PNAME, JDATE, JTIME, MSG, XSTAT2 )
             END IF

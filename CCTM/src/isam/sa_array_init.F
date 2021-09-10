@@ -65,37 +65,15 @@ c.....update isam array according to isam ICON source tag
                                 !.....map N_SPC_ADV to the user-query species
         DO S = 1, NSPC_SA
 
-          N = SPC_INDEX( S, 1 )
-          IF( N .EQ. 1) THEN  ! query is for an original species, includes O3A 20130627
-            DO L = 1, NLAYS
-              DO R = 1, NROWS
-                DO C = 1, NCOLS
-                  ISAM(C,R,L,S,ICONTAG) = CGRID(C,R,L,SPC_INDEX(S,2))
-                END DO ! R
-              END DO ! C
-            END DO ! L
-          ELSEIF( N .EQ. -50) THEN  ! 50/50 for each of VOC- and NOx limited ozone
-            DO L = 1, NLAYS
-              DO R = 1, NROWS
-                DO C = 1, NCOLS
-                  ISAM(C,R,L,S,ICONTAG) = 0.5 * CGRID(C,R,L,SPC_INDEX(S,2))
-                END DO ! R
-              END DO ! C
-            END DO ! L
-          ELSEIF(N .NE. -1) THEN ! query is for constructed species
-            DO NSPC = 1, N
-              DO L = 1, NLAYS
-                DO R = 1, NROWS
-                  DO C = 1, NCOLS
-                    ISAM(C,R,L,S, ICONTAG) =
-     &                  ISAM(C,R,L,S, ICONTAG)+ CGRID(C,R,L,SPC_INDEX(S, 1+NSPC))
-                  END DO ! R
-                END DO ! C
-              END DO ! L
-            END DO ! NSPC of constructed species
-          END IF ! original species, or constructed species ?
-        END DO ! loop of isam species NSPC_SA
-
+          N = MAP_SAtoCGR( S )
+          DO L = 1, NLAYS
+            DO R = 1, NROWS
+              DO C = 1, NCOLS
+                ISAM(C,R,L,S,ICONTAG) = CGRID(C,R,L,N)
+              END DO ! R
+            END DO ! C
+          END DO ! L
+        END DO ! S
       ELSE
         ! Initialize ISAM array by isam output from previous day
         CALL CREATE_ICON( )
@@ -188,9 +166,9 @@ cyqwang...end
       JTIME = STIME3D
       NSPCTAG = NVARS3D
 
-Ckrt....assign spc_name( nspc_sa, ntag_sa ) to spcname1( nspc_sa )
+Ckrt....assign ISAM_SPEC( nspc_sa, ntag_sa ) to spcname1( nspc_sa )
       DO S = 1, NSPC_SA
-        SPCNAME1( S ) = SPC_NAME( S, NTAG_SA )
+        SPCNAME1( S ) = ISAM_SPEC( S, NTAG_SA )
       ENDDO ! s
 
 Ckrt allocate data-loading array 

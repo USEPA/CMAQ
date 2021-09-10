@@ -67,7 +67,7 @@ C-----------------------------------------------------------------------
 
 #ifdef isam
       USE SA_DEFN, ONLY: ISAM, NSPC_SA, N_SPCTAG, TOT_SADEP, CONV_SADEP,
-     &                   SPC_INDEX, VNAM_SPCTAG, NTAG_SA, S_SPCTAG, 
+     &                   MAP_SAtoCGR, VNAM_SPCTAG, NTAG_SA, S_SPCTAG, 
      &                   ITAG, T_SPCTAG
 #endif
 
@@ -372,7 +372,7 @@ C...convert units on cgrid and pass data to local cgrd array
 #ifdef isam
 c ISAM  unit conversion
       DO SPC = 1, NSPC_SA
-        VAR = SPC_INDEX(SPC,2)
+        VAR = MAP_SAtoCGR(SPC)
         IF ( VAR .LE. N_GC_SPC .OR. VAR .GE. NR_STRT ) THEN ! this is not an aerosol
           DO ITAG = 1, NTAG_SA
             DO LAY = 1, NLAYS
@@ -603,7 +603,7 @@ C...  convert to ppmV gas
 #ifdef isam
 c ISAM  unit conversion
       DO SPC = 1, NSPC_SA
-        VAR = SPC_INDEX(SPC,2)
+        VAR = MAP_SAtoCGR(SPC)
         IF ( VAR .LE. N_GC_SPC .OR. VAR .GE. NR_STRT ) THEN ! this is not an aerosol
           DO ITAG = 1, NTAG_SA
             DO LAY = 1, NLAYS
