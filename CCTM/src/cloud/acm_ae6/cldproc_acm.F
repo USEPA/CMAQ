@@ -575,11 +575,11 @@ C...  convert to ppmV gas
            IF ( CGRID_MASK_AERO( I ) .AND.
      &           .NOT. CGRID_MASK_NUM( I ) .AND.
      &           .NOT. CGRID_MASK_SRF( I )  ) THEN
-            FAC(:,:,LAY) = CNV1I * DENS( :,:,LAY )
-            CGRID( :,:,LAY,I ) = CGRD( :,:,LAY,I ) * FAC(:,:,LAY) * CGRID_MW( I )
+            FAC(:,:,LAY) = CNV1I * DENS( :,:,LAY ) * CGRID_MW( I )
+            CGRID( :,:,LAY,I ) = CGRD( :,:,LAY,I ) * FAC(:,:,LAY) 
 #ifdef sens
              DO NP = 1, NPMAX
-               SENGRID( :,:,LAY,NP,I ) = SENGRID( :,:,LAY,NP,I ) / FAC(:,:,LAY)
+               SENGRID( :,:,LAY,NP,I ) = SENGRID( :,:,LAY,NP,I ) * FAC(:,:,LAY)
              END DO
 #endif
            END IF
@@ -619,7 +619,6 @@ c ISAM  unit conversion
           END DO
         ELSE ! this is an aerosol
           DO ITAG = 1, NTAG_SA
-            FAC(:,:,:) = FAC1(:,:,:) * 1.0E-6 / AE_MOLWT( VAR - AE_STRT + 1 )
             DO LAY = 1, NLAYS
               DO ROW = 1, NROWS
                 DO COL = 1, NCOLS
