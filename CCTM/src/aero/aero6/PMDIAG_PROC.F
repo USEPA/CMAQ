@@ -1947,32 +1947,32 @@
           ISPEC = PMDIAG_COEFFS( IDG )%I_SPEC( IVAR )
           COEFF = PMDIAG_COEFFS( IDG )%COEFF( IVAR )
 
-          ! First check if this is a Precursor Gas
-          IF ( PMDIAG_COEFFS( IDG )%L_PREC( IVAR ) ) THEN
-              VAL = VAL + REAL( PRECURSOR_CONC( ISPEC ), 4) * COEFF
+          IF ( ISPEC .GT. 0 ) THEN
+             ! First check if this is a Precursor Gas
+             IF ( PMDIAG_COEFFS( IDG )%L_PREC( IVAR ) ) THEN
+                 VAL = VAL + REAL( PRECURSOR_CONC( ISPEC ), 4) * COEFF
           
-          ! Next check if this is a Gas from CGRID
-          ELSE IF  ( PMDIAG_COEFFS( IDG )%L_GAS( IVAR ) ) THEN
-              VAL = VAL + CONC_VEC( ISPEC ) * COEFF * AIRDENS
+             ! Next check if this is a Gas from CGRID
+             ELSE IF  ( PMDIAG_COEFFS( IDG )%L_GAS( IVAR ) ) THEN
+                 VAL = VAL + CONC_VEC( ISPEC ) * COEFF * AIRDENS
 
-          ! Next check for aggregate variable
-          ELSE IF  ( PMDIAG_COEFFS( IDG )%L_AGG( IVAR ) ) THEN
-              CALL CALC_PMDIAG( ISPEC, 1, VAL2 )
-              VAL = VAL + VAL2 * COEFF
+             ! Next check for aggregate variable
+             ELSE IF  ( PMDIAG_COEFFS( IDG )%L_AGG( IVAR ) ) THEN
+                 CALL CALC_PMDIAG( ISPEC, 1, VAL2 )
+                 VAL = VAL + VAL2 * COEFF
 
-          ! Add Aerosol Components
-          ELSE IF ( ISPEC .GT. 0 ) THEN
+             ! Add Aerosol Components
+             ELSE
+                 DO IM = 1,N_MODE
+                    ! If this mode is supposed to be added (LMODE) and the
+                    ! species is not missing, then add it up
+                    LMODE = PMDIAG_COEFFS( IDG )%L_MODE( IM )
+                    IF ( LMODE .AND. ( .NOT. AERO_MISSING( ISPEC,IM ) ) ) 
+     &                  VAL = VAL + AEROSPC_CONC( ISPEC, IM ) * COEFF * FRAC( IM )
 
-              DO IM = 1,N_MODE
-                 ! If this mode is supposed to be added (LMODE) and the
-                 ! species is not missing, then add it up
-                 LMODE = PMDIAG_COEFFS( IDG )%L_MODE( IM )
-                 IF ( LMODE .AND. ( .NOT. AERO_MISSING( ISPEC,IM ) ) ) 
-     &               VAL = VAL + AEROSPC_CONC( ISPEC, IM ) * COEFF * FRAC( IM )
-
-              END DO
+                 END DO
+             END IF
           END IF
-
       END DO 
 
       END SUBROUTINE CALC_PMDIAG_AGG

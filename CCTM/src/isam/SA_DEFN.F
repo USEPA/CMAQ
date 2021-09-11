@@ -677,7 +677,7 @@ c----------------------------------------------------------
 
         !RACM2_AE6_AQ
         ALLOCATE( ISAM_SPEC_HAPGAS( 7 )%LIST( 1 ) )
-        ISAM_SPEC_HAPGAS( 7 )%LIST = (/'DIENE       '/)
+        ISAM_SPEC_HAPGAS( 7 )%LIST = (/'DIEN        '/)
 
         !AEROSOL HAPS
         ALLOCATE( ISAM_SPEC_HAPAERO%LIST( 14 ) )
