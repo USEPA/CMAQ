@@ -1,5 +1,6 @@
- Ref. ind.  for ss am from OPAC (interp)
-Wvelen(um) Real Part  Imag Part
+SSAM_OPAC
+! Ref. ind.  for ss am from OPAC (interp)
+!Wvelen(um) Real Part  Imag Part
 2.0000E-01 0.1510E+01 0.5000E-05
 2.5000E-01 0.1510E+01 0.5000E-05
 3.0000E-01 0.1510E+01 0.5000E-05
