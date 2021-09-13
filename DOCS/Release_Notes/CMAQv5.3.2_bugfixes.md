@@ -165,7 +165,7 @@ Note: This issue was documented in v5.3.1 as **Known Issue CMAQv5.3.1-i6**.
 ### Solution in CMAQv5.3.2
 The variable names in the DRYDEP output file for ammonia when the M3dry bidirectional NH3 model is used were changed to be consistent with the current version of STAGE. There are 3 variables related to NH3: the dry deposition flux is in the variable named "NH3", the emission flux is in the variable "NH3_Emis", and the net flux is in the variable "NH3_Flux"
 
-See the [User's Guide Chapter 7](CMAQ_UG_ch07_model_outputs.md#nh3-flux-components-in-cctm_drydep) for additional information on the the NH3 flux components available in the CCTM_DRYDEP output file. 
+See the [User's Guide Chapter 7](../Users_Guide/CMAQ_UG_ch07_model_outputs.md#nh3-flux-components-in-cctm_drydep) for additional information on the the NH3 flux components available in the CCTM_DRYDEP output file. 
 
 ### Files Affected
 CCTM/src/vdiff/acm2_m3dry/VDIFF_MAP.F        

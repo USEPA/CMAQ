@@ -50,7 +50,7 @@ To use the utility follow the below instructions.
  |  Names | Definition | Notes or Recommeded Value |      
  |:-----|:-----|:------|     
  |  COMPILER        | FORTRAN compiler to building create_ebi | the utility's makefile, _src/inline_phot_preproc.makefile_, is step up for the Intel (INTEL), Portland Group (PGF90) and GCC gfortran (GFORT) compilers. If a separate compiler is to be used, the user has to modify the makefile to define the compiler and its compile flags, recommend including debugging flags| 
- |   GC_INC  | Full path to mechanism's RXNS_DATA_MODULE.F90 or mechanism include files | Produced by CHEMMECH utility | 
+ |   RXNS_DATA_SRC  | Full path to mechanism's RXNS_DATA_MODULE.F90 or mechanism include files | Produced by CHEMMECH utility | 
  |   USE_RXNS_MODULES  | whether FORTRAN 90 describe the photochemical mechanism | T if CMAQ v5.1 or higher but comment out if CMAQ v5.02 and lower |   
  |   WVL_AE_REFRAC  | Whether to include spectral values of refractive indices for aerosol species | T if CMAQ v5.1 or higher and  if CMAQ lower than version 5.1 |   
  |   SPLIT_OUTPUT   | whether optical and CSQY data written to two separate files | T if CMAQ v5.1 or higher and  if CMAQ lower than version 5.1 |   
@@ -59,17 +59,16 @@ To use the utility follow the below instructions.
  |   WVBIN_FILE | Full path to file defining the wavelength bins | ${CMAQ_REPO}/UTIL/inline_phot_preproc/flux_data/wavel-bins.dat |
  |   FLUX_FILE  | Full path to solar flux file used for averaging over the wavelength bins  |  ${CMAQ_REPO}/UTIL/inline_phot_preproc/flux_data/solar-p05nm-UCI.dat | 
  | CSQY_DATA_RAW | Path to directory with ASCII files containing cross-section and quantum yield versus wavelength for photolysis rates in the photochemical mechanism | ${CMAQ_REPO}/inline_phot_preproc/photolysis_CSQY_data; individual file names correspond to values of the PHOTAB array in the RXNS_DATA_MODULE.F90 file |  
- | MAX_NUMB_REFRACT | maximum number of aerosol refractive indices to be use | 6, the value can be greater than the actual number used  |
- | AE_REFRAC_LIST | Lists names of environment variable defining file paths to each aerosol refractive index | **"WATER SOLUTE DUST SEASALT SOOT"**<sup>1</sup>; in general "index<sub>1</sub> index<sub>2</sub> ... index<sub>n</sub>" where index<sub>i</sub> defines from 1 to a maxmim of MAX_NUMB_REFRACT file paths | 
- | WATER | Full path to file containing the refractive index for water | ${CMAQ_REPO}/water_clouds/inline_phot_preproc/water_refractive_index.dat, index<sub>1</sub> |
- | DUST | Full path to file containing the refractive index for insoluble mineral and unidentified aerosol material | ${CMAQ_REPO}/inline_phot_preproc/water_clouds/inso00, index<sub>2</sub> |
- | SOLUTE | Full path to file containing the refractive index for soluble inorganic aerosol material | ${CMAQ_REPO}/inline_phot_preproc/water_clouds/waso00, index<sub>3</sub> |
- | SOOT | Full path to file containing the refractive index for elemental carbon aerosol material | ${CMAQ_REPO}/inline_phot_preproc/water_clouds/soot00-two_way-Oct_21_2012, index<sub>4</sub> |
- | SEASALT | Full path to file containing the refractive index for sea spray material | ${CMAQ_REPO}/inline_phot_preproc/water_clouds/ssam00, index<sub>5</sub> |
+ | MAX_NUMB_REFRACT | maximum number of aerosol refractive indices to be use | 16, the value can be greater than the actual number used  |
+ | AE_REFRAC_LIST | Lists names of environment variable defining file paths to each aerosol refractive index | "index<sub>1</sub> index<sub>2</sub> ... index<sub>n</sub>" in general where index<sub>i</sub> defines from 1 to MAX_NUMB_REFRACT file paths. The current build-runscript use **"WATER SOLUTE DUST SEASALT SOOT ISOP_NOX ISOP_SOX LIMONENE_SOA APINENE_SOA NAPTH_SOA MXYL_HIGH_NOX MXYL_LOW_NOX TOLU_HIGH_NOX TOLU_LOW_NOX ORGCARB BIOMASS"** but can be changed. Read the section on aerosol refractive indices. | 
+ | index<sub>1</sub> | Full path to file containing the refractive index 1 | ${CMAQ_REPO}/inline_phot_preproc/refractive_indices/water_refractive_index.dat, WATER |
+ | index<sub>2</sub> | Full path to file containing the refractive index 2 | ${CMAQ_REPO}/inline_phot_preproc/inline_phot_preproc/refractive_indices/OPAC_water_clouds/inso00, DUST |
+ | index<sub>3</sub> | Full path to file containing the refractive index 3 | ${CMAQ_REPO}/inline_phot_preproc/inline_phot_preproc/refractive_indices/OPAC_water_clouds/waso00, SOLUTE |
+ | index<sub>n</sub> | Full path to file containing the refractive index n | ${CMAQ_REPO}/inline_phot_preproc/inline_phot_preproc/refractive_indicesadient_aerosol_refrac_indx/refract_biomass_new.txt, BIOMASS |
  |   OUT_DIR    | Full path to output directory | Value is the user's preference | 
  
- 1. CMAQ version 5.3 and lower are hardwired to use only these refractive indices based on information set in AERO_DATA.F. The model will read additional refractive indices but not use them.
-
+ 1. CMAQ version 5.32 and lower are hardwired to use only these refractive indices based on information set in AERO_DATA.F. Models higher than versions allows change default
+ value by change the _OPTICS_ entries in the aerosol species name list.
 
 <center> Table 2. INLINE_PHOT_PREPROC output files </center>
 
@@ -120,8 +119,78 @@ To make the CMAQ CCTM use a new CSQY_DATA_**mechanism**, modify the value of CSQ
 
 If an applications of inline_phot_preproc changes the N_WAVEBANDS_OUT from the standard value, 7, the CCTM run-script has use the new CSQY_DATA_**mechanism** and PHOT_OPTICS.dat files. 
 
+#### Aerosol Refractive Indices
+
+<center> Table 3. Aerosol Refractive defined in build-run script </center>
+
+The current build-run script uses Table 3's refractive indices. Their raw data files are located
+under the _refractive indices_ subdirectory. After processing this data, inline_phot_preproc
+writes results to the PHOT_OPTICS.dat file read by the CCTM model. A user may
+change refractive indices written to PHOT_OPTICS.dat by changing **AE_REFRAC_LIST** then setting
+new environment variables in the new list and/or by changing values of environment variables in
+the existing list. The _refractive indices_ subdirectory also contain data files that can be used.
+If a user wants to use their own data, the files have to use the same format as the current repository's files. 
+Note that wavelengths have to use nanometers as their units.
+
+ |  Names        | Definition or aerosol material | Source |      
+ |:--------------|:---------------------------------------------|:---------------------|     
+ | WATER         | water in the aqueous aerosol component       | Segelstein, D., 1981 |
+ | DUST          | insoluble mineral and unidentified material  | OPAC software package (M. Hess et. al, 1998) |     
+ | SOLUTE        | inorganic solutes in aqueous aerosol component such as SO<sub>4</sub>, NH<sub>4</sub>, NO<sub>3</sub> and CL ions | OPAC software package (M. Hess et. al, 1998) |
+ | SOOT          | insoluble elemental carbon | Chang,H & T.T. Charalmpopoulos (1990), Bond, T.C. & R.W. Bergstrom (2006), Personal Communication from Tami Bond.  |
+ | SEASALT       | material from sea spray    | OPAC software package (M. Hess et. al, 1998)        |
+ | ISOP_NOX      | organic material from isoprene oxidation and later reactions with NO<sub>x</sub> | Nakayama et. al (2018) |
+ | ISOP_SOX      | organic material from isoprene oxidation and later reactions with SO<sub>x</sub> | Nakayama et. al (2018) |
+ | LIMONENE_SOA  | organic material from limonene oxidation similar biogenic gases     | Lui et. al (2013)   |
+ | APINENE_SOA   | organic material from alpha-pinene oxidation similar biogenic gases | Lui et. al (2013)   |
+ | NAPTH_SOA     | organic material from polycyclic aromatic hydrocarbon oxidation     | Lambe et. al (2013) |
+ | MXYL_HIGH_NOX | organic material from xylenes oxidation under high NO<sub>x</sub>   | Lui et. al (2015)   |
+ | MXYL_LOW_NOX  | organic material from xylenes oxidation under low NO<sub>x</sub>    | Lui et. al (2015)   |
+ | TOLU_HIGH_NOX | organic material from toluene oxidation under high NO<sub>x</sub>   | Lui et. al (2015)   |
+ | TOLU_LOW_LOW  | organic material from toluene oxidation under low NO<sub>x</sub>    | Lui et. al (2015)   |
+ | ORGCARB       | general organic material                                            | Assembled from numerous sources by Adient review (McMeeking et. al, 2010) |
+ | BIOMASS       | organic material from biomass combustion                            | Assembled from numerous sources by Adient review (McMeeking et. al, 2010) |
 
 ### References 
 
+ADIENT database: http://www.met.rdg.ac.uk/~adient/refractiveindices.html, last accessed on January 22, 2021.
+
 Bian H. and Prather M. J. (2002). Fast-J2: Accurate Simulation of Stratospheric Photolysis in Global Chemical Models, J. Atmos. Chem., 41, 281-296. (Table I & II corrected, June 2008).
 
+Bond, T.C. (2012), personal communication.
+
+Bond, T.C. & R.W. Bergstrom (2006) Light absorption by
+Carbonaceous Particles: An investigative review,
+Aerosol Science and Technology. Vol. 40. pp 27-67
+
+Chang,H and T.T. Charalmpopoulos (1990) Determination of the
+wavelength dependence of refractive indices of flame soot,
+Proceeding of the Royal Society of London A, Vol. 430, pp 577-591.
+
+Hess M., Koepke P., and I. (1998): Optical Properties of Aerosols and clouds: The software package OPAC, Bull. Am. Met. Soc., 79, 831-844.
+
+Andrew T. Lambe, Christopher D. Cappa, Paola Massoli, Timothy B. Onasch, Sara D. Forestieri, Alexander T. Martin, Molly J. Cummings,
+David R. Croasdale, William H. Brune, Douglas R. Worsnop, and Paul Davidovits (2013).
+Environmental Science & Technology, 47(12), 6349-6357, DOI: 10.1021/es401043j.
+
+Liu P.F., Yue Zhang, and Scot T. Martin (2013).
+Complex Refractive Indices of Thin Films of Secondary Organic Materials by Spectroscopic Ellipsometry from 220 to 1200 nm
+Environmental Science & Technology 47(23), 13594-13601, DOI: 10.1021/es403411e.
+
+Liu P.F., N. Abdelmalki, H.-M. Hung, Y. Wang, W. H. Brune and S. T. Martin (2015).
+Ultraviolet and visible complex refractive indices of secondary organic 
+material produced by photooxidation of the aromatic compounds toluene and m-xylene
+Atmos. Chem. Phys., 15, 1435-1446, doi:10.5194/acp-15-1435-2015.
+
+McMeeking, G. R., Hamburger, T., Liu, D., Flynn, M., Morgan, W. T., Northway, M., Highwood,
+5 E. J., Krejci, R., Allan, J. D., Minikin, A., and Coe, H. (2010). Black carbon measurements in the
+boundary layer over western and northern Europe, Atmos. Chem. Phys., 10, 93939414,
+doi:10.5194/acp-10-9393-2010.
+
+Nakayama T., Kei Sato, Takashi Imamura, and Yutaka Matsumi (2018).
+Effect of Oxidation Process on Complex Refractive Index of Secondary Organic Aerosol Generated from Isoprene.
+Environmental Science & Technology 52(5), 2566-2574. DOI: 10.1021/acs.est.7b05852
+
+Segelstein, D., (1981), The Complex Refractive Index of Water, M.S. Thesis, University of Missouri--Kansas City, MO.
+
+/

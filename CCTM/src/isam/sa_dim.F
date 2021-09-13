@@ -83,10 +83,14 @@ C...Assign Tag Indices To ICON, BCON, OTHER *in that order*
           ! Allocate arrays of species indices, tagging indices, and
           ! variable names for the combined species-tags
           ! i.e. set s_spctag, t_spctag, and vnam_spctag
-          ALLOCATE ( S_SPCTAG( N_SPCTAG ) )
-          ALLOCATE ( T_SPCTAG( N_SPCTAG ) )
-          ALLOCATE ( VNAM_SPCTAG( N_SPCTAG ) )
-          ALLOCATE ( BCON_SPC( N_SPCTAG ) )
+          ALLOCATE ( S_SPCTAG( N_SPCTAG ), STAT=IOST )
+          CALL CHECKMEM( IOST, 'S_SPCTAG', PNAME )
+          ALLOCATE ( T_SPCTAG( N_SPCTAG ), STAT=IOST )
+          CALL CHECKMEM( IOST, 'T_SPCTAG', PNAME )
+          ALLOCATE ( VNAM_SPCTAG( N_SPCTAG ), STAT=IOST )
+          CALL CHECKMEM( IOST, 'VNAM_SPCTAG', PNAME )
+          ALLOCATE ( BCON_SPC( N_SPCTAG ), STAT=IOST )
+          CALL CHECKMEM( IOST, 'BCON_SPC', PNAME )
 
           ! Assign BCON tag indicies used in advection
           BCON_SPC = .FALSE.

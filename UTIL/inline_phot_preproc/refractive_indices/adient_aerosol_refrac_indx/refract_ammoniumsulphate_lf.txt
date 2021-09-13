@@ -1,5 +1,6 @@
- Ref. ind.  for ammoniumsulphate (interp)
-Wvelen(um) Real Part  Imag Part
+NH4SO4_IF
+! Ref. ind.  for ammoniumsulphate (interp)
+!Wvelen(um) Real Part  Imag Part
 2.0000E-01 0.1540E+01 0.1000E-06
 2.5000E-01 0.1540E+01 0.1000E-06
 3.0000E-01 0.1540E+01 0.1000E-06

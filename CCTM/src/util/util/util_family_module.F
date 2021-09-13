@@ -305,4 +305,82 @@
 
       end subroutine read_families
 
+! ----------------------------------------------------------------------
+      subroutine map_chem_families( species0, spec_vec, nvec, out_vec )
+! ----------------------------------------------------------------------
+!     Return a vector out_vec of size nvec, equal to the size of specvec.
+!     Out_vec is a logical which maps the input species name "species" 
+!     to specvec, expanding any chemical families or keywords.
+! ----------------------------------------------------------------------
+
+      USE AERO_DATA, ONLY: N_MODE, MODESUFF, AEROSPC, N_AEROSPC
+      USE RUNTIME_VARS, ONLY: LOGDEV
+      USE UTILIO_DEFN
+
+      IMPLICIT NONE
+
+      CHARACTER(16), INTENT(IN) :: SPECIES0
+      INTEGER      , INTENT(IN) :: NVEC
+      CHARACTER(16), INTENT(IN) :: SPEC_VEC( NVEC )
+      LOGICAL      , INTENT(OUT):: OUT_VEC( NVEC )
+
+      CHARACTER(16) :: SPECIES
+
+      INTEGER IFAM, ICHEM, IDX, JDX, IM, KDX, NCHEM
+      CHARACTER(16) :: CHEM_NAME( 150 ), SN
+      CHARACTER(200) :: XMSG
+
+      ! Initialize Emissions Species Array
+      SPECIES = SPECIES0
+      CALL UPCASE( SPECIES )
+      OUT_VEC = .FALSE.
+
+
+      ! Find Indices of Species Relevant for "species"
+      IF ( SPECIES .EQ. 'ALL' ) THEN
+         ! Expand to Apply to All Species
+         OUT_VEC = .TRUE.
+      ELSE     
+         ! Determine if the Species Label Refers to A Family and if So, 
+         ! Apply the Rule to all members of that Family
+         IFAM = INDEX1( SPECIES, NChemFamilies, ChemFamilyName )
+         IF ( IFAM .EQ. 0 ) THEN
+            NCHEM = 1
+            CHEM_NAME(1) = SPECIES
+         ELSE
+            NCHEM = ChemFamilyNum( IFAM )
+            CHEM_NAME(1:NCHEM) = ChemFamilyMembers( IFAM,1:NCHEM )
+         END IF
+      
+         DO ICHEM = 1,NCHEM
+           ! Find the Specific Species this Rule Identifies
+           IDX = INDEX1( CHEM_NAME( ICHEM ), NVEC, SPEC_VEC )
+           JDX = INDEX1( CHEM_NAME( ICHEM ), N_AEROSPC,  AEROSPC( : )%BULKNAME )
+           IF ( IDX .NE. 0 ) THEN
+             OUT_VEC( IDX ) = .TRUE.
+           ELSE IF ( JDX .NE. 0 ) THEN
+             ! This is an aerosol species, and it is being
+             ! identified with a bulk name (no mode suffix). 
+             ! We need to allow for all possible DIFF_SPC with
+             ! all used suffixes
+             SN = CHEM_NAME( ICHEM )
+             DO IM = 1,N_MODE
+               KDX = INDEX1( TRIM( SN )//MODESUFF( IM ), NVEC, SPEC_VEC )
+               IF ( KDX .NE. 0 ) OUT_VEC( KDX ) = .TRUE.
+             END DO
+           ELSE
+             WRITE( LOGDEV, '(/,3A,/,A,/,A,/,A,/,A)' ),
+     &         'Species ',TRIM(SPECIES),' was used in the Emissions',
+     &         ' Control Instructions Namelist but it is not a valid CMAQ ',
+     &         'transported species or family. Please add it to one of the ',
+     &         'input chemical namelists (ie. GC, AE, etc). Note that aerosol',
+     &         'Number and Surface Area Species are not valid for scaling.'
+             XMSG = 'Error in Emissions Map Processing.'
+             CALL M3EXIT( 'Map_Chem_Families', 0, 0, XMSG, XSTAT1 )
+            END IF
+         END DO
+      END IF 
+ 
+      end subroutine map_chem_families
+
       end module util_Family_module

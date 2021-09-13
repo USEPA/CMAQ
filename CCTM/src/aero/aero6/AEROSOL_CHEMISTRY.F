@@ -37,6 +37,7 @@
 ! 17 Jul 18 G. Sarwar: Added heterogeneous uptakes of CLNO3, bromine and iodine species
 ! 01 Feb 19 David Wong: removed MY_N clauses
 ! 03 Apr 19 H. Pye: Updated IEPOX to consume inorganic sulfate when OS are formed
+! 11 Dec 20 G. Sarwar: Removed unused uptake cofficients and added few uptake cofficients for halogen species
 !-----------------------------------------------------------------------
 
        IMPLICIT NONE
@@ -48,7 +49,7 @@
        
        PRIVATE 
 
-       INTEGER, PARAMETER :: NUMB_AERO_RATES = 59
+       INTEGER, PARAMETER :: NUMB_AERO_RATES = 52
        
        CHARACTER( 16 ), PARAMETER :: NAMES_AERO_RATES( NUMB_AERO_RATES ) = 
      &                    (/ 'HETERO_N2O5IJ   ', 'HETERO_N2O5K    ', 
@@ -65,22 +66,18 @@
      &                       'HETERO_IMAE     ', 'HETERO_2MG      ',
      &                       'HETERO_IMAEOS   ', 'HETERO_NO3      ',
      &                       'HETERO_GLY      ', 'HETERO_MGLY     ',
-     &                       'HETERO_NTR2     ', 'HETERO_CLNO3_WAJ',
-     &                       'HETERO_CLNO3_WAK', 'HETERO_HBR_BRJ  ',
-     &                       'HETERO_HBR_BRK  ', 'HETERO_BRNO3_WAJ',
-     &                       'HETERO_BRNO3_WAK', 'HETERO_HOBR_CLJ ',
-     &                       'HETERO_HOBR_CLK ', 'HETERO_HOBR_BRJ ',
-     &                       'HETERO_HOBR_BRK ', 'HETERO_I2O2_AJ  ',
-     &                       'HETERO_I2O2_AK  ', 'HETERO_I2O3_AJ  ',
-     &                       'HETERO_I2O3_AK  ', 'HETERO_I2O4_AJ  ',
-     &                       'HETERO_I2O4_AK  ', 'HETERO_INO3_CLJ ',
-     &                       'HETERO_INO3_CLK ', 'HETERO_INO3_BRJ ',
-     &                       'HETERO_INO3_BRK ', 'HETERO_INO2_CLJ ',
-     &                       'HETERO_INO2_CLK ', 'HETERO_INO2_BRJ ',
-     &                       'HETERO_INO2_BRK ', 'HETERO_HOI_CLJ  ',
-     &                       'HETERO_HOI_CLK  ', 'HETERO_HOI_BRJ  ',
-     &                       'HETERO_HOI_BRK  ', 'HETERO_HI_AJ    ',
-     &                       'HETERO_HI_AK    '/)
+     &                       'HETERO_NTR2     ', 'HETERO_CLNO3_WAI',
+     &                       'HETERO_CLNO3_WAJ', 'HETERO_HBR_BRJ  ',
+     &                       'HETERO_BRNO3_WAI', 'HETERO_BRNO3_WAJ',
+     &                       'HETERO_HOBR_CLJ ', 'HETERO_HOBR_BRJ ',
+     &                       'HETERO_BRNO3_CLJ', 'HETERO_BRNO3_BRJ',
+     &                       'HETERO_BRNO2_CLJ', 'HETERO_BRNO2_BRJ',
+     &                       'HETERO_I2O2_AI  ', 'HETERO_I2O2_AJ  ',
+     &                       'HETERO_I2O3_AI  ', 'HETERO_I2O3_AJ  ',
+     &                       'HETERO_I2O4_AI  ', 'HETERO_I2O4_AJ  ',
+     &                       'HETERO_INO3_CLJ ', 'HETERO_INO3_BRJ ',
+     &                       'HETERO_INO2_CLJ ', 'HETERO_INO2_BRJ ',
+     &                       'HETERO_HOI_CLJ  ', 'HETERO_HOI_BRJ  '/)
 
        INTEGER, PARAMETER  :: IA_N2O5IJ         =   1
        INTEGER, PARAMETER  :: IA_N2O5K          =   2
@@ -111,36 +108,29 @@
        INTEGER, PARAMETER  :: IA_GLY            =   27
        INTEGER, PARAMETER  :: IA_MGLY           =   28
        INTEGER, PARAMETER  :: IA_NTR2           =   29
-       INTEGER, PARAMETER  :: IA_CLNO3_WAJ      =   30
-       INTEGER, PARAMETER  :: IA_CLNO3_WAK      =   31          
+       INTEGER, PARAMETER  :: IA_CLNO3_WAI      =   30
+       INTEGER, PARAMETER  :: IA_CLNO3_WAJ      =   31
        INTEGER, PARAMETER  :: IA_HBR_BRJ        =   32
-       INTEGER, PARAMETER  :: IA_HBR_BRK        =   33  
+       INTEGER, PARAMETER  :: IA_BRNO3_WAI      =   33
        INTEGER, PARAMETER  :: IA_BRNO3_WAJ      =   34
-       INTEGER, PARAMETER  :: IA_BRNO3_WAK      =   35      
-       INTEGER, PARAMETER  :: IA_HOBR_CLJ       =   36
-       INTEGER, PARAMETER  :: IA_HOBR_CLK       =   37
-       INTEGER, PARAMETER  :: IA_HOBR_BRJ       =   38
-       INTEGER, PARAMETER  :: IA_HOBR_BRK       =   39                  
-       INTEGER, PARAMETER  :: IA_I2O2_AJ        =   40
-       INTEGER, PARAMETER  :: IA_I2O2_AK        =   41       
-       INTEGER, PARAMETER  :: IA_I2O3_AJ        =   42
-       INTEGER, PARAMETER  :: IA_I2O3_AK        =   43       
-       INTEGER, PARAMETER  :: IA_I2O4_AJ        =   44
-       INTEGER, PARAMETER  :: IA_I2O4_AK        =   45                                          
-       INTEGER, PARAMETER  :: IA_INO3_CLJ       =   46
-       INTEGER, PARAMETER  :: IA_INO3_CLK       =   47        
+       INTEGER, PARAMETER  :: IA_HOBR_CLJ       =   35
+       INTEGER, PARAMETER  :: IA_HOBR_BRJ       =   36
+       INTEGER, PARAMETER  :: IA_BRNO3_CLJ      =   37
+       INTEGER, PARAMETER  :: IA_BRNO3_BRJ      =   38
+       INTEGER, PARAMETER  :: IA_BRNO2_CLJ      =   39
+       INTEGER, PARAMETER  :: IA_BRNO2_BRJ      =   40
+       INTEGER, PARAMETER  :: IA_I2O2_AI        =   41
+       INTEGER, PARAMETER  :: IA_I2O2_AJ        =   42
+       INTEGER, PARAMETER  :: IA_I2O3_AI        =   43
+       INTEGER, PARAMETER  :: IA_I2O3_AJ        =   44
+       INTEGER, PARAMETER  :: IA_I2O4_AI        =   45
+       INTEGER, PARAMETER  :: IA_I2O4_AJ        =   46
+       INTEGER, PARAMETER  :: IA_INO3_CLJ       =   47
        INTEGER, PARAMETER  :: IA_INO3_BRJ       =   48
-       INTEGER, PARAMETER  :: IA_INO3_BRK       =   49        
-       INTEGER, PARAMETER  :: IA_INO2_CLJ       =   50
-       INTEGER, PARAMETER  :: IA_INO2_CLK       =   51        
-       INTEGER, PARAMETER  :: IA_INO2_BRJ       =   52
-       INTEGER, PARAMETER  :: IA_INO2_BRK       =   53    
-       INTEGER, PARAMETER  :: IA_HOI_CLJ        =   54             
-       INTEGER, PARAMETER  :: IA_HOI_CLK        =   55    
-       INTEGER, PARAMETER  :: IA_HOI_BRJ        =   56             
-       INTEGER, PARAMETER  :: IA_HOI_BRK        =   57   
-       INTEGER, PARAMETER  :: IA_HI_AJ          =   58
-       INTEGER, PARAMETER  :: IA_HI_AK          =   59  
+       INTEGER, PARAMETER  :: IA_INO2_CLJ       =   49
+       INTEGER, PARAMETER  :: IA_INO2_BRJ       =   50
+       INTEGER, PARAMETER  :: IA_HOI_CLJ        =   51
+       INTEGER, PARAMETER  :: IA_HOI_BRJ        =   52
 
        INTEGER, PARAMETER :: INDEX_AERO_RATES( NUMB_AERO_RATES ) = 
      &                    (/ IA_N2O5IJ   , IA_N2O5K    , 
@@ -156,23 +146,19 @@
      &                       IA_TETROLDIM, IA_IEPOXOSDI,
      &                       IA_IMAE     , IA_2MG      ,
      &                       IA_IMAEOS   , IA_NO3      ,
-     &                       IA_GLY      , IA_MGLY     ,     
-     &                       IA_NTR2     , IA_CLNO3_WAJ,         
-     &                       IA_CLNO3_WAK, IA_HBR_BRJ  ,
-     &                       IA_HBR_BRK  , IA_BRNO3_WAJ,
-     &                       IA_BRNO3_WAK, IA_HOBR_CLJ ,          
-     &                       IA_HOBR_CLK , IA_HOBR_BRJ ,            
-     &                       IA_HOBR_BRK , IA_I2O2_AJ  ,     
-     &                       IA_I2O2_AK  , IA_I2O3_AJ  ,
-     &                       IA_I2O3_AK  , IA_I2O4_AJ  ,
-     &                       IA_I2O4_AK  , IA_INO3_CLJ ,          
-     &                       IA_INO3_CLK , IA_INO3_BRJ ,
-     &                       IA_INO3_BRK , IA_INO2_CLJ ,               
-     &                       IA_INO2_CLK , IA_INO2_BRJ ,
-     &                       IA_INO2_BRK , IA_HOI_CLJ  ,
-     &                       IA_HOI_CLK  , IA_HOI_BRJ  ,     
-     &                       IA_HOI_BRK  , IA_HI_AJ    ,
-     &                       IA_HI_AK   /)           
+     &                       IA_GLY      , IA_MGLY     ,
+     &                       IA_NTR2     , IA_CLNO3_WAI,
+     &                       IA_CLNO3_WAJ, IA_HBR_BRJ  ,
+     &                       IA_BRNO3_WAI, IA_BRNO3_WAJ,
+     &                       IA_HOBR_CLJ , IA_HOBR_BRJ ,
+     &                       IA_BRNO3_CLJ, IA_BRNO3_BRJ,
+     &                       IA_BRNO2_CLJ, IA_BRNO2_BRJ,
+     &                       IA_I2O2_AI  , IA_I2O2_AJ  ,
+     &                       IA_I2O3_AI  , IA_I2O3_AJ  ,
+     &                       IA_I2O4_AI  , IA_I2O4_AJ  ,
+     &                       IA_INO3_CLJ , IA_INO3_BRJ ,
+     &                       IA_INO2_CLJ , IA_INO2_BRJ ,
+     &                       IA_HOI_CLJ  , IA_HOI_BRJ  /)
 
        INTEGER               :: SELECTED_AERO_RATES
        INTEGER, ALLOCATABLE  :: WHICH_AERO_RATE( : )
@@ -384,6 +370,7 @@ C-----------------------------------------------------------------------
       USE SOA_DEFN
       USE PMDIAG_DATA
       USE PMDIAG_PROC
+      USE CENTRALIZED_IO_MODULE
 
       IMPLICIT NONE
 
@@ -413,7 +400,6 @@ C *** Parameters
       REAL( 8 ), PARAMETER :: INV_SQRT_MWINO3 = 7.275850000D-2
       REAL( 8 ), PARAMETER :: INV_SQRT_MWINO2 = 7.605050000D-2
       REAL( 8 ), PARAMETER :: INV_SQRT_MWHOI  = 8.336220000D-2
-      REAL( 8 ), PARAMETER :: INV_SQRT_MWHI   = 8.842289400D-2   
 
       REAL( 8 ), PARAMETER :: UGM3_CONV_FAC   = 8.31251724585556D00 ! =1.0E-3*AIRDENS_STD*(PRESS_STD/TEMP_STD)
       REAL( 8 ), PARAMETER :: COEF1           = 7.24382926227485D10 ! Molec/cc to ppm conv factor 
@@ -434,7 +420,6 @@ C *** Parameters
       REAL( 8 ), PARAMETER :: STD_DIFF_INO3   = 0.0792D-4    ! INO3 molecular diffusivity at 101325 Pa and 273.15 K [m2/sec] 
       REAL( 8 ), PARAMETER :: STD_DIFF_INO2   = 0.0833D-4    ! INO2 molecular diffusivity at 101325 Pa and 273.15 K [m2/sec] 
       REAL( 8 ), PARAMETER :: STD_DIFF_HOI    = 0.0972D-4    ! HOI molecular diffusivity at 101325 Pa and 273.15 K [m2/sec] 
-      REAL( 8 ), PARAMETER :: STD_DIFF_HI     = 0.1045D-4    ! HI molecular diffusivity at 101325 Pa and 273.15 K [m2/sec] 
 
 !     REAL,      PARAMETER :: GPKG        = 1.0E+03                      ! g/kg unit conversion
       REAL,      PARAMETER :: CFACTOR     = 8.0 * GPKG  * RGASUNIV / PI  ! factor in cbar_coeff
@@ -487,8 +472,11 @@ C *** Local Variables
       REAL( 8 )    :: TOTSURFA ! aerosol surface area (m**2/m**3)
       REAL( 8 )    :: FACTOR   ! scratch multiplicative factor
       REAL( 8 )    :: RFACTOR  ! factor converting rate constant from cm3/molec/sec to 1/ppm/min
-      REAL( 8 )    :: RADIUS   ! effective particle radius [m]
-      REAL( 8 )    :: RADIUS_K ! effective particle radius [m] - coarse mode  
+      REAL( 8 )    :: RADIUS_I ! effective particle radius [m] - i-mode
+      REAL( 8 )    :: RADIUS   ! effective particle radius [m] - j-mode
+
+      REAL( 8 )    :: SSALT_SURFA       ! sea-salt aerosol surface area (m**2/m**3)
+      REAL( 8 )    :: SSALT_VOL         ! sea-salt aerosol volume (m**3/m**3)
       
       REAL( 8 )       :: CBAR             ! molecular velocity of N2O5 (m/s)
       REAL( 8 )       :: CBARIEPOX        ! molecular velocity of IEPOX (m/s)
@@ -516,20 +504,20 @@ C *** Local Variables
       REAL( 8 )       :: CBAR_I2O4         ! molecular velocity of I2O4 (m/s)   
       REAL( 8 )       :: CBAR_INO2         ! molecular velocity of INO2 (m/s) 
       REAL( 8 )       :: CBAR_INO3         ! molecular velocity of INO3 (m/s)  
-      REAL( 8 )       :: CBAR_HOI          ! molecular velocity of HOI (m/s)        
-      REAL( 8 )       :: CBAR_HI           ! molecular velocity of HI (m/s)  
+      REAL( 8 )       :: CBAR_HOI          ! molecular velocity of HOI (m/s)
       
       REAL( 8 )       :: CLNO3_H2O_RXN_TIME   ! CLNO3 reaction time per aerosol surface area density with H2O (s/m)  
       REAL( 8 )       :: HBR_RXN_TIME         ! HBR reaction time per aerosol surface area density with seasalt (s/m)
       REAL( 8 )       :: BRNO3_H2O_RXN_TIME   ! BRNO3 reaction time per aerosol surface area density with H2O (s/m)
-      REAL( 8 )       :: HOBR_ASS_RXN_TIME    ! HOBR reaction time per aerosol surface area density with fine-mode ACL (s/m)    
+      REAL( 8 )       :: HOBR_ASS_RXN_TIME    ! HOBR reaction time per aerosol surface area density with fine-mode ACL (s/m)
+      REAL( 8 )       :: BRNO2_RXN_TIME       ! BRNO2 reaction time per aerosol surface area density (s/m)
+      REAL( 8 )       :: BRNO3_RXN_TIME       ! BRNO3 reaction time per aerosol surface area density (s/m)
       REAL( 8 )       :: I2O2_RXN_TIME        ! I2O2 reaction time per aerosol surface area density (s/m)
       REAL( 8 )       :: I2O3_RXN_TIME        ! I2O3 reaction time per aerosol surface area density (s/m)
       REAL( 8 )       :: I2O4_RXN_TIME        ! I2O4 reaction time per aerosol surface area density (s/m)
       REAL( 8 )       :: INO2_RXN_TIME        ! INO2 reaction time per aerosol surface area density (s/m)
       REAL( 8 )       :: INO3_RXN_TIME        ! INO3 reaction time per aerosol surface area density (s/m)
       REAL( 8 )       :: HOI_RXN_TIME         ! HOI reaction time per aerosol surface area density (s/m)
-      REAL( 8 )       :: HI_RXN_TIME          ! HI reaction time per aerosol surface area density (s/m)
 
       REAL( 8 )       :: INV_DIFF_CLNO3       ! reciprocal molecular diffusivity [m2/sec]
       REAL( 8 )       :: INV_DIFF_HBR         ! reciprocal molecular diffusivity [m2/sec]
@@ -541,8 +529,9 @@ C *** Local Variables
       REAL( 8 )       :: INV_DIFF_I2O4        ! reciprocal molecular diffusivity [m2/sec]
       REAL( 8 )       :: INV_DIFF_INO3        ! reciprocal molecular diffusivity [m2/sec]
       REAL( 8 )       :: INV_DIFF_INO2        ! reciprocal molecular diffusivity [m2/sec]
-      REAL( 8 )       :: INV_DIFF_HOI         ! reciprocal molecular diffusivity [m2/sec]     
-      REAL( 8 )       :: INV_DIFF_HI          ! reciprocal molecular diffusivity [m2/sec]  
+      REAL( 8 )       :: INV_DIFF_HOI         ! reciprocal molecular diffusivity [m2/sec]
+
+      REAL            :: MARINE_AREA                     ! variable to identify grid-cells over ocean
 
       INTEGER, SAVE   :: IMAE_IDX
       !INTEGER, SAVE   :: IHMML_IDX
@@ -603,6 +592,8 @@ C *** parameters for calculating GAMMA of HBR ---> ABR, Sherwen et al., ACP, 201
 ! reciprocal of rxn probability for bromine species on aerosol
       REAL( 8 ), PARAMETER :: INV_GAMMA_BRNO3_H2O  = 1.0D0 / 0.03D0                ! Dieber et al., ACP, 2004
       REAL( 8 ), PARAMETER :: INV_GAMMA_HOBR_ASS   = 1.0D0 / 0.1D0                 ! Fernandez et al, 2014
+      REAL( 8 ), PARAMETER :: INV_GAMMA_BRNO3  = 1.0D0 / 0.08D0                    ! Fernandez et al, 2014
+      REAL( 8 ), PARAMETER :: INV_GAMMA_BRNO2  = 1.0D0 / 0.04D0                    ! Fernandez et al, 2014
 
 ! reciprocal of rxn probability for iodine species on aerosol, selective 
       REAL( 8 ), PARAMETER :: INV_GAMMA_I2O2  = 1.0D0 / 0.02D0                     ! Sherwen et al., 2016
@@ -611,7 +602,6 @@ C *** parameters for calculating GAMMA of HBR ---> ABR, Sherwen et al., ACP, 201
       REAL( 8 ), PARAMETER :: INV_GAMMA_HOI   = 1.0D0 / 0.01D0                     ! Sherwen et al., 2016     
       REAL( 8 ), PARAMETER :: INV_GAMMA_INO3  = 1.0D0 / 0.01D0                     ! Saiz-Lopez et al. 2014
       REAL( 8 ), PARAMETER :: INV_GAMMA_INO2  = 1.0D0 / 0.02D0                     ! Saiz-Lopez et al. 2014
-      REAL( 8 ), PARAMETER :: INV_GAMMA_HI    = 1.0D0 / 0.1D0                      ! Sherwen et al., 2016   
 
 C *** Coefficients for the equation, ESATL defining saturation vapor pressure
       REAL( 8 ), PARAMETER :: AL = 610.94D0 
@@ -864,7 +854,6 @@ C *** calculate molecular speeds (m/s) using Eq 4 of Pleim et al (1995)
                CBAR_INO3  = CBAR_COEFF * INV_SQRT_MWINO3
                CBAR_INO2  = CBAR_COEFF * INV_SQRT_MWINO2
                CBAR_HOI   = CBAR_COEFF * INV_SQRT_MWHOI
-               CBAR_HI    = CBAR_COEFF * INV_SQRT_MWHI
 
 C *** correct N2O5 molecular diffusivity for ambient conditions
 
@@ -883,7 +872,6 @@ C *** correct molecular diffusivity for ambient conditions - assumed similar to 
                INV_DIFF_INO3   = 1.0D0 / ( STD_DIFF_INO3 * ADJUST_DIFF )
                INV_DIFF_INO2   = 1.0D0 / ( STD_DIFF_INO2  * ADJUST_DIFF )
                INV_DIFF_HOI    = 1.0D0 / ( STD_DIFF_HOI * ADJUST_DIFF )
-               INV_DIFF_HI     = 1.0D0 / ( STD_DIFF_HI * ADJUST_DIFF )
 
 C *** get KN2O5 rate constants YIELD_CLNO2 for each mode
                YIELD_CLNO2 = 0.0D0
@@ -934,7 +922,7 @@ c *** get fine aerosol H2O and chlorine concentrations in
                   ACL  = aerospc_conc( ACL_IDX, N )
                   CL_PPM( N ) = PPM_FACTOR * ( ACL * INV_MWCL )
 
-      If ( Index( mechname, 'CB6R3M_AE7_KMTBR' ) .Gt. 0 ) Then
+      If ( Index( mechname, 'CB6R3M_AE7_AQ' ) .Gt. 0 ) Then
          ABR  = aerospc_conc( ABR_IDX, N ) 
          INV_MWBR  = REAL( 1.0 / aerospc_mw( ABR_IDX ), 8 )  
          BR_PPM( N ) = PPM_FACTOR * ( ABR * INV_MWBR ) 
@@ -967,8 +955,28 @@ C *** calculate aerosol surface area
                TOTSURFA = ( WET_M2( 1 ) + WET_M2( 2 ) ) * DPI
 
 C *** Calculate IEPOX and MAE uptake information for accumulation mode
-               RADIUS    = 0.5D0 * DE_WET( 2 ) ! particle size
-               RADIUS_K     = 0.5D0 * DE_WET( 3 ) ! particle size - K-mode 
+               RADIUS_I  = 0.5D0 * DE_WET( 1 ) ! particle size - i-mode
+               RADIUS    = 0.5D0 * DE_WET( 2 ) ! particle size - j-mode
+
+C *** Calculate approximate seasalt surface area, m2/m3
+C *** Main components of Seasalt are: NA, CL, MG, K, CA, SO4
+C *** However, SO4 over seawater can generate from other sources
+C *** Fo SO4, use SO4/NA emissions ratio in seasalt
+
+               MARINE_AREA = ( OCEAN( C,R ) + SZONE( C,R ) )
+
+                IF ( MARINE_AREA .GT. 0.0 ) THEN
+                 SSALT_VOL  =   1.0D-9 * ( Real ( aerospc_conc( ANA_IDX,2 ) / aerospc(ANA_IDX)%density, 8 ) +          ! NAJ - m3/m3
+     @                                    Real ( aerospc_conc( ACL_IDX,2 ) / aerospc(ACL_IDX)%density, 8 ) +          ! CLJ - m3/m3
+     @                                    Real ( aerospc_conc( AMG_IDX,2 ) / aerospc(AMG_IDX)%density, 8 ) +          ! MGJ - m3/m3
+     @                                    Real ( aerospc_conc( AK_IDX,2 )  / aerospc(AK_IDX)%density, 8  ) +          ! KJ - m3/m3
+     @                                    Real ( aerospc_conc( ACA_IDX,2 ) / aerospc(ACA_IDX)%density, 8 ) +          ! CAJ - m3/m3
+     @                                    Real ( 0.2514 * aerospc_conc( ANA_IDX,2 ) / aerospc(ASO4_IDX)%density, 8) ) ! SO4 - m3/m3 - use SO4/NA ratio in seasalt
+
+                SSALT_SURFA = ( 3.0D0 * SSALT_VOL / RADIUS ) * DEXP ( 0.5D0 * AEROMODE_LNSG( 2 ) * AEROMODE_LNSG( 2 ) )
+               ELSE
+                SSALT_SURFA = 0.0
+                ENDIF
 
 C *** calculate GAMMA_HBR  
       GAMMA_HBR = 1.3D-8 * DEXP ( 4290/ AIRTEMP) 
@@ -978,14 +986,15 @@ C *** set up variables needed for calculating K_BRONO2
                CLNO3_H2O_RXN_TIME   = 4.0D0 * INV_GAMMA_CLNO3_H2O / CBAR_CLNO3
                HBR_RXN_TIME         = 4.0D0 * INV_GAMMA_HBR / CBAR_HBR 
                BRNO3_H2O_RXN_TIME   = 4.0D0 * INV_GAMMA_BRNO3_H2O / CBAR_BRNO3
-               HOBR_ASS_RXN_TIME    = 4.0D0 * INV_GAMMA_HOBR_ASS  / CBAR_HOBR  
+               HOBR_ASS_RXN_TIME    = 4.0D0 * INV_GAMMA_HOBR_ASS  / CBAR_HOBR
+               BRNO3_RXN_TIME       = 4.0D0 * INV_GAMMA_BRNO3 / CBAR_BRNO3
+               BRNO2_RXN_TIME       = 4.0D0 * INV_GAMMA_BRNO2 / CBAR_BRNO2
                I2O2_RXN_TIME        = 4.0D0 * INV_GAMMA_I2O2 / CBAR_I2O2
                I2O3_RXN_TIME        = 4.0D0 * INV_GAMMA_I2O3 / CBAR_I2O3
                I2O4_RXN_TIME        = 4.0D0 * INV_GAMMA_I2O4 / CBAR_I2O4
                INO3_RXN_TIME        = 4.0D0 * INV_GAMMA_INO3 / CBAR_INO3
                INO2_RXN_TIME        = 4.0D0 * INV_GAMMA_INO2 / CBAR_INO2
                HOI_RXN_TIME         = 4.0D0 * INV_GAMMA_HOI  / CBAR_HOI
-               HI_RXN_TIME          = 4.0D0 * INV_GAMMA_HI  / CBAR_HOI
                
                CBARIEPOX = CFACTOR_IEPOX * DSQRT( AIRTEMP )
                CBARIMAE  = CFACTOR_IMAE  * DSQRT( AIRTEMP )
@@ -1190,7 +1199,7 @@ C ***            Isoprene epoxide uptake
                  CASE( IA_NTR2 )
 C *** calculate gas-particle partitioning of NTR2
                     CON_TOA = SUM( SUM( AEROSPC_CONC( :,1:2 ),2 ), 
-     &                        MASK = AEROSPC( : )%OM )
+     &                        MASK = ( AEROSPC( : )%OM .AND. .NOT. AEROSPC( : )%TRACER ) )
                     
                     F_PART_NTR2 = 0.0
                     IF ( CON_TOA .GE. MIN_TOA ) THEN
@@ -1209,175 +1218,134 @@ C hydrolysis
      &                                            * ( 5.0D0 * AIRRH - 1.0D0 )
                      END IF
 
+                CASE( IA_CLNO3_WAI )
+                  KHETERO( IRATE, C,R,L ) = 60.0D0 * WET_M2( 1 ) * DPI / ( RADIUS_I * INV_DIFF_CLNO3 + CLNO3_H2O_RXN_TIME )
+
                 CASE( IA_CLNO3_WAJ )   
                   KHETERO( IRATE, C,R,L ) = 60.0D0 * WET_M2( 2 ) * DPI / ( RADIUS * INV_DIFF_CLNO3 + CLNO3_H2O_RXN_TIME )  
 
-                 CASE( IA_CLNO3_WAK )                              
-                  KHETERO( IRATE, C,R,L ) = 60.0D0 * WET_M2( 3 ) * DPI / ( RADIUS_K * INV_DIFF_CLNO3 + CLNO3_H2O_RXN_TIME )
-
                  CASE( IA_HBR_BRJ )
-                  KHETERO( IRATE, C,R,L ) = 60.0D0 * WET_M2( 2 ) * DPI / ( RADIUS * INV_DIFF_HBR + HBR_RXN_TIME )
+                  KHETERO( IRATE, C,R,L ) = 60.0D0 * SSALT_SURFA / ( RADIUS * INV_DIFF_HBR + HBR_RXN_TIME )  ! use sea-salt surface area
 
-                 CASE( IA_HBR_BRK )
-                  KHETERO( IRATE, C,R,L ) = 60.0D0 * WET_M2( 3 ) * DPI / ( RADIUS_K * INV_DIFF_HBR + HBR_RXN_TIME )
+                 CASE( IA_BRNO3_WAI )
+                  KHETERO( IRATE, C,R,L ) = 60.0D0 * WET_M2( 1 ) * DPI / ( RADIUS_I * INV_DIFF_BRNO3 + BRNO3_H2O_RXN_TIME )
 
                  CASE( IA_BRNO3_WAJ )
                   KHETERO( IRATE, C,R,L ) = 60.0D0 * WET_M2( 2 ) * DPI / ( RADIUS * INV_DIFF_BRNO3 + BRNO3_H2O_RXN_TIME )
 
-                 CASE( IA_BRNO3_WAK )
-                  KHETERO( IRATE, C,R,L ) = 60.0D0 * WET_M2( 3 ) * DPI / ( RADIUS_K * INV_DIFF_BRNO3 + BRNO3_H2O_RXN_TIME )
-
-                 CASE( IA_HOBR_CLJ )    
-                  K1 = 0.85 * WET_M2( 2 ) * DPI / ( RADIUS * INV_DIFF_HOBR + HOBR_ASS_RXN_TIME ) 
+                 CASE( IA_HOBR_CLJ )
+                  K1 = 0.35 * SSALT_SURFA / ( RADIUS * INV_DIFF_HOBR + HOBR_ASS_RXN_TIME ) ! use sea-salt surface area
                   IF ( CL_PPM (2) .GT. MIN_VALUE ) THEN
                    KHETERO( IRATE, C,R,L ) = 60.0D0 * K1 / CL_PPM (2) 
                   ELSE
                    KHETERO( IRATE, C,R,L ) = 0.0D0    
                   ENDIF
 
-                 CASE( IA_HOBR_CLK )                                                                  
-                  K1 = 0.85 * WET_M2( 3 ) * DPI / ( RADIUS_K * INV_DIFF_HOBR + HOBR_ASS_RXN_TIME )
-                  IF ( CL_PPM (3) .GT. MIN_VALUE ) THEN
-                   KHETERO( IRATE, C,R,L ) = 60.0D0 * K1 / CL_PPM (3) 
-                  ELSE
-                   KHETERO( IRATE, C,R,L ) = 0.0D0    
-                  ENDIF
-
-                 CASE( IA_HOBR_BRJ )    
-                  K1 = 0.15 * WET_M2( 2 ) * DPI / ( RADIUS * INV_DIFF_HOBR + HOBR_ASS_RXN_TIME ) 
+                 CASE( IA_HOBR_BRJ )
+                  K1 = 0.65 * SSALT_SURFA / ( RADIUS * INV_DIFF_HOBR + HOBR_ASS_RXN_TIME )       ! use sea-salt surface area
                   IF ( BR_PPM (2) .GT. MIN_VALUE ) THEN
-                   KHETERO( IRATE, C,R,L ) = 60.0D0 * K1 / BR_PPM (2) 
+                   KHETERO( IRATE, C,R,L ) = 60.0D0 * K1 / BR_PPM (2)
                   ELSE
                    KHETERO( IRATE, C,R,L ) = 0.0D0    
                   ENDIF
 
-                 CASE( IA_HOBR_BRK )                                                                  
-                  K1 = 0.15 * WET_M2( 3 ) * DPI / ( RADIUS_K * INV_DIFF_HOBR + HOBR_ASS_RXN_TIME ) 
-                  IF ( BR_PPM (3) .GT. MIN_VALUE ) THEN
-                   KHETERO( IRATE, C,R,L ) = 60.0D0 * K1 / BR_PPM (3) 
+                 CASE( IA_BRNO3_CLJ )
+                  K1 = 0.35 * SSALT_SURFA / ( RADIUS * INV_DIFF_BRNO3 + BRNO3_RXN_TIME )         ! use sea-salt surface area
+                  IF ( CL_PPM (2) .GT. MIN_VALUE ) THEN
+                   KHETERO( IRATE, C,R,L ) = 60.0D0 * K1 / CL_PPM (2)                                         ! 1/(min*ppm)
                   ELSE
-                   KHETERO( IRATE, C,R,L ) = 0.0D0    
-                  ENDIF  
+                   KHETERO( IRATE, C,R,L ) = 0.0D0
+                  ENDIF
+
+                 CASE( IA_BRNO3_BRJ )
+                  K1 = 0.65 * SSALT_SURFA / ( RADIUS * INV_DIFF_BRNO3 + BRNO3_RXN_TIME )         ! use sea-salt surface area
+                  IF ( BR_PPM (2) .GT. MIN_VALUE ) THEN
+                   KHETERO( IRATE, C,R,L ) = 60.0D0 * K1 / BR_PPM (2)                                         ! 1/(min*ppm)
+                  ELSE
+                   KHETERO( IRATE, C,R,L ) = 0.0D0
+                  ENDIF
+
+                 CASE( IA_BRNO2_CLJ )
+                  K1 =  0.35 * SSALT_SURFA / ( RADIUS * INV_DIFF_BRNO2 + BRNO2_RXN_TIME )        ! use sea-salt surface area
+                  IF ( CL_PPM (2) .GT. MIN_VALUE ) THEN
+                   KHETERO( IRATE, C,R,L ) = 60.0D0 * K1 / CL_PPM (2)                                         ! 1/(min*ppm)
+                  ELSE
+                    KHETERO( IRATE, C,R,L ) = 0.0D0
+                  ENDIF
+
+                 CASE( IA_BRNO2_BRJ )
+                  K1 =  0.65 * SSALT_SURFA / ( RADIUS * INV_DIFF_BRNO2 + BRNO2_RXN_TIME )       ! use sea-salt surface area
+                  IF ( BR_PPM (2) .GT. MIN_VALUE ) THEN
+                   KHETERO( IRATE, C,R,L ) = 60.0D0 * K1 / BR_PPM (2)                                         ! 1/(min*ppm)
+                  ELSE
+                    KHETERO( IRATE, C,R,L ) = 0.0D0
+                  ENDIF
+
+                 CASE( IA_I2O2_AI )
+                  KHETERO( IRATE, C,R,L ) = 60.0D0 * WET_M2( 1 ) * DPI / ( RADIUS_I * INV_DIFF_I2O2 + I2O2_RXN_TIME )
 
                  CASE( IA_I2O2_AJ )
                   KHETERO( IRATE, C,R,L ) = 60.0D0 * WET_M2( 2 ) * DPI / ( RADIUS * INV_DIFF_I2O2 + I2O2_RXN_TIME ) 
-                  
-                 CASE( IA_I2O2_AK )
-                  KHETERO( IRATE, C,R,L ) = 60.0D0 * WET_M2( 3 ) * DPI / ( RADIUS_K * INV_DIFF_I2O2 + I2O2_RXN_TIME )    
+
+                 CASE( IA_I2O3_AI )
+                  KHETERO( IRATE, C,R,L ) = 60.0D0 * WET_M2( 1 ) * DPI / ( RADIUS_I * INV_DIFF_I2O3 + I2O3_RXN_TIME )
 
                  CASE( IA_I2O3_AJ ) 
-                  KHETERO( IRATE, C,R,L ) = 60.0D0 * WET_M2( 2 ) * DPI / ( RADIUS * INV_DIFF_I2O3 + I2O3_RXN_TIME ) 
+                  KHETERO( IRATE, C,R,L ) = 60.0D0 * WET_M2( 2 ) * DPI / ( RADIUS * INV_DIFF_I2O3 + I2O3_RXN_TIME )
 
-                 CASE( IA_I2O3_AK )
-                  KHETERO( IRATE, C,R,L ) = 60.0D0 * WET_M2( 3 ) * DPI / ( RADIUS_K * INV_DIFF_I2O3 + I2O3_RXN_TIME )    
+                 CASE( IA_I2O4_AI )
+                  KHETERO( IRATE, C,R,L ) = 60.0D0 * WET_M2( 1 ) * DPI / ( RADIUS_I * INV_DIFF_I2O4 + I2O4_RXN_TIME )
 
                  CASE( IA_I2O4_AJ )
                   KHETERO( IRATE, C,R,L ) = 60.0D0 * WET_M2( 2 ) * DPI / ( RADIUS * INV_DIFF_I2O4 + I2O4_RXN_TIME ) 
 
-                 CASE( IA_I2O4_AK )
-                  KHETERO( IRATE, C,R,L ) = 60.0D0 * WET_M2( 3 ) * DPI / ( RADIUS_K * INV_DIFF_I2O4 + I2O4_RXN_TIME )
-
                  CASE( IA_INO3_CLJ )          
-                  K1 = 0.5 * WET_M2( 2 ) * DPI / ( RADIUS * INV_DIFF_INO3 + INO3_RXN_TIME )
+                  K1 = 0.5 * SSALT_SURFA / ( RADIUS * INV_DIFF_INO3 + INO3_RXN_TIME )        ! use sea-salt surface area
                   IF ( CL_PPM (2) .GT. MIN_VALUE ) THEN
                    KHETERO( IRATE, C,R,L ) = 60.0D0 * K1 / CL_PPM (2)                                         ! 1/(min*ppm)
                   ELSE
                    KHETERO( IRATE, C,R,L ) = 0.0D0    
-                  ENDIF 
-                  
-                 CASE( IA_INO3_CLK )                                                
-                  K1 = 0.5 * WET_M2( 3 ) * DPI / ( RADIUS_K * INV_DIFF_INO3 + INO3_RXN_TIME ) 
-                  IF ( CL_PPM (3) .GT. MIN_VALUE ) THEN
-                   KHETERO( IRATE, C,R,L ) = 60.0D0 * K1 / CL_PPM (3)                                         ! 1/(min*ppm)
-                  ELSE
-                   KHETERO( IRATE, C,R,L ) = 0.0D0    
                   ENDIF
 
-                 CASE( IA_INO3_BRJ )          
-                  K1 = 0.5 * WET_M2( 2 ) * DPI / ( RADIUS * INV_DIFF_INO3 + INO3_RXN_TIME )
+                 CASE( IA_INO3_BRJ )
+                  K1 = 0.5 * SSALT_SURFA / ( RADIUS * INV_DIFF_INO3 + INO3_RXN_TIME )        ! use sea-salt surface area
                   IF ( BR_PPM (2) .GT. MIN_VALUE ) THEN
                    KHETERO( IRATE, C,R,L ) = 60.0D0 * K1 / BR_PPM (2)                                         ! 1/(min*ppm)
-                  ELSE
-                   KHETERO( IRATE, C,R,L ) = 0.0D0    
-                  ENDIF
-                  
-                 CASE( IA_INO3_BRK )                                                
-                  K1 = 0.5 * WET_M2( 3 ) * DPI / ( RADIUS_K * INV_DIFF_INO3 + INO3_RXN_TIME ) 
-                  IF ( BR_PPM (3) .GT. MIN_VALUE ) THEN
-                   KHETERO( IRATE, C,R,L ) = 60.0D0 * K1 / BR_PPM (3)                                         ! 1/(min*ppm)
                   ELSE
                    KHETERO( IRATE, C,R,L ) = 0.0D0    
                   ENDIF
 
                  CASE( IA_INO2_CLJ )
-                  K1 =  0.5 * WET_M2( 2 ) * DPI / ( RADIUS * INV_DIFF_INO2 + INO2_RXN_TIME )
+                  K1 =  0.5 * SSALT_SURFA / ( RADIUS * INV_DIFF_INO2 + INO2_RXN_TIME )       ! use sea-salt surface area
                   IF ( CL_PPM (2) .GT. MIN_VALUE ) THEN
                    KHETERO( IRATE, C,R,L ) = 60.0D0 * K1 / CL_PPM (2)                                         ! 1/(min*ppm)
                   ELSE
                    KHETERO( IRATE, C,R,L ) = 0.0D0    
                   ENDIF
 
-                 CASE( IA_INO2_CLK )                                                   
-                  K1 = 0.5 * WET_M2( 3 ) * DPI / ( RADIUS_K * INV_DIFF_INO2 + INO2_RXN_TIME )
-                  IF ( CL_PPM (3) .GT. MIN_VALUE ) THEN
-                   KHETERO( IRATE, C,R,L ) = 60.0D0 * K1 / CL_PPM (3)                                         ! 1/(min*ppm)
-                  ELSE
-                   KHETERO( IRATE, C,R,L ) = 0.0D0    
-                  ENDIF
-
                  CASE( IA_INO2_BRJ )
-                  K1 =  0.5 * WET_M2( 2 ) * DPI / ( RADIUS * INV_DIFF_INO2 + INO2_RXN_TIME )
+                  K1 =  0.5 * SSALT_SURFA / ( RADIUS * INV_DIFF_INO2 + INO2_RXN_TIME )        ! use sea-salt surface area
                   IF ( BR_PPM (2) .GT. MIN_VALUE ) THEN
                    KHETERO( IRATE, C,R,L ) = 60.0D0 * K1 / BR_PPM (2)                                         ! 1/(min*ppm)
-                  ELSE
-                   KHETERO( IRATE, C,R,L ) = 0.0D0    
-                  ENDIF
-
-                 CASE( IA_INO2_BRK )                                                   
-                  K1 = 0.5 * WET_M2( 3 ) * DPI / ( RADIUS_K * INV_DIFF_INO2 + INO2_RXN_TIME )
-                  IF ( BR_PPM (3) .GT. MIN_VALUE ) THEN
-                   KHETERO( IRATE, C,R,L ) = 60.0D0 * K1 / BR_PPM (3)                                         ! 1/(min*ppm)
                   ELSE
                    KHETERO( IRATE, C,R,L ) = 0.0D0    
                   ENDIF
 
                  CASE( IA_HOI_CLJ )                            
-                  K1 = 0.5 * WET_M2( 2 ) * DPI / ( RADIUS * INV_DIFF_HOI + HOI_RXN_TIME )  
+                  K1 = 0.5 * SSALT_SURFA / ( RADIUS * INV_DIFF_HOI + HOI_RXN_TIME )           ! use sea-salt surface area
                   IF ( CL_PPM (2) .GT. MIN_VALUE ) THEN
                   KHETERO( IRATE, C,R,L ) = 60.0D0 * K1 / CL_PPM (2)                                         ! 1/(min*ppm)
                   ELSE
                    KHETERO( IRATE, C,R,L ) = 0.0D0    
                   ENDIF 
-                                        
-                 CASE( IA_HOI_CLK )                                                
-                  K1 = 0.5 * WET_M2( 3 ) * DPI / ( RADIUS_K * INV_DIFF_HOI + HOI_RXN_TIME ) 
-                  IF ( CL_PPM (3) .GT. MIN_VALUE ) THEN
-                   KHETERO( IRATE, C,R,L ) = 60.0D0 * K1 / CL_PPM (3)                                         ! 1/(min*ppm)
-                  ELSE
-                   KHETERO( IRATE, C,R,L ) = 0.0D0    
-                  ENDIF
 
                  CASE( IA_HOI_BRJ )                            
-                  K1 = 0.5 * WET_M2( 2 ) * DPI / ( RADIUS * INV_DIFF_HOI + HOI_RXN_TIME ) 
+                  K1 = 0.5 * SSALT_SURFA / ( RADIUS * INV_DIFF_HOI + HOI_RXN_TIME )           ! use sea-salt surface area
                   IF ( BR_PPM (2) .GT. MIN_VALUE ) THEN
                    KHETERO( IRATE, C,R,L ) = 60.0D0 * K1 / BR_PPM (2)                                         ! 1/(min*ppm)
                   ELSE
                    KHETERO( IRATE, C,R,L ) = 0.0D0    
                   ENDIF
-                 
-                 CASE( IA_HOI_BRK )                                               
-                  K1 = 0.5 * WET_M2( 3 ) * DPI / ( RADIUS_K * INV_DIFF_HOI + HOI_RXN_TIME )  
-                  IF ( BR_PPM (3) .GT. MIN_VALUE ) THEN
-                   KHETERO( IRATE, C,R,L ) = 60.0D0 * K1 / BR_PPM (3)                                         ! 1/(min*ppm)
-                  ELSE
-                   KHETERO( IRATE, C,R,L ) = 0.0D0    
-                  ENDIF
-              
-                 CASE( IA_HI_AJ )
-                  KHETERO( IRATE, C,R,L ) = 60.0D0 * WET_M2( 2 ) * DPI / ( RADIUS * INV_DIFF_HI + HI_RXN_TIME ) 
-                  
-                 CASE( IA_HI_AK )
-                  KHETERO( IRATE, C,R,L ) = 60.0D0 * WET_M2( 3 ) * DPI / ( RADIUS_K * INV_DIFF_HI + HI_RXN_TIME )    
 
                END SELECT
 

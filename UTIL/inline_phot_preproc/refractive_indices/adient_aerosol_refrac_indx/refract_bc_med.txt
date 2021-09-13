@@ -1,5 +1,6 @@
-Refractive Index of BC mid absorbing from Stier et al (2007)
-Wvelen(um) Real Part  Imag Part
+BC_MED
+!Refractive Index of BC mid absorbing from Stier et al (2007)
+!Wvelen(um) Real Part  Imag Part
 2.0000E-01 1.85000e+00 7.10000e-01
 2.5000E-01 1.85000e+00 7.10000e-01
 3.0000E-01 1.85000e+00 7.10000e-01
