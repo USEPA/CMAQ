@@ -1183,6 +1183,13 @@ REACTIONS[CM] =
 <SA13>  SOAALK  + HO      = HO  + 0.47*ALKRXN         # 2.70e-12@-374;
 <SA14>  IEPOX + HO        = HO                        # 5.78E-11@400; 
 
+! ROCIOXY added with behavior like HC8 (same number of carbon but diff MWT)
+! 12.0% by mass (14.8% by mole) SOA yield added
+<R001c> ROCIOXY + HO      = 0.049*HO2 + 0.951*HC8P
+                                       + 0.148*ASOATJ
+                                       + 0.025*ALD
+                                       + 0.024*HKET   # 2.82E-11 @ 273.;
+
 
 ! heteorogeneous reactions from hetchem and poaaging routines version 5.0.2
 

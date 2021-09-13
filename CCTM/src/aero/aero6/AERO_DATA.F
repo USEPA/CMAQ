@@ -329,6 +329,9 @@ C                     ---------- -------- ------- ------------------------------
                                                           
       ! The following species are associated with the marine chemistry code
      & spcs_list_type('ABR     ', cm_set, 2200.0, '       ','       ',0.0  ,'NVL',F,F, -1,  1.7, 1.7,F, 'SOLUTE', 0.00), ! Bromide 
+ 
+      ! Species created for CRACMM
+     & spcs_list_type('ASOATJ  ', cm_set, 1400.0, '       ','       ',0.0  ,'NVL',F,F,  0,  2.8, 6.1,T, 'DUST  ', 0.13), ! Lumped SOA not otherwise specified, OM/OC=2.1
 
       ! The following species are associated with the sulfur tracking model
      & spcs_list_type('ASO4AQH2O2',cm_set,1800.0, '       ','       ',0.0  ,'NVL',F,T,  0,  0.0, 0.0,F, 'SOLUTE', 0.00), ! SO4 from aqueous H2O2 rxn
