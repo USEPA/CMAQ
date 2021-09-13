@@ -90,6 +90,11 @@
 ! 03-04-21 G.Sarwar
 !    updated <HAL_OZONE>
 !------------------------------------------------------------------------------ 
+! CRACMMv1.0 modifications
+! - XYO and XYP combined and replaced with XYE (R084c). Retains products of XYO 
+!   (same as XYP) but decreases kOH to emission wt. value. Major contributors 
+!   to XYE are o-xylene and ethylbenzene.
+!------------------------------------------------------------------------------ 
 CRACMM1_AQ
 
 REACTIONS[CM] =
@@ -243,14 +248,10 @@ REACTIONS[CM] =
                                        + 0.060*XYL1
                                        + 0.177*CSL    
                                        + 0.98*XYLRO2  # 2.31E-11;
-<R084>  XYP  + HO          = 0.177*HO2 + 0.763*XY2
+<R084c>  XYE + HO          = 0.177*HO2 + 0.763*XY2
                                        + 0.060*XYL1
                                        + 0.177*CSL
-                                       + 1.0*XYLRO2   # 1.43E-11;
-<R085>  XYO  + HO          = 0.177*HO2 + 0.763*XYO2 
-                                       + 0.060*XYL1
-                                       + 0.177*CSL    
-                                       + 1.0*XYLRO2   # 1.36E-11;
+                                       + 1.0*XYLRO2   # 9.37E-12;
 <R086>  ISO  + HO          = ISOP      + ISOPRXN      # 2.70E-11 @ -390.;
 <R087>  API  + HO          = APIP      + TRPRXN       # 1.21E-11 @ -440.;
 <R088>  LIM  + HO          = LIMP      + TRPRXN       # 4.20E-11 @ -401.;

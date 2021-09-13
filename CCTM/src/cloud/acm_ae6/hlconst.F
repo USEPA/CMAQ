@@ -93,6 +93,7 @@ C       4. added dissociation constant for acrylic acid (LACRYACID) (via B. Hutz
 C  H.Pye       06/2017  added semivolatile monoterpene products
 C  G.Sarwar    08/2018  added Henry's Law constant for ClNO3, FMBR, IBR, and updated iodine and bromine species
 C  G. Sarwar   11/2018  added Henry's Law constant for CLO
+C  H.Pye       09/2021 added CRACMM emission weighted surrogates
 C-----------------------------------------------------------------------
 
       USE UTILIO_DEFN
@@ -111,7 +112,7 @@ C...........INCLUDES and their descriptions
 
 C...........PARAMETERS and their descriptions:
 
-      INTEGER, PARAMETER :: MXSPCS = 217     ! Number of substances
+      INTEGER, PARAMETER :: MXSPCS = 218     ! Number of substances
       INTEGER, PARAMETER :: MXDSPCS = 19     ! Number of dissociating species
 
 C...pointers for the dissociation constants (array B and D)
@@ -396,6 +397,7 @@ C...  Atmospheric Chemistry and Physics, 1997
       DATA SUBNAME(215), A(215), E(215) / 'FMBR            ', 7.40E+01, 0.0E+00 /   ! Sander, R. ACP (2015), krysztofiak et al. (2012)
       DATA SUBNAME(216), A(216), E(216) / 'CLO             ', 7.00E-03, 0.0E+00 /   ! Sander et al., ACP, 2015
       DATA SUBNAME(217), A(217), E(217) / 'BENAPY          ', 2.00E+03, 4.7E+03 /   ! benzo[a]pyrene Ma et al. (2010) and ten Hulscher et al. (1992) in  Sander et al., ACP, 2015
+      DATA SUBNAME(218), A(218), E(218) / 'XYE             ', 1.56E-01, 4.0E+03 /   ! O-xylene T dep from Staudinger and Roberts 1996, base value emission wt. CRACMM (OPERA SAR)
 
       DATA B( LSO2   ), D( LSO2   ) / 1.30E-02,  1.96E+03 /  ! SO2*H2O<=>HSO3+H     : Smith and Martell (1976)
       DATA B( LHSO3  ), D( LHSO3  ) / 6.60E-08,  1.50E+03 /  ! HSO3<=>SO3+H         : Smith and Martell (1976)
