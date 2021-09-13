@@ -49,6 +49,7 @@ AE_SPECIES_DATA =
 'SRFATKN'  ,  1.00  ,''     ,''     ,-1     ,''     ,-1     ,'VSRFATKN'  , 1  ,'SRF_AITKEN'   , 1  ,'SRF_AITKEN'   ,'Yes'   ,''      ,''      ,'Yes',
 'SRFACC'   ,  1.00  ,''     ,''     ,-1     ,''     ,-1     ,'VSRFACC'   , 1  ,'SRF_ACCUM'    , 1  ,'SRF_ACCUM'    ,'Yes'   ,''      ,''      ,'Yes',
 'SRFCOR'   ,  1.00  ,''     ,''     ,-1     ,''     ,-1     ,'VSRFCOR'   , 1  ,'SRF_COARSE'   , 1  ,'SRF_COARSE'   ,'Yes'   ,''      ,''      ,'Yes',
+'AORGH2OJ' , 18.00  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSJ'    , 1  ,'H2O_ACCUM'    , 1  ,'H2O_ACCUM'    ,'Yes'   ,''      ,''      ,'Yes',
 'AH2OJ'    , 18.00  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSJ'    , 1  ,'H2O_ACCUM'    , 1  ,'H2O_ACCUM'    ,'Yes'   ,''      ,''      ,'Yes',
 'AH2OI'    , 18.00  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSI'    , 1  ,'H2O_AITKEN'   , 1  ,'H2O_AITKEN'   ,'Yes'   ,''      ,''      ,'Yes',
 'AH3OPJ'   , 19.00  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSJ'    , 1  ,''             ,-1  ,''             ,'Yes'   ,''      ,''      ,'Yes',
