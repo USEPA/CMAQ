@@ -97,14 +97,14 @@ not be necessary if your biogenic emissions are calculated inline within CMAQ.
 Approach 2 is an approxmimation based on assuming 30% of global monoterpene
 emissions are &#945;&#8209;pinene (Pye et al. 2010) and could be used if your biogenic
 emissions are preprocessed in input files. Approach 3 makes use of separate biogenic emission mapping
-profiles for CB6r3-aero6 and CB6r3-aero7 available within CMAQ (see [biogenic emission update](biogenic_apinene.md)). 
+profiles for CB6r3-aero6 and CB6r3-aero7 available within CMAQ (see [biogenic emission update](CMAQv5.3_biogenic_apinene.md)). 
 Approach 3 is not an option if your biogenic emissions were pre-processed.
 
 ### More information on science updates in *aero7*
 
-  * [Monoterpene SOA](monoterpene_SOA.md)  
-  * [Reorganization of anthropogenic SOA species](anthro_SOA.md)  
-  * [Uptake of water onto hydrophilic organic aerosol](organic_water.md)  
+  * [Monoterpene SOA](CMAQv5.3_monoterpene_SOA.md)  
+  * [Reorganization of anthropogenic SOA species](CMAQv5.3_anthro_SOA.md)  
+  * [Uptake of water onto hydrophilic organic aerosol](CMAQv5.3_organic_water.md)  
 
 ## Significance and Impact
 Increased dry PM<sub>2.5</sub> mass primarily in summer in vegetation-rich locations

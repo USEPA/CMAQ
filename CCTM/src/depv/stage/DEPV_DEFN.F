@@ -51,6 +51,7 @@ C                          open CTM_DEPV_DIAG in parallel I/O implementation
 C   Feb 2019 D. Wong:    removed all MY_N clauses
 C-------------------------------------------------------------------------------
       USE RUNTIME_VARS
+      USE CGRID_SPCS, ONLY : N_SPC_DEPV
       USE STAGE_DATA, Only: STAGE_Diag_Data
 
       IMPLICIT NONE
@@ -65,7 +66,6 @@ C model depositon velocites array by land use category
       REAL,    ALLOCATABLE, SAVE :: DEPVJ_FST( :,:,:,: )         
 
 C no. of deposition velocity model species
-      INTEGER, SAVE :: N_SPC_DEPV
       INTEGER, SAVE :: N_GAS_DEPV
 
 C ddep spc conversion factors
@@ -74,7 +74,7 @@ C ddep spc conversion factors
 C model-oriented bi-directional production [ppm-m/s]
       REAL,    ALLOCATABLE, SAVE :: BIDI_VDEMIS( :,:,: )
 
-      PUBLIC DEPV, DEPVJ, DEPVJ_FST, N_SPC_DEPV, DD_CONV, BIDI_VDEMIS,
+      PUBLIC DEPV, DEPVJ, DEPVJ_FST, DD_CONV, BIDI_VDEMIS,
      &             N_GAS_DEPV, DEPV_INIT, GET_DEPV, STAGE_Diag_Data
       PRIVATE
 
@@ -236,7 +236,7 @@ C set dry dep conversion factor (done here so that vdiff doesn`t need the includ
          DO V = 1, N_AE_DEPV
             S = S + 1
             IF ( AE_SPC( AE_DEPV_MAP( V ) )( 1:3 ) .EQ. 'NUM' ) THEN
-               DD_CONV( S ) = CNVTD * AVO * 1.0E+03    ! --> #/Ha
+               DD_CONV( S ) = M2PHA * 1.0E+03 / MWAIR  ! --> #/Ha
             ELSE IF ( AE_SPC( AE_DEPV_MAP( V ) )( 1:3 ) .EQ. 'SRF' ) THEN
                DD_CONV( S ) = M2PHA * 1.0E+03 / MWAIR  ! --> M**2/Ha
             ELSE
