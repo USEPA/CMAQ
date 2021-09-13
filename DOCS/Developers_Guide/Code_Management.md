@@ -32,8 +32,8 @@ git is a version control system that supports distributed workflows.  Every Git 
     1. Create a github account https://github.com/
     2. Go to the EPA github site and Fork your own copy of the EPA CMAQ to your github account
     3. create a directory called CMAQv5.3 on the machine where you would like to obtain a copy of the code
-    4. `git clone -b master https://github.com/<your github name>/CMAQ.git CMAQ_REPO` - Get a clone or copy of the master branch of the CMAQ repository from your github site.
-    5.  This will place a copy of the files from the master branch into the CMAQv5.3/CMAQ_REPO directory
+    4. `git clone -b main https://github.com/<your github name>/CMAQ.git CMAQ_REPO` - Get a clone or copy of the main branch of the CMAQ repository from your github site.
+    5.  This will place a copy of the files from the main branch into the CMAQv5.3/CMAQ_REPO directory
     6.  `cd CMAQv5.3/CMAQ_REPO` go into the CMAQv5.3/CMAQ_REPO directory
     7. `git status`   To confirm the status of the files in the repository and the branch that is currently checked out
     8. `git checkout -b 5.3_update` To copy the 5.3 branch into a new branch called 5.3_update

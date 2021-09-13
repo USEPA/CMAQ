@@ -19,7 +19,7 @@ CMAQ source code can be installed either using git or from tarballs downloaded f
 
 In the directory where you would like to install CMAQ, issue the following command to clone the official EPA GitHub repository for CMAQv5.3:
 
-`git clone -b master https://github.com/USEPA/CMAQ CMAQ_REPO`
+`git clone -b main https://github.com/USEPA/CMAQ CMAQ_REPO`
 
 Using the git clone option, CMAQ will install into the following directories:
 
@@ -39,19 +39,19 @@ Reference input/output data for testing the installation of the software are ava
 
 In the directory where you would like to install CMAQ, unzip the model distribution file:
 
-`unzip CMAQ-master.zip`
+`unzip CMAQ-main.zip`
 
 The following directories will be created:
 
 ```
-CMAQ-master/CCTM
-CMAQ-master/PREP
-CMAQ-master/POST
-CMAQ-master/UTIL
-CMAQ-master/DOCS
+CMAQ-main/CCTM
+CMAQ-main/PREP
+CMAQ-main/POST
+CMAQ-main/UTIL
+CMAQ-main/DOCS
 ```
 
-The Git and Zip file installation options will produce slightly different subdirectories on your Linux system. The base installation directory using the git clone command will be `CMAQ_REPO`; the directory from the Zip file will be `CMAQ-master`. The subsequent instructions in this guide will be based on the git clone installation. For Zip file installations, replace `CMAQ_REPO` with `CMAQ-master` in the instructions that follow. The differences in the directory names highlights the difference in functionality between the two options. Cloning the repository gives the user access to the full repository and its history, while downloading the Zip file will only give access to version 5.3.
+The Git and Zip file installation options will produce slightly different subdirectories on your Linux system. The base installation directory using the git clone command will be `CMAQ_REPO`; the directory from the Zip file will be `CMAQ-main`. The subsequent instructions in this guide will be based on the git clone installation. For Zip file installations, replace `CMAQ_REPO` with `CMAQ-main` in the instructions that follow. The differences in the directory names highlights the difference in functionality between the two options. Cloning the repository gives the user access to the full repository and its history, while downloading the Zip file will only give access to version 5.3.
 
 ## 5.3 The CMAQ Repository Structure
 
