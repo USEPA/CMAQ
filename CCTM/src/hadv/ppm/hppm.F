@@ -238,6 +238,7 @@ C----------------------------------------------------------------------
             XMSG = '*** Error allocating FM, FP, CM, CL, CR, DC, or C6'
             CALL M3EXIT ( PNAME, 0, 0, XMSG, XSTAT1 )
          END IF
+         
 #ifdef isam
 #else
       END IF   ! Firstime
@@ -447,10 +448,10 @@ C Update concentrations as in Equation (1.13)
 C Store boundary fluxes in budget variables
 C   Units: change in density (aerosols) or mixing ratio (gases)
       IF ( BUDGET_DIAG ) THEN
-         F_LO_IN( : ) = FP( 0,: ) / DS
-         F_LO_OUT( : ) = FM( 1,: ) / DS
-         F_HI_OUT( : ) = FP( NI,: ) / DS
-         F_HI_IN( : ) = FM( NI+1,: ) / DS
+         F_LO_IN( 1:NSPCS ) = FP( 0,1:NSPCS ) / DS
+         F_LO_OUT( 1:NSPCS ) = FM( 1,1:NSPCS ) / DS
+         F_HI_OUT( 1:NSPCS ) = FP( NI,1:NSPCS ) / DS
+         F_HI_IN( 1:NSPCS ) = FM( NI+1,1:NSPCS ) / DS
       END IF
 
 #ifdef isam

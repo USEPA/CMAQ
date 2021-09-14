@@ -279,7 +279,7 @@ c  !>>>>> CONDENSATION <<<<<!
                 DO K = 1,NTAG_SA
                    FRAC1 = 0.0
                    DO IM = 1,N_MODE
-                      IF ( MAP_AEROtoSA( IAER,IM ) ) 
+                      IF ( MAP_AEROtoSA( IAER,IM ) .GT. 0 ) 
      &                   FRAC1( :,:,: ) = FRAC1( :,:,: ) + ISAM1( :,:,:,MAP_AEROtoSA( IAER,IM ),K )
                    END DO
                    ISAM1( :,:,:,JGAS,K ) = FRAC1 * CGRID( :,:,:,CGAS ) / AERO_BULK(:,:,:)
@@ -312,15 +312,15 @@ c  !>>>>> CONDENSATION <<<<<!
                    ! Determine the total non-water mass separating
                    ! inorganic and organic
                    AERO_BULK( C,R,L ) = MAX( SUM( SUM( ISAM0( C,R,L,:,: ), DIM=2),
-     &                    MASK = (L_MASK_AERO .EQ. .TRUE. .AND. 
+     &                    MASK = (L_MASK_AERO .AND. 
      &                            L_MASK_TYPE .NE. 'H2O'  .AND.
-     &                            OMH2O .EQ. L_MASK_OM    .AND.
+     &                            OMH2O .EQV. L_MASK_OM    .AND.
      &                            L_MASK_IM . EQ. IM  ) ), MIN_TAGTOT )
                    ISAM1( C,R,L,JAER,: ) = ISAM0( C,R,L,JAER,: ) +
      &                 SUM( SUM( ISAM0( C,R,L,:,: ),DIM=2),
-     &                     MASK = (L_MASK_AERO .EQ. .TRUE. .AND. 
+     &                     MASK = (L_MASK_AERO .AND. 
      &                             L_MASK_TYPE .NE. 'H2O'  .AND.
-     &                             OMH2O .EQ. L_MASK_OM    .AND. 
+     &                             OMH2O .EQV. L_MASK_OM    .AND. 
      &                             L_MASK_IM . EQ. IM  ) )
      &                     /AERO_BULK( C,R,L ) * BULKH2O( C,R,L )
                 END FORALL

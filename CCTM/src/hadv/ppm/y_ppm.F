@@ -148,6 +148,10 @@ C Local Variables:
       REAL, ALLOCATABLE, SAVE :: SA_HALO_NORTH( :,:,: )
       REAL, ALLOCATABLE, SAVE :: SA_HALO_SOUTH( :,:,: )
       REAL, ALLOCATABLE, SAVE :: SA_BUF_NS( :,:,: )
+      REAL, ALLOCATABLE, SAVE :: SA_F_LO_IN( : )
+      REAL, ALLOCATABLE, SAVE :: SA_F_LO_OUT( : )
+      REAL, ALLOCATABLE, SAVE :: SA_F_HI_IN( : )
+      REAL, ALLOCATABLE, SAVE :: SA_F_HI_OUT( : )
 #endif
 #endif
       INTEGER, SAVE :: SFX    ! fixed parameter for southern boundary
@@ -309,6 +313,12 @@ C Create global map to CGRID
      &             F_HI_IN(N_SPC_ADV),
      &             F_HI_OUT(N_SPC_ADV) )
 
+#ifdef isam
+         ALLOCATE( SA_F_LO_IN(N_SPCTAG),
+     &             SA_F_LO_OUT(N_SPCTAG),
+     &             SA_F_HI_IN(N_SPCTAG),
+     &             SA_F_HI_OUT(N_SPCTAG) )
+#endif
 
 
          END IF                    ! if firstime
@@ -532,7 +542,7 @@ C PPM scheme
          
 #ifdef isam
          CALL HPPM ( NROWS, NCOLS, SA_CONY, VELY, DT, DX2, 'R',
-     &               F_LO_IN, F_LO_OUT, F_HI_IN, F_HI_OUT )
+     &               SA_F_LO_IN, SA_F_LO_OUT, SA_F_HI_IN, SA_F_HI_OUT )
 #endif
 
          DO SPC = 1, N_SPC_ADV
