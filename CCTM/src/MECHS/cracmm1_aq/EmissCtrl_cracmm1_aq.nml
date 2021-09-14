@@ -145,8 +145,8 @@
    'EVERYWHERE', 'ALL'         ,'TOL'    ,'TOL'         ,'GAS'  ,1.  ,'UNIT','a', 
    'EVERYWHERE', 'ALL'         ,'CSL'    ,'CSL'         ,'GAS'  ,1.  ,'UNIT','a', 
    'EVERYWHERE', 'ALL'         ,'XYM'    ,'XYM'         ,'GAS'  ,1.  ,'UNIT','a', 
-   'EVERYWHERE', 'ALL'         ,'XYP'    ,'XYP'         ,'GAS'  ,1.  ,'UNIT','a', 
-   'EVERYWHERE', 'ALL'         ,'XYO'    ,'XYO'         ,'GAS'  ,1.  ,'UNIT','a', 
+!   'EVERYWHERE', 'ALL'         ,'XYP'    ,'XYP'         ,'GAS'  ,1.  ,'UNIT','a', 
+!   'EVERYWHERE', 'ALL'         ,'XYO'    ,'XYO'         ,'GAS'  ,1.  ,'UNIT','a', 
    'EVERYWHERE', 'ALL'         ,'ISO'    ,'ISO'         ,'GAS'  ,1.  ,'UNIT','a', 
    'EVERYWHERE', 'ALL'         ,'API'    ,'API'         ,'GAS'  ,1.  ,'UNIT','a', 
    'EVERYWHERE', 'ALL'         ,'LIM'    ,'LIM'         ,'GAS'  ,1.  ,'UNIT','a', 
@@ -159,6 +159,10 @@
    'EVERYWHERE', 'ALL'         ,'NAPH'   ,'NAPH'        ,'GAS'  ,1.  ,'UNIT','a', 
    'EVERYWHERE', 'ALL'         ,'SOAALK' ,'SOAALK'      ,'GAS'  ,1.  ,'UNIT','a', 
    'EVERYWHERE', 'ALL'         ,'NH3'    ,'NH3'         ,'GAS'  ,1.  ,'UNIT','a', 
+   ! New CRACMM species
+   'EVERYWHERE', 'ALL'         ,'ACT'    ,'ROCIOXY'     ,'GAS'  ,0.156,'UNIT','a', ! proxied to ACT based on 2017 US Emissions
+   'EVERYWHERE', 'ALL'         ,'XYP'    ,'XYE'         ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'XYO'    ,'XYE'         ,'GAS'  ,1.  ,'UNIT','a', 
 
    ! Default Aerosols
    'EVERYWHERE', 'ALL'         ,'SULF'   ,'ASO4'        ,'FINE' ,1.  ,'MASS','a', 
