@@ -1086,7 +1086,7 @@
           ! Write Out The Time to Complete Each Sub-Process
           WRITE( XMSG, 1002 ),TRIM( CPROC ), CPU_TIME_FINISH-CPU_TIME_START
 1002      FORMAT ( 2x, A15, ' completed... ', F6.1, ' seconds' )
-
+          
       CASE ( 2 ) 
           ! Write out the time to complete the entire master time step
           WRITE( XMSG, '(7x,A16)' ),'Master Time Step'
