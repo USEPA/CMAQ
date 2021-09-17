@@ -196,6 +196,12 @@ C-------------------------------------------------------------------------------
 ! EPIC v1.4 does not always correctly write out m3badval in areas where there is no data. In these cases, 
 ! EPIC writes out large negative values which can cause issues with the bidirectional exchange numerics. 
 ! The following variables should always be positive and a floor of 0.0 is now set to mitigate numerical issues. 
+         Where( Nit1   .Ne. Nit1   ) Nit1   = 0.0
+         Where( Nit2   .Ne. Nit2   ) Nit2   = 0.0
+         Where( F1_NH4 .Ne. F1_NH4 ) F1_NH4 = 0.0
+         Where( F2_NH4 .Ne. F2_NH4 ) F2_NH4 = 0.0
+         Where( NH4ps1 .Ne. NH4ps1 ) NH4ps1 = 0.0
+         Where( NH4ps2 .Ne. NH4ps2 ) NH4ps2 = 0.0
          Where( Nit1   .Lt. 0.0 ) Nit1   = 0.0
          Where( Nit2   .Lt. 0.0 ) Nit2   = 0.0
          Where( F1_NH4 .Lt. 0.0 ) F1_NH4 = 0.0

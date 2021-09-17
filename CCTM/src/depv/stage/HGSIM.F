@@ -353,7 +353,7 @@ C Find a simple one box solution for elemental Hg
                   K_loss = -log(1.0 - K_loss )
                   Hg_wat = Hg_wat * exp( -K_loss * dt )
                End If
-            ELSE ! photo-redox reactions
+            ELSE If( CMEDIA( c,r,2 ) .Gt. 0.0 ) Then ! photo-redox reactions
                K_Prod_HgII = -flux_hgII / ( f_wat( c,r ) * CMEDIA( c,r,2 ) )
                K_Prod_HgII = log(1.0+K_Prod_HgII)
                If( flux_wat .le. 0.0 ) Then ! Deposition

@@ -138,6 +138,8 @@ SUBROUTINE metvars2ctm
 !                        improve dust simulation in CCTM.  Added optional
 !                        variables from KF convective scheme with radiative
 !                        feedbacks.  (T. Spero)
+!           13 May 2021  Corrected minor error in assigning bounds for XCLAY_PX
+!                        as identified through CMAS Forum. (T. Spero)
 !-------------------------------------------------------------------------------
 
   USE mcipparm
@@ -532,7 +534,7 @@ SUBROUTINE metvars2ctm
     xwsat_px(:,:)   = wsat_px  (sc:ec,sr:er)
     xcsand_px(:,:)  = csand_px (sc:ec,sr:er)
     xfmsand_px(:,:) = fmsand_px(sc:ec,sr:er)
-    xclay_px(:,:)   = clay_px  (sc:er,sr:er)
+    xclay_px(:,:)   = clay_px  (sc:ec,sr:er)
   ENDIF
 
   IF ( lpv > 0 ) THEN
