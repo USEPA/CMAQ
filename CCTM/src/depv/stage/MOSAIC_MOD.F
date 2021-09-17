@@ -37,17 +37,7 @@ C                   D. Wong:   Apr 24  2019: removed unused BUFF2D_2 array
 C-------------------------------------------------------------------------------
 
       Implicit None
-
-!      INCLUDE SUBST_CONST     ! constants
       
-C shared variables 
-!      Real, Save, Allocatable :: rcanj      ( :,:,:,: )! stomatal, mesiphyll and cuticular resistances only
-!      Real, Save, Allocatable :: depvel_gasj( :,:,:,: ) ! deposition velocity by land use type
-!      Real, Save, Allocatable :: vd_fst_gasj( :,:,:,: ) ! deposition velocity for stomatal and
-!      Real, Save, Allocatable :: adepvj     ( :,:,:,: ) ! deposition velocity for stomatal and
-      
-!     Character( 80 ), Save   :: LAND_SCHEME 
-
 C Private variables used in this module and subroutines       
       Real, Save, Allocatable, Private :: fseas          ( :,: )
       Real, Save, Allocatable, Private :: f_land         ( :,: )
@@ -80,7 +70,6 @@ C Buffer variables
 !> Sub grid cell output:
          Real,            Allocatable :: depvel_gasj( :,:,:,: ) ! deposition velocity by land use type
          Real,            Allocatable :: vd_fst_gasj( :,:,:,: ) ! deposition velocity for stomatal
-         Real,            Allocatable :: pol        ( :,:,:,: ) ! Bidi production over loss rate
          Real,            Allocatable :: adepvj     ( :,:,:,: ) ! aerosol deposition
       End Type Tile_Type
 
@@ -136,8 +125,7 @@ C...include files
 !---------------------------------------------------------------------------------------------------
 
          Allocate ( Tile_Data%depvel_gasj( n_lufrac,N_GC_DEPV + N_NR_DEPV + N_TR_DEPV,ncols,nrows ),
-     &              Tile_Data%adepvj     ( n_lufrac,N_AE_DEPV,ncols,nrows   ), 
-     &              Tile_Data%pol        ( n_lufrac,N_GC_DEPV + N_NR_DEPV + N_TR_DEPV,ncols,nrows ), STAT = ALLOCSTAT )   
+     &              Tile_Data%adepvj     ( n_lufrac,N_AE_DEPV,ncols,nrows   ),  STAT = ALLOCSTAT )   
          If ( ALLOCSTAT .Ne. 0 ) Then
             XMSG = 'Failure allocating MOSAIC deposition velocities'
             Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )

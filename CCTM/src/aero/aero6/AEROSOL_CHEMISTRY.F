@@ -1201,7 +1201,7 @@ C ***            Isoprene epoxide uptake
                  CASE( IA_NTR2 )
 C *** calculate gas-particle partitioning of NTR2
                     CON_TOA = SUM( SUM( AEROSPC_CONC( :,1:2 ),2 ), 
-     &                        MASK = AEROSPC( : )%OM )
+     &                        MASK = ( AEROSPC( : )%OM .AND. .NOT. AEROSPC( : )%TRACER ) )
                     
                     F_PART_NTR2 = 0.0
                     IF ( CON_TOA .GE. MIN_TOA ) THEN
