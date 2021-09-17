@@ -530,7 +530,7 @@ C *** Solve for M0_accum using Smoluchowski`s solution
 C *** Transfer new value of M0_accum to the moment array
       MOMENT0_CONC( 2 ) = MAX( AEROMODE_MINNUM( 2 ), REAL( Y ) )
 
-! ** Update Budget Variable for Second Moment
+! ** Update Budget Variable for Zeroth Moment (Number)
       COAG_BUDGET( AERONUM_MAP( 1 ),1 ) = MOMENT0_CONC( 1 ) - CBUDGET0_NUM( 1 )
       COAG_BUDGET( AERONUM_MAP( 2 ),2 ) = MOMENT0_CONC( 2 ) - CBUDGET0_NUM( 2 )
 
@@ -584,7 +584,7 @@ C     intermodal coagulation.
      &                                TMASS - AEROSPC_CONC( SPC,1 ) )
 
 
-         ! Update Budget Variable for Second Moment
+         ! Update Budget Variable for Speciated Mass
          IF ( AEROSPC_MAP( SPC,1 ) .NE. 0 ) 
      &      COAG_BUDGET( AEROSPC_MAP( SPC,1 ),1 ) = 
      &           AEROSPC_CONC( SPC,1 ) - CBUDGET0_MASS( SPC,1 )
