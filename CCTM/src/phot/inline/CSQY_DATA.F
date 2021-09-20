@@ -1490,6 +1490,7 @@ C-----------------------------------------------------------------------
 !      re-consulting source and cited references
 !-----------------------------------------------------------------------
 
+      USE UTILIO_DEFN
       USE GRID_CONF           ! horizontal & vertical domain specifications
 
       IMPLICIT NONE
@@ -1554,7 +1555,9 @@ C-----------------------------------------------------------------------
       END DO
 
 
-!***loop over rates
+      CSZ = 0.0
+      QYZ = 1.0
+!***loop over rates for temperature corrections
       DO IPHOT = 1, MECHANISM_RATES
 !***loop over wavelengths
         DO IWL = 1, NWL_REF
@@ -1590,8 +1593,10 @@ C-----------------------------------------------------------------------
                END IF
            END DO
         END DO
+      END DO
 !***Make specific temperature and/or density corrections if needed
 !***Note specific acetone channels are treated outside these three nested loops
+      DO IPHOT = 1, MECHANISM_RATES
 
         IF( CSQY_ADJUST( IPHOT ) .LT. 1 )CYCLE
 
@@ -1788,27 +1793,30 @@ C-----------------------------------------------------------------------
                  DO LAYS = 1, NLAYS
                     IF ( QYZ( LAYS, IWL, IPHOT ) .LE. 0.0 ) CYCLE
 
-                    IF ( QYZ( LAYS, IWL, LHCHOR_06 ) .NE. 1.0) THEN
-                       BETA = 1.0 / ( 1.0 - QYZ( LAYS, IWL, LHCHOR_06 ) )
-                       IF ( TEMP( LAYS ) .LT. 300.0 .AND. TEMP( LAYS ) .GT. 220.0 ) THEN
-                           PRESSURE = 1.36312E-22  * DENS( LAYS ) * TEMP( LAYS )   ! pressure units, atm
-                           ALPHA = ( 1.0 / QYZ( LAYS, IWL, IPHOT ) - BETA )
-     &                           * ( 1.0 + 0.05 * ( WAVELENGTH( IWL ) - 329.0 )
-     &                           * ( ( TEMP( LAYS ) - 80.0 ) * 0.0125 ) )
-                       ELSE IF ( TEMP( LAYS ) .LE. 220.0 ) THEN
-                           PRESSURE = 3.0E-20 * DENS( LAYS )
-                           ALPHA = ( 1.0 / QYZ( LAYS, IWL, IPHOT ) - BETA )
-     &                           * ( 1.0 + 0.0875 * ( WAVELENGTH( IWL ) - 329.0 ) )
-                       ELSE IF ( TEMP( LAYS ) .GE. 300.0 ) THEN
-                           PRESSURE = 4.09E-20 * DENS( LAYS )
-                           ALPHA = ( 1.0 / QYZ( LAYS, IWL, IPHOT ) - BETA )
-     &                           * ( 1.0 + 0.1375 * ( WAVELENGTH( IWL ) - 329.0 ) )
-                       END IF
-!***use relative change assuming that air density for interpolated value is 2.465e19 molecules/cm3
-                       QYZ( LAYS, IWL, IPHOT ) = QYZ( LAYS, IWL, IPHOT )
-     &                                         * ( BETA + 3.3601E-3 * TEMP( LAYS ) * ALPHA ) 
-     &                                         / ( BETA + PRESSURE * ALPHA )                    
+                    IF( QYZ( LAYS, IWL, LHCHOR_06 ) .GT. 0.9999999 )THEN
+                        WRITE(6,*)"QYZ( LAYS, IWL, LHCHOR_06 ) = ",QYZ( LAYS, IWL, LHCHOR_06 ) 
+                        CALL M3EXIT( 'GET_CSQY', 0, 0, 'CHECK master log for information', -1 )
                     END IF
+                         
+                    BETA = 1.0 / ( 1.0 - QYZ( LAYS, IWL, LHCHOR_06 ) )
+                    IF ( TEMP( LAYS ) .LT. 300.0 .AND. TEMP( LAYS ) .GT. 220.0 ) THEN
+                        PRESSURE = 1.36312E-22  * DENS( LAYS ) * TEMP( LAYS )   ! pressure units, atm
+                        ALPHA = ( 1.0 / QYZ( LAYS, IWL, IPHOT ) - BETA )
+     &                        * ( 1.0 + 0.05 * ( WAVELENGTH( IWL ) - 329.0 )
+     &                        * ( ( TEMP( LAYS ) - 80.0 ) * 0.0125 ) )
+                    ELSE IF ( TEMP( LAYS ) .LE. 220.0 ) THEN
+                        PRESSURE = 3.0E-20 * DENS( LAYS )
+                        ALPHA = ( 1.0 / QYZ( LAYS, IWL, IPHOT ) - BETA )
+     &                        * ( 1.0 + 0.0875 * ( WAVELENGTH( IWL ) - 329.0 ) )
+                    ELSE IF ( TEMP( LAYS ) .GE. 300.0 ) THEN
+                        PRESSURE = 4.09E-20 * DENS( LAYS )
+                        ALPHA = ( 1.0 / QYZ( LAYS, IWL, IPHOT ) - BETA )
+     &                        * ( 1.0 + 0.1375 * ( WAVELENGTH( IWL ) - 329.0 ) )
+                    END IF
+!***use relative change assuming that air density for interpolated value is 2.465e19 molecules/cm3
+                    QYZ( LAYS, IWL, IPHOT ) = QYZ( LAYS, IWL, IPHOT )
+     &                                      * ( BETA + 3.3601E-3 * TEMP( LAYS ) * ALPHA ) 
+     &                                      / ( BETA + PRESSURE * ALPHA )                    
 !      IF ( FIRSTCALL )THEN 
 !                WRITE(LOGDEV, 99951)'TEMP, DENS, HCHO_M QYZ factor =  ', ' ',TEMP( LAYS ), DENS( LAYS ),
 !     &          ( BETA + 3.3601E-3 * TEMP( LAYS ) * ALPHA )/( BETA + PRESSURE * ALPHA )
