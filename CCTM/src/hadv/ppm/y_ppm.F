@@ -47,8 +47,12 @@ C   11 Dec 19 S.L.Napelenok: ddm-3d implementation for version 5.3.1
 C-----------------------------------------------------------------------
 
       USE HGRD_DEFN             ! horizontal domain specifications
+      USE GRID_CONF, ONLY: NLAYS
       USE CGRID_SPCS            ! CGRID mechanism species
       USE UTILIO_DEFN
+      USE XY_BUDGET, ONLY : F_NORTH_IN, F_NORTH_OUT, F_SOUTH_IN, F_SOUTH_OUT
+      USE PA_DEFN, ONLY : BUDGET_DIAG
+      use CENTRALIZED_IO_MODULE, only : interpolate_var, MSFX2
 #ifdef parallel
       USE SE_MODULES            ! stenex (using SE_COMM_MODULE, SE_UTIL_MODULE)
 #else
@@ -106,8 +110,7 @@ C Local Variables:
       LOGICAL, SAVE :: FIRSTIME = .TRUE.
       CHARACTER( 96 ) :: XMSG = ' '
 
-      REAL,    SAVE :: DX2                      ! dx2 (meters)
-      INTEGER, SAVE :: ASPC                     ! RHOJ index in CGRID
+      REAL,    SAVE :: DX2, DX1, AX             ! dx2 (meters), dx1 (m), ax (m2)
 
       REAL, ALLOCATABLE, SAVE :: VELY( : ),     ! Velocities along a column
      &                           CONY( :,: )    ! Conc's along a column
@@ -122,10 +125,19 @@ C Local Variables:
 
       CHARACTER( 16 ) :: X2VEL = 'X2VEL'
 
-      INTEGER      COL, ROW, SPC, VAR           ! loop counters
+      INTEGER      COL, ROW, SPC, VAR, I           ! loop counters
       INTEGER      A2C
 
+      REAL     :: JACOBM( NCOLS,NROWS,NLAYS )  !"total" Jacobian
+      REAL     :: ZF( NCOLS,NROWS,NLAYS )      !Grid cell height
+      REAL, PARAMETER :: MWAIR_SI = 0.02897    ! kg mol-1
+      REAL     :: VOL, VOL2                    ! Grid Volume
+
       LOGICAL, SAVE :: BNDY_PE_LOY, BNDY_PE_HIY
+      REAL, ALLOCATABLE, SAVE :: F_LO_IN( : )
+      REAL, ALLOCATABLE, SAVE :: F_LO_OUT( : )
+      REAL, ALLOCATABLE, SAVE :: F_HI_IN( : )
+      REAL, ALLOCATABLE, SAVE :: F_HI_OUT( : )
 
 #ifdef parallel
       INTEGER NORTH_ROW
@@ -160,7 +172,8 @@ C Required interface for allocatable array dummy arguments
             CHARACTER( 16 ), INTENT( IN )     :: UORV
             REAL,            INTENT( OUT )    :: UHAT( :,: )
          END SUBROUTINE HCONTVEL
-         SUBROUTINE HPPM ( NI, NJ, CON, VEL, DT, DS, ORI )
+         SUBROUTINE HPPM ( NI, NJ, CON, VEL, DT, DS, ORI,
+     &               F_LO_IN, F_LO_OUT, F_HI_IN, F_HI_OUT )
 ! #ifdef parallel
             INTEGER, PARAMETER                :: SWP = 3
 ! #else
@@ -172,6 +185,10 @@ C Required interface for allocatable array dummy arguments
             REAL,            INTENT( IN )     :: DT
             REAL,            INTENT( IN )     :: DS
             CHARACTER,       INTENT( IN )     :: ORI
+            REAL           , INTENT( OUT)     :: F_LO_IN( : )
+            REAL           , INTENT( OUT)     :: F_LO_OUT( : )
+            REAL           , INTENT( OUT)     :: F_HI_IN( : )
+            REAL           , INTENT( OUT)     :: F_HI_OUT( : )
          END SUBROUTINE HPPM
       END INTERFACE
 C-----------------------------------------------------------------------
@@ -185,11 +202,15 @@ C-----------------------------------------------------------------------
 C Get dx2 from HGRD_DEFN module
 
          IF ( GDTYP_GD .EQ. LATGRD3 ) THEN
+            DX1 = DG2M * XCELL_GD
+     &          * COS( PI180*( YORIG_GD + YCELL_GD*FLOAT( GL_NROWS/2 ))) ! in m.
             DX2 = DG2M * YCELL_GD   ! in m.
 
          ELSE
+            DX1 = XCELL_GD          ! in m.
             DX2 = YCELL_GD          ! in m.
          END IF
+         AX = DX1 * DX2
 
          N_SPC_ADV = N_GC_TRNS + N_AE_TRNS + N_NR_TRNS + N_TR_ADV + 1
                                                   ! add 1 for advecting RHOJ
@@ -258,8 +279,6 @@ C Get dx2 from HGRD_DEFN module
 #endif
 #endif
 
-         ASPC = GC_STRT - 1 + N_GC_SPCD
-
 C Create global map to CGRID
 
          SPC = 0
@@ -280,9 +299,17 @@ C Create global map to CGRID
             ADV_MAP( SPC ) = TR_STRT - 1 + TR_ADV_MAP( VAR )
          END DO
 
-         ADV_MAP( N_SPC_ADV ) = ASPC
+         ADV_MAP( N_SPC_ADV ) = RHOJ_LOC
 
          CALL SUBST_HI_LO_BND_PE ( 'R', BNDY_PE_LOY, BNDY_PE_HIY )
+
+         ! Allocate FLuxes for Budget Tool
+         ALLOCATE( F_LO_IN(N_SPC_ADV),
+     &             F_LO_OUT(N_SPC_ADV),
+     &             F_HI_IN(N_SPC_ADV),
+     &             F_HI_OUT(N_SPC_ADV) )
+
+
 
          END IF                    ! if firstime
 
@@ -450,9 +477,62 @@ C North boundary
 #endif
 
 C PPM scheme
-         CALL HPPM ( NROWS, NCOLS, CONY, VELY, DT, DX2, 'R' )
+         F_LO_IN = 0.
+         F_LO_OUT= 0.
+         F_HI_IN = 0.
+         F_HI_OUT= 0.
+
+         CALL HPPM ( NROWS, NCOLS, CONY, VELY, DT, DX2, 'R',
+     &               F_LO_IN, F_LO_OUT, F_HI_IN, F_HI_OUT )
+ 
+         ! Store Boundary Fluxes for Budget Diagnostic
+         ! Flux units are converted:
+         !     vapors: [Jacobian x rho] x [ppm] --> umol
+         !     aerosol mass: [Jacobian] x [kg m-3] --> kg
+         !     aerosol number: [Jacobian] x [N m-3] --> N
+         !     aerosol surface area: [Jacobian] x [m2 m-3] --> m2
+         IF ( BUDGET_DIAG ) THEN
+            IF ( BNDY_PE_LOY ) THEN
+                call interpolate_var ('JACOBM', fdate, ftime, JACOBM)
+                call interpolate_var ('ZF', fdate, ftime, ZF)
+                IF ( LVL .EQ. 1 ) THEN
+                    VOL = AX * ZF( COL,1,1 ) / MSFX2( COL,1 )
+                ELSE
+                    VOL = AX * ( ZF( COL,1,LVL ) - ZF( COL,1,LVL-1 ) ) / MSFX2(COL,1)
+                END IF
+                DO I = 1,N_SPC_ADV
+                   A2C = ADV_MAP( I )
+                   VOL2 = VOL
+                   IF ( .NOT. CGRID_MASK_AERO( A2C ) ) VOL2 = VOL / MWAIR_SI
+                   F_SOUTH_IN( LVL,A2C )  = F_SOUTH_IN( LVL,A2C ) 
+     &                      + F_LO_IN(I) / JACOBM( COL,1,LVL ) * VOL2
+                   F_SOUTH_OUT( LVL,A2C ) = F_SOUTH_OUT( LVL,A2C ) 
+     &                      + F_LO_OUT(I) / JACOBM( COL,1,LVL ) * VOL2
+                END DO
+            END IF
+            IF ( BNDY_PE_HIY ) THEN
+                call interpolate_var ('JACOBM', fdate, ftime, JACOBM)
+                call interpolate_var ('ZF', fdate, ftime, ZF)
+                IF ( LVL .EQ. 1 ) THEN
+                    VOL = AX * ZF( COL,NROWS,1 ) / MSFX2( COL,NROWS )
+                ELSE
+                    VOL = AX * ( ZF( COL,NROWS,LVL ) - ZF( COL,NROWS,LVL-1 ) ) / MSFX2(COL,NROWS)
+                END IF
+                DO I = 1,N_SPC_ADV
+                   A2C = ADV_MAP( I )
+                   VOL2 = VOL
+                   IF ( .NOT. CGRID_MASK_AERO( A2C ) ) VOL2 = VOL / MWAIR_SI
+                   F_NORTH_IN( LVL,A2C )  = F_NORTH_IN( LVL,A2C ) 
+     &                      + F_HI_IN(I) / JACOBM( COL,NROWS,LVL ) * VOL2
+                   F_NORTH_OUT( LVL,A2C ) = F_NORTH_OUT( LVL,A2C ) 
+     &                      + F_HI_OUT(I) / JACOBM( COL,NROWS,LVL ) * VOL2
+                END DO
+            END IF
+         END IF
+         
 #ifdef isam
-         CALL HPPM ( NROWS, NCOLS, SA_CONY, VELY, DT, DX2, 'R' )
+         CALL HPPM ( NROWS, NCOLS, SA_CONY, VELY, DT, DX2, 'R',
+     &               F_LO_IN, F_LO_OUT, F_HI_IN, F_HI_OUT )
 #endif
 
          DO SPC = 1, N_SPC_ADV

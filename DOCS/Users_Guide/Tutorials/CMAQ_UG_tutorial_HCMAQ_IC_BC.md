@@ -133,8 +133,8 @@ The run script below uses the [`ICON`](../../../PREP/icon) program to create ini
 
 #> Horizontal grid definition 
  setenv GRID_NAME SE53BENCH               #> check GRIDDESC file for GRID_NAME options
-#setenv GRIDDESC $CMAQ_DATA/$APPL/met/mcip/GRIDDESC #> grid description file 
- setenv GRIDDESC /work/MOD3DATA/SE53BENCH/met/mcip/GRIDDESC
+#setenv GRIDDESC ${CMAQ_DATA}/$APPL/met/mcip/GRIDDESC #> grid description file 
+ setenv GRIDDESC ${CMAQ_DATA}/SE53BENCH/met/mcip/GRIDDESC
  setenv IOAPI_ISPH 20                     #> GCTP spheroid, use 20 for WRF-based modeling
 
 #> I/O Controls
@@ -180,14 +180,14 @@ The run script below uses the [`ICON`](../../../PREP/icon) program to create ini
 
  if ( $ICON_TYPE == profile ) then
     setenv IC_PROFILE $BLD/avprofile_cb6r3m_ae7_kmtbr_hemi2016_v53beta2_m3dry_col051_row068.csv
-    setenv MET_CRO_3D_FIN /work/MOD3DATA/SE53BENCH/met/mcip/METCRO3D_160701.nc
+    setenv MET_CRO_3D_FIN ${CMAQ_DATA}/SE53BENCH/met/mcip/METCRO3D_160701.nc
     setenv INIT_CONC_1    "$OUTDIR/ICON_${VRSN}_${APPL}_${ICON_TYPE} -v"
  endif
  
  if ( $ICON_TYPE == regrid ) then
-    setenv CTM_CONC_1 /path/to/CCTM_CONC_v53beta2_intel17.0_HEMIS_cb6r3m_ae7_kmtbr_m3dry_2016_quarterly_av.nc
-    setenv MET_CRO_3D_CRS /path/to/CCTM_CONC_v53beta2_intel17.0_HEMIS_cb6r3m_ae7_kmtbr_m3dry_2016_quarterly_av.nc
-    setenv MET_CRO_3D_FIN /work/MOD3DATA/SE53BENCH/met/mcip/METCRO3D_160701.nc
+    setenv CTM_CONC_1 ${DATADIR}/CCTM_CONC_v53beta2_intel17.0_HEMIS_cb6r3m_ae7_kmtbr_m3dry_2016_quarterly_av.nc
+    setenv MET_CRO_3D_CRS ${DATADIR}/CCTM_CONC_v53beta2_intel17.0_HEMIS_cb6r3m_ae7_kmtbr_m3dry_2016_quarterly_av.nc
+    setenv MET_CRO_3D_FIN ${CMAQ_DATA}/SE53BENCH/met/mcip/METCRO3D_160701.nc
     set DATE = `date -ud "2016-07-01" +%Y%j` #> Convert YYYY-MM-DD to YYYYJJJ
 #    setenv SDATE           ${DATE}
 #    setenv STIME           000000
@@ -256,7 +256,7 @@ The run script below uses the [`BCON`](../../../PREP/bcon) program to create bou
 #> Horizontal grid definition 
  setenv GRID_NAME SE53BENCH               #> check GRIDDESC file for GRID_NAME options
 #setenv GRIDDESC $CMAQ_DATA/$APPL/met/mcip/GRIDDESC #> grid description file 
- setenv GRIDDESC /work/MOD3DATA/SE53BENCH/met/mcip/GRIDDESC
+ setenv GRIDDESC /SE53BENCH/met/mcip/GRIDDESC
  setenv IOAPI_ISPH 20                     #> GCTP spheroid, use 20 for WRF-based modeling
 
 #> I/O Controls
@@ -302,14 +302,14 @@ The run script below uses the [`BCON`](../../../PREP/bcon) program to create bou
  
  if ( $BCON_TYPE == profile ) then
     setenv BC_PROFILE $BLD/avprofile_cb6r3m_ae7_kmtbr_hemi2016_v53beta2_m3dry_col051_row068.csv
-    setenv MET_BDY_3D_FIN /work/MOD3DATA/SE53BENCH/met/mcip/METBDY3D_160701.nc
+    setenv MET_BDY_3D_FIN ${CMAQ_DATA}/SE53BENCH/met/mcip/METBDY3D_160701.nc
     setenv BNDY_CONC_1    "$OUTDIR/BCON_${VRSN}_${APPL}_${BCON_TYPE} -v"
  endif
 
  if ( $BCON_TYPE == regrid ) then 
-    setenv CTM_CONC_1 /path/to/CCTM_CONC_v53beta2_intel17.0_HEMIS_cb6r3m_ae7_kmtbr_m3dry_2016_quarterly_av.nc
-    setenv MET_CRO_3D_CRS /path/to/CCTM_CONC_v53beta2_intel17.0_HEMIS_cb6r3m_ae7_kmtbr_m3dry_2016_quarterly_av.nc
-    setenv MET_BDY_3D_FIN /work/MOD3DATA/SE53BENCH/met/mcip/METBDY3D_160701.nc
+    setenv CTM_CONC_1 ${DATADIR}/CCTM_CONC_v53beta2_intel17.0_HEMIS_cb6r3m_ae7_kmtbr_m3dry_2016_quarterly_av.nc
+    setenv MET_CRO_3D_CRS ${DATADIR}/CCTM_CONC_v53beta2_intel17.0_HEMIS_cb6r3m_ae7_kmtbr_m3dry_2016_quarterly_av.nc
+    setenv MET_BDY_3D_FIN ${CMAQ_DATA}/SE53BENCH/met/mcip/METBDY3D_160701.nc
     set DATE = `date -ud "2016-07-01" +%Y%j` #> Convert YYYY-MM-DD to YYYYJJJ
 #    setenv SDATE           ${DATE}
 #    setenv STIME           000000

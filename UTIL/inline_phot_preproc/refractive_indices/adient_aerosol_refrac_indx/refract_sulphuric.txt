@@ -1,5 +1,6 @@
-Refractive Index of 75 % Sulphuric Acid Droplets as given in SRA
-Wvelen(um) Real Part  Imag Part
+SULPHURIC
+!Refractive Index of 75 % Sulphuric Acid Droplets as given in SRA
+!Wvelen(um) Real Part  Imag Part
 2.0000E-01 1.49800e+00 1.00000e-08
 2.5000E-01 1.48400e+00 1.00000e-08
 3.0000E-01 1.46900e+00 1.00000e-08

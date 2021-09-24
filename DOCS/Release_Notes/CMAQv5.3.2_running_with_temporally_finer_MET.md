@@ -3,7 +3,7 @@
 **Author/P.O.C.:** [D. Wong](mailto:wong.david-c@epa.gov), Center for Environmental Measurement and Modeling (CEMM), U.S. EPA
  
 ## Brief Description
-The time stepping algorithm as of CMAQv4.7+, would incorrectly run if given temporally finer meteorology inputs than expected by the output time step. If the user set the output time step to be equal to the temporal time step of the incoming meteorology file, the model would correctly run but would also output data at the temporal frequency of the incoming meteorology file. This is often undesirable as it can be burdensome for the I/O of the model and or the underlying disk space needed to store this data. To decouple these two processes a new environmental variable allowing users to control the [MET_TSTEP](https://github.com/USEPA/CMAQ/blob/master/DOCS/Users_Guide/Appendix/CMAQ_UG_appendixA_model_options.md#timestep-configuration) is introduced. The general algorithm is discussed below: 
+The time stepping algorithm as of CMAQv4.7+, would incorrectly run if given temporally finer meteorology inputs than expected by the output time step. If the user set the output time step to be equal to the temporal time step of the incoming meteorology file, the model would correctly run but would also output data at the temporal frequency of the incoming meteorology file. This is often undesirable as it can be burdensome for the I/O of the model and or the underlying disk space needed to store this data. To decouple these two processes a new environmental variable allowing users to control the [MET_TSTEP](../Users_Guide/Appendix/CMAQ_UG_appendixA_model_options.md#timestep-configuration) is introduced. The general algorithm is discussed below: 
 
 ```
       CMAQ_Main

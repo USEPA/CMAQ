@@ -115,22 +115,25 @@ will be calculated for the sum of each species in the family.
 
 |**LPROC**|**process**| **Description**|
 |:-------|:-----|:---------|
-|1|ZADV| vertical advection|
-|2|HADV| horizontal advection|
-|3|HDIF| horizontal diffusion|
-|4|VDIF| vertical diffusion|
-|5|EMIS| emissions contribution to concentration|
-|6|DDEP| dry deposition of species|
-|7|CLDS| change due to cloud processes; includes aqueous reaction and removal by clouds and rain|
-|8|CHEM| net sum of all chemical processes for species over output step|
-|9|COND| change in aerosol species due to condensation|
-|10|COAG| change in aerosol species due to coagulation|
-|11|NPF| change in aerosol species due to new particle formation|
-|12|GROW| change in aerosol species due to aerosol growth|
-|9+10+11+12|AERO| change due to aerosol processes|
-|1+2|MADV| Horizontal and vertical advection|
-|3+4|TDIF| Total diffusion of species|
-|1+2+3+4| TRNM|Total mass-conserving transport of species|
+|1|XADV| X-direction horizontal advection|
+|2|YADV| Y-direction horizontal advection|
+|3|ZADV| vertical advection|
+|4|HDIF| horizontal diffusion|
+|5|VDIF| vertical diffusion|
+|6|EMIS| emissions contribution to concentration|
+|7|DDEP| dry deposition of species|
+|8|CLDS| change due to cloud processes; includes aqueous reaction and removal by clouds and rain|
+|9|PVO3| potential vorticity contribution to O3 mixing between the upper troposphere and stratosphere|
+|10|CHEM| net sum of all chemical processes for species over output step|
+|11|COND| change in aerosol species due to condensation|
+|12|COAG| change in aerosol species due to coagulation|
+|13|NPF| change in aerosol species due to new particle formation|
+|14|GROW| change in aerosol species due to aerosol growth|
+|1+2|HADV| total horizontal advection|
+|1+2+3|MADV| Horizontal and vertical advection|
+|4+5|TDIF| Total diffusion of species|
+|1+2+3+4+5| TRNM|Total mass-conserving transport of species|
+|11+12+13+14|AERO| change due to aerosol processes|
 
 ## 9.5 Parameters for IRR
 
