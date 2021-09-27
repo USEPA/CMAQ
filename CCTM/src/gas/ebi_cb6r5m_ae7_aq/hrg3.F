@@ -23,11 +23,11 @@ C**********************************************************************
 C
 C  FUNCTION:  To solve for the concentration of C2O3 and PAN
 C
-C  PRECONDITIONS: For the CB6R3M_AE7_AQ mechanism
+C  PRECONDITIONS: For the CB6R5M_AE7_AQ mechanism
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, Jan 25, 2021
+C  REVISION HISTORY: Created by EBI solver program, Jun  9, 2021
 C
 C   18 Jul 14 B.Hutzell: revised to use real(8) variables
 C**********************************************************************
@@ -84,13 +84,14 @@ c..Production of C2O3 (except from PAN )
      &   +    3.0000D-01 * RXRAT(   202 )      ! XOPN=0.3000D+00*C2O3+XO2H+...
      &   +    6.0000D-01 * RXRAT(   204 )      ! XOPN+O3=0.6000D+00*C2O3+...
      &   +    1.2000D-01 * RXRAT(   208 )      ! OPEN+O3=0.1200D+00*C2O3+...
-     &   +                 RXRAT(   243 )      ! CL+ALD2=C2O3+HCL
-     &   +                 RXRAT(   359 )      ! ALD2+BR=C2O3+HBR
+     &   +                 RXRAT(   244 )      ! CL+ALD2=C2O3+HCL
+     &   +                 RXRAT(   360 )      ! ALD2+BR=C2O3+HBR
 
 c..Loss frequency of C2O3 ( not including C2O3 + C2O3 )
       L8 =                 RKI(    53 ) * YC ( NO           )   ! C2O3+NO=NO2+MEO2+RO2
      &   +                 RKI(    54 ) * YC ( NO2          )   ! C2O3+NO2=PAN
-     &   +                 RKI(    57 ) * YC ( HO2          )   ! C2O3+HO2=0.4100D+...
+     &   +                 RKI(    57 ) * YC ( HO2          )   ! C2O3+HO2=0.3700D+...
+     &   +                 RKI(    58 ) * YC ( RO2          )   ! C2O3+RO2=MEO2
      &   +                 RKI(    60 ) * YC ( CXO3         )   ! C2O3+CXO3=MEO2+...
      &   +                 RKI(    73 ) * YC ( MEO2         )   ! C2O3+MEO2=FORM+...
      &   +                 RKI(    77 ) * YC ( XO2H         )   ! C2O3+XO2H=...

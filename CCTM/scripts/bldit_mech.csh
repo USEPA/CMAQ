@@ -34,7 +34,7 @@
 #> Source Code Locations 
  if ( ! $?Mechanism ) then
     # Manually set name of mechanism if not inherited
-    setenv Mechanism cb6r3_ae7_aq              
+    setenv Mechanism cb6r5_ae7_aq              
  endif
  setenv MECH $Mechanism
 

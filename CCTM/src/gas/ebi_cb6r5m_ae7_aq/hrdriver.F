@@ -22,12 +22,12 @@ C**********************************************************************
 C
 C  FUNCTION: Driver subroutine for Euler Backward Iterative solver
 C
-C  PRECONDITIONS: For the CB6R3M_AE7_AQ mechanism
+C  PRECONDITIONS: For the CB6R5M_AE7_AQ mechanism
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED:  HRINIT, HRCALCKS, HRSOLVER
 C                                     FIND_DEGRADED, INIT_DEGRADE, FINAL_DEGRADE
 C
-C  REVISION HISTORY: Created by EBI solver program, Jan 25, 2021
+C  REVISION HISTORY: Created by EBI solver program, Jun  9, 2021
 C                       Based on the algorithm in "Test of Two Numerical
 C                       Schemes for Use in Atmospheric Transport-Chemistry
 C                       Models", O. Hertel, R. Berkowicz, J. Christensen,
@@ -174,9 +174,9 @@ c  On first call, call routines to set-up for EBI solver
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       IF( LFIRST ) THEN
 
-         IF( MECHNAME .NE. 'CB6R3M_AE7_AQ' ) THEN
+         IF( MECHNAME .NE. 'CB6R5M_AE7_AQ' ) THEN
              MSG = 'This version of the EBI solver can only be used with'
-     &            // ' the CB6R3M_AE7_AQ chemical mechanism'
+     &            // ' the CB6R5M_AE7_AQ chemical mechanism'
              CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
          END IF
 

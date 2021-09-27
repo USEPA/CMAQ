@@ -35,7 +35,7 @@ echo 'Start Model Run At ' `date`
 #> Set General Parameters for Configuring the Simulation
  set VRSN      = v532              #> Code Version
  set PROC      = mpi               #> serial or mpi
- set MECH      = cb6r3_ae7_aq      #> Mechanism ID
+ set MECH      = cb6r5m_ae7_aq     #> Mechanism ID
  set APPL      = 2015_HEMI         #> Application Name (e.g. Gridname)
                                                        
 #> Define RUNID as any combination of parameters above or others. By default,
@@ -205,7 +205,7 @@ setenv B3GTS_DIAG N          #> BEIS mass emissions diagnostic file [ default: N
 setenv CTM_WVEL Y            #> save derived vertical velocity component to conc & aconc
                              #>    file [ default: Y ]
 setenv CTM_MGEMDIAG  N       # marine emissions diagnostic file [ default: N ]
-                             # it will generate the file only if MECH = cb6r3m_ae7_kmtbr
+                             # it will generate the file only if MECH = cb6r5m_ae7_aq
 # =====================================================================
 #> Input Directories and Filenames
 # =====================================================================

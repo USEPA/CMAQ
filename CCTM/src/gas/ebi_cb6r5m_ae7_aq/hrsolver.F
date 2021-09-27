@@ -25,13 +25,13 @@ C**********************************************************************
 C
 C  FUNCTION: EBI solver
 C
-C  PRECONDITIONS: For the CB6R3M_AE7_AQ mechanism
+C  PRECONDITIONS: For the CB6R5M_AE7_AQ mechanism
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED:  HRRATES, HRG1, HRG2, HRG3
 C                                     HRG4, HRPRODLOSS
 C                                     DEGRADE
 C
-C  REVISION HISTORY: Created by EBI solver program, Jan 25, 2021
+C  REVISION HISTORY: Created by EBI solver program, Jun  9, 2021
 C   21 Jun 10 J.Young: convert for Namelist redesign
 C   18 Jul 14 B.Hutzell: revised 1) to use the RXNS_DATA and RXNS_FUNCTION
 C                        modules instead of include files and 2) to use
