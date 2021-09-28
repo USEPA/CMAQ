@@ -2,7 +2,7 @@
 Developers name and affiliation  
 
 **Type of code change:**   
-For example, bug fix, enhancement, new feature, docomentation.
+For example, bug fix, enhancement, new feature, documentation.
 
 **Description of changes:**   
 Clear and concise description of the problem, solution, and required changes.  
