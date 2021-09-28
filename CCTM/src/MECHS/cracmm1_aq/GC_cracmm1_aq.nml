@@ -47,11 +47,11 @@ GC_SPECIES_DATA =
 'SULF'          , 98.0   ,''     ,-1     ,''     ,-1     ,'VD_SULF'         , 1   ,'H2SO4'           , 1  ,'SULF'         ,'H2SO4'   ,'Yes' ,'Yes' ,'Yes' ,'Yes',
 'SULRXN'        , 98.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,'SULPRD'       ,''        ,''    ,''    ,''    ,''   ,
 'ETH'           , 30.1   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,'ETHANE'          , 1  ,''             ,''        ,'Yes' ,''    ,'Yes' ,'Yes',!Ethane,E,DTXSID6026377,CC
-'HC3'           , 51.9   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,'HC3'             , 1  ,''             ,''        ,'Yes' ,''    ,'Yes' ,'Yes',!Propane,L,DTXSID5026386,CCC
+'HC3'           , 51.9   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,'HC3OPERA'        , 1  ,''             ,''        ,'Yes' ,''    ,'Yes' ,'Yes',!Propane,L,DTXSID5026386,CCC
 'HC3P'          , 75.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,''             ,''        ,''    ,''    ,''    ,'Yes',
-'HC5'           , 84.3   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,'HC5'             , 1  ,''             ,''        ,'Yes' ,''    ,'Yes' ,'Yes',!Pentane,L,DTXSID2025846,CCCCC
+'HC5'           , 84.3   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,'HC5OPERA'        , 1  ,''             ,''        ,'Yes' ,''    ,'Yes' ,'Yes',!Pentane,L,DTXSID2025846,CCCCC
 'HC5P'          ,103.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,''             ,''        ,''    ,''    ,''    ,'Yes',
-'HC8'           ,136.2   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,'HC8'             , 1  ,''             ,''        ,'Yes' ,''    ,'Yes' ,'Yes',!Decane,L,DTXSID6024913,CCCCCCCCCC
+'HC8'           ,136.2   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,'HC8OPERA'        , 1  ,''             ,''        ,'Yes' ,''    ,'Yes' ,'Yes',!Decane,L,DTXSID6024913,CCCCCCCCCC
 'HC8P'          ,145.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,''             ,''        ,''    ,''    ,''    ,'Yes',
 'ETE'           , 28.1   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,'ETHENE'          , 1  ,''             ,''        ,'Yes' ,''    ,'Yes' ,'Yes',!Ethylene,E,DTXSID1026378,C=C
 'ETEP'          , 77.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,''             ,''        ,''    ,''    ,''    ,'Yes',
@@ -95,7 +95,7 @@ GC_SPECIES_DATA =
 'DCB3'          , 84.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,'METHACROLEIN'    , 1  ,''             ,''        ,'Yes' ,''    ,''    ,'Yes',
 'BALP'          ,137.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,''             ,''        ,''    ,''    ,''    ,'Yes',
 'ADDC'          ,125.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,''             ,''        ,''    ,''    ,''    ,'Yes',
-'MCT'           ,124.1   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,'MCT'             , 1  ,''             ,''        ,'Yes' ,''    ,''    ,'Yes',!4-Methylcatechol,L,DTXSID5020861,CC1=CC(O)=C(O)C=C1
+'MCT'           ,124.1   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,'MCTOPERA'        , 1  ,''             ,''        ,'Yes' ,''    ,''    ,'Yes',!4-Methylcatechol,L,DTXSID5020861,CC1=CC(O)=C(O)C=C1
 'MCTO'          ,123.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,''             ,''        ,''    ,''    ,''    ,'Yes',
 'MOH'           , 32.0   ,''     ,-1     ,''     ,-1     ,'VD_METHANOL'     , 1   ,'METHANOL'        , 1  ,''             ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',!Methanol,E,DTXSID2021731,CO
 'EOH'           , 46.1   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,'ETHANOL'         , 1  ,''             ,''        ,'Yes' ,''    ,'Yes' ,'Yes',!Ethanol,E,DTXSID9020584,CCO

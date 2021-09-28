@@ -1184,15 +1184,15 @@ REACTIONS[CM] =
 <SA10>  NAPH + HO          = HO  + PAHRO2              # 2.31E-11;
 <SA11>  PAHRO2  + NO       = NO  + PAHNRXN             # 2.70e-12@-360;
 <SA12>  PAHRO2  + HO2      = HO2 + PAHHRXN             # 1.90e-13@-1300; 
-< T17>  ACRO + OH          = OH                   # 2.0E-11;
+< T17>  ACRO + HO          = HO                   # 2.0E-11;
 < T18>  ACRO + O3          = O3                   # 2.61E-19;
 < T19>  ACRO + NO3         = NO3                  # 1.15E-15;
 !< T20>  ACRO               =                      # 1.0/<ACRO_09>;
-<TCL5>  ACRO + CL          = CL                   # 2.37E-10;
-< T10>  BDE13 + OH         = OH  + 0.58*ACRO      # 1.48E-11@-448.;
+!<TCL5>  ACRO + CL          = CL                   # 2.37E-10;
+< T10>  BDE13 + HO         = HO  + 0.58*ACRO      # 1.48E-11@-448.;
 < T11>  BDE13 + O3         = O3  + 0.52*ACRO      # 1.34E-14@2283.;
 < T12>  BDE13 + NO3        = NO3 + 0.045*ACRO     # 1.79E-13;
-<TCL3>  BDE13 + CL         = CL  + 0.58*ACRO       # 2.51E-10;
+!<TCL3>  BDE13 + CL         = CL  + 0.58*ACRO       # 2.51E-10;
 
 ! Furan placeholder chemistry (same products as XYE, k of furfural)
 <R003c>  FURAN + HO          = 0.177*HO2 + 0.763*XY2
@@ -1201,7 +1201,7 @@ REACTIONS[CM] =
                                        + 1.0*XYLRO2   # 3.5E-11;
 
 ! PROG based on Coggon et al. and MCM http://mcm.york.ac.uk/browse.htt?species=PROPGLY
-<R004c> PROG + OH = 0.613 HKET + 0.387 ALD + HO2 #1.20E-11;
+<R004c> PROG + HO = 0.613*HKET + 0.387*ALD + HO2 #1.20E-11;
 
 ! heteorogeneous reactions from hetchem and poaaging routines version 5.0.2
 
