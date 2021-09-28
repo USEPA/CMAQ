@@ -92,8 +92,13 @@
 !------------------------------------------------------------------------------ 
 ! CRACMMv1.0 modifications
 ! - XYO and XYP combined and replaced with XYE (R084c). Retains products of XYO 
-!   (same as XYP) but decreases kOH to emission wt. value. Major contributors 
-!   to XYE are o-xylene and ethylbenzene.
+!   (same as XYP) but decreases kOH to surrogate (ethylbenzene) value. 
+!   Major contributors ethylbenzene and o-xylene.
+! - renamed BENZENE to BEN for greater consistency in name length
+! - added HAP placeholder chemistry for BDE13, ACRO. NAPH already present.
+! - added PROG based on Coggon et al. PNAS 2021 and 
+!   MCM http://mcm.york.ac.uk/browse.htt?species=PROPGLY
+! - FURAN placeholder added with XYE products and furfural kOH
 !------------------------------------------------------------------------------ 
 CRACMM1_AQ
 
@@ -230,13 +235,12 @@ REACTIONS[CM] =
                                                         8.8E-12 ^ -0.85;
 <R077>  OLT  + HO          = OLTP                     # 5.72E-12 @ -500.;
 <R078>  OLI  + HO          = OLIP                     # 1.33E-11 @ -500.;
-<R079>  DIEN + HO          = OLIP                     # 1.48E-11 @ -448.;
 <R080>  ACE  + HO          = 0.650*HO  + 0.350*HO2
                                        + 0.350*CO
                                        + 0.650*GLY
                                        + 0.350*ORA1   # 5.5E-30 ^ 0.0 &  
                                                         8.3E-13 ^ 2.0;
-<R081>  BENZENE + HO       = 0.648*HO2 + 0.352*BENP
+<R081>  BEN + HO       = 0.648*HO2 + 0.352*BENP
                                        + 0.118*EPX
                                        + 0.530*PHEN
                                        + 1.0*BENZRO2  # 2.33E-12 @ 193.;
@@ -251,7 +255,7 @@ REACTIONS[CM] =
 <R084c>  XYE + HO          = 0.177*HO2 + 0.763*XY2
                                        + 0.060*XYL1
                                        + 0.177*CSL
-                                       + 1.0*XYLRO2   # 9.37E-12;
+                                       + 1.0*XYLRO2   # 7.16E-12;
 <R086>  ISO  + HO          = ISOP      + ISOPRXN      # 2.70E-11 @ -390.;
 <R087>  API  + HO          = APIP      + TRPRXN       # 1.21E-11 @ -440.;
 <R088>  LIM  + HO          = LIMP      + TRPRXN       # 4.20E-11 @ -401.;
@@ -336,7 +340,7 @@ REACTIONS[CM] =
                                         + 0.02*ETH 
                                         + 0.015*HC3 
                                         + 0.006*HC5 
-                                        + 0.032*BENZENE 
+                                        + 0.032*BEN 
                                         + 0.56*HCHO 
                                         + 0.01*ACD 
                                         + 0.44*ALD 
@@ -362,18 +366,6 @@ REACTIONS[CM] =
                                         + 0.017*KET 
                                         + 0.044*HKET 
                                         + 0.017*ORA2  # 4.40E-15 @ 845.0; 
-<R129> DIEN + O3           = 0.09*O3P   + 0.28*HO 
-                                        + 0.30*HO2
-                                        + 0.03*MO2 
-                                        + 0.15*ACO3 
-                                        + 0.02*KETP 
-                                        + 0.13*XO2 
-                                        + 0.001*H2O2 
-                                        + 0.36*CO 
-                                        + 0.35*OLT 
-                                        + 0.90*HCHO 
-                                        + 0.39*MACR 
-                                        + 0.15*ORA1   # 1.34E-14 @ 2283.0;
 <R130>  ISO  + O3          = 0.25*HO    + 0.25*HO2
                                         + 0.08*MO2
                                         + 0.1*ACO3
@@ -461,8 +453,6 @@ REACTIONS[CM] =
 <R141>  ETE  + NO3         = 0.80*OLNN  + 0.20*OLND   # 4.392E-13^2.0@2282.0; 
 <R142>  OLT  + NO3         = 0.43*OLNN  + 0.57*OLND   # 1.79E-13 @ 450.;
 <R143>  OLI  + NO3         = 0.11*OLNN  + 0.89*OLND   # 8.64E-13 @ -450.;
-<R144>  DIEN + NO3         = 0.90*OLNN  + 0.10*OLND
-                                        + 0.90*MACR   # 1.0E-13;
 <R145>  ISO  + NO3         =      ISON  + ISOPRXN     # 3.03E-12 @ 446.;
 <R146>  API  + NO3         = 0.10*OLNN  + 0.90*OLND
                                         + 1.0*TRPRXN  # 1.19E-12 @ -490.;
@@ -1177,9 +1167,6 @@ REACTIONS[CM] =
 <SA07>  SESQ + O3         = O3  + SESQRXN             # 1.16E-14;
 <SA08>  SESQ + HO         = HO  + SESQRXN             # 1.97E-10;
 <SA09>  SESQ + NO3        = NO3 + SESQRXN             # 1.90E-11;
-<SA10>  NAPH + HO         = HO  + PAHRO2              # 2.31E-11;
-<SA11>  PAHRO2  + NO      = NO  + PAHNRXN             # 2.70e-12@-360;
-<SA12>  PAHRO2  + HO2     = HO2 + PAHHRXN             # 1.90e-13@-1300; 
 <SA13>  SOAALK  + HO      = HO  + 0.47*ALKRXN         # 2.70e-12@-374;
 <SA14>  IEPOX + HO        = HO                        # 5.78E-11@400; 
 
@@ -1189,7 +1176,32 @@ REACTIONS[CM] =
                                        + 0.148*ASOATJ
                                        + 0.025*ALD
                                        + 0.024*HKET   # 2.82E-11 @ 273.;
+! assume SLOWROC, which has effectively 2.1C, makes ethane-like RO2 with SLOWROC emission weighted kOH
+<R002c> SLOWROC + HO      = ETHP    # 6.55E-14;
 
+! HAP placeholder chemistry from Carbon Bond or ae6
+! Comment out photolysis of ACRO for now
+<SA10>  NAPH + HO          = HO  + PAHRO2              # 2.31E-11;
+<SA11>  PAHRO2  + NO       = NO  + PAHNRXN             # 2.70e-12@-360;
+<SA12>  PAHRO2  + HO2      = HO2 + PAHHRXN             # 1.90e-13@-1300; 
+< T17>  ACRO + HO          = HO                   # 2.0E-11;
+< T18>  ACRO + O3          = O3                   # 2.61E-19;
+< T19>  ACRO + NO3         = NO3                  # 1.15E-15;
+!< T20>  ACRO               =                      # 1.0/<ACRO_09>;
+!<TCL5>  ACRO + CL          = CL                   # 2.37E-10;
+< T10>  BDE13 + HO         = HO  + 0.58*ACRO      # 1.48E-11@-448.;
+< T11>  BDE13 + O3         = O3  + 0.52*ACRO      # 1.34E-14@2283.;
+< T12>  BDE13 + NO3        = NO3 + 0.045*ACRO     # 1.79E-13;
+!<TCL3>  BDE13 + CL         = CL  + 0.58*ACRO       # 2.51E-10;
+
+! Furan placeholder chemistry (same products as XYE, k of furfural)
+<R003c>  FURAN + HO          = 0.177*HO2 + 0.763*XY2
+                                       + 0.060*XYL1
+                                       + 0.177*CSL
+                                       + 1.0*XYLRO2   # 3.5E-11;
+
+! PROG based on Coggon et al. and MCM http://mcm.york.ac.uk/browse.htt?species=PROPGLY
+<R004c> PROG + HO = 0.613*HKET + 0.387*ALD + HO2 #1.20E-11;
 
 ! heteorogeneous reactions from hetchem and poaaging routines version 5.0.2
 

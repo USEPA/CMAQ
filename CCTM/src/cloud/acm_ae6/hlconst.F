@@ -112,7 +112,7 @@ C...........INCLUDES and their descriptions
 
 C...........PARAMETERS and their descriptions:
 
-      INTEGER, PARAMETER :: MXSPCS = 219     ! Number of substances
+      INTEGER, PARAMETER :: MXSPCS = 243     ! Number of substances
       INTEGER, PARAMETER :: MXDSPCS = 19     ! Number of dissociating species
 
 C...pointers for the dissociation constants (array B and D)
@@ -397,8 +397,32 @@ C...  Atmospheric Chemistry and Physics, 1997
       DATA SUBNAME(215), A(215), E(215) / 'FMBR            ', 7.40E+01, 0.0E+00 /   ! Sander, R. ACP (2015), krysztofiak et al. (2012)
       DATA SUBNAME(216), A(216), E(216) / 'CLO             ', 7.00E-03, 0.0E+00 /   ! Sander et al., ACP, 2015
       DATA SUBNAME(217), A(217), E(217) / 'BENAPY          ', 2.00E+03, 4.7E+03 /   ! benzo[a]pyrene Ma et al. (2010) and ten Hulscher et al. (1992) in  Sander et al., ACP, 2015
-      DATA SUBNAME(218), A(218), E(218) / 'XYE             ', 1.56E-01, 4.0E+03 /   ! O-xylene T dep from Staudinger and Roberts 1996, base value emission wt. CRACMM (OPERA SAR)
-      DATA SUBNAME(219), A(219), E(219) / 'ROCIOXY         ', 8.12E+00, 0.0E+00 /   ! emission wt. CRACMM value (OPERA SAR)
+      DATA SUBNAME(218), A(218), E(218) / 'XYEOPERA        ', 1.27E-01, 4.0E+03 /   ! O-xylene T dep from Staudinger and Roberts 1996, CRACMM RepCmp (OPERA SAR)
+      DATA SUBNAME(219), A(219), E(219) / 'ROCIOXYOPERA    ', 8.12E+00, 0.0E+00 /   ! emission wt. CRACMM value (OPERA SAR)
+      DATA SUBNAME(220), A(220), E(220) / 'UALDOPERA       ', 44.0E+00, 0.0E+00 /   ! CRACMM RepCmp value (OPERA SAR)
+      DATA SUBNAME(221), A(221), E(221) / 'OLTOPERA        ', 5.09E-03, 0.0E+00 /   ! CRACMM RepCmp value (OPERA SAR)
+      DATA SUBNAME(222), A(222), E(222) / 'OLIOPERA        ', 4.85E-03, 0.0E+00 /   ! CRACMM RepCmp value (OPERA SAR)
+      DATA SUBNAME(223), A(223), E(223) / 'BENOPERA        ', 0.18E+00, 0.0E+00 /   ! CRACMM RepCmp value (OPERA SAR)
+      DATA SUBNAME(224), A(224), E(224) / 'PHENOPERA       ', 1.83E+04, 0.0E+00 /   ! CRACMM RepCmp value (OPERA SAR)
+      DATA SUBNAME(225), A(225), E(225) / 'TOLOPERA        ', 0.15E+00, 0.0E+00 /   ! CRACMM RepCmp value (OPERA SAR)
+      DATA SUBNAME(226), A(226), E(226) / 'CSLOPERA        ', 1.42E+03, 0.0E+00 /   ! CRACMM RepCmp value (OPERA SAR)
+      DATA SUBNAME(227), A(227), E(227) / 'XYMOPERA        ', 0.14E+00, 0.0E+00 /   ! CRACMM RepCmp value (OPERA SAR)
+      DATA SUBNAME(228), A(228), E(228) / 'ISOOPERA        ', 1.86E-02, 0.0E+00 /   ! CRACMM RepCmp value (OPERA SAR)
+      DATA SUBNAME(229), A(229), E(229) / 'APIOPERA        ', 7.49E-03, 0.0E+00 /   ! CRACMM RepCmp value (OPERA SAR)
+      DATA SUBNAME(230), A(230), E(230) / 'LIMOPERA        ', 4.44E-02, 0.0E+00 /   ! CRACMM RepCmp value (OPERA SAR)
+      DATA SUBNAME(231), A(231), E(231) / 'ORA2OPERA       ', 9.95E+03, 0.0E+00 /   ! CRACMM RepCmp value (OPERA SAR)
+      DATA SUBNAME(232), A(232), E(232) / 'ACROOPERA       ', 8.28E+00, 0.0E+00 /   ! CRACMM RepCmp value (OPERA SAR)
+      DATA SUBNAME(233), A(233), E(233) / 'BDE13OPERA      ', 2.42E-02, 0.0E+00 /   ! CRACMM RepCmp value (OPERA SAR)
+      DATA SUBNAME(234), A(234), E(234) / 'PROGOPERA       ', 1.65E+04, 0.0E+00 /   ! CRACMM RepCmp value (OPERA SAR)
+      DATA SUBNAME(235), A(235), E(235) / 'FURANOPERA      ', 5.11E+03, 0.0E+00 /   ! CRACMM RepCmp value (OPERA SAR)
+      DATA SUBNAME(236), A(236), E(236) / 'SLOWROCOPERA    ', 1.95E+00, 0.0E+00 /   ! emission wt. CRACMM value (OPERA SAR)
+      DATA SUBNAME(237), A(237), E(237) / 'SESQOPERA       ', 1.07E-01, 0.0E+00 /   ! CRACMM RepCmp value (OPERA SAR)
+      DATA SUBNAME(238), A(238), E(238) / 'NAPHOPERA       ', 2.28E+00, 0.0E+00 /   ! CRACMM RepCmp value (OPERA SAR)
+      DATA SUBNAME(239), A(239), E(239) / 'HC3OPERA        ', 2.55E-03, 0.0E+00 /   ! CRACMM RepCmp value (OPERA SAR)
+      DATA SUBNAME(240), A(240), E(240) / 'HC5OPERA        ', 8.04E-04, 0.0E+00 /   ! CRACMM RepCmp value (OPERA SAR)
+      DATA SUBNAME(241), A(241), E(241) / 'HC8OPERA        ', 6.52E-03, 0.0E+00 /   ! CRACMM RepCmp value (OPERA SAR)
+      DATA SUBNAME(242), A(242), E(242) / 'ORA1OPERA       ', 5.95E+03, 0.0E+00 /   ! CRACMM RepCmp value (OPERA SAR)
+      DATA SUBNAME(243), A(243), E(243) / 'MCTOPERA        ', 5.80E+03, 0.0E+00 /   ! CRACMM RepCmp value (OPERA SAR)
 
       DATA B( LSO2   ), D( LSO2   ) / 1.30E-02,  1.96E+03 /  ! SO2*H2O<=>HSO3+H     : Smith and Martell (1976)
       DATA B( LHSO3  ), D( LHSO3  ) / 6.60E-08,  1.50E+03 /  ! HSO3<=>SO3+H         : Smith and Martell (1976)
