@@ -1180,13 +1180,14 @@ REACTIONS[CM] =
 <R002c> SLOWROC + HO      = ETHP    # 6.55E-14;
 
 ! HAP placeholder chemistry from Carbon Bond or ae6
+! Comment out photolysis of ACRO for now
 <SA10>  NAPH + HO          = HO  + PAHRO2              # 2.31E-11;
 <SA11>  PAHRO2  + NO       = NO  + PAHNRXN             # 2.70e-12@-360;
 <SA12>  PAHRO2  + HO2      = HO2 + PAHHRXN             # 1.90e-13@-1300; 
 < T17>  ACRO + OH          = OH                   # 2.0E-11;
 < T18>  ACRO + O3          = O3                   # 2.61E-19;
 < T19>  ACRO + NO3         = NO3                  # 1.15E-15;
-< T20>  ACRO               =                      # 1.0/<ACRO_09>;
+!< T20>  ACRO               =                      # 1.0/<ACRO_09>;
 <TCL5>  ACRO + CL          = CL                   # 2.37E-10;
 < T10>  BDE13 + OH         = OH  + 0.58*ACRO      # 1.48E-11@-448.;
 < T11>  BDE13 + O3         = O3  + 0.52*ACRO      # 1.34E-14@2283.;
