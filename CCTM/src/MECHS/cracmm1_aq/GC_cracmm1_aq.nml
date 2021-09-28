@@ -55,9 +55,9 @@ GC_SPECIES_DATA =
 'HC8P'          ,145.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,''             ,''        ,''    ,''    ,''    ,'Yes',
 'ETE'           , 28.1   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,'ETHENE'          , 1  ,''             ,''        ,'Yes' ,''    ,'Yes' ,'Yes',!Ethylene,E,DTXSID1026378,C=C
 'ETEP'          , 77.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,''             ,''        ,''    ,''    ,''    ,'Yes',
-'OLT'           , 66.8   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,'OLTOPERA'        , 1  ,''             ,''        ,'Yes' ,''    ,'Yes' ,'Yes',!1-Propene,L,DTXSID5021205,CC=C
+'OLT'           , 42.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,'OLTOPERA'        , 1  ,''             ,''        ,'Yes' ,''    ,'Yes' ,'Yes',!1-Propene,L,DTXSID5021205,CC=C
 'OLTP'          , 91.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,''             ,''        ,''    ,''    ,''    ,'Yes',
-'OLI'           , 72.8   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,'OLIOPERA'        , 1  ,''             ,''        ,'Yes' ,''    ,'Yes' ,'Yes',!2-Methyl-2-butene,L,DTXSID8027165,CC=C(C)C
+'OLI'           , 68.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,'OLIOPERA'        , 1  ,''             ,''        ,'Yes' ,''    ,'Yes' ,'Yes',!2-Methyl-2-butene,L,DTXSID8027165,CC=C(C)C
 'OLIP'          ,117.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,''             ,''        ,''    ,''    ,''    ,'Yes',
 'ACE'           , 26.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,'ACETYLENE'       , 1  ,''             ,''        ,'Yes' ,''    ,'Yes' ,'Yes',!Acetylene,E,DTXSID6026379,C#C
 'ORA1'          , 46.0   ,''     ,-1     ,''     ,-1     ,'VD_ORA'          , 1   ,'ORA1OPERA'       , 1  ,''             ,'FOA'     ,'Yes' ,'Yes' ,'Yes' ,'Yes',!Formic acid,E,DTXSID2024115,OC=O
