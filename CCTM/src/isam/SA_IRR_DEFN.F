@@ -1384,7 +1384,7 @@ C Allocate arrays:
               MSG = 'ERROR allocating SA_IRR variables'
               CALL M3EXIT ( 'SA_IRR', 0, 0, MSG, XSTAT2 )
             END IF
-            THREE_REACTANT_CASE = .FALSE.
+            TWO_REACTANT_CASE = .FALSE.
          END IF
          
          IF( ISP3 .GT. 0 )THEN
