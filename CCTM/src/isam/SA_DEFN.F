@@ -22,8 +22,9 @@
 ! KWOK: Created Oct 5, 2010
 ! 29 Oct 18 L.Zhou, S.Napelenok: update for cmaq 5.3 release
 ! 35 Mar 19 S.Napelenok: recode REGION handling and clean-up for release
+! 10 Jun 21 G. Sarwar: Added CB6R3M
+! 23 Jun 21 G. Sarwar: Replaced CB6R3M with CB6R5M
 ! 25 June 21 G. Sarwar: Removed CB6R3_AE6_AQ since it is not suported in CMAQ any more
-! 
 
       IMPLICIT NONE
 
@@ -503,7 +504,7 @@ c          NSPC_SA = NSPC_SA + 13  ! ALVPO1I,ALVPO1J,ASVPO1I,ASVPO1J,ASVPO2I,ASV
         IF ( BGN_SP .NE. 0 ) THEN
           L_SFATE  = .TRUE. 
           NSPC_SA = NSPC_SA + 5  ! ASO4J, ASO4I, SO2, SULF, SULRXN
-          IF ( MECHNAME .EQ. 'CB6R3M_AE7_AQ' ) NSPC_SA = NSPC_SA + 1  ! add DMS
+          IF ( MECHNAME .EQ. 'CB6R5M_AE7_AQ' ) NSPC_SA = NSPC_SA + 1  ! add DMS
         ENDIF
 
         BGN_SP = INDEX( TAGCLASSES,'OZONE',LBACK )
@@ -539,7 +540,7 @@ c          NSPC_SA = NSPC_SA + 13  ! ALVPO1I,ALVPO1J,ASVPO1I,ASVPO1J,ASVPO2I,ASV
 
         IF( L_NITRATE .OR. L_VOC .OR. L_OZONE )THEN ! determine if tag species are defined by mechanism's name
           SELECT CASE( MECHNAME ) 
-             CASE( 'CB6R3_AE7_AQ',      'CB6R3M_AE7_AQ',
+             CASE( 'CB6R3_AE7_AQ',      'CB6R5M_AE7_AQ',
      &             'SAPRC07TC_AE6_AQ', 'SAPRC07TIC_AE6I_AQ', 'SAPRC07TIC_AE7I_AQ',
      &             'RACM2_AE6_AQ'                                               ) 
                 DEFINED = .TRUE.
@@ -560,7 +561,7 @@ c          NSPC_SA = NSPC_SA + 13  ! ALVPO1I,ALVPO1J,ASVPO1I,ASVPO1J,ASVPO2I,ASV
              CASE( 'CB6R3_AE7_AQ' )
                 NSPC_SA = NSPC_SA + 13  
 !                NSPC_SA = NSPC_SA + 19
-             CASE( 'CB6R3M_AE7_AQ' )
+             CASE( 'CB6R5M_AE7_AQ' )
                 NSPC_SA = NSPC_SA + 18  
 !                NSPC_SA = NSPC_SA + 24  
              CASE( 'SAPRC07TC_AE6_AQ' ) 
@@ -576,9 +577,7 @@ c          NSPC_SA = NSPC_SA + 13  ! ALVPO1I,ALVPO1J,ASVPO1I,ASVPO1J,ASVPO2I,ASV
 
         IF ( L_VOC ) THEN
           SELECT CASE( MECHNAME )
-!             CASE( 'CB6R3_AE6_AQ' )
-!                NSPC_SA = NSPC_SA + 25
-             CASE( 'CB6R3_AE7_AQ', 'CB6R3M_AE7_AQ' )
+             CASE( 'CB6R3_AE7_AQ', 'CB6R5M_AE7_AQ' )
                 NSPC_SA = NSPC_SA + 26
              CASE( 'RACM2_AE6_AQ') 
                 NSPC_SA = NSPC_SA + 37
@@ -851,7 +850,8 @@ c            SPC_LIST( J_SPC ) = 'VIVPO1'
           SPC_LIST( J_SPC ) = 'SULF'    
           J_SPC = J_SPC + 1
           SPC_LIST( J_SPC ) = 'SULRXN'
-          IF ( MECHNAME .EQ. 'CB6R3M_AE7_AQ' ) THEN
+
+          IF ( MECHNAME .EQ. 'CB6R5M_AE7_AQ' ) THEN             
              J_SPC = J_SPC + 1
              SPC_LIST( J_SPC ) = 'DMS'
           END IF
@@ -920,7 +920,7 @@ c            SPC_LIST( J_SPC ) = 'VIVPO1'
 !                SPC_LIST( J_SPC ) = 'EPX2'
 !                J_SPC = J_SPC + 1
 !                SPC_LIST( J_SPC ) = 'HCO3'                
-             CASE( 'CB6R3M_AE7_AQ' )
+             CASE( 'CB6R5M_AE7_AQ')
                J_SPC = J_SPC + 1  
                SPC_LIST( J_SPC ) = 'NTR1'   
                J_SPC = J_SPC + 1  
@@ -1157,56 +1157,7 @@ c            SPC_LIST( J_SPC ) = 'VIVPO1'
           J_SPC = J_SPC + 1
           SPC_LIST( J_SPC ) = 'CO'
           SELECT CASE( MECHNAME )
-!             CASE( 'CB6R3_AE6_AQ' )
-!                J_SPC = J_SPC + 1
-!                SPC_LIST( J_SPC ) = 'ALD2'
-!                J_SPC = J_SPC + 1
-!                SPC_LIST( J_SPC ) = 'ALDX'
-!                J_SPC = J_SPC + 1
-!                SPC_LIST( J_SPC ) = 'ETH'
-!                J_SPC = J_SPC + 1
-!                SPC_LIST( J_SPC ) = 'ETHA'
-!                J_SPC = J_SPC + 1
-!                SPC_LIST( J_SPC ) = 'ETOH'
-!                J_SPC = J_SPC + 1
-!                SPC_LIST( J_SPC ) = 'FORM'
-!                J_SPC = J_SPC + 1
-!                SPC_LIST( J_SPC ) = 'IOLE'
-!                J_SPC = J_SPC + 1
-!                SPC_LIST( J_SPC ) = 'ISOP'
-!                J_SPC = J_SPC + 1
-!                SPC_LIST( J_SPC ) = 'MEOH'
-!                J_SPC = J_SPC + 1
-!                SPC_LIST( J_SPC ) = 'OLE'
-!                J_SPC = J_SPC + 1
-!                SPC_LIST( J_SPC ) = 'ECH4'
-!                J_SPC = J_SPC + 1
-!                SPC_LIST( J_SPC ) = 'PAR'
-!                J_SPC = J_SPC + 1
-!                SPC_LIST( J_SPC ) = 'TERP'
-!                J_SPC = J_SPC + 1
-!                SPC_LIST( J_SPC ) = 'TOL'
-!                J_SPC = J_SPC + 1
-!                SPC_LIST( J_SPC ) = 'XYLMN'
-!                J_SPC = J_SPC + 1
-!                SPC_LIST( J_SPC ) = 'NAPH'
-!                J_SPC = J_SPC + 1
-!                SPC_LIST( J_SPC ) = 'ETHY'
-!                J_SPC = J_SPC + 1
-!                SPC_LIST( J_SPC ) = 'PRPA'
-!                J_SPC = J_SPC + 1
-!                SPC_LIST( J_SPC ) = 'ACET'
-!                J_SPC = J_SPC + 1
-!                SPC_LIST( J_SPC ) = 'KET'
-!                J_SPC = J_SPC + 1
-!                SPC_LIST( J_SPC ) = 'GLY'
-!                J_SPC = J_SPC + 1
-!                SPC_LIST( J_SPC ) = 'BENZENE'
-!                J_SPC = J_SPC + 1
-!                SPC_LIST( J_SPC ) = 'GLYD'
-!                J_SPC = J_SPC + 1
-!                SPC_LIST( J_SPC ) = 'MEPX'                
-             CASE( 'CB6R3_AE7_AQ', 'CB6R3M_AE7_AQ' )
+             CASE( 'CB6R3_AE7_AQ', 'CB6R5M_AE7_AQ' )
                 J_SPC = J_SPC + 1
                 SPC_LIST( J_SPC ) = 'ALD2'
                 J_SPC = J_SPC + 1
@@ -1464,7 +1415,7 @@ c            SPC_LIST( J_SPC ) = 'VIVPO1'
           SPC_LIST( J_SPC ) = 'O1D'
           J_SPC = J_SPC + 1
           SELECT CASE( MECHNAME )
-             CASE( 'CB6R3_AE7_AQ', 'CB6R3M_AE7_AQ')
+             CASE( 'CB6R3_AE7_AQ', 'CB6R5M_AE7_AQ')
                 SPC_LIST( J_SPC ) = 'O'
              CASE( 'SAPRC07TC_AE6_AQ', 'RACM2_AE6_AQ', 'SAPRC07TIC_AE6I_AQ', 'SAPRC07TIC_AE7I_AQ' ) 
                 SPC_LIST( J_SPC ) = 'O3P'

@@ -1,4 +1,4 @@
-**The AE namelist for cb6r3m_ae7_aq has the following aerosol species.**
+**The AE namelist for cb6r5m_ae7_aq has the following aerosol species.**
 
 | **Model Species** | **Name**                                             | **Molecular Weight** | **Explicit or Lumped** |
 | ----------------- | ---------------------------------------------------- | -------------------- | ---------------------- |

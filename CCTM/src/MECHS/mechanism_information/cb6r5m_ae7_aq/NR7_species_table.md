@@ -1,4 +1,4 @@
-**The NR namelist for cb6r3m_ae7_aq has the following gas phase species.**
+**The NR namelist for cb6r5m_ae7_aq has the following gas phase species.**
 
 | **Model Species** | **Name**                                             | **Molecular Weight** | **Explicit or Lumped** |
 | ----------------- | ---------------------------------------------------- | -------------------- | ---------------------- |
