@@ -1,4 +1,4 @@
-**The GC namelist for cb6r3m_ae7_aq has the following gas phase species.**
+**The GC namelist for cb6r5m_ae7_aq has the following gas phase species.**
 
 | **Model Species** | **Definition**                                                                     | **Molecular Weight** | **Explicit or Lumped** |
 | ----------------- | ---------------------------------------------------------------------------- | -------------------- | ---------------------- |
@@ -163,7 +163,7 @@
 | XYLMN             | xylene and other polyalkyl aromatics except naphthalene                      | 106.2                | L                      |
 | XYLRO2            | counter species for aerosol from XYLMN+OH                                    | 155                  | L                      |
 
-**The AE namelist for cb6r3m_ae7_aq has the following aerosol species.**
+**The AE namelist for cb6r5m_ae7_aq has the following aerosol species.**
 
 | **Model Species** | **Definition**                                             | **Molecular Weight** | **Explicit or Lumped** |
 | ----------------- | ---------------------------------------------------- | -------------------- | ---------------------- |
@@ -231,7 +231,7 @@
 
 Note that for each aerosol mass species, a letter will be appended to the names below in order to designate the size, or mode, of the aerosol being represented: I = Aitken mode, J = Accumulation mode, K = Coarse mode.  
 
-**The NR namelist for cb6r3m_ae7_aq has the following gas phase species.**
+**The NR namelist for cb6r5m_ae7_aq has the following gas phase species.**
 
 | **Model Species** | **Definition**                                             | **Molecular Weight** | **Explicit or Lumped** |
 | ----------------- | ---------------------------------------------------- | -------------------- | ---------------------- |

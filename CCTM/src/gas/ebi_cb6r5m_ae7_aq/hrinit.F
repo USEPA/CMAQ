@@ -23,13 +23,13 @@ C***********************************************************************
 C
 C  FUNCTION: To initialize species tolerances, arrays, and indices
 C
-C  PRECONDITIONS: For the CB6R3M_AE7_AQ mechanism
+C  PRECONDITIONS: For the CB6R5M_AE7_AQ mechanism
 C
 C  RETURN VALUES: None
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, Jan 25, 2021
+C  REVISION HISTORY: Created by EBI solver program, Jun  9, 2021
 C   21 Jun 10 J.Young:   convert for Namelist redesign
 C   18 Jul 14 B.Hutzell: revised to use the RXNS_DATA and RXNS_FUNCTION
 C                        modules instead of include files
@@ -330,7 +330,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       RTOL( NO2          ) = 5.0D-04
       RTOL( NO           ) = 5.0D-04
       RTOL( O            ) = 1.0D+00
-      RTOL( O3           ) = 5.0D-04     
+      RTOL( O3           ) = 5.0D-04
       RTOL( NO3          ) = 5.0D-04
       RTOL( O1D          ) = 1.0D+00
       RTOL( OH           ) = 5.0D-04
@@ -490,16 +490,16 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       RTOL( DMS          ) = 5.0D-04
       RTOL( MSA          ) = 5.0D-04
       RTOL( BRCL         ) = 5.0D-04
-      RTOL( ABRJ         ) = 5.0D-04        
-      RTOL( I            ) = 1.0D-05  
+      RTOL( ABRJ         ) = 5.0D-04
+      RTOL( I            ) = 1.0D-05
       RTOL( IO           ) = 1.0D-05
       RTOL( HI           ) = 5.0D-04
       RTOL( I2           ) = 5.0D-04
-      RTOL( HOI          ) = 1.0D-05    
+      RTOL( HOI          ) = 1.0D-05
       RTOL( INO          ) = 5.0D-04
       RTOL( INO2         ) = 5.0D-04
       RTOL( INO3         ) = 1.0D-05
-      RTOL( OIO          ) = 5.0D-04     
+      RTOL( OIO          ) = 5.0D-04
       RTOL( I2O4         ) = 5.0D-04
       RTOL( I2O2         ) = 5.0D-04
       RTOL( I2O3         ) = 5.0D-04

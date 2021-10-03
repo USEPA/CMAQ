@@ -2205,7 +2205,7 @@
 
           if (use_marine_gas_emission) then
              if (.not. ocean_chem) then
-                XMSG = 'CTM_OCEAN_CHEM must be set to TRUE when using CB6R3M mechanism'
+                XMSG = 'CTM_OCEAN_CHEM must be set to TRUE when using CB6R5M mechanism'
                 call prog_interrupt ('reading ocean file', 0, 0, xmsg, 1)
              else
                 if (exist) then
@@ -3596,7 +3596,7 @@ C Read the various categories of normalized emissions
 
           IF ( USE_MARINE_GAS_EMISSION ) then
              IF ( .NOT. OCEAN_CHEM ) THEN
-                XMSG = 'CTM_OCEAN_CHEM must be set to TRUE when using CB6R3M mechanism'
+                XMSG = 'CTM_OCEAN_CHEM must be set to TRUE when using CB6R5M mechanism'
                 Call M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
              ELSE   ! OCEAN_1 file already opened
                 allocate (chlr(ncols, nrows),
