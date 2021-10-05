@@ -656,14 +656,14 @@ C...Allocate and set conversion factors for isam chemistry species
            IP = NRXNS_PROD_H2O2
            IL = NRXNS_PROD_HNO3
            H2O2_HNO3_PROD_RXNS( 1:IP )      = H2O2_BUDGET%IRXN_PROD( 1:IP ) 
-           H2O2_HNO3_PROD_RXNS( (IP+1):IL ) = HNO3_BUDGET%IRXN_PROD( 1:IL ) 
+           H2O2_HNO3_PROD_RXNS( (IP+1):IP+IL ) = HNO3_BUDGET%IRXN_PROD( 1:IL ) 
            ALLOCATE( H2O2_HNO3_YIELD( NRXNS_PROD_H2O2_HNO3 ),STAT = IOS )
            IF ( IOS .NE. 0 ) THEN
                 MSG = 'Error allocating production H2O2_HNO3_YIELD arrays'
                CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
            END IF
            H2O2_HNO3_YIELD( 1:IP ) = H2O2_BUDGET%COEFF_POS( 1:IP ) 
-           H2O2_HNO3_YIELD( (IP+1):IL ) = HNO3_BUDGET%COEFF_POS( 1:IL ) 
+           H2O2_HNO3_YIELD( (IP+1):IP+IL ) = HNO3_BUDGET%COEFF_POS( 1:IL ) 
         END IF
 
         ALLOCATE( ISAM_SPC_BUDGET( ISAM_CHEMISTRY_SPC ), STAT = IOS )
