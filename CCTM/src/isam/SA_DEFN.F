@@ -389,7 +389,7 @@ C
 
         INTEGER :: ITAG, IMECH, IAERO, JAERO, ISPEC, IMODE
         INTEGER :: I, J, K
-        INTEGER :: N_ISAM_MECH
+        INTEGER :: N_ISAM_MECH, NVL_RESET
 
         LOGICAL,         ALLOCATABLE  :: MERCURY_MECH ( : )
         CHARACTER( 32 ), ALLOCATABLE  :: ISAM_MECHLIST( : )
@@ -409,7 +409,8 @@ C
         LOGICAL :: FOUND_SPECIES  = .FALSE.
         INTEGER :: CLASSES_FOUND  = 0
         
-        CHARACTER( 256 ) :: XMSG
+        CHARACTER( 400 ) :: XMSG
+        CHARACTER( 16 )  :: GASNAME, CTRNAME
 
         INTEGER :: IOST
         CHARACTER( MAX_STRING ), ALLOCATABLE :: CLASS_NAMES( : )
@@ -1104,12 +1105,16 @@ c----------------------------------------------------------
                    MAP_AEROtoSA( IAERO,IMODE ) = NSPC_SA
 
                    IF ( AEROSPC( IAERO )%VOLTYPE .NE. 'NVL' ) THEN 
+                      NVL_RESET = 0
+
                       ! Add condensable vapor species
                       IF ( AEROSPC(IAERO)%GASNAME .NE. '' ) THEN
                          IF ( INDEX1( AEROSPC(IAERO)%GASNAME, 
      &                             NSPC_SA, ISAM_SPEC(:,1) ) .EQ. 0 ) THEN
                             NSPC_SA = NSPC_SA + 1
                             ISAM_SPEC( NSPC_SA,:) = AEROSPC( IAERO )%GASNAME
+                         ELSE 
+                            NVL_RESET = NVL_RESET + 1
                          END IF
                          MAP_AEROGAStoSA( IAERO ) = 
      &                      INDEX1( AEROSPC(IAERO)%GASNAME, NSPC_SA, ISAM_SPEC(:,1) )
@@ -1120,9 +1125,34 @@ c----------------------------------------------------------
      &                             NSPC_SA, ISAM_SPEC(:,1) ) .EQ. 0 ) THEN
                             NSPC_SA = NSPC_SA + 1
                             ISAM_SPEC( NSPC_SA,:) = AEROSPC( IAERO )%CTRNAME
+                         ELSE
+                            NVL_RESET = NVL_RESET + 1
+
                          END IF
                          MAP_AEROCTRtoSA( IAERO ) =
      &                      INDEX1( AEROSPC(IAERO)%CTRNAME, NSPC_SA, ISAM_SPEC(:,1) )
+                      END IF
+
+                      ! If neither the condensable vapor nor the
+                      ! reaction counter are present in the gas species
+                      ! list, then reset the aerosol species to
+                      ! nonvolatile and print a note to the log
+                      IF ( NVL_RESET .EQ. 2 ) THEN
+                        AEROSPC( IAERO )%VOLTYPE = 'NVL'
+                        GASNAME = AEROSPC(IAERO)%GASNAME
+                        CTRNAME = AEROSPC(IAERO)%CTRNAME
+                        IF ( GASNAME .EQ. '' ) GASNAME = 'NONE'
+                        IF ( CTRNAME .EQ. '' ) CTRNAME = 'NONE'
+
+                        XMSG = 'Attention: The ISAM aerosol species ' //
+     &                         TRIM(AEROSPC( IAERO )%NAME( IMODE )) //
+     &                         ' has been defined in AERO_DATA with condensable ' //
+     &                         'vapor species ' // TRIM(GASNAME) // ' and/or '//
+     &                         'reaction counter species ' // TRIM(CTRNAME) //
+     &                         ' but neither of these are defined in the ' //
+     &                         'CMAQ GC or NR species namelists. The aerosol '//
+     &                         'species will be assumed nonvolatile for ISAM.'
+                        CALL LOG_MESSAGE( LOGDEV, XMSG )
                       END IF
                    END IF
 
