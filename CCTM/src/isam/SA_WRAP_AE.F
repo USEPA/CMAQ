@@ -58,7 +58,6 @@
       REAL(8), ALLOCATABLE, SAVE :: TAG_FRAC2(:,:,:)
       REAL(8), ALLOCATABLE, SAVE :: BULK1(:,:,:)
       REAL(8), ALLOCATABLE, SAVE :: BULK_TRANS_SRC(:,:,:)
-      REAL(8)                    :: TMP
 
       REAL(8), ALLOCATABLE, SAVE :: ISAM0(:,:,:,:,:)
       REAL(8), ALLOCATABLE, SAVE :: ISAM1(:,:,:,:,:)
@@ -161,24 +160,28 @@ Ckrt Identify species index in ISAM array
              IF ( JAER(3) .GT. 0 ) THEN
                 DO K = 1,NTAG_SA
                    TAG_FRAC( :,:,: ) = ISAM0( :,:,:,JGAS,K ) / BULK0( :,:,:,JGAS )
+     &                                * DBLE( AERO_COND( :,:,:,CAER(3) ) )
                    TAG_FRAC2( :,:,: )= ISAM0( :,:,:,JAER(3),K ) / BULK0( :,:,:,JAER(3) )
+     &                                * DBLE( AERO_COND( :,:,:,CAER(3) ) )
                    DO C = 1,NCOLS
                    DO R = 1,NROWS
                    DO L = 1,NLAYS
                      IF ( AERO_COND( C,R,L,CAER(3) ) .GT. 0.0 ) THEN 
-                     ! Condensation - Gas-phase drives attribution
-                        TMP = DBLE( AERO_COND( C,R,L,CAER(IM) ) ) * TAG_FRAC( C,R,L )              
-                        ISAM1( C,R,L,JAER(IM),K ) = 
-     &                         ISAM1( C,R,L,JAER(IM),K ) + TMP
+                        ! Condensation - Gas-phase drives attribution
+                        TAG_FRAC( C,R,L ) = MIN( TAG_FRAC( C,R,L ), 
+     &                                           ISAM1( C,R,L,JGAS,K )-MIN_VAL )
+                        ISAM1( C,R,L,JAER(3),K ) = 
+     &                         ISAM1( C,R,L,JAER(3),K ) + TAG_FRAC( C,R,L ) 
                         ISAM1( C,R,L,JGAS,K ) = 
-     &                         ISAM1( C,R,L,JGAS,K ) - TMP
+     &                         ISAM1( C,R,L,JGAS,K ) - TAG_FRAC( C,R,L )
                      ELSE   
                         ! Evaporation - Aerosol drives attribution
-                        TMP = DBLE( AERO_COND( C,R,L,CAER(IM) ) ) * TAG_FRAC2( C,R,L )              
-                        ISAM1( C,R,L,JAER(IM),K ) = 
-     &                         ISAM1( C,R,L,JAER(IM),K ) - TMP
+                        TAG_FRAC2( C,R,L ) = MIN( TAG_FRAC2( C,R,L ), 
+     &                                           ISAM1( C,R,L,JAER(3),K )-MIN_VAL )
+                        ISAM1( C,R,L,JAER(3),K ) = 
+     &                         ISAM1( C,R,L,JAER(3),K ) - TAG_FRAC2( C,R,L )
                         ISAM1( C,R,L,JGAS,K ) = 
-     &                         ISAM1( C,R,L,JGAS,K ) + TMP
+     &                         ISAM1( C,R,L,JGAS,K ) + TAG_FRAC2( C,R,L )
                      END IF
                    END DO
                    END DO
@@ -216,7 +219,7 @@ Ckrt Identify species index in ISAM array
              DO K = 1,NTAG_SA
                 ! Add Aerosol Species for each mode if they exist
                 TAG_FRAC = 0.0
-                DO IM = 1,N_MODE
+                DO IM = 1,2
                    IF ( JAER(IM) .GT. 0 ) THEN
                       TAG_FRAC( :,:,: ) = TAG_FRAC( :,:,: ) +
      &                     ISAM0( :,:,:,JAER(IM),K )
@@ -224,8 +227,10 @@ Ckrt Identify species index in ISAM array
                 END DO
                 TAG_FRAC( :,:,: ) = TAG_FRAC * DBLE( AEROSPC_MWINV( IAER ) ) ! umol m-3
 
-                ! Add condensable vapor 
-                TAG_FRAC( :,:,: ) = TAG_FRAC + ISAM0( :,:,:,JGAS,K ) * ppm2mole  ! umol m-3 /
+                ! Add condensable vapor - use ISAM1 here instead of
+                ! ISAM0 in case gas has been updated in the coarse mode
+                ! section.
+                TAG_FRAC( :,:,: ) = TAG_FRAC + ISAM1( :,:,:,JGAS,K ) * ppm2mole  ! umol m-3 /
                 
                 ! Add condensation from reaction counter, if applicable
                 IF ( JCTR .GT. 0 ) 
@@ -239,7 +244,7 @@ Ckrt Identify species index in ISAM array
 
                 ! Propagate source apportionment based on aerosol condensation changes to 
                 ! semivolatile vapor and aerosol.
-                DO IM = 1,N_MODE
+                DO IM = 1,2
                    IF ( JAER(IM) .NE. 0 ) 
      &                ISAM1( :,:,:,JAER(IM),K ) = 
      &                    TAG_FRAC( :,:,: ) * CCOND( :,:,:,CAER(IM) ) ! ug m-3
