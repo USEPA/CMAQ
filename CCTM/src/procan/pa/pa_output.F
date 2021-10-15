@@ -111,7 +111,6 @@ C Local Variables:
       INTEGER NIRR      ! Loop index for IRR output variables
       INTEGER NFL       ! Loop index for no. of files
       INTEGER NOUT      ! Loop index for PA output variables
-      INTEGER NS        ! Loop index for number cgrid concs saved
       INTEGER R         ! Loop index for rows
 #ifndef parallel
       INTEGER PC        ! index for window column
@@ -248,7 +247,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      &            'for date and time', JDATE, JTIME
          END DO
 
-         DO  NOUT = 1, NIPRVAR
+         DO NOUT = 1, NIPRVAR
             DO L = 1, PALEVS
                DO R = 1, MY_PAROWS
                   DO C = 1, MY_PACOLS
@@ -256,24 +255,6 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
                   END DO
                END DO
             END DO
-         END DO
-
-         DO NS = 1, NCSAVE
-            ICG = SAV2GRD( NS )
-#ifdef parallel
-            CALL SUBST_DATA_COPY ( CGRID, CSAV, ICG, NS )
-#else
-            DO L = PA_BEGLEV, PA_ENDLEV
-               PL = L - PA_BEGLEV + 1
-               DO R = MY_BEGROW, MY_ENDROW
-                  PR = R - MY_BEGROW + 1
-                  DO C = MY_BEGCOL, MY_ENDCOL
-                     PC = C - MY_BEGCOL + 1
-                     CSAV( PC,PR,PL,NS ) = CGRID( C,R,L,ICG ) 
-                  END DO
-               END DO
-            END DO
-#endif
          END DO
 
       END IF   ! IPR

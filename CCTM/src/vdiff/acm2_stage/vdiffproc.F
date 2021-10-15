@@ -94,7 +94,8 @@ C-----------------------------------------------------------------------
       USE LSM_MOD, Only: n_lufrac
       USE SEDIMENTATION
       USE VDIFF_DIAG
-      USE PA_DEFN, Only: LIPR ! Process Analysis control and data variables
+      USE PA_UPDATE
+      USE PA_DEFN, ONLY : LIPR, BUDGET_DIAG
 
 #ifdef isam
       USE SA_DEFN, Only: ITAG, N_SPCTAG, VNAM_SPCTAG, SA_DDEP
@@ -135,6 +136,7 @@ C Local Variables:
 
       REAL, ALLOCATABLE, SAVE :: CNGRD      ( :,:,:,: )    ! cgrid aero in mixing ratio
       REAL, ALLOCATABLE, SAVE :: DDEP       ( :,:,: )   ! ddep accumulator
+      REAL, ALLOCATABLE, SAVE :: DDEP0    ( :,:,: )   ! ddep initial before call to vdiffacmx
       REAL, ALLOCATABLE, SAVE :: TOT_BD_EMIS( :,:,: )   ! bidi emissions accumlator 
       REAL, ALLOCATABLE, SAVE :: DDEPJ      ( :,:,:,: ) ! ddep for mosaic
       REAL, ALLOCATABLE, SAVE :: DDEPJ_FST  ( :,:,:,: ) ! ddep for stomtal/cuticular pathway
@@ -162,18 +164,6 @@ C Local Variables
       INTEGER     MDATE, MTIME, MSTEP           ! internal simulation date&time
 
       INTERFACE
-         SUBROUTINE PA_UPDATE_EMIS ( PNAME, VDEMIS_DIFF, JDATE, JTIME, TSTEP )
-            CHARACTER( * ), INTENT( IN )  :: PNAME
-            REAL,           INTENT( IN )  :: VDEMIS_DIFF( :,:,:,: )
-            INTEGER,        INTENT( IN )  :: JDATE, JTIME
-            INTEGER,        INTENT( IN )  :: TSTEP( 3 )
-         END SUBROUTINE PA_UPDATE_EMIS
-         SUBROUTINE PA_UPDATE_DDEP ( PNAME, DDEP, JDATE, JTIME, TSTEP )
-            CHARACTER( * ), INTENT( IN )  :: PNAME
-            REAL,           INTENT( IN )  :: DDEP( :,:,: )
-            INTEGER,        INTENT( IN )  :: JDATE, JTIME
-            INTEGER,        INTENT( IN )  :: TSTEP( 3 )
-         END SUBROUTINE PA_UPDATE_DDEP
          SUBROUTINE CONV_CGRID ( CGRID, JDATE, JTIME, CNGRD )
             REAL, POINTER :: CGRID( :,:,:,: )
             INTEGER,        INTENT( IN )  :: JDATE, JTIME
@@ -283,15 +273,15 @@ C Allocate and initialize dry deposition array
 #endif
 
 C Set up for process analysis
-         IF ( LIPR ) THEN
-            CALL LOG_HEADING( LOGDEV, "Initialize Surface Exchange for Process Analysis" )
+         CALL LOG_HEADING( LOGDEV, "Initialize Surface Exchange for Process Analysis" )
 
-            ALLOCATE ( EMIS_PA( NCOLS,NROWS,EMLAYS,N_SPC_DIFF ), STAT = ASTAT )
+         IF ( BUDGET_DIAG .OR. LIPR ) THEN
+            ALLOCATE ( EMIS_PA( NCOLS,NROWS,NLAYS,N_CGRID_SPC ), STAT = ASTAT )
             IF ( ASTAT .NE. 0 ) THEN
                XMSG = 'EMIS_PA memory allocation failed'
                CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             END IF
-            ALLOCATE ( DDEP_PA( NCOLS,NROWS,N_SPC_DEPV ), STAT = ASTAT )
+            ALLOCATE ( DDEP_PA( NCOLS,NROWS,N_CGRID_SPC ), STAT = ASTAT )
             IF ( ASTAT .NE. 0 ) THEN
                XMSG = 'DDEP_PA memory allocation failed'
                CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
@@ -376,15 +366,16 @@ C Calculate the changes in the layer J-,K-mode aerosol concentrations
 C read & interpolate emissions data => VDEMIS_DIFF from EMIS_DEFN module
       CALL GET_EMIS_DRIVER ( MDATE, MTIME, TSTEP, CGRID )
 
-      IF ( LIPR ) THEN
+      IF ( BUDGET_DIAG .OR. LIPR ) THEN
+         EMIS_PA = 0.0
          DO S = 1, N_SPC_DIFF
             DO L = 1, EMLAYS
-               EMIS_PA( :,:,L,S ) = VDEMIS_DIFF( S,L,:,: )
+               EMIS_PA( :,:,L,DIFF_MAP(S) ) = VDEMIS_DIFF( S,L,:,: )
             END DO
          END DO
-         CALL PA_UPDATE_EMIS ( 'VDIF', EMIS_PA, JDATE, JTIME, TSTEP )
+         CALL PA_UPDATE_EMIS ( EMIS_PA, JDATE, JTIME, TSTEP )
       END IF
-
+      
       CALL EDDYX ( EDDYV )
 
 C EDDYV returned = Kz, where Kz is in m**2/sec
@@ -402,6 +393,9 @@ C EDDYV returned = Kz, where Kz is in m**2/sec
             IF ( FST ) DDEPJ_FST = 0.0   ! array assignment
          END IF
       END IF
+
+C Store Deposition Change in Budget and Process Analysis Arrays
+      IF ( BUDGET_DIAG .OR. LIPR ) DDEP0 = DDEP
 
 C Calculate the change in concentration and dry dep from vertical diffusion and vsed
 C Note: cngrd is the argument keyword (from the INTERFACE); CNGRD is the actual argument
@@ -437,7 +431,20 @@ C Note: cngrd is the argument keyword (from the INTERFACE); CNGRD is the actual 
             END DO
          END IF
       END IF
-
+ 
+C Store Deposition Change in Budget and Process Analysis Arrays
+      IF ( BUDGET_DIAG .OR. LIPR ) THEN
+         DDEP_PA = 0.0
+         DO V = 1, N_SPC_DEPV
+            DO R = 1, NROWS
+               DO C = 1, NCOLS
+                  DDEP_PA( C,R,MAP_DEPVtoCGRID(V)) = DDEP( V,C,R ) - DDEP0( V,C,R )
+               END DO
+            END DO
+         END DO
+         CALL PA_UPDATE_DDEP ( DDEP_PA, JDATE, JTIME, TSTEP )
+      END IF
+ 
 C Revert non-molar mixing ratio species and re-order CGRID
       CALL REV_CGRID ( CNGRD, MDATE, MTIME, CGRID )
 
@@ -693,16 +700,6 @@ C Write other diagnostics
             CALL WRASX_MEDIA( MDATE, MTIME )
          END IF 
  
-         IF ( LIPR ) THEN
-            DO V = 1, N_SPC_DEPV
-               DO R = 1, NROWS
-                  DO C = 1, NCOLS
-                     DDEP_PA( C,R,V ) = DDEP( V,C,R )
-                  END DO
-               END DO
-            END DO
-            CALL PA_UPDATE_DDEP ( 'VDIF', DDEP_PA, JDATE, JTIME, TSTEP )
-         END IF
 C re-set dry deposition array to zero
 
          DDEP = 0.0

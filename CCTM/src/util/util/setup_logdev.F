@@ -37,7 +37,6 @@ C   12 Aug 15 D.Wong:   Replaced SUBST_MPI with mpif.h
 
       USE RUNTIME_VARS
       USE UTILIO_DEFN
-      USE LOG_HEADER
 
       IMPLICIT NONE
 
@@ -56,15 +55,7 @@ C   12 Aug 15 D.Wong:   Replaced SUBST_MPI with mpif.h
       CHARACTER( 90 ) :: IOAPI_HEADER( NHEAD )
 
       ! Fetch CMAQ Header
-      CALL LOAD_HEADER( CMAQ_HEADER )
-      DO IHEAD = SIZE( CMAQ_HEADER ),1,-1
-          ! Check for End of File
-          IF ( CMAQ_HEADER( IHEAD ) .NE. '' ) THEN
-             NCMAQ_HEAD = IHEAD 
-             EXIT
-          END IF
-      END DO
-
+      CALL LOAD_HEADER( CMAQ_HEADER, NCMAQ_HEAD )
 
       ! Create Log Filename using the processor rank and initialize
       ! I/O-API and Logs

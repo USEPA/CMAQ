@@ -2,7 +2,7 @@ CMAQ Documentation
 ==================
 
 This directory contains documentation for the [Community Multiscale Air Quality (CMAQ)](http://www.epa.gov/cmaq) modeling system.
-While documentation is packaged with the code when it is downloaded or cloned, users are encouraged to go [online](https://github.com/USEPA/CMAQ/tree/master/DOCS) to view the latest version.
+While documentation is packaged with the code when it is downloaded or cloned, users are encouraged to go [online](https://github.com/USEPA/CMAQ/tree/main/DOCS) to view the latest version.
 
 The following documents are available for the CMAQ v5.3.x release:
 
