@@ -35,7 +35,9 @@ a working directory on your server:
 
 ```
 git clone -b main https://github.com/USEPA/CMAQ.git CMAQ_REPO
+
 ```
+
 
 ## CMAQ Repository Guide
 Source code and scripts are organized as follows:
@@ -75,6 +77,7 @@ The following release versions of CMAQ are currently available on GitHub.  DOI v
 * [v5.2 (June 2017)](https://github.com/USEPA/CMAQ/tree/5.2) - [doi:10.5281/zenodo.1167892](https://zenodo.org/record/1167892) | [Users Guide](https://github.com/USEPA/CMAQ/blob/5.2/DOCS/User_Manual/README.md)  | [Release Notes](https://github.com/USEPA/CMAQ/blob/5.2/CCTM/docs/Release_Notes/README.md) | [Tutorials](https://github.com/USEPA/CMAQ/blob/5.2/DOCS/Tutorials/README.md)
 * [v5.1   (December 2015)](https://github.com/USEPA/CMAQ/tree/5.1) - [doi:10.5281/zenodo.1079909](https://zenodo.org/record/1079909)
 * [v5.0.2 (April 2014)](https://github.com/USEPA/CMAQ/tree/5.0.2) - [doi:10.5281/zenodo.1079898](https://zenodo.org/record/1079898)
+
 * [v5.0.1 (July 2012)](https://github.com/USEPA/CMAQ/tree/5.0.1)
 * [v5.0   (February 2012)](https://github.com/USEPA/CMAQ/tree/5.0) - [doi:10.5281/zenodo.1079888](https://zenodo.org/record/1079888)
 * [v4.7.1 (June 2010)](https://github.com/USEPA/CMAQ/tree/4.7.1) - [doi:10.5281/zenodo.1079879](https://zenodo.org/record/1079879)
