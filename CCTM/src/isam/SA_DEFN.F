@@ -22,7 +22,9 @@
 ! KWOK: Created Oct 5, 2010
 ! 29 Oct 18 L.Zhou, S.Napelenok: update for cmaq 5.3 release
 ! 35 Mar 19 S.Napelenok: recode REGION handling and clean-up for release
-! 
+! 10 Jun 21 G. Sarwar: Added CB6R3M
+! 23 Jun 21 G. Sarwar: Replaced CB6R3M with CB6R5M
+! 25 June 21 G. Sarwar: Removed CB6R3_AE6_AQ since it is not suported in CMAQ any more
 
       IMPLICIT NONE
 
@@ -426,7 +428,7 @@ c----------------------------------------------------------
 
        
         ISAM_MECHLIST = (/'CB6R3_AE6_AQ      ', 'CB6R3_AE7_AQ      ',
-     &                    'CB6R3M_AE7_AQ     ', 'SAPRC07TC_AE6_AQ  ', 
+     &                    'CB6R5M_AE7_AQ     ', 'SAPRC07TC_AE6_AQ  ', 
      &                    'SAPRC07TIC_AE6I_AQ', 'SAPRC07TIC_AE7I_AQ', 
      &                    'RACM2_AE6_AQ      '/ )  
 
@@ -453,7 +455,7 @@ c----------------------------------------------------------
         !CB6R3_AE7_AQ
         ISAM_SPEC_OZONE( 2 )%LIST = (/'O3 ','O1D','HO2','O  '/)
         
-        !CB6R3M_AE7_AQ
+        !CB6R5M_AE7_AQ
         ISAM_SPEC_OZONE( 3 )%LIST = (/'O3 ','O1D','HO2','O  '/)
         
         !SAPRC07TC_AE6_AQ
@@ -487,7 +489,7 @@ c----------------------------------------------------------
      &          'KET    ','GLY    ','BENZENE','GLYD   ','MEPX   ',
      &          'APIN   ','SOAALK ','ECH4   ','CO     '/)
 
-        !CB6R3M_AE7_AQ
+        !CB6R5M_AE7_AQ
         ALLOCATE( ISAM_SPEC_VOC( 3 )%LIST( 27 ) )
         ISAM_SPEC_VOC( 3 )%LIST = (/'ALD2   ','ALDX   ','ETH    ',
      &          'ETHA   ','ETOH   ','FORM   ','IOLE   ','ISOP   ',
@@ -564,7 +566,7 @@ c----------------------------------------------------------
      &      'PNA  ','PANX ','CLNO2','CLNO3','XO2  ','XO2H ','MEO2 ',
      &      'ISO2 ','C2O3 ','CXO3 ','ROR  '/ )
         
-        !CB6R3M_AE7_AQ
+        !CB6R5M_AE7_AQ
         ALLOCATE( ISAM_SPEC_NO3( 3 )%LIST( 27 ) )
         ISAM_SPEC_NO3( 3 )%LIST = (/'HNO3 ','NO   ','NO2  ','NO3  ',
      &      'HONO ','N2O5 ','PAN  ','XO2N ','NTR1 ','NTR2 ','INTR ',
@@ -619,7 +621,7 @@ c----------------------------------------------------------
         ALLOCATE( ISAM_SPEC_SO4( 2 )%LIST( 1 ) )
         ISAM_SPEC_SO4( 2 )%LIST = (/'SO2'/ )
         
-        !CB6R3M_AE7_AQ
+        !CB6R5M_AE7_AQ
         ALLOCATE( ISAM_SPEC_SO4( 3 )%LIST( 2 ) )
         ISAM_SPEC_SO4( 3 )%LIST = (/'SO2','DMS'/ )
 

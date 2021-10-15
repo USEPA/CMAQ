@@ -57,6 +57,8 @@
 !  10 Feb 2020 (D. Wong) 
 !     -- Added new environmental variable, MET_TSTEP, to enable
 !        running with temporally finer meteorology
+!  10 Jun 2021 (G. Sarwar)
+!     -- Added 'CB6R5M' and deleted "CB6R3M"
 !....................................................................
 
       MODULE RUNTIME_VARS
@@ -687,7 +689,7 @@
       !>> Emission Environment Variables 
       !-------------------------------------------------------------------------------------------------------
       
-      IF ( INDEX( MECHNAME, 'CB6R3M' ) .GT. 0 ) then
+      IF ( INDEX( MECHNAME, 'CB6R5M' ) .GT. 0 ) then
          USE_MARINE_GAS_EMISSION = .TRUE.
       END IF
 
@@ -1086,7 +1088,7 @@
           ! Write Out The Time to Complete Each Sub-Process
           WRITE( XMSG, 1002 ),TRIM( CPROC ), CPU_TIME_FINISH-CPU_TIME_START
 1002      FORMAT ( 2x, A15, ' completed... ', F6.1, ' seconds' )
-
+          
       CASE ( 2 ) 
           ! Write out the time to complete the entire master time step
           WRITE( XMSG, '(7x,A16)' ),'Master Time Step'
