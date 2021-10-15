@@ -11,6 +11,9 @@
 * [Do I need to update from v5.3.1 to v5.3.2?](#why_update_v531_v532)
 * [What do I need to do to update from v5.3.1 to v5.3.2?](#update_v531_v532)
 * [What differences should I expect in my model results with v5.3.2 compared to v5.3.1?](#diff_v531_v532)
+* [Do I need to update from v5.3.2 to v5.3.3?](#why_update_v532_v533)
+* [What do I need to do to update from v5.3.2 to v5.3.3?](#update_v532_v533)
+* [What differences should I expect in my model results with v5.3.3 compared to v5.3.2?](#diff_v532_v533)
 * [Additional FAQ](#additional_faq)
 * [Technical support for CMAQ](#tech_support)
 
@@ -118,11 +121,33 @@ If you have already successfully migrated to v5.3 or v5.3.1, you will not need t
 ## What differences should I expect in my model results with v5.3.2 compared to v5.3.1?
 Five updates in v5.3.2 have the potential to change model output.
 1. If running CMAQ with the STAGE option for dry deposition, the [STAGE underflow bugfix](CMAQv5.3.2_bugfixes.md#10-correct-periodic-underflow-in-the-stage-deposition-option) will lead to small changes in the deposition of gaseous species. Most of the differences arise from water/coastal grid cells and can change the values of all species in the modeling domain by a few percent. 
-2. In the v5.3 and subsequent v5.3.1 release, running with the CB6r3m mechanism (Dimethyl Sulfide (DMS) chemistry combined with CB6r3) resulted in a double counting of HO2 in one of the chemical reactions. This mainly resulted in an overprediction of ozone over large areas of seawater in the modeling domain. For more information please visit the [DMS Chemistry Update Release Note](DMS_chemistry_update.md).
-3. If running v5.3.2 with the Inline Lightning Option, users should expect to see changes of less than a ppb for species such as ozone. The vertical distribution of lightning NO has been modified to better represent what has been reported in literature. For more information please visit the [Lightning NO Vertical Profile Release Notes](Update_the_lightning_NO_vertical_profile.md). 
-4. The v5.3.2 release also features an update to the Ozone Monitoring Instrument (OMI) Column Data through 2019. Most users should observe no changes, however, those working with modeling data in 2018 could see a difference between their v5.3.1 and v5.3.2 simulations caused by a 1% difference in a few grid cells in the new OMI data compared to the older OMI data for overlapping time periods in 2018. For more information please visit the [OMI data Release Notes](OMI_through_2019.md).
-5. The v5.3.2 release dramatically changes the chemistry algorithms governing the propogation of tagged concentrations through the various chemical mechanisms in CMAQ. This release addresses the previously identified issue with ISAM where the method was ersoneously overattributing tagged math into the "OTHER" tag at the expense of user-specified tags.  ISAM applications using this release should expect drastically different and much more realistic tagged predictions of secondary gaseous polluants such as ozone.  For additional information, please refer the the [ISAM release notes](ISAM_gas_chemistry_v532.md).
+2. In the v5.3 and subsequent v5.3.1 release, running with the CB6r3m mechanism (Dimethyl Sulfide (DMS) chemistry combined with CB6r3) resulted in a double counting of HO2 in one of the chemical reactions. This mainly resulted in an overprediction of ozone over large areas of seawater in the modeling domain. For more information please visit the [DMS Chemistry Update Release Note](CMAQv5.3.2_DMS_chemistry_update.md).
+3. If running v5.3.2 with the Inline Lightning Option, users should expect to see changes of less than a ppb for species such as ozone. The vertical distribution of lightning NO has been modified to better represent what has been reported in literature. For more information please visit the [Lightning NO Vertical Profile Release Notes](CMAQv5.3.2_update_the_lightning_NO_vertical_profile.md). 
+4. The v5.3.2 release also features an update to the Ozone Monitoring Instrument (OMI) Column Data through 2019. Most users should observe no changes, however, those working with modeling data in 2018 could see a difference between their v5.3.1 and v5.3.2 simulations caused by a 1% difference in a few grid cells in the new OMI data compared to the older OMI data for overlapping time periods in 2018. For more information please visit the [OMI data Release Notes](CMAQv5.3.2_OMI_through_2019.md).
+5. The v5.3.2 release dramatically changes the chemistry algorithms governing the propogation of tagged concentrations through the various chemical mechanisms in CMAQ. This release addresses the previously identified issue with ISAM where the method was ersoneously overattributing tagged math into the "OTHER" tag at the expense of user-specified tags.  ISAM applications using this release should expect drastically different and much more realistic tagged predictions of secondary gaseous polluants such as ozone.  For additional information, please refer the the [ISAM release notes](CMAQv5.3.2_ISAM_gas_chemistry.md).
 
+
+<a id=why_update_v532_v533></a>
+## Do I need to update from v5.3.2 to v5.3.3?
+CMAQv5.3.3 is a minor update to CMAQv5.3.1 that includes multiple bug fixes. See the [v5.3.3 Release Notes](README.md#summary-of-cmaqv533-updates) for a list of bug fixes and updates to pre- and post-processint utilities. See below for a description of the bug fixes that have an impact on model output. This release also includes a new version of the WRF-CMAQ coupled system with a streamlined build process. Users of WRF-CMAQ are strongly encouraged to try the latest version.
+
+<a id=update_v532_v533></a>
+## What do I need to do to update from v5.3.2 to v5.3.3?
+If you have already successfully migrated to v5.3, v5.3.1, or v5.3.2 you will not need to do anything special to maintain default behavior in v5.3.3. A new benchmark output dataset has been released to run the test case for WRFv4.3-CMAQv5.3.3. 
+
+<a id=diff_v532_v533></a>
+## What differences should I expect in my model results with v5.3.3 compared to v5.3.2?
+Six updates in v5.3.3 have the potential to change model output.
+1. If running CMAQ with the STAGE option for dry deposition, the [STAGE O3 deposition to wet soil bugfix](CMAQv5.3.3_bugfixes.md#13-correct-o3-deposition-to-wet-soil-in-the-stage-deposition-option) will lead to slightly higher, typically less than 1ppb, ozone values primarily at night, early mornings and during precipitation events when both cuticular and soil surfaces are wet.
+2. If running Process Analysis (PA), the [PA reintialization bugfix](CMAQv5.3.3_bugfixes.md#15-resolve-error-in-process-analysis-reintialization-after-aerosol-processing) resolves a mass closure issue for species that have non-negligible aerosol condensation.
+3. If running CMAQ with chemical mechanism cb6r3m_ae7_kmtbr, the DMS chemistry bugfix leads to small (<= 1%) changes in DMS, SO2, and sulfate concentrations, as documented in the [DMS Release Note](CMAQv5.3.3_DMS_chemistry_bugfix.md).
+4. If running CMAQ with chemical mechanism cb6mp_ae6_aq, the [corrected control file](CMAQv5.3.3_bugfixes.md#11-correct-chemistry-data-for-reactive-tracers) leads to significant changes in concentration for a subset of Hazardous Air Pollutants (HAPs). Based on US continental simulations for 2017, the most affected HAPs are ethyl benzene (NMB = 21.0%), hexane (NMB = 17.0%), acrylic acid (NMB = 17.8%), and chloroprene (NMB = 4.4%), where NMB is domain average normalized mean bias for July 2017.
+5. The [bugfix to the inline photolyis module](CMAQv5.3.3_bugfixes.md#12-remove-differences-in-predictions-between-photdiag-true-and-false) can lead to small (<1% differences) in ozone and aerosol nitrate at select grid cell and timesteps.  This bugfix does not impact the model output of the 2016 Southeast benchmark dataset released with v5.3.2.
+6. HONO dry deposition flux in CMAQv5.3 to v5.3.2 can be negative when surface heterogeneous production exceeds deposition.  Updates to [M3DRY](CMAQv5.3.3_bugfixes.md#4-hono-deposition-fix-for-the-m3dry-deposition-option) and [STAGE](CMAQv5.3.3_bugfixes.md#3-hono-deposition-fix-for-the-stage-deposition-option) deposition options in v5.3.3 ensure the dry deposition flux is always positive, representing downward dry deposition rather than total flux. 
+
+Note that there is no new benchmark data for the base model or CMAQ-ISAM for v5.3.3.  Users can use the 2016 southeast benchmark case released with v5.3.2 for tesing their CMAQv5.3.3 and CMAQ-ISAM builds.  Model output for the southeast benchmark case for v5.3.3 is identical to the output from v5.3.2 with the exception of HONO dry deposition.  The HONO dry depostion update (item 6 above) leads to small changes (on the order of 1e-5) in HONO dry deposition in the dry deposition output files for the base model and ISAM benchmark (i.e., CCTM_DRYDEP_v532_ISAM_gcc_Bench_2016_12SE1_2016, CCTM_SA_DRYDEP_v532_ISAM_gcc_Bench_2016_12SE1_2016).  
+
+New benchmark data has been released for the new WRFv4.3-CMAQv5.3.3 model.  See the [WRF-CMAQ tutorial for more information.](../Users_Guide/Tutorials/CMAQ_UG_tutorial_WRF-CMAQ_build_gcc.md)
 
 <a id=additional_faq></a>
 ## Additional FAQ

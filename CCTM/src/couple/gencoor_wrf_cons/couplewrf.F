@@ -54,6 +54,7 @@ C-----------------------------------------------------------------------
       USE CGRID_SPCS            ! CGRID mechanism species
       USE UTILIO_DEFN
       use CENTRALIZED_IO_MODULE, only : interpolate_var
+      USE PA_DEFN, ONLY : COUPLE_WRF
 #ifdef isam
       USE SA_DEFN, ONLY: ISAM, NSPC_SA, NTAG_SA, MAP_SAtoCGR, TRANSPORT_SPC, ITAG
 #endif
@@ -107,7 +108,6 @@ C Local Variables:
 
       INTEGER     OFF              ! loop offset to CGRID species
       INTEGER     C, R, L, SPC, V  ! loop counters
-      INTEGER     RHOJ_LOC         ! pointer to transported RHOJ (in CGRID)
 
 #ifdef isam
       INTEGER  :: SPC_CGRID
@@ -120,6 +120,7 @@ C If ISPCA .ne. 0, then air is advected and concs. are adjusted
       IF ( FIRSTIME ) THEN
          FIRSTIME = .FALSE.
 
+         COUPLE_WRF = .TRUE.
          IF ( N_AE_SPC .GT. 0 ) THEN
 C create aerosol species pointers to distinguish micro-grams/m**3,
 C #/m**3 (number density), and m**2/m**3 (surface area) species
@@ -183,7 +184,6 @@ C CGRID in mixing ratio [ppmV] -> (air density X "total" Jacobian) X mixing rati
       END IF
  
 C initialize RhoJ from MCIP - done once per sync step
-      RHOJ_LOC = GC_STRT + N_GC_SPC
       DO L = 1, NLAYS
          DO R = 1, NROWS
             DO C = 1, NCOLS
@@ -334,7 +334,6 @@ C entry DECOUPLE
       call interpolate_var ('JACOBM', jdate, jtime, JACOBM)
  
 C retrieve transported RhoJ
-      RHOJ_LOC = GC_STRT + N_GC_SPC
       DO L = 1, NLAYS
          DO R = 1, NROWS
             DO C = 1, NCOLS
@@ -342,6 +341,7 @@ C retrieve transported RhoJ
             END DO
          END DO
       END DO
+      !call interpolate_var ('DENSA_J', JDATE, JTIME, RHOJ)
 
 C decouple for chemistry and diffusion
  

@@ -60,7 +60,7 @@
 
            CHARACTER( 16 ) :: MECHANISM              ! Mechanism name
            INTEGER ios,INDX
-         INTEGER,        PARAMETER :: NMECHS = 13   ! dimension for number of mechanisms considered
+         INTEGER,        PARAMETER :: NMECHS = 15   ! dimension for number of mechanisms considered
 
          INTEGER I
 
@@ -78,8 +78,10 @@
      &         MIOG_MECH_TYPE( 'CB05TUCL51_AE6_AQ      ','CB05    '),
      &         MIOG_MECH_TYPE( 'CB6R3_AE6_AQ           ','CB6     '),
      &         MIOG_MECH_TYPE( 'CB6MP_AE6_AQ           ','CB6     '),
+     &         MIOG_MECH_TYPE( 'CB6R5HAP_AE7_AQ        ','CB6_ae7 '),
      &         MIOG_MECH_TYPE( 'CB6R3_AE7_AQ           ','CB6_ae7 '),
-     &         MIOG_MECH_TYPE( 'CB6R3M_AE7_KMTBR       ','CB6_ae7 '),
+     &         MIOG_MECH_TYPE( 'CB6R5_AE7_AQ           ','CB6_ae7 '),
+     &         MIOG_MECH_TYPE( 'CB6R5M_AE7_AQ          ','CB6_ae7 '),
      &         MIOG_MECH_TYPE( 'RACM2_AE6_AQ           ','RACM2   '),
      &         MIOG_MECH_TYPE( 'SAPRC07TB_AE6_AQ       ','SAPRC07T'),
      &         MIOG_MECH_TYPE( 'SAPRC07TC_AE6_AQ       ','SAPRC07T'),

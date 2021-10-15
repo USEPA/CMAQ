@@ -3193,7 +3193,7 @@ C
       CALL POLY3 (M1, M2, M3, DELCL, ISLV) ! HCL DISSOLUTION
       IF (ISLV.NE.0) THEN
          DELCL = TINY       ! TINY AMOUNTS OF HCL ASSUMED WHEN NO ROOT 
-         WRITE (ERRINF,'(1PE7.1)') TINY
+         WRITE (ERRINF,'(1PE8.1)') TINY
          CALL PUSHERR (0022, ERRINF)    ! WARNING ERROR: NO SOLUTION
       ENDIF
       DELCL = MIN(DELCL, CHI4)
@@ -3205,7 +3205,7 @@ C
      &   DELCL.GT.CHI4 .OR. DELNO.GT.CHI3       ) THEN
          DELCL = TINY  ! TINY AMOUNTS OF HCL ASSUMED WHEN NO ROOT 
          DELNO = TINY
-         WRITE (ERRINF,'(1PE7.1)') TINY
+         WRITE (ERRINF,'(1PE8.1)') TINY
          CALL PUSHERR (0022, ERRINF)    ! WARNING ERROR: NO SOLUTION
       ENDIF
 CCC
@@ -4912,7 +4912,7 @@ C
       DO 200 I=1,NPAIR
          GAMA(I)=MAX(-5.0d0, MIN(GAMA(I),5.0d0) ) ! F77 LIBRARY ROUTINE
          GAMA(I)=10.0**GAMA(I)
-CC         GAMA(I)=EX10(SNGL(GAMA(I)), 5.0)    ! CUTOFF SET TO [-5,5]
+C         GAMA(I)=EX10(SNGL(GAMA(I)), 5.0)    ! CUTOFF SET TO [-5,5]
   200 CONTINUE
 C
 C *** SETUP ACTIVITY CALCULATION FLAGS ********************************
@@ -5055,7 +5055,7 @@ C
          GAMA(I)=MAX(-5.0d0, MIN(GAMA(I),5.0d0) ) ! F77 LIBRARY ROUTINE
          GAMA(I)=10.0**GAMA(I)
 C         GAMA(I)=EXP(LN10*GAMA(I))
-CC         GAMA(I)=EX10(SNGL(GAMA(I)), 5.0)    ! CUTOFF SET TO [-5,5]
+C         GAMA(I)=EX10(SNGL(GAMA(I)), 5.0)    ! CUTOFF SET TO [-5,5]
 C         GAMA(I) = GAMIN(I)*(1.0-URF) + URF*GAMA(I)  ! Under-relax GAMA's
   200 CONTINUE
 C
@@ -5206,26 +5206,26 @@ C
          GAMA(I)=MAX(-5.0d0, MIN(GAMA(I),5.0d0) ) ! F77 LIBRARY ROUTINE
          GAMA(I)=10.0**GAMA(I)
 C         GAMA(I)=EXP(LN10*GAMA(I))
-CC         GAMA(I)=EX10(SNGL(GAMA(I)), 5.0)    ! CUTOFF SET TO [-5,5]
+C         GAMA(I)=EX10(SNGL(GAMA(I)), 5.0)    ! CUTOFF SET TO [-5,5]
 C         GAMA(I) = GAMIN(I)*(1.0-URF) + URF*GAMA(I)  ! Under-relax GAMA's
   200 CONTINUE
 C
       GAMA(4)=MAX(-5.0d0, MIN(GAMA(4),5.0d0) ) ! F77 LIBRARY ROUTINE
          GAMA(4)=10.0**GAMA(4)
 C         GAMA(I)=EXP(LN10*GAMA(I))
-CC         GAMA(I)=EX10(SNGL(GAMA(I)), 5.0)    ! CUTOFF SET TO [-5,5]
+C         GAMA(4)=EX10(SNGL(GAMA(4)), 5.0)    ! CUTOFF SET TO [-5,5]
 C         GAMA(4) = GAMIN(4)*(1.0-URF) + URF*GAMA(4)  ! Under-relax GAMA's
 C
       GAMA(5)=MAX(-5.0d0, MIN(GAMA(5),5.0d0) ) ! F77 LIBRARY ROUTINE
          GAMA(5)=10.0**GAMA(5)
 C         GAMA(I)=EXP(LN10*GAMA(I))
-CC         GAMA(I)=EX10(SNGL(GAMA(I)), 5.0)    ! CUTOFF SET TO [-5,5]
+C         GAMA(5)=EX10(SNGL(GAMA(5)), 5.0)    ! CUTOFF SET TO [-5,5]
 C         GAMA(5) = GAMIN(5)*(1.0-URF) + URF*GAMA(I)  ! Under-relax GAMA's
 C
       GAMA(13)=MAX(-5.0d0, MIN(GAMA(13),5.0d0) ) ! F77 LIBRARY ROUTINE
          GAMA(13)=10.0**GAMA(13)
 C         GAMA(I)=EXP(LN10*GAMA(I))
-CC         GAMA(I)=EX10(SNGL(GAMA(I)), 5.0)    ! CUTOFF SET TO [-5,5]
+C         GAMA(13)=EX10(SNGL(GAMA(13)), 5.0)    ! CUTOFF SET TO [-5,5]
 C         GAMA(13) = GAMIN(13)*(1.0-URF) + URF*GAMA(13)  ! Under-relax GAMA's
 C
 C *** SETUP ACTIVITY CALCULATION FLAGS *********************************
@@ -5384,26 +5384,26 @@ C
          GAMA(I)=MAX(-5.0d0, MIN(GAMA(I),5.0d0) ) ! F77 LIBRARY ROUTINE
          GAMA(I)=10.0**GAMA(I)
 C         GAMA(I)=EXP(LN10*GAMA(I))
-CC         GAMA(I)=EX10(SNGL(GAMA(I)), 5.0)    ! CUTOFF SET TO [-5,5]
+C         GAMA(I)=EX10(SNGL(GAMA(I)), 5.0)    ! CUTOFF SET TO [-5,5]
 C         GAMA(I) = GAMIN(I)*(1.0-URF) + URF*GAMA(I)  ! Under-relax GAMA's
   200 CONTINUE
 C
       GAMA(4)=MAX(-5.0d0, MIN(GAMA(4),5.0d0) ) ! F77 LIBRARY ROUTINE
          GAMA(4)=10.0**GAMA(4)
 C         GAMA(I)=EXP(LN10*GAMA(I))
-CC         GAMA(I)=EX10(SNGL(GAMA(I)), 5.0)    ! CUTOFF SET TO [-5,5]
+C         GAMA(4)=EX10(SNGL(GAMA(4)), 5.0)    ! CUTOFF SET TO [-5,5]
 C         GAMA(4) = GAMIN(4)*(1.0-URF) + URF*GAMA(4)  ! Under-relax GAMA's
 C
 C      GAMA(5)=MAX(-5.0d0, MIN(GAMA(5),5.0d0) ) ! F77 LIBRARY ROUTINE
 C         GAMA(5)=10.0**GAMA(5)
 CC         GAMA(I)=EXP(LN10*GAMA(I))
-CCC         GAMA(I)=EX10(SNGL(GAMA(I)), 5.0)    ! CUTOFF SET TO [-5,5]
+C         GAMA(5)=EX10(SNGL(GAMA(I)), 5.0)    ! CUTOFF SET TO [-5,5]
 C         GAMA(5) = GAMIN(5)*(1.0-URF) + URF*GAMA(I)  ! Under-relax GAMA's
 C
       GAMA(13)=MAX(-5.0d0, MIN(GAMA(13),5.0d0) ) ! F77 LIBRARY ROUTINE
          GAMA(13)=10.0**GAMA(13)
 C         GAMA(I)=EXP(LN10*GAMA(I))
-CC         GAMA(I)=EX10(SNGL(GAMA(I)), 5.0)    ! CUTOFF SET TO [-5,5]
+C         GAMA(13)=EX10(SNGL(GAMA(13)), 5.0)    ! CUTOFF SET TO [-5,5]
 C         GAMA(13) = GAMIN(13)*(1.0-URF) + URF*GAMA(13)  ! Under-relax GAMA's
 C
 C *** SETUP ACTIVITY CALCULATION FLAGS *********************************
