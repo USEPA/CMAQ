@@ -48,30 +48,21 @@ C***********************************************************************
       INTEGER, ALLOCATABLE :: ISAM_SPC_MAP( : ) ! index in ISAM species array
       INTEGER, ALLOCATABLE :: ISAM_TO_CHEM( : ) ! index is CHEMSITRY_SPC array
       LOGICAL, ALLOCATABLE :: CONVERT_ISAM( : ) ! whether to ISAM concentration for photochemsitry 
-      
+      LOGICAL, ALLOCATABLE :: BIAS_CHEMISTRY_SPC( :,: ) ! whether to favor chemistry species when a reactant
+           
       REAL                   :: CONMIN_TAG               ! min tag concentration uploaded
       REAL( 8 )              :: NUMB_ISAM_CELLS = 0.0D0
       REAL( 8 )              :: DCONCMIN                 ! internal min concentration
       REAL( 8 )              :: DCONMIN_TAG              ! internal min tag concentration
       REAL( 8 )              :: UNIFORM_DCONMIN_TAG      ! min tag concentration evenly distributed
-!      REAL( 8 ), ALLOCATABLE :: SRK( : )
+
       REAL( 8 ), ALLOCATABLE :: UGM3_TO_PPM( : )      ! CGRID to CHEM Species conversion factor
       REAL,      ALLOCATABLE :: PPM_TO_UGM3( : )      ! CHEM to CGRID Species conversion factor
       REAL( 8 ), ALLOCATABLE :: SOLD( :,: )           ! local source concentrations
-!     REAL( 8 ), ALLOCATABLE :: FRAC_TOTAL( : )       ! tag's fraction in sum of tags;Used in SA_IRR_EXTRACT
-!     REAL( 8 ), ALLOCATABLE :: ISAM_FRACTION ( :,: ) ! isam tag concentration over cgrid value
-!     REAL( 8 ), ALLOCATABLE :: TOT_ISAM_RATIO( : )   ! sum of tag concentration over cgrid value
-      
-!      REAL( 8 ), ALLOCATABLE  :: MAX_ERROR ( : )
-!      REAL( 8 ), ALLOCATABLE  :: RMSE_CONC ( : )
-!      REAL( 8 ), ALLOCATABLE  :: BIAS_CONC ( : )
-!      REAL( 8 ), ALLOCATABLE  :: MEAN_CONC ( : )
+
       
       LOGICAL, ALLOCATABLE :: ISAM_SPECIES( : )
       LOGICAL              :: ISAM_NOT_FOUND = .FALSE.
-!      LOGICAL              :: ISAM_SUBSET    = .FALSE.
-
-
 
       TYPE SPECIES_BUDGET
          CHARACTER(16)        :: SPECIES_NAME = ' '
@@ -88,8 +79,15 @@ C***********************************************************************
       
       TYPE(SPECIES_BUDGET), ALLOCATABLE :: MECHANISM_BUDGET ( : )
       TYPE(SPECIES_BUDGET), ALLOCATABLE :: OX_RADICAL_BUDGET( : )
-      TYPE(SPECIES_BUDGET), ALLOCATABLE :: ISAM_SPC_BUDGET  ( : )
+      TYPE(SPECIES_BUDGET), ALLOCATABLE :: ISAM_SPC_BUDGET  ( : )   
       
+      INTEGER :: NRXNS_PROD_H2O2      = 0              ! # reactions producing only H2O2
+      INTEGER :: NRXNS_PROD_HNO3      = 0              ! # reactions producing only HNO3
+      INTEGER :: NRXNS_PROD_H2O2_HNO3 = 0              ! # reactions producing H2O2 or HNO3
+      INTEGER, ALLOCATABLE :: H2O2_HNO3_PROD_RXNS( : ) ! indices of H2O2 or HNO3 producing reactions
+
+      REAL( 8 ), ALLOCATABLE :: H2O2_HNO3_YIELD( : )   ! H2O2 or HNO3 yield for a reaction subset
+       
       INTEGER :: ISAM_LOG        ! Unit number of output log
       INTEGER :: ISAM_JDATE = 0
       INTEGER :: ISAM_JTIME = 0
@@ -130,6 +128,12 @@ C***********************************************************************
        INTEGER, ALLOCATABLE :: OX_INDEX ( : )
        
        LOGICAL :: ISAM_WITH_OZONE = .FALSE.
+
+! specific species indices in chemical mechanism 
+       INTEGER              :: H2O2_INDEX       = 0     
+       INTEGER              :: HNO3_INDEX       = 0     
+       INTEGER              :: O3_INDEX         = 0     
+       LOGICAL              :: CHEMISTRY_WITH_O3 = .FALSE.
 
        REAL( 8 ), PARAMETER, PRIVATE :: ONE    = 1.0D0
        REAL( 8 ), PARAMETER, PRIVATE :: ZERO   = 0.0D0
@@ -180,6 +184,9 @@ C..Includes:
          REAL(8), ALLOCATABLE :: COEFF_POS( : )
          REAL(8), ALLOCATABLE :: COEFF_NEG( : )
          REAL(8)              :: COEFF
+
+         TYPE(SPECIES_BUDGET) :: H2O2_BUDGET
+         TYPE(SPECIES_BUDGET) :: HNO3_BUDGET
          
 C=======================================================
 
@@ -191,7 +198,10 @@ C=======================================================
         ALLOCATE( ISAM_SPC_IDX( NSPC_SA + 1 ) )
         ALLOCATE( NO_CHEMISTRY( NSPC_SA + 1 ) )
         ALLOCATE( FIND_IN_ISAM( NSPC_SA + 1 ) )
-        ! krt Identify species index in ISAM array
+        ALLOCATE( BIAS_CHEMISTRY_SPC( NCONSTRAINTS, NUMB_MECH_SPC ) )
+        BIAS_CHEMISTRY_SPC = .FALSE.
+        
+        ! Identify species index in ISAM array
         ISAM_SPC_IDX = 0
         ISAM_2_CHEMI = 0
         NO_CHEMISTRY = .TRUE.
@@ -218,8 +228,35 @@ C=======================================================
            ISAM_CHEMISTRY_SPC = ISAM_CHEMISTRY_SPC
      &                        + 1           
            ISAM_2_CHEMI( S )  = R
+           BIAS_CHEMISTRY_SPC( 1:NCONSTRAINTS,R ) = SPECIES_BIAS( 1:NCONSTRAINTS,S )
            NO_CHEMISTRY( S )  = .FALSE.
         END DO
+        
+        HNO3_INDEX = INDEX1( 'HNO3', NUMB_MECH_SPC, CHEMISTRY_SPC )
+        H2O2_INDEX = INDEX1( 'H2O2', NUMB_MECH_SPC, CHEMISTRY_SPC )
+        IF ( H2O2_INDEX .LT. 1 ) THEN
+            H2O2_INDEX = INDEX1( 'HO2H', NUMB_MECH_SPC, CHEMISTRY_SPC )        
+        END IF
+        O3_INDEX = INDEX1( 'H2O2', NUMB_MECH_SPC, CHEMISTRY_SPC )
+        IF ( O3_INDEX .GT. 0 ) CHEMISTRY_WITH_O3 = .TRUE.
+        
+        IF ( ISAM_CHEM_BIAS .EQ. 5 ) THEN
+          IF ( H2O2_INDEX .LT. 1 .OR. HNO3_INDEX .LT. 1 ) THEN
+             IF ( H2O2_INDEX .LT. 1 ) THEN
+                 WRITE(LOGDEV,'(A)')'ISAM_O3_WEIGHTS set to 5 but hydrogen peroxide not found gas chemistry.'
+             END IF
+             IF ( HNO3_INDEX .LT. 1 ) THEN
+                 WRITE(LOGDEV,'(A)')'ISAM_O3_WEIGHTS set to 5 but nitric acid not found gas chemistry.'
+             END IF
+             MSG = 'Above Error(s) not found using ISAM runtime option'
+             CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
+          END IF        
+          IF ( O3_INDEX .LT. 1 ) THEN
+             WRITE(LOGDEV,'(A)')'ISAM_O3_WEIGHTS set to 5 but gas chemistry does not have ozone.'
+             WRITE(LOGDEV,'(A)')'ISAM_O3_WEIGHTS reset to 1.'
+             ISAM_CHEM_BIAS = 1
+          END IF
+        END IF
 
         IF( ANY(  .NOT. NO_CHEMISTRY ) )THEN
 C..Save pointer for isam species found in chemistry species
@@ -502,7 +539,7 @@ C...Allocate and set conversion factors for isam chemistry species
                END IF
            END IF                  
         END DO
-
+        
         DEALLOCATE( IREACTION,
      &              IRXN_PROD,
      &              IRXN_LOSS,
@@ -510,6 +547,124 @@ C...Allocate and set conversion factors for isam chemistry species
      &              COEFF_NEG,
      &              COEFF_NET )     
 
+
+! Set Hydrogen Peroxide budget data        
+        IF ( H2O2_INDEX .GT. 0 ) THEN
+           H2O2_BUDGET%SPECIES_NAME = CHEMISTRY_SPC( H2O2_INDEX )           
+           H2O2_BUDGET%NREACTIONS = MECHANISM_BUDGET( H2O2_INDEX )%NREACTIONS
+
+! set up reaction data with net hydrogen peroxide change                
+           S = H2O2_BUDGET%NREACTIONS
+           IF ( S .GT. 0 ) THEN
+               ALLOCATE( H2O2_BUDGET%IREACTION( S ),
+     &                   H2O2_BUDGET%COEFF_NET( S ),  STAT = IOS )
+               IF ( IOS .NE. 0 ) THEN
+                    MSG = 'Error allocating H2O2 budget array'
+                   CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
+               END IF
+               H2O2_BUDGET%IREACTION( 1:S ) = MECHANISM_BUDGET( H2O2_INDEX )%IREACTION( 1:S )
+               H2O2_BUDGET%COEFF_NET( 1:S ) = MECHANISM_BUDGET( H2O2_INDEX )%COEFF_NET( 1:S )
+           END IF    
+
+! define hydrogen peroxide production reaction information
+           
+           H2O2_BUDGET%NRXNS_PROD = MECHANISM_BUDGET( H2O2_INDEX )%NRXNS_PROD
+           IP = H2O2_BUDGET%NRXNS_PROD
+           IF ( IP .GT. 0 ) THEN
+               ALLOCATE( H2O2_BUDGET%IRXN_PROD( IP ),
+     &                   H2O2_BUDGET%COEFF_POS( IP ),  STAT = IOS )
+               IF ( IOS .NE. 0 ) THEN
+                    MSG = 'Error allocating production H2O2_BUDGET arrays'
+                   CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
+               END IF
+               H2O2_BUDGET%IRXN_PROD( 1:IP ) = MECHANISM_BUDGET( H2O2_INDEX )%IRXN_PROD( 1:IP )
+               H2O2_BUDGET%COEFF_POS( 1:IP ) = MECHANISM_BUDGET( H2O2_INDEX )%COEFF_POS( 1:IP )
+           END IF
+
+! define hydrogen peroxide production reaction information
+
+           H2O2_BUDGET%NRXNS_LOSS = MECHANISM_BUDGET( H2O2_INDEX )%NRXNS_LOSS
+           IL = H2O2_BUDGET%NRXNS_LOSS
+           IF ( IL .GT. 0 ) THEN
+               ALLOCATE( H2O2_BUDGET%IRXN_LOSS( IL ),
+     &                   H2O2_BUDGET%COEFF_NEG( IL ),  STAT = IOS )
+               IF ( IOS .NE. 0 ) THEN
+                    MSG = 'Error allocating production H2O2_BUDGET arrays'
+                   CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
+               END IF
+               H2O2_BUDGET%IRXN_LOSS( 1:IL ) = MECHANISM_BUDGET( H2O2_INDEX )%IRXN_LOSS( 1:IL )
+               H2O2_BUDGET%COEFF_NEG( 1:IL ) = MECHANISM_BUDGET( H2O2_INDEX )%COEFF_NEG( 1:IL )
+           END IF
+
+        END IF
+
+! Set Nitric Acid budget data        
+        IF ( HNO3_INDEX .GT. 0 ) THEN
+
+! set up reaction data with net nitric acid change                
+           HNO3_BUDGET%SPECIES_NAME = CHEMISTRY_SPC( HNO3_INDEX )
+           HNO3_BUDGET%NREACTIONS = MECHANISM_BUDGET( HNO3_INDEX )%NREACTIONS
+           S = HNO3_BUDGET%NREACTIONS
+           IF ( S .GT. 0 ) THEN
+               ALLOCATE( HNO3_BUDGET%IREACTION( S ),
+     &                   HNO3_BUDGET%COEFF_NET( S ),  STAT = IOS )
+               IF ( IOS .NE. 0 ) THEN
+                    MSG = 'Error allocating HNO3 budget array'
+                   CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
+               END IF
+               HNO3_BUDGET%IREACTION( 1:S ) = MECHANISM_BUDGET( HNO3_INDEX )%IREACTION( 1:S )
+               HNO3_BUDGET%COEFF_NET( 1:S ) = MECHANISM_BUDGET( HNO3_INDEX )%COEFF_NET( 1:S )
+           END IF    
+
+! define nitric acid production reaction information
+           HNO3_BUDGET%NRXNS_PROD = MECHANISM_BUDGET( HNO3_INDEX )%NRXNS_PROD
+           IP = HNO3_BUDGET%NRXNS_PROD
+           IF ( IP .GT. 0 ) THEN
+               ALLOCATE( HNO3_BUDGET%IRXN_PROD( IP ),
+     &                   HNO3_BUDGET%COEFF_POS( IP ),  STAT = IOS )
+               IF ( IOS .NE. 0 ) THEN
+                    MSG = 'Error allocating production HNO3_BUDGET arrays'
+                   CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
+               END IF
+               HNO3_BUDGET%IRXN_PROD( 1:IP ) = MECHANISM_BUDGET( HNO3_INDEX )%IRXN_PROD( 1:IP )
+               HNO3_BUDGET%COEFF_POS( 1:IP ) = MECHANISM_BUDGET( HNO3_INDEX )%COEFF_POS( 1:IP )
+           END IF
+! define nitric acid destruction information
+           HNO3_BUDGET%NRXNS_LOSS = MECHANISM_BUDGET( HNO3_INDEX )%NRXNS_LOSS
+           IL = HNO3_BUDGET%NRXNS_LOSS
+           IF ( IL .GT. 0 ) THEN
+               ALLOCATE( HNO3_BUDGET%IRXN_LOSS( IL ),
+     &                   HNO3_BUDGET%COEFF_NEG( IL ),  STAT = IOS )
+               IF ( IOS .NE. 0 ) THEN
+                    MSG = 'Error allocating production HNO3_BUDGET arrays'
+                   CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
+               END IF
+               HNO3_BUDGET%IRXN_LOSS( 1:IL ) = MECHANISM_BUDGET( HNO3_INDEX )%IRXN_LOSS( 1:IL )
+               HNO3_BUDGET%COEFF_NEG( 1:IL ) = MECHANISM_BUDGET( HNO3_INDEX )%COEFF_NEG( 1:IL )
+           END IF
+        END IF
+
+        NRXNS_PROD_HNO3 = HNO3_BUDGET%NRXNS_PROD
+        NRXNS_PROD_H2O2 = H2O2_BUDGET%NRXNS_PROD
+        NRXNS_PROD_H2O2_HNO3 = NRXNS_PROD_HNO3 + NRXNS_PROD_H2O2
+        IF ( NRXNS_PROD_HNO3 .GT. 0 .AND. NRXNS_PROD_HNO3 .GT. 0 ) THEN
+           ALLOCATE( H2O2_HNO3_PROD_RXNS( NRXNS_PROD_H2O2_HNO3 ),STAT = IOS )
+           IF ( IOS .NE. 0 ) THEN
+                MSG = 'Error allocating production H2O2_HNO3_PROD_RXNS arrays'
+               CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
+           END IF
+           IP = NRXNS_PROD_H2O2
+           IL = NRXNS_PROD_HNO3
+           H2O2_HNO3_PROD_RXNS( 1:IP )      = H2O2_BUDGET%IRXN_PROD( 1:IP ) 
+           H2O2_HNO3_PROD_RXNS( (IP+1):IL ) = HNO3_BUDGET%IRXN_PROD( 1:IL ) 
+           ALLOCATE( H2O2_HNO3_YIELD( NRXNS_PROD_H2O2_HNO3 ),STAT = IOS )
+           IF ( IOS .NE. 0 ) THEN
+                MSG = 'Error allocating production H2O2_HNO3_YIELD arrays'
+               CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
+           END IF
+           H2O2_HNO3_YIELD( 1:IP ) = H2O2_BUDGET%COEFF_POS( 1:IP ) 
+           H2O2_HNO3_YIELD( (IP+1):IL ) = HNO3_BUDGET%COEFF_POS( 1:IL ) 
+        END IF
 
         ALLOCATE( ISAM_SPC_BUDGET( ISAM_CHEMISTRY_SPC ), STAT = IOS )
         IF ( IOS .NE. 0 ) THEN
@@ -991,6 +1146,8 @@ C..Arguments:
 
 C..Parameters: None
 
+      REAL(8), SAVE  :: NOX_VOC_SWITCH ! REAL( VOC_NOX_TRANS,8 ), switch between NOx to limiting ozone production
+      
 C..External Functions: None
  
       CHARACTER( 16 ) , SAVE :: PNAME = 'PA_IRR'   ! Program name
@@ -1004,7 +1161,7 @@ C..Scratch Local Variables:
       INTEGER NCELL             ! Loop index for cells
       INTEGER NIRR              ! Loop index for IRR outputs
       INTEGER NOUT              ! IRR output index
-      INTEGER NRX               ! Loop index for reactions
+      INTEGER NC,NR,NRX         ! Loop index for reactions
       INTEGER NTEMP             ! Loop index for temp IRRs
       INTEGER NTERM             ! Loop index for terms
       INTEGER ASTAT             ! allocation status
@@ -1019,9 +1176,13 @@ C..Scratch Local Variables:
       REAL(8) ISAM_LOSS               ! scratch term for total isam loss
       REAL(8) LOSS_FACT               ! effective loss frequency
       REAL(8) DELTA_BULK              ! change in bulk concentration
+      REAL(8) DELTA_H2O2              ! change in bulk H2O2 concentration
+      REAL(8) DELTA_HNO3              ! change in bulk HNO3 concentration
       REAL(8) COEFF                   ! Coefficient of IRR term
       REAL(8) TOTAL_PROBABILITY       ! normalization coefficient for SOURCE_PROBABILITY
       REAL(8) ISAM_TOTAL_PROBABILITY  ! normalization coefficient for ISAM_PROBABILITY
+      REAL(8) H2O2_Production         ! gross hydrogen peroxide production
+      REAL(8) HNO3_Production         ! gross nitric acid production
       
       LOGICAL :: REMOVED                 = .FALSE.   ! whether initial concentrations are wiped out
       LOGICAL, SAVE :: DISTRIBUTE_TO_ALL = .TRUE.    ! distribute extra production among all source tags 
@@ -1050,6 +1211,10 @@ C..Saved Local Variables:
       LOGICAL,   ALLOCATABLE, SAVE :: ZERO_ISAM( :           )  ! whether isam species have no effect on reaction
       LOGICAL,   ALLOCATABLE, SAVE :: REBALANCE( : )            ! renormalize tag concentration when production occurs
       LOGICAL,   ALLOCATABLE, SAVE :: SOURCE_NONZERO( :,: )     ! fraction of species not from an isam source
+
+      INTEGER,   ALLOCATABLE, SAVE :: MAP_REACTANT_CASE( : )      
+      LOGICAL,   ALLOCATABLE, SAVE :: TWO_REACTANT_CASE( :,:,: )
+      LOGICAL,   ALLOCATABLE, SAVE :: THREE_REACTANT_CASE( :,:,: )
       
       
 
@@ -1059,6 +1224,10 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  On first call, flag the reactions for which to calculate IRRS
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       IF ( LFIRST ) THEN
+
+C set value of NOX_VOC_SWITCH
+
+        NOX_VOC_SWITCH = REAL( VOC_NOX_TRANS,8 )
 
 C Allocate arrays:
 
@@ -1183,6 +1352,97 @@ C Allocate arrays:
 
          SOURCE_NONZERO = .TRUE.
 
+! map unimolecular, bimolecular and trimolecular reactions
+         
+         ALLOCATE( MAP_REACTANT_CASE( NRXNS ), STAT = ASTAT )
+         IF ( ASTAT .NE. 0 ) THEN
+           MSG = 'ERROR allocating SA_IRR variables'
+           CALL M3EXIT ( 'SA_IRR', 0, 0, MSG, XSTAT2 )
+         END IF
+         MAP_REACTANT_CASE = -1
+         
+         ISP1 = 0
+         ISP2 = 0
+         ISP3 = 0
+         DO NRX = 1, NRXNS
+            SELECT CASE ( NREACT( NRX ) )
+               CASE ( 1 )
+                  ISP1 = ISP1 + 1                    
+                  MAP_REACTANT_CASE( NRX ) = ISP1
+               CASE( 2 ) 
+                  ISP2 = ISP2 + 1                    
+                  MAP_REACTANT_CASE( NRX ) = ISP2
+               CASE( 3 )
+                  ISP3 = ISP3 + 1                    
+                  MAP_REACTANT_CASE( NRX ) = ISP3
+            END SELECT
+         END DO
+
+         IF( ISP2 .GT. 0 )THEN
+            ALLOCATE( TWO_REACTANT_CASE( NCONSTRAINTS,ISP2,3 ), STAT = ASTAT )
+            IF ( ASTAT .NE. 0 ) THEN
+              MSG = 'ERROR allocating SA_IRR variables'
+              CALL M3EXIT ( 'SA_IRR', 0, 0, MSG, XSTAT2 )
+            END IF
+            THREE_REACTANT_CASE = .FALSE.
+         END IF
+         
+         IF( ISP3 .GT. 0 )THEN
+            ALLOCATE( THREE_REACTANT_CASE( NCONSTRAINTS,ISP3,7 ), STAT = ASTAT )
+            IF ( ASTAT .NE. 0 ) THEN
+              MSG = 'ERROR allocating SA_IRR variables'
+              CALL M3EXIT ( 'SA_IRR', 0, 0, MSG, XSTAT2 )
+            END IF
+            THREE_REACTANT_CASE = .FALSE.
+         END IF         
+
+C...Calculate reactant cases based on species_bias for each reactant
+         DO NC = 1, NCONSTRAINTS
+            DO NRX = 1, NRXNS
+               NR = MAP_REACTANT_CASE( NRX )
+               SELECT CASE ( NREACT( NRX ) )
+                  CASE( 2 ) 
+                      ISP1 = IRR( NRX,1 )
+                      ISP2 = IRR( NRX,2 )
+                      TWO_REACTANT_CASE( NC,NR,1 ) = (  BIAS_CHEMISTRY_SPC( NC,ISP1 ) 
+     &                                                 .AND. .NOT. BIAS_CHEMISTRY_SPC( NC,ISP2 ) )
+                      TWO_REACTANT_CASE( NC,NR,2 ) = ( .NOT. BIAS_CHEMISTRY_SPC( NC,ISP1 ) 
+     &                                                 .AND. BIAS_CHEMISTRY_SPC( NC,ISP2 ) )
+                      TWO_REACTANT_CASE( NC,NR,3 ) = ( .NOT. BIAS_CHEMISTRY_SPC( NC,ISP1 ) 
+     &                                                 .AND. .NOT. BIAS_CHEMISTRY_SPC( NC,ISP2 ) )
+     &                                           .OR. ( BIAS_CHEMISTRY_SPC( NC,ISP1 ) 
+     &                                                 .AND. BIAS_CHEMISTRY_SPC( NC,ISP2 ) )
+                  CASE( 3 )
+                      ISP1 = IRR( NRX,1 )
+                      ISP2 = IRR( NRX,2 )
+                      ISP3 = IRR( NRX,3 )
+                      THREE_REACTANT_CASE( NC,NR,1 ) = (              BIAS_CHEMISTRY_SPC( NC,ISP1 ) 
+     &                                                   .AND.  .NOT. BIAS_CHEMISTRY_SPC( NC,ISP2 ) 
+     &                                                   .AND.  .NOT. BIAS_CHEMISTRY_SPC( NC,ISP3 ) )
+                      THREE_REACTANT_CASE( NC,NR,2 ) = (        .NOT. BIAS_CHEMISTRY_SPC( NC,ISP1 ) 
+     &                                                   .AND.        BIAS_CHEMISTRY_SPC( NC,ISP2 ) 
+     &                                                   .AND. .NOT.  BIAS_CHEMISTRY_SPC( NC,ISP3 ) )
+                      THREE_REACTANT_CASE( NC,NR,3 ) = (       .NOT.  BIAS_CHEMISTRY_SPC( NC,ISP1 ) 
+     &                                                   .AND. .NOT.  BIAS_CHEMISTRY_SPC( NC,ISP2 ) 
+     &                                                   .AND.        BIAS_CHEMISTRY_SPC( NC,ISP3 ) )
+                      THREE_REACTANT_CASE( NC,NR,4 ) = (              BIAS_CHEMISTRY_SPC( NC,ISP1 ) 
+     &                                                   .AND.        BIAS_CHEMISTRY_SPC( NC,ISP2 ) 
+     &                                                   .AND. .NOT.  BIAS_CHEMISTRY_SPC( NC,ISP3 ) )
+                      THREE_REACTANT_CASE( NC,NR,5 ) = (              BIAS_CHEMISTRY_SPC( NC,ISP1 ) 
+     &                                                   .AND. .NOT.  BIAS_CHEMISTRY_SPC( NC,ISP2 ) 
+     &                                                   .AND.        BIAS_CHEMISTRY_SPC( NC,ISP3 ) )
+                      THREE_REACTANT_CASE( NC,NR,6 ) = (       .NOT.  BIAS_CHEMISTRY_SPC( NC,ISP1 ) 
+     &                                                   .AND.        BIAS_CHEMISTRY_SPC( NC,ISP2 ) 
+     &                                                   .AND.        BIAS_CHEMISTRY_SPC( NC,ISP3 ) )
+                      THREE_REACTANT_CASE( NC,NR,7 ) = (       .NOT.  BIAS_CHEMISTRY_SPC( NC,ISP1 ) 
+     &                                                   .AND. .NOT.  BIAS_CHEMISTRY_SPC( NC,ISP2 ) 
+     &                                                   .AND. .NOT.  BIAS_CHEMISTRY_SPC( NC,ISP3 ) )
+     &                                             .OR. (      BIAS_CHEMISTRY_SPC( NC,ISP1 ) 
+     &                                                   .AND. BIAS_CHEMISTRY_SPC( NC,ISP2 ) 
+     &                                                   .AND. BIAS_CHEMISTRY_SPC( NC,ISP3 ) )      
+              END SELECT
+             END DO
+         END DO
 C...Assume that ISAM_SPECIES is fixed over the domain and simulation        
          WHERE ( ISAM_SPECIES ) 
             NOT_OUTSIDE_ISAM = 1.0D0
@@ -1261,58 +1521,169 @@ C..compute species fractions from ISAM groups and the remainder group for all me
       END DO 
 
 C...Calculate reaction rates and source probabilties
-        DO NRX = 1, NRXNS
-            IF ( NREACT( NRX ) .EQ. 1 ) THEN
-               ISP1 = IRR( NRX,1 )
-               RXRAT( NRX ) = RK( NRX )
-     &                      * YCRATES( ISP1 )
-               DO KTAG = 1, NTAG_SA
-                 SOURCE_PROBABILITY( KTAG,NRX ) = 1.0D0 - NOT_ISAM_SOURCE( KTAG,ISP1 ) 
-               END DO
-               KTAG = NTAG_SA + 1
-               SOURCE_PROBABILITY( KTAG,NRX ) = 1.0D0 - NOT_OUTSIDE_ISAM( ISP1 ) 
-            ELSE IF ( NREACT( NRX ) .EQ. 2 ) THEN
-               ISP1 = IRR( NRX,1 )
-               ISP2 = IRR( NRX,2 )
-               RXRAT( NRX ) = RK( NRX )
-     &                      * YCRATES( ISP1 )
-     &                      * YCRATES( ISP2 ) 
-               DO KTAG = 1, NTAG_SA
-                 SOURCE_PROBABILITY( KTAG,NRX ) = 1.0D0 
-     &                                          -  NOT_ISAM_SOURCE( KTAG,ISP1 ) 
-     &                                          *  NOT_ISAM_SOURCE( KTAG,ISP2 ) 
-               END DO
-               KTAG = NTAG_SA + 1
-               SOURCE_PROBABILITY( KTAG,NRX ) = 1.0D0 
-     &                                        -  NOT_OUTSIDE_ISAM( ISP1 ) 
-     &                                        *  NOT_OUTSIDE_ISAM( ISP2 ) 
-            ELSE IF ( NREACT( NRX ) .EQ. 3 ) THEN
-               ISP1 = IRR( NRX,1 )
-               ISP2 = IRR( NRX,2 )
-               ISP3 = IRR( NRX,3 )
-               RXRAT( NRX ) = RK( NRX )
-     &                      * YCRATES( ISP1 )
-     &                      * YCRATES( ISP2 )
-     &                      * YCRATES( ISP3 ) 
-               DO KTAG = 1, NTAG_SA
-                 SOURCE_PROBABILITY( KTAG,NRX ) = 1.0D0 
-     &                                          -  NOT_ISAM_SOURCE( KTAG,ISP1 ) 
-     &                                          *  NOT_ISAM_SOURCE( KTAG,ISP2 ) 
-     &                                          *  NOT_ISAM_SOURCE( KTAG,ISP3 ) 
-               END DO
-               KTAG = NTAG_SA + 1
-               SOURCE_PROBABILITY( KTAG,NRX ) = 1.0D0 
-     &                                        -  NOT_OUTSIDE_ISAM( ISP1 ) 
-     &                                        *  NOT_OUTSIDE_ISAM( ISP2 ) 
-     &                                        *  NOT_OUTSIDE_ISAM( ISP3 ) 
-            ELSE IF (NREACT( NRX ) .EQ. 0 ) THEN
-               RXRAT( NRX ) = RK( NRX )
-               DO KTAG = 1, NTAG_SA
-                  SOURCE_PROBABILITY( KTAG,NRX ) = 0.0D0 
-               END DO
-               KTAG = NTAG_SA + 1
-               SOURCE_PROBABILITY( KTAG,NRX ) = 1.0D0 
+        IF ( ISAM_CHEM_BIAS .EQ. 5 ) THEN
+!  for concentrations 0.35 is average of range in 
+!      Sillman et al. (1998). J. Geophys. Res., 103, 22,629–22,644, 
+!  but Need to add routine that HNO2 and H2O2 production based MECHANISM_BUDGET array  
+!            
+! determine if net production of ozone takes place
+!           IF ( (CONC( O3_INDEX )-YCMID( O3_INDEX )) .GT. 0.0D0 ) THEN 
+! Using net change in H2O2 and HNO3 concentrations
+!              DELTA_H2O2 = CONC( H2O2_INDEX )-YCMID( H2O2_INDEX )
+!              DELTA_HNO3 = CONC( HNO3_INDEX )-YCMID( HNO3_INDEX )
+!              IF ( DELTA_H2O2/MAX( 1.0D-30,DELTA_NO3 ) .LT. VOC_NOX_TRANS  ) THEN
+! Using H2O2 and HNO3 concentrations
+!              IF ( CONC( H2O2_INDEX )/MAX( 1.0D-30,CONC( HNO3_INDEX ) ) .LT. VOC_NOX_TRANS  ) THEN
+! Using gross production of H2O2 and HNO3
+
+               IF ( PH2O2_OVER_PHNO3( RK,CONC ) .GT. NOX_VOC_SWITCH  ) THEN
+!              IF ( PH2O2_OVER_PHNO3( RK,CONC ) .GT. REAL( VOC_NOX_TRANS,8 )  ) THEN
+                  NC = ISAM_NOX_CASE
+               ELSE 
+                  NC = ISAM_VOC_CASE
+               END IF
+
+!           ELSE
+!              NC = 3
+!           END IF
+            IF ( WRITE_CELL ) THEN
+
+                WRITE(ISAM_LOG,*)'PH2O2_OVER_PHNO3, NC = ',PH2O2_OVER_PHNO3( RK,CONC ), NC
+
             END IF
+        ELSE 
+            NC = ISAM_CHEM_BIAS
+        END IF
+        DO NRX = 1, NRXNS
+            NR = MAP_REACTANT_CASE( NRX )
+            SELECT CASE ( NREACT( NRX ) )
+               CASE( 1 )
+                  ISP1 = IRR( NRX,1 )
+                  RXRAT( NRX ) = RK( NRX )
+     &                         * YCRATES( ISP1 )
+                  DO KTAG = 1, NTAG_SA
+                    SOURCE_PROBABILITY( KTAG,NRX ) = 1.0D0 - NOT_ISAM_SOURCE( KTAG,ISP1 ) 
+                  END DO
+                  KTAG = NTAG_SA + 1
+                  SOURCE_PROBABILITY( KTAG,NRX ) = 1.0D0 - NOT_OUTSIDE_ISAM( ISP1 ) 
+               CASE( 2 ) 
+                   ISP1 = IRR( NRX,1 )
+                   ISP2 = IRR( NRX,2 )
+                   RXRAT( NRX ) = RK( NRX )
+     &                          * YCRATES( ISP1 )
+     &                          * YCRATES( ISP2 ) 
+                   IF ( TWO_REACTANT_CASE( NC,NR,1 ) ) THEN
+                       DO KTAG = 1, NTAG_SA
+                         SOURCE_PROBABILITY( KTAG,NRX ) = 1.0D0 
+     &                                                  -  NOT_ISAM_SOURCE( KTAG,ISP1 ) 
+                       END DO
+                       KTAG = NTAG_SA + 1
+                       SOURCE_PROBABILITY( KTAG,NRX ) = 1.0D0 
+     &                                                -  NOT_OUTSIDE_ISAM( ISP1 ) 
+                   ELSE IF ( TWO_REACTANT_CASE( NC,NR,2 ) ) THEN
+                       DO KTAG = 1, NTAG_SA
+                         SOURCE_PROBABILITY( KTAG,NRX ) = 1.0D0 
+     &                                                  -  NOT_ISAM_SOURCE( KTAG,ISP2 ) 
+                       END DO
+                       KTAG = NTAG_SA + 1
+                       SOURCE_PROBABILITY( KTAG,NRX ) = 1.0D0 
+     &                                                -  NOT_OUTSIDE_ISAM( ISP2 ) 
+                   ELSE IF ( TWO_REACTANT_CASE( NC,NR,3 ) ) THEN
+                       DO KTAG = 1, NTAG_SA
+                         SOURCE_PROBABILITY( KTAG,NRX ) = 1.0D0 
+     &                                                  -  NOT_ISAM_SOURCE( KTAG,ISP1 ) 
+     &                                                  *  NOT_ISAM_SOURCE( KTAG,ISP2 ) 
+                       END DO
+                       KTAG = NTAG_SA + 1
+                       SOURCE_PROBABILITY( KTAG,NRX ) = 1.0D0 
+     &                                                -  NOT_OUTSIDE_ISAM( ISP1 ) 
+     &                                                *  NOT_OUTSIDE_ISAM( ISP2 ) 
+
+                   END IF
+               CASE( 3 )
+                   ISP1 = IRR( NRX,1 )
+                   ISP2 = IRR( NRX,2 )
+                   ISP3 = IRR( NRX,3 )
+                   RXRAT( NRX ) = RK( NRX )
+     &                          * YCRATES( ISP1 )
+     &                          * YCRATES( ISP2 )
+     &                          * YCRATES( ISP3 ) 
+                   IF ( THREE_REACTANT_CASE( NC,NR,1 ) ) THEN
+                       DO KTAG = 1, NTAG_SA
+                         SOURCE_PROBABILITY( KTAG,NRX ) = 1.0D0 
+     &                                                  -  NOT_ISAM_SOURCE( KTAG,ISP1 ) 
+                       END DO
+                       KTAG = NTAG_SA + 1
+                       SOURCE_PROBABILITY( KTAG,NRX ) = 1.0D0 
+     &                                                -  NOT_OUTSIDE_ISAM( ISP1 ) 
+                   ELSE IF ( THREE_REACTANT_CASE( NC,NR,2 ) ) THEN
+                       DO KTAG = 1, NTAG_SA
+                         SOURCE_PROBABILITY( KTAG,NRX ) = 1.0D0 
+     &                                                  -  NOT_ISAM_SOURCE( KTAG,ISP2 ) 
+                       END DO
+                       KTAG = NTAG_SA + 1
+                       SOURCE_PROBABILITY( KTAG,NRX ) = 1.0D0 
+     &                                                -  NOT_OUTSIDE_ISAM( ISP2 ) 
+                   ELSE IF ( THREE_REACTANT_CASE( NC,NR,3 ) ) THEN
+                       DO KTAG = 1, NTAG_SA
+                         SOURCE_PROBABILITY( KTAG,NRX ) = 1.0D0 
+     &                                                  -  NOT_ISAM_SOURCE( KTAG,ISP3 ) 
+                       END DO
+                       KTAG = NTAG_SA + 1
+                       SOURCE_PROBABILITY( KTAG,NRX ) = 1.0D0 
+     &                                                -  NOT_OUTSIDE_ISAM( ISP3 ) 
+                   ELSE IF ( THREE_REACTANT_CASE( NC,NR,4 ) ) THEN
+                       DO KTAG = 1, NTAG_SA
+                         SOURCE_PROBABILITY( KTAG,NRX ) = 1.0D0 
+     &                                                  -  NOT_ISAM_SOURCE( KTAG,ISP1 ) 
+     &                                                  *  NOT_ISAM_SOURCE( KTAG,ISP2 ) 
+                       END DO
+                       KTAG = NTAG_SA + 1
+                       SOURCE_PROBABILITY( KTAG,NRX ) = 1.0D0 
+     &                                                *  NOT_OUTSIDE_ISAM( ISP1 ) 
+     &                                                *  NOT_OUTSIDE_ISAM( ISP2 ) 
+
+                   ELSE IF ( THREE_REACTANT_CASE( NC,NR,5 ) ) THEN
+                       DO KTAG = 1, NTAG_SA
+                         SOURCE_PROBABILITY( KTAG,NRX ) = 1.0D0 
+     &                                                  -  NOT_ISAM_SOURCE( KTAG,ISP1 ) 
+     &                                                  *  NOT_ISAM_SOURCE( KTAG,ISP3 ) 
+                       END DO
+                       KTAG = NTAG_SA + 1
+                       SOURCE_PROBABILITY( KTAG,NRX ) = 1.0D0 
+     &                                                *  NOT_OUTSIDE_ISAM( ISP1 ) 
+     &                                                *  NOT_OUTSIDE_ISAM( ISP3 ) 
+                   ELSE IF ( THREE_REACTANT_CASE( NC,NR,6 ) ) THEN
+                       DO KTAG = 1, NTAG_SA
+                         SOURCE_PROBABILITY( KTAG,NRX ) = 1.0D0 
+     &                                                  -  NOT_ISAM_SOURCE( KTAG,ISP2 ) 
+     &                                                  *  NOT_ISAM_SOURCE( KTAG,ISP3 ) 
+                       END DO
+                       KTAG = NTAG_SA + 1
+                       SOURCE_PROBABILITY( KTAG,NRX ) = 1.0D0 
+     &                                                *  NOT_OUTSIDE_ISAM( ISP1 ) 
+     &                                                *  NOT_OUTSIDE_ISAM( ISP3 ) 
+                   ELSE IF ( THREE_REACTANT_CASE( NC,NR,7 ) ) THEN
+                        DO KTAG = 1, NTAG_SA
+                          SOURCE_PROBABILITY( KTAG,NRX ) = 1.0D0 
+     &                                                   -  NOT_ISAM_SOURCE( KTAG,ISP1 ) 
+     &                                                   *  NOT_ISAM_SOURCE( KTAG,ISP2 ) 
+     &                                                   *  NOT_ISAM_SOURCE( KTAG,ISP3 ) 
+                        END DO
+                        KTAG = NTAG_SA + 1
+                        SOURCE_PROBABILITY( KTAG,NRX ) = 1.0D0 
+     &                                                 -  NOT_OUTSIDE_ISAM( ISP1 ) 
+     &                                                 *  NOT_OUTSIDE_ISAM( ISP2 ) 
+     &                                                 *  NOT_OUTSIDE_ISAM( ISP3 ) 
+                   END IF
+               CASE( 0 ) 
+                  RXRAT( NRX ) = RK( NRX )
+                  DO KTAG = 1, NTAG_SA
+                     SOURCE_PROBABILITY( KTAG,NRX ) = 0.0D0 
+                  END DO
+                  KTAG = NTAG_SA + 1
+                  SOURCE_PROBABILITY( KTAG,NRX ) = 1.0D0 
+            END SELECT
 C..Normalize sources probabilities for reaction
             ISAM_TOTAL_PROBABILITY  =  0.0D0
             DO KTAG = 1, NTAG_SA
@@ -1418,7 +1789,19 @@ c..Compute change in source concentrations for updating source concentrations
                   END DO                    
                 END IF
              END DO
+
              IF( ISAM_PROD .GT. TOTAL_PROD )TOTAL_PROD = ISAM_PROD
+             IF ( WRITE_CELL ) THEN
+                IF ( JSPC .EQ. H2O2_INDEX ) THEN
+                   H2O2_Production = TOTAL_PROD
+                   write(isam_log,*)'H2O2 Production = ',TOTAL_PROD
+                END IF
+                IF ( JSPC .EQ. HNO3_INDEX ) THEN
+                   HNO3_Production = TOTAL_PROD
+                   write(isam_log,*)'HNO3 Production = ',TOTAL_PROD
+                END IF
+
+             END IF
 ! compute species loss
              ISAM_LOSS  = 0.0D0
              TOTAL_LOSS = 0.0D0
@@ -1532,6 +1915,12 @@ c..Compute change in source concentrations for updating source concentrations
              END DO   
        END DO
 
+       IF ( WRITE_CELL ) THEN            
+                   write(isam_log,'(A,2(ES12.4,1X))')
+     &            'H2O2_Production/HNO3_Production, PH2O2_OVER_PHNO3  = ',
+     &             H2O2_Production/max(HNO3_Production,1.0e-30) ,PH2O2_OVER_PHNO3( RK,CONC )
+       END IF
+
 C...update SOLD using SOURCE_DELTA       
         DO JSPC = 1,NUMB_MECH_SPC
            NIRR = JSPC 
@@ -1616,4 +2005,104 @@ C..Save concentrations
 
       RETURN
       END SUBROUTINE SA_IRR_UNBLOCKED
+      REAL( 8 ) FUNCTION PH2O2_OVER_PHNO3( RKI,CONC )
+      
+      USE UTILIO_DEFN
+      USE RXNS_DATA             ! chemical mechanism data
+
+      IMPLICIT NONE 
+
+C..Includes: None
+      
+C..Arguments: 
+      REAL( 8 ),    INTENT( IN ) :: RKI  ( : )    ! Reaction rate coefficients
+      REAL( 8 ),    INTENT( IN ) :: CONC ( : )    ! species concentrations
+
+C..Parameters: None
+
+C..Local
+      INTEGER       :: IRXN, ISTART, ISTOP
+      INTEGER       :: NRX
+      INTEGER       :: IOS
+      INTEGER       :: ISP1, ISP2, ISP3
+
+      INTEGER, SAVE :: NRXNS_PROD_H2O2_HNO3 = 0
+
+      REAL( 8 )     :: PROD_H2O2
+      REAL( 8 )     :: PROD_HNO3
+      
+      LOGICAL, SAVE :: FIRSTCALL = .TRUE.
+      LOGICAL, SAVE :: NO_SPECIES_PROD = .FALSE.
+      
+      REAL( 8 ), ALLOCATABLE, SAVE :: RXRAT( : )
+
+      CHARACTER( 132 ) :: MSG
+      IF ( FIRSTCALL ) THEN 
+           
+         IF ( NRXNS_PROD_HNO3 .LT. 1 .OR. NRXNS_PROD_H2O2 .LT. 1 ) THEN
+            NO_SPECIES_PROD = .TRUE.
+         ELSE 
+            NRXNS_PROD_H2O2_HNO3 = NRXNS_PROD_HNO3 + NRXNS_PROD_H2O2
+            ALLOCATE( RXRAT( NRXNS_PROD_H2O2_HNO3 ),  STAT = IOS )
+            IF ( IOS .NE. 0 ) THEN
+                MSG = 'Error allocating RXRAT arrays'
+                CALL M3EXIT( ' PH2O2_OVER_PHNO3', 0, 0, MSG, XSTAT1 )
+            END IF  
+          END IF
+                   
+         FIRSTCALL = .FALSE.
+      END IF
+
+      IF ( NO_SPECIES_PROD ) THEN
+         PH2O2_OVER_PHNO3 = CONC( H2O2_INDEX ) / MAX( 1.0D-30,CONC( HNO3_INDEX ))
+         RETURN
+      END IF
+      
+      DO IRXN = 1, NRXNS_PROD_H2O2_HNO3
+            NRX = H2O2_HNO3_PROD_RXNS( IRXN )
+            SELECT CASE ( NREACT( NRX ) )
+               CASE( 1 )
+                  ISP1 = IRR( NRX,1 )
+                  RXRAT(IRXN ) = RKI( NRX )
+     &                         * CONC( ISP1 )
+               CASE( 2 ) 
+                   ISP1 = IRR( NRX,1 )
+                   ISP2 = IRR( NRX,2 )
+                   RXRAT( IRXN ) = RKI( NRX )
+     &                          * CONC( ISP1 )
+     &                          * CONC( ISP2 ) 
+               CASE( 3 )
+                   ISP1 = IRR( NRX,1 )
+                   ISP2 = IRR( NRX,2 )
+                   ISP3 = IRR( NRX,3 )
+                   RXRAT( IRXN ) = RKI( NRX )
+     &                          * CONC( ISP1 )
+     &                          * CONC( ISP2 )
+     &                          * CONC( ISP3 ) 
+               CASE( 0 ) 
+                  RXRAT( IRXN ) = RKI( NRX )
+            END SELECT
+      END DO
+
+! Compute hydrogen peroxide production
+      PROD_H2O2 = 0.0D0
+      ISTART = 1
+      ISTOP  = NRXNS_PROD_H2O2
+      DO IRXN = ISTART, ISTOP
+         PROD_H2O2 = PROD_H2O2
+     &             + H2O2_HNO3_YIELD( IRXN ) * RXRAT( IRXN )
+      END DO
+
+! Compute hydrogen peroxide production
+      PROD_HNO3 = 0.0D0
+      ISTART = ISTOP + 1
+      ISTOP  = NRXNS_PROD_H2O2_HNO3
+      DO IRXN = ISTART, ISTOP
+         PROD_HNO3 = PROD_HNO3
+     &             + H2O2_HNO3_YIELD( IRXN ) * RXRAT( IRXN )
+      END DO
+      
+      PH2O2_OVER_PHNO3 = PROD_H2O2 / MAX( 1.0D-30,PROD_HNO3 )
+      
+      END FUNCTION PH2O2_OVER_PHNO3
       END MODULE SA_IRR_DEFN
