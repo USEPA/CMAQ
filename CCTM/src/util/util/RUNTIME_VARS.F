@@ -111,6 +111,7 @@
       ! Grid and High-Level Model Parameters
       LOGICAL :: NEW_START       = .TRUE.   ! Start New Simulation. Not a Restart
       LOGICAL :: IGNORE_SOILINP  = .FALSE.   ! In case you don't have prev day
+      CHARACTER(300):: EXECUTION_ID = ''    ! Execution ID
       CHARACTER(16) :: GRID_NAME = ''       ! grid name selected from GRIDDESC
       CHARACTER(16) :: PROGNAME  = 'DRIVER' ! Program name selected from GRIDDESC
       INTEGER :: RUNLEN          = 480000   ! Run Length
@@ -310,7 +311,7 @@
 
 
       INTEGER          :: STATUS      ! ENV... status
-      CHARACTER( 250 ) :: STRTEMP
+      CHARACTER( 400 ) :: STRTEMP
       CHARACTER( 80 )  :: PBASE     
       INTEGER, PARAMETER :: EXIT_STATUS = 1
       INTEGER          :: ERROR
@@ -360,6 +361,10 @@
       ! Determine if prev day soilinp is available for MEGAN
       CALL GET_ENV ( IGNORE_SOILINP, 'IGNORE_SOILINP', IGNORE_SOILINP, VARDEV )
     
+      ! Get Execution ID
+      CALL GET_ENV ( STRTEMP, 'EXECUTION_ID', EXECUTION_ID, VARDEV )
+      EXECUTION_ID = STRTEMP(1:300)
+
       ! Get Grid Name
       CALL GET_ENV ( STRTEMP, 'GRID_NAME', GRID_NAME, VARDEV )
       GRID_NAME = STRTEMP(1:16)

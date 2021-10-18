@@ -484,7 +484,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
        #> Set optional ISAM regions files
 #      setenv ISAM_REGIONS /work/MOD3EVAL/nsu/isam_v53/CCTM/scripts/input/RGN_ISAM.nc
 
-#   Options used to favor tracked species in reaction for Ozone-NOx chemistry
+       #> Options used to favor tracked species in reactions for Ozone-NOx chemistry
        setenv ISAM_O3_WEIGHTS 5   # weights for tracked species Default is 5
                                   #     OPTIONS
                                   # 1 does not weight any species
