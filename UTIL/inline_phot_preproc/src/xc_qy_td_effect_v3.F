@@ -103,7 +103,7 @@
       LOGICAL       :: RESET_WC
       LOGICAL       :: RESET_TD
 
-      REAL          :: SIG, ALPHA, BETA, CHI
+      REAL          :: SIG, ALPHA, BETA, CHI, PHI
       REAL          :: XCROSS( NZ, NW), QUANT( NZ,NW )
 
       REAL          :: PHI_CO_STP     ! CO branch of IUPAC (2013) acetone QYZ at STP
@@ -209,10 +209,10 @@
       CALL NASA_NO3_QUANTAS(NW,WC,NZ,TLEV,DENS,QYNO3_NO, QYNO3_NO2)
 
  
-      DO IW = 1, NW
 
-         CALL QY_ACETONE_CHANNELS( T298K, DENS0, WC(IW), PHI_CO_STP, PHI_CH3CO_STP )
-         DO I = 1, NZ
+      DO I = 1, NZ
+         DO IW = 1, NW
+            CALL QY_ACETONE_CHANNELS( T298K, DENS0, WC(IW), PHI_CO_STP, PHI_CH3CO_STP )
             CALL QY_ACETONE_CHANNELS( TLEV( I ), DENS( I ), WC(IW), PHI_CO, PHI_CH3CO )
             IF( PHI_CO_STP .GT. 1.0E-9 )THEN
               ADJ_PHI_CO(I,IW) = PHI_CO / PHI_CO_STP
@@ -224,9 +224,16 @@
             ELSE 
               ADJ_PHI_CH3CO(I,IW) = 1.0
             END IF
-         END DO
+!              WRITE(6,'(A,F13.6,1X,E12.4,10(1X,F13.6))')
+!    &         'TEMP, DENS, WC,PHI_CO,PHI_CO_STP, ADJ_PHI_CO, ADJ_PHI_CO, PHI_CH3CO,PHI_CH3CO_STP, ADJ_PHI_CH3CO  = ',
+!    &         TLEV( I ),  DENS( I ), WC( IW ),
+!    &         PHI_CO,PHI_CO_STP,ADJ_PHI_CO(I,IW),
+!    &         PHI_CH3CO,PHI_CH3CO_STP,ADJ_PHI_CH3CO(I,IW)
 
+         END DO
+      END DO
 ! calculation at 298K      
+      DO IW = 1, NW
          O3_XCROSS_298K( IW ) = O3_XCROSS_293K( IW )
          O3_QUANT_298K ( IW ) = OZONE_YIELD( WC( IW ), T298K )
 
@@ -465,7 +472,7 @@
                      FACTOR = 1.0
                  ENDIF
 
-                 print*,JLABEL,TLEV(I)-T298K, factor*XC(I,IW), XCROSS(I, IW)
+!                print*,JLABEL,TLEV(I)-T298K, factor*XC(I,IW), XCROSS(I, IW)
                   XC(I, IW)  = FACTOR * XC(I, IW)
                   SQ(I, IW)  = XC(I, IW) * QY(I,IW)
  
@@ -489,7 +496,7 @@
 
                   IF( .NOT. COMPUTED_NO2O3P .AND. .NOT. COMPUTED_NO2EXC )THEN
                      FACTOR     = MAX( ADJ_NO2O3P_QUANT(IW,I), 0.0)
-                  print*,JLABEL,TLEV(I)-T298K, ADJ_NO2O3P_QUANT(IW,I), QY(I, IW), QUANT(I,IW)
+!                 print*,JLABEL,TLEV(I)-T298K, ADJ_NO2O3P_QUANT(IW,I), QY(I, IW), QUANT(I,IW)
                      QY(I, IW)  = FACTOR * QY(I, IW)
                      QY(I, IW)  = MIN( QY(I, IW), 1.0)
                      NO2O3P_YIELD( I, IW ) = QY(I, IW)
@@ -497,13 +504,13 @@
                   ELSE IF( .NOT. COMPUTED_NO2O3P .AND. COMPUTED_NO2EXC )THEN
                      FACTOR = -2.0
                      QY(I, IW) = MAX((1.0-NO2EXC_YIELD( I, IW )), 0.0)
-                  print*,JLABEL,TLEV(I)-T298K, FACTOR, QY(I, IW), QUANT(I,IW)
+!                 print*,JLABEL,TLEV(I)-T298K, FACTOR, QY(I, IW), QUANT(I,IW)
                      NO2O3P_YIELD( I, IW ) = QY(I, IW)
                      IF( IW .GE. NW .AND. I .GE. NZ )COMPUTED_NO2O3P = .TRUE.
                   ELSE IF( COMPUTED_NO2O3P )THEN
                      FACTOR = -3.0
                      QY(I, IW) = NO2O3P_YIELD( I, IW )
-                  print*,JLABEL,TLEV(I)-T298K, FACTOR, QY(I, IW), QUANT(I,IW)
+!                 print*,JLABEL,TLEV(I)-T298K, FACTOR, QY(I, IW), QUANT(I,IW)
                   END IF
                   
                   print*,JLABEL,TLEV(I)-T298K, FACTOR, QY(I, IW), QUANT(I,IW)
@@ -531,7 +538,7 @@
                      FACTOR = 1.0 
      &                      + CLNO2_XCROSS_A1( IW )*TDUM 
      &                      + CLNO2_XCROSS_A2( IW )*(TDUM*TDUM)
-                     print*,WC(IW),CLNO2_XCROSS_A1(IW),CLNO2_XCROSS_A1(IW)
+!                    print*,WC(IW),CLNO2_XCROSS_A1(IW),CLNO2_XCROSS_A1(IW)
                   ELSE IF( TLEV( I ) .GT. 296.0 )THEN
                      FACTOR = 1.0
                   ELSE IF( TLEV( I ) .LT. 210.0 )THEN
@@ -539,7 +546,7 @@
      &                      -   86.0*CLNO2_XCROSS_A1( IW )
      &                      + 7396.0*CLNO2_XCROSS_A2( IW )
                   END IF  
-                  print*,"CLNO2: ",I, TLEV(I),FACTOR, XC(I, IW)
+!                 print*,"CLNO2: ",I, TLEV(I),FACTOR, XC(I, IW)
                   XC(I, IW)  = FACTOR * XC(I, IW)
                   SQ(I, IW)  = XC(I, IW) * QY(I, IW)
                ENDDO
@@ -558,7 +565,7 @@
                  ALPHA  = N2O5_XCROSS_EXP(IW)*(1.0/TDUM - 1.0/T298K)
                  FACTOR = EXP( ALPHA )
 
-                  print*,JLABEL,TLEV(I)-T298K,factor* XC(I, IW), XCROSS( I,IW) 
+!                 print*,JLABEL,TLEV(I)-T298K,factor* XC(I, IW), XCROSS( I,IW) 
                  XC(I,IW) = FACTOR  * XC(I,IW)
                  SQ(I,IW) = XC(I,IW) * QY(I,IW)
 
@@ -593,7 +600,7 @@
                      QY(I, IW) = NO2EXC_YIELD( I, IW )
                   END IF
                           
-                  print*,JLABEL,TLEV(I)-T298K, WC(IW), QY(I, IW), QUANT(I,IW),NO2O3P_YIELD( I, IW )
+!                 print*,JLABEL,TLEV(I)-T298K, WC(IW), QY(I, IW), QUANT(I,IW),NO2O3P_YIELD( I, IW )
 
                   SQ(I, IW) = XC(I, IW) * QY(I, IW)
                ENDDO
@@ -623,7 +630,7 @@
 
                  ENDIF
 
-                  print*,JLABEL,TLEV(I)-T298K,factor* XC(I, IW), XCROSS(I,IW)
+!                 print*,JLABEL,TLEV(I)-T298K,factor* XC(I, IW), XCROSS(I,IW)
                  XC(I, IW)  = FACTOR * XC(I, IW)
                  SQ(I, IW)  = XC(I,IW) * QY(I,IW)
 
@@ -642,7 +649,7 @@
      &                   / (1.0-EXP(-1096.4/ T298K ) - 2.0*EXP(-529.5/ T298K ))
 
                   XC(I, IW) = FACTOR * XC(I, IW)
-                  print*,JLABEL,TLEV(I)-T298K,XC(I, IW), XCROSS(I,IW)
+!                 print*,JLABEL,TLEV(I)-T298K,XC(I, IW), XCROSS(I,IW)
                   QY(I, IW) = ADJ_QY_NO3_NO(IW,I) * QY(I, IW)
                   QY(I, IW) = MIN(1.0, QY(I, IW))
                   QY(I, IW) = MAX(0.0, QY(I, IW))
@@ -712,42 +719,86 @@
 
 
            REPLACE = .TRUE.
-         CASE( 'ACET_CO_CRI' ) ! Acetone (CH3COCH3 ) ---> 2CH3 + CO
+         CASE( 'ACET_CO_CRI', 'CH3COCH3_RACM2B' ) ! Acetone (CH3COCH3 ) ---> 2CH3 + CO
 ! http://iupac.pole-ether.fr/htdocs/datasheets/pdf/P7_CH3COCH3+hv.pdf dated 2013
 ! based on 
 ! Blitz, M. A., Heard, D. E., Pilling, M. J., Arnold S. R. and M. Chipperfield, Geophys. Res. Lett. 
 ! L06111, doi:10.1029/2003GL018793, 2004.
            DO IW = 1, NW
                DO I = 1, NZ
+                   CALL QY_ACETONE_CHANNELS( TLEV( I ), DENS0, WC(IW), PHI_CO, PHI_CH3CO )
+                   CALL QY_ACETONE_CHANNELS( T298K, DENS0, WC(IW), PHI_CO_STP, PHI_CH3CO_STP ) 
+                   IF( PHI_CO_STP .GT. 0.0 )THEN
+                      CHI = PHI_CO / PHI_CO_STP
+                   ELSE
+                      CHI = 1.0
+                   END IF
+                   CHI = ADJ_PHI_CO(I,IW)
                    XC(I, IW) = ADJ_ACETONE_XCROSS( I, IW ) * XC(I, IW)
-                   QY(I, IW) = MAX(0.0, MIN(1.0, ADJ_PHI_CO(I, IW) * QY(I, IW)))
+                   QY(I, IW) = CHI * QY(I, IW)
                    SQ(I, IW)  = XC(I,IW) * QY(I, IW)
+
+            SIG = DENS0
+            DO IZ = 1, 2
+               CALL QY_ACETONE_CHANNELS( TLEV( I ), DENS0, WC(IW), PHI_CO_STP, PHI_CH3CO_STP )
+               CALL QY_ACETONE_CHANNELS( TLEV( I ), SIG, WC(IW), PHI_CO, PHI_CH3CO )
+               IF( PHI_CO_STP .GT. 0.0 )THEN
+                   CHI = PHI_CO / PHI_CO_STP
+               ELSE
+                   CHI = 1.0
+               END IF
+               IF( PHI_CH3CO_STP+PHI_CO_STP  .GT. 0.0 )THEN
+                   PHI =(PHI_CH3CO+PHI_CO) / ( PHI_CH3CO_STP+PHI_CO_STP )
+               ELSE
+                   PHI = 1.0
+               END IF
+              
+               WRITE(6,'(A,F13.6,1X,E12.4,10(1X,F13.6))')
+     &         'TEMP, SIG, WC( IW ), QYCO,QYCO_STP, RATIO_QYCO, RQUANTUM_ACETONE, RATIO_TOTAL = ', 
+     &         TLEV( I ), SIG, WC( IW ), PHI_CO,PHI_CO_STP, CHI, 
+     &         RQUANTUM_ACETONE( TLEV( I ), SIG, WC( IW ) ),PHI
+               SIG = 0.5 * SIG
+            END DO
+
                ENDDO
            ENDDO
 
            REPLACE = .TRUE.
-         CASE( 'ACET_R2_CRI' ) ! Acetone (CH3COCH3 ) ---> CH3CO+CH3 
+         CASE( 'ACET_R2_CRI', 'CH3COCH3_RACM2A' ) ! Acetone (CH3COCH3 ) ---> CH3CO+CH3 
 ! http://iupac.pole-ether.fr/htdocs/datasheets/pdf/P7_CH3COCH3+hv.pdf dated 2013
 ! based on 
 ! Blitz, M. A., Heard, D. E., Pilling, M. J., Arnold S. R. and M. Chipperfield, Geophys. Res. Lett. 
 ! L06111, doi:10.1029/2003GL018793, 2004.
-           DO IW = 1, NW
-               SIG = DENS0
-               CALL QY_ACETONE_CHANNELS( T298K, SIG, WC(IW), PHI_CO_STP, PHI_CH3CO_STP )
-               DO I = 1, NZ
+           SIG = DENS0
+           DO I = 1, NZ
+              DO IW = 1, NW
+                   CALL QY_ACETONE_CHANNELS( TLEV( I ), DENS0, WC(IW), PHI_CO, PHI_CH3CO )
+                   CALL QY_ACETONE_CHANNELS( T298K, DENS0, WC(IW), PHI_CO_STP, PHI_CH3CO_STP ) 
+                   IF(   PHI_CH3CO_STP .GT. 0.0 )THEN
+                       CHI = PHI_CH3CO/PHI_CH3CO_STP   
+                   ELSE
+                       CHI = 1.0
+                   END IF         
+                   CHI = ADJ_PHI_CH3CO(I,IW)  
                    XC(I, IW) = ADJ_ACETONE_XCROSS( I, IW ) * XC(I, IW)
-                   QY(I, IW) = MAX(0.0, MIN(1.0, ADJ_PHI_CH3CO(I, IW) * QY(I, IW)))
-                   SQ(I, IW)  = XC(I,IW) * QY(I, IW)
-#ifdef verbose
-               CHI  = 1.0
-               CALL QY_ACETONE_CHANNELS( T298K, SIG, WC(IW), PHI_CO, PHI_CH3CO )
-               IF(   PHI_CH3CO_STP .GT. 0.0 )CHI = PHI_CH3CO/PHI_CH3CO_STP              
-               WRITE(6,'(A,10(1X,ES12.4))')
-     &         'TEMP, SIG, WC( IW ), QYCH3CO/QYCH3CO_STP, RQY_ACETONE_CH3CO, RQUANTUM_ACETONE = ', 
-     &         TLEV( I ), SIG, WC( IW ), CHI , RQY_ACETONE_CH3CO( T298K, SIG, WC( IW ) ), 
-     &         RQUANTUM_ACETONE( T298K, SIG, WC( IW ) )
-               SIG = 0.90*SIG
-#endif
+                   QY(I, IW) = CHI * QY(I, IW)
+                   SQ(I, IW) = XC(I,IW) * QY(I, IW)
+
+            SIG = DENS0
+            DO IZ = 1, 2
+               CALL QY_ACETONE_CHANNELS( TLEV( I ), DENS0, WC(IW), PHI_CO_STP, PHI_CH3CO_STP )
+               CALL QY_ACETONE_CHANNELS( TLEV( I ), SIG, WC(IW), PHI_CO, PHI_CH3CO )
+               IF(   PHI_CH3CO_STP .GT. 0.0 )THEN
+                  CHI = PHI_CH3CO/PHI_CH3CO_STP
+               ELSE
+                  CHI = 1.0
+               END IF
+               WRITE(6,'(A,F13.6,1X,E12.4,10(1X,F13.6))')
+     &         'TEMP, SIG, WC( IW ), QYCH3CO,QYCH3CO_STP, RATIO_QYCH3CO,RQY_ACETONE_CH3CO = ', 
+     &         TLEV( I ), SIG, WC( IW ), PHI_CH3CO,PHI_CH3CO_STP, CHI , RQY_ACETONE_CH3CO( TLEV( I ), SIG, WC( IW ) )
+               SIG = 0.5 * SIG
+            END DO
+
                ENDDO
            ENDDO
 
@@ -2300,16 +2351,16 @@ C-----------------------------------------------------------------------
       REAL BB           ! scratch variable for IUPAC (2013) acetone QYZ
       REAL CC           ! scratch variable for IUPAC (2013) acetone QYZ
       
-      REAL TEMP_OVER 295K   ! temperature divided by 295 K
+      REAL TEMP_OVER_295K   ! temperature divided by 295 K
       REAL ONE_OVER_LAMBDA  ! reciporcal of wavelenght, 10E7/nm or 1/cm
 
-      TEMP_OVER 295K  = TEMP * ONE_OVER_295K
+      TEMP_OVER_295K  = TEMP * ONE_OVER_295K
       ONE_OVER_LAMBDA = 1.0E7 / LAMBDA
       
       IF ( LAMBDA .GE. 248.0 .AND. LAMBDA .LE. 349.0 ) THEN
 
-         AA = 0.350 * ( TEMP_OVER 295K )**(-1.28)
-         BB = 0.068 * ( TEMP_OVER 295K )**(-2.65)
+         AA = 0.350 * ( TEMP_OVER_295K )**(-1.28)
+         BB = 0.068 * ( TEMP_OVER_295K )**(-2.65)
          A0 = ( AA / ( 1.0 - AA ) ) * EXP( BB * ( LAMBDA - 248.0 ) )
          PHI_CO = 1.0 / ( 1.0 + A0 )
 
@@ -2319,8 +2370,8 @@ C-----------------------------------------------------------------------
 
 !***wavelengths 248-302 nm
 
-            AA = 1.600 * 1.0E-19 * ( TEMP_OVER 295K )**(-2.38)
-            BB =  0.55 * 1.0E-03 * ( TEMP_OVER 295K )**(-3.19)
+            AA = 1.600 * 1.0E-19 * ( TEMP_OVER_295K )**(-2.38)
+            BB =  0.55 * 1.0E-03 * ( TEMP_OVER_295K )**(-3.19)
             A1 = AA * EXP( -BB * ( ( ONE_OVER_LAMBDA ) - 33113.0 ) )
             PHI_CH3CO = ( 1.0 - PHI_CO ) / ( 1.0 + A1*DENS_NUMB )
 
@@ -2328,17 +2379,17 @@ C-----------------------------------------------------------------------
 
          ELSE
 
-            AA = 1.62 * 1.0E-17 * ( TEMP_OVER 295K )**(-10.03)
-            BB = 1.79 * 1.0E-3  * ( TEMP_OVER 295K )**(-1.364)
+            AA = 1.62 * 1.0E-17 * ( TEMP_OVER_295K )**(-10.03)
+            BB = 1.79 * 1.0E-3  * ( TEMP_OVER_295K )**(-1.364)
             A2 = AA * EXP( -BB * ( ( ONE_OVER_LAMBDA ) - 30488.0 ) )
 
-            AA = 26.29 * ( TEMP_OVER 295K )**(-6.59)
-            BB = 5.72 * 1.0E-7 * ( TEMP_OVER 295K )**(-2.93)
-            CC = ( 30006.0 )   * ( TEMP_OVER 295K )**(-0.064)
+            AA = 26.29 * ( TEMP_OVER_295K )**(-6.59)
+            BB = 5.72 * 1.0E-7 * ( TEMP_OVER_295K )**(-2.93)
+            CC = ( 30006.0 )   * ( TEMP_OVER_295K )**(-0.064)
             A3 = AA * EXP( -BB * ( ( ONE_OVER_LAMBDA ) - CC )**2.0 )
 
-            AA = 1.67 * 1.0E-15 * ( TEMP_OVER 295K )**(-7.25)
-            BB = 2.08 * 1.0E-3  * ( TEMP_OVER 295K )**(-1.16)
+            AA = 1.67 * 1.0E-15 * ( TEMP_OVER_295K )**(-7.25)
+            BB = 2.08 * 1.0E-3  * ( TEMP_OVER_295K )**(-1.16)
             A4 = AA * EXP( -BB * ( ( ONE_OVER_LAMBDA ) - 30488.0 ) )
 
             PHI_CH3CO = ( 1.0 - PHI_CO )
@@ -2404,11 +2455,11 @@ C-----------------------------------------------------------------------
       REAL BB           ! scratch variable for acetone QY
       REAL CC           ! scratch variable for acetone QY
       
-      REAL TEMP_OVER 295K   ! temperature divided by 295 K
+      REAL TEMP_OVER_295K   ! temperature divided by 295 K
 !      REAL LAMBDA           ! wavelenght, nm 
       REAL ONE_OVER_LAMBDA  ! wavenumber, 10E7/nm or 1/cm
 
-      TEMP_OVER 295K  = TEMP * ONE_OVER_295K
+      TEMP_OVER_295K  = TEMP * ONE_OVER_295K
 
 !      LAMBDA          = WAVELENGTH( ILAMBDA )     
 !      ONE_OVER_LAMBDA = WAVENUMBER( ILAMBDA )  
@@ -2421,8 +2472,8 @@ C-----------------------------------------------------------------------
 
 !***wavelengths 248-302 nm
 
-            AA = 1.60E-19 * ( TEMP_OVER 295K )**(-2.38)
-            BB = 0.55E-03 * ( TEMP_OVER 295K )**(-3.19)
+            AA = 1.60E-19 * ( TEMP_OVER_295K )**(-2.38)
+            BB = 0.55E-03 * ( TEMP_OVER_295K )**(-3.19)
             A1 = AA * EXP( -BB * ( ONE_OVER_LAMBDA - 33113.0 ) )
             RQY_ACETONE_CH3CO = ( 1.0 + A1*DENS0 ) / ( 1.0 + A1*DENS_NUMB )
 
@@ -2430,17 +2481,17 @@ C-----------------------------------------------------------------------
 
          ELSE
 
-            AA = 1.62E-17 * ( TEMP_OVER 295K )**(-10.03)
-            BB = 1.79E-03  * ( TEMP_OVER 295K )**(-1.364)
+            AA = 1.62E-17 * ( TEMP_OVER_295K )**(-10.03)
+            BB = 1.79E-03  * ( TEMP_OVER_295K )**(-1.364)
             A2 = AA * EXP( -BB * ( ONE_OVER_LAMBDA - 30488.0 ) )
 
-            AA = 26.29 * ( TEMP_OVER 295K )**(-6.59)
-            BB = 5.72E-7 * ( TEMP_OVER 295K )**(-2.93)
-            CC = 30006.0 * ( TEMP_OVER 295K )**(-0.064)
+            AA = 26.29 * ( TEMP_OVER_295K )**(-6.59)
+            BB = 5.72E-7 * ( TEMP_OVER_295K )**(-2.93)
+            CC = 30006.0 * ( TEMP_OVER_295K )**(-0.064)
             A3 = AA * EXP( -BB * ( ONE_OVER_LAMBDA - CC )**2.0 )
 
-            AA = 1.67E-15 * ( TEMP_OVER 295K )**(-7.25)
-            BB = 2.08E-03  * ( TEMP_OVER 295K )**(-1.16)
+            AA = 1.67E-15 * ( TEMP_OVER_295K )**(-7.25)
+            BB = 2.08E-03  * ( TEMP_OVER_295K )**(-1.16)
             A4 = AA * EXP( -BB * ( ONE_OVER_LAMBDA - 30488.0 ) )
 
 !***below qy_ch3co values are normalized by (1 - qy_co) which does not depend on
@@ -2501,16 +2552,16 @@ C-----------------------------------------------------------------------
       REAL BB           ! scratch variable for IUPAC (2013) acetone QYZ
       REAL CC           ! scratch variable for IUPAC (2013) acetone QYZ
       
-      REAL TEMP_OVER 295K   ! temperature divided by 295 K
+      REAL TEMP_OVER_295K   ! temperature divided by 295 K
       REAL ONE_OVER_LAMBDA  ! reciporcal of wavelenght, 10E7/nm or 1/cm
 
-      TEMP_OVER 295K  = TEMP * ONE_OVER_295K
+      TEMP_OVER_295K  = TEMP * ONE_OVER_295K
       ONE_OVER_LAMBDA = 1.0E7 / LAMBDA
       
       IF ( LAMBDA .GE. 248.0 .AND. LAMBDA .LE. 349.0 ) THEN
 
-         AA = 0.350 * ( TEMP_OVER 295K )**(-1.28)
-         BB = 0.068 * ( TEMP_OVER 295K )**(-2.65)
+         AA = 0.350 * ( TEMP_OVER_295K )**(-1.28)
+         BB = 0.068 * ( TEMP_OVER_295K )**(-2.65)
          A0 = ( AA / ( 1.0 - AA ) ) * EXP( BB * ( LAMBDA - 248.0 ) )
          PHI_CO     = 1.0 / ( 1.0 + A0 )
          DEL_PHI_CO = MAX(0.0, 1.0 - PHI_CO)
@@ -2519,8 +2570,8 @@ C-----------------------------------------------------------------------
 
 !***wavelengths 248-302 nm
 
-            AA = 1.600E-19 * ( TEMP_OVER 295K )**(-2.38)
-            BB =  0.55E-03 * ( TEMP_OVER 295K )**(-3.19)
+            AA = 1.600E-19 * ( TEMP_OVER_295K )**(-2.38)
+            BB =  0.55E-03 * ( TEMP_OVER_295K )**(-3.19)
             A1 = AA * EXP( -BB * ( ( ONE_OVER_LAMBDA ) - 33113.0 ) )
             PHI_CH3CO  = DEL_PHI_CO / ( 1.0 + A1*DENS_NUMB )
             PHI_CH3CO0 = DEL_PHI_CO / ( 1.0 + A1*DENS0 )
@@ -2529,17 +2580,17 @@ C-----------------------------------------------------------------------
 
          ELSE
 
-            AA = 1.62E-17 * ( TEMP_OVER 295K )**(-10.03)
-            BB = 1.79E-03  * ( TEMP_OVER 295K )**(-1.364)
+            AA = 1.62E-17 * ( TEMP_OVER_295K )**(-10.03)
+            BB = 1.79E-03  * ( TEMP_OVER_295K )**(-1.364)
             A2 = AA * EXP( -BB * ( ONE_OVER_LAMBDA - 30488.0 ) )
 
-            AA = 26.29 * ( TEMP_OVER 295K )**(-6.59)
-            BB = 5.72E-7 * ( TEMP_OVER 295K )**(-2.93)
-            CC = ( 30006.0 )   * ( TEMP_OVER 295K )**(-0.064)
+            AA = 26.29 * ( TEMP_OVER_295K )**(-6.59)
+            BB = 5.72E-7 * ( TEMP_OVER_295K )**(-2.93)
+            CC = ( 30006.0 )   * ( TEMP_OVER_295K )**(-0.064)
             A3 = AA * EXP( -BB * ( ONE_OVER_LAMBDA - CC )**2.0 )
 
-            AA = 1.67E-15 * ( TEMP_OVER 295K )**(-7.25)
-            BB = 2.08E-03  * ( TEMP_OVER 295K )**(-1.16)
+            AA = 1.67E-15 * ( TEMP_OVER_295K )**(-7.25)
+            BB = 2.08E-03  * ( TEMP_OVER_295K )**(-1.16)
             A4 = AA * EXP( -BB * ( ONE_OVER_LAMBDA - 30488.0 ) )
 
             PHI_CH3CO = DEL_PHI_CO
@@ -2597,7 +2648,7 @@ C-----------------------------------------------------------------------
         REAL,      PARAMETER  :: ONE_OVER_295K  = 1.0 / 295.0  ! 1/K
         REAL( 8 ), PARAMETER  :: DENS0          = 2.46D19      ! air number at STP, molecules/cm^3 
       
-        REAL( 8 ) TEMP_OVER 295K   ! temperature divided by 295 K
+        REAL( 8 ) TEMP_OVER_295K   ! temperature divided by 295 K
 
         REAL( 8 ) AA           ! scratch variable for qy
         REAL( 8 ) BB           ! scratch variable for qy
@@ -2611,22 +2662,22 @@ C-----------------------------------------------------------------------
         REAL QY_DENS_NUMB     ! total qy at DENS_NUMB
         REAL IQY_DENS0        ! reciporcal of total qy at DENS0
       
-        TEMP_OVER 295K  = REAL( TEMP * ONE_OVER_295K, 8 )
+        TEMP_OVER_295K  = REAL( TEMP * ONE_OVER_295K, 8 )
         WN_OFFSET       = REAL( 1.0E7 / LAMBDA - 23800.0, 8 )
         R8_DENS         = REAL( DENS_NUMB, 8 )
 
 
          IF( LAMBDA .LT. 650.0 .AND. LAMBDA .GT. 250.0 )THEN
-            AA = 6.48D-19 * TEMP_OVER 295K**(-1.83D0)
-            BB = 7.60D-04 * TEMP_OVER 295K**(-0.515D0)
+            AA = 6.48D-19 * TEMP_OVER_295K**(-1.83D0)
+            BB = 7.60D-04 * TEMP_OVER_295K**(-0.515D0)
             A1 = AA * EXP( -BB * WN_OFFSET ) 
 
-            AA = 1.128D02 * TEMP_OVER 295K**(-1.53D0)
-            BB = 4.61D-03 * TEMP_OVER 295K**(-0.507D0)
+            AA = 1.128D02 * TEMP_OVER_295K**(-1.53D0)
+            BB = 4.61D-03 * TEMP_OVER_295K**(-0.507D0)
             A2 = AA * EXP( -BB * WN_OFFSET  ) 
 
-            AA = 2.25D-16 * TEMP_OVER 295K**(-9.18D0)
-            BB = 7.80D-04 * TEMP_OVER 295K**(-7.03D0)
+            AA = 2.25D-16 * TEMP_OVER_295K**(-9.18D0)
+            BB = 7.80D-04 * TEMP_OVER_295K**(-7.03D0)
             A3 = AA * EXP( -BB * WN_OFFSET ) 
 
 !*** note that values are normalized by total qy at DENS = 0.0 but
@@ -2645,6 +2696,7 @@ C-----------------------------------------------------------------------
             RQY_GLYOXAL  = 1.0
       
           END IF
+!         WRITE(6,'(A,4(F13.6,1X))')'TEMP, LAMBDA, RQY_GLYOXAL = ', TEMP, LAMBDA, RQY_GLYOXAL 
 
           RETURN
        END FUNCTION RQY_GLYOXAL
@@ -2674,7 +2726,7 @@ C-----------------------------------------------------------------------
 !***local
         REAL, PARAMETER  :: ONE_OVER_295K  = 1.0 / 295.0  ! 1/K
       
-        REAL( 8 ) TEMP_OVER 295K   ! temperature divided by 295 K
+        REAL( 8 ) TEMP_OVER_295K   ! temperature divided by 295 K
 
         REAL( 8 ) AA           ! scratch variable for qy
         REAL( 8 ) BB           ! scratch variable for qy
@@ -2684,20 +2736,20 @@ C-----------------------------------------------------------------------
         REAL( 8 ) WN_OFFSET    ! adjusted wavenumber, 1/cm
         REAL( 8 ) R8_DENS      ! air number density, 1/cm^3 
       
-        TEMP_OVER 295K  = REAL( TEMP * ONE_OVER_295K, 8 )
+        TEMP_OVER_295K  = REAL( TEMP * ONE_OVER_295K, 8 )
         WN_OFFSET       = REAL( 1.0E7 / LAMBDA - 23800.0, 8 )
         R8_DENS         = REAL( DENS_NUMB, 8 )
 
-            AA = 6.48D-19 * TEMP_OVER 295K**(-1.83D0)
-            BB = 7.60D-04 * TEMP_OVER 295K**(-0.515D0)
+            AA = 6.48D-19 * TEMP_OVER_295K**(-1.83D0)
+            BB = 7.60D-04 * TEMP_OVER_295K**(-0.515D0)
             A1 = AA * EXP( -BB * WN_OFFSET ) 
 
-            AA = 1.128D02 * TEMP_OVER 295K**(-1.53D0)
-            BB = 4.61D-03 * TEMP_OVER 295K**(-0.507D0)
+            AA = 1.128D02 * TEMP_OVER_295K**(-1.53D0)
+            BB = 4.61D-03 * TEMP_OVER_295K**(-0.507D0)
             A2 = AA * EXP( -BB * WN_OFFSET  ) 
 
-            AA = 2.25D-16 * TEMP_OVER 295K**(-9.18D0)
-            BB = 7.80D-04 * TEMP_OVER 295K**(-7.03D0)
+            AA = 2.25D-16 * TEMP_OVER_295K**(-9.18D0)
+            BB = 7.80D-04 * TEMP_OVER_295K**(-7.03D0)
             A3 = AA * EXP( -BB * WN_OFFSET ) 
 
 
