@@ -38,7 +38,6 @@
 
 c...Tagging maps
       CHARACTER( 16 ), ALLOCATABLE :: ISAM_SPEC( :,: )
-      INTEGER, ALLOCATABLE, SAVE   :: SPC_INDEX( :,: )
       INTEGER, ALLOCATABLE, SAVE   :: MAP_SAtoCGR( : )
       INTEGER, ALLOCATABLE, SAVE   :: MAP_CGRtoSA( : )
       LOGICAL, ALLOCATABLE, SAVE   :: L_ISAM_AERO( : )
@@ -464,23 +463,20 @@ c----------------------------------------------------------
         !CB6R5_AE7_AQ
         ISAM_SPEC_OZONE( 2 )%LIST = (/'O3 ','O1D','HO2','O  '/)
         
-        !CB6R3M_AE7_AQ
+        !CB6R5M_AE7_AQ
         ISAM_SPEC_OZONE( 3 )%LIST = (/'O3 ','O1D','HO2','O  '/)
         
-        !CB6R5M_AE7_AQ
-        ISAM_SPEC_OZONE( 4 )%LIST = (/'O3 ','O1D','HO2','O  '/)
-        
         !SAPRC07TC_AE6_AQ
-        ISAM_SPEC_OZONE( 5 )%LIST = (/'O3 ','O1D','HO2','O3P'/)
+        ISAM_SPEC_OZONE( 4 )%LIST = (/'O3 ','O1D','HO2','O3P'/)
         
         !SAPRC07TIC_AE6I_AQ
-        ISAM_SPEC_OZONE( 6 )%LIST = (/'O3 ','O1D','HO2','O3P'/)
+        ISAM_SPEC_OZONE( 5 )%LIST = (/'O3 ','O1D','HO2','O3P'/)
         
         !SAPRC07TIC_AE7I_AQ
-        ISAM_SPEC_OZONE( 7 )%LIST = (/'O3 ','O1D','HO2','O3P'/)
+        ISAM_SPEC_OZONE( 6 )%LIST = (/'O3 ','O1D','HO2','O3P'/)
         
         !RACM2_AE6_AQ
-        ISAM_SPEC_OZONE( 8 )%LIST = (/'O3 ','O1D','HO2','O3P'/)
+        ISAM_SPEC_OZONE( 7 )%LIST = (/'O3 ','O1D','HO2','O3P'/)
 
         ! PRESCRIBE VOC SPECIES
         !CB6R3_AE7_AQ
@@ -1479,12 +1475,6 @@ c----------------------------------------------------------
 
         EFLAG = .FALSE.
         DO J_SPC = 1, NSPC_SA
-          IF ( SPC_INDEX( J_SPC,2 ) .LT. 1 ) THEN
-             write(logdev,'(A)')'Tracked species '
-     &       // TRIM( ISAM_SPEC( J_SPC,ICONTAG ) ) //
-     &          ' not found among model species '
-             EFLAG = .TRUE.
-          END IF
           IF ( MAP_SAtoCGR( J_SPC ) .LT. 1 ) THEN
              write(logdev,'(A,A,A)')'Tracked species '
      &       // TRIM( ISAM_SPEC( J_SPC,ICONTAG ) ) //

@@ -198,7 +198,7 @@ C=======================================================
         ALLOCATE( ISAM_SPC_IDX( NSPC_SA + 1 ) )
         ALLOCATE( NO_CHEMISTRY( NSPC_SA + 1 ) )
         ALLOCATE( FIND_IN_ISAM( NSPC_SA + 1 ) )
-        ALLOCATE( BIAS_CHEMISTRY_SPC( NCONSTRAINTS, NUMB_MECH_SPC ) )
+        ALLOCATE( BIAS_CHEMISTRY_SPC( NBIAS, NUMB_MECH_SPC ) )
         BIAS_CHEMISTRY_SPC = .FALSE.
         
         ! Identify species index in ISAM array
@@ -228,7 +228,7 @@ C=======================================================
            ISAM_CHEMISTRY_SPC = ISAM_CHEMISTRY_SPC
      &                        + 1           
            ISAM_2_CHEMI( S )  = R
-           BIAS_CHEMISTRY_SPC( 1:NCONSTRAINTS,R ) = SPECIES_BIAS( 1:NCONSTRAINTS,S )
+           BIAS_CHEMISTRY_SPC( :,R ) = ISAM_SPECIES_BIAS( :,S )
            NO_CHEMISTRY( S )  = .FALSE.
         END DO
         
@@ -1379,7 +1379,7 @@ C Allocate arrays:
          END DO
 
          IF( ISP2 .GT. 0 )THEN
-            ALLOCATE( TWO_REACTANT_CASE( NCONSTRAINTS,ISP2,3 ), STAT = ASTAT )
+            ALLOCATE( TWO_REACTANT_CASE( NBIAS,ISP2,3 ), STAT = ASTAT )
             IF ( ASTAT .NE. 0 ) THEN
               MSG = 'ERROR allocating SA_IRR variables'
               CALL M3EXIT ( 'SA_IRR', 0, 0, MSG, XSTAT2 )
@@ -1388,7 +1388,7 @@ C Allocate arrays:
          END IF
          
          IF( ISP3 .GT. 0 )THEN
-            ALLOCATE( THREE_REACTANT_CASE( NCONSTRAINTS,ISP3,7 ), STAT = ASTAT )
+            ALLOCATE( THREE_REACTANT_CASE( NBIAS,ISP3,7 ), STAT = ASTAT )
             IF ( ASTAT .NE. 0 ) THEN
               MSG = 'ERROR allocating SA_IRR variables'
               CALL M3EXIT ( 'SA_IRR', 0, 0, MSG, XSTAT2 )
@@ -1397,7 +1397,7 @@ C Allocate arrays:
          END IF         
 
 C...Calculate reactant cases based on species_bias for each reactant
-         DO NC = 1, NCONSTRAINTS
+         DO NC = 1, NBIAS
             DO NRX = 1, NRXNS
                NR = MAP_REACTANT_CASE( NRX )
                SELECT CASE ( NREACT( NRX ) )
