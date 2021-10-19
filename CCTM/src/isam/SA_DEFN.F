@@ -829,7 +829,7 @@ c----------------------------------------------------------
         L_ISAM_AERO = .FALSE.
  
         ! Allocate ISAM_SPECIES_BIAS array
-        ALLOCATE ( ISAM_SPECIES_BIAS( NBIAS,NSPC_SA ), STAT = IOST )
+        ALLOCATE ( ISAM_SPECIES_BIAS( NBIAS,NSPCSD ), STAT = IOST )
         ISAM_SPECIES_BIAS = .FALSE.
         IF ( IMECH .GT. 0 ) THEN
             N_VOC_BIAS = SIZE( ISAM_BIAS_VOC( IMECH )%LIST )
@@ -1258,6 +1258,7 @@ c----------------------------------------------------------
         
         ! Resize ISAM_SPEC to NSPC_SA
         ISAM_SPEC = ISAM_SPEC( 1:NSPC_SA,: )
+        ISAM_SPECIES_BIAS = ISAM_SPECIES_BIAS( :,1:NSPC_SA )
 
         ! Exit CMAQ if There has been a fatal ISAM Error
         IF ( EFLAG ) THEN
