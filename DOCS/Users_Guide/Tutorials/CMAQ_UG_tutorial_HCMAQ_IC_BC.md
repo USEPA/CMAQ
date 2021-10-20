@@ -1,14 +1,18 @@
 ## CMAQ Tutorial ##
-### Create Initial and Boundary Conditions from Seasonal Average Hemispheric CMAQ Output ###
-Purpose: This tutorial will step the user through the process of creating initial and boundary conditions from a seasonal average hemispheric CMAQ output file distributed through the CMAS data warehouse. It assumes that the user already generated MCIP files for their target modeling domain.
+### Create Initial and Boundary Conditions from Seasonal or Daily Average Hemispheric CMAQ Output ###
+Purpose: This tutorial will step the user through the process of creating initial and boundary conditions from seasonal or daily average hemispheric CMAQ output files distributed through the CMAS Data Warehouse. It assumes that the user already generated MCIP files for their target modeling domain.
 
-Download H-CMAQ output: https://drive.google.com/file/d/15Vt6f5WuyN8RiLRjTlKeQUHjYbZ6QCrA/view?usp=sharing
+Download seasonal average H-CMAQ output: https://drive.google.com/file/d/15Vt6f5WuyN8RiLRjTlKeQUHjYbZ6QCrA/view?usp=sharing
+
+Download monthly files with daily average H-CMAQ output: https://drive.google.com/drive/folders/1A1ZzJE1t7OgwSezQNvy3rt9aATnXA0k2
 
 
 ------------
 
 
-### STEP 1: Obtain the seasonal average hemispheric CMAQ output file from the CMAS data warehouse</strong>
+### STEP 1: Obtain the seasonal or daily average hemispheric CMAQ output files from the CMAS data warehouse</strong>
+
+**Seasonal average hemispheric CMAQ output**
 
 EPA distributes a file containing seasonal average 3D species concentrations from a hemispheric CMAQ simulation performed for 2016 over the northern hemisphere. These simulations were performed with a pre-release version of CMAQv5.3 using the following configuration:  
 
@@ -23,13 +27,32 @@ This file is named CCTM_CONC_v53beta2_intel17.0_HEMIS_cb6r3m_ae7_kmtbr_m3dry_201
 
 https://drive.google.com/file/d/15Vt6f5WuyN8RiLRjTlKeQUHjYbZ6QCrA/view?usp=sharing
 
-### STEP 2 (optional): Time shift the downloaded seasonal average hemispheric CMAQ output file </strong>
+**Daily average hemispheric CMAQ output**
 
-If the time period for which initial and boundary conditions are to be generated does not fall between October 16, 2015 12:00 GMT and January 16, 2017 0:00 GMT, the time stamps in the downloaded file need to be adjusted to encompass the desired time period. This can be accomplished using a tool like  `m3tshift` that is part of the `m3tools` utilities released with [I/O API](https://www.cmascenter.org/ioapi/). 
+EPA distributes a series of monthly files containing daily average 3D species concentrations from a hemispheric CMAQ simulation performed for 2002 - 2017 over the northern hemisphere. These simulations were performed with a modified version of CMAQv5.3.2 using the following configuration:  
 
-The seasonal average concentration file obtained in Step 1 contains six-time stamps (10/16/2015 12:00, 1/16/2016 0:00, 4/16/2016 12:00, 7/17/2016 0:00, 10/16/2016 12:00, and 1/16/2017 0:00) that represent fall, winter, spring, summer, fall, and winter seasonal average values, respectively. Fall was defined as September 1 - November 30, 2016, winter was defined as January 1 - February 29 and December 1 - December 31, 2016, spring was defined as March 1 - May 31, 2016, and summer was defined as June 1- August 31, 2016. Note that the concentration values associated with the first-time stamp are identical to those associated with the fifth time stamp since both represent fall, and the concentration values associated with the second time stamp are identical to those associated with the sixth time stamp since both represent winter.
+- Model version: CMAQv5.3.2 with modifications to halogen chemistry and O3-PV scaling  
+- Grid spacing: 108 x 108 km on a polar stereographic grid covering the northern hemisphere  
+- Vertical layers: 44  
+- Meteorological fields: WRF4.1.1  
+- Chemical mechanism: CB6R3M_AE7_KMTBR  
+- Dry Deposition: M3DRY  
 
-A sample script using `m3tshift` to shift all of the six-time stamps back by two years to support the generation of initial and boundary conditions with ICON and BCON for a modeling period between October 16, 2013 12:00 GMT and January 17, 2015 0:00 GMT is shown below.
+These files are named CCTM_CONC_v532_intel18.0_CMAQv53_TS_108NHEMI_${YYYY}${MM}_dailyav.nc and can be downloaded here
+
+https://drive.google.com/drive/folders/1A1ZzJE1t7OgwSezQNvy3rt9aATnXA0k2
+
+
+### STEP 2 (optional): Time shift the downloaded seasonal or daily average hemispheric CMAQ output files </strong>
+
+If the time period for which initial and boundary conditions are to be generated does not fall between October 16, 2015 12:00 GMT and January 16, 2017 0:00 GMT when using the seasonal average file or between January 1, 2002 00:00 GMT and December 31, 2017 00:00 GMT when using the daily average files, the time stamps in the downloaded file(s) need to be adjusted to encompass the desired time period. This can be accomplished using a tool like `m3tshift` that is part of the `m3tools` utilities released with [I/O API](https://www.cmascenter.org/ioapi/). 
+
+The seasonal average concentration file contains six-time stamps (10/16/2015 12:00, 1/16/2016 0:00, 4/16/2016 12:00, 7/17/2016 0:00, 10/16/2016 12:00, and 1/16/2017 0:00) that represent fall, winter, spring, summer, fall, and winter seasonal average values, respectively. Fall was defined as September 1 - November 30, 2016, winter was defined as January 1 - February 29 and December 1 - December 31, 2016, spring was defined as March 1 - May 31, 2016, and summer was defined as June 1- August 31, 2016. Note that the concentration values associated with the first-time stamp are identical to those associated with the fifth time stamp since both represent fall, and the concentration values associated with the second time stamp are identical to those associated with the sixth time stamp since both represent winter.
+
+The monthly files with daily average concentrations contain daily (i.e. 24:00 hour) time stamps from 00:00 GMT on the first day of the month to 00:00 GMT on the first day of the following month. For example, the file `CCTM_CONC_v532_intel18.0_CMAQv53_TS_108NHEMI_201006_dailyav.nc` contains 31 time stamps from 6/1/2010 00:00 GMT to 7/1/2010 00:00 GMT with a time step of 24:00 hours. Note that the file for December 2017 only contains 31 time stamps, i.e. it does not contain values for 1/1/2018 00:00 GMT.
+
+
+A sample script using `m3tshift` to shift all of the six-time stamps from the seasonal average concentration file back by two years to support the generation of initial and boundary conditions with ICON and BCON for a modeling period between October 16, 2013 12:00 GMT and January 17, 2015 0:00 GMT is shown below. Analogous scripts could be created to shift the time stamps in one or more of the monthly files with daily average concentrations to the desired time period outside the range covered by these files.
 
 ```
 #!/bin/csh -f
@@ -89,7 +112,7 @@ cd $CMAQ_HOME/PREP/bcon/scripts
 
 ### STEP 5: Run ICON to create initial conditions</strong>
 
-The run script below uses the [`ICON`](../../../PREP/icon) program to create initial conditions for the user's target domain based on the seasonal average hemispheric CMAQ output obtained in Step 1, optionally time-shifted in Step 2, and optionally mapped to a different mechanism in Step 3. By setting ICTYPE to regrid, the run script invokes ICON in _regrid_ mode because initial conditions are derived from a CONC file. In the example below, the settings for APPL, GRID_NAME, GRIDDESC, MET_CRO_3D_FIN, and DATE reflect the CMAQ Southeast benchmark case and will need to be modified by the user to point to the corresponding files for their domain and reflect the intended simulation start date. The environment variables CTM_CONC_1 and MET_CRO_3D_CRS should both point to the full path of the file downloaded in Step 1 and optionally time-shifted in Step 2 and/or species-mapped in Step 3.
+The run script below uses the [`ICON`](../../../PREP/icon) program to create initial conditions for the user's target domain based on the seasonal average hemispheric CMAQ output obtained in Step 1, optionally time-shifted in Step 2, and optionally mapped to a different mechanism in Step 3. The same script can be used for the monthly files with daily average hemispheric CMAQ output by changing the CTM_CONC_1 and MET_CRO_3D_CRS environment variables to use one of those files instead of the file with the seasonal average output. By setting ICTYPE to regrid, the run script invokes ICON in _regrid_ mode because initial conditions are derived from a CONC file. In the example below, the settings for APPL, GRID_NAME, GRIDDESC, MET_CRO_3D_FIN, and DATE reflect the CMAQ Southeast benchmark case and will need to be modified by the user to point to the corresponding files for their domain and reflect the intended simulation start date. The environment variables CTM_CONC_1 and MET_CRO_3D_CRS should both point to the full path of the file downloaded in Step 1 and optionally time-shifted in Step 2 and/or species-mapped in Step 3.
 
 ```
 #!/bin/csh -f
@@ -133,8 +156,8 @@ The run script below uses the [`ICON`](../../../PREP/icon) program to create ini
 
 #> Horizontal grid definition 
  setenv GRID_NAME SE53BENCH               #> check GRIDDESC file for GRID_NAME options
-#setenv GRIDDESC $CMAQ_DATA/$APPL/met/mcip/GRIDDESC #> grid description file 
- setenv GRIDDESC /work/MOD3DATA/SE53BENCH/met/mcip/GRIDDESC
+#setenv GRIDDESC ${CMAQ_DATA}/$APPL/met/mcip/GRIDDESC #> grid description file 
+ setenv GRIDDESC ${CMAQ_DATA}/SE53BENCH/met/mcip/GRIDDESC
  setenv IOAPI_ISPH 20                     #> GCTP spheroid, use 20 for WRF-based modeling
 
 #> I/O Controls
@@ -180,14 +203,14 @@ The run script below uses the [`ICON`](../../../PREP/icon) program to create ini
 
  if ( $ICON_TYPE == profile ) then
     setenv IC_PROFILE $BLD/avprofile_cb6r3m_ae7_kmtbr_hemi2016_v53beta2_m3dry_col051_row068.csv
-    setenv MET_CRO_3D_FIN /work/MOD3DATA/SE53BENCH/met/mcip/METCRO3D_160701.nc
+    setenv MET_CRO_3D_FIN ${CMAQ_DATA}/SE53BENCH/met/mcip/METCRO3D_160701.nc
     setenv INIT_CONC_1    "$OUTDIR/ICON_${VRSN}_${APPL}_${ICON_TYPE} -v"
  endif
  
  if ( $ICON_TYPE == regrid ) then
-    setenv CTM_CONC_1 /path/to/CCTM_CONC_v53beta2_intel17.0_HEMIS_cb6r3m_ae7_kmtbr_m3dry_2016_quarterly_av.nc
-    setenv MET_CRO_3D_CRS /path/to/CCTM_CONC_v53beta2_intel17.0_HEMIS_cb6r3m_ae7_kmtbr_m3dry_2016_quarterly_av.nc
-    setenv MET_CRO_3D_FIN /work/MOD3DATA/SE53BENCH/met/mcip/METCRO3D_160701.nc
+    setenv CTM_CONC_1 ${DATADIR}/CCTM_CONC_v53beta2_intel17.0_HEMIS_cb6r3m_ae7_kmtbr_m3dry_2016_quarterly_av.nc
+    setenv MET_CRO_3D_CRS ${DATADIR}/CCTM_CONC_v53beta2_intel17.0_HEMIS_cb6r3m_ae7_kmtbr_m3dry_2016_quarterly_av.nc
+    setenv MET_CRO_3D_FIN ${CMAQ_DATA}/SE53BENCH/met/mcip/METCRO3D_160701.nc
     set DATE = `date -ud "2016-07-01" +%Y%j` #> Convert YYYY-MM-DD to YYYYJJJ
 #    setenv SDATE           ${DATE}
 #    setenv STIME           000000
@@ -211,7 +234,7 @@ The run script below uses the [`ICON`](../../../PREP/icon) program to create ini
  
 ### STEP 6: Run BCON to create boundary conditions</strong>
 
-The run script below uses the [`BCON`](../../../PREP/bcon) program to create boundary conditions for the user's target domain based on the seasonal average hemispheric CMAQ output obtained in Step 1, optionally time-shifted in Step 2, and optionally mapped to a different mechanism in Step 3. By setting BCTYPE to regrid, the run script invokes BCON in _regrid_ mode because boundary conditions are derived from a CONC file. In the example below, the settings for APPL, GRID_NAME, GRIDDESC, MET_CRO_3D_FIN, and DATE reflect the CMAQ Southeast benchmark case and will need to be modified by the user to point to the corresponding files for their domain and reflect the intended simulation start date. The environment variables CTM_CONC_1 and MET_CRO_3D_CRS should both point to the full path of the file downloaded in Step 1 and optionally time-shifted in Step 2 and/or species-mapped in Step 3.
+The run script below uses the [`BCON`](../../../PREP/bcon) program to create boundary conditions for the user's target domain based on the seasonal average hemispheric CMAQ output obtained in Step 1, optionally time-shifted in Step 2, and optionally mapped to a different mechanism in Step 3. The same script can be used for the monthly files with daily average hemispheric CMAQ output by changing the CTM_CONC_1 and MET_CRO_3D_CRS environment variables to use one of those files instead of the file with the seasonal average output. By setting BCTYPE to regrid, the run script invokes BCON in _regrid_ mode because boundary conditions are derived from a CONC file. In the example below, the settings for APPL, GRID_NAME, GRIDDESC, MET_CRO_3D_FIN, and DATE reflect the CMAQ Southeast benchmark case and will need to be modified by the user to point to the corresponding files for their domain and reflect the intended simulation start date. The environment variables CTM_CONC_1 and MET_CRO_3D_CRS should both point to the full path of the file downloaded in Step 1 and optionally time-shifted in Step 2 and/or species-mapped in Step 3.
 
 ```
 #!/bin/csh -f
@@ -256,7 +279,7 @@ The run script below uses the [`BCON`](../../../PREP/bcon) program to create bou
 #> Horizontal grid definition 
  setenv GRID_NAME SE53BENCH               #> check GRIDDESC file for GRID_NAME options
 #setenv GRIDDESC $CMAQ_DATA/$APPL/met/mcip/GRIDDESC #> grid description file 
- setenv GRIDDESC /work/MOD3DATA/SE53BENCH/met/mcip/GRIDDESC
+ setenv GRIDDESC /SE53BENCH/met/mcip/GRIDDESC
  setenv IOAPI_ISPH 20                     #> GCTP spheroid, use 20 for WRF-based modeling
 
 #> I/O Controls
@@ -302,14 +325,14 @@ The run script below uses the [`BCON`](../../../PREP/bcon) program to create bou
  
  if ( $BCON_TYPE == profile ) then
     setenv BC_PROFILE $BLD/avprofile_cb6r3m_ae7_kmtbr_hemi2016_v53beta2_m3dry_col051_row068.csv
-    setenv MET_BDY_3D_FIN /work/MOD3DATA/SE53BENCH/met/mcip/METBDY3D_160701.nc
+    setenv MET_BDY_3D_FIN ${CMAQ_DATA}/SE53BENCH/met/mcip/METBDY3D_160701.nc
     setenv BNDY_CONC_1    "$OUTDIR/BCON_${VRSN}_${APPL}_${BCON_TYPE} -v"
  endif
 
  if ( $BCON_TYPE == regrid ) then 
-    setenv CTM_CONC_1 /path/to/CCTM_CONC_v53beta2_intel17.0_HEMIS_cb6r3m_ae7_kmtbr_m3dry_2016_quarterly_av.nc
-    setenv MET_CRO_3D_CRS /path/to/CCTM_CONC_v53beta2_intel17.0_HEMIS_cb6r3m_ae7_kmtbr_m3dry_2016_quarterly_av.nc
-    setenv MET_BDY_3D_FIN /work/MOD3DATA/SE53BENCH/met/mcip/METBDY3D_160701.nc
+    setenv CTM_CONC_1 ${DATADIR}/CCTM_CONC_v53beta2_intel17.0_HEMIS_cb6r3m_ae7_kmtbr_m3dry_2016_quarterly_av.nc
+    setenv MET_CRO_3D_CRS ${DATADIR}/CCTM_CONC_v53beta2_intel17.0_HEMIS_cb6r3m_ae7_kmtbr_m3dry_2016_quarterly_av.nc
+    setenv MET_BDY_3D_FIN ${CMAQ_DATA}/SE53BENCH/met/mcip/METBDY3D_160701.nc
     set DATE = `date -ud "2016-07-01" +%Y%j` #> Convert YYYY-MM-DD to YYYYJJJ
 #    setenv SDATE           ${DATE}
 #    setenv STIME           000000
