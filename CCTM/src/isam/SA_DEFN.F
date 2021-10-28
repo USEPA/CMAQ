@@ -1616,7 +1616,7 @@ c          END DO
                 CALL LOG_MESSAGE( LOGDEV, XMSG )  
            EFLAG = .TRUE.
         END IF
-        END SUBROUTINE
+        END SUBROUTINE CHECK_MECH
  
       !-------------------------------------------------------------------------------------------   
         SUBROUTINE ADD_ISAM_SPEC( CHEM_NAME, FOUND_SPECIES, IMECH )
@@ -1667,7 +1667,7 @@ c          END DO
 
         END IF   
 
-        END SUBROUTINE
+        END SUBROUTINE ADD_ISAM_SPEC
 
       !-------------------------------------------------------------------------------------------   
         SUBROUTINE ISAM_SPECIES_WARN( TAG_NAME, FOUND_SPECIES, EFLAG )
@@ -1692,7 +1692,7 @@ c          END DO
            CALL LOG_MESSAGE( LOGDEV, XMSG )
         END IF
  
-        END SUBROUTINE
+        END SUBROUTINE ISAM_SPECIES_WARN
  
 
 
