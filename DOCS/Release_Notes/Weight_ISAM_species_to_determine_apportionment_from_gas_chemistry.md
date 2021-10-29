@@ -1,3 +1,7 @@
+# Weight ISAM species to determine apportionment from gas chemistry 
+
+[William T. Hutzell](mailto:hutzell.bill@epa.gov), U.S. Environmental Protection Agency
+
 ### Brief Description
 The pull request modifies ISAM's method for apportioning source contributions from gas chemistry. The changes weight specific species that are chemical reactants so a reaction's product are totally apportioned to the weighted reactant. If both reactants are weighted, products are equally apportioned between reactants. Note that the unmodified method always equally apportions products. The changes seek to isolate sources that emit or secondary produce the weighted reactants because their sources are controllable or deemed responsible for deteriorating air quality. _Note to the integrators and reviewers: this pull request includes changes to CCTM/src/procan/pa/PA_DEFN.F, CCTM/src/hadv/ppm/x_ppm.F, CCTM/src/hadv/ppm/y_ppm.F and CCTM/src/hadv/ppm/hppm.F. They remove a gfortran error and may be replaced by changes in PR #699._
 
