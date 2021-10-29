@@ -265,8 +265,8 @@ c     returns julian_date day (julday), year fraction (yrfrac)
       end if ! firsttime
 
 545   format(2i7)
-550   format(a19,360f7.1)       
-555   format(f10.4,f7.1,360i7)
+550   format(a19,3600001f7.2)       
+555   format(f10.4,f7.1,3600001i7)
      
 
 ! Initialize
@@ -644,8 +644,8 @@ c     returns julian_date day (julday), year fraction (yrfrac)
 
 545   Format(2i7)
 549   Format(a4,1x,i7)
-550   Format(2(a,tr1),361(f7.1,tr1))       
-555   Format(f9.4,tr1,f7.1,tr1,361(i7,tr1))
+550   Format(2(a,tr1),3600001(f7.2,tr1))       
+555   Format(f9.4,tr1,f7.1,tr1,3600001(i7,tr1))
      
 
 ! Initialize

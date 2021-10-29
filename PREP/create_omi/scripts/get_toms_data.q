@@ -34,6 +34,14 @@ set echo
 
   end  #Loop to the next file to download
 
+#search for bad data and implement fixes
+  set bad_files = ` grep -l "\*\*\*" L3e_ozone_omi_*.txt `
+  foreach file ( $bad_files )
+     echo "found bad data in ${file} and replacing with missing value flag"
+     sed 's/\*\*\*/  0/g' $file  > tmp.txt
+     \mv -f tmp.txt $file
+  end
+
   cd $BASE
 
 exit()

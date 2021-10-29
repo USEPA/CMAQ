@@ -14,16 +14,17 @@ If the requirements are met, a user has the below options.
 
    1. Option One:  
       - Copy src directory.
-      - Go into the new directory and modify the Makefile to define the compiler, library and include paths for netcdf and
+      - Go into the new directory and modify create_omi.makefile, _the_Makefile_, to define the compiler, library and include paths for netcdf and
         IOAPI for the case(s) needed.
       - Set the environment variable _compiler_ to intel, pgi or gcc based on the user's 
    preference.  
-      - Type "make clean" then type "make".  
+      - Type "make clean" then type "make -f create_omi.makefile".  
       
    2. Option Two, _requires the bldmake utility for the CMAQ model_: 
-       - Copy to a work directory and modify the _bldit_ script under the _scripts_ subdirectory to define _compiler_ case(s) needed, CMAQ repository and work directories.   
+       - Execute $CMAQ_HOME/bldit_project.csh with EXT_create_omi option set to Y.
+       - Change directory to $CMAQ_HOME/PREP/create_omi.
        - Type bldit_create_omi.csh _compiler_. 
-       -  Go into the created build directory, type "make clean" and type "make".
+       - If you wish to recompile create_omi, go into the created build directory, type "make.it clean".
        
 ### Using create_omi for creating an OMI file
 
