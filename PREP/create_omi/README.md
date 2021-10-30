@@ -61,18 +61,17 @@ satillite's orbit, polar night, or equipment failure. To go around the problem, 
 the last available observation or the mean value for a location, in respective presidence. For robust and more useful
 output files, several months of data are suggested.
 
-After downloading data, check the file for \*\*\* strings and replace each with the string "  0" (two blanks) which denotes a missing value. Sometimes, the former string passes through quality control procedures. To search for string and list files containing it, try using grep command the download files in the directory as below.
+After downloading data, the get data script checks the downloaded files for \*\*\* strings and replaces each with the string "  0" (two blanks) which denotes a missing value. Sometimes, the former string passes through quality control procedures. The script uses the below commands to make corrections.
 
                   grep -l "\*\*\*" L3e_ozone_omi_*.txt
-
-A text editor can be used to replace the strings. The sed may also be used as below.
-
                   sed 's/\*\*\*/  0/g' L3e_ozone_omi_YYYYMMDD.txt > tmp.txt
                   mv -f tmp.txt L3e_ozone_omi_YYYYMMDD.txt
+
+Alternatively, a user can search the downloaded files and use a text editor to replace the bad data strings. 
       
 #### Running create_omi  
 
-The script subdirectory includes a run-script, _scripts/cmaq_omi_run.csh_. 
+The script subdirectory includes a run-script, _scripts/run_create_omi.csh_. 
 A user should Copy and modify the script before running it. The script sets several environment 
 variables that are runtime options. The below table lists and describes these options. Note that
 the Defaults values were used to create the OMI file the CMAQ repository under CCTM/src/phot/inline and that 
