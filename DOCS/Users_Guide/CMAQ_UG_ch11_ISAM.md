@@ -117,7 +117,7 @@ The weighting schemes focus on apportioning NOx and ozone concentrations so weig
 
 | **Option 5 Algorithm** | 
 |:----------------------:|                                        
-|   IF( (H2O2 production)/(HNO3 Production) > VOC_NOX_TRANS){ISAM_NOX_CASE}else{ISAM_VOC} |
+|   IF( (H2O2 production)/(HNO3 Production) > VOC_NOX_TRANS){ISAM_NOX_CASE}else{ISAM_VOC_CASE} |
 	
 The runtime options, ISAM_NOX_CASE and ISAM_VOC_CASE, determine the two settings. Toggling is determined by whether the cell grid's ozone production has NOx or VOC limiting conditions. Option 5 uses H2O2 production over HNO3 production (see appendix A in Sillman (1995)) whether former or latter condition exists. Sillman (1995) states that VOC limiting exist when the ratio is less than 0.35 but the ratio's transition value is uncertain (Tonnesen and Dennis, 2000a and 2000b) so a final runtime option sets the transition value,  VOC_NOX_TRANS. Note that all the repositories run-scripts include the below commands setting the new ISAM options using their default values.
 
