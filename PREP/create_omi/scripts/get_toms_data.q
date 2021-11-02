@@ -5,9 +5,9 @@ set echo
   #RECOMMENDATION: Download data last four months before start of the year and
   #up to one month after the end of the year. The suggestion attempts to prevent 
   #encountering polar night in northern hemisphere and other possible data gaps.
-  set YEAR_STUDY = "2011"                #> year to be covered by OMI file
-  set START_DATE = "2010-09-01" #> beginning date ( Sept 1, 2010)
-  set END_DATE   = "2012-02-01" #> ending date    ( Feb  1, 2012)
+  set YEAR_STUDY = "2020"                #> year to be covered by OMI file
+  set START_DATE = "2019-09-01" #> beginning date ( Sept 1, 2020)
+  set END_DATE   = "2021-02-01" #> ending date    ( Feb  1, 2021)
 
 #output directory for raw OMI data files
   set OUTDIR = TOMS_OMI_O3_column/$YEAR_STUDY
