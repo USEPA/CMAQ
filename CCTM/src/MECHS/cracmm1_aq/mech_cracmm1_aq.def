@@ -235,11 +235,12 @@ REACTIONS[CM] =
                                                         2.74E-33 @ 0.0; 
 <R071>  CH4  + HO          = MO2                      # 2.45E-12 @ 1775.;
 <R072>  ETH  + HO          = ETHP                     # 7.66E-12 @ 1020.;
-<R073>  HC3  + HO          = HC3P                     # 7.68E-12 @ 370.;
-<R074>  HC5  + HO          = HC5P                     # 1.01E-11 @ 245.;
+<R073>  HC3  + HO          = HC3P + 0.0000331*ASOATJ  # 7.68E-12 @ 370.;
+<R074>  HC5  + HO          = HC5P + 0.00158*ASOATJ    # 1.01E-11 @ 245.;
 <R075>  HC8  + HO          = 0.049*HO2 + 0.951*HC8P
                                        + 0.025*ALD
-                                       + 0.024*HKET   # 2.82E-11 @ 273.;
+                                       + 0.024*HKET   
+                                       + 0.042*ASOATJ # 2.82E-11 @ 273.;
 <R076>  ETE  + HO          = ETEP                     # 1.0E-28 ^ -4.5 &
                                                         8.8E-12 ^ -0.85;
 <R077>  OLT  + HO          = OLTP                     # 5.72E-12 @ -500.;
@@ -1182,11 +1183,11 @@ REACTIONS[CM] =
 ! ROCIOXY added with behavior like HC8 (same number of carbon but diff MWT)
 ! 12.0% by mass (14.8% by mole) SOA yield added
 <R001c> ROCIOXY + HO      = 0.049*HO2 + 0.951*HC8P
-                                       + 0.148*ASOATJ
+                                       + 0.149*ASOATJ
                                        + 0.025*ALD
                                        + 0.024*HKET   # 2.82E-11 @ 273.;
 ! assume SLOWROC, which has effectively 2.1C, makes ethane-like RO2 with SLOWROC emission weighted kOH
-<R002c> SLOWROC + HO      = ETHP    # 6.55E-14;
+<R002c> SLOWROC + HO      = ETHP + 0.00101*ASOATJ     # 6.55E-14;
 
 ! HAP placeholder chemistry from Carbon Bond or ae6
 ! Comment out photolysis of ACRO for now
@@ -1211,6 +1212,10 @@ REACTIONS[CM] =
 
 ! PROG based on Coggon et al. and MCM http://mcm.york.ac.uk/browse.htt?species=PROPGLY
 <R004c> PROG + HO = 0.613*HKET + 0.387*ALD + HO2 #1.20E-11;
+
+! GLY and MGLY uptake
+<HET_GLY>  GLY  = AGLYJ # 1.0~<HETERO_GLY>;
+<HET_MGLY> MGLY = AGLYJ # 1.0~<HETERO_MGLY>;
 
 ! heteorogeneous reactions from hetchem and poaaging routines version 5.0.2
 
