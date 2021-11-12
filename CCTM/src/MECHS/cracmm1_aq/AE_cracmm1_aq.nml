@@ -10,6 +10,7 @@ AE_SPECIES_DATA =
 'ANO3J'    , 62.00  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSJ'    , 1  ,'NO3_ACCUM'    , 1  ,'NO3_ACCUM'    ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
 'ANO3I'    , 62.00  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSI'    , 1  ,'NO3_AITKEN'   , 1  ,'NO3_AITKEN'   ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
 'ASOATJ'   ,200.00  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSJ'    , 1  ,'ORG_ACCUM'    , 1  ,'SOA_ACCUM'    ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
+'AGLYJ'    , 66.40  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSJ'    , 1  ,'ORG_ACCUM'    , 1  ,'SOA_ACCUM'    ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
 'AALK1J'   ,225.00  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSJ'    , 1  ,'ORG_ACCUM'    , 1  ,'SOA_ACCUM'    ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
 'AALK2J'   ,205.10  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSJ'    , 1  ,'ORG_ACCUM'    , 1  ,'SOA_ACCUM'    ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
 'AXYL1J'   ,174.00  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSJ'    , 1  ,'ORG_ACCUM'    , 1  ,'SOA_ACCUM'    ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',

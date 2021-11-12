@@ -28,7 +28,7 @@ C  PRECONDITIONS: For the CRACMM1_AQ mechanism
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, Sep 28, 2021
+C  REVISION HISTORY: Created by EBI solver program, Oct 14, 2021
 C
 C   18 Jul 14 B.Hutzell: revised to use real(8) variables
 C**********************************************************************
@@ -352,8 +352,8 @@ c..HO loss terms not in R5_4 & R19_4
      &   +                 RKI(    68 ) * YC ( HNO4     )   ! HO+HNO4=NO2
      &   +                 RKI(    71 )                     ! HO=MO2
      &   +                 RKI(    72 ) * YC ( ETH      )   ! HO+ETH=ETHP
-     &   +                 RKI(    73 ) * YC ( HC3      )   ! HO+HC3=HC3P
-     &   +                 RKI(    74 ) * YC ( HC5      )   ! HO+HC5=HC5P
+     &   +                 RKI(    73 ) * YC ( HC3      )   ! HO+HC3=HC3P+...
+     &   +                 RKI(    74 ) * YC ( HC5      )   ! HO+HC5=HC5P+...
      &   +    9.5100D-01 * RKI(    75 ) * YC ( HC8      )   ! HO+HC8=0.4900D-...
      &   +                 RKI(    76 ) * YC ( ETE      )   ! HO+ETE=ETEP
      &   +                 RKI(    77 ) * YC ( OLT      )   ! HO+OLT=OLTP
@@ -393,7 +393,7 @@ c..HO loss terms not in R5_4 & R19_4
      &   +                 RKI(   122 ) * YC ( NALD     )   ! HO+NALD=NO2+XO2+HKET
      &   +                 RKI(   123 ) * YC ( ISON     )   ! HO+ISON=NALD+...
      &   +    9.5100D-01 * RKI(   371 ) * YC ( ROCIOXY  )   ! HO+ROCIOXY=...
-     &   +                 RKI(   372 ) * YC ( SLOWROC  )   ! HO+SLOWROC=ETHP
+     &   +                 RKI(   372 ) * YC ( SLOWROC  )   ! HO+SLOWROC=ETHP+...
      &   +    8.2300D-01 * RKI(   382 ) * YC ( FURAN    )   ! HO+FURAN=0.1770D+...
 
       L4    = 1.0D0 + L4 * DTC + R5_4 + R19_4

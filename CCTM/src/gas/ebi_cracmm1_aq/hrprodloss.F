@@ -29,7 +29,7 @@ C  RETURN VALUES: None
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, Sep 28, 2021
+C  REVISION HISTORY: Created by EBI solver program, Oct 14, 2021
 C
 C   18 Jul 14 B.Hutzell: revised to use real(8) variables
 
@@ -458,7 +458,7 @@ C***********************************************************************
      &                  +    1.8000D-01 * RXRAT(   322 )      ! HC8P+NO3=0.1800D+00*ETHP+...
      &                  +                 RXRAT(   338 )      ! RCO3+NO3=ETHP+NO2
      &                  +                 RXRAT(   358 )      ! XO2+RCO3=ETHP
-     &                  +                 RXRAT(   372 )      ! SLOWROC+HO=ETHP
+     &                  +                 RXRAT(   372 )      ! SLOWROC+HO=ETHP+0.1010D-...
       LOSS(  ETHP     ) =                 RXRAT(   169 )      ! ETHP+NO=HO2+NO2+ACD
      &                  +                 RXRAT(   209 )      ! ETHP+HO2=OP2
      &                  +                 RXRAT(   245 )      ! ETHP+MO2=HO2+0.7500D+...
@@ -898,9 +898,9 @@ C***********************************************************************
 
       PROD(  HC3      ) =    1.5000D-02 * RXRAT(   125 )      ! OLT+O3=0.1500D-01*HC3+...
      &                  +    1.0000D-02 * RXRAT(   126 )      ! OLI+O3=0.1000D-01*HC3+...
-      LOSS(  HC3      ) =                 RXRAT(    73 )      ! HC3+HO=HC3P
+      LOSS(  HC3      ) =                 RXRAT(    73 )      ! HC3+HO=HC3P+0.3310D-04*ASOATJ
 
-      PROD(  HC3P     ) =                 RXRAT(    73 )      ! HC3+HO=HC3P
+      PROD(  HC3P     ) =                 RXRAT(    73 )      ! HC3+HO=HC3P+0.3310D-04*ASOATJ
      &                  +    4.4000D-01 * RXRAT(   112 )      ! OP2+HO=0.4400D+00*HC3P+...
      &                  +                 RXRAT(   121 )      ! ONIT+HO=HC3P+NO2
      &                  +    4.0000D-02 * RXRAT(   125 )      ! OLT+O3=0.4000D-01*HC3P+...
@@ -911,10 +911,17 @@ C***********************************************************************
      &                  +                 RXRAT(   282 )      ! HC3P+ACO3=0.3940D+00*HO2+...
      &                  +                 RXRAT(   320 )      ! HC3P+NO3=0.2540D+00*HO2+...
 
-      PROD(  HC5      ) =    6.0000D-03 * RXRAT(   125 )      ! OLT+O3=0.6000D-02*HC5+...
-      LOSS(  HC5      ) =                 RXRAT(    74 )      ! HC5+HO=HC5P
+      PROD(  ASOATJ   ) =    3.3100D-05 * RXRAT(    73 )      ! HC3+HO=0.3310D-04*ASOATJ+HC3P
+     &                  +    1.5800D-03 * RXRAT(    74 )      ! HC5+HO=0.1580D-02*ASOATJ+HC5P
+     &                  +    4.2000D-02 * RXRAT(    75 )      ! HC8+HO=0.4200D-01*ASOATJ+...
+     &                  +    1.4900D-01 * RXRAT(   371 )      ! ROCIOXY+HO=0.1490D+...
+     &                  +    1.0100D-03 * RXRAT(   372 )      ! SLOWROC+HO=0.1010D-...
+      LOSS(  ASOATJ   ) =   0.0D0
 
-      PROD(  HC5P     ) =                 RXRAT(    74 )      ! HC5+HO=HC5P
+      PROD(  HC5      ) =    6.0000D-03 * RXRAT(   125 )      ! OLT+O3=0.6000D-02*HC5+...
+      LOSS(  HC5      ) =                 RXRAT(    74 )      ! HC5+HO=HC5P+0.1580D-02*ASOATJ
+
+      PROD(  HC5P     ) =                 RXRAT(    74 )      ! HC5+HO=HC5P+0.1580D-02*ASOATJ
      &                  +    2.0000D-02 * RXRAT(   125 )      ! OLT+O3=0.2000D-01*HC5P+...
       LOSS(  HC5P     ) =                 RXRAT(   171 )      ! HC5P+NO=0.2000D+00*HO2+...
      &                  +                 RXRAT(   211 )      ! HC5P+HO2=OP2
@@ -1476,11 +1483,8 @@ C***********************************************************************
       PROD(  ROCIOXY  ) =   0.0D0
       LOSS(  ROCIOXY  ) =                 RXRAT(   371 )      ! ROCIOXY+HO=0.4900D-01*HO2+...
 
-      PROD(  ASOATJ   ) =    1.4800D-01 * RXRAT(   371 )      ! ROCIOXY+HO=0.1480D+...
-      LOSS(  ASOATJ   ) =   0.0D0
-
       PROD(  SLOWROC  ) =   0.0D0
-      LOSS(  SLOWROC  ) =                 RXRAT(   372 )      ! SLOWROC+HO=ETHP
+      LOSS(  SLOWROC  ) =                 RXRAT(   372 )      ! SLOWROC+HO=ETHP+0.1010D-...
 
       PROD(  NAPH     ) =   0.0D0
       LOSS(  NAPH     ) =                 RXRAT(   373 )      ! NAPH+HO=HO+PAHRO2
