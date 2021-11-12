@@ -27,7 +27,7 @@ C  PRECONDITIONS: For the CRACMM1_AQ mechanism
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, Oct 14, 2021
+C  REVISION HISTORY: Created by EBI solver program, Nov 12, 2021
 C
 C   18 Jul 14 B.Hutzell: revised to use real(8) variables for solution
 C*************************************************************************
@@ -249,39 +249,40 @@ c..Species indices
       INTEGER, PARAMETER :: BDE13            =  137
       INTEGER, PARAMETER :: FURAN            =  138
       INTEGER, PARAMETER :: PROG             =  139
-      INTEGER, PARAMETER :: AISO3J           =  140
-      INTEGER, PARAMETER :: AXYL1J           =  141
-      INTEGER, PARAMETER :: AOLGAJ           =  142
-      INTEGER, PARAMETER :: AXYL2J           =  143
-      INTEGER, PARAMETER :: ATOL1J           =  144
-      INTEGER, PARAMETER :: ATOL2J           =  145
-      INTEGER, PARAMETER :: ABNZ1J           =  146
-      INTEGER, PARAMETER :: ABNZ2J           =  147
-      INTEGER, PARAMETER :: ATRP1J           =  148
-      INTEGER, PARAMETER :: AOLGBJ           =  149
-      INTEGER, PARAMETER :: ATRP2J           =  150
-      INTEGER, PARAMETER :: AISO1J           =  151
-      INTEGER, PARAMETER :: AISO2J           =  152
-      INTEGER, PARAMETER :: ASQTJ            =  153
-      INTEGER, PARAMETER :: APAH1J           =  154
-      INTEGER, PARAMETER :: APAH2J           =  155
-      INTEGER, PARAMETER :: AALK1J           =  156
-      INTEGER, PARAMETER :: AALK2J           =  157
-      INTEGER, PARAMETER :: APOCI            =  158
-      INTEGER, PARAMETER :: APNCOMI          =  159
-      INTEGER, PARAMETER :: APOCJ            =  160
-      INTEGER, PARAMETER :: APNCOMJ          =  161
-      INTEGER, PARAMETER :: PCVOC            =  162
-      INTEGER, PARAMETER :: PCSOARXN         =  163
-      INTEGER, PARAMETER :: VLVPO1           =  164
-      INTEGER, PARAMETER :: VSVPO1           =  165
-      INTEGER, PARAMETER :: VSVPO2           =  166
-      INTEGER, PARAMETER :: VSVPO3           =  167
-      INTEGER, PARAMETER :: VIVPO1           =  168
-      INTEGER, PARAMETER :: VLVOO1           =  169
-      INTEGER, PARAMETER :: VLVOO2           =  170
-      INTEGER, PARAMETER :: VSVOO2           =  171
-      INTEGER, PARAMETER :: VSVOO3           =  172
-      INTEGER, PARAMETER :: VSVOO1           =  173
+      INTEGER, PARAMETER :: AGLYJ            =  140
+      INTEGER, PARAMETER :: AISO3J           =  141
+      INTEGER, PARAMETER :: AXYL1J           =  142
+      INTEGER, PARAMETER :: AOLGAJ           =  143
+      INTEGER, PARAMETER :: AXYL2J           =  144
+      INTEGER, PARAMETER :: ATOL1J           =  145
+      INTEGER, PARAMETER :: ATOL2J           =  146
+      INTEGER, PARAMETER :: ABNZ1J           =  147
+      INTEGER, PARAMETER :: ABNZ2J           =  148
+      INTEGER, PARAMETER :: ATRP1J           =  149
+      INTEGER, PARAMETER :: AOLGBJ           =  150
+      INTEGER, PARAMETER :: ATRP2J           =  151
+      INTEGER, PARAMETER :: AISO1J           =  152
+      INTEGER, PARAMETER :: AISO2J           =  153
+      INTEGER, PARAMETER :: ASQTJ            =  154
+      INTEGER, PARAMETER :: APAH1J           =  155
+      INTEGER, PARAMETER :: APAH2J           =  156
+      INTEGER, PARAMETER :: AALK1J           =  157
+      INTEGER, PARAMETER :: AALK2J           =  158
+      INTEGER, PARAMETER :: APOCI            =  159
+      INTEGER, PARAMETER :: APNCOMI          =  160
+      INTEGER, PARAMETER :: APOCJ            =  161
+      INTEGER, PARAMETER :: APNCOMJ          =  162
+      INTEGER, PARAMETER :: PCVOC            =  163
+      INTEGER, PARAMETER :: PCSOARXN         =  164
+      INTEGER, PARAMETER :: VLVPO1           =  165
+      INTEGER, PARAMETER :: VSVPO1           =  166
+      INTEGER, PARAMETER :: VSVPO2           =  167
+      INTEGER, PARAMETER :: VSVPO3           =  168
+      INTEGER, PARAMETER :: VIVPO1           =  169
+      INTEGER, PARAMETER :: VLVOO1           =  170
+      INTEGER, PARAMETER :: VLVOO2           =  171
+      INTEGER, PARAMETER :: VSVOO2           =  172
+      INTEGER, PARAMETER :: VSVOO3           =  173
+      INTEGER, PARAMETER :: VSVOO1           =  174
 
       END MODULE HRDATA
