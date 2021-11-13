@@ -150,11 +150,11 @@ setenv  OMI_FULL_DAT ${OUTDIR}/${omi_full_dat}
 set omi_cmaq_dat = omi_cmaq_${YEAR}.dat
 setenv  OMI_CMAQ_DAT ${OUTDIR}/${omi_cmaq_dat}
 
-#full resolution OMI data in ascii format
+#full resolution OMI data in netcdf/IOAPI format
 set omi_full_ncf = omi_full_${YEAR}.ncf
 setenv  OMI_FULL_NCF ${OUTDIR}/${omi_full_ncf}
 
-#subset of OMI data for CMAQ in ascii format
+#subset of OMI data for CMAQ in netcdf/IOAPI format
 set omi_cmaq_ncf = omi_cmaq_${YEAR}.ncf
 setenv  OMI_CMAQ_NCF ${OUTDIR}/${omi_cmaq_ncf}
 
