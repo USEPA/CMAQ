@@ -74,6 +74,8 @@ C                    and 6) revised usage for INIT_DEGRADE and FINAL_DEGRADE rou
 C                    02 Dec 14 B.Hutzell 1) added terrestrial data to conduct surface
 C                    dependent reactions and 2) modified the call CALC_RCONST routine
 C                    16 Sep 16 J.Young: update for inline procan (IRR)
+C                    16 Nov 21 G. Sarwar: Updated the activation of condensed halogen 
+C                    chemsitry from 0.0 to 0.001
 C**********************************************************************
 
       USE RXNS_DATA
@@ -285,7 +287,7 @@ C...Initialize and report data
          
          DO ROW = 1, NROWS
             DO COL = 1, NCOLS
-               IF( OCEAN( COL,ROW ) + SZONE( COL,ROW ) .GT. 0.0 )THEN
+               IF( OCEAN( COL,ROW ) + SZONE( COL,ROW ) .GT. 0.001 )THEN
                    LAND_ZONE( COL,ROW ) = .FALSE.
                ELSE
                    LAND_ZONE( COL,ROW ) = .TRUE.
