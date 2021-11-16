@@ -74,7 +74,7 @@ To begin a CMAQ simulation with source apportionment enabled, the ISAM section o
 |ISAM_VOC_CASE| 1,2,3,4 (default is 4) | what tracked species are weighted when grid cell VOC limited ozone production. Only used if ISAM_O3_WEIGHT equal 5. | 
 |VOC_NOX_TRANS | >= 0.0 (default is 0.35)| value of Prod H2O2 over Prod HNO3 less than where ISAM_VOC_CASE weights are used. Otherwise, ISAM_NOX_CASE weights are used. VOC_NOX_TRANS only used if ISAM_O3_WEIGHT equal 5.|
 
-And dditionally, ISAM can track emissions confined to geographic regions.  This functionality can be enabled through CMAQ's `RegionsRegistry` set in the `EmissCtrl` namelist (Appendix B.4) and is discussed further below.
+Additionally, ISAM can track emissions confined to geographic regions.  This functionality can be enabled through CMAQ's `RegionsRegistry` set in the `EmissCtrl` namelist (Appendix B.4) and is discussed further below.
 
 
 
