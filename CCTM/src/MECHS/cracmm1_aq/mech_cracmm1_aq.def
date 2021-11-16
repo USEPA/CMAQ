@@ -1206,15 +1206,23 @@ REACTIONS[CM] =
 
 ! Furans based on 5 species aggregate using  Wang et al. JGR 2021, Schwantes, and Coggon
 ! Use RACM2 o-xylene RO2+HO2, RACM2 (same as MCM) RO2+NO rate constants
-<R003c>  FURAN + HO          = 0.49*DCB1 + 0.49*HO2     + 0.51*FURANO2 # 5.01E-11;
-<R004c>  FURANO2 + NO        = 0.08*ONIT + 0.92*NO2     + 0.92*FURANONE 
-                                         + 0.75*HO2     + 0.17*MO2 # 2.7E-12 @ -360.;
-<R005c>  FURANO2 + HO2       = 0.6*OP2   + 0.4*FURANONE + 0.4*OH 
-                                         + 0.32*HO2     + 0.08*MO2 # 3.75E-13 @ -980.;
-<R006c>  FURANONE + OH       = 0.69*KET  + 0.31*GLY     + 0.66*HO2 
-                                         + 0.34*MO2   + 0.43*CO # 4.40E-11;
-<R007c>  FURAN + O3          = 0.02*OH   + ALD          # 3.43E-17;
-<R008c>  FURAN + NO3         = NO2       + 0.8*DCB1     + 0.2*DCB3 # 8.99E-12;
+<R003c>  FURAN + HO          = 0.49*DCB1 + 0.49*HO2     
+                                         + 0.51*FURANO2 # 5.01E-11;
+<R004c>  FURANO2 + NO        = 0.08*ONIT + 0.92*NO2     
+                                         + 0.92*FURANONE 
+                                         + 0.75*HO2     
+                                         + 0.17*MO2     # 2.7E-12 @ -360.;
+<R005c>  FURANO2 + HO2       = 0.6*OP2   + 0.4*FURANONE 
+                                         + 0.4*HO 
+                                         + 0.32*HO2     
+                                         + 0.08*MO2     # 3.75E-13 @ -980.;
+<R006c>  FURANONE + HO       = 0.69*KET  + 0.31*GLY     
+                                         + 0.66*HO2 
+                                         + 0.34*MO2   
+                                         + 0.43*CO      # 4.40E-11;
+<R007c>  FURAN + O3          = 0.02*HO   + ALD          # 3.43E-17;
+<R008c>  FURAN + NO3         = NO2       + 0.8*DCB1     
+                                         + 0.2*DCB3     # 8.99E-12;
 
 ! PROG based on Coggon et al. and MCM http://mcm.york.ac.uk/browse.htt?species=PROPGLY
 <R010c> PROG + HO = 0.613*HKET + 0.387*ALD + HO2 #1.20E-11;
