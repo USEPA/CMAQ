@@ -74,7 +74,9 @@ To begin a CMAQ simulation with source apportionment enabled, the ISAM section o
 |ISAM_VOC_CASE| 1,2,3,4 (default is 4) | what tracked species are weighted when grid cell VOC limited ozone production. Only used if ISAM_O3_WEIGHT equal 5. | 
 |VOC_NOX_TRANS | >= 0.0 (default is 0.35)| value of Prod H2O2 over Prod HNO3 less than where ISAM_VOC_CASE weights are used. Otherwise, ISAM_NOX_CASE weights are used. VOC_NOX_TRANS only used if ISAM_O3_WEIGHT equal 5.|
 
-Additionally, ISAM can track emissions confined to geographic regions.  This functionality can be enabled through CMAQ's `RegionsRegistry` set in the `EmissCtrl` namelist (Appendix B.4) and is discussed further below.
+And dditionally, ISAM can track emissions confined to geographic regions.  This functionality can be enabled through CMAQ's `RegionsRegistry` set in the `EmissCtrl` namelist (Appendix B.4) and is discussed further below.
+
+
 
 #### ISAM and bidirectional NH<sub>3</sub> exchange
 
@@ -188,6 +190,21 @@ BID - contribution from bidirectional NH3 exchange
 ```
 
 Please, note that, currently, ISAM results for the same user defined tag may differ depending on the overall configuration and content of the ISAM control file.  This weakness of the method is detailed in the last section of the [ISAM Chemistry Supplement](Supplement/CMAQ_ISAM_Chemistry_Supplemental_Equations.pdf).  Generally, tracking a larger number of tags produces more consistent apportionment results.  
+
+#### Defining ISAM Tags for In-line Sources.
+ 
+The CMAQ model allows several types of emissions that are calculated in-line or during a model simulation instead of provided by the user as inputs. A simulations can use all of these inline emissions and ISAM can calculate apportionment from these sources. The former is done by supplying the appropriate emissions stream(s) keyword(s) in the EMIS STREAM(S) field of the emissions control file.  The below table lists currently supported inline emissions streams in CMAQ:
+ 
+|**Emission Stream Name**|**Inline Emissions Source**|
+|-----------|------------------------|
+| BIOG | Biogenic Emissions (BEIS) |
+| MIOG | Biogenic Emission (MEGAN) |
+| MGEGM | Marine Gas Emissions |
+| LTNG | Lightning NO Emissions |
+| ASEA | Sea Spray Aerosol Emissions |
+| DUST | Wind-Blown Dust Emissions |   
+
+For ISAM to calculate apportionment for an in-line source, the isam control file needs to define a tagname using the above stream names.
 
 #### Interpretation of 'OTH' tag
 The OTH tag (e.g.“O3_OTH” in the ISAM benchmark) represents concentrations for that species attributed to 1) all other emissions streams, 2) precursor species not included in the specified tag class(es), and 3) other processes in the model.
