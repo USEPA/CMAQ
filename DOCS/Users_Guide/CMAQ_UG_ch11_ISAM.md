@@ -193,7 +193,7 @@ Please, note that, currently, ISAM results for the same user defined tag may dif
 
 #### Defining ISAM Tags for In-line Sources.
  
-The CMAQ model allows several types of emissions that are calculated in-line or during a model simulation instead of provided by the user as inputs. A simulations can use all of these inline emissions and ISAM can calculate apportionment from these sources. The former is done by supplying the appropriate emissions stream(s) keyword(s) in the EMIS STREAM(S) field of the emissions control file.  The below table lists currently supported inline emissions streams in CMAQ:
+The CMAQ model allows several types of emissions that are calculated in-line or during a model simulation instead of provided by the user as inputs. A simulations can use all of these inline emissions and ISAM can calculate apportionment from these sources. The former is done by setting appropriate emissions options in the CMAQ runscript. For ISAM to calculate apportionment for an in-line source, the isam control file needs to define a tagname using the correct stream name.  The below table lists currently supported inline emissions streams in CMAQ:
  
 |**Emission Stream Name**|**Inline Emissions Source**|
 |-----------|------------------------|
@@ -204,7 +204,6 @@ The CMAQ model allows several types of emissions that are calculated in-line or 
 | ASEA | Sea Spray Aerosol Emissions |
 | DUST | Wind-Blown Dust Emissions |   
 
-For ISAM to calculate apportionment for an in-line source, the isam control file needs to define a tagname using the above stream names.
 
 #### Interpretation of 'OTH' tag
 The OTH tag (e.g.“O3_OTH” in the ISAM benchmark) represents concentrations for that species attributed to 1) all other emissions streams, 2) precursor species not included in the specified tag class(es), and 3) other processes in the model.
