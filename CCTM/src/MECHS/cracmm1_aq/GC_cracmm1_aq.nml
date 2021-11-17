@@ -135,8 +135,9 @@ GC_SPECIES_DATA =
 'XYLHRXN'       ,155.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,'XYLHRXN'      ,''        ,''    ,''    ,''    ,''   ,
 'BNZNRXN'       ,127.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,'BNZNRXN'      ,''        ,''    ,''    ,''    ,''   ,
 'BNZHRXN'       ,127.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,'BNZHRXN'      ,''        ,''    ,''    ,''    ,''   ,
-'SESQ'          ,204.4   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,'SESQOPERA'       , 1  ,''             ,''        ,'Yes' ,''    ,'Yes' ,'Yes',!Cadinene,L,DTXSID5024712,CC(C)C1CC=C(C)C2CC=C(C)CC12
-'SESQRXN'       ,204.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,'SESQRXN'      ,''        ,''    ,''    ,''    ,''   ,
+'SESQ'          ,204.4   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,'SESQOPERA'       , 1  ,''             ,''        ,'Yes' ,''    ,'Yes' ,'Yes',!b-caryophyllene,L,DTXSID8024739,C/C1=C/CCC(=C)C2CC(C)(C)C2CC\1
+'SESQRO2'       ,253.4   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,''             ,''        ,''    ,''    ,''    ,'Yes',!MCM-BCAO2,L,NA,[O]OC1(C)CCC2C(CC2(C)C)C(=C)CCC1O
+'SESQNRO2'      ,298.4   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,''             ,''        ,''    ,''    ,''    ,'Yes',!MCM-NBCO2,L,NA,[O]OC1(C)CCC2C(CC2(C)C)C(=C)CCC1O[N+](=O)[O-]
 'NAPH'          ,133.1   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,'NAPHOPERA'       , 1  ,''             ,''        ,'Yes' ,''    ,''    ,'Yes',!Naphthalene,L,DTXSID8020913,C1=CC2=CC=CC=C2C=C1
 'PAHRO2'        ,187.2   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,''             ,''        ,''    ,''    ,''    ,'Yes',
 'PAHNRXN'       ,187.2   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,'PAHNRXN'      ,''        ,''    ,''    ,''    ,''   ,
