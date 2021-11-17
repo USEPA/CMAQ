@@ -1238,7 +1238,7 @@ C  Gardner et. al may support this conclusion.
           REPLACE = .TRUE.
 
       CASE(  'HCHO_M_MCMv32', 'HCHOM-06', 'HCHOM_06', 'FORM_M_IUPAC10', 'FORM_M_IUPAC13', 'HCHO_M_SAPRC99', 'HCHO_MOL_RACM2',
-             ''HCHO_MOL_JPL19' )  ! 'CH2O -> H2 + CO'
+     &       'HCHO_MOL_JPL19' )  ! 'CH2O -> H2 + CO'
 
 ! temperature correction to cross-section 
 
