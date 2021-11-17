@@ -719,7 +719,7 @@
 
 
            REPLACE = .TRUE.
-         CASE( 'ACET_CO_CRI', 'CH3COCH3_RACM2B' ) ! Acetone (CH3COCH3 ) ---> 2CH3 + CO
+         CASE( 'ACET_CO_CRI', 'CH3COCH3B_JPL19' ) ! Acetone (CH3COCH3 ) ---> 2CH3 + CO
 ! http://iupac.pole-ether.fr/htdocs/datasheets/pdf/P7_CH3COCH3+hv.pdf dated 2013
 ! based on 
 ! Blitz, M. A., Heard, D. E., Pilling, M. J., Arnold S. R. and M. Chipperfield, Geophys. Res. Lett. 
@@ -764,7 +764,7 @@
            ENDDO
 
            REPLACE = .TRUE.
-         CASE( 'ACET_R2_CRI', 'CH3COCH3_RACM2A' ) ! Acetone (CH3COCH3 ) ---> CH3CO+CH3 
+         CASE( 'ACET_R2_CRI', 'CH3COCH3A_JPL19' ) ! Acetone (CH3COCH3 ) ---> CH3CO+CH3 
 ! http://iupac.pole-ether.fr/htdocs/datasheets/pdf/P7_CH3COCH3+hv.pdf dated 2013
 ! based on 
 ! Blitz, M. A., Heard, D. E., Pilling, M. J., Arnold S. R. and M. Chipperfield, Geophys. Res. Lett. 
@@ -902,7 +902,7 @@
            END DO
            REPLACE = .TRUE.
 
-         CASE( 'C2CHO', 'ALD_RACM2', 'ALDX_R_IUPAC10' )  ! 'C2H5CHO -> C2H5 + HCO'
+         CASE( 'C2CHO', 'ALD_RACM2', 'ALD_JPL19', 'ALDX_R_IUPAC10' )  ! 'C2H5CHO -> C2H5 + HCO'
 
 ! density correction to quantum yield
 
@@ -1197,7 +1197,8 @@ C  Gardner et. al may support this conclusion.
 
          REPLACE = .TRUE.
 
-      CASE(  'HCHOR-06', 'HCHOR_06', 'FORM_R_IUPAC10', 'FORM_R_IUPAC13', 'HCHO_R_SAPRC99', 'HCHO_RAD_RACM2' )  ! 'CH2O -> H + HCO' 
+      CASE(  'HCHOR-06', 'HCHOR_06', 'FORM_R_IUPAC10', 'FORM_R_IUPAC13', 'HCHO_R_SAPRC99', 'HCHO_RAD_RACM2',
+     &       'HCHO_RAD_JPL19' )  ! 'CH2O -> H + HCO' 
 
 
 ! temperature correction to cross-section 
@@ -1236,7 +1237,8 @@ C  Gardner et. al may support this conclusion.
 
           REPLACE = .TRUE.
 
-      CASE(  'HCHO_M_MCMv32', 'HCHOM-06', 'HCHOM_06', 'FORM_M_IUPAC10', 'FORM_M_IUPAC13', 'HCHO_M_SAPRC99', 'HCHO_MOL_RACM2')  ! 'CH2O -> H2 + CO'
+      CASE(  'HCHO_M_MCMv32', 'HCHOM-06', 'HCHOM_06', 'FORM_M_IUPAC10', 'FORM_M_IUPAC13', 'HCHO_M_SAPRC99', 'HCHO_MOL_RACM2',
+             ''HCHO_MOL_JPL19' )  ! 'CH2O -> H2 + CO'
 
 ! temperature correction to cross-section 
 

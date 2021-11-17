@@ -657,7 +657,7 @@ C...begin read
                     LNO2 = IPHOT
               CASE( 'O3O1D',  'O3O1D_SAPRC99' , 'O3O1D_06', 'O3_O1D_IUPAC04', 'O3O1D_NASA06', 'O3_O1D_IUPAC10' )
                     LO3O1D = IPHOT
-              CASE( 'KETONE', 'KET_RACM2' )
+              CASE( 'KETONE', 'KET_RACM2', 'KET_JGR19' )
                     LKETONE   = IPHOT
               CASE( 'MGLY_ADJ' )
                     LMGLY_ADJ = IPHOT
@@ -666,9 +666,9 @@ C...begin read
               CASE( 'ACETONE', 'CH3COCH3_RACM2', 'ACET_IUPAC10' )
                     IF( NWL .EQ. NWL_ACETONE_FJX ) LACETONE  = IPHOT
               CASE( 'HCHOR_06', 'HCHO_R_SAPRC99', 'HCHO_RAD_RACM2', 'FORM_R_IUPAC10', 
-     &              'FORM_R_IUPAC13', 'HCHO_R_MCMv32' )
+     &              'FORM_R_IUPAC13', 'HCHO_R_MCMv32', 'HCHO_RAD_JPL19' )
                     LHCHOR_06 = IPHOT
-              CASE( 'ACET_CH3CO_CRI', 'CH3COCH3_RACM2A' )
+              CASE( 'ACET_CH3CO_CRI', 'CH3COCH3A_JPL19' )
                     LACETONE_CH3CO   = IPHOT
                     ACETONE_CHANNELS = .TRUE.
               CASE( 'H2O2', 'H2O2_SAPRC99', 'H2O2_RACM2', 'H2O2_IUPAC10' )
@@ -1967,14 +1967,14 @@ C-----------------------------------------------------------------------
                         CSQY_ADJUST( IPHOT ) = ACROLEIN
                      CASE (  'BIACET_MCMv32' )
                         CSQY_ADJUST( IPHOT ) = BIACETYL
-                     CASE ( 'HCHO_M_MCMv32', 'HCHOM_06', 'HCHO_M_SAPRC99', 'HCHO_MOL_RACM2', 'FORM_R_IUPAC10',
-     &                      'FORM_R_IUPAC13' )                                                                 ! 'CH2O -> H2 + CO'
+                     CASE ( 'HCHO_M_MCMv32', 'HCHOM_06', 'HCHO_M_SAPRC99', 'HCHO_MOL_RACM2', 'FORM_M_IUPAC10',
+     &                      'FORM_M_IUPAC13', ' 'HCHO_MOL_JPL19' )                ! 'CH2O -> H2 + CO'
                         CSQY_ADJUST( IPHOT ) = FORMALDEHYDE_MOLECULAR
                      CASE (  'ACET_06', 'ACETONE', 'CH3COCH3_RACM2', 'ACET_IUPAC10' ) ! 'CH3COCH3 -> products'
                         CSQY_ADJUST( IPHOT ) = ACETONE
                      CASE (  'KETONE'  )
                         CSQY_ADJUST( IPHOT ) = KETONE_LEGACY
-                     CASE ( 'KET_RACM2', 'HKET_RACM2', 'MEK_RACM2', 'MVK_RACM2' ) ! Ketone treatement from W. Stockwell sbox
+                     CASE ( 'KET_RACM2', 'KET_JGR19', 'HKET_RACM2', 'MEK_RACM2', 'MEK_JGR19', 'MVK_RACM2' ) ! Ketone treatement from W. Stockwell sbox
                         CSQY_ADJUST( IPHOT ) = KETONE_RACM2
                      CASE ( 'GLYH2_RACM2', 'GLYF_RACM2', 'GLYHX_RACM2', 'MGLY_RACM2'  ) ! glyoxal treatement from W. Stockwell sbox
                         CSQY_ADJUST( IPHOT ) = GLYOXAL_RACM2
@@ -1982,7 +1982,7 @@ C-----------------------------------------------------------------------
                         CSQY_ADJUST( IPHOT ) = GLYOXAL_IUPAC_2013
                      CASE (  'MGLY_ADJ',  'MGLY_ABS' )
                         CSQY_ADJUST( IPHOT ) = METHYL_GLYOXAL_LEGACY
-                     CASE ( 'ACET_R2_CRI', 'CH3COCH3_RACM2A' )
+                     CASE ( 'ACET_R2_CRI', 'CH3COCH3A_JPL19' )
                         CSQY_ADJUST( IPHOT ) = ACETONE_CH3CO
                      CASE DEFAULT
                         CSQY_ADJUST( IPHOT ) =  0
