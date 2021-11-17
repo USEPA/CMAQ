@@ -27,7 +27,7 @@ C  PRECONDITIONS: For the CRACMM1_AQ mechanism
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, Nov 16, 2021
+C  REVISION HISTORY: Created by EBI solver program, Nov 17, 2021
 C
 C   18 Jul 14 B.Hutzell: revised to use real(8) variables for solution
 C*************************************************************************
@@ -235,56 +235,59 @@ c..Species indices
       INTEGER, PARAMETER :: XYLHRXN          =  123
       INTEGER, PARAMETER :: BNZNRXN          =  124
       INTEGER, PARAMETER :: BNZHRXN          =  125
-      INTEGER, PARAMETER :: SESQ             =  126
-      INTEGER, PARAMETER :: SESQRXN          =  127
-      INTEGER, PARAMETER :: SOAALK           =  128
-      INTEGER, PARAMETER :: ALKRXN           =  129
-      INTEGER, PARAMETER :: ROCIOXY          =  130
-      INTEGER, PARAMETER :: SLOWROC          =  131
-      INTEGER, PARAMETER :: NAPH             =  132
-      INTEGER, PARAMETER :: PAHRO2           =  133
-      INTEGER, PARAMETER :: PAHNRXN          =  134
-      INTEGER, PARAMETER :: PAHHRXN          =  135
-      INTEGER, PARAMETER :: ACRO             =  136
-      INTEGER, PARAMETER :: BDE13            =  137
-      INTEGER, PARAMETER :: FURAN            =  138
-      INTEGER, PARAMETER :: FURANO2          =  139
-      INTEGER, PARAMETER :: FURANONE         =  140
-      INTEGER, PARAMETER :: PROG             =  141
-      INTEGER, PARAMETER :: AGLYJ            =  142
-      INTEGER, PARAMETER :: AISO3J           =  143
-      INTEGER, PARAMETER :: AXYL1J           =  144
-      INTEGER, PARAMETER :: AOLGAJ           =  145
-      INTEGER, PARAMETER :: AXYL2J           =  146
-      INTEGER, PARAMETER :: ATOL1J           =  147
-      INTEGER, PARAMETER :: ATOL2J           =  148
-      INTEGER, PARAMETER :: ABNZ1J           =  149
-      INTEGER, PARAMETER :: ABNZ2J           =  150
-      INTEGER, PARAMETER :: ATRP1J           =  151
-      INTEGER, PARAMETER :: AOLGBJ           =  152
-      INTEGER, PARAMETER :: ATRP2J           =  153
-      INTEGER, PARAMETER :: AISO1J           =  154
-      INTEGER, PARAMETER :: AISO2J           =  155
-      INTEGER, PARAMETER :: ASQTJ            =  156
-      INTEGER, PARAMETER :: APAH1J           =  157
-      INTEGER, PARAMETER :: APAH2J           =  158
-      INTEGER, PARAMETER :: AALK1J           =  159
-      INTEGER, PARAMETER :: AALK2J           =  160
-      INTEGER, PARAMETER :: APOCI            =  161
-      INTEGER, PARAMETER :: APNCOMI          =  162
-      INTEGER, PARAMETER :: APOCJ            =  163
-      INTEGER, PARAMETER :: APNCOMJ          =  164
-      INTEGER, PARAMETER :: PCVOC            =  165
-      INTEGER, PARAMETER :: PCSOARXN         =  166
-      INTEGER, PARAMETER :: VLVPO1           =  167
-      INTEGER, PARAMETER :: VSVPO1           =  168
-      INTEGER, PARAMETER :: VSVPO2           =  169
-      INTEGER, PARAMETER :: VSVPO3           =  170
-      INTEGER, PARAMETER :: VIVPO1           =  171
-      INTEGER, PARAMETER :: VLVOO1           =  172
-      INTEGER, PARAMETER :: VLVOO2           =  173
-      INTEGER, PARAMETER :: VSVOO2           =  174
-      INTEGER, PARAMETER :: VSVOO3           =  175
-      INTEGER, PARAMETER :: VSVOO1           =  176
+      INTEGER, PARAMETER :: SOAALK           =  126
+      INTEGER, PARAMETER :: ALKRXN           =  127
+      INTEGER, PARAMETER :: ROCIOXY          =  128
+      INTEGER, PARAMETER :: SLOWROC          =  129
+      INTEGER, PARAMETER :: NAPH             =  130
+      INTEGER, PARAMETER :: PAHRO2           =  131
+      INTEGER, PARAMETER :: PAHNRXN          =  132
+      INTEGER, PARAMETER :: PAHHRXN          =  133
+      INTEGER, PARAMETER :: ACRO             =  134
+      INTEGER, PARAMETER :: BDE13            =  135
+      INTEGER, PARAMETER :: FURAN            =  136
+      INTEGER, PARAMETER :: FURANO2          =  137
+      INTEGER, PARAMETER :: FURANONE         =  138
+      INTEGER, PARAMETER :: PROG             =  139
+      INTEGER, PARAMETER :: SESQ             =  140
+      INTEGER, PARAMETER :: SESQNRO2         =  141
+      INTEGER, PARAMETER :: VROCP0OXY        =  142
+      INTEGER, PARAMETER :: VROCP3OXY        =  143
+      INTEGER, PARAMETER :: VROCN2OXY        =  144
+      INTEGER, PARAMETER :: SESQRO2          =  145
+      INTEGER, PARAMETER :: AGLYJ            =  146
+      INTEGER, PARAMETER :: AISO3J           =  147
+      INTEGER, PARAMETER :: AXYL1J           =  148
+      INTEGER, PARAMETER :: AOLGAJ           =  149
+      INTEGER, PARAMETER :: AXYL2J           =  150
+      INTEGER, PARAMETER :: ATOL1J           =  151
+      INTEGER, PARAMETER :: ATOL2J           =  152
+      INTEGER, PARAMETER :: ABNZ1J           =  153
+      INTEGER, PARAMETER :: ABNZ2J           =  154
+      INTEGER, PARAMETER :: ATRP1J           =  155
+      INTEGER, PARAMETER :: AOLGBJ           =  156
+      INTEGER, PARAMETER :: ATRP2J           =  157
+      INTEGER, PARAMETER :: AISO1J           =  158
+      INTEGER, PARAMETER :: AISO2J           =  159
+      INTEGER, PARAMETER :: APAH1J           =  160
+      INTEGER, PARAMETER :: APAH2J           =  161
+      INTEGER, PARAMETER :: AALK1J           =  162
+      INTEGER, PARAMETER :: AALK2J           =  163
+      INTEGER, PARAMETER :: APOCI            =  164
+      INTEGER, PARAMETER :: APNCOMI          =  165
+      INTEGER, PARAMETER :: APOCJ            =  166
+      INTEGER, PARAMETER :: APNCOMJ          =  167
+      INTEGER, PARAMETER :: PCVOC            =  168
+      INTEGER, PARAMETER :: PCSOARXN         =  169
+      INTEGER, PARAMETER :: VLVPO1           =  170
+      INTEGER, PARAMETER :: VSVPO1           =  171
+      INTEGER, PARAMETER :: VSVPO2           =  172
+      INTEGER, PARAMETER :: VSVPO3           =  173
+      INTEGER, PARAMETER :: VIVPO1           =  174
+      INTEGER, PARAMETER :: VLVOO1           =  175
+      INTEGER, PARAMETER :: VLVOO2           =  176
+      INTEGER, PARAMETER :: VSVOO2           =  177
+      INTEGER, PARAMETER :: VSVOO3           =  178
+      INTEGER, PARAMETER :: VSVOO1           =  179
 
       END MODULE HRDATA

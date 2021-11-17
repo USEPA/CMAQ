@@ -163,6 +163,7 @@ GC_SPECIES_DATA =
 'VROCP0OXY'     ,135.0   ,''     ,-1     ,''     ,-1     ,'VD_ORA'          , 1   ,'ADIPIC_ACID'     , 1  ,'VROCP0OXY'    ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',
 'VROCP1OXY'     ,135.0   ,''     ,-1     ,''     ,-1     ,'VD_ORA'          , 1   ,'ADIPIC_ACID'     , 1  ,'VROCP1OXY'    ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',
 'VROCP2OXY'     ,134.0   ,''     ,-1     ,''     ,-1     ,'VD_ORA'          , 1   ,'ADIPIC_ACID'     , 1  ,'VROCP2OXY'    ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',
+'VROCP3OXY'     ,134.0   ,''     ,-1     ,''     ,-1     ,'VD_ORA'          , 1   ,'ADIPIC_ACID'     , 1  ,'VROCP2OXY'    ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',
 /
 
 /
