@@ -255,7 +255,7 @@ C Define processor offsets
          ALLOCATE( LAND_ZONE( NCOLS, NROWS ) )
          DO R = 1, NROWS
             DO C = 1, NCOLS
-               IF( OCEAN( C,R ) + SZONE( C,R ) .GT. 0.001 )THEN
+               IF( OCEAN( C,R ) + SZONE( C,R ) .GT. 0.0 )THEN
                    LAND_ZONE( C,R ) = .FALSE.
                ELSE
                    LAND_ZONE( C,R ) = .TRUE.

@@ -3581,9 +3581,9 @@ C Read the various categories of normalized emissions
                    XMSG = 'Could not interpolate SURF from ' // OCEAN_1
                    CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
                 END IF
-
-                WHERE ( ocean .LT. 0.0 ) ocean = 0.0  ! ensure values are nonnegative
-                WHERE ( szone .LT. 0.0 ) szone = 0.0  ! ensure values are nonnegative
+                
+                WHERE ( ocean .LT. 0.001 ) ocean = 0.0  ! ensure values are nonnegative and greater than 0.001
+                WHERE ( szone .LT. 0.001 ) szone = 0.0  ! ensure values are nonnegative and greater than 0.001                
              END IF
           ELSE 
              WRITE( LOGDEV, '(/,5x,A,/,5x,A,/5x,A)' ), 
