@@ -1230,7 +1230,8 @@ REACTIONS[CM] =
 ! PROG based on Coggon et al. and MCM http://mcm.york.ac.uk/browse.htt?species=PROPGLY
 <R010c> PROG + HO = 0.613*HKET + 0.387*ALD + HO2 #1.20E-11;
 
-! Sesquiterpenes based on MCM b-caryophyllene
+! Sesquiterpenes based on MCM b-caryophyllene with autoxidation
+! added to O3 channel following Richters et al. 2016 ES&T
 <R011c> SESQ  + NO3          = SESQNRO2            # 1.9E-11;
 <R012c> SESQNRO2 + HO2       = VROCP0OXY           # 2.84E-13 @ -1300.0;
 <R013c> SESQNRO2 + NO        = VROCP3OXY + 2.0*NO2 # 2.70E-12 @ -360.0;
