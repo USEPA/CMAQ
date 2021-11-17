@@ -156,4 +156,13 @@ GC_SPECIES_DATA =
 'VSVOO3'        ,134.0   ,''     ,-1     ,''     ,-1     ,'VD_ORA'          , 1   ,'ADIPIC_ACID'     , 1  ,'VSVOO3'       ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',
 'PCVOC'         ,170.0   ,''     ,-1     ,''     ,-1     ,'VD_GEN_ALD'      , 1   ,'GENERIC_ALDEHYDE', 1  ,''             ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',
 'PCSOARXN'      ,170.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,'PCSOARXN'     ,''        ,''    ,''    ,''    ,''   , 
+'VROCP5ARO'     ,184.49  ,''     ,-1     ,''     ,-1     ,'VD_ORA'          , 1   ,'ADIPIC_ACID'     , 1  ,''             ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',
+'VROCP6ARO'     ,158.81  ,''     ,-1     ,''     ,-1     ,'VD_ORA'          , 1   ,'ADIPIC_ACID'     , 1  ,''             ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',
+'VROCN2OXY'     ,136.0   ,''     ,-1     ,''     ,-1     ,'VD_ORA'          , 1   ,'ADIPIC_ACID'     , 1  ,'VROCN2OXY'    ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',
+'VROCN1OXY'     ,136.0   ,''     ,-1     ,''     ,-1     ,'VD_ORA'          , 1   ,'ADIPIC_ACID'     , 1  ,'VROCN1OXY'    ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',
+'VROCP0OXY'     ,135.0   ,''     ,-1     ,''     ,-1     ,'VD_ORA'          , 1   ,'ADIPIC_ACID'     , 1  ,'VROCP0OXY'    ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',
+'VROCP1OXY'     ,135.0   ,''     ,-1     ,''     ,-1     ,'VD_ORA'          , 1   ,'ADIPIC_ACID'     , 1  ,'VROCP1OXY'    ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',
+'VROCP2OXY'     ,134.0   ,''     ,-1     ,''     ,-1     ,'VD_ORA'          , 1   ,'ADIPIC_ACID'     , 1  ,'VROCP2OXY'    ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',
+/
+
 /
