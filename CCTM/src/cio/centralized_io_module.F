@@ -74,6 +74,8 @@
 !                     an extreme case, i.e. simulation runs in a hourly basis, in the
 !                     retrieve_boundary_data subroutine.
 !  08/06/20, D. Wong:- fixed excessive reading of time independent boundary file data
+!  11/17/21, G. Sarwar: Changed minimum values from 0.0 to 0.001 for ocean and szone  
+!                       to ensure values are nonnegative and greater than 0.001
 !------------------------------------------------------------------------!
 
 !------------------------------------------------------------------------!
