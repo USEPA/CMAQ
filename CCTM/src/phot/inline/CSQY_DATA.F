@@ -1968,7 +1968,7 @@ C-----------------------------------------------------------------------
                      CASE (  'BIACET_MCMv32' )
                         CSQY_ADJUST( IPHOT ) = BIACETYL
                      CASE ( 'HCHO_M_MCMv32', 'HCHOM_06', 'HCHO_M_SAPRC99', 'HCHO_MOL_RACM2', 'FORM_M_IUPAC10',
-     &                      'FORM_M_IUPAC13', ' 'HCHO_MOL_JPL19' )                ! 'CH2O -> H2 + CO'
+     &                      'FORM_M_IUPAC13', 'HCHO_MOL_JPL19' )                ! 'CH2O -> H2 + CO'
                         CSQY_ADJUST( IPHOT ) = FORMALDEHYDE_MOLECULAR
                      CASE (  'ACET_06', 'ACETONE', 'CH3COCH3_RACM2', 'ACET_IUPAC10' ) ! 'CH3COCH3 -> products'
                         CSQY_ADJUST( IPHOT ) = ACETONE
