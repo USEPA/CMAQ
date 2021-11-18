@@ -462,7 +462,7 @@ REACTIONS[CM] =
 <R141>  ETE  + NO3         = 0.80*OLNN  + 0.20*OLND   # 4.392E-13^2.0@2282.0; 
 <R142>  OLT  + NO3         = 0.43*OLNN  + 0.57*OLND   # 1.79E-13 @ 450.;
 <R143>  OLI  + NO3         = 0.11*OLNN  + 0.89*OLND   # 8.64E-13 @ -450.;
-<R145>  ISO  + NO3         =      ISON  + ISOPRXN     # 3.03E-12 @ 446.;
+<R145>  ISO  + NO3         =      ISON                # 3.03E-12 @ 446.;
 <R146>  API  + NO3         = 0.10*OLNN  + 0.90*OLND
                                         + 1.0*TRPRXN  # 1.19E-12 @ -490.;
 <R147>  LIM  + NO3         = 0.71*OLNN  + 0.29*OLND
@@ -632,11 +632,12 @@ REACTIONS[CM] =
                                         + 0.11*ACT
                                         + 0.44*KET
                                         + 0.07*ORA1 
-                                        + 0.18*ONIT   # 4.0E-12;
+                                        + 0.18*TRPN   # 4.0E-12;
 <R190>  LIMP + NO          = 1.00*HO2   + 0.68*UALD
                                         + 0.43*HCHO
                                         + 0.07*ORA1
-                                        + 1.00*NO2
+                                        + 0.77*NO2
+                                        + 0.23*TRPN
                                         + 0.05*OLI    # 4.0E-12;
 <R191>  ACO3 + NO          = MO2        + NO2         # 8.1E-12 @ -270.;
 <R192>  RCO3 + NO          = ETHP       + NO2         # 8.1E-12 @ -270.;

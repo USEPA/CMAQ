@@ -1563,6 +1563,7 @@
              INDEX_PER2     = IOLD2NEW( INDEX_PER2    , 1 )
              INDEX_XYO2     = IOLD2NEW( INDEX_XYO2    , 1 )
              INDEX_XYOP     = IOLD2NEW( INDEX_XYOP    , 1 )
+             INDEX_TRPN     = IOLD2NEW( INDEX_TRPN    , 1 )
              INDEX_BAL1     = IOLD2NEW( INDEX_BAL1    , 1 )
              INDEX_BAL2     = IOLD2NEW( INDEX_BAL2    , 1 )
              INDEX_TOLNRXN  = IOLD2NEW( INDEX_TOLNRXN , 1 )
