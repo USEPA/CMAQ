@@ -249,6 +249,7 @@ c     returns julian_date day (julday), year fraction (yrfrac)
       real, allocatable, save :: dy1( : ) ! ( nlat )    
       real, allocatable, save :: lon_transformed( : )
 
+      character(34) :: output_format 
       interface
         SUBROUTINE CREATE_CMAQ_OMI ( FILE_NAME, JDATE, LAT, LON )
           CHARACTER( 16 ), INTENT( IN ) :: FILE_NAME  ! name of file 
@@ -331,7 +332,8 @@ c     returns julian_date day (julday), year fraction (yrfrac)
         open( file = OMI_CMAQ_DAT, status = 'unknown', newunit = io_unit )
         write(io_unit,549)'nlat',nlat
         write(io_unit,549)'nlon',nlon
-        write(io_unit,550)'yeardate','latitude',(lon_out(j),j=1,nlon) 
+        write(output_format,'(a,i8,a)')'(2(a,tr1),',(nlon+1),'(f7.2,tr1))'
+        write(io_unit,output_format)'yeardate','latitude',(lon_out(j),j=1,nlon) 
 
         nlat_omi = size( latitude )
         nlon_omi = size( longitude )
@@ -390,6 +392,7 @@ c     returns julian_date day (julday), year fraction (yrfrac)
 555   Format(f9.4,tr1,f7.1,tr1,3600001(i7,tr1))
      
 
+
 ! Initialize
 
 
@@ -415,7 +418,7 @@ c     returns julian_date day (julday), year fraction (yrfrac)
 
       If( jdate_expect .ne. jdate )Then
 ! write interpolated values up to current date
-         delta_date = Delta_julian( jdate_expect, jdate )
+         delta_date = Delta_julian( jdate, jdate_expect )
          viz_adjust = ( ozone_viz - viz_prev )/real(delta_date + 1)
 
          Do j = 1, delta_date
@@ -424,6 +427,9 @@ c     returns julian_date day (julday), year fraction (yrfrac)
      &                           viz_prev ) ) THEN
                    xmsg = 'Error writing variable OZONE_COLUMN'
                   call m3exit ( pname, jdate_expect, 0, xmsg, xstat1 )
+            Else
+               write(6,*)'observation missing on ', jdate_expect
+               write(6,*)'writing to netcdf file inpolation between observations'
             End If
             call Julian_plus_One( jdate_expect )
          End Do
@@ -435,8 +441,9 @@ c     returns julian_date day (julday), year fraction (yrfrac)
              call m3exit ( pname, jdate, 0, xmsg, xstat1 )
       End If
 
+      write(output_format,'(a,i8,a)')'(f9.4,tr1,f7.1,',(nlon+1),'(i7,tr1))'
       do i = 1,nlat          
-        write(io_unit,555)date,lat(i),(nint( ozone(i,j) ),j=1,nlon)       
+        write(io_unit,output_format)date,lat(i),(nint( ozone(i,j) ),j=1,nlon)       
 590   end do
      
       jdate_expect = jdate
