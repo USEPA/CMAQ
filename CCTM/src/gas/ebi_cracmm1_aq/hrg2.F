@@ -28,7 +28,7 @@ C  PRECONDITIONS: For the CRACMM1_AQ mechanism
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, Nov 18, 2021
+C  REVISION HISTORY: Created by EBI solver program, Nov 19, 2021
 C
 C   18 Jul 14 B.Hutzell: revised to use real(8) variables
 C**********************************************************************

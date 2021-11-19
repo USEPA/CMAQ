@@ -1210,6 +1210,7 @@ REACTIONS[CM] =
 
 ! Furans based on 5 species aggregate using  Wang et al. JGR 2021, Schwantes, and Coggon
 ! Use RACM2 o-xylene RO2+HO2, RACM2 (same as MCM) RO2+NO rate constants
+! SOA yield taken from Table S1 of Bruns et al. 2016 Sci Rep and mass removed from KET product
 <R003c>  FURAN + HO          = 0.49*DCB1 + 0.49*HO2     
                                          + 0.51*FURANO2 # 5.01E-11;
 <R004c>  FURANO2 + NO        = 0.08*ONIT + 0.92*NO2     
@@ -1220,10 +1221,11 @@ REACTIONS[CM] =
                                          + 0.4*HO 
                                          + 0.32*HO2     
                                          + 0.08*MO2     # 3.75E-13 @ -980.;
-<R006c>  FURANONE + HO       = 0.69*KET  + 0.31*GLY     
+<R006c>  FURANONE + HO       = 0.65*KET  + 0.31*GLY     
                                          + 0.66*HO2 
                                          + 0.34*MO2   
-                                         + 0.43*CO      # 4.40E-11;
+                                         + 0.43*CO      
+                                         + 0.04*ASOATJ # 4.40E-11;
 <R007c>  FURAN + O3          = 0.02*HO   + ALD          # 3.43E-17;
 <R008c>  FURAN + NO3         = NO2       + 0.8*DCB1     
                                          + 0.2*DCB3     # 8.99E-12;

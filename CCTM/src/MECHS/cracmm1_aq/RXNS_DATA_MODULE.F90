@@ -6,7 +6,7 @@
 
 
 ! --------- Photochemical Mechanism Reactions, Rates, etc. DAT ---------
-! Source file: /home/bplace/updated/UTIL/chemmech/input/cracmm1_aq/mech_cracmm1_aq.def
+! Source file: /work/MOD3DEV/has/2021cracmm/cmaq/20211119cmaq/UTIL/chemmech/input/cracmm1_aq/mech_cracmm1_aq.def
 ! for Mechanism Name: CRACMM1_AQ                      
 
 ! This file is used to create mechanism data and functions
@@ -435,16 +435,16 @@
       & MEMBER("VROCN2OXY       ",  157, "GC",  136.00D0, F), &
       & MEMBER("SESQRO2         ",  135, "GC",  253.40D0, F), &
       & MEMBER("AGLYJ           ",  171, "AE",   66.40D0, T), &
-      & MEMBER("AISO3J          ",  230, "AE",  168.20D0, T), &
+      & MEMBER("AISO3J          ",  229, "AE",  168.20D0, T), &
       & MEMBER("AXYL1J          ",  174, "AE",  174.00D0, T), &
-      & MEMBER("AOLGAJ          ",  231, "AE",  206.00D0, T), &
+      & MEMBER("AOLGAJ          ",  230, "AE",  206.00D0, T), &
       & MEMBER("AXYL2J          ",  175, "AE",  185.00D0, T), &
       & MEMBER("ATOL1J          ",  177, "AE",  163.00D0, T), &
       & MEMBER("ATOL2J          ",  178, "AE",  175.00D0, T), &
       & MEMBER("ABNZ1J          ",  180, "AE",  161.00D0, T), &
       & MEMBER("ABNZ2J          ",  181, "AE",  134.00D0, T), &
       & MEMBER("ATRP1J          ",  186, "AE",  177.00D0, T), &
-      & MEMBER("AOLGBJ          ",  232, "AE",  248.00D0, T), &
+      & MEMBER("AOLGBJ          ",  231, "AE",  248.00D0, T), &
       & MEMBER("ATRP2J          ",  187, "AE",  198.00D0, T), &
       & MEMBER("AISO1J          ",  189, "AE",  132.00D0, T), &
       & MEMBER("AISO2J          ",  190, "AE",  133.00D0, T), &
@@ -452,10 +452,10 @@
       & MEMBER("APAH2J          ",  184, "AE",  178.70D0, T), &
       & MEMBER("AALK1J          ",  172, "AE",  225.00D0, T), &
       & MEMBER("AALK2J          ",  173, "AE",  205.10D0, T), &
-      & MEMBER("APOCI           ",  233, "AE",  220.00D0, T), &
-      & MEMBER("APNCOMI         ",  235, "AE",  220.00D0, T), &
-      & MEMBER("APOCJ           ",  234, "AE",  220.00D0, T), &
-      & MEMBER("APNCOMJ         ",  236, "AE",  220.00D0, T), &
+      & MEMBER("APOCI           ",  232, "AE",  220.00D0, T), &
+      & MEMBER("APNCOMI         ",  234, "AE",  220.00D0, T), &
+      & MEMBER("APOCJ           ",  233, "AE",  220.00D0, T), &
+      & MEMBER("APNCOMJ         ",  235, "AE",  220.00D0, T), &
       & MEMBER("PCVOC           ",  153, "GC",  170.00D0, F), &
       & MEMBER("PCSOARXN        ",  154, "GC",  170.00D0, F), &
       & MEMBER("VLVPO1          ",  143, "GC",  218.00D0, F), &
@@ -798,16 +798,16 @@
       DATA CGRID_INDEX( 145 ), SPECIES_TYPE( 145 ), CONVERT_CONC( 145 ) /  157, 'GC', F /  ! VROCN2OXY
       DATA CGRID_INDEX( 146 ), SPECIES_TYPE( 146 ), CONVERT_CONC( 146 ) /  135, 'GC', F /  ! SESQRO2
       DATA CGRID_INDEX( 147 ), SPECIES_TYPE( 147 ), CONVERT_CONC( 147 ) /  171, 'AE', T /  ! AGLYJ
-      DATA CGRID_INDEX( 148 ), SPECIES_TYPE( 148 ), CONVERT_CONC( 148 ) /  230, 'AE', T /  ! AISO3J
+      DATA CGRID_INDEX( 148 ), SPECIES_TYPE( 148 ), CONVERT_CONC( 148 ) /  229, 'AE', T /  ! AISO3J
       DATA CGRID_INDEX( 149 ), SPECIES_TYPE( 149 ), CONVERT_CONC( 149 ) /  174, 'AE', T /  ! AXYL1J
-      DATA CGRID_INDEX( 150 ), SPECIES_TYPE( 150 ), CONVERT_CONC( 150 ) /  231, 'AE', T /  ! AOLGAJ
+      DATA CGRID_INDEX( 150 ), SPECIES_TYPE( 150 ), CONVERT_CONC( 150 ) /  230, 'AE', T /  ! AOLGAJ
       DATA CGRID_INDEX( 151 ), SPECIES_TYPE( 151 ), CONVERT_CONC( 151 ) /  175, 'AE', T /  ! AXYL2J
       DATA CGRID_INDEX( 152 ), SPECIES_TYPE( 152 ), CONVERT_CONC( 152 ) /  177, 'AE', T /  ! ATOL1J
       DATA CGRID_INDEX( 153 ), SPECIES_TYPE( 153 ), CONVERT_CONC( 153 ) /  178, 'AE', T /  ! ATOL2J
       DATA CGRID_INDEX( 154 ), SPECIES_TYPE( 154 ), CONVERT_CONC( 154 ) /  180, 'AE', T /  ! ABNZ1J
       DATA CGRID_INDEX( 155 ), SPECIES_TYPE( 155 ), CONVERT_CONC( 155 ) /  181, 'AE', T /  ! ABNZ2J
       DATA CGRID_INDEX( 156 ), SPECIES_TYPE( 156 ), CONVERT_CONC( 156 ) /  186, 'AE', T /  ! ATRP1J
-      DATA CGRID_INDEX( 157 ), SPECIES_TYPE( 157 ), CONVERT_CONC( 157 ) /  232, 'AE', T /  ! AOLGBJ
+      DATA CGRID_INDEX( 157 ), SPECIES_TYPE( 157 ), CONVERT_CONC( 157 ) /  231, 'AE', T /  ! AOLGBJ
       DATA CGRID_INDEX( 158 ), SPECIES_TYPE( 158 ), CONVERT_CONC( 158 ) /  187, 'AE', T /  ! ATRP2J
       DATA CGRID_INDEX( 159 ), SPECIES_TYPE( 159 ), CONVERT_CONC( 159 ) /  189, 'AE', T /  ! AISO1J
       DATA CGRID_INDEX( 160 ), SPECIES_TYPE( 160 ), CONVERT_CONC( 160 ) /  190, 'AE', T /  ! AISO2J
@@ -815,10 +815,10 @@
       DATA CGRID_INDEX( 162 ), SPECIES_TYPE( 162 ), CONVERT_CONC( 162 ) /  184, 'AE', T /  ! APAH2J
       DATA CGRID_INDEX( 163 ), SPECIES_TYPE( 163 ), CONVERT_CONC( 163 ) /  172, 'AE', T /  ! AALK1J
       DATA CGRID_INDEX( 164 ), SPECIES_TYPE( 164 ), CONVERT_CONC( 164 ) /  173, 'AE', T /  ! AALK2J
-      DATA CGRID_INDEX( 165 ), SPECIES_TYPE( 165 ), CONVERT_CONC( 165 ) /  233, 'AE', T /  ! APOCI
-      DATA CGRID_INDEX( 166 ), SPECIES_TYPE( 166 ), CONVERT_CONC( 166 ) /  235, 'AE', T /  ! APNCOMI
-      DATA CGRID_INDEX( 167 ), SPECIES_TYPE( 167 ), CONVERT_CONC( 167 ) /  234, 'AE', T /  ! APOCJ
-      DATA CGRID_INDEX( 168 ), SPECIES_TYPE( 168 ), CONVERT_CONC( 168 ) /  236, 'AE', T /  ! APNCOMJ
+      DATA CGRID_INDEX( 165 ), SPECIES_TYPE( 165 ), CONVERT_CONC( 165 ) /  232, 'AE', T /  ! APOCI
+      DATA CGRID_INDEX( 166 ), SPECIES_TYPE( 166 ), CONVERT_CONC( 166 ) /  234, 'AE', T /  ! APNCOMI
+      DATA CGRID_INDEX( 167 ), SPECIES_TYPE( 167 ), CONVERT_CONC( 167 ) /  233, 'AE', T /  ! APOCJ
+      DATA CGRID_INDEX( 168 ), SPECIES_TYPE( 168 ), CONVERT_CONC( 168 ) /  235, 'AE', T /  ! APNCOMJ
       DATA CGRID_INDEX( 169 ), SPECIES_TYPE( 169 ), CONVERT_CONC( 169 ) /  153, 'GC', F /  ! PCVOC
       DATA CGRID_INDEX( 170 ), SPECIES_TYPE( 170 ), CONVERT_CONC( 170 ) /  154, 'GC', F /  ! PCSOARXN
       DATA CGRID_INDEX( 171 ), SPECIES_TYPE( 171 ), CONVERT_CONC( 171 ) /  143, 'GC', F /  ! VLVPO1
@@ -1749,7 +1749,7 @@
      &      0,    0,    0,    0,    0,   38,    0,    0,    0,    0, & ! 5   
      &      0,    0,    0,    0,    0,    0,    0,    0,    0,    0, & ! 6   
      &      0,    0,    0,    0,    0,    0,    0,    0,    0,    0, & ! 7   
-     &      0,    0,    0,    0,    0,    0,    0,    0,    0,    0, & ! 8   
+     &      0,    0,   47,    0,    0,    0,    0,    0,    0,    0, & ! 8   
      &      0,    0,    0,    0,    0,    0,    0,    0,    0,    0, & ! 9   
      &      0,    0,    0,    0,    0,    0,    0,    0,    0,    0, & ! O   
      &      0,    0,    0,    0,    0,    0,    0,    0,    0,    0, & ! 1   
@@ -2808,7 +2808,7 @@
      &     1.0000D+00, 1.0000D+00, 1.0000D+00, 4.9000D-02, 1.0000D+00, & ! +   
      &     1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! 7   
      &     1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, 4.9000D-01, & ! +   
-     &     8.0000D-02, 6.0000D-01, 6.9000D-01, 2.0000D-02, 1.0000D+00, & ! 8   
+     &     8.0000D-02, 6.0000D-01, 6.5000D-01, 2.0000D-02, 1.0000D+00, & ! 8   
      &     6.1300D-01, 1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! +   
      &     9.8200D-01, 1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! 9   
      &     1.0000D+00, 1.0000D+00, 2.0000D+00, 5.0000D-01, 0.0000D+00, & ! +   
@@ -3248,7 +3248,7 @@
      &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
      &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
      &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
-     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 4.0000D-02, 0.0000D+00, 0.0000D+00, & ! 8   
      &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
      &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
      &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
@@ -4666,7 +4666,7 @@
      &      3,    3,    4,    3,    2,    6,    5,    1,    1,    0, & ! 5   
      &      2,    2,    2,    2,    2,    2,    2,    1,    5,    2, & ! 6   
      &      2,    2,    2,    1,    1,    1,    2,    2,    2,    3, & ! 7   
-     &      5,    5,    5,    2,    3,    3,    1,    1,    2,    2, & ! 8   
+     &      5,    5,    6,    2,    3,    3,    1,    1,    2,    2, & ! 8   
      &      2,    1,    1,    1,    2,    1,    1,    1,    2,    0, & ! 9   
      &      1,    1,    1,    1,    1,    1,    1,    1,    1,    1, & ! O   
      &      1,    1,    1,    1,    1,    3,    1,    3,    1,    2, & ! 1   
