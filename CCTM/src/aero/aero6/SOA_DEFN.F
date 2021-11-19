@@ -78,7 +78,7 @@ C-----------------------------------------------------------------------
       Logical, Parameter, Private :: T = .true.
       Logical, Parameter, Private :: F = .false.
 
-      Integer, Parameter :: n_oa_list = 57   ! # of potential partitioning SVOCs
+      Integer, Parameter :: n_oa_list = 59   ! # of potential partitioning SVOCs
       Integer, Save      :: n_oa             ! Total # of simulated SOA vapors
       Integer, Save      :: n_oa_NotTracers  ! # of simulated SOA vapors that are not tracers
       Integer, Save      :: n_oa_tracers      ! # of simulated SOA vapors that are tracers
@@ -125,6 +125,8 @@ C-----------------------------------------------------------------------
      & oa_type('AMT5   ', 'SVMT5   ', 'TRPRXN  ',   0.143,  100.000,  58.0E3, .333,1.57, F,  F,  T,  F ),
      & oa_type('AMT6   ', 'SVMT6   ', 'TRPRXN  ',   0.285, 1000.000,  47.0E3, .200,1.40, F,  F,  T,  F ),
      & oa_type('AMT7   ', 'SVMT7   ', 'TRPRXN  ',   0.160,10000.000,  36.0E3, .222,1.43, F,  F,  T,  F ),
+     & oa_type('ATRPN  ', 'TRPN    ', '        ',     0.0,     12.0,  90.0E3, .587,1.90, F,  F,  T,  F ),
+     & oa_type('AISON  ', 'ISON    ', '        ',     0.0,  900.000,  70.0E3, .800,1.90, F,  F,  T,  F ),
      & oa_type('AMTNO3 ', 'MTNO3   ', '        ',     0.0,     12.0,  40.0E3, .587,1.90, F,  F,  T,  F ),
      & oa_type('AISOPNN', 'ISOPNN  ', '        ',     0.0,     8.9,   40.0E3,2.107,3.80, F,  F,  T,  F ),
      & oa_type('AMTHYD ', '        ', '        ',     0.0,   1.E-10,   1.0E0, .299,1.54, F,  F,  T,  T ),

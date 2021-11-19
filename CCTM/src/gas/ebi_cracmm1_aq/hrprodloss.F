@@ -29,7 +29,7 @@ C  RETURN VALUES: None
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, Nov 17, 2021
+C  REVISION HISTORY: Created by EBI solver program, Nov 18, 2021
 C
 C   18 Jul 14 B.Hutzell: revised to use real(8) variables
 
@@ -881,7 +881,6 @@ C***********************************************************************
      &                   +    5.0000D-02 * RXRAT(   182 )      ! XYLP+NO=0.5000D-01*ONIT+...
      &                   +    5.0000D-02 * RXRAT(   183 )      ! PER2+NO=0.5000D-01*ONIT+...
      &                   +    5.0000D-02 * RXRAT(   184 )      ! XYOP+NO=0.5000D-01*ONIT+...
-     &                   +    1.8000D-01 * RXRAT(   186 )      ! APIP+NO=0.1800D+00*ONIT+...
      &                   +                 RXRAT(   202 )      ! OLNN+NO=ONIT+HO2+NO2
      &                   +                 RXRAT(   206 )      ! BAL2+NO2=ONIT
      &                   +                 RXRAT(   207 )      ! CHO+NO2=ONIT
@@ -1096,7 +1095,7 @@ C***********************************************************************
       PROD(  ISO       ) =   0.0D0
       LOSS(  ISO       ) =                 RXRAT(    85 )      ! ISO+HO=ISOP+ISOPRXN
      &                   +                 RXRAT(   128 )      ! ISO+O3=0.2500D+00*HO+...
-     &                   +                 RXRAT(   142 )      ! ISO+NO3=ISON+ISOPRXN
+     &                   +                 RXRAT(   142 )      ! ISO+NO3=ISON
 
       PROD(  ISOP      ) =                 RXRAT(    85 )      ! ISO+HO=ISOP+ISOPRXN
       LOSS(  ISOP      ) =                 RXRAT(   185 )      ! ISOP+NO=0.8800D+00*HO2+...
@@ -1106,7 +1105,6 @@ C***********************************************************************
      &                   +                 RXRAT(   335 )      ! ISOP+NO3=HO2+NO2+0.7500D+...
 
       PROD(  ISOPRXN   ) =                 RXRAT(    85 )      ! ISO+HO=ISOPRXN+ISOP
-     &                   +                 RXRAT(   142 )      ! ISO+NO3=ISOPRXN+ISON
       LOSS(  ISOPRXN   ) =   0.0D0
 
       PROD(  API       ) =   0.0D0
@@ -1356,7 +1354,7 @@ C***********************************************************************
       PROD(  NALD      ) =                 RXRAT(   124 )      ! ISON+HO=NALD+0.7000D-...
       LOSS(  NALD      ) =                 RXRAT(   123 )      ! NALD+HO=NO2+XO2+HKET
 
-      PROD(  ISON      ) =                 RXRAT(   142 )      ! ISO+NO3=ISON+ISOPRXN
+      PROD(  ISON      ) =                 RXRAT(   142 )      ! ISO+NO3=ISON
      &                   +    1.2000D-01 * RXRAT(   185 )      ! ISOP+NO=0.1200D+00*ISON+...
       LOSS(  ISON      ) =                 RXRAT(   124 )      ! ISON+HO=NALD+0.7000D-...
 
@@ -1445,6 +1443,10 @@ C***********************************************************************
      &                   +                 RXRAT(   260 )      ! XYOP+MO2=0.2000D+01*HO2+...
      &                   +                 RXRAT(   296 )      ! XYOP+ACO3=HO2+MO2+0.3680D+...
      &                   +                 RXRAT(   334 )      ! XYOP+NO3=HO2+NO2+0.3680D+...
+
+      PROD(  TRPN      ) =    1.8000D-01 * RXRAT(   186 )      ! APIP+NO=0.1800D+00*TRPN+...
+     &                   +    2.3000D-01 * RXRAT(   187 )      ! LIMP+NO=0.2300D+00*TRPN+...
+      LOSS(  TRPN      ) =   0.0D0
 
       PROD(  BAL1      ) =                 RXRAT(   197 )      ! BALP+NO=BAL1+NO2
      &                   +                 RXRAT(   273 )      ! BALP+MO2=BAL1+HO2+HCHO

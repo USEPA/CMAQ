@@ -29,7 +29,7 @@ C  RETURN VALUES: None
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, Nov 17, 2021
+C  REVISION HISTORY: Created by EBI solver program, Nov 18, 2021
 C   21 Jun 10 J.Young:   convert for Namelist redesign
 C   18 Jul 14 B.Hutzell: revised to use the RXNS_DATA and RXNS_FUNCTION
 C                        modules instead of include files
@@ -145,7 +145,7 @@ C***********************************************************************
 
 c..Allocate and define ebi species
 
-      N_EBISP  = 166
+      N_EBISP  = 167
       ALLOCATE( EBISP( N_EBISP ), STAT = IOS ) 
       IF ( IOS .NE. 0 ) THEN
          MSG = 'Error allocating EBISP' 
@@ -256,68 +256,69 @@ c..Allocate and define ebi species
       EBISP( 102 ) = PER2
       EBISP( 103 ) = XYO2
       EBISP( 104 ) = XYOP
-      EBISP( 105 ) = BAL1
-      EBISP( 106 ) = BAL2
-      EBISP( 107 ) = TOLNRXN
-      EBISP( 108 ) = TOLHRXN
-      EBISP( 109 ) = XYLNRXN
-      EBISP( 110 ) = XYLHRXN
-      EBISP( 111 ) = BNZNRXN
-      EBISP( 112 ) = BNZHRXN
-      EBISP( 113 ) = SOAALK
-      EBISP( 114 ) = ALKRXN
-      EBISP( 115 ) = ROCIOXY
-      EBISP( 116 ) = SLOWROC
-      EBISP( 117 ) = NAPH
-      EBISP( 118 ) = PAHRO2
-      EBISP( 119 ) = PAHNRXN
-      EBISP( 120 ) = PAHHRXN
-      EBISP( 121 ) = ACRO
-      EBISP( 122 ) = BDE13
-      EBISP( 123 ) = FURAN
-      EBISP( 124 ) = FURANO2
-      EBISP( 125 ) = FURANONE
-      EBISP( 126 ) = PROG
-      EBISP( 127 ) = SESQ
-      EBISP( 128 ) = SESQNRO2
-      EBISP( 129 ) = VROCP0OXY
-      EBISP( 130 ) = VROCP3OXY
-      EBISP( 131 ) = VROCN2OXY
-      EBISP( 132 ) = SESQRO2
-      EBISP( 133 ) = AGLYJ
-      EBISP( 134 ) = AISO3J
-      EBISP( 135 ) = AXYL1J
-      EBISP( 136 ) = AOLGAJ
-      EBISP( 137 ) = AXYL2J
-      EBISP( 138 ) = ATOL1J
-      EBISP( 139 ) = ATOL2J
-      EBISP( 140 ) = ABNZ1J
-      EBISP( 141 ) = ABNZ2J
-      EBISP( 142 ) = ATRP1J
-      EBISP( 143 ) = AOLGBJ
-      EBISP( 144 ) = ATRP2J
-      EBISP( 145 ) = AISO1J
-      EBISP( 146 ) = AISO2J
-      EBISP( 147 ) = APAH1J
-      EBISP( 148 ) = APAH2J
-      EBISP( 149 ) = AALK1J
-      EBISP( 150 ) = AALK2J
-      EBISP( 151 ) = APOCI
-      EBISP( 152 ) = APNCOMI
-      EBISP( 153 ) = APOCJ
-      EBISP( 154 ) = APNCOMJ
-      EBISP( 155 ) = PCVOC
-      EBISP( 156 ) = PCSOARXN
-      EBISP( 157 ) = VLVPO1
-      EBISP( 158 ) = VSVPO1
-      EBISP( 159 ) = VSVPO2
-      EBISP( 160 ) = VSVPO3
-      EBISP( 161 ) = VIVPO1
-      EBISP( 162 ) = VLVOO1
-      EBISP( 163 ) = VLVOO2
-      EBISP( 164 ) = VSVOO2
-      EBISP( 165 ) = VSVOO3
-      EBISP( 166 ) = VSVOO1
+      EBISP( 105 ) = TRPN
+      EBISP( 106 ) = BAL1
+      EBISP( 107 ) = BAL2
+      EBISP( 108 ) = TOLNRXN
+      EBISP( 109 ) = TOLHRXN
+      EBISP( 110 ) = XYLNRXN
+      EBISP( 111 ) = XYLHRXN
+      EBISP( 112 ) = BNZNRXN
+      EBISP( 113 ) = BNZHRXN
+      EBISP( 114 ) = SOAALK
+      EBISP( 115 ) = ALKRXN
+      EBISP( 116 ) = ROCIOXY
+      EBISP( 117 ) = SLOWROC
+      EBISP( 118 ) = NAPH
+      EBISP( 119 ) = PAHRO2
+      EBISP( 120 ) = PAHNRXN
+      EBISP( 121 ) = PAHHRXN
+      EBISP( 122 ) = ACRO
+      EBISP( 123 ) = BDE13
+      EBISP( 124 ) = FURAN
+      EBISP( 125 ) = FURANO2
+      EBISP( 126 ) = FURANONE
+      EBISP( 127 ) = PROG
+      EBISP( 128 ) = SESQ
+      EBISP( 129 ) = SESQNRO2
+      EBISP( 130 ) = VROCP0OXY
+      EBISP( 131 ) = VROCP3OXY
+      EBISP( 132 ) = VROCN2OXY
+      EBISP( 133 ) = SESQRO2
+      EBISP( 134 ) = AGLYJ
+      EBISP( 135 ) = AISO3J
+      EBISP( 136 ) = AXYL1J
+      EBISP( 137 ) = AOLGAJ
+      EBISP( 138 ) = AXYL2J
+      EBISP( 139 ) = ATOL1J
+      EBISP( 140 ) = ATOL2J
+      EBISP( 141 ) = ABNZ1J
+      EBISP( 142 ) = ABNZ2J
+      EBISP( 143 ) = ATRP1J
+      EBISP( 144 ) = AOLGBJ
+      EBISP( 145 ) = ATRP2J
+      EBISP( 146 ) = AISO1J
+      EBISP( 147 ) = AISO2J
+      EBISP( 148 ) = APAH1J
+      EBISP( 149 ) = APAH2J
+      EBISP( 150 ) = AALK1J
+      EBISP( 151 ) = AALK2J
+      EBISP( 152 ) = APOCI
+      EBISP( 153 ) = APNCOMI
+      EBISP( 154 ) = APOCJ
+      EBISP( 155 ) = APNCOMJ
+      EBISP( 156 ) = PCVOC
+      EBISP( 157 ) = PCSOARXN
+      EBISP( 158 ) = VLVPO1
+      EBISP( 159 ) = VSVPO1
+      EBISP( 160 ) = VSVPO2
+      EBISP( 161 ) = VSVPO3
+      EBISP( 162 ) = VIVPO1
+      EBISP( 163 ) = VLVOO1
+      EBISP( 164 ) = VLVOO2
+      EBISP( 165 ) = VSVOO2
+      EBISP( 166 ) = VSVOO3
+      EBISP( 167 ) = VSVOO1
 
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -440,6 +441,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       RTOL( PER2      ) = 5.0D-04
       RTOL( XYO2      ) = 5.0D-04
       RTOL( XYOP      ) = 5.0D-04
+      RTOL( TRPN      ) = 5.0D-04
       RTOL( BAL1      ) = 5.0D-04
       RTOL( BAL2      ) = 5.0D-04
       RTOL( TOLNRXN   ) = 1.0D+00
