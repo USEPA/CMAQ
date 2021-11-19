@@ -31,7 +31,6 @@ AE_SPECIES_DATA =
 'AISO1J'   ,132.00  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSJ'    , 1  ,'ORG_ACCUM'    , 1  ,'SOA_ACCUM'    ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
 'AISO2J'   ,133.00  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSJ'    , 1  ,'ORG_ACCUM'    , 1  ,'SOA_ACCUM'    ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
 'AISONJ'   ,147.00  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSJ'    , 1  ,'ORG_ACCUM'    , 1  ,'SOA_ACCUM'    ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
-'ASQTJ'    ,273.00  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSJ'    , 1  ,'ORG_ACCUM'    , 1  ,'SOA_ACCUM'    ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
 'AORGCJ'   ,177.00  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSJ'    , 1  ,'ORG_ACCUM'    , 1  ,'AORGC_ACCUM'  ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
 'AECJ'     , 12.00  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSJ'    , 1  ,'PRI_ACCUM'    , 1  ,'EC_ACCUM'     ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
 'AECI'     , 12.00  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSI'    , 1  ,'PRI_AITKEN'   , 1  ,'EC_AITKEN'    ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
