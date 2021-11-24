@@ -657,7 +657,7 @@ C...begin read
                     LNO2 = IPHOT
               CASE( 'O3O1D',  'O3O1D_SAPRC99' , 'O3O1D_06', 'O3_O1D_IUPAC04', 'O3O1D_NASA06', 'O3_O1D_IUPAC10' )
                     LO3O1D = IPHOT
-              CASE( 'KETONE', 'KET_RACM2' )
+              CASE( 'KETONE', 'KET_RACM2', 'KET_JGR19' )
                     LKETONE   = IPHOT
               CASE( 'MGLY_ADJ' )
                     LMGLY_ADJ = IPHOT
@@ -666,9 +666,9 @@ C...begin read
               CASE( 'ACETONE', 'CH3COCH3_RACM2', 'ACET_IUPAC10' )
                     IF( NWL .EQ. NWL_ACETONE_FJX ) LACETONE  = IPHOT
               CASE( 'HCHOR_06', 'HCHO_R_SAPRC99', 'HCHO_RAD_RACM2', 'FORM_R_IUPAC10', 
-     &              'FORM_R_IUPAC13', 'HCHO_R_MCMv32' )
+     &              'FORM_R_IUPAC13', 'HCHO_R_MCMv32', 'HCHO_RAD_JPL19' )
                     LHCHOR_06 = IPHOT
-              CASE( 'ACET_CH3CO_CRI' )
+              CASE( 'ACET_CH3CO_CRI', 'CH3COCH3A_JPL19' )
                     LACETONE_CH3CO   = IPHOT
                     ACETONE_CHANNELS = .TRUE.
               CASE( 'H2O2', 'H2O2_SAPRC99', 'H2O2_RACM2', 'H2O2_IUPAC10' )
@@ -1490,7 +1490,6 @@ C-----------------------------------------------------------------------
 !      re-consulting source and cited references
 !-----------------------------------------------------------------------
 
-      USE UTILIO_DEFN
       USE GRID_CONF           ! horizontal & vertical domain specifications
 
       IMPLICIT NONE
@@ -1555,9 +1554,7 @@ C-----------------------------------------------------------------------
       END DO
 
 
-      CSZ = 0.0
-      QYZ = 1.0
-!***loop over rates for temperature corrections
+!***interpolate cross-section and quantum yield to grid temperature
       DO IPHOT = 1, MECHANISM_RATES
 !***loop over wavelengths
         DO IWL = 1, NWL_REF
@@ -1594,9 +1591,12 @@ C-----------------------------------------------------------------------
            END DO
         END DO
       END DO
-!***Make specific temperature and/or density corrections if needed
-!***Note specific acetone channels are treated outside these three nested loops
+
+
+!***loop over rates
       DO IPHOT = 1, MECHANISM_RATES
+!********Make specific temperature and density corrections if needed
+!********Note specific acetone channels are treated outside these three nested
 
         IF( CSQY_ADJUST( IPHOT ) .LT. 1 )CYCLE
 
@@ -1793,11 +1793,6 @@ C-----------------------------------------------------------------------
                  DO LAYS = 1, NLAYS
                     IF ( QYZ( LAYS, IWL, IPHOT ) .LE. 0.0 ) CYCLE
 
-                    IF( QYZ( LAYS, IWL, LHCHOR_06 ) .GT. 0.9999999 )THEN
-                        WRITE(6,*)"QYZ( LAYS, IWL, LHCHOR_06 ) = ",QYZ( LAYS, IWL, LHCHOR_06 ) 
-                        CALL M3EXIT( 'GET_CSQY', 0, 0, 'CHECK master log for information', -1 )
-                    END IF
-                         
                     BETA = 1.0 / ( 1.0 - QYZ( LAYS, IWL, LHCHOR_06 ) )
                     IF ( TEMP( LAYS ) .LT. 300.0 .AND. TEMP( LAYS ) .GT. 220.0 ) THEN
                         PRESSURE = 1.36312E-22  * DENS( LAYS ) * TEMP( LAYS )   ! pressure units, atm
@@ -1972,14 +1967,14 @@ C-----------------------------------------------------------------------
                         CSQY_ADJUST( IPHOT ) = ACROLEIN
                      CASE (  'BIACET_MCMv32' )
                         CSQY_ADJUST( IPHOT ) = BIACETYL
-                     CASE ( 'HCHO_M_MCMv32', 'HCHOM_06', 'HCHO_M_SAPRC99', 'HCHO_MOL_RACM2', 'FORM_R_IUPAC10',
-     &                      'FORM_R_IUPAC13' )                                                                 ! 'CH2O -> H2 + CO'
+                     CASE ( 'HCHO_M_MCMv32', 'HCHOM_06', 'HCHO_M_SAPRC99', 'HCHO_MOL_RACM2', 'FORM_M_IUPAC10',
+     &                      'FORM_M_IUPAC13', 'HCHO_MOL_JPL19' )                ! 'CH2O -> H2 + CO'
                         CSQY_ADJUST( IPHOT ) = FORMALDEHYDE_MOLECULAR
                      CASE (  'ACET_06', 'ACETONE', 'CH3COCH3_RACM2', 'ACET_IUPAC10' ) ! 'CH3COCH3 -> products'
                         CSQY_ADJUST( IPHOT ) = ACETONE
                      CASE (  'KETONE'  )
                         CSQY_ADJUST( IPHOT ) = KETONE_LEGACY
-                     CASE ( 'KET_RACM2', 'HKET_RACM2', 'MEK_RACM2', 'MVK_RACM2' ) ! Ketone treatement from W. Stockwell sbox
+                     CASE ( 'KET_RACM2', 'KET_JGR19', 'HKET_RACM2', 'MEK_RACM2', 'MEK_JGR19', 'MVK_RACM2' ) ! Ketone treatement from W. Stockwell sbox
                         CSQY_ADJUST( IPHOT ) = KETONE_RACM2
                      CASE ( 'GLYH2_RACM2', 'GLYF_RACM2', 'GLYHX_RACM2', 'MGLY_RACM2'  ) ! glyoxal treatement from W. Stockwell sbox
                         CSQY_ADJUST( IPHOT ) = GLYOXAL_RACM2
@@ -1987,7 +1982,7 @@ C-----------------------------------------------------------------------
                         CSQY_ADJUST( IPHOT ) = GLYOXAL_IUPAC_2013
                      CASE (  'MGLY_ADJ',  'MGLY_ABS' )
                         CSQY_ADJUST( IPHOT ) = METHYL_GLYOXAL_LEGACY
-                     CASE ( 'ACET_R2_CRI' )
+                     CASE ( 'ACET_R2_CRI', 'CH3COCH3A_JPL19' )
                         CSQY_ADJUST( IPHOT ) = ACETONE_CH3CO
                      CASE DEFAULT
                         CSQY_ADJUST( IPHOT ) =  0
@@ -2032,16 +2027,16 @@ C-----------------------------------------------------------------------
       REAL BB           ! scratch variable for IUPAC (2013) acetone QYZ
       REAL CC           ! scratch variable for IUPAC (2013) acetone QYZ
 
-      REAL TEMP_OVER 295K   ! temperature divided by 295 K
+      REAL TEMP_OVER_295K   ! temperature divided by 295 K
       REAL ONE_OVER_LAMBDA  ! reciprocal of wavelength, 1E7/nm or 1/cm
 
-      TEMP_OVER 295K  = TEMP * ONE_OVER_295K
+      TEMP_OVER_295K  = TEMP * ONE_OVER_295K
       ONE_OVER_LAMBDA = 1.0E7 / LAMBDA
 
       IF ( LAMBDA .GE. 248.0 .AND. LAMBDA .LE. 349.0 ) THEN
 
-         AA = 0.350 * ( TEMP_OVER 295K )**(-1.28)
-         BB = 0.068 * ( TEMP_OVER 295K )**(-2.65)
+         AA = 0.350 * ( TEMP_OVER_295K )**(-1.28)
+         BB = 0.068 * ( TEMP_OVER_295K )**(-2.65)
          A0 = ( AA / ( 1.0 - AA ) ) * EXP( BB * ( LAMBDA - 248.0 ) )
          PHI_CO = 1.0 / ( 1.0 + A0 )
 
@@ -2049,8 +2044,8 @@ C-----------------------------------------------------------------------
 
 !***wavelengths 248-302 nm
 
-            AA = 1.600E-19 * ( TEMP_OVER 295K )**(-2.38)
-            BB =  0.55E-03 * ( TEMP_OVER 295K )**(-3.19)
+            AA = 1.600E-19 * ( TEMP_OVER_295K )**(-2.38)
+            BB =  0.55E-03 * ( TEMP_OVER_295K )**(-3.19)
             A1 = AA * EXP( -BB * ( ( ONE_OVER_LAMBDA ) - 33113.0 ) )
             PHI_CH3CO = ( 1.0 - PHI_CO ) / ( 1.0 + A1*DENS_NUMB )
 
@@ -2058,17 +2053,17 @@ C-----------------------------------------------------------------------
 
          ELSE
 
-            AA = 1.62E-17 * ( TEMP_OVER 295K )**(-10.03)
-            BB = 1.79E-03  * ( TEMP_OVER 295K )**(-1.364)
+            AA = 1.62E-17 * ( TEMP_OVER_295K )**(-10.03)
+            BB = 1.79E-03  * ( TEMP_OVER_295K )**(-1.364)
             A2 = AA * EXP( -BB * ( ( ONE_OVER_LAMBDA ) - 30488.0 ) )
 
-            AA = 26.29 * ( TEMP_OVER 295K )**(-6.59)
-            BB = 5.72E-7 * ( TEMP_OVER 295K )**(-2.93)
-            CC = ( 30006.0 )   * ( TEMP_OVER 295K )**(-0.064)
+            AA = 26.29 * ( TEMP_OVER_295K )**(-6.59)
+            BB = 5.72E-7 * ( TEMP_OVER_295K )**(-2.93)
+            CC = ( 30006.0 )   * ( TEMP_OVER_295K )**(-0.064)
             A3 = AA * EXP( -BB * ( ( ONE_OVER_LAMBDA ) - CC )**2.0 )
 
-            AA = 1.67E-15 * ( TEMP_OVER 295K )**(-7.25)
-            BB = 2.08E-03  * ( TEMP_OVER 295K )**(-1.16)
+            AA = 1.67E-15 * ( TEMP_OVER_295K )**(-7.25)
+            BB = 2.08E-03  * ( TEMP_OVER_295K )**(-1.16)
             A4 = AA * EXP( -BB * ( ( ONE_OVER_LAMBDA ) - 30488.0 ) )
 
             PHI_CH3CO = ( 1.0 - PHI_CO )
@@ -2128,16 +2123,16 @@ C-----------------------------------------------------------------------
       REAL BB           ! scratch variable for IUPAC (2013) acetone QYZ
       REAL CC           ! scratch variable for IUPAC (2013) acetone QYZ
 
-      REAL TEMP_OVER 295K   ! temperature divided by 295 K
+      REAL TEMP_OVER_295K   ! temperature divided by 295 K
       REAL ONE_OVER_LAMBDA  ! reciprocal of wavelength, 1E7/nm or 1/cm
 
-      TEMP_OVER 295K  = TEMP * ONE_OVER_295K
+      TEMP_OVER_295K  = TEMP * ONE_OVER_295K
       ONE_OVER_LAMBDA = 1.0E7 / LAMBDA
 
       IF ( LAMBDA .GE. 248.0 .AND. LAMBDA .LE. 349.0 ) THEN
 
-         AA = 0.350 * ( TEMP_OVER 295K )**(-1.28)
-         BB = 0.068 * ( TEMP_OVER 295K )**(-2.65)
+         AA = 0.350 * ( TEMP_OVER_295K )**(-1.28)
+         BB = 0.068 * ( TEMP_OVER_295K )**(-2.65)
          A0 = ( AA / ( 1.0 - AA ) ) * EXP( BB * ( LAMBDA - 248.0 ) )
          PHI_CO = 1.0 / ( 1.0 + A0 )
 
@@ -2147,8 +2142,8 @@ C-----------------------------------------------------------------------
 
 !***wavelengths 248-302 nm
 
-            AA = 1.60E-19 * ( TEMP_OVER 295K )**(-2.38)
-            BB = 0.55E-03 * ( TEMP_OVER 295K )**(-3.19)
+            AA = 1.60E-19 * ( TEMP_OVER_295K )**(-2.38)
+            BB = 0.55E-03 * ( TEMP_OVER_295K )**(-3.19)
             A1 = AA * EXP( -BB * ( ( ONE_OVER_LAMBDA ) - 33113.0 ) )
             PHI_CH3CO = ( 1.0 - PHI_CO ) / ( 1.0 + A1*DENS_NUMB )
 
@@ -2156,17 +2151,17 @@ C-----------------------------------------------------------------------
 
          ELSE
 
-            AA = 1.62E-17 * ( TEMP_OVER 295K )**(-10.03)
-            BB = 1.79E-03  * ( TEMP_OVER 295K )**(-1.364)
+            AA = 1.62E-17 * ( TEMP_OVER_295K )**(-10.03)
+            BB = 1.79E-03  * ( TEMP_OVER_295K )**(-1.364)
             A2 = AA * EXP( -BB * ( ( ONE_OVER_LAMBDA ) - 30488.0 ) )
 
-            AA = 26.29 * ( TEMP_OVER 295K )**(-6.59)
-            BB = 5.72E-7 * ( TEMP_OVER 295K )**(-2.93)
-            CC = 30006.0 * ( TEMP_OVER 295K )**(-0.064)
+            AA = 26.29 * ( TEMP_OVER_295K )**(-6.59)
+            BB = 5.72E-7 * ( TEMP_OVER_295K )**(-2.93)
+            CC = 30006.0 * ( TEMP_OVER_295K )**(-0.064)
             A3 = AA * EXP( -BB * ( ( ONE_OVER_LAMBDA ) - CC )**2.0 )
 
-            AA = 1.67E-15 * ( TEMP_OVER 295K )**(-7.25)
-            BB = 2.08E-03  * ( TEMP_OVER 295K )**(-1.16)
+            AA = 1.67E-15 * ( TEMP_OVER_295K )**(-7.25)
+            BB = 2.08E-03  * ( TEMP_OVER_295K )**(-1.16)
             A4 = AA * EXP( -BB * ( ( ONE_OVER_LAMBDA ) - 30488.0 ) )
 
             PHI_CH3CO = ( 1.0 - PHI_CO )
@@ -2238,7 +2233,7 @@ C-----------------------------------------------------------------------
       REAL BB           ! scratch variable for acetone QY
       REAL CC           ! scratch variable for acetone QY
 
-      REAL TEMP_OVER 295K   ! temperature divided by 295 K
+      REAL TEMP_OVER_295K   ! temperature divided by 295 K
       REAL ONE_OVER_LAMBDA  ! wavenumber, 10E7/nm or 1/cm
 #ifndef preprocessor
       REAL LAMBDA           ! wavelength, nm
@@ -2249,7 +2244,7 @@ C-----------------------------------------------------------------------
       ONE_OVER_LAMBDA = 1.0E7 / LAMBDA
 #endif
 
-      TEMP_OVER 295K  = TEMP * ONE_OVER_295K
+      TEMP_OVER_295K  = TEMP * ONE_OVER_295K
 
       IF ( LAMBDA .GE. 248.0 .AND. LAMBDA .LE. 349.0 ) THEN
 
@@ -2257,8 +2252,8 @@ C-----------------------------------------------------------------------
 
 !***wavelengths 248-302 nm
 
-            AA = 1.60E-19 * ( TEMP_OVER 295K )**(-2.38)
-            BB = 0.55E-03 * ( TEMP_OVER 295K )**(-3.19)
+            AA = 1.60E-19 * ( TEMP_OVER_295K )**(-2.38)
+            BB = 0.55E-03 * ( TEMP_OVER_295K )**(-3.19)
             A1 = AA * EXP( -BB * ( ONE_OVER_LAMBDA - 33113.0 ) )
             RQY_ACETONE_CH3CO = ( 1.0 + A1*DENS0 ) / ( 1.0 + A1*DENS_NUMB )
 
@@ -2266,17 +2261,17 @@ C-----------------------------------------------------------------------
 
          ELSE
 
-            AA = 1.62E-17 * ( TEMP_OVER 295K )**(-10.03)
-            BB = 1.79E-03  * ( TEMP_OVER 295K )**(-1.364)
+            AA = 1.62E-17 * ( TEMP_OVER_295K )**(-10.03)
+            BB = 1.79E-03  * ( TEMP_OVER_295K )**(-1.364)
             A2 = AA * EXP( -BB * ( ONE_OVER_LAMBDA - 30488.0 ) )
 
-            AA = 26.29 * ( TEMP_OVER 295K )**(-6.59)
-            BB = 5.72E-7 * ( TEMP_OVER 295K )**(-2.93)
-            CC = 30006.0 * ( TEMP_OVER 295K )**(-0.064)
+            AA = 26.29 * ( TEMP_OVER_295K )**(-6.59)
+            BB = 5.72E-7 * ( TEMP_OVER_295K )**(-2.93)
+            CC = 30006.0 * ( TEMP_OVER_295K )**(-0.064)
             A3 = AA * EXP( -BB * ( ONE_OVER_LAMBDA - CC )**2.0 )
 
-            AA = 1.67E-15 * ( TEMP_OVER 295K )**(-7.25)
-            BB = 2.08E-03  * ( TEMP_OVER 295K )**(-1.16)
+            AA = 1.67E-15 * ( TEMP_OVER_295K )**(-7.25)
+            BB = 2.08E-03  * ( TEMP_OVER_295K )**(-1.16)
             A4 = AA * EXP( -BB * ( ONE_OVER_LAMBDA - 30488.0 ) )
 
 !***below qy_ch3co values are normalized by (1 - qy_co) which does not depend on
@@ -2346,7 +2341,7 @@ C-----------------------------------------------------------------------
       REAL BB           ! scratch variable for IUPAC (2013) acetone QYZ
       REAL CC           ! scratch variable for IUPAC (2013) acetone QYZ
 
-      REAL TEMP_OVER 295K   ! temperature divided by 295 K
+      REAL TEMP_OVER_295K   ! temperature divided by 295 K
       REAL ONE_OVER_LAMBDA  ! reciprocal of wavelength, 1E7/nm or 1/cm
 #ifndef preprocessor
       REAL LAMBDA           ! wavelength, nm
@@ -2357,12 +2352,12 @@ C-----------------------------------------------------------------------
       ONE_OVER_LAMBDA = 1.0E7 / LAMBDA
 #endif
 
-      TEMP_OVER 295K  = TEMP * ONE_OVER_295K
+      TEMP_OVER_295K  = TEMP * ONE_OVER_295K
 
       IF ( LAMBDA .GE. 248.0 .AND. LAMBDA .LE. 349.0 ) THEN
 
-         AA = 0.350 * ( TEMP_OVER 295K )**(-1.28)
-         BB = 0.068 * ( TEMP_OVER 295K )**(-2.65)
+         AA = 0.350 * ( TEMP_OVER_295K )**(-1.28)
+         BB = 0.068 * ( TEMP_OVER_295K )**(-2.65)
          A0 = ( AA / ( 1.0 - AA ) ) * EXP( BB * ( LAMBDA - 248.0 ) )
          PHI_CO     = 1.0 / ( 1.0 + A0 )
          DEL_PHI_CO = MAX(0.0, 1.0 - PHI_CO)
@@ -2371,8 +2366,8 @@ C-----------------------------------------------------------------------
 
 !***wavelengths 248-302 nm
 
-            AA = 1.600E-19 * ( TEMP_OVER 295K )**(-2.38)
-            BB =  0.55E-03 * ( TEMP_OVER 295K )**(-3.19)
+            AA = 1.600E-19 * ( TEMP_OVER_295K )**(-2.38)
+            BB =  0.55E-03 * ( TEMP_OVER_295K )**(-3.19)
             A1 = AA * EXP( -BB * ( ( ONE_OVER_LAMBDA ) - 33113.0 ) )
             PHI_CH3CO  = DEL_PHI_CO / ( 1.0 + A1*DENS_NUMB )
             PHI_CH3CO0 = DEL_PHI_CO / ( 1.0 + A1*DENS0 )
@@ -2381,17 +2376,17 @@ C-----------------------------------------------------------------------
 
          ELSE
 
-            AA = 1.62E-17 * ( TEMP_OVER 295K )**(-10.03)
-            BB = 1.79E-03  * ( TEMP_OVER 295K )**(-1.364)
+            AA = 1.62E-17 * ( TEMP_OVER_295K )**(-10.03)
+            BB = 1.79E-03  * ( TEMP_OVER_295K )**(-1.364)
             A2 = AA * EXP( -BB * ( ONE_OVER_LAMBDA - 30488.0 ) )
 
-            AA = 26.29 * ( TEMP_OVER 295K )**(-6.59)
-            BB = 5.72E-7 * ( TEMP_OVER 295K )**(-2.93)
-            CC = ( 30006.0 )   * ( TEMP_OVER 295K )**(-0.064)
+            AA = 26.29 * ( TEMP_OVER_295K )**(-6.59)
+            BB = 5.72E-7 * ( TEMP_OVER_295K )**(-2.93)
+            CC = ( 30006.0 )   * ( TEMP_OVER_295K )**(-0.064)
             A3 = AA * EXP( -BB * ( ONE_OVER_LAMBDA - CC )**2.0 )
 
-            AA = 1.67E-15 * ( TEMP_OVER 295K )**(-7.25)
-            BB = 2.08E-03  * ( TEMP_OVER 295K )**(-1.16)
+            AA = 1.67E-15 * ( TEMP_OVER_295K )**(-7.25)
+            BB = 2.08E-03  * ( TEMP_OVER_295K )**(-1.16)
             A4 = AA * EXP( -BB * ( ONE_OVER_LAMBDA - 30488.0 ) )
 
             PHI_CH3CO = DEL_PHI_CO
@@ -2454,7 +2449,7 @@ C-----------------------------------------------------------------------
         REAL,      PARAMETER  :: ONE_OVER_295K  = 1.0 / 295.0  ! 1/K
         REAL( 8 ), PARAMETER  :: DENS0          = 2.46D19      ! air number at STP, molecules/cm^3
 
-        REAL( 8 ) TEMP_OVER 295K   ! temperature divided by 295 K
+        REAL( 8 ) TEMP_OVER_295K   ! temperature divided by 295 K
 
         REAL( 8 ) AA           ! scratch variable for qy
         REAL( 8 ) BB           ! scratch variable for qy
@@ -2476,21 +2471,21 @@ C-----------------------------------------------------------------------
         WN_OFFSET = REAL( 1.0E7 / LAMBDA - 23800.0, 8 )
 #endif
 
-        TEMP_OVER 295K  = REAL( TEMP * ONE_OVER_295K, 8 )
+        TEMP_OVER_295K  = REAL( TEMP * ONE_OVER_295K, 8 )
         R8_DENS         = REAL( DENS_NUMB, 8 )
 
 
          IF( LAMBDA .LT. 460.0 .AND. LAMBDA .GT. 250.0 )THEN
-            AA = 6.48D-19 * TEMP_OVER 295K**(-1.83D0)
-            BB = 7.60D-04 * TEMP_OVER 295K**(-0.515D0)
+            AA = 6.48D-19 * TEMP_OVER_295K**(-1.83D0)
+            BB = 7.60D-04 * TEMP_OVER_295K**(-0.515D0)
             A1 = AA * EXP( -BB * WN_OFFSET )
 
-            AA = 1.128D02 * TEMP_OVER 295K**(-1.53D0)
-            BB = 4.61D-03 * TEMP_OVER 295K**(-0.507D0)
+            AA = 1.128D02 * TEMP_OVER_295K**(-1.53D0)
+            BB = 4.61D-03 * TEMP_OVER_295K**(-0.507D0)
             A2 = AA * EXP( -BB * WN_OFFSET  )
 
-            AA = 2.25D-16 * TEMP_OVER 295K**(-9.18D0)
-            BB = 7.80D-04 * TEMP_OVER 295K**(-7.03D0)
+            AA = 2.25D-16 * TEMP_OVER_295K**(-9.18D0)
+            BB = 7.80D-04 * TEMP_OVER_295K**(-7.03D0)
             A3 = AA * EXP( -BB * WN_OFFSET )
 
 !*** note that values are normalized by total qy at DENS = 0.0 but
