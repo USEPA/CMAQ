@@ -303,12 +303,14 @@ REACTIONS[CM] =
                                         + 0.01*MGLY 
                                         + 0.79*OP2   # 1.00E-11;
 <R104>  BALD + HO          = BALP                    # 5.32E-12 @ -243.;
-<R105>  PHEN + HO          = 0.73*HO2   + 0.20*ADDC 
-                                        + 0.07*CHO
-                                        + 0.73*MCT   # 6.75E-12 @ -405.;
-<R106>  CSL  + HO          = 0.73*HO2   + 0.20*ADDC 
-                                        + 0.07*CHO
-                                        + 0.73*MCT    # 4.65E-11 @ 0.0;
+<R105>  PHEN + HO          = 0.152*ASOATJ + 0.619*HO2 
+                                        + 0.170*ADDC 
+                                        + 0.059*CHO
+                                        + 0.619*MCT   # 6.75E-12 @ -405.;
+<R106>  CSL  + HO          = 0.200*ASOATJ + 0.584*HO2   
+                                        + 0.160*ADDC 
+                                        + 0.056*CHO
+                                        + 0.584*MCT    # 4.65E-11 @ 0.0;
 <R107>  EPX  + HO          = HO2        + XO2
                                         + CO
                                         + ALD         # 2.8E-11 @ -175.;
@@ -492,12 +494,14 @@ REACTIONS[CM] =
                                         + HNO3        # 2.90E-12 @ 1900.;
 <R154>  MGLY + NO3         = ACO3       + CO 
                                         + HNO3        # 3.76E-12 @ 1900.;
-<R155>  PHEN + NO3         = 0.4*CHO    + 0.1*ADDC
-                                        + 0.5*ADCN 
-                                        + 0.5*HNO3    # 3.78E-12;
-<R156>  CSL  + NO3         = 0.4*CHO    + 0.1*ADDC 
-                                        + 0.5*ADCN 
-                                        + 0.5*HNO3    # 1.06E-12;
+<R155>  PHEN + NO3         = 0.152*ASOATJ + 0.339*CHO    
+                                        + 0.0.85*ADDC
+                                        + 0.424*ADCN 
+                                        + 0.424*HNO3    # 3.78E-12;
+<R156>  CSL  + NO3         = 0.200*ASOATJ + 0.320*CHO    
+                                        + 0.08*ADDC 
+                                        + 0.4*ADCN 
+                                        + 0.4*HNO3    # 1.06E-12;
 <R157>  EPX  + NO3         = 0.50*HO    + 1.50*HO2
                                         + 1.50*CO
                                         + GLY
