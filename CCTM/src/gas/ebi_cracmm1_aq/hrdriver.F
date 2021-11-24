@@ -27,7 +27,7 @@ C
 C  KEY SUBROUTINES/FUNCTIONS CALLED:  HRINIT, HRCALCKS, HRSOLVER
 C                                     FIND_DEGRADED, INIT_DEGRADE, FINAL_DEGRADE
 C
-C  REVISION HISTORY: Created by EBI solver program, Nov 18, 2021
+C  REVISION HISTORY: Created by EBI solver program, Nov 19, 2021
 C                       Based on the algorithm in "Test of Two Numerical
 C                       Schemes for Use in Atmospheric Transport-Chemistry
 C                       Models", O. Hertel, R. Berkowicz, J. Christensen,
