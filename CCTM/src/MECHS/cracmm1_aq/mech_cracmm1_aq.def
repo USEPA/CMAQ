@@ -126,15 +126,15 @@ REACTIONS[CM] =
 <R009>  HNO4               =  0.20*HO  + 0.80*HO2
                                        + 0.80*NO2
                                        + 0.20*NO3     # 1.0/<HNO4_RACM2>;
-<R010>  HCHO               =  CO                      # 1.0/<HCHO_MOL_RACM2>;
+<R010>  HCHO               =  CO                      # 1.0/<HCHO_MOL_JPL19>;
 <R011>  HCHO               =  HO2      + HO2      
-                                       + CO           # 1.0/<HCHO_RAD_RACM2>;
+                                       + CO           # 1.0/<HCHO_RAD_JPL19>;
 <R012>  ACD                =  HO2      + MO2      
                                        + CO           # 1.0/<CH3CHO_RACM2>;
 <R013>  ALD                =  HO2      + ETHP  
-                                       + CO           # 1.0/<ALD_RACM2>;
-<R014>  ACT                =  MO2      + ACO3         # 1.0/<CH3COCH3_RACM2A>;
-<R014a> ACT                =  2.0*MO2  + CO           # 1.0/<CH3COCH3_RACM2B>;
+                                       + CO           # 1.0/<ALD_JPL19>;
+<R014>  ACT                =  MO2      + ACO3         # 1.0/<CH3COCH3A_JPL19>;
+<R014a> ACT                =  2.0*MO2  + CO           # 1.0/<CH3COCH3B_JPL19>;
 <R015>  UALD               =  1.22*HO2 + 0.784*ACO3
                                        + 1.22*CO
                                        + 0.35*HCHO
@@ -142,9 +142,9 @@ REACTIONS[CM] =
                                        + 0.216*KET    # 1.0/<UALD_RACM2>;
 <R016>  MEK                =  0.10*MO2 + ETHP
                                        + 0.9*ACO3
-                                       + 0.1*CO       # 1.0/<MEK_RACM2>;
+                                       + 0.1*CO       # 1.0/<MEK_JGR19>;
 <R017>  KET                =  1.5*ETHP + 0.5*ACO3 
-                                       + 0.5*CO       # 1.0/<KET_RACM2>;
+                                       + 0.5*CO       # 1.0/<KET_JGR19>;
 <R018>  HKET               =  HO2      + ACO3 
                                        + HCHO         # 1.0/<HKET_RACM2>;                                       
                                        

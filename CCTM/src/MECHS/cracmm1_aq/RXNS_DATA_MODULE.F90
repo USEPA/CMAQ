@@ -6,7 +6,7 @@
 
 
 ! --------- Photochemical Mechanism Reactions, Rates, etc. DAT ---------
-! Source file: /home/bplace/updated/UTIL/chemmech/input/cracmm1_aq/mech_cracmm1_aq.def
+! Source file: /home/hwo/CCTM_git_repository/UTIL/chemmech/input/cracmm1_aq/mech_cracmm1_aq.def
 ! for Mechanism Name: CRACMM1_AQ                      
 
 ! This file is used to create mechanism data and functions
@@ -4688,9 +4688,9 @@
      &   'O3O3P_NASA06    ', 'O3O1D_NASA06    ', 'H2O2_RACM2      ', & 
      &   'NO2_RACM2       ', 'NO3NO_RACM2     ', 'NO3NO2_RACM2    ', & 
      &   'HONO_RACM2      ', 'HNO3_RACM2      ', 'HNO4_RACM2      ', & 
-     &   'HCHO_MOL_RACM2  ', 'HCHO_RAD_RACM2  ', 'CH3CHO_RACM2    ', & 
-     &   'ALD_RACM2       ', 'CH3COCH3_RACM2A ', 'CH3COCH3_RACM2B ', & 
-     &   'UALD_RACM2      ', 'MEK_RACM2       ', 'KET_RACM2       ', & 
+     &   'HCHO_MOL_JPL19  ', 'HCHO_RAD_JPL19  ', 'CH3CHO_RACM2    ', & 
+     &   'ALD_JPL19       ', 'CH3COCH3A_JPL19 ', 'CH3COCH3B_JPL19 ', & 
+     &   'UALD_RACM2      ', 'MEK_JGR19       ', 'KET_JGR19       ', & 
      &   'HKET_RACM2      ', 'MACR_RACM2      ', 'MVK_RACM2       ', & 
      &   'GLYH2_RACM2     ', 'GLYF_RACM2      ', 'GLYHX_RACM2     ', & 
      &   'MGLY_RACM2      ', 'BALD_RACM2      ', 'OP1_RACM2       ', & 
@@ -4923,15 +4923,15 @@
        INTEGER, PARAMETER  :: IJ_HONO_RACM2       =   7
        INTEGER, PARAMETER  :: IJ_HNO3_RACM2       =   8
        INTEGER, PARAMETER  :: IJ_HNO4_RACM2       =   9
-       INTEGER, PARAMETER  :: IJ_HCHO_MOL_RACM2   =  10
-       INTEGER, PARAMETER  :: IJ_HCHO_RAD_RACM2   =  11
+       INTEGER, PARAMETER  :: IJ_HCHO_MOL_JPL19   =  10
+       INTEGER, PARAMETER  :: IJ_HCHO_RAD_JPL19   =  11
        INTEGER, PARAMETER  :: IJ_CH3CHO_RACM2     =  12
-       INTEGER, PARAMETER  :: IJ_ALD_RACM2        =  13
-       INTEGER, PARAMETER  :: IJ_CH3COCH3_RACM2A  =  14
-       INTEGER, PARAMETER  :: IJ_CH3COCH3_RACM2B  =  15
+       INTEGER, PARAMETER  :: IJ_ALD_JPL19        =  13
+       INTEGER, PARAMETER  :: IJ_CH3COCH3A_JPL19  =  14
+       INTEGER, PARAMETER  :: IJ_CH3COCH3B_JPL19  =  15
        INTEGER, PARAMETER  :: IJ_UALD_RACM2       =  16
-       INTEGER, PARAMETER  :: IJ_MEK_RACM2        =  17
-       INTEGER, PARAMETER  :: IJ_KET_RACM2        =  18
+       INTEGER, PARAMETER  :: IJ_MEK_JGR19        =  17
+       INTEGER, PARAMETER  :: IJ_KET_JGR19        =  18
        INTEGER, PARAMETER  :: IJ_HKET_RACM2       =  19
        INTEGER, PARAMETER  :: IJ_MACR_RACM2       =  20
        INTEGER, PARAMETER  :: IJ_MVK_RACM2        =  21

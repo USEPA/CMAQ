@@ -290,23 +290,23 @@
 !  Reaction Label R009            
                 RKI( NCELL,    9) =  RJBLK( NCELL, IJ_HNO4_RACM2 )
 !  Reaction Label R010            
-                RKI( NCELL,   10) =  RJBLK( NCELL, IJ_HCHO_MOL_RACM2 )
+                RKI( NCELL,   10) =  RJBLK( NCELL, IJ_HCHO_MOL_JPL19 )
 !  Reaction Label R011            
-                RKI( NCELL,   11) =  RJBLK( NCELL, IJ_HCHO_RAD_RACM2 )
+                RKI( NCELL,   11) =  RJBLK( NCELL, IJ_HCHO_RAD_JPL19 )
 !  Reaction Label R012            
                 RKI( NCELL,   12) =  RJBLK( NCELL, IJ_CH3CHO_RACM2 )
 !  Reaction Label R013            
-                RKI( NCELL,   13) =  RJBLK( NCELL, IJ_ALD_RACM2 )
+                RKI( NCELL,   13) =  RJBLK( NCELL, IJ_ALD_JPL19 )
 !  Reaction Label R014            
-                RKI( NCELL,   14) =  RJBLK( NCELL, IJ_CH3COCH3_RACM2A )
+                RKI( NCELL,   14) =  RJBLK( NCELL, IJ_CH3COCH3A_JPL19 )
 !  Reaction Label R014a           
-                RKI( NCELL,   15) =  RJBLK( NCELL, IJ_CH3COCH3_RACM2B )
+                RKI( NCELL,   15) =  RJBLK( NCELL, IJ_CH3COCH3B_JPL19 )
 !  Reaction Label R015            
                 RKI( NCELL,   16) =  RJBLK( NCELL, IJ_UALD_RACM2 )
 !  Reaction Label R016            
-                RKI( NCELL,   17) =  RJBLK( NCELL, IJ_MEK_RACM2 )
+                RKI( NCELL,   17) =  RJBLK( NCELL, IJ_MEK_JGR19 )
 !  Reaction Label R017            
-                RKI( NCELL,   18) =  RJBLK( NCELL, IJ_KET_RACM2 )
+                RKI( NCELL,   18) =  RJBLK( NCELL, IJ_KET_JGR19 )
 !  Reaction Label R018            
                 RKI( NCELL,   19) =  RJBLK( NCELL, IJ_HKET_RACM2 )
 !  Reaction Label R019            
