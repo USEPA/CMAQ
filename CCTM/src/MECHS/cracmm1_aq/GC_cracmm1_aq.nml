@@ -109,7 +109,8 @@ GC_SPECIES_DATA =
 'PPN'           ,135.0   ,''     ,-1     ,''     ,-1     ,'VD_PAN'          , 1   ,'PPN'             , 1  ,''             ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',
 'MPAN'          ,148.0   ,''     ,-1     ,''     ,-1     ,'VD_PAN'          , 1   ,'MPAN'            , 1  ,''             ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',
 'NALD'          ,105.0   ,''     ,-1     ,''     ,-1     ,'VD_PAN'          , 1   ,'2NITRO_1BUTNL'   , 1  ,''             ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',
-'ISON'          ,147.0   ,''     ,-1     ,''     ,-1     ,'VD_PAN'          , 1   ,'2NITRO_1BUTNL'   , 1  ,''             ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',
+'ISON'          ,147.0   ,''     ,-1     ,''     ,-1     ,'VD_PAN'          , 1   ,'2NITRO_1BUTNL'   , 1  ,'ISON'         ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',!b-Isoprene nitrate,L,OCC(C)(C=C)ON(=O)=O 
+'TRPN'          ,215.0   ,''     ,-1     ,''     ,-1     ,'VD_PAN'          , 1   ,'2NITRO_1BUTNL'   , 1  ,'TRPN'         ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',!a-Pinene nitrate,L,O=N(=O)OC1(C)C(O)CC2 CC1C2(C)C
 'MCTP'          ,172.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,''             ,''        ,''    ,''    ,''    ,'Yes',
 'OLNN'          ,136.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,''             ,''        ,''    ,''    ,''    ,'Yes',
 'OLND'          ,136.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,''             ,''        ,''    ,''    ,''    ,'Yes',
@@ -135,8 +136,9 @@ GC_SPECIES_DATA =
 'XYLHRXN'       ,155.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,'XYLHRXN'      ,''        ,''    ,''    ,''    ,''   ,
 'BNZNRXN'       ,127.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,'BNZNRXN'      ,''        ,''    ,''    ,''    ,''   ,
 'BNZHRXN'       ,127.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,'BNZHRXN'      ,''        ,''    ,''    ,''    ,''   ,
-'SESQ'          ,204.4   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,'SESQOPERA'       , 1  ,''             ,''        ,'Yes' ,''    ,'Yes' ,'Yes',!Cadinene,L,DTXSID5024712,CC(C)C1CC=C(C)C2CC=C(C)CC12
-'SESQRXN'       ,204.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,'SESQRXN'      ,''        ,''    ,''    ,''    ,''   ,
+'SESQ'          ,204.4   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,'SESQOPERA'       , 1  ,''             ,''        ,'Yes' ,''    ,'Yes' ,'Yes',!b-caryophyllene,L,DTXSID8024739,C/C1=C/CCC(=C)C2CC(C)(C)C2CC\1
+'SESQRO2'       ,253.4   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,''             ,''        ,''    ,''    ,''    ,'Yes',!MCM-BCAO2,L,NA,[O]OC1(C)CCC2C(CC2(C)C)C(=C)CCC1O
+'SESQNRO2'      ,298.4   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,''             ,''        ,''    ,''    ,''    ,'Yes',!MCM-NBCO2,L,NA,[O]OC1(C)CCC2C(CC2(C)C)C(=C)CCC1O[N+](=O)[O-]
 'NAPH'          ,133.1   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,'NAPHOPERA'       , 1  ,''             ,''        ,'Yes' ,''    ,''    ,'Yes',!Naphthalene,L,DTXSID8020913,C1=CC2=CC=CC=C2C=C1
 'PAHRO2'        ,187.2   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,''             ,''        ,''    ,''    ,''    ,'Yes',
 'PAHNRXN'       ,187.2   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,'PAHNRXN'      ,''        ,''    ,''    ,''    ,''   ,
@@ -155,4 +157,14 @@ GC_SPECIES_DATA =
 'VSVOO3'        ,134.0   ,''     ,-1     ,''     ,-1     ,'VD_ORA'          , 1   ,'ADIPIC_ACID'     , 1  ,'VSVOO3'       ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',
 'PCVOC'         ,170.0   ,''     ,-1     ,''     ,-1     ,'VD_GEN_ALD'      , 1   ,'GENERIC_ALDEHYDE', 1  ,''             ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',
 'PCSOARXN'      ,170.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,'PCSOARXN'     ,''        ,''    ,''    ,''    ,''   , 
+'VROCP5ARO'     ,184.49  ,''     ,-1     ,''     ,-1     ,'VD_ORA'          , 1   ,'ADIPIC_ACID'     , 1  ,''             ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',
+'VROCP6ARO'     ,158.81  ,''     ,-1     ,''     ,-1     ,'VD_ORA'          , 1   ,'ADIPIC_ACID'     , 1  ,''             ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',
+'VROCN2OXY'     ,136.0   ,''     ,-1     ,''     ,-1     ,'VD_ORA'          , 1   ,'ADIPIC_ACID'     , 1  ,'VROCN2OXY'    ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',
+'VROCN1OXY'     ,136.0   ,''     ,-1     ,''     ,-1     ,'VD_ORA'          , 1   ,'ADIPIC_ACID'     , 1  ,'VROCN1OXY'    ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',
+'VROCP0OXY'     ,135.0   ,''     ,-1     ,''     ,-1     ,'VD_ORA'          , 1   ,'ADIPIC_ACID'     , 1  ,'VROCP0OXY'    ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',
+'VROCP1OXY'     ,135.0   ,''     ,-1     ,''     ,-1     ,'VD_ORA'          , 1   ,'ADIPIC_ACID'     , 1  ,'VROCP1OXY'    ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',
+'VROCP2OXY'     ,134.0   ,''     ,-1     ,''     ,-1     ,'VD_ORA'          , 1   ,'ADIPIC_ACID'     , 1  ,'VROCP2OXY'    ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',
+'VROCP3OXY'     ,134.0   ,''     ,-1     ,''     ,-1     ,'VD_ORA'          , 1   ,'ADIPIC_ACID'     , 1  ,'VROCP2OXY'    ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',
+/
+
 /

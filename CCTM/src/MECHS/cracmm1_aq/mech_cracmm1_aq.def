@@ -98,7 +98,8 @@
 ! - added HAP placeholder chemistry for BDE13, ACRO. NAPH already present.
 ! - added PROG based on Coggon et al. PNAS 2021 and 
 !   MCM http://mcm.york.ac.uk/browse.htt?species=PROPGLY
-! - FURAN placeholder added with XYE products and furfural kOH
+! - FURAN chemistry added based on Wang et al. JGR 2021, Schwantes, Coggon 
+! - SESQ chemistry added based on MCM
 !------------------------------------------------------------------------------ 
 ! 10-18-21 G.Sarwar
 !    updated rate constants for inorganic reactions and three organic reactions (R70-R71)
@@ -106,6 +107,11 @@
 !    updated photolysis rate coefficients for CH3COCH3, MEK, KET, ALD, HCHO
 !------------------------------------------------------------------------------ 
 CRACMM1_AQ
+
+ELIMINATE =
+XN;
+XC;
+END ELIMINATE
 
 REACTIONS[CM] =
 
@@ -463,7 +469,7 @@ REACTIONS[CM] =
 <R141>  ETE  + NO3         = 0.80*OLNN  + 0.20*OLND   # 4.392E-13^2.0@2282.0; 
 <R142>  OLT  + NO3         = 0.43*OLNN  + 0.57*OLND   # 1.79E-13 @ 450.;
 <R143>  OLI  + NO3         = 0.11*OLNN  + 0.89*OLND   # 8.64E-13 @ -450.;
-<R145>  ISO  + NO3         =      ISON  + ISOPRXN     # 3.03E-12 @ 446.;
+<R145>  ISO  + NO3         =      ISON                # 3.03E-12 @ 446.;
 <R146>  API  + NO3         = 0.10*OLNN  + 0.90*OLND
                                         + 1.0*TRPRXN  # 1.19E-12 @ -490.;
 <R147>  LIM  + NO3         = 0.71*OLNN  + 0.29*OLND
@@ -633,11 +639,12 @@ REACTIONS[CM] =
                                         + 0.11*ACT
                                         + 0.44*KET
                                         + 0.07*ORA1 
-                                        + 0.18*ONIT   # 4.0E-12;
+                                        + 0.18*TRPN   # 4.0E-12;
 <R190>  LIMP + NO          = 1.00*HO2   + 0.68*UALD
                                         + 0.43*HCHO
                                         + 0.07*ORA1
-                                        + 1.00*NO2
+                                        + 0.77*NO2
+                                        + 0.23*TRPN
                                         + 0.05*OLI    # 4.0E-12;
 <R191>  ACO3 + NO          = MO2        + NO2         # 8.1E-12 @ -270.;
 <R192>  RCO3 + NO          = ETHP       + NO2         # 8.1E-12 @ -270.;
@@ -1174,9 +1181,6 @@ REACTIONS[CM] =
 <SA04>  XYLRO2  + HO2     = HO2 + XYLHRXN             # 1.90e-13@-1300; 
 <SA05>  BENZRO2 + NO      = NO  + BNZNRXN             # 2.70e-12@-360;
 <SA06>  BENZRO2 + HO2     = HO2 + BNZHRXN             # 1.90e-13@-1300;
-<SA07>  SESQ + O3         = O3  + SESQRXN             # 1.16E-14;
-<SA08>  SESQ + HO         = HO  + SESQRXN             # 1.97E-10;
-<SA09>  SESQ + NO3        = NO3 + SESQRXN             # 1.90E-11;
 <SA13>  SOAALK  + HO      = HO  + 0.47*ALKRXN         # 2.70e-12@-374;
 <SA14>  IEPOX + HO        = HO                        # 5.78E-11@400; 
 
@@ -1227,6 +1231,21 @@ REACTIONS[CM] =
 ! PROG based on Coggon et al. and MCM http://mcm.york.ac.uk/browse.htt?species=PROPGLY
 <R010c> PROG + HO = 0.613*HKET + 0.387*ALD + HO2 #1.20E-11;
 
+! Sesquiterpenes based on MCM b-caryophyllene with autoxidation
+! added to O3 channel following Richters et al. 2016 ES&T
+<R011c> SESQ  + NO3          = SESQNRO2            # 1.9E-11;
+<R012c> SESQNRO2 + HO2       = VROCP0OXY           # 2.84E-13 @ -1300.0;
+<R013c> SESQNRO2 + NO        = VROCP3OXY + 2.0*NO2 # 2.70E-12 @ -360.0;
+<R014c> SESQNRO2 + NO3       = VROCP3OXY + 2.0*NO2 # 2.3E-12;
+<R015c> SESQ  + O3           = 0.982*VROCP3OXY 
+                                 + 0.018*VROCN2OXY # 1.2E-14;
+<R016c> SESQ + HO            = SESQRO2             # 1.97E-10;
+<R017c> SESQRO2 + HO2        = VROCP0OXY           # 2.84E-13 @ -1300.0;
+<R019c> SESQRO2 + NO3        = VROCP3OXY           # 2.3E-12;
+<R020c> SESQRO2 + NO         = 0.247*VROCP0OXY 
+                                 + 0.753*VROCP0OXY 
+                                 + 0.753*NO2       # 2.70E-12 @ -360.0;
+
 ! GLY and MGLY uptake
 <HET_GLY>  GLY  = AGLYJ # 1.0~<HETERO_GLY>;
 <HET_MGLY> MGLY = AGLYJ # 1.0~<HETERO_MGLY>;
@@ -1256,7 +1275,6 @@ REACTIONS[CM] =
 <OLIG_TERPENE2>   ATRP2J = 0.9*AOLGBJ # 9.48816E-6;
 <OLIG_ISOPRENE1>  AISO1J = 0.50*AOLGBJ # 9.48816E-6;
 <OLIG_ISOPRENE2>  AISO2J = 0.50*AOLGBJ # 9.48816E-6;
-<OLIG_SESQT1>     ASQTJ  = 1.50*AOLGBJ # 9.48816E-6;
 <OLIG_PAH1>       APAH1J = 1.4286*AOLGAJ # 9.48816E-6;
 <OLIG_PAH2>       APAH2J = 1.4286*AOLGAJ # 9.48816E-6;
 <OLIG_ALK1>       AALK1J = 1.7143*AOLGAJ # 9.48816E-6;
