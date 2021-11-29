@@ -160,7 +160,7 @@
    'EVERYWHERE', 'ALL'         ,'SOAALK' ,'SOAALK'      ,'GAS'  ,1.  ,'UNIT','a', 
    'EVERYWHERE', 'ALL'         ,'NH3'    ,'NH3'         ,'GAS'  ,1.  ,'UNIT','a', 
    ! New CRACMM species
-   'EVERYWHERE', 'ALL'         ,'ACT'    ,'ROCIOXY'     ,'GAS'  ,0.156,'UNIT','a', ! proxied to ACT based on 2017 US Emissions
+   'EVERYWHERE', 'ALL'         ,'ACT'    ,'VROCIOXY'    ,'GAS'  ,0.156,'UNIT','a', ! proxied to ACT based on 2017 US Emissions
    'EVERYWHERE', 'ALL'         ,'ACT'    ,'SLOWROC'     ,'GAS'  ,0.574,'UNIT','a', ! proxied to ACT based on 2017 US Emissions
    'EVERYWHERE', 'ALL'         ,'ACT'    ,'ACRO'        ,'GAS'  ,0.139,'UNIT','a', ! proxied to ACT based on 2017 US Emissions
    'EVERYWHERE', 'ALL'         ,'ACT'    ,'PROG'        ,'GAS'  ,0.171,'UNIT','a', ! proxied to ACT based on 2017 US Emissions

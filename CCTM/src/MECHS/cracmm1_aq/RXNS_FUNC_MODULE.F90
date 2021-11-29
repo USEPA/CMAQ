@@ -339,10 +339,12 @@
                 RKI( NCELL,   33) =  RJBLK( NCELL, IJ_PAN1_RACM2 )
 !  Reaction Label R033            
                 RKI( NCELL,   34) =  RJBLK( NCELL, IJ_PAN2_RACM2 )
+!  Reaction Label T20             
+                RKI( NCELL,  377) =  RJBLK( NCELL, IJ_ACRO_09 )
 
                 IF( .NOT. LAND( NCELL ) )THEN
 !  Reaction Label HAL_Ozone       
-                   RKI( NCELL,  400) =  SFACT * HALOGEN_FALLOFF( BLKPRES( NCELL ),   6.7006D-11,   1.0743D+01,  & 
+                   RKI( NCELL,  401) =  SFACT * HALOGEN_FALLOFF( BLKPRES( NCELL ),   6.7006D-11,   1.0743D+01,  & 
      &                                                           3.4153D-08,  -6.7130D-01,         2.0000D-06 )
                 END IF
 
@@ -1081,7 +1083,7 @@
 !  Reaction Label SA14            
              RKI( NCELL,  368) =  CFACT * ARRHENUIS_T03( INV_TEMP,  5.7800D-11,  -4.0000D+02 )
 !  Reaction Label R001c           
-             RKI( NCELL,  369) =  CFACT * ARRHENUIS_T03( INV_TEMP,  2.8200D-11,  -2.7300D+02 )
+             RKI( NCELL,  369) =   6.8900D-12 * CFACT 
 !  Reaction Label R002c           
              RKI( NCELL,  370) =   6.5500D-14 * CFACT 
 !  Reaction Label SA10            
@@ -1091,117 +1093,149 @@
 !  Reaction Label SA12            
              RKI( NCELL,  373) =  CFACT * ARRHENUIS_T03( INV_TEMP,  1.9000D-13,   1.3000D+03 )
 !  Reaction Label T17             
-             RKI( NCELL,  374) =   2.0000D-11 * CFACT 
+             RKI( NCELL,  374) =  CFACT * ARRHENUIS_T03( INV_TEMP,  8.0000D-12,   3.8000D+02 )
 !  Reaction Label T18             
-             RKI( NCELL,  375) =   2.6100D-19 * CFACT 
+             RKI( NCELL,  375) =   2.9000D-19 * CFACT 
 !  Reaction Label T19             
-             RKI( NCELL,  376) =   1.1500D-15 * CFACT 
+             RKI( NCELL,  376) =   3.4000D-15 * CFACT 
 !  Reaction Label T10             
-             RKI( NCELL,  377) =  CFACT * ARRHENUIS_T03( INV_TEMP,  1.4800D-11,   4.4800D+02 )
+             RKI( NCELL,  378) =  CFACT * ARRHENUIS_T03( INV_TEMP,  1.4800D-11,   4.4800D+02 )
 !  Reaction Label T11             
-             RKI( NCELL,  378) =  CFACT * ARRHENUIS_T03( INV_TEMP,  1.3400D-14,  -2.2830D+03 )
+             RKI( NCELL,  379) =  CFACT * ARRHENUIS_T03( INV_TEMP,  1.3400D-14,  -2.2830D+03 )
 !  Reaction Label T12             
-             RKI( NCELL,  379) =   1.7900D-13 * CFACT 
+             RKI( NCELL,  380) =   1.0000D-13 * CFACT 
 !  Reaction Label R003c           
-             RKI( NCELL,  380) =   5.0100D-11 * CFACT 
+             RKI( NCELL,  381) =   5.0100D-11 * CFACT 
 !  Reaction Label R004c           
-             RKI( NCELL,  381) =  CFACT * ARRHENUIS_T03( INV_TEMP,  2.7000D-12,   3.6000D+02 )
+             RKI( NCELL,  382) =  CFACT * ARRHENUIS_T03( INV_TEMP,  2.7000D-12,   3.6000D+02 )
 !  Reaction Label R005c           
-             RKI( NCELL,  382) =  CFACT * ARRHENUIS_T03( INV_TEMP,  3.7500D-13,   9.8000D+02 )
+             RKI( NCELL,  383) =  CFACT * ARRHENUIS_T03( INV_TEMP,  3.7500D-13,   9.8000D+02 )
 !  Reaction Label R006c           
-             RKI( NCELL,  383) =   4.4000D-11 * CFACT 
+             RKI( NCELL,  384) =   4.4000D-11 * CFACT 
 !  Reaction Label R007c           
-             RKI( NCELL,  384) =   3.4300D-17 * CFACT 
+             RKI( NCELL,  385) =   3.4300D-17 * CFACT 
 !  Reaction Label R008c           
-             RKI( NCELL,  385) =   8.9900D-12 * CFACT 
+             RKI( NCELL,  386) =   8.9900D-12 * CFACT 
 !  Reaction Label R010c           
-             RKI( NCELL,  386) =   1.2000D-11 * CFACT 
+             RKI( NCELL,  387) =   1.2000D-11 * CFACT 
 !  Reaction Label R011c           
-             RKI( NCELL,  387) =   1.9000D-11 * CFACT 
+             RKI( NCELL,  388) =   1.9000D-11 * CFACT 
 !  Reaction Label R012c           
-             RKI( NCELL,  388) =  CFACT * ARRHENUIS_T03( INV_TEMP,  2.8400D-13,   1.3000D+03 )
+             RKI( NCELL,  389) =  CFACT * ARRHENUIS_T03( INV_TEMP,  2.8400D-13,   1.3000D+03 )
 !  Reaction Label R013c           
-             RKI( NCELL,  389) =  CFACT * ARRHENUIS_T03( INV_TEMP,  2.7000D-12,   3.6000D+02 )
+             RKI( NCELL,  390) =  CFACT * ARRHENUIS_T03( INV_TEMP,  2.7000D-12,   3.6000D+02 )
 !  Reaction Label R014c           
-             RKI( NCELL,  390) =   2.3000D-12 * CFACT 
+             RKI( NCELL,  391) =   2.3000D-12 * CFACT 
 !  Reaction Label R015c           
-             RKI( NCELL,  391) =   1.2000D-14 * CFACT 
+             RKI( NCELL,  392) =   1.2000D-14 * CFACT 
 !  Reaction Label R016c           
-             RKI( NCELL,  392) =   1.9700D-10 * CFACT 
+             RKI( NCELL,  393) =   1.9700D-10 * CFACT 
 !  Reaction Label R017c           
-             RKI( NCELL,  393) =  CFACT * ARRHENUIS_T03( INV_TEMP,  2.8400D-13,   1.3000D+03 )
+             RKI( NCELL,  394) =  CFACT * ARRHENUIS_T03( INV_TEMP,  2.8400D-13,   1.3000D+03 )
 !  Reaction Label R019c           
-             RKI( NCELL,  394) =   2.3000D-12 * CFACT 
+             RKI( NCELL,  395) =   2.3000D-12 * CFACT 
 !  Reaction Label R020c           
-             RKI( NCELL,  395) =  CFACT * ARRHENUIS_T03( INV_TEMP,  2.7000D-12,   3.6000D+02 )
+             RKI( NCELL,  396) =  CFACT * ARRHENUIS_T03( INV_TEMP,  2.7000D-12,   3.6000D+02 )
 !  Reaction Label HET_GLY         
-             RKI( NCELL,  396) =  BLKHET(  NCELL, IK_HETERO_GLY )
+             RKI( NCELL,  397) =  BLKHET(  NCELL, IK_HETERO_GLY )
 !  Reaction Label HET_MGLY        
-             RKI( NCELL,  397) =  BLKHET(  NCELL, IK_HETERO_MGLY )
+             RKI( NCELL,  398) =  BLKHET(  NCELL, IK_HETERO_MGLY )
 !  Reaction Label HET_N2O5        
-             RKI( NCELL,  398) =  BLKHET(  NCELL, IK_HETERO_N2O5IJ )
+             RKI( NCELL,  399) =  BLKHET(  NCELL, IK_HETERO_N2O5IJ )
 !  Reaction Label HET_N02         
-             RKI( NCELL,  399) =  BLKHET(  NCELL, IK_HETERO_NO2 )
+             RKI( NCELL,  400) =  BLKHET(  NCELL, IK_HETERO_NO2 )
 !  Reaction Label HET_IEPOX       
-             RKI( NCELL,  401) =  BLKHET(  NCELL, IK_HETERO_IEPOX )
+             RKI( NCELL,  402) =  BLKHET(  NCELL, IK_HETERO_IEPOX )
 !  Reaction Label OLIG_XYLENE1    
-             RKI( NCELL,  402) =   9.4882D-06 * SFACT 
-!  Reaction Label OLIG_XYLENE2    
              RKI( NCELL,  403) =   9.4882D-06 * SFACT 
-!  Reaction Label OLIG_TOLUENE1   
+!  Reaction Label OLIG_XYLENE2    
              RKI( NCELL,  404) =   9.4882D-06 * SFACT 
-!  Reaction Label OLIG_TOLUENE2   
+!  Reaction Label OLIG_TOLUENE1   
              RKI( NCELL,  405) =   9.4882D-06 * SFACT 
-!  Reaction Label OLIG_BENZENE1   
+!  Reaction Label OLIG_TOLUENE2   
              RKI( NCELL,  406) =   9.4882D-06 * SFACT 
-!  Reaction Label OLIG_BENZENE2   
+!  Reaction Label OLIG_BENZENE1   
              RKI( NCELL,  407) =   9.4882D-06 * SFACT 
-!  Reaction Label OLIG_TERPENE1   
+!  Reaction Label OLIG_BENZENE2   
              RKI( NCELL,  408) =   9.4882D-06 * SFACT 
-!  Reaction Label OLIG_TERPENE2   
+!  Reaction Label OLIG_TERPENE1   
              RKI( NCELL,  409) =   9.4882D-06 * SFACT 
-!  Reaction Label OLIG_ISOPRENE1  
+!  Reaction Label OLIG_TERPENE2   
              RKI( NCELL,  410) =   9.4882D-06 * SFACT 
-!  Reaction Label OLIG_ISOPRENE2  
+!  Reaction Label OLIG_ISOPRENE1  
              RKI( NCELL,  411) =   9.4882D-06 * SFACT 
-!  Reaction Label OLIG_PAH1       
+!  Reaction Label OLIG_ISOPRENE2  
              RKI( NCELL,  412) =   9.4882D-06 * SFACT 
-!  Reaction Label OLIG_PAH2       
+!  Reaction Label OLIG_PAH1       
              RKI( NCELL,  413) =   9.4882D-06 * SFACT 
-!  Reaction Label OLIG_ALK1       
+!  Reaction Label OLIG_PAH2       
              RKI( NCELL,  414) =   9.4882D-06 * SFACT 
-!  Reaction Label OLIG_ALK2       
+!  Reaction Label OLIG_ALK1       
              RKI( NCELL,  415) =   9.4882D-06 * SFACT 
+!  Reaction Label OLIG_ALK2       
+             RKI( NCELL,  416) =   9.4882D-06 * SFACT 
 !  Reaction Label RPOAGEPI        
-             RKI( NCELL,  416) =   2.5000D-12 * CFACT 
+             RKI( NCELL,  417) =   2.5000D-12 * CFACT 
 !  Reaction Label RPOAGELI        
-             RKI( NCELL,  417) =  BLKHET(  NCELL, IK_HETERO_PNCOMLI )
+             RKI( NCELL,  418) =  BLKHET(  NCELL, IK_HETERO_PNCOMLI )
 !  Reaction Label RPOAGEPJ        
-             RKI( NCELL,  418) =   2.5000D-12 * CFACT 
+             RKI( NCELL,  419) =   2.5000D-12 * CFACT 
 !  Reaction Label RPOAGELJ        
-             RKI( NCELL,  419) =  BLKHET(  NCELL, IK_HETERO_PNCOMLJ )
+             RKI( NCELL,  420) =  BLKHET(  NCELL, IK_HETERO_PNCOMLJ )
 !  Reaction Label PCSOA           
-             RKI( NCELL,  420) =   1.2500D-11 * CFACT 
+             RKI( NCELL,  421) =   1.2500D-11 * CFACT 
 !  Reaction Label POA_AGE1        
-             RKI( NCELL,  421) =   4.0000D-11 * CFACT 
-!  Reaction Label POA_AGE2        
              RKI( NCELL,  422) =   4.0000D-11 * CFACT 
-!  Reaction Label POA_AGE3        
+!  Reaction Label POA_AGE2        
              RKI( NCELL,  423) =   4.0000D-11 * CFACT 
-!  Reaction Label POA_AGE4        
+!  Reaction Label POA_AGE3        
              RKI( NCELL,  424) =   4.0000D-11 * CFACT 
-!  Reaction Label POA_AGE5        
+!  Reaction Label POA_AGE4        
              RKI( NCELL,  425) =   4.0000D-11 * CFACT 
-!  Reaction Label POA_AGE6        
+!  Reaction Label POA_AGE5        
              RKI( NCELL,  426) =   4.0000D-11 * CFACT 
-!  Reaction Label POA_AGE7        
+!  Reaction Label POA_AGE6        
              RKI( NCELL,  427) =   4.0000D-11 * CFACT 
-!  Reaction Label POA_AGE8        
+!  Reaction Label POA_AGE7        
              RKI( NCELL,  428) =   4.0000D-11 * CFACT 
-!  Reaction Label POA_AGE9        
+!  Reaction Label POA_AGE8        
              RKI( NCELL,  429) =   4.0000D-11 * CFACT 
-!  Reaction Label POA_AGE10       
+!  Reaction Label POA_AGE9        
              RKI( NCELL,  430) =   4.0000D-11 * CFACT 
+!  Reaction Label POA_AGE10       
+             RKI( NCELL,  431) =   4.0000D-11 * CFACT 
+!  Reaction Label ROCOXY1c        
+             RKI( NCELL,  432) =   5.9000D-11 * CFACT 
+!  Reaction Label ROCOXY2c        
+             RKI( NCELL,  433) =   6.0700D-11 * CFACT 
+!  Reaction Label ROCOXY3c        
+             RKI( NCELL,  434) =   5.5400D-11 * CFACT 
+!  Reaction Label ROCOXY4c        
+             RKI( NCELL,  435) =   5.6300D-11 * CFACT 
+!  Reaction Label ROCOXY5c        
+             RKI( NCELL,  436) =   5.4600D-11 * CFACT 
+!  Reaction Label ROCOXY6c        
+             RKI( NCELL,  437) =   4.5000D-11 * CFACT 
+!  Reaction Label ROCOXY7c        
+             RKI( NCELL,  438) =   5.1700D-11 * CFACT 
+!  Reaction Label ROCOXY8c        
+             RKI( NCELL,  439) =   4.7300D-11 * CFACT 
+!  Reaction Label ROCOXY9c        
+             RKI( NCELL,  440) =   4.6000D-11 * CFACT 
+!  Reaction Label ROCOXY10c       
+             RKI( NCELL,  441) =   3.8000D-11 * CFACT 
+!  Reaction Label ROCOXY11c       
+             RKI( NCELL,  442) =   3.9300D-11 * CFACT 
+!  Reaction Label ROCOXY12c       
+             RKI( NCELL,  443) =   3.5200D-11 * CFACT 
+!  Reaction Label ROCOXY13c       
+             RKI( NCELL,  444) =   3.1200D-11 * CFACT 
+!  Reaction Label ROCOXY14c       
+             RKI( NCELL,  445) =   2.4000D-11 * CFACT 
+!  Reaction Label ROCOXY15c       
+             RKI( NCELL,  446) =   2.0500D-11 * CFACT 
+!  Reaction Label ROCOXY16c       
+             RKI( NCELL,  447) =   4.6900D-11 * CFACT 
 
         END DO  
 !  Multiply rate constants by [M], [O2], [N2], [H2O], [H2], or [CH4]
@@ -1471,185 +1505,198 @@
              INTEGER, INTENT( IN ) :: IOLD2NEW( :,: ) 
 
 
-             INDEX_O3        = IOLD2NEW( INDEX_O3       , 1 )
-             INDEX_O3P       = IOLD2NEW( INDEX_O3P      , 1 )
-             INDEX_O1D       = IOLD2NEW( INDEX_O1D      , 1 )
-             INDEX_H2O2      = IOLD2NEW( INDEX_H2O2     , 1 )
-             INDEX_HO        = IOLD2NEW( INDEX_HO       , 1 )
-             INDEX_NO2       = IOLD2NEW( INDEX_NO2      , 1 )
-             INDEX_NO        = IOLD2NEW( INDEX_NO       , 1 )
-             INDEX_NO3       = IOLD2NEW( INDEX_NO3      , 1 )
-             INDEX_HONO      = IOLD2NEW( INDEX_HONO     , 1 )
-             INDEX_HNO3      = IOLD2NEW( INDEX_HNO3     , 1 )
-             INDEX_HNO4      = IOLD2NEW( INDEX_HNO4     , 1 )
-             INDEX_HO2       = IOLD2NEW( INDEX_HO2      , 1 )
-             INDEX_HCHO      = IOLD2NEW( INDEX_HCHO     , 1 )
-             INDEX_CO        = IOLD2NEW( INDEX_CO       , 1 )
-             INDEX_ACD       = IOLD2NEW( INDEX_ACD      , 1 )
-             INDEX_MO2       = IOLD2NEW( INDEX_MO2      , 1 )
-             INDEX_ALD       = IOLD2NEW( INDEX_ALD      , 1 )
-             INDEX_ETHP      = IOLD2NEW( INDEX_ETHP     , 1 )
-             INDEX_ACT       = IOLD2NEW( INDEX_ACT      , 1 )
-             INDEX_ACO3      = IOLD2NEW( INDEX_ACO3     , 1 )
-             INDEX_UALD      = IOLD2NEW( INDEX_UALD     , 1 )
-             INDEX_KET       = IOLD2NEW( INDEX_KET      , 1 )
-             INDEX_MEK       = IOLD2NEW( INDEX_MEK      , 1 )
-             INDEX_HKET      = IOLD2NEW( INDEX_HKET     , 1 )
-             INDEX_MACR      = IOLD2NEW( INDEX_MACR     , 1 )
-             INDEX_MACP      = IOLD2NEW( INDEX_MACP     , 1 )
-             INDEX_XO2       = IOLD2NEW( INDEX_XO2      , 1 )
-             INDEX_MVK       = IOLD2NEW( INDEX_MVK      , 1 )
-             INDEX_GLY       = IOLD2NEW( INDEX_GLY      , 1 )
-             INDEX_MGLY      = IOLD2NEW( INDEX_MGLY     , 1 )
-             INDEX_DCB1      = IOLD2NEW( INDEX_DCB1     , 1 )
-             INDEX_DCB2      = IOLD2NEW( INDEX_DCB2     , 1 )
-             INDEX_BALD      = IOLD2NEW( INDEX_BALD     , 1 )
-             INDEX_CHO       = IOLD2NEW( INDEX_CHO      , 1 )
-             INDEX_OP1       = IOLD2NEW( INDEX_OP1      , 1 )
-             INDEX_OP2       = IOLD2NEW( INDEX_OP2      , 1 )
-             INDEX_PAA       = IOLD2NEW( INDEX_PAA      , 1 )
-             INDEX_ONIT      = IOLD2NEW( INDEX_ONIT     , 1 )
-             INDEX_PAN       = IOLD2NEW( INDEX_PAN      , 1 )
-             INDEX_N2O5      = IOLD2NEW( INDEX_N2O5     , 1 )
-             INDEX_SO2       = IOLD2NEW( INDEX_SO2      , 1 )
-             INDEX_SULF      = IOLD2NEW( INDEX_SULF     , 1 )
-             INDEX_SULRXN    = IOLD2NEW( INDEX_SULRXN   , 1 )
-             INDEX_ETH       = IOLD2NEW( INDEX_ETH      , 1 )
-             INDEX_HC3       = IOLD2NEW( INDEX_HC3      , 1 )
-             INDEX_HC3P      = IOLD2NEW( INDEX_HC3P     , 1 )
-             INDEX_ASOATJ    = IOLD2NEW( INDEX_ASOATJ   , 1 )
-             INDEX_HC5       = IOLD2NEW( INDEX_HC5      , 1 )
-             INDEX_HC5P      = IOLD2NEW( INDEX_HC5P     , 1 )
-             INDEX_HC8       = IOLD2NEW( INDEX_HC8      , 1 )
-             INDEX_HC8P      = IOLD2NEW( INDEX_HC8P     , 1 )
-             INDEX_ETE       = IOLD2NEW( INDEX_ETE      , 1 )
-             INDEX_ETEP      = IOLD2NEW( INDEX_ETEP     , 1 )
-             INDEX_OLT       = IOLD2NEW( INDEX_OLT      , 1 )
-             INDEX_OLTP      = IOLD2NEW( INDEX_OLTP     , 1 )
-             INDEX_OLI       = IOLD2NEW( INDEX_OLI      , 1 )
-             INDEX_OLIP      = IOLD2NEW( INDEX_OLIP     , 1 )
-             INDEX_ACE       = IOLD2NEW( INDEX_ACE      , 1 )
-             INDEX_ORA1      = IOLD2NEW( INDEX_ORA1     , 1 )
-             INDEX_BEN       = IOLD2NEW( INDEX_BEN      , 1 )
-             INDEX_BENP      = IOLD2NEW( INDEX_BENP     , 1 )
-             INDEX_EPX       = IOLD2NEW( INDEX_EPX      , 1 )
-             INDEX_PHEN      = IOLD2NEW( INDEX_PHEN     , 1 )
-             INDEX_BENZRO2   = IOLD2NEW( INDEX_BENZRO2  , 1 )
-             INDEX_TOL       = IOLD2NEW( INDEX_TOL      , 1 )
-             INDEX_TR2       = IOLD2NEW( INDEX_TR2      , 1 )
-             INDEX_TLP1      = IOLD2NEW( INDEX_TLP1     , 1 )
-             INDEX_CSL       = IOLD2NEW( INDEX_CSL      , 1 )
-             INDEX_TOLRO2    = IOLD2NEW( INDEX_TOLRO2   , 1 )
-             INDEX_XYM       = IOLD2NEW( INDEX_XYM      , 1 )
-             INDEX_XY2       = IOLD2NEW( INDEX_XY2      , 1 )
-             INDEX_XYL1      = IOLD2NEW( INDEX_XYL1     , 1 )
-             INDEX_XYLRO2    = IOLD2NEW( INDEX_XYLRO2   , 1 )
-             INDEX_XYE       = IOLD2NEW( INDEX_XYE      , 1 )
-             INDEX_ISO       = IOLD2NEW( INDEX_ISO      , 1 )
-             INDEX_ISOP      = IOLD2NEW( INDEX_ISOP     , 1 )
-             INDEX_ISOPRXN   = IOLD2NEW( INDEX_ISOPRXN  , 1 )
-             INDEX_API       = IOLD2NEW( INDEX_API      , 1 )
-             INDEX_APIP      = IOLD2NEW( INDEX_APIP     , 1 )
-             INDEX_TRPRXN    = IOLD2NEW( INDEX_TRPRXN   , 1 )
-             INDEX_LIM       = IOLD2NEW( INDEX_LIM      , 1 )
-             INDEX_LIMP      = IOLD2NEW( INDEX_LIMP     , 1 )
-             INDEX_RCO3      = IOLD2NEW( INDEX_RCO3     , 1 )
-             INDEX_ACTP      = IOLD2NEW( INDEX_ACTP     , 1 )
-             INDEX_MEKP      = IOLD2NEW( INDEX_MEKP     , 1 )
-             INDEX_KETP      = IOLD2NEW( INDEX_KETP     , 1 )
-             INDEX_MCP       = IOLD2NEW( INDEX_MCP      , 1 )
-             INDEX_MVKP      = IOLD2NEW( INDEX_MVKP     , 1 )
-             INDEX_UALP      = IOLD2NEW( INDEX_UALP     , 1 )
-             INDEX_DCB3      = IOLD2NEW( INDEX_DCB3     , 1 )
-             INDEX_BALP      = IOLD2NEW( INDEX_BALP     , 1 )
-             INDEX_ADDC      = IOLD2NEW( INDEX_ADDC     , 1 )
-             INDEX_MCT       = IOLD2NEW( INDEX_MCT      , 1 )
-             INDEX_MCTO      = IOLD2NEW( INDEX_MCTO     , 1 )
-             INDEX_MOH       = IOLD2NEW( INDEX_MOH      , 1 )
-             INDEX_EOH       = IOLD2NEW( INDEX_EOH      , 1 )
-             INDEX_ROH       = IOLD2NEW( INDEX_ROH      , 1 )
-             INDEX_ETEG      = IOLD2NEW( INDEX_ETEG     , 1 )
-             INDEX_ISHP      = IOLD2NEW( INDEX_ISHP     , 1 )
-             INDEX_IEPOX     = IOLD2NEW( INDEX_IEPOX    , 1 )
-             INDEX_MAHP      = IOLD2NEW( INDEX_MAHP     , 1 )
-             INDEX_ORA2      = IOLD2NEW( INDEX_ORA2     , 1 )
-             INDEX_ORAP      = IOLD2NEW( INDEX_ORAP     , 1 )
-             INDEX_PPN       = IOLD2NEW( INDEX_PPN      , 1 )
-             INDEX_MPAN      = IOLD2NEW( INDEX_MPAN     , 1 )
-             INDEX_NALD      = IOLD2NEW( INDEX_NALD     , 1 )
-             INDEX_ISON      = IOLD2NEW( INDEX_ISON     , 1 )
-             INDEX_MCTP      = IOLD2NEW( INDEX_MCTP     , 1 )
-             INDEX_OLNN      = IOLD2NEW( INDEX_OLNN     , 1 )
-             INDEX_OLND      = IOLD2NEW( INDEX_OLND     , 1 )
-             INDEX_ADCN      = IOLD2NEW( INDEX_ADCN     , 1 )
-             INDEX_TOLP      = IOLD2NEW( INDEX_TOLP     , 1 )
-             INDEX_PER1      = IOLD2NEW( INDEX_PER1     , 1 )
-             INDEX_XYLP      = IOLD2NEW( INDEX_XYLP     , 1 )
-             INDEX_PER2      = IOLD2NEW( INDEX_PER2     , 1 )
-             INDEX_XYO2      = IOLD2NEW( INDEX_XYO2     , 1 )
-             INDEX_XYOP      = IOLD2NEW( INDEX_XYOP     , 1 )
-             INDEX_TRPN      = IOLD2NEW( INDEX_TRPN     , 1 )
-             INDEX_BAL1      = IOLD2NEW( INDEX_BAL1     , 1 )
-             INDEX_BAL2      = IOLD2NEW( INDEX_BAL2     , 1 )
-             INDEX_TOLNRXN   = IOLD2NEW( INDEX_TOLNRXN  , 1 )
-             INDEX_TOLHRXN   = IOLD2NEW( INDEX_TOLHRXN  , 1 )
-             INDEX_XYLNRXN   = IOLD2NEW( INDEX_XYLNRXN  , 1 )
-             INDEX_XYLHRXN   = IOLD2NEW( INDEX_XYLHRXN  , 1 )
-             INDEX_BNZNRXN   = IOLD2NEW( INDEX_BNZNRXN  , 1 )
-             INDEX_BNZHRXN   = IOLD2NEW( INDEX_BNZHRXN  , 1 )
-             INDEX_SOAALK    = IOLD2NEW( INDEX_SOAALK   , 1 )
-             INDEX_ALKRXN    = IOLD2NEW( INDEX_ALKRXN   , 1 )
-             INDEX_ROCIOXY   = IOLD2NEW( INDEX_ROCIOXY  , 1 )
-             INDEX_SLOWROC   = IOLD2NEW( INDEX_SLOWROC  , 1 )
-             INDEX_NAPH      = IOLD2NEW( INDEX_NAPH     , 1 )
-             INDEX_PAHRO2    = IOLD2NEW( INDEX_PAHRO2   , 1 )
-             INDEX_PAHNRXN   = IOLD2NEW( INDEX_PAHNRXN  , 1 )
-             INDEX_PAHHRXN   = IOLD2NEW( INDEX_PAHHRXN  , 1 )
-             INDEX_ACRO      = IOLD2NEW( INDEX_ACRO     , 1 )
-             INDEX_BDE13     = IOLD2NEW( INDEX_BDE13    , 1 )
-             INDEX_FURAN     = IOLD2NEW( INDEX_FURAN    , 1 )
-             INDEX_FURANO2   = IOLD2NEW( INDEX_FURANO2  , 1 )
-             INDEX_FURANONE  = IOLD2NEW( INDEX_FURANONE , 1 )
-             INDEX_PROG      = IOLD2NEW( INDEX_PROG     , 1 )
-             INDEX_SESQ      = IOLD2NEW( INDEX_SESQ     , 1 )
-             INDEX_SESQNRO2  = IOLD2NEW( INDEX_SESQNRO2 , 1 )
-             INDEX_VROCP0OXY = IOLD2NEW( INDEX_VROCP0OXY, 1 )
-             INDEX_VROCP3OXY = IOLD2NEW( INDEX_VROCP3OXY, 1 )
-             INDEX_VROCN2OXY = IOLD2NEW( INDEX_VROCN2OXY, 1 )
-             INDEX_SESQRO2   = IOLD2NEW( INDEX_SESQRO2  , 1 )
-             INDEX_AGLYJ     = IOLD2NEW( INDEX_AGLYJ    , 1 )
-             INDEX_AISO3J    = IOLD2NEW( INDEX_AISO3J   , 1 )
-             INDEX_AXYL1J    = IOLD2NEW( INDEX_AXYL1J   , 1 )
-             INDEX_AOLGAJ    = IOLD2NEW( INDEX_AOLGAJ   , 1 )
-             INDEX_AXYL2J    = IOLD2NEW( INDEX_AXYL2J   , 1 )
-             INDEX_ATOL1J    = IOLD2NEW( INDEX_ATOL1J   , 1 )
-             INDEX_ATOL2J    = IOLD2NEW( INDEX_ATOL2J   , 1 )
-             INDEX_ABNZ1J    = IOLD2NEW( INDEX_ABNZ1J   , 1 )
-             INDEX_ABNZ2J    = IOLD2NEW( INDEX_ABNZ2J   , 1 )
-             INDEX_ATRP1J    = IOLD2NEW( INDEX_ATRP1J   , 1 )
-             INDEX_AOLGBJ    = IOLD2NEW( INDEX_AOLGBJ   , 1 )
-             INDEX_ATRP2J    = IOLD2NEW( INDEX_ATRP2J   , 1 )
-             INDEX_AISO1J    = IOLD2NEW( INDEX_AISO1J   , 1 )
-             INDEX_AISO2J    = IOLD2NEW( INDEX_AISO2J   , 1 )
-             INDEX_APAH1J    = IOLD2NEW( INDEX_APAH1J   , 1 )
-             INDEX_APAH2J    = IOLD2NEW( INDEX_APAH2J   , 1 )
-             INDEX_AALK1J    = IOLD2NEW( INDEX_AALK1J   , 1 )
-             INDEX_AALK2J    = IOLD2NEW( INDEX_AALK2J   , 1 )
-             INDEX_APOCI     = IOLD2NEW( INDEX_APOCI    , 1 )
-             INDEX_APNCOMI   = IOLD2NEW( INDEX_APNCOMI  , 1 )
-             INDEX_APOCJ     = IOLD2NEW( INDEX_APOCJ    , 1 )
-             INDEX_APNCOMJ   = IOLD2NEW( INDEX_APNCOMJ  , 1 )
-             INDEX_PCVOC     = IOLD2NEW( INDEX_PCVOC    , 1 )
-             INDEX_PCSOARXN  = IOLD2NEW( INDEX_PCSOARXN , 1 )
-             INDEX_VLVPO1    = IOLD2NEW( INDEX_VLVPO1   , 1 )
-             INDEX_VSVPO1    = IOLD2NEW( INDEX_VSVPO1   , 1 )
-             INDEX_VSVPO2    = IOLD2NEW( INDEX_VSVPO2   , 1 )
-             INDEX_VSVPO3    = IOLD2NEW( INDEX_VSVPO3   , 1 )
-             INDEX_VIVPO1    = IOLD2NEW( INDEX_VIVPO1   , 1 )
-             INDEX_VLVOO1    = IOLD2NEW( INDEX_VLVOO1   , 1 )
-             INDEX_VLVOO2    = IOLD2NEW( INDEX_VLVOO2   , 1 )
-             INDEX_VSVOO2    = IOLD2NEW( INDEX_VSVOO2   , 1 )
-             INDEX_VSVOO3    = IOLD2NEW( INDEX_VSVOO3   , 1 )
-             INDEX_VSVOO1    = IOLD2NEW( INDEX_VSVOO1   , 1 )
+             INDEX_O3         = IOLD2NEW( INDEX_O3        , 1 )
+             INDEX_O3P        = IOLD2NEW( INDEX_O3P       , 1 )
+             INDEX_O1D        = IOLD2NEW( INDEX_O1D       , 1 )
+             INDEX_H2O2       = IOLD2NEW( INDEX_H2O2      , 1 )
+             INDEX_HO         = IOLD2NEW( INDEX_HO        , 1 )
+             INDEX_NO2        = IOLD2NEW( INDEX_NO2       , 1 )
+             INDEX_NO         = IOLD2NEW( INDEX_NO        , 1 )
+             INDEX_NO3        = IOLD2NEW( INDEX_NO3       , 1 )
+             INDEX_HONO       = IOLD2NEW( INDEX_HONO      , 1 )
+             INDEX_HNO3       = IOLD2NEW( INDEX_HNO3      , 1 )
+             INDEX_HNO4       = IOLD2NEW( INDEX_HNO4      , 1 )
+             INDEX_HO2        = IOLD2NEW( INDEX_HO2       , 1 )
+             INDEX_HCHO       = IOLD2NEW( INDEX_HCHO      , 1 )
+             INDEX_CO         = IOLD2NEW( INDEX_CO        , 1 )
+             INDEX_ACD        = IOLD2NEW( INDEX_ACD       , 1 )
+             INDEX_MO2        = IOLD2NEW( INDEX_MO2       , 1 )
+             INDEX_ALD        = IOLD2NEW( INDEX_ALD       , 1 )
+             INDEX_ETHP       = IOLD2NEW( INDEX_ETHP      , 1 )
+             INDEX_ACT        = IOLD2NEW( INDEX_ACT       , 1 )
+             INDEX_ACO3       = IOLD2NEW( INDEX_ACO3      , 1 )
+             INDEX_UALD       = IOLD2NEW( INDEX_UALD      , 1 )
+             INDEX_KET        = IOLD2NEW( INDEX_KET       , 1 )
+             INDEX_MEK        = IOLD2NEW( INDEX_MEK       , 1 )
+             INDEX_HKET       = IOLD2NEW( INDEX_HKET      , 1 )
+             INDEX_MACR       = IOLD2NEW( INDEX_MACR      , 1 )
+             INDEX_MACP       = IOLD2NEW( INDEX_MACP      , 1 )
+             INDEX_XO2        = IOLD2NEW( INDEX_XO2       , 1 )
+             INDEX_MVK        = IOLD2NEW( INDEX_MVK       , 1 )
+             INDEX_GLY        = IOLD2NEW( INDEX_GLY       , 1 )
+             INDEX_MGLY       = IOLD2NEW( INDEX_MGLY      , 1 )
+             INDEX_DCB1       = IOLD2NEW( INDEX_DCB1      , 1 )
+             INDEX_DCB2       = IOLD2NEW( INDEX_DCB2      , 1 )
+             INDEX_BALD       = IOLD2NEW( INDEX_BALD      , 1 )
+             INDEX_CHO        = IOLD2NEW( INDEX_CHO       , 1 )
+             INDEX_OP1        = IOLD2NEW( INDEX_OP1       , 1 )
+             INDEX_OP2        = IOLD2NEW( INDEX_OP2       , 1 )
+             INDEX_PAA        = IOLD2NEW( INDEX_PAA       , 1 )
+             INDEX_ONIT       = IOLD2NEW( INDEX_ONIT      , 1 )
+             INDEX_PAN        = IOLD2NEW( INDEX_PAN       , 1 )
+             INDEX_N2O5       = IOLD2NEW( INDEX_N2O5      , 1 )
+             INDEX_SO2        = IOLD2NEW( INDEX_SO2       , 1 )
+             INDEX_SULF       = IOLD2NEW( INDEX_SULF      , 1 )
+             INDEX_SULRXN     = IOLD2NEW( INDEX_SULRXN    , 1 )
+             INDEX_ETH        = IOLD2NEW( INDEX_ETH       , 1 )
+             INDEX_HC3        = IOLD2NEW( INDEX_HC3       , 1 )
+             INDEX_HC3P       = IOLD2NEW( INDEX_HC3P      , 1 )
+             INDEX_ASOATJ     = IOLD2NEW( INDEX_ASOATJ    , 1 )
+             INDEX_HC5        = IOLD2NEW( INDEX_HC5       , 1 )
+             INDEX_HC5P       = IOLD2NEW( INDEX_HC5P      , 1 )
+             INDEX_HC8        = IOLD2NEW( INDEX_HC8       , 1 )
+             INDEX_HC8P       = IOLD2NEW( INDEX_HC8P      , 1 )
+             INDEX_ETE        = IOLD2NEW( INDEX_ETE       , 1 )
+             INDEX_ETEP       = IOLD2NEW( INDEX_ETEP      , 1 )
+             INDEX_OLT        = IOLD2NEW( INDEX_OLT       , 1 )
+             INDEX_OLTP       = IOLD2NEW( INDEX_OLTP      , 1 )
+             INDEX_OLI        = IOLD2NEW( INDEX_OLI       , 1 )
+             INDEX_OLIP       = IOLD2NEW( INDEX_OLIP      , 1 )
+             INDEX_ACE        = IOLD2NEW( INDEX_ACE       , 1 )
+             INDEX_ORA1       = IOLD2NEW( INDEX_ORA1      , 1 )
+             INDEX_BEN        = IOLD2NEW( INDEX_BEN       , 1 )
+             INDEX_BENP       = IOLD2NEW( INDEX_BENP      , 1 )
+             INDEX_EPX        = IOLD2NEW( INDEX_EPX       , 1 )
+             INDEX_PHEN       = IOLD2NEW( INDEX_PHEN      , 1 )
+             INDEX_BENZRO2    = IOLD2NEW( INDEX_BENZRO2   , 1 )
+             INDEX_TOL        = IOLD2NEW( INDEX_TOL       , 1 )
+             INDEX_TR2        = IOLD2NEW( INDEX_TR2       , 1 )
+             INDEX_TLP1       = IOLD2NEW( INDEX_TLP1      , 1 )
+             INDEX_CSL        = IOLD2NEW( INDEX_CSL       , 1 )
+             INDEX_TOLRO2     = IOLD2NEW( INDEX_TOLRO2    , 1 )
+             INDEX_XYM        = IOLD2NEW( INDEX_XYM       , 1 )
+             INDEX_XY2        = IOLD2NEW( INDEX_XY2       , 1 )
+             INDEX_XYL1       = IOLD2NEW( INDEX_XYL1      , 1 )
+             INDEX_XYLRO2     = IOLD2NEW( INDEX_XYLRO2    , 1 )
+             INDEX_XYE        = IOLD2NEW( INDEX_XYE       , 1 )
+             INDEX_ISO        = IOLD2NEW( INDEX_ISO       , 1 )
+             INDEX_ISOP       = IOLD2NEW( INDEX_ISOP      , 1 )
+             INDEX_ISOPRXN    = IOLD2NEW( INDEX_ISOPRXN   , 1 )
+             INDEX_API        = IOLD2NEW( INDEX_API       , 1 )
+             INDEX_APIP       = IOLD2NEW( INDEX_APIP      , 1 )
+             INDEX_TRPRXN     = IOLD2NEW( INDEX_TRPRXN    , 1 )
+             INDEX_LIM        = IOLD2NEW( INDEX_LIM       , 1 )
+             INDEX_LIMP       = IOLD2NEW( INDEX_LIMP      , 1 )
+             INDEX_RCO3       = IOLD2NEW( INDEX_RCO3      , 1 )
+             INDEX_ACTP       = IOLD2NEW( INDEX_ACTP      , 1 )
+             INDEX_MEKP       = IOLD2NEW( INDEX_MEKP      , 1 )
+             INDEX_KETP       = IOLD2NEW( INDEX_KETP      , 1 )
+             INDEX_MCP        = IOLD2NEW( INDEX_MCP       , 1 )
+             INDEX_MVKP       = IOLD2NEW( INDEX_MVKP      , 1 )
+             INDEX_UALP       = IOLD2NEW( INDEX_UALP      , 1 )
+             INDEX_DCB3       = IOLD2NEW( INDEX_DCB3      , 1 )
+             INDEX_BALP       = IOLD2NEW( INDEX_BALP      , 1 )
+             INDEX_ADDC       = IOLD2NEW( INDEX_ADDC      , 1 )
+             INDEX_MCT        = IOLD2NEW( INDEX_MCT       , 1 )
+             INDEX_MCTO       = IOLD2NEW( INDEX_MCTO      , 1 )
+             INDEX_MOH        = IOLD2NEW( INDEX_MOH       , 1 )
+             INDEX_EOH        = IOLD2NEW( INDEX_EOH       , 1 )
+             INDEX_ROH        = IOLD2NEW( INDEX_ROH       , 1 )
+             INDEX_ETEG       = IOLD2NEW( INDEX_ETEG      , 1 )
+             INDEX_ISHP       = IOLD2NEW( INDEX_ISHP      , 1 )
+             INDEX_IEPOX      = IOLD2NEW( INDEX_IEPOX     , 1 )
+             INDEX_MAHP       = IOLD2NEW( INDEX_MAHP      , 1 )
+             INDEX_ORA2       = IOLD2NEW( INDEX_ORA2      , 1 )
+             INDEX_ORAP       = IOLD2NEW( INDEX_ORAP      , 1 )
+             INDEX_PPN        = IOLD2NEW( INDEX_PPN       , 1 )
+             INDEX_MPAN       = IOLD2NEW( INDEX_MPAN      , 1 )
+             INDEX_NALD       = IOLD2NEW( INDEX_NALD      , 1 )
+             INDEX_ISON       = IOLD2NEW( INDEX_ISON      , 1 )
+             INDEX_MCTP       = IOLD2NEW( INDEX_MCTP      , 1 )
+             INDEX_OLNN       = IOLD2NEW( INDEX_OLNN      , 1 )
+             INDEX_OLND       = IOLD2NEW( INDEX_OLND      , 1 )
+             INDEX_ADCN       = IOLD2NEW( INDEX_ADCN      , 1 )
+             INDEX_TOLP       = IOLD2NEW( INDEX_TOLP      , 1 )
+             INDEX_PER1       = IOLD2NEW( INDEX_PER1      , 1 )
+             INDEX_XYLP       = IOLD2NEW( INDEX_XYLP      , 1 )
+             INDEX_PER2       = IOLD2NEW( INDEX_PER2      , 1 )
+             INDEX_XYO2       = IOLD2NEW( INDEX_XYO2      , 1 )
+             INDEX_XYOP       = IOLD2NEW( INDEX_XYOP      , 1 )
+             INDEX_TRPN       = IOLD2NEW( INDEX_TRPN      , 1 )
+             INDEX_BAL1       = IOLD2NEW( INDEX_BAL1      , 1 )
+             INDEX_BAL2       = IOLD2NEW( INDEX_BAL2      , 1 )
+             INDEX_TOLNRXN    = IOLD2NEW( INDEX_TOLNRXN   , 1 )
+             INDEX_TOLHRXN    = IOLD2NEW( INDEX_TOLHRXN   , 1 )
+             INDEX_XYLNRXN    = IOLD2NEW( INDEX_XYLNRXN   , 1 )
+             INDEX_XYLHRXN    = IOLD2NEW( INDEX_XYLHRXN   , 1 )
+             INDEX_BNZNRXN    = IOLD2NEW( INDEX_BNZNRXN   , 1 )
+             INDEX_BNZHRXN    = IOLD2NEW( INDEX_BNZHRXN   , 1 )
+             INDEX_SOAALK     = IOLD2NEW( INDEX_SOAALK    , 1 )
+             INDEX_ALKRXN     = IOLD2NEW( INDEX_ALKRXN    , 1 )
+             INDEX_VROCIOXY   = IOLD2NEW( INDEX_VROCIOXY  , 1 )
+             INDEX_SLOWROC    = IOLD2NEW( INDEX_SLOWROC   , 1 )
+             INDEX_NAPH       = IOLD2NEW( INDEX_NAPH      , 1 )
+             INDEX_PAHRO2     = IOLD2NEW( INDEX_PAHRO2    , 1 )
+             INDEX_PAHNRXN    = IOLD2NEW( INDEX_PAHNRXN   , 1 )
+             INDEX_PAHHRXN    = IOLD2NEW( INDEX_PAHHRXN   , 1 )
+             INDEX_ACRO       = IOLD2NEW( INDEX_ACRO      , 1 )
+             INDEX_BDE13      = IOLD2NEW( INDEX_BDE13     , 1 )
+             INDEX_FURAN      = IOLD2NEW( INDEX_FURAN     , 1 )
+             INDEX_FURANO2    = IOLD2NEW( INDEX_FURANO2   , 1 )
+             INDEX_FURANONE   = IOLD2NEW( INDEX_FURANONE  , 1 )
+             INDEX_PROG       = IOLD2NEW( INDEX_PROG      , 1 )
+             INDEX_SESQ       = IOLD2NEW( INDEX_SESQ      , 1 )
+             INDEX_SESQNRO2   = IOLD2NEW( INDEX_SESQNRO2  , 1 )
+             INDEX_VROCP0OXY2 = IOLD2NEW( INDEX_VROCP0OXY2, 1 )
+             INDEX_VROCP3OXY2 = IOLD2NEW( INDEX_VROCP3OXY2, 1 )
+             INDEX_VROCN2OXY2 = IOLD2NEW( INDEX_VROCN2OXY2, 1 )
+             INDEX_SESQRO2    = IOLD2NEW( INDEX_SESQRO2   , 1 )
+             INDEX_AGLYJ      = IOLD2NEW( INDEX_AGLYJ     , 1 )
+             INDEX_AISO3J     = IOLD2NEW( INDEX_AISO3J    , 1 )
+             INDEX_AXYL1J     = IOLD2NEW( INDEX_AXYL1J    , 1 )
+             INDEX_AOLGAJ     = IOLD2NEW( INDEX_AOLGAJ    , 1 )
+             INDEX_AXYL2J     = IOLD2NEW( INDEX_AXYL2J    , 1 )
+             INDEX_ATOL1J     = IOLD2NEW( INDEX_ATOL1J    , 1 )
+             INDEX_ATOL2J     = IOLD2NEW( INDEX_ATOL2J    , 1 )
+             INDEX_ABNZ1J     = IOLD2NEW( INDEX_ABNZ1J    , 1 )
+             INDEX_ABNZ2J     = IOLD2NEW( INDEX_ABNZ2J    , 1 )
+             INDEX_ATRP1J     = IOLD2NEW( INDEX_ATRP1J    , 1 )
+             INDEX_AOLGBJ     = IOLD2NEW( INDEX_AOLGBJ    , 1 )
+             INDEX_ATRP2J     = IOLD2NEW( INDEX_ATRP2J    , 1 )
+             INDEX_AISO1J     = IOLD2NEW( INDEX_AISO1J    , 1 )
+             INDEX_AISO2J     = IOLD2NEW( INDEX_AISO2J    , 1 )
+             INDEX_APAH1J     = IOLD2NEW( INDEX_APAH1J    , 1 )
+             INDEX_APAH2J     = IOLD2NEW( INDEX_APAH2J    , 1 )
+             INDEX_AALK1J     = IOLD2NEW( INDEX_AALK1J    , 1 )
+             INDEX_AALK2J     = IOLD2NEW( INDEX_AALK2J    , 1 )
+             INDEX_APOCI      = IOLD2NEW( INDEX_APOCI     , 1 )
+             INDEX_APNCOMI    = IOLD2NEW( INDEX_APNCOMI   , 1 )
+             INDEX_APOCJ      = IOLD2NEW( INDEX_APOCJ     , 1 )
+             INDEX_APNCOMJ    = IOLD2NEW( INDEX_APNCOMJ   , 1 )
+             INDEX_PCVOC      = IOLD2NEW( INDEX_PCVOC     , 1 )
+             INDEX_PCSOARXN   = IOLD2NEW( INDEX_PCSOARXN  , 1 )
+             INDEX_VLVPO1     = IOLD2NEW( INDEX_VLVPO1    , 1 )
+             INDEX_VSVPO1     = IOLD2NEW( INDEX_VSVPO1    , 1 )
+             INDEX_VSVPO2     = IOLD2NEW( INDEX_VSVPO2    , 1 )
+             INDEX_VSVPO3     = IOLD2NEW( INDEX_VSVPO3    , 1 )
+             INDEX_VIVPO1     = IOLD2NEW( INDEX_VIVPO1    , 1 )
+             INDEX_VLVOO1     = IOLD2NEW( INDEX_VLVOO1    , 1 )
+             INDEX_VLVOO2     = IOLD2NEW( INDEX_VLVOO2    , 1 )
+             INDEX_VSVOO2     = IOLD2NEW( INDEX_VSVOO2    , 1 )
+             INDEX_VSVOO3     = IOLD2NEW( INDEX_VSVOO3    , 1 )
+             INDEX_VSVOO1     = IOLD2NEW( INDEX_VSVOO1    , 1 )
+             INDEX_VROCN2OXY8 = IOLD2NEW( INDEX_VROCN2OXY8, 1 )
+             INDEX_VROCN2OXY4 = IOLD2NEW( INDEX_VROCN2OXY4, 1 )
+             INDEX_VROCN1OXY6 = IOLD2NEW( INDEX_VROCN1OXY6, 1 )
+             INDEX_VROCN1OXY3 = IOLD2NEW( INDEX_VROCN1OXY3, 1 )
+             INDEX_VROCP0OXY4 = IOLD2NEW( INDEX_VROCP0OXY4, 1 )
+             INDEX_VROCP1OXY3 = IOLD2NEW( INDEX_VROCP1OXY3, 1 )
+             INDEX_VROCP2OXY2 = IOLD2NEW( INDEX_VROCP2OXY2, 1 )
+             INDEX_VROCP4OXY2 = IOLD2NEW( INDEX_VROCP4OXY2, 1 )
+             INDEX_OP3        = IOLD2NEW( INDEX_OP3       , 1 )
+             INDEX_VROCN1OXY1 = IOLD2NEW( INDEX_VROCN1OXY1, 1 )
+             INDEX_VROCP1OXY1 = IOLD2NEW( INDEX_VROCP1OXY1, 1 )
+             INDEX_VROCP5OXY1 = IOLD2NEW( INDEX_VROCP5OXY1, 1 )
+             INDEX_VROCP6OXY1 = IOLD2NEW( INDEX_VROCP6OXY1, 1 )
           END SUBROUTINE RESET_SPECIES_POINTERS
        END MODULE RXNS_FUNCTION
