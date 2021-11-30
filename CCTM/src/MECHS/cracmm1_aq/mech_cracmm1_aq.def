@@ -98,7 +98,7 @@
 ! - added HAP placeholder chemistry for BDE13, ACRO. NAPH already present.
 ! - added PROG based on Coggon et al. PNAS 2021 and 
 !   MCM http://mcm.york.ac.uk/browse.htt?species=PROPGLY
-! - FURAN chemistry added based on Wang et al. JGR 2021, Schwantes, Coggon 
+! - FURAN chemistry added based on Wang et al. JGR 2021, Schwantes, Coggon
 ! - SESQ chemistry added based on MCM
 !------------------------------------------------------------------------------ 
 ! 10-18-21 G.Sarwar
@@ -111,6 +111,8 @@ CRACMM1_AQ
 ELIMINATE =
 XN;
 XC;
+CH4;
+CO2;
 END ELIMINATE
 
 REACTIONS[CM] =
@@ -245,8 +247,9 @@ REACTIONS[CM] =
 <R074>  HC5  + HO          = HC5P + 0.00158*ASOATJ    # 1.01E-11 @ 245.;
 <R075>  HC8  + HO          = 0.049*HO2 + 0.951*HC8P
                                        + 0.025*ALD
-                                       + 0.024*HKET   
+                                       + 0.024*HKET
                                        + 0.042*ASOATJ # 2.82E-11 @ 273.;
+
 <R076>  ETE  + HO          = ETEP                     # 1.0E-28 ^ -4.5 &
                                                         8.8E-12 ^ -0.85;
 <R077>  OLT  + HO          = OLTP                     # 5.72E-12 @ -500.;
@@ -1196,42 +1199,69 @@ REACTIONS[CM] =
 ! assume SLOWROC, which has effectively 2.1C, makes ethane-like RO2 with SLOWROC emission weighted kOH
 <R002c> SLOWROC + HO      = ETHP + 0.00101*ASOATJ     # 6.55E-14;
 
-! HAP placeholder chemistry from Carbon Bond or ae6
-! Comment out photolysis of ACRO for now
-<SA10>  NAPH + HO          = HO  + PAHRO2              # 2.31E-11;
-<SA11>  PAHRO2  + NO       = NO  + PAHNRXN             # 2.70e-12@-360;
-<SA12>  PAHRO2  + HO2      = HO2 + PAHHRXN             # 1.90e-13@-1300; 
-< T17>  ACRO + HO          = HO                   # 2.0E-11;
-< T18>  ACRO + O3          = O3                   # 2.61E-19;
-< T19>  ACRO + NO3         = NO3                  # 1.15E-15;
-!< T20>  ACRO               =                      # 1.0/<ACRO_09>;
-!<TCL5>  ACRO + CL          = CL                   # 2.37E-10;
-< T10>  BDE13 + HO         = HO  + 0.58*ACRO      # 1.48E-11@-448.;
-< T11>  BDE13 + O3         = O3  + 0.52*ACRO      # 1.34E-14@2283.;
-< T12>  BDE13 + NO3        = NO3 + 0.045*ACRO     # 1.79E-13;
-!<TCL3>  BDE13 + CL         = CL  + 0.58*ACRO       # 2.51E-10;
+! HAP chemistry
+! ELD uncommented ACRO photolysis 11/18/21, kept photolysis rate constant that was already here
+<SA10>  NAPH + HO          = HO + 0.5*PAHRO2 + 0.5*OP2 + .05*ONIT 
+                                + 0.45*NO2 + 3.825*XC  # 2.31E-11;
+<SA11>  PAHRO2  + NO       = NO  + PAHNRXN             # 2.70E-12@-360;
+<SA12>  PAHRO2  + HO2      = HO2 + PAHHRXN             # 1.90E-13@-1300; 
+< T17>  ACRO + HO          = 0.57*MACP + 0.43*MCP 
+                                       -1.0*XC     # 8.E-12@-380;
+< T18>  ACRO + O3          = .84*CO + .56*HO2 
+                                    + .28*HO 
+                                    + .72*HCHO 
+                                    + .62*GLY 
+                                    + 0.2*XC       # 2.9E-19;
+< T19>  ACRO + NO3         = .68*HCHO + .32*MACP 
+                                      + .68*XO2 
+                                      + .68*MGLY 
+                                      + .32*HNO3 
+                                      + .68*NO2 
+                                      - 0.32*XC    # 3.4E-15;
+< T20>  ACRO               = CO + .477*HO2 
+                                + .25*ETE 
+                                + .246*CO2 
+                                + .219*CH4 
+                                + .204*ACO3  
+                                + .204*HO 
+                                + .15*HCHO 
+                                + .15*ACO3 
+                                + .177*XC 
+                                + .027*MO2         # 1.0/<ACRO_09>;
+< T10>  BDE13 + HO         = HO + 0.58*ACRO 
+                                + 2.26*XC   # 1.48E-11@-448.;
+< T11>  BDE13 + O3         = .62*ACRO + .63*CO 
+                                      + .42*HO2 
+                                      + .08*HO
+                                      + .83*HCHO 
+                                      + .17*ETE 
+                                      + 3.66*XC  # 1.34E-14@2283.;
+< T12>  BDE13 + NO3        = 0.900*OLNN 
+                                      + 0.100*OLND 
+                                      + 0.900*MACR  # 1E-13;
 
 ! Furans based on 5 species aggregate using  Wang et al. JGR 2021, Schwantes, and Coggon
 ! Use RACM2 o-xylene RO2+HO2, RACM2 (same as MCM) RO2+NO rate constants
 ! SOA yield taken from Table S1 of Bruns et al. 2016 Sci Rep and mass removed from KET product
-<R003c>  FURAN + HO          = 0.49*DCB1 + 0.49*HO2     
+<R003c>  FURAN + HO          = 0.49*DCB1 + 0.49*HO2
                                          + 0.51*FURANO2 # 5.01E-11;
-<R004c>  FURANO2 + NO        = 0.08*ONIT + 0.92*NO2     
-                                         + 0.92*FURANONE 
-                                         + 0.75*HO2     
+<R004c>  FURANO2 + NO        = 0.08*ONIT + 0.92*NO2
+                                         + 0.92*FURANONE
+                                         + 0.75*HO2
                                          + 0.17*MO2     # 2.7E-12 @ -360.;
-<R005c>  FURANO2 + HO2       = 0.6*OP2   + 0.4*FURANONE 
-                                         + 0.4*HO 
-                                         + 0.32*HO2     
+<R005c>  FURANO2 + HO2       = 0.6*OP2   + 0.4*FURANONE
+                                         + 0.4*HO
+                                         + 0.32*HO2
                                          + 0.08*MO2     # 3.75E-13 @ -980.;
-<R006c>  FURANONE + HO       = 0.65*KET  + 0.31*GLY     
-                                         + 0.66*HO2 
-                                         + 0.34*MO2   
-                                         + 0.43*CO      
+<R006c>  FURANONE + HO       = 0.65*KET  + 0.31*GLY
+                                         + 0.66*HO2
+                                         + 0.34*MO2
+                                         + 0.43*CO
                                          + 0.04*ASOATJ # 4.40E-11;
 <R007c>  FURAN + O3          = 0.02*HO   + ALD          # 3.43E-17;
-<R008c>  FURAN + NO3         = NO2       + 0.8*DCB1     
+<R008c>  FURAN + NO3         = NO2       + 0.8*DCB1
                                          + 0.2*DCB3     # 8.99E-12;
+
 
 ! PROG based on Coggon et al. and MCM http://mcm.york.ac.uk/browse.htt?species=PROPGLY
 <R010c> PROG + HO = 0.613*HKET + 0.387*ALD + HO2 #1.20E-11;
