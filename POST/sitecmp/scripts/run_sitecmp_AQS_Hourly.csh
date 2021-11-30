@@ -8,6 +8,35 @@
 #             http://www.cmascenter.org
 # ===================================================================
 
+#> Simple Linux Utility for Resource Management System 
+#> (SLURM) - The following specifications are recommended 
+#> for executing the runscript on the cluster at the 
+#> National Computing Center used primarily by EPA.
+#SBATCH -t 10:00:00
+#SBATCH -n 1
+#SBATCH -J sitecmp
+#SBATCH -p ord
+#SBATCH --gid=mod3dev
+#SBATCH -A mod3dev
+#SBATCH -o /home/sfarrell/CRACMM1new/POST/sitecmp/scripts/sitecmp_%j.txt
+
+#> The following commands output information from the SLURM
+#> scheduler to the log files for traceability.
+   if ( $?SLURM_JOB_ID ) then
+      echo Job ID is $SLURM_JOB_ID
+      echo Host is $SLURM_SUBMIT_HOST
+      #> Switch to the working directory. By default,
+      #>   SLURM launches processes from your home directory.
+      echo Working directory is $SLURM_SUBMIT_DIR
+      cd $SLURM_SUBMIT_DIR
+   endif
+   echo '>>>>>> start model run at ' `date`
+
+#> Configure the system environment and set up the module 
+#> capability
+   limit stacksize unlimited
+#
+
 # ==================================================================
 #> Runtime Environment Options
 # ==================================================================
@@ -141,18 +170,18 @@
 #> gmt_offset, state, county, and elevation (case insensitive)
 #> This file can be downloaded from
 #> https://github.com/USEPA/AMET/tree/master/obs/AQ/site_metadata_files
- setenv SITE_FILE AQS_full_site_list.csv
+ setenv SITE_FILE  /work/MOD3EVAL/aq_obs/routine/site_metadata_files/AQS_full_site_list.csv  #> AQS sites meta data file
 #> On EPA system:
-#  setenv SITE_FILE /work/MOD3EVAL/aq_obs/routine/site_metadata_files/AQS_full_site_list.csv
+ setenv SITE_FILE  /work/MOD3EVAL/aq_obs/routine/site_metadata_files/AQS_full_site_list.csv  #> AQS sites meta data file
 
 #> input table containing site-id, time-period, and data fields
 #> AQS obs data in the format needed for sitecmp are available 
 #> from the CMAS Center Data clearinghouse under the heading "2000-2017 North American Air Quality Observation Data":
 #> https://www.cmascenter.org/download/data.cfm
 #> Hourly AQS observations are located in AMET12_OBSDATA_YYYY.tar.gz for year YYYY.
- setenv IN_TABLE AQS_hourly_data_2016.csv
+ setenv IN_TABLE  /work/MOD3EVAL/aq_obs/routine/2016/AQS_hourly_data_2016.csv #> AQS data file
 #> One EPA system:
-#  setenv IN_TABLE /work/MOD3EVAL/aq_obs/routine/2016/AQS_hourly_data_2016.csv
+ setenv IN_TABLE  /work/MOD3EVAL/aq_obs/routine/2016/AQS_hourly_data_2016.csv #> AQS data file
 
 
 #############################################################
