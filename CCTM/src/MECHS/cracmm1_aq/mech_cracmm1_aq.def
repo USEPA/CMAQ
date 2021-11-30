@@ -1295,8 +1295,12 @@ REACTIONS[CM] =
 
 <HAL_Ozone> O3 =  %H # 6.7006E-11@-10.7435 & 3.4153E-08@0.6713
                                                 & 2.0E-6;
+<HET_IEPOX> IEPOX = IEPOXP                 # 1.0~<HETERO_IEPOX>;
+<HET_ISO3TET> IEPOXP = AISO3NOSJ           # 1.0~<HETERO_ISO3NOS>;
+<HET_IEPOXOS> IEPOXP + ASO4J   = AISO3OSJ  # 1.0~<HETERO_ISO3OS>;
 
-<HET_IEPOX> IEPOX = AISO3J  # 1.0~<HETERO_IEPOX>;
+
+!<HET_IEPOX> IEPOX = AISO3J  # 1.0~<HETERO_IEPOX>;
 
 ! oligomerization reaction for secondary organic aerosols
 
