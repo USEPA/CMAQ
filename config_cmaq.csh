@@ -25,7 +25,7 @@
  # the user will pull from to create exectuables. If the user is building
  # CMAQ inside the repository then it will be equal to CMAQ_HOME. If not,
  # the user must supply an alternative folder locaiton.
- setenv CMAQ_REPO /home/sfarrell/CRACMM1new
+ setenv CMAQ_REPO $CMAQ_HOME
 
  # CMAQ_DATA - this may be where the input data are located. It may be a 
  # symbolic link to another location on the system, but it should be
@@ -170,7 +170,7 @@
  endsw
  
 #> Apply Specific Module and Library Location Settings for those working inside EPA
- source /work/MOD3DEV/cmaq_common/cmaq_env.csh  #>>> UNCOMMENT if at EPA
+ # source /work/MOD3DEV/cmaq_common/cmaq_env.csh  #>>> UNCOMMENT if at EPA
 
 #> Add The Complier Version Number to the Compiler String if it's not empty
  setenv compilerString ${compiler}

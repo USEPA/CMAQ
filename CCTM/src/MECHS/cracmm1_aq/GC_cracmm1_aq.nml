@@ -104,7 +104,6 @@ GC_SPECIES_DATA =
 'ETEG'          , 62.1   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,'ETHYLENEGLYCOL'  , 1  ,''             ,''        ,'Yes' ,''    ,'Yes' ,'Yes',!Ethylene glycol,E,DTXSID8020597,OCCO
 'ISHP'          ,118.0   ,''     ,-1     ,''     ,-1     ,'VD_OP'           , 1   ,'METHACROLEIN'    , 1  ,''             ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',
 'IEPOX'         ,118.1   ,''     ,-1     ,''     ,-1     ,'VD_OP'           ,1.5  ,'HYDROXY_PEROXIDE', 1  ,'IEPOX'        ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',!Isoprene epoxydiol,E,NA,OCC1OC1(C)CO
-'IEPOXP'        ,118.1   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,''             ,''        ,''    ,''    ,''    ,'Yes',!Isoprene epoxydiol intermediate (SF)
 'MAHP'          ,102.0   ,''     ,-1     ,''     ,-1     ,'VD_OP'           , 1   ,'METHACROLEIN'    , 1  ,''             ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',
 'ORA2'          , 60.2   ,''     ,-1     ,''     ,-1     ,'VD_ORA'          , 1   ,'ORA2OPERA'       , 1  ,''             ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',!Acetic acid,L,DTXSID5024394,CC(O)=O
 'ORAP'          ,109.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,''             ,''        ,''    ,''    ,''    ,'Yes',!Methyldioxy radical,L,NA,CO[O]
