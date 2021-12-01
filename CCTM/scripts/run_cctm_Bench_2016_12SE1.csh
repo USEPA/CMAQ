@@ -8,35 +8,6 @@
 #             http://www.cmascenter.org  (CMAS Website)
 # ===================================================================  
 
-#> Simple Linux Utility for Resource Management System 
-#> (SLURM) - The following specifications are recommended 
-#> for executing the runscript on the cluster at the 
-#> National Computing Center used primarily by EPA.
-#SBATCH -t 10:00:00
-#SBATCH -n 32
-#SBATCH -J CMAQ_Bench
-#SBATCH -p ord
-#SBATCH --gid=mod3dev
-#SBATCH -A mod3dev
-#SBATCH -o /home/sfarrell/CRACMM1new/CCTM/scripts/bench_%j.txt
-
-#> The following commands output information from the SLURM
-#> scheduler to the log files for traceability.
-   if ( $?SLURM_JOB_ID ) then
-      echo Job ID is $SLURM_JOB_ID
-      echo "Running on nodes `printenv SLURM_JOB_NODELIST`"
-      echo Host is $SLURM_SUBMIT_HOST
-      #> Switch to the working directory. By default,
-      #>   SLURM launches processes from your home directory.
-      echo Working directory is $SLURM_SUBMIT_DIR
-      cd $SLURM_SUBMIT_DIR
-   endif
-
-#> Configure the system environment and set up the module 
-#> capability
-   limit stacksize unlimited
-#
-
 # ===================================================================
 #> Runtime Environment Options
 # ===================================================================
@@ -83,7 +54,7 @@ echo 'Start Model Run At ' `date`
 #> Set Working, Input, and Output Directories
  setenv WORKDIR ${CMAQ_HOME}/CCTM/scripts          #> Working Directory. Where the runscript is.
  setenv OUTDIR  ${CMAQ_DATA}/output_CCTM_${RUNID}  #> Output Directory
- setenv INPDIR  /work/MOD3DATA/2016_12SE1  #Input Directory
+ setenv INPDIR  ${CMAQ_DATA}/2016_12SE1            #> Input Directory
  setenv LOGDIR  ${OUTDIR}/LOGS     #> Log Directory Location
  setenv NMLpath ${BLD}             #> Location of Namelists. Common places are: 
                                    #>   ${WORKDIR} | ${CCTM_SRC}/MECHS/${MECH} | ${BLD}
@@ -233,17 +204,6 @@ setenv LTNGDIAG N            #> lightning diagnostic file [ default: N ]
 setenv B3GTS_DIAG N          #> BEIS mass emissions diagnostic file [ default: N ]
 setenv CTM_WVEL Y            #> save derived vertical velocity component to conc 
                              #>    file [ default: Y ]
-
-#> MPI Optimization Flags
-setenv MPI_SM_POOL 16000     #> increase shared memory pool in case many MPI_SEND headers
-setenv MP_EAGER_LIMIT 65536  #> set MPI message passing buffer size to max
-setenv MP_SINGLE_THREAD yes  #> optimize for single threaded applications [ default: no ]
-setenv MP_STDOUTMODE ordered #> order output by the processor ID
-setenv MP_LABELIO yes        #> label output by processor ID [ default: no ]
-setenv MP_SHARED_MEMORY yes  #> force use of shared memory for tasks on same node [ default: no ]
-setenv MP_ADAPTER_USE shared #> share the MP adapter with other jobs
-setenv MP_CPU_USE multiple   #> share the node with multiple users/jobs
-setenv MP_CSS_INTERRUPT yes  #> specify whether arriving packets generate interrupts [ default: no ]
 
 # =====================================================================
 #> Input Directories and Filenames

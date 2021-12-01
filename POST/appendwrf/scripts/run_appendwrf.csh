@@ -8,35 +8,6 @@
 #             http://www.cmascenter.org  (CMAS Website)
 # ===================================================================
 
-#> Simple Linux Utility for Resource Management System 
-#> (SLURM) - The following specifications are recommended 
-#> for executing the runscript on the cluster at the 
-#> National Computing Center used primarily by EPA.
-#SBATCH -t 10:00:00
-#SBATCH -n 1
-#SBATCH -J appendwrf
-#SBATCH -p ord
-#SBATCH --gid=mod3dev
-#SBATCH -A mod3dev
-#SBATCH -o /home/sfarrell/CRACMM1new/POST/appendwrf/scripts/appendwrf_%j.txt
-
-#> The following commands output information from the SLURM
-#> scheduler to the log files for traceability.
-   if ( $?SLURM_JOB_ID ) then
-      echo Job ID is $SLURM_JOB_ID
-      echo Host is $SLURM_SUBMIT_HOST
-      #> Switch to the working directory. By default,
-      #>   SLURM launches processes from your home directory.
-      echo Working directory is $SLURM_SUBMIT_DIR
-      cd $SLURM_SUBMIT_DIR
-   endif
-   echo '>>>>>> start model run at ' `date`
-
-#> Configure the system environment and set up the module 
-#> capability
-   limit stacksize unlimited
-#
-
 # ==================================================================
 #> Runtime Environment Options
 # ==================================================================
@@ -72,9 +43,9 @@
 
 ### set input and output files
 
- setenv INFILE_1 subset_wrfout_d01_2011-07-01_00:00:00  #> WRF Output File
- setenv INFILE_2 subset_wrfout_d01_2011-07-02_00:00:00  #> WRF Output File
- setenv INFILE_3 subset_wrfout_d01_2011-07-03_00:00:00  #> WRF Output File
+ setenv INFILE_1 ${INDIR}/[add location of wrf input or output file]
+ setenv INFILE_2 ${INDIR}/[add location of wrf input or output file]
+ setenv INFILE_3 ${INDIR}/[add location of wrf input or output file]
 
  setenv OUTFILE ${OUTDIR}/APPENDWRF_sample_file.nc
 

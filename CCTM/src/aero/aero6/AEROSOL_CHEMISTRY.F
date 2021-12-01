@@ -49,7 +49,7 @@
        
        PRIVATE 
 
-       INTEGER, PARAMETER :: NUMB_AERO_RATES = 54
+       INTEGER, PARAMETER :: NUMB_AERO_RATES = 52
        
        CHARACTER( 16 ), PARAMETER :: NAMES_AERO_RATES( NUMB_AERO_RATES ) = 
      &                    (/ 'HETERO_N2O5IJ   ', 'HETERO_N2O5K    ', 
@@ -77,8 +77,7 @@
      &                       'HETERO_I2O4_AI  ', 'HETERO_I2O4_AJ  ',
      &                       'HETERO_INO3_CLJ ', 'HETERO_INO3_BRJ ',
      &                       'HETERO_INO2_CLJ ', 'HETERO_INO2_BRJ ',
-     &                       'HETERO_HOI_CLJ  ', 'HETERO_HOI_BRJ  ',
-     &                       'HETERO_ISO3NOSJ ', 'HETERO_ISO3OSJ  '/)
+     &                       'HETERO_HOI_CLJ  ', 'HETERO_HOI_BRJ  '/)
 
        INTEGER, PARAMETER  :: IA_N2O5IJ         =   1
        INTEGER, PARAMETER  :: IA_N2O5K          =   2
@@ -132,9 +131,6 @@
        INTEGER, PARAMETER  :: IA_INO2_BRJ       =   50
        INTEGER, PARAMETER  :: IA_HOI_CLJ        =   51
        INTEGER, PARAMETER  :: IA_HOI_BRJ        =   52
-       INTEGER, PARAMETER  :: IA_ISO3NOSJ       =   53
-       INTEGER, PARAMETER  :: IA_ISO3OSJ        =   54
-
 
        INTEGER, PARAMETER :: INDEX_AERO_RATES( NUMB_AERO_RATES ) = 
      &                    (/ IA_N2O5IJ   , IA_N2O5K    , 
@@ -162,8 +158,7 @@
      &                       IA_I2O4_AI  , IA_I2O4_AJ  ,
      &                       IA_INO3_CLJ , IA_INO3_BRJ ,
      &                       IA_INO2_CLJ , IA_INO2_BRJ ,
-     &                       IA_HOI_CLJ  , IA_HOI_BRJ  ,
-     &                       IA_ISO3NOSJ , IA_ISO3OSJ  /)
+     &                       IA_HOI_CLJ  , IA_HOI_BRJ  /)
 
        INTEGER               :: SELECTED_AERO_RATES
        INTEGER, ALLOCATABLE  :: WHICH_AERO_RATE( : )
@@ -249,22 +244,6 @@ C                 --------  -----------  ----------  -----   ------   ----------
      &   acid_cat('IMAE',   'ASO4J    ', 'HPLUS   ',   1,     2,       k_H_nuc,      'AIMOSJ'  ),
      &   acid_cat('IMAE',   'AH2OJ    ', 'HSO4    ',   2,     0,       k_HSO4_water, 'AIMGAJ'  ),
      &   acid_cat('IMAE',   'ASO4J    ', 'HSO4    ',   2,     2,       k_HSO4_nuc,   'AIMOSJ'  )/)
-
-C IEPOX uptake for CRACMM mechanism
-
-        INTEGER, PARAMETER       :: N_NUCPAIRS_CRCM = 6      ! NUMBER OF ACID/NUCLEOPHILE PAIRS
-
-        TYPE( ACID_CAT ), PARAMETER :: ACID_NUC_PAIRS_CRCM( N_NUCPAIRS_CRCM ) = (/
-
-C                  Parent   Nucleophile     Acid     Acid    Remove  Rate Constant  Product
-C                 (parent)    (nuc)        (acid)    Index   Index     (kchem)      (prod)
-C                 --------  -----------  ----------  -----   ------  -------------  --------
-     &   acid_cat('IEPOX',  'AH2OJ    ', 'HPLUS   ',   1,     0,       K_H_WATER,   'AISO3NOSJ' ),
-     &   acid_cat('IEPOX',  'ASO4J    ', 'HPLUS   ',   1,     2,       K_H_SO4,     'AISO3OSJ'  ),
-     &   acid_cat('IEPOX',  'ANO3J    ', 'HPLUS   ',   1,     0,       K_H_NUC,     'AISO3NOSJ' ),
-     &   acid_cat('IEPOX',  'AH2OJ    ', 'HSO4    ',   2,     0,       K_H_WATER,   'AISO3NOSJ' ),
-     &   acid_cat('IEPOX',  'ASO4J    ', 'HSO4    ',   2,     2,       K_H_SO4,     'AISO3OSJ'  ),
-     &   acid_cat('IEPOX',  'ANO3J    ', 'HSO4    ',   2,     0,       K_H_NUC,     'AISO3NOSJ' )/)
 
 
 C Mapping array for location of acid enhanced products and nucleophiles in aerospc_conc 
@@ -782,11 +761,6 @@ C ***  Map to acids/nucleophiles for epoxide uptake
              N_NUCPAIRS     = N_NUCPAIRS_AEI
              ALLOCATE ( ACID_NUC_PAIRS( N_NUCPAIRS ) )
              ACID_NUC_PAIRS = ACID_NUC_PAIRS_AEI
-          Else If ( (INDEX( MECHNAME, 'CRACMM1') .GT. 0) ) then
-             NUMVOC         = 1
-             N_NUCPAIRS     = N_NUCPAIRS_CRCM
-             ALLOCATE ( ACID_NUC_PAIRS( N_NUCPAIRS ) )
-             ACID_NUC_PAIRS = ACID_NUC_PAIRS_CRCM
           Else ! AERO6/7 (condensed IEPOX SOA)
              NUMVOC         = 1
              N_NUCPAIRS     = N_NUCPAIRS_AE
@@ -1212,21 +1186,6 @@ C ***            Isoprene epoxide uptake
                      ELSE
                         KHETERO( IRATE, C,R,L ) = 0.0D0
                      END IF
-
-
-C *** CRACMM1 Implementation of sulfated and non-sulfated IEPOX-SOA
-
-                 CASE( IA_ISO3NOSJ )
-                     KHETERO( IRATE, C,R,L ) = 60.0D0 * AQUEOUS_FREQUENCY * FH2O( 1 )
-
-                 CASE( IA_ISO3OSJ )
-                     IF ( ASO4J_PPM .GT. 0.0D0 ) THEN
-                        KHETERO( IRATE, C,R,L ) = 60.0D0 * AQUEOUS_FREQUENCY
-     &                                          * FOS( 1 ) / ASO4J_PPM
-                     ELSE
-                        KHETERO( IRATE, C,R,L ) = 0.0D0
-                     END IF
-
 
                  CASE( IA_NO3 )
                      KHETERO( IRATE, C,R,L ) = 60.0D0 * ( KNO3( 1 ) + KNO3( 2 ) ) ! min-1
@@ -2416,10 +2375,6 @@ C        Store information with speciation for IEPOX
               kchemdim2( 1 ) = kchemdim2(1)  + kchem
             else if ( acid_nuc_pairs( i )%prod .eq. 'AIETETJ' ) then !ae6i
               kchemtet( 1 ) = kchemtet(1)  + kchem
-            else if ( acid_nuc_pairs( i )%prod .eq. 'AISO3OS' ) then !craccm1
-              kchemos( 1 )  = kchemos(1)   + kchem
-            else if ( acid_nuc_pairs( i )%prod .eq. 'AISO3NOS' ) then !craccm1
-              kchemtet( 1 )  = kchemtet(1)   + kchem
             else if ( acid_nuc_pairs( i )%prod .eq. 'AISO3J' ) then !lumped treatments
                if ( acid_nuc_pairs( i )%nuc .eq. 'ASO4J' ) then !organosulfate
                  kchemos( 1 )  = kchemos(1)   + kchem
