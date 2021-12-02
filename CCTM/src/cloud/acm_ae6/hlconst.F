@@ -420,7 +420,7 @@ C...  Atmospheric Chemistry and Physics, 1997
       DATA SUBNAME(238), A(238), E(238) / 'NAPHOPERA       ', 2.28E+00, 0.0E+00 /   ! CRACMM RepCmp value (OPERA SAR)
       DATA SUBNAME(239), A(239), E(239) / 'HC3OPERA        ', 2.55E-03, 0.0E+00 /   ! CRACMM RepCmp value (OPERA SAR)
       DATA SUBNAME(240), A(240), E(240) / 'HC5OPERA        ', 8.04E-04, 0.0E+00 /   ! CRACMM RepCmp value (OPERA SAR)
-      DATA SUBNAME(241), A(241), E(241) / 'HC8OPERA        ', 6.52E-03, 0.0E+00 /   ! CRACMM RepCmp value (OPERA SAR)
+      DATA SUBNAME(241), A(241), E(241) / 'HC10OPERA       ', 6.52E-03, 0.0E+00 /   ! CRACMM RepCmp value (OPERA SAR)
       DATA SUBNAME(242), A(242), E(242) / 'ORA1OPERA       ', 5.95E+03, 0.0E+00 /   ! CRACMM RepCmp value (OPERA SAR)
       DATA SUBNAME(243), A(243), E(243) / 'MCTOPERA        ', 5.80E+03, 0.0E+00 /   ! CRACMM RepCmp value (OPERA SAR)
       DATA SUBNAME(244), A(244), E(244) / 'FURANONEOPERA   ', 7.87E+04, 0.0E+00 /   ! CRACMM RepCmp value (OPERA SAR)
