@@ -1300,18 +1300,13 @@ REACTIONS[CM] =
 
 ! ROCALK chemistry based on GECKO with 
 ! autoxidation from Praske et al. 2018 PNAS
-<ROCALK1c> VROCP6ALK + HO = HO 
-                            + 1.0000 * VROCP6ALKP   # 1.53e-11;
-<ROCALK2c> VROCP5ALK + HO = HO 
-                            + 1.0000 * VROCP5ALKP   # 1.68e-11;
-<ROCALK3c> VROCP4ALK + HO = HO
-                            + 1.0000 * VROCP4ALKP   # 2.24e-11;
-<ROCALK4c> VROCP3ALK + HO = HO 
-                            + 1.0000 * VROCP3ALKP   # 2.67e-11;
-<ROCALK5c> VROCP2ALK + HO = HO 
-                            + 1.0000 * VROCP2ALKP   # 3.09e-11;
-<ROCALK6c> VROCP1ALK + HO = HO 
-                            + 1.0000 * VROCP1ALKP   # 3.38e-11;
+! HO not regenerated due to actual radical chemistry
+<ROCALK1c> VROCP6ALK + HO = 1.0000 * VROCP6ALKP   # 1.53e-11;
+<ROCALK2c> VROCP5ALK + HO = 1.0000 * VROCP5ALKP   # 1.68e-11;
+<ROCALK3c> VROCP4ALK + HO = 1.0000 * VROCP4ALKP   # 2.24e-11;
+<ROCALK4c> VROCP3ALK + HO = 1.0000 * VROCP3ALKP   # 2.67e-11;
+<ROCALK5c> VROCP2ALK + HO = 1.0000 * VROCP2ALKP   # 3.09e-11;
+<ROCALK6c> VROCP1ALK + HO = 1.0000 * VROCP1ALKP   # 3.38e-11;
 
 <ROCALK7c> VROCP6ALKP + NO =   0.7200 * VROCP6ALKP2
                              + 0.2800 * VROCP4OXY2
