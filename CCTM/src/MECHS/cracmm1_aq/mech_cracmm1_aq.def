@@ -111,7 +111,6 @@ CRACMM1_AQ
 ELIMINATE =
 XN;
 XC;
-CH4;
 CO2;
 END ELIMINATE
 
@@ -1218,10 +1217,10 @@ REACTIONS[CM] =
                                       + .32*HNO3 
                                       + .68*NO2 
                                       - 0.32*XC    # 3.4E-15;
+! 0.219*CH4 product removed from ACRO due to fixed CH4 conc
 < T20>  ACRO               = CO + .477*HO2 
                                 + .25*ETE 
                                 + .246*CO2 
-                                + .219*CH4 
                                 + .204*ACO3  
                                 + .204*HO 
                                 + .15*HCHO 
