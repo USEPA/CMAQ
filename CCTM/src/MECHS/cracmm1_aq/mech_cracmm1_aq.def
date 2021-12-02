@@ -98,8 +98,16 @@
 ! - added HAP placeholder chemistry for BDE13, ACRO. NAPH already present.
 ! - added PROG based on Coggon et al. PNAS 2021 and 
 !   MCM http://mcm.york.ac.uk/browse.htt?species=PROPGLY
+! - Photolysis updates added per B. Hutzell
 ! - FURAN chemistry added based on Wang et al. JGR 2021, Schwantes, Coggon
-! - SESQ chemistry added based on MCM
+! - SESQ chemistry added based on MCM per H. Pye
+! - Phenolic (PHEN, CSL) SOA added per H. Pye
+! - Monoterpene nitrates added per B. Place
+! - ACRO, BDE13 chemistry added per E. D'Ambro
+! - Oxygenated ROC (ROCOXY) chemistry added per B. Murphy
+! - Alkane ROC (ROCALK) chemistry added per K. Seltzer
+! - HC8 replaced with HC10 following ROCALK template by H. Pye
+! - Aromatic chemistry (ROCARO, NAPH, BTX) added per H. Pye
 !------------------------------------------------------------------------------ 
 ! 10-18-21 G.Sarwar
 !    updated rate constants for inorganic reactions and three organic reactions (R70-R71)
@@ -244,11 +252,6 @@ REACTIONS[CM] =
 <R072>  ETH  + HO          = ETHP                     # 7.66E-12 @ 1020.;
 <R073>  HC3  + HO          = HC3P + 0.0000331*ASOATJ  # 7.68E-12 @ 370.;
 <R074>  HC5  + HO          = HC5P + 0.00158*ASOATJ    # 1.01E-11 @ 245.;
-<R075>  HC8  + HO          = 0.049*HO2 + 0.951*HC8P
-                                       + 0.025*ALD
-                                       + 0.024*HKET
-                                       + 0.042*ASOATJ # 2.82E-11 @ 273.;
-
 <R076>  ETE  + HO          = ETEP                     # 1.0E-28 ^ -4.5 &
                                                         8.8E-12 ^ -0.85;
 <R077>  OLT  + HO          = OLTP                     # 5.72E-12 @ -500.;
@@ -578,12 +581,6 @@ REACTIONS[CM] =
                                         + 0.033*KET
                                         + 0.272*HKET                                        
                                         + 0.136*ONIT  # 4.0E-12;
-<R176>  HC8P + NO          = 0.606*HO2  + 0.133*ETHP 
-                                        + 0.416*XO2
-                                        + 0.739*NO2
-                                        + 0.150*ALD
-                                        + 0.642*KET 
-                                        + 0.261*ONIT  # 4.00E-12;
 <R177>  ETEP + NO          = HO2        + NO2 
                                         + 1.6*HCHO 
                                         + 0.2*ALD     # 9.0E-12;
@@ -708,7 +705,6 @@ REACTIONS[CM] =
 <R213>  ETHP + HO2         = OP2                      # 7.5E-13 @ -700.;
 <R214>  HC3P + HO2         = OP2                      # 1.66E-13 @ -1300.;
 <R215>  HC5P + HO2         = OP2                      # 1.66E-13 @ -1300.;
-<R216>  HC8P + HO2         = OP2                      # 1.66E-13 @ -1300.;
 <R217>  ETEP + HO2         = OP2                      # 1.90E-13 @ -1300.;  
 <R218>  OLTP + HO2         = OP2                      # 1.66E-13 @ -1300.;
 <R219>  OLIP + HO2         = OP2                      # 1.66E-13 @ -1300.;
@@ -769,13 +765,6 @@ REACTIONS[CM] =
                                        + 0.618*KET
                                        + 0.250*MOH
                                        + 0.250*ROH    # 1.0E-13 @ -467.;
-<R252>  HC8P + MO2         = 0.910*HO2 + 0.090*ETHP 
-                                       + 0.281*XO2
-                                       + 0.750*HCHO 
-                                       + 0.197*ALD
-                                       + 0.652*KET
-                                       + 0.250*MOH
-                                       + 0.250*ROH    # 4.34E-14 @ -633.;
 <R253>  ETEP + MO2         = HO2       + 1.95*HCHO 
                                        + 0.15*ALD
                                        + 0.250*MOH
@@ -926,12 +915,6 @@ REACTIONS[CM] =
                                        + 0.381*ALD 
                                        + 0.824*KET
                                        + 0.500*ORA2   # 5.59E-13 @ -522.;
-<R288>  HC8P + ACO3        = 0.303*HO2 + 0.500*MO2 
-                                       + 0.067*ETHP
-                                       + 0.208*XO2
-                                       + 0.217*ALD 
-                                       + 0.642*KET 
-                                       + 0.495*ORA2   # 2.47E-13 @ -683.;
 <R289>  ETEP + ACO3        = 0.5*HO2   + 0.5*MO2 
                                        + 1.6*HCHO 
                                        + 0.2*ALD 
@@ -1064,11 +1047,6 @@ REACTIONS[CM] =
                                        + 0.247*ACT 
                                        + 0.048*ACD 
                                        + 0.275*HKET   # 1.20E-12;
-<R326>  HC8P + NO3         = 0.820*HO2 + 0.180*ETHP 
-                                       + 0.563*XO2 
-                                       + NO2
-                                       + 0.203*ALD 
-                                       + 0.869*KET    # 1.2E-12;
 <R327>  ETEP + NO3         = HO2       + NO2
                                        + 1.6*HCHO 
                                        + 0.2*ALD      # 1.2E-12;                                                                         
