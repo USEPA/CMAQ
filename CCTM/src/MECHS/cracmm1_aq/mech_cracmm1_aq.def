@@ -1298,8 +1298,8 @@ REACTIONS[CM] =
 <RPOAGEPJ> APOCJ   + HO = 1.25*APNCOMJ + APOCJ + HO # 2.5E-12;
 <RPOAGELJ> APNCOMJ + HO = HO                        # 1.0~<HETERO_PNCOMLJ>;
 
-! ROCALK chemistry based on GECKO with 
-! autoxidation from Praske et al. 2018 PNAS
+! ROCALK chemistry based on GECKO (Lannuque et al. 2018 ACP) 
+! with autoxidation from Praske et al. 2018 PNAS
 ! HO not regenerated due to actual radical chemistry
 <ROCALK1c> VROCP6ALK + HO = 1.0000 * VROCP6ALKP   # 1.53e-11;
 <ROCALK2c> VROCP5ALK + HO = 1.0000 * VROCP5ALKP   # 1.68e-11;
@@ -1353,7 +1353,7 @@ REACTIONS[CM] =
 <ROCALK22c> VROCP3ALKP + HO2 = 1.0000 * VROCP0OXY2  # 2.26e-11;
 <ROCALK23c> VROCP2ALKP + HO2 = 1.0000 * VROCN1OXY1  # 2.27e-11;
 <ROCALK24c> VROCP1ALKP + HO2 = 1.0000 * VROCN2OXY2  # 2.27e-11;
-<HC1004>    HC10P + HO2      = 1.0000 * OP2         # 2.66e-12 @ -1300.;
+<HC1004>    HC10P + HO2      = 1.0000 * OP2         # 2.66e-13 @ -1300.;
 
 <ROCALK25c> VROCP6ALKP2 = 1.0000 * HO2
                           + 1.0000 * VROCP2OXY2     # 1.88e-1;
@@ -1429,7 +1429,51 @@ REACTIONS[CM] =
 <ROCALK46c> VROCP3ALKP2 + HO2 = 1.0000 * VROCN2OXY2 # 2.26e-11;
 <ROCALK47c> VROCP2ALKP2 + HO2 = 1.0000 * VROCN2OXY2 # 2.27e-11;
 <ROCALK48c> VROCP1ALKP2 + HO2 = 1.0000 * VROCN2OXY2 # 2.27e-11;
-<HC1008>    HC10P2 + HO2      = 1.0000 * VROCP2OXY2 # 2.66e-12 @ -1300.;
+<HC1008>    HC10P2 + HO2      = 1.0000 * VROCP2OXY2 # 2.66e-13 @ -1300.;
+
+! IVOC aromatic oxidation following MCM with autoxidation
+! added to bicyclic RO2 channel. Epoxide channel eliminated
+! and nitrate yield reduced following Xu et al. JPCA 2020.
+! RO2+RO2 rates from RACM2 aromatic RO2s
+<ROCARO01> VROCP6ARO + HO = 0.8400*VROCP6AROP
+                         + 0.1600*HO2
+                         + 0.1600*VROCP4OXY02 # 1.81E-11;
+<ROCARO02> VROCP6AROP + HO2 = 0.0595*VROCP4OXY02
+                         + 0.9048*VROCP1OXY03
+                         + 0.0357*VROCN2OXY04 # 2.91E-13 @ -1300.;
+<ROCARO03> VROCP6AROP + NO =   0.0001*VROCP4OXY02
+                         + 0.0018*VROCP1OXY03
+                         + 0.0001*VROCN2OXYO3
+                         + 0.9980*NO2
+                         + 0.9980*HO2
+                         + 0.0594*VROCP4OXY02
+                         + 0.4693*GLY
+                         + 0.4693*MGLY
+                         + 0.4693*FURANONE
+                         + 0.4693*DCB2        # 2.7E-12 @ -360.;
+<ROCARO04> VROCP6AROP + NO3 =  1.0000*NO2
+                         + 1.0000*HO2
+                         + 0.0595*VROCP4OXY02
+                         + 0.4702*GLY
+                         + 0.4702*MGLY
+                         + 0.4702*FURANONE
+                         + 0.4702*DCB2        # 2.3E-12;
+<ROCARO05> VROCP6AROP + MO2 =  0.5000*HCHO
+                         + 2.0000*HO2
+                         + 0.5000*MOH
+                         + 0.0595*VROCP4OXY02
+                         + 0.4702*GLY
+                         + 0.4702*MGLY
+                         + 0.4702*FURANONE
+                         + 0.4702*DCB2        # 3.56E-14 @ -708.;
+<ROCARO06> VROCP6AROP + ACO3 = 0.7000*MO2
+                         + 2.0000*HO2
+                         + 0.3000*ORA2
+                         + 0.0595*VROCP4OXY02
+                         + 0.4702*GLY
+                         + 0.4702*MGLY
+                         + 0.4702*FURANONE
+                         + 0.4702*DCB2        # 7.4E-13 @ -765.;
 
 
 ! Multigenerational oxidation of LVOCs and SVOCs
