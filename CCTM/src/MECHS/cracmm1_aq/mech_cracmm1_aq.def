@@ -261,22 +261,6 @@ REACTIONS[CM] =
                                        + 0.650*GLY
                                        + 0.350*ORA1   # 5.5E-30 ^ 0.0 &  
                                                         8.3E-13 ^ 2.0;
-<R081>  BEN + HO       = 0.648*HO2 + 0.352*BENP
-                                       + 0.118*EPX
-                                       + 0.530*PHEN
-                                       + 1.0*BENZRO2  # 2.33E-12 @ 193.;
-<R082>  TOL + HO           = 0.177*HO2 + 0.763*TR2
-                                       + 0.060*TLP1
-                                       + 0.177*CSL
-                                       + 1.0*TOLRO2   # 1.81E-12 @ -354.;
-<R083>  XYM  + HO         = 0.177*HO2 + 0.763*XY2
-                                       + 0.060*XYL1
-                                       + 0.177*CSL    
-                                       + 0.98*XYLRO2  # 2.31E-11;
-<R084c>  XYE + HO          = 0.177*HO2 + 0.763*XY2
-                                       + 0.060*XYL1
-                                       + 0.177*CSL
-                                       + 1.0*XYLRO2   # 7.16E-12;
 <R086>  ISO  + HO          = ISOP      + ISOPRXN      # 2.70E-11 @ -390.;
 <R087>  API  + HO          = APIP      + TRPRXN       # 1.21E-11 @ -440.;
 <R088>  LIM  + HO          = LIMP      + TRPRXN       # 4.20E-11 @ -401.;
@@ -316,9 +300,6 @@ REACTIONS[CM] =
                                         + 0.160*ADDC 
                                         + 0.056*CHO
                                         + 0.584*MCT    # 4.65E-11 @ 0.0;
-<R107>  EPX  + HO          = HO2        + XO2
-                                        + CO
-                                        + ALD         # 2.8E-11 @ -175.;
 <R108>  MCT  + HO          = MCTO                     # 2.05E-10 @ 0.0;
 <R109>  MOH  + HO          = HO2        + HCHO        # 2.85E-12 @ 345.;
 <R110>  EOH  + HO          = HO2        + ACD         # 3.0E-12 @ -20.;
@@ -468,10 +449,6 @@ REACTIONS[CM] =
                                         + 0.25*ORA1 
                                         + 0.25*ORA2 
                                         + 0.11*PAA    # 9.0E-17;
-<R139>  EPX  + O3          = 0.05*HO    + 1.5*HO2
-                                        + 1.5*CO
-                                        + 0.85*BALD
-                                        + GLY         # 5.0E-16;
 <R140>  MCTO + O3          = MCTP                     # 2.86E-13;
 <R141>  ETE  + NO3         = 0.80*OLNN  + 0.20*OLND   # 4.392E-13^2.0@2282.0; 
 <R142>  OLT  + NO3         = 0.43*OLNN  + 0.57*OLND   # 1.79E-13 @ 450.;
@@ -507,45 +484,8 @@ REACTIONS[CM] =
                                         + 0.08*ADDC 
                                         + 0.4*ADCN 
                                         + 0.4*HNO3    # 1.06E-12;
-<R157>  EPX  + NO3         = 0.50*HO    + 1.50*HO2
-                                        + 1.50*CO
-                                        + GLY
-                                        + 0.50*NO2
-                                        + 0.50*HNO3   # 2.87E-13 @ 1000.;
 <R158>  MCT  + NO3         = MCTO       + HNO3        # 2.01E-10;
 <R159>  MPAN + NO3         = MACP       + NO2         # 2.2E-14 @ 500.;
-<R160>  TR2                = 0.28*HO    + 0.29*HO2
-                                        + 0.28*TOLP 
-                                        + 0.15*PER1
-                                        + 0.28*DCB2
-                                        + 0.01*CSL  
-                                        + 0.28*EPX    # 1.0E+03;
-<R161>  TOLP               = 0.49*HO    + 0.01*HO2
-                                        + 0.50*PER1
-                                        + 0.49*DCB2
-                                        + 0.01*CSL    # 1.0E+03;
-<R162> XY2                 = 0.158*HO   + 0.308*HO2 
-                                        + 0.250*RCO3
-                                        + 0.308*XYLP
-                                        + 0.150*PER2
-                                        + 0.224*DCB2
-                                        + 0.010*CSL
-                                        + 0.840*EPX   # 1.00E+03;
-<R163>  XYLP               = 0.390*HO   + 0.010*HO2
-                                        + 0.300*PER2 
-                                        + 0.490*DCB2
-                                        + 0.010*CSL   # 1.0E+03;
-<R164>  XYO2               = 0.158*HO   + 0.308*HO2
-                                        + 0.250*RCO3
-                                        + 0.150*PER2
-                                        + 0.308*XYOP
-                                        + 0.224*DCB2
-                                        + 0.010*CSL
-                                        + 0.840*EPX   # 1.0E+03;
-<R165>  XYOP               = 0.390*HO   + 0.010*HO2   
-                                        + 0.500*PER2
-                                        + 0.490*DCB2
-                                        + 0.010*CSL   # 1.0E+03;
 <R166>  ACO3 + NO2         = PAN                      # 9.7E-29 ^ -5.6 &
                                                         9.3E-12 ^ -1.5;
 <R167>  PAN                = ACO3       + NO2         # 9.00E-29 @ -14000.0
@@ -598,36 +538,6 @@ REACTIONS[CM] =
                                         + 0.09*KET 
                                         + 0.02*HKET 
                                         + 0.05*ONIT   # 4.00E-12;
-<R180>  BENP + NO          = 0.918*HO2  + 0.918*NO2
-                                        + 0.459*DCB2
-                                        + 0.459*DCB3
-                                        + 0.918*GLY
-                                        + 0.082*ONIT  # 2.54E-12 @ -360.;
-<R181>  TLP1 + NO          = NO2        + BALD        # 4.0E-12;
-<R182>  TOLP + NO          = 0.95*HO2   + 0.95*NO2
-                                        + 0.95*DCB2
-                                        + 0.05*ONIT   # 2.7E-12 @ -360.;                                 
-<R183> PER1 + NO           = 0.50*HO2   + 0.95*NO2 
-                                        + 0.50*BALD 
-                                        + 0.50*MGLY 
-                                        + 0.50*DCB1 
-                                        + 0.05*ONIT   # 2.70E-12 @ -360.;
-<R184>  XYL1 + NO          = NO2        + BALD        # 4.0E-12;
-<R185>  XYLP + NO          = 0.95*HO2   + 0.95*NO2
-                                        + 0.95*DCB3
-                                        + 0.05*ONIT   # 2.7E-12 @ -360.;
-<R186>  PER2 + NO          = 0.95*HO2   + 0.95*NO2 
-                                        + 0.95*MGLY 
-                                        + 0.95*DCB1 
-                                        + 1.05*DCB3 
-                                        + 0.05*ONIT   # 2.70E-12 @ -360.;
-<R187>  XYOP + NO          = 0.95*HO2   + 0.95*NO2
-                                        + 0.350*GLY
-                                        + 0.600*MGLY
-                                        + 0.700*DCB1
-                                        + 0.073*DCB2
-                                        + 0.177*DCB3
-                                        + 0.05*ONIT   # 2.7E-12 @ -360.;
 <R188>  ISOP + NO          = 0.880*HO2  + 0.880*NO2
                                         + 0.200*HCHO
                                         + 0.280*MACR
@@ -708,14 +618,6 @@ REACTIONS[CM] =
 <R217>  ETEP + HO2         = OP2                      # 1.90E-13 @ -1300.;  
 <R218>  OLTP + HO2         = OP2                      # 1.66E-13 @ -1300.;
 <R219>  OLIP + HO2         = OP2                      # 1.66E-13 @ -1300.;
-<R220>  BENP + HO2         = OP2                      # 2.91E-13 @ -1300.;
-<R221>  TLP1 + HO2         = OP2                      # 3.75E-13 @ -980.;
-<R222>  TOLP + HO2         = OP2                      # 3.75E-13 @ -980.;
-<R223>  PER1 + HO2         = OP2                      # 3.75E-13 @ -980.;
-<R224>  XYL1 + HO2         = OP2                      # 3.75E-13 @ -980.;
-<R225>  XYLP + HO2         = OP2                      # 3.75E-13 @ -980.;
-<R226>  PER2 + HO2         = OP2                      # 3.75E-13 @ -980.;
-<R227>  XYOP + HO2         = OP2                      # 3.75E-13 @ -980.;
 <R228>  ISOP + HO2         = ISHP                     # 2.05E-13 @ -1300.;
 <R229>  APIP + HO2         = OP2                      # 1.5E-11;
 <R230>  LIMP + HO2         = OP2                      # 1.5E-11;
@@ -779,32 +681,6 @@ REACTIONS[CM] =
                                        + 0.218*KET
                                        + 0.250*MOH
                                        + 0.250*ROH    # 9.18E-14 @ -708.;
-<R256>  BENP + MO2         = 1.60*HO2  + 0.459*DCB3 
-                                       + HCHO 
-                                       + 0.459*DCB2 
-                                       + 0.600*GLY    # 3.56E-14 @ -708.;
-<R257>  TLP1 + MO2         = HO2       + HCHO
-                                       + BALD         # 3.56E-14 @ -708.;                                      
-<R258>  TOLP + MO2         = 2.0*HO2   + HCHO 
-                                       + 0.271*GLY
-                                       + DCB2         # 3.56E-14 @ -708.;
-<R259>  PER1 + MO2         = 2.0*HO2   + HCHO 
-                                       + MGLY
-                                       + DCB1         # 3.56E-14 @ -708.;
-<R260>  XYL1 + MO2         = HO2       + HCHO
-                                       + BALD         # 3.56E-14 @ -708.;
-<R261>  XYLP + MO2         = 2.0*HO2   + HCHO 
-                                       + DCB2         # 3.56E-14 @ -708.;
-<R262>  PER2 + MO2         = 2.0*HO2   + HCHO
-                                       + MGLY
-                                       + DCB1
-                                       + 1.05*DCB3    # 3.56E-14 @ -708.;
-<R263>  XYOP + MO2         = 2.0*HO2   + HCHO
-                                       + 0.368*GLY
-                                       + 0.632*MGLY
-                                       + 0.737*DCB1
-                                       + 0.077*DCB2
-                                       + 0.186*DCB3   # 3.56E-14 @ -708.;
 <R264>  ISOP + MO2         = HO2       + 1.31*HCHO 
                                        + 0.159*MACR
                                        + 0.250*MVK
@@ -928,29 +804,6 @@ REACTIONS[CM] =
                                        + 1.71*ALD 
                                        + 0.290*KET
                                        + 0.500*ORA2   # 5.09E-13 @ -765.;
-<R292>  BENP + ACO3        = 0.60*HO2  + MO2
-                                       + 0.459*DCB2 
-                                       + 0.458*DCB3
-                                       + 0.600*GLY     # 7.4E-13 @ -765.;
-<R293>  TLP1 + ACO3        = MO2       + BALD         # 7.4E-13 @ -765.;
-<R294>  TOLP + ACO3        = HO2       + MO2
-                                       + DCB2         # 7.4E-13 @ -765.;
-<R295>  PER1 + ACO3        = HO2       + MO2
-                                       + MGLY
-                                       + DCB1         # 7.4E-13 @ -765.;
-<R296>  XYL1 + ACO3        = MO2       + BALD         # 7.4E-13 @ -765.;
-<R297>  XYLP + ACO3        = HO2       + MO2
-                                       + DCB2         # 7.4E-13 @ -765.;
-<R298>  PER2 + ACO3        = HO2       + MO2
-                                       + MGLY
-                                       + DCB1 
-                                       + 1.05*DCB3    # 7.4E-13 @ -765.;
-<R299>  XYOP + ACO3        = HO2       + MO2
-                                       + 0.368*GLY
-                                       + 0.632*MGLY
-                                       + 0.737*DCB1
-                                       + 0.077*DCB2
-                                       + 0.186*DCB3   # 7.4E-13 @ -765.;
 <R300>  ISOP + ACO3        = 0.5*HO2   + 0.5*MO2
                                        + 1.048*HCHO
                                        + 0.219*MACR
@@ -1062,30 +915,6 @@ REACTIONS[CM] =
                                        + 0.20*ACT 
                                        + 0.85*ACD 
                                        + 0.04*HKET    # 1.20E-12;
-<R330> BENP  + NO3         = HO2       + NO2
-                                       + 0.50*DCB2
-                                       + 0.50*DCB3
-                                       + GLY          # 1.20E-12;
-<R331>  TLP1 + NO3         = NO2       + BALD         # 1.2E-12;
-<R332>  TOLP + NO3         = HO2       + NO2
-                                       + DCB2         # 1.2E-12;                                      
-<R333>  PER1 + NO3         = 0.50*HO2  + NO2
-                                       + 0.50*MGLY
-                                       + 0.50*DCB1
-                                       + 0.50*BALD    # 1.2E-12;                                       
-<R334>  XYL1 + NO3         = NO2       + BALD         # 1.2E-12;
-<R335>  XYLP + NO3         = HO2       + NO2
-                                       + DCB3         # 1.2E-12;
-<R336>  PER2 + NO3         = HO2       + NO2
-                                       + MGLY
-                                       + DCB1
-                                       + 1.05*DCB3    # 1.2E-12;
-<R337>  XYOP + NO3         = HO2       + NO2
-                                       + 0.368*GLY
-                                       + 0.632*MGLY
-                                       + 0.737*DCB1
-                                       + 0.077*DCB2
-                                       + 0.186*DCB3   # 1.2E-12;
 <R338>  ISOP + NO3         = HO2       + NO2 
                                        + 0.75*HCHO  
                                        + 0.318*MACR 
@@ -1159,13 +988,6 @@ REACTIONS[CM] =
 <R363>  XO2  + XO2         =                          # 7.13E-17 @ -2950.;
 !
 ! SOA related reactions 
-<SA01>  TOLRO2  + NO      = NO  + TOLNRXN             # 2.70e-12@-360;
-<SA02>  TOLRO2  + HO2     = HO2 + TOLHRXN             # 1.90e-13@-1300;
-<SA03>  XYLRO2  + NO      = NO  + XYLNRXN             # 2.70e-12@-360;
-<SA04>  XYLRO2  + HO2     = HO2 + XYLHRXN             # 1.90e-13@-1300; 
-<SA05>  BENZRO2 + NO      = NO  + BNZNRXN             # 2.70e-12@-360;
-<SA06>  BENZRO2 + HO2     = HO2 + BNZHRXN             # 1.90e-13@-1300;
-<SA13>  SOAALK  + HO      = HO  + 0.47*ALKRXN         # 2.70e-12@-374;
 <SA14>  IEPOX + HO        = HO                        # 5.78E-11@400; 
 
 ! VROCIOXY added with behavior like ETHP
@@ -1272,27 +1094,10 @@ REACTIONS[CM] =
 <HET_IEPOX> IEPOX = AISO3J  # 1.0~<HETERO_IEPOX>;
 
 ! oligomerization reaction for secondary organic aerosols
-
-<OLIG_XYLENE1>    AXYL1J = 0.8571*AOLGAJ # 9.48816E-6;
-<OLIG_XYLENE2>    AXYL2J = 1.1429*AOLGAJ # 9.48816E-6;
-<OLIG_TOLUENE1>   ATOL1J = 0.8571*AOLGAJ # 9.48816E-6;
-<OLIG_TOLUENE2>   ATOL2J = 1.1429*AOLGAJ # 9.48816E-6;
-<OLIG_BENZENE1>   ABNZ1J = 0.7143*AOLGAJ # 9.48816E-6;
-<OLIG_BENZENE2>   ABNZ2J = 0.7143*AOLGAJ # 9.48816E-6;
 <OLIG_TERPENE1>   ATRP1J = 0.8*AOLGBJ # 9.48816E-6;
 <OLIG_TERPENE2>   ATRP2J = 0.9*AOLGBJ # 9.48816E-6;
 <OLIG_ISOPRENE1>  AISO1J = 0.50*AOLGBJ # 9.48816E-6;
 <OLIG_ISOPRENE2>  AISO2J = 0.50*AOLGBJ # 9.48816E-6;
-<OLIG_PAH1>       APAH1J = 1.4286*AOLGAJ # 9.48816E-6;
-<OLIG_PAH2>       APAH2J = 1.4286*AOLGAJ # 9.48816E-6;
-<OLIG_ALK1>       AALK1J = 1.7143*AOLGAJ # 9.48816E-6;
-<OLIG_ALK2>       AALK2J = 1.7143*AOLGAJ # 9.48816E-6;
-
-!aging reactions for primary organic carbon
-<RPOAGEPI> APOCI   + HO = 1.25*APNCOMI + APOCI + HO # 2.5E-12;
-<RPOAGELI> APNCOMI + HO = HO                        # 1.0~<HETERO_PNCOMLI>;
-<RPOAGEPJ> APOCJ   + HO = 1.25*APNCOMJ + APOCJ + HO # 2.5E-12;
-<RPOAGELJ> APNCOMJ + HO = HO                        # 1.0~<HETERO_PNCOMLJ>;
 
 ! ROCALK chemistry based on GECKO (Lannuque et al. 2018 ACP) 
 ! with autoxidation from Praske et al. 2018 PNAS
