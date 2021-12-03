@@ -39,6 +39,7 @@ GC_SPECIES_DATA =
 'CHO'           ,139.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,''             ,''        ,''    ,''    ,''    ,'Yes',
 'OP1'           , 48.0   ,''     ,-1     ,''     ,-1     ,'VD_OP'           , 1   ,'METHYLHYDROPEROX', 1  ,''             ,'MHP'     ,'Yes' ,'Yes' ,'Yes' ,'Yes',!Methyl hydroperoxide,E,DTXSID10184401,COO
 'OP2'           , 62.0   ,''     ,-1     ,''     ,-1     ,'VD_OP'           , 1   ,'METHYLHYDROPEROX', 1  ,''             ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',!Ethyl hydroperoxide,L,DTXSID70184402,CCOO
+'OPB'           ,186.0   ,''     ,-1     ,''     ,-1     ,'VD_OP'           , 1   ,'METHYLHYDROPEROX', 1  ,''             ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',!MCM APINAOOH,L,NA,OOC1(C)C(O)CC2CC1C2(C)C
 'PAA'           , 76.0   ,''     ,-1     ,''     ,-1     ,'VD_PAA'          , 1   ,'PEROXYACETIC_ACI', 1  ,''             ,'PAA'     ,'Yes' ,'Yes' ,'Yes' ,'Yes',!Peroxyacetic acid,L,DTXSID1025853,CC(=O)OO
 'ONIT'          ,119.0   ,''     ,-1     ,''     ,-1     ,'VD_PAN'          , 1   ,'MPAN'            , 1  ,''             ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',!Butan-2-yl nitrate,L,NA,CCC(C)O[N+](=O)[O-]
 'PAN'           ,121.0   ,''     ,-1     ,''     ,-1     ,'VD_PAN'          , 1   ,'PAN'             , 1  ,''             ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',
@@ -53,6 +54,7 @@ GC_SPECIES_DATA =
 'HC5P'          ,103.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,''             ,''        ,''    ,''    ,''    ,'Yes',
 'HC8'           ,136.2   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,'HC8OPERA'        , 1  ,''             ,''        ,'Yes' ,''    ,'Yes' ,'Yes',!Decane,L,DTXSID6024913,CCCCCCCCCC
 'HC8P'          ,145.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,''             ,''        ,''    ,''    ,''    ,'Yes',
+'HC10P'         ,173.27  ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,''             ,''        ,''    ,''    ,''    ,'Yes',!DECO2,L,NA,CCCCCCCC(CC)O[O]
 'ETE'           , 28.1   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,'ETHENE'          , 1  ,''             ,''        ,'Yes' ,''    ,'Yes' ,'Yes',!Ethylene,E,DTXSID1026378,C=C
 'ETEP'          , 77.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,''             ,''        ,''    ,''    ,''    ,'Yes',
 'OLT'           , 42.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,'OLTOPERA'        , 1  ,''             ,''        ,'Yes' ,''    ,'Yes' ,'Yes',!1-Propene,L,DTXSID5021205,CC=C
@@ -79,12 +81,24 @@ GC_SPECIES_DATA =
 'XYO2'          ,155.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,''             ,''        ,''    ,''    ,''    ,'Yes',
 'ISO'           , 68.1   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,'ISOOPERA'        , 1  ,''             ,''        ,'Yes' ,''    ,'Yes' ,'Yes',!Isoprene,L,DTXSID2020761,CC(=C)C=C
 'ISOP'          ,117.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,''             ,''        ,''    ,''    ,''    ,'Yes',
-'ISOPRXN'       , 68.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,'ISOPRXN'      ,''        ,''    ,''    ,''    ,''   ,!NA,NA,NA,NA
+'ISOPRXN'       , 68.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,'ISOPRXN'      ,''        ,''    ,''    ,''    ,'Yes',!NA,NA,NA,NA
 'API'           ,136.4   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,'APIOPERA'        , 1  ,''             ,''        ,'Yes' ,''    ,'Yes' ,'Yes',!a-pinene,L,DTXSID4026501,CC1=CCC2CC1C2(C)C
-'APIP'          ,185.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,''             ,''        ,''    ,''    ,''    ,'Yes',!MCM APINAO2,L,NA,[O]OC1(C)C(O)CC2CC1C2(C)C
-'TRPRXN'        ,136.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,'TRPRXN'       ,''        ,''    ,''    ,''    ,''   ,!NA,NA,NA,NA
+'TRPRXN'        ,185.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,'TRPRXN'       ,''        ,''    ,''    ,''    ,'Yes',!NA,NA,NA,NA
+'APIP1'         ,185.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,''             ,''        ,''    ,''    ,''    ,'Yes',!MCM APINAO2,L,NA,[O]OC1(C)C(O)CC2CC1C2(C)C
+'APIP2'         ,185.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,''             ,''        ,''    ,''    ,''    ,'Yes',!MCM APINAO2,L,NA,[O]OC1(C)C(O)CC2CC1C2(C)C
+'APINP1'        ,230.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,''             ,''        ,''    ,''    ,''    ,'Yes',!MCM NAPINAO2,L,NA,[O]OC1(C)C(ON(=O)=O)CC2CC1C2(C)C
+'APINP2'        ,230.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,''             ,''        ,''    ,''    ,''    ,'Yes',!MCM NAPINAO2,L,NA,[O]OC1(C)C(ON(=O)=O)CC2CC1C2(C)C
+'PINAL'         ,168.0   ,''     ,-1     ,''     ,-1     ,'VD_GEN_ALD'      , 1   ,'GENERIC_ALDEHYDE', 1  ,''             ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',!Pinonaldehyde,E,NA,O=CCC1CC(C(=O)C)C1(C)C
+'PINALP'        ,199.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,''             ,''        ,''    ,''    ,''    ,'Yes',!MCM PINALO2,L,NA,O=CCC1(O[O])CC(C(=O)C)C1(C)C
 'LIM'           ,136.3   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,'LIMOPERA'        , 1  ,''             ,''        ,'Yes' ,''    ,'Yes' ,'Yes',!D-Limonene,L,DTXSID1020778,CC(=C)[C@@H]1CCC(C)=CC1
-'LIMP'          ,185.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,''             ,''        ,''    ,''    ,''    ,'Yes',
+'LIMP1'         ,185.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,''             ,''        ,''    ,''    ,''    ,'Yes',!MCM LIMAO2,L,NA,[O]OC1(C)CCC(CC1O)C(=C)C
+'LIMP2'         ,185.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,''             ,''        ,''    ,''    ,''    ,'Yes',!MCM LIMAO2,L,NA,[O]OC1(C)CCC(CC1O)C(=C)C
+'LIMNP1'        ,230.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,''             ,''        ,''    ,''    ,''    ,'Yes',!MCM NLIMO2,L,NA,[O-][N+](=O)OC1CC(CCC1(C)O[O])C(=C)C
+'LIMNP2'        ,230.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,''             ,''        ,''    ,''    ,''    ,'Yes',!MCM NLIMO2,L,NA,[O-][N+](=O)OC1CC(CCC1(C)O[O])C(=C)C
+'LIMAL'         ,168.0   ,''     ,-1     ,''     ,-1     ,'VD_GEN_ALD'      , 1   ,'UALDOPERA'       , 1  ,''             ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',!Limonaldehyde,E,NA,O=CCC(CCC(=O)C)C(=C)C
+'LIMALP'        ,217.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,''             ,''        ,''    ,''    ,''    ,'Yes',!MCM LIMALO2,L,NA,O=CCC(CCC(=O)C)C(C)(CO)O[O]
+'HOM'           ,250.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,'HOM'          ,''        ,''    ,''    ,''    ,'Yes',!NA,L,NA,OC1CC2C(OOC2(C)C)C(OO)C1(C)OO
+'ELHOM'         ,402.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,'ELHOM'        ,''        ,''    ,''    ,''    ,'Yes',!NA,L,NA,OC1CC2C(OOC2(C)C)C(OOC3(C)C4C(C)(C)C(C4)CC3O)C1(C)OO
 'RCO3'          , 90.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,''             ,''        ,''    ,''    ,''    ,'Yes',
 'ACTP'          , 89.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,''             ,''        ,''    ,''    ,''    ,'Yes',
 'MEKP'          ,103.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,''             ,''        ,''    ,''    ,''    ,'Yes',
