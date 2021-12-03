@@ -1178,10 +1178,6 @@ REACTIONS[CM] =
 
 ! HAP chemistry
 ! ELD uncommented ACRO photolysis 11/18/21, kept photolysis rate constant that was already here
-<SA10>  NAPH + HO          = HO + 0.5*PAHRO2 + 0.5*OP2 + .05*ONIT 
-                                + 0.45*NO2 + 3.825*XC  # 2.31E-11;
-<SA11>  PAHRO2  + NO       = NO  + PAHNRXN             # 2.70E-12@-360;
-<SA12>  PAHRO2  + HO2      = HO2 + PAHHRXN             # 1.90E-13@-1300; 
 < T17>  ACRO + HO          = 0.57*MACP + 0.43*MCP 
                                        -1.0*XC     # 8.E-12@-380;
 < T18>  ACRO + O3          = .84*CO + .56*HO2 
@@ -1435,25 +1431,26 @@ REACTIONS[CM] =
 ! added to bicyclic RO2 channel. Epoxide channel eliminated
 ! and nitrate yield reduced following Xu et al. JPCA 2020.
 ! RO2+RO2 rates from RACM2 aromatic RO2s
+! ROCP6ARO
 <ROCARO01> VROCP6ARO + HO = 0.8400*VROCP6AROP
                          + 0.1600*HO2
-                         + 0.1600*VROCP4OXY02 # 1.81E-11;
-<ROCARO02> VROCP6AROP + HO2 = 0.0595*VROCP4OXY02
-                         + 0.9048*VROCP1OXY03
-                         + 0.0357*VROCN2OXY04 # 2.91E-13 @ -1300.;
-<ROCARO03> VROCP6AROP + NO =   0.0001*VROCP4OXY02
-                         + 0.0018*VROCP1OXY03
-                         + 0.0001*VROCN2OXYO3
+                         + 0.1600*VROCP4OXY2 # 1.81E-11;
+<ROCARO02> VROCP6AROP + HO2 = 0.0595*VROCP4OXY2
+                         + 0.9048*VROCP1OXY3
+                         + 0.0357*VROCN2OXY4 # 2.91E-13 @ -1300.;
+<ROCARO03> VROCP6AROP + NO =   0.0001*VROCP4OXY2
+                         + 0.0018*VROCP1OXY3
+                         + 0.0001*VROCN1OXY3
                          + 0.9980*NO2
                          + 0.9980*HO2
-                         + 0.0594*VROCP4OXY02
+                         + 0.0594*VROCP4OXY2
                          + 0.4693*GLY
                          + 0.4693*MGLY
                          + 0.4693*FURANONE
                          + 0.4693*DCB2        # 2.7E-12 @ -360.;
 <ROCARO04> VROCP6AROP + NO3 =  1.0000*NO2
                          + 1.0000*HO2
-                         + 0.0595*VROCP4OXY02
+                         + 0.0595*VROCP4OXY2
                          + 0.4702*GLY
                          + 0.4702*MGLY
                          + 0.4702*FURANONE
@@ -1461,7 +1458,7 @@ REACTIONS[CM] =
 <ROCARO05> VROCP6AROP + MO2 =  0.5000*HCHO
                          + 2.0000*HO2
                          + 0.5000*MOH
-                         + 0.0595*VROCP4OXY02
+                         + 0.0595*VROCP4OXY2
                          + 0.4702*GLY
                          + 0.4702*MGLY
                          + 0.4702*FURANONE
@@ -1469,12 +1466,92 @@ REACTIONS[CM] =
 <ROCARO06> VROCP6AROP + ACO3 = 0.7000*MO2
                          + 2.0000*HO2
                          + 0.3000*ORA2
-                         + 0.0595*VROCP4OXY02
+                         + 0.0595*VROCP4OXY2
+                         + 0.4702*GLY
+                         + 0.4702*MGLY
+                         + 0.4702*FURANONE
+                         + 0.4702*DCB2        # 7.4E-13 @ -765.;
+! ROCP5ARO
+<ROCARO11> VROCP5ARO + HO = 0.8400*VROCP5AROP
+                         + 0.1600*HO2
+                         + 0.1600*VROCP3OXY2 # 1.81E-11;
+<ROCARO12> VROCP5AROP + HO2 = 0.0595*VROCP3OXY2
+                         + 0.9048*VROCP0OXY2
+                         + 0.0357*VROCN2OXY4 # 2.91E-13 @ -1300.;
+<ROCARO13> VROCP5AROP + NO =   0.0001*VROCP3OXY2
+                         + 0.0018*VROCP0OXY4
+                         + 0.0001*VROCN2OXY4
+                         + 0.9980*NO2
+                         + 0.9980*HO2
+                         + 0.0594*VROCP3OXY2
+                         + 0.4693*GLY
+                         + 0.4693*MGLY
+                         + 0.4693*FURANONE
+                         + 0.4693*DCB2        # 2.7E-12 @ -360.;
+<ROCARO14> VROCP5AROP + NO3 =  1.0000*NO2
+                         + 1.0000*HO2
+                         + 0.0595*VROCP3OXY2
+                         + 0.4702*GLY
+                         + 0.4702*MGLY
+                         + 0.4702*FURANONE
+                         + 0.4702*DCB2        # 2.3E-12;
+<ROCARO15> VROCP5AROP + MO2 =  0.5000*HCHO
+                         + 2.0000*HO2
+                         + 0.5000*MOH
+                         + 0.0595*VROCP3OXY2
+                         + 0.4702*GLY
+                         + 0.4702*MGLY
+                         + 0.4702*FURANONE
+                         + 0.4702*DCB2        # 3.56E-14 @ -708.;
+<ROCARO16> VROCP5AROP + ACO3 = 0.7000*MO2
+                         + 2.0000*HO2
+                         + 0.3000*ORA2
+                         + 0.0595*VROCP3OXY2
                          + 0.4702*GLY
                          + 0.4702*MGLY
                          + 0.4702*FURANONE
                          + 0.4702*DCB2        # 7.4E-13 @ -765.;
 
+! NAPH
+<ROCARO21> NAPH + HO = 0.8400*NAPHP
+                         + 0.1600*HO2
+                         + 0.1600*VROCP3OXY2 # 2.31E-11;
+<ROCARO22> NAPHP + HO2 = 0.0595*VROCP3OXY2
+                         + 0.9048*VROCP1OXY3
+                         + 0.0357*VROCN2OXY8 # 2.91E-13 @ -1300.;
+<ROCARO23> NAPHP + NO =   0.0001*VROCP4OXY2
+                         + 0.0018*VROCP1OXY3
+                         + 0.0001*VROCN2OXY8
+                         + 0.9980*NO2
+                         + 0.9980*HO2
+                         + 0.0594*VROCP4OXY2
+                         + 0.4693*GLY
+                         + 0.4693*MGLY
+                         + 0.4693*FURANONE
+                         + 0.4693*DCB2        # 2.7E-12 @ -360.;
+<ROCARO24> NAPHP + NO3 =  1.0000*NO2
+                         + 1.0000*HO2
+                         + 0.0595*VROCP4OXY2
+                         + 0.4702*GLY
+                         + 0.4702*MGLY
+                         + 0.4702*FURANONE
+                         + 0.4702*DCB2        # 2.3E-12;
+<ROCARO25> NAPHP + MO2 =  0.5000*HCHO
+                         + 2.0000*HO2
+                         + 0.5000*MOH
+                         + 0.0595*VROCP4OXY2
+                         + 0.4702*GLY
+                         + 0.4702*MGLY
+                         + 0.4702*FURANONE
+                         + 0.4702*DCB2        # 3.56E-14 @ -708.;
+<ROCARO26> NAPHP + ACO3 = 0.7000*MO2
+                         + 2.0000*HO2
+                         + 0.3000*ORA2
+                         + 0.0595*VROCP4OXY2
+                         + 0.4702*GLY
+                         + 0.4702*MGLY
+                         + 0.4702*FURANONE
+                         + 0.4702*DCB2        # 7.4E-13 @ -765.;
 
 ! Multigenerational oxidation of LVOCs and SVOCs
 ! Aging of ROCOXY with explicit low MW species
