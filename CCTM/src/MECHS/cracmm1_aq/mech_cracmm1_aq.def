@@ -261,6 +261,12 @@ REACTIONS[CM] =
                                        + 0.650*GLY
                                        + 0.350*ORA1   # 5.5E-30 ^ 0.0 &  
                                                         8.3E-13 ^ 2.0;
+! MCM-based chemistry for aromatics, RACM2 rates for BEN, TOL, XYM
+<ROCARO31> BEN + HO        = 0.4700*BENP + 0.5300*PHEN # 2.33E-12 @ 193.;
+<ROCARO41> TOL + HO        = 0.8200*TOLP + 0.1800*CSL # 1.81E-12 @ -354.;
+<ROCARO51> XYM + HO        = 0.8300*XYMP + 0.1700*CSL # 2.33E-11;
+<ROCARO61> XYE + HO        = 0.8200*XYEP + 0.1800*CSL # 7.16E-12;
+
 <R086>  ISO  + HO          = ISOP      + ISOPRXN      # 2.70E-11 @ -390.;
 <R087>  API  + HO          = APIP      + TRPRXN       # 1.21E-11 @ -440.;
 <R088>  LIM  + HO          = LIMP      + TRPRXN       # 4.20E-11 @ -401.;
@@ -538,6 +544,48 @@ REACTIONS[CM] =
                                         + 0.09*KET 
                                         + 0.02*HKET 
                                         + 0.05*ONIT   # 4.00E-12;
+! MCM-based aromatics with Lu et al. updates
+<ROCARO33> BENP + NO   =   0.0000*ONIT
+                         + 0.0012*VROCP4OXY2
+                         + 0.0008*VROCP1OXY3
+                         + 0.9980*NO2
+                         + 0.9980*HO2
+                         + 0.0000*BALD
+                         + 0.9980*GLY
+                         + 0.4990*FURANONE
+                         + 0.2495*DCB2
+                         + 0.2495*DCB3        # 2.7E-12 @ -360.;
+<ROCARO43> TOLP + NO   =   0.0002*ONIT
+                         + 0.0013*VROCP4OXY2
+                         + 0.0006*VROCP1OXY3
+                         + 0.9980*NO2
+                         + 0.9980*HO2
+                         + 0.0852*BALD
+                         + 0.5477*GLY
+                         + 0.3651*MGLY
+                         + 0.3651*FURANONE
+                         + 0.5477*DCB1        # 2.7E-12 @ -360.;
+<ROCARO53> XYMP + NO   =   0.0001*ONIT
+                         + 0.0013*VROCP3OXY2
+                         + 0.0006*VROCP0OXY4
+                         + 0.9980*NO2
+                         + 0.9980*HO2
+                         + 0.0481*BALD
+                         + 0.7029*GLY
+                         + 0.2470*MGLY
+                         + 0.3515*FURANONE
+                         + 0.5984*DCB2        # 2.7E-12 @ -360.;
+<ROCARO63> XYEP + NO   =   0.0002*ONIT
+                         + 0.0013*VROCP3OXY2
+                         + 0.0006*VROCP0OXY4
+                         + 0.9980*NO2
+                         + 0.9980*HO2
+                         + 0.0852*BALD
+                         + 0.5477*GLY
+                         + 0.3651*MGLY
+                         + 0.4564*FURANONE
+                         + 0.4564*DCB2        # 2.7E-12 @ -360.;
+
 <R188>  ISOP + NO          = 0.880*HO2  + 0.880*NO2
                                         + 0.200*HCHO
                                         + 0.280*MACR
@@ -618,6 +666,20 @@ REACTIONS[CM] =
 <R217>  ETEP + HO2         = OP2                      # 1.90E-13 @ -1300.;  
 <R218>  OLTP + HO2         = OP2                      # 1.66E-13 @ -1300.;
 <R219>  OLIP + HO2         = OP2                      # 1.66E-13 @ -1300.;
+! MCM-based aromatics
+<ROCARO32> BENP + HO2 = 0.0000*OP2
+                         + 0.6021*OP2
+                         + 0.3979*VROCP1OXY3          # 2.91E-13 @ -1300.;
+<ROCARO42> TOLP + HO2  = 0.0854*OP2
+                         + 0.6341*OP2
+                         + 0.2805*VROCP1OXY3          # 2.91E-13 @ -1300.;
+<ROCARO52> XYMP + HO2  = 0.0482*OP2
+                         + 0.6747*OP3
+                         + 0.2771*VROCP0OXY4          # 2.91E-13 @ -1300.;
+<ROCARO62> XYEP + HO2  = 0.0854*OP2
+                         + 0.6341*OP3
+                         + 0.2805*VROCP0OXY4          # 2.91E-13 @ -1300.;
+
 <R228>  ISOP + HO2         = ISHP                     # 2.05E-13 @ -1300.;
 <R229>  APIP + HO2         = OP2                      # 1.5E-11;
 <R230>  LIMP + HO2         = OP2                      # 1.5E-11;
@@ -681,6 +743,40 @@ REACTIONS[CM] =
                                        + 0.218*KET
                                        + 0.250*MOH
                                        + 0.250*ROH    # 9.18E-14 @ -708.;
+! MCM-based aromatics
+<ROCARO35> BENP + MO2 =  0.5000*HCHO
+                         + 2.0000*HO2
+                         + 0.5000*MOH
+                         + 0.0000*BALD
+                         + 1.0000*GLY
+                         + 0.5000*FURANONE
+                         + 0.2500*DCB2
+                         + 0.2500*DCB3        # 3.56E-14 @ -708.;
+<ROCARO45> TOLP + MO2 =  0.5000*HCHO
+                         + 2.0000*HO2
+                         + 0.5000*MOH
+                         + 0.0854*BALD
+                         + 0.5488*GLY
+                         + 0.3659*MGLY
+                         + 0.3659*FURANONE
+                         + 0.5488*DCB1        # 3.56E-14 @ -708.;
+<ROCARO55> XYMP + MO2 =  0.5000*HCHO
+                         + 2.0000*HO2
+                         + 0.5000*MOH
+                         + 0.0482*BALD
+                         + 0.7043*GLY
+                         + 0.2475*MGLY
+                         + 0.3522*FURANONE
+                         + 0.5996*DCB2        # 3.56E-14 @ -708.;
+<ROCARO65> XYEP + MO2 =  0.5000*HCHO
+                         + 2.0000*HO2
+                         + 0.5000*MOH
+                         + 0.0854*BALD
+                         + 0.5488*GLY
+                         + 0.3659*MGLY
+                         + 0.4573*FURANONE
+                         + 0.4573*DCB2        # 3.56E-14 @ -708.;
+
 <R264>  ISOP + MO2         = HO2       + 1.31*HCHO 
                                        + 0.159*MACR
                                        + 0.250*MVK
@@ -804,6 +900,41 @@ REACTIONS[CM] =
                                        + 1.71*ALD 
                                        + 0.290*KET
                                        + 0.500*ORA2   # 5.09E-13 @ -765.;
+! MCM-based aromatics
+<ROCARO36> BENP + ACO3 = 0.7000*MO2
+                         + 2.0000*HO2
+                         + 0.3000*ORA2
+                         + 0.0000*BALD
+                         + 1.0000*GLY
+                         + 0.5000*FURANONE
+                         + 0.2500*DCB2
+                         + 0.2500*DCB3        # 7.4E-13 @ -765.;
+<ROCARO46> TOLP + ACO3 = 0.7000*MO2
+                         + 2.0000*HO2
+                         + 0.3000*ORA2
+                         + 0.0854*BALD
+                         + 0.5488*GLY
+                         + 0.3659*MGLY
+                         + 0.3659*FURANONE
+                         + 0.5488*DCB1        # 7.4E-13 @ -765.;
+<ROCARO56> XYMP + ACO3 = 0.7000*MO2
+                         + 2.0000*HO2
+                         + 0.3000*ORA2
+                         + 0.0482*BALD
+                         + 0.7043*GLY
+                         + 0.2475*MGLY
+                         + 0.3522*FURANONE
+                         + 0.5996*DCB2        # 7.4E-13 @ -765.;
+<ROCARO66> XYEP + ACO3 = 0.7000*MO2
+                         + 2.0000*HO2
+                         + 0.3000*ORA2
+                         + 0.0854*BALD
+                         + 0.5488*GLY
+                         + 0.3659*MGLY
+                         + 0.4573*FURANONE
+                         + 0.4573*DCB2        # 7.4E-13 @ -765.;
+
+
 <R300>  ISOP + ACO3        = 0.5*HO2   + 0.5*MO2
                                        + 1.048*HCHO
                                        + 0.219*MACR
@@ -915,6 +1046,37 @@ REACTIONS[CM] =
                                        + 0.20*ACT 
                                        + 0.85*ACD 
                                        + 0.04*HKET    # 1.20E-12;
+! MCM-based aromatics
+<ROCARO34> BENP + NO3 =  1.0000*NO2
+                         + 1.0000*HO2
+                         + 0.0000*BALD
+                         + 1.0000*GLY
+                         + 0.5000*FURANONE
+                         + 0.2500*DCB2
+                         + 0.2500*DCB3        # 2.3E-12;
+<ROCARO44> TOLP + NO3 =  1.0000*NO2
+                         + 1.0000*HO2
+                         + 0.0854*BALD
+                         + 0.5488*GLY
+                         + 0.3659*MGLY
+                         + 0.3659*FURANONE
+                         + 0.5488*DCB1        # 2.3E-12;
+<ROCARO54> XYMP + NO3 =  1.0000*NO2
+                         + 1.0000*HO2
+                         + 0.0482*BALD
+                         + 0.7043*GLY
+                         + 0.2475*MGLY
+                         + 0.3522*FURANONE
+                         + 0.5996*DCB2        # 2.3E-12;
+<ROCARO64> XYEP + NO3 =  1.0000*NO2
+                         + 1.0000*HO2
+                         + 0.0854*BALD
+                         + 0.5488*GLY
+                         + 0.3659*MGLY
+                         + 0.4573*FURANONE
+                         + 0.4573*DCB2        # 2.3E-12;
+
+
 <R338>  ISOP + NO3         = HO2       + NO2 
                                        + 0.75*HCHO  
                                        + 0.318*MACR 

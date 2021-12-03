@@ -157,7 +157,6 @@
    'EVERYWHERE', 'ALL'         ,'ORA2'   ,'ORA2'        ,'GAS'  ,1.  ,'UNIT','a', 
    'EVERYWHERE', 'ALL'         ,'SESQ'   ,'SESQ'        ,'GAS'  ,1.  ,'UNIT','a', 
    'EVERYWHERE', 'ALL'         ,'NAPH'   ,'NAPH'        ,'GAS'  ,1.  ,'UNIT','a', 
-   'EVERYWHERE', 'ALL'         ,'SOAALK' ,'SOAALK'      ,'GAS'  ,1.  ,'UNIT','a', 
    'EVERYWHERE', 'ALL'         ,'NH3'    ,'NH3'         ,'GAS'  ,1.  ,'UNIT','a', 
    ! New CRACMM species
    'EVERYWHERE', 'ALL'         ,'ACT'    ,'VROCIOXY'    ,'GAS'  ,0.156,'UNIT','a', ! proxied to ACT based on 2017 US Emissions
@@ -282,8 +281,8 @@
       !'EVERYWHERE', 'ALL'    ,'PMFINE_POC' ,'APOC'         ,'FINE',1.   ,'UNIT','a', 
       !'EVERYWHERE', 'ALL'   ,'PMFINE_PNCOM','APNCOM'       ,'FINE',1.   ,'UNIT','a', 
    ! :  --> Semivolatile POA
-      'EVERYWHERE', 'ALL'    ,'PMFINE_LVPO1','ALVPO1'      ,'FINE',1.   ,'UNIT','a', 
-      'EVERYWHERE', 'ALL'    ,'PMFINE_LVOO1','ALVOO1'      ,'FINE',1.   ,'UNIT','a', 
+      'EVERYWHERE', 'ALL'    ,'PMFINE_LVPO1','AROCN1ALK'      ,'FINE',1.   ,'UNIT','a', 
+      'EVERYWHERE', 'ALL'    ,'PMFINE_LVOO1','AROCN1ALK'      ,'FINE',1.   ,'UNIT','a', 
 
    ! Wind-Blown Dust and Sea Spray Scaling
    ! Coarse Components                                               
