@@ -200,6 +200,12 @@
                    IF ( DIFF_MASK_GAS( J ) ) THEN
                        ! GAS SPECIES
                        UNITS( NSPEC ) = 'mol s-1'
+                   ELSE IF ( DIFF_MASK_NR( J ) ) THEN
+                       ! GAS SPECIES
+                       UNITS( NSPEC ) = 'mol s-1'
+                   ELSE IF ( DIFF_MASK_TRAC( J ) ) THEN
+                       ! GAS SPECIES
+                       UNITS( NSPEC ) = 'mol s-1'
                    ELSE IF ( DIFF_MASK_NUM( J ) ) THEN
                        ! AEROSOL NUMBER SPECIES
                        UNITS( NSPEC ) = 'particles s-1'
@@ -225,6 +231,12 @@
                    MAP_toDIFF( NPAIRS ) = J
                    MAP_toEMDIAG( NPAIRS ) = NSPEC
                    IF ( DIFF_MASK_GAS( J ) ) THEN
+                       ! GAS SPECIES
+                       UNITS( NSPEC ) = 'mol s-1'
+                   ELSE IF ( DIFF_MASK_NR( J ) ) THEN
+                       ! GAS SPECIES
+                       UNITS( NSPEC ) = 'mol s-1'
+                   ELSE IF ( DIFF_MASK_TRAC( J ) ) THEN
                        ! GAS SPECIES
                        UNITS( NSPEC ) = 'mol s-1'
                    ELSE IF ( DIFF_MASK_NUM( J ) ) THEN
