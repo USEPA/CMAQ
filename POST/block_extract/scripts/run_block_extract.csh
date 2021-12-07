@@ -24,21 +24,21 @@
  set VRSN      = v532              #> Code Version
  set PROC      = mpi               #> serial or mpi
  set MECH      = cb6r3_ae7_aq      #> Mechanism ID
- set APPL      = 2016_12SE1        #> Application Name (e.g. Gridname)
+ set APPL      = Bench_2016_12SE1        #> Application Name (e.g. Gridname)
                                                       
 #> Define RUNID as any combination of parameters above or others. By default,
 #> this information will be collected into this one string, $RUNID, for easy
 #> referencing in output binaries and log files as well as in other scripts.
- setenv RUNID  ${VRSN}_${compilerString}_${APPL}
+ set RUNID =  ${VRSN}_${compilerString}_${APPL}
  
 #> Set the build directory if this was not set above 
 #> (this is where the bldoverlay executable is located by default).
  if ( ! $?BINDIR ) then
-  setenv BINDIR ${CMAQ_HOME}/POST/block_extract/scripts/BLD_block_extract_${VRSN}_${compilerString}
+  set BINDIR = ${CMAQ_HOME}/POST/block_extract/scripts/BLD_block_extract_${VRSN}_${compilerString}
  endif
 
 #> Set the name of the executable.
- setenv EXEC block_extract_${VRSN}.exe
+ set EXEC = block_extract_${VRSN}.exe
 
 # =====================================================================
 #> BLOCK_EXTRACT Configuration Options
@@ -98,5 +98,11 @@
 
 #> Executable call:
  ${BINDIR}/${EXEC}
+
+ set progstat = ${status}
+ if ( ${progstat} ) then
+   echo "ERROR ${progstat} in $BINDIR/$EXEC"
+   exit( ${progstat} )
+ endif
 
  exit() 

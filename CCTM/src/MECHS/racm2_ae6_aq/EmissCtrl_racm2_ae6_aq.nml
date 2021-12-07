@@ -525,6 +525,91 @@
   AVRG_LAYER_BOT = 1
   AVRG_PARS_REG  = 'DEFAULT'
 /
+ 
+!------------------------------------------------------------------------------!
+! Emissions Diagnostic Output Parameters                                       !
+!    This seciton allows users to specify individual species for output on     !
+!    emissions diagnostic output files. In this way, users are able to         !
+!    probe emissions magnitudes and scaling changes for specific species of    !
+!    interest while not sacrificing the hard disk space needed to save the     !
+!    emission rates of all species for every emission stream. It is also       !
+!    possible to combine components of chemical families or stream families as !
+!    the user's interest dictates.                                             !
+!  Description of Variables:                                                   !
+!   NEmissDiag - this is the number of diagnostic *instructions* that you are  !
+!                are giving. It will very likely be different than the number  !
+!                of diagnostic emissions output files. For example, if you wish!
+!                to expand the streams using the ALL keyword, then all of the  !
+!                streams will have a file, but only one instruction is needed. !
+!   EmissDiagStreams(NEmissDiag,:) - The stream names that are to be exported. !
+!        In addition to the labels of individual streams, you may also use     !
+!        stream family names here to identify more than one stream at a time.  !
+!        By default, each stream family entry will instruct CMAQ to sum all of !
+!        the streams in that group. The keywords 'ALL' and 'TOTAL' are avail-  !
+!        able by default. You may use a '*' at the beginning of a keyword or   !
+!        family name to instruct CMAQ to expand that keyword and export files  !
+!        for all of the streams in that group.                                 !
+!   EmissDiagFmt(NEmissDiag) - the format of every stream created as a result  !
+!        of the instruction. Options are:                                      !
+!              - True = 3D output                                              !
+!              - False = Turn Off File                                         !
+!              - 2D = Just the first layer                                     !
+!              - 2DCOL = the column-sum                                        !
+!              - 3D = 3D output                                                !
+!   EmissDiagSpec(NEmissDiag,:) - The species to be added to each diagnostic   !
+!        file. Species will only appear on a diagnostic file if the relevant   !
+!        stream or group of streams for the file have that species present.    !
+!        Chemical families may be used in this list. By default, CMAQ will sum !
+!        all of the components of a chemical family. You may preceed the       !
+!        species name with a '*' to instruct CMAQ to expand the field and      !
+!        include all of the components of that family separately. The keyword  !
+!        'ALL' may also be used to easily add all species of any stream.       !
+!------------------------------------------------------------------------------!
 
+!&EmissionDiagnostic
+! Add 3 example instructions
+!  NEmissDiag           = 3
+  
+! Sum up all streams to create a diagnostic file of 2D column sums. NO,
+! NO2, and total NOX will all be on the file.
+!  EmissDiagStreams(1,:)= 'ALL'
+!  EmissDiagFmt(1)      = '2DCOL'    ! Options: 2D, 2DCOL, 3D
+!  EmissDiagSpec(1,:)   = 'NO','NO2','NOX','ASO4','CO'
+   
+! Expand the keyword TOTAL to all the streams in the simulation and create
+! a diagnostic for each one. Each of these files will be 3D and will include
+! three species: 'AEC' = AECI + AECJ + AECK; 'AECI'; and 'NO2'
+!  EmissDiagStreams(2,:)= '*TOTAL'
+!  EmissDiagFmt(2)      = '2D'    ! Options: 2D, 2DCOL, 3D
+!  EmissDiagSpec(2,:)   = 'AEC','AECI','NO2','ACLK','AMG','TERP'
+  
+! Create a diagnostic of the sum of the components of the PT_SOURCES family 
+! (defined in the example above). This file will be column sums and will include
+! all the emitted species appearing on at least one of the streams withint 
+! PT_SOURCES.
+!  EmissDiagStreams(3,:)= 'PT_SOURCES'
+!  EmissDiagFmt(3)      = '3D'    ! Options: 2D, 2DCOL, 3D
+!  EmissDiagSpec(3,:)   = '*ALL'
+!/
+ 
+!------------------------------------------------------------------------------!
+! Budget Tool Variable and Family Definitions                                  !
+!    This section includes selections for species and families of CMAQ         !
+!    that may be grouped together when calculating budget values for the       !
+!    budget output file. Users may select any CMAQ chemical species, chemical  !
+!    family defined in the ChemicalFamilies section of this namelist or may    !
+!    use the ALL keyword to select all species.                                !
+!    If a Family name or the ALL keyword are provided, the sum of those species!
+!    will be output on the budget file. If a * proceeds the name (e.g. '*ALL') !
+!    then the keyword or Family name will be expanded and all of the species   !
+!    it comprises will be added separately. The default selection is for all   !
+!    chemical species to be output individually.                               !
+!------------------------------------------------------------------------------!
+
+&BudgetOptions
+  Budget_Diag = .TRUE.
+  BudgetVariables  = '*ALL'
+/
+ 
  
  

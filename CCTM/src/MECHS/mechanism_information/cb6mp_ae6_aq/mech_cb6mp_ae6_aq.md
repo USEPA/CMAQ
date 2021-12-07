@@ -1,1 +1,0 @@
-../cb6r3_ae6_aq/mech_cb6r3_ae6_aq.md

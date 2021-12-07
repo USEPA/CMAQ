@@ -103,9 +103,9 @@ Ckrt Create variable names for tag output
         DO ITAG = 1, NTAG_SA
           DO JSPC = 1, NSPC_SA
             JSPCTAG = JSPCTAG + 1
-            LENGTH = LEN_TRIM( SPC_NAME( JSPC,ITAG ) )
+            LENGTH = LEN_TRIM( ISAM_SPEC( JSPC,ITAG ) )
             IF ( LENGTH .GT. 0 ) THEN
-              TEMP = SPC_NAME( JSPC,ITAG )( 1:LENGTH )
+              TEMP = ISAM_SPEC( JSPC,ITAG )( 1:LENGTH )
               ALLOCATE ( SPECIE_NAME( LENGTH ) )
               DO N = 1, LENGTH
                 SPECIE_NAME(N:N) = TEMP(N:N)
@@ -126,7 +126,7 @@ Ckrt Create variable names for tag output
                 CALL WR_VARNAME( SPECIE_NAME, LENGTH, NTAG_SA, NSPC_SA,
      &             TAGNAME(ITAG), VNAME( JSPC,ITAG ) )
               ENDIF ! Is itag bcon, othr, icon, or emis ?
-!              WRITE(LOGDEV,'(I3,2(1X,I2),2(1X,A16))')JSPCTAG,JSPC,ITAG,SPC_NAME( JSPC,ITAG ),VNAME( JSPC,ITAG )
+!              WRITE(LOGDEV,'(I3,2(1X,I2),2(1X,A16))')JSPCTAG,JSPC,ITAG,ISAM_SPEC( JSPC,ITAG ),VNAME( JSPC,ITAG )
               DEALLOCATE ( SPECIE_NAME )
             ENDIF ! length > 0?
           ENDDO ! jspc

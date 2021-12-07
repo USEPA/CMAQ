@@ -18,7 +18,7 @@
 !------------------------------------------------------------------------!
 
 C::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-      SUBROUTINE TMPBEIS312( JDATE, JTIME, TSTEP, BEIS_MAP, EMISL )
+      SUBROUTINE TMPBEIS312( JDATE, JTIME, TSTEP, BEIS_MAP, EMISL, L_DESID_DIAG )
 
 C-----------------------------------------------------------------------
  
@@ -98,7 +98,8 @@ C Arguments:
       INTEGER, INTENT(  IN ) :: TSTEP( 3 )      ! timestep vector
       INTEGER, INTENT(  IN ) :: BEIS_MAP( : )   ! mapping from beis3 to model species
       REAL,    INTENT( OUT ) :: EMISL( :,:,: )  ! emissions in moles/sec
-
+      LOGICAL, INTENT(  IN ) :: L_DESID_DIAG ! flag determining whether or not DESID
+                                             !   is in diagnostic mode              
 C External Functions
       LOGICAL,         EXTERNAL :: CHKGRID
 
@@ -176,11 +177,12 @@ C Other variables:
             REAL,    INTENT( IN ) :: SLAI  ( :,:,: )
             REAL,    INTENT( OUT ) :: BIPOL( :,:,: )
          END SUBROUTINE BEIS3
-         SUBROUTINE HRNO( JDATE, JTIME, TSTEP, NOPOL )
+         SUBROUTINE HRNO( JDATE, JTIME, TSTEP, NOPOL, L_DESID_DIAG )
             INTEGER, INTENT( IN )  :: JDATE
             INTEGER, INTENT( IN )  :: JTIME
             INTEGER, INTENT( IN )  :: TSTEP( 3 )
             REAL,    INTENT( OUT ) :: NOPOL( :,: )
+            LOGICAL, INTENT( IN )  :: L_DESID_DIAG
          END SUBROUTINE HRNO
       END INTERFACE
 
@@ -390,7 +392,7 @@ C Calculate temporal non-speciated beis emissions
       CALL BEIS3( JDATE, JTIME, NCOLS, NROWS, MSPCS, SEMIS, SLAI, BIPOL )
 
 C Calculate temporal non-speciated soil NO emissions
-      CALL HRNO( JDATE, JTIME, TSTEP, NOPOL )
+      CALL HRNO( JDATE, JTIME, TSTEP, NOPOL, L_DESID_DIAG )
 
       EMPOL( :,:,1:NSEF-1 ) = BIPOL
       EMPOL( :,:,NSEF )     = NOPOL

@@ -84,7 +84,7 @@ Note that for multiprocessor applications it is recommended that the Fortran MPI
 -   `MPI_LIB_DIR`<a id=MPI_LIB_DIR></a>
     Location of the Message Passing Interface Library on your Linux system
 
-    -   `ioapi_lib`<a id=ioapi_lib></a>
+-   `ioapi_lib`<a id=ioapi_lib></a>
     Name of the I/O API library on your system; set to "-lioapi"
 
 -   `netcdf_lib`<a id=netcdf_lib></a>
@@ -158,7 +158,7 @@ The following options are invoked by uncommenting the line in the CCTM build scr
     
 -   `ParOpt`<a id=ParOpt></a>  
     Build an executable for running on multiple processors. Invoking this command requires the availability of the MPI library/INCLUDE files.
-
+    
 -   `build_parallel_io`<a id=build_parallel_io></a>  
      Uncomment to build CMAQ with true parallel I/O feature (requires mpi version of ioapi 3.2 and pnetcdf, refer to [Appendix D](./CMAQ_UG_appendixD_parallel_implementation.md).)
 
@@ -169,8 +169,8 @@ The following options are invoked by uncommenting the line in the CCTM build scr
     Uncomment to compile the CCTM executable with Integrated Source Apportionment Method (ISAM). See [Chapter 11](../CMAQ_UG_ch11_ISAM.md) for futher information before invoking this option. 
     
 -   `build_twoway`<a id=build_twoway></a>  
-    Uncomment to build WRF-CMAQ two way model with explicit meteorological-chemical feedbacks - to build a stand-alone CMAQ, comment this option out. During run time, if you encounter any problems, please contact David Wong (wong.david@epa.gov).
-    
+    Uncomment to build WRF-CMAQ two way model with explicit meteorological-chemical feedbacks - to build a stand-alone CMAQ, comment this option out.  During run time, if you encounter any problem, please contact David Wong (wong.david@epa.gov) for specific instructions for building WRF-CMAQ.
+
 -   `potvortO3`<a id=potvort03></a>   
     Uncomment to build CMAQ with potential vorticity free-troposphere O<sub>3</sub> scaling. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#613-potential-vorticity-scaling) for futher information before invoking this option.
 
@@ -439,12 +439,6 @@ Sets if the CCTM will run in multi-processor or serial mode.
 
 -   `CTM_OCEAN_CHEM [default: True]`<a id=CTM_SS_AERO></a>   
     Use Online Sea Spray Aerosol emissions and Halogen ozone chemistry. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#sea-spray) for further information.  
--   `CTM_WB_DUST [default: False]`<a id=CTM_WB_DUST></a>  
-    Setting to calculate online windblown dust emissions in CCTM. Setting this variable to Y also enables the option to provide additional gridded landuse input files beyond the land use information contained in the MCIP files. Whether or not additional landuse information is provide and, if yes, whether that additional landuse information is provided in one or two files is controlled by the environment variable CTM_WBDUST_BELD. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#wind-blown-dust) for further information.
-- `CTM_WBDUST_BELD [default: UNKNOWN]`<a id=CTM_WBDUST_BELD></a>  
-     Landuse database for identifying dust source regions; ignore if CTM_WB_DUST = FALSE
-    - BELD3: Use BELD3 landuse data for windblown dust calculations. The user needs to specify the DUST_LU_1 and DUST_LU_2 files described in [Chapter 4](../CMAQ_UG_ch04_model_inputs.md). These files typically are available for North American domains only.
-    - UNKNOWN: Use landuse information provided by MCIP for windblown dust calculations
 -   `CTM_LTNG_NO [default: Y]`<a id=CTM_LING_NO></a>  
     Y/N setting to activate lightning NO emissions. Setting this variable to Y requires additional variables to define the configuration of the lightning NO emissions calculation. See the settings for `LTNGNO`, `LTNGPARAMS`, `NLDN_STRIKES`, and `LTNGDIAG` below. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#lightning-no) for further information.
 -   `KZMIN [default: Y]`<a id=KZMIN></a>  
@@ -530,7 +524,7 @@ Sets if the CCTM will run in multi-processor or serial mode.
 
 <!-- END COMMENT -->
 
-    Aerosol Diagnostics are now handled by the Explicit and Lumped Model Output module (ELMO), which is directed by the Emission Control Interface (ECI). See [Appendix B.6: ELMO](Appendix/CMAQ_UG_appendixB_emissions_control.md) 
+Aerosol Diagnostics are now handled by the Explicit and Lumped Model Output module (ELMO), which is directed by the Emission Control Interface (ECI). See [Appendix B.6: ELMO](Appendix/CMAQ_UG_appendixB_emissions_control.md) 
 
 <a id=Diagnostic_Output_Flags></a>
 
@@ -717,11 +711,19 @@ Options for use with MEGAN:
 
 <!-- END COMMENT -->
 
+-   `CTM_WB_DUST [default: False]`<a id=CTM_WB_DUST></a>  
+    Setting to calculate online windblown dust emissions in CCTM. Setting this variable to Y also enables the option to provide additional gridded landuse input files beyond the land use information contained in the MCIP files. Whether or not additional landuse information is provide and, if yes, whether that additional landuse information is provided in one or two files is controlled by the environment variable CTM_WBDUST_BELD. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#wind-blown-dust) for further information.
+    
+- `CTM_WBDUST_BELD [default: UNKNOWN]`<a id=CTM_WBDUST_BELD></a>  
+     Landuse database for identifying dust source regions; ignore if CTM_WB_DUST = FALSE
+    - BELD3: Use BELD3 landuse data for windblown dust calculations. The user needs to specify the DUST_LU_1 and DUST_LU_2 files described in [Chapter 4](../CMAQ_UG_ch04_model_inputs.md). These files typically are available for North American domains only.
+    - UNKNOWN: Use landuse information provided by MCIP for windblown dust calculations
+    
 -   `DUST_LU_1 [default: Path to BELD3 Data]`<a id=DUST_LU_1></a>  
-    Input BELD "A" landuse netCDF file gridded to the modeling domain. Used if `CTM_WBDUST_BELD` is set to BELD3.  
+    Input BELD "A" landuse netCDF file gridded to the modeling domain. Only used if `CTM_WBDUST_BELD` is set to BELD3.  
 
 -   `DUST_LU_2 [default: Path to BELD3 Data]`<a id=DUST_LU_2></a>  
-    Input BELD "TOT" landuse netCDF file gridded to the modeling domain. Used if `CTM_WBDUST_BELD` is set to BELD3.  
+    Input BELD "TOT" landuse netCDF file gridded to the modeling domain. Only used if `CTM_WBDUST_BELD` is set to BELD3.  
 
 
 

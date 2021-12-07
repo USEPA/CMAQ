@@ -2,7 +2,7 @@
 
 ### Procedure to build and run the CMAQ-ISAM model using gnu compiler: ###
 
-### Step 1: Download and run the CMAQv5.3.2 benchmark case (without ISAM) to confirm that your model run is consistent with the provided benchmark output.
+### Step 1: Download and run the CMAQv5.3.3 benchmark case (without ISAM) to confirm that your model run is consistent with the provided benchmark output.
 - [CMAQ Benchmark Tutorial](CMAQ_UG_tutorial_benchmark.md)
 
 If you encounter any errors, try running the model in debug mode and refer to the CMAS User Forum to determine if any issues have been reported.
@@ -14,7 +14,7 @@ https://forum.cmascenter.org/
 
 Note: This benchmark is intended to demonstrate how to build and run CMAQ-ISAM with the provided input files:
 
-The following isam control file is provided in the CCTM/scripts directory when you obtain the CMAQv5.3.2 code from github (step 5 below):
+The following isam control file is provided in the CCTM/scripts directory when you obtain the CMAQv5.3.3 code from github (step 5 below):
 
 ```
 isam_control.txt
@@ -45,7 +45,7 @@ module load openmpi_4.0.1/gcc_9.1.0
 
 ### Step 4 (optional): Install I/O API (note, this assumes you have already installed netCDF C and Fortran Libraries)
 
-I/O APIv3.2 supports up to MXFILE3=64 open files, each with up to MXVARS3=2048. ISAM applications configured to calculate source attribution of a large number of sources may exceed this upper limit of model variables, leading to a model crash. To avoid this issue, users may use I/O API version 3.2 "large" that increases MXFILE3 to 512 and MXVARS3 to 16384. Instructions to build this version are found in Chapter 3. Note, using this ioapi-large version is <b>NOT REQUIRED</b> for the CMAQ-ISAM Benchmark Case. If a user needs to use these larger setting for MXFILE3 and MXVAR3 to support their application, the memory requirements will be increased. If needed, this version is available as a zip file from the following address:
+I/O APIv3.2 supports up to MXFILE3=256 open files, each with up to MXVARS3=2048. ISAM applications configured to calculate source attribution of a large number of sources may exceed this upper limit of model variables, leading to a model crash. To avoid this issue, users may use I/O API version 3.2 "large" that increases MXFILE3 to 512 and MXVARS3 to 16384. Instructions to build this version are found in Chapter 3. Note, using this ioapi-large version is <b>NOT REQUIRED</b> for the CMAQ-ISAM Benchmark Case. If a user needs to use these larger setting for MXFILE3 and MXVAR3 to support their application, the memory requirements will be increased. If needed, this version is available as a zip file from the following address:
 
 https://www.cmascenter.org/ioapi/download/ioapi-3.2-large-20200828.tar.gz
 
@@ -55,7 +55,7 @@ https://www.cmascenter.org/ioapi/download/ioapi-3.2-20200828.tar.gz
 ### Step 5: Install CMAQ with ISAM
 
 ```
-git clone -b master https://github.com/USEPA/CMAQ.git CMAQ_REPO
+git clone -b main https://github.com/USEPA/CMAQ.git CMAQ_REPO
 ```
 
 Build and run in a user-specified directory outside of the repository
@@ -65,7 +65,7 @@ In the top level of CMAQ_REPO, the bldit_project.csh script will automatically r
 Edit bldit_project.csh, to modify the variable $CMAQ_HOME to identify the folder that you would like to install the CMAQ package under. For example:
 
 ```
-set CMAQ_HOME = /work/your_username/CMAQ_v5.3.2
+set CMAQ_HOME = [your_install_path]/CMAQ_v5.3.3
 ```
 
 Now execute the script.
@@ -77,7 +77,7 @@ Now execute the script.
 Change directories to the CMAQ_HOME directory
 
 ```
-cd /work/your_username/CMAQ_v5.3.2
+cd [your_install_path]/CMAQ_v5.3.3
 ```
 
 

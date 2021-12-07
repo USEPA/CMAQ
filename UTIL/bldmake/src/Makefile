@@ -5,9 +5,9 @@
 #To use nondefault compiler, type "make COMPILER=compiler" where compiler is PGF90 or GFORT.
 
 ifndef COMPILER
- COMPILER = INTEL
+#COMPILER = INTEL
 #COMPILER = PGF90
-#COMPILER = GFORT
+ COMPILER = GFORT
 endif
 
 ifeq ($(COMPILER),INTEL)
@@ -16,7 +16,7 @@ ifeq ($(COMPILER),INTEL)
  F_FLAGS = -g -fixed -CU -CB -g -traceback -extend_source -WB 
 else ifeq ($(COMPILER),PGF90)
  FC = pgf90
- F_FLAGS = -Bstatic -Mextend -Mbounds -Mfixed -traceback
+ F_FLAGS = -Bstatic -Mextend -Mbounds -Mfixed -traceback -Mbackslash
 else ifeq ($(COMPILER),GFORT)
  FC = gfortran
  F_FLAGS = -ffixed-form -ffixed-line-length-132  -fcheck=all -fbacktrace

@@ -319,7 +319,8 @@ C  reference modes including splits, diameters, and standard deviations.
 
 C-----------------------------------------------------------------------
        USE AERO_DATA, ONLY: EM_AERO_REF, N_EM_AERO_REF
-       USE EMIS_VARS, ONLY: SD_NML, INTERPRET_EM_RULE_STREAM
+       USE EMIS_VARS, ONLY: SD_NML
+       USE EMIS_UTIL, ONLY: INTERPRET_EM_RULE_STREAM
        USE UTILIO_DEFN, ONLY: INDEX1, XSTAT1
          
        IMPLICIT NONE

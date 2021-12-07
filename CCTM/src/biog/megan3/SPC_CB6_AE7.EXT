@@ -1,0 +1,64 @@
+C=======================================================================
+C  SPC_CB6.EXT
+C  This include file contains CB6 (CMAQ/CAMx) species and their MW.
+C
+C
+C  Mechanism Name: CB6 (CMAQ/CAMx)
+C  MEGAN v3
+C  INPUT version x.x
+C
+C  History:
+C  Who          When       What
+C  ---------------------------------------------------------------------
+C  bkoo         04/13/07 - Created
+C  Tan          07/18/11 - Updated for MEGANv2.10
+C  Ling Huang   06/08/17 - updated for MEGANv3 with new species
+C=======================================================================
+
+      CHARACTER*16   SPC_CB6AE7MECH
+      PARAMETER     (SPC_CB6AE7MECH = 'CB6_ae7         ')
+
+      INTEGER        N_CB6_ae7_SPC
+      PARAMETER     (N_CB6_ae7_SPC = 37)
+
+      CHARACTER*16   MECH_SPC_CB6_AE7( N_CB6_ae7_SPC )  ! Mechanism species name
+      REAL           MECH_MWT_CB6_AE7( N_CB6_ae7_SPC )  ! Mechanism species molecular weight
+
+
+      DATA  MECH_SPC_CB6_AE7(  1), MECH_MWT_CB6_AE7(  1) / 'ISOP            ',  68.12  /
+      DATA  MECH_SPC_CB6_AE7(  2), MECH_MWT_CB6_AE7(  2) / 'TERP            ', 136.23  /
+      DATA  MECH_SPC_CB6_AE7(  3), MECH_MWT_CB6_AE7(  3) / 'PAR             ',  14.43  /
+      DATA  MECH_SPC_CB6_AE7(  4), MECH_MWT_CB6_AE7(  4) / 'XYL             ', 106.17  /
+      DATA  MECH_SPC_CB6_AE7(  5), MECH_MWT_CB6_AE7(  5) / 'OLE             ',  27.65  /
+      DATA  MECH_SPC_CB6_AE7(  6), MECH_MWT_CB6_AE7(  6) / 'NR              ',  16.00  /
+      DATA  MECH_SPC_CB6_AE7(  7), MECH_MWT_CB6_AE7(  7) / 'MEOH            ',  32.04  /
+      DATA  MECH_SPC_CB6_AE7(  8), MECH_MWT_CB6_AE7(  8) / 'CH4             ',  16.04  /
+      DATA  MECH_SPC_CB6_AE7(  9), MECH_MWT_CB6_AE7(  9) / 'NH3             ',  17.03  /
+      DATA  MECH_SPC_CB6_AE7( 10), MECH_MWT_CB6_AE7( 10) / 'NO              ',  46.00  /
+      DATA  MECH_SPC_CB6_AE7( 11), MECH_MWT_CB6_AE7( 11) / 'ALD2            ',  44.05  /
+      DATA  MECH_SPC_CB6_AE7( 12), MECH_MWT_CB6_AE7( 12) / 'ETOH            ',  46.07  /
+      DATA  MECH_SPC_CB6_AE7( 13), MECH_MWT_CB6_AE7( 13) / 'FORM            ',  30.03  /
+      DATA  MECH_SPC_CB6_AE7( 14), MECH_MWT_CB6_AE7( 14) / 'ALDX            ',  43.65  /
+      DATA  MECH_SPC_CB6_AE7( 15), MECH_MWT_CB6_AE7( 15) / 'TOL             ',  92.14  /
+      DATA  MECH_SPC_CB6_AE7( 16), MECH_MWT_CB6_AE7( 16) / 'IOLE            ',  56.11  /
+      DATA  MECH_SPC_CB6_AE7( 17), MECH_MWT_CB6_AE7( 17) / 'CO              ',  28.01  /
+      DATA  MECH_SPC_CB6_AE7( 18), MECH_MWT_CB6_AE7( 18) / 'ETHA            ',  30.07  /
+      DATA  MECH_SPC_CB6_AE7( 19), MECH_MWT_CB6_AE7( 19) / 'ETH             ',  28.05  /
+      DATA  MECH_SPC_CB6_AE7( 20), MECH_MWT_CB6_AE7( 20) / 'ETHY            ',  26.04  /
+      DATA  MECH_SPC_CB6_AE7( 21), MECH_MWT_CB6_AE7( 21) / 'PRPA            ',  44.10  /
+      DATA  MECH_SPC_CB6_AE7( 22), MECH_MWT_CB6_AE7( 22) / 'BENZ            ',  78.11  /
+      DATA  MECH_SPC_CB6_AE7( 23), MECH_MWT_CB6_AE7( 23) / 'ACET            ',  58.08  /
+      DATA  MECH_SPC_CB6_AE7( 24), MECH_MWT_CB6_AE7( 24) / 'KET             ',  28.82  /
+      DATA  MECH_SPC_CB6_AE7( 25), MECH_MWT_CB6_AE7( 25) / 'AACD            ',  60.05  /
+      DATA  MECH_SPC_CB6_AE7( 26), MECH_MWT_CB6_AE7( 26) / 'FACD            ',  46.03  /
+      DATA  MECH_SPC_CB6_AE7( 27), MECH_MWT_CB6_AE7( 27) / 'HCN             ',  27.03  /
+      DATA  MECH_SPC_CB6_AE7( 28), MECH_MWT_CB6_AE7( 28) / 'ISPD            ',  70.09  /
+      DATA  MECH_SPC_CB6_AE7( 29), MECH_MWT_CB6_AE7( 29) / 'N2O             ',  44.01  /
+      DATA  MECH_SPC_CB6_AE7( 30), MECH_MWT_CB6_AE7( 30) / 'SESQ            ', 204.35  /
+      DATA  MECH_SPC_CB6_AE7( 31), MECH_MWT_CB6_AE7( 31) / 'TRS             ',  34.08  /
+      DATA  MECH_SPC_CB6_AE7( 32), MECH_MWT_CB6_AE7( 32) / 'CH3BR           ',  94.94  /
+      DATA  MECH_SPC_CB6_AE7( 33), MECH_MWT_CB6_AE7( 33) / 'CH3CL           ',  50.49  /
+      DATA  MECH_SPC_CB6_AE7( 34), MECH_MWT_CB6_AE7( 34) / 'CH3I            ', 141.94  /
+      DATA  MECH_SPC_CB6_AE7( 35), MECH_MWT_CB6_AE7( 35) / 'APIN            ', 136.24  /
+      DATA  MECH_SPC_CB6_AE7( 36), MECH_MWT_CB6_AE7( 36) / 'ALD2_PRIMARY    ',  44.05  /
+      DATA  MECH_SPC_CB6_AE7( 37), MECH_MWT_CB6_AE7( 37) / 'FORM_PRIMARY    ',  30.03  /

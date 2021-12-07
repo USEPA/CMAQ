@@ -1,5 +1,6 @@
- Ref. ind.  for amm. nitrate
-Wvelen(um) Real Part  Imag Part
+NITRATE
+! Ref. ind.  for amm. nitrate
+!Wvelen(um) Real Part  Imag Part
 2.0000E-01 1.61000E+00 0.00000E-00
 2.5000E-01 1.61000E+00 0.00000E-00
 3.0000E-01 1.61000E+00 0.00000E-00
