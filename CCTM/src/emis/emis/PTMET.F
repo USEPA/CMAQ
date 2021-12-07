@@ -170,7 +170,7 @@ C Allocate per-layer arrays from 0:EMLAYS
 
 C-----------------------------------------------------------------------
 
-         SUBROUTINE PTMET_CONVT( JDATE, JTIME )
+         SUBROUTINE PTMET_CONVT( JDATE, JTIME, N )
 
          USE STK_PRMS, ONLY: MY_NSRC, SOURCE, MY_STKCOL, MY_STKROW
          USE STACK_GROUP_DATA_MODULE, ONLY: STKHT
@@ -181,8 +181,9 @@ C-----------------------------------------------------------------------
          IMPLICIT NONE
 
          INTEGER, INTENT( IN ) :: JDATE, JTIME
+         INTEGER, INTENT( IN ) :: N
 
-         INTEGER         :: L, N, MSRC, S
+         INTEGER         :: L, MSRC, S
          CHARACTER( 16 ) :: PNAME = 'PTMET_CONVT'   ! PROCEDURE NAME
 
          INTEGER :: MYC, MYR, STAT
@@ -255,7 +256,6 @@ C-----------------------------------------------------------------------
          CALL INTERPOLATE_VAR ('UWINDC', JDATE, JTIME, LOC_UWIND)
          CALL INTERPOLATE_VAR ('VWINDC', JDATE, JTIME, LOC_VWIND)
 #endif
-         DO N = 1, NPTGRPS
 
             MSRC = MY_NSRC( N )
 
@@ -309,8 +309,6 @@ C-----------------------------------------------------------------------
      &                        PTMET_DATA( N )%ZSTK,
      &                        PTMET_DATA( N )%DDZF )
             END IF ! MY_NSRC( N ) > 0
-
-         END DO   ! NPTGRPS
 
          END SUBROUTINE PTMET_CONVT
 
