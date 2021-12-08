@@ -330,7 +330,7 @@ C                     ---------- -------- ------- ------------------------------
      & spcs_list_type('AROCP1OXY1',cm_set,1400.0,'VROCP1OXY1','     ',0.0  ,'REV',T,F,  0,  4.0, 6.1,T, 'DUST  ', 0.09), ! 
      & spcs_list_type('AROCP1OXY3',cm_set,1400.0,'VROCP1OXY3','     ',0.0  ,'REV',T,F,  0,  4.0, 6.1,T, 'DUST  ', 0.09), ! 
      & spcs_list_type('AROCP2OXY2',cm_set,1400.0,'VROCP2OXY2','     ',0.0  ,'REV',T,F,  0,  4.0, 6.1,T, 'DUST  ', 0.08), ! 
-     & spcs_list_type('AROCP2OXY2',cm_set,1400.0,'VROCP2OXY2','     ',0.0  ,'REV',T,F,  0,  4.0, 6.1,T, 'DUST  ', 0.08), ! 
+     & spcs_list_type('AROCP3OXY2',cm_set,1400.0,'VROCP3OXY2','     ',0.0  ,'REV',T,F,  0,  4.0, 6.1,T, 'DUST  ', 0.08), ! 
               
        ! The following species are associated with the Multi-Pollutant code
      & spcs_list_type('ANI     ', cm_set, 2200.0, '       ','       ',0.0  ,'NVL',F,T,  0,  0.0, 0.0,F, 'DUST  ', 0.00), ! Nickel
