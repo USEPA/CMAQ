@@ -76,9 +76,7 @@ GC_SPECIES_DATA =
 'XYEP'          ,187.17  ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,''             ,''        ,''    ,''    ,''    ,'Yes',!MCMEBZBIPERO2,L,NA,[O]OC1C=CC2(CC)OOC1C2O
 'ISO'           , 68.1   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,'ISOOPERA'        , 1  ,''             ,''        ,'Yes' ,''    ,'Yes' ,'Yes',!Isoprene,L,DTXSID2020761,CC(=C)C=C
 'ISOP'          ,117.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,''             ,''        ,''    ,''    ,''    ,'Yes',
-'ISOPRXN'       , 68.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,'ISOPRXN'      ,''        ,''    ,''    ,''    ,'Yes',!NA,NA,NA,NA
 'API'           ,136.4   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,'APIOPERA'        , 1  ,''             ,''        ,'Yes' ,''    ,'Yes' ,'Yes',!a-pinene,L,DTXSID4026501,CC1=CCC2CC1C2(C)C
-'TRPRXN'        ,185.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,'TRPRXN'       ,''        ,''    ,''    ,''    ,'Yes',!NA,NA,NA,NA
 'APIP1'         ,185.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,''             ,''        ,''    ,''    ,''    ,'Yes',!MCM APINAO2,L,NA,[O]OC1(C)C(O)CC2CC1C2(C)C
 'APIP2'         ,185.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,''             ,''        ,''    ,''    ,''    ,'Yes',!MCM APINAO2,L,NA,[O]OC1(C)C(O)CC2CC1C2(C)C
 'APINP1'        ,230.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,''             ,''        ,''    ,''    ,''    ,'Yes',!MCM NAPINAO2,L,NA,[O]OC1(C)C(ON(=O)=O)CC2CC1C2(C)C

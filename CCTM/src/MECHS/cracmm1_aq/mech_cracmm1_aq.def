@@ -1402,12 +1402,6 @@ REACTIONS[CM] =
 
 <HET_IEPOX> IEPOX = AISO3J  # 1.0~<HETERO_IEPOX>;
 
-! oligomerization reaction for secondary organic aerosols
-<OLIG_TERPENE1>   ATRP1J = 0.8*AOLGBJ # 9.48816E-6;
-<OLIG_TERPENE2>   ATRP2J = 0.9*AOLGBJ # 9.48816E-6;
-<OLIG_ISOPRENE1>  AISO1J = 0.50*AOLGBJ # 9.48816E-6;
-<OLIG_ISOPRENE2>  AISO2J = 0.50*AOLGBJ # 9.48816E-6;
-
 ! ROCALK chemistry based on GECKO (Lannuque et al. 2018 ACP) 
 ! with autoxidation from Praske et al. 2018 PNAS
 ! HO not regenerated due to actual radical chemistry
