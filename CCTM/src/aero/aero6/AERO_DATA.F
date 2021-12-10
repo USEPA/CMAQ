@@ -126,7 +126,7 @@ C----------------------------------------------------------------------
 
 C Number of aerosol species and modes
 
-      Integer, Parameter :: n_aerolist = 135    ! number of aero species
+      Integer, Parameter :: n_aerolist = 137    ! number of aero species
       Integer, Parameter :: n_mode = 3          ! number of modes:
                                                 ! 1 = Aitken
                                                 ! 2 = accumulation
@@ -281,6 +281,11 @@ C                     ---------- -------- ------- ------------------------------
      & spcs_list_type('ADIM    ', cm_set, 1400.0, '       ','       ',0.0  ,'NVL',F,F,  0,  2.8, 6.1,T, 'DUST  ', 0.13), !
      & spcs_list_type('AIMGA   ', cm_set, 1400.0, '       ','       ',0.0  ,'NVL',F,F,  0,  2.8, 6.1,T, 'DUST  ', 0.18), !
      & spcs_list_type('AIMOS   ', cm_set, 1400.0, '       ','       ',0.0  ,'NVL',F,F,  0,  2.8, 6.1,T, 'DUST  ', 0.36), !
+
+       ! Associated with cracmm1
+     & spcs_list_type('AISO3NOS', cm_set, 1400.0, '       ','       ',0.0  ,'NVL',F,F,  0,  2.8, 6.1,T, 'DUST  ', 0.15), ! Iso. nonsulfated SOA
+     & spcs_list_type('AISO3OS ', cm_set, 1400.0, '       ','       ',0.0  ,'NVL',F,F,  0,  2.8, 6.1,T, 'DUST  ', 0.30), ! Iso. Organosulfate SOA
+
                                                                                          
        ! Updated monoterpene SOA following Saha and Grieshop ES&T 2016                  
      & spcs_list_type('AMT1    ', cm_set, 1400.0, 'SVMT1  ','TRPRXN ',0.040,'REV',T,F,  0,  2.8, 6.1,T, 'DUST  ', 0.08), ! MT SOA Lowest Volatility
