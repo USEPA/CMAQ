@@ -52,8 +52,6 @@ AE_SPECIES_DATA =
 'ANO3K'    , 62.00  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSC'    , 1  ,'NO3_COARSE'   , 1  ,'NO3_COARSE'   ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
 'AH2OK'    , 18.00  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSC'    , 1  ,'H2O_COARSE'   , 1  ,'H2O_COARSE'   ,'Yes'   ,''      ,''      ,'Yes',
 'AH3OPK'   , 19.00  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSC'    , 1  ,''             ,-1  ,''             ,'Yes'   ,''      ,''      ,'Yes',
-'AISO3J'   ,168.20  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSJ'    , 1  ,'ORG_ACCUM'    , 1  ,'SOA_ACCUM'    ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
-'AOLGBJ'   ,248.00  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSJ'    , 1  ,'ORG_ACCUM'    , 1  ,'SOA_ACCUM'    ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
 'APOCI'    ,220.00  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSI'    , 1  ,'ORG_AITKEN'   , 1  ,'POA_AITKEN'   ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',  
 'APOCJ'    ,220.00  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSJ'    , 1  ,'ORG_ACCUM'    , 1  ,'POA_ACCUM'    ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',  
 'APNCOMI'  ,220.00  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSI'    , 1  ,'ORG_AITKEN'   , 1  ,'POA_AITKEN'   ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',  
@@ -91,4 +89,5 @@ AE_SPECIES_DATA =
 'AROCP1OXY3J',196.0  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSJ'    , 1  ,'ORG_ACCUM'    , 1  ,'SOA_ACCUM'    ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
 'AROCP2OXY2J',201.0  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSJ'    , 1  ,'ORG_ACCUM'    , 1  ,'SOA_ACCUM'    ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
 'AROCP3OXY2J',180.7  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSJ'    , 1  ,'ORG_ACCUM'    , 1  ,'SOA_ACCUM'    ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
-/
+'AISO3NOSJ' ,136.20  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSJ'    , 1  ,'ORG_ACCUM'    , 1  ,'SOA_ACCUM'    ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
+'AISO3OSJ'  ,216.20  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSJ'    , 1  ,'ORG_ACCUM'    , 1  ,'SOA_ACCUM'    ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes' /
