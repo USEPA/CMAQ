@@ -197,7 +197,7 @@
     endif
     cp PREP/create_omi/scripts/bldit_create_omi.csh $CMAQ_HOME/PREP/create_omi/scripts/bldit_create_omi.csh
     cp PREP/create_omi/scripts/get_toms_data.q $CMAQ_HOME/PREP/create_omi/scripts/get_toms_data.q
-    cp PREP/create_omi/scripts/cmaq_omi_run.csh $CMAQ_HOME/PREP/create_omi/scripts/cmaq_omi_run.csh
+    cp PREP/create_omi/scripts/run_create_omi.csh $CMAQ_HOME/PREP/create_omi/scripts/run_create_omi.csh
  endif
 
 #===============================================================================
