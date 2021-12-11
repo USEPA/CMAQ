@@ -100,6 +100,7 @@ c these are allocated in pa_setpadefn.F
       LOGICAL, ALLOCATABLE, SAVE :: MASK_IPR_PROC( :,: )
 
       LOGICAL, SAVE              :: BUDGET_DIAG = .FALSE.
+      LOGICAL, SAVE              :: BUDGET_HPPM = .FALSE.
       CHARACTER( 16 ), ALLOCATABLE, SAVE :: BUDGETVARIABLES( : )
       INTEGER, PARAMETER :: N_BUDGET_VARS_REG = 200
 
