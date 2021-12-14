@@ -74,6 +74,8 @@
 !                     an extreme case, i.e. simulation runs in a hourly basis, in the
 !                     retrieve_boundary_data subroutine.
 !  08/06/20, D. Wong:- fixed excessive reading of time independent boundary file data
+!  11/17/21, G. Sarwar: Changed minimum values from 0.0 to 0.001 for ocean and szone  
+!                       to ensure values are nonnegative and greater than 0.001
 !------------------------------------------------------------------------!
 
 !------------------------------------------------------------------------!
@@ -3572,9 +3574,9 @@ C Read the various categories of normalized emissions
                    XMSG = 'Could not interpolate SURF from ' // OCEAN_1
                    CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
                 END IF
-
-                WHERE ( ocean .LT. 0.0 ) ocean = 0.0  ! ensure values are nonnegative
-                WHERE ( szone .LT. 0.0 ) szone = 0.0  ! ensure values are nonnegative
+                
+                WHERE ( ocean .LT. 0.001 ) ocean = 0.0  ! ensure values are nonnegative and greater than 0.001
+                WHERE ( szone .LT. 0.001 ) szone = 0.0  ! ensure values are nonnegative and greater than 0.001                
              END IF
           ELSE 
              WRITE( LOGDEV, '(/,5x,A,/,5x,A,/5x,A)' ), 
