@@ -83,7 +83,7 @@ C-----------------------------------------------------------------------
       INTEGER       :: LDATE, LTIME  ! step start date/time (beis)
       INTEGER, SAVE :: NDATE, NTIME  ! step next date/time (beis)
 
-      REAL(8), SAVE   :: DX1, DX2          ! CX x1- and x2-cell widths
+      REAL(8), SAVE   :: DX1, DX2    ! CX x1- and x2-cell widths
 
       CONTAINS
 
@@ -109,6 +109,9 @@ C-----------------------------------------------------------------------
         USE DDM3D_DEFN, ONLY: NP, NPMAX, SVDEMIS_DIFF
 #endif
 
+#ifdef mpas
+        USE COUPLER_MODULE, ONLY : MPAS_CELL_AREA => CELL_AREA
+#endif
          IMPLICIT NONE
 
 C Includes:
@@ -125,20 +128,44 @@ C Local Variables:
          CHARACTER( 16 ) :: PNAME = 'EMIS_INIT'
          CHARACTER( 80 ) :: VARDESC   ! env variable description
          CHARACTER( 120 ) :: XMSG = ' '
-         INTEGER V, STATUS, ISRM
+         INTEGER V, L, STATUS, ISRM
 
 C-----------------------------------------------------------------------
 
          SUCCESS = .TRUE.
 
+         ! Define Projected Gridd Cell Areas
+         ALLOCATE( CELLAREA( NCOLS,NROWS ),STAT=STATUS )
+         CALL CHECKMEM( STATUS, 'CELLAREA', PNAME )
+         ALLOCATE( CELLHGT( NLAYS ),STAT=STATUS )
+         CALL CHECKMEM( STATUS, 'CELLHGT', PNAME )
+         ALLOCATE( CELLVOL( NCOLS,NROWS,NLAYS ),STAT=STATUS )
+         CALL CHECKMEM( STATUS, 'CELLVOL', PNAME )
+#ifdef mpas
+         CELLAREA(:,:) = MPAS_CELL_AREA(:,:)
+#else
          IF ( GDTYP_GD .EQ. LATGRD3 ) THEN
             DX1 = DG2M * XCELL_GD ! in m.
             DX2 = DG2M * YCELL_GD
-     &          * COS( PI180*( YORIG_GD + YCELL_GD*FLOAT( GL_NROWS/2 )))! in m.
+     &          * COS( PI180*( YORIG_GD + 
+     &            YCELL_GD*FLOAT( GL_NROWS/2 )))! in m.
          ELSE
             DX1 = XCELL_GD        ! in m.
             DX2 = YCELL_GD        ! in m.
          END IF
+         CELLAREA(:,:) = REAL( DX1 * DX2, 4 )
+#endif
+         ! Get height of grid cell in each layer in sigma coordinates
+         ! Multiply by grid area [m2] to obtain grid volume
+         DO L = 1, NLAYS
+            CELLHGT( L ) = X3FACE_GD( L ) - X3FACE_GD( L-1 )
+            CELLVOL( :,:,L ) = CELLHGT( L ) * CELLAREA(:,:)
+         END DO
+ 
+         ! REMINDER: CELLAREA is projected grid cell area (e.g. 12 x 12
+         ! km^2). To get real area on the Earth for a conformal grid, you
+         ! should divide CELLAREA by the MAP SCALE FACTOR squared, typically
+         ! stored in CMAQ as MSFX2
 
 C Retrieve Number of Emission Files of Various Types (sectors)
          CALL EM_FILE_INIT( JDATE, JTIME )
@@ -633,7 +660,7 @@ C Retrieve Emissions from All Stream Types
              ! Retrieve Sea Spray Aerosol Emissions 
              CASE ( 7 )
                NL = 1
-               CALL GET_SSEMIS ( JDATE, JTIME, TSTEP, CELLVOL( 1 ), 
+               CALL GET_SSEMIS ( JDATE, JTIME, TSTEP, CELLVOL( :,:,1 ), 
      &                           CELLHGT( 1 ), L_DESID_DIAG )
                FORALL( ISTR = 1:N_EMIS_ISTR, MAP_EMtoSURR( ISTR,ISRM ) .GT. 0 )
                   VDEMIS_READ( ISTR,1,:,: ) = SSOUTM( MAP_EMtoSURR( ISTR,ISRM ),:,: ) 
@@ -948,6 +975,7 @@ C-----------------------------------------------------------------------
 
 C     Apply region-dependent scaling of emissions rules.
 C-----------------------------------------------------------------------
+      USE CENTRALIZED_IO_MODULE, ONLY: MSFX2
           
       IMPLICIT NONE
 
@@ -969,14 +997,16 @@ C-----------------------------------------------------------------------
       TYPE ( FAC_ST ), ALLOCATABLE, SAVE :: EM_FAC1_ST( : )
 
       INTEGER ISTR, IFAC, L, NFAC_MAX, IRGN, OP, JSRM, ISTR_TMP, NISTR
-      INTEGER, ALLOCATABLE :: MAP_FACtoISTR( : )
-      REAL    FAC
+      INTEGER, ALLOCATABLE    :: MAP_FACtoISTR( : )
+      REAL, ALLOCATABLE, SAVE :: FAC( :,: )
       LOGICAL, SAVE :: FIRSTIME = .TRUE.
+      LOGICAL :: LAREA, LAREAADJ
 
 
       IF ( FIRSTIME ) THEN
          FIRSTIME = .FALSE.
          ALLOCATE( NFAC( N_EMIS_ISTR ) )
+         ALLOCATE( FAC( NCOLS,NROWS ) )
 
          ! Build Array for primary factor. This algorithm is optimized
          ! by assuming that most instructions only have one factor (i.e.
@@ -1012,6 +1042,14 @@ C-----------------------------------------------------------------------
                      FAC1( ISTR_TMP,L,:,: ) = EM_FAC_ST( ISTR,JSRM )%FAC( 1 )
      &                            * EM_REG_FAC( :,:,IRGN )
                    END IF
+
+                   ! If the emission variable is a flux, then multiply
+                   ! by grid cell area
+                   IF ( EM_FAC_ST( ISTR,JSRM )%AREA( 1 ) ) 
+     &                FAC1( ISTR_TMP,L,:,: ) = FAC1( ISTR_TMP,L,:,: ) * CELLAREA(:,:)
+                   IF ( EM_FAC_ST( ISTR,JSRM )%AREAADJ( 1 ) ) 
+     &                FAC1( ISTR_TMP,L,:,: ) = FAC1( ISTR_TMP,L,:,: ) / MSFX2(:,:)
+
                  END DO
                END IF
              END DO
@@ -1053,29 +1091,47 @@ C-----------------------------------------------------------------------
 
         DO IFAC = 2,NFAC( ISTR )      
 
-          FAC  = EM_FAC_ST( ISTR,ISRM )%FAC( IFAC )
-          OP   = EM_FAC_ST( ISTR,ISRM )%OP ( IFAC )
-          IRGN = EM_FAC_ST( ISTR,ISRM )%REG( IFAC )
+          FAC(:,:)= EM_FAC_ST( ISTR,ISRM )%FAC( IFAC )
+          OP      = EM_FAC_ST( ISTR,ISRM )%OP ( IFAC )
+          IRGN    = EM_FAC_ST( ISTR,ISRM )%REG( IFAC )
+          LAREA   = EM_FAC_ST( ISTR,ISRM )%AREA(IFAC )
+          LAREAADJ= EM_FAC_ST( ISTR,ISRM )%AREAADJ(IFAC )
 
           IF ( IRGN .EQ. 1 ) THEN
             !Apply scaling using EM_FAC_ST 
             IF ( OP .EQ. 1 .AND. NFAC( ISTR ) .EQ. 1 ) THEN ! Add New Emission
-                VDEMIS( ISTR,1:NL,:,: ) = VDEMIS0( ISTR,1:NL,:,: ) * FAC
+              DO L = 1,NL
+                 VDEMIS( ISTR,L,:,: ) = VDEMIS0( ISTR,L,:,: ) * FAC
+              END DO
             ELSE IF ( OP.EQ.1 ) THEN   ! Add Additional Emission 
-                VDEMIS( ISTR,1:NL,:,: ) = VDEMIS( ISTR,1:NL,:,: ) +
-     &                 VDEMIS0( ISTR,1:NL,:,: ) * FAC
+              IF ( LAREA ) FAC = FAC * CELLAREA     
+              IF ( LAREAADJ ) FAC = FAC / MSFX2 
+              DO L = 1,NL
+                 VDEMIS( ISTR,L,:,: ) = VDEMIS( ISTR,L,:,: ) +
+     &                   VDEMIS0( ISTR,L,:,: ) * FAC(:,:)
+              END DO
             ELSE IF ( OP.EQ.2 ) THEN ! Multiply Emissions Rule
-                VDEMIS( ISTR,1:NL,:,: ) = VDEMIS( ISTR,1:NL,:,: ) * FAC
+              DO L = 1,NL
+                 VDEMIS( ISTR,L,:,: ) = VDEMIS( ISTR,L,:,: ) * FAC
+              END DO
             ELSE IF ( OP.EQ.3 ) THEN ! Overwrite Existing Rule
-                VDEMIS( ISTR,1:NL,:,: ) = VDEMIS0( ISTR,1:NL,:,: ) * FAC
+              IF ( LAREA ) FAC = FAC * CELLAREA
+              IF ( LAREAADJ ) FAC = FAC / MSFX2 
+              DO L = 1,NL
+                 VDEMIS( ISTR,L,:,: ) = 
+     &                   VDEMIS0( ISTR,L,:,: ) * FAC(:,:)
+              END DO
             END IF
           ELSE
               
             !Apply scaling using EM_FAC_ST and VDEMIS_RGN
             IF ( OP.EQ.1 ) THEN   ! Add Additional Emission 
+              IF ( LAREA ) FAC = FAC * CELLAREA
+              IF ( LAREAADJ ) FAC = FAC / MSFX2
               DO L = 1,NL
-                VDEMIS( ISTR,L,:,: ) = VDEMIS( ISTR,L,:,: ) +
-     &             VDEMIS0( ISTR,L,:,: ) * FAC * EM_REG_FAC( :,:,IRGN )
+                 VDEMIS( ISTR,L,:,: ) = VDEMIS( ISTR,L,:,: ) +
+     &                   VDEMIS0( ISTR,L,:,: ) * FAC(:,:) 
+     &                           * EM_REG_FAC( :,:,IRGN )
               END DO
             ELSE IF ( OP.EQ.2 ) THEN ! Multiply Emissions Rule
               DO L = 1,NL
@@ -1084,10 +1140,13 @@ C-----------------------------------------------------------------------
      &             VDEMIS( ISTR,L,:,: ) * FAC * EM_REG_FAC( :,:,IRGN )
               END DO
             ELSE IF ( OP.EQ.3 ) THEN ! Overwrite Existing Rule
+              IF ( LAREA ) FAC = FAC * CELLAREA
+              IF ( LAREAADJ ) FAC = FAC / MSFX2
               DO L = 1,NL
-                VDEMIS( ISTR,L,:,: ) = VDEMIS( ISTR,L,:,: ) *
-     &               (1.0 - EM_REG_FAC( :,:,IRGN ) ) +
-     &             VDEMIS0( ISTR,L,:,: ) * FAC * EM_REG_FAC( :,:,IRGN )
+                 VDEMIS( ISTR,L,:,: ) = VDEMIS( ISTR,L,:,: ) *
+     &                 (1.0 - EM_REG_FAC( :,:,IRGN ) ) +
+     &                  VDEMIS0( ISTR,L,:,: ) * FAC(:,:) 
+     &                          * EM_REG_FAC( :,:,IRGN )
               END DO
             END IF
 
@@ -1293,7 +1352,7 @@ C-----------------------------------------------------------------------
       DO L = 1,NL
         CNVTC( L,:,: ) = 1.0E3 / ( CNVTI( L ) * Met_Data%RRHOJ( :,:,L ) ) ! Gas Moles: ppmv/s -> mol/s
         CONVM( L,:,: ) = (1.0 / MWAIR) * GPKG * Met_Data%DENS( :,:,L )    ! Aer. Mass: ppmv/s -> umol/s
-     &                   / Met_Data%RJACM( :,:,L ) * CELLVOL( L )         ! m2/mol/s -> m2/s
+     &                   / Met_Data%RJACM( :,:,L ) * CELLVOL( :,:,L )     ! m2/mol/s -> m2/s
       END DO                                                                
       CONVN( 1:NL,:,: ) = CONVM( 1:NL,:,: )                               ! Aer. Num:  N/mol/s -> N/s
 
@@ -1430,7 +1489,7 @@ C-----------------------------------------------------------------------
          INTEGER, INTENT(IN)  :: JDATE, JTIME
          INTEGER    :: N_UNUSED, REGNUM, N_USED
 
-         INTEGER    :: STRT, PTSTRT, ISPC, IDX, IX, ISUR, IRULE,
+         INTEGER    :: STRT, PTSTRT, ISPC, IDX, IX, ISUR, IRULE, IAREA,
      &                 N, IM, IAERO, V, ISRM, NSPC, IA, IDIFF, JDX, JM,
      &                 ISTR, ISUR0, ISRM0, IEM, KDX, JSD, JEM, ISD,
      &                 IFAC, IRGN, ISTRN, NFAC, NCHEM, ICHEM, IFAM, F,
@@ -1474,7 +1533,7 @@ C-----------------------------------------------------------------------
          CHARACTER( 4 ), ALLOCATABLE :: EM_BASIS( :,:,: )
          REAL,  ALLOCATABLE          :: EM_CONV( :,:,: )
          INTEGER, ALLOCATABLE :: EM_REG( :,:,: )
-         INTEGER              :: N_EM_RULE
+         INTEGER              :: N_EM_RULE, N_EM_AREA
          LOGICAL              :: LREMOVE
 
 C Retrieve Environment Variable Letting User Ignore this Check
@@ -1517,11 +1576,15 @@ C and allowing the model to proceed.
      &           ISRM .EQ. IDUSTSRM.OR. ISRM .EQ. ILTSRM  .OR.
      &           ISRM .EQ. IMGSRM  .OR. ISRM .EQ. IMIOGSRM ) CYCLE
 
-            ALLOCATE( EM_FILE_SURR( ISRM )%MW   ( EM_FILE_SURR( ISRM )%LEN ) )
-            ALLOCATE( EM_FILE_SURR( ISRM )%USED ( EM_FILE_SURR( ISRM )%LEN ) )
-            ALLOCATE( EM_FILE_SURR( ISRM )%CONV ( EM_FILE_SURR( ISRM )%LEN ) )
-            ALLOCATE( EM_FILE_SURR( ISRM )%BASIS( EM_FILE_SURR( ISRM )%LEN ) )
-            EM_FILE_SURR( ISRM )%USED = .FALSE.
+            ALLOCATE( EM_FILE_SURR( ISRM )%MW      ( EM_FILE_SURR( ISRM )%LEN ) )
+            ALLOCATE( EM_FILE_SURR( ISRM )%USED    ( EM_FILE_SURR( ISRM )%LEN ) )
+            ALLOCATE( EM_FILE_SURR( ISRM )%CONV    ( EM_FILE_SURR( ISRM )%LEN ) )
+            ALLOCATE( EM_FILE_SURR( ISRM )%BASIS   ( EM_FILE_SURR( ISRM )%LEN ) )
+            ALLOCATE( EM_FILE_SURR( ISRM )%LAREA   ( EM_FILE_SURR( ISRM )%LEN ) )
+            ALLOCATE( EM_FILE_SURR( ISRM )%LAREAADJ( EM_FILE_SURR( ISRM )%LEN ) )
+            EM_FILE_SURR( ISRM )%USED    = .FALSE.
+            EM_FILE_SURR( ISRM )%LAREA   = .FALSE.
+            EM_FILE_SURR( ISRM )%LAREAADJ= .FALSE.
 
             DO ISUR = 1,EM_FILE_SURR( ISRM )%LEN
                ! Assign Default Molecular Weight to Each Surrogate Species
@@ -1558,10 +1621,62 @@ C and allowing the model to proceed.
      &                                EM_FILE_SURR( ISRM )%ARRY ( ISUR ),
      &                                EM_FILE_SURR( ISRM )%UNITS( ISUR ), 
      &                                EM_FILE_SURR( ISRM )%CONV ( ISUR ),
-     &                                EM_FILE_SURR( ISRM )%BASIS( ISUR ) )
+     &                                EM_FILE_SURR( ISRM )%BASIS( ISUR ),
+     &                                EM_FILE_SURR( ISRM )%LAREA( ISUR ) )
+               ! Default for detecting area fluxes is to adjust to
+               ! projected grid
+               IF ( EM_FILE_SURR( ISRM )%LAREA( ISUR ) ) 
+     &              EM_FILE_SURR( ISRM )%LAREAADJ( ISUR ) = .TRUE.
             END DO
          END DO
 
+! Process Area Normalization User Controls. Override Automatic defaults
+! with forced area normalization and/or projection adjustment.
+         N_EM_AREA = 0
+         DO IAREA = 1,N_AREA_REG
+            IF( AREA_NML( IAREA )%STREAM .EQ. '' ) EXIT
+            N_EM_AREA = IAREA
+         END DO
+
+         ALLOCATE( EM_STREAM_RULE  ( N_EM_SRM   ) )
+         DO IAREA = 1,N_EM_AREA
+            LREMOVE = .FALSE.
+            CALL INTERPRET_EM_RULE_STREAM( AREA_NML( IAREA )%STREAM, IAREA, 
+     &              EM_STREAM_RULE, LREMOVE )
+            IF ( LREMOVE ) CYCLE
+
+            ! If the 'ALL' keyword was used, set all of the online
+            ! sources to false.
+            IF ( AREA_NML(IAREA)%STREAM .EQ. 'ALL' ) THEN
+               IF ( ISEASRM .GT. 0 )  EM_STREAM_RULE( ISEASRM  )  = .FALSE. 
+               IF ( IBIOSRM .GT. 0 )  EM_STREAM_RULE( IBIOSRM  )  = .FALSE. 
+               IF ( IDUSTSRM .GT. 0 ) EM_STREAM_RULE( IDUSTSRM  ) = .FALSE. 
+               IF ( ILTSRM .GT. 0 )   EM_STREAM_RULE( ILTSRM  )   = .FALSE. 
+               IF ( IMGSRM .GT. 0 )   EM_STREAM_RULE( IMGSRM  )   = .FALSE. 
+               IF ( IMIOGSRM .GT. 0 ) EM_STREAM_RULE( IMIOGSRM  ) = .FALSE. 
+            ENDIF   
+               
+            DO ISRM = 1,N_EM_SRM
+               IF ( EM_STREAM_RULE( ISRM ) ) THEN
+                  DO ISUR = 1,EM_FILE_SURR( ISRM )%LEN
+                     ! Override Area Normalization if Requested
+                     IF ( AREA_NML( IAREA )%AREA .EQ. 'TRUE' ) THEN
+                         EM_FILE_SURR( ISRM )%LAREA( ISUR ) = .TRUE.
+                     ELSEIF (AREA_NML( IAREA )%AREA .EQ. 'FALSE' ) THEN
+                         EM_FILE_SURR( ISRM )%LAREA( ISUR ) = .FALSE.
+                     END IF
+                     ! Override Area Adjustment if Requested
+                     IF ( AREA_NML( IAREA )%ADJ .EQ. 'TRUE' ) THEN
+                         EM_FILE_SURR( ISRM )%LAREAADJ( ISUR ) = .TRUE.
+                     ELSEIF (AREA_NML( IAREA )%ADJ .EQ. 'FALSE' ) THEN
+                         EM_FILE_SURR( ISRM )%LAREAADJ( ISUR ) = .FALSE.
+                     END IF
+                  END DO
+               END IF
+            END DO
+
+         END DO
+ 
 ! Write Out All Available Stream Families to the Log File
          WRITE( LOGDEV, '(/,5x,A)' ),'|> Emission Stream Family Definitions:'
          WRITE( LOGDEV, '(5x,A)'   ),'======================================'
@@ -1698,7 +1813,6 @@ C and allowing the model to proceed.
 
 
          ! Allocate Rule->Instruction Transform Masks
-         ALLOCATE( EM_STREAM_RULE  ( N_EM_SRM   ) )
          ALLOCATE( EM_SPEC_RULE ( N_SPC_DIFF ) )
          ALLOCATE( EM_SURR_RULE ( N_EM_SRM ) )
          ALLOCATE( EM_PHASE_RULE( N_EM_SRM ) )
@@ -2235,12 +2349,16 @@ C and allowing the model to proceed.
                ALLOCATE( EM_FAC_ST( ISTR,ISRM )%FAC( NFAC ) )
                ALLOCATE( EM_FAC_ST( ISTR,ISRM )%BULK( NFAC ) )
                ALLOCATE( EM_FAC_ST( ISTR,ISRM )%BASIS( NFAC ) )
+               ALLOCATE( EM_FAC_ST( ISTR,ISRM )%AREA( NFAC ) )
+               ALLOCATE( EM_FAC_ST( ISTR,ISRM )%AREAADJ( NFAC ) )
                ALLOCATE( EM_FAC_ST( ISTR,ISRM )%REG( NFAC ) )
                ALLOCATE( EM_FAC_ST( ISTR,ISRM )%OP( NFAC ) )
                  
                EM_FAC_ST( ISTR,ISRM )%FAC  = 0.
                EM_FAC_ST( ISTR,ISRM )%BULK = 0.
                EM_FAC_ST( ISTR,ISRM )%BASIS= 1.
+               EM_FAC_ST( ISTR,ISRM )%AREA = .FALSE.
+               EM_FAC_ST( ISTR,ISRM )%AREAADJ = .FALSE.
                EM_FAC_ST( ISTR,ISRM )%REG  = 1
                EM_FAC_ST( ISTR,ISRM )%OP   = 0
         
@@ -2254,6 +2372,8 @@ C and allowing the model to proceed.
                  EM_FAC_ST( ISTR,ISRM )%FAC( IFAC )    = EM_FAC ( ISTR, ISRM, IFAC ) 
                  EM_FAC_ST( ISTR,ISRM )%BULK( IFAC )   = EM_FAC_BULK( ISTR, ISRM, IFAC )
                  EM_FAC_ST( ISTR,ISRM )%REG( IFAC )    = EM_REG( ISTR, ISRM, IFAC )
+                 EM_FAC_ST( ISTR,ISRM )%AREA( IFAC )   = EM_FILE_SURR( ISRM )%LAREA(ISUR)
+                 EM_FAC_ST( ISTR,ISRM )%AREAADJ( IFAC )= EM_FILE_SURR( ISRM )%LAREAADJ(ISUR)
                       
                    SELECT CASE ( EM_OP( ISTR, ISRM, IFAC ) )
                    CASE ( 'a' )
@@ -2268,31 +2388,55 @@ C and allowing the model to proceed.
                  IF ( EM_BASIS( ISTR, ISRM, IFAC ) .EQ. 'UNIT' ) THEN
                      BASIS_FAC = BASIS_FAC
                  ELSE IF ( EM_BASIS( ISTR, ISRM, IFAC ) .EQ. 'MOLE' ) THEN
-                     IF ( EM_FILE_SURR( ISRM )%BASIS( MAP_EMtoSURR( ISTR,ISRM ) ) .EQ. 'MOLE' ) THEN
+                     IF ( EM_FILE_SURR( ISRM )%BASIS( ISUR ) .EQ. 'MOLE' ) THEN
                         BASIS_FAC = BASIS_FAC
-                     ELSE
+                     ELSE IF ( EM_FILE_SURR( ISRM )%BASIS( ISUR ) .EQ. 'MASS' ) THEN
                         ! Convert surrogate emission rate to moles
-                        BASIS_FAC = BASIS_FAC / SURR_MW  
+                        BASIS_FAC = BASIS_FAC / SURR_MW
+                     ELSE
+                        ! Unknown Basis has been encountered. Need to exit.
+                        WRITE( XMSG,'(A,A16,A,I3,A,A,A)' ),
+     &                     'ERROR: Surrogate Species ',TRIM(EM_FILE_SURR(ISRM)%ARRY(ISUR) ),
+     &                     ' on emission stream ',ISRM, ' has units which are not recognized ',
+     &                     'as an emission rate. If you wish to use this variable for ',
+     &                     'emissions, please correct the units (e.g. g/s or moles/s).'
+                        CALL M3EXIT( 'EMIS_SPC_MAP', 0, 0, XMSG, 2 )
                      END IF
+                     
+                     ! Check to see if this is an aerosol (mass-based)
+                     ! CMAQ species.
                      IF ( .NOT. DIFF_MASK_AERO( MAP_EMtoDIFF( ISTR ) ) ) THEN
                         BASIS_FAC = BASIS_FAC
                      ELSE
                         ! Convert species emission rate to mass
                         BASIS_FAC = BASIS_FAC * SPEC_MW
                      END IF
+
                  ELSE IF ( EM_BASIS( ISTR, ISRM, IFAC ) .EQ. 'MASS' ) THEN
-                     IF ( EM_FILE_SURR( ISRM )%BASIS( MAP_EMtoSURR( ISTR,ISRM ) ) .EQ. 'MOLE' ) THEN
+                     IF ( EM_FILE_SURR( ISRM )%BASIS( ISUR ) .EQ. 'MOLE' ) THEN
                         ! Convert surrogate emission rate to mass
                         BASIS_FAC = BASIS_FAC * SURR_MW
-                     ELSE
+                     ELSE IF ( EM_FILE_SURR( ISRM )%BASIS( ISUR ) .EQ. 'MASS' ) THEN
                         BASIS_FAC = BASIS_FAC
+                     ELSE
+                        ! Unknown Basis has been encountered. Need to exit.
+                        WRITE( XMSG,'(A,A16,A,I3,A,A,A)' ),
+     &                     'ERROR: Surrogate Species ',TRIM(EM_FILE_SURR(ISRM)%ARRY(ISUR) ),
+     &                     ' on emission stream ',ISRM, ' has units which are not recognized ',
+     &                     'as an emission rate. If you wish to use this variable for ',
+     &                     'emissions, please correct the units (e.g. g/s or moles/s).'
+                        CALL M3EXIT( 'EMIS_SPC_MAP', 0, 0, XMSG, 2 )
                      END IF
+
+                     ! Check to see if this is an aerosol (mass-based)
+                     ! CMAQ species.
                      IF ( .NOT. DIFF_MASK_AERO( MAP_EMtoDIFF( ISTR ) ) ) THEN
                         ! Convert species emission rate to moles
                         BASIS_FAC = BASIS_FAC / SPEC_MW
                      ELSE
                         BASIS_FAC = BASIS_FAC
                      END IF
+               
                  END IF
                  EM_FAC_ST( ISTR,ISRM )%BASIS = BASIS_FAC
 
@@ -2482,6 +2626,338 @@ C and allowing the model to proceed.
      &          '|> END EMISSIONS SCALING PREPARATION AND DIAGNOSTIC OUTPUT'
 
       END SUBROUTINE EMIS_SPC_MAP
+
+!-----------------------------------------------------------------------
+         SUBROUTINE CHECK_EMIS_UNITS( ISRM, ISUR, SPEC, UNITS, CONV, BASIS,
+     &                                LAREA_UNIT )
+
+! This subroutine checks for invalid values of the operation parameter 
+! in the rules from the emission control list
+
+         IMPLICIT NONE
+
+         REAL, INTENT( OUT )              :: CONV
+         CHARACTER( 16 ) , INTENT( OUT )  :: BASIS
+         LOGICAL, INTENT( INOUT )         :: LAREA_UNIT
+         CHARACTER( 16 ), INTENT( INOUT ) :: UNITS
+         INTEGER, INTENT( IN )            :: ISRM
+         INTEGER, INTENT( IN )            :: ISUR
+         CHARACTER( 16 ), INTENT( IN )    :: SPEC
+         CHARACTER( 400 )      :: XMSG
+         INTEGER               :: X, SLASH_IND
+         
+         CHARACTER( 16 ) :: NUMER
+         CHARACTER( 16 ) :: DENOM
+         CHARACTER( 16 ) :: DENOM1
+         CHARACTER( 16 ) :: DENOM2
+         LOGICAL         :: LTIME_UNIT
+
+         ! The Default Finding is an unknown Basis unit and conversion
+         ! equal to 1.0
+         CONV = 1.0
+         LAREA_UNIT = .FALSE.
+         LTIME_UNIT = .FALSE.
+         BASIS = 'UNKNOWN'
+         IF ( UNITS .EQ. '' ) RETURN
+         
+         ! Capitalize UNITS string and remove any leading spaces 
+         CALL UPCASE( UNITS ) 
+         DO WHILE ( UNITS(1:1) .EQ. ' ' ) 
+             UNITS = UNITS(2:16) // ' '
+         END DO
+
+         ! Find First Break between numerator and denominator. If it's not a
+         ! slash, then it should be the first space. 
+         SLASH_IND = INDEX( UNITS, '/' )
+         IF ( SLASH_IND .EQ. 0 ) SLASH_IND = INDEX( UNITS, ' ' )
+         X = SLASH_IND - 1
+         NUMER = UNITS(1:X)
+
+         ! If there are no slashes or spaces, then exit
+         IF ( SLASH_IND .EQ. 0 ) RETURN
+
+         ! Check Numerator for Molar or Mass Units
+         IF ( NUMER(1:4) .EQ. 'MOLE' .OR. NUMER(1:5) .EQ. 'MOLES' .OR.
+     &        NUMER(1:3) .EQ. 'MOL' ) THEN
+            ! No Conversion Needed for Moles to Moles
+            CONV = 1.0 
+            BASIS = 'MOLE'
+         ELSE IF ( NUMER(1:5) .EQ. 'KMOLE' .OR. NUMER(1:6) .EQ. 'KMOLES' .OR.
+     &             NUMER(1:4) .EQ. 'KMOL' ) THEN
+            ! Convert kmol to mol
+            CONV = 1000.0
+            BASIS = 'MOLE'
+         ELSE IF ( NUMER(1:5) .EQ. 'MMOLE' .OR. NUMER(1:6) .EQ. 'MMOLES' .OR.
+     &             NUMER(1:4) .EQ. 'MMOL' ) THEN
+            ! Convert mmol to mol
+            CONV = 1.0e-3
+            BASIS = 'MOLE'
+         ELSE IF ( NUMER(1:5) .EQ. 'UMOLE' .OR. NUMER(1:6) .EQ. 'UMOLES' .OR.
+     &             NUMER(1:4) .EQ. 'UMOL' ) THEN
+            ! Convert umol to mol
+            CONV = 1.0e-6
+            BASIS = 'MOLE'
+         ELSE IF ( NUMER(1:4) .EQ. 'GRAM' .OR. NUMER(1:5) .EQ. 'GRAMS' .OR.
+     &             NUMER(1:1) .EQ. 'G'    .OR. NUMER(1:2) .EQ. 'GM'    .OR.
+     &             NUMER(1:3) .EQ. 'GMS'  .OR. NUMER(1:2) .EQ. 'GS'  ) THEN
+            ! No Conversion Needed for Grams to Grams
+            CONV = 1.0
+            BASIS = 'MASS'
+         ELSE IF ( NUMER(1:5) .EQ. 'KGRAM' .OR. NUMER(1:6) .EQ. 'KGRAMS' .OR.
+     &             NUMER(1:2) .EQ. 'KG'    .OR. NUMER(1:3) .EQ. 'KGM'    .OR.
+     &             NUMER(1:4) .EQ. 'KGMS'  .OR. NUMER(1:3) .EQ. 'KGS' ) THEN
+            ! Convert kg -> g
+            CONV = 1000.0
+            BASIS = 'MASS'
+         ELSE IF ( NUMER(1:5) .EQ. 'MGRAM' .OR. NUMER(1:6) .EQ. 'MGRAMS' .OR.
+     &             NUMER(1:2) .EQ. 'MG'    .OR. NUMER(1:3) .EQ. 'MGM'    .OR.
+     &             NUMER(1:4) .EQ. 'MGMS'  .OR. NUMER(1:3) .EQ. 'MGS' ) THEN
+            ! Convert mg -> g
+            CONV = 1.0e-3
+            BASIS = 'MASS'
+         ELSE IF ( NUMER(1:5) .EQ. 'UGRAM' .OR. NUMER(1:6) .EQ. 'UGRAMS' .OR.
+     &             NUMER(1:2) .EQ. 'UG'    .OR. NUMER(1:3) .EQ. 'UGM'    .OR.
+     &             NUMER(1:3) .EQ. 'UGMS'  .OR. NUMER(1:3) .EQ. 'UGS' ) THEN
+            ! Convert ug -> g
+            CONV = 1.0e-6
+            BASIS = 'MASS'
+         ELSE IF ( NUMER(1:5) .EQ. 'NGRAM' .OR. NUMER(1:6) .EQ. 'NGRAMS' .OR.
+     &             NUMER(1:2) .EQ. 'NG'    .OR. NUMER(1:3) .EQ. 'NGM'    .OR.
+     &             NUMER(1:4) .EQ. 'NGMS'  .OR. NUMER(1:3) .EQ. 'NGS' ) THEN
+            ! Convert ng -> g
+            CONV = 1.0e-9
+            BASIS = 'MASS'
+         ELSE
+            WRITE( XMSG,'(A,A16,A,I3,A11,A16,A,A,A)' ),
+     &              'ERROR: Surrogate Species ',TRIM(SPEC),' on emission stream ',
+     &              ISRM, ' has units ',TRIM(UNITS),' which are not recognized ',
+     &              'as an emission rate. If you wish to use this variable for ',
+     &              'emissions, please correct the units (e.g. g/s or moles/s).'
+            CALL M3WARN( 'CHECK_EMIS_UNITS', 0, 0, XMSG )
+            ! No Conversion and and Unknown Basis
+            CONV = 1.0e0
+            BASIS = 'UNKNOWN'
+         END IF
+         
+         ! Identify Denominator. Return from subroutine if the
+         ! denominator is empty.
+         DENOM = UNITS(X+2:)
+         IF ( DENOM .EQ. '' ) THEN
+            WRITE( XMSG,'(A,A16,A,I3,A11,A16,A,A,A,A)' ),
+     &              'ERROR: Surrogate Species ',TRIM(SPEC),' on emission stream ',
+     &              ISRM, ' has units ',TRIM(UNITS),' which are not recognized ',
+     &              'as an emission rate. If you wish to use this variable for ',
+     &              'emissions, please correct the units (e.g. g/s, moles/s, ',
+     &              'g/m2/s, or g/s/m2, etc.).'
+            CALL M3WARN( 'CHECK_EMIS_UNITS', 0, 0, XMSG )
+            ! No Conversion and and Unknown Basis
+            CONV = CONV * 1.0e0
+            BASIS = 'UNKNOWN' 
+            RETURN
+         END IF
+
+         ! Remove Leading Spaces, if any
+         DO WHILE ( DENOM(1:1) .EQ. ' ' ) 
+             DENOM = DENOM(2:16) // ' '
+         END DO
+
+         ! Now split the Denominator into two parts, before and after
+         ! the slash or space. There will be at least one space because the
+         ! numerator has been cut from the units string, thus leaving at
+         ! least one empty space.
+         SLASH_IND = INDEX( DENOM, '/' )
+         IF ( SLASH_IND .EQ. 0 ) SLASH_IND = INDEX( DENOM, ' ' )
+         X = SLASH_IND - 1 
+         DENOM1 = DENOM(1:X)
+         DENOM2 = DENOM(X+2:)
+         
+         ! Parse the first Denominator and return attributes
+         CALL CHECK_UNIT_DENOMINATOR( DENOM1, LAREA_UNIT, LTIME_UNIT, 
+     &                                BASIS, CONV )
+         IF ( BASIS .EQ. 'UNKNOWN' ) THEN
+            WRITE( XMSG,'(A,A16,A,I3,A11,A16,A,A,A,A)' ),
+     &              'ERROR: Surrogate Species ',TRIM(SPEC),' on emission stream ',
+     &              ISRM, ' has units ',TRIM(UNITS),' which are not recognized ',
+     &              'as an emission rate. If you wish to use this variable for ',
+     &              'emissions, please correct the units (e.g. g/s, moles/s, ',
+     &              'g/m2/s, or g/s/m2, etc.).'
+            CALL M3WARN( 'CHECK_EMIS_UNITS', 0, 0, XMSG )
+            RETURN
+         END IF
+
+         ! Parse the second Denominator and return attributes
+         IF ( DENOM2 .NE. '' ) THEN
+            CALL CHECK_UNIT_DENOMINATOR( DENOM2, LAREA_UNIT, LTIME_UNIT, 
+     &                                   BASIS, CONV )
+            IF ( BASIS .EQ. 'UNKNOWN' ) THEN
+               WRITE( XMSG,'(A,A16,A,I3,A11,A16,A,A,A,A)' ),
+     &                'ERROR: Surrogate Species ',TRIM(SPEC),' on emission stream ',
+     &                ISRM, ' has units ',TRIM(UNITS),' which are not recognized ',
+     &                'as an emission rate. If you wish to use this variable for ',
+     &                'emissions, please correct the units (e.g. g/s, moles/s, ',
+     &                'g/m2/s, or g/s/m2, etc.).'
+               CALL M3WARN( 'CHECK_EMIS_UNITS', 0, 0, XMSG )
+               RETURN
+            END IF
+         END IF
+
+         ! Check to make sure the time component has been defined 
+         IF ( .NOT. LTIME_UNIT ) THEN
+            WRITE( XMSG,'(A,A16,A,I3,A11,A16,A,A,A,A)' ),
+     &             'ERROR: Surrogate Species ',TRIM(SPEC),' on emission stream ',
+     &             ISRM, ' has units ',TRIM(UNITS),' which are not recognized ',
+     &             'as an emission rate. If you wish to use this variable for ',
+     &             'emissions, please correct the units (e.g. g/s, moles/s, ',
+     &             'g/m2/s, or g/s/m2, etc.).'
+            CALL M3WARN( 'CHECK_EMIS_UNITS', 0, 0, XMSG )
+            BASIS = 'UNKNOWN'
+            RETURN
+         END IF 
+
+         END SUBROUTINE CHECK_EMIS_UNITS
+ 
+!-----------------------------------------------------------------------
+         SUBROUTINE CHECK_UNIT_DENOMINATOR( DENOM, LAREA, LTIME, BASIS, CONV)
+
+! This subroutine compares the denominator from the units string of an
+! emission variables to potential time and area units and determines how
+! to convert the emissions online in DESID.
+!-----------------------------------------------------------------------
+
+         IMPLICIT NONE
+
+         CHARACTER(16), INTENT( IN )   :: DENOM
+         LOGICAL, INTENT( OUT )        :: LAREA
+         LOGICAL, INTENT( OUT )        :: LTIME
+         CHARACTER(16), INTENT( INOUT ):: BASIS
+         REAL, INTENT( INOUT)          :: CONV
+
+         ! Check 1st Denominator for Time Units
+         IF ( DENOM .EQ. 'S' .OR. DENOM .EQ. 'S-1' .OR.
+     &        DENOM .EQ. 'SEC'.OR.DENOM .EQ. 'SEC-1' .OR.
+     &        DENOM .EQ. 'SECOND'.OR.DENOM .EQ. 'SECOND-1' .OR.
+     &        DENOM .EQ. 'SECONDS'.OR.DENOM .EQ. 'SECONDS-1' ) THEN
+            ! No Conversion Necessary for seconds -> seconds
+            CONV = CONV * 1.0
+            LTIME = .TRUE.
+         ELSE IF ( DENOM .EQ. 'H' .OR. DENOM .EQ. 'H-1' .OR.
+     &             DENOM .EQ. 'HR'.OR.DENOM .EQ. 'HR-1' .OR.
+     &             DENOM .EQ. 'HRS'.OR.DENOM .EQ. 'HRS-1' .OR.
+     &             DENOM .EQ. 'HOUR'.OR.DENOM .EQ. 'HOUR-1' .OR.
+     &             DENOM .EQ. 'HOURS'.OR.DENOM .EQ. 'HOURS-1' ) THEN
+            ! Convert hours -> seconds
+            CONV = CONV * 3600.0
+            LTIME = .TRUE.
+         ELSE IF ( DENOM .EQ. 'M' .OR. DENOM .EQ. 'M-1' .OR.
+     &             DENOM .EQ. 'MIN'.OR.DENOM .EQ. 'MIN-1' .OR.
+     &             DENOM .EQ. 'MINUTE'.OR.DENOM .EQ. 'MINUTE-1' .OR.
+     &             DENOM .EQ. 'MINUTES'.OR.DENOM .EQ. 'MINUTES-1' ) THEN
+            ! Convert minutes -> seconds
+            CONV = CONV * 60.0
+            LTIME = .TRUE.
+         ELSE IF ( DENOM .EQ. 'M2' .OR. DENOM .EQ. 'M-2' .OR.
+     &             DENOM .EQ. 'M^2'.OR.DENOM .EQ. 'METER-2' .OR.
+     &             DENOM .EQ. 'METER^2'.OR.DENOM .EQ. 'METER^-2' .OR.
+     &             DENOM .EQ. 'METER2'.OR.DENOM .EQ. 'METER-2' .OR.
+     &             DENOM .EQ. 'METERS^2'.OR.DENOM .EQ. 'METERS^-2' .OR.
+     &             DENOM .EQ. 'METERS2'.OR.DENOM .EQ. 'METERS-2' ) THEN
+            ! No conversion necessary for meters^2 -> meters^2
+            CONV = CONV * 1.0
+            LAREA = .TRUE. 
+         ELSE IF ( DENOM .EQ. 'KM2' .OR. DENOM .EQ. 'KM-2' .OR.
+     &             DENOM .EQ. 'KM^2'.OR.DENOM .EQ. 'KM^-2' .OR.
+     &             DENOM .EQ. 'KILOMETER2'.OR.DENOM .EQ. 'KILOMETER-2' .OR.
+     &             DENOM .EQ. 'KILOMETER^2'.OR.DENOM .EQ. 'KILOMETER^-2' .OR.
+     &             DENOM .EQ. 'KILOMETERS2'.OR.DENOM .EQ. 'KILOMETERS-2' .OR.
+     &             DENOM .EQ. 'KILOMETERS^2'.OR.DENOM .EQ. 'KILOMETERS-2' ) THEN
+            ! Convert kilometers^2 -> meters^2
+            CONV = CONV * 1.0E6
+            LAREA = .TRUE. 
+         ELSE IF ( DENOM .EQ. 'MI2' .OR. DENOM .EQ. 'MI-2' .OR.
+     &             DENOM .EQ. 'MI^2'.OR.DENOM .EQ. 'MI^-2' .OR.
+     &             DENOM .EQ. 'MILE2'.OR.DENOM .EQ. 'MILE-2' .OR.
+     &             DENOM .EQ. 'MILE^2'.OR.DENOM .EQ. 'MILE^-2' .OR.
+     &             DENOM .EQ. 'MILES2'.OR.DENOM .EQ. 'MILES-2' .OR.
+     &             DENOM .EQ. 'MILES^2'.OR.DENOM .EQ. 'MILES-2' ) THEN
+            ! Convert mile^2 -> meters^2
+            CONV = CONV * 2.59E6
+            LAREA = .TRUE.  
+         ELSE IF ( DENOM .EQ. 'HA' .OR. DENOM .EQ. 'HA-1' .OR.
+     &             DENOM .EQ. 'HA^1'.OR.DENOM .EQ. 'HA^-1' .OR.
+     &             DENOM .EQ. 'HECTARE'.OR.DENOM .EQ. 'HECTARE-1' .OR.
+     &             DENOM .EQ. 'HECTARE^1'.OR.DENOM .EQ. 'HECTARE^-1' .OR.
+     &             DENOM .EQ. 'HECTARES'.OR.DENOM .EQ. 'HECTARES-1' .OR.
+     &             DENOM .EQ. 'HECTARES^1'.OR.DENOM .EQ. 'HECTARES^-1' ) THEN
+            ! Convert hectares -> meters^2
+            CONV = CONV * 10000.0
+            LAREA = .TRUE.   
+         ELSE
+            ! No Conversion and and Unknown Basis
+            CONV = CONV * 1.0e0
+            BASIS = 'UNKNOWN'
+         END IF
+ 
+
+
+
+         END SUBROUTINE CHECK_UNIT_DENOMINATOR
+
+!-----------------------------------------------------------------------
+         SUBROUTINE CHECK_OP( OP, IRULE )
+
+! This subroutine checks for invalid values of the operation parameter 
+! in the rules from the emission control list
+
+         IMPLICIT NONE
+
+         CHARACTER( 1 )        :: OP
+         INTEGER, INTENT( IN ) :: IRULE
+         CHARACTER( 200 )      :: XMSG
+
+         IF ( OP .EQ. 'A' .OR. OP .EQ. 'a' ) THEN
+             OP = 'a'
+         ELSE IF ( OP .EQ. 'M' .OR. OP .EQ. 'm' ) THEN
+             OP = 'm'
+         ELSE IF ( OP .EQ. 'O' .OR. OP .EQ. 'o' ) THEN
+             OP = 'o'
+         ELSE
+             WRITE( XMSG,'(A,I3,A,A1)' ),
+     &              'ERROR: OP parameter for rule ',IRULE,
+     &              ' has invalid value: ',OP
+             CALL M3EXIT( 'CHECK_OP (EMIS_DEFN)', 0, 0, XMSG, 2 )
+         END IF
+
+         END SUBROUTINE CHECK_OP
+
+!-----------------------------------------------------------------------
+         SUBROUTINE CHECK_BASIS( BASIS, IRULE )
+
+! This subroutine checks for invalid values of the operation parameter 
+! in the rules from the emission control list
+
+         IMPLICIT NONE
+
+         CHARACTER( 4 )        :: BASIS
+         INTEGER, INTENT( IN ) :: IRULE
+         CHARACTER( 200 )      :: XMSG
+
+         IF ( BASIS .EQ. 'mole' .OR. BASIS .EQ. 'MOLE' .OR.
+     &        BASIS .EQ. 'Mole' ) THEN
+             BASIS = 'MOLE'
+         ELSE IF ( BASIS .EQ. 'mass' .OR. BASIS .EQ. 'MASS' .OR.
+     &             BASIS .EQ. 'Mass' ) THEN
+             BASIS = 'MASS'
+         ELSE IF ( BASIS .EQ. 'unit' .OR. BASIS .EQ. 'UNIT' .OR.
+     &             BASIS .EQ. 'Unit' ) THEN
+             BASIS = 'UNIT'
+         ELSE
+             WRITE( XMSG,'(A,I3,A,A4)' ),
+     &              'ERROR: BASIS parameter for rule ',IRULE,
+     &              ' has invalid value: ',BASIS
+             CALL M3EXIT( 'CHECK_BASIS (EMIS_DEFN)', 0, 0, XMSG, 2 )
+         END IF
+
+         END SUBROUTINE CHECK_BASIS
 
 !-----------------------------------------------------------------------
          SUBROUTINE EM_FILE_INIT( JDATE, JTIME )
