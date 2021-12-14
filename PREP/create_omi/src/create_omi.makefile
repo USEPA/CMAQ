@@ -1,11 +1,11 @@
 # make file to build program
 
-PROGRAM = create_omi
+PROGRAM = create_omi_v532.exe
 
 ifndef compiler
-  compiler = intel
+# compiler = intel
 # compiler = pgi
-# compiler = gcc
+  compiler = gcc
 endif
 
 #Helps diagnose crashes if they occur
@@ -16,8 +16,8 @@ ifeq ($(compiler),intel)
   FC = ifort
   CC = icc
 
-  ioapi  = /home/wdx/lib/x86_64/ifc-17.0.3/ioapi_3.1/Linux2_x86_64ifort
-  netcdf = /usr/local/apps/netcdf-4.4.1/intel-17.0
+  ioapi  = /usr/local/apps/ioapi-3.2_20181011/intel-19.0/Linux2_x86_64ifort
+  netcdf = /usr/local/apps/netcdf-4.6.3/intel-19.0
   
   include_path = -I $(ioapi) -I $(netcdf)/include -I .
 
