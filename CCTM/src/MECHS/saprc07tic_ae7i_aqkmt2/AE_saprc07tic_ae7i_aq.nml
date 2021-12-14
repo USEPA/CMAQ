@@ -19,7 +19,7 @@ AE_SPECIES_DATA =
 'AECJ'     , 12.00  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSJ'    , 1  ,'PRI_ACCUM'    , 1  ,'EC_ACCUM'     ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
 'AECI'     , 12.00  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSI'    , 1  ,'PRI_AITKEN'   , 1  ,'EC_AITKEN'    ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
 'AOTHRJ'   ,200.00  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSJ'    , 1  ,'PRI_ACCUM'    , 1  ,'PRI_ACCUM'    ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
-'AOTHRI'   ,200.00  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSI'    , 1  ,'PRI_AITKEN'   , 1  ,'PRI_AITKEN'   ,'Yes'   ,''      ,''      ,'Yes',
+'AOTHRI'   ,200.00  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSI'    , 1  ,'PRI_AITKEN'   , 1  ,'PRI_AITKEN'   ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
 'AFEJ'     , 55.80  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSJ'    , 1  ,'PRI_ACCUM'    , 1  ,'FE_ACCUM'     ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
 'AALJ'     , 27.00  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSJ'    , 1  ,'PRI_ACCUM'    , 1  ,'PRI_ACCUM'    ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
 'ASIJ'     , 28.10  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSJ'    , 1  ,'PRI_ACCUM'    , 1  ,'PRI_ACCUM'    ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
