@@ -2,33 +2,33 @@
 
 AE_SPECIES_DATA = 
 
-!SPECIES   ,MOLWT   ,OPTICS ,IC     ,IC_FAC ,BC     ,BC_FAC ,DRYDEP SURR ,FAC ,WET-SCAV SURR  ,FAC ,AE2AQ SURR     ,TRNS    ,DDEP    ,WDEP    ,CONC
-'ASO4J'    , 96.00  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSJ'    , 1  ,'SO4_ACCUM'    , 1  ,'SO4_ACCUM'    ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
-'ASO4I'    , 96.00  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSI'    , 1  ,'SO4_AITKEN'   , 1  ,'SO4_AITKEN'   ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
-'ANH4J'    , 18.00  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSJ'    , 1  ,'NH4_ACCUM'    , 1  ,'NH4_ACCUM'    ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
-'ANH4I'    , 18.00  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSI'    , 1  ,'NH4_AITKEN'   , 1  ,'NH4_AITKEN'   ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
-'ANO3J'    , 62.00  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSJ'    , 1  ,'NO3_ACCUM'    , 1  ,'NO3_ACCUM'    ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
-'ANO3I'    , 62.00  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSI'    , 1  ,'NO3_AITKEN'   , 1  ,'NO3_AITKEN'   ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
-'ASOATJ'   ,200.00  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSJ'    , 1  ,'ORG_ACCUM'    , 1  ,'SOA_ACCUM'    ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
-'AGLYJ'    , 66.40  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSJ'    , 1  ,'ORG_ACCUM'    , 1  ,'SOA_ACCUM'    ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
-'ATRPNJ'   ,215.00  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSJ'    , 1  ,'ORG_ACCUM'    , 1  ,'SOA_ACCUM'    ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
-'AHOMJ'    ,250.00  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSJ'    , 1  ,'ORG_ACCUM'    , 1  ,'SOA_ACCUM'    ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
-'AELHOMJ'  ,402.00  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSJ'    , 1  ,'ORG_ACCUM'    , 1  ,'SOA_ACCUM'    ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
-'AISONJ'   ,147.00  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSJ'    , 1  ,'ORG_ACCUM'    , 1  ,'SOA_ACCUM'    ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
-'AORGCJ'   ,177.00  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSJ'    , 1  ,'ORG_ACCUM'    , 1  ,'AORGC_ACCUM'  ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
-'AECJ'     , 12.00  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSJ'    , 1  ,'PRI_ACCUM'    , 1  ,'EC_ACCUM'     ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
-'AECI'     , 12.00  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSI'    , 1  ,'PRI_AITKEN'   , 1  ,'EC_AITKEN'    ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
-'AOTHRJ'   ,200.00  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSJ'    , 1  ,'PRI_ACCUM'    , 1  ,'PRI_ACCUM'    ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
-'AOTHRI'   ,200.00  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSI'    , 1  ,'PRI_AITKEN'   , 1  ,'PRI_AITKEN'   ,'Yes'   ,''      ,''      ,'Yes',
-'AFEJ'     , 55.80  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSJ'    , 1  ,'PRI_ACCUM'    , 1  ,'FE_ACCUM'     ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
-'AALJ'     , 27.00  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSJ'    , 1  ,'PRI_ACCUM'    , 1  ,'PRI_ACCUM'    ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
-'ASIJ'     , 28.10  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSJ'    , 1  ,'PRI_ACCUM'    , 1  ,'PRI_ACCUM'    ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
-'ATIJ'     , 47.90  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSJ'    , 1  ,'PRI_ACCUM'    , 1  ,'PRI_ACCUM'    ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
-'ACAJ'     , 40.10  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSJ'    , 1  ,'PRI_ACCUM'    , 1  ,'CA_ACCUM'     ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
-'AMGJ'     , 24.30  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSJ'    , 1  ,'PRI_ACCUM'    , 1  ,'MG_ACCUM'     ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
-'AKJ'      , 39.10  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSJ'    , 1  ,'PRI_ACCUM'    , 1  ,'K_ACCUM'      ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
-'AMNJ'     , 54.90  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSJ'    , 1  ,'PRI_ACCUM'    , 1  ,'MN_ACCUM'     ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
-'ACORS'    ,100.00  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSC'    , 1  ,'PRI_COARSE'   , 1  ,'ANTH_COARSE'  ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
+!SPECIES   ,MOLWT   ,OPTICS ,IC     ,IC_FAC ,BC     ,BC_FAC ,DRYDEP SURR ,FAC ,WET-SCAV SURR  ,FAC ,AE2AQ SURR     ,TRNS    ,DDEP    ,WDEP    ,CONC,!RepCmp,LumpedorExplicit,DTXSID,SMILES
+'ASO4J'    , 96.00  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSJ'    , 1  ,'SO4_ACCUM'    , 1  ,'SO4_ACCUM'    ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!Sulfate,L,NA,[O-]S(=O)(=O)[O-]
+'ASO4I'    , 96.00  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSI'    , 1  ,'SO4_AITKEN'   , 1  ,'SO4_AITKEN'   ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!Sulfate,L,NA,[O-]S(=O)(=O)[O-]
+'ANH4J'    , 18.00  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSJ'    , 1  ,'NH4_ACCUM'    , 1  ,'NH4_ACCUM'    ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!Ammonium,E,NA,[NH4+]
+'ANH4I'    , 18.00  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSI'    , 1  ,'NH4_AITKEN'   , 1  ,'NH4_AITKEN'   ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!Ammonium,E,NA,[NH4+]
+'ANO3J'    , 62.00  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSJ'    , 1  ,'NO3_ACCUM'    , 1  ,'NO3_ACCUM'    ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!Nitrate,L,NA,[N+](=O)([O-])[O-]
+'ANO3I'    , 62.00  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSI'    , 1  ,'NO3_AITKEN'   , 1  ,'NO3_AITKEN'   ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!Nitrate,L,NA,[N+](=O)([O-])[O-]
+'ASOATJ'   ,200.00  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSJ'    , 1  ,'ORG_ACCUM'    , 1  ,'SOA_ACCUM'    ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!Generic SOA,L,NA,NA
+'AGLYJ'    , 66.40  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSJ'    , 1  ,'ORG_ACCUM'    , 1  ,'SOA_ACCUM'    ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!Glyoxal SOA from particle uptake,L,
+'ATRPNJ'   ,215.00  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSJ'    , 1  ,'ORG_ACCUM'    , 1  ,'SOA_ACCUM'    ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!SeeGC,NA,NA,NA
+'AHOMJ'    ,250.00  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSJ'    , 1  ,'ORG_ACCUM'    , 1  ,'SOA_ACCUM'    ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!SeeGC,NA,NA,NA
+'AELHOMJ'  ,402.00  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSJ'    , 1  ,'ORG_ACCUM'    , 1  ,'SOA_ACCUM'    ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!SeeGC,NA,NA,NA
+'AISONJ'   ,147.00  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSJ'    , 1  ,'ORG_ACCUM'    , 1  ,'SOA_ACCUM'    ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!SeeGC,NA,NA,NA
+'AORGCJ'   ,177.00  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSJ'    , 1  ,'ORG_ACCUM'    , 1  ,'AORGC_ACCUM'  ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!Glyoxal SOA from Clouds
+'AECJ'     , 12.00  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSJ'    , 1  ,'PRI_ACCUM'    , 1  ,'EC_ACCUM'     ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!Elemental Carbon,L,NA,[C]
+'AECI'     , 12.00  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSI'    , 1  ,'PRI_AITKEN'   , 1  ,'EC_AITKEN'    ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!Elemental Carbon,L,NA,[C]
+'AOTHRJ'   ,200.00  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSJ'    , 1  ,'PRI_ACCUM'    , 1  ,'PRI_ACCUM'    ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!Unspeciated Accumulation mode aerosol,L,NA,NA
+'AOTHRI'   ,200.00  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSI'    , 1  ,'PRI_AITKEN'   , 1  ,'PRI_AITKEN'   ,'Yes'   ,''      ,''      ,'Yes',!Unspeciated Aitken mode aerosol,L,NA,NA
+'AFEJ'     , 55.80  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSJ'    , 1  ,'PRI_ACCUM'    , 1  ,'FE_ACCUM'     ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!Iron,E,NA,Fe
+'AALJ'     , 27.00  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSJ'    , 1  ,'PRI_ACCUM'    , 1  ,'PRI_ACCUM'    ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!Aluminum,E,NA,Al
+'ASIJ'     , 28.10  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSJ'    , 1  ,'PRI_ACCUM'    , 1  ,'PRI_ACCUM'    ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!Silicon,E,NA,Si
+'ATIJ'     , 47.90  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSJ'    , 1  ,'PRI_ACCUM'    , 1  ,'PRI_ACCUM'    ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!Titanium,E,NA,Ti
+'ACAJ'     , 40.10  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSJ'    , 1  ,'PRI_ACCUM'    , 1  ,'CA_ACCUM'     ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!Calcium,E,NA,Ca
+'AMGJ'     , 24.30  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSJ'    , 1  ,'PRI_ACCUM'    , 1  ,'MG_ACCUM'     ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!Magnesium,E,NA,Mg
+'AKJ'      , 39.10  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSJ'    , 1  ,'PRI_ACCUM'    , 1  ,'K_ACCUM'      ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!Potassium,E,NA,K
+'AMNJ'     , 54.90  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSJ'    , 1  ,'PRI_ACCUM'    , 1  ,'MN_ACCUM'     ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!Manganese,E,NA,Mn
+'ACORS'    ,100.00  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSC'    , 1  ,'PRI_COARSE'   , 1  ,'ANTH_COARSE'  ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!Primary unspeciated coarse PM,L,NA,NA
 'ASOIL'    ,100.00  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSC'    , 1  ,'PRI_COARSE'   , 1  ,'SOIL_COARSE'  ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
 'NUMATKN'  ,  1.00  ,''     ,''     ,-1     ,''     ,-1     ,'VNUMATKN'  , 1  ,'NUM_AITKEN'   , 1  ,'NUM_AITKEN'   ,'Yes'   ,''      ,''      ,'Yes',
 'NUMACC'   ,  1.00  ,''     ,''     ,-1     ,''     ,-1     ,'VNUMACC'   , 1  ,'NUM_ACCUM'    , 1  ,'NUM_ACCUM'    ,'Yes'   ,''      ,''      ,'Yes',
@@ -57,16 +57,16 @@ AE_SPECIES_DATA =
 'APNCOMI'  ,220.00  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSI'    , 1  ,'ORG_AITKEN'   , 1  ,'POA_AITKEN'   ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',  
 'APNCOMJ'  ,220.00  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSJ'    , 1  ,'ORG_ACCUM'    , 1  ,'POA_ACCUM'    ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',  
 'AOP3J'     ,153.5   ,''     ,''     ,-1     ,''     ,-1     ,'VMASSJ'    , 1  ,'ORG_ACCUM'    , 1  ,'SOA_ACCUM'    ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
-'AROCN2ALKI',422.86  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSI'    , 1  ,'ORG_AITKEN'   , 1  ,'POA_AITKEN'   ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
-'AROCN2ALKJ',422.86  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSJ'    , 1  ,'ORG_ACCUM'    , 1  ,'POA_ACCUM'    ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
-'AROCN1ALKI',408.75  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSI'    , 1  ,'ORG_AITKEN'   , 1  ,'POA_AITKEN'   ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
-'AROCN1ALKJ',408.75  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSJ'    , 1  ,'ORG_ACCUM'    , 1  ,'POA_ACCUM'    ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
-'AROCP0ALKI',392.46  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSI'    , 1  ,'ORG_AITKEN'   , 1  ,'POA_AITKEN'   ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
-'AROCP0ALKJ',392.46  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSJ'    , 1  ,'ORG_ACCUM'    , 1  ,'POA_ACCUM'    ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
-'AROCP1ALKI',373.89  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSI'    , 1  ,'ORG_AITKEN'   , 1  ,'POA_AITKEN'   ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
-'AROCP1ALKJ',373.89  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSJ'    , 1  ,'ORG_ACCUM'    , 1  ,'POA_ACCUM'    ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
-'AROCP2ALKJ',336.19  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSJ'    , 1  ,'ORG_ACCUM'    , 1  ,'POA_ACCUM'    ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
-'AROCP3ALKJ',295.80  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSJ'    , 1  ,'ORG_ACCUM'    , 1  ,'POA_ACCUM'    ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
+'AROCN2ALKI',422.83  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSI'    , 1  ,'ORG_AITKEN'   , 1  ,'POA_AITKEN'   ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
+'AROCN2ALKJ',422.83  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSJ'    , 1  ,'ORG_ACCUM'    , 1  ,'POA_ACCUM'    ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
+'AROCN1ALKI',408.80  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSI'    , 1  ,'ORG_AITKEN'   , 1  ,'POA_AITKEN'   ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
+'AROCN1ALKJ',408.80  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSJ'    , 1  ,'ORG_ACCUM'    , 1  ,'POA_ACCUM'    ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
+'AROCP0ALKI',394.77  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSI'    , 1  ,'ORG_AITKEN'   , 1  ,'POA_AITKEN'   ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
+'AROCP0ALKJ',394.77  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSJ'    , 1  ,'ORG_ACCUM'    , 1  ,'POA_ACCUM'    ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
+'AROCP1ALKI',380.75  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSI'    , 1  ,'ORG_AITKEN'   , 1  ,'POA_AITKEN'   ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
+'AROCP1ALKJ',380.75  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSJ'    , 1  ,'ORG_ACCUM'    , 1  ,'POA_ACCUM'    ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
+'AROCP2ALKJ',338.66  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSJ'    , 1  ,'ORG_ACCUM'    , 1  ,'POA_ACCUM'    ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
+'AROCP3ALKJ',295.58  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSJ'    , 1  ,'ORG_ACCUM'    , 1  ,'POA_ACCUM'    ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
 'AROCN2OXY2I',282.5  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSI'    , 1  ,'ORG_AITKEN'   , 1  ,'SOA_AITKEN'   ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
 'AROCN2OXY2J',282.5  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSJ'    , 1  ,'ORG_ACCUM'    , 1  ,'SOA_ACCUM'    ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
 'AROCN2OXY4I',226.8  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSI'    , 1  ,'ORG_AITKEN'   , 1  ,'SOA_AITKEN'   ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
