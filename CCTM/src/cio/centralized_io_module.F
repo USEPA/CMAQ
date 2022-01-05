@@ -5053,7 +5053,6 @@ C   mminlu and num_land_cat are WRF global variables
              WRITE( LOGDEV, '(8x,A)' ) TMPLINE
              CALL M3EXIT ( 'Read_Emiss_Namelist', 0, 0, 'CMAQ must Crash until you '// 
      &                     'fix the Area Normalization section', 1 ) 
- 
          END IF
  
          ! Read Budget Variables Specification Section
