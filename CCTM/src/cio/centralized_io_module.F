@@ -4962,13 +4962,11 @@ C   mminlu and num_land_cat are WRF global variables
          EM_NML%FAC    = 0.
 
          ! Allocate and Initialize Area Normalization Namelist Variables
-         ALLOCATE( AREA_NML( N_AREA_REG ) )
          AREA_NML%STREAM  = 'ALL'
          AREA_NML%AREA    = 'AUTO'
          AREA_NML%ADJ     = 'AUTO'
  
          ! Allocate and Initialize Size Distribution Namelist Variables
-         ALLOCATE( SD_NML( N_SD_REG ) )
          SD_NML%STREAM   = ''
          SD_NML%MODE     = ''
          SD_NML%MODE_REF = ''
