@@ -63,7 +63,7 @@
                 CHARACTER( 32 ) :: ADJ
             END TYPE AREA_REG
             INTEGER, PARAMETER  :: N_AREA_REG = 100
-            TYPE( AREA_REG ), ALLOCATABLE :: AREA_NML( : )
+            TYPE( AREA_REG )    :: AREA_NML( N_AREA_REG )
 
             ! Define Structure for Region Masks
             TYPE REGIONS_REG

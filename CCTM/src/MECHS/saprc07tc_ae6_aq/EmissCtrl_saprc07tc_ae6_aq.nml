@@ -383,10 +383,10 @@
 &AreaNorm
  AREA_NML  =
  !         | Stream Label   | Area Normalization | Projection Adjustment 
-                'ALL'       ,'AUTO'              ,'AUTO'
- !<Example>     'GRIDDED'   ,'TRUE'              ,'TRUE'
- !<Example>     'FIRES'     ,'TRUE'              ,'FALSE'
- !<Example>     'VCP'       ,'FALSE'             ,'TRUE'
+                'ALL'       ,'AUTO'              ,'AUTO',
+ !<Example>     'GRIDDED'   ,'TRUE'              ,'TRUE',
+ !<Example>     'FIRES'     ,'TRUE'              ,'FALSE',
+ !<Example>     'VCP'       ,'FALSE'             ,'TRUE',
 /
   
 !------------------------------------------------------------------------------!
