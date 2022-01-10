@@ -14,12 +14,12 @@
 #> National Computing Center used primarily by EPA.
 #SBATCH -t 96:00:00
 #SBATCH -n 256
-#SBATCH -J cio_test
+#SBATCH -J 4LISTOS1_CB6r3
 #SBATCH -p ord
 #SBATCH --gid=mod3dev
 #SBATCH -A mod3dev
-#SBATCH -o /work/MOD3DEV/atorresv/CMAQ_work/4LISTOS1/CCTM/scripts/2018_4LISTOS1_%j.txt
-#SBATCH --mail-user=atorresv
+#SBATCH -o /work/MOD3DEV/has/2021cracmm/CMAQ/2022mmddcmaq/CCTM/scripts/log_2018_4LISTOS1_%j.txt
+#SBATCH --mail-user=has
 #SBATCH --mail-type=END,FAIL
 
 #> The following commands output information from the SLURM
@@ -68,7 +68,7 @@ echo 'Start Model Run At ' `date`
  set PROC      = mpi               #> serial or mpi
  set MECH      = cb6r3_ae7_aq      #> Mechanism ID
  set EMIS      = 2018ff            #> Emission Inventory Details
- set APPL      = 4LISTOS1_BASE2  #> Application Name (e.g. Gridname)
+ set APPL      = 4LISTOS1          #> Application Name (e.g. Gridname)
                                                        
 #> Define RUNID as any combination of parameters above or others. By default,
 #> this information will be collected into this one string, $RUNID, for easy
@@ -86,7 +86,7 @@ echo 'Start Model Run At ' `date`
 #> Set Working, Input, and Output Directories
  setenv WORKDIR ${CMAQ_HOME}/CCTM/scripts          #> Working Directory. Where the runscript is.
  setenv OUTDIR  ${CMAQ_DATA}/output_CCTM_${RUNID}  #> Output Directory
- setenv INPDIR  /work/MOD3DEV/atorresv/2018_4LISTOS1          #Input Directory
+ setenv INPDIR  /work/MOD3DATA/2018_4LISTOS1       # Input Directory, files retrieved with agetscript.csh in INPDIR
  setenv LOGDIR  ${OUTDIR}/LOGS     #> Log Directory Location
  setenv NMLpath ${BLD}             #> Location of Namelists. Common places are: 
                                    #>   ${WORKDIR} | ${CCTM_SRC}/MECHS/${MECH} | ${BLD}
@@ -103,8 +103,8 @@ echo 'Start Model Run At ' `date`
 # =====================================================================
 
 #> Set Start and End Days for looping
- setenv NEW_START FALSE            #> Set to FALSE for model restart
- set START_DATE = "2018-05-08"     #> beginning date (July 1, 2016)
+ setenv NEW_START TRUE            #> Set to FALSE for model restart
+ set START_DATE = "2018-05-02"     #> beginning date (July 1, 2016)
  set END_DATE   = "2018-05-10"     #> ending date    (July 14, 2016)
 
 #> Set Timestepping Parameters
@@ -140,8 +140,8 @@ setenv PRINT_PROC_TIME Y           #> Print timing for all science subprocesses 
 setenv STDOUT T                    #> Override I/O-API trying to write information to both the processor 
                                    #>   logs and STDOUT [ options: T | F ]
 
-setenv GRID_NAME LISTOS4         #> check GRIDDESC file for GRID_NAME options
-setenv GRIDDESC /work/MOD3DEV/atorresv/MCIP_LISTOS/LISTOS-4_CMAQ/GRIDDESC    #> grid description file
+setenv GRID_NAME 4LISTOS1         #> check GRIDDESC file for GRID_NAME options
+setenv GRIDDESC $INPDIR/GRIDDESC    #> grid description file
 
 #> Retrieve the number of columns, rows, and layers in this simulation
 set NZ = 35
@@ -254,16 +254,16 @@ setenv MP_CSS_INTERRUPT yes  #> specify whether arriving packets generate interr
 #> Input Directories and Filenames
 # =====================================================================
 
-set ICpath    = ${CMAQ_HOME}/data/icon                        #> initial conditions input directory 
-set BCpath    = ${CMAQ_HOME}/data/bcon                       #> boundary conditions input directory
-set EMISpath  = $INPDIR/gridded   #> gridded emissions input directory
-set IN_PTpath = $INPDIR             #> point source emissions input directory
+set ICpath    = $INPDIR/icbc                       #> initial conditions input directory 
+set BCpath    = $INPDIR/icbc                       #> boundary conditions input directory
+set EMISpath  = $INPDIR/emis/cb6r3_ae6_20191210/cmaq_ready   #> emissions input directory
+set IN_PTpath = $EMISpath                         #> point source emissions input directory
 #set IN_LTpath = $INPDIR/lightning                   #> lightning NOx input directory
-set METpath   = /work/MOD3DEV/atorresv/MCIP_LISTOS/LISTOS-4_CMAQ              #> meteorology input directory 
+set METpath   = $INPDIR/met                       #> meteorology input directory 
 #set JVALpath  = $INPDIR/jproc                      #> offline photolysis rate table directory
 set OMIpath   = $BLD                                #> ozone column data for the photolysis model
-set LUpath    = $INPDIR/                        #> BELD landuse data for windblown dust model
-set SZpath    = $INPDIR/                        #> surf zone file for in-line seaspray emissions
+set LUpath    = $INPDIR/surface                  #> BELD landuse data for windblown dust model
+#set SZpath    = $INPDIR/                        #> surf zone file for in-line seaspray emissions
 
 # =====================================================================
 #> Begin Loop Through Simulation Days
@@ -346,10 +346,10 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   setenv EMISSCTRL_NML ${BLD}/EmissCtrl_${MECH}.nml
 
   #> Spatial Masks For Emissions Scaling
-  setenv CMAQ_MASKS ${BLD}/ocean_file_LISTOS4.ncf #> horizontal grid-dependent surf zone file
+  setenv CMAQ_MASKS ${LUpath}/ocean_file_LISTOS4.ncf #> horizontal grid-dependent surf zone file
 
   #> Determine Representative Emission Days
-  set EMDATES = $INPDIR/emis_dates/smk_merge_dates_${YYYYMM}.txt
+  set EMDATES = $INPDIR/emis/smk_dates/smk_merge_dates_${YYYYMM}.txt
   set intable = `grep "^${YYYYMMDD}" $EMDATES`
   set Date     = `echo $intable[1] | cut -d, -f1`
   set aveday_N = `echo $intable[2] | cut -d, -f1`
@@ -364,7 +364,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   #> Gridded Emissions Files 
   setenv N_EMIS_GR 1
   set EMISfile  = emis_mole_all_${YYYYMMDD}_4LISTOS1_nobeis_withrwc_2018ff_18j_WR401_fine.ncf
-  setenv GR_EMIS_001 ${EMISpath}/${EMISfile}
+  setenv GR_EMIS_001 ${EMISpath}/gridded/${EMISfile}
   setenv GR_EMIS_LAB_001 GRIDDED_EMIS
   setenv GR_EM_SYM_DATE_001 F
 
@@ -377,18 +377,18 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   set STKCASEET = 4LISTOS1_cmaq_cb6_2018ff_18j_WR401_fine          # Stack Group Version Label
 
   # Time-Independent Stack Parameters for Inline Point Sources
-  setenv STK_GRPS_001 $IN_PTpath/stack_groups/stack_groups_ptnonipm_solv_${STKCASEG}.ncf
-  setenv STK_GRPS_002 $IN_PTpath/stack_groups/stack_groups_ptnonipm_nosolv_4_${STKCASEG}.ncf
-  setenv STK_GRPS_003 $IN_PTpath/stack_groups/stack_groups_othpt_solv_${STKCASEG}.ncf
-  setenv STK_GRPS_004 $IN_PTpath/stack_groups/stack_groups_othpt_nosolv_${STKCASEG}.ncf
-  setenv STK_GRPS_005 $IN_PTpath/stack_groups/stack_groups_pt_oilgas_solv_${STKCASEG}.ncf
-  setenv STK_GRPS_006 $IN_PTpath/stack_groups/stack_groups_pt_oilgas_nosolv_${STKCASEG}.ncf
-  setenv STK_GRPS_007 $IN_PTpath/stack_groups/stack_groups_cmv_c3_4_${STKCASEG}.ncf
-  setenv STK_GRPS_008 $IN_PTpath/stack_groups/stack_groups_cmv_c1c2_4_${STKCASEG}.ncf
-  setenv STK_GRPS_009 $IN_PTpath/stack_groups/stack_groups_ptagfire_${YYYYMMDD}_${STKCASEST}.ncf
-  setenv STK_GRPS_010 $IN_PTpath/stack_groups/stack_groups_ptfire_${YYYYMMDD}_${STKCASEST}.ncf
-  setenv STK_GRPS_011 $IN_PTpath/stack_groups/stack_groups_ptfire_othna_${YYYYMMDD}_${STKCASEST}.ncf
-  setenv STK_GRPS_012 $IN_PTpath/stack_groups/stack_groups_ptegu_${STKCASEST}.ncf
+  setenv STK_GRPS_001 $IN_PTpath/ptnonipm_solv/stack_groups_ptnonipm_solv_${STKCASEG}.ncf
+  setenv STK_GRPS_002 $IN_PTpath/ptnonipm_nosolv_4/stack_groups_ptnonipm_nosolv_4_${STKCASEG}.ncf
+  setenv STK_GRPS_003 $IN_PTpath/othpt_solv/stack_groups_othpt_solv_${STKCASEG}.ncf
+  setenv STK_GRPS_004 $IN_PTpath/othpt_nosolv/stack_groups_othpt_nosolv_${STKCASEG}.ncf
+  setenv STK_GRPS_005 $IN_PTpath/pt_oilgas_solv/stack_groups_pt_oilgas_solv_${STKCASEG}.ncf
+  setenv STK_GRPS_006 $IN_PTpath/pt_oilgas_nosolv/stack_groups_pt_oilgas_nosolv_${STKCASEG}.ncf
+  setenv STK_GRPS_007 $IN_PTpath/cmv_c3_c4/stack_groups_cmv_c3_4_${STKCASEG}.ncf
+  setenv STK_GRPS_008 $IN_PTpath/cmv_c1c2_4/stack_groups_cmv_c1c2_4_${STKCASEG}.ncf
+  setenv STK_GRPS_009 $IN_PTpath/ptagfire/stack_groups_ptagfire_${YYYYMMDD}_${STKCASEST}.ncf
+  setenv STK_GRPS_010 $IN_PTpath/ptfire/stack_groups_ptfire_${YYYYMMDD}_${STKCASEST}.ncf
+  setenv STK_GRPS_011 $IN_PTpath/ptfire_othna/stack_groups_ptfire_othna_${YYYYMMDD}_${STKCASEST}.ncf
+  setenv STK_GRPS_012 $IN_PTpath/ptegu/stack_groups_ptegu_${STKCASEST}.ncf
 
   setenv LAYP_STTIME $STTIME
   setenv LAYP_NSTEPS $NSTEPS
@@ -460,7 +460,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   #> In-line biogenic emissions configuration
   if ( $CTM_BIOGEMIS == 'Y' ) then   
      set IN_BEISpath = ${INPDIR}
-     setenv GSPRO      $BLD/gspro_biogenics_19nov2019_nf_v10.txt
+     setenv GSPRO      $BLD/gspro_biogenics.txt
      setenv B3GRD      $IN_BEISpath/beis/b3grd_${STKCASEG}.ncf
      setenv BIOSW_YN   Y     #> use frost date switch [ default: Y ]
      setenv BIOSEASON  $IN_BEISpath/beis/bioseason.cmaq.2018_4LISTOS1.ncf 
@@ -474,12 +474,12 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   #> Windblown dust emissions configuration
   if ( $CTM_WB_DUST == 'Y' ) then
      # Input variables for BELD3 Landuse option
-     setenv DUST_LU_1 $LUpath/beld3_12US1_459X299_output_a_bench.nc
-     setenv DUST_LU_2 $LUpath/beld4_12US1_459X299_output_tot_bench.nc
+     setenv DUST_LU_1 $LUpath/beld3_12US1_459X299_output_a.ncf
+     setenv DUST_LU_2 $LUpath/beld3_12US1_459X299_output_tot.ncf
   endif
 
   #> In-line sea spray emissions configuration
-  setenv OCEAN_1 ${BLD}/ocean_file_LISTOS4.ncf  #> horizontal grid-dependent surf zone file
+  setenv OCEAN_1 ${LUpath}/ocean_file_LISTOS4.ncf  #> horizontal grid-dependent surf zone file
 
   #> Bidirectional ammonia configuration
   if ( $CTM_ABFLUX == 'Y' ) then
@@ -698,8 +698,8 @@ APPL
   #( /usr/bin/time -p $BLD/$EXEC ) |& tee buff_${EXECUTION_ID}.txt
 
   #> Executable call for multi PE, configure for your system 
-  set MPI = /home/local-rhel7/apps/intel/compilers_and_libraries_2019.5.281/linux/mpi/intel64/bin
-  set MPIRUN = $MPI/mpirun
+  #set MPI = /home/local-rhel7/apps/intel/compilers_and_libraries_2019.5.281/linux/mpi/intel64/bin
+  #set MPIRUN = $MPI/mpirun
   ( /usr/bin/time -p mpirun -np $NPROCS $BLD/$EXEC ) |& tee buff_${EXECUTION_ID}.txt
   
   #> Harvest Timing Output so that it may be reported below
