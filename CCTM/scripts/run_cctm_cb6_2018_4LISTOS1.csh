@@ -18,7 +18,7 @@
 #SBATCH -p ord
 #SBATCH --gid=mod3dev
 #SBATCH -A mod3dev
-#SBATCH -o /work/MOD3DEV/has/2021cracmm/CMAQ/2022mmddcmaq/CCTM/scripts/log_2018_4LISTOS1_%j.txt
+#SBATCH -o /work/MOD3DEV/has/2021cracmm/cmaq/2022mmddcmaq/CCTM/scripts/log_2018_4LISTOS1_%j.txt
 #SBATCH --mail-user=has
 #SBATCH --mail-type=END,FAIL
 
@@ -64,7 +64,7 @@ echo 'Start Model Run At ' `date`
  cd CCTM/scripts
 
 #> Set General Parameters for Configuring the Simulation
- set VRSN      = v53               #> Code Version
+ set VRSN      = v532               #> Code Version
  set PROC      = mpi               #> serial or mpi
  set MECH      = cb6r3_ae7_aq      #> Mechanism ID
  set EMIS      = 2018ff            #> Emission Inventory Details
@@ -140,8 +140,8 @@ setenv PRINT_PROC_TIME Y           #> Print timing for all science subprocesses 
 setenv STDOUT T                    #> Override I/O-API trying to write information to both the processor 
                                    #>   logs and STDOUT [ options: T | F ]
 
-setenv GRID_NAME 4LISTOS1         #> check GRIDDESC file for GRID_NAME options
-setenv GRIDDESC $INPDIR/GRIDDESC    #> grid description file
+setenv GRID_NAME LISTOS4          #> check GRIDDESC file for GRID_NAME options
+setenv GRIDDESC $INPDIR/GRIDDESCatv    #> grid description file
 
 #> Retrieve the number of columns, rows, and layers in this simulation
 set NZ = 35
@@ -170,7 +170,7 @@ setenv CTM_ADV_CFL 0.95      #> max CFL [ default: 0.75]
 
 #> Science Options
 setenv CTM_OCEAN_CHEM Y      #> Flag for ocean halgoen chemistry and sea spray aerosol emissions [ default: Y ]
-setenv CTM_WB_DUST Y         #> use inline windblown dust emissions [ default: Y ]
+setenv CTM_WB_DUST N         #> use inline windblown dust emissions [ default: Y ]
 #setenv CTM_WBDUST_BELD BELD3 #> landuse database for identifying dust source regions 
                              #>    [ default: UNKNOWN ]; ignore if CTM_WB_DUST = N 
 setenv CTM_LTNG_NO N         #> turn on lightning NOx [ default: N ]
@@ -221,7 +221,7 @@ setenv CTM_CKSUM Y           #> checksum report [ default: Y ]
 setenv CLD_DIAG N            #> cloud diagnostic file [ default: N ]
 
 setenv CTM_PHOTDIAG Y        #> photolysis diagnostic file [ default: N ]
-setenv NLAYS_PHOTDIAG "1 25"    #> Number of layers for PHOTDIAG2 and PHOTDIAG3 from 
+setenv NLAYS_PHOTDIAG "1"    #> Number of layers for PHOTDIAG2 and PHOTDIAG3 from 
                              #>     Layer 1 to NLAYS_PHOTDIAG  [ default: all layers ] 
 #setenv NWAVE_PHOTDIAG "294 303 310 316 333 381 607"  #> Wavelengths written for variables
                                                       #>   in PHOTDIAG2 and PHOTDIAG3 
@@ -254,8 +254,8 @@ setenv MP_CSS_INTERRUPT yes  #> specify whether arriving packets generate interr
 #> Input Directories and Filenames
 # =====================================================================
 
-set ICpath    = $INPDIR/icbc                       #> initial conditions input directory 
-set BCpath    = $INPDIR/icbc                       #> boundary conditions input directory
+set ICpath    = $INPDIR/icbc/cb6r3_ae6             #> initial conditions input directory 
+set BCpath    = $INPDIR/icbc/cb6r3_ae6            #> boundary conditions input directory
 set EMISpath  = $INPDIR/emis/cb6r3_ae6_20191210/cmaq_ready   #> emissions input directory
 set IN_PTpath = $EMISpath                         #> point source emissions input directory
 #set IN_LTpath = $INPDIR/lightning                   #> lightning NOx input directory
@@ -325,7 +325,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   #set JVALfile  = JTABLE_${YYYYJJJ}
 
   #> Ozone column data
-  set OMIfile   = omi_cmaq_2018.dat
+  set OMIfile   = OMI_1979_to_2019.dat
 
   #> Optics file
   #set OPTfile = ${BLD}/PHOT_OPTICS.dat
@@ -383,7 +383,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   setenv STK_GRPS_004 $IN_PTpath/othpt_nosolv/stack_groups_othpt_nosolv_${STKCASEG}.ncf
   setenv STK_GRPS_005 $IN_PTpath/pt_oilgas_solv/stack_groups_pt_oilgas_solv_${STKCASEG}.ncf
   setenv STK_GRPS_006 $IN_PTpath/pt_oilgas_nosolv/stack_groups_pt_oilgas_nosolv_${STKCASEG}.ncf
-  setenv STK_GRPS_007 $IN_PTpath/cmv_c3_c4/stack_groups_cmv_c3_4_${STKCASEG}.ncf
+  setenv STK_GRPS_007 $IN_PTpath/cmv_c3_4/stack_groups_cmv_c3_4_${STKCASEG}.ncf
   setenv STK_GRPS_008 $IN_PTpath/cmv_c1c2_4/stack_groups_cmv_c1c2_4_${STKCASEG}.ncf
   setenv STK_GRPS_009 $IN_PTpath/ptagfire/stack_groups_ptagfire_${YYYYMMDD}_${STKCASEST}.ncf
   setenv STK_GRPS_010 $IN_PTpath/ptfire/stack_groups_ptfire_${YYYYMMDD}_${STKCASEST}.ncf

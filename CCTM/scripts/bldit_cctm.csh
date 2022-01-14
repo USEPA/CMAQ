@@ -115,8 +115,8 @@ set make_options = "-j"                #> additional options for make command if
  set ModPhot   = phot/inline                #> photolysis calculation module 
                                             #>     (see $CMAQ_MODEL/CCTM/src/phot)
 
- setenv Mechanism cracmm1_aq                    #> chemical mechanism (see $CMAQ_MODEL/CCTM/src/MECHS) excluding version number and "aq" for cracmm
- #setenv Mechanism cb6r7_ae7_aq              #> chemical mechanism (see $CMAQ_MODEL/CCTM/src/MECHS) 
+ setenv Mechanism cracmm1_aq                #> chemical mechanism (see $CMAQ_MODEL/CCTM/src/MECHS) 
+ #setenv Mechanism cb6r3_ae7_aq              #> chemical mechanism (see $CMAQ_MODEL/CCTM/src/MECHS) 
  set ModMech   = MECHS/${Mechanism}
 
  if ( ${Mechanism} =~ *ae7* ) then          #> ae7 family of aero and cloud chem
