@@ -53,7 +53,6 @@ C-----------------------------------------------------------------------
       USE VDIFF_MAP
       USE UTILIO_DEFN
       USE BIDI_MOD
-      USE LSM_MOD, ONLY: N_LUFRAC
       USE MOSAIC_MOD, ONLY: Tile_Data
       USE VDIFF_DIAG, NLPCR => NLPCR_MEAN
       USE HGRD_DEFN,only : COLSX_PE, ROWSX_PE
@@ -236,17 +235,17 @@ C set auxiliary depv arrays
          IF ( PRESENT ( DDEPJ_FST ) ) XFST = .TRUE.
 
          IF ( XMOSAIC ) THEN
-            ALLOCATE ( DD_FACJ( N_LUFRAC,N_SPC_DEPV ),
-     &                 DDBFJ  ( N_LUFRAC,N_SPC_DEPV ),
-     &                 DEPVJCR( N_LUFRAC,N_SPC_DEPV ), STAT = ASTAT )
+            ALLOCATE ( DD_FACJ( Tile_Data%N_LUFRAC,N_SPC_DEPV ),
+     &                 DDBFJ  ( Tile_Data%N_LUFRAC,N_SPC_DEPV ),
+     &                 DEPVJCR( Tile_Data%N_LUFRAC,N_SPC_DEPV ), STAT = ASTAT )
             IF ( ASTAT .NE. 0 ) THEN
                XMSG = 'Failure allocating DD_FACJ, DDBFJ or DEPVJCR'
                CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
             END IF
             IF ( XFST ) THEN
-               ALLOCATE ( DD_FACJ_FST( N_LUFRAC,N_SPC_DEPV ),
-     &                    DDBFJ_FST  ( N_LUFRAC,N_SPC_DEPV ),
-     &                    DEPVJCR_FST( N_LUFRAC,N_SPC_DEPV ), STAT = ASTAT  )
+               ALLOCATE ( DD_FACJ_FST( Tile_Data%N_LUFRAC,N_SPC_DEPV ),
+     &                    DDBFJ_FST  ( Tile_Data%N_LUFRAC,N_SPC_DEPV ),
+     &                    DEPVJCR_FST( Tile_Data%N_LUFRAC,N_SPC_DEPV ), STAT = ASTAT  )
                IF ( ASTAT .NE. 0 ) THEN
                   XMSG = 'Failure allocating DD_FACJ_FST, DDBFJ_FST or DEPVJCR_FST'
                   CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
@@ -636,7 +635,7 @@ C ----------------------------------------------------------------------
             DDBFJ( :,: )   = DDEPJ( :,:,C,R )
             DEPVJCR( :,: ) = DEPVJ( :,1:N_SPC_DEPV,C,R )           
             DO V = 1, N_SPC_DEPV
-               WHERE( GRID_DATA%LUFRAC( c,r,: ) .GT. 0.0 .AND. DEPVJCR( :,V ) .GT. 0.0 ) 
+               WHERE( Tile_Data%LUFRAC( c,r,: ) .GT. 0.0 .AND. DEPVJCR( :,V ) .GT. 0.0 ) 
                   DD_FACJ( :,V ) = DTDENS1 * DD_CONV( V ) * DEPVJCR( :,V )
                ELSE WHERE
                   DD_FACJ( :,V ) = 0.0
@@ -644,7 +643,7 @@ C ----------------------------------------------------------------------
             END DO
             IF ( XFST ) THEN
                DO V = 1, N_SPC_DEPV
-                  WHERE( GRID_DATA%LUFRAC( c,r,: ) .GT. 0.0 ) 
+                  WHERE( Tile_Data%LUFRAC( c,r,: ) .GT. 0.0 ) 
                      DD_FACJ_FST( :,V ) = DTDENS1 * DD_CONV( V ) * DEPVJCR_FST( :,V )
                   ELSE WHERE
                      DD_FACJ_FST( :,V ) = 0.0
@@ -694,8 +693,6 @@ C --------- END of HET HONO RX ----------
 
                   IF ( ABFLUX .AND. V .EQ. NH3_HIT ) THEN
                      TMP_BD_EMIS( NH3_E ) = TMP_BD_EMIS( NH3_E ) + THETA * BIDI_VDEMIS( V,C,R ) * DD_CONV( V ) * DTDENS1                   
-                     STAGE_Diag_Data%NH3_Diag_Out( C,R,: ) = STAGE_Diag_Data%NH3_Diag_Out( C,R,: ) +  
-     &                  THETA * STAGE_Diag_Data%NH3_Diag_Temp( C,R,: ) * DD_CONV( V ) * DTDENS1                   
                   END IF
                   IF ( HGBIDI .AND. V .EQ. HG_HIT ) THEN
                      TMP_BD_EMIS( HG_E ) = TMP_BD_EMIS( HG_E ) + THETA * BIDI_VDEMIS( V,C,R ) * DD_CONV( V ) * DTDENS1                   
@@ -712,19 +709,19 @@ C --------- END of HET HONO RX ----------
 C --------------- HET HONO RX -----------------
                   IF ( V .EQ. HNO3_HIT ) THEN
                      S = HNO3_MAP
-                     WHERE( GRID_DATA%LUFRAC( c,r,: ) .GT. 0.0 ) 
+                     WHERE( Tile_Data%LUFRAC( c,r,: ) .GT. 0.0 ) 
                         DD_FACJ( :,V ) = DTDENS1 * DD_CONV( V ) * DEPVJCR( :,V ) + PLDV_HONO / CONC( NO2_MAP,1 )
                         DDBFJ( :,V ) = DDBFJ( :,V ) + THETA * DD_FACJ( :,V ) * CONC( S,1 )
                      END WHERE
                   ELSE IF ( V .EQ. NO2_HIT ) THEN  
                      S = NO2_MAP
-                     WHERE( GRID_DATA%LUFRAC( c,r,: ) .GT. 0.0 .AND.  DEPVJCR( :,V ) .GT. 0.0 ) 
+                     WHERE( Tile_Data%LUFRAC( c,r,: ) .GT. 0.0 .AND.  DEPVJCR( :,V ) .GT. 0.0 ) 
                         DDBFJ  ( :,V ) = DDBFJ( :,V ) + THETA * DD_FACJ( :,V ) * CONC( S,1 )
                      END WHERE
 C --------------- END of HET HONO RX ----------
                   ELSE
                      S = DV2DF( V )
-                     WHERE( GRID_DATA%LUFRAC( c,r,: ) .GT. 0.0 ) 
+                     WHERE( Tile_Data%LUFRAC( c,r,: ) .GT. 0.0 ) 
                         DDBFJ( :,V ) = DDBFJ( :,V )
      &                               + THETA * DD_FACJ( :,V ) * CONC( S,1 )
                      END WHERE
@@ -734,14 +731,14 @@ C --------------- END of HET HONO RX ----------
                   DO V = 1, N_SPC_DEPV
                      IF ( V .EQ. HNO3_HIT ) THEN
                         S = HNO3_MAP
-                        WHERE( GRID_DATA%LUFRAC( c,r,: ) .GT. 0.0 )
+                        WHERE( Tile_Data%LUFRAC( c,r,: ) .GT. 0.0 )
                            DD_FACJ_FST( :,V ) = DTDENS1 * DD_CONV( V ) * DEPVJCR_FST( :,V ) + PLDV_HONO / CONC( NO2_MAP,1 )
                            DDBFJ_FST( :,V ) = DDBFJ_FST( :,V )
      &                                      + THETA * DD_FACJ_FST( :,V ) * CONC( S,1 )
                         END WHERE
                      ELSE
                         S = DV2DF( V )
-                        WHERE( GRID_DATA%LUFRAC( c,r,: ) .GT. 0.0 )
+                        WHERE( Tile_Data%LUFRAC( c,r,: ) .GT. 0.0 )
                            DDBFJ_FST( :,V ) = DDBFJ_FST( :,V )
      &                                      + THETA * DD_FACJ_FST( :,V ) * CONC( S,1 )
                         END WHERE
@@ -932,8 +929,6 @@ C --------- END of HET HONO RX ----------
                   DDBF( V ) = DDBF( V ) + THBAR * DD_FAC( V ) * CONC( S,1 )
                   IF ( ABFLUX .AND. V .EQ. NH3_HIT ) THEN
                      TMP_BD_EMIS( NH3_E ) = TMP_BD_EMIS( NH3_E ) + THBAR * BIDI_VDEMIS( V,C,R ) * DD_CONV( V ) * DTDENS1                   
-                     STAGE_Diag_Data%NH3_Diag_Out( C,R,: ) = STAGE_Diag_Data%NH3_Diag_Out( C,R,: ) +  
-     &                  THETA * STAGE_Diag_Data%NH3_Diag_Temp( C,R,: ) * DD_CONV( V ) * DTDENS1                   
                   END IF
                   IF ( HGBIDI .AND. V .EQ. HG_HIT ) THEN
                      TMP_BD_EMIS( HG_E ) = TMP_BD_EMIS( HG_E ) + THBAR * BIDI_VDEMIS( V,C,R ) * DD_CONV( V ) * DTDENS1                   
@@ -951,19 +946,19 @@ C --------- END of HET HONO RX ----------
 C --------- HET HONO RX -----------------
                   IF ( V .EQ. HNO3_HIT ) THEN
                      S = HNO3_MAP
-                     WHERE( GRID_DATA%LUFRAC( c,r,: ) .GT. 0.0 )
+                     WHERE( Tile_Data%LUFRAC( c,r,: ) .GT. 0.0 )
                         DD_FACJ( :,V ) = DTDENS1 * DD_CONV( V ) * DEPVJCR( :,V ) + PLDV_HONO / CONC( NO2_MAP,1 )
                         DDBFJ( :,V ) = DDBFJ( :,V ) + THBAR * DD_FACJ( :,V ) * CONC( S,1 )
                      END WHERE
                   ELSE IF ( V .EQ. NO2_HIT ) THEN  
                      S = NO2_MAP
-                     WHERE( GRID_DATA%LUFRAC( c,r,: ) .GT. 0.0 .AND.  DEPVJCR( :,V ) .GT. 0.0 ) 
+                     WHERE( Tile_Data%LUFRAC( c,r,: ) .GT. 0.0 .AND.  DEPVJCR( :,V ) .GT. 0.0 ) 
                         DDBFJ  ( :,V ) = DDBFJ( :,V ) + THETA * DD_FACJ( :,V ) * CONC( S,1 )
                      END WHERE
 C --------- END of HET HONO RX ----------
                   ELSE
                      S = DV2DF( V )
-                     WHERE( GRID_DATA%LUFRAC( c,r,: ) .GT. 0.0 )
+                     WHERE( Tile_Data%LUFRAC( c,r,: ) .GT. 0.0 )
                         DDBFJ( :,V ) = DDBFJ( :,V ) + THBAR * DD_FACJ( :,V ) * CONC( S,1 )
                      END WHERE
                   END IF
@@ -972,14 +967,14 @@ C --------- END of HET HONO RX ----------
                   DO V = 1, N_SPC_DEPV
                      IF ( V .EQ. HNO3_HIT ) THEN
                         S = HNO3_MAP
-                        WHERE( GRID_DATA%LUFRAC( c,r,: ) .GT. 0.0 )
+                        WHERE( Tile_Data%LUFRAC( c,r,: ) .GT. 0.0 )
                            DD_FACJ_FST( :,V ) = DTDENS1 * DD_CONV( V ) * DEPVJCR_FST( :,V ) + PLDV_HONO / CONC( NO2_MAP,1 )
                            DDBFJ_FST( :,V ) = DDBFJ_FST( :,V )
      &                                      + THBAR * DD_FACJ_FST( :,V ) * CONC( S,1 )
                         END WHERE
                      ELSE
                         S = DV2DF( V )
-                        WHERE( GRID_DATA%LUFRAC( c,r,: ) .GT. 0.0 )
+                        WHERE( Tile_Data%LUFRAC( c,r,: ) .GT. 0.0 )
                            DDBFJ_FST( :,V ) = DDBFJ_FST( :,V )
      &                                      + THBAR * DD_FACJ_FST( :,V ) * CONC( S,1 )
                         END WHERE

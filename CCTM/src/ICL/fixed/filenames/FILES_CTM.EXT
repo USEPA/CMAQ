@@ -36,7 +36,7 @@
 !                            BNDY_SENS_1, remove REGIONS_1
 !.......................................................................
 
-      INTEGER, PARAMETER :: N_FILES = 64
+      INTEGER, PARAMETER :: N_FILES = 65
 
       CHARACTER( 16 ) :: LGCL_NAME( N_FILES ) 
       LOGICAL            IN_MODE( N_FILES )
@@ -88,6 +88,7 @@
       CHARACTER( 16 ) :: MEDIA_CONC      ! NH3 Concentration in Media
       CHARACTER( 16 ) :: CTM_DEPV_MOS    ! Dry Dep Velocity
       CHARACTER( 16 ) :: CTM_DEPV_FST    ! Dry Dep Velocity
+      CHARACTER( 16 ) :: CTM_STAGE_DIAG  ! STAGE diagnostic ouput 
       CHARACTER( 16 ) :: CTM_DRY_DEP_MOS ! Dry Dep
       CHARACTER( 16 ) :: CTM_DRY_DEP_FST ! Dry Dep
       CHARACTER( 16 ) :: CTM_VDIFF_DIAG  ! Vertical Dispersion Diagnostic
@@ -185,6 +186,7 @@
       DATA CTM_DEPV_MOS     / 'CTM_DEPV_MOS    ' /
       DATA CTM_DRY_DEP_MOS  / 'CTM_DRY_DEP_MOS ' /
       DATA CTM_DRY_DEP_FST  / 'CTM_DRY_DEP_FST ' /
+      DATA CTM_STAGE_DIAG   / 'CTM_STAGE_DIAG  ' /  
       DATA CTM_DEPV_FST     / 'CTM_DEPV_FST    ' /
       DATA E2C_CHEM         / 'E2C_CHEM        ' /
       DATA E2C_CHEM_YEST    / 'E2C_CHEM_YEST   ' /
@@ -263,5 +265,6 @@
       DATA LGCL_NAME( 62 ), IN_MODE( 62 )    / 'SA_ACONC_1      ', .FALSE. /
       DATA LGCL_NAME( 63 ), IN_MODE( 63 )    / 'SA_DD_1         ', .FALSE. /
       DATA LGCL_NAME( 64 ), IN_MODE( 64 )    / 'SA_WD_1         ', .FALSE. /
+      DATA LGCL_NAME( 65 ), IN_MODE( 65 )    / 'CTM_STAGE_DIAG  ', .FALSE. /
 
 !................   end   FILES_CTM.EXT   .............................

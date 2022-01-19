@@ -124,7 +124,8 @@ C-----------------------------------------------------------------------
          USE CGRID_SPCS          ! CGRID mechanism species
          USE STAGE_DATA
          USE UTILIO_DEFN
-         USE LSM_MOD, Only: Init_LSM, n_lufrac 
+         USE LSM_MOD, Only: Init_LSM
+         USE MOSAIC_MOD, Only: Tile_Data
          USE BIDI_MOD, Only: Init_Bidi
          USE STAGE_MOD, Only: INIT_STAGE
 
@@ -166,24 +167,9 @@ C Local variables:
                INTEGER,         INTENT( IN ) :: N_ADEPV_NAMES
                CHARACTER( 16 ), INTENT( IN ) :: ADEPV_NAMES( : )
             END SUBROUTINE OPDEPV_DIAG
-            SUBROUTINE OPDEPV_MOS ( JDATE, JTIME, TSTEP,
-     &                              N_GDEPV_NAMES, GDEPV_NAMES,
-     &                              N_ADEPV_NAMES, ADEPV_NAMES )
+            SUBROUTINE OPSTAGE_DIAG ( JDATE, JTIME, TSTEP )
                INTEGER,         INTENT( IN ) :: JDATE, JTIME, TSTEP
-               INTEGER,         INTENT( IN ) :: N_GDEPV_NAMES
-               CHARACTER( 16 ), INTENT( IN ) :: GDEPV_NAMES( : )
-               INTEGER,         INTENT( IN ) :: N_ADEPV_NAMES
-               CHARACTER( 16 ), INTENT( IN ) :: ADEPV_NAMES( : )
-            END SUBROUTINE OPDEPV_MOS
-            SUBROUTINE OPDEPV_FST ( JDATE, JTIME, TSTEP,
-     &                              N_GDEPV_NAMES, GDEPV_NAMES,
-     &                              N_ADEPV_NAMES, ADEPV_NAMES )
-               INTEGER,         INTENT( IN ) :: JDATE, JTIME, TSTEP
-               INTEGER,         INTENT( IN ) :: N_GDEPV_NAMES
-               CHARACTER( 16 ), INTENT( IN ) :: GDEPV_NAMES( : )
-               INTEGER,         INTENT( IN ) :: N_ADEPV_NAMES
-               CHARACTER( 16 ), INTENT( IN ) :: ADEPV_NAMES( : )
-            END SUBROUTINE OPDEPV_FST
+            END SUBROUTINE OPSTAGE_DIAG
             SUBROUTINE GAS_DEPV_MAP ( N_DEPV_NAMES, DEPV_NAMES, DEPV_SUR )
                INTEGER,         INTENT( IN )    :: N_DEPV_NAMES
                CHARACTER( 16 ), INTENT( INOUT ) :: DEPV_NAMES( : )
@@ -272,17 +258,16 @@ C Initialize
 C Allocate additional arrays needed for mosaic and initialize land use parameters
          IF ( MOSAIC ) THEN
 
-            ALLOCATE ( DEPVJ( N_LUFRAC,N_SPC_DEPV+1,NCOLS,NROWS ), STAT = ALLOCSTAT )
+            ALLOCATE ( DEPVJ( Tile_Data%N_LUFRAC,N_SPC_DEPV+1,NCOLS,NROWS ), STAT = ALLOCSTAT )
             IF ( ALLOCSTAT .NE. 0 ) THEN
                XMSG = 'Failure allocating DEPVJ array'
                CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
                SUCCESS = .FALSE.; RETURN
             END IF
             DEPVJ = 0.0
-!            PLDVJ = 0.0
 
             IF ( FST ) THEN
-               ALLOCATE ( DEPVJ_FST( N_LUFRAC,N_SPC_DEPV+1,NCOLS,NROWS ), STAT = ALLOCSTAT )
+               ALLOCATE ( DEPVJ_FST( Tile_Data%N_LUFRAC,N_SPC_DEPV+1,NCOLS,NROWS ), STAT = ALLOCSTAT )
                IF ( ALLOCSTAT .NE. 0 ) THEN
                   XMSG = 'Failure allocating DEPVJ_FST array'
                   CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
@@ -450,28 +435,18 @@ C Identify and remove multiple occurrences of aerosol deposition velocities
             
          IF ( MOSAIC ) THEN
 
-            ALLOCATE ( DBUFF3( NCOLS,NROWS,N_LUFRAC ), STAT = ALLOCSTAT )
+            ALLOCATE ( DBUFF3( NCOLS,NROWS,Tile_Data%N_LUFRAC ), STAT = ALLOCSTAT )
             IF ( ALLOCSTAT .NE. 0 ) THEN
                XMSG = 'Failure allocating DBUFF3'
                CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
                SUCCESS = .FALSE.; RETURN
             END IF
 
-            IF ( IO_PE_INCLUSIVE ) THEN
-               CALL OPDEPV_MOS ( JDATE, JTIME, TSTEP( 1 ),
-     &                           N_UNIQUE_GDEPV, UNIQUE_GDEPV,
-     &                           N_UNIQUE_ADEPV, UNIQUE_ADEPV )
-            END IF
-
-            IF ( FST ) THEN
-                         
+            IF ( DIAG_STAGE ) THEN                         
                IF ( IO_PE_INCLUSIVE ) THEN
-                  CALL OPDEPV_FST ( JDATE, JTIME, TSTEP( 1 ),
-     &                              N_UNIQUE_GDEPV, UNIQUE_GDEPV,
-     &                              N_UNIQUE_ADEPV, UNIQUE_ADEPV )
-               END IF
-                           
-            END IF  ! FST
+                  CALL OPSTAGE_DIAG ( JDATE, JTIME, TSTEP( 1 ) )
+               END IF                           
+            END IF  ! DIAG_STAGE
 
          END IF  ! MOSAIC
 
@@ -486,8 +461,8 @@ C-----------------------------------------------------------------------
          USE CGRID_SPCS          ! CGRID mechanism species
          USE UTILIO_DEFN
          USE Mosaic_Mod
-         USE LSM_Mod,  Only: n_lufrac
          USE ASX_DATA_MOD, Only: GRID_DATA, MOSAIC_DATA
+         USE STAGE_DATA,   Only: STAGE_Diag_Data, dep_gas_all
          Use STAGE_MOD,    Only: GAS_X, AERO_X
 
          IMPLICIT NONE
@@ -638,9 +613,7 @@ C-----------------------------------------------------------------------
                N = N + 1
                DEPV( V,:,: ) = AE_DEPV_FAC( N ) * ADEPV( N,:,: )
                IF ( MOSAIC ) THEN
-                  DO J = 1, N_LUFRAC
-                     DEPVJ( :,V,:,: ) = AE_DEPV_FAC( N ) * Tile_Data%ADEPVJ( :,N,:,: )
-                  END DO
+                  DEPVJ( :,V,:,: ) = AE_DEPV_FAC( N ) * Tile_Data%ADEPVJ( :,N,:,: )
                END IF
             END DO
 
@@ -678,16 +651,10 @@ C-----------------------------------------------------------------------
                   END IF
 
                   IF ( MOSAIC ) THEN
-                     IF ( .NOT. IO_PE_INCLUSIVE ) THEN
-                        IF ( .NOT. OPEN3( CTM_DEPV_MOS, FSREAD3, PNAME ) ) THEN
-                           XMSG = 'Could not open ' // TRIM( CTM_DEPV_MOS )
-                           CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-                        END IF
-                     END IF
-                     IF ( FST ) THEN
+                     IF ( DIAG_STAGE ) THEN
                         IF ( .NOT. IO_PE_INCLUSIVE ) THEN
-                           IF ( .NOT. OPEN3( CTM_DEPV_FST, FSREAD3, PNAME ) ) THEN
-                              XMSG = 'Could not open ' // TRIM( CTM_DEPV_FST )
+                           IF ( .NOT. OPEN3( CTM_STAGE_DIAG, FSREAD3, PNAME ) ) THEN
+                              XMSG = 'Could not open ' // TRIM( CTM_STAGE_DIAG )
                               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
                            END IF
                         END IF
@@ -774,118 +741,165 @@ C-----------------------------------------------------------------------
                WTIME = TSTEP( 1 ) * ( JTIME / TSTEP( 1 ) )
                CALL NEXTIME( WDATE, WTIME, TSTEP( 1 ) )
 
-               N = 0
-               DO V = 1, N_GC_DEPV
-                  N = N + 1
+!-----------------------------------------------------------------------------------------!
+!                               STAGE Diagnostic Output                                   !
+!-----------------------------------------------------------------------------------------!
+               IF( DIAG_STAGE ) THEN
 
-                  IF ( GAS_DEPV_FOUND( N ) ) THEN
-                     NDX = GAS_DEPV_SUR( N )
+                  IF ( .NOT. WRITE3( CTM_STAGE_DIAG, 'LUFRAC',
+     &                               WDATE, WTIME, Tile_Data%LUFRAC ) ) THEN
+                      XMSG = 'Could not write ' // CTM_STAGE_DIAG // ' file'
+                     CALL M3EXIT ( PNAME, WDATE, WTIME, XMSG, XSTAT1 )
+                  END IF
 
-                     DO J = 1, N_LUFRAC
-                        DBUFF3( :,:,J ) = 100.0 * DEPVJ( J,N,:,: )   ! cm/sec
-                     END DO
-                     IF ( .NOT. WRITE3( CTM_DEPV_MOS, UNIQUE_GDEPV( NDX ),
-     &                                  WDATE, WTIME, DBUFF3 ) ) THEN
-                         XMSG = 'Could not write ' // CTM_DEPV_MOS // ' file'
-                         CALL M3EXIT ( PNAME, WDATE, WTIME, XMSG, XSTAT1 )
-                     END IF
 
-                     IF ( FST ) THEN
-                        DO J = 1, N_LUFRAC
-                           DBUFF3( :,:,J ) = 100.0 * DEPVJ_FST( J,N,:,: )   ! cm/sec
-                        END DO
-                        IF ( .NOT. WRITE3( CTM_DEPV_FST, UNIQUE_GDEPV( NDX ),
-     &                                     WDATE, WTIME, DBUFF3 ) ) THEN
-                           XMSG = 'Could not write ' // CTM_DEPV_FST // ' file'
+                  IF ( .NOT. WRITE3( CTM_STAGE_DIAG, 'RA',
+     &                               WDATE, WTIME, MOSAIC_DATA%RA ) ) THEN
+                      XMSG = 'Could not write ' // CTM_STAGE_DIAG // ' file'
+                     CALL M3EXIT ( PNAME, WDATE, WTIME, XMSG, XSTAT1 )
+                  END IF
+
+                  IF ( .NOT. WRITE3( CTM_STAGE_DIAG, 'RST',
+     &                               WDATE, WTIME, Mosaic_Data%RSTW ) ) THEN
+                      XMSG = 'Could not write ' // CTM_STAGE_DIAG // ' file'
+                     CALL M3EXIT ( PNAME, WDATE, WTIME, XMSG, XSTAT1 )
+                  END IF
+
+                  IF ( .NOT. WRITE3( CTM_STAGE_DIAG, 'LAI',
+     &                               WDATE, WTIME, MOSAIC_DATA%LAI ) ) THEN
+                      XMSG = 'Could not write ' // CTM_STAGE_DIAG // ' file'
+                     CALL M3EXIT ( PNAME, WDATE, WTIME, XMSG, XSTAT1 )
+                  END IF
+
+                  IF ( .NOT. WRITE3( CTM_STAGE_DIAG, 'USTAR',
+     &                               WDATE, WTIME, MOSAIC_DATA%USTAR ) ) THEN
+                      XMSG = 'Could not write ' // CTM_STAGE_DIAG // ' file'
+                     CALL M3EXIT ( PNAME, WDATE, WTIME, XMSG, XSTAT1 )
+                  END IF
+
+                  IF ( .NOT. WRITE3( CTM_STAGE_DIAG, 'Z0',
+     &                               WDATE, WTIME, MOSAIC_DATA%Z0 ) ) THEN
+                      XMSG = 'Could not write ' // CTM_STAGE_DIAG // ' file'
+                     CALL M3EXIT ( PNAME, WDATE, WTIME, XMSG, XSTAT1 )
+                  END IF
+
+                  N = 0
+                  DO V = 1, dep_gas_all
+                     IF ( STAGE_Diag_Data%dep_map( V ) ) THEN
+                        N = N + 1
+                        IF ( .NOT. WRITE3( CTM_STAGE_DIAG, 
+     &                                    'VD_' // trim( STAGE_Diag_Data%dep_name( V ) ),
+     &                                     WDATE, WTIME,  STAGE_Diag_Data%Vd(:,:,N,:) ) ) THEN
+                            XMSG = 'Could not write ' // CTM_STAGE_DIAG // ' file'
                            CALL M3EXIT ( PNAME, WDATE, WTIME, XMSG, XSTAT1 )
-                        END IF
+                        END IF             
+
+!                        IF ( .NOT. WRITE3( CTM_STAGE_DIAG, 
+!     &                                    'RSURF_' // trim( STAGE_Diag_Data%dep_name( V ) ),
+!     &                                     WDATE, WTIME,  STAGE_Diag_Data%Rsurf(:,:,N,:) ) ) THEN
+!                            XMSG = 'Could not write ' // CTM_STAGE_DIAG // ' file'
+!                           CALL M3EXIT ( PNAME, WDATE, WTIME, XMSG, XSTAT1 )
+!                        END IF             
+     
+!                        IF ( .NOT. WRITE3( CTM_STAGE_DIAG, 
+!     &                                    'RSTOM_' // trim( STAGE_Diag_Data%dep_name( V ) ),
+!     &                                     WDATE, WTIME,  STAGE_Diag_Data%Rstom(:,:,N,:) ) ) THEN
+!                            XMSG = 'Could not write ' // CTM_STAGE_DIAG // ' file'
+!                           CALL M3EXIT ( PNAME, WDATE, WTIME, XMSG, XSTAT1 )
+!                        END IF                  
+
+!                        IF ( .NOT. WRITE3( CTM_STAGE_DIAG, 
+!     &                                    'RMES_' // trim( STAGE_Diag_Data%dep_name( V ) ),
+!     &                                     WDATE, WTIME,  STAGE_Diag_Data%Rmes(:,:,N,:) ) ) THEN
+!                            XMSG = 'Could not write ' // CTM_STAGE_DIAG // ' file'
+!                           CALL M3EXIT ( PNAME, WDATE, WTIME, XMSG, XSTAT1 )
+!                        END IF                  
+
+!                        IF ( .NOT. WRITE3( CTM_STAGE_DIAG, 
+!     &                                    'RCUT_' // trim( STAGE_Diag_Data%dep_name( V ) ),
+!     &                                     WDATE, WTIME,  STAGE_Diag_Data%Rcut(:,:,N,:) ) ) THEN
+!                            XMSG = 'Could not write ' // CTM_STAGE_DIAG // ' file'
+!                           CALL M3EXIT ( PNAME, WDATE, WTIME, XMSG, XSTAT1 )
+!                        END IF                  
+
+!                        IF ( .NOT. WRITE3( CTM_STAGE_DIAG, 
+!     &                                    'RBL_' // trim( STAGE_Diag_Data%dep_name( V ) ),
+!     &                                     WDATE, WTIME,  STAGE_Diag_Data%Rbl(:,:,N,:) ) ) THEN
+!                            XMSG = 'Could not write ' // CTM_STAGE_DIAG // ' file'
+!                           CALL M3EXIT ( PNAME, WDATE, WTIME, XMSG, XSTAT1 )
+!                        END IF                  
+
+!                        IF ( .NOT. WRITE3( CTM_STAGE_DIAG, 
+!     &                                    'RBS_' // trim( STAGE_Diag_Data%dep_name( V ) ),
+!     &                                     WDATE, WTIME,  STAGE_Diag_Data%Rbs(:,:,N,:) ) ) THEN
+!                            XMSG = 'Could not write ' // CTM_STAGE_DIAG // ' file'
+!                           CALL M3EXIT ( PNAME, WDATE, WTIME, XMSG, XSTAT1 )
+!                        END IF                  
+
+!                        IF ( .NOT. WRITE3( CTM_STAGE_DIAG, 
+!     &                                    'RSOIL_' // trim( STAGE_Diag_Data%dep_name( V ) ),
+!     &                                     WDATE, WTIME,  STAGE_Diag_Data%Rsoil(:,:,N,:) ) ) THEN
+!                            XMSG = 'Could not write ' // CTM_STAGE_DIAG // ' file'
+!                           CALL M3EXIT ( PNAME, WDATE, WTIME, XMSG, XSTAT1 )
+!                        END IF                  
+
+!                        IF ( .NOT. WRITE3( CTM_STAGE_DIAG, 
+!     &                                    'GSTOM_' // trim( STAGE_Diag_Data%dep_name( V ) ),
+!     &                                     WDATE, WTIME,  STAGE_Diag_Data%Gstom(:,:,N,:) ) ) THEN
+!                            XMSG = 'Could not write ' // CTM_STAGE_DIAG // ' file'
+!                           CALL M3EXIT ( PNAME, WDATE, WTIME, XMSG, XSTAT1 )
+!                        END IF                  
+
+!                        IF ( .NOT. WRITE3( CTM_STAGE_DIAG, 
+!     &                                    'GCUT_' // trim( STAGE_Diag_Data%dep_name( V ) ),
+!     &                                     WDATE, WTIME,  STAGE_Diag_Data%Gcut(:,:,N,:) ) ) THEN
+!                            XMSG = 'Could not write ' // CTM_STAGE_DIAG // ' file'
+!                           CALL M3EXIT ( PNAME, WDATE, WTIME, XMSG, XSTAT1 )
+!                        END IF                  
+
+!                        IF ( .NOT. WRITE3( CTM_STAGE_DIAG, 
+!     &                                    'GSOIL_' // trim( STAGE_Diag_Data%dep_name( V ) ),
+!     &                                     WDATE, WTIME,  STAGE_Diag_Data%Gsoil(:,:,N,:) ) ) THEN
+!                            XMSG = 'Could not write ' // CTM_STAGE_DIAG // ' file'
+!                           CALL M3EXIT ( PNAME, WDATE, WTIME, XMSG, XSTAT1 )
+!                        END IF                  
+
+!                        IF ( .NOT. WRITE3( CTM_STAGE_DIAG, 
+!     &                                    'GNOVEG_' // trim( STAGE_Diag_Data%dep_name( V ) ),
+!     &                                     WDATE, WTIME,  STAGE_Diag_Data%Gnoveg(:,:,N,:) ) ) THEN
+!                            XMSG = 'Could not write ' // CTM_STAGE_DIAG // ' file'
+!                           CALL M3EXIT ( PNAME, WDATE, WTIME, XMSG, XSTAT1 )
+!                        END IF                  
+
                      END IF
-                  END IF
-
-               END DO
-
-               DO V = 1, N_NR_DEPV
-                  N = N + 1
-
-                  IF ( GAS_DEPV_FOUND( N ) ) THEN
-                     NDX = GAS_DEPV_SUR( N )
-
-                     DO J = 1, N_LUFRAC
-                        DBUFF3( :,:,J ) = 100.0 * DEPVJ( J,N+N_AE_DEPV,:,: )   ! cm/sec
-                     END DO
-                     IF ( .NOT. WRITE3( CTM_DEPV_MOS, UNIQUE_GDEPV( NDX ),
-     &                                  WDATE, WTIME, DBUFF3 ) ) THEN
-                         XMSG = 'Could not write ' // CTM_DEPV_MOS // ' file'
-                         CALL M3EXIT ( PNAME, WDATE, WTIME, XMSG, XSTAT1 )
-                     END IF
-
-                     IF ( FST ) THEN
-                        DO J = 1, N_LUFRAC
-                           DBUFF3( :,:,J ) = 100.0 * DEPVJ_FST( J,N+N_AE_DEPV,:,: )   ! cm/sec
-                        END DO
-                        IF ( .NOT. WRITE3( CTM_DEPV_FST, UNIQUE_GDEPV( NDX ),
-     &                                     WDATE, WTIME, DBUFF3 ) ) THEN
-                            XMSG = 'Could not write ' // CTM_DEPV_FST // ' file'
-                            CALL M3EXIT ( PNAME, WDATE, WTIME, XMSG, XSTAT1 )
-                        END IF
-                     END IF
-
-                  END IF
-
-               END DO
-
-               DO N = 1, N_UNIQUE_ADEPV
-
-                  NDX = AER_DEPV_SUR( N )
-
-                  DO J = 1, N_LUFRAC
-                     DBUFF3( :,:,J ) = 100.0 * Tile_Data%ADEPVJ( J,NDX,:,: )   ! cm/sec
                   END DO
-                  IF ( .NOT. WRITE3( CTM_DEPV_MOS, UNIQUE_ADEPV( N ),
-     &                               WDATE, WTIME, DBUFF3 ) ) THEN
-                      XMSG = 'Could not write ' // CTM_DEPV_DIAG // ' file'
-                      CALL M3EXIT ( PNAME, WDATE, WTIME, XMSG, XSTAT1 )
-                  END IF
+!                  IF ( ABFLUX ) THEN
 
-                  IF ( FST ) THEN
+!                     IF ( .NOT. WRITE3( CTM_STAGE_DIAG, 'NH3_Z0',
+!     &                                  WDATE, WTIME, STAGE_Diag_Data%NH3_z0 ) ) THEN
+!                         XMSG = 'Could not write ' // CTM_STAGE_DIAG // ' file'
+!                        CALL M3EXIT ( PNAME, WDATE, WTIME, XMSG, XSTAT1 )
+!                     END IF
 
-                     DBUFF3 = 0.0   ! no stomatal flux for aerosols
+!                     IF ( .NOT. WRITE3( CTM_STAGE_DIAG, 'NH3_STOM',
+!     &                                  WDATE, WTIME, STAGE_Diag_Data%NH3_stom ) ) THEN
+!                         XMSG = 'Could not write ' // CTM_STAGE_DIAG // ' file'
+!                        CALL M3EXIT ( PNAME, WDATE, WTIME, XMSG, XSTAT1 )
+!                     END IF
 
-                     IF ( .NOT. WRITE3( CTM_DEPV_FST, UNIQUE_ADEPV( N ),
-     &                                  WDATE, WTIME, DBUFF3 ) ) THEN
-                         XMSG = 'Could not write ' // CTM_DEPV_FST // ' file'
-                         CALL M3EXIT ( PNAME, WDATE, WTIME, XMSG, XSTAT1 )
-                     END IF
-                  END IF
+!                     IF ( .NOT. WRITE3( CTM_STAGE_DIAG, 'NH3_GRND',
+!     &                                  WDATE, WTIME, STAGE_Diag_Data%NH3_grnd ) ) THEN
+!                         XMSG = 'Could not write ' // CTM_STAGE_DIAG // ' file'
+!                        CALL M3EXIT ( PNAME, WDATE, WTIME, XMSG, XSTAT1 )
+!                     END IF
+                     
+!                  END IF
 
-               END DO
+               END IF ! DIAG_STAGE
+!-----------------------------------------------------------------------------------------!
+!                               STAGE Diagnostic Output                                   !
+!-----------------------------------------------------------------------------------------!
 
-               IF ( .NOT. WRITE3( CTM_DEPV_MOS, 'LAIJ',
-     &                            WDATE, WTIME, Mosaic_Data%LAI ) ) THEN
-                   XMSG = 'Could not write ' // CTM_DEPV_DIAG // ' file'
-                   CALL M3EXIT ( PNAME, WDATE, WTIME, XMSG, XSTAT1 )
-               END IF
-
-!             write RA for each LUC to file
-               IF ( .NOT. WRITE3( CTM_DEPV_MOS, 'RAJ',
-     &                            WDATE, WTIME, MOSAIC_DATA%RA ) ) THEN
-                   XMSG = 'Could not write ' // CTM_DEPV_DIAG // ' file'
-                   CALL M3EXIT ( PNAME, WDATE, WTIME, XMSG, XSTAT1 )
-               END IF
-
-!             write USTAR for each LUC to file
-               IF ( .NOT. WRITE3( CTM_DEPV_MOS, 'USTARJ',
-     &                            WDATE, WTIME, MOSAIC_DATA%USTAR ) ) THEN
-                   XMSG = 'Could not write ' // CTM_DEPV_DIAG // ' file'
-                   CALL M3EXIT ( PNAME, WDATE, WTIME, XMSG, XSTAT1 )
-               END IF
-
-!             write Z0 for each LUC to file
-               IF ( .NOT. WRITE3( CTM_DEPV_MOS, 'Z0J',
-     &                            WDATE, WTIME, MOSAIC_DATA%Z0 ) ) THEN
-                   XMSG = 'Could not write ' // CTM_DEPV_DIAG // ' file'
-                   CALL M3EXIT ( PNAME, WDATE, WTIME, XMSG, XSTAT1 )
-               END IF
 
             END IF   ! write_time
 

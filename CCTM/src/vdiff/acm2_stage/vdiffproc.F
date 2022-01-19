@@ -91,7 +91,7 @@ C-----------------------------------------------------------------------
       USE UTILIO_DEFN
       USE BIDI_MOD
       USE HGSIM
-      USE LSM_MOD, Only: n_lufrac
+      Use MOSAIC_MOD, Only: Tile_Data
       USE SEDIMENTATION
       USE VDIFF_DIAG
       USE PA_UPDATE
@@ -142,8 +142,8 @@ C Local Variables:
       REAL, ALLOCATABLE, SAVE :: DDEPJ_FST  ( :,:,:,: ) ! ddep for stomtal/cuticular pathway
 
       REAL     :: WRDD( NCOLS,NROWS )                 ! ddep write buffer
-      REAL     :: WRDDJ( NCOLS,NROWS,N_LUFRAC+1 )     ! mosaic ddep write buffer
-      REAL     :: WRDDJ_FST( NCOLS,NROWS,N_LUFRAC+1 ) ! mosaic stomatal flux write buffer
+      REAL     :: WRDDJ( NCOLS,NROWS,Tile_Data%N_LUFRAC+1 )     ! mosaic ddep write buffer
+      REAL     :: WRDDJ_FST( NCOLS,NROWS,Tile_Data%N_LUFRAC+1 ) ! mosaic stomatal flux write buffer
 
       REAL, ALLOCATABLE, SAVE :: DDEP_PA  ( :,:,: )   ! ddep for process analysis
       REAL, ALLOCATABLE, SAVE :: EMIS_PA( :,:,:,: )   ! emis for process analysis
@@ -320,7 +320,7 @@ C Set up for grav. settling
 !----------------------------------------------------------------------------------------
 
          IF ( MOSAIC ) THEN 
-            ALLOCATE ( DDEPJ( N_LUFRAC,N_SPC_DEPV,NCOLS,NROWS ), STAT = ASTAT )
+            ALLOCATE ( DDEPJ( Tile_Data%N_LUFRAC,N_SPC_DEPV,NCOLS,NROWS ), STAT = ASTAT )
             IF ( ASTAT .NE. 0 ) THEN
                XMSG = 'Failure allocating DDEPJ'
                CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
@@ -329,7 +329,7 @@ C Set up for grav. settling
             IF ( IO_PE_INCLUSIVE )
      &         CALL OPDDEP_MOS ( JDATE, JTIME, TSTEP( 1 ), N_SPC_DDEP )
             IF ( FST ) THEN
-               ALLOCATE ( DDEPJ_FST( N_LUFRAC,N_SPC_DEPV,NCOLS,NROWS ), STAT = ASTAT )
+               ALLOCATE ( DDEPJ_FST( Tile_Data%N_LUFRAC,N_SPC_DEPV,NCOLS,NROWS ), STAT = ASTAT )
                IF ( ASTAT .NE. 0 ) THEN
                   XMSG = 'Failure allocating DDEPJ_FST'
                   CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
@@ -394,7 +394,6 @@ C EDDYV returned = Kz, where Kz is in m**2/sec
       IF ( WSTEP .EQ. 0 ) THEN
          DDEP = 0.0                      ! array assignment
          TOT_BD_EMIS = 0.0                      ! array assignment
-         IF( ABFLUX ) STAGE_Diag_Data%NH3_Diag_Out = 0.0
          IF ( MOSAIC ) THEN
             DDEPJ = 0.0                  ! array assignment
             IF ( FST ) DDEPJ_FST = 0.0   ! array assignment
@@ -516,13 +515,6 @@ C If last call this hour:  write accumulated depositions:
                XMSG = 'Could not write ' // CTM_DRY_DEP_1 // ' file'
                CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
             END IF          
-            DO S = 1, STAGE_Diag_Data%n_spc
-               IF ( .NOT. WRITE3( CTM_DRY_DEP_1, STAGE_Diag_Data%dep_name( S ),
-     &              MDATE, MTIME, STAGE_Diag_Data%NH3_Diag_Out( :,:,S ) ) ) THEN
-                  XMSG = 'Could not write ' // CTM_DRY_DEP_1 // ' file'
-                  CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
-               END IF     
-            END DO
          ENDIF
          IF ( HGBIDI ) THEN
             IF ( .NOT. WRITE3( CTM_DRY_DEP_1, BD_EMIS_SPC( HG_E ),
@@ -645,11 +637,11 @@ C Write other diagnostics
                WRDD = 0.0 ! reuse array since it has already been written for hour
                DO R = 1, NROWS
                   DO C = 1, NCOLS
-                     DO J = 1, N_LUFRAC
-                        WRDD( C,R ) = WRDD( C,R ) + DDEPJ( J,S,C,R ) * Grid_Data%LUFRAC( C,R,J )
+                     DO J = 1, Tile_Data%N_LUFRAC
+                        WRDD( C,R ) = WRDD( C,R ) + DDEPJ( J,S,C,R ) * Tile_Data%LUFRAC( C,R,J )
                         WRDDJ( C,R,J ) = DDEPJ( J,S,C,R )
                      END DO
-                     WRDDJ( C,R,N_LUFRAC+1 ) = WRDD( C,R )  ! last array element is total across all land use categories
+                     WRDDJ( C,R,Tile_Data%N_LUFRAC+1 ) = WRDD( C,R )  ! last array element is total across all land use categories
                   END DO
                END DO
 
@@ -672,8 +664,8 @@ C Write other diagnostics
                   WRDD = 0.0 ! reuse array since it has already been written for hour
                   DO R = 1, NROWS
                      DO C = 1, NCOLS
-                        DO J = 1, N_LUFRAC
-                           WRDD( C,R ) = WRDD( C,R ) + DDEPJ_FST( J,S,C,R ) * Grid_Data%LUFRAC( C,R,J )
+                        DO J = 1, Tile_Data%N_LUFRAC
+                           WRDD( C,R ) = WRDD( C,R ) + DDEPJ_FST( J,S,C,R ) * Tile_Data%LUFRAC( C,R,J )
                            WRDDJ_FST( C,R,J ) = DDEPJ_FST( J,S,C,R )
                            IF ( DDEPJ_FST( J,S,C,R ) .GT. DDEPJ( J,S,C,R ) ) THEN
                               WRITE( LOGDEV,* ) 'FST too big !!!'
@@ -683,7 +675,7 @@ C Write other diagnostics
                               WRITE( LOGDEV,* ) 'Time and date: ', MTIME, MDATE
                            END IF
                         END DO
-                        WRDDJ_FST( C,R,N_LUFRAC+1 ) = WRDD( C,R )  ! last array element is total across all land use categories
+                        WRDDJ_FST( C,R,Tile_Data%N_LUFRAC+1 ) = WRDD( C,R )  ! last array element is total across all land use categories
                     END DO
                   END DO
              

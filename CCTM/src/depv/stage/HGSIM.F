@@ -80,7 +80,6 @@ C-----------------------------------------------------------------------
 !    Shared variables
 
 !     Private variables used in this routine and
-      REAL, ALLOCATABLE,       PRIVATE :: HgLU_Fac(:)
       REAL, ALLOCATABLE, SAVE, PRIVATE :: fevgrn(:,:)  ! fraction of evergreen land use
       REAL, ALLOCATABLE, SAVE, PRIVATE :: f_wat(:,:)   ! fraction of water land use
 
@@ -140,6 +139,7 @@ C input/output parameters
          USE ASX_DATA_MOD
          USE LSM_MOD
          USE Bidi_Mod
+         Use MOSAIC_MOD, Only: Tile_Data 
 
          IMPLICIT NONE
 
@@ -166,15 +166,15 @@ C--------------------------------------------------------------------------
  
          DO C = 1, NCOLS
             DO R = 1, NROWS
-               DO L = 1, N_LUFRAC
-                  IF(CAT_LU(L) .EQ. 'EVEFOR') THEN
-                     fevgrn(c,r) = fevgrn(c,r) + Grid_Data%lufrac(c,r,l)
+               DO L = 1, Tile_data%N_LUFRAC
+                  IF(Tile_data%CAT_LU(L) .EQ. 'EVEFOR') THEN
+                     fevgrn(c,r) = fevgrn(c,r) + Tile_data%lufrac(c,r,l)
                   End IF
-                  IF(CAT_LU(L) .EQ. 'MIXFOR') THEN
-                     fevgrn(c,r) = fevgrn(c,r) + Grid_Data%lufrac(c,r,l)
+                  IF(Tile_data%CAT_LU(L) .EQ. 'MIXFOR') THEN
+                     fevgrn(c,r) = fevgrn(c,r) + Tile_data%lufrac(c,r,l)
                   End IF                                    
-                  IF(CAT_LU(L) .EQ. 'WATER') THEN
-                     f_wat(c,r) = f_wat(c,r) + Grid_Data%lufrac(c,r,l)
+                  IF(Tile_data%CAT_LU(L) .EQ. 'WATER') THEN
+                     f_wat(c,r) = f_wat(c,r) + Tile_data%lufrac(c,r,l)
                   END IF
                END DO
             END DO
@@ -287,6 +287,7 @@ C Flux unit conversions
          USE BIDI_MOD
          USE ASX_DATA_MOD
          USE UTILIO_DEFN
+         Use MOSAIC_MOD, Only: Tile_Data 
 
          IMPLICIT NONE
 
@@ -321,8 +322,8 @@ C***** reduction and partioning terms from Whalin et al 2007 ************
          Hg_wat    = CMEDIA( c,r,1 ) ! ppm
          HgII_wat  = CMEDIA( c,r,2 ) ! ppm
          HgII_grnd = 0.0
-         DO i = 1, n_lufrac
-            HgII_grnd = HgII_grnd+hglu_fac(i)*Grid_data%lufrac(c,r,i)
+         DO i = 1, Tile_Data%n_lufrac
+            HgII_grnd = HgII_grnd+Tile_Data%hglu_fac(i)*Tile_Data%lufrac(c,r,i)
          END DO
 C Set floor to smallest terrestrial value
          HgII_grnd = MAX( HgII_grnd, 1.8e1 )                   

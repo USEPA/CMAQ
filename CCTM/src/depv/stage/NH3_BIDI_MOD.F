@@ -397,6 +397,7 @@ C-------------------------------------------------------------------------------
          Use Bidi_Mod, Only: gamma1, gamma2, MHp1, MHp2
          Use ASX_DATA_MOD
          Use LSM_MOD
+         Use MOSAIC_MOD, Only: Tile_Data 
          
          Implicit None
          
@@ -475,13 +476,13 @@ C-------------------------------------------------------------------------------
          a1     = 161512.0d0 / real( MET_DATA%SoiT1( c,r ), 8 )
      &          * 10.0d0 ** ( -4507.11d0 / real( MET_DATA%SoiT1( c,r ), 8 ) )
          a1     = a1 * 24.5d0 * 1.0d6  ! ppm
-         NH3_st = a1 * luf_fac( l )       
+         NH3_st = a1 * Tile_Data%luf_fac( l )       
          
 !> Set a maximum [NH4]/[H+] ratio at 200,000 based on output from the AIM aerosol
 !> model any [NH4] in excess of this ratio is assumed to partition into the solid
 !> phase. Canada soil gamma taken from Zhang et al 2010 JGR Table 5
 
-         Select Case( cat_lu( l ) )
+         Select Case( Tile_Data%cat_lu( l ) )
             Case( 'WATER','SNOWICE' ) ! water, ice or snow
                cnh3g1 = 0.0
                cnh3g2 = 0.0
