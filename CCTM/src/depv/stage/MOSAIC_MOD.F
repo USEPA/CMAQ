@@ -45,6 +45,9 @@ C Private variables used in this module and subroutines
       Real, Save, Allocatable, Private :: sum_mos_veg    ( :,: )
       Real, Save, Allocatable, Private :: vseas          ( :,: )
       Real, Save, Allocatable, Private :: znotc          ( :,: )
+      Real, Save, Allocatable, Private :: lu_mean_ga     ( :,: )
+      Real, Save, Allocatable, Private :: lu_mean_ustar  ( :,: )
+      Real, Save, Allocatable, Private :: lu_mean_wstar  ( :,: )
 
       Integer, Save, Allocatable, Private :: lstwetdate( :,: )
       Integer, Save, Allocatable, Private :: lstwettime( :,: )
@@ -156,12 +159,15 @@ C...include files
      &              sum_mos_lai    ( ncols,nrows ),
      &              sum_mos_veg    ( ncols,nrows ),  
      &              vseas          ( ncols,nrows ),
-     &              znotc          ( ncols,nrows ), STAT = ALLOCSTAT )
+     &              znotc          ( ncols,nrows ), 
+     &              lu_mean_ga     ( ncols,nrows ), 
+     &              lu_mean_ustar  ( ncols,nrows ), 
+     &              lu_mean_wstar  ( ncols,nrows ), STAT = ALLOCSTAT )
          If ( ALLOCSTAT .Ne. 0 ) Then
             XMSG = 'Failure allocating MOSAIC variables'
             Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          End If
-         f_land = 0.0
+         f_land        = 0.0
 
          IF( .not. WR_AVAIL ) Then
             ALLOCATE ( lstwetdate     ( ncols,nrows ),
@@ -396,11 +402,14 @@ C*******************************************************************************
          Real, Intent( Out )    :: MOS_RA( :,:,: )
 
          Integer            :: j
-         Real, Parameter :: pr0        = 0.95
+         Real, Parameter    :: pr0        = 0.95
 
 C local volatile variable
          Real, Pointer :: PSIH   ( :,: )
 
+         lu_mean_ga    = 0.0
+         lu_mean_ustar = 0.0
+         lu_mean_wstar = 0.0
 C Get surface flux variables
          Do j = 1, Tile_Data%n_lufrac
             Where( Tile_Data%LUFRAC( :,:,j ) .EQ. 1.0 .OR. ZH( :,:,1 ) .EQ. MOS_Z0( :,:,j ) )
@@ -438,6 +447,27 @@ C Get surface flux variables
             End Where
          End Do
          Nullify( PSIH )
+! Noralization loops
+         Do j = 1,Tile_Data%n_lufrac
+            Where( Tile_Data%LUFRAC( :,:,j ) .Gt. 0.0 )
+               lu_mean_ga    = lu_mean_ga    + Tile_Data%LUFRAC( :,:,j ) / MOS_RA( :,:,j )
+               lu_mean_ustar = lu_mean_ustar + Tile_Data%LUFRAC( :,:,j ) * MOS_USTAR( :,:,j )
+            End Where
+         End Do
+         Do j = 1,Tile_Data%n_lufrac
+            Where( Tile_Data%LUFRAC( :,:,j ) .Gt. 0.0 )
+               MOS_RA( :,:,j )    = RA    * MOS_RA( :,:,j )    * lu_mean_ga
+               MOS_USTAR( :,:,j ) = USTAR * MOS_USTAR( :,:,j ) / lu_mean_ustar
+            End Where
+            MOS_WSTAR = 0.0
+            Where( Tile_Data%LUFRAC( :,:,j ) .EQ. 1.0 )
+               MOS_WSTAR( :,:,j ) = WSTAR
+            ElseWhere( MOL .Lt. 0.0 )
+               MOS_WSTAR( :,:,j ) = MOS_USTAR( :,:,j ) * ( PBL
+     &                          / ( karman * ABS( MOL ) ) ) ** 0.333333
+            End Where
+         End Do         
+         
          Return
          End Subroutine RA_WRF
 
@@ -475,12 +505,11 @@ C*******************************************************************************
          Real, Parameter :: f3min      = 0.25
          Real, Parameter :: ftmin      = 0.0000001  ! m/s
          Real, Parameter :: rsmax      = 5000.0     ! s/m
-         Real            :: mean_mos_gst, mos_gst   ! area weighted conductance
+         Real            :: max_mos_gst, mos_gst   ! area weighted conductance
          Integer         :: c, r, j                 ! loop induction variables
          
          DO c = 1, NCOLS
             DO r = 1, NROWS
-              mean_mos_gst = 0.0
               lu_tot       = 0.0             
               If( f_land( c,r ) .Gt. 0.0 .And. RST( c,r ) .Ge. 1.0e30 ) Then
 !-SOIL MOISTURE
@@ -529,6 +558,10 @@ C*******************************************************************************
                   DO j = 1, Tile_Data%n_lufrac
                      mos_gst          = 1.0 / RST( c,r ) / ( max_mos_gst * Tile_Data%rsmin( j ) )
                      MOS_RST( c,r,j ) = 1.0 / mos_gst 
+                     If( MOS_RST( c,r,j ) * MOS_LAI( c,r,j ) .Lt. Tile_Data%rsmin( j )  .And. 
+     &                   MOS_LAI( c,r,j ) .Gt. 0.0 ) Then
+                        MOS_RST( c,r,j ) = Tile_Data%rsmin( j ) / MOS_LAI( c,r,j )
+                     End If
                   End Do
                END IF ! LWMASK
             END DO ! rows
