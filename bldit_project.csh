@@ -99,17 +99,10 @@
     endif
     cp CCTM/scripts/bldit_cctm.csh $CMAQ_HOME/CCTM/scripts/bldit_cctm.csh
     cp CCTM/scripts/bldit_mech.csh $CMAQ_HOME/CCTM/scripts/bldit_mech.csh
-    cp CCTM/scripts/run_cctm_Bench_2011_12SE1.csh $CMAQ_HOME/CCTM/scripts/run_cctm_Bench_2011_12SE1.csh
-    cp CCTM/scripts/run_cctm_2010_4CALIF1.csh $CMAQ_HOME/CCTM/scripts/run_cctm_2010_4CALIF1.csh
-    cp CCTM/scripts/run_cctm_2011_12US1.csh $CMAQ_HOME/CCTM/scripts/run_cctm_2011_12US1.csh
-    cp CCTM/scripts/run_cctm_2014_12US1.csh $CMAQ_HOME/CCTM/scripts/run_cctm_2014_12US1.csh
-    cp CCTM/scripts/run_cctm_2015_HEMI.csh $CMAQ_HOME/CCTM/scripts/run_cctm_2015_HEMI.csh
-    cp CCTM/scripts/run_cctm_2016_12US1.csh $CMAQ_HOME/CCTM/scripts/run_cctm_2016_12US1.csh
-    cp CCTM/scripts/run_cctm_cracmm_2013_12US2.csh $CMAQ_HOME/CCTM/scripts/run_cctm_cracmm_2013_12US2.csh
     cp CCTM/scripts/lonlat.csv $CMAQ_HOME/CCTM/scripts/lonlat.csv
     cp CCTM/scripts/isam_control.txt $CMAQ_HOME/CCTM/scripts/isam_control.txt
     cp CCTM/scripts/sensinput.dat $CMAQ_HOME/CCTM/scripts/sensinput.dat
-    cp CCTM/scripts/run_cctm_Bench_2016_12SE1.csh $CMAQ_HOME/CCTM/scripts/run_cctm_Bench_2016_12SE1.csh
+    cp CCTM/scripts/run_cctm_*.csh $CMAQ_HOME/CCTM/scripts/
  endif
 
 #===============================================================================
