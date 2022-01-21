@@ -1,0 +1,344 @@
+/#start   YYYYDDD  HHMMSS
+/#end     YYYYDDD  HHMMSS
+/#layer      KLAY     (default is all layers)
+/
+
+! This Specices Definition File was generated using mapping 
+! from CB6 for RACM_ae6.
+
+
+/ File [1]: CMAQ conc/aconc file
+
+/new species,    units,     expression,   description
+
+PRES            ,Pa              ,PRES[1], AVERAGE OF PRES
+
+TA              ,m               ,TA[1], AVERAGE OF ZH
+
+RH              ,m               ,RH[1], AVERAGE OF ZF
+
+W_VEL           ,m               ,W_VEL[1], AVERAGE OF ZF
+
+NO2             ,ppmV            ,NO2[1], AVERAGE OF NO2
+
+NO              ,ppmV            ,NO[1], AVERAGE OF NO
+
+O3P             ,ppmV            ,O[1], AVERAGE OF O
+
+O3              ,ppmV            ,O3[1], AVERAGE OF O3
+
+NO3             ,ppmV            ,NO3[1], AVERAGE OF NO3
+
+O1D             ,ppmV            ,O1D[1], AVERAGE OF O1D
+
+HO              ,ppmV            ,OH[1], RACM mapping OF OH
+
+HO2             ,ppmV            ,HO2[1], AVERAGE OF HO2
+
+H2O2            ,ppmV            ,H2O2[1], AVERAGE OF H2O2
+
+N2O5            ,ppmV            ,N2O5[1], AVERAGE OF N2O5
+
+HNO3            ,ppmV            ,HNO3[1], AVERAGE OF HNO3
+
+HONO            ,ppmV            ,HONO[1], AVERAGE OF HONO
+
+HNO4            ,ppmV            ,PNA[1], RACM mapping OF PNA
+
+SO2             ,ppmV            ,SO2[1], AVERAGE OF SO2
+
+SULF            ,ppmV            ,SULF[1], AVERAGE OF SULF
+
+ACO3            ,ppmV            ,C2O3[1], RACM mapping OF C2O3
+
+MO2             ,ppmV            ,MEO2[1], RACM mapping OF MEO2
+
+PAN             ,ppmV            ,PAN[1] + PANX[1], AVERAGE OF PAN and PANX
+
+PAA             ,ppmV            ,PACD[1], RACM mapping OF PACD
+
+ORA2            ,ppmV            ,AACD[1], RACM mapping OF AACD
+
+RCO3            ,ppmV            ,CXO3[1], RACM mapping OF CXO3
+
+HCHO            ,ppmV            ,FORM[1] + FORM_PRIMARY[1], RACM mapping OF FORM
+
+OP1             ,ppmV            ,MEPX[1], RACM mapping OF MEPX
+
+MOH             ,ppmV            ,MEOH[1], RACM mapping OF MEOH
+
+OP2             ,ppmV            ,ROOH[1], RACM mapping OF ROOH
+
+ONIT            ,ppmV            ,NTR1[1] + NTR2[1], ONIT is sum of NTR1+NTR2 in RACM
+
+ORA1            ,ppmV            ,FACD[1], RACM mapping OF FACD
+
+CO              ,ppmV            ,CO[1], AVERAGE OF CO
+
+ALD             ,ppmV            ,ALDX[1] + GLYD[1], RACM mapping OF ALDX and GLYD
+
+UALD            ,ppmV            ,HPLD[1], RACM mapping OF HPLD
+
+ACD             ,ppmV            ,ALD2[1] + ALD2_PRIMARY[1], RACM mapping OF GLYD and ALD
+
+GLY             ,ppmV            ,GLY[1], AVERAGE OF GLY
+
+MGLY            ,ppmV            ,MGLY[1], AVERAGE OF MGLY
+
+ETH             ,ppmV            ,ETHA[1], RACM mapping OF ETHA
+
+EOH             ,ppmV            ,ETOH[1], RACM OF ETOH
+
+MEK             ,ppmV            ,KET[1]*0.5, RACM mapping OF KET
+
+KET             ,ppmV            ,KET[1]*0.5, RACM mapping OF KET
+
+HC5             ,ppmV            ,PAR[1]*0.33, PAR Split equally in RACM
+
+HC10            ,ppmV            ,PAR[1]*0.67, PAR Split equally in RACM
+
+ACT             ,ppmV            ,ACET[1], RACM mapping OF ACET
+
+HC3             ,ppmV            ,PRPA[1], RACM mapping OF PRPA
+
+ACE             ,ppmV            ,ETHY[1], RACM mapping OF ETHY
+
+ETE             ,ppmV            ,ETH[1], RACM mapping OF ETH
+
+OLT             ,ppmV            ,OLE[1], RACM mapping of OLE
+
+OLI             ,ppmV            ,IOLE[1], RACM mapping OF IOLE
+
+ISO             ,ppmV            ,ISOP[1], RACM mapping OF ISOP
+
+ISOP            ,ppmV            ,ISO2[1], RACM mapping OF ISO2
+
+ACR             ,ppmV            ,ACROLEIN[1] + ACRO_PRIMARY[1], RACM mapping OF ISPD
+
+MACR            ,ppmV            ,ISPD[1]*0.26, RACM mapping OF ISPD
+
+MVK             ,ppmV            ,ISPD[1]*0.35, RACM mapping OF ISPD
+
+HKET            ,ppmV            ,ISPD[1]*0.39, RACM mapping OF ISPD
+
+ISON            ,ppmV            ,INTR[1], RACM mapping of INTR
+
+ISHP            ,ppmV            ,ISPX[1], RACM mapping OF ISPX
+
+MACP            ,ppmV            ,OPO3[1], RACM mapping OF OPO3
+
+IEPOX           ,ppmV            ,EPOX[1], RACM mapping OF EPOX
+
+IEPOXP          ,ppmV            ,EPX2[1], RACM mapping OF EPX2
+
+LIM             ,ppmV            ,TERP[1], RACM mapping of TERP
+
+API             ,ppmV            ,APIN[1], RACM mapping of APIN
+
+BEN             ,ppmV            ,BENZENE[1], AVERAGE OF BENZENE
+
+CSL             ,ppmV            ,CRES[1] + CRON[1], RACM mapping OF CRES and CRON
+
+BENP            ,ppmV            ,BZO2[1], RACM mapping OF BZO2
+
+DCB2            ,ppmV            ,OPEN[1], No direct match but OPEN is close in RACM
+
+TOL             ,ppmV            ,TOL[1], RACM mapping OF TOL
+
+TOLP            ,ppmV            ,TO2[1], RACM mapping OF TO2
+
+TOLRO2          ,ppmV            ,TOLRO2[1], AVERAGE OF TOLRO2
+
+XYM             ,ppmV            ,XYLMN[1]*0.70, RACM mapping OF XYLMN
+
+XYE             ,ppmV            ,XYLMN[1]*0.30, RACM mapping OF XYLMN
+
+XYMP            ,ppmV            ,XLO2[1]*0.50, RACM mapping OF XLO2
+
+XYEP            ,ppmV            ,XLO2[1]*0.50, RACM mapping OF XLO2
+
+XYLRO2          ,ppmV            ,XYLRO2[1], AVERAGE OF XYLRO2
+
+XO2             ,ppmV            ,XO2[1], AVERAGE OF XO2
+
+NAPH            ,ppmV            ,NAPH[1], RACM mapping OF NAPH
+
+MCT             ,ppmV            ,CAT1[1], RACM mapping OF CAT1
+
+MPAN            ,ppmV            ,OPAN[1], RACM mapping OF OPAN
+
+SESQ            ,ppmV            ,SESQ[1], AVERAGE OF SESQ
+
+VROCN1ALK       ,ppmV            ,VLVPO1[1], AVERAGE OF VLVPO1
+
+VROCP0ALK       ,ppmV            ,VSVPO1[1], AVERAGE OF VSVPO1
+
+VROCP1ALK       ,ppmV            ,VSVPO2[1], AVERAGE OF VSVPO2
+
+VROCP2ALK       ,ppmV            ,VSVPO3[1], AVERAGE OF VSVPO3
+
+VROCP3ALK       ,ppmV            ,VIVPO1[1], AVERAGE OF VIVPO1
+
+VROCN2OXY8      ,ppmV            ,VLVOO1[1] + SVAVB1[1], AVERAGE OF VLVOO1 and SVAVB1
+
+VROCN1OXY6      ,ppmV            ,VLVOO2[1], AVERAGE OF VLVOO2
+
+VROCP0OXY4      ,ppmV            ,VSVOO1[1] + SVAVB2[1], AVERAGE OF VSVOO1 and SVAVB2
+
+VROCP1OXY3      ,ppmV            ,VSVOO2[1] + SVAVB3[1], AVERAGE OF VSVOO2 and SVAVB3
+
+VROCP2OXY2      ,ppmV            ,VSVOO3[1] + SVAVB4[1], AVERAGE OF VSVOO3 and SVAVB4
+
+BDE13           ,ppmV            ,BUTADIENE13[1], RACM mapping OF BUTADIENE13
+
+ASO4J           ,ug m-3          ,ASO4J[1], AVERAGE OF ASO4J
+
+ASO4I           ,ug m-3          ,ASO4I[1], AVERAGE OF ASO4I
+
+ANH4J           ,ug m-3          ,ANH4J[1], AVERAGE OF ANH4J
+
+ANH4I           ,ug m-3          ,ANH4I[1], AVERAGE OF ANH4I
+
+ANO3J           ,ug m-3          ,ANO3J[1], AVERAGE OF ANO3J
+
+ANO3I           ,ug m-3          ,ANO3I[1], AVERAGE OF ANO3I
+
+AISONJ          ,ug m-3          ,AISO1J[1] + AISO2J[1], AVERAGE OF AISO1J AND AISO2J
+
+AROCP1OXY1J     ,ug m-3          ,ASQTJ[1], AVERAGE OF ASQTJ
+
+AORGCJ          ,ug m-3          ,AORGCJ[1], AVERAGE OF AORGCJ
+
+AECJ            ,ug m-3          ,AECJ[1], AVERAGE OF AECJ
+
+AECI            ,ug m-3          ,AECI[1], AVERAGE OF AECI
+
+AOTHRJ          ,ug m-3          ,AOTHRJ[1], AVERAGE OF AOTHRJ
+
+AOTHRI          ,ug m-3          ,AOTHRI[1], AVERAGE OF AOTHRI
+
+AFEJ            ,ug m-3          ,AFEJ[1], AVERAGE OF AFEJ
+
+AALJ            ,ug m-3          ,AALJ[1], AVERAGE OF AALJ
+
+ASIJ            ,ug m-3          ,ASIJ[1], AVERAGE OF ASIJ
+
+ATIJ            ,ug m-3          ,ATIJ[1], AVERAGE OF ATIJ
+
+ACAJ            ,ug m-3          ,ACAJ[1], AVERAGE OF ACAJ
+
+AMGJ            ,ug m-3          ,AMGJ[1], AVERAGE OF AMGJ
+
+AKJ             ,ug m-3          ,AKJ[1], AVERAGE OF AKJ
+
+AMNJ            ,ug m-3          ,AMNJ[1], AVERAGE OF AMNJ
+
+ACORS           ,ug m-3          ,ACORS[1], AVERAGE OF ACORS
+
+ASOIL           ,ug m-3          ,ASOIL[1], AVERAGE OF ASOIL
+
+NUMATKN         ,m-3             ,NUMATKN[1], AVERAGE OF NUMATKN
+
+NUMACC          ,m-3             ,NUMACC[1], AVERAGE OF NUMACC
+
+NUMCOR          ,m-3             ,NUMCOR[1], AVERAGE OF NUMCOR
+
+SRFATKN         ,m2 m-3          ,SRFATKN[1], AVERAGE OF SRFATKN
+
+SRFACC          ,m2 m-3          ,SRFACC[1], AVERAGE OF SRFACC
+
+SRFCOR          ,m2 m-3          ,SRFCOR[1], AVERAGE OF SRFCOR
+
+AORGH2OJ        ,ug m-3          ,AORGH2OJ[1], AVERAGE OF AORGH2OJ
+
+AH2OJ           ,ug m-3          ,AH2OJ[1], AVERAGE OF AH2OJ
+
+AH2OI           ,ug m-3          ,AH2OI[1], AVERAGE OF AH2OI
+
+AH3OPJ          ,ug m-3          ,AH3OPJ[1], AVERAGE OF AH3OPJ
+
+AH3OPI          ,ug m-3          ,AH3OPI[1], AVERAGE OF AH3OPI
+
+ANAJ            ,ug m-3          ,ANAJ[1], AVERAGE OF ANAJ
+
+ANAI            ,ug m-3          ,ANAI[1], AVERAGE OF ANAI
+
+ACLJ            ,ug m-3          ,ACLJ[1], AVERAGE OF ACLJ
+
+ACLI            ,ug m-3          ,ACLI[1], AVERAGE OF ACLI
+
+ASEACAT         ,ug m-3          ,ASEACAT[1], AVERAGE OF ASEACAT
+
+ACLK            ,ug m-3          ,ACLK[1], AVERAGE OF ACLK
+
+ASO4K           ,ug m-3          ,ASO4K[1], AVERAGE OF ASO4K
+
+ANH4K           ,ug m-3          ,ANH4K[1], AVERAGE OF ANH4K
+
+ANO3K           ,ug m-3          ,ANO3K[1], AVERAGE OF ANO3K
+
+AH2OK           ,ug m-3          ,AH2OK[1], AVERAGE OF AH2OK
+
+AH3OPK          ,ug m-3          ,AH3OPK[1], AVERAGE OF AH3OPK
+
+AISOOS3J        ,ug m-3          ,AISO3J[1], AVERAGE OF AISO3J
+
+AROCN2OXY2J     ,ug m-3          ,AOLGAJ[1] + APCSOJ[1], AVERAGE OF AOLGAJ AND APCSOJ
+
+AOLGBJ          ,ug m-3          ,AOLGBJ[1], AVERAGE OF AOLGBJ
+
+AGLYJ           ,ug m-3          ,AGLYJ[1], AVERAGE OF AGLYJ
+
+ATRPNJ          ,ug m-3          ,AMTNO3J[1] + AMTHYDJ[1], AVERAGE OF AMTNO3J AND AMTHYDJ
+
+APOCI           ,ug m-3          ,APOCI[1], AVERAGE OF APOCI
+
+APOCJ           ,ug m-3          ,APOCJ[1], AVERAGE OF APOCJ
+
+APNCOMI         ,ug m-3          ,APNCOMI[1], AVERAGE OF APNCOMI
+
+APNCOMJ         ,ug m-3          ,APNCOMJ[1], AVERAGE OF APNCOMJ
+
+AROCN1ALKI      ,ug m-3          ,ALVPO1I[1], AVERAGE OF ALVPO1I
+
+AROCP0ALKI      ,ug m-3          ,ASVPO1I[1], AVERAGE OF ASVPO1I
+
+AROCP1ALKI      ,ug m-3          ,ASVPO2I[1], AVERAGE OF ASVPO2I
+
+AROCN1ALKJ      ,ug m-3          ,ALVPO1J[1], AVERAGE OF ALVPO1J
+
+AROCP0ALKJ      ,ug m-3          ,ASVPO1J[1], AVERAGE OF ASVPO1J
+
+AROCP1ALKJ      ,ug m-3          ,ASVPO2J[1], AVERAGE OF ASVPO2J
+
+AROCP2ALKJ      ,ug m-3          ,ASVPO3J[1], AVERAGE OF ASVPO3J
+
+AROCP3ALKJ      ,ug m-3          ,AIVPO1J[1], AVERAGE OF AIVPO1J
+
+AROCN2OXY8I     ,ug m-3          ,ALVOO1I[1], AVERAGE OF ALVOO1I
+
+AROCN1OXY6I     ,ug m-3          ,ALVOO2I[1], AVERAGE OF ALVOO2I
+
+AROCP0OXY4I     ,ug m-3          ,ASVOO1I[1], AVERAGE OF ASVOO1I
+
+AROCP1OXY3I     ,ug m-3          ,ASVOO2I[1], AVERAGE OF ASVOO2I
+
+AROCN2OXY8J     ,ug m-3          ,ALVOO1J[1] + AAVB1J[1], AVERAGE OF ALVOO1J AND AAVB1J
+
+AROCN1OXY6J     ,ug m-3          ,ALVOO2J[1], AVERAGE OF ALVOO2J
+
+AROCP0OXY4J     ,ug m-3          ,ASVOO1J[1] + AAVB2J[1], AVERAGE OF ASVOO1J AND AAVB2J
+
+AROCP1OXY3J     ,ug m-3          ,ASVOO2J[1] + AAVB3J[1], AVERAGE OF ASVOO2J AND AAVB3J
+
+AROCP2OXY2J     ,ug m-3          ,ASVOO3J[1] + AAVB4J[1], AVERAGE OF ASVOO3J AND AAVB4J
+
+AHOMJ           ,ug m-3          ,AMT1J[1] + AMT2J[1] + AMT3J[1], RACM mapping OF AMT1J AND AMT2J AND AMT3J
+
+NH3             ,ppmV            ,NH3[1], AVERAGE OF NH3
+
+VROCP1OXY       ,ppmV            ,SVSQT[1], AVERAGE OF SVSQT
+
+
+
+
