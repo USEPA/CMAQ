@@ -12,14 +12,14 @@
 #> (SLURM) - The following specifications are recommended 
 #> for executing the runscript on the cluster at the 
 #> National Computing Center used primarily by EPA.
-#SBATCH -t 96:00:00
+#SBATCH -t 168:00:00
 #SBATCH -n 256
 #SBATCH -J 4LISTOS1_CRACMM1
 #SBATCH -p ord
 #SBATCH --gid=mod3dev
 #SBATCH -A mod3dev
-#SBATCH -o /work/MOD3DEV/has/2021cracmm/cmaq/2022mmddcmaq/CCTM/scripts/log_2018_4LISTOS1_%j.txt
-#SBATCH --mail-user=has
+#SBATCH -o /work/MOD3DEV/bplace/log_2018_4LISTOS1_%j.txt
+#SBATCH --mail-user=bplace
 #SBATCH --mail-type=END,FAIL
 
 #> The following commands output information from the SLURM
@@ -105,7 +105,7 @@ echo 'Start Model Run At ' `date`
 #> Set Start and End Days for looping
  setenv NEW_START TRUE            #> Set to FALSE for model restart
  set START_DATE = "2018-05-02"     #> beginning date (July 1, 2016)
- set END_DATE   = "2018-05-10"     #> ending date    (July 14, 2016)
+ set END_DATE   = "2018-08-31"     #> ending date    (July 14, 2016)
 
 #> Set Timestepping Parameters
  set STTIME     = 000000           #> beginning GMT time (HHMMSS)
@@ -254,8 +254,8 @@ setenv MP_CSS_INTERRUPT yes  #> specify whether arriving packets generate interr
 #> Input Directories and Filenames
 # =====================================================================
 
-set ICpath    = $INPDIR/icbc/cracmm1             #> initial conditions input directory 
-set BCpath    = $INPDIR/icbc/cracmm1            #> boundary conditions input directory
+set ICpath    = /work/MOD3DEV/bplace/icbc_cracmm_LISTOS       #> initial conditions input directory 
+set BCpath    = /work/MOD3DEV/bplace/icbc_cracmm_LISTOS       #> boundary conditions input directory
 set EMISpath  = $INPDIR/emis/cracmmv0_21_20211001   #> emissions input directory
 set IN_PTpath = $EMISpath/cmaq_ready_point          #> point source emissions input directory
 #set IN_LTpath = $INPDIR/lightning                   #> lightning NOx input directory
@@ -308,7 +308,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
 
   #> Initial conditions
   if ($NEW_START == true || $NEW_START == TRUE ) then
-     setenv ICFILE ICON_v53_LISTOS4_regrid_20180502
+     setenv ICFILE ICON_v532_LISTOS4_cracmm_20180502.ncf
      setenv INIT_MEDC_1 notused
      setenv INITIAL_RUN Y #related to restart soil information file
   else
@@ -319,7 +319,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   endif
 
   #> Boundary conditions
-  set BCFILE = BCON_v53_LISTOS4_regrid_${YYYYMMDD}
+  set BCFILE = BCON_v532_LISTOS4_cracmm_${YYYYMMDD}.ncf
 
   #> Off-line photolysis rates 
   #set JVALfile  = JTABLE_${YYYYJJJ}
@@ -343,7 +343,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   setenv LUFRAC_CRO $METpath/LUFRAC_CRO_${YYYYMMDD}.nc
 
   #> Emissions Control File
-  setenv EMISSCTRL_NML ${BLD}/EmissCtrl_${MECH}.nml
+  setenv EMISSCTRL_NML ${BLD}/EmissCtrl_${MECH}_LISTOS.nml
 
   #> Spatial Masks For Emissions Scaling
   setenv CMAQ_MASKS ${LUpath}/ocean_file_LISTOS4.ncf #> horizontal grid-dependent surf zone file
@@ -366,7 +366,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
 
   #> Gridded Emissions Files 
   setenv N_EMIS_GR 5
-  setenv GR_EMIS_001 ${EMISpath}/cmaq_ready_area/aircraft/emis_mole_aircraft_${YYYYMMDD}_${STKCASEET}.ncf
+  setenv GR_EMIS_001 ${EMISpath}/cmaq_ready_area/aircraft/emis_mole_aircraft_${week_Y}_${STKCASEET}.ncf
   setenv GR_EMIS_002 ${EMISpath}/cmaq_ready_area/np_diesel/emis_mole_np_diesel_${YYYYMMDD}_${STKCASEET}.ncf
   setenv GR_EMIS_003 ${EMISpath}/cmaq_ready_area/np_gasoline/emis_mole_np_gasoline_${YYYYMMDD}_${STKCASEET}.ncf
   setenv GR_EMIS_004 ${EMISpath}/cmaq_ready_area/np_other/emis_mole_np_other_${YYYYMMDD}_${STKCASEET}.ncf
@@ -380,7 +380,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   setenv GR_EMIS_LAB_005 GRIDDED_SOLVENTS
 
   #> Allow for files to be used on other dates?
-  setenv GR_EM_SYM_DATE_001 F
+  setenv GR_EM_SYM_DATE_001 T
   setenv GR_EM_SYM_DATE_002 F
   setenv GR_EM_SYM_DATE_003 F
   setenv GR_EM_SYM_DATE_004 F
@@ -401,7 +401,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
 
   # Emission Rates for Inline Point Sources
   setenv STK_EMIS_001 $IN_PTpath/airports_can/inln_mole_airports_can_${mwdss_N}_${STKCASEET}.ncf
-  setenv STK_EMIS_002 $IN_PTpath/all_fire/inln_mole_all_fire_${mwdss_Y}_${STKCASEET}.ncf
+  setenv STK_EMIS_002 $IN_PTpath/all_fire/inln_mole_all_fire_${YYYYMMDD}_${STKCASEET}.ncf
   setenv STK_EMIS_003 $IN_PTpath/cmv_4/inln_mole_cmv_4_${YYYYMMDD}_${STKCASEET}.ncf
   setenv STK_EMIS_004 $IN_PTpath/othpt_solv/inln_mole_othpt_solv_${mwdss_N}_${STKCASEET}.ncf
   setenv STK_EMIS_005 $IN_PTpath/pt_other_nonfire/inln_mole_pt_other_nonfire_${YYYYMMDD}_${STKCASEET}.ncf
@@ -419,7 +419,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   # Allow CMAQ to Use Point Source files with dates that do not
   # match the internal model date
   setenv STK_EM_SYM_DATE_001 T
-  setenv STK_EM_SYM_DATE_002 T
+  setenv STK_EM_SYM_DATE_002 F
   setenv STK_EM_SYM_DATE_003 F
   setenv STK_EM_SYM_DATE_004 T
   setenv STK_EM_SYM_DATE_005 F
