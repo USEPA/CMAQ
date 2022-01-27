@@ -24,8 +24,8 @@ Information is based on the mech.def file.
 | R007   | HONO ----> HO + NO  | HONO_RACM2 | Not Available<sup>1</sup> | 
 | R008   | HNO3 ----> HO + NO2  | HNO3_RACM2 | Not Available<sup>1</sup> | 
 | R009   | HNO4 ---->   0.200\*HO +    0.800\*HO2 +    0.800\*NO2 +    0.200\*NO3  | HNO4_RACM2 | Not Available<sup>1</sup> | 
-| R010   | HCHO ----> CO  | HCHO_MOL_RACM2 | Not Available<sup>1</sup> | 
-| R011   | HCHO ---->   2.000\*HO2 + CO  | HCHO_RAD_RACM2 | Not Available<sup>1</sup> | 
+| R010   | HCHO ----> CO  | HCHO_MOL_JPL19 | Not Available<sup>1</sup> | 
+| R011   | HCHO ---->   2.000\*HO2 + CO  | HCHO_RAD_JPL19 | Not Available<sup>1</sup> | 
 | R012   | ACD ----> HO2 + MO2 + CO  | CH3CHO_RACM2 | Not Available<sup>1</sup> | 
 | R013   | ALD ----> HO2 + ETHP + CO  | ALD_RACM2 | Not Available<sup>1</sup> | 
 | R014   | ACT ----> MO2 + ACO3  | CH3COCH3_RACM2 | Not Available<sup>1</sup> | 
@@ -54,7 +54,7 @@ Information is based on the mech.def file.
 | R037   | O3 + NO2 ----> NO3  |   1.40E-13e<sup> -2470.00/T</sup> |   3.5339E-17 |
 | R038   | O3P + O2 + M ----> O3  |   5.74E-34(T/300)<sup> -2.60</sup> |   5.8331E-34 |
 | R039   | O3P + O3 ----> |   8.00E-12e<sup> -2060.00/T</sup> |   7.9879E-15 |
-| R040   | O1D + O2 ----> O3P  |   3.20E-11e<sup>   -67.00/T</sup> |   2.5560E-11 |
+| R040   | O1D + O2 ----> O3P  |   3.30E-11e<sup>    67.00/T</sup> |   4.1315E-11 |
 | R041   | O1D + N2 ----> O3P  |   2.00E-11e<sup>   130.00/T</sup> |   3.0931E-11 |
 | R042   | O1D + H2O ---->   2.000\*HO  |   2.1400E-10 |   2.1400E-10 |
 | R043   | HO + H2 ----> HO2  |   7.70E-12e<sup> -2100.00/T</sup> |   6.7230E-15 |
