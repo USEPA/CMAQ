@@ -28,7 +28,7 @@ GC_SPECIES_DATA =
 'MEK'           , 72.1   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,'MEK'             , 1  ,''             ,''        ,'Yes' ,''    ,'Yes' ,'Yes',!Methyl ethyl ketone,E,DTXSID3021516,CCC(C)=O
 'HKET'          , 74.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,'HYDROXY-ACETONE' , 1  ,''             ,''        ,'Yes' ,''    ,'Yes' ,'Yes',!Hydroxy acetone,L,DTXSID8051590,CC(=O)CO
 'MACR'          , 70.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,'METHACROLEIN'    , 1  ,''             ,''        ,'Yes' ,''    ,'Yes' ,'Yes',!Methacrolein,L,DTXSID0052540,CC(=C)C=O
-'MACP'          ,101.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,''             ,''        ,''    ,''    ,''    ,'Yes',
+'MACP'          ,101.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,''             ,''        ,''    ,''    ,''    ,'Yes',!MCM MACRO2,L,NA,OCC(C)(O[O])C=O
 'XO2'           ,  1.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,''             ,''        ,''    ,''    ,''    ,'Yes',
 'MVK'           , 70.1   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,'MVK'             , 1  ,''             ,''        ,'Yes' ,''    ,'Yes' ,'Yes',!Methyl vinyl ketone,E,DTXSID3025671,CC(=O)C=C
 'GLY'           , 58.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,'GLYOXAL'         , 1  ,''             ,'GLY'     ,'Yes' ,''    ,'Yes' ,'Yes',!Glyoxal,L,DTXSID5025364,O=CC=O
@@ -43,10 +43,10 @@ GC_SPECIES_DATA =
 'OP3'           ,153.5   ,''     ,-1     ,''     ,-1     ,'VD_OP'           , 1   ,'METHYLHYDROPEROX', 1  ,''             ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',
 'PAA'           , 76.0   ,''     ,-1     ,''     ,-1     ,'VD_PAA'          , 1   ,'PEROXYACETIC_ACI', 1  ,''             ,'PAA'     ,'Yes' ,'Yes' ,'Yes' ,'Yes',!Peroxyacetic acid,L,DTXSID1025853,CC(=O)OO
 'ONIT'          ,119.0   ,''     ,-1     ,''     ,-1     ,'VD_PAN'          , 1   ,'MPAN'            , 1  ,''             ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',!Butan-2-yl nitrate,L,NA,CCC(C)O[N+](=O)[O-]
-'PAN'           ,121.0   ,''     ,-1     ,''     ,-1     ,'VD_PAN'          , 1   ,'PAN'             , 1  ,''             ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',
-'N2O5'          ,108.0   ,''     ,-1     ,''     ,-1     ,'VD_N2O5'         , 1   ,'N2O5'            , 1  ,'N2O5'         ,'N2O5'    ,'Yes' ,'Yes' ,'Yes' ,'Yes',
-'SO2'           , 64.0   ,''     ,-1     ,''     ,-1     ,'VD_SO2'          , 1   ,'SO2'             , 1  ,''             ,'SO2'     ,'Yes' ,'Yes' ,'Yes' ,'Yes',
-'SULF'          , 98.0   ,''     ,-1     ,''     ,-1     ,'VD_SULF'         , 1   ,'H2SO4'           , 1  ,'SULF'         ,'H2SO4'   ,'Yes' ,'Yes' ,'Yes' ,'Yes',
+'PAN'           ,121.0   ,''     ,-1     ,''     ,-1     ,'VD_PAN'          , 1   ,'PAN'             , 1  ,''             ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',!Peroxyacetyl nitrates,L,DTXSID4062301,CC(=O)OON(=O)=O
+'N2O5'          ,108.0   ,''     ,-1     ,''     ,-1     ,'VD_N2O5'         , 1   ,'N2O5'            , 1  ,'N2O5'         ,'N2O5'    ,'Yes' ,'Yes' ,'Yes' ,'Yes',!Dinitrogen pentoxide,E,DTXSID90143672,[N+](=O)([O-])O[N+](=O)[O-]
+'SO2'           , 64.0   ,''     ,-1     ,''     ,-1     ,'VD_SO2'          , 1   ,'SO2'             , 1  ,''             ,'SO2'     ,'Yes' ,'Yes' ,'Yes' ,'Yes',!Sulfur dioxide,E,DTXSID6029672,O=S=O
+'SULF'          , 98.0   ,''     ,-1     ,''     ,-1     ,'VD_SULF'         , 1   ,'H2SO4'           , 1  ,'SULF'         ,'H2SO4'   ,'Yes' ,'Yes' ,'Yes' ,'Yes',!Sulfuric acid,E,DTXSID5029683,OS(=O)(=O)O
 'SULRXN'        , 98.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,'SULPRD'       ,''        ,''    ,''    ,''    ,''   ,
 'ETH'           , 30.1   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,'ETHANE'          , 1  ,''             ,''        ,'Yes' ,''    ,'Yes' ,'Yes',!Ethane,E,DTXSID6026377,CC
 'HC3'           , 51.9   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,'HC3OPERA'        , 1  ,''             ,''        ,'Yes' ,''    ,'Yes' ,'Yes',!Propane,L,DTXSID5026386,CCC
@@ -57,7 +57,7 @@ GC_SPECIES_DATA =
 'HC10P'         ,173.27  ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,''             ,''        ,''    ,''    ,''    ,'Yes',!DECO2,L,NA,CCCCCCCC(CC)O[O]
 'HC10P2'        ,189.27  ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,''             ,''        ,''    ,''    ,''    ,'Yes',!DECO2-2,L,NA,CCCCC(O[O])CCC(O)CC
 'ETE'           , 28.1   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,'ETHENE'          , 1  ,''             ,''        ,'Yes' ,''    ,'Yes' ,'Yes',!Ethylene,E,DTXSID1026378,C=C
-'ETEP'          , 77.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,''             ,''        ,''    ,''    ,''    ,'Yes',
+'ETEP'          , 77.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,''             ,''        ,''    ,''    ,''    ,'Yes',!MCM HOCH2CH2O2,E,NA,OCCO[O]
 'OLT'           , 42.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,'OLTOPERA'        , 1  ,''             ,''        ,'Yes' ,''    ,'Yes' ,'Yes',!1-Propene,L,DTXSID5021205,CC=C
 'OLTP'          , 91.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,''             ,''        ,''    ,''    ,''    ,'Yes',
 'OLI'           , 68.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,'OLIOPERA'        , 1  ,''             ,''        ,'Yes' ,''    ,'Yes' ,'Yes',!2-Methyl-2-butene,L,DTXSID8027165,CC=C(C)C
@@ -93,11 +93,11 @@ GC_SPECIES_DATA =
 'HOM'           ,250.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,'HOM'          ,''        ,''    ,''    ,''    ,'Yes',!NA,L,NA,OC1CC2C(OOC2(C)C)C(OO)C1(C)OO
 'ELHOM'         ,402.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,'ELHOM'        ,''        ,''    ,''    ,''    ,'Yes',!NA,L,NA,OC1CC2C(OOC2(C)C)C(OOC3(C)C4C(C)(C)C(C4)CC3O)C1(C)OO
 'RCO3'          , 90.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,''             ,''        ,''    ,''    ,''    ,'Yes',
-'ACTP'          , 89.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,''             ,''        ,''    ,''    ,''    ,'Yes',
-'MEKP'          ,103.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,''             ,''        ,''    ,''    ,''    ,'Yes',
+'ACTP'          , 89.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,''             ,''        ,''    ,''    ,''    ,'Yes',!MCM CH3COCH2O2,E,NA,CC(=O)CO[O]
+'MEKP'          ,103.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,''             ,''        ,''    ,''    ,''    ,'Yes',!MCM MEKAO2,L,NA,[O]OCCC(=O)C
 'KETP'          ,117.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,''             ,''        ,''    ,''    ,''    ,'Yes',
-'MCP'           ,119.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,''             ,''        ,''    ,''    ,''    ,'Yes',
-'MVKP'          ,119.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,''             ,''        ,''    ,''    ,''    ,'Yes',
+'MCP'           ,119.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,''             ,''        ,''    ,''    ,''    ,'Yes',!MCM MACRO2,L,NA,OCC(C)(O[O])C=O
+'MVKP'          ,119.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,''             ,''        ,''    ,''    ,''    ,'Yes',!MCM HMVKAO2,L,NA,CC(=O)C(O)CO[O]
 'UALP'          ,133.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,''             ,''        ,''    ,''    ,''    ,'Yes',!2-Methylbut-2-enal RO2,L,NA,C([H])([H])([H])C(OO)([H])C(O[H])(C([H])([H])([H]))C(=O)([H])
 'DCB3'          , 84.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,'METHACROLEIN'    , 1  ,''             ,''        ,'Yes' ,''    ,''    ,'Yes',
 'BALP'          ,137.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,''             ,''        ,''    ,''    ,''    ,'Yes',
@@ -114,9 +114,9 @@ GC_SPECIES_DATA =
 'MAHP'          ,102.0   ,''     ,-1     ,''     ,-1     ,'VD_OP'           , 1   ,'METHACROLEIN'    , 1  ,''             ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',
 'ORA2'          , 60.2   ,''     ,-1     ,''     ,-1     ,'VD_ORA'          , 1   ,'ORA2OPERA'       , 1  ,''             ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',!Acetic acid,L,DTXSID5024394,CC(O)=O
 'ORAP'          ,109.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,''             ,''        ,''    ,''    ,''    ,'Yes',!Methyldioxy radical,L,NA,CO[O]
-'PPN'           ,135.0   ,''     ,-1     ,''     ,-1     ,'VD_PAN'          , 1   ,'PPN'             , 1  ,''             ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',
-'MPAN'          ,148.0   ,''     ,-1     ,''     ,-1     ,'VD_PAN'          , 1   ,'MPAN'            , 1  ,''             ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',
-'NALD'          ,105.0   ,''     ,-1     ,''     ,-1     ,'VD_PAN'          , 1   ,'2NITRO_1BUTNL'   , 1  ,''             ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',
+'PPN'           ,135.0   ,''     ,-1     ,''     ,-1     ,'VD_PAN'          , 1   ,'PPN'             , 1  ,''             ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',!Peroxypopionyl nitrate,E,DTXSID90206675,CCC(=O)OO[N+](=O)[O-]
+'MPAN'          ,148.0   ,''     ,-1     ,''     ,-1     ,'VD_PAN'          , 1   ,'MPAN'            , 1  ,''             ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',!Peroxymethacryloyl nitrate,L,NA,O=N(=O)OOC(=O)C(=C)C
+'NALD'          ,105.0   ,''     ,-1     ,''     ,-1     ,'VD_PAN'          , 1   ,'2NITRO_1BUTNL'   , 1  ,''             ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',!Nitrooxyacetaldehyde,E,NA,O=CCON(=O)=O
 'ISON'          ,147.0   ,''     ,-1     ,''     ,-1     ,'VD_PAN'          , 1   ,'2NITRO_1BUTNL'   , 1  ,'ISON'         ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',!b-Isoprene nitrate,L,OCC(C)(C=C)ON(=O)=O 
 'TRPN'          ,215.0   ,''     ,-1     ,''     ,-1     ,'VD_PAN'          , 1   ,'2NITRO_1BUTNL'   , 1  ,'TRPN'         ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',!a-Pinene nitrate,L,O=N(=O)OC1(C)C(O)CC2 CC1C2(C)C
 'MCTP'          ,172.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,''             ,''        ,''    ,''    ,''    ,'Yes',
