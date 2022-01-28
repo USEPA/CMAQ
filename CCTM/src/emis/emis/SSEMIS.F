@@ -311,6 +311,8 @@ C can be printed in EMIS_MAP
             Allocate( Em_File_Surr( iseasrm )%used ( nssspc*2 ) )
             Allocate( Em_File_Surr( iseasrm )%conv ( nssspc*2 ) )
             Allocate( Em_File_Surr( iseasrm )%basis( nssspc*2 ) )
+            Allocate( Em_File_Surr( iseasrm )%larea( nssspc*2 ) )
+            Allocate( Em_File_Surr( iseasrm )%lareaadj( nssspc*2 ) )
             Em_File_Surr( iseasrm )%arry( : ) = 'NOT_AVAILABLE'
             do i = 1,nssspc
               IF ( sea_spc( i )%spcfac(1) .NE. 0.0 .or. i .EQ. nssspc ) 
@@ -326,6 +328,8 @@ C can be printed in EMIS_MAP
             Em_File_Surr( iseasrm )%used ( : ) = .FALSE.
             Em_File_Surr( iseasrm )%conv ( : ) = 1.0
             Em_File_Surr( iseasrm )%basis( : ) = 'MASS'
+            Em_File_Surr( iseasrm )%larea( : ) = .FALSE.
+            Em_File_Surr( iseasrm )%lareaadj( : ) = .FALSE.
  
 C Allocate SS arrays using NSSSPC value
             ALLOCATE ( SSOUTM( NSSSPC*2,NCOLS,NROWS ),
@@ -576,11 +580,10 @@ C-----------------------------------------------------------------------
 
 C Arguments
             INTEGER, INTENT( IN ) :: JDATE, JTIME, TSTEP( 3 )
-            REAL,    INTENT( IN ) :: CELLVOL      ! grid-cell volume [m2*sigma]
+            REAL,    INTENT( IN ) :: CELLVOL(:,:)          ! grid-cell volume [m2*sigma]
             REAL,    INTENT( IN ) :: CELLHGT      ! grid-cell height [sigma] 
             LOGICAL, INTENT( IN ) :: L_DESID_DIAG ! flag for whether or not DESID 
                                                   !     is in diagnostic mode
-
 C Includes:
             INCLUDE SUBST_FILES_ID  ! file name parameters
 
@@ -918,7 +921,7 @@ C Update the SSBF array, for writing the diagnostic sea-salt-emission file.
                         SSOUTD( V ) = SSOUTS( N,C,R )
                      END DO
 
-                     AIRVOL = CELLVOL / Met_Data%RJACM( C,R,1 )
+                     AIRVOL = CELLVOL(C,R) / Met_Data%RJACM( C,R,1 )
 
                      DO S = 1, NSSDIAG
                         SSBF( S,C,R ) = SSBF( S,C,R ) + SSOUTD( S ) * AIRVOL

@@ -369,7 +369,8 @@
       END SUBROUTINE CUSTOM_EM_RULES
 
 !-----------------------------------------------------------------------
-         SUBROUTINE CHECK_EMIS_UNITS( ISRM, ISUR, SPEC, UNITS, CONV, BASIS )
+         SUBROUTINE CHECK_EMIS_UNITS( ISRM, ISUR, SPEC, UNITS, CONV, BASIS,
+     &                                LAREA_UNIT )
 
 ! This subroutine checks for invalid values of the operation parameter 
 ! in the rules from the emission control list
@@ -377,113 +378,268 @@
          IMPLICIT NONE
 
          REAL, INTENT( OUT )              :: CONV
-         CHARACTER( 4 ) , INTENT( OUT )   :: BASIS
+         CHARACTER( 16 ) , INTENT( OUT )  :: BASIS
+         LOGICAL, INTENT( INOUT )         :: LAREA_UNIT
          CHARACTER( 16 ), INTENT( INOUT ) :: UNITS
          INTEGER, INTENT( IN )            :: ISRM
          INTEGER, INTENT( IN )            :: ISUR
          CHARACTER( 16 ), INTENT( IN )    :: SPEC
-         CHARACTER( 200 )      :: XMSG
+         CHARACTER( 400 )      :: XMSG
          INTEGER               :: X, SLASH_IND
+         
+         CHARACTER( 16 ) :: NUMER
+         CHARACTER( 16 ) :: DENOM
+         CHARACTER( 16 ) :: DENOM1
+         CHARACTER( 16 ) :: DENOM2
+         LOGICAL         :: LTIME_UNIT
 
+         ! The Default Finding is an unknown Basis unit and conversion
+         ! equal to 1.0
          CONV = 1.0
+         LAREA_UNIT = .FALSE.
+         LTIME_UNIT = .FALSE.
+         BASIS = 'UNKNOWN'
+         IF ( UNITS .EQ. '' ) RETURN
+         
+         ! Capitalize UNITS string and remove any leading spaces 
+         CALL UPCASE( UNITS ) 
+         DO WHILE ( UNITS(1:1) .EQ. ' ' ) 
+             UNITS = UNITS(2:16) // ' '
+         END DO
 
-         CALL UPCASE( UNITS )
-
-         ! Find Break between numerator and denominator. If it's not a
-         ! slash, then it should be the first space
+         ! Find First Break between numerator and denominator. If it's not a
+         ! slash, then it should be the first space. 
          SLASH_IND = INDEX( UNITS, '/' )
          IF ( SLASH_IND .EQ. 0 ) SLASH_IND = INDEX( UNITS, ' ' )
          X = SLASH_IND - 1
+         NUMER = UNITS(1:X)
 
-         ! Check for Molar or Mass Units
-         IF ( UNITS(1:X) .EQ. 'MOLE' .OR. UNITS(1:X) .EQ. 'MOLES' .OR.
-     &        UNITS(1:X) .EQ. 'MOL' ) THEN
+         ! If there are no slashes or spaces, then exit
+         IF ( SLASH_IND .EQ. 0 ) RETURN
+
+         ! Check Numerator for Molar or Mass Units
+         IF ( NUMER(1:4) .EQ. 'MOLE' .OR. NUMER(1:5) .EQ. 'MOLES' .OR.
+     &        NUMER(1:3) .EQ. 'MOL' ) THEN
             ! No Conversion Needed for Moles to Moles
             CONV = 1.0 
             BASIS = 'MOLE'
-         ELSE IF ( UNITS(1:X) .EQ. 'KMOLE' .OR. UNITS(1:X) .EQ. 'KMOLES' .OR.
-     &             UNITS(1:X) .EQ. 'KMOL' ) THEN
+         ELSE IF ( NUMER(1:5) .EQ. 'KMOLE' .OR. NUMER(1:6) .EQ. 'KMOLES' .OR.
+     &             NUMER(1:4) .EQ. 'KMOL' ) THEN
             ! Convert kmol to mol
             CONV = 1000.0
             BASIS = 'MOLE'
-         ELSE IF ( UNITS(1:X) .EQ. 'MMOLE' .OR. UNITS(1:X) .EQ. 'MMOLES' .OR.
-     &             UNITS(1:X) .EQ. 'MMOL' ) THEN
+         ELSE IF ( NUMER(1:5) .EQ. 'MMOLE' .OR. NUMER(1:6) .EQ. 'MMOLES' .OR.
+     &             NUMER(1:4) .EQ. 'MMOL' ) THEN
             ! Convert mmol to mol
             CONV = 1.0e-3
             BASIS = 'MOLE'
-         ELSE IF ( UNITS(1:X) .EQ. 'UMOLE' .OR. UNITS(1:X) .EQ. 'UMOLES' .OR.
-     &             UNITS(1:X) .EQ. 'UMOL' ) THEN
+         ELSE IF ( NUMER(1:5) .EQ. 'UMOLE' .OR. NUMER(1:6) .EQ. 'UMOLES' .OR.
+     &             NUMER(1:4) .EQ. 'UMOL' ) THEN
             ! Convert umol to mol
             CONV = 1.0e-6
             BASIS = 'MOLE'
-         ELSE IF ( UNITS(1:X) .EQ. 'GRAM' .OR. UNITS(1:X) .EQ. 'GRAMS' .OR.
-     &             UNITS(1:X) .EQ. 'G'    .OR. UNITS(1:X) .EQ. 'GM'    .OR.
-     &             UNITS(1:X) .EQ. 'GMS'  .OR. UNITS(1:X) .EQ. 'GS'  ) THEN
+         ELSE IF ( NUMER(1:4) .EQ. 'GRAM' .OR. NUMER(1:5) .EQ. 'GRAMS' .OR.
+     &             NUMER(1:1) .EQ. 'G'    .OR. NUMER(1:2) .EQ. 'GM'    .OR.
+     &             NUMER(1:3) .EQ. 'GMS'  .OR. NUMER(1:2) .EQ. 'GS'  ) THEN
             ! No Conversion Needed for Grams to Grams
             CONV = 1.0
             BASIS = 'MASS'
-         ELSE IF ( UNITS(1:X) .EQ. 'KGRAM' .OR. UNITS(1:X) .EQ. 'KGRAMS' .OR.
-     &             UNITS(1:X) .EQ. 'KG'    .OR. UNITS(1:X) .EQ. 'KGM'    .OR.
-     &             UNITS(1:X) .EQ. 'KGMS'  .OR. UNITS(1:X) .EQ. 'KGS' ) THEN
+         ELSE IF ( NUMER(1:5) .EQ. 'KGRAM' .OR. NUMER(1:6) .EQ. 'KGRAMS' .OR.
+     &             NUMER(1:2) .EQ. 'KG'    .OR. NUMER(1:3) .EQ. 'KGM'    .OR.
+     &             NUMER(1:4) .EQ. 'KGMS'  .OR. NUMER(1:3) .EQ. 'KGS' ) THEN
             ! Convert kg -> g
             CONV = 1000.0
             BASIS = 'MASS'
-         ELSE IF ( UNITS(1:X) .EQ. 'MGRAM' .OR. UNITS(1:X) .EQ. 'MGRAMS' .OR.
-     &             UNITS(1:X) .EQ. 'MG'    .OR. UNITS(1:X) .EQ. 'MGM'    .OR.
-     &             UNITS(1:X) .EQ. 'MGMS'  .OR. UNITS(1:X) .EQ. 'MGS' ) THEN
+         ELSE IF ( NUMER(1:5) .EQ. 'MGRAM' .OR. NUMER(1:6) .EQ. 'MGRAMS' .OR.
+     &             NUMER(1:2) .EQ. 'MG'    .OR. NUMER(1:3) .EQ. 'MGM'    .OR.
+     &             NUMER(1:4) .EQ. 'MGMS'  .OR. NUMER(1:3) .EQ. 'MGS' ) THEN
             ! Convert mg -> g
             CONV = 1.0e-3
             BASIS = 'MASS'
-         ELSE IF ( UNITS(1:X) .EQ. 'UGRAM' .OR. UNITS(1:X) .EQ. 'UGRAMS' .OR.
-     &             UNITS(1:X) .EQ. 'UG'    .OR. UNITS(1:X) .EQ. 'UGM'    .OR.
-     &             UNITS(1:X) .EQ. 'UGMS'  .OR. UNITS(1:X) .EQ. 'UGS' ) THEN
+         ELSE IF ( NUMER(1:5) .EQ. 'UGRAM' .OR. NUMER(1:6) .EQ. 'UGRAMS' .OR.
+     &             NUMER(1:2) .EQ. 'UG'    .OR. NUMER(1:3) .EQ. 'UGM'    .OR.
+     &             NUMER(1:3) .EQ. 'UGMS'  .OR. NUMER(1:3) .EQ. 'UGS' ) THEN
             ! Convert ug -> g
             CONV = 1.0e-6
             BASIS = 'MASS'
-         ELSE IF ( UNITS(1:X) .EQ. 'NGRAM' .OR. UNITS(1:X) .EQ. 'NGRAMS' .OR.
-     &             UNITS(1:X) .EQ. 'NG'    .OR. UNITS(1:X) .EQ. 'NGM'    .OR.
-     &             UNITS(1:X) .EQ. 'NGMS'  .OR. UNITS(1:X) .EQ. 'NGS' ) THEN
+         ELSE IF ( NUMER(1:5) .EQ. 'NGRAM' .OR. NUMER(1:6) .EQ. 'NGRAMS' .OR.
+     &             NUMER(1:2) .EQ. 'NG'    .OR. NUMER(1:3) .EQ. 'NGM'    .OR.
+     &             NUMER(1:4) .EQ. 'NGMS'  .OR. NUMER(1:3) .EQ. 'NGS' ) THEN
             ! Convert ng -> g
             CONV = 1.0e-9
             BASIS = 'MASS'
          ELSE
-            WRITE( XMSG,'(A,A16,A,/,I3,A11,A16,A,/,A)' ),
+            WRITE( XMSG,'(A,A16,A,I3,A11,A16,A,A,A)' ),
      &              'ERROR: Surrogate Species ',TRIM(SPEC),' on emission stream ',
-     &              ISRM, ' has units ',TRIM(UNITS),' which are unkown to CMAQ. ',
-     &              'Please correct them to proceed.'
-            CALL M3EXIT( 'CHECK_EMIS_UNITS', 0, 0, XMSG, 2 )
+     &              ISRM, ' has units ',TRIM(UNITS),' which are not recognized ',
+     &              'as an emission rate. If you wish to use this variable for ',
+     &              'emissions, please correct the units (e.g. g/s or moles/s).'
+            CALL M3WARN( 'CHECK_EMIS_UNITS', 0, 0, XMSG )
+            ! No Conversion and and Unknown Basis
+            CONV = 1.0e0
+            BASIS = 'UNKNOWN'
          END IF
-          
-         ! Check for Time Units
-         X = X + 2
-         IF ( UNITS(X:) .EQ. 'S' .OR. UNITS(X:) .EQ. 'S-1' .OR.
-     &        UNITS(X:) .EQ. 'SEC'.OR.UNITS(X:) .EQ. 'SEC-1' .OR.
-     &        UNITS(X:) .EQ. 'SECOND'.OR.UNITS(X:) .EQ. 'SECOND-1' .OR.
-     &        UNITS(X:) .EQ. 'SECONDS'.OR.UNITS(X:) .EQ. 'SECONDS-1' ) THEN
-            ! No Conversion Necessary for seconds -> seconds
-            CONV = CONV * 1.0
-         ELSE IF ( UNITS(X:) .EQ. 'H' .OR. UNITS(X:) .EQ. 'H-1' .OR.
-     &             UNITS(X:) .EQ. 'HR'.OR.UNITS(X:) .EQ. 'HR-1' .OR.
-     &             UNITS(X:) .EQ. 'HOUR'.OR.UNITS(X:) .EQ. 'HOUR-1' .OR.
-     &             UNITS(X:) .EQ. 'HOURS'.OR.UNITS(X:) .EQ. 'HOURS-1' ) THEN
-            ! Convert hours -> seconds
-            CONV = CONV * 3600.0
-         ELSE IF ( UNITS(X:) .EQ. 'M' .OR. UNITS(X:) .EQ. 'M-1' .OR.
-     &             UNITS(X:) .EQ. 'MIN'.OR.UNITS(X:) .EQ. 'MIN-1' .OR.
-     &             UNITS(X:) .EQ. 'MINUTE'.OR.UNITS(X:) .EQ. 'MINUTE-1' .OR.
-     &             UNITS(X:) .EQ. 'MINUTES'.OR.UNITS(X:) .EQ. 'MINUTES-1' ) THEN
-            ! Convert minutes -> seconds
-            CONV = CONV * 60.0
-         ELSE
-            WRITE( XMSG,'(A,A,A,I3,A11,A,A,A)' ),
+         
+         ! Identify Denominator. Return from subroutine if the
+         ! denominator is empty.
+         DENOM = UNITS(X+2:)
+         IF ( DENOM .EQ. '' ) THEN
+            WRITE( XMSG,'(A,A16,A,I3,A11,A16,A,A,A,A)' ),
      &              'ERROR: Surrogate Species ',TRIM(SPEC),' on emission stream ',
-     &              ISRM, ' has units ',TRIM(UNITS),' which are unkown to CMAQ. ',
-     &              'Please correct them to proceed.'
-            CALL M3EXIT( 'CHECK_EMIS_UNITS', 0, 0, XMSG, 2 )
+     &              ISRM, ' has units ',TRIM(UNITS),' which are not recognized ',
+     &              'as an emission rate. If you wish to use this variable for ',
+     &              'emissions, please correct the units (e.g. g/s, moles/s, ',
+     &              'g/m2/s, or g/s/m2, etc.).'
+            CALL M3WARN( 'CHECK_EMIS_UNITS', 0, 0, XMSG )
+            ! No Conversion and and Unknown Basis
+            CONV = CONV * 1.0e0
+            BASIS = 'UNKNOWN' 
+            RETURN
          END IF
+
+         ! Remove Leading Spaces, if any
+         DO WHILE ( DENOM(1:1) .EQ. ' ' ) 
+             DENOM = DENOM(2:16) // ' '
+         END DO
+
+         ! Now split the Denominator into two parts, before and after
+         ! the slash or space. There will be at least one space because the
+         ! numerator has been cut from the units string, thus leaving at
+         ! least one empty space.
+         SLASH_IND = INDEX( DENOM, '/' )
+         IF ( SLASH_IND .EQ. 0 ) SLASH_IND = INDEX( DENOM, ' ' )
+         X = SLASH_IND - 1 
+         DENOM1 = DENOM(1:X)
+         DENOM2 = DENOM(X+2:)
+         
+         ! Parse the first Denominator and return attributes
+         CALL CHECK_UNIT_DENOMINATOR( DENOM1, LAREA_UNIT, LTIME_UNIT, 
+     &                                BASIS, CONV )
+         IF ( BASIS .EQ. 'UNKNOWN' ) THEN
+            WRITE( XMSG,'(A,A16,A,I3,A11,A16,A,A,A,A)' ),
+     &              'ERROR: Surrogate Species ',TRIM(SPEC),' on emission stream ',
+     &              ISRM, ' has units ',TRIM(UNITS),' which are not recognized ',
+     &              'as an emission rate. If you wish to use this variable for ',
+     &              'emissions, please correct the units (e.g. g/s, moles/s, ',
+     &              'g/m2/s, or g/s/m2, etc.).'
+            CALL M3WARN( 'CHECK_EMIS_UNITS', 0, 0, XMSG )
+            RETURN
+         END IF
+
+         ! Parse the second Denominator and return attributes
+         IF ( DENOM2 .NE. '' ) THEN
+            CALL CHECK_UNIT_DENOMINATOR( DENOM2, LAREA_UNIT, LTIME_UNIT, 
+     &                                   BASIS, CONV )
+            IF ( BASIS .EQ. 'UNKNOWN' ) THEN
+               WRITE( XMSG,'(A,A16,A,I3,A11,A16,A,A,A,A)' ),
+     &                'ERROR: Surrogate Species ',TRIM(SPEC),' on emission stream ',
+     &                ISRM, ' has units ',TRIM(UNITS),' which are not recognized ',
+     &                'as an emission rate. If you wish to use this variable for ',
+     &                'emissions, please correct the units (e.g. g/s, moles/s, ',
+     &                'g/m2/s, or g/s/m2, etc.).'
+               CALL M3WARN( 'CHECK_EMIS_UNITS', 0, 0, XMSG )
+               RETURN
+            END IF
+         END IF
+
+         ! Check to make sure the time component has been defined 
+         IF ( .NOT. LTIME_UNIT ) THEN
+            WRITE( XMSG,'(A,A16,A,I3,A11,A16,A,A,A,A)' ),
+     &             'ERROR: Surrogate Species ',TRIM(SPEC),' on emission stream ',
+     &             ISRM, ' has units ',TRIM(UNITS),' which are not recognized ',
+     &             'as an emission rate. If you wish to use this variable for ',
+     &             'emissions, please correct the units (e.g. g/s, moles/s, ',
+     &             'g/m2/s, or g/s/m2, etc.).'
+            CALL M3WARN( 'CHECK_EMIS_UNITS', 0, 0, XMSG )
+            BASIS = 'UNKNOWN'
+            RETURN
+         END IF 
 
          END SUBROUTINE CHECK_EMIS_UNITS
+ 
+!-----------------------------------------------------------------------
+         SUBROUTINE CHECK_UNIT_DENOMINATOR( DENOM, LAREA, LTIME, BASIS, CONV)
 
+! This subroutine compares the denominator from the units string of an
+! emission variables to potential time and area units and determines how
+! to convert the emissions online in DESID.
+!-----------------------------------------------------------------------
+
+         IMPLICIT NONE
+
+         CHARACTER(16), INTENT( IN )   :: DENOM
+         LOGICAL, INTENT( OUT )        :: LAREA
+         LOGICAL, INTENT( OUT )        :: LTIME
+         CHARACTER(16), INTENT( INOUT ):: BASIS
+         REAL, INTENT( INOUT)          :: CONV
+
+         ! Check 1st Denominator for Time Units
+         IF ( DENOM .EQ. 'S' .OR. DENOM .EQ. 'S-1' .OR.
+     &        DENOM .EQ. 'SEC'.OR.DENOM .EQ. 'SEC-1' .OR.
+     &        DENOM .EQ. 'SECOND'.OR.DENOM .EQ. 'SECOND-1' .OR.
+     &        DENOM .EQ. 'SECONDS'.OR.DENOM .EQ. 'SECONDS-1' ) THEN
+            ! No Conversion Necessary for seconds -> seconds
+            CONV = CONV * 1.0
+            LTIME = .TRUE.
+         ELSE IF ( DENOM .EQ. 'H' .OR. DENOM .EQ. 'H-1' .OR.
+     &             DENOM .EQ. 'HR'.OR.DENOM .EQ. 'HR-1' .OR.
+     &             DENOM .EQ. 'HRS'.OR.DENOM .EQ. 'HRS-1' .OR.
+     &             DENOM .EQ. 'HOUR'.OR.DENOM .EQ. 'HOUR-1' .OR.
+     &             DENOM .EQ. 'HOURS'.OR.DENOM .EQ. 'HOURS-1' ) THEN
+            ! Convert hours -> seconds
+            CONV = CONV * 3600.0
+            LTIME = .TRUE.
+         ELSE IF ( DENOM .EQ. 'M' .OR. DENOM .EQ. 'M-1' .OR.
+     &             DENOM .EQ. 'MIN'.OR.DENOM .EQ. 'MIN-1' .OR.
+     &             DENOM .EQ. 'MINUTE'.OR.DENOM .EQ. 'MINUTE-1' .OR.
+     &             DENOM .EQ. 'MINUTES'.OR.DENOM .EQ. 'MINUTES-1' ) THEN
+            ! Convert minutes -> seconds
+            CONV = CONV * 60.0
+            LTIME = .TRUE.
+         ELSE IF ( DENOM .EQ. 'M2' .OR. DENOM .EQ. 'M-2' .OR.
+     &             DENOM .EQ. 'M^2'.OR.DENOM .EQ. 'METER-2' .OR.
+     &             DENOM .EQ. 'METER^2'.OR.DENOM .EQ. 'METER^-2' .OR.
+     &             DENOM .EQ. 'METER2'.OR.DENOM .EQ. 'METER-2' .OR.
+     &             DENOM .EQ. 'METERS^2'.OR.DENOM .EQ. 'METERS^-2' .OR.
+     &             DENOM .EQ. 'METERS2'.OR.DENOM .EQ. 'METERS-2' ) THEN
+            ! No conversion necessary for meters^2 -> meters^2
+            CONV = CONV * 1.0
+            LAREA = .TRUE. 
+         ELSE IF ( DENOM .EQ. 'KM2' .OR. DENOM .EQ. 'KM-2' .OR.
+     &             DENOM .EQ. 'KM^2'.OR.DENOM .EQ. 'KM^-2' .OR.
+     &             DENOM .EQ. 'KILOMETER2'.OR.DENOM .EQ. 'KILOMETER-2' .OR.
+     &             DENOM .EQ. 'KILOMETER^2'.OR.DENOM .EQ. 'KILOMETER^-2' .OR.
+     &             DENOM .EQ. 'KILOMETERS2'.OR.DENOM .EQ. 'KILOMETERS-2' .OR.
+     &             DENOM .EQ. 'KILOMETERS^2'.OR.DENOM .EQ. 'KILOMETERS-2' ) THEN
+            ! Convert kilometers^2 -> meters^2
+            CONV = CONV * 1.0E6
+            LAREA = .TRUE. 
+         ELSE IF ( DENOM .EQ. 'MI2' .OR. DENOM .EQ. 'MI-2' .OR.
+     &             DENOM .EQ. 'MI^2'.OR.DENOM .EQ. 'MI^-2' .OR.
+     &             DENOM .EQ. 'MILE2'.OR.DENOM .EQ. 'MILE-2' .OR.
+     &             DENOM .EQ. 'MILE^2'.OR.DENOM .EQ. 'MILE^-2' .OR.
+     &             DENOM .EQ. 'MILES2'.OR.DENOM .EQ. 'MILES-2' .OR.
+     &             DENOM .EQ. 'MILES^2'.OR.DENOM .EQ. 'MILES-2' ) THEN
+            ! Convert mile^2 -> meters^2
+            CONV = CONV * 2.59E6
+            LAREA = .TRUE.  
+         ELSE IF ( DENOM .EQ. 'HA' .OR. DENOM .EQ. 'HA-1' .OR.
+     &             DENOM .EQ. 'HA^1'.OR.DENOM .EQ. 'HA^-1' .OR.
+     &             DENOM .EQ. 'HECTARE'.OR.DENOM .EQ. 'HECTARE-1' .OR.
+     &             DENOM .EQ. 'HECTARE^1'.OR.DENOM .EQ. 'HECTARE^-1' .OR.
+     &             DENOM .EQ. 'HECTARES'.OR.DENOM .EQ. 'HECTARES-1' .OR.
+     &             DENOM .EQ. 'HECTARES^1'.OR.DENOM .EQ. 'HECTARES^-1' ) THEN
+            ! Convert hectares -> meters^2
+            CONV = CONV * 10000.0
+            LAREA = .TRUE.   
+         ELSE
+            ! No Conversion and and Unknown Basis
+            CONV = CONV * 1.0e0
+            BASIS = 'UNKNOWN'
+         END IF
+
+      END SUBROUTINE CHECK_UNIT_DENOMINATOR
+ 
 !-----------------------------------------------------------------------
          SUBROUTINE CHECK_OP( OP, IRULE )
 
@@ -510,7 +666,7 @@
          END IF
 
          END SUBROUTINE CHECK_OP
-
+ 
 !-----------------------------------------------------------------------
          SUBROUTINE CHECK_BASIS( BASIS, IRULE )
 
@@ -540,7 +696,7 @@
          END IF
 
          END SUBROUTINE CHECK_BASIS
-
+ 
 !-----------------------------------------------------------------------
       FUNCTION RESOLVE_YN_TF_2D3D( ARG ) RESULT( ARGOUT )
 

@@ -38,6 +38,7 @@
 ! 01 Feb 19 David Wong: removed MY_N clauses
 ! 03 Apr 19 H. Pye: Updated IEPOX to consume inorganic sulfate when OS are formed
 ! 11 Dec 20 G. Sarwar: Removed unused uptake cofficients and added few uptake cofficients for halogen species
+! 23 Jun 21 G. Sarwar: Replaced CB6R3M with CB6R5M
 !-----------------------------------------------------------------------
 
        IMPLICIT NONE
@@ -315,6 +316,7 @@ C            the Environ CAMX model consult references 9 and 10.
 c 03/24/16 - G. Sarwar - Heterogeneous uptake of BRONO2 on aerosols
 C 5/2016     H Pye - merged with AERO6i version (added NO3, GLY, MGLY, IMAE het rxn)
 c 07/17/18 - G. Sarwar - Heterogeneous uptakes of chlorine, bromine and iodine species on aerosols
+C 06/10/21 - G. Sarwar: Added CB6R5M_AE7_AQ
 c
 c  REFERENCES:
 c   1. Pleim, J.E., F.S. Binkowski, J.K.S. Ching, R.L. Dennis, and N.V.
@@ -948,7 +950,7 @@ c *** get fine aerosol H2O and chlorine concentrations in
                   ACL  = aerospc_conc( ACL_IDX, N )
                   CL_PPM( N ) = PPM_FACTOR * ( ACL * INV_MWCL )
 
-      If ( Index( mechname, 'CB6R3M_AE7_AQ' ) .Gt. 0 ) Then
+      If ( Index( mechname, 'CB6R5M_AE7_AQ' ) .Gt. 0 ) Then 
          ABR  = aerospc_conc( ABR_IDX, N ) 
          INV_MWBR  = REAL( 1.0 / aerospc_mw( ABR_IDX ), 8 )  
          BR_PPM( N ) = PPM_FACTOR * ( ABR * INV_MWBR ) 
