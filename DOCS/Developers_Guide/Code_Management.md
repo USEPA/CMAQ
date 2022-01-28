@@ -32,8 +32,8 @@ git is a version control system that supports distributed workflows.  Every Git 
     1. Create a github account https://github.com/
     2. Go to the EPA github site and Fork your own copy of the EPA CMAQ to your github account
     3. create a directory called CMAQv5.3 on the machine where you would like to obtain a copy of the code
-    4. `git clone -b master https://github.com/<your github name>/CMAQ.git CMAQ_REPO` - Get a clone or copy of the master branch of the CMAQ repository from your github site.
-    5.  This will place a copy of the files from the master branch into the CMAQv5.3/CMAQ_REPO directory
+    4. `git clone -b main https://github.com/<your github name>/CMAQ.git CMAQ_REPO` - Get a clone or copy of the main branch of the CMAQ repository from your github site.
+    5.  This will place a copy of the files from the main branch into the CMAQv5.3/CMAQ_REPO directory
     6.  `cd CMAQv5.3/CMAQ_REPO` go into the CMAQv5.3/CMAQ_REPO directory
     7. `git status`   To confirm the status of the files in the repository and the branch that is currently checked out
     8. `git checkout -b 5.3_update` To copy the 5.3 branch into a new branch called 5.3_update
@@ -1012,13 +1012,11 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   #> Initial conditions
   if ($NEW_START == true || $NEW_START == TRUE ) then
      setenv ICFILE ICON_20110630_bench.nc
-     setenv INITIAL_RUN Y #related to restart soil information file
      rm -rf $LOGDIR/CTM_LOG*${RUNID}*  # Remove all Log Files Since this is a new start
      mkdir -p $OUTDIR
   else
      set ICpath = $OUTDIR
      setenv ICFILE CCTM_CGRID_${RUNID}_${YESTERDAY}.nc
-     setenv INITIAL_RUN N
   endif
 
   #> Boundary conditions
@@ -1100,9 +1098,8 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
      setenv BIOSEASON  $IN_BEISpath/bioseason.12US1.2006.09apr2012_bench.nc #> ignore season switch file if BIOSW_YN = N
      setenv SUMMER_YN  N     #> Use summer normalized emissions? [ default: Y ]
      setenv PX_VERSION Y     #> MCIP is PX version? [ default: N ]
-     setenv INITIAL_RUN Y    #> non-existent or not using SOILINP [ default: N ]; default uses SOILINP
      setenv SOILINP    $OUTDIR/CCTM_SOILOUT_${RUNID}_${YESTERDAY}.nc
-                             #> Biogenic NO soil input file; ignore if INITIAL_RUN = Y
+                             #> Biogenic NO soil input file; ignore if NEW_START = TRUE
   endif
 
   #> Windblown dust emissions configuration

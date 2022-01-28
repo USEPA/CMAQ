@@ -44,6 +44,7 @@ C   07 Nov 14 J.Bash: Updated for the ASX_DATA_MOD shared data module.
 C   02 Nov 2018: L.Zhou, S.Napelenok: isam implementation
 C   May 2019  J.Pleim Changed from sigma coords to Z coords for compatability w/ MPAS and WRF
 C   12 Dec 19 S.L.Napelenok: ddm-3d implementation for version 5.3.1
+C   15 Jun 21 J. Pleim: implemented HONO fix for dry depsotion flux
 C-----------------------------------------------------------------------
 
       USE CGRID_SPCS          ! CGRID mechanism species
@@ -61,7 +62,7 @@ C-----------------------------------------------------------------------
 #ifdef isam
       USE SA_DEFN, ONLY: N_SPCTAG, ISAM, VNAM_SPCTAG, TRANSPORT_SPC,
      &                   SA_VDEMIS_DIFF, ITAG, NTAG_SA, NSPC_SA,
-     &                   S_SPCTAG, T_SPCTAG, SA_DDEP, OTHRTAG, SPC_NAME,
+     &                   S_SPCTAG, T_SPCTAG, SA_DDEP, OTHRTAG, ISAM_SPEC,
      &                   L_NITRATE, SA_BIDI, BIDITAG, L_NH4
 #endif
 
@@ -141,7 +142,7 @@ C ACM Local Variables
       REAL        DEPV_HNO3                     ! dep vel of HNO3
       REAL        FNL                           ! ACM2 Variable
       INTEGER     NLP, NL, LCBL
-      INTEGER, SAVE :: NO2_HIT = 0, HONO_HIT = 0, HNO3_HIT = 0, NO2_MAP= 0, HNO3_MAP = 0 
+      INTEGER, SAVE :: NO2_HIT = 0, HONO_HIT = 0, HNO3_HIT = 0, NO2_MAP= 0, HONO_MAP = 0, HNO3_MAP = 0
       INTEGER, SAVE :: O3_HIT = 0, O3_MAP = 0
       INTEGER, SAVE :: NH3_HIT = 0
       REAL        DTLIM, DTS, DTACM, RZ
@@ -256,13 +257,14 @@ C set auxiliary depv arrays
          DD = 0.0; UU = 0.0   ! array assignment
 
          HONO_HIT = 0; HNO3_HIT = 0; NO2_HIT  = 0; NH3_HIT = 0
-                       HNO3_MAP = 0; NO2_MAP  = 0
+         HONO_MAP = 0; HNO3_MAP = 0; NO2_MAP  = 0
          DO V = 1, N_SPC_DEPV
             IF ( DV2DF_SPC( V ) .EQ. 'NO2' ) THEN
                NO2_HIT = V
                NO2_MAP = DV2DF( V )
             ELSE IF ( DV2DF_SPC( V ) .EQ. 'HONO' ) THEN
                HONO_HIT = V
+               HONO_MAP = DV2DF( V )
             ELSE IF ( DV2DF_SPC( V ) .EQ. 'HNO3' ) THEN
                HNO3_HIT = V
                HNO3_MAP = DV2DF( V )
@@ -320,7 +322,7 @@ C set auxiliary depv arrays
          END DO
 ! find NO2 in tracked species
          DO S = 1, NSPC_SA
-            IF( SPC_NAME( S,1 ) .EQ. 'NO2' )THEN
+            IF( ISAM_SPEC( S,1 ) .EQ. 'NO2' )THEN
                 ISAM_INDEX_NO2 = S
                 EXIT
             END IF            
@@ -329,7 +331,7 @@ C set auxiliary depv arrays
 ! find NH3 in tracked species
          IF ( SA_BIDI ) THEN
            DO S = 1, NSPC_SA
-              IF( SPC_NAME( S,1 ) .EQ. 'NH3' )THEN
+              IF( ISAM_SPEC( S,1 ) .EQ. 'NH3' )THEN
                   ISAM_INDEX_NH3 = S
                   EXIT
               END IF
@@ -697,6 +699,19 @@ C reduce the NO2 conc. in the atmosphere without affecting the depositional loss
                      S_DDBF( V, NP ) = S_DDBF( V, NP ) + THETA * DD_FAC( V ) * SENS ( S,1,NP )
                   END DO
 #endif
+
+               ELSE IF ( V .EQ. HONO_HIT ) THEN
+                  S = HONO_MAP
+                  CONC( S,1 ) = POL( V ) + ( CONC( S,1 ) - POL( V ) ) * EFAC1( V )
+                  DDBF( V ) = DDBF( V ) + THETA * DD_FAC( V ) * CONC( S,1 )
+C Don't add HONO emissions as negative dep flux
+!     &                      - DTDENS1 * DD_CONV( V ) * PLDV( V,C,R ) )
+#ifdef sens
+                  DO NP = 1, NPMAX
+                     SENS( S,1,NP ) = S_POL( NP,V ) + ( SENS( S,1,NP ) - S_POL( NP,V ) ) * EFAC1( V )
+                     S_DDBF( V, NP ) = S_DDBF( V, NP ) + THETA * DD_FAC( V ) * SENS ( S,1,NP )
+                  END DO
+#endif
   
 C --------- END of HET HONO RX ----------
 
@@ -740,10 +755,6 @@ C Add evasion as negative dep flux
      &                                + SAFRAC( JSPCTAG ) * POL( S ) * ( 1.0 -  EFAC1( S ) )               
                   SA_DDBF( JSPCTAG  ) = SA_DDBF( JSPCTAG )
      &                                + THETA * DD_FAC( S ) *  SACONC( JSPCTAG,1 )
-                  IF( S .NE. NO2_HIT .AND. S .NE. HNO3_HIT ) THEN
-                     SA_DDBF( JSPCTAG  ) = SA_DDBF( JSPCTAG )
-     &                                   - THETA * DTDENS1 * SAFRAC( JSPCTAG ) * DD_CONV( S ) * PLDV( S,C,R )                        
-                   END IF
                END IF
             END DO
 
@@ -1002,6 +1013,19 @@ C --------- HET HONO RX -----------------
                   END DO
 #endif
 
+               ELSE  IF ( V .EQ. HONO_HIT ) THEN
+                  S = HONO_MAP
+                  CONC( S,1 ) = POL( V ) + ( CONC( S,1 ) - POL( V ) ) * EFAC2( V )
+                  DDBF( V ) = DDBF( V ) + THBAR * DD_FAC( V ) * CONC( S,1 )
+C Don't add HONO emissions as negative dep flux
+!     &                      - DTDENS1 * DD_CONV( V ) * PLDV( V,C,R ) )
+#ifdef sens
+                  DO NP = 1, NPMAX
+                     SENS( S,1,NP ) = S_POL( NP,V ) + ( SENS( S,1,NP ) - S_POL( NP,V ) ) * EFAC2( V )
+                     S_DDBF( V,NP ) = S_DDBF( V,NP ) + THBAR * DD_FAC( V ) * SENS( S,1,NP )
+                  END DO
+#endif
+
 C --------- END of HET HONO RX ----------
 
                ELSE
@@ -1031,10 +1055,6 @@ C Update ISAM Dry Deposition
      &                                + SAFRAC( JSPCTAG ) * POL( S ) * ( 1.0 -  EFAC2( S ) )               
                   SA_DDBF( JSPCTAG  ) = SA_DDBF( JSPCTAG )
      &                                + THBAR * DD_FAC( S ) *  SACONC( JSPCTAG,1 )
-                  IF( S .NE. NO2_HIT .AND. S .NE. HNO3_HIT ) THEN
-                     SA_DDBF( JSPCTAG  ) = SA_DDBF( JSPCTAG )
-     &                                   - THBAR * DTDENS1 * SAFRAC( JSPCTAG ) * DD_CONV( S ) * PLDV( S,C,R )                         
-                  END IF
                END IF
             END DO
 

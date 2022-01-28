@@ -48,7 +48,6 @@ C.....INCLUDES:
 
       INCLUDE SUBST_CONST         ! constants
 
-      REAL(8)              :: EFFECTIVE_ZERO
       REAL(8)              :: INFINITY
 
 C..arrays to store indices to CGRID

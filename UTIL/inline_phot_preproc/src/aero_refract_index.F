@@ -247,13 +247,21 @@ C...check for read errors
 
 C...adjust loop counter index index and close file
 
-        NWLIN = IWL - 1
+        NWLIN = IWL + 1 ! - 1
         
         ALLOCATE( WAVE( NWLIN ), IMAG_REFRACT_IN( NWLIN ), REAL_REFRACT_IN( NWLIN ))
+        print*,'NWLIN = ',NWLIN
+        WAVE( 1:NWLIN-2 ) = 1000.0 * WLIN( 1:NWLIN-2 )
+        REAL_REFRACT_IN( 1:NWLIN-2 ) = XDUMB( 1:NWLIN-2 )
+        IMAG_REFRACT_IN( 1:NWLIN-2 ) = YDUMB( 1:NWLIN-2 )
 
-        WAVE( 1:NWLIN ) = 1000.0 * WLIN( 1:NWLIN )
-        REAL_REFRACT_IN( 1:NWLIN ) = XDUMB( 1:NWLIN )
-        IMAG_REFRACT_IN( 1:NWLIN ) = YDUMB( 1:NWLIN )
+        WAVE( NWLIN-1 )            = WAVE( NWLIN-2 ) + 4000.0
+        REAL_REFRACT_IN( NWLIN-1 ) = XDUMB( NWLIN-2 )
+        IMAG_REFRACT_IN( NWLIN-1 )  = YDUMB( NWLIN-2 )
+
+        WAVE( NWLIN )            = WAVE( NWLIN-2 ) + 4500.0
+        REAL_REFRACT_IN( NWLIN ) = XDUMB( NWLIN-2 )
+        IMAG_REFRACT_IN( NWLIN ) = YDUMB( NWLIN-2 )
 
 !        WRITE(6,'(3(es12.4,1X))')(WAVE(iwl),REAL_REFRACT_IN(iwl),REAL_REFRACT_IN(iwl),iwl=1,NWLIN)
         

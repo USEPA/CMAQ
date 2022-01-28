@@ -18,6 +18,7 @@
 
  set CMAQ_HOME = /home/username/CMAQ_Project
 
+
 #> This section allows users to choose explicitly which tools
 #> to make available from the repo. For each selected tool,
 #> extract_scripts.csh will copy any build and run scripts
@@ -32,6 +33,8 @@
  set EXT_BCON = Y 
  set EXT_ICON = Y 
  set EXT_MCIP = Y 
+ set EXT_CREATE_OMI = Y
+
  
  # Post-Processing Tools
  set EXT_COMBINE = Y 
@@ -184,6 +187,18 @@
     cp PREP/mcip/src/* $CMAQ_HOME/PREP/mcip/src
  endif
  
+#===============================================================================
+#> Copy create_omi scripts
+#===============================================================================
+ if ( $EXT_CREATE_OMI == 'Y' ) then
+    if ( ! -e "$CMAQ_HOME/PREP/create_omi/scripts" ) then
+       mkdir -pv $CMAQ_HOME/PREP/create_omi/scripts
+    endif
+    cp PREP/create_omi/scripts/bldit_create_omi.csh $CMAQ_HOME/PREP/create_omi/scripts/bldit_create_omi.csh
+    cp PREP/create_omi/scripts/get_toms_data.q $CMAQ_HOME/PREP/create_omi/scripts/get_toms_data.q
+    cp PREP/create_omi/scripts/run_create_omi.csh $CMAQ_HOME/PREP/create_omi/scripts/run_create_omi.csh
+ endif
+
 #===============================================================================
 #> Copy Combine Post-Processor scripts
 #===============================================================================

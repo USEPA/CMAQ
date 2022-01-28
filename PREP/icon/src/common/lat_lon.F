@@ -35,8 +35,10 @@ C Preconditions: None
   
 C Key Subroutines/Functions Called: SETLAM
 C                                   SETPOL
+C                                   SETEQM
 C                                   LAM2LL
 C                                   POL2LL
+C                                   EQM2LL
 C                                   UTM2LL
  
 C Revision History: Modified form of LAT_LON program originally created
@@ -45,6 +47,8 @@ C    06 Jun 11 J.Young: Replaced I/O API include files with UTILIO_DEFN
 C    28 Aug 18 R.Mathur/S.Roselle: Added polar stereographic projection
 C                      grid type option 
 C    06 Nov 18 S.Roselle: Replaced UTILIO_DEFN with M3UTILIO
+C    21 Apr 21 C. Hogrefe: Added equatorial mercator projection
+C                      grid type option 
 
 C***********************************************************************
 
@@ -125,6 +129,24 @@ C***********************************************************************
          Y = Y0 + FLOAT( ROW ) * SNGL( YCELL )
          IF ( .NOT. POL2LL( X, Y, LON, LAT ) ) THEN
             MSG = 'Polar stereographic conversion error for CTM CONC file'
+            CALL M3EXIT ( PNAME, 0, 0, MSG, 2 )
+         END IF
+
+      ELSE IF ( GDTYP .EQ. EQMGRD3 ) THEN  ! Equatorial Mercator Projection
+
+         IF ( .NOT. SETEQM( SNGL( P_ALP ),        !  first, initialize
+     &                      SNGL( P_BET ),        !  for EQM2LL()
+     &                      SNGL( P_GAM ),
+     &                      SNGL( XCENT ),
+     &                      SNGL( YCENT ) ) ) THEN
+            MSG='Equatorial mercator projection setup error for CTM CONC file'
+            CALL M3EXIT ( PNAME, 0, 0, MSG, 2 )
+         END IF
+
+         X = X0 + FLOAT( COL ) * SNGL( XCELL )
+         Y = Y0 + FLOAT( ROW ) * SNGL( YCELL )
+         IF ( .NOT. EQM2LL( X, Y, LON, LAT ) ) THEN
+            MSG = 'Equatorial mercator conversion error for CTM CONC file'
             CALL M3EXIT ( PNAME, 0, 0, MSG, 2 )
          END IF
 

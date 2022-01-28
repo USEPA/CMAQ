@@ -17,10 +17,10 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+!:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       MODULE DEPV_DEFN
 
-C-----------------------------------------------------------------------
+!-----------------------------------------------------------------------
 C Function: deposition velocity interface to the chemistry-transport model
 
 C Revision History:
@@ -54,6 +54,7 @@ C   12 Dec 19 S.L.Napelenok: ddm-3d implementation for version 5.3.1
 C   August 2020 J Pleim: Fixed timestep in call to m3dry. Corrects NH3 bidi emis, dep outputs
 C-------------------------------------------------------------------------------
       USE RUNTIME_VARS
+      USE CGRID_SPCS, ONLY : N_SPC_DEPV
 
 #ifdef sens
       USE DDM3D_DEFN, ONLY : NP, NPMAX, S_PVD, S_CGRIDL1, S_PLDV
@@ -65,7 +66,6 @@ C model depositon velocites array
       REAL,    ALLOCATABLE, SAVE :: DEPV( :,:,: )
 
 C no. of deposition velocity model species
-      INTEGER, SAVE :: N_SPC_DEPV
       INTEGER, SAVE :: N_GAS_DEPV
 
 C ddep spc conversion factors
@@ -83,7 +83,7 @@ C  Dry dep flux of NH3 for bidi [kg/ha hr]
 !C flag for mosaic - luc specific deposition - stomatal flux only - within in-lining depv
 !      LOGICAL, SAVE :: FST = .FALSE.      
 
-!      PUBLIC DEPV, DEPVJ, DEPVJ_FST, N_SPC_DEPV, DD_CONV, PLDV, CMP,
+!      PUBLIC DEPV, DEPVJ, DEPVJ_FST, DD_CONV, PLDV, CMP,
 !     &             ILDEPV, SFC_HONO, ABFLUX, MOSAIC, FST, N_GAS_DEPV,
 !     &             DEPV_INIT, GET_DEPV
 
@@ -198,7 +198,6 @@ C-----------------------------------------------------------------------
          SUCCESS = .TRUE.
 
          N_GAS_DEPV = N_GC_DEPV + N_NR_DEPV + N_TR_DEPV
-         N_SPC_DEPV = N_GAS_DEPV + N_AE_DEPV
 
          ALLOCATE ( DEPV( N_SPC_DEPV+1,NCOLS,NROWS ),
      &              PLDV( N_SPC_DEPV,NCOLS,NROWS ), STAT = ALLOCSTAT )
@@ -218,8 +217,6 @@ C-----------------------------------------------------------------------
          S_PLDV = 0.0   ! array assignment
 #endif
 
-
-C DEPVEL_GAS is used also for non-ILDEPV in the sgtot calculation
          ALLOCATE ( DEPVEL_GAS( N_GAS_DEPV,NCOLS,NROWS ), STAT = ALLOCSTAT )
          IF ( ALLOCSTAT .NE. 0 ) THEN
             XMSG = 'Failure allocating DEPVEL_GAS array'
@@ -250,7 +247,7 @@ C set dry dep conversion factor (done here so that vdiff doesn`t need the includ
          DO V = 1, N_AE_DEPV
             S = S + 1
             IF ( AE_SPC( AE_DEPV_MAP( V ) )( 1:3 ) .EQ. 'NUM' ) THEN
-               DD_CONV( S ) = CNVTD * AVO * 1.0E+03    ! --> #/Ha
+               DD_CONV( S ) = M2PHA * 1.0E+3 / MWAIR   ! --> #/Ha
             ELSE IF ( AE_SPC( AE_DEPV_MAP( V ) )( 1:3 ) .EQ. 'SRF' ) THEN
                DD_CONV( S ) = M2PHA * 1.0E+03 / MWAIR  ! --> M**2/Ha
             ELSE
@@ -277,12 +274,6 @@ C Initialize
                SUCCESS = .FALSE.; RETURN
             END IF
          END IF
-
-         !IF ( ILDEPV ) THEN
-         !
-         !   CALL INIT_LSM( JDATE, JTIME )
-         !   CALL INIT_BIDI( )
-         !END IF   ! in-line depv
 
          INIT_GAS_DV:
      &   IF ( N_GAS_DEPV .GT. 0 ) THEN
