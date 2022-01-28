@@ -290,9 +290,9 @@
 !  Reaction Label R009            
                 RKI( NCELL,    9) =  RJBLK( NCELL, IJ_HNO4_RACM2 )
 !  Reaction Label R010            
-                RKI( NCELL,   10) =  RJBLK( NCELL, IJ_HCHO_MOL_RACM2 )
+                RKI( NCELL,   10) =  RJBLK( NCELL, IJ_HCHO_MOL_JPL19 )
 !  Reaction Label R011            
-                RKI( NCELL,   11) =  RJBLK( NCELL, IJ_HCHO_RAD_RACM2 )
+                RKI( NCELL,   11) =  RJBLK( NCELL, IJ_HCHO_RAD_JPL19 )
 !  Reaction Label R012            
                 RKI( NCELL,   12) =  RJBLK( NCELL, IJ_CH3CHO_RACM2 )
 !  Reaction Label R013            
@@ -373,7 +373,7 @@
 !  Reaction Label R039            
              RKI( NCELL,   39) =  CFACT * ARRHENUIS_T03( INV_TEMP,  8.0000D-12,  -2.0600D+03 )
 !  Reaction Label R040            
-             RKI( NCELL,   40) =  CFACT * ARRHENUIS_T03( INV_TEMP,  3.2000D-11,  -6.7000D+01 )
+             RKI( NCELL,   40) =  CFACT * ARRHENUIS_T03( INV_TEMP,  3.3000D-11,   6.7000D+01 )
 !  Reaction Label R041            
              RKI( NCELL,   41) =  CFACT * ARRHENUIS_T03( INV_TEMP,  2.0000D-11,   1.3000D+02 )
 !  Reaction Label R042            
