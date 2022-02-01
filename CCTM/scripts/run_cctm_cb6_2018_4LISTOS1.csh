@@ -462,7 +462,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   if ( $CTM_BIOGEMIS_BEIS == 'Y' ) then   
      set IN_BEISpath = ${INPDIR}
      setenv GSPRO      $BLD/gspro_biogenics.txt
-     setenv B3GRD      $IN_BEISpath/beis/b3grd_${STKCASEG}.ncf
+     setenv B3GRD      $IN_BEISpath/beis/b3grd_4LISTOS1_2018ff_18j_WR401_fine.ncf
      setenv BIOSW_YN   Y     #> use frost date switch [ default: Y ]
      setenv BIOSEASON  $IN_BEISpath/beis/bioseason.cmaq.2018_4LISTOS1.ncf 
                              #> ignore season switch file if BIOSW_YN = N
