@@ -1554,7 +1554,9 @@ C-----------------------------------------------------------------------
       END DO
 
 
-!***interpolate cross-section and quantum yield to grid temperature
+      CSZ = 0.0
+      QYZ = 1.0
+!***loop over rates for temperature corrections
       DO IPHOT = 1, MECHANISM_RATES
 !***loop over wavelengths
         DO IWL = 1, NWL_REF
@@ -1592,11 +1594,9 @@ C-----------------------------------------------------------------------
         END DO
       END DO
 
-
-!***loop over rates
+!***Make specific temperature and/or density corrections if needed
+!***Note specific acetone channels are treated outside these three nested loops
       DO IPHOT = 1, MECHANISM_RATES
-!********Make specific temperature and density corrections if needed
-!********Note specific acetone channels are treated outside these three nested
 
         IF( CSQY_ADJUST( IPHOT ) .LT. 1 )CYCLE
 
@@ -1793,6 +1793,11 @@ C-----------------------------------------------------------------------
                  DO LAYS = 1, NLAYS
                     IF ( QYZ( LAYS, IWL, IPHOT ) .LE. 0.0 ) CYCLE
 
+                    IF( QYZ( LAYS, IWL, LHCHOR_06 ) .GT. 0.9999999 )THEN
+                        WRITE(6,*)"QYZ( LAYS, IWL, LHCHOR_06 ) = ",QYZ( LAYS, IWL, LHCHOR_06 ) 
+                        CALL M3EXIT( 'GET_CSQY', 0, 0, 'CHECK master log for information', -1 )
+                    END IF
+                         
                     BETA = 1.0 / ( 1.0 - QYZ( LAYS, IWL, LHCHOR_06 ) )
                     IF ( TEMP( LAYS ) .LT. 300.0 .AND. TEMP( LAYS ) .GT. 220.0 ) THEN
                         PRESSURE = 1.36312E-22  * DENS( LAYS ) * TEMP( LAYS )   ! pressure units, atm

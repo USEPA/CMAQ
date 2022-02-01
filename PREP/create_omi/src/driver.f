@@ -476,12 +476,6 @@
            end do
         End If
 
-!        call o3tot_cmaq ( yrfrac_(j), lat_omi, lon_omi, oz_ )                  
-
-!        do i = 1,359
-!           write(unit_expand,555)yrfrac_(j),lat_expand(i),
-!     &                          (idnint( oz_expand(i,k) ),k=1,720)       
-!       end do
 
         call extract_o3_cmaq ( jdate(j), yrfrac_(j), lat_expand, lon_expand, oz_expand )
 !       call viz_o3totcol ( jdate(j) )

@@ -412,7 +412,7 @@
                   if (dge(layer) .ge. mini_diameter_ice .and. dge(layer) .le. maxi_diameter_ice) then
                      factor = freq_diameter_ice * (dge(layer) - mini_diameter_ice)
                      index = int(factor)
-                     fint = factor - float(index)
+                     fint = max( factor - float(index),0.0 )
                      index = min(  ndiameter_ice - 1, max( 1, index ) )
                      cloud_ice_ext(layer, iwl) =  ice_extinct(index,iwl) 
      &                                         +  fint * (ice_extinct(index+1,iwl) - ice_extinct(index,iwl))
@@ -486,7 +486,7 @@
                      write(xmsg, 99950)'ice particle SSA outside bounds and equals ', 
      &               cloud_ice_ssa(layer, iwl),' at layer ', layer
                      call m3mesg(xmsg)
-                     error_flag = .true.
+!                    error_flag = .true.
                   end if 
                   if (cloud_ice_asy(layer, iwl) .gt. 1.0 .or. cloud_ice_asy(layer, iwl) .lt. -1.0)then
                      write(xmsg, 99950)'ice particle asymmetery factor outside bounds and equals ', 
@@ -636,8 +636,8 @@
                   end if
 #endif                    
                   index = int(radliq - init_radius_liquid)
-                  if (index .eq. 0) index = 1
-                  if (index .eq. nradius_liquid) index = nradius_liquid - 1
+                  if (index .le. 0) index = 1
+                  if (index .ge. nradius_liquid) index = nradius_liquid - 1
                     
                   fint = max( freq_radius_liquid*(radliq - init_radius_liquid - real(index)), 0.0)
      
@@ -672,7 +672,7 @@
                      write(xmsg, 99950)'liquid cloud droplet SSA outside bounds and equals ', 
      &               cloud_liquid_ssa(layer, iwl),' at layer ', layer
                      call m3mesg(xmsg)
-                     error_flag = .true.
+!                    error_flag = .true.
                   end if 
                   if (cloud_liquid_scat(layer, iwl) .gt. cloud_liquid_ext(layer, iwl))then
                      write(xmsg, 99950)'cloud droplet scattering greater than extinction, SSA = ', 
@@ -942,7 +942,7 @@
                   do iwl = 1, nwl_ref                 
                      factor = freq_diameter_ice * (deff_snow(layer) - mini_diameter_ice)
                      index = int(factor)
-                     fint = factor - float(index)
+                     fint = max( factor - float(index),0.0 )
                      index = min(  ndiameter_ice - 1, max( 1, index ) )
                      snow_ext  =  ice_extinct(index,iwl) 
      &                         +  fint * (ice_extinct(index+1,iwl) - ice_extinct(index,iwl))
@@ -995,7 +995,7 @@
                         write(xmsg, 99960)'snowflake SSA outside bounds and equals ', 
      &                  snow_ssa,' at layer ', layer
                         call m3mesg(xmsg)
-                        error_flag = .true.
+!                       error_flag = .true.
                      end if 
                      if (snow_asy .ge. 1.0 .or. snow_asy .le. -1.0 .or. snow_asy .ne. snow_asy )then
                          write(xmsg, 99960)'snowflake asymmetery factor outside bounds and equals ', 
@@ -1051,7 +1051,7 @@
                   do iwl = 1, nwl_ref
                      factor = freq_diameter_ice * (deff_graupel(layer) - mini_diameter_ice)
                      index = int(factor)
-                     fint = factor - float(index)
+                     fint = max( factor - float(index), 0.0 )
                      index = min(  ndiameter_ice - 1, max( 1, index ) )
                      graupel_ext  =  ice_extinct(index,iwl) 
      &                            +  fint * (ice_extinct(index+1,iwl) - ice_extinct(index,iwl))
@@ -1106,7 +1106,7 @@
                         write(xmsg, 99960)'graupel SSA outside bounds and equals ', 
      &                  graupel_ssa,' at layer ', layer
                         call m3mesg(xmsg)
-                        error_flag = .true.
+!                       error_flag = .true.
                       end if 
                       if (graupel_asy .gt. 1.0 .or. graupel_asy .lt. -1.0 .or. graupel_asy .ne. graupel_asy )then
                          write(xmsg, 99960)'graupel asymmetery factor outside bounds and equals ', 

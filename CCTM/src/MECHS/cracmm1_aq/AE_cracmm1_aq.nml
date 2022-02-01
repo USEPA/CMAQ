@@ -19,7 +19,7 @@ AE_SPECIES_DATA =
 'AECJ'     , 12.00  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSJ'    , 1  ,'PRI_ACCUM'    , 1  ,'EC_ACCUM'     ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!Elemental Carbon,L,NA,[C]
 'AECI'     , 12.00  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSI'    , 1  ,'PRI_AITKEN'   , 1  ,'EC_AITKEN'    ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!Elemental Carbon,L,NA,[C]
 'AOTHRJ'   ,200.00  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSJ'    , 1  ,'PRI_ACCUM'    , 1  ,'PRI_ACCUM'    ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!Unspeciated Accumulation mode aerosol,L,NA,NA
-'AOTHRI'   ,200.00  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSI'    , 1  ,'PRI_AITKEN'   , 1  ,'PRI_AITKEN'   ,'Yes'   ,''      ,''      ,'Yes',!Unspeciated Aitken mode aerosol,L,NA,NA
+'AOTHRI'   ,200.00  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSI'    , 1  ,'PRI_AITKEN'   , 1  ,'PRI_AITKEN'   ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!Unspeciated Aitken mode aerosol,L,NA,NA
 'AFEJ'     , 55.80  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSJ'    , 1  ,'PRI_ACCUM'    , 1  ,'FE_ACCUM'     ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!Iron,E,NA,Fe
 'AALJ'     , 27.00  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSJ'    , 1  ,'PRI_ACCUM'    , 1  ,'PRI_ACCUM'    ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!Aluminum,E,NA,Al
 'ASIJ'     , 28.10  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSJ'    , 1  ,'PRI_ACCUM'    , 1  ,'PRI_ACCUM'    ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!Silicon,E,NA,Si
@@ -42,7 +42,7 @@ AE_SPECIES_DATA =
 'AH3OPJ'   , 19.00  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSJ'    , 1  ,''             ,-1  ,''             ,'Yes'   ,''      ,''      ,'Yes',
 'AH3OPI'   , 19.00  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSI'    , 1  ,''             ,-1  ,''             ,'Yes'   ,''      ,''      ,'Yes',
 'ANAJ'     , 23.00  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSJ'    , 1  ,'NA_ACCUM'     , 1  ,'NA_ACCUM'     ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
-'ANAI'     , 23.00  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSI'    , 1  ,'NA_AITKEN'    , 1  ,'NA_AITKEN'    ,'Yes'   ,'Yes    ,'Yes'   ,'Yes',
+'ANAI'     , 23.00  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSI'    , 1  ,'NA_AITKEN'    , 1  ,'NA_AITKEN'    ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
 'ACLJ'     , 35.50  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSJ'    , 1  ,'CL_ACCUM'     , 1  ,'CL_ACCUM'     ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
 'ACLI'     , 35.50  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSI'    , 1  ,'CL_AITKEN'    , 1  ,'CL_AITKEN'    ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
 'ASEACAT'  , 23.75  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSC'    , 1  ,'PRI_COARSE'   , 1  ,'SEAS_COARSE'  ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
