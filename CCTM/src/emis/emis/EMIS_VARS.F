@@ -31,7 +31,9 @@
       IMPLICIT NONE
 
       SAVE
-
+      REAL,    ALLOCATABLE :: CELLAREA( :,: )
+      REAL,    ALLOCATABLE :: CELLHGT ( : )
+      REAL,    ALLOCATABLE :: CELLVOL ( :,:,: )
       REAL,    ALLOCATABLE :: VDEMIS_DIFF( :,:,:,: ) ! emissions array mapped to diffused species
 
       INTEGER              :: EMLAYS
@@ -45,12 +47,15 @@
 
       TYPE EM_SURR_TYPE
           INTEGER         :: LEN    ! Length of Sub-Vector
-          CHARACTER( 16 ), ALLOCATABLE :: ARRY( : )   ! Surrogate Name
-          CHARACTER( 16 ), ALLOCATABLE :: UNITS( : )  ! Units determined from input files
-          REAL,            ALLOCATABLE :: MW( : )     ! Default MW from SPECIATE/SMOKE/MOVE
-          LOGICAL,         ALLOCATABLE :: USED( : )   ! Whether or not the surrogate is used in CMAQ
-          Real,            ALLOCATABLE :: CONV( : )   ! Conversion factor to account for kg -> g or hr -> s
-          CHARACTER( 4 ),  ALLOCATABLE :: BASIS( : )  ! 'MOLE' or 'MASS'
+          CHARACTER( 16 ), ALLOCATABLE :: ARRY( : )    ! Surrogate Name
+          CHARACTER( 16 ), ALLOCATABLE :: UNITS( : )   ! Units determined from input files
+          REAL,            ALLOCATABLE :: MW( : )      ! Default MW from SPECIATE/SMOKE/MOVE
+          LOGICAL,         ALLOCATABLE :: USED( : )    ! Whether or not the surrogate is used in CMAQ
+          Real,            ALLOCATABLE :: CONV( : )    ! Conversion factor to account for kg -> g or hr -> s
+          CHARACTER( 16 ), ALLOCATABLE :: BASIS( : )   ! 'MOLE', 'MASS', or 'UNKNOWN' 
+          LOGICAL,         ALLOCATABLE :: LAREA( : )   ! Whether or not the variable is an area flux
+          LOGICAL,         ALLOCATABLE :: LAREAADJ( : )! Whether or not the emissions should be adjusted 
+                                                       !    by the map scale factor
       END TYPE EM_SURR_TYPE
       TYPE( EM_SURR_TYPE ),ALLOCATABLE :: EM_FILE_SURR( : )! Species to be read from each stream file
 
@@ -62,6 +67,10 @@
           REAL, ALLOCATABLE    :: BULK(:) ! Scale Factor for bulk emission without
                                           !   splitting for aerosols
           REAL, ALLOCATABLE    :: BASIS(:)! Conversion factor to account for mole or mass basis
+          LOGICAL, ALLOCATABLE :: AREA(:) ! True if the emission is a flux that needs to be multiplied 
+                                          !   by the grid cell area
+          LOGICAL, ALLOCATABLE :: AREAADJ(:) ! True if the emissions need to be adjusted by the map scale
+                                             !   factor to convert from real space to projected space
           INTEGER, ALLOCATABLE :: REG(:)  ! Index Mapping this entry to a particlar region in EM_REGIONS
           INTEGER, ALLOCATABLE :: OP(:)   ! Operation to perform for this scaling
                                           !   (addition,'a' = 1, 

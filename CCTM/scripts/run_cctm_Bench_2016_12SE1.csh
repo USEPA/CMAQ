@@ -470,6 +470,20 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
        #> Set optional ISAM regions files
        #setenv ISAM_REGIONS $INPDIR/GRIDMASK_STATES_12SE1.nc
 
+       #> Options used to favor tracked species in reaction for Ozone-NOx chemistry
+       setenv ISAM_O3_WEIGHTS 5   # weights for tracked species Default is 5
+                                  #     OPTIONS
+                                  # 1 does not weight any species
+                                  # 2 weights NOx and subset of NOz species
+                                  # 3 uses with from option 2 plus weight OVOC species, organic radicals and operators
+                                  # 4 weight OVOC species, organic radicals and operators
+                                  # 5 toggles between two weighting set based on VOC and NOx limited ozone production
+       # Below options only used if ISAM_O3_WEIGHTS set to 5
+       setenv ISAM_NOX_CASE  2    # weights for tracked species when ozone production is NOx limited. Default is 2
+       setenv ISAM_VOC_CASE  4    # weights for tracked species when ozone production is VOC limited. Default is 4
+       setenv VOC_NOX_TRANS  0.35 # value of Prod H2O2 over Prod HNO3 less than where
+                                  # ISAM_VOC_CASE weights are used. Otherwise, ISAM_NOX_CASE
+                                  # weights are used. Default is 0.35
 
     endif
  endif

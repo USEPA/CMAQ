@@ -74,6 +74,8 @@
 !                     an extreme case, i.e. simulation runs in a hourly basis, in the
 !                     retrieve_boundary_data subroutine.
 !  08/06/20, D. Wong:- fixed excessive reading of time independent boundary file data
+!  11/17/21, G. Sarwar: Changed minimum values from 0.0 to 0.001 for ocean and szone  
+!                       to ensure values are nonnegative and greater than 0.001
 !------------------------------------------------------------------------!
 
 !------------------------------------------------------------------------!
@@ -1492,7 +1494,7 @@
                    else
                       do i = 1, ncols
                          do k = 1, num_dist_layers(i,fnum)
-                            mpas_tdata(i,k) = temp_data_1d(i) * dist_frac(k,i,fnum) * cell_area(i,1)
+                            mpas_tdata(i,k) = temp_data_1d(i) * dist_frac(k,i,fnum) !* cell_area(i,1)
                          end do
                       end do
                    end if
@@ -1559,20 +1561,11 @@
 
 ! de-normalized the data 
                    mpas_tdata = 0.0
-                   if ((cio_emis_file_name(fnum) .eq. exception1) .or. 
-     &             (cio_emis_file_name(fnum) .eq.  exception2)) then
-                      do i = 1, ncols
-                         do k = 1, num_dist_layers(i,fnum)
-                            mpas_tdata(i,k) = temp_data_1d(i) * dist_frac(k,i,fnum)
-                         end do
+                   do i = 1, ncols
+                      do k = 1, num_dist_layers(i,fnum)
+                         mpas_tdata(i,k) = temp_data_1d(i) * dist_frac(k,i,fnum)
                       end do
-                   else
-                      do i = 1, ncols
-                         do k = 1, num_dist_layers(i,fnum)
-                            mpas_tdata(i,k) = temp_data_1d(i) * dist_frac(k,i,fnum) * cell_area(i,1)
-                         end do
-                      end do
-                   end if
+                   end do
 
                    t_beg = begin
                    t_end = begin + ncols - 1
@@ -3581,9 +3574,9 @@ C Read the various categories of normalized emissions
                    XMSG = 'Could not interpolate SURF from ' // OCEAN_1
                    CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
                 END IF
-
-                WHERE ( ocean .LT. 0.0 ) ocean = 0.0  ! ensure values are nonnegative
-                WHERE ( szone .LT. 0.0 ) szone = 0.0  ! ensure values are nonnegative
+                
+                WHERE ( ocean .LT. 0.001 ) ocean = 0.0  ! ensure values are nonnegative and greater than 0.001
+                WHERE ( szone .LT. 0.001 ) szone = 0.0  ! ensure values are nonnegative and greater than 0.001                
              END IF
           ELSE 
              WRITE( LOGDEV, '(/,5x,A,/,5x,A,/5x,A)' ), 
@@ -4943,6 +4936,7 @@ C   mminlu and num_land_cat are WRF global variables
          
          ! Define Emissions Rules Input from Emissions Control Namelist
          NAMELIST / EmissionScalingRules / EM_NML
+         NAMELIST / AreaNorm             / AREA_NML
          NAMELIST / SizeDistributions    / SD_NML 
          NAMELIST / RegionsRegistry      / RGN_NML
          NAMELIST / BudgetOptions        / Budget_Diag, BudgetVariables
@@ -4967,7 +4961,12 @@ C   mminlu and num_land_cat are WRF global variables
          EM_NML%BASIS  = ''
          EM_NML%FAC    = 0.
 
-         ! Initialize Size Distribution Namelist Variables
+         ! Allocate and Initialize Area Normalization Namelist Variables
+         AREA_NML%STREAM  = 'ALL'
+         AREA_NML%AREA    = 'AUTO'
+         AREA_NML%ADJ     = 'AUTO'
+ 
+         ! Allocate and Initialize Size Distribution Namelist Variables
          SD_NML%STREAM   = ''
          SD_NML%MODE     = ''
          SD_NML%MODE_REF = ''
@@ -5029,7 +5028,33 @@ C   mminlu and num_land_cat are WRF global variables
      &                     'fix the Regions Registry', 1 ) 
  
          END IF
-          
+ 
+         ! Read the Area Normalization Registry
+         REWIND( EMCTRL_NML )
+         READ( NML = AreaNorm, UNIT = EMCTRL_NML, IOSTAT=STAT )
+         IF ( STAT .EQ. -1 ) THEN
+             XMSG = 'Note: The Area Normalization section of the Emissions Control '//
+     &              'Interface is missing. Default values for this section will be '//
+     &              'assumed.'
+             CALL LOG_MESSAGE( LOGDEV,' ')
+             CALL LOG_MESSAGE( LOGDEV, XMSG )
+             AREA_NML%STREAM = 'ALL'
+             AREA_NML%AREA   = 'AUTO'
+             AREA_NML%ADJ    = 'AUTO'
+         ELSE IF ( STAT .NE. 0 ) THEN
+             ! Read Error Detected for AREA_NML
+             backspace( EMCTRL_NML )
+             read( EMCTRL_NML, fmt='(A)' ) tmpline
+             XMSG = 'ERROR: There was a syntax error reading the Area Normalization '//
+     &              'variable for use by the DESID module. Please check the format of '//
+     &              'each line for syntax errors. The invalid line was likely: '
+             CALL LOG_MESSAGE( LOGDEV, ' ')
+             CALL LOG_MESSAGE( LOGDEV, XMSG )
+             WRITE( LOGDEV, '(8x,A)' ) TMPLINE
+             CALL M3EXIT ( 'Read_Emiss_Namelist', 0, 0, 'CMAQ must Crash until you '// 
+     &                     'fix the Area Normalization section', 1 ) 
+         END IF
+ 
          ! Read Budget Variables Specification Section
          REWIND( EMCTRL_NML )
          READ( NML = BudgetOptions, UNIT = EMCTRL_NML, IOSTAT=STAT )
