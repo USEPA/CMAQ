@@ -114,7 +114,8 @@ C...include files
          Real, Intent( In )  :: lufrac( :,:,: )    
          Character( 240 )       :: xmsg = ' '
          Character(  16 ), save :: pname = 'Init_Mosaic'
-         Integer l,t
+         Integer n,l,t
+         Integer N_GAS_DEPV
          Integer gxoff, gyoff            ! global origin offset from file
          Integer :: strtcolgc2, endcolgc2, strtrowgc2, endrowgc2
 
@@ -136,16 +137,16 @@ C...include files
 
 ! STAGE land use 
          Tile_Data%n_lufrac = n_stage_lu
-         Tile_Data%cat_lu   = STAGE_LU%lu_cat
-         Tile_Data%name_lu  = STAGE_LU%name
-         Tile_Data%RSMIN    = STAGE_LU%RSMIN
-         Tile_Data%LAI0     = STAGE_LU%LAI0
-         Tile_Data%LAIMN0   = STAGE_LU%LAIMN0
-         Tile_Data%VEG0     = STAGE_LU%VEG0
-         Tile_Data%VEGMN0   = STAGE_LU%VEGMN0
-         Tile_Data%Z00      = STAGE_LU%Z00/100.0
-         Tile_Data%LUF_FAC  = STAGE_LU%LUF_FAC
-         Tile_Data%HGLU_FAC = STAGE_LU%HGLU_FAC
+         Tile_Data%cat_lu   = STAGE_LU_Data( 1:n_stage_lu )%LU_Cat
+         Tile_Data%name_lu  = STAGE_LU_Data( 1:n_stage_lu )%LU_Name
+         Tile_Data%RSMIN    = STAGE_LU_Data( 1:n_stage_lu )%RSMIN
+         Tile_Data%LAI0     = STAGE_LU_Data( 1:n_stage_lu )%LAI0
+         Tile_Data%LAIMN0   = STAGE_LU_Data( 1:n_stage_lu )%LAIMN0
+         Tile_Data%VEG0     = STAGE_LU_Data( 1:n_stage_lu )%VEG0
+         Tile_Data%VEGMN0   = STAGE_LU_Data( 1:n_stage_lu )%VEGMN0
+         Tile_Data%Z00      = STAGE_LU_Data( 1:n_stage_lu )%Z00/100.0
+         Tile_Data%LUF_FAC  = STAGE_LU_Data( 1:n_stage_lu )%Gamma_NH3_st
+         Tile_Data%HGLU_FAC = STAGE_LU_Data( 1:n_stage_lu )%HGLU_FAC
                                                                                                   
 ! Allocate buffers
          ALLOCATE ( BUFF2D_1( ncols,nrows ), STAT = ALLOCSTAT )
@@ -183,8 +184,10 @@ C...include files
 !---------------------------------------------------------------------------------------------------
 ! placeholder to read namelist for lu agrigation and dep species output
 !---------------------------------------------------------------------------------------------------
-
-         Allocate ( Tile_Data%depvel_gasj( Tile_Data%n_lufrac,dep_gas_all,ncols,nrows ),
+         N_GAS_DEPV = N_GC_DEPV + N_NR_DEPV + N_TR_DEPV
+!         N_SPC_DEPV = N_GAS_DEPV + N_AE_DEPV
+!         Allocate ( Tile_Data%depvel_gasj( Tile_Data%n_lufrac,dep_gas_all,ncols,nrows ),
+         Allocate ( Tile_Data%depvel_gasj( Tile_Data%n_lufrac,N_GAS_DEPV,ncols,nrows ),
      &              Tile_Data%adepvj     ( Tile_Data%n_lufrac,N_AE_DEPV,ncols,nrows   ),  
      &              Tile_Data%LUfrac     ( ncols,nrows,Tile_Data%n_lufrac ), STAT = ALLOCSTAT ) 
          If ( ALLOCSTAT .Ne. 0 ) Then
@@ -194,12 +197,14 @@ C...include files
 
 ! Map Met land use to STAGE land use
          Tile_Data%LUfrac = 0.0
-         Do t = 1, Tile_Data%n_lufrac 
-            Do l = 1, n_lufrac
-               If ( cat_lu( l ) .Eq. Tile_Data%cat_lu( t ) ) Then
-                  Tile_Data%LUfrac(:,:,t) = Tile_Data%LUfrac(:,:,t) + lufrac(:,:,l)
-               End If
-            End Do
+         Do n = 1, n_xref_lu
+            t = MET_TO_STAGE_LU( n )%Dep_Index 
+            l = MET_TO_STAGE_LU( n )%Met_Index
+            Tile_Data%LUfrac(:,:,t) = Tile_Data%LUfrac(:,:,t) +
+     &          MET_TO_STAGE_LU( n )%Factor * lufrac(:,:,l)
+            Write(logdev,*) 'Met_Index ', l, 'Dep_Index ', t
+            Write(logdev,*) MET_TO_STAGE_LU(n)%Dep_LU_Name, '=', MET_TO_STAGE_LU( n )%Factor,'*',
+     &           MET_TO_STAGE_LU(n)%Met_LU_Name
          End Do
 
          Allocate ( is_ag    ( Tile_Data%n_lufrac ),

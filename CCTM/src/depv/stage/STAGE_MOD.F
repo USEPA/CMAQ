@@ -161,46 +161,6 @@ C  Allocate arrays
             XMSG = 'Failure allocating DG, XXLSG, or PDENS'
             CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
-C STAGE diagnostic output
-         IF( DIAG_STAGE ) THEN
-            n_diag_dep = 0
-            diagloop: DO s = 1, dep_gas_all
-               IF ( .NOT. asx_run_map( s ) ) CYCLE diagloop
-               DO n = 1, N_GC_DDEP
-                  If ( STAGE_Diag_Data%dep_name( s ) .EQ. gc_spc( gc_ddep_map( n ) ) ) THEN
-                     n_diag_dep = n_diag_dep + 1
-                     STAGE_Diag_Data%dep_map( s ) = .TRUE.
-                     STAGE_Diag_Data%dep_name( s ) = vd_name( s )
-                     STAGE_Diag_Data%dep_fac( s )  = GC_DEPV_FAC( N )
-                  END IF
-               END DO
-               DO n = 1, N_NR_DDEP
-                  If ( STAGE_Diag_Data%dep_name( s ) .EQ. nr_spc( nr_ddep_map( n ) ) ) THEN
-                     n_diag_dep = n_diag_dep + 1
-                     STAGE_Diag_Data%dep_map( s ) = .TRUE.
-                     STAGE_Diag_Data%dep_name( s ) = vd_name( s )
-                     STAGE_Diag_Data%dep_fac( s )  = NR_DEPV_FAC( N )
-                  END IF
-               END DO
-               DO n = 1, N_TR_DDEP
-                  If ( STAGE_Diag_Data%dep_name( s ) .EQ. tr_spc( tr_ddep_map( n ) ) ) THEN
-                     n_diag_dep = n_diag_dep + 1
-                     STAGE_Diag_Data%dep_map( s ) = .TRUE.
-                     STAGE_Diag_Data%dep_name( s ) = vd_name( s )
-                     STAGE_Diag_Data%dep_fac( s )  = TR_DEPV_FAC( N )
-                  END IF
-               END DO
-            END DO diagloop
-            STAGE_Diag_Data%n_spc    = n_diag_dep
-
-            ALLOCATE ( STAGE_Diag_Data%Vd      ( NCOLS, NROWS, n_diag_dep, Tile_Data%n_lufrac),    
-     &                 STAT = ALLOCSTAT )
-            IF ( ALLOCSTAT .NE. 0 ) THEN
-               XMSG = 'Failure allocating STAGE diagnostic output arrays'
-               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-            END IF
-            STAGE_Diag_Data%Vd       = BADVAL3                
-         END IF
 
 C Set the dep vel surrogate pointers
          DO S = 1, N_AE_DEPV
@@ -214,6 +174,76 @@ C Set the dep vel surrogate pointers
                DEPV_SUR( S ) = 0
             END IF
          END DO                               
+
+! STAGE diagnostic output
+! This block of code maps the user specified output deposition velocities from the GC, NR, and TR namelists
+         IF( MOSAIC ) THEN
+            n_diag_dep = 0
+            diagloop_gas: DO s = 1, dep_gas_all
+               IF ( .NOT. asx_run_map( s ) ) CYCLE diagloop_gas
+               DO n = 1, N_GC_DDEP
+                  If ( STAGE_Diag_Data%dep_name_gas( s ) .EQ. gc_spc( gc_ddep_map( n ) ) ) THEN
+                     n_diag_dep = n_diag_dep + 1
+                     STAGE_Diag_Data%dep_map_gas( s ) = .TRUE.
+                     STAGE_Diag_Data%dep_name_gas( s ) = vd_name( s )
+                     STAGE_Diag_Data%dep_fac_gas( s )  = GC_DEPV_FAC( N )
+                  END IF
+               END DO
+               DO n = 1, N_NR_DDEP
+                  If ( STAGE_Diag_Data%dep_name_gas( s ) .EQ. nr_spc( nr_ddep_map( n ) ) ) THEN
+                     n_diag_dep = n_diag_dep + 1
+                     STAGE_Diag_Data%dep_map_gas( s ) = .TRUE.
+                     STAGE_Diag_Data%dep_name_gas( s ) = vd_name( s )
+                     STAGE_Diag_Data%dep_fac_gas( s )  = NR_DEPV_FAC( N )
+                  END IF
+               END DO
+               DO n = 1, N_TR_DDEP
+                  If ( STAGE_Diag_Data%dep_name_gas( s ) .EQ. tr_spc( tr_ddep_map( n ) ) ) THEN
+                     n_diag_dep = n_diag_dep + 1
+                     STAGE_Diag_Data%dep_map_gas( s ) = .TRUE.
+                     STAGE_Diag_Data%dep_name_gas( s ) = vd_name( s )
+                     STAGE_Diag_Data%dep_fac_gas( s )  = TR_DEPV_FAC( N )
+                  END IF
+               END DO
+            END DO diagloop_gas
+            STAGE_Diag_Data%n_gas_spc    = n_diag_dep
+            n_diag_dep = 0
+            diagloop_aero: DO s = 1, N_AE_DEPV
+               IF ( STAGE_Diag_Data%dep_map_aero( s ) ) THEN
+                  n_diag_dep = n_diag_dep + 1
+                  STAGE_Diag_Data%dep_name_aero( s ) = AE_DEPV( s )
+                  STAGE_Diag_Data%dep_fac_aero( s )  = AE_DEPV_FAC( s )   
+               END IF
+            End Do diagloop_aero
+            STAGE_Diag_Data%n_aero_spc = n_diag_dep
+
+            DO s = 1, dep_gas_all
+               If(STAGE_Diag_Data%dep_map_gas( s )) Then
+               Write(logdev,*) 'Mapping test: asx_run_map: ', asx_run_map(s), 
+     &                         'dep_map_gas: ', STAGE_Diag_Data%dep_map_gas( s ),
+     &                         'dep_name_gas: ', STAGE_Diag_Data%dep_name_gas( s )
+               End If
+            End Do
+            Write(logdev,*) 'N depv aero ouput:', STAGE_Diag_Data%n_aero_spc
+            DO s = 1, N_AE_DEPV
+               If(STAGE_Diag_Data%dep_map_aero( s )) Then
+               Write(logdev,*) 'Mapping test: dep_map_aero: ', STAGE_Diag_Data%dep_map_aero( s ),
+     &                         'dep_name_aero: ', STAGE_Diag_Data%dep_name_aero( s )
+               End If
+            End Do
+
+
+
+            ALLOCATE ( STAGE_Diag_Data%Vd_gas ( NCOLS, NROWS, STAGE_Diag_Data%n_gas_spc, Tile_Data%n_lufrac),
+     &                 STAGE_Diag_Data%Vd_aero( NCOLS, NROWS, STAGE_Diag_Data%n_aero_spc, Tile_Data%n_lufrac),        
+     &                 STAT = ALLOCSTAT )
+            IF ( ALLOCSTAT .NE. 0 ) THEN
+               XMSG = 'Failure allocating STAGE diagnostic output arrays'
+               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+            END IF
+            STAGE_Diag_Data%Vd_gas       = 0.0
+            STAGE_Diag_Data%Vd_aero      = 0.0                                
+         END IF
 
 C-----------------------------------------------------------------
 C        Species maps
@@ -441,7 +471,7 @@ C Parameters specific to gas_x. Currently based on m3dry but subject to change
          spc_loop: Do s = 1, dep_gas_all
             IF ( asx_run_map( s ) ) Then
             n = n + 1
-            IF( DIAG_STAGE .And. STAGE_Diag_Data%dep_map( s ) ) n_diag = n_diag + 1
+            IF( MOSAIC .And. STAGE_Diag_Data%dep_map_gas( s ) ) n_diag = n_diag + 1
 ! Special cases
             if( s .eq. s_NH3 ) NH3_hit = .True.
             if( s .eq. s_O3 ) O3_hit  = .True.
@@ -649,9 +679,9 @@ C Calculate Rst
                bidi_emis( n )  = bidi_emis( n )  + frac_lu * LU_Emis
                depvel_gas( n ) = depvel_gas( n ) + 
      &                           frac_lu * Tile_Data%depvel_gasj( l,n,c,r )
-               IF( DIAG_STAGE .And. STAGE_Diag_Data%dep_map( s ) .AND. frac_lu .Gt. 0.0 ) THEN
-                  vd_fac = Tile_Data%depvel_gasj( l,s,c,r ) * STAGE_Diag_Data%dep_fac( s ) * 100.0 
-                  STAGE_Diag_Data%Vd(c,r,n_diag,l) = vd_fac                  
+               IF( MOSAIC .And. STAGE_Diag_Data%dep_map_gas( s ) .AND. frac_lu .Gt. 0.0 ) THEN
+                  STAGE_Diag_Data%Vd_gas(c,r,n_diag,l) = Tile_Data%depvel_gasj( l,n,c,r ) * 
+     &                                                   STAGE_Diag_Data%dep_fac_gas( s ) * 100.0                   
                END IF
             End If ! frac_lu > 0
 
@@ -799,6 +829,7 @@ C Meteorological variables
          CHARACTER( 96 ) :: XMSG = ' '
 
          INTEGER  V, N, L               ! loop counters
+         INTEGER  n_diag
          INTEGER  SPC, S                ! species loop counter
          INTEGER  ALLOCSTAT
 
@@ -981,7 +1012,7 @@ C now integrate to the aera weighted grid cell
          END DO ! aerosol mode
 
 C Return dry deposition velocities for aerosols (first layer only).
-
+         n_diag = 0
          DO V = 1, N_AE_DEPV
             IF ( DEPV_SUR( V ) .GT. 0 ) THEN
                VDEP_AE( V ) = VDEP( DEPV_SUR( V ) )
@@ -989,6 +1020,11 @@ C Return dry deposition velocities for aerosols (first layer only).
             ELSE
                VDEP_AE( V ) = 0.0
                Tile_Data%ADEPVJ( :,V,C,R ) = 0.0 
+            END IF 
+            IF( MOSAIC .And. STAGE_Diag_Data%dep_map_aero( V ) ) THEN
+               n_diag = n_diag + 1
+               STAGE_Diag_Data%Vd_aero(c,r,n_diag,:) = VDEPJ( :,DEPV_SUR( V ) ) *                  
+     &             STAGE_Diag_Data%dep_fac_aero( V ) * 100.0 
             END IF
          END DO
                     

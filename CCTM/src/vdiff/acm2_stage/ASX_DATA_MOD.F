@@ -163,8 +163,8 @@ C-------------------------------------------------------------------------------
          Real,    Allocatable :: RHOB   ( :,: )  ! soil bulk density
          Real,    Allocatable :: LUFRAC ( :,:,: ) ! land use fraction (col,row,lu_type)[ratio]
 C Land use information:
-         Character( 16 ), Allocatable   :: NAME    ( : )     ! LU name
-         Character( 16 ), Allocatable   :: LU_Type ( : )     ! general land use type e.g. water, forest, etc.
+!         Character( 16 ), Allocatable   :: NAME    ( : )     ! LU name
+!         Character( 16 ), Allocatable   :: LU_Type ( : )     ! general land use type e.g. water, forest, etc.
       End Type GRID_Type
 
       Type :: MOSAIC_Type                 ! (col,row,lu)
@@ -365,15 +365,15 @@ C-----------------------------------------------------------------------
      &             Grid_Data%WFC     ( NCOLS,NROWS ),
      &             Grid_Data%RHOB    ( NCOLS,NROWS ),
      &             Grid_Data%LUFRAC  ( NCOLS,NROWS,n_lufrac ),
-     &             Grid_Data%NAME    ( n_lufrac ),
-     &             Grid_Data%LU_Type ( n_lufrac ),
+!     &             Grid_Data%NAME    ( n_lufrac ),
+!     &             Grid_Data%LU_Type ( n_lufrac ),
      &             STAT = ALLOCSTAT )
          If ( ALLOCSTAT .Ne. 0 ) Then
             XMSG = 'Failure allocating grid vars'
             Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          End If
-         Grid_Data%NAME    = name_lu
-         Grid_Data%LU_Type = cat_lu
+!         Grid_Data%NAME    = name_lu
+!         Grid_Data%LU_Type = cat_lu
          Grid_Data%WSAT    = 0.0
          Grid_Data%WWLT    = 0.0
          Grid_Data%WFC     = 0.0

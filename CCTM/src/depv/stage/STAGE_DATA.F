@@ -46,33 +46,24 @@ C     26 June 2014 J.Bash: initial implementation
       End Type Map_Type      
 
       Type :: STAGE_Diag
-         Integer,       Allocatable :: n_spc                ! number of diagnostic species
-         Real,          Allocatable :: Vd        ( :,:,:,:)  ! Gaseous dry deposition velocity
-         Real,          Allocatable :: Rsurf     ( :,:,:,:)  ! Bulk canopy resistance
-         Real,          Allocatable :: Rstom     ( :,:,:,: )  ! Net Stomatal resistance
-         Real,          Allocatable :: Rmes      ( :,:,:,: )  ! Net Mesophyll resistance
-         Real,          Allocatable :: Rcut      ( :,:,:,: )  ! Net Cuticular resistance
-         Real,          Allocatable :: Rinc      ( :,:,: )    ! In canopy resistance
-         Real,          Allocatable :: Rbl       ( :,:,:,: )  ! Leaf Quasi Laminar sublayer resistance
-         Real,          Allocatable :: Rbs       ( :,:,:,: )  ! Soil Quasi Laminar sublayer resistance
-         Real,          Allocatable :: Rsoil     ( :,:,:,: )  ! Net soil resistance
-         Real,          Allocatable :: Gstom     ( :,:,:,: )  ! Bulk Stomatal conductance
-         Real,          Allocatable :: Gcut      ( :,:,:,: )  ! Bulk cuticular conductance
-         Real,          Allocatable :: Gsoil     ( :,:,:,: )  ! Bulk Soil conductance
-         Real,          Allocatable :: Gnoveg    ( :,:,:,: )  ! Bulk Non Vegitative Soil conductance
-         Real,          Allocatable :: NH3_z0    ( :,:,: )    ! NH3 bidi compensation point
-         Real,          Allocatable :: NH3_stom  ( :,:,: )    ! NH3 stomatal bidi compensation point
-         Real,          Allocatable :: NH3_grnd  ( :,:,: )    ! NH3 ground bidi compensation point
-         Real,          Allocatable :: dep_fac   ( : )        ! deposition factor from the namelist
-         Character(16), Allocatable :: dep_name  ( : )        ! Dep Species name
-         Logical,       Allocatable :: dep_map   ( : )        ! Map of length n_gas_depv mapping to gas dry deposition species output
+         Integer,       Allocatable :: n_gas_spc                 ! number of diagnostic gas species
+         Integer,       Allocatable :: n_aero_spc                ! number of diagnostic aerosol species
+         Real,          Allocatable :: Vd_gas        ( :,:,:,:)  ! Gaseous dry deposition velocity
+         Real,          Allocatable :: Vd_aero       ( :,:,:,:)  ! Gaseous dry deposition velocity
+         Real,          Allocatable :: dep_fac_gas   ( : )       ! Gaseous deposition factor from the namelist
+         Real,          Allocatable :: dep_fac_aero  ( : )       ! Aerosol deposition factor from the namelist
+         Character(16), Allocatable :: dep_name_gas  ( : )       ! Gaseous Dep Species name
+         Character(16), Allocatable :: dep_name_aero ( : )       ! Gaseous Dep Species name
+         Logical,       Allocatable :: dep_map_gas   ( : )       ! Map of length n_gas_depv mapping to gas dry deposition species output
+         Logical,       Allocatable :: dep_map_aero  ( : )       ! Map of length n_gas_depv mapping to gas dry deposition species output
       End Type STAGE_Diag
 
       Type( Map_Type ),   Save :: Map_Data 
 
       Type( STAGE_Diag ), Save :: STAGE_Diag_Data 
 
-      INTEGER, PARAMETER :: dep_gas_all = 177
+      INTEGER, PARAMETER    :: dep_gas_all = 177
+      Integer,         Save :: n_unique_adepv
       Character( 16 ), Save :: vd_name     ( dep_gas_all )       ! Deposition species name
       Real,            Save :: rel_rx      ( dep_gas_all )       ! reactivity relative to HNO3
       Real,            Save :: LeBasM      ( dep_gas_all )       ! Le Bas molar volume [cm3/mol ]
@@ -83,7 +74,8 @@ C     26 June 2014 J.Bash: initial implementation
       INTEGER, SAVE         :: N_USE_DEPSPC        
       LOGICAL, SAVE         :: USE_DEPSPC  ( dep_gas_all )
       Integer, Save         :: n_gas_asx                         ! number of gas species used in this simulation 
-      Logical, Save         :: asx_run_map( dep_gas_all )
+      Logical, Save         :: asx_run_map ( dep_gas_all )
+!      Logical               :: AE_DEPV_FOUND( N_AE_DEPV )
 
       CHARACTER( 16 ), Parameter    :: DEPV_METHOD = 'STAGE'
 
@@ -284,17 +276,26 @@ C     26 June 2014 J.Bash: initial implementation
          gc_depv_name = 'None'
          H_name_all   = 'None'
 
-         ALLOCATE ( STAGE_Diag_Data%dep_name( dep_gas_all ),
-     &              STAGE_Diag_Data%dep_map ( dep_gas_all ),
-     &              STAGE_Diag_Data%dep_fac ( dep_gas_all ),  
+!         AE_DEPV_FOUND = .FALSE.
+         N_UNIQUE_ADEPV = 0
+
+         ALLOCATE ( STAGE_Diag_Data%dep_name_gas  ( dep_gas_all ),
+     &              STAGE_Diag_Data%dep_map_gas   ( dep_gas_all ),
+     &              STAGE_Diag_Data%dep_fac_gas   ( dep_gas_all ),
+     &              STAGE_Diag_Data%dep_name_aero ( N_AE_DEPV ),   
+     &              STAGE_Diag_Data%dep_map_aero  ( N_AE_DEPV ), 
+     &              STAGE_Diag_Data%dep_fac_aero  ( N_AE_DEPV ),    
      &              STAT = ALLOCSTAT )
          IF ( ALLOCSTAT .NE. 0 ) THEN
             XMSG = 'Failure allocating STAGE diagnostic output arrays'
             CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
          END IF
-         STAGE_Diag_Data%dep_map  = .FALSE.
-         STAGE_Diag_Data%dep_name = 'Empty'
-         STAGE_Diag_Data%dep_fac  = 1.0
+         STAGE_Diag_Data%dep_map_gas   = .FALSE.
+         STAGE_Diag_Data%dep_map_aero  = .FALSE.
+         STAGE_Diag_Data%dep_name_gas  = 'Empty'
+         STAGE_Diag_Data%dep_name_aero = 'Empty'
+         STAGE_Diag_Data%dep_fac_gas   = 1.0
+         STAGE_Diag_Data%dep_fac_aero  = 1.0
 
          n_gas_asx   = N_GC_DEPV + N_NR_DEPV + N_TR_DEPV
          
@@ -340,11 +341,30 @@ C     26 June 2014 J.Bash: initial implementation
                H_name_all( s ) = tr_scav(v)
             End if
          End Do
-         STAGE_Diag_Data%dep_name = gc_depv_name
+         STAGE_Diag_Data%dep_name_gas = gc_depv_name
+! use this for mosaic dry deposition
+         AERO_UNIQUE:
+     &   DO N = 1, N_AE_DEPV
+            IF ( STAGE_Diag_Data%dep_map_aero( N ) ) CYCLE AERO_UNIQUE
+            DO V = 1, N_AE_DEPV
+               IF ( AE_DEPV( N ) .EQ. AE_DEPV( V ) ) THEN
+                  IF ( STAGE_Diag_Data%dep_map_aero( V ) ) CYCLE AERO_UNIQUE
+                  N_UNIQUE_ADEPV = N_UNIQUE_ADEPV + 1
+                  STAGE_Diag_Data%dep_name_aero( v ) = AE_DEPV( V )
+                  STAGE_Diag_Data%dep_map_aero( V ) = .TRUE.
+                  CYCLE AERO_UNIQUE
+               END IF
+            END DO
+         END DO AERO_UNIQUE
+!         STAGE_Diag_Data%n_aero_spc = N_UNIQUE_ADEPV
+
          Write(Logdev,*) '*********************** STAGE Deposition Map ***********************'
          Write(Logdev,99901) 'Dep. Species', 'H Surrogate', 'Mol Weight'
          Do v = 1, dep_gas_all
-           If( asx_run_map (v) ) Write(Logdev,99902) STAGE_Diag_Data%dep_name( v ), H_name_all(v), molwt_all(v)
+           If( asx_run_map (v) ) Write(Logdev,99902) STAGE_Diag_Data%dep_name_gas( v ), H_name_all(v), molwt_all(v)
+         End Do       
+         Do v = 1, N_AE_DEPV
+           If( STAGE_Diag_Data%dep_map_aero (v) ) Write(Logdev,99902) STAGE_Diag_Data%dep_name_aero( v ), 'NA', -99.9
          End Do       
 99901    Format(A16,1x,A16,1x,A16)
 99902    Format(A16,1x,A16,10x,F6.2)
