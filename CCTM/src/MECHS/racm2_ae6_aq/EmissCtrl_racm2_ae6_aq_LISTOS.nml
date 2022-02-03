@@ -7,6 +7,7 @@
 ! UNITED STATES ENVIRONMENTAL PROTECTION AGENCY                                !
 !                                                                              !
 ! THIS VERSION CONSISTENT WITH THE RELEASE OF CMAQv5.3 (AUGUST 2019)           !
+! This version uses CRACMM emissions with RACM2 chemistry (mappings approximate)
 !------------------------------------------------------------------------------!
 
 !------------------------------------------------------------------------------!
@@ -110,7 +111,7 @@
    ! Note: Without default mapping for a species, 
    !       there is no emission of that species.
 
-   ! Inorganic Gases                                                                  
+   ! Inorganic Gases-same for CRACMM and RACM                                                                  
    'EVERYWHERE', 'ALL'         ,'NO2'    ,'NO2'         ,'GAS'  ,1.  ,'UNIT','a', 
    'EVERYWHERE', 'ALL'         ,'NO'     ,'NO'          ,'GAS'  ,1.  ,'UNIT','a', 
    'EVERYWHERE', 'ALL'         ,'HONO'   ,'HONO'        ,'GAS'  ,1.  ,'UNIT','a', 
@@ -119,27 +120,27 @@
    'EVERYWHERE', 'ALL'         ,'SULF'   ,'SULF'        ,'GAS'  ,0.  ,'UNIT','a', 
    'EVERYWHERE', 'ALL'         ,'NH3'    ,'NH3'         ,'GAS'  ,1.  ,'UNIT','a', 
 
-   ! Organic gases
+   ! Organic gases-Emission Surrogates are from CRACMMv0.21 and mapped to RACM2 CMAQ species
    'EVERYWHERE', 'ALL'         ,'ACD'    ,'ACD'         ,'GAS'  ,1.  ,'UNIT','a', 
    'EVERYWHERE', 'ALL'         ,'ACE'    ,'ACE'         ,'GAS'  ,1.  ,'UNIT','a', 
-   'EVERYWHERE', 'ALL'         ,'ACRO'   ,'ACRO'        ,'GAS'  ,1.  ,'UNIT','a', ! map to MACR in RACM2
+   'EVERYWHERE', 'ALL'         ,'ACRO'   ,'MACR'        ,'GAS'  ,1.  ,'UNIT','a', ! mapped to MACR in RACM2 based on Carter emitdb
    'EVERYWHERE', 'ALL'         ,'ACT'    ,'ACT'         ,'GAS'  ,1.  ,'UNIT','a', 
    'EVERYWHERE', 'ALL'         ,'ALD'    ,'ALD'         ,'GAS'  ,1.  ,'UNIT','a', 
    'EVERYWHERE', 'ALL'         ,'API'    ,'API'         ,'GAS'  ,1.  ,'UNIT','a', 
    'EVERYWHERE', 'ALL'         ,'BALD'   ,'BALD'        ,'GAS'  ,1.  ,'UNIT','a', 
-   'EVERYWHERE', 'ALL'         ,'BDE13'  ,'BDE13'       ,'GAS'  ,1.  ,'UNIT','a', ! map to DIEN in RACM2
-   'EVERYWHERE', 'ALL'         ,'BEN'    ,'BEN'         ,'GAS'  ,1.  ,'UNIT','a', ! map to BENZENE in RACM2
+   'EVERYWHERE', 'ALL'         ,'BDE13'  ,'DIEN'        ,'GAS'  ,1.  ,'UNIT','a', ! map to DIEN in RACM2
+   'EVERYWHERE', 'ALL'         ,'BEN'    ,'BENZENE'     ,'GAS'  ,1.  ,'UNIT','a', ! BEN maps to BENZENE in RACM2
    'EVERYWHERE', 'ALL'         ,'CSL'    ,'CSL'         ,'GAS'  ,1.  ,'UNIT','a', 
    'EVERYWHERE', 'ALL'         ,'DCB1'   ,'DCB1'        ,'GAS'  ,1.  ,'UNIT','a',
    'EVERYWHERE', 'ALL'         ,'EOH'    ,'EOH'         ,'GAS'  ,1.  ,'UNIT','a', 
    'EVERYWHERE', 'ALL'         ,'ETE'    ,'ETE'         ,'GAS'  ,1.  ,'UNIT','a', 
    'EVERYWHERE', 'ALL'         ,'ETEG'   ,'ETEG'        ,'GAS'  ,1.  ,'UNIT','a', 
    'EVERYWHERE', 'ALL'         ,'ETH'    ,'ETH'         ,'GAS'  ,1.  ,'UNIT','a', 
-   'EVERYWHERE', 'ALL'         ,'FURAN'  ,'FURAN'       ,'GAS'  ,1   ,'UNIT','a', ! map to HC8 (furfural) in RACM2
+   'EVERYWHERE', 'ALL'         ,'FURAN'  ,'HC8'         ,'GAS'  ,1   ,'UNIT','a', ! map to HC8 (furfural) or XYO (furan) in RACM2 based on Carter emitdb
    'EVERYWHERE', 'ALL'         ,'GLY'    ,'GLY'         ,'GAS'  ,1.  ,'UNIT','a', 
    'EVERYWHERE', 'ALL'         ,'HC3'    ,'HC3'         ,'GAS'  ,1.  ,'UNIT','a', 
    'EVERYWHERE', 'ALL'         ,'HC5'    ,'HC5'         ,'GAS'  ,1.  ,'UNIT','a', 
-   'EVERYWHERE', 'ALL'         ,'HC8'    ,'HC10'        ,'GAS'  ,1.  ,'UNIT','a', ! between CRACMMv0.21 and v1.0, HC8 was renamed HC10; map to HC8 in RACM2
+   'EVERYWHERE', 'ALL'         ,'HC8'    ,'HC8'         ,'GAS'  ,1.  ,'UNIT','a', 
    'EVERYWHERE', 'ALL'         ,'HCHO'   ,'HCHO'        ,'GAS'  ,1.  ,'UNIT','a', 
    'EVERYWHERE', 'ALL'         ,'HKET'   ,'HKET'        ,'GAS'  ,1.  ,'UNIT','a', 
    'EVERYWHERE', 'ALL'         ,'ISO'    ,'ISO'         ,'GAS'  ,1.  ,'UNIT','a', 
@@ -151,35 +152,21 @@
    'EVERYWHERE', 'ALL'         ,'MGLY'   ,'MGLY'        ,'GAS'  ,1.  ,'UNIT','a', 
    'EVERYWHERE', 'ALL'         ,'MOH'    ,'MOH'         ,'GAS'  ,1.  ,'UNIT','a', 
    'EVERYWHERE', 'ALL'         ,'MVK'    ,'MVK'         ,'GAS'  ,1.  ,'UNIT','a', 
-   'EVERYWHERE', 'ALL'         ,'NAPH'   ,'NAPH'        ,'GAS'  ,1.  ,'UNIT','a', ! map to XYM in RACM (NAPH is tracer in RACM2) 
+   'EVERYWHERE', 'ALL'         ,'NAPH'   ,'XYM'         ,'GAS'  ,1.  ,'UNIT','a', ! map to XYM in RACM2 based on Carter emitdb
    'EVERYWHERE', 'ALL'         ,'OLI'    ,'OLI'         ,'GAS'  ,1.  ,'UNIT','a', 
    'EVERYWHERE', 'ALL'         ,'OLT'    ,'OLT'         ,'GAS'  ,1.  ,'UNIT','a', 
    'EVERYWHERE', 'ALL'         ,'ONIT'   ,'ONIT'        ,'GAS'  ,1.  ,'UNIT','a',
    'EVERYWHERE', 'ALL'         ,'ORA1'   ,'ORA1'        ,'GAS'  ,1.  ,'UNIT','a', 
    'EVERYWHERE', 'ALL'         ,'ORA2'   ,'ORA2'        ,'GAS'  ,1.  ,'UNIT','a', 
    'EVERYWHERE', 'ALL'         ,'PHEN'   ,'PHEN'        ,'GAS'  ,1   ,'UNIT','a',
-   'EVERYWHERE', 'ALL'         ,'PROG'   ,'PROG'        ,'GAS'  ,1.  ,'UNIT','a', ! map to HC8 in RACM2
-   'EVERYWHERE', 'ALL'         ,'ROCIOXY','VROCIOXY'    ,'GAS'  ,1   ,'UNIT','a', ! ignore in RACM2
+   'EVERYWHERE', 'ALL'         ,'PROG'   ,'HC8'         ,'GAS'  ,1.  ,'UNIT','a', ! map to HC8 in RACM2 based on Carter emitdb
    'EVERYWHERE', 'ALL'         ,'ROH'    ,'ROH'         ,'GAS'  ,1.  ,'UNIT','a', 
    'EVERYWHERE', 'ALL'         ,'SESQ'   ,'SESQ'        ,'GAS'  ,1.  ,'UNIT','a', 
-   'EVERYWHERE', 'ALL'         ,'SLOWROC','SLOWROC'     ,'GAS'  ,1   ,'UNIT','a', ! ignore in RACM2
-   'EVERYWHERE', 'ALL'         ,'TOLUENE','TOL'         ,'GAS'  ,1.  ,'UNIT','a', ! between CRACMMv0.21 and v1.0, TOLUENE was renamed TOL; map to TOL in RACM2
+   'EVERYWHERE', 'ALL'         ,'TOLUENE','TOL'         ,'GAS'  ,1.  ,'UNIT','a',
    'EVERYWHERE', 'ALL'         ,'UALD'   ,'UALD'        ,'GAS'  ,1.  ,'UNIT','a', 
    'EVERYWHERE', 'ALL'         ,'XYM'    ,'XYM'         ,'GAS'  ,1.  ,'UNIT','a', 
-   'EVERYWHERE', 'ALL'         ,'XYOP'   ,'XYE'         ,'GAS'  ,1.  ,'UNIT','a', ! between CRACMMv0.21 and v1.0, XYOP emissions were renamed XYE; map 0.5/0.5 to XYO/XYP in RACM2 
-
-   ! Volatility resolved CRACMM gases (ignore in RACM2)
-   'EVERYWHERE', 'ALL'         ,'ROCN2'  ,'VROCN2ALK'   ,'GAS'  ,1   ,'UNIT','a',
-   'EVERYWHERE', 'ALL'         ,'ROCN1'  ,'VROCN1ALK'   ,'GAS'  ,1   ,'UNIT','a',
-   'EVERYWHERE', 'ALL'         ,'ROCP0'  ,'VROCP0ALK'   ,'GAS'  ,1   ,'UNIT','a',
-   'EVERYWHERE', 'ALL'         ,'ROCP1'  ,'VROCP1ALK'   ,'GAS'  ,1   ,'UNIT','a',
-   'EVERYWHERE', 'ALL'         ,'ROCP2'  ,'VROCP2ALK'   ,'GAS'  ,1   ,'UNIT','a',
-   'EVERYWHERE', 'ALL'         ,'ROCP3'  ,'VROCP3ALK'   ,'GAS'  ,1   ,'UNIT','a',
-   'EVERYWHERE', 'ALL'         ,'ROCP4'  ,'VROCP4ALK'   ,'GAS'  ,1   ,'UNIT','a',
-   'EVERYWHERE', 'ALL'         ,'ROCP5'  ,'VROCP5ALK'   ,'GAS'  ,1   ,'UNIT','a',
-   'EVERYWHERE', 'ALL'         ,'ROCP6'  ,'VROCP6ALK'   ,'GAS'  ,1   ,'UNIT','a',
-   'EVERYWHERE', 'ALL'        ,'ROCP5ARO','VROCP5ARO'   ,'GAS'  ,1   ,'UNIT','a',
-   'EVERYWHERE', 'ALL'        ,'ROCP6ARO','VROCP6ARO'   ,'GAS'  ,1   ,'UNIT','a',
+   'EVERYWHERE', 'ALL'         ,'XYOP'   ,'XYO'         ,'GAS'  ,0.5 ,'UNIT','a', ! XYOP (v0.21, XYE in v1.0) mapped 50/50 to XYO/XYP
+   'EVERYWHERE', 'ALL'         ,'XYOP'   ,'XYP'         ,'GAS'  ,0.5 ,'UNIT','a', 
 
    ! Default Aerosols
    'EVERYWHERE', 'ALL'         ,'SULF'   ,'ASO4'        ,'FINE' ,1.  ,'MASS','a', 
@@ -245,106 +232,106 @@
     ! Based on Woody et al., 2016: https://doi.org/10.5194/acp-16-4081-2016
     ! O:C Ratio of 0.1 (or lowest available OXY species) based on 
     !   Mohr et al. 2009 https://pubs.acs.org/doi/10.1021/es8011518
-    'EVERYWHERE', 'GENERAL_POA'     ,'PMOCN2'  ,'VROCN2OXY2'  ,'GAS' ,0.   ,'MASS','a', 
-    'EVERYWHERE', 'GENERAL_POA'     ,'PMNCOMN2','VROCN2OXY2'  ,'GAS' ,0.   ,'MASS','a', 
-    'EVERYWHERE', 'GENERAL_POA'     ,'PMOCN2' ,'VROCP0OXY2'  ,'GAS' ,0.175,'MASS','a', 
-    'EVERYWHERE', 'GENERAL_POA'     ,'PMNCOMN2','VROCP0OXY2'  ,'GAS' ,0.175,'MASS','a', 
-    'EVERYWHERE', 'GENERAL_POA'     ,'PMOCN2' ,'VROCP1OXY1'  ,'GAS' ,0.091,'MASS','a', 
-    'EVERYWHERE', 'GENERAL_POA'     ,'PMNCOMN2','VROCP1OXY1'  ,'GAS' ,0.091,'MASS','a', 
-    'EVERYWHERE', 'GENERAL_POA'     ,'PMOCN2' ,'VROCP2OXY2'  ,'GAS' ,0.100,'MASS','a', 
-    'EVERYWHERE', 'GENERAL_POA'     ,'PMNCOMN2','VROCP2OXY2'  ,'GAS' ,0.100,'MASS','a', 
-    'EVERYWHERE', 'GENERAL_POA'     ,'PMOCN2' ,'VROCP3OXY2'  ,'GAS' ,0.100,'MASS','a', 
-    'EVERYWHERE', 'GENERAL_POA'     ,'PMNCOMN2','VROCP3OXY2'  ,'GAS' ,0.100,'MASS','a', 
-    'EVERYWHERE', 'GENERAL_POA'     ,'PMOCN2' ,'AROCN2OXY2'  ,'FINE',0.35 ,'MASS','a', 
-    'EVERYWHERE', 'GENERAL_POA'     ,'PMNCOMN2','AROCN2OXY2'  ,'FINE',0.35 ,'MASS','a', 
-    'EVERYWHERE', 'GENERAL_POA'     ,'PMOCN2','AROCP0OXY2'  ,'FINE',0.175,'MASS','a', 
-    'EVERYWHERE', 'GENERAL_POA'     ,'PMNCOMN2','AROCP0OXY2'  ,'FINE',0.175,'MASS','a', 
-    'EVERYWHERE', 'GENERAL_POA'     ,'PMOCN2' ,'AROCP1OXY1'  ,'FINE',0.009,'MASS','a', 
-    'EVERYWHERE', 'GENERAL_POA'     ,'PMNCOMN2','AROCP1OXY1'  ,'FINE',0.009,'MASS','a', 
-    'EVERYWHERE', 'GENERAL_POA'     ,'PMOCN2' ,'AROCP2OXY2'  ,'FINE',0.   ,'MASS','a', 
-    'EVERYWHERE', 'GENERAL_POA'     ,'PMNCOMN2','AROCP2OXY2'  ,'FINE',0.   ,'MASS','a', 
-    'EVERYWHERE', 'GENERAL_POA'     ,'PMOCN2' ,'VROCP3OXY2'  ,'FINE',0.   ,'MASS','a', 
-    'EVERYWHERE', 'GENERAL_POA'     ,'PMNCOMN2','VROCP3OXY2'  ,'FINE',0.   ,'MASS','a', 
+    'EVERYWHERE', 'GENERAL_POA'     ,'PMOCN2'  ,'VLVOO1'      ,'GAS' ,0.   ,'MASS','a', 
+    'EVERYWHERE', 'GENERAL_POA'     ,'PMNCOMN2','VLVOO1'      ,'GAS' ,0.   ,'MASS','a', 
+    'EVERYWHERE', 'GENERAL_POA'     ,'PMOCN2' ,'VSVPO1'      ,'GAS' ,0.175,'MASS','a', 
+    'EVERYWHERE', 'GENERAL_POA'     ,'PMNCOMN2','VSVPO1'      ,'GAS' ,0.175,'MASS','a', 
+    'EVERYWHERE', 'GENERAL_POA'     ,'PMOCN2' ,'VSVPO2'      ,'GAS' ,0.091,'MASS','a', 
+    'EVERYWHERE', 'GENERAL_POA'     ,'PMNCOMN2','VSVPO2'      ,'GAS' ,0.091,'MASS','a', 
+    'EVERYWHERE', 'GENERAL_POA'     ,'PMOCN2' ,'VSVPO3'      ,'GAS' ,0.100,'MASS','a', 
+    'EVERYWHERE', 'GENERAL_POA'     ,'PMNCOMN2','VSVPO3'      ,'GAS' ,0.100,'MASS','a', 
+    'EVERYWHERE', 'GENERAL_POA'     ,'PMOCN2' ,'VIVPO1'      ,'GAS' ,0.100,'MASS','a', 
+    'EVERYWHERE', 'GENERAL_POA'     ,'PMNCOMN2','VIVPO1'      ,'GAS' ,0.100,'MASS','a', 
+    'EVERYWHERE', 'GENERAL_POA'     ,'PMOCN2' ,'ALVOO1'      ,'FINE',0.35 ,'MASS','a', 
+    'EVERYWHERE', 'GENERAL_POA'     ,'PMNCOMN2','ALVOO1'      ,'FINE',0.35 ,'MASS','a', 
+    'EVERYWHERE', 'GENERAL_POA'     ,'PMOCN2','ASVPO1'      ,'FINE',0.175,'MASS','a', 
+    'EVERYWHERE', 'GENERAL_POA'     ,'PMNCOMN2','ASVPO1'      ,'FINE',0.175,'MASS','a', 
+    'EVERYWHERE', 'GENERAL_POA'     ,'PMOCN2' ,'ASVPO2'      ,'FINE',0.009,'MASS','a', 
+    'EVERYWHERE', 'GENERAL_POA'     ,'PMNCOMN2','ASVPO2'      ,'FINE',0.009,'MASS','a', 
+    'EVERYWHERE', 'GENERAL_POA'     ,'PMOCN2' ,'ASVPO3'      ,'FINE',0.   ,'MASS','a', 
+    'EVERYWHERE', 'GENERAL_POA'     ,'PMNCOMN2','ASVPO3'      ,'FINE',0.   ,'MASS','a', 
+    'EVERYWHERE', 'GENERAL_POA'     ,'PMOCN2' ,'VIVPO1'      ,'FINE',0.   ,'MASS','a', 
+    'EVERYWHERE', 'GENERAL_POA'     ,'PMNCOMN2','VIVPO1'      ,'FINE',0.   ,'MASS','a', 
 
    ! --> Semivolatile POA - Use Woody et al. 2016 biomass burning for Fires
     ! O:C ratio of 0.4 (or similar) used based on OM/OC of 1.7 and 
     !   Canagaratna et al. 2015 ACP relationship (OM/OC =1.29*O:C+1.17)
-    'EVERYWHERE', 'PT_FIRE'         ,'PMOCN2'  ,'VROCN2OXY4'  ,'GAS' ,0.   ,'MASS','a', 
-    'EVERYWHERE', 'PT_FIRE'         ,'PMNCOMN2','VROCN2OXY4'  ,'GAS' ,0.   ,'MASS','a', 
-    'EVERYWHERE', 'PT_FIRE'         ,'PMOCN2' ,'VROCP0OXY4'  ,'GAS' ,0.05 ,'MASS','a', 
-    'EVERYWHERE', 'PT_FIRE'         ,'PMNCOMN2','VROCP0OXY4'  ,'GAS' ,0.05 ,'MASS','a', 
-    'EVERYWHERE', 'PT_FIRE'         ,'PMOCN2' ,'VROCP1OXY3'  ,'GAS' ,0.091,'MASS','a', 
-    'EVERYWHERE', 'PT_FIRE'         ,'PMNCOMN2','VROCP1OXY3'  ,'GAS' ,0.091,'MASS','a', 
-    'EVERYWHERE', 'PT_FIRE'         ,'PMOCN2' ,'VROCP2OXY2'  ,'GAS' ,0.200,'MASS','a', 
-    'EVERYWHERE', 'PT_FIRE'         ,'PMNCOMN2','VROCP2OXY2'  ,'GAS' ,0.200,'MASS','a', 
-    'EVERYWHERE', 'PT_FIRE'         ,'PMOCN2' ,'VROCP3OXY2'  ,'GAS' ,0.400,'MASS','a', 
-    'EVERYWHERE', 'PT_FIRE'         ,'PMNCOMN2','VROCP3OXY2'  ,'GAS' ,0.400,'MASS','a', 
-    'EVERYWHERE', 'PT_FIRE'         ,'PMOCN2' ,'AROCN2OXY4'  ,'FINE',0.20 ,'MASS','a', 
-    'EVERYWHERE', 'PT_FIRE'         ,'PMNCOMN2','AROCN2OXY4'  ,'FINE',0.20 ,'MASS','a', 
-    'EVERYWHERE', 'PT_FIRE'         ,'PMOCN2','AROCP0OXY4'  ,'FINE',0.05 ,'MASS','a', 
-    'EVERYWHERE', 'PT_FIRE'         ,'PMNCOMN2','AROCP0OXY4'  ,'FINE',0.05 ,'MASS','a', 
-    'EVERYWHERE', 'PT_FIRE'         ,'PMOCN2' ,'AROCP1OXY3'  ,'FINE',0.009,'MASS','a', 
-    'EVERYWHERE', 'PT_FIRE'         ,'PMNCOMN2','AROCP1OXY3'  ,'FINE',0.009,'MASS','a', 
-    'EVERYWHERE', 'PT_FIRE'         ,'PMOCN2' ,'AROCP2OXY2'  ,'FINE',0.   ,'MASS','a', 
-    'EVERYWHERE', 'PT_FIRE'         ,'PMNCOMN2','AROCP2OXY2'  ,'FINE',0.   ,'MASS','a', 
-    'EVERYWHERE', 'PT_FIRE'         ,'PMOCN2' ,'VROCP3OXY2'  ,'FINE',0.   ,'MASS','a', 
-    'EVERYWHERE', 'PT_FIRE'         ,'PMNCOMN2','VROCP3OXY2'  ,'FINE',0.   ,'MASS','a',
+    'EVERYWHERE', 'PT_FIRE'         ,'PMOCN2'  ,'VLVOO1'      ,'GAS' ,0.   ,'MASS','a', 
+    'EVERYWHERE', 'PT_FIRE'         ,'PMNCOMN2','VLVOO1'      ,'GAS' ,0.   ,'MASS','a', 
+    'EVERYWHERE', 'PT_FIRE'         ,'PMOCN2' ,'VSVPO1'      ,'GAS' ,0.05 ,'MASS','a', 
+    'EVERYWHERE', 'PT_FIRE'         ,'PMNCOMN2','VSVPO1'      ,'GAS' ,0.05 ,'MASS','a', 
+    'EVERYWHERE', 'PT_FIRE'         ,'PMOCN2' ,'VSVPO2'      ,'GAS' ,0.091,'MASS','a', 
+    'EVERYWHERE', 'PT_FIRE'         ,'PMNCOMN2','VSVPO2'      ,'GAS' ,0.091,'MASS','a', 
+    'EVERYWHERE', 'PT_FIRE'         ,'PMOCN2' ,'VSVPO3'      ,'GAS' ,0.200,'MASS','a', 
+    'EVERYWHERE', 'PT_FIRE'         ,'PMNCOMN2','VSVPO3'      ,'GAS' ,0.200,'MASS','a', 
+    'EVERYWHERE', 'PT_FIRE'         ,'PMOCN2' ,'VIVPO1'      ,'GAS' ,0.400,'MASS','a', 
+    'EVERYWHERE', 'PT_FIRE'         ,'PMNCOMN2','VIVPO1'      ,'GAS' ,0.400,'MASS','a', 
+    'EVERYWHERE', 'PT_FIRE'         ,'PMOCN2' ,'ALVOO1'      ,'FINE',0.20 ,'MASS','a', 
+    'EVERYWHERE', 'PT_FIRE'         ,'PMNCOMN2','ALVOO1'      ,'FINE',0.20 ,'MASS','a', 
+    'EVERYWHERE', 'PT_FIRE'         ,'PMOCN2','ASVPO1'      ,'FINE',0.05 ,'MASS','a', 
+    'EVERYWHERE', 'PT_FIRE'         ,'PMNCOMN2','ASVPO1'      ,'FINE',0.05 ,'MASS','a', 
+    'EVERYWHERE', 'PT_FIRE'         ,'PMOCN2' ,'ASVPO2'      ,'FINE',0.009,'MASS','a', 
+    'EVERYWHERE', 'PT_FIRE'         ,'PMNCOMN2','ASVPO2'      ,'FINE',0.009,'MASS','a', 
+    'EVERYWHERE', 'PT_FIRE'         ,'PMOCN2' ,'ASVPO3'      ,'FINE',0.   ,'MASS','a', 
+    'EVERYWHERE', 'PT_FIRE'         ,'PMNCOMN2','ASVPO3'      ,'FINE',0.   ,'MASS','a', 
+    'EVERYWHERE', 'PT_FIRE'         ,'PMOCN2' ,'VIVPO1'      ,'FINE',0.   ,'MASS','a', 
+    'EVERYWHERE', 'PT_FIRE'         ,'PMNCOMN2','VIVPO1'      ,'FINE',0.   ,'MASS','a',
    
    ! Gasoline-Source Volatility Distribution (Mostly Onroad and Offroad Vehicles)
-    'EVERYWHERE', 'GRIDDED_GASOLINE','PMOCN2'  ,'AROCN1ALK'  ,'FINE',0.228,'MASS','o', 
-    'EVERYWHERE', 'GRIDDED_GASOLINE','PMNCOMN2','AROCN1ALK'  ,'FINE',0.228,'MASS','o', 
-    'EVERYWHERE', 'GRIDDED_GASOLINE','PMOCN2'  ,'AROCP0ALK'  ,'FINE',0.054,'MASS','o', 
-    'EVERYWHERE', 'GRIDDED_GASOLINE','PMNCOMN2','AROCP0ALK'  ,'FINE',0.054,'MASS','o', 
-    'EVERYWHERE', 'GRIDDED_GASOLINE','PMOCN2'  ,'VROCP0ALK'  ,'GAS' ,0.054,'MASS','o', 
-    'EVERYWHERE', 'GRIDDED_GASOLINE','PMNCOMN2','VROCP0ALK'  ,'GAS' ,0.054,'MASS','o', 
-    'EVERYWHERE', 'GRIDDED_GASOLINE','PMOCN2'  ,'VROCP1ALK'  ,'GAS' ,0.515,'MASS','o', 
-    'EVERYWHERE', 'GRIDDED_GASOLINE','PMNCOMN2','VROCP1ALK'  ,'GAS' ,0.515,'MASS','o', 
-    'EVERYWHERE', 'GRIDDED_GASOLINE','PMOCN2'  ,'VROCP2ALK'  ,'GAS' ,0.550,'MASS','o', 
-    'EVERYWHERE', 'GRIDDED_GASOLINE','PMNCOMN2','VROCP2ALK'  ,'GAS' ,0.550,'MASS','o', 
-    'EVERYWHERE', 'GRIDDED_GASOLINE','PMOCN2 ' ,'VROCP3ALK'  ,'GAS' ,0.0  ,'MASS','o', 
-    'EVERYWHERE', 'GRIDDED_GASOLINE','PMNCOMN2','VROCP3ALK'  ,'GAS' ,0.0  ,'MASS','o', 
+    'EVERYWHERE', 'GRIDDED_GASOLINE','PMOCN2'  ,'ALVPO1'     ,'FINE',0.228,'MASS','o', 
+    'EVERYWHERE', 'GRIDDED_GASOLINE','PMNCOMN2','ALVPO1'     ,'FINE',0.228,'MASS','o', 
+    'EVERYWHERE', 'GRIDDED_GASOLINE','PMOCN2'  ,'ASVPO1'     ,'FINE',0.054,'MASS','o', 
+    'EVERYWHERE', 'GRIDDED_GASOLINE','PMNCOMN2','ASVPO1'     ,'FINE',0.054,'MASS','o', 
+    'EVERYWHERE', 'GRIDDED_GASOLINE','PMOCN2'  ,'VSVPO1'     ,'GAS' ,0.054,'MASS','o', 
+    'EVERYWHERE', 'GRIDDED_GASOLINE','PMNCOMN2','VSVPO1'     ,'GAS' ,0.054,'MASS','o', 
+    'EVERYWHERE', 'GRIDDED_GASOLINE','PMOCN2'  ,'VSVPO2'     ,'GAS' ,0.515,'MASS','o', 
+    'EVERYWHERE', 'GRIDDED_GASOLINE','PMNCOMN2','VSVPO2'     ,'GAS' ,0.515,'MASS','o', 
+    'EVERYWHERE', 'GRIDDED_GASOLINE','PMOCN2'  ,'VSVPO3'     ,'GAS' ,0.550,'MASS','o', 
+    'EVERYWHERE', 'GRIDDED_GASOLINE','PMNCOMN2','VSVPO3'     ,'GAS' ,0.550,'MASS','o', 
+    'EVERYWHERE', 'GRIDDED_GASOLINE','PMOCN2 ' ,'VIVPO1'     ,'GAS' ,0.0  ,'MASS','o', 
+    'EVERYWHERE', 'GRIDDED_GASOLINE','PMNCOMN2','VIVPO1'     ,'GAS' ,0.0  ,'MASS','o', 
 
-    'EVERYWHERE', 'GRIDDED_GASOLINE','NMOG'   ,'VROCP3ALK'  ,'GAS' ,0.0032,'MASS','a',
-    'EVERYWHERE', 'GRIDDED_GASOLINE','NMOG'   ,'VROCP4ALK'  ,'GAS' ,0.0034,'MASS','a',
-    'EVERYWHERE', 'GRIDDED_GASOLINE','NMOG'   ,'VROCP5ALK'  ,'GAS' ,0.0019,'MASS','a',
-    'EVERYWHERE', 'GRIDDED_GASOLINE','NMOG'   ,'VROCP6ALK'  ,'GAS' ,0.0064,'MASS','a',
-    'EVERYWHERE', 'GRIDDED_GASOLINE','NMOG'   ,'VROCP5ARO'  ,'GAS' ,0.0060,'MASS','a',
-    'EVERYWHERE', 'GRIDDED_GASOLINE','NMOG'   ,'VROCP6ARO'  ,'GAS' ,0.0253,'MASS','a',
+    !'EVERYWHERE', 'GRIDDED_GASOLINE','NMOG'   ,'VROCP3ALK'  ,'GAS' ,0.0032,'MASS','a', ! No RACM2 equivalents
+    !'EVERYWHERE', 'GRIDDED_GASOLINE','NMOG'   ,'VROCP4ALK'  ,'GAS' ,0.0034,'MASS','a',
+    !'EVERYWHERE', 'GRIDDED_GASOLINE','NMOG'   ,'VROCP5ALK'  ,'GAS' ,0.0019,'MASS','a',
+    !'EVERYWHERE', 'GRIDDED_GASOLINE','NMOG'   ,'VROCP6ALK'  ,'GAS' ,0.0064,'MASS','a',
+    !'EVERYWHERE', 'GRIDDED_GASOLINE','NMOG'   ,'VROCP5ARO'  ,'GAS' ,0.0060,'MASS','a',
+    !'EVERYWHERE', 'GRIDDED_GASOLINE','NMOG'   ,'VROCP6ARO'  ,'GAS' ,0.0253,'MASS','a',
 
    ! Diesel Family Volatility Distribution (Mostly Onroad and Offroad Sources and CMV)
-    'EVERYWHERE', 'DIESEL'      ,'PMOCN2' ,'AROCN1ALK'  ,'FINE',0.187,'MASS','o', 
-    'EVERYWHERE', 'DIESEL'     ,'PMNCOMN2','AROCN1ALK'  ,'FINE',0.187,'MASS','o', 
-    'EVERYWHERE', 'DIESEL'      ,'PMOCN2' ,'AROCP0ALK'  ,'FINE',0.043,'MASS','o', 
-    'EVERYWHERE', 'DIESEL'     ,'PMNCOMN2','AROCP0ALK'  ,'FINE',0.043,'MASS','o', 
-    'EVERYWHERE', 'DIESEL'      ,'PMOCN2' ,'VROCP0ALK'  ,'GAS' ,0.043,'MASS','o', 
-    'EVERYWHERE', 'DIESEL'     ,'PMNCOMN2','VROCP0ALK'  ,'GAS' ,0.043,'MASS','o', 
-    'EVERYWHERE', 'DIESEL'      ,'PMOCN2' ,'VROCP1ALK'  ,'GAS' ,0.364,'MASS','o', 
-    'EVERYWHERE', 'DIESEL'     ,'PMNCOMN2','VROCP1ALK'  ,'GAS' ,0.364,'MASS','o', 
-    'EVERYWHERE', 'DIESEL'      ,'PMOCN2' ,'VROCP2ALK'  ,'GAS' ,0.363,'MASS','o', 
-    'EVERYWHERE', 'DIESEL'     ,'PMNCOMN2','VROCP2ALK'  ,'GAS' ,0.363,'MASS','o', 
-    'EVERYWHERE', 'DIESEL'      ,'PMOCN2' ,'VROCP3ALK'  ,'GAS' ,0.0  ,'MASS','o', 
-    'EVERYWHERE', 'DIESEL'     ,'PMNCOMN2','VROCP3ALK'  ,'GAS' ,0.0  ,'MASS','o', 
+    'EVERYWHERE', 'DIESEL'      ,'PMOCN2' ,'ALVPO1'     ,'FINE',0.187,'MASS','o', 
+    'EVERYWHERE', 'DIESEL'     ,'PMNCOMN2','ALVPO1'     ,'FINE',0.187,'MASS','o', 
+    'EVERYWHERE', 'DIESEL'      ,'PMOCN2' ,'ASVPO1'     ,'FINE',0.043,'MASS','o', 
+    'EVERYWHERE', 'DIESEL'     ,'PMNCOMN2','ASVPO1'     ,'FINE',0.043,'MASS','o', 
+    'EVERYWHERE', 'DIESEL'      ,'PMOCN2' ,'VSVPO1'     ,'GAS' ,0.043,'MASS','o', 
+    'EVERYWHERE', 'DIESEL'     ,'PMNCOMN2','VSVPO1'     ,'GAS' ,0.043,'MASS','o', 
+    'EVERYWHERE', 'DIESEL'      ,'PMOCN2' ,'VSVPO2'     ,'GAS' ,0.364,'MASS','o', 
+    'EVERYWHERE', 'DIESEL'     ,'PMNCOMN2','VSVPO2'     ,'GAS' ,0.364,'MASS','o', 
+    'EVERYWHERE', 'DIESEL'      ,'PMOCN2' ,'VSVPO3'     ,'GAS' ,0.363,'MASS','o', 
+    'EVERYWHERE', 'DIESEL'     ,'PMNCOMN2','VSVPO3'     ,'GAS' ,0.363,'MASS','o', 
+    'EVERYWHERE', 'DIESEL'      ,'PMOCN2' ,'VIVPO1'     ,'GAS' ,0.0  ,'MASS','o', 
+    'EVERYWHERE', 'DIESEL'     ,'PMNCOMN2','VIVPO1'     ,'GAS' ,0.0  ,'MASS','o', 
 
-    'EVERYWHERE', 'DIESEL'      ,'NMOG'   ,'VROCP3ALK'  ,'GAS' ,0.0536,'MASS','a',
-    'EVERYWHERE', 'DIESEL'      ,'NMOG'   ,'VROCP4ALK'  ,'GAS' ,0.1486,'MASS','a',
-    'EVERYWHERE', 'DIESEL'      ,'NMOG'   ,'VROCP5ALK'  ,'GAS' ,0.1869,'MASS','a',
-    'EVERYWHERE', 'DIESEL'      ,'NMOG'   ,'VROCP6ALK'  ,'GAS' ,0.1588,'MASS','a',
-    'EVERYWHERE', 'DIESEL'      ,'NMOG'   ,'VROCP5ARO'  ,'GAS' ,0.0043,'MASS','a',
-    'EVERYWHERE', 'DIESEL'      ,'NMOG'   ,'VROCP6ARO'  ,'GAS' ,0.0025,'MASS','a',
+    !'EVERYWHERE', 'DIESEL'      ,'NMOG'   ,'VROCP3ALK'  ,'GAS' ,0.0536,'MASS','a', ! Alkane-like IVOC equivalents do not exist in RACM2
+    !'EVERYWHERE', 'DIESEL'      ,'NMOG'   ,'VROCP4ALK'  ,'GAS' ,0.1486,'MASS','a',
+    !'EVERYWHERE', 'DIESEL'      ,'NMOG'   ,'VROCP5ALK'  ,'GAS' ,0.1869,'MASS','a',
+    !'EVERYWHERE', 'DIESEL'      ,'NMOG'   ,'VROCP6ALK'  ,'GAS' ,0.1588,'MASS','a',
+    !'EVERYWHERE', 'DIESEL'      ,'NMOG'   ,'VROCP5ARO'  ,'GAS' ,0.0043,'MASS','a', ! Ignore these IVOCs in RACM2
+    !'EVERYWHERE', 'DIESEL'      ,'NMOG'   ,'VROCP6ARO'  ,'GAS' ,0.0025,'MASS','a', ! Ignore these IVOCs in RACM2
  
    ! Aircraft Family Turbine Engine Volatility Distribution
-    'EVERYWHERE', 'AIRCRAFT'    ,'PMOCN2' ,'AROCP0ALK'  ,'FINE',0.149,'MASS','o', 
-    'EVERYWHERE', 'AIRCRAFT'   ,'PMNCOMN2','AROCP0ALK'  ,'FINE',0.149,'MASS','o', 
-    'EVERYWHERE', 'AIRCRAFT'    ,'PMOCN2' ,'AROCP1ALK'  ,'FINE',0.130,'MASS','o', 
-    'EVERYWHERE', 'AIRCRAFT'   ,'PMNCOMN2','AROCP1ALK'  ,'FINE',0.130,'MASS','o', 
-    'EVERYWHERE', 'AIRCRAFT'    ,'PMOCN2' ,'VROCP0ALK'  ,'GAS' ,0.130,'MASS','o', 
-    'EVERYWHERE', 'AIRCRAFT'   ,'PMNCOMN2','VROCP0ALK'  ,'GAS' ,0.130,'MASS','o', 
-    'EVERYWHERE', 'AIRCRAFT'    ,'PMOCN2' ,'VROCP1ALK'  ,'GAS' ,0.384,'MASS','o', 
-    'EVERYWHERE', 'AIRCRAFT'   ,'PMNCOMN2','VROCP1ALK'  ,'GAS' ,0.384,'MASS','o', 
-    'EVERYWHERE', 'AIRCRAFT'    ,'PMOCN2' ,'VROCP2ALK'  ,'GAS' ,0.208,'MASS','o', 
-    'EVERYWHERE', 'AIRCRAFT    ,'PMNCOMN2','VROCP2ALK'  ,'GAS' ,0.208,'MASS','o', 
-    'EVERYWHERE', 'AIRCRAFT'    ,'PMOCN2' ,'VROCP3ALK'  ,'GAS' ,0.0  ,'MASS','o', 
-    'EVERYWHERE', 'AIRCRAFT'   ,'PMNCOMN2','VROCP3ALK'  ,'GAS' ,0.0  ,'MASS','o', 
+    'EVERYWHERE', 'AIRCRAFT'    ,'PMOCN2' ,'ASVPO1'     ,'FINE',0.149,'MASS','o', 
+    'EVERYWHERE', 'AIRCRAFT'   ,'PMNCOMN2','ASVPO1'     ,'FINE',0.149,'MASS','o', 
+    'EVERYWHERE', 'AIRCRAFT'    ,'PMOCN2' ,'ASVPO2'     ,'FINE',0.130,'MASS','o', 
+    'EVERYWHERE', 'AIRCRAFT'   ,'PMNCOMN2','ASVPO2'     ,'FINE',0.130,'MASS','o', 
+    'EVERYWHERE', 'AIRCRAFT'    ,'PMOCN2' ,'VSVPO2'     ,'GAS' ,0.130,'MASS','o', 
+    'EVERYWHERE', 'AIRCRAFT'   ,'PMNCOMN2','VSVPO2'     ,'GAS' ,0.130,'MASS','o', 
+    'EVERYWHERE', 'AIRCRAFT'    ,'PMOCN2' ,'VSVPO3'     ,'GAS' ,0.384,'MASS','o', 
+    'EVERYWHERE', 'AIRCRAFT'   ,'PMNCOMN2','VSVPO3'     ,'GAS' ,0.384,'MASS','o', 
+    'EVERYWHERE', 'AIRCRAFT'    ,'PMOCN2' ,'VIVPO1'     ,'GAS' ,0.208,'MASS','o', 
+    'EVERYWHERE', 'AIRCRAFT    ,'PMNCOMN2','VIVPO1'     ,'GAS' ,0.208,'MASS','o', 
+    !'EVERYWHERE', 'AIRCRAFT'    ,'PMOCN2' ,'VROCP3ALK'  ,'GAS' ,0.0  ,'MASS','o',  
+    !'EVERYWHERE', 'AIRCRAFT'   ,'PMNCOMN2','VROCP3ALK'  ,'GAS' ,0.0  ,'MASS','o', 
 
    ! pcSOA is a CMAQ species introduced to account for missing pathways for SOA
    ! formation from combustion sources. It includes IVOC oxidation as well as other
