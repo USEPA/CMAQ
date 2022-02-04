@@ -181,6 +181,7 @@
    'EVERYWHERE', 'ALL'         ,'ROCP6'  ,'VROCP6ALK'   ,'GAS'  ,1   ,'UNIT','a',
    'EVERYWHERE', 'ALL'        ,'ROCP5ARO','VROCP5ARO'   ,'GAS'  ,1   ,'UNIT','a',
    'EVERYWHERE', 'ALL'        ,'ROCP6ARO','VROCP6ARO'   ,'GAS'  ,1   ,'UNIT','a',
+   'EVERYWHERE', 'ALL'        ,'VROCP6ARO','VROCP6ARO'  ,'GAS'  ,1   ,'UNIT','a', ! for biogenics
 
    ! Default Aerosols
    'EVERYWHERE', 'ALL'         ,'SULF'   ,'ASO4'        ,'FINE' ,1.  ,'MASS','a', 

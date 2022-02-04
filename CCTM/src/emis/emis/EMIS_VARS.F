@@ -140,7 +140,7 @@
           REAL            :: MW    ! Emissions Surrogate Molecular Weight [g mol-1]
       End Type emis_legend
       
-      Integer, Parameter :: N_EMIS_SURR_TABLE = 150
+      Integer, Parameter :: N_EMIS_SURR_TABLE = 162
       Type ( emis_legend ), Parameter :: 
      &  EMIS_SURR_TABLE( N_EMIS_SURR_TABLE ) = (/
      &    emis_legend( 'NO2          ' ,046.0 ),
@@ -292,6 +292,18 @@
      &    emis_legend( 'MANGANESE_C  ' ,054.9 ),
      &    emis_legend( 'ARSENIC_F    ' ,074.92),
      &    emis_legend( 'ARSENIC_C    ' ,074.92),
-     &    emis_legend( 'PHGI         ' ,200.5 )  /)
-
+     &    emis_legend( 'PHGI         ' ,200.5 ),
+     &    emis_legend( 'PMNCOMN2     ' ,220.0 ), ! CRACMM/ae8, POC value
+     &    emis_legend( 'PMOCN2       ' ,220.0 ), ! CRACMM/ae8, PNCOM value
+     &    emis_legend( 'PNCOMN2      ' ,422.83), ! CRACMM/ae8, based on ALK equivalent C*
+     &    emis_legend( 'POCN2        ' ,422.83), ! CRACMM/ae8, "
+     &    emis_legend( 'PNCOMN1      ' ,408.80), ! CRACMM/ae8, "
+     &    emis_legend( 'POCN1        ' ,408.80), ! CRACMM/ae8, "
+     &    emis_legend( 'PNCOMP0      ' ,394.77), ! CRACMM/ae8, "
+     &    emis_legend( 'POCP0        ' ,394.77), ! CRACMM/ae8, "
+     &    emis_legend( 'PNCOMP1      ' ,380.75), ! CRACMM/ae8, "
+     &    emis_legend( 'POCP1        ' ,380.75), ! CRACMM/ae8, "
+     &    emis_legend( 'PNCOMP2      ' ,338.66), ! CRACMM/ae8, "
+     &    emis_legend( 'POCP2        ' ,338.66)/)! CRACMM/ae8, "
+   
       END MODULE EMIS_VARS
