@@ -295,8 +295,8 @@
      &    emis_legend( 'PHGI         ' ,200.5 ),
      &    emis_legend( 'PMNCOMN2     ' ,220.0 ), ! CRACMM/ae8, POC value
      &    emis_legend( 'PMOCN2       ' ,220.0 ), ! CRACMM/ae8, PNCOM value
-     &    emis_legend( 'PNCOMN2      ' ,422.83), ! CRACMM/ae8, based on ALK equivalent C*
-     &    emis_legend( 'POCN2        ' ,422.83), ! CRACMM/ae8, "
+     &    emis_legend( 'PNCOMN2      ' ,506.99), ! CRACMM/ae8, based on ALK equivalent C*
+     &    emis_legend( 'POCN2        ' ,506.99), ! CRACMM/ae8, "
      &    emis_legend( 'PNCOMN1      ' ,408.80), ! CRACMM/ae8, "
      &    emis_legend( 'POCN1        ' ,408.80), ! CRACMM/ae8, "
      &    emis_legend( 'PNCOMP0      ' ,394.77), ! CRACMM/ae8, "

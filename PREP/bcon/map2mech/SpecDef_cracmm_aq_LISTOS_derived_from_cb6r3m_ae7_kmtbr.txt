@@ -281,7 +281,7 @@ AH2OK           ,ug m-3          ,AH2OK[1], CRACMM mapping of AH2OK
 
 AH3OPK          ,ug m-3          ,AH3OPK[1], CRACMM mapping of AH3OPK
 
-AISOOS3J        ,ug m-3          ,AISO3J[1], CRACMM mapping of AISO3J
+AISO3OSJ        ,ug m-3          ,AISO3J[1], CRACMM mapping of AISO3J
 
 AROCN2OXY2J     ,ug m-3          ,AOLGAJ[1] + APCSOJ[1], CRACMM mapping of AOLGAJ and APCSOJ
 
@@ -336,6 +336,8 @@ AROCP2OXY2J     ,ug m-3          ,ASVOO3J[1] + AAVB4J[1], CRACMM mapping of ASVO
 AHOMJ           ,ug m-3          ,AMT1J[1] + AMT2J[1] + AMT3J[1], CRACMM mapping of AMT1J and AMT2J and AMT3J
 
 NH3             ,ppmV            ,NH3[1], CRACMM mapping of NH3
+
+HCL             ,ppmV            ,NH3[1], CRACMM mapping of HCL
 
 VROCP1OXY       ,ppmV            ,SVSQT[1], CRACMM mapping of SVSQT
 
