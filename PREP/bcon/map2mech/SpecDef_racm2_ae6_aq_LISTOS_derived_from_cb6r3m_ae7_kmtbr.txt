@@ -357,6 +357,8 @@ ATRP2J          ,ug m-3          ,AMT5J[1], RACM2 mapping of AMT5J
 
 NH3             ,ppmV            ,NH3[1], RACM2 mapping of NH3
 
+HCL             ,ppmV            ,HCL[1], RACM2 mapping of HCL
+
 SVISO1          ,ppmV            ,SVISO1[1], RACM2 mapping of SVISO1
 
 SVISO2          ,ppmV            ,SVISO2[1], RACM2 mapping of SVISO2
