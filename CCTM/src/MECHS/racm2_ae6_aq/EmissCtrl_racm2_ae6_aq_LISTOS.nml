@@ -329,7 +329,7 @@
     'EVERYWHERE', 'AIRCRAFT'    ,'PMOCN2' ,'VSVPO3'     ,'GAS' ,0.384,'MASS','o', 
     'EVERYWHERE', 'AIRCRAFT'   ,'PMNCOMN2','VSVPO3'     ,'GAS' ,0.384,'MASS','o', 
     'EVERYWHERE', 'AIRCRAFT'    ,'PMOCN2' ,'VIVPO1'     ,'GAS' ,0.208,'MASS','o', 
-    'EVERYWHERE', 'AIRCRAFT    ,'PMNCOMN2','VIVPO1'     ,'GAS' ,0.208,'MASS','o', 
+    'EVERYWHERE', 'AIRCRAFT'   ,'PMNCOMN2','VIVPO1'     ,'GAS' ,0.208,'MASS','o', 
     !'EVERYWHERE', 'AIRCRAFT'    ,'PMOCN2' ,'VROCP3ALK'  ,'GAS' ,0.0  ,'MASS','o',  
     !'EVERYWHERE', 'AIRCRAFT'   ,'PMNCOMN2','VROCP3ALK'  ,'GAS' ,0.0  ,'MASS','o', 
 
