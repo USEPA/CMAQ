@@ -127,6 +127,7 @@ GC_SPECIES_DATA =
 'BAL2'          ,105.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,''             ,''        ,''    ,''    ,''    ,'Yes',
 'ACRO'          , 56.1   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,'ACROOPERA'       , 1  ,''             ,''        ,'Yes' ,''    ,'Yes' ,'Yes',!Acrolein,E,DTXSID5020023,C=CC=O
 'BDE13'         , 54.1   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,'BDE13OPERA'      , 1  ,''             ,''        ,'Yes' ,''    ,'Yes' ,'Yes',!1,3-Butadiene,E,DTXSID3020203,C=CC=C
+'BDE13P'        ,103.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                , 1  ,''             ,''        ,''    ,''    ,''    ,'Yes',!1,3-Butadiene RO2,L,NA,C=CC(O[O])CO
 'PROG'          , 76.1   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,'PROGOPERA'       , 1  ,''             ,''        ,'Yes' ,''    ,'Yes' ,'Yes',!1,2-Propylene glycol,E,DTXSID0021206,CC(O)CO
 'FURAN'         , 96.1   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,'FURANOPERA'      , 1  ,''             ,''        ,'Yes' ,''    ,'Yes' ,'Yes',!Furfural,L,DTXSID1020647,O=CC1=CC=CO1
 'FURANO2'       ,145.1   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                , 1  ,''             ,''        ,'Yes' ,''    ,'Yes' ,'Yes',!Furan-likeRO2,L,NA,OC1C=CC(O1)(O[O])(C=O)
