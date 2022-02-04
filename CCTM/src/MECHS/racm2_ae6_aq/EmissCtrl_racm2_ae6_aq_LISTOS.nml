@@ -119,6 +119,7 @@
    'EVERYWHERE', 'ALL'         ,'SO2'    ,'SO2'         ,'GAS'  ,1.  ,'UNIT','a', 
    'EVERYWHERE', 'ALL'         ,'SULF'   ,'SULF'        ,'GAS'  ,0.  ,'UNIT','a', 
    'EVERYWHERE', 'ALL'         ,'NH3'    ,'NH3'         ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'HCL'    ,'HCL'         ,'GAS'  ,1.  ,'UNIT','a', 
 
    ! Organic gases-Emission Surrogates are from CRACMMv0.21 and mapped to RACM2 CMAQ species
    'EVERYWHERE', 'ALL'         ,'ACD'    ,'ACD'         ,'GAS'  ,1.  ,'UNIT','a', 
@@ -278,18 +279,18 @@
     'EVERYWHERE', 'PT_FIRE'         ,'PMNCOMN2','VIVPO1'      ,'FINE',0.   ,'MASS','a',
    
    ! Gasoline-Source Volatility Distribution (Mostly Onroad and Offroad Vehicles)
-    'EVERYWHERE', 'GRIDDED_GASOLINE','PMOCN2'  ,'ALVPO1'     ,'FINE',0.228,'MASS','o', 
-    'EVERYWHERE', 'GRIDDED_GASOLINE','PMNCOMN2','ALVPO1'     ,'FINE',0.228,'MASS','o', 
-    'EVERYWHERE', 'GRIDDED_GASOLINE','PMOCN2'  ,'ASVPO1'     ,'FINE',0.054,'MASS','o', 
-    'EVERYWHERE', 'GRIDDED_GASOLINE','PMNCOMN2','ASVPO1'     ,'FINE',0.054,'MASS','o', 
-    'EVERYWHERE', 'GRIDDED_GASOLINE','PMOCN2'  ,'VSVPO1'     ,'GAS' ,0.054,'MASS','o', 
-    'EVERYWHERE', 'GRIDDED_GASOLINE','PMNCOMN2','VSVPO1'     ,'GAS' ,0.054,'MASS','o', 
-    'EVERYWHERE', 'GRIDDED_GASOLINE','PMOCN2'  ,'VSVPO2'     ,'GAS' ,0.515,'MASS','o', 
-    'EVERYWHERE', 'GRIDDED_GASOLINE','PMNCOMN2','VSVPO2'     ,'GAS' ,0.515,'MASS','o', 
-    'EVERYWHERE', 'GRIDDED_GASOLINE','PMOCN2'  ,'VSVPO3'     ,'GAS' ,0.550,'MASS','o', 
-    'EVERYWHERE', 'GRIDDED_GASOLINE','PMNCOMN2','VSVPO3'     ,'GAS' ,0.550,'MASS','o', 
-    'EVERYWHERE', 'GRIDDED_GASOLINE','PMOCN2 ' ,'VIVPO1'     ,'GAS' ,0.0  ,'MASS','o', 
-    'EVERYWHERE', 'GRIDDED_GASOLINE','PMNCOMN2','VIVPO1'     ,'GAS' ,0.0  ,'MASS','o', 
+    'EVERYWHERE', 'GRIDDED_GASOLINE','PMOCN2'  ,'ALVPO1'     ,'FINE',0.228,'MASS','a', 
+    'EVERYWHERE', 'GRIDDED_GASOLINE','PMNCOMN2','ALVPO1'     ,'FINE',0.228,'MASS','a', 
+    'EVERYWHERE', 'GRIDDED_GASOLINE','PMOCN2'  ,'ASVPO1'     ,'FINE',0.054,'MASS','a', 
+    'EVERYWHERE', 'GRIDDED_GASOLINE','PMNCOMN2','ASVPO1'     ,'FINE',0.054,'MASS','a', 
+    'EVERYWHERE', 'GRIDDED_GASOLINE','PMOCN2'  ,'VSVPO1'     ,'GAS' ,0.054,'MASS','a', 
+    'EVERYWHERE', 'GRIDDED_GASOLINE','PMNCOMN2','VSVPO1'     ,'GAS' ,0.054,'MASS','a', 
+    'EVERYWHERE', 'GRIDDED_GASOLINE','PMOCN2'  ,'VSVPO2'     ,'GAS' ,0.515,'MASS','a', 
+    'EVERYWHERE', 'GRIDDED_GASOLINE','PMNCOMN2','VSVPO2'     ,'GAS' ,0.515,'MASS','a', 
+    'EVERYWHERE', 'GRIDDED_GASOLINE','PMOCN2'  ,'VSVPO3'     ,'GAS' ,0.550,'MASS','a', 
+    'EVERYWHERE', 'GRIDDED_GASOLINE','PMNCOMN2','VSVPO3'     ,'GAS' ,0.550,'MASS','a', 
+    'EVERYWHERE', 'GRIDDED_GASOLINE','PMOCN2 ' ,'VIVPO1'     ,'GAS' ,0.0  ,'MASS','a', 
+    'EVERYWHERE', 'GRIDDED_GASOLINE','PMNCOMN2','VIVPO1'     ,'GAS' ,0.0  ,'MASS','a', 
 
     !'EVERYWHERE', 'GRIDDED_GASOLINE','NMOG'   ,'VROCP3ALK'  ,'GAS' ,0.0032,'MASS','a', ! No RACM2 equivalents
     !'EVERYWHERE', 'GRIDDED_GASOLINE','NMOG'   ,'VROCP4ALK'  ,'GAS' ,0.0034,'MASS','a',
@@ -299,18 +300,18 @@
     !'EVERYWHERE', 'GRIDDED_GASOLINE','NMOG'   ,'VROCP6ARO'  ,'GAS' ,0.0253,'MASS','a',
 
    ! Diesel Family Volatility Distribution (Mostly Onroad and Offroad Sources and CMV)
-    'EVERYWHERE', 'DIESEL'      ,'PMOCN2' ,'ALVPO1'     ,'FINE',0.187,'MASS','o', 
-    'EVERYWHERE', 'DIESEL'     ,'PMNCOMN2','ALVPO1'     ,'FINE',0.187,'MASS','o', 
-    'EVERYWHERE', 'DIESEL'      ,'PMOCN2' ,'ASVPO1'     ,'FINE',0.043,'MASS','o', 
-    'EVERYWHERE', 'DIESEL'     ,'PMNCOMN2','ASVPO1'     ,'FINE',0.043,'MASS','o', 
-    'EVERYWHERE', 'DIESEL'      ,'PMOCN2' ,'VSVPO1'     ,'GAS' ,0.043,'MASS','o', 
-    'EVERYWHERE', 'DIESEL'     ,'PMNCOMN2','VSVPO1'     ,'GAS' ,0.043,'MASS','o', 
-    'EVERYWHERE', 'DIESEL'      ,'PMOCN2' ,'VSVPO2'     ,'GAS' ,0.364,'MASS','o', 
-    'EVERYWHERE', 'DIESEL'     ,'PMNCOMN2','VSVPO2'     ,'GAS' ,0.364,'MASS','o', 
-    'EVERYWHERE', 'DIESEL'      ,'PMOCN2' ,'VSVPO3'     ,'GAS' ,0.363,'MASS','o', 
-    'EVERYWHERE', 'DIESEL'     ,'PMNCOMN2','VSVPO3'     ,'GAS' ,0.363,'MASS','o', 
-    'EVERYWHERE', 'DIESEL'      ,'PMOCN2' ,'VIVPO1'     ,'GAS' ,0.0  ,'MASS','o', 
-    'EVERYWHERE', 'DIESEL'     ,'PMNCOMN2','VIVPO1'     ,'GAS' ,0.0  ,'MASS','o', 
+    'EVERYWHERE', 'DIESEL'      ,'PMOCN2' ,'ALVPO1'     ,'FINE',0.187,'MASS','a', 
+    'EVERYWHERE', 'DIESEL'     ,'PMNCOMN2','ALVPO1'     ,'FINE',0.187,'MASS','a', 
+    'EVERYWHERE', 'DIESEL'      ,'PMOCN2' ,'ASVPO1'     ,'FINE',0.043,'MASS','a', 
+    'EVERYWHERE', 'DIESEL'     ,'PMNCOMN2','ASVPO1'     ,'FINE',0.043,'MASS','a', 
+    'EVERYWHERE', 'DIESEL'      ,'PMOCN2' ,'VSVPO1'     ,'GAS' ,0.043,'MASS','a', 
+    'EVERYWHERE', 'DIESEL'     ,'PMNCOMN2','VSVPO1'     ,'GAS' ,0.043,'MASS','a', 
+    'EVERYWHERE', 'DIESEL'      ,'PMOCN2' ,'VSVPO2'     ,'GAS' ,0.364,'MASS','a', 
+    'EVERYWHERE', 'DIESEL'     ,'PMNCOMN2','VSVPO2'     ,'GAS' ,0.364,'MASS','a', 
+    'EVERYWHERE', 'DIESEL'      ,'PMOCN2' ,'VSVPO3'     ,'GAS' ,0.363,'MASS','a', 
+    'EVERYWHERE', 'DIESEL'     ,'PMNCOMN2','VSVPO3'     ,'GAS' ,0.363,'MASS','a', 
+    'EVERYWHERE', 'DIESEL'      ,'PMOCN2' ,'VIVPO1'     ,'GAS' ,0.0  ,'MASS','a', 
+    'EVERYWHERE', 'DIESEL'     ,'PMNCOMN2','VIVPO1'     ,'GAS' ,0.0  ,'MASS','a', 
 
     !'EVERYWHERE', 'DIESEL'      ,'NMOG'   ,'VROCP3ALK'  ,'GAS' ,0.0536,'MASS','a', ! Alkane-like IVOC equivalents do not exist in RACM2
     !'EVERYWHERE', 'DIESEL'      ,'NMOG'   ,'VROCP4ALK'  ,'GAS' ,0.1486,'MASS','a',
@@ -320,18 +321,18 @@
     !'EVERYWHERE', 'DIESEL'      ,'NMOG'   ,'VROCP6ARO'  ,'GAS' ,0.0025,'MASS','a', ! Ignore these IVOCs in RACM2
  
    ! Aircraft Family Turbine Engine Volatility Distribution
-    'EVERYWHERE', 'AIRCRAFT'    ,'PMOCN2' ,'ASVPO1'     ,'FINE',0.149,'MASS','o', 
-    'EVERYWHERE', 'AIRCRAFT'   ,'PMNCOMN2','ASVPO1'     ,'FINE',0.149,'MASS','o', 
-    'EVERYWHERE', 'AIRCRAFT'    ,'PMOCN2' ,'ASVPO2'     ,'FINE',0.130,'MASS','o', 
-    'EVERYWHERE', 'AIRCRAFT'   ,'PMNCOMN2','ASVPO2'     ,'FINE',0.130,'MASS','o', 
-    'EVERYWHERE', 'AIRCRAFT'    ,'PMOCN2' ,'VSVPO2'     ,'GAS' ,0.130,'MASS','o', 
-    'EVERYWHERE', 'AIRCRAFT'   ,'PMNCOMN2','VSVPO2'     ,'GAS' ,0.130,'MASS','o', 
-    'EVERYWHERE', 'AIRCRAFT'    ,'PMOCN2' ,'VSVPO3'     ,'GAS' ,0.384,'MASS','o', 
-    'EVERYWHERE', 'AIRCRAFT'   ,'PMNCOMN2','VSVPO3'     ,'GAS' ,0.384,'MASS','o', 
-    'EVERYWHERE', 'AIRCRAFT'    ,'PMOCN2' ,'VIVPO1'     ,'GAS' ,0.208,'MASS','o', 
-    'EVERYWHERE', 'AIRCRAFT    ,'PMNCOMN2','VIVPO1'     ,'GAS' ,0.208,'MASS','o', 
-    !'EVERYWHERE', 'AIRCRAFT'    ,'PMOCN2' ,'VROCP3ALK'  ,'GAS' ,0.0  ,'MASS','o',  
-    !'EVERYWHERE', 'AIRCRAFT'   ,'PMNCOMN2','VROCP3ALK'  ,'GAS' ,0.0  ,'MASS','o', 
+    'EVERYWHERE', 'AIRCRAFT'    ,'PMOCN2' ,'ASVPO1'     ,'FINE',0.149,'MASS','a', 
+    'EVERYWHERE', 'AIRCRAFT'   ,'PMNCOMN2','ASVPO1'     ,'FINE',0.149,'MASS','a', 
+    'EVERYWHERE', 'AIRCRAFT'    ,'PMOCN2' ,'ASVPO2'     ,'FINE',0.130,'MASS','a', 
+    'EVERYWHERE', 'AIRCRAFT'   ,'PMNCOMN2','ASVPO2'     ,'FINE',0.130,'MASS','a', 
+    'EVERYWHERE', 'AIRCRAFT'    ,'PMOCN2' ,'VSVPO2'     ,'GAS' ,0.130,'MASS','a', 
+    'EVERYWHERE', 'AIRCRAFT'   ,'PMNCOMN2','VSVPO2'     ,'GAS' ,0.130,'MASS','a', 
+    'EVERYWHERE', 'AIRCRAFT'    ,'PMOCN2' ,'VSVPO3'     ,'GAS' ,0.384,'MASS','a', 
+    'EVERYWHERE', 'AIRCRAFT'   ,'PMNCOMN2','VSVPO3'     ,'GAS' ,0.384,'MASS','a', 
+    'EVERYWHERE', 'AIRCRAFT'    ,'PMOCN2' ,'VIVPO1'     ,'GAS' ,0.208,'MASS','a', 
+    'EVERYWHERE', 'AIRCRAFT'   ,'PMNCOMN2','VIVPO1'     ,'GAS' ,0.208,'MASS','a', 
+    !'EVERYWHERE', 'AIRCRAFT'    ,'PMOCN2' ,'VROCP3ALK'  ,'GAS' ,0.0  ,'MASS','a',  
+    !'EVERYWHERE', 'AIRCRAFT'   ,'PMNCOMN2','VROCP3ALK'  ,'GAS' ,0.0  ,'MASS','a', 
 
    ! pcSOA is a CMAQ species introduced to account for missing pathways for SOA
    ! formation from combustion sources. It includes IVOC oxidation as well as other
