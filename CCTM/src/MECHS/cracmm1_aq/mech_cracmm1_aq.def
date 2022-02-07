@@ -1348,14 +1348,18 @@ REACTIONS[CM] =
                                      + .075*FURAN 
                                      - .075*XC #2.3E-12;
 < T10c> BDE13P + HO2       = 1.0*OP2 - 2.*XC # 1.61E-11;
-< T10d> BDE13P + MO2       = 0.5*HO2 + .463*ACRO 
+< T10d> BDE13P + MO2       = 0.5*MOH + 0.5*HCHO 
+                                     + 0.5*HO2 
+                                     + .463*ACRO 
                                      + .463*HCHO 
                                      + .25*OLT
                                      + .231*MVK
                                      + .037*FURAN 
                                      + .019*UALD 
                                      - 0.056*XC # 2.39E-12;
-< T10e> BDE13P + ACO3      = 0.8*HO2 + .74*ACRO 
+< T10e> BDE13P + ACO3      = 0.7*MO2 + 0.3*ORA2
+                                     + 0.8*HO2 
+                                     + .74*ACRO 
                                      + .74*HCHO 
                                      + .185*MVK 
                                      + .06*FURAN 
