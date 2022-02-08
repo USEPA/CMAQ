@@ -29,7 +29,7 @@ C  RETURN VALUES: None
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, Feb  7, 2022
+C  REVISION HISTORY: Created by EBI solver program, Feb  8, 2022
 C   21 Jun 10 J.Young:   convert for Namelist redesign
 C   18 Jul 14 B.Hutzell: revised to use the RXNS_DATA and RXNS_FUNCTION
 C                        modules instead of include files
@@ -219,8 +219,8 @@ c..Allocate and define ebi species
       EBISP(  65 ) = LIMP1
       EBISP(  66 ) = LIMP2
       EBISP(  67 ) = PINALP
-      EBISP(  68 ) = LIMALP
-      EBISP(  69 ) = RCO3
+      EBISP(  68 ) = RCO3
+      EBISP(  69 ) = LIMALP
       EBISP(  70 ) = ACTP
       EBISP(  71 ) = MEKP
       EBISP(  72 ) = KETP
@@ -404,8 +404,8 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       RTOL( LIMP1       ) = 5.0D-04
       RTOL( LIMP2       ) = 5.0D-04
       RTOL( PINALP      ) = 5.0D-04
-      RTOL( LIMALP      ) = 5.0D-04
       RTOL( RCO3        ) = 5.0D-04
+      RTOL( LIMALP      ) = 5.0D-04
       RTOL( ACTP        ) = 5.0D-04
       RTOL( MEKP        ) = 5.0D-04
       RTOL( KETP        ) = 5.0D-04
