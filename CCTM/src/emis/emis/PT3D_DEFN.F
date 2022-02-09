@@ -658,13 +658,14 @@ C Based on the current time step, find whether or not a report should be written
 !            END DO
 !         END IF
 
-C Convert pt source met data to bi-linear interpolated data
-         CALL PTMET_CONVT( JDATE, JTIME )
-
 C Initialize Output Array
          !VDEMIS_PT = 0.0   ! array assignment
 
          N = IPSRM( ISRM )
+         
+
+C Convert pt source met data to bi-linear interpolated data
+         CALL PTMET_CONVT( JDATE, JTIME, N )
          PT_LAYS = 1       ! Initialize Point Layers at lowest possible value
 
          IF ( MY_NSRC( N ) .LE. 0 ) RETURN
