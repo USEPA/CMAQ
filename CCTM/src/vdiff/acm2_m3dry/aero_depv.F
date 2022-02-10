@@ -331,6 +331,7 @@ C-----------------------------------------------------------------------
       USE UTILIO_DEFN
       USE RUNTIME_VARS, ONLY: LOGDEV
       IMPLICIT NONE
+      CHARACTER( 96 ) :: XMSG = ' '
 
 C *** input arguments
       INTEGER, INTENT( IN ) :: N_AE_DEP_SPC
@@ -525,7 +526,8 @@ C Calculate characteristic parameters
      &               + Fgrass
            else
              XMSG = 'LU scheme not supported in new aero_depv'
-             CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+             CALL M3EXIT( 'aero_depv', 0, 0, XMSG, XSTAT1 )
+
            endif
 
            Ahair = Ahair2 * (1-Fneedle) + Ahair1 * Fneedle
