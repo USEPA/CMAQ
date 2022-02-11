@@ -32,17 +32,17 @@
             INTEGER :: N_EM_RGN   ! no. of region masks
 
             ! Define Data Structure for Storing Emission Control Namelist Options  
-            TYPE EM_REG
+            TYPE EM_REG_TYPE
                 CHARACTER( 32 ) :: LABEL
                 CHARACTER( 32 ) :: FILE
                 CHARACTER( 32 ) :: VAR
                 INTEGER         :: FILENUM
-            END TYPE EM_REG
+            END TYPE EM_REG_TYPE
 
-            TYPE( EM_REG ), ALLOCATABLE :: EM_REGIONS( : )
+            TYPE( EM_REG_TYPE ), ALLOCATABLE :: EM_REGIONS( : )
             REAL, ALLOCATABLE           :: EM_REG_FAC( :,:,: )
+            LOGICAL, ALLOCATABLE        :: EM_REG_SUB( :,: )
 
-            ! Define Structire for Emission Scaling Rules
             TYPE EM_RULE_REG
                 CHARACTER( 32 ) :: REGION
                 CHARACTER( 32 ) :: STREAM

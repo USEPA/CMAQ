@@ -60,9 +60,10 @@
       TYPE( EM_SURR_TYPE ),ALLOCATABLE :: EM_FILE_SURR( : )! Species to be read from each stream file
 
       TYPE EM_FAC_STRUCTURE
-          INTEGER              :: LEN     ! Number of scaling instructions that apply to this element of 
+          INTEGER              :: NFAC    ! Number of scaling instructions that apply to this element of 
                                           !   the EM_FAC_ST structure. The other attributes will be of 
                                           !   length LEN.
+          INTEGER              :: NREG    ! Number of unique regions for each instruction stack
           REAL, ALLOCATABLE    :: FAC(:)  ! Scale Factor applied with potential aerosol splitting
           REAL, ALLOCATABLE    :: BULK(:) ! Scale Factor for bulk emission without
                                           !   splitting for aerosols
@@ -72,6 +73,8 @@
           LOGICAL, ALLOCATABLE :: AREAADJ(:) ! True if the emissions need to be adjusted by the map scale
                                              !   factor to convert from real space to projected space
           INTEGER, ALLOCATABLE :: REG(:)  ! Index Mapping this entry to a particlar region in EM_REGIONS
+          INTEGER, ALLOCATABLE :: REG_UNQ(:)    ! Record of Unique Regions for each instruction stack
+          INTEGER, ALLOCATABLE :: REG_RMDR(:)   ! Map to remainder map
           INTEGER, ALLOCATABLE :: OP(:)   ! Operation to perform for this scaling
                                           !   (addition,'a' = 1, 
                                           !    multiplication,'m' = 2, 
@@ -79,7 +82,17 @@
       END TYPE EM_FAC_STRUCTURE
       TYPE( EM_FAC_STRUCTURE), ALLOCATABLE :: EM_FAC_ST ( :,: ) ! Emissions Scale Factors ( species, stream )
       CHARACTER( 1 ) :: EM_OP_NAME( 3 ) = (/'a','m','o'/)
-       
+      
+      ! Define Region Remainder Mask Structure
+      TYPE REG_RMDR_MASK
+          INTEGER              :: REG        ! large region with variable number of subset regions
+          LOGICAL, ALLOCATABLE :: SUB(:)     ! If an element true, then that subset region is active in 
+                                             !   the same instruction as the large region
+          REAL, ALLOCATABLE    :: MASK(:,:)  ! Remainder of the large region minus all subset regions in SUB
+      END TYPE REG_RMDR_MASK
+      TYPE( REG_RMDR_MASK ),ALLOCATABLE :: REG_RMDR( : ) ! Structure of Masks defining the remainder of 
+                                                         ! regions after subtracting their subset regions
+
       ! Define Structure for Holding Emissions Aerosol Mode Information Globally
       TYPE EM_STREAM_MODES
          INTEGER  :: LEN

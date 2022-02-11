@@ -982,23 +982,14 @@ C-----------------------------------------------------------------------
       INTEGER, INTENT( IN )   :: ISRM, NL
       REAL, INTENT( IN )      :: VDEMIS0( :,:,:,: )
       REAL, INTENT( OUT )     :: VDEMIS ( :,:,:,: )
-      REAL, ALLOCATABLE, SAVE :: FAC1( :,:,:,: )
+
+      REAL, ALLOCATABLE, SAVE    :: VDEMIS1( :,:,: )
       INTEGER, ALLOCATABLE, SAVE :: NFAC( : )
 
-      TYPE FAC_ST
-          LOGICAL :: EXISTS  ! Does this source have any instructions with 
-                             ! at least IFAC number of factors
-          REAL, ALLOCATABLE    :: FAC( :,:,:,: ) ! Spatial-Dependent Scaling Factors 
-          INTEGER              :: NISTR          ! Number of nonzero instructions for each stream
-          INTEGER, ALLOCATABLE :: MAP_FACtoISTR( : )! Map the factors from the global 
-                                                    ! structure to just the species 
-                                                    ! relevant for this emission stream
-      END TYPE FAC_ST
-      TYPE ( FAC_ST ), ALLOCATABLE, SAVE :: EM_FAC1_ST( : )
-
-      INTEGER ISTR, IFAC, L, NFAC_MAX, IRGN, OP, JSRM, ISTR_TMP, NISTR
-      INTEGER, ALLOCATABLE    :: MAP_FACtoISTR( : )
-      REAL, ALLOCATABLE, SAVE :: FAC( :,: )
+      INTEGER ISTR, IFAC, L, NFAC_MAX, IRGN, OP, JSRM, ISTR_TMP, 
+     &        NISTR, REG_UNQ, JRGN, K
+      INTEGER, ALLOCATABLE :: MAP_FACtoISTR( : )
+      REAL    FAC
       LOGICAL, SAVE :: FIRSTIME = .TRUE.
       LOGICAL :: LAREA, LAREAADJ
 
@@ -1006,154 +997,81 @@ C-----------------------------------------------------------------------
       IF ( FIRSTIME ) THEN
          FIRSTIME = .FALSE.
          ALLOCATE( NFAC( N_EMIS_ISTR ) )
-         ALLOCATE( FAC( NCOLS,NROWS ) )
-
-         ! Build Array for primary factor. This algorithm is optimized
-         ! by assuming that most instructions only have one factor (i.e.
-         ! the 'add' factor). So time will be saved by pre-populating
-         ! the 5D array necessry to perform this operation.
-         ALLOCATE( EM_FAC1_ST( N_EM_SRM ) )
-         EM_FAC1_ST( : )%EXISTS = .FALSE.
-         ALLOCATE( FAC1( N_EMIS_ISTR,EMLAYS,NCOLS,NROWS ) )
-         ALLOCATE( MAP_FACtoISTR( N_EMIS_ISTR ) )
-
-         DO JSRM = 1,N_EM_SRM
-           NFAC( : ) = EM_FAC_ST( :,JSRM )%LEN
-           IF ( ANY( NFAC( : ) .GE. 1 ) ) THEN
-             ! Start Counting Instructions for this Emission Stream    
-             FAC1 = 0.0
-             ISTR_TMP = 0
-             MAP_FACtoISTR = 0
-
-             ! Loop through existing instructions
-             DO ISTR = 1,N_EMIS_ISTR
-               ! Determine whether Emissions for this combination exist
-               IF ( EM_FAC_ST( ISTR,JSRM )%LEN .GT. 0 ) THEN
-                 IRGN = EM_FAC_ST( ISTR,JSRM )%REG( 1 )
-                 ISTR_TMP = ISTR_TMP + 1
-                 MAP_FACtoISTR( ISTR_TMP ) = ISTR
-
-                 DO L = 1,EMLAYS
-                   IF ( IRGN .EQ. 1 ) THEN
-                     ! Emissions are domain wide
-                     FAC1( ISTR_TMP,L,:,: ) = EM_FAC_ST( ISTR,JSRM )%FAC( 1 )
-                   ELSE
-                     ! Regional-based scaling
-                     FAC1( ISTR_TMP,L,:,: ) = EM_FAC_ST( ISTR,JSRM )%FAC( 1 )
-     &                            * EM_REG_FAC( :,:,IRGN )
-                   END IF
-
-                   ! If the emission variable is a flux, then multiply
-                   ! by grid cell area
-                   IF ( EM_FAC_ST( ISTR,JSRM )%AREA( 1 ) ) 
-     &                FAC1( ISTR_TMP,L,:,: ) = FAC1( ISTR_TMP,L,:,: ) * CELLAREA(:,:)
-                   IF ( EM_FAC_ST( ISTR,JSRM )%AREAADJ( 1 ) ) 
-     &                FAC1( ISTR_TMP,L,:,: ) = FAC1( ISTR_TMP,L,:,: ) / MSFX2(:,:)
-
-                 END DO
-               END IF
-             END DO
-
-             ! Allocate factor array for the first factor
-             EM_FAC1_ST( JSRM )%EXISTS = .TRUE.
-             EM_FAC1_ST( JSRM )%NISTR = ISTR_TMP
-             ALLOCATE( EM_FAC1_ST( JSRM )%FAC( ISTR_TMP,EMLAYS,NCOLS,NROWS ) )
-             EM_FAC1_ST( JSRM )%FAC( 1:ISTR_TMP,:,:,: ) = FAC1( 1:ISTR_TMP,:,:,: )
-             ALLOCATE( EM_FAC1_ST( JSRM )%MAP_FACtoISTR( ISTR_TMP ) )
-             EM_FAC1_ST( JSRM )%MAP_FACtoISTR( 1:ISTR_TMP ) = MAP_FACtoISTR( 1:ISTR_TMP )
-           
-           END IF 
-         END DO
-         DEALLOCATE( MAP_FACtoISTR )
+         ALLOCATE( VDEMIS1( NLAYS, NCOLS, NROWS ) )
 
       END IF   ! First Time
 
       !! Time-Dependent Portion
       VDEMIS( :,1:NL,:,: ) = 0.0
+      NFAC( : ) = EM_FAC_ST( :,ISRM )%NFAC
       
       ! Skip Streams With no Emissions Whatsoever
-      IF ( .NOT. EM_FAC1_ST( ISRM )%EXISTS ) RETURN
+      IF ( SUM( NFAC(:) ) .EQ. 0 ) RETURN
 
-      ! For the Primary Scaling (IFAC = 1), apply the array operation
-      NISTR = EM_FAC1_ST( ISRM )%NISTR
-      DO ISTR = 1,NISTR
-         VDEMIS( EM_FAC1_ST( ISRM )%MAP_FACtoISTR( ISTR ),1:NL,:,: ) = 
-     &        VDEMIS0( EM_FAC1_ST( ISRM )%MAP_FACtoISTR( ISTR ),1:NL,:,: ) * 
-     &        EM_FAC1_ST( ISRM )%FAC( ISTR,1:NL,:,: )
-      END DO
-
-      
-      ! For Additional Scaling Operations (IFAC > 1), Loop through Instructions 
-      NFAC( : ) = EM_FAC_ST( :,ISRM )%LEN
+      ! Loop through Each Instruction 
       DO ISTR = 1,N_EMIS_ISTR
         ! Do Not bother with this row if there is no surrogate to map
-        IF ( MAP_EMtoSURR( ISTR,ISRM ) .EQ. 0 .OR. NFAC( ISTR ) .EQ. 1 ) CYCLE
+        IF ( NFAC( ISTR ) .EQ. 0 ) CYCLE
 
-        DO IFAC = 2,NFAC( ISTR )      
+        ! Loop through each unique Region and Process Instruction's Stacks
+        DO JRGN = 1,EM_FAC_ST( ISTR,ISRM )%NREG
+          REG_UNQ = EM_FAC_ST( ISTR,ISRM )%REG_UNQ( JRGN )
 
-          FAC(:,:)= EM_FAC_ST( ISTR,ISRM )%FAC( IFAC )
-          OP      = EM_FAC_ST( ISTR,ISRM )%OP ( IFAC )
-          IRGN    = EM_FAC_ST( ISTR,ISRM )%REG( IFAC )
-          LAREA   = EM_FAC_ST( ISTR,ISRM )%AREA(IFAC )
-          LAREAADJ= EM_FAC_ST( ISTR,ISRM )%AREAADJ(IFAC )
+          ! Initialize Region-Dependent Array for this Instruction
+          VDEMIS1( :,:,: ) = 0.
 
-          IF ( IRGN .EQ. 1 ) THEN
-            !Apply scaling using EM_FAC_ST 
-            IF ( OP .EQ. 1 .AND. NFAC( ISTR ) .EQ. 1 ) THEN ! Add New Emission
-              DO L = 1,NL
-                 VDEMIS( ISTR,L,:,: ) = VDEMIS0( ISTR,L,:,: ) * FAC
-              END DO
-            ELSE IF ( OP.EQ.1 ) THEN   ! Add Additional Emission 
-              IF ( LAREA ) FAC = FAC * CELLAREA     
-              IF ( LAREAADJ ) FAC = FAC / MSFX2 
-              DO L = 1,NL
-                 VDEMIS( ISTR,L,:,: ) = VDEMIS( ISTR,L,:,: ) +
-     &                   VDEMIS0( ISTR,L,:,: ) * FAC(:,:)
-              END DO
-            ELSE IF ( OP.EQ.2 ) THEN ! Multiply Emissions Rule
-              DO L = 1,NL
-                 VDEMIS( ISTR,L,:,: ) = VDEMIS( ISTR,L,:,: ) * FAC
-              END DO
-            ELSE IF ( OP.EQ.3 ) THEN ! Overwrite Existing Rule
-              IF ( LAREA ) FAC = FAC * CELLAREA
-              IF ( LAREAADJ ) FAC = FAC / MSFX2 
-              DO L = 1,NL
-                 VDEMIS( ISTR,L,:,: ) = 
-     &                   VDEMIS0( ISTR,L,:,: ) * FAC(:,:)
-              END DO
+          ! Calculate the scale factor needed for this region
+          DO IFAC = 1,NFAC( ISTR )      
+
+            FAC     = EM_FAC_ST( ISTR,ISRM )%FAC( IFAC )
+            OP      = EM_FAC_ST( ISTR,ISRM )%OP ( IFAC )
+            IRGN    = EM_FAC_ST( ISTR,ISRM )%REG( IFAC )
+            LAREA   = EM_FAC_ST( ISTR,ISRM )%AREA(IFAC )
+            LAREAADJ= EM_FAC_ST( ISTR,ISRM )%AREAADJ(IFAC )
+
+
+            IF ( IRGN .EQ. REG_UNQ .OR.
+     &           EM_REG_SUB( IRGN,REG_UNQ ) ) THEN
+              !Apply scaling for region IRGN using EM_FAC_ST 
+              IF ( OP .EQ. 1 ) THEN ! Add New Emission
+                  IF ( LAREA ) FAC = FAC * CELLAREA
+                  IF ( LAREAADJ ) FAC = FAC / MSFX2
+                  VDEMIS1( 1:NL,:,: ) = VDEMIS1( 1:NL,:,: ) +
+     &                 VDEMIS0( ISTR,1:NL,:,: ) * FAC
+
+              ELSE IF ( OP.EQ.2 ) THEN ! Multiply Emissions Rule
+                  VDEMIS1( 1:NL,:,: ) = VDEMIS1( 1:NL,:,: ) * FAC
+
+              ELSE IF ( OP.EQ.3 ) THEN ! Overwrite Existing Rule
+                  IF ( LAREA ) FAC = FAC * CELLAREA
+                  IF ( LAREAADJ ) FAC = FAC / MSFX2
+                  VDEMIS1( 1:NL,:,: ) = VDEMIS0( ISTR,1:NL,:,: ) * FAC
+              END IF
             END IF
+          END DO  ! End Loop through instruction stack
+
+          ! Determine Region Mask to use for this Instruction
+          K = EM_FAC_ST( ISTR,ISRM)%REG_RMDR( JRGN )
+          IF ( K .EQ. 0 ) THEN
+             ! This region does not have active subsets for this instruction
+             ! Integrate Emissions Accounting for Region-based contributions
+             DO L = 1,NLAYS
+               VDEMIS( ISTR,L,:,: ) = VDEMIS( ISTR,L,:,: ) + 
+     &             VDEMIS1( L,:,: ) * EM_REG_FAC(:,:,REG_UNQ )
+             END DO
           ELSE
-              
-            !Apply scaling using EM_FAC_ST and VDEMIS_RGN
-            IF ( OP.EQ.1 ) THEN   ! Add Additional Emission 
-              IF ( LAREA ) FAC = FAC * CELLAREA
-              IF ( LAREAADJ ) FAC = FAC / MSFX2
-              DO L = 1,NL
-                 VDEMIS( ISTR,L,:,: ) = VDEMIS( ISTR,L,:,: ) +
-     &                   VDEMIS0( ISTR,L,:,: ) * FAC(:,:) 
-     &                           * EM_REG_FAC( :,:,IRGN )
-              END DO
-            ELSE IF ( OP.EQ.2 ) THEN ! Multiply Emissions Rule
-              DO L = 1,NL
-                VDEMIS( ISTR,L,:,: ) = VDEMIS( ISTR,L,:,: ) * 
-     &               (1.0 - EM_REG_FAC( :,:,IRGN ) ) +
-     &             VDEMIS( ISTR,L,:,: ) * FAC * EM_REG_FAC( :,:,IRGN )
-              END DO
-            ELSE IF ( OP.EQ.3 ) THEN ! Overwrite Existing Rule
-              IF ( LAREA ) FAC = FAC * CELLAREA
-              IF ( LAREAADJ ) FAC = FAC / MSFX2
-              DO L = 1,NL
-                 VDEMIS( ISTR,L,:,: ) = VDEMIS( ISTR,L,:,: ) *
-     &                 (1.0 - EM_REG_FAC( :,:,IRGN ) ) +
-     &                  VDEMIS0( ISTR,L,:,: ) * FAC(:,:) 
-     &                          * EM_REG_FAC( :,:,IRGN )
-              END DO
-            END IF
-
+             ! This region has active subsets for this instruction. Use the 
+             ! remainder mask 
+             ! Integrate Emissions Accounting for Region-based contributions
+             DO L = 1,NLAYS
+               VDEMIS( ISTR,L,:,: ) = VDEMIS( ISTR,L,:,: ) + 
+     &             VDEMIS1( L,:,: ) * REG_RMDR( K )%MASK(:,: )
+             END DO
           END IF
 
-        END DO
-      END DO
+
+        END DO    ! End loop through unique regions
+      END DO      ! End loop through instructions
 
       RETURN
 
@@ -1492,13 +1410,14 @@ C-----------------------------------------------------------------------
          INTEGER    :: STRT, PTSTRT, ISPC, IDX, IX, ISUR, IRULE, IAREA,
      &                 N, IM, IAERO, V, ISRM, NSPC, IA, IDIFF, JDX, JM,
      &                 ISTR, ISUR0, ISRM0, IEM, KDX, JSD, JEM, ISD,
-     &                 IFAC, IRGN, ISTRN, NFAC, NCHEM, ICHEM, IFAM, F,
-     &                 IRGN2, N_SURR_CATCH, ICATCH
+     &                 IFAC, IRGN, ISTRN, NFAC, NREG, NCHEM, ICHEM, IFAM, 
+     &                 IRGN2, N_SURR_CATCH, ICATCH, F, N_REG_RMDR, JRGN, K,
+     &                 KRGN, I, J
          REAL       :: AERO_SPLIT, UNIT_FAC_1, UNIT_FAC_2, SURR_MW, 
      &                 SPEC_MW, BASIS_FAC
 
          LOGICAL    :: LERROR, LFOUND, L_WDIFF, L_WISD, LTEST
-         LOGICAL    :: LGAS_DIFF, LGAS_SURR, L_CATCH
+         LOGICAL    :: LGAS_DIFF, LGAS_SURR, L_CATCH, LSUBSUB
          
          CHARACTER( 16 )  :: SPECNAME, SN, SM, EM_SURR_CATCH( 200 )
 
@@ -1514,7 +1433,7 @@ C-----------------------------------------------------------------------
          LOGICAL, ALLOCATABLE, SAVE :: EM_STREAM_RULE( : ), EM_SPEC_RULE( : )
          TYPE( LARRY1 ), ALLOCATABLE, SAVE :: EM_SURR_RULE( : ), EM_PHASE_RULE( : )
          INTEGER, PARAMETER :: N_SCALEFAC = 100
-         LOGICAL            :: LSPEC_KEY( NISTR0 ), LSURR_KEY( NISTR0 )
+         LOGICAL            :: LSPEC_KEY, LSURR_KEY
          CHARACTER( 16 )    :: CHEM_NAME( 150 )
          LOGICAL            :: LERROR2, LERROR3( 150 )
         
@@ -1535,6 +1454,10 @@ C-----------------------------------------------------------------------
          INTEGER, ALLOCATABLE :: EM_REG( :,:,: )
          INTEGER              :: N_EM_RULE, N_EM_AREA
          LOGICAL              :: LREMOVE
+         INTEGER, ALLOCATABLE :: REG_UNQ( : )
+         LOGICAL, ALLOCATABLE :: LSUB( : )
+         LOGICAL              :: LREG_RMDR
+         REAL, ALLOCATABLE    :: RMDR_MASK( :,: )
 
 C Retrieve Environment Variable Letting User Ignore this Check
 C and allowing the model to proceed.
@@ -1863,7 +1786,7 @@ C and allowing the model to proceed.
                DO ISRM = 1,N_EM_SRM
                  IF ( .NOT. EM_STREAM_RULE( ISRM ) ) CYCLE
                  EM_SURR_RULE( ISRM )%ARRY = .TRUE.
-                 LSURR_KEY( IRULE ) = .TRUE.
+                 LSURR_KEY = .TRUE.
                  LERROR = .FALSE.
                END DO
             ELSE
@@ -1887,7 +1810,7 @@ C and allowing the model to proceed.
                   ! the members to assign surrogates
                   NCHEM = ChemFamilyNum( IFAM )
                   CHEM_NAME(1:NCHEM) = ChemFamilyMembers( IFAM,1:NCHEM )
-                  LSURR_KEY( IRULE ) = .TRUE.
+                  LSURR_KEY = .TRUE.
  
                   LERROR = .FALSE.
                   DO ICHEM = 1,NCHEM
@@ -1972,7 +1895,7 @@ C and allowing the model to proceed.
             IF ( EM_NML( IRULE )%SPEC .EQ. 'ALL' ) THEN
                ! Expand the Rule to Apply to All Species
                EM_SPEC_RULE = .TRUE.
-               LSPEC_KEY( IRULE ) = .TRUE.
+               LSPEC_KEY = .TRUE.
             ELSE     
                ! Determine if the Species Label Refers to A Family and if So, 
                ! Apply the Rule to all members of that Family
@@ -1983,7 +1906,7 @@ C and allowing the model to proceed.
                ELSE
                   NCHEM = ChemFamilyNum( IFAM )
                   CHEM_NAME(1:NCHEM) = ChemFamilyMembers( IFAM,1:NCHEM )
-                  LSPEC_KEY( IRULE ) = .TRUE.
+                  LSPEC_KEY = .TRUE.
                END IF
 
                DO ICHEM = 1,NCHEM
@@ -2151,8 +2074,8 @@ C and allowing the model to proceed.
                     ! and Species fields and those family or keyword
                     ! names match, then only exact matches or existing 
                     ! relationships should be populated.
-                    IF (   (LSURR_KEY( IRULE ) .AND. 
-     &                      LSPEC_KEY( IRULE ) )
+                    IF (   (LSURR_KEY .AND. 
+     &                      LSPEC_KEY )
      &                  .AND.
      &                     (EM_FILE_SURR( ISRM )%ARRY( ISUR ) .NE. 
      &                      DIFF_SPC( IDIFF ) ) ) THEN
@@ -2206,9 +2129,18 @@ C and allowing the model to proceed.
                   ! Look For a suitable previous instruction to add to.
                   IF ( N_EMIS_ISTR .GT. 0 ) THEN
                   DO ISTRN = 1,N_EMIS_ISTR
-                    IF ( EM_SPEC( ISTRN ) .EQ. RULE_ISTR_SPEC( IC ) .AND.
-     &                   EM_SURR( ISTRN,RULE_ISTR_ISRM( IC ) ) .EQ. '' .AND.
-     &                   ANY( EM_SURR( ISTRN,: ) .EQ. RULE_ISTR_SURR( IC )) ) THEN
+                    IF ( ! The CMAQ species for this instruction matches
+                         ! the CMAQ species in the rule
+     &                   EM_SPEC( ISTRN ) .EQ. RULE_ISTR_SPEC( IC ) .AND.
+                         ! The instruction emission file variable
+                         ! matches that of the rule
+     &                   ( ( EM_SURR( ISTRN,RULE_ISTR_ISRM( IC ) ) .EQ.
+     &                       RULE_ISTR_SURR( IC ) ) .OR.
+                         ! The instruction has no emission file variable assigned 
+                         ! yet and one is available on this stream.
+     &                   ( EM_SURR( ISTRN,RULE_ISTR_ISRM( IC ) ) .EQ. '' .AND.
+     &                   ANY( EM_SURR( ISTRN,: ) .EQ. RULE_ISTR_SURR( IC ))) )
+     &                 ) THEN
                       ! Add This Command to Instruction number ISTR
                       ISTR = ISTRN
                       LFOUND = .TRUE.
@@ -2328,24 +2260,92 @@ C and allowing the model to proceed.
             END IF  ! Operator
          END DO !IRULE
 
-! Inspect all of the Emissions Instructions for conversion based on 
-! mass or moles. If there is a conversion, apply the correct factor
-! based on species molecular weights.
+         ! Create Summarized Emission Scale Factor Structure that
+         ! can be processed in the Emiss_Scaling subroutine every time
+         ! step
          ALLOCATE( EM_FAC_ST( N_EMIS_ISTR,N_EM_SRM ) )
+         ALLOCATE( REG_UNQ( N_SCALEFAC ) )
+         ALLOCATE( REG_RMDR( 1000 ) )
+         N_REG_RMDR = 0
+         ALLOCATE( RMDR_MASK( NCOLS,NROWS ))
+         ALLOCATE( LSUB( N_EM_RGN ) )
+
          DO ISTR = 1,N_EMIS_ISTR
             DO ISRM = 1,N_EM_SRM
-               EM_FAC_ST( ISTR,ISRM )%LEN = 0
+               EM_FAC_ST( ISTR,ISRM )%NFAC = 0
                IF ( MAP_EMtoSURR( ISTR,ISRM ) .NE. 0 ) THEN
 
-               ! First load emission factor structure
+               ! First determine number of emission scale factors (NFAC) and
+               ! number of unique regions (NREG) that are specified for this 
+               ! instruction and stream combination
                NFAC = 1
+               NREG = 1
+               REG_UNQ(:) = 1
                DO IFAC = 2,N_SCALEFAC
-                   IF ( EM_OP( ISTR,ISRM,IFAC ) .EQ. '' ) EXIT
-                 NFAC = NFAC + 1  
+                 IF ( EM_OP( ISTR,ISRM,IFAC ) .EQ. '' ) EXIT
+                 NFAC = NFAC + 1 
+               
+                 ! Determine whether the region for this factor is
+                 ! unique for this combination of ISTR and ISRM
+                 IF ( COUNT( REG_UNQ(1:NREG) .eq. 
+     &                       EM_REG( ISTR,ISRM,IFAC ) ) .eq. 0 ) THEN
+                   NREG = NREG + 1
+                   REG_UNQ( NREG ) = EM_REG( ISTR,ISRM,IFAC )
+                 END IF
                END DO
 
+               ! Determine if two active regions contain one or more 
+               ! identical Sub-Regions. If they do, then add that common
+               ! sub-region as an active region.
+               IF ( NREG .GT. 1 ) THEN
+                 DO IRGN = 1,NREG-1
+                 DO JRGN = IRGN+1,NREG
+                   I = REG_UNQ( IRGN )
+                   J = REG_UNQ( JRGN )
+                   ! Skip if one of these Regions is a Sub-Region of the other
+                   IF ( EM_REG_SUB(I,J) .OR. EM_REG_SUB(J,I) ) CYCLE
+                   DO K = 1,N_EM_RGN
+                     ! Check if IRGN and JRGN have a common Sub-Region 
+                     ! and that that sub-region is not an active region
+                     IF ( EM_REG_SUB(I,K) .AND. EM_REG_SUB(J,K) .AND.
+     &                    INDEXINT1( K, NREG, REG_UNQ(1:NREG) ) .EQ. 0 ) THEN
+                       ! Add Sub-Region K to Active Region List
+                       NREG = NREG + 1
+                       REG_UNQ( NREG ) = K
+                       
+                       ! Add a factor to zero out this Sub-Region
+                       NFAC = NFAC + 1
+                       EM_REG( ISTR,ISRM,NFAC ) = K
+                       EM_OP ( ISTR,ISRM,NFAC ) = 'o'
+                       EM_FAC( ISTR,ISRM,NFAC ) = 0.
+                       EM_FAC_BULK( ISTR,ISRM,NFAC ) = 0.
+                       EM_BASIS( ISTR,ISRM,NFAC ) = 'UNIT'
+                       EM_CONV( ISTR,ISRM,NFAC ) = 1.0
+                       
+                       ! Add Factors for this Sub-Region to the
+                       ! Instruction set
+                       DO IFAC = 1,NFAC-1
+                           IF ( EM_REG( ISTR,ISRM,IFAC ) .EQ. K .OR.
+     &                          EM_REG_SUB( EM_REG(ISTR,ISRM,IFAC), K) ) THEN
+                           ! Region K is a Sub-Region of the Region in this instruction
+                           NFAC = NFAC + 1
+                           EM_REG( ISTR,ISRM,NFAC ) = K
+                           EM_OP ( ISTR,ISRM,NFAC ) = EM_OP ( ISTR,ISRM,IFAC ) 
+                           EM_FAC( ISTR,ISRM,NFAC ) = EM_FAC( ISTR,ISRM,IFAC ) 
+                           EM_FAC_BULK( ISTR,ISRM,NFAC ) = EM_FAC_BULK( ISTR,ISRM,IFAC )
+                           EM_BASIS( ISTR,ISRM,NFAC ) = EM_BASIS( ISTR,ISRM,IFAC )  
+                           EM_CONV( ISTR,ISRM,NFAC )  = EM_CONV( ISTR,ISRM,IFAC )  
+                         END IF    
+                       END DO
+                     END IF
+                   END DO
+                 END DO
+                 END DO
+               END IF
+
                ! Allocate and Prepopulate Emission Factor Structure
-               EM_FAC_ST( ISTR,ISRM )%LEN = NFAC
+               EM_FAC_ST( ISTR,ISRM )%NFAC = NFAC
+               EM_FAC_ST( ISTR,ISRM )%NREG = NREG
                ALLOCATE( EM_FAC_ST( ISTR,ISRM )%FAC( NFAC ) )
                ALLOCATE( EM_FAC_ST( ISTR,ISRM )%BULK( NFAC ) )
                ALLOCATE( EM_FAC_ST( ISTR,ISRM )%BASIS( NFAC ) )
@@ -2353,7 +2353,9 @@ C and allowing the model to proceed.
                ALLOCATE( EM_FAC_ST( ISTR,ISRM )%AREAADJ( NFAC ) )
                ALLOCATE( EM_FAC_ST( ISTR,ISRM )%REG( NFAC ) )
                ALLOCATE( EM_FAC_ST( ISTR,ISRM )%OP( NFAC ) )
-                 
+               ALLOCATE( EM_FAC_ST( ISTR,ISRM )%REG_UNQ( NREG ) )
+               ALLOCATE( EM_FAC_ST( ISTR,ISRM )%REG_RMDR( NREG ) )
+
                EM_FAC_ST( ISTR,ISRM )%FAC  = 0.
                EM_FAC_ST( ISTR,ISRM )%BULK = 0.
                EM_FAC_ST( ISTR,ISRM )%BASIS= 1.
@@ -2361,11 +2363,73 @@ C and allowing the model to proceed.
                EM_FAC_ST( ISTR,ISRM )%AREAADJ = .FALSE.
                EM_FAC_ST( ISTR,ISRM )%REG  = 1
                EM_FAC_ST( ISTR,ISRM )%OP   = 0
+               EM_FAC_ST( ISTR,ISRM )%REG_UNQ= REG_UNQ( 1:NREG )
+               EM_FAC_ST( ISTR,ISRM )%REG_RMDR= 0
         
+               ! Populate remainder mask array of big regions by subtracting away 
+               ! their subsets
+               DO IRGN = 1,NREG 
+                 ! Move to the next region if this one has no sub-regions
+                 IF ( ALL( .NOT. EM_REG_SUB( REG_UNQ(IRGN),: ) ) ) CYCLE
+
+                 ! Build vector of active sub-regions of this region
+                 LSUB(:) = .FALSE.
+                 DO JRGN = 1,NREG
+                   IF ( EM_REG_SUB( REG_UNQ(IRGN),REG_UNQ(JRGN) ) )
+     &               LSUB( REG_UNQ(JRGN) ) = .TRUE.
+                     ! Region JRGN is a subdomain of Region IRGN 
+                 END DO
+                 IF ( ALL( .NOT. LSUB(:) )) CYCLE ! No active sub-regions
+
+                 ! Check to see if this remainder mask has been calculated already.
+                 LREG_RMDR = .FALSE.
+                 DO K = 1,N_REG_RMDR
+                   IF ( REG_RMDR( K )%REG .EQ. REG_UNQ(IRGN) .AND.
+     &                  ALL( REG_RMDR( K )%SUB(:) .EQ. LSUB(:) ) ) THEN
+                     ! Remainder mask already exists. Map to it.
+                     LREG_RMDR = .TRUE.
+                     EM_FAC_ST( ISTR,ISRM )%REG_RMDR( IRGN ) = K
+                     EXIT
+                   END IF
+                 END DO
+                 IF ( LREG_RMDR ) CYCLE
+
+                 ! If there's no remainder mask already, add one
+                 N_REG_RMDR = N_REG_RMDR + 1
+                 ! Identify Large Region
+                 REG_RMDR( N_REG_RMDR )%REG = REG_UNQ(IRGN)
+                 
+                 ! Identify active sub-regions
+                 ALLOCATE( REG_RMDR( N_REG_RMDR )%SUB( N_EM_RGN ) )
+                 REG_RMDR( N_REG_RMDR )%SUB(:) = LSUB(:)
+
+                 ! Calculate remainder mask
+                 ALLOCATE( REG_RMDR( N_REG_RMDR )%MASK( NCOLS,NROWS ))
+                 RMDR_MASK(:,:) = EM_REG_FAC(:,:,REG_UNQ(IRGN) )
+                 DO JRGN = 1,NREG
+                   ! Make sure this sub-region is not a sub-region of
+                   ! another active sub-region
+                   LSUBSUB = .FALSE.
+                   DO KRGN = 1,NREG
+                     IF ( KRGN .NE. IRGN .AND. LSUB(REG_UNQ(KRGN)) .AND. 
+     &                    EM_REG_SUB( REG_UNQ(KRGN),REG_UNQ(JRGN) ) )
+     &                  LSUBSUB = .TRUE.
+                   END DO
+                   IF ( LSUB(REG_UNQ(JRGN)) .AND. .NOT. LSUBSUB )
+     &               RMDR_MASK(:,:) = MAX( 0., RMDR_MASK(:,:) 
+     &                         - EM_REG_FAC(:,:,REG_UNQ(JRGN) ))
+                 END DO
+                 REG_RMDR( N_REG_RMDR )%MASK(:,:) = RMDR_MASK(:,:)
+                 
+                 ! Assign this remainder mask to an active region
+                 ! for this factor stack
+                 EM_FAC_ST( ISTR,ISRM )%REG_RMDR( IRGN ) = N_REG_RMDR
+               END DO
+
+               ! Populate Local Indices for Chemical Species
                ISUR  = MAP_EMtoSURR( ISTR,ISRM )
                SURR_MW = EM_FILE_SURR( ISRM )%MW( ISUR ) ! MW [g mol-1]
                SPEC_MW = DIFF_MW( MAP_EMtoDIFF( ISTR ) )
-
 
                ! Populate Emission Factor Structure
                DO IFAC = 1,NFAC
@@ -2384,6 +2448,9 @@ C and allowing the model to proceed.
                        EM_FAC_ST( ISTR,ISRM )%OP( IFAC )    = 3
                  END SELECT
 
+                 ! Inspect all of the Emissions Instructions for conversion based on 
+                 ! mass or moles. If there is a conversion, apply the correct factor
+                 ! based on species molecular weights.
                  BASIS_FAC = 1.0
                  IF ( EM_BASIS( ISTR, ISRM, IFAC ) .EQ. 'UNIT' ) THEN
                      BASIS_FAC = BASIS_FAC
@@ -2450,6 +2517,9 @@ C and allowing the model to proceed.
             END DO
 
         END DO !End Rule Loop
+
+        ! Reduce the size of the Region Remainder Mask
+        REG_RMDR = REG_RMDR( 1:N_REG_RMDR )
 
          ! Warn the User if there are no emissions instructions provided        
          IF ( N_EMIS_ISTR .LE. 0 ) THEN
