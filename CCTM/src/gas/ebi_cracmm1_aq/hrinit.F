@@ -29,7 +29,7 @@ C  RETURN VALUES: None
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, Feb  8, 2022
+C  REVISION HISTORY: Created by EBI solver program, Feb 11, 2022
 C   21 Jun 10 J.Young:   convert for Namelist redesign
 C   18 Jul 14 B.Hutzell: revised to use the RXNS_DATA and RXNS_FUNCTION
 C                        modules instead of include files
@@ -256,7 +256,7 @@ c..Allocate and define ebi species
       EBISP( 102 ) = LIMNP2
       EBISP( 103 ) = ADCN
       EBISP( 104 ) = VROCP4OXY2
-      EBISP( 105 ) = VROCP1OXY3
+      EBISP( 105 ) = VROCN1OXY6
       EBISP( 106 ) = FURANONE
       EBISP( 107 ) = VROCP3OXY2
       EBISP( 108 ) = VROCP0OXY4
@@ -307,16 +307,16 @@ c..Allocate and define ebi species
       EBISP( 153 ) = VROCP1ALKP2
       EBISP( 154 ) = HC10P2
       EBISP( 155 ) = VROCP1OXY1
-      EBISP( 156 ) = VROCP6ARO
-      EBISP( 157 ) = VROCP6AROP
-      EBISP( 158 ) = VROCN2OXY4
-      EBISP( 159 ) = VROCN1OXY3
-      EBISP( 160 ) = VROCP5ARO
-      EBISP( 161 ) = VROCP5AROP
-      EBISP( 162 ) = NAPH
-      EBISP( 163 ) = NAPHP
-      EBISP( 164 ) = VROCN2OXY8
-      EBISP( 165 ) = VROCN1OXY6
+      EBISP( 156 ) = VROCP1OXY3
+      EBISP( 157 ) = VROCP6ARO
+      EBISP( 158 ) = VROCP6AROP
+      EBISP( 159 ) = VROCN2OXY4
+      EBISP( 160 ) = VROCN1OXY3
+      EBISP( 161 ) = VROCP5ARO
+      EBISP( 162 ) = VROCP5AROP
+      EBISP( 163 ) = NAPH
+      EBISP( 164 ) = NAPHP
+      EBISP( 165 ) = VROCN2OXY8
       EBISP( 166 ) = VROCP5OXY1
       EBISP( 167 ) = VROCP6OXY1
 
@@ -441,7 +441,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       RTOL( LIMNP2      ) = 5.0D-04
       RTOL( ADCN        ) = 5.0D-04
       RTOL( VROCP4OXY2  ) = 5.0D-04
-      RTOL( VROCP1OXY3  ) = 5.0D-04
+      RTOL( VROCN1OXY6  ) = 5.0D-04
       RTOL( FURANONE    ) = 5.0D-04
       RTOL( VROCP3OXY2  ) = 5.0D-04
       RTOL( VROCP0OXY4  ) = 5.0D-04
@@ -492,6 +492,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       RTOL( VROCP1ALKP2 ) = 5.0D-04
       RTOL( HC10P2      ) = 5.0D-04
       RTOL( VROCP1OXY1  ) = 5.0D-04
+      RTOL( VROCP1OXY3  ) = 5.0D-04
       RTOL( VROCP6ARO   ) = 5.0D-04
       RTOL( VROCP6AROP  ) = 5.0D-04
       RTOL( VROCN2OXY4  ) = 5.0D-04
@@ -501,7 +502,6 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       RTOL( NAPH        ) = 5.0D-04
       RTOL( NAPHP       ) = 5.0D-04
       RTOL( VROCN2OXY8  ) = 5.0D-04
-      RTOL( VROCN1OXY6  ) = 5.0D-04
       RTOL( VROCP5OXY1  ) = 5.0D-04
       RTOL( VROCP6OXY1  ) = 5.0D-04
 
