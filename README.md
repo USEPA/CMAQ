@@ -1,18 +1,32 @@
 CMAQv5.3.3+
 ===========
 
-**This feature branch is under construction. Please do not download, use or distribute the contents of this branch.**
-
 Community Multiscale Air Quality Model US EPA CMAQ Website: (https://www.epa.gov/cmaq).
 
+The most recent publicly released CMAQ version may be cited using:
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.5213949.svg)](https://doi.org/10.5281/zenodo.5213949)
-
-CMAQ is an active open-source development project of the U.S. EPA's Office of Research and Development that consists of a suite of programs for conducting air quality model simulations.
-CMAQ is supported by the CMAS Center: (http://www.cmascenter.org).
 
 CMAQ combines current knowledge in atmospheric science and air quality modeling with multi-processor
 computing techniques in an open-source framework to deliver fast, technically sound estimates of ozone,
 particulates, toxics, and acid deposition.
+
+## CMAQ version 5.3.3+ Overview:
+CMAQv5.3.3+ is a continually evolving branch based on the most recent publicly released CMAQ version (5.3.3). It is intended to be used by researchers or other users who wish to adopt the most recent bugfixes or minor updates that improve model stability, efficiency, etc. CMAQv5.3.3+ has not been thoroughly evaluated or characterized so users must assume the risk of any unforeseen and undocumented impacts of code changes that have been incorporated since the most recent documented public release.
+
+### Proposing updates to a continually evolving branch
+Updates will be issued by the CMAQ development team or other users as Pull Requests to this branch. Please follow the default Pull Request template provided by the CMAQ team. Pull Requests will be reviewed by the CMAQ team and merged when and if they are deemed to contribute to the robustness of the model and improve predictions or performance.  
+
+### Examples of updates to a continually evolving branch  
+Potential updates include bugfixes that resolves runtime failures, segmentation faults, initialization issues, etc. Other updates could target algorithm inefficiencies that slow the model down. In these cases, it is expected that an improved algorithm would not change model results.  
+
+### Record of changes to CMAQv5.3.3+
+|      Tag        |   PR Number       |         PR Name          |   Merge Date     | Brief Description |
+| -------------- | ------------------ | ------------------------ | ---------------- | -----------------------|
+|CMAQv5.3.3.1_11Feb2022 | | | | |
+| | [#163](https://github.com/USEPA/CMAQ/pull/163)     | Resolve Bug for reading Emission Stream Families        | 2022-02-09 | Bug fix to avoid errors when processing matches for emission stream families related to capitalization. |
+|                | [#164](https://github.com/USEPA/CMAQ/pull/164)    | Resolve bug in Low-NOx formation of SOA  | 2022-02-09| A typo in the SOA_DEFN data table resulted in high NOx reactions contributing to low-NOx species, which are quite low in volatility. This bug fix has a considerable impact on SOA if using AE6. No impact for AE7.  |
+|                | [#165](https://github.com/USEPA/CMAQ/pull/165)    | Bugfix Speed up emissions processing in PTMET subroutine        | 2022-02-09 | The PTMET subroutine is streamlined so that it is not run for every point source and every stream every time each stream is called. This update drastically reduces runtimes in areas where there happen to be lots of point sources on a particular processor. No impact on results. |
+
 
 
 ## CMAQ version 5.3.3 Overview:
