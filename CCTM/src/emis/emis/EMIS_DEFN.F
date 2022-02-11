@@ -989,7 +989,7 @@ C-----------------------------------------------------------------------
       INTEGER ISTR, IFAC, L, NFAC_MAX, IRGN, OP, JSRM, ISTR_TMP, 
      &        NISTR, REG_UNQ, JRGN, K
       INTEGER, ALLOCATABLE :: MAP_FACtoISTR( : )
-      REAL    FAC
+      REAL, ALLOCATABLE, SAVE :: FAC( :,: )
       LOGICAL, SAVE :: FIRSTIME = .TRUE.
       LOGICAL :: LAREA, LAREAADJ
 
@@ -998,7 +998,7 @@ C-----------------------------------------------------------------------
          FIRSTIME = .FALSE.
          ALLOCATE( NFAC( N_EMIS_ISTR ) )
          ALLOCATE( VDEMIS1( NLAYS, NCOLS, NROWS ) )
-
+         ALLOCATE( FAC( NCOLS,NROWS ) )
       END IF   ! First Time
 
       !! Time-Dependent Portion
@@ -1023,31 +1023,32 @@ C-----------------------------------------------------------------------
           ! Calculate the scale factor needed for this region
           DO IFAC = 1,NFAC( ISTR )      
 
-            FAC     = EM_FAC_ST( ISTR,ISRM )%FAC( IFAC )
+            FAC(:,:)= EM_FAC_ST( ISTR,ISRM )%FAC( IFAC )
             OP      = EM_FAC_ST( ISTR,ISRM )%OP ( IFAC )
             IRGN    = EM_FAC_ST( ISTR,ISRM )%REG( IFAC )
             LAREA   = EM_FAC_ST( ISTR,ISRM )%AREA(IFAC )
             LAREAADJ= EM_FAC_ST( ISTR,ISRM )%AREAADJ(IFAC )
 
-
-            IF ( IRGN .EQ. REG_UNQ .OR.
+            DO L = 1,NL
+             IF ( IRGN .EQ. REG_UNQ .OR.
      &           EM_REG_SUB( IRGN,REG_UNQ ) ) THEN
               !Apply scaling for region IRGN using EM_FAC_ST 
               IF ( OP .EQ. 1 ) THEN ! Add New Emission
                   IF ( LAREA ) FAC = FAC * CELLAREA
                   IF ( LAREAADJ ) FAC = FAC / MSFX2
-                  VDEMIS1( 1:NL,:,: ) = VDEMIS1( 1:NL,:,: ) +
-     &                 VDEMIS0( ISTR,1:NL,:,: ) * FAC
+                  VDEMIS1( L,:,: ) = VDEMIS1( L,:,: ) +
+     &                 VDEMIS0( ISTR,L,:,: ) * FAC
 
               ELSE IF ( OP.EQ.2 ) THEN ! Multiply Emissions Rule
-                  VDEMIS1( 1:NL,:,: ) = VDEMIS1( 1:NL,:,: ) * FAC
+                  VDEMIS1( L,:,: ) = VDEMIS1( L,:,: ) * FAC
 
               ELSE IF ( OP.EQ.3 ) THEN ! Overwrite Existing Rule
                   IF ( LAREA ) FAC = FAC * CELLAREA
                   IF ( LAREAADJ ) FAC = FAC / MSFX2
-                  VDEMIS1( 1:NL,:,: ) = VDEMIS0( ISTR,1:NL,:,: ) * FAC
+                  VDEMIS1( L,:,: ) = VDEMIS0( ISTR,L,:,: ) * FAC
               END IF
-            END IF
+             END IF
+            END DO
           END DO  ! End Loop through instruction stack
 
           ! Determine Region Mask to use for this Instruction
@@ -2673,8 +2674,8 @@ C and allowing the model to proceed.
      &                         EM_FAC_ST( ISTR,ISRM )%FAC( 1 ) 
                       END IF    
 
-                      IF ( EM_FAC_ST( ISTR,ISRM )%LEN .GT. 1 ) THEN
-                      DO IFAC = 2,EM_FAC_ST( ISTR,ISRM )%LEN
+                      IF ( EM_FAC_ST( ISTR,ISRM )%NFAC .GT. 1 ) THEN
+                      DO IFAC = 2,EM_FAC_ST( ISTR,ISRM )%NFAC
                          WRITE( LOGDEV, '(55x,A,1x,A,2x,F6.3,4x,A,2x,F6.3)' ),
      &                          EM_REGIONS( EM_FAC_ST( ISTR,ISRM )%REG( IFAC ) )%LABEL(1:18),
      &                          EM_OP( ISTR,ISRM,IFAC ),
