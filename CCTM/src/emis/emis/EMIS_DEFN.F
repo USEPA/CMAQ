@@ -1002,7 +1002,7 @@ C-----------------------------------------------------------------------
       END IF   ! First Time
 
       !! Time-Dependent Portion
-      VDEMIS( :,1:NL,:,: ) = 0.0
+      VDEMIS( :,:,:,: ) = 0.0
       NFAC( : ) = EM_FAC_ST( :,ISRM )%NFAC
       
       ! Skip Streams With no Emissions Whatsoever
@@ -1056,7 +1056,7 @@ C-----------------------------------------------------------------------
           IF ( K .EQ. 0 ) THEN
              ! This region does not have active subsets for this instruction
              ! Integrate Emissions Accounting for Region-based contributions
-             DO L = 1,NLAYS
+             DO L = 1,NL
                VDEMIS( ISTR,L,:,: ) = VDEMIS( ISTR,L,:,: ) + 
      &             VDEMIS1( L,:,: ) * EM_REG_FAC(:,:,REG_UNQ )
              END DO
@@ -1064,7 +1064,7 @@ C-----------------------------------------------------------------------
              ! This region has active subsets for this instruction. Use the 
              ! remainder mask 
              ! Integrate Emissions Accounting for Region-based contributions
-             DO L = 1,NLAYS
+             DO L = 1,NL
                VDEMIS( ISTR,L,:,: ) = VDEMIS( ISTR,L,:,: ) + 
      &             VDEMIS1( L,:,: ) * REG_RMDR( K )%MASK(:,: )
              END DO
@@ -1311,7 +1311,7 @@ C-----------------------------------------------------------------------
                 IF ( EMDIAG_SPEC( IDIAG )%MAP_toEMDIAG( IP )
      &                .EQ. ISPEC ) THEN
                   JSPEC = EMDIAG_SPEC( IDIAG )%MAP_toDIFF( IP )
-                  DO L = 1,LAYS
+                  DO L = 1,NL
                      VDEMIS_OUT( :,:,L ) = 
      &                   VDEMIS_OUT( :,:,L ) + VDEMIS( JSPEC,L,:,: )
                   END DO
@@ -3052,19 +3052,19 @@ C stkemis_init.
                  DO ISRM = 1,N_EM_SRM
                      IF ( STREAM_VECTOR( ISRM ) ) THEN
                         ! Check for existing entries
-                        STREAM_VECTOR_TMP = .FALSE.
-                        STREAM_VECTOR_TMP( ISRM ) = .TRUE.
-                        LFOUND = .FALSE.
-                        DO J = 1,N_EMDIAG
-                           IF ( ALL( EMDIAG_STREAM_MASK( :,J ) .EQV. STREAM_VECTOR_TMP) ) THEN
-                               JDIAG = J
-                               LFOUND = .TRUE.
-                           END IF
-                        END DO
-                        IF ( .NOT. LFOUND ) THEN
+                        !STREAM_VECTOR_TMP = .FALSE.
+                        !STREAM_VECTOR_TMP( ISRM ) = .TRUE.
+                        !LFOUND = .FALSE.
+                        !DO J = 1,N_EMDIAG
+                        !   IF ( ALL( EMDIAG_STREAM_MASK( :,J ) .EQV. STREAM_VECTOR_TMP) ) THEN
+                        !       JDIAG = J
+                        !       LFOUND = .TRUE.
+                        !   END IF
+                        !END DO
+                        !IF ( .NOT. LFOUND ) THEN
                            N_EMDIAG = N_EMDIAG + 1
                            JDIAG = N_EMDIAG
-                        END IF
+                        !END IF
             
                         ! Save the number of
                         ! streams selected for this diagnostic and a mask for
@@ -3091,19 +3091,19 @@ C stkemis_init.
                  END DO
              ELSE
                  ! Check for existing entries. 
-                 LFOUND = .FALSE.
-                 DO J = 1,N_EMDIAG
-                    IF ( ALL( EMDIAG_STREAM_MASK( :,J ) .EQV. STREAM_VECTOR ) ) THEN
-                        JDIAG = J
-                        LFOUND = .TRUE.
-                    END IF
-                 END DO
-                 IF ( .NOT. LFOUND ) THEN
+                 !LFOUND = .FALSE.
+                 !DO J = 1,N_EMDIAG
+                 !   IF ( ALL( EMDIAG_STREAM_MASK( :,J ) .EQV. STREAM_VECTOR ) ) THEN
+                 !       JDIAG = J
+                 !       LFOUND = .TRUE.
+                 !   END IF
+                 !END DO
+                 !IF ( .NOT. LFOUND ) THEN
                     N_EMDIAG = N_EMDIAG + 1
                     JDIAG = N_EMDIAG
                     NSUM = NSUM + 1
                     SUMDIAG( JDIAG ) = NSUM
-                 END IF
+                 !END IF
                  
                  ! Save the number of
                  ! streams selected for this diagnostic and a mask for
