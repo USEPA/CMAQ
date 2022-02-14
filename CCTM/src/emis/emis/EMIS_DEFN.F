@@ -2386,7 +2386,7 @@ C and allowing the model to proceed.
                  LREG_RMDR = .FALSE.
                  DO K = 1,N_REG_RMDR
                    IF ( REG_RMDR( K )%REG .EQ. REG_UNQ(IRGN) .AND.
-     &                  ALL( REG_RMDR( K )%SUB(:) .EQ. LSUB(:) ) ) THEN
+     &                  ALL( REG_RMDR( K )%SUB(:) .EQV. LSUB(:) ) ) THEN
                      ! Remainder mask already exists. Map to it.
                      LREG_RMDR = .TRUE.
                      EM_FAC_ST( ISTR,ISRM )%REG_RMDR( IRGN ) = K

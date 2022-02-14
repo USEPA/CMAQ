@@ -4892,8 +4892,7 @@ C   mminlu and num_land_cat are WRF global variables
       EM_REG_SUB(1,:) = .TRUE.   ! All regions are a subset of Region 1 (Everywhere)
       EM_REG_SUB(1,1) = .FALSE.  ! No regions are subsets of themselves
 
-      IF ( MYPE .EQ. 0 )
-     &   ALLOCATE( REG_FACI(GL_NCOLS,GL_NROWS), 
+      ALLOCATE( REG_FACI(GL_NCOLS,GL_NROWS), 
      &             REG_FACJ(GL_NCOLS,GL_NROWS)  )
 
       DO IRGN = 2,N_EM_RGN
@@ -4921,8 +4920,7 @@ C   mminlu and num_land_cat are WRF global variables
         END DO
       END DO
 
-      IF ( MYPE .EQ. 0 )
-     &     DEALLOCATE( REG_FACI, REG_FACJ )
+      DEALLOCATE( REG_FACI, REG_FACJ )
 
 #ifdef parallel
       CALL SUBST_GLOBAL_BCAST( EM_REG_SUB )
