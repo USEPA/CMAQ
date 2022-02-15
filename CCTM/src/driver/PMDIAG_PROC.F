@@ -1811,6 +1811,7 @@
      &           "for in the Emmissions Control Namelist."
              !CALL LOG_MESSAGE( LOGDEV, XMSG )
              !CALL M3WARN( 'MAP_PMDIAG_COEFFS', 0, 0, '' )
+             PMDIAG_COEFFS( IDG )%L_GAS( IVAR )  = .FALSE.
           END IF
       
       ELSE IF ( TSPEC .EQ. 'AGG' ) THEN 
@@ -1990,9 +1991,13 @@
      &                     AH2O_IDX, AORGH2O_IDX, AEROSPC, CALC_AERODIST_PARAMS,
      &                     AEROMODE, DRY_AERO_DENS, APOC_IDX, APNCOM_IDX
       USE AEROMET_DATA, ONLY: AIRRH, PI, AIRTEMP, SRFTEMP, AIRPRES
-      USE SOA_DEFN, ONLY : N_OA, OASPC, MAP_OAtoAERO
+      USE CGRID_SPCS, ONLY : RHOJ_LOC
+      USE SOA_DEFN, ONLY : N_OA, N_OA_NotTracers, OASPC, MAP_OAtoAERO
       USE PHOT_MOD, ONLY : ELMO_AOD_550, ELMO_EXT_550
       USE RUNTIME_VARS, ONLY : PHOTDIAG
+      USE ASX_DATA_MOD, ONLY : MET_DATA
+
+      IMPLICIT NONE
 
       INTEGER, INTENT( IN ) :: IDG, IM
       REAL, INTENT( INOUT ) :: OUTVAL
@@ -2300,7 +2305,7 @@
             ! Sum up primary organic aerosol species normalized to
             ! just carbon mass
             VAL = 0.0
-            DO IOA = 1,N_OA
+            DO IOA = 1,N_OA_NotTracers
                 ! Just Select Primary Species
                 IF ( OASPC( IOA )%PRIMARY ) THEN  
                    IF ( OASPC( IOA )%OMtoOC .gt. 0.0 ) 
@@ -2316,7 +2321,7 @@
             ! Sum up primary organic aerosol species normalized to
             ! just carbon mass
             VAL = 0.0
-            DO IOA = 1,N_OA
+            DO IOA = 1,N_OA_NotTracers
                 ! Just Select Secondary Species
                 IF ( .NOT. OASPC( IOA )%PRIMARY ) THEN  
                       VAL = VAL + SUM( AEROSPC_CONC( MAP_OAtoAERO(IOA),: ),
@@ -2331,7 +2336,7 @@
             ! Sum up primary organic aerosol species normalized to
             ! just carbon mass
             VAL = 0.0
-            DO IOA = 1,N_OA
+            DO IOA = 1,N_OA_NotTracers
                VAL = VAL + SUM( AEROSPC_CONC( MAP_OAtoAERO(IOA),: ),
      &                     MASK = AEROMODE(:)%FINE_MASK ) 
      &                   / OASPC( IOA )%OMtoOC
@@ -2342,7 +2347,7 @@
          CASE ( ID_PMF_POA )
             ! Sum up primary organic aerosol species 
             VAL = 0.0
-            DO IOA = 1,N_OA
+            DO IOA = 1,N_OA_NotTracers
                 ! Just Select Primary Species
                 IF ( OASPC( IOA )%PRIMARY ) 
      &             VAL = VAL + SUM( AEROSPC_CONC( MAP_OAtoAERO(IOA),: ),
@@ -2354,7 +2359,7 @@
          CASE ( ID_PMF_SOA )
             ! Sum up primary organic aerosol species 
             VAL = 0.0
-            DO IOA = 1,N_OA
+            DO IOA = 1,N_OA_NotTracers
                 ! Just Select Secondary Species
                 IF ( .NOT.OASPC( IOA )%PRIMARY ) 
      &             VAL = VAL + SUM( AEROSPC_CONC( MAP_OAtoAERO(IOA),: ),
@@ -2366,17 +2371,17 @@
          CASE ( ID_PMF_OA )
             ! Sum up primary organic aerosol species 
             VAL = 0.0
-            DO IOA = 1,N_OA
+            DO IOA = 1,N_OA_NotTracers
                 VAL = VAL + SUM( AEROSPC_CONC( MAP_OAtoAERO(IOA),: ),
      &                      MASK = AEROMODE(:)%FINE_MASK ) 
             END DO
-            OUTVAL = VAL
+            OUTVAL = VAL    
          
          ! Calculate PMF_ASOA - Fine-Mode Anthropogenic OA Mass
          CASE ( ID_PMF_ASOA )
             ! Sum up anthropogenic oa species 
             VAL = 0.0
-            DO IOA = 1,N_OA
+            DO IOA = 1,N_OA_NotTracers
                 ! Just Select Anthropogenic Species
                 IF ( .NOT.OASPC( IOA )%PRIMARY .AND. OASPC( IOA )%ANTHRO  ) 
      &             VAL = VAL + SUM( AEROSPC_CONC( MAP_OAtoAERO(IOA),: ),
@@ -2388,7 +2393,7 @@
          CASE ( ID_PMF_BSOA )
             ! Sum up biogenic soa species 
             VAL = 0.0
-            DO IOA = 1,N_OA
+            DO IOA = 1,N_OA_NotTracers 
                 ! Just Select Biogenic Secondary Species
                 IF ( .NOT.OASPC( IOA )%PRIMARY .AND. OASPC( IOA )%BIOG  ) 
      &             VAL = VAL + SUM( AEROSPC_CONC( MAP_OAtoAERO(IOA),: ),
@@ -2409,7 +2414,7 @@
             CALL CALC_PMDIAG( ID_PMF_OA, 1, VAL  )
 
             VAL2 = 0.0
-            DO IOA = 1,N_OA
+            DO IOA = 1,N_OA_NotTracers
                IF ( MAP_OAtoAERO(IOA) .NE. APOC_IDX .AND.
      &              MAP_OAtoAERO(IOA) .NE. APNCOM_IDX ) THEN
                   ! Weight OA Sum by O:C
@@ -2434,7 +2439,7 @@
             ! Sum up primary organic aerosol species normalized to
             ! just carbon mass
             VAL = 0.0
-            DO IOA = 1,N_OA
+            DO IOA = 1,N_OA_NotTracers
                IF ( OASPC( IOA )%OMtoOC .GE. 0.0 ) 
      &              VAL = VAL + SUM( AEROSPC_CONC( MAP_OAtoAERO(IOA),: ) * FRAC(:))
      &                         / OASPC( IOA )%OMtoOC
@@ -2449,7 +2454,7 @@
             END DO
             ! Sum up primary organic aerosol species
             VAL = 0.0
-            DO IOA = 1,N_OA
+            DO IOA = 1,N_OA_NotTracers
                VAL = VAL + SUM( AEROSPC_CONC( MAP_OAtoAERO(IOA),: ) * FRAC(:))
             END DO
             OUTVAL = VAL  
@@ -2463,7 +2468,7 @@
             ! Sum up primary organic aerosol species normalized to
             ! just carbon mass
             VAL = 0.0
-            DO IOA = 1,N_OA
+            DO IOA = 1,N_OA_NotTracers
                IF ( OASPC( IOA )%OMtoOC .GE. 0.0 ) 
      &              VAL = VAL + SUM( AEROSPC_CONC( MAP_OAtoAERO(IOA),: ) * FRAC(:) )
      &                        / OASPC( IOA )%OMtoOC
@@ -2478,7 +2483,7 @@
             END DO
             ! Sum up primary organic aerosol species
             VAL = 0.0
-            DO IOA = 1,N_OA
+            DO IOA = 1,N_OA_NotTracers
                VAL = VAL + SUM( AEROSPC_CONC( MAP_OAtoAERO(IOA),: ) * FRAC(:) )
             END DO
             OUTVAL = VAL  
@@ -2515,7 +2520,7 @@
                   INLET_FRAC( IPMAMS,IMODE,IWET ) = FRAC(IMODE)
                END IF
  
-               DO IOA = 1,N_OA
+               DO IOA = 1,N_OA_NotTracers
                   IF ( MAP_OAtoAERO(IOA) .NE. APOC_IDX .AND.
      &                 MAP_OAtoAERO(IOA) .NE. APNCOM_IDX ) THEN
                      ! Weight OA Sum by O:C
@@ -2643,6 +2648,14 @@
          ! Retrieve Air Pressure
          CASE ( ID_PRES )
             OUTVAL = AIRPRES
+
+         ! Retrieve Air Density x Jacobian/MSFX2
+         CASE ( ID_RHOJ )
+            OUTVAL = CONC_VEC( RHOJ_LOC ) ! kg m-3
+
+         ! Retrieve Air Density
+         CASE ( ID_DENS )
+            OUTVAL = MET_DATA%DENS( C1,R1,L1 ) ! kg m-3
 
          CASE DEFAULT
             ! For most parameters the PMDIAG_COEFF structure will

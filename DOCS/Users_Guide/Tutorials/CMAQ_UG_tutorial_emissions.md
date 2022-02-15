@@ -13,8 +13,7 @@ residential heating, etc.
 - Surrogate: A variable representing a chemical compound or group of compounds on an emission Stream.  
 
 ### Important Notes to Remember
-- Rules are applied in the order they are provided.  
-- If you do not provide an emissions control file via providing a path in the CMAQ RunScript, DESID will set the emissions for all streams to zero. This may or may not cause errors depending on the options you have set in the RunScript.
+- Rules are applied in the order they are provided.
 
 ### Example Use Cases
 - [1. Zero out emissions](#zero_out)  

@@ -1,4 +1,5 @@
 
+
 <!-- BEGIN COMMENT -->
 
 [<< Previous Chapter](CMAQ_UG_ch10_HDDM-3D.md) - [Home](README.md) - [Next Chapter >>](CMAQ_UG_ch12_sulfur_tracking.md)
@@ -8,7 +9,7 @@
 # 11. Integrated Source Apportionment Method (CMAQ-ISAM)
 ## 11.1 Introduction
 
-The Integrated Source Apportionment Method (ISAM) calculates source attribution information for user specified ozone and particulate matter precursors within the CMAQ model.  CMAQ-ISAM has been substantially updated in the CMAQv5.3 release, and differs significantly from previous releases. The major changes to the ISAM chemistry solver are detailed in the [ISAM Chemistry Supplement](Supplement/CMAQ_ISAM_Chemistry_Supplemental_Equations.pdf). 
+The Integrated Source Apportionment Method (ISAM) calculates source attribution information for user specified ozone and particulate matter precursors within the CMAQ model.  CMAQ-ISAM has been substantially updated in the CMAQv5.3 release, and differs significantly from previous releases. The major changes to the ISAM chemistry solver are detailed in the [ISAM Chemistry Supplement](Supplement/CMAQ_ISAM_Chemistry_Supplemental_Equations.pdf). In addition, signifcant updates and multiple minor fixes were included in the  CMAQv5.3.2 release. The 5.3.2 CMAQ-ISAM version includes substantial updates to the gas-phase chemistry apportionment algorithms that improves both physical and numerical aspects of the method. Users of ISAM are strongly encouraged to update to CMAQv5.3.2.
 
 The CMAQ model provides users the concentration and deposition fields of many pollutant species. These species are usually combinations of different types of primary emissions and secondary formation that have been physically and chemically transformed in the model. However, sometimes it is desirable to know specific source attribution information for the model outputs. For example, how much of the ozone in an urban area was formed due to nitrogen oxides emitted from motor vehicles in a neighboring state?
 
@@ -40,7 +41,7 @@ set ISAM_CCTM
 
 **A note about I/O API installation for ISAM applications**
 
-I/O APIv3.2  supports up to MXFILE3=256 open files, each with up to MXVARS3=2048. ISAM applications configured to calculate source attribution of a large number of sources may exceed this upper limit of model variables, leading to a model crash. To avoid this issue, users may use I/O API version 3.2 "large" that increases MXFILE3 to 512 and MXVARS3 to 16384. Instructions to build this version are found in [Chapter 3](https://github.com/USEPA/CMAQ/blob/master/DOCS/Users_Guide/CMAQ_UG_ch03_preparing_compute_environment.md#333-io-api-library).
+I/O APIv3.2  supports up to MXFILE3=256 open files, each with up to MXVARS3=2048. ISAM applications configured to calculate source attribution of a large number of sources may exceed this upper limit of model variables, leading to a model crash. To avoid this issue, users may use I/O API version 3.2 "large" that increases MXFILE3 to 512 and MXVARS3 to 16384. Instructions to build this version are found in [Chapter 3](https://github.com/USEPA/CMAQ/blob/main/DOCS/Users_Guide/CMAQ_UG_ch03_preparing_compute_environment.md#333-io-api-library).
 Note, using this ioapi-large version is not required for the CMAQ-ISAM Benchmark Case. 
 If a user needs to use larger setting for MXFILE3 and MXVAR3 to support their application, note that the memory requirements will be increased.
 This version is available as a zip file from the following address:
@@ -68,8 +69,14 @@ To begin a CMAQ simulation with source apportionment enabled, the ISAM section o
 |SA_DD_1|path/filename|ISAM output for apportioned dry deposition|
 |SA_WD_1|path/filename|ISAM output for apportioned wet deposition|
 |SA_CGRID_1|path/filename|ISAM output for a restart file to continue the simulation further in time|
+|ISAM_O3_WEIGHTS| 1,2,3,4,5 (default is 5) | sets what tracked species are favored or _weighted_ when determining apportionment in gas phase chemistry |
+|ISAM_NOX_CASE| 1,2,3,4 (default is 2) | what tracked species are weighted when grid cell NOx limited ozone production. Only used if ISAM_O3_WEIGHT equal 5. | 
+|ISAM_VOC_CASE| 1,2,3,4 (default is 4) | what tracked species are weighted when grid cell VOC limited ozone production. Only used if ISAM_O3_WEIGHT equal 5. | 
+|VOC_NOX_TRANS | >= 0.0 (default is 0.35)| value of Prod H2O2 over Prod HNO3 less than where ISAM_VOC_CASE weights are used. Otherwise, ISAM_NOX_CASE weights are used. VOC_NOX_TRANS only used if ISAM_O3_WEIGHT equal 5.|
 
 Additionally, ISAM can track emissions confined to geographic regions.  This functionality can be enabled through CMAQ's `RegionsRegistry` set in the `EmissCtrl` namelist (Appendix B.4) and is discussed further below.
+
+
 
 #### ISAM and bidirectional NH<sub>3</sub> exchange
 
@@ -83,10 +90,54 @@ and the ABFLUX must be set in the run script.
 
 ```
 setenv CTM_ABFLUX Y          #> ammonia bi-directional flux for in-line deposition
+
 ```
 
 Setting these options will automatically set the BID tag for model output. Modeled species output with the BID tag represent the influence of NH<sub>3</sub> emissions from fertilizer and biogenic NH<sub>3</sub> emission sources. Biogenic NH<sub>3</sub> emissions include the evasion of NH<sub>3</sub> from non-agricultural vegetation and soil NH<sub>4</sub> pools as parameterized in the STAGE or M3Dry models.  
 
+#### ISAM run-time options for gas chemistry and ozone production
+
+In the runtime table, the last four rows deal with ISAM's method for apportioning source contributions from gas chemistry. They weight specific species that are chemical reactants so a reaction's product are totally apportioned to the weighted reactant. If both reactants are weighted, products are equally apportioned between reactants. Note that the unmodified method always equally apportions products. The changes seek to isolate sources that emit or secondary produce the weighted reactants because their sources are controllable or deemed responsible for deteriorating air quality. 
+
+The weighting schemes focus on apportioning NOx and ozone concentrations so weighted species include several reactive nitrogen compounds, oxygenated VOCs, organic peroxy radicals and operators. A new runtime option, ISAM_O3_WEIGHTS, determines what species are weighted. The below two tables define what different values set for ISAM_O3_WEIGHTS. The first define option values 1 thru 4. Option 1 reproduces results from the unmodified code. The second table describes option 5 that toggles between two weight settings listed in the first table.
+
+| **Species** |	 **Option 1** |	**Option 2** |	 **Option 3** |	 **Option 4** |
+|:-----------:|:-------------:|:------------:|:--------------:|:--------------|
+|      NO	    |      NO	      |      YES	   |         YES	  |       NO      |
+|NO2	        |NO	            |YES	         |YES	            |NO             |
+|NO3	        |NO	            |YES	         |YES	            |NO             |
+|HONO	        |NO	            |YES	         |YES	            |NO             |
+|ANO3(I or J)	|     NO	      | YES	         | YES	          |NO             |
+|HCHO	            |  NO	      | NO	         |YES	            |YES            |
+|CH3CHO	          |  NO	      | NO	         |YES	            |YES            |
+|Higher Aldehydes |  NO	      | NO	         |YES	            |YES            |
+|Acetone	        |  NO	      | NO	         |YES	            |YES            |
+|Lumped Ketones	  |  NO	      | NO	         |YES	            |YES            |
+|Isoprene peroxy radical	        |NO	       |NO	 | YES	    |YES            |
+|Acetyl peroxy radicals	          |NO	       |NO	 | YES	    |YES            |
+|peroxy operators(such as cb6's XO2 and XO2H)|NO	|NO |	YES	  |YES            |
+
+| **Option 5 Algorithm** | 
+|:----------------------:|                                        
+|   IF( (H2O2 production)/(HNO3 Production) > VOC_NOX_TRANS){ISAM_NOX_CASE}else{ISAM_VOC_CASE} |
+	
+The runtime options, ISAM_NOX_CASE and ISAM_VOC_CASE, determine the two settings. Toggling is determined by whether the cell grid's ozone production has NOx or VOC limiting conditions. Option 5 uses H2O2 production over HNO3 production (see appendix A in Sillman (1995)) whether former or latter condition exists. Sillman (1995) states that VOC limiting exist when the ratio is less than 0.35 but the ratio's transition value is uncertain (Tonnesen and Dennis, 2000a and 2000b) so a final runtime option sets the transition value,  VOC_NOX_TRANS. Note that all the repositories run-scripts include the below commands setting the new ISAM options using their default values.
+
+       #> Options used to favor tracked species in reaction for Ozone-NOx chemistry
+       setenv ISAM_O3_WEIGHTS 5   # weights for tracked species Default is 5
+                                  #     OPTIONS
+                                  # 1 does not weight any species
+                                  # 2 weights NOx and subset of NOz species
+                                  # 3 uses with from option 2 plus weight OVOC species, organic radicals and operators
+                                  # 4 weight OVOC species, organic radicals and operators
+                                  # 5 toggles between two wieghting set based on VOC and NOx limiting ozone production
+       # Below options only used if ISAM_O3_WEIGHTS set to 5
+       setenv ISAM_NOX_CASE  2    # weights for tracked species when ozone production is NOx limiting. Default is 2
+       setenv ISAM_VOC_CASE  4    # weights for tracked species when ozone production is VOC limiting. Default is 4
+       setenv VOC_NOX_TRANS  0.35 # value of Prod H2O2 over Prod HNO3 less than where
+                                  # ISAM_VOC_CASE weights are used. Otherwise, ISAM_NOX_CASE
+                                  # weights are used. Default is 0.35
+	
 ### 11.3.1 ISAM control file (SA_IOLIST)
 
 The ISAM `SA_IOLIST` is a text file used to configure which tag classes, emissions streams, and source regions the model will track.  An example of this file, `isam_control.txt`, is provided in $CMAQ_HOME/CCTM/scripts.  The order and formating of this file must be kept intact, but it does allow for insertion of comment lines.  
@@ -140,6 +191,20 @@ BID - contribution from bidirectional NH3 exchange
 
 Please, note that, currently, ISAM results for the same user defined tag may differ depending on the overall configuration and content of the ISAM control file.  This weakness of the method is detailed in the last section of the [ISAM Chemistry Supplement](Supplement/CMAQ_ISAM_Chemistry_Supplemental_Equations.pdf).  Generally, tracking a larger number of tags produces more consistent apportionment results.  
 
+#### Defining ISAM Tags for In-line Sources.
+ 
+The CMAQ model allows several types of emissions that are calculated in-line or during a model simulation instead of provided by the user as inputs. A simulations can use all of these inline emissions and ISAM can calculate apportionment from these sources. The former is done by setting appropriate emissions options in the CMAQ runscript. For ISAM to calculate apportionment for an in-line source, the isam control file needs to define a tagname using the correct stream name.  The below table lists currently supported inline emissions streams in CMAQ:
+ 
+|**Emission Stream Name**|**Inline Emissions Source**|
+|-----------|------------------------|
+| BIOG | Biogenic Emissions (BEIS) |
+| MIOG | Biogenic Emission (MEGAN) |
+| MGEGM | Marine Gas Emissions |
+| LTNG | Lightning NO Emissions |
+| ASEA | Sea Spray Aerosol Emissions |
+| DUST | Wind-Blown Dust Emissions |   
+
+
 #### Interpretation of 'OTH' tag
 The OTH tag (e.g.“O3_OTH” in the ISAM benchmark) represents concentrations for that species attributed to 1) all other emissions streams, 2) precursor species not included in the specified tag class(es), and 3) other processes in the model.
 
@@ -166,6 +231,11 @@ Kwok, R.H.F, Napelenok, S.L., & Baker, K.R. (2013). Implementation and evaluatio
 
 Kwok, R.H.F, Baker, K.R., Napelenok, S.L., & Tonnesen, G.S. (2015). Photochemical grid model implementation of VOC, NOx, and O3 source apportionment. Geosci. Model Dev., 8, 99-114. [doi:10.5194/gmd-8-99-2015](https://doi.org/10.5194/gmd-8-99-2015).  
 
+Sillman, Sanford. (1995). The use of NOy, H2O2, and HNO3 as indicators for ozone-NOx-hydrocarbon sensitivity in urban locations. Journal of Geophysical Research. 1001. 14175-14188.
+
+Tonnesen, G.S. & Dennis, R.L. (2000a). Analysis of radical propagation efficiency to assess ozone sensitivity to hydrocarbons and NOx. 1. Long-lived species as indicators of ozone concentration sensitivity. Journal of Geophysical Research. 105. 9213-9225.
+
+Tonnesen, G.S. & Dennis, R.L. (2000b). Analysis of radical propagation efficiency to assess ozone sensitivity to hydrocarbons and NOx. 2. Long-lived species as indicators of ozone concentration sensitivity. Journal of Geophysical Research. 105. 9227-9241.
 
 **Contact**
 

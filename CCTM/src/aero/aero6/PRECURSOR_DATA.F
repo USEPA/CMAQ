@@ -335,6 +335,9 @@ C copy precursor_conc back to grid cell concentrations
          If ( n .Ne. 0 ) Then
             If ( precursor( spc )%update ) Then
                If ( precursor( spc )%rxncounter ) Then
+                  vtmp = precursor_mw( spc ) * gasconv
+                  conc( n ) = Max( real( precursor_conc( spc ) / vtmp, 4 ), min_gasconc  )
+                  COND_BUDGET( n )   = -1.0 *  conc( n ) 
                   conc( n ) = 0.0
                Else
                   vtmp = precursor_mw( spc ) * gasconv

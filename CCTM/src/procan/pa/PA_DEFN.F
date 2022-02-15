@@ -60,30 +60,49 @@ c    SV2GRD    = Array of CTM indicies for saved concs
 c    SPCOEF    = Array of coefficients for IPR familys
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
-      INTEGER, PARAMETER :: NPRCS = 12
+      INTEGER, PARAMETER :: NPRCS = 14
+ 
+      INTEGER, PARAMETER :: IPR_XADV = 1
+      INTEGER, PARAMETER :: IPR_YADV = 2
+      INTEGER, PARAMETER :: IPR_ZADV = 3
+      INTEGER, PARAMETER :: IPR_HDIF = 4
+      INTEGER, PARAMETER :: IPR_VDIF = 5
+      INTEGER, PARAMETER :: IPR_EMIS = 6
+      INTEGER, PARAMETER :: IPR_DDEP = 7
+      INTEGER, PARAMETER :: IPR_PVO3 = 8
+      INTEGER, PARAMETER :: IPR_CLDS = 9
+      INTEGER, PARAMETER :: IPR_CHEM = 10
+      INTEGER, PARAMETER :: IPR_COND = 11
+      INTEGER, PARAMETER :: IPR_COAG = 12
+      INTEGER, PARAMETER :: IPR_NPF  = 13
+      INTEGER, PARAMETER :: IPR_GROW = 14
+ 
+      CHARACTER(4), PARAMETER :: PROCNAME( NPRCS ) =
+     & (/'XADV','YADV','ZADV','HDIF','VDIF','EMIS','DDEP',
+     &   'PVO3','CLDS','CHEM','COND','COAG','NPF ','GROW' /)
 
-      CHARACTER( 16 ), PARAMETER :: PROCNAME( NPRCS ) = (/
-     &   'ZADV            ',  'HADV            ',  'HDIF            ',
-     &   'VDIF            ',  'EMIS            ',  'DDEP            ',
-     &   'CLDS            ',  'CHEM            ',  'COND            ',
-     &   'COAG            ',  'GROW            ',  'NPF             ' /)
+      REAL, ALLOCATABLE, SAVE :: CSAV( :,:,:,: )
+
+      LOGICAL, SAVE :: COUPLE_WRF = .FALSE.
 
 c this is set in pa_getiprout.F, pa_errcheck.F?
       INTEGER :: N_IPR_SPC = 0
 c these are set in pa_setup_ipr.F
-      INTEGER :: NCSAVE    = 0
       INTEGER :: MXCGRID   = 0
 
 c these are allocated in pa_setpadefn.F
-      LOGICAL, ALLOCATABLE, SAVE :: LPROCOUT( : )   ! LPROCOUT( NPRCS )
-
-      INTEGER, ALLOCATABLE, SAVE :: NCGRID ( : )    ! ( N_IPR_SPC )
-      INTEGER, ALLOCATABLE, SAVE :: SAV2GRD( : )    ! ( NCSAVE )
-      INTEGER, ALLOCATABLE, SAVE :: IPROUT ( :,: )  ! ( N_IPR_SPC,NPRCS )
-      INTEGER, ALLOCATABLE, SAVE :: IPR2GRD( :,: )  ! ( N_IPR_SPC,MXCGRID )
-      INTEGER, ALLOCATABLE, SAVE :: IPR2SAV( :,: )  ! ( N_IPR_SPC,MXCGRID )
-
+      INTEGER, ALLOCATABLE, SAVE :: MAP_IPRVARtoSPC( : )  ! ( NIPRVAR )
+      INTEGER, ALLOCATABLE, SAVE :: NCGRID ( : )          ! ( N_IPR_SPC )
+      INTEGER, ALLOCATABLE, SAVE :: MAP_SAVEtoCGRID( : )  ! ( NCSAVE )
+      INTEGER, ALLOCATABLE, SAVE :: MAP_IPRtoCGRID( :,: ) ! ( N_IPR_SPC,MXCGRID )
+      INTEGER, ALLOCATABLE, SAVE :: MAP_IPRtoSAVE( :,: )  ! ( N_IPR_SPC,MXCGRID )
       REAL,    ALLOCATABLE, SAVE :: SPCOEF ( :,: )  ! ( N_IPR_SPC,MXCGRID )
+      LOGICAL, ALLOCATABLE, SAVE :: MASK_IPR_PROC( :,: )
+
+      LOGICAL, SAVE              :: BUDGET_DIAG = .FALSE.
+      LOGICAL, SAVE              :: BUDGET_HPPM = .FALSE.
+      CHARACTER( 16 ), ALLOCATABLE, SAVE :: BUDGETVARIABLES( : )
+      INTEGER, PARAMETER :: N_BUDGET_VARS_REG = 200
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  The following variables are used in the integrated reaction rate

@@ -249,13 +249,13 @@ Program CR_EBI_SOLVER completed successfully
 if ( F == T ) then
 exit ( )
 ```
-and will write the hr*.F files to /work/MOD3DEV/eap/CMAQv532/UTIL/create_ebi/output/ebi_${Mechanism}-$DATE-${COMPILER}/. Copy the hr*.F files to $REPO/CCTM/src/gas/ebi_${Mechanism}/.
+and will write the hr*.F files to ${CMAQ_HOME}/CMAQv533/UTIL/create_ebi/output/ebi_${Mechanism}-$DATE-${COMPILER}/. Copy the hr*.F files to ${CMAQ_REPO}/CCTM/src/gas/ebi_${Mechanism}/.
 
 
 
 <a id=cctm_build></a>
 ### 15. Build the CCTM executable.
-See [Chapter 5](../CMAQ_UG_ch05_running_a_simulation.md) or the [Tutorials](README.md) for more information. This will include all of the new files from $CMAQ_REPO/CCTM/src/ in $CMAQ_PROJECT/CCTM/BLD.
+See [Chapter 5](../CMAQ_UG_ch05_running_a_simulation.md) or the [Tutorials](README.md) for more information. This will include all of the new files from ${CMAQ_REPO}/CCTM/src/ in $CMAQ_PROJECT/CCTM/BLD.
 
 
 <a id=cmaq_run></a>
@@ -266,14 +266,14 @@ See [Chapter 5](../CMAQ_UG_ch05_running_a_simulation.md) for more information ab
 <a id=github></a>
 ## Reflecting the changes in Github ##
 ### 1. Fork from USEPA CMAQ.
-On the [CMAQ Github page](../../../README.md), fork the master branch to your personal repository using the Fork button in the upper right.
+On the [CMAQ Github page](../../../README.md), fork the main branch to your personal repository using the Fork button in the upper right.
 
 ### 2. Clone.
 Clone your repository to your remote account. For example:
 ```
-git clone https://username@github.com/username/CMAQ.git CMAQ_REPO_v532
+git clone https://username@github.com/username/CMAQ.git CMAQ_REPO_v533
 ```
-This will request your Github password. You will now see the entire CMAQ repository in the directory you cloned it into. If you enter the top directory (e.g. CMAQ_REPO_v532/), there should now exist a file named .git.
+This will request your Github password. You will now see the entire CMAQ repository in the directory you cloned it into. If you enter the top directory (e.g. CMAQ_REPO_v533/), there should now exist a file named .git.
 
 ### 3. Rename remote.
 Rename the remote link. For example:
@@ -303,14 +303,14 @@ git branch
 The branch you're currently working from will have an asterisk.
 
 ### 6. Modify the mechanism according to the [instructions](#modifychem) above.
-If the USEPA repository is updated by EPA, you will see a statement such as "This branch is X commits behind USEPA:master" in Github online. You will likely want to keep your CMAQ up-to-date and will want to pull the updates to your repo. Make sure the files you've edited are backed up.
+If the USEPA repository is updated by EPA, you will see a statement such as "This branch is X commits behind USEPA:main" in Github online. You will likely want to keep your CMAQ up-to-date and will want to pull the updates to your repo. Make sure the files you've edited are backed up.
 Check the names of your remotes using:
 ```
 git remote -v
 ```
-If you've followed these instructions, your repository should be named dev_push_repo and the USEPA's repository should be named dev_repo. To pull in the updates from USEPA's master branch:
+If you've followed these instructions, your repository should be named dev_push_repo and the USEPA's repository should be named dev_repo. To pull in the updates from USEPA's main branch:
 ```
-git pull dev_repo master
+git pull dev_repo main
 ```
 To view a summary of the changes you've made to your repo since your last commit, type "git status" from anywhere in the repo. If you've followed the instructions above, you should see:
 ```

@@ -18,7 +18,8 @@
 !------------------------------------------------------------------------!
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-      SUBROUTINE HPPM ( NI, NJ, CON, VEL, DT, DS, ORI )
+      SUBROUTINE HPPM ( NI, NJ, CON, VEL, DT, DS, ORI,
+     &                  F_LO_IN, F_LO_OUT, F_HI_IN, F_HI_OUT )
       
 C----------------------------------------------------------------------
 C Function      
@@ -131,6 +132,7 @@ C----------------------------------------------------------------------
       
       USE HGRD_DEFN
       USE UTILIO_DEFN
+      USE PA_DEFN, ONLY : BUDGET_DIAG, BUDGET_HPPM
 #ifdef parallel
       USE SE_MODULES          ! stenex (using SE_UTIL_MODULE)
 #else
@@ -173,6 +175,7 @@ C Local variables:
       LOGICAL, SAVE :: FIRSTIME = .TRUE.
       
       INTEGER, SAVE :: NSPCS
+      INTEGER, SAVE :: NSPCS_BUDGET = 0
 
 !     REAL :: FM    (    1:NI+1,   SIZE( CON,2 ) ) ! outflux from left or bottom of cell
 !     REAL :: FP    (    0:NI,     SIZE( CON,2 ) ) ! outflux from right or top of cell
@@ -192,6 +195,17 @@ C Local variables:
       REAL, ALLOCATABLE, SAVE :: DC( :,: ) ! CR - CL
       REAL, ALLOCATABLE, SAVE :: C6( : )   ! coefficient of second-order term
       REAL C0, C1
+
+      ! Boundary fluxes returned for budget calculations
+      ! Units of boundary fluxes are assumed to be 
+      ! density (aerosols) or mixing ratio (gases). These values
+      ! are in 'coupled' space, meaning they need to be decoupled
+      ! using the Jacobian and map scale factor in order to properly
+      ! contribute to total mass calculations.
+      REAL, INTENT( OUT) :: F_LO_IN( : )  ! influx to domain from left of row or bottom of column
+      REAL, INTENT( OUT) :: F_LO_OUT(: ) ! outflux to domain from left of row or bottom of column
+      REAL, INTENT( OUT) :: F_HI_IN( : )  ! influx to domain from right of row or bottom of top
+      REAL, INTENT( OUT) :: F_HI_OUT(: ) ! outflux to domain from right of row or bottom of top
 
       LOGICAL, SAVE :: BNDY_LO_PE, BNDY_HI_PE
 
@@ -219,7 +233,8 @@ C----------------------------------------------------------------------
      &             CL(  1-X1:NMX+X1 ),
      &             CR(  1-X1:NMX+X1 ),
      &             DC(  0-X1:NMX+X1+1, NSPCS ),
-     &             C6(  1-X1:NMX+X1 ), STAT = ASTAT )
+     &             C6(  1-X1:NMX+X1 ), 
+     &             STAT = ASTAT )
          IF ( ASTAT .NE. 0 ) THEN
             XMSG = '*** Error allocating FM, FP, CM, CL, CR, DC, or C6'
             CALL M3EXIT ( PNAME, 0, 0, XMSG, XSTAT1 )
@@ -429,6 +444,16 @@ C Update concentrations as in Equation (1.13)
      &                 + ( FP( I-1,S ) - FP( I,S ) + FM( I+1,S ) - FM( I,S ) ) / DS
          END DO
       END DO
+
+C Store boundary fluxes in budget variables
+C   Units: change in density (aerosols) or mixing ratio (gases)
+      IF ( BUDGET_HPPM ) THEN
+         NSPCS_BUDGET = MIN( NSPCS,SIZE( F_LO_IN ) )
+         F_LO_IN ( 1:NSPCS_BUDGET ) = FP( 0,1:NSPCS_BUDGET ) / DS
+         F_LO_OUT( 1:NSPCS_BUDGET ) = FM( 1,1:NSPCS_BUDGET ) / DS
+         F_HI_OUT( 1:NSPCS_BUDGET ) = FP( NI,1:NSPCS_BUDGET ) / DS
+         F_HI_IN ( 1:NSPCS_BUDGET ) = FM( NI+1,1:NSPCS_BUDGET ) / DS
+      END IF
 
 #ifdef isam
 Ckrt...deallocate local arrays....20140126

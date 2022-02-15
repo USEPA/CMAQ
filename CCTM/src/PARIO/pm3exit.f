@@ -108,6 +108,8 @@ C.......  Do M3EXIT tasks.
 
       IF ( EXITSTAT .NE. 0 ) THEN     ! Print messages for abnormal abort. 
 
+          WRITE( OUTDEV,91010 ) PCALLER, TRIM( MSGTXT )
+
           WRITE( LOGDEV,91010 ) PCALLER, TRIM( MSGTXT )
 
           IF ( JDATE .GT. 0  .OR.  JTIME .GT. 0 ) THEN
