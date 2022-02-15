@@ -518,7 +518,7 @@ C If wildfires, allocate fire parameters
 C=======================================================================
 
          SUBROUTINE GET_PT3D_EMIS ( JDATE, JTIME, TSTEP, EM_SURR_PT, ISRM,
-     &                            VDEMIS_PT, PT_LAYS )
+     &                            VDEMIS_PT, PTLAYS, L_DESID_DIAG )
 
 ! Revision History.
 !     Aug 12, 15 D. Wong: added code to handle parallel I/O implementation
@@ -530,9 +530,10 @@ C=======================================================================
 
          USE GRID_CONF, ONLY:  NCOLS, NROWS, IO_PE_INCLUSIVE
          USE STK_PRMS, ONLY :  MY_NSRC, MY_STRT_SRC, MY_END_SRC, 
-     &                         MY_STKCOL, MY_STKROW, SOURCE
+     &                         MY_STKCOL, MY_STKROW, SOURCE,
+     &                         MY_STKBUFF, MY_COLBUFF, MY_ROWBUFF 
          USE STK_EMIS, ONLY :  IPSRM, N_EMIS_ISTR, EM_FILE_SURR, EM_FILE_DATE, 
-     &                         STKEMIS
+     &                         STKBUFF, NSRC_EMIS
          USE PTMET, ONLY    :  EMLAYS, PTMET_CONVT
          USE PRECURSOR_DATA, ONLY : PRECURSOR_MW, SULF_IDX
          USE RUNTIME_VARS, ONLY : LOGDEV, PT3DDIAG, PT3DFRAC, STDATE, STTIME
@@ -550,7 +551,7 @@ C=======================================================================
          INTEGER               :: JDATE, JTIME
          INTEGER, INTENT( IN ) :: TSTEP( 3 )
          INTEGER, INTENT( IN ) :: ISRM
-         INTEGER, INTENT( OUT) :: PT_LAYS
+         INTEGER, INTENT( OUT) :: PTLAYS
          REAL, INTENT(INOUT)  :: VDEMIS_PT( :,:,:,: ) 
 
 ! Parameters:
@@ -566,6 +567,7 @@ C=======================================================================
          INTEGER          MY_DELTA   ! total number of sources on this processor
          REAL             LFRC       ! intermediate LFRAC
          REAL             TSUM       ! tmp layer frac sum for renormalizing
+         REAL, ALLOCATABLE, SAVE :: MY_STKEMIS( :,:,: )
 
          CHARACTER(  8 ) :: CINT     ! integer to character buffer for warning messages
          CHARACTER( 16 ) :: PNAME = 'GET_PT3D_EMIS   '   ! procedure name
@@ -580,6 +582,9 @@ C=======================================================================
          LOGICAL, SAVE :: WRTIME
          INTEGER, SAVE :: NTICS = 0      ! no. of substeps within an output tstep
          LOGICAL, SAVE :: FIRSTIME = .TRUE.
+         LOGICAL       :: L_DESID_DIAG ! flag determining whether or not DESID
+                                       !   is in diagnostic mode              
+         LOGICAL       :: L_NEWDAY
 
          INTEGER       :: NDATE, NTIME
          INTEGER, ALLOCATABLE, SAVE :: PRE_EM_FILE_DATE(:)
@@ -592,7 +597,10 @@ C-----------------------------------------------------------------------
 
          IF ( FIRSTIME ) THEN
             FIRSTIME = .FALSE.
-             
+            
+            ALLOCATE ( MY_STKEMIS( EMLAYS,NCOLS,NROWS ), STAT = IOS )
+            CALL CHECKMEM( IOS, 'MY_STKEMIS', PNAME )
+              
             ! Set up and open 3d point source emissions diagnostic file?
             IF ( PT3DDIAG ) THEN
               NDATE = STDATE; NTIME = STTIME
@@ -605,6 +613,7 @@ C-----------------------------------------------------------------------
               ALLOCATE ( VDEMIS_BUF( N_EMIS_ISTR,EMLAYS,NCOLS,NROWS ), STAT = IOS )
               CALL CHECKMEM( IOS, 'VDEMIS_BUF', PNAME )
               VDEMIS_BUF = 0.0   ! array
+              
               WRITE( LOGDEV,'(/5X, A /5X, A )' )
      &                        'Recording 3d point source emissions diagnostics',
      &                        'as a linear average over the output timestep'
@@ -658,14 +667,15 @@ C Based on the current time step, find whether or not a report should be written
 !            END DO
 !         END IF
 
-C Convert pt source met data to bi-linear interpolated data
-         CALL PTMET_CONVT( JDATE, JTIME )
-
 C Initialize Output Array
          !VDEMIS_PT = 0.0   ! array assignment
 
          N = IPSRM( ISRM )
-         PT_LAYS = 1       ! Initialize Point Layers at lowest possible value
+
+C Convert pt source met data to bi-linear interpolated data
+         CALL PTMET_CONVT( JDATE, JTIME, N )
+
+         PTLAYS = 1       ! Initialize Point Layers at lowest possible value
 
          IF ( MY_NSRC( N ) .LE. 0 ) RETURN
 
@@ -679,7 +689,9 @@ C Initialize Output Array
          END IF
 
 C Ensure that the model and stack groups emissions timestamp dates stay synchronized
-         IF ( PRE_EM_FILE_DATE(ISRM) .NE. JDATE ) THEN
+         L_NEWDAY = .FALSE.
+         IF ( PRE_EM_FILE_DATE(ISRM) .NE. JDATE ) THEN 
+            L_NEWDAY = .TRUE.
             NDATE = JDATE; NTIME = JTIME
             CALL NEXTIME( NDATE, NTIME, -TSTEP( 1 ) )       ! go back one output tstep
             CALL NEXTIME( EM_FILE_DATE( ISRM ), NTIME, TSTEP( 1 ) ) ! advance the start date one time step
@@ -695,32 +707,58 @@ C from this Point Group (i.e. ptgrp)
 C Calculate Plume Heights for All Point Sources on this File
          CALL CALC_PLUME_HEIGHT( EM_FILE_DATE( ISRM ), JDATE, JTIME, WRTIME, N   )
 
+         ! Floor TFRAC to zero in case there are negatives and 
+         ! renormalize positive values so the sum is 1.0
+         If ( MINVAL( TFRAC ) .LT. 0.0 ) THEN
+
+             WHERE ( TFRAC( :,: ) .LT. 0.0 ) TFRAC( :,: ) = 0.0
+
+             DO S = 1,MY_NSRC( N )
+                TFRAC( :,S ) = TFRAC( :,S ) / SUM( TFRAC(:,S) )
+             END DO
+         END IF
+
+         ! Calculate Maximum Layer Height across all source Plumes
+         DO L = EMLAYS,1,-1
+             PTLAYS = L
+             IF ( COUNT( TFRAC(L,:) .EQ. 0.0 ) .LT. MY_NSRC( N ) ) EXIT
+         END DO
+
 C Read Emissions for all sources on File N            
          DO ISPC = 1, N_EMIS_ISTR
             VNAME = EM_SURR_PT( ISPC )
             IF ( VNAME .EQ. '' ) CYCLE
-            call interpolate_var (STKENAME(N), VNAME, EM_FILE_DATE( ISRM ), JTIME, STKEMIS(N)%ARRY)
+            call interpolate_var (STKENAME(N), VNAME, EM_FILE_DATE( ISRM ), JTIME, STKBUFF(1:NSRC_EMIS(N)) )
 
-C Apportion emissions to the layers
-            DO S = 1, MY_NSRC( N )
-               SRC = SOURCE( N )%ARRY( S )
-               C = MY_STKCOL( N )%ARRY( S ); R = MY_STKROW( N )%ARRY( S )
+            DO S = 1,MY_NSRC( N )
+                SRC = SOURCE( N )%ARRY( S )
+                MY_STKBUFF( S ) = STKBUFF( SRC )
+                MY_COLBUFF( S ) = MY_STKCOL( N )%ARRY( S )
+                MY_ROWBUFF( S ) = MY_STKROW( N )%ARRY( S )
+            END DO
 
-               DO L = 1, EMLAYS
-                  LFRC = TFRAC( L,S )
-                  IF ( LFRC .LE. 0.0 ) CYCLE
-                  PT_LAYS = MAX( PT_LAYS, L )
+            MY_STKEMIS( 1:PTLAYS,:,: ) = 0.0
+            DO S = 1,MY_NSRC( N )
+                C = MY_COLBUFF( S )
+                R = MY_ROWBUFF( S )
+                MY_STKEMIS( 1:PTLAYS,C,R ) = MY_STKEMIS( 1:PTLAYS,C,R )
+     &                     +  MY_STKBUFF( S ) * TFRAC( 1:PTLAYS,S )
+            END DO
 
-                  ! Save Emissions in Common Array
-                  VDEMIS_PT( ISPC,L,C,R ) = VDEMIS_PT( ISPC,L,C,R )
-     &                              + LFRC * STKEMIS( N )%ARRY( SRC )
+            ! Save Emissions in Common Array
+            VDEMIS_PT( ISPC,1:PTLAYS,:,: ) = MY_STKEMIS( 1:PTLAYS,:,: )
 
-               END DO  ! End Layers Loop
-            END DO  ! End Sources Loop
          END DO ! End Loop on Species
 
          DEALLOCATE( TFRAC )
-
+         
+         ! Reset the date of the gridded file if this is diagnostic mode
+         ! and the day has advanced
+         IF ( L_NEWDAY .AND. L_DESID_DIAG ) THEN
+            CALL NEXTIME( EM_FILE_DATE( ISRM ), NTIME, -TSTEP(1) )
+            PRE_EM_FILE_DATE( ISRM ) = EM_FILE_DATE( ISRM )
+         END IF
+ 
 C Write Out Diagnostic Info            
          IF ( PT3DFRAC .AND. WRTIME ) THEN     ! Write out layer fractions
             IF ( .NOT. WRITE3_DISTR( PLAYNAME( N ), 'LFRAC', WDATE, WTIME,

@@ -48,6 +48,9 @@ C-----------------------------------------------------------------------
       TYPE( RARRY1 ), ALLOCATABLE, SAVE :: MY_YLOCA   ( : ) ! Y-location [grid coord]
       INTEGER,        ALLOCATABLE, SAVE :: MY_STRT_SRC( : )
       INTEGER,        ALLOCATABLE, SAVE :: MY_END_SRC ( : )
+      REAL, ALLOCATABLE, SAVE :: MY_STKBUFF( : )
+      INTEGER, ALLOCATABLE, SAVE :: MY_COLBUFF( : )
+      INTEGER, ALLOCATABLE, SAVE :: MY_ROWBUFF( : )
 
       CONTAINS
 
@@ -56,6 +59,7 @@ C-----------------------------------------------------------------------
          USE HGRD_DEFN             ! horizontal domain specifications
          USE UTILIO_DEFN
          USE stack_group_data_module
+         USE RUNTIME_VARS
 
          IMPLICIT NONE
 
@@ -69,7 +73,7 @@ C-----------------------------------------------------------------------
          REAL    X, Y
 
          INTEGER M, S, SRC, V, ASTAT
-         CHARACTER( 96 ) :: XMSG = ' '
+         CHARACTER( 300 ) :: XMSG = ' '
          CHARACTER( 16 ) :: PNAME = 'STK_PRMS_INIT'
 
 C-----------------------------------------------------------------------
@@ -185,7 +189,7 @@ C-----------------------------------------------------------------------
                   END IF
                END IF
             END DO
-
+ 
 C** SOURCE is the mapping from STKEMIS read by INTERPX starting at one.
 C INTERPX reads a contiguous set from MY_STRT_SRC to MY_END_SRC into STKEMIS.
 C So MY_STRT_SRC maps into the first index of STKEMIS.
@@ -244,9 +248,30 @@ C SOURCE maps STKEMIS read from stk emis file to local STKEM in GET_PT3D_EMIS.
             END DO
 
             DEALLOCATE ( LOC_MAP )
+            
+            WRITE( XMSG, '(A,I3,A,I7)'), 
+     &             'Number of Point Sources from ',N,' equals ', MY_NSRC(N)
+            CALL LOG_MESSAGE( LOGDEV, XMSG )
 
          END DO   ! NGRPS
 
+         WRITE( XMSG, '(A,I7)'), 
+     &          'Number of Total Point Sources on this sub-domain equals ', SUM(MY_NSRC(:))
+         CALL LOG_MESSAGE( LOGDEV, XMSG )
+         CALL LOG_MESSAGE( LOGDEV, '' )
+         XMSG = 'Note: Large numbers of point sources (e.g. > 100,000 on any sub-domain '//
+     &          'processor) will cause noticeable runtime penalties. Users are advised to '//
+     &          'limit the maximum number of point sources on any sub-domain to below this '//
+     &          'threshold.'
+         CALL LOG_MESSAGE( LOGDEV, XMSG )
+
+         ALLOCATE( MY_STKBUFF( MAXVAL( MY_NSRC(:) ) ) )
+           CALL CHECKMEM( ASTAT, 'MY_STKBUFF', PNAME )
+         ALLOCATE( MY_COLBUFF( MAXVAL( MY_NSRC(:) ) ) )
+           CALL CHECKMEM( ASTAT, 'MY_COLBUFF', PNAME )
+         ALLOCATE( MY_ROWBUFF( MAXVAL( MY_NSRC(:) ) ) )
+           CALL CHECKMEM( ASTAT, 'MY_ROWBUFF', PNAME )
+ 
          RETURN
 
          END FUNCTION STK_PRMS_INIT

@@ -46,6 +46,8 @@ C-----------------------------------------------------------------------
       TYPE( CARRY1 ), ALLOCATABLE, SAVE :: STKSPC( : )    ! emitted species names
       TYPE( RARRY1 ), ALLOCATABLE, SAVE :: FIREVAR( : )   ! fire variables, just H-Flux
 
+      REAL, ALLOCATABLE, SAVE :: STKBUFF( : )
+
       INTEGER FGRPS
 
       CONTAINS
@@ -161,6 +163,9 @@ C-----------------------------------------------------------------------
             END IF
 
          END DO
+
+          ALLOCATE( STKBUFF( MAXVAL( NSRC_EMIS(:) ) ) )
+             CALL CHECKMEM( ASTAT, 'NSRC_EMIS', PNAME )
 
          RETURN
 

@@ -35,7 +35,7 @@ PREP/create_omi/scripts/get_toms_data.q
 
 ### Description of model issue
 
-Using a 2-D and/or 3-D Gridded Emission File with representative day format specified via runscript with the environmental variable [GR_EM_SYM_DATE_XXX](https://github.com/USEPA/CMAQ/blob/master/DOCS/Users_Guide/Appendix/CMAQ_UG_appendixA_model_options.md#offline-emissions-configuration) set to T, will prompt the centralized i/o module to store the start date of the file. However, this information was never passed on to the function used to extract the data from the netCDF file causing an error, as the time is not available on file. 
+Using a 2-D and/or 3-D Gridded Emission File with representative day format specified via runscript with the environmental variable [GR_EM_SYM_DATE_XXX](../Users_Guide/Appendix/CMAQ_UG_appendixA_model_options.md#offline-emissions-configuration) set to T, will prompt the centralized i/o module to store the start date of the file. However, this information was never passed on to the function used to extract the data from the netCDF file causing an error, as the time is not available on file. 
 
 Note: This issue was documented in v5.3.1 as **Known Issue CMAQv5.3.1-i2**.
 
@@ -51,7 +51,7 @@ CCTM/src/cio/centralized_io_module.F
 
 ### Description of model issue
 
-Using a 2-D and/or 3-D Gridded Emission File with representative day format specified via runscript with the environmental variable [GR_EM_SYM_DATE_XXX](https://github.com/USEPA/CMAQ/blob/master/DOCS/Users_Guide/Appendix/CMAQ_UG_appendixA_model_options.md#offline-emissions-configuration) set to T, will prompt the centralized i/o module to store the start date of the file. This, however, resulted in a memory issue in the subsequent pseudo-interpolation of the initial conditions (IC). Ideally, ICs should be extracted at the specified date and time. To linearly interpolate in time, data at the start and end of a time-step are stored in the “head and “tail”, respectively. The head was stored correctly, but the tail was not being stored correctly and was being picked up from whatever was in memory last. This resulted in an error when trying to extract the data at the second point as the IC file only has data at the head. If no emissions are present, it would pick the point from whatever file was read last whether that be a MET file, bioseason file, lightning file or IC file. 
+Using a 2-D and/or 3-D Gridded Emission File with representative day format specified via runscript with the environmental variable [GR_EM_SYM_DATE_XXX](../Users_Guide/Appendix/CMAQ_UG_appendixA_model_options.md#offline-emissions-configuration) set to T, will prompt the centralized i/o module to store the start date of the file. This, however, resulted in a memory issue in the subsequent pseudo-interpolation of the initial conditions (IC). Ideally, ICs should be extracted at the specified date and time. To linearly interpolate in time, data at the start and end of a time-step are stored in the “head and “tail”, respectively. The head was stored correctly, but the tail was not being stored correctly and was being picked up from whatever was in memory last. This resulted in an error when trying to extract the data at the second point as the IC file only has data at the head. If no emissions are present, it would pick the point from whatever file was read last whether that be a MET file, bioseason file, lightning file or IC file. 
 
 Note: This issue was documented in v5.3.1 as **Known Issue CMAQv5.3.1-i4**.
 
@@ -67,13 +67,13 @@ CCTM/src/cio/centralized_io_module.F
 
 ### Description of model issue
 
-An inconsistency was found in the use of the EMIS_SYM_DATE flag between cio and the emissions modules. The EMIS_SYM_DATE flag is no longer a default runscript environmental variable and has subsequently been removed from the runscripts to avoid confusion as the behavior of this flag is unconventional and cannot be explained in a concise manner. To learn more about this flag please visit [Appendix A](https://github.com/USEPA/CMAQ/blob/master/DOCS/Users_Guide/Appendix/CMAQ_UG_appendixA_model_options.md).
+An inconsistency was found in the use of the EMIS_SYM_DATE flag between cio and the emissions modules. The EMIS_SYM_DATE flag is no longer a default runscript environmental variable and has subsequently been removed from the runscripts to avoid confusion as the behavior of this flag is unconventional and cannot be explained in a concise manner. To learn more about this flag please visit [Appendix A](../Users_Guide/Appendix/CMAQ_UG_appendixA_model_options.md).
 
 Note: This issue was documented in v5.3.1 as **Known Issue CMAQv5.3.1-i5**.
 
 ### Solution in CMAQv5.3.2
 
-EMIS_SYM_DATE is now consistent beween both DESID and CIO. For users who wish to use the EMIS_SYM_DATE environmental variable in their runscripts can visit [Appendix A](https://github.com/USEPA/CMAQ/blob/master/DOCS/Users_Guide/Appendix/CMAQ_UG_appendixA_model_options.md) for a complete description of the variable.
+EMIS_SYM_DATE is now consistent beween both DESID and CIO. For users who wish to use the EMIS_SYM_DATE environmental variable in their runscripts can visit [Appendix A](../Users_Guide/Appendix/CMAQ_UG_appendixA_model_options.md) for a complete description of the variable.
 
 ### Files Affected 
 CCTM/src/cio/centralized_io_module.F
@@ -165,7 +165,7 @@ Note: This issue was documented in v5.3.1 as **Known Issue CMAQv5.3.1-i6**.
 ### Solution in CMAQv5.3.2
 The variable names in the DRYDEP output file for ammonia when the M3dry bidirectional NH3 model is used were changed to be consistent with the current version of STAGE. There are 3 variables related to NH3: the dry deposition flux is in the variable named "NH3", the emission flux is in the variable "NH3_Emis", and the net flux is in the variable "NH3_Flux"
 
-See the [User's Guide Chapter 7](CMAQ_UG_ch07_model_outputs.md#nh3-flux-components-in-cctm_drydep) for additional information on the the NH3 flux components available in the CCTM_DRYDEP output file. 
+See the [User's Guide Chapter 7](../Users_Guide/CMAQ_UG_ch07_model_outputs.md#nh3-flux-components-in-cctm_drydep) for additional information on the the NH3 flux components available in the CCTM_DRYDEP output file. 
 
 ### Files Affected
 CCTM/src/vdiff/acm2_m3dry/VDIFF_MAP.F        
@@ -251,3 +251,4 @@ DTSEC = FLOAT( TIME2SEC( TSTEP( 2 ) ) )
 ### Files Affected 
 CCTM/src/depv/m3dry/DEPV_DEFN.F
 CCTM/src/depv/m3dry/m3dry.F
+

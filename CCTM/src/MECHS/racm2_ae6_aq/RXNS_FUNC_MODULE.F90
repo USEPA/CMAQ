@@ -145,17 +145,17 @@
          FALLOFF_T11 = K1 + K2 * CAIR + K3
          RETURN
        END FUNCTION FALLOFF_T11
-       REAL( 8 ) FUNCTION HALOGEN_FALLOFF(PRESS,A1,B1,A2,B2)
+       REAL( 8 ) FUNCTION HALOGEN_FALLOFF(PRESS,A1,B1,A2,B2,A3)
          IMPLICIT NONE
-         REAL( 8 ), PARAMETER    :: MAX_RATE = 2.6750D-06  ! Maximum loss rate (1/sec)
          REAL( 8 ), INTENT( IN ) :: PRESS
          REAL( 8 ), INTENT( IN ) :: A1
          REAL( 8 ), INTENT( IN ) :: B1
          REAL( 8 ), INTENT( IN ) :: A2
          REAL( 8 ), INTENT( IN ) :: B2
+         REAL( 8 ), INTENT( IN ) :: A3 ! Maximum loss rate (1/sec)
          INTRINSIC DEXP
          HALOGEN_FALLOFF = A1 * DEXP( B1 * PRESS ) + A2 * DEXP( B2 * PRESS )
-         HALOGEN_FALLOFF = DMIN1 (MAX_RATE, HALOGEN_FALLOFF )
+         HALOGEN_FALLOFF = DMIN1 (A3, HALOGEN_FALLOFF )
          RETURN
        END FUNCTION HALOGEN_FALLOFF
 
@@ -290,9 +290,9 @@
 !  Reaction Label R009            
                 RKI( NCELL,    9) =  RJBLK( NCELL, IJ_HNO4_RACM2 )
 !  Reaction Label R010            
-                RKI( NCELL,   10) =  RJBLK( NCELL, IJ_HCHO_MOL_RACM2 )
+                RKI( NCELL,   10) =  RJBLK( NCELL, IJ_HCHO_MOL_JPL19 )
 !  Reaction Label R011            
-                RKI( NCELL,   11) =  RJBLK( NCELL, IJ_HCHO_RAD_RACM2 )
+                RKI( NCELL,   11) =  RJBLK( NCELL, IJ_HCHO_RAD_JPL19 )
 !  Reaction Label R012            
                 RKI( NCELL,   12) =  RJBLK( NCELL, IJ_CH3CHO_RACM2 )
 !  Reaction Label R013            
@@ -340,8 +340,8 @@
 
                 IF( .NOT. LAND( NCELL ) )THEN
 !  Reaction Label HAL_Ozone       
-                   RKI( NCELL,  380) =  SFACT * HALOGEN_FALLOFF( BLKPRES( NCELL ),   2.8964D-11,   1.1998D+01,  & 
-     &                                                           0.0000D+00,         0.0000D+00 )
+                   RKI( NCELL,  380) =  SFACT * HALOGEN_FALLOFF( BLKPRES( NCELL ),   6.7006D-11,   1.0743D+01,  & 
+     &                                                           3.4153D-08,  -6.7130D-01,         2.0000D-06 )
                 END IF
 
             END DO 
@@ -373,7 +373,7 @@
 !  Reaction Label R039            
              RKI( NCELL,   39) =  CFACT * ARRHENUIS_T03( INV_TEMP,  8.0000D-12,  -2.0600D+03 )
 !  Reaction Label R040            
-             RKI( NCELL,   40) =  CFACT * ARRHENUIS_T03( INV_TEMP,  3.2000D-11,  -6.7000D+01 )
+             RKI( NCELL,   40) =  CFACT * ARRHENUIS_T03( INV_TEMP,  3.3000D-11,   6.7000D+01 )
 !  Reaction Label R041            
              RKI( NCELL,   41) =  CFACT * ARRHENUIS_T03( INV_TEMP,  2.0000D-11,   1.3000D+02 )
 !  Reaction Label R042            

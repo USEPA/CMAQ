@@ -104,6 +104,8 @@ C   21 Nov 19 S.L.Napelenok: Include DDM3D for versions 5.3.1
 C-----------------------------------------------------------------------
 
       USE RXNS_DATA             ! chemical mechanism data
+      USE BUDGET_DEFN
+      USE AERO_DATA
 #ifdef mpas
       USE CGRID_SPCS            ! CGRID mechanism species
       USE HGRD_DEFN, ONLY: MYPE
@@ -114,8 +116,6 @@ C-----------------------------------------------------------------------
       use mydata_module
       use get_env_module
       use lus_defn
-      USE AERO_DATA
-
       use mio_module
 #else
       USE PCGRID_DEFN           ! inherits GRID_CONF
@@ -381,6 +381,8 @@ C Set CGRID mechanism
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
          END IF
 
+         CALL MAP_AERO()
+
 #ifdef verbose_driver
          write( logdev,* ) ' MYPE -> NSPCS:    ', mype, nspcsd
 #endif
@@ -420,15 +422,8 @@ C Initialize stencil exchange
 C Generate the process analysis data: load PA_DEFN module
          CALL PA_DATAGEN( )
 
-C Set up horizontal domain and calculate processor-to-subdomain maps for
-C process analysis, if required
-         IF ( LIPR .OR. LIRR ) THEN
-            IF ( .NOT. PAGRD_INIT( MYPE ) ) THEN
-               XMSG = '*** Failure defining PA domain configuration'
-               CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-            END IF
-         END IF
-
+C Abort if the number of output variables exceeds the maximum allowed
+C by I/O-API
          IF ( NSPCSD .GT. MXVARS3 ) THEN
             WRITE( XMSG,'(5X, A, I5, A)' ) 'The number of variables,', NSPCSD,
      &      ' to be written to the State CGRID File'
@@ -462,10 +457,6 @@ C Miscellaneous Configuration Operations
 c        CALL GET_SA_LAYS ()
          CALL SA_DIM()
 
-         N_SPCTAG = NSPC_SA * NTAG_SA
-
-         CALL GET_SPC_INDEX ()
-
 C Initialize PISAM
          IF ( .NOT. PISAM_INIT ( NSPC_SA, NTAG_SA ) ) THEN
             XMSG = 'Failure in defining SA horizontal domain'
@@ -473,17 +464,6 @@ C Initialize PISAM
          END IF
          ISAM => PISAM( 1:NCOLS,1:NROWS,:,:,: )
 
-C Allocate arrays of species indices, tagging indices, and
-C variable names for the combined species-tags
-C i.e. set s_spctag, t_spctag, and vnam_spctag
-         ALLOCATE ( S_SPCTAG( N_SPCTAG ) )
-         ALLOCATE ( T_SPCTAG( N_SPCTAG ) )
-         ALLOCATE ( VNAM_SPCTAG( N_SPCTAG ) )
-         ALLOCATE ( BCON_SPC( N_SPCTAG ) )
-
-C Assign BCON tag indicies used in advection
-         BCON_SPC = .FALSE.
-         BCON_SPC( ((BCONTAG - 1)*NSPC_SA+1) : (NSPC_SA*BCONTAG) ) = .TRUE.
 #endif
 
 C Initialize optional derived vertical velocity writes to conc file
@@ -713,6 +693,9 @@ C Get synchronization and advection time steps, TSTEP(2), ASTEP(L) and NREPS
       END IF
 #endif
 
+C Initialize Budget Output File and Concentration Array
+      IF ( BUDGET_DIAG ) CALL BUDGET_INIT( CGRID, JDATE, JTIME, TSTEP )
+
 C science process sequence:
          
       myNREPS = myNREPS + NREPS
@@ -846,7 +829,9 @@ C write conc fields
          END IF
 
          IF ( LIPR .OR. LIRR ) CALL PA_OUTPUT ( CGRID, JDATE, JTIME )
+         IF ( BUDGET_DIAG ) CALL WRITE_BUDGET ( CGRID, JDATE, JTIME, TSTEP )
          IF ( PRINT_PROC_TIME ) CALL TIMING_SPLIT ( CPU_TIME_START, 3 )
+         
       END IF
 
 #ifdef twoway

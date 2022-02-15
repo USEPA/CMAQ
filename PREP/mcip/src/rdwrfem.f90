@@ -184,6 +184,10 @@ SUBROUTINE rdwrfem (mcip_now)
 !                        earth (omega in new variable TWOOMEGA) is from WRF
 !                        variable "EOMEG" in WRF routine:
 !                        share/module_model_constants.f90.  (T. Spero)
+!           17 Jun 2021  Modified most recent change that calculates Coriolis
+!                        parameter so that it does not rely on a non-standard
+!                        Fortran intrinsic (SIND), which is only available
+!                        for select compilers. (T. Spero)
 !-------------------------------------------------------------------------------
 
   USE date_pack
@@ -198,6 +202,7 @@ SUBROUTINE rdwrfem (mcip_now)
 
   INTEGER, SAVE                     :: cdfid
   INTEGER                           :: cdfidg
+  REAL                              :: deg2rad
   INTEGER                           :: dimids     ( nf90_max_var_dims )
   REAL,    SAVE,      ALLOCATABLE   :: dum2d      ( : , : )
   INTEGER, SAVE,      ALLOCATABLE   :: dum2d_i    ( : , : )
@@ -242,6 +247,7 @@ SUBROUTINE rdwrfem (mcip_now)
   INTEGER                           :: k
   INTEGER                           :: k1
   INTEGER                           :: k2
+  REAL                              :: latrad
   INTEGER                           :: lent
   REAL,               EXTERNAL      :: mapfac_lam
   REAL,               EXTERNAL      :: mapfac_merc
@@ -256,7 +262,7 @@ SUBROUTINE rdwrfem (mcip_now)
   INTEGER                           :: nxm
   INTEGER                           :: nym
   INTEGER                           :: nzp
-  REAL,               PARAMETER     :: twoomega   = 2.0 * 7.2921e-5 ! [s-1]
+  REAL                              :: pi
   CHARACTER(LEN=16),  PARAMETER     :: pname      = 'RDWRFEM'
   INTEGER                           :: rcode
   REAL,               PARAMETER     :: rdovcp     = 2.0 / 7.0
@@ -265,6 +271,7 @@ SUBROUTINE rdwrfem (mcip_now)
   CHARACTER(LEN=2)                  :: str1
   CHARACTER(LEN=2)                  :: str2
   CHARACTER(LEN=19),SAVE,ALLOCATABLE:: times      ( : )
+  REAL,               PARAMETER     :: twoomega   = 2.0 * 7.2921e-5 ! [s-1]
   REAL                              :: xoff
   REAL                              :: xxin
   REAL                              :: yoff
@@ -2248,9 +2255,14 @@ SUBROUTINE rdwrfem (mcip_now)
 
   IF ( first .AND. lpv > 0 ) THEN
 
+    pi = 4.0 * ATAN(1.0)
+    deg2rad = pi / 180.0
+
     DO j = 1, nym
       DO i = 1, nxm
-        coriolis(i,j) = twoomega * SIND(latcrs(i,j))
+!!!     coriolis(i,j) = twoomega * SIND(latcrs(i,j))
+        latrad = latcrs(i,j) * deg2rad
+        coriolis(i,j) = twoomega * SIN(latrad)
       ENDDO
     ENDDO
 

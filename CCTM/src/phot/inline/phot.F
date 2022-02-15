@@ -309,9 +309,9 @@ C...modules
 
       REAL, ALLOCATABLE, SAVE :: AERO_SSA  ( :,:,:,: ) ! aerosol single scattering albedo
       REAL, ALLOCATABLE, SAVE :: AERO_ASYM ( :,:,:,: ) ! aerosol asymmetry factor
-      REAL, ALLOCATABLE, SAVE :: TOT_EXT   ( :,:,:,: ) ! total extinction for layer [1/m]
-      REAL, ALLOCATABLE, SAVE :: GAS_EXT   ( :,:,:,: ) ! clear sky extinction for layer [1/m]
-      REAL, ALLOCATABLE, SAVE :: AERO_EXT  ( :,:,:,: ) ! aerosol extinction for layer [1/m]
+      REAL, ALLOCATABLE, SAVE :: TOT_EXT   ( :,:,:,: ) ! total extinction for layer [1/Km]
+      REAL, ALLOCATABLE, SAVE :: GAS_EXT   ( :,:,:,: ) ! clear sky extinction for layer [1/Km]
+      REAL, ALLOCATABLE, SAVE :: AERO_EXT  ( :,:,:,: ) ! aerosol extinction for layer [1/Km]
       REAL, ALLOCATABLE, SAVE :: ACTINIC_FX( :,:,:,: ) ! net actinic flux [watts/m**2]
       REAL, ALLOCATABLE, SAVE :: OUTPUT_BUFF ( :,:,: ) ! output buffer for DIAG2 and DIAG3 files
 
@@ -767,7 +767,13 @@ C...modules
                   CALL O3TOTCOL ( LAT( COL,ROW ), LON( COL,ROW ), MIDDATE, MIDTIME, TOTAL_OC( COL,ROW ) )
                END DO
             END DO   
-
+         ELSE
+           DO ROW = 1, NROWS
+              DO COL = 1, NCOLS
+!...get total ozone column based on OMI observations
+                  CALL O3TOTCOL ( LAT( COL,ROW ), LON( COL,ROW ), MIDDATE,MIDTIME, TOTAL_OC( COL,ROW ) )
+              END DO
+           END DO
          END IF  ! if JTIME_CHK and PHOTDIAG
 
       ELSE  ! all cells not dark
@@ -928,7 +934,7 @@ C...modules
 !..calculate needed aerosol properties in column
 
 !              IF ( CORE_SHELL ) THEN
-                  CALL GET_AERO_DATA ( COL,ROW, NLAYS, CGRID )
+                  CALL GET_AERO_DATA ( COL,ROW, NLAYS, DENS, CGRID )
 !              ELSE
 !                 CALL AERO_OPTICS_INTERNAL( COL,ROW, NLAYS, CGRID )
 !              END IF
