@@ -119,10 +119,10 @@ set make_options = "-j"                #> additional options for make command if
 
  set ModMech   = MECHS/${Mechanism}
  
- if ( ${Mechanism} != cb6r5m_ae7_aq ) then  #> Gas-phase chemistry solver options
-     set ChemSolver = ebi                   #> gas-phase chemistry solver (see $CMAQ_MODEL/CCTM/src/gas)
- else                                       #> use gas/ros3 or gas/smvgear for a solver independent
-     set ChemSolver = ros3                  #> of the photochemical mechanism [ default for most mechanisms: ebi ]
+ if ( ${Mechanism} == cb6r5m_ae7_aq ) then  #> Gas-phase chemistry solver options
+     setenv ChemSolver ros3                 #> gas-phase chemistry solver (see $CMAQ_MODEL/CCTM/src/gas)
+ else                                       #> use ros3 or smvgear for a solver independent
+     setenv ChemSolver ebi                  #> of the photochemical mechanism [ default for most mechanisms: ebi ]
  endif
                                          
  if ( $ChemSolver == ebi ) then             
