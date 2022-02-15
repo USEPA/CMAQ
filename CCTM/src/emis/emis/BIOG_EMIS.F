@@ -434,6 +434,8 @@ C Save Species names in global array for mapping emissions
          ALLOCATE( EM_FILE_SURR( IBIOSRM )%USED ( MSPCS ) )
          ALLOCATE( EM_FILE_SURR( IBIOSRM )%CONV ( MSPCS ) )
          ALLOCATE( EM_FILE_SURR( IBIOSRM )%BASIS( MSPCS ) )
+         ALLOCATE( EM_FILE_SURR( IBIOSRM )%LAREA( MSPCS ) )
+         ALLOCATE( EM_FILE_SURR( IBIOSRM )%LAREAADJ( MSPCS ) )
 
          EM_FILE_SURR( IBIOSRM )%ARRY  = EMSPC
          EM_FILE_SURR( IBIOSRM )%UNITS = 'MOLES/S'
@@ -441,6 +443,8 @@ C Save Species names in global array for mapping emissions
          EM_FILE_SURR( IBIOSRM )%USED  = .FALSE.
          EM_FILE_SURR( IBIOSRM )%CONV  = 1.0
          EM_FILE_SURR( IBIOSRM )%BASIS = 'MOLE'
+         EM_FILE_SURR( IBIOSRM )%LAREA = .FALSE.
+         EM_FILE_SURR( IBIOSRM )%LAREAADJ = .FALSE.
 
          ! Populate the Molecular Weight Field by Matching Gas Species
          ! to the CMAQ mechanism species
