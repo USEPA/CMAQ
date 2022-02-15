@@ -71,7 +71,8 @@ C..PARAMETERS:
       REAL( 8 ), PARAMETER :: DTMIN   = 1.0D-08    ! Smallest time step allowed, min
       REAL( 8 ), PARAMETER :: EPSLON  = 1.0D-30    ! Small number
       REAL( 8 ), PARAMETER :: MAXPRED = 1.0D+03    ! Upper limit on predicted conc
-      REAL( 8 ), PARAMETER :: ZERO    = 1.0D-40    ! effective zero 
+      REAL( 8 ), PARAMETER :: ZERO    = 1.0D-40    ! effective zero
+      REAL( 8 ), PARAMETER :: FLOOR   = 1.0D-08    ! Min conc for RTOL 
 
 C..EXTERNAL FUNCTIONS:
 
@@ -311,10 +312,9 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
                DO S = 1, NUMB_MECH_SPC
                   LEBISPFL( S ) = .FALSE.
                   YCP( S ) = MAX( ZERO, YCP( S ) )
-                  AERROR( S ) = ABS( YC(S)-YCP(S) ) 
-                  RERROR( S ) = AERROR( S ) / ABS( YC(S)+YCP(S) )
-                   IF( RERROR( S ) .GT. RTOL(S) .OR. AERROR( S ) .GT. 1.0D-5 )THEN
-!                 IF( RERROR( S ) .GT. RTOL(S)  )THEN
+                  AERROR( S ) = MAX( ABS( YC(S)-YCP(S) ), EPSLON )
+                  RERROR( S ) = AERROR( S ) / MAX( FLOOR, ABS( YC(S)+YCP(S) ) )
+                  IF( RERROR( S ) .GT. RTOL(S) .OR. AERROR( S ) .GT. 1.0D-5 )THEN
                      LEBI_CONV     = .FALSE.
                      LEBISPFL( S ) = .TRUE.
                   END IF
