@@ -561,7 +561,7 @@ REACTIONS[CM] =
 ! MCM-based aromatics with Lu et al. updates
 <ROCARO33> BENP + NO   =   0.0000*ONIT
                          + 0.0012*VROCP4OXY2
-                         + 0.0008*VROCP1OXY3
+                         + 0.0008*VROCN1OXY6
                          + 0.9980*NO2
                          + 0.9980*HO2
                          + 0.0000*BALD
@@ -571,7 +571,7 @@ REACTIONS[CM] =
                          + 0.2495*DCB3        # 2.7E-12 @ -360.;
 <ROCARO43> TOLP + NO   =   0.0002*ONIT
                          + 0.0013*VROCP4OXY2
-                         + 0.0006*VROCP1OXY3
+                         + 0.0006*VROCN1OXY6
                          + 0.9980*NO2
                          + 0.9980*HO2
                          + 0.0852*BALD
@@ -698,10 +698,10 @@ REACTIONS[CM] =
 ! MCM-based aromatics
 <ROCARO32> BENP + HO2 = 0.0000*OP2
                          + 0.6021*OP2
-                         + 0.3979*VROCP1OXY3          # 2.91E-13 @ -1300.;
+                         + 0.3979*VROCN1OXY6          # 2.91E-13 @ -1300.;
 <ROCARO42> TOLP + HO2  = 0.0854*OP2
                          + 0.6341*OP2
-                         + 0.2805*VROCP1OXY3          # 2.91E-13 @ -1300.;
+                         + 0.2805*VROCN1OXY6          # 2.91E-13 @ -1300.;
 <ROCARO52> XYMP + HO2  = 0.0482*OP2
                          + 0.6747*OP3
                          + 0.2771*VROCP0OXY4          # 2.91E-13 @ -1300.;

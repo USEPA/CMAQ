@@ -27,7 +27,7 @@ C  PRECONDITIONS: For the CRACMM1_AQ mechanism
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, Feb  8, 2022
+C  REVISION HISTORY: Created by EBI solver program, Feb 11, 2022
 C
 C   18 Jul 14 B.Hutzell: revised to use real(8) variables for solution
 C*************************************************************************
@@ -227,7 +227,7 @@ c..Species indices
       INTEGER, PARAMETER :: LIMNP2           =  115
       INTEGER, PARAMETER :: ADCN             =  116
       INTEGER, PARAMETER :: VROCP4OXY2       =  117
-      INTEGER, PARAMETER :: VROCP1OXY3       =  118
+      INTEGER, PARAMETER :: VROCN1OXY6       =  118
       INTEGER, PARAMETER :: FURANONE         =  119
       INTEGER, PARAMETER :: VROCP3OXY2       =  120
       INTEGER, PARAMETER :: VROCP0OXY4       =  121
@@ -278,16 +278,16 @@ c..Species indices
       INTEGER, PARAMETER :: VROCP1ALKP2      =  166
       INTEGER, PARAMETER :: HC10P2           =  167
       INTEGER, PARAMETER :: VROCP1OXY1       =  168
-      INTEGER, PARAMETER :: VROCP6ARO        =  169
-      INTEGER, PARAMETER :: VROCP6AROP       =  170
-      INTEGER, PARAMETER :: VROCN2OXY4       =  171
-      INTEGER, PARAMETER :: VROCN1OXY3       =  172
-      INTEGER, PARAMETER :: VROCP5ARO        =  173
-      INTEGER, PARAMETER :: VROCP5AROP       =  174
-      INTEGER, PARAMETER :: NAPH             =  175
-      INTEGER, PARAMETER :: NAPHP            =  176
-      INTEGER, PARAMETER :: VROCN2OXY8       =  177
-      INTEGER, PARAMETER :: VROCN1OXY6       =  178
+      INTEGER, PARAMETER :: VROCP1OXY3       =  169
+      INTEGER, PARAMETER :: VROCP6ARO        =  170
+      INTEGER, PARAMETER :: VROCP6AROP       =  171
+      INTEGER, PARAMETER :: VROCN2OXY4       =  172
+      INTEGER, PARAMETER :: VROCN1OXY3       =  173
+      INTEGER, PARAMETER :: VROCP5ARO        =  174
+      INTEGER, PARAMETER :: VROCP5AROP       =  175
+      INTEGER, PARAMETER :: NAPH             =  176
+      INTEGER, PARAMETER :: NAPHP            =  177
+      INTEGER, PARAMETER :: VROCN2OXY8       =  178
       INTEGER, PARAMETER :: VROCP5OXY1       =  179
       INTEGER, PARAMETER :: VROCP6OXY1       =  180
 
