@@ -439,9 +439,9 @@ C leaf-scale characteristic length (mm) by LU
 C the 40 categories are for NLCD40 and first 20 are for MODIS20
       REAL, DIMENSION(40) :: Aleaf_lu,BAI_lu
       DATA Aleaf_lu                                    ! mm
-     >        / 2.0,    5.0,    2.0,  10.0,    5.0,
+     >        / 2.0,    10.0,   2.0,  10.0,    5.0,
      >          3.0,    2.0,    3.0,   3.0,    0.5,
-     >          1.0,    1.0,    3.0,   1.0,    1.0,
+     >          3.0,    4.0,    5.0,   1.0,    1.0,
      >          0.5,    1.0,    2.0,   1.0,    1.0,
      >          1.0,    1.0,    5.0,   5.0,    5.0,
      >          5.0,    0.5,   10.0,   2.0,    5.0,
@@ -456,7 +456,20 @@ C the 40 categories are for NLCD40 and first 20 are for MODIS20
      >          2.3,    1.0,    1.0,   1.0,    1.0,
      >          1.0,    1.0,    1.0,   1.0,    1.0,
      >          1.0,    1.0,    1.0,   1.0,    1.0  /
-
+C For USGS24
+      REAL, DIMENSION(24) :: Aleaf_lu24,BAI_lu24
+      DATA Aleaf_lu24                                    ! mm
+     >        / 5.0,    4.0,    4.0,   4.0,    2.0,
+     >          5.0,    0.5,    2.0,   1.0,    3.0,
+     >          10.0,   2.0,    10.0,  2.0,    5.0,
+     >          1.0,    3.0,    5.0,   0.5,    2.0,
+     >          4.0,    3.0,    1.0,   1.0  /
+      DATA BAI_lu24                                    
+     >        / 2.0,    1.0,    1.0,   1.0,    1.0,
+     >          1.0,    1.0,    1.0,   1.0,    1.0,
+     >          1.0,    1.0,    1.0,   1.0,    1.0,
+     >          1.0,    1.0,    1.0,   1.0,    1.0,
+     >          1.0,    1.0,    1.0,   1.0  /
 C-----------------------------------------------------------------------
 
       VDEP  = 0.0   ! array assignment
@@ -509,12 +522,22 @@ C Calculate characteristic parameters
 ! Set scale parameters for 2-term impaction by LU - Assumung NLCD40
             Aleaf =  0.0
             BAI = 0.0
-            Do j = 1, n_lufrac
-              If ( GRID_DATA%LUFRAC( c,r,j ) .Gt. 0.0 ) Then
-                Aleaf =  Aleaf + Aleaf_lu(j) * GRID_DATA%LUFRAC( c,r,j )
-                BAI =  BAI + BAI_lu(j) * GRID_DATA%LUFRAC( c,r,j )
-              endif
-           enddo
+            if (n_lufrac .eq. 24) Then
+              Do j = 1, n_lufrac
+                If ( GRID_DATA%LUFRAC( c,r,j ) .Gt. 0.0 ) Then
+                  Aleaf =  Aleaf + Aleaf_lu24(j) * GRID_DATA%LUFRAC( c,r,j )
+                  BAI =  BAI + BAI_lu24(j) * GRID_DATA%LUFRAC( c,r,j )
+                endif
+             enddo
+            else
+              Do j = 1, n_lufrac
+                If ( GRID_DATA%LUFRAC( c,r,j ) .Gt. 0.0 ) Then
+                  Aleaf =  Aleaf + Aleaf_lu(j) * GRID_DATA%LUFRAC( c,r,j )
+                  BAI =  BAI + BAI_lu(j) * GRID_DATA%LUFRAC( c,r,j )
+                endif
+             enddo
+           endif
+
            Aleaf = Aleaf * 1.e-3   ! mm to m
            If (n_lufrac .eq. 40) Then
              Fgrass =  GRID_DATA%LUFRAC( c,r,10 )   !Modis grass
@@ -527,6 +550,12 @@ C Calculate characteristic parameters
              Fgrass =  GRID_DATA%LUFRAC( c,r,10 )   !Modis grass
              Fneedle = GRID_DATA%LUFRAC( c,r,1 )    !Modis Evergreen Needleleaf
      &               + GRID_DATA%LUFRAC( c,r,3 )    !Modis Deciduous Needleleaf
+     &               + Fgrass
+           else if(n_lufrac .eq. 24) Then
+             Fgrass =  GRID_DATA%LUFRAC( c,r,7 )    !USGS grass
+     &               + 0.5 * GRID_DATA%LUFRAC( c,r,5 )   !USGS Grassland/Cropland Mosaic
+             Fneedle = GRID_DATA%LUFRAC( c,r,14 )    !USGS Evergreen Needleleaf
+     &               + GRID_DATA%LUFRAC( c,r,12 )    !USGS Deciduous Needleleaf
      &               + Fgrass
            else
              XMSG = 'LU scheme not supported in new aero_depv'
