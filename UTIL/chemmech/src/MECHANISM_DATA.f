@@ -180,6 +180,7 @@ c.. Variables for steady-state species
          CHARACTER( 16 ), ALLOCATABLE ::  SPARSE_SPECIES ( : )
 
          INTEGER, PARAMETER :: NCONSTANT_SPECIES = 6
+         REAL( 8 )          :: VALUES_CONSTANT ( NCONSTANT_SPECIES ) = 0.0D0
 
          TYPE REACTION
             CHARACTER( 16 ) :: LABEL( 2 )      ! name of reaction and if needed reference 

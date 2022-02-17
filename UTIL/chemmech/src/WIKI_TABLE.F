@@ -34,7 +34,8 @@ C @(#)CHEMMECH.F 1.1 /project/mod3/MECH/src/driver/mech/SCCS/s.CHEMMECH.F 02 Jan
         IMPLICIT NONE
 
           PUBLIC                 :: WRT_WIKI_TABLE, WRT_MD_TABLE, WRT_CSV_TABLE, 
-     &                              CALCULATE_RATES, WRT_HTML_TABLE, WRT_MD_SUBTABLE
+     &                              CALCULATE_RATES, WRT_HTML_TABLE, WRT_MD_SUBTABLE,
+     &                              WRT_FOAM_TABLES
           PRIVATE
 
 ! standard atmosphere ar alt = 0 and 2 km
@@ -1670,11 +1671,11 @@ C   begin body of subroutine  UPCASE
            CHARACTER(500), ALLOCATABLE :: EXPRESSION( : )
            CHARACTER(500)              :: EXPRESSCP
 
-           REAL( 8 ) :: O2_FRACTION 
-           REAL( 8 ) :: N2_FRACTION 
-           REAL( 8 ) :: H2_FRACTION 
-           REAL( 8 ) :: CH4_FRACTION 
-           
+           REAL( 8 ) :: O2_FRACTION  = 0.0D0
+           REAL( 8 ) :: N2_FRACTION  = 0.0D0
+           REAL( 8 ) :: H2_FRACTION  = 0.0D0
+           REAL( 8 ) :: CH4_FRACTION = 0.0D0 
+
            REAL( 8 ),     ALLOCATABLE :: VALUE( : )
            REAL( 8 )                  :: RESULT( 1 )
 
@@ -4078,4 +4079,822 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       
 
        END SUBROUTINE WRT_MD_SUBTABLE
+
+C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+      SUBROUTINE WRT_FOAM_TABLES( NR, IP, LABEL, NS  )
+
+ 
+      USE KPP_DATA 
+      USE GET_ENV_VARS
+      USE MECHANISM_DATA
+      
+      IMPLICIT NONE
+
+      INTEGER,         INTENT( IN ) :: NR ! number of reactions
+      INTEGER,         INTENT( IN ) :: IP ! number of photolysis reaction
+      CHARACTER( 16 ), INTENT( IN ) :: LABEL( :,: ) ! LABEL(NXX,1) 1st label found in rx NXX
+                                                            ! LABEL(NXX,2) 2nd label found in rx NXX
+      INTEGER,         INTENT( IN ) :: NS ! number of species
+
+c..local Variables for steady-state species
+
+       
+      CHARACTER(  1 ) :: CHR
+      CHARACTER( 16 ) :: WORD
+      CHARACTER( 37 ) :: PHRASE
+      CHARACTER( 81 ) :: INBUF
+      CHARACTER( 16 )  :: WIKI_OUT_FILE = 'WIKI_OUT_FILE'
+      CHARACTER( 627 ) :: FWIKI_OUT_FILE
+      CHARACTER( 627 ) :: KFILE_OUT_FILE
+      CHARACTER( 627 ) :: BOTTOM_UP_FILE
+      CHARACTER( 627 ) :: JFILE_OUT_FILE
+
+      INTEGER, EXTERNAL :: INDEX1
+      INTEGER, EXTERNAL :: INDEXES
+      INTEGER            :: LPOINT, IEOL
+      INTEGER            :: I, ICOL, ISPC, IRX, IDX
+      INTEGER            :: NXX, IPR, IPHOTAB, NC
+      INTEGER            :: DUMMY_COEF( MAXRXNUM )               ! Yields for the DUMMY variable in each reaction
+      INTEGER            :: SS1RX( MAXNLIST )                    ! First reaction occurrence for each SS species
+      
+c..Variables for species to be dropped from mechanism
+      INTEGER         :: N_DROP_SPC = 0
+      CHARACTER( 16 ) :: DROP_SPC( MAXNLIST )
+      LOGICAL         :: LERROR
+      LOGICAL         :: KPP_DUMMY   = .FALSE.
+      LOGICAL         :: FIRST_TERM  = .TRUE.
+      REAL( 8 )       :: WREXT_COEFFS( MAXSPECTERMS)
+      INTEGER         :: WREXT_INDEX(  MAXSPECTERMS)
+      INTEGER         :: TABLE_UNIT
+      INTEGER         :: KTABLE_UNIT
+      INTEGER         :: JTABLE_UNIT
+      INTEGER         :: BOTTOM_UP_UNIT
+
+      INTEGER SPC1RX( MAXSPEC )              ! rx index of 1st occurence of species
+                                             ! in mechanism table
+      CHARACTER( 120 ) :: WIKI_TABLE
+      CHARACTER( 120 ) :: SPC_MECH_KPP
+      CHARACTER( 891 ) :: REACTION_STR(  MAXRXNUM )
+      CHARACTER( 891 ), ALLOCATABLE :: PHOTAB_STR( : )
+      CHARACTER(  16 ) :: COEFF_STR
+      CHARACTER(  16 ) :: NAMCONSTS( MAXCONSTS ) = (/
+     &                    'ATM_AIR         ',
+     &                    'ATM_O2          ',
+     &                    'ATM_N2          ',
+     &                    'ATM_H2          ',
+     &                    'ATM_CH4         ' /)
+
+       INTEGER   :: INDX_AIR  = 0
+       INTEGER   :: INDX_H2   = 0
+       INTEGER   :: INDX_N2   = 0
+       INTEGER   :: INDX_O2   = 0
+       INTEGER   :: INDX_CH4  = 0
+
+       REAL( 8 ) :: O2_FRACTION  = 0.0D0
+       REAL( 8 ) :: N2_FRACTION  = 0.0D0
+       REAL( 8 ) :: H2_FRACTION  = 0.0D0
+       REAL( 8 ) :: CH4_FRACTION = 0.0D0 
+
+      CHARACTER(  16 )    :: CLABEL                  ! mechanism constants label
+      REAL( 8 )           :: CONSTVAL                ! retrieved constant
+      REAL( 8 )            :: CVAL( MAXCONSTS )       ! mechanism constants value
+      INTEGER, PARAMETER  :: LUNOUT = 6
+      INTEGER             :: IDIFF_ORDER           ! difference between order of two separate reactions
+      LOGICAL             :: FALLOFF_RATE       ! whether a reaction is a falloff type
+
+
+      CHARACTER(  12 ) :: EXFLNM_SPCS = 'SPCSDATX'
+      CHARACTER(  12 ) :: EXFLNM_RXDT = 'RXNSDATX'
+      CHARACTER(  12 ) :: EXFLNM_RXCM = 'RXNSCOMX'
+
+      INTEGER, EXTERNAL :: JUNIT
+      INTEGER            :: ICOUNT, IREACT, IPRODUCT
+
+
+      INTERFACE 
+       SUBROUTINE GETRCTNT ( IMECH, INBUF, IEOL, LPOINT, CHR, WORD,
+     &                      NXX, NS, SPARSE_SPECIES, SPC1RX,
+     &                      ICOL, LABEL, N_DROP_SPC, DROP_SPC )
+         INTEGER,         INTENT(   IN  ) :: IMECH
+         CHARACTER( 81 ), INTENT( INOUT ) :: INBUF
+         INTEGER,         INTENT( INOUT ) :: LPOINT
+         INTEGER,         INTENT( INOUT ) :: IEOL
+         CHARACTER(  1 ), INTENT( INOUT ) :: CHR
+         CHARACTER( 16 ), INTENT( INOUT ) :: WORD
+         INTEGER,         INTENT(   IN  ) :: NXX
+         INTEGER,         INTENT( INOUT ) :: NS
+         CHARACTER( 16 ), INTENT( INOUT ) :: SPARSE_SPECIES( : )
+         INTEGER,         INTENT( INOUT ) :: SPC1RX( : )
+         INTEGER,         INTENT( INOUT ) :: ICOL
+         CHARACTER( 16 ), INTENT(   IN  ) :: LABEL( :, : )
+         INTEGER,         INTENT(   IN  ) :: N_DROP_SPC
+         CHARACTER( 16 ), INTENT(   IN  ) :: DROP_SPC( : )
+        END SUBROUTINE GETRCTNT
+        SUBROUTINE GETPRDCT ( IMECH, INBUF, LPOINT, IEOL, CHR, WORD,
+     &                      NXX, NS, SPARSE_SPECIES, SPC1RX,
+     &                      ICOL, N_DROP_SPC, DROP_SPC )
+          INTEGER,         INTENT(   IN  ) :: IMECH
+          CHARACTER( 81 ), INTENT( INOUT ) :: INBUF
+          INTEGER,         INTENT( INOUT ) :: LPOINT
+          INTEGER,         INTENT( INOUT ) :: IEOL
+          CHARACTER(  1 ), INTENT( INOUT ) :: CHR
+          CHARACTER( 16 ), INTENT( INOUT ) :: WORD
+          INTEGER,         INTENT(   IN  ) :: NXX
+          INTEGER,         INTENT( INOUT ) :: NS
+          CHARACTER( 16 ), INTENT( INOUT ) :: SPARSE_SPECIES( : )
+          INTEGER,         INTENT( INOUT ) :: SPC1RX( : )
+          INTEGER,         INTENT( INOUT ) :: ICOL
+          INTEGER,         INTENT(   IN  ) :: N_DROP_SPC
+          CHARACTER( 16 ), INTENT(   IN  ) :: DROP_SPC( : )
+         END SUBROUTINE GETPRDCT
+         SUBROUTINE GETRATE ( IMECH, INBUF, LPOINT, IEOL, CHR,
+     &                         NXX, LABEL, IP )
+           CHARACTER(  1 ), INTENT( INOUT ) :: CHR
+           CHARACTER( 81 ), INTENT( INOUT ) :: INBUF
+           INTEGER,         INTENT( IN )    :: IMECH
+           INTEGER,         INTENT( INOUT ) :: LPOINT
+           INTEGER,         INTENT( INOUT ) :: IEOL
+           INTEGER,         INTENT( INOUT ) :: IP
+           INTEGER,         INTENT( IN )    :: NXX
+           CHARACTER( 16 ), INTENT( INOUT ) :: LABEL( :,: )
+        END SUBROUTINE GETRATE
+        SUBROUTINE WREXTS (EQNAME_MECH, DESCRP_MECH, NS, SPARSE_SPECIES, SPC1RX, NR,
+     &                      IP,  NAMCONSTS, CVAL, SS1RX  ) 
+          CHARACTER( 120 ), INTENT ( IN ) :: EQNAME_MECH
+          CHARACTER(  32 ), INTENT ( IN ) :: DESCRP_MECH
+          INTEGER,          INTENT ( IN ) :: NS                ! no. of species found in mechanism table
+          CHARACTER(  16 ), INTENT ( IN ) :: SPARSE_SPECIES( : ) ! species list from mechanism table
+          INTEGER,          INTENT ( IN ) :: NR
+          INTEGER,          INTENT ( IN ) :: SPC1RX( : ) ! rx index of 1st occurence of species in mechanism table
+          INTEGER,          INTENT ( IN ) :: IP
+          CHARACTER( 16 ),  INTENT ( IN ) :: NAMCONSTS( : )
+          REAL( 8 ),        INTENT ( IN ) :: CVAL( : )
+          INTEGER,          INTENT ( IN ) :: SS1RX( : )
+        END SUBROUTINE WREXTS
+        SUBROUTINE GET_SS_DATA ( LUNOUT, NR ) 
+          INTEGER, INTENT ( IN )         :: LUNOUT   ! Output unit number
+          INTEGER, INTENT ( IN )         :: NR       ! No. of reactions
+        END SUBROUTINE GET_SS_DATA
+        SUBROUTINE CHECK_SS_SPC ( LUNOUT, NS, SPARSE_SPECIES, NR, LABEL, SS1RX )
+         INTEGER, INTENT ( IN )         :: LUNOUT               ! Output unit number
+         INTEGER, INTENT ( IN )         ::  NS                  ! No. of species in mechanism
+         CHARACTER( 16 ), INTENT ( IN ) ::  SPARSE_SPECIES( : )   ! List of mechanism species
+         INTEGER, INTENT ( IN )         ::  NR                  ! No. of reactions
+         CHARACTER( 16 ), INTENT ( IN ) ::  LABEL( :,: ) ! Reaction labels
+         INTEGER, INTENT ( INOUT )      ::  SS1RX( : )
+       END SUBROUTINE CHECK_SS_SPC
+       SUBROUTINE WRSS_EXT( NR ) 
+         INTEGER, INTENT ( IN )         :: NR   ! No. of reactions
+       END SUBROUTINE WRSS_EXT
+       SUBROUTINE CONVERT_CASE ( BUFFER, UPPER )
+         CHARACTER*(*), INTENT( INOUT ) :: BUFFER
+         LOGICAL,       INTENT( IN )    :: UPPER
+       END SUBROUTINE CONVERT_CASE
+      END INTERFACE 
+  
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+C Create name for output file
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+  
+      FWIKI_OUT_FILE = TRIM( OUTDIR ) // '/' // 
+     &                 TRIM( MECHNAME_LOWER_CASE )  // 'AllRxns.m'
+      KFILE_OUT_FILE = TRIM( OUTDIR ) // '/'
+     &               // TRIM( MECHNAME_LOWER_CASE )  // '_K.m'
+      JFILE_OUT_FILE = TRIM( OUTDIR ) // '/' 
+     &              // TRIM( MECHNAME_LOWER_CASE )  // '_J.m'
+      BOTTOM_UP_FILE = TRIM( OUTDIR ) // '/J_BottomUp_insert_'  
+     &              //  TRIM( MECHNAME_LOWER_CASE )  // '.m'
+
+! create wiki table file      
+      TABLE_UNIT = JUNIT()
+      OPEN ( UNIT = TABLE_UNIT, FILE = FWIKI_OUT_FILE, STATUS = 'UNKNOWN'  )
+      KTABLE_UNIT = JUNIT()
+      OPEN ( UNIT = KTABLE_UNIT, FILE = KFILE_OUT_FILE, STATUS = 'UNKNOWN'  )
+      JTABLE_UNIT = JUNIT()
+      OPEN ( UNIT = JTABLE_UNIT, FILE = JFILE_OUT_FILE, STATUS = 'UNKNOWN'  )
+      BOTTOM_UP_UNIT = JUNIT()
+      OPEN ( UNIT = BOTTOM_UP_UNIT, FILE = BOTTOM_UP_FILE, STATUS = 'UNKNOWN'  )
+! 
+      WRITE(TABLE_UNIT, 69099)TRIM(MECHNAME_LOWER_CASE),NUMB_MECH_SPCS,NR,TRIM( AUTHOR )
+      WRITE(JTABLE_UNIT,95200)TRIM(MECHNAME),TRIM(MECHNAME_LOWER_CASE),TRIM(MECHNAME_LOWER_CASE)
+      WRITE(KTABLE_UNIT,95300)TRIM(MECHNAME),TRIM(MECHNAME_LOWER_CASE),NHETERO
+      CALL CALCULATE_RATES( NR )
+
+      IF( .NOT. ALLOCATED( IOLD2NEW ) )THEN
+         ALLOCATE( IOLD2NEW( NUMB_MECH_SPCS ), STAT = IOS )
+         IF ( IOS .NE. 0 ) THEN
+            MSG = 'ERROR IOLD2NEW'
+            WRITE(LOGDEV,'(A)')MSG 
+            STOP
+         END IF
+         DO I = 1, NUMB_MECH_SPCS
+            IOLD2NEW( I ) = I
+         END DO
+      END IF
+      
+      IF( .NOT. ALLOCATED( PHOTAB_STR ) )THEN 
+         ALLOCATE( PHOTAB_STR( NPHOTAB ), STAT = IOS )
+         PHOTAB_STR = ' '
+      END IF
+
+       INDX_AIR  = INDEX1 ( 'ATM_AIR', MAXCONSTS, NAMCONSTS )
+       INDX_H2   = INDEX1 ( 'ATM_H2', MAXCONSTS, NAMCONSTS )
+       INDX_N2   = INDEX1 ( 'ATM_N2', MAXCONSTS, NAMCONSTS )
+       INDX_O2   = INDEX1 ( 'ATM_O2', MAXCONSTS, NAMCONSTS )
+       INDX_CH4  = INDEX1 ( 'ATM_CH4', MAXCONSTS, NAMCONSTS )
+        
+       O2_FRACTION  = CONST( INDX_O2 ) / CONST( INDX_AIR )
+       N2_FRACTION  = CONST( INDX_N2 ) / CONST( INDX_AIR )
+       H2_FRACTION  = CONST( INDX_H2 ) / CONST( INDX_AIR )
+       CH4_FRACTION = CONST( INDX_CH4 ) / CONST( INDX_AIR )
+! write out reactions strings to determine mechanism information
+
+       DO NXX = 1, NR
+         DO IREACT = 1, NREACT( NXX )
+            ISPC = IRR( NXX, IREACT )
+               IF( IREACT .LE. 1 )THEN
+                  REACTION_STR( NXX ) =  TRIM(SPARSE_SPECIES( ISPC )) // ' '
+               ELSE
+                  REACTION_STR( NXX ) = TRIM(REACTION_STR( NXX )) //  ' + ' // TRIM(SPARSE_SPECIES( ISPC )) // ' '
+               END IF
+         END DO
+         DO I = 1, MAXRCTNTS
+         IF( INDEX_FIXED_SPECIES( NXX, I ) .GT. 0 .AND. INDEX_FIXED_SPECIES( NXX, I ) .LT. 7 )THEN
+              ISPC = INDEX_FIXED_SPECIES( NXX, I )
+              REACTION_STR( NXX ) = TRIM(REACTION_STR( NXX ))
+     &                           //  ' + ' //  TRIM( FIXED_SPECIES( ISPC ) ) // ' '
+!              REACTION_STR( NXX ) = ' + ' //  TRIM( FIXED_SPECIES( ISPC ) ) // ' '
+         ELSE 
+              IF( INDEX_FIXED_SPECIES( NXX, I ) .GE. 7 )THEN
+                  WRITE(*,*)'WARNING: INDEX_FIXED_SPECIES( ', NXX,',', I, ') = ',INDEX_FIXED_SPECIES( NXX, I )
+              END IF
+         END IF         
+         END DO
+         REACTION_STR( NXX ) = TRIM(REACTION_STR( NXX )) //  ' ----> '
+! write out products
+         DO IPRODUCT = 1, NPRDCT( NXX )
+            ISPC = IRR( NXX, IPRODUCT + 3 )
+            IF ( ABS( SC( NXX,IPRODUCT ) ) .NE. 1.0 ) THEN
+               IF ( SC( NXX,IPRODUCT ) .LT. 0 ) THEN
+                  WRITE(COEFF_STR,'(A,F8.5)')' - ',ABS(SC( NXX,IPRODUCT ))
+                  REACTION_STR( NXX ) = TRIM(REACTION_STR( NXX )) // TRIM(COEFF_STR) 
+     &                        // ' * '  // TRIM(SPARSE_SPECIES( ISPC ))
+               ELSE
+                  WRITE(COEFF_STR,'(F8.5)')SC( NXX,IPRODUCT )
+                  IF( IPRODUCT .EQ. 1 )THEN
+                     REACTION_STR( NXX ) = TRIM(REACTION_STR( NXX )) // ' ' // TRIM(COEFF_STR) 
+     &                           // ' * '  // TRIM(SPARSE_SPECIES( ISPC ))
+                  ELSE
+                     REACTION_STR( NXX ) = TRIM(REACTION_STR( NXX )) // ' + ' // TRIM(COEFF_STR) 
+     &                           // ' * '  // TRIM(SPARSE_SPECIES( ISPC ))
+                  END IF
+               END IF
+            ELSE 
+               IF ( SC( NXX,IPRODUCT ) .LT. 0.0 ) THEN
+                   REACTION_STR( NXX ) = TRIM(REACTION_STR( NXX )) //  ' - ' // TRIM(SPARSE_SPECIES( ISPC ))
+               ELSE
+                  IF( IPRODUCT .EQ. 1 )THEN
+                    REACTION_STR( NXX ) = TRIM(REACTION_STR( NXX )) // ' ' //  TRIM(SPARSE_SPECIES( ISPC ))
+                  ELSE
+                    REACTION_STR( NXX ) = TRIM(REACTION_STR( NXX )) //  ' + ' // TRIM(SPARSE_SPECIES( ISPC ))
+                  END IF
+               END IF
+            END IF
+         END DO
+! determine conditions whether reaction string needs a non-zero multiple of dummy
+! variable added to reaction 
+         DUMMY_COEF( NXX ) = INDEXES(REACTION_STR( NXX ),(NXX-1),REACTION_STR )
+         IF( NPRDCT( NXX ) .LT. 1 )DUMMY_COEF( NXX ) = DUMMY_COEF( NXX ) + 1 
+         IF(  KPP_DUMMY )KPP_DUMMY = .TRUE.
+         
+       END DO
+
+      PHRASE = ' '
+      PHRASE(1:32) = MECHNAME(1:32)
+      CALL CONVERT_CASE(PHRASE, .FALSE.)
+      IF( NSPECIAL .GT. 0 )WRITE(TABLE_UNIT,69100)TRIM(PHRASE)
+      
+      
+      WRITE(TABLE_UNIT,'(A,F12.9,A)')'N2  = ',N2_FRACTION,'.*M;'
+      WRITE(TABLE_UNIT,'(A,F12.9,A)')'O2  = ',O2_FRACTION,'.*M;'
+      WRITE(TABLE_UNIT,'(A,F12.9,A)')'H2  = ',H2_FRACTION,'.*M;'
+      WRITE(TABLE_UNIT,'(A,F12.9,A,//)')'CH4 = ',CH4_FRACTION,'.*M;'
+      
+      IF( NFUNCTIONS .GT. 0 )THEN
+        WRITE(TABLE_UNIT,*)
+        WRITE(TABLE_UNIT,*)
+        WRITE(TABLE_UNIT,'(A)')'%Functions Table.'
+        WRITE(TABLE_UNIT,'(3A)')'%Name',',','Formula'
+        DO IDX = 1, NFUNCTIONS
+           WRITE(TABLE_UNIT,'(3A)')TRIM(FUNCTIONS(IDX)),' = ',TRIM(FORMULA(IDX))
+        END DO
+      END IF
+
+      WRITE(TABLE_UNIT,'(A)')'SpeciesToAdd = {...'
+      ISPC = 0
+      DO I = 1, (NUMB_MECH_SPCS/5)
+         DO IDX = 1, 5
+            ISPC = ISPC + 1
+            WRITE(TABLE_UNIT,'(A)',ADVANCE='NO')"'" // TRIM(MECHANISM_SPC(ISPC)) // "'; "
+         END DO
+         WRITE(TABLE_UNIT,'(A)')'...'
+      END DO
+      ISPC=ISPC+1
+      DO IDX = ISPC, NUMB_MECH_SPCS 
+         WRITE(TABLE_UNIT,'(A)',ADVANCE='NO')"'" // TRIM(MECHANISM_SPC(IDX)) // "'; "
+      END DO
+      WRITE(TABLE_UNIT,'(A,//)')'};'
+      WRITE(TABLE_UNIT,'(A,//)')'AddSpecies'
+            
+      DO NXX = 1, NSPECIAL
+         WRITE(TABLE_UNIT,'(A,A)', ADVANCE = 'NO' )' * ',TRIM(SPECIAL( NXX ) )
+         FIRST_TERM = .TRUE.
+! first write standard rate constants time concentrations
+         DO IREACT = 1, MAXSPECTERMS
+             IRX  = INDEX_KTERM( NXX, IREACT )
+             IF( IRX .LT. 1 .AND. INDEX_CTERM( NXX, IREACT ) .LT. 1 )CYCLE
+             IF( FIRST_TERM )THEN
+                PHRASE = ' = '
+                FIRST_TERM = .FALSE.
+                IF(KC_COEFFS( NXX, IREACT ) .LT. 0.0 )PHRASE = ' = ' // ' - '
+             ELSE
+!                WRITE(TABLE_UNIT, 4711, ADVANCE = 'NO' )
+                PHRASE = ' + '
+                IF(KC_COEFFS( NXX, IREACT ) .LT. 0.0 )PHRASE = ' - '
+             END IF
+             IF( KC_COEFFS( NXX, IREACT ) .NE. 1.0 )THEN
+                 IF( IRX .GT. 0 )THEN
+                    WRITE(TABLE_UNIT, 4708, ADVANCE = 'NO')TRIM(PHRASE),
+     &              REAL( ABS( KC_COEFFS( NXX, IREACT ) ), 8),TRIM(LABEL(IRX,1))
+                 ELSE
+                    WRITE(TABLE_UNIT, 5708, ADVANCE = 'NO')TRIM(PHRASE),
+     &              REAL( ABS( KC_COEFFS( NXX, IREACT ) ), 8)
+                 END IF
+             ELSE
+                 IF( IRX .GT. 0 )THEN
+                    WRITE(TABLE_UNIT, 4706, ADVANCE = 'NO')TRIM(PHRASE),TRIM(LABEL(IRX,1))
+                 ELSE
+                    WRITE(TABLE_UNIT, 4709, ADVANCE = 'NO')TRIM(PHRASE)
+                 END IF
+             END IF
+             IF( INDEX_CTERM( NXX, IREACT ) .LT. 1  )CYCLE
+             ISPC = IOLD2NEW( INDEX_CTERM( NXX, IREACT ) )
+             IF( IRX .GT. 0 )THEN
+                PHRASE = '[' // TRIM( SPARSE_SPECIES( ISPC ) ) // ']'
+             ELSE
+                PHRASE = ' [' // TRIM( SPARSE_SPECIES( ISPC ) ) // ']'
+             END IF
+             WRITE(TABLE_UNIT, 4709, ADVANCE = 'NO')TRIM( PHRASE )
+         END DO
+         IF( MAXVAL( OPERATORS( NXX, 1:MAXSPECTERMS ) ) .LT. 1 )THEN
+            WRITE(TABLE_UNIT, * )' '
+            CYCLE
+         END IF
+! next write defined operators         
+         DO IREACT = 1, MAXSPECTERMS
+            IDX = OPERATORS( NXX, IREACT )
+            IF( IDX .LT. 1 .AND. IREACT .LT. MAXSPECTERMS )THEN
+                CYCLE
+            ELSE IF( IDX .LT. 1 .AND. IREACT .GE. MAXSPECTERMS )THEN
+                WRITE(TABLE_UNIT, * )' '
+                CYCLE
+            END IF
+             IF( FIRST_TERM )THEN
+                PHRASE = ' = '
+                IF(OPERATOR_COEFFS( NXX, IREACT ) .LT. 0.0 )PHRASE = ' = ' // ' - '
+                FIRST_TERM = .FALSE.
+             ELSE
+                WRITE(TABLE_UNIT, 4711, ADVANCE = 'NO' )
+                PHRASE = ' + '
+                IF(OPERATOR_COEFFS( NXX, IREACT ) .LT. 0.0 )PHRASE = ' - '
+             END IF
+             IF( OPERATOR_COEFFS( NXX, IREACT ) .NE. 1.0 )THEN
+                 WRITE(TABLE_UNIT, 4710, ADVANCE = 'NO')TRIM(PHRASE),
+     &           REAL( ABS( OPERATOR_COEFFS( NXX, IREACT ) ), 8), TRIM( SPECIAL( IDX ) )
+             ELSE
+                 WRITE(TABLE_UNIT, 4712, ADVANCE = 'NO')TRIM(PHRASE),TRIM( SPECIAL( IDX ) )
+             END IF
+             IF( IREACT .GE. MAXSPECTERMS )WRITE(TABLE_UNIT, * )' '
+         END DO 
+      END DO
+      IF( NSPECIAL .GT. 0 )WRITE(TABLE_UNIT, 69101)
+
+      DO NXX = 1, NR
+         WRITE(TABLE_UNIT,'(A,I4,A)')'%',NXX,', <' // TRIM( RXLABEL( NXX) ) // '>' 
+         WRITE(TABLE_UNIT,'(A)')'i=i+1;'
+         WRITE(TABLE_UNIT,'(A,I4,A)', ADVANCE= 'NO')'Rnames{', NXX, "} = '"
+         DO IREACT = 1, NREACT( NXX )
+            ISPC = IRR( NXX, IREACT )
+               IF( IREACT .LT. 2 )THEN
+                  WRITE(TABLE_UNIT,'(A, A)', ADVANCE = 'NO')TRIM(SPARSE_SPECIES( ISPC )),' '
+                  ICOUNT = 1 + LEN( SPARSE_SPECIES( ISPC ) )
+               ELSE
+                  WRITE(TABLE_UNIT,'(3A)', ADVANCE = 'NO')'+ ',TRIM(SPARSE_SPECIES( ISPC )),' '
+                  ICOUNT = 1 + LEN( SPARSE_SPECIES( ISPC ) )
+                  ICOUNT = 3 + LEN( SPARSE_SPECIES( ISPC ) )                  
+               END IF
+         END DO
+         DO I = 1, MAXRCTNTS
+             IF( INDEX_FIXED_SPECIES( NXX, I ) .GT. 0 .AND. INDEX_FIXED_SPECIES( NXX, I ) .LT. 7 )THEN
+                 ISPC = INDEX_FIXED_SPECIES( NXX, I )
+                  WRITE(TABLE_UNIT,'(3A)', ADVANCE = 'NO')'+ ',TRIM( FIXED_SPECIES( ISPC ) ),' '
+                  ICOUNT = 1 + LEN( FIXED_SPECIES( ISPC ) )
+                  ICOUNT = 3 + LEN( FIXED_SPECIES( ISPC ) )                  
+             ELSE 
+                  IF( INDEX_FIXED_SPECIES( NXX, I ) .GE. 7 )THEN
+                     WRITE(*,*)'WARNING: INDEX_FIXED_SPECIES( ', NXX,',', I, ') = ',INDEX_FIXED_SPECIES( NXX, I )
+                  END IF
+             END IF         
+         END DO
+         WRITE(TABLE_UNIT, '(A)', ADVANCE = 'NO' )'='
+! write out products
+         DO IPRODUCT = 1, NPRDCT( NXX )
+            ISPC = IRR( NXX, IPRODUCT + 3 )
+            IF ( ABS( SC( NXX,IPRODUCT ) ) .NE. 1.0 ) THEN
+               IF ( SC( NXX,IPRODUCT ) .LT. 0 ) THEN
+                  WRITE(TABLE_UNIT,'(A,F8.5,3A)', ADVANCE = 'NO')
+     &           '- ',ABS(SC( NXX,IPRODUCT )),'*',TRIM(SPARSE_SPECIES( ISPC )),' '
+                  ICOUNT = ICOUNT + 12 + LEN( SPARSE_SPECIES( ISPC ) )
+               ELSE
+                  IF( IPRODUCT .EQ. 1 )THEN
+                     WRITE(TABLE_UNIT,'(F8.5, 3A)', ADVANCE = 'NO')
+     &               SC( NXX,IPRODUCT ),'*',TRIM(SPARSE_SPECIES( ISPC )),' '
+                     ICOUNT = ICOUNT + 10 + LEN( SPARSE_SPECIES( ISPC ) )
+                  ELSE
+                     WRITE(TABLE_UNIT,'(A,F8.5,3A)', ADVANCE = 'NO')
+     &               '+ ',SC( NXX,IPRODUCT ),'*',TRIM(SPARSE_SPECIES( ISPC )),' '
+                     ICOUNT = ICOUNT + 12 + LEN( SPARSE_SPECIES( ISPC ) )
+                  END IF
+               END IF
+            ELSE IF ( SC( NXX,IPRODUCT ) .LT. 0.0 ) THEN
+               WRITE(TABLE_UNIT,'(3A)', ADVANCE = 'NO')
+     &               '- ',TRIM(SPARSE_SPECIES( ISPC )),' '
+               ICOUNT = ICOUNT + 3 + LEN( SPARSE_SPECIES( ISPC ) )
+            ELSE
+               IF( IPRODUCT .EQ. 1 )THEN
+                  WRITE(TABLE_UNIT,'(3A)', ADVANCE = 'NO')
+     &           ' ',TRIM(SPARSE_SPECIES( ISPC )),' '
+                  ICOUNT = ICOUNT + 2 + LEN( SPARSE_SPECIES( ISPC ) )
+               ELSE
+                  WRITE(TABLE_UNIT,'(3A)', ADVANCE = 'NO')
+     &             '+ ',TRIM(SPARSE_SPECIES( ISPC )),' '
+                  ICOUNT = ICOUNT + 3 + LEN( SPARSE_SPECIES( ISPC ) )
+               END IF
+            END IF
+!            IF( ICOUNT .GT. 132 .AND. IPRODUCT .LT.  NPRDCT( NXX ) )THEN
+!            IF( IPRODUCT .LT.  NPRDCT( NXX ) )THEN
+!                ICOUNT = 0
+!                WRITE(TABLE_UNIT, * )' '
+!                WRITE(TABLE_UNIT,'(A16)', ADVANCE = 'NO')' '
+!            END IF
+         END DO 
+         WRITE(TABLE_UNIT,'(A)')"';"
+
+
+         IF( KTYPE( NXX ) .LE. 7 .OR. KTYPE( NXX ) .GE. 13 )THEN
+            WRITE(TABLE_UNIT,'(A,I4,A)', ADVANCE= 'NO')'k(:,i) = ('
+         END IF
+         
+         SELECT CASE( KTYPE( NXX ) )
+          CASE( -1 )
+             DO IPR = 1, NHETERO
+                IF ( IHETERO( IPR,1 ) .EQ. NXX )EXIT
+             END DO
+             IDX = IHETERO( IPR, 2 )
+             IF( RTDAT(1, NXX) .NE. 1.0 )THEN
+                 WRITE(TABLE_UNIT,5027, ADVANCE = 'NO')REAL(RTDAT(1, NXX),8),TRIM( HETERO(IDX) )
+             ELSE
+                 WRITE(TABLE_UNIT,5028, ADVANCE = 'NO')TRIM( HETERO(IDX) )
+             END IF
+         CASE(  0 )
+             DO IPR = 1, IP
+                IF ( IPH( IPR,1 ) .EQ. NXX )EXIT
+             END DO
+             IF ( IPH( IPR,3 ) .NE. 0 )THEN
+                IDX = IPH( IPR, 2 )
+                IF( RTDAT(1, NXX) .NE. 1.0 )THEN
+                   WRITE(TABLE_UNIT,5000, ADVANCE = 'NO')REAL(RTDAT(1, NXX),8),TRIM( PHOTAB(IDX) )
+                ELSE
+                   WRITE(TABLE_UNIT,5001, ADVANCE = 'NO')TRIM( PHOTAB(IDX) )
+                END IF
+                PHOTAB_STR(  IDX ) = TRIM( REACTION_STR( NXX )  )
+             ELSE IF( IPH( NXX,3 ) .EQ. 0 )THEN
+                IDX = IPH(IPH( NXX,2 ), 2)
+                IF( RTDAT(1, NXX) .NE. 1.0 )THEN
+                   WRITE(TABLE_UNIT,5100, ADVANCE = 'NO')REAL(RTDAT(1, NXX),8),TRIM(LABEL(IDX,1))
+                ELSE
+                   WRITE(TABLE_UNIT,5101, ADVANCE = 'NO')TRIM(LABEL(IDX,1))
+                END IF
+             END IF
+          CASE( 1 )
+             WRITE(TABLE_UNIT,'(ES12.4)', ADVANCE = 'NO')REAL(RTDAT(1, NXX), 8)
+          CASE( 2 )
+             WRITE(TABLE_UNIT,5129, ADVANCE = 'NO')RTDAT(1, NXX), RTDAT(2, NXX)
+          CASE( 3 )
+             WRITE(TABLE_UNIT,5103, ADVANCE = 'NO')RTDAT(1, NXX), RTDAT(3, NXX)
+          CASE( 4 )
+             WRITE(TABLE_UNIT,5104, ADVANCE = 'NO')RTDAT(1, NXX), RTDAT(3, NXX), RTDAT(2, NXX)
+          CASE( 5 )
+             IRX = INT( RTDAT( 3, NXX) )
+             IF( IRX .GT. NXX )CYCLE
+             IDIFF_ORDER = IORDER(NXX) - IORDER(IRX)
+             IF( IDIFF_ORDER .NE. 0 )THEN
+                 FALLOFF_RATE = ( KTYPE(IRX) .GT. 7 .AND. KTYPE(IRX) .LT. 11 )
+!                 IF( KUNITS .EQ. 2 .OR. FALLOFF_RATE )THEN
+!                   CALL WRITE_RATE_CONVERT_BEFORE(MODULE_UNIT, IDIFF_ORDER )
+!                 END IF
+             END IF
+             WRITE(TABLE_UNIT,5115, ADVANCE = 'NO')1.0D0/RTDAT( 1, NXX ), -RTDAT(2, NXX ),IRX
+          CASE( 6 )
+!             DO IDX = 1, KTN6
+!                IF( KRX6( IDX ) .EQ. NXX )EXIT
+!             END DO         
+             IRX = INT( RTDAT( 2, NXX) )
+	     IDIFF_ORDER = IORDER(NXX) - IORDER(IRX)
+	     IF( IDIFF_ORDER .NE. 0 )THEN
+	         FALLOFF_RATE = ( KTYPE(IRX) .GT. 7 .AND. KTYPE(IRX) .LT. 11 )
+	     END IF
+             IF( RTDAT( 1, NXX ) .NE. 1.0 )THEN
+                 WRITE(TABLE_UNIT, 5006, ADVANCE = 'NO')REAL(RTDAT( 1, NXX ), 8),IRX
+             ELSE
+                 WRITE(TABLE_UNIT, 4706, ADVANCE = 'NO')IRX
+             END IF
+          CASE( 7 )
+             IF( RTDAT(1, NXX) .NE. 0.0 )THEN
+                 WRITE(TABLE_UNIT,5114, ADVANCE = 'NO')REAL(RTDAT(1, NXX), 8),REAL(RTDAT(2, NXX), 8)
+             ELSE
+                 WRITE(TABLE_UNIT,5007, ADVANCE = 'NO')REAL(RTDAT(1, NXX), 8)
+             END IF
+          CASE( 8 )
+             DO IDX = 1, NFALLOFF
+                IF( IRRFALL( IDX ) .EQ. NXX )EXIT
+             END DO
+             WRITE(TABLE_UNIT,5108, ADVANCE = 'NO')RTDAT(1,NXX),(1.0*RTDAT(2,NXX)),RTDAT(3,NXX),
+     &      (1.0*RFDAT(1,IDX)),RFDAT(2,IDX),(1.0*RFDAT(3,IDX))
+             WRITE(TABLE_UNIT,7108, ADVANCE= 'NO')'k(:,i) = ('
+          CASE( 9 )
+             DO IDX = 1, NFALLOFF
+                IF( IRRFALL( IDX ) .EQ. NXX )EXIT
+             END DO
+            IF( RFDAT( 2, IDX ) .EQ. 0.0 .AND. RFDAT( 3, IDX ) .EQ. 0.0 )THEN
+                 WRITE(TABLE_UNIT,5109, ADVANCE = 'NO')RTDAT(1,NXX),RTDAT(2,NXX),
+     &           RTDAT(3,NXX),1.0*RFDAT(1,IDX)
+                 WRITE(TABLE_UNIT,7109, ADVANCE= 'NO')'k(:,i) = ('
+             ELSE 
+                 WRITE(TABLE_UNIT,5119, ADVANCE = 'NO')RTDAT(1,NXX),RTDAT(2,NXX),RFDAT(2, IDX),
+     &           RTDAT(3,NXX),1.0*RFDAT(1,IDX),RFDAT(3, IDX),RFDAT(4, IDX),RFDAT(5, IDX)
+                 WRITE(TABLE_UNIT,7119, ADVANCE= 'NO')'k(:,i) = ('
+             END IF 
+          CASE( 10 )
+             DO IDX = 1, NFALLOFF
+                IF( IRRFALL( IDX ) .EQ. NXX )EXIT
+             END DO
+            WRITE(TABLE_UNIT, 5110, ADVANCE = 'NO')RTDAT(1,NXX),RTDAT(3,NXX),RTDAT(2,NXX),
+     &      RFDAT(1,IDX),RFDAT(3,IDX),RFDAT(2,IDX),RFDAT(5,IDX),RFDAT(4,IDX)
+             WRITE(TABLE_UNIT,7110, ADVANCE= 'NO')'k(:,i) = ('
+          CASE( 11 )
+             DO IDX = 1, NSPECIAL_RXN
+                IF( ISPECIAL( IDX, 1 ) .EQ. NXX )EXIT
+             END DO
+             I   = ISPECIAL( IDX, 1)
+             IRX = ISPECIAL( IDX, 2)
+             IF( RTDAT( 1, I) .NE. 1.0 .AND. ABS( RTDAT( 3, I ) ) .EQ. 0.0 )THEN
+                WRITE(TABLE_UNIT,5011, ADVANCE = 'NO')REAL(RTDAT( 1, I),8), TRIM( SPECIAL( IRX ) )
+             ELSE IF( RTDAT( 1, I) .NE. 1.0 .AND. ABS( RTDAT( 3, I ) ) .GT. 0.0 )THEN
+                WRITE(TABLE_UNIT,5013, ADVANCE = 'NO')REAL(RTDAT( 1, I ), 8),REAL(RTDAT( 3, I ), 8),
+     &          TRIM( SPECIAL( IRX) )
+             ELSE IF( RTDAT( 1, I) .EQ. 1.0 .AND. ABS( RTDAT( 3, I ) ) .GT. 0.0 )THEN
+                WRITE(TABLE_UNIT,5014, ADVANCE = 'NO')REAL(RTDAT( 3, I ), 8),
+     &          TRIM( SPECIAL( IRX) )
+             ELSE
+                WRITE(TABLE_UNIT,5012, ADVANCE = 'NO')TRIM( SPECIAL( IRX ) )
+             END IF
+           CASE( 12 )
+             DO IDX = 1, NFALLOFF
+                IF( IRRFALL( IDX ) .EQ. NXX )EXIT
+             END DO
+             WRITE(TABLE_UNIT,5120, ADVANCE = 'NO')RTDAT(1, NXX ),RFDAT(1, IDX),RTDAT(2, NXX ),
+     &       RFDAT(2, IDX),RTDAT(3, NXX)
+          CASE( 13 )
+             DO IDX = 1, NRATE_STRING
+                IF( KSTRING( IDX ) .EQ. NXX )EXIT
+             END DO
+             WRITE(TABLE_UNIT,'(A)', ADVANCE = 'NO')TRIM( RATE_STRING( IDX ) )
+          END SELECT
+          IF( KTYPE( NXX ) .NE. 12 )THEN
+              WRITE(TABLE_UNIT,'(A)', ADVANCE = 'NO')' )'
+          END IF
+          DO I = 1, MAXRCTNTS
+             IF( INDEX_FIXED_SPECIES( NXX, I ) .GT. 0 .AND. INDEX_FIXED_SPECIES( NXX, I ) .LT. 7 )THEN
+                  ISPC = INDEX_FIXED_SPECIES( NXX, I  )
+                  IF( KTYPE( NXX ) .NE. 12 )THEN
+                     WRITE(TABLE_UNIT,'(2A)', ADVANCE = 'NO')'.*',TRIM(FIXED_SPECIES( ISPC ))
+                  ELSE
+                     WRITE(TABLE_UNIT,'(A)', ADVANCE = 'NO')'k(:,i) = k(:,i).*'
+                     WRITE(TABLE_UNIT,'(A)')'; '
+                  END IF
+                  ICOUNT = 3 + LEN( FIXED_SPECIES( ISPC ) )
+             ELSE 
+                  IF( INDEX_FIXED_SPECIES( NXX, I ) .GE. 7 )THEN
+                      WRITE(*,*)'WARNING: INDEX_FIXED_SPECIES( ', NXX,',', I, ') = ',INDEX_FIXED_SPECIES( NXX, I )
+                  END IF
+             END IF    
+          END DO     
+          IF( KTYPE( NXX ) .NE. 12 )WRITE(TABLE_UNIT,'(A)')'; '
+         DO IREACT = 1, NREACT( NXX )
+            ISPC = IRR( NXX, IREACT )
+            WRITE(TABLE_UNIT,4705, ADVANCE = 'NO')IREACT,TRIM(SPARSE_SPECIES( ISPC ))
+         END DO
+4705     FORMAT("Gstr{i,",I4,"}='",A,"';")            
+         WRITE(TABLE_UNIT,*)
+         DO IREACT = 1, NREACT( NXX )
+            ISPC = IRR( NXX, IREACT )
+            WRITE(TABLE_UNIT,'(A, A)', ADVANCE = 'NO')
+     &      "f" // TRIM(SPARSE_SPECIES( ISPC )) // "(i)=f" // TRIM(SPARSE_SPECIES( ISPC )) // "(i)-1.0;"
+         END DO
+         WRITE(TABLE_UNIT,*)
+         DO IPRODUCT = 1, NPRDCT( NXX )
+            ISPC = IRR( NXX, IPRODUCT + 3 )
+            IF(SC(NXX,IPRODUCT) .GT. 0.0)THEN
+                WRITE(TABLE_UNIT,'(A,F7.3,A)', ADVANCE = 'NO')
+     &          "f" // TRIM(SPARSE_SPECIES( ISPC )) // "(i)=f" // TRIM(SPARSE_SPECIES( ISPC )) // "(i)+",
+     &           SC(NXX,IPRODUCT),";"
+            ELSE
+                WRITE(TABLE_UNIT,'(A,F7.3,A)', ADVANCE = 'NO')
+     &          "f" // TRIM(SPARSE_SPECIES( ISPC )) // "(i)=f" // TRIM(SPARSE_SPECIES( ISPC )) // "(i)-",
+     &           ABS(SC(NXX,IPRODUCT)),";"
+            END IF
+         END DO
+         WRITE(TABLE_UNIT,'(/)')
+      END DO
+      DO IDX = 1,NPHOTAB
+         WRITE(JTABLE_UNIT,95210)TRIM( PHOTAB(IDX) ),TRIM( PHOTAB(IDX) )
+         WRITE(BOTTOM_UP_UNIT,'(/,A)')  "i = i + 1"
+         WRITE(BOTTOM_UP_UNIT,'(A,A)')  "Jnames{i}   = 'J_" // TRIM( PHOTAB(IDX) ) // "';",
+     &   " % " // TRIM( PHOTAB_STR( IDX ) )               
+         WRITE(BOTTOM_UP_UNIT,'(A)')    "CS{i} = 'Cross_Section_" // TRIM( PHOTAB(IDX) ) // ".csv';"
+         WRITE(BOTTOM_UP_UNIT,'(A,/)')  "QY{i} = 'Quantum_Yield_" // TRIM( PHOTAB(IDX) ) // ".csv';"
+      END DO
+      DO IDX = 1,NHETERO
+         WRITE(KTABLE_UNIT,'(/,A)')"i = i + 1"
+         WRITE(KTABLE_UNIT,'(A)')  "Knames{i}   = 'K_" // TRIM( HETERO(IDX) ) // "';"
+         WRITE(KTABLE_UNIT,'(A,/)')"krx(:,i)    =  1.0E-60;"
+      END DO
+      WRITE(KTABLE_UNIT,95310)
+      
+      CLOSE(TABLE_UNIT)
+      CLOSE(KTABLE_UNIT)
+      CLOSE(JTABLE_UNIT)
+      CLOSE(BOTTOM_UP_UNIT)
+
+
+      RETURN
+      
+    
+69099 FORMAT("%Foam Reactions File based on the mech.def file for the ",A," mechanism.", /,
+     &   "% # of species   = ",I4, /,
+     &   "% # of reactions = ",I4,/,
+     &   "% file created by ",A,//,
+     &   "% Set constant species by scaling to air number density")
+
+69100 FORMAT("% For the ", A, " mechanism, the operators are defined  below.")
+69101 FORMAT( / "%where <REACTION> is the rate constant for the given REACTION and [species] ",
+     &          "equals the concentration of a mechanism species at the beginning of ",
+     &          "the integration time-step for the chemistry's numerical solver." /)
+
+4706   FORMAT("k(:,", I4,")")
+4708   FORMAT(A,1X,ES9.2,".*", A)
+5708   FORMAT(A,1X,ES9.2,".*", A)
+4709   FORMAT( A )     
+4710   FORMAT(A,1X,ES9.2,'.*', A)
+4711   FORMAT(1X)
+4712   FORMAT(A, 1X, A)
+5000   FORMAT(ES12.4,".*J",A)
+5001   FORMAT(  "J",A )
+5100   FORMAT(ES12.4,'.*',I4)
+5101   FORMAT(I4)
+5006   FORMAT(ES12.4,".*k(:,", I4, ")")   
+5007   FORMAT(ES12.4,' .*( 1.0D0 + 0.6D0 .* P )')             
+5011   FORMAT(ES12.4,".*",A)             
+5012   FORMAT(A)
+5013   FORMAT(ES12.4,"exp(",ES12.4,"./T).*",A)             
+5014   FORMAT("exp(",ES12.4,"./T)",A)             
+5027   FORMAT(ES12.4,".*K_",A)
+5028   FORMAT( "K_",A )
+
+5111   FORMAT(ES12.4) 
+5129   FORMAT(ES12.4,'.*(T./300).^(', ES12.4,')')
+5102   FORMAT(ES12.4,'.*(T./300).^(', ES12.4,')')
+5103   FORMAT(ES12.4,'.*exp(', ES12.4,'./T)')
+5104   FORMAT(ES12.4,'.*exp(',ES12.4,'./T).*(T./300).^('ES12.4,' )')
+5114   FORMAT(ES12.4,'P.*(T./300).^(', ES12.4,' )')
+5115   FORMAT( ES12.4,'.*exp(', ES12.4,'./T).*k(:,', I4, ')')
+5108    FORMAT(' xk0 = ', ES12.4,'.*exp(',ES12.4,'./T);',/
+     &         ' xk2 = ', ES12.4,'.*exp(',ES12.4,'./T);',/,
+     &         ' xk3 = ', ES12.4,'.*exp(',ES12.4,'./T);',/)
+7108    FORMAT(A,'xk0+xk3.*M./(1.0+xk3.*M./xk2)')     
+5109    FORMAT('xk0 = ', ES12.4,'.*exp(',ES12.4,'./T);',/,
+     &         'xk1 = ', ES12.4,'.*exp(',ES12.4,'./T);',/)
+7109    FORMAT(A,'xk0+xk1.*M')     
+! FALL 10
+5110    FORMAT('xko = ', ES12.4,'.*M.*exp(',ES12.4,'./T).*(T./300).^',ES12.4,';',/,
+     &         'xkinf = ', ES12.4,'.*exp(',ES12.4,'./T).*(T./300).^',ES12.4,';',/,
+     &         'xn = ', ES12.4,';',/,
+     &         'F = ', ES12.4,';'/,
+     &         'G=1.0./(1.0+(log10(xko./xkinf)./xn).^2);',/)
+7110    FORMAT(A,'xko./( 1.0+xko./xkinf).*F.^G')
+!FALL 11
+5119    FORMAT( 'xk0 = ', ES12.4,'.*exp(',ES12.4,'./T).*(T./300).^',ES12.4,';',/,
+     &          'xk1 = ', ES12.4,'.*exp(',ES12.4,'./T).*(T./300).^',ES12.4,';',/,
+     &          'xk2 = ', ES12.4,'.*exp(',ES12.4,'./T);',/)
+7119   FORMAT(A,'xk0+xk1.*M+xk2')     
+5120   FORMAT('ILLUMINATED =  ( SZA > 0.0 );',/,
+     &        'OPEN_OCEAN  = SZA;',/,
+     &        'OPEN_OCEAN  = true;',/,
+     &        'Patm = 0.001.*P;',/,
+     &        'a = ',  ES10.3,'.*exp(',ES10.3'.*Patm) +', ES10.3,'.*exp(',ES10.3'.*Patm);',/,
+     &        'b = ',ES10.3,';',/,
+     &        'a(a>b) = b;',/,
+     &        'k(:,i) = a.*ILLUMINATED.*OPEN_OCEAN;',/)
+
+
+95100  FORMAT(2X,A16,' = 0.0D0')        
+
+
+95200  FORMAT("function J = ",A,"_J(Met,Jmethod)",/,
+     &        "% Calculates photolysis frequencies for the ",A," mechanism in the CMAQ model",/,
+     &        "% Met: structure containing required meteorological constraints. Required vars depend on Jmethod.",/,
+     &        "%       Met.SZA: solar zenith angle in degrees",/,
+     &        "%       Met.ALT: altitude, meters",/,
+     &        "%       Met.O3col: overhead ozone column, DU",/,
+     &        "%       Met.albedo: surface reflectance, 0-1 (unitless)",/,
+     &        "%       Met.T: temperature, T",/,
+     &        "%       Met.P: pressure, mbar",/,
+     &        "%       Met.LFlux: name of a text file containing an actinic flux spectrum",/,
+     &        "%",/,
+     &        "% Jmethod: numeric flag or string specifying how to calculate J-values. Default is 'MCM'.",/,
+     &        "%       0 or 'MCM':      use MCMv3.3.1 parameterization.",/,
+     &        "%                         Some reactions are not included in MCM. For these, 'HYBRID' values are used.",/,
+     &        "%                         Required Met fields: SZA",/,
+     &        "%       1 or 'BOTTOMUP': bottom-up integration of cross sections/quantum yields.",/,
+     &        "%                         See J_BottomUp.m for more info.",/,
+     &        "%                         Required Met fields: LFlux, T, P",/,
+     &        "%       2 or 'HYBRID':   Interpolation of hybrid J-values from TUV solar spectra.",/,
+     &        "%                         See J_TUVhybrid.m for more info.",/,
+     &        "%                         Required Met fields: SZA, ALT, O3col, albedo",/,
+     &        "%",/,
+     &        "% OUTPUTS:",/,
+     &        "% J: structure of J-values.",/,
+     &        "%",/,
+     &        "% INPUTS",/,
+     &        "struct2var(Met)",//,
+     &        "if nargin<2",/,
+     &        "    Jmethod = 'MCM';",/,
+     &        "elseif ischar(Jmethod)",/,
+     &        "    Jmethod = upper(Jmethod);",/,
+     &        "end",//,
+     &        "% J-Values",/,
+     &        "switch Jmethod",/,
+     &        "    case {0,'MCM'}",/,
+     &        "        error(['MCM option not functional for ",A," mechanism.'])",//,
+     &        "    case {1,'BOTTOMUP'}",/,
+     &        "        Jmcm = J_BottomUp(LFlux,T,P);",//,
+     &        "    case {2,'HYBRID'}",/,
+     &        "        Jmcm = J_Hybrid(SZA,ALT,O3col,albedo);",//,
+     &        "    otherwise",/,
+     &        "        fprintf('Jmethod = %f\n',Jmethod);",/,
+     &        "        error(['MCMv331_J: invalid Jmethod option selected'])",//,
+     &        "end",/,
+     &        "%rename",/,
+     &        "J=struct;")
+95210   FORMAT("J.J",A," = Jmcm.J_",A,";")
+
+95300  FORMAT("function K = ",A,"_K(Met,Jmethod)",/,
+     &        "% Calculate heteorogeneous and other rate constants for use with the ",A," chemical mechanism.",/,
+     &        "% Met: structure containing required meteorological constraints. Required vars depend on Jmethod.",/,
+     &        "%       Met.T: temperature, T",/,
+     &        "%       Met.P: pressure, mbar",/,
+     &        "%",/,
+     &        "%",/,
+     &        "% OUTPUTS:",/,
+     &        "% J: structure of J-values.",/,
+     &        "%",/,
+     &        "% INPUTS",/,
+     &        "struct2var(Met)",//,
+     &        "nk = ",I3,"; %number of rate constants",/,
+     &        "krx = nan(length(T),nk);",/,
+     &        "krx = 1.0E-60;",/,
+     &        "Knames = cell(nk,1);",/,
+     &        "i=0;",/)
+
+95310   FORMAT("%% accumulate",/,
+     &        "K = struct;",/,
+     &        "for i=1:length(Knames)",/,
+     &        "    K.(Knames{i}) = krx(:,i);",/,
+     &        "end")
+
+       END SUBROUTINE WRT_FOAM_TABLES
+
+
        END MODULE WIKI_TABLE
