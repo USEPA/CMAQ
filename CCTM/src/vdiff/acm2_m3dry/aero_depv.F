@@ -427,8 +427,8 @@ C Scalar variables for VARIABLE standard deviations.
 C Data for new impaction term (Pleim et al 2022)
 
       REAL, PARAMETER :: Fhair1  = 0.008
-      REAL, PARAMETER :: Fhair2  = 0.002   ! for graSS
-      REAL, PARAMETER :: Ahair1  = 0.5e-6  ! micro obsticle size for needleaf and grass
+      REAL, PARAMETER :: Fhair2  = 0.002   ! for grass
+      REAL, PARAMETER :: Ahair1  = 0.5e-6  ! micro obstacle size for needleaf and grass
       REAL, PARAMETER :: Ahair2  = 1.0e-6
 
       REAL Aleaf,Ahair,Fneedle,fveg,fnv,Ustfac,laicr,BAI,Fhair,Fgrass
@@ -519,7 +519,7 @@ C Calculate characteristic parameters
             VGHAT2  = DCONST3 * ( ES48  + BHAT * KN * ES20 )
             VGHAT3  = DCONST3 * ( ES64  + BHAT * KN * ES28 )
 
-! Set scale parameters for 2-term impaction by LU - Assumung NLCD40
+! Set scale parameters for 2-term impaction by LU - For USGS24
             Aleaf =  0.0
             BAI = 0.0
             if (n_lufrac .eq. 24) Then
@@ -530,6 +530,7 @@ C Calculate characteristic parameters
                 endif
              enddo
             else
+! Set scale parameters for 2-term impaction by LU - For NLCD40 or MODIS20
               Do j = 1, n_lufrac
                 If ( GRID_DATA%LUFRAC( c,r,j ) .Gt. 0.0 ) Then
                   Aleaf =  Aleaf + Aleaf_lu(j) * GRID_DATA%LUFRAC( c,r,j )
@@ -552,10 +553,10 @@ C Calculate characteristic parameters
      &               + GRID_DATA%LUFRAC( c,r,3 )    !Modis Deciduous Needleleaf
      &               + Fgrass
            else if(n_lufrac .eq. 24) Then
-             Fgrass =  GRID_DATA%LUFRAC( c,r,7 )    !USGS grass
-     &               + 0.5 * GRID_DATA%LUFRAC( c,r,5 )   !USGS Grassland/Cropland Mosaic
-             Fneedle = GRID_DATA%LUFRAC( c,r,14 )    !USGS Evergreen Needleleaf
-     &               + GRID_DATA%LUFRAC( c,r,12 )    !USGS Deciduous Needleleaf
+             Fgrass =  GRID_DATA%LUFRAC( c,r,7 )        !USGS grass
+     &               + 0.5 * GRID_DATA%LUFRAC( c,r,5 )  !USGS Grassland/Cropland Mosaic
+             Fneedle = GRID_DATA%LUFRAC( c,r,14 )       !USGS Evergreen Needleleaf
+     &               + GRID_DATA%LUFRAC( c,r,12 )       !USGS Deciduous Needleleaf
      &               + Fgrass
            else
              XMSG = 'LU scheme not supported in new aero_depv'
