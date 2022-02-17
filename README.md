@@ -22,7 +22,7 @@ Potential updates include bugfixes that resolves runtime failures, segmentation 
 ### Record of changes to CMAQv5.3.3+
 |      Tag        |   PR Number       |         PR Name          |   Merge Date     | Brief Description |
 | -------------- | ------------------ | ------------------------ | ---------------- | -----------------------|
-|CMAQv5.3.3.1_11Feb2022 | | | | |
+|[CMAQv5.3.3.1_11Feb2022](https://github.com/USEPA/CMAQ/releases/tag/CMAQv5.3.3.1_11Feb2022) | | | | |
 | | [#163](https://github.com/USEPA/CMAQ/pull/163)     | Resolve Bug for reading Emission Stream Families        | 2022-02-09 | Bug fix to avoid errors when processing matches for emission stream families related to capitalization. |
 |                | [#164](https://github.com/USEPA/CMAQ/pull/164)    | Resolve bug in Low-NOx formation of SOA  | 2022-02-09| A typo in the SOA_DEFN data table resulted in high NOx reactions contributing to low-NOx species, which are quite low in volatility. This bug fix has a considerable impact on SOA if using AE6. No impact for AE7.  |
 |                | [#165](https://github.com/USEPA/CMAQ/pull/165)    | Bugfix Speed up emissions processing in PTMET subroutine        | 2022-02-09 | The PTMET subroutine is streamlined so that it is not run for every point source and every stream every time each stream is called. This update drastically reduces runtimes in areas where there happen to be lots of point sources on a particular processor. No impact on results. |
