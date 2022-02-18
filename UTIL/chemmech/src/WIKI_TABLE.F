@@ -3026,7 +3026,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 !                 END IF
              END IF
              WRITE(STRING,5115)1.0D0/RTDAT( 1, NXX ), -RTDAT(2, NXX ),TRIM(LABEL(IRX,1))
-             WRITE(6,5115)1.0D0/RTDAT( 1, NXX ), -RTDAT(2, NXX ),TRIM(LABEL(IRX,1))
+!            WRITE(6,5115)1.0D0/RTDAT( 1, NXX ), -RTDAT(2, NXX ),TRIM(LABEL(IRX,1))
           CASE( 6 )
 !             DO IDX = 1, KTN6
 !                IF( KRX6( IDX ) .EQ. NXX )EXIT
@@ -3821,7 +3821,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 !                 END IF
              END IF
              WRITE(TABLE_UNIT,5115, ADVANCE = 'NO')1.0D0/RTDAT( 1, NXX ), -RTDAT(2, NXX ),TRIM(LABEL(IRX,1))
-             WRITE(6,5115)1.0D0/RTDAT( 1, NXX ), -RTDAT(2, NXX ),TRIM(LABEL(IRX,1))
+!            WRITE(6,5115)1.0D0/RTDAT( 1, NXX ), -RTDAT(2, NXX ),TRIM(LABEL(IRX,1))
           CASE( 6 )
 !             DO IDX = 1, KTN6
 !                IF( KRX6( IDX ) .EQ. NXX )EXIT
