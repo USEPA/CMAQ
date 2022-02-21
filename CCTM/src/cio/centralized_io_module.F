@@ -4665,6 +4665,13 @@ C   mminlu and num_land_cat are WRF global variables
       USE UTIL_FAMILY_MODULE
 #ifdef mpas
       USE util_module, only : index1, upcase
+
+#endif
+
+#ifdef parallel
+      USE SE_MODULES   ! stenex (using SE_UTIL_MODULE,SE_DATA_COPY_MODULE)
+#else
+      USE NOOP_MODULES ! stenex (using NOOP_UTIL_MODULE,NOOP_DATA_COPY_MODULE)
 #endif
 
 #ifdef sens
@@ -4673,7 +4680,7 @@ C   mminlu and num_land_cat are WRF global variables
 
       IMPLICIT NONE
                                                      
-      TYPE( EM_REG      ) :: EM_REG_READ( N_REGIONS_REG )
+      TYPE( EM_REG_TYPE) :: EM_REG_READ( N_REGIONS_REG )
       INTEGER, PARAMETER :: NFILE0 = 200
       CHARACTER( 32 )    :: FILENAMES( NFILE0 ) = ''
       CHARACTER( 32 ) :: VNAME
@@ -4683,6 +4690,7 @@ C   mminlu and num_land_cat are WRF global variables
       INTEGER :: N_EM_READ
       CHARACTER( 16 )    :: PNAME = "INIT_REGIONS"
       CHARACTER( 250)    :: XMSG
+      REAL, ALLOCATABLE  :: REG_FACI(:,:), REG_FACJ(:,:)
       integer :: ldate, ltime, floc
       CHARACTER( 16 ) :: lvname
 
@@ -4845,8 +4853,12 @@ C   mminlu and num_land_cat are WRF global variables
      &                'value greater than 1. The expected range is 0-1.'
                CALL M3ERR( PNAME, STDATE, STTIME, XMSG, .TRUE. )
             END IF
-          END DO
+          
+            ! Condition mask values to be at most 1.0
+            EM_REG_FAC( :,:,IRGN ) = MIN( 1.0, EM_REG_FAC( :,:,IRGN ) )
 
+          END DO
+          
         END DO ! IFILE
  
         ! Augment Emission Region Structure with Region Families
@@ -4872,6 +4884,47 @@ C   mminlu and num_land_cat are WRF global variables
 
       EM_REGIONS = EM_REGIONS( 1:N_EM_RGN )
       EM_REG_FAC = EM_REG_FAC( :,:,1:N_EM_RGN )
+
+      ! Determine Which Regions are Subsets of Larger Regions and
+      ! save special relationship for use in EMISS_SCALING.
+      ALLOCATE( EM_REG_SUB( N_EM_RGN, N_EM_RGN ) )
+      EM_REG_SUB(:,:) = .FALSE.  ! Initialize with no region subsets
+      EM_REG_SUB(1,:) = .TRUE.   ! All regions are a subset of Region 1 (Everywhere)
+      EM_REG_SUB(1,1) = .FALSE.  ! No regions are subsets of themselves
+
+      ALLOCATE( REG_FACI(GL_NCOLS,GL_NROWS), 
+     &             REG_FACJ(GL_NCOLS,GL_NROWS)  )
+
+      DO IRGN = 2,N_EM_RGN
+#ifdef parallel
+        CALL SUBST_GLOBAL_GATHER( EM_REG_FAC(:,:,IRGN), REG_FACI )
+#else  
+        REG_FACI = EM_REG_FAC(:,:,IRGN)
+#endif
+        DO JRGN = 1,N_EM_RGN
+#ifdef parallel
+          CALL SUBST_GLOBAL_GATHER( EM_REG_FAC(:,:,JRGN), REG_FACJ )
+#else      
+          REG_FACJ = EM_REG_FAC(:,:,JRGN)
+#endif
+          IF ( MYPE .EQ. 0 ) THEN
+             IF (  JRGN .NE. IRGN .AND.
+     &                ANY( REG_FACJ(:,:) .GT. 0. ) .AND.
+     &                ALL( REG_FACI(:,:)+1.0E-6 .GT.
+     &                     REG_FACJ(:,:) ) ) THEN
+               ! Assume JRGN is a subset of IRGN. Both have to be
+               ! non-zero somewhere in the domain.
+               EM_REG_SUB( IRGN,JRGN ) = .TRUE.
+             END IF
+          END IF  ! Only perform algorithm on main processor
+        END DO
+      END DO
+
+      DEALLOCATE( REG_FACI, REG_FACJ )
+
+#ifdef parallel
+      CALL SUBST_GLOBAL_BCAST( EM_REG_SUB )
+#endif
 
 #ifdef sens
 ! Populate IREGION(NCOLS,NROW,NLAYS,NPMAX) with regions data if specified
