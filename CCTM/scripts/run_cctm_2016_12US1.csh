@@ -36,7 +36,7 @@ echo 'Start Model Run At ' `date`
  set VRSN      = v532              #> Code Version
  set PROC      = mpi               #> serial or mpi
  set MECH      = cb6r5_ae7_aq      #> Mechanism ID
- set EMIS      = 2016ff            #> Emission Inventory Details
+ set EMIS      = 2016fh            #> Emission Inventory Details
  set APPL      = 2016_CONUS        #> Application Name (e.g. Gridname)
 
 #> Define RUNID as any combination of parameters above or others. By default,
@@ -73,8 +73,8 @@ echo 'Start Model Run At ' `date`
 
 #> Set Start and End Days for looping
  setenv NEW_START TRUE             #> Set to FALSE for model restart
- set START_DATE = "2015-12-22"     #> beginning date (January 1, 2016)
- set END_DATE   = "2015-12-22"     #> ending date    (December 31, 2016)
+ set START_DATE = "2015-12-28"     #> beginning date (January 1, 2016)
+ set END_DATE   = "2015-12-28"     #> ending date    (December 31, 2016)
 
 #> Set Timestepping Parameters
 set STTIME     = 000000            #> beginning GMT time (HHMMSS)
@@ -213,11 +213,11 @@ setenv CTM_WVEL Y            #> save derived vertical velocity component to conc
 
 set ICpath    = $INPDIR/icbc              #> initial conditions input directory
 set BCpath    = $INPDIR/icbc              #> boundary conditions input directory
-set EMISpath  = $INPDIR/emis/cb6r3_ae6_20190221/cmaq_ready/gridded #> surface emissions input directory
-set EMISpath2 = $INPDIR/emis/cb6r3_ae6_20190221/cmaq_ready/rwc	#> surface residential wood combustion emissions directory
-set IN_PTpath = $INPDIR/emis/cb6r3_ae6_20190221/cmaq_ready  #> elevated emissions input directory (in-line point only)
+set EMISpath  = $INPDIR/emis/cb6r3_ae6_20191121_compressed/cmaq_ready/gridded_nobeis_norwc #> surface emissions input directory
+set EMISpath2 = $INPDIR/emis/cb6r3_ae6_20191121_compressed/cmaq_ready/gridded_rwc          #> surface residential wood combustion emissions directory
+set IN_PTpath = $INPDIR/emis/cb6r3_ae6_20191121_compressed/cmaq_ready                      #> elevated emissions input directory (in-line point only)
 set IN_LTpath = $INPDIR/met/lightning     #> lightning NOx input directory
-set METpath   = $INPDIR/met/mcip_v43_wrf_v381_ltng              #> meteorology input directory
+set METpath   = $INPDIR/met/mcip_v50_wrf_v411_ltng_lufgood              #> meteorology input directory
 #set JVALpath  = $INPDIR/jproc            #> offline photolysis rate table directory
 set OMIpath   = $BLD                      #> ozone column data for the photolysis model
 set LUpath    = $INPDIR/surface           #> BELD landuse data for windblown dust model
@@ -267,7 +267,8 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
 
   #> Initial conditions
   if ($NEW_START == true || $NEW_START == TRUE ) then
-     setenv ICFILE ICON_v53_12US1_regrid_20151222
+  #   setenv ICFILE ICON_v53_12US1_regrid_20151222
+     setenv ICFILE ICON_cb6r3_ae6_profile_12US1_timeind
      setenv INIT_MEDC_1 notused
   else
      set ICpath = $OUTDIR
@@ -276,8 +277,9 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   endif
 
   #> Boundary conditions, use STAGE files if CCTM uses the stage option for depv
-# set BCFILE = bctr_12km_HCMAQ_V53BETA2_STAGE_cb6r3m_ae7_kmtbr_BCON_V53_${YYYYMM}.ncf
-  set BCFILE = bctr_12km_HCMAQ_V53R_RUNA_M3DRY_cb6r3m_ae7_kmtbr_BCON_V53_${YYYYMM}.ncf
+  #set BCFILE = bctr_12km_HCMAQ_V531_STAGE_cb6r3m_ae7_kmtbr_BCON_V53_WRF411_corrected_${YYYYMM}.ncf
+  set BCFILE = bctr_12km_HCMAQ_V53R_RUNA_M3DRY_cb6r3m_ae7_kmtbr_BCON_V53_WRF411_corrected_${YYYYMM}.ncf
+
 
   #> Off-line photolysis rates 
   #set JVALfile  = JTABLE_${YYYYJJJ}
@@ -289,14 +291,15 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   set OPTfile = PHOT_OPTICS.dat
 
   #> MCIP meteorology files
-  setenv GRID_BDY_2D $METpath/GRIDBDY2D.$GRID_NAME.${NZ}L.$YYMMDD
-  setenv GRID_CRO_2D $METpath/GRIDCRO2D.$GRID_NAME.${NZ}L.$YYMMDD
-  setenv GRID_CRO_3D $METpath/GRIDCRO3D.$GRID_NAME.${NZ}L.$YYMMDD
-  setenv GRID_DOT_2D $METpath/GRIDDOT2D.$GRID_NAME.${NZ}L.$YYMMDD
-  setenv MET_CRO_2D  $METpath/METCRO2D.$GRID_NAME.${NZ}L.$YYMMDD
-  setenv MET_CRO_3D  $METpath/METCRO3D.$GRID_NAME.${NZ}L.$YYMMDD
-  setenv MET_DOT_3D  $METpath/METDOT3D.$GRID_NAME.${NZ}L.$YYMMDD
-  setenv MET_BDY_3D  $METpath/METBDY3D.$GRID_NAME.${NZ}L.$YYMMDD
+  setenv GRID_BDY_2D $METpath/GRIDBDY2D_$YYMMDD.nc
+  setenv GRID_CRO_2D $METpath/GRIDCRO2D_$YYMMDD.nc
+  setenv GRID_CRO_3D $METpath/GRIDCRO3D_$YYMMDD.nc
+  setenv GRID_DOT_2D $METpath/GRIDDOT2D_$YYMMDD.nc
+  setenv MET_CRO_2D  $METpath/METCRO2D_$YYMMDD.nc
+  setenv MET_CRO_3D  $METpath/METCRO3D_$YYMMDD.nc
+  setenv MET_DOT_3D  $METpath/METDOT3D_$YYMMDD.nc
+  setenv MET_BDY_3D  $METpath/METBDY3D_$YYMMDD.nc
+  setenv LUFRAC_CRO  $METpath/LUFRAC_CRO_$YYMMDD.nc
 # setenv LUFRAC_CRO  $METpath/LUFRAC_CRO.$GRID_NAME.${NZ}L.$YYMMDD
 
   #> Emissions Control File
@@ -335,39 +338,42 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
 
   #> Gridded Emissions files
   setenv N_EMIS_GR 2
-  set EMISfile  = emis_mole_all_${YYYYMMDD}_12US1_nobeis_2016ff_16j.ncf
+  set EMISfile  = emis_mole_all_${YYYYMMDD}_12US1_nobeis_norwc_2016fh_16j.nc4
   setenv GR_EMIS_001 ${EMISpath}/${EMISfile}
   setenv GR_EMIS_LAB_001 GRIDDED_EMIS
   setenv GR_EM_SYM_DATE_001 F # To change default behaviour please see Users Guide for EMIS_SYM_DATE
 
-  set EMISfile  = emis_mole_rwc_${YYYYMMDD}_12US1_cmaq_cb6_2016ff_16j.ncf
+  set EMISfile  = emis_mole_rwc_${YYYYMMDD}_12US1_cmaq_cb6_2016fh_16j.nc4
   setenv GR_EMIS_002 ${EMISpath2}/${EMISfile}
   setenv GR_EMIS_LAB_002 GRIDDED_RWC
   setenv GR_EM_SYM_DATE_002 F # To change default behaviour please see Users Guide for EMIS_SYM_DATE
   
   #> In-Line Point Emissions Files
-  setenv N_EMIS_PT 8          #> Number of elevated source groups
+  setenv N_EMIS_PT 9          #> Number of elevated source groups
 
-  set STKCASEE = 12US1_cmaq_cb6_2016ff_16j  # In-line Emission Rate File Suffix
-  set STKCASEG = 12US1_2016ff_16j                 # Stack parameter File Suffix
+  set STKCASEE = 12US1_cmaq_cb6_2016fh_16j        # In-line Emission Rate File Suffix
+  set STKCASEG = 12US1_2016fh_16j                 # Stack parameter File Suffix
 
-  setenv STK_GRPS_001 $IN_PTpath/ptnonipm/stack_groups_ptnonipm_${STKCASEG}.ncf
-  setenv STK_GRPS_002 $IN_PTpath/ptegu/stack_groups_ptegu_${STKCASEG}.ncf
-  setenv STK_GRPS_003 $IN_PTpath/othpt/stack_groups_othpt_${STKCASEG}.ncf
-  setenv STK_GRPS_004 $IN_PTpath/ptagfire/stack_groups_ptagfire_${YYYYMMDD}_${STKCASEG}.ncf
-  setenv STK_GRPS_005 $IN_PTpath/ptfire/stack_groups_ptfire_${YYYYMMDD}_${STKCASEG}.ncf
-  setenv STK_GRPS_006 $IN_PTpath/ptfire_othna/stack_groups_ptfire_othna_${YYYYMMDD}_${STKCASEG}.ncf
-  setenv STK_GRPS_007 $IN_PTpath/pt_oilgas/stack_groups_pt_oilgas_${STKCASEG}.ncf
-  setenv STK_GRPS_008 $IN_PTpath/cmv_c3/stack_groups_cmv_c3_${STKCASEG}.ncf
+  setenv STK_GRPS_001 $IN_PTpath/ptnonipm/stack_groups_ptnonipm_${STKCASEG}.nc4
+  setenv STK_GRPS_002 $IN_PTpath/ptegu/stack_groups_ptegu_${STKCASEG}.nc4
+  setenv STK_GRPS_003 $IN_PTpath/othpt/stack_groups_othpt_${STKCASEG}.nc4
+  setenv STK_GRPS_004 $IN_PTpath/ptagfire/stack_groups_ptagfire_${YYYYMMDD}_${STKCASEG}.nc4
+  setenv STK_GRPS_005 $IN_PTpath/ptfire/stack_groups_ptfire_${YYYYMMDD}_${STKCASEG}.nc4
+  setenv STK_GRPS_006 $IN_PTpath/ptfire_othna/stack_groups_ptfire_othna_${YYYYMMDD}_${STKCASEG}.nc4
+  setenv STK_GRPS_007 $IN_PTpath/pt_oilgas/stack_groups_pt_oilgas_${STKCASEG}.nc4
+  setenv STK_GRPS_008 $IN_PTpath/cmv_c3_12/stack_groups_cmv_c3_12_${STKCASEG}.nc4
+  setenv STK_GRPS_009 $IN_PTpath/cmv_c1c2_12/stack_groups_cmv_c1c2_12_${STKCASEG}.nc4
 
-  setenv STK_EMIS_001 $IN_PTpath/ptnonipm/inln_mole_ptnonipm_${mwdss_Y}_${STKCASEE}.ncf
-  setenv STK_EMIS_002 $IN_PTpath/ptegu/inln_mole_ptegu_${YYYYMMDD}_${STKCASEE}.ncf
-  setenv STK_EMIS_003 $IN_PTpath/othpt/inln_mole_othpt_${mwdss_N}_${STKCASEE}.ncf
-  setenv STK_EMIS_004 $IN_PTpath/ptagfire/inln_mole_ptagfire_${YYYYMMDD}_${STKCASEE}.ncf
-  setenv STK_EMIS_005 $IN_PTpath/ptfire/inln_mole_ptfire_${YYYYMMDD}_${STKCASEE}.ncf
-  setenv STK_EMIS_006 $IN_PTpath/ptfire_othna/inln_mole_ptfire_othna_${YYYYMMDD}_${STKCASEE}.ncf
-  setenv STK_EMIS_007 $IN_PTpath/pt_oilgas/inln_mole_pt_oilgas_${mwdss_Y}_${STKCASEE}.ncf
-  setenv STK_EMIS_008 $IN_PTpath/cmv_c3/inln_mole_cmv_c3_${aveday_N}_${STKCASEE}.ncf
+  setenv STK_EMIS_001 $IN_PTpath/ptnonipm/inln_mole_ptnonipm_${mwdss_Y}_${STKCASEE}.nc4
+  setenv STK_EMIS_002 $IN_PTpath/ptegu/inln_mole_ptegu_${YYYYMMDD}_${STKCASEE}.nc4
+  setenv STK_EMIS_003 $IN_PTpath/othpt/inln_mole_othpt_${mwdss_N}_${STKCASEE}.nc4
+  setenv STK_EMIS_004 $IN_PTpath/ptagfire/inln_mole_ptagfire_${YYYYMMDD}_${STKCASEE}.nc4
+  setenv STK_EMIS_005 $IN_PTpath/ptfire/inln_mole_ptfire_${YYYYMMDD}_${STKCASEE}.nc4
+  setenv STK_EMIS_006 $IN_PTpath/ptfire_othna/inln_mole_ptfire_othna_${YYYYMMDD}_${STKCASEE}.nc4
+  setenv STK_EMIS_007 $IN_PTpath/pt_oilgas/inln_mole_pt_oilgas_${mwdss_Y}_${STKCASEE}.nc4
+  setenv STK_EMIS_008 $IN_PTpath/cmv_c3_12/inln_mole_cmv_c3_12_${YYYYMMDD}_${STKCASEE}.nc4
+  setenv STK_EMIS_009 $IN_PTpath/cmv_c1c2_12/inln_mole_cmv_c1c2_12_${YYYYMMDD}_${STKCASEE}.nc4
+
 
   # Label Each Emissions Stream
   setenv STK_EMIS_LAB_001 PT_NONEGU
@@ -377,7 +383,8 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   setenv STK_EMIS_LAB_005 PT_FIRES
   setenv STK_EMIS_LAB_006 PT_OTHFIRES
   setenv STK_EMIS_LAB_007 PT_OILGAS
-  setenv STK_EMIS_LAB_008 PT_CMV
+  setenv STK_EMIS_LAB_008 PT_CMV_C3
+  setenv STK_EMIS_LAB_009 PT_CMV_C1C2
 
   # Allow CMAQ to Use Point Source files with dates that do not
   # match the internal model date
@@ -390,6 +397,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   setenv STK_EM_SYM_DATE_006 T
   setenv STK_EM_SYM_DATE_007 T
   setenv STK_EM_SYM_DATE_008 T
+  setenv STK_EM_SYM_DATE_009 T
 
   #> Lightning NOx configuration
   if ( $CTM_LTNG_NO == 'Y' ) then
@@ -498,7 +506,6 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
        setenv VOC_NOX_TRANS  0.35 # value of Prod H2O2 over Prod HNO3 less than where 
                                   # ISAM_VOC_CASE weights are used. Otherwise, ISAM_NOX_CASE
                                   # weights are used. Default is 0.35
-
 
 
     endif
