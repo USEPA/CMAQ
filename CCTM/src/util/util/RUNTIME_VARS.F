@@ -179,7 +179,6 @@
       LOGICAL :: ABFLUX     = .FALSE. ! flag for ammonia bi-directional flux with in-lining depv
       LOGICAL :: MOSAIC     = .FALSE. ! flag for mosaic - luc specific deposition - within in-lining depv
       LOGICAL :: SFC_HONO   = .FALSE. ! flag for HONO interaction with surfaces within in-lining depv
-      LOGICAL :: FST        = .FALSE. ! flag for mosaic - luc specific deposition - stomatal flux only - within in-lining depv
       LOGICAL :: PX_LSM     = .TRUE.  ! flag for mosaic - luc specific deposition - stomatal flux only - within in-lining depv
       LOGICAL :: CLM_LSM    = .FALSE. ! flag for mosaic - luc specific deposition - stomatal flux only - within in-lining depv
       LOGICAL :: NOAH_LSM   = .TRUE.  ! flag for mosaic - luc specific deposition - stomatal flux only - within in-lining depv
@@ -202,6 +201,7 @@
 
       ! Emissions Processes
       CHARACTER( MAXLEN_CCTM_APPL ) :: EMISSCTRL  = 'EMISSCTRL_NML' ! Emission Control Filename
+      CHARACTER( MAXLEN_CCTM_APPL ) :: STAGECTRL  = 'STAGECTRL_NML' ! STAGE Deposition Control Filename
       INTEGER :: EMLAYS_MX     = 0       ! Emission Layers
       INTEGER :: N_FILE_GR     = 0       ! Number of Gridded Emission Files
       INTEGER :: N_FILE_TR     = 0       ! NUmber of Tracer Emission Files
@@ -689,11 +689,6 @@
       ! Flag for HONO interaction with leaf and building surfaces
       CALL GET_ENV ( SFC_HONO, 'CTM_SFC_HONO', SFC_HONO, VARDEV )
          
-      ! Mosaic method to get land-use specific stomatal flux
-      IF ( MOSAIC ) THEN
-         CALL GET_ENV ( FST, 'CTM_FST', FST, VARDEV )
-      END IF
-
       ! Flag CLM LSM
       CALL GET_ENV ( CLM_LSM, 'CLM_VERSION', CLM_LSM, VARDEV )
 
@@ -763,6 +758,9 @@
 
       ! Get Name of Emission Control File
       CALL GET_ENV ( EMISSCTRL, 'EMISSCTRL_NML', EMISSCTRL, VARDEV )
+
+      ! Get Name of Emission Control File
+      CALL GET_ENV ( STAGECTRL, 'STAGECTRL_NML', STAGECTRL, VARDEV )
 
       ! Number of Layers for Emissions
       CALL GET_ENV ( EMLAYS_MX, 'CTM_EMLAYS', EMLAYS_MX, VARDEV )

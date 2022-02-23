@@ -52,18 +52,8 @@ C   Feb 2019 D. Wong:    removed all MY_N clauses
 C-------------------------------------------------------------------------------
       USE RUNTIME_VARS
       USE CGRID_SPCS, ONLY : N_SPC_DEPV
-      USE STAGE_DATA, Only: STAGE_Diag_Data
 
       IMPLICIT NONE
-
-C model depositon velocites array
-      REAL,    ALLOCATABLE, SAVE :: DEPV( :,:,: )
-
-C model depositon velocites array by land use category
-      REAL,    ALLOCATABLE, SAVE :: DEPVJ( :,:,:,: )   
-
-C model depositon velocites array by land use category
-      REAL,    ALLOCATABLE, SAVE :: DEPVJ_FST( :,:,:,: )         
 
 C no. of deposition velocity model species
       INTEGER, SAVE :: N_GAS_DEPV
@@ -71,18 +61,9 @@ C no. of deposition velocity model species
 C ddep spc conversion factors
       REAL,    ALLOCATABLE, SAVE :: DD_CONV( : )
 
-C model-oriented bi-directional production [ppm-m/s]
-      REAL,    ALLOCATABLE, SAVE :: BIDI_VDEMIS( :,:,: )
+      PUBLIC DD_CONV, N_GAS_DEPV, DEPV_INIT, GET_DEPV
 
-      PUBLIC DEPV, DEPVJ, DEPVJ_FST, DD_CONV, BIDI_VDEMIS,
-     &             N_GAS_DEPV, DEPV_INIT, GET_DEPV, STAGE_Diag_Data
       PRIVATE
-
-C gas species (gas-phase and gas non-reactive) deposition velocities
-      REAL,    ALLOCATABLE, SAVE :: DEPVEL_GAS( :,:,: )
-
-C m3dry-oriented bi-directional production [ppm-m/s]
-      REAL,    ALLOCATABLE, SAVE :: BIDI_EMIS( :,:,: )
 
 C CGRID for m3dry bi-directional flux calculation
       REAL,    ALLOCATABLE, SAVE :: CGRIDL1( :,:,: )
@@ -99,10 +80,6 @@ C flag for diagnostic DEPV file
       INTEGER, ALLOCATABLE, SAVE         :: AER_DEPV_SUR( : )
 
       INTEGER, SAVE :: NR_OFFSET            ! Offset to NR start in CGRID
-
-      REAL,    ALLOCATABLE, SAVE :: ADEPV( :,:,: )    ! Aerosol dep vel from
-                                                               ! subroutine AERO_DEPV
-      REAL,    ALLOCATABLE, SAVE :: DBUFF( :,: )      ! diagnostic output buffer
 
       INTEGER :: GXOFF, GYOFF              ! global origin offset from file
 C for INTERPX
@@ -127,6 +104,7 @@ C-----------------------------------------------------------------------
          USE MOSAIC_MOD, Only: Tile_Data
          USE BIDI_MOD, Only: Init_Bidi
          USE STAGE_MOD, Only: INIT_STAGE
+         USE STAGE_OUTPUT
 
          IMPLICIT NONE
 
@@ -154,27 +132,7 @@ C Local variables:
 
          INTEGER          NDX, NDX2, NDX3      ! Temp index
          INTEGER          ALLOCSTAT
-         INTEGER          J, L, N, S, V, STRT
-
-         INTERFACE
-            SUBROUTINE OPDEPV_DIAG ( JDATE, JTIME, TSTEP,
-     &                               N_GDEPV_NAMES, GDEPV_NAMES,
-     &                               N_ADEPV_NAMES, ADEPV_NAMES )
-               INTEGER,         INTENT( IN ) :: JDATE, JTIME, TSTEP
-               INTEGER,         INTENT( IN ) :: N_GDEPV_NAMES
-               CHARACTER( 16 ), INTENT( IN ) :: GDEPV_NAMES( : )
-               INTEGER,         INTENT( IN ) :: N_ADEPV_NAMES
-               CHARACTER( 16 ), INTENT( IN ) :: ADEPV_NAMES( : )
-            END SUBROUTINE OPDEPV_DIAG
-            SUBROUTINE OPSTAGE_DIAG ( JDATE, JTIME, TSTEP )
-               INTEGER,         INTENT( IN ) :: JDATE, JTIME, TSTEP
-            END SUBROUTINE OPSTAGE_DIAG
-            SUBROUTINE GAS_DEPV_MAP ( N_DEPV_NAMES, DEPV_NAMES, DEPV_SUR )
-               INTEGER,         INTENT( IN )    :: N_DEPV_NAMES
-               CHARACTER( 16 ), INTENT( INOUT ) :: DEPV_NAMES( : )
-               INTEGER,         INTENT( OUT )   :: DEPV_SUR( : )
-            END SUBROUTINE GAS_DEPV_MAP
-         END INTERFACE
+         INTEGER          J, L, N, S, V, STRT, FINI
 
 C-----------------------------------------------------------------------
 
@@ -183,28 +141,11 @@ C-----------------------------------------------------------------------
          N_GAS_DEPV = N_GC_DEPV + N_NR_DEPV + N_TR_DEPV
          N_SPC_DEPV = N_GAS_DEPV + N_AE_DEPV
 
-         ALLOCATE ( DEPV       ( N_SPC_DEPV+1,NCOLS,NROWS ),
-     &              BIDI_VDEMIS( N_SPC_DEPV,NCOLS,NROWS ), STAT = ALLOCSTAT )
-         IF ( ALLOCSTAT .NE. 0 ) THEN
-            XMSG = 'Failure allocating DEPV or BIDI_VDEMIS arrays'
-            CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
-            SUCCESS = .FALSE.; RETURN
-         END IF
-
-         ALLOCATE ( DEPVEL_GAS( N_GAS_DEPV,NCOLS,NROWS ), STAT = ALLOCSTAT )
-         IF ( ALLOCSTAT .NE. 0 ) THEN
-            XMSG = 'Failure allocating DEPVEL_GAS array'
-            CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
-            SUCCESS = .FALSE.; RETURN
-         END IF
 
 C Initialize deposition velocities for nondeposited species to zero:
 C setting DEPV( N_SPC_DEPV+1,C,R ) = 0.0 accounts for dry dep. species names
 C as a subset of the vert. diffused species list
-         DEPV        = 0.0   ! array assignment
-         BIDI_VDEMIS = 0.0   ! array assignment
-
-         ALLOCATE ( DD_CONV( N_SPC_DEPV+1 ), STAT = ALLOCSTAT )
+         ALLOCATE ( DD_CONV( N_SPC_DEPV ), STAT = ALLOCSTAT )
          IF ( ALLOCSTAT .NE. 0 ) THEN
             XMSG = 'Failure allocating DD_CONV'
             CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
@@ -239,42 +180,10 @@ C set dry dep conversion factor (done here so that vdiff doesn`t need the includ
             DD_CONV( S ) = CNVTD * TR_MOLWT( TR_DEPV_MAP( V ) )
          END DO
 
-C Initialize
-         IF ( N_AE_DEPV .GT. 0 ) THEN
-            ALLOCATE ( ADEPV( N_AE_DEPV,NCOLS,NROWS ), STAT = ALLOCSTAT )
-            IF ( ALLOCSTAT .NE. 0 ) THEN
-               XMSG = 'Failure allocating ADEPV'
-               CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
-               SUCCESS = .FALSE.; RETURN
-            END IF
-         END IF
-
          CALL SUBHFILE ( MET_CRO_2D, GXOFF, GYOFF,
      &                   STRTCOLMC2, ENDCOLMC2, STRTROWMC2, ENDROWMC2 )
          CALL SUBHFILE ( MET_CRO_3D, GXOFF, GYOFF,
-     &                   STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3 )
-
-C Allocate additional arrays needed for mosaic and initialize land use parameters
-         IF ( MOSAIC ) THEN
-
-            ALLOCATE ( DEPVJ( Tile_Data%N_LUFRAC,N_SPC_DEPV+1,NCOLS,NROWS ), STAT = ALLOCSTAT )
-            IF ( ALLOCSTAT .NE. 0 ) THEN
-               XMSG = 'Failure allocating DEPVJ array'
-               CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
-               SUCCESS = .FALSE.; RETURN
-            END IF
-            DEPVJ = 0.0
-
-            IF ( FST ) THEN
-               ALLOCATE ( DEPVJ_FST( Tile_Data%N_LUFRAC,N_SPC_DEPV+1,NCOLS,NROWS ), STAT = ALLOCSTAT )
-               IF ( ALLOCSTAT .NE. 0 ) THEN
-                  XMSG = 'Failure allocating DEPVJ_FST array'
-                  CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
-                  SUCCESS = .FALSE.; RETURN
-               END IF
-               DEPVJ_FST = 0.0
-            END IF
-         END IF   ! mosaic                        
+     &                   STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3 )                       
 
          INIT_GAS_DV:
      &   IF ( N_GAS_DEPV .GT. 0 ) THEN
@@ -350,9 +259,9 @@ C Identify and remove multiple occurrences of gas deposition velocities
 #endif
                END IF
             END DO
-
-C Get pointers to model species (GAS_DEPV_SUR)
-            CALL GAS_DEPV_MAP ( N_UNIQUE_GDEPV, UNIQUE_GDEPV, GAS_DEPV_SUR )
+! Read the CMAQ_Control_STAGE namelist and map deposition species to the
+! gas species namelists, and map surrogate species
+            Call Map_Stage ( N_UNIQUE_GDEPV, UNIQUE_GDEPV, GAS_DEPV_SUR )
 
 C Identify and remove multiple occurrences of aerosol deposition velocities
 
@@ -403,49 +312,85 @@ C Identify and remove multiple occurrences of aerosol deposition velocities
             write( logdev,* ) ' '
 #endif
 
-            ALLOCATE ( CGRIDL1   ( N_GAS_DEPV,NCOLS,NROWS ),
-     &                 BIDI_EMIS ( N_GAS_DEPV,NCOLS,NROWS ), STAT = ALLOCSTAT )
+            ALLOCATE ( CGRIDL1   ( N_GAS_DEPV,NCOLS,NROWS ), STAT = ALLOCSTAT )
             IF ( ALLOCSTAT .NE. 0 ) THEN
-               XMSG = 'Failure allocating CGRIDL1 or BIDI_EMIS arrays'
+               XMSG = 'Failure allocating CGRIDL1 array'
                CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
                SUCCESS = .FALSE.; RETURN
             END IF
-            CGRIDL1 = 0.0   ! array assignment (BIDI_EMIS initialized in STAGE)
+            CGRIDL1 = 0.0   
 
          END IF INIT_GAS_DV
 
-         IF ( DEPV_DIAG ) THEN
+         Tile_Data%Vd_name   = 'Empty'
+         Tile_Data%Vd_Out    = .FALSE.
+         Tile_Data%n_Vd = 0
 
-            ALLOCATE ( DBUFF( NCOLS,NROWS ), STAT = ALLOCSTAT )
-            IF ( ALLOCSTAT .NE. 0 ) THEN
-               XMSG = 'Failure allocating DBUFF'
-               CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
-               SUCCESS = .FALSE.; RETURN
-            END IF
+         N = 0
+         STRT = 1
+         FINI = N_GC_DEPV
+         DO V = STRT, FINI
+            N = N + 1
+            NDX = GAS_DEPV_SUR( N )      
+            Tile_Data%Vd_Name ( NDX ) = GC_DEPV( N )
+            Tile_Data%Vd_Fac  ( NDX ) = GC_DEPV_FAC( N )
+            Tile_Data%dep2vdiff ( V ) = NDX 
+         END DO
 
-            IF ( IO_PE_INCLUSIVE ) THEN
-               CALL OPDEPV_DIAG ( JDATE, JTIME, TSTEP( 1 ),
-     &                            N_UNIQUE_GDEPV, UNIQUE_GDEPV,
-     &                            N_UNIQUE_ADEPV, UNIQUE_ADEPV )
-            END IF
+         N = 0
+         STRT = N_GC_DEPV + N_AE_DEPV + 1
+         FINI = N_GC_DEPV + N_AE_DEPV + N_NR_DEPV
+         DO V = STRT, FINI
+            N = N + 1
+            NDX = GAS_DEPV_SUR( N+N_GC_DEPV )
+            Tile_Data%Vd_Name ( NDX ) = NR_DEPV( N )
+            Tile_Data%Vd_Fac  ( NDX ) = NR_DEPV_FAC( N )
+            Tile_Data%dep2vdiff ( V ) = NDX 
+         END DO
+
+         N = 0
+         STRT = N_GC_DEPV + N_AE_DEPV + N_NR_DEPV + 1
+         FINI = N_GC_DEPV + N_AE_DEPV + N_NR_DEPV + N_TR_DEPV
+         DO V = STRT, FINI
+            N = N + 1
+            NDX = GAS_DEPV_SUR( N + N_GC_DEPV + N_NR_DEPV )
+            Tile_Data%Vd_Name ( NDX ) = TR_DEPV( N )
+            Tile_Data%Vd_Fac  ( NDX ) = TR_DEPV_FAC( N )
+            Tile_Data%dep2vdiff ( V ) = NDX 
+         END DO                      
+         
+         IF ( N_AE_DEPV .GT. 0 ) THEN
+            STRT = N_GC_DEPV + 1
+            FINI = N_GC_DEPV + N_AE_DEPV
+            N = 0
+            DO V = STRT, FINI
+               N = N + 1
+               NDX = N_GC_DEPV + N_NR_DEPV + N_TR_DEPV + N
+               Tile_Data%Vd_Name ( NDX ) = AE_DEPV( N )
+               Tile_Data%Vd_Fac  ( NDX ) = AE_DEPV_FAC( N )
+               Tile_Data%dep2vdiff ( V ) = NDX 
+            END DO
+
+            DEP_UNIQUE: DO N = 1, N_SPC_DEPV
+               IF( Tile_Data%Vd_Out( N ) ) CYCLE DEP_UNIQUE
+               DO V = 1, N_SPC_DEPV
+                  IF ( Tile_Data%Vd_Name( N ) .EQ. Tile_Data%Vd_NAME( V ) .AND.
+     &                 Tile_Data%Vd_Name( V ) .NE. 'Empty') THEN
+                     IF ( Tile_Data%Vd_Out( V ) ) CYCLE DEP_UNIQUE
+                     Tile_Data%n_Vd = Tile_Data%n_Vd + 1
+                     Tile_Data%Vd_Out( V ) = .TRUE.
+                     CYCLE DEP_UNIQUE
+                  END IF
+               End DO
+            END DO DEP_UNIQUE
          END IF
+!*****************************
 
          Call INIT_STAGE( JDATE, JTIME )
             
-         IF ( MOSAIC ) THEN
-
-!            ALLOCATE ( DBUFF3( NCOLS,NROWS,Tile_Data%N_LUFRAC ), STAT = ALLOCSTAT )
-!            IF ( ALLOCSTAT .NE. 0 ) THEN
-!               XMSG = 'Failure allocating DBUFF3'
-!               CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
-!               SUCCESS = .FALSE.; RETURN
-!            END IF
-
-            IF ( IO_PE_INCLUSIVE ) THEN
-               CALL OPSTAGE_DIAG ( JDATE, JTIME, TSTEP( 1 ) )
-            END IF                           
-
-         END IF  ! MOSAIC
+         IF ( ( DEPV_DIAG .Or. MOSAIC ) .And. IO_PE_INCLUSIVE ) THEN
+            CALL OPEN_DEPV( JDATE, JTIME, TSTEP( 1 ) )
+         END IF                           
 
          END FUNCTION DEPV_INIT
 C-----------------------------------------------------------------------
@@ -459,7 +404,7 @@ C-----------------------------------------------------------------------
          USE UTILIO_DEFN
          USE Mosaic_Mod
          USE ASX_DATA_MOD, Only: GRID_DATA, MOSAIC_DATA
-         USE STAGE_DATA,   Only: STAGE_Diag_Data, dep_gas_all
+         Use STAGE_OUTPUT
          Use STAGE_MOD,    Only: GAS_X, AERO_X
 
          IMPLICIT NONE
@@ -485,7 +430,6 @@ C Parameters:
 
 C Local variables:
          INTEGER          STRT, FINI
-         LOGICAL       :: WRITE_TIME     ! write to file flag
          LOGICAL       :: WRITE_TIME_MOS ! write to file flag
          INTEGER, SAVE :: WSTEP = 0      ! local write counter [HHMMSS]
          INTEGER, SAVE :: WSTEP_MOS = 0  ! local write counter [HHMMSS]
@@ -504,10 +448,6 @@ C Local variables:
 #endif
 
          INTERFACE
-            SUBROUTINE RDDEPV ( JDATE, JTIME, DEPV )
-               INTEGER, INTENT( IN )            :: JDATE, JTIME
-               REAL, INTENT( OUT )              :: DEPV( :,:,: )
-            END SUBROUTINE RDDEPV            
             SUBROUTINE CGRID_DEPV( GAS_DEPV_FOUND, GAS_DEPV_SUR, CGRID, CGRIDL1 )
                LOGICAL, INTENT( IN )  :: GAS_DEPV_FOUND( : )
                INTEGER, INTENT( IN )  :: GAS_DEPV_SUR( : )
@@ -516,111 +456,23 @@ C Local variables:
             END SUBROUTINE CGRID_DEPV
          END INTERFACE
 
-C-----------------------------------------------------------------------
-
-         DEPV = 0.0         
+C-----------------------------------------------------------------------       
 
 ! Made default for Hg bidi JOB 9/12/11
          CALL CGRID_DEPV( GAS_DEPV_FOUND, GAS_DEPV_SUR, CGRID, CGRIDL1 )
 
-#ifdef Verbose
-         cw = my_ncols/2; rw = my_nrows/2
-         write( logdev,1033 ) cw, rw
-1033     format( /5x, 'Depv diagnostics for my_col, my_row:', i4, ', ', i4
-     &           /6x, 'v', 3x, 'n', 1x, 'variable', 10x, 'ndx',
-     &            2x, 'depvel_gas', 4x, 'depv', 9x, 'bidi_emis', 10x, 'bidi_vdemis' )
-#endif
          DTSEC  = FLOAT( TIME2SEC( TSTEP( 2 ) ) )
          DO R = 1, NROWS
             DO C = 1, NCOLS
-               CALL GAS_X ( JDATE, JTIME, DTSEC, C, R, CGRIDL1( :,C, R ), BIDI_EMIS( :,C,R ), DEPVEL_GAS( :,C,R ) )
-               IF ( N_AE_DEPV .GT. 0 ) CALL AERO_X( CGRID, JDATE, JTIME, TSTEP( 1 ), ADEPV( :,C,R ), C, R )
+               CALL GAS_X ( JDATE, JTIME, DTSEC, C, R, CGRIDL1( :,C, R ) )
+               IF ( N_AE_DEPV .GT. 0 ) CALL AERO_X( CGRID, C, R )
             END DO
          END DO
-         N = 0
-         STRT = 1
-         FINI = N_GC_DEPV
-         DO V = STRT, FINI
-            N = N + 1
-            NDX = GAS_DEPV_SUR( N )
-            DEPV( V,:,: )        = GC_DEPV_FAC( N ) * DEPVEL_GAS( NDX,:,: )
-            BIDI_VDEMIS( V,:,: ) = BIDI_EMIS( NDX,:,: )
-#ifdef Verbose
-            write( logdev,1039 ) v, n, gc_depv( n ), ndx,
-     &                           depvel_gas( ndx,cw,rw ), depv( v,cw,rw ),
-     &                           bidi_emis( ndx,cw,rw ), bidi_vdemis( v,cw,rw )
-1039        format( 3x, 2i4, 1x, a16, 1x, i3, 4( 1x, 1pe12.4 ) )
-#endif
-            IF ( MOSAIC ) THEN                        
-               DEPVJ( :,V,:,: ) = GC_DEPV_FAC( N ) * Tile_Data%DEPVEL_GASJ( :,NDX,:,: )
-               IF ( FST )
-     &             DEPVJ_FST( :,V,:,: ) = GC_DEPV_FAC( N ) * Tile_Data%VD_FST_GASJ( :,NDX,:,: )
-               END IF
-            END DO
 
-         N = 0
-         STRT = N_GC_DEPV + N_AE_DEPV + 1
-         FINI = N_GC_DEPV + N_AE_DEPV + N_NR_DEPV
-         DO V = STRT, FINI
-            N = N + 1
-            NDX = GAS_DEPV_SUR( N+N_GC_DEPV )
-            DEPV( V,:,: )        = NR_DEPV_FAC( N ) * DEPVEL_GAS( NDX,:,: )
-            BIDI_VDEMIS( V,:,: ) = BIDI_EMIS( NDX,:,: )
-#ifdef Verbose
-            write( logdev,1039 ) v, n, nr_depv( n ), ndx,
-     &                           depvel_gas( ndx,cw,rw ), depv( v,cw,rw ),
-     &                           bidi_emis( ndx,cw,rw ), bidi_vdemis( v,cw,rw )
-#endif
-            IF ( MOSAIC ) THEN
-               DEPVJ( :,V,:,: ) = NR_DEPV_FAC( N ) * Tile_Data%DEPVEL_GASJ( :,NDX,:,: )
-               IF ( FST )
-     &            DEPVJ_FST( :,V,:,: ) = NR_DEPV_FAC( N ) * Tile_Data%VD_FST_GASJ( :,NDX,:,: )
-            END IF
-         END DO
+         IF ( DEPV_DIAG .Or. MOSAIC ) THEN
 
-         N = 0
-         STRT = N_GC_DEPV + N_AE_DEPV + N_NR_DEPV + 1
-         FINI = N_GC_DEPV + N_AE_DEPV + N_NR_DEPV + N_TR_DEPV
-         DO V = STRT, FINI
-            N = N + 1
-            NDX = GAS_DEPV_SUR( N + N_GC_DEPV + N_NR_DEPV )
-
-            DEPV( V,:,: ) = TR_DEPV_FAC( N ) * DEPVEL_GAS( NDX,:,: )
-            BIDI_VDEMIS( V,:,: ) = BIDI_EMIS( NDX,:,: )
-#ifdef Verbose
-            write( logdev,1039 ) v, n, tr_depv( n ), ndx,
-     &                           depvel_gas( ndx,cw,rw ), depv( v,cw,rw ),
-     &                           bidi_emis( ndx,cw,rw ), bidi_vdemis( v,cw,rw )
-#endif
-            IF ( MOSAIC ) THEN
-               DEPVJ( :,V,:,: ) = TR_DEPV_FAC( N ) * Tile_Data%DEPVEL_GASJ( :,NDX,:,: )
-               IF ( FST )
-     &            DEPVJ_FST( :,V,:,: ) = TR_DEPV_FAC( N ) * Tile_Data%VD_FST_GASJ( :,NDX,:,: )
-            END IF
-
-         END DO                      
-         
-         IF ( N_AE_DEPV .GT. 0 ) THEN
-
-            STRT = N_GC_DEPV + 1
-            FINI = N_GC_DEPV + N_AE_DEPV
-
-            N = 0
-            DO V = STRT, FINI
-               N = N + 1
-               DEPV( V,:,: ) = AE_DEPV_FAC( N ) * ADEPV( N,:,: )
-               IF ( MOSAIC ) THEN
-                  DEPVJ( :,V,:,: ) = AE_DEPV_FAC( N ) * Tile_Data%ADEPVJ( :,N,:,: )
-               END IF
-            END DO
-
-         END IF
-
-         IF ( DEPV_DIAG ) THEN
-
-            WRITE_TIME = .FALSE.
-            WSTEP = WSTEP + TIME2SEC( TSTEP( 2 ) )
-            IF ( WSTEP .GE. TIME2SEC( TSTEP( 1 ) ) ) THEN
+            WSTEP = WSTEP + TIME2SEC( TSTEP( 2 ) )         
+            IF ( Write_time( WSTEP, TIME2SEC( TSTEP( 1 ) ) ) ) THEN
                WDATE = JDATE; WTIME = JTIME
                CALL NEXTIME( WDATE, WTIME, TSTEP( 2 ) )
                IF ( .NOT. CURRSTEP( WDATE, WTIME, STDATE, STTIME, TSTEP( 1 ),
@@ -630,10 +482,6 @@ C-----------------------------------------------------------------------
                END IF
                WDATE = CDATE; WTIME = CTIME
                WSTEP = 0
-               WRITE_TIME = .TRUE.
-            END IF
-
-            IF ( WRITE_TIME ) THEN
 
 #ifdef parallel_io
                IF ( FIRSTIME ) THEN
@@ -657,157 +505,10 @@ C-----------------------------------------------------------------------
                   END IF
                END IF
 #endif
+            Call Write_depv( WDATE, WTIME )
 
-               N = 0
-               DO V = 1, N_GC_DEPV
-                  N = N + 1
-
-                  IF ( GAS_DEPV_FOUND( N ) ) THEN
-                     NDX = GAS_DEPV_SUR( N )
-
-                     DBUFF = 100.0 * DEPV( N,:,: )   ! cm/sec
-                     
-                     IF ( .NOT. WRITE3( CTM_DEPV_DIAG, UNIQUE_GDEPV( NDX ),
-     &                                  WDATE, WTIME, DBUFF ) ) THEN
-                         XMSG = 'Could not write ' // CTM_DEPV_DIAG // ' file'
-                         CALL M3EXIT ( PNAME, WDATE, WTIME, XMSG, XSTAT1 )
-                     END IF
-
-                  END IF
-
-               END DO
-
-               DO V = 1, N_NR_DEPV
-                  N = N + 1
-
-                  IF ( GAS_DEPV_FOUND( N ) ) THEN
-                     NDX = GAS_DEPV_SUR( N )
-
-                     DBUFF = 100.0 * DEPV( N+N_AE_DEPV,:,: )   ! cm/sec
-
-                     IF ( .NOT. WRITE3( CTM_DEPV_DIAG, UNIQUE_GDEPV( NDX ),
-     &                                  WDATE, WTIME, DBUFF ) ) THEN
-                         XMSG = 'Could not write ' // CTM_DEPV_DIAG // ' file'
-                         CALL M3EXIT ( PNAME, WDATE, WTIME, XMSG, XSTAT1 )
-                     END IF
-
-                  END IF
-
-               END DO
-
-               DO N = 1, N_UNIQUE_ADEPV
-
-                  NDX = AER_DEPV_SUR( N )
-
-                  DBUFF = 100.0 * ADEPV( NDX,:,: )   ! cm/sec
-
-                  IF ( .NOT. WRITE3( CTM_DEPV_DIAG, UNIQUE_ADEPV( N ),
-     &                               WDATE, WTIME, DBUFF ) ) THEN
-                      XMSG = 'Could not write ' // CTM_DEPV_DIAG // ' file'
-                      CALL M3EXIT ( PNAME, WDATE, WTIME, XMSG, XSTAT1 )
-                  END IF
-
-               END DO
-
-            END IF   ! write_time
-
-         END IF   ! DEPV_DIAG
-
-         IF ( MOSAIC ) THEN
-
-            WRITE_TIME_MOS = .FALSE.
-            WSTEP_MOS = WSTEP_MOS + TIME2SEC( TSTEP( 2 ) )
-            IF ( WSTEP_MOS .GE. TIME2SEC( TSTEP( 1 ) ) ) THEN
-               WDATE = JDATE; WTIME = JTIME
-               CALL NEXTIME( WDATE, WTIME, TSTEP( 2 ) )
-               IF ( .NOT. CURRSTEP( WDATE, WTIME, STDATE, STTIME, TSTEP( 1 ),
-     &                              CDATE, CTIME ) ) THEN
-                  XMSG = 'Cannot get step date and time'
-                  CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
-               END IF
-               WDATE = CDATE; WTIME = CTIME
-               WSTEP_MOS = 0
-               WRITE_TIME_MOS = .TRUE.
-            END IF
-
-            IF ( WRITE_TIME_MOS ) THEN
-
-               WDATE = JDATE
-               WTIME = TSTEP( 1 ) * ( JTIME / TSTEP( 1 ) )
-               CALL NEXTIME( WDATE, WTIME, TSTEP( 1 ) )
-
-!-----------------------------------------------------------------------------------------!
-!                               STAGE Diagnostic Output                                   !
-!-----------------------------------------------------------------------------------------!
-
-               IF ( .NOT. WRITE3( CTM_DEPV_MOS, 'LUFRAC',
-     &                            WDATE, WTIME, Tile_Data%LUFRAC ) ) THEN
-                   XMSG = 'Could not write ' // CTM_DEPV_MOS // ' file'
-                  CALL M3EXIT ( PNAME, WDATE, WTIME, XMSG, XSTAT1 )
-               END IF
-
-
-               IF ( .NOT. WRITE3( CTM_DEPV_MOS, 'RA',
-     &                            WDATE, WTIME, MOSAIC_DATA%RA ) ) THEN
-                   XMSG = 'Could not write ' // CTM_DEPV_MOS // ' file'
-                  CALL M3EXIT ( PNAME, WDATE, WTIME, XMSG, XSTAT1 )
-               END IF
-
-               IF ( .NOT. WRITE3( CTM_DEPV_MOS, 'RST',
-     &                            WDATE, WTIME, Mosaic_Data%RSTW ) ) THEN
-                   XMSG = 'Could not write ' // CTM_DEPV_MOS // ' file'
-                  CALL M3EXIT ( PNAME, WDATE, WTIME, XMSG, XSTAT1 )
-               END IF
-
-               IF ( .NOT. WRITE3( CTM_DEPV_MOS, 'LAI',
-     &                            WDATE, WTIME, MOSAIC_DATA%LAI ) ) THEN
-                   XMSG = 'Could not write ' // CTM_DEPV_MOS // ' file'
-                  CALL M3EXIT ( PNAME, WDATE, WTIME, XMSG, XSTAT1 )
-               END IF
-
-               IF ( .NOT. WRITE3( CTM_DEPV_MOS, 'USTAR',
-     &                            WDATE, WTIME, MOSAIC_DATA%USTAR ) ) THEN
-                   XMSG = 'Could not write ' // CTM_DEPV_MOS // ' file'
-                  CALL M3EXIT ( PNAME, WDATE, WTIME, XMSG, XSTAT1 )
-               END IF
-
-               IF ( .NOT. WRITE3( CTM_DEPV_MOS, 'Z0',
-     &                            WDATE, WTIME, MOSAIC_DATA%Z0 ) ) THEN
-                   XMSG = 'Could not write ' // CTM_DEPV_MOS // ' file'
-                  CALL M3EXIT ( PNAME, WDATE, WTIME, XMSG, XSTAT1 )
-               END IF
-
-               N = 0
-               DO V = 1, dep_gas_all
-                  IF ( STAGE_Diag_Data%dep_map_gas( V ) ) THEN
-                     N = N + 1
-                     IF ( .NOT. WRITE3( CTM_DEPV_MOS, 
-     &                                 'VD_' // trim( STAGE_Diag_Data%dep_name_gas( V ) ),
-     &                                  WDATE, WTIME,  STAGE_Diag_Data%Vd_gas(:,:,N,:) ) ) THEN
-                         XMSG = 'Could not write ' // CTM_DEPV_MOS // ' file'
-                        CALL M3EXIT ( PNAME, WDATE, WTIME, XMSG, XSTAT1 )
-                     END IF             
-                  END IF
-               END DO  
-               N = 0
-               DO V = 1, N_AE_DEPV
-                  IF ( STAGE_Diag_Data%dep_map_aero( V ) ) THEN
-                     N = N + 1
-                     IF ( .NOT. WRITE3( CTM_DEPV_MOS, 
-     &                                  trim( STAGE_Diag_Data%dep_name_aero( V ) ),
-     &                                  WDATE, WTIME,  STAGE_Diag_Data%Vd_aero(:,:,N,:) ) ) THEN
-                         XMSG = 'Could not write ' // CTM_DEPV_MOS // ' file'
-                        CALL M3EXIT ( PNAME, WDATE, WTIME, XMSG, XSTAT1 )
-                     END IF             
-                  END IF
-               END DO  
-!-----------------------------------------------------------------------------------------!
-!                               STAGE Diagnostic Output                                   !
-!-----------------------------------------------------------------------------------------!
-
-            END IF   ! write_time
-
-         END IF   ! MOSAIC         
+            END IF ! Write time
+         END IF ! DEPV_DIAG .Or. MOSAIC         
 
          END SUBROUTINE GET_DEPV
 

@@ -47,7 +47,6 @@ C Private variables used in this module and subroutines
       Real, Save, Allocatable, Private :: znotc          ( :,: )
       Real, Save, Allocatable, Private :: lu_mean_ga     ( :,: )
       Real, Save, Allocatable, Private :: lu_mean_ustar  ( :,: )
-      Real, Save, Allocatable, Private :: lu_mean_wstar  ( :,: )
 
       Integer, Save, Allocatable, Private :: lstwetdate( :,: )
       Integer, Save, Allocatable, Private :: lstwettime( :,: )
@@ -62,31 +61,32 @@ C Buffer variables
       Real, Pointer, Private :: Buff2D_1       ( :,: )
 
       Type :: Tile_Type                
-         Integer                      :: n_gas ! number of gas species for tiled output
-         Integer                      :: n_aero! number of aerosol species for tiled output
+         Integer                      :: n_vd ! number of gas species for tiled output
          Integer                      :: n_lufrac  ! number of land use for tiled output
-         Real,            Allocatable  :: RSMIN     ( : )
-         Real,            Allocatable  :: Z00       ( : )
-         Real,            Allocatable  :: VEG0      ( : )
-         Real,            Allocatable  :: VEGMN0    ( : )
-         Real,            Allocatable  :: LAI0      ( : )
-         Real,            Allocatable  :: LAIMN0    ( : )
-         Real,            Allocatable  :: SNUP0     ( : )
-         Real,            Allocatable  :: ALBF      ( : )
-         Real,            Allocatable  :: LUF_FAC   ( : )
-         Real,            Allocatable  :: HGLU_FAC  ( : )
-         Character( 16 ), Allocatable :: cat_lu     ( : ) ! Tiled LU name
-         Character( 16 ), Allocatable :: name_lu    ( : ) ! Land use output name
-         Logical,         Allocatable :: gas_out    ( : ) ! vector of length N_SPC_DIFF with T for output
-         Character( 16 ), Allocatable :: aero_NAME  ( : ) ! Aerosol species output name
-         Logical,         Allocatable :: aero_out   ( : ) ! vector of length N_SPC_DIFF with T for output
-         real,            Allocatable :: lu2tile    ( : ) ! vector of length n_lufrac with lu index 
+         Real,            Allocatable :: RSMIN        ( : )
+         Real,            Allocatable :: Z00          ( : )
+         Real,            Allocatable :: VEG0         ( : )
+         Real,            Allocatable :: VEGMN0       ( : )
+         Real,            Allocatable :: LAI0         ( : )
+         Real,            Allocatable :: LAIMN0       ( : )
+         Real,            Allocatable :: SNUP0        ( : )
+         Real,            Allocatable :: NH3_gam_grnd ( : )
+         Real,            Allocatable :: NH3_gam_st   ( : )
+         Real,            Allocatable :: Hg_grnd      ( : )
+         Character( 16 ), Allocatable :: cat_lu       ( : ) ! Tiled LU name
+         Character( 16 ), Allocatable :: name_lu      ( : ) ! Land use output name
+         Logical,         Allocatable :: gas_out      ( : ) ! vector of length N_SPC_DIFF with T for output
+         Character( 16 ), Allocatable :: Vd_Name      ( : ) ! Deposition species output name
+         Logical,         Allocatable :: Vd_out       ( : ) ! vector of length N_SPC_DEPV with T for output
+         Integer,         Allocatable :: dep2vdiff    ( : ) ! Vdiff location for dep species
+         Real,            Allocatable :: Vd_fac       ( : ) ! Vdiff location for dep species
+!> Mean grid cell output 
+         Real,            Allocatable :: Grd_Vd     ( :,:,: ) ! Grid mean gaseous and aerosol deposition velocity
+         Real,            Allocatable :: Bidi_Emis  ( :,:,: ) ! Grid bidirectional Emissions
 !> Aggrigated fractional land use       
          Real,            Allocatable :: LUfrac     ( :,:,: ) ! aggrigated land use 
 !> Sub grid cell output:
-         Real,            Allocatable :: depvel_gasj( :,:,:,: ) ! deposition velocity by land use type
-         Real,            Allocatable :: vd_fst_gasj( :,:,:,: ) ! deposition velocity for stomatal
-         Real,            Allocatable :: adepvj     ( :,:,:,: ) ! aerosol deposition
+         Real,            Allocatable :: Lu_Vd      ( :,:,:,: ) ! gaseous and aerosol deposition velocity
       End Type Tile_Type
 
       Type( Tile_Type ),     Save :: Tile_Data 
@@ -120,16 +120,17 @@ C...include files
          Integer :: strtcolgc2, endcolgc2, strtrowgc2, endrowgc2
 
 ! Allocate Tile Data
-         ALLOCATE ( Tile_Data%cat_lu  ( n_stage_lu ),
-     &              Tile_Data%name_lu ( n_stage_lu ), 
-     &              Tile_Data%RSMIN   ( n_stage_lu ),
-     &              Tile_Data%LAI0    ( n_stage_lu ),
-     &              Tile_Data%LAIMN0  ( n_stage_lu ),
-     &              Tile_Data%VEG0    ( n_stage_lu ),
-     &              Tile_Data%VEGMN0  ( n_stage_lu ),
-     &              Tile_Data%Z00     ( n_stage_lu ),
-     &              Tile_Data%LUF_FAC ( n_stage_lu ),
-     &              Tile_Data%HGLU_FAC( n_stage_lu ),STAT = ALLOCSTAT )
+         ALLOCATE ( Tile_Data%cat_lu       ( n_stage_lu ),
+     &              Tile_Data%name_lu      ( n_stage_lu ), 
+     &              Tile_Data%RSMIN        ( n_stage_lu ),
+     &              Tile_Data%LAI0         ( n_stage_lu ),
+     &              Tile_Data%LAIMN0       ( n_stage_lu ),
+     &              Tile_Data%VEG0         ( n_stage_lu ),
+     &              Tile_Data%VEGMN0       ( n_stage_lu ),
+     &              Tile_Data%Z00          ( n_stage_lu ),
+     &              Tile_Data%NH3_gam_st   ( n_stage_lu ),
+     &              Tile_Data%NH3_gam_grnd ( n_stage_lu ),
+     &              Tile_Data%Hg_grnd      ( n_stage_lu ),STAT = ALLOCSTAT )
          If ( ALLOCSTAT .Ne. 0 ) Then
             XMSG = 'Failure allocating tile land use specific data'
             Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
@@ -137,16 +138,17 @@ C...include files
 
 ! STAGE land use 
          Tile_Data%n_lufrac = n_stage_lu
-         Tile_Data%cat_lu   = STAGE_LU_Data( 1:n_stage_lu )%LU_Cat
-         Tile_Data%name_lu  = STAGE_LU_Data( 1:n_stage_lu )%LU_Name
-         Tile_Data%RSMIN    = STAGE_LU_Data( 1:n_stage_lu )%RSMIN
-         Tile_Data%LAI0     = STAGE_LU_Data( 1:n_stage_lu )%LAI0
-         Tile_Data%LAIMN0   = STAGE_LU_Data( 1:n_stage_lu )%LAIMN0
-         Tile_Data%VEG0     = STAGE_LU_Data( 1:n_stage_lu )%VEG0
-         Tile_Data%VEGMN0   = STAGE_LU_Data( 1:n_stage_lu )%VEGMN0
-         Tile_Data%Z00      = STAGE_LU_Data( 1:n_stage_lu )%Z00/100.0
-         Tile_Data%LUF_FAC  = STAGE_LU_Data( 1:n_stage_lu )%Gamma_NH3_st
-         Tile_Data%HGLU_FAC = STAGE_LU_Data( 1:n_stage_lu )%HGLU_FAC
+         Tile_Data%cat_lu       = STAGE_LU_Data( 1:n_stage_lu )%LU_Cat
+         Tile_Data%name_lu      = STAGE_LU_Data( 1:n_stage_lu )%LU_Name
+         Tile_Data%RSMIN        = STAGE_LU_Data( 1:n_stage_lu )%RSMIN
+         Tile_Data%LAI0         = STAGE_LU_Data( 1:n_stage_lu )%LAI0
+         Tile_Data%LAIMN0       = STAGE_LU_Data( 1:n_stage_lu )%LAIMN0
+         Tile_Data%VEG0         = STAGE_LU_Data( 1:n_stage_lu )%VEG0
+         Tile_Data%VEGMN0       = STAGE_LU_Data( 1:n_stage_lu )%VEGMN0
+         Tile_Data%Z00          = STAGE_LU_Data( 1:n_stage_lu )%Z00/100.0
+         Tile_Data%NH3_gam_st   = STAGE_LU_Data( 1:n_stage_lu )%Gamma_NH3_st
+         Tile_Data%NH3_gam_grnd = STAGE_LU_Data( 1:n_stage_lu )%Gamma_NH3_grnd
+         Tile_Data%Hg_grnd      = STAGE_LU_Data( 1:n_stage_lu )%Hg_grnd
                                                                                                   
 ! Allocate buffers
          ALLOCATE ( BUFF2D_1( ncols,nrows ), STAT = ALLOCSTAT )
@@ -162,8 +164,7 @@ C...include files
      &              vseas          ( ncols,nrows ),
      &              znotc          ( ncols,nrows ), 
      &              lu_mean_ga     ( ncols,nrows ), 
-     &              lu_mean_ustar  ( ncols,nrows ), 
-     &              lu_mean_wstar  ( ncols,nrows ), STAT = ALLOCSTAT )
+     &              lu_mean_ustar  ( ncols,nrows ),  STAT = ALLOCSTAT )
          If ( ALLOCSTAT .Ne. 0 ) Then
             XMSG = 'Failure allocating MOSAIC variables'
             Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
@@ -185,15 +186,29 @@ C...include files
 ! placeholder to read namelist for lu agrigation and dep species output
 !---------------------------------------------------------------------------------------------------
          N_GAS_DEPV = N_GC_DEPV + N_NR_DEPV + N_TR_DEPV
-!         N_SPC_DEPV = N_GAS_DEPV + N_AE_DEPV
-!         Allocate ( Tile_Data%depvel_gasj( Tile_Data%n_lufrac,dep_gas_all,ncols,nrows ),
-         Allocate ( Tile_Data%depvel_gasj( Tile_Data%n_lufrac,N_GAS_DEPV,ncols,nrows ),
-     &              Tile_Data%adepvj     ( Tile_Data%n_lufrac,N_AE_DEPV,ncols,nrows   ),  
-     &              Tile_Data%LUfrac     ( ncols,nrows,Tile_Data%n_lufrac ), STAT = ALLOCSTAT ) 
+         Allocate ( Tile_Data%Lu_Vd   ( ncols,nrows,N_SPC_DEPV,Tile_Data%n_lufrac ),  
+     &              STAT = ALLOCSTAT ) 
          If ( ALLOCSTAT .Ne. 0 ) Then
             XMSG = 'Failure allocating MOSAIC deposition velocities'
             Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          End If
+         Tile_Data%Lu_Vd     = 0.0
+         Allocate ( Tile_Data%Grd_Vd    ( ncols,nrows,N_SPC_DEPV ),  
+     &              Tile_Data%Bidi_Emis ( ncols,nrows,N_SPC_DEPV ),
+     &              Tile_Data%LUfrac    ( ncols,nrows,Tile_Data%n_lufrac ),
+     &              Tile_Data%Vd_Name   ( N_SPC_DEPV ),
+     &              Tile_Data%Vd_Fac    ( N_SPC_DEPV ),
+     &              Tile_Data%Vd_Out    ( N_SPC_DEPV ),        
+     &              Tile_Data%dep2vdiff ( N_SPC_DEPV ),  
+     &              STAT = ALLOCSTAT ) 
+         If ( ALLOCSTAT .Ne. 0 ) Then
+            XMSG = 'Failure allocating MOSAIC deposition velocities'
+            Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         End If
+         Tile_Data%Grd_Vd    = 0.0
+         Tile_Data%Bidi_Emis = 0.0
+         Tile_Data%Vd_Fac    = 0.0  
+         Tile_Data%dep2vdiff = 0        
 
 ! Map Met land use to STAGE land use
          Tile_Data%LUfrac = 0.0
@@ -201,10 +216,7 @@ C...include files
             t = MET_TO_STAGE_LU( n )%Dep_Index 
             l = MET_TO_STAGE_LU( n )%Met_Index
             Tile_Data%LUfrac(:,:,t) = Tile_Data%LUfrac(:,:,t) +
-     &          MET_TO_STAGE_LU( n )%Factor * lufrac(:,:,l)
-            Write(logdev,*) 'Met_Index ', l, 'Dep_Index ', t
-            Write(logdev,*) MET_TO_STAGE_LU(n)%Dep_LU_Name, '=', MET_TO_STAGE_LU( n )%Factor,'*',
-     &           MET_TO_STAGE_LU(n)%Met_LU_Name
+     &            MET_TO_STAGE_LU( n )%Factor * lufrac(:,:,l)
          End Do
 
          Allocate ( is_ag    ( Tile_Data%n_lufrac ),
@@ -218,13 +230,6 @@ C...include files
          is_agmos = .FALSE.
          is_water = .FALSE.
 
-         If( FST ) Then
-            Allocate ( Tile_Data%vd_fst_gasj( Tile_Data%n_lufrac,dep_gas_all,ncols,nrows ), STAT = ALLOCSTAT )   
-            If ( ALLOCSTAT .Ne. 0 ) Then
-               XMSG = 'Failure allocating FST deposition velocities'
-               Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-            End If
-         End If
 ! Get the location of ag and water in the land use fractions
          Do l = 1, Tile_Data%n_lufrac
             If(Tile_Data%cat_lu(l) .Eq. 'AG'   ) Then
@@ -382,9 +387,8 @@ C Now normalize the data to the meteorological LAI and VEG
 C*********************************************************************************************
 C                    RA_WRF
 C*********************************************************************************************
-
-         Subroutine RA_WRF( MOL, PBL, MOLI, ZH, RA, Z0, MOS_Z0, USTAR, MOS_USTAR, WSTAR, 
-     &                      MOS_WSTAR, MOS_RA, gamah, betah, karman )   
+         Subroutine RA_WRF( MOL, PBL, MOLI, ZH, RA, Z0, MOS_Z0, USTAR, MOS_USTAR,
+     &                      MOS_RA, gamah, betah, karman )   
 
          Use LSM_Mod
 
@@ -400,10 +404,8 @@ C*******************************************************************************
          Real, Intent( In )     :: RA( :,: )
          Real, Intent( In )     :: Z0( :,: )
          Real, Intent( In )     :: USTAR( :,: )
-         Real, Intent( In )     :: WSTAR( :,: )
          Real, Intent( InOut )  :: MOS_Z0( :,:,: )
          Real, Intent( Out )    :: MOS_USTAR( :,:,: )
-         Real, Intent( Out )    :: MOS_WSTAR( :,:,: )
          Real, Intent( Out )    :: MOS_RA( :,:,: )
 
          Integer            :: j
@@ -414,7 +416,6 @@ C local volatile variable
 
          lu_mean_ga    = 0.0
          lu_mean_ustar = 0.0
-         lu_mean_wstar = 0.0
 C Get surface flux variables
          Do j = 1, Tile_Data%n_lufrac
             Where( Tile_Data%LUFRAC( :,:,j ) .EQ. 1.0 .OR. ZH( :,:,1 ) .EQ. MOS_Z0( :,:,j ) )
@@ -423,13 +424,6 @@ C Get surface flux variables
             Elsewhere( Tile_Data%LUFRAC( :,:,j ) .Gt. 0.0 )
                    MOS_USTAR( :,:,j ) = USTAR * SQRT( LOG( ZH( :,:,1 ) / Z0 )
      &                                / LOG( ZH( :,:,1 ) / MOS_Z0( :,:,j ) ) )
-            End Where
-            MOS_WSTAR = 0.0
-            Where( Tile_Data%LUFRAC( :,:,j ) .EQ. 1.0 )
-                   MOS_WSTAR( :,:,j ) = WSTAR
-            ElseWhere( MOL .Lt. 0.0 )
-                   MOS_WSTAR( :,:,j ) = MOS_USTAR( :,:,j ) * ( PBL
-     &                                  / ( karman * ABS( MOL ) ) ) ** 0.333333
             End Where
          End Do  
 
@@ -463,13 +457,6 @@ C Get surface flux variables
             Where( Tile_Data%LUFRAC( :,:,j ) .Gt. 0.0 )
                MOS_RA( :,:,j )    = RA    * MOS_RA( :,:,j )    * lu_mean_ga
                MOS_USTAR( :,:,j ) = USTAR * MOS_USTAR( :,:,j ) / lu_mean_ustar
-            End Where
-            MOS_WSTAR = 0.0
-            Where( Tile_Data%LUFRAC( :,:,j ) .EQ. 1.0 )
-               MOS_WSTAR( :,:,j ) = WSTAR
-            ElseWhere( MOL .Lt. 0.0 )
-               MOS_WSTAR( :,:,j ) = MOS_USTAR( :,:,j ) * ( PBL
-     &                          / ( karman * ABS( MOL ) ) ) ** 0.333333
             End Where
          End Do         
          
@@ -566,6 +553,9 @@ C*******************************************************************************
                      If( MOS_RST( c,r,j ) * MOS_LAI( c,r,j ) .Lt. Tile_Data%rsmin( j )  .And. 
      &                   MOS_LAI( c,r,j ) .Gt. 0.0 ) Then
                         MOS_RST( c,r,j ) = Tile_Data%rsmin( j ) / MOS_LAI( c,r,j )
+                     Else If ( MOS_LAI( c,r,j ) .Eq. 0.0 ) Then
+! this does not impact results but reset the RST to the maximum value if there is no veg
+                        MOS_RST( c,r,j ) = 1.0e6
                      End If
                   End Do
                END IF ! LWMASK

@@ -172,7 +172,6 @@ C Land use information:
          Character( 16 ), Allocatable :: LU_Type ( : ) ! general land use type e.g. water, forest, etc.
 !> Sub grid cell meteorological variables:
          Real, Allocatable :: USTAR ( :,:,: )   ! surface friction velocity [m/s]
-         Real, Allocatable :: WSTAR ( :,:,: )   ! convective velocity scale [m/s]
          Real, Allocatable :: LAI   ( :,:,: )   ! leaf area index [m**2/m**2]
          Real, Allocatable :: VEG   ( :,:,: )   ! vegetation fraction [ratio]
          Real, Allocatable :: Z0    ( :,:,: )   ! vegetation fraction [ratio]
@@ -365,15 +364,11 @@ C-----------------------------------------------------------------------
      &             Grid_Data%WFC     ( NCOLS,NROWS ),
      &             Grid_Data%RHOB    ( NCOLS,NROWS ),
      &             Grid_Data%LUFRAC  ( NCOLS,NROWS,n_lufrac ),
-!     &             Grid_Data%NAME    ( n_lufrac ),
-!     &             Grid_Data%LU_Type ( n_lufrac ),
      &             STAT = ALLOCSTAT )
          If ( ALLOCSTAT .Ne. 0 ) Then
             XMSG = 'Failure allocating grid vars'
             Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          End If
-!         Grid_Data%NAME    = name_lu
-!         Grid_Data%LU_Type = cat_lu
          Grid_Data%WSAT    = 0.0
          Grid_Data%WWLT    = 0.0
          Grid_Data%WFC     = 0.0
@@ -519,7 +514,6 @@ C-----------------------------------------------------------------------
          CALL INIT_MOSAIC( JDATE, JTIME, Grid_Data%LUFRAC )
 
          ALLOCATE( Mosaic_Data%USTAR   ( NCOLS,NROWS,Tile_Data%n_lufrac ),
-     &             Mosaic_Data%WSTAR   ( NCOLS,NROWS,Tile_Data%n_lufrac ), 
      &             Mosaic_Data%LAI     ( NCOLS,NROWS,Tile_Data%n_lufrac ),
      &             Mosaic_Data%DELTA   ( NCOLS,NROWS,Tile_Data%n_lufrac ),
      &             Mosaic_Data%VEG     ( NCOLS,NROWS,Tile_Data%n_lufrac ),
@@ -533,13 +527,13 @@ C-----------------------------------------------------------------------
             XMSG = 'Failure allocating mosaic vars'
             Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          End If
-         Mosaic_Data%USTAR   = 0.0!BADVAL3
-         Mosaic_Data%LAI     = 0.0!BADVAL3
-         Mosaic_Data%DELTA   = 0.0!BADVAL3
-         Mosaic_Data%VEG     = 0.0!BADVAL3
-         Mosaic_Data%Z0      = 0.0!BADVAL3
-         Mosaic_Data%RSTW    = 1.0e6!BADVAL3
-         Mosaic_Data%RA      = 1.0e6!BADVAL3
+         Mosaic_Data%USTAR   = 0.0
+         Mosaic_Data%LAI     = 0.0
+         Mosaic_Data%DELTA   = 0.0
+         Mosaic_Data%VEG     = 0.0
+         Mosaic_Data%Z0      = 0.0
+         Mosaic_Data%RSTW    = 1.0e6
+         Mosaic_Data%RA      = 1.0e6
          Mosaic_Data%NAME    = Tile_Data%name_lu
          Mosaic_Data%LU_Type = Tile_Data%cat_lu     
 
@@ -872,7 +866,7 @@ C read in land use specific meteorology from WRF Noah or Ruc mosaic options
      &                  MET_DATA%VEG, MOSAIC_DATA%VEG, MOSAIC_DATA%LAI, MOSAIC_DATA%Z0 )
 
          CALL ra_wrf( MET_DATA%MOL, MET_DATA%PBL, MET_DATA%MOLI, MET_DATA%ZH, MET_DATA%RA, MET_DATA%Z0, 
-     &                MOSAIC_DATA%Z0, MET_DATA%USTAR, MOSAIC_DATA%USTAR, MET_DATA%WSTAR, MOSAIC_DATA%WSTAR,
+     &                MOSAIC_DATA%Z0, MET_DATA%USTAR, MOSAIC_DATA%USTAR,
      &                MOSAIC_DATA%RA, gamah, betah, karman )       
 
          CALL MOS_RSTW( MOSAIC_DATA%LAI, Met_Data%RGRND, Met_Data%SOIM2, 

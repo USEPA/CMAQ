@@ -76,20 +76,8 @@ C------------------------------------------------------------------------------
       REAL,   SAVE               :: wres_noah (19)
       REAL,   SAVE               :: wfc_noah  (19)
       REAL,   SAVE               :: rhob_noah (19)
-      REAL,   SAVE, ALLOCATABLE  :: RSMIN     ( : )
-      REAL,   SAVE, ALLOCATABLE  :: Z00       ( : )
-      REAL,   SAVE, ALLOCATABLE  :: VEG0      ( : )
-      REAL,   SAVE, ALLOCATABLE  :: VEGMN0    ( : )
-      REAL,   SAVE, ALLOCATABLE  :: LAI0      ( : )
-      REAL,   SAVE, ALLOCATABLE  :: LAIMN0    ( : )
-      REAL,   SAVE, ALLOCATABLE  :: SNUP0     ( : )
-      REAL,   SAVE, ALLOCATABLE  :: ALBF      ( : )
-      REAL,   SAVE, ALLOCATABLE  :: LUF_FAC   ( : )
-      REAL,   SAVE, ALLOCATABLE  :: HGLU_FAC  ( : )
       INTEGER, SAVE              :: n_lufrac
       CHARACTER( 80 ), SAVE      :: LAND_SCHEME
-      CHARACTER( 16 ), SAVE, ALLOCATABLE :: cat_lu( : )
-      CHARACTER( 16 ), SAVE, ALLOCATABLE :: name_lu( : )
 
       INTEGER, SAVE               :: n_xref_lu
       INTEGER, SAVE               :: n_stage_lu
@@ -105,9 +93,9 @@ C------------------------------------------------------------------------------
          Real            :: VEGMN0
          Real            :: LAI0
          Real            :: LAIMN0
-         Real            :: ALBF
+         Real            :: Gamma_NH3_grnd
          Real            :: Gamma_NH3_st
-         Real            :: HGLU_FAC
+         Real            :: Hg_grnd
          Integer         :: LU_Index
       END TYPE
       TYPE( DEP_MOD_LU_DATA ) STAGE_LU_DATA( N_Map_Max )
@@ -380,7 +368,7 @@ C-------------------------------------------------------------------------------
          
          SUBROUTINE STAGE_LU_MAPPER
             
-            USE RUNTIME_VARS, ONLY: EMISSCTRL, LOGDEV!, log_message, log_subheading
+            USE RUNTIME_VARS, ONLY: STAGECTRL, LOGDEV!, log_message, log_subheading
             use UTILIO_DEFN
       
             IMPLICIT NONE
@@ -388,26 +376,30 @@ C-------------------------------------------------------------------------------
             Logical            :: n_stage_end
             Logical            :: n_xref_end
             CHARACTER( 200 )   :: XMSG
-            INTEGER            :: EMCTRL_NML
+            INTEGER            :: DEPCTRL_NML
+            INTEGER            :: LU_NML
             INTEGER            :: STAT
        
             NAMELIST / STAGE_LU         / STAGE_LU_DATA
             NAMELIST / STAGE_MODIS_20   / MET_TO_STAGE_LU
-            NAMELIST / STAGE_CUSTUM     / MET_TO_STAGE_LU
             NAMELIST / STAGE_NLCD_40    / MET_TO_STAGE_LU
+            NAMELIST / STAGE_NLCD_50    / MET_TO_STAGE_LU
+            NAMELIST / STAGE_USGS_24    / MET_TO_STAGE_LU
+            NAMELIST / STAGE_CUSTOM     / MET_TO_STAGE_LU
+
             
-            STAGE_LU_DATA%LU_Name      = 'N/A'
-            STAGE_LU_DATA%LU_Cat       = 'N/A'
-            STAGE_LU_DATA%RSMIN        = 9999.0
-            STAGE_LU_DATA%Z00          = 0.0
-            STAGE_LU_DATA%VEG0         = 0.0
-            STAGE_LU_DATA%VEGMN0       = 0.0
-            STAGE_LU_DATA%LAI0         = 0.0
-            STAGE_LU_DATA%LAIMN0       = 0.0
-            STAGE_LU_DATA%ALBF         = 0.0
-            STAGE_LU_DATA%Gamma_NH3_st = 0.0
-            STAGE_LU_DATA%HGLU_FAC     = 0.0
-            STAGE_LU_DATA%LU_Index     = 0
+            STAGE_LU_DATA%LU_Name        = 'N/A'
+            STAGE_LU_DATA%LU_Cat         = 'N/A'
+            STAGE_LU_DATA%RSMIN          = 9999.0
+            STAGE_LU_DATA%Z00            = 0.0
+            STAGE_LU_DATA%VEG0           = 0.0
+            STAGE_LU_DATA%VEGMN0         = 0.0
+            STAGE_LU_DATA%LAI0           = 0.0
+            STAGE_LU_DATA%LAIMN0         = 0.0
+            STAGE_LU_DATA%Gamma_NH3_grnd = 0.0
+            STAGE_LU_DATA%Gamma_NH3_st   = 0.0
+            STAGE_LU_DATA%Hg_grnd        = 0.0
+            STAGE_LU_DATA%LU_Index       = 0
 
             MET_TO_STAGE_LU%Met_LU_Name = 'N/A'
             MET_TO_STAGE_LU%Met_Index   = 0
@@ -417,7 +409,7 @@ C-------------------------------------------------------------------------------
             MET_TO_STAGE_LU%Description = 'N/A'                  
 
       ! Retrieve the Name of the Emission Control File
-            IF ( EMISSCTRL .EQ. "EMISSCTRL_NML" ) THEN
+            IF ( STAGECTRL .EQ. "STAGECTRL_NML" ) THEN
                WRITE( LOGDEV, "(5x,A,/,5x,A,/,5x,A)"),
      &           'You have chosen not to indicate the location of an',
      &           'Emission Control namelist file. Default settings ',
@@ -426,72 +418,41 @@ C-------------------------------------------------------------------------------
             END IF
 
       ! Open Emission Control Namelist File
-            EMCTRL_NML = JUNIT()
-            OPEN( FILE = EMISSCTRL, UNIT = EMCTRL_NML, STATUS = 'OLD',
+            DEPCTRL_NML = JUNIT()
+            OPEN( FILE = STAGECTRL, UNIT = DEPCTRL_NML, STATUS = 'OLD',
      &            POSITION = 'REWIND', FORM='FORMATTED', IOSTAT = STAT )
 
       ! Check for Error in File Open Process
             IF ( STAT .NE. 0 ) THEN
                WRITE( XMSG, '(A,A,A)' ),'ERROR: Could not read ',
-     &                 'emissions control namelist file: ',TRIM( EMISSCTRL )
+     &                 'STAGE control namelist file: ',TRIM( STAGECTRL )
                CALL M3EXIT( 'STAGE_LU_MAPPER',0,0,XMSG,1 )
             END IF
 
-            REWIND( EMCTRL_NML )
-            READ( NML = STAGE_LU, UNIT = EMCTRL_NML, IOSTAT=STAT )
+            REWIND( DEPCTRL_NML )
+            READ( NML = STAGE_LU, UNIT = DEPCTRL_NML, IOSTAT=STAT )
             IF ( STAT .NE. 0 ) THEN
                WRITE( LOGDEV, "(5x,A,/,5x,A,/,5x,A,/,5x,A)" ),
      &           'Warning! Something went wrong while reading the ',
-     &           'STAGE land use section of the Emissions ',
+     &           'STAGE land use section of the STAGE ',
      &           'Control Namelist. Default values for this section ',
      &           'will be assumed.'
             END IF
-!            Write(logdev,*) 'N_STAGE_LU', N_STAGE_LU
-!            n_stage_lu   = 1
-            n_stage_lu = maxval(STAGE_LU_DATA%LU_Index)
-!            n_stage_end = .TRUE. ! rename
-!           Do While( n_stage_end )
-!               If( STAGE_LU_DATA(n_stage_lu)%LU_Name .Eq. 'N/A' ) Then
-!                  n_stage_end = .FALSE.
-!                  Write(logdev,*) 'STAGE_LU          :', STAGE_LU_DATA(n_stage_lu)%LU_Name
-!                  Write(logdev,*) 'STAGE LU Cat      :', STAGE_LU_DATA(n_stage_lu)%LU_Cat
-!                  Write(logdev,*) 'STAGE RSMIN       :', STAGE_LU_DATA(n_stage_lu)%RSMIN
-!                  Write(logdev,*) 'STAGE Z00         :', STAGE_LU_DATA(n_stage_lu)%Z00
-!                  Write(logdev,*) 'STAGE VEG0        :', STAGE_LU_DATA(n_stage_lu)%VEG0
-!                  Write(logdev,*) 'STAGE VEGMN0      :', STAGE_LU_DATA(n_stage_lu)%VEGMN0
-!                  Write(logdev,*) 'STAGE LAI0        :', STAGE_LU_DATA(n_stage_lu)%LAI0
-!                  Write(logdev,*) 'STAGE LAIMN0      :', STAGE_LU_DATA(n_stage_lu)%LAIMN0
-!                  Write(logdev,*) 'STAGE ALBF        :', STAGE_LU_DATA(n_stage_lu)%ALBF
-!                  Write(logdev,*) 'STAGE Gamma_NH3_st:', STAGE_LU_DATA(n_stage_lu)%Gamma_NH3_st
-!                  Write(logdev,*) 'STAGE HGLU_FAC    :', STAGE_LU_DATA(n_stage_lu)%HGLU_FAC
-!                  Write(logdev,*) 'STAGE LU Index    :', STAGE_LU_DATA(n_stage_lu)%LU_Index
-!                  n_stage_lu = n_stage_lu - 1
-!               Else
-!                  Write(logdev,*) 'STAGE_LU          :', STAGE_LU_DATA(n_stage_lu)%LU_Name
-!                  Write(logdev,*) 'STAGE LU Cat      :', STAGE_LU_DATA(n_stage_lu)%LU_Cat
-!                  Write(logdev,*) 'STAGE RSMIN       :', STAGE_LU_DATA(n_stage_lu)%RSMIN
-!                  Write(logdev,*) 'STAGE Z00         :', STAGE_LU_DATA(n_stage_lu)%Z00
-!                  Write(logdev,*) 'STAGE VEG0        :', STAGE_LU_DATA(n_stage_lu)%VEG0
-!                  Write(logdev,*) 'STAGE VEGMN0      :', STAGE_LU_DATA(n_stage_lu)%VEGMN0
-!                  Write(logdev,*) 'STAGE LAI0        :', STAGE_LU_DATA(n_stage_lu)%LAI0
-!                  Write(logdev,*) 'STAGE LAIMN0      :', STAGE_LU_DATA(n_stage_lu)%LAIMN0
-!                  Write(logdev,*) 'STAGE ALBF        :', STAGE_LU_DATA(n_stage_lu)%ALBF
-!                  Write(logdev,*) 'STAGE Gamma_NH3_st:', STAGE_LU_DATA(n_stage_lu)%Gamma_NH3_st
-!                  Write(logdev,*) 'STAGE HGLU_FAC    :', STAGE_LU_DATA(n_stage_lu)%HGLU_FAC
-!                  Write(logdev,*) 'STAGE LU Index    :', STAGE_LU_DATA(n_stage_lu)%LU_Index
-!                  n_stage_lu = n_stage_lu + 1
-!               End If
-!            End Do
 
-            REWIND( EMCTRL_NML )            
+            n_stage_lu = maxval(STAGE_LU_DATA%LU_Index)
+
+            REWIND( DEPCTRL_NML )        
+
+            WRITE( LOGDEV,*) 'Mapping ', LAND_SCHEME, ' to STAGE land use categories.'  
+  
             SELECT CASE( LAND_SCHEME )            
                CASE( 'MODIS' )       
-                  READ( NML = STAGE_MODIS_20, UNIT = EMCTRL_NML, IOSTAT=STAT )
+                  READ( NML = STAGE_MODIS_20, UNIT = DEPCTRL_NML, IOSTAT=STAT )
                   IF ( STAT .NE. 0 ) THEN
                      WRITE( LOGDEV, "(A,A,A)" ),
      &                 'ERROR: Something went wrong while reading the ',
      &                 'STAGE land use mapping section for MODIS 20 data ',
-     &                 'of the Emissions Control Namelist.', TRIM( EMISSCTRL )
+     &                 'of the STAGE Control Namelist.', TRIM( STAGECTRL )
                      CALL M3EXIT( 'STAGE_LU_MAPPER',0,0,XMSG,1 )
                   END IF
 
@@ -500,31 +461,19 @@ C-------------------------------------------------------------------------------
                   Do While( n_xref_end )
                      If( MET_TO_STAGE_LU(n_xref_lu)%Met_LU_Name .Eq. 'N/A' ) Then
                         n_xref_end = .FALSE.
-!                        Write(logdev,*) 'MET_LU     :', MET_TO_STAGE_LU(n_xref_lu)%Met_LU_Name
-!                        Write(logdev,*) 'Met Index  :', MET_TO_STAGE_LU(n_xref_lu)%Met_Index
-!                        Write(logdev,*) 'Met Lu Name:', MET_TO_STAGE_LU(n_xref_lu)%Dep_LU_Name
-!                        Write(logdev,*) 'Dep Index  :', MET_TO_STAGE_LU(n_xref_lu)%Dep_Index
-!                        Write(logdev,*) 'Factor     :', MET_TO_STAGE_LU(n_xref_lu)%Factor
-!                        Write(logdev,*) 'Description:', MET_TO_STAGE_LU(n_xref_lu)%Description
                         n_xref_lu = n_xref_lu - 1
                      Else
-                        Write(logdev,*) 'MET_LU     :', MET_TO_STAGE_LU(n_xref_lu)%Met_LU_Name
-                        Write(logdev,*) 'Met Index  :', MET_TO_STAGE_LU(n_xref_lu)%Met_Index
-                        Write(logdev,*) 'Met Lu Name:', MET_TO_STAGE_LU(n_xref_lu)%Dep_LU_Name
-                        Write(logdev,*) 'Dep Index  :', MET_TO_STAGE_LU(n_xref_lu)%Dep_Index
-                        Write(logdev,*) 'Factor     :', MET_TO_STAGE_LU(n_xref_lu)%Factor
-                        Write(logdev,*) 'Description:', MET_TO_STAGE_LU(n_xref_lu)%Description
                         n_xref_lu = n_xref_lu + 1
                      End If
                   End Do
 
                CASE( 'NLCD40' )  
-                  READ( NML = STAGE_NLCD_40, UNIT = EMCTRL_NML, IOSTAT=STAT )
+                  READ( NML = STAGE_NLCD_40, UNIT = DEPCTRL_NML, IOSTAT=STAT )
                   IF ( STAT .NE. 0 ) THEN
                      WRITE( LOGDEV, "(A,A,A)" ),
      &                 'ERROR: Something went wrong while reading the ',
      &                 'STAGE land use mapping section for NLCD 40 data ',
-     &                 'of the Emissions Control Namelist.', TRIM( EMISSCTRL )
+     &                 'of the STAGE Control Namelist.', TRIM( STAGECTRL )
                      CALL M3EXIT( 'STAGE_LU_MAPPER',0,0,XMSG,1 )
                   END IF
 
@@ -533,29 +482,75 @@ C-------------------------------------------------------------------------------
                   Do While( n_xref_end )
                      If( MET_TO_STAGE_LU(n_xref_lu)%Met_LU_Name .Eq. 'N/A' ) Then
                         n_xref_end = .FALSE.
-!                        Write(logdev,*) 'MET_LU     :', MET_TO_STAGE_LU(n_xref_lu)%Met_LU_Name
-!                        Write(logdev,*) 'Met Index  :', MET_TO_STAGE_LU(n_xref_lu)%Met_Index
-!                        Write(logdev,*) 'Met Lu Name:', MET_TO_STAGE_LU(n_xref_lu)%Dep_LU_Name
-!                        Write(logdev,*) 'Dep Index  :', MET_TO_STAGE_LU(n_xref_lu)%Dep_Index
-!                        Write(logdev,*) 'Factor     :', MET_TO_STAGE_LU(n_xref_lu)%Factor
-!                        Write(logdev,*) 'Description:', MET_TO_STAGE_LU(n_xref_lu)%Description
                         n_xref_lu = n_xref_lu - 1
                      Else
-                        Write(logdev,*) 'MET_LU     :', MET_TO_STAGE_LU(n_xref_lu)%Met_LU_Name
-                        Write(logdev,*) 'Met Index  :', MET_TO_STAGE_LU(n_xref_lu)%Met_Index
-                        Write(logdev,*) 'Met Lu Name:', MET_TO_STAGE_LU(n_xref_lu)%Dep_LU_Name
-                        Write(logdev,*) 'Dep Index  :', MET_TO_STAGE_LU(n_xref_lu)%Dep_Index
-                        Write(logdev,*) 'Factor     :', MET_TO_STAGE_LU(n_xref_lu)%Factor
-                        Write(logdev,*) 'Description:', MET_TO_STAGE_LU(n_xref_lu)%Description
+                        n_xref_lu = n_xref_lu + 1
+                     End If
+                  End Do
+               CASE( 'NLCD50' )
+                  READ( NML = STAGE_NLCD_50, UNIT =DEPCTRL_NML, IOSTAT=STAT )
+                  IF ( STAT .NE. 0 ) THEN
+                     WRITE( LOGDEV, "(A,A,A)" ),
+     &                 'ERROR: Something went wrong while reading the ',
+     &                 'STAGE land use mapping section for NLCD 50 data ',
+     &                 'of the STAGE Control Namelist.', TRIM( STAGECTRL )
+                     CALL M3EXIT( 'STAGE_LU_MAPPER',0,0,XMSG,1 )
+                  END IF
+
+                  n_xref_lu   = 1
+                  n_xref_end = .TRUE. ! rename
+                  Do While( n_xref_end )
+                     If( MET_TO_STAGE_LU(n_xref_lu)%Met_LU_Name .Eq. 'N/A' ) Then
+                        n_xref_end = .FALSE.
+                        n_xref_lu = n_xref_lu - 1
+                     Else
+                        n_xref_lu = n_xref_lu + 1
+                     End If
+                  End Do
+               CASE( 'USGS24' )
+                  READ( NML = STAGE_USGS_24, UNIT = DEPCTRL_NML, IOSTAT=STAT )
+                  IF ( STAT .NE. 0 ) THEN
+                     WRITE( LOGDEV, "(A,A,A)" ),
+     &                 'ERROR: Something went wrong while reading the ',
+     &                 'STAGE land use mapping section for USGS 24 data ',
+     &                 'of the STAGE Control Namelist.', TRIM( STAGECTRL )
+                     CALL M3EXIT( 'STAGE_LU_MAPPER',0,0,XMSG,1 )
+                  END IF
+
+                  n_xref_lu   = 1
+                  n_xref_end = .TRUE. ! rename
+                  Do While( n_xref_end )
+                     If( MET_TO_STAGE_LU(n_xref_lu)%Met_LU_Name .Eq. 'N/A' ) Then
+                        n_xref_end = .FALSE.
+                        n_xref_lu = n_xref_lu - 1
+                     Else
+                        n_xref_lu = n_xref_lu + 1
+                     End If
+                  End Do
+      
+               CASE DEFAULT      
+                  READ( NML = STAGE_CUSTOM, UNIT = DEPCTRL_NML, IOSTAT=STAT )
+                  IF ( STAT .NE. 0 ) THEN
+                     WRITE( LOGDEV, "(A,A,A)" ),
+     &                 'ERROR: Something went wrong while reading the ',
+     &                 'STAGE land use mapping section for Custom LU data ',
+     &                 'of the STAGE Control Namelist.', TRIM( STAGECTRL )
+                     CALL M3EXIT( 'STAGE_LU_MAPPER',0,0,XMSG,1 )
+                  END IF
+
+                  n_xref_lu   = 1
+                  n_xref_end = .TRUE. ! rename
+                  Do While( n_xref_end )
+                     If( MET_TO_STAGE_LU(n_xref_lu)%Met_LU_Name .Eq. 'N/A' ) Then
+                        n_xref_end = .FALSE.
+                        n_xref_lu = n_xref_lu - 1
+                     Else
                         n_xref_lu = n_xref_lu + 1
                      End If
                   End Do
 
-               CASE( 'NLCD50' )
-               CASE( 'USGS24' )      
-               CASE DEFAULT      
             END SELECT                                                                                       
-            CLOSE( UNIT = EMCTRL_NML )  
+            CLOSE( UNIT = DEPCTRL_NML )  
             n_lufrac = maxval(MET_TO_STAGE_LU%Met_Index)
          END SUBROUTINE STAGE_LU_MAPPER
                                                

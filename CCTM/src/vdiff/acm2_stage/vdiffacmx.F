@@ -17,7 +17,7 @@
 !------------------------------------------------------------------------!
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-      SUBROUTINE VDIFFACMX ( DTSEC, SEDDY, DDEP, TOT_BD_EMIS, DDEPJ, DDEPJ_FST, CNGRD )
+      SUBROUTINE VDIFFACMX ( DTSEC, SEDDY, DDEP, TOT_BD_EMIS, DDEPJ, CNGRD )
 
 C-----------------------------------------------------------------------
 C Asymmetric Convective Model v2 (ACM2/ACM1) -- Pleim(2006/2014)
@@ -77,7 +77,6 @@ C--- SEDDY is strictly an input, but it gets modified here
       REAL, INTENT( INOUT ) :: DDEP        ( :,:,: )   ! ddep accumulator
       REAL, INTENT( INOUT ) :: TOT_BD_EMIS ( :,:,: )   ! bidi emissions accumlator 
       REAL, INTENT( INOUT ), OPTIONAL :: DDEPJ    ( :,:,:,: ) ! ddep for mosaic
-      REAL, INTENT( INOUT ), OPTIONAL :: DDEPJ_FST( :,:,:,: ) ! ddep for stomtal/cuticular pathway
       REAL, INTENT( INOUT ) :: CNGRD       ( :,:,:,: ) ! cgrid replacement
 
 C Parameters:
@@ -98,10 +97,8 @@ C Local Variables:
 
       REAL, ALLOCATABLE, SAVE :: DD_FAC     ( : )   ! combined subexpression
       REAL, ALLOCATABLE, SAVE :: DD_FACJ    ( :,: ) ! combined subexpression for mosaic
-      REAL, ALLOCATABLE, SAVE :: DD_FACJ_FST( :,: ) ! combined subexpression for mosaic
       REAL, ALLOCATABLE, SAVE :: DDBF       ( : )   ! secondary DDEP
       REAL, ALLOCATABLE, SAVE :: DDBFJ      ( :,: ) ! secondary DDEP for mosaic
-      REAL, ALLOCATABLE, SAVE :: DDBFJ_FST  ( :,: ) ! secondary DDEP for mosaic
       REAl, ALLOCATABLE, SAVE :: TMP_BD_EMIS( : )   ! intermediate bidi emissions
       REAL, ALLOCATABLE, SAVE :: CONC       ( :,: ) ! secondary CGRID expression
       REAL, ALLOCATABLE, SAVE :: EMIS       ( :,: ) ! emissions subexpression
@@ -131,8 +128,6 @@ C ACM Local Variables
       REAL     :: LFAC4( NLAYS )                ! intermediate factor for eddy
       REAL, ALLOCATABLE, SAVE :: DEPVCR     ( : )   ! dep vel in one cell
       REAL, ALLOCATABLE, SAVE :: DEPVJCR    ( :,: ) ! dep vel in one cell for each landuse
-      REAL, ALLOCATABLE, SAVE :: DEPVJCR_FST( :,: ) ! dep vel (stomatal uptake only) in
-                                                    ! one cell for each landuse category
       REAL, ALLOCATABLE, SAVE :: EFAC1 ( : )
       REAL, ALLOCATABLE, SAVE :: EFAC2 ( : )
       REAL, ALLOCATABLE, SAVE :: EMIS_OVER_VD( : ) ! Bidi Emissions/DEPV (ppm)
@@ -154,7 +149,7 @@ C ACM Local Variables
       REAL     :: DZFI  ( NLAYS )               ! ZH(L+1) - ZH(L)
       integer  gl_c, gl_r
 
-      LOGICAL, SAVE :: XMOSAIC = .FALSE., XFST = .FALSE.
+      LOGICAL, SAVE :: XMOSAIC = .FALSE.
 
 #ifdef isam
       REAL :: TOTAL_SA_NO2
@@ -232,7 +227,6 @@ C set auxiliary depv arrays
          END IF
 
          IF ( PRESENT ( DDEPJ ) ) XMOSAIC = .TRUE.
-         IF ( PRESENT ( DDEPJ_FST ) ) XFST = .TRUE.
 
          IF ( XMOSAIC ) THEN
             ALLOCATE ( DD_FACJ( Tile_Data%N_LUFRAC,N_SPC_DEPV ),
@@ -242,15 +236,6 @@ C set auxiliary depv arrays
                XMSG = 'Failure allocating DD_FACJ, DDBFJ or DEPVJCR'
                CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
             END IF
-            IF ( XFST ) THEN
-               ALLOCATE ( DD_FACJ_FST( Tile_Data%N_LUFRAC,N_SPC_DEPV ),
-     &                    DDBFJ_FST  ( Tile_Data%N_LUFRAC,N_SPC_DEPV ),
-     &                    DEPVJCR_FST( Tile_Data%N_LUFRAC,N_SPC_DEPV ), STAT = ASTAT  )
-               IF ( ASTAT .NE. 0 ) THEN
-                  XMSG = 'Failure allocating DD_FACJ_FST, DDBFJ_FST or DEPVJCR_FST'
-                  CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
-               END IF
-            END IF   ! if Fst
          END IF   ! if Mosaic
 
          ALLOCATE ( TMP_BD_EMIS( N_BD_EMIS ), STAT = ASTAT )
@@ -540,7 +525,7 @@ C-----------------------------------------------------------------------
 ! modify ground emissions for bidirectional species (for bidi, BIDI_VDEMIS > 0.0)
          IF ( SA_BIDI ) THEN
            SA_VDEMIS_DIFF( ISAM_INDEX_NH3,1,C,R,BIDITAG )
-     &             = BIDI_VDEMIS(PLDV_INDEX_NH3,C,R) * Met_Data%RDEPVHT( C,R )
+     &             = Tile_Data%Bidi_Emis( C, R, Tile_Data%dep2vdiff( PLDV_INDEX_NH3 ) )
          END IF
 
 ! collapse ISAM emissions array
@@ -564,18 +549,20 @@ C-----------------------------------------------------------------------
          EMIS_OVER_VD = 0.0
          DO V = 1, N_SPC_DEPV
             DDBF( V )   = DDEP( V,C,R )
-            DEPVCR( V ) = DEPV( V,C,R )
+            DEPVCR( V ) = Tile_Data%Vd_Fac( Tile_Data%dep2vdiff( V ) ) * 
+     &                    Tile_Data%Grd_Vd( C,R,Tile_Data%dep2vdiff( V ) )
             DD_FAC( V ) = DTDENS1 * DD_CONV( V ) * DEPVCR( V )
             EFAC1 ( V ) = EXP( -DEPVCR( V ) * RP )
             EFAC2 ( V ) = EXP( -DEPVCR( V ) * RQ )
-            If( BIDI_VDEMIS( V,C,R ) .Gt. 0.0 ) Then
+            If( Tile_Data%Bidi_Emis( C, R, Tile_Data%dep2vdiff( V ) ) .Gt. 0.0 ) Then
                If(DEPVCR( V ) .Eq. 0.0) Then
                   Write(Logdev,*) 'Warning: A deposition velocity of 0 m/s was detected with a production term greater' 
                   Write(Logdev,*) 'than zero. Check for DEPV_FACs less than zero in the species name list for model species:'
-                  Write(Logdev,*) DV2DF_SPC( V ), 'depvcr', DEPVCR( V ), 'bidi emissions', BIDI_VDEMIS( V,C,R )
+                  Write(Logdev,*) DV2DF_SPC( V ), 'depvcr', DEPVCR( V ), 'bidi emissions', 
+     &                            Tile_Data%Bidi_Emis( C, R, Tile_Data%dep2vdiff( V ) )
                   DEPVCR( V ) = tiny( 0.0 )
                End If
-               EMIS_OVER_VD( V ) = BIDI_VDEMIS( V,C,R ) / DEPVCR( V )                        
+               EMIS_OVER_VD( V ) = Tile_Data%Bidi_Emis( C, R, Tile_Data%dep2vdiff( V ) ) / DEPVCR( V )                        
             End If
             IF ( ABFLUX ) THEN
                TMP_BD_EMIS( NH3_E ) = TOT_BD_EMIS( NH3_E,C,R )
@@ -587,7 +574,7 @@ C-----------------------------------------------------------------------
                TMP_BD_EMIS( HONO_E ) = TOT_BD_EMIS( HONO_E,C,R )
             END IF                     
          END DO
-         PLDV_HONO = BIDI_VDEMIS( HONO_HIT,C,R )
+         PLDV_HONO = Tile_Data%Bidi_Emis( C, R, Tile_Data%dep2vdiff( HONO_HIT ) )
 
 #ifdef isam
          DO JSPCTAG = 1, N_SPCTAG
@@ -632,24 +619,12 @@ C These don`t change in the NLP sub-time step loop:---------------------
 C ----------------------------------------------------------------------
 
          IF ( XMOSAIC ) THEN
-            DDBFJ( :,: )   = DDEPJ( :,:,C,R )
-            DEPVJCR( :,: ) = DEPVJ( :,1:N_SPC_DEPV,C,R )           
-            DO V = 1, N_SPC_DEPV
-               WHERE( Tile_Data%LUFRAC( c,r,: ) .GT. 0.0 .AND. DEPVJCR( :,V ) .GT. 0.0 ) 
-                  DD_FACJ( :,V ) = DTDENS1 * DD_CONV( V ) * DEPVJCR( :,V )
-               ELSE WHERE
-                  DD_FACJ( :,V ) = 0.0
-               END WHERE
+            DDBFJ( :,: )   = DDEPJ( :,:,C,R )           
+            DO L = 1, Tile_Data%n_lufrac
+               DEPVJCR( L,: ) = Tile_Data%Vd_Fac( Tile_Data%dep2vdiff ) * 
+     &                          Tile_Data%Lu_Vd( C,R,Tile_Data%dep2vdiff,L )
+               DD_FACJ( L,: ) = DTDENS1 * DD_CONV( : ) * DEPVJCR( L,: )
             END DO
-            IF ( XFST ) THEN
-               DO V = 1, N_SPC_DEPV
-                  WHERE( Tile_Data%LUFRAC( c,r,: ) .GT. 0.0 ) 
-                     DD_FACJ_FST( :,V ) = DTDENS1 * DD_CONV( V ) * DEPVJCR_FST( :,V )
-                  ELSE WHERE
-                     DD_FACJ_FST( :,V ) = 0.0
-                  END WHERE
-               END DO
-            END IF
          END IF
 
 C-----------------------------------------------------------------------
@@ -680,7 +655,7 @@ C reduce the NO2 conc. in the atmosphere without affecting the depositional loss
                   DEPV_NO2       = DEPVCR( V ) + 2.0 * PLDV_HONO / CONC( S,1 )
                   EFAC1 ( V )    = EXP( -DEPV_NO2 * RP )
                   EFAC2 ( V )    = EXP( -DEPV_NO2 * RQ )
-                  EMIS_OVER_VD( V ) = BIDI_VDEMIS( V,C,R ) / DEPV_NO2
+                  EMIS_OVER_VD( V ) = Tile_Data%Bidi_Emis( C, R, Tile_Data%dep2vdiff( V ) ) / DEPV_NO2
                   CONC( S,1 )    = EMIS_OVER_VD( V ) + ( CONC( S,1 ) - EMIS_OVER_VD( V ) ) * EFAC1( V )
                   DDBF( V )      = DDBF( V ) + THETA * DD_FAC( V ) * CONC( S,1 )
   
@@ -692,13 +667,16 @@ C --------- END of HET HONO RX ----------
                   DDBF( V ) = DDBF( V ) + THETA * DD_FAC( V ) * CONC( S,1 )
 
                   IF ( ABFLUX .AND. V .EQ. NH3_HIT ) THEN
-                     TMP_BD_EMIS( NH3_E ) = TMP_BD_EMIS( NH3_E ) + THETA * BIDI_VDEMIS( V,C,R ) * DD_CONV( V ) * DTDENS1                   
+                     TMP_BD_EMIS( NH3_E ) = TMP_BD_EMIS( NH3_E ) + 
+     &                  THETA * Tile_Data%Bidi_Emis( C, R, Tile_Data%dep2vdiff( V ) ) * DD_CONV( V ) * DTDENS1
                   END IF
                   IF ( HGBIDI .AND. V .EQ. HG_HIT ) THEN
-                     TMP_BD_EMIS( HG_E ) = TMP_BD_EMIS( HG_E ) + THETA * BIDI_VDEMIS( V,C,R ) * DD_CONV( V ) * DTDENS1                   
+                     TMP_BD_EMIS( HG_E ) = TMP_BD_EMIS( HG_E ) +  
+     &                  THETA * Tile_Data%Bidi_Emis( C, R, Tile_Data%dep2vdiff( V ) ) * DD_CONV( V ) * DTDENS1                 
                   END IF
                   IF ( SFC_HONO .AND. V .EQ. HONO_HIT ) THEN
-                     TMP_BD_EMIS( HONO_E ) = TMP_BD_EMIS( HONO_E ) + THETA * BIDI_VDEMIS( V,C,R ) * DD_CONV( V ) * DTDENS1                   
+                     TMP_BD_EMIS( HONO_E ) = TMP_BD_EMIS( HONO_E ) +                    
+     &                  THETA * Tile_Data%Bidi_Emis( C, R, Tile_Data%dep2vdiff( V ) ) * DD_CONV( V ) * DTDENS1                 
                   END IF
                END IF
 
@@ -727,25 +705,6 @@ C --------------- END of HET HONO RX ----------
                      END WHERE
                   END IF
                END DO
-               IF ( XFST ) THEN
-                  DO V = 1, N_SPC_DEPV
-                     IF ( V .EQ. HNO3_HIT ) THEN
-                        S = HNO3_MAP
-                        WHERE( Tile_Data%LUFRAC( c,r,: ) .GT. 0.0 )
-                           DD_FACJ_FST( :,V ) = DTDENS1 * DD_CONV( V ) * DEPVJCR_FST( :,V ) + PLDV_HONO / CONC( NO2_MAP,1 )
-                           DDBFJ_FST( :,V ) = DDBFJ_FST( :,V )
-     &                                      + THETA * DD_FACJ_FST( :,V ) * CONC( S,1 )
-                        END WHERE
-                     ELSE
-                        S = DV2DF( V )
-                        WHERE( Tile_Data%LUFRAC( c,r,: ) .GT. 0.0 )
-                           DDBFJ_FST( :,V ) = DDBFJ_FST( :,V )
-     &                                      + THETA * DD_FACJ_FST( :,V ) * CONC( S,1 )
-                        END WHERE
-                     END IF
-                  END DO
-               END IF   ! FST
-
             END IF   ! MOSAIC
 
             DO L = 1, NLAYS
@@ -928,13 +887,16 @@ C --------- END of HET HONO RX ----------
                   CONC( S,1 ) = EMIS_OVER_VD( V ) + ( CONC( S,1 ) - EMIS_OVER_VD( V ) ) * EFAC2( V )
                   DDBF( V ) = DDBF( V ) + THBAR * DD_FAC( V ) * CONC( S,1 )
                   IF ( ABFLUX .AND. V .EQ. NH3_HIT ) THEN
-                     TMP_BD_EMIS( NH3_E ) = TMP_BD_EMIS( NH3_E ) + THBAR * BIDI_VDEMIS( V,C,R ) * DD_CONV( V ) * DTDENS1                   
+                     TMP_BD_EMIS( NH3_E ) = TMP_BD_EMIS( NH3_E ) + 
+     &                  THBAR * Tile_Data%Bidi_Emis( C, R, Tile_Data%dep2vdiff( V ) ) * DD_CONV( V ) * DTDENS1                                 
                   END IF
                   IF ( HGBIDI .AND. V .EQ. HG_HIT ) THEN
-                     TMP_BD_EMIS( HG_E ) = TMP_BD_EMIS( HG_E ) + THBAR * BIDI_VDEMIS( V,C,R ) * DD_CONV( V ) * DTDENS1                   
+                     TMP_BD_EMIS( HG_E ) = TMP_BD_EMIS( HG_E ) + 
+     &                  THBAR * Tile_Data%Bidi_Emis( C, R, Tile_Data%dep2vdiff( V ) ) * DD_CONV( V ) * DTDENS1                                 
                   END IF
                   IF ( SFC_HONO .AND. V .EQ. HONO_HIT ) THEN
-                     TMP_BD_EMIS( HONO_E ) = TMP_BD_EMIS( HONO_E ) + THBAR * BIDI_VDEMIS( V,C,R ) * DD_CONV( V ) * DTDENS1                   
+                     TMP_BD_EMIS( HONO_E ) = TMP_BD_EMIS( HONO_E ) + 
+     &                  THBAR * Tile_Data%Bidi_Emis( C, R, Tile_Data%dep2vdiff( V ) ) * DD_CONV( V ) * DTDENS1                                 
                   END IF
 
                END IF
@@ -963,24 +925,6 @@ C --------- END of HET HONO RX ----------
                      END WHERE
                   END IF
                END DO
-               IF ( XFST ) THEN
-                  DO V = 1, N_SPC_DEPV
-                     IF ( V .EQ. HNO3_HIT ) THEN
-                        S = HNO3_MAP
-                        WHERE( Tile_Data%LUFRAC( c,r,: ) .GT. 0.0 )
-                           DD_FACJ_FST( :,V ) = DTDENS1 * DD_CONV( V ) * DEPVJCR_FST( :,V ) + PLDV_HONO / CONC( NO2_MAP,1 )
-                           DDBFJ_FST( :,V ) = DDBFJ_FST( :,V )
-     &                                      + THBAR * DD_FACJ_FST( :,V ) * CONC( S,1 )
-                        END WHERE
-                     ELSE
-                        S = DV2DF( V )
-                        WHERE( Tile_Data%LUFRAC( c,r,: ) .GT. 0.0 )
-                           DDBFJ_FST( :,V ) = DDBFJ_FST( :,V )
-     &                                      + THBAR * DD_FACJ_FST( :,V ) * CONC( S,1 )
-                        END WHERE
-                     END IF
-                  END DO
-               END IF   ! FST
             END IF   ! MOSAIC
 #ifdef isam
 C Update ISAM Dry Deposition
@@ -1026,9 +970,6 @@ C Update ISAM Dry Deposition
  
          IF ( XMOSAIC ) THEN
             DDEPJ( :,:,C,R ) = DDBFJ( :,: )
-            IF ( XFST ) THEN
-               DDEPJ_FST( :,:,C,R ) = DDBFJ_FST( :,: )
-            END IF
          END IF
 
 #ifdef isam

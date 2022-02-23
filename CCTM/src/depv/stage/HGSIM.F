@@ -221,7 +221,6 @@ C-------------------------------------------------------------------------------
          REAL :: bc   ! Emprical coefficeint to describe differences in plant lipids
 !************************************************************************
          Real    :: del      
-!         lu_frac = GRID_DATA%LUFRAC( c,r,: )
          If ( Met_Data%WR( c,r ) .LE. 0.0 ) Then
                del = 0.0
          Else 
@@ -323,7 +322,7 @@ C***** reduction and partioning terms from Whalin et al 2007 ************
          HgII_wat  = CMEDIA( c,r,2 ) ! ppm
          HgII_grnd = 0.0
          DO i = 1, Tile_Data%n_lufrac
-            HgII_grnd = HgII_grnd+Tile_Data%hglu_fac(i)*Tile_Data%lufrac(c,r,i)
+            HgII_grnd = HgII_grnd+Tile_Data%Hg_grnd(i)*Tile_Data%lufrac(c,r,i)
          END DO
 C Set floor to smallest terrestrial value
          HgII_grnd = MAX( HgII_grnd, 1.8e1 )                   

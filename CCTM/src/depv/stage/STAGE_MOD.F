@@ -56,20 +56,18 @@ C-------------------------------------------------------------------------------
 
 C shared variables 
       INTEGER, ALLOCATABLE, SAVE :: DEPV_SUR( : )   ! pointer to surrogate
-      REAL, ALLOCATABLE, SAVE :: VDEP( : )    ! deposition  velocity [ m/s ]
-      REAL, ALLOCATABLE, SAVE :: VDEPJ( :,: ) ! deposition  velocity [ m/s ]
-      REAL,    SAVE           :: xcent
-      REAL,    SAVE           :: ycent
-      REAL, SAVE                 :: scc_pr_23( dep_gas_all )        ! (SCC/PR)**2/3, fn of DIF0
-      Real, Save                 :: molwt( dep_gas_all )
+      REAL,    ALLOCATABLE, SAVE :: VDEP( : )    ! deposition  velocity [ m/s ]
+      REAL,    ALLOCATABLE, SAVE :: VDEPJ( :,: ) ! deposition  velocity [ m/s ]
+      REAL,    SAVE              :: xcent
+      REAL,    SAVE              :: ycent
       INTEGER, PARAMETER         :: N_AE_DEP_SPC = 9 
 C land use indexes
       Logical, Allocatable, Save :: Water( : )
       Logical, Allocatable, Save :: Ag( : )
-      Logical, Allocatable, Save :: Forest( : )
       Real,    Allocatable, Save :: l_leaf( : )    ! characteristic leaf width from Massad et al. 2010 Table 6
       Real,    Allocatable, Save :: l_aero( : )    ! characteristic leaf radius from Zhang et al. 2001 Table 3
       Real,    Allocatable, Save :: a_cut( : )     ! NH3 cuticular resistance exponential term Massad et al. 2010 Table 8
+      Integer, Save              :: l_ag
 C gas phase species indexes
       Integer, Save              :: n_HONO
       Integer, Save              :: s_HONO         ! m3dry map
@@ -126,8 +124,6 @@ C Local variables:
          DATA         VDAE_NAME( 8 ) / 'VSRFACC ' /
          DATA         VDAE_NAME( 9 ) / 'VSRFCOR ' /
 
-         Call Map_Stage
-
          xcent = real( file_xcell(f_met), 4 )
          ycent = real( file_xcell(f_met), 4 )
 
@@ -137,13 +133,12 @@ C Local variables:
 
          Allocate ( Water  ( Tile_Data%n_lufrac ),
      &              Ag     ( Tile_Data%n_lufrac ),
-     &              Forest ( Tile_Data%n_lufrac ),
      &              a_cut  ( Tile_Data%n_lufrac ),
      &              l_leaf ( Tile_Data%n_lufrac ), 
      &              l_aero ( Tile_Data%n_lufrac ), STAT = ALLOCSTAT )
 
          IF ( ALLOCSTAT .NE. 0 ) THEN
-            XMSG = 'Failure allocating Water, Ag, Forest, l_leaf, or a_cut'
+            XMSG = 'Failure allocating Water, Ag, l_leaf, or a_cut'
             CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
                          
@@ -174,76 +169,6 @@ C Set the dep vel surrogate pointers
                DEPV_SUR( S ) = 0
             END IF
          END DO                               
-
-! STAGE diagnostic output
-! This block of code maps the user specified output deposition velocities from the GC, NR, and TR namelists
-         IF( MOSAIC ) THEN
-            n_diag_dep = 0
-            diagloop_gas: DO s = 1, dep_gas_all
-               IF ( .NOT. asx_run_map( s ) ) CYCLE diagloop_gas
-               DO n = 1, N_GC_DDEP
-                  If ( STAGE_Diag_Data%dep_name_gas( s ) .EQ. gc_spc( gc_ddep_map( n ) ) ) THEN
-                     n_diag_dep = n_diag_dep + 1
-                     STAGE_Diag_Data%dep_map_gas( s ) = .TRUE.
-                     STAGE_Diag_Data%dep_name_gas( s ) = vd_name( s )
-                     STAGE_Diag_Data%dep_fac_gas( s )  = GC_DEPV_FAC( N )
-                  END IF
-               END DO
-               DO n = 1, N_NR_DDEP
-                  If ( STAGE_Diag_Data%dep_name_gas( s ) .EQ. nr_spc( nr_ddep_map( n ) ) ) THEN
-                     n_diag_dep = n_diag_dep + 1
-                     STAGE_Diag_Data%dep_map_gas( s ) = .TRUE.
-                     STAGE_Diag_Data%dep_name_gas( s ) = vd_name( s )
-                     STAGE_Diag_Data%dep_fac_gas( s )  = NR_DEPV_FAC( N )
-                  END IF
-               END DO
-               DO n = 1, N_TR_DDEP
-                  If ( STAGE_Diag_Data%dep_name_gas( s ) .EQ. tr_spc( tr_ddep_map( n ) ) ) THEN
-                     n_diag_dep = n_diag_dep + 1
-                     STAGE_Diag_Data%dep_map_gas( s ) = .TRUE.
-                     STAGE_Diag_Data%dep_name_gas( s ) = vd_name( s )
-                     STAGE_Diag_Data%dep_fac_gas( s )  = TR_DEPV_FAC( N )
-                  END IF
-               END DO
-            END DO diagloop_gas
-            STAGE_Diag_Data%n_gas_spc    = n_diag_dep
-            n_diag_dep = 0
-            diagloop_aero: DO s = 1, N_AE_DEPV
-               IF ( STAGE_Diag_Data%dep_map_aero( s ) ) THEN
-                  n_diag_dep = n_diag_dep + 1
-                  STAGE_Diag_Data%dep_name_aero( s ) = AE_DEPV( s )
-                  STAGE_Diag_Data%dep_fac_aero( s )  = AE_DEPV_FAC( s )   
-               END IF
-            End Do diagloop_aero
-            STAGE_Diag_Data%n_aero_spc = n_diag_dep
-
-            DO s = 1, dep_gas_all
-               If(STAGE_Diag_Data%dep_map_gas( s )) Then
-               Write(logdev,*) 'Mapping test: asx_run_map: ', asx_run_map(s), 
-     &                         'dep_map_gas: ', STAGE_Diag_Data%dep_map_gas( s ),
-     &                         'dep_name_gas: ', STAGE_Diag_Data%dep_name_gas( s )
-               End If
-            End Do
-            Write(logdev,*) 'N depv aero ouput:', STAGE_Diag_Data%n_aero_spc
-            DO s = 1, N_AE_DEPV
-               If(STAGE_Diag_Data%dep_map_aero( s )) Then
-               Write(logdev,*) 'Mapping test: dep_map_aero: ', STAGE_Diag_Data%dep_map_aero( s ),
-     &                         'dep_name_aero: ', STAGE_Diag_Data%dep_name_aero( s )
-               End If
-            End Do
-
-
-
-            ALLOCATE ( STAGE_Diag_Data%Vd_gas ( NCOLS, NROWS, STAGE_Diag_Data%n_gas_spc, Tile_Data%n_lufrac),
-     &                 STAGE_Diag_Data%Vd_aero( NCOLS, NROWS, STAGE_Diag_Data%n_aero_spc, Tile_Data%n_lufrac),        
-     &                 STAT = ALLOCSTAT )
-            IF ( ALLOCSTAT .NE. 0 ) THEN
-               XMSG = 'Failure allocating STAGE diagnostic output arrays'
-               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-            END IF
-            STAGE_Diag_Data%Vd_gas       = 0.0
-            STAGE_Diag_Data%Vd_aero      = 0.0                                
-         END IF
 
 C-----------------------------------------------------------------
 C        Species maps
@@ -294,15 +219,16 @@ C-----------------------------------------------------------------
 
          Water  = .FALSE.
          Ag     = .FALSE.
-         Forest = .FALSE.
+         l_ag   = 0
          DO l = 1, Tile_Data%n_lufrac
-            Select Case( Tile_Data%cat_lu( l ) )
+            Select Case( trim( Tile_Data%cat_lu( l ) ) )
                Case( 'WATER' )
                   Water( l ) = .TRUE.
                   l_leaf( l ) = 0.0
                   l_aero( l ) = 0.0
                   a_cut( l )  = 0.0
                Case( 'AG'    )
+                  l_ag       = l
                   ag( l )    = .TRUE.
                   l_leaf( l ) = 0.02
                   l_aero( l ) = 0.005
@@ -322,17 +248,14 @@ C-----------------------------------------------------------------
                   l_aero( l ) = 0.01
                   a_cut( l )  = 0.120
                Case( 'DECFORB','DECFORN' )
-                  Forest( l ) = .TRUE.
                   l_leaf( l ) = 0.05
                   l_aero( l ) = 0.01
                   a_cut( l )  = 0.0318
                Case( 'EVEFORB','EVEFORN' )
-                  Forest( l ) = .TRUE.
                   l_leaf( l ) = 0.005
                   l_aero( l ) = 0.002
                   a_cut( l )  = 0.0318
                Case( 'MIXFOR' )
-                  Forest( l ) = .TRUE.
                   l_leaf( l ) = 0.028
                   l_aero( l ) = 0.005
                   a_cut( l )  = 0.0318
@@ -357,7 +280,7 @@ C-----------------------------------------------------------------
 
          END SUBROUTINE INIT_STAGE
 
-         SUBROUTINE GAS_X( JDate, JTime, TStep, c, r, cgridl1, bidi_emis, depvel_gas )    
+         SUBROUTINE GAS_X( JDate, JTime, TStep, c, r, cgridl1 )        
         
          Use NH3_BIDI_MOD
          Use MOSAIC_MOD, Only: Tile_Data 
@@ -369,8 +292,6 @@ C-----------------------------------------------------------------
          Integer, Intent( IN )  :: JDate, JTime, c, r      ! internal simulation date&time
          REAL,    Intent( IN )  :: cgridl1( : )    ! layer 1 concentrations
          REAL,    Intent( IN )  :: TStep           ! Time step in seconds
-         Real,    Intent( OUT ) :: bidi_emis( : )        ! model emissions term
-         Real,    Intent( OUT ) :: depvel_gas( : ) ! instantanious deposition velocity 
 C Parameters specific to gas_x. Currently based on m3dry but subject to change
          Real, Parameter :: d3         = 1.38564e-2 ! [dim'less]
          Real, Parameter :: hplus_ap   = 1.0e-6     ! pH=6.0 leaf apoplast solution Ph (Massad et al 2008)      
@@ -382,6 +303,7 @@ C Parameters specific to gas_x. Currently based on m3dry but subject to change
          Real            :: surf_bldg, surf_leaf, kno2, conc_no2
          Real            :: heff_ap, heff_wat, heff
          Real            :: hplus
+         Real            :: scc_pr_23        ! (SCC/PR)**2/3, fn of DIF0
          Real            :: sm_v5cm, sm_v1cm, sm_vsat, sm_vfc, sm_vwlt, sm_vres, sm_bslp ! soil volumetric hydraulic properties
          Real            :: dif_T, k_vis, dwat_T ! mass transport between the air-water droplet interface
          Real            :: temp_g, temp_2m, q_2m, rh, ustar, lai ! column met data
@@ -465,21 +387,20 @@ C Parameters specific to gas_x. Currently based on m3dry but subject to change
          k_vis  = kvis*1.0e-4 * ( temp_2m/STDTEMP )**1.81 ! Following Massman 1999
          dwat_T    = dwat*1.0e-4 * ( temp_2m/STDTEMP )**1.81 ! Following Massman 1999
          n = 0
-         bidi_emis = 0.0
-         depvel_gas = 0.0
          n_diag = 0
          spc_loop: Do s = 1, dep_gas_all
             IF ( asx_run_map( s ) ) Then
             n = n + 1
-            IF( MOSAIC .And. STAGE_Diag_Data%dep_map_gas( s ) ) n_diag = n_diag + 1
+            Tile_Data%Grd_Vd( C, R, n )    = 0.0
+            Tile_Data%Bidi_Emis( C, R, n ) = 0.0
 ! Special cases
             if( s .eq. s_NH3 ) NH3_hit = .True.
             if( s .eq. s_O3 ) O3_hit  = .True.
             if( s .eq. s_Hg ) Hg_hit  = .True.
 ! Following Fuller et al 1966. Here we use the LeBas molar volume which is similar to Fuller's diffusive volume
-            dif_T   = 1.0e-7*temp_2m**1.75 * sqrt( 1.0/MWAIR + 1.0/molwt_all( s ) ) / 
+            dif_T     = 1.0e-7*temp_2m**1.75 * sqrt( 1.0/MWAIR + 1.0/molwt_all( s ) ) / 
      &                ( MOLVOL**(1.0/3.0) + LeBasM( s )**(1.0/3.0) )**2 
-            scc_pr_23( s ) = ( ( k_vis / dif_T ) / pr ) ** twothirds
+            scc_pr_23 = ( ( k_vis / dif_T ) / pr ) ** twothirds
 
             c_atm = max( cgridl1( n ), 1.0e-30 )
             f_stom    = 0.0
@@ -536,7 +457,7 @@ C Get Ra
 !-------------------------------------------------------------------------------------------------
 ! Quasi-laminar boundary layer resistance
 !-------------------------------------------------------------------------------------------------
-               Rb  = Calc_Rbw( ustar, scc_pr_23( s ) )
+               Rb  = Calc_Rbw( ustar, scc_pr_23 )
 !-------------------------------------------------------------------------------------------------
 ! Air-water exchange
 !-------------------------------------------------------------------------------------------------
@@ -551,7 +472,7 @@ C Get Ra
                      LU_Emis = c_wat / ( Ra + Rb + Rwat )
                   End If
 
-                  Tile_Data%depvel_gasj( l,n,c,r ) = 1.0 / ( Ra + Rb + Rwat ) 
+                  Tile_Data%Lu_Vd( c,r,n,l ) = 1.0 / ( Ra + Rb + Rwat )  
                   f_wat  = f_wat  + frac_lu * ( c_wat - c_atm ) / ( Ra + Rb + Rwat )   
                Else 
 !-------------------------------------------------------------------------------------------------
@@ -616,12 +537,12 @@ C Calculate Rst
      &                          dry, wet, snow, no_snow, O3_Hit, NH3_Hit, ABFLUX ) 
 
                   If( ABFLUX .And. NH3_Hit ) Then
-                     Call Get_NH3_Comp( c_stom, c_grnd, dif_T, r, c, l, s )                                                                       ! Qauzi Laminar Boundary Layer resistance
+                     Call Get_NH3_Comp( c_stom, c_grnd, dif_T, r, c, l, l_ag )                                                                       ! Qauzi Laminar Boundary Layer resistance
                   End If ! ABFLUX and NH3
 
-                     Rgc = Rgnd + Rbgc + Rinc 
+                  Rgc = Rgnd + Rbgc + Rinc 
 
-                     Rg  = Rgnd +  Rb   
+                  Rg  = Rgnd +  Rb   
 
 !-------------------------------------------------------------------------------------------------
 ! Calcuate the compensation points follwing Nimitz et al 2001
@@ -663,7 +584,7 @@ C Calculate Rst
 ! Bidirectional exchange
 !-------------------------------------------------------------------------------------------------                                                               
                      LU_Emis = max( vd * c_atm - LU_Flux, 0.0 )          ! should always be greater than 0
-                     Tile_Data%depvel_gasj( l,n,c,r ) = vd                                ! Deposition velocity
+                     Tile_Data%Lu_Vd( c,r,n,l ) = vd                                ! Deposition velocity
                      f_soil = f_soil + frac_lu * ( veg * ( ( c_grnd - c_z0 ) / Rgc ) + 
      &                                         no_veg * (c_grnd - c_atm)/( Ra + Rg ) )            ! air-soil flux
                      f_stom = f_stom + frac_lu * veg * ( c_stom - c_leaf ) / Rst 
@@ -672,29 +593,26 @@ C Calculate Rst
 !-------------------------------------------------------------------------------------------------
 ! Non bidirectional exchange
 !-------------------------------------------------------------------------------------------------   
-                     Tile_Data%depvel_gasj( l,n,c,r ) =  vd
+                     Tile_Data%Lu_Vd( c,r,n,l ) =  vd
                   End If ! compensation points greater than 0
                End If ! Water    
 ! Generalization of the production and deposition velocity terms
-               bidi_emis( n )  = bidi_emis( n )  + frac_lu * LU_Emis
-               depvel_gas( n ) = depvel_gas( n ) + 
-     &                           frac_lu * Tile_Data%depvel_gasj( l,n,c,r )
-               IF( MOSAIC .And. STAGE_Diag_Data%dep_map_gas( s ) .AND. frac_lu .Gt. 0.0 ) THEN
-                  STAGE_Diag_Data%Vd_gas(c,r,n_diag,l) = Tile_Data%depvel_gasj( l,n,c,r ) * 
-     &                                                   STAGE_Diag_Data%dep_fac_gas( s ) * 100.0                   
-               END IF
+               Tile_Data%Bidi_Emis( C, R, n ) = Tile_Data%Bidi_Emis( C, R, n )  + 
+     &                                          frac_lu * LU_Emis
+               Tile_Data%Grd_Vd( C, R, n ) = Tile_Data%Grd_Vd( C, R, n ) + 
+     &                           frac_lu * Tile_Data%Lu_Vd( c,r,n,l )
             End If ! frac_lu > 0
 
             End Do lu_loop
             If(ABFLUX .And. NH3_Hit ) Then
                If( sum(Tile_Data%LUFRAC(c,r,:),mask=Ag) .Gt. 0.0 ) Then 
-                  Call Calc_Nitrif ( TStep, C, R, soil_flux )
+                  Call Calc_Nitrif ( TStep, C, R, l_ag, soil_flux )
                End If
             End If
             If(HGBIDI .And. Hg_Hit ) Then
                flux_hgII = 0.0 
 ! negative values are deposition fluxes
-               flux_hgII = -Sum( Tile_Data%depvel_gasj( :,n_HgII,c,r ) * Tile_Data%LUFRAC( c,r,: ), mask = WATER)
+               flux_hgII = -Sum( Tile_Data%Lu_Vd( c,r,n_HgII,: ) * Tile_Data%LUFRAC( c,r,: ), mask = WATER)
 
                Call Hg_Surf_Update ( f_stom, f_cut, f_soil, f_wat, flux_hgII, 
      &                               Heff_wat, Heff, TStep, c, r, Jdate, Jtime )
@@ -746,13 +664,13 @@ C Determine NO2 concentration needed for HONO production term.
                END IF
 C Calculate production (bidi_emis) for HONO; unit = ppm * m/s
                IF ( s .EQ. s_HONO ) Then
-                  bidi_emis( n ) = kno2 * conc_no2 * MET_DATA%ZF( c,r,1 )
+                  Tile_Data%Bidi_Emis( C, R, n ) = kno2 * conc_no2 * MET_DATA%ZF( c,r,1 )
                END IF 
             END IF
 
             ! Check for negative values or NaN's                  
-            if(isnan(bidi_emis(n))) write(logdev,*) 'NaN in ',vd_name( s ),' production term'
-            if(isnan(depvel_gas(n))) write(logdev,*) 'NaN in ',vd_name( s ),' Vd term'
+            if(isnan(Tile_Data%Bidi_Emis( C, R, n ))) write(logdev,*) 'NaN in ',vd_name( s ),' production term'
+            if(isnan(Tile_Data%Grd_Vd( C, R, n ))) write(logdev,*) 'NaN in ',vd_name( s ),' Vd term'
             NH3_hit = .False.
             O3_hit  = .False.
             Hg_hit  = .False.
@@ -762,7 +680,7 @@ C Calculate production (bidi_emis) for HONO; unit = ppm * m/s
          Return         
          END SUBROUTINE GAS_X
 
-         SUBROUTINE AERO_X(CGRID, JDATE, JTIME, TSTEP, VDEP_AE, C, R )
+         SUBROUTINE AERO_X(CGRID, C, R )
 
 C *** Calculate deposition velocity for Aitken, accumulation, and
 C     coarse modes.
@@ -798,13 +716,7 @@ C Includes:
 
 C Arguments
          REAL,    POINTER       :: CGRID( :,:,:,: )
-         INTEGER, INTENT( IN )  :: JDATE               ! current model date , coded YYYYDDD
-         INTEGER, INTENT( IN )  :: JTIME               ! current model time , coded HHMMSS
-         INTEGER, INTENT( IN )  :: TSTEP               ! model time step, coded HHMMSS
          INTEGER, INTENT( IN )  :: C,R                 ! Column and Row
-         REAL,    INTENT( OUT ) :: VDEP_AE( : )        ! surrogate deposition velocities [ m s**-1 ]
-
-
 
 C *** array indices hardcoded to match SUBROUTINE AERO_DEPV
       INTEGER, PARAMETER, DIMENSION( 3 ) :: 
@@ -828,7 +740,7 @@ C Meteorological variables
          CHARACTER( 16 ) :: VNAME            ! variable name
          CHARACTER( 96 ) :: XMSG = ' '
 
-         INTEGER  V, N, L               ! loop counters
+         INTEGER  V, N, L, NDX          ! loop counters
          INTEGER  n_diag
          INTEGER  SPC, S                ! species loop counter
          INTEGER  ALLOCSTAT
@@ -973,7 +885,6 @@ C Calculate characteristic parameters
 C ***    Land use paramters
                Veg     = Mosaic_Data%VEG( C,R,L )
                Ustar   = Mosaic_Data%USTAR( C,R,L )
-               Wstar   = Mosaic_Data%WSTAR( C,R,L )
                lai     = Mosaic_Data%LAI( C,R,L )
                Ra      = Mosaic_Data%RA( C,R,L )
                lu_frac = Tile_Data%LUFRAC( C,R,L )
@@ -984,7 +895,7 @@ C ***    Land use paramters
                IF ( lu_frac .Eq. 0.0 ) Cycle lu_loop
 
 C now calculate the deposition velocities
-               UTSCALE = Ustar + 0.24 * Wstar**2 / Ustar
+               UTSCALE = Ustar 
 
 C get surace resistance for smooth and vegetative surfaces
                If(lai .Gt. 0.0 ) Then
@@ -1014,18 +925,14 @@ C now integrate to the aera weighted grid cell
 C Return dry deposition velocities for aerosols (first layer only).
          n_diag = 0
          DO V = 1, N_AE_DEPV
+            NDX = N_GC_DEPV + N_NR_DEPV + N_TR_DEPV + V
             IF ( DEPV_SUR( V ) .GT. 0 ) THEN
-               VDEP_AE( V ) = VDEP( DEPV_SUR( V ) )
-               Tile_Data%ADEPVJ( :,V,C,R ) = VDEPJ( :,DEPV_SUR( V ) )
+               Tile_Data%Grd_Vd( C,R,NDX )   = VDEP( DEPV_SUR( V ) ) 
+               Tile_Data%Lu_Vd( C,R,NDX,: )  = VDEPJ( :,DEPV_SUR( V ) )
             ELSE
-               VDEP_AE( V ) = 0.0
-               Tile_Data%ADEPVJ( :,V,C,R ) = 0.0 
+               Tile_Data%Grd_Vd( C,R,NDX ) = 0.0
+               Tile_Data%Lu_Vd( C,R,NDX,: )  = 0.0  
             END IF 
-            IF( MOSAIC .And. STAGE_Diag_Data%dep_map_aero( V ) ) THEN
-               n_diag = n_diag + 1
-               STAGE_Diag_Data%Vd_aero(c,r,n_diag,:) = VDEPJ( :,DEPV_SUR( V ) ) *                  
-     &             STAGE_Diag_Data%dep_fac_aero( V ) * 100.0 
-            END IF
          END DO
                     
          Return
