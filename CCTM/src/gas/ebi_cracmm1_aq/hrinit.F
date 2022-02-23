@@ -29,7 +29,7 @@ C  RETURN VALUES: None
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, Feb 11, 2022
+C  REVISION HISTORY: Created by EBI solver program, Feb 23, 2022
 C   21 Jun 10 J.Young:   convert for Namelist redesign
 C   18 Jul 14 B.Hutzell: revised to use the RXNS_DATA and RXNS_FUNCTION
 C                        modules instead of include files
@@ -277,37 +277,37 @@ c..Allocate and define ebi species
       EBISP( 123 ) = VROCP0OXY2
       EBISP( 124 ) = VROCN2OXY2
       EBISP( 125 ) = SESQRO2
-      EBISP( 126 ) = AGLYJ
-      EBISP( 127 ) = AISONJ
-      EBISP( 128 ) = ATRPNJ
-      EBISP( 129 ) = IEPOXP
-      EBISP( 130 ) = AISO3NOSJ
-      EBISP( 131 ) = ASO4J
-      EBISP( 132 ) = AISO3OSJ
-      EBISP( 133 ) = VROCP6ALK
-      EBISP( 134 ) = VROCP6ALKP
-      EBISP( 135 ) = VROCP5ALK
-      EBISP( 136 ) = VROCP5ALKP
-      EBISP( 137 ) = VROCP4ALK
-      EBISP( 138 ) = VROCP4ALKP
-      EBISP( 139 ) = VROCP3ALK
-      EBISP( 140 ) = VROCP3ALKP
-      EBISP( 141 ) = VROCP2ALK
-      EBISP( 142 ) = VROCP2ALKP
-      EBISP( 143 ) = VROCP1ALK
-      EBISP( 144 ) = VROCP1ALKP
-      EBISP( 145 ) = HC10
-      EBISP( 146 ) = VROCP6ALKP2
-      EBISP( 147 ) = VROCP5ALKP2
-      EBISP( 148 ) = VROCP4ALKP2
-      EBISP( 149 ) = VROCP2OXY2
-      EBISP( 150 ) = VROCP3ALKP2
-      EBISP( 151 ) = VROCP2ALKP2
-      EBISP( 152 ) = VROCN1OXY1
-      EBISP( 153 ) = VROCP1ALKP2
-      EBISP( 154 ) = HC10P2
-      EBISP( 155 ) = VROCP1OXY1
-      EBISP( 156 ) = VROCP1OXY3
+      EBISP( 126 ) = VROCP1OXY3
+      EBISP( 127 ) = AGLYJ
+      EBISP( 128 ) = AISONJ
+      EBISP( 129 ) = ATRPNJ
+      EBISP( 130 ) = IEPOXP
+      EBISP( 131 ) = AISO3NOSJ
+      EBISP( 132 ) = ASO4J
+      EBISP( 133 ) = AISO3OSJ
+      EBISP( 134 ) = VROCP6ALK
+      EBISP( 135 ) = VROCP6ALKP
+      EBISP( 136 ) = VROCP5ALK
+      EBISP( 137 ) = VROCP5ALKP
+      EBISP( 138 ) = VROCP4ALK
+      EBISP( 139 ) = VROCP4ALKP
+      EBISP( 140 ) = VROCP3ALK
+      EBISP( 141 ) = VROCP3ALKP
+      EBISP( 142 ) = VROCP2ALK
+      EBISP( 143 ) = VROCP2ALKP
+      EBISP( 144 ) = VROCP1ALK
+      EBISP( 145 ) = VROCP1ALKP
+      EBISP( 146 ) = HC10
+      EBISP( 147 ) = VROCP6ALKP2
+      EBISP( 148 ) = VROCP5ALKP2
+      EBISP( 149 ) = VROCP4ALKP2
+      EBISP( 150 ) = VROCP2OXY2
+      EBISP( 151 ) = VROCP3ALKP2
+      EBISP( 152 ) = VROCP2ALKP2
+      EBISP( 153 ) = VROCN1OXY1
+      EBISP( 154 ) = VROCP1ALKP2
+      EBISP( 155 ) = HC10P2
+      EBISP( 156 ) = VROCP1OXY1
       EBISP( 157 ) = VROCP6ARO
       EBISP( 158 ) = VROCP6AROP
       EBISP( 159 ) = VROCN2OXY4
@@ -462,6 +462,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       RTOL( VROCP0OXY2  ) = 5.0D-04
       RTOL( VROCN2OXY2  ) = 5.0D-04
       RTOL( SESQRO2     ) = 5.0D-04
+      RTOL( VROCP1OXY3  ) = 5.0D-04
       RTOL( AGLYJ       ) = 5.0D-04
       RTOL( AISONJ      ) = 5.0D-04
       RTOL( ATRPNJ      ) = 5.0D-04
@@ -492,7 +493,6 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       RTOL( VROCP1ALKP2 ) = 5.0D-04
       RTOL( HC10P2      ) = 5.0D-04
       RTOL( VROCP1OXY1  ) = 5.0D-04
-      RTOL( VROCP1OXY3  ) = 5.0D-04
       RTOL( VROCP6ARO   ) = 5.0D-04
       RTOL( VROCP6AROP  ) = 5.0D-04
       RTOL( VROCN2OXY4  ) = 5.0D-04

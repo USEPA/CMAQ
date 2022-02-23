@@ -1416,8 +1416,8 @@ REACTIONS[CM] =
 <R016c> SESQ + HO            = SESQRO2             # 1.97E-10;
 <R017c> SESQRO2 + HO2        = VROCP0OXY2           # 2.84E-13 @ -1300.0;
 <R019c> SESQRO2 + NO3        = VROCP3OXY2           # 2.3E-12;
-<R020c> SESQRO2 + NO         = 0.247*VROCP0OXY2 
-                                 + 0.753*VROCP0OXY2
+<R020c> SESQRO2 + NO         = 0.247*VROCP1OXY3 
+                                 + 0.753*VROCP3OXY2
                                  + 0.753*NO2       # 2.70E-12 @ -360.0;
 
 ! GLY and MGLY uptake
