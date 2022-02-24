@@ -42,6 +42,7 @@
             TYPE( EM_REG ), ALLOCATABLE :: EM_REGIONS( : )
             REAL, ALLOCATABLE           :: EM_REG_FAC( :,:,: )
 
+            ! Define Structire for Emission Scaling Rules
             TYPE EM_RULE_REG
                 CHARACTER( 32 ) :: REGION
                 CHARACTER( 32 ) :: STREAM
@@ -53,15 +54,25 @@
                 CHARACTER( 1  ) :: OP
             END TYPE EM_RULE_REG
             INTEGER, PARAMETER  :: N_EM_RULE_REG = 2000
-            TYPE( EM_RULE_REG ), ALLOCATABLE :: EM_NML( : )
+            TYPE( EM_RULE_REG ) :: EM_NML( N_EM_RULE_REG )
 
+            ! Define Structure for Area Normalization
+            TYPE AREA_REG
+                CHARACTER( 32 ) :: STREAM
+                CHARACTER( 32 ) :: AREA
+                CHARACTER( 32 ) :: ADJ
+            END TYPE AREA_REG
+            INTEGER, PARAMETER  :: N_AREA_REG = 100
+            TYPE( AREA_REG )    :: AREA_NML( N_AREA_REG )
+
+            ! Define Structure for Region Masks
             TYPE REGIONS_REG
                 CHARACTER( 32 ) :: LABEL
                 CHARACTER( 32 ) :: FILE
                 CHARACTER( 32 ) :: VAR
             END TYPE REGIONS_REG
             INTEGER, PARAMETER  :: N_REGIONS_REG = 600
-            TYPE( REGIONS_REG ), ALLOCATABLE :: RGN_NML( : )
+            TYPE( REGIONS_REG ) :: RGN_NML( N_REGIONS_REG )
 
             ! Define Structure for Size Distribution Rule      
             TYPE SD_RULE
@@ -70,38 +81,14 @@
                 CHARACTER( 16 ) :: MODE_REF
             END TYPE SD_RULE
             INTEGER, PARAMETER :: N_SD_REG = 200
-            TYPE( SD_RULE ), ALLOCATABLE :: SD_NML( : )
+            TYPE( SD_RULE )    :: SD_NML( N_SD_REG )
 
-            ! Define General Parameters for Ignoring Online Streams when
-            ! Scaling All Streams with the "ALL" Keyword
-            LOGICAL :: Guard_BiogenicVOC   = .FALSE.
-            LOGICAL :: Guard_MarineGas     = .FALSE.
-            LOGICAL :: Guard_LightningNO   = .FALSE.
-            LOGICAL :: Guard_WindBlownDust = .FALSE.
-            LOGICAL :: Guard_SeaSpray      = .FALSE.
-
-            ! Define Chemical Family Variables
-            INTEGER, PARAMETER          :: N_CHEM_FAMILY_REG = 50
-            INTEGER, PARAMETER          :: N_CHEM_MEMBER_REG = 100
-            INTEGER                     :: NCHEMFAMILIES
-            CHARACTER( 32 ),ALLOCATABLE :: CHEMFAMILYNAME( : )
-            INTEGER, ALLOCATABLE        :: CHEMFAMILYNUM( : )
-            CHARACTER( 32 ),ALLOCATABLE :: CHEMFAMILYMEMBERS( :,: )
-
-            ! Define Stream Family Variables
-            INTEGER, PARAMETER          :: N_STREAM_FAMILY_REG = 50
-            INTEGER, PARAMETER          :: N_STREAM_MEMBER_REG = 100
-            INTEGER                     :: NSTREAMFAMILIES
-            CHARACTER( 32 ),ALLOCATABLE :: STREAMFAMILYNAME( : )
-            INTEGER, ALLOCATABLE        :: STREAMFAMILYNUM( : )
-            CHARACTER( 32 ),ALLOCATABLE :: STREAMFAMILYMEMBERS( :,: )
-
-            ! Define Region Family Variables
-            INTEGER, PARAMETER          :: N_REGION_FAMILY_REG = 50
-            INTEGER, PARAMETER          :: N_REGION_MEMBER_REG = 100
-            INTEGER                     :: NREGIONFAMILIES
-            CHARACTER( 32 ),ALLOCATABLE :: REGIONFAMILYNAME( : )
-            INTEGER, ALLOCATABLE        :: REGIONFAMILYNUM( : )
-            CHARACTER( 32 ),ALLOCATABLE :: REGIONFAMILYMEMBERS( :,: )
+            ! Define Variables for Emissions Diagnostics
+            INTEGER, PARAMETER :: N_EMDIAG_REG = 60
+            INTEGER, PARAMETER :: N_EMDIAG_SPEC_REG = 80
+            INTEGER         :: NEmissDiag            = 0
+            CHARACTER( 32 ) :: EmissDiagStreams(N_EMDIAG_REG,20)
+            CHARACTER( 6 )  :: EmissDiagFmt( N_EMDIAG_REG )       
+            CHARACTER( 16 ) :: EmissDiagSpec(N_EMDIAG_REG,N_EMDIAG_SPEC_REG) 
 
           end module em_param_module

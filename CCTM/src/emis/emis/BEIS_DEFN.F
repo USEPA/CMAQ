@@ -36,7 +36,7 @@ C-----------------------------------------------------------------------
       INTEGER,              SAVE :: N_SPC_BIOG ! biogenics emissions species
       REAL,    ALLOCATABLE, SAVE :: VDEMIS_BI( :,:,: ) ! beis emis
       INTEGER, ALLOCATABLE, SAVE :: BEIS_MAP( : ) ! map to GC
-      CHARACTER( 16 ),      SAVE :: CTM_BIOGEMIS = 'CTM_BIOGEMIS'! env var for
+      CHARACTER( 16 ),      SAVE :: CTM_BIOGEMIS_BEIS = 'CTM_BIOGEMIS_BEIS'! env var for
 
       CONTAINS
 
@@ -73,7 +73,7 @@ C In-line biogenic emissions?
          CALL LOG_SUBHEADING( LOGDEV, 'Initialize Online Biogenic VOC Emissions Module (BEIS)' )
 
 C biogenics to gas-phase species map
-         IF ( BIOGEMIS ) THEN
+         IF ( BIOGEMIS_BEIS ) THEN
 
             XMSG = 'Using in-line biogenic emissions option'
             CALL M3MSG2( XMSG )
@@ -99,7 +99,7 @@ C biogenics to gas-phase species map
 
 C=======================================================================
 
-         SUBROUTINE GET_BEIS ( JDATE, JTIME, TSTEP )
+         SUBROUTINE GET_BEIS ( JDATE, JTIME, TSTEP, L_DESID_DIAG )
 
          USE EMIS_VARS, ONLY : N_EMIS_ISTR, IBIOSRM,
      &                         MAP_EMtoSURR, MAP_EMtoDIFF
@@ -109,12 +109,15 @@ C=======================================================================
 
          INTEGER JDATE, JTIME, TSTEP( 3 ), ISTR
          LOGICAL, SAVE :: FIRST_TIME = .TRUE.
+         LOGICAL, INTENT( IN ) :: L_DESID_DIAG
 
          INTERFACE
-            SUBROUTINE TMPBEIS312 ( MDATE, MTIME, TSTEP, BEIS_MAP, VDEMIS_BI )
+            SUBROUTINE TMPBEIS312 ( MDATE, MTIME, TSTEP, BEIS_MAP, 
+     &                              VDEMIS_BI, L_DESID_DIAG )
                INTEGER, INTENT(  IN ) :: MDATE, MTIME, TSTEP( 3 )
                INTEGER, INTENT(  IN ) :: BEIS_MAP( : )
                REAL,    INTENT( OUT ) :: VDEMIS_BI( :,:,: )
+               LOGICAL, INTENT(  IN ) :: L_DESID_DIAG
             END SUBROUTINE TMPBEIS312
          END INTERFACE
 
@@ -133,7 +136,7 @@ C-----------------------------------------------------------------------
              FIRST_TIME = .FALSE.
          END IF    
 
-         CALL TMPBEIS312( JDATE, JTIME, TSTEP, BEIS_MAP, VDEMIS_BI )
+         CALL TMPBEIS312( JDATE, JTIME, TSTEP, BEIS_MAP, VDEMIS_BI, L_DESID_DIAG )
 
          RETURN
 

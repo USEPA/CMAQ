@@ -14,9 +14,9 @@ the RXNS_DATA_MODULE.F90 and RXNS_FUNC_MODULE.F90 files.
 
 To create mechanism modules:
 
-1.  Compile chemmech by modifying the build script in the scripts directory. 
-    - Set the Fortran **COMPILER** based on your system, save and execute the script. The script runs a Makefile set for 
-    three options of compilers: Intel (INTEL), Portland Group (PGF90), and gcc gfortran (GFORT). If a user wishes to use a compiler
+1.  Compile chemmech by modifying the build script in the scripts directory. The syntax is ./bldit_chemmech.csh [compiler]
+    - Set the Fortran compiler based on your system, save and execute the script. The script runs a Makefile set for 
+    three options of compilers: Intel (intel), Portland Group (pgi), and gcc gfortran (gcc). If a user wishes to use a compiler
     outside this group, they have to modify the Makefile under the src subdirectory.
 
 2.  Modify the run script by setting the Photochemical Mechanism to use. Table 1 lists run time options.
@@ -191,7 +191,7 @@ Rate constant parameters begin with either a # sign or the expression, "%s#", wh
 | 9.1 | %3  #  A0^B0@E0&A1\^B1@E1&A2@E2 | A0\*(T/300)\*\*B0\*EXP(-E0/T)+A1\*(T/300)\*\*B1\*EXP(-E1/T)\*M+A2\*EXP(-E2/T) |  
 | 10  | #  A0^B0@E0&A1\^B1@E1&N&F       | [  ko\*M/(1+ko\*M/kinf)]F\*\*G  where  ko  =  A0\*(T/300)\*\*B0\*EXP(-E0/T),  kinf  =  A1\*(T/300)\*\*B1\*EXP(-E1/T)  and  G  =  G=1/[1+(log10(k0\*M/kinf)/n)**2)]  |  
 | 11  | #A?OPERATOR                    | A\*O |  
-| 12  |  %H  #  A0@E0&A1@E1            | A0\*EXP(-E0\*P)+A1\*EXP(-E1\*P)  if  the  sun  is  above  the  horizon  and  the  surface  is over  open  water  with  no  surf  zone.  0.0  if  otherwise |  
+| 12  |  %H  #  A0@E0&A1@E1&A2            | min(A0\*EXP(-E0\*P)+A1\*EXP(-E1\*P), A2)  if  the  sun  is  above  the  horizon  and  the  surface  is over  open  water  with  no  surf  zone.  0.0  if  otherwise |  
 | 13  | %4 # _Text String_     | Simple Fortran formula for rate constant | 
 
 **Notes:**   
@@ -251,7 +251,7 @@ Use reaction type 13 to access the value of a formula expressed in the __FUNCTIO
 
 ## Compiling and debugging chemmech
 
-Two methods exist for building chemmech. The method to use depends on the FORTRAN compiler that will be used. If the Intel (INTEL), Portland (PGF90) or GCC (GFORT) compilers are available, the first and standard method executes the bldit_chemmech.csh script after changing the script’s COMPILER variable to one of the three options. If none of these compilers are to be used, the user has to modify src/Makefile to use the intended compiler and create chemmech using the make command.  As implied by the compilers available in the bldit script, chemmech has been tested with each to verify consistent results between compilers. The current Makefile includes the debug flags in the compilers options so the user can identify the cause and location when chemmech crashes. Crashes occur the mech.def contains information that exceeds the parameters defining array dimensions. The src/MECHANISM_PARMS.f file defines these parameters. The user can change many of the parameters then rebuild chemmech so the utility fits the application. Table 3 lists the parameter and state whether user should change their values.
+Two methods exist for building chemmech. The method to use depends on the FORTRAN compiler that will be used. If the Intel (ntel), Portland (pgi) or GCC (gcc) compilers are available, the first and standard method executes the bldit_chemmech.csh script after changing the script’s $compiler variable to one of the three options. If none of these compilers are to be used, the user has to modify src/Makefile to use the intended compiler and create chemmech using the make command.  As implied by the compilers available in the bldit script, chemmech has been tested with each to verify consistent results between compilers. The current Makefile includes the debug flags in the compilers options so the user can identify the cause and location when chemmech crashes. Crashes occur the mech.def contains information that exceeds the parameters defining array dimensions. The src/MECHANISM_PARMS.f file defines these parameters. The user can change many of the parameters then rebuild chemmech so the utility fits the application. Table 3 lists the parameter and state whether user should change their values.
 
 
 <center> Table 3. Limits placed on a Mechanism Definitions File </center>

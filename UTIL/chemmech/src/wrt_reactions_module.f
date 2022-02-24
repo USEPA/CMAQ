@@ -687,7 +687,8 @@ C Error-check phot tables and report to log
                    IF( IRRFALL( IDX ) .EQ. NXX )EXIT
                 END DO
                 CALL WRITE_RATE_CONVERT_BEFORE(MODULE_UNIT, IORDER(NXX))
-                WRITE( MODULE_UNIT, 5120 )RTDAT(1, NXX ),RFDAT(1, IDX),RTDAT(2, NXX ),RFDAT(2, IDX) ! ,PHOTAB(HAL_PHOTAB(NXX))
+                WRITE( MODULE_UNIT, 5120 )RTDAT(1, NXX ),RFDAT(1, IDX),RTDAT(2, NXX ),RFDAT(2, IDX),
+     &          RTDAT(3, NXX )  ! ,PHOTAB(HAL_PHOTAB(NXX))
              END DO
 	     WRITE(MODULE_UNIT,'(16X, A)')'END IF'
 	 END IF
@@ -1296,17 +1297,17 @@ C Error-check phot tables and report to log
      &      / 9X,'FALLOFF_T11 = K1 + K2 * CAIR + K3'
      &      / 9X,'RETURN'
      &      / 7X,'END FUNCTION FALLOFF_T11' 
-     &      / 7X,'REAL( 8 ) FUNCTION HALOGEN_FALLOFF(PRESS,A1,B1,A2,B2)'
+     &      / 7X,'REAL( 8 ) FUNCTION HALOGEN_FALLOFF(PRESS,A1,B1,A2,B2,A3)'
      &      / 9X,'IMPLICIT NONE'
-     &      / 9X,'REAL( 8 ), PARAMETER    :: MAX_RATE = 2.6750D-06  ! Maximum loss rate (1/sec)'
      &      / 9X,'REAL( 8 ), INTENT( IN ) :: PRESS'
      &      / 9X,'REAL( 8 ), INTENT( IN ) :: A1'
      &      / 9X,'REAL( 8 ), INTENT( IN ) :: B1'
      &      / 9X,'REAL( 8 ), INTENT( IN ) :: A2'
      &      / 9X,'REAL( 8 ), INTENT( IN ) :: B2'
+     &      / 9X,'REAL( 8 ), INTENT( IN ) :: A3 ! Maximum loss rate (1/sec)'
      &      / 9X,'INTRINSIC DEXP'
      &      / 9X,'HALOGEN_FALLOFF = A1 * DEXP( B1 * PRESS ) + A2 * DEXP( B2 * PRESS )'
-     &      / 9X,'HALOGEN_FALLOFF = DMIN1 (MAX_RATE, HALOGEN_FALLOFF )'
+     &      / 9X,'HALOGEN_FALLOFF = DMIN1 (A3, HALOGEN_FALLOFF )'
      &      / 9X,'RETURN'
      &      / 7X,'END FUNCTION HALOGEN_FALLOFF' 
      &      /    )
@@ -1412,7 +1413,7 @@ C Error-check phot tables and report to log
      &         47X,  3(1PD12.4,', '),' & ',
      &        / 5X,'&', 47X,  1PD12.4,', ', 1PD12.4,' )')
 5120   FORMAT('HALOGEN_FALLOFF( BLKPRES( NCELL ), ' 2(1PD12.4,', '), ' & ' / 5X, 
-     &        '&', 57X, (1PD12.4,', '), 6X, 1PD12.4, ' )')
+     &        '&', 57X, 2(1PD12.4,', '), 6X, 1PD12.4, ' )')
 
 5005   FORMAT('RKI( NCELL, ' I4, ' ) / ARR2( ',1PD12.4,', ',1PD12.4,' )')            
 5115   FORMAT('RKI( NCELL, ' I4, ' )' , ' & ' 
@@ -1479,15 +1480,15 @@ C Error-check phot tables and report to log
      &          / 7X,'END SUBROUTINE SPECIAL_RATES')
 95100  FORMAT(2X,A16,' = 0.0D0')        
 
-95066 FORMAT(11X,'RKI( NCELL,',I4,' ) = DEXP( -',1PD10.4,'*INV_TEMP ) * ', A16,' ! reaction: ',A)
-95067 FORMAT(11X,'RKI( NCELL,',I4,' ) = ',1PD10.4,' * DEXP( -',1PD10.4,'*INV_TEMP ) * ', A16,' ! reaction: ',A)
-95068 FORMAT(11X,'RKI( NCELL,',I4,' ) = ',1PD10.4,' * ', A16,' ! reaction: ',A)
+95066 FORMAT(11X,'RKI( NCELL,',I4,' ) = DEXP( -',1PD11.4,'*INV_TEMP ) * ', A16,' ! reaction: ',A)
+95067 FORMAT(11X,'RKI( NCELL,',I4,' ) = ',1PD11.4,' * DEXP( -',1PD11.4,'*INV_TEMP ) * ', A16,' ! reaction: ',A)
+95068 FORMAT(11X,'RKI( NCELL,',I4,' ) = ',1PD11.4,' * ', A16,' ! reaction: ',A)
 95069 FORMAT(11X,'RKI( NCELL,',I4,' ) = ')
-95076 FORMAT(11X,'RKI( NCELL,',I4,' ) = DEXP( ',1PD10.4,'*INV_TEMP ) * ', A16,' ! reaction: ',A)
-95077 FORMAT(11X,'RKI( NCELL,',I4,' ) = ',1PD10.4,' * DEXP( ',1PD10.4,'*INV_TEMP ) * ', A16,' ! reaction: ',A)
-95087 FORMAT(11X,'RKI( NCELL,',I4,' ) = -',1PD10.4,' * DEXP( -',1PD10.4,'*INV_TEMP ) * ', A16,' ! reaction: ',A)
-95086 FORMAT(11X,'RKI( NCELL,',I4,' ) = -',1PD10.4,' * DEXP( ',1PD10.4,'*INV_TEMP ) * ', A16,' ! reaction: ',A)
-95088 FORMAT(11X,'RKI( NCELL,',I4,' ) = -',1PD10.4,' * ', A16,' ! reaction: ',A)
+95076 FORMAT(11X,'RKI( NCELL,',I4,' ) = DEXP( ',1PD11.4,'*INV_TEMP ) * ', A16,' ! reaction: ',A)
+95077 FORMAT(11X,'RKI( NCELL,',I4,' ) = ',1PD11.4,' * DEXP( ',1PD11.4,'*INV_TEMP ) * ', A16,' ! reaction: ',A)
+95087 FORMAT(11X,'RKI( NCELL,',I4,' ) = -',1PD11.4,' * DEXP( -',1PD11.4,'*INV_TEMP ) * ', A16,' ! reaction: ',A)
+95086 FORMAT(11X,'RKI( NCELL,',I4,' ) = -',1PD11.4,' * DEXP( ',1PD11.4,'*INV_TEMP ) * ', A16,' ! reaction: ',A)
+95088 FORMAT(11X,'RKI( NCELL,',I4,' ) = -',1PD11.4,' * ', A16,' ! reaction: ',A)
 95070 FORMAT(11X,'RKI( NCELL,',I4,' ) = ',A16,13X,' ! reaction: ',A)
 95071 FORMAT('RKI( NCELL,',I4,' ) ')
 

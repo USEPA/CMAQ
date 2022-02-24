@@ -16,9 +16,9 @@
 #> the repository. The user may also set their own preferred 
 #> directory.
 
-
- #set CMAQ_HOME = [your_install_path]/openmpi_4.0.1_gcc_9.1.0_debug 
+#set CMAQ_HOME = [your_install_path]/openmpi_4.0.1_gcc_9.1.0_debug 
  set CMAQ_HOME = /home/username/CMAQ_Project
+
 
 #> This section allows users to choose explicitly which tools
 #> to make available from the repo. For each selected tool,
@@ -28,11 +28,14 @@
 
  #Utilities
  set EXT_JPROC = Y 
+ set EXT_MECH_BUILD = Y 
 
  # Pre-Processing Tools
  set EXT_BCON = Y 
  set EXT_ICON = Y 
  set EXT_MCIP = Y 
+ set EXT_CREATE_OMI = Y
+
  
  # Post-Processing Tools
  set EXT_COMBINE = Y 
@@ -98,6 +101,7 @@
        mkdir -pv $CMAQ_HOME/CCTM/scripts
     endif
     cp CCTM/scripts/bldit_cctm.csh $CMAQ_HOME/CCTM/scripts/bldit_cctm.csh
+    cp CCTM/scripts/bldit_mech.csh $CMAQ_HOME/CCTM/scripts/bldit_mech.csh
     cp CCTM/scripts/run_cctm_Bench_2011_12SE1.csh $CMAQ_HOME/CCTM/scripts/run_cctm_Bench_2011_12SE1.csh
     cp CCTM/scripts/run_cctm_2010_4CALIF1.csh $CMAQ_HOME/CCTM/scripts/run_cctm_2010_4CALIF1.csh
     cp CCTM/scripts/run_cctm_2011_12US1.csh $CMAQ_HOME/CCTM/scripts/run_cctm_2011_12US1.csh
@@ -119,6 +123,33 @@
     endif
     cp UTIL/jproc/scripts/bldit_jproc.csh $CMAQ_HOME/UTIL/jproc/scripts/bldit_jproc.csh
     cp UTIL/jproc/scripts/run_jproc.csh $CMAQ_HOME/UTIL/jproc/scripts/run_jproc.csh
+ endif
+
+#===============================================================================
+#> Copy CHEMMECH, INLINE_PHOT_PREPROC and CREATE_EBI scripts
+#===============================================================================
+ if ( $EXT_MECH_BUILD == 'Y' ) then
+    if ( ! -e "$CMAQ_HOME/UTIL/chemmech/scripts" ) then
+       mkdir -pv $CMAQ_HOME/UTIL/chemmech/scripts
+       mkdir -pv $CMAQ_HOME/UTIL/chemmech/input
+       mkdir -pv $CMAQ_HOME/UTIL/chemmech/output
+    endif
+    cp UTIL/chemmech/scripts/bldit_chemmech.csh $CMAQ_HOME/UTIL/chemmech/scripts/bldit_chemmech.csh
+    cp UTIL/chemmech/scripts/run_chemmech.csh $CMAQ_HOME/UTIL/chemmech/scripts/run_chemmech.csh
+    
+    if ( ! -e "$CMAQ_HOME/UTIL/inline_phot_preproc/scripts" ) then
+       mkdir -pv $CMAQ_HOME/UTIL/inline_phot_preproc/scripts
+       mkdir -pv $CMAQ_HOME/UTIL/inline_phot_preproc/input
+       mkdir -pv $CMAQ_HOME/UTIL/inline_phot_preproc/output
+    endif
+    cp UTIL/inline_phot_preproc/scripts/bldrun.inline_phot_preproc.csh $CMAQ_HOME/UTIL/inline_phot_preproc/scripts/bldrun.inline_phot_preproc.csh
+
+    if ( ! -e "$CMAQ_HOME/UTIL/create_ebi/scripts" ) then
+       mkdir -pv $CMAQ_HOME/UTIL/create_ebi/scripts
+       mkdir -pv $CMAQ_HOME/UTIL/create_ebi/input
+       mkdir -pv $CMAQ_HOME/UTIL/create_ebi/output
+    endif
+    cp UTIL/create_ebi/scripts/bldrun_create_ebi.csh $CMAQ_HOME/UTIL/create_ebi/scripts/bldrun_create_ebi.csh
  endif
 
 #===============================================================================
@@ -157,6 +188,18 @@
     cp PREP/mcip/src/* $CMAQ_HOME/PREP/mcip/src
  endif
  
+#===============================================================================
+#> Copy create_omi scripts
+#===============================================================================
+ if ( $EXT_CREATE_OMI == 'Y' ) then
+    if ( ! -e "$CMAQ_HOME/PREP/create_omi/scripts" ) then
+       mkdir -pv $CMAQ_HOME/PREP/create_omi/scripts
+    endif
+    cp PREP/create_omi/scripts/bldit_create_omi.csh $CMAQ_HOME/PREP/create_omi/scripts/bldit_create_omi.csh
+    cp PREP/create_omi/scripts/get_toms_data.q $CMAQ_HOME/PREP/create_omi/scripts/get_toms_data.q
+    cp PREP/create_omi/scripts/run_create_omi.csh $CMAQ_HOME/PREP/create_omi/scripts/run_create_omi.csh
+ endif
+
 #===============================================================================
 #> Copy Combine Post-Processor scripts
 #===============================================================================

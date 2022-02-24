@@ -34,7 +34,7 @@ The following sections outline the CMAQ code development and review process in g
 
 CMAQ uses a number versioning system for each release version branch, with major and minor increments. For example, in the case of hypothetical version 14.0 the first number (major version) and second number (minor version) refer to a stable release version. The minor version (second number) of CMAQ increments when one or many new science developments have been adopted. 
 Although these changes may significantly affect model results, the model will still be generally compatible with inputs developed for versions of the same major number. The major version (first number) of CMAQ increments when significant development changes to the code base have been adopted such that backward compatibility or comparability is no longer expected. Modifications to the publically released version without increment are prohibited in order to ensure consistency among published literature referring to a particular model version. 
-In between published releases the development team may publish solutions to model bugs and issues in the public repository under the folder [DOCS/Known_Issues](https://github.com/lizadams/CMAQ/tree/master/DOCS/Known_Issues). The README located in this folder describes existing known issues, their scope and impact, and how they may be solved.
+In between published releases the development team may publish solutions to model bugs and issues in the public repository under the folder [DOCS/Known_Issues](https://github.com/lizadams/CMAQ/tree/main/DOCS/Known_Issues). The README located in this folder describes existing known issues, their scope and impact, and how they may be solved.
 
 ## Development Versions
 
@@ -93,7 +93,7 @@ Examples of small, but important guidelines include:
 - In general, it is expected that MKS units are used for input and output variables, as these units have been standardized throughout the CMAQ system. If you use alternative units, please document this exhaustively.
 
 ### Benchmark Testing
-Dataset: The U.S. EPA Southeast US 12km domain July 1-14, 2011 testing dataset is provided with the CMAQv5.3 Release. This dataset is distributed for benchmarking and testing the model installation. It is available from CMAS; please go to https://www.epa.gov/cmaq/cmaq-inputs-and-test-case-data for instructions on how to download the test dataset.
+Dataset: The U.S. EPA Southeast US 12km domain July 1-14, 2016 testing dataset is provided with the CMAQv5.3 Release. This dataset is distributed for benchmarking and testing the model installation. It is available from CMAS; please go to https://www.epa.gov/cmaq/cmaq-inputs-and-test-case-data for instructions on how to download the test dataset.
 
 Before making code changes, developers should test multiple compilers (if they have access to them; see the following section on **Compiler Tests**), multiple processor configurations, and single processor configuration runs for a single simulation day to verify their results match the previous stable release, and/or that their results are computationally and physically reasonable. After implementing their code changes, developers should repeat these tests and share the results as part of the pull request documentation.
 
@@ -114,7 +114,7 @@ Documentation is of course an integral part of the integration of any contributi
 -   If the contribution is a new feature, developers are encouraged to publish its use in a peer-reviewed journal before submitting it to the CMAQ Public Repository.  
 
 *CMAQ Documentation Resources:*  
-Documentation for CMAQv5.3 is available at https://github.com/USEPA/CMAQ/tree/master/DOCS. Materials include:
+Documentation for CMAQv5.3 is available at https://github.com/USEPA/CMAQ/tree/main/DOCS. Materials include:
 -   User Guide which describes code structure and regular operation of the model.
 -   Release Notes describing code improvements relevant for this model release. 
 -   Tutorials that give specific instructions for common tasks like running CMAQ or adding chemical tracers.

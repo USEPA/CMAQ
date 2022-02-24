@@ -31,7 +31,9 @@
       IMPLICIT NONE
 
       SAVE
-
+      REAL,    ALLOCATABLE :: CELLAREA( :,: )
+      REAL,    ALLOCATABLE :: CELLHGT ( : )
+      REAL,    ALLOCATABLE :: CELLVOL ( :,:,: )
       REAL,    ALLOCATABLE :: VDEMIS_DIFF( :,:,:,: ) ! emissions array mapped to diffused species
 
       INTEGER              :: EMLAYS
@@ -45,12 +47,15 @@
 
       TYPE EM_SURR_TYPE
           INTEGER         :: LEN    ! Length of Sub-Vector
-          CHARACTER( 16 ), ALLOCATABLE :: ARRY( : )   ! Surrogate Name
-          CHARACTER( 16 ), ALLOCATABLE :: UNITS( : )  ! Units determined from input files
-          REAL,            ALLOCATABLE :: MW( : )     ! Default MW from SPECIATE/SMOKE/MOVE
-          LOGICAL,         ALLOCATABLE :: USED( : )   ! Whether or not the surrogate is used in CMAQ
-          Real,            ALLOCATABLE :: CONV( : )   ! Conversion factor to account for kg -> g or hr -> s
-          CHARACTER( 4 ),  ALLOCATABLE :: BASIS( : )  ! 'MOLE' or 'MASS'
+          CHARACTER( 16 ), ALLOCATABLE :: ARRY( : )    ! Surrogate Name
+          CHARACTER( 16 ), ALLOCATABLE :: UNITS( : )   ! Units determined from input files
+          REAL,            ALLOCATABLE :: MW( : )      ! Default MW from SPECIATE/SMOKE/MOVE
+          LOGICAL,         ALLOCATABLE :: USED( : )    ! Whether or not the surrogate is used in CMAQ
+          Real,            ALLOCATABLE :: CONV( : )    ! Conversion factor to account for kg -> g or hr -> s
+          CHARACTER( 16 ), ALLOCATABLE :: BASIS( : )   ! 'MOLE', 'MASS', or 'UNKNOWN' 
+          LOGICAL,         ALLOCATABLE :: LAREA( : )   ! Whether or not the variable is an area flux
+          LOGICAL,         ALLOCATABLE :: LAREAADJ( : )! Whether or not the emissions should be adjusted 
+                                                       !    by the map scale factor
       END TYPE EM_SURR_TYPE
       TYPE( EM_SURR_TYPE ),ALLOCATABLE :: EM_FILE_SURR( : )! Species to be read from each stream file
 
@@ -62,6 +67,10 @@
           REAL, ALLOCATABLE    :: BULK(:) ! Scale Factor for bulk emission without
                                           !   splitting for aerosols
           REAL, ALLOCATABLE    :: BASIS(:)! Conversion factor to account for mole or mass basis
+          LOGICAL, ALLOCATABLE :: AREA(:) ! True if the emission is a flux that needs to be multiplied 
+                                          !   by the grid cell area
+          LOGICAL, ALLOCATABLE :: AREAADJ(:) ! True if the emissions need to be adjusted by the map scale
+                                             !   factor to convert from real space to projected space
           INTEGER, ALLOCATABLE :: REG(:)  ! Index Mapping this entry to a particlar region in EM_REGIONS
           INTEGER, ALLOCATABLE :: OP(:)   ! Operation to perform for this scaling
                                           !   (addition,'a' = 1, 
@@ -83,13 +92,11 @@
  
       ! Define Emissions File Attribute Variables
       CHARACTER( 200 ),ALLOCATABLE :: EM_FILE_NAME( : )  ! Filename of each emissions stream
-      CHARACTER( 30  ),ALLOCATABLE :: EM_FILE_LAB ( : )  ! Nickname of each emissions stream
+      CHARACTER( 32  ),ALLOCATABLE :: EM_FILE_LAB ( : )  ! Nickname of each emissions stream
       CHARACTER( 16  ),ALLOCATABLE :: EM_FILE_TYPE( : )  ! shortname for the type of each emission
       INTEGER,         ALLOCATABLE :: EM_FILE_ITYPE( : ) ! shortname for the type of each emission
       CHARACTER( 100 ),ALLOCATABLE :: EM_FILE_DESC( : )  ! Description of each emissions stream
       LOGICAL,         ALLOCATABLE :: EM_FILE_LAPPLY( : )! Flag to use each emissions stream
-      CHARACTER( 6   ),ALLOCATABLE :: EM_FILE_LDIAG( : ) ! Toggle for Default Emissions Diagnostic Output
-      CHARACTER( 16  ),ALLOCATABLE :: EM_DIAG_FILE( : )  ! Filename for Emissions Diagnostic Output
       LOGICAL         ,ALLOCATABLE :: EM_FILE_DIFF( :,: )! Test for whether or not a stream contributes to 
                                                          !   a particular transported variable
       LOGICAL         ,ALLOCATABLE :: EM_FILE_SYM_DATE( : ) ! Toggle for whether or not to let the 
@@ -97,7 +104,30 @@
       INTEGER         ,ALLOCATABLE :: EM_FILE_DATE( : )! Date to be read in from each emissions stream
       LOGICAL         ,ALLOCATABLE :: EM_FILE_FIRE( : )! Is this Emission Stream Representing Fires (1=Yes)
 
-      INTEGER              :: IBIOSRM, IMGSRM, ILTSRM, ISEASRM, IDUSTSRM
+      INTEGER                      :: N_EMDIAG
+      INTEGER         ,ALLOCATABLE :: EMDIAG_NSTREAM( : )       ! Number of Streams for each diagnostic file
+      LOGICAL         ,ALLOCATABLE :: EMDIAG_STREAM_MASK( :,: ) ! True if a stream contributes to a diagnostic
+      CHARACTER( 16 ) ,ALLOCATABLE :: EMDIAG_LOGICAL( : )       ! I/O Logical Name for each diagnostic file
+      CHARACTER( 6 )  ,ALLOCATABLE :: EMDIAG_FORMAT( : )        ! FALSE/TRUE/2D/3D/2DCOL
+      CHARACTER( 300 ),ALLOCATABLE :: EMDIAG_FILENAME( : )      ! Filename for diagnostic
+      CHARACTER( 32 ) ,ALLOCATABLE :: EMDIAG_LAB( : )           ! Shorthand Label for Diagnostic
+      INTEGER         ,ALLOCATABLE :: EMDIAG_LAYS( : )          ! Layers for each diagnostic file
+      INTEGER         ,ALLOCATABLE :: SUMDIAG( : )
+      REAL            ,ALLOCATABLE :: VDEMIS_EMDIAG( :,:,:,: )  ! Rates for aggregate diagnostic files
+
+      TYPE EMDIAG_SPEC_STRUCT
+         INTEGER                   :: NSPEC
+         CHARACTER(16),ALLOCATABLE :: SPEC( : )
+         CHARACTER(16),ALLOCATABLE :: UNITS( : )
+         INTEGER                   :: NPAIRS
+         INTEGER      ,ALLOCATABLE :: MAP_toDIFF( : )
+         INTEGER      ,ALLOCATABLE :: MAP_toEMDIAG( : )
+      END TYPE EMDIAG_SPEC_STRUCT
+      TYPE( EMDIAG_SPEC_STRUCT ), ALLOCATABLE :: EMDIAG_SPEC( : )
+
+      INTEGER         ,ALLOCATABLE :: MAP_EMDIAGtoVDEMIS( :,: )
+
+      INTEGER              :: IBIOSRM, IMIOGSRM, IMGSRM, ILTSRM, ISEASRM, IDUSTSRM
       INTEGER, ALLOCATABLE :: IGSRM( : ), IPSRM( : ), ITSRM( : ), MAP_PTtoISRM( : )
 
       INTEGER, ALLOCATABLE :: MAP_EMtoSURR( :,: ), MAP_EMtoDIFF( : ), MAP_EMtoGAS( : )
@@ -264,200 +294,4 @@
      &    emis_legend( 'ARSENIC_C    ' ,074.92),
      &    emis_legend( 'PHGI         ' ,200.5 )  /)
 
-      CONTAINS
-
-!-----------------------------------------------------------------------
-      SUBROUTINE INTERPRET_EM_RULE_STREAM( RULE_STREAM0, IRULE, 
-     &              EM_STREAM_RULE, LREMOVE )
-!
-! This subroutine analyzes the part of a rule identifying which streams
-! to affect and searches for the individual streams, or, if the rule uses
-! the 'ALL' keyword, this routine identifies every stream as impacted.
-!-----------------------------------------------------------------------
-
-      USE UTILIO_DEFN
-      USE em_param_module
-
-
-      IMPLICIT NONE
-
-      CHARACTER(32), INTENT( IN ) :: RULE_STREAM0
-      CHARACTER(32)               :: RULE_STREAM
-      CHARACTER(32)               :: STREAM_NAME( N_EM_SRM )
-      INTEGER, INTENT( IN )       :: IRULE
-      LOGICAL, INTENT( INOUT )    :: EM_STREAM_RULE( N_EM_SRM )
-      LOGICAL, INTENT( INOUT )    :: LREMOVE
-
-      INTEGER ISRM, IDX, NSRM, IFAM
-      CHARACTER( 200 ) :: XMSG
-      CHARACTER( 16 )  :: PNAME = "EMIS_SPC_MAP"
-      INTEGER  :: JDATE = 0
-      INTEGER  :: JTIME = 0
-
-      ! Initialize the output vector
-      EM_STREAM_RULE = .FALSE.
-      
-      ! First Capitalize the Rule so it is easier to error-check
-      RULE_STREAM = RULE_STREAM0
-      CALL UPCASE( RULE_STREAM )
-
-      LREMOVE = .FALSE.
-
-      IF ( RULE_STREAM .EQ. 'ALL' ) THEN
-         ! Special Case Where the Stream Identifier in the rule equals
-         ! equals all 'ALL'. Expand the Rule to Apply to All Streams
-         ISRM = 0
-         IF ( N_FILE_GR .GT. 0 ) THEN
-           EM_STREAM_RULE( ISRM+1:N_FILE_GR ) = .TRUE.
-           ISRM = ISRM + N_FILE_GR
-         END IF
-
-         IF ( NPTGRPS .GT. 0 ) THEN
-           EM_STREAM_RULE( ISRM+1:ISRM+NPTGRPS ) = .TRUE.
-           ISRM = ISRM + NPTGRPS
-         END IF
-         IF ( N_FILE_TR .GT. 0 ) EM_STREAM_RULE( ISRM+1:ISRM+N_FILE_TR ) = .TRUE.
-         IF ( IBIOSRM .GT.0 .AND. .NOT. Guard_BiogenicVOC   ) EM_STREAM_RULE( IBIOSRM  ) = .TRUE.
-         IF ( IMGSRM  .GT.0 .AND. .NOT. Guard_MarineGas     ) EM_STREAM_RULE( IMGSRM   ) = .TRUE.
-         IF ( ILTSRM  .GT.0 .AND. .NOT. Guard_LightningNO   ) EM_STREAM_RULE( ILTSRM   ) = .TRUE.
-         IF ( ISEASRM .GT.0 .AND. .NOT. Guard_SeaSpray      ) EM_STREAM_RULE( ISEASRM  ) = .TRUE.
-         IF ( IDUSTSRM.GT.0 .AND. .NOT. Guard_WindBlownDust ) EM_STREAM_RULE( IDUSTSRM ) = .TRUE.
-
-      ELSE
-         ! Determine if the Stream Label Refers to A Family and if So, 
-         ! Apply the Rule to all members of that Family
-         IFAM = INDEX1( RULE_STREAM, NStreamFamilies, StreamFamilyName )
-         IF ( IFAM .EQ. 0 ) THEN
-             NSRM = 1
-             STREAM_NAME(1) = RULE_STREAM
-         ELSE
-             NSRM = StreamFamilyNum( IFAM )
-             STREAM_NAME(1:NSRM) = StreamFamilyMembers( IFAM,1:NSRM )
-         END IF
-
-         ! Find the Specific Stream this Rule Identifies
-         DO ISRM = 1,NSRM
-           IDX = INDEX1( STREAM_NAME( ISRM ), N_EM_SRM, EM_FILE_LAB ) 
-           IF ( IDX .NE. 0 ) THEN
-             EM_STREAM_RULE( IDX ) = .TRUE.
-           ELSE 
-             ! Print warning that this stream is being ignored
-             WRITE( LOGDEV, '(/,5x,3A,I3,/,5x,2A,4(/,5x,A))' ),
-     &         'ATTENTION: The Emissions Stream Label (',TRIM( RULE_STREAM ),
-     &         ') applied for Rule ',IRULE,'in the Emissions Control ',
-     &         'Namelist does not match any of the emissions streams ',
-     &         'labels or families provided to CMAQ. Please check the ',
-     &         'runscript against your emissions control inputs',
-     &         'confirm that this stream should be ignored.'
-
-             ! Remove this rule from the list of rules
-             LREMOVE = .TRUE.
-           END IF
-         END DO
-      END IF
- 
-      END SUBROUTINE INTERPRET_EM_RULE_STREAM
-
-!-----------------------------------------------------------------------
-      SUBROUTINE CUSTOM_EM_RULES( N_EM_RULE )
-!
-!     This subroutine defines several hardcoded rules for emissions
-!     scaling that will apply by default. These include subtracting NH3
-!     from fertilizer emissions if BiDi is turned on, moving all
-!     sulfuric acid vapor to the particle phase upon emission and
-!     splitting up the coarse mode anthropogenic emissions mass into
-!     speciated compounds.
-!-----------------------------------------------------------------------
-
-      USE AERO_DATA, ONLY : ACORSEM_ASO4_FAC
-
-      IMPLICIT NONE
-      
-      INTEGER,         INTENT( INOUT ) :: N_EM_RULE
-      TYPE( EM_RULE_REG )              :: EM_NML_B( N_EM_RULE_REG  )
-
-      INTEGER          :: N_EM_RULE_B, IRULE, ISRM
-
-      N_EM_RULE_B = 0
- 
-      ! Add a rule For Removing Fertilizer Ammonia if BiDi is
-      ! activated and the user has requested the correction
-         IF ( ABFLUX ) THEN
-            N_EM_RULE_B = N_EM_RULE_B + 1
-            EM_NML_B(N_EM_RULE_B)%SPEC  = 'NH3'
-            EM_NML_B(N_EM_RULE_B)%STREAM= 'ALL'
-            EM_NML_B(N_EM_RULE_B)%PHASE = 'GAS'
-            EM_NML_B(N_EM_RULE_B)%SURR  = 'NH3_FERT'
-            EM_NML_B(N_EM_RULE_B)%FAC   = -1.0
-            EM_NML_B(N_EM_RULE_B)%BASIS = 'UNIT'
-            EM_NML_B(N_EM_RULE_B)%OP    = 'a'
-            EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE'
-         END IF
-
-      ! sulfur tracking instrument model option
-         IF ( STM ) THEN
-      ! SULF emissions
-            N_EM_RULE_B = N_EM_RULE_B + 1
-            EM_NML_B(N_EM_RULE_B)%SPEC  = 'ASO4EMIS'
-            EM_NML_B(N_EM_RULE_B)%STREAM= 'ALL'
-            EM_NML_B(N_EM_RULE_B)%PHASE = 'FINE'
-            EM_NML_B(N_EM_RULE_B)%SURR  = 'SULF'
-            EM_NML_B(N_EM_RULE_B)%FAC   = 1.0
-            EM_NML_B(N_EM_RULE_B)%BASIS = 'MASS'
-            EM_NML_B(N_EM_RULE_B)%OP    = 'a' 
-            EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE'
-      !  PSO4 emissions 
-            N_EM_RULE_B = N_EM_RULE_B + 1
-            EM_NML_B(N_EM_RULE_B)%SPEC  = 'ASO4EMIS'
-            EM_NML_B(N_EM_RULE_B)%STREAM= 'ALL'
-            EM_NML_B(N_EM_RULE_B)%PHASE = 'FINE'
-            EM_NML_B(N_EM_RULE_B)%SURR  = 'PSO4'
-            EM_NML_B(N_EM_RULE_B)%FAC   = 1.0
-            EM_NML_B(N_EM_RULE_B)%BASIS = 'UNIT'
-            EM_NML_B(N_EM_RULE_B)%OP    = 'a' 
-            EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE'
-      ! Coarse-Mode Sulfate
-            N_EM_RULE_B = N_EM_RULE_B + 1
-            EM_NML_B(N_EM_RULE_B)%SPEC  = 'ASO4EMIS'
-            EM_NML_B(N_EM_RULE_B)%STREAM= 'ALL'
-            EM_NML_B(N_EM_RULE_B)%PHASE = 'COARSE'
-            EM_NML_B(N_EM_RULE_B)%SURR  = 'PMC'
-            EM_NML_B(N_EM_RULE_B)%FAC   = REAL( ACORSEM_ASO4_FAC, 4 ) 
-            EM_NML_B(N_EM_RULE_B)%BASIS = 'UNIT'
-            EM_NML_B(N_EM_RULE_B)%OP    = 'a' 
-            EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE'
-      !  Wind blown dust and sea spray SO4 emissions 
-      !  Fine
-            N_EM_RULE_B = N_EM_RULE_B + 1
-            EM_NML_B(N_EM_RULE_B)%SPEC  = 'ASO4EMIS'
-            EM_NML_B(N_EM_RULE_B)%STREAM= 'ALL'
-            EM_NML_B(N_EM_RULE_B)%PHASE = 'FINE'
-            EM_NML_B(N_EM_RULE_B)%SURR  = 'PMFINE_SO4'
-            EM_NML_B(N_EM_RULE_B)%FAC   = 1.0
-            EM_NML_B(N_EM_RULE_B)%BASIS = 'UNIT'
-            EM_NML_B(N_EM_RULE_B)%OP    = 'a' 
-            EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE'
-      !  Coarse 
-            N_EM_RULE_B = N_EM_RULE_B + 1
-            EM_NML_B(N_EM_RULE_B)%SPEC  = 'ASO4EMIS'
-            EM_NML_B(N_EM_RULE_B)%STREAM= 'ALL'
-            EM_NML_B(N_EM_RULE_B)%PHASE = 'COARSE'
-            EM_NML_B(N_EM_RULE_B)%SURR  = 'PMCOARSE_SO4'
-            EM_NML_B(N_EM_RULE_B)%FAC   = 1.0
-            EM_NML_B(N_EM_RULE_B)%BASIS = 'UNIT'
-            EM_NML_B(N_EM_RULE_B)%OP    = 'a' 
-            EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE'
-         END IF ! stm
-
-      ! Add Rules to Existing List at Beginning
-         N_EM_RULE = N_EM_RULE + N_EM_RULE_B
-         DO IRULE = N_EM_RULE, N_EM_RULE_B+1, -1
-            EM_NML( IRULE ) = EM_NML( IRULE - N_EM_RULE_B )
-         END DO
-         DO IRULE = 1,N_EM_RULE_B
-            EM_NML( IRULE ) = EM_NML_B( IRULE ) 
-         END DO
-
-      END SUBROUTINE CUSTOM_EM_RULES
- 
       END MODULE EMIS_VARS

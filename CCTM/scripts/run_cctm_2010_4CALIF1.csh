@@ -91,7 +91,17 @@ else
 endif
 
 #> Define Execution ID: e.g. [CMAQ-Version-Info]_[User]_[Date]_[Time]
-setenv EXECUTION_ID "CMAQ_CCTM${VRSN}_`id -u -n`_`date -u +%Y%m%d_%H%M%S_%N`"    #> Inform IO/API of the Execution ID
+if ( ! -e ${BLD}/CCTM_${VRSN}.cfg ) then
+   set SHAID = ""
+else
+   set SHAID = `grep "sha_ID" ${BLD}/CCTM_${VRSN}.cfg | cut -c 13-22`
+   if ( $SHAID == not_a_repo ) then
+     set SHAID = ""
+   else
+     set SHAID = "_sha="$SHAID
+   endif
+endif
+setenv EXECUTION_ID "CMAQ_CCTM${VRSN}${SHAID}_`id -u -n`_`date -u +%Y%m%d_%H%M%S_%N`"    #> Inform IO/API of the Execution ID
 echo ""
 echo "---CMAQ EXECUTION ID: $EXECUTION_ID ---"
 
@@ -157,7 +167,9 @@ setenv CTM_HGBIDI N          #> mercury bi-directional flux for in-line depositi
                              #>    velocities [ default: N ]
 setenv CTM_SFC_HONO Y        #> surface HONO interaction [ default: Y ]
 setenv CTM_GRAV_SETL Y       #> vdiff aerosol gravitational sedimentation [ default: Y ]
-setenv CTM_BIOGEMIS Y        #> calculate in-line biogenic emissions [ default: N ]
+setenv CTM_BIOGEMIS_BEIS Y   #> calculate in-line biogenic emissions [ default: N ]
+setenv CTM_BIOGEMIS_MEGAN N  #> turns on MEGAN biogenic emission [ default: N ]
+setenv USE_MEGAN_LAI N       #> use separate LAI input file [ default: N ]
 
 #> Vertical Extraction Options
 setenv VERTEXT N
@@ -170,15 +182,6 @@ setenv PROMPTFLAG F          #> turn on I/O-API PROMPT*FILE interactive mode [ o
 setenv IOAPI_OFFSET_64 YES   #> support large timestep records (>2GB/timestep record) [ options: YES | NO ]
 setenv IOAPI_CHECK_HEADERS N #> check file headers [ options: Y | N ]
 setenv CTM_EMISCHK N         #> Abort CMAQ if missing surrogates from emissions Input files
-setenv EMISDIAG F            #> Print Emission Rates at the output time step after they have been
-                             #>   scaled and modified by the user Rules [options: F | T or 2D | 3D | 2DSUM ]
-                             #>   Individual streams can be modified using the variables:
-                             #>       GR_EMIS_DIAG_## | STK_EMIS_DIAG_## | BIOG_EMIS_DIAG
-                             #>       MG_EMIS_DIAG    | LTNG_EMIS_DIAG   | DUST_EMIS_DIAG
-                             #>       SEASPRAY_EMIS_DIAG   
-                             #>   Note that these diagnostics are different than other emissions diagnostic
-                             #>   output because they occur after scaling.
-setenv EMISDIAG_SUM F        #> Print Sum of Emission Rates to Gridded Diagnostic File
 
 #> Diagnostic Output Flags
 setenv CTM_CKSUM Y           #> checksum report [ default: Y ]
@@ -190,10 +193,6 @@ setenv NLAYS_PHOTDIAG "1"    #> Number of layers for PHOTDIAG2 and PHOTDIAG3 fro
 #setenv NWAVE_PHOTDIAG "294 303 310 316 333 381 607"  #> Wavelengths written for variables 
                                                       #>   in PHOTDIAG2 and PHOTDIAG3 
                                                       #>   [ default: all wavelengths ]
-
-setenv CTM_PMDIAG N          #> Instantaneous Aerosol Diagnostic File [ default: Y ]
-setenv CTM_APMDIAG Y         #> Hourly-Average Aerosol Diagnostic File [ default: Y ]
-setenv APMDIAG_BLEV_ELEV "1 1"  #> layer range for average pmdiag = NLAYS
 
 setenv CTM_SSEMDIAG N        #> sea-spray emissions diagnostic file [ default: N ]
 setenv CTM_DUSTEM_DIAG N     #> windblown dust emissions diagnostic file [ default: N ]; 
@@ -265,12 +264,10 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   if ($NEW_START == true || $NEW_START == TRUE ) then
      setenv ICFILE ICON_v52_4CALIF1_saprc07tb_ae6_aq_timeind
      setenv INIT_MEDC_1 notused
-     setenv INITIAL_RUN Y #related to restart soil information file
   else
      set ICpath = $OUTDIR
      setenv ICFILE CCTM_CGRID_${RUNID}_${YESTERDAY}.nc
      setenv INIT_MEDC_1 $ICpath/CCTM_MEDIA_CONC_${RUNID}_${YESTERDAY}.nc
-     setenv INITIAL_RUN N
   endif
 
   #> Boundary conditions
@@ -393,7 +390,20 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   endif
 
   #> In-line biogenic emissions configuration
-  if ( $CTM_BIOGEMIS == 'Y' ) then   
+  if ( $CTM_BIOGEMIS_MEGAN == 'Y' ) then
+
+    setenv SOILINP    $OUTDIR/CCTM_SOILOUT_${RUNID}_${YESTERDAY}.nc
+                             #> Biogenic NO soil input file; ignore if INITIAL_RUN = Y
+                             #>                            ; ignore if IGNORE_SOILINP = Y
+         # Files for this domain are not available.They must be created using the MEGAN preprocessor
+          #setenv MEGAN_CTS # location of CTS input file
+          #setenv MEGAN_EFS # location of EFS input file
+          #setenv MEGAN_LAI # location of LAI input file (optional) 
+          #setenv MEGAN_LDF # location of LDF input file
+         echo "*** Selected MEGAN without required input files - run ABORTED ***"
+         exit 1
+  endif
+  if ( $CTM_BIOGEMIS_BEIS == 'Y' ) then   
      set IN_BEISpath = ${INPDIR}/surface
      setenv GSPRO      $BLD/gspro_biogenics.txt
      setenv B3GRD      $IN_BEISpath/b3grd_4CALIF1_2011en_cb6_10.ncf
@@ -403,7 +413,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
      setenv SUMMER_YN  Y     #> Use summer normalized emissions? [ default: Y ]
      setenv PX_VERSION Y     #> MCIP is PX version? [ default: N ]
      setenv SOILINP    $OUTDIR/CCTM_SOILOUT_${RUNID}_${YESTERDAY}.nc
-                             #> Biogenic NO soil input file; ignore if INITIAL_RUN = Y
+                             #> Biogenic NO soil input file; ignore if NEW_START = TRUE
   endif
 
   #> Windblown dust emissions configuration
@@ -462,6 +472,21 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
 
        #> Set optional ISAM regions files
 #      setenv ISAM_REGIONS /work/MOD3EVAL/nsu/isam_v53/CCTM/scripts/input/RGN_ISAM.nc
+
+       #> Options used to favor tracked species in reaction for Ozone-NOx chemistry
+       setenv ISAM_O3_WEIGHTS 5   # weights for tracked species Default is 5
+                                  #     OPTIONS
+                                  # 1 does not weight any species
+                                  # 2 weights NOx and subset of NOz species
+                                  # 3 uses with from option 2 plus weight OVOC species, organic radicals and operators
+                                  # 4 weight OVOC species, organic radicals and operators
+                                  # 5 toggles between two weighting set based on VOC and NOx limited ozone production
+       # Below options only used if ISAM_O3_WEIGHTS set to 5
+       setenv ISAM_NOX_CASE  2    # weights for tracked species when ozone production is NOx limited. Default is 2
+       setenv ISAM_VOC_CASE  4    # weights for tracked species when ozone production is VOC limited. Default is 4
+       setenv VOC_NOX_TRANS  0.35 # value of Prod H2O2 over Prod HNO3 less than where
+                                  # ISAM_VOC_CASE weights are used. Otherwise, ISAM_NOX_CASE
+                                  # weights are used. Default is 0.35
 
     endif
  endif
@@ -529,6 +554,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   setenv CTM_RJ_3        "$OUTDIR/CCTM_PHOTDIAG3_${CTM_APPL}.nc -v"  #> 3D Optical and Radiative Results from Photolysis
   setenv CTM_SSEMIS_1    "$OUTDIR/CCTM_SSEMIS_${CTM_APPL}.nc -v"     #> Sea Spray Emissions
   setenv CTM_DUST_EMIS_1 "$OUTDIR/CCTM_DUSTEMIS_${CTM_APPL}.nc -v"   #> Dust Emissions
+  setenv CTM_BUDGET      "$OUTDIR/CCTM_BUDGET_${CTM_APPL}.txt -v"    #> Budget
   setenv CTM_IPR_1       "$OUTDIR/CCTM_PA_1_${CTM_APPL}.nc -v"       #> Process Analysis
   setenv CTM_IPR_2       "$OUTDIR/CCTM_PA_2_${CTM_APPL}.nc -v"       #> Process Analysis
   setenv CTM_IPR_3       "$OUTDIR/CCTM_PA_3_${CTM_APPL}.nc -v"       #> Process Analysis
@@ -557,7 +583,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
              ${CTM_DRY_DEP_1} $CTM_DEPV_DIAG $B3GTS_S $SOILOUT $CTM_WET_DEP_1\
              $CTM_WET_DEP_2 $CTM_PMDIAG_1 $CTM_APMDIAG_1             \
              $CTM_RJ_1 $CTM_RJ_2 $CTM_RJ_3 $CTM_SSEMIS_1 $CTM_DUST_EMIS_1 $CTM_IPR_1 $CTM_IPR_2       \
-             $CTM_IPR_3 $CTM_IRR_1 $CTM_IRR_2 $CTM_IRR_3 $CTM_DRY_DEP_MOS                   \
+             $CTM_IPR_3 $CTM_BUDGET $CTM_IRR_1 $CTM_IRR_2 $CTM_IRR_3 $CTM_DRY_DEP_MOS                   \
              $CTM_DRY_DEP_FST $CTM_DEPV_MOS $CTM_DEPV_FST $CTM_VDIFF_DIAG $CTM_VSED_DIAG    \
              $CTM_LTNGDIAG_1 $CTM_LTNGDIAG_2 $CTM_VEXT_1 )
   if ( $?CTM_ISAM ) then
@@ -591,7 +617,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
         #echo "Deleting output file: $file"
         /bin/rm -f $file  
      end
-     /bin/rm -f ${OUTDIR}/CCTM_EMDIAG*${RUNID}_${YYYYMMDD}.nc
+     /bin/rm -f ${OUTDIR}/CCTM_DESID*${RUNID}_${YYYYMMDD}.nc
 
   else
      #> error if previous log files exist

@@ -83,8 +83,6 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       FTYPE3D = GRDDED3
       GDNAM3D = GDNAME_GD
       UPNAM3D = PNAME
-!     EXECN3D = '????????'
-!     UPDSC3D =
 
       SDATE3D = SDATE
       STIME3D = STIME
@@ -112,32 +110,22 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
             VARINDX = ( NFL - 1 ) * MXVARS3 + NOUT
             VNAME3D( NOUT ) = IPRNAME( VARINDX )
             VTYPE3D( NOUT ) = M3REAL
+            VDESC3D( NOUT ) = IPRDESC( VARINDX )
 
-C..Find the IPR species to set correct units descriptor
-            DO NSP = 1, N_IPR_SPC
-               DO NPR = 1, NPRCS
-                  IF ( VARINDX .EQ. IPROUT( NSP, NPR ) ) THEN
-                     IPRSPC = NSP
-                     EXIT
-                  END IF
-               END DO
-            END DO
+            ! Find the IPR species to set correct units descriptor
+            IPRSPC = MAP_IPRVARtoSPC( VARINDX )
+            ICG = MAP_IPRtoCGRID( IPRSPC, 1 )
 
-            ICG = IPR2GRD( IPRSPC, 1 )
-            UNITS3D( NOUT ) = 'ppmV'
-
-            IF ( ICG .GE. AE_STRT .AND. ICG .LT. NR_STRT ) THEN
-               AE_INDX = ICG - AE_STRT + 1
-               IF ( AE_SPC( AE_INDX ) ( 1 : 3 ) .EQ. 'NUM' ) THEN
-                  UNITS3D( NOUT ) = 'm-3'
-               ELSE IF ( AE_SPC( AE_INDX ) ( 1 : 3 ) .EQ. 'SRF' ) THEN
-                  UNITS3D( NOUT ) = 'm2 m-3'
-               ELSE
-                  UNITS3D( NOUT ) = 'ug m-3'
-               END IF
+            IF ( CGRID_MASK_NUM( ICG ) ) THEN
+               UNITS3D( NOUT ) = 'm-3'
+            ELSE IF ( CGRID_MASK_SRF( ICG ) ) THEN
+               UNITS3D( NOUT ) = 'm2 m-3'
+            ELSE IF ( CGRID_MASK_AERO( ICG ) ) THEN
+               UNITS3D( NOUT ) = 'ug m-3'
+            ELSE 
+               UNITS3D( NOUT ) = 'ppmV'
             END IF
 
-               VDESC3D( NOUT ) = IPRDESC( VARINDX )
          END DO
 
       ELSE IF ( TYPE .EQ. 'IRR' ) THEN

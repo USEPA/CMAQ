@@ -49,6 +49,9 @@ C                       Namelist for species definitions
 C    23 May 12 J.Young: Replaced BC_PARMS include file with an F90 module
 C    14 Sep 18 S.Roselle: Removed species mapping
 C    10 June 19 F.Sidi  : Corrected data type mismatch between IOAPI and BCON
+C    20 April 21 C. Hogrefe: Force height or pressure interpolation if either 
+C                            grid uses hybrid vertical coordinates. This
+C                            requires checking for MET_CRO_3D and MET_BDY_3 
                     
 C***********************************************************************
 
@@ -268,7 +271,8 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c   Check MET_CRO_3D and MET_BDY_3 if necessary
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      IF ( VGTYP_GD .NE. VGTYP_IN .OR. VGTOP_GD .NE. VGTOP_IN ) THEN 
+      IF ( VGTYP_GD .NE. VGTYP_IN .OR. VGTOP_GD .NE. VGTOP_IN .OR. 
+     &     VGTYP_GD .EQ. -9999 .OR. VGTYP_IN .EQ. -9999) THEN 
          CALL CK_MET_FL ( LOGUNIT, SDATE, STIME, TSTEP, NSTEPS, CTM_FL_NAME )
          CALL CK_BDY_FL ( LOGUNIT, SDATE, STIME, TSTEP, NSTEPS )
       END IF

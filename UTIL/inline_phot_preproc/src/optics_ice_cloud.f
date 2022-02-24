@@ -1,5 +1,6 @@
        SUBROUTINE OPTICS_ICE_CLOUD(CLOUD_DIAMETER_ICE, ICE_EXT, ICE_ASY, ICE_SSA, ICE_DEL)
 
+         USE GET_ENV_VARS
          USE BIN_DATA
          USE CSQY_PARAMETERS
 
@@ -55,7 +56,7 @@
          CHARACTER(19)             :: FILENM    ! No. of characters must equal
                                                  ! length of filename.
 
-         CHARACTER(100)            :: FULLNAME, LINE
+         CHARACTER(586)            :: FULLNAME, LINE
 
          REAL                       :: DIAMETER_SQUARED, DIAMETER_CUBED, INVERSE_DIAMETER
 
@@ -125,8 +126,10 @@ C     Read in ice particle optical parameters.
               ALLOCATE( WAVE_OUTC( MXWLIN ), WAVE_OUTL( MXWLIN ), WAVE_OUTU( MXWLIN ))
      
                
-                filenm   = 'ice_clouds/fu96.ext'
-                fullname = filenm
+!                filenm   = 'ice_clouds/fu96.ext'
+!                fullname = filenm
+                filenm   = 'ICE_CLD_EXT'
+                CALL VALUE_NAME( filenm, fullname )   
                 OPEN(UNIT=iunit,FILE=fullname,FORM='FORMATTED',STATUS='OLD',ERR=99)
                 POUND_COUNT = 0
                 CHAR(1:1) = '#'
@@ -160,8 +163,10 @@ C     Read in ice particle optical parameters.
 
                 CLOSE( IUNIT )
                 
-                filenm   = 'ice_clouds/fu96.asy'
+!                filenm   = 'ice_clouds/fu96.asy'
+                filenm   = 'ICE_CLD_ASY'
                 fullname = filenm
+                CALL VALUE_NAME( filenm, fullname )   
                 OPEN(UNIT=iunit,FILE=fullname,FORM='FORMATTED',STATUS='OLD',ERR=99)
                 POUND_COUNT = 0
                 CHAR(1:1) = '#'
@@ -201,8 +206,10 @@ C     Read in ice particle optical parameters.
 
                 CLOSE( IUNIT )
 
-                filenm   = 'ice_clouds/fu96.ssa'
-                fullname = filenm
+!                filenm   = 'ice_clouds/fu96.ssa'
+!                fullname = filenm
+                filenm   = 'ICE_CLD_SSA'
+                CALL VALUE_NAME( filenm, fullname )   
                 OPEN(UNIT=iunit,FILE=fullname,FORM='FORMATTED',STATUS='OLD',ERR=99)
                 POUND_COUNT = 0
                 CHAR(1:1) = '#'
@@ -239,8 +246,10 @@ C     Read in ice particle optical parameters.
 
                 CLOSE( IUNIT )
 
-                filenm   = 'ice_clouds/fu96.del'
-                fullname = filenm
+!                filenm   = 'ice_clouds/fu96.del'
+!                fullname = filenm
+                filenm   = 'ICE_CLD_DEL'
+                CALL VALUE_NAME( filenm, fullname )   
                 OPEN(UNIT=iunit,FILE=fullname,FORM='FORMATTED',STATUS='OLD',ERR=99)
                 POUND_COUNT = 0
                 CHAR(1:1) = '#'
@@ -426,7 +435,7 @@ C     Delta function transmission for Scattering at zero scattering angle
 98      WRITE(6,*)'ERROR opening output file for Fu (1996) data'
          STOP
 
-99       WRITE(6,*)'Error during reading of file:',fullname
+99       WRITE(6,'(2A)')'Error during reading of file: ',TRIM(fullname)
          STOP
 
        END

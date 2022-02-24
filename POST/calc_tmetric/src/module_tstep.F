@@ -68,6 +68,7 @@ C..SCRATCH LOCAL VARIABLES:
          INTEGER N, NFL, NS, N2    ! Loop indices
          INTEGER JDATE             ! Current date
          INTEGER JTIME             ! Current time
+         INTEGER STATUS
 
    
 C**********************************************************************
@@ -89,8 +90,12 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          ENDDO
 
          ALLOCATE( STEP_DATE( MXSTEPS ), STEP_TIME( MXSTEPS ), 
-     &             STEP_FILE( MXSTEPS ) )
+     &             STEP_FILE( MXSTEPS ), stat=status )
 
+         IF ( status .NE. 0 ) THEN
+           MSG = 'Failure allocating step_date, step_time, or step_file'
+           CALL M3EXIT ( PNAME, 0, 0, MSG, XSTAT2 )
+         END IF
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  Load all steps from first file

@@ -1,19 +1,19 @@
 # original file copied from /home/yoj/src/mech/BLD_2, 1/31/2008
-# need to source scom command for compilers
 
+ifndef EXEC
   MODEL = CHEMMECH
-
-ifndef COMPILER
-  COMPILER = INTEL
-# COMPILER = PGF90
-#COMPILER = GFORT
+else
+  MODEL = $(EXEC)
 endif
 
-ifeq "$(COMPILER)" "INTEL"
+ifndef compiler
+ compiler = intel   # other options ( pgi | gcc  )
+endif
+
+ifeq "$(compiler)" "intel"
 
  FC = ifort
  CC = icc
-#f_FLAGS = -fixed -132 -O0 -override-limits -check uninit -check bounds -check format -g -traceback -warn nounused -fno-alias -mp1  -I . -g
  f_FLAGS   = -fixed -132 -O0 -fpe0 -check uninit -check bounds -check format -g -traceback -fno-alias -mp1  -I . 
  F_FLAGS   = $(f_FLAGS)
  f90_FLAGS = -free -132 -O0 -fpe0 -check uninit -check bounds -check format -g -traceback -fno-alias -mp1  -I . 
@@ -21,7 +21,7 @@ ifeq "$(COMPILER)" "INTEL"
  C_FLAGS   =  -O2  -DFLDMN=1
  LINK_FLAGS = 
 
-else ifeq "$(COMPILER)" "PGF90"
+else ifeq "$(compiler)" "pgi"
 
  FC = pgf90
  CC = pgcc
@@ -32,7 +32,7 @@ else ifeq "$(COMPILER)" "PGF90"
  C_FLAGS   =  -O2  -DFLDMN=1
  LINK_FLAGS = 
 
-else ifeq "$(COMPILER)" "GFORT"
+else ifeq "$(compiler)" "gcc"
 
  FC    = gfortran
  CC    = gcc
@@ -45,13 +45,14 @@ else ifeq "$(COMPILER)" "GFORT"
  LINK_FLAGS    = 
 
 else
- ERROR1 = "Makefile not configured to support the specified compiler, $(COMPILER). User must modify Makefile."
+ ERROR1 = "Makefile not configured to support the specified compiler, $(compiler). User must modify Makefile."
 endif
  
 ifdef ERROR1
  $(error $(ERROR1))
 endif
 
+CPP_FLAGS = -DCHEMMECH
 
 OBJECTS =\
     MECHANISM_PARMS.o \
@@ -111,7 +112,7 @@ $(MODEL): $(OBJECTS)
 	$(FC) $(F_FLAGS) -c $<
 
 .F.o:
-	$(FC) $(F_FLAGS) -c $<
+	$(FC) $(F_FLAGS) $(CPP_FLAGS) -c $<
 
 .c.o:
 	$(CC) $(C_FLAGS) -c $<

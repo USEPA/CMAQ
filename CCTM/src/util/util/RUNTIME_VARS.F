@@ -57,6 +57,8 @@
 !  10 Feb 2020 (D. Wong) 
 !     -- Added new environmental variable, MET_TSTEP, to enable
 !        running with temporally finer meteorology
+!  10 Jun 2021 (G. Sarwar)
+!     -- Added 'CB6R5M' and deleted "CB6R3M"
 !....................................................................
 
       MODULE RUNTIME_VARS
@@ -108,7 +110,8 @@
 
       ! Grid and High-Level Model Parameters
       LOGICAL :: NEW_START       = .TRUE.   ! Start New Simulation. Not a Restart
-      CHARACTER(1) :: ISAM_NEW_START = 'Y'  ! Start New Simulation. Not a Restart for ISAM
+      LOGICAL :: IGNORE_SOILINP  = .FALSE.   ! In case you don't have prev day
+      CHARACTER(300):: EXECUTION_ID = ''    ! Execution ID
       CHARACTER(16) :: GRID_NAME = ''       ! grid name selected from GRIDDESC
       CHARACTER(16) :: PROGNAME  = 'DRIVER' ! Program name selected from GRIDDESC
       INTEGER :: RUNLEN          = 480000   ! Run Length
@@ -165,15 +168,9 @@
       REAL    :: GLBL_RTOL = 1.0E-3  ! Relative Tolerance for Rosenbrock Solver
 
       ! Aerosols
-      LOGICAL :: AVISDIAG  = .FALSE. ! flag for PMDIAG and APMDIAG file [F], default
+      LOGICAL :: AVISDIAG  = .FALSE. ! flag for Average Visibility File [F], default
       LOGICAL :: ZERO_PCSOA= .FALSE. ! flag for Zeroing out pcSOA formation
       LOGICAL :: AOD       = .FALSE. ! flag for printing AOD file
-      LOGICAL :: PMDIAG    = .FALSE. ! flag for Instantaneous PM Diagnostic file
-      LOGICAL :: APMDIAG   = .FALSE. ! flag for Average PM Diagnostic file
-      INTEGER :: APMDIAG_ZLO  = 0    ! PM Diagnostic File Lower Layer
-      INTEGER :: APMDIAG_ZHI  = 0    ! PM Diagnostic File Upper Layer
-      INTEGER :: N_APMDIAG_SPC= 0    ! PM Diagnostic File Number of Species
-      CHARACTER(  16 ) :: APMDIAG_SPC( 200 ) = '' !PM Diagnostic File Species Names
 
       ! Cloud Parameters
       LOGICAL :: CLD_DIAG  = .FALSE. ! flag to output cloud diagnostic files
@@ -210,7 +207,9 @@
       INTEGER :: N_FILE_TR     = 0       ! NUmber of Tracer Emission Files
       LOGICAL :: EMISCHK       = .TRUE.  ! flag for checking that surrogate emissions 
                                                !   are present on emission files
-      LOGICAL :: BIOGEMIS      = .FALSE. ! flag to in-line biogenic VOC emissions
+      LOGICAL :: BIOGEMIS_BEIS = .FALSE. ! flag to in-line biogenic VOC emissions
+      LOGICAL :: BIOGEMIS_MEGAN= .FALSE. ! flag to in-line MEGAN biogenic emissions
+      LOGICAL :: USE_MEGAN_LAI = .FALSE. ! flag to use MEGAN LAI values
       CHARACTER(16) :: SPPRO   = 'DEFAULT' ! requested speciation profile name
       LOGICAL :: BIOGEMIS_SEASON=.FALSE. ! use frost switch file
       LOGICAL :: ASSUME_SUMMER = .TRUE.  ! use summer normalized emissions
@@ -238,8 +237,6 @@
       INTEGER :: PT_TIME       = 0       ! start time (HHMMSS)
       INTEGER :: IPVERT        = 0       ! Numerical flag for plume vertical spread method
       INTEGER :: REP_LAYR      = -1      ! Minimum layer for reporting srcs w/ high plumes
-      CHARACTER( 6 ) :: EMISDIAG = 'FALSE' ! Default Assumption for
-                                         !     Emissions Diagnostic File Output
       LOGICAL :: EMIS_SYM_DATE = .FALSE.  ! Overrider CMAQ not to check
                                           ! if the dates on the emissions file match that of 
                                           ! the interal model (representative day case)
@@ -261,12 +258,30 @@
       LOGICAL :: ADJ_STMSPC = .TRUE.  ! flag for normalizing sulfur tracking species
 
       ! ISAM
-      INTEGER :: ISAM_BLEV = 0  ! Beginning level saved to conc file
-      INTEGER :: ISAM_ELEV = 0  ! Ending level saved to conc file
-      INTEGER :: SA_NLAYS = 0   ! Number of layers saved to conc file
-      INTEGER :: AISAM_BLEV = 0 ! Beginning level saved to sa_aconc file
-      INTEGER :: AISAM_ELEV = 0 ! Ending level saved to sa_aconc file
-      INTEGER :: AVGSA_LAYS = 0 ! Number of layers saved to conc file
+      CHARACTER(1) :: ISAM_NEW_START = 'Y'  ! Start New Simulation. Not a Restart for ISAM
+      INTEGER :: ISAM_BLEV = 0              ! Beginning level saved to conc file
+      INTEGER :: ISAM_ELEV = 0              ! Ending level saved to conc file
+      INTEGER :: SA_NLAYS = 0               ! Number of layers saved to conc file
+      INTEGER :: AISAM_BLEV = 0             ! Beginning level saved to sa_aconc file
+      INTEGER :: AISAM_ELEV = 0             ! Ending level saved to sa_aconc file
+      INTEGER :: AVGSA_LAYS = 0             ! Number of layers saved to conc file
+      INTEGER :: ISAM_O3_WEIGHTS = 5        ! which chemistry are biased in apportioning reaction yields
+                                            ! to source reactant
+                                            ! 1 for none so divided equally between sources' reactant
+                                            ! 2 for all products apportioned to sources with NO, NO2, NO3, HONO, ANO3
+                                            !   -equally if reactants are neither or both
+                                            ! 3 for all products apportioned to sources with Case 2 plus select OVOC species 
+                                            ! and radicals
+                                            !   -equally if reactants are neither or both
+                                            ! 4 for all products apportioned to sources with select OVOC species 
+                                            ! and radicals
+                                            !   -equally if reactants are neither or both
+                                            ! 5 to switch between Cases 2 and 3 based on whether
+                                            ! production H2O2 over production HNO3 less than VOC_NOX_TRANS
+                                   
+      REAL     :: VOC_NOX_TRANS = 0.35      ! H2O2 to HNO3 marking transition from NOx to VOC limiting O3 production 
+      INTEGER  :: ISAM_NOX_CASE = 2         ! option of ISAM_O3_WEIGHTS representing NOx limiting O3 production
+      INTEGER  :: ISAM_VOC_CASE = 4         ! option of ISAM_O3_WEIGHTS representing VOC limiting O3 production
 
       CONTAINS
           
@@ -296,13 +311,14 @@
 
 
       INTEGER          :: STATUS      ! ENV... status
-      CHARACTER( 250 ) :: STRTEMP
+      CHARACTER( 400 ) :: STRTEMP
       CHARACTER( 80 )  :: PBASE     
       INTEGER, PARAMETER :: EXIT_STATUS = 1
       INTEGER          :: ERROR
       INTEGER          :: VARDEV = -1
 
       LOGICAL          :: FOUND
+      LOGICAL          :: EFLAG = .FALSE.
       INTEGER          :: LOC, STR_LEN
       CHARACTER(10)    :: WRF_VERSION
 
@@ -341,10 +357,14 @@
  
       ! Determine if this run is a new start or a restart
       CALL GET_ENV ( NEW_START, 'NEW_START', NEW_START, VARDEV )
+
+      ! Determine if prev day soilinp is available for MEGAN
+      CALL GET_ENV ( IGNORE_SOILINP, 'IGNORE_SOILINP', IGNORE_SOILINP, VARDEV )
     
-      ! Determine if this run is a new start or a restart
-      CALL GET_ENV ( ISAM_NEW_START, 'ISAM_NEW_START', ISAM_NEW_START, VARDEV )
-    
+      ! Get Execution ID
+      CALL GET_ENV ( STRTEMP, 'EXECUTION_ID', EXECUTION_ID, VARDEV )
+      EXECUTION_ID = STRTEMP(1:300)
+
       ! Get Grid Name
       CALL GET_ENV ( STRTEMP, 'GRID_NAME', GRID_NAME, VARDEV )
       GRID_NAME = STRTEMP(1:16)
@@ -450,40 +470,6 @@
          CALL M3EXIT( 'INIT_ENV_VARS', JDATE, JTIME, XMSG, EXIT_STATUS )
       END IF
 
-#ifdef isam
-      ! SA_ACONC Layer Specification
-      CALL GET_ENV ( 'AISAM_BLEV_ELEV', NV, V_LIST2, VARDEV )
-      IF ( NV .LE. 0 ) THEN   ! assume 1:NLAYS
-         AISAM_BLEV = 1
-         AISAM_ELEV = -1
-      ELSE IF ( NV .EQ. 1 ) THEN ! Assume 1:AISAM_BLEV_ELEV
-         AISAM_BLEV = 1
-         READ( V_LIST2( 2 ), '( I4 )' ) AISAM_ELEV
-      ELSE IF ( NV .EQ. 2 ) THEN ! Correct Input
-         READ( V_LIST2( 1 ), '( I4 )' ) AISAM_BLEV
-         READ( V_LIST2( 2 ), '( I4 )' ) AISAM_ELEV
-      ELSE
-         XMSG = 'Environment variable error for AISAM_BLEV_ELEV'
-         CALL M3EXIT( 'INIT_ENV_VARS', JDATE, JTIME, XMSG, EXIT_STATUS )
-      END IF
-
-      ! SA_CONC File Vertical Layer Range and Speciation
-      CALL GET_ENV ( 'ISAM_BLEV_ELEV', NV, V_LIST2, VARDEV )
-      IF ( NV .LE. 0 ) THEN   ! assume 1:NLAYS
-         ISAM_BLEV = 1
-         ISAM_ELEV = -1
-      ELSE IF ( NV .EQ. 1 ) THEN ! Assume 1:ISAM_BLEV_ELEV
-         ISAM_BLEV = 1
-         READ( V_LIST2( 2 ), '( I4 )' ) ISAM_ELEV
-      ELSE IF ( NV .EQ. 2 ) THEN ! Correct Input
-         READ( V_LIST2( 1 ), '( I4 )' ) ISAM_BLEV
-         READ( V_LIST2( 2 ), '( I4 )' ) ISAM_ELEV
-      ELSE
-         XMSG = 'Environment variable error for ISAM_BLEV_ELEV'
-         CALL M3EXIT( 'INIT_ENV_VARS', JDATE, JTIME, XMSG, EXIT_STATUS )
-      END IF
-#endif
-      
       ! PWRTFLAG
       CALL GET_ENV ( PWRTFLAG, 'IOAPI_LOG_WRITE', PWRTFLAG, VARDEV )
 
@@ -515,6 +501,87 @@
       ! Get Filename for Tracer Species Namelist
       CALL GET_ENV ( TR_NAMELIST, 'tr_matrix_nml', TR_NAMELIST, VARDEV )
 
+#ifdef isam
+      !-------------------------------------------------------------------------------------------------------
+      !>> ISAM
+      !-------------------------------------------------------------------------------------------------------
+      IF ( MYPE .EQ. 0 ) THEN
+         CALL LOG_SUBHEADING( OUTDEV, "ISAM setting and output options" )
+         WRITE( OUTDEV, '(6x,A)' ),'--Env Variable-- | --Value--'
+         WRITE( OUTDEV, '(6x,A)' ), REPEAT( '-',80 )
+      END IF
+
+
+      ! Determine if this ISAM run is a new start or a restart
+      CALL GET_ENV ( ISAM_NEW_START, 'ISAM_NEW_START', ISAM_NEW_START, VARDEV )
+    
+      ! SA_ACONC Layer Specification
+      CALL GET_ENV ( 'AISAM_BLEV_ELEV', NV, V_LIST2, VARDEV )
+      IF ( NV .LE. 0 ) THEN   ! assume 1:NLAYS
+         AISAM_BLEV = 1
+         AISAM_ELEV = -1
+      ELSE IF ( NV .EQ. 1 ) THEN ! Assume 1:AISAM_BLEV_ELEV
+         AISAM_BLEV = 1
+         READ( V_LIST2( 2 ), '( I4 )' ) AISAM_ELEV
+      ELSE IF ( NV .EQ. 2 ) THEN ! Correct Input
+         READ( V_LIST2( 1 ), '( I4 )' ) AISAM_BLEV
+         READ( V_LIST2( 2 ), '( I4 )' ) AISAM_ELEV
+      ELSE
+         XMSG = 'Environment variable error for AISAM_BLEV_ELEV'
+         CALL M3EXIT( 'INIT_ENV_VARS', JDATE, JTIME, XMSG, EXIT_STATUS )
+      END IF
+
+      ! SA_CONC File Vertical Layer Range and Speciation
+      CALL GET_ENV ( 'ISAM_BLEV_ELEV', NV, V_LIST2, VARDEV )
+      IF ( NV .LE. 0 ) THEN   ! assume 1:NLAYS
+         ISAM_BLEV = 1
+         ISAM_ELEV = -1
+      ELSE IF ( NV .EQ. 1 ) THEN ! Assume 1:ISAM_BLEV_ELEV
+         ISAM_BLEV = 1
+         READ( V_LIST2( 2 ), '( I4 )' ) ISAM_ELEV
+      ELSE IF ( NV .EQ. 2 ) THEN ! Correct Input
+         READ( V_LIST2( 1 ), '( I4 )' ) ISAM_BLEV
+         READ( V_LIST2( 2 ), '( I4 )' ) ISAM_ELEV
+      ELSE
+         XMSG = 'Environment variable error for ISAM_BLEV_ELEV'
+         CALL M3EXIT( 'INIT_ENV_VARS', JDATE, JTIME, XMSG, EXIT_STATUS )
+      END IF
+
+      ! Get species bias case
+      CALL GET_ENV ( ISAM_O3_WEIGHTS, 'ISAM_O3_WEIGHTS', ISAM_O3_WEIGHTS, VARDEV )
+      IF ( ISAM_O3_WEIGHTS .LT. 1 .OR. ISAM_O3_WEIGHTS .GT. 5 ) THEN
+         XMSG = 'ISAM_CHEM_BIAS must equal 1 thru 5'
+         WRITE( OUTDEV, '(A)' )TRIM( XMSG )
+         CALL M3EXIT ( PNAME, 0, 0, XMSG, XSTAT1 )
+      END IF
+
+      IF ( ISAM_O3_WEIGHTS .EQ. 5 ) THEN
+        EFLAG = .FALSE.
+      ! VOC_NOX_TRANS value, ratio of H2O2 over HNO3 production rates or concentration 
+          CALL GET_ENV ( VOC_NOX_TRANS, 'VOC_NOX_TRANS', VOC_NOX_TRANS, VARDEV )
+          CALL GET_ENV ( ISAM_NOX_CASE, 'ISAM_NOX_CASE', ISAM_NOX_CASE, VARDEV )
+          CALL GET_ENV ( ISAM_VOC_CASE, 'ISAM_VOC_CASE', ISAM_VOC_CASE, VARDEV )
+          IF ( ISAM_NOX_CASE .LT. 1 .OR. ISAM_NOX_CASE .GT. 4 ) THEN
+              XMSG = 'ISAM_NOX_CASE  must equal 1 thru 4'
+              WRITE( OUTDEV, '(A)' )TRIM( XMSG )
+              EFLAG = .TRUE.
+          END IF 
+          IF ( ISAM_VOC_CASE .LT. 1 .OR. ISAM_VOC_CASE .GT. 4 ) THEN
+              XMSG = 'ISAM_VOC_CASE  must equal 1 thru 4'
+              WRITE( OUTDEV, '(A)' )TRIM( XMSG )
+              EFLAG = .TRUE.
+          END IF 
+          IF ( ISAM_VOC_CASE .EQ. ISAM_NOX_CASE ) THEN
+              XMSG = 'ISAM_VOC_CASE  must NOT equal ISAM_NOX_CASE'
+              WRITE( OUTDEV, '(A)' )TRIM( XMSG )
+              XMSG = 'Set ISAM_O3_WEIGHTS to their value.'
+              WRITE( OUTDEV, '(A)' )TRIM( XMSG )
+              EFLAG = .TRUE.
+          END IF 
+          IF ( EFLAG ) CALL M3EXIT ( PNAME, 0, 0, 'Found errors in ISAM options', XSTAT1 )
+      END IF   
+#endif
+      
       !-------------------------------------------------------------------------------------------------------
       !>> Chemistry and Photolysis
       !-------------------------------------------------------------------------------------------------------
@@ -573,31 +640,6 @@
 
       ! Get AOD diagnostic file flag.
       CALL GET_ENV ( AOD, 'CTM_AOD', AOD, VARDEV )
-
-      ! Get flag for instantaneous PM diagnostic file.
-      CALL GET_ENV ( PMDIAG, 'CTM_PMDIAG', PMDIAG, VARDEV )
-
-      ! Get flag for average PM diagnostic file.
-      CALL GET_ENV ( APMDIAG, 'CTM_APMDIAG', APMDIAG, VARDEV )
-
-      ! APMDIAG Layer Specification 
-      CALL GET_ENV ( 'APMDIAG_BLEV_ELEV', NV, V_LIST2, VARDEV )
-      IF ( NV .LE. 0 ) THEN   ! assume 1:NLAYS
-         APMDIAG_ZLO = 1
-         APMDIAG_ZHI = -1
-      ELSE IF ( NV .EQ. 1 ) THEN ! Assume 1:CONC_BLEV_ELEV
-         APMDIAG_ZLO = 1
-         READ( V_LIST2( 2 ), '( I4 )' ) APMDIAG_ZHI
-      ELSE IF ( NV .EQ. 2 ) THEN ! Correct Input
-         READ( V_LIST2( 1 ), '( I4 )' ) APMDIAG_ZLO
-         READ( V_LIST2( 2 ), '( I4 )' ) APMDIAG_ZHI
-      ELSE 
-         XMSG = 'Environment variable error for APMDIAG_BLEV_ELEV'
-         CALL M3EXIT( 'INIT_ENV_VARS', JDATE, JTIME, XMSG, EXIT_STATUS )
-      END IF
-       
-      ! APMDIAG File Species List 
-      CALL GET_ENV ( 'AVG_PMDIAG_SPCS', N_APMDIAG_SPC, APMDIAG_SPC, VARDEV )
 
       !-------------------------------------------------------------------------------------------------------
       !>> sulfur tracking option
@@ -709,7 +751,7 @@
       !>> Emission Environment Variables 
       !-------------------------------------------------------------------------------------------------------
       
-      IF ( INDEX( MECHNAME, 'CB6R3M' ) .GT. 0 ) then
+      IF ( INDEX( MECHNAME, 'CB6R5M' ) .GT. 0 ) then
          USE_MARINE_GAS_EMISSION = .TRUE.
       END IF
 
@@ -735,8 +777,12 @@
       ! present on emissions files
       CALL GET_ENV (  EMISCHK, 'CTM_EMISCHK', EMISCHK, VARDEV )
  
-      ! CTM_BIOGEMIS
-      CALL GET_ENV ( BIOGEMIS, 'CTM_BIOGEMIS', BIOGEMIS, VARDEV )
+      ! CTM_BIOGEMIS_BEIS
+      CALL GET_ENV ( BIOGEMIS_BEIS, 'CTM_BIOGEMIS_BEIS', BIOGEMIS_BEIS, VARDEV )
+
+      ! CTM_BIOGEMIS_MEGAN
+      CALL GET_ENV(BIOGEMIS_MEGAN, 'CTM_BIOGEMIS_MEGAN', BIOGEMIS_MEGAN,VARDEV )
+      CALL GET_ENV(USE_MEGAN_LAI, 'USE_MEGAN_LAI',USE_MEGAN_LAI,VARDEV )
 
       ! Get the speciation profile to use
       CALL GET_ENV ( SPPRO, 'BIOG_SPRO', SPPRO, VARDEV )
@@ -823,9 +869,6 @@
 !        PLAY_BASE( NV ) = STRTEMP
 !     END DO
        
-      ! Determine user-defined default for emissions diagnostics
-      CALL GET_ENV ( EMISDIAG, 'EMISDIAG', EMISDIAG, VARDEV )
-
       ! Determine user-defined default for emissions date override for representative days
       CALL GET_ENV ( EMIS_SYM_DATE, 'EMIS_SYM_DATE', EMIS_SYM_DATE, VARDEV )
  
@@ -877,6 +920,7 @@
          XMSG = 'Environment variable error for PA_BLEV_ELEV'
          CALL M3EXIT( 'INIT_ENV_VARS', JDATE, JTIME, XMSG, EXIT_STATUS )
       END IF
+
 
 ! for MPAS
 #ifdef mpas
