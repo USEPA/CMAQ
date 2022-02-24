@@ -73,8 +73,8 @@ echo 'Start Model Run At ' `date`
 
 #> Set Start and End Days for looping
  setenv NEW_START TRUE             #> Set to FALSE for model restart
- set START_DATE = "2015-12-22"     #> beginning date (January 1, 2016)
- set END_DATE   = "2015-12-22"     #> ending date    (December 31, 2016)
+ set START_DATE = "2015-12-28"     #> beginning date (January 1, 2016)
+ set END_DATE   = "2015-12-28"     #> ending date    (December 31, 2016)
 
 #> Set Timestepping Parameters
 set STTIME     = 000000            #> beginning GMT time (HHMMSS)
@@ -217,7 +217,7 @@ set EMISpath  = $INPDIR/emis/cb6r3_ae6_20191121_compressed/cmaq_ready/gridded_no
 set EMISpath2 = $INPDIR/emis/cb6r3_ae6_20191121_compressed/cmaq_ready/gridded_rwc          #> surface residential wood combustion emissions directory
 set IN_PTpath = $INPDIR/emis/cb6r3_ae6_20191121_compressed/cmaq_ready                      #> elevated emissions input directory (in-line point only)
 set IN_LTpath = $INPDIR/met/lightning     #> lightning NOx input directory
-set METpath   = $INPDIR/met/mcip_v43_wrf_v381_ltng              #> meteorology input directory
+set METpath   = $INPDIR/met/mcip_v50_wrf_v411_ltng_lufgood              #> meteorology input directory
 #set JVALpath  = $INPDIR/jproc            #> offline photolysis rate table directory
 set OMIpath   = $BLD                      #> ozone column data for the photolysis model
 set LUpath    = $INPDIR/surface           #> BELD landuse data for windblown dust model
@@ -267,7 +267,8 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
 
   #> Initial conditions
   if ($NEW_START == true || $NEW_START == TRUE ) then
-     setenv ICFILE ICON_v53_12US1_regrid_20151222
+  #   setenv ICFILE ICON_v53_12US1_regrid_20151222
+     setenv ICFILE ICON_cb6r3_ae6_profile_12US1_timeind
      setenv INIT_MEDC_1 notused
   else
      set ICpath = $OUTDIR
@@ -276,8 +277,9 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   endif
 
   #> Boundary conditions, use STAGE files if CCTM uses the stage option for depv
-# set BCFILE = bctr_12km_HCMAQ_V53BETA2_STAGE_cb6r3m_ae7_kmtbr_BCON_V53_${YYYYMM}.ncf
-  set BCFILE = bctr_12km_HCMAQ_V53R_RUNA_M3DRY_cb6r3m_ae7_kmtbr_BCON_V53_${YYYYMM}.ncf
+  #set BCFILE = bctr_12km_HCMAQ_V531_STAGE_cb6r3m_ae7_kmtbr_BCON_V53_WRF411_corrected_${YYYYMM}.ncf
+  set BCFILE = bctr_12km_HCMAQ_V53R_RUNA_M3DRY_cb6r3m_ae7_kmtbr_BCON_V53_WRF411_corrected_${YYYYMM}.ncf
+
 
   #> Off-line photolysis rates 
   #set JVALfile  = JTABLE_${YYYYJJJ}
@@ -289,14 +291,15 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   set OPTfile = PHOT_OPTICS.dat
 
   #> MCIP meteorology files
-  setenv GRID_BDY_2D $METpath/GRIDBDY2D.$GRID_NAME.${NZ}L.$YYMMDD
-  setenv GRID_CRO_2D $METpath/GRIDCRO2D.$GRID_NAME.${NZ}L.$YYMMDD
-  setenv GRID_CRO_3D $METpath/GRIDCRO3D.$GRID_NAME.${NZ}L.$YYMMDD
-  setenv GRID_DOT_2D $METpath/GRIDDOT2D.$GRID_NAME.${NZ}L.$YYMMDD
-  setenv MET_CRO_2D  $METpath/METCRO2D.$GRID_NAME.${NZ}L.$YYMMDD
-  setenv MET_CRO_3D  $METpath/METCRO3D.$GRID_NAME.${NZ}L.$YYMMDD
-  setenv MET_DOT_3D  $METpath/METDOT3D.$GRID_NAME.${NZ}L.$YYMMDD
-  setenv MET_BDY_3D  $METpath/METBDY3D.$GRID_NAME.${NZ}L.$YYMMDD
+  setenv GRID_BDY_2D $METpath/GRIDBDY2D_$YYMMDD.nc
+  setenv GRID_CRO_2D $METpath/GRIDCRO2D_$YYMMDD.nc
+  setenv GRID_CRO_3D $METpath/GRIDCRO3D_$YYMMDD.nc
+  setenv GRID_DOT_2D $METpath/GRIDDOT2D_$YYMMDD.nc
+  setenv MET_CRO_2D  $METpath/METCRO2D_$YYMMDD.nc
+  setenv MET_CRO_3D  $METpath/METCRO3D_$YYMMDD.nc
+  setenv MET_DOT_3D  $METpath/METDOT3D_$YYMMDD.nc
+  setenv MET_BDY_3D  $METpath/METBDY3D_$YYMMDD.nc
+  setenv LUFRAC_CRO  $METpath/LUFRAC_CRO_$YYMMDD.nc
 # setenv LUFRAC_CRO  $METpath/LUFRAC_CRO.$GRID_NAME.${NZ}L.$YYMMDD
 
   #> Emissions Control File
@@ -379,7 +382,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   setenv STK_EMIS_LAB_005 PT_FIRES
   setenv STK_EMIS_LAB_006 PT_OTHFIRES
   setenv STK_EMIS_LAB_007 PT_OILGAS
-  setenv STK_EMIS_LAB_008 PT_CMV
+  setenv STK_EMIS_LAB_008 PT_CMV_C3
   setenv STK_EMIS_LAB_009 PT_CMV_C1C2
 
   # Allow CMAQ to Use Point Source files with dates that do not
@@ -502,7 +505,6 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
        setenv VOC_NOX_TRANS  0.35 # value of Prod H2O2 over Prod HNO3 less than where 
                                   # ISAM_VOC_CASE weights are used. Otherwise, ISAM_NOX_CASE
                                   # weights are used. Default is 0.35
-
 
 
     endif
