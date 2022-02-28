@@ -446,7 +446,7 @@ C Get surface flux variables
             End Where
          End Do
          Nullify( PSIH )
-! Noralization loops
+! Normalization loops
          Do j = 1,Tile_Data%n_lufrac
             Where( Tile_Data%LUFRAC( :,:,j ) .Gt. 0.0 )
                lu_mean_ga    = lu_mean_ga    + Tile_Data%LUFRAC( :,:,j ) / MOS_RA( :,:,j )

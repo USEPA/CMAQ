@@ -167,7 +167,8 @@ C--------------------------------------------------------------------------
          DO C = 1, NCOLS
             DO R = 1, NROWS
                DO L = 1, Tile_data%N_LUFRAC
-                  IF(Tile_data%CAT_LU(L) .EQ. 'EVEFOR') THEN
+                  IF(Tile_data%CAT_LU(L) .EQ. 'EVEFORN' .Or. 
+     &               Tile_data%CAT_LU(L) .EQ. 'EVEFORB' ) THEN
                      fevgrn(c,r) = fevgrn(c,r) + Tile_data%lufrac(c,r,l)
                   End IF
                   IF(Tile_data%CAT_LU(L) .EQ. 'MIXFOR') THEN
