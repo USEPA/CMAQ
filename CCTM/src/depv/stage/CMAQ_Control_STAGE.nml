@@ -310,7 +310,7 @@
 /
 
 ! MODIS 21 high resolution lakes example
-&STAGE_CUSTUM
+&STAGE_CUSTOM
  MET_TO_STAGE_LU =
  ! Met_LU_Name | Met_Index | STAGE_LU_name     | STAGE_Index | Factor | Descrition
   'MODIS_01',      1,       'EvrgrnNeedleLeaf',    8,          1.0,    'Evergreen Needleleaf Forest',
