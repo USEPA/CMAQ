@@ -1408,7 +1408,7 @@ REACTIONS[CM] =
 ! Sesquiterpenes based on MCM b-caryophyllene with autoxidation
 ! added to O3 channel following Richters et al. 2016 ES&T
 <R011c> SESQ  + NO3          = SESQNRO2            # 1.9E-11;
-<R012c> SESQNRO2 + HO2       = VROCP0OXY2           # 2.84E-13 @ -1300.0;
+<R012c> SESQNRO2 + HO2       = VROCP0OXY4           # 2.84E-13 @ -1300.0;
 <R013c> SESQNRO2 + NO        = VROCP3OXY2 + 2.0*NO2 # 2.70E-12 @ -360.0;
 <R014c> SESQNRO2 + NO3       = VROCP3OXY2 + 2.0*NO2 # 2.3E-12;
 <R015c> SESQ  + O3           = 0.982*VROCP3OXY2 
@@ -1416,8 +1416,8 @@ REACTIONS[CM] =
 <R016c> SESQ + HO            = SESQRO2             # 1.97E-10;
 <R017c> SESQRO2 + HO2        = VROCP0OXY2           # 2.84E-13 @ -1300.0;
 <R019c> SESQRO2 + NO3        = VROCP3OXY2           # 2.3E-12;
-<R020c> SESQRO2 + NO         = 0.247*VROCP0OXY2 
-                                 + 0.753*VROCP0OXY2
+<R020c> SESQRO2 + NO         = 0.247*VROCP1OXY3 
+                                 + 0.753*VROCP3OXY2
                                  + 0.753*NO2       # 2.70E-12 @ -360.0;
 
 ! GLY and MGLY uptake
@@ -1467,13 +1467,13 @@ REACTIONS[CM] =
                              + 0.2800 * VROCP2OXY2
                              + 0.7200 * NO2         # 2.7e-12 @ -360.;
 <ROCALK10c> VROCP3ALKP + NO =  0.7200 * VROCP3ALKP2 
-                             + 0.2800 * VROCP0OXY2
+                             + 0.2800 * VROCP1OXY1
                              + 0.7200 * NO2         # 2.7e-12 @ -360.;
 <ROCALK11c> VROCP2ALKP + NO =  0.7200 * VROCP2ALKP2 
-                             + 0.2800 * VROCN1OXY1
+                             + 0.2800 * VROCP0OXY2
                              + 0.7200 * NO2         # 2.7e-12 @ -360.;
 <ROCALK12c> VROCP1ALKP + NO =  0.7200 * VROCP1ALKP2 
-                             + 0.2800 * VROCN2OXY2
+                             + 0.2800 * VROCN1OXY1
                              + 0.7200 * NO2         # 2.7e-12 @ -360.;
 <HC1002>    HC10P + NO      =  0.7400 * HC10P2 
                              + 0.2600 * ONIT
@@ -1495,23 +1495,23 @@ REACTIONS[CM] =
                                + 1.0000 * NO2       # 2.30e-12;
 
 <ROCALK19c> VROCP6ALKP + HO2 = 1.0000 * VROCP3OXY2  # 2.17e-11;
-<ROCALK20c> VROCP5ALKP + HO2 = 1.0000 * VROCP3OXY2  # 2.20e-11;
+<ROCALK20c> VROCP5ALKP + HO2 = 1.0000 * VROCP2OXY2  # 2.20e-11;
 <ROCALK21c> VROCP4ALKP + HO2 = 1.0000 * VROCP1OXY1  # 2.25e-11;
 <ROCALK22c> VROCP3ALKP + HO2 = 1.0000 * VROCP0OXY2  # 2.26e-11;
-<ROCALK23c> VROCP2ALKP + HO2 = 1.0000 * VROCN2OXY2  # 2.27e-11;
+<ROCALK23c> VROCP2ALKP + HO2 = 1.0000 * VROCN1OXY1  # 2.27e-11;
 <ROCALK24c> VROCP1ALKP + HO2 = 1.0000 * VROCN2OXY2  # 2.27e-11;
 <HC1004>    HC10P + HO2      = 1.0000 * OP2         # 2.66e-13 @ -1300.;
 
 <ROCALK25c> VROCP6ALKP2 = 1.0000 * HO2
-                          + 1.0000 * VROCP2OXY2     # 1.88e-1;
+                          + 1.0000 * VROCP3OXY2     # 1.88e-1;
 <ROCALK26c> VROCP5ALKP2 = 1.0000 * HO2
                           + 1.0000 * VROCP2OXY2     # 1.88e-1;
 <ROCALK27c> VROCP4ALKP2 = 1.0000 * HO2
                           + 1.0000 * VROCP1OXY1     # 1.88e-1;
 <ROCALK28c> VROCP3ALKP2 = 1.0000 * HO2
-                          + 1.0000 * VROCN1OXY1     # 1.88e-1;
+                          + 1.0000 * VROCP0OXY2     # 1.88e-1;
 <ROCALK29c> VROCP2ALKP2 = 1.0000 * HO2
-                          + 1.0000 * VROCN2OXY2     # 1.88e-1;
+                          + 1.0000 * VROCN1OXY1     # 1.88e-1;
 <ROCALK30c> VROCP1ALKP2 = 1.0000 * HO2
                           + 1.0000 * VROCN2OXY2     # 1.88e-1;
 <HC1005>    HC10P2      = 1.0000 * HO2
@@ -1523,21 +1523,21 @@ REACTIONS[CM] =
                                + 0.8600 * NO2
                                + 0.8600 * VROCP3OXY2 
                                + 0.8600 * HO2       # 2.7E-12 @ -360.;
-<ROCALK32c> VROCP5ALKP2 + NO = 0.1400 * VROCP1OXY1 
+<ROCALK32c> VROCP5ALKP2 + NO = 0.1400 * VROCP1OXY3 
                                + 0.8600 * NO2
-                               + 0.8600 * VROCP3OXY2 
+                               + 0.8600 * VROCP2OXY2 
                                + 0.8600 * HO2        # 2.7E-12 @ -360.;
 <ROCALK33c> VROCP4ALKP2 + NO = 0.1400 * VROCP0OXY2 
                                + 0.8600 * NO2
                                + 0.8600 * VROCP1OXY1
                                + 0.8600 * HO2        # 2.7E-12 @ -360.;
-<ROCALK34c> VROCP3ALKP2 + NO = 0.1400 * VROCN2OXY2 
+<ROCALK34c> VROCP3ALKP2 + NO = 0.1400 * VROCN1OXY1 
                                + 0.8600 * NO2
                                + 0.8600 * VROCP0OXY2 
                                + 0.8600 * HO2        # 2.7E-12 @ -360.;
 <ROCALK35c> VROCP2ALKP2 + NO = 0.1400 * VROCN2OXY2 
                                + 0.8600 * NO2
-                               + 0.8600 * VROCN2OXY2 
+                               + 0.8600 * VROCN1OXY1 
                                + 0.8600 * HO2        # 2.7E-12 @ -360.;
 <ROCALK36c> VROCP1ALKP2 + NO = 0.1400 * VROCN2OXY2 
                                + 0.8600 * NO2
@@ -1552,7 +1552,7 @@ REACTIONS[CM] =
                                + 1.0000 * VROCP3OXY2 
                                + 1.0000 * HO2        # 2.30e-12;
 <ROCALK38c> VROCP5ALKP2 + NO3 =  1.0000 * NO2
-                                + 1.0000 * VROCP3OXY2 
+                                + 1.0000 * VROCP2OXY2 
                                 + 1.0000 * HO2       # 2.30e-12;
 <ROCALK39c> VROCP4ALKP2 + NO3 = 1.0000 * NO2
                                 + 1.0000 * VROCP1OXY1 
@@ -1561,7 +1561,7 @@ REACTIONS[CM] =
                                 + 1.0000 * VROCP0OXY2 
                                 + 1.0000 * HO2       # 2.30e-12;
 <ROCALK41c> VROCP2ALKP2 + NO3 = 1.0000 * NO2
-                                + 1.0000 * VROCN2OXY2 
+                                + 1.0000 * VROCN1OXY1 
                                 + 1.0000 * HO2       # 2.30e-12;
 <ROCALK42c> VROCP1ALKP2 + NO3 = 1.0000 * NO2
                                 + 1.0000 * VROCN2OXY2 
@@ -1590,18 +1590,18 @@ REACTIONS[CM] =
                          + 0.9048*VROCP1OXY3
                          + 0.0357*VROCN2OXY4 # 2.91E-13 @ -1300.;
 <ROCARO03> VROCP6AROP + NO =   0.0001*VROCP4OXY2
-                         + 0.0018*VROCP1OXY3
+                         + 0.0018*VROCP2OXY2
                          + 0.0001*VROCN1OXY3
                          + 0.9980*NO2
                          + 0.9980*HO2
-                         + 0.0594*VROCP4OXY2
+                         + 0.0594*BALD
                          + 0.4693*GLY
                          + 0.4693*MGLY
                          + 0.4693*FURANONE
                          + 0.4693*DCB2        # 2.7E-12 @ -360.;
 <ROCARO04> VROCP6AROP + NO3 =  1.0000*NO2
                          + 0.9405*HO2
-                         + 0.0595*VROCP4OXY2
+                         + 0.0595*BALD
                          + 0.4702*GLY
                          + 0.4702*MGLY
                          + 0.4702*FURANONE
@@ -1609,7 +1609,7 @@ REACTIONS[CM] =
 <ROCARO05> VROCP6AROP + MO2 =  0.6800*HCHO
                          + 1.3105*HO2
                          + 0.3200*MOH
-                         + 0.0595*VROCP4OXY2
+                         + 0.0595*BALD
                          + 0.4702*GLY
                          + 0.4702*MGLY
                          + 0.4702*FURANONE
@@ -1617,7 +1617,7 @@ REACTIONS[CM] =
 <ROCARO06> VROCP6AROP + ACO3 = 0.7000*MO2
                          + 0.9405*HO2
                          + 0.3000*ORA2
-                         + 0.0595*VROCP4OXY2
+                         + 0.0595*BALD
                          + 0.4702*GLY
                          + 0.4702*MGLY
                          + 0.4702*FURANONE
@@ -1630,18 +1630,18 @@ REACTIONS[CM] =
                          + 0.9048*VROCP0OXY2
                          + 0.0357*VROCN2OXY4 # 2.91E-13 @ -1300.;
 <ROCARO13> VROCP5AROP + NO =   0.0001*VROCP3OXY2
-                         + 0.0018*VROCP0OXY4
+                         + 0.0018*VROCP1OXY3
                          + 0.0001*VROCN2OXY4
                          + 0.9980*NO2
                          + 0.9980*HO2
-                         + 0.0594*VROCP3OXY2
+                         + 0.0594*VROCP4OXY2
                          + 0.4693*GLY
                          + 0.4693*MGLY
                          + 0.4693*FURANONE
                          + 0.4693*DCB2        # 2.7E-12 @ -360.;
 <ROCARO14> VROCP5AROP + NO3 =  1.0000*NO2
                          + 0.9405*HO2
-                         + 0.0595*VROCP3OXY2
+                         + 0.0595*VROCP4OXY2
                          + 0.4702*GLY
                          + 0.4702*MGLY
                          + 0.4702*FURANONE
@@ -1649,7 +1649,7 @@ REACTIONS[CM] =
 <ROCARO15> VROCP5AROP + MO2 =  0.6800*HCHO
                          + 1.3105*HO2
                          + 0.3200*MOH
-                         + 0.0595*VROCP3OXY2
+                         + 0.0595*VROCP4OXY2
                          + 0.4702*GLY
                          + 0.4702*MGLY
                          + 0.4702*FURANONE
@@ -1657,7 +1657,7 @@ REACTIONS[CM] =
 <ROCARO16> VROCP5AROP + ACO3 = 0.7000*MO2
                          + 0.9405*HO2
                          + 0.3000*ORA2
-                         + 0.0595*VROCP3OXY2
+                         + 0.0595*VROCP4OXY2
                          + 0.4702*GLY
                          + 0.4702*MGLY
                          + 0.4702*FURANONE
@@ -1671,7 +1671,7 @@ REACTIONS[CM] =
                          + 0.9048*VROCP1OXY3
                          + 0.0357*VROCN2OXY8 # 2.91E-13 @ -1300.;
 <ROCARO23> NAPHP + NO =   0.0001*VROCP4OXY2
-                         + 0.0018*VROCP1OXY3
+                         + 0.0018*VROCP2OXY2
                          + 0.0001*VROCN2OXY8
                          + 0.9980*NO2
                          + 0.9980*HO2
