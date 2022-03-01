@@ -1097,6 +1097,7 @@ C functions block
       CALL WRT_MD_SUBTABLE( NR, IP, LABEL, NS  )
       CALL WRT_CSV_TABLE( NR, IP, LABEL, NS  )
       CALL WRT_HTML_TABLE( NR, IP, LABEL, NS  )
+      CALL WRT_FOAM_TABLES( NR, IP, LABEL, NS  )
       CLOSE( IMECH )
 
 

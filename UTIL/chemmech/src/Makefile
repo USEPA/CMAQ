@@ -7,7 +7,8 @@ else
 endif
 
 ifndef compiler
- compiler = intel   # other options ( pgi | gcc  )
+ compiler = intel
+# other options ( pgi | gcc  )
 endif
 
 ifeq "$(compiler)" "intel"
