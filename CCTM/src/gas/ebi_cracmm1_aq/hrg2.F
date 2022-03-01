@@ -28,7 +28,7 @@ C  PRECONDITIONS: For the CRACMM1_AQ mechanism
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, Feb 23, 2022
+C  REVISION HISTORY: Created by EBI solver program, Mar  1, 2022
 C
 C   18 Jul 14 B.Hutzell: revised to use real(8) variables
 C**********************************************************************
@@ -349,11 +349,11 @@ c..Remaining HO2 production terms
      &   +    8.0000D-01 * RXRAT(   390 )      ! BDE13P+ACO3=0.8000D+00*HO2+...
      &   +    4.2000D-01 * RXRAT(   391 )      ! BDE13+O3=0.4200D+00*HO2+...
      &   +    7.5000D-01 * RXRAT(   394 )      ! FURANO2+NO=0.7500D+00*HO2+...
-     &   +                 RXRAT(   447 )      ! VROCP6ALKP2=HO2+VROCP2OXY2
+     &   +                 RXRAT(   447 )      ! VROCP6ALKP2=HO2+VROCP3OXY2
      &   +                 RXRAT(   448 )      ! VROCP5ALKP2=HO2+VROCP2OXY2
      &   +                 RXRAT(   449 )      ! VROCP4ALKP2=HO2+VROCP1OXY1
-     &   +                 RXRAT(   450 )      ! VROCP3ALKP2=HO2+VROCN1OXY1
-     &   +                 RXRAT(   451 )      ! VROCP2ALKP2=HO2+VROCN2OXY2
+     &   +                 RXRAT(   450 )      ! VROCP3ALKP2=HO2+VROCP0OXY2
+     &   +                 RXRAT(   451 )      ! VROCP2ALKP2=HO2+VROCN1OXY1
      &   +                 RXRAT(   452 )      ! VROCP1ALKP2=HO2+VROCN2OXY2
      &   +                 RXRAT(   453 )      ! HC10P2=HO2+VROCP4OXY2
      &   +    8.6000D-01 * RXRAT(   454 )      ! VROCP6ALKP2+NO=0.8600D+...

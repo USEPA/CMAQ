@@ -27,7 +27,7 @@ C  PRECONDITIONS: For the CRACMM1_AQ mechanism
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, Feb 23, 2022
+C  REVISION HISTORY: Created by EBI solver program, Mar  1, 2022
 C
 C   18 Jul 14 B.Hutzell: revised to use real(8) variables for solution
 C*************************************************************************
@@ -245,9 +245,9 @@ c..Species indices
       INTEGER, PARAMETER :: PROG             =  133
       INTEGER, PARAMETER :: SESQ             =  134
       INTEGER, PARAMETER :: SESQNRO2         =  135
-      INTEGER, PARAMETER :: VROCP0OXY2       =  136
-      INTEGER, PARAMETER :: VROCN2OXY2       =  137
-      INTEGER, PARAMETER :: SESQRO2          =  138
+      INTEGER, PARAMETER :: VROCN2OXY2       =  136
+      INTEGER, PARAMETER :: SESQRO2          =  137
+      INTEGER, PARAMETER :: VROCP0OXY2       =  138
       INTEGER, PARAMETER :: VROCP1OXY3       =  139
       INTEGER, PARAMETER :: AGLYJ            =  140
       INTEGER, PARAMETER :: AISONJ           =  141
@@ -274,11 +274,11 @@ c..Species indices
       INTEGER, PARAMETER :: VROCP4ALKP2      =  162
       INTEGER, PARAMETER :: VROCP2OXY2       =  163
       INTEGER, PARAMETER :: VROCP3ALKP2      =  164
-      INTEGER, PARAMETER :: VROCP2ALKP2      =  165
-      INTEGER, PARAMETER :: VROCN1OXY1       =  166
+      INTEGER, PARAMETER :: VROCP1OXY1       =  165
+      INTEGER, PARAMETER :: VROCP2ALKP2      =  166
       INTEGER, PARAMETER :: VROCP1ALKP2      =  167
-      INTEGER, PARAMETER :: HC10P2           =  168
-      INTEGER, PARAMETER :: VROCP1OXY1       =  169
+      INTEGER, PARAMETER :: VROCN1OXY1       =  168
+      INTEGER, PARAMETER :: HC10P2           =  169
       INTEGER, PARAMETER :: VROCP6ARO        =  170
       INTEGER, PARAMETER :: VROCP6AROP       =  171
       INTEGER, PARAMETER :: VROCN2OXY4       =  172
