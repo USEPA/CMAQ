@@ -27,7 +27,7 @@ C  PRECONDITIONS: For the CRACMM1_AQ mechanism
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, Mar  1, 2022
+C  REVISION HISTORY: Created by EBI solver program, Mar  3, 2022
 C
 C   18 Jul 14 B.Hutzell: revised to use real(8) variables
 C**********************************************************************
@@ -88,8 +88,8 @@ c..Loss frequency of NO3 ( except NO3 + NO3 if present )
      &    +                 RKI(   146 ) * YC ( OLT         )   ! NO3+OLT=0.4300D+...
      &    +                 RKI(   147 ) * YC ( OLI         )   ! NO3+OLI=0.1100D+...
      &    +                 RKI(   148 ) * YC ( ISO         )   ! NO3+ISO=ISON
-     &    +                 RKI(   149 ) * YC ( API         )   ! NO3+API=0.9500D+...
-     &    +                 RKI(   150 ) * YC ( LIM         )   ! NO3+LIM=0.8700D+...
+     &    +                 RKI(   149 ) * YC ( API         )   ! NO3+API=0.9750D+...
+     &    +                 RKI(   150 ) * YC ( LIM         )   ! NO3+LIM=0.9450D+...
      &    +                 RKI(   151 ) * YC ( TRPN        )   ! NO3+TRPN=HOM
      &    +                 RKI(   152 ) * YC ( HCHO        )   ! NO3+HCHO=HO2+CO+HNO3
      &    +                 RKI(   153 ) * YC ( ACD         )   ! NO3+ACD=ACO3+HNO3

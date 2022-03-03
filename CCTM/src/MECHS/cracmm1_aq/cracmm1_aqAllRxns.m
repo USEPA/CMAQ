@@ -1,7 +1,7 @@
 %Foam Reactions File based on the mech.def file for the cracmm1_aq mechanism.
 % # of species   =  180
 % # of reactions =  508
-% file created by Havala Pye
+% file created by Bryan Place
 
 % Set constant species by scaling to air number density
 N2  =  0.780800000.*M;
@@ -808,19 +808,19 @@ fISOP(i)=fISOP(i)+  1.000;
 
 %  88, <R087>
 i=i+1;
-Rnames{  88} = 'API + HO = 0.95000*APIP1 +  0.05000*APIP2 ';
+Rnames{  88} = 'API + HO = 0.97500*APIP1 +  0.02500*APIP2 ';
 k(:,i) = (  1.2100E-11.*exp(  4.4000E+02./T) ); 
 Gstr{i,   1}='API';Gstr{i,   2}='HO';
 fAPI(i)=fAPI(i)-1.0;fHO(i)=fHO(i)-1.0;
-fAPIP1(i)=fAPIP1(i)+  0.950;fAPIP2(i)=fAPIP2(i)+  0.050;
+fAPIP1(i)=fAPIP1(i)+  0.975;fAPIP2(i)=fAPIP2(i)+  0.025;
 
 %  89, <R088>
 i=i+1;
-Rnames{  89} = 'LIM + HO = 0.87000*LIMP1 +  0.13000*LIMP2 ';
+Rnames{  89} = 'LIM + HO = 0.94500*LIMP1 +  0.05500*LIMP2 ';
 k(:,i) = (  4.2000E-11.*exp(  4.0100E+02./T) ); 
 Gstr{i,   1}='LIM';Gstr{i,   2}='HO';
 fLIM(i)=fLIM(i)-1.0;fHO(i)=fHO(i)-1.0;
-fLIMP1(i)=fLIMP1(i)+  0.870;fLIMP2(i)=fLIMP2(i)+  0.130;
+fLIMP1(i)=fLIMP1(i)+  0.945;fLIMP2(i)=fLIMP2(i)+  0.055;
 
 %  90, <TRP04>
 i=i+1;
@@ -832,11 +832,11 @@ fPINALP(i)=fPINALP(i)+  0.230;fRCO3(i)=fRCO3(i)+  0.770;
 
 %  91, <TRP05>
 i=i+1;
-Rnames{  91} = 'LIMAL + HO = LIMALP ';
+Rnames{  91} = 'LIMAL + HO = 0.70000*LIMALP +  0.30000*RCO3 ';
 k(:,i) = (  1.0000E-10 ); 
 Gstr{i,   1}='LIMAL';Gstr{i,   2}='HO';
 fLIMAL(i)=fLIMAL(i)-1.0;fHO(i)=fHO(i)-1.0;
-fLIMALP(i)=fLIMALP(i)+  1.000;
+fLIMALP(i)=fLIMALP(i)+  0.700;fRCO3(i)=fRCO3(i)+  0.300;
 
 %  92, <R089>
 i=i+1;
@@ -1176,19 +1176,19 @@ fHO(i)=fHO(i)+  0.250;fHO2(i)=fHO2(i)+  0.250;fMO2(i)=fMO2(i)+  0.080;fACO3(i)=f
 
 % 134, <R131>
 i=i+1;
-Rnames{ 134} = 'API + O3 = 0.85000*HO +  0.85000*APIP1 +  0.10000*APIP2 +  0.05000*PINAL +  0.05000*H2O2 +  0.14000*CO ';
+Rnames{ 134} = 'API + O3 = 0.90000*HO +  0.90000*APIP1 +  0.05000*APIP2 +  0.05000*PINAL +  0.05000*H2O2 +  0.14000*CO ';
 k(:,i) = (  5.0000E-16.*exp( -5.3000E+02./T) ); 
 Gstr{i,   1}='API';Gstr{i,   2}='O3';
 fAPI(i)=fAPI(i)-1.0;fO3(i)=fO3(i)-1.0;
-fHO(i)=fHO(i)+  0.850;fAPIP1(i)=fAPIP1(i)+  0.850;fAPIP2(i)=fAPIP2(i)+  0.100;fPINAL(i)=fPINAL(i)+  0.050;fH2O2(i)=fH2O2(i)+  0.050;fCO(i)=fCO(i)+  0.140;
+fHO(i)=fHO(i)+  0.900;fAPIP1(i)=fAPIP1(i)+  0.900;fAPIP2(i)=fAPIP2(i)+  0.050;fPINAL(i)=fPINAL(i)+  0.050;fH2O2(i)=fH2O2(i)+  0.050;fCO(i)=fCO(i)+  0.140;
 
 % 135, <R132>
 i=i+1;
-Rnames{ 135} = 'LIM + O3 = 0.85000*HO +  0.85000*LIMP1 +  0.10000*LIMP2 +  0.05000*LIMAL +  0.05000*H2O2 +  0.14000*CO ';
+Rnames{ 135} = 'LIM + O3 = 0.84000*HO +  0.84000*LIMP1 +  0.11000*LIMP2 +  0.05000*LIMAL +  0.05000*H2O2 +  0.14000*CO ';
 k(:,i) = (  2.9500E-15.*exp( -7.8300E+02./T) ); 
 Gstr{i,   1}='LIM';Gstr{i,   2}='O3';
 fLIM(i)=fLIM(i)-1.0;fO3(i)=fO3(i)-1.0;
-fHO(i)=fHO(i)+  0.850;fLIMP1(i)=fLIMP1(i)+  0.850;fLIMP2(i)=fLIMP2(i)+  0.100;fLIMAL(i)=fLIMAL(i)+  0.050;fH2O2(i)=fH2O2(i)+  0.050;fCO(i)=fCO(i)+  0.140;
+fHO(i)=fHO(i)+  0.840;fLIMP1(i)=fLIMP1(i)+  0.840;fLIMP2(i)=fLIMP2(i)+  0.110;fLIMAL(i)=fLIMAL(i)+  0.050;fH2O2(i)=fH2O2(i)+  0.050;fCO(i)=fCO(i)+  0.140;
 
 % 136, <TRP08>
 i=i+1;
@@ -1296,19 +1296,19 @@ fISON(i)=fISON(i)+  1.000;
 
 % 149, <R146>
 i=i+1;
-Rnames{ 149} = 'API + NO3 = 0.95000*APINP1 +  0.05000*APINP2 ';
+Rnames{ 149} = 'API + NO3 = 0.97500*APINP1 +  0.02500*APINP2 ';
 k(:,i) = (  1.1900E-12.*exp(  4.9000E+02./T) ); 
 Gstr{i,   1}='API';Gstr{i,   2}='NO3';
 fAPI(i)=fAPI(i)-1.0;fNO3(i)=fNO3(i)-1.0;
-fAPINP1(i)=fAPINP1(i)+  0.950;fAPINP2(i)=fAPINP2(i)+  0.050;
+fAPINP1(i)=fAPINP1(i)+  0.975;fAPINP2(i)=fAPINP2(i)+  0.025;
 
 % 150, <R147>
 i=i+1;
-Rnames{ 150} = 'LIM + NO3 = 0.87000*LIMNP1 +  0.13000*LIMNP2 ';
+Rnames{ 150} = 'LIM + NO3 = 0.94500*LIMNP1 +  0.05500*LIMNP2 ';
 k(:,i) = (  1.2200E-11 ); 
 Gstr{i,   1}='LIM';Gstr{i,   2}='NO3';
 fLIM(i)=fLIM(i)-1.0;fNO3(i)=fNO3(i)-1.0;
-fLIMNP1(i)=fLIMNP1(i)+  0.870;fLIMNP2(i)=fLIMNP2(i)+  0.130;
+fLIMNP1(i)=fLIMNP1(i)+  0.945;fLIMNP2(i)=fLIMNP2(i)+  0.055;
 
 % 151, <TRP10>
 i=i+1;
@@ -1594,11 +1594,11 @@ fHO(i)=fHO(i)+  0.820;fNO2(i)=fNO2(i)+  0.820;fHOM(i)=fHOM(i)+  1.000;
 
 % 185, <TRP14>
 i=i+1;
-Rnames{ 185} = 'APINP1 + NO = 1.64000*NO2 +  0.82000*PINAL +  0.18000*TRPN ';
+Rnames{ 185} = 'APINP1 + NO = 2.00000*NO2 + PINAL ';
 k(:,i) = (  4.0000E-12 ); 
 Gstr{i,   1}='APINP1';Gstr{i,   2}='NO';
 fAPINP1(i)=fAPINP1(i)-1.0;fNO(i)=fNO(i)-1.0;
-fNO2(i)=fNO2(i)+  1.640;fPINAL(i)=fPINAL(i)+  0.820;fTRPN(i)=fTRPN(i)+  0.180;
+fNO2(i)=fNO2(i)+  2.000;fPINAL(i)=fPINAL(i)+  1.000;
 
 % 186, <TRP15>
 i=i+1;
@@ -1626,11 +1626,11 @@ fHO(i)=fHO(i)+  0.770;fNO2(i)=fNO2(i)+  0.770;fHOM(i)=fHOM(i)+  1.000;
 
 % 189, <TRP17>
 i=i+1;
-Rnames{ 189} = 'LIMNP1 + NO = 1.44000*NO2 +  0.77000*LIMAL +  0.23000*TRPN ';
+Rnames{ 189} = 'LIMNP1 + NO = 2.00000*NO2 + LIMAL ';
 k(:,i) = (  4.0000E-12 ); 
 Gstr{i,   1}='LIMNP1';Gstr{i,   2}='NO';
 fLIMNP1(i)=fLIMNP1(i)-1.0;fNO(i)=fNO(i)-1.0;
-fNO2(i)=fNO2(i)+  1.440;fLIMAL(i)=fLIMAL(i)+  0.770;fTRPN(i)=fTRPN(i)+  0.230;
+fNO2(i)=fNO2(i)+  2.000;fLIMAL(i)=fLIMAL(i)+  1.000;
 
 % 190, <TRP18>
 i=i+1;
@@ -2290,11 +2290,11 @@ fHO2(i)=fHO2(i)+  0.500;fHCHO(i)=fHCHO(i)+  0.750;fLIMAL(i)=fLIMAL(i)+  0.500;fN
 
 % 272, <TRP34>
 i=i+1;
-Rnames{ 272} = 'LIMNP2 + MO2 = 0.75000*HO2 +  0.75000*HCHO +  0.50000*NO2 +  0.25000*ROH + HOM ';
+Rnames{ 272} = 'LIMNP2 + MO2 = 0.75000*HO2 +  0.75000*HCHO +  0.50000*NO2 +  0.25000*MOH + HOM ';
 k(:,i) = (  1.0000E-10 ); 
 Gstr{i,   1}='LIMNP2';Gstr{i,   2}='MO2';
 fLIMNP2(i)=fLIMNP2(i)-1.0;fMO2(i)=fMO2(i)-1.0;
-fHO2(i)=fHO2(i)+  0.750;fHCHO(i)=fHCHO(i)+  0.750;fNO2(i)=fNO2(i)+  0.500;fROH(i)=fROH(i)+  0.250;fHOM(i)=fHOM(i)+  1.000;
+fHO2(i)=fHO2(i)+  0.750;fHCHO(i)=fHCHO(i)+  0.750;fNO2(i)=fNO2(i)+  0.500;fMOH(i)=fMOH(i)+  0.250;fHOM(i)=fHOM(i)+  1.000;
 
 % 273, <R267>
 i=i+1;
@@ -2570,11 +2570,11 @@ fHO2(i)=fHO2(i)+  0.500;fMO2(i)=fMO2(i)+  0.500;fLIMAL(i)=fLIMAL(i)+  0.500;fKET
 
 % 307, <TRP38>
 i=i+1;
-Rnames{ 307} = 'LIMP2 + ACO3 = 0.50000*HO2 +  0.50000*MO2 +  0.50000*ORA2 + HOM ';
+Rnames{ 307} = 'LIMP2 + ACO3 = 0.50000*HO +  0.50000*MO2 +  0.50000*ORA2 + HOM ';
 k(:,i) = (  1.0000E-10 ); 
 Gstr{i,   1}='LIMP2';Gstr{i,   2}='ACO3';
 fLIMP2(i)=fLIMP2(i)-1.0;fACO3(i)=fACO3(i)-1.0;
-fHO2(i)=fHO2(i)+  0.500;fMO2(i)=fMO2(i)+  0.500;fORA2(i)=fORA2(i)+  0.500;fHOM(i)=fHOM(i)+  1.000;
+fHO(i)=fHO(i)+  0.500;fMO2(i)=fMO2(i)+  0.500;fORA2(i)=fORA2(i)+  0.500;fHOM(i)=fHOM(i)+  1.000;
 
 % 308, <TRP39>
 i=i+1;
@@ -2586,11 +2586,11 @@ fHO2(i)=fHO2(i)+  0.500;fLIMAL(i)=fLIMAL(i)+  0.500;fNO2(i)=fNO2(i)+  0.500;fMO2
 
 % 309, <TRP40>
 i=i+1;
-Rnames{ 309} = 'LIMNP2 + ACO3 = 0.50000*HO2 +  0.50000*MO2 +  0.50000*NO2 +  0.50000*ORA2 + HOM ';
+Rnames{ 309} = 'LIMNP2 + ACO3 = 0.50000*MO2 +  0.50000*NO2 +  0.50000*ORA2 + HOM ';
 k(:,i) = (  1.0000E-10 ); 
 Gstr{i,   1}='LIMNP2';Gstr{i,   2}='ACO3';
 fLIMNP2(i)=fLIMNP2(i)-1.0;fACO3(i)=fACO3(i)-1.0;
-fHO2(i)=fHO2(i)+  0.500;fMO2(i)=fMO2(i)+  0.500;fNO2(i)=fNO2(i)+  0.500;fORA2(i)=fORA2(i)+  0.500;fHOM(i)=fHOM(i)+  1.000;
+fMO2(i)=fMO2(i)+  0.500;fNO2(i)=fNO2(i)+  0.500;fORA2(i)=fORA2(i)+  0.500;fHOM(i)=fHOM(i)+  1.000;
 
 % 310, <R303>
 i=i+1;
