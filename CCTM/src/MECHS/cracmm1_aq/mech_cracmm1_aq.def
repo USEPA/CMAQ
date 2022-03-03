@@ -277,10 +277,10 @@ REACTIONS[CM] =
 <ROCARO61> XYE + HO        = 0.8200*XYEP + 0.1800*CSL
                                          + 0.1800*HO2  # 7.16E-12;
 <R086>  ISO  + HO          = ISOP                     # 2.70E-11 @ -390.;
-<R087>  API  + HO          = 0.95*APIP1 + 0.05*APIP2  # 1.21E-11 @ -440.;
-<R088>  LIM  + HO          = 0.87*LIMP1 + 0.13*LIMP2  # 4.20E-11 @ -401.;
+<R087>  API  + HO          = 0.975*APIP1 + 0.025*APIP2  # 1.21E-11 @ -440.;
+<R088>  LIM  + HO          = 0.945*LIMP1 + 0.055*LIMP2  # 4.20E-11 @ -401.;
 <TRP04> PINAL  + HO        = 0.23*PINALP + 0.77*RCO3  # 5.20E-12 @ -600.;
-<TRP05> LIMAL  + HO        = LIMALP                   # 1.00E-10;
+<TRP05> LIMAL  + HO        = 0.70*LIMALP + 0.30*RCO3  # 1.00E-10;
 <R089>  HCHO + HO          = HO2       + CO           # 5.50E-12 @ -125.;                                         
 <R090>  ACD  + HO          = ACO3                     # 4.70E-12 @ -345.;                                         
 <R091>  ALD  + HO          = RCO3                     # 4.90E-12  @ -405.;          
@@ -403,13 +403,13 @@ REACTIONS[CM] =
                                         + 0.189*MVK
                                         + 0.28*ORA1
                                         + 0.153*OLT   # 7.86E-15 @ 1913.;
-<R131>  API  + O3          = 0.85*HO    + 0.85*APIP1
-                                        + 0.10*APIP2
+<R131>  API  + O3          = 0.90*HO    + 0.90*APIP1
+                                        + 0.05*APIP2
                                         + 0.05*PINAL
                                         + 0.05*H2O2
                                         + 0.14*CO     # 5.0E-16 @ 530.;
-<R132>  LIM  + O3          = 0.85*HO    + 0.85*LIMP1 
-                                        + 0.1*LIMP2
+<R132>  LIM  + O3          = 0.84*HO    + 0.84*LIMP1 
+                                        + 0.11*LIMP2
                                         + 0.05*LIMAL
                                         + 0.05*H2O2
                                         + 0.14*CO     # 2.95E-15 @ 783.;
@@ -473,8 +473,8 @@ REACTIONS[CM] =
 <R142>  OLT  + NO3         = 0.43*OLNN  + 0.57*OLND   # 1.79E-13 @ 450.;
 <R143>  OLI  + NO3         = 0.11*OLNN  + 0.89*OLND   # 8.64E-13 @ -450.;
 <R145>  ISO  + NO3         =      ISON                # 3.03E-12 @ 446.;
-<R146>  API  + NO3         = 0.95*APINP1 + 0.05*APINP2  # 1.19E-12 @ -490.;
-<R147>  LIM  + NO3         = 0.87*LIMNP1 + 0.13*LIMNP2  # 1.22E-11;
+<R146>  API  + NO3         = 0.975*APINP1 + 0.025*APINP2  # 1.19E-12 @ -490.;
+<R147>  LIM  + NO3         = 0.945*LIMNP1 + 0.055*LIMNP2  # 1.22E-11;
 <TRP10> TRPN  + NO3        = HOM                      # 3.15E-14 @ 448.;
 <R148>  HCHO + NO3         = HO2        + CO 
                                         + HNO3        # 2.0E-12 @ 2440.;
@@ -613,8 +613,7 @@ REACTIONS[CM] =
                                         + 0.18*TRPN   # 4.0E-12;
 <TRP13>  APIP2 + NO        = 0.82*HO    + 0.82*NO2
                                         + HOM         # 4.0E-12;
-<TRP14>  APINP1 + NO       = 1.64*NO2   + 0.82*PINAL
-                                        + 0.18*TRPN   # 4.0E-12;
+<TRP14>  APINP1 + NO       = 2*NO2      + PINAL       # 4.0E-12;
 <TRP15>  APINP2 + NO       = 0.82*NO2   + 0.82*HO
                                         + HOM         # 4.0E-12;
 <R190>  LIMP1 + NO         = 0.77*HO2   + 0.77*NO2
@@ -624,8 +623,7 @@ REACTIONS[CM] =
                                         + 0.23*TRPN   # 4.0E-12;
 <TRP16>  LIMP2 + NO        = 0.77*HO    + 0.77*NO2
                                         + HOM         # 4.0E-12;
-<TRP17>  LIMNP1 + NO       = 1.44*NO2   + 0.77*LIMAL
-                                        + 0.23*TRPN   # 4.0E-12;
+<TRP17>  LIMNP1 + NO       = 2*NO2      + LIMAL       # 4.0E-12;
 <TRP18>  LIMNP2 + NO       = 0.77*NO2   + 0.77*HO
                                         + HOM         # 4.0E-12;
 <TRP19>  PINALP + NO       = 0.95*HO2   + 0.95*NO2 
@@ -856,7 +854,7 @@ REACTIONS[CM] =
                                        + 0.250*ROH    # 3.56E-14 @ -708.;
 <TRP34> LIMNP2 + MO2       = 0.75*HO2  + 0.750*HCHO
                                        + 0.500*NO2
-                                       + 0.250*ROH
+                                       + 0.250*MOH
                                        + HOM          # 1.00E-10;
 <R267>  ACO3 + MO2         = 0.9*HO2   + 0.9*MO2
                                        + HCHO 
@@ -1022,7 +1020,7 @@ REACTIONS[CM] =
                                        + 0.5*LIMAL
                                        + 0.5*KET
                                        + 0.5*ORA2     # 7.4E-13 @ -765.;
-<TRP38> LIMP2 + ACO3       = 0.5*HO2   + 0.5*MO2
+<TRP38> LIMP2 + ACO3       = 0.5*HO    + 0.5*MO2
                                        + 0.5*ORA2
                                        + HOM          # 1.0E-10;
 <TRP39> LIMNP1 + ACO3      = 0.5*HO2   + 0.5*LIMAL
@@ -1030,8 +1028,7 @@ REACTIONS[CM] =
                                        + 0.5*MO2
                                        + 0.5*ORA2
                                        + 0.5*KET      # 7.4E-13 @ -765.;
-<TRP40> LIMNP2 + ACO3      = 0.5*HO2   + 0.5*MO2
-                                       + 0.5*NO2
+<TRP40> LIMNP2 + ACO3      = 0.5*MO2   + 0.5*NO2
                                        + 0.5*ORA2
                                        + HOM          # 1.0E-10;
 <R303>  ACO3 + ACO3        = 2.0*MO2                  # 2.5E-12 @ -500.;
