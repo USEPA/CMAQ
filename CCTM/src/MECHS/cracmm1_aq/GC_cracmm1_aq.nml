@@ -152,18 +152,18 @@ GC_SPECIES_DATA =
 'VROCP4ALK'     ,254.50  ,''     ,-1     ,''     ,-1     ,'VD_ORA'          , 1   ,'ADIPIC_ACID'     , 1  ,'VROCP4ALK'    ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',!Octadecane, L, DTXSID9047172, CCCCCCCCCCCCCCCCCC
 'VROCP5ALK'     ,198.39  ,''     ,-1     ,''     ,-1     ,'VD_ORA'          , 1   ,'ADIPIC_ACID'     , 1  ,'VROCP5ALK'    ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',!Tetradecane, L, DTXSID1027267, CCCCCCCCCCCCCC
 'VROCP6ALK'     ,184.37  ,''     ,-1     ,''     ,-1     ,'VD_ORA'          , 1   ,'ADIPIC_ACID'     , 1  ,'VROCP6ALK'    ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',!Tridecane, L, DTXSID6027266, CCCCCCCCCCCCC
-'VROCP1ALKP'    ,404.89  ,''     ,-1     ,''     ,-1     ,''                , -1  ,''                , -1 ,''             ,''        ,''    ,''    ,''    ,'Yes',
-'VROCP2ALKP'    ,367.19  ,''     ,-1     ,''     ,-1     ,''                , -1  ,''                , -1 ,''             ,''        ,''    ,''    ,''    ,'Yes',
-'VROCP3ALKP'    ,326.80  ,''     ,-1     ,''     ,-1     ,''                , -1  ,''                , -1 ,''             ,''        ,''    ,''    ,''    ,'Yes',
-'VROCP4ALKP'    ,285.34  ,''     ,-1     ,''     ,-1     ,''                , -1  ,''                , -1 ,''             ,''        ,''    ,''    ,''    ,'Yes',
-'VROCP5ALKP'    ,231.64  ,''     ,-1     ,''     ,-1     ,''                , -1  ,''                , -1 ,''             ,''        ,''    ,''    ,''    ,'Yes',
-'VROCP6ALKP'    ,205.05  ,''     ,-1     ,''     ,-1     ,''                , -1  ,''                , -1 ,''             ,''        ,''    ,''    ,''    ,'Yes',
-'VROCP1ALKP2'   ,420.89  ,''     ,-1     ,''     ,-1     ,''                , -1  ,''                , -1 ,''             ,''        ,''    ,''    ,''    ,'Yes',
-'VROCP2ALKP2'   ,383.19  ,''     ,-1     ,''     ,-1     ,''                , -1  ,''                , -1 ,''             ,''        ,''    ,''    ,''    ,'Yes',
-'VROCP3ALKP2'   ,342.80  ,''     ,-1     ,''     ,-1     ,''                , -1  ,''                , -1 ,''             ,''        ,''    ,''    ,''    ,'Yes',
-'VROCP4ALKP2'   ,301.34  ,''     ,-1     ,''     ,-1     ,''                , -1  ,''                , -1 ,''             ,''        ,''    ,''    ,''    ,'Yes',
-'VROCP5ALKP2'   ,247.64  ,''     ,-1     ,''     ,-1     ,''                , -1  ,''                , -1 ,''             ,''        ,''    ,''    ,''    ,'Yes',
-'VROCP6ALKP2'   ,221.05  ,''     ,-1     ,''     ,-1     ,''                , -1  ,''                , -1 ,''             ,''        ,''    ,''    ,''    ,'Yes',
+'VROCP1ALKP'    ,404.89  ,''     ,-1     ,''     ,-1     ,''                , -1  ,''                , -1 ,''             ,''        ,''    ,''    ,''    ,'Yes',!Heptacosane RO2,L,NA,CCCCCCCCCCCCCCCCCCCCCCCCC(CC)O[O]
+'VROCP2ALKP'    ,367.19  ,''     ,-1     ,''     ,-1     ,''                , -1  ,''                , -1 ,''             ,''        ,''    ,''    ,''    ,'Yes',!Tetracosane RO2,L,NA,CCCCCCCCCCCCCCCCCCCCCC(CC)O[O]
+'VROCP3ALKP'    ,326.80  ,''     ,-1     ,''     ,-1     ,''                , -1  ,''                , -1 ,''             ,''        ,''    ,''    ,''    ,'Yes',!Heneicosane RO2,L,NA,CCCCCCCCCCCCCCCCCCC(CC)O[O]
+'VROCP4ALKP'    ,285.34  ,''     ,-1     ,''     ,-1     ,''                , -1  ,''                , -1 ,''             ,''        ,''    ,''    ,''    ,'Yes',!Octadecane RO2, L,NA,CCCCCCCCCCCCCCCC(CC)O[O]
+'VROCP5ALKP'    ,231.64  ,''     ,-1     ,''     ,-1     ,''                , -1  ,''                , -1 ,''             ,''        ,''    ,''    ,''    ,'Yes',!Tetradecane RO2,L,NA,CCCCCCCCCCCC(CC)O[O]
+'VROCP6ALKP'    ,205.05  ,''     ,-1     ,''     ,-1     ,''                , -1  ,''                , -1 ,''             ,''        ,''    ,''    ,''    ,'Yes',!Tridecane RO2,  L,NA,CCCCCCCCCCC(CC)O[O]
+'VROCP1ALKP2'   ,420.89  ,''     ,-1     ,''     ,-1     ,''                , -1  ,''                , -1 ,''             ,''        ,''    ,''    ,''    ,'Yes',!Heptacosane R(OH)O2,L,NA,CCCCCCCCCCCCCCCCCCCCCC(O[O])CCC(O)CC
+'VROCP2ALKP2'   ,383.19  ,''     ,-1     ,''     ,-1     ,''                , -1  ,''                , -1 ,''             ,''        ,''    ,''    ,''    ,'Yes',!Tetracosane R(OH)O2,L,NA,CCCCCCCCCCCCCCCCCCC(O[O])CCC(O)CC
+'VROCP3ALKP2'   ,342.80  ,''     ,-1     ,''     ,-1     ,''                , -1  ,''                , -1 ,''             ,''        ,''    ,''    ,''    ,'Yes',!Heneicosane R(OH)O2,L,NA,CCCCCCCCCCCCCCCC(O[O])CCC(O)CC
+'VROCP4ALKP2'   ,301.34  ,''     ,-1     ,''     ,-1     ,''                , -1  ,''                , -1 ,''             ,''        ,''    ,''    ,''    ,'Yes',!Octadecane R(OH)O2, L,NA,CCCCCCCCCCCCC(O[O])CCC(O)CC
+'VROCP5ALKP2'   ,247.64  ,''     ,-1     ,''     ,-1     ,''                , -1  ,''                , -1 ,''             ,''        ,''    ,''    ,''    ,'Yes',!Tetradecane R(OH)O2,L,NA,CCCCCCCCC(O[O])CCC(O)CC
+'VROCP6ALKP2'   ,221.05  ,''     ,-1     ,''     ,-1     ,''                , -1  ,''                , -1 ,''             ,''        ,''    ,''    ,''    ,'Yes',!Tridecane R(OH)O2,  L,NA,CCCCCCCC(O[O])CCC(O)CC
 'VROCN2OXY2'    ,282.5   ,''     ,-1     ,''     ,-1     ,'VD_ORA'          , 1   ,'ADIPIC_ACID'     , 1  ,'VROCN2OXY2'   ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',!12(S)-hydroxy-16-Heptadecynoic Acid,L,NA,C#CCCC[C@H](CCCCCCCCCCC(=O)O)O
 'VROCN2OXY4'    ,226.8   ,''     ,-1     ,''     ,-1     ,'VD_ORA'          , 1   ,'ADIPIC_ACID'     , 1  ,'VROCN2OXY4'   ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',!2-HYDROXYUNDECANEDIOIC ACID,L,DTXSID90726525,C(CCCCC(=O)O)CCCC(C(=O)O)O
 'VROCN2OXY8'    ,176.1   ,''     ,-1     ,''     ,-1     ,'VD_ORA'          , 1   ,'ADIPIC_ACID'     , 1  ,'VROCN2OXY8'   ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',!3,4,5,6,7-Pentahydroxyheptan-2-one,L,DTXSID80956455,CC(=O)C(C(C(C(CO)O)O)O)O
