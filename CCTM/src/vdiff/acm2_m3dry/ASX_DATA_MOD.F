@@ -571,7 +571,7 @@ C-----------------------------------------------------------------------
             Grid_Data%WWLT    = 0.0
          END IF
          
-         If ( ABFLUX ) Then
+         If ( ABFLUX .or. HGBIDI ) Then
 
             ALLOCATE( Grid_Data%BSLP   ( NCOLS,NROWS ),
      &                Grid_Data%WRES   ( NCOLS,NROWS ),
@@ -651,7 +651,7 @@ C-----------------------------------------------------------------------
             End Forall
          End If
 
-         If ( ABFLUX ) Then
+         If ( ABFLUX .or. HGBIDI ) Then
 
             Forall( C = 1:NCOLS, R = 1:NROWS, Grid_Data%SLTYP(C,R) .Le. N_SOIL_TYPE )
                Grid_Data%WSAT( C,R ) = WSAT( Grid_Data%SLTYP( C,R ) )

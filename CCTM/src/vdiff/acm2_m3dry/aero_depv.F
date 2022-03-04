@@ -324,7 +324,7 @@ C                     (1982), and added scaling of diffusion layer resistance
 C                     (Rd) by LAI for vegetated fraction of grid cell. Developed 
 C                     based on analysis by Qian Shu, University of Florida. 
 C  Feb2022 J.Pleim:   Revised aerosol dry deposition model as described in Pleim et al, (2022)
-C                     Note that this version only works for NLCD40 or MODIS20
+C                     Note that this version only works for NLCD40, MODIS20 or USGS24
 C-----------------------------------------------------------------------
 
       USE GRID_CONF, Only: ncols, nrows
@@ -397,7 +397,6 @@ C modal sedimentation velocities for number, 2nd, and 3rd moment, or mass:
       REAL, PARAMETER :: BHAT    = 1.246 ! Constant from Cunningham slip correction
       REAL, PARAMETER :: THREEPI = 3.0 * PI
       REAL, PARAMETER :: TWO3    = 2.0 / 3.0
-      REAL, PARAMETER :: A2      = 0.002        ! size of surface element = 2 mm, could be func of LU
 
 C Scalar variables for VARIABLE standard deviations.
 
@@ -429,7 +428,7 @@ C Data for new impaction term (Pleim et al 2022)
       REAL, PARAMETER :: Fhair1  = 0.008
       REAL, PARAMETER :: Fhair2  = 0.002   ! for grass
       REAL, PARAMETER :: Ahair1  = 0.5e-6  ! micro obstacle size for needleaf and grass
-      REAL, PARAMETER :: Ahair2  = 1.0e-6
+      REAL, PARAMETER :: Ahair2  = 1.0e-6  ! micro obstacle size for other LU
 
       REAL Aleaf,Ahair,Fneedle,fveg,fnv,Ustfac,laicr,BAI,Fhair,Fgrass
       REAL U10,SST,awc,bwc,alfbob,Ewc   ! for whitecap effects
@@ -574,7 +573,8 @@ C Calculate characteristic parameters
 !     >         ' Aleaf,Ahair,fveg,fnv,fneedle=',Aleaf,Ahair,fveg,fnv,fneedle
 
 ! For water include effects of whitecaps - Hummelshoj et al. (1992)
-          IF ( NINT(GRID_DATA%LWMASK( c,r )) .EQ. 0 ) Then
+          IF ( NINT(GRID_DATA%LWMASK( c,r )) .EQ. 0 .AND. MET_DATA%SEAICE(c,r) 
+     &           .LE. 0.5 .AND. SST .GT. -31.) Then
             U10 = Met_Data%WSPD10(C,R)
             SST = Met_Data%TSEASFC(C,R) - 273.15   ! C
             awc = 8.46e-5 + 1.63e-6 * SST - 3.35e-8 * SST**2
@@ -591,7 +591,8 @@ C now calculate the deposition velocities
             STOKEFAC2 = Met_Data%USTAR( C,R ) / (GRAV * Ahair)
 C first do 0th moment for the deposition of number
             SC0 = NU / DCHAT0
-            IF ( NINT(GRID_DATA%LWMASK( c,r )) .EQ. 0 ) then
+            IF ( NINT(GRID_DATA%LWMASK( c,r )) .EQ. 0 .AND. MET_DATA%SEAICE(c,r) 
+     &           .LE. 0.5 .AND. SST .GT. -31.) then
               Eb = (1-alfbob) * SC0 ** ( -TWO3 )/3. + Ewc
             ELSE
               Eb = SC0 ** ( -TWO3 )/3.
@@ -620,7 +621,8 @@ C first do 0th moment for the deposition of number
 
 C now do 2nd moment for the deposition of surface area
             SC2 = NU / DCHAT2
-            IF ( NINT(GRID_DATA%LWMASK( c,r )) .EQ. 0 ) then
+            IF ( NINT(GRID_DATA%LWMASK( c,r )) .EQ. 0 .AND. MET_DATA%SEAICE(c,r) 
+     &           .LE. 0.5 .AND. SST .GT. -31.) then
               Eb = (1-alfbob) * SC2 ** ( -TWO3 )/3. + Ewc
             ELSE
               Eb = SC2 ** ( -TWO3 )/3.
@@ -648,7 +650,8 @@ C now do 2nd moment for the deposition of surface area
             VDEP( C,R,VDS( IM ) ) = fveg*Vdv + fnv*Vdnv
 C now do 3rd moment for the deposition of mass
             SC3 = NU / DCHAT3
-            IF ( NINT(GRID_DATA%LWMASK( c,r )) .EQ. 0 ) then
+            IF ( NINT(GRID_DATA%LWMASK( c,r )) .EQ. 0 .AND. MET_DATA%SEAICE(c,r) 
+     &           .LE. 0.5 .AND. SST .GT. -31.) then
               Eb = (1-alfbob) * SC3 ** ( -TWO3 )/3. + Ewc
             ELSE
               Eb = SC3 ** ( -TWO3 )/3.
