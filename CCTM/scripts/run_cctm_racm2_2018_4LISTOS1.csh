@@ -255,7 +255,7 @@ setenv MP_CSS_INTERRUPT yes  #> specify whether arriving packets generate interr
 #> Input Directories and Filenames
 # =====================================================================
 
-set ICpath    = /work/MOD3DATA/2018_4LISTOS1/icbc/racm2_ae6       #> initial conditions input directory 
+set ICpath    = /work/MOD3DEV/bplace/icbc_racm2_LISTOS_v2       #> initial conditions input directory 
 set BCpath    = $ICpath                              #> boundary conditions input directory
 set EMISpath  = $INPDIR/emis/cracmmv0_21_20211001   #> emissions input directory
 set IN_PTpath = $EMISpath/cmaq_ready_point          #> point source emissions input directory

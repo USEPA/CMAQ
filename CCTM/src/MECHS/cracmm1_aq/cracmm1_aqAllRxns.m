@@ -1,7 +1,7 @@
 %Foam Reactions File based on the mech.def file for the cracmm1_aq mechanism.
 % # of species   =  180
 % # of reactions =  508
-% file created by Bryan Place
+% file created by Havala Pye
 
 % Set constant species by scaling to air number density
 N2  =  0.780800000.*M;
