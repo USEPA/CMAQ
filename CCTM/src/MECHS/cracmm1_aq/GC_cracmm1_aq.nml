@@ -176,7 +176,7 @@ GC_SPECIES_DATA =
 'VROCP1OXY3'    ,196.0   ,''     ,-1     ,''     ,-1     ,'VD_ORA'          , 1   ,'ADIPIC_ACID'     , 1  ,'VROCP1OXY3'   ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',!11-hydroxyundecanoic acid,L,DTXSID40190136,C(CCCCCO)CCCCC(=O)O
 'VROCP2OXY2'    ,201.0   ,''     ,-1     ,''     ,-1     ,'VD_ORA'          , 1   ,'ADIPIC_ACID'     , 1  ,'VROCP2OXY2'   ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',!Dodecanoic Acid,L,DTXSID5021590,CCCCCCCCCCCC(=O)O
 'VROCP3OXY2'    ,180.7   ,''     ,-1     ,''     ,-1     ,'VD_ORA'          , 1   ,'ADIPIC_ACID'     , 1  ,'VROCP3OXY2'   ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',!11-hydroxyundecanal,L,NA,C(CCCCCO)CCCCC=O
-'VROCP4OXY2'    ,160.3   ,''     ,-1     ,''     ,-1     ,'VD_ORA'          , 1   ,'ADIPIC_ACID'     , 1  ,'VROCP4OXY2'   ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',
-'VROCP5OXY1'    ,163.8   ,''     ,-1     ,''     ,-1     ,'VD_ORA'          , 1   ,'ADIPIC_ACID'     , 1  ,'VROCP5OXY1'   ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',
-'VROCP6OXY1'    ,140.0   ,''     ,-1     ,''     ,-1     ,'VD_ORA'          , 1   ,'ADIPIC_ACID'     , 1  ,'VROCP6OXY1'   ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',
+'VROCP4OXY2'    ,160.3   ,''     ,-1     ,''     ,-1     ,'VD_ORA'          , 1   ,'ADIPIC_ACID'     , 1  ,'VROCP4OXY2'   ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',!2-Ethylheptanoic Acid,L,DTXSID40880929,CCCCCC(CC)C(=O)O
+'VROCP5OXY1'    ,163.8   ,''     ,-1     ,''     ,-1     ,'VD_ORA'          , 1   ,'ADIPIC_ACID'     , 1  ,'VROCP5OXY1'   ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',!Undecanal,L,DTXSID4021688,CCCCCCCCCCC=O
+'VROCP6OXY1'    ,140.0   ,''     ,-1     ,''     ,-1     ,'VD_ORA'          , 1   ,'ADIPIC_ACID'     , 1  ,'VROCP6OXY1'   ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',!Nonanal,L,DTXSID9021639,CCCCCCCCC=O
 /
