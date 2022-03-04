@@ -820,38 +820,36 @@ REACTIONS[CM] =
                                        + 0.023*ALD
                                        + 0.018*GLY
                                        + 0.016*HKET   # 3.4E-14 @ -221.;
-<R265>  APIP1 + MO2        = HO2       + 0.750*HCHO 
-                                       + 0.500*PINAL 
-                                       + 0.250*KET
-                                       + 0.250*MOH
+<R265>  APIP1 + MO2        = HO2       + 0.680*HCHO 
+                                       + 0.600*PINAL 
+                                       + 0.070*KET
+                                       + 0.320*MOH
                                        + 0.250*ROH    # 3.56E-14 @ -708.;
 <TRP29> APIP2 + MO2        = HO2       + 0.750*HCHO
                                        + 0.250*MOH
                                        + HOM          # 1.00E-10;
-<TRP30> APINP1 + MO2       = 0.5*HO2   + 0.500*NO2
-                                       + 0.750*HCHO
-                                       + 0.500*PINAL
-                                       + 0.250*KET
-                                       + 0.250*MOH
-                                       + 0.250*ROH    # 3.56E-14 @ -708.;
+<TRP30> APINP1 + MO2       = 0.37*HO2  + 0.860*NO2
+                                       + 0.680*HCHO
+                                       + 0.860*PINAL
+                                       + 0.320*MOH
+                                       + 0.140*TRPN    # 3.56E-14 @ -708.;
 <TRP31> APINP2 + MO2       = 0.75*HO2  + 0.750*NO2
                                        + 0.250*MOH
                                        + 0.750*HCHO
                                        + HOM          # 1.00E-10;
-<R266>  LIMP1 + MO2        = HO2       + 0.750*HCHO 
-                                       + 0.500*LIMAL
-                                       + 0.250*KET 
-                                       + 0.250*MOH
-                                       + 0.250*ROH    # 3.56E-14 @ -708.;
+<R266>  LIMP1 + MO2        = HO2       + HCHO 
+                                       + 0.420*LIMAL
+                                       + 0.300*KET 
+                                       + 0.320*MOH
+                                       + 0.270*ROH    # 3.56E-14 @ -708.;
 <TRP32> LIMP2 + MO2        = HO2       + 0.750*HCHO
                                        + 0.250*MOH
                                        + HOM          # 1.00E-10;
-<TRP33> LIMNP1 + MO2       = 0.5*HO2   + 0.750*HCHO
-                                       + 0.500*LIMAL
-                                       + 0.500*NO2
-                                       + 0.250*KET
-                                       + 0.250*MOH
-                                       + 0.250*ROH    # 3.56E-14 @ -708.;
+<TRP33> LIMNP1 + MO2       = 0.37*HO2  + 0.680*HCHO
+                                       + 0.700*LIMAL
+                                       + 0.700*NO2
+                                       + 0.320*MOH
+                                       + 0.300*TRPN    # 3.56E-14 @ -708.;
 <TRP34> LIMNP2 + MO2       = 0.75*HO2  + 0.750*HCHO
                                        + 0.500*NO2
                                        + 0.250*MOH
@@ -1001,33 +999,34 @@ REACTIONS[CM] =
                                        + 0.219*MACR
                                        + 0.305*MVK 
                                        + 0.5*ORA2     # 8.4E-14 @ -221.;
-<R301>  APIP1 + ACO3       = 0.5*HO2   + 0.5*MO2 
-                                       + 0.5*PINAL
-                                       + 0.5*ORA2  
-                                       + 0.5*KET      # 7.4E-13 @ -765.;
+<R301>  APIP1 + ACO3       = 0.63*HO2  + 0.7*MO2 
+                                       + 0.6*PINAL
+                                       + 0.3*ORA2  
+                                       + 0.07*KET
+                                       + 0.25*ROH     # 7.4E-13 @ -765.;
 <TRP35> APIP2 + ACO3       = 0.5*HO    + 0.5*MO2
                                        + 0.5*ORA2
                                        + HOM          # 1.0E-10;
-<TRP36> APINP1 + ACO3      = 0.5*HO2   + 0.5*NO2
-                                       + 0.5*PINAL
-                                       + 0.5*MO2
-                                       + 0.5*ORA2
-                                       + 0.5*KET      # 7.4E-13 @ -765.;
+<TRP36> APINP1 + ACO3      = 0.5*NO2   + 0.14*TRPN
+                                       + 0.86*PINAL
+                                       + 0.7*MO2
+                                       + 0.3*ORA2     # 7.4E-13 @ -765.;
 <TRP37> APINP2 + ACO3      = 0.5*NO2   + 0.5*MO2
                                        + 0.5*ORA2
                                        + HOM          # 1.0E-10;
-<R302>  LIMP1 + ACO3       = 0.5*HO2   + 0.5*MO2 
-                                       + 0.5*LIMAL
-                                       + 0.5*KET
-                                       + 0.5*ORA2     # 7.4E-13 @ -765.;
+<R302>  LIMP1 + ACO3       = 0.63*HO2  + 0.7*MO2 
+                                       + 0.42*LIMAL
+                                       + 0.3*KET
+                                       + 0.3*ORA2
+                                       + 0.32*HCHO  
+                                       + 0.27*ROH     # 7.4E-13 @ -765.;
 <TRP38> LIMP2 + ACO3       = 0.5*HO    + 0.5*MO2
                                        + 0.5*ORA2
                                        + HOM          # 1.0E-10;
-<TRP39> LIMNP1 + ACO3      = 0.5*HO2   + 0.5*LIMAL
-                                       + 0.5*NO2
-                                       + 0.5*MO2
-                                       + 0.5*ORA2
-                                       + 0.5*KET      # 7.4E-13 @ -765.;
+<TRP39> LIMNP1 + ACO3      = 0.7*NO2   + 0.7*LIMAL
+                                       + 0.3*TRPN
+                                       + 0.7*MO2
+                                       + 0.3*ORA2     # 7.4E-13 @ -765.;
 <TRP40> LIMNP2 + ACO3      = 0.5*MO2   + 0.5*NO2
                                        + 0.5*ORA2
                                        + HOM          # 1.0E-10;
