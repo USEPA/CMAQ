@@ -2234,11 +2234,11 @@ fHO2(i)=fHO2(i)+  1.000;fHCHO(i)=fHCHO(i)+  1.310;fMACR(i)=fMACR(i)+  0.159;fMVK
 
 % 265, <R265>
 i=i+1;
-Rnames{ 265} = 'APIP1 + MO2 = HO2 +  0.75000*HCHO +  0.50000*PINAL +  0.25000*KET +  0.25000*MOH +  0.25000*ROH ';
+Rnames{ 265} = 'APIP1 + MO2 = HO2 +  0.68000*HCHO +  0.60000*PINAL +  0.07000*KET +  0.32000*MOH +  0.25000*ROH ';
 k(:,i) = (  3.5600E-14.*exp(  7.0800E+02./T) ); 
 Gstr{i,   1}='APIP1';Gstr{i,   2}='MO2';
 fAPIP1(i)=fAPIP1(i)-1.0;fMO2(i)=fMO2(i)-1.0;
-fHO2(i)=fHO2(i)+  1.000;fHCHO(i)=fHCHO(i)+  0.750;fPINAL(i)=fPINAL(i)+  0.500;fKET(i)=fKET(i)+  0.250;fMOH(i)=fMOH(i)+  0.250;fROH(i)=fROH(i)+  0.250;
+fHO2(i)=fHO2(i)+  1.000;fHCHO(i)=fHCHO(i)+  0.680;fPINAL(i)=fPINAL(i)+  0.600;fKET(i)=fKET(i)+  0.070;fMOH(i)=fMOH(i)+  0.320;fROH(i)=fROH(i)+  0.250;
 
 % 266, <TRP29>
 i=i+1;
@@ -2250,11 +2250,11 @@ fHO2(i)=fHO2(i)+  1.000;fHCHO(i)=fHCHO(i)+  0.750;fMOH(i)=fMOH(i)+  0.250;fHOM(i
 
 % 267, <TRP30>
 i=i+1;
-Rnames{ 267} = 'APINP1 + MO2 = 0.50000*HO2 +  0.50000*NO2 +  0.75000*HCHO +  0.50000*PINAL +  0.25000*KET +  0.25000*MOH +  0.25000*ROH ';
+Rnames{ 267} = 'APINP1 + MO2 = 0.37000*HO2 +  0.86000*NO2 +  0.68000*HCHO +  0.86000*PINAL +  0.32000*MOH +  0.14000*TRPN ';
 k(:,i) = (  3.5600E-14.*exp(  7.0800E+02./T) ); 
 Gstr{i,   1}='APINP1';Gstr{i,   2}='MO2';
 fAPINP1(i)=fAPINP1(i)-1.0;fMO2(i)=fMO2(i)-1.0;
-fHO2(i)=fHO2(i)+  0.500;fNO2(i)=fNO2(i)+  0.500;fHCHO(i)=fHCHO(i)+  0.750;fPINAL(i)=fPINAL(i)+  0.500;fKET(i)=fKET(i)+  0.250;fMOH(i)=fMOH(i)+  0.250;fROH(i)=fROH(i)+  0.250;
+fHO2(i)=fHO2(i)+  0.370;fNO2(i)=fNO2(i)+  0.860;fHCHO(i)=fHCHO(i)+  0.680;fPINAL(i)=fPINAL(i)+  0.860;fMOH(i)=fMOH(i)+  0.320;fTRPN(i)=fTRPN(i)+  0.140;
 
 % 268, <TRP31>
 i=i+1;
@@ -2266,11 +2266,11 @@ fHO2(i)=fHO2(i)+  0.750;fNO2(i)=fNO2(i)+  0.750;fMOH(i)=fMOH(i)+  0.250;fHCHO(i)
 
 % 269, <R266>
 i=i+1;
-Rnames{ 269} = 'LIMP1 + MO2 = HO2 +  0.75000*HCHO +  0.50000*LIMAL +  0.25000*KET +  0.25000*MOH +  0.25000*ROH ';
+Rnames{ 269} = 'LIMP1 + MO2 = HO2 + HCHO +  0.42000*LIMAL +  0.30000*KET +  0.32000*MOH +  0.27000*ROH ';
 k(:,i) = (  3.5600E-14.*exp(  7.0800E+02./T) ); 
 Gstr{i,   1}='LIMP1';Gstr{i,   2}='MO2';
 fLIMP1(i)=fLIMP1(i)-1.0;fMO2(i)=fMO2(i)-1.0;
-fHO2(i)=fHO2(i)+  1.000;fHCHO(i)=fHCHO(i)+  0.750;fLIMAL(i)=fLIMAL(i)+  0.500;fKET(i)=fKET(i)+  0.250;fMOH(i)=fMOH(i)+  0.250;fROH(i)=fROH(i)+  0.250;
+fHO2(i)=fHO2(i)+  1.000;fHCHO(i)=fHCHO(i)+  1.000;fLIMAL(i)=fLIMAL(i)+  0.420;fKET(i)=fKET(i)+  0.300;fMOH(i)=fMOH(i)+  0.320;fROH(i)=fROH(i)+  0.270;
 
 % 270, <TRP32>
 i=i+1;
@@ -2282,11 +2282,11 @@ fHO2(i)=fHO2(i)+  1.000;fHCHO(i)=fHCHO(i)+  0.750;fMOH(i)=fMOH(i)+  0.250;fHOM(i
 
 % 271, <TRP33>
 i=i+1;
-Rnames{ 271} = 'LIMNP1 + MO2 = 0.50000*HO2 +  0.75000*HCHO +  0.50000*LIMAL +  0.50000*NO2 +  0.25000*KET +  0.25000*MOH +  0.25000*ROH ';
+Rnames{ 271} = 'LIMNP1 + MO2 = 0.37000*HO2 +  0.68000*HCHO +  0.70000*LIMAL +  0.70000*NO2 +  0.32000*MOH +  0.30000*TRPN ';
 k(:,i) = (  3.5600E-14.*exp(  7.0800E+02./T) ); 
 Gstr{i,   1}='LIMNP1';Gstr{i,   2}='MO2';
 fLIMNP1(i)=fLIMNP1(i)-1.0;fMO2(i)=fMO2(i)-1.0;
-fHO2(i)=fHO2(i)+  0.500;fHCHO(i)=fHCHO(i)+  0.750;fLIMAL(i)=fLIMAL(i)+  0.500;fNO2(i)=fNO2(i)+  0.500;fKET(i)=fKET(i)+  0.250;fMOH(i)=fMOH(i)+  0.250;fROH(i)=fROH(i)+  0.250;
+fHO2(i)=fHO2(i)+  0.370;fHCHO(i)=fHCHO(i)+  0.680;fLIMAL(i)=fLIMAL(i)+  0.700;fNO2(i)=fNO2(i)+  0.700;fMOH(i)=fMOH(i)+  0.320;fTRPN(i)=fTRPN(i)+  0.300;
 
 % 272, <TRP34>
 i=i+1;
@@ -2530,11 +2530,11 @@ fHO2(i)=fHO2(i)+  0.500;fMO2(i)=fMO2(i)+  0.500;fHCHO(i)=fHCHO(i)+  1.048;fMACR(
 
 % 302, <R301>
 i=i+1;
-Rnames{ 302} = 'APIP1 + ACO3 = 0.50000*HO2 +  0.50000*MO2 +  0.50000*PINAL +  0.50000*ORA2 +  0.50000*KET ';
+Rnames{ 302} = 'APIP1 + ACO3 = 0.63000*HO2 +  0.70000*MO2 +  0.60000*PINAL +  0.30000*ORA2 +  0.07000*KET +  0.25000*ROH ';
 k(:,i) = (  7.4000E-13.*exp(  7.6500E+02./T) ); 
 Gstr{i,   1}='APIP1';Gstr{i,   2}='ACO3';
 fAPIP1(i)=fAPIP1(i)-1.0;fACO3(i)=fACO3(i)-1.0;
-fHO2(i)=fHO2(i)+  0.500;fMO2(i)=fMO2(i)+  0.500;fPINAL(i)=fPINAL(i)+  0.500;fORA2(i)=fORA2(i)+  0.500;fKET(i)=fKET(i)+  0.500;
+fHO2(i)=fHO2(i)+  0.630;fMO2(i)=fMO2(i)+  0.700;fPINAL(i)=fPINAL(i)+  0.600;fORA2(i)=fORA2(i)+  0.300;fKET(i)=fKET(i)+  0.070;fROH(i)=fROH(i)+  0.250;
 
 % 303, <TRP35>
 i=i+1;
@@ -2546,11 +2546,11 @@ fHO(i)=fHO(i)+  0.500;fMO2(i)=fMO2(i)+  0.500;fORA2(i)=fORA2(i)+  0.500;fHOM(i)=
 
 % 304, <TRP36>
 i=i+1;
-Rnames{ 304} = 'APINP1 + ACO3 = 0.50000*HO2 +  0.50000*NO2 +  0.50000*PINAL +  0.50000*MO2 +  0.50000*ORA2 +  0.50000*KET ';
+Rnames{ 304} = 'APINP1 + ACO3 = 0.50000*NO2 +  0.14000*TRPN +  0.86000*PINAL +  0.70000*MO2 +  0.30000*ORA2 ';
 k(:,i) = (  7.4000E-13.*exp(  7.6500E+02./T) ); 
 Gstr{i,   1}='APINP1';Gstr{i,   2}='ACO3';
 fAPINP1(i)=fAPINP1(i)-1.0;fACO3(i)=fACO3(i)-1.0;
-fHO2(i)=fHO2(i)+  0.500;fNO2(i)=fNO2(i)+  0.500;fPINAL(i)=fPINAL(i)+  0.500;fMO2(i)=fMO2(i)+  0.500;fORA2(i)=fORA2(i)+  0.500;fKET(i)=fKET(i)+  0.500;
+fNO2(i)=fNO2(i)+  0.500;fTRPN(i)=fTRPN(i)+  0.140;fPINAL(i)=fPINAL(i)+  0.860;fMO2(i)=fMO2(i)+  0.700;fORA2(i)=fORA2(i)+  0.300;
 
 % 305, <TRP37>
 i=i+1;
@@ -2562,11 +2562,11 @@ fNO2(i)=fNO2(i)+  0.500;fMO2(i)=fMO2(i)+  0.500;fORA2(i)=fORA2(i)+  0.500;fHOM(i
 
 % 306, <R302>
 i=i+1;
-Rnames{ 306} = 'LIMP1 + ACO3 = 0.50000*HO2 +  0.50000*MO2 +  0.50000*LIMAL +  0.50000*KET +  0.50000*ORA2 ';
+Rnames{ 306} = 'LIMP1 + ACO3 = 0.63000*HO2 +  0.70000*MO2 +  0.42000*LIMAL +  0.30000*KET +  0.30000*ORA2 +  0.32000*HCHO +  0.27000*ROH ';
 k(:,i) = (  7.4000E-13.*exp(  7.6500E+02./T) ); 
 Gstr{i,   1}='LIMP1';Gstr{i,   2}='ACO3';
 fLIMP1(i)=fLIMP1(i)-1.0;fACO3(i)=fACO3(i)-1.0;
-fHO2(i)=fHO2(i)+  0.500;fMO2(i)=fMO2(i)+  0.500;fLIMAL(i)=fLIMAL(i)+  0.500;fKET(i)=fKET(i)+  0.500;fORA2(i)=fORA2(i)+  0.500;
+fHO2(i)=fHO2(i)+  0.630;fMO2(i)=fMO2(i)+  0.700;fLIMAL(i)=fLIMAL(i)+  0.420;fKET(i)=fKET(i)+  0.300;fORA2(i)=fORA2(i)+  0.300;fHCHO(i)=fHCHO(i)+  0.320;fROH(i)=fROH(i)+  0.270;
 
 % 307, <TRP38>
 i=i+1;
@@ -2578,11 +2578,11 @@ fHO(i)=fHO(i)+  0.500;fMO2(i)=fMO2(i)+  0.500;fORA2(i)=fORA2(i)+  0.500;fHOM(i)=
 
 % 308, <TRP39>
 i=i+1;
-Rnames{ 308} = 'LIMNP1 + ACO3 = 0.50000*HO2 +  0.50000*LIMAL +  0.50000*NO2 +  0.50000*MO2 +  0.50000*ORA2 +  0.50000*KET ';
+Rnames{ 308} = 'LIMNP1 + ACO3 = 0.70000*NO2 +  0.70000*LIMAL +  0.30000*TRPN +  0.70000*MO2 +  0.30000*ORA2 ';
 k(:,i) = (  7.4000E-13.*exp(  7.6500E+02./T) ); 
 Gstr{i,   1}='LIMNP1';Gstr{i,   2}='ACO3';
 fLIMNP1(i)=fLIMNP1(i)-1.0;fACO3(i)=fACO3(i)-1.0;
-fHO2(i)=fHO2(i)+  0.500;fLIMAL(i)=fLIMAL(i)+  0.500;fNO2(i)=fNO2(i)+  0.500;fMO2(i)=fMO2(i)+  0.500;fORA2(i)=fORA2(i)+  0.500;fKET(i)=fKET(i)+  0.500;
+fNO2(i)=fNO2(i)+  0.700;fLIMAL(i)=fLIMAL(i)+  0.700;fTRPN(i)=fTRPN(i)+  0.300;fMO2(i)=fMO2(i)+  0.700;fORA2(i)=fORA2(i)+  0.300;
 
 % 309, <TRP40>
 i=i+1;
