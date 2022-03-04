@@ -139,6 +139,8 @@ Under the assumption that all inputs utilize the same projection and grid resolu
 
 <a id=Figure4-3-1></a> ![Figure 4-3-1](./images/Figure4-3-1.png)
 
+**Figure 4-3-1. Appropriate Windowing Domain illustration**
+
 ## 4.4 GRIDDESC and Species Namelist Files
 
 <a id=griddesc></a> 
