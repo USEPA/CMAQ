@@ -2,14 +2,14 @@
 
 AE_SPECIES_DATA = 
 
-!SPECIES   ,MOLWT   ,OPTICS ,IC     ,IC_FAC ,BC     ,BC_FAC ,DRYDEP SURR ,FAC ,WET-SCAV SURR  ,FAC ,AE2AQ SURR     ,TRNS    ,DDEP    ,WDEP    ,CONC,!RepCmp,LumpedorExplicit,DTXSID,SMILES
+!SPECIES   ,MOLWT   ,OPTICS ,IC     ,IC_FAC ,BC     ,BC_FAC ,DRYDEP SURR ,FAC ,WET-SCAV SURR  ,FAC ,AE2AQ SURR     ,TRNS    ,DDEP    ,WDEP    ,CONC,!RepCmp,ExplicitorLumped,DTXSID,SMILES
 'ASO4J'    , 96.00  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSJ'    , 1  ,'SO4_ACCUM'    , 1  ,'SO4_ACCUM'    ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!Sulfate,L,NA,[O-]S(=O)(=O)[O-]
 'ASO4I'    , 96.00  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSI'    , 1  ,'SO4_AITKEN'   , 1  ,'SO4_AITKEN'   ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!Sulfate,L,NA,[O-]S(=O)(=O)[O-]
 'ANH4J'    , 18.00  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSJ'    , 1  ,'NH4_ACCUM'    , 1  ,'NH4_ACCUM'    ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!Ammonium,E,NA,[NH4+]
 'ANH4I'    , 18.00  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSI'    , 1  ,'NH4_AITKEN'   , 1  ,'NH4_AITKEN'   ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!Ammonium,E,NA,[NH4+]
 'ANO3J'    , 62.00  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSJ'    , 1  ,'NO3_ACCUM'    , 1  ,'NO3_ACCUM'    ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!Nitrate,L,NA,[N+](=O)([O-])[O-]
 'ANO3I'    , 62.00  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSI'    , 1  ,'NO3_AITKEN'   , 1  ,'NO3_AITKEN'   ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!Nitrate,L,NA,[N+](=O)([O-])[O-]
-'ASOATJ'   ,200.00  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSJ'    , 1  ,'ORG_ACCUM'    , 1  ,'SOA_ACCUM'    ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!Generic SOA,L,NA,NA
+'ASOATJ'   ,200.00  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSJ'    , 1  ,'ORG_ACCUM'    , 1  ,'SOA_ACCUM'    ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!3;4;5;6;7-Pentahydroxyheptan-2-one,L,DTXSID80956455,CC(=O)C(C(C(C(CO)O)O)O)O
 'AGLYJ'    , 66.40  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSJ'    , 1  ,'ORG_ACCUM'    , 1  ,'SOA_ACCUM'    ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!Glyoxal SOA from particle uptake,L,
 'ATRPNJ'   ,215.00  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSJ'    , 1  ,'ORG_ACCUM'    , 1  ,'SOA_ACCUM'    ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!SeeGC,NA,NA,NA
 'AHOMJ'    ,250.00  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSJ'    , 1  ,'ORG_ACCUM'    , 1  ,'SOA_ACCUM'    ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!SeeGC,NA,NA,NA
@@ -66,7 +66,7 @@ AE_SPECIES_DATA =
 'AROCP1ALKI',380.75  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSI'    , 1  ,'ORG_AITKEN'   , 1  ,'POA_AITKEN'   ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
 'AROCP1ALKJ',380.75  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSJ'    , 1  ,'ORG_ACCUM'    , 1  ,'POA_ACCUM'    ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
 'AROCP2ALKJ',338.66  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSJ'    , 1  ,'ORG_ACCUM'    , 1  ,'POA_ACCUM'    ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
-'AROCP3ALKJ',295.58  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSJ'    , 1  ,'ORG_ACCUM'    , 1  ,'POA_ACCUM'    ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
+'AROCP3ALKJ',296.58  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSJ'    , 1  ,'ORG_ACCUM'    , 1  ,'POA_ACCUM'    ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
 'AROCN2OXY2I',282.4  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSI'    , 1  ,'ORG_AITKEN'   , 1  ,'SOA_AITKEN'   ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
 'AROCN2OXY2J',282.4  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSJ'    , 1  ,'ORG_ACCUM'    , 1  ,'SOA_ACCUM'    ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
 'AROCN2OXY4I',232.3  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSI'    , 1  ,'ORG_AITKEN'   , 1  ,'SOA_AITKEN'   ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
@@ -88,6 +88,7 @@ AE_SPECIES_DATA =
 'AROCP1OXY3I',202.3  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSI'    , 1  ,'ORG_AITKEN'   , 1  ,'SOA_AITKEN'   ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
 'AROCP1OXY3J',202.3  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSJ'    , 1  ,'ORG_ACCUM'    , 1  ,'SOA_ACCUM'    ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
 'AROCP2OXY2J',200.3  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSJ'    , 1  ,'ORG_ACCUM'    , 1  ,'SOA_ACCUM'    ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
-'AROCP3OXY2J',184.3  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSJ'    , 1  ,'ORG_ACCUM'    , 1  ,'SOA_ACCUM'    ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
-'AISO3NOSJ' ,136.20  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSJ'    , 1  ,'ORG_ACCUM'    , 1  ,'SOA_ACCUM'    ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
-'AISO3OSJ'  ,216.20  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSJ'    , 1  ,'ORG_ACCUM'    , 1  ,'SOA_ACCUM'    ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes' /
+'AROCP3OXY2J',186.3  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSJ'    , 1  ,'ORG_ACCUM'    , 1  ,'SOA_ACCUM'    ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
+'AISO3NOSJ' ,136.20  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSJ'    , 1  ,'ORG_ACCUM'    , 1  ,'SOA_ACCUM'    ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!2-methylbutane-1,2,3,4-tetrol,L,NA,C(O)C(O)(C)C(O)CO
+'AISO3OSJ'  ,216.20  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSJ'    , 1  ,'ORG_ACCUM'    , 1  ,'SOA_ACCUM'    ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!(1,3,4-trihydroxy-2-methylbutan-2-yl)oxysulfonic acid,L,NA,C(O)C(OS(O)(=O)(=O))(C)C(O)CO
+/
