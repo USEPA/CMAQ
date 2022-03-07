@@ -1121,7 +1121,7 @@ C... start loops to find daily sum
         endDo      ! end row loop
                                                                               
       return                                                                  
-      end Subroutine w126 
+      end Subroutine w126_daily 
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c
