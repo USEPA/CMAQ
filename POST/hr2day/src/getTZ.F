@@ -223,8 +223,8 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
           do i=1,SIZE(count)
             if(lines(nlines)%npts.le.sizes(i)) then
               count(i) = count(i) + 1
-              pts(i)%x(:,count(i)) = lon(1:lines(nlines)%npts)
-              pts(i)%y(:,count(i)) = lat(1:lines(nlines)%npts)
+              pts(i)%x(1:lines(nlines)%npts,count(i)) = lon(1:lines(nlines)%npts)
+              pts(i)%y(1:lines(nlines)%npts,count(i)) = lat(1:lines(nlines)%npts)
               lines(nlines)%x => pts(i)%x(:,count(i))
               lines(nlines)%y => pts(i)%y(:,count(i))
               EXIT
