@@ -111,7 +111,6 @@
       ! Grid and High-Level Model Parameters
       LOGICAL :: NEW_START       = .TRUE.   ! Start New Simulation. Not a Restart
       LOGICAL :: IGNORE_SOILINP  = .FALSE.   ! In case you don't have prev day
-      CHARACTER(1) :: ISAM_NEW_START = 'Y'  ! Start New Simulation. Not a Restart for ISAM
       CHARACTER(300):: EXECUTION_ID = ''    ! Execution ID
       CHARACTER(16) :: GRID_NAME = ''       ! grid name selected from GRIDDESC
       CHARACTER(16) :: PROGNAME  = 'DRIVER' ! Program name selected from GRIDDESC
@@ -259,12 +258,30 @@
       LOGICAL :: ADJ_STMSPC = .TRUE.  ! flag for normalizing sulfur tracking species
 
       ! ISAM
-      INTEGER :: ISAM_BLEV = 0  ! Beginning level saved to conc file
-      INTEGER :: ISAM_ELEV = 0  ! Ending level saved to conc file
-      INTEGER :: SA_NLAYS = 0   ! Number of layers saved to conc file
-      INTEGER :: AISAM_BLEV = 0 ! Beginning level saved to sa_aconc file
-      INTEGER :: AISAM_ELEV = 0 ! Ending level saved to sa_aconc file
-      INTEGER :: AVGSA_LAYS = 0 ! Number of layers saved to conc file
+      CHARACTER(1) :: ISAM_NEW_START = 'Y'  ! Start New Simulation. Not a Restart for ISAM
+      INTEGER :: ISAM_BLEV = 0              ! Beginning level saved to conc file
+      INTEGER :: ISAM_ELEV = 0              ! Ending level saved to conc file
+      INTEGER :: SA_NLAYS = 0               ! Number of layers saved to conc file
+      INTEGER :: AISAM_BLEV = 0             ! Beginning level saved to sa_aconc file
+      INTEGER :: AISAM_ELEV = 0             ! Ending level saved to sa_aconc file
+      INTEGER :: AVGSA_LAYS = 0             ! Number of layers saved to conc file
+      INTEGER :: ISAM_CHEM_BIAS = 5         ! which chemistry are biased in apportioning reaction yields
+                                            ! to source reactant
+                                            ! 1 for none so divided equally between sources' reactant
+                                            ! 2 for all products apportioned to sources with NO, NO2, NO3, HONO, ANO3
+                                            !   -equally if reactants are neither or both
+                                            ! 3 for all products apportioned to sources with Case 2 plus select OVOC species 
+                                            ! and radicals
+                                            !   -equally if reactants are neither or both
+                                            ! 4 for all products apportioned to sources with select OVOC species 
+                                            ! and radicals
+                                            !   -equally if reactants are neither or both
+                                            ! 5 to switch between Cases 2 and 3 based on whether
+                                            ! production H2O2 over production HNO3 less than VOC_NOX_TRANS
+                                   
+      REAL     :: VOC_NOX_TRANS = 0.35      ! H2O2 to HNO3 marking transition from NOx to VOC limiting O3 production 
+      INTEGER  :: ISAM_NOX_CASE = 2         ! option of ISAM_CHEM_BIAS representing NOx limiting O3 production
+      INTEGER  :: ISAM_VOC_CASE = 4         ! option of ISAM_CHEM_BIAS representing VOC limiting O3 production
 
       CONTAINS
           
@@ -301,6 +318,7 @@
       INTEGER          :: VARDEV = -1
 
       LOGICAL          :: FOUND
+      LOGICAL          :: EFLAG = .FALSE.
       INTEGER          :: LOC, STR_LEN
       CHARACTER(10)    :: WRF_VERSION
 
@@ -342,9 +360,6 @@
 
       ! Determine if prev day soilinp is available for MEGAN
       CALL GET_ENV ( IGNORE_SOILINP, 'IGNORE_SOILINP', IGNORE_SOILINP, VARDEV )
-    
-      ! Determine if this run is a new start or a restart
-      CALL GET_ENV ( ISAM_NEW_START, 'ISAM_NEW_START', ISAM_NEW_START, VARDEV )
     
       ! Get Execution ID
       CALL GET_ENV ( STRTEMP, 'EXECUTION_ID', EXECUTION_ID, VARDEV )
@@ -455,40 +470,6 @@
          CALL M3EXIT( 'INIT_ENV_VARS', JDATE, JTIME, XMSG, EXIT_STATUS )
       END IF
 
-#ifdef isam
-      ! SA_ACONC Layer Specification
-      CALL GET_ENV ( 'AISAM_BLEV_ELEV', NV, V_LIST2, VARDEV )
-      IF ( NV .LE. 0 ) THEN   ! assume 1:NLAYS
-         AISAM_BLEV = 1
-         AISAM_ELEV = -1
-      ELSE IF ( NV .EQ. 1 ) THEN ! Assume 1:AISAM_BLEV_ELEV
-         AISAM_BLEV = 1
-         READ( V_LIST2( 2 ), '( I4 )' ) AISAM_ELEV
-      ELSE IF ( NV .EQ. 2 ) THEN ! Correct Input
-         READ( V_LIST2( 1 ), '( I4 )' ) AISAM_BLEV
-         READ( V_LIST2( 2 ), '( I4 )' ) AISAM_ELEV
-      ELSE
-         XMSG = 'Environment variable error for AISAM_BLEV_ELEV'
-         CALL M3EXIT( 'INIT_ENV_VARS', JDATE, JTIME, XMSG, EXIT_STATUS )
-      END IF
-
-      ! SA_CONC File Vertical Layer Range and Speciation
-      CALL GET_ENV ( 'ISAM_BLEV_ELEV', NV, V_LIST2, VARDEV )
-      IF ( NV .LE. 0 ) THEN   ! assume 1:NLAYS
-         ISAM_BLEV = 1
-         ISAM_ELEV = -1
-      ELSE IF ( NV .EQ. 1 ) THEN ! Assume 1:ISAM_BLEV_ELEV
-         ISAM_BLEV = 1
-         READ( V_LIST2( 2 ), '( I4 )' ) ISAM_ELEV
-      ELSE IF ( NV .EQ. 2 ) THEN ! Correct Input
-         READ( V_LIST2( 1 ), '( I4 )' ) ISAM_BLEV
-         READ( V_LIST2( 2 ), '( I4 )' ) ISAM_ELEV
-      ELSE
-         XMSG = 'Environment variable error for ISAM_BLEV_ELEV'
-         CALL M3EXIT( 'INIT_ENV_VARS', JDATE, JTIME, XMSG, EXIT_STATUS )
-      END IF
-#endif
-      
       ! PWRTFLAG
       CALL GET_ENV ( PWRTFLAG, 'IOAPI_LOG_WRITE', PWRTFLAG, VARDEV )
 
@@ -520,6 +501,87 @@
       ! Get Filename for Tracer Species Namelist
       CALL GET_ENV ( TR_NAMELIST, 'tr_matrix_nml', TR_NAMELIST, VARDEV )
 
+#ifdef isam
+      !-------------------------------------------------------------------------------------------------------
+      !>> ISAM
+      !-------------------------------------------------------------------------------------------------------
+      IF ( MYPE .EQ. 0 ) THEN
+         CALL LOG_SUBHEADING( OUTDEV, "ISAM setting and output options" )
+         WRITE( OUTDEV, '(6x,A)' ),'--Env Variable-- | --Value--'
+         WRITE( OUTDEV, '(6x,A)' ), REPEAT( '-',80 )
+      END IF
+
+
+      ! Determine if this ISAM run is a new start or a restart
+      CALL GET_ENV ( ISAM_NEW_START, 'ISAM_NEW_START', ISAM_NEW_START, VARDEV )
+    
+      ! SA_ACONC Layer Specification
+      CALL GET_ENV ( 'AISAM_BLEV_ELEV', NV, V_LIST2, VARDEV )
+      IF ( NV .LE. 0 ) THEN   ! assume 1:NLAYS
+         AISAM_BLEV = 1
+         AISAM_ELEV = -1
+      ELSE IF ( NV .EQ. 1 ) THEN ! Assume 1:AISAM_BLEV_ELEV
+         AISAM_BLEV = 1
+         READ( V_LIST2( 2 ), '( I4 )' ) AISAM_ELEV
+      ELSE IF ( NV .EQ. 2 ) THEN ! Correct Input
+         READ( V_LIST2( 1 ), '( I4 )' ) AISAM_BLEV
+         READ( V_LIST2( 2 ), '( I4 )' ) AISAM_ELEV
+      ELSE
+         XMSG = 'Environment variable error for AISAM_BLEV_ELEV'
+         CALL M3EXIT( 'INIT_ENV_VARS', JDATE, JTIME, XMSG, EXIT_STATUS )
+      END IF
+
+      ! SA_CONC File Vertical Layer Range and Speciation
+      CALL GET_ENV ( 'ISAM_BLEV_ELEV', NV, V_LIST2, VARDEV )
+      IF ( NV .LE. 0 ) THEN   ! assume 1:NLAYS
+         ISAM_BLEV = 1
+         ISAM_ELEV = -1
+      ELSE IF ( NV .EQ. 1 ) THEN ! Assume 1:ISAM_BLEV_ELEV
+         ISAM_BLEV = 1
+         READ( V_LIST2( 2 ), '( I4 )' ) ISAM_ELEV
+      ELSE IF ( NV .EQ. 2 ) THEN ! Correct Input
+         READ( V_LIST2( 1 ), '( I4 )' ) ISAM_BLEV
+         READ( V_LIST2( 2 ), '( I4 )' ) ISAM_ELEV
+      ELSE
+         XMSG = 'Environment variable error for ISAM_BLEV_ELEV'
+         CALL M3EXIT( 'INIT_ENV_VARS', JDATE, JTIME, XMSG, EXIT_STATUS )
+      END IF
+
+      ! Get species bias case
+      CALL GET_ENV ( ISAM_CHEM_BIAS, 'ISAM_O3_WEIGHTS', ISAM_CHEM_BIAS, VARDEV )
+      IF ( ISAM_CHEM_BIAS .LT. 1 .OR. ISAM_CHEM_BIAS .GT. 5 ) THEN
+         XMSG = 'ISAM_O3_WEIGHTS must equal 1 thru 5'
+         WRITE( OUTDEV, '(A)' )TRIM( XMSG )
+         CALL M3EXIT ( PNAME, 0, 0, XMSG, XSTAT1 )
+      END IF
+
+      IF ( ISAM_CHEM_BIAS .EQ. 5 ) THEN
+        EFLAG = .FALSE.
+      ! VOC_NOX_TRANS value, ratio of H2O2 over HNO3 production rates or concentration 
+          CALL GET_ENV ( VOC_NOX_TRANS, 'VOC_NOX_TRANS', VOC_NOX_TRANS, VARDEV )
+          CALL GET_ENV ( ISAM_NOX_CASE, 'ISAM_NOX_CASE', ISAM_NOX_CASE, VARDEV )
+          CALL GET_ENV ( ISAM_VOC_CASE, 'ISAM_VOC_CASE', ISAM_VOC_CASE, VARDEV )
+          IF ( ISAM_NOX_CASE .LT. 1 .OR. ISAM_NOX_CASE .GT. 4 ) THEN
+              XMSG = 'ISAM_NOX_CASE  must equal 1 thru 4'
+              WRITE( OUTDEV, '(A)' )TRIM( XMSG )
+              EFLAG = .TRUE.
+          END IF 
+          IF ( ISAM_VOC_CASE .LT. 1 .OR. ISAM_VOC_CASE .GT. 4 ) THEN
+              XMSG = 'ISAM_VOC_CASE  must equal 1 thru 4'
+              WRITE( OUTDEV, '(A)' )TRIM( XMSG )
+              EFLAG = .TRUE.
+          END IF 
+          IF ( ISAM_VOC_CASE .EQ. ISAM_NOX_CASE ) THEN
+              XMSG = 'ISAM_VOC_CASE  must NOT equal ISAM_NOX_CASE'
+              WRITE( OUTDEV, '(A)' )TRIM( XMSG )
+              XMSG = 'Set ISAM_O3_WEIGHTS to their value.'
+              WRITE( OUTDEV, '(A)' )TRIM( XMSG )
+              EFLAG = .TRUE.
+          END IF 
+          IF ( EFLAG ) CALL M3EXIT ( PNAME, 0, 0, 'Found errors in ISAM options', XSTAT1 )
+      END IF   
+#endif
+      
       !-------------------------------------------------------------------------------------------------------
       !>> Chemistry and Photolysis
       !-------------------------------------------------------------------------------------------------------
@@ -859,6 +921,7 @@
          CALL M3EXIT( 'INIT_ENV_VARS', JDATE, JTIME, XMSG, EXIT_STATUS )
       END IF
 
+
 ! for MPAS
 #ifdef mpas
       call get_env (ncd_64bit_offset, 'ncd_64bit_offset', .false., vardev)
@@ -1088,7 +1151,7 @@
           ! Write Out The Time to Complete Each Sub-Process
           WRITE( XMSG, 1002 ),TRIM( CPROC ), CPU_TIME_FINISH-CPU_TIME_START
 1002      FORMAT ( 2x, A15, ' completed... ', F6.1, ' seconds' )
-          
+
       CASE ( 2 ) 
           ! Write out the time to complete the entire master time step
           WRITE( XMSG, '(7x,A16)' ),'Master Time Step'

@@ -132,7 +132,7 @@ C----------------------------------------------------------------------
       
       USE HGRD_DEFN
       USE UTILIO_DEFN
-      USE PA_DEFN, ONLY : BUDGET_DIAG
+      USE PA_DEFN, ONLY : BUDGET_DIAG, BUDGET_HPPM
 #ifdef parallel
       USE SE_MODULES          ! stenex (using SE_UTIL_MODULE)
 #else
@@ -175,6 +175,7 @@ C Local variables:
       LOGICAL, SAVE :: FIRSTIME = .TRUE.
       
       INTEGER, SAVE :: NSPCS
+      INTEGER, SAVE :: NSPCS_BUDGET = 0
 
 !     REAL :: FM    (    1:NI+1,   SIZE( CON,2 ) ) ! outflux from left or bottom of cell
 !     REAL :: FP    (    0:NI,     SIZE( CON,2 ) ) ! outflux from right or top of cell
@@ -447,11 +448,12 @@ C Update concentrations as in Equation (1.13)
 
 C Store boundary fluxes in budget variables
 C   Units: change in density (aerosols) or mixing ratio (gases)
-      IF ( BUDGET_DIAG ) THEN
-         F_LO_IN( 1:NSPCS ) = FP( 0,1:NSPCS ) / DS
-         F_LO_OUT( 1:NSPCS ) = FM( 1,1:NSPCS ) / DS
-         F_HI_OUT( 1:NSPCS ) = FP( NI,1:NSPCS ) / DS
-         F_HI_IN( 1:NSPCS ) = FM( NI+1,1:NSPCS ) / DS
+      IF ( BUDGET_HPPM ) THEN
+         NSPCS_BUDGET = MIN( NSPCS,SIZE( F_LO_IN ) )
+         F_LO_IN ( 1:NSPCS_BUDGET ) = FP( 0,1:NSPCS_BUDGET ) / DS
+         F_LO_OUT( 1:NSPCS_BUDGET ) = FM( 1,1:NSPCS_BUDGET ) / DS
+         F_HI_OUT( 1:NSPCS_BUDGET ) = FP( NI,1:NSPCS_BUDGET ) / DS
+         F_HI_IN ( 1:NSPCS_BUDGET ) = FM( NI+1,1:NSPCS_BUDGET ) / DS
       END IF
 
 #ifdef isam

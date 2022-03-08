@@ -707,6 +707,17 @@ C from this Point Group (i.e. ptgrp)
 C Calculate Plume Heights for All Point Sources on this File
          CALL CALC_PLUME_HEIGHT( EM_FILE_DATE( ISRM ), JDATE, JTIME, WRTIME, N   )
 
+         ! Floor TFRAC to zero in case there are negatives and 
+         ! renormalize positive values so the sum is 1.0
+         If ( MINVAL( TFRAC ) .LT. 0.0 ) THEN
+
+             WHERE ( TFRAC( :,: ) .LT. 0.0 ) TFRAC( :,: ) = 0.0
+
+             DO S = 1,MY_NSRC( N )
+                TFRAC( :,S ) = TFRAC( :,S ) / SUM( TFRAC(:,S) )
+             END DO
+         END IF
+
          ! Calculate Maximum Layer Height across all source Plumes
          DO L = EMLAYS,1,-1
              PTLAYS = L

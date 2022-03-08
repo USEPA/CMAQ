@@ -50,7 +50,7 @@ C-----------------------------------------------------------------------
       USE GRID_CONF, ONLY: NLAYS
       USE CGRID_SPCS            ! CGRID mechanism species
       USE UTILIO_DEFN
-      USE PA_DEFN, ONLY : BUDGET_DIAG
+      USE PA_DEFN, ONLY : BUDGET_DIAG, BUDGET_HPPM
       USE XY_BUDGET, ONLY : F_WEST_IN, F_WEST_OUT, F_EAST_IN, F_EAST_OUT
       use CENTRALIZED_IO_MODULE, only : interpolate_var, MSFX2
 
@@ -497,6 +497,7 @@ C PPM scheme
          F_HI_IN = 0.
          F_HI_OUT= 0.
 
+         IF ( BUDGET_DIAG ) BUDGET_HPPM = .TRUE.
          CALL HPPM ( NCOLS, NROWS, CONX, VELX, DT, DX1, 'C',
      &               F_LO_IN, F_LO_OUT, F_HI_IN, F_HI_OUT )
 
@@ -507,7 +508,7 @@ C PPM scheme
          !     aerosol mass: [Jacobian] x [kg m-3] --> kg
          !     aerosol number: [Jacobian] x [N m-3] --> N
          !     aerosol surface area: [Jacobian] x [m2 m-3] --> m2
-         IF ( BUDGET_DIAG ) THEN
+         IF ( BUDGET_HPPM ) THEN
             IF ( BNDY_PE_LOX ) THEN
                 call interpolate_var ('JACOBM', fdate, ftime, JACOBM)
                 call interpolate_var ('ZF', fdate, ftime, ZF)
@@ -544,6 +545,7 @@ C PPM scheme
      &                    + F_HI_OUT(I) / JACOBM( NCOLS,ROW,LVL ) * VOL2
                 END DO
             END IF
+            BUDGET_HPPM = .FALSE.
          END IF
 
 #ifdef isam
@@ -644,7 +646,8 @@ C East boundary
            END DO
 
 C PPM scheme
-           CALL HPPM ( NCOLS, NROWS, SENX, VELX, DT, DX1, 'C' )
+           CALL HPPM ( NCOLS, NROWS, SENX, VELX, DT, DX1, 'C',
+     &               F_LO_IN, F_LO_OUT, F_HI_IN, F_HI_OUT )
 
            DO SPC = 1, N_SPC_ADV
              A2C = ADV_MAP( SPC )
