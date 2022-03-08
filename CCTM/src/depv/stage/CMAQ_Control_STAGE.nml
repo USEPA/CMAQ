@@ -270,10 +270,14 @@
 !    The following namelists map the meteorological land use to the 11 category! 
 !    STAGE land use. Common land uses are included here, MODIS, NLCD, and USGS.! 
 !    There is a custom option allowing the user to create the map between the  !
-!    meteorological model and STAGE. In the mapping table, all the factors of  ! 
-!    the Met_LU_Name must add up to 1, e.g. for MODIS_05 the factors are 0.5   ! 
-!    and 0.5 which add to one.                                                 !
+!    meteorological model and STAGE. In the mapping table, the 'Factor' field  !
+!    describes the fraction of a meteorological land-use type (Met_LU_Name)    !
+!    that is described by the STAGE land use type (STAGE_LU_Name). For example,!
+!    MODIS_05 is half deciduous broadleaf (DecBroadLeaf) and half evergreen    !
+!    needle leaf (EvrgrnNeedleLeaf). The sum of 'Factor' for a given           !
+!    Met_LU_Name must sum to 1.                                                !
 !------------------------------------------------------------------------------!
+
 &STAGE_MODIS_20
  MET_TO_STAGE_LU =
  ! Met_LU_Name | Met_Index | STAGE_LU_name     | STAGE_Index | Factor | Description
