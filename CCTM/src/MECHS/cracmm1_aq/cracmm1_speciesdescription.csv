@@ -1,119 +1,119 @@
 Species,Description
-ACD,Acetaldehyde                                                                                             
-ACE,Acetylene                                                                                                
-ACO3,Acetyl peroxy radicals                                                                                   
+ACD,Acetaldehyde 
+ACE,Acetylene 
+ACO3,Acetyl peroxy radicals
 ACRO,Acrolein
-ACT,Acetone                                                                                                  
-ACTP,Peroxy radicals formed from ACT                                                                          
-ADCN,Aromatic-NO3 adduct from PHEN                                                                            
-ADDC,Aromatic-HO adduct from CSL                                                                              
-ALD,C3 and higher aldehydes                                                                                  
-API,Alpha-pinenes and other cyclic terpenes with one double bond                                             
-APINP1,Peroxy radicals from API+NO3 that do not undergo autoxidation                                                                        
+ACT,Acetone
+ACTP,Peroxy radicals formed from ACT
+ADCN,Aromatic-NO3 adduct from PHEN
+ADDC,Aromatic-HO adduct from CSL
+ALD,C3 and higher aldehydes
+API,Alpha-pinenes and other cyclic terpenes with one double bond
+APINP1,Peroxy radicals from API+NO3 that do not undergo autoxidation
 APINP2,Peroxy radicals from API+NO3 that undergo autoxidation
-APIP1,Peroxy radicals from API+OH that do not undergo autoxidation                                                                        
+APIP1,Peroxy radicals from API+OH that do not undergo autoxidation
 APIP2,Peroxy radicals from API+OH that undergo autoxidation
-BAL1,Peroxy radicals formed from BALD                                                                         
-BAL2,Peroxy radicals formed from BALD                                                                         
-BALD,Benzaldehyde and other aromatic aldehydes                                                                
-BALP,Peroxy radicals formed from BALD                                                                         
+BAL1,Peroxy radicals formed from BALD 
+BAL2,Peroxy radicals formed from BALD 
+BALD,Benzaldehyde and other aromatic aldehydes
+BALP,Peroxy radicals formed from BALD 
 BDE13,1;3-butadiene
 BDE13P,Peroxy radicals from BDE13
-BEN,Benzene                                                          
-BENP,Peroxy radicals formed from benzene                                                                    
-CHO,Phenoxy radical formed from CSL                                                                          
-CO,Carbon monoxide                                                                                          
-CSL,Cresol and other hydroxy substituted aromatics                                                           
-DCB1,Unsaturated dicarbonyls                                                                                  
-DCB2,Unsaturated dicarbonyls                                                                                  
-DCB3,Unsaturated dicarbonyls                                                                                  
+BEN,Benzene
+BENP,Peroxy radicals formed from benzene
+CHO,Phenoxy radical formed from CSL
+CO,Carbon monoxide
+CSL,Cresol and other hydroxy substituted aromatics 
+DCB1,Unsaturated dicarbonyls
+DCB2,Unsaturated dicarbonyls
+DCB3,Unsaturated dicarbonyls
 ELHOM,Extremely-low volatility highly oxygenated molecules from terpenes
-EOH,Ethanol                                                                                                  
-ETE,ethene                                                                                                   
-ETEG,Ethylene glycol                                                                                          
-ETEP,Peroxy radicals formed from ETE                                                                          
-ETH,ethane                                                                                                   
-ETHP,Peroxy radicals formed from ethane and other species                                           
+EOH,Ethanol
+ETE,ethene 
+ETEG,Ethylene glycol
+ETEP,Peroxy radicals formed from ETE
+ETH,ethane 
+ETHP,Peroxy radicals formed from ethane and other species 
 FURAN,Furans and other dienes
 FURANO2,Peroxy radicals from FURAN oxidation
 FURANONE,Ring-retaining ketone product from FURAN oxidation
-GLY,Glyoxal and glycoaldehydes                             
-H2O2,Hydrogen peroxide                                                                                        
-HC10,Alkanes and other species with HO rate constant greater than 6.8x10-12 cm3 s-1          
-HC10P,Peroxy radicals formed from HC10                                                                         
+GLY,Glyoxal and glycoaldehydes 
+H2O2,Hydrogen peroxide
+HC10,Alkanes and other species with HO rate constant greater than 6.8x10-12 cm3 s-1
+HC10P,Peroxy radicals formed from HC10 
 HC10P2,Hydroxy peroxy radicals from HC10P alkoxy product
-HC3,Alkanes and other species with HO rate constant less than 3.4x10-12 cm3 s-1             
-HC3P,Peroxy radicals formed from HC3                                                                          
+HC3,Alkanes and other species with HO rate constant less than 3.4x10-12 cm3 s-1 
+HC3P,Peroxy radicals formed from HC3
 HC5,Alkanes and other species with HO rate constant between 3.4x10-12 and 6.8x10-12 cm3 s-1 
-HC5P,Peroxy radicals formed from HC5                                                                          
-HCHO,Formaldehyde                                                                                             
-HKET,Hydroxy ketone                                                                                           
-HNO3,Nitric acid                                                                                              
-HNO4,Pernitric acid                                                                                           
-HO,Hydroxy radical                                                                                          
-HO2,Hydroperoxy radical                                                                                      
+HC5P,Peroxy radicals formed from HC5
+HCHO,Formaldehyde 
+HKET,Hydroxy ketone 
+HNO3,Nitric acid
+HNO4,Pernitric acid 
+HO,Hydroxy radical
+HO2,Hydroperoxy radical
 HOM,Highly oxygenated molecules from terpenes
-HONO,Nitrous acid                                                                                             
-IEPOX,isoprene epoxydiols                                                                           
-ISHP,Beta-hydroxy hydroperoxides from ISOP+HO2                                                                
-ISO,Isoprene                                                                                                 
-ISON,Beta-hydroxyalkylnitrates from ISOP+NO alkylnitrates from ISO+NO3                                        
-ISOP,Peroxy radicals formed from ISO+HO                                                                       
-KET,ketones                                                                                                  
-KETP,Peroxy radicals formed from KET                                                                          
-LIM,d-limonene and other cyclic diene-terpenes                                                               
+HONO,Nitrous acid 
+IEPOX,isoprene epoxydiols 
+ISHP,Beta-hydroxy hydroperoxides from ISOP+HO2
+ISO,Isoprene 
+ISON,Beta-hydroxyalkylnitrates from ISOP+NO alkylnitrates from ISO+NO3
+ISOP,Peroxy radicals formed from ISO+HO 
+KET,ketones
+KETP,Peroxy radicals formed from KET
+LIM,d-limonene and other cyclic diene-terpenes 
 LIMAL,Limonene aldehyde and similar LIM-derived aldehydes
 LIMALP,Peroxy radicals from LIMAL
 LIMNP1,Peroxy radicals from LIM+NO3 that do not undergo autoxidation
 LIMNP2,Peroxy radicals from LIM+NO3 that undergo autoxidation
 LIMP1,Peroxy radicals from LIM+OH that do not undergo autoxidation
 LIMP2,Peroxy radicals from LIM+OH that undergo autoxidation
-MACP,Peroxy radicals formed from MACR+HO                                                                      
-MACR,methacrolein and other C4 aldehydes                         
-MAHP,Hydroperoxides from MACP+HO2                                                                             
-MCP,Peroxy radical formed from MACR + HO which does not form MPAN                                            
-MCT,Methyl catechol                                                                                          
-MCTO,Alkoxy radical formed from MCT+HO and MCT+NO3                                                            
-MCTP,Radical formed fro MCT+O3 reaction                                                                       
-MEK,Methyl ethyl ketone                                                                                      
-MEKP,Peroxy radicals formed from MEK                                                                          
-MGLY,Methylglyoxal and other alpha-carbonyl aldehydes                                                         
-MO2,Methyl peroxy radical                                                                                    
-MOH,Methanol                                                                                                 
-MPAN,Peroxymethacryloylnitrate and other higher peroxyacylnitrates from isoprene oxidation                    
-MVK,Methyl vinyl ketone                                                                                      
-MVKP,Peroxy radicals formed from MVK                                                                          
-N2O5,Dinitrogen pentoxide                                                                                     
-NALD,Nitrooxyacetaldehyde                                                                                     
-NAPH,Naphthalene and other PAHs                                    
+MACP,Peroxy radicals formed from MACR+HO
+MACR,methacrolein and other C4 aldehydes 
+MAHP,Hydroperoxides from MACP+HO2 
+MCP,Peroxy radical formed from MACR + HO which does not form MPAN
+MCT,Methyl catechol
+MCTO,Alkoxy radical formed from MCT+HO and MCT+NO3
+MCTP,Radical formed fro MCT+O3 reaction 
+MEK,Methyl ethyl ketone
+MEKP,Peroxy radicals formed from MEK
+MGLY,Methylglyoxal and other alpha-carbonyl aldehydes 
+MO2,Methyl peroxy radical
+MOH,Methanol 
+MPAN,Peroxymethacryloylnitrate and other higher peroxyacylnitrates from isoprene oxidation
+MVK,Methyl vinyl ketone
+MVKP,Peroxy radicals formed from MVK
+N2O5,Dinitrogen pentoxide 
+NALD,Nitrooxyacetaldehyde 
+NAPH,Naphthalene and other PAHs
 NAPHP,Peroxy radicals from NAPH oxidation
-NO,Nitric oxide                                                                                             
-NO2,Nitrogen dioxide                                                                                         
-NO3,Nitrogen trioxide                                                                                        
-O1D,Excited state oxygen atom; O(1D)                                                                         
-O3,Ozone                                                                                                    
-O3P,Ground state oxygen atom; O(3P)                                                                          
-OLI,Internal alkenes                                                                                         
-OLIP,Peroxy radicals formed from OLI                                                                          
-OLND,NO3-alkene adduct reacting via decomposition                                                             
-OLNN,NO3-alkene adduct reacting to form carbonitrates + HO2                                                   
-OLT,Terminal alkenes                                                                                         
-OLTP,Peroxy radicals formed from OLT                                                                          
-ONIT,Organic nitrates                                      
-OP1,Methyl hydrogen peroxide                                                                                 
-OP2,Higher organic peroxides                                                                                 
+NO,Nitric oxide 
+NO2,Nitrogen dioxide 
+NO3,Nitrogen trioxide
+O1D,Excited state oxygen atom; O(1D) 
+O3,Ozone
+O3P,Ground state oxygen atom; O(3P)
+OLI,Internal alkenes 
+OLIP,Peroxy radicals formed from OLI
+OLND,NO3-alkene adduct reacting via decomposition 
+OLNN,NO3-alkene adduct reacting to form carbonitrates + HO2 
+OLT,Terminal alkenes 
+OLTP,Peroxy radicals formed from OLT
+ONIT,Organic nitrates
+OP1,Methyl hydrogen peroxide 
+OP2,Higher organic peroxides 
 OPB,Terpene-derived peroxides
-ORA1,Formic acid                                                                                              
-ORA2,Acetic acid and higher acids                                                                             
-ORAP,Peroxy radical formed from ORA2 + HO reaction                                                            
-PAA,Peroxyacetic acids and higher analogs                                                                    
-PAN,Peroxyacetyl nitrate and higher saturated PANs                                                           
-PHEN,phenol and benzene diols                                          
+ORA1,Formic acid
+ORA2,Acetic acid and higher acids 
+ORAP,Peroxy radical formed from ORA2 + HO reaction
+PAA,Peroxyacetic acids and higher analogs
+PAN,Peroxyacetyl nitrate and higher saturated PANs 
+PHEN,phenol and benzene diols
 PINAL,Pinonaldehyde and similar APIN-derived aldehydes
 PINALP,Peroxy radicals from PINAL oxidation
-PPN,Peroxypropionyl nitrate                                                                                  
+PPN,Peroxypropionyl nitrate
 PROG,Propylene glyocol and other 3 carbon dialcohols
-RCO3,Higher saturated acyl peroxy radicals                                                                    
+RCO3,Higher saturated acyl peroxy radicals
 ROCIOXY,Intermediate volatility oxygenated ROC species (directly emitted)
 ROCN1ALK,Alkane-like ROC species with log10C* of 10-1 ug/m3
 ROCN1OXY1,Oxygenated ROC species with log10C* of 10-1 ug/m3 and O:C of 0.1
@@ -155,23 +155,23 @@ ROCP6ALKP2,Hydroxy peroxy radicals from ROCP6ALK alkoxy product
 ROCP6ARO,Aromatic ROC species with log10C* of 10+6 ug/m3
 ROCP6AROP,Peroxy radicals from ROCP6ARO oxidation
 ROCP6OXY1,Oxygenated ROC species with log10C* of 10+6 ug/m3 and O:C of 0.1
-ROH,C3 and higher alcohols                                                                                   
-SESQ,Sesquiterpenes                                                                                           
+ROH,C3 and higher alcohols 
+SESQ,Sesquiterpenes 
 SESQNRO2,Peroxy radicals from SESQ reaction with nitrate radicals
 SESQRO2,Peroxy radicals from SESQ reaction with OH
-SLOWROC,Slowly reacting ROC with kOH< 3.5x10-13 cm3 s-1         
-SO2,Sulfur dioxide                                                                                           
-SULF,Sulfuric acid                                                                                            
-SULRXN,Precursor of Aerosol Sulfate (tracking species)                                   
-TOL,Toluene                       
-TOLP,Peroxy radicals formed from TOL                                                                          
-UALD,Unsaturated aldehydes                                                                                    
-UALP,Peroxy radicals formed from UALD                                                                         
+SLOWROC,Slowly reacting ROC with kOH< 3.5x10-13 cm3 s-1 
+SO2,Sulfur dioxide 
+SULF,Sulfuric acid
+SULRXN,Precursor of Aerosol Sulfate (tracking species) 
+TOL,Toluene 
+TOLP,Peroxy radicals formed from TOL
+UALD,Unsaturated aldehydes
+UALP,Peroxy radicals formed from UALD 
 XO2,Accounts for addition NO to NO2 conversions (tracking species)
-XYE,O- and p-xylene and other less reactive volatile aromatics with kOH < 1.46x10-11 cm3 s-1         
+XYE,O- and p-xylene and other less reactive volatile aromatics with kOH < 1.46x10-11 cm3 s-1 
 XYEP,Peroxy radicals formed from XYE
-XYM,M-xylene and other more reactive volatile aromatics with kOH > 1.46x10-11 cm3 s-1         
-XYMP,Peroxy radicals formed from XYM                                    
+XYM,M-xylene and other more reactive volatile aromatics with kOH > 1.46x10-11 cm3 s-1 
+XYMP,Peroxy radicals formed from XYM
 HCL,Hydrochloric acid
 NH3,Ammonia
 ASO4,Total sulfur IV as sulfate
