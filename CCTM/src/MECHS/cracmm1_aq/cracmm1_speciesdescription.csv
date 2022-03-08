@@ -211,3 +211,5 @@ SRFACC,Surface area of accumulation mode particles
 SRFCOR,Surface area of coarse mode particles
 OP3,Semivolatile organic peroxide
 IEPOXP,IEPOX intermediate (tracking species)
+ATRPN,Hydrolysis products of TRPN
+AISON,Hydrolysis products of ISON
