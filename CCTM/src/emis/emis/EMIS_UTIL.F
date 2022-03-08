@@ -135,7 +135,8 @@
       USE em_param_module
       USE UTIL_FAMILY_MODULE
       USE VDIFF_MAP, ONLY : DIFF_SPC, N_SPC_DIFF, DIFF_MASK_GAS, 
-     &                      DIFF_MASK_NUM, DIFF_MASK_SRF
+     &                      DIFF_MASK_NUM, DIFF_MASK_SRF, DIFF_MASK_NR,
+     &                      DIFF_MASK_TRAC
 
       IMPLICIT NONE
 
