@@ -49,9 +49,9 @@ GC_SPECIES_DATA =
 'SULF'          , 98.0   ,''     ,-1     ,''     ,-1     ,'VD_SULF'         , 1   ,'H2SO4'           , 1  ,'SULF'         ,'H2SO4'   ,'Yes' ,'Yes' ,'Yes' ,'Yes',!Sulfuric acid,E,DTXSID5029683,OS(=O)(=O)O
 'SULRXN'        , 98.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,'SULPRD'       ,''        ,''    ,''    ,''    ,''   ,!NA,NA,NA,NA
 'ETH'           , 30.1   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,'ETHANE'          , 1  ,''             ,''        ,'Yes' ,''    ,'Yes' ,'Yes',!Ethane,E,DTXSID6026377,CC
-'HC3'           , 51.9   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,'HC3OPERA'        , 1  ,''             ,''        ,'Yes' ,''    ,'Yes' ,'Yes',!Propane,L,DTXSID5026386,CCC
+'HC3'           , 44.1   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,'HC3OPERA'        , 1  ,''             ,''        ,'Yes' ,''    ,'Yes' ,'Yes',!Propane,L,DTXSID5026386,CCC
 'HC3P'          , 75.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,''             ,''        ,''    ,''    ,''    ,'Yes',
-'HC5'           , 84.3   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,'HC5OPERA'        , 1  ,''             ,''        ,'Yes' ,''    ,'Yes' ,'Yes',!Pentane,L,DTXSID2025846,CCCCC
+'HC5'           , 72.9   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,'HC5OPERA'        , 1  ,''             ,''        ,'Yes' ,''    ,'Yes' ,'Yes',!Pentane,L,DTXSID2025846,CCCCC
 'HC5P'          ,103.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,''             ,''        ,''    ,''    ,''    ,'Yes',
 'HC10'          ,142.28  ,''     ,-1     ,''     ,-1     ,''                ,-1   ,'HC10OPERA'       , 1  ,''             ,''        ,'Yes' ,''    ,'Yes' ,'Yes',!Decane,L,DTXSID6024913,CCCCCCCCCC
 'HC10P'         ,173.27  ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,''             ,''        ,''    ,''    ,''    ,'Yes',!Decan-3-ylperoxy,L,NA,CCCCCCCC(CC)O[O]
@@ -60,7 +60,7 @@ GC_SPECIES_DATA =
 'ETEP'          , 77.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,''             ,''        ,''    ,''    ,''    ,'Yes',!(2-hydroxyethyl)peroxy,E,NA,OCCO[O]
 'OLT'           , 42.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,'OLTOPERA'        , 1  ,''             ,''        ,'Yes' ,''    ,'Yes' ,'Yes',!1-Propene,L,DTXSID5021205,CC=C
 'OLTP'          , 91.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,''             ,''        ,''    ,''    ,''    ,'Yes',
-'OLI'           , 68.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,'OLIOPERA'        , 1  ,''             ,''        ,'Yes' ,''    ,'Yes' ,'Yes',!2-Methyl-2-butene,L,DTXSID8027165,CC=C(C)C
+'OLI'           , 70.1   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,'OLIOPERA'        , 1  ,''             ,''        ,'Yes' ,''    ,'Yes' ,'Yes',!2-Methyl-2-butene,L,DTXSID8027165,CC=C(C)C
 'OLIP'          ,117.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,''             ,''        ,''    ,''    ,''    ,'Yes',
 'ACE'           , 26.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,'ACETYLENE'       , 1  ,''             ,''        ,'Yes' ,''    ,'Yes' ,'Yes',!Acetylene,E,DTXSID6026379,C#C
 'ORA1'          , 46.0   ,''     ,-1     ,''     ,-1     ,'VD_ORA'          , 1   ,'ORA1OPERA'       , 1  ,''             ,'FOA'     ,'Yes' ,'Yes' ,'Yes' ,'Yes',!Formic acid,E,DTXSID2024115,OC=O
@@ -113,7 +113,7 @@ GC_SPECIES_DATA =
 'IEPOXP'        ,118.1   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,''             ,''        ,''    ,''    ,''    ,'Yes',!NA,NA,NA,NA
 'MAHP'          ,102.0   ,''     ,-1     ,''     ,-1     ,'VD_OP'           , 1   ,'METHACROLEIN'    , 1  ,''             ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',!2-methylprop-2-eneperoxoic acid,L,NA,C=C(C)C(OO)=O
 'ORA2'          , 60.2   ,''     ,-1     ,''     ,-1     ,'VD_ORA'          , 1   ,'ORA2OPERA'       , 1  ,''             ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',!Acetic acid,L,DTXSID5024394,CC(O)=O
-'ORAP'          ,109.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,''             ,''        ,''    ,''    ,''    ,'Yes',!,L,NA,
+'ORAP'          , 91.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,''             ,''        ,''    ,''    ,''    ,'Yes',!(carboxymethyl)peroxy,L,NA,[O]OCC(=O)O
 'PPN'           ,135.0   ,''     ,-1     ,''     ,-1     ,'VD_PAN'          , 1   ,'PPN'             , 1  ,''             ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',!Peroxypopionyl nitrate,E,DTXSID90206675,CCC(=O)OO[N+](=O)[O-]
 'MPAN'          ,147.1   ,''     ,-1     ,''     ,-1     ,'VD_PAN'          , 1   ,'MPAN'            , 1  ,''             ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',!Peroxymethacryloyl nitrate,L,DTXSID10236878,O=N(=O)OOC(=O)C(=C)C
 'NALD'          ,105.0   ,''     ,-1     ,''     ,-1     ,'VD_PAN'          , 1   ,'2NITRO_1BUTNL'   , 1  ,''             ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',!1-(nitrooxy)acetaldehyde,E,NA,O=CCON(=O)=O
