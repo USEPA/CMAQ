@@ -135,7 +135,11 @@ This section describes each of the input files required by the various CMAQ prog
 *XXX - three-digit variable indicating emission stream number. Gridded and Inline Point emissions are numbered independently.
 
 ### 4.3.1 Windowing Capability
-Under the assumption that all inputs utilize the same projection and grid resolution, CMAQ allows users to provide a gridded input files which covers a different geographic extent but are a proper super set of the simulation domain. Proper supper set means that the difference of the origins of the simulation domain and the gridded input (XORIG(1)-(XORIG(2) and YORIG(1)-YORIG(2)) must be exact multiple of the resolution. This capability excludes initial condition file (ICFILE) and boundary condition file (BCFILE) since they are created by IC/BC process, typically. This capability applies to meteorological data files, however, METBDY3D won't be used, and the meteorological boundary information will be extracted from METCRO3D directly. For point source file, CMAQ already can discern a particular point source is within the simulation domain or not as long as the files also use the same projection and grid resolution.
+Under the assumption that all inputs utilize the same projection and grid resolution, CMAQ allows users to provide a gridded input files which covers a different geographic extent but are a proper super set of the simulation domain. Proper super set means that the simulated domain must be at least one grid cell smaller at all sides than the gridded input (see Figure 4-3-1 below). This capability excludes the chemical boundary condition file (BCFILE) which must be created for the simulated domain using the BCON program. This capability applies to meteorological data files, however, METBDY3D won't be used, and the meteorological boundary information will be extracted from METCRO3D directly. For point source files, CMAQ already can discern if a particular point source is within the simulation domain or not as long as the files also use the same projection.
+
+<a id=Figure4-3-1></a> ![Figure 4-3-1](./images/Figure4-3-1.png)
+
+**Figure 4-3-1. Appropriate Windowing Domain illustration**
 
 ## 4.4 GRIDDESC and Species Namelist Files
 
