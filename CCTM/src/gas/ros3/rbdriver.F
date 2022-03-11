@@ -161,7 +161,7 @@ C..Local Variables:
       REAL, ALLOCATABLE, SAVE :: QV     ( :, :, : )      ! Cell water vapor (Kg/Kg air)
       REAL, ALLOCATABLE, SAVE :: TA     ( :, :, : )      ! Cell temperature (K)
 
-      LOGICAL, ALLOCATABLE, SAVE :: LAND_ZONE   ( :,: )       ! Is the surface totally land?
+      REAL, ALLOCATABLE, SAVE :: LAND_ZONE   ( :,: )          ! fractional area of OPEN+SURF  
 
 
       REAL( 8 ), ALLOCATABLE, SAVE :: BLKHET( :, : )
@@ -264,12 +264,8 @@ C.. Get fractional seawater coverage from the OCEAN file.
          ALLOCATE( LAND_ZONE( NCOLS, NROWS ) )
          
          DO ROW = 1, NROWS
-            DO COL = 1, NCOLS
-               IF( OCEAN( COL,ROW ) + SZONE( COL,ROW ) .GT. 0.0 )THEN
-                   LAND_ZONE( COL,ROW ) = .FALSE.
-               ELSE
-                   LAND_ZONE( COL,ROW ) = .TRUE.
-               END IF
+            DO COL = 1, NCOLS                
+                 LAND_ZONE( COL,ROW ) =  OCEAN( COL,ROW ) + SZONE( COL,ROW )                  
              END DO
          END DO
 
@@ -449,11 +445,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
             BLKSVOL( NCELL ) = 1.0 /  DENS( COL,ROW,LEV )
             BLKPRES( NCELL ) = REAL( PA2ATM * PRES( COL, ROW, LEV ), 8 )
             BLKCH2O( NCELL ) = REAL( MAX( QV_TO_PPM * QV( COL,ROW,LEV ), 0.0 ), 8)
-            IF( LAND_ZONE( COL,ROW ) .OR. SEAICE (COL,ROW) .GT. 0.0 )THEN
-                BLKLAND (NCELL) = .TRUE.
-            ELSE
-                BLKLAND (NCELL) = .FALSE.
-            END IF            
+            BLKLAND (NCELL)  = AMAX1 ( 0.0, ( LAND_ZONE( COL,ROW ) - SEAICE (COL,ROW) ) )            
          END DO
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc

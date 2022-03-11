@@ -176,8 +176,8 @@ C Domain decomposition info from CONC file
       REAL( 8 ),  ALLOCATABLE :: RJBLK( :,: )     ! J-values for each cell in block
 
       LOGICAL :: CALL_DEG = .FALSE.               ! SWITCH for calling DEGRADE routine
-      
-      LOGICAL,  ALLOCATABLE :: BLKLAND( : )       ! Is the surface totally land?
+         
+      REAL( 8 ), ALLOCATABLE :: BLKLAND( : )      ! fractional area of OPEN+SURF 
       
       LOGICAL :: PRINT_CELL
       INTEGER :: ROS3_LOG

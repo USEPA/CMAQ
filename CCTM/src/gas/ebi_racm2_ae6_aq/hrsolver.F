@@ -124,7 +124,6 @@ C..SCRATCH LOCAL VARIABLES:
       LOGICAL, SAVE  :: LOPEN = .FALSE.
 #endif
 
-
 C**********************************************************************
 
 

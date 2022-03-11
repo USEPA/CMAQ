@@ -188,7 +188,7 @@ C..SCRATCH LOCAL VARIABLES:
       REAL, ALLOCATABLE, SAVE :: QV     ( :, :, : )      ! Cell water vapor (Kg/Kg air)
       REAL, ALLOCATABLE, SAVE :: TA     ( :, :, : )      ! Cell temperature (K)
 
-      LOGICAL, ALLOCATABLE, SAVE :: LAND_ZONE   ( :,: )       ! Is the surface totally land?
+      REAL, ALLOCATABLE, SAVE :: LAND_ZONE   ( :,: )          ! fractional area of OPEN+SURF       
 
       REAL( 8 ), ALLOCATABLE, SAVE :: Y_DEGRADE ( : , : ) ! concentration array used
                                                           ! by degradation routines
@@ -285,11 +285,7 @@ C...Initialize and report data
          
          DO ROW = 1, NROWS
             DO COL = 1, NCOLS
-               IF( OCEAN( COL,ROW ) + SZONE( COL,ROW ) .GT. 0.0 )THEN
-                   LAND_ZONE( COL,ROW ) = .FALSE.
-               ELSE
-                   LAND_ZONE( COL,ROW ) = .TRUE.
-               END IF
+               LAND_ZONE( COL,ROW ) =  OCEAN( COL,ROW ) + SZONE( COL,ROW )                  
              END DO
          END DO
 
@@ -432,11 +428,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
             BLKSVOL( NCELL ) = 1.0 / DENS( COL,ROW,LEV )
             BLKPRES( NCELL ) = REAL( PA2ATM * PRES( COL, ROW, LEV ), 8 )
             BLKCH2O( NCELL ) = REAL( MAX( QV( COL,ROW,LEV ) * MAOMV * CONCOFM, 0.0 ), 8)
-            IF( LAND_ZONE( COL,ROW ) .OR. SEAICE (COL,ROW) .GT. 0.0 )THEN
-                BLKLAND (NCELL) = .TRUE.
-            ELSE
-                BLKLAND (NCELL) = .FALSE.
-            END IF            
+            BLKLAND (NCELL)  = AMAX1 ( 0.0, ( LAND_ZONE( COL,ROW ) - SEAICE (COL,ROW) ) )
          ENDDO
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -480,7 +472,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          ENDDO
          
 !        CALL CALCKS( NPHOTAB, RJBLK )
-         CALL CALC_RCONST( BLKTEMP, BLKPRES, BLKCH2O, RJBLK, BLKHET, LSUNLIGHT, BLKLAND, RK, NUMCELLS )
+         CALL CALC_RCONST( BLKTEMP, BLKPRES, BLKCH2O, RJBLK, BLKHET, LSUNLIGHT, BLKLAND, RK, NUMCELLS )         
 
          IF ( LSUNLIGHT ) THEN
             HMAX = HMAXDAY( NCS )
@@ -871,7 +863,7 @@ C*********************** FORMAT STATEMENTS ****************************
 93260 FORMAT(   1X, 'C(0)= ', I3, 2X, 'H2O ', 2X, 3( 1PE20.10 ) )
 93280 FORMAT(   1X, 'TEMP (K)         =   ', 3( 1PE20.10 ) )
 93300 FORMAT(   1X, 'PRESS(ATM)       =   ', 3( 1PE20.10 ) )
-93305 FORMAT(   1X, 'LAND(True/False) =   ', 3( L20 ) )
+93305 FORMAT(   1X, 'LAND(-)          =   ', 3( 1PE20.10 ) )
 93320 FORMAT(  /1X, 'Species concentrations at end of irun=', I4,
      &              ' Cell=', I5 )
 93340 FORMAT(   1x, 'C(end)= ', I3, 2x, A4, 2x, 1PE20.8)

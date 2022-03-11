@@ -305,10 +305,8 @@ C......................................................................
       REAL( 8 ), ALLOCATABLE, SAVE :: BLKDENS( : )      ! Cell air denisty, kg/m^3
       REAL,      ALLOCATABLE, SAVE :: BLKSVOL( : )      ! Cell air specific volume, m^3/kg
       REAL( 8 ), ALLOCATABLE, SAVE :: RJBLK( :,: )      ! J-values for each cell in block
-      REAL( 8 ), ALLOCATABLE, SAVE :: BLKHET( :, : )    ! heterogeneous rate in block
-
-      LOGICAL,  ALLOCATABLE, SAVE  :: BLKLAND( : )       ! Is the surface totally land?
-
+      REAL( 8 ), ALLOCATABLE, SAVE :: BLKHET( :, : )    ! heterogeneous rate in block    
+      REAL( 8 ), ALLOCATABLE, SAVE :: BLKLAND( : )      ! fractional area of OPEN+SURF
 
       REAL( 8 ), ALLOCATABLE, SAVE :: BLKCONC( :, : ) ! Species conc. for cells in block
                                                       ! in original species order (ppm) 
