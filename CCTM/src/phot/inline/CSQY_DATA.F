@@ -665,7 +665,8 @@ C...begin read
                     LMGLY_ABS = IPHOT
               CASE( 'ACETONE', 'CH3COCH3_RACM2', 'ACET_IUPAC10' )
                     IF( NWL .EQ. NWL_ACETONE_FJX ) LACETONE  = IPHOT
-              CASE( 'HCHOR_06', 'HCHO_R_SAPRC99', 'HCHO_RAD_RACM2', 'FORM_R_IUPAC10', 'HCHO_R_MCMv32' )
+              CASE( 'HCHOR_06', 'HCHO_R_SAPRC99', 'HCHO_RAD_RACM2', 'FORM_R_IUPAC10', 
+     &              'FORM_R_IUPAC13', 'HCHO_R_MCMv32', 'HCHO_RAD_JPL19' )
                     LHCHOR_06 = IPHOT
               CASE( 'ACET_CH3CO_CRI' )
                     LACETONE_CH3CO   = IPHOT
@@ -1553,7 +1554,9 @@ C-----------------------------------------------------------------------
       END DO
 
 
-!***loop over rates
+      CSZ = 0.0
+      QYZ = 1.0
+!***loop over rates for temperature corrections
       DO IPHOT = 1, MECHANISM_RATES
 !***loop over wavelengths
         DO IWL = 1, NWL_REF
@@ -1589,8 +1592,10 @@ C-----------------------------------------------------------------------
                END IF
            END DO
         END DO
+      END DO
 !***Make specific temperature and/or density corrections if needed
 !***Note specific acetone channels are treated outside these three nested loops
+      DO IPHOT = 1, MECHANISM_RATES
 
         IF( CSQY_ADJUST( IPHOT ) .LT. 1 )CYCLE
 
@@ -1787,6 +1792,11 @@ C-----------------------------------------------------------------------
                  DO LAYS = 1, NLAYS
                     IF ( QYZ( LAYS, IWL, IPHOT ) .LE. 0.0 ) CYCLE
 
+                    IF( QYZ( LAYS, IWL, LHCHOR_06 ) .GT. 0.9999999 )THEN
+                        WRITE(6,*)"QYZ( LAYS, IWL, LHCHOR_06 ) = ",QYZ( LAYS, IWL, LHCHOR_06 ) 
+                        CALL M3EXIT( 'GET_CSQY', 0, 0, 'CHECK master log for information', -1 )
+                    END IF
+                         
                     BETA = 1.0 / ( 1.0 - QYZ( LAYS, IWL, LHCHOR_06 ) )
                     IF ( TEMP( LAYS ) .LT. 300.0 .AND. TEMP( LAYS ) .GT. 220.0 ) THEN
                         PRESSURE = 1.36312E-22  * DENS( LAYS ) * TEMP( LAYS )   ! pressure units, atm
@@ -1913,7 +1923,8 @@ C-----------------------------------------------------------------------
 
                DO IPHOT = 1, MECHANISM_RATES
                   SELECT CASE ( TRIM( PHOTOLYSIS_RATE( IPHOT ) ) )
-                     CASE ( 'CCHO_R', 'CCHO_R_SAPRC99', 'CH3CHO_RACM2', 'ALD2_R_IUPAC10' )      ! 'CH3CHO -> CH3 + HCO'
+                     CASE ( 'CCHO_R', 'CCHO_R_SAPRC99', 'CH3CHO_RACM2', 'ALD2_R_IUPAC10',
+     &                      'ALD2_R_IUPAC13' )                                             ! 'CH3CHO -> CH3 + HCO'
                         CSQY_ADJUST( IPHOT ) = ACETALDEHYDE
                      CASE ( 'CCHO_R1_MCMv32', 'CCHO_R2_MCMv32' )      ! 'CH3CHO -> CH3 + HCO'
                         CSQY_ADJUST( IPHOT ) = CH3CHO_IUPAC2013
@@ -1937,7 +1948,7 @@ C-----------------------------------------------------------------------
                         END DO
                      CASE ( 'NC3CHO_R_MCMv32', 'NC3CHO_M_MCMv32' ) ! n-C3H7CHO (n-butyraldehyde, n-butanal)
                         CSQY_ADJUST( IPHOT ) = NBUTYRALDEHYDE
-                     CASE ( 'C2CHO', 'ALD_RACM2', 'BALD_RACM2', 'UALD_RACM2', 'ALDX_R_IUPAC10'  )  ! C3 and higher aldehydes
+                     CASE ( 'C2CHO', 'ALD_RACM2', 'BALD_RACM2', 'UALD_RACM2', 'ALDX_R_IUPAC10', 'ALDX_R_IUPAC13'  )  ! C3 and higher aldehydes
                         CSQY_ADJUST( IPHOT ) = HIGHER_ALDEHYDES
                      CASE ( 'MVK_06' )
                         CSQY_ADJUST( IPHOT ) = METHYL_VINYL_KETONE
@@ -1960,7 +1971,8 @@ C-----------------------------------------------------------------------
                         CSQY_ADJUST( IPHOT ) = ACROLEIN
                      CASE (  'BIACET_MCMv32' )
                         CSQY_ADJUST( IPHOT ) = BIACETYL
-                     CASE ( 'HCHO_M_MCMv32', 'HCHOM_06', 'HCHO_M_SAPRC99', 'HCHO_MOL_RACM2', 'FORM_R_IUPAC10' )  ! 'CH2O -> H2 + CO'
+                     CASE ( 'HCHO_M_MCMv32', 'HCHOM_06', 'HCHO_M_SAPRC99', 'HCHO_MOL_RACM2', 'FORM_M_IUPAC10',
+     &                      'FORM_M_IUPAC13', 'HCHO_MOL_JPL19' )                ! 'CH2O -> H2 + CO'
                         CSQY_ADJUST( IPHOT ) = FORMALDEHYDE_MOLECULAR
                      CASE (  'ACET_06', 'ACETONE', 'CH3COCH3_RACM2', 'ACET_IUPAC10' ) ! 'CH3COCH3 -> products'
                         CSQY_ADJUST( IPHOT ) = ACETONE
@@ -1970,7 +1982,7 @@ C-----------------------------------------------------------------------
                         CSQY_ADJUST( IPHOT ) = KETONE_RACM2
                      CASE ( 'GLYH2_RACM2', 'GLYF_RACM2', 'GLYHX_RACM2', 'MGLY_RACM2'  ) ! glyoxal treatement from W. Stockwell sbox
                         CSQY_ADJUST( IPHOT ) = GLYOXAL_RACM2
-                     CASE ( 'GLYOX_R_CRI', 'GLYOX_M_CRI', 'GLY_R_IUPAC10'  ) ! glyoxal treatement based on IUPAC 2013 datasheet
+                     CASE ( 'GLYOX_R_CRI', 'GLYOX_M_CRI', 'GLY_R_IUPAC10', 'GLY_R_IUPAC13'  ) ! glyoxal treatement based on IUPAC 2013 datasheet
                         CSQY_ADJUST( IPHOT ) = GLYOXAL_IUPAC_2013
                      CASE (  'MGLY_ADJ',  'MGLY_ABS' )
                         CSQY_ADJUST( IPHOT ) = METHYL_GLYOXAL_LEGACY
@@ -2483,11 +2495,12 @@ C-----------------------------------------------------------------------
 !*** note that values are normalized by total qy at DENS = 0.0 but
 !    its values equals 1.0
 
-            IQY_DENS0 = REAL( (1.0D0 + A1*DENS0 + A2) * (1.0D0 + A3*DENS0)
-     &                / (1.0D0 + A2 + A3*DENS0 ) )
+            IQY_DENS0 = REAL( (1.0 + A2 + A3*DENS0 )
+     &                / ((1.0 + A1*DENS0 + A2)*(1.0 + A3*DENS0)) )
 
-            QY_DENS_NUMB  = REAL( (1.0D0 + A2 + A3*R8_DENS)
-     &                    / ((1.0D0 + A1*R8_DENS + A2)*(1.0D0 + A3*R8_DENS)) )
+            QY_DENS_NUMB  = REAL( (1.0 + A2 + A3*R8_DENS )
+     &                / ((1.0 + A1*R8_DENS + A2)*(1.0 + A3*R8_DENS)) )
+
 
             RQY_GLYOXAL  = QY_DENS_NUMB * IQY_DENS0
 

@@ -22,11 +22,12 @@
 MODEL = mcip.exe
 
 #...Portland Group Fortran
-#FC     = /usr/local/apps/pgi/linux86-64/17.10/bin/pgf90
-#NETCDF = /usr/local/apps/netcdf-4.6.3/pgi-17.10
-#IOAPI_ROOT = /usr/local/apps/ioapi-3.2_20181011/pgi-17.10
-###FFLAGS = -g -O0 -Ktrap=unf -Ktrap=denorm -Ktrap=inv -Ktrap=ovf -Ktrap=divz  \
-###         -Ktrap=fp -pc 32 -Mbounds -Mchkfpstk -Mchkptr -Kieee     \
+#...also need to setenv LM_LICENSE_FILE from /usr/local/apps/pgi
+#FC     = /usr/local/apps/pgi/linux86-64/19.10/bin/pgf90
+#NETCDF = /usr/local/apps/netcdf-4.7.4/pgi-19.10
+#IOAPI_ROOT = /usr/local/apps/ioapi-3.2_20200828/pgi-19.10
+###FFLAGS = -g -O0 -Ktrap=unf -Ktrap=ovf -Ktrap=divz -Ktrap=inv -Ktrap=fp  \
+###         -Ktrap=inexact -pc 32 -Mbounds -Mchkfpstk -Mchkptr -Kieee     \
 ###         -Minform,inform -Mfree -byteswapio -I$(NETCDF)/include \
 ###         -I$(IOAPI_ROOT)/Linux2_x86_64pg
 #FFLAGS = -O4 -fastsse -pc 32 -Mfree -byteswapio -I$(NETCDF)/include \
@@ -47,11 +48,11 @@ MODEL = mcip.exe
 
 #...Intel Fortran
 FC      = ifort
-NETCDF = /usr/local/apps/netcdf-4.6.3/intel-18.0
-IOAPI_ROOT = /usr/local/apps/ioapi-3.2/intel-18.0
+NETCDF = /usr/local/apps/netcdf-4.7.3/intel-19.0
+IOAPI_ROOT = /usr/local/apps/ioapi-3.2_20181011/intel-19.0
 ###FFLAGS  = -g -O0 -check all -C -traceback -FR -I$(NETCDF)/include  \
 ###          -I$(IOAPI_ROOT)/Linux2_x86_64ifort
-FFLAGS  = -FR -O3 -traceback -I$(NETCDF)/include -I$(IOAPI_ROOT)/Linux2_x86_64ifort
+FFLAGS  = -O3 -traceback -FR -I$(NETCDF)/include -I$(IOAPI_ROOT)/Linux2_x86_64ifort
 LIBS    = -L$(IOAPI_ROOT)/lib -lioapi \
           -L$(NETCDF)/lib -lnetcdff -lnetcdf
 

@@ -119,54 +119,47 @@ Ckrt Identify species index in ISAM array
         LAE_CL  = .FALSE.
         LAE_SO4 = .FALSE.
 
-        JNH3  = INDEX1( 'NH3', NSPC_SA, SPC_NAME( :,OTHRTAG ) )
-        JNH4I = INDEX1( 'ANH4I', NSPC_SA, SPC_NAME( :,OTHRTAG ) )
-        JNH4J = INDEX1( 'ANH4J', NSPC_SA, SPC_NAME( :,OTHRTAG ) )
+        JNH3  = INDEX1( 'NH3', NSPC_SA, ISAM_SPEC( :,OTHRTAG ) )
+        JNH4I = INDEX1( 'ANH4I', NSPC_SA, ISAM_SPEC( :,OTHRTAG ) )
+        JNH4J = INDEX1( 'ANH4J', NSPC_SA, ISAM_SPEC( :,OTHRTAG ) )
         IF ( JNH3 .GT. 0 .AND. JNH4I .GT. 0 .AND. JNH4J .GT. 0 ) THEN
           LAE_NH4 = .TRUE.
-          CNH3  = SPC_INDEX( JNH3, 2 )
-          CNH4I = SPC_INDEX( JNH4I,2 )
-          CNH4J = SPC_INDEX( JNH4J,2 )
+          CNH3  = MAP_SAtoCGR( JNH3 )
+          CNH4I = MAP_SAtoCGR( JNH4I )
+          CNH4J = MAP_SAtoCGR( JNH4J )
         END IF
 
-        JHNO3 = INDEX1( 'HNO3', NSPC_SA, SPC_NAME( :,OTHRTAG ) )
-        JNO3I = INDEX1( 'ANO3I', NSPC_SA, SPC_NAME( :,OTHRTAG ) )
-        JNO3J = INDEX1( 'ANO3J', NSPC_SA, SPC_NAME( :,OTHRTAG ) )
+        JHNO3 = INDEX1( 'HNO3', NSPC_SA, ISAM_SPEC( :,OTHRTAG ) )
+        JNO3I = INDEX1( 'ANO3I', NSPC_SA, ISAM_SPEC( :,OTHRTAG ) )
+        JNO3J = INDEX1( 'ANO3J', NSPC_SA, ISAM_SPEC( :,OTHRTAG ) )
         IF ( JHNO3 .GT. 0 .AND. JNO3I .GT. 0 .AND. JNO3J .GT. 0 ) THEN
           LAE_NO3 = .TRUE.
-          CHNO3 = SPC_INDEX( JHNO3,2 )
-          CNO3I = SPC_INDEX( JNO3I,2 )
-          CNO3J = SPC_INDEX( JNO3J,2 )
+          CHNO3 = MAP_SAtoCGR( JHNO3 )
+          CNO3I = MAP_SAtoCGR( JNO3I )
+          CNO3J = MAP_SAtoCGR( JNO3J )
         END IF
  
-        JHCL = INDEX1( 'HCL',  NSPC_SA, SPC_NAME( :,OTHRTAG ) )
-        JCLI = INDEX1( 'ACLI', NSPC_SA, SPC_NAME( :,OTHRTAG ) )
-        JCLJ = INDEX1( 'ACLJ', NSPC_SA, SPC_NAME( :,OTHRTAG ) )
+        JHCL = INDEX1( 'HCL',  NSPC_SA, ISAM_SPEC( :,OTHRTAG ) )
+        JCLI = INDEX1( 'ACLI', NSPC_SA, ISAM_SPEC( :,OTHRTAG ) )
+        JCLJ = INDEX1( 'ACLJ', NSPC_SA, ISAM_SPEC( :,OTHRTAG ) )
         IF ( JHCL .GT. 0 .AND. JCLI .GT. 0 .AND. JCLJ .GT. 0 ) THEN
           LAE_CL = .TRUE.
-          CHCL = SPC_INDEX( JHCL,2 )
-          CCLI = SPC_INDEX( JCLI,2 )
-          CCLJ = SPC_INDEX( JCLJ,2 )
+          CHCL = MAP_SAtoCGR( JHCL )
+          CCLI = MAP_SAtoCGR( JCLI )
+          CCLJ = MAP_SAtoCGR( JCLJ )
         END IF
  
-        JSULF = INDEX1( 'SULF', NSPC_SA, SPC_NAME( :,OTHRTAG ) )  
-        JSO4I = INDEX1( 'ASO4I', NSPC_SA, SPC_NAME( :,OTHRTAG ) )
-        JSO4J = INDEX1( 'ASO4J', NSPC_SA, SPC_NAME( :,OTHRTAG ) )
-        JSRXN = INDEX1( 'SULRXN', NSPC_SA, SPC_NAME( :,OTHRTAG ) )  
+        JSULF = INDEX1( 'SULF', NSPC_SA, ISAM_SPEC( :,OTHRTAG ) )  
+        JSO4I = INDEX1( 'ASO4I', NSPC_SA, ISAM_SPEC( :,OTHRTAG ) )
+        JSO4J = INDEX1( 'ASO4J', NSPC_SA, ISAM_SPEC( :,OTHRTAG ) )
+        JSRXN = INDEX1( 'SULRXN', NSPC_SA, ISAM_SPEC( :,OTHRTAG ) )  
         IF ( JSULF .GT. 0 .AND. JSO4I .GT. 0 .AND. JSO4J .GT. 0 
      &       .AND. JSRXN .GT. 0 ) LAE_SO4 = .TRUE.
 
         ! Map Aerosol Modes and Names to Source Apportionment Species
-        ALLOCATE( MAP_AEROtoSA( N_AEROSPC, N_MODE ), STAT = ALLOCSTAT )
-        IF ( ALLOCSTAT .NE. 0 ) THEN
-           XMSG = 'Failure allocating MAP_AEROtoSA'
-           CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-        END IF
-
-        MAP_AEROtoSA( :,: ) = 0
         DO IM = 1,N_MODE
             DO IAER = 1,N_AEROSPC
-                INDX = INDEX1( AEROSPC( IAER )%NAME( IM ), NSPC_SA, SPC_NAME( :,2 ) )
+                INDX = INDEX1( AEROSPC( IAER )%NAME( IM ), NSPC_SA, ISAM_SPEC( :,2 ) )
                 IF ( INDX .NE. 0 ) MAP_AEROtoSA( IAER,IM ) = INDX
             END DO
         END DO
@@ -254,11 +247,11 @@ c     ISAM = MAX( ISAM, MIN_VAL )
       CCOND = MAX( CGRID0 + AERO_COND, MIN_TAGTOT )
 
       IF ( LAE_SO4 ) THEN
-         SULFCOND = MAX( ( AERO_COND( :,:,:,SPC_INDEX(JSO4I,2) ) 
-     &            + AERO_COND( :,:,:,SPC_INDEX(JSO4J,2) ) 
-     &            + AERO_NPF ( :,:,:,SPC_INDEX(JSO4I,2) ) ), MIN_VAL )
-         SULFCOND_AIT = (AERO_COND( :,:,:,SPC_INDEX( JSO4I,2 ))  
-     &                + AERO_NPF( :,:,:,SPC_INDEX(JSO4I,2)) ) / SULFCOND  
+         SULFCOND = MAX( ( AERO_COND( :,:,:,MAP_SAtoCGR(JSO4I) ) 
+     &            + AERO_COND( :,:,:,MAP_SAtoCGR(JSO4J) ) 
+     &            + AERO_NPF ( :,:,:,MAP_SAtoCGR(JSO4I) ) ), MIN_VAL )
+         SULFCOND_AIT = (AERO_COND( :,:,:,MAP_SAtoCGR( JSO4I ))  
+     &                + AERO_NPF( :,:,:,MAP_SAtoCGR(JSO4I)) ) / SULFCOND  
          SULFCOND_ACC = 1.0 - SULFCOND_AIT
       END IF
 
@@ -373,7 +366,7 @@ c     &                              + TTLB4( :,:,:,JHNO3 ) * ppm2mole )
      &          + SUM( ISAM1(:,:,:,JSO4J,: ),4 ), MIN_TAGTOT*2.0 )
          DO K = 1,NTAG_SA
             FRAC( :,:,: ) = ( ISAM1( :,:,:,JSO4I,K ) + ISAM1( :,:,:,JSO4J,K ) ) / TOTSO4
-            ISAM1( :,:,:,JSULF,K ) = FRAC( :,:,: ) * CGRID( :,:,:,SPC_INDEX(JSULF,2) )
+            ISAM1( :,:,:,JSULF,K ) = FRAC( :,:,: ) * CGRID( :,:,:,MAP_SAtoCGR(JSULF) )
          END DO
       END IF
 

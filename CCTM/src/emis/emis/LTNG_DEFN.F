@@ -66,6 +66,7 @@
 !C                      the implementation of CIO.Though there is no effect when run the model over the continental
 !C                      US (Lambert projection), when run over the hemisphere and turning lightning NOx on,
 !C                       the run would crash due to uncompatible projection (polar)
+!C 6 Jan 2020 D. Kang: Correct the time steps in the lightning NOx !diagnostic files from 1:00 - 0:00 to 0:00 to 23:00
 !C----------------------------------------------------------------------
       USE RUNTIME_VARS
       USE EMIS_VARS
@@ -172,6 +173,8 @@
          ALLOCATE( EM_FILE_SURR( ILTSRM )%USED ( 1 ) )
          ALLOCATE( EM_FILE_SURR( ILTSRM )%CONV ( 1 ) )
          ALLOCATE( EM_FILE_SURR( ILTSRM )%BASIS( 1 ) )
+         ALLOCATE( EM_FILE_SURR( ILTSRM )%LAREA( 1 ) )
+         ALLOCATE( EM_FILE_SURR( ILTSRM )%LAREAADJ( 1 ) )
          
          EM_FILE_SURR( ILTSRM )%ARRY  = "NO"
          EM_FILE_SURR( ILTSRM )%UNITS = 'MOLES/S'
@@ -179,6 +182,8 @@
          EM_FILE_SURR( ILTSRM )%USED  = .FALSE.
          EM_FILE_SURR( ILTSRM )%CONV  = 1.0
          EM_FILE_SURR( ILTSRM )%BASIS = 'MOLE'
+         EM_FILE_SURR( ILTSRM )%LAREA = .FALSE.
+         EM_FILE_SURR( ILTSRM )%LAREAADJ = .FALSE.
  
 !C Read in scenario time/date
 
@@ -250,7 +255,6 @@
 !C Build description for, and open lightning diagnostic file
 !C (all but variables-table and horizontal domain in description is borrowed from MNAME)
                FTIME = STTIME
-               CALL NEXTIME( LDATE, FTIME, TSTEP )
                SDATE3D = LDATE
                STIME3D = FTIME
                TSTEP3D = TSTEP
@@ -347,7 +351,7 @@
 !C======================================================================
 !C Get NO produced from lightning in VDEMIS_LT
 
-         SUBROUTINE GET_LTNG ( JDATE, JTIME, TSTEP )
+         SUBROUTINE GET_LTNG ( JDATE, JTIME, TSTEP, L_DESID_DIAG )
 
          USE GRID_CONF             ! horizontal & vertical domain specifications
          USE UTILIO_DEFN
@@ -370,7 +374,8 @@
 
          INTEGER JDATE, JTIME, TSTEP( 3 )
          INTEGER STATUS
-
+         LOGICAL, INTENT( IN ) :: L_DESID_DIAG ! flag determining whether or not DESID
+                                               !   is in diagnostic mode              
          REAL,   PARAMETER :: CONVPA = 1.0E-2  ! convert Pa to hPa
 !        REAL,   PARAMETER :: WK = 8.0         ! shape parameter for weibull distribution
 !        REAL,   PARAMETER :: WLAMBDA = 700.0  ! scale parameter for weibull distribution
@@ -413,6 +418,7 @@
          LOGICAL,     SAVE :: wrf_assim = .FALSE.
          INTEGER,     SAVE :: TOT_TSTEP
          LOGICAL,     SAVE :: FIRSTIME = .TRUE.
+         INTEGER           :: ADJ_LDATE, ADJ_LTIME
 
 C statement function for ERF approximation
          REAL              :: ERF                ! ERF approx. statement function
@@ -590,40 +596,44 @@ C statement function for ERF approximation
             END DO   ! rows
 
 !C Determine the time to read and/or write the hourly files
-            NTICS = NTICS + 1
-            TOT_TSTEP = TOT_TSTEP + TIME2SEC( TSTEP( 2 ) )
-            LASTTIC = TOT_TSTEP .GE. LT_TSTEP
-            IF ( LASTTIC ) THEN
-               MTICS = NTICS
-               NTICS = 0
-               TOT_TSTEP = 0
-               CALL NEXTIME( LDATE, LTIME, LT_TSTEP_F)
-               R_READY = .TRUE.
+            IF ( .NOT. L_DESID_DIAG ) THEN
+              NTICS = NTICS + 1
+              TOT_TSTEP = TOT_TSTEP + TIME2SEC( TSTEP( 2 ) )
+              LASTTIC = TOT_TSTEP .GE. LT_TSTEP
+              IF ( LASTTIC ) THEN
+                 ADJ_LDATE = LDATE
+                 ADJ_LTIME = LTIME
+                 MTICS = NTICS
+                 NTICS = 0
+                 TOT_TSTEP = 0
+                 CALL NEXTIME( LDATE, LTIME, LT_TSTEP_F)
+                 R_READY = .TRUE.
+              END IF
             END IF
 
 !C Write lightning NO to the diagnostic file
-            IF ( LTNGDIAG ) THEN 
+            IF ( LTNGDIAG .AND. .NOT. L_DESID_DIAG ) THEN 
                VDEMIS_DIAG = VDEMIS_DIAG + VDEMIS_LT   ! array assignment
                COLUMN_DIAG = COLUMN_DIAG + COLUMN_LTNG_NO
                IF ( LASTTIC ) THEN   ! time to write out
                   DIVFAC = 1.0 / REAL( MTICS, 4 )
                   VDEMIS_DIAG = VDEMIS_DIAG * DIVFAC   ! array assignment
                   COLUMN_DIAG = COLUMN_DIAG*DIVFAC
-                  IF ( .NOT. WRITE3( CTM_LTNGDIAG_1, LTSPC, LDATE, LTIME, VDEMIS_DIAG ) )  THEN
+                  IF ( .NOT. WRITE3( CTM_LTNGDIAG_1, LTSPC, ADJ_LDATE, ADJ_LTIME, VDEMIS_DIAG ) )  THEN
                      XMSG = 'Could not write to ' // TRIM( CTM_LTNGDIAG_1 )
-                     CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
+                     CALL M3EXIT( PNAME, ADJ_LDATE, ADJ_LTIME, XMSG, XSTAT2 )
                   ELSE
                      WRITE( LOGDEV,94040 )
      &                    'Timestep written to', TRIM( CTM_LTNGDIAG_1 ),
-     &                    'for date and time', LDATE, LTIME
+     &                    'for date and time', ADJ_LDATE, ADJ_LTIME
                   END IF
-                  IF ( .NOT. WRITE3( CTM_LTNGDIAG_2, LTSPC, LDATE, LTIME, COLUMN_DIAG ) )  THEN
+                  IF ( .NOT. WRITE3( CTM_LTNGDIAG_2, LTSPC, ADJ_LDATE, ADJ_LTIME, COLUMN_DIAG ) )  THEN
                      XMSG = 'Could not write to ' // TRIM( CTM_LTNGDIAG_2 )
-                     CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
+                     CALL M3EXIT( PNAME, ADJ_LDATE, ADJ_LTIME, XMSG, XSTAT2 )
                   ELSE
                      WRITE( LOGDEV,94040 )
      &                    'Timestep written to', TRIM( CTM_LTNGDIAG_2 ),
-     &                    'for date and time', LDATE, LTIME
+     &                    'for date and time', ADJ_LDATE, ADJ_LTIME
                   END IF
 
                   VDEMIS_DIAG = 0.0   ! array assignment

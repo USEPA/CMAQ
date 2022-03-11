@@ -264,7 +264,8 @@ cd ioapi
 cp Makefile.nocpl Makefile
 ```
 
-5. Set the BIN environment variable to include the loaded module name
+5. Set the BIN environment variable to include the module that will be used to compile CMAQ
+This will help future users identify what compiler version is compatible with this library.
 
 ```
 setenv BIN Linux2_x86_64gfort_openmpi_4.0.1_gcc_9.1.0
@@ -276,55 +277,73 @@ setenv BIN Linux2_x86_64gfort_openmpi_4.0.1_gcc_9.1.0
 cp Makeinclude.Linux2_x86_64gfort Makeinclude.Linux2_x86_64gfort_openmpi_4.0.1_gcc_9.1.0
 ```
 
-7. Create a BIN directory where the library and m3tools executables will be installed
+7. Edit the Makeinclude.Linux2_x86_64gfort_openmpi_4.0.1_gcc_9.1.0 to comment out OMPFLAG and OMPLIBS 
+settings.  This will remove the need to link the shared memory OPENMP libraries when compiling CMAQ and WRF-CMAQ.
+
+```
+#OMPFLAGS  = -fopenmp
+#OMPLIBS   =  -fopenmp
+```
+
+8. Create a BIN directory where the library and m3tools executables will be installed
 
 ```
 mkdir ../$BIN
 ```
 
-5. Set the HOME directory to be your LIBRARY install directory
-```
-setenv HOME [your_install_path]/LIBRARIES
-```
-
-6. Run the make command to compile and link the ioapi library
+9. Link the BIN directory to a the gfort BIN directory - this step is needed for WRF-CMAQ.
 
 ```
-make |& tee make.log
+cd ../
+ln -s Linux2_x86_64gfort_openmpi_4.0.1_gcc_9.1.0 Linux2_x86_64gfort
 ```
 
-7. Change directories to the $BIN dir and verify that both the libioapi.a library was successfully built
+10. Set the HOME environment variable to be your LIBRARY install directory and run the make command to compile and link the ioapi library
+
+```
+cd ioapi
+make 'HOME=[your_install_path]/LIBRARIES' |& tee make.log
+```
+
+11. Change directories to the $BIN dir and verify that both the libioapi.a library was successfully built
 
 ```
 cd ../$BIN
 ls -lrt libioapi.a
 ```
 
-8. Change directories to the m3tools directory
+12. If you need to do a make clean, to rebuild the I/O API Library, specify the HOME directory at the command line as follows
+
+```
+cd ../ioapi
+make 'HOME=[your_install_path]/LIBRARIES' clean 
+```
+
+12. Change directories to the m3tools directory
 ```
 cd ../m3tools
 ```
 
-9. Copy the Makefile.nocpl to create a Makefile
+13. Copy the Makefile.nocpl to create a Makefile
 ```
 cp Makefile.nocpl Makefile
 ```
 
-10. Edit line 65 of the Makefile to use the NCDIR and NFDIR environment variables that you have set in the above steps to locate the netcdf C and netcdf Fortran libraries
+14. Edit line 65 of the Makefile to use the NCDIR and NFDIR environment variables that you have set in the above steps to locate the netcdf C and netcdf Fortran libraries
 
 ```
  LIBS = -L${OBJDIR} -lioapi -L${NFDIR}/lib -lnetcdff -L${NCDIR}/lib -lnetcdf $(OMPLIBS) $(ARCHLIB) $(ARCHLIBS)
  ```
 
-11. Run make to compile the m3tools
+15. Run make to compile the m3tools
 ```
 make |& tee make.log
 ```
-12. Check to see that the m3tools have been installed successfully
+16. Check to see that the m3tools have been installed successfully
 ```
 cd ../$BIN
 ls -rlt m3xtract
 ```
 
-13. After successfull completion of this tutorial, the user is now ready to proceed to the [CMAQ Installation & Benchmarking Tutorial](./CMAQ_UG_tutorial_benchmark.md)
+17. After successfull completion of this tutorial, the user is now ready to proceed to the [CMAQ Installation & Benchmarking Tutorial](./CMAQ_UG_tutorial_benchmark.md)
 

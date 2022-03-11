@@ -39,15 +39,7 @@ C......................................................................
       CHARACTER( 16 ) :: IPR_SPNAM ( MAXIPRSPC )   ! Name of mass balance species
       CHARACTER( 16 ) :: IPR_OPNAME( MAXIPRSPC,MAXTERMS )  ! Input IPR op names
 
-      CHARACTER( 16 ) :: IPRNAME_TMP( MAXIPROUT )  ! Initial IPR variable names
-      CHARACTER( 60 ) :: IPRDESC_TMP( MAXIPROUT )  ! Initial IPR variable descriptions
-
       INTEGER :: N_IPR_OPS ( MAXIPRSPC )   ! No. of input IPR operation names
       INTEGER :: IPR_SPNUM ( MAXIPRSPC )   ! Species or family-name number
-
-      INTEGER :: SAV2GRD_TMP( MXSPEC )              ! Initial spcs pointer for saved concs
-      INTEGER :: IPR2GRD_TMP( MAXIPRSPC,MAXTERMS )  ! Initial pointer to model spcs
-      INTEGER :: IPR2SAV_TMP( MAXIPRSPC,MAXTERMS )  ! Initial spcs pointer to saved concs
-      REAL    :: SPCOEF_TMP ( MAXIPRSPC,MAXTERMS )  ! Initial spcs coefficient
 
       END MODULE PA_IPRVARS

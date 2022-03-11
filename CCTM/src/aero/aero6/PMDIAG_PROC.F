@@ -1811,6 +1811,7 @@
      &           "for in the Emmissions Control Namelist."
              !CALL LOG_MESSAGE( LOGDEV, XMSG )
              !CALL M3WARN( 'MAP_PMDIAG_COEFFS', 0, 0, '' )
+             PMDIAG_COEFFS( IDG )%L_GAS( IVAR )  = .FALSE.
           END IF
       
       ELSE IF ( TSPEC .EQ. 'AGG' ) THEN 
@@ -1947,32 +1948,32 @@
           ISPEC = PMDIAG_COEFFS( IDG )%I_SPEC( IVAR )
           COEFF = PMDIAG_COEFFS( IDG )%COEFF( IVAR )
 
-          ! First check if this is a Precursor Gas
-          IF ( PMDIAG_COEFFS( IDG )%L_PREC( IVAR ) ) THEN
-              VAL = VAL + REAL( PRECURSOR_CONC( ISPEC ), 4) * COEFF
+          IF ( ISPEC .GT. 0 ) THEN
+             ! First check if this is a Precursor Gas
+             IF ( PMDIAG_COEFFS( IDG )%L_PREC( IVAR ) ) THEN
+                 VAL = VAL + REAL( PRECURSOR_CONC( ISPEC ), 4) * COEFF
           
-          ! Next check if this is a Gas from CGRID
-          ELSE IF  ( PMDIAG_COEFFS( IDG )%L_GAS( IVAR ) ) THEN
-              VAL = VAL + CONC_VEC( ISPEC ) * COEFF * AIRDENS
+             ! Next check if this is a Gas from CGRID
+             ELSE IF  ( PMDIAG_COEFFS( IDG )%L_GAS( IVAR ) ) THEN
+                 VAL = VAL + CONC_VEC( ISPEC ) * COEFF * AIRDENS
 
-          ! Next check for aggregate variable
-          ELSE IF  ( PMDIAG_COEFFS( IDG )%L_AGG( IVAR ) ) THEN
-              CALL CALC_PMDIAG( ISPEC, 1, VAL2 )
-              VAL = VAL + VAL2 * COEFF
+             ! Next check for aggregate variable
+             ELSE IF  ( PMDIAG_COEFFS( IDG )%L_AGG( IVAR ) ) THEN
+                 CALL CALC_PMDIAG( ISPEC, 1, VAL2 )
+                 VAL = VAL + VAL2 * COEFF
 
-          ! Add Aerosol Components
-          ELSE IF ( ISPEC .GT. 0 ) THEN
+             ! Add Aerosol Components
+             ELSE
+                 DO IM = 1,N_MODE
+                    ! If this mode is supposed to be added (LMODE) and the
+                    ! species is not missing, then add it up
+                    LMODE = PMDIAG_COEFFS( IDG )%L_MODE( IM )
+                    IF ( LMODE .AND. ( .NOT. AERO_MISSING( ISPEC,IM ) ) ) 
+     &                  VAL = VAL + AEROSPC_CONC( ISPEC, IM ) * COEFF * FRAC( IM )
 
-              DO IM = 1,N_MODE
-                 ! If this mode is supposed to be added (LMODE) and the
-                 ! species is not missing, then add it up
-                 LMODE = PMDIAG_COEFFS( IDG )%L_MODE( IM )
-                 IF ( LMODE .AND. ( .NOT. AERO_MISSING( ISPEC,IM ) ) ) 
-     &               VAL = VAL + AEROSPC_CONC( ISPEC, IM ) * COEFF * FRAC( IM )
-
-              END DO
+                 END DO
+             END IF
           END IF
-
       END DO 
 
       END SUBROUTINE CALC_PMDIAG_AGG
@@ -1990,9 +1991,13 @@
      &                     AH2O_IDX, AORGH2O_IDX, AEROSPC, CALC_AERODIST_PARAMS,
      &                     AEROMODE, DRY_AERO_DENS, APOC_IDX, APNCOM_IDX
       USE AEROMET_DATA, ONLY: AIRRH, PI, AIRTEMP, SRFTEMP, AIRPRES
-      USE SOA_DEFN, ONLY : N_OA, OASPC, MAP_OAtoAERO
+      USE CGRID_SPCS, ONLY : RHOJ_LOC
+      USE SOA_DEFN, ONLY : N_OA, N_OA_NotTracers, OASPC, MAP_OAtoAERO
       USE PHOT_MOD, ONLY : ELMO_AOD_550, ELMO_EXT_550
       USE RUNTIME_VARS, ONLY : PHOTDIAG
+      USE ASX_DATA_MOD, ONLY : MET_DATA
+
+      IMPLICIT NONE
 
       INTEGER, INTENT( IN ) :: IDG, IM
       REAL, INTENT( INOUT ) :: OUTVAL
@@ -2108,67 +2113,79 @@
          ! Retrieve Ultrafine Particle Mass
          CASE ( ID_PMU_MASS )
             DO IMODE = 1,N_MODE
-               IF ( AEROMODE( IMODE )%ULTRAFINE_MASK )
-     &              OUTVAL = OUTVAL +
+               IF ( AEROMODE( IMODE )%ULTRAFINE_MASK ) THEN
+                    OUTVAL = OUTVAL +
      &                 SUM( AEROSPC_CONC( :,IMODE ),
      &                      MASK=.NOT.AEROSPC(:)%TRACER ) ! ug m-3
      &                  - AEROSPC_CONC( AH2O_IDX,IMODE )
+                    IF ( AORGH2O_IDX .GT. 0 ) OUTVAL = OUTVAL
      &                  - AEROSPC_CONC( AORGH2O_IDX,IMODE ) ! ug m-3
+               END IF
             END DO
 
          ! Retrieve Fine Particle Mass
          CASE ( ID_PMF_MASS )
             DO IMODE = 1,N_MODE
-               IF ( AEROMODE( IMODE )%FINE_MASK )
-     &              OUTVAL = OUTVAL +
+               IF ( AEROMODE( IMODE )%FINE_MASK ) THEN
+                    OUTVAL = OUTVAL +
      &                 SUM( AEROSPC_CONC( :,IMODE ),
      &                      MASK=.NOT.AEROSPC(:)%TRACER )
      &                  - AEROSPC_CONC( AH2O_IDX,IMODE )
+                    IF ( AORGH2O_IDX .GT. 0 ) OUTVAL = OUTVAL
      &                  - AEROSPC_CONC( AORGH2O_IDX,IMODE ) ! ug m-3
+               END IF
             END DO
 
          ! Retrieve Coarse Particle Mass
          CASE ( ID_PMC_MASS )
             DO IMODE = 1,N_MODE
-               IF ( AEROMODE( IMODE )%COARSE_MASK )
-     &              OUTVAL = OUTVAL +
+               IF ( AEROMODE( IMODE )%COARSE_MASK ) THEN
+                    OUTVAL = OUTVAL +
      &                 SUM( AEROSPC_CONC( :,IMODE ),
      &                      MASK=.NOT.AEROSPC(:)%TRACER ) ! ug m-3
      &                  - AEROSPC_CONC( AH2O_IDX,IMODE )
+                    IF ( AORGH2O_IDX .GT. 0 ) OUTVAL = OUTVAL
      &                  - AEROSPC_CONC( AORGH2O_IDX,IMODE ) ! ug m-3
+               END IF
             END DO
 
          ! Retrieve Nucleation-Mode Particle Mass
          CASE ( ID_PMNUC_MASS )
             DO IMODE = 1,N_MODE
-               IF ( AEROMODE( IMODE )%NUC_MASK )
-     &              OUTVAL = OUTVAL +
+               IF ( AEROMODE( IMODE )%NUC_MASK ) THEN
+                    OUTVAL = OUTVAL +
      &                 SUM( AEROSPC_CONC( :,IMODE ),
      &                      MASK=.NOT.AEROSPC(:)%TRACER ) ! ug m-3
      &                  - AEROSPC_CONC( AH2O_IDX,IMODE )
+                    IF ( AORGH2O_IDX .GT. 0 ) OUTVAL = OUTVAL
      &                  - AEROSPC_CONC( AORGH2O_IDX,IMODE ) ! ug m-3
+               END IF
             END DO
 
          ! Retrieve Aitken-Mode Particle Mass
          CASE ( ID_PMAIT_MASS )
             DO IMODE = 1,N_MODE
-               IF ( AEROMODE( IMODE )%AITKEN_MASK )
-     &              OUTVAL = OUTVAL +
+               IF ( AEROMODE( IMODE )%AITKEN_MASK ) THEN
+                    OUTVAL = OUTVAL +
      &                 SUM( AEROSPC_CONC( :,IMODE ),
      &                      MASK=.NOT.AEROSPC(:)%TRACER ) ! ug m-3
      &                  - AEROSPC_CONC( AH2O_IDX,IMODE )
+                    IF ( AORGH2O_IDX .GT. 0 ) OUTVAL = OUTVAL
      &                  - AEROSPC_CONC( AORGH2O_IDX,IMODE ) ! ug m-3
+               END IF
             END DO
 
          ! Retrieve Accumution-Mode Particle Mass
          CASE ( ID_PMACC_MASS )
             DO IMODE = 1,N_MODE
-               IF ( AEROMODE( IMODE )%ACCUM_MASK )
-     &              OUTVAL = OUTVAL +
+               IF ( AEROMODE( IMODE )%ACCUM_MASK ) THEN
+                    OUTVAL = OUTVAL +
      &                 SUM( AEROSPC_CONC( :,IMODE ),
      &                      MASK=.NOT.AEROSPC(:)%TRACER ) ! ug m-3
      &                  - AEROSPC_CONC( AH2O_IDX,IMODE )
+                    IF ( AORGH2O_IDX .GT. 0 ) OUTVAL = OUTVAL
      &                  - AEROSPC_CONC( AORGH2O_IDX,IMODE ) ! ug m-3
+               END IF
             END DO
 
          ! Retrieve Dry Mode Density [kg m-3]
@@ -2253,8 +2270,10 @@
                END IF
                PMAMS = PMAMS +  ( SUM( AEROSPC_CONC( :,IMODE ),
      &                                 MASK = .NOT.AEROSPC(:)%TRACER ) 
-     &                  - AEROSPC_CONC( AH2O_IDX,IMODE )
-     &                  - AEROSPC_CONC( AORGH2O_IDX,IMODE ) ) ! ug m-3
+     &                  - AEROSPC_CONC( AH2O_IDX,IMODE ) )
+     &                  * INLET_FRAC( IPMAMS,IMODE,IWET ) 
+               IF ( AORGH2O_IDX .GT. 0 ) PMAMS = PMAMS
+     &                  - AEROSPC_CONC( AORGH2O_IDX,IMODE ) ! ug m-3
      &                  * INLET_FRAC( IPMAMS,IMODE,IWET ) 
             END DO
             OUTVAL = PMAMS
@@ -2286,7 +2305,7 @@
             ! Sum up primary organic aerosol species normalized to
             ! just carbon mass
             VAL = 0.0
-            DO IOA = 1,N_OA
+            DO IOA = 1,N_OA_NotTracers
                 ! Just Select Primary Species
                 IF ( OASPC( IOA )%PRIMARY ) THEN  
                    IF ( OASPC( IOA )%OMtoOC .gt. 0.0 ) 
@@ -2302,7 +2321,7 @@
             ! Sum up primary organic aerosol species normalized to
             ! just carbon mass
             VAL = 0.0
-            DO IOA = 1,N_OA
+            DO IOA = 1,N_OA_NotTracers
                 ! Just Select Secondary Species
                 IF ( .NOT. OASPC( IOA )%PRIMARY ) THEN  
                       VAL = VAL + SUM( AEROSPC_CONC( MAP_OAtoAERO(IOA),: ),
@@ -2317,7 +2336,7 @@
             ! Sum up primary organic aerosol species normalized to
             ! just carbon mass
             VAL = 0.0
-            DO IOA = 1,N_OA
+            DO IOA = 1,N_OA_NotTracers
                VAL = VAL + SUM( AEROSPC_CONC( MAP_OAtoAERO(IOA),: ),
      &                     MASK = AEROMODE(:)%FINE_MASK ) 
      &                   / OASPC( IOA )%OMtoOC
@@ -2328,7 +2347,7 @@
          CASE ( ID_PMF_POA )
             ! Sum up primary organic aerosol species 
             VAL = 0.0
-            DO IOA = 1,N_OA
+            DO IOA = 1,N_OA_NotTracers
                 ! Just Select Primary Species
                 IF ( OASPC( IOA )%PRIMARY ) 
      &             VAL = VAL + SUM( AEROSPC_CONC( MAP_OAtoAERO(IOA),: ),
@@ -2340,7 +2359,7 @@
          CASE ( ID_PMF_SOA )
             ! Sum up primary organic aerosol species 
             VAL = 0.0
-            DO IOA = 1,N_OA
+            DO IOA = 1,N_OA_NotTracers
                 ! Just Select Secondary Species
                 IF ( .NOT.OASPC( IOA )%PRIMARY ) 
      &             VAL = VAL + SUM( AEROSPC_CONC( MAP_OAtoAERO(IOA),: ),
@@ -2352,17 +2371,17 @@
          CASE ( ID_PMF_OA )
             ! Sum up primary organic aerosol species 
             VAL = 0.0
-            DO IOA = 1,N_OA
+            DO IOA = 1,N_OA_NotTracers
                 VAL = VAL + SUM( AEROSPC_CONC( MAP_OAtoAERO(IOA),: ),
      &                      MASK = AEROMODE(:)%FINE_MASK ) 
             END DO
-            OUTVAL = VAL
+            OUTVAL = VAL    
          
          ! Calculate PMF_ASOA - Fine-Mode Anthropogenic OA Mass
          CASE ( ID_PMF_ASOA )
             ! Sum up anthropogenic oa species 
             VAL = 0.0
-            DO IOA = 1,N_OA
+            DO IOA = 1,N_OA_NotTracers
                 ! Just Select Anthropogenic Species
                 IF ( .NOT.OASPC( IOA )%PRIMARY .AND. OASPC( IOA )%ANTHRO  ) 
      &             VAL = VAL + SUM( AEROSPC_CONC( MAP_OAtoAERO(IOA),: ),
@@ -2374,7 +2393,7 @@
          CASE ( ID_PMF_BSOA )
             ! Sum up biogenic soa species 
             VAL = 0.0
-            DO IOA = 1,N_OA
+            DO IOA = 1,N_OA_NotTracers 
                 ! Just Select Biogenic Secondary Species
                 IF ( .NOT.OASPC( IOA )%PRIMARY .AND. OASPC( IOA )%BIOG  ) 
      &             VAL = VAL + SUM( AEROSPC_CONC( MAP_OAtoAERO(IOA),: ),
@@ -2395,7 +2414,7 @@
             CALL CALC_PMDIAG( ID_PMF_OA, 1, VAL  )
 
             VAL2 = 0.0
-            DO IOA = 1,N_OA
+            DO IOA = 1,N_OA_NotTracers
                IF ( MAP_OAtoAERO(IOA) .NE. APOC_IDX .AND.
      &              MAP_OAtoAERO(IOA) .NE. APNCOM_IDX ) THEN
                   ! Weight OA Sum by O:C
@@ -2420,7 +2439,7 @@
             ! Sum up primary organic aerosol species normalized to
             ! just carbon mass
             VAL = 0.0
-            DO IOA = 1,N_OA
+            DO IOA = 1,N_OA_NotTracers
                IF ( OASPC( IOA )%OMtoOC .GE. 0.0 ) 
      &              VAL = VAL + SUM( AEROSPC_CONC( MAP_OAtoAERO(IOA),: ) * FRAC(:))
      &                         / OASPC( IOA )%OMtoOC
@@ -2435,7 +2454,7 @@
             END DO
             ! Sum up primary organic aerosol species
             VAL = 0.0
-            DO IOA = 1,N_OA
+            DO IOA = 1,N_OA_NotTracers
                VAL = VAL + SUM( AEROSPC_CONC( MAP_OAtoAERO(IOA),: ) * FRAC(:))
             END DO
             OUTVAL = VAL  
@@ -2449,7 +2468,7 @@
             ! Sum up primary organic aerosol species normalized to
             ! just carbon mass
             VAL = 0.0
-            DO IOA = 1,N_OA
+            DO IOA = 1,N_OA_NotTracers
                IF ( OASPC( IOA )%OMtoOC .GE. 0.0 ) 
      &              VAL = VAL + SUM( AEROSPC_CONC( MAP_OAtoAERO(IOA),: ) * FRAC(:) )
      &                        / OASPC( IOA )%OMtoOC
@@ -2464,7 +2483,7 @@
             END DO
             ! Sum up primary organic aerosol species
             VAL = 0.0
-            DO IOA = 1,N_OA
+            DO IOA = 1,N_OA_NotTracers
                VAL = VAL + SUM( AEROSPC_CONC( MAP_OAtoAERO(IOA),: ) * FRAC(:) )
             END DO
             OUTVAL = VAL  
@@ -2501,7 +2520,7 @@
                   INLET_FRAC( IPMAMS,IMODE,IWET ) = FRAC(IMODE)
                END IF
  
-               DO IOA = 1,N_OA
+               DO IOA = 1,N_OA_NotTracers
                   IF ( MAP_OAtoAERO(IOA) .NE. APOC_IDX .AND.
      &                 MAP_OAtoAERO(IOA) .NE. APNCOM_IDX ) THEN
                      ! Weight OA Sum by O:C
@@ -2629,6 +2648,14 @@
          ! Retrieve Air Pressure
          CASE ( ID_PRES )
             OUTVAL = AIRPRES
+
+         ! Retrieve Air Density x Jacobian/MSFX2
+         CASE ( ID_RHOJ )
+            OUTVAL = CONC_VEC( RHOJ_LOC ) ! kg m-3
+
+         ! Retrieve Air Density
+         CASE ( ID_DENS )
+            OUTVAL = MET_DATA%DENS( C1,R1,L1 ) ! kg m-3
 
          CASE DEFAULT
             ! For most parameters the PMDIAG_COEFF structure will
