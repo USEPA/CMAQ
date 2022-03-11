@@ -29,14 +29,14 @@ GC_SPECIES_DATA =
 'HKET'          , 74.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,'HYDROXY-ACETONE' , 1  ,''             ,''        ,'Yes' ,''    ,'Yes' ,'Yes',!Hydroxy acetone,L,DTXSID8051590,CC(=O)CO
 'MACR'          , 70.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,'METHACROLEIN'    , 1  ,''             ,''        ,'Yes' ,''    ,'Yes' ,'Yes',!Methacrolein,L,DTXSID0052540,CC(=C)C=O
 'MACP'          ,101.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,''             ,''        ,''    ,''    ,''    ,'Yes',!(2-methylprop-2-enoyl)peroxy,L,NA,CC(=C)C(=O)O[O]
-'XO2'           ,  1.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,''             ,''        ,''    ,''    ,''    ,'Yes',
+'XO2'           ,  1.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,''             ,''        ,''    ,''    ,''    ,'Yes',!NA,NA,NA,NA
 'MVK'           , 70.1   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,'MVK'             , 1  ,''             ,''        ,'Yes' ,''    ,'Yes' ,'Yes',!Methyl vinyl ketone,E,DTXSID3025671,CC(=O)C=C
 'GLY'           , 58.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,'GLYOXAL'         , 1  ,''             ,'GLY'     ,'Yes' ,''    ,'Yes' ,'Yes',!Glyoxal,L,DTXSID5025364,O=CC=O
 'MGLY'          , 72.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,'METHYL_GLYOXAL'  , 1  ,''             ,'MGLY'    ,'Yes' ,''    ,'Yes' ,'Yes',!Methyl glyoxal,L,DTXSID0021628,CC(=O)C=O
-'DCB1'          , 91.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,'METHACROLEIN'    , 1  ,''             ,''        ,'Yes' ,''    ,''    ,'Yes',
-'DCB2'          ,110.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,'METHACROLEIN'    , 1  ,''             ,''        ,'Yes' ,''    ,''    ,'Yes',
+'DCB1'          , 98.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,'METHACROLEIN'    , 1  ,''             ,''        ,'Yes' ,''    ,''    ,'Yes',!2-methylbut-2-enedial,L,NA,O=CC=C(C)C=O
+'DCB2'          ,112.1   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,'METHACROLEIN'    , 1  ,''             ,''        ,'Yes' ,''    ,''    ,'Yes',!2-methyl-4-oxopent-2-enalL,NA,O=CC(=CC(=O)C)C
 'BALD'          ,106.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,'BENZALDEHYDE'    , 1  ,''             ,''        ,'Yes' ,''    ,'Yes' ,'Yes',!Benzaldehyde,L,DTXSID8039241,O=CC1=CC=CC=C1
-'CHO'           ,139.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,''             ,''        ,''    ,''    ,''    ,'Yes',
+'CHO'           ,139.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,''             ,''        ,''    ,''    ,''    ,'Yes',!4-hydroxy-3,5-dimethylcyclohexa-2,5-dien-1-yloxidanyl,L,NA,[O]C1C=C(C)C(O)C(=C1)C
 'OP1'           , 48.0   ,''     ,-1     ,''     ,-1     ,'VD_OP'           , 1   ,'METHYLHYDROPEROX', 1  ,''             ,'MHP'     ,'Yes' ,'Yes' ,'Yes' ,'Yes',!Methyl hydroperoxide,E,DTXSID10184401,COO
 'OP2'           , 62.0   ,''     ,-1     ,''     ,-1     ,'VD_OP'           , 1   ,'METHYLHYDROPEROX', 1  ,''             ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',!Ethyl hydroperoxide,L,DTXSID70184402,CCOO
 'OPB'           ,186.2   ,''     ,-1     ,''     ,-1     ,'VD_OP'           , 1   ,'METHYLHYDROPEROX', 1  ,''             ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',!2-hydroperoxy-2;6;6-trimethylbicyclo[3.1.1]heptan-3-ol,L,NA,OOC1(C)C(O)CC2CC1C2(C)C
@@ -50,18 +50,18 @@ GC_SPECIES_DATA =
 'SULRXN'        , 98.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,'SULPRD'       ,''        ,''    ,''    ,''    ,''   ,!NA,NA,NA,NA
 'ETH'           , 30.1   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,'ETHANE'          , 1  ,''             ,''        ,'Yes' ,''    ,'Yes' ,'Yes',!Ethane,E,DTXSID6026377,CC
 'HC3'           , 44.1   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,'HC3OPERA'        , 1  ,''             ,''        ,'Yes' ,''    ,'Yes' ,'Yes',!Propane,L,DTXSID5026386,CCC
-'HC3P'          , 75.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,''             ,''        ,''    ,''    ,''    ,'Yes',
+'HC3P'          , 75.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,''             ,''        ,''    ,''    ,''    ,'Yes',!Isopropyl peroxy,L,NA,CC(C)O[O]
 'HC5'           , 72.9   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,'HC5OPERA'        , 1  ,''             ,''        ,'Yes' ,''    ,'Yes' ,'Yes',!Pentane,L,DTXSID2025846,CCCCC
-'HC5P'          ,103.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,''             ,''        ,''    ,''    ,''    ,'Yes',
+'HC5P'          ,103.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,''             ,''        ,''    ,''    ,''    ,'Yes',!Pentan-3-ylperoxy,L,NA,CCC(O[O])CC
 'HC10'          ,142.28  ,''     ,-1     ,''     ,-1     ,''                ,-1   ,'HC10OPERA'       , 1  ,''             ,''        ,'Yes' ,''    ,'Yes' ,'Yes',!Decane,L,DTXSID6024913,CCCCCCCCCC
 'HC10P'         ,173.27  ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,''             ,''        ,''    ,''    ,''    ,'Yes',!Decan-3-ylperoxy,L,NA,CCCCCCCC(CC)O[O]
 'HC10P2'        ,189.27  ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,''             ,''        ,''    ,''    ,''    ,'Yes',!(8-hydroxydecan-5-yl)peroxy,L,NA,CCCCC(O[O])CCC(O)CC
 'ETE'           , 28.1   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,'ETHENE'          , 1  ,''             ,''        ,'Yes' ,''    ,'Yes' ,'Yes',!Ethylene,E,DTXSID1026378,C=C
 'ETEP'          , 77.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,''             ,''        ,''    ,''    ,''    ,'Yes',!(2-hydroxyethyl)peroxy,E,NA,OCCO[O]
 'OLT'           , 42.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,'OLTOPERA'        , 1  ,''             ,''        ,'Yes' ,''    ,'Yes' ,'Yes',!1-Propene,L,DTXSID5021205,CC=C
-'OLTP'          , 91.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,''             ,''        ,''    ,''    ,''    ,'Yes',
+'OLTP'          , 91.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,''             ,''        ,''    ,''    ,''    ,'Yes',!(1-hydroxypropan-2-yl)peroxy,L,NA,CC(CO)O[O]
 'OLI'           , 70.1   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,'OLIOPERA'        , 1  ,''             ,''        ,'Yes' ,''    ,'Yes' ,'Yes',!2-Methyl-2-butene,L,DTXSID8027165,CC=C(C)C
-'OLIP'          ,117.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,''             ,''        ,''    ,''    ,''    ,'Yes',
+'OLIP'          ,119.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,''             ,''        ,''    ,''    ,''    ,'Yes',!(3-hydroxy-2-methylbutan-2-yl)peroxy,L,NA,[O]OC(C)(C)C(C)O
 'ACE'           , 26.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,'ACETYLENE'       , 1  ,''             ,''        ,'Yes' ,''    ,'Yes' ,'Yes',!Acetylene,E,DTXSID6026379,C#C
 'ORA1'          , 46.0   ,''     ,-1     ,''     ,-1     ,'VD_ORA'          , 1   ,'ORA1OPERA'       , 1  ,''             ,'FOA'     ,'Yes' ,'Yes' ,'Yes' ,'Yes',!Formic acid,E,DTXSID2024115,OC=O
 'BEN'           , 78.11  ,''     ,-1     ,''     ,-1     ,''                ,-1   ,'BENOPERA'        , 1  ,''             ,''        ,'Yes' ,''    ,'Yes' ,'Yes',!Benzene,E,DTXSID3039242,C1=CC=CC=C1
@@ -75,7 +75,7 @@ GC_SPECIES_DATA =
 'XYMP'          ,187.17  ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,''             ,''        ,''    ,''    ,''    ,'Yes',!{8-hydroxy-1;5-dimethyl-6;7-dioxabicyclo[3.2.1]oct-3-en-2-yl}peroxy,L,NA,[O]OC1C=CC2(C)OOC1(C)C2O
 'XYEP'          ,187.17  ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,''             ,''        ,''    ,''    ,''    ,'Yes',!{5-ethyl-8-hydroxy-6;7-dioxabicyclo[3.2.1]oct-3-en-2-yl}peroxy,L,NA,[O]OC1C=CC2(CC)OOC1C2O
 'ISO'           , 68.1   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,'ISOOPERA'        , 1  ,''             ,''        ,'Yes' ,''    ,'Yes' ,'Yes',!Isoprene,E,DTXSID2020761,CC(=C)C=C
-'ISOP'          ,117.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,''             ,''        ,''    ,''    ,''    ,'Yes',
+'ISOP'          ,117.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,''             ,''        ,''    ,''    ,''    ,'Yes',!(1-hydroxy-3-methylbut-3-en-2-yl)peroxy,L,E,OCC(O[O])C(C)=C
 'API'           ,136.4   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,'APIOPERA'        , 1  ,''             ,''        ,'Yes' ,''    ,'Yes' ,'Yes',!alpha-pinene,L,DTXSID4026501,CC1=CCC2CC1C2(C)C
 'APIP1'         ,185.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,''             ,''        ,''    ,''    ,''    ,'Yes',!{3-hydroxy-2;6;6-trimethylbicyclo[3.1.1]heptan-2-yl}peroxy,L,NA,[O]OC1(C)C(O)CC2CC1C2(C)C
 'APIP2'         ,185.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,''             ,''        ,''    ,''    ,''    ,'Yes',!{3-hydroxy-2;6;6-trimethylbicyclo[3.1.1]heptan-2-yl}peroxy,L,NA,[O]OC1(C)C(O)CC2CC1C2(C)C
@@ -92,14 +92,14 @@ GC_SPECIES_DATA =
 'LIMALP'        ,217.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,''             ,''        ,''    ,''    ,''    ,'Yes',![1-hydroxy-2-methyl-5-oxo-3-(3-oxobutyl)pentan-2-yl]peroxy,L,NA,O=CCC(CCC(=O)C)C(C)(CO)O[O]
 'HOM'           ,250.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,'HOM'          ,''        ,''    ,''    ,''    ,'Yes',!6;7-dihydroperoxy-3;3;6-trimethyl-tetrahydro-3aH-1;2-benzodioxol-5-ol,L,NA,OC1CC2C(OOC2(C)C)C(OO)C1(C)OO
 'ELHOM'         ,402.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,'ELHOM'        ,''        ,''    ,''    ,''    ,'Yes',!6-hydroperoxy-7-({3-hydroxy-2;6;6-trimethylbicyclo[3.1.1]heptan-2-yl}peroxy)-3;3;6-trimethyl-tetrahydro-3aH-1;2-benzodioxol-5-ol,L,NA,OC1CC2C(OOC2(C)C)C(OOC3(C)C4C(C)(C)C(C4)CC3O)C1(C)OO
-'RCO3'          , 90.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,''             ,''        ,''    ,''    ,''    ,'Yes',
+'RCO3'          , 89.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,''             ,''        ,''    ,''    ,''    ,'Yes',!Propanoylperoxy,L,NA,CCC(=O)O[O]
 'ACTP'          , 89.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,''             ,''        ,''    ,''    ,''    ,'Yes',!(2-oxopropyl)peroxy,E,NA,CC(=O)CO[O]
 'MEKP'          ,103.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,''             ,''        ,''    ,''    ,''    ,'Yes',!(3-oxobutyl)peroxy,L,NA,[O]OCCC(=O)C
-'KETP'          ,117.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,''             ,''        ,''    ,''    ,''    ,'Yes',
+'KETP'          ,117.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,''             ,''        ,''    ,''    ,''    ,'Yes',!(3-oxopentan-2-yl)peroxy,L,NA,CCC(C(C)O[O])=O
 'MCP'           ,119.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,''             ,''        ,''    ,''    ,''    ,'Yes',!(1-hydroxy-2-methyl-3-oxopropan-2-yl)peroxy,L,NA,OCC(C)(O[O])C=O
 'MVKP'          ,119.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,''             ,''        ,''    ,''    ,''    ,'Yes',!(2-hydroxy-3-oxobutyl)peroxy,L,NA,CC(=O)C(O)CO[O]
 'UALP'          ,133.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,''             ,''        ,''    ,''    ,''    ,'Yes',!(3-hydroxy-3-methyl-4-oxobutan-2-yl)peroxy,L,NA,CC(O[O])C(C)(O)C=O
-'DCB3'          , 84.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,'METHACROLEIN'    , 1  ,''             ,''        ,'Yes' ,''    ,''    ,'Yes',!2-oxo-3-butenal,L,DTXSID30168748,C=CC(C=O)=O
+'DCB3'          , 84.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,'METHACROLEIN'    , 1  ,''             ,''        ,'Yes' ,''    ,''    ,'Yes',!but-2-enedial,L,NA,O=CC=CC=O
 'BALP'          ,137.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,''             ,''        ,''    ,''    ,''    ,'Yes',!benzoylperoxy,L,NA,O=C(O[O])C1=CC=CC=C1
 'ADDC'          ,125.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,''             ,''        ,''    ,''    ,''    ,'Yes',!3-methyl-5-oxocyclohex-3-en-1-yloxidanyl,L,NA,CC1=CC(O)=CC([O])C1
 'MCT'           ,124.1   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,'MCTOPERA'        , 1  ,''             ,''        ,'Yes' ,''    ,''    ,'Yes',!4-Methylcatechol,L,DTXSID5020861,CC1=CC(O)=C(O)C=C1
