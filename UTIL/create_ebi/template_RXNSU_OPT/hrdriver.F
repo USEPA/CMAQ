@@ -265,11 +265,7 @@ C Define processor offsets
          ALLOCATE( LAND_ZONE( NCOLS, NROWS ) )
          DO R = 1, NROWS
             DO C = 1, NCOLS
-               IF( OCEAN( C,R ) + SZONE( C,R ) .GT. 0.0 )THEN
-                   LAND_ZONE( C,R ) = .FALSE.
-               ELSE
-                   LAND_ZONE( C,R ) = .TRUE.
-               END IF
+               LAND_ZONE( C,R ) =  OCEAN( C,R ) + SZONE( C,R )
              END DO
          END DO
 
@@ -417,12 +413,7 @@ c..Set physical quantities
 !                PRESCELL( NCELL ) = REAL( PRES( C,R,L ), 8)
                ATMPRES( NCELL )  = PA2ATM * REAL( PRES( C,R,L ), 8)
                H2O( NCELL )      = REAL( MAX ( MAOMV * QV( C,R,L ), 0.0 ), 8)
-
-               IF( LAND_ZONE( C,R ) .OR. SEAICE ( C,R ) .GT. 0.0 )THEN
-                   LAND (NCELL) = .TRUE.
-               ELSE
-                   LAND (NCELL) = .FALSE.
-               END IF
+               LAND (NCELL)      = DMAX1 ( 0.0D0, ( REAL( LAND_ZONE( C,R ) - SEAICE (C,R) ,8) ) )
 
 c..Get rate constants
                LSUNLIGHT = .FALSE.

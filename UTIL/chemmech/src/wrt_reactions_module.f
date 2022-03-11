@@ -679,7 +679,7 @@ C Error-check phot tables and report to log
          END DO
 	 IF( HALOGEN_PARAMETER )THEN
 !	     WRITE(MODULE_UNIT,'(2/ 16X, A)')'IF( .NOT. PRESENT( LAND ) )CYCLE'
-	     WRITE(MODULE_UNIT,'(2/ 16X, A)')'IF( .NOT. LAND( NCELL ) )THEN'
+	     WRITE(MODULE_UNIT,'(2/ 16X, A)') 'IF ( LAND (NCELL) .GT. 0.001D0 ) THEN'	                     
              DO NXX = 1, NR
 	        IF( KTYPE( NXX ) .NE. 12 )CYCLE
 	        WRITE(MODULE_UNIT, 5118, ADVANCE= 'NO') LABEL(NXX,1), NXX
@@ -690,13 +690,22 @@ C Error-check phot tables and report to log
                 WRITE( MODULE_UNIT, 5120 )RTDAT(1, NXX ),RFDAT(1, IDX),RTDAT(2, NXX ),RFDAT(2, IDX),
      &          RTDAT(3, NXX )  ! ,PHOTAB(HAL_PHOTAB(NXX))
              END DO
-	     WRITE(MODULE_UNIT,'(16X, A)')'END IF'
+       WRITE(MODULE_UNIT,'(16X, A)')'ELSE'
+       
+             DO NXX = 1, NR
+	             IF( KTYPE( NXX ) .NE. 12 )CYCLE  
+               WRITE(MODULE_UNIT,5121) NXX                 
+             END DO
+ 
+	     WRITE(MODULE_UNIT,'(16X, A)')'END IF'	     
 	 END IF
          WRITE(MODULE_UNIT,99881)
       END IF
 
 5117  FORMAT(/    '!  Reaction Label ', A / 16X, 'RKI( NCELL, ', I4, ') = ')
-5118  FORMAT(     '!  Reaction Label ', A / 19X, 'RKI( NCELL, ', I4, ') = ')
+5118  FORMAT(     '!  Reaction Label ', A / 19X, 'RKI( NCELL, ', I4, ') = LAND (NCELL) * ')
+5121  FORMAT( 19X, 'RKI( NCELL, ', I4, ') = 0.0D0 ' )
+
       WRITE(MODULE_UNIT,99882)
       IF( LINES_CAPTURED .GT. 0 )WRITE(MODULE_UNIT,99884)
       IF( ( KTN5 + KTN6 ) .GT. 0 )WRITE(MODULE_UNIT,99883)
@@ -1513,9 +1522,8 @@ C Error-check phot tables and report to log
      & '        REAL( 8 ),           INTENT( IN  ) :: BLKHET ( :, : )   ! heterogeneous rate constants, ???/min'/
      & '        INTEGER,             INTENT( IN  ) :: NUMCELLS          ! Number of cells in block ' /
      & '        LOGICAL,             INTENT( IN  ) :: LSUNLIGHT         ! Is there sunlight? ' /
-     & '        LOGICAL,             INTENT( IN  ) :: LAND( : )         ! Is the surface totally land? ' /
+     & '        REAL( 8 ),           INTENT( IN  ) :: LAND( : )         ! fractional area of OPEN+SURF ' /
      & '        REAL( 8 ),           INTENT( OUT ) :: RKI ( :, : )      ! reaction rate constant, ppm/min '/
-!     & '        LOGICAL,   OPTIONAL, INTENT( IN  ) :: LAND( : )         ! Is the surface totally land? ' /
      & '!..Parameters: ' //
      & '        REAL( 8 ), PARAMETER :: COEF1  = 7.33981D+15     ! Molec/cc to ppm conv factor ' /
      & '        REAL( 8 ), PARAMETER :: CONSTC = 0.6D+0          ! Constant for reaction type 7' /

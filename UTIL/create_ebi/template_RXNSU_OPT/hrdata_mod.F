@@ -98,7 +98,7 @@ R3      REAL( 8 ), ALLOCATABLE ::  PNEG( : )   ! Negative production rates
       REAL, ALLOCATABLE      :: SEAICE ( :, :)            ! fractional seaice cover, [-]
       REAL, ALLOCATABLE      :: DENS( :, :, : )           ! mass density (Kg/m^3)
 
-      LOGICAL, ALLOCATABLE   :: LAND_ZONE   ( :,: )       ! Is the surface totally land?
+      REAL, ALLOCATABLE      :: LAND_ZONE   ( :,: )       ! fractional area of OPEN+SURF
       LOGICAL, ALLOCATABLE   :: LFLAGIRR    ( :,:,: )     ! Conduct IRR for cell
 
       REAL( 8 ), ALLOCATABLE ::  ATMPRES ( : )     ! Cell pressure, Atm
@@ -108,5 +108,5 @@ R3      REAL( 8 ), ALLOCATABLE ::  PNEG( : )   ! Negative production rates
       REAL( 8 ), ALLOCATABLE ::  DENSITY ( : )     ! Cell mass density (Kg/m3)
       REAL( 8 ), ALLOCATABLE ::  HET     ( :, : )  ! cell heterogeneous reaction rates
       REAL( 8 ), ALLOCATABLE ::  RJIN    ( :, : )  ! J-values for a cell
-      LOGICAL, ALLOCATABLE   ::  LAND    ( : )     ! land_zone value for specific cell
+      REAL( 8 ), ALLOCATABLE ::  LAND    ( : )     ! fractional area of OPEN+SURF for specific cell
 

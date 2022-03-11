@@ -231,7 +231,7 @@
         REAL( 8 ),           INTENT( IN  ) :: BLKHET ( :, : )   ! heterogeneous rate constants, ???/min
         INTEGER,             INTENT( IN  ) :: NUMCELLS          ! Number of cells in block 
         LOGICAL,             INTENT( IN  ) :: LSUNLIGHT         ! Is there sunlight? 
-        LOGICAL,             INTENT( IN  ) :: LAND( : )         ! Is the surface totally land? 
+        REAL( 8 ),           INTENT( IN  ) :: LAND( : )         ! fractional area of OPEN+SURF 
         REAL( 8 ),           INTENT( OUT ) :: RKI ( :, : )      ! reaction rate constant, ppm/min 
 !..Parameters: 
 
@@ -382,10 +382,12 @@
 !  Reaction Label TR15            
                 RKI( NCELL,  711) =  RJBLK( NCELL, IJ_ACRO_09 )
 
-                IF( .NOT. LAND( NCELL ) )THEN
+                IF ( LAND (NCELL) .GT. 0.001D0 ) THEN
 !  Reaction Label HAL_Ozone       
-                   RKI( NCELL,  721) =  SFACT * HALOGEN_FALLOFF( BLKPRES( NCELL ),   6.7006D-11,   1.0743D+01,  & 
+                   RKI( NCELL,  721) = LAND (NCELL) *  SFACT * HALOGEN_FALLOFF( BLKPRES( NCELL ),   6.7006D-11,   1.0743D+01,  & 
      &                                                           3.4153D-08,  -6.7130D-01,         2.0000D-06 )
+                ELSE
+                   RKI( NCELL,  721) = 0.0D0 
                 END IF
 
             END DO 
