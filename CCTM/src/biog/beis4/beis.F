@@ -24,8 +24,7 @@ C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-      SUBROUTINE BEIS3( JDATE, JTIME, NX, NY, MSPCS, SEMIS,
-     &                  SLAI, BIPOL )
+      SUBROUTINE BEIS( JDATE, JTIME, NX, NY, MSPCS, SEMIS, BIPOL )
 
 C-----------------------------------------------------------------------
 C Description:
@@ -79,13 +78,7 @@ C Arguments:
       INTEGER, INTENT( IN ) :: NY      ! no. rows
       INTEGER, INTENT( IN ) :: MSPCS   ! no. of output species
 
-!     REAL,    INTENT( IN ) :: COSZEN( NX,NY )        ! cosine of zenith angle
-!     REAL,    INTENT( IN ) :: SEMIS ( NX,NY,NSEF-1 ) ! normalized emissions
-!     REAL,    INTENT( IN ) :: SLAI  ( NX,NY,NLAI )   ! leaf area indices
-!     REAL,    INTENT( OUT ) :: BIPOL( NX,NY,NSEF-1 ) ! output emissions
-
       REAL,    INTENT( IN ) :: SEMIS ( :,:,: ) ! normalized emissions
-      REAL,    INTENT( IN ) :: SLAI  ( :,:,: )   ! leaf area indices
       REAL,    INTENT( OUT ) :: BIPOL( :,:,: ) ! output emissions
 
 C Local Variables:
@@ -142,7 +135,7 @@ C Local Variables:
       CHARACTER( 5 )   :: BTMP    ! temporary variable name
       CHARACTER( 256 ) :: MESG    ! message buffer
 
-      CHARACTER( 16 )  :: PROCNAME = 'BEIS3'   ! procedure name
+      CHARACTER( 16 )  :: PROCNAME = 'BEIS'   ! procedure name
 
 C-----------------------------------------------------------------------
       
@@ -230,8 +223,7 @@ C arrays
             DO I = 1, NLAI
 
                BTMP = LAITYPES( I )
-               TLAI = SLAI( C,R,I ) 
-
+               TLAI = MET_DATA%LAI( C,R )
 C Adjust methanol based on T. Pierce recommendation (1-16-03)
                IF ( BTMP == 'METH' ) THEN
                   TLAI = MAX( 3.0, TLAI )
@@ -477,5 +469,5 @@ C Niinemets et al. 2010 equation A9 integrated from LAI1 to LAI2
 
 C-----------------------------------------------------------------------
 
-      END SUBROUTINE BEIS3
+      END SUBROUTINE BEIS
 

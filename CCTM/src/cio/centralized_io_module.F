@@ -84,7 +84,6 @@
 !   'mc2'    denote met cro 2d variable
 !   'mc3'    denote 3d variable
 !   'md3'    denote dot variable
-!   'bs'     denote bio season
 !   'wb'     denote wind blown dust
 !   'ic'     denote initial condition variable
 !   'is'     denote ISAM initial condition variable
@@ -113,7 +112,6 @@
 
         integer, parameter :: max_nfiles = 500
 
-        character (20), parameter :: bio_season_fname = 'BIOSEASON'
         character (20), parameter :: biogemis_fname   = 'B3GRD'
 
 ! to recognize the time step in each file could be different, in the new revised 
@@ -125,7 +123,7 @@
 ! stored accordingly.
 
         integer :: n_opened_file = 0
-        integer :: f_met, f_bios, f_ltng, f_bcon, f_icon, f_is_icon,f_mbiog
+        integer :: f_met, f_ltng, f_bcon, f_icon, f_is_icon,f_mbiog
         integer, allocatable :: f_emis(:), f_stk_emis(:)
 
         integer :: file_sdate(max_nfiles) = -1
@@ -164,7 +162,6 @@
      &                       ICCG_SUM(:,:),     ! from LTNG parameter data
      &                       ICCG_WIN(:,:),     ! from LTNG parameter data
      &                       AVGEMIS(:,:,:,:),  ! from BIOGEMIS data
-     &                       AVGLAI(:,:,:,:),   ! from BIOGEMIS data
      &                       GROWAGNO(:,:),     ! from B3GRD data
      &                       NGROWAGNO(:,:),    ! from B3GRD data
      &                       NONAGNO(:,:),      ! from B3GRD data
@@ -402,7 +399,7 @@
           USE UTILIO_DEFN
           use HGRD_DEFN, only : ncols, nrows
           USE VGRD_DEFN, only : VGTYP_GD, nlays
-          USE RUNTIME_VARS, only : N_FILE_GR, BIOGEMIS_BEIS, BIOGEMIS_SEASON,
+          USE RUNTIME_VARS, only : N_FILE_GR, BIOGEMIS_BEIS, 
      &                             STDATE, WB_DUST, ISAM_NEW_START,
      &                             local_tstep, met_tstep, NLDNSTRIKE
           use LSM_Mod, only : LAND_SCHEME
@@ -420,7 +417,7 @@
 
           CHARACTER( 120 ) :: XMSG = ' '
           INTEGER          :: GXOFF, GYOFF, stat, n, v, d_size, begin, end, adj,
-     &                        n_bio_season_vars, n_dust_vars, idx, t, ldate, ltime,
+     &                        n_dust_vars, idx, t, ldate, ltime,
      &                        nl, s, e, c, time, floc
           character( 32 )  :: tname, fname
 
@@ -887,36 +884,14 @@
 #ifdef mpas
           deallocate (bottom, top)
 
-          n_bio_season_vars = 0
           n_dust_vars       = 0
 #else
-! Bio_season data
-          n_bio_season_vars = 0
-          if (BIOGEMIS_SEASON) then
-             n_bio_season_vars = 1
-             IF ( .NOT. OPEN3( bio_season_fname, FSREAD3, PNAME ) ) THEN
-                XMSG = 'Could not open '// bio_season_fname // ' file'
-                CALL M3EXIT ( PNAME, 0, 0, XMSG, XSTAT1 )
-             END IF
-             n_opened_file = n_opened_file + 1
-             f_bios = n_opened_file
-             IF ( .NOT. DESC3( bio_season_fname ) ) THEN
-                XMSG = 'Could not get description of file  '// bio_season_fname
-                CALL M3EXIT ( PNAME, 0, 0, XMSG, XSTAT1 )
-             END IF
-
-             file_sdate(f_bios) = sdate3d
-             file_stime(f_bios) = stime3d
-             file_tstep(f_bios) = tstep3d
-             file_xcell(f_bios) = xcell3d
-             file_ycell(f_bios) = ycell3d
-          end if
 
 ! Wind blown dust data
           n_dust_vars = 0
 #endif
 
-          n_e2d = n_e2d + n_bio_season_vars + n_dust_vars
+          n_e2d = n_e2d + n_dust_vars
 
           allocate (emis_name(n_e2d+n_e3d, 3), stat=stat)
           if (stat .ne. 0) then
@@ -925,17 +900,6 @@
           end if
 
 #ifndef mpas
-          if (BIOGEMIS_SEASON) then
-             IF ( .NOT. DESC3( bio_season_fname ) ) THEN
-                XMSG = 'Could not get description of file  '// bio_season_fname
-                CALL M3EXIT ( PNAME, 0, 0, XMSG, XSTAT1 )
-             END IF
-             begin = n_e2d+n_e3d-n_dust_vars
-             emis_name(begin:begin, 1) = vname3d(1)
-             emis_name(begin:begin, 2) = 'bs'          ! bs denote bio season
-             emis_name(begin:begin, 3) = ' '           ! denote non met data
-          end if
-
 ! setup initial condition file
           n_i3d = 0
           IF ( .NOT. OPEN3( ICFILE, FSREAD3, PNAME ) ) THEN
@@ -1244,7 +1208,7 @@
              else if (cio_grid_var_name(v,2) .eq. 'md3') then
                 d_size = size_d3dx
              else if ((cio_grid_var_name(v,2) .eq. 'lnt') .or.
-     &                (cio_grid_var_name(v,2) .eq. 'bs') .or.
+!     &                (cio_grid_var_name(v,2) .eq. 'bs') .or.
      &                (cio_grid_var_name(v,2) .eq. 'wb')) then
                 d_size = size_s2d
              else
@@ -1640,27 +1604,7 @@
                       XMSG = 'Could not extract ' // NLDN_STRIKES // ' file'
                       CALL M3EXIT ( PNAME, data_jdate, data_jtime, XMSG, XSTAT1 )
                    END IF
-
-                else if (cio_grid_var_name(v,2) == 'bs') then
-
-                   data_jdate = loc_jdate(f_bios)
-                   data_jtime = 0
-
-                   allocate (tdata((ENDCOLSTD-STRTCOLSTD+1)*(ENDROWSTD-STRTROWSTD+1)), stat=stat)
-
-                   IF ( .NOT. XTRACT3( bio_season_fname, 'SEASON',
-     &                                 1, 1, STRTROWSTD, ENDROWSTD, STRTCOLSTD, ENDCOLSTD, 
-     &                                 data_jdate, data_jtime, tdata) ) then
-                      XMSG = 'Could not extract ' // bio_season_fname // ' file'
-                      CALL M3EXIT ( PNAME, data_jdate, data_jtime, XMSG, XSTAT1 )
-                   END IF
-                   
-                   cio_grid_data(begin:end) = real(tdata)
-
-                   deallocate (tdata)
 #endif
-
-                else
                    call m3exit( 'Centralized I/O',0,0,' ==d== UNKOWN Type of File',1 )
                 end if
 
@@ -1680,9 +1624,6 @@
              end if
 
              CALL NEXTIME ( loc_jdate(f_met), loc_jtime(f_met), file_tstep(f_met) )
-             if (BIOGEMIS_SEASON) then
-                 CALL NEXTIME ( loc_jdate(f_bios), loc_jtime(f_bios), file_tstep(f_bios) )
-             end if
              if (NLDNSTRIKE) then
                  CALL NEXTIME ( loc_jdate(f_ltng), loc_jtime(f_ltng), file_tstep(f_ltng) )
              end if
@@ -2617,7 +2558,6 @@
           INTEGER :: STAT, i, j, k
 
           ALLOCATE( AVGEMIS( NCOLS,NROWS,NSEF-1,NSEASONS ),
-     &              AVGLAI( NCOLS,NROWS,NLAI,NSEASONS ), 
      &              STAT=STAT )
 
           IF ( .NOT. OPEN3( biogemis_fname, FSREAD3, PNAME ) ) THEN
@@ -2640,18 +2580,6 @@ C Read the various categories of normalized emissions
                 IF ( .NOT. XTRACT3( biogemis_fname, VAR,
      &                              1,1, STRTROWSTD, ENDROWSTD, STRTCOLSTD, ENDCOLSTD,
      &                              0, 0, AVGEMIS( :,:,J,I ) ) ) THEN
-                   MESG = 'Could not read "' // TRIM( VAR ) //
-     &                    '" from file "' // TRIM( biogemis_fname ) // '"'
-                   CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
-                END IF
-             END DO
-
-             DO K = 1, NLAI
-                VAR = 'LAI_' // TRIM( LAITYPES( K ) ) // SEASON( I )
-  
-                IF ( .NOT. XTRACT3( biogemis_fname, VAR,
-     &                              1,1, STRTROWSTD, ENDROWSTD, STRTCOLSTD, ENDCOLSTD,
-     &                              0, 0, AVGLAI( :,:,K,I ) ) ) THEN
                    MESG = 'Could not read "' // TRIM( VAR ) //
      &                    '" from file "' // TRIM( biogemis_fname ) // '"'
                    CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
@@ -5481,8 +5409,6 @@ C   mminlu and num_land_cat are WRF global variables
                    read (cio_grid_var_name(var_loc,1)(slen-2:slen), *) fnum
 
                    loc_tstep = file_tstep(f_emis(fnum)) 
-                else if (cio_grid_var_name(var_loc,2) == 'bs') then
-                   loc_tstep = file_tstep(f_bios)
                 else if (cio_grid_var_name(var_loc,2) == 'lnt') then
                    loc_tstep = file_tstep(f_ltng)
                 else if (cio_grid_var_name(var_loc,2) == 'ic') then
@@ -5735,8 +5661,6 @@ C   mminlu and num_land_cat are WRF global variables
                 read (cio_grid_var_name(var_loc,1)(str_len-2:str_len), *) fnum
 
                 loc_tstep = file_tstep(f_emis(fnum)) 
-             else if (cio_grid_var_name(var_loc,2) == 'bs') then
-                loc_tstep = file_tstep(f_bios)
              else if (cio_grid_var_name(var_loc,2) == 'lnt') then
                 loc_tstep = file_tstep(f_ltng)
              else if (cio_grid_var_name(var_loc,2) == 'ic') then
@@ -5913,8 +5837,6 @@ C   mminlu and num_land_cat are WRF global variables
                 read (cio_grid_var_name(var_loc,1)(str_len-2:str_len), *) fnum
 
                 loc_tstep = file_tstep(f_emis(fnum)) 
-             else if (cio_grid_var_name(var_loc,2) == 'bs') then
-                loc_tstep = file_tstep(f_bios)
              else if (cio_grid_var_name(var_loc,2) == 'lnt') then
                 loc_tstep = file_tstep(f_ltng)
              else if (cio_grid_var_name(var_loc,2) == 'ic') then
@@ -6273,8 +6195,6 @@ C   mminlu and num_land_cat are WRF global variables
                 read (cio_grid_var_name(var_loc,1)(str_len-2:str_len), *) fnum
 
                 loc_tstep = file_tstep(f_emis(fnum)) 
-             else if (cio_grid_var_name(var_loc,2) == 'bs') then
-                loc_tstep = file_tstep(f_bios)
              else if (cio_grid_var_name(var_loc,2) == 'lnt') then
                 loc_tstep = file_tstep(f_ltng)
              else if (cio_grid_var_name(var_loc,2) == 'ic') then
