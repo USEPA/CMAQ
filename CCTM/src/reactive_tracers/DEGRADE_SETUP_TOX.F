@@ -37,9 +37,9 @@ C                               be missing from namelists
 C
 C**********************************************************************
 
-      USE GRID_CONF            ! vertical and horizontal domain specs
-      USE CGRID_SPCS           ! CGRID species number and offsets
-      USE UTILIO_DEFN          ! IOAPI declarations and definitions
+      USE GRID_CONF, ONLY: BLKSIZE ! vertical and horizontal domain specs
+      USE CGRID_SPCS               ! CGRID species number and offsets
+      USE UTILIO_DEFN              ! IOAPI declarations and definitions
       USE DEGRADE_PARAMETERS
 
       IMPLICIT NONE
@@ -48,8 +48,10 @@ C.....INCLUDES:
 
       INCLUDE SUBST_CONST         ! constants
 
-      REAL(8)              :: INFINITY
       REAL(8)              :: EFFECTIVE_ZERO
+      REAL(8)              :: LOG_EFFECTIVE_ZERO
+      REAL(8)              :: INFINITY
+
 
 C..arrays to store indices to CGRID
 
@@ -59,10 +61,25 @@ C..arrays to store indices to CGRID
       INTEGER, ALLOCATABLE :: RAD_MAP( :,: )
       INTEGER, ALLOCATABLE :: RAD2_MAP( :,:,: )
       INTEGER, ALLOCATABLE :: PHOTO_MAP( :,: )
+      
+      INTEGER :: DEGRADE_STEP
+      INTEGER :: SA_DEGRADE_STEP = 0      
 
 C..saved cell concentrations
 
-      REAL( 8 ), ALLOCATABLE :: PREV_CONC( :,: )
+      REAL( 8 ), ALLOCATABLE :: OLD_CONC( : )
+      REAL( 8 ), ALLOCATABLE :: NEW_CONC( : )
+      REAL( 8 )              :: TEMP_AIR            ! cell temperature [ K ]
+      REAL( 8 )              :: CONC_AIR            ! cell air number density [ 1/CM^3 ]
+      REAL( 8 )              :: CONC_N2             ! cell N2 number density [ 1/CM^3 ]
+      REAL( 8 )              :: CONC_O2             ! cell O2 number density [ 1/CM^3 ]
+      REAL( 8 )              :: CONC_CH4            ! cell CH4 number density [ 1/CM^3 ]
+      REAL( 8 )              :: CONC_H2             ! cell H2 number density [ 1/CM^3 ]
+      REAL( 8 )              :: CONC_H2O            ! cell H2O number density [ 1/CM^3 ]
+
+C..saved blocked cells concentrations
+
+      REAL( 8 ), ALLOCATABLE :: PREV_CONC( :,: )   
       REAL( 8 ), ALLOCATABLE :: CURR_CONC( :,: )
       REAL( 4 ), ALLOCATABLE :: AERO_BLK ( :,: )
       REAL( 8 ), ALLOCATABLE :: TEMP( : )           ! cell temperature [ K ]
@@ -72,25 +89,36 @@ C..saved cell concentrations
       REAL( 8 ), ALLOCATABLE :: NUMB_H2O( : )       ! cell H2O number density [ 1/CM^3 ]
       REAL( 8 ), ALLOCATABLE :: CONV_FACT( : )      ! conversion factor from ppm to molecules/cm^3
 
-      REAL( 8 ), ALLOCATABLE :: DELT_CONC( :,: )    ! changes predicted by degrade routine
+      REAL(8), ALLOCATABLE :: CHANGE_CONC( : )    ! cell concentration changes predicted by degrade routine
+      REAL(8), ALLOCATABLE :: DELT_CONC( :,: )    ! block concentration changes predicted by degrade routine
+
+      REAL(8), ALLOCATABLE :: CELL_RKI( :,: )     ! cell rate constant for species
+      REAL(8), ALLOCATABLE :: RATE_CONST( :,:,: ) ! block rate constants for species
+      REAL(8), ALLOCATABLE :: RATE_YIELD( :,: )   ! product yield from reaction
 
 #ifdef isam
-      INTEGER              :: ISAM_DEGRADED_SPC     ! number of ISAM species with degradation
-      INTEGER, ALLOCATABLE :: ISAM_DEGRADE_MAP( : ) ! index in ISAM species array to extract conc
-      INTEGER, ALLOCATABLE :: ISAM_TO_DEGRADED( : ) ! index in REACT concentation array
-      INTEGER, ALLOCATABLE :: ISAM_TO_REACTANT( : ) ! index in REACT data array to determine degradation
-      REAL(8), ALLOCATABLE :: CONC_ISAM( :,:,: )    ! concentrations apportioned to sources
+      INTEGER                      :: ISAM_DEGRADED_SPC     ! number of ISAM species with degradation
+      INTEGER,         ALLOCATABLE :: ISAM_DEGRADE_MAP( : ) ! index in ISAM species array to extract conc
+      INTEGER,         ALLOCATABLE :: ISAM_TO_DEGRADED( : ) ! index in REACT concentation array
+      INTEGER,         ALLOCATABLE :: ISAM_TO_REACTANT( : ) ! index in REACT data array to determine degradation
+      REAL(8),         ALLOCATABLE :: CELL_ISAM( :,: )      ! concentrations apportioned to sources
+      CHARACTER( 16 ), ALLOCATABLE :: ISAM_DEGRADED( : )    ! names of degraded isam species
 #endif
 
-      INTEGER :: NCELLS
-      INTEGER :: DEGRADE_STEP
+      LOGICAL, ALLOCATABLE :: IS_AERO_ORGANIC( : )  ! is aerosol species as OA and not a tracer
+
+
+      INTEGER :: NCELLS                             ! number of cells in block
+C.. variables used to write cell results
+      INTEGER :: DEG_LAY = 0
+      INTEGER :: DEG_ROW = 0
+      INTEGER :: DEG_COL = 0
+C.. varaible used to write a cell in a block
       INTEGER :: ICELL_WRITE = 1
       LOGICAL :: WRITE_BLOCK = .FALSE.
       LOGICAL, ALLOCATABLE :: WRITE_CELL( : )       ! write cell value used for debugging and QA
-      LOGICAL, ALLOCATABLE :: IS_AERO_ORGANIC( : )  ! is aerosol species as OA and not a tracer
 
-      REAL(8), ALLOCATABLE :: RATE_CONST( :,:,: )
-      REAL(8), ALLOCATABLE :: RATE_YIELD( :,: )
+
 C**********************************************************************
 
       CONTAINS
@@ -154,10 +182,8 @@ C..arrays to store indices to CGRID
          ALLOCATE( RAD_MAP   ( N_BI_LOSS + N_LANHIN_LOSS, N_REACT ) )
          ALLOCATE( RAD2_MAP  ( 2, N_TRI_LOSS, N_REACT ) )
          ALLOCATE( PHOTO_MAP ( N_PHOTO_LOSS, N_REACT ) )
-         ALLOCATE( RATE_YIELD( N_PROCESSES, N_REACT ) )
 
-         ALLOCATE( WRITE_CELL( BLKSIZE ) )
-         WRITE_CELL = .FALSE.
+         ALLOCATE( RATE_YIELD( N_PROCESSES, N_REACT ) )
 
 C..Initialize maps
 
@@ -169,7 +195,6 @@ C..Initialize maps
          PHOTO_MAP   = -1
 
          RATE_YIELD = 1.0D0
-
 
 C..save number of photolysis rates in mechanism
 
@@ -688,7 +713,7 @@ C=======================================================
            FIND_IN_ISAM = ' '
            
            DO S = 1, NSPC_SA
-              FIND_IN_ISAM( S ) = SPC_NAME( S,OTHRTAG )
+              FIND_IN_ISAM( S ) = ISAM_SPEC( S,OTHRTAG )
               ISAM_SPC_IDX( S ) = S
            END DO
 
@@ -713,13 +738,15 @@ C=======================================================
            
            IF( ANY(  .NOT. NOT_DEGRADED ) )THEN
 C..Save pointer for isam species found in chemistry species
-               ALLOCATE( CONC_ISAM( NTAG_SA,ISAM_DEGRADED_SPC ) )
-               CONC_ISAM = 0.0D0
+               ALLOCATE( CELL_ISAM( NTAG_SA,ISAM_DEGRADED_SPC ) )
+               CELL_ISAM = 0.0D0
                ALLOCATE( ISAM_TO_DEGRADED( ISAM_DEGRADED_SPC ) )
                ALLOCATE( ISAM_DEGRADE_MAP( ISAM_DEGRADED_SPC ) )
                ALLOCATE( ISAM_TO_REACTANT( ISAM_DEGRADED_SPC ) )
+               ALLOCATE( ISAM_DEGRADED   ( ISAM_DEGRADED_SPC ) )
                ISAM_TO_DEGRADED = -1
                ISAM_DEGRADE_MAP = -1
+               ISAM_DEGRADED    = "XundefinedX"
                
                WRITE(LOGDEV,'(/A)')'Below isam species have a linear decay based on photochemistry '
                WRITE(LOGDEV,'("IDX, ISAM_SPC, IDX, DEGRADE_SPC  ")')
@@ -733,6 +760,7 @@ C..Save pointer for isam species found in chemistry species
                        ISAM_DEGRADE_MAP( L ) = ISAM_SPC_IDX( S )
                        ISAM_TO_DEGRADED( L ) = ISAM_2_DEGRAD( S )
                        ISAM_TO_REACTANT( L ) = REACT_INDEX( S )     
+                       ISAM_DEGRADED   ( L ) = REACT( SPC )
                        WRITE(LOGDEV,'(I3,1X,A16,1x,I3,1X,A16)') 
      &                   C, FIND_IN_ISAM( S ), R, REACT( SPC )
                    END IF
@@ -771,10 +799,10 @@ C..Save pointer for isam species found in chemistry species
           IMPLICIT NONE
 
 !..Arguments:
-         INTEGER,   INTENT( IN ) ::  COL( : )        ! cell column index
-         INTEGER,   INTENT( IN ) ::  ROW( : )        ! cell row index 
-         INTEGER,   INTENT( IN ) ::  LAY( : )        ! cell layer index      
-         REAL,      INTENT( IN ) ::  DENS( : )       ! air mass density, kg/m3
+         INTEGER,   INTENT( IN ) ::  COL        ! cell column index
+         INTEGER,   INTENT( IN ) ::  ROW        ! cell row index 
+         INTEGER,   INTENT( IN ) ::  LAY        ! cell layer index      
+         REAL,      INTENT( IN ) ::  DENS       ! air mass density, kg/m3
 
 C..Includes: None
 
@@ -789,21 +817,17 @@ C..Includes: None
 
          INTEGER :: JSPC, KTAG
          INTEGER :: SPC, S          ! array index
-         INTEGER :: C, R, L
-         INTEGER :: ICELL
          
           IF( ISAM_DEGRADED_SPC .LT. 1 )RETURN
           
-!          INV_DENS = REAL( ONE/DENS, 8 )
+          INV_DENS = REAL( ONE/DENS, 8 )
           
           DO JSPC = 1, ISAM_DEGRADED_SPC
              S       = ISAM_TO_DEGRADED( JSPC )
              SPC     = ISAM_DEGRADE_MAP( JSPC )
              LOAD_SOLD: DO KTAG = 1, NTAG_SA
-                DO ICELL = 1, NCELLS
-                   FACTOR2 = MAX( ISAM( COL(ICELL),ROW(ICELL),LAY(ICELL),SPC,KTAG ), 1.0E-30 )
-                   CONC_ISAM( ICELL, KTAG, JSPC ) = REAL( FACTOR2,8 )
-                END DO
+                 FACTOR2 = ISAM( COL,ROW,LAY,SPC,KTAG )
+                 CELL_ISAM( KTAG, JSPC ) = REAL( FACTOR2,8 )
              END DO LOAD_SOLD ! ktag loop
           END DO ! loop jspc
 
@@ -815,10 +839,10 @@ C..Includes: None
             IMPLICIT NONE
 
 !..Arguments:
-            INTEGER,   INTENT( IN ) ::  COL( : )        ! cell column index
-            INTEGER,   INTENT( IN ) ::  ROW( : )        ! cell row index 
-            INTEGER,   INTENT( IN ) ::  LAY( : )   ! cell layer index      
-            REAL,      INTENT( IN ) ::  DENS( : )  ! air mass density, kg/m3
+            INTEGER,   INTENT( IN ) ::  COL        ! cell column index
+            INTEGER,   INTENT( IN ) ::  ROW        ! cell row index 
+            INTEGER,   INTENT( IN ) ::  LAY        ! cell layer index      
+            REAL,      INTENT( IN ) ::  DENS       ! air mass density, kg/m3
 
 C..Includes: None
 
@@ -829,23 +853,38 @@ C..Includes: None
             REAL( 8 ), PARAMETER  :: ZERO      = 0.0D0
             
             REAL      :: FACTOR2
-            REAL( 8 ) :: TOTAL, FACTOR1, FACTOR3
+            REAL( 8 ) :: TOTAL, FACTOR1, FACTOR3, FACTOR
 !            REAL( 8 ) :: INV_DENS       ! one over air mass density, m3/kg
             
-            INTEGER :: JSPC, KTAG
+            INTEGER :: JSPC, KTAG, I_RAD, I_RXT
             INTEGER :: S, SPC          ! array index
-            INTEGER :: ICELL
-
+            
             IF( ISAM_DEGRADED_SPC .LT. 1 )RETURN
              
+#ifdef verbose_isam
+      IF( DEG_LAY .EQ. 1 .AND. DEG_ROW .EQ. 1 .AND. DEG_COL .EQ. 1 )THEN
+         WRITE(LOGDEV,'(6x,A)')'SA_DEGRADE_UPLOAD'
+         WRITE(LOGDEV,'(//,6X,A16,(1X,A12),1X,A18,2(1X,A18))')'isam_degraded', 'factor', 'react',
+     &   'INIT_CONC','FINAL_CONC'
+      END IF
+#endif
              DO JSPC = 1, ISAM_DEGRADED_SPC
                 S       = ISAM_TO_DEGRADED( JSPC )
                 SPC     = ISAM_DEGRADE_MAP( JSPC )
+#ifdef verbose_isam
+               IF( DEG_LAY .EQ. 1 .AND. DEG_ROW .EQ. 1 .AND. DEG_COL .EQ. 1)THEN 
+                    I_RXT = ISAM_TO_DEGRADED( JSPC )
+                    I_RAD = ISAM_TO_REACTANT( JSPC )
+                    FACTOR2 = SUM(ISAM( COL,ROW,LAY,SPC,1:NTAG_SA ))
+                    FACTOR3 = SUM(CELL_ISAM( 1:NTAG_SA,JSPC ))
+                    FACTOR  = 1.0 + (FACTOR3-FACTOR2)/MAX(FACTOR2,1.0E-30)
+                  WRITE(LOGDEV,'(6X,A16,1X,ES18.10,1X,A16,2(1X,ES18.10))')ISAM_DEGRADED( JSPC ), FACTOR, REACT( I_RAD ),
+     &            FACTOR2, FACTOR3
+               END IF
+#endif               
                 LOAD_ISAM: DO KTAG = 1, NTAG_SA
-                   DO ICELL = 1, NCELLS
-                      FACTOR1 =  MAX( CONC_ISAM( KTAG,JSPC ),1.0D-30 )
-                      ISAM( COL(ICELL),ROW(ICELL),LAY(ICELL),SPC,KTAG ) = REAL( FACTOR1 )
-                   END DO
+                    FACTOR1 =  CELL_ISAM( KTAG,JSPC )
+                    ISAM( COL,ROW,LAY,SPC,KTAG ) = REAL( FACTOR1 )
                 END DO LOAD_ISAM ! ktag loop
              END DO ! loop jspc
 

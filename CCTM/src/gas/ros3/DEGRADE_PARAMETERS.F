@@ -1,1 +1,0 @@
-../smvgear/DEGRADE_PARAMETERS.F

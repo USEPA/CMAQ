@@ -137,27 +137,28 @@ C ...Tagging indices for bcon, others, icon
 
         INTEGER, PARAMETER, PRIVATE :: MAX_STRING     = 32  ! max length of tagclass name
         INTEGER, PARAMETER, PRIVATE :: MAX_TAGCLASSES = 200 ! max number of tagclasses
-        INTEGER, PARAMETER, PRIVATE :: NUMB_CLASSES   = 18  ! number of defined tagclasses
+        INTEGER, PARAMETER, PRIVATE :: NUMB_CLASSES   = 19  ! number of defined tagclasses
         
         CHARACTER( MAX_STRING ), PARAMETER, PRIVATE :: DEFINED_CLASSES( NUMB_CLASSES ) = 
-     & (/ 'AMMONIUM  ',
-     &    'OA_TOT    ',
-     &    'NVPOA     ',
-     &    'CHLORINE  ',
-     &    'EC        ',
-     &    'SULFATE   ',
-     &    'OZONE     ',
-     &    'NITRATE   ',
-     &    'VOC       ',
-     &    'PM_IONS   ',
-     &    'ALL       ',
-     &    'PM_TOT    ',
-     &    'HAP_GAS   ',
-     &    'HAP_AERO  ',
-     &    'HAP_TOT   ',
-     &    'PAH_TEQ   ',
-     &    'BENAPYRENE',
-     &    'MERCURY   '/)
+     & (/ 'AMMONIUM    ',
+     &    'OA_TOT      ',
+     &    'NVPOA       ',
+     &    'CHLORINE    ',
+     &    'EC          ',
+     &    'SULFATE     ',
+     &    'OZONE       ',
+     &    'NITRATE     ',
+     &    'VOC         ',
+     &    'PM_IONS     ',
+     &    'ALL         ',
+     &    'PM_TOT      ',
+     &    'HAP_GAS     ',
+     &    'HAP_AERO    ',
+     &    'HAP_TOT     ',
+     &    'URBAN_TOXICS',
+     &    'PAH_TEQ     ',
+     &    'BENAPYRENE  ',
+     &    'MERCURY     '/)
         
       
       CONTAINS

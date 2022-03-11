@@ -498,6 +498,9 @@ R5                        IF(  CGRID_INDEX( S ) .EQ. ISP )CYCLE UPDATE_DEGRADED
 R5                     END DO
 R5                     CGRID(C,R,L,ISP) = REAL( YCCELL(ISP), 4)
 R5                  END DO UPDATE_DEGRADED
+R5#ifdef isam
+R5                  CALL SA_DEGRADE_UPLOAD( C,R,L,DENS(C,R,L) )
+R5#endif
 R5               END IF
 
 #ifdef isam

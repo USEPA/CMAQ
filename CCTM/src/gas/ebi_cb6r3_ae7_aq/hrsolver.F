@@ -31,12 +31,11 @@ C  KEY SUBROUTINES/FUNCTIONS CALLED:  HRRATES, HRG1, HRG2, HRG3
 C                                     HRG4, HRPRODLOSS
 C                                     DEGRADE
 C
-C  REVISION HISTORY: Created by EBI solver program, Mar 24, 2020
+C  REVISION HISTORY: Created by EBI solver program, Feb 14, 2022
 C   21 Jun 10 J.Young: convert for Namelist redesign
 C   18 Jul 14 B.Hutzell: revised 1) to use the RXNS_DATA and RXNS_FUNCTION
 C                        modules instead of include files and 2) to use
 C                        real(8) variables
-C   15 Nov 21 G. Sarwar: updated convergency criteria
 C**********************************************************************
 
       USE RUNTIME_VARS
@@ -51,6 +50,7 @@ C**********************************************************************
       USE DDM3D_CHEM, ONLY: YCDDM
       USE CGRID_SPCS, ONLY: GC_SPC
 #endif
+      USE DEGRADE_SETUP_TOX, ONLY : SA_DEGRADE_STEP
 
 
       IMPLICIT NONE
@@ -242,6 +242,7 @@ c++++++++++++++++++++++++Debug section++++++++++++++++++++++++++++++++++
 
 ! Initial PA_IRR
       IF( CALL_IRR ) CALL PA_IRR ( .TRUE., RKI, YC, DTC )
+      SA_DEGRADE_STEP = 0
       TSTEP_EBI: DO    ! EBI time-step loop
 
          SUBSTEP_EBI: DO NINR = 1, N_INR_STEPS   ! time substeps loop
@@ -364,6 +365,9 @@ c++++++++++++++++++++++++Debug section++++++++++++++++++++++++++++++++++
                    M = CGRID_INDEX( S )
                    YCCELL( M ) = YC( S )
                 END DO
+#if defined(isam) || defined(verbose_isam)
+                SA_DEGRADE_STEP = SA_DEGRADE_STEP + 1
+#endif
                 IF( CALL_DEG )CALL DEGRADE(YCCELL, DTG, JDATE, JTIME) ! :WTH Call degradation routine
 
                  IF( CALL_IRR ) CALL PA_IRR ( .FALSE., RKI, YC, DTC )

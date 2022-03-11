@@ -142,6 +142,7 @@ set make_options = "-j"                #> additional options for make command if
  set ModPvO3   = pv_o3                      #> potential vorticity from the free troposphere
  set ModISAM   = isam                       #> CCTM Integrated Source Apportionment Method
  set ModDDM3D  = ddm3d                      #> Decoupled Direct Method in 3D
+ set ModDegrade = reactive_tracers          #> Linear Chemical Loss for a fixed set of species treated as reactive tracers
 
 #============================================================================================
 #> Computing System Configuration:

@@ -72,6 +72,7 @@ C**********************************************************************
       USE CGRID_SPCS          ! CGRID species number and offsets
       USE UTILIO_DEFN
       USE GRVARS              ! inherits GRID_CONF
+      USE DEGRADE_ROUTINES, ONLY: DEGRADE_BLK
       USE PA_IRR_MODULE
 
       IMPLICIT NONE
@@ -221,15 +222,6 @@ C..LOCAL VARIABLES:
 
 !     logical, save :: bingo1 = .true.
 !     logical, save :: bingo2
-      INTERFACE
-         SUBROUTINE DEGRADE( CBLK, DT, JDATE, JTIME, BLKID )
-           REAL( 8 ), INTENT( IN ) :: CBLK( :,  : ) ! array holding species concentrations
-           REAL( 8 ), INTENT( IN ) :: DT            ! time step for integrations [sec]
-           INTEGER,   INTENT( IN ) :: JDATE         ! current model date , coded YYYYDDD
-           INTEGER,   INTENT( IN ) :: JTIME         ! current model time , coded HHMMSS
-           INTEGER,   INTENT( IN ) :: BLKID         ! ID number for the BLK
-         END SUBROUTINE
-      END INTERFACE
 
 
 C**********************************************************************      
@@ -990,7 +982,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
                      YNEW_DEGRADE( NCELL, SPC ) = CONC( NCELL, I )
                   ENDDO
                ENDDO
-               CALL DEGRADE( YNEW_DEGRADE, DT_DEGRADE, JDATE, JTIME, BLKID )
+               CALL DEGRADE_BLK( YNEW_DEGRADE, DT_DEGRADE, JDATE, JTIME, BLKID )
                DT_DEGRADE = 0.0D0
             ENDIF
          ENDIF

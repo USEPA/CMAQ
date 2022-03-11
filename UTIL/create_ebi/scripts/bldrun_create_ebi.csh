@@ -88,8 +88,7 @@
 
  setenv SRCDIR          ${BLDIR}
  setenv TMPLDIR         ${REPOROOT}/template_RXNSU_OPT
- setenv DEGRADE_CODES   ${REPOROOT}/degrade_codes_serial-RXNST
- set data_paths = ( ${TMPLDIR} ${DEGRADE_CODES} )
+ set data_paths = ( ${TMPLDIR}  )
  foreach data_dir ( ${data_paths} )
     if( ! ( -e ${data_dir} ) )cp -r $data_dir ${WORKDIR}/.
  end
@@ -237,12 +236,6 @@
  # Run CREATE_EBI.EXE
  $BLDIR/$EXEC
 
- # Copy Static Degrade Codes to Output Directory, if necessary
- if( $DEGRADE_SUBS  == "T" )then
-     echo "copying DEGRADE routines to ${OUTDIR}"
-     \cp -f ${DEGRADE_CODES}/*.[f,F]  ${OUTDIR}/.
- endif
- 
  if ( $? != 0 ) then
     echo "CREATE_EBI ($BLDIR/$EXEC) failed for some reason. Halt Build Process!"
     exit 1
