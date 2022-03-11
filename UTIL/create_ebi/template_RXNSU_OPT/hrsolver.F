@@ -50,7 +50,7 @@ C**********************************************************************
       USE DDM3D_CHEM, ONLY: YCDDM
       USE CGRID_SPCS, ONLY: GC_SPC
 #endif 
-R5      USE DEGRADE_SETUP_TOX, ONLY : SA_DEGRADE_STEP
+R5      USE DEGRADE_ROUTINES, ONLY : DEGRADE, SA_DEGRADE_STEP
 
 R0
 

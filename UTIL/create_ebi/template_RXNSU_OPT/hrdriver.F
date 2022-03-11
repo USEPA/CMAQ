@@ -73,9 +73,11 @@ C**********************************************************************
       USE PA_DEFN, Only: LIRR                      ! Process Analysis control and data variable
       USE PA_IRR_CLT
 R5#ifndef isam
-R5      USE DEGRADE_SETUP_TOX, ONLY : N_REACT, RXTANT_MAP, DEG_LAY, DEG_COL, DEG_ROW
+R5      USE DEGRADE_ROUTINES, ONLY : N_REACT, RXTANT_MAP, DEG_LAY, DEG_COL, DEG_ROW,
+R5     &                              FIND_DEGRADED, INIT_DEGRADE, FINAL_DEGRADE
 R5#else      
-R5      USE DEGRADE_SETUP_TOX, ONLY : N_REACT, RXTANT_MAP, SA_DEGRADE_EXTRACT, 
+R5      USE DEGRADE_ROUTINES, ONLY : N_REACT, RXTANT_MAP, SA_DEGRADE_EXTRACT, 
+R5     &                              FIND_DEGRADED, INIT_DEGRADE, FINAL_DEGRADE,
 R5     &                              SA_DEGRADE_UPLOAD, DEG_LAY, DEG_COL, DEG_ROW
 R5#endif
       USE CENTRALIZED_IO_MODULE, ONLY : INTERPOLATE_VAR, OCEAN, SZONE
