@@ -15,7 +15,7 @@
 !  General Public License or the GNU Lesser General Public License is    !
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
-
+      PROGRAM HR2DAY
 C****************************************************************************************
 C     Converts hourly data values to daily
 C    
@@ -321,7 +321,7 @@ C... start loop to read and process each variable
 
         enddo  ! var loop
 
-      status = SHUT3 ()
+        rstatus = SHUT3 ()
       stop
       end
 
@@ -903,7 +903,7 @@ c      INTEGER HOURS_8HRMAX          ! number of 8hr values to compute 8hr max
 C... Get the HOURS_8HRMAX environment variable (default is 24)                                                          
 c       ENV_DESC = 'Number of 8hr values to use when computing DM8HR'                                               
 c       HOURS_8HRMAX= ENVINT( 'HOURS_8HRMAX', ENV_DESC, 24, STATUS)  
-	 
+
 c       if ( ( HOURS_8HRMAX .NE. 24) .AND. ( HOURS_8HRMAX .NE. 17) ) THEN                                
 
 c        MSG = '**Error** Invalid value for HOURS_8HRMAX, use 24 or 17'
@@ -997,7 +997,7 @@ c      INTEGER HOURS_8HRMAX          ! number of 8hr values to compute 8hr max
 C... Get the HOURS_8HRMAX environment variable (default is 24)                                                          
 c       ENV_DESC = 'Number of 8hr values to use when computing DM8HR'                                               
 c       HOURS_8HRMAX= ENVINT( 'HOURS_8HRMAX', ENV_DESC, 24, STATUS)  
-	 
+
 c       if ( ( HOURS_8HRMAX .NE. 24) .AND. ( HOURS_8HRMAX .NE. 17) ) THEN                                
 
 c        MSG = '**Error** Invalid value for HOURS_8HRMAX, use 24 or 17'

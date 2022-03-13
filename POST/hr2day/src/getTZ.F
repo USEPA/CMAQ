@@ -397,7 +397,7 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
        Real values(*)
 
        ! local variables
-       Real nsort
+       Integer nsort
        Integer i
        logical sorted
        Real temp
