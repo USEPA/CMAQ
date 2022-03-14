@@ -355,7 +355,7 @@
       & MEMBER("HC3             ",   47, "GC",   44.10D0, F), &
       & MEMBER("HC3P            ",   48, "GC",   75.00D0, F), &
       & MEMBER("ASOATJ          ",  184, "AE",  200.00D0, T), &
-      & MEMBER("HC5             ",   49, "GC",   72.90D0, F), &
+      & MEMBER("HC5             ",   49, "GC",   72.10D0, F), &
       & MEMBER("HC5P            ",   50, "GC",  103.00D0, F), &
       & MEMBER("ETE             ",   54, "GC",   28.10D0, F), &
       & MEMBER("ETEP            ",   55, "GC",   77.00D0, F), &
@@ -419,7 +419,7 @@
       & MEMBER("APINP2          ",   78, "GC",  230.00D0, F), &
       & MEMBER("LIMNP1          ",   84, "GC",  230.00D0, F), &
       & MEMBER("LIMNP2          ",   85, "GC",  230.00D0, F), &
-      & MEMBER("ADCN            ",  120, "GC",  156.00D0, F), &
+      & MEMBER("ADCN            ",  120, "GC",  155.00D0, F), &
       & MEMBER("VROCP4OXY2      ",  174, "GC",  158.20D0, F), &
       & MEMBER("VROCN1OXY6      ",  167, "GC",  190.20D0, F), &
       & MEMBER("FURANONE        ",  129, "GC",  100.10D0, F), &
@@ -536,7 +536,7 @@
       DATA CHEMISTRY_SPC(  49 ), SPECIES_MOLWT(  49 ) / 'HC3             ',   44.10D0 /
       DATA CHEMISTRY_SPC(  50 ), SPECIES_MOLWT(  50 ) / 'HC3P            ',   75.00D0 /
       DATA CHEMISTRY_SPC(  51 ), SPECIES_MOLWT(  51 ) / 'ASOATJ          ',  200.00D0 /
-      DATA CHEMISTRY_SPC(  52 ), SPECIES_MOLWT(  52 ) / 'HC5             ',   72.90D0 /
+      DATA CHEMISTRY_SPC(  52 ), SPECIES_MOLWT(  52 ) / 'HC5             ',   72.10D0 /
       DATA CHEMISTRY_SPC(  53 ), SPECIES_MOLWT(  53 ) / 'HC5P            ',  103.00D0 /
       DATA CHEMISTRY_SPC(  54 ), SPECIES_MOLWT(  54 ) / 'ETE             ',   28.10D0 /
       DATA CHEMISTRY_SPC(  55 ), SPECIES_MOLWT(  55 ) / 'ETEP            ',   77.00D0 /
@@ -600,7 +600,7 @@
       DATA CHEMISTRY_SPC( 113 ), SPECIES_MOLWT( 113 ) / 'APINP2          ',  230.00D0 /
       DATA CHEMISTRY_SPC( 114 ), SPECIES_MOLWT( 114 ) / 'LIMNP1          ',  230.00D0 /
       DATA CHEMISTRY_SPC( 115 ), SPECIES_MOLWT( 115 ) / 'LIMNP2          ',  230.00D0 /
-      DATA CHEMISTRY_SPC( 116 ), SPECIES_MOLWT( 116 ) / 'ADCN            ',  156.00D0 /
+      DATA CHEMISTRY_SPC( 116 ), SPECIES_MOLWT( 116 ) / 'ADCN            ',  155.00D0 /
       DATA CHEMISTRY_SPC( 117 ), SPECIES_MOLWT( 117 ) / 'VROCP4OXY2      ',  158.20D0 /
       DATA CHEMISTRY_SPC( 118 ), SPECIES_MOLWT( 118 ) / 'VROCN1OXY6      ',  190.20D0 /
       DATA CHEMISTRY_SPC( 119 ), SPECIES_MOLWT( 119 ) / 'FURANONE        ',  100.10D0 /

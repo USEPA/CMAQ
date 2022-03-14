@@ -56,7 +56,7 @@ AE_SPECIES_DATA =
 'APOCJ'    ,220.00  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSJ'    , 1  ,'ORG_ACCUM'    , 1  ,'POA_ACCUM'    ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!Organic carbon,L,NA,NA 
 'APNCOMI'  ,220.00  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSI'    , 1  ,'ORG_AITKEN'   , 1  ,'POA_AITKEN'   ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!Non-carbon organic matter,L,NA,NA
 'APNCOMJ'  ,220.00  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSJ'    , 1  ,'ORG_ACCUM'    , 1  ,'POA_ACCUM'    ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!Non-carbon organic matter,L,NA,NA
-'AOP3J'     ,153.5   ,''     ,''     ,-1     ,''     ,-1     ,'VMASSJ'    , 1  ,'ORG_ACCUM'    , 1  ,'SOA_ACCUM'    ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!NA,NA,NA,NA
+'AOP3J'     ,176.2   ,''     ,''     ,-1     ,''     ,-1     ,'VMASSJ'    , 1  ,'ORG_ACCUM'    , 1  ,'SOA_ACCUM'    ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!NA,NA,NA,NA
 'AROCN2ALKI',422.83  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSI'    , 1  ,'ORG_AITKEN'   , 1  ,'POA_AITKEN'   ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!NA,NA,NA,NA
 'AROCN2ALKJ',422.83  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSJ'    , 1  ,'ORG_ACCUM'    , 1  ,'POA_ACCUM'    ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!NA,NA,NA,NA
 'AROCN1ALKI',408.80  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSI'    , 1  ,'ORG_AITKEN'   , 1  ,'POA_AITKEN'   ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!NA,NA,NA,NA

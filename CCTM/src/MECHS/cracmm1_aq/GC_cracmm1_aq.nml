@@ -51,7 +51,7 @@ GC_SPECIES_DATA =
 'ETH'           , 30.1   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,'ETHANE'          , 1  ,''             ,''        ,'Yes' ,''    ,'Yes' ,'Yes',!Ethane,E,DTXSID6026377,CC
 'HC3'           , 44.1   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,'HC3OPERA'        , 1  ,''             ,''        ,'Yes' ,''    ,'Yes' ,'Yes',!Propane,L,DTXSID5026386,CCC
 'HC3P'          , 75.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,''             ,''        ,''    ,''    ,''    ,'Yes',!Isopropyl peroxy,L,NA,CC(C)O[O]
-'HC5'           , 72.9   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,'HC5OPERA'        , 1  ,''             ,''        ,'Yes' ,''    ,'Yes' ,'Yes',!Pentane,L,DTXSID2025846,CCCCC
+'HC5'           , 72.1   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,'HC5OPERA'        , 1  ,''             ,''        ,'Yes' ,''    ,'Yes' ,'Yes',!Pentane,L,DTXSID2025846,CCCCC
 'HC5P'          ,103.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,''             ,''        ,''    ,''    ,''    ,'Yes',!Pentan-3-ylperoxy,L,NA,CCC(O[O])CC
 'HC10'          ,142.28  ,''     ,-1     ,''     ,-1     ,''                ,-1   ,'HC10OPERA'       , 1  ,''             ,''        ,'Yes' ,''    ,'Yes' ,'Yes',!Decane,L,DTXSID6024913,CCCCCCCCCC
 'HC10P'         ,173.27  ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,''             ,''        ,''    ,''    ,''    ,'Yes',!Decan-3-ylperoxy,L,NA,CCCCCCCC(CC)O[O]
@@ -122,7 +122,7 @@ GC_SPECIES_DATA =
 'MCTP'          ,172.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,''             ,''        ,''    ,''    ,''    ,'Yes',!C7H8O5 Biradical,L,NA,CC(/C=C\[C](O[O])O)=C/C(O)=O
 'OLNN'          ,136.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,''             ,''        ,''    ,''    ,''    ,'Yes',![1-(nitrooxy)propan-2-yl]peroxy,L,NA,CC(O[O])CO[N+]([O-])=O
 'OLND'          ,136.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,''             ,''        ,''    ,''    ,''    ,'Yes',![1-(nitrooxy)propan-2-yl]peroxy,L,NA,CC(O[O])CO[N+]([O-])=O
-'ADCN'          ,156.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,''             ,''        ,''    ,''    ,''    ,'Yes',!4-oxocyclohex-2-en-1-yl nitrate,L,NA,OC1=C[C]C(O[N+]([O-])=O)C=C1
+'ADCN'          ,155.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,''             ,''        ,''    ,''    ,''    ,'Yes',!4-oxocyclohex-2-en-1-yl nitrate,L,NA,OC1=C[C]C(O[N+]([O-])=O)C=C1
 'BAL1'          ,123.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,''             ,''        ,''    ,''    ,''    ,'Yes',!(4-methylphenyl)peroxy,L, NA, [O]OC1=CC=C(C)C=C1
 'BAL2'          ,109.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,''             ,''        ,''    ,''    ,''    ,'Yes',!phenylperoxy,L, NA, [O]OC1=CC=CC=C1
 'ACRO'          , 56.1   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,'ACROOPERA'       , 1  ,''             ,''        ,'Yes' ,''    ,'Yes' ,'Yes',!Acrolein,E,DTXSID5020023,C=CC=O
