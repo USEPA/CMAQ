@@ -128,14 +128,6 @@ R5      REAL( 8 ) DTG         ! Time step in degrade routines, sec
       LOGICAL, SAVE  :: LOPEN = .FALSE.
 #endif
 
-R5      INTERFACE ! for degrade algorithm
-R5        SUBROUTINE DEGRADE( CBLK, DT, JDATE, JTIME )
-R5          REAL( 8 ), INTENT( IN ) :: CBLK( : )      ! array holding species concentrations
-R5          REAL( 8 ), INTENT( IN ) :: DT             ! time step for integrations [sec]
-R5          INTEGER,   INTENT( IN ) :: JDATE          ! current model date , coded YYYYDDD
-R5          INTEGER,   INTENT( IN ) :: JTIME          ! current model time , coded HHMMSS
-R5        END SUBROUTINE
-R5      END INTERFACE
 
 C**********************************************************************
 

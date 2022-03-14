@@ -25,8 +25,9 @@ C
 C  PRECONDITIONS: For the SAPRC07TIC_AE6I_AQ mechanism
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED:  HRINIT, HRCALCKS, HRSOLVER
+C                                     FIND_DEGRADED, INIT_DEGRADE, FINAL_DEGRADE
 C
-C  REVISION HISTORY: Created by EBI solver program, Oct 19, 2020
+C  REVISION HISTORY: Created by EBI solver program, Mar 14, 2022
 C                       Based on the algorithm in "Test of Two Numerical
 C                       Schemes for Use in Atmospheric Transport-Chemistry
 C                       Models", O. Hertel, R. Berkowicz, J. Christensen,
@@ -71,6 +72,14 @@ C**********************************************************************
       USE PHOT_MOD, Only: INIT_PHOT_SHARED, RJ     ! photolysis rate, in-line module
       USE PA_DEFN, Only: LIRR                      ! Process Analysis control and data variable
       USE PA_IRR_CLT
+#ifndef isam
+      USE DEGRADE_ROUTINES, ONLY : N_REACT, RXTANT_MAP, DEG_LAY, DEG_COL, DEG_ROW,
+     &                              FIND_DEGRADED, INIT_DEGRADE, FINAL_DEGRADE
+#else
+      USE DEGRADE_ROUTINES, ONLY : N_REACT, RXTANT_MAP, SA_DEGRADE_EXTRACT,
+     &                              FIND_DEGRADED, INIT_DEGRADE, FINAL_DEGRADE,
+     &                              SA_DEGRADE_UPLOAD, DEG_LAY, DEG_COL, DEG_ROW
+#endif
       USE CENTRALIZED_IO_MODULE, ONLY : INTERPOLATE_VAR, OCEAN, SZONE
 #ifdef sens
       USE DDM3D_CHEM
@@ -142,6 +151,24 @@ C..Scratch Local Variables:
            INTEGER, INTENT( IN ) :: JTIME    ! Current time (HHMMSS)
            INTEGER, INTENT( IN ) :: C, R, L  ! Cell col, row, lev
         END SUBROUTINE HRSOLVER
+         SUBROUTINE FIND_DEGRADED( JDATE, JTIME, CALL_DEGRADE )
+           INTEGER, INTENT( IN )  :: JDATE        ! current model date , coded YYYYDDD
+           INTEGER, INTENT( IN )  :: JTIME        ! current model time , coded HHMMSS
+           LOGICAL, INTENT( OUT ) :: CALL_DEGRADE ! whether to call degradation routines
+         END SUBROUTINE FIND_DEGRADED
+         SUBROUTINE INIT_DEGRADE( CBLK, TCELL, DCELL, PRESS_CELL, QV_CELL, PHOTO_CELL, JDATE, JTIME )
+           REAL( 8 ), INTENT( IN ) :: CBLK( : )       !  species concentration in cell
+           REAL,      INTENT( IN ) :: TCELL           !  cell temperature  [ k ]
+           REAL,      INTENT( IN ) :: DCELL           !  cell air density  [ kg/m^3 ]
+           REAL,      INTENT( IN ) :: PRESS_CELL      !  cell Pressure  [ Pa ]
+           REAL,      INTENT( IN ) :: QV_CELL         !  cell water vapor mass mixing ratio  [ kg/kg ]
+           REAL( 8 ), INTENT( IN ) :: PHOTO_CELL( : ) !  Photolysis table for cell [1/min]
+           INTEGER,   INTENT( IN ) :: JDATE  ! current model date , coded YYYYDDD
+           INTEGER,   INTENT( IN ) :: JTIME  ! current model time , coded HHMMSS
+         END SUBROUTINE INIT_DEGRADE
+         SUBROUTINE FINAL_DEGRADE( CBLK )
+           REAL( 8 ), INTENT( INOUT ) :: CBLK( : )    !  species concentration in cell
+         END SUBROUTINE FINAL_DEGRADE
         SUBROUTINE HETCHEM_UPDATE_AERO( CGRID )
            REAL, POINTER :: CGRID( :,:,:,: )  !  species concentration in cell
         END SUBROUTINE HETCHEM_UPDATE_AERO
@@ -186,6 +213,20 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
             CALL_IRR = .FALSE.
          END IF
 
+         MODEL_SPECIES = NSPCSD    ! WTH: find number of model species
+
+! Determine whether DEGRADE rountines are needed.
+
+         CALL FIND_DEGRADED( JDATE, JTIME, CALL_DEG )
+         IF( CALL_DEG )THEN
+            WRITE(LOGDEV,*)'TX DEGRADE ROUTINES USED'
+            WRITE(LOGDEV,*)'Mechanism contains degraded species'
+#ifdef verbose_gas
+         ELSE
+            WRITE(LOGDEV,*)'TX DEGRADE ROUTINES OMITTED'
+            WRITE(LOGDEV,*)'MECHANISM does not include degraded species'
+#endif
+         END IF
 
          CALL HRINIT
 
@@ -344,6 +385,9 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          DO R = 1, NROWS
             DO C = 1, NCOLS
 
+               DEG_LAY = L
+               DEG_ROW = R
+               DEG_COL = C
 
 c..reset CALL_IRR based on cell's values
                CALL_IRR = LFLAGIRR( C,R,L )
@@ -360,6 +404,19 @@ c..Load ICs
                   END IF
                END DO
 
+               IF(CALL_DEG)THEN ! INITIALIZE degradation routines
+
+                  YCCELL = 0.0D0
+                  DO S = 1, MODEL_SPECIES
+                     YCCELL( S ) = REAL( CGRID(C,R,L,S), 8)
+                  END DO
+                  CALL INIT_DEGRADE(YCCELL,TA(C,R,L),DENS(C,R,L),PRES(C,R,L),QV(C,R,L),RJIN(NCELL,:),
+     &                              JDATE, JTIME)
+
+#ifdef isam
+                  CALL SA_DEGRADE_EXTRACT( C,R,L,DENS(C,R,L) )
+#endif
+               END IF
 
 c..Set physical quantities
                TEMP( NCELL )     = REAL( TA( C,R,L ), 8)
@@ -423,6 +480,20 @@ c..Update concentration array
                   END IF
                END DO
 
+               IF(CALL_DEG)THEN  ! WTH: update based on degrade routines
+                  CALL FINAL_DEGRADE(YCCELL)
+                  UPDATE_DEGRADED: DO SPC = 1, N_REACT
+                     ISP = RXTANT_MAP( SPC )
+                     IF( ISP .LE. 0 )CYCLE UPDATE_DEGRADED
+                     DO S = 1, NUMB_MECH_SPC
+                        IF(  CGRID_INDEX( S ) .EQ. ISP )CYCLE UPDATE_DEGRADED
+                     END DO
+                     CGRID(C,R,L,ISP) = REAL( YCCELL(ISP), 4)
+                  END DO UPDATE_DEGRADED
+#ifdef isam
+                  CALL SA_DEGRADE_UPLOAD( C,R,L,DENS(C,R,L) )
+#endif
+               END IF
 
 #ifdef isam
                CALL SA_IRR_UPLOAD( C, R, L, DENS( C,R,L ), YC )

@@ -27,7 +27,7 @@ C
 C  KEY SUBROUTINES/FUNCTIONS CALLED:  HRINIT, HRCALCKS, HRSOLVER
 C                                     FIND_DEGRADED, INIT_DEGRADE, FINAL_DEGRADE
 C
-C  REVISION HISTORY: Created by EBI solver program, Feb 14, 2022
+C  REVISION HISTORY: Created by EBI solver program, Mar 14, 2022
 C                       Based on the algorithm in "Test of Two Numerical
 C                       Schemes for Use in Atmospheric Transport-Chemistry
 C                       Models", O. Hertel, R. Berkowicz, J. Christensen,
@@ -73,9 +73,11 @@ C**********************************************************************
       USE PA_DEFN, Only: LIRR                      ! Process Analysis control and data variable
       USE PA_IRR_CLT
 #ifndef isam
-      USE DEGRADE_SETUP_TOX, ONLY : N_REACT, RXTANT_MAP, DEG_LAY, DEG_COL, DEG_ROW
+      USE DEGRADE_ROUTINES, ONLY : N_REACT, RXTANT_MAP, DEG_LAY, DEG_COL, DEG_ROW,
+     &                              FIND_DEGRADED, INIT_DEGRADE, FINAL_DEGRADE
 #else
-      USE DEGRADE_SETUP_TOX, ONLY : N_REACT, RXTANT_MAP, SA_DEGRADE_EXTRACT,
+      USE DEGRADE_ROUTINES, ONLY : N_REACT, RXTANT_MAP, SA_DEGRADE_EXTRACT,
+     &                              FIND_DEGRADED, INIT_DEGRADE, FINAL_DEGRADE,
      &                              SA_DEGRADE_UPLOAD, DEG_LAY, DEG_COL, DEG_ROW
 #endif
       USE CENTRALIZED_IO_MODULE, ONLY : INTERPOLATE_VAR, OCEAN, SZONE
@@ -488,6 +490,9 @@ c..Update concentration array
                      END DO
                      CGRID(C,R,L,ISP) = REAL( YCCELL(ISP), 4)
                   END DO UPDATE_DEGRADED
+#ifdef isam
+                  CALL SA_DEGRADE_UPLOAD( C,R,L,DENS(C,R,L) )
+#endif
                END IF
 
 #ifdef isam
