@@ -6,7 +6,7 @@
 
 
 ! --------- Photochemical Mechanism Reactions, Rates, etc. DAT ---------
-! Source file: /work/MOD3DEV/has/2021cracmm/cmaq/20220310cracmm/UTIL/chemmech/input/cracmm1_aq/mech_cracmm1_aq.def
+! Source file: /work/MOD3DEV/has/2021cracmm/cmaq/20220314rep/UTIL/chemmech/input/cracmm1_aq/mech_cracmm1_aq.def
 ! for Mechanism Name: CRACMM1_AQ                      
 
 ! This file is used to create mechanism data and functions
@@ -337,8 +337,8 @@
       & MEMBER("MVK             ",   28, "GC",   70.10D0, F), &
       & MEMBER("GLY             ",   29, "GC",   58.00D0, F), &
       & MEMBER("MGLY            ",   30, "GC",   72.00D0, F), &
-      & MEMBER("DCB1            ",   31, "GC",   91.00D0, F), &
-      & MEMBER("DCB2            ",   32, "GC",  110.00D0, F), &
+      & MEMBER("DCB1            ",   31, "GC",   98.00D0, F), &
+      & MEMBER("DCB2            ",   32, "GC",  112.10D0, F), &
       & MEMBER("BALD            ",   33, "GC",  106.00D0, F), &
       & MEMBER("CHO             ",   34, "GC",  139.00D0, F), &
       & MEMBER("OP1             ",   35, "GC",   48.00D0, F), &
@@ -355,14 +355,14 @@
       & MEMBER("HC3             ",   47, "GC",   44.10D0, F), &
       & MEMBER("HC3P            ",   48, "GC",   75.00D0, F), &
       & MEMBER("ASOATJ          ",  184, "AE",  200.00D0, T), &
-      & MEMBER("HC5             ",   49, "GC",   72.90D0, F), &
+      & MEMBER("HC5             ",   49, "GC",   72.10D0, F), &
       & MEMBER("HC5P            ",   50, "GC",  103.00D0, F), &
       & MEMBER("ETE             ",   54, "GC",   28.10D0, F), &
       & MEMBER("ETEP            ",   55, "GC",   77.00D0, F), &
       & MEMBER("OLT             ",   56, "GC",   42.00D0, F), &
       & MEMBER("OLTP            ",   57, "GC",   91.00D0, F), &
       & MEMBER("OLI             ",   58, "GC",   70.10D0, F), &
-      & MEMBER("OLIP            ",   59, "GC",  117.00D0, F), &
+      & MEMBER("OLIP            ",   59, "GC",  119.00D0, F), &
       & MEMBER("ACE             ",   60, "GC",   26.00D0, F), &
       & MEMBER("ORA1            ",   61, "GC",   46.00D0, F), &
       & MEMBER("BEN             ",   62, "GC",   78.11D0, F), &
@@ -384,7 +384,7 @@
       & MEMBER("LIMP1           ",   82, "GC",  185.00D0, F), &
       & MEMBER("LIMP2           ",   83, "GC",  185.00D0, F), &
       & MEMBER("PINALP          ",   80, "GC",  199.00D0, F), &
-      & MEMBER("RCO3            ",   90, "GC",   90.00D0, F), &
+      & MEMBER("RCO3            ",   90, "GC",   89.00D0, F), &
       & MEMBER("LIMALP          ",   87, "GC",  217.00D0, F), &
       & MEMBER("ACTP            ",   91, "GC",   89.00D0, F), &
       & MEMBER("MEKP            ",   92, "GC",  103.00D0, F), &
@@ -419,7 +419,7 @@
       & MEMBER("APINP2          ",   78, "GC",  230.00D0, F), &
       & MEMBER("LIMNP1          ",   84, "GC",  230.00D0, F), &
       & MEMBER("LIMNP2          ",   85, "GC",  230.00D0, F), &
-      & MEMBER("ADCN            ",  120, "GC",  156.00D0, F), &
+      & MEMBER("ADCN            ",  120, "GC",  155.00D0, F), &
       & MEMBER("VROCP4OXY2      ",  174, "GC",  158.20D0, F), &
       & MEMBER("VROCN1OXY6      ",  167, "GC",  190.20D0, F), &
       & MEMBER("FURANONE        ",  129, "GC",  100.10D0, F), &
@@ -427,7 +427,7 @@
       & MEMBER("VROCP0OXY4      ",  169, "GC",  202.30D0, F), &
       & MEMBER("BAL1            ",  121, "GC",  123.00D0, F), &
       & MEMBER("BAL2            ",  122, "GC",  109.00D0, F), &
-      & MEMBER("OP3             ",   38, "GC",  153.50D0, F), &
+      & MEMBER("OP3             ",   38, "GC",  176.20D0, F), &
       & MEMBER("ELHOM           ",   89, "GC",  402.00D0, F), &
       & MEMBER("VROCIOXY        ",  130, "GC",  247.00D0, F), &
       & MEMBER("SLOWROC         ",  131, "GC",   75.40D0, F), &
@@ -518,8 +518,8 @@
       DATA CHEMISTRY_SPC(  31 ), SPECIES_MOLWT(  31 ) / 'MVK             ',   70.10D0 /
       DATA CHEMISTRY_SPC(  32 ), SPECIES_MOLWT(  32 ) / 'GLY             ',   58.00D0 /
       DATA CHEMISTRY_SPC(  33 ), SPECIES_MOLWT(  33 ) / 'MGLY            ',   72.00D0 /
-      DATA CHEMISTRY_SPC(  34 ), SPECIES_MOLWT(  34 ) / 'DCB1            ',   91.00D0 /
-      DATA CHEMISTRY_SPC(  35 ), SPECIES_MOLWT(  35 ) / 'DCB2            ',  110.00D0 /
+      DATA CHEMISTRY_SPC(  34 ), SPECIES_MOLWT(  34 ) / 'DCB1            ',   98.00D0 /
+      DATA CHEMISTRY_SPC(  35 ), SPECIES_MOLWT(  35 ) / 'DCB2            ',  112.10D0 /
       DATA CHEMISTRY_SPC(  36 ), SPECIES_MOLWT(  36 ) / 'BALD            ',  106.00D0 /
       DATA CHEMISTRY_SPC(  37 ), SPECIES_MOLWT(  37 ) / 'CHO             ',  139.00D0 /
       DATA CHEMISTRY_SPC(  38 ), SPECIES_MOLWT(  38 ) / 'OP1             ',   48.00D0 /
@@ -536,14 +536,14 @@
       DATA CHEMISTRY_SPC(  49 ), SPECIES_MOLWT(  49 ) / 'HC3             ',   44.10D0 /
       DATA CHEMISTRY_SPC(  50 ), SPECIES_MOLWT(  50 ) / 'HC3P            ',   75.00D0 /
       DATA CHEMISTRY_SPC(  51 ), SPECIES_MOLWT(  51 ) / 'ASOATJ          ',  200.00D0 /
-      DATA CHEMISTRY_SPC(  52 ), SPECIES_MOLWT(  52 ) / 'HC5             ',   72.90D0 /
+      DATA CHEMISTRY_SPC(  52 ), SPECIES_MOLWT(  52 ) / 'HC5             ',   72.10D0 /
       DATA CHEMISTRY_SPC(  53 ), SPECIES_MOLWT(  53 ) / 'HC5P            ',  103.00D0 /
       DATA CHEMISTRY_SPC(  54 ), SPECIES_MOLWT(  54 ) / 'ETE             ',   28.10D0 /
       DATA CHEMISTRY_SPC(  55 ), SPECIES_MOLWT(  55 ) / 'ETEP            ',   77.00D0 /
       DATA CHEMISTRY_SPC(  56 ), SPECIES_MOLWT(  56 ) / 'OLT             ',   42.00D0 /
       DATA CHEMISTRY_SPC(  57 ), SPECIES_MOLWT(  57 ) / 'OLTP            ',   91.00D0 /
       DATA CHEMISTRY_SPC(  58 ), SPECIES_MOLWT(  58 ) / 'OLI             ',   70.10D0 /
-      DATA CHEMISTRY_SPC(  59 ), SPECIES_MOLWT(  59 ) / 'OLIP            ',  117.00D0 /
+      DATA CHEMISTRY_SPC(  59 ), SPECIES_MOLWT(  59 ) / 'OLIP            ',  119.00D0 /
       DATA CHEMISTRY_SPC(  60 ), SPECIES_MOLWT(  60 ) / 'ACE             ',   26.00D0 /
       DATA CHEMISTRY_SPC(  61 ), SPECIES_MOLWT(  61 ) / 'ORA1            ',   46.00D0 /
       DATA CHEMISTRY_SPC(  62 ), SPECIES_MOLWT(  62 ) / 'BEN             ',   78.11D0 /
@@ -565,7 +565,7 @@
       DATA CHEMISTRY_SPC(  78 ), SPECIES_MOLWT(  78 ) / 'LIMP1           ',  185.00D0 /
       DATA CHEMISTRY_SPC(  79 ), SPECIES_MOLWT(  79 ) / 'LIMP2           ',  185.00D0 /
       DATA CHEMISTRY_SPC(  80 ), SPECIES_MOLWT(  80 ) / 'PINALP          ',  199.00D0 /
-      DATA CHEMISTRY_SPC(  81 ), SPECIES_MOLWT(  81 ) / 'RCO3            ',   90.00D0 /
+      DATA CHEMISTRY_SPC(  81 ), SPECIES_MOLWT(  81 ) / 'RCO3            ',   89.00D0 /
       DATA CHEMISTRY_SPC(  82 ), SPECIES_MOLWT(  82 ) / 'LIMALP          ',  217.00D0 /
       DATA CHEMISTRY_SPC(  83 ), SPECIES_MOLWT(  83 ) / 'ACTP            ',   89.00D0 /
       DATA CHEMISTRY_SPC(  84 ), SPECIES_MOLWT(  84 ) / 'MEKP            ',  103.00D0 /
@@ -600,7 +600,7 @@
       DATA CHEMISTRY_SPC( 113 ), SPECIES_MOLWT( 113 ) / 'APINP2          ',  230.00D0 /
       DATA CHEMISTRY_SPC( 114 ), SPECIES_MOLWT( 114 ) / 'LIMNP1          ',  230.00D0 /
       DATA CHEMISTRY_SPC( 115 ), SPECIES_MOLWT( 115 ) / 'LIMNP2          ',  230.00D0 /
-      DATA CHEMISTRY_SPC( 116 ), SPECIES_MOLWT( 116 ) / 'ADCN            ',  156.00D0 /
+      DATA CHEMISTRY_SPC( 116 ), SPECIES_MOLWT( 116 ) / 'ADCN            ',  155.00D0 /
       DATA CHEMISTRY_SPC( 117 ), SPECIES_MOLWT( 117 ) / 'VROCP4OXY2      ',  158.20D0 /
       DATA CHEMISTRY_SPC( 118 ), SPECIES_MOLWT( 118 ) / 'VROCN1OXY6      ',  190.20D0 /
       DATA CHEMISTRY_SPC( 119 ), SPECIES_MOLWT( 119 ) / 'FURANONE        ',  100.10D0 /
@@ -608,7 +608,7 @@
       DATA CHEMISTRY_SPC( 121 ), SPECIES_MOLWT( 121 ) / 'VROCP0OXY4      ',  202.30D0 /
       DATA CHEMISTRY_SPC( 122 ), SPECIES_MOLWT( 122 ) / 'BAL1            ',  123.00D0 /
       DATA CHEMISTRY_SPC( 123 ), SPECIES_MOLWT( 123 ) / 'BAL2            ',  109.00D0 /
-      DATA CHEMISTRY_SPC( 124 ), SPECIES_MOLWT( 124 ) / 'OP3             ',  153.50D0 /
+      DATA CHEMISTRY_SPC( 124 ), SPECIES_MOLWT( 124 ) / 'OP3             ',  176.20D0 /
       DATA CHEMISTRY_SPC( 125 ), SPECIES_MOLWT( 125 ) / 'ELHOM           ',  402.00D0 /
       DATA CHEMISTRY_SPC( 126 ), SPECIES_MOLWT( 126 ) / 'VROCIOXY        ',  247.00D0 /
       DATA CHEMISTRY_SPC( 127 ), SPECIES_MOLWT( 127 ) / 'SLOWROC         ',   75.40D0 /
