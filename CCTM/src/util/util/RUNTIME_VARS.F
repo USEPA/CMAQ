@@ -182,10 +182,12 @@
       LOGICAL :: PX_LSM     = .TRUE.  ! flag for mosaic - luc specific deposition - stomatal flux only - within in-lining depv
       LOGICAL :: CLM_LSM    = .FALSE. ! flag for mosaic - luc specific deposition - stomatal flux only - within in-lining depv
       LOGICAL :: NOAH_LSM   = .TRUE.  ! flag for mosaic - luc specific deposition - stomatal flux only - within in-lining depv
-      LOGICAL :: STAGE      = .FALSE. ! flag for mosaic - luc specific deposition - stomatal flux only - within in-lining depvf
+      LOGICAL :: STAGE      = .FALSE. ! flag for mosaic - luc specific deposition - stomatal flux only - within in-lining depv
       LOGICAL :: DEPV_DIAG  = .FALSE. ! flag for mosaic - luc specific deposition - stomatal flux only - within in-lining depv
       Logical :: HGBIDI     = .FALSE. ! flag for Hg bidirectional exchange
       Logical :: BIDI_FERT_NH3 = .TRUE. ! flag to remove fertilizer ammonia from Bidirectional emissions
+      Logical :: STAGE_E20 = .FALSE.  ! flag for the Emerson et al. 2020 Aerosol deposition model PNAS https://www.pnas.org/cgi/doi/10.1073/pnas.2014761117
+      Logical :: STAGE_P22 = .FALSE.  ! flag for the Pleim et al. 2022 Aerosol deposition model
       CHARACTER(16) :: DUST_LAND_SCHEME = "UNKNOWN" ! NLCD, USGS, etc
  
 
@@ -695,8 +697,8 @@
       ! Flag for NOAH LSM
       CALL GET_ENV ( NOAH_LSM, 'NOAH_VERSION', NOAH_LSM, VARDEV )
 
-      ! Flag for Surface Tiled Aerosol and Gaseous Exchange (STAGE) model
-      CALL GET_ENV ( STAGE, 'CTM_STAGE', STAGE, VARDEV )
+!      ! Flag for Surface Tiled Aerosol and Gaseous Exchange (STAGE) model
+!      CALL GET_ENV ( STAGE, 'CTM_STAGE', STAGE, VARDEV )
 
       ! CTM_DEPV_FILE
       CALL GET_ENV ( DEPV_DIAG, 'CTM_DEPV_FILE', DEPV_DIAG, VARDEV )
@@ -710,6 +712,15 @@
       ! Flag for using BELD Land Use for WindBlown Dust 
       CALL GET_ENV ( STRTEMP, 'CTM_WBDUST_BELD', DUST_LAND_SCHEME, VARDEV )
       DUST_LAND_SCHEME = STRTEMP( 1:16)
+
+      ! Get Name of Emission Control File
+      CALL GET_ENV ( STAGECTRL, 'STAGECTRL_NML', STAGECTRL, VARDEV )
+
+      ! Flag for Surface Tiled Aerosol and Gaseous Exchange (STAGE) model Pleim et al. 2022 Aerosol Deposition Option
+      CALL GET_ENV ( STAGE_P22, 'CTM_STAGE_P22', STAGE_P22, VARDEV )
+
+      ! Flag for Surface Tiled Aerosol and Gaseous Exchange (STAGE) model Emerson et al. 2022 Aerosol Deposition Option
+      CALL GET_ENV ( STAGE_E20, 'CTM_STAGE_E20', STAGE_E20, VARDEV )
  
       !-------------------------------------------------------------------------------------------------------
       !>> Transport Processes
@@ -758,9 +769,6 @@
 
       ! Get Name of Emission Control File
       CALL GET_ENV ( EMISSCTRL, 'EMISSCTRL_NML', EMISSCTRL, VARDEV )
-
-      ! Get Name of Emission Control File
-      CALL GET_ENV ( STAGECTRL, 'STAGECTRL_NML', STAGECTRL, VARDEV )
 
       ! Number of Layers for Emissions
       CALL GET_ENV ( EMLAYS_MX, 'CTM_EMLAYS', EMLAYS_MX, VARDEV )

@@ -96,6 +96,12 @@ C------------------------------------------------------------------------------
          Real            :: Gamma_NH3_grnd
          Real            :: Gamma_NH3_st
          Real            :: Hg_grnd
+         Real            :: l_width ! leaf width
+         Real            :: Alpha   ! Zhang et al. 2003/Emerson et al. 2020 land use parameter 
+         Real            :: BAI     ! Building area index?
+         Real            :: Ahair
+         Real            :: Fhair
+         Real            :: Aleaf      
          Integer         :: LU_Index
       END TYPE
       TYPE( DEP_MOD_LU_DATA ) STAGE_LU_DATA( N_Map_Max )
@@ -399,6 +405,12 @@ C-------------------------------------------------------------------------------
             STAGE_LU_DATA%Gamma_NH3_grnd = 0.0
             STAGE_LU_DATA%Gamma_NH3_st   = 0.0
             STAGE_LU_DATA%Hg_grnd        = 0.0
+            STAGE_LU_DATA%l_width        = 0.0
+            STAGE_LU_DATA%Alpha          = 0.0
+            STAGE_LU_DATA%BAI            = 0.0
+            STAGE_LU_DATA%Ahair          = 0.0
+            STAGE_LU_DATA%Fhair          = 0.0
+            STAGE_LU_DATA%Aleaf          = 0.0
             STAGE_LU_DATA%LU_Index       = 0
 
             MET_TO_STAGE_LU%Met_LU_Name = 'N/A'

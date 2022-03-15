@@ -155,7 +155,6 @@ setenv CTM_WBDUST_BELD BELD3 #> landuse database for identifying dust source reg
 setenv CTM_LTNG_NO Y         #> turn on lightning NOx [ default: N ]
 setenv KZMIN Y               #> use Min Kz option in edyintb [ default: Y ], 
                              #>    otherwise revert to Kz0UT
-setenv CTM_MOSAIC N          #> landuse specific deposition velocities [ default: N ]
 setenv PX_VERSION Y          #> WRF PX LSM
 setenv CLM_VERSION N         #> WRF CLM LSM
 setenv NOAH_VERSION N        #> WRF NOAH LSM
@@ -170,7 +169,11 @@ setenv CTM_GRAV_SETL Y       #> vdiff aerosol gravitational sedimentation [ defa
 setenv CTM_BIOGEMIS_BEIS Y   #> calculate in-line biogenic emissions [ default: N ]
 setenv CTM_BIOGEMIS_MEGAN N  #> turns on MEGAN biogenic emission [ default: N ]
 setenv USE_MEGAN_LAI N       #> use separate LAI input file [ default: N ]
-
+#> Surface Tiled Aerosl and Gaseous Exchange Options
+# Default aerosol deposition model is CMAQ v5.3 (Shen et al 2022; lowest J model deposition)
+setenv CTM_MOSAIC N          #> landuse specific deposition velocities [ default: N ]
+setenv CTM_STAGE_P22 N       #> Pleim et al. 2022 Aerosol deposition model (Highest J model deposition)
+setenv CTM_STAGE_E20 Y       #> Emerson et al. 2020 Aerosol deposition model
 
 #> Vertical Extraction Options
 setenv VERTEXT N

@@ -73,6 +73,12 @@ C Buffer variables
          Real,            Allocatable :: NH3_gam_grnd ( : )
          Real,            Allocatable :: NH3_gam_st   ( : )
          Real,            Allocatable :: Hg_grnd      ( : )
+         Real,            Allocatable :: l_width      ( : )
+         Real,            Allocatable :: Alpha        ( : )
+         Real,            Allocatable :: BAI          ( : )
+         Real,            Allocatable :: Ahair        ( : )
+         Real,            Allocatable :: Fhair        ( : )
+         Real,            Allocatable :: Aleaf        ( : )
          Character( 16 ), Allocatable :: cat_lu       ( : ) ! Tiled LU name
          Character( 16 ), Allocatable :: name_lu      ( : ) ! Land use output name
          Logical,         Allocatable :: gas_out      ( : ) ! vector of length N_SPC_DIFF with T for output
@@ -130,7 +136,13 @@ C...include files
      &              Tile_Data%Z00          ( n_stage_lu ),
      &              Tile_Data%NH3_gam_st   ( n_stage_lu ),
      &              Tile_Data%NH3_gam_grnd ( n_stage_lu ),
-     &              Tile_Data%Hg_grnd      ( n_stage_lu ),STAT = ALLOCSTAT )
+     &              Tile_Data%Hg_grnd      ( n_stage_lu ),
+     &              Tile_Data%l_width      ( n_stage_lu ),
+     &              Tile_Data%Alpha        ( n_stage_lu ),
+     &              Tile_Data%BAI          ( n_stage_lu ),
+     &              Tile_Data%Ahair        ( n_stage_lu ),
+     &              Tile_Data%Fhair        ( n_stage_lu ),
+     &              Tile_Data%Aleaf        ( n_stage_lu ),STAT = ALLOCSTAT )
          If ( ALLOCSTAT .Ne. 0 ) Then
             XMSG = 'Failure allocating tile land use specific data'
             Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
@@ -149,6 +161,12 @@ C...include files
          Tile_Data%NH3_gam_st   = STAGE_LU_Data( 1:n_stage_lu )%Gamma_NH3_st
          Tile_Data%NH3_gam_grnd = STAGE_LU_Data( 1:n_stage_lu )%Gamma_NH3_grnd
          Tile_Data%Hg_grnd      = STAGE_LU_Data( 1:n_stage_lu )%Hg_grnd
+         Tile_Data%l_width      = STAGE_LU_Data( 1:n_stage_lu )%l_width
+         Tile_Data%Alpha        = STAGE_LU_Data( 1:n_stage_lu )%Alpha
+         Tile_Data%BAI          = STAGE_LU_Data( 1:n_stage_lu )%BAI
+         Tile_Data%Ahair        = STAGE_LU_Data( 1:n_stage_lu )%Ahair
+         Tile_Data%Fhair        = STAGE_LU_Data( 1:n_stage_lu )%Fhair
+         Tile_Data%Aleaf        = STAGE_LU_Data( 1:n_stage_lu )%Aleaf
                                                                                                   
 ! Allocate buffers
          ALLOCATE ( BUFF2D_1( ncols,nrows ), STAT = ALLOCSTAT )

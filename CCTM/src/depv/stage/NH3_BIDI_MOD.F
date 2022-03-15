@@ -428,16 +428,15 @@ C-------------------------------------------------------------------------------
          Real( 8 )              :: a1
          Real,        Parameter :: twothree = 2.0/3.0
          Real,        Parameter :: onethree = 1.0/3.0
-         Real,        Parameter :: MolN     = 14.007  ! g/mol N
-         Real,        Parameter :: MolNH3   = 17.01  ! g/mol NH3         
+         Real,        Parameter :: MolN     = 14.007  ! g/mol N      
          Real                   :: wg_ir        ! 1 cm soil moisture  
          Real                   :: w5cm, cg         ! soil moisture in top 5 cm (vol frc)
 
          Integer                :: j
 ! Point were soil solution NH4 equals half the maximum sorption capacity Venteria et al. Sci. Rep. doi:10.1038/srep12153
-         Real, Parameter        :: half_sol = 345.0 
+         Real, Parameter        :: half_sol = 124.0 ! update from NC State Alnosour Thesis
 ! Maximum NH4 soil sorption capacity Venteria et al. Sci. Rep. doi:10.1038/srep12153
-         Real, Parameter        :: max_sorp = 550.0 
+         Real, Parameter        :: max_sorp = 426.0 ! update from NC State Alnosour Thesis 
  
          If( PX_LSM ) Then
 ! simplified from Darcy's law assuming stationarity and only gravitational draining with the Campbell hydrological functions applied
@@ -486,47 +485,47 @@ C-------------------------------------------------------------------------------
          If( l .Eq. l_ag ) Then
            If( gamma1( c,r ) .eq. 0.0 ) Then 
                cg = wg_ir/1.6 ! L water / kg soil
-               mNH4    = C_gam*1.0e-7/1.6*14.0*1.0e3 ! assume a bulk density of 1.6 kg/l untill Canadian data is available
+               mNH4    = C_gam*1.0e-7/1.6*MolN*1.0e3 ! assume a bulk density of 1.6 kg/l untill Canadian data is available
                Ka      = 5.68853e-10*exp(-6248.151*(1.0/MET_DATA%SoiT1( c,r )-1.0/298.15))
                coef_a  = cg * (1.0+Ka/1.0e-7) ! assume a pH of 7
                coef_b  = max_sorp+cg * half_sol * (1.0+Ka/1.0e-7) - mNH4
                coef_c  = -half_sol * mNH4
                NH4_sol = (-coef_b+sqrt(coef_b**2.0-4.0*coef_a*coef_c))/(2.0*coef_a)
                NH3_sol = NH4_sol*Ka/1.0e-7 ! mg N/l
-               cnh3g1  = (NH4_sol+NH3_sol)*1.0e-3/14.0/1.0e-7
+               cnh3g1  = (NH4_sol+NH3_sol)*1.0e-3/MolN/1.0e-7
             Else
                cg = wg_ir/BDs1( c,r ) ! L water / kg soil
-               mNH4 = gamma1( c,r )*MHp1( c,r )/BDs1( c,r )*14.0*1.0e3
+               mNH4 = gamma1( c,r )*MHp1( c,r )/BDs1( c,r )*MolN*1.0e3
                Ka      = 5.68853e-10*exp(-6248.151*(1.0/MET_DATA%SoiT1( c,r )-1.0/298.15))
                coef_a  = cg*(1.0+Ka/MHp1( c,r ))
                coef_b  = max_sorp+cg*half_sol*(1.0+Ka/MHp1(c,r)) - mNH4
                coef_c  = -half_sol*mNH4
                NH4_sol = (-coef_b+sqrt(coef_b**2.0-4.0*coef_a*coef_c))/(2.0*coef_a)
                NH3_sol = NH4_sol*Ka/MHp1( c,r ) ! mg N/l
-               cnh3g1  = (NH4_sol+NH3_sol)*1.0e-3/14.0/MHp1( c,r )
+               cnh3g1  = (NH4_sol+NH3_sol)*1.0e-3/MolN/MHp1( c,r )
             End If
             If( gamma2( c,r ) .eq. 0.0 ) Then 
                cg = w5cm/1.6 ! L water / kg soil
-               mNH4    = C_gam*1.0e-7/1.6*14.0*1.0e3 ! assume a bulk density of 1.6 kg/l untill Canadian data is available
+               mNH4    = C_gam*1.0e-7/1.6*MolN*1.0e3 ! assume a bulk density of 1.6 kg/l untill Canadian data is available
                Ka      = 5.68853e-10*exp(-6248.151*(1.0/MET_DATA%SoiT1( c,r )-1.0/298.15))
                coef_a  = cg*(1.0+Ka/1.0e-7)
                coef_b  = max_sorp+cg*half_sol*(1.0+Ka/1.0e-7) - mNH4
                coef_c  = -half_sol*mNH4
                NH4_sol = (-coef_b+sqrt(coef_b**2.0-4.0*coef_a*coef_c))/(2.0*coef_a)
                NH3_sol = NH4_sol*Ka/1.0e-7 ! mg N/l
-               cnh3g2  = (NH4_sol+NH3_sol)*1.0e-3/14.0/1.0e-7!/wg_ir
+               cnh3g2  = (NH4_sol+NH3_sol)*1.0e-3/MolN/1.0e-7!/wg_ir
                NH3_st   = Max( NH3_st, Real( a1 ) *( C_gam * 1.0e-7
      &                  * w5cm * MolN * zsoil2 * 1.0e4 * 12.3 + 20.3 ) )
              Else 
                cg = w5cm/BDs2( c,r ) ! L water / kg soil
-               mNH4 = gamma2( c,r )*MHp2( c,r )/BDs2( c,r )*14.0*1.0e3
+               mNH4 = gamma2( c,r )*MHp2( c,r )/BDs2( c,r )*MolN*1.0e3
                Ka      = 5.68853e-10*exp(-6248.151*(1.0/MET_DATA%SoiT1( c,r )-1.0/298.15))
                coef_a  = cg*(1.0+Ka/MHp2( c,r ))
                coef_b  = max_sorp+cg*half_sol*(1.0+Ka/MHp2(c,r)) - mNH4
                coef_c  = -half_sol*mNH4
                NH4_sol = (-coef_b+sqrt(coef_b**2.0-4.0*coef_a*coef_c))/(2.0*coef_a)
                NH3_sol = NH4_sol*Ka/MHp2( c,r ) ! mg N/l
-               cnh3g2  = (NH4_sol+NH3_sol)*1.0e-3/14.0/MHp2( c,r )
+               cnh3g2  = (NH4_sol+NH3_sol)*1.0e-3/MolN/MHp2( c,r )
                NH3_st   = Max( NH3_st, Real( a1 ) * ( gamma2(c,r) * 1.0e-7
      &                  * w5cm * MolN * zsoil2 * 1.0e4 * 12.3 + 20.3 ) )
             End If
