@@ -102,7 +102,6 @@ C Local Variables:
 
       CHARACTER( 16 ) :: PNAME = 'HADVPPM'
       LOGICAL, SAVE :: FIRSTIME = .TRUE.
-      LOGICAL, SAVE :: FIRST_BC = .TRUE.
       LOGICAL, ALLOCATABLE, SAVE :: XYFIRST( : )
       REAL, ALLOCATABLE, SAVE :: CGRID0( :,:,: ), XADV(:,:,:), YADV(:,:,:)
 
@@ -118,14 +117,16 @@ C Local Variables:
 
       INTEGER      LVL                ! loop counters
       LOGICAL      LSTAT
+      LOGICAL      L_WRITE_WARNING
 
 C Required interface for allocatable array dummy arguments
 
       INTERFACE
-         SUBROUTINE RDBCON ( FDATE, FTIME, TSTEP, LVL, BCON, LSTAT )
+         SUBROUTINE RDBCON ( FDATE, FTIME, TSTEP, LVL, BCON,
+     &                       L_WRITE_WARNING )
             INTEGER, INTENT( IN )  :: FDATE, FTIME, TSTEP, LVL
             REAL,    INTENT( OUT ) :: BCON( :,: )
-            LOGICAL, INTENT( INOUT ) :: LSTAT
+            LOGICAL, INTENT( INOUT ) :: L_WRITE_WARNING
          END SUBROUTINE RDBCON
          SUBROUTINE X_PPM ( CGRID, FDATE, FTIME, TSTEP, LVL, BCON )
             REAL, POINTER          :: CGRID( :,:,:,: )
@@ -194,6 +195,7 @@ C Get CGRID offsets
       END IF
 
       LSTAT = .FALSE.
+      L_WRITE_WARNING = .TRUE.
       DO 301 LVL = 1, NLAYS
 
          STEP = TIME2SEC ( ASTEP( LVL ) )
@@ -208,7 +210,7 @@ C Get CGRID offsets
 
 101      CONTINUE
 
-         CALL RDBCON ( FDATE, FTIME, ASTEP( LVL ), LVL, BCON, LSTAT )
+         CALL RDBCON ( FDATE, FTIME, ASTEP( LVL ), LVL, BCON, L_WRITE_WARNING )
 
          IF ( LIPR ) CGRID0( :,:,: ) = CGRID( :,:,LVL,: )
 
@@ -261,21 +263,6 @@ C Get CGRID offsets
            DELC_YADV( :,:,LVL,: ) = DELC_YADV( :,:,LVL,: ) + YADV( :,:,: )
          END IF
 301   CONTINUE
- 
-      !Print warning if any aerosol BCs violated the size distribution parameters
-      IF ( LSTAT ) THEN 
-         IF ( FIRST_BC ) THEN
-            FIRST_BC = .FALSE.
-            WRITE( XMSG2, '(A)' ),
-     &            'ATTENTION: Applying fix to aerosol Boundary Conditions' //
-     &            ' for aerosol modes. Set verbose_rdbcon preprocessor' //
-     &            ' flag to learn more.'
-            WRITE( LOGDEV, * )
-            CALL LOG_MESSAGE( LOGDEV, XMSG2 )
-            WRITE( LOGDEV, * )
-         END IF
-      END IF
- 
  
       RETURN
       END

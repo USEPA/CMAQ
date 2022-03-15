@@ -58,8 +58,8 @@ C-----------------------------------------------------------------------
 
       Use aero_data, only : wet_moments_flag, moment3_conc, moment2_conc, moment0_conc,
      &                       aeromode_dens, aeromode_lnsg, aeromode_diam, aeromode_mass,
-     &                       min_diam_g, min_sigma_g, max_sigma_g, n_mode, n_aerospc,
-     &                       aerospc, aero_missing, aerospc_conc, aeromode
+     &                       min_dg_dry, min_dg_wet, min_sigma_g, max_sigma_g, n_mode, 
+     &                       aerospc, aero_missing, aerospc_conc, aeromode, n_aerospc
       Use aeromet_data, only : f6pi   ! Includes CONST.EXT
 
       Implicit None
@@ -103,6 +103,7 @@ C Local Variables:
       Real( 8 ), Save :: min_ln_sig_g_squ
       Real( 8 ), Save :: max_ln_sig_g_squ
       Logical,   Save :: FirsTime = .True.
+      Real      :: local_min_dg( n_mode )
 
 C-----------------------------------------------------------------------
 
@@ -113,7 +114,12 @@ C-----------------------------------------------------------------------
           FirsTime = .False.
       End If
 
-
+      ! Retrieve correct limits on diameter
+      If ( wet_moments_flag ) Then
+          local_min_dg = min_dg_wet
+      Else
+          local_min_dg = min_dg_dry
+      End If
 
 C *** Calculate aerosol 3rd moment concentrations [ m**3 / m**3 ]
 
@@ -177,8 +183,13 @@ c         below the minimum limit.
          aeromode_lnsg( n ) = Real( Sqrt( l2sg ) )
 
          ES36 = Real( Exp( 4.5d0 * l2sg ) )
-         aeromode_diam( n ) = Max( min_diam_g( n ), ( moment3_conc( n )
-     &                      / ( moment0_conc( n ) * es36 ) ) ** one3 )
+         moment0_conc( n ) = Max(moment0_conc( n ),
+     &                           moment3_conc( n )/(1.0e-12 * es36) )
+         !moment0_conc( n ) = Min(moment0_conc( n ),
+         !&                           moment3_conc( n )/(local_min_dg(n)**3 * es36) )
+
+         aeromode_diam( n ) = ( moment3_conc( n ) / 
+     &                          ( moment0_conc( n ) * es36 ) ) ** one3 
 
       End Do
 
