@@ -30,7 +30,7 @@ C   meteorology.
 C Preconditions:
 C   Postprocessed MM5 meteorology that contains temperature, 
 C   solar radiation, and pressure data. 
-C   Normalized gridded emissions B3GRD from Normbeis3 (3.12) 
+C   Normalized gridded emissions BEIS_NORM_EMIS from Normbeis 
  
 C Subroutines and Functions Called:
 C   BEIS, HRNO,  

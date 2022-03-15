@@ -119,7 +119,7 @@ C-------------------------------------------------------------------------------
          Real,    Allocatable :: SOIM1    ( :,: )  ! 1 cm soil moisture [m**3/m**3]
          Real,    Allocatable :: SOIM2    ( :,: )  ! 1 m soil moisture  [m**3/m**3]
          Real,    Allocatable :: SOIT1    ( :,: )  ! 1 cm soil temperature [K]
-!        Real,    Allocatable :: SOIT2    ( :,: )  ! 1 m soil temperature [K]
+         Real,    Allocatable :: SOIT2    ( :,: )  ! 1 m soil temperature [K]
          Real,    Allocatable :: SEAICE   ( :,: )  ! Sea ice coverage [%]
          Real,    Allocatable :: MOL      ( :,: )  ! Monin-Obukhov length [m]
          Real,    Allocatable :: MOLI     ( :,: )  ! inverse of Monin-Obukhov length [m]
@@ -554,6 +554,15 @@ C-----------------------------------------------------------------------
          Grid_Data%WSAT    = 0.0
          Grid_Data%WFC     = 0.0
          
+         If ( BIOGEMIS_BEIS ) Then
+            ALLOCATE( Met_Data%SOIT2    ( NCOLS,NROWS ),
+     &                STAT = ALLOCSTAT )
+            If ( ALLOCSTAT .Ne. 0 ) Then
+               XMSG = 'Failure allocating layer 2 soil temperature'
+               Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+            End If
+         End If
+
          If ( ABFLUX .or. BIOGEMIS_MEGAN  ) Then
             ALLOCATE( Met_Data%SOIM2    ( NCOLS,NROWS ),
      &                STAT = ALLOCSTAT )
@@ -774,6 +783,8 @@ C Soil vars
          End If
 
          call interpolate_var ('SOIT1', jdate, jtime, Met_Data%SOIT1)
+
+         call interpolate_var ('SOIT2', jdate, jtime, Met_Data%SOIT2)
 
          call interpolate_var ('SEAICE', jdate, jtime, Met_Data%SEAICE)
 

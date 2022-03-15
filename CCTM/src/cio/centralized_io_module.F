@@ -112,7 +112,7 @@
 
         integer, parameter :: max_nfiles = 500
 
-        character (20), parameter :: biogemis_fname   = 'B3GRD'
+        character (20), parameter :: biogemis_fname   = 'BEIS_NORM_EMIS'
 
 ! to recognize the time step in each file could be different, in the new revised 
 ! implementation will address that and here is the algorithm. When open a new file, 
@@ -162,9 +162,9 @@
      &                       ICCG_SUM(:,:),     ! from LTNG parameter data
      &                       ICCG_WIN(:,:),     ! from LTNG parameter data
      &                       AVGEMIS(:,:,:,:),  ! from BIOGEMIS data
-     &                       GROWAGNO(:,:),     ! from B3GRD data
-     &                       NGROWAGNO(:,:),    ! from B3GRD data
-     &                       NONAGNO(:,:),      ! from B3GRD data
+     &                       GROWAGNO(:,:),     ! from BEIS_NORM_EMIS data
+     &                       NGROWAGNO(:,:),    ! from BEIS_NORM_EMIS data
+     &                       NONAGNO(:,:),      ! from BEIS_NORM_EMIS data
      &                       RAINFALL(:,:,:),   ! from SOILINP data
      &                       HRNO_SW(:,:,:),    ! from SOILINP data
      &                       HRNO_T2M(:,:,:),   ! from SOILINP data
@@ -363,7 +363,7 @@
 !  boundary_files_setup
 !  stack_files_setup
 !  biogemis_setup
-!  b3grd_setup
+!  beis_norm_emis_setup
 !  depv_data_setup
 !  wb_dust_setup
 !  medc_file_setup
@@ -1605,7 +1605,6 @@
                       CALL M3EXIT ( PNAME, data_jdate, data_jtime, XMSG, XSTAT1 )
                    END IF
 #endif
-                   call m3exit( 'Centralized I/O',0,0,' ==d== UNKOWN Type of File',1 )
                 end if
 
                 cio_grid_data_tstamp(1, buf_loc, v) = data_jdate
@@ -2591,13 +2590,13 @@ C Read the various categories of normalized emissions
         end subroutine biogemis_setup
 
 ! -------------------------------------------------------------------------
-        subroutine b3grd_setup
+        subroutine beis_norm_emis_setup
 
           USE UTILIO_DEFN
           use HGRD_DEFN, only : ncols, nrows
 
-          Character( 40 ), parameter :: pname = 'b3grd_setup'
-          Character( 40 ), parameter :: fname = 'B3GRD'
+          Character( 40 ), parameter :: pname = 'beis_norm_emis_setup'
+          Character( 40 ), parameter :: fname = 'BEIS_NORM_EMIS'
 
           CHARACTER( 256 ) :: MESG
           CHARACTER( 16 ) :: VAR
@@ -2641,7 +2640,7 @@ C Read the various categories of normalized emissions
              CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
           END IF
 
-        end subroutine b3grd_setup
+        end subroutine beis_norm_emis_setup
 
 ! -------------------------------------------------------------------------
         subroutine depv_data_setup
@@ -4521,7 +4520,7 @@ C   mminlu and num_land_cat are WRF global variables
 
              if (BIOGEMIS_BEIS) then
                 call biogemis_setup
-                call b3grd_setup
+                call beis_norm_emis_setup
              end if
              if (BIOGEMIS_MEGAN) then
                 call megan_setup
