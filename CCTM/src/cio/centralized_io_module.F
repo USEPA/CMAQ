@@ -270,7 +270,8 @@
      &             MEDC_AVAIL     = .true.,  ! file INIT_MEDC_1 is available
      &             E2C_CHEM_AVAIL = .true.,  ! file E2C_CHEM is available
      &             GMN_AVAIL      = .false., ! variable GMN available in E2C_CHEM or not
-     &             LUCRO_AVAIL               ! file LUFRAC_CRO is available
+     &             LUCRO_AVAIL,              ! file LUFRAC_CRO is available
+     &             PXSOIL_AVAIL              ! flag for WRFv4.1+ PX LSM soil extras in MET_CRO_2D
 
 ! Met data is large enough to cover boundary and no MET_BDY_3D will be used
         logical :: window
@@ -581,6 +582,7 @@
           WR_AVAIL     = (INDEX1( 'WR', NVARS3D, VNAME3D ) .gt. 0)
           Q2_AVAIL     = (INDEX1( 'Q2', NVARS3D, VNAME3D ) .gt. 0)
           LH_AVAIL     = (INDEX1( 'LH', NVARS3D, VNAME3D ) .gt. 0)
+          PXSOIL_AVAIL = (INDEX1( 'CLAY_PX', NVARS3D, VNAME3D ) .gt. 0)
 
           CALL SUBHFILE ( MET_CRO_2D, GXOFF, GYOFF,
      &                    STRTCOLMC2, ENDCOLMC2, STRTROWMC2, ENDROWMC2 )

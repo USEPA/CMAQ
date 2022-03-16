@@ -28,9 +28,6 @@ C * the selections into a dust-related landuse array (ULAND).
 C   Optionally, reads 3 gridded crop calendar file and calculates an
 C   erodible agriculture land fraction. (cropcal)
 
-C * Applies a predetermined removal fraction in and below canopy to
-C * ULAND and determines a transport factor (TFB) for this regime.
-C * = applies to tfbelow
 
 C Function: 3d point source emissions interface to the chemistry-transport model
 
@@ -168,7 +165,6 @@ C Module shared variables:
       real, allocatable, save :: wmax  ( :,: )   ! max adsorb water percent
       real, allocatable, save :: kvh   ( :,:,: ) ! ratio of vertical flux / horizontal (k factor)
       real, allocatable, save :: sd_ep ( :,: )   ! soil->dust erodiblity potential
-      real, allocatable, save :: tfb   ( :,: )   ! transport fraction in and below canopy
 
       real :: eropot( 3 ) =     ! erodible potential of soil components
      &        (/ 0.08,   ! clay
@@ -220,10 +216,6 @@ C Local variables:
             integer, intent( in )  :: jdate, jtime
             real,    intent( out ) :: agland( :,: )
             end subroutine cropcal
-            subroutine tfbelow ( jdate, jtime, tfb )
-            integer, intent( in )  :: jdate, jtime
-            real,    intent( out ) :: tfb( :,: )
-            end subroutine tfbelow
          end interface
 
 C-----------------------------------------------------------------------
@@ -289,10 +281,9 @@ C Allocate emissions array
 C Allocate private arrays
          allocate( agland( ncols,nrows ),
      &             wmax  ( ncols,nrows ),
-     &             sd_ep ( ncols,nrows ),
-     &             tfb   ( ncols,nrows ), stat = status )
+     &             sd_ep ( ncols,nrows ), stat = status)
          if ( status .ne. 0 ) then
-            xmsg = '*** Failure allocating AGLAND, WMAX, SD_EP, or TFB'
+            xmsg = '*** Failure allocating AGLAND, WMAX, or SD_EP'
             call m3warn( pname, jdate, jtime, xmsg )
             success = .false.; return
          end if
@@ -478,9 +469,6 @@ C...append diagnostic variables with mass emissions species
             end do
          end if
 
-C Get transport factor within canopy and 4 land use type percents
-         call tfbelow ( jdate, jtime, tfb )
-
          l2sgj = log( sigj ) * log( sigj )
          l2sgk = log( sigk ) * log( sigk )
 
@@ -602,6 +590,7 @@ C=======================================================================
          use aero_data
          use utilio_defn
          use lus_data_module
+         use centralized_io_module
 
 C       8/18/11 D.Wong: incorporated twoway model implementation and change
 C                       RC -> RCA and RN -> RNA and made it backward compatible
@@ -653,7 +642,6 @@ C Parameters:
                        ! automatic arrays
          real       :: fmoit  ( ncols,nrows )      ! factor of soil moisture on u*t
          real       :: soimt  ( ncols,nrows )      ! gravimetric soil moisture (Kg/Kg)
-         real       :: tfa    ( ncols,nrows )      ! transport fraction above canopy
          real       :: wrbuf  ( ncols,nrows )      ! diagnositc write buffer
          real       :: vegfrac( ncols,nrows )      ! vegetation fraction
          real       :: vegfree                     ! 1.0 - vegfrac for this col, row
@@ -741,7 +729,6 @@ C   in each soil type [Kg/Kg]. from Menut et al. [JGR,2013]
      &              0.00,   0.00,   0.00,   0.00 /),  ! Other
      &           (/ nsltyp,4 /), order = (/ 2,1 /) ) ! fill columns first
 
-         real :: soiltxt2( ndp )
 
 C---Mean mass median particle diameter (m) for each soil texture type
 C   Chatenet et al. [Sedimentology,1996] and Menut et al. [JGR,2013]
@@ -750,12 +737,10 @@ C   Chatenet et al. [Sedimentology,1996] and Menut et al. [JGR,2013]
      &              210.0E-6,     ! Fine-medium sand
      &              125.0E-6,     ! Silt
      &                2.0E-6 /)   ! Clay
+C---Soil texture vars of the grid cell
+         real :: soiltxt_gcell( ndp )
+         real :: clay, csand, fmsand, sandf, siltf
 
-         interface
-            subroutine tfabove ( tfa )
-               real,    intent( out ) :: tfa( :,: )
-            end subroutine tfabove
-         end interface
 
 #ifdef verbose_wbdust
          integer dryhit
@@ -777,8 +762,6 @@ C-----------------------------------------------------------------------
             end if
          end if
 
-C---Calculate transport factor above the canopy
-         call tfabove ( tfa )
 
 C---Get Julian day number in year
          jday = float( mod( jdate,1000 ) )
@@ -824,6 +807,15 @@ C set erodible landuse map
             emap( m ) = dmap( m )  ! dmap maps to one of the 3 BELD3 desert types
          end do
          emap( n_dlcat+1 ) = 4
+C   Check PX soil texture data flag and log a message if or if not used in WB dust
+         if(PXSOIL_AVAIL) then
+            CALL LOG_MESSAGE( LOGDEV, '==================  Windblown Dust Message =====================' )
+            CALL LOG_MESSAGE( LOGDEV, '  WRFV4.1+ inputs have extra PX LSM soil texture and props used.' )
+            CALL LOG_MESSAGE( LOGDEV, ' Clay, coarse and fine-medium sand from PX LSM not lookup tables.' )
+         else
+            CALL LOG_MESSAGE( LOGDEV, '==================  Windblown Dust Message =====================' )
+            CALL LOG_MESSAGE( LOGDEV, '   Clay, coarse and fine-medium sand from internal lookup table.' )
+         end if
 
 C --------- ###### Start Main Loop ###### ---------
  
@@ -842,6 +834,25 @@ C --------- ###### Start Main Loop ###### ---------
             end do
  
             rlay1hgt = rjacm ( c,r ) / cellhgt
+
+
+C--- Set Clay, coarse and fine/medium sand fractions.
+C--- If value from WRF is missing (-9999.) use old table values
+C--  If value from WRF is from WRFV4.1 PX LSM csand_px, etc use those
+            j = Grid_Data%sltyp( c,r )
+            if(PXSOIL_AVAIL) then
+              clay   = Grid_Data%clay_px(c,r)
+              csand  = Grid_Data%csand_px(c,r)
+              fmsand = Grid_Data%fmsand_px(c,r)
+            else
+              csand  = soiltxt(j,1)
+              fmsand = soiltxt(j,2)
+              clay   = soiltxt(j,4)
+            end if
+
+            sandf = csand + fmsand
+            siltf = 1.0 - clay - sandf
+
 
 C---Vegetation fraction based on the WRF/MCIP VEG variable. In WRF that would be VEGF_PX
 C-- for the case of PX and VEGFRA in the case of other LSMs. In more recent WRFv4+ versions
@@ -863,23 +874,17 @@ C                           7. friction velocity > threshold
      &           ( Met_Data%snocov( c,r ) .lt. 0.001 ) ) then ! less than 0.1% snow coverage
 C---Dust possiblity 1,2,3
 
-               j = Grid_Data%sltyp( c,r )
-
-C kludge (fixed in wrf-px after 4 Mar 11)
-               if ( j .gt. 4 ) j = j + 1   ! PX combines "silt" with "silt loam"
-               if ( j .gt. 13 ) j = 13   ! = ?
 
 C Calculate maximum amount of the adsorbed water
 C    w` = 0.0014(%clay)**2 + 0.17(%clay) - w` in %
 C    Fecan et al. [1999,Annales Geophys.,17,144-157]
-               wmax( c,r ) = ( 14.0 * soiltxt( j,4 ) + 17.0 ) * soiltxt( j,4 )   ! [%]
+               wmax( c,r ) = ( 14.0 *  clay + 17.0 ) * clay   ! [%]
 
 !              write( logdev,'( 2x, a, i8.6, f12.5 )' ) 'max wmax:', jtime, maxval( wmax )
 
 C Change soil moisture units from volumetric (m**3/m**3) to gravimetric (Kg/Kg)
-               soimt( c,r ) = Met_Data%soim1( c,r ) ! <- [m**3/m**3]
-     &                      * 1000.0 / ( 2650.0 * ( 0.511 + 0.126
-     &                                          * ( soiltxt( j,1 ) + soiltxt( j,2 ) ) ) )
+               soimt( c,r ) = Met_Data%soim1( c,r ) 
+     &                      * 1000.0 / ( 2650.0 * ( 0.511 + 0.126 * sandf  ) )
 
                if ( soimt( c,r ) .le. soilml1( j ) ) then
 C---Dust possiblity 4
@@ -897,9 +902,8 @@ C---Soil moisture effect on U*t
                   end if
 
 C---Erodibility potential of soil component
-                  sd_ep( c,r ) = soiltxt( j,4 ) * eropot( 1 )
-     &                         + soiltxt( j,3 ) * eropot( 2 )
-     &                         + ( soiltxt( j,1 ) + soiltxt( j,2 ) ) * eropot( 3 )
+                  sd_ep( c,r ) = clay * eropot( 1 )
+     &                         + siltf * eropot( 2 ) + sandf * eropot( 3)
 
 C---Lu and Shao [JGR,1999] and Kang et al. [JGR,2011]
 C   First, mapping soil types into 4 main soil types following Kang et al. [JGR,2011]
@@ -994,9 +998,12 @@ C---Vert-to-Horiz dust flux ratio : Kang et al. [JGR, 2011] : Eq. (12)
 !                       kvh( c,r,m ) = ( calpha * 9.81 * pfrac * 1000.0 / 2.0 / pp )
 !    &                               * ( 0.24 + 2.09 * ustr( c,r,m ) * sqrt( 2650.0 / pp ) )
                         kvh( c,r,m ) = flxfac1 * ( 0.24 + flxfac2 * ustr( c,r,m ) )
-                        soiltxt2 = soiltxt( j,: )
+                        soiltxt_gcell(1) = csand
+                        soiltxt_gcell(2) = fmsand
+                        soiltxt_gcell(3) = siltf
+                        soiltxt_gcell(4) = clay
                         hflux = dust_hflux( ndp, dp,
-     &                                      soiltxt2,
+     &                                      soiltxt_gcell( : ),
      &                                      fmoit( c,r ),
      &                                      fruf( c,r,m ),
      &                                      ustr( c,r,m ),
@@ -1018,10 +1025,6 @@ C---Vert-to-Horiz dust flux ratio : Kang et al. [JGR, 2011] : Eq. (12)
  
 C ------- End Loop Over Erodible Landuse ----
  
-C Dust removal by surrounding vegetation <-???
-C Adjust dust emissions for transport factors
-
-                  dust_em( c,r ) = dust_em( c,r ) * tfa( c,r ) * tfb( c,r )
 
                end if   ! if soil moisture
             end if   ! if rain & land & snow
@@ -1116,8 +1119,6 @@ C 2nd moment multiplied by PI to obtain the surface area emissions rate.
                diagv( n+4  ) = vegfrac( c,r )     ! 'Vegetation_Frac '
                diagv( n+5  ) = uland( c,r,3 )     ! 'Urban_Cover     '
                diagv( n+6  ) = uland( c,r,4 )     ! 'Forest_Cover    '
-               diagv( n+7  ) = tfa  ( c,r )       ! 'Trfac_Above_Can '
-               diagv( n+8 )  = tfb  ( c,r )       ! 'Trfac_Inside_Can'
 
                n = n + 8
 
@@ -1223,7 +1224,7 @@ C Then reset the emissions array and local write counter.
          end subroutine get_dust_emis
 
 C=======================================================================
-         function dust_hflux( ndp, dp, soiltxt2, fmoit, fruf, ustr, sd_ep, dens )
+         function dust_hflux( ndp, dp, soiltxt, fmoit, fruf, ustr, sd_ep, dens )
      &      result( hflux )
 
 C usage: hflux = dust_flux( ndp, dp,
@@ -1240,7 +1241,7 @@ C                           dens( c,r ) )
 
             integer, intent( in ) :: ndp
             real,    intent( in ) :: dp( ndp )
-            real,    intent( in ) :: soiltxt2( ndp )
+            real,    intent( in ) :: soiltxt( ndp )
             real,    intent( in ) :: fmoit, fruf, ustr, sd_ep, dens
             real hflux
 
@@ -1277,7 +1278,7 @@ C---Horiz. Flux from White (1979)
 C---Horiz. Flux from Owen (1964)
 !                 utem = ustr * ( ustr * ustr - utstar * utstar )
                   hflux = hflux
-     &                  + fac * utem * soiltxt2( n )   !  [g/m/s]
+     &                  + fac * utem * soiltxt( n )   !  [g/m/s]
                end if
             end do   ! dust particle size
 

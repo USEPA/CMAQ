@@ -170,8 +170,11 @@ C-------------------------------------------------------------------------------
          Real,    Allocatable :: BSLP   ( :,: )  ! B Slope 
          Real,    Allocatable :: WRES   ( :,: )  ! Soil residual moisture point
          Real,    Allocatable :: WFC    ( :,: )  ! soil field capacity 
+         Real,    Allocatable :: CLAY_PX  ( :,: )  ! Clay fraction from PX LSM 
+         Real,    Allocatable :: CSAND_PX ( :,: )  ! Coarse sand fraction from PX LSM
+         Real,    Allocatable :: FMSAND_PX( :,: )  ! Fine-medium sand fraction from PX LSM
 !        Real,    Allocatable :: RHOB   ( :,: )  ! soil bulk density
-         Real, Allocatable :: LUFRAC  ( :,:,: ) ! land use fraction (col,row,lu_type)[ratio]
+         Real,    Allocatable :: LUFRAC  ( :,:,: ) ! land use fraction (col,row,lu_type)[ratio]
 C Land use information:
          Character( 16 ), Allocatable   :: NAME    ( : )     ! LU name
          Character( 16 ), Allocatable   :: LU_Type ( : )     ! general land use type e.g. water, forest, etc.
@@ -542,6 +545,9 @@ C-----------------------------------------------------------------------
      &             Grid_Data%SLTYP   ( NCOLS,NROWS ),
      &             Grid_Data%WSAT    ( NCOLS,NROWS ),
      &             Grid_Data%WFC     ( NCOLS,NROWS ),   !We now use WFC whether BIDI is on or off
+     &             Grid_Data%CLAY_PX   ( NCOLS,NROWS ),
+     &             Grid_Data%CSAND_PX  ( NCOLS,NROWS ),
+     &             Grid_Data%FMSAND_PX ( NCOLS,NROWS ),
      &             Grid_Data%NAME    ( n_lufrac ),
      &             Grid_Data%LU_Type ( n_lufrac ),
      &             STAT = ALLOCSTAT )
@@ -549,10 +555,13 @@ C-----------------------------------------------------------------------
             XMSG = 'Failure allocating grid vars'
             Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          End If
-         Grid_Data%NAME    = name_lu
-         Grid_Data%LU_Type = cat_lu
-         Grid_Data%WSAT    = 0.0
-         Grid_Data%WFC     = 0.0
+         Grid_Data%NAME      = name_lu
+         Grid_Data%LU_Type   = cat_lu
+         Grid_Data%WSAT      = 0.0
+         Grid_Data%WFC       = 0.0
+         Grid_Data%CLAY_PX   = 0.0
+         Grid_Data%CSAND_PX  = 0.0
+         Grid_Data%FMSAND_PX = 0.0
          
          If ( ABFLUX .or. BIOGEMIS_MEGAN  ) Then
             ALLOCATE( Met_Data%SOIM2    ( NCOLS,NROWS ),
@@ -806,6 +815,22 @@ C met vars
          End If
 
          call interpolate_var ('PBL', jdate, jtime, Met_Data%PBL)
+
+        ! Update for WRFV4.1+ PX LSM runs that have soil texture in output for
+        !  CMAQ dust scheme. These are initialized to 0 if not present in MCIP.
+        !  DUST_EMIS.F will use table lookup values if 0 (old WRF or other LSMs).  
+         If ( PXSOIL_AVAIL ) Then
+            CALL LOG_MESSAGE( LOGDEV, '==================  Soil Hydraulics Message =====================' )
+            CALL LOG_MESSAGE( LOGDEV, '   WRFV4.1+ inputs have extra PX LSM soil texture and props.' )
+            CALL LOG_MESSAGE( LOGDEV, '      WSAT, WWLT, WFC from WRF/PX LSM not lookup tables.' )
+            call interpolate_var ('CLAY_PX',   jdate, jtime, Grid_Data%CLAY_PX)
+            call interpolate_var ('CSAND_PX',  jdate, jtime, Grid_Data%CSAND_PX)
+            call interpolate_var ('FMSAND_PX', jdate, jtime, Grid_Data%FMSAND_PX)
+            call interpolate_var ('WSAT_PX', jdate, jtime, Grid_Data%WSAT)
+            call interpolate_var ('WFC_PX',  jdate, jtime, Grid_Data%WFC)
+            call interpolate_var ('WWLT_PX', jdate, jtime, Grid_Data%WWLT)
+         End If
+
 
 C Met_cro_2D variables that have recently changed due to MCIP or WRF/CMAQ
 
