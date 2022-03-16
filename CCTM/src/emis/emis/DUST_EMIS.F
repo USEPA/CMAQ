@@ -25,9 +25,6 @@ C Description:
 C * Extracts selected landuse categories from BELD01 and BELD03 and merges
 C * the selections into a dust-related landuse array (ULAND).
 
-C   Optionally, reads 3 gridded crop calendar file and calculates an
-C   erodible agriculture land fraction. (cropcal)
-
 
 C Function: 3d point source emissions interface to the chemistry-transport model
 
@@ -161,7 +158,6 @@ C                 ----------------    --------    ------------------------------
      & diag_type( 'ASRFK           ', 'm2 s-1   ', 'coarse mode surface area                   ')/)
   
 C Module shared variables:
-      real, allocatable, save :: agland( :,: )   ! agriculture land fraction
       real, allocatable, save :: wmax  ( :,: )   ! max adsorb water percent
       real, allocatable, save :: kvh   ( :,:,: ) ! ratio of vertical flux / horizontal (k factor)
       real, allocatable, save :: sd_ep ( :,: )   ! soil->dust erodiblity potential
@@ -211,12 +207,6 @@ C Local variables:
 
          type( diag_type ), allocatable :: diagnm_swap( : )
 
-         interface
-            subroutine cropcal ( jdate, jtime, agland )
-            integer, intent( in )  :: jdate, jtime
-            real,    intent( out ) :: agland( :,: )
-            end subroutine cropcal
-         end interface
 
 C-----------------------------------------------------------------------
 
@@ -279,15 +269,13 @@ C Allocate emissions array
          end if
 
 C Allocate private arrays
-         allocate( agland( ncols,nrows ),
-     &             wmax  ( ncols,nrows ),
+         allocate( wmax  ( ncols,nrows ),
      &             sd_ep ( ncols,nrows ), stat = status)
          if ( status .ne. 0 ) then
-            xmsg = '*** Failure allocating AGLAND, WMAX, or SD_EP'
+            xmsg = '*** Failure allocating WMAX, or SD_EP'
             call m3warn( pname, jdate, jtime, xmsg )
             success = .false.; return
          end if
-         agland = 0.0   ! array assignment
          wmax   = 0.0   ! array assignment
          sd_ep  = 0.0   ! array assignment
 
@@ -455,19 +443,6 @@ C...append diagnostic variables with mass emissions species
      &         call opdust_emis ( stdate, sttime, tstep, ndust_diag, diagnm )
 
          end if   ! dustem_diag
-
-
-         if ( erode_agland ) then
-            call cropcal ( stdate, sttime, agland )
-            do r = 1, nrows
-            do c = 1, ncols
-               if ( agland( c,r ) .lt. 0.0 .or. agland( c,r ) .gt. 100.0 ) then
-                  xmsg = '*** ERROR in AGLAND'
-                  call m3exit( pname, jdate, jtime, xmsg, xstat1 )
-               end if
-            end do
-            end do
-         end if
 
          l2sgj = log( sigj ) * log( sigj )
          l2sgk = log( sigk ) * log( sigk )
@@ -953,7 +928,6 @@ C   First, mapping soil types into 4 main soil types following Kang et al. [JGR,
                   do m = 1, n_dlcat     ! desert type landuse category
                      elus( c,r,m ) = ladut( c,r,m ) * vegfree   ! desert land [%]
                   end do
-                  elus( c,r,n_dlcat+1 ) = agland( c,r ) * vegfree ! crop land [%]
  
 C ------- Start Loop Over Erodible Landuse ----
  
