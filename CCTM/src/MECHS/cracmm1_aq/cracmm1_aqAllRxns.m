@@ -718,11 +718,11 @@ fHC3P(i)=fHC3P(i)+  1.000;fASOATJ(i)=fASOATJ(i)+  0.000;
 
 %  78, <R074>
 i=i+1;
-Rnames{  78} = 'HC5 + HO = HC5P +  0.00158*ASOATJ ';
+Rnames{  78} = 'HC5 + HO = HC5P +  0.00134*ASOATJ ';
 k(:,i) = (  1.0100E-11.*exp( -2.4500E+02./T) ); 
 Gstr{i,   1}='HC5';Gstr{i,   2}='HO';
 fHC5(i)=fHC5(i)-1.0;fHO(i)=fHO(i)-1.0;
-fHC5P(i)=fHC5P(i)+  1.000;fASOATJ(i)=fASOATJ(i)+  0.002;
+fHC5P(i)=fHC5P(i)+  1.000;fASOATJ(i)=fASOATJ(i)+  0.001;
 
 %  79, <R076>
 i=i+1;
