@@ -61,7 +61,7 @@ C**********************************************************************
       USE RBDATA                  ! ROS3 solver data
       USE CGRID_SPCS              ! CGRID mechanism species
       USE UTILIO_DEFN
-      USE DEGRADE_ROUTINES, ONLY, DEGRADE_BLK
+      USE DEGRADE_ROUTINES, ONLY: DEGRADE_BLK
       USE PA_IRR_MODULE
       
       IMPLICIT NONE 

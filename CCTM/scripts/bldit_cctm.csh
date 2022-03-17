@@ -115,7 +115,7 @@ set make_options = "-j"                #> additional options for make command if
  set ModPhot   = phot/inline                #> photolysis calculation module 
                                             #>     (see $CMAQ_MODEL/CCTM/src/phot)
 
- setenv Mechanism cb6r5_ae7_aq              #> chemical mechanism (see $CMAQ_MODEL/CCTM/src/MECHS)
+ setenv Mechanism cb6r5hap_ae7_aq              #> chemical mechanism (see $CMAQ_MODEL/CCTM/src/MECHS)
 
  set ModMech   = MECHS/${Mechanism}
  
@@ -576,6 +576,11 @@ set Cfile = ${Bld}/${CFG}.bld      # Config Filename
  set text = "inline and table"
  echo "// options are" $text                                       >> $Cfile
  echo "Module ${ModPhot};"                                         >> $Cfile
+ echo                                                              >> $Cfile
+
+ set text = "degrade"
+ echo "// reactive_tracer options are" $text                       >> $Cfile
+ echo "Module ${ModDegrade};"                                      >> $Cfile
  echo                                                              >> $Cfile
 
  set text = "gas chemistry solvers"

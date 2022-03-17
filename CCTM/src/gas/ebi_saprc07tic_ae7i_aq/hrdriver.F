@@ -151,24 +151,6 @@ C..Scratch Local Variables:
            INTEGER, INTENT( IN ) :: JTIME    ! Current time (HHMMSS)
            INTEGER, INTENT( IN ) :: C, R, L  ! Cell col, row, lev
         END SUBROUTINE HRSOLVER
-         SUBROUTINE FIND_DEGRADED( JDATE, JTIME, CALL_DEGRADE )
-           INTEGER, INTENT( IN )  :: JDATE        ! current model date , coded YYYYDDD
-           INTEGER, INTENT( IN )  :: JTIME        ! current model time , coded HHMMSS
-           LOGICAL, INTENT( OUT ) :: CALL_DEGRADE ! whether to call degradation routines
-         END SUBROUTINE FIND_DEGRADED
-         SUBROUTINE INIT_DEGRADE( CBLK, TCELL, DCELL, PRESS_CELL, QV_CELL, PHOTO_CELL, JDATE, JTIME )
-           REAL( 8 ), INTENT( IN ) :: CBLK( : )       !  species concentration in cell
-           REAL,      INTENT( IN ) :: TCELL           !  cell temperature  [ k ]
-           REAL,      INTENT( IN ) :: DCELL           !  cell air density  [ kg/m^3 ]
-           REAL,      INTENT( IN ) :: PRESS_CELL      !  cell Pressure  [ Pa ]
-           REAL,      INTENT( IN ) :: QV_CELL         !  cell water vapor mass mixing ratio  [ kg/kg ]
-           REAL( 8 ), INTENT( IN ) :: PHOTO_CELL( : ) !  Photolysis table for cell [1/min]
-           INTEGER,   INTENT( IN ) :: JDATE  ! current model date , coded YYYYDDD
-           INTEGER,   INTENT( IN ) :: JTIME  ! current model time , coded HHMMSS
-         END SUBROUTINE INIT_DEGRADE
-         SUBROUTINE FINAL_DEGRADE( CBLK )
-           REAL( 8 ), INTENT( INOUT ) :: CBLK( : )    !  species concentration in cell
-         END SUBROUTINE FINAL_DEGRADE
         SUBROUTINE HETCHEM_UPDATE_AERO( CGRID )
            REAL, POINTER :: CGRID( :,:,:,: )  !  species concentration in cell
         END SUBROUTINE HETCHEM_UPDATE_AERO
