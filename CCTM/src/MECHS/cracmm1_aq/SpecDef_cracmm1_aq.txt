@@ -107,11 +107,10 @@ SIGROC           ,ppbC      ,1000.0* (9.5*VROCIOXY[1] \
                                     +9.0*VROCP4OXY2[1]+11.0*VROCP5OXY1[1] \ 
                                     +9.0*VROCP6OXY1[1] ),                  
 ! GROC: Total gas-phase reactive organic carbon (stable species only) 
-! still need DCB1, DCB2,OP3 ppbC/pbb (no structures yet)
 GROC             ,ppbC      ,1000.0*(2.0*ACD[1]+2.0*ACE[1] \
                                     +3.0*ACRO[1]+3.0*ACT[1]+3.0*ALD[1]+10*API[1] \
                                     +7.0*BALD[1]+4.0*BDE13[1]+6.0*BEN[1] \
-                                    +9.0*CSL[1]+5.0*DCB1[1]+5.0*DCB2[1]+4.0*DCB3[1] \
+                                    +9.0*CSL[1]+5.0*DCB1[1]+6.0*DCB2[1]+4.0*DCB3[1] \
                                     +20.0*ELHOM[1] \
                                     +2.0*EOH[1]+2.0*ETE[1]+2.0*ETEG[1]+2.0*ETH[1] \
                                     +5.0*FURAN[1]+4.0*FURANONE[1]+2.0*GLY[1]+10.0*HOM[1] \
@@ -122,15 +121,15 @@ GROC             ,ppbC      ,1000.0*(2.0*ACD[1]+2.0*ACE[1] \
                                     +7.0*MCT[1]  \
                                     +4.0*MEK[1]+3.0*MGLY[1]+1.0*MOH[1]+4.0*MVK[1] \
                                     +10.0*NAPH[1]+5.0*OLI[1]+3.0*OLT[1] \
-                                    +1.0*OP1[1]+2.0*OP2[1]+10.0*OP3[1]+10.0*OPB[1]   \
+                                    +1.0*OP1[1]+2.0*OP2[1]+8.0*OP3[1]+10.0*OPB[1]   \
                                     +1.0*ORA1[1]+2.0*ORA2[1] \
                                     +10.0*PINAL[1]   \
                                     +6.0*PHEN[1]+3.0*PROG[1]  \
                                     +3.0*ROH[1]+15.0*SESQ[1]+2.1*SLOWROC[1] \
                                     +7.0*TOL[1]+5.0*UALD[1] \
                                     +8.0*XYM[0]+8.0*XYE[1] \         \
-                                    +2.0*PAA[1]+2.0*PAN[1]+3.0*PPN[1]+4.0*MPAN[1] \   ! PAA+PANs in GROC
-                                    +4.0*ONIT[1]+2.0*NALD[1]+5.0*ISON[1]+10.0*TRPN ) \ ! organic nitrates in GROC
+                                    +2.0*PAA[1]+2.0*PAN[1]+3.0*PPN[1]+4.0*MPAN[1] \  
+                                    +4.0*ONIT[1]+2.0*NALD[1]+5.0*ISON[1]+10.0*TRPN[1] ) \ 
                                     +SIGROC[0] ,
 !-------------------------------------------!
 !--------------- Particles -----------------!

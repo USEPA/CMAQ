@@ -11,10 +11,8 @@ AE_SPECIES_DATA =
 'ANO3I'    , 62.00  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSI'    , 1  ,'NO3_AITKEN'   , 1  ,'NO3_AITKEN'   ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!Nitrate ion,E,DTXSID5024217,[N+](=O)([O-])[O-]
 'ASOATJ'   ,200.00  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSJ'    , 1  ,'ORG_ACCUM'    , 1  ,'SOA_ACCUM'    ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!3;4;5;6;7-Pentahydroxyheptan-2-one,L,DTXSID80956455,CC(=O)C(C(C(C(CO)O)O)O)O
 'AGLYJ'    , 66.40  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSJ'    , 1  ,'ORG_ACCUM'    , 1  ,'SOA_ACCUM'    ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!2-(4;5-dihydroxy-1;3-dioxolan-2-yl)-1;3-dioxolane-4;5-diol,L,NA,OC2OC(C1OC(O)C(O)O1)OC2O
-'ATRPNJ'   ,215.00  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSJ'    , 1  ,'ORG_ACCUM'    , 1  ,'SOA_ACCUM'    ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!3-hydroxy-2;6;6-trimethylbicyclo[3.1.1]heptan-2-yl nitrate,L,NA,O=N(=O)OC1(C)C(O)CC2CC1C2(C)C
 'AHOMJ'    ,250.00  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSJ'    , 1  ,'ORG_ACCUM'    , 1  ,'SOA_ACCUM'    ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!NA,NA,NA,NA
 'AELHOMJ'  ,402.00  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSJ'    , 1  ,'ORG_ACCUM'    , 1  ,'SOA_ACCUM'    ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!NA,NA,NA,NA
-'AISONJ'   ,147.00  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSJ'    , 1  ,'ORG_ACCUM'    , 1  ,'SOA_ACCUM'    ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!2-methyl-2-(nitrooxy)but-3-en-1-ol,L,NA,OCC(C)(C=C)ON(=O)=O
 'AORGCJ'   ,177.00  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSJ'    , 1  ,'ORG_ACCUM'    , 1  ,'AORGC_ACCUM'  ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!2-(4;5-dihydroxy-1;3-dioxolan-2-yl)-1;3-dioxolane-4;5-diol,L,NA,OC2OC(C1OC(O)C(O)O1)OC2O
 'AECJ'     , 12.00  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSJ'    , 1  ,'PRI_ACCUM'    , 1  ,'EC_ACCUM'     ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!Carbon,L,NA,[C]
 'AECI'     , 12.00  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSI'    , 1  ,'PRI_AITKEN'   , 1  ,'EC_AITKEN'    ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!Carbon,L,NA,[C]
@@ -68,7 +66,7 @@ AE_SPECIES_DATA =
 'AROCP2ALKJ',338.66  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSJ'    , 1  ,'ORG_ACCUM'    , 1  ,'POA_ACCUM'    ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!NA,NA,NA,NA
 'AROCP3ALKJ',296.58  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSJ'    , 1  ,'ORG_ACCUM'    , 1  ,'POA_ACCUM'    ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!NA,NA,NA,NA
 'AROCN2OXY2I',282.4  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSI'    , 1  ,'ORG_AITKEN'   , 1  ,'SOA_AITKEN'   ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!NA,NA,NA,NA
-'AROCN2OXY2J',282.4  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSJ'    , 1  ,'ORG_ACCUM'    , 1  ,'SOA_ACCUM'    ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!NA,NA,NA,NA
+'AROCN2OXY2J',282.4  ,''     ,''     ,-1     ,''     ,0.0    ,'VMASSJ'    , 1  ,'ORG_ACCUM'    , 1  ,'SOA_ACCUM'    ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!NA,NA,NA,NA
 'AROCN2OXY4I',232.3  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSI'    , 1  ,'ORG_AITKEN'   , 1  ,'SOA_AITKEN'   ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!NA,NA,NA,NA
 'AROCN2OXY4J',232.3  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSJ'    , 1  ,'ORG_ACCUM'    , 1  ,'SOA_ACCUM'    ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!NA,NA,NA,NA
 'AROCN2OXY8I',194.2  ,''     ,''     ,-1     ,''     ,-1     ,'VMASSI'    , 1  ,'ORG_AITKEN'   , 1  ,'SOA_AITKEN'   ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!NA,NA,NA,NA

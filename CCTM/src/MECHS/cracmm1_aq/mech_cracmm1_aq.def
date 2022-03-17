@@ -1420,10 +1420,6 @@ REACTIONS[CM] =
 <HET_GLY>  GLY  = AGLYJ # 1.0~<HETERO_GLY>;
 <HET_MGLY> MGLY = AGLYJ # 1.0~<HETERO_MGLY>;
 
-!ISON and TRPN uptake
-<HET_ISON> ISON = AISONJ # 6.5E-07;
-<HET_TRPN> TRPN = ATRPNJ # 1.3E-06;
-
 ! heteorogeneous reactions from hetchem and poaaging routines version 5.0.2
 
 <HET_N2O5> N2O5 = 2.0*HNO3 # 1.0~<HETERO_N2O5IJ>;

@@ -34,7 +34,7 @@ GC_SPECIES_DATA =
 'GLY'           , 58.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,'GLYOXAL'         , 1  ,''             ,'GLY'     ,'Yes' ,''    ,'Yes' ,'Yes',!Glyoxal,L,DTXSID5025364,O=CC=O
 'MGLY'          , 72.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,'METHYL_GLYOXAL'  , 1  ,''             ,'MGLY'    ,'Yes' ,''    ,'Yes' ,'Yes',!Methyl glyoxal,L,DTXSID0021628,CC(=O)C=O
 'DCB1'          , 98.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,'METHACROLEIN'    , 1  ,''             ,''        ,'Yes' ,''    ,''    ,'Yes',!2-methylbut-2-enedial,L,NA,O=CC=C(C)C=O
-'DCB2'          ,112.1   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,'METHACROLEIN'    , 1  ,''             ,''        ,'Yes' ,''    ,''    ,'Yes',!2-methyl-4-oxopent-2-enalL,NA,O=CC(=CC(=O)C)C
+'DCB2'          ,112.1   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,'METHACROLEIN'    , 1  ,''             ,''        ,'Yes' ,''    ,''    ,'Yes',!2-methyl-4-oxopent-2-enal,L,NA,O=CC(=CC(=O)C)C
 'BALD'          ,106.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,'BENZALDEHYDE'    , 1  ,''             ,''        ,'Yes' ,''    ,'Yes' ,'Yes',!Benzaldehyde,L,DTXSID8039241,O=CC1=CC=CC=C1
 'CHO'           ,139.0   ,''     ,-1     ,''     ,-1     ,''                ,-1   ,''                ,-1  ,''             ,''        ,''    ,''    ,''    ,'Yes',!4-hydroxy-3;5-dimethylcyclohexa-2;5-dien-1-yloxidanyl,L,NA,[O]C1C=C(C)C(O)C(=C1)C
 'OP1'           , 48.0   ,''     ,-1     ,''     ,-1     ,'VD_OP'           , 1   ,'METHYLHYDROPEROX', 1  ,''             ,'MHP'     ,'Yes' ,'Yes' ,'Yes' ,'Yes',!Methyl hydroperoxide,E,DTXSID10184401,COO
