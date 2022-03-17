@@ -29,7 +29,7 @@ C  RETURN VALUES: None
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, Mar 14, 2022
+C  REVISION HISTORY: Created by EBI solver program, Mar 16, 2022
 C
 C   18 Jul 14 B.Hutzell: revised to use real(8) variables
 
@@ -1129,9 +1129,9 @@ C***********************************************************************
 
       PROD(  HC3         ) =    1.5000D-02 * RXRAT(   131 )      ! OLT+O3=0.1500D-01*HC3+...
      &                     +    1.0000D-02 * RXRAT(   132 )      ! OLI+O3=0.1000D-01*HC3+...
-      LOSS(  HC3         ) =                 RXRAT(    77 )      ! HC3+HO=HC3P+0.3310D-04*ASOATJ
+      LOSS(  HC3         ) =                 RXRAT(    77 )      ! HC3+HO=HC3P+0.2810D-04*ASOATJ
 
-      PROD(  HC3P        ) =                 RXRAT(    77 )      ! HC3+HO=HC3P+0.3310D-04*ASOATJ
+      PROD(  HC3P        ) =                 RXRAT(    77 )      ! HC3+HO=HC3P+0.2810D-04*ASOATJ
      &                     +    4.4000D-01 * RXRAT(   116 )      ! OP2+HO=0.4400D+00*HC3P+...
      &                     +                 RXRAT(   126 )      ! ONIT+HO=HC3P+NO2
      &                     +    4.0000D-02 * RXRAT(   131 )      ! OLT+O3=0.4000D-01*HC3P+...
@@ -1158,8 +1158,8 @@ C***********************************************************************
      &                     +                 RXRAT(   292 )      ! HC3P+ACO3=0.3940D+00*HO2+...
      &                     +                 RXRAT(   331 )      ! HC3P+NO3=0.2540D+00*HO2+...
 
-      PROD(  ASOATJ      ) =    3.3100D-05 * RXRAT(    77 )      ! HC3+HO=0.3310D-04*ASOATJ+HC3P
-     &                     +    1.5800D-03 * RXRAT(    78 )      ! HC5+HO=0.1580D-02*ASOATJ+HC5P
+      PROD(  ASOATJ      ) =    2.8100D-05 * RXRAT(    77 )      ! HC3+HO=0.2810D-04*ASOATJ+HC3P
+     &                     +    1.3400D-03 * RXRAT(    78 )      ! HC5+HO=0.1340D-02*ASOATJ+HC5P
      &                     +    1.5200D-01 * RXRAT(   108 )      ! PHEN+HO=0.1520D+00*ASOATJ+...
      &                     +    2.0000D-01 * RXRAT(   109 )      ! CSL+HO=0.2000D+00*ASOATJ+...
      &                     +    1.5200D-01 * RXRAT(   159 )      ! PHEN+NO3=0.1520D+00*ASOATJ+...
@@ -1170,9 +1170,9 @@ C***********************************************************************
       LOSS(  ASOATJ      ) =   0.0D0
 
       PROD(  HC5         ) =    6.0000D-03 * RXRAT(   131 )      ! OLT+O3=0.6000D-02*HC5+...
-      LOSS(  HC5         ) =                 RXRAT(    78 )      ! HC5+HO=HC5P+0.1580D-02*ASOATJ
+      LOSS(  HC5         ) =                 RXRAT(    78 )      ! HC5+HO=HC5P+0.1340D-02*ASOATJ
 
-      PROD(  HC5P        ) =                 RXRAT(    78 )      ! HC5+HO=HC5P+0.1580D-02*ASOATJ
+      PROD(  HC5P        ) =                 RXRAT(    78 )      ! HC5+HO=HC5P+0.1340D-02*ASOATJ
      &                     +    2.0000D-02 * RXRAT(   131 )      ! OLT+O3=0.2000D-01*HC5P+...
      &                     +    7.9400D-02 * RXRAT(   494 )      ! VROCN2OXY4+HO=0.7940D-...
      &                     +    9.2500D-02 * RXRAT(   495 )      ! VROCN2OXY2+HO=0.9250D-...

@@ -6,7 +6,7 @@
 
 
 ! --------- Photochemical Mechanism Reactions, Rates, etc. DAT ---------
-! Source file: /work/MOD3DEV/has/2021cracmm/cmaq/20220314rep/UTIL/chemmech/input/cracmm1_aq/mech_cracmm1_aq.def
+! Source file: /work/MOD3DEV/has/2021cracmm/cmaq/20220316hcsoa/UTIL/chemmech/input/cracmm1_aq/mech_cracmm1_aq.def
 ! for Mechanism Name: CRACMM1_AQ                      
 
 ! This file is used to create mechanism data and functions
@@ -3510,7 +3510,7 @@
      &     0.0000D+00, 1.0000D+00, 7.0000D-01, 0.0000D+00, 1.0000D+00, & ! 6   
      &     0.0000D+00, 0.0000D+00, 1.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
      &     1.0000D+00, 0.0000D+00, 1.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
-     &     0.0000D+00, 3.3100D-05, 1.5800D-03, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 2.8100D-05, 1.3400D-03, 0.0000D+00, 0.0000D+00, & ! +   
      &     0.0000D+00, 3.5000D-01, 5.3000D-01, 1.8000D-01, 1.7000D-01, & ! 8   
      &     1.8000D-01, 0.0000D+00, 2.5000D-02, 5.5000D-02, 7.7000D-01, & ! +   
      &     3.0000D-01, 1.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
