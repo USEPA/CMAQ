@@ -1663,7 +1663,7 @@ C          LM2WET - Logical identifying if the second moment of the
 C                   distribution is dry or wet. False = Dry
 C          USE_M2 - Logical prescribing whether or not to use
 C                       the second moment form the input IC or BC file. 
-C                       False = use the 2nd moment input
+C                       True = use the 2nd moment input from the file.
 C          IS_BC - TRUE if this is for BCs, FALSE for ICs
 C          L_WRITE_WARNING - Should a warning be printed if a size
 C                            distribution fails
@@ -1685,11 +1685,11 @@ C-----------------------------------------------------------------------
       Implicit None
 
       REAL, INTENT(INOUT)        :: IBCON( : )
-      LOGICAL, INTENT( IN ) :: LM2WET          ! FALSE for Dry distirbution parameters
+      LOGICAL, INTENT( IN ) :: LM2WET          ! FALSE (Default) for Dry distirbution parameters
                                                ! TRUE  for Wet distribution parameters
-      LOGICAL, INTENT( IN ) :: USE_M2      ! FALSE to use second moment from input file
-                                               ! TRUE  to ignore and overwrite M2 from input
-                                                   ! file
+      LOGICAL, INTENT( IN ) :: USE_M2          ! TRUE (Default) to use second moment from input file
+                                               ! FALSE  to ignore and overwrite M2 from input
+                                                  ! file
       LOGICAL, INTENT( IN ) :: IS_BC           ! TRUE if BCON called this routine. 
                                                ! FALSE if ICON called it
       LOGICAL, INTENT( INOUT ) :: L_WRITE_WARNING ! TRUE if warning should be printed 

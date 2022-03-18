@@ -168,8 +168,6 @@
       REAL    :: GLBL_RTOL = 1.0E-3  ! Relative Tolerance for Rosenbrock Solver
 
       ! Aerosols
-      LOGICAL :: AVISDIAG  = .FALSE.  ! flag for Average Visibility File [F], default
-      LOGICAL :: AOD       = .FALSE.  ! flag for printing AOD file
       LOGICAL :: IC_AERO_M2WET=.FALSE.! flag for specifying wet aerosol size parameters 
                                       !   for initial conditions. FALSE = dry
       LOGICAL :: BC_AERO_M2WET=.FALSE.! flag for specifying wet aerosol size parameters 
@@ -637,12 +635,6 @@
          WRITE( OUTDEV, '(6x,A)' ),'--Env Variable-- | --Value--'
          WRITE( OUTDEV, '(6x,A)' ), REPEAT( '-',80 )
       END IF
-
-      ! Get aerosol average diagnostic file flag.
-      CALL GET_ENV ( AVISDIAG, 'CTM_AVISDIAG', AVISDIAG, VARDEV )
-
-      ! Get AOD diagnostic file flag.
-      CALL GET_ENV ( AOD, 'CTM_AOD', AOD, VARDEV )
 
       ! Get flag for interpreting initial condition aerosol size distributions as dry
       CALL GET_ENV ( IC_AERO_M2WET, 'IC_AERO_M2WET', IC_AERO_M2WET, VARDEV )
