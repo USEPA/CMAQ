@@ -323,7 +323,7 @@ C... start loop to read and process each variable
 
         rstatus = SHUT3 ()
       stop
-      end
+      END Program HR2DAY
 
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
