@@ -73,8 +73,14 @@ C... Local:
          Character( 16 ) :: PNAME = 'INIT_BIDI       '
          Character( 80 ) :: VARDESC
          Integer         :: STATUS
+         Logical, SAVE   :: INITIALIZED = .FALSE.
          
 C--------------------------------------------------------------------------
+C Prevent initilializing the code twice 
+         If ( INITIALIZED ) Return 
+
+         INITIALIZED = .TRUE.
+
          ! Set Mercury BiDi Processing Flag equal to false if there is
          ! no mercury gas-phase species.
          If ( INDEX1( 'HG', N_GC_DDEP, GC_DDEP ) .EQ. 0 ) HGBIDI = .FALSE.

@@ -15,7 +15,7 @@
 !  General Public License or the GNU Lesser General Public License is    !
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
-
+      PROGRAM HR2DAY
 C****************************************************************************************
 C     Converts hourly data values to daily
 C    
@@ -32,7 +32,8 @@ C          hr@max - hour at the maximum hourly value
 C          @maxT - uses the hourly value at maximum temperature
 C          maxdif - uses the maximum hourly change
 C          8hrmax - uses the maximum 8 hour period 
-C          w126 - uses secondary standard ozone calculation 
+C          w126 - calculates daily w126 index values for use in secondary
+C                 ozone standard calculations 
 C          @8hrmaxO3 - averages the value within the 8-hr-max ozone period
 C          hr@8hrmax - Starting hour of the 8-hr-max period
 C          sum06 - sums all values>=0.06ppm between 8am & 8pm
@@ -284,7 +285,7 @@ C... start loop to read and process each variable
           endif
 
           if( SPECVARS(n)%OPERATION .eq. 'W126' ) then
-            Call w126(hrValues, dayValues, offset, SPECVARS(n)%UNITS)
+            Call w126_daily(hrValues, dayValues, offset, SPECVARS(n)%UNITS)
             endif
 
           if( SPECVARS(n)%OPERATION .eq. '@8HRMAXO3' ) then
@@ -320,9 +321,9 @@ C... start loop to read and process each variable
 
         enddo  ! var loop
 
-      status = SHUT3 ()
+        rstatus = SHUT3 ()
       stop
-      end
+      END Program HR2DAY
 
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -902,7 +903,7 @@ c      INTEGER HOURS_8HRMAX          ! number of 8hr values to compute 8hr max
 C... Get the HOURS_8HRMAX environment variable (default is 24)                                                          
 c       ENV_DESC = 'Number of 8hr values to use when computing DM8HR'                                               
 c       HOURS_8HRMAX= ENVINT( 'HOURS_8HRMAX', ENV_DESC, 24, STATUS)  
-	 
+
 c       if ( ( HOURS_8HRMAX .NE. 24) .AND. ( HOURS_8HRMAX .NE. 17) ) THEN                                
 
 c        MSG = '**Error** Invalid value for HOURS_8HRMAX, use 24 or 17'
@@ -996,7 +997,7 @@ c      INTEGER HOURS_8HRMAX          ! number of 8hr values to compute 8hr max
 C... Get the HOURS_8HRMAX environment variable (default is 24)                                                          
 c       ENV_DESC = 'Number of 8hr values to use when computing DM8HR'                                               
 c       HOURS_8HRMAX= ENVINT( 'HOURS_8HRMAX', ENV_DESC, 24, STATUS)  
-	 
+
 c       if ( ( HOURS_8HRMAX .NE. 24) .AND. ( HOURS_8HRMAX .NE. 17) ) THEN                                
 
 c        MSG = '**Error** Invalid value for HOURS_8HRMAX, use 24 or 17'
@@ -1069,11 +1070,15 @@ C... start loops to find max 8-hr
  
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c
-c   Routine to compute to W126 values, sums the weighted concentrations in ppm
-c   between 8am & 8pm at each cell
+c   Routine to compute to daily W126 values, sums the weighted concentrations
+c   in ppm between 8am & 8pm at each cell
+c   These daily W126 index values can then be used in subsequent calculations
+c   for the secondary ozone standard by summing the daily index values over 
+c   consecutive 3 month periods and determining the maximum of these 3 months
+c   sums.
 c
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      Subroutine w126(hrValues, dayValues, tzoffset, units)
+      Subroutine w126_daily(hrValues, dayValues, tzoffset, units)
 
       USE M3UTILIO
       USE ENV_VARS
@@ -1105,7 +1110,7 @@ C... start loops to find daily sum
             if( hrValues(h,c,r) .ge. 0.0 )  then
               count = count+1
               ozone = factor * hrValues(h,c,r)
-              sum = sum + ozone / (1.0 + 4403.0 * EXP( -126*ozone ))
+              sum = sum + ozone / (1.0 + 4403.0 * EXP( -126.0 * ozone ))
               endif                                                           
             endDo      ! end hour loop                                        
 
@@ -1116,7 +1121,7 @@ C... start loops to find daily sum
         endDo      ! end row loop
                                                                               
       return                                                                  
-      end Subroutine w126 
+      end Subroutine w126_daily 
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c

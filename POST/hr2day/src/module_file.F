@@ -110,18 +110,18 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
                N_M3FILES = N_M3FILES + 1
                M3_FLNAME( N_M3FILES ) = FL_NAME
             ELSE
-	      IF ( N_M3FILES .eq. 0) THEN !TRY CHECKING FOR 'INFILE' INSTEAD - BACKWARD COMPATIBILITY
-               ENV_DFLT = ' '        
-               CALL ENVSTR( 'INFILE', ENV_DESC, ENV_DFLT, RET_VAL, STATUS)
-	       IF( STATUS .EQ. 0 ) THEN
-                N_M3FILES = N_M3FILES + 1
-                M3_FLNAME( N_M3FILES ) = 'INFILE'
-	       ELSE
-	        EXIT
-	       ENDIF
-	      ELSE !NOT FIRST FILE, EXIT LOOP
-               EXIT
-	      ENDIF 
+               IF ( N_M3FILES .eq. 0) THEN !TRY CHECKING FOR 'INFILE' INSTEAD - BACKWARD COMPATIBILITY
+                  ENV_DFLT = ' '        
+                  CALL ENVSTR( 'INFILE', ENV_DESC, ENV_DFLT, RET_VAL, STATUS)
+                  IF( STATUS .EQ. 0 ) THEN
+                     N_M3FILES = N_M3FILES + 1
+                     M3_FLNAME( N_M3FILES ) = 'INFILE'
+                  ELSE
+                     EXIT
+                  ENDIF
+               ELSE !NOT FIRST FILE, EXIT LOOP
+                  EXIT
+               ENDIF 
             ENDIF
      
          ENDDO
