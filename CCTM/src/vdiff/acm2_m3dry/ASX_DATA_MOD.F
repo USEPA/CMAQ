@@ -544,6 +544,7 @@ C-----------------------------------------------------------------------
      &             Grid_Data%WFC     ( NCOLS,NROWS ),   !We now use WFC whether BIDI is on or off
      &             Grid_Data%NAME    ( n_lufrac ),
      &             Grid_Data%LU_Type ( n_lufrac ),
+     &             Grid_Data%LUFRAC ( NCOLS,NROWS,n_lufrac ),
      &             STAT = ALLOCSTAT )
          If ( ALLOCSTAT .Ne. 0 ) Then
             XMSG = 'Failure allocating grid vars'
@@ -579,12 +580,11 @@ C-----------------------------------------------------------------------
             Grid_Data%WWLT    = 0.0
          END IF
          
-         If ( ABFLUX ) Then
+         If ( ABFLUX .or. HGBIDI ) Then
 
             ALLOCATE( Grid_Data%BSLP   ( NCOLS,NROWS ),
      &                Grid_Data%WRES   ( NCOLS,NROWS ),
 !    &                Grid_Data%WFC    ( NCOLS,NROWS ),
-     &                Grid_Data%LUFRAC ( NCOLS,NROWS,n_lufrac ),
      &                STAT = ALLOCSTAT )
             If ( ALLOCSTAT .Ne. 0 ) Then
                XMSG = 'Failure allocating Soil grid vars'
@@ -652,6 +652,7 @@ C-----------------------------------------------------------------------
          Grid_Data%PURB = PURB
 
          Grid_Data%SLTYP = NINT( SOILCAT_A )
+         Grid_Data%LUFRAC = LUFRAC
 
          If ( ABFLUX .or. BIOGEMIS_MEGAN) Then
             Forall( C = 1:NCOLS, R = 1:NROWS, Grid_Data%SLTYP(C,R) .Le. N_SOIL_TYPE )
@@ -659,8 +660,7 @@ C-----------------------------------------------------------------------
             End Forall
          End If
 
-         If ( ABFLUX ) Then
-            Grid_Data%LUFRAC = LUFRAC
+         If ( ABFLUX .or. HGBIDI ) Then
 
             Forall( C = 1:NCOLS, R = 1:NROWS, Grid_Data%SLTYP(C,R) .Le. N_SOIL_TYPE )
                Grid_Data%WSAT( C,R ) = WSAT( Grid_Data%SLTYP( C,R ) )
