@@ -36,7 +36,7 @@
 !                            BNDY_SENS_1, remove REGIONS_1
 !.......................................................................
 
-      INTEGER, PARAMETER :: N_FILES = 64
+      INTEGER, PARAMETER :: N_FILES = 62
 
       CHARACTER( 16 ) :: LGCL_NAME( N_FILES ) 
       LOGICAL            IN_MODE( N_FILES )
@@ -85,9 +85,7 @@
       CHARACTER( 16 ) :: CTM_RJ_3        ! 3D Optical and Radiative Results from Photolysis
       CHARACTER( 16 ) :: MEDIA_CONC      ! NH3 Concentration in Media
       CHARACTER( 16 ) :: CTM_DEPV_MOS    ! Dry Dep Velocity
-      CHARACTER( 16 ) :: CTM_DEPV_FST    ! Dry Dep Velocity
       CHARACTER( 16 ) :: CTM_DRY_DEP_MOS ! Dry Dep
-      CHARACTER( 16 ) :: CTM_DRY_DEP_FST ! Dry Dep
       CHARACTER( 16 ) :: CTM_VDIFF_DIAG  ! Vertical Dispersion Diagnostic
       CHARACTER( 16 ) :: CTM_VSED_DIAG   ! Particle Grav. Settling Velocity  
      
@@ -180,8 +178,6 @@
       DATA CTM_SDRYDEP_1    / 'CTM_SDRYDEP_1   ' /
       DATA CTM_DEPV_MOS     / 'CTM_DEPV_MOS    ' /
       DATA CTM_DRY_DEP_MOS  / 'CTM_DRY_DEP_MOS ' /
-      DATA CTM_DRY_DEP_FST  / 'CTM_DRY_DEP_FST ' /
-      DATA CTM_DEPV_FST     / 'CTM_DEPV_FST    ' /
       DATA E2C_CHEM         / 'E2C_CHEM        ' /
       DATA E2C_CHEM_YEST    / 'E2C_CHEM_YEST   ' /
       DATA E2C_SOIL         / 'E2C_SOIL        ' /

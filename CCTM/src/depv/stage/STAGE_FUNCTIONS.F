@@ -26,7 +26,6 @@
 ! This module contains functions and subroutines to calculate variables
 ! used to estimate the air-surface exchange using the STAGE deposition option
 !:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-!      Use STAGE_Data
       Use ASX_DATA_MOD, only:pr, twothirds
       
       Implicit None
