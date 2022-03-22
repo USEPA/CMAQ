@@ -265,7 +265,7 @@
       INTEGER :: AISAM_BLEV = 0             ! Beginning level saved to sa_aconc file
       INTEGER :: AISAM_ELEV = 0             ! Ending level saved to sa_aconc file
       INTEGER :: AVGSA_LAYS = 0             ! Number of layers saved to conc file
-      INTEGER :: ISAM_O3_WEIGHTS = 5        ! which chemistry are biased in apportioning reaction yields
+      INTEGER :: ISAM_CHEM_BIAS = 5         ! which chemistry are biased in apportioning reaction yields
                                             ! to source reactant
                                             ! 1 for none so divided equally between sources' reactant
                                             ! 2 for all products apportioned to sources with NO, NO2, NO3, HONO, ANO3
@@ -280,8 +280,8 @@
                                             ! production H2O2 over production HNO3 less than VOC_NOX_TRANS
                                    
       REAL     :: VOC_NOX_TRANS = 0.35      ! H2O2 to HNO3 marking transition from NOx to VOC limiting O3 production 
-      INTEGER  :: ISAM_NOX_CASE = 2         ! option of ISAM_O3_WEIGHTS representing NOx limiting O3 production
-      INTEGER  :: ISAM_VOC_CASE = 4         ! option of ISAM_O3_WEIGHTS representing VOC limiting O3 production
+      INTEGER  :: ISAM_NOX_CASE = 2         ! option of ISAM_CHEM_BIAS representing NOx limiting O3 production
+      INTEGER  :: ISAM_VOC_CASE = 4         ! option of ISAM_CHEM_BIAS representing VOC limiting O3 production
 
       CONTAINS
           
@@ -548,14 +548,14 @@
       END IF
 
       ! Get species bias case
-      CALL GET_ENV ( ISAM_O3_WEIGHTS, 'ISAM_O3_WEIGHTS', ISAM_O3_WEIGHTS, VARDEV )
-      IF ( ISAM_O3_WEIGHTS .LT. 1 .OR. ISAM_O3_WEIGHTS .GT. 5 ) THEN
-         XMSG = 'ISAM_CHEM_BIAS must equal 1 thru 5'
+      CALL GET_ENV ( ISAM_CHEM_BIAS, 'ISAM_O3_WEIGHTS', ISAM_CHEM_BIAS, VARDEV )
+      IF ( ISAM_CHEM_BIAS .LT. 1 .OR. ISAM_CHEM_BIAS .GT. 5 ) THEN
+         XMSG = 'ISAM_O3_WEIGHTS must equal 1 thru 5'
          WRITE( OUTDEV, '(A)' )TRIM( XMSG )
          CALL M3EXIT ( PNAME, 0, 0, XMSG, XSTAT1 )
       END IF
 
-      IF ( ISAM_O3_WEIGHTS .EQ. 5 ) THEN
+      IF ( ISAM_CHEM_BIAS .EQ. 5 ) THEN
         EFLAG = .FALSE.
       ! VOC_NOX_TRANS value, ratio of H2O2 over HNO3 production rates or concentration 
           CALL GET_ENV ( VOC_NOX_TRANS, 'VOC_NOX_TRANS', VOC_NOX_TRANS, VARDEV )
