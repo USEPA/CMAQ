@@ -1,0 +1,353 @@
+!------------------------------------------------------------------------------!
+! EMISSION CONTROL INTERFACE                                                   !
+!    FOR THE                                                                   !
+! DETAILED EMISSIONS SCALING, ISOLATION, AND DIAGNOSTICS (DESID) MODULE,       !
+!    PART OF THE                                                               !
+! COMMUNITY MULTISCALE AIR QUALITY (CMAQ) MODEL                                !
+!    DEVELOPED AND MAINTAINED BY THE                                           !
+! CENTER FOR ENVIRONMENTAL MEASUREMENT AND MODELING,                           !
+! OFFICE OF RESEARCH AND DEVELOPMENT                                           !
+! UNITED STATES ENVIRONMENTAL PROTECTION AGENCY                                !
+!                                                                              !
+! THIS VERSION CONSISTENT WITH THE RELEASE OF CMAQv5.4 (AUGUST 2022)           !
+!                                                                              !
+! See CMAQ User's Guide Appendix B and                                         !
+!     Murphy et al., Geoscientific Model Development, 14, 3407-3420,           !
+!     https://doi.org/10.5194/gmd-14-3407-2021, 2021.                          !
+!------------------------------------------------------------------------------!
+
+!------------------------------------------------------------------------------!
+! Emissions Scaling Rule Specification Component                               !
+!   Each rule is presented as a row of inputs. The syntax of the               !
+!   emissions scaling rules is the following:                                  !
+!      EM_INSTR(I) = 'Region Label', 'Stream Label', 'Emission-Species',       !
+!                     'CMAQ-Species', 'Phase/Mode', 'Scale Factor', 'Basis',   !
+!                     'Operation'                                              !
+!                                                                              !
+!    See the User's Guide for detailed definitions of each field.              !
+!                                                                              !
+!    You may confirm the effect of the (default and custom) rules below by     !
+!       inspecting the processor-dependent log files ("CTM_LOG_XXX...")        !
+!                                                                              !
+!    Note: If no rules are provided for a  species, then there is no emission  !
+!       of that species.                                                       !
+!------------------------------------------------------------------------------!
+
+&EmissionScalingRules
+ EM_NML=
+
+ ! Region      | Stream Label  |Emission | CMAQ-        |Phase/|Scale |Basis |Op  
+ !  Label      |               |Species  | Species      |Mode  |Factor|      |     
+                                                                             
+   ! Gases                                                                  
+   'EVERYWHERE', 'ALL'         ,'NO2'    ,'NO2'         ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'NO'     ,'NO'          ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'HONO'   ,'HONO'        ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'SO2'    ,'SO2'         ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'NH3'    ,'NH3'         ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'AACD'   ,'AACD'        ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'ALD2'   ,'ALD2'        ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'FORM'   ,'FORM'        ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'MEOH'   ,'MEOH'        ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'FACD'   ,'FACD'        ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'CO'     ,'CO'          ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'ALDX'   ,'ALDX'        ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'ETHA'   ,'ETHA'        ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'ETOH'   ,'ETOH'        ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'KET'    ,'KET'         ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'PAR'    ,'PAR'         ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'ACET'   ,'ACET'        ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'PRPA'   ,'PRPA'        ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'ETHY'   ,'ETHY'        ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'ETH'    ,'ETH'         ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'OLE'    ,'OLE'         ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'IOLE'   ,'IOLE'        ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'ISOP'   ,'ISOP'        ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'APIN'   ,'APIN'        ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'TERP'   ,'TERP'        ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'BENZ'   ,'BENZENE'     ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'TOL'    ,'TOL'         ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'XYLMN'  ,'XYLMN'       ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'NAPH'   ,'NAPH'        ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'CH4'    ,'ECH4'        ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'CL2'    ,'CL2'         ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'HCL'    ,'HCL'         ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'SESQ'   ,'SESQ'        ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'SOAALK' ,'SOAALK'      ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'        ,'ACROLEIN','ACROLEIN'    ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'    ,'ALD2_PRIMARY','ALD2_PRIMARY','GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'    ,'FORM_PRIMARY','FORM_PRIMARY','GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'        ,'ACROLEIN','ACRO_PRIMARY','GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'     ,'BUTADIENE13','BUTADIENE13' ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'SULF'   ,'SULF'        ,'GAS'  ,0.  ,'UNIT','a', 
+
+   ! Fine-Mode Aerosols
+   'EVERYWHERE', 'ALL'         ,'SULF'   ,'ASO4'        ,'FINE' ,1.  ,'MASS','a', 
+   'EVERYWHERE', 'ALL'         ,'PSO4'   ,'ASO4'        ,'FINE' ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'PNH4'   ,'ANH4'        ,'FINE' ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'PNO3'   ,'ANO3'        ,'FINE' ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'PCL'    ,'ACL'         ,'FINE' ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'PNA'    ,'ANA'         ,'FINE' ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'PEC'    ,'AEC'         ,'FINE' ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'PMOTHR' ,'AOTHR'       ,'FINE' ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'PFE'    ,'AFE'         ,'FINE' ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'PAL'    ,'AAL'         ,'FINE' ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'PSI'    ,'ASI'         ,'FINE' ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'PTI'    ,'ATI'         ,'FINE' ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'PCA'    ,'ACA'         ,'FINE' ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'PMG'    ,'AMG'         ,'FINE' ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'PK'     ,'AK'          ,'FINE' ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'PMN'    ,'AMN'         ,'FINE' ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'PH2O'   ,'AH2O'        ,'FINE' ,1.  ,'UNIT','a', 
+                                                        
+   ! Coarse-Mode Inorganic Ions Scaling                 
+   'EVERYWHERE', 'ALL'         ,'PMC'    ,'ACORS'   ,'COARSE',0.99675,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'PMC'    ,'ASO4'    ,'COARSE',0.001  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'PMC'    ,'ANO3'    ,'COARSE',0.00048,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'PMC'    ,'ACL'     ,'COARSE',0.00145,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'PMC'    ,'AH2O'    ,'COARSE',0.00032,'UNIT','a', 
+
+   ! Fine-Mode Primary Organic Aerosol Scaling
+   ! --> Nonvolatile POA
+    'EVERYWHERE', 'ALL'         ,'POC'    ,'APOC'       ,'FINE',0.   ,'MASS','a', 
+    'EVERYWHERE', 'ALL'         ,'PNCOM'  ,'APNCOM'     ,'FINE',0.   ,'MASS','a', 
+   ! --> Semivolatile POA (see CMAQ User's Guide Appendix B.2.2.1)
+    'EVERYWHERE', 'ALL'         ,'POC'    ,'VSVPO1'     ,'GAS' ,0.045,'MASS','a', 
+    'EVERYWHERE', 'ALL'         ,'PNCOM'  ,'VSVPO1'     ,'GAS' ,0.045,'MASS','a', 
+    'EVERYWHERE', 'ALL'         ,'POC'    ,'VSVPO2'     ,'GAS' ,0.14 ,'MASS','a', 
+    'EVERYWHERE', 'ALL'         ,'PNCOM'  ,'VSVPO2'     ,'GAS' ,0.14 ,'MASS','a', 
+    'EVERYWHERE', 'ALL'         ,'POC'    ,'VSVPO3'     ,'GAS' ,0.18 ,'MASS','a', 
+    'EVERYWHERE', 'ALL'         ,'PNCOM'  ,'VSVPO3'     ,'GAS' ,0.18 ,'MASS','a', 
+    'EVERYWHERE', 'ALL'         ,'POC'    ,'VIVPO1'     ,'GAS' ,0.50 ,'MASS','a', 
+    'EVERYWHERE', 'ALL'         ,'PNCOM'  ,'VIVPO1'     ,'GAS' ,0.50 ,'MASS','a', 
+    'EVERYWHERE', 'ALL'         ,'POC'    ,'ALVPO1'     ,'FINE',0.09 ,'MASS','a', 
+    'EVERYWHERE', 'ALL'         ,'PNCOM'  ,'ALVPO1'     ,'FINE',0.09 ,'MASS','a', 
+    'EVERYWHERE', 'ALL'         ,'POC'    ,'ASVPO1'     ,'FINE',0.045,'MASS','a', 
+    'EVERYWHERE', 'ALL'         ,'PNCOM'  ,'ASVPO1'     ,'FINE',0.045,'MASS','a', 
+   
+   ! pcSOA is a CMAQ species introduced to account for missing pathways for SOA
+   ! formation from combustion sources. It includes IVOC oxidation as well as other
+   ! phenomena (Murphy et al., ACP, 2017). It was parameterized primarily in LA,
+   ! where vehicle exhaust continues to dominate.
+    'EVERYWHERE', 'ALL'          ,'POC'   ,'PCVOC'      ,'GAS' ,6.579,'MASS','a', 
+    'EVERYWHERE', 'ALL'          ,'PNCOM' ,'PCVOC'      ,'GAS' ,6.579,'MASS','a', 
+
+   ! However, the added pcSOA is probably inappropriate for Fire sources, especially
+   ! in its current configuration. This pathway should be zeroed out for all fire
+   ! and wood-burning related sources.
+    'EVERYWHERE', 'PT_FIRES'     ,'ALL'   ,'PCVOC'      ,'GAS' ,0.0  ,'MASS','o', 
+    'EVERYWHERE', 'PT_RXFIRES'   ,'ALL'   ,'PCVOC'      ,'GAS' ,0.0  ,'MASS','o', 
+    'EVERYWHERE', 'PT_AGFIRES'   ,'ALL'   ,'PCVOC'      ,'GAS' ,0.0  ,'MASS','o', 
+    'EVERYWHERE', 'PT_OTHFIRES'  ,'ALL'   ,'PCVOC'      ,'GAS' ,0.0  ,'MASS','o', 
+    'EVERYWHERE', 'PT_FIRES_MXCA','ALL'   ,'PCVOC'      ,'GAS' ,0.0  ,'MASS','o', 
+    'EVERYWHERE', 'GR_RES_FIRES' ,'ALL'   ,'PCVOC'      ,'GAS' ,0.0  ,'MASS','o', 
+   
+   ! Wind-Blown Dust and Sea Spray Scaling
+   ! Fine Components
+   'EVERYWHERE', 'ALL'    ,'PMFINE_LVPO1','ALVPO1'      ,'FINE',1.   ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'    ,'PMFINE_LVOO1','ALVOO1'      ,'FINE',1.   ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'    ,'PMFINE_SO4'  ,'ASO4'        ,'FINE',1.   ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'    ,'PMFINE_NO3'  ,'ANO3'        ,'FINE',1.   ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'    ,'PMFINE_CL'   ,'ACL'         ,'FINE',1.   ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'    ,'PMFINE_NH4'  ,'ANH4'        ,'FINE',1.   ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'    ,'PMFINE_NA'   ,'ANA'         ,'FINE',1.   ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'    ,'PMFINE_CA'   ,'ACA'         ,'FINE',1.   ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'    ,'PMFINE_MG'   ,'AMG'         ,'FINE',1.   ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'    ,'PMFINE_K'    ,'AK'          ,'FINE',1.   ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'    ,'PMFINE_FE'   ,'AFE'         ,'FINE',1.   ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'    ,'PMFINE_AL'   ,'AAL'         ,'FINE',1.   ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'    ,'PMFINE_SI'   ,'ASI'         ,'FINE',1.   ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'    ,'PMFINE_TI'   ,'ATI'         ,'FINE',1.   ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'    ,'PMFINE_MN'   ,'AMN'         ,'FINE',1.   ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'    ,'PMFINE_H2O'  ,'AH2O'        ,'FINE',1.   ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'    ,'PMFINE_OTHR' ,'AOTHR'       ,'FINE',1.   ,'UNIT','a', 
+
+   ! :Scaling of Fine-Mode POA from Wind-Blown Dust or Sea Spray. Either the 
+   ! :Nonvolatile POA should be propagated to the transport model, or the Low 
+   ! :Volatility POA should be propagated, not both.
+
+   ! Wind-Blown Dust and Sea Spray Scaling
+   ! Coarse Components                                               
+   'EVERYWHERE', 'ALL'    ,'PMCOARSE_SO4','ASO4'      ,'COARSE',1.   ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'    ,'PMCOARSE_NO3','ANO3'      ,'COARSE',1.   ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'    ,'PMCOARSE_CL' ,'ACL'       ,'COARSE',1.   ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'    ,'PMCOARSE_H2O','AH2O'      ,'COARSE',1.   ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'   ,'PMCOARSE_SOIL','ASOIL'     ,'COARSE',1.   ,'UNIT','a', 
+   'EVERYWHERE', 'ALL' ,'PMCOARSE_SEACAT','ASEACAT'   ,'COARSE',1.   ,'UNIT','a', 
+   
+/
+
+!------------------------------------------------------------------------------!
+! Area Normalization Component                                                 !
+!   Specify area-normalized emission fluxes from input streams. If emission    !
+!   inputs are provided to CMAQ in area-normalized fluxes for any stream, this !
+!   component may be used to convert them correctly to emission rates          !
+!   appropriate for the model simulation grid projection. For example, if      !
+!   offline biogenic emissions are provided in units of moles/m2/s, then that  !
+!   stream may be identified here and DESID can be instructed to adjust each   !
+!   flux to moles/s and adjust the rates using the map scale factor that       !
+!   converts emissions in real geographic space into projected grid space.     !
+!                                                                              !
+!   Definition of Fields:                                                      !
+!      'Stream - Declare a stream. If the label is 'ALL', then the instruction !
+!        Label'  will be expanded to all OFFLINE streams.                      !
+!                                                                              !
+!      'Area Normalization' - If TRUE, then this stream's emissions will be    !
+!                multiplied by grid cell area.                                 !
+!                                                                              !
+!      'Projection Adjustment' - If TRUE, then this stream's emissions will be !
+!                multiplied by the area Map Scale Factor. If AUTO, then DESID  !
+!                will deduce from the units string whether or not each variable!
+!                on the stream input file should be multiplied by the area     !
+!                scale factor                                                  ! 
+!------------------------------------------------------------------------------!
+
+&AreaNormalization
+ AREA_NML  =
+ !         | Stream Label   | Area Normalization | Projection Adjustment 
+                'ALL'       ,'AUTO'              ,'AUTO',
+ !<Example>     'GRIDDED'   ,'TRUE'              ,'TRUE',
+ !<Example>     'FIRES'     ,'TRUE'              ,'FALSE',
+ !<Example>     'VCP'       ,'FALSE'             ,'TRUE',
+/
+
+!------------------------------------------------------------------------------!
+! Size Distribution Specification Component                                    !
+!   Each size distribution rule either modifies the parameters associated with !
+!   the aerosol modes of a particular stream, or adds new modes to a particular!
+!   stream if they do not already exist.                                       !
+!                                                                              !
+!   Definition of Fields:                                                      !
+!      'Stream - Label for the emissions stream that the instruction will      !
+!        Label'   apply to. If the label is 'ALL', then the instruction will   !
+!                 be expanded to apply to all streams.                         !
+!      'Emission Mode' - With this label, the user identifies which mode from  !
+!                        the emissions is to be modified or created. With this !
+!                        specificity, multiple streams can be defined and      !
+!                        mapped in the emissions rules.                        !
+!      'Reference Mode' - This label maps the emissions species aerosol mode   !
+!                         to specific parameters catalogued in the AERO_DATA   !
+!                         module.                                              !
+!------------------------------------------------------------------------------!
+
+&SizeDistributions
+ SD_NML    = 
+
+ !         | Stream Label   | Emiss. Mode  | Ref. Mode 
+             'ALL'          ,'FINE'        ,'FINE_REF',
+             'ALL'          ,'COARSE'      ,'COARSE_REF',
+             'WBDUST'       ,'FINE'        ,'FINE_WBDUST',
+             'WBDUST'       ,'COARSE'      ,'COARSE_WBDUST',
+             'SEASPRAY'     ,'FINE'        ,'FINE_SEASPRAY',
+             'SEASPRAY'     ,'COARSE'      ,'COARSE_SEASPRAY',
+ !<Example>  'AIRCRAFT'     ,'FINE'        ,'AIR_FINE',   !To use these examples, you 
+ !<Example>  'AIRCRAFT'     ,'COARSE'      ,'AIR_COARSE', ! must add entries for AIR_FINE
+                                                          ! and AIR_COARSE to the data structure
+                                                          ! em_aero_ref in AERO_DATA.
+
+/
+
+!------------------------------------------------------------------------------!
+! Region-Based Scaling Specification Component (See User's Guide section B.3)  !
+!   It is possible in CMAQ to scale emissions for a subset of the model domain !
+!   using gridded masks to indicate where the scaling should occur.            !
+!                                                                              !
+!   Definition of Fields:                                                      !
+!      'Region  - Label for the region that is being specified. By default, the!
+!        Label'   first region, is the whole domain, or "EVERYWHERE". It is    !
+!      'File  - With this label, the user identifies the file that the data for!
+!       Label'  this region is stored on. The CMAQ runscript should provide the!
+!               path to this file (or files) using the environment variable    !
+!               construct.                                                     !   
+!      'Variable  - This label identifies the variable on the region file that !
+!        on File'   should be used to populate this particular region.         !
+!------------------------------------------------------------------------------!
+
+&RegionDefinitions
+ RGN_NML  =   
+ !          | Region Label   | File_Label  | Variable on File
+               'EVERYWHERE'  ,'N/A'        ,'N/A',
+ !<Example>    'WATER'       ,'CMAQ_MASKS' ,'OPEN',
+ !<Example>    'ALL'         ,'CMAQ_MASKS' ,'ALL',
+ !<Example>    'ALL'         ,'ISAM_REGIONS','ALL',
+/
+
+!------------------------------------------------------------------------------!
+! Emissions Scaling Family Definitions                                         !
+!    This component includes definitions for families of emission streams and  !
+!    region combinations.                                                      ! 
+!------------------------------------------------------------------------------!
+
+!&RegionFamilies
+! NRegionFamilies         = 1
+! RegionFamilyName(1)     = 'Water'
+! RegionFamilyNum(1)      = 2
+! RegionFamilyMembers(1,:)= 'SURF','OPEN'
+!/
+ 
+!&StreamFamilies
+! NStreamFamilies         = 1
+! StreamFamilyName(1)     = 'PT_SOURCES'
+! StreamFamilyNum(1)      = 3
+! StreamFamilyMembers(1,:)= 'PT_NONEGU','PT_EGU','PT_OTHER'
+!/
+
+!------------------------------------------------------------------------------!
+! Emissions Diagnostic Output Component                                        !
+!    This section allows users to specify individual species for output on     !
+!    emissions diagnostic output files.                                        !
+!  Definition of Fields:                                                       !
+!   NEmissDiag - the number of diagnostic 'instructions' that you are          !
+!                giving. It will very likely be different than the number      !
+!                of diagnostic emissions output files. For example, if you wish!
+!                to expand the streams using the ALL keyword, then all of the  !
+!                streams will have a file, but only one instruction is needed. !
+!   EmissDiagStreams(NEmissDiag,:) - The stream names that are to be exported. !
+!        In addition to the labels of individual streams, you may also use     !
+!        stream family names here to identify more than one stream at a time.  !
+!        By default, each stream family element will instruct CMAQ to sum all  !
+!        of the streams in that group. The keyword 'ALL' is available by       !
+!        default to expand a list of all streams individually. The keyword     !
+!        'TOTAL' is availble to select the sum of all streams. You may use a   !
+!        '*' at the beginning of a family name to instruct CMAQ to expand that !
+!        keyword and export files for all of the streams in that group.        !
+!   EmissDiagFmt(NEmissDiag) - the format of every stream created as a result  !
+!        of the instruction. Options are:                                      !
+!              - COLSUM = the column-sum                                       !
+!              - 3D = 3D output                                                !
+!              - LAYER1 = Just the surface layer                               !
+!              - OFF = Turn Off File                                           !
+!   EmissDiagSpec(NEmissDiag,:) - The species to be added to each diagnostic   !
+!        file. Species will only appear on a diagnostic file if the relevant   !
+!        stream or group of streams for the file have that species present.    !
+!        The keyword 'ALL' may also be used to easily add all species of any   !
+!        stream.                                                               !
+!------------------------------------------------------------------------------!
+
+!&EmissionDiagnostic
+!  NEmissDiag           = 3    ! Add 3 example instructions
+  
+! Print all streams individually to many diagnostic files of 2D column sums. NO,
+! NO2, and total NOX will all be on the file.
+!  EmissDiagStreams(1,:)= 'ALL'
+!  EmissDiagFmt(1)      = 'COLSUM'    ! Options: 2D, 2DCOL, 3D
+!  EmissDiagSpec(1,:)   = 'NO','NO2','NOX','ASO4','CO'
+  
+! Activate the sum of all streams using the keyword TOTAL. This file will be 3D 
+! and will include three variables: 'AEC' = AECI + AECJ + AECK; 'AECI'; 'NO2'; 
+! 'ACLK'; 'AMG' and 'TERP' if those variables are avilable on the stream.
+!  EmissDiagStreams(2,:)= 'TOTAL'
+!  EmissDiagFmt(2)      = '3D'    
+!  EmissDiagSpec(2,:)   = 'AEC','AECI','NO2','ACLK','AMG','TERP'
+  
+! Create a diagnostic of the sum of the components of the PT_SOURCES family 
+! (defined in the example above). This file will be column sums and will include
+! all the emitted species as long as they appear on at least one of the streams 
+! within PT_SOURCES.
+!  EmissDiagStreams(3,:)= 'PT_SOURCES'
+!  EmissDiagFmt(3)      = 'COLSUM'   
+!  EmissDiagSpec(3,:)   = 'ALL'
+!/
+ 
+
+
