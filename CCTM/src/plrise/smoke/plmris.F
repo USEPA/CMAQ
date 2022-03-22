@@ -39,6 +39,7 @@ C     RADM 2.6 subroutine PLUMER() (but with completely different
 C     data structuring).
 C     Copied from plmris.F 4.4 by M Houyoux 3/99 
 C     Aug 2015, D. Wong: Used assumed shape array declaration
+C     Jan 2022, D. Wong: Variable FIRSTIME is obsolete
  
 C-----------------------------------------------------------------------
 C Modified from:
@@ -116,8 +117,6 @@ C Local Variables:
       REAL    WPLM            ! wind speed  at top of plume (m/s)
       REAL    ZMIX            ! hmix - hs
 
-      LOGICAL :: FIRSTIME = .TRUE.
-
 C Statement Functions:
       REAL    B, H, S, U, US  ! arguments
       REAL    NEUTRL          ! neutral-stability plume rise function
@@ -132,10 +131,6 @@ C Statement Functions:
       UNSTBL( B, U )    = 30.0 * ( B / U ) ** 0.6
 
 C-----------------------------------------------------------------------
-
-      IF ( FIRSTIME ) THEN
-         FIRSTIME = .FALSE.
-      END IF
 
 C Compute convective scale, buoyancy flux.
 

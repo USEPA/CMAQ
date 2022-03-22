@@ -62,7 +62,7 @@ C Locals:
       INTEGER L, V, IOS
 
       CHARACTER( 120 ) :: XMSG = ' '
-      LOGICAL :: FIRSTIME = .TRUE.
+      LOGICAL, SAVE :: FIRSTIME = .TRUE.
 
 C-----------------------------------------------------------------------
 
