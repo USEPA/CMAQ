@@ -65,6 +65,7 @@ C                    INIT_DEGRADE and FINAL_DEGRADE routines
 C                    02 Dec 14 B.Hutzell 1) added terrestrial data to conduct surface
 C                    dependent reactions and 2) modified the call CALC_RCONST routine
 C                    16 Sep 16 J.Young: update for inline procan (IRR)
+C                    21 Mar 22 G . Sarwar: updated simple halogen chemistry 
 C**********************************************************************
 
       USE RXNS_DATA
@@ -161,7 +162,7 @@ C..Local Variables:
       REAL, ALLOCATABLE, SAVE :: QV     ( :, :, : )      ! Cell water vapor (Kg/Kg air)
       REAL, ALLOCATABLE, SAVE :: TA     ( :, :, : )      ! Cell temperature (K)
 
-      REAL, ALLOCATABLE, SAVE :: LAND_ZONE   ( :,: )          ! fractional area of OPEN+SURF  
+      REAL, ALLOCATABLE, SAVE :: SEAWATER_ZONE   ( :,: )          ! fractional area of OPEN+SURF  
 
 
       REAL( 8 ), ALLOCATABLE, SAVE :: BLKHET( :, : )
@@ -261,11 +262,11 @@ C...Initialize and report data
          WRITE( LOGDEV, 92040 ) GLBL_RTOL, GLBL_ATOL
 
 C.. Get fractional seawater coverage from the OCEAN file.
-         ALLOCATE( LAND_ZONE( NCOLS, NROWS ) )
+         ALLOCATE( SEAWATER_ZONE( NCOLS, NROWS ) )
          
          DO ROW = 1, NROWS
             DO COL = 1, NCOLS                
-                 LAND_ZONE( COL,ROW ) =  OCEAN( COL,ROW ) + SZONE( COL,ROW )                  
+                 SEAWATER_ZONE( COL,ROW ) =  OCEAN( COL,ROW ) + SZONE( COL,ROW )                  
              END DO
          END DO
 
@@ -432,7 +433,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C  Put the grid cell physical data in the block arrays, converting
 C  pressure to atmospheres, water vapor to ppm, emissions to ppm/min,
-C  setting to land if seaice coverage is nonzero 
+C  assigning seawater values  
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
          DO NCELL = 1, NUMCELLS
@@ -445,7 +446,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
             BLKSVOL( NCELL ) = 1.0 /  DENS( COL,ROW,LEV )
             BLKPRES( NCELL ) = REAL( PA2ATM * PRES( COL, ROW, LEV ), 8 )
             BLKCH2O( NCELL ) = REAL( MAX( QV_TO_PPM * QV( COL,ROW,LEV ), 0.0 ), 8)
-            BLKLAND (NCELL)  = AMAX1 ( 0.0, ( LAND_ZONE( COL,ROW ) - SEAICE (COL,ROW) ) )            
+            BLKSEAWATER (NCELL)  = AMAX1 ( 0.0, ( SEAWATER_ZONE( COL,ROW ) - SEAICE (COL,ROW) ) )            
          END DO
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -488,7 +489,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
             END DO                         
          END DO
          
-         CALL CALC_RCONST( BLKTEMP, BLKPRES, BLKCH2O, RJBLK, BLKHET, LSUNLIGHT, BLKLAND, RKI, NUMCELLS )
+         CALL CALC_RCONST( BLKTEMP, BLKPRES, BLKCH2O, RJBLK, BLKHET, LSUNLIGHT, BLKSEAWATER, RKI, NUMCELLS )
 
          IF ( LSUNLIGHT ) THEN
             NCSP = NCS
