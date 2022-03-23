@@ -216,14 +216,13 @@ C Check max/min bounds of PAR and calculate biogenic ISOP
     
                 CALL M3MSG2( MESG )
             END IF
-
+            TLAI = MET_DATA%LAI( C,R )
 C Compute ISOP and MBO and METH emissions first
 C Note assumption that these are the first 3 species in LAITYPE and BIOTYPE
 C arrays
             DO I = 1, NLAI
 
                BTMP = LAITYPES( I )
-               TLAI = MET_DATA%LAI( C,R )
 C Adjust methanol based on T. Pierce recommendation (1-16-03)
                IF ( BTMP == 'METH' ) THEN
                   TLAI = MAX( 3.0, TLAI )
@@ -261,24 +260,31 @@ C Calculate temperature correction term
                END IF
 
             END DO ! end ISOP and MBO calculations loop
+C Only estiamte BCOV emissions for vegitation
+            IF( TLAI .GT. 0.0 ) THEN
 
-            CALL CLNEW_SUB( ZEN, PARDB, PARDIF, MET_DATA%LAI( C,R ), LHSH_DIV,
-     &                      LHSH_COMP, DTLEAF_SUN, DTLEAF_SHADE, 
-     &                      CSUBL_SUN, CSUBL_SHADE, FRACSUN, FRACSHADE,
-     &                      SOLRAD, REFLDV )
+               CALL CLNEW_SUB( ZEN, PARDB, PARDIF, TLAI, LHSH_DIV,
+     &                         LHSH_COMP, DTLEAF_SUN, DTLEAF_SHADE, 
+     &                         CSUBL_SUN, CSUBL_SHADE, FRACSUN, FRACSHADE,
+     &                         SOLRAD, REFLDV )
      
-            TLEAF_SUN   = TAIR + DTLEAF_SUN
-            TLEAF_SHADE = TAIR + DTLEAF_SHADE
+               TLEAF_SUN   = TAIR + DTLEAF_SUN
+               TLEAF_SHADE = TAIR + DTLEAF_SHADE
 C Calculate other biogenic emissions except NO
 C Note not speciated here
 C Limit temerature to 315 K for monoterpenes and other VOCs
-            TLEAF_SUN   = MIN( TLEAF_SUN, 315.0 )
-            TLEAF_SHADE = MIN( TLEAF_SHADE, 315.0 )    
+               TLEAF_SUN   = MIN( TLEAF_SUN, 315.0 )
+               TLEAF_SHADE = MIN( TLEAF_SHADE, 315.0 )    
 
-            CFOVOC  = FRACSUN   * EXP( 0.09 * ( TLEAF_SUN   - 303.0 ) ) + 
-     &                FRACSHADE * EXP( 0.09 * ( TLEAF_SHADE - 303.0 ) ) 
-            CFSESQT = FRACSUN   * EXP( 0.17 * ( TLEAF_SUN   - 303.0 ) ) + 
-     &                FRACSHADE * EXP( 0.17 * ( TLEAF_SHADE - 303.0 ) )
+               CFOVOC  = FRACSUN   * EXP( 0.09 * ( TLEAF_SUN   - 303.0 ) ) + 
+     &                   FRACSHADE * EXP( 0.09 * ( TLEAF_SHADE - 303.0 ) ) 
+               CFSESQT = FRACSUN   * EXP( 0.17 * ( TLEAF_SUN   - 303.0 ) ) + 
+     &                   FRACSHADE * EXP( 0.17 * ( TLEAF_SHADE - 303.0 ) )
+            ELSE
+C If LAI = 0 zero out emission factors
+               CFOVOC  = 0.0
+               CFSESQT = 0.0
+            END IF
 
             DO I = NLAI + 1, NSEF - 2
                BIPOL( C,R,I ) = SEMIS( C,R,I ) * CFOVOC
@@ -389,8 +395,8 @@ C calculate the leaf temperature following Campbel and Norman 1998 eq 14.6
 C with the addition of incomming atmospheric long wave irradiation resulting 
 C in the cacelation of the long wave radiation budget
          
-               SOLSUN    = SOLRAD * PARSUN / ( PARDB + PARDIF )
-               SOLSHADE  = SOLRAD * PARSHADE / ( PARDB + PARDIF )
+               SOLSUN    = SOLRAD * PARSUN / ( PARSUN + PARSHADE )
+               SOLSHADE  = SOLRAD * PARSHADE / ( PARSUN + PARSHADE )
                DTLSUN    = ((1.0 - REFLDV) * SOLSUN + LHSH_COMP ) / LHSH_DIV
                DTLSHADE  = ((1.0 - REFLDV) * SOLSHADE + LHSH_COMP ) / LHSH_DIV
                DTLSUN    = MIN(DTLSUN,  10.0) 
@@ -404,7 +410,9 @@ C thicker than shaded leaves. But since we need to make crude assumptions
 C regarding leaf orientation (x=1), we will not attempt to fix at the moment.
 
                CSUBL_SUN   = CGUEN( PARDB + PARDIF, 0.0, LAISUN, KBE )
-               CSUBL_SHADE = CGUEN( PARDB + PARDIF, LAISUN, TLAI, KBE )
+C By definition diffusive radiation, use the diffusive attenuation coefficient and 
+C Diffusive par at the bottom of the sunlit layer
+               CSUBL_SHADE = CGUEN( CANPARDIF_SUN, LAISUN, TLAI, KD )
             
             ELSE ! to prevent divide by 0 when there is no solar rad
                CSUBL_SUN   = 0.0
@@ -437,7 +445,7 @@ C-----------------------------------------------------------------------
 C Function to calculate Guenther's equation for computing light correction
          REAL FUNCTION CGUEN( PAR, LAI1, LAI2, KBE )
 
-C 11/14 J. Bash - Updated to Niinemets et al. 2010 doi:10.1029/2010JG001436 
+C 11/14 J. Bash - Updated to Niinemets et al. 2010a doi:10.1029/2010JG001436 
 C                 Big leaf model which updates Guenther et al. 1993 doi:10.1029/93JD00527 for 
 C                 in-canopy gradients
 
@@ -449,9 +457,11 @@ C Function arguments:
          REAL, INTENT( IN ) :: LAI2 ! bottom of the layer LAI
          REAL, INTENT( IN ) :: KBE  ! light extenction coefficient
 
-C Parameters:
-         REAL, PARAMETER :: ALPHA = 0.0027 ! Guenther et al. 1993
-         REAL, PARAMETER :: CL    = 1.066  ! Guenther et al. 1993
+C Parameters: updated to Niinemets et al. 2010b https://doi.org/10.5194/bg-7-1809-2010 to be 
+C consistent with Niinemets et al. 2010a
+         REAL, PARAMETER :: ALPHA = 0.0015 ! Mean of reported Quercus rubra and Liquidambar styraciflua
+         REAL, PARAMETER :: CL    = 1.2716 ! Calculated according Niinemets et al. 2010b to return 1 at
+                                           ! standard conditions ( PAR=1000, KBE = 0.68 )
 
 C-----------------------------------------------------------------------
          IF ( PAR .LE. 0.01 ) THEN
