@@ -33,7 +33,7 @@
 !       of that species.                                                       !
 !------------------------------------------------------------------------------!
 &Desid_ScalingVars
- Desid_MaxN_Rules = 2000
+ Desid_Max_Rules = 2000
 /
 
 &Desid_Scaling

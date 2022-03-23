@@ -42,10 +42,10 @@
 
       TYPE DESID_EMVAR_TYPE
           INTEGER         :: LEN    ! Length of Sub-Vector
-          CHARACTER( 16 ), ALLOCATABLE :: ARRY( : )    ! Surrogate Name
+          CHARACTER( 16 ), ALLOCATABLE :: ARRY( : )    ! Emission Variable Name
           CHARACTER( 16 ), ALLOCATABLE :: UNITS( : )   ! Units determined from input files
           REAL,            ALLOCATABLE :: MW( : )      ! Default MW from SPECIATE/SMOKE/MOVE
-          LOGICAL,         ALLOCATABLE :: USED( : )    ! Whether or not the surrogate is used in CMAQ
+          LOGICAL,         ALLOCATABLE :: USED( : )    ! Whether or not the variable is used in CMAQ
           Real,            ALLOCATABLE :: CONV( : )    ! Conversion factor to account for kg -> g or hr -> s
           CHARACTER( 16 ), ALLOCATABLE :: BASIS( : )   ! 'MOLE', 'MASS', or 'UNKNOWN' 
           LOGICAL,         ALLOCATABLE :: LAREA( : )   ! Whether or not the variable is an area flux

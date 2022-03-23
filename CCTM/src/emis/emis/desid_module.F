@@ -162,7 +162,7 @@ C Open Area Emissions files
          CALL DESID_OPEN_GR3D ( JDATE, JTIME )
 
 C Get number of emissions layers
-         IF ( DESID_MXLAYS .LE. 0 ) THEN
+         IF ( DESID_MAXLAYS .LE. 0 ) THEN
             ! Find The Largest Gridded Emission Layer And Let That be
             ! the initial top.
             DESID_LAYS = MAXVAL( DESID_GRID_LAYS(:) ) 
@@ -175,7 +175,7 @@ C Get number of emissions layers
             DESID_LAYS = MAX( MIN( DESID_LAYS, NLAYS ), 1 )
          ELSE
            ! Make sure the top is not greater than the model top
-           DESID_LAYS = MIN( DESID_MXLAYS, NLAYS )
+           DESID_LAYS = MIN( DESID_MAXLAYS, NLAYS )
 
          END IF
 

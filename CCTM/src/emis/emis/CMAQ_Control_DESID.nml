@@ -16,9 +16,9 @@
 !     https://doi.org/10.5194/gmd-14-3407-2021, 2021.                          !
 !------------------------------------------------------------------------------!
 &Desid_Options
- Top_Layer = 0  ! Add all emissions above Top_Layer to the grid cell at 
-                ! Top_Layer. If Top_Layer = 0, then all model layers are 
-                ! available for emissions.
+ Desid_MaxLays = 0  ! Add all emissions above Desid_MaxLays to the grid cell at 
+                    ! Desid_MaxLays. If Desid_MaxLays = 0, then all model layers are 
+                    ! available for emissions.
 /
 
 !------------------------------------------------------------------------------!
@@ -50,13 +50,13 @@
 /
 
 &Desid_AreaNorm
- Desid_Area_nml  =
+ Desid_Area_Nml  =
  !         | Stream Label   | Area Normalization | Projection Adjustment 
                 'ALL'       ,'AUTO'              ,'AUTO',
  !<Example>     'GRIDDED'   ,'TRUE'              ,'TRUE',
  !<Example>     'FIRES'     ,'TRUE'              ,'FALSE',
  !<Example>     'VCP'       ,'FALSE'             ,'TRUE',
-/
+/            
 
 !------------------------------------------------------------------------------!
 ! Size Distribution Specification Component                                    !
@@ -183,7 +183,9 @@
 !        stream.                                                               !
 !------------------------------------------------------------------------------!
 &Desid_DiagVars
-  ! Desid_Diag_N         = 3    ! Add 3 example instructions
+  Desid_N_Diag_Rules = 3    ! Exact Number of Diagnostic Rules Below
+  Desid_Max_Diag_Spec = 20  ! Maximum number of species variables on all rules 
+                            ! below (do not count expansions)
 /
 
 &Desid_Diag

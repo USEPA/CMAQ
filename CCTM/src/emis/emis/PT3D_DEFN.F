@@ -517,7 +517,7 @@ C If wildfires, allocate fire parameters
 
 C=======================================================================
 
-         SUBROUTINE GET_PT3D_EMIS ( JDATE, JTIME, TSTEP, EM_SURR_PT, ISRM,
+         SUBROUTINE GET_PT3D_EMIS ( JDATE, JTIME, TSTEP, EMVAR_PT, ISRM,
      &                            VDEMIS_PT, PTLAYS, L_DESID_DIAG )
 
 ! Revision History.
@@ -532,7 +532,7 @@ C=======================================================================
          USE STK_PRMS, ONLY :  MY_NSRC, MY_STRT_SRC, MY_END_SRC, 
      &                         MY_STKCOL, MY_STKROW, SOURCE,
      &                         MY_STKBUFF, MY_COLBUFF, MY_ROWBUFF 
-         USE STK_EMIS, ONLY :  IPSRM, N_EMIS_ISTR, EM_FILE_SURR, EM_FILE_DATE, 
+         USE STK_EMIS, ONLY :  IPSRM, N_EMIS_ISTR, DESID_EMVAR, EM_FILE_DATE, 
      &                         STKBUFF, NSRC_EMIS
          USE PTMET, ONLY    :  EMLAYS, PTMET_CONVT
          USE PRECURSOR_DATA, ONLY : PRECURSOR_MW, SULF_IDX
@@ -547,7 +547,7 @@ C=======================================================================
          INCLUDE SUBST_FILES_ID  ! file name parameters (for CTM_PT3D_DIAG)
 
 ! Arguments:
-         CHARACTER(16), INTENT( IN ) :: EM_SURR_PT( : )
+         CHARACTER(16), INTENT( IN ) :: EMVAR_PT( : )
          INTEGER               :: JDATE, JTIME
          INTEGER, INTENT( IN ) :: TSTEP( 3 )
          INTEGER, INTENT( IN ) :: ISRM
@@ -606,8 +606,8 @@ C-----------------------------------------------------------------------
               NDATE = STDATE; NTIME = STTIME
               CALL NEXTIME( NDATE, NTIME, TSTEP(1) ) ! advance one output tstep
               CALL OPPT3D_DIAG( CTM_PT3D_DIAG, TSTEP(1), 
-     &                   EM_FILE_SURR( ISRM )%LEN, EM_FILE_SURR( ISRM )%ARRY( : ),
-     &                   EM_FILE_SURR( ISRM )%UNITS( : ) )
+     &                   DESID_EMVAR( ISRM )%LEN, DESID_EMVAR( ISRM )%ARRY( : ),
+     &                   DESID_EMVAR( ISRM )%UNITS( : ) )
  
 
               ALLOCATE ( VDEMIS_BUF( N_EMIS_ISTR,EMLAYS,NCOLS,NROWS ), STAT = IOS )
@@ -726,7 +726,7 @@ C Calculate Plume Heights for All Point Sources on this File
 
 C Read Emissions for all sources on File N            
          DO ISPC = 1, N_EMIS_ISTR
-            VNAME = EM_SURR_PT( ISPC )
+            VNAME = EMVAR_PT( ISPC )
             IF ( VNAME .EQ. '' ) CYCLE
             call interpolate_var (STKENAME(N), VNAME, EM_FILE_DATE( ISRM ), JTIME, STKBUFF(1:NSRC_EMIS(N)) )
 

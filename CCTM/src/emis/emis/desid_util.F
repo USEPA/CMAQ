@@ -152,10 +152,10 @@
       INTEGER  :: JDATE = 0
       INTEGER  :: JTIME = 0
       LOGICAL  :: DIFF_VEC( N_SPC_DIFF )
-      INTEGER  :: MAP_toDIFF( DESID_MAX_DIAG_SPEC*10 ), 
-     &            MAP_toDIAG( DESID_MAX_DIAG_SPEC*10 )
-      CHARACTER(16) :: UNITS( DESID_MAX_DIAG_SPEC*10 ),
-     &                 DIAGSPEC( DESID_MAX_DIAG_SPEC*10 )
+      INTEGER  :: MAP_toDIFF( DESID_MAX_DIAG_SPEC*50 ), 
+     &            MAP_toDIAG( DESID_MAX_DIAG_SPEC*50 )
+      CHARACTER(16) :: UNITS( DESID_MAX_DIAG_SPEC*50 ),
+     &                 DIAGSPEC( DESID_MAX_DIAG_SPEC*50 )
 
 
       ! Determine number of diagnostic species to output
@@ -296,7 +296,7 @@
             EM_NML(N_RULE_B)%SPEC  = 'NH3'
             EM_NML(N_RULE_B)%STREAM= 'ALL'
             EM_NML(N_RULE_B)%PHASE = 'GAS'
-            EM_NML(N_RULE_B)%SURR  = 'NH3_FERT'
+            EM_NML(N_RULE_B)%EMVAR = 'NH3_FERT'
             EM_NML(N_RULE_B)%FAC   = -1.0
             EM_NML(N_RULE_B)%BASIS = 'UNIT'
             EM_NML(N_RULE_B)%OP    = 'a'
@@ -310,7 +310,7 @@
             EM_NML(N_RULE_B)%SPEC  = 'ASO4EMIS'
             EM_NML(N_RULE_B)%STREAM= 'ALL'
             EM_NML(N_RULE_B)%PHASE = 'FINE'
-            EM_NML(N_RULE_B)%SURR  = 'SULF'
+            EM_NML(N_RULE_B)%EMVAR = 'SULF'
             EM_NML(N_RULE_B)%FAC   = 1.0
             EM_NML(N_RULE_B)%BASIS = 'MASS'
             EM_NML(N_RULE_B)%OP    = 'a' 
@@ -320,7 +320,7 @@
             EM_NML(N_RULE_B)%SPEC  = 'ASO4EMIS'
             EM_NML(N_RULE_B)%STREAM= 'ALL'
             EM_NML(N_RULE_B)%PHASE = 'FINE'
-            EM_NML(N_RULE_B)%SURR  = 'PSO4'
+            EM_NML(N_RULE_B)%EMVAR = 'PSO4'
             EM_NML(N_RULE_B)%FAC   = 1.0
             EM_NML(N_RULE_B)%BASIS = 'UNIT'
             EM_NML(N_RULE_B)%OP    = 'a' 
@@ -330,7 +330,7 @@
             EM_NML(N_RULE_B)%SPEC  = 'ASO4EMIS'
             EM_NML(N_RULE_B)%STREAM= 'ALL'
             EM_NML(N_RULE_B)%PHASE = 'COARSE'
-            EM_NML(N_RULE_B)%SURR  = 'PMC'
+            EM_NML(N_RULE_B)%EMVAR = 'PMC'
             EM_NML(N_RULE_B)%FAC   = REAL( ACORSEM_ASO4_FAC, 4 ) 
             EM_NML(N_RULE_B)%BASIS = 'UNIT'
             EM_NML(N_RULE_B)%OP    = 'a' 
@@ -341,7 +341,7 @@
             EM_NML(N_RULE_B)%SPEC  = 'ASO4EMIS'
             EM_NML(N_RULE_B)%STREAM= 'ALL'
             EM_NML(N_RULE_B)%PHASE = 'FINE'
-            EM_NML(N_RULE_B)%SURR  = 'PMFINE_SO4'
+            EM_NML(N_RULE_B)%EMVAR = 'PMFINE_SO4'
             EM_NML(N_RULE_B)%FAC   = 1.0
             EM_NML(N_RULE_B)%BASIS = 'UNIT'
             EM_NML(N_RULE_B)%OP    = 'a' 
@@ -351,7 +351,7 @@
             EM_NML(N_RULE_B)%SPEC  = 'ASO4EMIS'
             EM_NML(N_RULE_B)%STREAM= 'ALL'
             EM_NML(N_RULE_B)%PHASE = 'COARSE'
-            EM_NML(N_RULE_B)%SURR  = 'PMCOARSE_SO4'
+            EM_NML(N_RULE_B)%EMVAR = 'PMCOARSE_SO4'
             EM_NML(N_RULE_B)%FAC   = 1.0
             EM_NML(N_RULE_B)%BASIS = 'UNIT'
             EM_NML(N_RULE_B)%OP    = 'a' 
@@ -471,7 +471,7 @@
             BASIS = 'MASS'
          ELSE
             WRITE( XMSG,'(A,A16,A,I3,A11,A16,A,A,A)' ),
-     &              'ERROR: Surrogate Species ',TRIM(SPEC),' on emission stream ',
+     &              'ERROR: Species ',TRIM(SPEC),' on emission stream ',
      &              ISRM, ' has units ',TRIM(UNITS),' which are not recognized ',
      &              'as an emission rate. If you wish to use this variable for ',
      &              'emissions, please correct the units (e.g. g/s or moles/s).'
@@ -486,7 +486,7 @@
          DENOM = UNITS(X+2:)
          IF ( DENOM .EQ. '' ) THEN
             WRITE( XMSG,'(A,A16,A,I3,A11,A16,A,A,A,A)' ),
-     &              'ERROR: Surrogate Species ',TRIM(SPEC),' on emission stream ',
+     &              'ERROR: Species ',TRIM(SPEC),' on emission stream ',
      &              ISRM, ' has units ',TRIM(UNITS),' which are not recognized ',
      &              'as an emission rate. If you wish to use this variable for ',
      &              'emissions, please correct the units (e.g. g/s, moles/s, ',
@@ -518,7 +518,7 @@
      &                                BASIS, CONV )
          IF ( BASIS .EQ. 'UNKNOWN' ) THEN
             WRITE( XMSG,'(A,A16,A,I3,A11,A16,A,A,A,A)' ),
-     &              'ERROR: Surrogate Species ',TRIM(SPEC),' on emission stream ',
+     &              'ERROR: Species ',TRIM(SPEC),' on emission stream ',
      &              ISRM, ' has units ',TRIM(UNITS),' which are not recognized ',
      &              'as an emission rate. If you wish to use this variable for ',
      &              'emissions, please correct the units (e.g. g/s, moles/s, ',
@@ -533,7 +533,7 @@
      &                                   BASIS, CONV )
             IF ( BASIS .EQ. 'UNKNOWN' ) THEN
                WRITE( XMSG,'(A,A16,A,I3,A11,A16,A,A,A,A)' ),
-     &                'ERROR: Surrogate Species ',TRIM(SPEC),' on emission stream ',
+     &                'ERROR: Species ',TRIM(SPEC),' on emission stream ',
      &                ISRM, ' has units ',TRIM(UNITS),' which are not recognized ',
      &                'as an emission rate. If you wish to use this variable for ',
      &                'emissions, please correct the units (e.g. g/s, moles/s, ',
@@ -546,7 +546,7 @@
          ! Check to make sure the time component has been defined 
          IF ( .NOT. LTIME_UNIT ) THEN
             WRITE( XMSG,'(A,A16,A,I3,A11,A16,A,A,A,A)' ),
-     &             'ERROR: Surrogate Species ',TRIM(SPEC),' on emission stream ',
+     &             'ERROR: Species ',TRIM(SPEC),' on emission stream ',
      &             ISRM, ' has units ',TRIM(UNITS),' which are not recognized ',
      &             'as an emission rate. If you wish to use this variable for ',
      &             'emissions, please correct the units (e.g. g/s, moles/s, ',

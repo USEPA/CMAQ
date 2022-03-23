@@ -34,6 +34,7 @@
 
         INTEGER, ALLOCATABLE :: DESID_GRID_LAYS(:) ! Number of Grid Layers 
                                                    !   for each stream
+        INTEGER              :: DESID_MAXLAYS = 0  ! Maximum Emission Layers
 
         ! Define Data Structure for Reading Emission Control Namelist Input
         TYPE DESID_RULES_TYPE
@@ -65,6 +66,7 @@
             CHARACTER( 32 ) :: VAR
         END TYPE DESID_REG_NML_TYPE
         TYPE( DESID_REG_NML_TYPE ), ALLOCATABLE :: DESID_REG_NML(:)
+        INTEGER                                 :: DESID_MAX_REG
 
         ! Define Structure for Storing Region Masks
         TYPE DESID_REG_TYPE
@@ -89,7 +91,6 @@
 
         ! Define Variables for Storing Emissions Diagnostic
         ! Parameters
-        Integer, Parameter :: Desid_Max_Diag_Streams = 20
         Integer, Parameter :: Desid_Max_Diag_Spec = 80
         Character( 32 ), Allocatable :: Desid_Diag_Streams_Nml(:,:)
         Character( 6  ), Allocatable :: Desid_Diag_Fmt_Nml(:)       

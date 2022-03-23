@@ -96,7 +96,7 @@
 !    chemical species to be output individually.                               !
 !------------------------------------------------------------------------------!
 
-&BudgetOptions
+&Budget_Options
   Budget_Diag = .TRUE.
   BudgetVariables  = 'ALL'
 / 

@@ -71,7 +71,7 @@
       IMPLICIT NONE
       
       ! Define Dummy Variables for Opening Emission Control Namelist
-      CHARACTER( 300 ) :: EQNAME, XMSG
+      CHARACTER( 300 ) :: XMSG
       INTEGER          :: FUNIT
       INTEGER          :: STAT, IFAM, INUM, IOST
       CHARACTER( 200 ) :: TMPLINE
@@ -89,10 +89,6 @@
       NAMELIST / Desid_RegionDefVars / Desid_Max_Reg, Desid_N_Reg_Fams,
      &                                 Desid_Max_Reg_Fam_Members
       NAMELIST / Desid_RegionFam / RegionFamilyName, RegionFamilyMembers
- 
-      ! Define Process Families
-      NAMELIST / Process_FamVars / N_Process_Fams
-      NAMELIST / ProcessFamilies / ProcessFamilyName, ProcessFamilyMembers
  
       CALL LOG_SUBHEADING( LOGDEV, "Reading Family Definitions from Control Files" )
 
@@ -118,7 +114,7 @@
       END IF
  
       ! Read Number of Chemical Families
-      REWIND( MISC_NML )
+      REWIND( FUNIT )
       READ( NML = Chemical_FamVars, UNIT = FUNIT, IOSTAT=STAT )
       IF ( STAT .EQ. -1 ) THEN
           XMSG = 'Note: the Chemical_FamVars section of the Misc. Control ' //
@@ -129,7 +125,7 @@
           N_Chem_Fams          = 0
           Max_Chem_Fam_Members = 0
       ELSE IF ( STAT .NE. 0 ) THEN
-          ! Read Error Detected for MISC_NML
+          ! Read Error Detected for MISC_CTRL
           backspace( FUNIT )
           read( FUNIT, fmt='(A)' ) tmpline
           XMSG = 'ERROR: There was a syntax error reading the Chemical_FamVars '//
@@ -150,7 +146,7 @@
      &          STAT = IOST)
       CALL CHECKMEM( IOST, 'ChemFamilies', 'Read_Families' )
 
-      REWIND( MISC_NML )
+      REWIND( FUNIT )
       READ( NML = ChemicalFamilies, UNIT = FUNIT, IOSTAT=STAT )
       IF ( STAT .EQ. -1 ) THEN
           XMSG = 'Note: the ChemicalFamilies section of the Misc. Control ' //
@@ -162,8 +158,8 @@
           ChemFamilyMembers  = ''
       ELSE IF ( STAT .NE. 0 ) THEN
           ! Read Error Detected for RGN_NML
-          backspace( EMCTRL_NML )
-          read( EMCTRL_NML, fmt='(A)' ) tmpline
+          backspace( FUNIT )
+          read( FUNIT, fmt='(A)' ) tmpline
           XMSG = 'ERROR: There was a syntax error reading the ChemicalFamilies '//
      &           'variable for use by the DESID module. Please check the format of '//
      &           'each line for syntax errors. The invalid line was likely: '

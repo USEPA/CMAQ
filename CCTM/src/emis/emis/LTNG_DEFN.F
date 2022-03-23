@@ -166,24 +166,24 @@
          IF ( .NOT. LTNG_NO ) RETURN
 
 !C Populate Emissions Species Record
-         EM_FILE_SURR( ILTSRM )%LEN = 1
-         ALLOCATE( EM_FILE_SURR( ILTSRM )%ARRY ( 1 ) )
-         ALLOCATE( EM_FILE_SURR( ILTSRM )%UNITS( 1 ) )
-         ALLOCATE( EM_FILE_SURR( ILTSRM )%MW   ( 1 ) )
-         ALLOCATE( EM_FILE_SURR( ILTSRM )%USED ( 1 ) )
-         ALLOCATE( EM_FILE_SURR( ILTSRM )%CONV ( 1 ) )
-         ALLOCATE( EM_FILE_SURR( ILTSRM )%BASIS( 1 ) )
-         ALLOCATE( EM_FILE_SURR( ILTSRM )%LAREA( 1 ) )
-         ALLOCATE( EM_FILE_SURR( ILTSRM )%LAREAADJ( 1 ) )
+         DESID_EMVAR( ILTSRM )%LEN = 1
+         ALLOCATE( DESID_EMVAR( ILTSRM )%ARRY ( 1 ) )
+         ALLOCATE( DESID_EMVAR( ILTSRM )%UNITS( 1 ) )
+         ALLOCATE( DESID_EMVAR( ILTSRM )%MW   ( 1 ) )
+         ALLOCATE( DESID_EMVAR( ILTSRM )%USED ( 1 ) )
+         ALLOCATE( DESID_EMVAR( ILTSRM )%CONV ( 1 ) )
+         ALLOCATE( DESID_EMVAR( ILTSRM )%BASIS( 1 ) )
+         ALLOCATE( DESID_EMVAR( ILTSRM )%LAREA( 1 ) )
+         ALLOCATE( DESID_EMVAR( ILTSRM )%LAREAADJ( 1 ) )
          
-         EM_FILE_SURR( ILTSRM )%ARRY  = "NO"
-         EM_FILE_SURR( ILTSRM )%UNITS = 'MOLES/S'
-         EM_FILE_SURR( ILTSRM )%MW    = 30.0
-         EM_FILE_SURR( ILTSRM )%USED  = .FALSE.
-         EM_FILE_SURR( ILTSRM )%CONV  = 1.0
-         EM_FILE_SURR( ILTSRM )%BASIS = 'MOLE'
-         EM_FILE_SURR( ILTSRM )%LAREA = .FALSE.
-         EM_FILE_SURR( ILTSRM )%LAREAADJ = .FALSE.
+         DESID_EMVAR( ILTSRM )%ARRY  = "NO"
+         DESID_EMVAR( ILTSRM )%UNITS = 'MOLES/S'
+         DESID_EMVAR( ILTSRM )%MW    = 30.0
+         DESID_EMVAR( ILTSRM )%USED  = .FALSE.
+         DESID_EMVAR( ILTSRM )%CONV  = 1.0
+         DESID_EMVAR( ILTSRM )%BASIS = 'MOLE'
+         DESID_EMVAR( ILTSRM )%LAREA = .FALSE.
+         DESID_EMVAR( ILTSRM )%LAREAADJ = .FALSE.
  
 !C Read in scenario time/date
 
