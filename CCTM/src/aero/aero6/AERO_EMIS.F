@@ -61,7 +61,7 @@ C   17 Apr 13 J.Young: replace "SPFC ASO4" (found by Havala Pye) with "SPFC_ASO4
 C   07 Nov 14 J.Bash: Updated for the ASX_DATA_MOD shared data module. 
 C-----------------------------------------------------------------------
 
-      USE AERO_DATA, ONLY: N_EM_AERO_REF, N_MODE
+      USE AERO_DATA, ONLY: DESID_N_AERO_REF, N_MODE
       USE DESID_VARS, ONLY: DESID_LAYS, DESID_STREAM_AERO, DESID_N_SRM, CELLVOL
 
       IMPLICIT NONE
@@ -167,7 +167,7 @@ C-----------------------------------------------------------------------
      &                        AERO_MISSING, MAP_AERO
          USE GRID_CONF, ONLY: GDTYP_GD, XCELL_GD, YCELL_GD, YORIG_GD, GL_NROWS, X3FACE_GD
          USE DUST_EMIS, ONLY: DUST_EMIS_INIT
-         USE EMIS_VARS, ONLY: MAP_ISTRtoEMVAR
+         USE DESID_VARS, ONLY: MAP_ISTRtoEMVAR
          USE PRECURSOR_DATA, ONLY: MAP_PRECURSOR
          USE RUNTIME_VARS, ONLY:  OCEAN_CHEM, WB_DUST
          USE SSEMIS, ONLY:    SSEMIS_INIT
@@ -337,7 +337,7 @@ C-----------------------------------------------------------------------
        ! Find Total Number of Size Distribution Registries
        N_SD_RULE = 0
        DO IRULE = 1,SIZE( DESID_SD_NML )
-          IF ( SD_NML( IRULE )%STREAM .EQ. '' ) EXIT
+          IF ( DESID_SD_NML( IRULE )%STREAM .EQ. '' ) EXIT
           N_SD_RULE = IRULE
        END DO
 
@@ -469,7 +469,7 @@ C ----------------------------------------------------------------------
          USE AERO_DATA, ONLY: AEROSPC, N_AEROSPC, AEROSPC_MWINV 
          USE AEROMET_DATA, ONLY: F6DPI
          USE ASX_DATA_MOD, ONLY: MET_DATA
-         USE EMIS_VARS, ONLY: DESID_N_ISTR, IDUSTSRM, ISEASRM
+         USE DESID_VARS, ONLY: DESID_N_ISTR, IDUSTSRM, ISEASRM
          USE GRID_CONF, ONLY: NCOLS, NROWS
          USE SSEMIS, ONLY: SEA_FACTNUM, SEA_FACTSRF
 

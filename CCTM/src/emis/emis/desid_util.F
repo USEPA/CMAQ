@@ -30,7 +30,7 @@
       Contains
 
 !-----------------------------------------------------------------------
-      SUBROUTINE DESID_GET_EM_RULE_STREAMS( RULE_STREAM_NML0, IRULE, 
+      SUBROUTINE DESID_GET_RULE_STREAMS( RULE_STREAM_NML0, IRULE, 
      &              RULE_STREAM, LREMOVE )
 !
 ! This subroutine analyzes the part of a rule identifying which streams
@@ -47,9 +47,9 @@
 
       CHARACTER(32), INTENT( IN ) :: RULE_STREAM_NML0
       CHARACTER(32)               :: RULE_STREAM_NML
-      CHARACTER(32)               :: STREAM_NAME( N_EM_SRM )
+      CHARACTER(32)               :: STREAM_NAME( DESID_N_SRM )
       INTEGER, INTENT( IN )       :: IRULE
-      LOGICAL, INTENT( INOUT )    :: RULE_STREAM( N_EM_SRM )
+      LOGICAL, INTENT( INOUT )    :: RULE_STREAM( DESID_N_SRM )
       LOGICAL, INTENT( INOUT )    :: LREMOVE
 
       INTEGER ISRM, IDX, NSRM, IFAM
@@ -283,7 +283,7 @@
       IMPLICIT NONE
       
       INTEGER,         INTENT( INOUT ) :: N_RULE
-      TYPE( DESID_RULE_TYPE )          :: EM_NML( 20 )
+      TYPE( DESID_RULES_TYPE )         :: EM_NML( 20 )
 
       INTEGER :: N_RULE_B, IRULE, ISRM
 
@@ -367,7 +367,7 @@
             DESID_RULES_NML( IRULE ) = EM_NML( IRULE ) 
          END DO
 
-      END SUBROUTINE CUSTOM_EM_RULES
+      END SUBROUTINE DESID_GET_ONLINE_RULES
 
 !-----------------------------------------------------------------------
          SUBROUTINE CHECK_EMIS_UNITS( ISRM, ISUR, SPEC, UNITS, CONV, BASIS,
@@ -726,4 +726,4 @@
       END FUNCTION RESOLVE_YN_TF_2D3D
 
  
-      END MODULE EMIS_UTIL
+      END MODULE DESID_UTIL

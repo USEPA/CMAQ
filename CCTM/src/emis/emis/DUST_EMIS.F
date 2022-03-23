@@ -71,7 +71,7 @@ C                    Number of soil types fixed to 16 to match WRF and tables up
 C-----------------------------------------------------------------------
       use lus_defn
       use aero_data
-      use emis_vars
+      use desid_vars
 
       implicit none 
 
@@ -1066,15 +1066,15 @@ C 2nd moment multiplied by PI to obtain the surface area emissions rate.
 
 ! Propagate Number and Surface Area Scaling Factors back to Emissions
 ! Module so that the dust emissions can be scaled appropriately            
-            ISD = INDEX1( 'FINE', EM_STREAM_SIZE( IDUSTSRM )%LEN, 
-     &                    EM_STREAM_SIZE( IDUSTSRM )%NAME )
-            EM_STREAM_SIZE( IDUSTSRM )%FACNUM( ISD,2 ) = FACTNUMJ
-            EM_STREAM_SIZE( IDUSTSRM )%FACSRF( ISD,2 ) = FACTSRFJ
+            ISD = INDEX1( 'FINE', DESID_STREAM_AERO( IDUSTSRM )%LEN, 
+     &                    DESID_STREAM_AERO( IDUSTSRM )%NAME )
+            DESID_STREAM_AERO( IDUSTSRM )%FACNUM( ISD,2 ) = FACTNUMJ
+            DESID_STREAM_AERO( IDUSTSRM )%FACSRF( ISD,2 ) = FACTSRFJ
             
-            ISD = INDEX1( 'COARSE', EM_STREAM_SIZE( IDUSTSRM )%LEN, 
-     &                    EM_STREAM_SIZE( IDUSTSRM )%NAME )
-            EM_STREAM_SIZE( IDUSTSRM )%FACNUM( ISD,3 ) = FACTNUMK
-            EM_STREAM_SIZE( IDUSTSRM )%FACSRF( ISD,3 ) = FACTSRFK
+            ISD = INDEX1( 'COARSE', DESID_STREAM_AERO( IDUSTSRM )%LEN, 
+     &                    DESID_STREAM_AERO( IDUSTSRM )%NAME )
+            DESID_STREAM_AERO( IDUSTSRM )%FACNUM( ISD,3 ) = FACTNUMK
+            DESID_STREAM_AERO( IDUSTSRM )%FACSRF( ISD,3 ) = FACTSRFK
 
 #ifdef verbose_wbdust
             if ( m3j .ne. 0.0 ) dusthit = dusthit + 1

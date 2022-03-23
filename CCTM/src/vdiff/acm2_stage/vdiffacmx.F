@@ -46,7 +46,7 @@ C-----------------------------------------------------------------------
 
       USE CGRID_SPCS          ! CGRID mechanism species
       USE GRID_CONF
-      USE EMIS_VARS, ONLY : VDEMIS_DIFF, EMLAYS
+      USE DESID_VARS, ONLY : VDEMIS_DIFF, DESID_LAYS
       USE EM_PARAM_MODULE, ONLY : N_EM_SRM
       USE DEPV_DEFN
       USE ASX_DATA_MOD
@@ -533,7 +533,7 @@ C-----------------------------------------------------------------------
 
          EMIS = 0.0      ! array assignment
          IF ( N_EM_SRM .GE. 1 ) 
-     &        EMIS( :,1:EMLAYS ) = DTS * VDEMIS_DIFF( :,:,C,R )
+     &        EMIS( :,1:DESID_LAYS ) = DTS * VDEMIS_DIFF( :,:,C,R )
 
 #ifdef isam
          SAEMIS = 0.0
@@ -545,7 +545,7 @@ C-----------------------------------------------------------------------
          END IF
 
 ! collapse ISAM emissions array
-         DO L = 1, EMLAYS
+         DO L = 1, DESID_LAYS
             DO ITAG = 1, NTAG_SA
                BOT = (ITAG-1)*NSPC_SA+1
                TOP = NSPC_SA*ITAG

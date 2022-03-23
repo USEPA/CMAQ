@@ -81,8 +81,8 @@ C-----------------------------------------------------------------------
 
       USE CGRID_SPCS          ! CGRID mechanism species
       USE GRID_CONF
-      USE EMIS_VARS, ONLY : VDEMIS_DIFF, EMLAYS
-      USE EMIS_DEFN, ONLY : EMIS_INIT, GET_EMIS_DRIVER
+      USE DESID_VARS, ONLY : VDEMIS_DIFF, DESID_LAYS
+      USE DESID_MODULE, ONLY : DESID_INIT, DESID_DRIVER
       USE DEPV_DEFN
       USE ASX_DATA_MOD
 !      USE MPAS_DATA_MOD

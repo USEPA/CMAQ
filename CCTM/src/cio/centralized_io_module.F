@@ -4662,7 +4662,7 @@ C   mminlu and num_land_cat are WRF global variables
 !----------------------------------------------------------------------- 
       USE GRID_CONF
       USE UTILIO_DEFN
-      USE em_param_module
+      USE desid_param_module
       USE UTIL_FAMILY_MODULE
 #ifdef mpas
       USE util_module, only : index1, upcase
@@ -4710,7 +4710,7 @@ C   mminlu and num_land_cat are WRF global variables
       DESID_REG( 1 )%FILENUM = 1
       DESID_N_REG = 1
       
-      ALLOCATE( DESID_REG_FAC( NCOLS,NROWS,N_REGIONS_REG ) )
+      ALLOCATE( DESID_REG_FAC( NCOLS,NROWS,DESID_N_REG ) )
       DESID_REG_FAC = 0.0
       DESID_REG_FAC( :,:,1 ) = 1.0
 
@@ -4863,7 +4863,7 @@ C   mminlu and num_land_cat are WRF global variables
         END DO ! IFILE
  
         ! Augment Emission Region Structure with Region Families
-        DO IFAM = 1,Desid_N_Region_Fams
+        DO IFAM = 1,Desid_N_Reg_Fams
            DESID_N_REG = DESID_N_REG + 1
            CALL UPCASE( RegionFamilyName( IFAM ) )
            DESID_REG( DESID_N_REG )%LABEL   = RegionFamilyName( IFAM )
@@ -4972,10 +4972,10 @@ C   mminlu and num_land_cat are WRF global variables
 !-----------------------------------------------------------------------
 
       use desid_param_module
-      use RUNTIME_VARS, only : DESID_CTRL, DESID_CHEM_CTRL, MISC_CTRL, logdev
       use util_family_module
-      use RUNTIME_VARS, only: EMISSCTRL, logdev, log_message, log_subheading
-      use PA_DEFN, ONLY : BudgetVariables, N_BUDGET_VARS_REG, BUDGET_DIAG
+      use RUNTIME_VARS, only: MISC_CTRL, DESID_CTRL, DESID_CHEM_CTRL,
+     &                        logdev, log_message, log_subheading
+      use PA_DEFN, ONLY : BudgetVariables, MAX_BUDGET_VARS_NML, BUDGET_DIAG
 #ifdef mpas
       use util_module, only : junit, upcase
 #endif
@@ -4983,9 +4983,10 @@ C   mminlu and num_land_cat are WRF global variables
       IMPLICIT NONE
 
          ! Define Dummy Variables for Opening Emission Control Namelist
-         CHARACTER( 300 ) :: XMSG
+         CHARACTER( 300 ) :: XMSG    
+         INTEGER          :: Desid_N_Diag_Rules, Desid_Max_Area, Desid_Max_Sd
          INTEGER          :: FUNIT
-         INTEGER          :: STAT, IFAM, INUM, IRULE
+         INTEGER          :: IOST, IFAM, INUM, IRULE
          CHARACTER( 200 ) :: TMPLINE
          
          ! Define Namelist Input from Control Files
@@ -4994,27 +4995,27 @@ C   mminlu and num_land_cat are WRF global variables
          
          ! DESID Chem Control
          Namelist / Desid_ScalingVars    / Desid_Max_Rules
-         Namelist / EmissionScalingRules / EM_NML
+         Namelist / Desid_Scaling        / Desid_Rules_Nml
          
          ! DESID Control
-         Namelist / Desid_Options        / Desid_Max_Lays
+         Namelist / Desid_Options        / Desid_MaxLays
 
          Namelist / Desid_AreaNormVars   / Desid_Max_Area
-         Namelist / Desid_AreaNorm       / Desid_Area_nml
+         Namelist / Desid_AreaNorm       / Desid_Area_Nml
 
          Namelist / Desid_SizeDistVars   / Desid_Max_Sd
-         Namelist / Desid_SizeDist       / Desid_Sd_nml
+         Namelist / Desid_SizeDist       / Desid_Sd_Nml
 
          Namelist / Desid_RegionDefVars  / Desid_Max_Reg,
      &                                     Desid_N_Reg_Fams, 
      &                                     Desid_Max_Reg_Fam_Members
-         Namelist / Desid_RegDef         / Desid_Reg_nml
+         Namelist / Desid_RegionDef      / Desid_Reg_Nml
 
          Namelist / Desid_DiagVars       / Desid_N_Diag_Rules,
      &                                     Desid_Max_Diag_Spec
-         Namelist / Desid_Diag           / Desid_Diag_Streams,
-     &                                     Desid_Diag_Fmt, 
-     &                                     Desid_Diag_Spec
+         Namelist / Desid_Diag           / Desid_Diag_Streams_Nml,
+     &                                     Desid_Diag_Fmt_Nml, 
+     &                                     Desid_Diag_Spec_Nml
 
          CALL LOG_MESSAGE( LOGDEV, ' ' )
          CALL LOG_SUBHEADING( LOGDEV, 'Reading Emission Control Namelist')
@@ -5036,10 +5037,10 @@ C   mminlu and num_land_cat are WRF global variables
            ! Open Emission Control Namelist File
            FUNIT = JUNIT()
            OPEN( FILE = MISC_CTRL, UNIT = FUNIT, STATUS = 'OLD',
-     &           POSITION = 'REWIND', FORM='FORMATTED', IOSTAT = STAT )
+     &           POSITION = 'REWIND', FORM='FORMATTED', IOSTAT = IOST )
           
            ! Check for Error in File Open Process
-           IF ( STAT .NE. 0 ) THEN
+           IF ( IOST .NE. 0 ) THEN
                WRITE( XMSG, '(A,A,A)' ),'ERROR: Could not read ',
      &                'CMAQ control namelist file: ',TRIM( MISC_CTRL )
                CALL M3EXIT( 'DESID_READ_NAMELIST',0,0,XMSG,1 )
@@ -5047,15 +5048,15 @@ C   mminlu and num_land_cat are WRF global variables
           
            ! Read Budget Variables Specification Section
            REWIND( FUNIT )
-           READ( NML = Budget_Options, UNIT = FUNIT, IOSTAT=STAT )
-           IF ( STAT .EQ. -1 ) THEN
+           READ( NML = Budget_Options, UNIT = FUNIT, IOSTAT= IOST )
+           IF ( IOST .EQ. -1 ) THEN
                WRITE( LOGDEV, "(5x,A,/,5x,A,/,5x,A,/,5x,A)" ),
      &                'Note: The BudgetOptions section of the Emissions Control ',
      &                'Namelist is missing. Default values for this section will be ',
      &                'assumed.'
                Budget_Diag   = .FALSE.
                BudgetVariables  = 'ALL'
-           ELSE IF ( STAT .NE. 0 ) THEN
+           ELSE IF ( IOST .NE. 0 ) THEN
                ! Read Error Detected for BudgetOptions
                backspace( FUNIT )
                read( FUNIT, fmt='(A)' ) tmpline
@@ -5088,10 +5089,10 @@ C   mminlu and num_land_cat are WRF global variables
            ! Open Emission Control Namelist File
            FUNIT = JUNIT()
            OPEN( FILE = DESID_CHEM_CTRL, UNIT = FUNIT, STATUS = 'OLD',
-     &           POSITION = 'REWIND', FORM='FORMATTED', IOSTAT = STAT )
+     &           POSITION = 'REWIND', FORM='FORMATTED', IOSTAT = IOST )
            
            ! Check for Error in File Open Process
-           IF ( STAT .NE. 0 ) THEN
+           IF ( IOST .NE. 0 ) THEN
                WRITE( XMSG, '(A,A,A)' ),'ERROR: Could not read ',
      &                'emissions control namelist file: ',TRIM( DESID_CHEM_CTRL )
                CALL M3EXIT( 'DESID_READ_NAMELIST',0,0,XMSG,1 )
@@ -5099,16 +5100,16 @@ C   mminlu and num_land_cat are WRF global variables
            
            ! Read the number of Max Emissions Rules to inform scaling operations
            REWIND( FUNIT )
-           READ( NML = Desid_ScalingVars, UNIT = FUNIT, IOSTAT=STAT )
-           IF ( STAT .EQ. -1 ) THEN
+           READ( NML = Desid_ScalingVars, UNIT = FUNIT, IOSTAT=IOST )
+           IF ( IOST .EQ. -1 ) THEN
                ! The DESID_Max_Rules Variable was completely missing
                XMSG = 'WARNING: Maximum Number of DESID Scaling Rules was not specified. '//
-     &                'If you intended to specify Desid_Max_Rules, check the DESID_CHEM_CTRL file.'//
+     &                'If you intended to specify Desid_Max_Rules, check the DESID_CHEM_CTRL file.'
                CALL LOG_MESSAGE( LOGDEV, ' ')
                CALL LOG_MESSAGE( LOGDEV, XMSG )
                DESID_MAX_RULES = 500
            
-           ELSE IF ( STAT .NE. 0 ) THEN
+           ELSE IF ( IOST .NE. 0 ) THEN
                ! Read Error Detected for DESID_RULES_NML
                backspace( FUNIT )
                read( FUNIT, fmt='(A)' ) tmpline
@@ -5128,7 +5129,7 @@ C   mminlu and num_land_cat are WRF global variables
            CALL CHECKMEM( IOST, 'DESID_RULES_NML','DESID_READ_NAMELIST')
            DESID_RULES_NML%REGION = ''
            DESID_RULES_NML%STREAM = ''
-           DESID_RULES_NML%SURR   = ''
+           DESID_RULES_NML%EMVAR  = ''
            DESID_RULES_NML%SPEC   = ''
            DESID_RULES_NML%PHASE  = ''
            DESID_RULES_NML%OP     = ''
@@ -5137,8 +5138,8 @@ C   mminlu and num_land_cat are WRF global variables
            
            ! Read the Emissions Rules to inform scaling operations
            REWIND( FUNIT )
-           READ( NML = Desid_Scaling, UNIT = FUNIT, IOSTAT=STAT )
-           IF ( STAT .EQ. -1 ) THEN
+           READ( NML = Desid_Scaling, UNIT = FUNIT, IOSTAT=IOST )
+           IF ( IOST .EQ. -1 ) THEN
                ! The DESID_RULES_NML Variable was completely missing
                XMSG = 'WARNING: There were no valid Emission Scaling Rules specified '//
      &                'for use by the DESID module. If you intended to specify '//
@@ -5148,14 +5149,14 @@ C   mminlu and num_land_cat are WRF global variables
                CALL LOG_MESSAGE( LOGDEV, XMSG )
                DESID_RULES_NML%REGION = ''
                DESID_RULES_NML%STREAM = ''
-               DESID_RULES_NML%SURR   = ''
+               DESID_RULES_NML%EMVAR  = ''
                DESID_RULES_NML%SPEC   = ''
                DESID_RULES_NML%PHASE  = ''
                DESID_RULES_NML%OP     = ''
                DESID_RULES_NML%BASIS  = ''
                DESID_RULES_NML%FAC    = 0.
            
-           ELSE IF ( STAT .NE. 0 ) THEN
+           ELSE IF ( IOST .NE. 0 ) THEN
                ! Read Error Detected for DESID_RULES_NML
                backspace( FUNIT )
                read( FUNIT, fmt='(A)' ) tmpline
@@ -5201,10 +5202,10 @@ C   mminlu and num_land_cat are WRF global variables
          ! Open Emission Control Namelist File
          FUNIT = JUNIT()
          OPEN( FILE = DESID_CTRL, UNIT = FUNIT, STATUS = 'OLD',
-     &         POSITION = 'REWIND', FORM='FORMATTED', IOSTAT = STAT )
+     &         POSITION = 'REWIND', FORM='FORMATTED', IOSTAT = IOST )
 
          ! Check for Error in File Open Process
-         IF ( STAT .NE. 0 ) THEN
+         IF ( IOST .NE. 0 ) THEN
              WRITE( XMSG, '(A,A,A)' ),'ERROR: Could not read ',
      &              'emissions control namelist file: ',TRIM( DESID_CTRL )
              CALL M3EXIT( 'DESID_READ_NAMELIST',0,0,XMSG,1 )
@@ -5214,16 +5215,16 @@ C   mminlu and num_land_cat are WRF global variables
          !!! DESID Top Layer  !!!
            ! Read the Maximum Emissions Layer
            REWIND( FUNIT )
-           READ( NML = Desid_Options, UNIT = FUNIT, IOSTAT=STAT )
-           IF ( STAT .EQ. -1 ) THEN
+           READ( NML = Desid_Options, UNIT = FUNIT, IOSTAT=IOST )
+           IF ( IOST .EQ. -1 ) THEN
                ! The Desid_Max_Lays Variable was completely missing
                XMSG = 'WARNING: Maximum Layer for emissions input was not specified. '//
-     &                'If you intended to specify Desid_Max_Lays, check the DESID_CTRL file.'//
+     &                'If you intended to specify Desid_Max_Lays, check the DESID_CTRL file.'
                CALL LOG_MESSAGE( LOGDEV, ' ')
                CALL LOG_MESSAGE( LOGDEV, XMSG )
-               Desid_Max_Lays = 0
+               Desid_MaxLays = 0
            
-           ELSE IF ( STAT .NE. 0 ) THEN
+           ELSE IF ( IOST .NE. 0 ) THEN
                ! Read Error Detected for Desid_Max_Lays
                backspace( FUNIT )
                read( FUNIT, fmt='(A)' ) tmpline
@@ -5242,16 +5243,16 @@ C   mminlu and num_land_cat are WRF global variables
          !!! DESID Area Normalization !!!
            ! Read the number of Max Emissions Rules to inform scaling operations
            REWIND( FUNIT )
-           READ( NML = Desid_AreaNormVars, UNIT = FUNIT, IOSTAT=STAT )
-           IF ( STAT .EQ. -1 ) THEN
+           READ( NML = Desid_AreaNormVars, UNIT = FUNIT, IOSTAT=IOST )
+           IF ( IOST .EQ. -1 ) THEN
                ! The DESID_Max_Rules Variable was completely missing
                XMSG = 'WARNING: Maximum Number of DESID Area Normalization Rules was not specified. '//
-     &                'If you intended to specify Desid_Max_Area, check the DESID_CTRL file.'//
+     &                'If you intended to specify Desid_Max_Area, check the DESID_CTRL file.'
                CALL LOG_MESSAGE( LOGDEV, ' ')
                CALL LOG_MESSAGE( LOGDEV, XMSG )
                DESID_MAX_AREA = 30
            
-           ELSE IF ( STAT .NE. 0 ) THEN
+           ELSE IF ( IOST .NE. 0 ) THEN
                ! Read Error Detected for DESID_RULES_NML
                backspace( FUNIT )
                read( FUNIT, fmt='(A)' ) tmpline
@@ -5275,8 +5276,8 @@ C   mminlu and num_land_cat are WRF global variables
            
            ! Read the Area Normalization Registry
            REWIND( FUNIT )
-           READ( NML = Desid_AreaNorm, UNIT = FUNIT, IOSTAT=STAT )
-           IF ( STAT .EQ. -1 ) THEN
+           READ( NML = Desid_AreaNorm, UNIT = FUNIT, IOSTAT=IOST )
+           IF ( IOST .EQ. -1 ) THEN
                XMSG = 'Note: The Area Normalization section of the Emissions Control '//
      &                'Interface is missing. Default values for this section will be '//
      &                'assumed.'
@@ -5285,7 +5286,7 @@ C   mminlu and num_land_cat are WRF global variables
                DESID_AREA_NML%STREAM = 'ALL'
                DESID_AREA_NML%AREA   = 'AUTO'
                DESID_AREA_NML%ADJ    = 'AUTO'
-           ELSE IF ( STAT .NE. 0 ) THEN
+           ELSE IF ( IOST .NE. 0 ) THEN
                ! Read Error Detected for DESID_AREA_NML
                backspace( FUNIT )
                read( FUNIT, fmt='(A)' ) tmpline
@@ -5303,16 +5304,16 @@ C   mminlu and num_land_cat are WRF global variables
          !!! DESID Region Definition !!!
            ! Read the number of Max Emissions Rules to inform scaling operations
            REWIND( FUNIT )
-           READ( NML = Desid_RegionDefVars, UNIT = FUNIT, IOSTAT=STAT )
-           IF ( STAT .EQ. -1 ) THEN
+           READ( NML = Desid_RegionDefVars, UNIT = FUNIT, IOSTAT=IOST )
+           IF ( IOST .EQ. -1 ) THEN
                ! The DESID_Max_Rules Variable was completely missing
                XMSG = 'WARNING: Maximum Number of DESID Region Def Variables was not specified. '//
-     &                'If you intended to specify Desid_Max_Reg, check the DESID_CTRL file.'//
+     &                'If you intended to specify Desid_Max_Reg, check the DESID_CTRL file.'
                CALL LOG_MESSAGE( LOGDEV, ' ')
                CALL LOG_MESSAGE( LOGDEV, XMSG )
                DESID_MAX_REG = 30
            
-           ELSE IF ( STAT .NE. 0 ) THEN
+           ELSE IF ( IOST .NE. 0 ) THEN
                ! Read Error Detected for DESID_RULES_NML
                backspace( FUNIT )
                read( FUNIT, fmt='(A)' ) tmpline
@@ -5336,8 +5337,8 @@ C   mminlu and num_land_cat are WRF global variables
            
            ! Read the Regions Registry
            REWIND( FUNIT )
-           READ( NML = Desid_RegionDef, UNIT = FUNIT, IOSTAT=STAT )
-           IF ( STAT .EQ. -1 ) THEN
+           READ( NML = Desid_RegionDef, UNIT = FUNIT, IOSTAT=IOST )
+           IF ( IOST .EQ. -1 ) THEN
                XMSG = 'Note: The Desid_RegionDef component of the Emissions Control '//
      &                'Interface is missing. Default values for this section will be '//
      &                'assumed.'
@@ -5346,7 +5347,7 @@ C   mminlu and num_land_cat are WRF global variables
                DESID_REG_NML%LABEL = ''
                DESID_REG_NML%FILE  = ''
                DESID_REG_NML%VAR   = ''
-           ELSE IF ( STAT .NE. 0 ) THEN
+           ELSE IF ( IOST .NE. 0 ) THEN
                ! Read Error Detected for DESID_REG_NML
                backspace( FUNIT )
                read( FUNIT, fmt='(A)' ) tmpline
@@ -5365,16 +5366,16 @@ C   mminlu and num_land_cat are WRF global variables
          !!! DESID Size Distributions !!!
            ! Read the number of Max Size Dist Rules to inform scaling operations
            REWIND( FUNIT )
-           READ( NML = Desid_SizeDistVars, UNIT = FUNIT, IOSTAT=STAT )
-           IF ( STAT .EQ. -1 ) THEN
+           READ( NML = Desid_SizeDistVars, UNIT = FUNIT, IOSTAT=IOST )
+           IF ( IOST .EQ. -1 ) THEN
                ! The DESID_Max_Sd Variable was completely missing
                XMSG = 'WARNING: Maximum Number of DESID Size Dist Rules was not specified. '//
-     &                'If you intended to specify Desid_Max_Sd, check the DESID_CTRL file.'//
+     &                'If you intended to specify Desid_Max_Sd, check the DESID_CTRL file.'
                CALL LOG_MESSAGE( LOGDEV, ' ')
                CALL LOG_MESSAGE( LOGDEV, XMSG )
                DESID_MAX_SD = 10
            
-           ELSE IF ( STAT .NE. 0 ) THEN
+           ELSE IF ( IOST .NE. 0 ) THEN
                ! Read Error Detected for DESID_RULES_NML
                backspace( FUNIT )
                read( FUNIT, fmt='(A)' ) tmpline
@@ -5398,8 +5399,8 @@ C   mminlu and num_land_cat are WRF global variables
            
         !!! Read the size distribution specification section
            REWIND( FUNIT )
-           READ( NML = Desid_SizeDist, UNIT = FUNIT, IOSTAT=STAT )
-           IF ( STAT .EQ. -1 ) THEN
+           READ( NML = Desid_SizeDist, UNIT = FUNIT, IOSTAT=IOST )
+           IF ( IOST .EQ. -1 ) THEN
                XMSG = 'Note: The Desid_SizeDist component of the Emissions Control '//
      &                'Interface is missing. Default values for this section '//
      &                'will be assumed.'
@@ -5408,7 +5409,7 @@ C   mminlu and num_land_cat are WRF global variables
                DESID_SD_NML%STREAM   = ''
                DESID_SD_NML%MODE     = ''
                DESID_SD_NML%MODE_REF = ''
-           ELSE IF ( STAT .NE. 0 ) THEN
+           ELSE IF ( IOST .NE. 0 ) THEN
                ! Read Error Detected for DESID_SD_NML
                backspace( FUNIT )
                read( FUNIT, fmt='(A)' ) tmpline
@@ -5426,17 +5427,17 @@ C   mminlu and num_land_cat are WRF global variables
          !!! DESID Diagnostic File Inputs !!!
            ! Read the number of Max Emissions Rules to inform scaling operations
            REWIND( FUNIT )
-           READ( NML = Desid_DiagVars, UNIT = FUNIT, IOSTAT=STAT )
-           IF ( STAT .EQ. -1 ) THEN
+           READ( NML = Desid_DiagVars, UNIT = FUNIT, IOSTAT=IOST )
+           IF ( IOST .EQ. -1 ) THEN
                ! The DESID_N_Diag_Rules Variable was completely missing
                XMSG = 'WARNING: Number of DESID Diagnostic Rules was not specified. '//
-     &                'If you intended to specify Desid_N_Diag_Rules, check the DESID_CTRL file.'//
+     &                'If you intended to specify Desid_N_Diag_Rules, check the DESID_CTRL file.'
                CALL LOG_MESSAGE( LOGDEV, ' ')
                CALL LOG_MESSAGE( LOGDEV, XMSG )
                DESID_N_DIAG_RULES = 0
                DESID_MAX_DIAG_SPEC = 0
 
-           ELSE IF ( STAT .NE. 0 ) THEN
+           ELSE IF ( IOST .NE. 0 ) THEN
                ! Read Error Detected for DESID_N_DIAG_RULES
                backspace( FUNIT )
                read( FUNIT, fmt='(A)' ) tmpline
@@ -5452,19 +5453,19 @@ C   mminlu and num_land_cat are WRF global variables
            END IF
 
            ! Allocate and Initialize Namelist Variables
-           ALLOCATE( DESID_DIAG_STREAMS( DESID_N_DIAG_RULES,DESID_MAX_DIAG_SPEC ),
-     &               DESID_DIAG_FMT( DESID_N_DIAG_RULES ),
-     &               DESID_DIAG_SPEC( DESID_N_DIAG_RULES,DESID_MAX_DIAG_SPEC ),
+           ALLOCATE( DESID_DIAG_STREAMS_NML( DESID_N_DIAG_RULES,DESID_MAX_DIAG_SPEC ),
+     &               DESID_DIAG_FMT_NML( DESID_N_DIAG_RULES ),
+     &               DESID_DIAG_SPEC_NML( DESID_N_DIAG_RULES,DESID_MAX_DIAG_SPEC ),
      &               STAT=IOST )
            CALL CHECKMEM( IOST, 'DESID_DIAG_NML','DESID_READ_NAMELIST')
-           Desid_Diag_Streams = ''
-           Desid_Diag_Fmt     = ''  
-           Desid_Diag_Spec    = ''
+           Desid_Diag_Streams_Nml = ''
+           Desid_Diag_Fmt_Nml     = ''  
+           Desid_Diag_Spec_Nml    = ''
            
            ! Read the Emissions Diagnostic Section
            REWIND( FUNIT )
-           READ( NML = Desid_Diag, UNIT = FUNIT, IOSTAT=STAT )
-           IF ( STAT .EQ. -1 ) THEN
+           READ( NML = Desid_Diag, UNIT = FUNIT, IOSTAT=IOST )
+           IF ( IOST .EQ. -1 ) THEN
                ! The Emissions Diagnostic Section was completely missing
                XMSG = 'WARNING: There were no valid Emission Diagnostic Values specified '//
      &                'for use by the DESID module. If you intended to specify '//
@@ -5472,10 +5473,10 @@ C   mminlu and num_land_cat are WRF global variables
      &                'file you have provided for DESID_CTRL_NML.' 
                CALL LOG_MESSAGE( LOGDEV, ' ')
                CALL LOG_MESSAGE( LOGDEV, XMSG )
-               Desid_Diag_Streams = ''
-               Desid_Diag_Fmt     = ''  
-               Desid_Diag_Spec    = ''
-           ELSE IF ( STAT .NE. 0 ) THEN
+               Desid_Diag_Streams_Nml = ''
+               Desid_Diag_Fmt_Nml     = ''  
+               Desid_Diag_Spec_Nml    = ''
+           ELSE IF ( IOST .NE. 0 ) THEN
                ! Read Error for Emissions Diagnostic
                backspace( FUNIT )
                read( FUNIT, fmt='(A)' ) tmpline

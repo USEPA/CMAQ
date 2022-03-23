@@ -36,7 +36,7 @@ C-----------------------------------------------------------------------
       USE RUNTIME_VARS
       USE HGRD_DEFN
       USE AERO_DATA, ONLY: N_MODE
-      USE EMIS_VARS
+      USE DESID_VARS
 
       IMPLICIT NONE
 

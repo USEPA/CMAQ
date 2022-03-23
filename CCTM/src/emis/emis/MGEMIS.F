@@ -37,7 +37,7 @@ C   04 Sep 20: G. Sarwar* Fixed bug for Kw
 
       USE RUNTIME_VARS
       USE HGRD_DEFN
-      USE EMIS_VARS
+      USE DESID_VARS
 
       IMPLICIT NONE
 

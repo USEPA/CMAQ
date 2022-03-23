@@ -57,8 +57,8 @@ C     16 Dec 2019 S.L.Napelenok: ddm-3d implementation for version 5.3.1
 C-----------------------------------------------------------------------
       USE RUNTIME_VARS
       USE GRID_CONF           ! horizontal & vertical domain specifications      
-      USE EMIS_VARS
-      USE EMIS_UTIL
+      USE DESID_VARS
+      USE DESID_UTIL
       USE VDIFF_MAP, ONLY : N_SPC_DIFF
       USE UTILIO_DEFN
 
@@ -585,7 +585,7 @@ C Retrieve Emissions from All Stream Types
          DO ISRM = 1,DESID_N_SRM
            DO R = 1,NROWS
            DO C = 1,NCOLS
-           DO J = 1,EMLAYS
+           DO J = 1,DESID_LAYS
            DO I = 1,DESID_N_ISTR
              VDEMIS_READ(I,J,C,R) = 0.0
            END DO
@@ -607,7 +607,7 @@ C Retrieve Emissions from All Stream Types
              ! Retrieve Point Source Emissions Streams
              CASE ( 2 )
                NL = 1
-               CALL GET_PT3D_EMIS ( JDATE, JTIME, TSTEP, DESID_EMVAR( :,ISRM ), 
+               CALL GET_PT3D_EMIS ( JDATE, JTIME, TSTEP, EMVAR( :,ISRM ), 
      &                              ISRM, VDEMIS_READ, NL, L_DESID_DIAG )
                CALL DESID_SCALING( VDEMIS_READ, ISRM, NL, VDEMIS_SCALED )
                CALL DESID_SIZE_DIST( ISRM, VDEMIS_SCALED, NL )
@@ -631,7 +631,7 @@ C Retrieve Emissions from All Stream Types
 
              ! Retrieve Lightning NO Emissions
              CASE ( 6 )
-               NL = EMLAYS
+               NL = DESID_LAYS
                CALL GET_LTNG ( JDATE, JTIME, TSTEP, L_DESID_DIAG )
                DO L = 1,NL
                   FORALL( ISTR = 1:DESID_N_ISTR, MAP_ISTRtoEMVAR( ISTR,ISRM ) .GT. 0 )
@@ -837,7 +837,7 @@ C Retrieve Emissions from All Stream Types
 C Subset the emissions array for DDM-3D (by species and region)
          DO NP = 1, NPMAX
            DO S = 1, N_SPC_DIFF
-             DO L = 1, EMLAYS
+             DO L = 1, DESID_LAYS
                SVDEMIS_DIFF( S,L,:,:,NP ) = 
      &                        SVDEMIS_DIFF( S,L,:,:,NP )
      &                      * IREGION( :,:,L,NP )
@@ -1283,10 +1283,10 @@ C-----------------------------------------------------------------------
      &                         DIFF_MASK_TRAC, DIFF_MW
          USE UTILIO_DEFN
          USE AERO_DATA, only : N_MODE, AEROSPC,  ! Aerosol Properties Table
-     &                         N_AEROSPC, AEROMODE, MODESUFF, EM_AERO_REF
-         USE AERO_EMIS, only : MAP_NUMtoEM, MAP_SRFtoEM, MAP_EMtoAERO, MAP_EMtoMODE, 
-     &                         MAP_EMtoNUM, MAP_EMtoSRF, MAP_EMtoSD,
-     &                         DESID_STREAM_AERO, SD_SPLIT, EM_SD_INIT
+     &                         N_AEROSPC, AEROMODE, MODESUFF, DESID_AERO_REF
+         USE AERO_EMIS, only : MAP_NUMtoISTR, MAP_SRFtoISTR, MAP_ISTRtoAERO, MAP_ISTRtoMODE, 
+     &                         MAP_ISTRtoNUM, MAP_ISTRtoSRF, MAP_ISTRtoSD,
+     &                         DESID_STREAM_AERO, SD_SPLIT, DESID_INIT_SIZE_DIST
          USE UDTYPES,   only : CARRY1, LARRY1
          USE UTIL_FAMILY_MODULE
 
@@ -1369,7 +1369,7 @@ C and allowing the model to proceed.
             WRITE( LOGDEV,'(8x,I3,5x,A18,2x,A18,2x,A)' ),IRGN, DESID_REG(IRGN)%LABEL( 1:18 ),
      &             DESID_REG( IRGN )%File( 1:18 ), TRIM(DESID_REG( IRGN )%VAR ) 
             IF ( DESID_REG(IRGN)%FILE(1:6) .EQ. 'Family' ) THEN
-                 F = INDEX1( DESID_REG(IRGN)%LABEL(1:18), DESID_N_REGION_FAMS, REGIONFAMILYNAME )
+                 F = INDEX1( DESID_REG(IRGN)%LABEL(1:18), DESID_N_REG_FAMS, REGIONFAMILYNAME )
                  DO IRGN2 = 1,REGIONFAMILYNUM( F )
                      WRITE( LOGDEV,'(56x,A)' ), REGIONFAMILYMEMBERS( F,IRGN2 )
                  END DO
@@ -1447,7 +1447,7 @@ C and allowing the model to proceed.
 ! with forced area normalization and/or projection adjustment.
          N_AREA = 0
          DO IAREA = 1,SIZE( DESID_AREA_NML )
-            IF( AREA_NML( IAREA )%STREAM .EQ. '' ) EXIT
+            IF( DESID_AREA_NML( IAREA )%STREAM .EQ. '' ) EXIT
             N_AREA = IAREA
          END DO
 
@@ -2467,7 +2467,7 @@ C and allowing the model to proceed.
              IF ( N_USED .GT. 0 )
      &           WRITE( LOGDEV, '(/,5x,3A,/,5x,A,/,5x,3A,/,5x,A,/,5x,A,/,5x,A)') 
      &                  'WARNING: Emission Variable ',TRIM(B),' is being used but does not have a',
-     &                  '         default entry in the DESID_EMVAR_TABLE in EMIS_VARS.F. Currently,',
+     &                  '         default entry in the DESID_EMVAR_TABLE in DESID_VARS.F. Currently,',
      &                  '         the molecular weight of ',TRIM(B),' is assumed to be 1.0',
      &                  '         g/mol for any emissions scaling operations requiring mass-mole',
      &                  '         conversions. If you are only prescribing UNIT scaling, then this',
@@ -2511,7 +2511,7 @@ C and allowing the model to proceed.
               IEM = DESID_STREAM_AERO( ISRM )%REF( ISD )
               REFNAME = ''
               IF ( IEM .GT. 0 ) THEN
-                  REFNAME = EM_AERO_REF( IEM )%NAME
+                  REFNAME = DESID_AERO_REF( IEM )%NAME
               END IF
 
               WRITE( LOGDEV,'(8x,I3,5x,A18,2x,A18,2x,A)' ),ISD, 

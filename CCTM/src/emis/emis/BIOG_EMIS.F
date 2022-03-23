@@ -41,7 +41,7 @@ C     30 Sept 2021 G. Sarwar: added CB6R5_AE7_AQ
 C     04 Oct  2021 G. Sarwar: added CB6R5HAP_AE7_AQ
 C-----------------------------------------------------------------------
       USE RUNTIME_VARS
-      USE EMIS_VARS
+      USE DESID_VARS
       USE biog_emis_param_module
 
       IMPLICIT NONE

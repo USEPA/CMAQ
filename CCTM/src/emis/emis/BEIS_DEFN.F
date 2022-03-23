@@ -101,7 +101,7 @@ C=======================================================================
 
          SUBROUTINE GET_BEIS ( JDATE, JTIME, TSTEP, L_DESID_DIAG )
 
-         USE EMIS_VARS, ONLY : N_EMIS_ISTR, IBIOSRM,
+         USE DESID_VARS, ONLY : DESID_N_ISTR, IBIOSRM,
      &                         MAP_ISTRtoEMVAR, MAP_ISTRtoDIFF
          USE BIOG_EMIS, ONLY : MSPCS
              
@@ -127,7 +127,7 @@ C-----------------------------------------------------------------------
              ! Map out BEIS_MAP using MAP_ISTRtoEMVAR Array
              ALLOCATE( BEIS_MAP( MSPCS ) )
              BEIS_MAP = 0
-             DO ISTR = 1,N_EMIS_ISTR
+             DO ISTR = 1,DESID_N_ISTR
                  IF ( MAP_ISTRtoEMVAR( ISTR,IBIOSRM ) .GT. 0 ) 
      &              BEIS_MAP( MAP_ISTRtoEMVAR( ISTR,IBIOSRM ) ) = 
      &                     MAP_ISTRtoDIFF( ISTR )

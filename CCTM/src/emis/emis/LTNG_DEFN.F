@@ -69,7 +69,7 @@
 !C 6 Jan 2020 D. Kang: Correct the time steps in the lightning NOx !diagnostic files from 1:00 - 0:00 to 0:00 to 23:00
 !C----------------------------------------------------------------------
       USE RUNTIME_VARS
-      USE EMIS_VARS
+      USE DESID_VARS
 
       IMPLICIT NONE
 
@@ -86,7 +86,7 @@
       REAL,                 SAVE :: SCL_FACTOR
 
       INTEGER,              SAVE :: LTLYRS     ! no. of emissions layers
-      REAL,    ALLOCATABLE, SAVE :: VDEMIS_DIAG( :,:,: ) ! lightning NO diagnostic
+      REAL,    ALLOCATABLE, SAVE :: VDEMIS_LTDIAG( :,:,: ) ! lightning NO diagnostic
       REAL,    ALLOCATABLE, SAVE :: COLUMN_DIAG( :,: ) ! column total NO
 
       CHARACTER( 16 ),      SAVE :: RC_NAME       ! RC name: old is RC and CCnew is RCA
@@ -224,7 +224,7 @@
 
             SQUAREKM = REAL( ( XCELL_GD * YCELL_GD * 1.0D-6 ), 4 )
 !C Set up vertical layers
-            ALLOCATE( VGLVSLT( 0:EMLAYS ), STAT = STATUS )
+            ALLOCATE( VGLVSLT( 0:DESID_LAYS ), STAT = STATUS )
             CALL CHECKMEM( STATUS, 'VGLVSLT', PNAME )
 
             ALLOCATE( ICCG        ( NCOLS,NROWS ),
@@ -244,7 +244,7 @@
                END IF
 !            END IF  !LPARAM
 !C Store local layer information
-            DO L = EMLAYS, 0, -1
+            DO L = DESID_LAYS, 0, -1
                   VGLVSLT( L ) = VGLVS_GD( L+1 )
 !                  WRITE( LOGDEV,'(5X, A, I3, A, F11.7)' ) 'VGLVSLT(', L, ' ):', VGLVSLT( L )
             END DO
@@ -277,7 +277,7 @@
                VGTOP3D = VGTOP_GD
                GDNAM3D = GRID_NAME  ! from HGRD_DEFN
 
-               NLAYS3D = EMLAYS
+               NLAYS3D = DESID_LAYS
                DO L = 1, NLAYS3D + 1
                   VGLVS3D( L ) = VGLVS_GD( L )
                END DO
@@ -308,13 +308,13 @@
 
                END IF
 
-               ALLOCATE( VDEMIS_DIAG( NCOLS,NROWS,EMLAYS ), STAT = STATUS )
+               ALLOCATE( VDEMIS_LTDIAG( NCOLS,NROWS,DESID_LAYS ), STAT = STATUS )
                IF ( STATUS .NE. 0 ) THEN
-                  XMSG = 'VDEMIS_DIAG memory allocation failed'
+                  XMSG = 'VDEMIS_LTDIAG memory allocation failed'
                   CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
                   SUCCESS = .FALSE.; RETURN
                END IF
-               VDEMIS_DIAG = 0.0   ! array assignment
+               VDEMIS_LTDIAG = 0.0   ! array assignment
                ALLOCATE( COLUMN_DIAG( NCOLS,NROWS), STAT = STATUS )
                IF ( STATUS .NE. 0 ) THEN
                   XMSG = 'COLUMN_DIAG memory allocation failed'
@@ -334,7 +334,7 @@
 
          END IF   ! IF ( LTNG_FNAME .EQ. "INLINE" ) inline or offline lightning NO production
 
-         LTLYRS = EMLAYS
+         LTLYRS = DESID_LAYS
 
 !C Build Emissions Buffer
          ALLOCATE( VDEMIS_LT( NCOLS,NROWS,LTLYRS ), STAT = STATUS )
@@ -613,13 +613,13 @@ C statement function for ERF approximation
 
 !C Write lightning NO to the diagnostic file
             IF ( LTNGDIAG .AND. .NOT. L_DESID_DIAG ) THEN 
-               VDEMIS_DIAG = VDEMIS_DIAG + VDEMIS_LT   ! array assignment
+               VDEMIS_LTDIAG = VDEMIS_LTDIAG + VDEMIS_LT   ! array assignment
                COLUMN_DIAG = COLUMN_DIAG + COLUMN_LTNG_NO
                IF ( LASTTIC ) THEN   ! time to write out
                   DIVFAC = 1.0 / REAL( MTICS, 4 )
-                  VDEMIS_DIAG = VDEMIS_DIAG * DIVFAC   ! array assignment
+                  VDEMIS_LTDIAG = VDEMIS_LTDIAG * DIVFAC   ! array assignment
                   COLUMN_DIAG = COLUMN_DIAG*DIVFAC
-                  IF ( .NOT. WRITE3( CTM_LTNGDIAG_1, LTSPC, ADJ_LDATE, ADJ_LTIME, VDEMIS_DIAG ) )  THEN
+                  IF ( .NOT. WRITE3( CTM_LTNGDIAG_1, LTSPC, ADJ_LDATE, ADJ_LTIME, VDEMIS_LTDIAG ) )  THEN
                      XMSG = 'Could not write to ' // TRIM( CTM_LTNGDIAG_1 )
                      CALL M3EXIT( PNAME, ADJ_LDATE, ADJ_LTIME, XMSG, XSTAT2 )
                   ELSE
@@ -636,7 +636,7 @@ C statement function for ERF approximation
      &                    'for date and time', ADJ_LDATE, ADJ_LTIME
                   END IF
 
-                  VDEMIS_DIAG = 0.0   ! array assignment
+                  VDEMIS_LTDIAG = 0.0   ! array assignment
                   COLUMN_DIAG = 0.0
                END IF ! LASTTIC
 

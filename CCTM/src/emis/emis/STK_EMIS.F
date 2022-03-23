@@ -32,7 +32,7 @@ C                          Yongtao Hu (Georgia Tech)
 C-----------------------------------------------------------------------
 
       USE UDTYPES, ONLY: RARRY1, CARRY1
-      USE EMIS_VARS
+      USE DESID_VARS
 
       IMPLICIT NONE
 
@@ -113,8 +113,8 @@ C-----------------------------------------------------------------------
 
             ! Each file will use the default jdate, unless specified by the user 
             ! that the file is a representative day file
-            EM_FILE_DATE( ISRM ) = JDATE    
-            IF ( EM_FILE_SYM_DATE( ISRM ) ) EM_FILE_DATE( ISRM ) = SDATE3D
+            DESID_STREAM_DATE( ISRM ) = JDATE    
+            IF ( DESID_STREAM_SYM_DATE( ISRM ) ) DESID_STREAM_DATE( ISRM ) = SDATE3D
 
             NSRC_EMIS( N ) = NROWS3D
             NVARS_EMIS( N ) = NVARS3D
@@ -125,7 +125,7 @@ C-----------------------------------------------------------------------
                ! the FIRENAM variable
                IF ( VNAME3D( I ) .EQ. 'HFLUX' ) THEN
                    FIREFLAG( N ) = .TRUE.
-                   EM_FILE_FIRE( ISRM ) = .TRUE.
+                   DESID_STREAM_FIRE( ISRM ) = .TRUE.
                END IF
             END DO
             IF ( FIREFLAG( N ) ) THEN   ! subtract off 'HFLUX'

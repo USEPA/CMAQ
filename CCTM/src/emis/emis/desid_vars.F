@@ -34,11 +34,12 @@
       REAL,    ALLOCATABLE :: CELLAREA( :,: )
       REAL,    ALLOCATABLE :: CELLHGT ( : )
       REAL,    ALLOCATABLE :: CELLVOL ( :,:,: )
-      REAL,                :: DX1, DX2
+      REAL                 :: DX1, DX2
       REAL,    ALLOCATABLE :: VDEMIS_DIFF( :,:,:,: ) ! emissions array mapped to diffused species
 
       INTEGER              :: DESID_LAYS
-      INTEGER              :: DESID_GRID_LAYS
+
+      CHARACTER( 16 ), ALLOCATABLE :: EMVAR( :,: ) ! Emissions Surrogate to be read ( species, stream )
 
       TYPE DESID_EMVAR_TYPE
           INTEGER         :: LEN    ! Length of Sub-Vector
@@ -301,4 +302,4 @@
      &    desid_legend( 'ARSENIC_C    ' ,074.92),
      &    desid_legend( 'PHGI         ' ,200.5 )  /)
 
-      END MODULE EMIS_VARS
+      END MODULE DESID_VARS

@@ -91,7 +91,7 @@
 
         ! Define Variables for Storing Emissions Diagnostic
         ! Parameters
-        Integer, Parameter :: Desid_Max_Diag_Spec = 80
+        Integer                      :: Desid_Max_Diag_Spec = 80
         Character( 32 ), Allocatable :: Desid_Diag_Streams_Nml(:,:)
         Character( 6  ), Allocatable :: Desid_Diag_Fmt_Nml(:)       
         Character( 16 ), Allocatable :: Desid_Diag_Spec_Nml(:,:) 

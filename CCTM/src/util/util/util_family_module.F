@@ -34,21 +34,24 @@
 
       ! Define Chemical Family Variables
       Integer                     :: N_Chem_Fams = 0
-      Character( 32 ),Allocatable :: ChemFamilyName( : ) = ''
-      Integer,Allocatable         :: ChemFamilyNum( : ) = 0
-      Character( 32 ),Allocatable :: ChemFamilyMembers( :,: ) = ''
+      Integer                     :: Max_Chem_Fam_Members = 0
+      Character( 32 ),Allocatable :: ChemFamilyName( : ) 
+      Integer,Allocatable         :: ChemFamilyNum( : ) 
+      Character( 32 ),Allocatable :: ChemFamilyMembers( :,: ) 
 
       ! Define Stream Family Variables
       Integer                     :: Desid_N_Stream_Fams = 0
-      Character( 32 ),Allocatable :: StreamFamilyName( : ) = ''
-      Integer,Allocatable         :: StreamFamilyNum( : ) = 0
-      Character( 32 ),Allocatable :: StreamFamilyMembers( :,: ) = ''
+      Integer                     :: Desid_Max_Stream_Fam_Members = 0
+      Character( 32 ),Allocatable :: StreamFamilyName( : ) 
+      Integer,Allocatable         :: StreamFamilyNum( : )
+      Character( 32 ),Allocatable :: StreamFamilyMembers( :,: )
 
       ! Define Region Family Variables
-      Integer                     :: Desid_N_Region_Fams = 0
-      Character( 32 ),Allocatable :: RegionFamilyName( : ) = ''
-      Integer,Allocatable         :: RegionFamilyNum( : ) = 0
-      Character( 32 ),Allocatable :: RegionFamilyMembers( :,: ) = ''
+      Integer                     :: Desid_N_Reg_Fams = 0
+      Integer                     :: Desid_Max_Reg_Fam_Members = 0
+      Character( 32 ),Allocatable :: RegionFamilyName( : )
+      Integer,Allocatable         :: RegionFamilyNum( : )
+      Character( 32 ),Allocatable :: RegionFamilyMembers( :,: )
 
       ! Other Variables
       Logical                     :: linit = .FALSE.
@@ -67,6 +70,7 @@
       use RUNTIME_VARS, only : DESID_CTRL, MISC_CTRL, logdev, log_message, 
      &                         log_subheading
       use UTILIO_DEFN
+      use desid_param_module, only : Desid_Max_Reg
       
       IMPLICIT NONE
       
@@ -78,12 +82,12 @@
 
 
       ! Define Chemical Families           
-      NAMELIST / Chemical_FamVars / N_Chem_Fams, Max_Chem_Fam_Members,
+      NAMELIST / Chemical_FamVars / N_Chem_Fams, Max_Chem_Fam_Members
       NAMELIST / ChemicalFamilies / ChemFamilyName, ChemFamilyMembers
 
       ! Define Stream Families
       NAMELIST / Desid_StreamFamVars / Desid_N_Stream_Fams, Desid_Max_Stream_Fam_Members
-      NAMELIST / Desid_StreamFamilies / StreamFamilyName, StreamFamilyMembers
+      NAMELIST / Desid_StreamFam     / StreamFamilyName, StreamFamilyMembers
 
       ! Define Region Families
       NAMELIST / Desid_RegionDefVars / Desid_Max_Reg, Desid_N_Reg_Fams,
@@ -206,7 +210,7 @@
  
       ! Read Stream Family Specification Section
       REWIND( FUNIT )
-      READ( NML = Desid_Stream_FamVars, UNIT = FUNIT, IOSTAT=STAT )
+      READ( NML = Desid_StreamFamVars, UNIT = FUNIT, IOSTAT=STAT )
       IF ( STAT .EQ. -1 ) THEN
           XMSG = 'Note: the StreamFamilies section of the DESID Control ' //
      &           'Namelist is missing. Default values for this section will be ' //
@@ -219,7 +223,7 @@
           ! Read Error Detected for RGN_NML
           backspace( FUNIT )
           read( FUNIT, fmt='(A)' ) tmpline
-          XMSG = 'ERROR: There was a syntax error reading the Desid_Stream_FamVars '//
+          XMSG = 'ERROR: There was a syntax error reading the Desid_StreamFamVars '//
      &           'variable for use by the DESID module. Please check the format of '//
      &           'each line for syntax errors. The invalid line was likely: '
           CALL LOG_MESSAGE( LOGDEV, ' ')
@@ -278,7 +282,7 @@
       !!! Region Families !!!
       ! Read Region Family Specification Section
       REWIND( FUNIT )
-      READ( NML = Desid_Region_DefVars, UNIT = FUNIT, IOSTAT=STAT )
+      READ( NML = Desid_RegionDefVars, UNIT = FUNIT, IOSTAT=STAT )
       IF ( STAT .EQ. -1 ) THEN
           XMSG = 'Note: the Desid_Regoin_DefVars section of the DESID Control ' //
      &           'Namelist is missing. Default values for this section will be '//
@@ -286,7 +290,7 @@
           CALL LOG_MESSAGE( LOGDEV, ' ' )
           CALL LOG_MESSAGE( LOGDEV, XMSG )
           Desid_Max_Reg  = 0
-          Desid_N_Fams  = 0
+          Desid_N_Reg_Fams  = 0
           Desid_Max_Reg_Fam_Members  = 0
       ELSE IF ( STAT .NE. 0 ) THEN
           ! Read Error Detected for RGN_NML
@@ -335,7 +339,7 @@
       END IF
  
       ! Capitalize All Family and Member Names
-      DO IFAM = 1,Desid_N_Region_Fams
+      DO IFAM = 1,Desid_N_Reg_Fams
           CALL UPCASE( RegionFamilyName( IFAM ) )
           RegionFamilyNum( IFAM ) = 0
 
