@@ -164,7 +164,7 @@ C                  by min_sigma_g and max_sigma_g.
 C Flag to obtain coagulation coefficients
 C by analytical approximation (True) or by Gauss-Hermite quadrature (False)
       Logical, Parameter :: fastcoag_flag = .True.
-      Integer, Parameter :: coag_moments = 3      ! Number of moments to consider 
+      Integer, Parameter :: coag_moments = 2      ! Number of moments to consider 
                                                   ! for coagulation 
                                                   ! 2 = number and volume
                                                   ! 3 = number, volume, and surface area
