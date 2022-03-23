@@ -1,15 +1,15 @@
 !------------------------------------------------------------------------------!
-! EMISSION CONTROL INTERFACE                                                   !
-!    FOR THE                                                                   !
-! DETAILED EMISSIONS SCALING, ISOLATION, AND DIAGNOSTICS (DESID) MODULE,       !
-!    PART OF THE                                                               !
-! COMMUNITY MULTISCALE AIR QUALITY (CMAQ) MODEL                                !
-!    DEVELOPED AND MAINTAINED BY THE                                           !
-! CENTER FOR ENVIRONMENTAL MEASUREMENT AND MODELING,                           !
-! OFFICE OF RESEARCH AND DEVELOPMENT                                           !
-! UNITED STATES ENVIRONMENTAL PROTECTION AGENCY                                !
+! Emission Control Interface                                                   !
+!    for the                                                                   !
+! Detailed Emissions Scaling, Isolation, and Diagnostics (DESID) Module,       !
+!    part of the                                                               !
+! Community Multiscale Air Quality (CMAQ) Model                                !
+!    developed and maintained by the                                           !
+! Center for Environmental Measurement and Modeling (CEMM),                    !
+! Office of Research and Development (ORD)                                     !
+! U.S. Environmental Protection Agency (USEPA)                                 !
 !                                                                              !
-! THIS VERSION CONSISTENT WITH THE RELEASE OF CMAQv5.4 (AUGUST 2022)           !
+! This namelist is consistent with CMAQv5.4 (Release AUGUST 2022)              !
 !                                                                              !
 ! See CMAQ User's Guide Appendix B and                                         !
 !     Murphy et al., Geoscientific Model Development, 14, 3407-3420,           !
@@ -32,9 +32,12 @@
 !    Note: If no rules are provided for a  species, then there is no emission  !
 !       of that species.                                                       !
 !------------------------------------------------------------------------------!
+&Desid_ScalingVars
+ Desid_MaxN_Rules = 2000
+/
 
-&EmissionScalingRules
- EM_NML=
+&Desid_Scaling
+ Desid_Rules_nml =
 
  ! Region      | Stream Label  |Emission | CMAQ-        |Phase/|Scale |Basis |Op  
  !  Label      |               |Species  | Species      |Mode  |Factor|      |     

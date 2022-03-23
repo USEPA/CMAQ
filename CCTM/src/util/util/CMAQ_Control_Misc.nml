@@ -25,7 +25,7 @@
 !     PMDIAG_INST - set parameters for instantaneous output                    !
 !        'INST_LAYER_TOP' - highest CMAQ layer for instantaneous output        ! 
 !        'INST_LAYER_BOT' - lowest CMAQ layer for instantaneous output         !
-!        'INST_PARS_REG' - register of all parameters requested by the user.   !
+!        'INST_VARS' - register of all variables requested by the user.        !
 !             The following keywords and definitions are supported:            !
 !                 'ALL' - all possible parameters                              !
 !                 'DEFAULT' - parameters typically supported by COMBINE        !
@@ -65,21 +65,21 @@
 !                                                                              !
 !------------------------------------------------------------------------------!
 
-&PMDIAG_ACTIVATE
-  INSTANT = .TRUE.
-  AVERAGE = .TRUE.
+&pmdiag_activate
+  instant = .TRUE.
+  average = .TRUE.
 /
 
-&PMDIAG_INST
-  INST_LAYER_TOP = 1
-  INST_LAYER_BOT = 1
-  INST_PARS_REG  = 'DEFAULT'
+&pmdiag_inst
+  Inst_Layer_Top = 1
+  Inst_Layer_Bot = 1
+  Inst_Vars      = 'DEFAULT'
 /
 
-&PMDIAG_AVRG
-  AVRG_LAYER_TOP = 1
-  AVRG_LAYER_BOT = 1
-  AVRG_PARS_REG  = 'DEFAULT'
+&pmdiag_avrg
+  Avrg_Layer_Top = 1
+  Avrg_Layer_Bot = 1
+  Avrg_Vars      = 'DEFAULT'
 /
 
 !------------------------------------------------------------------------------!
@@ -89,16 +89,16 @@
 !    budget output file. Users may select any CMAQ chemical species, chemical  !
 !    family defined in the ChemicalFamilies section of this namelist or may    !
 !    use the ALL keyword to select all species.                                !
-!    If a Family name or the ALL keyword are provided, the sum of those species!
-!    will be output on the budget file. If a * proceeds the name (e.g. '*ALL') !
-!    then the keyword or Family name will be expanded and all of the species   !
-!    it comprises will be added separately. The default selection is for all   !
+!    If a Family name or the TOTAL keyword are provided, the sum of those      !
+!    species will be output on the budget file. If a * proceeds the name (e.g. !
+!    '*NOX') then the Family name will be expanded and all of the species it   !
+!    comprises will be added separately. The default selection is for all      !
 !    chemical species to be output individually.                               !
 !------------------------------------------------------------------------------!
 
 &BudgetOptions
   Budget_Diag = .TRUE.
-  BudgetVariables  = '*ALL'
+  BudgetVariables  = 'ALL'
 / 
 
 !------------------------------------------------------------------------------!
@@ -106,12 +106,14 @@
 !    This component includes definitions for families of CMAQ chemical species,  !
 !    emission streams and region combinations.                                 !
 !------------------------------------------------------------------------------!
+&Chemical_FamVars
+ N_Chem_Fams = 1
+ Max_Chem_Fam_Members = 20
+/
 
-!&ChemicalFamilies
-! NChemFamilies         = 1
-! ChemFamilyName(1)     = 'NOX'
-! ChemFamilyNum(1)      = 2
-! ChemFamilyMembers(1,:)= 'NO','NO2'
-!/
+&ChemicalFamilies
+ ! ChemFamilyName(1)     = 'NOX'
+ ! ChemFamilyMembers(1,:)= 'NO','NO2'
+/
 
 
