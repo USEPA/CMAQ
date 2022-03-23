@@ -799,7 +799,9 @@ C Calcuate Canopy Covered Soil Resistance Nemitz et al 2000 https://doi.org/10.1
          Real                  :: RD_Smth   ! Resistance to vegetation ground
          Real                  :: Vdv    ! Vegetation deposition velocity
          Real                  :: Vdnv   ! Non-Vegetation depositon velocity
-
+         
+         Vdv  = 0.0
+         Vdnv = 0.0
          If( lai .gt. 0.0 .and. veg .gt. 0.0 ) Then
             RD_Can    = RD_Veg_P22( Vghat, Ustar, SC, aleaf, ahair, fhair, lai )
             Vdv = Vghat  / ( 1.0 - EXP( -Vghat * ( Ra + RD_Can ) ) )
@@ -899,14 +901,14 @@ C Calcuate Canopy Covered Soil Resistance Nemitz et al 2000 https://doi.org/10.1
          Real               :: alfbob
          Real               :: awc
          Real               :: bwc
-         Real               :: Ewc
+         Real               :: Ewc 
          Real, Parameter    :: CIB = 1.0/3.0
          
          awc    = 8.46e-5 + 1.63e-6 * SST - 3.35e-8 * SST**2
          bwc    = 3.354 - 0.062 * SST
          alfbob = awc * ( Ubar + bwc )**2   ! Albert 2016 with SST deg-C
          Ewc    = alfbob * ustar/Ubar
-         EIB    = (1.0-alfbob) * SC ** (-twothirds) + Ewc
+         EIB    = CIB * (1.0-alfbob) * SC ** (-twothirds) + Ewc
 
          End Function Calc_EIB_Water_P22
 !-------------------------------------------------------------------------------------------------
@@ -932,7 +934,7 @@ C Calcuate Canopy Covered Soil Resistance Nemitz et al 2000 https://doi.org/10.1
          Real, Intent( IN ) :: ST
          Real               :: EIM
 
-         EIM     = 10**(-3.0/ST)
+         EIM     = 10.0**(-3.0/ST)
 
          End Function EIM_SMOOTH_P22
 

@@ -391,7 +391,7 @@ C-------------------------------------------------------------------------------
 !------------------------------------------------------------------------------
 ! Subroutine to get the soil and canopy compensation point for STAGE
 !------------------------------------------------------------------------------          
-         Subroutine Get_NH3_Comp( NH3_st, NH3_g, diff, r, c, l, l_ag )
+         Subroutine Get_NH3_Comp( NH3_st, NH3_ll, NH3_g, diff, r, c, l, l_ag )
          
          Use UTILIO_DEFN
          Use Bidi_Mod, Only: gamma1, gamma2, MHp1, MHp2
@@ -407,9 +407,11 @@ C-------------------------------------------------------------------------------
          Integer, Intent( IN )  :: l_ag     ! Ag index  
          Real,    Intent( IN )  :: diff     ! NH3 diffusion in air m2/s
          Real,    Intent( OUT ) :: NH3_st   ! Stomatal Compensation point
-         Real,    Intent( OUT ) :: NH3_g    ! ground Compensation point
+         Real,    Intent( OUT ) :: NH3_ll   ! Leaf litter/under canopy Compensation point
+         Real,    Intent( OUT ) :: NH3_g    ! Soil Compensation point
          
          Real                   :: cnh3g1, cnh3g2   ! NH3 compensation concentration for ground [ppm]
+         Real                   :: cnh3ll1      ! NH3 compensation concentration for ground [ppm]
          Real                   :: mNH4         ! Soil total NH4+ mg N / Kg
          Real                   :: Ka           ! NH4 acid dissociation constant
          Real                   :: coef_a       ! intermediate variable to solve for soil solution NHx
@@ -417,7 +419,7 @@ C-------------------------------------------------------------------------------
          Real                   :: coef_c       ! intermediate variable to solve for soil solution NHx
          Real                   :: NH4_sol      ! NH4+ in soil water solution mg N / kg
          Real                   :: NH3_sol      ! NH3 in soil water solution mg N / kg
-         Real                   :: NH3_gam_grnd ! Soil surface molar emission potential [NH3]/[H+]
+         Real                   :: NH3_gam_ll   ! Under canopy leaf litter molar emission potential [NH3]/[H+]
          Real                   :: frac_sol     ! Fraction of NHx in solution
          Real                   :: ldry1
          Real                   :: ldry2
@@ -437,6 +439,7 @@ C-------------------------------------------------------------------------------
          Real, Parameter        :: half_sol = 124.0 ! update from NC State Alnosour Thesis
 ! Maximum NH4 soil sorption capacity Venteria et al. Sci. Rep. doi:10.1038/srep12153
          Real, Parameter        :: max_sorp = 426.0 ! update from NC State Alnosour Thesis 
+         Real, Parameter        :: NH3_gam_soil = 20.0 ! bare soil water solution emission potetnial [NH3]/[H+]
  
          If( PX_LSM ) Then
 ! simplified from Darcy's law assuming stationarity and only gravitational draining with the Campbell hydrological functions applied
@@ -475,13 +478,13 @@ C-------------------------------------------------------------------------------
          a1     = 161512.0d0 / real( MET_DATA%SoiT1( c,r ), 8 )
      &          * 10.0d0 ** ( -4507.11d0 / real( MET_DATA%SoiT1( c,r ), 8 ) )
          a1     = a1 * 24.5d0 * 1.0d6  ! ppm
-!         NH3_st = a1 * Tile_Data%luf_fac( l )  
          NH3_st       = a1 * Tile_Data%NH3_gam_st( l )
-         NH3_gam_grnd = Tile_Data%NH3_gam_grnd( l )     
+         NH3_gam_ll = Tile_Data%NH3_gam_grnd( l ) 
          
 !> Set a maximum [NH4]/[H+] ratio at 200,000 based on output from the AIM aerosol
 !> model any [NH4] in excess of this ratio is assumed to partition into the solid
 !> phase. Canada soil gamma taken from Zhang et al 2010 JGR Table 5
+         cnh3ll1 = 0.0
          If( l .Eq. l_ag ) Then
            If( gamma1( c,r ) .eq. 0.0 ) Then 
                cg = wg_ir/1.6 ! L water / kg soil
@@ -493,6 +496,7 @@ C-------------------------------------------------------------------------------
                NH4_sol = (-coef_b+sqrt(coef_b**2.0-4.0*coef_a*coef_c))/(2.0*coef_a)
                NH3_sol = NH4_sol*Ka/1.0e-7 ! mg N/l
                cnh3g1  = (NH4_sol+NH3_sol)*1.0e-3/MolN/1.0e-7
+               cnh3ll1 = cnh3g1
             Else
                cg = wg_ir/BDs1( c,r ) ! L water / kg soil
                mNH4 = gamma1( c,r )*MHp1( c,r )/BDs1( c,r )*MolN*1.0e3
@@ -503,6 +507,7 @@ C-------------------------------------------------------------------------------
                NH4_sol = (-coef_b+sqrt(coef_b**2.0-4.0*coef_a*coef_c))/(2.0*coef_a)
                NH3_sol = NH4_sol*Ka/MHp1( c,r ) ! mg N/l
                cnh3g1  = (NH4_sol+NH3_sol)*1.0e-3/MolN/MHp1( c,r )
+               cnh3ll1 = cnh3g1
             End If
             If( gamma2( c,r ) .eq. 0.0 ) Then 
                cg = w5cm/1.6 ! L water / kg soil
@@ -530,20 +535,24 @@ C-------------------------------------------------------------------------------
      &                  * w5cm * MolN * zsoil2 * 1.0e4 * 12.3 + 20.3 ) )
             End If
          Else 
-            cnh3g1 = Min( NH3_gam_grnd / wg_ir, maxgam )
-            cnh3g2 = Min( NH3_gam_grnd / w5cm, maxgam )
+            cnh3ll1 = Min( NH3_gam_ll / wg_ir, maxgam )
+            cnh3g1  = Min( NH3_gam_soil / wg_ir, maxgam )
+            cnh3g2  = Min( NH3_gam_soil / w5cm, maxgam ) ! if the leaf litter is too dry use the soil value
          End If
-         cnh3g1 = a1 * Max( cnh3g1, 0.01 )
-         cnh3g2 = a1 * Max( cnh3g2, 0.01 )
+         cnh3ll1 = a1 * Max( cnh3ll1, 0.01 )
+         cnh3g1  = a1 * Max( cnh3g1, 0.01 )
+         cnh3g2  = a1 * Max( cnh3g2, 0.01 )
 
          If( ldry1 .Le. zsoil1 ) Then
-            NH3_g = cnh3g1
-            wg = wg_ir
-            zsoil = zsoil1
+            NH3_g  = cnh3g1
+            NH3_ll = cnh3ll1
+            wg     = wg_ir
+            zsoil  = zsoil1
          Else
-            NH3_g = cnh3g2
-            wg = w5cm
-            zsoil = zsoil2
+            NH3_g  = cnh3g2
+            NH3_ll = cnh3g2
+            wg     = w5cm
+            zsoil  = zsoil2
          End If
          Return         
          End Subroutine Get_NH3_Comp

@@ -423,8 +423,8 @@ C*******************************************************************************
          Real, Intent( In )     :: Z0( :,: )
          Real, Intent( In )     :: USTAR( :,: )
          Real, Intent( InOut )  :: MOS_Z0( :,:,: )
-         Real, Intent( Out )    :: MOS_USTAR( :,:,: )
-         Real, Intent( Out )    :: MOS_RA( :,:,: )
+         Real, Intent( InOut )  :: MOS_USTAR( :,:,: )
+         Real, Intent( InOut )  :: MOS_RA( :,:,: )
 
          Integer            :: j
          Real, Parameter    :: pr0        = 0.95

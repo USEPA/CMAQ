@@ -288,7 +288,7 @@ C Parameters specific to gas_x. Currently based on m3dry but subject to change
          Real            :: Ra, Rb, Rb_leaf, Rst, Rcut, Rgc, Rg, Rwat ! land use and species specific bulk resistances
          Real            :: snow, no_snow, wet, dry, veg, no_veg, frac_lu    ! fractional land coverage
          Real            :: LU_Flux, LU_Emis
-         Real            :: c_atm, c_z0, c_leaf, c_stom, c_cut, c_grnd, c_wat ! Compensation points  
+         Real            :: c_atm, c_z0, c_leaf, c_stom, c_cut, c_grnd, c_ll, c_wat ! Compensation points  
          Real            :: soil_flux                                         ! soil emission and deposition for soil biogeochem
          Real            :: f_wat, f_stom, f_cut, f_soil, f_nat, flux_ag      ! component fluxes
          Real            :: vd_fac, Rsurf                                     ! diagnostic intermediate variables
@@ -401,11 +401,13 @@ C Parameters specific to gas_x. Currently based on m3dry but subject to change
                   c_stom = Hg_st
                   c_cut  = Hg_cut
                   c_grnd = Hg_grnd
+                  c_ll   = Hg_grnd
                   c_wat  = Hg_wat
                Else
                   c_stom = 0.0
                   c_cut  = 0.0
                   c_grnd = 0.0
+                  c_ll   = 0.0
                   c_wat  = 0.0
                End If
                Rb     = 0.0
@@ -484,7 +486,7 @@ C Calculate Rst
 ! Resistance to air-base soil exchange
 !-------------------------------------------------------------------------------------------------
                   If( ABFLUX .And. NH3_Hit ) Then
-                     Call Get_NH3_Comp( c_stom, c_grnd, dif_T, r, c, l, l_ag )                                                                       ! Qauzi Laminar Boundary Layer resistance
+                     Call Get_NH3_Comp( c_stom, c_ll, c_grnd, dif_T, r, c, l, l_ag )                                                                       ! Qauzi Laminar Boundary Layer resistance
                   End If ! ABFLUX and NH3
 
                   Rgc = Calc_Rg( dif_T, k_vis, rel_rx( s ), Ra, ustar, lai, temp_g, molwt_all( s ), M_ac( s ), 
@@ -500,16 +502,16 @@ C Calculate Rst
 !-------------------------------------------------------------------------------------------------
 ! Leaf compensation point
 !-------------------------------------------------------------------------------------------------
-                  c_leaf = (c_atm/(Ra*Rb_leaf)+                                                                                      ! Atmospheric Component
-     &                      c_stom*(1.0/(Ra*Rst)+1.0/(Rb_leaf*Rst)+1.0/(Rgc*Rst))+                                                   ! Stomatal Component
-     &                      c_cut*(1.0/(Ra*Rcut)+1.0/(Rb_leaf*Rcut)+1.0/(Rgc*Rcut))+                                                 ! Cuticular Component
-     &                      c_grnd/(Rb_leaf*Rgc))/                                                                                   ! Soil Component
-     &            (1.0/(Ra*Rb_leaf) +1.0/(Ra*Rst) +1.0/(Ra*Rcut)+1.0/(Rb_leaf*Rgc)+1.0/(Rb_leaf*Rcut)+
-     &             1.0/(Rb_leaf*Rst)+1.0/(Rgc*Rst)+1.0/(Rgc*Rcut)) ! Least common denominator
+                  c_leaf = (c_atm/(Ra*Rb_leaf)+                                                        ! Atmospheric Component
+     &                      c_stom*(1.0/(Ra*Rst)+1.0/(Rb_leaf*Rst)+1.0/(Rgc*Rst))+                     ! Stomatal Component
+     &                      c_cut*(1.0/(Ra*Rcut)+1.0/(Rb_leaf*Rcut)+1.0/(Rgc*Rcut))+                   ! Cuticular Component
+     &                      c_ll/(Rb_leaf*Rgc))/                                                       ! Under Canopy Surface Component
+     &            (1.0/(Ra*Rb_leaf) +1.0/(Ra*Rst) +1.0/(Ra*Rcut)+1.0/(Rb_leaf*Rgc)+1.0/(Rb_leaf*Rcut) + 
+     &             1.0/(Rb_leaf*Rst)+1.0/(Rgc*Rst)+1.0/(Rgc*Rcut))                                     ! Least common denominator
 !-------------------------------------------------------------------------------------------------
 ! Compensation point at z0
 !-------------------------------------------------------------------------------------------------
-                  c_z0     = (c_atm/Ra+c_leaf/Rb_leaf+c_grnd/Rgc)/(1.0/Ra+1.0/Rb_leaf+1.0/Rgc)           
+                  c_z0     = (c_atm/Ra+c_leaf/Rb_leaf+c_ll/Rgc)/(1.0/Ra+1.0/Rb_leaf+1.0/Rgc)           
 !-------------------------------------------------------------------------------------------------
 ! Estimate air-surface flux
 !-------------------------------------------------------------------------------------------------         
@@ -526,20 +528,20 @@ C Calculate Rst
 !-------------------------------------------------------------------------------------------------                                                               
                   If(ABFLUX .And. NH3_Hit ) Then     
                     If( Ag( l ) ) Then
-                       soil_flux  = soil_flux + veg * ( c_grnd - c_z0 ) / Rgc
-     &                            + no_veg * ( c_grnd  - c_atm ) / ( Ra + Rg )  ! soil layer
+                       soil_flux  = soil_flux + veg * ( c_ll - c_z0 ) / Rgc
+     &                            + no_veg * ( c_grnd  - c_atm ) / ( Ra + Rg ) 
                     End If
                   End If ! ABFLUX and NH3
-                  If( c_stom .Gt. 0.0 .Or. c_cut .Gt. 0.0 .Or. c_grnd .Gt. 0.0 ) Then
+                  If( c_stom .Gt. 0.0 .Or. c_cut .Gt. 0.0 .Or. c_grnd .Gt. 0.0 .Or. c_ll .Gt. 0.0 ) Then
 !-------------------------------------------------------------------------------------------------
 ! Bidirectional exchange
 !-------------------------------------------------------------------------------------------------                                                               
-                     LU_Emis = max( vd * c_atm - LU_Flux, 0.0 )          ! should always be greater than 0
-                     Tile_Data%Lu_Vd( c,r,n,l ) = vd                                ! Deposition velocity
-                     f_soil = f_soil + frac_lu * ( veg * ( ( c_grnd - c_z0 ) / Rgc ) + 
-     &                                         no_veg * (c_grnd - c_atm)/( Ra + Rg ) )            ! air-soil flux
-                     f_stom = f_stom + frac_lu * veg * ( c_stom - c_leaf ) / Rst 
-                     f_cut  = f_cut  + frac_lu * veg * ( c_cut  - c_leaf ) / Rcut  
+                     LU_Emis = max( vd * c_atm - LU_Flux, 0.0 )                         ! should always be greater than 0
+                     Tile_Data%Lu_Vd( c,r,n,l ) = vd                                    ! Deposition velocity
+                     f_soil = f_soil + frac_lu * ( veg * ( ( c_ll - c_z0 ) / Rgc ) +    ! LU_Flux = f_soil + f_stom + f_cut
+     &                                         no_veg * (c_grnd - c_atm)/( Ra + Rg ) )  ! air-soil exchange
+                     f_stom = f_stom + frac_lu * veg * ( c_stom - c_leaf ) / Rst        ! air-stomatal exchange
+                     f_cut  = f_cut  + frac_lu * veg * ( c_cut  - c_leaf ) / Rcut       ! air-cuticular exchange
                   Else
 !-------------------------------------------------------------------------------------------------
 ! Non bidirectional exchange
@@ -725,7 +727,7 @@ C modal sedimentation velocities for number, 2nd, and 3rd moment, or mass:
          REAL BAI, Ahair, Fhair, Aleaf ! Pleim et al. 2022 land use variables
 
 C Parameters
-         REAL, PARAMETER :: BHAT    = 1.665216 ! Slope of the linearized Cunningham slip correction 
+         REAL, PARAMETER :: BHAT    = 1.246 !1.665216 ! Slope of the linearized Cunningham slip correction 
          REAL, PARAMETER :: IHAT    = 0.8473   ! Intercept of the linearized Cunningham slip correction 
          REAL, PARAMETER :: T0      = 288.15   ! [ K ] ! starting standard surface temp.
          REAL, PARAMETER :: THREEPI = 3.0 * PI
@@ -749,10 +751,6 @@ C Scalar variables for VARIABLE standard deviations.
          REAL    ESM16               !        " **(-16)
          REAL    ESM20               !        " **(-20)
          REAL    ESM32               !        " **(-32)
-
-! debug
-         REAL    :: M0_CON( 3 )
-         REAL    :: M3_CON( 3 )
 
 C-----------------------------------------------------------------------
 
@@ -782,8 +780,6 @@ C        Save getpar values to arrays
             XXLSG( IM ) = AEROMODE_LNSG( IM )   
             DG( IM )    = AEROMODE_DIAM( IM )
             PDENS( IM ) = AEROMODE_DENS( IM )
-            M0_CON( IM ) = moment0_conc( IM )
-            M3_CON( IM ) = moment3_conc( IM )
          END DO
  
 C        Calculate mean free path [ m ]:
@@ -871,7 +867,6 @@ C Emerson et al 2020 PNAS https://www.pnas.org/cgi/doi/10.1073/pnas.2014761117
      &                                             DG(IM), SC3, NU, VGHAT3 ) ! Mass
 C Pleim et al 2022
                Else If( STAGE_P22 ) Then 
-
                   VDEPJ( L,VDN( IM ) ) = aero_depv_p22(veg, lai, BAI, Ustar, Ubar, Ra, Water(L), Aleaf, 
      &                                             Ahair, Fhair, SC0, NU, VGHAT0, SeaIce, SST ) ! Nubmer
                   VDEPJ( L,VDS( IM ) ) = aero_depv_p22(veg, lai, BAI, Ustar, Ubar, Ra, Water(L), Aleaf, 
