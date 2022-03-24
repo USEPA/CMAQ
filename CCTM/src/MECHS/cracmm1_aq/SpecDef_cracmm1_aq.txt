@@ -50,19 +50,13 @@ WDIR10          ,deg       ,WDIR10[4]
 !-------------------------------------------!
 !--------------- Gases ---------------------!
 !-------------------------------------------!
-ALD2            ,ppbV      ,1000.0*ACD[1],            acetaldehyde is ACD in RACM2
-BENZENE         ,ppbV      ,1000.0*BEN[1]
 CO              ,ppbV      ,1000.0*CO[1]
-ETH             ,ppbV      ,1000.0*ETE[1],            ethene is ETE in RACM2
-ETHA            ,ppbV      ,1000.0*ETH[1],            ethane is ETH in RACM2
-FORM            ,ppbV      ,1000.0*HCHO[1],           formaldehyde is HCHO RACM2
 H2O2            ,ppbV      ,1000.0*H2O2[1]
 HNO3            ,ppbV      ,1000.0*HNO3[1]
 HNO3_UGM3       ,ug m-3    ,1000.0*(HNO3[1]*2.1756*DENS[2])  
 HONO            ,ppbV      ,1000.0*HONO[1]
 HOX             ,ppbV      ,1000.0*(HO[1]+HO2[1])
 OH              ,ppbV      ,1000.0*HO[1]
-ISOP            ,ppbV      ,1000.0*ISO[1],            isoprene is ISO in RACM2
 N2O5            ,ppbV      ,1000.0*N2O5[1]
 NH3             ,ppbV      ,1000.0*NH3[1]
 NH3_UGM3        ,ug m-3    ,1000.0*(NH3[1]*0.5880*DENS[2])
@@ -80,15 +74,39 @@ O3              ,ppbV      ,1000.0*O3[1]
 SO2             ,ppbV      ,1000.0*SO2[1]
 SO2_UGM3        ,ug m-3    ,1000.0*(SO2[1]*2.2118*DENS[2])
 TERP            ,ppbV      ,1000.0*(API[1]+LIM[1]),  a-pinene and limonene monoterpenes in RACM2
+
+! Deprecate these names in future
+ETH             ,ppbV      ,1000.0*ETE[1],            ethene is ETE in RACM2
+ETHA            ,ppbV      ,1000.0*ETH[1],            ethane is ETH in RACM2
+ALD2            ,ppbV      ,1000.0*ACD[1],            acetaldehyde is ACD in RACM2
+FORM            ,ppbV      ,1000.0*HCHO[1],           formaldehyde is HCHO RACM2
+ISOP            ,ppbV      ,1000.0*ISO[1],            isoprene is ISO in RACM2
 TOL             ,ppbV      ,1000.0*TOL[1]
-XYL             ,ppbV      ,1000.0*(XYE[1]+XYM[1])
+
+! Hydrocarbons for evaluation. Note an "s" on the end indicates a collection of species from AQS
+ACETALDEHYDE    ,ppbV      ,1000.0*ACD[1]
+ACETYLENE       ,ppbV      ,1000.0*ACE[1]
+ACROLEIN        ,ppbV      ,1000.0*ACRO[1]
+ACETONE         ,ppbV      ,1000.0*ACT[1]
+BUTADIENE13     ,ppbV      ,1000.0*BDE13[1]
+BENZENE         ,ppbV      ,1000.0*BEN[1]
+ETHYLENE        ,ppbV      ,1000.0*ETE[1],            ethene is ETE in RACM2
+ETHANE          ,ppbV      ,1000.0*ETH[1],            ethane is ETH in RACM2
+ISOPRENE        ,ppbV      ,1000.0*ISO[1],            isoprene is ISO in RACM2
+FORMALDEHYDE    ,ppbV      ,1000.0*HCHO[1],           formaldehyde is HCHO RACM2
+MEKETONE        ,ppbV      ,1000.0*MEK[1]
+TOLUENE         ,ppbV      ,1000.0*TOL[1]
+XYLENES         ,ppbV      ,1000.0*(XYE[1]+XYM[1])
+HCPROPANES      ,ppbV      ,1000.0*(HC3[1])
+HCPENTANES      ,ppbV      ,1000.0*(HC5[1])
+HCDECANES       ,ppbV      ,1000.0*(HC10[1]), formerly HC8
+OLEFINS         ,ppbV      ,1000.0*(OLI[1]+OLT[1])
+ABPINENES       ,ppbV      ,1000.0*(API[1])
 
 !! Unused Gases. Presented Here for illustration. Users can uncomment
 !! them if they choose.
 ALDX            ,ppbV      ,1000.0*ALD[1],            C3 and higher aldehydes is ALD in RACM2
-!IOLE            ,ppbV      ,1000.0*OLI[1],            internal olefin is OLI in RACM2
 !NOZ             ,ppbV      ,NOY[0]-NOX[0]
-!OLE             ,ppbV      ,1000.0*OLT[1],            terminal olefines is OLT in RACM2
 !SULF            ,ppbV      ,1000.0*SULF[1]
 ! SIGROC: S/IVOC alk and oxy gas species
 SIGROC           ,ppbC      ,1000.0* (9.5*VROCIOXY[1] \
