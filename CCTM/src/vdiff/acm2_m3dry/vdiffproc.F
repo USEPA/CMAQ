@@ -282,7 +282,7 @@ C Allocate and initialize dry deposition array
          CALL LOG_HEADING( LOGDEV, "Initialize Emissions Module" )
 
 C Allocate and initialize emissions
-         IF ( .NOT. EMIS_INIT ( JDATE, JTIME, TSTEP( 1 ) ) ) THEN
+         IF ( .NOT. DESID_INIT ( JDATE, JTIME, TSTEP( 1 ) ) ) THEN
             XMSG = 'Failure initializing emissions module'
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
@@ -421,12 +421,12 @@ C Calculate the changes in the layer J-,K-mode aerosol concentrations
       END IF
 
 C read & interpolate emissions data => VDEMIS_DIFF from EMIS_DEFN module
-      CALL GET_EMIS_DRIVER ( MDATE, MTIME, TSTEP, CGRID )
+      CALL DESID_DRIVER ( MDATE, MTIME, TSTEP, CGRID )
 
       IF ( BUDGET_DIAG .OR. LIPR ) THEN
          EMIS_PA = 0.0
          DO S = 1, N_SPC_DIFF
-            DO L = 1, EMLAYS
+            DO L = 1, DESID_LAYS
                DO R = 1, NROWS
                   DO C = 1, NCOLS
                      EMIS_PA( C,R,L,DIFF_MAP(S) ) = VDEMIS_DIFF( S,L,C,R )

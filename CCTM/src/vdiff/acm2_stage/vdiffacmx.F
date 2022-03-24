@@ -47,7 +47,7 @@ C-----------------------------------------------------------------------
       USE CGRID_SPCS          ! CGRID mechanism species
       USE GRID_CONF
       USE DESID_VARS, ONLY : VDEMIS_DIFF, DESID_LAYS
-      USE EM_PARAM_MODULE, ONLY : N_EM_SRM
+      USE DESID_PARAM_MODULE, ONLY : DESID_N_SRM
       USE DEPV_DEFN
       USE ASX_DATA_MOD
       USE VDIFF_MAP
@@ -532,7 +532,7 @@ C-----------------------------------------------------------------------
          END DO
 
          EMIS = 0.0      ! array assignment
-         IF ( N_EM_SRM .GE. 1 ) 
+         IF ( DESID_N_SRM .GE. 1 ) 
      &        EMIS( :,1:DESID_LAYS ) = DTS * VDEMIS_DIFF( :,:,C,R )
 
 #ifdef isam

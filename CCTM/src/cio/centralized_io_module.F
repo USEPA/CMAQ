@@ -4710,7 +4710,7 @@ C   mminlu and num_land_cat are WRF global variables
       DESID_REG( 1 )%FILENUM = 1
       DESID_N_REG = 1
       
-      ALLOCATE( DESID_REG_FAC( NCOLS,NROWS,DESID_N_REG ) )
+      ALLOCATE( DESID_REG_FAC( NCOLS,NROWS,DESID_MAX_REG ) )
       DESID_REG_FAC = 0.0
       DESID_REG_FAC( :,:,1 ) = 1.0
 
@@ -5012,6 +5012,7 @@ C   mminlu and num_land_cat are WRF global variables
          Namelist / Desid_RegionDef      / Desid_Reg_Nml
 
          Namelist / Desid_DiagVars       / Desid_N_Diag_Rules,
+     &                                     Desid_Max_Diag_Streams,
      &                                     Desid_Max_Diag_Spec
          Namelist / Desid_Diag           / Desid_Diag_Streams_Nml,
      &                                     Desid_Diag_Fmt_Nml, 
@@ -5435,6 +5436,7 @@ C   mminlu and num_land_cat are WRF global variables
                CALL LOG_MESSAGE( LOGDEV, ' ')
                CALL LOG_MESSAGE( LOGDEV, XMSG )
                DESID_N_DIAG_RULES = 0
+               DESID_MAX_DIAG_STREAMS = 0
                DESID_MAX_DIAG_SPEC = 0
 
            ELSE IF ( IOST .NE. 0 ) THEN

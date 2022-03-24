@@ -107,7 +107,7 @@
 !    emission streams and region combinations.                                 !
 !------------------------------------------------------------------------------!
 &Chemical_FamVars
- N_Chem_Fams = 1
+ N_Chem_Fams = 0
  Max_Chem_Fam_Members = 20
 /
 

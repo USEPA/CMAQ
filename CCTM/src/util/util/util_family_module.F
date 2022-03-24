@@ -149,6 +149,8 @@
      &          ChemFamilyMembers( N_Chem_Fams, Max_Chem_Fam_Members ),
      &          STAT = IOST)
       CALL CHECKMEM( IOST, 'ChemFamilies', 'Read_Families' )
+      ChemFamilyName = ''
+      ChemFamilyMembers = ''
 
       REWIND( FUNIT )
       READ( NML = ChemicalFamilies, UNIT = FUNIT, IOSTAT=STAT )
@@ -170,12 +172,19 @@
           CALL LOG_MESSAGE( LOGDEV, ' ')
           CALL LOG_MESSAGE( LOGDEV, XMSG )
           WRITE( LOGDEV, '(8x,A)' ) TMPLINE
-          CALL M3EXIT ( 'Read_Emiss_Namelist', 0, 0, 'CMAQ must Crash until you '//
+          CALL M3EXIT ( 'Read_Families', 0, 0, 'CMAQ must Crash until you '//
      &                  'fix the Chemical Families', 1 ) 
  
       END IF
       ! Capitalize All Family and Member Names
       DO IFAM = 1,N_Chem_Fams
+          IF ( ChemFamilyName(IFAM) .EQ. '' ) THEN
+             WRITE( XMSG, '(A,I3,A,A,A)' ),'ERROR: The number of Chemical Families ',
+     &              N_Chem_Fams, ' is larger than the number of fields ',
+     &              'provided in the ChemFamilyName array. Reduce N_Chem_Fams ',
+     &              'in the MISC_CTRL file or provide more Chemical Families.'
+             CALL M3EXIT( 'Read_Families',0,0,XMSG,1 )
+          END IF
           CALL UPCASE( ChemFamilyName( IFAM ) )
           ChemFamilyNum( IFAM ) = 0
 
@@ -239,6 +248,8 @@
      &          StreamFamilyMembers( Desid_N_Stream_Fams, Desid_Max_Stream_Fam_Members ),
      &          STAT = IOST )
       CALL CHECKMEM( IOST, 'Stream Families', 'Read_Families' )
+      StreamFamilyName = ''
+      StreamFamilyMembers = ''
 
       ! Read Stream Family Specification Section
       REWIND( FUNIT )
@@ -261,13 +272,20 @@
           CALL LOG_MESSAGE( LOGDEV, ' ')
           CALL LOG_MESSAGE( LOGDEV, XMSG )
           WRITE( LOGDEV, '(8x,A)' ) TMPLINE
-          CALL M3EXIT ( 'Read_Emiss_Namelist', 0, 0, 'CMAQ must Crash until you '//
+          CALL M3EXIT ( 'Read_Families', 0, 0, 'CMAQ must Crash until you '//
      &                  'fix the Stream Families', 1 ) 
  
       END IF
  
       ! Capitalize All Family and Member Names
       DO IFAM = 1,Desid_N_Stream_Fams
+          IF ( StreamFamilyName(IFAM) .EQ. '' ) THEN
+             WRITE( XMSG, '(A,I3,A,A,A)' ),'ERROR: The number of Stream Families ',
+     &              Desid_N_Stream_Fams, ' is larger than the number of fields ',
+     &              'provided in StreamFamilyName array. Reduce Desid_N_Stream_Fams ',
+     &              'in the DESID_CTRL file or provide more Stream Families.'
+             CALL M3EXIT( 'Read_Families',0,0,XMSG,1 )
+          END IF
           CALL UPCASE( StreamFamilyName( IFAM ) )
           StreamFamilyNum( IFAM ) = 0
 
@@ -302,7 +320,7 @@
           CALL LOG_MESSAGE( LOGDEV, ' ')
           CALL LOG_MESSAGE( LOGDEV, XMSG )
           WRITE( LOGDEV, '(8x,A)' ) TMPLINE
-          CALL M3EXIT ( 'Read_Emiss_Namelist', 0, 0, 'CMAQ must Crash until you '//
+          CALL M3EXIT ( 'Read_Families', 0, 0, 'CMAQ must Crash until you '//
      &                  'fix the Region Families', 1 ) 
  
       END IF
@@ -312,6 +330,8 @@
      &          RegionFamilyMembers( Desid_N_Reg_Fams, Desid_Max_Reg_Fam_Members ),
      &          STAT=IOST )
       CALL CHECKMEM( IOST, 'Region Families','Read Families' )
+      RegionFamilyName = ''
+      RegionFamilyMembers = ''
 
       REWIND( FUNIT )
       READ( NML = Desid_RegionFam, UNIT = FUNIT, IOSTAT=STAT )
@@ -333,13 +353,20 @@
           CALL LOG_MESSAGE( LOGDEV, ' ')
           CALL LOG_MESSAGE( LOGDEV, XMSG )
           WRITE( LOGDEV, '(8x,A)' ) TMPLINE
-          CALL M3EXIT ( 'Read_Emiss_Namelist', 0, 0, 'CMAQ must Crash until you '//
+          CALL M3EXIT ( 'Read_Families', 0, 0, 'CMAQ must Crash until you '//
      &                  'fix the Region Families', 1 ) 
  
       END IF
  
       ! Capitalize All Family and Member Names
       DO IFAM = 1,Desid_N_Reg_Fams
+          IF ( RegionFamilyName(IFAM) .EQ. '' ) THEN
+             WRITE( XMSG, '(A,I3,A,A,A)' ),'ERROR: The number of Region Families ',
+     &              Desid_N_Reg_Fams, ' is larger than the number of fields ',
+     &              'provided in RegionFamilyName array. Reduce Desid_N_Reg_Fams ',
+     &              'in the DESID_CTRL file or provide more Region Families.'
+             CALL M3EXIT( 'Read_Families',0,0,XMSG,1 )
+          END IF
           CALL UPCASE( RegionFamilyName( IFAM ) )
           RegionFamilyNum( IFAM ) = 0
 
@@ -421,8 +448,9 @@
                IF ( KDX .NE. 0 ) OUT_VEC( KDX ) = .TRUE.
              END DO
            ELSE
-             WRITE( LOGDEV, '(/,3A,/,A,/,A,/,A,/,A)' ),
-     &         'Species ',TRIM(SPECIES),' was used in the Emissions',
+             WRITE( LOGDEV, '(/,5A,/,A,/,A,/,A,/,A)' ),
+     &         'Species ',TRIM(SPECIES),':',TRIM(CHEM_NAME(ICHEM)),
+     &         ' was used in the Emissions',
      &         ' Control Instructions Namelist but it is not a valid CMAQ ',
      &         'transported species or family. Please add it to one of the ',
      &         'input chemical namelists (ie. GC, AE, etc). Note that aerosol',

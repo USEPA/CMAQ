@@ -39,7 +39,9 @@
 
       INTEGER              :: DESID_LAYS
 
-      CHARACTER( 16 ), ALLOCATABLE :: EMVAR( :,: ) ! Emissions Surrogate to be read ( species, stream )
+      CHARACTER( 16 ), ALLOCATABLE :: LOCAL_SPEC( : )   ! Vector of Internal CMAQ Species names for each 
+                                                        ! emission rule
+      CHARACTER( 16 ), ALLOCATABLE :: LOCAL_EMVAR( :,: )! Emissions Variable to be read ( species, stream )
 
       TYPE DESID_EMVAR_TYPE
           INTEGER         :: LEN    ! Length of Sub-Vector
