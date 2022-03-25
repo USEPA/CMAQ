@@ -19,36 +19,36 @@ In this section, details on the routine CCTM output files are provided. All CMAQ
 |----------------------------|------|----|-----------------------------------|
 |**Standard**| | | |
 |[Output Log](#cmaq_output_log) <a id=cmaq_output_log_t></a>|ASCII|n/a|n/a
-|[CCTM_CONC](#conc)<a id=conc_t></a>|GRDDED3|Hourly|XYZ'
-|[CCTM_ACONC](#aconc) <a id=aconc_t></a>|GRDDED3|Hourly|XYZ'
-|[CCTM_DRYDEP](#drydep) <a id=drydep_t></a>|GRDDED3|Hourly|XY
-|[CCTM_WETDEP1](#wetdep) <a id=wetdep_t></a>|GRDDED3|Hourly|XY
+|[CCTM_CONC](#conc)<a id=conc_t></a>|GRDDED3|Hourly Instantaneous|XYZ'
+|[CCTM_ACONC](#aconc) <a id=aconc_t></a>|GRDDED3|Hourly Averaged|XYZ'
+|[CCTM_DRYDEP](#drydep) <a id=drydep_t></a>|GRDDED3|Hourly Instantaneous|XY
+|[CCTM_WETDEP1](#wetdep) <a id=wetdep_t></a>|GRDDED3|Hourly Cumulative|XY
 |**Restart**| | | |
-|[CCTM_CGRID](#cgrid) <a id=cgrid_t></a>|GRDDED3|1-hour|XYZ
-|[CCTM_MEDIA](#media)<a id=media_t></a>|GRDDED3|Hourly|XY
+|[CCTM_CGRID](#cgrid) <a id=cgrid_t></a>|GRDDED3|Hourly Instantaneous|XYZ
+|[CCTM_MEDIA](#media)<a id=media_t></a>|GRDDED3|Hourly Instantaneous|XY
 |[CCTM_SOILOUT](#soilout) <a id=soilout_t></a>|GRDDED3|n/a (see detailed file description below)|XY
 |**Diagnostic and Advanced**| | | |
-|[CCTM_PMDIAG](#pmdiag) <a id=pmdiag_t></a>|GRDDED3|Hourly|XYZ'
-|[CCTM_APMDIAG](#apmdiag) <a id=apmdiag_t></a>|GRDDED3|Hourly|XYZ'
-|[CCTM_B3GTS_S](#b3gts) <a id=b3gts_t></a>|GRDDED3|Hourly| XY
-|[CCTM_DEPV](#depv) <a id=depv_t></a>|GRDDED3|Hourly|XY
-|[CCTM_PT3D](#pt3d) <a id=pt3d_t></a>|GRDDED3|Hourly|XYZ
-|[CCTM_DUSTEMIS](#dust) <a id=dust_t></a>|GRDDED3|Hourly|XY
-|[CCTM_DEPVMOS](#depv_mos) <a id=depv_mos_t></a>|GRDDED3|Hourly|XYW
-|[CCTM_DEPVFST](#depv_fst) <a id=depv_fst_t></a>|GRDDED3|Hourly|XYW
-|[CCTM_DDEP_MOS](#dry_dep_mos) <a id=dry_dep_mos_t></a>|GRDDED3|Hourly|XYW
-|[CCTM_DDEP_FST](#dry_dep_fst) <a id=dry_dep_fst_t></a>|GRDDED3|Hourly|XYW
-|[CCTM_LTNGHRLY](#ltngdiag1) <a id=ltngdiag1_t></a>|GRDDED3|Hourly|XYZ
-|[CCTM_LTNGCOL](#ltngdiag2) <a id=ltngdiag2_t></a>|GRDDED3|Hourly|XY
-|[CCTM_PHOTDIAG1](#ctm_rj_1) <a id=ctm_rj1_t></a>|GRDDED3|Hourly|XY
-|[CCTM_PHOTDIAG2](#ctm_rj_2) <a id=ctm_rj2_t></a>|GRDDED3|Hourly|XYZ'
-|[CCTM_PHOTDIAG3](#ctm_rj_3) <a id=ctm_rj3_t></a>|GRDDED3|Hourly|XYZ'
-|[CCTM_SSEMIS](#ssemis) <a id=ssemis_t></a>|GRDDED3|Hourly|XY
-|[CCTM_WETDEP2](#wetdep2) <a id=wetdep2_t></a>|GRDDED3|Hourly|XY
-|[CCTM_VEXT](#vext) <a id=vext_t></a>|GRDDED3|Hourly|WZ
+|[CCTM_PMDIAG](#pmdiag) <a id=pmdiag_t></a>|GRDDED3|Hourly Instantaneous|XYZ'
+|[CCTM_APMDIAG](#apmdiag) <a id=apmdiag_t></a>|GRDDED3|Hourly Averaged|XYZ'
+|[CCTM_B3GTS_S](#b3gts) <a id=b3gts_t></a>|GRDDED3|Hourly Instantaneous| XY
+|[CCTM_DEPV](#depv) <a id=depv_t></a>|GRDDED3|Hourly Instantaneous|XY
+|[CCTM_PT3D](#pt3d) <a id=pt3d_t></a>|GRDDED3|Hourly Instantaneous|XYZ
+|[CCTM_DUSTEMIS](#dust) <a id=dust_t></a>|GRDDED3|Hourly Instantaneous|XY
+|[CCTM_DEPVMOS](#depv_mos) <a id=depv_mos_t></a>|GRDDED3|Hourly Instantaneous|XYW
+|[CCTM_DEPVFST](#depv_fst) <a id=depv_fst_t></a>|GRDDED3|Hourly Instantaneous|XYW
+|[CCTM_DDEP_MOS](#dry_dep_mos) <a id=dry_dep_mos_t></a>|GRDDED3|Hourly Instantaneous|XYW
+|[CCTM_DDEP_FST](#dry_dep_fst) <a id=dry_dep_fst_t></a>|GRDDED3|Hourly Instantaneous|XYW
+|[CCTM_LTNGHRLY](#ltngdiag1) <a id=ltngdiag1_t></a>|GRDDED3|Hourly Instantaneous|XYZ
+|[CCTM_LTNGCOL](#ltngdiag2) <a id=ltngdiag2_t></a>|GRDDED3|Hourly Instantaneous|XY
+|[CCTM_PHOTDIAG1](#ctm_rj_1) <a id=ctm_rj1_t></a>|GRDDED3|Hourly Instantaneous|XY
+|[CCTM_PHOTDIAG2](#ctm_rj_2) <a id=ctm_rj2_t></a>|GRDDED3|Hourly Instantaneous|XYZ'
+|[CCTM_PHOTDIAG3](#ctm_rj_3) <a id=ctm_rj3_t></a>|GRDDED3|Hourly Instantaneous|XYZ'
+|[CCTM_SSEMIS](#ssemis) <a id=ssemis_t></a>|GRDDED3|Hourly Instantaneous|XY
+|[CCTM_WETDEP2](#wetdep2) <a id=wetdep2_t></a>|GRDDED3|Hourly Cumulative|XY
+|[CCTM_VEXT](#vext) <a id=vext_t></a>|GRDDED3|Hourly Instantaneous|WZ
 
 <sup>1</sup>By default, output files are named CCTM_XXX_${CTM_APPL}.nc where XXX is the file identifier and ${CTM_APPL} is a user defined string that identifies the model run.   
-<sup>2</sup>While "Hourly" is indicated, users may define a different time step (e.g. 30 minutes) for model output by changing the TSTEP variable in the runscript. From here onward, the term "Hourly" will be used for description purposes.    
+<sup>2</sup>While "Hourly" is indicated, users may define a different time step (e.g., 30 minutes) for model output by changing the TSTEP variable in the runscript. Hourly Instantaneous represents the model value at the exact time step.  Hourly Averaged values represent the average model values for the 60 minutes beginning with the time step.  Hourly Cumulative represent the cumulative (summed) model values for the 60 minutes ending at the time step. 
 <sup>3</sup>X is the dimension along the x-axis, Y is the dimension along the y-axis, Z is the vertical dimension, Z' is the user pre-defined size of the vertical dimension controlled by the environment variables CONC_BLEV_ELEV, ACONC_BLEV_ELEV, APMDIAG_BLEV_ELEV, and NLAYS_PHOTDIAG (range from 1 to all layers) and W is a non-layer dimension, e.g. number of LU fractions, number of sites for vertical extraction.    
 <sup>4</sup>A special ASCII output file, FLOOR_xxx with xxx being the processor number, contains information when a simulation results in negative concentrations. 
 
