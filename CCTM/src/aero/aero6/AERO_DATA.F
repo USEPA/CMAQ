@@ -797,231 +797,6 @@ C Private variables for loading from and unloading to CGRID array
 
       Contains
 
-C-----------------------------------------------------------------------
-      Function process_aero_nml_modes( aedat ) result ( aedat_mode )
-          
-C         This function expands the AE namelist rows to account for 
-C         mode-specific variables. If just one mode is requested for an 
-C         aerosol species, then no rows are added. If more than one mode
-C         is requested, then rows are added to accomodate those. 
-C
-C         Ben Murphy 2022-03-25
-C-----------------------------------------------------------------------
-
-          Implicit None
-
-          Integer :: n_ae_spec, ae_strt, ae_fini
-
-          Type(species_data_reg_2), Intent( In ) :: aedat(:)
-          Type(species_data_reg_2), allocatable  :: aedat_mode(:)
-
-          integer nsp2
-
-          Integer isp, im
-          Character(300) xmsg
-          Character(20)  pname = 'process_aero_species'
-                    
-          Allocate( aedat_mode( size( aedat ) ) )
-          aedat_mode = aedat
-          nsp2 = 0
-
-          do isp = 1,size( aedat )
-              if ( aedat%species_name(isp) .EQ. '' ) EXIT
-
-              ! Get Index on Aerosol Table
-              iaer = index1( aedat%species_name(isp), 
-     &                       n_aerolist, aerolist%bulkname(:) )
-              if ( iaer . eq. 0 ) then
-                  xmsg = 'An aerosol chemical species appears on the AE '//
-     &                    'namelist that is not available in AERO_DATA. Please '//
-     &                    'see the aerolist table.'
-                  call m3exit( pname, 0, 0, xmsg, xstat3 )
-              end if
-
-              call log_message( LOGDEV,"")
-              Call log_subheading( LOGDEV, "Add Modal Dimension to CMAQ Aerosol Species" )
-              call log_message( LOGDEV,"")
-
-              if ( .not.aedat%lait(isp) .and. 
-     %             .not.aedat%lacc(isp) .and. 
-     &             .not.aedat%lcor(isp) ) then
-                    xmsg = 'No aerosol modes have been requested for '//
-     &                     TRIM(aedat%species_name(isp))//' on the AE namelist.' 
-                    call m3warn( pname, 0, 0, xmsg ) 
-              end if
-
-              ! For Aitken-Mode Particles
-              if ( aedat%lait(isp) ) then
-                 if ( aerolist%lait(iaer) ) then
-                    ! Add Aitken Mode Particles
-                    nsp2 = nsp2 + 1
-                    if ( aedat%species_name(isp) .eq. 'NUM' .OR. 
-     &                   aedat%species_name(isp) .eq. 'SRF' ) THEN
-                       aedat_mode%species_name(nsp2) = 
-     &                       trim(aedat%species_name(isp))//'ATKN'
-                       aedat_mode%depv_surr(nsp2) = 
-     &                       trim(aedat%depv_surr(isp))//'ATKN'
-                       aedat_mode%scav_surr(nsp2) = 
-     &                       trim(aedat%scav_surr(isp))//'_AITKEN'
-                       aedat_mode%cloud_surr(nsp2) = 
-     &                       trim(aedat%cloud_surr(isp))//'_AITKEN'
-
-                    else  
-                       aedat_mode%species_name(nsp2) = 
-     &                       trim(aedat%species_name(isp))//modesuff(iat)
-                       aedat_mode%depv_surr(nsp2) = 
-     &                       trim(aedat%depv_surr(isp))//'I'
-                       aedat_mode%scav_surr(nsp2) = 
-     &                       trim(aedat%scav_surr(isp))//'_AITKEN'
-                       aedat_mode%cloud_surr(nsp2) = 
-     &                       trim(aedat%cloud_surr(isp))//'_AITKEN'
-                    end if
-
-                    aedat_mode%molwt(nsp2) = aedat%molwt(isp)
-                    aedat_mode%lait(nsp2) = .True.
-                    aedat_mode%lacc(nsp2) = .False.
-                    aedat_mode%lcor(nsp2) = .False.
-                    aedat_mode%optics_surr(nsp2) = aedat%optics_surr(isp)
-                    aedat_mode%ic_surr(nsp2)     = aedat%ic_surr(isp)
-                    aedat_mode%ic_fac(nsp2)      = aedat%ic_fac(isp)
-                    aedat_mode%bc_surr(nsp2)     = aedat%bc_surr(isp)
-                    aedat_mode%bc_fac(nsp2)      = aedat%bc_fac(isp)
-                    aedat_mode%depv_fac(nsp2)    = aedat%depv_fac(isp)
-                    aedat_mode%scav_fac(nsp2)    = aedat%scav_fac(isp)
-                    aedat_mode%trns_flag(nsp2)   = aedat%trns_flag(isp)
-                    aedat_mode%ddep_flag(nsp2)   = aedat%ddep_flag(isp)
-                    aedat_mode%wdep_flag(nsp2)   = aedat%wdep_flag(isp)
-                    aedat_mode%conc_flag(nsp2)   = aedat%conc_flag(isp)
-                 else
-                    ! Mode not allowed for this species. Exit CMAQ
-                    xmsg = 'Aitken-mode aerosols have been requested for '//
-     &                     TRIM(aedat%species_name(isp))//
-     &                     ' but they are not available for this species. See '//
-     &                     'aerolist table in AERO_DATA.'
-                    call m3exit( pname, 0, 0, xmsg, xstat3 ) 
-                 end if
-              end if
-
-              ! For Accumulation-Mode Particles
-              if ( aedat%lacc(isp) ) then
-                 if ( aerolist%lacc(iaer) ) then
-                    ! Add Accumulation Mode Particles
-                    nsp2 = nsp2 + 1
-                    if ( aedat%species_name(isp) .eq. 'NUM' .OR. 
-     &                   aedat%species_name(isp) .eq. 'SRF' ) THEN
-                       aedat_mode%species_name(nsp2) = 
-     &                       trim(aedat%species_name(isp))//'ACC'
-                       aedat_mode%depv_surr(nsp2) = 
-     &                       trim(aedat%depv_surr(isp))//'ACC'
-                       aedat_mode%scav_surr(nsp2) = 
-     &                       trim(aedat%scav_surr(isp))//'_ACCUM'
-                       aedat_mode%cloud_surr(nsp2) = 
-     &                       trim(aedat%cloud_surr(isp))//'_ACCUM'
-
-                    else  
-                       aedat_mode%species_name(nsp2) = 
-     &                       trim(aedat%species_name(isp))//modesuff(iat)
-                       aedat_mode%depv_surr(nsp2) = 
-     &                       trim(aedat%depv_surr(isp))//'J'
-                       aedat_mode%scav_surr(nsp2) = 
-     &                       trim(aedat%scav_surr(isp))//'_ACCUM'
-                       aedat_mode%cloud_surr(nsp2) = 
-     &                       trim(aedat%cloud_surr(isp))//'_ACCUM'
-                    end if
-
-                    aedat_mode%molwt(nsp2) = aedat%molwt(isp)
-                    aedat_mode%lait(nsp2) = .False.
-                    aedat_mode%lacc(nsp2) = .True.
-                    aedat_mode%lcor(nsp2) = .False.
-                    aedat_mode%optics_surr(nsp2) = aedat%optics_surr(isp)
-                    aedat_mode%ic_surr(nsp2)     = aedat%ic_surr(isp)
-                    aedat_mode%ic_fac(nsp2)      = aedat%ic_fac(isp)
-                    aedat_mode%bc_surr(nsp2)     = aedat%bc_surr(isp)
-                    aedat_mode%bc_fac(nsp2)      = aedat%bc_fac(isp)
-                    aedat_mode%depv_fac(nsp2)    = aedat%depv_fac(isp)
-                    aedat_mode%scav_fac(nsp2)    = aedat%scav_fac(isp)
-                    aedat_mode%trns_flag(nsp2)   = aedat%trns_flag(isp)
-                    aedat_mode%ddep_flag(nsp2)   = aedat%ddep_flag(isp)
-                    aedat_mode%wdep_flag(nsp2)   = aedat%wdep_flag(isp)
-                    aedat_mode%conc_flag(nsp2)   = aedat%conc_flag(isp)
-                 else
-                    ! Mode not allowed for this species. Exit CMAQ
-                    xmsg = 'Accumulation-mode aerosols have been requested for '//
-     &                     TRIM(aedat%species_name(isp))//
-     &                     ' but they are not available for this species. See '//
-     &                     'aerolist table in AERO_DATA.'
-                    call m3exit( pname, 0, 0, xmsg, xstat3 ) 
-                 end if
-              end if
-
-              ! For Coarse-Mode Particles
-              if ( aedat%lcor(isp) ) then
-                 if ( aerolist%lcor(iaer) ) then
-                    ! Add Coarse Mode Particles
-                    nsp2 = nsp2 + 1
-                    if ( aedat%species_name(isp) .eq. 'NUM' .OR. 
-     &                   aedat%species_name(isp) .eq. 'SRF' ) THEN
-                       aedat_mode%species_name(nsp2) = 
-     &                       trim(aedat%species_name(isp))//'COR'
-                       aedat_mode%depv_surr(nsp2) = 
-     &                       trim(aedat%depv_surr(isp))//'COR'
-                       aedat_mode%scav_surr(nsp2) = 
-     &                       trim(aedat%scav_surr(isp))//'_COARSE'
-                       aedat_mode%cloud_surr(nsp2) = 
-     &                       trim(aedat%cloud_surr(isp))//'_COARSE'
-                    
-                elseif ( aedat%species_name(isp) .eq. 'ACORS' .OR.
-     &                       aedat%species_name(isp) .eq. 'ASOIL' .OR.
-     &                       aedat%species_name(isp) .eq. 'ASEACAT' .OR.
-     &                       aedat%species_name(isp) .eq. 'ADE_CORS' ) THEN
-                       aedat_mode%species_name(nsp2) = 
-     &                       trim(aedat%species_name(isp))
-                       aedat_mode%depv_surr(nsp2) = 
-     &                       trim(aedat%depv_surr(isp))//'COR'
-                       aedat_mode%scav_surr(nsp2) = 
-     &                       trim(aedat%scav_surr(isp))//'_COARSE'
-                       aedat_mode%cloud_surr(nsp2) = 
-     &                       trim(aedat%cloud_surr(isp))//'_COARSE'
-                    else  
-                       aedat_mode%species_name(nsp2) = 
-     &                       trim(aedat%species_name(isp))//modesuff(iat)
-                       aedat_mode%depv_surr(nsp2) = 
-     &                       trim(aedat%depv_surr(isp))//'C'
-                       aedat_mode%scav_surr(nsp2) = 
-     &                       trim(aedat%scav_surr(isp))//'_COARSE'
-                       aedat_mode%cloud_surr(nsp2) = 
-     &                       trim(aedat%cloud_surr(isp))//'_COARSE'
-                    end if
-
-                    aedat_mode%molwt(nsp2) = aedat%molwt(isp)
-                    aedat_mode%lait(nsp2) = .False.
-                    aedat_mode%lacc(nsp2) = .False.
-                    aedat_mode%lcor(nsp2) = .True.
-                    aedat_mode%optics_surr(nsp2) = aedat%optics_surr(isp)
-                    aedat_mode%ic_surr(nsp2)     = aedat%ic_surr(isp)
-                    aedat_mode%ic_fac(nsp2)      = aedat%ic_fac(isp)
-                    aedat_mode%bc_surr(nsp2)     = aedat%bc_surr(isp)
-                    aedat_mode%bc_fac(nsp2)      = aedat%bc_fac(isp)
-                    aedat_mode%depv_fac(nsp2)    = aedat%depv_fac(isp)
-                    aedat_mode%scav_fac(nsp2)    = aedat%scav_fac(isp)
-                    aedat_mode%trns_flag(nsp2)   = aedat%trns_flag(isp)
-                    aedat_mode%ddep_flag(nsp2)   = aedat%ddep_flag(isp)
-                    aedat_mode%wdep_flag(nsp2)   = aedat%wdep_flag(isp)
-                    aedat_mode%conc_flag(nsp2)   = aedat%conc_flag(isp)
-                 else
-                    ! Mode not allowed for this species. Exit CMAQ
-                    xmsg = 'Coarse-mode aerosols have been requested for '//
-     &                     TRIM(aedat%species_name(isp))//
-     &                     ' but they are not available for this species. See '//
-     &                     'aerolist table in AERO_DATA.'
-                    call m3exit( pname, 0, 0, xmsg, xstat3 ) 
-                 end if
-              end if
-
-          end do
-      End Function process_aero_species
-C-----------------------------------------------------------------------
-
 
 C-----------------------------------------------------------------------
       Subroutine map_aero()
@@ -2025,3 +1800,255 @@ C Local variables:
       END SUBROUTINE CALC_AERODIST_PARAMS
 
       End Module aero_data
+ 
+C-----------------------------------------------------------------------
+      Subroutine process_aero_nml_modes
+          
+C         This function expands the AE namelist rows to account for 
+C         mode-specific variables. If just one mode is requested for an 
+C         aerosol species, then no rows are added. If more than one mode
+C         is requested, then rows are added to accomodate those. 
+C
+C         Ben Murphy 2022-03-25
+C-----------------------------------------------------------------------
+          Use aero_data, only : n_aerolist, aerolist, modesuff,
+     &                          iait, iacc, icor
+          Use runtime_vars, only : log_message, log_subheading, logdev
+          Use cgrid_spcs_types
+          Use utilio_defn, only : index1, xstat3
+
+          Implicit None
+
+          Type(species_data_reg_2) :: aedat( size( ae_species_data,1 ) )
+          Type(species_data_reg_2) :: aedat_mode( size( ae_species_data,1 ) )
+
+          integer nsp2, naero
+
+          Integer isp, im, iaer, iost
+          Character(300) xmsg
+          Character(20) :: pname = 'process_aero_species'
+                    
+          aedat = ae_species_data
+          aedat_mode = aedat
+          nsp2 = 0
+
+          call log_message( LOGDEV,"")
+          Call log_subheading( LOGDEV, "Add Modal Dimension to CMAQ Aerosol Species" )
+          call log_message( LOGDEV,"")
+
+          do isp = 1,size( aedat,1 )
+              if ( aedat(isp)%species_name .EQ. '' ) EXIT
+
+              ! Get Index on Aerosol Table
+              iaer = index1( aedat(isp)%species_name, 
+     &                       n_aerolist, aerolist(:)%bulkname )
+              if ( iaer . eq. 0 .and. 
+     &             trim(aedat(isp)%species_name) .ne. 'NUM' .and.
+     &             trim(aedat(isp)%species_name) .ne. 'SRF'      ) then
+                  xmsg = 'An aerosol chemical species appears on the AE '//
+     &                    'namelist that is not available in AERO_DATA. Please '//
+     &                    'see the aerolist table.'
+                  call m3exit( pname, 0, 0, xmsg, xstat3 )
+              end if
+
+              if ( .not.aedat(isp)%lait .and. 
+     %             .not.aedat(isp)%lacc .and. 
+     &             .not.aedat(isp)%lcor ) then
+                    xmsg = 'No aerosol modes have been requested for '//
+     &                     TRIM(aedat(isp)%species_name)//' on the AE namelist.' 
+                    call m3warn( pname, 0, 0, xmsg ) 
+              end if
+
+              ! For Aitken-Mode Particles
+              if ( aedat(isp)%lait ) then
+                 if ( aedat(isp)%species_name .eq. 'NUM' .OR. 
+     &                aedat(isp)%species_name .eq. 'SRF' ) THEN
+                    ! Add Aitken Mode Number or Surface Area
+                    nsp2 = nsp2 + 1
+                    aedat_mode(nsp2)%species_name = 
+     &                    trim(aedat(isp)%species_name)//'ATKN'
+                    aedat_mode(nsp2)%depv_surr = 
+     &                    trim(aedat(isp)%depv_surr)//'ATKN'
+                    aedat_mode(nsp2)%scav_surr = 
+     &                    trim(aedat(isp)%scav_surr)//'_AITKEN'
+                    aedat_mode(nsp2)%cloud_surr = 
+     &                    trim(aedat(isp)%cloud_surr)//'_AITKEN'
+                 elseif ( aerolist(iaer)%lait ) then
+                    ! Add Aitken Mode Mass
+                    nsp2 = nsp2 + 1
+                    aedat_mode(nsp2)%species_name = 
+     &                    trim(aedat(isp)%species_name)//modesuff(iait)
+                    aedat_mode(nsp2)%depv_surr = 
+     &                    trim(aedat(isp)%depv_surr)//'I'
+                    aedat_mode(nsp2)%scav_surr = 
+     &                    trim(aedat(isp)%scav_surr)//'_AITKEN'
+                    aedat_mode(nsp2)%cloud_surr = 
+     &                    trim(aedat(isp)%cloud_surr)//'_AITKEN'
+                 else
+                    ! Mode not allowed for this species. Exit CMAQ
+                    xmsg = 'Aitken-mode aerosols have been requested for '//
+     &                     TRIM(aedat(isp)%species_name)//
+     &                     ' but they are not available for this species. See '//
+     &                     'aerolist table in AERO_DATA.'
+                    call m3exit( pname, 0, 0, xmsg, xstat3 ) 
+                 end if
+ 
+                 aedat_mode(nsp2)%molwt = aedat(isp)%molwt
+                 aedat_mode(nsp2)%lait = .True.
+                 aedat_mode(nsp2)%lacc = .False.
+                 aedat_mode(nsp2)%lcor = .False.
+                 aedat_mode(nsp2)%optics_surr = aedat(isp)%optics_surr
+                 aedat_mode(nsp2)%ic_surr     = aedat(isp)%ic_surr
+                 aedat_mode(nsp2)%ic_fac      = aedat(isp)%ic_fac
+                 aedat_mode(nsp2)%bc_surr     = aedat(isp)%bc_surr
+                 aedat_mode(nsp2)%bc_fac      = aedat(isp)%bc_fac
+                 aedat_mode(nsp2)%depv_fac    = aedat(isp)%depv_fac
+                 aedat_mode(nsp2)%scav_fac    = aedat(isp)%scav_fac
+                 aedat_mode(nsp2)%trns_flag   = aedat(isp)%trns_flag
+                 aedat_mode(nsp2)%ddep_flag   = aedat(isp)%ddep_flag
+                 aedat_mode(nsp2)%wdep_flag   = aedat(isp)%wdep_flag
+                 aedat_mode(nsp2)%conc_flag   = aedat(isp)%conc_flag
+
+                 xmsg = 'Added an Aitken Mode for Aerosol Species '//
+     &                  trim(aedat_mode(nsp2)%species_name)
+                 Call log_message( LOGDEV, xmsg )
+ 
+              end if
+
+              ! For Accumulation-Mode Particles
+              if ( aedat(isp)%lacc ) then
+                 if ( aedat(isp)%species_name .eq. 'NUM' .OR. 
+     &                aedat(isp)%species_name .eq. 'SRF' ) THEN
+                    ! Add Accumulation Mode Number or Surface Area
+                    nsp2 = nsp2 + 1
+                    aedat_mode(nsp2)%species_name = 
+     &                    trim(aedat(isp)%species_name)//'ACC'
+                    aedat_mode(nsp2)%depv_surr = 
+     &                    trim(aedat(isp)%depv_surr)//'ACC'
+                    aedat_mode(nsp2)%scav_surr = 
+     &                    trim(aedat(isp)%scav_surr)//'_ACCUM'
+                    aedat_mode(nsp2)%cloud_surr = 
+     &                    trim(aedat(isp)%cloud_surr)//'_ACCUM'
+                 elseif ( aerolist(iaer)%lacc ) then
+                    ! Add Accumulation Mode Mass
+                    nsp2 = nsp2 + 1
+                    aedat_mode(nsp2)%species_name = 
+     &                    trim(aedat(isp)%species_name)//modesuff(iacc)
+                    aedat_mode(nsp2)%depv_surr = 
+     &                    trim(aedat(isp)%depv_surr)//'J'
+                    aedat_mode(nsp2)%scav_surr = 
+     &                    trim(aedat(isp)%scav_surr)//'_ACCUM'
+                    aedat_mode(nsp2)%cloud_surr = 
+     &                    trim(aedat(isp)%cloud_surr)//'_ACCUM'
+                 else
+                    ! Mode not allowed for this species. Exit CMAQ
+                    xmsg = 'Accumulation-mode aerosols have been requested for '//
+     &                     TRIM(aedat(isp)%species_name)//
+     &                     ' but they are not available for this species. See '//
+     &                     'aerolist table in AERO_DATA.'
+                    call m3exit( pname, 0, 0, xmsg, xstat3 ) 
+                 end if
+ 
+                 aedat_mode(nsp2)%molwt = aedat(isp)%molwt
+                 aedat_mode(nsp2)%lait = .False.
+                 aedat_mode(nsp2)%lacc = .True.
+                 aedat_mode(nsp2)%lcor = .False.
+                 aedat_mode(nsp2)%optics_surr = aedat(isp)%optics_surr
+                 aedat_mode(nsp2)%ic_surr     = aedat(isp)%ic_surr
+                 aedat_mode(nsp2)%ic_fac      = aedat(isp)%ic_fac
+                 aedat_mode(nsp2)%bc_surr     = aedat(isp)%bc_surr
+                 aedat_mode(nsp2)%bc_fac      = aedat(isp)%bc_fac
+                 aedat_mode(nsp2)%depv_fac    = aedat(isp)%depv_fac
+                 aedat_mode(nsp2)%scav_fac    = aedat(isp)%scav_fac
+                 aedat_mode(nsp2)%trns_flag   = aedat(isp)%trns_flag
+                 aedat_mode(nsp2)%ddep_flag   = aedat(isp)%ddep_flag
+                 aedat_mode(nsp2)%wdep_flag   = aedat(isp)%wdep_flag
+                 aedat_mode(nsp2)%conc_flag   = aedat(isp)%conc_flag
+                 
+                 xmsg = 'Added an Accumulation Mode for Aerosol Species '//
+     &                  trim(aedat_mode(nsp2)%species_name)
+                 Call log_message( LOGDEV, xmsg )
+              end if
+
+              ! For Coarse-Mode Particles
+              if ( aedat(isp)%lcor ) then
+                 if ( aedat(isp)%species_name .eq. 'NUM' .OR. 
+     &                aedat(isp)%species_name .eq. 'SRF' ) THEN
+                    ! Add Coarse Mode Number or Surface Area
+                    nsp2 = nsp2 + 1
+                    aedat_mode(nsp2)%species_name = 
+     &                    trim(aedat(isp)%species_name)//'COR'
+                    aedat_mode(nsp2)%depv_surr = 
+     &                    trim(aedat(isp)%depv_surr)//'COR'
+                    aedat_mode(nsp2)%scav_surr = 
+     &                    trim(aedat(isp)%scav_surr)//'_COARSE'
+                    aedat_mode(nsp2)%cloud_surr = 
+     &                    trim(aedat(isp)%cloud_surr)//'_COARSE'
+
+                 elseif ( aerolist(iaer)%lcor ) then
+                    ! Add Coarse Mode Mass
+                    nsp2 = nsp2 + 1
+                    if ( aedat(isp)%species_name .eq. 'ACORS' .OR.
+     &                    aedat(isp)%species_name .eq. 'ASOIL' .OR.
+     &                    aedat(isp)%species_name .eq. 'ASEACAT' .OR.
+     &                    aedat(isp)%species_name .eq. 'ADE_CORS' ) THEN
+                       aedat_mode(nsp2)%species_name = 
+     &                       trim(aedat(isp)%species_name)
+                       aedat_mode(nsp2)%depv_surr = 
+     &                       trim(aedat(isp)%depv_surr)//'C'
+                       aedat_mode(nsp2)%scav_surr = 
+     &                       trim(aedat(isp)%scav_surr)//'_COARSE'
+                       aedat_mode(nsp2)%cloud_surr = 
+     &                       trim(aedat(isp)%cloud_surr)//'_COARSE' 
+                    else  
+                       aedat_mode(nsp2)%species_name = 
+     &                       trim(aedat(isp)%species_name)//modesuff(icor)
+                       aedat_mode(nsp2)%depv_surr = 
+     &                       trim(aedat(isp)%depv_surr)//'C'
+                       aedat_mode(nsp2)%scav_surr = 
+     &                       trim(aedat(isp)%scav_surr)//'_COARSE'
+                       aedat_mode(nsp2)%cloud_surr = 
+     &                       trim(aedat(isp)%cloud_surr)//'_COARSE'
+                    end if
+                 else
+                    ! Mode not allowed for this species. Exit CMAQ
+                    xmsg = 'Coarse-mode aerosols have been requested for '//
+     &                     TRIM(aedat(isp)%species_name)//
+     &                     ' but they are not available for this species. See '//
+     &                     'aerolist table in AERO_DATA.'
+                    call m3exit( pname, 0, 0, xmsg, xstat3 ) 
+                 end if
+
+                 aedat_mode(nsp2)%molwt = aedat(isp)%molwt
+                 aedat_mode(nsp2)%lait = .False.
+                 aedat_mode(nsp2)%lacc = .False.
+                 aedat_mode(nsp2)%lcor = .True.
+                 aedat_mode(nsp2)%optics_surr = aedat(isp)%optics_surr
+                 aedat_mode(nsp2)%ic_surr     = aedat(isp)%ic_surr
+                 aedat_mode(nsp2)%ic_fac      = aedat(isp)%ic_fac
+                 aedat_mode(nsp2)%bc_surr     = aedat(isp)%bc_surr
+                 aedat_mode(nsp2)%bc_fac      = aedat(isp)%bc_fac
+                 aedat_mode(nsp2)%depv_fac    = aedat(isp)%depv_fac
+                 aedat_mode(nsp2)%scav_fac    = aedat(isp)%scav_fac
+                 aedat_mode(nsp2)%trns_flag   = aedat(isp)%trns_flag
+                 aedat_mode(nsp2)%ddep_flag   = aedat(isp)%ddep_flag
+                 aedat_mode(nsp2)%wdep_flag   = aedat(isp)%wdep_flag
+                 aedat_mode(nsp2)%conc_flag   = aedat(isp)%conc_flag
+                 
+                 xmsg = 'Added a Coarse Mode for Aerosol Species '//
+     &                  trim(aedat_mode(nsp2)%species_name)
+                 Call log_message( LOGDEV, xmsg )
+ 
+              end if
+
+          end do
+
+          write( xmsg, '(A,I3)' ), 'Total number of aerosol species: ',nsp2
+          Call log_message( LOGDEV, '' )
+          Call log_message( LOGDEV, xmsg )
+          Call log_message( LOGDEV, '' )
+
+          ae_species_data(1:nsp2) = aedat_mode(1:nsp2)
+
+      End Subroutine process_aero_nml_modes
+C----------------------------------------------------------------------- 

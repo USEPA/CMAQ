@@ -144,29 +144,6 @@ c control species
          integer         :: map
       end type
       
-      ! Namelist Registry Format for Aerosols
-      TYPE, PUBLIC SPECIES_DATA_REG_2
-          CHARACTER( 16 ) :: SPECIES_NAME  ! CMAQ Species Name
-          REAL            :: MOLWT         ! g mol-1
-          LOGICAL         :: LAIT          ! Aitken-Mode Presence
-          LOGICAL         :: LACC          ! Accumulation -Mode Presence
-          LOGICAL         :: LCOR          ! Coarse-Mode Presence
-          CHARACTER( 16 ) :: OPTICS_SURR   ! material's refractive index surrogate
-          CHARACTER( 16 ) :: IC_SURR       ! IC Surrogate
-          REAL            :: IC_FAC        ! IC Scale Factor
-          CHARACTER( 16 ) :: BC_SURR       ! BC Surrogate
-          REAL            :: BC_FAC        ! BC Scale Factor
-          CHARACTER( 16 ) :: DEPV_SURR     ! Dry Deposition Surrogate
-          REAL            :: DEPV_FAC      ! Dry Deposition Scale Factor
-          CHARACTER( 16 ) :: SCAV_SURR     ! Wet Scavenging Surrogate
-          REAL            :: SCAV_FAC      ! Wet Scavenging Scale Factor
-          CHARACTER( 16 ) :: CLOUD_SURR    ! Cloud Chemistry Surrogate
-          CHARACTER( 16 ) :: TRNS_FLAG     ! Do Transport?
-          CHARACTER( 16 ) :: DDEP_FLAG     ! Output Dry Deposition Velocities
-          CHARACTER( 16 ) :: WDEP_FLAG     ! Output Wet Scavenging Fluxes
-          CHARACTER( 16 ) :: CONC_FLAG     ! Output Concentration
-      END TYPE SPECIES_DATA_REG_2
- 
       contains
 
 c init routine to allocate the above allocatables
@@ -175,6 +152,7 @@ c !! NO   and to populate the allocated arrays from the stnd gc_spc.ext  !!! NO
          function cgrid_spcs_init() result ( success )
             use UTILIO_DEFN
             use stm_vars
+            use cgrid_spcs_types
 
             implicit none
 
@@ -187,56 +165,18 @@ c !! NO   and to populate the allocated arrays from the stnd gc_spc.ext  !!! NO
             character( 120 ) :: xmsg
             INTEGER :: ISPC, JSPC, IGRID, IDEPV
 
-c namelist variables
-            ! Namelist Registry Format for Gases and Nonreactives
-            TYPE SPECIES_DATA_REG_1
-                CHARACTER( 16 ) :: SPECIES_NAME  ! CMAQ Species Name
-                REAL            :: MOLWT         ! g mol-1
-                CHARACTER( 16 ) :: IC_SURR       ! IC Surrogate
-                REAL            :: IC_FAC        ! IC Scale Factor
-                CHARACTER( 16 ) :: BC_SURR       ! BC Surrogate
-                REAL            :: BC_FAC        ! BC Scale Factor
-                CHARACTER( 16 ) :: DEPV_SURR     ! Dry Deposition Surrogate
-                REAL            :: DEPV_FAC      ! Dry Deposition Scale Factor
-                CHARACTER( 16 ) :: SCAV_SURR     ! Wet Scavenging Surrogate
-                REAL            :: SCAV_FAC      ! Wet Scavenging Scale Factor
-                CHARACTER( 16 ) :: AERO_SURR     ! Aerosol Module Surrogate
-                CHARACTER( 16 ) :: CLOUD_SURR    ! Cloud Chemistry Surrogate
-                CHARACTER( 16 ) :: TRNS_FLAG     ! Do Transport (ADV + DIFF)?
-                CHARACTER( 16 ) :: DDEP_FLAG     ! Output Dry Deposition Velocities
-                CHARACTER( 16 ) :: WDEP_FLAG     ! Output Wet Scavenging Fluxes
-                CHARACTER( 16 ) :: CONC_FLAG     ! Output Concentration
-            END TYPE SPECIES_DATA_REG_1
+            !INTERFACE
+            !    FUNCTION PROCESS_AERO_NML_MODES( A ) RESULT( B )
+            !        IMPORT SPECIES_DATA_REG_2, SPC_DIM
+            !        TYPE ( SPECIES_DATA_REG_2 ) :: A(SPC_DIM)
+            !        TYPE ( SPECIES_DATA_REG_2 ) :: B(SPC_DIM)
+            !    END FUNCTION
+            !END INTERFACE
 
-
-            ! Namelist Registry Format for Tracers
-            TYPE SPECIES_DATA_REG_3
-                CHARACTER( 16 ) :: SPECIES_NAME  ! CMAQ Species Name
-                REAL            :: MOLWT         ! g mol-1
-                CHARACTER( 16 ) :: IC_SURR       ! IC Surrogate
-                REAL            :: IC_FAC        ! IC Scale Factor
-                CHARACTER( 16 ) :: BC_SURR       ! BC Surrogate
-                REAL            :: BC_FAC        ! BC Scale Factor
-                CHARACTER( 16 ) :: DEPV_SURR     ! Dry Deposition Surrogate
-                REAL            :: DEPV_FAC      ! Dry Deposition Scale Factor
-                CHARACTER( 16 ) :: SCAV_SURR     ! Wet Scavenging Surrogate
-                REAL            :: SCAV_FAC      ! Wet Scavenging Scale Factor
-                CHARACTER( 16 ) :: AERO_SURR     ! Aerosol Module Surrogate
-                CHARACTER( 16 ) :: CLOUD_SURR    ! Cloud Chemistry Surrogate
-                CHARACTER( 16 ) :: ADVC_FLAG     ! Do Advection?
-                CHARACTER( 16 ) :: DIFF_FLAG     ! Do Dispersion (i.e. Diffusion)?
-                CHARACTER( 16 ) :: DDEP_FLAG     ! Output Dry Deposition Velocities
-                CHARACTER( 16 ) :: WDEP_FLAG     ! Output Wet Scavenging Fluxes
-                CHARACTER( 16 ) :: CONC_FLAG     ! Output Concentration
-            END TYPE SPECIES_DATA_REG_3
-
- 
- 
             TYPE (SPECIES_DATA_REG_1), ALLOCATABLE :: GC_SPECIES_DATA(:)
-            TYPE (SPECIES_DATA_REG_2), ALLOCATABLE :: AE_SPECIES_DATA(:)
             TYPE (SPECIES_DATA_REG_1), ALLOCATABLE :: NR_SPECIES_DATA(:)
             TYPE (SPECIES_DATA_REG_3), ALLOCATABLE :: TR_SPECIES_DATA(:)
- 
+
             namelist / GC_NML / GC_SPECIES_DATA
             namelist / AE_NML / AE_SPECIES_DATA
             namelist / NR_NML / NR_SPECIES_DATA
@@ -437,7 +377,11 @@ c-------------------------------------------------------------------------------
      &            status = 'old', position = 'rewind' )
             read( nml = AE_nml, unit = dev_ae_nml ) 
 
-            CALL PROCESS_AERO_NML_MODES( AE_SPECIES_DATA )
+            ! First Expand Aerosol Namelist to Add Modes for Each
+            ! Species based on "T", "A", and "C" columns in the AE
+            ! namelist
+            ! T = Aitken; A = Accumulation; C = Coarse
+            CALL PROCESS_AERO_NML_MODES()
 
             ! Determine Number of Aerosol Species
             N_AE_SPC = 0
@@ -466,9 +410,6 @@ c-------------------------------------------------------------------------------
                   N_AE_SPC = N_AE_SPC + 1
                   AE_SPECIES_DATA( N_AE_SPC )%SPECIES_NAME = STM_AE_SPECIES_DATA( IAE )%SPECIES_NAME
                   AE_SPECIES_DATA( N_AE_SPC )%MOLWT        = STM_AE_SPECIES_DATA( IAE )%MOLWT
-                  AE_SPECIES_DATA( N_AE_SPC )%LAIT         = STM_AE_SPECIES_DATA( IAE )%LAITT
-                  AE_SPECIES_DATA( N_AE_SPC )%LACC         = STM_AE_SPECIES_DATA( IAE )%LACC
-                  AE_SPECIES_DATA( N_AE_SPC )%LCOR         = STM_AE_SPECIES_DATA( IAE )%LCOR
                   AE_SPECIES_DATA( N_AE_SPC )%IC_SURR      = STM_AE_SPECIES_DATA( IAE )%IC_SURR
                   AE_SPECIES_DATA( N_AE_SPC )%IC_FAC       = STM_AE_SPECIES_DATA( IAE )%IC_FAC
                   AE_SPECIES_DATA( N_AE_SPC )%BC_SURR      = STM_AE_SPECIES_DATA( IAE )%BC_SURR
@@ -502,9 +443,6 @@ c-------------------------------------------------------------------------------
                      N_AE_SPC = N_AE_SPC + 1
                      AE_SPECIES_DATA( N_AE_SPC )%SPECIES_NAME = STM_OAE_SPECIES_DATA( IAE )%SPECIES_NAME
                      AE_SPECIES_DATA( N_AE_SPC )%MOLWT        = STM_OAE_SPECIES_DATA( IAE )%MOLWT
-                     AE_SPECIES_DATA( N_AE_SPC )%LAIT         = STM_AE_SPECIES_DATA( IAE )%LAITT
-                     AE_SPECIES_DATA( N_AE_SPC )%LACC         = STM_AE_SPECIES_DATA( IAE )%LACC
-                     AE_SPECIES_DATA( N_AE_SPC )%LCOR         = STM_AE_SPECIES_DATA( IAE )%LCOR
                      AE_SPECIES_DATA( N_AE_SPC )%IC_SURR      = STM_OAE_SPECIES_DATA( IAE )%IC_SURR
                      AE_SPECIES_DATA( N_AE_SPC )%IC_FAC       = STM_OAE_SPECIES_DATA( IAE )%IC_FAC
                      AE_SPECIES_DATA( N_AE_SPC )%BC_SURR      = STM_OAE_SPECIES_DATA( IAE )%BC_SURR
@@ -536,7 +474,6 @@ c-------------------------------------------------------------------------------
      &      ae_ddep( n_ae_spc ), ae_ddep_map( n_ae_spc ),
      &      ae_wdep( n_ae_spc ), ae_wdep_map( n_ae_spc ),
      &      ae_conc( n_ae_spc ), ae_conc_map( n_ae_spc ),
-     &      ae_lait( n_ae_spc ), ae_lacc(n_ae_spc), ae_lcor(n_ae_spc),
      &      stat = ios )
 
             ae_spc = bl; ae_molwt = 0.0                        !  .
@@ -550,7 +487,6 @@ c-------------------------------------------------------------------------------
             ae_ddep = bl; ae_ddep_map = 0                      !  .
             ae_wdep = bl; ae_wdep_map = 0                      !  .
             ae_conc = bl; ae_conc_map = 0                      !  .
-            ae_lait = .false; ae_lacc=.false.; ae_lcor = .false.
 
             ! Pass Data from AE Namelist to Internal Variables
             N_AE_OPTICS = 0;N_AE_IC = 0; N_AE_BC = 0; N_AE_DEPV = 0; N_AE_SCAV = 0
@@ -1014,12 +950,6 @@ c-------------------------------------------------------------------------------
             !--------------------------------------------------------------
             ! Process Chemical Namelist Informaiton to CGRID Vectors
             !--------------------------------------------------------------
-
-            ! First Expand Aerosol Namelist to Add Modes for Each
-            ! Species based on "T", "A", and "C" columns in the AE
-            ! namelist
-            ! T = Aitken; A = Accumulation; C = Coarse
-            Call process_aero_species( 
 
             ! Sum Up All Species Across Phases and Types
             NSPCSD = N_GC_SPCD + N_AE_SPC + N_NR_SPC + N_TR_SPC
