@@ -591,14 +591,6 @@ C Initialize Emissions Array
          VDEMIS_DIFF = 0.0
          VDEMIS_CONV = 0.0
 
-!        WRTIME = .FALSE.
-!        WSTEP  = WSTEP + TIME2SEC( TSTEP( 2 ) )
-!        WRTIME = ( WSTEP .GE. TIME2SEC( TSTEP( 1 ) ) )
-!        IF ( WRTIME ) THEN 
-!          WSTEP = 0
-!          CALL NEXTIME( MDATE, MTIME,  TSTEP( 1 ) )
-!        END IF
-
 #ifdef isam
          SA_VDEMIS_DIFF = 0.0
          SA_VDEMIS_CONV = 0.0

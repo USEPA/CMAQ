@@ -115,7 +115,7 @@ set make_options = "-j"                #> additional options for make command if
  set ModPhot   = phot/inline                #> photolysis calculation module 
                                             #>     (see $CMAQ_MODEL/CCTM/src/phot)
 
- setenv Mechanism cb6r5hap_ae7_aq              #> chemical mechanism (see $CMAQ_MODEL/CCTM/src/MECHS)
+ setenv Mechanism cb6r5_ae7_aq              #> chemical mechanism (see $CMAQ_MODEL/CCTM/src/MECHS)
 
  set ModMech   = MECHS/${Mechanism}
  
