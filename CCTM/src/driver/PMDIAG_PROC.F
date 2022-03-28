@@ -2155,27 +2155,27 @@
           ISPEC = PMDIAG_COEFFS( IDG )%I_SPEC( IVAR )
           COEFF = PMDIAG_COEFFS( IDG )%COEFF( IVAR )
 
-          ! First check if this is a Precursor Gas
-          IF ( PMDIAG_COEFFS( IDG )%L_PREC( IVAR ) ) THEN
-              VAL = VAL + REAL( PRECURSOR_CONC( ISPEC ), 4) * COEFF
+          IF ( ISPEC .GT. 0 ) THEN
+             ! First check if this is a Precursor Gas
+             IF ( PMDIAG_COEFFS( IDG )%L_PREC( IVAR ) ) THEN
+                 VAL = VAL + REAL( PRECURSOR_CONC( ISPEC ), 4) * COEFF
           
-          ! Next check if this is a Gas from CGRID that should be
-          ! converted to mass concentration
-          ELSE IF  ( PMDIAG_COEFFS( IDG )%L_GAS( IVAR ) ) THEN
-              VAL = VAL + CONC_VEC( ISPEC ) * COEFF * AIRDENS
+             ! Next check if this is a Gas from CGRID
+             ELSE IF  ( PMDIAG_COEFFS( IDG )%L_GAS( IVAR ) ) THEN
+                 VAL = VAL + CONC_VEC( ISPEC ) * COEFF * AIRDENS
 
-          ! Next check for aggregate variable
-          ELSE IF  ( PMDIAG_COEFFS( IDG )%L_AGG( IVAR ) ) THEN
-              CALL CALC_PMDIAG( ISPEC, 1, VAL2 )
-              VAL = VAL + VAL2 * COEFF
+             ! Next check for aggregate variable
+             ELSE IF  ( PMDIAG_COEFFS( IDG )%L_AGG( IVAR ) ) THEN
+                 CALL CALC_PMDIAG( ISPEC, 1, VAL2 )
+                 VAL = VAL + VAL2 * COEFF
 
-          ! Next check if this is a Species from CGRID that should be
-          ! added as-is
-          ELSE IF  ( PMDIAG_COEFFS( IDG )%L_SPC( IVAR ) ) THEN
-              VAL = VAL + CONC_VEC( ISPEC ) * COEFF
+             ! Next check if this is a Species from CGRID that should be
+             ! added as-is
+             ELSE IF  ( PMDIAG_COEFFS( IDG )%L_SPC( IVAR ) ) THEN
+                 VAL = VAL + CONC_VEC( ISPEC ) * COEFF
 
-          ! Add Aerosol Components
-          ELSE IF ( ISPEC .GT. 0 ) THEN
+             ! Add Aerosol Components
+             ELSE 
 
               DO IM = 1,N_MODE
                  ! If this mode is supposed to be added (LMODE) and the

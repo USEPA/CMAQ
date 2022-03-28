@@ -248,6 +248,13 @@ C Allocate and initialize dry deposition array
             CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
          DDEP = 0.0   ! array assignment
+
+         ALLOCATE ( DDEP0( N_SPC_DEPV,NCOLS,NROWS ), STAT = ASTAT )
+         IF ( ASTAT .NE. 0 ) THEN
+            XMSG = 'Failure allocating DDEP0'
+            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         END IF
+         DDEP0 = 0.0   ! array assignment
   
          ALLOCATE ( TOT_BD_EMIS( N_BD_EMIS,NCOLS,NROWS ), STAT = ASTAT )
          IF ( ASTAT .NE. 0 ) THEN

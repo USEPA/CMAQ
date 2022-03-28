@@ -198,7 +198,7 @@ C=======================================================
         ALLOCATE( ISAM_SPC_IDX( NSPC_SA + 1 ) )
         ALLOCATE( NO_CHEMISTRY( NSPC_SA + 1 ) )
         ALLOCATE( FIND_IN_ISAM( NSPC_SA + 1 ) )
-        ALLOCATE( BIAS_CHEMISTRY_SPC( NCONSTRAINTS, NUMB_MECH_SPC ) )
+        ALLOCATE( BIAS_CHEMISTRY_SPC( NBIAS, NUMB_MECH_SPC ) )
         BIAS_CHEMISTRY_SPC = .FALSE.
         
         ! Identify species index in ISAM array
@@ -228,7 +228,7 @@ C=======================================================
            ISAM_CHEMISTRY_SPC = ISAM_CHEMISTRY_SPC
      &                        + 1           
            ISAM_2_CHEMI( S )  = R
-           BIAS_CHEMISTRY_SPC( 1:NCONSTRAINTS,R ) = SPECIES_BIAS( 1:NCONSTRAINTS,S )
+           BIAS_CHEMISTRY_SPC( :,R ) = ISAM_SPECIES_BIAS( :,S )
            NO_CHEMISTRY( S )  = .FALSE.
         END DO
         
@@ -240,7 +240,7 @@ C=======================================================
         O3_INDEX = INDEX1( 'H2O2', NUMB_MECH_SPC, CHEMISTRY_SPC )
         IF ( O3_INDEX .GT. 0 ) CHEMISTRY_WITH_O3 = .TRUE.
         
-        IF ( ISAM_CHEMISTRY_BIAS .EQ. 5 ) THEN
+        IF ( ISAM_CHEM_BIAS .EQ. 5 ) THEN
           IF ( H2O2_INDEX .LT. 1 .OR. HNO3_INDEX .LT. 1 ) THEN
              IF ( H2O2_INDEX .LT. 1 ) THEN
                  WRITE(LOGDEV,'(A)')'ISAM_O3_WEIGHTS set to 5 but hydrogen peroxide not found gas chemistry.'
@@ -254,7 +254,7 @@ C=======================================================
           IF ( O3_INDEX .LT. 1 ) THEN
              WRITE(LOGDEV,'(A)')'ISAM_O3_WEIGHTS set to 5 but gas chemistry does not have ozone.'
              WRITE(LOGDEV,'(A)')'ISAM_O3_WEIGHTS reset to 1.'
-             ISAM_O3_WEIGHTS = 1
+             ISAM_CHEM_BIAS = 1
           END IF
         END IF
 
@@ -1379,7 +1379,7 @@ C Allocate arrays:
          END DO
 
          IF( ISP2 .GT. 0 )THEN
-            ALLOCATE( TWO_REACTANT_CASE( NCONSTRAINTS,ISP2,3 ), STAT = ASTAT )
+            ALLOCATE( TWO_REACTANT_CASE( NBIAS,ISP2,3 ), STAT = ASTAT )
             IF ( ASTAT .NE. 0 ) THEN
               MSG = 'ERROR allocating SA_IRR variables'
               CALL M3EXIT ( 'SA_IRR', 0, 0, MSG, XSTAT2 )
@@ -1388,7 +1388,7 @@ C Allocate arrays:
          END IF
          
          IF( ISP3 .GT. 0 )THEN
-            ALLOCATE( THREE_REACTANT_CASE( NCONSTRAINTS,ISP3,7 ), STAT = ASTAT )
+            ALLOCATE( THREE_REACTANT_CASE( NBIAS,ISP3,7 ), STAT = ASTAT )
             IF ( ASTAT .NE. 0 ) THEN
               MSG = 'ERROR allocating SA_IRR variables'
               CALL M3EXIT ( 'SA_IRR', 0, 0, MSG, XSTAT2 )
@@ -1397,7 +1397,7 @@ C Allocate arrays:
          END IF         
 
 C...Calculate reactant cases based on species_bias for each reactant
-         DO NC = 1, NCONSTRAINTS
+         DO NC = 1, NBIAS
             DO NRX = 1, NRXNS
                NR = MAP_REACTANT_CASE( NRX )
                SELECT CASE ( NREACT( NRX ) )
@@ -1521,7 +1521,7 @@ C..compute species fractions from ISAM groups and the remainder group for all me
       END DO 
 
 C...Calculate reaction rates and source probabilties
-        IF ( ISAM_CHEMISTRY_BIAS .EQ. 5 ) THEN
+        IF ( ISAM_CHEM_BIAS .EQ. 5 ) THEN
 !  for concentrations 0.35 is average of range in 
 !      Sillman et al. (1998). J. Geophys. Res., 103, 22,629–22,644, 
 !  but Need to add routine that HNO2 and H2O2 production based MECHANISM_BUDGET array  
@@ -1552,7 +1552,7 @@ C...Calculate reaction rates and source probabilties
 
             END IF
         ELSE 
-            NC = ISAM_CHEMISTRY_BIAS
+            NC = ISAM_CHEM_BIAS
         END IF
         DO NRX = 1, NRXNS
             NR = MAP_REACTANT_CASE( NRX )
