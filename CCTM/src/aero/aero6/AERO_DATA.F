@@ -1662,7 +1662,7 @@ C                  concentrations from the calling routine
 C          LM2WET - Logical identifying if the second moment of the 
 C                   distribution is dry or wet. False = Dry
 C          USE_M2 - Logical prescribing whether or not to use
-C                       the second moment form the input IC or BC file. 
+C                       the second moment from the input IC or BC file. 
 C                       True = use the 2nd moment input from the file.
 C          IS_BC - TRUE if this is for BCs, FALSE for ICs
 C          L_WRITE_WARNING - Should a warning be printed if a size
@@ -1685,7 +1685,7 @@ C-----------------------------------------------------------------------
       Implicit None
 
       REAL, INTENT(INOUT)        :: IBCON( : )
-      LOGICAL, INTENT( IN ) :: LM2WET          ! FALSE (Default) for Dry distirbution parameters
+      LOGICAL, INTENT( IN ) :: LM2WET          ! FALSE (Default) for Dry distribution parameters
                                                ! TRUE  for Wet distribution parameters
       LOGICAL, INTENT( IN ) :: USE_M2          ! TRUE (Default) to use second moment from input file
                                                ! FALSE  to ignore and overwrite M2 from input
@@ -1722,7 +1722,7 @@ C-----------------------------------------------------------------------
       !    0 = All Parameters within Limits
       !    4 = Standard Deviation is just barely invalid. 
       !         Reset Surface Area but don't warn. (i.e. 1.4999 vs. 1.5)
-      !    5 = Diameter is ijust barely invalid but Standard Deviation 
+      !    5 = Diameter is just barely invalid but Standard Deviation 
       !          is valid. Reset Number and Surface Area but don't warn.
       !    6 = Diameter and Standard Deviation are barely invalid. 
       !          Reset Number and Surface Area but don't warn.
@@ -1857,8 +1857,8 @@ C Local variables:
      &                       MASK = ( L_AETR_MASS .AND. L_AETR_MODE( IMODE,: ) ) )
              ELSE
                 DO IS = 1,N_AE_SPC
-                  IF ( L_AESP_MODE( IMODE,IT ) .AND. L_AESP_MASS( IT ) ) 
-     &               IBCON(IT) = MAX( IBCON(IS), CONMIN )
+                  IF ( L_AESP_MODE( IMODE,IS ) .AND. L_AESP_MASS( IS ) ) 
+     &               IBCON(IS) = MAX( IBCON(IS), CONMIN )
                 END DO
                 M3DRY = SUM( IBCON( : ) * AEROCGRID_RHOINV * F6PI, 
      &                       MASK = ( L_AESP_MASS .AND. L_AESP_MODE( IMODE,: )  
