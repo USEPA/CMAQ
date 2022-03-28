@@ -59,6 +59,8 @@ OBJECTS =\
     module_envvar.o \
     KPP_DATA.o \
     MECHANISM_DATA.o \
+    CGRID_SPCS_TYPES.o  \
+	process_aero_nml_modes.o \
     CGRID_SPCS.o  \
     module_functions_evaluator.o \
     WIKI_TABLE.o \
