@@ -59,6 +59,8 @@
 !        running with temporally finer meteorology
 !  10 Jun 2021 (G. Sarwar)
 !     -- Added 'CB6R5M' and deleted "CB6R3M"
+!  4 Mar 2022 (G. Sarwar)
+!     -- Added 'CB6R5'
 !....................................................................
 
       MODULE RUNTIME_VARS
@@ -746,7 +748,7 @@
       !>> Emission Environment Variables 
       !-------------------------------------------------------------------------------------------------------
       
-      IF ( INDEX( MECHNAME, 'CB6R5M' ) .GT. 0 ) then
+      IF ( INDEX( MECHNAME, 'CB6R5M' ) .OR. INDEX( MECHNAME, 'CB6R5' ) .GT. 0 ) then      
          USE_MARINE_GAS_EMISSION = .TRUE.
       END IF
 

@@ -1047,6 +1047,17 @@
              RKI( NCELL,  344) =   7.7000D-14 * CFACT 
 !  Reaction Label HG5             
              RKI( NCELL,  345) =  CFACT_SQU * ARRHENUIS_T03( INV_TEMP,  2.2500D-33,   6.8000D+02 )
+!  Reaction Label DMS1            
+             RKI( NCELL,  346) =  CFACT * ARRHENUIS_T03( INV_TEMP,  1.1200D-11,  -2.5000D+02 )
+!  Reaction Label DMS2            
+             RKI( NCELL,  347) =  CFACT * FALLOFF_T10( INV_TEMP,  TEMPOT300,  CAIR, & 
+     &                                                 1.9900D-39,   5.2700D+03,   0.0000D+00,  & 
+     &                                                 1.2600D-10,  -3.4000D+02,   0.0000D+00,  & 
+     &                                                 1.0000D+00,   1.0000D+00 )
+!  Reaction Label DMS3            
+             RKI( NCELL,  348) =  CFACT * ARRHENUIS_T03( INV_TEMP,  1.9000D-13,   5.2000D+02 )
+!  Reaction Label DMS4            
+             RKI( NCELL,  349) =  CFACT * ARRHENUIS_T03( INV_TEMP,  3.4000D-13,   2.0810D+03 )
 
         END DO  
 !  Multiply rate constants by [M], [O2], [N2], [H2O], [H2], or [CH4]
@@ -1463,5 +1474,7 @@
              INDEX_HG           = IOLD2NEW( INDEX_HG          , 1 )
              INDEX_HGIIAER      = IOLD2NEW( INDEX_HGIIAER     , 1 )
              INDEX_HGIIGAS      = IOLD2NEW( INDEX_HGIIGAS     , 1 )
+             INDEX_DMS          = IOLD2NEW( INDEX_DMS         , 1 )
+             INDEX_MSA          = IOLD2NEW( INDEX_MSA         , 1 )
           END SUBROUTINE RESET_SPECIES_POINTERS
        END MODULE RXNS_FUNCTION
