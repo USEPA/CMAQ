@@ -710,9 +710,6 @@ C Update for WRFV4.1+ PX LSM runs that have soil texture in output for
 C  CMAQ dust scheme. These are initialized to 0 if not present in MCIP.
 C  DUST_EMIS.F will use table lookup values if 0 (old WRF or other LSMs).  
          If ( PXSOIL_AVAIL ) Then
-            !CALL LOG_MESSAGE( LOGDEV, '==================  Soil Hydraulics Message =====================' )
-            !CALL LOG_MESSAGE( LOGDEV, '   WRFV4.1+ inputs have extra PX LSM soil texture and props.' )
-            !CALL LOG_MESSAGE( LOGDEV, '      WSAT, WWLT, WFC from WRF/PX LSM not lookup tables.' )
             call interpolate_var ('CLAY_PX',   jdate, jtime, Grid_Data%CLAY_PX)
             call interpolate_var ('CSAND_PX',  jdate, jtime, Grid_Data%CSAND_PX)
             call interpolate_var ('FMSAND_PX', jdate, jtime, Grid_Data%FMSAND_PX)
