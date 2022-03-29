@@ -138,6 +138,7 @@ C-------------------------------------------------------------------------------
          Real,    Allocatable :: RJACM    ( :,:,: )  ! reciprocal mid-layer Jacobian
          Real,    Allocatable :: RJACF    ( :,:,: )  ! reciprocal full-layer Jacobian
          Real,    Allocatable :: RRHOJ    ( :,:,: )  ! reciprocal density X Jacobian
+         Real,    Allocatable :: CFRAC    ( :,:,: )  ! cloud fraction
       End Type MET_Type
       
       Type :: GRID_Type
@@ -339,6 +340,7 @@ C-----------------------------------------------------------------------
      &             Met_Data%DENS     ( NCOLS,NROWS,NLAYS ),
      &             Met_Data%RJACM    ( NCOLS,NROWS,NLAYS ),
      &             Met_Data%RJACF    ( NCOLS,NROWS,NLAYS ),
+     &             Met_Data%CFRAC    ( NCOLS,NROWS,NLAYS ),
      &             Met_Data%RRHOJ    ( NCOLS,NROWS,NLAYS ),
      &             STAT = ALLOCSTAT )
          If ( ALLOCSTAT .Ne. 0 ) Then
@@ -696,6 +698,8 @@ C Met_cro_2D variables that have recently changed due to MCIP or WRF/CMAQ
          call interpolate_var (vname_rn, jdate, jtime, Met_Data%RN)
 
          call interpolate_var (vname_rc, jdate, jtime, Met_Data%RC)
+
+         call interpolate_var ('CFRAC', jdate, jtime, Met_Data%CFRAC)
 
          If ( WR_AVAIL ) Then
             call interpolate_var ('WR', jdate, jtime, Met_Data%WR)

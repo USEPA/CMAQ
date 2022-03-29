@@ -172,14 +172,24 @@
      &                       LAI_M(:,:,:),      ! from MEGANMAP data
      &                       EFMAPS(:,:,:),     ! from MEGANMAP data
      &                       CTF(:,:,:),        ! from MEGANMAP data
-     &                       T24y(:,:),         ! from SOILINP data
-     &                       SW24y(:,:),        ! from SOILINP data
-     &                       lai_y(:,:)         ! from SOILINP data
+     &                       BDSNP_NDEP(:,:,:),  ! from MEGAN_BDSNP data
+     &                       BDSNP_FERT(:,:),    ! from MEGAN_BDSNP data
+     &                       DRYPERIOD(:,:),     ! from BDSNPINP data
+     &                       NDEPRES(:,:),       ! from BDSNPINP data
+     &                       NDEPRATE(:,:),      ! from BDSNPINP data
+     &                       PFACTOR(:,:),       ! from BDSNPINP data
+     &                       SOILMPREV(:,:),     ! from BDSNPINP data
+     &                       T24y(:,:),          ! from MEGAN_SOILINP data
+     &                       SW24y(:,:),         ! from MEGAN_SOILINP data
+     &                       lai_y(:,:)          ! from MEGAN_SOILINP data
 
 
         integer, allocatable :: PTYPE(:,:),        ! from SOILINP data
      &                          PULSEDATE(:,:),    ! from SOILINP data
-     &                          PULSETIME(:,:)     ! from SOILINP data
+     &                          PULSETIME(:,:),    ! from SOILINP data
+     &                          BDSNP_LANDTYPE(:,:),! from MEGAN_BDSNP data
+     &                          BDSNP_ARID(:,:),    ! from MEGAN_BDSNP data
+     &                          BDSNP_NONARID(:,:)  ! from MEGAN_BDSNP data
 
         character( 16 ), allocatable :: DDTTM( : ) ! for SOILINP data, description date and time
 
@@ -3110,14 +3120,17 @@ C Read the various categories of normalized emissions
 
           USE UTILIO_DEFN
           use HGRD_DEFN, only : ncols, nrows
-          use RUNTIME_VARS, only : NEW_START,BIOGEMIS_MEGAN,IGNORE_SOILINP
+          use RUNTIME_VARS, only : NEW_START,BIOGEMIS_MEGAN,BIOGEMIS_BEIS,
+     &                             BDSNP_MEGAN,IGNORE_SOILINP
 
 
           INCLUDE SUBST_FILES_ID             ! file name parameters
 
           integer, parameter :: mxhrs = 24
           Character( 40 ), parameter :: pname = 'soilinp_setup'
-          Character( 40 ), parameter :: soilinp = 'SOILINP'
+          Character( 40 ), parameter :: msoilinp = 'MEGAN_SOILINP'
+          Character( 40 ), parameter :: bsoilinp = 'BEIS_SOILINP'
+          Character( 40 ), parameter :: bdsnpinp = 'BDSNPINP'
 
           CHARACTER( 16 )  :: var
           CHARACTER( 256 ) :: mesg
@@ -3140,6 +3153,19 @@ C Read the various categories of normalized emissions
      &              HRNO_SW  ( NCOLS,NROWS, mxhrs ),
      &              HRNO_T2M ( NCOLS,NROWS, mxhrs ),
      &                 stat=stat)
+             if (BDSNP_MEGAN) then
+             ALLOCATE (PFACTOR   ( ncols,nrows       ),
+     &                 DRYPERIOD ( ncols,nrows       ),
+     &                 NDEPRES   ( ncols,nrows       ),
+     &                 NDEPRATE  ( ncols,nrows       ),
+     &                 SOILMPREV ( ncols,nrows       ),
+     &                 stat=stat)
+                 pfactor = 0.0
+                 dryperiod = 0.0
+                 soilmprev = 0.0
+                 ndepres =0.0
+                 ndeprate =0.0
+             end if
      
                IF ( STAT .NE. 0 ) THEN
                     MESG = 'Failure BIOGEMIS_MEGAN arrays'
@@ -3148,29 +3174,107 @@ C Read the various categories of normalized emissions
           end if
 
           
-          if (.not. NEW_START .and. .not. IGNORE_SOILINP) then
-             IF ( .NOT. OPEN3( SOILINP, FSREAD3, PNAME ) ) THEN
-                mesg = 'Open failure for ' // SOILINP
+          if (BIOGEMIS_BEIS .and. .not. NEW_START .and. .not. IGNORE_SOILINP) then
+             IF ( .NOT. OPEN3( BSOILINP, FSREAD3, PNAME ) ) THEN
+                mesg = 'Open failure for ' // BSOILINP
                 Call M3EXIT( PNAME, 0, 0, mesg, XSTAT1 )
              END IF
              n_opened_file = n_opened_file + 1
 
 ! Get description of NO rain data file
-             IF ( .NOT. DESC3( SOILINP ) ) THEN
+             IF ( .NOT. DESC3( BSOILINP ) ) THEN
                 MESG = 'Could not get description of file "' //
-     &                  TRIM( SOILINP ) // '"'
+     &                  TRIM( BSOILINP ) // '"'
                 CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
              END IF
 
 ! Check that the file start date and time are consistent
              IF ( SDATE3D .NE. cio_model_sdate ) THEN
-                WRITE( MESG, 94010 ) 'Cannot use SOILINP file; ' //
+                WRITE( MESG, 94011 ) 'Cannot use BEIS_SOILINP file; ' //
      &              'found date ', SDATE3D, ' expecting ', cio_model_sdate
                 CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
              END IF
 
              IF ( STIME3D .NE. cio_model_stime ) THEN
-                WRITE( MESG, 94010 ) 'Cannot use SOILINP file; ' //
+                WRITE( MESG, 94011 ) 'Cannot use BEIS_SOILINP file; ' //
+     &              'found time ', STIME3D, ' expecting ', cio_model_stime
+                CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
+             END IF
+
+94011        FORMAT( A, F10.2, 1X, A, I3, ',', I3 )
+
+             VAR = 'PTYPE'
+             IF ( .NOT. XTRACT3( BSOILINP, 'PTYPE', 1, 1,
+     &                           STRTROWSTD, ENDROWSTD, STRTCOLSTD, ENDCOLSTD,  
+     &                           0, 0, PTYPE ) ) THEN
+                MESG = 'Could not read "' // TRIM( VAR ) //
+     &                 '" from file "' // TRIM( BSOILINP ) // '"'
+                CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
+             END IF
+
+             VAR = 'PULSEDATE'
+             IF ( .NOT. XTRACT3( BSOILINP, VAR, 1, 1,
+     &                           STRTROWSTD, ENDROWSTD, STRTCOLSTD, ENDCOLSTD,  
+     &                           0, 0, PULSEDATE ) ) THEN
+                MESG = 'Could not read "' // TRIM( VAR ) //
+     &                 '" from file "' // TRIM( BSOILINP ) // '"'
+                CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
+             END IF
+
+             VAR = 'PULSETIME'
+             IF ( .NOT. XTRACT3( BSOILINP, VAR, 1, 1,
+     &                           STRTROWSTD, ENDROWSTD, STRTCOLSTD, ENDCOLSTD,  
+     &                           0, 0, PULSETIME ) ) THEN
+                MESG = 'Could not read "' // TRIM( VAR ) //
+     &                 '" from file "' // TRIM( BSOILINP ) // '"'
+                CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
+             END IF
+
+
+             RAINFALL = 0.0
+
+             DDTTM = ' '   ! array
+             DO I = 1, mxhrs
+                WRITE( VAR, '(A8,I2.2)' ) 'RAINFALL', I
+                IF ( .NOT. XTRACT3( BSOILINP, VAR, 1, 1,
+     &                              STRTROWSTD, ENDROWSTD, STRTCOLSTD, ENDCOLSTD,  
+     &                              0, 0, RAINFALL( :,:,I ) ) ) THEN
+                   MESG = 'Could not read "' // TRIM( VAR ) //
+     &                    '" from file "' // TRIM( BSOILINP ) // '"'
+                   CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
+                END IF
+                J = INDEX( VDESC3D( I+3 ), 'for' ) + 3
+                K = LEN_TRIM( VDESC3D( I+3 ) )
+                DDTTM( I ) = VDESC3D( I+3 )( J:K )
+             END DO
+
+           end if ! end beis section 
+
+
+           if (BIOGEMIS_MEGAN .and. .not. NEW_START .and. .not. IGNORE_SOILINP) then
+
+             IF ( .NOT. OPEN3( MSOILINP, FSREAD3, PNAME ) ) THEN
+                mesg = 'Open failure for ' // MSOILINP
+                Call M3EXIT( PNAME, 0, 0, mesg, XSTAT1 )
+             END IF
+             n_opened_file = n_opened_file + 1
+
+! Get description of NO rain data file
+             IF ( .NOT. DESC3( MSOILINP ) ) THEN
+                MESG = 'Could not get description of file "' //
+     &                  TRIM( MSOILINP ) // '"'
+                CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
+             END IF
+
+! Check that the file start date and time are consistent
+             IF ( SDATE3D .NE. cio_model_sdate ) THEN
+                WRITE( MESG, 94010 ) 'Cannot use MEGAN_SOILINP file; ' //
+     &              'found date ', SDATE3D, ' expecting ', cio_model_sdate
+                CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
+             END IF
+
+             IF ( STIME3D .NE. cio_model_stime ) THEN
+                WRITE( MESG, 94010 ) 'Cannot use MEGAN_SOILINP file; ' //
      &              'found time ', STIME3D, ' expecting ', cio_model_stime
                 CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
              END IF
@@ -3178,93 +3282,133 @@ C Read the various categories of normalized emissions
 94010        FORMAT( A, F10.2, 1X, A, I3, ',', I3 )
 
              VAR = 'PTYPE'
-             IF ( .NOT. XTRACT3( SOILINP, 'PTYPE', 1, 1,
+             IF ( .NOT. XTRACT3( MSOILINP, 'PTYPE', 1, 1,
      &                           STRTROWSTD, ENDROWSTD, STRTCOLSTD, ENDCOLSTD,  
      &                           0, 0, PTYPE ) ) THEN
                 MESG = 'Could not read "' // TRIM( VAR ) //
-     &                 '" from file "' // TRIM( SOILINP ) // '"'
+     &                 '" from file "' // TRIM( MSOILINP ) // '"'
                 CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
              END IF
 
              VAR = 'PULSEDATE'
-             IF ( .NOT. XTRACT3( SOILINP, VAR, 1, 1,
+             IF ( .NOT. XTRACT3( MSOILINP, VAR, 1, 1,
      &                           STRTROWSTD, ENDROWSTD, STRTCOLSTD, ENDCOLSTD,  
      &                           0, 0, PULSEDATE ) ) THEN
                 MESG = 'Could not read "' // TRIM( VAR ) //
-     &                 '" from file "' // TRIM( SOILINP ) // '"'
+     &                 '" from file "' // TRIM( MSOILINP ) // '"'
                 CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
              END IF
 
              VAR = 'PULSETIME'
-             IF ( .NOT. XTRACT3( SOILINP, VAR, 1, 1,
+             IF ( .NOT. XTRACT3( MSOILINP, VAR, 1, 1,
      &                           STRTROWSTD, ENDROWSTD, STRTCOLSTD, ENDCOLSTD,  
      &                           0, 0, PULSETIME ) ) THEN
                 MESG = 'Could not read "' // TRIM( VAR ) //
-     &                 '" from file "' // TRIM( SOILINP ) // '"'
+     &                 '" from file "' // TRIM( MSOILINP ) // '"'
                 CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
              END IF
 
-             RAINFALL = 0.0
-             if (BIOGEMIS_MEGAN) then
               sw24sum  = 0.0
               t24sum   = 0.0
               lai_y    = 0.0
-             end if
+              RAINFALL = 0.0
 
              DDTTM = ' '   ! array
              DO I = 1, mxhrs
                 WRITE( VAR, '(A8,I2.2)' ) 'RAINFALL', I
-                IF ( .NOT. XTRACT3( SOILINP, VAR, 1, 1,
+                IF ( .NOT. XTRACT3( MSOILINP, VAR, 1, 1,
      &                              STRTROWSTD, ENDROWSTD, STRTCOLSTD, ENDCOLSTD,  
      &                              0, 0, RAINFALL( :,:,I ) ) ) THEN
                    MESG = 'Could not read "' // TRIM( VAR ) //
-     &                    '" from file "' // TRIM( SOILINP ) // '"'
+     &                    '" from file "' // TRIM( MSOILINP ) // '"'
                    CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
                 END IF
                 J = INDEX( VDESC3D( I+3 ), 'for' ) + 3
                 K = LEN_TRIM( VDESC3D( I+3 ) )
                 DDTTM( I ) = VDESC3D( I+3 )( J:K )
 
-
-             if (BIOGEMIS_MEGAN .and. .not. IGNORE_SOILINP) then
                 WRITE( VAR, '(A2,I2.2)' ) 'SW', I
-                IF ( .NOT. XTRACT3( SOILINP, VAR, 1, 1,
+                IF ( .NOT. XTRACT3( MSOILINP, VAR, 1, 1,
      &                              STRTROWSTD, ENDROWSTD, STRTCOLSTD,ENDCOLSTD,
      &                              0, 0, sw24y( :,: ) ) ) THEN
                    MESG = 'Could not read "' // TRIM( VAR ) //
-     &                    '" from file "' // TRIM( SOILINP ) // '"'
+     &                    '" from file "' // TRIM( MSOILINP ) // '"'
                    CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
                 END IF
                    sw24sum = sw24y + sw24sum
 
                 WRITE( VAR, '(A3,I2.2)' ) 'T2M', I
-                IF ( .NOT. XTRACT3( SOILINP, VAR, 1, 1,
+                IF ( .NOT. XTRACT3( MSOILINP, VAR, 1, 1,
      &                              STRTROWSTD, ENDROWSTD, STRTCOLSTD,ENDCOLSTD,
      &                              0, 0, t24y( :,: ) ) ) THEN
                    MESG = 'Could not read "' // TRIM( VAR ) //
-     &                    '" from file "' // TRIM( SOILINP ) // '"'
+     &                    '" from file "' // TRIM( MSOILINP ) // '"'
                    CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
                 END IF
                    t24sum = t24y + t24sum
-             end if
 
-             END DO
+             END DO ! looping over 24 hrs 
 
-             if (BIOGEMIS_MEGAN .and. .not. IGNORE_SOILINP) then
                 sw24y = sw24sum/mxhrs
                 t24y  = t24sum/mxhrs
 
-                IF ( .NOT. XTRACT3( SOILINP, 'LAI', 1, 1,
+                IF ( .NOT. XTRACT3( MSOILINP, 'LAI', 1, 1,
      &                              STRTROWSTD, ENDROWSTD, STRTCOLSTD,ENDCOLSTD,
      &                              0, 0, lai_y( :,: ) ) ) THEN
                    MESG = 'Could not read "' // 'LAI' //
-     &                    '" from file "' // TRIM( SOILINP ) // '"'
+     &                    '" from file "' // TRIM( MSOILINP ) // '"'
                    CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
                 END IF
-             end if
 
-          end if
+                if (BDSNP_MEGAN) then
+               ! BDSNP daily inputs
+       
+                    IF ( .NOT. OPEN3( BDSNPINP, FSREAD3, PNAME ) ) THEN
+                       mesg = 'Open failure for ' // BDSNPINP
+                       Call M3EXIT( PNAME, 0, 0, mesg, XSTAT1 )
+                    END IF
+       
+                    IF ( .NOT. DESC3( BDSNPINP ) ) THEN
+                       MESG = 'Could not get description of file "' //
+     &                  TRIM( BDSNPINP ) // '"'
+                       CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT1 )
+                    END IF
+                    IF ( .NOT. XTRACT3( BDSNPINP, 'DRYPERIOD',
+     &                             1, 1, STRTROWSTD, ENDROWSTD, STRTCOLSTD,ENDCOLSTD,
+     &                             0, 0, dryperiod(:,:) ) ) THEN
+                       mesg = 'Could not extract ' // BDSNPINP // ' file'
+                          CALL M3EXIT ( PNAME, 0, 0, mesg, XSTAT1 )
+                      END IF
+                       IF ( .NOT. XTRACT3( BDSNPINP, 'NDEPRES',
+     &                             1, 1, STRTROWSTD, ENDROWSTD, STRTCOLSTD,ENDCOLSTD,
+     &                             0, 0, ndepres(:,:) ) ) THEN
+                       mesg = 'Could not extract ' // BDSNPINP // ' file'
+                          CALL M3EXIT ( PNAME, 0, 0, mesg, XSTAT1 )
+                      END IF
+                       IF ( .NOT. XTRACT3( BDSNPINP, 'NDEPRATE_DIAG',
+     &                             1, 1, STRTROWSTD, ENDROWSTD, STRTCOLSTD,ENDCOLSTD,
+     &                             0, 0, ndeprate(:,:) ) ) THEN
+                       mesg = 'Could not extract ' // BDSNPINP // ' file'
+                          CALL M3EXIT ( PNAME, 0, 0, mesg, XSTAT1 )
+                      END IF
+                       IF ( .NOT. XTRACT3( BDSNPINP, 'PFACTOR',
+     &                             1, 1, STRTROWSTD, ENDROWSTD, STRTCOLSTD,ENDCOLSTD,
+     &                             0, 0, pfactor(:,:) ) ) THEN
+                       mesg = 'Could not extract ' // BDSNPINP // ' file'
+                          CALL M3EXIT ( PNAME, 0, 0, mesg, XSTAT1 )
+                      END IF
+                       IF ( .NOT. XTRACT3( BDSNPINP, 'SOILMPREV',
+     &                             1, 1, STRTROWSTD, ENDROWSTD,STRTCOLSTD,ENDCOLSTD,
+     &                             0, 0, soilmprev(:,:) ) ) THEN
+                       mesg = 'Could not extract ' // BDSNPINP // ' file'
+                          CALL M3EXIT ( PNAME, 0, 0, mesg, XSTAT1 )
+                      END IF
 
+       
+                    end if ! bdsnp check
+             end if ! megan check
+
+         
         end subroutine soilinp_setup
 
 ! -------------------------------------------------------------------------
@@ -4218,7 +4362,8 @@ C   mminlu and num_land_cat are WRF global variables
         subroutine megan_setup ! reads in variables from MEGAN_PARAMS (see file_inputs.txt and run script)
           use hgrd_defn, only : ncols,nrows
           USE UTILIO_DEFN
-          use RUNTIME_VARS, only : logdev, USE_MEGAN_LAI
+          use RUNTIME_VARS, only : logdev, USE_MEGAN_LAI, BDSNP_MEGAN,
+     &                             MGN_ONLN_DEP
         
           integer                    :: stat, i, megan_hr, megan_day, strtcol,
      &                                  endcol, strtrow, endrow, gxoff, gyoff 
@@ -4231,9 +4376,31 @@ C   mminlu and num_land_cat are WRF global variables
           character( 40 ), parameter :: MEGAN_LAI = 'MEGAN_LAI'
           character( 40 ), parameter :: MEGAN_EFS = 'MEGAN_EFS'
           character( 40 ), parameter :: MEGAN_CTS = 'MEGAN_CTS'
+          character( 40 ), parameter :: BDSNP_NFILE = 'BDSNP_NFILE'
+          character( 40 ), parameter :: BDSNP_AFILE = 'BDSNP_AFILE'
+          character( 40 ), parameter :: BDSNP_NAFILE = 'BDSNP_NAFILE'
+          character( 40 ), parameter :: BDSNP_FFILE = 'BDSNP_FFILE'
+          character( 40 ), parameter :: BDSNP_LFILE = 'BDSNP_LFILE'
           character( 256 )           :: mesg
           character( 40 )            :: var
       
+         if (BDSNP_MEGAN) then
+          allocate (bdsnp_fert( ncols,nrows),
+     &              bdsnp_arid( ncols,nrows),
+     &              bdsnp_nonarid( ncols,nrows),
+     &              bdsnp_landtype( ncols,nrows),
+     &              bdsnp_ndep( ncols,nrows,12),
+     &              stat=stat)
+               IF ( STAT .NE. 0 ) THEN
+                    MESG = 'Failure BIOGEMIS_MEGAN arrays in megan_setup'
+                    CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT3 )
+               END IF
+                   bdsnp_fert     = 0.
+                   bdsnp_arid     = 0.
+                   bdsnp_nonarid  = 0.
+                   bdsnp_landtype = 0.
+                   bdsnp_ndep     = 0.
+         end if
 
 #ifdef mpas
 
@@ -4385,15 +4552,142 @@ C   mminlu and num_land_cat are WRF global variables
              megan_day = sdate3d 
              megan_hr  = stime3d
 
-             do I=1,nvars3d
-                    WRITE( VAR, '(A3,I2.2)' ) 'LDF', I
-                    IF ( .NOT. XTRACT3( MEGAN_LDF, VAR, 
-     &                                  1, 1, strtrow, endrow, strtcol, endcol, 
-     &                                  megan_day, megan_hr, LDF(:,:,I) ) ) THEN
-                       mesg = 'Could not extract ' // MEGAN_LDF // ' file'
-                       CALL M3EXIT ( PNAME, 0, 0, mesg, XSTAT1 )
-                    END IF
-             end do
+             IF ( .NOT. XTRACT3( MEGAN_LDF, 'ALL', 
+     &                           1, 1, strtrow, endrow, strtcol, endcol, 
+     &                           megan_day, megan_hr, LDF(:,:,:) ) ) THEN
+                 mesg = 'Could not extract ' // MEGAN_LDF // ' file'
+                 CALL M3EXIT ( PNAME, 0, megan_hr, mesg, XSTAT1 )
+             END IF
+             if (BDSNP_MEGAN) then
+
+           ! Optional BDSNP nitrogen input
+             if (.not. MGN_ONLN_DEP) then
+                IF ( .NOT. OPEN3( BDSNP_NFILE, FSREAD3, PNAME ) ) THEN
+                   mesg = 'Open failure for ' // BDSNP_NFILE
+                   Call M3EXIT( PNAME, 0, 0, mesg, XSTAT1 )
+                END IF
+
+                IF ( .NOT. DESC3( BDSNP_NFILE ) ) THEN
+                   MESG = 'Could not get description of file "' //
+     &                     TRIM( BDSNP_NFILE ) // '"'
+                   CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT1 )
+                END IF
+
+
+                call subhfile( BDSNP_NFILE, gxoff, gyoff, strtcol,
+     &                        endcol, strtrow, endrow )
+
+                megan_day = sdate3d
+                megan_hr  = stime3d
+                do i = 1,12
+                 write( var, '(A8,I2.2)' ) 'NITROGEN', i
+                  IF ( .NOT. XTRACT3( BDSNP_NFILE, var,
+     &                                1, 1, strtrow, endrow, strtcol, endcol,
+     &                                megan_day, megan_hr, bdsnp_ndep(:,:,i) ) ) THEN
+                      mesg = 'Could not extract ' // BDSNP_NFILE // ' file'
+                      CALL M3EXIT ( PNAME, 0, megan_hr, mesg, XSTAT1 )
+                  END IF
+                end do
+             end if
+
+        ! BDSNP fertilizer input
+
+             IF ( .NOT. OPEN3( BDSNP_FFILE, FSREAD3, PNAME ) ) THEN
+                mesg = 'Open failure for ' // BDSNP_FFILE
+                Call M3EXIT( PNAME, 0, 0, mesg, XSTAT1 )
+             END IF
+
+             IF ( .NOT. DESC3( BDSNP_FFILE ) ) THEN
+                MESG = 'Could not get description of file "' //
+     &                  TRIM( BDSNP_FFILE ) // '"'
+                CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT1 )
+             END IF
+
+             call subhfile( BDSNP_FFILE, gxoff, gyoff, strtcol,
+     &                     endcol, strtrow, endrow )
+
+               i  = FLOAT( MOD( STDATE, 1000 ) )
+               write( var, '(A4,I3.3)' ) 'FERT', i
+               !NEED TO REPLACE 183 WITH JDAY jwilliso
+               IF ( .NOT. XTRACT3( BDSNP_FFILE, var,
+     &                             1, 1, strtrow, endrow, strtcol, endcol,
+     &                             megan_day, megan_hr, bdsnp_fert(:,:) ) ) THEN
+                   mesg = 'Could not extract ' // BDSNP_FFILE // ' file'
+                   CALL M3EXIT ( PNAME, 0, megan_hr, mesg, XSTAT1 )
+               END IF
+
+         ! BDSNP arid input
+
+             IF ( .NOT. OPEN3( BDSNP_AFILE, FSREAD3, PNAME ) ) THEN
+                mesg = 'Open failure for ' // BDSNP_AFILE
+                Call M3EXIT( PNAME, 0, 0, mesg, XSTAT1 )
+             END IF
+
+             IF ( .NOT. DESC3( BDSNP_AFILE ) ) THEN
+                MESG = 'Could not get description of file "' //
+     &                  TRIM( BDSNP_AFILE ) // '"'
+                CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT1 )
+             END IF
+
+             call subhfile( BDSNP_AFILE, gxoff, gyoff, strtcol,
+     &                     endcol, strtrow, endrow )
+
+
+               IF ( .NOT. XTRACT3( BDSNP_AFILE, 'ARID',
+     &                             1, 1, strtrow, endrow, strtcol, endcol,
+     &                             megan_day, megan_hr, bdsnp_arid(:,:) ) ) THEN
+                   mesg = 'Could not extract ' // BDSNP_AFILE // ' file'
+                   CALL M3EXIT ( PNAME, 0, megan_hr, mesg, XSTAT1 )
+               END IF
+
+         ! BDSNP nonarid input
+
+             IF ( .NOT. OPEN3( BDSNP_NAFILE, FSREAD3, PNAME ) ) THEN
+                mesg = 'Open failure for ' // BDSNP_NAFILE
+                Call M3EXIT( PNAME, 0, 0, mesg, XSTAT1 )
+             END IF
+
+             IF ( .NOT. DESC3( BDSNP_NAFILE ) ) THEN
+                MESG = 'Could not get description of file "' //
+     &                  TRIM( BDSNP_NAFILE ) // '"'
+                CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT1 )
+             END IF
+
+             call subhfile( BDSNP_NAFILE, gxoff, gyoff, strtcol,
+     &                     endcol, strtrow, endrow )
+
+
+               IF ( .NOT. XTRACT3( BDSNP_NAFILE, 'NONARID',
+     &                             1, 1, strtrow, endrow, strtcol, endcol,
+     &                             megan_day, megan_hr, bdsnp_nonarid(:,:) ) ) THEN
+                   mesg = 'Could not extract ' // BDSNP_NAFILE // ' file'
+                   CALL M3EXIT ( PNAME, 0, megan_hr, mesg, XSTAT1 )
+               END IF
+
+         ! BDSNP landtype input
+
+             IF ( .NOT. OPEN3( BDSNP_LFILE, FSREAD3, PNAME ) ) THEN
+                mesg = 'Open failure for ' // BDSNP_LFILE
+                Call M3EXIT( PNAME, 0, 0, mesg, XSTAT1 )
+             END IF
+
+             IF ( .NOT. DESC3( BDSNP_LFILE ) ) THEN
+                MESG = 'Could not get description of file "' //
+     &                  TRIM( BDSNP_LFILE ) // '"'
+                CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT1 )
+             END IF
+
+             call subhfile( BDSNP_LFILE, gxoff, gyoff, strtcol,
+     &                     endcol, strtrow, endrow )
+
+               IF ( .NOT. XTRACT3( BDSNP_LFILE, 'LANDTYPE',
+     &                             1, 1, strtrow, endrow, strtcol, endcol,
+     &                             megan_day, megan_hr, bdsnp_landtype(:,:) ) ) THEN
+                   mesg = 'Could not extract ' // BDSNP_LFILE // ' file'
+                   CALL M3EXIT ( PNAME, 0, megan_hr, mesg, XSTAT1 )
+               END IF
+
+         end if
 
 #endif
         end subroutine megan_setup

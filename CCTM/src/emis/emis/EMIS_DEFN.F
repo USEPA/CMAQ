@@ -681,7 +681,7 @@ C Retrieve Emissions from All Stream Types
 
              CASE ( 9 )
                NL = 1
-               CALL GET_MEGAN ( JDATE, JTIME, TSTEP )
+               CALL GET_MEGAN ( JDATE, JTIME, TSTEP, L_DESID_DIAG)
                FORALL( ISTR = 1:N_EMIS_ISTR, MAP_EMtoSURR( ISTR,ISRM ) .GT. 0 )
                   VDEMIS_READ( ISTR,1,:,: ) = VDEMIS_ME( MAP_EMtoSURR( ISTR,ISRM ),:,: ) 
                END FORALL
