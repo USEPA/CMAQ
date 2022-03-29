@@ -18,7 +18,7 @@
 !------------------------------------------------------------------------!
 
 c:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-      MODULE PMDIAG_DATA
+      MODULE ELMO_DATA
 
       USE AERO_DATA, ONLY : N_MODE
       USE UTILIO_DEFN
@@ -29,18 +29,18 @@ c:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       Logical, Parameter, Private :: T = .true.
       Logical, Parameter, Private :: F = .false.
 
-      LOGICAL, SAVE :: L_PMDIAG
-      INTEGER, SAVE :: PMDIAG_AVRG_STEP = 0
-      INTEGER, SAVE :: NLAY_PMDIAG_INST
-      INTEGER, SAVE :: NLAY_PMDIAG_AVRG
+      LOGICAL, SAVE :: L_ELMO
+      INTEGER, SAVE :: ELMO_AVRG_STEP = 0
+      INTEGER, SAVE :: NLAY_ELMO_INST
+      INTEGER, SAVE :: NLAY_ELMO_AVRG
 
-      ! Define Indices for All PMDIAG Parameters
+      ! Define Indices for All ELMO Parameters
       ! The idea here is that parameters will be organized and
-      ! calculated in the order of this list, not the PMDIAG_LIST. The
-      ! PMDIAG_LIST is searchable via the Parameter names but they
+      ! calculated in the order of this list, not the ELMO_LIST. The
+      ! ELMO_LIST is searchable via the Parameter names but they
       ! link to this list of integers so that each parameter can be
       ! easily referenced during the run without having to do string
-      ! lookups. Please see the table defining the PMDIAG_LIST below 
+      ! lookups. Please see the table defining the ELMO_LIST below 
       ! for a description of each of these indices.
       INTEGER, PARAMETER :: ID_STDEV =        1
       INTEGER, PARAMETER :: ID_DRY_DG =       2
@@ -235,9 +235,9 @@ c:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
         CHARACTER (LEN = 80) :: DESC      !Description
       END TYPE PMDTP
 
-      INTEGER, PARAMETER :: N_PMDIAG_LIST = 183
+      INTEGER, PARAMETER :: N_ELMO_LIST = 183
 
-      TYPE (PMDTP), PARAMETER :: PMDIAG_LIST( N_PMDIAG_LIST ) = (/
+      TYPE (PMDTP), PARAMETER :: ELMO_LIST( N_ELMO_LIST ) = (/
      &PMDTP( 'STDEV        ',ID_STDEV,      M3REAL, T, '      ', 'Mode standard deviation (dry and wet)' ),
      &PMDTP( 'DRY_DG       ',ID_DRY_DG,     M3REAL, T, 'um    ', 'Mode mean diameter (dry)' ),
      &PMDTP( 'WET_DG       ',ID_WET_DG,     M3REAL, T, 'um    ', 'Mode mean diameter (wet)' ),
@@ -441,21 +441,21 @@ c:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
      &PMDTP( 'RHOJ         ',ID_RHOJ,       M3REAL, F, 'kg m-3', 'Advected Density x Jacobian/MSFX^2' ) /)
      
 
-        TYPE PMDIAG_KEY_TYPE
-            CHARACTER( 24 )             :: WORD    ! Keyword for selecting mulitple PMDIAG parameters
+        TYPE ELMO_KEY_TYPE
+            CHARACTER( 24 )             :: WORD    ! Keyword for selecting mulitple ELMO parameters
             INTEGER                     :: N       ! Number of Parameters associated with the Keyword
             CHARACTER( 16 ),ALLOCATABLE :: LIST(:) ! List of parameters
-        END TYPE PMDIAG_KEY_TYPE
+        END TYPE ELMO_KEY_TYPE
 
-        TYPE (PMDIAG_KEY_TYPE), ALLOCATABLE, SAVE :: PMDIAG_KEY( : )
+        TYPE (ELMO_KEY_TYPE), ALLOCATABLE, SAVE :: ELMO_KEY( : )
         INTEGER, SAVE :: N_KEY
 
-        INTEGER, SAVE :: MAP_ID2LIST( N_PMDIAG_LIST ) 
+        INTEGER, SAVE :: MAP_ID2LIST( N_ELMO_LIST ) 
 
-        ! Variables for Storing Values of PMDIAG Output      
-        REAL, ALLOCATABLE, SAVE :: PMDIAG_INST( :,:,:,: )
-        REAL, ALLOCATABLE, SAVE :: PMDIAG_AVRG( :,:,:,: )
-        REAL, ALLOCATABLE, SAVE :: PMDIAG_LOCAL( : )
+        ! Variables for Storing Values of ELMO Output      
+        REAL, ALLOCATABLE, SAVE :: ELMO_INST( :,:,:,: )
+        REAL, ALLOCATABLE, SAVE :: ELMO_AVRG( :,:,:,: )
+        REAL, ALLOCATABLE, SAVE :: ELMO_LOCAL( : )
         LOGICAL, ALLOCATABLE, SAVE :: L_CALC( : )
         REAL, ALLOCATABLE, SAVE :: CONC_VEC( : )
         INTEGER, SAVE           :: C1, R1, L1
@@ -473,32 +473,33 @@ c:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
  
         ! Define type for storing coeffieicnets and variable indices for
         ! aggregating PM diagnostics like ATOTIJ, ACLK, etc.
-        TYPE PMDIAG_COEFFS_TYPE
+        TYPE ELMO_COEFFS_TYPE
             LOGICAL L_MAPPED                 ! Record whether or not this aggregate has been mapped
             INTEGER N_VARS                   ! Number of variables to store coefficients for. 
                                              !   This should not account for modes. For example, 
                                              !   to sum ASO4IJK, N_VARS would be 1 since only 
                                              !   ASO4 is being used.
             LOGICAL, ALLOCATABLE :: L_GAS(:)    ! Is this variable a gas?
+            LOGICAL, ALLOCATABLE :: L_SPC(:)    ! Is this variable a CMAQ species?
             LOGICAL, ALLOCATABLE :: L_PREC(:)   ! Is this variable a gas-phase precursor already in the aerosol module?
             LOGICAL, ALLOCATABLE :: L_AGG(:)    ! Is this variable another aggregated diagnostic parameter?
             LOGICAL, ALLOCATABLE :: L_MODE(:)   ! For which modes does this aggregate apply
             INTEGER, ALLOCATABLE :: I_SPEC(:)   ! Index of this Variable in Aerosol/Gas/Aggregate Array
             REAL,    ALLOCATABLE :: COEFF(:)       ! Coefficient for each variable
             INTEGER INLET                    ! Integer pointing to the corresponding inlet of choice 
-                                             !   in the PMDIAG_INLET structure
+                                             !   in the ELMO_INLET structure
             INTEGER WETNESS                  ! Integer prescribing wet or dry aerosol (1 = wet, 2 = dry)
                                              !   Default is wet
-        END TYPE PMDIAG_COEFFS_TYPE
+        END TYPE ELMO_COEFFS_TYPE
 
-        TYPE (PMDIAG_COEFFS_TYPE), SAVE :: PMDIAG_COEFFS( N_PMDIAG_LIST ) 
+        TYPE (ELMO_COEFFS_TYPE), ALLOCATABLE, SAVE :: ELMO_COEFFS( : ) 
 
 
-        TYPE PMDIAG_INLET_TYPE
+        TYPE ELMO_INLET_TYPE
             CHARACTER( 16 ) CINLET            ! Inlet Name
             REAL            DIAM_LO           ! Lower Diameter of this Inlet [um]
             REAL            DIAM_HI           ! Upper Diameter of this inlet [um]
-        END TYPE PMDIAG_INLET_TYPE
+        END TYPE ELMO_INLET_TYPE
 
         INTEGER, PARAMETER :: N_INLET = 10
         INTEGER, PARAMETER :: IPM01 = 1, IPM1 = 2, IPM25 = 3, IPM10 = 4, 
@@ -506,22 +507,22 @@ c:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
      &                        INUM20 = 8, INUM40 = 9, INUM100 = 10
         INTEGER, PARAMETER :: IWET = 1, IDRY = 2
 
-        TYPE (PMDIAG_INLET_TYPE), PARAMETER :: PMDIAG_INLET( N_INLET ) = (/
+        TYPE (ELMO_INLET_TYPE), PARAMETER :: ELMO_INLET( N_INLET ) = (/
        !                          Inlet Name D_Lo  D_Hi
        !                          ---------- ----  ----
-     &        PMDIAG_INLET_TYPE( 'PM01    ', 0.0,  0.1 ),
-     &        PMDIAG_INLET_TYPE( 'PM1     ', 0.0,  1.0 ),
-     &        PMDIAG_INLET_TYPE( 'PM25    ', 0.0,  2.5 ),
-     &        PMDIAG_INLET_TYPE( 'PM10    ', 0.0, 10.0 ),
-     &        PMDIAG_INLET_TYPE( 'PM25TO10', 2.5, 10.0 ),
-     &        PMDIAG_INLET_TYPE( 'PMAMS   ', 0.0,  0.0 ),
-     &        PMDIAG_INLET_TYPE( 'INUM10  ', 0.01,1.0e3),
-     &        PMDIAG_INLET_TYPE( 'INUM20  ', 0.02,1.0e3),
-     &        PMDIAG_INLET_TYPE( 'INUM40  ', 0.04,1.0e3),
-     &        PMDIAG_INLET_TYPE( 'INUM100 ', 0.1, 1.0e3) /)
+     &        ELMO_INLET_TYPE( 'PM01    ', 0.0,  0.1 ),
+     &        ELMO_INLET_TYPE( 'PM1     ', 0.0,  1.0 ),
+     &        ELMO_INLET_TYPE( 'PM25    ', 0.0,  2.5 ),
+     &        ELMO_INLET_TYPE( 'PM10    ', 0.0, 10.0 ),
+     &        ELMO_INLET_TYPE( 'PM25TO10', 2.5, 10.0 ),
+     &        ELMO_INLET_TYPE( 'PMAMS   ', 0.0,  0.0 ),
+     &        ELMO_INLET_TYPE( 'INUM10  ', 0.01,1.0e3),
+     &        ELMO_INLET_TYPE( 'INUM20  ', 0.02,1.0e3),
+     &        ELMO_INLET_TYPE( 'INUM40  ', 0.04,1.0e3),
+     &        ELMO_INLET_TYPE( 'INUM100 ', 0.1, 1.0e3) /)
 
         REAL, SAVE :: INLET_FRAC( N_INLET,N_MODE,2 )  ! Fraction of each aerosol mode 
                                                       !   collected by each inlet
                                                       !   Third dimension is 1
                                                       !     for wet and 2 for dry
-      END MODULE PMDIAG_DATA
+      END MODULE ELMO_DATA

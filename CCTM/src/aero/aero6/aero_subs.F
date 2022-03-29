@@ -3168,13 +3168,13 @@ C  Called by: Gas-Phase Chemistry Driver
 
       USE AERO_DATA, ONLY : AEROSPC_CONC, AEROSPC, N_MODE, 
      &                      AH2O_IDX, AORGH2O_IDX
-      USE PMDIAG_DATA
+      USE ELMO_DATA
 
       IMPLICIT NONE
 
       ! Input variables
       INTEGER, INTENT( INOUT ) :: INLET ! Integer prescribing the inlet type
-                                        !   (see PMDIAG_INLET table in PMDIAG_DATA module)
+                                        !   (see ELMO_INLET table in ELMO_DATA module)
       INTEGER, INTENT( INOUT ) :: WETNESS ! 1 = Wet Aerosol; 2 = Dry Aerosol
 
       ! Output variable
@@ -3203,12 +3203,12 @@ C ----------------------- Begin solution -------------------------------
 !     Calls the AERO_INLET routine for calculating the fraction of each 
 !       mode collected by inlet prescribed by INLET. This subroutine is
 !       only for PM0.1, PM1, PM2.5, PM10 and PM2.5to10. It is not for
-!       AMS inlet calculation. If the user expands the PMDIAG_INLET
+!       AMS inlet calculation. If the user expands the ELMO_INLET
 !       table to consider more cutoff ranges, this subroutine can be
 !       used to calculate them as well.
 !-----------------------------------------------------------------------
 
-      USE PMDIAG_DATA
+      USE ELMO_DATA
       USE AERO_DATA, ONLY : WET_AERO_DIAM, AEROMODE_LNSG, WET_AERO_DENS,
      &                      DRY_AERO_DIAM, DRY_AERO_DENS
 
@@ -3216,7 +3216,7 @@ C ----------------------- Begin solution -------------------------------
 
       ! Input variables
       INTEGER, INTENT( INOUT ) :: INLET ! Integer prescribing the inlet type
-                                        !   (see PMDIAG_INLET table in PMDIAG_DATA module)
+                                        !   (see ELMO_INLET table in ELMO_DATA module)
       INTEGER, INTENT( INOUT ) ::  IMODE   ! Aerosol Mode of interest
       INTEGER, INTENT( INOUT ) ::  WETNESS ! 1 = Wet Aerosol; 2 = Dry Aerosol
 
@@ -3230,14 +3230,14 @@ C ----------------------- Begin solution -------------------------------
          IF ( WETNESS .EQ. IWET ) THEN
            CALL AERO_INLET( WET_AERO_DIAM( IMODE ), AEROMODE_LNSG( IMODE ),
      &                      WET_AERO_DENS( IMODE ), 
-     &                      PMDIAG_INLET( INLET )%DIAM_LO, 
-     &                      PMDIAG_INLET( INLET )%DIAM_HI, 
+     &                      ELMO_INLET( INLET )%DIAM_LO, 
+     &                      ELMO_INLET( INLET )%DIAM_HI, 
      &                      FRAC )
          ELSE
            CALL AERO_INLET( DRY_AERO_DIAM( IMODE ), AEROMODE_LNSG( IMODE ),
      &                      DRY_AERO_DENS( IMODE ), 
-     &                      PMDIAG_INLET( INLET )%DIAM_LO, 
-     &                      PMDIAG_INLET( INLET )%DIAM_HI, 
+     &                      ELMO_INLET( INLET )%DIAM_LO, 
+     &                      ELMO_INLET( INLET )%DIAM_HI, 
      &                      FRAC )
          END IF
          
@@ -3257,13 +3257,13 @@ C ----------------------- Begin solution -------------------------------
 
       USE AERO_DATA, ONLY : DRY_AERO_DIAM, WET_AERO_DIAM,
      &                      AEROMODE_LNSG, MOMENT0_CONC
-      USE PMDIAG_DATA
+      USE ELMO_DATA
 
       IMPLICIT NONE
 
       ! Input variables
       INTEGER, INTENT( INOUT ) :: INLET ! Integer prescribing the inlet type
-                                        !   (see PMDIAG_INLET table in PMDIAG_DATA module)
+                                        !   (see ELMO_INLET table in ELMO_DATA module)
       INTEGER, INTENT( INOUT ) ::  WETNESS ! 1 = Wet Aerosol; 2 = Dry Aerosol
 
       ! Output variable
@@ -3278,13 +3278,13 @@ C ----------------------- Begin solution -------------------------------
       DO IM = 1,N_MODE
          IF ( WETNESS .EQ. IWET ) THEN
            CALL NUM_INLET( WET_AERO_DIAM( IM ), AEROMODE_LNSG( IM ),
-     &                      PMDIAG_INLET( INLET )%DIAM_LO, 
-     &                      PMDIAG_INLET( INLET )%DIAM_HI, 
+     &                      ELMO_INLET( INLET )%DIAM_LO, 
+     &                      ELMO_INLET( INLET )%DIAM_HI, 
      &                      FRAC )
          ELSE
            CALL NUM_INLET( DRY_AERO_DIAM( IM ), AEROMODE_LNSG( IM ),
-     &                      PMDIAG_INLET( INLET )%DIAM_LO, 
-     &                      PMDIAG_INLET( INLET )%DIAM_HI, 
+     &                      ELMO_INLET( INLET )%DIAM_LO, 
+     &                      ELMO_INLET( INLET )%DIAM_HI, 
      &                      FRAC )
          END IF
  

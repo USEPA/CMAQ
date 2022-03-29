@@ -544,21 +544,21 @@
 !                                                                              !
 !------------------------------------------------------------------------------!
 
-&PMDIAG_ACTIVATE
+&ELMO_ACTIVATE
   INSTANT = .TRUE.
   AVERAGE = .TRUE.
 /
 
-&PMDIAG_INST
+&ELMO_INST
   INST_LAYER_TOP = 1
   INST_LAYER_BOT = 1
-  INST_PARS_REG  = 'DEFAULT'
+  INST_PARS_NML  = 'DEFAULT'
 /
 
-&PMDIAG_AVRG
+&ELMO_AVRG
   AVRG_LAYER_TOP = 1
   AVRG_LAYER_BOT = 1
-  AVRG_PARS_REG  = 'DEFAULT'
+  AVRG_PARS_NML  = 'DEFAULT'
 /
 
 !------------------------------------------------------------------------------!

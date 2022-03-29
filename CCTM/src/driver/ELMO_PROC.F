@@ -18,7 +18,7 @@
 !------------------------------------------------------------------------!
 
 !-----------------------------------------------------------------------
-      MODULE PMDIAG_PROC
+      MODULE ELMO_PROC
 !-----------------------------------------------------------------------
 ! This module will collect all procedures used for subsetting the 
 !      pm diagnostic variables requested by the user. It will also
@@ -30,7 +30,7 @@
 !-----------------------------------------------------------------------
 
       USE UTILIO_DEFN
-      USE PMDIAG_DATA
+      USE ELMO_DATA
       USE GRID_CONF, ONLY: NCOLS, NROWS, NLAYS, IO_PE_INCLUSIVE
 
       IMPLICIT NONE
@@ -40,7 +40,7 @@
      &                 AVRG_LAYER_TOP, AVRG_LAYER_BOT
 
       CHARACTER(16), ALLOCATABLE, SAVE :: 
-     &               INST_PARS_REG( : ), AVRG_PARS_REG( : ),
+     &               INST_PARS_NML( : ), AVRG_PARS_NML( : ),
      &               INST_PARS( : ),     AVRG_PARS( : ),
      &               INST_PARS_OUT(:),   AVRG_PARS_OUT(:),
      &               INST_UNIT_OUT(:),   AVRG_UNIT_OUT(:)
@@ -48,66 +48,75 @@
       CHARACTER(80), ALLOCATABLE, SAVE :: 
      &               INST_DESC_OUT( : ), AVRG_DESC_OUT( : )
 
-      INTEGER, SAVE :: N_PMDIAG, N_PMDIAG_OUT,
-     &                 N_PMDIAG_INST, N_PMDIAG_AVRG,
-     &                 N_PMDIAG_INST_OUT, N_PMDIAG_AVRG_OUT
+      INTEGER, SAVE :: N_ELMO, N_ELMO_OUT, NTOT_ELMO_IDS, 
+     &                 N_ELMO_INST, N_ELMO_AVRG,
+     &                 N_ELMO_INST_OUT, N_ELMO_AVRG_OUT
 
       INTEGER, ALLOCATABLE, SAVE :: 
      &        MAP_INST2USED( : ), MAP_AVRG2USED( : ), 
-     &        USED_PMDIAG_ID( : ), USED_PMDIAG_MODE( : ),
+     &        USED_ELMO_ID( : ), USED_ELMO_MODE( : ),
      &        INST_TYPE_OUT( : ), AVRG_TYPE_OUT( : ),
-     &        MAP_ID2USED( :,: )
+     &        MAP_ID2USED( :,: ),
+     &        USED_CGRID_ID(:), USED_FAM_ID(:)
 
       CONTAINS
 
 !-------------------------------------------------------------------------
-      SUBROUTINE READ_PMDIAG_NML( )
+      SUBROUTINE READ_ELMO_NML( )
 !     This subroutine maps the PM diagnostic variables that the user has
-!       requested to the entries in the PMDIAG_DATA table.
+!       requested to the entries in the ELMO_DATA table.
 !-------------------------------------------------------------------------
          
       USE RUNTIME_VARS, ONLY: EMISSCTRL, LOGDEV
+      USE CGRID_SPCS, ONLY: CGRID_NAME, N_CGRID_SPC
+      USE UTIL_FAMILY_MODULE, ONLY: NChemFamilies,ChemFamilyName,
+     &                              Map_Chem_Families
+      USE GRID_CONF, ONLY : MYPE
       
       IMPLICIT NONE
 
-      INTEGER, PARAMETER :: N_REG = 1000
-      INTEGER            :: INUM, N_END, I1, I2, JNUM
+      INTEGER, PARAMETER :: N_NML = 1000
+      INTEGER            :: INUM, J, N_END, I1, I2, I3, I4, JNUM
       INTEGER            :: EMCTRL_NML
       INTEGER            :: STAT
       LOGICAL, SAVE      :: INSTANT  =.TRUE., 
      &                      AVERAGE  =.TRUE.!,
 !     &                      OLDNAMES =.FALSE.
 
-      CHARACTER( 16 ), SAVE :: PNAME = 'READ_PMDIAG_NML'
+      CHARACTER( 16 ), SAVE :: PNAME = 'READ_ELMO_NML'
       CHARACTER( 200 )   :: XMSG
       INTEGER IOS
+      LOGICAL EXPAND_NML
+      LOGICAL, ALLOCATABLE :: FAM_LIST(:)
 
-      NAMELIST / PMDIAG_ACTIVATE / INSTANT, AVERAGE !, OLDNAMES
-      NAMELIST / PMDIAG_INST / INST_LAYER_TOP, 
-     &                         INST_LAYER_BOT, INST_PARS_REG
-      NAMELIST / PMDIAG_AVRG / AVRG_LAYER_TOP, 
-     &                         AVRG_LAYER_BOT, AVRG_PARS_REG
+      NAMELIST / ELMO_ACTIVATE / INSTANT, AVERAGE !, OLDNAMES
+      NAMELIST / ELMO_INST / INST_LAYER_TOP, 
+     &                         INST_LAYER_BOT, INST_PARS_NML
+      NAMELIST / ELMO_AVRG / AVRG_LAYER_TOP, 
+     &                         AVRG_LAYER_BOT, AVRG_PARS_NML
 
-      ALLOCATE( INST_PARS_REG( N_REG ), STAT = IOS )
-      CALL CHECKMEM( IOS, 'INST_PARS_REG',PNAME )
-      ALLOCATE( AVRG_PARS_REG( N_REG ), STAT = IOS )
-      CALL CHECKMEM( IOS, 'AVRG_PARS_REG',PNAME )
+      ALLOCATE( INST_PARS_NML( N_NML ), STAT = IOS )
+      CALL CHECKMEM( IOS, 'INST_PARS_NML',PNAME )
+      ALLOCATE( AVRG_PARS_NML( N_NML ), STAT = IOS )
+      CALL CHECKMEM( IOS, 'AVRG_PARS_NML',PNAME )
+      ALLOCATE( FAM_LIST( N_CGRID_SPC ), STAT = IOS )
+      CALL CHECKMEM( IOS, 'FAM_LIST',PNAME )
  
 
       INST_ACTIVE      = .TRUE.
       INST_LAYER_TOP   = 1
       INST_LAYER_BOT   = 1
-      INST_PARS_REG(:) = ''
-      INST_PARS_REG(1) = 'O3'
-      INST_PARS_REG(2) = 'PM25'
-      INST_PARS_REG(3) = 'PM10'
+      INST_PARS_NML(:) = ''
+      INST_PARS_NML(1) = 'O3'
+      INST_PARS_NML(2) = 'PM25'
+      INST_PARS_NML(3) = 'PM10'
       AVRG_ACTIVE      = .TRUE.
       AVRG_LAYER_TOP   = 1
       AVRG_LAYER_BOT   = 1
-      AVRG_PARS_REG(:) = ''
-      AVRG_PARS_REG(1) = 'O3'
-      AVRG_PARS_REG(2) = 'PM25'
-      AVRG_PARS_REG(3) = 'PM10'
+      AVRG_PARS_NML(:) = ''
+      AVRG_PARS_NML(1) = 'O3'
+      AVRG_PARS_NML(2) = 'PM25'
+      AVRG_PARS_NML(3) = 'PM10'
 
       ! Retrieve the Name of the Emission Control File
       IF ( EMISSCTRL .EQ. "EMISSCTRL_NML" ) THEN
@@ -132,88 +141,94 @@
  
       ! Read Toggles for Turning Instantaneous and Average Files On/Off
       REWIND( EMCTRL_NML )
-      READ( NML = PMDIAG_ACTIVATE, UNIT = EMCTRL_NML, IOSTAT=STAT )
+      READ( NML = ELMO_ACTIVATE, UNIT = EMCTRL_NML, IOSTAT=STAT )
       IF ( STAT .NE. 0 ) THEN
           WRITE( LOGDEV, "(5x,A,/,5x,A,/,5x,A,/,5x,A)" ),
      &           'Warning! Something went wrong while reading the ',
-     &           'PMDIAG_ACTIVATE section of the Emissions Control ',
+     &           'ELMO_ACTIVATE section of the Emissions Control ',
      &           'Namelist. Default values for this section will be ',
      &           'assumed.'
       END IF
       INST_ACTIVE = INSTANT
       AVRG_ACTIVE = AVERAGE
       
-      CALL POPULATE_PMDIAG_KEY
+      CALL POPULATE_ELMO_KEY
 
-      ! Read Desired PMDIAG_INST parameters from input namelist
+      ! Read Desired ELMO_INST parameters from input namelist
       REWIND( EMCTRL_NML )
-      READ( NML = PMDIAG_INST, UNIT = EMCTRL_NML, IOSTAT=STAT )
+      READ( NML = ELMO_INST, UNIT = EMCTRL_NML, IOSTAT=STAT )
       IF ( STAT .NE. 0 ) THEN
           WRITE( LOGDEV, "(5x,A,/,5x,A,/,5x,A,/,5x,A)" ),
      &           'Warning! Something went wrong while reading the ',
-     &           'PMDIAG_INST section of the Emissions Control ',
+     &           'ELMO_INST section of the Emissions Control ',
      &           'Namelist. Default values for this section will be ',
      &           'assumed.'
       END IF
 
       ! Expand INST list Using Keywords
-      N_END = INDEX1( '', N_REG, INST_PARS_REG ) - 1
+      N_END = INDEX1( '', N_NML, INST_PARS_NML ) - 1
       INUM = 1
       DO WHILE ( INUM .LE. N_END )
-         CALL UPCASE( INST_PARS_REG( INUM ) )
-         EXPAND_REG = .FALSE.
-         IF ( INST_PARS_REG( INUM )(1:1) .EQ. '*' ) THEN
-             EXPAND_REG = .TRUE.
-             INST_PARS_REG( INUM )(1:15) = INST_PARS_REG( INUM )(2:16)
-             INST_PARS_REG( INUM )(16) = ' '
+         CALL UPCASE( INST_PARS_NML( INUM ) )
+         EXPAND_NML = .FALSE.
+         IF ( INST_PARS_NML( INUM )(1:1) .EQ. '*' ) THEN
+             EXPAND_NML = .TRUE.
+             INST_PARS_NML( INUM ) = INST_PARS_NML( INUM )(2:16)//' '
          END IF
 
-         I1 = INDEX1( INST_PARS_REG( INUM ), N_PMDIAG_LIST, PMDIAG_LIST%NAME )
-         I2 = INDEX1( INST_PARS_REG( INUM ), N_KEY, PMDIAG_KEY%WORD )
-         I3 = INDEX1( INST_PARS_REG( INUM ), N_CGRID_SPC, CGRID_NAME )
+         I1 = INDEX1( INST_PARS_NML( INUM ), N_ELMO_LIST, ELMO_LIST%NAME )
+         I2 = INDEX1( INST_PARS_NML( INUM ), N_KEY, ELMO_KEY%WORD )
+         I3 = INDEX1( INST_PARS_NML( INUM ), N_CGRID_SPC, CGRID_NAME )
          I4 = 0
          IF ( NCHEMFAMILIES .GT. 0 ) 
-     &      I4 = INDEX1( INST_PARS_REG( INUM ), NCHEMFAMILIES, CHEMFAMILYNAME )
+     &      I4 = INDEX1( INST_PARS_NML( INUM ), NCHEMFAMILIES, CHEMFAMILYNAME )
 
-         IF ( INST_PARS_REG( INUM ) .EQ. 'ALL' ) THEN
+         IF ( MYPE . EQ. 6 ) THEN
+           print *,'inst_pars_nml = ',inst_pars_nml(:)
+           print *,'nchemfamilies = ',nchemfamilies
+           print *,'chemfamilynames = ',chemfamilyname
+           print *,I1, ' ',I2, ' ',I3, ' ',I4
+         END IF
+
+         IF ( INST_PARS_NML( INUM ) .EQ. 'ALL' ) THEN
             ! Add All Diagnostic Parameters to the End of the Registry List
-            INST_PARS_REG( N_END+1:N_END+N_PMDIAG_LIST ) = PMDIAG_LIST%NAME
-            N_END = N_END + N_PMDIAG_LIST
+            INST_PARS_NML( N_END+1:N_END+N_ELMO_LIST ) = ELMO_LIST%NAME
+            N_END = N_END + N_ELMO_LIST
             
             ! Add All Raw Output Species to the End of the Registry List
-            INST_PARS_REG( N_END+1:N_END+N_CGRID_SPC ) = CGRID_NAME(1:N_CGRID_SPC)
+            INST_PARS_NML( N_END+1:N_END+N_CGRID_SPC ) = CGRID_NAME(1:N_CGRID_SPC)
             N_END = N_END + N_CGRID_SPC
 
             ! Add All Family Names defined in the Emission Control
             ! Interface to the End of the Registry List
             IF ( NCHEMFAMILIES .GT. 0 ) 
-     &           INST_PARS_REG( N_END+1:N_END+NCHEMFAMILIES ) = 
+     &           INST_PARS_NML( N_END+1:N_END+NCHEMFAMILIES ) = 
      &                        CHEMFAMILYNAME(1:NCHEMFAMILIES)
             N_END = N_END + NCHEMFAMILIES
 
             ! Remove "All" Keyword
-            INST_PARS_REG( INUM:N_END-1 ) = INST_PARS_REG( INUM+1:N_END )
-            INST_PARS_REG( N_END ) = ''
+            INST_PARS_NML( INUM:N_END-1 ) = INST_PARS_NML( INUM+1:N_END )
+            INST_PARS_NML( N_END ) = ''
             N_END = N_END - 1
-         ELSE IF ( INST_PARS_REG( INUM ) .EQ. 'ALLCONC' ) THEN
+         ELSE IF ( INST_PARS_NML( INUM ) .EQ. 'ALLCONC' ) THEN
             ! Add All Raw Output Species to the End of the Registry List
-            INST_PARS_REG( N_END+1:N_END+N_CGRID_SPC ) = CGRID_NAME(1:N_CGRID_SPC)
+            INST_PARS_NML( N_END+1:N_END+N_CGRID_SPC ) = CGRID_NAME(1:N_CGRID_SPC)
             N_END = N_END + N_CGRID_SPC
 
             ! Remove 'ALLCONC' Keyword from INST Parameter List
-            INST_PARS_REG( INUM:N_END-1 ) = INST_PARS_REG( INUM+1:N_END )
-            INST_PARS_REG( N_END ) = ''
+            INST_PARS_NML( INUM:N_END-1 ) = INST_PARS_NML( INUM+1:N_END )
+            INST_PARS_NML( N_END ) = ''
             N_END = N_END - 1 
          ELSE IF ( I1 .GT. 0 ) THEN
-            ! Entry Matches a parameter on the PMDIAG list. 
+            ! Entry Matches a parameter on the ELMO list. 
             INUM = INUM + 1
          ELSE IF ( I2 .GT. 0 ) THEN
-            ! PMDIAG Keyword. Add parameters associated with a keyword
-            INST_PARS_REG( N_END+1:N_END+PMDIAG_KEY( I2 )%N ) =
-     &                                   PMDIAG_KEY( I2 )%LIST
-            N_END = N_END + PMDIAG_KEY( I2 )%N
-            INST_PARS_REG( INUM:N_END-1 ) = INST_PARS_REG( INUM+1:N_END )
-            INST_PARS_REG( N_END ) = ''
+            ! ELMO Keyword. Add parameters associated with a keyword
+            INST_PARS_NML( N_END+1:N_END+ELMO_KEY( I2 )%N ) =
+     &                                   ELMO_KEY( I2 )%LIST
+            N_END = N_END + ELMO_KEY( I2 )%N
+            INST_PARS_NML( INUM:N_END-1 ) = INST_PARS_NML( INUM+1:N_END )
+            INST_PARS_NML( N_END ) = ''
             N_END = N_END - 1
          ELSE IF ( I3 .GT. 0 ) THEN
             ! CMAQ Raw Model Species. Go to Next Entry
@@ -221,18 +236,18 @@
          ELSE IF ( I4 .GT. 0 ) THEN
             ! CMAQ Chemical Family. Go to Next entry or expand if the * was
             ! used
-            IF ( EXPAND_REG ) THEN
-               CALL MAP_CHEM_FAMILIES( INST_PARS_REG( INUM ),
+            IF ( EXPAND_NML ) THEN
+               CALL MAP_CHEM_FAMILIES( INST_PARS_NML( INUM ),
      &                     CGRID_NAME, N_CGRID_SPC, FAM_LIST )
                DO J = 1,N_CGRID_SPC
                   IF ( FAM_LIST(J) ) THEN
                       N_END = N_END + 1
-                      INST_PARS_REG( N_END ) = CGRID_NAME( J )
+                      INST_PARS_NML( N_END ) = CGRID_NAME( J )
                   END IF
                END DO   
                ! Remove family Name after expansion
-               INST_PARS_REG( INUM:N_END-1 ) = INST_PARS_REG( INUM+1:N_END )
-               INST_PARS_REG( N_END ) = ''
+               INST_PARS_NML( INUM:N_END-1 ) = INST_PARS_NML( INUM+1:N_END )
+               INST_PARS_NML( N_END ) = ''
                N_END = N_END - 1
             ELSE
                INUM = INUM + 1
@@ -240,7 +255,7 @@
          ELSE
             ! Entry Doesn't Match any parameter or Keyword. Crash the
             ! model.
-            XMSG = 'An Instantaneous PMDIAG Parameter ' // TRIM( INST_PARS_REG( INUM )) //
+            XMSG = 'An Instantaneous ELMO Parameter ' // TRIM( INST_PARS_NML( INUM )) //
      &             ' has been requested that does not exist.'
             CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
          END IF
@@ -248,16 +263,16 @@
 
       ! Capitalize Entries and Remove Duplicates
       DO INUM = 1,N_END
-          CALL UPCASE( INST_PARS_REG( INUM ) )
+          CALL UPCASE( INST_PARS_NML( INUM ) )
       ENDDO
       DO INUM = 1,N_END-1
          JNUM = INUM + 1
          DO WHILE ( JNUM .LE. N_END )
-            IF ( INST_PARS_REG( INUM ) .EQ. '' ) THEN
+            IF ( INST_PARS_NML( INUM ) .EQ. '' ) THEN
                JNUM = N_END + 1
-            ELSEIF ( INST_PARS_REG( INUM ) .EQ. INST_PARS_REG( JNUM ) ) THEN
-               INST_PARS_REG( JNUM:N_END-1 ) = INST_PARS_REG( JNUM+1:N_END )
-               INST_PARS_REG( N_END ) = ''
+            ELSEIF ( INST_PARS_NML( INUM ) .EQ. INST_PARS_NML( JNUM ) ) THEN
+               INST_PARS_NML( JNUM:N_END-1 ) = INST_PARS_NML( JNUM+1:N_END )
+               INST_PARS_NML( N_END ) = ''
             ELSE
                JNUM = JNUM + 1
             END IF
@@ -265,10 +280,10 @@
       END DO
 
       ! Populate Final INST_PARS parameters list
-      N_PMDIAG_INST = INDEX1( '', N_REG, INST_PARS_REG ) - 1
-      ALLOCATE( INST_PARS( N_PMDIAG_INST ), STAT=IOS )
+      N_ELMO_INST = INDEX1( '', N_NML, INST_PARS_NML ) - 1
+      ALLOCATE( INST_PARS( N_ELMO_INST ), STAT=IOS )
       CALL CHECKMEM( IOS, 'INST_PARS',PNAME )
-      INST_PARS = INST_PARS_REG( 1:N_PMDIAG_INST )
+      INST_PARS = INST_PARS_NML( 1:N_ELMO_INST )
 
       ! Check Top-Layer Specification
       IF ( INST_LAYER_TOP .EQ. -1 ) INST_LAYER_TOP = NLAYS
@@ -285,77 +300,76 @@
            XMSG = 'INST_LAYER_BOT must be less than or equal to INST_LAYER_TOP.'
            CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
       END IF
-      NLAY_PMDIAG_INST = INST_LAYER_TOP - INST_LAYER_BOT + 1
+      NLAY_ELMO_INST = INST_LAYER_TOP - INST_LAYER_BOT + 1
 
-      ! Read Desired PMDIAG_AVRG parameters from input namelist
+      ! Read Desired ELMO_AVRG parameters from input namelist
       REWIND( EMCTRL_NML )
-      READ( NML = PMDIAG_AVRG, UNIT = EMCTRL_NML, IOSTAT=STAT )
+      READ( NML = ELMO_AVRG, UNIT = EMCTRL_NML, IOSTAT=STAT )
       IF ( STAT .NE. 0 ) THEN
           WRITE( LOGDEV, "(5x,A,/,5x,A,/,5x,A,/,5x,A)" ),
      &           'Warning! Something went wrong while reading the ',
-     &           'PMDIAG_AVRG section of the Emissions Control ',
+     &           'ELMO_AVRG section of the Emissions Control ',
      &           'Namelist. Default values for this section will be ',
      &           'assumed.'
       END IF
  
       ! Expand AVRG list Using Keywords
-      N_END = INDEX1( '', N_REG, AVRG_PARS_REG ) - 1
+      N_END = INDEX1( '', N_NML, AVRG_PARS_NML ) - 1
       INUM = 1
       DO WHILE ( INUM .LE. N_END )
-         CALL UPCASE( AVRG_PARS_REG( INUM ) )
-         EXPAND_REG = .FALSE.
-         IF ( AVRG_PARS_REG( INUM )(1:1) .EQ. '*' ) THEN
-             EXPAND_REG = .TRUE.
-             AVRG_PARS_REG( INUM )(1:15) = AVRG_PARS_REG( INUM )(2:16)
-             AVRG_PARS_REG( INUM )(16) = ' '
+         CALL UPCASE( AVRG_PARS_NML( INUM ) )
+         EXPAND_NML = .FALSE.
+         IF ( AVRG_PARS_NML( INUM )(1:1) .EQ. '*' ) THEN
+             EXPAND_NML = .TRUE.
+             AVRG_PARS_NML( INUM ) = AVRG_PARS_NML( INUM )(2:16)//' '
          END IF
 
-         I1 = INDEX1( AVRG_PARS_REG( INUM ), N_PMDIAG_LIST, PMDIAG_LIST%NAME )
-         I2 = INDEX1( AVRG_PARS_REG( INUM ), N_KEY, PMDIAG_KEY%WORD )
-         I3 = INDEX1( AVRG_PARS_REG( INUM ), N_CGRID_SPC, CGRID_NAME )
+         I1 = INDEX1( AVRG_PARS_NML( INUM ), N_ELMO_LIST, ELMO_LIST%NAME )
+         I2 = INDEX1( AVRG_PARS_NML( INUM ), N_KEY, ELMO_KEY%WORD )
+         I3 = INDEX1( AVRG_PARS_NML( INUM ), N_CGRID_SPC, CGRID_NAME )
          I4 = 0
          IF ( NCHEMFAMILIES .GT. 0 ) 
-     &      I4 = INDEX1( AVRG_PARS_REG( INUM ), NCHEMFAMILIES, CHEMFAMILYNAME )
+     &      I4 = INDEX1( AVRG_PARS_NML( INUM ), NCHEMFAMILIES, CHEMFAMILYNAME )
 
-         IF ( AVRG_PARS_REG( INUM ) .EQ. 'ALL' ) THEN
+         IF ( AVRG_PARS_NML( INUM ) .EQ. 'ALL' ) THEN
              ! Add All Parameters to the End of the Registry List
-            AVRG_PARS_REG( N_END+1:N_END+N_PMDIAG_LIST ) = PMDIAG_LIST%NAME
-            N_END = N_END + N_PMDIAG_LIST
+            AVRG_PARS_NML( N_END+1:N_END+N_ELMO_LIST ) = ELMO_LIST%NAME
+            N_END = N_END + N_ELMO_LIST
 
             ! Add All Raw Output Species to the End of the Registry List
-            AVRG_PARS_REG( N_END+1:N_END+N_CGRID_SPC ) = CGRID_NAME(1:N_CGRID_SPC)
+            AVRG_PARS_NML( N_END+1:N_END+N_CGRID_SPC ) = CGRID_NAME(1:N_CGRID_SPC)
             N_END = N_END + N_CGRID_SPC
 
             ! Add All Family Names defined in the Emission Control
             ! Interface to the End of the Registry List
             IF ( NCHEMFAMILIES .GT. 0 ) 
-     &           AVRG_PARS_REG( N_END+1:N_END+NCHEMFAMILIES ) = 
+     &           AVRG_PARS_NML( N_END+1:N_END+NCHEMFAMILIES ) = 
      &                        CHEMFAMILYNAME(1:NCHEMFAMILIES)
             N_END = N_END + NCHEMFAMILIES
  
             ! Remove 'ALL' Keyword from AVRG Parameter List
-            AVRG_PARS_REG( INUM:N_END-1 ) = AVRG_PARS_REG( INUM+1:N_END )
-            AVRG_PARS_REG( N_END ) = ''
+            AVRG_PARS_NML( INUM:N_END-1 ) = AVRG_PARS_NML( INUM+1:N_END )
+            AVRG_PARS_NML( N_END ) = ''
             N_END = N_END - 1
-         ELSE IF ( AVRG_PARS_REG( INUM ) .EQ. 'ALLCONC' ) THEN
+         ELSE IF ( AVRG_PARS_NML( INUM ) .EQ. 'ALLCONC' ) THEN
             ! Add All Raw Output Species to the End of the Registry List
-            AVRG_PARS_REG( N_END+1:N_END+N_CGRID_SPC ) = CGRID_NAME(1:N_CGRID_SPC)
+            AVRG_PARS_NML( N_END+1:N_END+N_CGRID_SPC ) = CGRID_NAME(1:N_CGRID_SPC)
             N_END = N_END + N_CGRID_SPC
 
             ! Remove 'ALLCONC' Keyword from AVRG Parameter List
-            AVRG_PARS_REG( INUM:N_END-1 ) = AVRG_PARS_REG( INUM+1:N_END )
-            AVRG_PARS_REG( N_END ) = ''
+            AVRG_PARS_NML( INUM:N_END-1 ) = AVRG_PARS_NML( INUM+1:N_END )
+            AVRG_PARS_NML( N_END ) = ''
             N_END = N_END - 1
          ELSE IF ( I1 .GT. 0 ) THEN
-            ! Entry Matches a parameter on the PMDIAG list. 
+            ! Entry Matches a parameter on the ELMO list. 
             INUM = INUM + 1
          ELSE IF ( I2 .GT. 0 ) THEN
             ! Add Parameters associated with a keyword
-            AVRG_PARS_REG( N_END+1:N_END+PMDIAG_KEY( I2 )%N ) =
-     &                                   PMDIAG_KEY( I2 )%LIST
-            N_END = N_END + PMDIAG_KEY( I2 )%N
-            AVRG_PARS_REG( INUM:N_END-1 ) = AVRG_PARS_REG( INUM+1:N_END )
-            AVRG_PARS_REG( N_END ) = ''
+            AVRG_PARS_NML( N_END+1:N_END+ELMO_KEY( I2 )%N ) =
+     &                                   ELMO_KEY( I2 )%LIST
+            N_END = N_END + ELMO_KEY( I2 )%N
+            AVRG_PARS_NML( INUM:N_END-1 ) = AVRG_PARS_NML( INUM+1:N_END )
+            AVRG_PARS_NML( N_END ) = ''
             N_END = N_END - 1
          ELSE IF ( I3 .GT. 0 ) THEN
             ! CMAQ Raw Model Species. Go to Next Entry
@@ -363,18 +377,18 @@
          ELSE IF ( I4 .GT. 0 ) THEN
             ! CMAQ Chemical Family. Go to Next entry or expand if the * was
             ! used
-            IF ( EXPAND_REG ) THEN
-               CALL MAP_CHEM_FAMILIES( AVRG_PARS_REG( INUM ),
+            IF ( EXPAND_NML ) THEN
+               CALL MAP_CHEM_FAMILIES( AVRG_PARS_NML( INUM ),
      &                     CGRID_NAME, N_CGRID_SPC, FAM_LIST )
                DO J = 1,N_CGRID_SPC
                   IF ( FAM_LIST(J) ) THEN
                       N_END = N_END + 1
-                      AVRG_PARS_REG( N_END ) = CGRID_NAME( J )
+                      AVRG_PARS_NML( N_END ) = CGRID_NAME( J )
                   END IF
                END DO   
                ! Remove family Name after expansion
-               AVRG_PARS_REG( INUM:N_END-1 ) = AVRG_PARS_REG( INUM+1:N_END )
-               AVRG_PARS_REG( N_END ) = ''
+               AVRG_PARS_NML( INUM:N_END-1 ) = AVRG_PARS_NML( INUM+1:N_END )
+               AVRG_PARS_NML( N_END ) = ''
                N_END = N_END - 1
             ELSE
                INUM = INUM + 1
@@ -383,7 +397,7 @@
          ELSE
             ! Entry Doesn't Match any parameter or Keyword. Crash the
             ! model.
-            XMSG = 'An Average PMDIAG Parameter ' // TRIM( AVRG_PARS_REG( INUM )) //
+            XMSG = 'An Average ELMO Parameter ' // TRIM( AVRG_PARS_NML( INUM )) //
      &             ' has been requested that does not exist.'
             CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
          END IF
@@ -391,16 +405,16 @@
 
       ! Capitalize Entries and Remove Duplicates
       DO INUM = 1,N_END
-          CALL UPCASE( AVRG_PARS_REG( INUM ) )
+          CALL UPCASE( AVRG_PARS_NML( INUM ) )
       ENDDO
       DO INUM = 1,N_END-1
          JNUM = INUM + 1
          DO WHILE ( JNUM .LE. N_END )
-            IF ( AVRG_PARS_REG( INUM ) .EQ. '' ) THEN
+            IF ( AVRG_PARS_NML( INUM ) .EQ. '' ) THEN
                JNUM = N_END + 1
-            ELSEIF ( AVRG_PARS_REG( INUM ) .EQ. AVRG_PARS_REG( JNUM ) ) THEN
-               AVRG_PARS_REG( JNUM:N_END-1 ) = AVRG_PARS_REG( JNUM+1:N_END )
-               AVRG_PARS_REG( N_END ) = ''
+            ELSEIF ( AVRG_PARS_NML( INUM ) .EQ. AVRG_PARS_NML( JNUM ) ) THEN
+               AVRG_PARS_NML( JNUM:N_END-1 ) = AVRG_PARS_NML( JNUM+1:N_END )
+               AVRG_PARS_NML( N_END ) = ''
             ELSE
                JNUM = JNUM + 1
             END IF
@@ -408,10 +422,10 @@
       END DO
        
       ! Populate INST_PARS parameters list
-      N_PMDIAG_AVRG = INDEX1( '', N_REG, AVRG_PARS_REG ) - 1
-      ALLOCATE( AVRG_PARS( N_PMDIAG_AVRG ), STAT = IOS )
+      N_ELMO_AVRG = INDEX1( '', N_NML, AVRG_PARS_NML ) - 1
+      ALLOCATE( AVRG_PARS( N_ELMO_AVRG ), STAT = IOS )
       CALL CHECKMEM( IOS, 'AVRG_PARS',PNAME )
-      AVRG_PARS = AVRG_PARS_REG( 1:N_PMDIAG_AVRG )
+      AVRG_PARS = AVRG_PARS_NML( 1:N_ELMO_AVRG )
  
       ! Check Top-Layer Specification
       IF ( AVRG_LAYER_TOP .EQ. -1 ) AVRG_LAYER_TOP = NLAYS
@@ -428,12 +442,12 @@
            XMSG = 'AVRG_LAYER_BOT must be less than or equal to AVRG_LAYER_TOP.'
            CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
       END IF
-      NLAY_PMDIAG_AVRG = AVRG_LAYER_TOP - AVRG_LAYER_BOT + 1
+      NLAY_ELMO_AVRG = AVRG_LAYER_TOP - AVRG_LAYER_BOT + 1
  
-      END SUBROUTINE READ_PMDIAG_NML
+      END SUBROUTINE READ_ELMO_NML
 
 !-------------------------------------------------------------------------
-      SUBROUTINE POPULATE_PMDIAG_KEY
+      SUBROUTINE POPULATE_ELMO_KEY
 !     This subroutine allocates and populates the structure of potential
 !       keywords to which users may refer to activate various diagnostic
 !       parameters. It also contains the definitions of the ocntents of
@@ -442,32 +456,32 @@
 
       IMPLICIT NONE
 
-      INTEGER IOS
+      INTEGER IOS, ALLOCSTAT
       CHARACTER(200) :: XMSG
-      CHARACTER(16), SAVE :: PNAME = 'PMDIAG_KEY'
+      CHARACTER(16), SAVE :: PNAME = 'ELMO_KEY'
 
       N_KEY = 21
-      ALLOCATE( PMDIAG_KEY( N_KEY ), STAT=IOS )
-      CALL CHECKMEM( IOS, 'PMDIAG_KEY',PNAME )
+      ALLOCATE( ELMO_KEY( N_KEY ), STAT=IOS )
+      CALL CHECKMEM( IOS, 'ELMO_KEY',PNAME )
 
       ! Define AMET Variables
-      PMDIAG_KEY( 1 )%WORD = 'DEFAULT'
-      PMDIAG_KEY( 1 )%N = 14
-      ALLOCATE( PMDIAG_KEY( 1 )%LIST( 14 ),STAT=IOS )
-      CALL CHECKMEM( IOS, 'PMDIAG_KEY(1)%LIST',PNAME )
+      ELMO_KEY( 1 )%WORD = 'DEFAULT'
+      ELMO_KEY( 1 )%N = 14
+      ALLOCATE( ELMO_KEY( 1 )%LIST( 14 ),STAT=IOS )
+      CALL CHECKMEM( IOS, 'ELMO_KEY(1)%LIST',PNAME )
 
-      PMDIAG_KEY( 1 )%LIST = (/'AMET            ','CUTOFF_FRACTIONS',
+      ELMO_KEY( 1 )%LIST = (/'AMET            ','CUTOFF_FRACTIONS',
      &      'MASS            ','PM_NUM          ','PMF_NUM         ',
      &      'PMC_NUM         ','MET             ','CHEM            ', 
      &      'FINE_SPECIES    ','COARSE_SPECIES  ','PM25_SPECIES    ',
      &      'SIZE            ','AMS             ','PM25TO10_SPECIES' /)
 
-      PMDIAG_KEY( 2 )%WORD = 'AMET'
-      PMDIAG_KEY( 2 )%N = 35
-      ALLOCATE( PMDIAG_KEY( 2 )%LIST( 35 ), STAT=IOS )
-      CALL CHECKMEM( IOS, 'PMDIAG_KEY(2)%LIST',PNAME )
+      ELMO_KEY( 2 )%WORD = 'AMET'
+      ELMO_KEY( 2 )%N = 35
+      ALLOCATE( ELMO_KEY( 2 )%LIST( 35 ), STAT=IOS )
+      CALL CHECKMEM( IOS, 'ELMO_KEY(2)%LIST',PNAME )
 
-      PMDIAG_KEY( 2 )%LIST = (/'PMF_MASS    ','PMF_FRM     ','PMC_MASS    ',
+      ELMO_KEY( 2 )%LIST = (/'PMF_MASS    ','PMF_FRM     ','PMC_MASS    ',
      &          'PMF_OC      ','PMF_EC      ','PMF_NA      ','PMF_CL      ',
      &          'PMF_SO4     ','PMF_NO3     ','PMF_NH4     ','PM25        ',
      &          'PM25_FRM    ','PM25_SO4    ','PM25_NO3    ','PM25_NH4    ',
@@ -477,278 +491,284 @@
      &          'PMF_NCOM    ','PMF_UN_IMPV2','TNO3        ','PM_MASS     ',
      &          'PMC_MASS    ','MET         ','Tsurf       ','AOD_550     ' /)
 
-      PMDIAG_KEY( 3 )%WORD = 'MASS'
-      PMDIAG_KEY( 3 )%N = 11
-      ALLOCATE( PMDIAG_KEY( 3 )%LIST( 11 ), STAT=IOS )
-      CALL CHECKMEM( IOS, 'PMDIAG_KEY(3)%LIST',PNAME )
+      ELMO_KEY( 3 )%WORD = 'MASS'
+      ELMO_KEY( 3 )%N = 11
+      ALLOCATE( ELMO_KEY( 3 )%LIST( 11 ), STAT=IOS )
+      CALL CHECKMEM( IOS, 'ELMO_KEY(3)%LIST',PNAME )
 
-      PMDIAG_KEY( 3 )%LIST = (/'PMF_MASS  ','PMC_MASS  ','PM01      ','PM1       ',
+      ELMO_KEY( 3 )%LIST = (/'PMF_MASS  ','PMC_MASS  ','PM01      ','PM1       ',
      &            'PM25      ','PM10      ','PM25TO10  ','PMU_MASS  ','PMAMS     ',
      &            'PMAIT_MASS','PMACC_MASS' /)
      
-      PMDIAG_KEY( 4 )%WORD = 'NUMBER'
-      PMDIAG_KEY( 4 )%N = 7
-      ALLOCATE( PMDIAG_KEY( 4 )%LIST( 7 ), STAT=IOS )
-      CALL CHECKMEM( IOS, 'PMDIAG_KEY(4)%LIST',PNAME )
+      ELMO_KEY( 4 )%WORD = 'NUMBER'
+      ELMO_KEY( 4 )%N = 7
+      ALLOCATE( ELMO_KEY( 4 )%LIST( 7 ), STAT=IOS )
+      CALL CHECKMEM( IOS, 'ELMO_KEY(4)%LIST',PNAME )
 
-      PMDIAG_KEY( 4 )%LIST = (/'PM_NUM ','PMF_NUM','PMC_NUM','N10    ',
+      ELMO_KEY( 4 )%LIST = (/'PM_NUM ','PMF_NUM','PMC_NUM','N10    ',
      &                         'N20    ','N40    ','N100   ' /)
      
-      PMDIAG_KEY( 5 )%WORD = 'SIZE'
-      PMDIAG_KEY( 5 )%N = 9
-      ALLOCATE( PMDIAG_KEY( 5 )%LIST( 9 ), STAT=IOS )
-      CALL CHECKMEM( IOS, 'PMDIAG_KEY(5)%LIST',PNAME )
+      ELMO_KEY( 5 )%WORD = 'SIZE'
+      ELMO_KEY( 5 )%N = 9
+      ALLOCATE( ELMO_KEY( 5 )%LIST( 9 ), STAT=IOS )
+      CALL CHECKMEM( IOS, 'ELMO_KEY(5)%LIST',PNAME )
 
-      PMDIAG_KEY( 5 )%LIST = (/'NUMBER  ','DRY_DG  ','WET_DG  ','STDEV   ',
+      ELMO_KEY( 5 )%LIST = (/'NUMBER  ','DRY_DG  ','WET_DG  ','STDEV   ',
      &              'DRY_M3  ','WET_M3  ','WET_M2  ','DRY_DENS','WET_DENS' /)
      
-      PMDIAG_KEY( 6 )%WORD = 'SURFACE'
-      PMDIAG_KEY( 6 )%N = 5
-      ALLOCATE( PMDIAG_KEY( 6 )%LIST( 5 ), STAT=ALLOCSTAT )
+      ELMO_KEY( 6 )%WORD = 'SURFACE'
+      ELMO_KEY( 6 )%N = 5
+      ALLOCATE( ELMO_KEY( 6 )%LIST( 5 ), STAT=ALLOCSTAT )
       IF ( ALLOCSTAT .NE. 0 ) THEN
-           XMSG = 'Failure allocating PMDIAG_KEY(6)'
+           XMSG = 'Failure allocating ELMO_KEY(6)'
            CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
       END IF
 
-      PMDIAG_KEY( 6 )%LIST = (/'PM_SRF ','PMU_SRF','PMF_SRF','PMC_SRF','WET_M2 '/)
+      ELMO_KEY( 6 )%LIST = (/'PM_SRF ','PMU_SRF','PMF_SRF','PMC_SRF','WET_M2 '/)
      
-      PMDIAG_KEY( 7 )%WORD = 'ORGANIC'
-      PMDIAG_KEY( 7 )%N = 6
-      ALLOCATE( PMDIAG_KEY( 7 )%LIST( 6 ), STAT=ALLOCSTAT )
+      ELMO_KEY( 7 )%WORD = 'ORGANIC'
+      ELMO_KEY( 7 )%N = 6
+      ALLOCATE( ELMO_KEY( 7 )%LIST( 6 ), STAT=ALLOCSTAT )
       IF ( ALLOCSTAT .NE. 0 ) THEN
-           XMSG = 'Failure allocating PMDIAG_KEY(7)'
+           XMSG = 'Failure allocating ELMO_KEY(7)'
            CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
       END IF
 
-      PMDIAG_KEY( 7 )%LIST = (/'FINE_ORG  ','PM1_OC    ','PM1_OA    ',
+      ELMO_KEY( 7 )%LIST = (/'FINE_ORG  ','PM1_OC    ','PM1_OA    ',
      &                         'PMAMS_OA  ','PMAMS_OTOC','PM25_OA   '/)
 
-      PMDIAG_KEY( 8 )%WORD = 'MET'
-      PMDIAG_KEY( 8 )%N = 3
-      ALLOCATE( PMDIAG_KEY( 8 )%LIST( 3 ), STAT=ALLOCSTAT )
+      ELMO_KEY( 8 )%WORD = 'MET'
+      ELMO_KEY( 8 )%N = 3
+      ALLOCATE( ELMO_KEY( 8 )%LIST( 3 ), STAT=ALLOCSTAT )
       IF ( ALLOCSTAT .NE. 0 ) THEN
-           XMSG = 'Failure allocating PMDIAG_KEY(8)'
+           XMSG = 'Failure allocating ELMO_KEY(8)'
            CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
       END IF
 
-      PMDIAG_KEY( 8 )%LIST = (/'T ','P ','RH' /) 
+      ELMO_KEY( 8 )%LIST = (/'T ','P ','RH' /) 
 
-      PMDIAG_KEY( 9 )%WORD = 'CHEM'
-      PMDIAG_KEY( 9 )%N = 7
-      ALLOCATE( PMDIAG_KEY( 9 )%LIST( 7 ),STAT=ALLOCSTAT )
+      ELMO_KEY( 9 )%WORD = 'CHEM'
+      ELMO_KEY( 9 )%N = 7
+      ALLOCATE( ELMO_KEY( 9 )%LIST( 7 ),STAT=ALLOCSTAT )
       IF ( ALLOCSTAT .NE. 0 ) THEN
-           XMSG = 'Failure allocating PMDIAG_KEY(9)'
+           XMSG = 'Failure allocating ELMO_KEY(9)'
            CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
       END IF
 
-      PMDIAG_KEY( 9 )%LIST = (/'GAMMA_N2O5  ','GAMMA_N2O5K ','YIELD_CLNO2 ',
+      ELMO_KEY( 9 )%LIST = (/'GAMMA_N2O5  ','GAMMA_N2O5K ','YIELD_CLNO2 ',
      &          'YIELD_CLNO2K','GAMMA_IEPOX ','K_IEPOX     ','GAMMA_IMAE  ' /)
 
-      PMDIAG_KEY( 10 )%WORD = 'FINE_SPECIES'
-      PMDIAG_KEY( 10 )%N = 17
-      ALLOCATE( PMDIAG_KEY( 10 )%LIST( 17 ),STAT=ALLOCSTAT )
+      ELMO_KEY( 10 )%WORD = 'FINE_SPECIES'
+      ELMO_KEY( 10 )%N = 17
+      ALLOCATE( ELMO_KEY( 10 )%LIST( 17 ),STAT=ALLOCSTAT )
       IF ( ALLOCSTAT .NE. 0 ) THEN
-           XMSG = 'Failure allocating PMDIAG_KEY(10)'
+           XMSG = 'Failure allocating ELMO_KEY(10)'
            CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
       END IF
 
-      PMDIAG_KEY( 10 )%LIST = (/'PMF_SO4     ','PMF_NO3     ','PMF_NH4     ',
+      ELMO_KEY( 10 )%LIST = (/'PMF_SO4     ','PMF_NO3     ','PMF_NH4     ',
      &           'PMF_CL      ','PMF_NA      ','PMF_EC      ','PMF_OC      ',
      &           'PMF_OA      ','PMF_H2O     ','PMF_SOILIMPV','PMF_UN_IMPV1',
      &           'PMF_UN_IMPV2','PMF_HP      ','PMF_HPMOLAL ','PMF_PH      ',
      &           'FINE_ORG    ','PMF_MASS    ' /)
 
-      PMDIAG_KEY( 11 )%WORD = 'COARSE_SPECIES'
-      PMDIAG_KEY( 11 )%N = 8
-      ALLOCATE( PMDIAG_KEY( 11 )%LIST( 8 ), STAT=ALLOCSTAT )
+      ELMO_KEY( 11 )%WORD = 'COARSE_SPECIES'
+      ELMO_KEY( 11 )%N = 8
+      ALLOCATE( ELMO_KEY( 11 )%LIST( 8 ), STAT=ALLOCSTAT )
       IF ( ALLOCSTAT .NE. 0 ) THEN
-           XMSG = 'Failure allocating PMDIAG_KEY(11)'
+           XMSG = 'Failure allocating ELMO_KEY(11)'
            CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
       END IF
 
-      PMDIAG_KEY( 11 )%LIST = (/'PMC_MASS','PMC_SO4 ','PMC_NO3 ','PMC_NH4 ',
+      ELMO_KEY( 11 )%LIST = (/'PMC_MASS','PMC_SO4 ','PMC_NO3 ','PMC_NH4 ',
      &                          'PMC_NA  ','PMC_MG  ','PMC_K   ','PMC_CA  ' /)
 
-      PMDIAG_KEY( 12 )%WORD = 'AMS_SPECIES'
-      PMDIAG_KEY( 12 )%N = 7
-      ALLOCATE( PMDIAG_KEY( 12 )%LIST( 7 ), STAT=ALLOCSTAT )
+      ELMO_KEY( 12 )%WORD = 'AMS_SPECIES'
+      ELMO_KEY( 12 )%N = 7
+      ALLOCATE( ELMO_KEY( 12 )%LIST( 7 ), STAT=ALLOCSTAT )
       IF ( ALLOCSTAT .NE. 0 ) THEN
-           XMSG = 'Failure allocating PMDIAG_KEY(12)'
+           XMSG = 'Failure allocating ELMO_KEY(12)'
            CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
       END IF
 
-      PMDIAG_KEY( 12 )%LIST = (/'PMAMS     ','PMAMS_SO4 ','PMAMS_NO3 ',
+      ELMO_KEY( 12 )%LIST = (/'PMAMS     ','PMAMS_SO4 ','PMAMS_NO3 ',
      &             'PMAMS_NH4 ','PMAMS_CL  ','PMAMS_OA  ','PMAMS_OTOC' /)
 
-      PMDIAG_KEY( 13 )%WORD = 'PM1_SPECIES'
-      PMDIAG_KEY( 13 )%N = 21
-      ALLOCATE( PMDIAG_KEY( 13 )%LIST( 21 ),STAT=ALLOCSTAT )
+      ELMO_KEY( 13 )%WORD = 'PM1_SPECIES'
+      ELMO_KEY( 13 )%N = 21
+      ALLOCATE( ELMO_KEY( 13 )%LIST( 21 ),STAT=ALLOCSTAT )
       IF ( ALLOCSTAT .NE. 0 ) THEN
-           XMSG = 'Failure allocating PMDIAG_KEY(13)'
+           XMSG = 'Failure allocating ELMO_KEY(13)'
            CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
       END IF
 
-      PMDIAG_KEY( 13 )%LIST = (/'PM1        ','PM1_SO4    ','PM1_NO3    ',
+      ELMO_KEY( 13 )%LIST = (/'PM1        ','PM1_SO4    ','PM1_NO3    ',
      &            'PM1_NH4    ','PM1_CL     ','PM1_NA     ','PM1_EC     ',
      &            'PM1_OC     ','PM1_OA     ','PM1_MG     ','PM1_K      ',
      &            'PM1_CA     ','PM1_OTHER  ','PM1_FE     ','PM1_SI     ',
      &            'PM1_TI     ','PM1_MN     ','PM1_AL     ','PM1_SOIL   ',
      &            'PM1_UNSP1  ','PM1_UNSPCRS' /)
 
-      PMDIAG_KEY( 14 )%WORD = 'PM25_SPECIES'
-      PMDIAG_KEY( 14 )%N = 22
-      ALLOCATE( PMDIAG_KEY( 14 )%LIST( 22 ), STAT=ALLOCSTAT )
+      ELMO_KEY( 14 )%WORD = 'PM25_SPECIES'
+      ELMO_KEY( 14 )%N = 22
+      ALLOCATE( ELMO_KEY( 14 )%LIST( 22 ), STAT=ALLOCSTAT )
       IF ( ALLOCSTAT .NE. 0 ) THEN
-           XMSG = 'Failure allocating PMDIAG_KEY(14)'
+           XMSG = 'Failure allocating ELMO_KEY(14)'
            CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
       END IF
 
-      PMDIAG_KEY( 14 )%LIST = (/'PM25        ','PM25_SO4    ','PM25_NO3    ',
+      ELMO_KEY( 14 )%LIST = (/'PM25        ','PM25_SO4    ','PM25_NO3    ',
      &           'PM25_NH4    ','PM25_CL     ','PM25_NA     ','PM25_EC     ',
      &           'PM25_OC     ','PM25_OA     ','PM25_MG     ','PM25_K      ',
      &           'PM25_CA     ','PM25_OTHER  ','PM25_FE     ','PM25_SI     ',
      &           'PM25_TI     ','PM25_MN     ','PM25_AL     ','PM25_SOIL   ',
      &           'PM25_UNSP1  ','PM25_UNSPCRS','PM25_HP     ' /)
 
-      PMDIAG_KEY( 15 )%WORD = 'PM25TO10_SPECIES'
-      PMDIAG_KEY( 15 )%N = 6
-      ALLOCATE( PMDIAG_KEY( 15 )%LIST( 6 ), STAT=ALLOCSTAT )
+      ELMO_KEY( 15 )%WORD = 'PM25TO10_SPECIES'
+      ELMO_KEY( 15 )%N = 6
+      ALLOCATE( ELMO_KEY( 15 )%LIST( 6 ), STAT=ALLOCSTAT )
       IF ( ALLOCSTAT .NE. 0 ) THEN
-           XMSG = 'Failure allocating PMDIAG_KEY(15)'
+           XMSG = 'Failure allocating ELMO_KEY(15)'
            CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
       END IF
 
-      PMDIAG_KEY( 15 )%LIST = (/'PM25TO10    ','PM25TO10_SO4','PM25TO10_NO3',
+      ELMO_KEY( 15 )%LIST = (/'PM25TO10    ','PM25TO10_SO4','PM25TO10_NO3',
      &                          'PM25TO10_NH4','PM25TO10_CL ','PM25TO10_NA ' /)
 
-      PMDIAG_KEY( 16 )%WORD = 'OPTICAL'
-      PMDIAG_KEY( 16 )%N = 2
-      ALLOCATE( PMDIAG_KEY( 16 )%LIST( 2 ), STAT=ALLOCSTAT )
+      ELMO_KEY( 16 )%WORD = 'OPTICAL'
+      ELMO_KEY( 16 )%N = 2
+      ALLOCATE( ELMO_KEY( 16 )%LIST( 2 ), STAT=ALLOCSTAT )
       IF ( ALLOCSTAT .NE. 0 ) THEN
-           XMSG = 'Failure allocating PMDIAG_KEY(16)'
+           XMSG = 'Failure allocating ELMO_KEY(16)'
            CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
       END IF
 
-      PMDIAG_KEY( 16 )%LIST = (/'AOD_550   ','PM_EXT_550'/)
+      ELMO_KEY( 16 )%LIST = (/'AOD_550   ','PM_EXT_550'/)
 
-      PMDIAG_KEY( 17 )%WORD = 'FINE_ORG'
-      PMDIAG_KEY( 17 )%N = 16
-      ALLOCATE( PMDIAG_KEY( 17 )%LIST( 16 ), STAT=ALLOCSTAT )
+      ELMO_KEY( 17 )%WORD = 'FINE_ORG'
+      ELMO_KEY( 17 )%N = 16
+      ALLOCATE( ELMO_KEY( 17 )%LIST( 16 ), STAT=ALLOCSTAT )
       IF ( ALLOCSTAT .NE. 0 ) THEN
-           XMSG = 'Failure allocating PMDIAG_KEY(17)'
+           XMSG = 'Failure allocating ELMO_KEY(17)'
            CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
       END IF
 
-      PMDIAG_KEY( 17 )%LIST = (/'PMF_POC     ','PMF_SOC     ','PMF_POA     ',
+      ELMO_KEY( 17 )%LIST = (/'PMF_POC     ','PMF_SOC     ','PMF_POA     ',
      &           'PMF_SOA     ','PMF_NCOM    ','PMF_OMOC    ','PMF_OTOC    ',
      &           'PMF_ASOA    ','PMF_BSOA    ','PMF_CLDGLY  ','PMF_ISOPSOA ',
      &           'PMF_IEPOXSOA','PMF_MTNSOA  ','PMF_MTSOA   ','PMF_OC      ',
      &           'PMF_OA      ' /)
 
-      PMDIAG_KEY( 18 )%WORD = 'CUTOFF_FRACTIONS'
-      PMDIAG_KEY( 18 )%N = 6
-      ALLOCATE( PMDIAG_KEY( 18 )%LIST( 6 ), STAT=ALLOCSTAT )
+      ELMO_KEY( 18 )%WORD = 'CUTOFF_FRACTIONS'
+      ELMO_KEY( 18 )%N = 6
+      ALLOCATE( ELMO_KEY( 18 )%LIST( 6 ), STAT=ALLOCSTAT )
       IF ( ALLOCSTAT .NE. 0 ) THEN
-           XMSG = 'Failure allocating PMDIAG_KEY(18)'
+           XMSG = 'Failure allocating ELMO_KEY(18)'
            CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
       END IF
 
-      PMDIAG_KEY( 18 )%LIST = (/'FPM01    ','FPM1     ','FPM25    ',
+      ELMO_KEY( 18 )%LIST = (/'FPM01    ','FPM1     ','FPM25    ',
      &                          'FPM10    ','FPM25TO10','FAMS     ' /)
 
-      PMDIAG_KEY( 19 )%WORD = 'TOXICS'
-      PMDIAG_KEY( 19 )%N = 21
-      ALLOCATE( PMDIAG_KEY( 19 )%LIST( 21 ), STAT=ALLOCSTAT )
+      ELMO_KEY( 19 )%WORD = 'TOXICS'
+      ELMO_KEY( 19 )%N = 21
+      ALLOCATE( ELMO_KEY( 19 )%LIST( 21 ), STAT=ALLOCSTAT )
       IF ( ALLOCSTAT .NE. 0 ) THEN
-           XMSG = 'Failure allocating PMDIAG_KEY(19)'
+           XMSG = 'Failure allocating ELMO_KEY(19)'
            CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
       END IF
 
-      PMDIAG_KEY( 19 )%LIST = (/'PM25_HDIESEL','PM25_HBE    ','PM25_HCD    ',
+      ELMO_KEY( 19 )%LIST = (/'PM25_HDIESEL','PM25_HBE    ','PM25_HCD    ',
      &           'PM25_HCR3   ','PM25_HCR6   ','PM25_HCR    ','PM25_HPB    ',
      &           'PM25_HMN    ','PM25_HNI    ','PM25_HAS    ','PM25_HG     ',
      &           'PM10_HDIESEL','PM10_HBE    ','PM10_HCD    ','PM10_HCR3   ',
      &           'PM10_HCR6   ','PM10_HCR    ','PM10_HPB    ','PM10_HMN    ',
      &           'PM10_HAS    ','PM10_HG     '  /)
 
-      PMDIAG_KEY( 20 )%WORD = 'SIMPLE'
-      PMDIAG_KEY( 20 )%N = 2
-      ALLOCATE( PMDIAG_KEY( 20 )%LIST( 2 ), STAT=ALLOCSTAT )
+      ELMO_KEY( 20 )%WORD = 'SIMPLE'
+      ELMO_KEY( 20 )%N = 2
+      ALLOCATE( ELMO_KEY( 20 )%LIST( 2 ), STAT=ALLOCSTAT )
       IF ( ALLOCSTAT .NE. 0 ) THEN
-           XMSG = 'Failure allocating PMDIAG_KEY(20)'
+           XMSG = 'Failure allocating ELMO_KEY(20)'
            CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
       END IF
 
-      PMDIAG_KEY( 20 )%LIST = (/'PM25','PM10'/)
+      ELMO_KEY( 20 )%LIST = (/'PM25','PM10'/)
  
-      PMDIAG_KEY( 21 )%WORD = 'AMS'
-      PMDIAG_KEY( 21 )%N = 5
-      ALLOCATE( PMDIAG_KEY( 21 )%LIST( 5 ), STAT=ALLOCSTAT )
+      ELMO_KEY( 21 )%WORD = 'AMS'
+      ELMO_KEY( 21 )%N = 5
+      ALLOCATE( ELMO_KEY( 21 )%LIST( 5 ), STAT=ALLOCSTAT )
       IF ( ALLOCSTAT .NE. 0 ) THEN
-           XMSG = 'Failure allocating PMDIAG_KEY(21)'
+           XMSG = 'Failure allocating ELMO_KEY(21)'
            CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
       END IF
 
-      PMDIAG_KEY( 21 )%LIST = (/'PMAMS_CL ','PMAMS_NH4','PMAMS_NO3',
+      ELMO_KEY( 21 )%LIST = (/'PMAMS_CL ','PMAMS_NH4','PMAMS_NO3',
      &                          'PMAMS_OA ','PMAMS_SO4'/)
  
-      END SUBROUTINE POPULATE_PMDIAG_KEY
+      END SUBROUTINE POPULATE_ELMO_KEY
 
 
 !-------------------------------------------------------------------------
-      SUBROUTINE MAP_PMDIAG
+      SUBROUTINE MAP_ELMO
 !     This subroutine maps the PM diagnostic variables that the user has
-!       requested to the entries in the PMDIAG_DATA table.
+!       requested to the entries in the ELMO_DATA table.
 !-------------------------------------------------------------------------
       
       USE AERO_DATA, ONLY: N_MODE, AEROMODE
-      USE CGRID_SPCS, ONLY : N_CGRID_SPC
+      USE CGRID_SPCS, ONLY : N_CGRID_SPC, CGRID_NAME, 
+     &                       CGRID_CONC_UNIT, CGRID_CONC_DESC
+      USE UTIL_FAMILY_MODULE, ONLY: NChemFamilies,ChemFamilyName
 
       IMPLICIT NONE
 
-      INTEGER N, M, P, J, IM, ILIST
-      CHARACTER( 16 ), SAVE :: PNAME = 'MAP_PMDIAG'
+      INTEGER N, M, P, J, IM, ILIST, S, F
+      CHARACTER( 16 ), SAVE :: PNAME = 'MAP_ELMO'
       CHARACTER( 300 ) :: XMSG
-      INTEGER ALLOCSTAT
+      INTEGER ALLOCSTAT, IOS
 
       ! Read User-Input from Namelist input file (Emission Control File
       ! For Now)
-      CALL READ_PMDIAG_NML()
-      L_PMDIAG = ( INST_ACTIVE .OR. AVRG_ACTIVE )
+      CALL READ_ELMO_NML()
+      L_ELMO = ( INST_ACTIVE .OR. AVRG_ACTIVE )
+
+      ! Map user-defined INST_PARS and AVRG_PARS arrays to the ELMO 
+      ! parameters available on the ELMO_LIST. 
+      N_ELMO = 0
       
-      ! Map user-defined INST_PARS and AVRG_PARS arrays to the PMDIAG 
-      ! parameters available on the PMDIAG_LIST. 
-      N_PMDIAG = 0
-      
-      ALLOCATE( USED_PMDIAG_MODE( N_PMDIAG_LIST*N_MODE+N_CGRID_SPC+NCHEMFAMILIES ),
-     &          USED_PMDIAG_ID( N_PMDIAG_LIST*N_MODE+N_CGRID_SPC+NCHEMFAMILIES ),
-     &          USED_CGRID_ID( N_PMDIAG_LIST*N_MODE+N_CGRID_SPC+NCHEMFAMILIES ),
-     &          USED_FAM_ID( N_PMDIAG_LIST*N_MODE+N_CGRID_SPC+NCHEMFAMILIES ),
-     &          MAP_ID2USED( N_PMDIAG_LIST+N_CGRID_SPC+NCHEMFAMILIES,N_MODE ),
+      ALLOCATE( USED_ELMO_MODE( N_ELMO_LIST*N_MODE+N_CGRID_SPC+NCHEMFAMILIES ),
+     &          USED_ELMO_ID( N_ELMO_LIST*N_MODE+N_CGRID_SPC+NCHEMFAMILIES ),
+     &          USED_CGRID_ID( N_ELMO_LIST*N_MODE+N_CGRID_SPC+NCHEMFAMILIES ),
+     &          USED_FAM_ID( N_ELMO_LIST*N_MODE+N_CGRID_SPC+NCHEMFAMILIES ),
+     &          MAP_ID2USED( N_ELMO_LIST+N_CGRID_SPC+NCHEMFAMILIES,N_MODE ),
      &          STAT = ALLOCSTAT )
       IF ( ALLOCSTAT .NE. 0 ) THEN
-           XMSG = 'Failure allocating USED_PMDIAG_MODE, USED_PMDIAG_ID, ' // 
+           XMSG = 'Failure allocating USED_ELMO_MODE, USED_ELMO_ID, ' // 
      &            'or MAP_ID2USED'
            CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
       END IF
-      USED_PMDIAG_MODE = 0
-      USED_PMDIAG_ID = 0
+      USED_ELMO_MODE = 0
+      USED_ELMO_ID = 0
       USED_CGRID_ID = 0
       USED_FAM_ID = 0
       MAP_ID2USED = 0
 
-      ! Map Parameter ID's to PMDIAG_List Entries
+      ! Map Parameter ID's to ELMO_List Entries
       MAP_ID2LIST = 0
-      DO ILIST = 1,N_PMDIAG_LIST
-          MAP_ID2LIST( PMDIAG_LIST( ILIST )%ID ) = ILIST
+      DO ILIST = 1,N_ELMO_LIST
+          MAP_ID2LIST( ELMO_LIST( ILIST )%ID ) = ILIST
       END DO
 
+      ! Initialize number of IDs as equal to the number of Diagnostic
+      ! Parameters
+      NTOT_ELMO_IDS = N_ELMO_LIST
+
       IF ( INST_ACTIVE ) THEN
-         ALLOCATE( MAP_INST2USED( N_PMDIAG_INST*N_MODE+N_CGRID_SPC+NCHEMFAMILIES ),
-     &             INST_PARS_OUT( N_PMDIAG_INST*N_MODE+N_CGRID_SPC+NCHEMFAMILIES ) ,
-     &             INST_TYPE_OUT( N_PMDIAG_INST*N_MODE+N_CGRID_SPC+NCHEMFAMILIES ) ,
-     &             INST_UNIT_OUT( N_PMDIAG_INST*N_MODE+N_CGRID_SPC+NCHEMFAMILIES ) ,
-     &             INST_DESC_OUT( N_PMDIAG_INST*N_MODE+N_CGRID_SPC+NCHEMFAMILIES ),
+         ALLOCATE( MAP_INST2USED( N_ELMO_INST*N_MODE+N_CGRID_SPC+NCHEMFAMILIES ),
+     &             INST_PARS_OUT( N_ELMO_INST*N_MODE+N_CGRID_SPC+NCHEMFAMILIES ) ,
+     &             INST_TYPE_OUT( N_ELMO_INST*N_MODE+N_CGRID_SPC+NCHEMFAMILIES ) ,
+     &             INST_UNIT_OUT( N_ELMO_INST*N_MODE+N_CGRID_SPC+NCHEMFAMILIES ) ,
+     &             INST_DESC_OUT( N_ELMO_INST*N_MODE+N_CGRID_SPC+NCHEMFAMILIES ),
      &             STAT = ALLOCSTAT )
          IF ( ALLOCSTAT .NE. 0 ) THEN
               XMSG = 'Failure allocating MAP_INST2USED, etc., '
@@ -756,16 +776,12 @@
          END IF
 
          ! Initialize number of Instantaneous Output Variables
-         N_PMDIAG_INST_OUT = 0
-
-         ! Initialize number of IDs as equal to the number of Diagnostic
-         ! Parameters
-         NTOT_IDS = N_PMDIAG_LIST
+         N_ELMO_INST_OUT = 0
 
          ! Loop over all user-requested Instantaneous parameter and link
          ! each to parameter IDs, Units, descriptions, etc.
-         DO J = 1,N_PMDIAG_INST
-             N = INDEX1( INST_PARS( J ), N_PMDIAG_LIST, PMDIAG_LIST%NAME )
+         DO J = 1,N_ELMO_INST
+             N = INDEX1( INST_PARS( J ), N_ELMO_LIST, ELMO_LIST%NAME )
              S = INDEX1( INST_PARS( J ), N_CGRID_SPC, CGRID_NAME )
              F = 0
              IF ( NCHEMFAMILIES ) 
@@ -774,90 +790,90 @@
              IF ( N .NE. 0 ) THEN
                 ! Add Room for the Other Modes if this Parameter is
                 ! Mode-Dependent
-                IF ( PMDIAG_LIST( N )%MODE ) THEN
+                IF ( ELMO_LIST( N )%MODE ) THEN
                    DO IM = 1,N_MODE
                       ! Add Entry for this Parameter
-                      N_PMDIAG = N_PMDIAG + 1
-                      N_PMDIAG_INST_OUT = N_PMDIAG_INST_OUT + 1
-                      USED_PMDIAG_ID( N_PMDIAG ) = PMDIAG_LIST(N)%ID
-                      USED_PMDIAG_MODE( N_PMDIAG ) = IM
-                      MAP_ID2USED( PMDIAG_LIST(N)%ID,IM) = N_PMDIAG
-                      MAP_INST2USED( N_PMDIAG_INST_OUT ) = N_PMDIAG
+                      N_ELMO = N_ELMO + 1
+                      N_ELMO_INST_OUT = N_ELMO_INST_OUT + 1
+                      USED_ELMO_ID( N_ELMO ) = ELMO_LIST(N)%ID
+                      USED_ELMO_MODE( N_ELMO ) = IM
+                      MAP_ID2USED( ELMO_LIST(N)%ID,IM) = N_ELMO
+                      MAP_INST2USED( N_ELMO_INST_OUT ) = N_ELMO
 
-                      INST_PARS_OUT( N_PMDIAG_INST_OUT ) = 
+                      INST_PARS_OUT( N_ELMO_INST_OUT ) = 
      &                         TRIM(INST_PARS( J )) // aeromode( IM )%suff
-                      INST_TYPE_OUT( N_PMDIAG_INST_OUT ) = PMDIAG_LIST( N )%VAR_TYPE
-                      INST_UNIT_OUT( N_PMDIAG_INST_OUT ) = PMDIAG_LIST( N )%UNIT
-                      INST_DESC_OUT( N_PMDIAG_INST_OUT ) = PMDIAG_LIST( N )%DESC
+                      INST_TYPE_OUT( N_ELMO_INST_OUT ) = ELMO_LIST( N )%VAR_TYPE
+                      INST_UNIT_OUT( N_ELMO_INST_OUT ) = ELMO_LIST( N )%UNIT
+                      INST_DESC_OUT( N_ELMO_INST_OUT ) = ELMO_LIST( N )%DESC
                    END DO
                 ELSE
                    ! Add Entry for this Parameter
-                   N_PMDIAG = N_PMDIAG + 1
-                   N_PMDIAG_INST_OUT = N_PMDIAG_INST_OUT + 1
-                   USED_PMDIAG_ID( N_PMDIAG ) = PMDIAG_LIST(N)%ID
-                   USED_PMDIAG_MODE( N_PMDIAG ) = 1
-                   MAP_ID2USED( PMDIAG_LIST(N)%ID,1 ) = N_PMDIAG
-                   MAP_INST2USED( N_PMDIAG_INST_OUT ) = N_PMDIAG
-                   INST_PARS_OUT( N_PMDIAG_INST_OUT ) = INST_PARS( J )
-                   INST_TYPE_OUT( N_PMDIAG_INST_OUT ) = PMDIAG_LIST( N )%VAR_TYPE 
-                   INST_UNIT_OUT( N_PMDIAG_INST_OUT ) = PMDIAG_LIST( N )%UNIT     
-                   INST_DESC_OUT( N_PMDIAG_INST_OUT ) = PMDIAG_LIST( N )%DESC     
+                   N_ELMO = N_ELMO + 1
+                   N_ELMO_INST_OUT = N_ELMO_INST_OUT + 1
+                   USED_ELMO_ID( N_ELMO ) = ELMO_LIST(N)%ID
+                   USED_ELMO_MODE( N_ELMO ) = 1
+                   MAP_ID2USED( ELMO_LIST(N)%ID,1 ) = N_ELMO
+                   MAP_INST2USED( N_ELMO_INST_OUT ) = N_ELMO
+                   INST_PARS_OUT( N_ELMO_INST_OUT ) = INST_PARS( J )
+                   INST_TYPE_OUT( N_ELMO_INST_OUT ) = ELMO_LIST( N )%VAR_TYPE 
+                   INST_UNIT_OUT( N_ELMO_INST_OUT ) = ELMO_LIST( N )%UNIT     
+                   INST_DESC_OUT( N_ELMO_INST_OUT ) = ELMO_LIST( N )%DESC     
                 END IF
              ELSEIF ( S .GT. 0 ) THEN
                 ! Add Entry for CMAQ Model Species
-                N_PMDIAG = N_PMDIAG + 1
-                N_PMDIAG_INST_OUT = N_PMDIAG_INST_OUT + 1
-                NTOT_IDS = NTOT_IDS + 1
-                USED_PMDIAG_ID( N_PMDIAG ) = NTOT_IDS
-                USED_CGRID_ID( N_PMDIAG ) = S
-                USED_PMDIAG_MODE( N_PMDIAG ) = 1
-                MAP_ID2USED( NTOT_IDS,1 ) = N_PMDIAG
-                MAP_INST2USED( N_PMDIAG_INST_OUT ) = N_PMDIAG
+                N_ELMO = N_ELMO + 1
+                N_ELMO_INST_OUT = N_ELMO_INST_OUT + 1
+                NTOT_ELMO_IDS = NTOT_ELMO_IDS + 1
+                USED_ELMO_ID( N_ELMO ) = NTOT_ELMO_IDS
+                USED_CGRID_ID( N_ELMO ) = S
+                USED_ELMO_MODE( N_ELMO ) = 1
+                MAP_ID2USED( NTOT_ELMO_IDS,1 ) = N_ELMO
+                MAP_INST2USED( N_ELMO_INST_OUT ) = N_ELMO
 
-                INST_PARS_OUT( N_PMDIAG_INST_OUT ) = INST_PARS( J )
-                INST_TYPE_OUT( N_PMDIAG_INST_OUT ) = M3REAL 
-                INST_UNIT_OUT( N_PMDIAG_INST_OUT ) = PMDIAG_LIST( N )%UNIT     
-                INST_DESC_OUT( N_PMDIAG_INST_OUT ) = 
-     &                         'Instantaneous ' // PMDIAG_LIST( N )%DESC     
+                INST_PARS_OUT( N_ELMO_INST_OUT ) = INST_PARS( J )
+                INST_TYPE_OUT( N_ELMO_INST_OUT ) = M3REAL 
+                INST_UNIT_OUT( N_ELMO_INST_OUT ) = CGRID_CONC_UNIT(S)
+                INST_DESC_OUT( N_ELMO_INST_OUT ) = 
+     &                         'Instantaneous ' // CGRID_CONC_DESC(S)     
 
              ELSEIF ( F .GT. 0 ) THEN
                 ! Add Entry for Chemical Family
-                N_PMDIAG = N_PMDIAG + 1
-                N_PMDIAG_INST_OUT = N_PMDIAG_INST_OUT + 1
-                NTOT_IDS = NTOT_IDS + 1
-                USED_PMDIAG_ID( N_PMDIAG ) = NTOT_IDS
-                USED_FAM_ID( N_PMDIAG ) = F
-                USED_PMDIAG_MODE( N_PMDIAG ) = 1
-                MAP_ID2USED( NTOT_IDS,1 ) = N_PMDIAG
-                MAP_INST2USED( N_PMDIAG_INST_OUT ) = N_PMDIAG
+                N_ELMO = N_ELMO + 1
+                N_ELMO_INST_OUT = N_ELMO_INST_OUT + 1
+                NTOT_ELMO_IDS = NTOT_ELMO_IDS + 1
+                USED_ELMO_ID( N_ELMO ) = NTOT_ELMO_IDS
+                USED_FAM_ID( N_ELMO ) = F
+                USED_ELMO_MODE( N_ELMO ) = 1
+                MAP_ID2USED( NTOT_ELMO_IDS,1 ) = N_ELMO
+                MAP_INST2USED( N_ELMO_INST_OUT ) = N_ELMO
 
-                INST_PARS_OUT( N_PMDIAG_INST_OUT ) = INST_PARS( J )
-                INST_TYPE_OUT( N_PMDIAG_INST_OUT ) = M3REAL 
-                INST_UNIT_OUT( N_PMDIAG_INST_OUT ) = 'ppmV for Gas. ug m-3 for PM'     
-                INST_DESC_OUT( N_PMDIAG_INST_OUT ) = 'Chemical Family. See Definition in Control File.' 
+                INST_PARS_OUT( N_ELMO_INST_OUT ) = INST_PARS( J )
+                INST_TYPE_OUT( N_ELMO_INST_OUT ) = M3REAL 
+                INST_UNIT_OUT( N_ELMO_INST_OUT ) = 'ppmV for Gas. ug m-3 for PM'     
+                INST_DESC_OUT( N_ELMO_INST_OUT ) = 'Chemical Family. See Definition in Control File.' 
 
              ELSE
-                XMSG = 'An Instantaneous PMDIAG Parameter '//TRIM(INST_PARS(J))//
+                XMSG = 'An Instantaneous ELMO Parameter '//TRIM(INST_PARS(J))//
      &                 ' has been requested that does not exist.'
                 CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
              END IF
          END DO
-         ALLOCATE( PMDIAG_INST( NCOLS,NROWS,NLAY_PMDIAG_INST,
-     &                          N_PMDIAG_INST_OUT),STAT=ALLOCSTAT )
+         ALLOCATE( ELMO_INST( NCOLS,NROWS,NLAY_ELMO_INST,
+     &                          N_ELMO_INST_OUT),STAT=ALLOCSTAT )
          IF ( ALLOCSTAT .NE. 0 ) THEN
-              XMSG = 'Failure allocating PMDIAG_INST' 
+              XMSG = 'Failure allocating ELMO_INST' 
               CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
          END IF
-         PMDIAG_INST = 0.0
+         ELMO_INST = 0.0
       END IF
       
       ! Process Average Parameter User Input
       IF ( AVRG_ACTIVE ) THEN
-         ALLOCATE( MAP_AVRG2USED( N_PMDIAG_AVRG*N_MODE ),
-     &             AVRG_PARS_OUT( N_PMDIAG_AVRG*N_MODE ) ,
-     &             AVRG_TYPE_OUT( N_PMDIAG_AVRG*N_MODE ) ,
-     &             AVRG_UNIT_OUT( N_PMDIAG_AVRG*N_MODE ) ,
-     &             AVRG_DESC_OUT( N_PMDIAG_AVRG*N_MODE ),
+         ALLOCATE( MAP_AVRG2USED( N_ELMO_AVRG*N_MODE ),
+     &             AVRG_PARS_OUT( N_ELMO_AVRG*N_MODE ) ,
+     &             AVRG_TYPE_OUT( N_ELMO_AVRG*N_MODE ) ,
+     &             AVRG_UNIT_OUT( N_ELMO_AVRG*N_MODE ) ,
+     &             AVRG_DESC_OUT( N_ELMO_AVRG*N_MODE ),
      &             STAT = ALLOCSTAT )
          IF ( ALLOCSTAT .NE. 0 ) THEN
               XMSG = 'Failure allocating MAP_AVRG2USED, etc.' 
@@ -865,133 +881,129 @@
          END IF
 
          ! Initialize number of Average output variables
-         N_PMDIAG_AVRG_OUT = 0
-
-         ! Initialize number of IDs as equal to the number of Diagnostic
-         ! Parameters
-         NTOT_IDS = N_PMDIAG_LIST
+         N_ELMO_AVRG_OUT = 0
 
          ! Loop over all user-requested Average parameter and link
          ! each to parameter IDs, Units, descriptions, etc.
-         DO J = 1,N_PMDIAG_AVRG
-             N = INDEX1( AVRG_PARS( J ), N_PMDIAG_LIST, PMDIAG_LIST%NAME ) 
-             S = INDEX1( INST_PARS( J ), N_CGRID_SPC, CGRID_NAME )
+         DO J = 1,N_ELMO_AVRG
+             N = INDEX1( AVRG_PARS( J ), N_ELMO_LIST, ELMO_LIST%NAME ) 
+             S = INDEX1( AVRG_PARS( J ), N_CGRID_SPC, CGRID_NAME )
              F = 0
              IF ( NCHEMFAMILIES ) 
-     &          F = INDEX1( INST_PARS( J ), NCHEMFAMILIES, CHEMFAMILYNAME )
+     &          F = INDEX1( AVRG_PARS( J ), NCHEMFAMILIES, CHEMFAMILYNAME )
 
              ! Check if this parameter is duplicated on the
              ! instantaneous list. Don't need to duplicate calculation
              ! but do need to add it to the output
              M = 0
              IF ( INST_ACTIVE ) 
-     &            M = INDEX1( AVRG_PARS( J ), N_PMDIAG_INST, INST_PARS ) 
+     &            M = INDEX1( AVRG_PARS( J ), N_ELMO_INST, INST_PARS ) 
 
 
              IF ( N .NE. 0 ) THEN
 
                 ! Add Room for the Other Modes if this Parameter is
                 ! Mode-Dependent
-                IF ( PMDIAG_LIST( N )%MODE ) THEN
+                IF ( ELMO_LIST( N )%MODE ) THEN
                     DO IM = 1,N_MODE
-                       N_PMDIAG_AVRG_OUT = N_PMDIAG_AVRG_OUT + 1
-                       AVRG_PARS_OUT( N_PMDIAG_AVRG_OUT ) = 
+                       N_ELMO_AVRG_OUT = N_ELMO_AVRG_OUT + 1
+                       AVRG_PARS_OUT( N_ELMO_AVRG_OUT ) = 
      &                           TRIM(AVRG_PARS( J )) // aeromode( IM )%suff
-                       AVRG_TYPE_OUT( N_PMDIAG_AVRG_OUT ) = PMDIAG_LIST( N )%VAR_TYPE 
-                       AVRG_UNIT_OUT( N_PMDIAG_AVRG_OUT ) = PMDIAG_LIST( N )%UNIT     
-                       AVRG_DESC_OUT( N_PMDIAG_AVRG_OUT ) = PMDIAG_LIST( N )%DESC     
+                       AVRG_TYPE_OUT( N_ELMO_AVRG_OUT ) = ELMO_LIST( N )%VAR_TYPE 
+                       AVRG_UNIT_OUT( N_ELMO_AVRG_OUT ) = ELMO_LIST( N )%UNIT     
+                       AVRG_DESC_OUT( N_ELMO_AVRG_OUT ) = ELMO_LIST( N )%DESC     
                        IF ( M .EQ. 0 ) THEN
-                          N_PMDIAG = N_PMDIAG + 1
-                          USED_PMDIAG_MODE( N_PMDIAG ) = IM
-                          USED_PMDIAG_ID( N_PMDIAG ) = PMDIAG_LIST(N)%ID
-                          MAP_ID2USED( PMDIAG_LIST(N)%ID,IM) = N_PMDIAG
-                          MAP_AVRG2USED( N_PMDIAG_AVRG_OUT ) = N_PMDIAG
+                          N_ELMO = N_ELMO + 1
+                          USED_ELMO_MODE( N_ELMO ) = IM
+                          USED_ELMO_ID( N_ELMO ) = ELMO_LIST(N)%ID
+                          MAP_ID2USED( ELMO_LIST(N)%ID,IM) = N_ELMO
+                          MAP_AVRG2USED( N_ELMO_AVRG_OUT ) = N_ELMO
                        ELSE
-                          P = INDEX1( AVRG_PARS_OUT( N_PMDIAG_AVRG_OUT ), 
-     &                                N_PMDIAG_INST_OUT, INST_PARS_OUT ) 
-                          MAP_AVRG2USED( N_PMDIAG_AVRG_OUT ) = MAP_INST2USED( P )
+                          P = INDEX1( AVRG_PARS_OUT( N_ELMO_AVRG_OUT ), 
+     &                                N_ELMO_INST_OUT, INST_PARS_OUT ) 
+                          MAP_AVRG2USED( N_ELMO_AVRG_OUT ) = MAP_INST2USED( P )
                        END IF
                     END DO
                 ELSE
                     ! Add Entry for this Parameter
-                    N_PMDIAG_AVRG_OUT = N_PMDIAG_AVRG_OUT + 1
+                    N_ELMO_AVRG_OUT = N_ELMO_AVRG_OUT + 1
 
-                    AVRG_PARS_OUT( N_PMDIAG_AVRG_OUT ) = AVRG_PARS( J )
-                    AVRG_TYPE_OUT( N_PMDIAG_AVRG_OUT ) = PMDIAG_LIST( N )%VAR_TYPE 
-                    AVRG_UNIT_OUT( N_PMDIAG_AVRG_OUT ) = PMDIAG_LIST( N )%UNIT     
-                    AVRG_DESC_OUT( N_PMDIAG_AVRG_OUT ) = PMDIAG_LIST( N )%DESC     
+                    AVRG_PARS_OUT( N_ELMO_AVRG_OUT ) = AVRG_PARS( J )
+                    AVRG_TYPE_OUT( N_ELMO_AVRG_OUT ) = ELMO_LIST( N )%VAR_TYPE 
+                    AVRG_UNIT_OUT( N_ELMO_AVRG_OUT ) = ELMO_LIST( N )%UNIT     
+                    AVRG_DESC_OUT( N_ELMO_AVRG_OUT ) = ELMO_LIST( N )%DESC     
                     IF ( M .EQ. 0 ) THEN
-                       N_PMDIAG = N_PMDIAG + 1
-                       USED_PMDIAG_ID( N_PMDIAG ) = PMDIAG_LIST(N)%ID
-                       USED_PMDIAG_MODE( N_PMDIAG ) = 1
-                       MAP_ID2USED( PMDIAG_LIST(N)%ID,1 ) = N_PMDIAG
-                       MAP_AVRG2USED( N_PMDIAG_AVRG_OUT ) = N_PMDIAG
+                       N_ELMO = N_ELMO + 1
+                       USED_ELMO_ID( N_ELMO ) = ELMO_LIST(N)%ID
+                       USED_ELMO_MODE( N_ELMO ) = 1
+                       MAP_ID2USED( ELMO_LIST(N)%ID,1 ) = N_ELMO
+                       MAP_AVRG2USED( N_ELMO_AVRG_OUT ) = N_ELMO
                     ELSE
-                       P = INDEX1( AVRG_PARS_OUT( N_PMDIAG_AVRG_OUT ), 
-     &                             N_PMDIAG_INST_OUT, INST_PARS_OUT ) 
-                       MAP_AVRG2USED( N_PMDIAG_AVRG_OUT ) = MAP_INST2USED( P )
+                       P = INDEX1( AVRG_PARS_OUT( N_ELMO_AVRG_OUT ), 
+     &                             N_ELMO_INST_OUT, INST_PARS_OUT ) 
+                       MAP_AVRG2USED( N_ELMO_AVRG_OUT ) = MAP_INST2USED( P )
                     END IF   
                 END IF 
             ELSEIF ( S .GT. 0 ) THEN
                 ! Add Entry for CMAQ Model Species
-                N_PMDIAG = N_PMDIAG + 1
-                AVRG_PARS_OUT( N_PMDIAG_AVRG_OUT ) = AVRG_PARS( J )
-                AVRG_TYPE_OUT( N_PMDIAG_AVRG_OUT ) = M3REAL 
-                AVRG_UNIT_OUT( N_PMDIAG_AVRG_OUT ) = PMDIAG_LIST( N )%UNIT     
-                AVRG_DESC_OUT( N_PMDIAG_AVRG_OUT ) = 
-     &                         'Average ' // PMDIAG_LIST( N )%DESC     
+                N_ELMO_AVRG_OUT = N_ELMO_AVRG_OUT + 1
+                AVRG_PARS_OUT( N_ELMO_AVRG_OUT ) = AVRG_PARS( J )
+                AVRG_TYPE_OUT( N_ELMO_AVRG_OUT ) = M3REAL 
+                AVRG_UNIT_OUT( N_ELMO_AVRG_OUT ) = CGRID_CONC_UNIT(S)
+                AVRG_DESC_OUT( N_ELMO_AVRG_OUT ) = 
+     &                         'Average ' // CGRID_CONC_DESC(S)
                 
                 IF ( M .EQ. 0 ) THEN
-                   N_PMDIAG_AVRG_OUT = N_PMDIAG_AVRG_OUT + 1
-                   NTOT_IDS = NTOT_IDS + 1
-                   USED_PMDIAG_ID( N_PMDIAG ) = NTOT_IDS
-                   USED_CGRID_ID( N_PMDIAG ) = S
-                   USED_PMDIAG_MODE( N_PMDIAG ) = 1
-                   MAP_ID2USED( NTOT_IDS,1 ) = N_PMDIAG
-                   MAP_AVRG2USED( N_PMDIAG_AVRG_OUT ) = N_PMDIAG
+                   N_ELMO = N_ELMO + 1
+                   NTOT_ELMO_IDS = NTOT_ELMO_IDS + 1
+                   USED_ELMO_ID( N_ELMO ) = NTOT_ELMO_IDS
+                   USED_CGRID_ID( N_ELMO ) = S
+                   USED_ELMO_MODE( N_ELMO ) = 1
+                   MAP_ID2USED( NTOT_ELMO_IDS,1 ) = N_ELMO
+                   MAP_AVRG2USED( N_ELMO_AVRG_OUT ) = N_ELMO
                 ELSE
-                   P = INDEX1( AVRG_PARS_OUT( N_PMDIAG_AVRG_OUT ), 
-     &                         N_PMDIAG_INST_OUT, INST_PARS_OUT ) 
-                   MAP_AVRG2USED( N_PMDIAG_AVRG_OUT ) = MAP_INST2USED( P )
+                   P = INDEX1( AVRG_PARS_OUT( N_ELMO_AVRG_OUT ), 
+     &                         N_ELMO_INST_OUT, INST_PARS_OUT ) 
+                   MAP_AVRG2USED( N_ELMO_AVRG_OUT ) = MAP_INST2USED( P )
                 END IF   
              ELSEIF ( F .GT. 0 ) THEN
                 ! Add Entry for Chemical Family
-                N_PMDIAG_AVRG_OUT = N_PMDIAG_AVRG_OUT + 1
-                AVRG_PARS_OUT( N_PMDIAG_AVRG_OUT ) = INST_PARS( J )
-                AVRG_TYPE_OUT( N_PMDIAG_AVRG_OUT ) = M3REAL 
-                AVRG_UNIT_OUT( N_PMDIAG_AVRG_OUT ) = 'ppmV for Gas. ug m-3 for PM'     
-                AVRG_DESC_OUT( N_PMDIAG_AVRG_OUT ) = 'Chemical Family. See Definition in Control File.' 
+                N_ELMO_AVRG_OUT = N_ELMO_AVRG_OUT + 1
+                AVRG_PARS_OUT( N_ELMO_AVRG_OUT ) = INST_PARS( J )
+                AVRG_TYPE_OUT( N_ELMO_AVRG_OUT ) = M3REAL 
+                AVRG_UNIT_OUT( N_ELMO_AVRG_OUT ) = 'ppmV for Gas. ug m-3 for PM'     
+                AVRG_DESC_OUT( N_ELMO_AVRG_OUT ) = 'Chemical Family. See Definition in Control File.' 
                 
                 IF ( M .EQ. 0 ) THEN
-                   N_PMDIAG = N_PMDIAG + 1
-                   NTOT_IDS = NTOT_IDS + 1
-                   USED_PMDIAG_ID( N_PMDIAG ) = NTOT_IDS
-                   USED_FAM_ID( N_PMDIAG ) = F
-                   USED_PMDIAG_MODE( N_PMDIAG ) = 1
-                   MAP_ID2USED( NTOT_IDS,1 ) = N_PMDIAG
-                   MAP_AVRG2USED( N_PMDIAG_AVRG_OUT ) = N_PMDIAG
+                   N_ELMO = N_ELMO + 1
+                   NTOT_ELMO_IDS = NTOT_ELMO_IDS + 1
+                   USED_ELMO_ID( N_ELMO ) = NTOT_ELMO_IDS
+                   USED_FAM_ID( N_ELMO ) = F
+                   USED_ELMO_MODE( N_ELMO ) = 1
+                   MAP_ID2USED( NTOT_ELMO_IDS,1 ) = N_ELMO
+                   MAP_AVRG2USED( N_ELMO_AVRG_OUT ) = N_ELMO
                 ELSE
-                   P = INDEX1( AVRG_PARS_OUT( N_PMDIAG_AVRG_OUT ), 
-     &                         N_PMDIAG_INST_OUT, INST_PARS_OUT ) 
-                   MAP_AVRG2USED( N_PMDIAG_AVRG_OUT ) = MAP_INST2USED( P )
+                   P = INDEX1( AVRG_PARS_OUT( N_ELMO_AVRG_OUT ), 
+     &                         N_ELMO_INST_OUT, INST_PARS_OUT ) 
+                   MAP_AVRG2USED( N_ELMO_AVRG_OUT ) = MAP_INST2USED( P )
                 END IF   
              ELSE
-                XMSG = 'An Average PMDIAG Parameter '//TRIM(AVRG_PARS(J))//
+                XMSG = 'An Average ELMO Parameter '//TRIM(AVRG_PARS(J))//
      &                 ' has been requested that does not exist.'
                 CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
              END IF
          END DO
-         ALLOCATE( PMDIAG_AVRG( NCOLS,NROWS,NLAY_PMDIAG_AVRG,
-     &                          N_PMDIAG_AVRG_OUT ), STAT=IOS )
-         CALL CHECKMEM( IOS, 'PMDIAG_AVRG',PNAME )
-         PMDIAG_AVRG = 0.0
+         ALLOCATE( ELMO_AVRG( NCOLS,NROWS,NLAY_ELMO_AVRG,
+     &                          N_ELMO_AVRG_OUT ), STAT=IOS )
+         CALL CHECKMEM( IOS, 'ELMO_AVRG',PNAME )
+         ELMO_AVRG = 0.0
       END IF
       
-      ! Allocate Local PMDIAG Array
-      ALLOCATE( PMDIAG_LOCAL( N_PMDIAG ), STAT=IOS )
-      CALL CHECKMEM( IOS, 'PMDIAG_LOCAL',PNAME )
+      ! Allocate Local ELMO Array
+      ALLOCATE( ELMO_LOCAL( N_ELMO ), STAT=IOS )
+      CALL CHECKMEM( IOS, 'ELMO_LOCAL',PNAME )
       
-      ALLOCATE( L_CALC( N_PMDIAG ), STAT=IOS )
+      ALLOCATE( L_CALC( N_ELMO ), STAT=IOS )
       CALL CHECKMEM( IOS, 'L_CALC',PNAME )
 
       ! Allocate local image of CGRID so it can be used each time step
@@ -999,35 +1011,38 @@
       CALL CHECKMEM( IOS, 'CONC_VEC',PNAME )
 
       ! Map Diagnostic Variables to Model Species and Coefficients
-      CALL MAP_PMDIAG_COEFFS
+      CALL MAP_ELMO_COEFFS
 
 
-      END SUBROUTINE MAP_PMDIAG
+      END SUBROUTINE MAP_ELMO
 
 !-------------------------------------------------------------------------
-      SUBROUTINE MAP_PMDIAG_COEFFS
+      SUBROUTINE MAP_ELMO_COEFFS
 !     This subroutine maps the PM diagnostic variables that the user has
-!       requested to the entries in the PMDIAG_DATA table.
+!       requested to the entries in the ELMO_DATA table.
 !-------------------------------------------------------------------------
+      USE CGRID_SPCS, ONLY : CGRID_NAME
+      USE UTIL_FAMILY_MODULE, ONLY : CHEMFAMILYNUM, CHEMFAMILYMEMBERS
 
       IMPLICIT NONE
 
-      INTEGER IDG, N_VARS, IPMDIAG
+      INTEGER IDG, N_VARS, IELMO, S, F, IV
 
-      PMDIAG_COEFFS( : )%L_MAPPED = .FALSE.
+      ALLOCATE( ELMO_COEFFS( NTOT_ELMO_IDS ) )
+      ELMO_COEFFS( : )%L_MAPPED = .FALSE.
       
-      ! Save the number of PMDIAG parameters that should be output. In the
+      ! Save the number of ELMO parameters that should be output. In the
       ! course of mapping various parameters, it may be necessary to add
-      ! some used parameters to N_PMDIAG that are intermediates to the desired
+      ! some used parameters to N_ELMO that are intermediates to the desired
       ! parameters. For example, PMF_MASS must be calculated in order to
       ! then calculate AUNSP1_IMPVIJ
-      N_PMDIAG_OUT = N_PMDIAG
+      N_ELMO_OUT = N_ELMO
                 
-      ! Loop through all available PMDIAG_LIST Parameters
-      IPMDIAG = 0
-      DO WHILE ( IPMDIAG .LE. N_PMDIAG )
-          IPMDIAG = IPMDIAG + 1
-          IDG = USED_PMDIAG_ID( IPMDIAG )
+      ! Loop through all available ELMO_LIST Parameters
+      IELMO = 0
+      DO WHILE ( IELMO .LE. NTOT_ELMO_IDS )
+          IELMO = IELMO + 1
+          IDG = USED_ELMO_ID( IELMO )
           
           SELECT CASE ( IDG )
              
@@ -1036,52 +1051,52 @@
              ! Map PMC_SO4 - Coarse-Mode Sulfate
              CASE ( ID_PMC_SO4 ) 
                N_VARS = 1
-               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'COARSE' )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'ASO4', 1.0 )
+               CALL INIT_ELMO_COEFFS( IDG, N_VARS, 'COARSE' )
+               CALL SET_ELMO_COEFF_MAP( IDG, 1, 'AERO', 'ASO4', 1.0 )
  
              ! Map PMC_NO3 - Coarse-Mode Nitrate
              CASE ( ID_PMC_NO3 ) 
                N_VARS = 1
-               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'COARSE' )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'ANO3', 1.0 )
+               CALL INIT_ELMO_COEFFS( IDG, N_VARS, 'COARSE' )
+               CALL SET_ELMO_COEFF_MAP( IDG, 1, 'AERO', 'ANO3', 1.0 )
  
              ! Map PMC_NH4 - Coarse-Mode Ammonium
              CASE ( ID_PMC_NH4 ) 
                N_VARS = 1
-               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'COARSE' )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'ANH4', 1.0 )
+               CALL INIT_ELMO_COEFFS( IDG, N_VARS, 'COARSE' )
+               CALL SET_ELMO_COEFF_MAP( IDG, 1, 'AERO', 'ANH4', 1.0 )
  
              ! Map PMC_NA - Coarse-Mode Sodium
              CASE ( ID_PMC_NA ) 
                N_VARS = 3
-               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'COARSE' )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'ASEACAT', 0.8373 )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 2, 'AERO', 'ASOIL', 0.0626 )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 3, 'AERO', 'ACORS', 0.0023 )
+               CALL INIT_ELMO_COEFFS( IDG, N_VARS, 'COARSE' )
+               CALL SET_ELMO_COEFF_MAP( IDG, 1, 'AERO', 'ASEACAT', 0.8373 )
+               CALL SET_ELMO_COEFF_MAP( IDG, 2, 'AERO', 'ASOIL', 0.0626 )
+               CALL SET_ELMO_COEFF_MAP( IDG, 3, 'AERO', 'ACORS', 0.0023 )
  
              ! Map PMC_MG - Coarse-Mode Magnesium
              CASE ( ID_PMC_MG ) 
                N_VARS = 3
-               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'COARSE' )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'ASEACAT', 0.0997 )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 2, 'AERO', 'ASOIL', 0.0170 )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 3, 'AERO', 'ACORS', 0.0032 )
+               CALL INIT_ELMO_COEFFS( IDG, N_VARS, 'COARSE' )
+               CALL SET_ELMO_COEFF_MAP( IDG, 1, 'AERO', 'ASEACAT', 0.0997 )
+               CALL SET_ELMO_COEFF_MAP( IDG, 2, 'AERO', 'ASOIL', 0.0170 )
+               CALL SET_ELMO_COEFF_MAP( IDG, 3, 'AERO', 'ACORS', 0.0032 )
  
              ! Map PMC_K - Coarse-Mode Potassium
              CASE ( ID_PMC_K ) 
                N_VARS = 3
-               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'COARSE' )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'ASEACAT', 0.0310 )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 2, 'AERO', 'ASOIL', 0.0242 )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 3, 'AERO', 'ACORS', 0.0176 )
+               CALL INIT_ELMO_COEFFS( IDG, N_VARS, 'COARSE' )
+               CALL SET_ELMO_COEFF_MAP( IDG, 1, 'AERO', 'ASEACAT', 0.0310 )
+               CALL SET_ELMO_COEFF_MAP( IDG, 2, 'AERO', 'ASOIL', 0.0242 )
+               CALL SET_ELMO_COEFF_MAP( IDG, 3, 'AERO', 'ACORS', 0.0176 )
 
              ! Map PMC_CA - Coarse-Mode Calcium
              CASE ( ID_PMC_CA ) 
                N_VARS = 3
-               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'COARSE' )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'ASEACAT', 0.0320 )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 2, 'AERO', 'ASOIL', 0.0838 )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 3, 'AERO', 'ACORS', 0.0562 )
+               CALL INIT_ELMO_COEFFS( IDG, N_VARS, 'COARSE' )
+               CALL SET_ELMO_COEFF_MAP( IDG, 1, 'AERO', 'ASEACAT', 0.0320 )
+               CALL SET_ELMO_COEFF_MAP( IDG, 2, 'AERO', 'ASOIL', 0.0838 )
+               CALL SET_ELMO_COEFF_MAP( IDG, 3, 'AERO', 'ACORS', 0.0562 )
 
              
              !!!! Fine-Mode Parameters !!!!  
@@ -1089,198 +1104,198 @@
              ! Map PMF_SO4 - Fine-Mode Sulfate
              CASE ( ID_PMF_SO4 ) 
                N_VARS = 1
-               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'FINE' )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'ASO4', 1.0 )
+               CALL INIT_ELMO_COEFFS( IDG, N_VARS, 'FINE' )
+               CALL SET_ELMO_COEFF_MAP( IDG, 1, 'AERO', 'ASO4', 1.0 )
  
              ! Map PMF_NO3 - Fine-Mode Nitrate
              CASE ( ID_PMF_NO3 ) 
                N_VARS = 1
-               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'FINE' )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'ANO3', 1.0 )
+               CALL INIT_ELMO_COEFFS( IDG, N_VARS, 'FINE' )
+               CALL SET_ELMO_COEFF_MAP( IDG, 1, 'AERO', 'ANO3', 1.0 )
  
              ! Map PMF_NH4 - Fine-Mode Ammonium
              CASE ( ID_PMF_NH4 ) 
                N_VARS = 1
-               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS , 'FINE')
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'ANH4', 1.0 )
+               CALL INIT_ELMO_COEFFS( IDG, N_VARS , 'FINE')
+               CALL SET_ELMO_COEFF_MAP( IDG, 1, 'AERO', 'ANH4', 1.0 )
  
              ! Map PMF_CL - Fine-Mode Chloride
              CASE ( ID_PMF_CL ) 
                N_VARS = 1
-               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'FINE' )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'ACL', 1.0 )
+               CALL INIT_ELMO_COEFFS( IDG, N_VARS, 'FINE' )
+               CALL SET_ELMO_COEFF_MAP( IDG, 1, 'AERO', 'ACL', 1.0 )
  
              ! Map PMF_NA - Fine-Mode Sodium
              CASE ( ID_PMF_NA ) 
                N_VARS = 1
-               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'FINE' )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'ANA', 1.0 )
+               CALL INIT_ELMO_COEFFS( IDG, N_VARS, 'FINE' )
+               CALL SET_ELMO_COEFF_MAP( IDG, 1, 'AERO', 'ANA', 1.0 )
  
              ! Map PMF_EC - Fine-Mode Elemental Carbon                                   
              CASE ( ID_PMF_EC )                                                         
                N_VARS = 1                                                               
-               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'FINE' )                           
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'AEC', 1.0 )                  
+               CALL INIT_ELMO_COEFFS( IDG, N_VARS, 'FINE' )                           
+               CALL SET_ELMO_COEFF_MAP( IDG, 1, 'AERO', 'AEC', 1.0 )                  
                                                                                         
              ! Map PMF_FE - Fine-Mode Iron
              CASE ( ID_PMF_FE ) 
                N_VARS = 1
-               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'FINE' )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'AFE', 1.0 )
+               CALL INIT_ELMO_COEFFS( IDG, N_VARS, 'FINE' )
+               CALL SET_ELMO_COEFF_MAP( IDG, 1, 'AERO', 'AFE', 1.0 )
  
              ! Map PMF_AL - Fine-Mode Aluminum
              CASE ( ID_PMF_AL ) 
                N_VARS = 1
-               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'FINE' )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'AAL', 1.0 )
+               CALL INIT_ELMO_COEFFS( IDG, N_VARS, 'FINE' )
+               CALL SET_ELMO_COEFF_MAP( IDG, 1, 'AERO', 'AAL', 1.0 )
  
              ! Map PMF_SI - Fine-Mode Silicon
              CASE ( ID_PMF_SI ) 
                N_VARS = 1
-               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'FINE' )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'ASI', 1.0 )
+               CALL INIT_ELMO_COEFFS( IDG, N_VARS, 'FINE' )
+               CALL SET_ELMO_COEFF_MAP( IDG, 1, 'AERO', 'ASI', 1.0 )
  
              ! Map PMF_TI - Fine-Mode Titanium
              CASE ( ID_PMF_TI ) 
                N_VARS = 1
-               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'FINE' )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'ATI', 1.0 )
+               CALL INIT_ELMO_COEFFS( IDG, N_VARS, 'FINE' )
+               CALL SET_ELMO_COEFF_MAP( IDG, 1, 'AERO', 'ATI', 1.0 )
  
              ! Map PMF_CA - Fine-Mode Calcium
              CASE ( ID_PMF_CA ) 
                N_VARS = 1
-               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'FINE' )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'ACA', 1.0 )
+               CALL INIT_ELMO_COEFFS( IDG, N_VARS, 'FINE' )
+               CALL SET_ELMO_COEFF_MAP( IDG, 1, 'AERO', 'ACA', 1.0 )
  
              ! Map PMF_MG - Fine-Mode Magnesium
              CASE ( ID_PMF_MG ) 
                N_VARS = 1
-               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'FINE' )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'AMG', 1.0 )
+               CALL INIT_ELMO_COEFFS( IDG, N_VARS, 'FINE' )
+               CALL SET_ELMO_COEFF_MAP( IDG, 1, 'AERO', 'AMG', 1.0 )
  
              ! Map PMF_K - Fine-Mode Potassium
              CASE ( ID_PMF_K ) 
                N_VARS = 1
-               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'FINE' )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'AK', 1.0 )
+               CALL INIT_ELMO_COEFFS( IDG, N_VARS, 'FINE' )
+               CALL SET_ELMO_COEFF_MAP( IDG, 1, 'AERO', 'AK', 1.0 )
  
              ! Map PMF_MN - Fine-Mode Manganese
              CASE ( ID_PMF_MN ) 
                N_VARS = 1
-               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'FINE' )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'AMN', 1.0 )
+               CALL INIT_ELMO_COEFFS( IDG, N_VARS, 'FINE' )
+               CALL SET_ELMO_COEFF_MAP( IDG, 1, 'AERO', 'AMN', 1.0 )
  
              ! Map PMF_H2O - Fine-Mode Particle Water           
              CASE ( ID_PMF_H2O )                               
                N_VARS = 1
-               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'FINE' )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'AH2O', 1.0/19.0 )
+               CALL INIT_ELMO_COEFFS( IDG, N_VARS, 'FINE' )
+               CALL SET_ELMO_COEFF_MAP( IDG, 1, 'AERO', 'AH2O', 1.0/19.0 )
  
              ! Map SOIL_IMPV - IMPROVE reconstruction of Soil PM
              CASE ( ID_SOIL_IMPV )
                N_VARS = 5
-               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'ACCUMULATION' )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'AAL', 2.20 )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 2, 'AERO', 'ASI', 2.49 )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 3, 'AERO', 'ACA', 1.63 )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 4, 'AERO', 'AFE', 2.42 )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 5, 'AERO', 'ATI', 1.94 )
+               CALL INIT_ELMO_COEFFS( IDG, N_VARS, 'ACCUMULATION' )
+               CALL SET_ELMO_COEFF_MAP( IDG, 1, 'AERO', 'AAL', 2.20 )
+               CALL SET_ELMO_COEFF_MAP( IDG, 2, 'AERO', 'ASI', 2.49 )
+               CALL SET_ELMO_COEFF_MAP( IDG, 3, 'AERO', 'ACA', 1.63 )
+               CALL SET_ELMO_COEFF_MAP( IDG, 4, 'AERO', 'AFE', 2.42 )
+               CALL SET_ELMO_COEFF_MAP( IDG, 5, 'AERO', 'ATI', 1.94 )
  
              ! Map PMF_UNSP1 - Retrieve Fine-Mode Unspeciated PM based 
              !   on reconstructed SOIL PM from IMPROVE method and including 
              !   NCOM in the unspeciated portion
              CASE ( ID_PMF_UNSP1 )
                N_VARS = 9
-               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'FINE' )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AGG',  'PMF_MASS', 1.0 )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 2, 'AERO', 'ASO4', -1.0 )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 3, 'AERO', 'ANO3', -1.0 )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 4, 'AERO', 'ANH4', -1.0 )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 5, 'AERO', 'ACL', -1.0 )          
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 6, 'AERO', 'ANA', -1.0 )          
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 7, 'AERO', 'AEC', -1.0 )          
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 8, 'AGG',  'PMF_OC', -1.0 )          
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 9, 'AGG',  'PMF_SOILIMPV', -1.0 )          
+               CALL INIT_ELMO_COEFFS( IDG, N_VARS, 'FINE' )
+               CALL SET_ELMO_COEFF_MAP( IDG, 1, 'AGG',  'PMF_MASS', 1.0 )
+               CALL SET_ELMO_COEFF_MAP( IDG, 2, 'AERO', 'ASO4', -1.0 )
+               CALL SET_ELMO_COEFF_MAP( IDG, 3, 'AERO', 'ANO3', -1.0 )
+               CALL SET_ELMO_COEFF_MAP( IDG, 4, 'AERO', 'ANH4', -1.0 )
+               CALL SET_ELMO_COEFF_MAP( IDG, 5, 'AERO', 'ACL', -1.0 )          
+               CALL SET_ELMO_COEFF_MAP( IDG, 6, 'AERO', 'ANA', -1.0 )          
+               CALL SET_ELMO_COEFF_MAP( IDG, 7, 'AERO', 'AEC', -1.0 )          
+               CALL SET_ELMO_COEFF_MAP( IDG, 8, 'AGG',  'PMF_OC', -1.0 )          
+               CALL SET_ELMO_COEFF_MAP( IDG, 9, 'AGG',  'PMF_SOILIMPV', -1.0 )          
  
              ! Map PMF_UNSP2 - Retrieve Fine-Mode Unspeciated PM based 
              !   on reconstructed SOIL PM from IMPROVE method and EXCLUDING 
              !   NCOM in the unspeciated portion
              CASE ( ID_PMF_UNSP2 )
                N_VARS = 9
-               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'FINE' )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AGG',  'PMF_MASS', 1.0 )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 2, 'AERO', 'ASO4', -1.0 )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 3, 'AERO', 'ANO3', -1.0 )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 4, 'AERO', 'ANH4', -1.0 )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 5, 'AERO', 'ACL', -1.0 )          
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 6, 'AERO', 'ANA', -1.0 )          
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 7, 'AERO', 'AEC', -1.0 )          
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 8, 'AGG',  'PMF_OA', -1.0 )          
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 9, 'AGG',  'PMF_SOILIMPV', -1.0 )          
+               CALL INIT_ELMO_COEFFS( IDG, N_VARS, 'FINE' )
+               CALL SET_ELMO_COEFF_MAP( IDG, 1, 'AGG',  'PMF_MASS', 1.0 )
+               CALL SET_ELMO_COEFF_MAP( IDG, 2, 'AERO', 'ASO4', -1.0 )
+               CALL SET_ELMO_COEFF_MAP( IDG, 3, 'AERO', 'ANO3', -1.0 )
+               CALL SET_ELMO_COEFF_MAP( IDG, 4, 'AERO', 'ANH4', -1.0 )
+               CALL SET_ELMO_COEFF_MAP( IDG, 5, 'AERO', 'ACL', -1.0 )          
+               CALL SET_ELMO_COEFF_MAP( IDG, 6, 'AERO', 'ANA', -1.0 )          
+               CALL SET_ELMO_COEFF_MAP( IDG, 7, 'AERO', 'AEC', -1.0 )          
+               CALL SET_ELMO_COEFF_MAP( IDG, 8, 'AGG',  'PMF_OA', -1.0 )          
+               CALL SET_ELMO_COEFF_MAP( IDG, 9, 'AGG',  'PMF_SOILIMPV', -1.0 )          
 
              ! Map PMF_HP - Fine-Mode Hydronium Ion
              CASE ( ID_PMF_HP ) 
                N_VARS = 1
-               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'FINE' )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'AH3OP', 1.0/19.0 )
+               CALL INIT_ELMO_COEFFS( IDG, N_VARS, 'FINE' )
+               CALL SET_ELMO_COEFF_MAP( IDG, 1, 'AERO', 'AH3OP', 1.0/19.0 )
  
              ! Map PMF_NCOM - Fine-Mode Non-Carbon Organic Mass in POA
              CASE ( ID_PMF_NCOM ) 
                N_VARS = 2
-               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'FINE' )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AGG', 'PMF_OA', 1.0 )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AGG', 'PMF_OC',-1.0 )
+               CALL INIT_ELMO_COEFFS( IDG, N_VARS, 'FINE' )
+               CALL SET_ELMO_COEFF_MAP( IDG, 1, 'AGG', 'PMF_OA', 1.0 )
+               CALL SET_ELMO_COEFF_MAP( IDG, 1, 'AGG', 'PMF_OC',-1.0 )
  
              ! Map PMF_CLDGLY - Fine-Mode SOA from glyoxal and methylglyoxal
              CASE ( ID_PMF_CLDGLY ) 
                N_VARS = 2
-               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'FINE' )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'AORGC', 1.0 )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 2, 'AERO', 'AGLY', 1.0 )
+               CALL INIT_ELMO_COEFFS( IDG, N_VARS, 'FINE' )
+               CALL SET_ELMO_COEFF_MAP( IDG, 1, 'AERO', 'AORGC', 1.0 )
+               CALL SET_ELMO_COEFF_MAP( IDG, 2, 'AERO', 'AGLY', 1.0 )
  
              ! Map PMF_ISOP - Fine-Mode Isoprene SOA excluding IEPOX SOA
              CASE ( ID_PMF_ISOP ) 
                N_VARS = 2
-               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'FINE' )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'AISO1', 1.0 )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 2, 'AERO', 'AISO2', 1.0 )
+               CALL INIT_ELMO_COEFFS( IDG, N_VARS, 'FINE' )
+               CALL SET_ELMO_COEFF_MAP( IDG, 1, 'AERO', 'AISO1', 1.0 )
+               CALL SET_ELMO_COEFF_MAP( IDG, 2, 'AERO', 'AISO2', 1.0 )
  
              ! Map PMF_IEPOX - Fine-Mode IEPOX SOA
              CASE ( ID_PMF_IEPOX ) 
                N_VARS = 1
-               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'FINE' )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'AISO3', 1.0 )
+               CALL INIT_ELMO_COEFFS( IDG, N_VARS, 'FINE' )
+               CALL SET_ELMO_COEFF_MAP( IDG, 1, 'AERO', 'AISO3', 1.0 )
  
              ! Map PMF_MTNSOA - Fine-Mode Monoterpene Nitrate SOA
              CASE ( ID_PMF_MTNSOA ) 
                N_VARS = 2
-               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'FINE' )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'AMTNO3', 1.0 )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 2, 'AERO', 'AMTHYD', 1.0 )
+               CALL INIT_ELMO_COEFFS( IDG, N_VARS, 'FINE' )
+               CALL SET_ELMO_COEFF_MAP( IDG, 1, 'AERO', 'AMTNO3', 1.0 )
+               CALL SET_ELMO_COEFF_MAP( IDG, 2, 'AERO', 'AMTHYD', 1.0 )
  
              ! Map PMF_MTSOA - Fine-Mode Monoterpene SOA excluding
              ! Nitrates
              CASE ( ID_PMF_MTSOA ) 
                N_VARS = 6
-               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'FINE' )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'AMT1', 1.0 )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 2, 'AERO', 'AMT2', 1.0 )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 3, 'AERO', 'AMT3', 1.0 )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 4, 'AERO', 'AMT4', 1.0 )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 5, 'AERO', 'AMT5', 1.0 )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 6, 'AERO', 'AMT6', 1.0 )
+               CALL INIT_ELMO_COEFFS( IDG, N_VARS, 'FINE' )
+               CALL SET_ELMO_COEFF_MAP( IDG, 1, 'AERO', 'AMT1', 1.0 )
+               CALL SET_ELMO_COEFF_MAP( IDG, 2, 'AERO', 'AMT2', 1.0 )
+               CALL SET_ELMO_COEFF_MAP( IDG, 3, 'AERO', 'AMT3', 1.0 )
+               CALL SET_ELMO_COEFF_MAP( IDG, 4, 'AERO', 'AMT4', 1.0 )
+               CALL SET_ELMO_COEFF_MAP( IDG, 5, 'AERO', 'AMT5', 1.0 )
+               CALL SET_ELMO_COEFF_MAP( IDG, 6, 'AERO', 'AMT6', 1.0 )
  
              ! Map PMF_BENAPY - Fine-Mode Benzo-a-Pyrene
              CASE ( ID_PMF_BENAPY ) 
                N_VARS = 1
-               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'FINE' )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'ABENAPY', 1.0 )
+               CALL INIT_ELMO_COEFFS( IDG, N_VARS, 'FINE' )
+               CALL SET_ELMO_COEFF_MAP( IDG, 1, 'AERO', 'ABENAPY', 1.0 )
  
              ! Map GAS_BENAPY - Gas-Phase Benzo-a-Pyrene
              CASE ( ID_GAS_BENAPY ) 
                N_VARS = 1
-               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'ALL' )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'GAS', 'BENAPY',8701.7 ) ! Scale by 1000*MW_BENAPY/MW_Air
+               CALL INIT_ELMO_COEFFS( IDG, N_VARS, 'ALL' )
+               CALL SET_ELMO_COEFF_MAP( IDG, 1, 'GAS', 'BENAPY',8701.7 ) ! Scale by 1000*MW_BENAPY/MW_Air
  
              
              !!!! AMS Parameters !!!!  
@@ -1288,26 +1303,26 @@
              ! Map AMS_SO4 - AMS-Measure Sulfate
              CASE ( ID_AMS_SO4 ) 
                N_VARS = 1
-               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PMAMS' )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'ASO4', 1.0 )
+               CALL INIT_ELMO_COEFFS( IDG, N_VARS, 'PMAMS' )
+               CALL SET_ELMO_COEFF_MAP( IDG, 1, 'AERO', 'ASO4', 1.0 )
              
              ! Map AMS_NO3 - AMS-Measured Nitrate
              CASE ( ID_AMS_NO3 ) 
                N_VARS = 1
-               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PMAMS' )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'ANO3', 1.0 )
+               CALL INIT_ELMO_COEFFS( IDG, N_VARS, 'PMAMS' )
+               CALL SET_ELMO_COEFF_MAP( IDG, 1, 'AERO', 'ANO3', 1.0 )
  
              ! Map AMS_NH4 - AMS-Measured Ammonium
              CASE ( ID_AMS_NH4 ) 
                N_VARS = 1
-               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PMAMS' )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'ANH4', 1.0 )
+               CALL INIT_ELMO_COEFFS( IDG, N_VARS, 'PMAMS' )
+               CALL SET_ELMO_COEFF_MAP( IDG, 1, 'AERO', 'ANH4', 1.0 )
  
              ! Map AMS_CL - AMS-Measured Chloride
              CASE ( ID_AMS_CL ) 
                N_VARS = 1
-               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PMAMS' )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'ACL', 1.0 )
+               CALL INIT_ELMO_COEFFS( IDG, N_VARS, 'PMAMS' )
+               CALL SET_ELMO_COEFF_MAP( IDG, 1, 'AERO', 'ACL', 1.0 )
  
              
              !!!! PM1.0 Parameters !!!!  
@@ -1315,270 +1330,270 @@
              ! Map PM1_SO4 - PM1 Sulfate
              CASE ( ID_PM1_SO4 ) 
                N_VARS = 1
-               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PM1' )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'ASO4', 1.0 )
+               CALL INIT_ELMO_COEFFS( IDG, N_VARS, 'PM1' )
+               CALL SET_ELMO_COEFF_MAP( IDG, 1, 'AERO', 'ASO4', 1.0 )
  
              ! Map PM1_NO3 - PM1 Nitrate
              CASE ( ID_PM1_NO3 ) 
                N_VARS = 1
-               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PM1' )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'ANO3', 1.0 )
+               CALL INIT_ELMO_COEFFS( IDG, N_VARS, 'PM1' )
+               CALL SET_ELMO_COEFF_MAP( IDG, 1, 'AERO', 'ANO3', 1.0 )
  
              ! Map PM1_NH4 - PM1 Ammonium
              CASE ( ID_PM1_NH4 ) 
                N_VARS = 1
-               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PM1' )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'ANH4', 1.0 )
+               CALL INIT_ELMO_COEFFS( IDG, N_VARS, 'PM1' )
+               CALL SET_ELMO_COEFF_MAP( IDG, 1, 'AERO', 'ANH4', 1.0 )
  
              ! Map PM1_CL - PM1 Chloride
              CASE ( ID_PM1_CL ) 
                N_VARS = 1
-               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PM1' )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'ACL', 1.0 )
+               CALL INIT_ELMO_COEFFS( IDG, N_VARS, 'PM1' )
+               CALL SET_ELMO_COEFF_MAP( IDG, 1, 'AERO', 'ACL', 1.0 )
  
              ! Map PM1_NA - PM1 Sodium
              CASE ( ID_PM1_NA ) 
                N_VARS = 1
-               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PM1' )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'ANA', 1.0 )
+               CALL INIT_ELMO_COEFFS( IDG, N_VARS, 'PM1' )
+               CALL SET_ELMO_COEFF_MAP( IDG, 1, 'AERO', 'ANA', 1.0 )
  
              ! Map PM1_EC - PM1 Elemental Carbon
              CASE ( ID_PM1_EC ) 
                N_VARS = 1
-               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PM1' )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'AEC', 1.0 )
+               CALL INIT_ELMO_COEFFS( IDG, N_VARS, 'PM1' )
+               CALL SET_ELMO_COEFF_MAP( IDG, 1, 'AERO', 'AEC', 1.0 )
  
              ! Map PM1_MG - PM1 Magnesium
              CASE ( ID_PM1_MG ) 
                N_VARS = 1
-               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PM1' )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'AMG', 1.0 )
+               CALL INIT_ELMO_COEFFS( IDG, N_VARS, 'PM1' )
+               CALL SET_ELMO_COEFF_MAP( IDG, 1, 'AERO', 'AMG', 1.0 )
  
              ! Map PM1_K - PM1 Potassium
              CASE ( ID_PM1_K ) 
                N_VARS = 1
-               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PM1' )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'AK', 1.0 )
+               CALL INIT_ELMO_COEFFS( IDG, N_VARS, 'PM1' )
+               CALL SET_ELMO_COEFF_MAP( IDG, 1, 'AERO', 'AK', 1.0 )
  
              ! Map PM1_CA - PM1 Calcium
              CASE ( ID_PM1_CA ) 
                N_VARS = 1
-               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PM1' )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'ACA', 1.0 )
+               CALL INIT_ELMO_COEFFS( IDG, N_VARS, 'PM1' )
+               CALL SET_ELMO_COEFF_MAP( IDG, 1, 'AERO', 'ACA', 1.0 )
  
              ! Map PM1_Other - PM1 Other 
              CASE ( ID_PM1_OT ) 
                N_VARS = 1
-               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PM1' )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'AOTHR', 1.0 )
+               CALL INIT_ELMO_COEFFS( IDG, N_VARS, 'PM1' )
+               CALL SET_ELMO_COEFF_MAP( IDG, 1, 'AERO', 'AOTHR', 1.0 )
  
              ! Map PM1_FE - PM1 Iron
              CASE ( ID_PM1_FE ) 
                N_VARS = 1
-               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PM1' )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'AFE', 1.0 )
+               CALL INIT_ELMO_COEFFS( IDG, N_VARS, 'PM1' )
+               CALL SET_ELMO_COEFF_MAP( IDG, 1, 'AERO', 'AFE', 1.0 )
  
              ! Map PM1_SI - PM1 Silicon
              CASE ( ID_PM1_SI ) 
                N_VARS = 1
-               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PM1' )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'ASI', 1.0 )
+               CALL INIT_ELMO_COEFFS( IDG, N_VARS, 'PM1' )
+               CALL SET_ELMO_COEFF_MAP( IDG, 1, 'AERO', 'ASI', 1.0 )
  
              ! Map PM1_TI - PM1 Titanium
              CASE ( ID_PM1_TI ) 
                N_VARS = 1
-               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PM1' )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'ATI', 1.0 )
+               CALL INIT_ELMO_COEFFS( IDG, N_VARS, 'PM1' )
+               CALL SET_ELMO_COEFF_MAP( IDG, 1, 'AERO', 'ATI', 1.0 )
  
              ! Map PM1_MN - PM1 Manganese
              CASE ( ID_PM1_MN ) 
                N_VARS = 1
-               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PM1' )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'AMN', 1.0 )
+               CALL INIT_ELMO_COEFFS( IDG, N_VARS, 'PM1' )
+               CALL SET_ELMO_COEFF_MAP( IDG, 1, 'AERO', 'AMN', 1.0 )
  
              ! Map PM1_AL - PM1 Aluminum
              CASE ( ID_PM1_AL ) 
                N_VARS = 1
-               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PM1' )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'AAL', 1.0 )
+               CALL INIT_ELMO_COEFFS( IDG, N_VARS, 'PM1' )
+               CALL SET_ELMO_COEFF_MAP( IDG, 1, 'AERO', 'AAL', 1.0 )
   
              ! Map PM1_Soil - PM1.0 Reconstructed Soil for the fine
              ! mode + explicit soil for the coarse mode
              CASE ( ID_PM1_SOIL ) 
                N_VARS = 6
-               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PM1' )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'ASOIL', 1.0 )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 2, 'AERO', 'AAL', 2.20 )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 3, 'AERO', 'ASI', 2.49 )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 4, 'AERO', 'ACA', 1.63 )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 5, 'AERO', 'AFE', 2.42 )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 6, 'AERO', 'ATI', 1.94 )
+               CALL INIT_ELMO_COEFFS( IDG, N_VARS, 'PM1' )
+               CALL SET_ELMO_COEFF_MAP( IDG, 1, 'AERO', 'ASOIL', 1.0 )
+               CALL SET_ELMO_COEFF_MAP( IDG, 2, 'AERO', 'AAL', 2.20 )
+               CALL SET_ELMO_COEFF_MAP( IDG, 3, 'AERO', 'ASI', 2.49 )
+               CALL SET_ELMO_COEFF_MAP( IDG, 4, 'AERO', 'ACA', 1.63 )
+               CALL SET_ELMO_COEFF_MAP( IDG, 5, 'AERO', 'AFE', 2.42 )
+               CALL SET_ELMO_COEFF_MAP( IDG, 6, 'AERO', 'ATI', 1.94 )
    
              ! Map PM1.0 Unspeciated PM based on reconstructed
              ! SOIL PM from IMPROVE method and including NCOM in the
              ! unspeciated portion
              CASE ( ID_PM1_UNSP1 )
                N_VARS = 9
-               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PM1' )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AGG',  'PM1', 1.0 )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 2, 'AERO', 'ASO4', -1.0 )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 3, 'AERO', 'ANO3', -1.0 )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 4, 'AERO', 'ANH4', -1.0 )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 5, 'AERO', 'ACL', -1.0 )          
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 6, 'AERO', 'ANA', -1.0 )          
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 7, 'AERO', 'AEC', -1.0 )          
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 8, 'AGG',  'PM1_OC', -1.0 )          
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 9, 'AGG',  'PM1_SOIL', -1.0 )          
+               CALL INIT_ELMO_COEFFS( IDG, N_VARS, 'PM1' )
+               CALL SET_ELMO_COEFF_MAP( IDG, 1, 'AGG',  'PM1', 1.0 )
+               CALL SET_ELMO_COEFF_MAP( IDG, 2, 'AERO', 'ASO4', -1.0 )
+               CALL SET_ELMO_COEFF_MAP( IDG, 3, 'AERO', 'ANO3', -1.0 )
+               CALL SET_ELMO_COEFF_MAP( IDG, 4, 'AERO', 'ANH4', -1.0 )
+               CALL SET_ELMO_COEFF_MAP( IDG, 5, 'AERO', 'ACL', -1.0 )          
+               CALL SET_ELMO_COEFF_MAP( IDG, 6, 'AERO', 'ANA', -1.0 )          
+               CALL SET_ELMO_COEFF_MAP( IDG, 7, 'AERO', 'AEC', -1.0 )          
+               CALL SET_ELMO_COEFF_MAP( IDG, 8, 'AGG',  'PM1_OC', -1.0 )          
+               CALL SET_ELMO_COEFF_MAP( IDG, 9, 'AGG',  'PM1_SOIL', -1.0 )          
   
              ! Map PM1_UN - PM1.0 Unspeciated Coarse Mass
              CASE ( ID_PM1_UN ) 
                N_VARS = 3
-               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PM1' )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'ASEACAT', 0.0 ) ! All Seaspray Cation mass has been 
+               CALL INIT_ELMO_COEFFS( IDG, N_VARS, 'PM1' )
+               CALL SET_ELMO_COEFF_MAP( IDG, 1, 'AERO', 'ASEACAT', 0.0 ) ! All Seaspray Cation mass has been 
                                                                            ! apportined to Na, Mg, K, and Ca
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 2, 'AERO', 'ASOIL', 0.8124 )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 3, 'AERO', 'ACORS', 0.9207 )
+               CALL SET_ELMO_COEFF_MAP( IDG, 2, 'AERO', 'ASOIL', 0.8124 )
+               CALL SET_ELMO_COEFF_MAP( IDG, 3, 'AERO', 'ACORS', 0.9207 )
               
              ! Map PM1_HP - PM1.0 Hydronium Ion
              CASE ( ID_PM1_HP ) 
                N_VARS = 1
-               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PM1' )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'AH3OP', 1.0/19.0 ) 
+               CALL INIT_ELMO_COEFFS( IDG, N_VARS, 'PM1' )
+               CALL SET_ELMO_COEFF_MAP( IDG, 1, 'AERO', 'AH3OP', 1.0/19.0 ) 
              
              !!!! PM2.5 Parameters !!!!  
 
              ! Map PM25_SO4 - PM2.5 Sulfate
              CASE ( ID_PM25_SO4 ) 
                N_VARS = 1
-               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PM25' )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'ASO4', 1.0 )
+               CALL INIT_ELMO_COEFFS( IDG, N_VARS, 'PM25' )
+               CALL SET_ELMO_COEFF_MAP( IDG, 1, 'AERO', 'ASO4', 1.0 )
  
              ! Map PM25_NO3 - PM2.5 Nitrate
              CASE ( ID_PM25_NO3 ) 
                N_VARS = 1
-               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PM25' )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'ANO3', 1.0 )
+               CALL INIT_ELMO_COEFFS( IDG, N_VARS, 'PM25' )
+               CALL SET_ELMO_COEFF_MAP( IDG, 1, 'AERO', 'ANO3', 1.0 )
  
              ! Map PM25_NH4 - PM2.5 Ammonium
              CASE ( ID_PM25_NH4 ) 
                N_VARS = 1
-               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PM25' )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'ANH4', 1.0 )
+               CALL INIT_ELMO_COEFFS( IDG, N_VARS, 'PM25' )
+               CALL SET_ELMO_COEFF_MAP( IDG, 1, 'AERO', 'ANH4', 1.0 )
  
              ! Map PM25_CL - PM2.5 Chloride
              CASE ( ID_PM25_CL ) 
                N_VARS = 1
-               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PM25' )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'ACL', 1.0 )
+               CALL INIT_ELMO_COEFFS( IDG, N_VARS, 'PM25' )
+               CALL SET_ELMO_COEFF_MAP( IDG, 1, 'AERO', 'ACL', 1.0 )
  
              ! Map PM25_NA - PM2.5 Sodium
              CASE ( ID_PM25_NA ) 
                N_VARS = 1
-               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PM25' )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'ANA', 1.0 )
+               CALL INIT_ELMO_COEFFS( IDG, N_VARS, 'PM25' )
+               CALL SET_ELMO_COEFF_MAP( IDG, 1, 'AERO', 'ANA', 1.0 )
  
              ! Map PM25_EC - PM2.5 Elemental Carbon
              CASE ( ID_PM25_EC ) 
                N_VARS = 1
-               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PM25' )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'AEC', 1.0 )
+               CALL INIT_ELMO_COEFFS( IDG, N_VARS, 'PM25' )
+               CALL SET_ELMO_COEFF_MAP( IDG, 1, 'AERO', 'AEC', 1.0 )
  
              ! Map PM25_MG - PM2.5 Magnesium
              CASE ( ID_PM25_MG ) 
                N_VARS = 1
-               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PM25' )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'AMG', 1.0 )
+               CALL INIT_ELMO_COEFFS( IDG, N_VARS, 'PM25' )
+               CALL SET_ELMO_COEFF_MAP( IDG, 1, 'AERO', 'AMG', 1.0 )
  
              ! Map PM25_K - PM2.5 Potassium
              CASE ( ID_PM25_K ) 
                N_VARS = 1
-               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PM25' )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'AK', 1.0 )
+               CALL INIT_ELMO_COEFFS( IDG, N_VARS, 'PM25' )
+               CALL SET_ELMO_COEFF_MAP( IDG, 1, 'AERO', 'AK', 1.0 )
  
              ! Map PM25_CA - PM2.5 Calcium
              CASE ( ID_PM25_CA ) 
                N_VARS = 1
-               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PM25' )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'ACA', 1.0 )
+               CALL INIT_ELMO_COEFFS( IDG, N_VARS, 'PM25' )
+               CALL SET_ELMO_COEFF_MAP( IDG, 1, 'AERO', 'ACA', 1.0 )
  
              ! Map PM25_Other - PM25 Other 
              CASE ( ID_PM25_OT ) 
                N_VARS = 1
-               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PM25' )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'AOTHR', 1.0 )
+               CALL INIT_ELMO_COEFFS( IDG, N_VARS, 'PM25' )
+               CALL SET_ELMO_COEFF_MAP( IDG, 1, 'AERO', 'AOTHR', 1.0 )
  
              ! Map PM25_FE - PM2.5 Iron
              CASE ( ID_PM25_FE ) 
                N_VARS = 1
-               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PM25' )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'AFE', 1.0 )
+               CALL INIT_ELMO_COEFFS( IDG, N_VARS, 'PM25' )
+               CALL SET_ELMO_COEFF_MAP( IDG, 1, 'AERO', 'AFE', 1.0 )
  
              ! Map PM25_SI - PM2.5 Silicon
              CASE ( ID_PM25_SI ) 
                N_VARS = 1
-               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PM25' )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'ASI', 1.0 )
+               CALL INIT_ELMO_COEFFS( IDG, N_VARS, 'PM25' )
+               CALL SET_ELMO_COEFF_MAP( IDG, 1, 'AERO', 'ASI', 1.0 )
  
              ! Map PM25_TI - PM2.5 Titanium
              CASE ( ID_PM25_TI ) 
                N_VARS = 1
-               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PM25' )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'ATI', 1.0 )
+               CALL INIT_ELMO_COEFFS( IDG, N_VARS, 'PM25' )
+               CALL SET_ELMO_COEFF_MAP( IDG, 1, 'AERO', 'ATI', 1.0 )
  
              ! Map PM25_MN - PM2.5 Manganese
              CASE ( ID_PM25_MN ) 
                N_VARS = 1
-               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PM25' )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'AMN', 1.0 )
+               CALL INIT_ELMO_COEFFS( IDG, N_VARS, 'PM25' )
+               CALL SET_ELMO_COEFF_MAP( IDG, 1, 'AERO', 'AMN', 1.0 )
  
              ! Map PM25_AL - PM2.5 Aluminum
              CASE ( ID_PM25_AL ) 
                N_VARS = 1
-               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PM25' )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'AAL', 1.0 )
+               CALL INIT_ELMO_COEFFS( IDG, N_VARS, 'PM25' )
+               CALL SET_ELMO_COEFF_MAP( IDG, 1, 'AERO', 'AAL', 1.0 )
  
              ! Map PM25_Soil - PM2.5 Reconstructed Soil for the fine
              ! mode + explicit soil for the coarse mode
              CASE ( ID_PM25_SOIL ) 
                N_VARS = 6
-               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PM25' )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'ASOIL', 1.0 )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 2, 'AERO', 'AAL', 2.20 )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 3, 'AERO', 'ASI', 2.49 )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 4, 'AERO', 'ACA', 1.63 )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 5, 'AERO', 'AFE', 2.42 )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 6, 'AERO', 'ATI', 1.94 )
+               CALL INIT_ELMO_COEFFS( IDG, N_VARS, 'PM25' )
+               CALL SET_ELMO_COEFF_MAP( IDG, 1, 'AERO', 'ASOIL', 1.0 )
+               CALL SET_ELMO_COEFF_MAP( IDG, 2, 'AERO', 'AAL', 2.20 )
+               CALL SET_ELMO_COEFF_MAP( IDG, 3, 'AERO', 'ASI', 2.49 )
+               CALL SET_ELMO_COEFF_MAP( IDG, 4, 'AERO', 'ACA', 1.63 )
+               CALL SET_ELMO_COEFF_MAP( IDG, 5, 'AERO', 'AFE', 2.42 )
+               CALL SET_ELMO_COEFF_MAP( IDG, 6, 'AERO', 'ATI', 1.94 )
    
              ! Map PM2.5 Unspeciated PM based on reconstructed
              ! SOIL PM from IMPROVE method and including NCOM in the
              ! unspeciated portion
              CASE ( ID_PM25_UNSP1 )
                N_VARS = 9
-               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PM25' )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AGG',  'PM25', 1.0 )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 2, 'AERO', 'ASO4', -1.0 )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 3, 'AERO', 'ANO3', -1.0 )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 4, 'AERO', 'ANH4', -1.0 )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 5, 'AERO', 'ACL', -1.0 )          
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 6, 'AERO', 'ANA', -1.0 )          
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 7, 'AERO', 'AEC', -1.0 )          
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 8, 'AGG',  'PM25_OC', -1.0 )          
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 9, 'AGG',  'PM25_SOIL', -1.0 )          
+               CALL INIT_ELMO_COEFFS( IDG, N_VARS, 'PM25' )
+               CALL SET_ELMO_COEFF_MAP( IDG, 1, 'AGG',  'PM25', 1.0 )
+               CALL SET_ELMO_COEFF_MAP( IDG, 2, 'AERO', 'ASO4', -1.0 )
+               CALL SET_ELMO_COEFF_MAP( IDG, 3, 'AERO', 'ANO3', -1.0 )
+               CALL SET_ELMO_COEFF_MAP( IDG, 4, 'AERO', 'ANH4', -1.0 )
+               CALL SET_ELMO_COEFF_MAP( IDG, 5, 'AERO', 'ACL', -1.0 )          
+               CALL SET_ELMO_COEFF_MAP( IDG, 6, 'AERO', 'ANA', -1.0 )          
+               CALL SET_ELMO_COEFF_MAP( IDG, 7, 'AERO', 'AEC', -1.0 )          
+               CALL SET_ELMO_COEFF_MAP( IDG, 8, 'AGG',  'PM25_OC', -1.0 )          
+               CALL SET_ELMO_COEFF_MAP( IDG, 9, 'AGG',  'PM25_SOIL', -1.0 )          
  
              ! Map PM25_UN - PM2.5 Unspeciated Coarse Mass
              CASE ( ID_PM25_UN ) 
                N_VARS = 3
-               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PM25' )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'ASEACAT', 0.0 ) ! All Seaspray Cation mass has been 
+               CALL INIT_ELMO_COEFFS( IDG, N_VARS, 'PM25' )
+               CALL SET_ELMO_COEFF_MAP( IDG, 1, 'AERO', 'ASEACAT', 0.0 ) ! All Seaspray Cation mass has been 
                                                                            ! apportined to Na, Mg, K, and Ca
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 2, 'AERO', 'ASOIL', 0.8124 )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 3, 'AERO', 'ACORS', 0.9207 )
+               CALL SET_ELMO_COEFF_MAP( IDG, 2, 'AERO', 'ASOIL', 0.8124 )
+               CALL SET_ELMO_COEFF_MAP( IDG, 3, 'AERO', 'ACORS', 0.9207 )
  
              ! Map PM25_HP - PM2.5 Hydronium Ion
              CASE ( ID_PM25_HP ) 
                N_VARS = 1
-               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PM25' )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'AH3OP', 1.0/19.0 )
+               CALL INIT_ELMO_COEFFS( IDG, N_VARS, 'PM25' )
+               CALL SET_ELMO_COEFF_MAP( IDG, 1, 'AERO', 'AH3OP', 1.0/19.0 )
  
              
              !!!! PM2.5 - 10.0 Parameters !!!!  
@@ -1586,232 +1601,232 @@
              ! Map PM25to10_SO4 - PM2.5-10.0 Sulfate
              CASE ( ID_PM25to10_SO4 ) 
                N_VARS = 1
-               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PM25TO10' )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'ASO4', 1.0 )
+               CALL INIT_ELMO_COEFFS( IDG, N_VARS, 'PM25TO10' )
+               CALL SET_ELMO_COEFF_MAP( IDG, 1, 'AERO', 'ASO4', 1.0 )
  
              ! Map PM25to10_NO3 - PM2.5-10.0 Nitrate
              CASE ( ID_PM25to10_NO3 ) 
                N_VARS = 1
-               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PM25TO10' )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'ANO3', 1.0 )
+               CALL INIT_ELMO_COEFFS( IDG, N_VARS, 'PM25TO10' )
+               CALL SET_ELMO_COEFF_MAP( IDG, 1, 'AERO', 'ANO3', 1.0 )
  
              ! Map PM25to10_NH4 - PM2.5-10.0 Ammonium
              CASE ( ID_PM25to10_NH4 ) 
                N_VARS = 1
-               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PM25TO10' )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'ANH4', 1.0 )
+               CALL INIT_ELMO_COEFFS( IDG, N_VARS, 'PM25TO10' )
+               CALL SET_ELMO_COEFF_MAP( IDG, 1, 'AERO', 'ANH4', 1.0 )
  
              ! Map PM25to10_CL - PM2.5-10.0 Chloride
              CASE ( ID_PM25to10_CL ) 
                N_VARS = 1
-               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PM25TO10' )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'ACL', 1.0 )
+               CALL INIT_ELMO_COEFFS( IDG, N_VARS, 'PM25TO10' )
+               CALL SET_ELMO_COEFF_MAP( IDG, 1, 'AERO', 'ACL', 1.0 )
  
              ! Map PM25to10_NA - PM2.5-10.0 Sodium
              CASE ( ID_PM25to10_NA ) 
                N_VARS = 1
-               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PM25TO10' )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'ANA', 1.0 )
+               CALL INIT_ELMO_COEFFS( IDG, N_VARS, 'PM25TO10' )
+               CALL SET_ELMO_COEFF_MAP( IDG, 1, 'AERO', 'ANA', 1.0 )
  
              !!!! Toxics !!!!  
  
              ! Map PM25_HDSL - HAP inventory PM2.5 diesel mass
              CASE ( ID_PM25_HDSL ) 
                N_VARS = 6
-               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PM25' )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'ADE_OTHR', 1.0 )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 2, 'AERO', 'ADE_EC', 1.0 )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 3, 'AERO', 'ADE_OC', 1.0 )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 4, 'AERO', 'ADE_SO4', 1.0 )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 5, 'AERO', 'ADE_NO3', 1.0 )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 6, 'AERO', 'ADE_CORS', 1.0 )
+               CALL INIT_ELMO_COEFFS( IDG, N_VARS, 'PM25' )
+               CALL SET_ELMO_COEFF_MAP( IDG, 1, 'AERO', 'ADE_OTHR', 1.0 )
+               CALL SET_ELMO_COEFF_MAP( IDG, 2, 'AERO', 'ADE_EC', 1.0 )
+               CALL SET_ELMO_COEFF_MAP( IDG, 3, 'AERO', 'ADE_OC', 1.0 )
+               CALL SET_ELMO_COEFF_MAP( IDG, 4, 'AERO', 'ADE_SO4', 1.0 )
+               CALL SET_ELMO_COEFF_MAP( IDG, 5, 'AERO', 'ADE_NO3', 1.0 )
+               CALL SET_ELMO_COEFF_MAP( IDG, 6, 'AERO', 'ADE_CORS', 1.0 )
  
              ! Map PM25_HBE - HAP inventory Beryllium
              CASE ( ID_PM25_HBE ) 
                N_VARS = 1
-               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PM25' )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'ABE', 1.0 )
+               CALL INIT_ELMO_COEFFS( IDG, N_VARS, 'PM25' )
+               CALL SET_ELMO_COEFF_MAP( IDG, 1, 'AERO', 'ABE', 1.0 )
  
              ! Map PM25_HCD - HAP inventory Cadmium
              CASE ( ID_PM25_HCD ) 
                N_VARS = 1
-               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PM25' )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'ACD', 1.0 )
+               CALL INIT_ELMO_COEFFS( IDG, N_VARS, 'PM25' )
+               CALL SET_ELMO_COEFF_MAP( IDG, 1, 'AERO', 'ACD', 1.0 )
  
              ! Map PM25_HCR3 - HAP inventory Chromium III
              CASE ( ID_PM25_HCR3 ) 
                N_VARS = 1
-               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PM25' )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'ACR_III', 1.0 )
+               CALL INIT_ELMO_COEFFS( IDG, N_VARS, 'PM25' )
+               CALL SET_ELMO_COEFF_MAP( IDG, 1, 'AERO', 'ACR_III', 1.0 )
  
              ! Map PM25_HCR6 - HAP inventory Chromium VI
              CASE ( ID_PM25_HCR6 ) 
                N_VARS = 1
-               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PM25' )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'ACR_VI', 1.0 )
+               CALL INIT_ELMO_COEFFS( IDG, N_VARS, 'PM25' )
+               CALL SET_ELMO_COEFF_MAP( IDG, 1, 'AERO', 'ACR_VI', 1.0 )
  
              ! Map PM25_HCR - HAP inventory Total Chromium
              CASE ( ID_PM25_HCR ) 
                N_VARS = 2
-               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PM25' )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AGG', 'PM25_HCR3', 1.0 )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 2, 'AGG', 'PM25_HCR6', 1.0 )
+               CALL INIT_ELMO_COEFFS( IDG, N_VARS, 'PM25' )
+               CALL SET_ELMO_COEFF_MAP( IDG, 1, 'AGG', 'PM25_HCR3', 1.0 )
+               CALL SET_ELMO_COEFF_MAP( IDG, 2, 'AGG', 'PM25_HCR6', 1.0 )
  
              ! Map PM25_HPB - HAP inventory Lead
              CASE ( ID_PM25_HPB ) 
                N_VARS = 1
-               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PM25' )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'APB', 1.0 )
+               CALL INIT_ELMO_COEFFS( IDG, N_VARS, 'PM25' )
+               CALL SET_ELMO_COEFF_MAP( IDG, 1, 'AERO', 'APB', 1.0 )
  
              ! Map PM25_HMN - HAP inventory Manganese
              CASE ( ID_PM25_HMN ) 
                N_VARS = 1
-               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PM25' )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'AMN_HAPS', 1.0 )
+               CALL INIT_ELMO_COEFFS( IDG, N_VARS, 'PM25' )
+               CALL SET_ELMO_COEFF_MAP( IDG, 1, 'AERO', 'AMN_HAPS', 1.0 )
  
              ! Map PM25_HNI - HAP inventory Nickel
              CASE ( ID_PM25_HNI ) 
                N_VARS = 1
-               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PM25' )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'ANI', 1.0 )
+               CALL INIT_ELMO_COEFFS( IDG, N_VARS, 'PM25' )
+               CALL SET_ELMO_COEFF_MAP( IDG, 1, 'AERO', 'ANI', 1.0 )
  
              ! Map PM25_HAS - HAP inventory Arsenic
              CASE ( ID_PM25_HAS ) 
                N_VARS = 1
-               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PM25' )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'AAS', 1.0 )
+               CALL INIT_ELMO_COEFFS( IDG, N_VARS, 'PM25' )
+               CALL SET_ELMO_COEFF_MAP( IDG, 1, 'AERO', 'AAS', 1.0 )
  
              ! Map PM25_HG - Mercury
              CASE ( ID_PM25_HG ) 
                N_VARS = 1
-               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PM25' )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'APHG', 1.0 )
+               CALL INIT_ELMO_COEFFS( IDG, N_VARS, 'PM25' )
+               CALL SET_ELMO_COEFF_MAP( IDG, 1, 'AERO', 'APHG', 1.0 )
  
              ! Map PM25_BENAPY - Benzo-a-Pyrene
              CASE ( ID_PM25_BENAPY ) 
                N_VARS = 1
-               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PM25' )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'ABENAPY', 1.0 )
+               CALL INIT_ELMO_COEFFS( IDG, N_VARS, 'PM25' )
+               CALL SET_ELMO_COEFF_MAP( IDG, 1, 'AERO', 'ABENAPY', 1.0 )
  
              ! Map PM10_HDSL - HAP inventory PM2.5 diesel mass
              CASE ( ID_PM10_HDSL ) 
                N_VARS = 6
-               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PM10' )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'ADE_OTHR', 1.0 )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 2, 'AERO', 'ADE_EC', 1.0 )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 3, 'AERO', 'ADE_OC', 1.0 )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 4, 'AERO', 'ADE_SO4', 1.0 )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 5, 'AERO', 'ADE_NO3', 1.0 )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 6, 'AERO', 'ADE_CORS', 1.0 )
+               CALL INIT_ELMO_COEFFS( IDG, N_VARS, 'PM10' )
+               CALL SET_ELMO_COEFF_MAP( IDG, 1, 'AERO', 'ADE_OTHR', 1.0 )
+               CALL SET_ELMO_COEFF_MAP( IDG, 2, 'AERO', 'ADE_EC', 1.0 )
+               CALL SET_ELMO_COEFF_MAP( IDG, 3, 'AERO', 'ADE_OC', 1.0 )
+               CALL SET_ELMO_COEFF_MAP( IDG, 4, 'AERO', 'ADE_SO4', 1.0 )
+               CALL SET_ELMO_COEFF_MAP( IDG, 5, 'AERO', 'ADE_NO3', 1.0 )
+               CALL SET_ELMO_COEFF_MAP( IDG, 6, 'AERO', 'ADE_CORS', 1.0 )
  
              ! Map PM10_HBE - HAP inventory Beryllium
              CASE ( ID_PM10_HBE ) 
                N_VARS = 1
-               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PM10' )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'ABE', 1.0 )
+               CALL INIT_ELMO_COEFFS( IDG, N_VARS, 'PM10' )
+               CALL SET_ELMO_COEFF_MAP( IDG, 1, 'AERO', 'ABE', 1.0 )
  
              ! Map PM10_HCD - HAP inventory Cadmium
              CASE ( ID_PM10_HCD ) 
                N_VARS = 1
-               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PM10' )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'ACD', 1.0 )
+               CALL INIT_ELMO_COEFFS( IDG, N_VARS, 'PM10' )
+               CALL SET_ELMO_COEFF_MAP( IDG, 1, 'AERO', 'ACD', 1.0 )
  
              ! Map PM10_HCR3 - HAP inventory Chromium III
              CASE ( ID_PM10_HCR3 ) 
                N_VARS = 1
-               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PM10' )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'ACR_III', 1.0 )
+               CALL INIT_ELMO_COEFFS( IDG, N_VARS, 'PM10' )
+               CALL SET_ELMO_COEFF_MAP( IDG, 1, 'AERO', 'ACR_III', 1.0 )
  
              ! Map PM10_HCR6 - HAP inventory Chromium VI
              CASE ( ID_PM10_HCR6 ) 
                N_VARS = 1
-               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PM10' )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'ACR_VI', 1.0 )
+               CALL INIT_ELMO_COEFFS( IDG, N_VARS, 'PM10' )
+               CALL SET_ELMO_COEFF_MAP( IDG, 1, 'AERO', 'ACR_VI', 1.0 )
  
              ! Map PM10_HCR - HAP inventory Total Chromium
              CASE ( ID_PM10_HCR ) 
                N_VARS = 2
-               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PM10' )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AGG', 'PM10_HCR3', 1.0 )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 2, 'AGG', 'PM10_HCR6', 1.0 )
+               CALL INIT_ELMO_COEFFS( IDG, N_VARS, 'PM10' )
+               CALL SET_ELMO_COEFF_MAP( IDG, 1, 'AGG', 'PM10_HCR3', 1.0 )
+               CALL SET_ELMO_COEFF_MAP( IDG, 2, 'AGG', 'PM10_HCR6', 1.0 )
  
              ! Map PM10_HPB - HAP inventory Lead
              CASE ( ID_PM10_HPB ) 
                N_VARS = 1
-               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PM10' )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'APB', 1.0 )
+               CALL INIT_ELMO_COEFFS( IDG, N_VARS, 'PM10' )
+               CALL SET_ELMO_COEFF_MAP( IDG, 1, 'AERO', 'APB', 1.0 )
  
              ! Map PM10_HMN - HAP inventory Manganese
              CASE ( ID_PM10_HMN ) 
                N_VARS = 1
-               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PM10' )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'AMN_HAPS', 1.0 )
+               CALL INIT_ELMO_COEFFS( IDG, N_VARS, 'PM10' )
+               CALL SET_ELMO_COEFF_MAP( IDG, 1, 'AERO', 'AMN_HAPS', 1.0 )
  
              ! Map PM10_HNI - HAP inventory Nickel
              CASE ( ID_PM10_HNI ) 
                N_VARS = 1
-               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PM10' )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'ANI', 1.0 )
+               CALL INIT_ELMO_COEFFS( IDG, N_VARS, 'PM10' )
+               CALL SET_ELMO_COEFF_MAP( IDG, 1, 'AERO', 'ANI', 1.0 )
  
              ! Map PM10_HAS - HAP inventory Arsenic
              CASE ( ID_PM10_HAS ) 
                N_VARS = 1
-               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PM10' )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'AAS', 1.0 )
+               CALL INIT_ELMO_COEFFS( IDG, N_VARS, 'PM10' )
+               CALL SET_ELMO_COEFF_MAP( IDG, 1, 'AERO', 'AAS', 1.0 )
  
              ! Map PM10_HG - Mercury
              CASE ( ID_PM10_HG ) 
                N_VARS = 1
-               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PM10' )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'APHG', 1.0 )
+               CALL INIT_ELMO_COEFFS( IDG, N_VARS, 'PM10' )
+               CALL SET_ELMO_COEFF_MAP( IDG, 1, 'AERO', 'APHG', 1.0 )
  
              ! Map PM10_BENAPY - Benzo-a-Pyrene
              CASE ( ID_PM10_BENAPY ) 
                N_VARS = 1
-               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PM10' )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'ABENAPY', 1.0 )
+               CALL INIT_ELMO_COEFFS( IDG, N_VARS, 'PM10' )
+               CALL SET_ELMO_COEFF_MAP( IDG, 1, 'AERO', 'ABENAPY', 1.0 )
  
              !!!! Other Parameters !!!!  
 
              ! Map TNO3 - Total Inorganic Nitrate
              CASE ( ID_TNO3 ) 
                N_VARS = 2
-               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'ALL' )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'ANO3', 1.0 )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 2, 'GAS', 'HNO3', 2175.6 ) ! Scale by 1000*MW_HNO3/MW_Air
+               CALL INIT_ELMO_COEFFS( IDG, N_VARS, 'ALL' )
+               CALL SET_ELMO_COEFF_MAP( IDG, 1, 'AERO', 'ANO3', 1.0 )
+               CALL SET_ELMO_COEFF_MAP( IDG, 2, 'GAS', 'HNO3', 2175.6 ) ! Scale by 1000*MW_HNO3/MW_Air
  
              ! Map TNO3TOT - Total Inorganic+Organic Nitrate
              CASE ( ID_TNO3TOT ) 
                N_VARS = 4
-               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'ALL' )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'ANO3', 1.0 )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 2, 'GAS', 'HNO3', 2175.6 ) ! Scale by 1000*MW_HNO3/MW_Air
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 3, 'AERO', 'AISOPNN', 2.0*62.0/226.0 )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 4, 'AERO', 'AMTNO3', 62.0/231.0 )
+               CALL INIT_ELMO_COEFFS( IDG, N_VARS, 'ALL' )
+               CALL SET_ELMO_COEFF_MAP( IDG, 1, 'AERO', 'ANO3', 1.0 )
+               CALL SET_ELMO_COEFF_MAP( IDG, 2, 'GAS', 'HNO3', 2175.6 ) ! Scale by 1000*MW_HNO3/MW_Air
+               CALL SET_ELMO_COEFF_MAP( IDG, 3, 'AERO', 'AISOPNN', 2.0*62.0/226.0 )
+               CALL SET_ELMO_COEFF_MAP( IDG, 4, 'AERO', 'AMTNO3', 62.0/231.0 )
  
              ! Otherwise
              CASE DEFAULT
-               ! If the IDG is less than N_PMDIAG_LIST, then do nothing
+               ! If the IDG is less than N_ELMO_LIST, then do nothing
                ! because it is a parameter that would have been defined
                ! in one of the previous cases. If IDG is larger than
-               ! N_PMDIAG_LIST, then look through CMAQ model species and
+               ! N_ELMO_LIST, then look through CMAQ model species and
                ! Chemical Families to determine how to map it
-               IF ( IDG .GT. N_PMDIAG_LIST ) THEN
-                  S = USED_CGRID_ID( IPMDIAG )
+               IF ( IDG .GT. N_ELMO_LIST ) THEN
+                  S = USED_CGRID_ID( IELMO )
                   IF ( S .GT. 0 ) THEN
                      ! CMAQ Species
-                     NVARS = 1
-                     CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'ALL' )
-                     CALL SET_PMDIAG_COEFF_MAP( IDG, 1,'SPC', CGRID_NAME(S), 1.0 )
+                     N_VARS = 1
+                     CALL INIT_ELMO_COEFFS( IDG, N_VARS, 'ALL' )
+                     CALL SET_ELMO_COEFF_MAP( IDG, 1,'SPC', CGRID_NAME(S), 1.0 )
                   END IF
 
-                  F = USED_FAM_ID( IPMDIAG)
+                  F = USED_FAM_ID( IELMO)
                   IF ( F .GT. 0 ) THEN
                      ! User-Defined Family
-                     NVARS = CHEMFAMILYNUM( F )
-                     CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'ALL' )
-                     DO IV = 1,NVARS
-                       CALL SET_PMDIAG_COEFF_MAP( IDG, IV, 'SPC',
+                     N_VARS = CHEMFAMILYNUM( F )
+                     CALL INIT_ELMO_COEFFS( IDG, N_VARS, 'ALL' )
+                     DO IV = 1,N_VARS
+                       CALL SET_ELMO_COEFF_MAP( IDG, IV, 'SPC',
      &                          CHEMFAMILYMEMBERS(F,IV), 1.0 )
                      END DO
                   END IF
@@ -1819,12 +1834,12 @@
          END SELECT
 
       END DO
-      END SUBROUTINE MAP_PMDIAG_COEFFS
+      END SUBROUTINE MAP_ELMO_COEFFS
  
 !-------------------------------------------------------------------------
-      SUBROUTINE INIT_PMDIAG_COEFFS( IDG, N_VARS, AEROTYPE_TMP )
+      SUBROUTINE INIT_ELMO_COEFFS( IDG, N_VARS, AEROTYPE_TMP )
 !     This subroutine allocates and initalizes all of the elements of an 
-!        index IDG within the PMDIAG_COEFFS structure
+!        index IDG within the ELMO_COEFFS structure
 !
 !     IDG - the index of this diagnostic parameter in the space defined
 !           by the integer index variables like ID_PMF_POC, etc.
@@ -1848,34 +1863,34 @@
       CHARACTER( * ), INTENT( IN ) ::  AEROTYPE_TMP
       CHARACTER( 20 ) AEROTYPE
       CHARACTER( 200 ) XMSG
-      CHARACTER(16), SAVE :: PNAME = 'INIT_PMDIAG_COEF'
+      CHARACTER(16), SAVE :: PNAME = 'INIT_ELMO_COEF'
       INTEGER ALLOCSTAT
 
-      ! Initialize All Components of PMDIAG_COEFFS
-      PMDIAG_COEFFS( IDG )%L_MAPPED = .TRUE.
-      PMDIAG_COEFFS( IDG )%N_VARS = N_VARS
-      ALLOCATE( PMDIAG_COEFFS( IDG )%L_MODE( N_MODE ),
-     &          PMDIAG_COEFFS( IDG )%L_GAS ( N_VARS ),
-     &          PMDIAG_COEFFS( IDG )%L_SPC ( N_VARS ),
-     &          PMDIAG_COEFFS( IDG )%L_PREC( N_VARS ),
-     &          PMDIAG_COEFFS( IDG )%L_AGG ( N_VARS ),
-     &          PMDIAG_COEFFS( IDG )%I_SPEC( N_VARS ),
-     &          PMDIAG_COEFFS( IDG )%COEFF ( N_VARS ),
+      ! Initialize All Components of ELMO_COEFFS
+      ELMO_COEFFS( IDG )%L_MAPPED = .TRUE.
+      ELMO_COEFFS( IDG )%N_VARS = N_VARS
+      ALLOCATE( ELMO_COEFFS( IDG )%L_MODE( N_MODE ),
+     &          ELMO_COEFFS( IDG )%L_GAS ( N_VARS ),
+     &          ELMO_COEFFS( IDG )%L_SPC ( N_VARS ),
+     &          ELMO_COEFFS( IDG )%L_PREC( N_VARS ),
+     &          ELMO_COEFFS( IDG )%L_AGG ( N_VARS ),
+     &          ELMO_COEFFS( IDG )%I_SPEC( N_VARS ),
+     &          ELMO_COEFFS( IDG )%COEFF ( N_VARS ),
      &          STAT=ALLOCSTAT )
       IF ( ALLOCSTAT .NE. 0 ) THEN
-           XMSG = 'Failure allocating PMDIAG_COEFFS' 
+           XMSG = 'Failure allocating ELMO_COEFFS' 
            CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
       END IF
 
-      PMDIAG_COEFFS( IDG )%L_GAS  ( : )   = .FALSE.
-      PMDIAG_COEFFS( IDG )%L_SPC  ( : )   = .FALSE.
-      PMDIAG_COEFFS( IDG )%L_PREC ( : )   = .FALSE.
-      PMDIAG_COEFFS( IDG )%L_AGG  ( : )   = .FALSE.
-      PMDIAG_COEFFS( IDG )%I_SPEC ( : )   = 0
-      PMDIAG_COEFFS( IDG )%L_MODE ( : )   = .FALSE.
-      PMDIAG_COEFFS( IDG )%COEFF  ( : )   = 0.
-      PMDIAG_COEFFS( IDG )%INLET          = 0
-      PMDIAG_COEFFS( IDG )%WETNESS        = IWET
+      ELMO_COEFFS( IDG )%L_GAS  ( : )   = .FALSE.
+      ELMO_COEFFS( IDG )%L_SPC  ( : )   = .FALSE.
+      ELMO_COEFFS( IDG )%L_PREC ( : )   = .FALSE.
+      ELMO_COEFFS( IDG )%L_AGG  ( : )   = .FALSE.
+      ELMO_COEFFS( IDG )%I_SPEC ( : )   = 0
+      ELMO_COEFFS( IDG )%L_MODE ( : )   = .FALSE.
+      ELMO_COEFFS( IDG )%COEFF  ( : )   = 0.
+      ELMO_COEFFS( IDG )%INLET          = 0
+      ELMO_COEFFS( IDG )%WETNESS        = IWET
 
       ! Specify the Aerosol Modes Needed and Inlet Type based on User
       ! Input through the AEROTYPE variable.
@@ -1883,56 +1898,56 @@
       CALL UPCASE( AEROTYPE )
       SELECT CASE ( AEROTYPE )
          CASE ( 'ALL' )
-             PMDIAG_COEFFS( IDG )%L_MODE( : ) = .TRUE.
+             ELMO_COEFFS( IDG )%L_MODE( : ) = .TRUE.
          CASE ('NONE' )
-             PMDIAG_COEFFS( IDG )%L_MODE( : ) = .FALSE.
+             ELMO_COEFFS( IDG )%L_MODE( : ) = .FALSE.
          CASE ('ULTRAFINE' )
-             PMDIAG_COEFFS( IDG )%L_MODE( : ) = AEROMODE(:)%ULTRAFINE_MASK
+             ELMO_COEFFS( IDG )%L_MODE( : ) = AEROMODE(:)%ULTRAFINE_MASK
          CASE ('FINE' )
-             PMDIAG_COEFFS( IDG )%L_MODE( : ) = AEROMODE(:)%FINE_MASK
+             ELMO_COEFFS( IDG )%L_MODE( : ) = AEROMODE(:)%FINE_MASK
          CASE ('COARSE' )
-             PMDIAG_COEFFS( IDG )%L_MODE( : ) = AEROMODE(:)%COARSE_MASK
+             ELMO_COEFFS( IDG )%L_MODE( : ) = AEROMODE(:)%COARSE_MASK
          CASE ('NUCLEATION' )
-             PMDIAG_COEFFS( IDG )%L_MODE( : ) = AEROMODE(:)%NUC_MASK
+             ELMO_COEFFS( IDG )%L_MODE( : ) = AEROMODE(:)%NUC_MASK
          CASE ('AITKEN' )
-             PMDIAG_COEFFS( IDG )%L_MODE( : ) = AEROMODE(:)%AITKEN_MASK
+             ELMO_COEFFS( IDG )%L_MODE( : ) = AEROMODE(:)%AITKEN_MASK
          CASE ('ACCUMULATION' )
-             PMDIAG_COEFFS( IDG )%L_MODE( : ) = AEROMODE(:)%ACCUM_MASK
+             ELMO_COEFFS( IDG )%L_MODE( : ) = AEROMODE(:)%ACCUM_MASK
          CASE ('PM01' )
-             PMDIAG_COEFFS( IDG )%L_MODE( : ) = .TRUE.
-             PMDIAG_COEFFS( IDG )%INLET = IPM01
-             PMDIAG_COEFFS( IDG )%WETNESS = IWET
+             ELMO_COEFFS( IDG )%L_MODE( : ) = .TRUE.
+             ELMO_COEFFS( IDG )%INLET = IPM01
+             ELMO_COEFFS( IDG )%WETNESS = IWET
          CASE ('PM1' )
-             PMDIAG_COEFFS( IDG )%L_MODE( : ) = .TRUE.
-             PMDIAG_COEFFS( IDG )%INLET = IPM1
-             PMDIAG_COEFFS( IDG )%WETNESS = IWET
+             ELMO_COEFFS( IDG )%L_MODE( : ) = .TRUE.
+             ELMO_COEFFS( IDG )%INLET = IPM1
+             ELMO_COEFFS( IDG )%WETNESS = IWET
          CASE ('PM25' )
-             PMDIAG_COEFFS( IDG )%L_MODE( : ) = .TRUE.
-             PMDIAG_COEFFS( IDG )%INLET = IPM25
-             PMDIAG_COEFFS( IDG )%WETNESS = IWET
+             ELMO_COEFFS( IDG )%L_MODE( : ) = .TRUE.
+             ELMO_COEFFS( IDG )%INLET = IPM25
+             ELMO_COEFFS( IDG )%WETNESS = IWET
          CASE ('PM10' )
-             PMDIAG_COEFFS( IDG )%L_MODE( : ) = .TRUE.
-             PMDIAG_COEFFS( IDG )%INLET = IPM10
-             PMDIAG_COEFFS( IDG )%WETNESS = IWET
+             ELMO_COEFFS( IDG )%L_MODE( : ) = .TRUE.
+             ELMO_COEFFS( IDG )%INLET = IPM10
+             ELMO_COEFFS( IDG )%WETNESS = IWET
          CASE ('PM25TO10' )
-             PMDIAG_COEFFS( IDG )%L_MODE( : ) = .TRUE.
-             PMDIAG_COEFFS( IDG )%INLET = IPM25to10
-             PMDIAG_COEFFS( IDG )%WETNESS = IWET
+             ELMO_COEFFS( IDG )%L_MODE( : ) = .TRUE.
+             ELMO_COEFFS( IDG )%INLET = IPM25to10
+             ELMO_COEFFS( IDG )%WETNESS = IWET
          CASE ('PMAMS' )
-             PMDIAG_COEFFS( IDG )%L_MODE( : ) = .TRUE.
-             PMDIAG_COEFFS( IDG )%INLET = IPMAMS
-             PMDIAG_COEFFS( IDG )%WETNESS = IWET
+             ELMO_COEFFS( IDG )%L_MODE( : ) = .TRUE.
+             ELMO_COEFFS( IDG )%INLET = IPMAMS
+             ELMO_COEFFS( IDG )%WETNESS = IWET
          CASE DEFAULT
              XMSG = 'An aerosol descriptor (' // trim(AEROTYPE) // ') has been given ' //
-     &              'for the mapping of a PMDIAG parameter. It is not recognized.'
-             CALL M3EXIT( 'INIT_PMDIAG_COEFFS', 0, 0, XMSG, XSTAT1 )
+     &              'for the mapping of a ELMO parameter. It is not recognized.'
+             CALL M3EXIT( 'INIT_ELMO_COEFFS', 0, 0, XMSG, XSTAT1 )
       END SELECT
 
 
-      END SUBROUTINE INIT_PMDIAG_COEFFS
+      END SUBROUTINE INIT_ELMO_COEFFS
 
 !-------------------------------------------------------------------------
-      SUBROUTINE SET_PMDIAG_COEFF_MAP( IDG, IVAR, TSPEC_TMP, CSPEC, COEFF )
+      SUBROUTINE SET_ELMO_COEFF_MAP( IDG, IVAR, TSPEC_TMP, CSPEC, COEFF )
 !     This subroutine maps the modes designated by the variable CMODE to
 !        to the indices available in L_MODE.
 !-------------------------------------------------------------------------
@@ -1957,7 +1972,7 @@
 
       ! Find Index of CSPEC in Gas Array, Aggregate Array or AEROSPC%BULKNAME
       IF ( TSPEC .EQ. 'PREC' ) THEN 
-          PMDIAG_COEFFS( IDG )%L_PREC( IVAR ) = .TRUE. 
+          ELMO_COEFFS( IDG )%L_PREC( IVAR ) = .TRUE. 
 
           ! Map to Gas-Phase Aerosol Precursor
           ! Check the precursor array
@@ -1965,7 +1980,7 @@
  
           IF ( ISPEC .GT. 0 ) THEN
              ! Found the Index. Save it!
-             PMDIAG_COEFFS( IDG )%I_SPEC( IVAR ) = ISPEC
+             ELMO_COEFFS( IDG )%I_SPEC( IVAR ) = ISPEC
           ELSE
              ! Could not find the species in the Gas Precursor Array. Print an
              ! Error and Warn
@@ -1975,7 +1990,7 @@
      &           "in PRECURSOR_DATA is compatible with the PM diagnostics you have called "//
      &           "for in the Emissions Control Namelist."
              !CALL LOG_MESSAGE( LOGDEV, XMSG )
-             !CALL M3WARN( 'MAP_PMDIAG_COEFFS', 0, 0, '' )
+             !CALL M3WARN( 'MAP_ELMO_COEFFS', 0, 0, '' )
           END IF 
       ELSE IF ( TSPEC .EQ. 'GAS' ) THEN 
           ! Map to Generic Gas Species
@@ -1991,17 +2006,17 @@
           IF ( ISPEC .NE. 0 ) THEN
              ! Reassign identity of this variable to the precursor array
              ! and not the gas section of the cgrid array
-             PMDIAG_COEFFS( IDG )%L_PREC( IVAR ) = .TRUE.
-             PMDIAG_COEFFS( IDG )%L_GAS( IVAR )  = .FALSE.
+             ELMO_COEFFS( IDG )%L_PREC( IVAR ) = .TRUE.
+             ELMO_COEFFS( IDG )%L_GAS( IVAR )  = .FALSE.
           ELSE
              ! Then check the CGRID array
-             PMDIAG_COEFFS( IDG )%L_GAS( IVAR ) = .TRUE.
+             ELMO_COEFFS( IDG )%L_GAS( IVAR ) = .TRUE.
              ISPEC = INDEX1( CSPEC, N_CGRID_SPC, CGRID_NAME(:) )
           END IF
  
           IF ( ISPEC .GT. 0 ) THEN
              ! Found the Index. Save it!
-             PMDIAG_COEFFS( IDG )%I_SPEC( IVAR ) = ISPEC
+             ELMO_COEFFS( IDG )%I_SPEC( IVAR ) = ISPEC
           ELSE
              ! Could not find the species in the CGRID Array. Print an
              ! Error and Warn
@@ -2011,47 +2026,47 @@
      &           "GC_namelist is compatible with the PM diagnostics you have called "//
      &           "for in the Emmissions Control Namelist."
              !CALL LOG_MESSAGE( LOGDEV, XMSG )
-             !CALL M3WARN( 'MAP_PMDIAG_COEFFS', 0, 0, '' )
-             PMDIAG_COEFFS( IDG )%L_GAS( IVAR )  = .FALSE.
+             !CALL M3WARN( 'MAP_ELMO_COEFFS', 0, 0, '' )
+             ELMO_COEFFS( IDG )%L_GAS( IVAR )  = .FALSE.
           END IF
       
       ELSE IF ( TSPEC .EQ. 'AGG' ) THEN 
-          ! Map to Index on PMDIAG_LIST, not the ID column
-          PMDIAG_COEFFS( IDG )%L_AGG( IVAR ) = .TRUE.
-          ISPEC = INDEX1( CSPEC, N_PMDIAG_LIST, PMDIAG_LIST%NAME )
+          ! Map to Index on ELMO_LIST, not the ID column
+          ELMO_COEFFS( IDG )%L_AGG( IVAR ) = .TRUE.
+          ISPEC = INDEX1( CSPEC, N_ELMO_LIST, ELMO_LIST%NAME )
       
           IF ( ISPEC .GT. 0 ) THEN
-             ! Found the Index. Save the ID for this entry on the PMDIAG_LIST
-             PMDIAG_COEFFS( IDG )%I_SPEC( IVAR ) = PMDIAG_LIST( ISPEC )%ID
+             ! Found the Index. Save the ID for this entry on the ELMO_LIST
+             ELMO_COEFFS( IDG )%I_SPEC( IVAR ) = ELMO_LIST( ISPEC )%ID
              
-             ! Check if it is used and add it to the USED_PMDIAG_ID
+             ! Check if it is used and add it to the USED_ELMO_ID
              ! vector if not
              USED = .FALSE.
-             DO JSPEC = 1,N_PMDIAG
-                IF ( PMDIAG_LIST( ISPEC )%ID .EQ. USED_PMDIAG_ID( JSPEC ) ) USED = .TRUE.
+             DO JSPEC = 1,N_ELMO
+                IF ( ELMO_LIST( ISPEC )%ID .EQ. USED_ELMO_ID( JSPEC ) ) USED = .TRUE.
              END DO
              IF ( .NOT. USED ) THEN
-                 N_PMDIAG = N_PMDIAG + 1
-                 USED_PMDIAG_ID( N_PMDIAG ) = PMDIAG_LIST( ISPEC )%ID
+                 N_ELMO = N_ELMO + 1
+                 USED_ELMO_ID( N_ELMO ) = ELMO_LIST( ISPEC )%ID
              END IF
 
           ELSE
-             ! Could not find the species in the PMDIAG List. Print an
+             ! Could not find the species in the ELMO List. Print an
              ! Error and Crash
              XMSG = "ERROR: A PM Diagnostic variable has been requested that relies " //
      &           "on the diagnostic aggregate variable " // TRIM(CSPEC) // ". This variable "//
-     &           "has not been incorporated in the PMDIAG List though. Please check that the "//
-     &           "table in PMDIAG_DATA is compatible with the PM diagnostics you have defined "//
-     &           "in PMDIAG_PROC."
+     &           "has not been incorporated in the ELMO List though. Please check that the "//
+     &           "table in ELMO_DATA is compatible with the PM diagnostics you have defined "//
+     &           "in ELMO_PROC."
              CALL LOG_MESSAGE( LOGDEV, XMSG )
-             CALL M3EXIT( 'MAP_PMDIAG_COEFFS', 0, 0, '', XSTAT1 )
+             CALL M3EXIT( 'MAP_ELMO_COEFFS', 0, 0, '', XSTAT1 )
           END IF          
   
       ELSE IF ( TSPEC .EQ. 'SPC' ) THEN 
           ! Map to a CGRID Species. No Special Instructions
-          PMDIAG_COEFFS( IDG )%L_SPC( IVAR ) = .TRUE.
+          ELMO_COEFFS( IDG )%L_SPC( IVAR ) = .TRUE.
           ISPEC = INDEX1( CSPEC, N_CGRID_SPC, CGRID_NAME )
-          PMDIAG_COEFFS( IDG )%I_SPEC( IVAR ) = ISPEC
+          ELMO_COEFFS( IDG )%I_SPEC( IVAR ) = ISPEC
 
       ELSE
           ! Aerosol
@@ -2059,7 +2074,7 @@
       
           IF ( ISPEC .GT. 0 ) THEN
              ! Found the Index. Save it!
-             PMDIAG_COEFFS( IDG )%I_SPEC( IVAR ) = ISPEC
+             ELMO_COEFFS( IDG )%I_SPEC( IVAR ) = ISPEC
           ELSE
              ! Could not find the species in the Aerosol Array. Print an
              ! Error and Warn
@@ -2069,17 +2084,17 @@
      &           "AE_namelist is compatible with the PM diagnostics you have called "//
      &           "for in the Emmissions Control Namelist."
              !CALL LOG_MESSAGE( LOGDEV, XMSG )
-             !CALL M3WARN( 'MAP_PMDIAG_COEFFS', 0, 0, '' )
+             !CALL M3WARN( 'MAP_ELMO_COEFFS', 0, 0, '' )
           END IF
       END IF
-      PMDIAG_COEFFS( IDG )%COEFF( IVAR ) = COEFF
+      ELMO_COEFFS( IDG )%COEFF( IVAR ) = COEFF
 
-      END SUBROUTINE SET_PMDIAG_COEFF_MAP
+      END SUBROUTINE SET_ELMO_COEFF_MAP
 
 !-------------------------------------------------------------------------
       SUBROUTINE CALC_CONCOUT_AGG( IDG, VAL )
 !     This subroutine sums aggregate PM diagnostic parameters using the
-!         PMDIAG_COEFFS structure as a guide for summing aerosol
+!         ELMO_COEFFS structure as a guide for summing aerosol
 !         components.          
 !-------------------------------------------------------------------------
       USE AERO_DATA, ONLY : WET_AERO_M3, WET_AERO_M2, MOMENT0_CONC,
@@ -2096,7 +2111,7 @@
       REAL, INTENT( INOUT ) :: VAL
       REAL VAL2
       INTEGER IVAR, ILIST
-      LOGICAL L_CALC( N_PMDIAG )
+      LOGICAL L_CALC( N_ELMO )
       REAl    COEFF
       INTEGER IM, WETNESS, ISPEC, INLET
       LOGICAL LMODE
@@ -2106,14 +2121,14 @@
 
       ! If this Aggregate has not been mapped already, then return an
       ! error and crash the model
-      IF ( .NOT. PMDIAG_COEFFS( IDG )%L_MAPPED ) THEN
+      IF ( .NOT. ELMO_COEFFS( IDG )%L_MAPPED ) THEN
          ILIST = MAP_ID2LIST( IDG )  
-         XMSG = 'PMDIAG Parameter ' // TRIM( PMDIAG_LIST( ILIST )%NAME ) //
-     &          ' has not been mapped to a procedure within PMDIAG_PROC even ' //
+         XMSG = 'ELMO Parameter ' // TRIM( ELMO_LIST( ILIST )%NAME ) //
+     &          ' has not been mapped to a procedure within ELMO_PROC even ' //
      &          'though it does appear to be an acceptable parameter on the ' //
-     &          'PMDIAG_LIST. If you have added this parameter yourself, make ' //
-     &          'sure it is being mapped to an actual calculation in CALC_PMDIAG ' //
-     &          'or MAP_PMDIAG_COEFFS.'
+     &          'ELMO_LIST. If you have added this parameter yourself, make ' //
+     &          'sure it is being mapped to an actual calculation in CALC_ELMO ' //
+     &          'or MAP_ELMO_COEFFS.'
          CALL LOG_MESSAGE( LOGDEV, XMSG )
          CALL M3EXIT( 'CALC_CONCOUT_AGG', 0, 0, '', XSTAT1 )
       END IF
@@ -2122,7 +2137,7 @@
       VAL = 0.0
       
       ! Retrieve size cutoff if necessary
-      IF ( PMDIAG_COEFFS( IDG )%INLET .EQ. IPMAMS ) THEN
+      IF ( ELMO_COEFFS( IDG )%INLET .EQ. IPMAMS ) THEN
          ! Inlet is for AMS Colection
          DO IM = 1,N_MODE
            IF ( INLET_FRAC( IPMAMS,IM,IWET ) .LT. 0. ) 
@@ -2132,12 +2147,12 @@
      &                       INLET_FRAC( IPMAMS,IM,IWET ) )
            FRAC( IM ) = INLET_FRAC( IPMAMS,IM,IWET )
          END DO
-      ELSE IF ( PMDIAG_COEFFS(IDG)%INLET .GT. 0 .AND.
-     &          PMDIAG_COEFFS(IDG)%INLET .LE. N_INLET ) THEN
+      ELSE IF ( ELMO_COEFFS(IDG)%INLET .GT. 0 .AND.
+     &          ELMO_COEFFS(IDG)%INLET .LE. N_INLET ) THEN
          ! Inlet is for a filter with a specific size-range. Call the
          ! AERO_INLET wrapper, GET_AERO_INLET.
-         INLET = PMDIAG_COEFFS( IDG )%INLET
-         WETNESS = PMDIAG_COEFFS( IDG )%WETNESS
+         INLET = ELMO_COEFFS( IDG )%INLET
+         WETNESS = ELMO_COEFFS( IDG )%WETNESS
          DO IM = 1,N_MODE
            IF ( INLET_FRAC( INLET,IM,WETNESS ) .LT. 0. ) 
      &        CALL GET_AERO_INLET( INLET, IM, WETNESS,
@@ -2151,40 +2166,41 @@
       END IF
 
       ! Loop through N_VARS and add species together
-      DO IVAR = 1,PMDIAG_COEFFS( IDG )%N_VARS
-          ISPEC = PMDIAG_COEFFS( IDG )%I_SPEC( IVAR )
-          COEFF = PMDIAG_COEFFS( IDG )%COEFF( IVAR )
+      DO IVAR = 1,ELMO_COEFFS( IDG )%N_VARS
+          ISPEC = ELMO_COEFFS( IDG )%I_SPEC( IVAR )
+          COEFF = ELMO_COEFFS( IDG )%COEFF( IVAR )
 
           IF ( ISPEC .GT. 0 ) THEN
              ! First check if this is a Precursor Gas
-             IF ( PMDIAG_COEFFS( IDG )%L_PREC( IVAR ) ) THEN
+             IF ( ELMO_COEFFS( IDG )%L_PREC( IVAR ) ) THEN
                  VAL = VAL + REAL( PRECURSOR_CONC( ISPEC ), 4) * COEFF
           
              ! Next check if this is a Gas from CGRID
-             ELSE IF  ( PMDIAG_COEFFS( IDG )%L_GAS( IVAR ) ) THEN
+             ELSE IF  ( ELMO_COEFFS( IDG )%L_GAS( IVAR ) ) THEN
                  VAL = VAL + CONC_VEC( ISPEC ) * COEFF * AIRDENS
 
              ! Next check for aggregate variable
-             ELSE IF  ( PMDIAG_COEFFS( IDG )%L_AGG( IVAR ) ) THEN
-                 CALL CALC_PMDIAG( ISPEC, 1, VAL2 )
+             ELSE IF  ( ELMO_COEFFS( IDG )%L_AGG( IVAR ) ) THEN
+                 CALL CALC_ELMO( ISPEC, 1, VAL2 )
                  VAL = VAL + VAL2 * COEFF
 
              ! Next check if this is a Species from CGRID that should be
              ! added as-is
-             ELSE IF  ( PMDIAG_COEFFS( IDG )%L_SPC( IVAR ) ) THEN
+             ELSE IF  ( ELMO_COEFFS( IDG )%L_SPC( IVAR ) ) THEN
                  VAL = VAL + CONC_VEC( ISPEC ) * COEFF
 
              ! Add Aerosol Components
              ELSE 
 
-              DO IM = 1,N_MODE
-                 ! If this mode is supposed to be added (LMODE) and the
-                 ! species is not missing, then add it up
-                 LMODE = PMDIAG_COEFFS( IDG )%L_MODE( IM )
-                 IF ( LMODE .AND. ( .NOT. AERO_MISSING( ISPEC,IM ) ) ) 
-     &               VAL = VAL + AEROSPC_CONC( ISPEC, IM ) * COEFF * FRAC( IM )
+                DO IM = 1,N_MODE
+                   ! If this mode is supposed to be added (LMODE) and the
+                   ! species is not missing, then add it up
+                   LMODE = ELMO_COEFFS( IDG )%L_MODE( IM )
+                   IF ( LMODE .AND. ( .NOT. AERO_MISSING( ISPEC,IM ) ) ) 
+     &                 VAL = VAL + AEROSPC_CONC( ISPEC, IM ) * COEFF * FRAC( IM )
 
-              END DO
+                END DO
+             END IF
           END IF
 
       END DO 
@@ -2192,9 +2208,9 @@
       END SUBROUTINE CALC_CONCOUT_AGG
  
 !-------------------------------------------------------------------------
-      RECURSIVE SUBROUTINE CALC_PMDIAG( IDG, IM, OUTVAL )
+      RECURSIVE SUBROUTINE CALC_ELMO( IDG, IM, OUTVAL )
 !     This subroutine maps the PM diagnostic variables that the user has
-!       requested to the entries in the PMDIAG_DATA table.
+!       requested to the entries in the ELMO_DATA table.
 !-------------------------------------------------------------------------
 
       USE AERO_DATA, ONLY: AEROMODE_LNSG, DRY_AERO_DIAM, WET_AERO_DIAM,
@@ -2223,13 +2239,13 @@
      &     PM25_NH4_LOSS
 
       ! Map this combination of ID number and mode to the USED
-      ! Parameters list, which is how PMDIAG_LOCAL is defined.
+      ! Parameters list, which is how ELMO_LOCAL is defined.
       IUSED = MAP_ID2USED( IDG, IM )
 
       ! First determine if this parameter has been mapped already. If it
       ! has, send it back
       IF ( L_CALC( IUSED ) ) THEN
-          OUTVAL = PMDIAG_LOCAL( IUSED )
+          OUTVAL = ELMO_LOCAL( IUSED )
           RETURN
       END IF
 
@@ -2495,18 +2511,18 @@
          ! Particle Water
          CASE ( ID_PMF_HPM )
             ! Retrieve AHPLUSIJ
-            CALL CALC_PMDIAG( ID_PMF_HP, 1, VAL )
+            CALL CALC_ELMO( ID_PMF_HP, 1, VAL )
             ! Retrieve AH2OIJ
-            CALL CALC_PMDIAG( ID_PMF_H2O, 1, VAL2 )
+            CALL CALC_ELMO( ID_PMF_H2O, 1, VAL2 )
             ! HPMOLAL = AHPLUSIJ / AH2OIJ * 1000.0 [mol L-1]
             OUTVAL = VAL / VAL2 * 1000.0
 
          ! Calculate PMF_PH - Fine-Mode pH
          CASE ( ID_PMF_PH )
             ! Retrieve HPMOLAL
-            CALL CALC_PMDIAG( ID_PMF_HPM, 1, VAL )
+            CALL CALC_ELMO( ID_PMF_HPM, 1, VAL )
             ! Retrieve AH2OIJ
-            CALL CALC_PMDIAG( ID_PMF_H2O, 1, VAL2 )
+            CALL CALC_ELMO( ID_PMF_H2O, 1, VAL2 )
 
             !PMF_PH = -1*LOG10(HPMOLAL)
             OUTVAL = BADVAL3
@@ -2618,13 +2634,13 @@
          CASE ( ID_PMF_OMOC )
             VAL  = 0.0
             VAL2 = 0.0
-            CALL CALC_PMDIAG( ID_PMF_OA, 1, VAL  )
-            CALL CALC_PMDIAG( ID_PMF_OC, 1, VAL2 )
+            CALL CALC_ELMO( ID_PMF_OA, 1, VAL  )
+            CALL CALC_ELMO( ID_PMF_OC, 1, VAL2 )
             OUTVAL = VAL / ( VAL2 + TINY( 0.0 ) )
             
          ! Calculate PMF_OtoC - Fine-Mode O:C 
          CASE ( ID_PMF_OtoC )
-            CALL CALC_PMDIAG( ID_PMF_OA, 1, VAL  )
+            CALL CALC_ELMO( ID_PMF_OA, 1, VAL  )
 
             VAL2 = 0.0
             DO IOA = 1,N_OA_NotTracers
@@ -2720,7 +2736,7 @@
               
          ! Calculate O:C relevant for AMS observations
          CASE ( ID_AMS_OtoC )
-            CALL CALC_PMDIAG( ID_AMS_OA, 1, VAL  )
+            CALL CALC_ELMO( ID_AMS_OA, 1, VAL  )
 
             VAL2 = 0.0
             VAL4 = 0.0
@@ -2754,8 +2770,8 @@
  
          ! Calculate Aerosol Fraction of Benzo-a-Pyrene
          CASE ( ID_BENAPY_FAERO )
-            CALL CALC_PMDIAG( ID_PMF_BENAPY, 1, VAL  )
-            CALL CALC_PMDIAG( ID_GAS_BENAPY, 1, VAL2  )
+            CALL CALC_ELMO( ID_PMF_BENAPY, 1, VAL  )
+            CALL CALC_ELMO( ID_GAS_BENAPY, 1, VAL2  )
             OUTVAL = VAL / ( VAL + VAL2 + TINY( 0.0 ) )
 
          ! Retrieve Fine-Mode Particle Mass Collected by the Federal
@@ -2772,14 +2788,14 @@
                 K2 = ( K * ( P1 - P2*a + P3*a*a ) * ( a**1.75 ) ) ** 0.5
             END IF
 
-            CALL CALC_PMDIAG( ID_PMF_NO3, 1, PMF_NO3 )
+            CALL CALC_ELMO( ID_PMF_NO3, 1, PMF_NO3 )
             PMF_NO3_LOSS = MIN( 745.7/SRFTEMP * K2, PMF_NO3 )
 
             PMF_NH4_LOSS = PMF_NO3_LOSS * 18.0 / 62.0
 
-            CALL CALC_PMDIAG( ID_PMF_NH4, 1, PMF_NH4 )
-            CALL CALC_PMDIAG( ID_PMF_SO4, 1, PMF_SO4 ) 
-            CALL CALC_PMDIAG( ID_PMF_MASS,1, PMF_MASS) 
+            CALL CALC_ELMO( ID_PMF_NH4, 1, PMF_NH4 )
+            CALL CALC_ELMO( ID_PMF_SO4, 1, PMF_SO4 ) 
+            CALL CALC_ELMO( ID_PMF_MASS,1, PMF_MASS) 
 
             OUTVAL = PMF_MASS - PMF_NO3_LOSS - PMF_NH4_LOSS
      &                      +0.24 * ( PMF_SO4 + PMF_NH4 - PMF_NH4_LOSS ) + 0.5
@@ -2798,13 +2814,13 @@
                 K2 = ( K * ( P1 - P2*a + P3*a*a ) * ( a**1.75 ) ) ** 0.5
             END IF
 
-            CALL CALC_PMDIAG( ID_PM25_NO3, 1, PM25_NO3 )
+            CALL CALC_ELMO( ID_PM25_NO3, 1, PM25_NO3 )
             PM25_NO3_LOSS = MIN( 745.7/SRFTEMP * K2, PM25_NO3 )
 
             PM25_NH4_LOSS = PM25_NO3_LOSS * 18.0 / 62.0
 
-            CALL CALC_PMDIAG( ID_PM25_NH4, 1, PM25_NH4 )
-            CALL CALC_PMDIAG( ID_PM25_SO4, 1, PM25_SO4 ) 
+            CALL CALC_ELMO( ID_PM25_NH4, 1, PM25_NH4 )
+            CALL CALC_ELMO( ID_PM25_SO4, 1, PM25_SO4 ) 
             CALL SUM_INLET_PM( IPM25, IWET, PM25 )
 
             OUTVAL = PM25 - PM25_NO3_LOSS - PM25_NH4_LOSS
@@ -2871,7 +2887,7 @@
             OUTVAL = MET_DATA%DENS( C1,R1,L1 ) ! kg m-3
 
          CASE DEFAULT
-            ! For most parameters the PMDIAG_COEFF structure will
+            ! For most parameters the ELMO_COEFF structure will
             ! define all of the mappings and coefficients needed for
             ! a particular summation. This can therefore be used in
             ! most cases. Parameters in this category are linear
@@ -2883,15 +2899,15 @@
  
          ! Save the fact that this parameter has been calculated
          L_CALC( IUSED ) = .TRUE.
-         PMDIAG_LOCAL( IUSED ) = OUTVAL
+         ELMO_LOCAL( IUSED ) = OUTVAL
  
 
-      END SUBROUTINE CALC_PMDIAG
+      END SUBROUTINE CALC_ELMO
           
 !-------------------------------------------------------------------------
-      SUBROUTINE LOAD_PMDIAG( C,R,L,CONC,WRITETIME )
+      SUBROUTINE LOAD_ELMO( C,R,L,CONC,WRITETIME )
 !     This subroutine maps the PM diagnostic variables that the user has
-!       requested to the entries in the PMDIAG_DATA table.
+!       requested to the entries in the ELMO_DATA table.
 !-------------------------------------------------------------------------
 
       USE AERO_DATA, ONLY: AEROMODE_LNSG, DRY_AERO_DIAM, WET_AERO_DIAM,
@@ -2911,7 +2927,7 @@
       LOGICAL, INTENT( IN ) :: WRITETIME
 
       ! Initalize Local Parameters
-      PMDIAG_LOCAL( : ) = 0.0
+      ELMO_LOCAL( : ) = 0.0
       INLET_FRAC(:,:,:) = -1.
       L_CALC            = .FALSE.
       CONC_VEC( : )     = CONC( : )
@@ -2927,36 +2943,36 @@
           ! Calculate All Aerosol Size Distribution Parameters
           CALL CALC_AERODIST_PARAMS
        
-          ! Loop Through Used Parameters List and Call PMDIAG Functions 
-          ! to fill in Local Array. PMDIAG_LOCAL is the same length as the
-          ! PMDIAG_LIST and is ordered by the PMDIAG ID numbers so that it
-          ! can be used seamlessly with the CALC_PMDIAG internal order.
-          DO IUSED = 1,N_PMDIAG_OUT
-             IM  = USED_PMDIAG_MODE( IUSED ) ! Map to 
-             IDG = USED_PMDIAG_ID( IUSED ) ! Map to Parameter ID numbers
+          ! Loop Through Used Parameters List and Call ELMO Functions 
+          ! to fill in Local Array. ELMO_LOCAL is the same length as the
+          ! ELMO_LIST and is ordered by the ELMO ID numbers so that it
+          ! can be used seamlessly with the CALC_ELMO internal order.
+          DO IUSED = 1,N_ELMO_OUT
+             IM  = USED_ELMO_MODE( IUSED ) ! Map to 
+             IDG = USED_ELMO_ID( IUSED ) ! Map to Parameter ID numbers
        
-             CALL CALC_PMDIAG( IDG, IM, PMDIAG_LOCAL( IUSED ) )
+             CALL CALC_ELMO( IDG, IM, ELMO_LOCAL( IUSED ) )
           END DO
        
           ! *** Aggregate Diagnostic Parameters in Average Array
           IF ( AVRG_ACTIVE .AND. 
      &         L.GE.AVRG_LAYER_BOT .AND. L.LE.AVRG_LAYER_TOP ) THEN
              AL = L - AVRG_LAYER_BOT + 1
-             DO  IAVRG = 1,N_PMDIAG_AVRG_OUT
-                IF ( USED_PMDIAG_ID( MAP_AVRG2USED( IAVRG )) .EQ. ID_PMF_PH
-     &               .AND. PMDIAG_LOCAL( MAP_AVRG2USED( IAVRG ) ) .LT. -100. ) THEN
+             DO  IAVRG = 1,N_ELMO_AVRG_OUT
+                IF ( USED_ELMO_ID( MAP_AVRG2USED( IAVRG )) .EQ. ID_PMF_PH
+     &               .AND. ELMO_LOCAL( MAP_AVRG2USED( IAVRG ) ) .LT. -100. ) THEN
                    ! Special Averageing for Particle pH
                    ! Add whatever the current average is right now.
                    ! Certainly this is problematic, particularly
-                   ! at the beginning of an hour where PMDIAG_AVRG =
+                   ! at the beginning of an hour where ELMO_AVRG =
                    ! 0. It's best to either use the instantaneous
                    ! value or recalculate the average fine particle acidity
                    ! offline.
-                   PMDIAG_AVRG( C,R,AL,IAVRG ) = PMDIAG_AVRG( C,R,AL,IAVRG ) 
-     &                     + PMDIAG_AVRG( C,R,AL,IAVRG ) / PMDIAG_AVRG_STEP
+                   ELMO_AVRG( C,R,AL,IAVRG ) = ELMO_AVRG( C,R,AL,IAVRG ) 
+     &                     + ELMO_AVRG( C,R,AL,IAVRG ) / ELMO_AVRG_STEP
                 ELSE
-                   PMDIAG_AVRG( C,R,AL,IAVRG ) = PMDIAG_AVRG( C,R,AL,IAVRG ) 
-     &                                         + PMDIAG_LOCAL( MAP_AVRG2USED( IAVRG ) )
+                   ELMO_AVRG( C,R,AL,IAVRG ) = ELMO_AVRG( C,R,AL,IAVRG ) 
+     &                                         + ELMO_LOCAL( MAP_AVRG2USED( IAVRG ) )
                 END IF
              END DO
           END IF
@@ -2965,26 +2981,29 @@
           IF ( WRITETIME .AND. INST_ACTIVE .AND.
      &         L.GE.INST_LAYER_BOT .AND. L.LE.INST_LAYER_TOP ) THEN
              IL = L - INST_LAYER_BOT + 1
-             DO IINST = 1,N_PMDIAG_INST_OUT
-                PMDIAG_INST( C,R,IL,IINST ) = PMDIAG_LOCAL( MAP_INST2USED( IINST ) )
+             DO IINST = 1,N_ELMO_INST_OUT
+                ELMO_INST( C,R,IL,IINST ) = ELMO_LOCAL( MAP_INST2USED( IINST ) )
              END DO
           END IF
  
       END IF
-      END SUBROUTINE LOAD_PMDIAG
+      END SUBROUTINE LOAD_ELMO
 
 !-------------------------------------------------------------------------
-      SUBROUTINE PMDIAG_DRIVER( CGRID, JDATE, JTIME )
+      SUBROUTINE ELMO_DRIVER( CGRID, JDATE, JTIME, TSTEP )
 !     This subroutine maps the PM diagnostic variables that the user has
-!       requested to the entries in the PMDIAG_DATA table.
+!       requested to the entries in the ELMO_DATA table.
 !-------------------------------------------------------------------------
 
       USE AERO_DATA, ONLY: AEROMODE_LNSG, DRY_AERO_DIAM, WET_AERO_DIAM,
      &                     DRY_AERO_M2, WET_AERO_M2, DRY_AERO_M3, 
      &                     WET_AERO_M3, N_MODE, MOMENT0_CONC, MOMENT2_CONC,
      &                     MOMENT3_CONC, WET_AERO_DENS, AEROSPC_CONC,
-     &                     AH2O_IDX, AEROSPC, CALC_AERODIST_PARAMS
-      USE AEROMET_DATA, ONLY: AIRRH
+     &                     AH2O_IDX, AEROSPC, CALC_AERODIST_PARAMS,
+     &                     Extract_Aero
+      USE AEROMET_DATA, ONLY: AIRRH, AIRTEMP, AIRQV, AIRDENS, AIRPRES,
+     &                        SRFTEMP, H2OVP, H2OSATVP, MWWAT, MWAIR
+      use centralized_io_module, only : interpolate_var
 
       IMPLICIT NONE
 
@@ -2992,6 +3011,7 @@
       INTEGER, INTENT( IN ) :: JDATE, JTIME     ! Date and time inputs to 
                                                 ! determine whether to write 
                                                 ! concentrations
+      INTEGER, INTENT( IN ) :: TSTEP(3)
 
       ! Variable to set time step for writing visibility file
       INTEGER, SAVE :: WSTEP  = 0          ! local write counter
@@ -3000,6 +3020,7 @@
       LOGICAL, SAVE :: FIRSTIME = .TRUE.
     
       ! Statement Function **************
+      REAL, PARAMETER :: EPSWATER = MWWAT / MWAIR
       REAL ESATL ! arithmetic statement function for vapor pressure [Pa]
       REAL TT
       ! Coefficients for the equation, ESATL defining saturation vapor pressure
@@ -3007,43 +3028,54 @@
       REAL, PARAMETER :: BL = 17.625
       REAL, PARAMETER :: CL = 243.04
 
-     ! values of AL, BL, and CL are from:
-     ! Alduchov and Eskridge, "Improved Magnus Form Approximations of
-     !                       Saturation Vapor Pressure,"
-     !                       Jour. of Applied Meteorology, vol. 35,
-     !                       pp 601-609, April, 1996.
+      INTEGER C, R, L
 
+      REAL, ALLOCATABLE, SAVE :: PRES(:,:,:), TA(:,:,:), TEMP2(:,:),
+     &                           QV(:,:,:), DENS(:,:,:)
+
+      ! values of AL, BL, and CL are from:
+      ! Alduchov and Eskridge, "Improved Magnus Form Approximations of
+      !                       Saturation Vapor Pressure,"
+      !                       Jour. of Applied Meteorology, vol. 35,
+      !                       pp 601-609, April, 1996.
       ESATL( TT ) = AL * EXP( BL * ( TT - 273.15 ) / ( TT - 273.15 + CL ) )
  
 
       IF ( FIRSTIME ) THEN
           FIRSTIME = .FALSE.
           ! Initialize Number of Steps Used for Calculating Average
-          PMDIAG_AVRG_STEP = 0
+          ELMO_AVRG_STEP = 0
+
+          ALLOCATE( PRES( NCOLS, NROWS, NLAYS),
+     &              TA( NCOLS, NROWS, NLAYS ),
+     &              QV( NCOLS, NROWS, NLAYS ),
+     &              DENS( NCOLS, NROWS, NLAYS ),
+     &              TEMP2( NCOLS, NROWS ) )
       END IF
 
       ! Determine if this is a write step
+      WRITETIME = .FALSE.
       WSTEP = WSTEP + TIME2SEC( TSTEP( 2 ) )
       IF ( WSTEP .GE. TIME2SEC( TSTEP( 1 ) ) ) THEN
            WRITETIME = .TRUE.
            WSTEP = 0
       END IF
-      PMDIAG_AVRG_STEP = PMDIAG_AVRG_STEP + 1
+      ELMO_AVRG_STEP = ELMO_AVRG_STEP + 1
      
       ! Get Meteorological Variables
 
       ! pressure [Pa]
-      call interpolate_var ('PRES', mdate, mtime, PRES)
+      call interpolate_var ('PRES', jdate, jtime, PRES)
 
       ! temperature [K]
-      call interpolate_var ('TA', mdate, mtime, TA)       ! Grid Cell Temp
-      call interpolate_var ('TEMP2',mdate, mtime, TEMP2 ) ! 2-m Temp
+      call interpolate_var ('TA', jdate, jtime, TA)       ! Grid Cell Temp
+      call interpolate_var ('TEMP2',jdate, jtime, TEMP2 ) ! 2-m Temp
 
       ! specific humidity [g H2O/g air]
-      call interpolate_var ('QV', mdate, mtime, QV)
+      call interpolate_var ('QV', jdate, jtime, QV)
 
       ! air density [kg/m3]
-      call interpolate_var ('DENS', mdate, mtime, DENS)
+      call interpolate_var ('DENS', jdate, jtime, DENS)
  
       
       ! Process PM Diagnostics for Base Model
@@ -3065,38 +3097,16 @@
          CALL EXTRACT_AERO( CGRID( C,R,L,: ), .TRUE. )
          
          ! Populate Diagnostic Arrays
-         CALL LOAD_PMDIAG( C,R,L, CGRID(C,R,L,:), WRITETIME )
+         CALL LOAD_ELMO( C,R,L, CGRID(C,R,L,:), WRITETIME )
 
       END DO
       END DO
       END DO
 
-      ! (Future Work) Process PM Diagnostics for ISAM
-      !   Extract Aero and Set Distribution Properties using 
-      !   base CGRID. Then loop over ISAM tags, load a CGRID style
-      !   vector with 0's where there are untagged species. Then
-      !   extract aero again and input then new CGRID and AEROSPC_CONC
-      !   to LOAD_PMDIAG.
-
-      ! (Future Work) Process PM Diagnostics for DDM
-      !   Discuss with Sergey the best way to approach.
-
-
-      IF ( WRITETIME ) THEN
-           IF ( L_PMDIAG ) CALL WRITE_PMDIAG( JDATE, JTIME, TSTEP )
-           PMDIAG_AVRG_STEP = 0
-           PMDIAG_AVRG = 0.0
-
-           !IF ( ISAM ) CALL WRITE_PMDIAG_ISAM( JDATE, JTIME, TSTEP )
-           !IF ( DDM3D ) CALL WRITE_PMDIAG_DDM( JDATE, JTIME, TSTEP )
-           WRITETIME = .FALSE.
-      END IF
-
-
-      END SUBROUTINE PMDIAG_DRIVER
+      END SUBROUTINE ELMO_DRIVER
 
 !-------------------------------------------------------------------------
-      SUBROUTINE OPEN_PMDIAG ( JDATE, JTIME, TSTEP )
+      SUBROUTINE OPEN_ELMO ( JDATE, JTIME, TSTEP )
 ! Revision history
 !   ??? Frank Binkowski
 !   8 Sep 01 J.Young: dyn alloc - Use HGRD_DEFN
@@ -3113,10 +3123,10 @@
 !                      DGCOR, M2COR_WET, and M3COR_DRY
 !   16 Feb 11 S.Roselle: replaced I/O API include files with UTILIO_DEFN
 !   26 Sep 14 H. Pye: Added GAMMA_IEPOX and replaced blank units with na
-!   11 May 16 D. Wong: - Modified the code to retreive PMDIAG information from
-!                        construct PMDIAG_SPC_RECORD stored in module cgrid_spcs
+!   11 May 16 D. Wong: - Modified the code to retreive ELMO information from
+!                        construct ELMO_SPC_RECORD stored in module cgrid_spcs
 !                        to provide flexibility to handle AE6 and AE61
-!                      - renamed the procedure name from OPDIAM to OPPMDIAG
+!                      - renamed the procedure name from OPDIAM to OPELMO
 !-------------------------------------------------------------------------
 
       USE GRID_CONF           ! horizontal & vertical domain specifications
@@ -3133,7 +3143,7 @@
 
       !...Local variables:
 
-        CHARACTER( 16 ), SAVE :: PNAME = 'OPEN_PMDIAG'
+        CHARACTER( 16 ), SAVE :: PNAME = 'OPEN_ELMO'
         CHARACTER( 96 ) :: XMSG = ' '
 
         INTEGER :: L          ! loop induction variables
@@ -3163,7 +3173,7 @@
       IF ( INST_ACTIVE ) THEN
         
          ! Try to open existing file for update
-         IF ( .NOT. OPEN3( CTM_PMDIAG_1, FSRDWR3, PNAME ) ) THEN
+         IF ( .NOT. OPEN3( CTM_ELMO_1, FSRDWR3, PNAME ) ) THEN
 
             ! Set output file characteristics based on COORD.EXT and open the aerosol
             ! diagnostic file
@@ -3176,7 +3186,7 @@
                VGLVS3D( L ) = VGLVS_GD( L )
             END DO
          
-            NVARS3D = N_PMDIAG_INST_OUT 
+            NVARS3D = N_ELMO_INST_OUT 
             VTYPE3D(1:NVARS3D) = INST_TYPE_OUT( 1:NVARS3D )
             VNAME3D(1:NVARS3D) = INST_PARS_OUT( 1:NVARS3D )
             UNITS3D(1:NVARS3D) = INST_UNIT_OUT( 1:NVARS3D )
@@ -3188,8 +3198,8 @@
             END DO
          
             ! Open the Instantaneous aerosol diagnostic file
-            IF ( .NOT. OPEN3( CTM_PMDIAG_1, FSNEW3, PNAME ) ) THEN
-               XMSG = 'Could not create '// CTM_PMDIAG_1 // ' file'
+            IF ( .NOT. OPEN3( CTM_ELMO_1, FSNEW3, PNAME ) ) THEN
+               XMSG = 'Could not create '// CTM_ELMO_1 // ' file'
                CALL M3EXIT ( PNAME, SDATE3D, STIME3D, XMSG, XSTAT1 )
             END IF
 
@@ -3201,7 +3211,7 @@
       IF ( AVRG_ACTIVE ) THEN
         
          ! Try to open existing file for update
-         IF ( .NOT. OPEN3( CTM_APMDIAG_1, FSRDWR3, PNAME ) ) THEN
+         IF ( .NOT. OPEN3( CTM_AELMO_1, FSRDWR3, PNAME ) ) THEN
 
             ! Get end time information from environment variable AVG_FILE_ENDTIME
             MDATE = JDATE; MTIME = JTIME
@@ -3217,7 +3227,7 @@
                VGLVS3D( L ) = VGLVS_GD( L )
             END DO
          
-            NVARS3D = N_PMDIAG_AVRG_OUT 
+            NVARS3D = N_ELMO_AVRG_OUT 
             VTYPE3D(1:NVARS3D) = AVRG_TYPE_OUT( 1:NVARS3D )
             VNAME3D(1:NVARS3D) = AVRG_PARS_OUT( 1:NVARS3D )
             UNITS3D(1:NVARS3D) = AVRG_UNIT_OUT( 1:NVARS3D )
@@ -3229,18 +3239,18 @@
             END DO
          
             ! Open the Instantaneous aerosol diagnostic file
-            IF ( .NOT. OPEN3( CTM_APMDIAG_1, FSNEW3, PNAME ) ) THEN
-               XMSG = 'Could not create '// CTM_APMDIAG_1 // ' file'
+            IF ( .NOT. OPEN3( CTM_AELMO_1, FSNEW3, PNAME ) ) THEN
+               XMSG = 'Could not create '// CTM_AELMO_1 // ' file'
                CALL M3EXIT ( PNAME, SDATE3D, STIME3D, XMSG, XSTAT1 )
             END IF
  
          END IF
       END IF
  
-      END SUBROUTINE OPEN_PMDIAG 
+      END SUBROUTINE OPEN_ELMO 
 
 !-------------------------------------------------------------------------
-      SUBROUTINE WRITE_PMDIAG ( JDATE, JTIME, TSTEP )
+      SUBROUTINE WRITE_ELMO ( JDATE, JTIME, TSTEP )
 ! Revision history
 !   20 Feb - B. Murphy: Created
 !-------------------------------------------------------------------------
@@ -3255,26 +3265,26 @@
       INTEGER MDATE, MTIME
       CHARACTER( 300 ) XMSG
 
-      CHARACTER( 16 ), SAVE :: PNAME = 'WRITE_PMDIAG'
+      CHARACTER( 16 ), SAVE :: PNAME = 'WRITE_ELMO'
       LOGICAL, SAVE :: FIRSTIME = .TRUE.
 
 C *** If IO Proceesor, then Write Data
       !IF ( IO_PE_INCLUSIVE ) THEN
          MDATE = JDATE
          MTIME = JTIME
-         CALL NEXTIME ( MDATE, MTIME, TSTEP( 2 ) )
+         !CALL NEXTIME ( MDATE, MTIME, TSTEP( 2 ) )
 
-C *** Write data to the aerosol diagnostic file.
+C *** Write data to the scalar output file.
          IF ( INST_ACTIVE ) THEN
-            IF ( .NOT. WRITE3( CTM_PMDIAG_1, 
+            IF ( .NOT. WRITE3( CTM_ELMO_1, 
      &           ALLVAR3, MDATE, MTIME,
-     &           PMDIAG_INST(:,:,:,:) ) ) THEN
-               XMSG = 'Could not write ' // CTM_PMDIAG_1 // ' file'
+     &           ELMO_INST(:,:,:,:) ) ) THEN
+               XMSG = 'Could not write ' // CTM_ELMO_1 // ' file'
                CALL M3EXIT ( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
             END IF
 
             WRITE( LOGDEV, '( /5X, 3( A, :, 1X ), I8, ":", I6.6 )' )
-     &                     'Timestep written to', CTM_PMDIAG_1,
+     &                     'Timestep written to', CTM_ELMO_1,
      &                     'for date and time', MDATE, MTIME
 
          END IF
@@ -3285,23 +3295,23 @@ C *** Write data to the average aerosol diagnostic file.
                CALL NEXTIME ( MDATE, MTIME, -TSTEP(1) )
             END IF
 
-            IF ( .NOT. WRITE3( CTM_APMDIAG_1, 
+            IF ( .NOT. WRITE3( CTM_AELMO_1, 
      &           ALLVAR3, MDATE, MTIME, 
-     &           PMDIAG_AVRG(:,:,:,:) / 
-     &           PMDIAG_AVRG_STEP ) ) THEN
-               XMSG = 'Could not write ' // CTM_APMDIAG_1 // ' file'
+     &           ELMO_AVRG(:,:,:,:) / 
+     &           ELMO_AVRG_STEP ) ) THEN
+               XMSG = 'Could not write ' // CTM_AELMO_1 // ' file'
                CALL M3EXIT ( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
             END IF
 
             WRITE( LOGDEV, '( /5X, 3( A, :, 1X ), I8, ":", I6.6 )' )
-     &                     'Timestep written to', CTM_APMDIAG_1,
+     &                     'Timestep written to', CTM_AELMO_1,
      &                     'for date and time', MDATE, MTIME
          END IF
      
-      !END IF   ! WRITETIME
-
+         ELMO_AVRG_STEP = 0
+         ELMO_AVRG = 0.0
       RETURN 
 
-      END SUBROUTINE WRITE_PMDIAG
+      END SUBROUTINE WRITE_ELMO
 
-      END MODULE PMDIAG_PROC
+      END MODULE ELMO_PROC

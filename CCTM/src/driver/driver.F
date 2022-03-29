@@ -106,6 +106,8 @@ C-----------------------------------------------------------------------
       USE RXNS_DATA             ! chemical mechanism data
       USE BUDGET_DEFN
       USE AERO_DATA
+      USE ELMO_DATA, ONLY : L_ELMO
+      USE ELMO_PROC, ONLY : ELMO_DRIVER, WRITE_ELMO, MAP_ELMO
 #ifdef mpas
       USE CGRID_SPCS            ! CGRID mechanism species
       USE HGRD_DEFN, ONLY: MYPE
@@ -503,6 +505,9 @@ C and Emission Stream Families
 C Initiliaze IO Arrays and Open Files
          call centralized_io_init
 
+C Initialize ELMO Arrays and Maps
+         call map_elmo
+
 C Initialize conc field: Copy IC's to CONC file as step 0
 C Convention: the input file concentration units are always ppmV.
          CALL INITSCEN ( CGRID, TSTEP )
@@ -566,8 +571,8 @@ C Verify input file header consistency and run duration
 
         call setfile (EMIS_1)
 
-        if (pmdiag) then
-           call fcreate (CTM_PMDIAG_1, io_mode)
+        if (ELMO) then
+           call fcreate (CTM_ELMO_1, io_mode)
         end if
 
         call fcreate (CTM_DRY_DEP_1, io_mode)
@@ -747,7 +752,7 @@ C Use trapezoidal rule to time-average data
 
 #endif
          ! OUTPUT DIAGNOSTIC INFORMATION
-         IF ( L_PMDIAG ) CALL PMDIAG_DRIVER( CGRID, JDATE, JTIME )
+         IF ( L_ELMO ) CALL ELMO_DRIVER( CGRID, JDATE, JTIME, TSTEP )
 
       END DO
 
@@ -822,11 +827,7 @@ C write conc fields
 #ifdef sens
          CALL WR_ASENS ( JDATE, JTIME, TSTEP( 1 ) )
 #endif
-         IF ( L_PMDIAG .AND. WRITETIME ) THEN
-             CALL WRITE_PMDIAG( JDATE, JTIME, TSTEP )
-             PMDIAG_AVRG_STEP = 0
-             WRITETIME = .FALSE.
-         END IF
+         IF ( L_ELMO ) CALL WRITE_ELMO( JDATE, JTIME, TSTEP )
 
          IF ( LIPR .OR. LIRR ) CALL PA_OUTPUT ( CGRID, JDATE, JTIME )
          IF ( BUDGET_DIAG ) CALL WRITE_BUDGET ( CGRID, JDATE, JTIME, TSTEP )

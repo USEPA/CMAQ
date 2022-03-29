@@ -1036,7 +1036,7 @@ c-------------------------------------------------------------------------------
                 CGRID_MW( IGRID )   = GC_MOLWT( ISPC )
                 CGRID_MASK_GAS( IGRID )   = .TRUE.
                 CGRID_CONC_UNIT( IGRID )  = 'ppmV'
-                CGRID_CONC_DESC( IGRID )  = 'Molar Mixing Ratio of ' // CGRID_NAME
+                CGRID_CONC_DESC( IGRID )  = 'Molar Mixing Ratio of ' // CGRID_NAME(IGRID)
                 DO JSPC = 1,N_GC_DEPV
                    IF ( GC_DEPV_MAP( JSPC ) .EQ. ISPC ) THEN
                       IDEPV = IDEPV + 1
@@ -1059,16 +1059,16 @@ c-------------------------------------------------------------------------------
                 CGRID_MW( IGRID )   = AE_MOLWT( ISPC )
                 CGRID_MASK_AERO( IGRID )   = .TRUE.
                 CGRID_CONC_UNIT( IGRID )  = 'ug m-3'
-                CGRID_CONC_DESC( IGRID )  = 'PM Mass Concentration of ' // CGRID_NAME
+                CGRID_CONC_DESC( IGRID )  = 'PM Mass Concentration of ' // CGRID_NAME(IGRID)
                 IF ( INDEX( AE_SPC( ISPC ),'NUM') .NE. 0 ) THEN
                     CGRID_MASK_NUM( IGRID )   = .TRUE.
                     CGRID_CONC_UNIT( IGRID )  = 'm-3'
-                    CGRID_CONC_DESC( IGRID )  = 'PM Number Concentration of ' // CGRID_NAME
+                    CGRID_CONC_DESC( IGRID )  = 'PM Number Concentration of ' // CGRID_NAME(IGRID)
                 END IF
                 IF ( INDEX( AE_SPC( ISPC ),'SRF') .NE. 0 ) THEN
                     CGRID_MASK_SRF( IGRID )   = .TRUE.
                     CGRID_CONC_UNIT( IGRID )  = 'm2 m-3'
-                    CGRID_CONC_DESC( IGRID )  = 'PM Surface Area Concentration of ' // CGRID_NAME
+                    CGRID_CONC_DESC( IGRID )  = 'PM Surface Area Concentration of ' // CGRID_NAME(IGRID)
                 END IF
                 DO JSPC = 1,N_AE_DEPV
                    IF ( AE_DEPV_MAP( JSPC ) .EQ. ISPC ) THEN
@@ -1094,7 +1094,7 @@ c-------------------------------------------------------------------------------
                 CGRID_MW( IGRID )   = NR_MOLWT( ISPC )
                 CGRID_MASK_NR( IGRID )   = .TRUE.
                 CGRID_CONC_UNIT( IGRID )  = 'ppmV'
-                CGRID_CONC_DESC( IGRID )  = 'Molar Mixing Ratio of ' // CGRID_NAME
+                CGRID_CONC_DESC( IGRID )  = 'Molar Mixing Ratio of ' // CGRID_NAME(IGRID)
                 DO JSPC = 1,N_NR_DEPV
                    IF ( NR_DEPV_MAP( JSPC ) .EQ. ISPC ) THEN
                       IDEPV = IDEPV + 1
@@ -1111,7 +1111,7 @@ c-------------------------------------------------------------------------------
                 CGRID_MW( IGRID )   = TR_MOLWT( ISPC )
                 CGRID_MASK_TRAC( IGRID )   = .TRUE.
                 CGRID_CONC_UNIT( IGRID )  = 'ppmV'
-                CGRID_CONC_DESC( IGRID )  = 'Molar Mixing Ratio of ' // CGRID_NAME
+                CGRID_CONC_DESC( IGRID )  = 'Molar Mixing Ratio of ' // CGRID_NAME(IGRID)
                 DO JSPC = 1,N_TR_DEPV
                    IF ( TR_DEPV_MAP( JSPC ) .EQ. ISPC ) THEN
                       IDEPV = IDEPV + 1
