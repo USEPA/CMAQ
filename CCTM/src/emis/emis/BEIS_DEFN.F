@@ -36,7 +36,7 @@ C-----------------------------------------------------------------------
       INTEGER,              SAVE :: N_SPC_BIOG ! biogenics emissions species
       REAL,    ALLOCATABLE, SAVE :: VDEMIS_BI( :,:,: ) ! beis emis
       INTEGER, ALLOCATABLE, SAVE :: BEIS_MAP( : ) ! map to GC
-      CHARACTER( 16 ),      SAVE :: CTM_BIOGEMIS_BEIS = 'CTM_BIOGEMIS_BEIS'! env var for
+      CHARACTER( 16 ),      SAVE :: CTM_BIOGEMIS_BE = 'CTM_BIOGEMIS_BE'! env var for
 
       CONTAINS
 
