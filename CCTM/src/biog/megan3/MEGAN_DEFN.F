@@ -17,6 +17,9 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
+
+! Used to calculate biogenic emissions. First available in CMAQ 5.4
+
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       MODULE MEGAN_DEFN
 
@@ -71,13 +74,17 @@ C biogenics to gas-phase species map
             ALLOCATE( DESID_EMVAR( IMIOGSRM )%USED ( NMGNSPC ) )
             ALLOCATE( DESID_EMVAR( IMIOGSRM )%CONV ( NMGNSPC ) )
             ALLOCATE( DESID_EMVAR( IMIOGSRM )%BASIS( NMGNSPC ) )
+            ALLOCATE( DESID_EMVAR( IMIOGSRM )%LAREA( NMGNSPC ) )
+            ALLOCATE( DESID_EMVAR( IMIOGSRM )%LAREAADJ( NMGNSPC ) )
             
             DESID_EMVAR( IMIOGSRM )%ARRY  = MEGAN_NAMES
             DESID_EMVAR( IMIOGSRM )%UNITS = 'MOLES/S'
             DESID_EMVAR( IMIOGSRM )%MW    = 1.0
             DESID_EMVAR( IMIOGSRM )%USED  = .FALSE.
             DESID_EMVAR( IMIOGSRM )%CONV  = 1.0
-            DESID_EMVAR( IMIOGSRM )%BASIS = 'UNIT' ! not MASS, right?
+            DESID_EMVAR( IMIOGSRM )%BASIS = 'UNIT' 
+            DESID_EMVAR( IMIOGSRM )%LAREA = .FALSE.
+            DESID_EMVAR( IMIOGSRM )%LAREAADJ = .FALSE.
 
 
             ALLOCATE( VDEMIS_ME( NMGNSPC,NCOLS,NROWS ), STAT = STATUS )
@@ -85,9 +92,11 @@ C biogenics to gas-phase species map
               XMSG = 'VDEMIS_ME memory allocation failed'
               SUCCESS = .FALSE.; RETURN
             END IF
+
 #ifdef mpas
-          call soilinp_setup
+           call soilinp_setup
 #endif
+            CALL M3MSG2( XMSG )
 
          END IF
 
@@ -96,7 +105,7 @@ C biogenics to gas-phase species map
          END FUNCTION MEGAN_INIT
 C=======================================================================
 
-         SUBROUTINE GET_MEGAN ( JDATE, JTIME, TSTEP )
+         SUBROUTINE GET_MEGAN ( JDATE, JTIME, TSTEP, L_DESID_DIAG )
        
          USE centralized_io_module, only : ldf,ctf,t24y,sw24y,lai_m,lai_y
          USE centralized_io_util_module
@@ -108,10 +117,11 @@ C=======================================================================
          USE DESID_VARS, ONLY : DESID_N_ISTR, IMIOGSRM,
      &                         MAP_ISTRtoEMVAR, MAP_ISTRtoDIFF
          USE GRID_CONF, ONLY: GDTYP_GD, XCELL_GD, YCELL_GD, YORIG_GD, GL_NROWS
-!         USE BDSNP_MOD
          USE MEGAN_GSPRO
 
          IMPLICIT NONE
+
+         LOGICAL, INTENT( IN ) :: L_DESID_DIAG
 
          CHARACTER (20) :: TIME_STAMP
          INTEGER JDATE, JTIME, TSTEP( 3 ), ISTR, io_mode, LAYERS
@@ -126,13 +136,14 @@ C=======================================================================
          REAL shadeppfd(ncols,nrows,5)
 
          REAL er(ncols,nrows)  
-         REAL non_dimgarma(20,ncols,nrows)
+         REAL non_dimgarma(19,ncols,nrows)
          REAL out_to_cmaq(NMGNSPC,ncols,nrows) ! 
+         REAL CFNO(ncols,nrows)         ! emission activity for crop
+         REAL CFNOG(ncols,nrows)        ! "     " for grass
+         REAL GAMSM(ncols,nrows)        ! soil moisture activity for isop
+         REAL GAMNO(ncols,nrows)        ! final NO emission activity
+         REAL BDSNP_NO_out(ncols,nrows) ! final NO emission activity from BDSNP
 
-         REAL CFNO(ncols,nrows) ! emission activity for crop
-         REAL CFNOG(ncols,nrows)! "     " for grass
-         REAL GAMSM(ncols,nrows)! soil moisture activity for isop
-         REAL GAMNO(ncols,nrows)! final NO emission activity
          REAL PRECADJ(ncols,nrows)
          REAL LAIP ( NCOLS, NROWS )    ! previous LAI 
          REAL LAIC ( NCOLS, NROWS )    ! current LAI 
@@ -143,7 +154,8 @@ C=======================================================================
          INTEGER, SAVE :: MGN_IHR       ! current simulation hour
          INTEGER          MGN_NDX       ! RAINFALL array timestep index
 #ifndef mpas 
-!        Calculate cell area. This is not ideal but is how it's done elsewhere.
+!        Calculate cell area. 
+!        Could be removed in favor of DESID changes
          REAL  DX1, DX2                            ! grid-cell width and length
          REAL  CELL_AREA                            ! grid-cell area [m2]
 
@@ -151,9 +163,7 @@ C=======================================================================
          JYEAR  = FLOAT( JDATE / 1000  )       
          CURRHR = REAL ( TIME2SEC( JTIME ) ) / 3600.0
          LAYERS = 5  ! canopy layers
-
-! *** Get length and width of each grid cell
-!     note: crude estimate is made for LAT/LONG coordinate systems
+         ! *** Get length and width of each grid cell
          IF ( GDTYP_GD .EQ. LATGRD3 ) THEN
             DX1 = DG2M * XCELL_GD ! in m
             DX2 = DG2M * YCELL_GD
@@ -167,61 +177,70 @@ C=======================================================================
          CELL_AREA = DX1 * DX2
 #endif
 
+
+         ! This option is only included for users who wish to confirm
+         ! that their results match with offline MEGAN 3.2
          IF (USE_MEGAN_LAI) THEN ! Read from the preprocessed file
            MXLAI = 46 ! 8-daily
-           CALL FINDLAI( JDATE, MXLAI, LAIp_I, LAIc_I)
+                      ! hard coded to avoid excessive environmental
+                      ! variables. MEGAN3.2 offers monthly and 10-day options.
+           CALL FINDLAI( JDATE, MXLAI, MXLAI, LAIp_I, LAIc_I)
            laip(:,:) = lai_m(:,:,laip_i)
            laic(:,:) = lai_m(:,:,laic_i)
-         ELSE ! Use same values as WRF/MCIP
+         ELSE ! Take daily values from WRF/MCI
            laip = LAI_Y
            laic = Met_data%LAI 
          END IF
 
 ! Canopy light calculation
-         CALL MEGCANOPY( NCOLS, NROWS, JYEAR, LAYERS, JDAY,CURRHR,    
+         CALL MEGCANOPY( JYEAR, LAYERS, JDAY,CURRHR,    
      &            grid_data%lat, grid_data%lon, laic,          
-     &            met_data%TEMP2, met_data%rgrnd*0.45, met_data%wspd10,
+     &            met_data%TEMP2, met_data%rgrnd, met_data%wspd10,
      &            met_data%prsfc, met_data%Q2, ctf(1:6,:,:),
      &            ShadeleafTK, SunleafTK, SunFrac, SunPPFD, ShadePPFD)
 
-! MEGAN_HRNO is here so we have rainfall/pulse/PRECADJ, and SW for prev 24 hrs. Also LAI.
+! MEGAN_HRNO is here so we have rainfall/pulse/PRECADJ, temp and radiation 
+! for prev 24 hrs. Also used to get save daily LAI.
           precadj=0 
-          CALL MEGAN_HRNO( JDATE, JTIME, TSTEP, PRECADJ)
-
+          CALL MEGAN_HRNO( JDATE, JTIME, TSTEP, L_DESID_DIAG,PRECADJ)
 
 ! SOIL NITROGEN CALCULATION
-! Need MEGVSA for GAMSM if using BDSNP or 
-! turning on wilting.
-! Need GAMNO if using MEGAN YL95 for soil NO
+! We call MEGVSA for GAMSM if using BDSNP or 
+! turning on drought stress. Used for
+! GAMNO if using MEGAN YL95 for soil NO
           CFNO = 0 
           CFNOG = 0 
-          GAMNO = 0 
+          GAMNO = 0
+          bdsnp_no_out = 0. 
 
-          CALL MEGVSA (JDATE,JTIME,TSTEP,NCOLS,NROWS,Grid_Data%SLTYP, 
+          CALL MEGVSA (JDATE,JTIME,TSTEP,JYEAR,JDAY,
+     &    L_DESID_DIAG,Grid_Data%SLTYP, 
      &    ctf(1:6,:,:),laic, grid_data%lat, 
      &    met_data%TEMP2,Met_Data%SOIM1, Met_Data%SOIM2,
      &    Met_Data%SOIT1,PRECADJ,
-     &    CFNO, CFNOG, GAMSM, GAMNO )
+     &    CFNO, CFNOG, GAMSM, GAMNO,BDSNP_NO_out)
 
          IF ( NEW_START .or. IGNORE_SOILINP) THEN
-          t24y  = met_data%temp2 ! use instantaneous values if no 24h 
+          t24y  = met_data%temp2 ! use instantaneous values if no 24h avg
           sw24y = met_data%rgrnd
-          laip  = laic  ! no growth for first day of simulation
+          laip  = laic  ! no veg growth for first day of simulation
          END IF
 
 ! Emission activity calculation
-         CALL MEGVEA(NCOLS,NROWS, LAYERS, JDATE, CURRHR, 
+         CALL MEGVEA( LAYERS, JDATE, CURRHR, 
      &   laip,laic,ldf,
      &   GAMSM, met_data%TEMP2,met_data%TEMP2,
      &   met_data%wspd10, 
      &   t24y, sw24y, sunleaftk, shadeleaftk, 
      &   sunfrac, sunppfd, shadeppfd,ER, NON_DIMGARMA )
 
-
 ! Speciate for mechanism
-         CALL convert2mech(gamno,non_dimgarma,out_to_cmaq)
-
-! Convert units for use by EMIS_DEFN.F via vdemis_me
+        if(bdsnp_megan) then
+          CALL convert2mech(bdsnp_no_out,non_dimgarma,out_to_cmaq)
+        else
+          CALL convert2mech(gamno,non_dimgarma,out_to_cmaq)
+        end if
+! Units for use by EMIS_DEFN.F via vdemis_me: [moles/s/m2]
          vdemis_me(:,:,:) = out_to_cmaq*cell_area
 
 
