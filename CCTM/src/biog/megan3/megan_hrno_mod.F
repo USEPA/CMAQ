@@ -20,7 +20,7 @@
 
       CONTAINS
 C::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-      SUBROUTINE MEGAN_HRNO( JDATE, JTIME, TSTEP, PRECADJ)
+      SUBROUTINE MEGAN_HRNO( JDATE, JTIME, TSTEP, L_DESID_DIAG, PRECADJ)
 
 C-----------------------------------------------------------------------
 C Description:
@@ -57,6 +57,7 @@ C Arguments:
       INTEGER, INTENT( IN )  :: JDATE           ! current simulation date (YYYYDDD)
       INTEGER, INTENT( IN )  :: JTIME           ! current simulation time (HHMMSS)
       INTEGER, INTENT( IN )  :: TSTEP( 3 )      ! time step vector (HHMMSS)
+      LOGICAL, INTENT( IN )  :: L_DESID_DIAG
       REAL,    INTENT( OUT ) :: PRECADJ( :,: )  ! output precip adjustment
 
 
@@ -76,7 +77,7 @@ C Local Variables:
 
       CHARACTER( 16 ), SAVE :: MNAME   ! logical name for MET_CRO_2D
       CHARACTER( 16 ), SAVE :: SOILINP ! logical name for input NO soil data
-      CHARACTER( 16 ), SAVE :: SOILOUT      = 'SOILOUT' ! logical name for output NO soil data
+      CHARACTER( 16 ), SAVE :: SOILOUT      = 'MEGAN_SOILOUT' ! logical name for output NO soil data
       CHARACTER( 33 ), SAVE :: DESCSTR      = 'hrly cnv. & non-cnv. rainfall for'
       CHARACTER( 33 ), SAVE :: DESCSTRSW    = 'hrly instantaneous rgrnd for'
       CHARACTER( 33 ), SAVE :: DESCSTRT2M   = 'hrly instantaneous 2m temp for'
@@ -289,7 +290,8 @@ C-----------------------------------------------------------------------------
 C--- Part 3: Writing to soilout file
 C-----------------------------------------------------------------------------
 
-      IF ( SECSDIFF( JDATE,JTIME, EDATE,ETIME ) .GT. TIME2SEC( TSTEP( 2 ) ) ) RETURN
+      IF ( SECSDIFF( JDATE,JTIME, EDATE,ETIME ) .GT. TIME2SEC( TSTEP( 2 ) ) .OR. L_DESID_DIAG ) RETURN
+
 
 C Create rain data file for soil NO
 

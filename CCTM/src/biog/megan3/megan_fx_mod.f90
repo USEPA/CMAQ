@@ -1,9 +1,26 @@
+!------------------------------------------------------------------------!
+!  The Community Multiscale Air Quality (CMAQ) system software is in     !
+!  continuous development by various groups and is based on information  !
+!  from these groups: Federal Government employees, contractors working  !
+!  within a United States Government contract, and non-Federal sources   !
+!  including research institutions.  These groups give the Government    !
+!  permission to use, prepare derivative works of, and distribute copies !
+!  of their work in the CMAQ system to the public and to permit others   !
+!  to do so.  The United States Environmental Protection Agency          !
+!  therefore grants similar permission to use the CMAQ system software,  !
+!  but users are requested to provide copies of derivative works or      !
+!  products designed to operate in the CMAQ system to the United States  !
+!  Government without restrictions as to use by others.  Software        !
+!  that is used with the CMAQ system but distributed under the GNU       !
+!  General Public License or the GNU Lesser General Public License is    !
+!  subject to their copyright restrictions.                              !
+!------------------------------------------------------------------------!
 module megan_fx
     
       USE ASX_DATA_MOD, ONLY : Grid_Data
-! Aggregated code from MEGAN3.1 by Francis S.Binkowski 
+! Aggregated code from MEGAN3.0 by Francis S.Binkowski 
 ! with minor modifications where noted below.
-! Implemented for CMAQ and proofed by Jeff Willison.
+! Implemented for CMAQ 5.4 and proofed by Jeff Willison.
 
       IMPLICIT NONE
       
@@ -104,7 +121,7 @@ module megan_fx
 
 
     !Number of emission classes
-    INTEGER, PARAMETER :: NCLASS = 20
+    INTEGER, PARAMETER :: NCLASS = 19
     INTEGER, PARAMETER :: NEMIS  = NCLASS
     ! number of emission classes
 
@@ -131,26 +148,26 @@ module megan_fx
     !beta: temperature coefficient (emission type 2: light independent)
     REAL           beta(NCLASS)
 
-    DATA    beta(1),LDF(1),CT1(1),Cleo(1)        /  0.13,1.0,95,2  /
-    DATA    beta(2),LDF(2),CT1(2),Cleo(2)        /  0.13,1.0,95,2  /
-    DATA    beta(3),LDF(3),CT1(3),Cleo(3)        /  0.10,0.6,80,1.83  /
-    DATA    beta(4),LDF(4),CT1(4),Cleo(4)        /  0.10,0.9,80,1.83  /
-    DATA    beta(5),LDF(5),CT1(5),Cleo(5)        /  0.10,0.2,80,1.83  /
-    DATA    beta(6),LDF(6),CT1(6),Cleo(6)        /  0.10,0.4,80,1.83  /
-    DATA    beta(7),LDF(7),CT1(7),Cleo(7)        /  0.10,0.6,80,1.83  /
-    DATA    beta(8),LDF(8),CT1(8),Cleo(8)        /  0.10,0.2,80,1.83  /
-    DATA    beta(9),LDF(9),CT1(9),Cleo(9)        /  0.17,0.6,130,2.37  /
-    DATA    beta(10),LDF(10),CT1(10),Cleo(10)    /  0.17,0.6,130,2.37  /
-    DATA    beta(11),LDF(11),CT1(11),Cleo(11)    /  0.08,1.0,60,1.6  /
-    DATA    beta(12),LDF(12),CT1(12),Cleo(12)    /  0.10,0.2,80,1.83  /
-    DATA    beta(13),LDF(13),CT1(13),Cleo(13)    /  0.13,0.8,95,2  /
-    DATA    beta(14),LDF(14),CT1(14),Cleo(14)    /  0.13,0.8,95,2  /
-    DATA    beta(15),LDF(15),CT1(15),Cleo(15)    /  0.10,0.2,80,1.83  /
-    DATA    beta(16),LDF(16),CT1(16),Cleo(16)    /  0.10,0.2,80,1.83  /
-    DATA    beta(17),LDF(17),CT1(17),Cleo(17)    /  0.10,0.8,80,1.83  /
-    DATA    beta(18),LDF(18),CT1(18),Cleo(18)    /  0.10,0.2,80,1.83  /
-    DATA    beta(19),LDF(19),CT1(19),Cleo(19)    /  0.08,1.0,60,1.6  /
-    DATA    beta(20),LDF(20),CT1(20),Cleo(20)    /  0.10,0,80,1.83  /
+      DATA    beta(1),LDF(1),CT1(1),Cleo(1)        /  0.13,1.0,95,2  /
+      DATA    beta(2),LDF(2),CT1(2),Cleo(2)        /  0.13,1.0,95,2  /
+      DATA    beta(3),LDF(3),CT1(3),Cleo(3)        /  0.10,0.6,80,1.83  /
+      DATA    beta(4),LDF(4),CT1(4),Cleo(4)        /  0.10,0.9,80,1.83  /
+      DATA    beta(5),LDF(5),CT1(5),Cleo(5)        /  0.10,0.2,80,1.83  /
+      DATA    beta(6),LDF(6),CT1(6),Cleo(6)        /  0.10,0.4,80,1.83  /
+      DATA    beta(7),LDF(7),CT1(7),Cleo(7)        /  0.10,0.1,80,1.83  /
+      DATA    beta(8),LDF(8),CT1(8),Cleo(8)        /  0.10,0.0,80,1.83  /
+      DATA    beta(9),LDF(9),CT1(9),Cleo(9)        /  0.17,0.5,130,2.37  /
+      DATA    beta(10),LDF(10),CT1(10),Cleo(10)    /  0.17,0.4,130,2.37  /
+      DATA    beta(11),LDF(11),CT1(11),Cleo(11)    /  0.08,0.8,60,1.6  /
+      DATA    beta(12),LDF(12),CT1(12),Cleo(12)    /  0.10,0.2,80,1.83  /
+      DATA    beta(13),LDF(13),CT1(13),Cleo(13)    /  0.13,0.8,95,2  /
+      DATA    beta(14),LDF(14),CT1(14),Cleo(14)    /  0.13,0.8,95,2  /
+      DATA    beta(15),LDF(15),CT1(15),Cleo(15)    /  0.10,0.2,80,1.83  /
+      DATA    beta(16),LDF(16),CT1(16),Cleo(16)    /  0.10,0.2,80,1.83  /
+      DATA    beta(17),LDF(17),CT1(17),Cleo(17)    /  0.10,0.8,80,1.83  /
+      DATA    beta(18),LDF(18),CT1(18),Cleo(18)    /  0.10,0.1,80,1.83  /
+      DATA    beta(19),LDF(19),CT1(19),Cleo(19)    /  0.08,1.0,60,1.6  /
+
 
 
     ! Parameters for leaf age algorithm for each emission activity classes
@@ -159,64 +176,61 @@ module megan_fx
     REAL           Amat(NCLASS)
     REAL           Aold(NCLASS)
 
-    DATA    Anew(  1),  Agro(  1),  Amat(  1),  Aold(  1)     &
+      DATA    Anew(  1),  Agro(  1),  Amat(  1),  Aold(  1) &
           /  0.05     ,  0.6      ,  1.0    ,  0.9       /
 
-    DATA    Anew(  2),  Agro(  2),  Amat(  2),  Aold(  2)     &
+      DATA    Anew(  2),  Agro(  2),  Amat(  2),  Aold(  2) &
           /  0.05     ,  0.6      ,  1.0     , 0.9       /
 
-    DATA    Anew(  3),  Agro(  3),  Amat(  3),  Aold(  3)     &
+      DATA    Anew(  3),  Agro(  3),  Amat(  3),  Aold(  3) &
           /  2.0      ,  1.8      ,  1.0     ,  1.05       /
 
-    DATA    Anew(  4),  Agro(  4),  Amat(  4),  Aold(  4)     &
+      DATA    Anew(  4),  Agro(  4),  Amat(  4),  Aold(  4) &
           /  2.0      ,  1.8      ,  1.0     ,  1.05       /
 
-    DATA    Anew(  5),  Agro(  5),  Amat(  5),  Aold(  5)     &
+      DATA    Anew(  5),  Agro(  5),  Amat(  5),  Aold(  5) &
           /  2.0      ,  1.8      ,  1.0     ,  1.05       /
 
-    DATA    Anew(  6),  Agro(  6),  Amat(  6),  Aold(  6)     &
+      DATA    Anew(  6),  Agro(  6),  Amat(  6),  Aold(  6) &
           /  2.0      ,  1.8      ,  1.0     ,  1.05       /
 
-    DATA    Anew(  7),  Agro(  7),  Amat(  7),  Aold(  7)     &
+      DATA    Anew(  7),  Agro(  7),  Amat(  7),  Aold(  7) &
           /  2.0      ,  1.8      ,  1.0     ,  1.05       /
 
-    DATA    Anew(  8),  Agro(  8),  Amat(  8),  Aold(  8)     &
-          /  2.0      ,  1.8      ,  1.0     ,  1.05       /
+      DATA    Anew(  8),  Agro(  8),  Amat(  8),  Aold(  8) &
+          /  1.0      ,  1.0      ,  1.0      ,  1.0       /
 
-    DATA    Anew(  9),  Agro(  9),  Amat(  9),  Aold(  9)     &
+      DATA    Anew(  9),  Agro(  9),  Amat(  9),  Aold(  9) &
           /  0.4      ,  0.6      ,  1.0     ,  0.95       /
 
-    DATA    Anew( 10),  Agro( 10),  Amat( 10),  Aold( 10)     &
+      DATA    Anew( 10),  Agro( 10),  Amat( 10),  Aold( 10) &
           /  0.4      ,  0.6      ,  1.0    ,  0.95       /
 
-    DATA    Anew( 11),  Agro( 11),  Amat( 11),  Aold( 11)     &
+      DATA    Anew( 11),  Agro( 11),  Amat( 11),  Aold( 11) &
           /  3.5      ,  3.0      ,  1.0    ,  1.2        /
 
-    DATA    Anew( 12),  Agro( 12),  Amat( 12),  Aold( 12)     &
+      DATA    Anew( 12),  Agro( 12),  Amat( 12),  Aold( 12) &
           /  1.0      ,  1.0      ,  1.0    ,  1.0       /
 
-    DATA    Anew( 13),  Agro( 13),  Amat( 13),  Aold( 13)     &
+      DATA    Anew( 13),  Agro( 13),  Amat( 13),  Aold( 13) &
           /  1.0      ,  1.0      ,  1.0    ,  1.0       /
 
-    DATA    Anew( 14),  Agro( 14),  Amat( 14),  Aold( 14)     &
+      DATA    Anew( 14),  Agro( 14),  Amat( 14),  Aold( 14) &
           /  1.0      ,  1.0      ,  1.0    ,  1.0       /
 
-    DATA    Anew( 15),  Agro( 15),  Amat( 15),  Aold( 15)     &
+      DATA    Anew( 15),  Agro( 15),  Amat( 15),  Aold( 15) &
           /  1.0      ,  1.0      ,  1.0      ,  1.0       /
 
-    DATA    Anew( 16),  Agro( 16),  Amat( 16),  Aold( 16)     &
+      DATA    Anew( 16),  Agro( 16),  Amat( 16),  Aold( 16) &
           /  1.0      ,  1.0      ,  1.0      ,  1.0       /
 
-    DATA    Anew( 17),  Agro( 17),  Amat( 17),  Aold( 17)     &
+      DATA    Anew( 17),  Agro( 17),  Amat( 17),  Aold( 17) &
           /  1.0      ,  1.0      ,  1.0      ,  1.0       /
 
-    DATA    Anew( 18),  Agro( 18),  Amat( 18),  Aold( 18)     &
+      DATA    Anew( 18),  Agro( 18),  Amat( 18),  Aold( 18) &
           /  1.0      ,  1.0      ,  1.0      ,  1.0       /
 
-    DATA    Anew( 19),  Agro( 19),  Amat( 19),  Aold( 19)     &
-          /  1.0      ,  1.0      ,  1.0      ,  1.0       /
-
-    DATA    Anew( 20),  Agro( 20),  Amat( 20),  Aold( 20)     &
+      DATA    Anew( 19),  Agro( 19),  Amat( 19),  Aold( 19) &
           /  1.0      ,  1.0      ,  1.0      ,  1.0       /
 
 
@@ -230,29 +244,28 @@ module megan_fx
     !CLT: coefficient for high temperature stress
     REAL           CLT(NCLASS)
 
-    DATA    CAQ(1),CHW(1),CHT(1),CLT(1)           /  1,1,1,1  /
-    DATA    CAQ(2),CHW(2),CHT(2),CLT(2)           /  1,1,1,1  /
-    DATA    CAQ(3),CHW(3),CHT(3),CLT(3)           /  1,5,1,1  /
-    DATA    CAQ(4),CHW(4),CHT(4),CLT(4)           /  5,5,5,5  /
-    DATA    CAQ(5),CHW(5),CHT(5),CLT(5)           /  1,5,1,1  /
-    DATA    CAQ(6),CHW(6),CHT(6),CLT(6)           /  1,5,1,1  /
-    DATA    CAQ(7),CHW(7),CHT(7),CLT(7)           /  1,5,1,1  /
-    DATA    CAQ(8),CHW(8),CHT(8),CLT(8)           /  1,5,1,1  /
-    DATA    CAQ(9),CHW(9),CHT(9),CLT(9)           /  5,5,5,5  /
-    DATA    CAQ(10),CHW(10),CHT(10),CLT(10)       /  5,5,5,5  /
-    DATA    CAQ(11),CHW(11),CHT(11),CLT(11)       /  1,1,1,1  /
-    DATA    CAQ(12),CHW(12),CHT(12),CLT(12)       /  1,1,1,1  /
-    DATA    CAQ(13),CHW(13),CHT(13),CLT(13)       /  1,1,1,1  /
-    DATA    CAQ(14),CHW(14),CHT(14),CLT(14)       /  1,1,1,1  /
-    DATA    CAQ(15),CHW(15),CHT(15),CLT(15)       /  1,1,1,1  /
-    DATA    CAQ(16),CHW(16),CHT(16),CLT(16)       /  1,1,1,1  /
-    DATA    CAQ(17),CHW(17),CHT(17),CLT(17)       /  5,5,5,5  /
-    DATA    CAQ(18),CHW(18),CHT(18),CLT(18)       /  1,1,1,1  /
-    DATA    CAQ(19),CHW(19),CHT(19),CLT(19)       /  1,1,1,1  /
-    DATA    CAQ(20),CHW(20),CHT(20),CLT(20)       /  1,1,1,1  /
 
 
-    !stress emission activity thresholds for each emission class
+      DATA    CAQ(1),CHW(1),CHT(1),CLT(1)           /  1,1,1,1  /
+      DATA    CAQ(2),CHW(2),CHT(2),CLT(2)           /  1,1,1,1  /
+      DATA    CAQ(3),CHW(3),CHT(3),CLT(3)           /  1,5,1,1  /
+      DATA    CAQ(4),CHW(4),CHT(4),CLT(4)           /  5,5,5,5  /
+      DATA    CAQ(5),CHW(5),CHT(5),CLT(5)           /  1,5,1,1  /
+      DATA    CAQ(6),CHW(6),CHT(6),CLT(6)           /  1,5,1,1  /
+      DATA    CAQ(7),CHW(7),CHT(7),CLT(7)           /  1,5,1,1  /
+      DATA    CAQ(8),CHW(8),CHT(8),CLT(8)           /  1,1,1,1  /
+      DATA    CAQ(9),CHW(9),CHT(9),CLT(9)           /  5,5,5,5  /
+      DATA    CAQ(10),CHW(10),CHT(10),CLT(10)       /  5,5,5,5  /
+      DATA    CAQ(11),CHW(11),CHT(11),CLT(11)       /  1,1,1,1  /
+      DATA    CAQ(12),CHW(12),CHT(12),CLT(12)       /  1,1,1,1  /
+      DATA    CAQ(13),CHW(13),CHT(13),CLT(13)       /  1,1,1,1  /
+      DATA    CAQ(14),CHW(14),CHT(14),CLT(14)       /  1,1,1,1  /
+      DATA    CAQ(15),CHW(15),CHT(15),CLT(15)       /  1,1,1,1  /
+      DATA    CAQ(16),CHW(16),CHT(16),CLT(16)       /  1,1,1,1  /
+      DATA    CAQ(17),CHW(17),CHT(17),CLT(17)       /  5,5,5,5  /
+      DATA    CAQ(18),CHW(18),CHT(18),CLT(18)       /  1,1,1,1  /
+      DATA    CAQ(19),CHW(19),CHT(19),CLT(19)       /  1,1,1,1  /
+
     !TAQ: threshold for poor Air Quality stress (ppm-hours)
     REAL           TAQ(NCLASS)
     !THW: threshold for high wind speed stress (m/s)
@@ -262,26 +275,26 @@ module megan_fx
     !TLT: threshold for high temperature stress (Celsius degree)
     REAL           TLT(NCLASS)
 
-    DATA    TAQ(1),THW(1),THT(1),TLT(1)           /  20,12,40,10  /
-    DATA    TAQ(2),THW(2),THT(2),TLT(2)           /  20,12,40,10  /
-    DATA    TAQ(3),THW(3),THT(3),TLT(3)           /  20,12,40,10  /
-    DATA    TAQ(4),THW(4),THT(4),TLT(4)           /  20,12,40,10  /
-    DATA    TAQ(5),THW(5),THT(5),TLT(5)           /  20,12,40,10  /
-    DATA    TAQ(6),THW(6),THT(6),TLT(6)           /  20,12,40,10  /
-    DATA    TAQ(7),THW(7),THT(7),TLT(7)           /  20,12,40,10  /
-    DATA    TAQ(8),THW(8),THT(8),TLT(8)           /  20,12,40,10  /
-    DATA    TAQ(9),THW(9),THT(9),TLT(9)           /  20,12,40,10  /
-    DATA    TAQ(10),THW(10),THT(10),TLT(10)       /  20,12,40,10  /
-    DATA    TAQ(11),THW(11),THT(11),TLT(11)       /  20,12,40,10  /
-    DATA    TAQ(12),THW(12),THT(12),TLT(12)       /  20,12,40,10  /
-    DATA    TAQ(13),THW(13),THT(13),TLT(13)       /  20,12,40,10  /
-    DATA    TAQ(14),THW(14),THT(14),TLT(14)       /  20,12,40,10  /
-    DATA    TAQ(15),THW(15),THT(15),TLT(15)       /  20,12,40,10  /
-    DATA    TAQ(16),THW(16),THT(16),TLT(16)       /  20,12,40,10  /
-    DATA    TAQ(17),THW(17),THT(17),TLT(17)       /  20,12,40,10  /
-    DATA    TAQ(18),THW(18),THT(18),TLT(18)       /  20,12,40,10  /
-    DATA    TAQ(19),THW(19),THT(19),TLT(19)       /  20,12,40,10  /
-    DATA    TAQ(20),THW(20),THT(20),TLT(20)       /  20,12,40,10  /
+      DATA    TAQ(1),THW(1),THT(1),TLT(1)           /  20,12,40,10  /
+      DATA    TAQ(2),THW(2),THT(2),TLT(2)           /  20,12,40,10  /
+      DATA    TAQ(3),THW(3),THT(3),TLT(3)           /  20,12,40,10  /
+      DATA    TAQ(4),THW(4),THT(4),TLT(4)           /  20,12,40,10  /
+      DATA    TAQ(5),THW(5),THT(5),TLT(5)           /  20,12,40,10  /
+      DATA    TAQ(6),THW(6),THT(6),TLT(6)           /  20,12,40,10  /
+      DATA    TAQ(7),THW(7),THT(7),TLT(7)           /  20,12,40,10  /
+      DATA    TAQ(8),THW(8),THT(8),TLT(8)           /  20,12,40,10  /
+      DATA    TAQ(9),THW(9),THT(9),TLT(9)           /  20,12,40,10  /
+      DATA    TAQ(10),THW(10),THT(10),TLT(10)       /  20,12,40,10  /
+      DATA    TAQ(11),THW(11),THT(11),TLT(11)       /  20,12,40,10  /
+      DATA    TAQ(12),THW(12),THT(12),TLT(12)       /  20,12,40,10  /
+      DATA    TAQ(13),THW(13),THT(13),TLT(13)       /  20,12,40,10  /
+      DATA    TAQ(14),THW(14),THT(14),TLT(14)       /  20,12,40,10  /
+      DATA    TAQ(15),THW(15),THT(15),TLT(15)       /  20,12,40,10  /
+      DATA    TAQ(16),THW(16),THT(16),TLT(16)       /  20,12,40,10  /
+      DATA    TAQ(17),THW(17),THT(17),TLT(17)       /  20,12,40,10  /
+      DATA    TAQ(18),THW(18),THT(18),TLT(18)       /  20,12,40,10  /
+      DATA    TAQ(19),THW(19),THT(19),TLT(19)       /  20,12,40,10  /
+
 
     !stress emission activity delta thresholds for each emission class
     !DTAQ: delta threshold for poor Air Quality stress (ppm-hours)
@@ -293,51 +306,49 @@ module megan_fx
     !DTLT: delta threshold for low temperature stress (Celsius degree)
     REAL           DTLT(NCLASS)
 
-    DATA    DTAQ(1),DTHW(1),DTHT(1),DTLT(1)               /  30,8,8,8  /
-    DATA    DTAQ(2),DTHW(2),DTHT(2),DTLT(2)               /  30,8,8,8  /
-    DATA    DTAQ(3),DTHW(3),DTHT(3),DTLT(3)               /  30,8,8,8  /
-    DATA    DTAQ(4),DTHW(4),DTHT(4),DTLT(4)               /  30,8,8,8  /
-    DATA    DTAQ(5),DTHW(5),DTHT(5),DTLT(5)               /  30,8,8,8  /
-    DATA    DTAQ(6),DTHW(6),DTHT(6),DTLT(6)               /  30,8,8,8  /
-    DATA    DTAQ(7),DTHW(7),DTHT(7),DTLT(7)               /  30,8,8,8  /
-    DATA    DTAQ(8),DTHW(8),DTHT(8),DTLT(8)               /  30,8,8,8  /
-    DATA    DTAQ(9),DTHW(9),DTHT(9),DTLT(9)               /  30,8,8,8  /
-    DATA    DTAQ(10),DTHW(10),DTHT(10),DTLT(10)           /  30,8,8,8  /
-    DATA    DTAQ(11),DTHW(11),DTHT(11),DTLT(11)           /  30,8,8,8  /
-    DATA    DTAQ(12),DTHW(12),DTHT(12),DTLT(12)           /  30,8,8,8  /
-    DATA    DTAQ(13),DTHW(13),DTHT(13),DTLT(13)           /  30,8,8,8  /
-    DATA    DTAQ(14),DTHW(14),DTHT(14),DTLT(14)           /  30,8,8,8  /
-    DATA    DTAQ(15),DTHW(15),DTHT(15),DTLT(15)           /  30,8,8,8  /
-    DATA    DTAQ(16),DTHW(16),DTHT(16),DTLT(16)           /  30,8,8,8  /
-    DATA    DTAQ(17),DTHW(17),DTHT(17),DTLT(17)           /  30,8,8,8  /
-    DATA    DTAQ(18),DTHW(18),DTHT(18),DTLT(18)           /  30,8,8,8  /
-    DATA    DTAQ(19),DTHW(19),DTHT(19),DTLT(19)           /  30,8,8,8  /
-    DATA    DTAQ(20),DTHW(20),DTHT(20),DTLT(20)           /  30,8,8,8  /
+      DATA    DTAQ(1),DTHW(1),DTHT(1),DTLT(1)               /  30,8,8,8  /
+      DATA    DTAQ(2),DTHW(2),DTHT(2),DTLT(2)               /  30,8,8,8  /
+      DATA    DTAQ(3),DTHW(3),DTHT(3),DTLT(3)               /  30,8,8,8  /
+      DATA    DTAQ(4),DTHW(4),DTHT(4),DTLT(4)               /  30,8,8,8  /
+      DATA    DTAQ(5),DTHW(5),DTHT(5),DTLT(5)               /  30,8,8,8  /
+      DATA    DTAQ(6),DTHW(6),DTHT(6),DTLT(6)               /  30,8,8,8  /
+      DATA    DTAQ(7),DTHW(7),DTHT(7),DTLT(7)               /  30,8,8,8  /
+      DATA    DTAQ(8),DTHW(8),DTHT(8),DTLT(8)               /  30,8,8,8  /
+      DATA    DTAQ(9),DTHW(9),DTHT(9),DTLT(9)               /  30,8,8,8  /
+      DATA    DTAQ(10),DTHW(10),DTHT(10),DTLT(10)           /  30,8,8,8  /
+      DATA    DTAQ(11),DTHW(11),DTHT(11),DTLT(11)           /  30,8,8,8  /
+      DATA    DTAQ(12),DTHW(12),DTHT(12),DTLT(12)           /  30,8,8,8  /
+      DATA    DTAQ(13),DTHW(13),DTHT(13),DTLT(13)           /  30,8,8,8  /
+      DATA    DTAQ(14),DTHW(14),DTHT(14),DTLT(14)           /  30,8,8,8  /
+      DATA    DTAQ(15),DTHW(15),DTHT(15),DTLT(15)           /  30,8,8,8  /
+      DATA    DTAQ(16),DTHW(16),DTHT(16),DTLT(16)           /  30,8,8,8  /
+      DATA    DTAQ(17),DTHW(17),DTHT(17),DTLT(17)           /  30,8,8,8  /
+      DATA    DTAQ(18),DTHW(18),DTHT(18),DTLT(18)           /  30,8,8,8  /
+      DATA    DTAQ(19),DTHW(19),DTHT(19),DTLT(19)           /  30,8,8,8  /
 
     ! MEGAN species
     ! Based on Alex Guenther's "Description Class.xlsx" for MEGANv3
 
-!    CHARACTER*16, PARAMETER :: MGN_SPC(NCLASS) =    &
-!    (/  'ISOP            ',                         &      !  1 isoprene
-!        'MBO             ',                         &      !  2 MBO
-!        'MT_PINE         ',                         &      !  3 monoterpenes: pines (alpha and beta)
-!        'MT_ACYC         ',                         &      !  4 monoterpenes: acyclic, 3 = (e.g., myrcene, ocimenes)
-!        'MT_CAMP         ',                         &      !  5 monoterpenes: carene, camphene, others
-!        'MT_SABI         ',                         &      !  6 monoterpenes: sabinene, limonene, terpinenes, others
-!        'MT_AROM         ',                         &      !  7  aromatic: cymenes, cymenenes
-!        'MT_OXY          ',                         &      !  8 C8-C13 oxygenated (e.g., camphor)
-!        'SQT_HR          ',                         &      !  9 Highly reactive SQT (e.g., caryophyllene)
-!        'SQT_LR          ',                         &      ! 10 less reactive SQT  (e.g., longifolene, copaene) and salates
-!        'MEOH            ',                         &      ! 11 methanol
-!        'ACTO            ',                         &      ! 12 acetone
-!        'ETOH            ',                         &      ! 13 acetaldehyde and ethanol
-!        'ACID            ',                         &      ! 14 organic acids: formic acid, acetic acid, pyruvic acid
-!        'LVOC            ',                         &      ! 15 C2 to C4 HC (e.g., ethene, ethane)
-!        'OXPROD          ',                         &      ! 16 oxidation products: aldehydes
-!        'STRESS          ',                         &      ! 17 Stress compounds (e.g., linalool)
-!        'OTHER           ',                         &      ! 18 other VOC (e.g., indole, pentane, methyl bromide)
-!        'CO              ',                         &      ! 19 carbon monoxide
-!        'NO              '  /)                             ! 20 Nitric oxide
+!      DATA     MGN_SPC(  1)  / 'ISOP            '/      ! isoprene
+!      DATA     MGN_SPC(  2)  / 'MBO             '/      ! MBO
+!      DATA     MGN_SPC(  3)  / 'MT_PINE         '/      ! monoterpenes: pines (alpha and beta)
+!      DATA     MGN_SPC(  4)  / 'MT_ACYC         '/      ! monoterpenes: acyclic, 3 = (e.g., myrcene, ocimenes)
+!      DATA     MGN_SPC(  5)  / 'MT_CAMP         '/      ! monoterpenes: carene, camphene, others
+!      DATA     MGN_SPC(  6)  / 'MT_SABI         '/      ! monoterpenes: sabinene, limonene, terpinenes, others
+!      DATA     MGN_SPC(  7)  / 'MT_AROM         '/      ! C10 aromatic: cymenes, cymenenes & C8-C13 oxygenated (e.g., camphor)
+!      DATA     MGN_SPC(  8)  / 'NO              '/      ! Nitric oxide
+!      DATA     MGN_SPC(  9)  / 'SQT_HR          '/      ! Highly reactive SQT (e.g., caryophyllene)
+!      DATA     MGN_SPC( 10)  / 'SQT_LR          '/      ! less reactive SQT (e.g., longifolene, copaene) and salates
+!      DATA     MGN_SPC( 11)  / 'MEOH            '/      ! methanol
+!      DATA     MGN_SPC( 12)  / 'ACTO            '/      ! acetone
+!      DATA     MGN_SPC( 13)  / 'ETOH            '/      ! acetaldehyde and ethanol
+!      DATA     MGN_SPC( 14)  / 'ACID            '/      ! organic acids: formicacid, acetic acid, pyruvic acid
+!      DATA     MGN_SPC( 15)  / 'LVOC            '/      ! C2 to C4 HC (e.g.,ethene, ethane)
+!      DATA     MGN_SPC( 16)  / 'OXPROD          '/      ! oxidation products:aldehydes
+!      DATA     MGN_SPC( 17)  / 'STRESS          '/      ! Stress compounds(e.g., linalool)
+!      DATA     MGN_SPC( 18)  / 'OTHER           '/      ! other VOC (e.g.,indole, pentane, methyl bromide)
+!      DATA     MGN_SPC( 19)  / 'CO              '/      ! carbon monoxide
+
 
 
 
@@ -747,7 +758,7 @@ CONTAINS    !!-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
                      QdAbsv, QsAbsv, QsAbsn, ShadeQv,  SunQn,  &  
                      QdAbsn, SunQv, ShadeQn, Sunfrac
 
-      REAL,DIMENSION(NrCha,NrTyp) :: Canopychar
+      REAL,DIMENSION(NrCha,NrTyp), INTENT(IN) :: Canopychar
 
 ! internal variables
       INTEGER :: i
@@ -2302,11 +2313,11 @@ CONTAINS    !!-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 ! Saturation values for 11 soil types from pxpbl.F  (MCIP PX version)
 !       PLEIM-XIU LAND-SURFACE AND PBL MODEL (PX-LSM)
 ! See JACQUEMIN B. AND NOILHAN J. (1990), BOUND.-LAYER METEOROL., 52, 93-134.
-        INTEGER, PARAMETER :: MAXSTYPES = 11
-        REAL, PARAMETER    :: SATURATION( MAXSTYPES )     =  (/   &       
-                              0.395, 0.410, 0.435, 0.485,         &
-                              0.451, 0.420, 0.477, 0.476,         &
-                              0.426, 0.482, 0.482            /)       
+        INTEGER, PARAMETER :: MAXSTYPES = 16
+!        REAL, PARAMETER    :: SATURATION( MAXSTYPES )     =  (/   &       
+!                              0.395, 0.410, 0.435, 0.485,         &
+!                              0.451, 0.420, 0.477, 0.476,         &
+!                              0.426, 0.482, 0.482            /)       
 
 !.........  SCRATCH LOCAL VARIABLES and their descriptions:
         INTEGER       ::   R, C, L      ! counters
@@ -2410,10 +2421,13 @@ CONTAINS    !!-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
              SOILCAT = INT( ISLTYP( C,R ) )
              IF( SOILCAT > 0 .AND. SOILCAT <= MAXSTYPES ) THEN
-             
-                 RATIO = SOILM( C,R ) / SATURATION( SOILCAT )
-                 CF = RATIO*CFNOWET + (1.0 - RATIO ) * CFNODRY
-                 
+                 IF(Grid_Data%WSAT(C,R) .eq. 0) THEN
+                  ! first ldesid diag call. Do nothing.
+                  CF = 0. 
+                 ELSE 
+                  RATIO = SOILM( C,R ) / Grid_Data%WSAT( C,R )
+                  CF = RATIO*CFNOWET + (1.0 - RATIO ) * CFNODRY
+                 END IF
              ELSE
              
                  CF = 0.0
@@ -2559,7 +2573,7 @@ CONTAINS    !!-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
        REAL, INTENT(IN)      :: LONG( NCOLS, NROWS )   
        REAL, INTENT(IN)      :: LAIc( NCOLS, NROWS )
        REAL, INTENT(IN)      :: TEMP( NCOLS, NROWS )    
-       REAL, INTENT(IN)      :: PAR ( NCOLS, NROWS )     
+       REAL, INTENT(IN)      :: PAR ( NCOLS, NROWS ) ! comes in as rgrnd from ASX
        REAL, INTENT(IN)      :: WIND( NCOLS, NROWS )
        REAL, INTENT(IN)      :: PRES( NCOLS, NROWS )
        REAL, INTENT(IN)      :: QV  ( NCOLS, NROWS )
@@ -2577,7 +2591,7 @@ CONTAINS    !!-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
       INTEGER                :: I, I_CT, J, MM, DD
       INTEGER                :: IDAY         ! For using original solar method
 
-      REAL                   :: PPFD(NCOLS, NROWS)
+      REAL                   :: PPFD(NCOLS, NROWS) 
       REAL                   :: TotalCT
       REAL                   :: month, Date, JDAY
       REAL                   :: Sinbeta, Beta, HOUR, DAY
@@ -2613,7 +2627,8 @@ CONTAINS    !!-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
     
        DAY  = DOY 
  
-       ppfd=par*4.5 
+       ppfd=par*4.5*0.45 ! ppfd = par * 4.5
+                         ! par = rgrnd * 0.45 
 
           DO I=1, NCOLS
            DO J=1, NROWS
@@ -2801,14 +2816,14 @@ SUBROUTINE MEGVEA(NCOLS,NROWS, LAYERS, JDATE, ZTIME,                &
     REAL, INTENT(IN)     ::  ZTIME
     REAL, INTENT(IN)     ::  LAIp       ( NCOLS, NROWS )
     REAL, INTENT(IN)     ::  LAIc       ( NCOLS, NROWS )
-    REAL, INTENT(IN)     ::  LDF_in      ( NCOLS, NROWS , 20 ) !n species
+    REAL, INTENT(IN)     ::  LDF_in      ( NCOLS, NROWS , 4 ) !only 4 use maps
     REAL, INTENT(IN)     ::  GAMSM_in       ( NCOLS, NROWS )
     REAL, INTENT(IN)     ::  MaxT        ( NCOLS, NROWS )
     REAL, INTENT(IN)     ::  MinT        ( NCOLS, NROWS )
     REAL, INTENT(IN)     ::  MaxWS       ( NCOLS, NROWS )
 !    REAL, INTENT(IN)     ::  AQI         ( NCOLS, NROWS )
     REAL, INTENT(IN)     ::  D_TEMP      ( NCOLS, NROWS )
-    REAL, INTENT(IN)     ::  D_PPFD      ( NCOLS, NROWS )
+    REAL, INTENT(IN)     ::  D_PPFD      ( NCOLS, NROWS ) ! comes in as rgrnd
     REAL, INTENT(IN)     ::  SUNT        ( NCOLS, NROWS, LAYERS )
     REAL, INTENT(IN)     ::  SHAT        ( NCOLS, NROWS, LAYERS )
     REAL, INTENT(IN)     ::  SUNF        ( NCOLS, NROWS, LAYERS )
@@ -2824,7 +2839,10 @@ SUBROUTINE MEGVEA(NCOLS,NROWS, LAYERS, JDATE, ZTIME,                &
     LOGICAL, PARAMETER    :: GAMBD_YN  = .false.
 
     LOGICAL, PARAMETER    :: GAMAQ_YN  = .false.
-    LOGICAL, PARAMETER    :: GAMSM_YN  = .true.
+! For the CMAQ implementation of MEGAN  we refer to soil moisture 
+! at layer 2, which is 1 meter for PX and 0.5 m for NOAH.
+! Keep this in mind when enabling the GAMSM stress.
+    LOGICAL, PARAMETER    :: GAMSM_YN  = .false. 
     LOGICAL, PARAMETER    :: GAMHT_YN  = .false.
     LOGICAL, PARAMETER    :: GAMLT_YN  = .false.
     LOGICAL, PARAMETER    :: GAMHW_YN  = .false.
@@ -2901,12 +2919,9 @@ SUBROUTINE MEGVEA(NCOLS,NROWS, LAYERS, JDATE, ZTIME,                &
 
     DO S = 1,NEMIS  ! Loop over all the emission classes
 
-        IF ( S .EQ. 3 .OR. S .EQ. 4 .OR. S .EQ. 5 .OR. S .EQ. 6 .OR.      &
-              S .EQ. 9 .OR. S .EQ. 10 ) THEN
-              
+        IF ( S .EQ. 3 .OR. S .EQ. 4 .OR. S .EQ. 5 .OR. S .EQ. 6 ) THEN
 !    otherwise use the input values.           
-            LDFMAP = LDF_IN(:,:,S)
-
+            LDFMAP = LDF_IN(:,:,S-2) ! only LDF 3, 4, 5, and 6 in file
         ELSE
 !  For these species,  Read LDF from previous MEGVEA.EXT 
             LDFMAP = LDF(S)
@@ -2989,7 +3004,7 @@ SUBROUTINE MEGVEA(NCOLS,NROWS, LAYERS, JDATE, ZTIME,                &
             SUM2 = 0.0
 
             DO K = 1, Layers
-! 2.025 is the conversion to PPFD. see comment in MEGAN_DEFN
+! 2.025 is the conversion to PPFD. 
 ! SWDNB*.45 = PAR (Wm-2)
 ! PAR*4.5 = PPFD (umol/m2/s)
                 Ea1L = CDEA(I,J,K) *                                  &
@@ -3066,9 +3081,10 @@ SUBROUTINE MEGVEA(NCOLS,NROWS, LAYERS, JDATE, ZTIME,                &
    END SUBROUTINE MEGVEA
 
 ! ///////////////////////////////////////////////////////////////////////////
-      SUBROUTINE MEGVSA (IDATE,ITIME,TSTEP,NCOLS,NROWS,SLTYP, CTF,LAIc, LAT,       &
-                    TEMP, SOILM1,SOILM2, SOILT, PRECADJ,                     &
-                    CFNO, CFNOG, GAMSM, GAMNO )
+      SUBROUTINE MEGVSA (IDATE,ITIME,TSTEP,JYEAR,JDAY,                       &
+                    NCOLS,NROWS,L_DESID_DIAG,SLTYP, CTF,LAIc, LAT,           &
+                    TEMP, SOILM1,SOILM2, SOILT, PRECADJ,CELL_AREA,           &
+                    CFNO, CFNOG, GAMSM, GAMNO, BDSNP_NO )
 
 
 !***********************************************************************
@@ -3155,7 +3171,8 @@ SUBROUTINE MEGVEA(NCOLS,NROWS, LAYERS, JDATE, ZTIME,                &
 !             emissions (Ling Huang) 
 !*********************************************************************
 
-!      USE BDSNP_MOD
+      USE BDSNP_MOD
+      USE RUNTIME_VARS, ONLY: BDSNP_MEGAN
 
       IMPLICIT NONE
  
@@ -3165,8 +3182,10 @@ SUBROUTINE MEGVEA(NCOLS,NROWS, LAYERS, JDATE, ZTIME,                &
      
      INTEGER, INTENT(IN) :: IDATE, ITIME, TSTEP(3)  
      INTEGER, INTENT(IN) :: NCOLS, NROWS
+     LOGICAL, INTENT( IN ) :: L_DESID_DIAG
      
       INTEGER, INTENT(IN) :: SLTYP  (NCOLS, NROWS)  ! soil type
+      REAL, INTENT(IN)    :: JYEAR, JDAY
       REAL, INTENT(IN)    :: CTF( NrTyp, NCOLS, NROWS ) ! Canopy type factor arra
       REAL, INTENT(IN)    :: LAIc( NCOLS, NROWS )    ! Current time step LAI
       REAL, INTENT(IN)    :: LAT (NCOLS, NROWS )    ! Latitude
@@ -3176,25 +3195,22 @@ SUBROUTINE MEGVEA(NCOLS,NROWS, LAYERS, JDATE, ZTIME,                &
       REAL, INTENT(IN)    :: SOILM2  (NCOLS, NROWS)  ! soil moisture
       REAL, INTENT(IN)    :: SOILT  (NCOLS, NROWS)  ! soil temperature
       REAL, INTENT(IN)    :: PRECADJ (NCOLS, NROWS)   
-
-!      REAL, ALLOCATABLE :: SNOCOV (:,:)   ! Snow cover; needed by BDSNP
-!      REAL, ALLOCATABLE :: CFRAC (:,:)   ! Cloud fraction; needed by BDSNP
-!      REAL, ALLOCATABLE :: WSPD10 (:,:)   ! wind speed; needed by BDSNP
-
-
+      REAL, INTENT(IN)    :: CELL_AREA
 
 !     output variable
       REAL, INTENT(OUT)   :: CFNO  (NCOLS, NROWS)       ! Emission activity for crop
       REAL, INTENT(OUT)   :: CFNOG  (NCOLS, NROWS)      ! Emission activity for grass
       REAL, INTENT(OUT)   :: GAMSM  (NCOLS, NROWS)      ! Soil moisture activity for isoprene
       REAL, INTENT(OUT)   :: GAMNO  (NCOLS, NROWS)      ! Final NO emission activity
+      REAL, INTENT(OUT)   :: BDSNP_NO (NCOLS, NROWS)    ! BDSNP NO emissions(nmol/s/m2)
 
-!      REAL, ALLOCATABLE :: BDSNP_NO ( :,: )     ! BDSNP NO emissions(nmol/s/m2)
 
 
 ! Local variables and their descriptions:
       CHARACTER*16  :: GDNAM
       CHARACTER*16  :: CNAME        ! Coord name
+
+
 
 
 
@@ -3204,20 +3220,21 @@ SUBROUTINE MEGVEA(NCOLS,NROWS, LAYERS, JDATE, ZTIME,                &
 
       LOGICAL :: LSOIL = .TRUE.
 
-      INTEGER :: T,I,J,I_CT
+      INTEGER :: T,I,J,MM,DD,I_CT
         
                  CFNO = 0.0 ! INITIALIZE
                  CFNOG = 0.0 ! INITIALIZE
 
-!        IF ( LBDSNP ) THEN
+         if (BDSNP_MEGAN) then
 
-!          CALL HRNOBDSNP( IDATE,ITIME,tstep3,NCOLS,NROWS,coszen,TEMP,  &
-!                  ssolar,pres,SOILM1,SOILT1,rstyp,LAIc,snocov,cfrac,  &
-!                                         wspd10,garea,BDSNP_NO)
-!          CALL HRNOBDSNP( IDATE,ITIME,TSTEP,NCOLS,NROWS,temp,TEMP,  &
-!                  temp,temp,SOILM1,SOILT,temp,LAIc,temp,temp,  &
-!                                         temp,1.0,cfnog)
-!        ELSE
+          call get_date(JYEAR, JDAY, MM, DD)
+
+          CALL HRNOBDSNP( IDATE,ITIME,TSTEP,MM,NCOLS,NROWS,  &
+                    L_DESID_DIAG,SOILM1,SOILT,SLTYP,LAIc,    &
+                                            cell_area,bdsnp_no)
+
+        else
+
 
           CALL SOILNOX(IDATE,ITIME,NCOLS,NROWS,            &
                      TEMP,LSOIL,SLTYP, SOILM1, SOILT,     &
@@ -3254,7 +3271,7 @@ SUBROUTINE MEGVEA(NCOLS,NROWS, LAYERS, JDATE, ZTIME,                &
            ENDDO  !NCOLS
         ENDDO  !NROWS
 
-!        END IF ! YL or BDSNP
+        END IF ! YL or BDSNP
 
 
            DO I = 1, NCOLS
@@ -3283,13 +3300,13 @@ SUBROUTINE MEGVEA(NCOLS,NROWS, LAYERS, JDATE, ZTIME,                &
          USE MEGAN_GSPRO
 !***********************************************************************
 !   This program does chemical speciation and MECHANISM conversion.
-!   The output from megan.f is converted from 20 to 201 species which
+!   The output from megan.f is converted from 19 to 201 species which
 !   are then lumped according to the MECHANISM assigned in the run script.  
 !   The program loops through all timesteps of the input file.
 !
 !   Procedure
 !   1) File set up and assign I/O parameters
-!   2) Conversion from MGN 20 to speciated 201
+!   2) Conversion from MGN 19 to speciated 201
 !   3) Conversion from speciated species to MECHANISM species
 !   4) Convert to tonne/hour if needed
 !
@@ -3339,6 +3356,7 @@ SUBROUTINE MEGVEA(NCOLS,NROWS, LAYERS, JDATE, ZTIME,                &
 !  08/10/19  Ling Huang updated for BDSNP option for MEGAN3.1
 !***********************************************************************
 
+      USE RUNTIME_VARS, ONLY: BDSNP_MEGAN
       IMPLICIT NONE
 
 
@@ -3346,8 +3364,6 @@ SUBROUTINE MEGVEA(NCOLS,NROWS, LAYERS, JDATE, ZTIME,                &
 !...  Program I/O files
 ! Program name
       CHARACTER*16 :: PROGNAME = 'MGN2MECH'
-! Can add as options to run script
-      LOGICAL :: BDSNP_YN    = .FALSE.  ! BDSNP soil NO flag
 
 
 !...  Internal parameters
@@ -3364,7 +3380,7 @@ SUBROUTINE MEGVEA(NCOLS,NROWS, LAYERS, JDATE, ZTIME,                &
       REAL :: GAMNO(ncols,nrows)         ! NO emission factor
       REAL :: BDSNP_NO(ncols,nrows)      ! NO emissions for BDSNP algorithm (nanomol/m^2/s)
 
-      REAL, INTENT(IN)     ::  inper       (20, NCOLS, NROWS )
+      REAL, INTENT(IN)     ::  inper       (19, NCOLS, NROWS )
       REAL, INTENT(IN)     ::  NO_IN       (NCOLS, NROWS )
       REAL, INTENT(OUT)    ::  outer       (NMGNSPC, NCOLS, NROWS ) ! CB6
 
@@ -3394,17 +3410,16 @@ SUBROUTINE MEGVEA(NCOLS,NROWS, LAYERS, JDATE, ZTIME,                &
 !...  Allocate memory
       ALLOCATE ( tmper( n_spca_spc, ncols, nrows ), STAT = ios )
 
-       INO = 20 ! isn't this always true for NO?
+       INO = 8 ! this was 20 for megan 3.1 
 
         tmper = 0.
         outer = 0.
 
-        IF ( .NOT. BDSNP_YN ) THEN
+        IF ( .NOT. BDSNP_MEGAN ) THEN
           GAMNO = NO_IN
         ELSE
           BDSNP_NO = NO_IN
         ENDIF
-!         In next update will add BDSNP option
 
         DO s = 1, N_SMAP_SPC
           nmpmg = mg20_map(s)
@@ -3416,7 +3431,7 @@ SUBROUTINE MEGVEA(NCOLS,NROWS, LAYERS, JDATE, ZTIME,                &
          ELSEIF ( nmpmg .EQ. INO ) then
 
 !!-----------------NO Stuff-----------------------
-           IF ( .NOT. BDSNP_YN ) THEN
+           IF ( .NOT. BDSNP_MEGAN ) THEN
 !     GAMNO is emission activity factor
               tmper(nmpsp,:,:) = GAMNO(:,:) * efmaps(:,:,INO)   &
                                 * effs_all(nmpsp)
@@ -3461,13 +3476,13 @@ SUBROUTINE MEGVEA(NCOLS,NROWS, LAYERS, JDATE, ZTIME,                &
 !   LAI1, LAI2, ... LAIS92, instead of one variable with multiple time
 !   step.
 !-----------------------------------------------------------------------
-      SUBROUTINE FINDLAI( IDATE, MXLAI, LAIp_I, LAIc_I)
+      SUBROUTINE FINDLAI( IDATE, MXLAI, NLAI, LAIp_I, LAIc_I)
 
       IMPLICIT NONE
 
 ! input
       INTEGER,INTENT(IN) :: IDATE  ! YYYYJJJ
-      INTEGER,INTENT(IN) :: MXLAI
+      INTEGER,INTENT(IN) :: MXLAI, NLAI
 ! output
       INTEGER,INTENT(OUT) :: LAIp_I, LAIc_I
 ! Local
@@ -3476,15 +3491,25 @@ SUBROUTINE MEGVEA(NCOLS,NROWS, LAYERS, JDATE, ZTIME,                &
 
 ! Calculation
 
+
       JJJ = MOD(IDATE,1000)
-      XXX = JJJ/8.0
-      LAIc_I = CEILING(XXX)
+      IF ( NLAI .EQ. 46 ) THEN
+        XXX = JJJ/8.0
+        LAIc_I = CEILING(XXX)
+      ELSE IF ( NLAI .EQ. 37 ) THEN
+        XXX = JJJ/10.0
+        LAIc_I = CEILING(XXX)
+      !ELSE IF ( NLAI .EQ. 12 ) THEN
+      !  CALL DAYMON(IDATE, MM, DAY)
+      !  LAIc_I = MM
+      ENDIF
 
       IF (LAIc_I .EQ. 1) THEN
         LAIp_I = MXLAI
       ELSE
         LAIp_I = LAIc_I - 1
       ENDIF
+
 
       RETURN
       END SUBROUTINE FINDLAI
