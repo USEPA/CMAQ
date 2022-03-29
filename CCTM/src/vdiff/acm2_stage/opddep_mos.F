@@ -38,7 +38,7 @@ C   20 May 11 D.Schwede: modified to include mosaic output file
       USE GRID_CONF           ! horizontal & vertical domain specifications
       USE CGRID_SPCS          ! CGRID mechanism species
       USE UTILIO_DEFN
-      USE LSM_Mod, Only: N_LUFRAC
+      USE MOSAIC_MOD, Only: Tile_Data
 
       IMPLICIT NONE
  
@@ -80,7 +80,7 @@ C Set output file characteristics based on COORD.EXT and open the dry dep file
          NVARS3D = N_SPC_DDEP
          NCOLS3D = GL_NCOLS
          NROWS3D = GL_NROWS
-         NLAYS3D = N_LUFRAC + 1
+         NLAYS3D = Tile_Data%N_LUFRAC + 1
          NTHIK3D =     1
          GDTYP3D = GDTYP_GD
          P_ALP3D = P_ALP_GD
