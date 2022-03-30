@@ -25,6 +25,7 @@ C 03 Jul 15 J.Young: inital
       implicit none
 
       public sedi
+
       private
 
       include SUBST_CONST     ! constants
@@ -32,6 +33,9 @@ C 03 Jul 15 J.Young: inital
 
       real,    allocatable, save :: cgrd( :,: )   ! density units
       real,    allocatable, save :: conc( :,: )   ! mixing ratio units
+#ifdef isam
+      real(8), allocatable, save :: conc_isam( :,:,: )      ! extracted isam mixing ratio units
+#endif
 
       real,    allocatable, save :: ldens( : )    ! local density kg m-3
 
@@ -52,12 +56,12 @@ C for interpx
       integer, save :: strtcolmc3, endcolmc3, strtrowmc3, endrowmc3
       integer, allocatable, save :: map_sedi2cgrid( : )
       integer, save :: n_sedi_map   ! aero species, all modes
+      integer, save :: n_isam_sedi_map  ! isam aero species, all modes
 
       contains
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       subroutine sedi ( jdate, jtime, dtsec, sedvel, cgrid, cngrd )
-
 C Revision History:
 C           J.Young, J.Pleim: inital
 C 07 Nov 14 J.Bash: Updated for the ASX_DATA_MOD shared data module. 
@@ -73,6 +77,10 @@ C-----------------------------------------------------------------------
       use vdiff_map
       use utilio_defn
       use vdiff_diag, dtccr => dtccr_mean
+#ifdef isam
+      use sa_defn
+#endif
+
       implicit none
 
 C Arguments:
@@ -105,6 +113,11 @@ C Local Variables:
       real,    allocatable, save :: rrhodz  ( : )   ! reciprocal rho * deltaZ
       integer, allocatable, save :: sedi_map( : )
       integer, allocatable, save :: conc_map( : )
+#ifdef isam
+      integer, allocatable, save :: isam_sedi_map( : )
+      integer, allocatable, save :: isam_conc_map( : )
+      real,    allocatable, save :: isam_dtsvsed ( : ) ! isam settling vel. factor
+#endif
       real       adts, dts, rdts
       real       ldt, fs
       integer    off, dtc, iter 
@@ -137,7 +150,17 @@ c conc_map - from cgrid to ae_trns species
             xmsg = 'Failure allocating VSED_MAP or CONC_MAP'
             call m3exit( pname, mdate, mtime, xmsg, xstat1 )
          end if
-
+#ifdef isam
+         allocate ( isam_sedi_map( nspc_sa_ae ),
+     &              isam_conc_map( nspc_sa_ae ),  stat = astat )
+         if ( astat .ne. 0 ) then
+            xmsg = 'Failure allocating isam_conc_map or isam_sedi_map'
+            call m3exit( pname, mdate, mtime, xmsg, xstat1 )
+         end if
+         isam_sedi_map = 0
+         isam_conc_map = 0
+         n_isam_sedi_map = 0
+#endif
          map_sedi2cgrid = 0
          off = n_gc_trns   
          cg_off = ae_strt - 1   
@@ -149,12 +172,30 @@ c conc_map - from cgrid to ae_trns species
                sedi_map( n_sedi_map ) = n
                map_sedi2cgrid( n_sedi_map ) = n+cg_off
                conc_map( n_sedi_map ) = diff_map( n + off )
+#ifdef isam
+               do s = 1, nspc_sa_ae
+                  if(  isam_to_aero( s ) .eq. sedi_map( n_sedi_map ) ) then
+                     n_isam_sedi_map =  n_isam_sedi_map + 1
+                     isam_sedi_map(  n_isam_sedi_map ) = sedi_map( n_sedi_map )   
+                     isam_conc_map(  n_isam_sedi_map ) = sa_aero_indx( s )   
+                  end if
+               end do
+#endif
             end if
          end do
          write( logdev,'( 19x, "SEDI_MAP", 4x, "CONC_MAP" )' )
          do v = 1, n_sedi_map
             write( logdev,* ) v, sedi_map( v ), conc_map( v )
          end do
+#ifdef isam
+         write(logdev,'("ISAM Aerosol Sedimentation Mapping")')
+         write( logdev,'( A4,1X,2(A16,1X),2(A8,1x) )' )"  N ","   Bulk AERO   ","    ISAM AERO   ",
+     &   "SEDI_MAP", "CONC_MAP"
+         do v = 1, n_isam_sedi_map
+            write( logdev,'( I4,1X,2(A16,1X),2(I8,1x) )' ) v, ae_spc( isam_sedi_map( v ) ),
+     &      isam_spec( isam_conc_map( v ),1 ), isam_sedi_map( v ), isam_conc_map( v )
+         end do
+#endif
 
          allocate ( vsed_ae( n_ae_spc,nlays ), stat = astat )
          if ( astat .ne. 0 ) then
@@ -176,6 +217,15 @@ c conc_map - from cgrid to ae_trns species
             xmsg = 'Failure allocating CONC, VSED,  or DTSVSED'
             call m3exit( pname, mdate, mtime, xmsg, xstat1 )
          end if
+#ifdef isam
+         allocate ( conc_isam( n_isam_sedi_map,nlays,ntag_sa ), 
+     &              isam_dtsvsed( nlays ), stat = astat )
+         if ( astat .ne. 0 ) then
+            xmsg = 'Failure allocating CONC0,CONC_ISAM'
+            call m3exit( pname, mdate, mtime, xmsg, xstat1 )
+         end if
+#endif
+
          conc = 0.0  ! array assignment
          vsed = 0.0  ! array assignment
 
@@ -207,6 +257,17 @@ C subset all the layers and species in cgrid for this grid cell
             end do
          end do
 
+#ifdef isam
+         do v = 1,  n_isam_sedi_map
+            n = isam_conc_map( v )
+            do l = 1, nlays
+               do itag = 1,ntag_sa
+! used upper case to not conflict with CCP flag
+                  conc_isam( v,l,itag ) = ISAM( c,r,l,n,itag )
+               end do
+            end do
+         end do
+#endif
          do l = 1, nlays
             rdl( l ) = alpha * Met_Data%rjacf( c,r,l ) * Grid_Data%rdx3f( l )
             rrhodz( l ) = Met_Data%rrhoj( c,r,l ) * Grid_Data%rdx3f( l )
@@ -270,6 +331,16 @@ C subset all the layers and species in cgrid for this grid cell
                conc( v,l ) = conc( v,l )
      &                     + dtsvsed( v,l+1 ) * conc( v,l+1 ) * rrhodz( l )
             end do
+#ifdef isam
+            do v = 1, n_isam_sedi_map
+               s = isam_sedi_map( v )
+               isam_dtsvsed( l+1 ) = dtsvsed( s,l+1 )
+               do itag = 1,ntag_sa
+                  conc_isam( v,l,itag ) = conc_isam( v,l,itag )
+     &                                  + isam_dtsvsed( l+1 ) * conc_isam( v,l+1,itag ) * rrhodz( l )
+               end do
+            end do
+#endif
 
             ! Apply production and loss to layers 2 through NZ-1
             do l = 2, nlays-1
@@ -278,6 +349,17 @@ C subset all the layers and species in cgrid for this grid cell
      &                        + ( dtsvsed( v,l+1 ) * conc( v,l+1 )
      &                        -   dtsvsed( v,l )   * conc( v,l ) ) * rrhodz( l )
                end do
+#ifdef isam
+                do v = 1, n_isam_sedi_map
+                   s = isam_sedi_map( v )
+                   isam_dtsvsed( 2:nlays-1 ) = dtsvsed( s,2:nlays-1 )
+                   do itag = 1,ntag_sa
+                      conc_isam( v,l,itag ) = conc_isam( v,l,itag )
+     &                                      + isam_dtsvsed( l+1 ) * conc_isam( v,l+1,itag ) * rrhodz( l )
+     &                                      - isam_dtsvsed( l )   * conc_isam( v,l,itag   ) * rrhodz( l )
+                   end do
+                end do
+#endif
             end do
 
             ! Apply only loss to layer NZ
@@ -286,6 +368,16 @@ C subset all the layers and species in cgrid for this grid cell
                conc( v,l ) = conc( v,l )
      &                     - dtsvsed( v,l ) * conc( v,l ) * rrhodz( l )
             end do
+#ifdef isam
+             do v = 1, n_isam_sedi_map
+                s = isam_sedi_map( v )
+                isam_dtsvsed( l ) = dtsvsed( s,l )
+                do itag = 1,ntag_sa
+                   conc_isam( v,l,itag ) = conc_isam( v,l,itag )
+     &                                   - isam_dtsvsed( l ) * conc_isam( v,l,itag ) * rrhodz( l )
+                end do 
+             end do
+#endif
 
             ! conc -> cgrd: from mixing ratio units to density units
             call conv_conc( )
@@ -304,6 +396,31 @@ C subset all the layers and species in cgrid for this grid cell
                cngrd( conc_map( v ),l,c,r ) = conc( v,l )
             end do
          end do
+#ifdef isam
+         do v = 1,  n_isam_sedi_map
+            n = isam_conc_map( v )
+            do l = 1, nlays
+               do itag = 1,ntag_sa
+! used upper case to not conflict with CCP flag
+                  ISAM( c,r,l,n,itag ) = conc_isam( v,l,itag )
+               end do
+            end do
+         end do
+#endif
+#ifdef isam
+         if( c .eq. 1 .and. r .eq. 1 )then
+            write( logdev,'("ISAM Aerosol Sedimentation Results for col and row equal 1")')
+            write( logdev,'( A4,1X,2(A16,1X),2(A12,1x) )' )"  N ","   Bulk AERO ","    ISAM AERO   ",
+     &      "SUM_BULK ", "SUM_ISAM "
+            do v = 1, n_isam_sedi_map
+               write( logdev,'( I4,1X,2(A16,1X),2(ES12.4,1x) )' ) v, ae_spc( isam_sedi_map( v ) ),
+     &         isam_spec( isam_conc_map( v ),1 ), sum( conc( isam_sedi_map( v ),1:nlays ) ), 
+     &         sum(conc_isam( v,1:nlays,1:ntag_sa ))
+            end do
+         end if
+#endif
+
+
 344   continue         !  end loop on col C
 345   continue         !  end loop on row R
 

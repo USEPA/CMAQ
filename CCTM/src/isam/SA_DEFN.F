@@ -51,11 +51,18 @@ c...Tagging maps
       INTEGER, ALLOCATABLE, SAVE   :: MAP_ADVtoSA( : )
 c     INTEGER, ALLOCATABLE, SAVE   :: MAP_DEPVtoSA( : )
  
+      INTEGER, ALLOCATABLE, SAVE   :: ISAM_TO_AERO( : )  ! maps tracked species to bulk concentration if aerosol species
+      INTEGER, ALLOCATABLE, SAVE   :: SA_AERO_INDX( : )  ! index of tracked aerosol in ISAM concentration array
+
       INTEGER, ALLOCATABLE, SAVE   :: ISAM_PVO3_MAP( : ) ! potential vorticity map
 
       INTEGER ::     NSPC_SA
       INTEGER ::     NTAG_SA
       INTEGER ::     NSPC_TRANSPORT
+      INTEGER ::     NSPC_SA_AE        ! number of tracked species that are aerosols
+      INTEGER ::     N_SA_AEROSPC      ! number of unique aerospc in all tracked aerosols
+
+
       INTEGER ::     ISAM_CHEMISTRY_BIAS 
       INTEGER, PARAMETER :: NCONSTRAINTS = 4
 
@@ -1670,6 +1677,12 @@ C..Determine which ISAM species are aerosols and are transported
            DO J_SPC = 1, NSPC_SA
               ISUM = ISUM + 1
               DO N = 1, N_AE_SPC
+                 IF( TRIM( ISAM_SPEC( J_SPC,ITAG ) ) .EQ. TRIM( AE_SPC( N ) ))THEN
+                     IS_SPC_AEROSOL( J_SPC,ITAG ) = .TRUE.
+                     IF ( ITAG .LT. 2 ) NSPC_SA_AE = NSPC_SA_AE + 1
+                 END IF
+              END DO
+              DO N = 1, N_AE_SPC
                  IF( TRIM( ISAM_SPEC( J_SPC,ITAG ) ) .EQ. TRIM( AE_SPC( N ) ) )THEN
                      IS_SPC_AEROSOL( J_SPC,ITAG ) = .TRUE.
                  END IF
@@ -1691,6 +1704,29 @@ C..Determine which ISAM species are aerosols and are transported
               IF( FOUND )NSPC_TRANSPORT = NSPC_TRANSPORT + 1
            END DO  
         END DO
+
+        ALLOCATE ( ISAM_TO_AERO( NSPC_SA_AE ), STAT = ALLOCSTAT )
+        CALL CHECKMEM( ALLOCSTAT, 'ISAM_TO_AERO', 'GET_SPC_INDEX' )
+        ISAM_TO_AERO = -1
+        ALLOCATE ( SA_AERO_INDX( NSPC_SA_AE ), STAT = ALLOCSTAT )
+        CALL CHECKMEM( ALLOCSTAT, 'SA_AERO_INDX', 'GET_SPC_INDEX' )
+        SA_AERO_INDX = -1
+
+        ITAG = 1
+        N = 0
+        DO J_SPC = 1, NSPC_SA
+           IF( .NOT. IS_SPC_AEROSOL( J_SPC,ITAG ) )CYCLE
+           N = N + 1
+           DO I_SPC = 1, N_AE_SPC
+               IF( TRIM( ISAM_SPEC( J_SPC,ITAG ) ) .NE. TRIM( AE_SPC( I_SPC ) ) ) CYCLE
+               ISAM_TO_AERO( N ) = I_SPC ! + AE_STRT - 1
+               SA_AERO_INDX( N ) = J_SPC
+               WRITE(LOGDEV,'(A,I4,1X,I5,1X,A16,I3,1X,A16)')
+     &         'ISAM SPECIES, AEROSOL SPECIES = ',N,SA_AERO_INDX( N ),ISAM_SPEC( J_SPC,ITAG ),
+     &         ISAM_TO_AERO( N ),AE_SPC( I_SPC )
+           END DO
+        END DO
+
 
 C...Assign species index with CMAQ species mappings
         ALLOCATE( MAP_CGRtoSA( NSPCSD ) )
