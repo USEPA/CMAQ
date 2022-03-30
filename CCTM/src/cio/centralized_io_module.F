@@ -76,6 +76,7 @@
 !  08/06/20, D. Wong:- fixed excessive reading of time independent boundary file data
 !  11/17/21, G. Sarwar: Changed minimum values from 0.0 to 0.001 for ocean and szone  
 !                       to ensure values are nonnegative and greater than 0.001
+!  01/17/22, D. Wong: Added SAVE attribute to variable FIRSTIME
 !------------------------------------------------------------------------!
 
 !------------------------------------------------------------------------!
@@ -1288,7 +1289,7 @@
 
           Character( 40 ), parameter :: pname = 'retrieve_time_dep_gridded_data'
 
-          LOGICAL :: firstime = .true.
+          LOGICAL, SAVE :: firstime = .true.
           INTEGER :: STAT, i, j, k, begin, end, buf_loc, iterations, iter,
      &               loc_jdate_met, loc_emis_jdate,
      &               loc_jtime_met, data_jdate, data_jtime, t_time,
@@ -2054,7 +2055,7 @@
 
           character( 40 ), parameter :: pname = 'retrieve_stack_data_mpas'
 
-          logical :: firstime = .true.
+          logical, save :: firstime = .true.
           integer :: stat, i, j, begin, end, buf_loc, iterations,
      &               iter, loc_jdate, loc_jtime, v, beg_v, end_v,
      &               beg_gp, end_gp, gp, fnum
@@ -3716,7 +3717,7 @@ C Read the various categories of normalized emissions
 
           Character( 40 ), parameter :: pname = 'retrieve_boundary_data'
 
-          LOGICAL :: firstime = .true.
+          LOGICAL, SAVE :: firstime = .true.
           INTEGER :: STAT, i, j, begin, end, buf_loc, iterations,
      &               iter, loc_jdate_met, loc_jdate, loc_jtime_met, 
      &               loc_jtime, v, beg_v, end_v
@@ -3830,7 +3831,7 @@ C Read the various categories of normalized emissions
 
           Character( 40 ), parameter :: pname = 'retrieve_stack_data'
 
-          LOGICAL :: firstime = .true.
+          LOGICAL, SAVE :: firstime = .true.
           INTEGER :: STAT, i, j, begin, end, buf_loc, iterations,
      &               iter, loc_jdate, loc_jtime, v, beg_v, end_v, 
      &               beg_pt, end_pt, pt, fnum
@@ -6100,7 +6101,7 @@ C   mminlu and num_land_cat are WRF global variables
      &                     ls_start, ls_end, ln_start, ln_end,
      &                     le_start, le_end, lw_start, lw_end,
      &                     gs_skip, ge_skip, gn_skip, gw_skip
-          logical :: loc_firstime = .true.
+          logical, save :: loc_firstime = .true.
           integer, save :: prev_time = -1
           real :: ratio1, ratio2
           character(200) :: xmsg
