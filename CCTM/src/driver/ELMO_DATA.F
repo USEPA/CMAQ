@@ -525,4 +525,32 @@ c:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
                                                       !   collected by each inlet
                                                       !   Third dimension is 1
                                                       !     for wet and 2 for dry
+
+        REAL, ALLOCATABLE, SAVE :: ELMO_AOD_550(:,:), ! total aerosol optical depth at 
+                                                      !   550 nm (Angstrom Interpolation) 
+     &                             ELMO_EXT_550(:,:,:)! aerosol extinction at 550 nm for layer [1/m]
+
+        CONTAINS
+
+!------------------------------------------------------------------------------------------            
+        subroutine elmo_init_shared
+!------------------------------------------------------------------------------------------            
+        use grid_conf, only : ncols, nrows, nlays
+
+        implicit none
+
+        integer ios
+        character(32) :: pname = 'ELMO_INIT_SHARED'
+
+        allocate( elmo_aod_550(ncols, nrows ), stat=ios)
+        call checkmem( ios, 'ELMO_AOD_550',pname )
+        elmo_aod_550 = 0.0
+
+        allocate( elmo_ext_550(ncols, nrows, nlays ), stat=ios)
+        call checkmem( ios, 'ELMO_EXT_550',pname )
+        elmo_ext_550 = 0.0
+
+        end subroutine elmo_init_shared
+!------------------------------------------------------------------------------------------            
+
       END MODULE ELMO_DATA

@@ -40,7 +40,7 @@
      &                 AVRG_LAYER_TOP, AVRG_LAYER_BOT
 
       CHARACTER(16), ALLOCATABLE, SAVE :: 
-     &               INST_PARS_NML( : ), AVRG_PARS_NML( : ),
+     &               INST_VARS_NML( : ), AVRG_VARS_NML( : ),
      &               INST_PARS( : ),     AVRG_PARS( : ),
      &               INST_PARS_OUT(:),   AVRG_PARS_OUT(:),
      &               INST_UNIT_OUT(:),   AVRG_UNIT_OUT(:)
@@ -77,11 +77,10 @@
 
       INTEGER, PARAMETER :: N_NML = 1000
       INTEGER            :: INUM, J, N_END, I1, I2, I3, I4, JNUM
-      INTEGER            :: EMCTRL_NML
+      INTEGER            :: FUNIT
       INTEGER            :: STAT
       LOGICAL, SAVE      :: INSTANT  =.TRUE., 
-     &                      AVERAGE  =.TRUE.!,
-!     &                      OLDNAMES =.FALSE.
+     &                      AVERAGE  =.TRUE.
 
       CHARACTER( 16 ), SAVE :: PNAME = 'READ_ELMO_NML'
       CHARACTER( 200 )   :: XMSG
@@ -89,16 +88,16 @@
       LOGICAL EXPAND_NML
       LOGICAL, ALLOCATABLE :: FAM_LIST(:)
 
-      NAMELIST / ELMO_ACTIVATE / INSTANT, AVERAGE !, OLDNAMES
-      NAMELIST / ELMO_INST / INST_LAYER_TOP, 
-     &                         INST_LAYER_BOT, INST_PARS_NML
-      NAMELIST / ELMO_AVRG / AVRG_LAYER_TOP, 
-     &                         AVRG_LAYER_BOT, AVRG_PARS_NML
+      NAMELIST / elmo_activate / instant, average 
+      NAMELIST / elmo_inst / inst_layer_top, 
+     &                       inst_layer_bot, inst_vars_nml
+      NAMELIST / elmo_avrg / avrg_layer_top, 
+     &                       avrg_layer_bot, avrg_vars_nml
 
-      ALLOCATE( INST_PARS_NML( N_NML ), STAT = IOS )
-      CALL CHECKMEM( IOS, 'INST_PARS_NML',PNAME )
-      ALLOCATE( AVRG_PARS_NML( N_NML ), STAT = IOS )
-      CALL CHECKMEM( IOS, 'AVRG_PARS_NML',PNAME )
+      ALLOCATE( INST_VARS_NML( N_NML ), STAT = IOS )
+      CALL CHECKMEM( IOS, 'INST_VARS_NML',PNAME )
+      ALLOCATE( AVRG_VARS_NML( N_NML ), STAT = IOS )
+      CALL CHECKMEM( IOS, 'AVRG_VARS_NML',PNAME )
       ALLOCATE( FAM_LIST( N_CGRID_SPC ), STAT = IOS )
       CALL CHECKMEM( IOS, 'FAM_LIST',PNAME )
  
@@ -106,17 +105,17 @@
       INST_ACTIVE      = .TRUE.
       INST_LAYER_TOP   = 1
       INST_LAYER_BOT   = 1
-      INST_PARS_NML(:) = ''
-      INST_PARS_NML(1) = 'O3'
-      INST_PARS_NML(2) = 'PM25'
-      INST_PARS_NML(3) = 'PM10'
+      INST_VARS_NML(:) = ''
+      INST_VARS_NML(1) = 'O3'
+      INST_VARS_NML(2) = 'PM25'
+      INST_VARS_NML(3) = 'PM10'
       AVRG_ACTIVE      = .TRUE.
       AVRG_LAYER_TOP   = 1
       AVRG_LAYER_BOT   = 1
-      AVRG_PARS_NML(:) = ''
-      AVRG_PARS_NML(1) = 'O3'
-      AVRG_PARS_NML(2) = 'PM25'
-      AVRG_PARS_NML(3) = 'PM10'
+      AVRG_VARS_NML(:) = ''
+      AVRG_VARS_NML(1) = 'O3'
+      AVRG_VARS_NML(2) = 'PM25'
+      AVRG_VARS_NML(3) = 'PM10'
 
       ! Retrieve the Name of the Emission Control File
       IF ( MISC_CTRL .EQ. "MISC_CTRL_NML" ) THEN
@@ -128,8 +127,8 @@
       END IF
 
       ! Open Emission Control Namelist File
-      EMCTRL_NML = JUNIT()
-      OPEN( FILE = MISC_CTRL, UNIT = EMCTRL_NML, STATUS = 'OLD',
+      FUNIT = JUNIT()
+      OPEN( FILE = MISC_CTRL, UNIT = FUNIT, STATUS = 'OLD',
      &      POSITION = 'REWIND', FORM='FORMATTED', IOSTAT = STAT )
 
       ! Check for Error in File Open Process
@@ -140,12 +139,12 @@
       END IF
  
       ! Read Toggles for Turning Instantaneous and Average Files On/Off
-      REWIND( EMCTRL_NML )
-      READ( NML = ELMO_ACTIVATE, UNIT = EMCTRL_NML, IOSTAT=STAT )
+      REWIND( FUNIT )
+      READ( NML = elmo_activate, UNIT = FUNIT, IOSTAT=STAT )
       IF ( STAT .NE. 0 ) THEN
           WRITE( LOGDEV, "(5x,A,/,5x,A,/,5x,A,/,5x,A)" ),
      &           'Warning! Something went wrong while reading the ',
-     &           'ELMO_ACTIVATE section of the Emissions Control ',
+     &           'ELMO_ACTIVATE section of the CMAQ Control ',
      &           'Namelist. Default values for this section will be ',
      &           'assumed.'
       END IF
@@ -155,73 +154,73 @@
       CALL POPULATE_ELMO_KEY
 
       ! Read Desired ELMO_INST parameters from input namelist
-      REWIND( EMCTRL_NML )
-      READ( NML = ELMO_INST, UNIT = EMCTRL_NML, IOSTAT=STAT )
+      REWIND( FUNIT )
+      READ( NML = elmo_inst, UNIT = FUNIT, IOSTAT=STAT )
       IF ( STAT .NE. 0 ) THEN
           WRITE( LOGDEV, "(5x,A,/,5x,A,/,5x,A,/,5x,A)" ),
      &           'Warning! Something went wrong while reading the ',
-     &           'ELMO_INST section of the Emissions Control ',
+     &           'ELMO_INST section of the CMAQ Control ',
      &           'Namelist. Default values for this section will be ',
      &           'assumed.'
       END IF
 
       ! Expand INST list Using Keywords
-      N_END = INDEX1( '', N_NML, INST_PARS_NML ) - 1
+      N_END = INDEX1( '', N_NML, INST_VARS_NML ) - 1
       INUM = 1
       DO WHILE ( INUM .LE. N_END )
-         CALL UPCASE( INST_PARS_NML( INUM ) )
+         CALL UPCASE( INST_VARS_NML( INUM ) )
          EXPAND_NML = .FALSE.
-         IF ( INST_PARS_NML( INUM )(1:1) .EQ. '*' ) THEN
+         IF ( INST_VARS_NML( INUM )(1:1) .EQ. '*' ) THEN
              EXPAND_NML = .TRUE.
-             INST_PARS_NML( INUM ) = INST_PARS_NML( INUM )(2:16)//' '
+             INST_VARS_NML( INUM ) = INST_VARS_NML( INUM )(2:16)//' '
          END IF
 
-         I1 = INDEX1( INST_PARS_NML( INUM ), N_ELMO_LIST, ELMO_LIST%NAME )
-         I2 = INDEX1( INST_PARS_NML( INUM ), N_KEY, ELMO_KEY%WORD )
-         I3 = INDEX1( INST_PARS_NML( INUM ), N_CGRID_SPC, CGRID_NAME )
+         I1 = INDEX1( INST_VARS_NML( INUM ), N_ELMO_LIST, ELMO_LIST%NAME )
+         I2 = INDEX1( INST_VARS_NML( INUM ), N_KEY, ELMO_KEY%WORD )
+         I3 = INDEX1( INST_VARS_NML( INUM ), N_CGRID_SPC, CGRID_NAME )
          I4 = 0
          IF ( N_Chem_Fams .GT. 0 ) 
-     &      I4 = INDEX1( INST_PARS_NML( INUM ), N_Chem_Fams, CHEMFAMILYNAME )
+     &      I4 = INDEX1( INST_VARS_NML( INUM ), N_Chem_Fams, CHEMFAMILYNAME )
 
-         IF ( INST_PARS_NML( INUM ) .EQ. 'ALL' ) THEN
+         IF ( INST_VARS_NML( INUM ) .EQ. 'ALL' ) THEN
             ! Add All Diagnostic Parameters to the End of the Registry List
-            INST_PARS_NML( N_END+1:N_END+N_ELMO_LIST ) = ELMO_LIST%NAME
+            INST_VARS_NML( N_END+1:N_END+N_ELMO_LIST ) = ELMO_LIST%NAME
             N_END = N_END + N_ELMO_LIST
             
             ! Add All Raw Output Species to the End of the Registry List
-            INST_PARS_NML( N_END+1:N_END+N_CGRID_SPC ) = CGRID_NAME(1:N_CGRID_SPC)
+            INST_VARS_NML( N_END+1:N_END+N_CGRID_SPC ) = CGRID_NAME(1:N_CGRID_SPC)
             N_END = N_END + N_CGRID_SPC
 
             ! Add All Family Names defined in the Emission Control
             ! Interface to the End of the Registry List
             IF ( N_Chem_Fams .GT. 0 ) 
-     &           INST_PARS_NML( N_END+1:N_END+N_Chem_Fams ) = 
+     &           INST_VARS_NML( N_END+1:N_END+N_Chem_Fams ) = 
      &                        CHEMFAMILYNAME(1:N_Chem_Fams)
             N_END = N_END + N_Chem_Fams
 
             ! Remove "All" Keyword
-            INST_PARS_NML( INUM:N_END-1 ) = INST_PARS_NML( INUM+1:N_END )
-            INST_PARS_NML( N_END ) = ''
+            INST_VARS_NML( INUM:N_END-1 ) = INST_VARS_NML( INUM+1:N_END )
+            INST_VARS_NML( N_END ) = ''
             N_END = N_END - 1
-         ELSE IF ( INST_PARS_NML( INUM ) .EQ. 'ALLCONC' ) THEN
+         ELSE IF ( INST_VARS_NML( INUM ) .EQ. 'ALLCONC' ) THEN
             ! Add All Raw Output Species to the End of the Registry List
-            INST_PARS_NML( N_END+1:N_END+N_CGRID_SPC ) = CGRID_NAME(1:N_CGRID_SPC)
+            INST_VARS_NML( N_END+1:N_END+N_CGRID_SPC ) = CGRID_NAME(1:N_CGRID_SPC)
             N_END = N_END + N_CGRID_SPC
 
             ! Remove 'ALLCONC' Keyword from INST Parameter List
-            INST_PARS_NML( INUM:N_END-1 ) = INST_PARS_NML( INUM+1:N_END )
-            INST_PARS_NML( N_END ) = ''
+            INST_VARS_NML( INUM:N_END-1 ) = INST_VARS_NML( INUM+1:N_END )
+            INST_VARS_NML( N_END ) = ''
             N_END = N_END - 1 
          ELSE IF ( I1 .GT. 0 ) THEN
             ! Entry Matches a parameter on the ELMO list. 
             INUM = INUM + 1
          ELSE IF ( I2 .GT. 0 ) THEN
             ! ELMO Keyword. Add parameters associated with a keyword
-            INST_PARS_NML( N_END+1:N_END+ELMO_KEY( I2 )%N ) =
+            INST_VARS_NML( N_END+1:N_END+ELMO_KEY( I2 )%N ) =
      &                                   ELMO_KEY( I2 )%LIST
             N_END = N_END + ELMO_KEY( I2 )%N
-            INST_PARS_NML( INUM:N_END-1 ) = INST_PARS_NML( INUM+1:N_END )
-            INST_PARS_NML( N_END ) = ''
+            INST_VARS_NML( INUM:N_END-1 ) = INST_VARS_NML( INUM+1:N_END )
+            INST_VARS_NML( N_END ) = ''
             N_END = N_END - 1
          ELSE IF ( I3 .GT. 0 ) THEN
             ! CMAQ Raw Model Species. Go to Next Entry
@@ -230,17 +229,17 @@
             ! CMAQ Chemical Family. Go to Next entry or expand if the * was
             ! used
             IF ( EXPAND_NML ) THEN
-               CALL MAP_CHEM_FAMILIES( INST_PARS_NML( INUM ),
+               CALL MAP_CHEM_FAMILIES( INST_VARS_NML( INUM ),
      &                     CGRID_NAME, N_CGRID_SPC, FAM_LIST )
                DO J = 1,N_CGRID_SPC
                   IF ( FAM_LIST(J) ) THEN
                       N_END = N_END + 1
-                      INST_PARS_NML( N_END ) = CGRID_NAME( J )
+                      INST_VARS_NML( N_END ) = CGRID_NAME( J )
                   END IF
                END DO   
                ! Remove family Name after expansion
-               INST_PARS_NML( INUM:N_END-1 ) = INST_PARS_NML( INUM+1:N_END )
-               INST_PARS_NML( N_END ) = ''
+               INST_VARS_NML( INUM:N_END-1 ) = INST_VARS_NML( INUM+1:N_END )
+               INST_VARS_NML( N_END ) = ''
                N_END = N_END - 1
             ELSE
                INUM = INUM + 1
@@ -248,7 +247,7 @@
          ELSE
             ! Entry Doesn't Match any parameter or Keyword. Crash the
             ! model.
-            XMSG = 'An Instantaneous ELMO Parameter ' // TRIM( INST_PARS_NML( INUM )) //
+            XMSG = 'An Instantaneous ELMO Parameter ' // TRIM( INST_VARS_NML( INUM )) //
      &             ' has been requested that does not exist.'
             CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
          END IF
@@ -256,16 +255,16 @@
 
       ! Capitalize Entries and Remove Duplicates
       DO INUM = 1,N_END
-          CALL UPCASE( INST_PARS_NML( INUM ) )
+          CALL UPCASE( INST_VARS_NML( INUM ) )
       ENDDO
       DO INUM = 1,N_END-1
          JNUM = INUM + 1
          DO WHILE ( JNUM .LE. N_END )
-            IF ( INST_PARS_NML( INUM ) .EQ. '' ) THEN
+            IF ( INST_VARS_NML( INUM ) .EQ. '' ) THEN
                JNUM = N_END + 1
-            ELSEIF ( INST_PARS_NML( INUM ) .EQ. INST_PARS_NML( JNUM ) ) THEN
-               INST_PARS_NML( JNUM:N_END-1 ) = INST_PARS_NML( JNUM+1:N_END )
-               INST_PARS_NML( N_END ) = ''
+            ELSEIF ( INST_VARS_NML( INUM ) .EQ. INST_VARS_NML( JNUM ) ) THEN
+               INST_VARS_NML( JNUM:N_END-1 ) = INST_VARS_NML( JNUM+1:N_END )
+               INST_VARS_NML( N_END ) = ''
             ELSE
                JNUM = JNUM + 1
             END IF
@@ -273,10 +272,10 @@
       END DO
 
       ! Populate Final INST_PARS parameters list
-      N_ELMO_INST = INDEX1( '', N_NML, INST_PARS_NML ) - 1
+      N_ELMO_INST = INDEX1( '', N_NML, INST_VARS_NML ) - 1
       ALLOCATE( INST_PARS( N_ELMO_INST ), STAT=IOS )
       CALL CHECKMEM( IOS, 'INST_PARS',PNAME )
-      INST_PARS = INST_PARS_NML( 1:N_ELMO_INST )
+      INST_PARS = INST_VARS_NML( 1:N_ELMO_INST )
 
       ! Check Top-Layer Specification
       IF ( INST_LAYER_TOP .EQ. -1 ) INST_LAYER_TOP = NLAYS
@@ -296,73 +295,73 @@
       NLAY_ELMO_INST = INST_LAYER_TOP - INST_LAYER_BOT + 1
 
       ! Read Desired ELMO_AVRG parameters from input namelist
-      REWIND( EMCTRL_NML )
-      READ( NML = ELMO_AVRG, UNIT = EMCTRL_NML, IOSTAT=STAT )
+      REWIND( FUNIT )
+      READ( NML = elmo_avrg, UNIT = FUNIT, IOSTAT=STAT )
       IF ( STAT .NE. 0 ) THEN
           WRITE( LOGDEV, "(5x,A,/,5x,A,/,5x,A,/,5x,A)" ),
      &           'Warning! Something went wrong while reading the ',
-     &           'ELMO_AVRG section of the Emissions Control ',
+     &           'ELMO_AVRG section of the CMAQ Control ',
      &           'Namelist. Default values for this section will be ',
      &           'assumed.'
       END IF
  
       ! Expand AVRG list Using Keywords
-      N_END = INDEX1( '', N_NML, AVRG_PARS_NML ) - 1
+      N_END = INDEX1( '', N_NML, AVRG_VARS_NML ) - 1
       INUM = 1
       DO WHILE ( INUM .LE. N_END )
-         CALL UPCASE( AVRG_PARS_NML( INUM ) )
+         CALL UPCASE( AVRG_VARS_NML( INUM ) )
          EXPAND_NML = .FALSE.
-         IF ( AVRG_PARS_NML( INUM )(1:1) .EQ. '*' ) THEN
+         IF ( AVRG_VARS_NML( INUM )(1:1) .EQ. '*' ) THEN
              EXPAND_NML = .TRUE.
-             AVRG_PARS_NML( INUM ) = AVRG_PARS_NML( INUM )(2:16)//' '
+             AVRG_VARS_NML( INUM ) = AVRG_VARS_NML( INUM )(2:16)//' '
          END IF
 
-         I1 = INDEX1( AVRG_PARS_NML( INUM ), N_ELMO_LIST, ELMO_LIST%NAME )
-         I2 = INDEX1( AVRG_PARS_NML( INUM ), N_KEY, ELMO_KEY%WORD )
-         I3 = INDEX1( AVRG_PARS_NML( INUM ), N_CGRID_SPC, CGRID_NAME )
+         I1 = INDEX1( AVRG_VARS_NML( INUM ), N_ELMO_LIST, ELMO_LIST%NAME )
+         I2 = INDEX1( AVRG_VARS_NML( INUM ), N_KEY, ELMO_KEY%WORD )
+         I3 = INDEX1( AVRG_VARS_NML( INUM ), N_CGRID_SPC, CGRID_NAME )
          I4 = 0
          IF ( N_Chem_Fams .GT. 0 ) 
-     &      I4 = INDEX1( AVRG_PARS_NML( INUM ), N_Chem_Fams, CHEMFAMILYNAME )
+     &      I4 = INDEX1( AVRG_VARS_NML( INUM ), N_Chem_Fams, CHEMFAMILYNAME )
 
-         IF ( AVRG_PARS_NML( INUM ) .EQ. 'ALL' ) THEN
+         IF ( AVRG_VARS_NML( INUM ) .EQ. 'ALL' ) THEN
              ! Add All Parameters to the End of the Registry List
-            AVRG_PARS_NML( N_END+1:N_END+N_ELMO_LIST ) = ELMO_LIST%NAME
+            AVRG_VARS_NML( N_END+1:N_END+N_ELMO_LIST ) = ELMO_LIST%NAME
             N_END = N_END + N_ELMO_LIST
 
             ! Add All Raw Output Species to the End of the Registry List
-            AVRG_PARS_NML( N_END+1:N_END+N_CGRID_SPC ) = CGRID_NAME(1:N_CGRID_SPC)
+            AVRG_VARS_NML( N_END+1:N_END+N_CGRID_SPC ) = CGRID_NAME(1:N_CGRID_SPC)
             N_END = N_END + N_CGRID_SPC
 
             ! Add All Family Names defined in the Emission Control
             ! Interface to the End of the Registry List
             IF ( N_Chem_Fams .GT. 0 ) 
-     &           AVRG_PARS_NML( N_END+1:N_END+N_Chem_Fams ) = 
+     &           AVRG_VARS_NML( N_END+1:N_END+N_Chem_Fams ) = 
      &                        CHEMFAMILYNAME(1:N_Chem_Fams)
             N_END = N_END + N_Chem_Fams
  
             ! Remove 'ALL' Keyword from AVRG Parameter List
-            AVRG_PARS_NML( INUM:N_END-1 ) = AVRG_PARS_NML( INUM+1:N_END )
-            AVRG_PARS_NML( N_END ) = ''
+            AVRG_VARS_NML( INUM:N_END-1 ) = AVRG_VARS_NML( INUM+1:N_END )
+            AVRG_VARS_NML( N_END ) = ''
             N_END = N_END - 1
-         ELSE IF ( AVRG_PARS_NML( INUM ) .EQ. 'ALLCONC' ) THEN
+         ELSE IF ( AVRG_VARS_NML( INUM ) .EQ. 'ALLCONC' ) THEN
             ! Add All Raw Output Species to the End of the Registry List
-            AVRG_PARS_NML( N_END+1:N_END+N_CGRID_SPC ) = CGRID_NAME(1:N_CGRID_SPC)
+            AVRG_VARS_NML( N_END+1:N_END+N_CGRID_SPC ) = CGRID_NAME(1:N_CGRID_SPC)
             N_END = N_END + N_CGRID_SPC
 
             ! Remove 'ALLCONC' Keyword from AVRG Parameter List
-            AVRG_PARS_NML( INUM:N_END-1 ) = AVRG_PARS_NML( INUM+1:N_END )
-            AVRG_PARS_NML( N_END ) = ''
+            AVRG_VARS_NML( INUM:N_END-1 ) = AVRG_VARS_NML( INUM+1:N_END )
+            AVRG_VARS_NML( N_END ) = ''
             N_END = N_END - 1
          ELSE IF ( I1 .GT. 0 ) THEN
             ! Entry Matches a parameter on the ELMO list. 
             INUM = INUM + 1
          ELSE IF ( I2 .GT. 0 ) THEN
             ! Add Parameters associated with a keyword
-            AVRG_PARS_NML( N_END+1:N_END+ELMO_KEY( I2 )%N ) =
+            AVRG_VARS_NML( N_END+1:N_END+ELMO_KEY( I2 )%N ) =
      &                                   ELMO_KEY( I2 )%LIST
             N_END = N_END + ELMO_KEY( I2 )%N
-            AVRG_PARS_NML( INUM:N_END-1 ) = AVRG_PARS_NML( INUM+1:N_END )
-            AVRG_PARS_NML( N_END ) = ''
+            AVRG_VARS_NML( INUM:N_END-1 ) = AVRG_VARS_NML( INUM+1:N_END )
+            AVRG_VARS_NML( N_END ) = ''
             N_END = N_END - 1
          ELSE IF ( I3 .GT. 0 ) THEN
             ! CMAQ Raw Model Species. Go to Next Entry
@@ -371,17 +370,17 @@
             ! CMAQ Chemical Family. Go to Next entry or expand if the * was
             ! used
             IF ( EXPAND_NML ) THEN
-               CALL MAP_CHEM_FAMILIES( AVRG_PARS_NML( INUM ),
+               CALL MAP_CHEM_FAMILIES( AVRG_VARS_NML( INUM ),
      &                     CGRID_NAME, N_CGRID_SPC, FAM_LIST )
                DO J = 1,N_CGRID_SPC
                   IF ( FAM_LIST(J) ) THEN
                       N_END = N_END + 1
-                      AVRG_PARS_NML( N_END ) = CGRID_NAME( J )
+                      AVRG_VARS_NML( N_END ) = CGRID_NAME( J )
                   END IF
                END DO   
                ! Remove family Name after expansion
-               AVRG_PARS_NML( INUM:N_END-1 ) = AVRG_PARS_NML( INUM+1:N_END )
-               AVRG_PARS_NML( N_END ) = ''
+               AVRG_VARS_NML( INUM:N_END-1 ) = AVRG_VARS_NML( INUM+1:N_END )
+               AVRG_VARS_NML( N_END ) = ''
                N_END = N_END - 1
             ELSE
                INUM = INUM + 1
@@ -390,7 +389,7 @@
          ELSE
             ! Entry Doesn't Match any parameter or Keyword. Crash the
             ! model.
-            XMSG = 'An Average ELMO Parameter ' // TRIM( AVRG_PARS_NML( INUM )) //
+            XMSG = 'An Average ELMO Parameter ' // TRIM( AVRG_VARS_NML( INUM )) //
      &             ' has been requested that does not exist.'
             CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
          END IF
@@ -398,16 +397,16 @@
 
       ! Capitalize Entries and Remove Duplicates
       DO INUM = 1,N_END
-          CALL UPCASE( AVRG_PARS_NML( INUM ) )
+          CALL UPCASE( AVRG_VARS_NML( INUM ) )
       ENDDO
       DO INUM = 1,N_END-1
          JNUM = INUM + 1
          DO WHILE ( JNUM .LE. N_END )
-            IF ( AVRG_PARS_NML( INUM ) .EQ. '' ) THEN
+            IF ( AVRG_VARS_NML( INUM ) .EQ. '' ) THEN
                JNUM = N_END + 1
-            ELSEIF ( AVRG_PARS_NML( INUM ) .EQ. AVRG_PARS_NML( JNUM ) ) THEN
-               AVRG_PARS_NML( JNUM:N_END-1 ) = AVRG_PARS_NML( JNUM+1:N_END )
-               AVRG_PARS_NML( N_END ) = ''
+            ELSEIF ( AVRG_VARS_NML( INUM ) .EQ. AVRG_VARS_NML( JNUM ) ) THEN
+               AVRG_VARS_NML( JNUM:N_END-1 ) = AVRG_VARS_NML( JNUM+1:N_END )
+               AVRG_VARS_NML( N_END ) = ''
             ELSE
                JNUM = JNUM + 1
             END IF
@@ -415,10 +414,10 @@
       END DO
        
       ! Populate INST_PARS parameters list
-      N_ELMO_AVRG = INDEX1( '', N_NML, AVRG_PARS_NML ) - 1
+      N_ELMO_AVRG = INDEX1( '', N_NML, AVRG_VARS_NML ) - 1
       ALLOCATE( AVRG_PARS( N_ELMO_AVRG ), STAT = IOS )
       CALL CHECKMEM( IOS, 'AVRG_PARS',PNAME )
-      AVRG_PARS = AVRG_PARS_NML( 1:N_ELMO_AVRG )
+      AVRG_PARS = AVRG_VARS_NML( 1:N_ELMO_AVRG )
  
       ! Check Top-Layer Specification
       IF ( AVRG_LAYER_TOP .EQ. -1 ) AVRG_LAYER_TOP = NLAYS
@@ -723,6 +722,7 @@
 
       ! Read User-Input from Namelist input file (Emission Control File
       ! For Now)
+      CALL ELMO_INIT_SHARED()
       CALL READ_ELMO_NML()
       L_ELMO = ( INST_ACTIVE .OR. AVRG_ACTIVE )
 
@@ -893,13 +893,13 @@
              IF ( INST_ACTIVE ) 
      &            M = INDEX1( AVRG_PARS( J ), N_ELMO_INST, INST_PARS ) 
 
-         IF ( MYPE . EQ. 14 ) THEN
-           print *,'J = ',J,' avrg_pars_j=',avrg_pars(j)
-           print *,'avrg_pars = ',avrg_pars(:)
-           print *,'N_Chem_Fams = ',N_Chem_Fams
-           print *,'chemfamilynames = ',chemfamilyname(:)
-           print *,N, ' ',S, ' ',F, ' ',M
-         END IF
+             !IF ( MYPE . EQ. 14 ) THEN
+          ! print *,'J = ',J,' avrg_pars_j=',avrg_pars(j)
+          ! print *,'avrg_pars = ',avrg_pars(:)
+          ! print *,'N_Chem_Fams = ',N_Chem_Fams
+          ! print *,'chemfamilynames = ',chemfamilyname(:)
+          ! print *,N, ' ',S, ' ',F, ' ',M
+         !END IF
 
 
              IF ( N .NE. 0 ) THEN
@@ -2224,7 +2224,6 @@
       USE AEROMET_DATA, ONLY: AIRRH, PI, AIRTEMP, SRFTEMP, AIRPRES
       USE CGRID_SPCS, ONLY : RHOJ_LOC
       USE SOA_DEFN, ONLY : N_OA, N_OA_NotTracers, OASPC, MAP_OAtoAERO
-      USE PHOT_MOD, ONLY : ELMO_AOD_550, ELMO_EXT_550
       USE RUNTIME_VARS, ONLY : PHOTDIAG
       USE ASX_DATA_MOD, ONLY : MET_DATA
 
@@ -2915,7 +2914,7 @@
       USE AERO_DATA, ONLY: AEROMODE_LNSG, DRY_AERO_DIAM, WET_AERO_DIAM,
      &                     DRY_AERO_M2, WET_AERO_M2, DRY_AERO_M3, 
      &                     WET_AERO_M3, N_MODE, MOMENT0_CONC, MOMENT2_CONC,
-     &                     MOMENT3_CONC, WET_AERO_DENS, AEROSPC_CONC,
+     &                     MOMENT3_CONC, WET_AERO_DENS, AEROSPC_CONC, DRY_AERO_DENS,
      &                     AH2O_IDX, AEROSPC, CALC_AERODIST_PARAMS
       USE AEROMET_DATA, ONLY: AIRRH
 
@@ -2944,7 +2943,7 @@
      &     ( L.LE.INST_LAYER_TOP .OR. L.LE.AVRG_LAYER_TOP ) ) THEN
        
           ! Calculate All Aerosol Size Distribution Parameters
-          CALL CALC_AERODIST_PARAMS
+          CALL CALC_AERODIST_PARAMS( INIT_TIME )
        
           ! Loop Through Used Parameters List and Call ELMO Functions 
           ! to fill in Local Array. ELMO_LOCAL is the same length as the
@@ -2953,7 +2952,6 @@
           DO IUSED = 1,N_ELMO_OUT
              IM  = USED_ELMO_MODE( IUSED ) ! Map to 
              IDG = USED_ELMO_ID( IUSED ) ! Map to Parameter ID numbers
-       
              CALL CALC_ELMO( IDG, IM, ELMO_LOCAL( IUSED ) )
           END DO
        
@@ -3063,6 +3061,7 @@
       IF ( JDATE .EQ. STDATE .AND. JTIME .EQ. STTIME ) THEN
          INIT_TIME = .TRUE.
       ELSE
+         INIT_TIME = .FALSE.
          WSTEP = WSTEP + TIME2SEC( TSTEP( 2 ) )
          IF ( WSTEP .GE. TIME2SEC( TSTEP( 1 ) ) ) THEN
               WRITETIME = .TRUE.
@@ -3188,7 +3187,7 @@
             ! diagnostic file
             SDATE3D = JDATE
             STIME3D = JTIME
-            CALL NEXTIME ( SDATE3D, STIME3D, TSTEP3D ) !  start the next hour
+            !CALL NEXTIME ( SDATE3D, STIME3D, TSTEP3D ) !  start the next hour
          
             NLAYS3D = INST_LAYER_TOP - INST_LAYER_BOT + 1
             DO L = INST_LAYER_BOT, INST_LAYER_TOP + 1
