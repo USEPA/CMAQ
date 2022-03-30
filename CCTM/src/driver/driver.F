@@ -698,6 +698,12 @@ C Get synchronization and advection time steps, TSTEP(2), ASTEP(L) and NREPS
       END IF
 #endif
 
+C Compute and Write Out Instantaneous ELMO Values if Requested
+      IF ( L_ELMO ) THEN
+          CALL ELMO_DRIVER( CGRID, JDATE, JTIME, TSTEP )
+          CALL WRITE_ELMO( JDATE, JTIME, TSTEP )
+      END IF
+
 C Initialize Budget Output File and Concentration Array
       IF ( BUDGET_DIAG ) CALL BUDGET_INIT( CGRID, JDATE, JTIME, TSTEP )
 

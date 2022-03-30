@@ -183,13 +183,6 @@
          IF ( NCHEMFAMILIES .GT. 0 ) 
      &      I4 = INDEX1( INST_PARS_NML( INUM ), NCHEMFAMILIES, CHEMFAMILYNAME )
 
-         IF ( MYPE . EQ. 6 ) THEN
-           print *,'inst_pars_nml = ',inst_pars_nml(:)
-           print *,'nchemfamilies = ',nchemfamilies
-           print *,'chemfamilynames = ',chemfamilyname
-           print *,I1, ' ',I2, ' ',I3, ' ',I4
-         END IF
-
          IF ( INST_PARS_NML( INUM ) .EQ. 'ALL' ) THEN
             ! Add All Diagnostic Parameters to the End of the Registry List
             INST_PARS_NML( N_END+1:N_END+N_ELMO_LIST ) = ELMO_LIST%NAME
@@ -719,6 +712,7 @@
       USE CGRID_SPCS, ONLY : N_CGRID_SPC, CGRID_NAME, 
      &                       CGRID_CONC_UNIT, CGRID_CONC_DESC
       USE UTIL_FAMILY_MODULE, ONLY: NChemFamilies,ChemFamilyName
+      USE GRID_CONF, ONLY : MYPE
 
       IMPLICIT NONE
 
@@ -784,7 +778,7 @@
              N = INDEX1( INST_PARS( J ), N_ELMO_LIST, ELMO_LIST%NAME )
              S = INDEX1( INST_PARS( J ), N_CGRID_SPC, CGRID_NAME )
              F = 0
-             IF ( NCHEMFAMILIES ) 
+             IF ( NCHEMFAMILIES .GT. 0 ) 
      &          F = INDEX1( INST_PARS( J ), NCHEMFAMILIES, CHEMFAMILYNAME )
 
              IF ( N .NE. 0 ) THEN
@@ -889,7 +883,7 @@
              N = INDEX1( AVRG_PARS( J ), N_ELMO_LIST, ELMO_LIST%NAME ) 
              S = INDEX1( AVRG_PARS( J ), N_CGRID_SPC, CGRID_NAME )
              F = 0
-             IF ( NCHEMFAMILIES ) 
+             IF ( NCHEMFAMILIES .GT. 0 ) 
      &          F = INDEX1( AVRG_PARS( J ), NCHEMFAMILIES, CHEMFAMILYNAME )
 
              ! Check if this parameter is duplicated on the
@@ -898,6 +892,14 @@
              M = 0
              IF ( INST_ACTIVE ) 
      &            M = INDEX1( AVRG_PARS( J ), N_ELMO_INST, INST_PARS ) 
+
+         IF ( MYPE . EQ. 14 ) THEN
+           print *,'J = ',J,' avrg_pars_j=',avrg_pars(j)
+           print *,'avrg_pars = ',avrg_pars(:)
+           print *,'nchemfamilies = ',nchemfamilies
+           print *,'chemfamilynames = ',chemfamilyname(:)
+           print *,N, ' ',S, ' ',F, ' ',M
+         END IF
 
 
              IF ( N .NE. 0 ) THEN
@@ -969,7 +971,7 @@
              ELSEIF ( F .GT. 0 ) THEN
                 ! Add Entry for Chemical Family
                 N_ELMO_AVRG_OUT = N_ELMO_AVRG_OUT + 1
-                AVRG_PARS_OUT( N_ELMO_AVRG_OUT ) = INST_PARS( J )
+                AVRG_PARS_OUT( N_ELMO_AVRG_OUT ) = AVRG_PARS( J )
                 AVRG_TYPE_OUT( N_ELMO_AVRG_OUT ) = M3REAL 
                 AVRG_UNIT_OUT( N_ELMO_AVRG_OUT ) = 'ppmV for Gas. ug m-3 for PM'     
                 AVRG_DESC_OUT( N_ELMO_AVRG_OUT ) = 'Chemical Family. See Definition in Control File.' 
@@ -2905,7 +2907,7 @@
       END SUBROUTINE CALC_ELMO
           
 !-------------------------------------------------------------------------
-      SUBROUTINE LOAD_ELMO( C,R,L,CONC,WRITETIME )
+      SUBROUTINE LOAD_ELMO( C,R,L,CONC,WRITETIME, INIT_TIME )
 !     This subroutine maps the PM diagnostic variables that the user has
 !       requested to the entries in the ELMO_DATA table.
 !-------------------------------------------------------------------------
@@ -2925,6 +2927,7 @@
       REAL, INTENT( IN ) :: CONC( : )
 
       LOGICAL, INTENT( IN ) :: WRITETIME
+      LOGICAL, INTENT( IN ) :: INIT_TIME
 
       ! Initalize Local Parameters
       ELMO_LOCAL( : ) = 0.0
@@ -2955,7 +2958,7 @@
           END DO
        
           ! *** Aggregate Diagnostic Parameters in Average Array
-          IF ( AVRG_ACTIVE .AND. 
+          IF ( .NOT. INIT_TIME .AND. AVRG_ACTIVE .AND. 
      &         L.GE.AVRG_LAYER_BOT .AND. L.LE.AVRG_LAYER_TOP ) THEN
              AL = L - AVRG_LAYER_BOT + 1
              DO  IAVRG = 1,N_ELMO_AVRG_OUT
@@ -2978,7 +2981,7 @@
           END IF
        
           ! *** Populate Diagnostic Parameters to Instantaneous Array if this is a write step
-          IF ( WRITETIME .AND. INST_ACTIVE .AND.
+          IF ( (WRITETIME .OR. INIT_TIME ) .AND. INST_ACTIVE .AND.
      &         L.GE.INST_LAYER_BOT .AND. L.LE.INST_LAYER_TOP ) THEN
              IL = L - INST_LAYER_BOT + 1
              DO IINST = 1,N_ELMO_INST_OUT
@@ -3004,6 +3007,7 @@
       USE AEROMET_DATA, ONLY: AIRRH, AIRTEMP, AIRQV, AIRDENS, AIRPRES,
      &                        SRFTEMP, H2OVP, H2OSATVP, MWWAT, MWAIR
       use centralized_io_module, only : interpolate_var
+      use RUNTIME_VARS
 
       IMPLICIT NONE
 
@@ -3016,6 +3020,7 @@
       ! Variable to set time step for writing visibility file
       INTEGER, SAVE :: WSTEP  = 0          ! local write counter
       LOGICAL, SAVE :: WRITETIME = .FALSE. ! local write flag
+      LOGICAL, SAVE :: INIT_TIME = .FALSE. ! local write flag for T0
 
       LOGICAL, SAVE :: FIRSTIME = .TRUE.
     
@@ -3055,12 +3060,16 @@
 
       ! Determine if this is a write step
       WRITETIME = .FALSE.
-      WSTEP = WSTEP + TIME2SEC( TSTEP( 2 ) )
-      IF ( WSTEP .GE. TIME2SEC( TSTEP( 1 ) ) ) THEN
-           WRITETIME = .TRUE.
-           WSTEP = 0
+      IF ( JDATE .EQ. STDATE .AND. JTIME .EQ. STTIME ) THEN
+         INIT_TIME = .TRUE.
+      ELSE
+         WSTEP = WSTEP + TIME2SEC( TSTEP( 2 ) )
+         IF ( WSTEP .GE. TIME2SEC( TSTEP( 1 ) ) ) THEN
+              WRITETIME = .TRUE.
+              WSTEP = 0
+         END IF
+         ELMO_AVRG_STEP = ELMO_AVRG_STEP + 1
       END IF
-      ELMO_AVRG_STEP = ELMO_AVRG_STEP + 1
      
       ! Get Meteorological Variables
 
@@ -3097,7 +3106,7 @@
          CALL EXTRACT_AERO( CGRID( C,R,L,: ), .TRUE. )
          
          ! Populate Diagnostic Arrays
-         CALL LOAD_ELMO( C,R,L, CGRID(C,R,L,:), WRITETIME )
+         CALL LOAD_ELMO( C,R,L, CGRID(C,R,L,:), WRITETIME, INIT_TIME )
 
       END DO
       END DO
@@ -3266,13 +3275,16 @@
       CHARACTER( 300 ) XMSG
 
       CHARACTER( 16 ), SAVE :: PNAME = 'WRITE_ELMO'
-      LOGICAL, SAVE :: FIRSTIME = .TRUE.
+      LOGICAL, SAVE :: INIT_TIME = .FALSE.
 
 C *** If IO Proceesor, then Write Data
-      !IF ( IO_PE_INCLUSIVE ) THEN
          MDATE = JDATE
          MTIME = JTIME
-         !CALL NEXTIME ( MDATE, MTIME, TSTEP( 2 ) )
+         IF ( JDATE .EQ. STDATE .AND. JTIME .EQ. STTIME ) THEN
+             INIT_TIME = .TRUE.
+         ELSE
+             INIT_TIME = .FALSE.
+         END IF
 
 C *** Write data to the scalar output file.
          IF ( INST_ACTIVE ) THEN
@@ -3290,7 +3302,7 @@ C *** Write data to the scalar output file.
          END IF
      
 C *** Write data to the average aerosol diagnostic file.
-         IF ( AVRG_ACTIVE ) THEN
+         IF ( AVRG_ACTIVE .AND. .NOT.INIT_TIME ) THEN
             IF ( .NOT. END_TIME ) THEN   ! ending time timestamp
                CALL NEXTIME ( MDATE, MTIME, -TSTEP(1) )
             END IF
