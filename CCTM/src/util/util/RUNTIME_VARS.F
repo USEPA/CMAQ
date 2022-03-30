@@ -176,16 +176,15 @@
       LOGICAL :: CLD_DIAG  = .FALSE. ! flag to output cloud diagnostic files
 
       ! Air-Surface Exchange
-      LOGICAL :: ABFLUX    = .FALSE. ! flag for ammonia bi-directional flux with in-lining depv
-      LOGICAL :: MOSAIC    = .FALSE. ! flag for mosaic - luc specific deposition - within in-lining depv
-      LOGICAL :: SFC_HONO  = .FALSE. ! flag for HONO interaction with surfaces within in-lining depv
-      LOGICAL :: FST       = .FALSE. ! flag for mosaic - luc specific deposition - stomatal flux only - within in-lining depv
-      LOGICAL :: PX_LSM    = .TRUE.  ! flag for mosaic - luc specific deposition - stomatal flux only - within in-lining depv
-      LOGICAL :: CLM_LSM   = .FALSE. ! flag for mosaic - luc specific deposition - stomatal flux only - within in-lining depv
-      LOGICAL :: NOAH_LSM  = .TRUE.  ! flag for mosaic - luc specific deposition - stomatal flux only - within in-lining depv
-      LOGICAL :: STAGE     = .FALSE. ! flag for mosaic - luc specific deposition - stomatal flux only - within in-lining depv
-      LOGICAL :: DEPV_DIAG = .FALSE. ! flag for mosaic - luc specific deposition - stomatal flux only - within in-lining depv
-      Logical :: HGBIDI    = .FALSE. ! flag for Hg bidirectional exchange
+      LOGICAL :: ABFLUX     = .FALSE. ! flag for ammonia bi-directional flux with in-lining depv
+      LOGICAL :: MOSAIC     = .FALSE. ! flag for mosaic - luc specific deposition - within in-lining depv
+      LOGICAL :: SFC_HONO   = .FALSE. ! flag for HONO interaction with surfaces within in-lining depv
+      LOGICAL :: PX_LSM     = .TRUE.  ! flag for mosaic - luc specific deposition - stomatal flux only - within in-lining depv
+      LOGICAL :: CLM_LSM    = .FALSE. ! flag for mosaic - luc specific deposition - stomatal flux only - within in-lining depv
+      LOGICAL :: NOAH_LSM   = .TRUE.  ! flag for mosaic - luc specific deposition - stomatal flux only - within in-lining depv
+      LOGICAL :: STAGE      = .FALSE. ! flag for mosaic - luc specific deposition - stomatal flux only - within in-lining depvf
+      LOGICAL :: DEPV_DIAG  = .FALSE. ! flag for mosaic - luc specific deposition - stomatal flux only - within in-lining depv
+      Logical :: HGBIDI     = .FALSE. ! flag for Hg bidirectional exchange
       Logical :: BIDI_FERT_NH3 = .TRUE. ! flag to remove fertilizer ammonia from Bidirectional emissions
       CHARACTER(16) :: DUST_LAND_SCHEME = "UNKNOWN" ! NLCD, USGS, etc
  
@@ -202,6 +201,7 @@
 
       ! Emissions Processes
       CHARACTER( MAXLEN_CCTM_APPL ) :: EMISSCTRL  = 'EMISSCTRL_NML' ! Emission Control Filename
+      CHARACTER( MAXLEN_CCTM_APPL ) :: STAGECTRL  = 'STAGECTRL_NML' ! STAGE Deposition Control Filename
       INTEGER :: EMLAYS_MX     = 0       ! Emission Layers
       INTEGER :: N_FILE_GR     = 0       ! Number of Gridded Emission Files
       INTEGER :: N_FILE_TR     = 0       ! NUmber of Tracer Emission Files
@@ -265,7 +265,7 @@
       INTEGER :: AISAM_BLEV = 0             ! Beginning level saved to sa_aconc file
       INTEGER :: AISAM_ELEV = 0             ! Ending level saved to sa_aconc file
       INTEGER :: AVGSA_LAYS = 0             ! Number of layers saved to conc file
-      INTEGER :: ISAM_O3_WEIGHTS = 5        ! which chemistry are biased in apportioning reaction yields
+      INTEGER :: ISAM_CHEM_BIAS = 5         ! which chemistry are biased in apportioning reaction yields
                                             ! to source reactant
                                             ! 1 for none so divided equally between sources' reactant
                                             ! 2 for all products apportioned to sources with NO, NO2, NO3, HONO, ANO3
@@ -280,8 +280,8 @@
                                             ! production H2O2 over production HNO3 less than VOC_NOX_TRANS
                                    
       REAL     :: VOC_NOX_TRANS = 0.35      ! H2O2 to HNO3 marking transition from NOx to VOC limiting O3 production 
-      INTEGER  :: ISAM_NOX_CASE = 2         ! option of ISAM_O3_WEIGHTS representing NOx limiting O3 production
-      INTEGER  :: ISAM_VOC_CASE = 4         ! option of ISAM_O3_WEIGHTS representing VOC limiting O3 production
+      INTEGER  :: ISAM_NOX_CASE = 2         ! option of ISAM_CHEM_BIAS representing NOx limiting O3 production
+      INTEGER  :: ISAM_VOC_CASE = 4         ! option of ISAM_CHEM_BIAS representing VOC limiting O3 production
 
       CONTAINS
           
@@ -548,14 +548,14 @@
       END IF
 
       ! Get species bias case
-      CALL GET_ENV ( ISAM_O3_WEIGHTS, 'ISAM_O3_WEIGHTS', ISAM_O3_WEIGHTS, VARDEV )
-      IF ( ISAM_O3_WEIGHTS .LT. 1 .OR. ISAM_O3_WEIGHTS .GT. 5 ) THEN
-         XMSG = 'ISAM_CHEM_BIAS must equal 1 thru 5'
+      CALL GET_ENV ( ISAM_CHEM_BIAS, 'ISAM_O3_WEIGHTS', ISAM_CHEM_BIAS, VARDEV )
+      IF ( ISAM_CHEM_BIAS .LT. 1 .OR. ISAM_CHEM_BIAS .GT. 5 ) THEN
+         XMSG = 'ISAM_O3_WEIGHTS must equal 1 thru 5'
          WRITE( OUTDEV, '(A)' )TRIM( XMSG )
          CALL M3EXIT ( PNAME, 0, 0, XMSG, XSTAT1 )
       END IF
 
-      IF ( ISAM_O3_WEIGHTS .EQ. 5 ) THEN
+      IF ( ISAM_CHEM_BIAS .EQ. 5 ) THEN
         EFLAG = .FALSE.
       ! VOC_NOX_TRANS value, ratio of H2O2 over HNO3 production rates or concentration 
           CALL GET_ENV ( VOC_NOX_TRANS, 'VOC_NOX_TRANS', VOC_NOX_TRANS, VARDEV )
@@ -689,11 +689,6 @@
       ! Flag for HONO interaction with leaf and building surfaces
       CALL GET_ENV ( SFC_HONO, 'CTM_SFC_HONO', SFC_HONO, VARDEV )
          
-      ! Mosaic method to get land-use specific stomatal flux
-      IF ( MOSAIC ) THEN
-         CALL GET_ENV ( FST, 'CTM_FST', FST, VARDEV )
-      END IF
-
       ! Flag CLM LSM
       CALL GET_ENV ( CLM_LSM, 'CLM_VERSION', CLM_LSM, VARDEV )
 
@@ -763,6 +758,9 @@
 
       ! Get Name of Emission Control File
       CALL GET_ENV ( EMISSCTRL, 'EMISSCTRL_NML', EMISSCTRL, VARDEV )
+
+      ! Get Name of Emission Control File
+      CALL GET_ENV ( STAGECTRL, 'STAGECTRL_NML', STAGECTRL, VARDEV )
 
       ! Number of Layers for Emissions
       CALL GET_ENV ( EMLAYS_MX, 'CTM_EMLAYS', EMLAYS_MX, VARDEV )

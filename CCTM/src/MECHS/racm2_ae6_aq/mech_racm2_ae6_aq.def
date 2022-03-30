@@ -87,6 +87,8 @@
 !      saprc07tic_ae6_aq mechanism.
 ! 03-04-21 G.Sarwar
 !    updated <HAL_OZONE>
+! 11-19-2021 G. Sarwar
+!    updated k for R40 (bug fix) and photolysis rate coefficients for HCHO (R010 and R011)
 !------------------------------------------------------------------------------ 
 RACM2_AE6_AQ
 
@@ -103,9 +105,9 @@ REACTIONS[CM] =
 <R009>  HNO4               =  0.20*HO  + 0.80*HO2
                                        + 0.80*NO2
                                        + 0.20*NO3     # 1.0/<HNO4_RACM2>;
-<R010>  HCHO               =  CO                      # 1.0/<HCHO_MOL_RACM2>;
+<R010>  HCHO               =  CO                      # 1.0/<HCHO_MOL_JPL19>;
 <R011>  HCHO               =  HO2      + HO2      
-                                       + CO           # 1.0/<HCHO_RAD_RACM2>;
+                                       + CO           # 1.0/<HCHO_RAD_JPL19>;
 <R012>  ACD                =  HO2      + MO2      
                                        + CO           # 1.0/<CH3CHO_RACM2>;
 <R013>  ALD                =  HO2      + ETHP  
@@ -163,7 +165,7 @@ REACTIONS[CM] =
 <R037>  O3   + NO2         = NO3                      # 1.4E-13 @ 2470.;
 <R038>  O3P  + O2    + M   = O3                       # 5.74E-34 ^ -2.6; 
 <R039>  O3P  + O3          =                          # 8.0E-12 @ 2060.;
-<R040>  O1D  + O2          = O3P                      # 3.2E-11 @ 67.;
+<R040>  O1D  + O2          = O3P                      # 3.3E-11 @ -67.;
 <R041>  O1D  + N2          = O3P                      # 2.0E-11 @ -130.;
 <R042>  O1D  + H2O         = 2.0*HO                   # 2.14E-10;
 <R043>  H2   + HO          = HO2                      # 7.70E-12 @ 2100.;
