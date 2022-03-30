@@ -69,7 +69,7 @@
          
       USE RUNTIME_VARS, ONLY: MISC_CTRL, LOGDEV
       USE CGRID_SPCS, ONLY: CGRID_NAME, N_CGRID_SPC
-      USE UTIL_FAMILY_MODULE, ONLY: NChemFamilies,ChemFamilyName,
+      USE UTIL_FAMILY_MODULE, ONLY: N_Chem_Fams,ChemFamilyName,
      &                              Map_Chem_Families
       USE GRID_CONF, ONLY : MYPE
       
@@ -180,8 +180,8 @@
          I2 = INDEX1( INST_PARS_NML( INUM ), N_KEY, ELMO_KEY%WORD )
          I3 = INDEX1( INST_PARS_NML( INUM ), N_CGRID_SPC, CGRID_NAME )
          I4 = 0
-         IF ( NCHEMFAMILIES .GT. 0 ) 
-     &      I4 = INDEX1( INST_PARS_NML( INUM ), NCHEMFAMILIES, CHEMFAMILYNAME )
+         IF ( N_Chem_Fams .GT. 0 ) 
+     &      I4 = INDEX1( INST_PARS_NML( INUM ), N_Chem_Fams, CHEMFAMILYNAME )
 
          IF ( INST_PARS_NML( INUM ) .EQ. 'ALL' ) THEN
             ! Add All Diagnostic Parameters to the End of the Registry List
@@ -194,10 +194,10 @@
 
             ! Add All Family Names defined in the Emission Control
             ! Interface to the End of the Registry List
-            IF ( NCHEMFAMILIES .GT. 0 ) 
-     &           INST_PARS_NML( N_END+1:N_END+NCHEMFAMILIES ) = 
-     &                        CHEMFAMILYNAME(1:NCHEMFAMILIES)
-            N_END = N_END + NCHEMFAMILIES
+            IF ( N_Chem_Fams .GT. 0 ) 
+     &           INST_PARS_NML( N_END+1:N_END+N_Chem_Fams ) = 
+     &                        CHEMFAMILYNAME(1:N_Chem_Fams)
+            N_END = N_END + N_Chem_Fams
 
             ! Remove "All" Keyword
             INST_PARS_NML( INUM:N_END-1 ) = INST_PARS_NML( INUM+1:N_END )
@@ -321,8 +321,8 @@
          I2 = INDEX1( AVRG_PARS_NML( INUM ), N_KEY, ELMO_KEY%WORD )
          I3 = INDEX1( AVRG_PARS_NML( INUM ), N_CGRID_SPC, CGRID_NAME )
          I4 = 0
-         IF ( NCHEMFAMILIES .GT. 0 ) 
-     &      I4 = INDEX1( AVRG_PARS_NML( INUM ), NCHEMFAMILIES, CHEMFAMILYNAME )
+         IF ( N_Chem_Fams .GT. 0 ) 
+     &      I4 = INDEX1( AVRG_PARS_NML( INUM ), N_Chem_Fams, CHEMFAMILYNAME )
 
          IF ( AVRG_PARS_NML( INUM ) .EQ. 'ALL' ) THEN
              ! Add All Parameters to the End of the Registry List
@@ -335,10 +335,10 @@
 
             ! Add All Family Names defined in the Emission Control
             ! Interface to the End of the Registry List
-            IF ( NCHEMFAMILIES .GT. 0 ) 
-     &           AVRG_PARS_NML( N_END+1:N_END+NCHEMFAMILIES ) = 
-     &                        CHEMFAMILYNAME(1:NCHEMFAMILIES)
-            N_END = N_END + NCHEMFAMILIES
+            IF ( N_Chem_Fams .GT. 0 ) 
+     &           AVRG_PARS_NML( N_END+1:N_END+N_Chem_Fams ) = 
+     &                        CHEMFAMILYNAME(1:N_Chem_Fams)
+            N_END = N_END + N_Chem_Fams
  
             ! Remove 'ALL' Keyword from AVRG Parameter List
             AVRG_PARS_NML( INUM:N_END-1 ) = AVRG_PARS_NML( INUM+1:N_END )
@@ -711,7 +711,7 @@
       USE AERO_DATA, ONLY: N_MODE, AEROMODE
       USE CGRID_SPCS, ONLY : N_CGRID_SPC, CGRID_NAME, 
      &                       CGRID_CONC_UNIT, CGRID_CONC_DESC
-      USE UTIL_FAMILY_MODULE, ONLY: NChemFamilies,ChemFamilyName
+      USE UTIL_FAMILY_MODULE, ONLY: N_Chem_Fams,ChemFamilyName
       USE GRID_CONF, ONLY : MYPE
 
       IMPLICIT NONE
@@ -730,11 +730,11 @@
       ! parameters available on the ELMO_LIST. 
       N_ELMO = 0
       
-      ALLOCATE( USED_ELMO_MODE( N_ELMO_LIST*N_MODE+N_CGRID_SPC+NCHEMFAMILIES ),
-     &          USED_ELMO_ID( N_ELMO_LIST*N_MODE+N_CGRID_SPC+NCHEMFAMILIES ),
-     &          USED_CGRID_ID( N_ELMO_LIST*N_MODE+N_CGRID_SPC+NCHEMFAMILIES ),
-     &          USED_FAM_ID( N_ELMO_LIST*N_MODE+N_CGRID_SPC+NCHEMFAMILIES ),
-     &          MAP_ID2USED( N_ELMO_LIST+N_CGRID_SPC+NCHEMFAMILIES,N_MODE ),
+      ALLOCATE( USED_ELMO_MODE( N_ELMO_LIST*N_MODE+N_CGRID_SPC+N_Chem_Fams ),
+     &          USED_ELMO_ID( N_ELMO_LIST*N_MODE+N_CGRID_SPC+N_Chem_Fams ),
+     &          USED_CGRID_ID( N_ELMO_LIST*N_MODE+N_CGRID_SPC+N_Chem_Fams ),
+     &          USED_FAM_ID( N_ELMO_LIST*N_MODE+N_CGRID_SPC+N_Chem_Fams ),
+     &          MAP_ID2USED( N_ELMO_LIST+N_CGRID_SPC+N_Chem_Fams,N_MODE ),
      &          STAT = ALLOCSTAT )
       IF ( ALLOCSTAT .NE. 0 ) THEN
            XMSG = 'Failure allocating USED_ELMO_MODE, USED_ELMO_ID, ' // 
@@ -758,11 +758,11 @@
       NTOT_ELMO_IDS = N_ELMO_LIST
 
       IF ( INST_ACTIVE ) THEN
-         ALLOCATE( MAP_INST2USED( N_ELMO_INST*N_MODE+N_CGRID_SPC+NCHEMFAMILIES ),
-     &             INST_PARS_OUT( N_ELMO_INST*N_MODE+N_CGRID_SPC+NCHEMFAMILIES ) ,
-     &             INST_TYPE_OUT( N_ELMO_INST*N_MODE+N_CGRID_SPC+NCHEMFAMILIES ) ,
-     &             INST_UNIT_OUT( N_ELMO_INST*N_MODE+N_CGRID_SPC+NCHEMFAMILIES ) ,
-     &             INST_DESC_OUT( N_ELMO_INST*N_MODE+N_CGRID_SPC+NCHEMFAMILIES ),
+         ALLOCATE( MAP_INST2USED( N_ELMO_INST*N_MODE+N_CGRID_SPC+N_Chem_Fams ),
+     &             INST_PARS_OUT( N_ELMO_INST*N_MODE+N_CGRID_SPC+N_Chem_Fams ) ,
+     &             INST_TYPE_OUT( N_ELMO_INST*N_MODE+N_CGRID_SPC+N_Chem_Fams ) ,
+     &             INST_UNIT_OUT( N_ELMO_INST*N_MODE+N_CGRID_SPC+N_Chem_Fams ) ,
+     &             INST_DESC_OUT( N_ELMO_INST*N_MODE+N_CGRID_SPC+N_Chem_Fams ),
      &             STAT = ALLOCSTAT )
          IF ( ALLOCSTAT .NE. 0 ) THEN
               XMSG = 'Failure allocating MAP_INST2USED, etc., '
@@ -778,8 +778,8 @@
              N = INDEX1( INST_PARS( J ), N_ELMO_LIST, ELMO_LIST%NAME )
              S = INDEX1( INST_PARS( J ), N_CGRID_SPC, CGRID_NAME )
              F = 0
-             IF ( NCHEMFAMILIES .GT. 0 ) 
-     &          F = INDEX1( INST_PARS( J ), NCHEMFAMILIES, CHEMFAMILYNAME )
+             IF ( N_Chem_Fams .GT. 0 ) 
+     &          F = INDEX1( INST_PARS( J ), N_Chem_Fams, CHEMFAMILYNAME )
 
              IF ( N .NE. 0 ) THEN
                 ! Add Room for the Other Modes if this Parameter is
@@ -883,8 +883,8 @@
              N = INDEX1( AVRG_PARS( J ), N_ELMO_LIST, ELMO_LIST%NAME ) 
              S = INDEX1( AVRG_PARS( J ), N_CGRID_SPC, CGRID_NAME )
              F = 0
-             IF ( NCHEMFAMILIES .GT. 0 ) 
-     &          F = INDEX1( AVRG_PARS( J ), NCHEMFAMILIES, CHEMFAMILYNAME )
+             IF ( N_Chem_Fams .GT. 0 ) 
+     &          F = INDEX1( AVRG_PARS( J ), N_Chem_Fams, CHEMFAMILYNAME )
 
              ! Check if this parameter is duplicated on the
              ! instantaneous list. Don't need to duplicate calculation
@@ -896,7 +896,7 @@
          IF ( MYPE . EQ. 14 ) THEN
            print *,'J = ',J,' avrg_pars_j=',avrg_pars(j)
            print *,'avrg_pars = ',avrg_pars(:)
-           print *,'nchemfamilies = ',nchemfamilies
+           print *,'N_Chem_Fams = ',N_Chem_Fams
            print *,'chemfamilynames = ',chemfamilyname(:)
            print *,N, ' ',S, ' ',F, ' ',M
          END IF
