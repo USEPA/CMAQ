@@ -544,6 +544,7 @@ C-----------------------------------------------------------------------
      &             Grid_Data%PURB    ( NCOLS,NROWS ),
      &             Grid_Data%SLTYP   ( NCOLS,NROWS ),
      &             Grid_Data%WSAT    ( NCOLS,NROWS ),
+     &             Grid_Data%WWLT    ( NCOLS,NROWS ),
      &             Grid_Data%WFC     ( NCOLS,NROWS ),   !We now use WFC whether BIDI is on or off
      &             Grid_Data%CLAY_PX   ( NCOLS,NROWS ),
      &             Grid_Data%CSAND_PX  ( NCOLS,NROWS ),
@@ -558,6 +559,7 @@ C-----------------------------------------------------------------------
          End If
          Grid_Data%NAME      = name_lu
          Grid_Data%LU_Type   = cat_lu
+         Grid_Data%WWLT      = 0.0
          Grid_Data%WSAT      = 0.0
          Grid_Data%WFC       = 0.0
          Grid_Data%CLAY_PX   = 0.0
@@ -571,27 +573,18 @@ C-----------------------------------------------------------------------
                XMSG = 'Failure allocating layer 2 soil moisture'
                Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             End If
-            ALLOCATE( Grid_Data%WWLT   ( NCOLS,NROWS ),
-     &                STAT = ALLOCSTAT )
-            If ( ALLOCSTAT .Ne. 0 ) Then
-               XMSG = 'Failure allocating Soil grid vars'
-               Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-            End If
-            Grid_Data%WWLT    = 0.0
          END IF
          
          If ( ABFLUX .or. HGBIDI ) Then
 
             ALLOCATE( Grid_Data%BSLP   ( NCOLS,NROWS ),
      &                Grid_Data%WRES   ( NCOLS,NROWS ),
-!    &                Grid_Data%WFC    ( NCOLS,NROWS ),
      &                STAT = ALLOCSTAT )
             If ( ALLOCSTAT .Ne. 0 ) Then
                XMSG = 'Failure allocating Soil grid vars'
                Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             End If
 
-!           Grid_Data%WFC     = 0.0
             Grid_Data%WRES    = 0.0
             Grid_Data%BSLP    = 0.0
          End If
