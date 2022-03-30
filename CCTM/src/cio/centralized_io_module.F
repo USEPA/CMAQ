@@ -392,7 +392,7 @@
 !  lus_setup
 !  centralized_io_init
 !  INIT_EMIS_REGIONS
-!  READ_EMISS_NAMELIST
+!  DESID_READ_NAMELIST
         
         contains
 
@@ -759,8 +759,8 @@
 
 ! emission file, could be one or multiple layer
 
-          call read_emiss_namelist
-          call init_emis_regions()
+          call desid_read_namelist()
+          call desid_init_regions()
 
           allocate (cio_emis_file_name(N_FILE_GR),
      &              cio_emis_file_loc(N_FILE_GR),
@@ -4651,7 +4651,7 @@ C   mminlu and num_land_cat are WRF global variables
         end subroutine centralized_io_init
  
 !-----------------------------------------------------------------------
-      SUBROUTINE INIT_EMIS_REGIONS( )
+      SUBROUTINE DESID_INIT_REGIONS( )
 !
 !     This subroutine defines several hardcoded rules for emissions
 !     scaling that will apply by default. These include subtracting NH3
@@ -4662,10 +4662,17 @@ C   mminlu and num_land_cat are WRF global variables
 !----------------------------------------------------------------------- 
       USE GRID_CONF
       USE UTILIO_DEFN
-      USE em_param_module
+      USE desid_param_module
       USE UTIL_FAMILY_MODULE
 #ifdef mpas
       USE util_module, only : index1, upcase
+
+#endif
+
+#ifdef parallel
+      USE SE_MODULES   ! stenex (using SE_UTIL_MODULE,SE_DATA_COPY_MODULE)
+#else
+      USE NOOP_MODULES ! stenex (using NOOP_UTIL_MODULE,NOOP_DATA_COPY_MODULE)
 #endif
 
 #ifdef sens
@@ -4674,37 +4681,38 @@ C   mminlu and num_land_cat are WRF global variables
 
       IMPLICIT NONE
                                                      
-      TYPE( EM_REG      ) :: EM_REG_READ( N_REGIONS_REG )
+      TYPE( DESID_REG_TYPE) :: DESID_REG_READ( DESID_MAX_REG )
       INTEGER, PARAMETER :: NFILE0 = 200
       CHARACTER( 32 )    :: FILENAMES( NFILE0 ) = ''
       CHARACTER( 32 ) :: VNAME
 
       INTEGER :: IRGN, NFILE, IDX, IFILE, IREAD, IVAR, IFAM, JRGN
       INTEGER :: GXOFF, GYOFF, ENDCOL, ENDROW, STARTCOL, STARTROW
-      INTEGER :: N_EM_READ
-      CHARACTER( 16 )    :: PNAME = "INIT_REGIONS"
+      INTEGER :: N_REG_RULE
+      CHARACTER( 16 )    :: PNAME = "DESID_INIT_REGIONS"
       CHARACTER( 250)    :: XMSG
+      REAL, ALLOCATABLE  :: REG_FACI(:,:), REG_FACJ(:,:)
       integer :: ldate, ltime, floc
       CHARACTER( 16 ) :: lvname
 
       ! Find the total number of regions to be processed
-      N_EM_READ = 0  ! The first region is the entire domain
-      DO IRGN = 1,N_REGIONS_REG
-          IF ( RGN_NML( IRGN )%LABEL .EQ. '' ) EXIT
-          N_EM_READ = N_EM_READ + 1
+      N_REG_RULE = 0  ! The first region is the entire domain
+      DO IRGN = 1,DESID_MAX_REG
+          IF ( DESID_REG_NML( IRGN )%LABEL .EQ. '' ) EXIT
+          N_REG_RULE = N_REG_RULE + 1
       END DO
 
       ! Allocate Vectors and Arrays for Each Region
-      ALLOCATE( EM_REGIONS( N_REGIONS_REG ) )
-      EM_REGIONS( 1 )%LABEL = 'EVERYWHERE'
-      EM_REGIONS( 1 )%FILE  = 'N/A'
-      EM_REGIONS( 1 )%VAR   = 'N/A'
-      EM_REGIONS( 1 )%FILENUM = 1
-      N_EM_RGN = 1
+      ALLOCATE( DESID_REG( DESID_MAX_REG ) )
+      DESID_REG( 1 )%LABEL = 'EVERYWHERE'
+      DESID_REG( 1 )%FILE  = 'N/A'
+      DESID_REG( 1 )%VAR   = 'N/A'
+      DESID_REG( 1 )%FILENUM = 1
+      DESID_N_REG = 1
       
-      ALLOCATE( EM_REG_FAC( NCOLS,NROWS,N_REGIONS_REG ) )
-      EM_REG_FAC = 0.0
-      EM_REG_FAC( :,:,1 ) = 1.0
+      ALLOCATE( DESID_REG_FAC( NCOLS,NROWS,DESID_MAX_REG ) )
+      DESID_REG_FAC = 0.0
+      DESID_REG_FAC( :,:,1 ) = 1.0
 
       ! Populate global Region properties structure. Also assign each
       ! region a number according to the file it comes from. 1 =
@@ -4712,24 +4720,24 @@ C   mminlu and num_land_cat are WRF global variables
       NFILE = 1
       FILENAMES( 1 ) = 'N/A'
 
-      IF ( N_EM_READ .GT. 0 ) THEN
-        DO IREAD = 1,N_EM_READ
-           CALL UPCASE( RGN_NML( IREAD )%LABEL )
-           CALL UPCASE( RGN_NML( IREAD )%FILE  )
-           CALL UPCASE( RGN_NML( IREAD )%VAR   )
+      IF ( N_REG_RULE .GT. 0 ) THEN
+        DO IREAD = 1,N_REG_RULE
+           CALL UPCASE( DESID_REG_NML( IREAD )%LABEL )
+           CALL UPCASE( DESID_REG_NML( IREAD )%FILE  )
+           CALL UPCASE( DESID_REG_NML( IREAD )%VAR   )
 
-           EM_REG_READ( IREAD )%LABEL = RGN_NML( IREAD )%LABEL  ! Region Name
-           EM_REG_READ( IREAD )%FILE  = RGN_NML( IREAD )%FILE   ! Logical filename
-           EM_REG_READ( IREAD )%VAR   = RGN_NML( IREAD )%VAR    ! Variable from file 
-                                                                !   used to inform mask
+           DESID_REG_READ( IREAD )%LABEL = DESID_REG_NML( IREAD )%LABEL  ! Region Name
+           DESID_REG_READ( IREAD )%FILE  = DESID_REG_NML( IREAD )%FILE   ! Logical filename
+           DESID_REG_READ( IREAD )%VAR   = DESID_REG_NML( IREAD )%VAR    ! Variable from file 
+                                                                         !   used to inform mask
 
-           IDX = INDEX1( EM_REG_READ( IREAD )%FILE, NFILE, FILENAMES(1:NFILE) )
+           IDX = INDEX1( DESID_REG_READ( IREAD )%FILE, NFILE, FILENAMES(1:NFILE) )
            IF ( IDX .NE. 0 ) THEN
-             EM_REG_READ( IREAD )%FILENUM = IDX
+             DESID_REG_READ( IREAD )%FILENUM = IDX
            ELSE
              NFILE = NFILE + 1
-             EM_REG_READ( IREAD )%FILENUM = NFILE
-             FILENAMES( NFILE ) = EM_REG_READ( IREAD )%FILE
+             DESID_REG_READ( IREAD )%FILENUM = NFILE
+             FILENAMES( NFILE ) = DESID_REG_READ( IREAD )%FILE
            END IF                                                           
         END DO
       
@@ -4764,12 +4772,12 @@ C   mminlu and num_land_cat are WRF global variables
 #endif
 
           ! Read data from regions file into region array 
-          DO IREAD = 1,N_EM_READ
-              IF ( EM_REG_READ( IREAD )%FILENUM .EQ. IFILE ) THEN
-                  IF ( EM_REG_READ( IREAD )%VAR .EQ. 'ALL' ) THEN
+          DO IREAD = 1,N_REG_RULE
+              IF ( DESID_REG_READ( IREAD )%FILENUM .EQ. IFILE ) THEN
+                  IF ( DESID_REG_READ( IREAD )%VAR .EQ. 'ALL' ) THEN
                      ! Populate the region array with all of the
                      ! variables on this file
-                     IF ( EM_REG_READ( IREAD )%LABEL .NE. 'ALL' ) THEN
+                     IF ( DESID_REG_READ( IREAD )%LABEL .NE. 'ALL' ) THEN
                         XMSG = 'Error reading Region input in Emissions Control file.'//
      &                         'If the variable name is set to "ALL", then the label must'//
      &                         'also be set to "ALL".'
@@ -4782,18 +4790,18 @@ C   mminlu and num_land_cat are WRF global variables
                         DO IVAR = 1,NVARS3D
                            lvname = vname3d( ivar )
 #endif
-                           N_EM_RGN = N_EM_RGN + 1
-                           EM_REGIONS( N_EM_RGN )%LABEL   = lvname
-                           EM_REGIONS( N_EM_RGN )%VAR     = lvname
-                           EM_REGIONS( N_EM_RGN )%FILE    = EM_REG_READ( IREAD )%FILE
-                           EM_REGIONS( N_EM_RGN )%FILENUM = EM_REG_READ( IREAD )%FILENUM
+                           DESID_N_REG = DESID_N_REG + 1
+                           DESID_REG( DESID_N_REG )%LABEL   = lvname
+                           DESID_REG( DESID_N_REG )%VAR     = lvname
+                           DESID_REG( DESID_N_REG )%FILE    = DESID_REG_READ( IREAD )%FILE
+                           DESID_REG( DESID_N_REG )%FILENUM = DESID_REG_READ( IREAD )%FILENUM
 
 #ifdef mpas
-                           call mio_fread (FILENAMES(IFILE), lvname, EM_REG_FAC(:,1,N_EM_RGN))
+                           call mio_fread (FILENAMES(IFILE), lvname, DESID_REG_FAC(:,1,DESID_N_REG))
 #else
                            IF ( .NOT. XTRACT3( FILENAMES( IFILE ), VNAME3D(IVAR), 1, 1,
      &                                         STARTROW, ENDROW, STARTCOL, ENDCOL,
-     &                                         0, 0, EM_REG_FAC( 1,1,N_EM_RGN ) ) ) Then
+     &                                         0, 0, DESID_REG_FAC( 1,1,DESID_N_REG ) ) ) Then
                               XMSG = 'Could not read ' // VNAME3D(IVAR) //
      &                               'from file ' // FILENAMES( IFILE ) 
                               CALL M3WARN ( PNAME, 0, 0, XMSG )
@@ -4804,16 +4812,16 @@ C   mminlu and num_land_cat are WRF global variables
                      END IF
                   ELSE
                      ! Populate the region array with only this variable
-                     N_EM_RGN = N_EM_RGN + 1
-                     EM_REGIONS( N_EM_RGN ) = EM_REG_READ( IREAD )
-                     VNAME = EM_REG_READ( IREAD )%VAR
+                     DESID_N_REG = DESID_N_REG + 1
+                     DESID_REG( DESID_N_REG ) = DESID_REG_READ( IREAD )
+                     VNAME = DESID_REG_READ( IREAD )%VAR
 
 #ifdef mpas
-                     call mio_fread (FILENAMES(IFILE), VNAME, EM_REG_FAC(:,1,N_EM_RGN))
+                     call mio_fread (FILENAMES(IFILE), VNAME, DESID_REG_FAC(:,1,DESID_N_REG))
 #else
                      IF ( .NOT. XTRACT3( FILENAMES( IFILE ), VNAME, 1, 1,
      &                                   STARTROW, ENDROW, STARTCOL, ENDCOL,
-     &                                   0, 0, EM_REG_FAC( 1,1,N_EM_RGN ) ) ) Then
+     &                                   0, 0, DESID_REG_FAC( 1,1,DESID_N_REG ) ) ) Then
                         XMSG = 'Could not read ' // VNAME //
      &                         'from file ' // FILENAMES( IFILE ) 
                         CALL M3WARN ( PNAME, 0, 0, XMSG )
@@ -4834,45 +4842,90 @@ C   mminlu and num_land_cat are WRF global variables
          
           ! Error Check the Regions Array
           ! Any Negatives?
-          DO IRGN = 1,N_EM_RGN
-            IF ( ANY( EM_REG_FAC( :,:,IRGN ) .LT. 0.0 ) ) THEN
-               XMSG = 'Region ' // TRIM( EM_REGIONS( IRGN )%LABEL) // ' on file ' //
+          DO IRGN = 1,DESID_N_REG
+            IF ( ANY( DESID_REG_FAC( :,:,IRGN ) .LT. 0.0 ) ) THEN
+               XMSG = 'Region ' // TRIM( DESID_REG( IRGN )%LABEL) // ' on file ' //
      &                TRIM( FILENAMES( IFILE )) // ' contains a ' //
      &                'negative value. The expected range is 0-1.'
                CALL M3ERR( PNAME, STDATE, STTIME, XMSG, .TRUE. )
-            ELSE IF ( ANY( EM_REG_FAC( :,:,IRGN ) .GT. 1.01 ) ) THEN
-               XMSG = 'Region ' // TRIM( EM_REGIONS( IRGN )%LABEL) // ' on file ' //
+            ELSE IF ( ANY( DESID_REG_FAC( :,:,IRGN ) .GT. 1.01 ) ) THEN
+               XMSG = 'Region ' // TRIM( DESID_REG( IRGN )%LABEL) // ' on file ' //
      &                TRIM( FILENAMES( IFILE )) // ' contains a ' //
      &                'value greater than 1. The expected range is 0-1.'
                CALL M3ERR( PNAME, STDATE, STTIME, XMSG, .TRUE. )
             END IF
-          END DO
+          
+            ! Condition mask values to be at most 1.0
+            DESID_REG_FAC( :,:,IRGN ) = MIN( 1.0, DESID_REG_FAC( :,:,IRGN ) )
 
+          END DO
+          
         END DO ! IFILE
  
         ! Augment Emission Region Structure with Region Families
-        DO IFAM = 1,NRegionFamilies
-           N_EM_RGN = N_EM_RGN + 1
+        DO IFAM = 1,Desid_N_Reg_Fams
+           DESID_N_REG = DESID_N_REG + 1
            CALL UPCASE( RegionFamilyName( IFAM ) )
-           EM_REGIONS( N_EM_RGN )%LABEL   = RegionFamilyName( IFAM )
-           EM_REGIONS( N_EM_RGN )%VAR     = 'Family'
-           EM_REGIONS( N_EM_RGN )%FILE    = 'Family'
-           EM_REGIONS( N_EM_RGN )%FILENUM = 0
+           DESID_REG( DESID_N_REG )%LABEL   = RegionFamilyName( IFAM )
+           DESID_REG( DESID_N_REG )%VAR     = 'Family'
+           DESID_REG( DESID_N_REG )%FILE    = 'Family'
+           DESID_REG( DESID_N_REG )%FILENUM = 0
 
            DO IRGN = 1,RegionFamilyNum( IFAM )
               CALL UPCASE( RegionFamilyMembers( IFAM,IRGN ) )
-              JRGN = INDEX1( RegionFamilyMembers( IFAM,IRGN ), N_EM_RGN-1,
-     &                      EM_REGIONS( 1:(N_EM_RGN-1) )%VAR )
+              JRGN = INDEX1( RegionFamilyMembers( IFAM,IRGN ), DESID_N_REG-1,
+     &                      DESID_REG( 1:(DESID_N_REG-1) )%VAR )
               IF ( JRGN .GT. 0 ) 
-     &             EM_REG_FAC( :,:,N_EM_RGN ) = 
-     &                MIN( 1.0, EM_REG_FAC( :,:,N_EM_RGN ) + 
-     &                          EM_REG_FAC( :,:,JRGN ) )
+     &             DESID_REG_FAC( :,:,DESID_N_REG ) = 
+     &                MIN( 1.0, DESID_REG_FAC( :,:,DESID_N_REG ) + 
+     &                          DESID_REG_FAC( :,:,JRGN ) )
            END DO
         END DO
       END IF
 
-      EM_REGIONS = EM_REGIONS( 1:N_EM_RGN )
-      EM_REG_FAC = EM_REG_FAC( :,:,1:N_EM_RGN )
+      DESID_REG = DESID_REG( 1:DESID_N_REG )
+      DESID_REG_FAC = DESID_REG_FAC( :,:,1:DESID_N_REG )
+
+      ! Determine Which Regions are Subsets of Larger Regions and
+      ! save special relationship for use in EMISS_SCALING.
+      ALLOCATE( DESID_REG_SUB( DESID_N_REG, DESID_N_REG ) )
+      DESID_REG_SUB(:,:) = .FALSE.  ! Initialize with no region subsets
+      DESID_REG_SUB(1,:) = .TRUE.   ! All regions are a subset of Region 1 (Everywhere)
+      DESID_REG_SUB(1,1) = .FALSE.  ! No regions are subsets of themselves
+
+      ALLOCATE( REG_FACI(GL_NCOLS,GL_NROWS), 
+     &          REG_FACJ(GL_NCOLS,GL_NROWS)  )
+
+      DO IRGN = 2,DESID_N_REG
+#ifdef parallel
+        CALL SUBST_GLOBAL_GATHER( DESID_REG_FAC(:,:,IRGN), REG_FACI )
+#else  
+        REG_FACI = DESID_REG_FAC(:,:,IRGN)
+#endif
+        DO JRGN = 1,DESID_N_REG
+#ifdef parallel
+          CALL SUBST_GLOBAL_GATHER( DESID_REG_FAC(:,:,JRGN), REG_FACJ )
+#else      
+          REG_FACJ = DESID_REG_FAC(:,:,JRGN)
+#endif
+          IF ( MYPE .EQ. 0 ) THEN
+             IF (  JRGN .NE. IRGN .AND.
+     &                ANY( REG_FACJ(:,:) .GT. 0. ) .AND.
+     &                ALL( REG_FACI(:,:)+1.0E-6 .GT.
+     &                     REG_FACJ(:,:) ) ) THEN
+               ! Assume JRGN is a subset of IRGN. Both have to be
+               ! non-zero somewhere in the domain.
+               DESID_REG_SUB( IRGN,JRGN ) = .TRUE.
+             END IF
+          END IF  ! Only perform algorithm on main processor
+        END DO
+      END DO
+
+      DEALLOCATE( REG_FACI, REG_FACJ )
+
+#ifdef parallel
+      CALL SUBST_GLOBAL_BCAST( DESID_REG_SUB )
+#endif
 
 #ifdef sens
 ! Populate IREGION(NCOLS,NROW,NLAYS,NPMAX) with regions data if specified
@@ -4881,20 +4934,20 @@ C   mminlu and num_land_cat are WRF global variables
       DO NP = 1, NPMAX
         IF ( S_NRGN( NP ) .GT. 0 .AND. S_NRGN( NP ) .LT. 99 ) THEN !  
           DO IRGN = 1, S_NRGN( NP )
-            IREAD = INDEX1( S_RGNLBL(NP,IRGN), N_EM_RGN, EM_REGIONS%LABEL ) ! identify region
+            IREAD = INDEX1( S_RGNLBL(NP,IRGN), DESID_N_REG, DESID_REG%LABEL ) ! identify region
             IF ( IREAD .EQ. 0 ) THEN
               XMSG = " User specified DDM3D region - " //
      &               TRIM( S_RGNLBL(NP,IRGN) ) //
      &               " - not found in available emissions regions. " //
      &               " Check sensinput.dat file "
               WRITE(LOGDEV,*) " Available region definitions: "
-              DO IFILE = 1, N_EM_RGN
-                WRITE(LOGDEV,*) IFILE, EM_REGIONS( IFILE )%LABEL
+              DO IFILE = 1, DESID_N_REG
+                WRITE(LOGDEV,*) IFILE, DESID_REG( IFILE )%LABEL
               END DO
               CALL M3EXIT( PNAME, 1, 1, XMSG, XSTAT1 )
             ELSE
               IREGION(:,:,1,NP) = IREGION( :,:,1,NP )
-     &                          + EM_REG_FAC( :,:,IREAD )
+     &                          + DESID_REG_FAC( :,:,IREAD )
             END IF
           END DO
 ! Limit IREGION to < 1.0 incase some regions overlap.
@@ -4908,21 +4961,21 @@ C   mminlu and num_land_cat are WRF global variables
 
 #endif
       
-      END SUBROUTINE INIT_EMIS_REGIONS
+      END SUBROUTINE DESID_INIT_REGIONS
 
 !-----------------------------------------------------------------------
-      SUBROUTINE READ_EMISS_NAMELIST( )
+      SUBROUTINE DESID_READ_NAMELIST( )
 !
 !     This subroutine opens and reads the Emissions Control Namelist. It 
 !     attempts to deal with errors like missing file or missing file 
 !     sections by error checking and setting defaults.
 !-----------------------------------------------------------------------
 
-      use em_param_module
-      use RUNTIME_VARS, only : EMISSCTRL, logdev
+      use desid_param_module
       use util_family_module
-      use RUNTIME_VARS, only: EMISSCTRL, logdev, log_message, log_subheading
-      use PA_DEFN, ONLY : BudgetVariables, N_BUDGET_VARS_REG, BUDGET_DIAG
+      use RUNTIME_VARS, only: MISC_CTRL, DESID_CTRL, DESID_CHEM_CTRL,
+     &                        logdev, log_message, log_subheading
+      use PA_DEFN, ONLY : BudgetVariables, MAX_BUDGET_VARS_NML, BUDGET_DIAG
 #ifdef mpas
       use util_module, only : junit, upcase
 #endif
@@ -4930,268 +4983,518 @@ C   mminlu and num_land_cat are WRF global variables
       IMPLICIT NONE
 
          ! Define Dummy Variables for Opening Emission Control Namelist
-         CHARACTER( 300 ) :: EQNAME, XMSG
-         INTEGER          :: EMCTRL_NML
-         INTEGER          :: STAT, IFAM, INUM, IRULE
+         CHARACTER( 300 ) :: XMSG    
+         INTEGER          :: Desid_N_Diag_Rules, Desid_Max_Area, Desid_Max_Sd
+         INTEGER          :: FUNIT
+         INTEGER          :: IOST, IFAM, INUM, IRULE
          CHARACTER( 200 ) :: TMPLINE
          
-         ! Define Emissions Rules Input from Emissions Control Namelist
-         NAMELIST / EmissionScalingRules / EM_NML
-         NAMELIST / AreaNorm             / AREA_NML
-         NAMELIST / SizeDistributions    / SD_NML 
-         NAMELIST / RegionsRegistry      / RGN_NML
-         NAMELIST / BudgetOptions        / Budget_Diag, BudgetVariables
-         NAMELIST / EmissionDiagnostic   / NEmissDiag, EmissDiagStreams,
-     &                                     EmissDiagFmt, EmissDiagSpec
+         ! Define Namelist Input from Control Files
+         ! CMAQ Control Util
+         Namelist / Budget_Options       / Budget_Diag, BudgetVariables
          
+         ! DESID Chem Control
+         Namelist / Desid_ScalingVars    / Desid_Max_Rules
+         Namelist / Desid_Scaling        / Desid_Rules_Nml
+         
+         ! DESID Control
+         Namelist / Desid_Options        / Desid_MaxLays
+
+         Namelist / Desid_AreaNormVars   / Desid_Max_Area
+         Namelist / Desid_AreaNorm       / Desid_Area_Nml
+
+         Namelist / Desid_SizeDistVars   / Desid_Max_Sd
+         Namelist / Desid_SizeDist       / Desid_Sd_Nml
+
+         Namelist / Desid_RegionDefVars  / Desid_Max_Reg,
+     &                                     Desid_N_Reg_Fams, 
+     &                                     Desid_Max_Reg_Fam_Members
+         Namelist / Desid_RegionDef      / Desid_Reg_Nml
+
+         Namelist / Desid_DiagVars       / Desid_N_Diag_Rules,
+     &                                     Desid_Max_Diag_Streams,
+     &                                     Desid_Max_Diag_Spec
+         Namelist / Desid_Diag           / Desid_Diag_Streams_Nml,
+     &                                     Desid_Diag_Fmt_Nml, 
+     &                                     Desid_Diag_Spec_Nml
+
          CALL LOG_MESSAGE( LOGDEV, ' ' )
          CALL LOG_SUBHEADING( LOGDEV, 'Reading Emission Control Namelist')
          
-         ! Allocate and Initialize Budget Variables
-         Budget_Diag = .FALSE.
-         ALLOCATE( BudgetVariables( N_Budget_Vars_Reg ) )
-         BudgetVariables = ''
+         !!! Budget Options !!!
+           ! Allocate and Initialize Budget Variables
+           Budget_Diag = .FALSE.
+           ALLOCATE( BudgetVariables( Max_Budget_Vars_Nml ) )
+           BudgetVariables = ''
+          
+           ! Retrieve the Name of the Emission Control File
+           IF ( MISC_CTRL .EQ. "MISC_CTRL_NML" ) THEN
+               XMSG = 'You have chosen not to indicate the location of an' //
+     &                'CMAQ Control namelist file. You must give a value ' //
+     &                'for the MISC_CTRL variable in the CMAQ runscript.'
+               CALL M3EXIT( 'DESID_READ_NAMELIST',0,0,XMSG,1 )
+           END IF
+          
+           ! Open Emission Control Namelist File
+           FUNIT = JUNIT()
+           OPEN( FILE = MISC_CTRL, UNIT = FUNIT, STATUS = 'OLD',
+     &           POSITION = 'REWIND', FORM='FORMATTED', IOSTAT = IOST )
+          
+           ! Check for Error in File Open Process
+           IF ( IOST .NE. 0 ) THEN
+               WRITE( XMSG, '(A,A,A)' ),'ERROR: Could not read ',
+     &                'CMAQ control namelist file: ',TRIM( MISC_CTRL )
+               CALL M3EXIT( 'DESID_READ_NAMELIST',0,0,XMSG,1 )
+           END IF
+          
+           ! Read Budget Variables Specification Section
+           REWIND( FUNIT )
+           READ( NML = Budget_Options, UNIT = FUNIT, IOSTAT= IOST )
+           IF ( IOST .EQ. -1 ) THEN
+               WRITE( LOGDEV, "(5x,A,/,5x,A,/,5x,A,/,5x,A)" ),
+     &                'Note: The BudgetOptions section of the Emissions Control ',
+     &                'Namelist is missing. Default values for this section will be ',
+     &                'assumed.'
+               Budget_Diag   = .FALSE.
+               BudgetVariables  = 'ALL'
+           ELSE IF ( IOST .NE. 0 ) THEN
+               ! Read Error Detected for BudgetOptions
+               backspace( FUNIT )
+               read( FUNIT, fmt='(A)' ) tmpline
+               XMSG = 'ERROR: There was a syntax error reading the Budget_Options '//
+     &                'variable in the CMAQ control namelist. Please check the format of '//
+     &                'each line for syntax errors. The invalid line was likely: '
+               CALL LOG_MESSAGE( LOGDEV, ' ')
+               CALL LOG_MESSAGE( LOGDEV, XMSG )
+               WRITE( LOGDEV, '(8x,A)' ) TMPLINE
+               CALL M3EXIT ( 'DESID_READ_NAMELIST', 0, 0, 'CMAQ must Crash until you '//
+     &                       'fix the Budget Variables specification', 1 ) 
+           END IF
+           ! Capitalize All Budget Variables Names
+           DO IFAM = 1,Max_Budget_Vars_Nml
+               CALL UPCASE( BudgetVariables( IFAM ) )
+           END DO
+          
+           CLOSE( FUNIT )
 
-         ! Initialize Namelist Variables
-         EM_NML%REGION = ''
-         EM_NML%STREAM = ''
-         EM_NML%SURR   = ''
-         EM_NML%SPEC   = ''
-         EM_NML%PHASE  = ''
-         EM_NML%OP     = ''
-         EM_NML%BASIS  = ''
-         EM_NML%FAC    = 0.
+         !----------------------------!
+         !!! DESID Chemical Mapping !!!
+           ! Retrieve the Name of the Emission Control File
+           IF ( DESID_CHEM_CTRL .EQ. "DESID_CHEM_CTRL_NML" ) THEN
+               XMSG = 'You have chosen not to indicate the location of an' //
+     &                'Emission Control namelist file. You must give a value ' //
+     &                'for the DESID_CHEM_CTRL variable in the CMAQ runscript.'
+               CALL M3EXIT( 'DESID_READ_NAMELIST',0,0,XMSG,1 )
+           END IF
+           
+           ! Open Emission Control Namelist File
+           FUNIT = JUNIT()
+           OPEN( FILE = DESID_CHEM_CTRL, UNIT = FUNIT, STATUS = 'OLD',
+     &           POSITION = 'REWIND', FORM='FORMATTED', IOSTAT = IOST )
+           
+           ! Check for Error in File Open Process
+           IF ( IOST .NE. 0 ) THEN
+               WRITE( XMSG, '(A,A,A)' ),'ERROR: Could not read ',
+     &                'emissions control namelist file: ',TRIM( DESID_CHEM_CTRL )
+               CALL M3EXIT( 'DESID_READ_NAMELIST',0,0,XMSG,1 )
+           END IF
+           
+           ! Read the number of Max Emissions Rules to inform scaling operations
+           REWIND( FUNIT )
+           READ( NML = Desid_ScalingVars, UNIT = FUNIT, IOSTAT=IOST )
+           IF ( IOST .EQ. -1 ) THEN
+               ! The DESID_Max_Rules Variable was completely missing
+               XMSG = 'WARNING: Maximum Number of DESID Scaling Rules was not specified. '//
+     &                'If you intended to specify Desid_Max_Rules, check the DESID_CHEM_CTRL file.'
+               CALL LOG_MESSAGE( LOGDEV, ' ')
+               CALL LOG_MESSAGE( LOGDEV, XMSG )
+               DESID_MAX_RULES = 500
+           
+           ELSE IF ( IOST .NE. 0 ) THEN
+               ! Read Error Detected for DESID_RULES_NML
+               backspace( FUNIT )
+               read( FUNIT, fmt='(A)' ) tmpline
+               XMSG = 'ERROR: There was a syntax error reading ithe max number of '//
+     &                'Emission Scaling Rules for use by the DESID module. Please '//
+     &                'check the format of each line for syntax errors. The '//
+     &                'invalid line was likely: '
+               CALL LOG_MESSAGE( LOGDEV, ' ')
+               CALL LOG_MESSAGE( LOGDEV, XMSG )
+               WRITE( LOGDEV, '(8x,A)' ) TMPLINE
+               CALL M3EXIT ( 'DESID_READ_NAMELIST', 0, 0, 'CMAQ must Crash until you '//
+     &                       'fix Desid_Max_Rules', 1 )
+           END IF
+           
+           ! Allocate Initialize Namelist Variables
+           ALLOCATE( DESID_RULES_NML( DESID_MAX_RULES ), STAT=IOST )
+           CALL CHECKMEM( IOST, 'DESID_RULES_NML','DESID_READ_NAMELIST')
+           DESID_RULES_NML%REGION = ''
+           DESID_RULES_NML%STREAM = ''
+           DESID_RULES_NML%EMVAR  = ''
+           DESID_RULES_NML%SPEC   = ''
+           DESID_RULES_NML%PHASE  = ''
+           DESID_RULES_NML%OP     = ''
+           DESID_RULES_NML%BASIS  = ''
+           DESID_RULES_NML%FAC    = 0.
+           
+           ! Read the Emissions Rules to inform scaling operations
+           REWIND( FUNIT )
+           READ( NML = Desid_Scaling, UNIT = FUNIT, IOSTAT=IOST )
+           IF ( IOST .EQ. -1 ) THEN
+               ! The DESID_RULES_NML Variable was completely missing
+               XMSG = 'WARNING: There were no valid Emission Scaling Rules specified '//
+     &                'for use by the DESID module. If you intended to specify '//
+     &                'rules in the emission control file, check the file you have '//
+     &                'provided for DESID_CHEM_CTRL.' 
+               CALL LOG_MESSAGE( LOGDEV, ' ')
+               CALL LOG_MESSAGE( LOGDEV, XMSG )
+               DESID_RULES_NML%REGION = ''
+               DESID_RULES_NML%STREAM = ''
+               DESID_RULES_NML%EMVAR  = ''
+               DESID_RULES_NML%SPEC   = ''
+               DESID_RULES_NML%PHASE  = ''
+               DESID_RULES_NML%OP     = ''
+               DESID_RULES_NML%BASIS  = ''
+               DESID_RULES_NML%FAC    = 0.
+           
+           ELSE IF ( IOST .NE. 0 ) THEN
+               ! Read Error Detected for DESID_RULES_NML
+               backspace( FUNIT )
+               read( FUNIT, fmt='(A)' ) tmpline
+               XMSG = 'ERROR: There was a syntax error reading Emission Scaling '//
+     &                'Rules for use by the DESID module. Please check the format of '//
+     &                'each line for syntax errors. The invalid line was likely: '
+               CALL LOG_MESSAGE( LOGDEV, ' ')
+               CALL LOG_MESSAGE( LOGDEV, XMSG )
+               WRITE( LOGDEV, '(8x,A)' ) TMPLINE
+               CALL M3EXIT ( 'DESID_READ_NAMELIST', 0, 0, 'CMAQ must Crash until you '//
+     &                       'fix the Emission Scaling Rules', 1 )
+           END IF
+           
+           CALL LOG_MESSAGE( LOGDEV,' ' )
+           CALL LOG_MESSAGE( LOGDEV,'Performing Basic Error Checks for Emission Scaling Rules' )
+           
+           ! Check that the operator field is correct since it has not so
+           ! many possible values.
+           DO IRULE = 1,DESID_MAX_RULES
+               IF( DESID_RULES_NML( IRULE )%SPEC .EQ. '' ) EXIT
+               IF( DESID_RULES_NML( IRULE )%OP .NE. 'a' .AND. DESID_RULES_NML( IRULE )%OP .NE. 'A' .AND.
+     &              DESID_RULES_NML( IRULE )%OP .NE. 'o' .AND. DESID_RULES_NML( IRULE )%OP .NE. 'O'.AND.
+     &              DESID_RULES_NML( IRULE )%OP .NE. 'm' .AND. DESID_RULES_NML( IRULE )%OP .NE. 'M' ) THEN
+                 WRITE( XMSG, '(A23,I4,A27,A3)'),'Emission Scaling Rule #',IRULE,
+     &                ' has a bad operator value: ',DESID_RULES_NML(IRULE)%OP
+                 call m3exit ( 'DESID_READ_NAMELIST', 0, 0, XMSG, 1 )
+               END IF
+           ENDDO     
+           
+           CLOSE( FUNIT )
 
-         ! Allocate and Initialize Area Normalization Namelist Variables
-         AREA_NML%STREAM  = 'ALL'
-         AREA_NML%AREA    = 'AUTO'
-         AREA_NML%ADJ     = 'AUTO'
- 
-         ! Allocate and Initialize Size Distribution Namelist Variables
-         SD_NML%STREAM   = ''
-         SD_NML%MODE     = ''
-         SD_NML%MODE_REF = ''
-
-         ! Initalize Region Namelist Variables
-         RGN_NML%LABEL = ''
-         RGN_NML%FILE  = ''
-         RGN_NML%VAR   = ''
-         
-         ! Initalize Emissions Diagnostic Namelist Variables
-         NEmissDiag       = 0
-         EmissDiagStreams = ''
-         EmissDiagFmt     = ''  
-         EmissDiagSpec    = ''
- 
+         !-----------------------------!
+         !!! Open DESID Control File !!!
+         !-----------------------------!
          ! Retrieve the Name of the Emission Control File
-         IF ( EMISSCTRL .EQ. "EMISSCTRL_NML" ) THEN
+         IF ( DESID_CTRL .EQ. "DESID_CTRL_NML" ) THEN
              XMSG = 'You have chosen not to indicate the location of an' //
      &              'Emission Control namelist file. You must give a value ' //
-     &              'for the EMISSCTRL variable in the CMAQ runscript.'
-             CALL M3EXIT( 'READ_EMISS_NAMELIST',0,0,XMSG,1 )
+     &              'for the DESID_CTRL variable in the CMAQ runscript.'
+             CALL M3EXIT( 'DESID_READ_NAMELIST',0,0,XMSG,1 )
          END IF
 
          ! Open Emission Control Namelist File
-         EMCTRL_NML = JUNIT()
-         OPEN( FILE = EMISSCTRL, UNIT = EMCTRL_NML, STATUS = 'OLD',
-     &         POSITION = 'REWIND', FORM='FORMATTED', IOSTAT = STAT )
+         FUNIT = JUNIT()
+         OPEN( FILE = DESID_CTRL, UNIT = FUNIT, STATUS = 'OLD',
+     &         POSITION = 'REWIND', FORM='FORMATTED', IOSTAT = IOST )
 
          ! Check for Error in File Open Process
-         IF ( STAT .NE. 0 ) THEN
+         IF ( IOST .NE. 0 ) THEN
              WRITE( XMSG, '(A,A,A)' ),'ERROR: Could not read ',
-     &              'emissions control namelist file: ',TRIM( EMISSCTRL )
-             CALL M3EXIT( 'READ_EMISS_NAMELIST',0,0,XMSG,1 )
-         END IF
-         
-         ! Read the Regions Registry
-         REWIND( EMCTRL_NML )
-         READ( NML = RegionsRegistry, UNIT = EMCTRL_NML, IOSTAT=STAT )
-         IF ( STAT .EQ. -1 ) THEN
-             XMSG = 'Note: The Regions_Registry section of the Emissions Control '//
-     &              'Interface is missing. Default values for this section will be '//
-     &              'assumed.'
-             CALL LOG_MESSAGE( LOGDEV,' ')
-             CALL LOG_MESSAGE( LOGDEV, XMSG )
-             RGN_NML%LABEL = ''
-             RGN_NML%FILE  = ''
-             RGN_NML%VAR   = ''
-         ELSE IF ( STAT .NE. 0 ) THEN
-             ! Read Error Detected for RGN_NML
-             backspace( EMCTRL_NML )
-             read( EMCTRL_NML, fmt='(A)' ) tmpline
-             XMSG = 'ERROR: There was a syntax error reading the RegionsRegistry '//
-     &              'variable for use by the DESID module. Please check the format of '//
-     &              'each line for syntax errors. The invalid line was likely: '
-             CALL LOG_MESSAGE( LOGDEV, ' ')
-             CALL LOG_MESSAGE( LOGDEV, XMSG )
-             WRITE( LOGDEV, '(8x,A)' ) TMPLINE
-             CALL M3EXIT ( 'Read_Emiss_Namelist', 0, 0, 'CMAQ must Crash until you '//
-     &                     'fix the Regions Registry', 1 ) 
- 
+     &              'emissions control namelist file: ',TRIM( DESID_CTRL )
+             CALL M3EXIT( 'DESID_READ_NAMELIST',0,0,XMSG,1 )
          END IF
  
-         ! Read the Area Normalization Registry
-         REWIND( EMCTRL_NML )
-         READ( NML = AreaNorm, UNIT = EMCTRL_NML, IOSTAT=STAT )
-         IF ( STAT .EQ. -1 ) THEN
-             XMSG = 'Note: The Area Normalization section of the Emissions Control '//
-     &              'Interface is missing. Default values for this section will be '//
-     &              'assumed.'
-             CALL LOG_MESSAGE( LOGDEV,' ')
-             CALL LOG_MESSAGE( LOGDEV, XMSG )
-             AREA_NML%STREAM = 'ALL'
-             AREA_NML%AREA   = 'AUTO'
-             AREA_NML%ADJ    = 'AUTO'
-         ELSE IF ( STAT .NE. 0 ) THEN
-             ! Read Error Detected for AREA_NML
-             backspace( EMCTRL_NML )
-             read( EMCTRL_NML, fmt='(A)' ) tmpline
-             XMSG = 'ERROR: There was a syntax error reading the Area Normalization '//
-     &              'variable for use by the DESID module. Please check the format of '//
-     &              'each line for syntax errors. The invalid line was likely: '
-             CALL LOG_MESSAGE( LOGDEV, ' ')
-             CALL LOG_MESSAGE( LOGDEV, XMSG )
-             WRITE( LOGDEV, '(8x,A)' ) TMPLINE
-             CALL M3EXIT ( 'Read_Emiss_Namelist', 0, 0, 'CMAQ must Crash until you '// 
-     &                     'fix the Area Normalization section', 1 ) 
-         END IF
+         !----------------------!
+         !!! DESID Top Layer  !!!
+           ! Read the Maximum Emissions Layer
+           REWIND( FUNIT )
+           READ( NML = Desid_Options, UNIT = FUNIT, IOSTAT=IOST )
+           IF ( IOST .EQ. -1 ) THEN
+               ! The Desid_Max_Lays Variable was completely missing
+               XMSG = 'WARNING: Maximum Layer for emissions input was not specified. '//
+     &                'If you intended to specify Desid_Max_Lays, check the DESID_CTRL file.'
+               CALL LOG_MESSAGE( LOGDEV, ' ')
+               CALL LOG_MESSAGE( LOGDEV, XMSG )
+               Desid_MaxLays = 0
+           
+           ELSE IF ( IOST .NE. 0 ) THEN
+               ! Read Error Detected for Desid_Max_Lays
+               backspace( FUNIT )
+               read( FUNIT, fmt='(A)' ) tmpline
+               XMSG = 'ERROR: There was a syntax error reading the max number of '//
+     &                'Emission Layers for use by the DESID module. Please '//
+     &                'check the format of each line for syntax errors. The '//
+     &                'invalid line was likely: '
+               CALL LOG_MESSAGE( LOGDEV, ' ')
+               CALL LOG_MESSAGE( LOGDEV, XMSG )
+               WRITE( LOGDEV, '(8x,A)' ) TMPLINE
+               CALL M3EXIT ( 'DESID_READ_NAMELIST', 0, 0, 'CMAQ must Crash until you '//
+     &                       'fix Desid_Max_Lays', 1 )
+           END IF
  
-         ! Read Budget Variables Specification Section
-         REWIND( EMCTRL_NML )
-         READ( NML = BudgetOptions, UNIT = EMCTRL_NML, IOSTAT=STAT )
-         IF ( STAT .EQ. -1 ) THEN
-             WRITE( LOGDEV, "(5x,A,/,5x,A,/,5x,A,/,5x,A)" ),
-     &              'Note: The BudgetOptions section of the Emissions Control ',
-     &              'Namelist is missing. Default values for this section will be ',
-     &              'assumed.'
-             Budget_Diag   = .FALSE.
-             BudgetVariables  = '*ALL'
-         ELSE IF ( STAT .NE. 0 ) THEN
-             ! Read Error Detected for BudgetOptions
-             backspace( EMCTRL_NML )
-             read( EMCTRL_NML, fmt='(A)' ) tmpline
-             XMSG = 'ERROR: There was a syntax error reading the BudgetOptions '//
-     &              'variable for use by the DESID module. Please check the format of '//
-     &              'each line for syntax errors. The invalid line was likely: '
-             CALL LOG_MESSAGE( LOGDEV, ' ')
-             CALL LOG_MESSAGE( LOGDEV, XMSG )
-             WRITE( LOGDEV, '(8x,A)' ) TMPLINE
-             CALL M3EXIT ( 'Read_Emiss_Namelist', 0, 0, 'CMAQ must Crash until you '//
-     &                     'fix the Budget Variables specification', 1 ) 
-         END IF
-         ! Capitalize All Budget Variables Names
-         DO IFAM = 1,N_Budget_Vars_Reg
-             CALL UPCASE( BudgetVariables( IFAM ) )
-         END DO
-
-         ! Read the size distribution specification section
-         REWIND( EMCTRL_NML )
-         READ( NML = SizeDistributions, UNIT = EMCTRL_NML, IOSTAT=STAT )
-         IF ( STAT .EQ. -1 ) THEN
-             XMSG = 'Note: The SizeDistReg section of the Emissions Control '//
-     &              'Interface is missing. Default values for this section '//
-     &              'will be assumed.'
-             CALL LOG_MESSAGE( LOGDEV,' ')
-             CALL LOG_MESSAGE( LOGDEV, XMSG )
-             SD_NML%STREAM   = ''
-             SD_NML%MODE     = ''
-             SD_NML%MODE_REF = ''
-         ELSE IF ( STAT .NE. 0 ) THEN
-             ! Read Error Detected for SD_NML
-             backspace( EMCTRL_NML )
-             read( EMCTRL_NML, fmt='(A)' ) tmpline
-             XMSG = 'ERROR: There was a syntax error reading the SizeDistReg '//
-     &              'variable for use by the DESID module. Please check the format of '//
-     &              'each line for syntax errors. The invalid line was likely: '
-             CALL LOG_MESSAGE( LOGDEV, ' ')
-             CALL LOG_MESSAGE( LOGDEV, XMSG )
-             WRITE( LOGDEV, '(8x,A)' ) TMPLINE
-             CALL M3EXIT ( 'Read_Emiss_Namelist', 0, 0, 'CMAQ must Crash until you '//
-     &                     'fix the Size Distribution Rule', 1 ) 
-         END IF
+         !------------------------------!
+         !!! DESID Area Normalization !!!
+           ! Read the number of Max Emissions Rules to inform scaling operations
+           REWIND( FUNIT )
+           READ( NML = Desid_AreaNormVars, UNIT = FUNIT, IOSTAT=IOST )
+           IF ( IOST .EQ. -1 ) THEN
+               ! The DESID_Max_Rules Variable was completely missing
+               XMSG = 'WARNING: Maximum Number of DESID Area Normalization Rules was not specified. '//
+     &                'If you intended to specify Desid_Max_Area, check the DESID_CTRL file.'
+               CALL LOG_MESSAGE( LOGDEV, ' ')
+               CALL LOG_MESSAGE( LOGDEV, XMSG )
+               DESID_MAX_AREA = 30
+           
+           ELSE IF ( IOST .NE. 0 ) THEN
+               ! Read Error Detected for DESID_RULES_NML
+               backspace( FUNIT )
+               read( FUNIT, fmt='(A)' ) tmpline
+               XMSG = 'ERROR: There was a syntax error reading the max number of '//
+     &                'Emission Area Normalization Rules for use by the DESID module. Please '//
+     &                'check the format of each line for syntax errors. The '//
+     &                'invalid line was likely: '
+               CALL LOG_MESSAGE( LOGDEV, ' ')
+               CALL LOG_MESSAGE( LOGDEV, XMSG )
+               WRITE( LOGDEV, '(8x,A)' ) TMPLINE
+               CALL M3EXIT ( 'DESID_READ_NAMELIST', 0, 0, 'CMAQ must Crash until you '//
+     &                       'fix Desid_Max_Area', 1 )
+           END IF
+           
+           ! Allocate Initialize Namelist Variables
+           ALLOCATE( DESID_AREA_NML( DESID_MAX_AREA ), STAT=IOST )
+           CALL CHECKMEM( IOST, 'DESID_AREA_NML','DESID_READ_NAMELIST')
+           DESID_AREA_NML%STREAM  = 'ALL'
+           DESID_AREA_NML%AREA    = 'AUTO'
+           DESID_AREA_NML%ADJ     = 'AUTO'
+           
+           ! Read the Area Normalization Registry
+           REWIND( FUNIT )
+           READ( NML = Desid_AreaNorm, UNIT = FUNIT, IOSTAT=IOST )
+           IF ( IOST .EQ. -1 ) THEN
+               XMSG = 'Note: The Area Normalization section of the Emissions Control '//
+     &                'Interface is missing. Default values for this section will be '//
+     &                'assumed.'
+               CALL LOG_MESSAGE( LOGDEV,' ')
+               CALL LOG_MESSAGE( LOGDEV, XMSG )
+               DESID_AREA_NML%STREAM = 'ALL'
+               DESID_AREA_NML%AREA   = 'AUTO'
+               DESID_AREA_NML%ADJ    = 'AUTO'
+           ELSE IF ( IOST .NE. 0 ) THEN
+               ! Read Error Detected for DESID_AREA_NML
+               backspace( FUNIT )
+               read( FUNIT, fmt='(A)' ) tmpline
+               XMSG = 'ERROR: There was a syntax error reading the Area Normalization '//
+     &                'variable for use by the DESID module. Please check the format of '//
+     &                'each line for syntax errors. The invalid line was likely: '
+               CALL LOG_MESSAGE( LOGDEV, ' ')
+               CALL LOG_MESSAGE( LOGDEV, XMSG )
+               WRITE( LOGDEV, '(8x,A)' ) TMPLINE
+               CALL M3EXIT ( 'DESID_READ_NAMELIST', 0, 0, 'CMAQ must Crash until you '// 
+     &                       'fix the Area Normalization section', 1 ) 
+           END IF
+              
+         !-----------------------------!
+         !!! DESID Region Definition !!!
+           ! Read the number of Max Emissions Rules to inform scaling operations
+           REWIND( FUNIT )
+           READ( NML = Desid_RegionDefVars, UNIT = FUNIT, IOSTAT=IOST )
+           IF ( IOST .EQ. -1 ) THEN
+               ! The DESID_Max_Rules Variable was completely missing
+               XMSG = 'WARNING: Maximum Number of DESID Region Def Variables was not specified. '//
+     &                'If you intended to specify Desid_Max_Reg, check the DESID_CTRL file.'
+               CALL LOG_MESSAGE( LOGDEV, ' ')
+               CALL LOG_MESSAGE( LOGDEV, XMSG )
+               DESID_MAX_REG = 30
+           
+           ELSE IF ( IOST .NE. 0 ) THEN
+               ! Read Error Detected for DESID_RULES_NML
+               backspace( FUNIT )
+               read( FUNIT, fmt='(A)' ) tmpline
+               XMSG = 'ERROR: There was a syntax error reading the max number of '//
+     &                'Region Definitions for use by the DESID module. Please '//
+     &                'check the format of each line for syntax errors. The '//
+     &                'invalid line was likely: '
+               CALL LOG_MESSAGE( LOGDEV, ' ')
+               CALL LOG_MESSAGE( LOGDEV, XMSG )
+               WRITE( LOGDEV, '(8x,A)' ) TMPLINE
+               CALL M3EXIT ( 'DESID_READ_NAMELIST', 0, 0, 'CMAQ must Crash until you '//
+     &                       'fix Desid_Max_Reg', 1 )
+           END IF
  
-         ! Read the Emissions Diagnostic Section
-         REWIND( EMCTRL_NML )
-         READ( NML = EmissionDiagnostic, UNIT = EMCTRL_NML, IOSTAT=STAT )
-         IF ( STAT .EQ. -1 ) THEN
-             ! The Emissions Diagnostic Section was completely missing
-             XMSG = 'WARNING: There were no valid Emission Diagnostic Values specified '//
-     &              'for use by the DESID module. If you intended to specify '//
-     &              'diagnostic output in the emission control interface, check the '//
-     &              'file you have provided for EMISSCTRL_NML.' 
-             CALL LOG_MESSAGE( LOGDEV, ' ')
-             CALL LOG_MESSAGE( LOGDEV, XMSG )
-             NEmissDiag       = 0
-             EmissDiagStreams = ''
-             EmissDiagFmt     = ''  
-             EmissDiagSpec    = ''
-         ELSE IF ( STAT .NE. 0 ) THEN
-             ! Read Error for Emissions Diagnostic
-             backspace( EMCTRL_NML )
-             read( EMCTRL_NML, fmt='(A)' ) tmpline
-             XMSG = 'ERROR: There was a syntax error reading Emission Diagnostic '//
-     &              'Variables for output by the DESID module. Please check the format of '//
-     &              'each line for syntax errors. The invalid line was likely: '
-             CALL LOG_MESSAGE( LOGDEV, ' ')
-             CALL LOG_MESSAGE( LOGDEV, XMSG )
-             WRITE( LOGDEV, '(8x,A)' ) TMPLINE
-             CALL M3EXIT ( 'Read_Emiss_Namelist', 0, 0, 'CMAQ must Crash until you '//
-     &                     'fix the Emission Diagnostic Specification.', 1 )
-         END IF
+           ! Allocate and Initialize Namelist Variables
+           ALLOCATE( DESID_REG_NML( DESID_MAX_REG ), STAT=IOST )
+           CALL CHECKMEM( IOST, 'DESID_REG_NML','DESID_READ_NAMELIST')
+           DESID_REG_NML%LABEL = ''
+           DESID_REG_NML%FILE  = ''
+           DESID_REG_NML%VAR   = ''
+           
+           ! Read the Regions Registry
+           REWIND( FUNIT )
+           READ( NML = Desid_RegionDef, UNIT = FUNIT, IOSTAT=IOST )
+           IF ( IOST .EQ. -1 ) THEN
+               XMSG = 'Note: The Desid_RegionDef component of the Emissions Control '//
+     &                'Interface is missing. Default values for this section will be '//
+     &                'assumed.'
+               CALL LOG_MESSAGE( LOGDEV,' ')
+               CALL LOG_MESSAGE( LOGDEV, XMSG )
+               DESID_REG_NML%LABEL = ''
+               DESID_REG_NML%FILE  = ''
+               DESID_REG_NML%VAR   = ''
+           ELSE IF ( IOST .NE. 0 ) THEN
+               ! Read Error Detected for DESID_REG_NML
+               backspace( FUNIT )
+               read( FUNIT, fmt='(A)' ) tmpline
+               XMSG = 'ERROR: There was a syntax error reading the Desid_RegionDef '//
+     &                'variable for use by the DESID module. Please check the format of '//
+     &                'each line for syntax errors. The invalid line was likely: '
+               CALL LOG_MESSAGE( LOGDEV, ' ')
+               CALL LOG_MESSAGE( LOGDEV, XMSG )
+               WRITE( LOGDEV, '(8x,A)' ) TMPLINE
+               CALL M3EXIT ( 'DESID_READ_NAMELIST', 0, 0, 'CMAQ must Crash until you '//
+     &                       'fix Desid_RegionDef', 1 ) 
+           END IF
+           
+           
+         !------------------------------!
+         !!! DESID Size Distributions !!!
+           ! Read the number of Max Size Dist Rules to inform scaling operations
+           REWIND( FUNIT )
+           READ( NML = Desid_SizeDistVars, UNIT = FUNIT, IOSTAT=IOST )
+           IF ( IOST .EQ. -1 ) THEN
+               ! The DESID_Max_Sd Variable was completely missing
+               XMSG = 'WARNING: Maximum Number of DESID Size Dist Rules was not specified. '//
+     &                'If you intended to specify Desid_Max_Sd, check the DESID_CTRL file.'
+               CALL LOG_MESSAGE( LOGDEV, ' ')
+               CALL LOG_MESSAGE( LOGDEV, XMSG )
+               DESID_MAX_SD = 10
+           
+           ELSE IF ( IOST .NE. 0 ) THEN
+               ! Read Error Detected for DESID_RULES_NML
+               backspace( FUNIT )
+               read( FUNIT, fmt='(A)' ) tmpline
+               XMSG = 'ERROR: There was a syntax error reading the max number of '//
+     &                'Size Distribution RUles for use by the DESID module. Please '//
+     &                'check the format of each line for syntax errors. The '//
+     &                'invalid line was likely: '
+               CALL LOG_MESSAGE( LOGDEV, ' ')
+               CALL LOG_MESSAGE( LOGDEV, XMSG )
+               WRITE( LOGDEV, '(8x,A)' ) TMPLINE
+               CALL M3EXIT ( 'DESID_READ_NAMELIST', 0, 0, 'CMAQ must Crash until you '//
+     &                       'fix Desid_Max_Sd', 1 )
+           END IF
  
-         ! Read the Emissions Rules to inform scaling operations
-         REWIND( EMCTRL_NML )
-         READ( NML = EmissionScalingRules, UNIT = EMCTRL_NML, IOSTAT=STAT )
-         IF ( STAT .EQ. -1 ) THEN
-             ! The EM_NML Variable was completely missing
-             XMSG = 'WARNING: There were no valid Emission Scaling Rules specified '//
-     &              'for use by the DESID module. If you intended to specify '//
-     &              'rules in the emission control file, check the file you have '//
-     &              'provided for EMISSCTRL_NML.' 
-             CALL LOG_MESSAGE( LOGDEV, ' ')
-             CALL LOG_MESSAGE( LOGDEV, XMSG )
-             EM_NML%REGION = ''
-             EM_NML%STREAM = ''
-             EM_NML%SURR   = ''
-             EM_NML%SPEC   = ''
-             EM_NML%PHASE  = ''
-             EM_NML%OP     = ''
-             EM_NML%BASIS  = ''
-             EM_NML%FAC    = 0.
+           ! Allocate and Initialize Namelist Variables
+           ALLOCATE( DESID_SD_NML( DESID_MAX_SD ), STAT=IOST )
+           CALL CHECKMEM( IOST, 'DESID_SD_NML','DESID_READ_NAMELIST') 
+           DESID_SD_NML%STREAM   = ''
+           DESID_SD_NML%MODE     = ''
+           DESID_SD_NML%MODE_REF = ''
+           
+        !!! Read the size distribution specification section
+           REWIND( FUNIT )
+           READ( NML = Desid_SizeDist, UNIT = FUNIT, IOSTAT=IOST )
+           IF ( IOST .EQ. -1 ) THEN
+               XMSG = 'Note: The Desid_SizeDist component of the Emissions Control '//
+     &                'Interface is missing. Default values for this section '//
+     &                'will be assumed.'
+               CALL LOG_MESSAGE( LOGDEV,' ')
+               CALL LOG_MESSAGE( LOGDEV, XMSG )
+               DESID_SD_NML%STREAM   = ''
+               DESID_SD_NML%MODE     = ''
+               DESID_SD_NML%MODE_REF = ''
+           ELSE IF ( IOST .NE. 0 ) THEN
+               ! Read Error Detected for DESID_SD_NML
+               backspace( FUNIT )
+               read( FUNIT, fmt='(A)' ) tmpline
+               XMSG = 'ERROR: There was a syntax error reading the Desid_SizeDist '//
+     &                'variable for use by the DESID module. Please check the format of '//
+     &                'each line for syntax errors. The invalid line was likely: '
+               CALL LOG_MESSAGE( LOGDEV, ' ')
+               CALL LOG_MESSAGE( LOGDEV, XMSG )
+               WRITE( LOGDEV, '(8x,A)' ) TMPLINE
+               CALL M3EXIT ( 'DESID_READ_NAMELIST', 0, 0, 'CMAQ must Crash until you '//
+     &                       'fix the Size Distribution Rule', 1 ) 
+           END IF
 
-         ELSE IF ( STAT .NE. 0 ) THEN
-             ! Read Error Detected for EM_NML
-             backspace( EMCTRL_NML )
-             read( EMCTRL_NML, fmt='(A)' ) tmpline
-             XMSG = 'ERROR: There was a syntax error reading Emission Scaling '//
-     &              'Rules for use by the DESID module. Please check the format of '//
-     &              'each line for syntax errors. The invalid line was likely: '
-             CALL LOG_MESSAGE( LOGDEV, ' ')
-             CALL LOG_MESSAGE( LOGDEV, XMSG )
-             WRITE( LOGDEV, '(8x,A)' ) TMPLINE
-             CALL M3EXIT ( 'Read_Emiss_Namelist', 0, 0, 'CMAQ must Crash until you '//
-     &                     'fix the Emission Scaling Rules', 1 )
-         END IF
+         !----------------------------------!
+         !!! DESID Diagnostic File Inputs !!!
+           ! Read the number of Max Emissions Rules to inform scaling operations
+           REWIND( FUNIT )
+           READ( NML = Desid_DiagVars, UNIT = FUNIT, IOSTAT=IOST )
+           IF ( IOST .EQ. -1 ) THEN
+               ! The DESID_N_Diag_Rules Variable was completely missing
+               XMSG = 'WARNING: Number of DESID Diagnostic Rules was not specified. '//
+     &                'If you intended to specify Desid_N_Diag_Rules, check the DESID_CTRL file.'
+               CALL LOG_MESSAGE( LOGDEV, ' ')
+               CALL LOG_MESSAGE( LOGDEV, XMSG )
+               DESID_N_DIAG_RULES = 0
+               DESID_MAX_DIAG_STREAMS = 0
+               DESID_MAX_DIAG_SPEC = 0
 
-         CALL LOG_MESSAGE( LOGDEV,' ' )
-         CALL LOG_MESSAGE( LOGDEV,'Performing Basic Error Checks for Emission Scaling Rules' )
-         
-         ! Check that the operator field is correct since it has not so
-         ! many possible values.
-         DO IRULE = 1,N_EM_RULE_REG
-             IF( EM_NML( IRULE )%SPEC .EQ. '' ) EXIT
-             IF( EM_NML( IRULE )%OP .NE. 'a' .AND. EM_NML( IRULE )%OP .NE. 'A' .AND.
-     &            EM_NML( IRULE )%OP .NE. 'o' .AND. EM_NML( IRULE )%OP .NE. 'O'.AND.
-     &            EM_NML( IRULE )%OP .NE. 'm' .AND. EM_NML( IRULE )%OP .NE. 'M' ) THEN
-               WRITE( XMSG, '(A23,I4,A27,A3)'),'Emission Scaling Rule #',IRULE,
-     &              ' has a bad operator value: ',EM_NML(IRULE)%OP
-               call m3exit ( 'Read_Emiss_Namelist', 0, 0, XMSG, 1 )
-             END IF
-         ENDDO     
+           ELSE IF ( IOST .NE. 0 ) THEN
+               ! Read Error Detected for DESID_N_DIAG_RULES
+               backspace( FUNIT )
+               read( FUNIT, fmt='(A)' ) tmpline
+               XMSG = 'ERROR: There was a syntax error reading the number of '//
+     &                'Diagnostic Rules for use by the DESID module. Please '//
+     &                'check the format of each line for syntax errors. The '//
+     &                'invalid line was likely: '
+               CALL LOG_MESSAGE( LOGDEV, ' ')
+               CALL LOG_MESSAGE( LOGDEV, XMSG )
+               WRITE( LOGDEV, '(8x,A)' ) TMPLINE
+               CALL M3EXIT ( 'DESID_READ_NAMELIST', 0, 0, 'CMAQ must Crash until you '//
+     &                       'fix Desid_N_Diag_Rules', 1 )
+           END IF
 
-         CLOSE( UNIT = EMCTRL_NML )
+           ! Allocate and Initialize Namelist Variables
+           ALLOCATE( DESID_DIAG_STREAMS_NML( DESID_N_DIAG_RULES,DESID_MAX_DIAG_SPEC ),
+     &               DESID_DIAG_FMT_NML( DESID_N_DIAG_RULES ),
+     &               DESID_DIAG_SPEC_NML( DESID_N_DIAG_RULES,DESID_MAX_DIAG_SPEC ),
+     &               STAT=IOST )
+           CALL CHECKMEM( IOST, 'DESID_DIAG_NML','DESID_READ_NAMELIST')
+           Desid_Diag_Streams_Nml = ''
+           Desid_Diag_Fmt_Nml     = ''  
+           Desid_Diag_Spec_Nml    = ''
+           
+           ! Read the Emissions Diagnostic Section
+           REWIND( FUNIT )
+           READ( NML = Desid_Diag, UNIT = FUNIT, IOSTAT=IOST )
+           IF ( IOST .EQ. -1 ) THEN
+               ! The Emissions Diagnostic Section was completely missing
+               XMSG = 'WARNING: There were no valid Emission Diagnostic Values specified '//
+     &                'for use by the DESID module. If you intended to specify '//
+     &                'diagnostic output in the emission control interface, check the '//
+     &                'file you have provided for DESID_CTRL_NML.' 
+               CALL LOG_MESSAGE( LOGDEV, ' ')
+               CALL LOG_MESSAGE( LOGDEV, XMSG )
+               Desid_Diag_Streams_Nml = ''
+               Desid_Diag_Fmt_Nml     = ''  
+               Desid_Diag_Spec_Nml    = ''
+           ELSE IF ( IOST .NE. 0 ) THEN
+               ! Read Error for Emissions Diagnostic
+               backspace( FUNIT )
+               read( FUNIT, fmt='(A)' ) tmpline
+               XMSG = 'ERROR: There was a syntax error reading Emission Diagnostic '//
+     &                'Variables for output by the DESID module. Please check the format of '//
+     &                'each line for syntax errors. The invalid line was likely: '
+               CALL LOG_MESSAGE( LOGDEV, ' ')
+               CALL LOG_MESSAGE( LOGDEV, XMSG )
+               WRITE( LOGDEV, '(8x,A)' ) TMPLINE
+               CALL M3EXIT ( 'DESID_READ_NAMELIST', 0, 0, 'CMAQ must Crash until you '//
+     &                       'fix the Emission Diagnostic Specification.', 1 )
+           END IF
+           
+         CLOSE( UNIT = FUNIT )
 
-      END SUBROUTINE READ_EMISS_NAMELIST  
+      END SUBROUTINE DESID_READ_NAMELIST  
 
 #ifdef mpas
 ! -------------------------------------------------------------------------

@@ -17,7 +17,7 @@
 !------------------------------------------------------------------------!
 
 !:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-      MODULE EMIS_UTIL
+      Module desid_util
 
 !-----------------------------------------------------------------------
 ! Function: Define Emissions Utility Subroutines
@@ -25,13 +25,13 @@
 ! Revision History:
 !     21 July 2020 B.Murphy: Extracted these variables from EMIS_DEFN
 !-----------------------------------------------------------------------
-      USE EMIS_VARS
+      Use desid_vars
 
-      CONTAINS
+      Contains
 
 !-----------------------------------------------------------------------
-      SUBROUTINE INTERPRET_EM_RULE_STREAM( RULE_STREAM0, IRULE, 
-     &              EM_STREAM_RULE, LREMOVE )
+      SUBROUTINE DESID_GET_RULE_STREAMS( RULE_STREAM_NML0, IRULE, 
+     &              RULE_STREAM, LREMOVE )
 !
 ! This subroutine analyzes the part of a rule identifying which streams
 ! to affect and searches for the individual streams, or, if the rule uses
@@ -39,17 +39,17 @@
 !-----------------------------------------------------------------------
 
       USE UTILIO_DEFN
-      USE em_param_module
+      USE desid_param_module
       USE UTIL_FAMILY_MODULE
 
 
       IMPLICIT NONE
 
-      CHARACTER(32), INTENT( IN ) :: RULE_STREAM0
-      CHARACTER(32)               :: RULE_STREAM
-      CHARACTER(32)               :: STREAM_NAME( N_EM_SRM )
+      CHARACTER(32), INTENT( IN ) :: RULE_STREAM_NML0
+      CHARACTER(32)               :: RULE_STREAM_NML
+      CHARACTER(32)               :: STREAM_NAME( DESID_N_SRM )
       INTEGER, INTENT( IN )       :: IRULE
-      LOGICAL, INTENT( INOUT )    :: EM_STREAM_RULE( N_EM_SRM )
+      LOGICAL, INTENT( INOUT )    :: RULE_STREAM( DESID_N_SRM )
       LOGICAL, INTENT( INOUT )    :: LREMOVE
 
       INTEGER ISRM, IDX, NSRM, IFAM
@@ -59,43 +59,43 @@
       INTEGER  :: JTIME = 0
 
       ! Initialize the output vector
-      EM_STREAM_RULE = .FALSE.
+      RULE_STREAM = .FALSE.
       
       ! First Capitalize the Rule so it is easier to error-check
-      RULE_STREAM = RULE_STREAM0
-      CALL UPCASE( RULE_STREAM )
+      RULE_STREAM_NML = RULE_STREAM_NML0
+      CALL UPCASE( RULE_STREAM_NML )
 
       LREMOVE = .FALSE.
 
-      IF ( RULE_STREAM .EQ. 'ALL' .OR. RULE_STREAM .EQ. 'TOTAL' ) THEN
+      IF ( RULE_STREAM_NML .EQ. 'ALL' .OR. RULE_STREAM_NML .EQ. 'TOTAL' ) THEN
          ! Special Case Where the Stream Identifier in the rule equals
          ! equals all 'ALL'. Expand the Rule to Apply to All Streams
          ISRM = 0
          IF ( N_FILE_GR .GT. 0 ) THEN
-           EM_STREAM_RULE( ISRM+1:N_FILE_GR ) = .TRUE.
+           RULE_STREAM( ISRM+1:N_FILE_GR ) = .TRUE.
            ISRM = ISRM + N_FILE_GR
          END IF
 
          IF ( NPTGRPS .GT. 0 ) THEN
-           EM_STREAM_RULE( ISRM+1:ISRM+NPTGRPS ) = .TRUE.
+           RULE_STREAM( ISRM+1:ISRM+NPTGRPS ) = .TRUE.
            ISRM = ISRM + NPTGRPS
          END IF
-         IF ( N_FILE_TR .GT. 0 ) EM_STREAM_RULE( ISRM+1:ISRM+N_FILE_TR ) = .TRUE.
-         IF ( IBIOSRM .GT.0 ) EM_STREAM_RULE( IBIOSRM  ) = .TRUE.
-         IF ( IMGSRM  .GT.0 ) EM_STREAM_RULE( IMGSRM   ) = .TRUE.
-         IF ( ILTSRM  .GT.0 ) EM_STREAM_RULE( ILTSRM   ) = .TRUE.
-         IF ( ISEASRM .GT.0 ) EM_STREAM_RULE( ISEASRM  ) = .TRUE.
-         IF ( IDUSTSRM.GT.0 ) EM_STREAM_RULE( IDUSTSRM ) = .TRUE.
-         IF ( IMIOGSRM.GT.0 ) EM_STREAM_RULE( IMIOGSRM ) = .TRUE.
+         IF ( N_FILE_TR .GT. 0 ) RULE_STREAM( ISRM+1:ISRM+N_FILE_TR ) = .TRUE.
+         IF ( IBIOSRM .GT.0 ) RULE_STREAM( IBIOSRM  ) = .TRUE.
+         IF ( IMGSRM  .GT.0 ) RULE_STREAM( IMGSRM   ) = .TRUE.
+         IF ( ILTSRM  .GT.0 ) RULE_STREAM( ILTSRM   ) = .TRUE.
+         IF ( ISEASRM .GT.0 ) RULE_STREAM( ISEASRM  ) = .TRUE.
+         IF ( IDUSTSRM.GT.0 ) RULE_STREAM( IDUSTSRM ) = .TRUE.
+         IF ( IMIOGSRM.GT.0 ) RULE_STREAM( IMIOGSRM ) = .TRUE.
 
 
       ELSE
          ! Determine if the Stream Label Refers to A Family and if So, 
          ! Apply the Rule to all members of that Family
-         IFAM = INDEX1( RULE_STREAM, NStreamFamilies, StreamFamilyName )
+         IFAM = INDEX1( RULE_STREAM_NML, Desid_N_Stream_Fams, StreamFamilyName )
          IF ( IFAM .EQ. 0 ) THEN
              NSRM = 1
-             STREAM_NAME(1) = RULE_STREAM
+             STREAM_NAME(1) = RULE_STREAM_NML
          ELSE
              NSRM = StreamFamilyNum( IFAM )
              STREAM_NAME(1:NSRM) = StreamFamilyMembers( IFAM,1:NSRM )
@@ -103,13 +103,13 @@
 
          ! Find the Specific Stream this Rule Identifies
          DO ISRM = 1,NSRM
-           IDX = INDEX1( STREAM_NAME( ISRM ), N_EM_SRM, EM_FILE_LAB ) 
+           IDX = INDEX1( STREAM_NAME( ISRM ), DESID_N_SRM, DESID_STREAM_LAB ) 
            IF ( IDX .NE. 0 ) THEN
-             EM_STREAM_RULE( IDX ) = .TRUE.
+             RULE_STREAM( IDX ) = .TRUE.
            ELSE 
              ! Print warning that this stream is being ignored
              WRITE( LOGDEV, '(/,5x,3A,I3,/,5x,2A,4(/,5x,A))' ),
-     &         'ATTENTION: The Emissions Stream Label (',TRIM( RULE_STREAM ),
+     &         'ATTENTION: The Emissions Stream Label (',TRIM( RULE_STREAM_NML ),
      &         ') applied for Rule ',IRULE,'in the Emissions Control ',
      &         'Namelist does not match any of the emissions streams ',
      &         'labels or families provided to CMAQ. Please check the ',
@@ -122,29 +122,29 @@
          END DO
       END IF
  
-      END SUBROUTINE INTERPRET_EM_RULE_STREAM
+      END SUBROUTINE DESID_GET_RULE_STREAMS
 
 !-----------------------------------------------------------------------
-      SUBROUTINE MAP_EMISSDIAG_SPEC( Spec, IDIAG, SPEC_VECTOR, JDIAG ) 
+      SUBROUTINE DESID_DIAG_MAP_SPEC( Spec, IDIAG, SPEC_VECTOR, JDIAG ) 
 !
 ! This subroutine creates a map of emissions species taking into account 
 ! any references to chemical families or aerosol bulk names.
 !-----------------------------------------------------------------------
 
       USE UTILIO_DEFN
-      USE em_param_module
+      USE desid_param_module
       USE UTIL_FAMILY_MODULE
       USE VDIFF_MAP, ONLY : DIFF_SPC, N_SPC_DIFF, DIFF_MASK_GAS, 
      &                      DIFF_MASK_NUM, DIFF_MASK_SRF
 
       IMPLICIT NONE
 
-      CHARACTER(16), INTENT( IN )  :: Spec( N_EMDIAG_SPEC_REG )
+      CHARACTER(16), INTENT( IN )  :: Spec( DESID_MAX_DIAG_SPEC )
       INTEGER, INTENT( IN )        :: IDIAG, JDIAG
       LOGICAL, INTENT( IN )        :: SPEC_VECTOR( N_SPC_DIFF )
 
       INTEGER ISRM, IDX, NSRM, IFAM, I, J
-      INTEGER NSPEC_REG, NPAIRS, NSPEC
+      INTEGER NSPEC_NML, NPAIRS, NSPEC
       LOGICAL EXPAND_SPEC
       CHARACTER(16)    :: SPECIES
       CHARACTER( 200 ) :: XMSG
@@ -152,15 +152,15 @@
       INTEGER  :: JDATE = 0
       INTEGER  :: JTIME = 0
       LOGICAL  :: DIFF_VEC( N_SPC_DIFF )
-      INTEGER  :: MAP_toDIFF( N_EMDIAG_SPEC_REG*10 ), 
-     &            MAP_toEMDIAG( N_EMDIAG_SPEC_REG*10 )
-      CHARACTER(16) :: UNITS( N_EMDIAG_SPEC_REG*10 ),
-     &                 DIAGSPEC( N_EMDIAG_SPEC_REG*10 )
+      INTEGER  :: MAP_toDIFF( DESID_MAX_DIAG_SPEC*50 ), 
+     &            MAP_toDIAG( DESID_MAX_DIAG_SPEC*50 )
+      CHARACTER(16) :: UNITS( DESID_MAX_DIAG_SPEC*50 ),
+     &                 DIAGSPEC( DESID_MAX_DIAG_SPEC*50 )
 
 
       ! Determine number of diagnostic species to output
-      NSPEC_REG = INDEX1( '', N_EMDIAG_SPEC_REG, Spec ) - 1
-      IF ( NSPEC_REG .LE. 0 ) THEN
+      NSPEC_NML = INDEX1( '', DESID_MAX_DIAG_SPEC, Spec ) - 1
+      IF ( NSPEC_NML .LE. 0 ) THEN
           WRITE( LOGDEV, * )
           WRITE( XMSG, '(A,I3,A)' ),
      &        'No Emission Species have been selected for group ',IDIAG,
@@ -172,7 +172,7 @@
       NPAIRS = 0
       NSPEC  = 0
       
-      DO I = 1,NSPEC_REG
+      DO I = 1,NSPEC_NML
          SPECIES = SPEC( I )
          Expand_Spec = .FALSE.
          IF ( SPECIES(1:1) .EQ. '*' ) THEN
@@ -196,7 +196,7 @@
 
                    NPAIRS = NPAIRS + 1
                    MAP_toDIFF( NPAIRS ) = J
-                   MAP_toEMDIAG( NPAIRS ) = NSPEC
+                   MAP_toDIAG( NPAIRS ) = NSPEC
                    IF ( DIFF_MASK_GAS( J ) ) THEN
                        ! GAS SPECIES
                        UNITS( NSPEC ) = 'mol s-1'
@@ -223,7 +223,7 @@
                IF ( DIFF_VEC( J ) ) THEN
                    NPAIRS = NPAIRS + 1
                    MAP_toDIFF( NPAIRS ) = J
-                   MAP_toEMDIAG( NPAIRS ) = NSPEC
+                   MAP_toDIAG( NPAIRS ) = NSPEC
                    IF ( DIFF_MASK_GAS( J ) ) THEN
                        ! GAS SPECIES
                        UNITS( NSPEC ) = 'mol s-1'
@@ -242,32 +242,33 @@
          END IF
       END DO
 
-      EMDIAG_SPEC( JDIAG )%NSPEC = NSPEC
-      EMDIAG_SPEC( JDIAG )%NPAIRS = NPAIRS 
+      DESID_DIAG_SPEC( JDIAG )%NSPEC = NSPEC
+      DESID_DIAG_SPEC( JDIAG )%NPAIRS = NPAIRS 
       IF ( NSPEC .GT. 0 ) THEN
-        IF ( ALLOCATED( EMDIAG_SPEC( JDIAG )%SPEC ) )
-     &    DEALLOCATE( EMDIAG_SPEC( JDIAG )%SPEC )
-        IF ( ALLOCATED( EMDIAG_SPEC( JDIAG )%MAP_toDIFF ) )
-     &    DEALLOCATE( EMDIAG_SPEC( JDIAG )%MAP_toDIFF )
-        IF ( ALLOCATED( EMDIAG_SPEC( JDIAG )%MAP_toEMDIAG ) ) 
-     &    DEALLOCATE( EMDIAG_SPEC( JDIAG )%MAP_toEMDIAG )
-        IF ( ALLOCATED( EMDIAG_SPEC( JDIAG )%UNITS ) )
-     &    DEALLOCATE( EMDIAG_SPEC( JDIAG )%UNITS )
-        ALLOCATE( EMDIAG_SPEC( JDIAG )%SPEC( NSPEC ) )
-        ALLOCATE( EMDIAG_SPEC( JDIAG )%MAP_toDIFF( NPAIRS ) )
-        ALLOCATE( EMDIAG_SPEC( JDIAG )%MAP_toEMDIAG( NPAIRS ) )
-        ALLOCATE( EMDIAG_SPEC( JDIAG )%UNITS( NSPEC ) )
+        IF ( ALLOCATED( DESID_DIAG_SPEC( JDIAG )%SPEC ) )
+     &      DEALLOCATE( DESID_DIAG_SPEC( JDIAG )%SPEC )
+        IF ( ALLOCATED( DESID_DIAG_SPEC( JDIAG )%UNITS ) )
+     &      DEALLOCATE( DESID_DIAG_SPEC( JDIAG )%UNITS )
+        IF ( ALLOCATED( DESID_DIAG_SPEC( JDIAG )%MAP_toDIFF ) )
+     &      DEALLOCATE( DESID_DIAG_SPEC( JDIAG )%MAP_toDIFF )
+        IF ( ALLOCATED( DESID_DIAG_SPEC( JDIAG )%MAP_toDIAG ) ) 
+     &      DEALLOCATE( DESID_DIAG_SPEC( JDIAG )%MAP_toDIAG )
 
-        EMDIAG_SPEC( JDIAG )%SPEC = DIAGSPEC( 1:NSPEC )
-        EMDIAG_SPEC( JDIAG )%MAP_toDIFF   = MAP_toDIFF( 1:NPAIRS )
-        EMDIAG_SPEC( JDIAG )%MAP_toEMDIAG = MAP_toEMDIAG( 1:NPAIRS )
-        EMDIAG_SPEC( JDIAG )%UNITS = UNITS( 1:NSPEC )
+        ALLOCATE( DESID_DIAG_SPEC( JDIAG )%SPEC( NSPEC ) )
+        ALLOCATE( DESID_DIAG_SPEC( JDIAG )%UNITS( NSPEC ) )
+        ALLOCATE( DESID_DIAG_SPEC( JDIAG )%MAP_toDIFF( NPAIRS ) )
+        ALLOCATE( DESID_DIAG_SPEC( JDIAG )%MAP_toDIAG( NPAIRS ) )
+
+        DESID_DIAG_SPEC( JDIAG )%SPEC  = DIAGSPEC( 1:NSPEC )
+        DESID_DIAG_SPEC( JDIAG )%UNITS = UNITS( 1:NSPEC )
+        DESID_DIAG_SPEC( JDIAG )%MAP_toDIFF = MAP_toDIFF( 1:NPAIRS )
+        DESID_DIAG_SPEC( JDIAG )%MAP_toDIAG = MAP_toDIAG( 1:NPAIRS )
       END IF
 
-      END SUBROUTINE MAP_EMISSDIAG_SPEC
+      END SUBROUTINE DESID_DIAG_MAP_SPEC
  
 !-----------------------------------------------------------------------
-      SUBROUTINE CUSTOM_EM_RULES( N_EM_RULE )
+      SUBROUTINE DESID_GET_ONLINE_RULES( N_RULE )
 !
 !     This subroutine defines several hardcoded rules for emissions
 !     scaling that will apply by default. These include subtracting NH3
@@ -281,92 +282,92 @@
 
       IMPLICIT NONE
       
-      INTEGER,         INTENT( INOUT ) :: N_EM_RULE
-      TYPE( EM_RULE_REG )              :: EM_NML_B( N_EM_RULE_REG  )
+      INTEGER,         INTENT( INOUT ) :: N_RULE
+      TYPE( DESID_RULES_TYPE )         :: EM_NML( 20 )
 
-      INTEGER          :: N_EM_RULE_B, IRULE, ISRM
+      INTEGER :: N_RULE_B, IRULE, ISRM
 
-      N_EM_RULE_B = 0
+      N_RULE_B = 0
  
       ! Add a rule For Removing Fertilizer Ammonia if BiDi is
       ! activated and the user has requested the correction
          IF ( ABFLUX ) THEN
-            N_EM_RULE_B = N_EM_RULE_B + 1
-            EM_NML_B(N_EM_RULE_B)%SPEC  = 'NH3'
-            EM_NML_B(N_EM_RULE_B)%STREAM= 'ALL'
-            EM_NML_B(N_EM_RULE_B)%PHASE = 'GAS'
-            EM_NML_B(N_EM_RULE_B)%SURR  = 'NH3_FERT'
-            EM_NML_B(N_EM_RULE_B)%FAC   = -1.0
-            EM_NML_B(N_EM_RULE_B)%BASIS = 'UNIT'
-            EM_NML_B(N_EM_RULE_B)%OP    = 'a'
-            EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE'
+            N_RULE_B = N_RULE_B + 1
+            EM_NML(N_RULE_B)%SPEC  = 'NH3'
+            EM_NML(N_RULE_B)%STREAM= 'ALL'
+            EM_NML(N_RULE_B)%PHASE = 'GAS'
+            EM_NML(N_RULE_B)%EMVAR = 'NH3_FERT'
+            EM_NML(N_RULE_B)%FAC   = -1.0
+            EM_NML(N_RULE_B)%BASIS = 'UNIT'
+            EM_NML(N_RULE_B)%OP    = 'a'
+            EM_NML(N_RULE_B)%REGION= 'EVERYWHERE'
          END IF
 
       ! sulfur tracking instrument model option
          IF ( STM ) THEN
       ! SULF emissions
-            N_EM_RULE_B = N_EM_RULE_B + 1
-            EM_NML_B(N_EM_RULE_B)%SPEC  = 'ASO4EMIS'
-            EM_NML_B(N_EM_RULE_B)%STREAM= 'ALL'
-            EM_NML_B(N_EM_RULE_B)%PHASE = 'FINE'
-            EM_NML_B(N_EM_RULE_B)%SURR  = 'SULF'
-            EM_NML_B(N_EM_RULE_B)%FAC   = 1.0
-            EM_NML_B(N_EM_RULE_B)%BASIS = 'MASS'
-            EM_NML_B(N_EM_RULE_B)%OP    = 'a' 
-            EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE'
+            N_RULE_B = N_RULE_B + 1
+            EM_NML(N_RULE_B)%SPEC  = 'ASO4EMIS'
+            EM_NML(N_RULE_B)%STREAM= 'ALL'
+            EM_NML(N_RULE_B)%PHASE = 'FINE'
+            EM_NML(N_RULE_B)%EMVAR = 'SULF'
+            EM_NML(N_RULE_B)%FAC   = 1.0
+            EM_NML(N_RULE_B)%BASIS = 'MASS'
+            EM_NML(N_RULE_B)%OP    = 'a' 
+            EM_NML(N_RULE_B)%REGION= 'EVERYWHERE'
       !  PSO4 emissions 
-            N_EM_RULE_B = N_EM_RULE_B + 1
-            EM_NML_B(N_EM_RULE_B)%SPEC  = 'ASO4EMIS'
-            EM_NML_B(N_EM_RULE_B)%STREAM= 'ALL'
-            EM_NML_B(N_EM_RULE_B)%PHASE = 'FINE'
-            EM_NML_B(N_EM_RULE_B)%SURR  = 'PSO4'
-            EM_NML_B(N_EM_RULE_B)%FAC   = 1.0
-            EM_NML_B(N_EM_RULE_B)%BASIS = 'UNIT'
-            EM_NML_B(N_EM_RULE_B)%OP    = 'a' 
-            EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE'
+            N_RULE_B = N_RULE_B + 1
+            EM_NML(N_RULE_B)%SPEC  = 'ASO4EMIS'
+            EM_NML(N_RULE_B)%STREAM= 'ALL'
+            EM_NML(N_RULE_B)%PHASE = 'FINE'
+            EM_NML(N_RULE_B)%EMVAR = 'PSO4'
+            EM_NML(N_RULE_B)%FAC   = 1.0
+            EM_NML(N_RULE_B)%BASIS = 'UNIT'
+            EM_NML(N_RULE_B)%OP    = 'a' 
+            EM_NML(N_RULE_B)%REGION= 'EVERYWHERE'
       ! Coarse-Mode Sulfate
-            N_EM_RULE_B = N_EM_RULE_B + 1
-            EM_NML_B(N_EM_RULE_B)%SPEC  = 'ASO4EMIS'
-            EM_NML_B(N_EM_RULE_B)%STREAM= 'ALL'
-            EM_NML_B(N_EM_RULE_B)%PHASE = 'COARSE'
-            EM_NML_B(N_EM_RULE_B)%SURR  = 'PMC'
-            EM_NML_B(N_EM_RULE_B)%FAC   = REAL( ACORSEM_ASO4_FAC, 4 ) 
-            EM_NML_B(N_EM_RULE_B)%BASIS = 'UNIT'
-            EM_NML_B(N_EM_RULE_B)%OP    = 'a' 
-            EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE'
+            N_RULE_B = N_RULE_B + 1
+            EM_NML(N_RULE_B)%SPEC  = 'ASO4EMIS'
+            EM_NML(N_RULE_B)%STREAM= 'ALL'
+            EM_NML(N_RULE_B)%PHASE = 'COARSE'
+            EM_NML(N_RULE_B)%EMVAR = 'PMC'
+            EM_NML(N_RULE_B)%FAC   = REAL( ACORSEM_ASO4_FAC, 4 ) 
+            EM_NML(N_RULE_B)%BASIS = 'UNIT'
+            EM_NML(N_RULE_B)%OP    = 'a' 
+            EM_NML(N_RULE_B)%REGION= 'EVERYWHERE'
       !  Wind blown dust and sea spray SO4 emissions 
       !  Fine
-            N_EM_RULE_B = N_EM_RULE_B + 1
-            EM_NML_B(N_EM_RULE_B)%SPEC  = 'ASO4EMIS'
-            EM_NML_B(N_EM_RULE_B)%STREAM= 'ALL'
-            EM_NML_B(N_EM_RULE_B)%PHASE = 'FINE'
-            EM_NML_B(N_EM_RULE_B)%SURR  = 'PMFINE_SO4'
-            EM_NML_B(N_EM_RULE_B)%FAC   = 1.0
-            EM_NML_B(N_EM_RULE_B)%BASIS = 'UNIT'
-            EM_NML_B(N_EM_RULE_B)%OP    = 'a' 
-            EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE'
+            N_RULE_B = N_RULE_B + 1
+            EM_NML(N_RULE_B)%SPEC  = 'ASO4EMIS'
+            EM_NML(N_RULE_B)%STREAM= 'ALL'
+            EM_NML(N_RULE_B)%PHASE = 'FINE'
+            EM_NML(N_RULE_B)%EMVAR = 'PMFINE_SO4'
+            EM_NML(N_RULE_B)%FAC   = 1.0
+            EM_NML(N_RULE_B)%BASIS = 'UNIT'
+            EM_NML(N_RULE_B)%OP    = 'a' 
+            EM_NML(N_RULE_B)%REGION= 'EVERYWHERE'
       !  Coarse 
-            N_EM_RULE_B = N_EM_RULE_B + 1
-            EM_NML_B(N_EM_RULE_B)%SPEC  = 'ASO4EMIS'
-            EM_NML_B(N_EM_RULE_B)%STREAM= 'ALL'
-            EM_NML_B(N_EM_RULE_B)%PHASE = 'COARSE'
-            EM_NML_B(N_EM_RULE_B)%SURR  = 'PMCOARSE_SO4'
-            EM_NML_B(N_EM_RULE_B)%FAC   = 1.0
-            EM_NML_B(N_EM_RULE_B)%BASIS = 'UNIT'
-            EM_NML_B(N_EM_RULE_B)%OP    = 'a' 
-            EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE'
+            N_RULE_B = N_RULE_B + 1
+            EM_NML(N_RULE_B)%SPEC  = 'ASO4EMIS'
+            EM_NML(N_RULE_B)%STREAM= 'ALL'
+            EM_NML(N_RULE_B)%PHASE = 'COARSE'
+            EM_NML(N_RULE_B)%EMVAR = 'PMCOARSE_SO4'
+            EM_NML(N_RULE_B)%FAC   = 1.0
+            EM_NML(N_RULE_B)%BASIS = 'UNIT'
+            EM_NML(N_RULE_B)%OP    = 'a' 
+            EM_NML(N_RULE_B)%REGION= 'EVERYWHERE'
          END IF ! stm
 
       ! Add Rules to Existing List at Beginning
-         N_EM_RULE = N_EM_RULE + N_EM_RULE_B
-         DO IRULE = N_EM_RULE, N_EM_RULE_B+1, -1
-            EM_NML( IRULE ) = EM_NML( IRULE - N_EM_RULE_B )
+         N_RULE = N_RULE + N_RULE_B
+         DO IRULE = N_RULE, N_RULE_B+1, -1
+            DESID_RULES_NML( IRULE ) = DESID_RULES_NML( IRULE - N_RULE_B )
          END DO
-         DO IRULE = 1,N_EM_RULE_B
-            EM_NML( IRULE ) = EM_NML_B( IRULE ) 
+         DO IRULE = 1,N_RULE_B
+            DESID_RULES_NML( IRULE ) = EM_NML( IRULE ) 
          END DO
 
-      END SUBROUTINE CUSTOM_EM_RULES
+      END SUBROUTINE DESID_GET_ONLINE_RULES
 
 !-----------------------------------------------------------------------
          SUBROUTINE CHECK_EMIS_UNITS( ISRM, ISUR, SPEC, UNITS, CONV, BASIS,
@@ -470,7 +471,7 @@
             BASIS = 'MASS'
          ELSE
             WRITE( XMSG,'(A,A16,A,I3,A11,A16,A,A,A)' ),
-     &              'ERROR: Surrogate Species ',TRIM(SPEC),' on emission stream ',
+     &              'ERROR: Species ',TRIM(SPEC),' on emission stream ',
      &              ISRM, ' has units ',TRIM(UNITS),' which are not recognized ',
      &              'as an emission rate. If you wish to use this variable for ',
      &              'emissions, please correct the units (e.g. g/s or moles/s).'
@@ -485,7 +486,7 @@
          DENOM = UNITS(X+2:)
          IF ( DENOM .EQ. '' ) THEN
             WRITE( XMSG,'(A,A16,A,I3,A11,A16,A,A,A,A)' ),
-     &              'ERROR: Surrogate Species ',TRIM(SPEC),' on emission stream ',
+     &              'ERROR: Species ',TRIM(SPEC),' on emission stream ',
      &              ISRM, ' has units ',TRIM(UNITS),' which are not recognized ',
      &              'as an emission rate. If you wish to use this variable for ',
      &              'emissions, please correct the units (e.g. g/s, moles/s, ',
@@ -517,7 +518,7 @@
      &                                BASIS, CONV )
          IF ( BASIS .EQ. 'UNKNOWN' ) THEN
             WRITE( XMSG,'(A,A16,A,I3,A11,A16,A,A,A,A)' ),
-     &              'ERROR: Surrogate Species ',TRIM(SPEC),' on emission stream ',
+     &              'ERROR: Species ',TRIM(SPEC),' on emission stream ',
      &              ISRM, ' has units ',TRIM(UNITS),' which are not recognized ',
      &              'as an emission rate. If you wish to use this variable for ',
      &              'emissions, please correct the units (e.g. g/s, moles/s, ',
@@ -532,7 +533,7 @@
      &                                   BASIS, CONV )
             IF ( BASIS .EQ. 'UNKNOWN' ) THEN
                WRITE( XMSG,'(A,A16,A,I3,A11,A16,A,A,A,A)' ),
-     &                'ERROR: Surrogate Species ',TRIM(SPEC),' on emission stream ',
+     &                'ERROR: Species ',TRIM(SPEC),' on emission stream ',
      &                ISRM, ' has units ',TRIM(UNITS),' which are not recognized ',
      &                'as an emission rate. If you wish to use this variable for ',
      &                'emissions, please correct the units (e.g. g/s, moles/s, ',
@@ -545,7 +546,7 @@
          ! Check to make sure the time component has been defined 
          IF ( .NOT. LTIME_UNIT ) THEN
             WRITE( XMSG,'(A,A16,A,I3,A11,A16,A,A,A,A)' ),
-     &             'ERROR: Surrogate Species ',TRIM(SPEC),' on emission stream ',
+     &             'ERROR: Species ',TRIM(SPEC),' on emission stream ',
      &             ISRM, ' has units ',TRIM(UNITS),' which are not recognized ',
      &             'as an emission rate. If you wish to use this variable for ',
      &             'emissions, please correct the units (e.g. g/s, moles/s, ',
@@ -725,4 +726,4 @@
       END FUNCTION RESOLVE_YN_TF_2D3D
 
  
-      END MODULE EMIS_UTIL
+      END MODULE DESID_UTIL

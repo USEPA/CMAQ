@@ -67,7 +67,7 @@
 !       requested to the entries in the ELMO_DATA table.
 !-------------------------------------------------------------------------
          
-      USE RUNTIME_VARS, ONLY: EMISSCTRL, LOGDEV
+      USE RUNTIME_VARS, ONLY: MISC_CTRL, LOGDEV
       USE CGRID_SPCS, ONLY: CGRID_NAME, N_CGRID_SPC
       USE UTIL_FAMILY_MODULE, ONLY: NChemFamilies,ChemFamilyName,
      &                              Map_Chem_Families
@@ -119,7 +119,7 @@
       AVRG_PARS_NML(3) = 'PM10'
 
       ! Retrieve the Name of the Emission Control File
-      IF ( EMISSCTRL .EQ. "EMISSCTRL_NML" ) THEN
+      IF ( MISC_CTRL .EQ. "MISC_CTRL_NML" ) THEN
           WRITE( LOGDEV, "(5x,A,/,5x,A,/,5x,A)"),
      &           'You have chosen not to indicate the location of an',
      &           'Emission Control namelist file. Default settings ',
@@ -129,13 +129,13 @@
 
       ! Open Emission Control Namelist File
       EMCTRL_NML = JUNIT()
-      OPEN( FILE = EMISSCTRL, UNIT = EMCTRL_NML, STATUS = 'OLD',
+      OPEN( FILE = MISC_CTRL, UNIT = EMCTRL_NML, STATUS = 'OLD',
      &      POSITION = 'REWIND', FORM='FORMATTED', IOSTAT = STAT )
 
       ! Check for Error in File Open Process
       IF ( STAT .NE. 0 ) THEN
           WRITE( XMSG, '(A,A,A)' ),'ERROR: Could not read ',
-     &           'emissions control namelist file: ',TRIM( EMISSCTRL )
+     &           'emissions control namelist file: ',TRIM( MISC_CTRL )
           CALL M3EXIT( 'READ_EMISS_NAMELIST',0,0,XMSG,1 )
       END IF
  
