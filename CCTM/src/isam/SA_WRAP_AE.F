@@ -157,13 +157,6 @@ Ckrt Identify species index in ISAM array
      &       .AND. JSRXN .GT. 0 ) LAE_SO4 = .TRUE.
 
         ! Map Aerosol Modes and Names to Source Apportionment Species
-        ALLOCATE( MAP_AEROtoSA( N_AEROSPC, N_MODE ), STAT = ALLOCSTAT )
-        IF ( ALLOCSTAT .NE. 0 ) THEN
-           XMSG = 'Failure allocating MAP_AEROtoSA'
-           CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-        END IF
-
-        MAP_AEROtoSA( :,: ) = 0
         DO IM = 1,N_MODE
             DO IAER = 1,N_AEROSPC
                 INDX = INDEX1( AEROSPC( IAER )%NAME( IM ), NSPC_SA, ISAM_SPEC( :,2 ) )

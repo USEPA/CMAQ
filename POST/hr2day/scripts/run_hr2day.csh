@@ -82,7 +82,8 @@
 # setenv HOURS_8HRMAX 17
 
 #> define species (format: "Name, units, From_species, Operation")
-#>  operations : {SUM, AVG, MIN, MAX, @MAXT, MAXDIF, 8HRMAX, SUM06}
+#>  operations : {SUM, AVG, MIN, MAX, HR@MIN, HR@MAX, @MAXT, MAXDIF, 
+#>                8HRMAX, W126, @8HRMAXO3, HR@8HRMAX, SUM06}
  setenv SPECIES_1 "O3,ppbV,O3,8HRMAX"
  
 #> Optional desired first and last processing date. The program will
