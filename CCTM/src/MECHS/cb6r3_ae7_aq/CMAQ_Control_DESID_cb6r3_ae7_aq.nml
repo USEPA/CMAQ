@@ -29,7 +29,7 @@
 !    You may confirm the effect of the (default and custom) rules below by     !
 !       inspecting the processor-dependent log files ("CTM_LOG_XXX...")        !
 !                                                                              !
-!    Note: If no rules are provided for a  species, then there is no emission  !
+!    Note: If no rules are provided for a species, then there is no emission   !
 !       of that species.                                                       !
 !------------------------------------------------------------------------------!
 &Desid_ScalingVars
@@ -129,9 +129,9 @@
     'EVERYWHERE', 'ALL'         ,'PNCOM'  ,'ASVPO1'     ,'FINE',0.045,'MASS','a', 
    
    ! pcSOA is a CMAQ species introduced to account for missing pathways for SOA
-   ! formation from combustion sources. It includes IVOC oxidation as well as other
-   ! phenomena (Murphy et al., ACP, 2017). It was parameterized primarily in LA,
-   ! where vehicle exhaust continues to dominate.
+   ! formation from combustion sources. It accounts for IVOC oxidation as well as 
+   ! other phenomena (Murphy et al., ACP, 2017). It was parameterized based on data
+   ! primarily from Los Angeles, where vehicle exhaust continues to dominate.
     'EVERYWHERE', 'ALL'          ,'POC'   ,'PCVOC'      ,'GAS' ,6.579,'MASS','a', 
     'EVERYWHERE', 'ALL'          ,'PNCOM' ,'PCVOC'      ,'GAS' ,6.579,'MASS','a', 
 
