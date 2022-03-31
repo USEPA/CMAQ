@@ -11,8 +11,9 @@
 !                                                                              !
 ! This namelist is consistent with CMAQv5.4 (Release AUGUST 2022)              !
 !                                                                              !
-! See CMAQ User's Guide Appendix B and                                         !
-!     Murphy et al., Geoscientific Model Development, 14, 3407-3420,           !
+! See CMAQ User's Guide Appendix B,
+!  https://github.com/USEPA/CMAQ/blob/main/DOCS/Users_Guide/Appendix/CMAQ_UG_appendixB_emissions_control.md
+! and Murphy et al., Geoscientific Model Development, 14, 3407-3420,           !
 !     https://doi.org/10.5194/gmd-14-3407-2021, 2021.                          !
 !------------------------------------------------------------------------------!
 
