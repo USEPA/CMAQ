@@ -109,7 +109,7 @@ C Number of soil types: For WRF there are 16 types;
       integer, parameter :: nsltyp = 16
 
 C Variables for the windblown dust diagnostic file:
-      integer, parameter :: fndust_diag = 19 ! number of fixed diagnostic output vars
+      integer, parameter :: fndust_diag = 17 ! number of fixed diagnostic output vars
       integer, save      :: ndust_diag       ! number of diagnostic output vars
       real, allocatable, save :: diagv( : )  ! diagnostic output variables
       real, allocatable, save :: dustbf( :,:,: ) ! diagnostic accumulate buffer
@@ -150,8 +150,6 @@ C                 ----------------    --------    ------------------------------
      & diag_type( 'Vegetation_Frac ', '1        ', 'vegetation land coverage                   '),
      & diag_type( 'Urban_Cover     ', 'percent  ', 'urban land coverage                        '),
      & diag_type( 'Forest_Cover    ', 'percent  ', 'forest land coverage                       '),
-     & diag_type( 'Trfac_Above_Can ', '         ', 'transport factor above canopy              '),
-     & diag_type( 'Trfac_Inside_Can', '         ', 'transport factor in and below canopy       '),
      & diag_type( 'ANUMJ           ', 's-1', 'accumulation mode number                   '),
      & diag_type( 'ANUMK           ', 's-1', 'coarse mode number                         '),
      & diag_type( 'ASRFJ           ', 'm2 s-1   ', 'accumulation mode surface area             '),
@@ -1094,7 +1092,7 @@ C 2nd moment multiplied by PI to obtain the surface area emissions rate.
                diagv( n+5  ) = uland( c,r,3 )     ! 'Urban_Cover     '
                diagv( n+6  ) = uland( c,r,4 )     ! 'Forest_Cover    '
 
-               n = n + 8
+               n = n + 6
 
 ! accum and coarse mode number density emissions
                diagv( n+1 ) = dustoutn( 1,c,r )
