@@ -84,7 +84,7 @@ Note that for multiprocessor applications it is recommended that the Fortran MPI
 -   `MPI_LIB_DIR`<a id=MPI_LIB_DIR></a>
     Location of the Message Passing Interface Library on your Linux system
 
-    -   `ioapi_lib`<a id=ioapi_lib></a>
+-   `ioapi_lib`<a id=ioapi_lib></a>
     Name of the I/O API library on your system; set to "-lioapi"
 
 -   `netcdf_lib`<a id=netcdf_lib></a>
@@ -158,7 +158,7 @@ The following options are invoked by uncommenting the line in the CCTM build scr
     
 -   `ParOpt`<a id=ParOpt></a>  
     Build an executable for running on multiple processors. Invoking this command requires the availability of the MPI library/INCLUDE files.
-
+    
 -   `build_parallel_io`<a id=build_parallel_io></a>  
      Uncomment to build CMAQ with true parallel I/O feature (requires mpi version of ioapi 3.2 and pnetcdf, refer to [Appendix D](./CMAQ_UG_appendixD_parallel_implementation.md).)
 
@@ -524,7 +524,7 @@ Sets if the CCTM will run in multi-processor or serial mode.
 
 <!-- END COMMENT -->
 
-    Aerosol Diagnostics are now handled by the Explicit and Lumped Model Output module (ELMO), which is directed by the Emission Control Interface (ECI). See [Appendix B.6: ELMO](Appendix/CMAQ_UG_appendixB_emissions_control.md) 
+Aerosol Diagnostics are now handled by the Explicit and Lumped Model Output module (ELMO), which is directed by the Emission Control Interface (ECI). See [Appendix B.6: ELMO](Appendix/CMAQ_UG_appendixB_emissions_control.md) 
 
 <a id=Diagnostic_Output_Flags></a>
 

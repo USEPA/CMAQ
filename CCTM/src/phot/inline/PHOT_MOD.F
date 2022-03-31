@@ -687,12 +687,14 @@ C*** find ozone column density for atmosphere, stratosphere, and troposphere
                TAU_SCAT_CLD = TAU_SCAT_CLD + DTSCAT_CLOUD
 
                IF ( DT_CLOUD( L ) .GT. 1.0E-6 ) THEN
-                  OM_CLOUD = MAX( DTSCAT_CLOUD /DT_CLOUD( L ), 1.0) 
+                  OM_CLOUD = MAX( 0.000001, MIN( DTSCAT_CLOUD /DT_CLOUD( L ), 0.99999) )
                   IF ( OM_CLOUD .LT. 0.0 .OR. OM_CLOUD .GT. 1.0 .OR. OM_CLOUD .NE. OM_CLOUD) THEN
                      WRITE( LOGDEV,'(A,I3,A,ES12.4,A)',ADVANCE = 'NO')
      &               'OM_CLOUD( L = ', L, ' ) = ', OM_CLOUD,' resetting to '
                      OM_CLOUD = MAX( 0.000001, MIN( OM_CLOUD, 0.99999))
                      WRITE( LOGDEV,'(ES12.4)')OM_CLOUD
+                     WRITE( LOGDEV,'(A,2(ES12.4,1X))')'DT_CLOUD, DTSCAT_CLOUD = ',
+     &               DT_CLOUD, DTSCAT_CLOUD
                      WRITE( LOGDEV,'(A,2(ES12.4,1X))')'LIQUID_EXT, LIQUID_SCAT = ',
      &               CLOUD_LIQUID_EXT( II,IWL ), CLOUD_LIQUID_SCAT( II,IWL )
                      WRITE( LOGDEV,'(A,2(ES12.4,1X))')'ICE_EXT, ICE_SCAT = ',

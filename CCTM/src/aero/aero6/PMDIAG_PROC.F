@@ -1811,6 +1811,7 @@
      &           "for in the Emmissions Control Namelist."
              !CALL LOG_MESSAGE( LOGDEV, XMSG )
              !CALL M3WARN( 'MAP_PMDIAG_COEFFS', 0, 0, '' )
+             PMDIAG_COEFFS( IDG )%L_GAS( IVAR )  = .FALSE.
           END IF
       
       ELSE IF ( TSPEC .EQ. 'AGG' ) THEN 
@@ -1947,32 +1948,32 @@
           ISPEC = PMDIAG_COEFFS( IDG )%I_SPEC( IVAR )
           COEFF = PMDIAG_COEFFS( IDG )%COEFF( IVAR )
 
-          ! First check if this is a Precursor Gas
-          IF ( PMDIAG_COEFFS( IDG )%L_PREC( IVAR ) ) THEN
-              VAL = VAL + REAL( PRECURSOR_CONC( ISPEC ), 4) * COEFF
+          IF ( ISPEC .GT. 0 ) THEN
+             ! First check if this is a Precursor Gas
+             IF ( PMDIAG_COEFFS( IDG )%L_PREC( IVAR ) ) THEN
+                 VAL = VAL + REAL( PRECURSOR_CONC( ISPEC ), 4) * COEFF
           
-          ! Next check if this is a Gas from CGRID
-          ELSE IF  ( PMDIAG_COEFFS( IDG )%L_GAS( IVAR ) ) THEN
-              VAL = VAL + CONC_VEC( ISPEC ) * COEFF * AIRDENS
+             ! Next check if this is a Gas from CGRID
+             ELSE IF  ( PMDIAG_COEFFS( IDG )%L_GAS( IVAR ) ) THEN
+                 VAL = VAL + CONC_VEC( ISPEC ) * COEFF * AIRDENS
 
-          ! Next check for aggregate variable
-          ELSE IF  ( PMDIAG_COEFFS( IDG )%L_AGG( IVAR ) ) THEN
-              CALL CALC_PMDIAG( ISPEC, 1, VAL2 )
-              VAL = VAL + VAL2 * COEFF
+             ! Next check for aggregate variable
+             ELSE IF  ( PMDIAG_COEFFS( IDG )%L_AGG( IVAR ) ) THEN
+                 CALL CALC_PMDIAG( ISPEC, 1, VAL2 )
+                 VAL = VAL + VAL2 * COEFF
 
-          ! Add Aerosol Components
-          ELSE IF ( ISPEC .GT. 0 ) THEN
+             ! Add Aerosol Components
+             ELSE
+                 DO IM = 1,N_MODE
+                    ! If this mode is supposed to be added (LMODE) and the
+                    ! species is not missing, then add it up
+                    LMODE = PMDIAG_COEFFS( IDG )%L_MODE( IM )
+                    IF ( LMODE .AND. ( .NOT. AERO_MISSING( ISPEC,IM ) ) ) 
+     &                  VAL = VAL + AEROSPC_CONC( ISPEC, IM ) * COEFF * FRAC( IM )
 
-              DO IM = 1,N_MODE
-                 ! If this mode is supposed to be added (LMODE) and the
-                 ! species is not missing, then add it up
-                 LMODE = PMDIAG_COEFFS( IDG )%L_MODE( IM )
-                 IF ( LMODE .AND. ( .NOT. AERO_MISSING( ISPEC,IM ) ) ) 
-     &               VAL = VAL + AEROSPC_CONC( ISPEC, IM ) * COEFF * FRAC( IM )
-
-              END DO
+                 END DO
+             END IF
           END IF
-
       END DO 
 
       END SUBROUTINE CALC_PMDIAG_AGG
@@ -1990,9 +1991,13 @@
      &                     AH2O_IDX, AORGH2O_IDX, AEROSPC, CALC_AERODIST_PARAMS,
      &                     AEROMODE, DRY_AERO_DENS, APOC_IDX, APNCOM_IDX
       USE AEROMET_DATA, ONLY: AIRRH, PI, AIRTEMP, SRFTEMP, AIRPRES
+      USE CGRID_SPCS, ONLY : RHOJ_LOC
       USE SOA_DEFN, ONLY : N_OA, N_OA_NotTracers, OASPC, MAP_OAtoAERO
       USE PHOT_MOD, ONLY : ELMO_AOD_550, ELMO_EXT_550
       USE RUNTIME_VARS, ONLY : PHOTDIAG
+      USE ASX_DATA_MOD, ONLY : MET_DATA
+
+      IMPLICIT NONE
 
       INTEGER, INTENT( IN ) :: IDG, IM
       REAL, INTENT( INOUT ) :: OUTVAL
@@ -2643,6 +2648,14 @@
          ! Retrieve Air Pressure
          CASE ( ID_PRES )
             OUTVAL = AIRPRES
+
+         ! Retrieve Air Density x Jacobian/MSFX2
+         CASE ( ID_RHOJ )
+            OUTVAL = CONC_VEC( RHOJ_LOC ) ! kg m-3
+
+         ! Retrieve Air Density
+         CASE ( ID_DENS )
+            OUTVAL = MET_DATA%DENS( C1,R1,L1 ) ! kg m-3
 
          CASE DEFAULT
             ! For most parameters the PMDIAG_COEFF structure will

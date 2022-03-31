@@ -223,6 +223,8 @@ c:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       INTEGER, PARAMETER :: ID_GIEPOX =     179
       INTEGER, PARAMETER :: ID_KIEPOX =     180
       INTEGER, PARAMETER :: ID_GIMAE =      181
+      INTEGER, PARAMETER :: ID_RHOJ  =      182
+      INTEGER, PARAMETER :: ID_DENS  =      183
 
       TYPE PMDTP
         CHARACTER (LEN = 16) :: NAME      !Parameter Name
@@ -233,7 +235,7 @@ c:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
         CHARACTER (LEN = 80) :: DESC      !Description
       END TYPE PMDTP
 
-      INTEGER, PARAMETER :: N_PMDIAG_LIST = 181
+      INTEGER, PARAMETER :: N_PMDIAG_LIST = 183
 
       TYPE (PMDTP), PARAMETER :: PMDIAG_LIST( N_PMDIAG_LIST ) = (/
      &PMDTP( 'STDEV        ',ID_STDEV,      M3REAL, T, '      ', 'Mode standard deviation (dry and wet)' ),
@@ -434,7 +436,9 @@ c:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
      &PMDTP( 'YIELD_CLNO2K ',ID_YCLNO2C,    M3REAL, F, '1     ', 'Coarse Mode CLNO2 Heterogeneous reaction yield' ),
      &PMDTP( 'GAMMA_IEPOX  ',ID_GIEPOX,     M3REAL, F, '1     ', 'IEPOX heterogeneous uptake coefficient' ),
      &PMDTP( 'K_IEPOX      ',ID_KIEPOX,     M3REAL, F, 's-1   ', 'IEPOX 1st order particle phase reaction rate const' ),
-     &PMDTP( 'GAMMA_IMAE   ',ID_GIMAE,      M3REAL, F, '1     ', 'IMAE+HMML heterogeneous uptake coefficient' ) /)
+     &PMDTP( 'GAMMA_IMAE   ',ID_GIMAE,      M3REAL, F, '1     ', 'IMAE+HMML heterogeneous uptake coefficient' ),
+     &PMDTP( 'DENS         ',ID_DENS,       M3REAL, F, 'kg m-3', 'Advected Density' ),
+     &PMDTP( 'RHOJ         ',ID_RHOJ,       M3REAL, F, 'kg m-3', 'Advected Density x Jacobian/MSFX^2' ) /)
      
 
         TYPE PMDIAG_KEY_TYPE

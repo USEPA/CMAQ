@@ -35,7 +35,7 @@ echo 'Start Model Run At ' `date`
 #> Set General Parameters for Configuring the Simulation
  set VRSN      = v532              #> Code Version
  set PROC      = mpi               #> serial or mpi
- set MECH      = cb6r3_ae7_aq      #> Mechanism ID
+ set MECH      = cb6r5m_ae7_aq     #> Mechanism ID
  set APPL      = 2015_HEMI         #> Application Name (e.g. Gridname)
                                                        
 #> Define RUNID as any combination of parameters above or others. By default,
@@ -205,7 +205,7 @@ setenv B3GTS_DIAG N          #> BEIS mass emissions diagnostic file [ default: N
 setenv CTM_WVEL Y            #> save derived vertical velocity component to conc & aconc
                              #>    file [ default: Y ]
 setenv CTM_MGEMDIAG  N       # marine emissions diagnostic file [ default: N ]
-                             # it will generate the file only if MECH = cb6r3m_ae7_kmtbr
+                             # it will generate the file only if MECH = cb6r5m_ae7_aq
 # =====================================================================
 #> Input Directories and Filenames
 # =====================================================================
@@ -494,6 +494,22 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
        #> Set optional ISAM regions files
 #      setenv ISAM_REGIONS /work/MOD3EVAL/nsu/isam_v53/CCTM/scripts/input/RGN_ISAM.nc
 
+
+       #> Options used to favor tracked species in reaction for Ozone-NOx chemistry
+       setenv ISAM_O3_WEIGHTS 5   # weights for tracked species Default is 5
+                                  #     OPTIONS
+                                  # 1 does not weight any species
+                                  # 2 weights NOx and subset of NOz species
+                                  # 3 uses with from option 2 plus weight OVOC species, organic radicals and operators
+                                  # 4 weight OVOC species, organic radicals and operators
+                                  # 5 toggles between two weighting set based on VOC and NOx limited ozone production
+       # Below options only used if ISAM_O3_WEIGHTS set to 5
+       setenv ISAM_NOX_CASE  2    # weights for tracked species when ozone production is NOx limited. Default is 2
+       setenv ISAM_VOC_CASE  4    # weights for tracked species when ozone production is VOC limited. Default is 4
+       setenv VOC_NOX_TRANS  0.35 # value of Prod H2O2 over Prod HNO3 less than where
+                                  # ISAM_VOC_CASE weights are used. Otherwise, ISAM_NOX_CASE
+                                  # weights are used. Default is 0.35
+
     endif
  endif
 
@@ -561,6 +577,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   setenv CTM_SSEMIS_1    "$OUTDIR/CCTM_SSEMIS_${CTM_APPL}.nc -v"     #> Sea Spray Emissions
   setenv CTM_MGEM_1      "$OUTDIR/CCTM_MGEM_${CTM_APPL}.nc -v"       #> Marine Gas Emissions  
   setenv CTM_DUST_EMIS_1 "$OUTDIR/CCTM_DUSTEMIS_${CTM_APPL}.nc -v"   #> Dust Emissions
+  setenv CTM_BUDGET      "$OUTDIR/CCTM_BUDGET_${CTM_APPL}.txt -v"    #> Budget
   setenv CTM_IPR_1       "$OUTDIR/CCTM_PA_1_${CTM_APPL}.nc -v"       #> Process Analysis
   setenv CTM_IPR_2       "$OUTDIR/CCTM_PA_2_${CTM_APPL}.nc -v"       #> Process Analysis
   setenv CTM_IPR_3       "$OUTDIR/CCTM_PA_3_${CTM_APPL}.nc -v"       #> Process Analysis
@@ -589,7 +606,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
              ${CTM_DRY_DEP_1} $CTM_DEPV_DIAG $B3GTS_S $SOILOUT $CTM_WET_DEP_1\
              $CTM_WET_DEP_2 $CTM_PMDIAG_1 $CTM_APMDIAG_1             \
              $CTM_RJ_1 $CTM_RJ_2 $CTM_RJ_3 $CTM_SSEMIS_1 $CTM_DUST_EMIS_1 $CTM_IPR_1 $CTM_IPR_2       \
-             $CTM_IPR_3 $CTM_IRR_1 $CTM_IRR_2 $CTM_IRR_3 $CTM_DRY_DEP_MOS                   \
+             $CTM_IPR_3 $CTM_BUDGET $CTM_IRR_1 $CTM_IRR_2 $CTM_IRR_3 $CTM_DRY_DEP_MOS                   \
              $CTM_DRY_DEP_FST $CTM_DEPV_MOS $CTM_DEPV_FST $CTM_VDIFF_DIAG $CTM_VSED_DIAG    \
              $CTM_LTNGDIAG_1 $CTM_LTNGDIAG_2 $CTM_VEXT_1 $CTM_MGEM_1 )
   if ( $?CTM_ISAM ) then

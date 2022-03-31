@@ -228,8 +228,8 @@ C
             CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
           END IF
           if ( MYPE .eq. 0 ) then
-            print*,'Finished write3 S =',S
-            print*,'While N_SPCTAG =',N_SPCTAG
+            !print*,'Finished write3 S =',S
+            !print*,'While N_SPCTAG =',N_SPCTAG
           endif
           DEALLOCATE( ISAM_BUFF )
 

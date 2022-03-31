@@ -33,9 +33,12 @@ C                          created a new module biog_emis_param_module
 C                          (model_data_module.F) to hold some of information
 C                          originally stored here to avoid cyclic dependence
 C     10 Mar 2021 G. Sarwar: Changed CB6R3M_AE7_KMTBR to CB6R3M_AE7_AQ
+C     10 June 2021 G. Sarwar: Replacd CB6R3M_AE7_AQ with CB6R5M_AE7_AQ
 C      Xiaoyang Chen at Northeastern University notified that CMAQ is not generating any monoterpene
 C             emissions when in-line option is enabled with RACM2
 C     07 June 2021 G. Sarwar: replaced "B10RD" with "B3V10" for RACM2
+C     30 Sept 2021 G. Sarwar: added CB6R5_AE7_AQ
+C     04 Oct  2021 G. Sarwar: added CB6R5HAP_AE7_AQ
 C-----------------------------------------------------------------------
       USE RUNTIME_VARS
       USE EMIS_VARS
@@ -72,7 +75,7 @@ C (A line from the profile file is a record.)
          INTEGER,        PARAMETER :: NSEGS = 6  ! # of potential line segments (fields)
          INTEGER,        PARAMETER :: MXLINES = 100 ! max lines for requested sppro name
          INTEGER,        PARAMETER :: MXSPPOL = 10  ! max no. spc per pollutant
-         INTEGER,        PARAMETER :: NMECHS = 16   ! dimension for number of mechanisms considered
+         INTEGER,        PARAMETER :: NMECHS  = 18  ! dimension for number of mechanisms considered
          CHARACTER,      PARAMETER :: CINVHDR = '#' ! Indicator for inventory hdr fields
 !        REAL,           PARAMETER :: GM2TON  = 1.0 / 907184.74  ! grams to tons
 
@@ -136,9 +139,11 @@ C Local variables
      &         BIOG_MECH_TYPE( 'CB05TUCL51_AE6_AQ      ','B10C5   '),
      &         BIOG_MECH_TYPE( 'CB6R3_AE6_AQ           ','B10C6   '),
      &         BIOG_MECH_TYPE( 'CB6MP_AE6_AQ           ','B10C6   '),
+     &         BIOG_MECH_TYPE( 'CB6R5HAP_AE7_AQ        ','B10C6AE7'),
      &         BIOG_MECH_TYPE( 'CB6R3_AE7_AQ           ','B10C6AE7'),     
+     &         BIOG_MECH_TYPE( 'CB6R5_AE7_AQ           ','B10C6AE7'),     
      &         BIOG_MECH_TYPE( 'CB6R3_AE7_AQKMT2       ','B10C6AE7'),     
-     &         BIOG_MECH_TYPE( 'CB6R3M_AE7_AQ          ','B10C6AE7'),
+     &         BIOG_MECH_TYPE( 'CB6R5M_AE7_AQ          ','B10C6AE7'),
      &         BIOG_MECH_TYPE( 'RACM2_AE6_AQ           ','B3V10   '),
      &         BIOG_MECH_TYPE( 'SAPRC07TB_AE6_AQ       ','B10SP   '),
      &         BIOG_MECH_TYPE( 'SAPRC07TC_AE6_AQ       ','B10SP   '),
@@ -429,6 +434,8 @@ C Save Species names in global array for mapping emissions
          ALLOCATE( EM_FILE_SURR( IBIOSRM )%USED ( MSPCS ) )
          ALLOCATE( EM_FILE_SURR( IBIOSRM )%CONV ( MSPCS ) )
          ALLOCATE( EM_FILE_SURR( IBIOSRM )%BASIS( MSPCS ) )
+         ALLOCATE( EM_FILE_SURR( IBIOSRM )%LAREA( MSPCS ) )
+         ALLOCATE( EM_FILE_SURR( IBIOSRM )%LAREAADJ( MSPCS ) )
 
          EM_FILE_SURR( IBIOSRM )%ARRY  = EMSPC
          EM_FILE_SURR( IBIOSRM )%UNITS = 'MOLES/S'
@@ -436,6 +443,8 @@ C Save Species names in global array for mapping emissions
          EM_FILE_SURR( IBIOSRM )%USED  = .FALSE.
          EM_FILE_SURR( IBIOSRM )%CONV  = 1.0
          EM_FILE_SURR( IBIOSRM )%BASIS = 'MOLE'
+         EM_FILE_SURR( IBIOSRM )%LAREA = .FALSE.
+         EM_FILE_SURR( IBIOSRM )%LAREAADJ = .FALSE.
 
          ! Populate the Molecular Weight Field by Matching Gas Species
          ! to the CMAQ mechanism species

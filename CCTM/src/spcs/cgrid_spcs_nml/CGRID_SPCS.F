@@ -29,6 +29,7 @@ C Shawn Roselle 16 Feb 11: replaced I/O API include files with UTILIO_DEFN
 C 07 Jul 14 B.Hutzell: replaced mechanism include file(s) with fortran module
 C 21 Apr 16 D.Luecken:  increased spc_dim to 1000
 C 07 Mar 2019 F. Sidi:  Split up ICBC for CMAQ species  namelist 
+C 10 June 2021 G. Sarwar: Replacd CB6R3M_AE7_AQ with CB6R5M_AE7_AQ
 c-----------------------------------------------------------------------
       USE RUNTIME_VARS
       Use rxns_data, only: mechname       ! chemical mechanism data
@@ -107,6 +108,8 @@ c control species
 
       INTEGER, SAVE              :: N_CGRID_SPC
       INTEGER, SAVE              :: N_SPC_WDEP
+      INTEGER, SAVE              :: N_SPC_DEPV
+      INTEGER, SAVE              :: RHOJ_LOC
       CHARACTER( 16 ), ALLOCATABLE, SAVE :: CGRID_NAME     ( : )
       REAL,    ALLOCATABLE, SAVE :: CGRID_MW       ( : )
       CHARACTER( 16 ), ALLOCATABLE, SAVE :: CGRID_UNITS    ( : )
@@ -117,6 +120,7 @@ c control species
       LOGICAL, ALLOCATABLE, SAVE :: CGRID_MASK_NR  ( : )
       LOGICAL, ALLOCATABLE, SAVE :: CGRID_MASK_TRAC( : )
       INTEGER, ALLOCATABLE, SAVE :: MAP_WDEPtoCGRID( : )
+      INTEGER, ALLOCATABLE, SAVE :: MAP_DEPVtoCGRID( : )
 
 
       type, public :: base_type
@@ -159,7 +163,7 @@ c !! NO   and to populate the allocated arrays from the stnd gc_spc.ext  !!! NO
             integer, parameter :: spc_dim = 1000
             logical :: order = .true., found = .true.
             character( 120 ) :: xmsg
-            INTEGER :: ISPC, JSPC, IGRID, IWDEP
+            INTEGER :: ISPC, JSPC, IGRID, IWDEP, IDEPV
 
 c namelist variables
             ! Namelist Registry Format for Gases and Nonreactives
@@ -399,7 +403,7 @@ c-------------------------------------------------------------------------------
 
             GC_FINI   = GC_STRT + N_GC_SPC - 1
             N_GC_SPCD = GC_FINI + 1
-
+            RHOJ_LOC  = N_GC_SPCD
 
 
             ! Aerosol (AE) Namelist
@@ -472,8 +476,8 @@ c-------------------------------------------------------------------------------
                If ( ( Index( mechname, 'SAPRC07TIC_AE6I' ) .Gt. 0 ) .OR.
      &              ( Index( mechname, 'SAPRC07TIC_AE7I' ) .Gt. 0 ) .OR.
      &              ( Index( mechname, 'CB6R3_AE7'       ) .Gt. 0 ) .OR.
-     &              ( Index( mechname, 'CB6R3M_AE7'      ) .Gt. 0 ) ) Then
-                
+     &              ( Index( mechname, 'CB6R5M_AE7'      ) .Gt. 0 ) ) Then
+                     
                   ORGANOSULF = .TRUE.
 
                   IF ( ( N_AE_SPC + N_STM_OAE_SPC ) .GT. SPC_DIM ) THEN
@@ -1005,7 +1009,8 @@ c-------------------------------------------------------------------------------
      &                CGRID_MASK_SRF( N_CGRID_SPC ),
      &                CGRID_MASK_NR( N_CGRID_SPC ),
      &                CGRID_MASK_TRAC( N_CGRID_SPC ),
-     &                MAP_WDEPtoCGRID( N_CGRID_SPC ) )
+     &                MAP_WDEPtoCGRID( N_CGRID_SPC ),
+     &                MAP_DEPVtoCGRID( N_CGRID_SPC ) )
             CGRID_NAME = ''
             CGRID_MW   = 0.
             CGRID_MASK_GAS = .FALSE.
@@ -1015,11 +1020,14 @@ c-------------------------------------------------------------------------------
             CGRID_MASK_NR  = .FALSE.
             CGRID_MASK_TRAC= .FALSE.
             MAP_WDEPtoCGRID= 0
+            MAP_DEPVtoCGRID= 0
             CGRID_UNITS = ''
 
             IGRID = 0
             IWDEP = 0
-            DO ISPC = gc_strt,n_gc_spcd
+            IDEPV = 0
+            ! Set Masks for Reactive Gases
+            DO ISPC = gc_strt,n_gc_spc
                 IGRID = IGRID + 1
                 CGRID_NAME( IGRID ) = GC_SPC( ISPC )
                 CGRID_MW( IGRID )   = GC_MOLWT( ISPC )
@@ -1030,19 +1038,41 @@ c-------------------------------------------------------------------------------
                     MAP_WDEPtoCGRID( IWDEP ) = IGRID
                   END IF
                 ENDDO
+                DO JSPC = 1,N_GC_DEPV
+                  IF ( GC_DEPV_MAP( JSPC ) .EQ. ISPC ) THEN
+                    IDEPV = IDEPV + 1
+                    MAP_DEPVtoCGRID( IDEPV ) = IGRID
+                  END IF
+                END DO
                 CGRID_UNITS( IGRID ) = 'ppmV'
             END DO
+
+            ! Set Masks for Density x Jacobian/MSFX2
+            CGRID_NAME( RHOJ_LOC ) = 'RHOJ'
+            CGRID_MW( RHOJ_LOC )   = 28.96
+            CGRID_MASK_GAS( RHOJ_LOC ) = .TRUE.
+            IGRID = IGRID + 1
+
+            ! Set Masks for Aerosols
             DO ISPC = 1,n_ae_spc
                 IGRID = IGRID + 1
                 CGRID_NAME( IGRID ) = AE_SPC( ISPC )
                 CGRID_MW( IGRID )   = AE_MOLWT( ISPC )
                 CGRID_MASK_AERO( IGRID )   = .TRUE.
+                IF ( INDEX( AE_SPC( ISPC ),'NUM') .NE. 0 ) CGRID_MASK_NUM( IGRID )   = .TRUE.
+                IF ( INDEX( AE_SPC( ISPC ),'SRF') .NE. 0 ) CGRID_MASK_SRF( IGRID )   = .TRUE.
                 DO JSPC = 1,N_AE_WDEP
                   IF ( AE_WDEP_MAP( JSPC ) .EQ. ISPC ) THEN
                     IWDEP = IWDEP + 1
                     MAP_WDEPtoCGRID( IWDEP ) = IGRID
                   END IF
                 ENDDO
+                DO JSPC = 1,N_AE_DEPV
+                  IF ( AE_DEPV_MAP( JSPC ) .EQ. ISPC ) THEN
+                    IDEPV = IDEPV + 1
+                    MAP_DEPVtoCGRID( IDEPV ) = IGRID
+                  END IF
+                END DO
                 CGRID_UNITS( IGRID ) = 'ug m-3'
                 IF ( INDEX( AE_SPC( ISPC ),'NUM') .NE. 0 ) THEN 
                     CGRID_MASK_NUM( IGRID )   = .TRUE.
@@ -1053,7 +1083,8 @@ c-------------------------------------------------------------------------------
                     CGRID_UNITS( IGRID ) = 'm2 m-3'
                 END IF
             END DO
-
+            
+            ! Set Masks for Nonreactive Variables
             DO ISPC = 1,n_nr_spc
                 IGRID = IGRID + 1
                 CGRID_NAME( IGRID ) = NR_SPC( ISPC )
@@ -1066,7 +1097,16 @@ c-------------------------------------------------------------------------------
                     MAP_WDEPtoCGRID( IWDEP ) = IGRID
                   END IF
                 ENDDO
+                DO JSPC = 1,N_NR_DEPV
+                  IF ( NR_DEPV_MAP( JSPC ) .EQ. ISPC ) THEN
+                    IDEPV = IDEPV + 1
+                    MAP_DEPVtoCGRID( IDEPV ) = IGRID
+                  END IF
+                END DO
+                CGRID_UNITS( IGRID ) = 'ppmV'
             END DO
+
+            ! Set Masks for Tracers
             DO ISPC = 1,n_tr_spc
                 IGRID = IGRID + 1
                 CGRID_NAME( IGRID ) = TR_SPC( ISPC )
@@ -1079,8 +1119,17 @@ c-------------------------------------------------------------------------------
                     MAP_WDEPtoCGRID( IWDEP ) = IGRID
                   END IF
                 ENDDO
+                DO JSPC = 1,N_TR_DEPV
+                  IF ( TR_DEPV_MAP( JSPC ) .EQ. ISPC ) THEN
+                    IDEPV = IDEPV + 1
+                    MAP_DEPVtoCGRID( IDEPV ) = IGRID
+                  END IF
+                END DO
+                CGRID_UNITS( IGRID ) = 'ppmV'
             END DO
+
             N_SPC_WDEP = IWDEP
+            N_SPC_DEPV = IDEPV
 
          return
 

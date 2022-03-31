@@ -122,6 +122,7 @@ C                         clauses
 C       01 AUG 19 D.Wong: Modified code to work with two-way model and 
 C       11 Nov 19 F. Sidi: Changed MSTEP to accomdate Centralized I/O changes       
 C       30 Dec 19 S.L.Napelenok:  ddm-3d implementaiton for version 5.3.1
+C       10 Jun 21 G. Sarwar: Replaced CB6R3M with CB6R5M
 
 C-----------------------------------------------------------------------
 
@@ -634,7 +635,7 @@ C...  for the accumulation mode, add aqueous tracked species
 
             IF ( ( AE6ISOA ) .OR.
      &           ( INDEX( MECHNAME, 'CB6R3_AE7'  ) .GT. 0 ) .OR.
-     &           ( INDEX( MECHNAME, 'CB6R3M_AE7' ) .GT. 0 ) ) THEN
+     &           ( INDEX( MECHNAME, 'CB6R5M_AE7' ) .GT. 0 ) ) THEN
     
 C...  for the accumulation mode, add aqueous tracked species
 

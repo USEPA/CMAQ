@@ -329,7 +329,50 @@
                                                                                  ! streams in the "PT_SOURCES" family
                                                                    
 /
+ 
+!------------------------------------------------------------------------------!
+! Emission Stream Area Normalization Section                                   !
+!   Specify area-normalized emission fluxes from input streams. If emission    !
+!   inputs are provided to CMAQ in area-normalized fluxes for any stream, this !
+!   section may be used to convert them correctly to emission rates appropriate!
+!   for the model simulation grid projection. For example, if offline biogenic !
+!   emissions are provided in units of moles/m2/s, then that stream may be     !
+!   identified here and DESID can be instructed to adjust each flux to moles/s !
+!   and adjust the rates using the map scale factor that converts emissions in !
+!   real geographic space into projected grid space.                           !
+!                                                                              !
+!   Definition of Fields:                                                      !
+!      'Stream - Label for the emission stream that the specication will apply !
+!        Label'  to. If the label is 'ALL', then the instruction will be       !
+!                expanded to all OFFLINE streams. Online streams must be       !
+!                specified explicitly because we assume that essentially all   !
+!                users will want to treat Online streams the way they have been!
+!                written and implemented (in projected space).                 !
+!      'Area Normalization' - If TRUE, then this stream's emissions will be    !
+!                multiplied by grid cell area. If FALSE, the stream's emissions!
+!                will not be multiplied by area, regardless of the units. If   !
+!                AUTO, then DESID will try to deduce from the units string     !
+!                whether or not each variable on the stream should be          !
+!                multiplied by area. By default, all streams are set to AUTO.  !
+!      'Projection Adjustment' - If TRUE, then this stream's emissions will be !
+!                multiplied by the area Map Scale Factor. If FALSE, then the   !
+!                stream's emissions will not be multiplied by scale factor     !
+!                area, regardless of the units of eahc variable. If AUTO, then !
+!                DESID will try to deduce from the units string whether or not !
+!                each variable on the stream should be multiplied by the area  !
+!                scale factor (i.e. are the units consistent with area fluxes. !
+!                By default, all streams are set to AUTO.                      !
+!------------------------------------------------------------------------------!
 
+&AreaNorm
+ AREA_NML  =
+ !         | Stream Label   | Area Normalization | Projection Adjustment 
+                'ALL'       ,'AUTO'              ,'AUTO',
+ !<Example>     'GRIDDED'   ,'TRUE'              ,'TRUE',
+ !<Example>     'FIRES'     ,'TRUE'              ,'FALSE',
+ !<Example>     'VCP'       ,'FALSE'             ,'TRUE',
+/
+  
 !------------------------------------------------------------------------------!
 ! Size Distribution Specification Section                                      !
 !   Each size distribution rule either modifies the parameters associated with !
@@ -525,7 +568,7 @@
   AVRG_LAYER_BOT = 1
   AVRG_PARS_REG  = 'DEFAULT'
 /
-
+ 
 !------------------------------------------------------------------------------!
 ! Emissions Diagnostic Output Parameters                                       !
 !    This seciton allows users to specify individual species for output on     !
@@ -591,6 +634,25 @@
 !  EmissDiagFmt(3)      = '3D'    ! Options: 2D, 2DCOL, 3D
 !  EmissDiagSpec(3,:)   = '*ALL'
 !/
+ 
+!------------------------------------------------------------------------------!
+! Budget Tool Variable and Family Definitions                                  !
+!    This section includes selections for species and families of CMAQ         !
+!    that may be grouped together when calculating budget values for the       !
+!    budget output file. Users may select any CMAQ chemical species, chemical  !
+!    family defined in the ChemicalFamilies section of this namelist or may    !
+!    use the ALL keyword to select all species.                                !
+!    If a Family name or the ALL keyword are provided, the sum of those species!
+!    will be output on the budget file. If a * proceeds the name (e.g. '*ALL') !
+!    then the keyword or Family name will be expanded and all of the species   !
+!    it comprises will be added separately. The default selection is for all   !
+!    chemical species to be output individually.                               !
+!------------------------------------------------------------------------------!
 
+&BudgetOptions
+  Budget_Diag = .TRUE.
+  BudgetVariables  = '*ALL'
+/
+ 
  
  

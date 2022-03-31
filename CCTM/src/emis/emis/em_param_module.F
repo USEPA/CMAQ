@@ -42,6 +42,7 @@
             TYPE( EM_REG ), ALLOCATABLE :: EM_REGIONS( : )
             REAL, ALLOCATABLE           :: EM_REG_FAC( :,:,: )
 
+            ! Define Structire for Emission Scaling Rules
             TYPE EM_RULE_REG
                 CHARACTER( 32 ) :: REGION
                 CHARACTER( 32 ) :: STREAM
@@ -55,7 +56,16 @@
             INTEGER, PARAMETER  :: N_EM_RULE_REG = 2000
             TYPE( EM_RULE_REG ) :: EM_NML( N_EM_RULE_REG )
 
-            ! Define Structure for Region Factors      
+            ! Define Structure for Area Normalization
+            TYPE AREA_REG
+                CHARACTER( 32 ) :: STREAM
+                CHARACTER( 32 ) :: AREA
+                CHARACTER( 32 ) :: ADJ
+            END TYPE AREA_REG
+            INTEGER, PARAMETER  :: N_AREA_REG = 100
+            TYPE( AREA_REG )    :: AREA_NML( N_AREA_REG )
+
+            ! Define Structure for Region Masks
             TYPE REGIONS_REG
                 CHARACTER( 32 ) :: LABEL
                 CHARACTER( 32 ) :: FILE
