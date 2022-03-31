@@ -32,7 +32,7 @@ C                          Yongtao Hu (Georgia Tech)
 C-----------------------------------------------------------------------
 
       USE UDTYPES, ONLY: RARRY1, CARRY1
-      USE EMIS_VARS
+      USE DESID_VARS
 
       IMPLICIT NONE
 
@@ -113,8 +113,8 @@ C-----------------------------------------------------------------------
 
             ! Each file will use the default jdate, unless specified by the user 
             ! that the file is a representative day file
-            EM_FILE_DATE( ISRM ) = JDATE    
-            IF ( EM_FILE_SYM_DATE( ISRM ) ) EM_FILE_DATE( ISRM ) = SDATE3D
+            DESID_STREAM_DATE( ISRM ) = JDATE    
+            IF ( DESID_STREAM_SYM_DATE( ISRM ) ) DESID_STREAM_DATE( ISRM ) = SDATE3D
 
             NSRC_EMIS( N ) = NROWS3D
             NVARS_EMIS( N ) = NVARS3D
@@ -125,7 +125,7 @@ C-----------------------------------------------------------------------
                ! the FIRENAM variable
                IF ( VNAME3D( I ) .EQ. 'HFLUX' ) THEN
                    FIREFLAG( N ) = .TRUE.
-                   EM_FILE_FIRE( ISRM ) = .TRUE.
+                   DESID_STREAM_FIRE( ISRM ) = .TRUE.
                END IF
             END DO
             IF ( FIREFLAG( N ) ) THEN   ! subtract off 'HFLUX'
@@ -138,10 +138,10 @@ C-----------------------------------------------------------------------
             CALL CHECKMEM( ASTAT, 'STKEMIS', PNAME )
             STKEMIS( N )%ARRY = 0.0   ! array
 
-            EM_FILE_SURR( ISRM )%LEN = LEN2
-            ALLOCATE ( EM_FILE_SURR( ISRM )%ARRY( LEN2 ), STAT = ASTAT )
-            ALLOCATE ( EM_FILE_SURR( ISRM )%UNITS( LEN2 ), STAT = ASTAT )
-            CALL CHECKMEM( ASTAT, 'EM_FILE_SURR', PNAME )
+            DESID_EMVAR( ISRM )%LEN = LEN2
+            ALLOCATE ( DESID_EMVAR( ISRM )%ARRY( LEN2 ), STAT = ASTAT )
+            ALLOCATE ( DESID_EMVAR( ISRM )%UNITS( LEN2 ), STAT = ASTAT )
+            CALL CHECKMEM( ASTAT, 'DESID_EMVAR', PNAME )
 
             IF ( FIREFLAG( N ) ) THEN   ! subtract and save off 'HFLUX'
                ALLOCATE ( FIREVAR( N )%ARRY( LEN1 ), STAT = ASTAT )
@@ -150,15 +150,15 @@ C-----------------------------------------------------------------------
                DO J = 1, NVARS3D
                   IF ( VNAME3D( J ) .NE. 'HFLUX' ) THEN
                      I = I + 1
-                     EM_FILE_SURR( ISRM )%ARRY( I ) = VNAME3D( J )
-                     EM_FILE_SURR( ISRM )%UNITS( I )= UNITS3D( J )
+                     DESID_EMVAR( ISRM )%ARRY( I ) = VNAME3D( J )
+                     DESID_EMVAR( ISRM )%UNITS( I )= UNITS3D( J )
                   END IF
                END DO
                FIREVAR( N )%LEN = LEN1
             ELSE
-               DO J = 1, EM_FILE_SURR( ISRM )%LEN
-                  EM_FILE_SURR( ISRM )%ARRY( J ) = VNAME3D( J )
-                  EM_FILE_SURR( ISRM )%UNITS( J )= UNITS3D( J )
+               DO J = 1, DESID_EMVAR( ISRM )%LEN
+                  DESID_EMVAR( ISRM )%ARRY( J ) = VNAME3D( J )
+                  DESID_EMVAR( ISRM )%UNITS( J )= UNITS3D( J )
                END DO
             END IF
 

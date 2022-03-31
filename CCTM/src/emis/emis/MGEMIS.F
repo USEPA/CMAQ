@@ -37,7 +37,7 @@ C   04 Sep 20: G. Sarwar* Fixed bug for Kw
 
       USE RUNTIME_VARS
       USE HGRD_DEFN
-      USE EMIS_VARS
+      USE DESID_VARS
 
       IMPLICIT NONE
 
@@ -147,24 +147,24 @@ C flag for marine gas emissions; this flag is set in the subroutine EM_FILE_INIT
             IF ( .NOT. USE_MARINE_GAS_EMISSION ) RETURN
 
 C Allocate MG arrays using NMGSPC value
-            EM_FILE_SURR( IMGSRM )%LEN = NMGSPC
-            ALLOCATE( EM_FILE_SURR( IMGSRM )%ARRY ( NMGSPC ) )
-            ALLOCATE( EM_FILE_SURR( IMGSRM )%UNITS( NMGSPC ) )
-            ALLOCATE( EM_FILE_SURR( IMGSRM )%MW   ( NMGSPC ) )
-            ALLOCATE( EM_FILE_SURR( IMGSRM )%USED ( NMGSPC ) )
-            ALLOCATE( EM_FILE_SURR( IMGSRM )%CONV ( NMGSPC ) )
-            ALLOCATE( EM_FILE_SURR( IMGSRM )%BASIS( NMGSPC ) )
-            ALLOCATE( EM_FILE_SURR( IMGSRM )%LAREA( NMGSPC ) )
-            ALLOCATE( EM_FILE_SURR( IMGSRM )%LAREAADJ( NMGSPC ) )
+            DESID_EMVAR( IMGSRM )%LEN = NMGSPC
+            ALLOCATE( DESID_EMVAR( IMGSRM )%ARRY ( NMGSPC ) )
+            ALLOCATE( DESID_EMVAR( IMGSRM )%UNITS( NMGSPC ) )
+            ALLOCATE( DESID_EMVAR( IMGSRM )%MW   ( NMGSPC ) )
+            ALLOCATE( DESID_EMVAR( IMGSRM )%USED ( NMGSPC ) )
+            ALLOCATE( DESID_EMVAR( IMGSRM )%CONV ( NMGSPC ) )
+            ALLOCATE( DESID_EMVAR( IMGSRM )%BASIS( NMGSPC ) )
+            ALLOCATE( DESID_EMVAR( IMGSRM )%LAREA( NMGSPC ) )
+            ALLOCATE( DESID_EMVAR( IMGSRM )%LAREAADJ( NMGSPC ) )
             
-            EM_FILE_SURR( IMGSRM )%ARRY  = MG_SPC
-            EM_FILE_SURR( IMGSRM )%UNITS = 'MOLES/S'
-            EM_FILE_SURR( IMGSRM )%MW    = MG_MW
-            EM_FILE_SURR( IMGSRM )%USED  = .FALSE.
-            EM_FILE_SURR( IMGSRM )%CONV  = 1.0
-            EM_FILE_SURR( IMGSRM )%BASIS = 'MOLE'
-            EM_FILE_SURR( IMGSRM )%LAREA = .FALSE.
-            EM_FILE_SURR( IMGSRM )%LAREAADJ = .FALSE.
+            DESID_EMVAR( IMGSRM )%ARRY  = MG_SPC
+            DESID_EMVAR( IMGSRM )%UNITS = 'MOLES/S'
+            DESID_EMVAR( IMGSRM )%MW    = MG_MW
+            DESID_EMVAR( IMGSRM )%USED  = .FALSE.
+            DESID_EMVAR( IMGSRM )%CONV  = 1.0
+            DESID_EMVAR( IMGSRM )%BASIS = 'MOLE'
+            DESID_EMVAR( IMGSRM )%LAREA = .FALSE.
+            DESID_EMVAR( IMGSRM )%LAREAADJ = .FALSE.
 
             ALLOCATE ( VDEMIS_MG( NMGSPC,NCOLS,NROWS), STAT = STATUS )
             IF ( STATUS .NE. 0 ) THEN
