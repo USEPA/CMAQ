@@ -11,8 +11,9 @@
 !                                                                              !
 ! This namelist is consistent with CMAQv5.4 (Release AUGUST 2022)              !
 !                                                                              !
-! See CMAQ User's Guide Appendix B and                                         !
-!     Murphy et al., Geoscientific Model Development, 14, 3407-3420,           !
+! See CMAQ User's Guide Appendix B,
+!  https://github.com/USEPA/CMAQ/blob/main/DOCS/Users_Guide/Appendix/CMAQ_UG_appendixB_emissions_control.md
+! and Murphy et al., Geoscientific Model Development, 14, 3407-3420,           !
 !     https://doi.org/10.5194/gmd-14-3407-2021, 2021.                          !
 !------------------------------------------------------------------------------!
 
@@ -29,7 +30,7 @@
 !    You may confirm the effect of the (default and custom) rules below by     !
 !       inspecting the processor-dependent log files ("CTM_LOG_XXX...")        !
 !                                                                              !
-!    Note: If no rules are provided for a  species, then there is no emission  !
+!    Note: If no rules are provided for a species, then there is no emission   !
 !       of that species.                                                       !
 !------------------------------------------------------------------------------!
 &Desid_ScalingVars
@@ -129,9 +130,9 @@
     'EVERYWHERE', 'ALL'         ,'PNCOM'  ,'ASVPO1'     ,'FINE',0.045,'MASS','a', 
    
    ! pcSOA is a CMAQ species introduced to account for missing pathways for SOA
-   ! formation from combustion sources. It includes IVOC oxidation as well as other
-   ! phenomena (Murphy et al., ACP, 2017). It was parameterized primarily in LA,
-   ! where vehicle exhaust continues to dominate.
+   ! formation from combustion sources. It accounts for IVOC oxidation as well as 
+   ! other phenomena (Murphy et al., ACP, 2017). It was parameterized based on data
+   ! primarily from Los Angeles, where vehicle exhaust continues to dominate.
     'EVERYWHERE', 'ALL'          ,'POC'   ,'PCVOC'      ,'GAS' ,6.579,'MASS','a', 
     'EVERYWHERE', 'ALL'          ,'PNCOM' ,'PCVOC'      ,'GAS' ,6.579,'MASS','a', 
 
