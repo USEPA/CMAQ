@@ -747,8 +747,8 @@
       !-------------------------------------------------------------------------------------------------------
       !>> Emission Environment Variables 
       !-------------------------------------------------------------------------------------------------------
-      
-      IF ( INDEX( MECHNAME, 'CB6R5M' ) .OR. INDEX( MECHNAME, 'CB6R5' ) .GT. 0 ) then      
+          
+      IF ( (INDEX( MECHNAME, 'CB6R5M' ) .GT. 0) .OR. (INDEX( MECHNAME, 'CB6R5' ) .GT. 0) ) then
          USE_MARINE_GAS_EMISSION = .TRUE.
       END IF
 
