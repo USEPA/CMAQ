@@ -891,7 +891,7 @@ C------------------------------------------------------------------------------
 
       REAL, ALLOCATABLE, SAVE :: BUFF( :,:,: )
       CHARACTER( 16 ) :: VNAME
-      CHARACTER( 16 ) :: PNAME = 'GRIDEMIS'
+      CHARACTER( 16 ) :: PNAME = 'GR3D'
       CHARACTER( 200 ) :: XMSG = ' '
       LOGICAL, SAVE :: FIRSTIME = .TRUE.
       INTEGER, ALLOCATABLE, SAVE :: LOC_STDATE(:)
