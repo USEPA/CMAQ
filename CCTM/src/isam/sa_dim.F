@@ -27,7 +27,7 @@ C
 
         USE UTILIO_DEFN
         USE SA_DEFN
-        USE EMIS_VARS, ONLY: N_EM_SRM
+        USE DESID_VARS, ONLY: DESID_N_SRM
 
         IMPLICIT NONE
 
