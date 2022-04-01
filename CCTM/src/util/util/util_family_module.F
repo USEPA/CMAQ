@@ -94,9 +94,6 @@
      &                                 Desid_Max_Reg_Fam_Members
       NAMELIST / Desid_RegionFam / RegionFamilyName, RegionFamilyMembers
  
-      ! Initialize Family Arrays
-      call init_families
-
       CALL LOG_SUBHEADING( LOGDEV, "Reading Family Definitions from Control File" )
 
       ! Retrieve the Name of the Misc. Control File
