@@ -28,6 +28,7 @@ C    2 Feb 2019:  D. Wong - Implemented centralized I/O approach, removed all
 C                           MY_N clauses, with new re-structure of LUS_DEFN, 
 C                           most of the data declaration has been moved to 
 C                           lus_data_module (model_data_module.f)
+C    3 Mar 2022: J. Willison - Remove ctm_wbdust_beld option
 
       implicit none
 

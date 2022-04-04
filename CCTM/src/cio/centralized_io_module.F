@@ -77,6 +77,8 @@
 !  11/17/21, G. Sarwar: Changed minimum values from 0.0 to 0.001 for ocean and szone  
 !                       to ensure values are nonnegative and greater than 0.001
 !  01/17/22, D. Wong: Added SAVE attribute to variable FIRSTIME
+!  03/31/22, J. Willison: Removed wb_dust_setup and modified lus_setup to remove
+!                         BELD as an option for desert land information.  
 !------------------------------------------------------------------------!
 
 !------------------------------------------------------------------------!

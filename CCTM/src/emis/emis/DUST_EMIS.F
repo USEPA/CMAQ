@@ -62,6 +62,10 @@ C  9 Jul 19 Gilliam: Removed a lot of old commented out legacy tables.
 C                    Removed the direct read of FPAR MODIS file as this data comes 
 C                    directly from WRF LSM models that have access to MODIS veg data now.
 C                    Number of soil types fixed to 16 to match WRF and tables updated.
+C  3 Mar 22 Gilliam and Willison: Removed fugitive dust capture from canopies
+C                   (tfa and tfb terms). Added soil texture information from PX when available.
+C                   Removed deprecated option concerning erodable agland. Removed BELD as an option
+C                   for input.
 C-----------------------------------------------------------------------
       use lus_defn
       use aero_data

@@ -70,6 +70,7 @@ C    assumed to be similar to SO2. Diffusivities are calculated with standard
 C    formulas.  W. Hutzell (04/08)
 C %% G. Sarwar: added data for iodine and bromine species (03/2016)
 C    D. Wong: Implemented centralized I/O approach, removed all MY_N clauses (02/2019)
+C    R. Gilliam: Include PX soil texture information when available (03/2022)
 C-------------------------------------------------------------------------------
 
       Use GRID_CONF           ! horizontal & vertical domain specifications

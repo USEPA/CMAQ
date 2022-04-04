@@ -79,6 +79,7 @@ C    G. Sarwar: made minor changes to halogen species and added several iodine s
 C    D. Wong: Implemented centralized I/O approach, removed all MY_N clauses, removed
 C             unnecessary SAVE attribute (02/2019)
 C    G. Sarwar: Removed CH3BR (03/2021)
+C    R. Gilliam: Include PX soil texture information when available (03/2022)
 C-------------------------------------------------------------------------------
       Use RUNTIME_VARS
       Use GRID_CONF           ! horizontal & vertical domain specifications
