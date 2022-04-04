@@ -564,6 +564,7 @@ C=======================================================================
          use utilio_defn
          use lus_data_module
          use centralized_io_module
+         use RUNTIME_VARS, only: WRF_V4P
 
 C       8/18/11 D.Wong: incorporated twoway model implementation and change
 C                       RC -> RCA and RN -> RNA and made it backward compatible
@@ -813,6 +814,13 @@ C--- Set Clay, coarse and fine/medium sand fractions.
 C--- If value from WRF is missing (-9999.) use old table values
 C--  If value from WRF is from WRFV4.1 PX LSM csand_px, etc use those
             j = Grid_Data%sltyp( c,r )
+
+            if (.not. WRF_V4P) then
+C    Adjust WRF soil definitions to match internal Menut et al. [JGR,2013] Table
+             if ( j .gt. 4 ) j = j + 1   
+             if ( j .gt. 13 ) j = 13   
+            end if
+
             if(PXSOIL_AVAIL) then
               clay   = Grid_Data%clay_px(c,r)
               csand  = Grid_Data%csand_px(c,r)
