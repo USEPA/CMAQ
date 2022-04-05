@@ -851,7 +851,7 @@ REACTIONS[CM] =
                                        + 0.320*MOH
                                        + 0.300*TRPN    # 3.56E-14 @ -708.;
 <TRP34> LIMNP2 + MO2       = 0.75*HO2  + 0.750*HCHO
-                                       + 0.500*NO2
+                                       + 0.750*NO2
                                        + 0.250*MOH
                                        + HOM          # 1.00E-10;
 <R267>  ACO3 + MO2         = 0.9*HO2   + 0.9*MO2
@@ -1007,7 +1007,7 @@ REACTIONS[CM] =
 <TRP35> APIP2 + ACO3       = 0.5*HO    + 0.5*MO2
                                        + 0.5*ORA2
                                        + HOM          # 1.0E-10;
-<TRP36> APINP1 + ACO3      = 0.5*NO2   + 0.14*TRPN
+<TRP36> APINP1 + ACO3      = 0.86*NO2  + 0.14*TRPN
                                        + 0.86*PINAL
                                        + 0.7*MO2
                                        + 0.3*ORA2     # 7.4E-13 @ -765.;
