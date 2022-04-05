@@ -29,7 +29,7 @@ C  RETURN VALUES: None
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, Mar 17, 2022
+C  REVISION HISTORY: Created by EBI solver program, Apr  5, 2022
 C
 C   18 Jul 14 B.Hutzell: revised to use real(8) variables
 
@@ -1724,7 +1724,7 @@ C***********************************************************************
       LOSS(  APINP1      ) =                 RXRAT(   185 )      ! APINP1+NO=0.2000D+01*NO2+PINAL
      &                     +                 RXRAT(   228 )      ! APINP1+HO2=TRPN
      &                     +                 RXRAT(   267 )      ! APINP1+MO2=0.3700D+00*HO2+...
-     &                     +                 RXRAT(   304 )      ! APINP1+ACO3=0.5000D+00*NO2+...
+     &                     +                 RXRAT(   304 )      ! APINP1+ACO3=0.8600D+00*NO2+...
 
       PROD(  APINP2      ) =    2.5000D-02 * RXRAT(   149 )      ! API+NO3=0.2500D-01*APINP2+...
       LOSS(  APINP2      ) =                 RXRAT(   186 )      ! APINP2+NO=0.8200D+00*NO2+...

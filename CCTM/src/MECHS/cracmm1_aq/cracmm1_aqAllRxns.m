@@ -1,7 +1,7 @@
 %Foam Reactions File based on the mech.def file for the cracmm1_aq mechanism.
 % # of species   =  178
 % # of reactions =  506
-% file created by Havala Pye
+% file created by Bryan Place
 
 % Set constant species by scaling to air number density
 N2  =  0.780800000.*M;
@@ -2289,11 +2289,11 @@ fHO2(i)=fHO2(i)+  0.370;fHCHO(i)=fHCHO(i)+  0.680;fLIMAL(i)=fLIMAL(i)+  0.700;fN
 
 % 272, <TRP34>
 i=i+1;
-Rnames{ 272} = 'LIMNP2 + MO2 = 0.75000*HO2 +  0.75000*HCHO +  0.50000*NO2 +  0.25000*MOH + HOM ';
+Rnames{ 272} = 'LIMNP2 + MO2 = 0.75000*HO2 +  0.75000*HCHO +  0.75000*NO2 +  0.25000*MOH + HOM ';
 k(:,i) = (  1.0000E-10 ); 
 Gstr{i,   1}='LIMNP2';Gstr{i,   2}='MO2';
 fLIMNP2(i)=fLIMNP2(i)-1.0;fMO2(i)=fMO2(i)-1.0;
-fHO2(i)=fHO2(i)+  0.750;fHCHO(i)=fHCHO(i)+  0.750;fNO2(i)=fNO2(i)+  0.500;fMOH(i)=fMOH(i)+  0.250;fHOM(i)=fHOM(i)+  1.000;
+fHO2(i)=fHO2(i)+  0.750;fHCHO(i)=fHCHO(i)+  0.750;fNO2(i)=fNO2(i)+  0.750;fMOH(i)=fMOH(i)+  0.250;fHOM(i)=fHOM(i)+  1.000;
 
 % 273, <R267>
 i=i+1;
@@ -2545,11 +2545,11 @@ fHO(i)=fHO(i)+  0.500;fMO2(i)=fMO2(i)+  0.500;fORA2(i)=fORA2(i)+  0.500;fHOM(i)=
 
 % 304, <TRP36>
 i=i+1;
-Rnames{ 304} = 'APINP1 + ACO3 = 0.50000*NO2 +  0.14000*TRPN +  0.86000*PINAL +  0.70000*MO2 +  0.30000*ORA2 ';
+Rnames{ 304} = 'APINP1 + ACO3 = 0.86000*NO2 +  0.14000*TRPN +  0.86000*PINAL +  0.70000*MO2 +  0.30000*ORA2 ';
 k(:,i) = (  7.4000E-13.*exp(  7.6500E+02./T) ); 
 Gstr{i,   1}='APINP1';Gstr{i,   2}='ACO3';
 fAPINP1(i)=fAPINP1(i)-1.0;fACO3(i)=fACO3(i)-1.0;
-fNO2(i)=fNO2(i)+  0.500;fTRPN(i)=fTRPN(i)+  0.140;fPINAL(i)=fPINAL(i)+  0.860;fMO2(i)=fMO2(i)+  0.700;fORA2(i)=fORA2(i)+  0.300;
+fNO2(i)=fNO2(i)+  0.860;fTRPN(i)=fTRPN(i)+  0.140;fPINAL(i)=fPINAL(i)+  0.860;fMO2(i)=fMO2(i)+  0.700;fORA2(i)=fORA2(i)+  0.300;
 
 % 305, <TRP37>
 i=i+1;
