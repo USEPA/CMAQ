@@ -61,7 +61,7 @@
 
 #> User choices: working directory and application ID
  if ( ! $?MECH ) then
-   set MECH =     'cb6r5_ae7_aq'
+   set MECH =     'cb6r5m_ae7_aq'
  endif
  setenv CLEAR "TRUE" #> over-write existing output files
 
@@ -137,7 +137,11 @@
    if ( ${MECH} =~ *"cb6r3m"* || ${MECH} =~ *"CB6R3M"* ) then
       setenv SOLVER_DELT     1.25 # maximum time step (minutes) of solver integration up to four 
                                   # significant figures in general or scientific notation
-                                  # For cb6r3m and saprc07tic based mechanisms, 1.25 minutes is recommended.
+                                  # For cb6r3m recommended.
+   else if ( ${MECH} =~ *"cb6r5m"* || ${MECH} =~ *"CB6R5M"* ) then
+      setenv SOLVER_DELT     1.25 # maximum time step (minutes) of solver integration up to four 
+                                  # significant figures in general or scientific notation
+                                  # For cb6r5m recommended.
    else
       setenv SOLVER_DELT     2.50 # maximum time step (minutes) of solver integration up to four
                                   # significant figures in general or scientific notation
@@ -165,7 +169,7 @@
    if ( ${MECH} =~ *"saprc07tic"* || ${MECH} =~ *"SAPRC07TIC"* ) then
       setenv SOLVER_DELT     1.25 # maximum time step (minutes) of solver integration up to four 
                                   # significant figures in general or scientific notation
-                                  # For cb6r3m and saprc07tic based mechanisms, 1.25 minutes is recommended.
+                                  # For saprc07tic based mechanisms, 1.25 minutes is recommended.
    else
       setenv SOLVER_DELT     2.50 # maximum time step (minutes) of solver integration up to four
                                   # significant figures in general or scientific notation
