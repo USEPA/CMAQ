@@ -4477,6 +4477,10 @@ C   mminlu and num_land_cat are WRF global variables
              end if
 
              if (WB_DUST) then
+                    if (.not. PX_LSM) then
+                      XMSG = 'WB_DUST requires PX LSM (PX_VERSION Y)'
+                      Call M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
+                    end if
                 call lus_setup
 
              end if
