@@ -374,19 +374,18 @@ c  !>>>>> COAGULATION <<<<<!
           ICG2 = AEROSPC_MAP( IAER,2 )   ! Index of destination in CGRID and  process analysis arrays
           
           BULK1( :,:,: ) = SUM( ISAM1( :,:,:,ISA1,: ),4 ) 
-          BULK_TRANS_SRC( :,:,: ) = DBLE( AERO_COAG( :,:,:,ICG1 ) + AERO_GROWTH(:,:,:,ICG1 ) )
+          BULK_TRANS_SRC( :,:,: ) = -1.0 * DBLE( AERO_COAG( :,:,:,ICG1 ) + AERO_GROWTH(:,:,:,ICG1 ) )
           DO K = 1,NTAG_SA
              ! Calculate Apportioned mass leaving the source mode using the
              ! COAG and GROWTH process analysis arrays
-             TAG_FRAC( :,:,: ) = ISAM1(:,:,:,ISA1,K) / BULK1(:,:,:) 
-             ISAM1( :,:,:,ISA1,K ) = MAX( ISAM1( :,:,:,ISA1,K ) 
-     &                                   +TAG_FRAC( :,:,: ) * BULK_TRANS_SRC( :,:,: ),
-     &                                   MIN_VAL )
+             TAG_FRAC( :,:,: ) = MIN( ISAM1(:,:,:,ISA1,K) / BULK1(:,:,:) 
+     &                                * BULK_TRANS_SRC( :,:,: ), 
+     &                               ISAM1( :,:,:,ISA1,K ) - MIN_VAL )
+             ISAM1( :,:,:,ISA1,K ) = ISAM1( :,:,:,ISA1,K ) - TAG_FRAC( :,:,: )
 
              ! Add that mass to the destination mode and recalculate
              ! apportionment
-             ISAM1( :,:,:,ISA2,K ) = ISAM1( :,:,:,ISA2,K ) 
-     &                              +TAG_FRAC( :,:,: ) * BULK_TRANS_SRC( :,:,: )
+             ISAM1( :,:,:,ISA2,K ) = ISAM1( :,:,:,ISA2,K ) + TAG_FRAC( :,:,: ) 
           END DO
 
       END DO
