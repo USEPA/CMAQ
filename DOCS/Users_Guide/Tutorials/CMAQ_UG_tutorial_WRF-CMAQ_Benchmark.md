@@ -45,292 +45,42 @@ In the top level of CMAQ_REPO, the bldit_project.csh script will automatically r
 
 In bldit_project.csh, modify the variable $CMAQ_HOME to identify the folder that you would like to install the CMAQ package under. For example:
 ```
-set CMAQ_HOME = [your_install_path]/CMAQ_v5.3.3
+set CMAQ_HOME = [your_install_path]/WRF_CMAQv533+
 ```
 Now execute the script.
 ```
 ./bldit_project.csh
 ```
+
+CMAQ_HOME will be the location of your newly created WRF_CMAQ project directory (where you will compile and run WRF-CMAQ).
 
 ## Configuring the WRF-CMAQ Environment
 
 Compiling WRF-CMAQ requires several libraries and include files to be made avialable. Because these libraries and include files are not expected to be in standard locations, users need to explicitly provide the path to this via environmental variables. 
 
-The environmental variables that need to be set are located in the config_cmaq.csh script, located at the root of the project directory (defined by environmental variable CMAQ_HOME). 
+The environmental variables that need to be set are located in the config_cmaq.csh script, located at the root of the WRF-CMAQ project directory. 
 
-Edit the config_cmaq.csh script: 
+Note: WRF source code expects that you have already collated the netCDF-C and netCDF-Fortran libraires into one directory. If you have done so, please follow the example instructions: 
 
-``
-Navigate to the compiler of your choice for. For example, for GNU based compilers go to section 148 of the script. Then set the 
-
-#> I/O API and netCDF for WRF-CMAQ 
-setenv NETCDF netcdf_root_gcc # Note please combine netCDF-C & Fortran Libraries (e.g. /usr/local/netcdf-4.7.0)
-setenv IOAPI  ioapi_root_gcc  (e.g. /usr/local/ioapi-3.2)
-setenv WRF_ARCH 34              # [1-75]  64 Bit Linux_x86 Compiler/Architecture options
-
-
-
-### Step 2: Download and install netCDF Fortran and C libraries
-
-   **Skip to Step 3, if you have a module for netCDF avialable on your system and you have loaded it**
-
-   Follow the tutorial for building libraries to build netCDF C and Fortran Libraries
-   https://github.com/USEPA/CMAQ/blob/main/DOCS/Users_Guide/Tutorials/CMAQ_UG_tutorial_build_library_gcc.md
-   
-   - Follow these instructions to combine the libraries into a single combined directory
-   
-   ```
+```
    cd /[your_install_path]/LIBRARIES
    mkdir netcdf_combined
    cp -rp ./netcdf-fortran-4.4.5-gcc9.1.0/* ./netcdf_combined/
    cp -rp ./netcdf-c-4.7.0-gcc9.1.0/* ./netcdf_combined/
-   ```
-   
-   Now you should have a copy of both the netcdf C and netcdf Fortran libraries under 
-   netcdf_combined/lib
-
-   - set the following environment variables including the path to your combined netcdf libraries, include files
-   
-   ```
-   setenv NETCDF [your_install_path]/LIBRARIES/netcdf_combined
-   setenv CC gcc
-   setenv CXX g++
-   setenv FC gfortran
-   setenv FCFLAGS -m64
-   setenv F77 gfortran
-   setenv FFLAGS -m64
-   ```
-   
- - check to see that the path to each compiler is defined using
- 
-    ```
-    which gcc
-    which g++
-    which gfortran
-    ```
-    
-  - If they are not found, ask for assistance from your system administrator, 
-    or if you know the path then specify it using the environment variable
-    
-    ```
-    setenv CC /nas/longleaf/apps/gcc/9.1.0/bin/gcc
-    ```
-
-### Edit your .cshrc to add the path to the library by setting the LD_LIBRARY_PATH environment variable
-
-```
-#for gcc WRF-CMAQ build
-setenv NCF_COMBO /[your_install_path]/LIBRARIES/netcdf_combined/
-setenv LD_LIBRARY_PATH ${NCF_COMBO}/lib:${LD_LIBRARY_PATH}
 ```
 
-### Make sure that there is no other definition or setting of LD_LIBRARY_PATH further down in your .cshrc file that may be overwriting your setting.
-
-### Make sure you log out and log back, or run csh in to activate the LD_LIBRARY_PATH setting.
-
-### Step 3: Download IOAPI_3.2 (a specific tagged version, see below) and install it.
-
-Note The complete I/O API installation guide can be found at either of the following:
-
-https://www.cmascenter.org/ioapi/documentation/all_versions/html/AVAIL.html
-
-or
-
-https://cjcoats.github.io/ioapi/AVAIL.html
-
-#### Follow the instructions on how to install I/O API available
-
-#### Method 1. Download the tar.gz file from the github site.
-
-     cd /[your_install_path]/LIBRARIES     
-     wget http://github.com/cjcoats/ioapi-3.2/archive/20200828.tar.gz
-     tar -xzvf 20200828.tar.gz
-     cd ioapi-3.2-20200828
-     
-
-#### Method 2. Use Git clone to obtain the code
-    
-     cd /[your_install_path]/LIBRARIES 
-     git clone https://github.com/cjcoats/ioapi-3.2
-     cd ioapi-3.2         ! change directory to ioapi-3.2
-     git checkout -b 20200828   ! change branch to 20200828 for code updates
-     cd ..                      ! change directories to the level above ioapi-3.2
-     ln -s ioapi-3.2 ioapi-3.2-2020828 ! create a symbolic link to specify the tagged version
-     cd ioapi-3.2                      ! change back to the directory
-     
-
-#### Change directories to the ioapi directory
-     
-     
-     cd ioapi
-     
-     
-#### Copy the Makefile.nocpl to Makefile 
-     
-     
-     cp Makefile.nocpl Makefile
-
-#### Change the BASEDIR definition from HOME to INSTALL
+Once netCDF collation is completed, navigate back to your WRF-CMAQ project directory and edit the config_cmaq.csh script like the following example: 
 
 ```
-BASEDIR = ${HOME}/ioapi-3.2
-````
-change to
-```
-BASEDIR = ${INSTALL}/ioapi-3.2
-```
-     
-     
- #### set the INSTALL and BIN environment variables:
-     
-     
-     setenv INSTALL [your_install_path]/LIBRARIES
-     setenv BIN  Linux2_x86_64gfort_openmpi_4.0.1_gcc_9.1.0
-     
-     
- ### set the CPLMODE environment variable
- 
-     setenv CPLMODE nocpl
-     
+Navigate to the compiler of your choice for. For example, for GNU based compilers go to section 148 of the script. Then set the 
 
- #### Make the installation directory
-
-    
-     mkdir $INSTALL/$BIN
-
- ### Link the installation directory to the generic directory name supported by WRF-CMAQ 
- 
-     cd $INSTALL
-     ln -s Linux2_x86_64gfort_openmpi_4.0.1_gcc_9.1.0 Linux2_x86_64gfort
-      
- ### Edit the Makefile to add a path to the combined netCDF library directory
- ### Note this is the Makefile at the ioapi-3.2 level. 
- ### First need to copy Makefile.template Makefile
- 
- ```
- cp Makefile.template Makefile
- ```
- 
- change
- 
- ```
- NCFLIBS = -lnetcdff -lnetcdf
- ```
- 
- to
- 
-   ```
-   NCFLIBS    = -L $NETCDF/lib/ -lnetcdff -lnetcdf   ! using the combined $NETCDF environment variable set above
-   ```
- 
- #### change into the ioapi directory and copy the existing Makeinclude.Linux2_x86_64gfort to have an extension that is the same as the BIN environment variable
- 
- ```
- cd ioapi
- cp Makeinclude.Linux2_x86_64gfort Makeinclude.Linux2_x86_64gfort_openmpi_4.0.1_gcc_9.1.0
- ```
- ### Edit the Makeinclude.Linux2_x86_64gfort_openmpi_4.0.1_gcc_9.1.0 to comment out the OMPFLAG and OMPLIB
- 
- ```
- gedit Makeinclude.Linux2_x86_64gfort_openmpi_4.0.1_gcc_9.1.0
- ```
- 
- - comment out the following lines by adding a #
- 
- ```
-# OMPFLAGS  =  -fopenmp
-# OMPLIBS   =  -fopenmp
- ```
- 
- ### Create the Makefile in the m3tools directory
- 
- ```
- cd ../m3tools
- cp Makefile.nocpl Makefile
- ```
- 
- 
- ### Build ioapi using one of the following commands
- 
- ```
- cd ioapi 
- make HOME='[your_install_path]/LIBRARIES' |& tee make.log ! method if you did not modify HOME variable in Makefile
- or
- make |& tee make.log     ! method if you did replace HOME variable with INSTALL
- ```
- 
- ### Verify that the libioapi.a and the m3tools have been successfully built
- 
- ```
- ls -lrt $INSTALL/ioapi-3.2-20200828/Linux2_x86_64gfort_openmpi_4.0.1_gcc_9.1.0/libioapi.a
- ```
- 
- ### Note: If you get a shared object problem when trying to run m3tools such as the following:
- ```
-./juldate
-./juldate: error while loading shared libraries: libimf.so: cannot open shared object file: No such file or directory
-```
-### Be sure that the appropriate module is loaded, or that the LD_LIBRARY_PATH contains a path to the shared opject file that is missing.
-```
-module load openmpi_4.0.1/gcc_9.1.0
-```
-
- ### Note: If you need to rebuild the I/O API library to remove the dependency on OpenMP use
- ```
- cd ioapi
- make HOME='[your_install_path]/LIBRARIES' clean ! if you have not modified the Makefile
- or 
- make clean ! if you have modified the Makefile to use the INSTALL environment variable and set it at the command line
- ```
-
-### Step 4: Install CMAQ
-  - Follow these instructions to download the code, then use the modifications in Step 5:  [CMAQ Benchmark Tutorial](CMAQ_UG_tutorial_benchmark.md)
-In the directory where you would like to install CMAQ, create the directory issue the following command to clone the EPA GitHub repository for CMAQv5.3.3:
-
-```
-git clone -b main https://github.com/USEPA/CMAQ.git CMAQ_REPO
-```
-
-Build and run in a user-specified directory outside of the repository
-
-In the top level of CMAQ_REPO, the bldit_project.csh script will automatically replicate the CMAQ folder structure and copy every build and run script out of the repository so that you may modify them freely without version control.
-
-Edit bldit_project.csh, to modify the variable $CMAQ_HOME to identify the folder that you would like to install the CMAQ package under. For example:
-
-```
-set CMAQ_HOME = [[your_install_path]]/WRF-CMAQ/CMAQ_v5.3.3
-```
-
-Now execute the script.
-
-./bldit_project.csh
-
-Change directories to the CMAQ_HOME directory
-
-### Step 5. Edit and source the config_cmaq.csh to specify the paths of the ioapi and netCDF libraries 
-### Go to the case [compiler] entry
-### for example, if running using the gcc compiler, go to line 148, or search for 'case gcc'
-   
-```
 #> I/O API and netCDF for WRF-CMAQ 
-setenv NETCDF netcdf_root_gcc # Note please combine netCDF-C & Fortran Libraries (e.g. /usr/local/netcdf-4.7.0)
-setenv IOAPI  ioapi_root_gcc  (e.g. /usr/local/ioapi-3.2)
-setenv WRF_ARCH 34              # [1-75]  64 Bit Linux_x86 Compiler/Architecture options
-
- #> I/O API, netCDF, and MPI include and library locations
- setenv IOAPI_INCL_DIR   $IOAPI/ioapi/fixed_src   #> I/O API include header files
- setenv IOAPI_LIB_DIR    $IOAPI/Linux2_x86_64gfort_openmpi_4.0.1_gcc_9.1.0   #> I/O API libraries
- setenv NETCDF_LIB_DIR   $NETCDF/lib  #> netCDF C directory path
- setenv NETCDF_INCL_DIR  $NETCDF/include  #> netCDF C directory path
- setenv NETCDFF_LIB_DIR  $NETCDF/lib #> netCDF Fortran directory path
- setenv NETCDFF_INCL_DIR $NETCDF/include #> netCDF Fortran directory path
- setenv MPI_LIB_DIR      mpi_lib_gcc
- 
-#> MPI directory path
-
+setenv NETCDF [your_install_path]/LIBRARIES/netcdf_combined 
+setenv IOAPI  [your_install_path]/LIBRARIES/ioapi-3.2  
+setenv WRF_ARCH 34              # [1-75]  WRF 64 Bit Linux_x86 Compiler/Architecture options
 ```
 
-*Note: WRF_ARCH environment variable is based on the following options:*
+*Note: WRF_ARCH environment variable is used to configure WRF and is based on the following options:*
 
 ```Please select from among the following Linux x86_64 options:
 
@@ -358,107 +108,55 @@ setenv WRF_ARCH 34              # [1-75]  64 Bit Linux_x86 Compiler/Architecture
 Enter selection [1-75] : ------------------------------------------------------------------------
 ```
 
-####  If you have never configured WRF before, here are some guidelines
+If you have never configured WRF before, here are some guidelines:
 
-   - choose the dmpar option with the appropriate compiler platform (34 for gcc case)
+   - Choose the appropriate compiler platform and hardware architecture if applicable
+   - Choose the dmpar (Distributed Memory Parallelization -- MPI) option only. The serial, Single Memory Parallelization (smpar), and (dm+sm) are out of scope of this tutorial, configuration with those options require [additional support](https://forum.cmascenter.org/). 
    - For more information refer to the [WRF User Guide](https://www2.mmm.ucar.edu/wrf/users/docs/user_guide_v4/v4.0/contents.html)
 
-```
-source config_cmaq.csh gcc
-```
+## Compiling WRF-CMAQ
+*Before proceeding, it should be noted that building the ICON and BCON executables are optional steps when working specifically with the benchmark data. This is because the initial condition and boundary condition files have been provided for you within the benchmark data set. For further information on these preprocessors please reference [Chapter 4](../CMAQ_UG_ch04_model_inputs.md).*  
 
-### Step 6: Modify the bldit_cctm.csh 
+### Modify the bldit_cctm.csh 
 
-Uncomment the option to build WRF-CMAQ twoway:     
+Navigate to the WRF-CMAQ project directory and from there navigate to the CCTM/scripts directory.
 
 ```
 cd CCTM/scripts
 ```
 
-edit bldit_cctm.csh
+Edit bldit_cctm.csh and uncomment the option to build WRF-CMAQ twoway:   
       
 ```
 #> Two-way WRF-CMAQ 
 set build_twoway                      #> uncomment to build WRF-CMAQ twoway; 
 ```
 
+Configure CMAQ benchmark Science Modules:
+
+The build directory parameters for the benchmark test case include the following:
+
+-   Multiprocessor simulation 
+-   3-D Advection Scheme: wrf_cons
+-   Horizontal diffusion: Multiscale
+-   Vertical diffusion: ACM2_M3Dry
+-   Deposition: M3Dry
+-   Chemistry solver: EBI
+-   Aerosol module: AERO7
+-   Cloud module: ACM_AE7
+-   Mechanism: cb6r3_ae7_aq
+-   Online biogenic emissions
+-   Inline plume rise
+
+To configure these parameters, the CCTM Science Modules within the bldit_cctm.csh need to be modified from set defaults. The comments within the script itself should help guide the user on the options for each variable and how to set them. Further information on variable names can be found in 
+[Appendix A](../Appendix/CMAQ_UG_appendixA_model_options.md).
 
 ### Run the bldit_cctm.csh script
+
 ```
 ./bldit_cctm.csh gcc |& tee bldit_cctm_twoway.log
 ```
-
-### At this point, Users who have [Git](https://git-scm.com/) installed on their system should look for the following message at the end of their bldit_cctm_twoway.log: 
-
-```
---->                  Executables successfully built                  <---
-
--rwxr-xr-x. 1 user home 51139232 Jun  7 19:03 main/ndown.exe
--rwxr-xr-x. 1 user home 51187088 Jun  7 19:03 main/real.exe
--rwxr-xr-x. 1 user home 50445512 Jun  7 19:03 main/tc.exe
--rwxr-xr-x. 1 user home 81349320 Jun  7 19:02 main/wrf.exe
-
-==========================================================================
-
-```
-
-  If the User sees this, the WRF-CMAQ model has been successfully compiled and built and they may skip to Step 12. If not, the User should double check the library paths above and try again. If it still fails, please reach post on the [CMAS Forum](https://forum.cmascenter.org/c/wrf-cmaq).
-
-
-Note: Steps 7-10 are **ONLY** for systems without [Git](https://git-scm.com/).
-
-### Step 7: Download WRF 4.3 and install it
-   - Please register at the WRF User site https://www2.mmm.ucar.edu/wrf/users/download/get_source.html
-   - obtain the WRF-Modeling System source code
-   - download version 4.3 from https://github.com/wrf-model/WRF/releases/tag/v4.3
-   - extract the tar.gz file
-   
-   ```
-   cd [your_install_path]/WRF-CMAQ/CMAQ_v5.3.3/scripts
-   tar -xzvf WRF-4.3.tar.gz ./BLD_WRFv4.3_CCTM_v533_gcc
-   ```
-   
-### Step 8: Move wrfcmaq_twoway_coupler and BLD_CCTM_v533_gcc into BLD_WRFv4.3_CCTM_v533_gcc
-
-```
-source ../../config_cmaq.csh
-mv BLD_CCTM_v533_gcc BLD_WRFv4.3_CCTM_v533_gcc/cmaq
-cd BLD_WRFv4.3_CCTM_v533_gcc
-cp -rp $CMAQ_REPO/UTIL/wrfcmaq_twoway_coupler .
-```
-
-### Step 9: Set environmnetal variable and run the coupler script
-
-   ```
-    setenv wrf_path $CMAQ_HOME/CCTM/scripts/BLD_WRFv4.3_CCTM_v532_gcc
-   ./wrfcmaq_twoway_coupler/assemble
-   ```
-   
-  - This command will update all necessary files in WRF and CMAQ to create the WRF-CMAQ model. 
-  - Verify that the path for the I/O API library is set correctly in the configure.wrf file and modify if needed.
-    
- ```
-    #### BEGIN for WRF-CMAQ twoway model
-IOAPI   = /proj/ie/proj/CMAS/WRFv4.3-CMAQv5.3.3_rel_debug/LIBRARIES/openmpi_4.0.1_gcc_9.1.0/ioapi-3.2-20200820
-LIOAPI  = Linux2_x86_64gfort_openmpi_4.0.1_gcc_9.1.0
-    #### END for WRF-CMAQ twoway model
- ```
-
-### Step 10: Configure and Compile the WRF-CMAQ model
-
-```
-setenv WRF_CMAQ 1
-./configure 
-./compile em_real >& mylog
-```
-
-####  If you have never configured WRF before, here are some guidelines
-
-   - choose the dmpar option with the appropriate compiler platform (34 for gcc case)
-   - For more information refer to the [WRF User Guide](https://www2.mmm.ucar.edu/wrf/users/docs/user_guide_v4/v4.0/contents.html)
-
-
-  - If compilation is done successfully, you can find main/wrf.exe file.
+Users should look for the following message at the end of their bldit_cctm_twoway.log: 
 
 ```
 --->                  Executables successfully built                  <---
@@ -471,15 +169,10 @@ setenv WRF_CMAQ 1
 ==========================================================================
 
 ```
-  - If not found, use vi or gedit to view the mylog file, and look for errors near the compilation step for wrf.exe
 
-### Step 11: If you have to rebuild the model, but want to keep the configure.wrf file use:
+If the User sees this, the WRF-CMAQ model has been successfully compiled and built. If not, the User should double check the library paths above and try again. If it still fails, please reach post on the [CMAS Forum](https://forum.cmascenter.org/c/wrf-cmaq).
 
-```
-./clean -a
-```
-
-### Step 12: Download the input data
+## Install the CMAQ input reference/benchmark data
 
 [Link to CMAQv5.3.2_Benchmark_2Day_Input.tar.gz input data on Google Drive](https://drive.google.com/file/d/1ex6Wr4dX6a0fgaDfhO0VEJNaCKqOflI5/view?usp=sharing)
 
@@ -493,9 +186,9 @@ setenv WRF_CMAQ 1
   ```
   
     
-### Step 13: Run the WRF-CMAQ model
+## Running the WRF-CMAQ model
 
-## Note, in this new coupled model design, the namelist is used to modify settings for WRF.
+Note, in this new coupled model design, the namelist is used to modify settings for WRF.
 Environment variables such as WRF_CMAQ_FREQ are no longer used.  
 The following commonly modified namelist options for WRF are specified in the run script.
 
@@ -550,7 +243,7 @@ The following commonly modified namelist options for WRF are specified in the ru
   sbatch run_cctm_Bench_2016_12SE1.WRFCMAQ.csh
   ```
  
-### Step 14: Verify that the run was successful
+### Verify that the run was successful
    - look for the output directory
    
    ```
@@ -563,7 +256,7 @@ The following commonly modified namelist options for WRF are specified in the ru
    ```
    |>---   PROGRAM COMPLETED SUCCESSFULLY   ---<|
 
-### Step 15: Compare results to the WRF-CMAQ 2 day benchmark results
+### Compare results to the WRF-CMAQ 2 day benchmark results
  
    - Download WRF-CMAQ bencmark output data from the google drive folder
 
