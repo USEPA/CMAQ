@@ -784,7 +784,9 @@ C Soil vars
 
          call interpolate_var ('SOIT1', jdate, jtime, Met_Data%SOIT1)
 
-         call interpolate_var ('SOIT2', jdate, jtime, Met_Data%SOIT2)
+         If ( BIOGEMIS_BEIS ) Then
+            call interpolate_var ('SOIT2', jdate, jtime, Met_Data%SOIT2)
+         End If
 
          call interpolate_var ('SEAICE', jdate, jtime, Met_Data%SEAICE)
 

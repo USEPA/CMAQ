@@ -260,7 +260,7 @@ C Calculate temperature correction term
                END IF
 
             END DO ! end ISOP and MBO calculations loop
-C Only estiamte BCOV emissions for vegitation
+C Only estimate BCOV emissions for vegitation
             IF( TLAI .GT. 0.0 ) THEN
 
                CALL CLNEW_SUB( ZEN, PARDB, PARDIF, TLAI, LHSH_DIV,
