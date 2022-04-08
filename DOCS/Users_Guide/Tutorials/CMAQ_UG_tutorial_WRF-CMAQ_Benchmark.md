@@ -1,16 +1,74 @@
-## WRF-CMAQ Tutorial ## 
+# WRF-CMAQ Benchmarking Tutorial # 
 
-### Procedure to build the WRF-CMAQ model using gnu compiler: ###
+**Purpose**: This guide describes how to install and run the WRF-CMAQ test case, which serves two different purposes. The first being to familiarize the user with the WRF-CMAQ suite of programs and how they work together, and secondly to verify the installation of the software on your system via benchmarking. 
 
-### Step 1: choose your compiler, and load it using the module command if it is available on your system
+Users are highly encouraged to work through the [CMAQ Benchmark Tutorial](../CMAQ_UG_tutorial_benchmark.md) and [WRF Installation Guide](https://www2.mmm.ucar.edu/wrf/users/) to familiarize themselves with the individuals program compnents.
+
+The following support software are required for compiling and running WRF-CMAQ.  
+
+1. Fortran and C compilers, e.g., [Intel](https://software.intel.com/en-us/fortran-compilers), [Portland Group](http://www.pgroup.com), [Gnu](https://gcc.gnu.org/wiki/GFortran)
+2. [Git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git)
+2. Message Passing Interface (MPI), e.g., [OpenMPI](https://www.open-mpi.org) or [MVAPICH2](http://www.mcs.anl.gov/research/projects/mpich2).
+3. Latest release of [netCDF-C](https://www.unidata.ucar.edu/software/netcdf/docs/getting_and_building_netcdf.html) and [netCDF-Fortran](https://www.unidata.ucar.edu/software/netcdf/docs/building_netcdf_fortran.html)
+4. [I/O API](https://www.cmascenter.org/download/software/ioapi/ioapi_3-2.cfm?DB=TRUE) version 3.2 **tagged 20200828**
+5. [C-Shell](https://github.com/tcsh-org/tcsh) 
+
+**Note: if you have not installed the above libraries, please see the CMAQ_UG_tutorial_build_[gcc/intel/pgi].md tutorials available here: 
+https://github.com/USEPA/CMAQ/tree/main/DOCS/Users_Guide/Tutorials**
+
+The suggested hardware requirements for running the CMAQ Southeast Benchmark case on a Linux workstation are:
+
+1. Linux environment with a 16 processors
+2. 16 GB RAM
+3. 400 GB hard drive storage
+
+
+## Installing WRF-CMAQ ##
+
+In the directory where you would like to install WRF-CMAQ, create the directory issue the following command to clone the EPA GitHub repository for CMAQv5.3.3+:
 
 ```
-module avail
+git clone -b v5.3.3+ https://github.com/USEPA/CMAQ.git CMAQ_REPO
 ```
 
+## Check Out a new Branch in the CMAQ Repository 
+
+Checking out a new branch is a good idea even if you are not doing code development, per se. It is likely that you will want to retrieve new updates in the future, and an easy way to do this is through the main branch in the git repo. Thus, it is beneficial to leave it unperturbed if possible.
 ```
-module load openmpi_4.0.1/gcc_9.1.0 
+cd CMAQ_REPO
+git checkout -b my_branch
 ```
+
+## Building and running in a user-specified directory outside of the repository
+
+In the top level of CMAQ_REPO, the bldit_project.csh script will automatically replicate the CMAQ folder structure and copy every build and run script out of the repository so that you may modify them freely without version control.
+
+In bldit_project.csh, modify the variable $CMAQ_HOME to identify the folder that you would like to install the CMAQ package under. For example:
+```
+set CMAQ_HOME = [your_install_path]/CMAQ_v5.3.3
+```
+Now execute the script.
+```
+./bldit_project.csh
+```
+
+## Configuring the WRF-CMAQ Environment
+
+Compiling WRF-CMAQ requires several libraries and include files to be made avialable. Because these libraries and include files are not expected to be in standard locations, users need to explicitly provide the path to this via environmental variables. 
+
+The environmental variables that need to be set are located in the config_cmaq.csh script, located at the root of the project directory (defined by environmental variable CMAQ_HOME). 
+
+Edit the config_cmaq.csh script: 
+
+``
+Navigate to the compiler of your choice for. For example, for GNU based compilers go to section 148 of the script. Then set the 
+
+#> I/O API and netCDF for WRF-CMAQ 
+setenv NETCDF netcdf_root_gcc # Note please combine netCDF-C & Fortran Libraries (e.g. /usr/local/netcdf-4.7.0)
+setenv IOAPI  ioapi_root_gcc  (e.g. /usr/local/ioapi-3.2)
+setenv WRF_ARCH 34              # [1-75]  64 Bit Linux_x86 Compiler/Architecture options
+
+
 
 ### Step 2: Download and install netCDF Fortran and C libraries
 
