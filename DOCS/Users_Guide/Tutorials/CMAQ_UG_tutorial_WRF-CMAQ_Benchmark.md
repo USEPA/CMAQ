@@ -2,7 +2,7 @@
 
 **Purpose**: This guide describes how to install and run the WRF-CMAQ test case, which serves two different purposes. The first being to familiarize the user with the WRF-CMAQ suite of programs and how they work together, and secondly to verify the installation of the software on your system via benchmarking. 
 
-Users are highly encouraged to work through the [CMAQ Benchmark Tutorial](../CMAQ_UG_tutorial_benchmark.md) and [WRF Installation Guide](https://www2.mmm.ucar.edu/wrf/users/) to familiarize themselves with the individuals program compnents.
+Users are highly encouraged to work through the [CMAQ Benchmark Tutorial](../CMAQ_UG_tutorial_benchmark.md) and [WRF Installation Guide](https://www2.mmm.ucar.edu/wrf/users/) to familiarize themselves with the individuals program components.
 
 The following support software are required for compiling and running WRF-CMAQ.  
 
