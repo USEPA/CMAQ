@@ -77,6 +77,8 @@
 !  11/17/21, G. Sarwar: Changed minimum values from 0.0 to 0.001 for ocean and szone  
 !                       to ensure values are nonnegative and greater than 0.001
 !  01/17/22, D. Wong: Added SAVE attribute to variable FIRSTIME
+!  04/12/22, G. Sarwar: Moved a few lines for reading "DMS" to outside the "IF BLOCK
+!                       when USE_MARINE_GAS_EMISSION is true" in SUBROUTINE retrieve_ocean_data 
 !------------------------------------------------------------------------!
 
 !------------------------------------------------------------------------!
@@ -2194,6 +2196,11 @@
      &                          'SURF',
      &                          g2ddata(:, 1, surf_ind),
      &                          mio_file_data(floc)%timestamp(1))
+     
+                call mio_fread (ocean_file,
+     &                          'DMS',
+     &                           g2ddata(:, 1, dms_ind),
+     &                           mio_file_data(floc)%timestamp(1))     
              end if
           end if
 
@@ -2206,11 +2213,6 @@
                    call mio_fread (ocean_file,
      &                             'CHLO',
      &                             g2ddata(:, 1, chlo_ind),
-     &                             mio_file_data(floc)%timestamp(1))
-
-                   call mio_fread (ocean_file,
-     &                             'DMS',
-     &                             g2ddata(:, 1, dms_ind),
      &                             mio_file_data(floc)%timestamp(1))
                 else
                    XMSG = 'Ocean file doese not exist'
@@ -3550,6 +3552,7 @@ C Read the various categories of normalized emissions
 
           allocate (ocean(ncols, nrows), 
      &              szone(ncols, nrows), 
+     &               dmsl(ncols, nrows),      
      &              STAT=STAT)
           IF ( STAT .NE. 0 ) THEN
              XMSG = 'Failure allocating OPEN and SURF array'
@@ -3574,8 +3577,14 @@ C Read the various categories of normalized emissions
      &                        0, 0, szone ) ) Then
                    XMSG = 'Could not interpolate SURF from ' // OCEAN_1
                    CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
-                END IF
-                
+                END IF                
+
+                If ( .Not. XTRACT3( OCEAN_1, 'DMS',
+     &                              1, 1, STRTROWSTD, ENDROWSTD, STRTCOLSTD, ENDCOLSTD, 
+     &                              0, 0, dmsl ) ) Then
+                   XMSG = 'Could not read DMS from ' // OCEAN_1
+                   Call M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
+                End If
                 WHERE ( ocean .LT. 0.001 ) ocean = 0.0  ! ensure values are nonnegative and greater than 0.001
                 WHERE ( szone .LT. 0.001 ) szone = 0.0  ! ensure values are nonnegative and greater than 0.001                
              END IF
@@ -3594,7 +3603,6 @@ C Read the various categories of normalized emissions
                 Call M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
              ELSE   ! OCEAN_1 file already opened
                 allocate (chlr(ncols, nrows),
-     &                    dmsl(ncols, nrows), 
      &                    STAT=STAT)
                 IF ( STAT .NE. 0 ) THEN
                    XMSG = 'Failure allocating CHLO array'
@@ -3605,12 +3613,6 @@ C Read the various categories of normalized emissions
      &                              1, 1, STRTROWSTD, ENDROWSTD, STRTCOLSTD, ENDCOLSTD, 
      &                              0, 0, chlr ) ) Then
                    XMSG = 'Could not read CHLO from ' // OCEAN_1
-                   Call M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
-                End If
-                If ( .Not. XTRACT3( OCEAN_1, 'DMS',
-     &                              1, 1, STRTROWSTD, ENDROWSTD, STRTCOLSTD, ENDCOLSTD, 
-     &                              0, 0, dmsl ) ) Then
-                   XMSG = 'Could not read DMS from ' // OCEAN_1
                    Call M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
                 End If
              END IF
@@ -4540,10 +4542,10 @@ C   mminlu and num_land_cat are WRF global variables
              if (ocean_chem) then
                 ocean = g2ddata(:,:,open_ind)
                 szone = g2ddata(:,:,surf_ind)
+                dmsl  = g2ddata(:,:,dms_ind)
              end if
 
              if (use_marine_gas_emission) then
-                dmsl = g2ddata(:,:,dms_ind)
                 chlr = g2ddata(:,:,chlo_ind)
              end if
 
