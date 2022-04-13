@@ -3595,6 +3595,7 @@ C Read the various categories of normalized emissions
      &              'halogen-mediated loss of ozone or sea spray aerosol emissions.'
              ocean = 0.0
              szone = 0.0
+             dmsl  = 0.0
           END IF
 
           IF ( USE_MARINE_GAS_EMISSION ) then
