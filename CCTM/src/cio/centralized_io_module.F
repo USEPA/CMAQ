@@ -77,8 +77,7 @@
 !  11/17/21, G. Sarwar: Changed minimum values from 0.0 to 0.001 for ocean and szone  
 !                       to ensure values are nonnegative and greater than 0.001
 !  01/17/22, D. Wong: Added SAVE attribute to variable FIRSTIME
-!  04/12/22, G. Sarwar: Moved a few lines for reading "DMS" to outside the "IF BLOCK
-!                       when USE_MARINE_GAS_EMISSION is true" in SUBROUTINE retrieve_ocean_data 
+!  04/12/22, G. Sarwar: Revised to include "DMS" into cb6r5_ae7_aq 
 !------------------------------------------------------------------------!
 
 !------------------------------------------------------------------------!
@@ -3540,6 +3539,7 @@ C Read the various categories of normalized emissions
 ! -------------------------------------------------------------------------
         subroutine retrieve_ocean_data
 
+          USE RXNS_DATA, ONLY : MECHNAME
           USE UTILIO_DEFN
           USE HGRD_DEFN
 
@@ -3610,12 +3610,19 @@ C Read the various categories of normalized emissions
                    CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT3 )
                 END IF
 
+                If ( INDEX( MECHNAME, 'CB6R5M' ) .GT. 0 ) then
+
                 If ( .Not. XTRACT3( OCEAN_1, 'CHLO',
      &                              1, 1, STRTROWSTD, ENDROWSTD, STRTCOLSTD, ENDCOLSTD, 
      &                              0, 0, chlr ) ) Then
                    XMSG = 'Could not read CHLO from ' // OCEAN_1
                    Call M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
                 End If
+
+                ELSE
+                  chlr = 0.0
+                END IF
+
              END IF
           END IF
 

@@ -121,7 +121,7 @@ C   03 Nov 15: B. Gantt and G. Sarwar: created the initial version for marine ga
             USE CGRID_SPCS
             USE RXNS_DATA
             USE RUNTIME_VARS, ONLY : USE_MARINE_GAS_EMISSION
-            USE CENTRALIZED_IO_MODULE, only : chlr, dmsl
+            USE CENTRALIZED_IO_MODULE, only : chlr
 
             IMPLICIT NONE
             INCLUDE SUBST_CONST                                     ! constants
@@ -211,7 +211,7 @@ C Allocate diagnostic arrays
                 END IF
 
 C Build diagnostic file write buffer (WRMG_SPC) array
-                IF (INDEX( MECHNAME, 'CB6R5' ) <= 0) THEN
+                IF (INDEX( MECHNAME, 'CB6R5M' ) .GT. 0) THEN
                    START_INDEX = 1
                    END_INDEX = 12
                 ELSE
@@ -545,7 +545,7 @@ C.. calculate local hour
                      IF (LOCHR .LT.  0) LOCHR = LOCHR + 24
                      IF (LOCHR .GT. 23) LOCHR = LOCHR - 24
 
-                     IF (INDEX( MECHNAME, 'CB6R5' ) <= 0) THEN
+                     IF (INDEX( MECHNAME, 'CB6R5M' ) .GT. 0) THEN
                         DUMMY = 4.31E-8 * MARINE_AREA * FHRLY(LOCHR) * CHLA * SECS2HR
 
 C.. Calculate MB3 emission rate in mole/s
