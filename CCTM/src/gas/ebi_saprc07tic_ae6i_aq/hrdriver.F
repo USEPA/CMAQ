@@ -360,7 +360,7 @@ c..Set physical quantities
 !                PRESCELL( NCELL ) = REAL( PRES( C,R,L ), 8)
                ATMPRES( NCELL )  = PA2ATM * REAL( PRES( C,R,L ), 8)
                H2O( NCELL )      = REAL( MAX ( MAOMV * QV( C,R,L ), 0.0 ), 8)
-               SEAWATER (NCELL)      = DMAX1 ( 0.0D0, ( REAL( SEAWATER_ZONE( C,R ) - SEAICE (C,R) ,8) ) )
+               SEAWATER (NCELL)      = MAX ( 0.0D0, ( REAL( SEAWATER_ZONE( C,R ) - SEAICE (C,R) ,8) ) )
 
 c..Get rate constants
                LSUNLIGHT = .FALSE.

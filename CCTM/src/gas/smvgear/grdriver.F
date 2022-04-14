@@ -428,7 +428,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
             BLKSVOL( NCELL ) = 1.0 / DENS( COL,ROW,LEV )
             BLKPRES( NCELL ) = REAL( PA2ATM * PRES( COL, ROW, LEV ), 8 )
             BLKCH2O( NCELL ) = REAL( MAX( QV( COL,ROW,LEV ) * MAOMV * CONCOFM, 0.0 ), 8)
-            BLKSEAWATER (NCELL)  = AMAX1 ( 0.0, ( SEAWATER_ZONE( COL,ROW ) - SEAICE (COL,ROW) ) )
+            BLKSEAWATER (NCELL)  = MAX ( 0.0, ( SEAWATER_ZONE( COL,ROW ) - SEAICE (COL,ROW) ) )
          ENDDO
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
