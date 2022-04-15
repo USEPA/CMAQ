@@ -121,7 +121,7 @@ C   03 Nov 15: B. Gantt and G. Sarwar: created the initial version for marine ga
             USE CGRID_SPCS
             USE RXNS_DATA
             USE RUNTIME_VARS, ONLY : USE_MARINE_GAS_EMISSION
-            USE CENTRALIZED_IO_MODULE, only : chlr
+            USE CENTRALIZED_IO_MODULE, only : chlr, dmsl
 
             IMPLICIT NONE
             INCLUDE SUBST_CONST                                     ! constants
