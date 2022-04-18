@@ -6,7 +6,7 @@
 
 
 ! --------- Photochemical Mechanism Reactions, Rates, etc. DAT ---------
-! Source file: /home/gsarwar/util/MP/MECHS/cb6r5_ae7_aq/mech_cb6r5_ae7_aq.def
+! Source file: /work/MOD3DEV/sgq/manage_git/research/condensed_chemistry/UTIL/chemmech/input/cb6r5_ae7_aq/mech_cb6r5_ae7_aq.def
 ! for Mechanism Name: CB6R5_AE7_AQ                    
 
 ! This file is used to create mechanism data and functions

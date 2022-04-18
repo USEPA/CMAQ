@@ -27,7 +27,7 @@ C
 C  KEY SUBROUTINES/FUNCTIONS CALLED:  HRINIT, HRCALCKS, HRSOLVER
 C                                     FIND_DEGRADED, INIT_DEGRADE, FINAL_DEGRADE
 C
-C  REVISION HISTORY: Created by EBI solver program, Jun  9, 2021
+C  REVISION HISTORY: Created by EBI solver program, Mar 10, 2022
 C                       Based on the algorithm in "Test of Two Numerical
 C                       Schemes for Use in Atmospheric Transport-Chemistry
 C                       Models", O. Hertel, R. Berkowicz, J. Christensen,
@@ -255,11 +255,7 @@ C Define processor offsets
          ALLOCATE( LAND_ZONE( NCOLS, NROWS ) )
          DO R = 1, NROWS
             DO C = 1, NCOLS
-               IF( OCEAN( C,R ) + SZONE( C,R ) .GT. 0.0 )THEN
-                   LAND_ZONE( C,R ) = .FALSE.
-               ELSE
-                   LAND_ZONE( C,R ) = .TRUE.
-               END IF
+               LAND_ZONE( C,R ) =  OCEAN( C,R ) + SZONE( C,R )
              END DO
          END DO
 
@@ -407,12 +403,7 @@ c..Set physical quantities
 !                PRESCELL( NCELL ) = REAL( PRES( C,R,L ), 8)
                ATMPRES( NCELL )  = PA2ATM * REAL( PRES( C,R,L ), 8)
                H2O( NCELL )      = REAL( MAX ( MAOMV * QV( C,R,L ), 0.0 ), 8)
-
-               IF( LAND_ZONE( C,R ) .OR. SEAICE ( C,R ) .GT. 0.0 )THEN
-                   LAND (NCELL) = .TRUE.
-               ELSE
-                   LAND (NCELL) = .FALSE.
-               END IF
+               LAND (NCELL)      = MAX ( 0.0D0, ( REAL( LAND_ZONE( C,R ) - SEAICE (C,R) ,8) ) )
 
 c..Get rate constants
                LSUNLIGHT = .FALSE.
