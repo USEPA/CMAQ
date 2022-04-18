@@ -202,6 +202,8 @@ C-------------------------------------------------------------------------------
          Where( F2_NH4 .Ne. F2_NH4 ) F2_NH4 = 0.0
          Where( NH4ps1 .Ne. NH4ps1 ) NH4ps1 = 0.0
          Where( NH4ps2 .Ne. NH4ps2 ) NH4ps2 = 0.0
+         Where( pHs1   .Ne. pHs1   ) pHs1   = 0.0
+         Where( pHs2   .Ne. pHs2   ) pHs2   = 0.0
          Where( Nit1   .Lt. 0.0 ) Nit1   = 0.0
          Where( Nit2   .Lt. 0.0 ) Nit2   = 0.0
          Where( F1_NH4 .Lt. 0.0 ) F1_NH4 = 0.0
@@ -435,9 +437,11 @@ C-------------------------------------------------------------------------------
          Real                   :: w5cm, cg         ! soil moisture in top 5 cm (vol frc)
 
          Integer                :: j
-! Point were soil solution NH4 equals half the maximum sorption capacity Venteria et al. Sci. Rep. doi:10.1038/srep12153
+! Point were soil solution NH4 equals half the maximum sorption capacity Alnosour 2020  Bi-directional exchange of
+!  ammonia from soils in row crop agro-ecosystems. Dissertation. North Carolina State University 
+!  http://www.lib.ncsu.edu/resolver/1840.20/37245
          Real, Parameter        :: half_sol = 124.0 ! update from NC State Alnosour Thesis
-! Maximum NH4 soil sorption capacity Venteria et al. Sci. Rep. doi:10.1038/srep12153
+! Maximum NH4 soil sorption capacity 
          Real, Parameter        :: max_sorp = 426.0 ! update from NC State Alnosour Thesis 
          Real, Parameter        :: NH3_gam_soil = 20.0 ! bare soil water solution emission potetnial [NH3]/[H+]
  
@@ -486,6 +490,8 @@ C-------------------------------------------------------------------------------
 !> phase. Canada soil gamma taken from Zhang et al 2010 JGR Table 5
          cnh3ll1 = 0.0
          If( l .Eq. l_ag ) Then
+! Use the soil ammonium sorption model of Venteria et al. Sci. Rep. doi:10.1038/srep12153 to estimate the NHx 
+! available for volatilization 
            If( gamma1( c,r ) .eq. 0.0 ) Then 
                cg = wg_ir/1.6 ! L water / kg soil
                mNH4    = C_gam*1.0e-7/1.6*MolN*1.0e3 ! assume a bulk density of 1.6 kg/l untill Canadian data is available

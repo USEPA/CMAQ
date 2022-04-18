@@ -174,7 +174,7 @@ C Land use information:
          Real, Allocatable :: USTAR ( :,:,: )   ! surface friction velocity [m/s]
          Real, Allocatable :: LAI   ( :,:,: )   ! leaf area index [m**2/m**2]
          Real, Allocatable :: VEG   ( :,:,: )   ! vegetation fraction [ratio]
-         Real, Allocatable :: Z0    ( :,:,: )   ! vegetation fraction [ratio]
+         Real, Allocatable :: Z0    ( :,:,: )   ! momentum roughness length [m]
          Real, Allocatable :: DELTA ( :,:,: )   ! Surface wetness [ratio]
 !> Sub grid cell resistances
          Real, Allocatable :: RA    ( :,:,: )    ! aerodynamic resistance [s/m]
@@ -207,9 +207,9 @@ C Land use information:
       Real, Parameter :: svp3       = 29.65      ! from MM5 and WRF
       Real, Parameter :: rt25inK    = 1.0/(stdtemp + 25.0) ! 298.15K = 25C
       Real, Parameter :: twothirds  = 2.0 / 3.0
-      Real, Parameter :: betah      = 5.0       ! WRF 3.6 px uses Dyer
-      Real, Parameter :: gamah      = 16.0
-      Real, Parameter :: karman     = 0.40
+      Real, Parameter :: betah      = 5.0       ! MOST coefficient for stability correction for stable conditions 
+      Real, Parameter :: gamah      = 16.0      ! MOST coefficient for stability correction for unstable conditions
+      Real, Parameter :: karman     = 0.40      ! von Karman constant
 
       Logical, Save :: MET_INITIALIZED = .false.
       Real,    Save :: zsoil1             ! Layer 1 soil depth
@@ -865,7 +865,7 @@ C read in land use specific meteorology from WRF Noah or Ruc mosaic options
          CALL CALC_LAI( JDATE, JTIME, MET_DATA%SOIT2, MET_DATA%LAI,
      &                  MET_DATA%VEG, MOSAIC_DATA%VEG, MOSAIC_DATA%LAI, MOSAIC_DATA%Z0 )
 
-         CALL ra_wrf( MET_DATA%MOL, MET_DATA%PBL, MET_DATA%MOLI, MET_DATA%ZH, MET_DATA%RA, MET_DATA%Z0, 
+         CALL ra_wrf( MET_DATA%MOLI, MET_DATA%ZH, MET_DATA%RA, MET_DATA%Z0, 
      &                MOSAIC_DATA%Z0, MET_DATA%USTAR, MOSAIC_DATA%USTAR,
      &                MOSAIC_DATA%RA, gamah, betah, karman )       
 

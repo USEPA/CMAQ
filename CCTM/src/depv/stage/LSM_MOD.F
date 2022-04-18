@@ -30,9 +30,9 @@ C      June 16 11  Created by J. Bash
 C      April 19 12  J. Bash    Updated the LU_FAC data arrays to be a function
 C                              of the annual total N deposition following 
 C                              Massad et al 2010 doi:10.5194/acp-10-10359-2010
-C                              The annual 2002 deposition filed from a previous bi-
+C                              The annual 2002 deposition fields from a previous bi-
 C                              directional model run using values ~ 100 was used. 
-C                              The model is not very sensitive to this paramater
+C                              The model is not very sensitive to this parameter
 C                              and using different annual deposition fileds would
 C                              result in small changes. 
 C      Sept 12 12  D. Schwede  Added NLCD40 land use classification.
@@ -43,12 +43,20 @@ C      Nov  5  12  D. Schwede  Modified albedo for NLCD pasture and grass catego
 C                              consistent with the MODIS and USGS values
 C      Apr  4  13 J. Bash      Added general water, forest, shrub, grass, snow/ice, 
 C                              agricultural land use classification in a land use type 
-C                              to simplify how bidirecitonal NH3 code handles different 
+C                              to simplify how bidirectional NH3 code handles different 
 C                              land use data sets. 
 C      Aug  22 14 J. Bash      Moved all the data to defined data types for easier updates and data access. 
 C      Feb. 2019  D. Wong      Implemented centralized I/O approach
 C      25 Jul 19 D.Wong        Based on logical variable WRF_V4P defined in RUNTIME_VARS to handle
 C                              various number of soil type from different WRF version
+C References:
+C Noilhan, J., Planton, S., A Simple Parameterization of Land Surface Processes for Meteorological Models
+C         Monthly Weather Review, 117(3), 536-549, https://doi.org/10.1175/1520-0493(1989)117%3C0536:ASPOLS%3E2.0.CO;2
+C         1989
+C Jacquemin, B., Noilhan, J., Sensitivity study and validation of a land surface parameterization using the HAPEX-MOBILHY 
+C         data set, Boundary-Layer Meteorology, 52, 93-234, https://doi.org/10.1007/BF00123180, 1990
+C Campbell, G.S., Norman, J.M., An Introduction to Environmental Biophysics, Springer, New York, NY, 286 pages, 
+C         ISBN: 978-1-4612-1626-1 
 C------------------------------------------------------------------------------
        
       Implicit None
@@ -57,25 +65,25 @@ C------------------------------------------------------------------------------
       INTEGER, PARAMETER :: N_SOIL_TYPE_WRFV3  = 11
       INTEGER :: N_SOIL_TYPE
 
-      REAL, ALLOCATABLE          :: wwlt_px (:)
-      REAL, ALLOCATABLE          :: wsat_px (:)
-      REAL, ALLOCATABLE          :: bslp_px (:)
-      REAL, ALLOCATABLE          :: wres_px (:)
-      REAL, ALLOCATABLE          :: wfc_px  (:)
-      REAL, ALLOCATABLE          :: rhob_px (:)
-      REAL, ALLOCATABLE          :: psi_sat (:)
-      REAL,   SAVE               :: wwlt_clm (19)
-      REAL,   SAVE               :: wsat_clm (19)
-      REAL,   SAVE               :: bslp_clm (19)
-      REAL,   SAVE               :: wres_clm (19)
-      REAL,   SAVE               :: wfc_clm  (19)
-      REAL,   SAVE               :: rhob_clm (19)
-      REAL,   SAVE               :: wwlt_noah (19)
-      REAL,   SAVE               :: wsat_noah (19)
-      REAL,   SAVE               :: bslp_noah (19)
-      REAL,   SAVE               :: wres_noah (19)
-      REAL,   SAVE               :: wfc_noah  (19)
-      REAL,   SAVE               :: rhob_noah (19)
+      REAL, ALLOCATABLE          :: wwlt_px (:)    ! Soil volumetric wilting point (m3/m3)
+      REAL, ALLOCATABLE          :: wsat_px (:)    ! Soil volumetric saturation (m3/m3)
+      REAL, ALLOCATABLE          :: bslp_px (:)    ! Slope of the soil water retention curve on a loglog scale 
+      REAL, ALLOCATABLE          :: wres_px (:)    ! Soil volumetric residual moisture (m3/m3) 
+      REAL, ALLOCATABLE          :: wfc_px  (:)    ! Soil volumetric field capacity (m3/m3) 
+      REAL, ALLOCATABLE          :: rhob_px (:)    ! Soil bulk density (kg/L)
+      REAL, ALLOCATABLE          :: psi_sat (:)    ! Soil matric potential at saturation (kPa)
+      REAL,   SAVE               :: wwlt_clm (19)  ! Soil volumetric wilting point (m3/m3)
+      REAL,   SAVE               :: wsat_clm (19)  ! Soil volumetric saturation (m3/m3)
+      REAL,   SAVE               :: bslp_clm (19)  ! Slope of the soil water retention curve on a loglog scale 
+      REAL,   SAVE               :: wres_clm (19)  ! Soil volumetric residual moisture (m3/m3) 
+      REAL,   SAVE               :: wfc_clm  (19)  ! Soil volumetric field capacity (m3/m3) 
+      REAL,   SAVE               :: rhob_clm (19)  ! Soil bulk density (kg/L)
+      REAL,   SAVE               :: wwlt_noah (19) ! Soil volumetric wilting point (m3/m3)
+      REAL,   SAVE               :: wsat_noah (19) ! Soil volumetric saturation (m3/m3)
+      REAL,   SAVE               :: bslp_noah (19) ! Slope of the soil water retention curve on a loglog scale 
+      REAL,   SAVE               :: wres_noah (19) ! Soil volumetric residual moisture (m3/m3) 
+      REAL,   SAVE               :: wfc_noah  (19) ! Soil volumetric field capacity (m3/m3) 
+      REAL,   SAVE               :: rhob_noah (19) ! Soil bulk density (kg/L)
       INTEGER, SAVE              :: n_lufrac
       CHARACTER( 80 ), SAVE      :: LAND_SCHEME
 
@@ -87,21 +95,21 @@ C------------------------------------------------------------------------------
       TYPE DEP_MOD_LU_DATA
          Character( 16 ) :: LU_Name
          CHARACTER( 16 ) :: lu_cat
-         Real            :: RSMIN
-         Real            :: Z00
-         Real            :: VEG0
-         Real            :: VEGMN0
-         Real            :: LAI0
-         Real            :: LAIMN0
-         Real            :: Gamma_NH3_grnd
-         Real            :: Gamma_NH3_st
-         Real            :: Hg_grnd
-         Real            :: l_width ! leaf width
-         Real            :: Alpha   ! Zhang et al. 2003/Emerson et al. 2020 land use parameter 
-         Real            :: BAI     ! Building area index?
-         Real            :: Ahair
-         Real            :: Fhair
-         Real            :: Aleaf      
+         Real            :: RSMIN           ! Minimum stomatal resistance (s/m)
+         Real            :: Z00             ! Momentum roughness length (cm)
+         Real            :: VEG0            ! Maximum vegetation fraction (%)
+         Real            :: VEGMN0          ! Minimum vegetation fraction (%)
+         Real            :: LAI0            ! Maximum single sided LAI (m2/m2)
+         Real            :: LAIMN0          ! Minimum single sided LAI (m2/m2)
+         Real            :: Gamma_NH3_grnd  ! Under canopy NH3 emission potential ([mol NH4+]/[mol H+])
+         Real            :: Gamma_NH3_st    ! Vegetation NH3 emission potential ([mol NH4+]/[mol H+])
+         Real            :: Hg_grnd         ! Soil Hg concentration (umol/g)
+         Real            :: l_width         ! leaf width (m)
+         Real            :: Alpha           ! Zhang et al. 2003/Emerson et al. 2020 land use parameter (m)
+         Real            :: BAI             ! Building area index (m2/m2)
+         Real            :: Ahair           ! Leaf hair width (m)
+         Real            :: Fhair           ! Leaf hair fraction (ratio)
+         Real            :: Aleaf           ! Leaf aerodynamic width (m)
          Integer         :: LU_Index
       END TYPE
       TYPE( DEP_MOD_LU_DATA ) STAGE_LU_DATA( N_Map_Max )
@@ -143,17 +151,17 @@ C-------------------------------------------------------------------------------
       REAL, PARAMETER :: WWLT_PX_WRFV3(N_SOIL_TYPE_WRFV3) =
      &      (/ 0.068, 0.075, 0.114, 0.179, 0.155, 0.175, 0.218,
      &         0.250, 0.219, 0.283, 0.286 /)
-!-- B is slop of the retention curve (NP89)
+!-- B is slope of the retention curve (NP89)
       REAL, PARAMETER :: BSLP_PX_WRFV3(N_SOIL_TYPE_WRFV3) =
      &      (/  4.05,  4.38,  4.90,  5.30,  5.39,  7.12,  7.75,
      &          8.52, 10.40, 10.40, 11.40 /)
-! -- RHOB is the soil bulk dnesity following Lyons et al 1997   
+! -- RHOB is the soil bulk density 
       REAL, PARAMETER :: RHOB_PX_WRFV3(N_SOIL_TYPE_WRFV3) =
      &      (/ 1.59e6, 1.55e6, 1.53e6, 1.53e6, 1.55e6, 1.62e6, 1.67e6,
      &         1.66e6, 1.83e6, 1.78e6, 1.83e6 /)
 
 C-------------------------------------------------------------------------------
-C Soil Characteristics by Type for WRF4+
+C Soil Characteristics by Type for WRF4+ PX
 C
 C   #  SOIL TYPE  WSAT  WFC  WWLT  BSLP  CGSAT   JP   AS   C2R  C1SAT  WRES
 C   _  _________  ____  ___  ____  ____  _____   ___  ___  ___  _____  ____
@@ -187,16 +195,16 @@ C-------------------------------------------------------------------------------
       REAL, PARAMETER :: BSLP_PX_WRFV4P(N_SOIL_TYPE_WRFV4P) =  
      &      (/  4.05,  4.38,  4.90,  5.30,  5.30,  5.39,  7.12,  7.75,
      &          8.52, 10.40, 10.40, 11.40,  5.39, 11.40, 11.40,  7.12 /)
-! -- RHOB is the soil bulk dnesity following Lyons et al 1997   
+! -- RHOB is the soil bulk density 
       REAL, PARAMETER :: RHOB_PX_WRFV4P(N_SOIL_TYPE_WRFV4P) =  
      &      (/  1.59e6, 1.55e6, 1.53e6, 1.53e6, 1.53e6, 1.55e6, 1.62e6, 1.67e6,
      &          1.66e6, 1.83e6, 1.78e6, 1.83e6, 1.62e6, 1.83e6, 1.83e6, 1.67e6 /)
 
 C-------------------------------------------------------------------------------
-C Soil hydrolic properties as calculcated from soil sand and clay fractions 
+C Soil hydrolic properties as calculated from soil sand and clay fractions 
 C in WRF-CLM in WRF 3.7.1-3.8.1. 
-C WRES is calculated as WSAT*(psi_air_dry/psi_sat)^(-1.0/BSLP) following CLM soil hydrology 
-C relationships. Note that this is a common paramterization, e.g. Campbel and Norman (1998)
+C WRES is calculated as WSAT*(psi_air_dry/psi_sat)^(-1.0/BSLP) following CLM soil hydraulic 
+C relationships. Note that this is a common paramterization, e.g. Campbell and Norman (1998)
 C    where psi_air_dry = -300,000 kPa
 C
 C   #  SOIL TYPE  WSAT  WFC  WWLT  BSLP  CGSAT   JP   AS   C2R  C1SAT  WRES
@@ -233,7 +241,7 @@ C-------------------------------------------------------------------------------
       DATA WWLT_CLM  /  0.029, 0.042, 0.071, 0.138, 0.096, 0.127, 0.143, 0.225,
      &                  0.195, 0.195, 0.270, 0.270, 0.115, 0.066, 0.017, 0.073,
      &                  0.269, 0.017, 0.029 /
-!-- B is slop of the retention curve
+!-- B is slope of the retention curve
       DATA BSLP_CLM  /  3.30,  3.65,  4.47,  5.40,  3.87, 5.80,  7.16,  8.25,
      &                  8.19,  9.38, 10.46, 12.14,  5.29, 3.10,  2.80,  4.27,
      &                 11.53,  2.80,  3.30 /
@@ -241,7 +249,7 @@ C-------------------------------------------------------------------------------
       DATA WRES_CLM  /  0.016, 0.025, 0.049, 0.108, 0.075, 0.096, 0.109, 0.185,
      &                  0.157, 0.156, 0.227, 0.227, 0.086, 0.052, 0.008, 0.051,
      &                  0.227, 0.008, 0.016 /
-! -- RHOB is the soil bulk dnesity
+! -- RHOB is the soil bulk density
       DATA RHOB_CLM  /  1.69e6, 1.65e6, 1.60e6, 1.45e6, 1.40e6, 1.53e6, 1.58e6, 1.41e6,
      &                  1.49e6, 1.55e6, 1.40e6, 1.45e6, 1.51e6, 1.38e6, 1.72e6, 1.56e6,
      &                  1.44e6, 1.72e6, 1.69e6 /
@@ -255,7 +263,7 @@ C WSAT_NOAH = MAXSMC, WFC_NOAH = REFSMC, WWLT_NOAH = WLTSMC, and BSLP_NOAH = BB
 C Note:  Categories of Organic material, Water, Bedrock, Other (land-ice), Playa, and White sand 
 C are not updated because no soil characterization data or insufficient number of samples are available. 
 C WRES is calculated as (psi_air_dry/psi_sat)^(-1.0/BSLP)*WSAT following CLM soil hydrology 
-C relationships, but with updated NOAH values. Note that this is a common paramterization, e.g. Campbel and Norman (1998)
+C relationships, but with updated NOAH values. Note that this is a common paramterization, e.g. Campbell and Norman (1998)
 C    where psi_air_dry = -300,000 kPa
 C   #  SOIL TYPE  WSAT  WFC  WWLT  BSLP  CGSAT   JP   AS   C2R  C1SAT  WRES
 C   _  _________  ____  ___  ____  ____  _____   ___  ___  ___  _____  ____
@@ -291,7 +299,7 @@ C-------------------------------------------------------------------------------
       DATA WWLT_NOAH /  0.024, 0.057, 0.081, 0.123, 0.064, 0.128, 0.168, 0.212, 
      &                  0.196, 0.239, 0.264, 0.285, 0.118, 0.066, 0.009, 0.049,
      &                  0.264, 0.009, 0.015 /
-!-- B is slop of the retention curve
+!-- B is slope of the retention curve
       DATA BSLP_NOAH /   3.36,  4.06,  4.85,  5.72,  4.18,  6.01,  7.03,  8.49,
      &                   8.20, 8.98, 10.24, 11.56,  5.25,  3.10,  2.79,  4.26,
      &                  11.55,  2.79,  2.79 /
@@ -299,7 +307,7 @@ C-------------------------------------------------------------------------------
       DATA WRES_NOAH /  0.004, 0.010, 0.016, 0.023, 0.010, 0.022, 0.029, 0.039,
      &                  0.036, 0.037, 0.052, 0.058, 0.003, 0.052, 0.001, 0.010,
      &                  0.147, 0.001, 0.001 / 
-! -- RHOB is the soil bulk dnesity
+! -- RHOB is the soil bulk density
       DATA RHOB_NOAH /  1.69e6, 1.65e6, 1.60e6, 1.45e6, 1.40e6, 1.53e6, 1.58e6, 1.41e6,
      &                  1.49e6, 1.55e6, 1.40e6, 1.45e6, 1.51e6, 1.38e6, 1.72e6, 1.56e6,
      &                  1.44e6, 1.72e6, 1.69e6 /
@@ -374,7 +382,7 @@ C-------------------------------------------------------------------------------
          
          SUBROUTINE STAGE_LU_MAPPER
             
-            USE RUNTIME_VARS, ONLY: STAGECTRL, LOGDEV!, log_message, log_subheading
+            USE RUNTIME_VARS, ONLY: STAGECTRL, LOGDEV
             use UTILIO_DEFN
       
             IMPLICIT NONE
@@ -420,16 +428,16 @@ C-------------------------------------------------------------------------------
             MET_TO_STAGE_LU%Factor      = 0.0
             MET_TO_STAGE_LU%Description = 'N/A'                  
 
-      ! Retrieve the Name of the Emission Control File
+      ! Retrieve the Name of the STAGE Control File
             IF ( STAGECTRL .EQ. "STAGECTRL_NML" ) THEN
                WRITE( LOGDEV, "(5x,A,/,5x,A,/,5x,A)"),
      &           'You have chosen not to indicate the location of an',
-     &           'Emission Control namelist file. Default settings ',
+     &           'STAGE Control namelist file. Default settings ',
      &           'will be assumed.'
                RETURN
             END IF
 
-      ! Open Emission Control Namelist File
+      ! Open STAGE Control Namelist File
             DEPCTRL_NML = JUNIT()
             OPEN( FILE = STAGECTRL, UNIT = DEPCTRL_NML, STATUS = 'OLD',
      &            POSITION = 'REWIND', FORM='FORMATTED', IOSTAT = STAT )

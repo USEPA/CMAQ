@@ -20,8 +20,8 @@
 c:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       Module MOSAIC_MOD
       
-C Contains the shared variables and subrountes needed estimated the resistances
-C from natural and agricultrual lands for NH3 bidirectional flux
+C Contains the shared variables and subrountes needed estimate the resistances
+C from natural and agricultural lands
  
 C Revision History: J. Bash June 16 2011:    Created
 C                   J. Young Oct 31 2011:    changed lai0, laimn0, rsmin, VEG0, vegmn0,
@@ -30,8 +30,8 @@ C                   D. Schwede Mar 12 2012:  fixed errors in crop lai
 C                   D. Schwede Sept 07 2012: updated code for NLCD40 land use classification
 C                   J. Bash:   Nov 07  2014: Modified for the restructuring of vidff. Most 
 C                                            mosaic variables were moved to ASX_DATA_MOD. 
-C                                            Algorithms were restuctured using fortran 95 
-C                                            array construcs for readability.
+C                                            Algorithms were restructured using fortran 90 
+C                                            array constructs for readability.
 C                   D. Wong:   Feb 10  2019: removed all MY_N clauses
 C                   D. Wong:   Apr 24  2019: removed unused BUFF2D_2 array
 C-------------------------------------------------------------------------------
@@ -39,58 +39,58 @@ C-------------------------------------------------------------------------------
       Implicit None
       
 C Private variables used in this module and subroutines       
-      Real, Save, Allocatable, Private :: fseas          ( :,: )
-      Real, Save, Allocatable, Private :: f_land         ( :,: )
-      Real, Save, Allocatable, Private :: sum_mos_lai    ( :,: )
-      Real, Save, Allocatable, Private :: sum_mos_veg    ( :,: )
-      Real, Save, Allocatable, Private :: vseas          ( :,: )
-      Real, Save, Allocatable, Private :: znotc          ( :,: )
-      Real, Save, Allocatable, Private :: lu_mean_ga     ( :,: )
-      Real, Save, Allocatable, Private :: lu_mean_ustar  ( :,: )
+      Real, Save, Allocatable, Private :: fseas          ( :,: ) ! Non-agricultural seasonal leaf on/off 0.0-1.0 where 1.0 is leaf on condutions
+      Real, Save, Allocatable, Private :: f_land         ( :,: ) ! fraction of the grid cell that is land
+      Real, Save, Allocatable, Private :: sum_mos_lai    ( :,: ) ! sum of the land use LAI used for normalization
+      Real, Save, Allocatable, Private :: sum_mos_veg    ( :,: ) ! sum of the land use VEG used for normalization
+      Real, Save, Allocatable, Private :: vseas          ( :,: ) ! Agricultural seasonal leaf on/off 0.0-1.0 where 1.0 is leaf on condutions
+      Real, Save, Allocatable, Private :: znotc          ( :,: ) ! land use surface roughness lenth for momentum (m)
+      Real, Save, Allocatable, Private :: lu_mean_ga     ( :,: ) ! mean land use aerodynamic conductance used for normalization (m/s)
+      Real, Save, Allocatable, Private :: lu_mean_ustar  ( :,: ) ! mean land use ustar used for normalization (m/s)
 
-      Integer, Save, Allocatable, Private :: lstwetdate( :,: )
-      Integer, Save, Allocatable, Private :: lstwettime( :,: )
+      Integer, Save, Allocatable, Private :: lstwetdate( :,: ) ! last wet date
+      Integer, Save, Allocatable, Private :: lstwettime( :,: ) ! last wet time 
 
       Integer,         PRIVATE :: ALLOCSTAT
       Integer, Save, PRIVATE :: l_ag, l_agmos
-      Logical, Save, Allocatable,  PRIVATE :: is_ag( : )
-      Logical, Save, Allocatable,  PRIVATE :: is_agmos( : )
-      Logical, Save, Allocatable,  PRIVATE :: is_water( : )
+      Logical, Save, Allocatable,  PRIVATE :: is_ag( : )     ! Agricultural flag
+      Logical, Save, Allocatable,  PRIVATE :: is_agmos( : )  ! Agricultural mosaic flag
+      Logical, Save, Allocatable,  PRIVATE :: is_water( : )  ! Water flag
 
 C Buffer variables  
-      Real, Pointer, Private :: Buff2D_1       ( :,: )
+      Real, Pointer, Private :: BUFF2D       ( :,: )
 
       Type :: Tile_Type                
          Integer                      :: n_vd ! number of gas species for tiled output
          Integer                      :: n_lufrac  ! number of land use for tiled output
-         Real,            Allocatable :: RSMIN        ( : )
-         Real,            Allocatable :: Z00          ( : )
-         Real,            Allocatable :: VEG0         ( : )
-         Real,            Allocatable :: VEGMN0       ( : )
-         Real,            Allocatable :: LAI0         ( : )
-         Real,            Allocatable :: LAIMN0       ( : )
-         Real,            Allocatable :: SNUP0        ( : )
-         Real,            Allocatable :: NH3_gam_grnd ( : )
-         Real,            Allocatable :: NH3_gam_st   ( : )
-         Real,            Allocatable :: Hg_grnd      ( : )
-         Real,            Allocatable :: l_width      ( : )
-         Real,            Allocatable :: Alpha        ( : )
-         Real,            Allocatable :: BAI          ( : )
-         Real,            Allocatable :: Ahair        ( : )
-         Real,            Allocatable :: Fhair        ( : )
-         Real,            Allocatable :: Aleaf        ( : )
+         Real,            Allocatable :: RSMIN        ( : ) ! minimum stomatal resistance (s/m)
+         Real,            Allocatable :: Z00          ( : ) ! momentum roughness length (m)
+         Real,            Allocatable :: VEG0         ( : ) ! maximum vegetation coverage (%)
+         Real,            Allocatable :: VEGMN0       ( : ) ! minimum vegetation coverage (%)
+         Real,            Allocatable :: LAI0         ( : ) ! maximum lai (m2/m2)
+         Real,            Allocatable :: LAIMN0       ( : ) ! minimum lai (m2/m2)
+         Real,            Allocatable :: NH3_gam_grnd ( : ) ! soil/litter surface NH3 emission potential ([NH4]/[H])
+         Real,            Allocatable :: NH3_gam_st   ( : ) ! vegetation NH3 emission potential ([NH4]/[H])
+         Real,            Allocatable :: Hg_grnd      ( : ) ! soil Hg concentration (umol/g )
+         Real,            Allocatable :: l_width      ( : ) ! aerodynamic leaf width (m)
+         Real,            Allocatable :: Alpha        ( : ) ! Emerson et al 2020 PNAS land use factor (m)
+         Real,            Allocatable :: BAI          ( : ) ! building area index (m2/m2)
+         Real,            Allocatable :: Ahair        ( : ) ! leaf hair width (m)
+         Real,            Allocatable :: Fhair        ( : ) ! ratio of leaf covered in hairs
+         Real,            Allocatable :: Aleaf        ( : ) ! aerodynamic leaf width 
+!> Mapping for diagnostic ouputs
          Character( 16 ), Allocatable :: cat_lu       ( : ) ! Tiled LU name
          Character( 16 ), Allocatable :: name_lu      ( : ) ! Land use output name
-         Logical,         Allocatable :: gas_out      ( : ) ! vector of length N_SPC_DIFF with T for output
+         Logical,         Allocatable :: gas_out      ( : ) ! vector of length N_SPC_DIFF with TRUE for output
          Character( 16 ), Allocatable :: Vd_Name      ( : ) ! Deposition species output name
-         Logical,         Allocatable :: Vd_out       ( : ) ! vector of length N_SPC_DEPV with T for output
+         Logical,         Allocatable :: Vd_out       ( : ) ! vector of length N_SPC_DEPV with TRUE for output
          Integer,         Allocatable :: dep2vdiff    ( : ) ! Vdiff location for dep species
-         Real,            Allocatable :: Vd_fac       ( : ) ! Vdiff location for dep species
+         Real,            Allocatable :: Vd_fac       ( : ) ! Vd factor from the GC, NR, and TR namelists
 !> Mean grid cell output 
          Real,            Allocatable :: Grd_Vd     ( :,:,: ) ! Grid mean gaseous and aerosol deposition velocity
          Real,            Allocatable :: Bidi_Emis  ( :,:,: ) ! Grid bidirectional Emissions
 !> Aggrigated fractional land use       
-         Real,            Allocatable :: LUfrac     ( :,:,: ) ! aggrigated land use 
+         Real,            Allocatable :: LUfrac     ( :,:,: ) ! land use fraction (ratio)
 !> Sub grid cell output:
          Real,            Allocatable :: Lu_Vd      ( :,:,:,: ) ! gaseous and aerosol deposition velocity
       End Type Tile_Type
@@ -120,7 +120,7 @@ C...include files
          Real, Intent( In )  :: lufrac( :,:,: )    
          Character( 240 )       :: xmsg = ' '
          Character(  16 ), save :: pname = 'Init_Mosaic'
-         Integer n,l,t
+         Integer n,l,s
          Integer N_GAS_DEPV
          Integer gxoff, gyoff            ! global origin offset from file
          Integer :: strtcolgc2, endcolgc2, strtrowgc2, endrowgc2
@@ -157,7 +157,7 @@ C...include files
          Tile_Data%LAIMN0       = STAGE_LU_Data( 1:n_stage_lu )%LAIMN0
          Tile_Data%VEG0         = STAGE_LU_Data( 1:n_stage_lu )%VEG0
          Tile_Data%VEGMN0       = STAGE_LU_Data( 1:n_stage_lu )%VEGMN0
-         Tile_Data%Z00          = STAGE_LU_Data( 1:n_stage_lu )%Z00/100.0
+         Tile_Data%Z00          = STAGE_LU_Data( 1:n_stage_lu )%Z00
          Tile_Data%NH3_gam_st   = STAGE_LU_Data( 1:n_stage_lu )%Gamma_NH3_st
          Tile_Data%NH3_gam_grnd = STAGE_LU_Data( 1:n_stage_lu )%Gamma_NH3_grnd
          Tile_Data%Hg_grnd      = STAGE_LU_Data( 1:n_stage_lu )%Hg_grnd
@@ -169,7 +169,7 @@ C...include files
          Tile_Data%Aleaf        = STAGE_LU_Data( 1:n_stage_lu )%Aleaf
                                                                                                   
 ! Allocate buffers
-         ALLOCATE ( BUFF2D_1( ncols,nrows ), STAT = ALLOCSTAT )
+         ALLOCATE ( BUFF2D( ncols,nrows ), STAT = ALLOCSTAT )
          If ( ALLOCSTAT .Ne. 0 ) Then
             XMSG = 'Failure allocating 2D Buffers'
             Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
@@ -184,7 +184,7 @@ C...include files
      &              lu_mean_ga     ( ncols,nrows ), 
      &              lu_mean_ustar  ( ncols,nrows ),  STAT = ALLOCSTAT )
          If ( ALLOCSTAT .Ne. 0 ) Then
-            XMSG = 'Failure allocating MOSAIC variables'
+            XMSG = 'Failure allocating MOSAIC 2D variables'
             Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          End If
          f_land        = 0.0
@@ -193,25 +193,16 @@ C...include files
             ALLOCATE ( lstwetdate     ( ncols,nrows ),
      &                 lstwettime     ( ncols,nrows ), STAT = ALLOCSTAT )
             If ( ALLOCSTAT .Ne. 0 ) Then
-               XMSG = 'Failure allocating MOSAIC variables'
+               XMSG = 'Failure allocating MOSAIC lstwetdate and lstwettime'
                Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             End If
             lstwetdate  = 0
             lstwettime  = 0
          End If
 
-!---------------------------------------------------------------------------------------------------
-! placeholder to read namelist for lu agrigation and dep species output
-!---------------------------------------------------------------------------------------------------
          N_GAS_DEPV = N_GC_DEPV + N_NR_DEPV + N_TR_DEPV
-         Allocate ( Tile_Data%Lu_Vd   ( ncols,nrows,N_SPC_DEPV,Tile_Data%n_lufrac ),  
-     &              STAT = ALLOCSTAT ) 
-         If ( ALLOCSTAT .Ne. 0 ) Then
-            XMSG = 'Failure allocating MOSAIC deposition velocities'
-            Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-         End If
-         Tile_Data%Lu_Vd     = 0.0
-         Allocate ( Tile_Data%Grd_Vd    ( ncols,nrows,N_SPC_DEPV ),  
+         Allocate ( Tile_Data%Lu_Vd     ( ncols,nrows,N_SPC_DEPV,Tile_Data%n_lufrac ), 
+     &              Tile_Data%Grd_Vd    ( ncols,nrows,N_SPC_DEPV ),  
      &              Tile_Data%Bidi_Emis ( ncols,nrows,N_SPC_DEPV ),
      &              Tile_Data%LUfrac    ( ncols,nrows,Tile_Data%n_lufrac ),
      &              Tile_Data%Vd_Name   ( N_SPC_DEPV ),
@@ -223,6 +214,7 @@ C...include files
             XMSG = 'Failure allocating MOSAIC deposition velocities'
             Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          End If
+         Tile_Data%Lu_Vd     = 0.0
          Tile_Data%Grd_Vd    = 0.0
          Tile_Data%Bidi_Emis = 0.0
          Tile_Data%Vd_Fac    = 0.0  
@@ -231,9 +223,9 @@ C...include files
 ! Map Met land use to STAGE land use
          Tile_Data%LUfrac = 0.0
          Do n = 1, n_xref_lu
-            t = MET_TO_STAGE_LU( n )%Dep_Index 
+            s = MET_TO_STAGE_LU( n )%Dep_Index 
             l = MET_TO_STAGE_LU( n )%Met_Index
-            Tile_Data%LUfrac(:,:,t) = Tile_Data%LUfrac(:,:,t) +
+            Tile_Data%LUfrac(:,:,s) = Tile_Data%LUfrac(:,:,s) +
      &            MET_TO_STAGE_LU( n )%Factor * lufrac(:,:,l)
          End Do
 
@@ -304,7 +296,7 @@ C initialize
          vseas           = 0.0
          fseas           = 0.0
          znotc           = 0.0
-         Buff2D_1        = 0.0
+         BUFF2D        = 0.0
          MOS_VEG         = 0.0
          MOS_LAI         = 0.0
          MOS_Z0          = 0.0
@@ -322,14 +314,14 @@ C calculate fseas based on deep soil temperature
 C based on a 10 C germination temperature for 5 cm soil depth reported multiple agricultural extension offices, 
 C e.g. https://www.agry.purdue.edu/ext/corn/news/timeless/Emergence.html. 
          Where( SOIT2 .Lt. 290.0 .And. SOIT2 .Gt. 283.0 )
-            vseas = 1.0 - ( 290.0 - SOIT2 ) ** 2 / 7.0 ** 2
+            vseas = 1.0 - ( 290.0 - SOIT2 ) ** 2 / 49.0 
          Elsewhere( SOIT2 .Ge. 290.0 )
             vseas = 1.0
          Elsewhere
             vseas = 0.0
          End where
 C find z0_crop by finding days past emergence
-         d_past_emer => Buff2D_1
+         d_past_emer => BUFF2D
          d_past_emer =  0.0
          d_past_emer = ( ( Tile_Data%LAIMN0( l_ag ) + vseas * ( Tile_Data%LAI0( l_ag )
      &                -    Tile_Data%LAIMN0( l_ag ) ) ) ** ( 1.0 / 1.923 ) ) / 2.273
@@ -403,34 +395,32 @@ C Now normalize the data to the meteorological LAI and VEG
          End Subroutine Calc_LAI      
 
 C*********************************************************************************************
-C                    RA_WRF
+C                    RA_WRF based on PX LSM
 C*********************************************************************************************
-         Subroutine RA_WRF( MOL, PBL, MOLI, ZH, RA, Z0, MOS_Z0, USTAR, MOS_USTAR,
+         Subroutine RA_WRF( MOLI, ZH, RA, Z0, MOS_Z0, USTAR, MOS_USTAR,
      &                      MOS_RA, gamah, betah, karman )   
 
          Use LSM_Mod
 
          Implicit None
 
-         Real, Intent( In )     :: gamah
-         Real, Intent( In )     :: betah
-         Real, Intent( In )     :: karman
-         Real, Intent( In )     :: MOLI( :,: )
-         Real, Intent( In )     :: MOL( :,: )
-         Real, Intent( In )     :: PBL( :,: )
-         Real, Intent( In )     :: ZH( :,:,: )
-         Real, Intent( In )     :: RA( :,: )
-         Real, Intent( In )     :: Z0( :,: )
-         Real, Intent( In )     :: USTAR( :,: )
-         Real, Intent( InOut )  :: MOS_Z0( :,:,: )
-         Real, Intent( InOut )  :: MOS_USTAR( :,:,: )
-         Real, Intent( InOut )  :: MOS_RA( :,:,: )
+         Real, Intent( In )     :: gamah              ! MOST coefficient for stability correction for unstable conditions [unitless]
+         Real, Intent( In )     :: betah              ! MOST coefficient for stability correction for stable conditions [unitless]
+         Real, Intent( In )     :: karman             ! von Karman constant [unitless]
+         Real, Intent( In )     :: MOLI( :,: )        ! 1 over the Obukhov length [1/m]
+         Real, Intent( In )     :: ZH( :,:,: )        ! mid-layer height above ground [m]
+         Real, Intent( In )     :: RA( :,: )          ! grid aerodynamic resistance [s/m]
+         Real, Intent( In )     :: Z0( :,: )          ! grid momentum roughness length [m]
+         Real, Intent( In )     :: USTAR( :,: )       ! grid friction velocity [m/s]
+         Real, Intent( InOut )  :: MOS_Z0( :,:,: )    ! land use momentum roughness length [m]
+         Real, Intent( InOut )  :: MOS_USTAR( :,:,: ) ! land use friction velocity [m/s]
+         Real, Intent( InOut )  :: MOS_RA( :,:,: )    ! land use aerodynamic resistance [s/m]
 
          Integer            :: j
-         Real, Parameter    :: pr0        = 0.95
+         Real, Parameter    :: pr0        = 0.95      ! turbulent Prandtl number
 
 C local volatile variable
-         Real, Pointer :: PSIH   ( :,: )
+         Real, Pointer :: PSIH   ( :,: ) ! Stability correction to the vertical wind profile
 
          lu_mean_ga    = 0.0
          lu_mean_ustar = 0.0
@@ -445,7 +435,7 @@ C Get surface flux variables
             End Where
          End Do  
 
-         PSIH => Buff2D_1
+         PSIH => BUFF2D
          PSIH = 0.0
          Do j = 1,Tile_Data%n_lufrac
             Where( MOLI .Lt. 0.0 ) ! checked against PX

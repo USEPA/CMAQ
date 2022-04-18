@@ -168,11 +168,11 @@ setenv CTM_GRAV_SETL Y       #> vdiff aerosol gravitational sedimentation [ defa
 setenv CTM_BIOGEMIS_BEIS N   #> calculate in-line biogenic emissions [ default: N ]
 setenv CTM_BIOGEMIS_MEGAN N  #> turns on MEGAN biogenic emission [ default: N ]
 setenv USE_MEGAN_LAI N       #> use separate LAI input file [ default: N ]
-#> Surface Tiled Aerosl and Gaseous Exchange Options
-# Default aerosol deposition model is CMAQ v5.3 (Shen et al 2022; lowest J model deposition)
-setenv CTM_MOSAIC N          #> landuse specific deposition velocities [ default: N ]
-setenv CTM_STAGE_P22 N       #> Pleim et al. 2022 Aerosol deposition model (Highest J model deposition)
-setenv CTM_STAGE_E20 Y       #> Emerson et al. 2020 Aerosol deposition model
+#> Surface Tiled Aerosol and Gaseous Exchange Options
+setenv CTM_MOSAIC N          #> Output landuse specific deposition velocities [ default: N ]
+setenv CTM_STAGE_P22 N       #> Pleim et al. 2022 Aerosol deposition model [default: N]
+setenv CTM_STAGE_E20 Y       #> Emerson et al. 2020 Aerosol deposition model [default: Y]
+setenv CTM_STAGE_S22 N       #> Shu et al. 2022 (CMAQ v5.3) Aerosol deposition model [default: N]
 
 #> Vertical Extraction Options
 setenv VERTEXT N

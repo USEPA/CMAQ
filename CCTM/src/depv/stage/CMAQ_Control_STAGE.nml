@@ -31,7 +31,7 @@
 
 &STAGE_DATA
  STAGE_CHEM_DATA=
- ! Species name | rel_rx  |  f0 |   Molar Vol | Mass accomadation coeff 
+ ! Species name | rel_rx  |  f0 |   Molar Vol | Mass accommodation coeff 
  !              |         |     |   L mol-1   | 
   'SO2          ',    32.8,  0.0,         35.0, 0.11,
   'SULF         ',  8000.0,  0.0,         49.0, 0.12,
@@ -225,7 +225,7 @@
 ! STAGE Land Use                                                               !
 !    This section contains the STAGE default tiled land use. These land uses   ! 
 !    consist of plant functional types, water, snow and ice, barren, and urban !
-!    (essentially a high roughness barren category) categories. Other land use !
+!    (essentially high roughness barren) categories. Other land use !
 !    types in the MODIS International Geosphere-Biosphere Programme (IGBP:     !
 !    https://fluxnet.org/data/badm-data-templates/igbp-classification/) or NLCD!
 !    Anderson classification scheme (https://www.mrlc.gov/data/legends/national!
@@ -234,7 +234,7 @@
 !    driving meteorological model, the vegetation and momentum variables from  !
 !    these land use types are normalized to the meteorological grid scale      !
 !    value, e.g. the land use weighted stomatal conductance will equal the grid!
-!    scale value. The only exception to this is if the metrological model is   !
+!    scale value. The only exception to this is if the meteorological model is   !
 !    missing a vegetation parameter when the land use indicates vegetation     !
 !    coverage due to assumptions regarding the land and water coverage in the  !
 !    meteorological model. In these cases, vegetation parameters are estimated !
@@ -246,30 +246,31 @@
 !    USGS categories used the Nowak and Greenfield 2020 data from table 2 and  !
 !    the NLCD urban categories used the impervious data from the NLCD legend   !
 !    and split the vegetation categories following Nowak and Greenfield 2020.  !
-!    Updated leaf litter and stomatal NH3 compesation points are estiamted by  !
-!    corrilating AMoN site survey NH3 compensation points with %N observations !
-!    from the TRY global plant trait database to the value for PFTs where      !
-!    observations are currently missing. The close relationships between leaf  !
+!    For PFTs for which observations of leaf litter and stomatal NH3           !
+!    compensation points are unavailable, values are estimated by correlating  !
+!    AMON site survey NH3 compensation points with %N observations from the    !
+!    TRY global plant trait database. The close relationships between leaf     !
 !    mass per area and leaf %N are widely reported Wright et al. 2004          !
 !    (https://doi.org/10.1038/nature02403). It is assumed that the vegetation  !
-!    present in snow/ice and barren land uses are grass/herbatious.            !     
+!    present in snow/ice and barren land uses are grass/herbaceous.            !     
 !------------------------------------------------------------------------------!
 
 &STAGE_LU
  STAGE_LU_DATA=                                                                                         
- ! Land Use Name     | Land use  | RSMIN |   Z0 | Max | Min  | Max | Min | Ground  | Veg     | Soil Hg  | Leaf   |       | Pleim et al. 2022 Aero Depv | LU   |
- !                   | Tag       | s/m   |   cm | VEG | VEG  | LAI | LAI | NH3 Gam | NH3 Gam | umol/g   | Width m| Alpha | BAI | Ahair | Fhair | Aleaf | Index|
-  'Water',                'WATER', 9999.0,   0.1,  0.0,   0.0,  0.0,  0.0,      0.0,      0.0,       0.0,     0.0,    0.0,  1.0, 1.0e-6, 8.0e-3, 1.0e-3,     1,
-  'Ice',                'SNOWICE',  100.0,   1.2, 10.0,   0.1,  1.7,  0.1,    438.0,    797.0,       0.0, 1.05e-2,    1.2,  1.0, 5.0e-7, 2.0e-3, 5.0e-4,     2,
-  'Barren',              'BARREN',  100.0,   5.0, 10.0,   0.5,  1.7,  0.1,    438.0,    797.0,     125.0, 1.05e-2,    1.2,  1.0, 5.0e-7, 2.0e-3, 5.0e-4,     3,
-  'Urban',                'URBAN', 9999.0, 100.0,  0.0,   0.0,  0.0,  0.0,      0.0,      0.0,       0.0,     0.0,    0.0,  2.0, 1.0e-6, 8.0e-3, 1.0e-3,     4,
-  'Grassland',            'GRASS',  100.0,   7.0, 90.0,  10.0,  1.7,  1.7,    438.0,    797.0,      20.0, 1.05e-2,    1.2,  1.0, 5.0e-7, 2.0e-3, 5.0e-4,     5,
-  'Cropland',                'AG',   70.0,  10.0, 90.0,  10.0,  3.6,  1.5,    438.0,    797.0,      81.0, 1.05e-2,    1.2,  1.0, 1.0e-6, 8.0e-3, 4.0e-3,     6,
-  'Shrub',                'SHRUB',  200.0,  15.0, 90.0,  10.0,  2.1,  1.0,     52.0,     81.0,     125.0, 2.04e-3,    1.3,  1.0, 1.0e-6, 8.0e-3, 3.0e-3,     7,
-  'EvrgrnNeedleLeaf',   'EVEFORN',  175.0, 100.0, 93.0,  93.0,  5.5,  3.5,     13.0,     18.0,      40.0, 9.00e-4,    1.0,  1.0, 5.0e-7, 8.0e-3, 2.0e-3,     8,
-  'EvrgrnBroadLeaf',    'EVEFORB',  120.0,  90.0, 92.0,  92.0,  5.7,  3.6,     46.0,     71.0,     130.0, 1.10e-2,    1.0,  1.0, 1.0e-6, 8.0e-3, 1.0e-2,     9,
-  'DecNeedleLeaf',      'DECFORB',  175.0, 100.0, 90.0,  60.0,  4.6,  1.5,     67.0,    107.0,      81.0, 7.20e-4,    0.8,  1.0, 5.0e-7, 8.0e-3, 2.0e-3,    10,
-  'DecBroadLeaf',       'DECFORN',  200.0, 100.0, 91.0,  91.0,  5.1,  1.5,    198.0,    340.0,      81.0, 3.88e-2,    1.0,  1.0, 1.0e-6, 8.0e-3, 1.0e-2,    11,
+ ! Land Use Name     | Land use  | RSMIN |    Z0 | Max | Min  | Max | Min | Ground  | Veg     | Soil  | Leaf   | Alpha | Pleim et al. 2022 Aero Depv | LU   |
+ !                   | Tag       |       |       | VEG | VEG  | LAI | LAI | NH3 Gam | NH3 Gam |  Hg   | Width  |       | BAI | Ahair | Fhair | Aleaf | Index|
+ !                   | unitless  |  s/m  |    m  |  %  |  %   |m2/m2|m2/m2| mol/mol | mol/mol | umol/g|  m     |   m   |m2/m2|   m   | ratio |   m   |      |
+  'Water',                'WATER', 9999.0, 1.0e-3,  0.0,   0.0,  0.0,  0.0,      0.0,      0.0,    0.0,     0.0,    0.0,  1.0, 1.0e-6, 8.0e-3, 1.0e-3,     1,
+  'Ice',                'SNOWICE',  100.0, 1.2e-2, 10.0,   0.1,  1.7,  0.1,    438.0,    797.0,    0.0, 1.05e-2,    1.2,  1.0, 5.0e-7, 2.0e-3, 5.0e-4,     2,
+  'Barren',              'BARREN',  100.0, 5.0e-2, 10.0,   0.5,  1.7,  0.1,    438.0,    797.0,  125.0, 1.05e-2,    1.2,  1.0, 5.0e-7, 2.0e-3, 5.0e-4,     3,
+  'Urban',                'URBAN', 9999.0,    1.0,  0.0,   0.0,  0.0,  0.0,      0.0,      0.0,    0.0,     0.0,    0.0,  2.0, 1.0e-6, 8.0e-3, 1.0e-3,     4,
+  'Grassland',            'GRASS',  100.0, 7.0e-2, 90.0,  10.0,  1.7,  1.7,    438.0,    797.0,   20.0, 1.05e-2,    1.2,  1.0, 5.0e-7, 2.0e-3, 5.0e-4,     5,
+  'Cropland',                'AG',   70.0, 1.0e-1, 90.0,  10.0,  3.6,  1.5,    438.0,    797.0,   81.0, 1.05e-2,    1.2,  1.0, 1.0e-6, 8.0e-3, 4.0e-3,     6,
+  'Shrub',                'SHRUB',  200.0, 1.5e-1, 90.0,  10.0,  2.1,  1.0,     52.0,     81.0,  125.0, 2.04e-3,    1.3,  1.0, 1.0e-6, 8.0e-3, 3.0e-3,     7,
+  'EvrgrnNeedleLeaf',   'EVEFORN',  175.0,    1.0, 93.0,  93.0,  5.5,  3.5,     13.0,     18.0,   40.0, 9.00e-4,    1.0,  1.0, 5.0e-7, 8.0e-3, 2.0e-3,     8,
+  'EvrgrnBroadLeaf',    'EVEFORB',  120.0, 9.0e-1, 92.0,  92.0,  5.7,  3.6,     46.0,     71.0,  130.0, 1.10e-2,    1.0,  1.0, 1.0e-6, 8.0e-3, 1.0e-2,     9,
+  'DecNeedleLeaf',      'DECFORN',  175.0,    1.0, 90.0,  60.0,  4.6,  1.5,     67.0,    107.0,   81.0, 7.20e-4,    0.8,  1.0, 5.0e-7, 8.0e-3, 2.0e-3,    10,
+  'DecBroadLeaf',       'DECFORB',  200.0,    1.0, 91.0,  91.0,  5.1,  1.5,    198.0,    340.0,   81.0, 3.88e-2,    1.0,  1.0, 1.0e-6, 8.0e-3, 1.0e-2,    11,
 /
 
 !------------------------------------------------------------------------------!
@@ -385,9 +386,9 @@
   'MODIS_15',   15,         'Ice',                2,         1.0,     'Snow/ice',
   'MODIS_16',   16,         'Barren',             3,         1.0,     'Barren',
   'MODIS_17',   17,         'Water',              1,         1.0,     'Water',
-  'MODIS_253',  18,         'Water',              1,         1.0,     'Unclasified Fill',
-  'MODIS_254',  19,         'Water',              1,         1.0,     'Unclasified Fill',
-  'MODIS_255',  20,         'Water',              1,         1.0,     'Unclasified Fill',
+  'MODIS_253',  18,         'Water',              1,         1.0,     'Unclassified Fill',
+  'MODIS_254',  19,         'Water',              1,         1.0,     'Unclassified Fill',
+  'MODIS_255',  20,         'Water',              1,         1.0,     'Unclassified Fill',
   'NLCD_11',    21,         'Water',              1,         1.0,     'Water',
   'NLCD_12',    22,         'Ice',                2,         1.0,     'Snow/ice',
   'NLCD_21',    23,         'DecBroadLeaf',      11,         0.45,    'Developed, Open space',
@@ -510,9 +511,9 @@
   'USGS_CrWdM',           6,         'Cropland',            6,    0.50, 'Forest Crop Mosaic',
   'USGS_CrWdM',           6,     'DecBroadLeaf',           11,    0.50, 'Forest Crop Mosaic',
   'USGS_GrsLd',           7,        'Grassland',            5,    1.00, 'Grasslands',
-  'USGS_ShrLd',           8,            'Shrub',            7,    1.00, 'Shurblands',
-  'USGS_ShrGr',           9,            'Shrub',            7,    0.50, 'Shurblands',
-  'USGS_ShrGr',           9,        'Grassland',            5,    0.50, 'Shurblands',
+  'USGS_ShrLd',           8,            'Shrub',            7,    1.00, 'Shrublands',
+  'USGS_ShrGr',           9,            'Shrub',            7,    0.50, 'Shrublands',
+  'USGS_ShrGr',           9,        'Grassland',            5,    0.50, 'Shrublands',
   'USGS_Savan',          10,        'Grassland',            5,    0.50, 'Savannas',
   'USGS_Savan',          10,     'DecBroadLeaf',           11,    0.50, 'Savannas',
   'USGS_DBFst',          11,     'DecBroadLeaf',           11,    1.00, 'Deciduous Broadleaf Forest',
