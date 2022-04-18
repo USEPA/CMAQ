@@ -1948,11 +1948,6 @@ CONTAINS    !!-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
       ELSE IF( GDAY >= 30 .AND. GDAY <= 366) THEN
           ! later month of growing season
           FERTLZ_ADJ = 1. + 30. / FLOAT(GLEN) - FLOAT(GDAY) / FLOAT(GLEN)
-      ELSE
-          WRITE( MESG,94010 ) 'Invalid date specified; date = ',  &
-                              DATE, 'growing season day = ',      &
-                              GDAY
-!          CALL M3EXIT( 'FERTLZ_ADJ', 0, 0, MESG, 2 )
       ENDIF
 
 !******************  FORMAT  STATEMENTS   ******************************
@@ -2062,11 +2057,6 @@ CONTAINS    !!-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
       YEAR = INT( FLOAT( DATE ) / 1000. )
       JDAY = DATE - YEAR * 1000
 
-      IF( JDAY .LT. 1 .OR. JDAY .GT. 366 ) THEN
-         WRITE( 10,* ) 'Invalid date specified; date = ',        &
-                             DATE, 'jday = ', JDAY
-      ENDIF
-
       IF ( LAT .LE. 23.0 .AND. LAT .GE. -23.0 ) THEN
       ! tropical regions, year round
          GSEASON_START = 0101
@@ -2133,8 +2123,6 @@ CONTAINS    !!-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
             ENDIF
             GLEN = GSJULIAN_END - GSJULIAN_START + 1
          ENDIF
-      ELSE
-         WRITE(10,*) 'Invalid LAT = ', LAT
       ENDIF
   
      RETURN
@@ -2343,16 +2331,9 @@ CONTAINS    !!-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
           TAIR = TA( C, R )         ! unit in degree K
 
-!.......  Check max and min bounds for temperature
-          IF (TAIR < 200.0) THEN
-             WRITE( 10,* ) 'TAIR=', TAIR,                &
-                   'out of range at (C,R)=', C, R
-          END IF
+!.......  Check max bounds for temperature
 
           IF (TAIR > 315.0 ) THEN
-              WRITE( 10,* ) 'TAIR=', TAIR,               &
-                    'out of range at (C,R)=', C, R,             &
-                    ' resetting to 315K'
               TAIR = 315.0
           END IF
 
@@ -3385,14 +3366,7 @@ SUBROUTINE MEGVEA(NCOLS,NROWS, LAYERS, JDATE, ZTIME,                &
       REAL, INTENT(OUT)    ::  outer       (NMGNSPC, NCOLS, NROWS ) ! CB6
 
       INTEGER :: INO,ios
-      REAL :: garea
 
-
-      
-      REAL, PARAMETER :: ug2g = 1E-6          ! convert microgram to metric gram
-      REAL, PARAMETER :: g2tonne = 1E-6       ! convert microgram to metric ton
-      REAL, PARAMETER :: hr2sec = 3600        ! convert hr to second
-      REAL, PARAMETER :: n2no   = 2.142857    
       REAL, PARAMETER :: nmol2mol   = 1E-9    ! convert nanomoles to moles
 
       
@@ -3449,7 +3423,7 @@ SUBROUTINE MEGVEA(NCOLS,NROWS, LAYERS, JDATE, ZTIME,                &
 !.....3) Conversion from speciated species to MECHANISM species
 !-----------------------------------------------------------------------
         DO s = 1, n_spca_spc
-           tmper(s,:,:) = tmper(s,:,:) * nmol2mol * hr2sec
+           tmper(s,:,:) = tmper(s,:,:) * nmol2mol 
         ENDDO
 
           ! lumping to MECHANISM species
@@ -3461,8 +3435,7 @@ SUBROUTINE MEGVEA(NCOLS,NROWS, LAYERS, JDATE, ZTIME,                &
            IF ( nmpmc .NE. 999 ) THEN
 
             outer(nmpmc,:,:) = outer(nmpmc,:,:) +     &
-                    (tmper(nmpsp,:,:) * conv_fac(s)) &
-                              /hr2sec
+                    (tmper(nmpsp,:,:) * conv_fac(s))
            ENDIF
           ENDDO ! End species loop
 
