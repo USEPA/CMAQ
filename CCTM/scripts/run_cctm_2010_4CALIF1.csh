@@ -408,7 +408,6 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
      set IN_BEISpath = ${INPDIR}/surface
      setenv GSPRO          $BLD/gspro_biogenics.txt
      setenv BEIS_NORM_EMIS $IN_BEISpath/b3grd_4CALIF1_2011en_cb6_10.ncf
-     setenv PX_VERSION Y     #> MCIP is PX version? [ default: N ]
      setenv SOILINP        $OUTDIR/CCTM_SOILOUT_${RUNID}_${YESTERDAY}.nc
                              #> Biogenic NO soil input file; ignore if NEW_START = TRUE
   endif
