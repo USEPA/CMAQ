@@ -55,6 +55,7 @@ C                               with UTILIO_DEFN
 C                    15 Jul 14 B.Hutzell: replaced mechanism include files with 
 C                    RXNS_DATA module, updated explicit interfaces and revised
 C                    block for FPP flag redebug is set in compilation
+C                    21 Mar 22 G . Sarwar: changed BLKLAND to BLKSEAWATER
 C**********************************************************************
 !     USE GRID_CONF               ! horizontal & vertical domain specifications
       USE RXNS_DATA
@@ -548,7 +549,7 @@ c..Estimate error
                END DO
 
                WRITE( LOGDEV, 92215 ) BLKTEMP( CELL_MAXERR ), BLKPRES( CELL_MAXERR ),
-     &         BLKDENS( CELL_MAXERR ), BLKCH2O( CELL_MAXERR ), BLKLAND( CELL_MAXERR ) 
+     &         BLKDENS( CELL_MAXERR ), BLKCH2O( CELL_MAXERR ), BLKSEAWATER( CELL_MAXERR ) 
 
                WRITE( LOGDEV, 92115 )
 
@@ -617,7 +618,7 @@ c..write photolysis rates used in cell
      &       / 'Press = ', ES12.4,' Pa '
      &       / 'Dens = ', ES12.4, ' Kg/m3 ' 
      &       / 'H2O Vapor = ', ES12.4, ' ppm '
-     &       / 'LAND(True/False) = ', L7 )
+     &       / 'SEAWATER( - ) = ', ES12.4 )
       
       END
 

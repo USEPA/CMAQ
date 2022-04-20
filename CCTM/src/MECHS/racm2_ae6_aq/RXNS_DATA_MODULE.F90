@@ -6,7 +6,7 @@
 
 
 ! --------- Photochemical Mechanism Reactions, Rates, etc. DAT ---------
-! Source file: /home/gsarwar/util/MP/MECHS/racm2_ae6_aq/mech_racm2_ae6_aq.def
+! Source file: /work/MOD3DEV/sgq/manage_git/research/condensed_chemistry/UTIL/chemmech/input/racm2_ae6_aq/mech_racm2_ae6_aq.def
 ! for Mechanism Name: RACM2_AE6_AQ                    
 
 ! This file is used to create mechanism data and functions
@@ -2351,7 +2351,7 @@
      &     1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! 2   
      &     1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! +   
      &     1.0000D+00, 1.0000D+00, 1.0000D+00, 1.7000D-12, 1.0000D-14, & ! 3   
-     &     1.4000D-12, 1.4000D-13, 5.7400D-34, 8.0000D-12, 3.2000D-11, & ! +   
+     &     1.4000D-12, 1.4000D-13, 5.7400D-34, 8.0000D-12, 3.3000D-11, & ! +   
      &     2.0000D-11, 2.1400D-10, 7.7000D-12, 4.8000D-11, 2.2000D-13, & ! 4   
      &     3.0800D-34, 2.9000D-12, 9.0000D-32, 7.0000D-31, 3.4500D-12, & ! +   
      &     6.0950D-14, 3.3000D-39, 2.5000D-12, 5.5000D-12, 2.5000D-31, & ! 5   
@@ -2521,7 +2521,7 @@
      &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
      &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
      &     0.0000D+00, 0.0000D+00, 0.0000D+00,-9.4000D+02,-4.9000D+02, & ! 3   
-     &    -1.3100D+03,-2.4700D+03, 0.0000D+00,-2.0600D+03,-6.7000D+01, & ! +   
+     &    -1.3100D+03,-2.4700D+03, 0.0000D+00,-2.0600D+03, 6.7000D+01, & ! +   
      &     1.3000D+02, 0.0000D+00,-2.1000D+03, 2.5000D+02, 1.9000D-33, & ! 4   
      &     2.5900D-54,-1.6000D+02, 0.0000D+00, 0.0000D+00, 2.7000D+02, & ! +   
      &     6.8570D-34, 5.3000D+02, 2.6000D+02, 1.8800D+02, 0.0000D+00, & ! 5   
@@ -4527,7 +4527,7 @@
      &   'O3O3P_NASA06    ', 'O3O1D_NASA06    ', 'H2O2_RACM2      ', & 
      &   'NO2_RACM2       ', 'NO3NO_RACM2     ', 'NO3NO2_RACM2    ', & 
      &   'HONO_RACM2      ', 'HNO3_RACM2      ', 'HNO4_RACM2      ', & 
-     &   'HCHO_MOL_RACM2  ', 'HCHO_RAD_RACM2  ', 'CH3CHO_RACM2    ', & 
+     &   'HCHO_MOL_JPL19  ', 'HCHO_RAD_JPL19  ', 'CH3CHO_RACM2    ', & 
      &   'ALD_RACM2       ', 'CH3COCH3_RACM2  ', 'UALD_RACM2      ', & 
      &   'MEK_RACM2       ', 'KET_RACM2       ', 'HKET_RACM2      ', & 
      &   'MACR_RACM2      ', 'MVK_RACM2       ', 'GLYH2_RACM2     ', & 
@@ -4753,8 +4753,8 @@
        INTEGER, PARAMETER  :: IJ_HONO_RACM2       =   7
        INTEGER, PARAMETER  :: IJ_HNO3_RACM2       =   8
        INTEGER, PARAMETER  :: IJ_HNO4_RACM2       =   9
-       INTEGER, PARAMETER  :: IJ_HCHO_MOL_RACM2   =  10
-       INTEGER, PARAMETER  :: IJ_HCHO_RAD_RACM2   =  11
+       INTEGER, PARAMETER  :: IJ_HCHO_MOL_JPL19   =  10
+       INTEGER, PARAMETER  :: IJ_HCHO_RAD_JPL19   =  11
        INTEGER, PARAMETER  :: IJ_CH3CHO_RACM2     =  12
        INTEGER, PARAMETER  :: IJ_ALD_RACM2        =  13
        INTEGER, PARAMETER  :: IJ_CH3COCH3_RACM2   =  14

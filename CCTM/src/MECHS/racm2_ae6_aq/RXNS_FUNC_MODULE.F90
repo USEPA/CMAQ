@@ -201,7 +201,7 @@
        RETURN
        END SUBROUTINE SPECIAL_RATES
  
-       SUBROUTINE CALC_RCONST( BLKTEMP, BLKPRES, BLKH2O, RJBLK, BLKHET, LSUNLIGHT, LAND, RKI, NUMCELLS )
+       SUBROUTINE CALC_RCONST( BLKTEMP, BLKPRES, BLKH2O, RJBLK, BLKHET, LSUNLIGHT, SEAWATER, RKI, NUMCELLS )
 
 !**********************************************************************
 
@@ -231,7 +231,7 @@
         REAL( 8 ),           INTENT( IN  ) :: BLKHET ( :, : )   ! heterogeneous rate constants, ???/min
         INTEGER,             INTENT( IN  ) :: NUMCELLS          ! Number of cells in block 
         LOGICAL,             INTENT( IN  ) :: LSUNLIGHT         ! Is there sunlight? 
-        LOGICAL,             INTENT( IN  ) :: LAND( : )         ! Is the surface totally land? 
+        REAL( 8 ),           INTENT( IN  ) :: SEAWATER( : )     ! fractional area of OPEN+SURF 
         REAL( 8 ),           INTENT( OUT ) :: RKI ( :, : )      ! reaction rate constant, ppm/min 
 !..Parameters: 
 
@@ -290,9 +290,9 @@
 !  Reaction Label R009            
                 RKI( NCELL,    9) =  RJBLK( NCELL, IJ_HNO4_RACM2 )
 !  Reaction Label R010            
-                RKI( NCELL,   10) =  RJBLK( NCELL, IJ_HCHO_MOL_RACM2 )
+                RKI( NCELL,   10) =  RJBLK( NCELL, IJ_HCHO_MOL_JPL19 )
 !  Reaction Label R011            
-                RKI( NCELL,   11) =  RJBLK( NCELL, IJ_HCHO_RAD_RACM2 )
+                RKI( NCELL,   11) =  RJBLK( NCELL, IJ_HCHO_RAD_JPL19 )
 !  Reaction Label R012            
                 RKI( NCELL,   12) =  RJBLK( NCELL, IJ_CH3CHO_RACM2 )
 !  Reaction Label R013            
@@ -338,10 +338,12 @@
 !  Reaction Label R033            
                 RKI( NCELL,   33) =  RJBLK( NCELL, IJ_PAN2_RACM2 )
 
-                IF( .NOT. LAND( NCELL ) )THEN
+                IF ( SEAWATER (NCELL) .GT. 0.001D0 ) THEN
 !  Reaction Label HAL_Ozone       
-                   RKI( NCELL,  380) =  SFACT * HALOGEN_FALLOFF( BLKPRES( NCELL ),   6.7006D-11,   1.0743D+01,  & 
+                   RKI( NCELL,  380) = SEAWATER (NCELL) *  SFACT * HALOGEN_FALLOFF( BLKPRES( NCELL ),   6.7006D-11,   1.0743D+01,  & 
      &                                                           3.4153D-08,  -6.7130D-01,         2.0000D-06 )
+                ELSE
+                   RKI( NCELL,  380) = 0.0D0 
                 END IF
 
             END DO 
@@ -373,7 +375,7 @@
 !  Reaction Label R039            
              RKI( NCELL,   39) =  CFACT * ARRHENUIS_T03( INV_TEMP,  8.0000D-12,  -2.0600D+03 )
 !  Reaction Label R040            
-             RKI( NCELL,   40) =  CFACT * ARRHENUIS_T03( INV_TEMP,  3.2000D-11,  -6.7000D+01 )
+             RKI( NCELL,   40) =  CFACT * ARRHENUIS_T03( INV_TEMP,  3.3000D-11,   6.7000D+01 )
 !  Reaction Label R041            
              RKI( NCELL,   41) =  CFACT * ARRHENUIS_T03( INV_TEMP,  2.0000D-11,   1.3000D+02 )
 !  Reaction Label R042            

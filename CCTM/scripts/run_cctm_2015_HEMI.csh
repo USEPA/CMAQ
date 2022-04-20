@@ -148,9 +148,7 @@ setenv CTM_ADV_CFL 0.95      #> max CFL [ default: 0.75]
 
 #> Science Options
 setenv CTM_OCEAN_CHEM Y      #> Flag for ocean halogen chemistry and sea spray aerosol emissions [ default: Y ]
-setenv CTM_WB_DUST Y         #> use inline windblown dust emissions [ default: Y ]
-#setenv CTM_WBDUST_BELD BELD3 #> landuse database for identifying dust source regions 
-                             #>    [ default: UNKNOWN ]; ignore if CTM_WB_DUST = N 
+setenv CTM_WB_DUST Y         #> use inline windblown dust emissions (only for use with PX) [ default: N ]
 setenv CTM_LTNG_NO N         #> turn on lightning NOx [ default: N ]
 setenv KZMIN Y               #> use Min Kz option in edyintb [ default: Y ], 
                              #>    otherwise revert to Kz0UT
@@ -220,7 +218,6 @@ set IN_LTpath = $INPDIR/lightning         #> lightning NOx input directory
 set METpath   = $INPDIR/met/mcip_v43_wrf_v38_ctrl #> meteorology input directory 
 #set JVALpath  = $INPDIR/jproc            #> offline photolysis rate table directory
 set OMIpath   = $BLD                      #> ozone column data for the photolysis model
-set LUpath    = /work/MOD3DEV/sgq/hemisphere/emission/cb05  #> BELD landuse data for windblown dust model
 set SZpath    = /work/MOD3DEV/sgq/hemisphere/emission/cb05  #> surf zone file for in-line seaspray emissions
 
 # =====================================================================
@@ -428,22 +425,10 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   endif
   if ( $CTM_BIOGEMIS_BEIS == 'Y' ) then   
      set IN_BEISpath = ${INPDIR}/land
-     setenv GSPRO      $BLD/gspro_biogenics.txt
-     setenv B3GRD      $IN_BEISpath/b3grd_bench.nc
-     setenv BIOSW_YN   N     #> use frost date switch [ default: Y ]
-     setenv BIOSEASON  $IN_BEISpath/bioseason.cmaq.2011_12US1_wetland100.ghrsst_bench.ncf 
-                             #> ignore season switch file if BIOSW_YN = N
-     setenv SUMMER_YN  N     #> Use summer normalized emissions? [ default: Y ]
-     setenv PX_VERSION Y     #> MCIP is PX version? [ default: N ]
-     setenv SOILINP    $OUTDIR/CCTM_SOILOUT_${RUNID}_${YESTERDAY}.nc
+     setenv GSPRO          $BLD/gspro_biogenics.txt
+     setenv BEIS_NORM_EMIS $IN_BEISpath/b3grd_bench.nc
+     setenv SOILINP        $OUTDIR/CCTM_SOILOUT_${RUNID}_${YESTERDAY}.nc
                              #> Biogenic NO soil input file; ignore if NEW_START = TRUE
-  endif
-
-  #> Windblown dust emissions configuration
-  if ( $CTM_WB_DUST == 'Y' ) then
-     # Input variables for BELD3 Landuse option
-     #setenv DUST_LU_1 $LUpath/beld3_12US1_459X299_output_a_bench.nc
-     #setenv DUST_LU_2 $LUpath/beld4_12US1_459X299_output_tot_bench.nc
   endif
 
   #> In-line sea spray emissions configuration -- set above

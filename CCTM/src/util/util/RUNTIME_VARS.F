@@ -214,14 +214,10 @@
       LOGICAL :: BIOGEMIS_MEGAN= .FALSE. ! flag to in-line MEGAN biogenic emissions
       LOGICAL :: USE_MEGAN_LAI = .FALSE. ! flag to use MEGAN LAI values
       CHARACTER(16) :: SPPRO   = 'DEFAULT' ! requested speciation profile name
-      LOGICAL :: BIOGEMIS_SEASON=.FALSE. ! use frost switch file
-      LOGICAL :: ASSUME_SUMMER = .TRUE.  ! use summer normalized emissions
       LOGICAL :: BEMIS_DIAG    = .TRUE.  ! true: write diagnostic emiss file
       LOGICAL :: MGEMDIAG      = .FALSE. ! flag for MGEM diagnostic file
       LOGICAL :: OCEAN_CHEM    = .TRUE.  ! Flag for ocean halogen chemistry and sea spray aerosol emissions
       LOGICAL :: WB_DUST       = .FALSE. ! flag for On-Line Dust Emission Calculation
-      LOGICAL :: ERODE_AGLAND  = .FALSE.  ! Account for Erodible Agricultural Land when 
-                                               !   computing dust Emissions
       LOGICAL :: DUSTEM_DIAG   = .FALSE. ! flag for dustemis diagnostic file
       LOGICAL :: SSEMDIAG      = .FALSE. ! flag for SSEMIS diagnostic file
       LOGICAL :: LTNG_NO       = .FALSE. ! flag for online calculation of NO from lightning
@@ -268,7 +264,7 @@
       INTEGER :: AISAM_BLEV = 0             ! Beginning level saved to sa_aconc file
       INTEGER :: AISAM_ELEV = 0             ! Ending level saved to sa_aconc file
       INTEGER :: AVGSA_LAYS = 0             ! Number of layers saved to conc file
-      INTEGER :: ISAM_O3_WEIGHTS = 5        ! which chemistry are biased in apportioning reaction yields
+      INTEGER :: ISAM_CHEM_BIAS = 5         ! which chemistry are biased in apportioning reaction yields
                                             ! to source reactant
                                             ! 1 for none so divided equally between sources' reactant
                                             ! 2 for all products apportioned to sources with NO, NO2, NO3, HONO, ANO3
@@ -283,8 +279,8 @@
                                             ! production H2O2 over production HNO3 less than VOC_NOX_TRANS
                                    
       REAL     :: VOC_NOX_TRANS = 0.35      ! H2O2 to HNO3 marking transition from NOx to VOC limiting O3 production 
-      INTEGER  :: ISAM_NOX_CASE = 2         ! option of ISAM_O3_WEIGHTS representing NOx limiting O3 production
-      INTEGER  :: ISAM_VOC_CASE = 4         ! option of ISAM_O3_WEIGHTS representing VOC limiting O3 production
+      INTEGER  :: ISAM_NOX_CASE = 2         ! option of ISAM_CHEM_BIAS representing NOx limiting O3 production
+      INTEGER  :: ISAM_VOC_CASE = 4         ! option of ISAM_CHEM_BIAS representing VOC limiting O3 production
 
       CONTAINS
           
@@ -551,14 +547,14 @@
       END IF
 
       ! Get species bias case
-      CALL GET_ENV ( ISAM_O3_WEIGHTS, 'ISAM_O3_WEIGHTS', ISAM_O3_WEIGHTS, VARDEV )
-      IF ( ISAM_O3_WEIGHTS .LT. 1 .OR. ISAM_O3_WEIGHTS .GT. 5 ) THEN
-         XMSG = 'ISAM_CHEM_BIAS must equal 1 thru 5'
+      CALL GET_ENV ( ISAM_CHEM_BIAS, 'ISAM_O3_WEIGHTS', ISAM_CHEM_BIAS, VARDEV )
+      IF ( ISAM_CHEM_BIAS .LT. 1 .OR. ISAM_CHEM_BIAS .GT. 5 ) THEN
+         XMSG = 'ISAM_O3_WEIGHTS must equal 1 thru 5'
          WRITE( OUTDEV, '(A)' )TRIM( XMSG )
          CALL M3EXIT ( PNAME, 0, 0, XMSG, XSTAT1 )
       END IF
 
-      IF ( ISAM_O3_WEIGHTS .EQ. 5 ) THEN
+      IF ( ISAM_CHEM_BIAS .EQ. 5 ) THEN
         EFLAG = .FALSE.
       ! VOC_NOX_TRANS value, ratio of H2O2 over HNO3 production rates or concentration 
           CALL GET_ENV ( VOC_NOX_TRANS, 'VOC_NOX_TRANS', VOC_NOX_TRANS, VARDEV )
@@ -791,14 +787,6 @@
       ! Get the speciation profile to use
       CALL GET_ENV ( SPPRO, 'BIOG_SPRO', SPPRO, VARDEV )
  
-      ! Bioseason Switch Flag
-      CALL GET_ENV ( BIOGEMIS_SEASON, 'BIOSW_YN', BIOGEMIS_SEASON, VARDEV )
-
-      IF ( .NOT. BIOGEMIS_SEASON ) THEN
-         ! Assume_Summer flag
-         CALL GET_ENV ( ASSUME_SUMMER, 'SUMMER_YN', ASSUME_SUMMER, VARDEV )
-      END IF
-
       ! Biogenic Emission Diag File
       CALL GET_ENV ( BEMIS_DIAG, 'B3GTS_DIAG', BEMIS_DIAG, VARDEV )
  
@@ -810,9 +798,6 @@
 
       ! Flag for Online Calculation of Windblown dust emissions
       CALL GET_ENV ( WB_DUST, 'CTM_WB_DUST', WB_DUST, VARDEV )
-
-      ! Get env var for erodible agriculture land fraction
-      !CALL GET_ENV ( ERODE_AGLAND, 'CTM_ERODE_AGLAND', ERODE_AGLAND, VARDEV )
 
       ! Get env var for diagnostic output
       CALL GET_ENV ( DUSTEM_DIAG, 'CTM_DUSTEM_DIAG', DUSTEM_DIAG, VARDEV )
