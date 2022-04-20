@@ -148,9 +148,7 @@ setenv CTM_ADV_CFL 0.95      #> max CFL [ default: 0.75]
 
 #> Science Options
 setenv CTM_OCEAN_CHEM Y      #> Flag for ocean halogen chemistry and sea spray aerosol emissions [ default: Y ]
-setenv CTM_WB_DUST Y         #> use inline windblown dust emissions [ default: Y ]
-setenv CTM_WBDUST_BELD BELD3 #> landuse database for identifying dust source regions 
-                             #>    [ default: UNKNOWN ]; ignore if CTM_WB_DUST = N 
+setenv CTM_WB_DUST Y         #> use inline windblown dust emissions (only for use with PX) [ default: N ]
 setenv CTM_LTNG_NO Y         #> turn on lightning NOx [ default: N ]
 setenv KZMIN Y               #> use Min Kz option in edyintb [ default: Y ], 
                              #>    otherwise revert to Kz0UT
@@ -215,7 +213,6 @@ set IN_LTpath = $INPDIR/lightning         #> lightning NOx input directory
 set METpath   = $INPDIR/met/mcip          #> meteorology input directory 
 #set JVALpath  = $INPDIR/jproc            #> offline photolysis rate table directory
 set OMIpath   = $BLD                      #> ozone column data for the photolysis model
-set LUpath    = $INPDIR/land              #> BELD landuse data for windblown dust model
 set SZpath    = $INPDIR/land              #> surf zone file for in-line seaspray emissions
 
 # =====================================================================
@@ -388,13 +385,6 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
                              #> Biogenic NO soil input file; ignore if NEW_START = TRUE
   endif
 
-  #> Windblown dust emissions configuration
-  if ( $CTM_WB_DUST == 'Y' ) then
-     # Input variables for BELD3 Landuse option
-     setenv DUST_LU_1 $LUpath/beld3_12US1_459X299_output_a_bench.nc
-     setenv DUST_LU_2 $LUpath/beld4_12US1_459X299_output_tot_bench.nc
-  endif
-  
   #> In-line sea spray emissions configuration
   setenv OCEAN_1 $SZpath/12US1_surf_bench.nc #> horizontal grid-dependent surf zone file
 

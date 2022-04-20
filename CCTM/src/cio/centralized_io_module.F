@@ -77,6 +77,8 @@
 !  11/17/21, G. Sarwar: Changed minimum values from 0.0 to 0.001 for ocean and szone  
 !                       to ensure values are nonnegative and greater than 0.001
 !  01/17/22, D. Wong: Added SAVE attribute to variable FIRSTIME
+!  03/31/22, J. Willison: Removed wb_dust_setup and modified lus_setup to remove
+!                         BELD as an option for desert land information.  
 !  04/12/22, G. Sarwar: Revised to include "DMS" into cb6r5_ae7_aq 
 !------------------------------------------------------------------------!
 
@@ -268,7 +270,8 @@
      &             MEDC_AVAIL     = .true.,  ! file INIT_MEDC_1 is available
      &             E2C_CHEM_AVAIL = .true.,  ! file E2C_CHEM is available
      &             GMN_AVAIL      = .false., ! variable GMN available in E2C_CHEM or not
-     &             LUCRO_AVAIL               ! file LUFRAC_CRO is available
+     &             LUCRO_AVAIL,              ! file LUFRAC_CRO is available
+     &             PXSOIL_AVAIL              ! flag for WRFv4.1+ PX LSM soil extras in MET_CRO_2D
 
 ! Met data is large enough to cover boundary and no MET_BDY_3D will be used
         logical :: window
@@ -366,7 +369,6 @@
 !  biogemis_setup
 !  beis_norm_emis_setup
 !  depv_data_setup
-!  wb_dust_setup
 !  medc_file_setup
 !  soilinp_setup
 !  retrieve_grid_cro_2d_data
@@ -579,6 +581,7 @@
           WR_AVAIL     = (INDEX1( 'WR', NVARS3D, VNAME3D ) .gt. 0)
           Q2_AVAIL     = (INDEX1( 'Q2', NVARS3D, VNAME3D ) .gt. 0)
           LH_AVAIL     = (INDEX1( 'LH', NVARS3D, VNAME3D ) .gt. 0)
+          PXSOIL_AVAIL = (INDEX1( 'CLAY_PX', NVARS3D, VNAME3D ) .gt. 0)
 
           CALL SUBHFILE ( MET_CRO_2D, GXOFF, GYOFF,
      &                    STRTCOLMC2, ENDCOLMC2, STRTROWMC2, ENDROWMC2 )
@@ -2997,74 +3000,6 @@ C Read the various categories of normalized emissions
         end subroutine depv_data_setup
 
 ! -------------------------------------------------------------------------
-        subroutine wb_dust_setup
-
-          USE UTILIO_DEFN
-          use HGRD_DEFN, only : ncols, nrows
-          use crop_data_module
-          use lus_data_module
-          use RUNTIME_VARS, only : dust_land_scheme, erode_agland, logdev
-
-          INCLUDE SUBST_FILES_ID             ! file name parameters
-
-          Character( 40 ), parameter :: pname = 'wb_dust_setup'
-
-          CHARACTER( 256 ) :: xmsg
-          CHARACTER( 16 ) :: vname
-          INTEGER :: STAT, i, m
-          logical :: found, dust_lu_avail
-
-          Allocate ( crop_ladut  ( ncols, nrows, nlcrp ),
-     &               crplnd ( ncols, nrows, nlcrp ),
-     &               cropdt ( ncols, nrows, ncrop, 3 ),
-     &               STAT=STAT )
-
-! Open BELD1
-          dust_lu_avail = .true.
-          if ( .not. open3( dust_lu_1, fsread3, pname ) ) then
-             dust_lu_avail = .false.
-          end if
-
-          if (dust_lu_avail) then
-             n_opened_file = n_opened_file + 1
-! Read in 17 species crop land fraction
-             do m = 1, nlcrp
-                if ( .not. xtract3( dust_lu_1, crop_vnmld( m ), 1, 1,
-     &                              STRTROWSTD, ENDROWSTD, STRTCOLSTD, ENDCOLSTD,
-     &                              0, 0, crop_ladut( :,:,m ) ) ) then
-                   xmsg = 'Could not read ' // trim( crop_vnmld( m ) ) // ' from ' // dust_lu_1
-                   call m3exit ( pname, 0, 0, xmsg, xstat1 )
-                end if
-             end do
-          end if
-
-          if (erode_agland) then
-
-! Open crop calendar
-             do i = 1, 3
-                if ( .not. open3( crname( i ), fsread3, pname ) ) then
-                   xmsg = 'Could not open ' // crname( i )
-                   call m3exit( pname, cio_model_sdate, cio_model_stime, xmsg, xstat1 )
-                end if
-                n_opened_file = n_opened_file + 1
-             end do
-
-! Read crop calendar: 1 = begin planting, 2 = end planting, 3 = end harvesting
-             do i = 1, 3
-                do m = 1, ncrop
-                   if ( .not. xtract3( crname( i ), vcrop( m ), 1,1,
-     &                                 STRTROWSTD, ENDROWSTD, STRTCOLSTD, ENDCOLSTD,  
-     &                                 0, 0, cropdt( 1,1,m,i ) ) ) then
-                      xmsg = 'Could not read ' // trim( vcrop( m ) ) // ' from ' // crname( i )
-                      call m3exit ( pname, cio_model_sdate, cio_model_stime, xmsg, xstat1 )
-                   end if
-                end do
-             end do
-          end if
-
-        end subroutine wb_dust_setup
-
-! -------------------------------------------------------------------------
         subroutine medc_file_setup
 
           USE UTILIO_DEFN
@@ -3909,21 +3844,10 @@ C Read the various categories of normalized emissions
      &               strtcol2, endcol2, strtrow2, endrow2, gxoff1,
      &               gyoff1, gxoff2, gyoff2
 
-          if ( dust_land_scheme .eq. 'BELD3' ) then
-             isbeld = .true.
-             lufile( 1 ) = dust_lu_1
-             lufile( 2 ) = dust_lu_2    ! total forest coverage
-          else if ( dust_land_scheme .eq. 'BELD4' ) then
-             isbeld = .true.
-             lufile( 1 ) = e2c_lu
-             lufile( 2 ) = e2c_lu
-          else
-             isbeld = .false.
              lufile( 1 ) = grid_cro_2d
-          end if
 
 #ifndef mpas
-          if ( .not. lucro_avail .or. isbeld ) then ! TRUE if LUFRAC file isn't there or the land scheme is beld
+          if ( .not. lucro_avail  ) then ! TRUE if LUFRAC file isn't there 
           
             if ( .not. open3( lufile( 1 ), fsread3, pname ) ) then
                xmsg = 'could not open ' // trim( lufile( 1 ) )
@@ -3938,22 +3862,9 @@ C Read the various categories of normalized emissions
           
           end if
 
-         if ( isbeld ) then  ! get the 2nd file (currently same as 1st for BELD4)
-
-            if ( .not. open3( lufile( 2 ), fsread3, pname ) ) then
-               xmsg = 'could not open ' // trim( lufile( 2 ) )
-               call m3exit ( pname, 0, 0, xmsg, xstat1 )
-            end if
-            n_opened_file = n_opened_file + 1
-
-            ! Retrieve domain decomposition offsets for second lufile 
-            call subhfile ( lufile( 2 ), gxoff2, gyoff2, strtcol2,
-     &                      endcol2, strtrow2, endrow2 )   
- 
-         end if
 #endif
 
-          if ( .not. isbeld ) then   ! determine land_scheme from GRID_CRO_2D
+    ! determine land_scheme from GRID_CRO_2D
 
 #ifdef twoway
 
@@ -4009,41 +3920,8 @@ C   mminlu and num_land_cat are WRF global variables
              dust_land_scheme = cio_dust_land_scheme ! land scheme found from grid_cro_2D 'DLUSE' var-desc
 #endif
 #endif
-          end if   ! .not. isbeld
 
           select case( dust_land_scheme ) ! After land scheme is determined allocate number of land use categories & number of dustland categories from lus_data_module
-
-             case( 'BELD3' )              ! If BELD3
-                n_lucat = n_lucat_beld3
-                n_dlcat = n_dlcat_beld3
-                allocate( vnmlu( n_lucat ),
-     &                    vnmld( n_dlcat ),
-     &                    dmsk( n_dlcat ),
-     &                    dmap( n_dlcat+1 ), stat = err )
-                if ( err .ne. 0 ) then
-                   xmsg = '*** Error allocating vnmlu, vnmld, dmsk or dmap'
-                   call m3exit ( pname, stdate, sttime, xmsg, xstat1 )
-                end if
-                vnmlu = vnmlu_beld3   ! array assignment
-                vnmld = vnmld_beld3   ! array assignment
-                dmsk = dmsk_beld3     ! array assignment
-                dmap = dmap_beld3     ! array assignment
-
-             case( 'BELD4' )              ! If BELD4
-                n_lucat = n_lucat_beld4
-                n_dlcat = n_dlcat_beld4
-                allocate( vnmlu( n_lucat ),
-     &                    vnmld( n_dlcat ),
-     &                    dmsk( n_dlcat ),
-     &                    dmap( n_dlcat+1 ), stat = err )
-                if ( err .ne. 0 ) then
-                   xmsg = '*** Error allocating vnmlu, vnmld, dmsk or dmap'
-                   call m3exit ( pname, stdate, sttime, xmsg, xstat1 )
-                end if
-                vnmlu = vnmlu_beld4   ! array assignment
-                vnmld = vnmld_beld4   ! array assignment
-                dmsk = dmsk_beld4     ! array assignment
-                dmap = dmap_beld4     ! array assignment
 
              case( 'USGS24' )           ! If USGS34
                 n_lucat = n_lucat_usgs24
@@ -4153,7 +4031,7 @@ C   mminlu and num_land_cat are WRF global variables
              call m3exit ( pname, stdate, sttime, xmsg, xstat1 )
           end if
 
-          if ( .not. lucro_avail .or. isbeld ) then ! TRUE if LUFRAC file isn't there or the land scheme is beld
+          if ( .not. lucro_avail ) then ! TRUE if LUFRAC file isn't there or the land scheme is beld
 
 #ifdef mpas
             do i = 1, n_dlcat  ! Loop through the number of desertland categories and fill in ladut array
@@ -4206,7 +4084,6 @@ C   mminlu and num_land_cat are WRF global variables
             end do
 
             i = n_lucat
-            if ( .not. isbeld ) then
 #ifdef twoway
                if ( .not. interpx( lufile( 1 ), vnmlu( i )%name, pname, 
      &                             strtcol1, endcol1, strtrow1, endrow1,
@@ -4224,18 +4101,9 @@ C   mminlu and num_land_cat are WRF global variables
                   call m3exit( pname, cio_model_sdate, cio_model_stime, xmsg, xstat1 )
                end if
 #endif 
-            else
-               if ( .not. xtract3( lufile( 2 ), vnmlu( i )%name, 1,1,
-     &                             strtrow2, endrow2, strtcol2, endcol2,
-     &                             0, 0, lut( :,:,i ) ) ) then
-                  xmsg = 'Could not read ' // trim( vnmlu( i )%name )
-     &                 // ' from ' // trim( lufile( 2 ) )
-                  call m3exit( pname, cio_model_sdate, cio_model_stime, xmsg, xstat1 )
-               end if
-            end if
 #endif
 
-          else ! IF LUFRAC is there and not beld
+          else ! IF LUFRAC is there
 
             do i = 1, n_dlcat  ! Loop through the number of desertland categories and fill in ladut array
 
@@ -4245,7 +4113,7 @@ C   mminlu and num_land_cat are WRF global variables
 
             lut = lufrac ! landuse category fraction is lufrac that is already been extracted
 
-          end if ! end of if block starting on line 2836
+          end if 
 
         end subroutine lus_setup
 
@@ -4569,9 +4437,12 @@ C   mminlu and num_land_cat are WRF global variables
              end if
 
              if (WB_DUST) then
+                    if (.not. PX_LSM) then
+                      XMSG = 'WB_DUST requires PX LSM (PX_VERSION Y)'
+                      Call M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
+                    end if
                 call lus_setup
 
-                call wb_dust_setup
              end if
 
              if (HGBIDI .and. (.not. NEW_START)) then   ! two level check, 1. environment variable and then GC_DDEP species list
