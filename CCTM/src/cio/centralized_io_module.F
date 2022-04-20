@@ -85,7 +85,6 @@
 !   'mc2'    denote met cro 2d variable
 !   'mc3'    denote 3d variable
 !   'md3'    denote dot variable
-!   'bs'     denote bio season
 !   'wb'     denote wind blown dust
 !   'ic'     denote initial condition variable
 !   'is'     denote ISAM initial condition variable
@@ -114,8 +113,7 @@
 
         integer, parameter :: max_nfiles = 500
 
-        character (20), parameter :: bio_season_fname = 'BIOSEASON'
-        character (20), parameter :: biogemis_fname   = 'B3GRD'
+        character (20), parameter :: biogemis_fname   = 'BEIS_NORM_EMIS'
 
 ! to recognize the time step in each file could be different, in the new revised 
 ! implementation will address that and here is the algorithm. When open a new file, 
@@ -126,7 +124,7 @@
 ! stored accordingly.
 
         integer :: n_opened_file = 0
-        integer :: f_met, f_bios, f_ltng, f_bcon, f_icon, f_is_icon,f_mbiog
+        integer :: f_met, f_ltng, f_bcon, f_icon, f_is_icon,f_mbiog
         integer, allocatable :: f_emis(:), f_stk_emis(:)
 
         integer :: file_sdate(max_nfiles) = -1
@@ -165,10 +163,9 @@
      &                       ICCG_SUM(:,:),     ! from LTNG parameter data
      &                       ICCG_WIN(:,:),     ! from LTNG parameter data
      &                       AVGEMIS(:,:,:,:),  ! from BIOGEMIS data
-     &                       AVGLAI(:,:,:,:),   ! from BIOGEMIS data
-     &                       GROWAGNO(:,:),     ! from B3GRD data
-     &                       NGROWAGNO(:,:),    ! from B3GRD data
-     &                       NONAGNO(:,:),      ! from B3GRD data
+     &                       GROWAGNO(:,:),     ! from BEIS_NORM_EMIS data
+     &                       NGROWAGNO(:,:),    ! from BEIS_NORM_EMIS data
+     &                       NONAGNO(:,:),      ! from BEIS_NORM_EMIS data
      &                       RAINFALL(:,:,:),   ! from SOILINP data
      &                       HRNO_SW(:,:,:),    ! from SOILINP data
      &                       HRNO_T2M(:,:,:),   ! from SOILINP data
@@ -367,7 +364,7 @@
 !  boundary_files_setup
 !  stack_files_setup
 !  biogemis_setup
-!  b3grd_setup
+!  beis_norm_emis_setup
 !  depv_data_setup
 !  wb_dust_setup
 !  medc_file_setup
@@ -403,7 +400,7 @@
           USE UTILIO_DEFN
           use HGRD_DEFN, only : ncols, nrows
           USE VGRD_DEFN, only : VGTYP_GD, nlays
-          USE RUNTIME_VARS, only : N_FILE_GR, BIOGEMIS_BEIS, BIOGEMIS_SEASON,
+          USE RUNTIME_VARS, only : N_FILE_GR, BIOGEMIS_BEIS, 
      &                             STDATE, WB_DUST, ISAM_NEW_START,
      &                             local_tstep, met_tstep, NLDNSTRIKE
           use LSM_Mod, only : LAND_SCHEME
@@ -421,7 +418,7 @@
 
           CHARACTER( 120 ) :: XMSG = ' '
           INTEGER          :: GXOFF, GYOFF, stat, n, v, d_size, begin, end, adj,
-     &                        n_bio_season_vars, n_dust_vars, idx, t, ldate, ltime,
+     &                        n_dust_vars, idx, t, ldate, ltime,
      &                        nl, s, e, c, time, floc
           character( 32 )  :: tname, fname
 
@@ -888,36 +885,14 @@
 #ifdef mpas
           deallocate (bottom, top)
 
-          n_bio_season_vars = 0
           n_dust_vars       = 0
 #else
-! Bio_season data
-          n_bio_season_vars = 0
-          if (BIOGEMIS_SEASON) then
-             n_bio_season_vars = 1
-             IF ( .NOT. OPEN3( bio_season_fname, FSREAD3, PNAME ) ) THEN
-                XMSG = 'Could not open '// bio_season_fname // ' file'
-                CALL M3EXIT ( PNAME, 0, 0, XMSG, XSTAT1 )
-             END IF
-             n_opened_file = n_opened_file + 1
-             f_bios = n_opened_file
-             IF ( .NOT. DESC3( bio_season_fname ) ) THEN
-                XMSG = 'Could not get description of file  '// bio_season_fname
-                CALL M3EXIT ( PNAME, 0, 0, XMSG, XSTAT1 )
-             END IF
-
-             file_sdate(f_bios) = sdate3d
-             file_stime(f_bios) = stime3d
-             file_tstep(f_bios) = tstep3d
-             file_xcell(f_bios) = xcell3d
-             file_ycell(f_bios) = ycell3d
-          end if
 
 ! Wind blown dust data
           n_dust_vars = 0
 #endif
 
-          n_e2d = n_e2d + n_bio_season_vars + n_dust_vars
+          n_e2d = n_e2d + n_dust_vars
 
           allocate (emis_name(n_e2d+n_e3d, 3), stat=stat)
           if (stat .ne. 0) then
@@ -926,17 +901,6 @@
           end if
 
 #ifndef mpas
-          if (BIOGEMIS_SEASON) then
-             IF ( .NOT. DESC3( bio_season_fname ) ) THEN
-                XMSG = 'Could not get description of file  '// bio_season_fname
-                CALL M3EXIT ( PNAME, 0, 0, XMSG, XSTAT1 )
-             END IF
-             begin = n_e2d+n_e3d-n_dust_vars
-             emis_name(begin:begin, 1) = vname3d(1)
-             emis_name(begin:begin, 2) = 'bs'          ! bs denote bio season
-             emis_name(begin:begin, 3) = ' '           ! denote non met data
-          end if
-
 ! setup initial condition file
           n_i3d = 0
           IF ( .NOT. OPEN3( ICFILE, FSREAD3, PNAME ) ) THEN
@@ -1245,7 +1209,7 @@
              else if (cio_grid_var_name(v,2) .eq. 'md3') then
                 d_size = size_d3dx
              else if ((cio_grid_var_name(v,2) .eq. 'lnt') .or.
-     &                (cio_grid_var_name(v,2) .eq. 'bs') .or.
+!     &                (cio_grid_var_name(v,2) .eq. 'bs') .or.
      &                (cio_grid_var_name(v,2) .eq. 'wb')) then
                 d_size = size_s2d
              else
@@ -1641,28 +1605,7 @@
                       XMSG = 'Could not extract ' // NLDN_STRIKES // ' file'
                       CALL M3EXIT ( PNAME, data_jdate, data_jtime, XMSG, XSTAT1 )
                    END IF
-
-                else if (cio_grid_var_name(v,2) == 'bs') then
-
-                   data_jdate = loc_jdate(f_bios)
-                   data_jtime = 0
-
-                   allocate (tdata((ENDCOLSTD-STRTCOLSTD+1)*(ENDROWSTD-STRTROWSTD+1)), stat=stat)
-
-                   IF ( .NOT. XTRACT3( bio_season_fname, 'SEASON',
-     &                                 1, 1, STRTROWSTD, ENDROWSTD, STRTCOLSTD, ENDCOLSTD, 
-     &                                 data_jdate, data_jtime, tdata) ) then
-                      XMSG = 'Could not extract ' // bio_season_fname // ' file'
-                      CALL M3EXIT ( PNAME, data_jdate, data_jtime, XMSG, XSTAT1 )
-                   END IF
-                   
-                   cio_grid_data(begin:end) = real(tdata)
-
-                   deallocate (tdata)
 #endif
-
-                else
-                   call m3exit( 'Centralized I/O',0,0,' ==d== UNKOWN Type of File',1 )
                 end if
 
                 cio_grid_data_tstamp(1, buf_loc, v) = data_jdate
@@ -1681,9 +1624,6 @@
              end if
 
              CALL NEXTIME ( loc_jdate(f_met), loc_jtime(f_met), file_tstep(f_met) )
-             if (BIOGEMIS_SEASON) then
-                 CALL NEXTIME ( loc_jdate(f_bios), loc_jtime(f_bios), file_tstep(f_bios) )
-             end if
              if (NLDNSTRIKE) then
                  CALL NEXTIME ( loc_jdate(f_ltng), loc_jtime(f_ltng), file_tstep(f_ltng) )
              end if
@@ -2195,23 +2135,15 @@
      &                          'SURF',
      &                          g2ddata(:, 1, surf_ind),
      &                          mio_file_data(floc)%timestamp(1))         
-             end if
-          end if
 
-          if (use_marine_gas_emission) then
-             if (.not. ocean_chem) then
-                XMSG = 'CTM_OCEAN_CHEM must be set to TRUE when using CB6R5M mechanism'
-                call prog_interrupt ('reading ocean file', 0, 0, xmsg, 1)
-             else
-                if (exist) then
-                   call mio_fread (ocean_file,
-     &                             'CHLO',
-     &                             g2ddata(:, 1, chlo_ind),
-     &                             mio_file_data(floc)%timestamp(1))
-                   call mio_fread (ocean_file,
-     &                             'DMS',
-     &                             g2ddata(:, 1, dms_ind),
-     &                             mio_file_data(floc)%timestamp(1))
+                call mio_fread (ocean_file,
+     &                          'CHLO',
+     &                           g2ddata(:, 1, chlo_ind),
+     &                           mio_file_data(floc)%timestamp(1))
+                call mio_fread (ocean_file,
+     &                          'DMS',
+     &                           g2ddata(:, 1, dms_ind),
+     &                           mio_file_data(floc)%timestamp(1))
                 else
                    XMSG = 'Ocean file doese not exist'
                    call prog_interrupt ('reading ocean file', 0, 0, xmsg, 1)
@@ -2617,7 +2549,6 @@
           INTEGER :: STAT, i, j, k
 
           ALLOCATE( AVGEMIS( NCOLS,NROWS,NSEF-1,NSEASONS ),
-     &              AVGLAI( NCOLS,NROWS,NLAI,NSEASONS ), 
      &              STAT=STAT )
 
           IF ( .NOT. OPEN3( biogemis_fname, FSREAD3, PNAME ) ) THEN
@@ -2646,30 +2577,18 @@ C Read the various categories of normalized emissions
                 END IF
              END DO
 
-             DO K = 1, NLAI
-                VAR = 'LAI_' // TRIM( LAITYPES( K ) ) // SEASON( I )
-  
-                IF ( .NOT. XTRACT3( biogemis_fname, VAR,
-     &                              1,1, STRTROWSTD, ENDROWSTD, STRTCOLSTD, ENDCOLSTD,
-     &                              0, 0, AVGLAI( :,:,K,I ) ) ) THEN
-                   MESG = 'Could not read "' // TRIM( VAR ) //
-     &                    '" from file "' // TRIM( biogemis_fname ) // '"'
-                   CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
-                END IF
-             END DO
-
           END DO   ! end loop over seasons
 
         end subroutine biogemis_setup
 
 ! -------------------------------------------------------------------------
-        subroutine b3grd_setup
+        subroutine beis_norm_emis_setup
 
           USE UTILIO_DEFN
           use HGRD_DEFN, only : ncols, nrows
 
-          Character( 40 ), parameter :: pname = 'b3grd_setup'
-          Character( 40 ), parameter :: fname = 'B3GRD'
+          Character( 40 ), parameter :: pname = 'beis_norm_emis_setup'
+          Character( 40 ), parameter :: fname = 'BEIS_NORM_EMIS'
 
           CHARACTER( 256 ) :: MESG
           CHARACTER( 16 ) :: VAR
@@ -2713,7 +2632,7 @@ C Read the various categories of normalized emissions
              CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
           END IF
 
-        end subroutine b3grd_setup
+        end subroutine beis_norm_emis_setup
 
 ! -------------------------------------------------------------------------
         subroutine depv_data_setup
@@ -3550,14 +3469,33 @@ C Read the various categories of normalized emissions
           CHARACTER( 120 ) :: XMSG = ' '
 
           allocate (ocean(ncols, nrows), 
-     &              szone(ncols, nrows),      
+     &              szone(ncols, nrows),   
+     &              chlr(ncols, nrows),
+     &              dmsl(ncols, nrows),                
      &              STAT=STAT)
           IF ( STAT .NE. 0 ) THEN
-             XMSG = 'Failure allocating OPEN and SURF array'
+             XMSG = 'Failure allocating OPEN, SURF, CHLO, DMS array'
              CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT3 )
           END IF
 
-          IF ( OCEAN_CHEM ) THEN
+          IF ( .NOT. OCEAN_CHEM ) THEN
+
+             WRITE( LOGDEV, '(/,5x,A,/,5x,A,/5x,A)' ), 
+     &              'CTM_OCEAN_CHEM set to FALSE. Open ocean and surf zone',
+     &              'fractions will be set to 0. There will be no oceanic',
+     &              'halogen-mediated loss of ozone, dms chemistry, or sea spray aerosol emissions.'
+             ocean = 0.0
+             szone = 0.0          
+             dmsl  = 0.0          
+             chlr  = 0.0
+
+           If ( INDEX( MECHNAME, 'CB6R5M_AE7_AQ' ) .GT. 0 ) then
+               XMSG = 'CTM_OCEAN_CHEM must be set to TRUE when using CB6R5M_AE7_AQ mechanism' 
+               Call M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
+           endif
+ 
+          ELSEIF ( OCEAN_CHEM .AND. .NOT. USE_MARINE_GAS_EMISSION ) THEN
+
              IF ( .NOT. OPEN3( OCEAN_1, FSREAD3, PNAME ) ) THEN
                 XMSG = 'Could not open ' // OCEAN_1
                 Call M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
@@ -3578,33 +3516,39 @@ C Read the various categories of normalized emissions
                 END IF                
 
                 WHERE ( ocean .LT. 0.001 ) ocean = 0.0  ! ensure values are nonnegative and greater than 0.001
-                WHERE ( szone .LT. 0.001 ) szone = 0.0  ! ensure values are nonnegative and greater than 0.001                
+                WHERE ( szone .LT. 0.001 ) szone = 0.0  ! ensure values are nonnegative and greater than 0.001  
 
-             END IF
-          ELSE 
-             WRITE( LOGDEV, '(/,5x,A,/,5x,A,/5x,A)' ), 
-     &              'CTM_OCEAN_CHEM set to FALSE. Open ocean and surf zone',
-     &              'fractions will be set to 0. There will be no oceanic',
-     &              'halogen-mediated loss of ozone or sea spray aerosol emissions.'
-             ocean = 0.0
-             szone = 0.0
-          END IF
+             dmsl  = 0.0          
+             chlr  = 0.0
+             
+             ENDIF
 
-          IF ( USE_MARINE_GAS_EMISSION ) then
-             IF ( .NOT. OCEAN_CHEM ) THEN
-                XMSG = 'CTM_OCEAN_CHEM must be set to TRUE when using CB6R5M mechanism'
+          ELSEIF ( OCEAN_CHEM .AND. USE_MARINE_GAS_EMISSION ) THEN
+
+             IF ( .NOT. OPEN3( OCEAN_1, FSREAD3, PNAME ) ) THEN
+                XMSG = 'Could not open ' // OCEAN_1
                 Call M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
-             ELSE   ! OCEAN_1 file already opened
-                allocate (chlr(ncols, nrows),
-     &                    dmsl(ncols, nrows),                
-     &                    STAT=STAT)
-                IF ( STAT .NE. 0 ) THEN
-                   XMSG = 'Failure allocating CHLO array'
-                   CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT3 )
+             ELSE 
+                n_opened_file = n_opened_file + 1
+                IF ( .NOT. XTRACT3( OCEAN_1, 'OPEN',
+     &                        1, 1, STRTROWSTD, ENDROWSTD, STRTCOLSTD, ENDCOLSTD, 
+     &                        0, 0, ocean ) ) Then
+                   XMSG = 'Could not read OPEN from ' // OCEAN_1
+                   CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
                 END IF
 
-                If ( INDEX( MECHNAME, 'CB6R5M' ) .GT. 0 ) then
+                IF ( .NOT. XTRACT3( OCEAN_1, 'SURF',
+     &                        1, 1, STRTROWSTD, ENDROWSTD, STRTCOLSTD, ENDCOLSTD, 
+     &                        0, 0, szone ) ) Then
+                   XMSG = 'Could not interpolate SURF from ' // OCEAN_1
+                   CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
+                END IF                
 
+                WHERE ( ocean .LT. 0.001 ) ocean = 0.0  ! ensure values are nonnegative and greater than 0.001
+                WHERE ( szone .LT. 0.001 ) szone = 0.0  ! ensure values are nonnegative and greater than 0.001 
+
+                If ( INDEX( MECHNAME, 'CB6R5M_AE7_AQ' ) .GT. 0 ) then
+      
                 If ( .Not. XTRACT3( OCEAN_1, 'CHLO',
      &                              1, 1, STRTROWSTD, ENDROWSTD, STRTCOLSTD, ENDCOLSTD, 
      &                              0, 0, chlr ) ) Then
@@ -3613,25 +3557,26 @@ C Read the various categories of normalized emissions
                 End If
 
                 If ( .Not. XTRACT3( OCEAN_1, 'DMS',
-     &                              1, 1, STRTROWSTD, ENDROWSTD, STRTCOLSTD, ENDCOLSTD,
+     &                              1, 1, STRTROWSTD, ENDROWSTD, STRTCOLSTD, ENDCOLSTD, 
      &                              0, 0, dmsl ) ) Then
                    XMSG = 'Could not read DMS from ' // OCEAN_1
                    Call M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
-                 End If
+                End If
 
-                ELSE
-                 chlr = 0.0
+                ELSEIF ( INDEX( MECHNAME, 'CB6R5_AE7_AQ' ) .GT. 0 ) then
 
-                 If ( .Not. XTRACT3( OCEAN_1, 'DMS',
-     &                              1, 1, STRTROWSTD, ENDROWSTD, STRTCOLSTD, ENDCOLSTD,
+                chlr = 0.0
+                
+                If ( .Not. XTRACT3( OCEAN_1, 'DMS',
+     &                              1, 1, STRTROWSTD, ENDROWSTD, STRTCOLSTD, ENDCOLSTD, 
      &                              0, 0, dmsl ) ) Then
-                    XMSG = 'Could not read DMS from ' // OCEAN_1
-                    Call M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
-                 End If
+                   XMSG = 'Could not read DMS from ' // OCEAN_1
+                   Call M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
+                End If
 
                 END IF
 
-             END IF
+          END IF
           END IF
 
         end subroutine retrieve_ocean_data
@@ -4558,9 +4503,6 @@ C   mminlu and num_land_cat are WRF global variables
              if (ocean_chem) then
                 ocean = g2ddata(:,:,open_ind)
                 szone = g2ddata(:,:,surf_ind)
-             end if
-
-             if (use_marine_gas_emission) then
                 dmsl = g2ddata(:,:,dms_ind)
                 chlr = g2ddata(:,:,chlo_ind)
              end if
@@ -4611,7 +4553,7 @@ C   mminlu and num_land_cat are WRF global variables
 
              if (BIOGEMIS_BEIS) then
                 call biogemis_setup
-                call b3grd_setup
+                call beis_norm_emis_setup
              end if
              if (BIOGEMIS_MEGAN) then
                 call megan_setup
@@ -5499,8 +5441,6 @@ C   mminlu and num_land_cat are WRF global variables
                    read (cio_grid_var_name(var_loc,1)(slen-2:slen), *) fnum
 
                    loc_tstep = file_tstep(f_emis(fnum)) 
-                else if (cio_grid_var_name(var_loc,2) == 'bs') then
-                   loc_tstep = file_tstep(f_bios)
                 else if (cio_grid_var_name(var_loc,2) == 'lnt') then
                    loc_tstep = file_tstep(f_ltng)
                 else if (cio_grid_var_name(var_loc,2) == 'ic') then
@@ -5753,8 +5693,6 @@ C   mminlu and num_land_cat are WRF global variables
                 read (cio_grid_var_name(var_loc,1)(str_len-2:str_len), *) fnum
 
                 loc_tstep = file_tstep(f_emis(fnum)) 
-             else if (cio_grid_var_name(var_loc,2) == 'bs') then
-                loc_tstep = file_tstep(f_bios)
              else if (cio_grid_var_name(var_loc,2) == 'lnt') then
                 loc_tstep = file_tstep(f_ltng)
              else if (cio_grid_var_name(var_loc,2) == 'ic') then
@@ -5931,8 +5869,6 @@ C   mminlu and num_land_cat are WRF global variables
                 read (cio_grid_var_name(var_loc,1)(str_len-2:str_len), *) fnum
 
                 loc_tstep = file_tstep(f_emis(fnum)) 
-             else if (cio_grid_var_name(var_loc,2) == 'bs') then
-                loc_tstep = file_tstep(f_bios)
              else if (cio_grid_var_name(var_loc,2) == 'lnt') then
                 loc_tstep = file_tstep(f_ltng)
              else if (cio_grid_var_name(var_loc,2) == 'ic') then
@@ -6291,8 +6227,6 @@ C   mminlu and num_land_cat are WRF global variables
                 read (cio_grid_var_name(var_loc,1)(str_len-2:str_len), *) fnum
 
                 loc_tstep = file_tstep(f_emis(fnum)) 
-             else if (cio_grid_var_name(var_loc,2) == 'bs') then
-                loc_tstep = file_tstep(f_bios)
              else if (cio_grid_var_name(var_loc,2) == 'lnt') then
                 loc_tstep = file_tstep(f_ltng)
              else if (cio_grid_var_name(var_loc,2) == 'ic') then

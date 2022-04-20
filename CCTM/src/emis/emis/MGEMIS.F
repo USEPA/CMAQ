@@ -211,7 +211,7 @@ C Allocate diagnostic arrays
                 END IF
 
 C Build diagnostic file write buffer (WRMG_SPC) array
-                IF (INDEX( MECHNAME, 'CB6R5M' ) .GT. 0) THEN
+                IF (INDEX( MECHNAME, 'CB6R5M_AE7_AQ' ) .GT. 0) THEN
                    START_INDEX = 1
                    END_INDEX = 12
                 ELSE
@@ -310,11 +310,11 @@ C Set output file characteristics based on COORD.EXT and open diagnostic file
                VTYPE3D( V ) = M3REAL
                VNAME3D( V ) = WRMG_SPC( V )
                UNITS3D( V ) = 'mol s-1'
-               VDESC3D( V ) = 'hourly ' // TRIM( VNAME3D( V ) )
+               VDESC3D( V ) = TRIM( VNAME3D( V ) )
      &                     // ' marine gas emission rate'
             END DO
 
-            FDESC3D( 1 ) = 'hourly layer-1 marine gas emission rates'
+            FDESC3D( 1 ) = 'layer-1 marine gas emission rates'
             DO L = 2, MXDESC3
                FDESC3D( L ) = ' '
             END DO
@@ -545,7 +545,7 @@ C.. calculate local hour
                      IF (LOCHR .LT.  0) LOCHR = LOCHR + 24
                      IF (LOCHR .GT. 23) LOCHR = LOCHR - 24
 
-                     IF (INDEX( MECHNAME, 'CB6R5M' ) .GT. 0) THEN
+                     IF (INDEX( MECHNAME, 'CB6R5M_AE7_AQ' ) .GT. 0) THEN
                         DUMMY = 4.31E-8 * MARINE_AREA * FHRLY(LOCHR) * CHLA * SECS2HR
 
 C.. Calculate MB3 emission rate in mole/s

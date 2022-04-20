@@ -105,7 +105,7 @@ set make_options = "-j"                #> additional options for make command if
  set ModDepv   = depv/${DepMod}             #> deposition velocity calculation module 
                                             #>     (see $CMAQ_MODEL/CCTM/src/depv)
  set ModEmis   = emis/emis                  #> in-line emissions module
- set ModBiog   = biog/beis3                 #> BEIS3 in-line emissions module 
+ set ModBiog   = biog/beis4                 #> BEIS4 in-line emissions module 
 
  set ModMegBiog   = biog/megan3                #> MEGAN3 in-line emissions module
 
@@ -552,7 +552,7 @@ set Cfile = ${Bld}/${CFG}.bld      # Config Filename
  echo "Module ${ModEmis};"                                         >> $Cfile
  echo                                                              >> $Cfile
 
- set text = "beis3"
+ set text = "beis4"
  echo "// options are" $text                                       >> $Cfile
  echo "Module ${ModBiog};"                                         >> $Cfile
  echo                                                              >> $Cfile

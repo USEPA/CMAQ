@@ -305,10 +305,8 @@ C......................................................................
       REAL( 8 ), ALLOCATABLE, SAVE :: BLKDENS( : )      ! Cell air denisty, kg/m^3
       REAL,      ALLOCATABLE, SAVE :: BLKSVOL( : )      ! Cell air specific volume, m^3/kg
       REAL( 8 ), ALLOCATABLE, SAVE :: RJBLK( :,: )      ! J-values for each cell in block
-      REAL( 8 ), ALLOCATABLE, SAVE :: BLKHET( :, : )    ! heterogeneous rate in block
-
-      LOGICAL,  ALLOCATABLE, SAVE  :: BLKLAND( : )       ! Is the surface totally land?
-
+      REAL( 8 ), ALLOCATABLE, SAVE :: BLKHET( :, : )    ! heterogeneous rate in block    
+      REAL( 8 ), ALLOCATABLE, SAVE :: BLKSEAWATER( : )  ! fractional area of OPEN+SURF
 
       REAL( 8 ), ALLOCATABLE, SAVE :: BLKCONC( :, : ) ! Species conc. for cells in block
                                                       ! in original species order (ppm) 
@@ -471,10 +469,10 @@ c..cell & solver data
      &               BLKCH2O( BLKSIZE ),
      &               BLKDENS( BLKSIZE ),
      &               BLKSVOL( BLKSIZE ), 
-     &               BLKLAND( BLKSIZE ), STAT = IOS )
+     &               BLKSEAWATER( BLKSIZE ), STAT = IOS )
            IF ( IOS .NE. 0 ) THEN
               MSG = 'ERROR allocating BLKTEMP, BLKPRES, BLKCH2O, BLKDENS, '
-     &            // 'BLKSVOL, BLKLAND '
+     &            // 'BLKSVOL, BLKSEAWATER '
               CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT2 )
            END IF
 

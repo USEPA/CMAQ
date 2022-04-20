@@ -6,7 +6,7 @@
 
 
 ! --------- Photochemical Mechanism Reactions, Rates, etc. DAT ---------
-! Source file: /work/MOD3DEV/sgq/manage_git/research/master/UTIL/chemmech/input/racm2_ae6_aq/mech_racm2_ae6_aq.def
+! Source file: /work/MOD3DEV/sgq/manage_git/research/condensed_chemistry/UTIL/chemmech/input/racm2_ae6_aq/mech_racm2_ae6_aq.def
 ! for Mechanism Name: RACM2_AE6_AQ                    
 
 ! This file is used to create mechanism data and functions
