@@ -165,7 +165,8 @@ setenv CTM_GRAV_SETL Y       #> vdiff aerosol gravitational sedimentation [ defa
 setenv CTM_BIOGEMIS_BEIS Y   #> calculate in-line biogenic emissions [ default: N ]
 setenv CTM_BIOGEMIS_MEGAN N  #> turns on MEGAN biogenic emission [ default: N ]
 setenv USE_MEGAN_LAI N       #> use separate LAI input file [ default: N ]
-#> Surface Tiled Aerosol and Gaseous Exchange Options
+#> Surface Tiled Aerosol and Gaseous Exchange Options 
+#> Only active if DepMod=stage at compile time
 setenv CTM_MOSAIC N          #> Output landuse specific deposition velocities [ default: N ]
 setenv CTM_STAGE_P22 N       #> Pleim et al. 2022 Aerosol deposition model [default: N]
 setenv CTM_STAGE_E20 Y       #> Emerson et al. 2020 Aerosol deposition model [default: Y]
@@ -217,6 +218,7 @@ set IN_LTpath = $INPDIR/met/lightning     #> lightning NOx input directory
 set METpath   = $INPDIR/met/mcip_v4.3_wrf_v3.8.1    #> meteorology input directory
 #set JVALpath  = $INPDIR/jproc            #> offline photolysis rate table directory
 set OMIpath   = $BLD                      #> ozone column data for the photolysis model
+set EPICpath  = $INPDIR/surface           #> EPIC putput for bidirectional NH3
 set SZpath    = $INPDIR/surface           #> surf zone file for in-line seasalt emissions
 
 # =====================================================================
@@ -420,9 +422,9 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
 
   #> Bidirectional ammonia configuration
   if ( $CTM_ABFLUX == 'Y' ) then
-     setenv E2C_SOIL ${LUpath}/epic/US1_12km_soil.nc
-     setenv E2C_CHEM ${LUpath}/epic/US1_12km_time${YYYYMMDD}.nc
-     setenv E2C_LU ${LUpath}/beld4_12kmCONUS_2006nlcd.ncf
+     setenv E2C_SOIL ${EPICpath}/epic/US1_12km_soil.nc
+     setenv E2C_CHEM ${EPICpath}/epic/US1_12km_time${YYYYMMDD}.nc
+     setenv E2C_LU ${EPICpath}/beld4_12kmCONUS_2006nlcd.ncf
   endif
 
 #> Inline Process Analysis 

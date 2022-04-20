@@ -177,13 +177,12 @@
 
       ! Air-Surface Exchange
       LOGICAL :: ABFLUX     = .FALSE. ! flag for ammonia bi-directional flux with in-lining depv
-      LOGICAL :: MOSAIC     = .FALSE. ! flag for mosaic - luc specific deposition 
+      LOGICAL :: MOSAIC     = .FALSE. ! flag for STAGE mosaic - output land use specific deposition and deposition velocity
       LOGICAL :: SFC_HONO   = .FALSE. ! flag for HONO interaction with surfaces 
-      LOGICAL :: PX_LSM     = .TRUE.  ! flag for mosaic - luc specific deposition - stomatal flux only 
-      LOGICAL :: CLM_LSM    = .FALSE. ! flag for mosaic - luc specific deposition - stomatal flux only 
-      LOGICAL :: NOAH_LSM   = .TRUE.  ! flag for mosaic - luc specific deposition - stomatal flux only 
-      LOGICAL :: STAGE      = .FALSE. ! flag for mosaic - luc specific deposition - stomatal flux only 
-      LOGICAL :: DEPV_DIAG  = .FALSE. ! flag for mosaic - luc specific deposition - stomatal flux only 
+      LOGICAL :: PX_LSM     = .TRUE.  ! flag for WRF PX land surface model
+      LOGICAL :: CLM_LSM    = .FALSE. ! flag for WRF CLM land surface model
+      LOGICAL :: NOAH_LSM   = .TRUE.  ! flag for WRF NOAH land surface model
+      LOGICAL :: DEPV_DIAG  = .FALSE. ! flag for grid cell deposition velocity diagnostic file
       Logical :: HGBIDI     = .FALSE. ! flag for Hg bidirectional exchange
       Logical :: BIDI_FERT_NH3 = .TRUE. ! flag to remove fertilizer ammonia from Bidirectional emissions
       Logical :: STAGE_E20 = .TRUE.   ! flag for the Emerson et al. 2020 Aerosol deposition model PNAS https://www.pnas.org/cgi/doi/10.1073/pnas.2014761117

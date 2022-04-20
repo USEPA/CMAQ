@@ -167,6 +167,7 @@ setenv CTM_BIOGEMIS_BEIS N   #> calculate in-line biogenic emissions [ default: 
 setenv CTM_BIOGEMIS_MEGAN N  #> turns on MEGAN biogenic emission [ default: N ]
 setenv USE_MEGAN_LAI N       #> use separate LAI input file [ default: N ]
 #> Surface Tiled Aerosol and Gaseous Exchange Options
+#> Only active if DepMod=stage at compile time
 setenv CTM_MOSAIC N          #> Output landuse specific deposition velocities [ default: N ]
 setenv CTM_STAGE_P22 N       #> Pleim et al. 2022 Aerosol deposition model [default: N]
 setenv CTM_STAGE_E20 Y       #> Emerson et al. 2020 Aerosol deposition model [default: Y]
@@ -218,6 +219,7 @@ set IN_LTpath = $INPDIR/lightning         #> lightning NOx input directory
 set METpath   = $INPDIR/met/mcip_v43_wrf_v38_ctrl #> meteorology input directory 
 #set JVALpath  = $INPDIR/jproc            #> offline photolysis rate table directory
 set OMIpath   = $BLD                      #> ozone column data for the photolysis model
+set EPICpath  = $INPDIR/surface           #> EPIC putput for bidirectional NH3
 set SZpath    = /work/MOD3DEV/sgq/hemisphere/emission/cb05  #> surf zone file for in-line seaspray emissions
 
 # =====================================================================
@@ -437,9 +439,9 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   #> Bidirectional ammonia configuration
   if ( $CTM_ABFLUX == 'Y' ) then
 # modify for FEST-C v1.4.
-     setenv E2C_SOIL ${LUpath}/epic_festc1.4/epic2011_20180516_soil.nc
-     setenv E2C_CHEM ${LUpath}/epic_festc1.4/epic2011_20180516_time${YYYYMMDD}.nc
-     setenv E2C_LU ${LUpath}/beld4_12kmCONUS_2006nlcd_bench.nc
+     setenv E2C_SOIL ${EPICpath}/epic_festc1.4/epic2011_20180516_soil.nc
+     setenv E2C_CHEM ${EPICpath}/epic_festc1.4/epic2011_20180516_time${YYYYMMDD}.nc
+     setenv E2C_LU ${EPICpath}/beld4_12kmCONUS_2006nlcd_bench.nc
   endif
 
 #> Inline Process Analysis 
