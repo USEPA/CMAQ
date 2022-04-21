@@ -124,7 +124,7 @@
       IF ( STAT .NE. 0 ) THEN
           WRITE( XMSG, '(A,A,A)' ),'ERROR: Could not read ',
      &           'emissions control namelist file: ',TRIM( EMISSCTRL )
-          CALL M3EXIT( 'READ_EMISS_NAMELIST',0,0,XMSG,1 )
+          CALL M3EXIT( PNAME,0,0,XMSG,1 )
       END IF
  
       ! Read Toggles for Turning Instantaneous and Average Files On/Off

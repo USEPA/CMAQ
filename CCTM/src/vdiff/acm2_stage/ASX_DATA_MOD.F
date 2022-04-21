@@ -70,6 +70,7 @@ C    assumed to be similar to SO2. Diffusivities are calculated with standard
 C    formulas.  W. Hutzell (04/08)
 C %% G. Sarwar: added data for iodine and bromine species (03/2016)
 C    D. Wong: Implemented centralized I/O approach, removed all MY_N clauses (02/2019)
+C    R. Gilliam: Include PX soil texture information when available (03/2022)
 C-------------------------------------------------------------------------------
 
       Use GRID_CONF           ! horizontal & vertical domain specifications
@@ -160,11 +161,14 @@ C-------------------------------------------------------------------------------
          Real,    Allocatable :: BSLP   ( :,: )  ! B Slope 
          Real,    Allocatable :: WRES   ( :,: )  ! Soil residual moisture point
          Real,    Allocatable :: WFC    ( :,: )  ! soil field capacity 
+         Real,    Allocatable :: CLAY_PX  ( :,: )  ! Clay fraction from PX LSM 
+         Real,    Allocatable :: CSAND_PX ( :,: )  ! Coarse sand fraction from PX LSM
+         Real,    Allocatable :: FMSAND_PX( :,: )  ! Fine-medium sand fraction from PX LSM
          Real,    Allocatable :: RHOB   ( :,: )  ! soil bulk density
          Real,    Allocatable :: LUFRAC ( :,:,: ) ! land use fraction (col,row,lu_type)[ratio]
 C Land use information:
-         Character( 16 ), Allocatable   :: NAME    ( : )     ! LU name
-         Character( 16 ), Allocatable   :: LU_Type ( : )     ! general land use type e.g. water, forest, etc.
+!         Character( 16 ), Allocatable   :: NAME    ( : )     ! LU name
+!         Character( 16 ), Allocatable   :: LU_Type ( : )     ! general land use type e.g. water, forest, etc.
       End Type GRID_Type
 
       Type :: MOSAIC_Type                 ! (col,row,lu)
@@ -172,7 +176,6 @@ C Land use information:
          Character( 16 ), Allocatable :: LU_Type ( : ) ! general land use type e.g. water, forest, etc.
 !> Sub grid cell meteorological variables:
          Real, Allocatable :: USTAR ( :,:,: )   ! surface friction velocity [m/s]
-         Real, Allocatable :: WSTAR ( :,:,: )   ! convective velocity scale [m/s]
          Real, Allocatable :: LAI   ( :,:,: )   ! leaf area index [m**2/m**2]
          Real, Allocatable :: VEG   ( :,:,: )   ! vegetation fraction [ratio]
          Real, Allocatable :: Z0    ( :,:,: )   ! vegetation fraction [ratio]
@@ -246,7 +249,7 @@ C                     various number of soil type from different WRF version
 C-----------------------------------------------------------------------
 
          Use UTILIO_DEFN
-         Use MOSAIC_MOD, Only: Init_Mosaic
+         Use MOSAIC_MOD, Only: Init_Mosaic, Tile_Data
          Use LSM_Mod, only : N_SOIL_TYPE
 
          Implicit None
@@ -347,36 +350,40 @@ C-----------------------------------------------------------------------
             Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          End If
 
-         ALLOCATE( Grid_Data%DX3F    ( NLAYS ),
-     &             Grid_Data%RDX3F   ( NLAYS ),
-     &             Grid_Data%RDX3M   ( NLAYS ),
-     &             Grid_Data%RMSFX4  ( NCOLS,NROWS ),
-     &             Grid_Data%LON     ( NCOLS,NROWS ),
-     &             Grid_Data%LAT     ( NCOLS,NROWS ),
-     &             Grid_Data%LWMASK  ( NCOLS,NROWS ),
-     &             Grid_Data%OCEAN   ( NCOLS,NROWS ),
-     &             Grid_Data%SZONE   ( NCOLS,NROWS ),
-     &             Grid_Data%PURB    ( NCOLS,NROWS ),
-     &             Grid_Data%SLTYP   ( NCOLS,NROWS ),
-     &             Grid_Data%WSAT    ( NCOLS,NROWS ),
-     &             Grid_Data%WWLT    ( NCOLS,NROWS ),
-     &             Grid_Data%BSLP    ( NCOLS,NROWS ),
-     &             Grid_Data%WRES    ( NCOLS,NROWS ),
-     &             Grid_Data%WFC     ( NCOLS,NROWS ),
-     &             Grid_Data%RHOB    ( NCOLS,NROWS ),
-     &             Grid_Data%LUFRAC  ( NCOLS,NROWS,n_lufrac ),
-     &             Grid_Data%NAME    ( n_lufrac ),
-     &             Grid_Data%LU_Type ( n_lufrac ),
+
+         ALLOCATE( Grid_Data%DX3F      ( NLAYS ),
+     &             Grid_Data%RDX3F     ( NLAYS ),
+     &             Grid_Data%RDX3M     ( NLAYS ),
+     &             Grid_Data%RMSFX4    ( NCOLS,NROWS ),
+     &             Grid_Data%LON       ( NCOLS,NROWS ),
+     &             Grid_Data%LAT       ( NCOLS,NROWS ),
+     &             Grid_Data%LWMASK    ( NCOLS,NROWS ),
+     &             Grid_Data%OCEAN     ( NCOLS,NROWS ),
+     &             Grid_Data%SZONE     ( NCOLS,NROWS ),
+     &             Grid_Data%PURB      ( NCOLS,NROWS ),
+     &             Grid_Data%SLTYP     ( NCOLS,NROWS ),
+     &             Grid_Data%WSAT      ( NCOLS,NROWS ),
+     &             Grid_Data%WWLT      ( NCOLS,NROWS ),
+     &             Grid_Data%BSLP      ( NCOLS,NROWS ),
+     &             Grid_Data%WRES      ( NCOLS,NROWS ),
+     &             Grid_Data%WFC       ( NCOLS,NROWS ),
+     &             Grid_Data%CLAY_PX   ( NCOLS,NROWS ),
+     &             Grid_Data%CSAND_PX  ( NCOLS,NROWS ),
+     &             Grid_Data%FMSAND_PX ( NCOLS,NROWS ),
+     &             Grid_Data%RHOB      ( NCOLS,NROWS ),
+     &             Grid_Data%LUFRAC    ( NCOLS,NROWS,n_lufrac ),
+
      &             STAT = ALLOCSTAT )
          If ( ALLOCSTAT .Ne. 0 ) Then
             XMSG = 'Failure allocating grid vars'
             Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          End If
-         Grid_Data%NAME    = name_lu
-         Grid_Data%LU_Type = cat_lu
          Grid_Data%WSAT    = 0.0
          Grid_Data%WWLT    = 0.0
          Grid_Data%WFC     = 0.0
+         Grid_Data%CLAY_PX   = 0.0
+         Grid_Data%CSAND_PX  = 0.0
+         Grid_Data%FMSAND_PX = 0.0
          Grid_Data%RHOB    = 0.0
          Grid_Data%WRES    = 0.0
          Grid_Data%BSLP    = 0.0
@@ -395,31 +402,6 @@ C-----------------------------------------------------------------------
          Grid_Data%RHOB    = 0.0
          Grid_Data%WRES    = 0.0
          Grid_Data%BSLP    = 0.0
-
-         ALLOCATE( Mosaic_Data%USTAR   ( NCOLS,NROWS,n_lufrac ),
-     &             Mosaic_Data%WSTAR   ( NCOLS,NROWS,n_lufrac ), 
-     &             Mosaic_Data%LAI     ( NCOLS,NROWS,n_lufrac ),
-     &             Mosaic_Data%DELTA   ( NCOLS,NROWS,n_lufrac ),
-     &             Mosaic_Data%VEG     ( NCOLS,NROWS,n_lufrac ),
-     &             Mosaic_Data%Z0      ( NCOLS,NROWS,n_lufrac ),
-     &             Mosaic_Data%RA      ( NCOLS,NROWS,n_lufrac ),
-     &             Mosaic_Data%RSTW    ( NCOLS,NROWS,n_lufrac ),
-     &             Mosaic_Data%NAME    ( n_lufrac ),
-     &             Mosaic_Data%LU_Type ( n_lufrac ),
-     &             STAT = ALLOCSTAT )
-         If ( ALLOCSTAT .Ne. 0 ) Then
-            XMSG = 'Failure allocating mosaic vars'
-            Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-         End If
-         Mosaic_Data%USTAR   = 0.0
-         Mosaic_Data%LAI     = 0.0
-         Mosaic_Data%DELTA   = 0.0
-         Mosaic_Data%VEG     = 0.0
-         Mosaic_Data%Z0      = 0.000001
-         Mosaic_Data%RSTW    = 1.0e10
-         Mosaic_Data%RA      = 1.0e10
-         Mosaic_Data%NAME    = name_lu
-         Mosaic_Data%LU_Type = cat_lu     
 
 !> ccccccccccccccccccccc enable backward compatiblity ccccccccccccccccccccc
 
@@ -542,6 +524,30 @@ C-----------------------------------------------------------------------
          Grid_Data%SZONE = szone
 
          CALL INIT_MOSAIC( JDATE, JTIME, Grid_Data%LUFRAC )
+
+         ALLOCATE( Mosaic_Data%USTAR   ( NCOLS,NROWS,Tile_Data%n_lufrac ),
+     &             Mosaic_Data%LAI     ( NCOLS,NROWS,Tile_Data%n_lufrac ),
+     &             Mosaic_Data%DELTA   ( NCOLS,NROWS,Tile_Data%n_lufrac ),
+     &             Mosaic_Data%VEG     ( NCOLS,NROWS,Tile_Data%n_lufrac ),
+     &             Mosaic_Data%Z0      ( NCOLS,NROWS,Tile_Data%n_lufrac ),
+     &             Mosaic_Data%RA      ( NCOLS,NROWS,Tile_Data%n_lufrac ),
+     &             Mosaic_Data%RSTW    ( NCOLS,NROWS,Tile_Data%n_lufrac ),
+     &             Mosaic_Data%NAME    ( Tile_Data%n_lufrac ),
+     &             Mosaic_Data%LU_Type ( Tile_Data%n_lufrac ),
+     &             STAT = ALLOCSTAT )
+         If ( ALLOCSTAT .Ne. 0 ) Then
+            XMSG = 'Failure allocating mosaic vars'
+            Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         End If
+         Mosaic_Data%USTAR   = 0.0
+         Mosaic_Data%LAI     = 0.0
+         Mosaic_Data%DELTA   = 0.0
+         Mosaic_Data%VEG     = 0.0
+         Mosaic_Data%Z0      = 0.0
+         Mosaic_Data%RSTW    = 1.0e6
+         Mosaic_Data%RA      = 1.0e6
+         Mosaic_Data%NAME    = Tile_Data%name_lu
+         Mosaic_Data%LU_Type = Tile_Data%cat_lu     
 
          MET_INITIALIZED = .true.
 
@@ -697,6 +703,18 @@ C met vars
 
          call interpolate_var ('PBL', jdate, jtime, Met_Data%PBL)
 
+C Update for WRFV4.1+ PX LSM runs that have soil texture in output for
+C  CMAQ dust scheme. These are initialized to 0 if not present in MCIP.
+C  DUST_EMIS.F will use table lookup values if 0 (old WRF or other LSMs).  
+         If ( PXSOIL_AVAIL ) Then
+            call interpolate_var ('CLAY_PX',   jdate, jtime, Grid_Data%CLAY_PX)
+            call interpolate_var ('CSAND_PX',  jdate, jtime, Grid_Data%CSAND_PX)
+            call interpolate_var ('FMSAND_PX', jdate, jtime, Grid_Data%FMSAND_PX)
+            call interpolate_var ('WSAT_PX', jdate, jtime, Grid_Data%WSAT)
+            call interpolate_var ('WFC_PX',  jdate, jtime, Grid_Data%WFC)
+            call interpolate_var ('WWLT_PX', jdate, jtime, Grid_Data%WWLT)
+         End If
+
 C Met_cro_2D variables that have recently changed due to MCIP or WRF/CMAQ
 
          call interpolate_var (vname_rn, jdate, jtime, Met_Data%RN)
@@ -705,6 +723,8 @@ C Met_cro_2D variables that have recently changed due to MCIP or WRF/CMAQ
 
          If ( WR_AVAIL ) Then
             call interpolate_var ('WR', jdate, jtime, Met_Data%WR)
+         Else 
+            Met_Data%WR = 0.0 
          End If
 
          If ( TSEASFC_AVAIL ) Then
@@ -866,73 +886,20 @@ C------
 C-------------------------------- TILE_CRO_2D --------------------------------
 C read in land use specific meteorology from WRF Noah or Ruc mosaic options
 
-!         VNAME = 'LAI'
-!         IF ( .NOT. INTERPX( TILE_CRO_2D, VNAME, PNAME,
-!     &                       STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,n_lufrac,
-!     &                       JDATE, JTIME,  MOSAIC_DATA%LAI ) ) THEN
-!            XMSG = MSG1 // TRIM( VNAME ) // ' from ' // MET_CRO_3D
-         CALL CALC_LAI( JDATE, JTIME, MET_DATA%SOIT2, GRID_DATA%LUFRAC, MET_DATA%LAI,
+         CALL CALC_LAI( JDATE, JTIME, MET_DATA%SOIT2, MET_DATA%LAI,
      &                  MET_DATA%VEG, MOSAIC_DATA%VEG, MOSAIC_DATA%LAI, MOSAIC_DATA%Z0 )
-!         END IF
 
-!         VNAME = 'VEG'
-!         IF ( .NOT. INTERPX( TILE_CRO_2D, VNAME, PNAME,
-!     &                       STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,n_lufrac,
-!     &                       JDATE, JTIME,  MOSAIC_DATA%VEG ) ) THEN
-!            XMSG = MSG1 // TRIM( VNAME ) // ' from ' // MET_CRO_3D
-!         END IF
+         CALL ra_wrf( MET_DATA%MOL, MET_DATA%PBL, MET_DATA%MOLI, MET_DATA%ZH, MET_DATA%RA, MET_DATA%Z0, 
+     &                MOSAIC_DATA%Z0, MET_DATA%USTAR, MOSAIC_DATA%USTAR,
+     &                MOSAIC_DATA%RA, gamah, betah, karman )       
 
-!         VNAME = 'Z0'
-!         IF ( .NOT. INTERPX( TILE_CRO_2D, VNAME, PNAME,
-!     &                       STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,n_lufrac,
-!     &                       JDATE, JTIME,  MOSAIC_DATA%Z0 ) ) THEN
-!            XMSG = MSG1 // TRIM( VNAME ) // ' from ' // MET_CRO_3D
-!         END IF
-
-         Do L = 1, n_lufrac
-            Where( GRID_DATA%LUFRAC( :,:,L ) .EQ. 1.0 .OR. MET_DATA%ZH( :,:,1 ) .EQ. MOSAIC_DATA%Z0( :,:,L ) )
-                   MOSAIC_DATA%USTAR( :,:,L ) = MET_DATA%USTAR
-                   MOSAIC_DATA%Z0( :,:,L )    = MET_DATA%Z0
-            Elsewhere( GRID_DATA%LUFRAC( :,:,L ) .Gt. 0.0 )
-                   MOSAIC_DATA%USTAR( :,:,L ) = MET_DATA%USTAR * SQRT( LOG( MET_DATA%ZH( :,:,1 ) / MET_DATA%Z0 )
-     &                                        / LOG( MET_DATA%ZH( :,:,1 ) / MOSAIC_DATA%Z0( :,:,L ) ) )
-            End Where
-            MOSAIC_DATA%WSTAR = 0.0
-            Where( GRID_DATA%LUFRAC( :,:,L ) .EQ. 1.0 )
-                   MOSAIC_DATA%WSTAR( :,:,L ) = MET_DATA%WSTAR
-            ElseWhere( Met_Data%MOL .Lt. 0.0 )
-                   MOSAIC_DATA%WSTAR( :,:,L ) = MOSAIC_DATA%USTAR( :,:,L ) * ( Met_Data%PBL
-     &                                  / ( karman * ABS( Met_Data%MOL ) ) ) ** 0.333333
-            End Where
-         End Do  
-!         END IF
-
-!         VNAME = 'MOS_RA'
-!         IF ( .NOT. INTERPX( TILE_CRO_2D, VNAME, PNAME,
-!     &                       STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,n_lufrac,
-!     &                       JDATE, JTIME,  MOSAIC_DATA%RA ) ) THEN
-!            XMSG = MSG1 // TRIM( VNAME ) // ' from ' // MET_CRO_3D
-         CALL ra_wrf( MET_DATA%MOLI, MET_DATA%ZH, GRID_DATA%LUFRAC, MET_DATA%RA, MOSAIC_DATA%Z0,
-     &                MOSAIC_DATA%USTAR, MOSAIC_DATA%RA, gamah, betah, karman )       
-!         END IF
-!         VNAME = 'MOS_RST'
-!         IF ( .NOT. INTERPX( TILE_CRO_2D, VNAME, PNAME,
-!     &                       STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,n_lufrac,
-!     &                       JDATE, JTIME,  MOSAIC_DATA%RSTW ) ) THEN
-!            XMSG = MSG1 // TRIM( VNAME ) // ' from ' // MET_CRO_3D
-         CALL MOS_RSTW( GRID_DATA%LUFRAC, MOSAIC_DATA%LAI, Met_Data%RGRND, Met_Data%SOIM2, 
+         CALL MOS_RSTW( MOSAIC_DATA%LAI, Met_Data%RGRND, Met_Data%SOIM2, 
      &                  Grid_Data%WWLT, Grid_Data%WFC, Met_Data%TEMP2, MOSAIC_DATA%RA, MOSAIC_DATA%USTAR, 
      &                  MET_DATA%QSS_GRND, MET_DATA%QV, Met_Data%RS, Mosaic_Data%RSTW )
-!         END IF
 
-!         END IF
-!         VNAME = 'MOS_WR'
-!         IF ( .NOT. INTERPX( TILE_CRO_2D, VNAME, PNAME,
-!     &                       STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,n_lufrac,
-!     &                       JDATE, JTIME,  MOSAIC_DATA%DELTA ) ) THEN
-!            XMSG = MSG1 // TRIM( VNAME ) // ' from ' // MET_CRO_3D
-         CALL MOS_CanWat( GRID_DATA%LUFRAC, MOSAIC_DATA%VEG, MOSAIC_DATA%LAI, Met_Data%WR, Mosaic_Data%DELTA )
-!         END IF
+         CALL MOS_CanWat( MOSAIC_DATA%VEG, MOSAIC_DATA%LAI, Met_Data%WR, Mosaic_Data%DELTA, 
+     &                    WR_AVAIL, Met_Data%Q2, Met_Data%QSS_GRND, Met_Data%RN, Met_Data%RC, Met_Data%WSPD10, 
+     &                    Met_Data%RGRND, jdate, jtime)
 
 !        Calculate the cosine of the zenith angle 
          CALL CZANGLE( JDATE, JTIME, NCOLS, NROWS )
