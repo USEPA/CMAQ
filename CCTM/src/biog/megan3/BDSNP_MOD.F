@@ -948,7 +948,7 @@ C Local Variables
          ! Scale factor so that fertilizer emission = 1.8 Tg N/yr
          ! (Stehfest and Bouwman, 2006)
          ! before canopy reduction
-         REAL*8, PARAMETER :: FERT_SCALE = 0.0068
+         REAL*8, PARAMETER :: FERT_SCALE = 0.0068 ! [yr -1]
          ! Value calculated by running the 2x2.5 GEOS-Chem model
          ! (J.D. Maasakkers)
          FERTADD = FERT + DEPN
