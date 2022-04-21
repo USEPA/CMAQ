@@ -48,7 +48,7 @@ C
 C        
 C*************************************************************************
          USE M3UTILIO
-	 USE TIME_STEP
+         USE TIME_STEP
 
          IMPLICIT NONE 
 
@@ -110,7 +110,7 @@ C... get use daylight savings time switch id uselocal
 C... Get the HOURS_8HRMAX environment variable (default is 24)                                                          
        HOURS_8HRMAX = ENVINT( 'HOURS_8HRMAX', 
      &  'Number of 8hr values to use when computing DM8HR', 24, STATUS)  
-	 
+
        if ( ( HOURS_8HRMAX .NE. 24) .AND. ( HOURS_8HRMAX .NE. 17) ) THEN                                
 
         MSG = '**Error** Invalid value for HOURS_8HRMAX, use 24 or 17'
