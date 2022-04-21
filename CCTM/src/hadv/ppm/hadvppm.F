@@ -116,7 +116,6 @@ C Local Variables:
       INTEGER      SYNCSTEP
 
       INTEGER      LVL                ! loop counters
-      LOGICAL      LSTAT
       LOGICAL      L_WRITE_WARNING
 
 C Required interface for allocatable array dummy arguments
@@ -194,7 +193,6 @@ C Get CGRID offsets
         DELC_YADV = 0.0
       END IF
 
-      LSTAT = .FALSE.
       L_WRITE_WARNING = .TRUE.
       DO 301 LVL = 1, NLAYS
 

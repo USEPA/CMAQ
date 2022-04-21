@@ -1721,7 +1721,7 @@ C-----------------------------------------------------------------------
       ! Definition of Distribution Error Statuses (LSTAT):
       !    0 = All Parameters within Limits
       !    4 = Standard Deviation is just barely invalid. 
-      !         Reset Surface Area but don't warn. (i.e. 1.4999 vs. 1.5)
+      !         Reset Surface Area but don't warn. (i.e. 1.04999 vs. 1.05)
       !    5 = Diameter is just barely invalid but Standard Deviation 
       !          is valid. Reset Number and Surface Area but don't warn.
       !    6 = Diameter and Standard Deviation are barely invalid. 
@@ -1729,7 +1729,8 @@ C-----------------------------------------------------------------------
       !    11 = Mass is below limit. Reset distribution to minimum
       !    12 = Number is below limit. Reset number and Surface Area
       !    13 = Surface Area is below limit but diameter is valid.
-      !          Assume standard deviation and rest Surface Area.
+      !          Set standard deviation to default (def_l2sg) and reset 
+      !          Surface Area.
       !    14 = Standard Deviation is invalid. Reset Surface Area.
       !    15 = Diameter is invalid but Standard Deviation is valid.
       !          Reset Number and Surface Area.
@@ -1792,8 +1793,8 @@ C Local variables:
 
          IF ( IS_BC ) THEN
             ! IBCON is stored in order of Transported Aerosols
-            NUM = SUM( IBCON( : ), MASK = ( L_AETR_MODE( IMODE,: ) .AND. L_AETR_NUM ) )
-            M2  = SUM( IBCON( : ), MASK = ( L_AETR_MODE( IMODE,: ) .AND. L_AETR_SRF ) ) * F1PI
+            NUM = IBCON( : ), MASK = ( L_AETR_MODE( IMODE,: ) .AND. L_AETR_NUM ) 
+            M2  = IBCON( : ), MASK = ( L_AETR_MODE( IMODE,: ) .AND. L_AETR_SRF ) * F1PI
            
             M3DRY = SUM( IBCON( : ) * AEROCGRID_RHOINV * F6PI, 
      &                   MASK = ( L_AETR_MASS .AND. L_AETR_MODE( IMODE,: )  
@@ -1802,8 +1803,8 @@ C Local variables:
      &                   MASK = ( L_AETR_MASS .AND. L_AETR_MODE( IMODE,: ) ) )
          ELSE
             ! IBCON is stored in order of CGRID
-            NUM = SUM( IBCON( : ), MASK = ( L_AESP_MODE( IMODE,: ) .AND. L_AESP_NUM ) )
-            M2  = SUM( IBCON( : ), MASK = ( L_AESP_MODE( IMODE,: ) .AND. L_AESP_SRF ) ) * F1PI
+            NUM = IBCON( : ), MASK = ( L_AESP_MODE( IMODE,: ) .AND. L_AESP_NUM ) 
+            M2  = IBCON( : ), MASK = ( L_AESP_MODE( IMODE,: ) .AND. L_AESP_SRF ) * F1PI
            
             M3DRY = SUM( IBCON( : ) * AEROCGRID_RHOINV * F6PI, 
      &                   MASK = ( L_AESP_MASS .AND. L_AESP_MODE( IMODE,: )  
