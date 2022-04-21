@@ -1793,8 +1793,8 @@ C Local variables:
 
          IF ( IS_BC ) THEN
             ! IBCON is stored in order of Transported Aerosols
-            NUM = IBCON( : ), MASK = ( L_AETR_MODE( IMODE,: ) .AND. L_AETR_NUM ) 
-            M2  = IBCON( : ), MASK = ( L_AETR_MODE( IMODE,: ) .AND. L_AETR_SRF ) * F1PI
+            NUM = SUM( IBCON( : ), MASK = ( L_AETR_MODE( IMODE,: ) .AND. L_AETR_NUM ) ) 
+            M2  = SUM( IBCON( : ), MASK = ( L_AETR_MODE( IMODE,: ) .AND. L_AETR_SRF ) ) * F1PI
            
             M3DRY = SUM( IBCON( : ) * AEROCGRID_RHOINV * F6PI, 
      &                   MASK = ( L_AETR_MASS .AND. L_AETR_MODE( IMODE,: )  
@@ -1803,8 +1803,8 @@ C Local variables:
      &                   MASK = ( L_AETR_MASS .AND. L_AETR_MODE( IMODE,: ) ) )
          ELSE
             ! IBCON is stored in order of CGRID
-            NUM = IBCON( : ), MASK = ( L_AESP_MODE( IMODE,: ) .AND. L_AESP_NUM ) 
-            M2  = IBCON( : ), MASK = ( L_AESP_MODE( IMODE,: ) .AND. L_AESP_SRF ) * F1PI
+            NUM = SUM( IBCON( : ), MASK = ( L_AESP_MODE( IMODE,: ) .AND. L_AESP_NUM ) )
+            M2  = SUM( IBCON( : ), MASK = ( L_AESP_MODE( IMODE,: ) .AND. L_AESP_SRF ) ) * F1PI
            
             M3DRY = SUM( IBCON( : ) * AEROCGRID_RHOINV * F6PI, 
      &                   MASK = ( L_AESP_MASS .AND. L_AESP_MODE( IMODE,: )  
