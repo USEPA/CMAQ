@@ -23,7 +23,8 @@
 !                          GR_EMIS_01_LAB or STK_EMIS_01_LAB). There are a few !
 !                          reserved names that apply to inline emissions       !
 !                          streams. These are:                                 !
-!                            BIOG - Biogenic VOC emissions                     !
+!                            BIOG - Biogenic VOC emissions from BEIS           !
+!                            MIOG - Biogenic VOC emissions from MEGAN          !
 !                            MGEM - Marine Gas Emissions                       !
 !                            LTNG - Lightning NO Emissions                     !
 !                            WBDUST - Wind-Blown Dust Emissions                !
