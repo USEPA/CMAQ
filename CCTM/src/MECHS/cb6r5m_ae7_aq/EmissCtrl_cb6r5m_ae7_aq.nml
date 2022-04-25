@@ -265,6 +265,11 @@
     'EVERYWHERE', 'PT_OTHFIRES'  ,'ALL'   ,'PCVOC'      ,'GAS' ,0.0  ,'MASS','o', 
     'EVERYWHERE', 'PT_FIRES_MXCA','ALL'   ,'PCVOC'      ,'GAS' ,0.0  ,'MASS','o', 
     'EVERYWHERE', 'GR_RES_FIRES' ,'ALL'   ,'PCVOC'      ,'GAS' ,0.0  ,'MASS','o', 
+
+   ! MEGAN biogenic emissions:
+   ! CH3I emissions may reduce ozone over land in an undesirable way. Species is disabled here
+   ! pending further testing.
+    'EVERYWHERE', 'MIOG'        ,'CH3I'   ,'CH3I'        ,'GAS'  ,0.  ,'UNIT','a', 
    
    ! Wind-Blown Dust and Sea Spray Scaling
    ! Fine Components
