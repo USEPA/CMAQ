@@ -105,7 +105,7 @@ C------------------------------------------------------------------------------
          Real            :: Gamma_NH3_st    ! Vegetation NH3 emission potential ([mol NH4+]/[mol H+])
          Real            :: Hg_grnd         ! Soil Hg concentration (umol/g)
          Real            :: l_width         ! leaf width (m)
-         Real            :: Alpha           ! Zhang et al. 2003/Emerson et al. 2020 land use parameter (m)
+         Real            :: Alpha           ! Zhang et al. 2003/Emerson et al. 2020 empirical land use parameter (unitless)
          Real            :: BAI             ! Building area index (m2/m2)
          Real            :: Ahair           ! Leaf hair width (m)
          Real            :: Fhair           ! Leaf hair fraction (ratio)

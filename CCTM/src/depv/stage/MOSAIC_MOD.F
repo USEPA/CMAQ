@@ -73,7 +73,7 @@ C Buffer variables
          Real,            Allocatable :: NH3_gam_st   ( : ) ! vegetation NH3 emission potential ([NH4]/[H])
          Real,            Allocatable :: Hg_grnd      ( : ) ! soil Hg concentration (umol/g )
          Real,            Allocatable :: l_width      ( : ) ! aerodynamic leaf width (m)
-         Real,            Allocatable :: Alpha        ( : ) ! Emerson et al 2020 PNAS land use factor (m)
+         Real,            Allocatable :: Alpha        ( : ) ! Emerson et al 2020 PNAS empirical land use factor (unitless)
          Real,            Allocatable :: BAI          ( : ) ! building area index (m2/m2)
          Real,            Allocatable :: Ahair        ( : ) ! leaf hair width (m)
          Real,            Allocatable :: Fhair        ( : ) ! ratio of leaf covered in hairs
