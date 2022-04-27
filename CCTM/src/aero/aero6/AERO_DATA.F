@@ -1697,7 +1697,8 @@ C-----------------------------------------------------------------------
       INTEGER, INTENT( IN ) :: COL, ROW, LAY
 
       INTEGER :: LSTAT( N_MODE ) ! 0 - Distribution is ok
-                                ! 1-6 - Distribution is problematic
+                                 ! Nonzero values indicate problem with
+                                 ! modal parameters. See below 
                                                                     ! | Before  After
       REAL    :: AER_PAR( 2, N_MODE, 8 ) !Track the modal parameters! |    N,    N
                                          !before and after the BC   ! |  M2WET, M2WET
@@ -1939,19 +1940,19 @@ C Local variables:
              DGWET = ( M3WET / NUM * EXP( -4.5 * L2SG ) )  ** ( ONE_THIRD )
              AER_PAR( 1, IMODE, 6 ) = DGWET
 
-             IF ( (DGDRY .GT. .95*MIN_DG_DRY(IMODE) .AND. DGDRY .LT. MIN_DG_DRY(IMODE)) .OR.
-     &            (DGDRY .GT. MAX_DG_DRY(IMODE) .AND. DGDRY .LT. 1.1*MIN_DG_DRY(IMODE)) ) THEN
+             IF ( (DGDRY .GT. 0.95*MIN_DG_DRY(IMODE) .AND. DGDRY .LT. MIN_DG_DRY(IMODE)) .OR.
+     &            (DGDRY .GT. MAX_DG_DRY(IMODE) .AND. DGDRY .LT. 1.05*MIN_DG_DRY(IMODE)) ) THEN
                   ! Diameter is barely invalid. Don't trigger warning
-                  IF ( LSTAT( IMODE ) .EQ. 2 ) THEN
+                  IF ( LSTAT( IMODE ) .EQ. 4 ) THEN
                      LSTAT( IMODE ) = 6  ! Both sg and dg are barely invalid
                   ELSE IF (LSTAT( IMODE ) .EQ. 0 ) THEN
                      LSTAT( IMODE ) = 5  ! Just dg is barely invalid
                   END IF
-                  LSTAT( IMODE ) = 3
+             
              ELSE IF ( DGDRY .LT. 0.95*MIN_DG_DRY( IMODE )  .OR. 
      &                 DGDRY .GT. 1.05*MAX_DG_DRY(IMODE) ) THEN
                  ! Diameter is invalid. Reset Diameter
-                 IF ( LSTAT( IMODE ) .EQ. 2 .OR. LSTAT( IMODE ) .EQ. 12 ) THEN
+                 IF ( LSTAT( IMODE ) .EQ. 4 .OR. LSTAT( IMODE ) .EQ. 12 ) THEN
                     LSTAT( IMODE ) = 16  ! Both dg and sg are invalid
                 ELSE IF ( LSTAT( IMODE ) .EQ. 0 ) THEN
                     LSTAT( IMODE ) = 15  ! Just dg is invalid
