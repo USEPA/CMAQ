@@ -3,10 +3,19 @@
 
 ##  Background
 
-The chemical mechanism processor (chemmech) allows altering a photochemical mechanisms or using a different mechanism in the CMAQ model.
-Two output files implement the photochemical mechanism in CMAQ and are compiled along its source code. Both output files contain FORTRAN 90 modules. RXNS_DATA_MOD.F90 defines the mechanism species, their reactions and rate constants. RXN_FUNC_MOD.F90 specifies functions that map CMAQ model species to photochemical mechanism species and calculate reaction rate constants. chemmech produces additional output files to check whether the two modules represent the photochemical mechanism intended by the user.  One additional ouput file, SPCS.ext, lists the species participating in the photochemical mechanism. Two other additional output files are prototypes for the species and equations files used to run the Kinetic PreProcess (KPP) (Damian et al., 2002).  The KPP inputs have not been tested in several years so a user should use them with discretion.
-Remaining output files are markdown, csv and, html tables that list reactions, their rate constant formula, and values at specified atmospheric conditions.
+The chemical mechanism processor (chemmech) allows altering a photochemical mechanisms or using a different mechanism in the CMAQ model. 
 
+Two output files implement the photochemical mechanism in CMAQ and are compiled along its source code. Both output files contain FORTRAN 90 modules. RXNS_DATA_MOD.F90 defines the mechanism species, their reactions and rate constants. RXN_FUNC_MOD.F90 specifies functions that map CMAQ model species to photochemical mechanism species and calculate reaction rate constants. chemmech produces additional output files to check whether the two modules represent the photochemical mechanism intended by the user.  One additional ouput file, SPCS.ext, lists the species participating in the photochemical mechanism. 
+
+Other output files support using the Kinetic PreProcess (KPP) (Damian et al., 2002), document the input data, and aid using the input's chemical mechanism in F0AM box model (Wolfe et al., 2016). The KPP file ares prototypes for the species and equations files used to run the program. They have not been tested in several years so a user should use them with discretion. Documentation files are markdown, csv and, html tables that list reactions, their rate constant formula, and values at specified atmospheric conditions. The output files for running the FOAM boxmodel are listed below.
+
+1. **mechanism_name**_AllRxns.m defines the mechanism species, reactions and their rate constants.
+2. **mechanism_name**_J.m sets the mechanism's photolysis frequencies. Note that F0AM provides a fixed set to available photolysis frequencies so a user has map the mechanism's frequency to the available frequencies. If user wishes to frequencies native to the mechanism, they have to (1) add the frequencies' cross-section and quantum yield files to the relevant subdirectories of the F0AM box-model then (2) modify the file, Chem/Photolysis/J_BottomUp.m, and run Chem/Photolysis/calc_HybridJtables.m. See the F0AM user guide for more instructions.
+3. J_BottomUp_insert_**mechanism_name**.m contains a list  of the data files need to accomplish the above task. The file can also be used to modify Chem/Photolysis/J_BottomUp.m.
+4. **mechanism_name**_K.m sets the heterogeneous reaction rate constants. The file sets their values to zero because CCTM/src/aero/aero6/AEROSOL_CHEMISTRY.F calculates the values in CCTM and is not controlled by the chemmech utility. 
+
+The chemmech utility has run-time option to produce additional output files. The options creates a revised mechanism definitions file to show how each reaction changes the balance of elements such as carbon, nitrogen, and sulfur. The options produces revised mechanism definitions and diagnostic files. See the section on the _COMPUTE_DELTA_ATOMS_ option.
+   
 ## Using chemmech
 
 This directory includes a scripts subdirectory with a template build and run scripts along for creating
@@ -40,11 +49,14 @@ To create mechanism modules:
 | RXNS_FUNC_MODULE  | Full path for output RXNS_FUNC_MODULE.F90, the mechanism function module | Used to compile a version of CMAQ that use the photochemistry in the  Mechanism Definitions File |
 | EQNS_KPP_FILE  | Full path for equations file to run the Kinetic Preprocessor (KPP) tool | Based on the MECHDEF content and not tested |
 | SPCS_KPP_FILE  | Full path for species file to run the KPP tool | Based on the MECHDEF content and not tested |
-
+| COMPUTE_DELTA_ATOMS | Rewrite mechanism definitions file to append reactions with change in tracked atoms| Default is False |
+| NAMELISTS_LIST_ATOMS | For atoms or elements composing chemistry species, read comments trailing for species definitions in species namelist.  | Default is True but only used if COMPUTE_DELTA_ATOMS is True. |
 
 Inputs include a mechanism chemical definitions (MECHDEF or mech.def) file and CMAQ species namelist files.
 All are ASCII files. Namelists specify species participating in photochemical reaction divided into the Gas (GC), Aerosol (AE), Nonreactive (NR) and Tracer (TR) groups but not all namelist species have to participate in photochemical reactions. The namelist are optional but are recommended when modifying an existing photochemical mechanism because chemmech will check whether species used in the mech.def exist in the namelists. 
 The mech.def file lists the reactions and other data representing the photochemistry. Input files follow a rigid format; the CCTM/src/MECHS subdirectories contain examples. Rules for the mech.def are more difficults to interpret. Read the subsection on _Chemical Reactions Input Format_ for more information. 
+
+## Reporting errors or problems with chemmech 
 
 If errors occur at running chemmech, check the _Compiling and debugging chemmech_ subsection for possible solutions. Otherwise,  report potential program errors or failures, contact Bill Hutzell/USEPA at hutzell.bill@epa.gov. 
 
@@ -294,3 +306,5 @@ Sandu A., Verwer J.G, Blom J.G., Spee E.J., Carmichael G.R. and Potra F.A (1997)
 
 Watson L.A., Shallcross D.E., Utembe S.R., Jenkin M.E. (2008). A Common Representative Intermediates (CRI) mechanism for VOC degradation. Part 2: Gas phase mechanism reduction
 Atmospheric Environment, 42 (31) , pp. 7185-7193
+
+Wolfe G. M. , Marvin M. R., Roberts S. J., Travis K. R., and J. Liao K. R. (2016). The Framework for 0-D Atmospheric Modeling (F0AM) v3.1, Geoscientific Model Development, 9, 3309-3319, doi: 10.5194/gmd-9-3309-2016.
