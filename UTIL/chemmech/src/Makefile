@@ -8,7 +8,8 @@ endif
 
 ifndef compiler
  compiler = intel
-# other options ( pgi | gcc  )
+#compiler = gcc
+#compiler = pgi
 endif
 
 ifeq "$(compiler)" "intel"
@@ -58,52 +59,37 @@ CPP_FLAGS = -DCHEMMECH
 OBJECTS =\
     MECHANISM_PARMS.o \
     module_envvar.o \
-    KPP_DATA.o \
+    TEXT_UTILITIES.o \
+    BASIC_WRITE_ROUTINES.o \
     MECHANISM_DATA.o \
     CGRID_SPCS.o  \
+    GET_MECHDEF_DATA.o \
     module_functions_evaluator.o \
-    WIKI_TABLE.o \
+    SPECIES_ATOMS_DATA.o \
+    MECHANISM_DOCS.o \
     chemmech.o \
-    set_sparse_data.o \
-    eatcom.o \
-    check_ss_spc.o \
-    check_order_specials.o \
-    getchar.o \
-    getlabel.o \
-    get_operator.o \
-    getprdct.o \
-    getrate.o \
-    getrctnt.o \
-    getreal.o \
-    getword.o \
-    get_ss_data.o \
     junit.o \
     index1.o \
-    indexes.o \
-    lkupspec.o \
-    rdline.o \
-    size.o \
-    wrhdr1.o \
-    wrbf6.o \
-    wrbf16c.o \
-    wrbf12d.o \
-    wrbf12s.o \
     wrexts.o \
     wrspecial_ext.o \
     wrss_ext.o  \
     wrt_kpp_inputs.o \
     wrt_reactions_module.o \
-    wrbf6_fortran90.o \
-    wrbf16c_fortran90.o \
-    wrbf12d_fortran90.o \
-    wrbf12s_fortran90.o \
     wrspecial_ext_fortran90.o \
     wrexts_fortran90.o \
     wrt_rates.o \
-    wrss_ext_fortran90.o  \
-    vallabchr.o \
-    valwrdchr.o 
+    wrss_ext_fortran90.o
         
+#   wrhdr1.o \
+#   wrbf6.o \
+#   wrbf16c.o \
+#   wrbf12d.o \
+#   wrbf12s.o \
+#   wrbf6_fortran90.o \
+#   wrbf16c_fortran90.o \
+#   wrbf12d_fortran90.o \
+#   wrbf12s_fortran90.o \
+
 .SUFFIXES: .f .c
 
 $(MODEL): $(OBJECTS)

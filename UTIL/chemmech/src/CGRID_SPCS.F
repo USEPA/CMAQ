@@ -1102,6 +1102,11 @@ C determine if mechanism species are in cgrid species
                end if                                                                                        
             end do                                                                                           
 #endif
+         close( dev_gc_nml )
+         close( dev_ae_nml )
+         close( dev_nr_nml )
+         close( dev_tr_nml )
+
          return
 
          end function cgrid_spcs_init

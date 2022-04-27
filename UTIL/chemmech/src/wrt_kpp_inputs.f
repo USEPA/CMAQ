@@ -22,20 +22,13 @@ C  Portions of I/O API, PAVE, and the model builder are Copyrighted        *
 C  1993-1997 by MCNC--North Carolina Supercomputing Center and are         *
 C  used with their permissions subject to the above restrictions.          *
 C***************************************************************************
-
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header$
-
-C what(1) key, module and SID; SCCS file; date and time of last delta:
-C @(#)CHEMMECH.F 1.1 /project/mod3/MECH/src/driver/mech/SCCS/s.CHEMMECH.F 02 Jan 1997 15:26:41
-
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE WRT_KPP_INPUTS( NR, IP, LABEL, NS  )
 
  
-      USE KPP_DATA
       USE GET_ENV_VARS
       USE MECHANISM_DATA
+      USE BASIC_WRITE_ROUTINES
       
       IMPLICIT NONE
 
@@ -58,7 +51,6 @@ c..local Variables for steady-state species
       CHARACTER( 140 ) :: FILE_LINE
 
       INTEGER, EXTERNAL :: INDEX1
-      INTEGER, EXTERNAL :: INDEXES
       INTEGER            :: LPOINT, IEOL
       INTEGER            :: I, ICOL, ISPC, IRX, IDX
       INTEGER            :: NXX, IPR, IPHOTAB, NC
@@ -102,83 +94,6 @@ c..Variables for species to be dropped from mechanism
 
       INTEGER, EXTERNAL :: JUNIT
       INTEGER            :: ICOUNT, IREACT, IPRODUCT
-
-      INTERFACE 
-       SUBROUTINE GETRCTNT ( IMECH, INBUF, IEOL, LPOINT, CHR, WORD,
-     &                      NXX, NS, SPARSE_SPECIES, SPC1RX,
-     &                      ICOL, LABEL, N_DROP_SPC, DROP_SPC )
-         INTEGER,         INTENT(   IN  ) :: IMECH
-         CHARACTER( 81 ), INTENT( INOUT ) :: INBUF
-         INTEGER,         INTENT( INOUT ) :: LPOINT
-         INTEGER,         INTENT( INOUT ) :: IEOL
-         CHARACTER(  1 ), INTENT( INOUT ) :: CHR
-         CHARACTER( 16 ), INTENT( INOUT ) :: WORD
-         INTEGER,         INTENT(   IN  ) :: NXX
-         INTEGER,         INTENT( INOUT ) :: NS
-         CHARACTER( 16 ), INTENT( INOUT ) :: SPARSE_SPECIES( : )
-         INTEGER,         INTENT( INOUT ) :: SPC1RX( : )
-         INTEGER,         INTENT( INOUT ) :: ICOL
-         CHARACTER( 16 ), INTENT(   IN  ) :: LABEL( :, : )
-         INTEGER,         INTENT(   IN  ) :: N_DROP_SPC
-         CHARACTER( 16 ), INTENT(   IN  ) :: DROP_SPC( : )
-        END SUBROUTINE GETRCTNT
-        SUBROUTINE GETPRDCT ( IMECH, INBUF, LPOINT, IEOL, CHR, WORD,
-     &                      NXX, NS, SPARSE_SPECIES, SPC1RX,
-     &                      ICOL, N_DROP_SPC, DROP_SPC )
-          INTEGER,         INTENT(   IN  ) :: IMECH
-          CHARACTER( 81 ), INTENT( INOUT ) :: INBUF
-          INTEGER,         INTENT( INOUT ) :: LPOINT
-          INTEGER,         INTENT( INOUT ) :: IEOL
-          CHARACTER(  1 ), INTENT( INOUT ) :: CHR
-          CHARACTER( 16 ), INTENT( INOUT ) :: WORD
-          INTEGER,         INTENT(   IN  ) :: NXX
-          INTEGER,         INTENT( INOUT ) :: NS
-          CHARACTER( 16 ), INTENT( INOUT ) :: SPARSE_SPECIES( : )
-          INTEGER,         INTENT( INOUT ) :: SPC1RX( : )
-          INTEGER,         INTENT( INOUT ) :: ICOL
-          INTEGER,         INTENT(   IN  ) :: N_DROP_SPC
-          CHARACTER( 16 ), INTENT(   IN  ) :: DROP_SPC( : )
-         END SUBROUTINE GETPRDCT
-         SUBROUTINE GETRATE ( IMECH, INBUF, LPOINT, IEOL, CHR,
-     &                         NXX, LABEL, IP )
-           CHARACTER(  1 ), INTENT( INOUT ) :: CHR
-           CHARACTER( 81 ), INTENT( INOUT ) :: INBUF
-           INTEGER,         INTENT( IN )    :: IMECH
-           INTEGER,         INTENT( INOUT ) :: LPOINT
-           INTEGER,         INTENT( INOUT ) :: IEOL
-           INTEGER,         INTENT( INOUT ) :: IP
-           INTEGER,         INTENT( IN )    :: NXX
-           CHARACTER( 16 ), INTENT( INOUT ) :: LABEL( :,: )
-        END SUBROUTINE GETRATE
-        SUBROUTINE WREXTS (EQNAME_MECH, DESCRP_MECH, NS, SPARSE_SPECIES, SPC1RX, NR,
-     &                      IP,  NAMCONSTS, CVAL, SS1RX  ) 
-          CHARACTER( 120 ), INTENT ( IN ) :: EQNAME_MECH
-          CHARACTER(  32 ), INTENT ( IN ) :: DESCRP_MECH
-          INTEGER,          INTENT ( IN ) :: NS                ! no. of species found in mechanism table
-          CHARACTER(  16 ), INTENT ( IN ) :: SPARSE_SPECIES( : ) ! species list from mechanism table
-          INTEGER,          INTENT ( IN ) :: NR
-          INTEGER,          INTENT ( IN ) :: SPC1RX( : ) ! rx index of 1st occurence of species in mechanism table
-          INTEGER,          INTENT ( IN ) :: IP
-          CHARACTER( 16 ),  INTENT ( IN ) :: NAMCONSTS( : )
-          REAL( 8 ),        INTENT ( IN ) :: CVAL( : )
-          INTEGER,          INTENT ( IN ) :: SS1RX( : )
-        END SUBROUTINE WREXTS
-        SUBROUTINE GET_SS_DATA ( LUNOUT, NR ) 
-          INTEGER, INTENT ( IN )         :: LUNOUT   ! Output unit number
-          INTEGER, INTENT ( IN )         :: NR       ! No. of reactions
-        END SUBROUTINE GET_SS_DATA
-        SUBROUTINE CHECK_SS_SPC ( LUNOUT, NS, SPARSE_SPECIES, NR, LABEL, SS1RX )
-         INTEGER, INTENT ( IN )         :: LUNOUT               ! Output unit number
-         INTEGER, INTENT ( IN )         ::  NS                  ! No. of species in mechanism
-         CHARACTER( 16 ), INTENT ( IN ) ::  SPARSE_SPECIES( : )   ! List of mechanism species
-         INTEGER, INTENT ( IN )         ::  NR                  ! No. of reactions
-         CHARACTER( 16 ), INTENT ( IN ) ::  LABEL( :,: ) ! Reaction labels
-         INTEGER, INTENT ( INOUT )      ::  SS1RX( : )
-       END SUBROUTINE CHECK_SS_SPC
-       SUBROUTINE WRSS_EXT( NR ) 
-         INTEGER, INTENT ( IN )         :: NR   ! No. of reactions
-       END SUBROUTINE WRSS_EXT
-      END INTERFACE 
   
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -867,91 +782,3 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
 
        END SUBROUTINE WRT_KPP_INPUTS
-          
-       SUBROUTINE  CONVERT_CASE_BAK ( BUFFER, UPPER )
-C***********************************************************************
-
-C  subroutine body starts at line  41
-C
-C  FUNCTION:  converts to upcase or lower the text in BUFFER
-C             based on values of logic flag UPPER
-C
-C  PRECONDITIONS REQUIRED:  text is ASCII
-C
-C  SUBROUTINES AND FUNCTIONS CALLED:  none
-C
-C  REVISION  HISTORY:  prototype 1/91 by CJC
-C
-C***********************************************************************
-
-      IMPLICIT NONE
-
-C...........   ARGUMENTS and their descriptions:
-
-        CHARACTER*(*)   BUFFER
-        LOGICAL         UPPER
-
-
-C...........   PARAMETER:  ASCII for 'a', 'z', 'A'
-
-        INTEGER       IA, IZ, AADIF
-
-        PARAMETER   ( IA    = 97,
-     &                IZ    = 122,
-     &                AADIF = 32 )
-
-
-C...........   SCRATCH LOCAL VARIABLES and their descriptions:
-
-        INTEGER       I, L
-        INTEGER       C
-        INTEGER       FACTOR
-        INTEGER       STRT, FINI
-        
-
-
-C***********************************************************************
-C   begin body of subroutine  UPCASE
-
-        L  =  LEN ( BUFFER )
-        IF( UPPER )THEN
-            FACTOR =  - AADIF
-            STRT   =    IA
-            FINI   =    IZ
-        ELSE
-            FACTOR =    AADIF
-            STRT   =    IA - AADIF
-            FINI   =    IZ - AADIF
-        END IF
-        
-        DO  111  I = 1 , L
-            C = ICHAR ( BUFFER ( I:I ) )
-            IF ( C .GE. STRT  .AND.  C .LE. FINI ) THEN
-                BUFFER ( I:I ) = CHAR ( C + FACTOR )
-            END IF
-111     CONTINUE        !  end loop on I
-
-        RETURN
-        END SUBROUTINE CONVERT_CASE_BAK
-
-      SUBROUTINE WRITE_RATE_CONVERT_BAK(OUT_UNIT, RXN_ORDER)
-        IMPLICIT NONE
-        INTEGER, INTENT( IN ) :: OUT_UNIT
-        INTEGER, INTENT( IN ) :: RXN_ORDER
-        
-         SELECT CASE( RXN_ORDER )
-           CASE( 0 )
-             WRITE(OUT_UNIT, 95000, ADVANCE = 'NO')
-           CASE( 1 )
-             WRITE(OUT_UNIT, 95001, ADVANCE = 'NO')
-           CASE( 2 )
-             WRITE(OUT_UNIT, 95002, ADVANCE = 'NO')
-           CASE( 3 )
-             WRITE(OUT_UNIT, 95003, ADVANCE = 'NO')
-        END SELECT
-95000   FORMAT(' INV_RFACTOR * ')                
-95001   FORMAT(' 60.0D0 * ')                
-95002   FORMAT(' RFACTOR * ')                
-95003   FORMAT(' RFACTOR_SQU * ')                
-        RETURN
-      END SUBROUTINE WRITE_RATE_CONVERT_BAK

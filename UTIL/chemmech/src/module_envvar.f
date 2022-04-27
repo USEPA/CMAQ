@@ -6,7 +6,7 @@
      &             GET_ENVLIST, VALUE_NAME 
               
          INTEGER, PARAMETER, PRIVATE :: LOGDEV = 6
-         INTEGER, PARAMETER, PRIVATE :: MAX_LEN_WORD = 16
+         INTEGER, PARAMETER          :: MAX_LEN_WORD = 16
       
       CONTAINS
 
@@ -381,5 +381,238 @@ C don't count until 1st char in string
            END DO
 
            RETURN 
-         END SUBROUTINE GET_ENVLIST 
+         END SUBROUTINE GET_ENVLIST
+!! --------------------------------------------------------------------------------
+!        SUBROUTINE PARSE_STRING ( ENV_VAL, NVARS, VAL_LIST )
+!
+!! takes a string of items delimited by white space,
+!! commas or semi-colons) and parse out the items into variables. Two data
+!! types: character strings and integers (still represented as strings in
+!! the env var vaules).
+!          
+!          IMPLICIT NONE
+!
+!          CHARACTER( * ), INTENT ( IN )           :: ENV_VAL
+!          INTEGER,        INTENT ( OUT )          :: NVARS
+!          CHARACTER( * ), INTENT ( OUT )          :: VAL_LIST( : )
+!
+!          INTEGER             :: MAX_LEN
+!          INTEGER             :: LEN_EVAL
+!          CHARACTER( 16 )     :: PNAME = 'PARSE_STRING'
+!          CHARACTER(  1 )     :: CHR
+!          CHARACTER( 96 )     :: XMSG
+!
+!          INTEGER :: JP( MAX_LEN_WORD*SIZE( VAL_LIST ) )
+!          INTEGER :: KP( MAX_LEN_WORD*SIZE( VAL_LIST ) )
+!          INTEGER :: STATUS
+!          INTEGER :: IP, V
+!          INTEGER :: ICOUNT
+! 
+!          MAX_LEN = MAX_LEN_WORD * ( SIZE( VAL_LIST ) + 1 ) ! extra character allows deliminator
+!C Parse:
+!
+!           NVARS = 0
+!
+!C don't count until 1st char in string
+!           
+!           IP = 0
+!           KP = 1
+!           JP = 1
+!           LEN_EVAL = LEN_TRIM( ENV_VAL ) 
+!           IF ( LEN_EVAL .GT. MAX_LEN ) THEN
+!              XMSG = TRIM( PNAME ) // ': The Environment variable, '
+!     &            // TRIM( ENV_VAL ) // ',  has too long, greater than ' 
+!              WRITE(LOGDEV,'(A,I8)')TRIM( XMSG ), MAX_LEN
+!              XMSG = 'Above fatal error encountered '
+!              WRITE(LOGDEV,'(A)')TRIM( XMSG )
+!           END IF
+!101        LOOP_101: DO  ! read list
+!              IP = IP + 1
+!              IF ( IP .GT. LEN_EVAL ) EXIT LOOP_101
+!              CHR = ENV_VAL( IP:IP )
+!              IF ( CHR .EQ. ' ' .OR. ICHAR ( CHR ) .EQ. 09 ) CYCLE LOOP_101
+!              IF ( CHR .EQ. ',' .OR. CHR .EQ. ';' ) CYCLE LOOP_101
+!              IF( NVARS .GT. SIZE( VAL_LIST ) )THEN
+!                 XMSG = TRIM( PNAME ) // ':ERROR: Number of values in List, ' 
+!     &                //  TRIM( ENV_VAL ) 
+!     &                // ', greater than the size of its storage array, '
+!                  WRITE(LOGDEV,'(A,I4)')TRIM( XMSG ), SIZE( VAL_LIST )
+!                  XMSG = 'Above fatal error encountered '
+!                  WRITE(LOGDEV,'(A)')TRIM( XMSG )
+!              END IF
+!              NVARS = NVARS + 1
+!              JP( NVARS ) = IP   ! 1st char
+!              IF( IP .EQ. LEN_EVAL )THEN ! word one character long          
+!                  KP( NVARS ) = IP
+!                  V = 1
+!                  EXIT LOOP_101
+!              END IF     
+!201           LOOP_201: DO ! read word
+!                 IP = IP + 1
+!                 CHR = ENV_VAL( IP:IP )
+!                 IF ( CHR .NE. ' ' .AND.
+!     &                CHR .NE. ',' .AND.
+!     &                CHR .NE. ';' .OR.
+!     &                ICHAR ( CHR ) .EQ. 09 ) THEN  ! 09 = horizontal tab
+!                    CYCLE LOOP_201
+!                 ELSE                               ! last char in word
+!                    KP( NVARS ) = IP - 1 
+!                    V = JP( NVARS ) - IP
+!                    IF( V .GT. MAX_LEN_WORD )THEN
+!                      XMSG =  'The word, ' // ENV_VAL( JP(NVARS):KP(NVARS) ) 
+!     &                     // ', in list, ' // TRIM( ENV_VAL )
+!     &                     // ', is too long, '
+!                      WRITE(LOGDEV,'(A,1X,I2,A,I2)')TRIM( XMSG ), V, ' max allowed ',
+!     &                MAX_LEN_WORD
+!                      XMSG = 'Above fatal error encountered '
+!                      WRITE(LOGDEV,'(A)')TRIM( XMSG )
+!                    END IF
+!                    EXIT LOOP_201
+!                 END IF 
+!                 IF ( IP .GE. LEN_EVAL ) EXIT LOOP_101
+!              END DO LOOP_201
+!           END DO LOOP_101
+!           
+!           IF( NVARS .GT. SIZE( VAL_LIST ) )THEN
+!              XMSG = TRIM( PNAME ) // ':ERROR: Number of values in List, ' 
+!     &             //  TRIM( ENV_VAL ) // ', greater than '
+!              WRITE(LOGDEV,'(A,I4)')TRIM( XMSG ), SIZE( VAL_LIST )
+!              XMSG = 'Above fatal error encountered '
+!              WRITE(LOGDEV,'(A)')TRIM( XMSG )
+!           END IF
+!           
+!           ICOUNT = 0
+!           DO V = 1, NVARS
+!!              IF ( TRIM( ENV_VAL( JP( V ):KP( V ) ) ) .NE. ' ' .AND.
+!!     &                 TRIM( ENV_VAL( JP( V ):KP( V ) ) ) .NE. ',' .AND.
+!!     &                 TRIM( ENV_VAL( JP( V ):KP( V ) ) ) .NE. ';' .AND.
+!!     &                 ICHAR ( CHR ) .NE. 09 ) THEN
+!                  ICOUNT = ICOUNT + 1
+!                  VAL_LIST( ICOUNT ) = ENV_VAL( JP( V ):KP( V ) )
+!!               END IF
+!           END DO
+!           
+!           NVARS = ICOUNT
+!
+!           RETURN
+!           
+!        END SUBROUTINE PARSE_STRING
+!! --------------------------------------------------------------------------------
+!        SUBROUTINE PARSE_COMMAS ( ENV_VAL, NVARS, VAL_LIST )
+!
+!! takes a string of items delimited only by commas 
+!! and parse out the items into variables. Two data
+!! types: character strings and integers (still represented as strings in
+!! the env var vaules).
+!          
+!          IMPLICIT NONE
+!
+!          CHARACTER( * ), INTENT ( IN )           :: ENV_VAL
+!          INTEGER,        INTENT ( OUT )          :: NVARS
+!          CHARACTER( * ), INTENT ( OUT )          :: VAL_LIST( : )
+!
+!          INTEGER             :: MAX_LEN
+!          INTEGER             :: LEN_EVAL
+!          CHARACTER( 16 )     :: PNAME = 'PARSE_STRING'
+!          CHARACTER(  1 )     :: CHR
+!          CHARACTER( 96 )     :: XMSG
+!
+!          INTEGER :: JP( MAX_LEN_WORD*SIZE( VAL_LIST ) )
+!          INTEGER :: KP( MAX_LEN_WORD*SIZE( VAL_LIST ) )
+!          INTEGER :: STATUS
+!          INTEGER :: IP, V
+!          INTEGER :: ICOUNT
+!          INTEGER :: LEN_LIST_WORD
+! 
+!          MAX_LEN = MAX_LEN_WORD * ( SIZE( VAL_LIST ) + 1 ) ! extra character allows deliminator
+!C Parse:
+!
+!           NVARS = 0
+!           LEN_LIST_WORD = LEN( VAL_LIST( 1 ) )
+!C don't count until 1st char in string
+!           
+!           IP = 0
+!           KP = 1
+!           JP = 1
+!           LEN_EVAL = LEN_TRIM( ENV_VAL ) 
+!           IF ( LEN_EVAL .GT. MAX_LEN ) THEN
+!              XMSG = TRIM( PNAME ) // ': The Environment variable, '
+!     &            // TRIM( ENV_VAL ) // ',  has too long, greater than ' 
+!              WRITE(LOGDEV,'(A,I8)')TRIM( XMSG ), MAX_LEN
+!              XMSG = 'Above fatal error encountered '
+!              WRITE(LOGDEV,'(A)')TRIM( XMSG )
+!           END IF
+!101        LOOP_101: DO  ! read list
+!              IP = IP + 1
+!              IF ( IP .GT. LEN_EVAL ) EXIT LOOP_101
+!              CHR = ENV_VAL( IP:IP )
+!              IF ( CHR .EQ. ' ' .OR. ICHAR ( CHR ) .EQ. 09 ) CYCLE LOOP_101
+!              IF ( CHR .EQ. ',' ) CYCLE LOOP_101
+!              IF( NVARS .GT. SIZE( VAL_LIST ) )THEN
+!                 XMSG = TRIM( PNAME ) // ':ERROR: Number of values in List, ' 
+!     &                //  TRIM( ENV_VAL ) 
+!     &                // ', greater than the size of its storage array, '
+!                  WRITE(LOGDEV,'(A,I4)')TRIM( XMSG ), SIZE( VAL_LIST )
+!                  XMSG = 'Above fatal error encountered '
+!                  WRITE(LOGDEV,'(A)')TRIM( XMSG )
+!              END IF
+!              NVARS = NVARS + 1
+!              JP( NVARS ) = IP   ! 1st char
+!              IF( IP .EQ. LEN_EVAL )THEN ! word one character long          
+!                  KP( NVARS ) = IP
+!                  V = 1
+!                  EXIT LOOP_101
+!              END IF     
+!201           LOOP_201: DO ! read word
+!                 IP = IP + 1
+!                 CHR = ENV_VAL( IP:IP )
+!                 IF ( CHR .NE. ',' .AND. IP .LT. LEN_EVAL ) THEN  ! 09 = horizontal tab
+!                    CYCLE LOOP_201
+!                 ELSE 
+!                    IF ( IP .EQ. LEN_EVAL ) THEN 
+!                       KP( NVARS ) = IP        ! last char in word
+!                    ELSE 
+!                       KP( NVARS ) = IP - 1    ! last char in word
+!                    END IF
+!                    V = JP( NVARS ) - IP
+!                    IF( V .GT. MAX_LEN_WORD )THEN
+!                      XMSG =  'The word, ' // ENV_VAL( JP(NVARS):KP(NVARS) ) 
+!     &                     // ', in list, ' // TRIM( ENV_VAL )
+!     &                     // ', is too long, '
+!                      WRITE(LOGDEV,'(A,1X,I2,A,I2)')TRIM( XMSG ), V, ' max allowed ',
+!     &                MAX_LEN_WORD
+!                      XMSG = 'Above fatal error encountered '
+!                      WRITE(LOGDEV,'(A)')TRIM( XMSG )
+!                    END IF
+!                    EXIT LOOP_201
+!                 END IF 
+!                 IF ( IP .GE. LEN_EVAL ) EXIT LOOP_101
+!              END DO LOOP_201
+!           END DO LOOP_101
+!           
+!           IF( NVARS .GT. SIZE( VAL_LIST ) )THEN
+!              XMSG = TRIM( PNAME ) // ':ERROR: Number of values in List, ' 
+!     &             //  TRIM( ENV_VAL ) // ', greater than '
+!              WRITE(LOGDEV,'(A,I4)')TRIM( XMSG ), SIZE( VAL_LIST )
+!              XMSG = 'Above fatal error encountered '
+!              WRITE(LOGDEV,'(A)')TRIM( XMSG )
+!           END IF
+!           
+!           ICOUNT = 0
+!           DO V = 1, NVARS
+!!              IF ( TRIM( ENV_VAL( JP( V ):KP( V ) ) ) .NE. ' ' .AND.
+!!     &                 TRIM( ENV_VAL( JP( V ):KP( V ) ) ) .NE. ',' .AND.
+!!     &                 TRIM( ENV_VAL( JP( V ):KP( V ) ) ) .NE. ';' .AND.
+!!     &                 ICHAR ( CHR ) .NE. 09 ) THEN
+!                  ICOUNT = ICOUNT + 1
+!                  VAL_LIST( ICOUNT ) = ENV_VAL( JP( V ):KP( V ) )
+!!               END IF
+!           END DO
+!           
+!           NVARS = ICOUNT
+!
+!           RETURN
+!           
+!        END SUBROUTINE PARSE_COMMAS
+          
       END MODULE GET_ENV_VARS
