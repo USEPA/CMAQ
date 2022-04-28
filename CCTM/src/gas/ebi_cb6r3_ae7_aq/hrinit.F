@@ -91,11 +91,11 @@ C***********************************************************************
      &           DENSITY( MAX_CELLS_EBI ),
      &           HET    ( MAX_CELLS_EBI, NHETERO ),
      &           RJIN   ( MAX_CELLS_EBI, NPHOTAB ),
-     &           LAND   ( MAX_CELLS_EBI ) ,
+     &           SEAWATER  ( MAX_CELLS_EBI ) ,
      &           STAT = IOS )
 
        IF ( IOS .NE. 0 ) THEN
-          MSG = 'Error allocating ATMPRES, H2O, TEMP, HET, RJIN, LAND '
+          MSG = 'Error allocating ATMPRES, H2O, TEMP, HET, RJIN, SEAWATER '
           CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
        END IF
 
@@ -246,7 +246,7 @@ c..Allocate and define ebi species
       EBISP(  91 ) = H2NO3PK
       EBISP(  92 ) = ACLI
       EBISP(  93 ) = ACLJ
-      EBISP(  94 ) = ACLK
+      EBISP(  94 ) = ACLKHCHOP'
       EBISP(  95 ) = IEPOXP
       EBISP(  96 ) = ASO4J
       EBISP(  97 ) = AISO3J

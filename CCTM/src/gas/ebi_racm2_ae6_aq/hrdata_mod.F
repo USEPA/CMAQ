@@ -28,7 +28,6 @@ C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
 C  REVISION HISTORY: Created by EBI solver program, Mar 14, 2022
-C
 C   18 Jul 14 B.Hutzell: revised to use real(8) variables for solution
 C*************************************************************************
 
@@ -54,6 +53,7 @@ c..Control flags
 
   ! SWITCH for calling DEGRADE routine
       LOGICAL, SAVE :: CALL_DEG = .TRUE.
+
 
 c..Miscellaneous variables
       INTEGER   N_EBI_IT      ! No. of iterations for EBI
@@ -97,7 +97,7 @@ c...Allocatable arrays
       REAL, ALLOCATABLE      :: SEAICE ( :, :)            ! fractional seaice cover, [-]
       REAL, ALLOCATABLE      :: DENS( :, :, : )           ! mass density (Kg/m^3)
 
-      LOGICAL, ALLOCATABLE   :: LAND_ZONE   ( :,: )       ! Is the surface totally land?
+      REAL, ALLOCATABLE      :: SEAWATER_ZONE   ( :,: )       ! fractional area of OPEN+SURF
       LOGICAL, ALLOCATABLE   :: LFLAGIRR    ( :,:,: )     ! Conduct IRR for cell
 
       REAL( 8 ), ALLOCATABLE ::  ATMPRES ( : )     ! Cell pressure, Atm
@@ -107,7 +107,7 @@ c...Allocatable arrays
       REAL( 8 ), ALLOCATABLE ::  DENSITY ( : )     ! Cell mass density (Kg/m3)
       REAL( 8 ), ALLOCATABLE ::  HET     ( :, : )  ! cell heterogeneous reaction rates
       REAL( 8 ), ALLOCATABLE ::  RJIN    ( :, : )  ! J-values for a cell
-      LOGICAL, ALLOCATABLE   ::  LAND    ( : )     ! land_zone value for specific cell
+      REAL( 8 ), ALLOCATABLE ::  SEAWATER ( : )    ! fractional area of OPEN+SURF for specific cell
 
 c..Species indices
       INTEGER, PARAMETER :: O3               =    1
