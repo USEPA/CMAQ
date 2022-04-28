@@ -18,7 +18,7 @@
 !------------------------------------------------------------------------!
 
 C::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-      SUBROUTINE TMPBEIS312( JDATE, JTIME, TSTEP, BEIS_MAP, EMISL, L_DESID_DIAG )
+      SUBROUTINE TMPBEIS( JDATE, JTIME, TSTEP, BEIS_MAP, EMISL, L_DESID_DIAG )
 
 C-----------------------------------------------------------------------
  
@@ -30,7 +30,7 @@ C   meteorology.
 C Preconditions:
 C   Postprocessed MM5 meteorology that contains temperature, 
 C   solar radiation, and pressure data. 
-C   Normalized gridded emissions B3GRD from Normbeis3 (3.12) 
+C   Normalized gridded emissions BEIS_NORM_EMIS from Normbeis 
  
 C Subroutines and Functions Called:
 C   BEIS, HRNO,  
@@ -80,7 +80,8 @@ C-----------------------------------------------------------------------
       USE GRID_CONF             ! horizontal & vertical domain specifications
       USE UTILIO_DEFN
       USE BIOG_EMIS             ! beis
-      USE centralized_io_module, only : AVGEMIS, AVGLAI, interpolate_var
+      USE centralized_io_module, only : AVGEMIS, interpolate_var
+      Use ASX_DATA_MOD, only: MET_DATA
 
 #ifdef parallel
       USE SE_MODULES            ! stenex (using SE_UTIL_MODULE)
@@ -100,6 +101,8 @@ C Arguments:
       REAL,    INTENT( OUT ) :: EMISL( :,:,: )  ! emissions in moles/sec
       LOGICAL, INTENT(  IN ) :: L_DESID_DIAG ! flag determining whether or not DESID
                                              !   is in diagnostic mode              
+
+
 C External Functions
       LOGICAL,         EXTERNAL :: CHKGRID
 
@@ -107,15 +110,10 @@ C Parameters:
       REAL,    PARAMETER :: HR2SEC = 1.0 / 3600.0
 
 C Gridded meteorology data:
-      INTEGER, ALLOCATABLE, SAVE :: SWITCH( :,: )     ! Seasonal switch
-
-C Gridded beis emissions
-!     REAL,    ALLOCATABLE, SAVE :: AVGEMIS( :,:,:,: ) ! avg emissions (3.12)
-!     REAL,    ALLOCATABLE, SAVE :: AVGLAI ( :,:,:,: ) ! avg leaf index
+      REAL, ALLOCATABLE, SAVE :: FSEAS( :,: )     ! Seasonal function
 
 C Gridded normalized emissions:
-      REAL,    ALLOCATABLE, SAVE :: SEMIS( :,:,: )    ! Normailized Beis emissions
-      REAL,    ALLOCATABLE, SAVE :: SLAI ( :,:,: )    ! Normailized Beis LAI
+      REAL, ALLOCATABLE, SAVE :: SEMIS( :,:,: )    ! Normailized Beis emissions
 
 C Mole and mass factors:
       REAL MLFC, MSFC, EMPL
@@ -124,13 +122,10 @@ C Diagnostic file avg factor
       REAL DIVFAC
 
 C BEIS3 internal, output species:
-      REAL,    ALLOCATABLE, SAVE :: EMPOL( :,:,: )  ! emissions of biogenic categories
-      REAL,    ALLOCATABLE, SAVE :: BIPOL( :,:,: )  ! emissions of biogenic categories
+      REAL,    ALLOCATABLE, SAVE :: EMPOL( :,:,: )  ! emissions of biogenic emissions (mechanism specific)
+      REAL,    ALLOCATABLE, SAVE :: BIPOL( :,:,: )  ! emissions of beis emissions (all beis BVOCs)
       REAL,    ALLOCATABLE, SAVE :: NOPOL( :,: )    ! emissions of NO
-C EMPOL( :,:,NSEF )     = biog  emissions
-C BIPOL( :,:,1:NSEF-1 ) = beis3 emissions
-C NOPOL( :,: )          = hrno  emissions
-      REAL,    ALLOCATABLE, SAVE :: EMISS( :,:,: )    ! emissions in g/s
+      REAL,    ALLOCATABLE, SAVE :: EMISS( :,:,: )  ! emissions in g/s
 
 C Logical names and unit numbers:
             
@@ -158,7 +153,7 @@ C Other variables:
       CHARACTER( 256 ) :: MESG       ! message buffer
       CHARACTER( 256 ) :: EQNAME     ! equivalent filename
       CHARACTER(  16 ) :: VAR        ! variable name
-      CHARACTER(  16 ) :: PNAME = 'TMPBEIS312'   ! prodedure name
+      CHARACTER(  16 ) :: PNAME = 'TMPBEIS'   ! prodedure name
 
 #ifdef verbose_tmpbeis
       REAL,    ALLOCATABLE, SAVE :: EMISX( : )
@@ -166,17 +161,15 @@ C Other variables:
 #endif
 
       INTERFACE
-         SUBROUTINE BEIS3( JDATE, JTIME, NX, NY, MSPCS, SEMIS,
-     &                     SLAI, BIPOL )
+         SUBROUTINE BEIS( JDATE, JTIME, NX, NY, MSPCS, SEMIS, BIPOL )
             INTEGER, INTENT( IN ) :: JDATE
             INTEGER, INTENT( IN ) :: JTIME
             INTEGER, INTENT( IN ) :: NX
             INTEGER, INTENT( IN ) :: NY
             INTEGER, INTENT( IN ) :: MSPCS
             REAL,    INTENT( IN ) :: SEMIS ( :,:,: )
-            REAL,    INTENT( IN ) :: SLAI  ( :,:,: )
             REAL,    INTENT( OUT ) :: BIPOL( :,:,: )
-         END SUBROUTINE BEIS3
+         END SUBROUTINE BEIS
          SUBROUTINE HRNO( JDATE, JTIME, TSTEP, NOPOL, L_DESID_DIAG )
             INTEGER, INTENT( IN )  :: JDATE
             INTEGER, INTENT( IN )  :: JTIME
@@ -194,14 +187,10 @@ C-----------------------------------------------------------------------
 C Determine last timestamp
          NSTEPS = RUNLEN / TSTEP( 1 )           ! initscen guarantees divisibility
 
-C Open and check bioseason file if using
-         IF ( BIOGEMIS_SEASON ) THEN
-
-            ALLOCATE( SWITCH( NCOLS,NROWS ), STAT=IOS )
-            CALL CHECKMEM( IOS, 'SWITCH', PNAME )
-            SWITCH = 0   ! array
-
-         END IF
+C Allocate seasonality array
+         ALLOCATE( FSEAS( NCOLS,NROWS ), STAT=IOS )
+         CALL CHECKMEM( IOS, 'FSEAS', PNAME )
+         FSEAS = 0   ! array
 
 C Ensure met data time and grid for this run match beis emissions data files
          MNAME = PROMPTMFILE( 
@@ -303,18 +292,6 @@ C Allocate memory for arrays
          ALLOCATE( SEMIS( NCOLS,NROWS,NSEF-1 ), STAT=IOS )
          CALL CHECKMEM( IOS, 'SEMIS', PNAME )
 
-         ALLOCATE( SLAI( NCOLS,NROWS,NLAI ), STAT=IOS )
-         CALL CHECKMEM( IOS, 'SLAI', PNAME )
-
-C Initialize normalized emissons to be used 
-         IF ( ASSUME_SUMMER ) THEN
-            SEMIS = AVGEMIS( 1:NCOLS,1:NROWS,:,NSUMMER )
-            SLAI  = AVGLAI ( 1:NCOLS,1:NROWS,:,NSUMMER )
-         ELSE
-            SEMIS = AVGEMIS( 1:NCOLS,1:NROWS,:,NWINTER )
-            SLAI  = AVGLAI ( 1:NCOLS,1:NROWS,:,NWINTER )
-         END IF
-
          LDATE = 0
 
 #ifdef verbose_tmpbeis
@@ -352,29 +329,19 @@ C Loop thru the number of time steps (hourly)
 
          CALL WRDAYMSG( JDATE, MESG )               
 
-C If new date, read season switch 
-         IF ( BIOGEMIS_SEASON ) THEN
-            MESG = 'Reading gridded season switch data...'
-            CALL M3MSG2( MESG ) 
-             
-            call interpolate_var ('SEASON', jdate, 0, SWITCH)
+C calculate fseas based on deep soil temperature following WRF 3.8.1 PX 
+         Where( Met_Data%SOIT2 .Lt. 290.0 .And. Met_Data%SOIT2 .Gt. 282.0 )
+            FSEAS = 1.0 - 0.015625 * ( 290.0 - Met_Data%SOIT2 ) ** 2
+         Elsewhere( Met_Data%SOIT2 .Ge. 290.0 )
+            FSEAS = 1.0
+         Elsewhere
+            FSEAS = 0.0
+         End where
 
-            MESG = 'Applying gridded season switch data...' 
-            CALL M3MSG2( MESG )
-
-            DO R = 1, NROWS
-               DO C = 1, NCOLS
-                  IF ( SWITCH( C,R ) .EQ. 0 ) THEN   ! use winter normalized emissions
-                     SEMIS( C,R,1:NSEF-1 ) = AVGEMIS( C,R,1:NSEF-1,NWINTER )
-                     SLAI ( C,R,1:NLAI   ) =  AVGLAI( C,R,1:NLAI,  NWINTER )
-                  ELSE
-                     SEMIS( C,R,1:NSEF-1 ) = AVGEMIS( C,R,1:NSEF-1,NSUMMER )
-                     SLAI ( C,R,1:NLAI   ) =  AVGLAI( C,R,1:NLAI,  NSUMMER )
-                  END IF                      
-               END DO
-            END DO
- 
-         END IF   ! if using switch file
+         DO S = 1, NSEF-1 ! normalized emission factors
+            SEMIS( :,:,S ) =         FSEAS   * AVGEMIS( :,:,S,NSUMMER ) + ! Deciduous fraction
+     &                       ( 1.0 - FSEAS ) * AVGEMIS( :,:,S,NWINTER )   ! Evergreen fraction
+         END DO
 
       END IF   ! if new day
 
@@ -389,7 +356,7 @@ C repopulate the met_cro_2d variable attributes
       END IF
 
 C Calculate temporal non-speciated beis emissions
-      CALL BEIS3( JDATE, JTIME, NCOLS, NROWS, MSPCS, SEMIS, SLAI, BIPOL )
+      CALL BEIS( JDATE, JTIME, NCOLS, NROWS, MSPCS, SEMIS, BIPOL )
 
 C Calculate temporal non-speciated soil NO emissions
       CALL HRNO( JDATE, JTIME, TSTEP, NOPOL, L_DESID_DIAG )
@@ -410,7 +377,7 @@ C Speciate emissions
 
 #ifdef verbose_tmpbeis
       WRITE( LOGDEV,* ) ' '
-      WRITE( LOGDEV,* ) '       from TMPBEIS312'
+      WRITE( LOGDEV,* ) '       from TMPBEIS'
       WRITE( LOGDEV,* ) '    Spc   EMISL  MaxC MaxR'
       DO S = 1, MSPCS
          WRITE( LOGDEV,'( 4X, I3, F10.5, 2I4 )' ) S, EMISX( S ), CX( S ), RX( S )
@@ -418,7 +385,7 @@ C Speciate emissions
 
       EMISX = 0.0    ! array
       WRITE( LOGDEV,* ) ' '
-      WRITE( LOGDEV,* ) '                   from TMPBEIS312'
+      WRITE( LOGDEV,* ) '                   from TMPBEIS'
       WRITE( LOGDEV,* ) '    Spc SpcName  Pol  MLFAC     EMPOL     EMISL( Spc,32,7 )'
       C = 32; R = 7
       DO K = 1, NSEF
@@ -479,5 +446,5 @@ C------------------  FORMAT  STATEMENTS   ------------------------------
 94030 FORMAT( 5X, 'Temporal BEIS at time ', A8 )
 94040 FORMAT( /5X, 3( A, :, 1X ), I8, ":", I6.6 )
 
-      END SUBROUTINE TMPBEIS312  
+      END SUBROUTINE TMPBEIS  
 

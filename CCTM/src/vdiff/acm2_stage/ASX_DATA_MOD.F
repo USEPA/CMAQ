@@ -70,6 +70,7 @@ C    assumed to be similar to SO2. Diffusivities are calculated with standard
 C    formulas.  W. Hutzell (04/08)
 C %% G. Sarwar: added data for iodine and bromine species (03/2016)
 C    D. Wong: Implemented centralized I/O approach, removed all MY_N clauses (02/2019)
+C    R. Gilliam: Include PX soil texture information when available (03/2022)
 C-------------------------------------------------------------------------------
 
       Use GRID_CONF           ! horizontal & vertical domain specifications
@@ -160,6 +161,9 @@ C-------------------------------------------------------------------------------
          Real,    Allocatable :: BSLP   ( :,: )  ! B Slope 
          Real,    Allocatable :: WRES   ( :,: )  ! Soil residual moisture point
          Real,    Allocatable :: WFC    ( :,: )  ! soil field capacity 
+         Real,    Allocatable :: CLAY_PX  ( :,: )  ! Clay fraction from PX LSM 
+         Real,    Allocatable :: CSAND_PX ( :,: )  ! Coarse sand fraction from PX LSM
+         Real,    Allocatable :: FMSAND_PX( :,: )  ! Fine-medium sand fraction from PX LSM
          Real,    Allocatable :: RHOB   ( :,: )  ! soil bulk density
          Real,    Allocatable :: LUFRAC ( :,:,: ) ! land use fraction (col,row,lu_type)[ratio]
 C Land use information:
@@ -346,24 +350,29 @@ C-----------------------------------------------------------------------
             Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          End If
 
-         ALLOCATE( Grid_Data%DX3F    ( NLAYS ),
-     &             Grid_Data%RDX3F   ( NLAYS ),
-     &             Grid_Data%RDX3M   ( NLAYS ),
-     &             Grid_Data%RMSFX4  ( NCOLS,NROWS ),
-     &             Grid_Data%LON     ( NCOLS,NROWS ),
-     &             Grid_Data%LAT     ( NCOLS,NROWS ),
-     &             Grid_Data%LWMASK  ( NCOLS,NROWS ),
-     &             Grid_Data%OCEAN   ( NCOLS,NROWS ),
-     &             Grid_Data%SZONE   ( NCOLS,NROWS ),
-     &             Grid_Data%PURB    ( NCOLS,NROWS ),
-     &             Grid_Data%SLTYP   ( NCOLS,NROWS ),
-     &             Grid_Data%WSAT    ( NCOLS,NROWS ),
-     &             Grid_Data%WWLT    ( NCOLS,NROWS ),
-     &             Grid_Data%BSLP    ( NCOLS,NROWS ),
-     &             Grid_Data%WRES    ( NCOLS,NROWS ),
-     &             Grid_Data%WFC     ( NCOLS,NROWS ),
-     &             Grid_Data%RHOB    ( NCOLS,NROWS ),
-     &             Grid_Data%LUFRAC  ( NCOLS,NROWS,n_lufrac ),
+
+         ALLOCATE( Grid_Data%DX3F      ( NLAYS ),
+     &             Grid_Data%RDX3F     ( NLAYS ),
+     &             Grid_Data%RDX3M     ( NLAYS ),
+     &             Grid_Data%RMSFX4    ( NCOLS,NROWS ),
+     &             Grid_Data%LON       ( NCOLS,NROWS ),
+     &             Grid_Data%LAT       ( NCOLS,NROWS ),
+     &             Grid_Data%LWMASK    ( NCOLS,NROWS ),
+     &             Grid_Data%OCEAN     ( NCOLS,NROWS ),
+     &             Grid_Data%SZONE     ( NCOLS,NROWS ),
+     &             Grid_Data%PURB      ( NCOLS,NROWS ),
+     &             Grid_Data%SLTYP     ( NCOLS,NROWS ),
+     &             Grid_Data%WSAT      ( NCOLS,NROWS ),
+     &             Grid_Data%WWLT      ( NCOLS,NROWS ),
+     &             Grid_Data%BSLP      ( NCOLS,NROWS ),
+     &             Grid_Data%WRES      ( NCOLS,NROWS ),
+     &             Grid_Data%WFC       ( NCOLS,NROWS ),
+     &             Grid_Data%CLAY_PX   ( NCOLS,NROWS ),
+     &             Grid_Data%CSAND_PX  ( NCOLS,NROWS ),
+     &             Grid_Data%FMSAND_PX ( NCOLS,NROWS ),
+     &             Grid_Data%RHOB      ( NCOLS,NROWS ),
+     &             Grid_Data%LUFRAC    ( NCOLS,NROWS,n_lufrac ),
+
      &             STAT = ALLOCSTAT )
          If ( ALLOCSTAT .Ne. 0 ) Then
             XMSG = 'Failure allocating grid vars'
@@ -372,6 +381,9 @@ C-----------------------------------------------------------------------
          Grid_Data%WSAT    = 0.0
          Grid_Data%WWLT    = 0.0
          Grid_Data%WFC     = 0.0
+         Grid_Data%CLAY_PX   = 0.0
+         Grid_Data%CSAND_PX  = 0.0
+         Grid_Data%FMSAND_PX = 0.0
          Grid_Data%RHOB    = 0.0
          Grid_Data%WRES    = 0.0
          Grid_Data%BSLP    = 0.0
@@ -690,6 +702,18 @@ C met vars
          End If
 
          call interpolate_var ('PBL', jdate, jtime, Met_Data%PBL)
+
+C Update for WRFV4.1+ PX LSM runs that have soil texture in output for
+C  CMAQ dust scheme. These are initialized to 0 if not present in MCIP.
+C  DUST_EMIS.F will use table lookup values if 0 (old WRF or other LSMs).  
+         If ( PXSOIL_AVAIL ) Then
+            call interpolate_var ('CLAY_PX',   jdate, jtime, Grid_Data%CLAY_PX)
+            call interpolate_var ('CSAND_PX',  jdate, jtime, Grid_Data%CSAND_PX)
+            call interpolate_var ('FMSAND_PX', jdate, jtime, Grid_Data%FMSAND_PX)
+            call interpolate_var ('WSAT_PX', jdate, jtime, Grid_Data%WSAT)
+            call interpolate_var ('WFC_PX',  jdate, jtime, Grid_Data%WFC)
+            call interpolate_var ('WWLT_PX', jdate, jtime, Grid_Data%WWLT)
+         End If
 
 C Met_cro_2D variables that have recently changed due to MCIP or WRF/CMAQ
 
