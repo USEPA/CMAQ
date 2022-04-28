@@ -54,8 +54,7 @@ echo 'Start Model Run At ' `date`
 #> Set Working, Input, and Output Directories
  setenv WORKDIR ${CMAQ_HOME}/CCTM/scripts          #> Working Directory. Where the runscript is.
  setenv OUTDIR  ${CMAQ_DATA}/output_CCTM_${RUNID}  #> Output Directory
-#setenv INPDIR  ${CMAQ_DATA}/2016_12SE1            #> Input Directory
- setenv INPDIR  /work/MOD3DATA/2016_12SE1          #> Input Directory
+ setenv INPDIR  ${CMAQ_DATA}/2016_12SE1            #> Input Directory
  setenv LOGDIR  ${OUTDIR}/LOGS     #> Log Directory Location
  setenv NMLpath ${BLD}             #> Location of Namelists. Common places are: 
                                    #>   ${WORKDIR} | ${CCTM_SRC}/MECHS/${MECH} | ${BLD}
@@ -215,7 +214,7 @@ set IN_LTpath = $INPDIR/lightning                   #> lightning NOx input direc
 set METpath   = $INPDIR/met/mcipv5.0                #> meteorology input directory 
 #set JVALpath  = $INPDIR/jproc                      #> offline photolysis rate table directory
 set OMIpath   = $BLD                                #> ozone column data for the photolysis model
-set SZpath    = $INPDIR/land                        #> surf zone file for in-line seaspray emissions
+set SZpath    = /work/MOD3DATA/2016_12SE1/land     #> surf zone file for in-line seaspray emissions
 
 # =====================================================================
 #> Begin Loop Through Simulation Days
