@@ -2,7 +2,7 @@ Ocean Data for CMAQ
 ===================
 
 ---
-    Author: Barron H. Henderson, Golam Sarwar, Brett Gantt, Jeff Williston
+    Author: Barron H. Henderson, Golam Sarwar, Brett Gantt, Jeff Willison
     Date: 2021-08-13
     Updated: 2022-04-29
 ---
