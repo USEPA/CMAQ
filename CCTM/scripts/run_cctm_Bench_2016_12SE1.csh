@@ -214,7 +214,7 @@ set IN_LTpath = $INPDIR/lightning                   #> lightning NOx input direc
 set METpath   = $INPDIR/met/mcipv5.0                #> meteorology input directory 
 #set JVALpath  = $INPDIR/jproc                      #> offline photolysis rate table directory
 set OMIpath   = $BLD                                #> ozone column data for the photolysis model
-set SZpath    = $INPDIR/land                        #> surf zone file for in-line seaspray emissions
+set SZpath    = /work/MOD3DATA/2016_12SE1/land     #> surf zone file for in-line seaspray emissions
 
 # =====================================================================
 #> Begin Loop Through Simulation Days
@@ -235,6 +235,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   set YYYYMMDD = `date -ud "${TODAYG}" +%Y%m%d` #> Convert YYYY-MM-DD to YYYYMMDD
   set YYYYMM = `date -ud "${TODAYG}" +%Y%m`     #> Convert YYYY-MM-DD to YYYYMM
   set YYMMDD = `date -ud "${TODAYG}" +%y%m%d`   #> Convert YYYY-MM-DD to YYMMDD
+  set MM = `date -ud "${TODAYG}" +%m`           #> Convert YYYY-MM-DD to MM  
   set YYYYJJJ = $TODAYJ
 
   #> Calculate Yesterday's Date
@@ -311,7 +312,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   setenv STAGECTRL_NML ${BLD}/CMAQ_Control_STAGE.nml
 
   #> Spatial Masks For Emissions Scaling
-  setenv CMAQ_MASKS $SZpath/12US1_surf_bench.nc #> horizontal grid-dependent surf zone file
+  setenv CMAQ_MASKS $SZpath/OCEAN_${MM}_L3m_MC_CHL_chlor_a_SE53BENCH.nc #> horizontal grid-dependent ocean file
 
   #> Gridded Emissions Files 
   setenv N_EMIS_GR 2
@@ -404,7 +405,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   endif
 
   #> In-line sea spray emissions configuration
-  setenv OCEAN_1 $SZpath/12US1_surf_bench.nc #> horizontal grid-dependent surf zone file
+  setenv OCEAN_1 $SZpath/OCEAN_${MM}_L3m_MC_CHL_chlor_a_SE53BENCH.nc #> horizontal grid-dependent ocean file
 
   #> Bidirectional ammonia configuration
   if ( $CTM_ABFLUX == 'Y' ) then

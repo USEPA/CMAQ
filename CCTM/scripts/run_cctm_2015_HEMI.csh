@@ -214,7 +214,7 @@ set IN_LTpath = $INPDIR/lightning         #> lightning NOx input directory
 set METpath   = $INPDIR/met/mcip_v43_wrf_v38_ctrl #> meteorology input directory 
 #set JVALpath  = $INPDIR/jproc            #> offline photolysis rate table directory
 set OMIpath   = $BLD                      #> ozone column data for the photolysis model
-set SZpath    = /work/MOD3DEV/sgq/hemisphere/emission/cb05  #> surf zone file for in-line seaspray emissions
+set SZpath    = $INPDIR/surface           #> surf zone file for in-line seaspray emissions
 
 # =====================================================================
 #> Begin Loop Through Simulation Days
@@ -235,8 +235,8 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   set YYYYMMDD = `date -ud "${TODAYG}" +%Y%m%d` #> Convert YYYY-MM-DD to YYYYMMDD
   set YYYYMM = `date -ud "${TODAYG}" +%Y%m`     #> Convert YYYY-MM-DD to YYYYMM
   set YYMMDD = `date -ud "${TODAYG}" +%y%m%d`   #> Convert YYYY-MM-DD to YYMMDD
+  set MM = `date -ud "${TODAYG}" +%m`           #> Convert YYYY-MM-DD to MM
   set YYYYJJJ = $TODAYJ
-  set MONTH = `date -ud "${TODAYG}" +%m`        #> Convert YYYY-MM-DD to MM
   set YEAR = `date -ud "${TODAYG}" +%Y`         #> Convert YYYY-MM-DD to YYYY
 
   #> Calculate Yesterday's Date
@@ -313,45 +313,9 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   setenv EMISSCTRL_NML ${BLD}/EmissCtrl_${MECH}.nml
   setenv STAGECTRL_NML ${BLD}/CMAQ_Control_STAGE.nml
 
-#> Spatial Masks For Emissions Scaling
-
-     if ($MONTH == '01' ) then 
-      	setenv CMAQ_MASKS $SZpath/hemisphere_oceanfile_JAN.ncf   
-        setenv OCEAN_1 $SZpath/hemisphere_oceanfile_JAN.ncf       	
-     else if ($MONTH == '02' ) then 
-      	setenv CMAQ_MASKS $SZpath/hemisphere_oceanfile_FEB.ncf   
-        setenv OCEAN_1 $SZpath/hemisphere_oceanfile_FEB.ncf   
-     else if ($MONTH == '03' ) then 
-      	setenv CMAQ_MASKS $SZpath/hemisphere_oceanfile_MAR.ncf   
-        setenv OCEAN_1 $SZpath/hemisphere_oceanfile_MAR.ncf         	
-     else if ($MONTH == '04' ) then 
-      	setenv CMAQ_MASKS $SZpath/hemisphere_oceanfile_APR.ncf   
-        setenv OCEAN_1 $SZpath/hemisphere_oceanfile_APR.ncf   
-     else if ($MONTH == '05' ) then 
-      	setenv CMAQ_MASKS $SZpath/hemisphere_oceanfile_MAY.ncf   
-        setenv OCEAN_1 $SZpath/hemisphere_oceanfile_MAY.ncf         	
-     else if ($MONTH == '06' ) then 
-      	setenv CMAQ_MASKS $SZpath/hemisphere_oceanfile_JUN.ncf   
-        setenv OCEAN_1 $SZpath/hemisphere_oceanfile_JUN.ncf         	
-     else if ($MONTH == '07' ) then 
-      	setenv CMAQ_MASKS $SZpath/hemisphere_oceanfile_JUL.ncf
-        setenv OCEAN_1 $SZpath/hemisphere_oceanfile_JUL.ncf         	
-     else if ($MONTH == '08' ) then 
-      	setenv CMAQ_MASKS $SZpath/hemisphere_oceanfile_AUG.ncf   
-        setenv OCEAN_1 $SZpath/hemisphere_oceanfile_AUG.ncf         	
-     else if ($MONTH == '09' ) then 
-      	setenv CMAQ_MASKS $SZpath/hemisphere_oceanfile_SEP.ncf   
-        setenv OCEAN_1 $SZpath/hemisphere_oceanfile_SEP.ncf         	
-     else if ($MONTH == '10' ) then 
-      	setenv CMAQ_MASKS $SZpath/hemisphere_oceanfile_OCT.ncf
-        setenv OCEAN_1 $SZpath/hemisphere_oceanfile_OCT.ncf   
-     else if ($MONTH == '11' ) then
-      	setenv CMAQ_MASKS $SZpath/hemisphere_oceanfile_NOV.ncf
-        setenv OCEAN_1 $SZpath/hemisphere_oceanfile_NOV.ncf
-     else if ($MONTH == '12' ) then
-      	setenv CMAQ_MASKS $SZpath/hemisphere_oceanfile_DEC.ncf
-        setenv OCEAN_1 $SZpath/hemisphere_oceanfile_DEC.ncf
-     endif      
+#> Spatial Masks For Emissions Scaling     
+     setenv CMAQ_MASKS $SZpath/OCEAN_${MM}_L3m_MC_CHL_chlor_a_108NHEMI2.nc     #> horizontal grid-dependent ocean file
+     setenv OCEAN_1 $SZpath/OCEAN_${MM}_L3m_MC_CHL_chlor_a_108NHEMI2.nc        #> horizontal grid-dependent ocean file
 
   #> Gridded Emissions Files 
   setenv N_EMIS_GR 1
