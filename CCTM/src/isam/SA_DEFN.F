@@ -564,15 +564,27 @@ c----------------------------------------------------------
      &          'DCB1   ','DCB2   ','DCB3   ','SOAALK ','CO     '/ )
 
         !CRACMM1_AQ
-        ALLOCATE( ISAM_SPEC_VOC( 8 )%LIST( 38 ) )
-        ISAM_SPEC_VOC( 8 )%LIST = (/'HCHO   ','ACD    ','ALD    ',
-     &          'UALD   ','HC3    ','HC5    ','HC8    ','OLI    ',
-     &          'OLT    ','ETH    ','ETE    ','ACE    ','ISO    ',
-     &          'SESQ   ','LIM    ','API    ','EOH    ','MOH    ',
-     &          'GLY    ','MGLY   ','BENZENE','TOL    ','XYM    ',
-     &          'XYO    ','XYP    ','NAPH   ','DIEN   ','ACT    ',
-     &          'HKET   ','KET    ','MVK    ','MEK    ','MACR   ',
-     &          'DCB1   ','DCB2   ','DCB3   ','SOAALK ','CO     '/ )
+        ALLOCATE( ISAM_SPEC_VOC( 8 )%LIST( 96 ) )
+        ISAM_SPEC_VOC( 8 )%LIST = (/'ACD       ','ACE       ','ACRO      ',
+     &    'ACT       ','ALD       ','API       ','BALD      ','BDE13     ',
+     &    'BEN       ','CSL       ','DCB1      ','DCB2      ','DCB3      ',
+     &    'ELHOM     ','EOH       ','ETE       ','ETEG      ','ETH       ',
+     &    'FURAN     ','FURANONE  ','GLY       ','HOM       ','HC3       ',
+     &    'HC5       ','HC10      ','HCHO      ','HKET      ','IEPOX     ',
+     &    'ISHP      ','IPN       ','IHN       ','IPC       ','ISO       ',
+     &    'KET       ','LIM       ','LIMAL     ','MACR      ','MAHP      ',
+     &    'MCT       ','MEK       ','MGLY      ','MOH       ','MVK       ',
+     &    'NAPH      ','OLI       ','OLT       ','OP1       ','OP2       ',
+     &    'OP3       ','OPB       ','ORA1      ','ORA2      ','PINAL     ',
+     &    'PHEN      ','PROG      ','ROH       ','SESQ      ','SLOWROC   ',
+     &    'TOL       ','UALD      ','XYM       ','XYE       ','PAA       ',
+     &    'PAN       ','PPN       ','MPAN      ','ONIT      ','ISON      ',
+     &    'TRPN      ','VROCIOXY  ','VROCP5ARO ','VROCP6ARO ','VROCN2ALK ',
+     &    'NROCN1ALK ','VROCP0ALK ','VROCP1ALK ','VROCP2ALK ','VROCP3ALK ',
+     &    'VROCP4ALK ','VROCP5ALK ','VROCP6ALK ','VROCN2OXY2','VROCN2OXY4',
+     &    'VROCN2OXY8','VROCN1OXY1','VROCN1OXY3','VROCN1OXY6','VROCP0OXY2',
+     &    'VROCP0OXY4','VROCP1OXY1','VROCP1OXY3','VROCP2OXY2','VROCP3OXY2',
+     &    'VROCP4OXY2','VROCP5OXY1','VROCP6OXY1'/ )
 
 
         !PRESCRIBE NITRATE SPECIES
@@ -637,11 +649,11 @@ c----------------------------------------------------------
      &         'BENP','ETEP'/ )
 
         !CRACMM1_AQ
-        ALLOCATE( ISAM_SPEC_NO3( 8 )%LIST( 23 ) )
+        ALLOCATE( ISAM_SPEC_NO3( 8 )%LIST( 27 ) )
         ISAM_SPEC_NO3( 8 )%LIST = (/'HNO3','NO  ','NO2 ','NO3 ','HONO',
-     &         'N2O5','PAN ','HNO4','ONIT','MPAN','ACO3','MO2 ','HC3P',
-     &         'HC5P','HC8P','KETP','ISOP','ETHP','RCO3','XYLP','TR2 ',
-     &         'BENP','ETEP'/ )
+     &         'N2O5','PAN ','HNO4','ONIT','MPAN','PPN ','ISON','TRPN',
+     &         'NALD','ACO3','MO2 ','HC3P','HC5P','HC8P','KETP','ISOP',
+     &         'ETHP','RCO3','XYLP','TR2 ','BENP','ETEP'/ )
 
         
         !PRESCRIBE SPECIES RELEVANT FOR ASSIGNING BIAS TO VOCs
@@ -1681,8 +1693,13 @@ c          END DO
         ! Find Species Index
         ISPEC = INDEX1( CHEM_NAME, NSPCSD, CGRID_NAME )
         IAERO = INDEX1( CHEM_NAME, N_AEROSPC, AEROSPC%BULKNAME )
+ 
+        IF ( IAERO .GT. 0 ) THEN
+           ! Species is an aerosol model species
+           L_ISAM_AERO( IAERO ) = .TRUE.
+           FOUND_SPECIES = .TRUE.
 
-        IF ( ISPEC .GT. 0 ) THEN
+        ELSE IF ( ISPEC .GT. 0 ) THEN
            IF ( .NOT. CGRID_MASK_AERO( ISPEC ) ) THEN
               ! Species is a gas model species
               IF ( INDEX1( CHEM_NAME, NSPC_SA, ISAM_SPEC(:,1) ) .EQ. 0 ) THEN
@@ -1700,11 +1717,6 @@ c          END DO
               END IF 
               FOUND_SPECIES = .TRUE.
            END IF
-
-        ELSE IF ( IAERO .GT. 0 ) THEN
-           ! Species is an aerosol model species
-           L_ISAM_AERO( IAERO ) = .TRUE.
-           FOUND_SPECIES = .TRUE.
 
         END IF   
 
