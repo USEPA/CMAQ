@@ -1,0 +1,8 @@
+geopandas
+shapely
+fiona
+pyproj
+pygeos
+netcdf4
+pseudonetcdf
+pycno
