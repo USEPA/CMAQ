@@ -66,7 +66,7 @@ C land use indexes
       Logical, Allocatable, Save :: Ag( : )
       Real,    Allocatable, Save :: a_cut( : )     ! NH3 cuticular resistance exponential term Massad et al. 2010 Table 8
       Integer, Save              :: l_ag
-C gas phase species indexes
+C gas phase species indices
       Integer, Save              :: n_HONO         ! index in depv
       Integer, Save              :: s_HONO         ! index in dep_gas_all
       Integer, Save              :: n_NO2          ! index in depv
@@ -125,6 +125,20 @@ C                                       1234567890123456
 
          xcent = real( file_xcell(f_met), 4 )
          ycent = real( file_ycell(f_met), 4 )
+C Check aerosol deposition options 
+         If( ( STAGE_E20 .And. STAGE_P22 ) ) Then
+            XMSG = 'Both CTM_STAGE_E20 and CTM_STAGE_P22 aerosol dry ' //
+     &             ' deposition options were set to Y. Please select one. '
+            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         Else If ( STAGE_E20 .And. STAGE_S22 ) Then
+            XMSG = 'Both CTM_STAGE_E20 and CTM_STAGE_S22 aerosol dry ' //
+     &             ' deposition options were set to Y. Please select one. '
+            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         Else If ( STAGE_P22 .And. STAGE_S22 ) Then
+            XMSG = 'Both CTM_STAGE_S22 and CTM_STAGE_P22 aerosol dry ' //
+     &             ' deposition options were set to Y. Please select one. '
+            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         End If
 C if abflux this specifies soil, vegetation and water compensation points for NH3
          IF ( abflux ) THEN
             CALL Init_NH3_Bidi( jdate, jtime )
@@ -772,7 +786,7 @@ C modal sedimentation velocities for number, 2nd, and 3rd moment, or mass:
          REAL BAI, Ahair, Fhair, Aleaf ! Pleim et al. 2022 land use variables
 
 C Parameters
-         REAL, PARAMETER :: BHAT    = 1.246 !1.665216 ! Slope of the linearized Cunningham slip correction 
+         REAL, PARAMETER :: BHAT    = 1.246    ! Slope of the linearized Cunningham slip correction 
          REAL, PARAMETER :: IHAT    = 0.8473   ! Intercept of the linearized Cunningham slip correction 
          REAL, PARAMETER :: T0      = 288.15   ! [ K ] ! starting standard surface temp.
          REAL, PARAMETER :: THREEPI = 3.0 * PI
@@ -882,7 +896,7 @@ C Calculate characteristic parameters
 
 
             lu_loop: DO L = 1, Tile_Data%n_lufrac
-C ***    Land use paramters
+C ***    Land use parameters
                Veg     = Mosaic_Data%VEG( C,R,L )
                wet     = Mosaic_Data%DELTA( c,r,l )
                Ustar   = Mosaic_Data%USTAR( C,R,L )

@@ -476,9 +476,17 @@ C Calculate Canopy Covered Soil Resistance Nemitz et al 2000 https://doi.org/10.
          End Function Calc_Rg
 
 !-------------------------------------------------------------------------------------------------
-! CMAQ v5.3 Aerosol Deposition Velocity parameterization
-! Reference:
+! CMAQ v5.3 Aerosol Deposition Velocity parameterization. Note that this is the v5.3 implementation
+! in the STAGE deposition option, evaluated in Appel et al. 2021 and Benish et al. 2022, and differs 
+! from Shu et al. in the land use tiling and implementaiton of the vegetation factor
 ! 
+! References: 
+! Appel, K.W., et. al., The Community Multiscale Air Quality (CMAQ) model versions 5.3 and 5.3. 1: 
+!    system updates and evaluation. Geosci. Model Dev. 14, 2867-2897, 
+!    https://doi.org/10.5194/gmd-14-2867-2021, 2021
+! Benish, S.E., et al., Long-term Regional Trends of Nitrogen and Sulfur Deposition in the United 
+!    States from 2002 to 2017, Atmos. Phys. Chem. Discussions, https://doi.org/10.5194/acp-2022-201,
+!    2022
 ! Shu et al., Particle dry deposition algorithms in CMAQ version 5.3: characterization of critical 
 !    parameters and land use dependence using DepoBoxTool version 1.0, Geosci. Model Dev. Discussions, 
 !    https://doi.org/10.5194/gmd-2021-129, 2021
@@ -536,7 +544,7 @@ C Calculate Canopy Covered Soil Resistance Nemitz et al 2000 https://doi.org/10.
 
          End Function RD_Smooth
 !-------------------------------------------------------------------------------------------------
-! CMAQ v5.3 Aerosol Deposition Velocity parameterization
+! CMAQ v5.3 Aerosol Deposition Velocity parameterization. 
 ! 
 ! Reference:
 ! Venkatram, A. and Pleim, J.: The electrical analogy does not apply to modeling dry deposition of 
