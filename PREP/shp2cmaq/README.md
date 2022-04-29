@@ -11,8 +11,9 @@ This Notebook uses geopandas and PseudoNetCDF to create IOAPI-like files for
 CMAQ. Geopandas supports STRtree optimized searches and projection conversions.
 The overall process requires a shapefile with attributes and a GRIDDESC file. It
 produces variables that specify grid cell fractional coverage by each unique
-value of a specified attribute. It also produces a dominant attribute variable
-that specifies which attribute has the largest area coverage.
+value of a specified attribute. It also produces total and dominant attribute
+variables. The total specifies the fraction coverage of any attribute. The
+dominant variable specifies which attribute has the largest area coverage.
 
 For example, the Natural Earth countries file (administrative-level 0) has
 Polygons with the country identifier attribute ADM0_A3. The notebook will create
