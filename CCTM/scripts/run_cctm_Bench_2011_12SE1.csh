@@ -311,7 +311,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   setenv STAGECTRL_NML ${BLD}/CMAQ_Control_STAGE.nml
 
   #> Spatial Masks For Emissions Scaling
-  setenv CMAQ_MASKS $SZpath/OCEAN_{MM}_L3m_MC_CHL_chlor_a_SE52BENCH.nc #> horizontal grid-dependent surf zone file
+  setenv CMAQ_MASKS $SZpath/OCEAN_${MM}_L3m_MC_CHL_chlor_a_SE52BENCH.nc #> horizontal grid-dependent surf zone file
 
   #> Gridded Emissions Files 
   setenv N_EMIS_GR 1
@@ -387,7 +387,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   endif
 
   #> In-line sea spray emissions configuration
-  setenv OCEAN_1 $SZpath/OCEAN_{MM}_L3m_MC_CHL_chlor_a_SE52BENCH.nc #> horizontal grid-dependent surf zone file
+  setenv OCEAN_1 $SZpath/OCEAN_${MM}_L3m_MC_CHL_chlor_a_SE52BENCH.nc #> horizontal grid-dependent surf zone file
 
   #> Bidirectional ammonia configuration
   if ( $CTM_ABFLUX == 'Y' ) then
