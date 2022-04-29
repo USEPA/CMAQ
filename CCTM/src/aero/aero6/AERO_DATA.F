@@ -1813,9 +1813,10 @@ C         Ben Murphy 2022-03-25
 C-----------------------------------------------------------------------
           Use aero_data, only : n_aerolist, aerolist, modesuff,
      &                          iait, iacc, icor
-          Use runtime_vars, only : log_message, log_subheading, logdev
+          Use runtime_vars, only : log_message, log_subheading, logdev,
+     &                             outdev
           Use cgrid_spcs_types
-          Use utilio_defn, only : index1, xstat3
+          Use utilio_defn, only : index1, xstat2
 
           Implicit None
 
@@ -1848,7 +1849,8 @@ C-----------------------------------------------------------------------
                   xmsg = 'An aerosol chemical species appears on the AE '//
      &                    'namelist that is not available in AERO_DATA. Please '//
      &                    'see the aerolist table.'
-                  call m3exit( pname, 0, 0, xmsg, xstat3 )
+                  Call log_message( OUTDEV, 'Error: '//xmsg )
+                  call m3exit( pname, 0, 0, xmsg, xstat2 )
               end if
 
               if ( .not.aedat(isp)%lait .and. 
@@ -1890,7 +1892,8 @@ C-----------------------------------------------------------------------
      &                     TRIM(aedat(isp)%species_name)//
      &                     ' but they are not available for this species. See '//
      &                     'aerolist table in AERO_DATA.'
-                    call m3exit( pname, 0, 0, xmsg, xstat3 ) 
+                    Call log_message( outdev, 'Error: '//xmsg )
+                    call m3exit( pname, 0, 0, xmsg, xstat2 ) 
                  end if
  
                  aedat_mode(nsp2)%molwt = aedat(isp)%molwt
@@ -1946,7 +1949,8 @@ C-----------------------------------------------------------------------
      &                     TRIM(aedat(isp)%species_name)//
      &                     ' but they are not available for this species. See '//
      &                     'aerolist table in AERO_DATA.'
-                    call m3exit( pname, 0, 0, xmsg, xstat3 ) 
+                    Call log_message( outdev, 'Error: '//xmsg )
+                    call m3exit( pname, 0, 0, xmsg, xstat2 ) 
                  end if
  
                  aedat_mode(nsp2)%molwt = aedat(isp)%molwt
@@ -2016,7 +2020,8 @@ C-----------------------------------------------------------------------
      &                     TRIM(aedat(isp)%species_name)//
      &                     ' but they are not available for this species. See '//
      &                     'aerolist table in AERO_DATA.'
-                    call m3exit( pname, 0, 0, xmsg, xstat3 ) 
+                    Call log_message( outdev, 'Error: '//xmsg )
+                    call m3exit( pname, 0, 0, xmsg, xstat2 ) 
                  end if
 
                  aedat_mode(nsp2)%molwt = aedat(isp)%molwt
