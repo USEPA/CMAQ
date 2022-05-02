@@ -47,6 +47,7 @@ C                   15 Jul 14 B.Hutzell: 1) replaced mechanism include files wit
 C                   RXNS_DATA module, 2) inserted call to function MAP_CHEMISTRY_SPECIES 
 C                   RXNS_FUNCTION module, and 3) inserted do loop that calculates species
 C                   unit conversion factors based on species type
+C                   21 Mar 22 G . Sarwar: changed BLKLAND to BLKSEAWATER
 C                      
 C***********************************************************************
       USE RXNS_DATA
@@ -212,10 +213,10 @@ c..cell & solver data
      &          BLKCH2O( BLKSIZE ),
      &          BLKDENS( BLKSIZE ),
      &          BLKSVOL( BLKSIZE ), 
-     &          BLKLAND( BLKSIZE ), STAT = STATUS )
+     &          BLKSEAWATER( BLKSIZE ), STAT = STATUS )
       IF ( STATUS .NE. 0 ) THEN
          XMSG = 'ERROR allocating BLKTEMP, BLKPRES, BLKCH2O, BLKDENS, '
-     &       // 'BLKSVOL, BLKLAND '
+     &       // 'BLKSVOL, BLKSEAWATER '
          CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT2 )
       END IF
 

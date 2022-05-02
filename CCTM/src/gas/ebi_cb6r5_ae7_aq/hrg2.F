@@ -28,7 +28,7 @@ C  PRECONDITIONS: For the CB6R5_AE7_AQ mechanism
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, Mar 14, 2022
+C  REVISION HISTORY: Created by EBI solver program, Mar 24, 2022
 C
 C   18 Jul 14 B.Hutzell: revised to use real(8) variables
 C**********************************************************************
@@ -301,6 +301,8 @@ c..OH loss terms not in R5_4 & R19_4
      &   +                 RKI(   225 ) * YC ( NO2          )   ! OH+NO2=HNO3
      &   +                 RKI(   233 ) * YC ( FMCL         )   ! OH+FMCL=CL+CO
      &   +                 RKI(   248 ) * YC ( HCL          )   ! OH+HCL=CL
+     &   +                 RKI(   346 ) * YC ( DMS          )   ! OH+DMS=SO2+MEO2+FORM
+     &   +                 RKI(   347 ) * YC ( DMS          )   ! OH+DMS=0.7500D+...
 
       L4    = 1.0D0 + L4 * DTC + R5_4 + R19_4
 
