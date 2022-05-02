@@ -59,6 +59,8 @@
 !        running with temporally finer meteorology
 !  10 Jun 2021 (G. Sarwar)
 !     -- Added 'CB6R5M' and deleted "CB6R3M"
+!  4 Mar 2022 (G. Sarwar)
+!     -- Added 'CB6R5'
 !....................................................................
 
       MODULE RUNTIME_VARS
@@ -737,10 +739,6 @@
       !-------------------------------------------------------------------------------------------------------
       !>> Emission Environment Variables 
       !-------------------------------------------------------------------------------------------------------
-      
-      IF ( INDEX( MECHNAME, 'CB6R5M' ) .GT. 0 ) then
-         USE_MARINE_GAS_EMISSION = .TRUE.
-      END IF
 
       IF ( MYPE .EQ. 0 ) THEN 
          CALL LOG_SUBHEADING( OUTDEV, "Emissions Parameters" )
@@ -900,6 +898,12 @@
          CALL M3EXIT( 'INIT_ENV_VARS', JDATE, JTIME, XMSG, EXIT_STATUS )
       END IF
 
+      IF ( OCEAN_CHEM ) THEN
+       IF ( (INDEX( MECHNAME, 'CB6R5M_AE7_AQ') .GT. 0 ) .OR. 
+     &      (INDEX( MECHNAME, 'CB6R5_AE7_AQ' ) .GT. 0) ) then     
+       USE_MARINE_GAS_EMISSION = .TRUE.
+       ENDIF
+      ENDIF
 
 ! for MPAS
 #ifdef mpas

@@ -240,6 +240,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   set YYYYMM = `date -ud "${TODAYG}" +%Y%m`     #> Convert YYYY-MM-DD to YYYYMM
   set YYYY = `date -ud "${TODAYG}" +%Y`         #> Convert YYYY-MM-DD to YYYY
   set YYMMDD = `date -ud "${TODAYG}" +%y%m%d`   #> Convert YYYY-MM-DD to YYMMDD
+  set MM = `date -ud "${TODAYG}" +%m`           #> Convert YYYY-MM-DD to MM
   set YYYYJJJ = $TODAYJ
 
   #> Calculate Yesterday's Date
@@ -320,7 +321,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   setenv STAGECTRL_NML ${BLD}/CMAQ_Control_STAGE.nml
 
   #> Spatial Masks For Emissions Scaling
-  setenv CMAQ_MASKS $SZpath/12US1_surf.ncf
+  setenv CMAQ_MASKS $SZpath/OCEAN_${MM}_L3m_MC_CHL_chlor_a_12US1.nc  #> horizontal grid-dependent ocean file
 
   #> Determine Representative Emission Days
   set EMDATES = $INPDIR/emis/emis_dates/smk_merge_dates_${YYYYMM}.txt
@@ -428,7 +429,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   endif
 
   #> In-line sea spray emissions configuration
-  setenv OCEAN_1 $SZpath/12US1_surf.ncf
+  setenv OCEAN_1 $SZpath/OCEAN_${MM}_L3m_MC_CHL_chlor_a_12US1.nc
 
   #> Bidirectional ammonia configuration
   if ( $CTM_ABFLUX == 'Y' ) then

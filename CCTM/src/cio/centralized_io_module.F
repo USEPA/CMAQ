@@ -79,6 +79,7 @@
 !  01/17/22, D. Wong: Added SAVE attribute to variable FIRSTIME
 !  03/31/22, J. Willison: Removed wb_dust_setup and modified lus_setup to remove
 !                         BELD as an option for desert land information.  
+!  04/12/22, G. Sarwar: Revised to include "DMS" into cb6r5_ae7_aq 
 !------------------------------------------------------------------------!
 
 !------------------------------------------------------------------------!
@@ -2136,25 +2137,16 @@
                 call mio_fread (ocean_file,
      &                          'SURF',
      &                          g2ddata(:, 1, surf_ind),
-     &                          mio_file_data(floc)%timestamp(1))
-             end if
-          end if
+     &                          mio_file_data(floc)%timestamp(1))         
 
-          if (use_marine_gas_emission) then
-             if (.not. ocean_chem) then
-                XMSG = 'CTM_OCEAN_CHEM must be set to TRUE when using CB6R5M mechanism'
-                call prog_interrupt ('reading ocean file', 0, 0, xmsg, 1)
-             else
-                if (exist) then
-                   call mio_fread (ocean_file,
-     &                             'CHLO',
-     &                             g2ddata(:, 1, chlo_ind),
-     &                             mio_file_data(floc)%timestamp(1))
-
-                   call mio_fread (ocean_file,
-     &                             'DMS',
-     &                             g2ddata(:, 1, dms_ind),
-     &                             mio_file_data(floc)%timestamp(1))
+                call mio_fread (ocean_file,
+     &                          'CHLO',
+     &                           g2ddata(:, 1, chlo_ind),
+     &                           mio_file_data(floc)%timestamp(1))
+                call mio_fread (ocean_file,
+     &                          'DMS',
+     &                           g2ddata(:, 1, dms_ind),
+     &                           mio_file_data(floc)%timestamp(1))
                 else
                    XMSG = 'Ocean file doese not exist'
                    call prog_interrupt ('reading ocean file', 0, 0, xmsg, 1)
@@ -3400,6 +3392,7 @@ C Read the various categories of normalized emissions
 ! -------------------------------------------------------------------------
         subroutine retrieve_ocean_data
 
+          USE RXNS_DATA, ONLY : MECHNAME
           USE UTILIO_DEFN
           USE HGRD_DEFN
 
@@ -3411,14 +3404,33 @@ C Read the various categories of normalized emissions
           CHARACTER( 120 ) :: XMSG = ' '
 
           allocate (ocean(ncols, nrows), 
-     &              szone(ncols, nrows), 
+     &              szone(ncols, nrows),   
+     &              chlr(ncols, nrows),
+     &              dmsl(ncols, nrows),                
      &              STAT=STAT)
           IF ( STAT .NE. 0 ) THEN
-             XMSG = 'Failure allocating OPEN and SURF array'
+             XMSG = 'Failure allocating OPEN, SURF, CHLO, DMS array'
              CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT3 )
           END IF
 
-          IF ( OCEAN_CHEM ) THEN
+          IF ( .NOT. OCEAN_CHEM ) THEN
+
+             WRITE( LOGDEV, '(/,5x,A,/,5x,A,/5x,A)' ), 
+     &              'CTM_OCEAN_CHEM set to FALSE. Open ocean and surf zone',
+     &              'fractions will be set to 0. There will be no oceanic',
+     &              'halogen-mediated loss of ozone, dms chemistry, or sea spray aerosol emissions.'
+             ocean = 0.0
+             szone = 0.0          
+             dmsl  = 0.0          
+             chlr  = 0.0
+
+           If ( INDEX( MECHNAME, 'CB6R5M_AE7_AQ' ) .GT. 0 ) then
+               XMSG = 'CTM_OCEAN_CHEM must be set to TRUE when using CB6R5M_AE7_AQ mechanism' 
+               Call M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
+           endif
+ 
+          ELSEIF ( OCEAN_CHEM .AND. .NOT. USE_MARINE_GAS_EMISSION ) THEN
+
              IF ( .NOT. OPEN3( OCEAN_1, FSREAD3, PNAME ) ) THEN
                 XMSG = 'Could not open ' // OCEAN_1
                 Call M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
@@ -3436,46 +3448,70 @@ C Read the various categories of normalized emissions
      &                        0, 0, szone ) ) Then
                    XMSG = 'Could not interpolate SURF from ' // OCEAN_1
                    CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
-                END IF
-                
+                END IF                
+
                 WHERE ( ocean .LT. 0.001 ) ocean = 0.0  ! ensure values are nonnegative and greater than 0.001
-                WHERE ( szone .LT. 0.001 ) szone = 0.0  ! ensure values are nonnegative and greater than 0.001                
-             END IF
-          ELSE 
-             WRITE( LOGDEV, '(/,5x,A,/,5x,A,/5x,A)' ), 
-     &              'CTM_OCEAN_CHEM set to FALSE. Open ocean and surf zone',
-     &              'fractions will be set to 0. There will be no oceanic',
-     &              'halogen-mediated loss of ozone or sea spray aerosol emissions.'
-             ocean = 0.0
-             szone = 0.0
-          END IF
+                WHERE ( szone .LT. 0.001 ) szone = 0.0  ! ensure values are nonnegative and greater than 0.001  
 
-          IF ( USE_MARINE_GAS_EMISSION ) then
-             IF ( .NOT. OCEAN_CHEM ) THEN
-                XMSG = 'CTM_OCEAN_CHEM must be set to TRUE when using CB6R5M mechanism'
+             dmsl  = 0.0          
+             chlr  = 0.0
+             
+             ENDIF
+
+          ELSEIF ( OCEAN_CHEM .AND. USE_MARINE_GAS_EMISSION ) THEN
+
+             IF ( .NOT. OPEN3( OCEAN_1, FSREAD3, PNAME ) ) THEN
+                XMSG = 'Could not open ' // OCEAN_1
                 Call M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
-             ELSE   ! OCEAN_1 file already opened
-                allocate (chlr(ncols, nrows),
-     &                    dmsl(ncols, nrows), 
-     &                    STAT=STAT)
-                IF ( STAT .NE. 0 ) THEN
-                   XMSG = 'Failure allocating CHLO array'
-                   CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT3 )
+             ELSE 
+                n_opened_file = n_opened_file + 1
+                IF ( .NOT. XTRACT3( OCEAN_1, 'OPEN',
+     &                        1, 1, STRTROWSTD, ENDROWSTD, STRTCOLSTD, ENDCOLSTD, 
+     &                        0, 0, ocean ) ) Then
+                   XMSG = 'Could not read OPEN from ' // OCEAN_1
+                   CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
                 END IF
 
+                IF ( .NOT. XTRACT3( OCEAN_1, 'SURF',
+     &                        1, 1, STRTROWSTD, ENDROWSTD, STRTCOLSTD, ENDCOLSTD, 
+     &                        0, 0, szone ) ) Then
+                   XMSG = 'Could not interpolate SURF from ' // OCEAN_1
+                   CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
+                END IF                
+
+                WHERE ( ocean .LT. 0.001 ) ocean = 0.0  ! ensure values are nonnegative and greater than 0.001
+                WHERE ( szone .LT. 0.001 ) szone = 0.0  ! ensure values are nonnegative and greater than 0.001 
+
+                If ( INDEX( MECHNAME, 'CB6R5M_AE7_AQ' ) .GT. 0 ) then
+      
                 If ( .Not. XTRACT3( OCEAN_1, 'CHLO',
      &                              1, 1, STRTROWSTD, ENDROWSTD, STRTCOLSTD, ENDCOLSTD, 
      &                              0, 0, chlr ) ) Then
                    XMSG = 'Could not read CHLO from ' // OCEAN_1
                    Call M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
                 End If
+
                 If ( .Not. XTRACT3( OCEAN_1, 'DMS',
      &                              1, 1, STRTROWSTD, ENDROWSTD, STRTCOLSTD, ENDCOLSTD, 
      &                              0, 0, dmsl ) ) Then
                    XMSG = 'Could not read DMS from ' // OCEAN_1
                    Call M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
                 End If
-             END IF
+
+                ELSEIF ( INDEX( MECHNAME, 'CB6R5_AE7_AQ' ) .GT. 0 ) then
+
+                chlr = 0.0
+                
+                If ( .Not. XTRACT3( OCEAN_1, 'DMS',
+     &                              1, 1, STRTROWSTD, ENDROWSTD, STRTCOLSTD, ENDCOLSTD, 
+     &                              0, 0, dmsl ) ) Then
+                   XMSG = 'Could not read DMS from ' // OCEAN_1
+                   Call M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
+                End If
+
+                END IF
+
+          END IF
           END IF
 
         end subroutine retrieve_ocean_data
@@ -4335,9 +4371,6 @@ C   mminlu and num_land_cat are WRF global variables
              if (ocean_chem) then
                 ocean = g2ddata(:,:,open_ind)
                 szone = g2ddata(:,:,surf_ind)
-             end if
-
-             if (use_marine_gas_emission) then
                 dmsl = g2ddata(:,:,dms_ind)
                 chlr = g2ddata(:,:,chlo_ind)
              end if
