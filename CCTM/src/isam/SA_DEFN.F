@@ -650,10 +650,10 @@ c----------------------------------------------------------
 
         !CRACMM1_AQ
         ALLOCATE( ISAM_SPEC_NO3( 8 )%LIST( 27 ) )
-        ISAM_SPEC_NO3( 8 )%LIST = (/'HNO3','NO  ','NO2 ','NO3 ','HONO',
-     &         'N2O5','PAN ','HNO4','ONIT','MPAN','PPN ','ISON','TRPN',
-     &         'NALD','ACO3','MO2 ','HC3P','HC5P','HC8P','KETP','ISOP',
-     &         'ETHP','RCO3','XYLP','TR2 ','BENP','ETEP'/ )
+        ISAM_SPEC_NO3( 8 )%LIST = (/   'HNO3 ','NO   ','NO2  ','NO3  ','HONO ',
+     &         'N2O5 ','PAN  ','HNO4 ','ONIT ','MPAN ','PPN  ','ISON ','TRPN ',
+     &         'NALD ','ACO3 ','MO2  ','HC3P ','HC5P ','HC10P','KETP ','ISOP ',
+     &         'ETHP ','RCO3 ','XYLP ','TR2  ','BENP ','ETEP '/ )
 
         
         !PRESCRIBE SPECIES RELEVANT FOR ASSIGNING BIAS TO VOCs
@@ -700,9 +700,9 @@ c----------------------------------------------------------
 
         !CRACMM1_AQ
         ALLOCATE( ISAM_BIAS_VOC( 8 )%LIST( 12 ) )
-        ISAM_BIAS_VOC( 8 )%LIST = (/'HCHO','ACD ','ALD ','UALD',
-     &         'KET ','ACO3','HC3P','HC5P','HC8P','ISOP','RCO3',
-     &         'XYLP'/ )
+        ISAM_BIAS_VOC( 8 )%LIST = (/'HCHO ','ACD  ','ALD  ','UALD ',
+     &      'KET  ','ACO3 ','HC3P ','HC5P ','HC10P','ISOP ','RCO3 ',
+     &      'XYLP '/ )
 
 
         !PRESCRIBE SPECIES RELEVANT FOR ASSIGNING BIAS TO NOx EMISSIONS
@@ -824,7 +824,7 @@ c----------------------------------------------------------
 
         !CRACMM1_AQ
         ALLOCATE( ISAM_SPEC_HAPGAS( 8 )%LIST( 1 ) )
-        ISAM_SPEC_HAPGAS( 8 )%LIST = (/'DIEN        '/)
+        ISAM_SPEC_HAPGAS( 8 )%LIST = (/'HCHO        '/)
 
 
         !AEROSOL HAPS
