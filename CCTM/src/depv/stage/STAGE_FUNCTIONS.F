@@ -843,7 +843,8 @@ C Calculate Canopy Covered Soil Resistance Nemitz et al 2000 https://doi.org/10.
          If( lai .gt. 0.0 .and. veg .gt. 0.0 ) Then
             RD_Can    = RD_Veg_P22( Vghat, Ustar, SC, aleaf, ahair, fhair, lai )
             Vdv = Vghat  / ( 1.0 - EXP( -Vghat * ( Ra + RD_Can ) ) )
-         Else
+         End If
+         If( 1.0 - veg .gt. 0.001 ) Then
             RD_Smth = RD_Smooth_P22(VGHAT, Ustar, Ubar, BAI, SC, NU, SST, SeaIce, Water )
             Vdnv      = Vghat / ( 1.0 - EXP( -Vghat * ( Ra + RD_Smth ) ) )
          End If
