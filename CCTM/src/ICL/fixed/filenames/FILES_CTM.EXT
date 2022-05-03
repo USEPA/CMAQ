@@ -57,8 +57,6 @@
       CHARACTER( 16 ) :: OCEAN_1       ! OCEAN File
       CHARACTER( 16 ) :: INIT_CONC_1   ! IC FILE for all Species
       CHARACTER( 16 ) :: BNDY_CONC_1   ! BC FILE for all Species
-      CHARACTER( 16 ) :: DUST_LU_1     ! WB Dust Emissions
-      CHARACTER( 16 ) :: DUST_LU_2     ! WB Dust Emissions
       CHARACTER( 16 ) :: E2C_CHEM      ! BIDI NH3 Config.
       CHARACTER( 16 ) :: E2C_CHEM_YEST ! BIDI NH3 Config.
       CHARACTER( 16 ) :: E2C_SOIL      ! BIDI NH3 Config.
@@ -178,8 +176,6 @@
       DATA A_SENS_1         / 'A_SENS_1        ' /
       DATA CTM_SWETDEP_1    / 'CTM_SWETDEP_1   ' /
       DATA CTM_SDRYDEP_1    / 'CTM_SDRYDEP_1   ' /
-      DATA DUST_LU_1        / 'DUST_LU_1       ' /
-      DATA DUST_LU_2        / 'DUST_LU_2       ' /
       DATA CTM_DEPV_MOS     / 'CTM_DEPV_MOS    ' /
       DATA CTM_DRY_DEP_MOS  / 'CTM_DRY_DEP_MOS ' /
       DATA E2C_CHEM         / 'E2C_CHEM        ' /
@@ -241,10 +237,10 @@
       DATA LGCL_NAME( 44 ), IN_MODE( 44 )    / 'A_SENS_1        ', .FALSE. /
       DATA LGCL_NAME( 45 ), IN_MODE( 45 )    / 'CTM_SWETDEP_1   ', .FALSE. /
       DATA LGCL_NAME( 46 ), IN_MODE( 46 )    / 'CTM_SDRYDEP_1   ', .FALSE. /
-      DATA LGCL_NAME( 47 ), IN_MODE( 47 )    / 'DUST_LU_1       ', .TRUE. /
-      DATA LGCL_NAME( 48 ), IN_MODE( 48 )    / 'DUST_LU_2       ', .TRUE. /
-      DATA LGCL_NAME( 49 ), IN_MODE( 49 )    / 'CTM_DEPV_MOS    ', .FALSE. /
-      DATA LGCL_NAME( 50 ), IN_MODE( 50 )    / 'CTM_DRY_DEP_MOS ', .FALSE. /
+      DATA LGCL_NAME( 47 ), IN_MODE( 47 )    / 'CTM_DEPV_MOS    ', .FALSE. /
+      DATA LGCL_NAME( 48 ), IN_MODE( 48 )    / 'CTM_DRY_DEP_MOS ', .FALSE. /
+      DATA LGCL_NAME( 49 ), IN_MODE( 49 )    / 'CTM_DRY_DEP_FST ', .FALSE. /
+      DATA LGCL_NAME( 50 ), IN_MODE( 50 )    / 'CTM_DEPV_FST    ', .FALSE. /
       DATA LGCL_NAME( 51 ), IN_MODE( 51 )    / 'E2C_CHEM        ', .FALSE. /
       DATA LGCL_NAME( 52 ), IN_MODE( 52 )    / 'E2C_CHEM_YEST   ', .FALSE. /
       DATA LGCL_NAME( 53 ), IN_MODE( 53 )    / 'E2C_SOIL        ', .FALSE. /
