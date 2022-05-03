@@ -31,7 +31,7 @@ C Adopted from MEGAN3.1 and modified for CMAQ 5.4 by Jeff Willison
 C::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE HRNOBDSNP( JDATE, JTIME, TSTEP,MONTH, NC, NR, 
      &             L_DESID_DIAG, SOILM, SOILT, RSTYP,LAI,
-     &                       GAREA,BDSNP_NO )
+     &                       BDSNP_NO )
 
   
       USE HGRD_DEFN
@@ -64,7 +64,6 @@ C Arguments:
       INTEGER, INTENT( IN ) :: NR      ! no. rows
       LOGICAL, INTENT( IN ) :: L_DESID_DIAG
       INTEGER, INTENT( IN ) :: RSTYP  ( NC,NR )        ! soil type
-      REAL, INTENT( IN ) :: GAREA  ! area of grid cell (m2)
       REAL,    INTENT( IN ) :: SOILM ( NC,NR )         ! soil moisture [m3/m3] (PX)
       REAL,    INTENT( IN ) :: SOILT  ( NC,NR )        ! soil temperature [K] (PX)
 
@@ -72,9 +71,7 @@ C Arguments:
       REAL,    INTENT( OUT ) :: BDSNP_NO ( NC,NR ) ! output NO emissions in nanomol/m^2/s
 
 C Parameters:
-!                 IF ( SOILCAT .LE. 14 ) THEN  <<< NEW PX METCRO2D ??? 14 = water
       ! Value calculated by running the 2x2.5 GEOS-Chem model
-      
       REAL*8,  PARAMETER :: TAU_MONTHS   = 6. ! this is the decay time for dep. N reservoir, fert is 4 months
       REAL*8,  PARAMETER :: SECPERDAY    = 86400.d0
       REAL*8,  PARAMETER :: DAYSPERMONTH = 30.
@@ -273,7 +270,6 @@ C open nitrogen deposition file
                                         
             !attempt to use steady state condition to reduce spin up time by setting dN/dt = 0
             !or NDEPRES = Dep rate * tau, the decay time
-            !  ndeprate is 0 for initial run?
             DO R = 1, NR
                 DO C = 1, NC
                 NDEPRES( C,R ) = NDEPRATE( C,R )*TAU_SEC
@@ -294,15 +290,21 @@ C           check for negatives
 
       END IF ! FIRSTIME
 
-
-      !IF (SECSDIFF(JDATE,JTIME,EDATE,ETIME) .LE. TIME2SEC(TSTEP(2)) ) GOTO 9999
       IF (SECSDIFF(JDATE,JTIME,EDATE,ETIME) .LE. TIME2SEC(TSTEP(2)) .and. .not. L_DESID_DIAG) GOTO 9999
     
 #ifdef twoway
        ! CFRAC for offline comes from MCIP but that's unavailable in twoway mode
-       ! CFRAC = CFRAC_2D ! hasn't been defined when the first 
-                          ! diag call is made. Need to revisit. 
-       CFRAC = 0.         ! Set to zero for now.
+       if (.not. allocated(CFRAC_2D)) then
+         CFRAC = 0.
+       else
+         CFRAC = CFRAC_2D
+       end if
+#else
+       if (.not. allocated(CFRAC_2D)) then
+         CFRAC = 0.
+       else
+         CFRAC = Met_Data%CFRAC
+       end if
 #endif 
 
    
@@ -326,8 +328,7 @@ C     If False Dont do any calculations to test - replicate 0 output
 
       CALL GET_CANOPY_NOX(JDATE, JTIME, NC, NR, Met_Data%COSZEN,
      & MET_DATA%TEMP2, MET_DATA%RGRND, met_data%PRSFC, 
-     & BDSNP_LANDTYPE, LAI, Met_Data%SNOCOV, Met_Data%CFRAC, Met_Data%WSPD10, CRF)
-
+     & BDSNP_LANDTYPE, LAI, Met_Data%SNOCOV, CFRAC, Met_Data%WSPD10, CRF)
 
       DO R = 1, NR
          DO C = 1, NC
@@ -335,10 +336,6 @@ C     If False Dont do any calculations to test - replicate 0 output
             SOILNOX  = 0d0
             FERTDIAG = 0d0
 
-      ! ------Loop Over MODIS/Koppen  LANDTYPE
-C            DO K = 1, 24
-
-C            IF ( BDSNP_LANDTYPE( C,R ) .EQ. K ) THEN !Skip LANDTYPEs not pre
             K = BDSNP_LANDTYPE( C,R ) !Skip LANDTYPE not present
             ! Temperature-dependent term of soil NOx emissions
             ! [unitless]
@@ -391,20 +388,20 @@ C            END IF !LANDTYPE check
 C            ENDDO
 
            !scale emissions
-           EMPOL = SOILNOX * GAREA * 3600.0 * 10.0**-9![ng N/m2/s] * m2 * s/hr * g/ng
+           EMPOL = SOILNOX *  3600.0 * 10.0**-9![ng N/m2/s] *  s/hr * g/ng
            BDSNP_NO(C,R) = SOILNOX / 14 ![nmol/m2/s]
            ! sum various quantities for daily averaging
            EMPOLSUM = EMPOLSUM + EMPOL
            BASESUM(C,R) = BASESUM(C,R) + ( A_BIOME(K) + A_FERT ) !don'tforget check paren when uncommenting
      &             * ( TEMP_TERM * WET_TERM)
-     &             * GAREA * 3600.0 * 10.0**-9 ![ng N/m2/s] * m2 * s/hr * g/ng
+     &             *  3600.0 * 10.0**-9 ![ng N/m2/s] *  s/hr * g/ng
            PULSEAVG(C,R) = PULSEAVG(C,R) + ( A_BIOME(K) + A_FERT ) !don'tforget check paren when uncommenting
      &             * ( TEMP_TERM * WET_TERM * PULSE )
-     &             * GAREA * 3600.0 * 10.0**-9 ![ng N/m2/s] * m2 * s/hr * g/ng
+     &             *  3600.0 * 10.0**-9 ![ng N/m2/s] *  s/hr * g/ng
            CRFAVG(C,R) = CRFAVG(C,R) + ( A_BIOME(K) + A_FERT ) !don'tforget check paren when uncommenting
      &             * ( TEMP_TERM * WET_TERM )
      &             * ( 1.d0 - CRF_TERM  )
-     &             * GAREA * 3600.0 * 10.0**-9 ![ng N/m2/s] * m2 * s/hr * g/ng
+     &             *  3600.0 * 10.0**-9 ![ng N/m2/s] *  s/hr * g/ng
 
 C--------- MORE DIAGNOSTICS  ---------------------------------
            A_DIAG( C,R ) = A_BIOME(K)

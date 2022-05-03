@@ -154,11 +154,6 @@ C=======================================================================
          INTEGER, SAVE :: MGN_IHR       ! current simulation hour
          INTEGER          MGN_NDX       ! RAINFALL array timestep index
 #ifndef mpas 
-!        Calculate cell area. 
-!        Could be removed in favor of DESID changes
-         REAL  DX1, DX2                            ! grid-cell width and length
-         REAL  CELL_AREA                            ! grid-cell area [m2]
-
          JDAY   = FLOAT( MOD( JDATE, 1000 ) )
          JYEAR  = FLOAT( JDATE / 1000  )       
          CURRHR = REAL ( TIME2SEC( JTIME ) ) / 3600.0
@@ -242,7 +237,6 @@ C=======================================================================
         end if
 ! Units for use by EMIS_DEFN.F via vdemis_me: [moles/s/m2]
          vdemis_me(:,:,:) = out_to_cmaq*cell_area
-
 
          RETURN
          END SUBROUTINE GET_MEGAN
