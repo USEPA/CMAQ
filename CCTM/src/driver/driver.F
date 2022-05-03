@@ -700,7 +700,7 @@ C Get synchronization and advection time steps, TSTEP(2), ASTEP(L) and NREPS
 
 C Compute and Write Out Instantaneous ELMO Values if Requested
       IF ( L_ELMO ) THEN
-          CALL ELMO_DRIVER( CGRID, JDATE, JTIME, TSTEP )
+          CALL ELMO_DRIVER( CGRID, JDATE, JTIME, TSTEP, INIT_STEP=.TRUE. )
           CALL WRITE_ELMO( JDATE, JTIME, TSTEP )
       END IF
 
@@ -758,7 +758,7 @@ C Use trapezoidal rule to time-average data
 
 #endif
          ! OUTPUT DIAGNOSTIC INFORMATION
-         IF ( L_ELMO ) CALL ELMO_DRIVER( CGRID, JDATE, JTIME, TSTEP )
+         IF ( L_ELMO ) CALL ELMO_DRIVER( CGRID, JDATE, JTIME, TSTEP, INIT_STEP=.FALSE. )
 
       END DO
 

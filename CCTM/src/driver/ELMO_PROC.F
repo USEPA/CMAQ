@@ -698,6 +698,38 @@
       ELMO_KEY( 21 )%LIST = (/'PMAMS_CL ','PMAMS_NH4','PMAMS_NO3',
      &                          'PMAMS_OA ','PMAMS_SO4'/)
  
+      ! Satellite Retrieval products
+      ELMO_KEY( 22 )%WORD = 'SAT'
+      ELMO_KEY( 22 )%N = 2
+      ALLOCATE( ELMO_KEY( 22 )%LIST( 2 ), STAT=ALLOCSTAT )
+      IF ( ALLOCSTAT .NE. 0 ) THEN
+           XMSG = 'Failure allocating ELMO_KEY(22)'
+           CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
+      END IF
+      ELMO_KEY( 22 )%LIST = (/'SATMET','SATCONC'/)
+      
+      ! Satellite Retrieval Met Products
+      ELMO_KEY( 23 )%WORD = 'SATMET'
+      ELMO_KEY( 23 )%N = 6
+      ALLOCATE( ELMO_KEY( 23 )%LIST( 6 ), STAT=ALLOCSTAT )
+      IF ( ALLOCSTAT .NE. 0 ) THEN
+           XMSG = 'Failure allocating ELMO_KEY(23)'
+           CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
+      END IF
+      ELMO_KEY( 23 )%LIST = (/'DENS','DZ','CFRAC','PV','P','T'/)
+ 
+      ! Satellite Retrieval products
+      ELMO_KEY( 24 )%WORD = 'SATCONC'
+      ELMO_KEY( 24 )%N = 7
+      ALLOCATE( ELMO_KEY( 24 )%LIST( 7 ), STAT=ALLOCSTAT )
+      IF ( ALLOCSTAT .NE. 0 ) THEN
+           XMSG = 'Failure allocating ELMO_KEY(24)'
+           CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
+      END IF
+      ELMO_KEY( 24 )%LIST = (/'NO2','SO2','O3','CO','FORM','NH3','AOD_550'/)
+ 
+ 
+
       END SUBROUTINE POPULATE_ELMO_KEY
 
 
@@ -2883,6 +2915,18 @@
          CASE ( ID_PRES )
             OUTVAL = AIRPRES
 
+         ! Retrieve DZ
+         CASE ( ID_DZ )
+            OUTVAL = DZ
+
+         ! Retrieve Cloud Fraction
+         CASE ( ID_CFRAC )
+            OUTVAL = CFRAC
+
+         ! Retrieve Potential Vorticity
+         CASE ( ID_PV )
+            OUTVAL = PV
+
          ! Retrieve Air Density x Jacobian/MSFX2
          CASE ( ID_RHOJ )
             OUTVAL = CONC_VEC( RHOJ_LOC ) ! kg m-3
@@ -2910,7 +2954,7 @@
       END SUBROUTINE CALC_ELMO
           
 !-------------------------------------------------------------------------
-      SUBROUTINE LOAD_ELMO( C,R,L,CONC,WRITETIME, INIT_TIME )
+      SUBROUTINE LOAD_ELMO( C,R,L,CONC,WRITE_STEP, INIT_STEP, INIT_TIME,  )
 !     This subroutine maps the PM diagnostic variables that the user has
 !       requested to the entries in the ELMO_DATA table.
 !-------------------------------------------------------------------------
@@ -2929,14 +2973,11 @@
 
       REAL, INTENT( IN ) :: CONC( : )
 
-      LOGICAL, INTENT( IN ) :: WRITETIME
+      LOGICAL, INTENT( IN ) :: WRITE_STEP
+      LOGICAL, INTENT( IN ) :: INIT_STEP
       LOGICAL, INTENT( IN ) :: INIT_TIME
 
       ! Initalize Local Parameters
-      ELMO_LOCAL( : ) = 0.0
-      INLET_FRAC(:,:,:) = -1.
-      L_CALC            = .FALSE.
-      CONC_VEC( : )     = CONC( : )
       C1                = C
       R1                = R
       L1                = L
@@ -2946,9 +2987,15 @@
       IF ( ( L.GE.INST_LAYER_BOT .OR. L.GE.AVRG_LAYER_BOT ) .AND.
      &     ( L.LE.INST_LAYER_TOP .OR. L.LE.AVRG_LAYER_TOP ) ) THEN
        
-          ! Calculate All Aerosol Size Distribution Parameters
-          CALL CALC_AERODIST_PARAMS( INIT_TIME )
+        ! Calculate All Aerosol Size Distribution Parameters
+        CALL CALC_AERODIST_PARAMS( INIT_TIME )
+      
+        ! Initalize Local Parameters
+        INLET_FRAC(:,:,:) = -1.
+        L_CALC            = .FALSE.
+        CONC_VEC( : )     = CONC( : )
        
+        IF ( INIT_TIME .OR. .NOT.INIT_STEP ) THEN
           ! Loop Through Used Parameters List and Call ELMO Functions 
           ! to fill in Local Array. ELMO_LOCAL is the same length as the
           ! ELMO_LIST and is ordered by the ELMO ID numbers so that it
@@ -2956,46 +3003,65 @@
           DO IUSED = 1,N_ELMO_OUT
              IM  = USED_ELMO_MODE( IUSED ) ! Map to 
              IDG = USED_ELMO_ID( IUSED ) ! Map to Parameter ID numbers
+             ELMO_LOCAL( : ) = 0.0
              CALL CALC_ELMO( IDG, IM, ELMO_LOCAL( IUSED ) )
           END DO
+        END IF
+
+
+        ! *** Aggregate Diagnostic Parameters in Average Array
+        !     using trapezoidal rule
+        IF ( AVRG_ACTIVE .AND. 
+     &       L.GE.AVRG_LAYER_BOT .AND. L.LE.AVRG_LAYER_TOP ) THEN
+           AL = L - AVRG_LAYER_BOT + 1
+           DO  IAVRG = 1,N_ELMO_AVRG_OUT
+              IF ( USED_ELMO_ID( MAP_AVRG2USED( IAVRG )) .EQ. ID_PMF_PH
+     &             .AND. ELMO_LOCAL( MAP_AVRG2USED( IAVRG ) ) .LT. -100. ) THEN
+                 ! Special Averageing for Particle pH
+                 ! Add whatever the current average is right now.
+                 ! Certainly this is problematic, particularly
+                 ! at the beginning of an hour where ELMO_AVRG =
+                 ! 0. It's best to either use the instantaneous
+                 ! value or recalculate the average fine particle acidity
+                 ! offline.
+                 IF ( INIT_STEP ) THEN
+                    ELMO_AVRG( C,R,AL,IAVRG ) = 3.5  ! Assume relatively acidic particles
+                 ELSE IF ( WRITE_STEP ) THEN
+                    ELMO_AVRG( C,R,AL,IAVRG ) = ELMO_AVRG( C,R,AL,IAVRG ) 
+                 ELSE
+                    ELMO_AVRG( C,R,AL,IAVRG ) = ELMO_AVRG( C,R,AL,IAVRG ) 
+     &                      + 2.0 * ELMO_AVRG( C,R,AL,IAVRG )
+                 END IF
+              ELSE
+                 ! For all other variables, apply trapezoidal rule for
+                 ! averaging.
+                 IF ( INIT_STEP ) THEN
+                    ELMO_AVRG( C,R,AL,IAVRG ) = ELMO_LOCAL( C,R,AL,IAVRG ) 
+                 ELSE IF ( WRITE_STEP ) THEN
+                    ELMO_AVRG( C,R,AL,IAVRG ) = ELMO_AVRG( C,R,AL,IAVRG ) 
+     &                                        + ELMO_LOCAL( MAP_AVRG2USED( IAVRG ) )
+                 ELSE
+                    ELMO_AVRG( C,R,AL,IAVRG ) = ELMO_AVRG( C,R,AL,IAVRG ) 
+     &                      + 2.0 * ELMO_LOCAL( C,R,AL,IAVRG )
+                 END IF 
+              END IF
+           END DO
+        END IF
        
-          ! *** Aggregate Diagnostic Parameters in Average Array
-          IF ( .NOT. INIT_TIME .AND. AVRG_ACTIVE .AND. 
-     &         L.GE.AVRG_LAYER_BOT .AND. L.LE.AVRG_LAYER_TOP ) THEN
-             AL = L - AVRG_LAYER_BOT + 1
-             DO  IAVRG = 1,N_ELMO_AVRG_OUT
-                IF ( USED_ELMO_ID( MAP_AVRG2USED( IAVRG )) .EQ. ID_PMF_PH
-     &               .AND. ELMO_LOCAL( MAP_AVRG2USED( IAVRG ) ) .LT. -100. ) THEN
-                   ! Special Averageing for Particle pH
-                   ! Add whatever the current average is right now.
-                   ! Certainly this is problematic, particularly
-                   ! at the beginning of an hour where ELMO_AVRG =
-                   ! 0. It's best to either use the instantaneous
-                   ! value or recalculate the average fine particle acidity
-                   ! offline.
-                   ELMO_AVRG( C,R,AL,IAVRG ) = ELMO_AVRG( C,R,AL,IAVRG ) 
-     &                     + ELMO_AVRG( C,R,AL,IAVRG ) / ELMO_AVRG_STEP
-                ELSE
-                   ELMO_AVRG( C,R,AL,IAVRG ) = ELMO_AVRG( C,R,AL,IAVRG ) 
-     &                                         + ELMO_LOCAL( MAP_AVRG2USED( IAVRG ) )
-                END IF
-             END DO
-          END IF
-       
-          ! *** Populate Diagnostic Parameters to Instantaneous Array if this is a write step
-          IF ( (WRITETIME .OR. INIT_TIME ) .AND. INST_ACTIVE .AND.
-     &         L.GE.INST_LAYER_BOT .AND. L.LE.INST_LAYER_TOP ) THEN
-             IL = L - INST_LAYER_BOT + 1
-             DO IINST = 1,N_ELMO_INST_OUT
-                ELMO_INST( C,R,IL,IINST ) = ELMO_LOCAL( MAP_INST2USED( IINST ) )
-             END DO
-          END IF
+        ! *** Populate Diagnostic Parameters to Instantaneous Array if this is a write step
+        IF ( INST_ACTIVE .AND. ( INIT_TIME .OR. WRITE_STEP ) .AND.
+     &       L.GE.INST_LAYER_BOT .AND. L.LE.INST_LAYER_TOP ) THEN
+           IL = L - INST_LAYER_BOT + 1
+           DO IINST = 1,N_ELMO_INST_OUT
+              ELMO_INST( C,R,IL,IINST ) = ELMO_LOCAL( MAP_INST2USED( IINST ) )
+           END DO
+        END IF
  
       END IF
       END SUBROUTINE LOAD_ELMO
 
 !-------------------------------------------------------------------------
-      SUBROUTINE ELMO_DRIVER( CGRID, JDATE, JTIME, TSTEP )
+      SUBROUTINE ELMO_DRIVER( CGRID, JDATE, JTIME, TSTEP, INIT_STEP )
 !     This subroutine maps the PM diagnostic variables that the user has
 !       requested to the entries in the ELMO_DATA table.
 !-------------------------------------------------------------------------
@@ -3008,6 +3074,7 @@
      &                     Extract_Aero
       USE AEROMET_DATA, ONLY: AIRRH, AIRTEMP, AIRQV, AIRDENS, AIRPRES,
      &                        SRFTEMP, H2OVP, H2OSATVP, MWWAT, MWAIR
+      use phot_met_data, only : cfrac_3d
       use centralized_io_module, only : interpolate_var
       use RUNTIME_VARS
 
@@ -3018,10 +3085,11 @@
                                                 ! determine whether to write 
                                                 ! concentrations
       INTEGER, INTENT( IN ) :: TSTEP(3)
+      LOGICAL, INTENT( IN ) :: INIT_STEP        ! Is the time step beginning
 
       ! Variable to set time step for writing visibility file
       INTEGER, SAVE :: WSTEP  = 0          ! local write counter
-      LOGICAL, SAVE :: WRITETIME = .FALSE. ! local write flag
+      LOGICAL, SAVE :: WRITE_STEP =.FALSE. ! local write flag
       LOGICAL, SAVE :: INIT_TIME = .FALSE. ! local write flag for T0
 
       LOGICAL, SAVE :: FIRSTIME = .TRUE.
@@ -3038,7 +3106,8 @@
       INTEGER C, R, L
 
       REAL, ALLOCATABLE, SAVE :: PRES(:,:,:), TA(:,:,:), TEMP2(:,:),
-     &                           QV(:,:,:), DENS(:,:,:)
+     &                           QV(:,:,:), DENS(:,:,:), CFRACS(:,:,:),
+     &                           ZF(:,:,:), PVS(:,:,:)
 
       ! values of AL, BL, and CL are from:
       ! Alduchov and Eskridge, "Improved Magnus Form Approximations of
@@ -3057,21 +3126,24 @@
      &              TA( NCOLS, NROWS, NLAYS ),
      &              QV( NCOLS, NROWS, NLAYS ),
      &              DENS( NCOLS, NROWS, NLAYS ),
+     &              CFRACS( NCOLS, NROWS, NLAYS ),
+     &              ZF( NCOLS, NROWS, NLAYS ),
+     &              PVS( NCOLS, NROWS, NLAYS ),
      &              TEMP2( NCOLS, NROWS ) )
       END IF
 
       ! Determine if this is a write step
-      WRITETIME = .FALSE.
-      IF ( JDATE .EQ. STDATE .AND. JTIME .EQ. STTIME ) THEN
-         INIT_TIME = .TRUE.
+      WRITE_STEP = .FALSE.
+      INIT_TIME = .FALSE.
+      IF ( JDATE .EQ. STDATE .AND. JTIME .EQ. STTIME ) INIT_TIME = .TRUE.
+      
+      IF ( INIT_STEP ) THEN
+         WSTEP = 0
       ELSE
-         INIT_TIME = .FALSE.
-         WSTEP = WSTEP + TIME2SEC( TSTEP( 2 ) )
-         IF ( WSTEP .GE. TIME2SEC( TSTEP( 1 ) ) ) THEN
-              WRITETIME = .TRUE.
-              WSTEP = 0
-         END IF
          ELMO_AVRG_STEP = ELMO_AVRG_STEP + 1
+         WSTEP = WSTEP + TIME2SEC( TSTEP( 2 ) )
+         IF ( WSTEP .GE. TIME2SEC( TSTEP( 1 ) ) ) 
+     &        WRITE_STEP = .TRUE.
       END IF
      
       ! Get Meteorological Variables
@@ -3088,7 +3160,20 @@
 
       ! air density [kg/m3]
       call interpolate_var ('DENS', jdate, jtime, DENS)
- 
+      
+      ! get cloud fraction if photolysis hasn not been called yet
+      if ( init_time ) then
+          if ( cfrac_3d_avail ) 
+     &         call interpolate_var ('CFRAC_3D', mdate, mtime, CFRACS)
+      else
+          cfracs = cfrac_3d
+      end if
+
+      ! retrieve all layer heights
+      call interpolate_var ('ZF', jdate, jtime, ZF)
+
+      ! retrieve potential vorticity
+      call interpolate_var ('PV', jdate, jtime, PVS)
       
       ! Process PM Diagnostics for Base Model
 
@@ -3104,12 +3189,19 @@
          H2OSATVP = ESATL( AIRTEMP )
          H2OVP    = AIRPRES * AIRQV / ( EPSWATER  + AIRQV )
          AIRRH    = MAX( 0.005, MIN( 0.99, H2OVP / H2OSATVP ) ) ! 0-1
+         CFRAC    = CFRACS( C,R,L ) 
+         IF ( L .EQ. 1 ) THEN
+             DZ   = ZF( C,R,L )
+         ELSE
+             DZ   = ZF( C,R,L ) - ZF( C,R,L-1 )
+         END IF
+         PV       = PVS( C,R,L )
  
          ! Extract Aerosols
          CALL EXTRACT_AERO( CGRID( C,R,L,: ), .TRUE. )
          
          ! Populate Diagnostic Arrays
-         CALL LOAD_ELMO( C,R,L, CGRID(C,R,L,:), WRITETIME, INIT_TIME )
+         CALL LOAD_ELMO( C,R,L, CGRID(C,R,L,:), WRITE_STEP, INIT_STEP, INIT_TIME )
 
       END DO
       END DO
@@ -3312,7 +3404,7 @@ C *** Write data to the average aerosol diagnostic file.
 
             IF ( .NOT. WRITE3( CTM_AELMO_1, 
      &           ALLVAR3, MDATE, MTIME, 
-     &           ELMO_AVRG(:,:,:,:) / 
+     &           ELMO_AVRG(:,:,:,:) / 2.0 / 
      &           ELMO_AVRG_STEP ) ) THEN
                XMSG = 'Could not write ' // CTM_AELMO_1 // ' file'
                CALL M3EXIT ( PNAME, MDATE, MTIME, XMSG, XSTAT1 )

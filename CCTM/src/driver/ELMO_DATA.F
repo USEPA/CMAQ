@@ -223,8 +223,11 @@ c:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       INTEGER, PARAMETER :: ID_GIEPOX =     179
       INTEGER, PARAMETER :: ID_KIEPOX =     180
       INTEGER, PARAMETER :: ID_GIMAE =      181
-      INTEGER, PARAMETER :: ID_RHOJ  =      182
-      INTEGER, PARAMETER :: ID_DENS  =      183
+      INTEGER, PARAMETER :: ID_DZ    =      182
+      INTEGER, PARAMETER :: ID_CFRAC =      183
+      INTEGER, PARAMETER :: ID_PV    =      184
+      INTEGER, PARAMETER :: ID_DENS  =      185
+      INTEGER, PARAMETER :: ID_RHOJ  =      186
 
       TYPE ELDTP
         CHARACTER (LEN = 16) :: NAME      !Parameter Name
@@ -235,7 +238,7 @@ c:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
         CHARACTER (LEN = 80) :: DESC      !Description
       END TYPE ELDTP
 
-      INTEGER, PARAMETER :: N_ELMO_LIST = 183
+      INTEGER, PARAMETER :: N_ELMO_LIST = 186
 
       TYPE (ELDTP), PARAMETER :: ELMO_LIST( N_ELMO_LIST ) = (/
      &ELDTP( 'STDEV        ',ID_STDEV,      M3REAL, T, '      ', 'Mode standard deviation (dry and wet)' ),
@@ -437,6 +440,9 @@ c:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
      &ELDTP( 'GAMMA_IEPOX  ',ID_GIEPOX,     M3REAL, F, '1     ', 'IEPOX heterogeneous uptake coefficient' ),
      &ELDTP( 'K_IEPOX      ',ID_KIEPOX,     M3REAL, F, 's-1   ', 'IEPOX 1st order particle phase reaction rate const' ),
      &ELDTP( 'GAMMA_IMAE   ',ID_GIMAE,      M3REAL, F, '1     ', 'IMAE+HMML heterogeneous uptake coefficient' ),
+     &ELDTP( 'DZ           ',ID_DZ,         M3REAL, F, 'm     ', 'Height of a grid cell' ),
+     &ELDTP( 'CFRAC        ',ID_CFRAC,      M3REAL, F, '      ', 'Cloud Fraction' ),
+     &ELDTP( 'PV           ',ID_PV,         M3REAL, F, '      ', 'Potential Vorticity' ),
      &ELDTP( 'DENS         ',ID_DENS,       M3REAL, F, 'kg m-3', 'Advected Density' ),
      &ELDTP( 'RHOJ         ',ID_RHOJ,       M3REAL, F, 'kg m-3', 'Advected Density x Jacobian/MSFX^2' ) /)
      
