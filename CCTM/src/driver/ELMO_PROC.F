@@ -135,7 +135,7 @@
       IF ( STAT .NE. 0 ) THEN
           WRITE( XMSG, '(A,A,A)' ),'ERROR: Could not read ',
      &           'emissions control namelist file: ',TRIM( MISC_CTRL )
-          CALL M3EXIT( 'READ_EMISS_NAMELIST',0,0,XMSG,1 )
+          CALL M3EXIT( PNAME, 0, 0, XMSG, 1 )
       END IF
  
       ! Read Toggles for Turning Instantaneous and Average Files On/Off
@@ -2857,7 +2857,11 @@
 
          ! Retrieve AOD at 550 nm
          CASE ( ID_AOD550 )
-            OUTVAL = ELMO_AOD_550( C1,R1 )
+             IF ( L1 .EQ. 1 ) THEN
+                 OUTVAL = ELMO_AOD_550( C1,R1 )
+             ELSE
+                 OUTVAL = AMISS3
+             END IF
 
          ! Retrieve Aerosol Extinction at 550 nm
          CASE ( ID_PMEXT550 )

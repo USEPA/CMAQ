@@ -37,13 +37,15 @@
 !        Label'  will be expanded to all OFFLINE streams.                      !
 !                                                                              !
 !      'Area Normalization' - If TRUE, then this stream's emissions will be    !
-!                multiplied by grid cell area.                                 !
+!                multiplied by grid cell area. If AUTO, then DESID will deduce !
+!                from the units string whether or not each variable on the     !
+!                stream input file should be multiplied by the area scale      !
+!                factor.                                                       !
 !                                                                              !
 !      'Projection Adjustment' - If TRUE, then this stream's emissions will be !
 !                multiplied by the area Map Scale Factor. If AUTO, then DESID  !
-!                will deduce from the units string whether or not each variable!
-!                on the stream input file should be multiplied by the area     !
-!                scale factor                                                  ! 
+!                will inherit the per=stream value from Area Normalization. If !
+!                Area Normalization is TRUE, the Projection Adjustment is True !
 !------------------------------------------------------------------------------!
 &Desid_AreaNormVars
  Desid_Max_Area = 30  ! Maximum number of Area Normalization rules

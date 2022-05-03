@@ -95,9 +95,8 @@
      &                                 Desid_Max_Reg_Fam_Members
       NAMELIST / Desid_RegionFam / RegionFamilyName, RegionFamilyMembers
  
-      CALL LOG_SUBHEADING( LOGDEV, "Reading Family Definitions from Control Files" )
+      CALL LOG_SUBHEADING( LOGDEV, "Reading Family Definitions from Control File" )
 
-      !!! Chemical Families !!!
       ! Retrieve the Name of the Misc. Control File
       IF ( MISC_CTRL .EQ. "MISC_CTRL_NML" ) THEN
           XMSG = 'You have chosen not to indicate the location of a' //
