@@ -1941,7 +1941,7 @@ C Local variables:
              AER_PAR( 1, IMODE, 6 ) = DGWET
 
              IF ( (DGDRY .GT. 0.95*MIN_DG_DRY(IMODE) .AND. DGDRY .LT. MIN_DG_DRY(IMODE)) .OR.
-     &            (DGDRY .GT. MAX_DG_DRY(IMODE) .AND. DGDRY .LT. 1.05*MIN_DG_DRY(IMODE)) ) THEN
+     &            (DGDRY .GT. MAX_DG_DRY(IMODE) .AND. DGDRY .LT. 1.05*MAX_DG_DRY(IMODE)) ) THEN
                   ! Diameter is barely invalid. Don't trigger warning
                   IF ( LSTAT( IMODE ) .EQ. 4 ) THEN
                      LSTAT( IMODE ) = 6  ! Both sg and dg are barely invalid
