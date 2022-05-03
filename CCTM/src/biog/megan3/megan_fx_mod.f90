@@ -3064,7 +3064,7 @@ SUBROUTINE MEGVEA(NCOLS,NROWS, LAYERS, JDATE, ZTIME,                &
 ! ///////////////////////////////////////////////////////////////////////////
       SUBROUTINE MEGVSA (IDATE,ITIME,TSTEP,JYEAR,JDAY,                       &
                     NCOLS,NROWS,L_DESID_DIAG,SLTYP, CTF,LAIc, LAT,           &
-                    TEMP, SOILM1,SOILM2, SOILT, PRECADJ,CELL_AREA,           &
+                    TEMP, SOILM1,SOILM2, SOILT, PRECADJ,           &
                     CFNO, CFNOG, GAMSM, GAMNO, BDSNP_NO )
 
 
@@ -3176,7 +3176,6 @@ SUBROUTINE MEGVEA(NCOLS,NROWS, LAYERS, JDATE, ZTIME,                &
       REAL, INTENT(IN)    :: SOILM2  (NCOLS, NROWS)  ! soil moisture
       REAL, INTENT(IN)    :: SOILT  (NCOLS, NROWS)  ! soil temperature
       REAL, INTENT(IN)    :: PRECADJ (NCOLS, NROWS)   
-      REAL, INTENT(IN)    :: CELL_AREA
 
 !     output variable
       REAL, INTENT(OUT)   :: CFNO  (NCOLS, NROWS)       ! Emission activity for crop
@@ -3212,7 +3211,7 @@ SUBROUTINE MEGVEA(NCOLS,NROWS, LAYERS, JDATE, ZTIME,                &
 
           CALL HRNOBDSNP( IDATE,ITIME,TSTEP,MM,NCOLS,NROWS,  &
                     L_DESID_DIAG,SOILM1,SOILT,SLTYP,LAIc,    &
-                                            cell_area,bdsnp_no)
+                                            bdsnp_no)
 
         else
 

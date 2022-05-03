@@ -130,6 +130,7 @@ C-------------------------------------------------------------------------------
          Real,    Allocatable :: PBL      ( :,: )  ! pbl height (m)
 !         Real,    Allocatable :: NACL_EMIS( :,: )  ! NACL mass emission rate of particles with d <10 um (g/m2/s)
          Real,    Allocatable :: COSZEN   ( :,: )  ! Cosine of the zenith angle
+         Real,    Allocatable :: CFRAC    ( :,: )  ! cloud fraction
 !> U and V wind components on the cross grid points
          Real,    Allocatable :: UWIND    ( :,:,: )  ! [m/s]
          Real,    Allocatable :: VWIND    ( :,:,: )  ! [m/s]                    
@@ -148,7 +149,6 @@ C-------------------------------------------------------------------------------
          Real,    Allocatable :: RJACM    ( :,:,: )  ! reciprocal mid-layer Jacobian
          Real,    Allocatable :: RJACF    ( :,:,: )  ! reciprocal full-layer Jacobian
          Real,    Allocatable :: RRHOJ    ( :,:,: )  ! reciprocal density X Jacobian
-         Real,    Allocatable :: CFRAC    ( :,:,: )  ! cloud fraction
       End Type MET_Type
       
       Type :: GRID_Type
@@ -508,6 +508,7 @@ C-----------------------------------------------------------------------
      &             Met_Data%PBL      ( NCOLS,NROWS ),
 !     &             Met_Data%NACL_EMIS( NCOLS,NROWS ),
      &             Met_Data%COSZEN   ( NCOLS,NROWS ),
+     &             Met_Data%CFRAC    ( NCOLS,NROWS ),
      &             Met_Data%UWIND    ( NCOLS+1,NROWS+1,NLAYS ),
      &             Met_Data%VWIND    ( NCOLS+1,NROWS+1,NLAYS ),
      &             Met_Data%KZMIN    ( NCOLS,NROWS,NLAYS ),
@@ -524,7 +525,6 @@ C-----------------------------------------------------------------------
      &             Met_Data%RJACM    ( NCOLS,NROWS,NLAYS ),
      &             Met_Data%RJACF    ( NCOLS,NROWS,NLAYS ),
      &             Met_Data%RRHOJ    ( NCOLS,NROWS,NLAYS ),
-     &             Met_Data%CFRAC    ( NCOLS,NROWS,NLAYS ),
      &             STAT = ALLOCSTAT )
          If ( ALLOCSTAT .Ne. 0 ) Then
             XMSG = 'Failure allocating met vars'
