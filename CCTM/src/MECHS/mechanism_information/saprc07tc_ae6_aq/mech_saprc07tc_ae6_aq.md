@@ -735,7 +735,7 @@ Information is based on the mech.def file.
 | HET_H2NO3PIB   | H2NO3PIJ + ACLI ----> CLNO2  | HETERO_H2NO3PBIJ | Not Available<sup>2</sup> | 
 | HET_H2NO3PJB   | H2NO3PIJ + ACLJ ----> CLNO2  | HETERO_H2NO3PBIJ | Not Available<sup>2</sup> | 
 | HET_H2NO3PKB   | H2NO3PK + ACLK ----> CLNO2  | HETERO_H2NO3PBK | Not Available<sup>2</sup> | 
-| HAL_Ozone   | O3 ----> | min( 6.701E-11e<sup> 1.074E+01P</sup>+ 3.415E-08e<sup>-6.713E-01P</sup>, <br> 2.000E-06) |   2.0000E-06<sup>4</sup>| 
+| HAL_Ozone   | O3 ----> | SEAWATER*min( 6.701E-11e<sup> 1.074E+01P</sup>+ 3.415E-08e<sup>-6.713E-01P</sup>, <br> 2.000E-06) |   2.0000E-06<sup>4</sup>| 
 | OLIG_XYLENE1   | AXYL1J ---->   0.857\*AOLGAJ  |   9.4882E-06 |   9.4882E-06 |
 | OLIG_XYLENE2   | AXYL2J ---->   1.143\*AOLGAJ  |   9.4882E-06 |   9.4882E-06 |
 | OLIG_TOLUENE1   | ATOL1J ---->   0.857\*AOLGAJ  |   9.4882E-06 |   9.4882E-06 |
@@ -771,5 +771,5 @@ Information is based on the mech.def file.
 <sup>0</sup>Units molecules/(sec*cm<sup>3</sup>); Value at 298.15 K;   2.4615E+19 molcules/cm<sup>3</sup>;   1.00 Atm.     
 <sup>1</sup>Photolysis Reaction;depends on radiation and predicted concentrations     
 <sup>2</sup>Heteorogeneous Reaction;Depends predicted concentrations                
-<sup>4</sup>Set to zero if sun is below the horizon and if surface does not include sea or surf zones; P equals air pressure in atmospheres                     
+<sup>4</sup>Set to zero if sun is below the horizon. SEAWATER equals surface fraction covered by ice free open ocean plus surf zones. P equals air pressure in atmospheres.         
 <sup>7</sup>Rate constant multiple of constant for listed reaction   

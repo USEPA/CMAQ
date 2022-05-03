@@ -260,7 +260,7 @@ C Get description of met file
 
          METSTEP = TSTEP3D
 
-C Check that grid description matches B3GRD file
+C Check that grid description matches MET_CRO_2D file
          IF ( .NOT. CHKGRID( MNAME ) ) THEN
             MESG = 'Grid in file "' // TRIM( MNAME )
      &           // '" does not match grid in file ' // TRIM( MNAME ) // '"'

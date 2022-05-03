@@ -201,7 +201,7 @@
        RETURN
        END SUBROUTINE SPECIAL_RATES
  
-       SUBROUTINE CALC_RCONST( BLKTEMP, BLKPRES, BLKH2O, RJBLK, BLKHET, LSUNLIGHT, LAND, RKI, NUMCELLS )
+       SUBROUTINE CALC_RCONST( BLKTEMP, BLKPRES, BLKH2O, RJBLK, BLKHET, LSUNLIGHT, SEAWATER, RKI, NUMCELLS )
 
 !**********************************************************************
 
@@ -231,7 +231,7 @@
         REAL( 8 ),           INTENT( IN  ) :: BLKHET ( :, : )   ! heterogeneous rate constants, ???/min
         INTEGER,             INTENT( IN  ) :: NUMCELLS          ! Number of cells in block 
         LOGICAL,             INTENT( IN  ) :: LSUNLIGHT         ! Is there sunlight? 
-        LOGICAL,             INTENT( IN  ) :: LAND( : )         ! Is the surface totally land? 
+        REAL( 8 ),           INTENT( IN  ) :: SEAWATER( : )     ! fractional area of OPEN+SURF 
         REAL( 8 ),           INTENT( OUT ) :: RKI ( :, : )      ! reaction rate constant, ppm/min 
 !..Parameters: 
 
@@ -354,10 +354,12 @@
 !  Reaction Label T20             
                 RKI( NCELL,  335) =  RJBLK( NCELL, IJ_ACRO_09 )
 
-                IF( .NOT. LAND( NCELL ) )THEN
+                IF ( SEAWATER (NCELL) .GT. 0.001D0 ) THEN
 !  Reaction Label HAL_Ozone       
-                   RKI( NCELL,  277) =  SFACT * HALOGEN_FALLOFF( BLKPRES( NCELL ),   6.7006D-11,   1.0743D+01,  & 
+                   RKI( NCELL,  277) = SEAWATER (NCELL) *  SFACT * HALOGEN_FALLOFF( BLKPRES( NCELL ),   6.7006D-11,   1.0743D+01,  & 
      &                                                           3.4153D-08,  -6.7130D-01,         2.0000D-06 )
+                ELSE
+                   RKI( NCELL,  277) = 0.0D0 
                 END IF
 
             END DO 

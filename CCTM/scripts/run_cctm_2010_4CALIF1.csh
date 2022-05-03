@@ -149,15 +149,11 @@ setenv CTM_ADV_CFL 0.95      #> max CFL [ default: 0.75]
 
 #> Science Options
 setenv CTM_OCEAN_CHEM Y      #> Flag for ocean halogen chemistry and sea spray aerosol emissions [ default: Y ]
-setenv CTM_WB_DUST Y         #> use inline windblown dust emissions [ default: Y ]
-setenv CTM_WBDUST_BELD BELD3 #> landuse database for identifying dust source regions 
-                             #>    [ default: UNKNOWN ]; ignore if CTM_WB_DUST = N 
+setenv CTM_WB_DUST Y         #> use inline windblown dust emissions (only for use with PX) [ default: N ]
 setenv CTM_LTNG_NO N         #> turn on lightning NOx [ default: N ]
 setenv KZMIN Y               #> use Min Kz option in edyintb [ default: Y ], 
                              #>    otherwise revert to Kz0UT
 setenv CTM_MOSAIC N          #> landuse specific deposition velocities [ default: N ]
-setenv CTM_FST N             #> mosaic method to get land-use specific stomatal flux 
-                             #>    [ default: N ]
 setenv PX_VERSION Y          #> WRF PX LSM
 setenv CLM_VERSION N         #> WRF CLM LSM
 setenv NOAH_VERSION N        #> WRF NOAH LSM
@@ -216,7 +212,6 @@ set IN_LTpath = $INPDIR/met/lightning     #> lightning NOx input directory
 set METpath   = $INPDIR/met/mcip_v4.3_wrf_v3.8.1    #> meteorology input directory
 #set JVALpath  = $INPDIR/jproc            #> offline photolysis rate table directory
 set OMIpath   = $BLD                      #> ozone column data for the photolysis model
-set LUpath    = $INPDIR/surface           #> BELD landuse data for windblown dust model
 set SZpath    = $INPDIR/surface           #> surf zone file for in-line seasalt emissions
 
 # =====================================================================
@@ -312,6 +307,9 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   #>   https://github.com/USEPA/CMAQ/blob/master/DOCS/Users_Guide/Appendix/CMAQ_UG_appendixB_emissions_control.md 
   #>
   setenv EMISSCTRL_NML ${BLD}/EmissCtrl_${MECH}.nml
+  #> The following namelist controls the mapping of meteorological land use types and the NH3 and Hg emission
+  #> potentials
+  setenv STAGECTRL_NML ${BLD}/CMAQ_Control_STAGE.nml
 
   #> Spatial Masks For Emissions Scaling
   setenv CMAQ_MASKS $SZpath/12US1_surf_bench.nc #> horizontal grid-dependent surf zone file
@@ -405,23 +403,12 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   endif
   if ( $CTM_BIOGEMIS_BEIS == 'Y' ) then   
      set IN_BEISpath = ${INPDIR}/surface
-     setenv GSPRO      $BLD/gspro_biogenics.txt
-     setenv B3GRD      $IN_BEISpath/b3grd_4CALIF1_2011en_cb6_10.ncf
-     setenv BIOSW_YN   Y     #> use frost date switch [ default: Y ]
-     setenv BIOSEASON  $IN_BEISpath/bioseason.cmaq.2010j_4CALIF1.ncf_full 
-                             #> ignore season switch file if BIOSW_YN = N
-     setenv SUMMER_YN  Y     #> Use summer normalized emissions? [ default: Y ]
-     setenv PX_VERSION Y     #> MCIP is PX version? [ default: N ]
-     setenv SOILINP    $OUTDIR/CCTM_SOILOUT_${RUNID}_${YESTERDAY}.nc
+     setenv GSPRO          $BLD/gspro_biogenics.txt
+     setenv BEIS_NORM_EMIS $IN_BEISpath/b3grd_4CALIF1_2011en_cb6_10.ncf
+     setenv SOILINP        $OUTDIR/CCTM_SOILOUT_${RUNID}_${YESTERDAY}.nc
                              #> Biogenic NO soil input file; ignore if NEW_START = TRUE
   endif
 
-  #> Windblown dust emissions configuration
-  if ( $CTM_WB_DUST == 'Y' ) then
-     # Input variables for BELD3 Landuse option
-     setenv DUST_LU_1  $LUpath/beld3_4CALIF1_output_a.ncf
-     setenv DUST_LU_2  $LUpath/beld3_4CALIF1_output_tot.ncf
-  endif
   
   #> In-line Sea Spray emissions configuration
   setenv OCEAN_1 ${SZpath}/surf_4calif1.ncf #> horizontal grid-dependent surf zone file
@@ -562,9 +549,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   setenv CTM_IRR_2       "$OUTDIR/CCTM_IRR_2_${CTM_APPL}.nc -v"      #> Chem Process Analysis
   setenv CTM_IRR_3       "$OUTDIR/CCTM_IRR_3_${CTM_APPL}.nc -v"      #> Chem Process Analysis
   setenv CTM_DRY_DEP_MOS "$OUTDIR/CCTM_DDMOS_${CTM_APPL}.nc -v"      #> Dry Dep
-  setenv CTM_DRY_DEP_FST "$OUTDIR/CCTM_DDFST_${CTM_APPL}.nc -v"      #> Dry Dep
   setenv CTM_DEPV_MOS    "$OUTDIR/CCTM_DEPVMOS_${CTM_APPL}.nc -v"    #> Dry Dep Velocity
-  setenv CTM_DEPV_FST    "$OUTDIR/CCTM_DEPVFST_${CTM_APPL}.nc -v"    #> Dry Dep Velocity
   setenv CTM_VDIFF_DIAG  "$OUTDIR/CCTM_VDIFF_DIAG_${CTM_APPL}.nc -v" #> Vertical Dispersion Diagnostic
   setenv CTM_VSED_DIAG   "$OUTDIR/CCTM_VSED_DIAG_${CTM_APPL}.nc -v"  #> Particle Grav. Settling Velocity
   setenv CTM_LTNGDIAG_1  "$OUTDIR/CCTM_LTNGHRLY_${CTM_APPL}.nc -v"   #> Hourly Avg Lightning NO
@@ -584,8 +569,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
              $CTM_WET_DEP_2 $CTM_ELMO_1 $CTM_AELMO_1             \
              $CTM_RJ_1 $CTM_RJ_2 $CTM_RJ_3 $CTM_SSEMIS_1 $CTM_DUST_EMIS_1 $CTM_IPR_1 $CTM_IPR_2       \
              $CTM_IPR_3 $CTM_BUDGET $CTM_IRR_1 $CTM_IRR_2 $CTM_IRR_3 $CTM_DRY_DEP_MOS                   \
-             $CTM_DRY_DEP_FST $CTM_DEPV_MOS $CTM_DEPV_FST $CTM_VDIFF_DIAG $CTM_VSED_DIAG    \
-             $CTM_LTNGDIAG_1 $CTM_LTNGDIAG_2 $CTM_VEXT_1 )
+             $CTM_DEPV_MOS $CTM_VDIFF_DIAG $CTM_VSED_DIAG $CTM_LTNGDIAG_1 $CTM_LTNGDIAG_2 $CTM_VEXT_1 )             
   if ( $?CTM_ISAM ) then
      if ( $CTM_ISAM == 'Y' || $CTM_ISAM == 'T' ) then
         set OUT_FILES = (${OUT_FILES} ${SA_ACONC_1} ${SA_CONC_1} ${SA_DD_1} ${SA_WD_1}      \

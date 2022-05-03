@@ -34,6 +34,7 @@ C   15 May 19: D. Wong: Replaced MGEM with USE_MARINE_GAS_EMISSION which is set 
 C   16 May 19: D. Wong: * Removed initialization of OCEAN, SZONE, CHLR, and DMSL. 
 C                       * Used LON directly to save space.
 C   04 Sep 20: G. Sarwar* Fixed bug for Kw
+C   03 Mar 22: D. Wong and G. Sarwar* updated for DMS emissions with cb6r5
 
       USE RUNTIME_VARS
       USE HGRD_DEFN
@@ -63,6 +64,8 @@ C Variables for the marine gas diagnostic file
       CHARACTER( 16 ), ALLOCATABLE :: WRMG_SPC( : )   ! species names
 
       CHARACTER( 16 ) :: MG_SPC( NMGSPC)           ! emitted species
+
+      INTEGER :: MG_SPC_IND ( NMGSPC)              ! emitted species index
 
       DATA  MG_SPC  /  'MB3             ',
      &                 'MB2             ',
@@ -138,6 +141,7 @@ C Local Variables:
             CHARACTER(  16 ) :: VARNM
             INTEGER STATUS
             INTEGER S, N, L, K, V
+            INTEGER :: START_INDEX, END_INDEX
 
 C-----------------------------------------------------------------------
 
@@ -207,10 +211,19 @@ C Allocate diagnostic arrays
                 END IF
 
 C Build diagnostic file write buffer (WRMG_SPC) array
+                IF (INDEX( MECHNAME, 'CB6R5M_AE7_AQ' ) .GT. 0) THEN
+                   START_INDEX = 1
+                   END_INDEX = 12
+                ELSE
+                   START_INDEX = 12
+                   END_INDEX = 12
+                END IF
+
                 NMGDIAG = 0
-                DO S = 1, NMGSPC
+                DO S = START_INDEX, END_INDEX
                    NMGDIAG = NMGDIAG + 1
                    WRMG_SPC( NMGDIAG ) = MG_SPC( S )
+                   MG_SPC_IND( NMGDIAG ) = S
                 END DO
 
 C Open the marine gas emission dignostic file
@@ -297,7 +310,7 @@ C Set output file characteristics based on COORD.EXT and open diagnostic file
                VTYPE3D( V ) = M3REAL
                VNAME3D( V ) = WRMG_SPC( V )
                UNITS3D( V ) = 'mol s-1'
-               VDESC3D( V ) = 'hourly ' // TRIM( VNAME3D( V ) )
+               VDESC3D( V ) = 'hourly ' // TRIM( VNAME3D( V ) )               
      &                     // ' marine gas emission rate'
             END DO
 
@@ -532,46 +545,48 @@ C.. calculate local hour
                      IF (LOCHR .LT.  0) LOCHR = LOCHR + 24
                      IF (LOCHR .GT. 23) LOCHR = LOCHR - 24
 
-                     DUMMY = 4.31E-8 * MARINE_AREA * FHRLY(LOCHR) * CHLA * SECS2HR
+                     IF (INDEX( MECHNAME, 'CB6R5M_AE7_AQ' ) .GT. 0) THEN
+                        DUMMY = 4.31E-8 * MARINE_AREA * FHRLY(LOCHR) * CHLA * SECS2HR
 
 C.. Calculate MB3 emission rate in mole/s
-                     VDEMIS_MG( IMB3, C, R ) = DUMMY * 2.00
+                        VDEMIS_MG( IMB3, C, R ) = DUMMY * 2.00
 
 C.. Calculate MB2 emission rate in mole/s
-                     VDEMIS_MG( IMB2, C, R ) = DUMMY * 0.50
+                        VDEMIS_MG( IMB2, C, R ) = DUMMY * 0.50
 
 C.. Calculate MBC emission rate in mole/s
-                     VDEMIS_MG( IMBC, C, R ) = DUMMY * 0.08
+                        VDEMIS_MG( IMBC, C, R ) = DUMMY * 0.08
 
 C.. Calculate MB2C emission rate in mole/s
-                     VDEMIS_MG( IMB2C, C, R ) = DUMMY * 0.12
+                        VDEMIS_MG( IMB2C, C, R ) = DUMMY * 0.12
 
 C.. Calculate MBC2 emission rate in mole/s
-                     VDEMIS_MG( IMBC2, C, R ) = DUMMY * 0.10
+                        VDEMIS_MG( IMBC2, C, R ) = DUMMY * 0.10
 
 C.. Calculate CH3I emission rate in mole/s
-                     VDEMIS_MG( ICH3I, C, R ) = DUMMY * 1.60
+                        VDEMIS_MG( ICH3I, C, R ) = DUMMY * 1.60
 
 C.. Calculate MIC emission rate in mole/s
-                     VDEMIS_MG( IMIC, C, R ) = DUMMY * 1.41
+                        VDEMIS_MG( IMIC, C, R ) = DUMMY * 1.41
 
 C.. Calculate MIB emission rate in mole/s
-                     VDEMIS_MG( IMIB, C, R ) = DUMMY * 0.42
+                        VDEMIS_MG( IMIB, C, R ) = DUMMY * 0.42
 
 C.. Calculate MI2 emission rate in mole/s
-                     VDEMIS_MG( IMI2, C, R ) = DUMMY * 0.46
+                        VDEMIS_MG( IMI2, C, R ) = DUMMY * 0.46
 
 C.. Calculate I2 emission rate in mole/s (Macdonald et al., ACP, 14, 5841-5852, 2014)
-                     DUMMY = O3 * (I_AQ**1.3) * (1.74E9 - 6.54E8*LOG(WSPD10_M5)) ! NMOL/M2/D
-                     DUMMY = MARINE_AREA * DUMMY * C_FACT
-                     VDEMIS_MG( II2, C, R ) = MAX( 0.0, DUMMY )
+                        DUMMY = O3 * (I_AQ**1.3) * (1.74E9 - 6.54E8*LOG(WSPD10_M5)) ! NMOL/M2/D
+                        DUMMY = MARINE_AREA * DUMMY * C_FACT
+                        VDEMIS_MG( II2, C, R ) = MAX( 0.0, DUMMY )
 
 C.. Calculate HOI emission rate in mole/s (Macdonald et al., ACP, 14, 5841-5852, 2014)
-                     DUMMY = SQRT(I_AQ)
-                     DUMMY = O3
-     &                     * ((4.15E5*DUMMY - 20.6)/WSPD10_M5 - 23600.0*DUMMY)  ! NMOL/M2/D
-                     DUMMY = MARINE_AREA * DUMMY * C_FACT
-                     VDEMIS_MG( IHOI, C, R ) = MAX( 0.0, DUMMY )
+                        DUMMY = SQRT(I_AQ)
+                        DUMMY = O3
+     &                        * ((4.15E5*DUMMY - 20.6)/WSPD10_M5 - 23600.0*DUMMY)  ! NMOL/M2/D
+                        DUMMY = MARINE_AREA * DUMMY * C_FACT
+                        VDEMIS_MG( IHOI, C, R ) = MAX( 0.0, DUMMY )
+                     END IF
 
 C .. Calculate DMS emission rate in mole/s
                      DUMMY = MARINE_AREA *  DMS_L * KT * 2.78E-12
@@ -593,7 +608,7 @@ C Update the MGBF array, for writing the diagnostic marine gas emission file
                    END DO
 
                    DO S = 1, NMGDIAG
-                      MGBF( S,C,R ) = MGBF( S,C,R ) + MGOUTD( S )
+                      MGBF( S,C,R ) = MGBF( S,C,R ) + MGOUTD( MG_SPC_IND (S) )
      &                              * REAL( TIME2SEC ( TSTEP( 2 ) ) )
                   END DO
                 END IF  ! MGEMDIAG
