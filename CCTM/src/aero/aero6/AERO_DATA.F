@@ -147,8 +147,10 @@ C Default minimum concentration
       Real,    Parameter :: cm_cor( n_mode ) = (/conmin, conmin, conmin/)
 
       Real,    Parameter :: def_diam( n_mode )   = (/ 15.0E-9, 80.0E-9,  600.0E-9 /)  ! default background mean diameter for each mode
-      Real,    Parameter :: min_diam_g( n_mode ) = (/ 1.0E-9,  30.0E-9,  120.0E-9 /)
-      Real,    Parameter :: max_diam_g( n_mode ) = (/ 80.0E-9, 500.0E-9, 100.0E-6 /)
+      Real,    Parameter :: min_dg_dry( n_mode ) = (/ 1.0E-9,  30.0E-9,  120.0E-9 /)
+      Real,    Parameter :: max_dg_dry( n_mode ) = (/ 80.0E-9, 500.0E-9, 100.0E-6 /)
+      Real,    Parameter :: min_dg_wet( n_mode ) = (/ 1.0E-9,  30.0E-9,  120.0E-9 /)
+      Real,    Parameter :: max_dg_wet( n_mode ) = (/ 160.0E-9,1500.0E-9,300.0E-6 /)
 
       Real,    Parameter :: def_sigma_g( n_mode ) = (/ 1.70, 2.0, 2.2 /)       ! default background sigma-g for each mode
       Real,    Parameter :: min_sigma_g = 1.05
@@ -307,14 +309,14 @@ C                     ---------- -------- ------- ------------------------------
      & spcs_list_type('ASVOO1  ', cm_set, 1400.0, 'VSVOO1 ','       ',0.0  ,'REV',T,F,  0,  4.0, 6.1,T, 'DUST  ', 0.11), ! SV-SOA 1                #70
      & spcs_list_type('ASVOO2  ', cm_set, 1400.0, 'VSVOO2 ','       ',0.0  ,'REV',T,F,  0,  4.0, 6.1,T, 'DUST  ', 0.09), ! SV-SOA 2
      & spcs_list_type('ASVOO3  ', cm_set, 1400.0, 'VSVOO3 ','       ',0.0  ,'REV',T,F,  0,  4.0, 6.1,T, 'DUST  ', 0.08), ! SV-SOA 3
-     & spcs_list_type('APCSO   ', cm_set, 1400.0, 'LVPCSOG','PCSOARXN',1.0,'REV',T,F,  0,  4.0, 6.1,T, 'DUST  ', 0.12), ! pcSOA
+     & spcs_list_type('APCSO   ', cm_set, 1400.0, 'LVPCSOG','PCSOARXN',1.0 ,'REV',T,F,  0,  4.0, 6.1,T, 'DUST  ', 0.12), ! pcSOA
                                                                                   
        ! Lumped anthropogenic SOA (introduced aero7, M. Qin, 8/2018)
      & spcs_list_type('AAVB1   ', cm_set, 1400.0, 'SVAVB1 ','       ',0.0  ,'REV',F,F,  0,  2.8, 6.1,T, 'DUST  ', 0.20),
      & spcs_list_type('AAVB2   ', cm_set, 1400.0, 'SVAVB2 ','       ',0.0  ,'REV',T,F,  0,  2.8, 6.1,T, 'DUST  ', 0.15),
      & spcs_list_type('AAVB3   ', cm_set, 1400.0, 'SVAVB3 ','       ',0.0  ,'REV',T,F,  0,  2.8, 6.1,T, 'DUST  ', 0.14),
      & spcs_list_type('AAVB4   ', cm_set, 1400.0, 'SVAVB4 ','       ',0.0  ,'REV',T,F,  0,  2.8, 6.1,T, 'DUST  ', 0.12),
-                                                          
+
        ! The following species are associated with the Multi-Pollutant code
      & spcs_list_type('ANI     ', cm_set, 2200.0, '       ','       ',0.0  ,'NVL',F,T,  0,  0.0, 0.0,F, 'DUST  ', 0.00), ! Nickel
      & spcs_list_type('ACR_VI  ', cm_set, 2200.0, '       ','       ',0.0  ,'NVL',F,T,  0,  0.0, 0.0,F, 'DUST  ', 0.00), ! Chromium 6
@@ -762,14 +764,17 @@ C Missing aerosol species map
 
 C IC/BC Correction Mapping
       !The following vectors store masks of the aerosol species
-      !identities. For example, LBCNUM stores 1's for every species that
+      !identities for the AE_SPC and AE_TRNS vectors. For example, 
+      !L_AESP_NUM stores 1's for every species on AE_SPC that
       !represents an aerosol number concentration and 0's otherwise.
-      !   LBCNUM - Number Concentration
-      !   LBCSURF - Surface Area Concentration
-      !   LBCMASS - Mass Concentration
-      !   LBCMODE - Mask for each aerosol mode
-      LOGICAL, ALLOCATABLE, SAVE :: LBCNUM(:), LBCSRF(:), LBCMASS(:),
-     &                        LBCMODE(:,:), LBCDRY(:)
+      !   L_AESP_NUM - Number Concentration
+      !   L_AESP_SURF - Surface Area Concentration
+      !   L_AESP_MASS - Mass Concentration
+      !   L_AESP_MODE - Mask for each aerosol mode
+      LOGICAL, ALLOCATABLE, SAVE :: L_AESP_NUM(:),    L_AESP_SRF(:), L_AESP_MASS(:),
+     &                              L_AESP_MODE(:,:), L_AESP_DRY(:)
+      LOGICAL, ALLOCATABLE, SAVE :: L_AETR_NUM(:),    L_AETR_SRF(:), L_AETR_MASS(:),
+     &                              L_AETR_MODE(:,:), L_AETR_DRY(:)
       REAL, ALLOCATABLE, SAVE :: AEROCGRID_RHOINV( : ) !
       
 C Private variables for loading from and unloading to CGRID array
@@ -827,7 +832,7 @@ C Local Variables:
       Integer,       Allocatable :: aerospc_in_dustlist( : )
       Character(16), Allocatable :: refractive_index( : )
 
-      Integer l, m, n, spc, isea, idust
+      Integer l, m, n, spc, isea, idust, p
       Real    so4fac
       Real    anthfac
 
@@ -858,19 +863,28 @@ C Local Variables:
       def_l2sg( : )  = ( LOG( def_sigma_g( : ) ) ) ** 2
       
 
-      allocate( aerocgrid_rhoinv( n_ae_trns ), lbcnum( n_ae_trns ),
-     &          lbcsrf( n_ae_trns ), lbcmass( n_ae_trns ),
-     &          lbcmode( n_mode,n_ae_trns ), lbcdry( n_ae_trns ) )
+      allocate( aerocgrid_rhoinv( n_ae_trns ),
+     &          l_aesp_num( n_ae_spc ),
+     &          l_aesp_srf( n_ae_spc ), l_aesp_mass( n_ae_spc ),
+     &          l_aesp_mode( n_mode,n_ae_spc ), l_aesp_dry( n_ae_spc ),
+     &          l_aetr_num( n_ae_trns ),
+     &          l_aetr_srf( n_ae_trns ), l_aetr_mass( n_ae_trns ),
+     &          l_aetr_mode( n_mode,n_ae_trns ), l_aetr_dry( n_ae_trns ) )
 
       Allocate( refractive_index( n_aerolist ) )
       refractive_index( : ) = aerolist( : )%optic_surr
 
       aerocgrid_rhoinv = 0.
-      lbcnum = .False.
-      lbcsrf = .False.
-      lbcmass= .False.
-      lbcmode= .False.
-      lbcdry = .False.
+      l_aesp_num = .False.
+      l_aesp_srf = .False.
+      l_aesp_mass= .False.
+      l_aesp_mode= .False.
+      l_aesp_dry = .False.
+      l_aetr_num = .False.
+      l_aetr_srf = .False.
+      l_aetr_mass= .False.
+      l_aetr_mode= .False.
+      l_aetr_dry = .False.
 
 C Build mapping to CGRID for each species in the master AeroList
       Do spc = 1, n_aerolist
@@ -888,6 +902,7 @@ C Build mapping to CGRID for each species in the master AeroList
             end if
 
             n = index1( sn, n_ae_spc, ae_spc )
+            p = index1( sn, n_ae_trns, ae_trns )
 
             If ( n .Ne. 0 ) Then
                If( Len_Trim( ae_optics( n ) ) .gt. 0 )Then
@@ -938,9 +953,16 @@ C Build mapping to CGRID for each species in the master AeroList
                End If
                ! Update the map from CGRID to AeroList for this mode
                map_listtogrid( spc,m ) = ae_strt - 1 + n
-               lbcmode( m,n ) = .True.
-               If ( .Not. aerolist( spc)%tracer )  lbcmass( n ) = .True.
-               If ( .Not. aerolist( spc)%no_m2wet ) lbcdry( n ) = .True.
+               l_aesp_mode( m,n ) = .True.
+               l_aetr_mode( m,p ) = .True.
+               If ( .Not. aerolist( spc)%tracer ) then
+                   l_aesp_mass( n ) = .True.
+                   if ( p .gt. 0 ) l_aetr_mass( p ) = .True.
+               End If
+               If ( .Not. aerolist( spc)%no_m2wet ) then
+                   l_aesp_dry( n ) = .True.
+                   if ( p .gt. 0 ) l_aetr_dry( p ) = .True.
+               End If
                !Map the CGRID Aerosol Species to their Densities
                aerocgrid_rhoinv( n ) = 1.0 / aerolist( spc )%density
 
@@ -1029,6 +1051,7 @@ C Build mapping to CGRID for aero # and surf area variables
 
       Do m = 1, n_mode
          n = index1( aeromode( m )%num_name , n_ae_spc, ae_spc )
+         p = index1( aeromode( m )%num_name , n_ae_trns, ae_trns )
          If ( n .Eq. 0 ) Then
             xmsg = 'Species ' // Trim( aeromode( m )%num_name )
      &           //' is not in AE namelist'
@@ -1038,11 +1061,16 @@ C Build mapping to CGRID for aero # and surf area variables
          Else
             aeronum_map( m ) = ae_strt - 1 + n
             aerocgrid_rhoinv( n ) = 1.0
-            lbcnum( n ) = .True.
-            lbcmode( m,n ) = .True.
+            l_aesp_num( n ) = .True.
+            l_aesp_mode( m,n ) = .True.
+            if ( p .gt. 0 ) then 
+               l_aetr_num( p ) = .True.
+               l_aetr_mode( m,p ) = .True.
+            end if
          End If
 
          n = index1( aeromode( m )%srf_name , n_ae_spc, ae_spc )
+         p = index1( aeromode( m )%srf_name , n_ae_trns, ae_trns )
          If ( n .Eq. 0 ) Then
             xmsg = 'species ' // Trim( aeromode( m )%srf_name )
      &           // ' is not in AE namelist'
@@ -1052,8 +1080,12 @@ C Build mapping to CGRID for aero # and surf area variables
          Else
             aerosrf_map( m ) = ae_strt - 1 + n
             aerocgrid_rhoinv( n ) = 1.0
-            lbcsrf( n ) = .True.
-            lbcmode( m,n ) = .True.
+            l_aesp_srf( n ) = .True.
+            l_aesp_mode( m,n ) = .True.
+            if ( p .gt. 0 ) then 
+               l_aetr_srf( p ) = .True.
+               l_aetr_mode( m,p ) = .True.
+            end if
          End If
       End Do
 
@@ -1619,152 +1651,426 @@ C     moment [ m**2/m**3 ]
 
 C
 C-----------------------------------------------------------------------
-      Subroutine CHECK_AERO_ICBC( IBCON, AE_MASS_UNIT, STAT, AER_PAR, LMODE )
+      Subroutine CHECK_AERO_ICBC( IBCON, LM2WET, USE_M2, IS_BC, 
+     &                            L_WRITE_WARNING, COL, ROW, LAY )
 
-C Subroutine corrects the scale factors for number, surface area when a 
-C change has happened to the mass of any boundary condition species.
-C Eventually this code should perform a similar operation for the
-C initial conditions, but this is somewhat complicated and needs to be
-C thought through more.
+C Subroutine checks that all size distributions from boundary and
+C initial conditions are within tolerances for diameter and mode
+C width. If any parameters are out of range or particle number or mass
+C are neglgible, this routine will enforce default parameters and
+C recalculate all three moments so that calculations in subsequent 
+C modules are stable.
 C
-C Inputs:  IBCON - the actual initial or boundary conditions from the
-C                  calling routine
-C          ICBC_FAC - The scale factor used to modify IBCON right before
-C                     this routine is called
+C Inputs:  IBCON - the actual initial or boundary condition vector of 
+C                  concentrations from the calling routine
+C          LM2WET - Logical identifying if the second moment of the 
+C                   distribution is dry or wet. False = Dry. 'Wet'
+C                   aerosol includes species for which the variable
+C                   no_M2Wet is set to True in the aerolist.
+C          USE_M2 - Logical prescribing whether or not to use
+C                       the second moment from the input IC or BC file. 
+C                       True = use the 2nd moment input from the file.
+C          IS_BC - TRUE if this is for BCs, FALSE for ICs
+C          L_WRITE_WARNING - Should a warning be printed if a size
+C                            distribution fails
 C
 C 11 May 16  B.Murphy  Program Written
 C
 C-----------------------------------------------------------------------
       Use AEROMET_DATA, only : pi, f6pi
+      Use CGRID_SPCS, only : N_AE_TRNS, N_AE_SPC
+      Use HGRD_DEFN, ONLY : NROWS, NCOLS
+
+#ifdef parallel
+      USE SE_MODULES            ! stenex (using SE_COMM_MODULE, SE_UTIL_MODULE)
+#else
+      USE NOOP_MODULES          ! stenex (using NOOP_COMM_MODULE, NOOP_UTIL_MODULE)
+#endif
+
 
       Implicit None
 
       REAL, INTENT(INOUT)        :: IBCON( : )
-      LOGICAL, INTENT( IN ) :: AE_MASS_UNIT  ! FALSE for KGM3 input
-                                             ! TRUE  for UGM3 input
-      INTEGER, INTENT(OUT)       :: STAT     ! 0 - Distribution is ok
-                                             ! 1 - Distribution is problematic
-      REAL, INTENT(OUT) :: AER_PAR( 2, N_MODE, 5 ) !Track the modal parameters   (N, M2, M3, dg, sg) -Before
-                                                   !before and after the BC      (N, M2, M3, dg, sg) -After
-                                                   !check routine               
-      INTEGER, INTENT(OUT) :: LMODE  !Identifies the problematic mode
+      LOGICAL, INTENT( IN ) :: LM2WET          ! FALSE (Default) for Dry distribution parameters
+                                               ! TRUE  for Wet distribution parameters
+      LOGICAL, INTENT( IN ) :: USE_M2          ! TRUE (Default) to use second moment from input file
+                                               ! FALSE  to ignore and overwrite M2 from input
+                                                  ! file
+      LOGICAL, INTENT( IN ) :: IS_BC           ! TRUE if BCON called this routine. 
+                                               ! FALSE if ICON called it
+      LOGICAL, INTENT( INOUT ) :: L_WRITE_WARNING ! TRUE if warning should be printed 
+                                               ! when size distribution fails tests
+      INTEGER, INTENT( IN ) :: COL, ROW, LAY
 
-      INTEGER          :: LSTAT
+      INTEGER :: LSTAT( N_MODE ) ! 0 - Distribution is ok
+                                 ! Nonzero values indicate problem with
+                                 ! modal parameters. See below 
+                                                                    ! | Before  After
+      REAL    :: AER_PAR( 2, N_MODE, 8 ) !Track the modal parameters! |    N,    N
+                                         !before and after the IC/BC! |  M2WET, M2WET
+                                         !check routine             ! |  M2DRY, M2DRY
+                                                                    ! |  M3WET, M3WET
+                                                                    ! |  M3DRY, M3DRY
+                                                                    ! |  dgwet, dgwet
+                                                                    ! |  dgdry, dgdry
+                                                                    ! |  sigma, sigma
+      INTEGER, SAVE    :: J, SFX, EFX, NFX, WFX
+      LOGICAL, SAVE    :: BNDY_PE_LOY, BNDY_PE_HIY,
+     &                    BNDY_PE_LOX, BNDY_PE_HIX
+      LOGICAL, SAVE    :: FIRST_TIME = .TRUE.
+      LOGICAL          :: LBC
 
       REAL, PARAMETER  :: F1PI = 1.0 / pi
       REAL, PARAMETER  :: ONE_THIRD  = 1.0 / 3.0
       REAL, PARAMETER  :: TWO_THIRDS = 2.0 / 3.0
+      CHARACTER( 199 ) :: XMSG2 = ' '
+      
+      ! Definition of Distribution Error Statuses (LSTAT):
+      !    0 = All Parameters within Limits
+      !    4 = Standard Deviation is just barely invalid. 
+      !         Reset Surface Area but don't warn. (i.e. 1.04999 vs. 1.05)
+      !    5 = Diameter is just barely invalid but Standard Deviation 
+      !          is valid. Reset Number and Surface Area but don't warn.
+      !    6 = Diameter and Standard Deviation are barely invalid. 
+      !          Reset Number and Surface Area but don't warn.
+      !    11 = Mass is below limit. Reset distribution to minimum valid
+      !           concentration (i.e. conmin).
+      !    12 = Number is below limit. Reset number and Surface Area
+      !    13 = Surface Area is below limit but diameter is valid.
+      !          Set standard deviation to default (def_l2sg) and reset 
+      !          Surface Area.
+      !    14 = Standard Deviation is invalid. Reset Surface Area.
+      !    15 = Diameter is invalid but Standard Deviation is valid.
+      !          Reset Number and Surface Area.
+      !    16 = Diameter and Standard Deviation are invalid. Reset
+      !          Number and Surface Area.
 
 
 C Local variables:
 
-      INTEGER   :: IMODE
-      REAL      :: NUM, M2, M3, l2sg, dg, sg
+      INTEGER   :: IMODE, IT, IS
+      REAL      :: NUM, M2, M3, M3DRY, M3WET, M2WET, M2DRY, 
+     &             l2sg, dg, dgdry, dgwet, sg, l2sg_new
       REAL, Parameter :: KGPMG = 1.0E-9 !Kilogram per microgram m-3
 
-      LMODE   = 0
-      STAT    = 0
+      IF ( FIRST_TIME ) THEN
+         FIRST_TIME = .FALSE.
+
+         ! Retrieve Info about boundary cells
+         CALL SUBST_HI_LO_BND_PE ( 'R', BNDY_PE_LOY, BNDY_PE_HIY )
+         CALL SUBST_HI_LO_BND_PE ( 'C', BNDY_PE_LOX, BNDY_PE_HIX )
+         SFX = 0
+         EFX = NCOLS + 1
+         NFX = NCOLS + NROWS + 3
+         WFX = 2 * NCOLS + NROWS + 4
+      END IF
+
+      ! First Determine Whether or Not this is a true Boundary
+      ! Condition Processor and GridCell
+      IF ( IS_BC ) THEN
+          LBC = .FALSE.
+          IF ( BNDY_PE_LOY .AND. ROW .GT. SFX .AND.
+     &         ROW .LE. SFX+NCOLS ) LBC = .TRUE.
+          
+          IF ( BNDY_PE_HIX .AND. ROW .GT. EFX .AND.
+     &         ROW .LE. EFX+NROWS ) LBC = .TRUE.
+
+          IF ( BNDY_PE_HIY .AND. ROW .GT. NFX .AND.
+     &         ROW .LE. NFX+NCOLS ) LBC = .TRUE.
+          
+          IF ( BNDY_PE_LOX .AND. ROW .GT. WFX .AND. 
+     &         ROW .LE. WFX+NROWS ) LBC = .TRUE.
+          
+          IF ( .NOT. LBC ) RETURN
+
+      END IF
+
+      ! Initialize Aerosol ICBC Check Routine
+      LSTAT    = 0
       AER_PAR = 0.0
       dg      = 0.0
       sg      = 0.0
        
       CALL MAP_AERO()
 
-      !Loop Through Each Aerosol Mode. Sum up the third moment, then
-      !calculate the Dg and Sg of the mode and check to make sure they
-      !are valid
+      !Loop Through Each Aerosol Mode. Sum up the third moment, then calculate 
+      !the Dg and Sg of the mode and check to make sure they are valid. When 
+      !checking Dg, use wet or dry diameter limits depending on the state of
+      !the incoming (initial or boundary) size distribution.
       DO IMODE = 1,N_MODE
-         LSTAT = 0
 
-         NUM = SUM( IBCON( : ), MASK = ( LBCMODE( IMODE,: ) .AND. LBCNUM ) )
-         M2  = SUM( IBCON( : ), MASK = ( LBCMODE( IMODE,: ) .AND. LBCSRF ) ) * F1PI
-
-         M3 = SUM( IBCON( : ) * AEROCGRID_RHOINV * F6PI, 
-     &             MASK = ( LBCMASS .AND. LBCMODE( IMODE,: ) .AND. LBCDRY( : ) )  )
-
-         IF ( AE_MASS_UNIT ) M3 = M3 * KGPMG
+         IF ( IS_BC ) THEN
+            ! IBCON is stored in order of Transported Aerosols
+            NUM = SUM( IBCON( : ), MASK = ( L_AETR_MODE( IMODE,: ) .AND. L_AETR_NUM ) ) 
+            M2  = SUM( IBCON( : ), MASK = ( L_AETR_MODE( IMODE,: ) .AND. L_AETR_SRF ) ) * F1PI
+           
+            M3DRY = SUM( IBCON( : ) * AEROCGRID_RHOINV * F6PI, 
+     &                   MASK = ( L_AETR_MASS .AND. L_AETR_MODE( IMODE,: )  
+     &                            .AND. L_AETR_DRY ) ) 
+            M3WET = SUM( IBCON( : ) * AEROCGRID_RHOINV * F6PI, 
+     &                   MASK = ( L_AETR_MASS .AND. L_AETR_MODE( IMODE,: ) ) )
+         ELSE
+            ! IBCON is stored in order of CGRID
+            NUM = SUM( IBCON( : ), MASK = ( L_AESP_MODE( IMODE,: ) .AND. L_AESP_NUM ) )
+            M2  = SUM( IBCON( : ), MASK = ( L_AESP_MODE( IMODE,: ) .AND. L_AESP_SRF ) ) * F1PI
+           
+            M3DRY = SUM( IBCON( : ) * AEROCGRID_RHOINV * F6PI, 
+     &                   MASK = ( L_AESP_MASS .AND. L_AESP_MODE( IMODE,: )  
+     &                            .AND. L_AESP_DRY ) ) 
+            M3WET = SUM( IBCON( : ) * AEROCGRID_RHOINV * F6PI, 
+     &                   MASK = ( L_AESP_MASS .AND. L_AESP_MODE( IMODE,: ) ) ) 
+         END IF
+         
+         ! Store M2 as Wet or Dry
+         IF ( LM2WET ) THEN
+             M2WET = M2
+             M2DRY = 0. 
+         ELSE
+             M2WET = 0.
+             M2DRY = M2
+         END IF
+                
+         ! If checking Boundary Conditions, the concentrations are
+         ! already in kilograms, thus we do not need to convert them
+         ! before applying aerosol density (kg m-3). If checking Initial
+         ! Conditions, we do need to convert micrograms to kilograms.
+         IF ( .NOT. IS_BC ) THEN 
+             M3WET = M3WET * KGPMG
+             M3DRY = M3DRY * KGPMG
+         END IF
 
          AER_PAR ( 1, IMODE, 1 ) = NUM
-         AER_PAR ( 1, IMODE, 2 ) = M2
-         AER_PAR ( 1, IMODE, 3 ) = M3
-         AER_PAR ( 1, IMODE, 4 ) = 0.    
-         AER_PAR ( 1, IMODE, 5 ) = 0.    
+         AER_PAR ( 1, IMODE, 2 ) = M2WET
+         AER_PAR ( 1, IMODE, 3 ) = M2DRY
+         AER_PAR ( 1, IMODE, 4 ) = M3WET
+         AER_PAR ( 1, IMODE, 5 ) = M3DRY
+         AER_PAR ( 1, IMODE, 6 ) = 0.    
+         AER_PAR ( 1, IMODE, 7 ) = 0.    
+         AER_PAR ( 1, IMODE, 8 ) = 0.    
 
-         IF ( M3 .LT. 1.0e-30 ) THEN
-             LSTAT = 4
-             LMODE = IMODE
-         ELSE IF ( NUM .LT. 1.0e-30 .OR. M2 .LT. 1.0e-30 ) THEN
-             LSTAT = 3
-             LMODE = IMODE
-         ELSE                  
-             l2sg = ( ONE_THIRD * LOG( NUM ) + TWO_THIRDS * LOG( M3 ) - LOG( M2 ))
+         ! Begin Checking Aerosol Parameters. 
+         IF ( M3DRY .LT. 1.0e-30 .OR. M3WET .LT. 1.0e-30 ) THEN
+             ! Dry or Wet Mass is below limit -> reset distribution
+             LSTAT( IMODE ) = 11
 
-             IF ( l2sg .LT. MIN_L2SG .OR. l2sg .GT. MAX_L2SG ) THEN 
-                  LSTAT = 2
-                  LMODE = IMODE
+             ! Set Problematic Aerosol Mass to Minimum valid
+             ! concentration (i.e. conmin) in Output Vector
+             IF ( IS_BC ) THEN
+                DO IT = 1,N_AE_TRNS
+                  IF ( L_AETR_MODE( IMODE,IT ) .AND. L_AETR_MASS( IT ) ) 
+     &               IBCON(IT) = MAX( IBCON(IT), CONMIN )
+                END DO
+                M3DRY = SUM( IBCON( : ) * AEROCGRID_RHOINV * F6PI, 
+     &                       MASK = ( L_AETR_MASS .AND. L_AETR_MODE( IMODE,: )  
+     &                                .AND. L_AETR_DRY ) ) 
+                M3WET = SUM( IBCON( : ) * AEROCGRID_RHOINV * F6PI, 
+     &                       MASK = ( L_AETR_MASS .AND. L_AETR_MODE( IMODE,: ) ) )
              ELSE
+                DO IS = 1,N_AE_SPC
+                  IF ( L_AESP_MODE( IMODE,IS ) .AND. L_AESP_MASS( IS ) ) 
+     &               IBCON(IS) = MAX( IBCON(IS), CONMIN )
+                END DO
+                M3DRY = SUM( IBCON( : ) * AEROCGRID_RHOINV * F6PI, 
+     &                       MASK = ( L_AESP_MASS .AND. L_AESP_MODE( IMODE,: )  
+     &                                .AND. L_AESP_DRY ) ) 
+                M3WET = SUM( IBCON( : ) * AEROCGRID_RHOINV * F6PI, 
+     &                       MASK = ( L_AESP_MASS .AND. L_AESP_MODE( IMODE,: ) ) ) 
+             END IF
 
-                  dg   = ( M3 / NUM * EXP( -4.5 * l2sg ) )  ** ( ONE_THIRD )
-                  sg   = EXP( SQRT( l2sg ) )
-                  AER_PAR( 1, IMODE, 4 ) = dg
-                  AER_PAR( 1, IMODE, 5 ) = sg
+             L2SG  = DEF_L2SG( IMODE )
+             SG    = EXP( SQRT( L2SG ) )
+             
+             DGDRY = DEF_DIAM( IMODE )  ! Dry Diameter Default
+             NUM   = M3DRY * ( EXP( -4.5 * L2SG ) ) / ( DGDRY ) ** 3
+             M2DRY = EXP( ONE_THIRD * LOG( NUM ) + TWO_THIRDS * LOG( M3DRY ) - L2SG )
+             
+             DGWET = ( M3WET / NUM * EXP( -4.5 * L2SG ) )  ** ( ONE_THIRD )
+             M2WET = EXP( ONE_THIRD * LOG( NUM ) + TWO_THIRDS * LOG( M3WET ) - L2SG )
 
-                  IF ( dg .LT. MIN_DIAM_G( IMODE )  .OR. dg .GT. MAX_DIAM_G( IMODE ) ) THEN
-                      LSTAT = 1
-                      LMODE = IMODE
-                  ENDIF
-              ENDIF     
+         ELSE IF ( NUM .LT. 1.0e-30 ) THEN
+             ! Number is below limit -> reset Num and Surf with
+             !  default dry diameter and default standard deviation
+             LSTAT( IMODE ) = 12
+
+             L2SG  = DEF_L2SG( IMODE )
+             SG    = EXP( SQRT( L2SG ) )
+
+             DGDRY = DEF_DIAM( IMODE )  ! Dry Diameter Default
+             NUM   = M3DRY * ( EXP( -4.5 * L2SG ) ) / ( DGDRY ) ** 3
+             M2DRY = EXP( ONE_THIRD * LOG( NUM ) + TWO_THIRDS * LOG( M3DRY ) - L2SG )
+
+             DGWET = ( M3WET / NUM * EXP( -4.5 * L2SG ) )  ** ( ONE_THIRD )
+             M2WET = EXP( ONE_THIRD * LOG( NUM ) + TWO_THIRDS * LOG( M3WET ) - L2SG )
+
+         ELSE IF ( M2 .LT. 1.0e-30 .OR. .NOT. USE_M2 ) THEN                
+             ! Mass and Number are valid. Surface area is either invalid
+             ! or the user has issued an override. The mass and number
+             ! concentrations specify the dry and wet diameters, and the
+             ! second moment will be generated by assuming a
+             ! representative sigma.
+             LSTAT( IMODE ) = 13
+
+             L2SG  = DEF_L2SG( IMODE )
+             SG    = EXP( SQRT( L2SG ) )
+
+             DGDRY = ( M3DRY / NUM * EXP( -4.5 * L2SG ) )  ** ( ONE_THIRD )
+             M2DRY = EXP( ONE_THIRD * LOG( NUM ) + TWO_THIRDS * LOG( M3DRY ) - L2SG )
+
+             DGWET = ( M3WET / NUM * EXP( -4.5 * L2SG ) )  ** ( ONE_THIRD )
+             M2WET = EXP( ONE_THIRD * LOG( NUM ) + TWO_THIRDS * LOG( M3WET ) - L2SG )
+
+         ELSE
+             ! All three moments are possibly valid. 
+             ! Diagnose and Check Standard Deviation
+             IF ( LM2WET ) THEN 
+                L2SG = ( ONE_THIRD * LOG( NUM ) + TWO_THIRDS * LOG( M3WET ) - LOG( M2WET ))
+             ELSE
+                L2SG = ( ONE_THIRD * LOG( NUM ) + TWO_THIRDS * LOG( M3DRY ) - LOG( M2DRY ))
+             END IF
+
+             sg = 1.0
+             IF ( L2SG .gt. 0.0 ) SG = EXP( SQRT( L2SG ) )
+             AER_PAR( 1, IMODE, 8 ) = SG
+             IF ( (L2SG .LT. MIN_L2SG .AND. L2SG .GT. 0.95 * MIN_L2SG) .OR.
+     &            (L2SG .GT. MAX_L2SG .AND. L2SG .LT. 1.05 * MAX_L2SG) ) THEN
+                  ! Standard deviation is barely invalid. Don't trigger warning
+                  LSTAT( IMODE ) = 4
+             ELSE IF ( L2SG .LT. 0.95*MIN_L2SG .OR. L2SG .GT. 1.05*MAX_L2SG ) THEN 
+                  ! Standard deviation is invalid. Reset Standard Deviation
+                  LSTAT( IMODE ) = 14
+             END IF
+             L2SG  = MIN( MAX( L2SG, MIN_L2SG ), MAX_L2SG )
+             SG   = EXP( SQRT( L2SG ) )
+
+             ! Diagnose and Check Dry Diameter against Limits
+             DGDRY = ( M3DRY / NUM * EXP( -4.5 * L2SG ) )  ** ( ONE_THIRD )
+             AER_PAR( 1, IMODE, 7 ) = DGDRY
+             DGWET = ( M3WET / NUM * EXP( -4.5 * L2SG ) )  ** ( ONE_THIRD )
+             AER_PAR( 1, IMODE, 6 ) = DGWET
+
+             IF ( (DGDRY .GT. 0.95*MIN_DG_DRY(IMODE) .AND. DGDRY .LT. MIN_DG_DRY(IMODE)) .OR.
+     &            (DGDRY .GT. MAX_DG_DRY(IMODE) .AND. DGDRY .LT. 1.05*MAX_DG_DRY(IMODE)) ) THEN
+                  ! Diameter is barely invalid. Don't trigger warning
+                  IF ( LSTAT( IMODE ) .EQ. 4 ) THEN
+                     LSTAT( IMODE ) = 6  ! Both sg and dg are barely invalid
+                  ELSE IF (LSTAT( IMODE ) .EQ. 0 ) THEN
+                     LSTAT( IMODE ) = 5  ! Just dg is barely invalid
+                  END IF
+             
+             ELSE IF ( DGDRY .LT. 0.95*MIN_DG_DRY( IMODE )  .OR. 
+     &                 DGDRY .GT. 1.05*MAX_DG_DRY(IMODE) ) THEN
+                 ! Diameter is invalid. Reset Diameter
+                 IF ( LSTAT( IMODE ) .EQ. 4 .OR. LSTAT( IMODE ) .EQ. 12 ) THEN
+                    LSTAT( IMODE ) = 16  ! Both dg and sg are invalid
+                ELSE IF ( LSTAT( IMODE ) .EQ. 0 ) THEN
+                    LSTAT( IMODE ) = 15  ! Just dg is invalid
+                 END IF
+             ENDIF
+             DGDRY = MIN( MAX( DGDRY, MIN_DG_DRY(IMODE) ), MAX_DG_DRY(IMODE) )
+
+             ! Recalculate Number
+             IF ( LSTAT( IMODE ) .GT. 0 ) 
+     &            NUM   = M3DRY * ( EXP( -4.5 * L2SG ) ) / ( DGDRY ) ** 3
+
+             ! Recalculate Dry Second Moment
+             M2DRY = EXP( ONE_THIRD * LOG( NUM ) + TWO_THIRDS * LOG( M3DRY ) - L2SG )
+
+             ! Recalculate Wet Distribution Parameters
+             DGWET = ( M3WET / NUM * EXP( -4.5 * L2SG ) )  ** ( ONE_THIRD )
+             M2WET = EXP( ONE_THIRD * LOG( NUM ) + TWO_THIRDS * LOG( M3WET ) - L2SG )
+ 
          ENDIF
+
+         ! Export Number Concentration and Surface Area Concentration
+         IF ( LM2WET ) THEN
+             M2 = M2WET
+         ELSE
+             M2 = M2DRY
+         END IF
+
+         IF ( IS_BC ) THEN
+            DO IT = 1,N_AE_TRNS
+              IF ( L_AETR_MODE( IMODE,IT ) .AND. L_AETR_NUM( IT ) ) IBCON(IT) = NUM
+              IF ( L_AETR_MODE( IMODE,IT ) .AND. L_AETR_SRF( IT ) ) IBCON(IT) = M2 * PI
+            END DO
+         ELSE
+            DO IS = 1,N_AE_SPC
+              IF ( L_AESP_MODE( IMODE,IS ) .AND. L_AESP_NUM( IS ) ) IBCON(IS) = NUM
+              IF ( L_AESP_MODE( IMODE,IS ) .AND. L_AESP_SRF( IS ) ) IBCON(IS) = M2 * PI
+            END DO
+         END IF
 
          !Save Modal Properties After the Check
          AER_PAR( 2, IMODE, 1 ) = NUM
-         AER_PAR( 2, IMODE, 2 ) = M2
-         AER_PAR( 2, IMODE, 3 ) = M3
-         AER_PAR( 2, IMODE, 4 ) = dg
-         AER_PAR( 2, IMODE, 5 ) = sg
-
-         IF ( LSTAT .GT. 0 .AND. LSTAT .LT. 4 ) THEN
-           STAT = LSTAT
-
-           !Rewrite Boundary Condition Number and Surface Area to Satisfy
-           !Default Size Parameters
-           l2sg = DEF_L2SG( IMODE )
-           NUM = M3 * ( EXP( -4.5 * l2sg ) ) / ( DEF_DIAM( IMODE ) ) ** 3
-           dg   = ( M3 / NUM * EXP( -4.5 * l2sg ) ) ** ( ONE_THIRD )
-           sg   = EXP( SQRT( l2sg ) )
-           
-           !First Number Concentration
-           WHERE( LBCMODE( IMODE,: ) .AND. LBCNUM ) IBCON = NUM
-           
-           !Then Surface Area Concentration
-           M2 = EXP( ONE_THIRD * LOG( NUM ) + TWO_THIRDS * LOG( M3 ) - l2sg )
-           WHERE( LBCMODE( IMODE,: ) .AND. LBCSRF ) IBCON = M2 * F1PI
-         
-           !Save Modal Properties After the Check
-           AER_PAR( 2, IMODE, 1 ) = NUM
-           AER_PAR( 2, IMODE, 2 ) = M2
-           AER_PAR( 2, IMODE, 3 ) = M3
-           AER_PAR( 2, IMODE, 4 ) = dg
-           AER_PAR( 2, IMODE, 5 ) = sg
-
-         ELSEIF ( LSTAT .EQ. 4 ) THEN
-           STAT = LSTAT
-
-           WHERE( LBCMODE( IMODE,: ) .AND. LBCNUM ) IBCON =
-     &                             aeromode_minnum( IMODE )  !Number
-           WHERE( LBCMODE( IMODE,: ) .AND. LBCSRF ) IBCON = 
-     &                             aeromode_minM2 ( IMODE )  !Second Moment
-           WHERE( LBCMODE( IMODE,: ) .AND. LBCMASS) IBCON = conmin  !Third Moment
-           !Save Modal Properties After the Check
-           AER_PAR( 2, IMODE, 1 ) = aeromode_minnum( IMODE )  !Number
-           AER_PAR( 2, IMODE, 2 ) = aeromode_minM2 ( IMODE )  !Second Moment
-           AER_PAR( 2, IMODE, 3 ) = conmin
-           AER_PAR( 2, IMODE, 4 ) = 0.
-           AER_PAR( 2, IMODE, 5 ) = 0.
+         AER_PAR( 2, IMODE, 2 ) = M2WET
+         AER_PAR( 2, IMODE, 3 ) = M2DRY
+         AER_PAR( 2, IMODE, 4 ) = M3WET
+         AER_PAR( 2, IMODE, 5 ) = M3DRY
+         AER_PAR( 2, IMODE, 6 ) = DGWET
+         AER_PAR( 2, IMODE, 7 ) = DGDRY
+         AER_PAR( 2, IMODE, 8 ) = SG
+          
+         !Print warning if any aerosol BC or IC violated the size 
+         !distribution parameters
+         IF ( LSTAT( IMODE ) .GT. 10 ) THEN
+           IF ( IS_BC ) THEN
+              IF ( L_WRITE_WARNING ) THEN
+                 L_WRITE_WARNING = .FALSE.
+                 WRITE( XMSG2, '(A)' ),
+     &              'ATTENTION: Applying fix to aerosol Boundary' //
+     &              ' Conditions for aerosol modes.' //
+     &              ' Set verbose_rdbcon preprocessor flag to' //
+     &              ' learn more.'
+                 WRITE( LOGDEV, * )
+                 CALL LOG_MESSAGE( LOGDEV, XMSG2 ) 
+                 WRITE( LOGDEV, * )
+              END IF
+#ifdef verbose_rdbcon
+              WRITE( LOGDEV,* )
+              WRITE ( LOGDEV,'(7x,A55,I1,/,9x,A10,I4,A7,I3,A10,I2,/,7x,A20,I1,A42,/,9x,A51,/,
+     &              9x,A19,1x,A3,8x,A5,8x,A5,8x,A5,8x,A5,8x,A5,8x,A5,8x,A2,/,
+     &              27x,E11.3,1x,E11.3,1x,E11.3,1x,E11.3,1x,E11.3,1x,E11.3,1x,E11.3,4x,F7.3,/,
+     &              9x,A19,1x,A3,8x,A5,8x,A5,8x,A5,8x,A5,8x,A5,8x,A5,8x,A2,/,
+     &              27x,E11.3,1x,E11.3,1x,E11.3,1x,E11.3,1x,E11.3,1x,E11.3,1x,E11.3,4x,F7.3)'),
+     &            'Warning: Applying Aerosol Boundary Conditions for mode ',IMODE,
+     &            'BC Index: ',ROW,'  Lay: ',LAY,'  Status: ',LSTAT(IMODE),
+     &            'The Offending Mode (',IMODE,') had diameter and/or sigma out of bounds.',
+     &            'It was overwritten by changing the Num and SrfArea.',
+     &            'Modal Props Before:','Num','M2WET','M2DRY','M3WET','M3DRY','DGWET','DGDRY','Sg',(AER_PAR(1,IMODE,j),j=1,8),
+     &            'Modal Props After: ','Num','M2WET','M2DRY','M3WET','M3DRY','DGWET','DGDRY','Sg',(AER_PAR(2,IMODE,j),j=1,8)
+              WRITE( LOGDEV,* )
+#endif
+           ELSE
+              IF ( L_WRITE_WARNING ) THEN
+                 L_WRITE_WARNING = .FALSE.
+                 WRITE( XMSG2, '(A)' ),
+     &              'ATTENTION: Applying fix to aerosol Initial' //
+     &              ' Conditions for aerosol modes.' //
+     &              ' Set verbose_loadcgrid preprocessor flag to' //
+     &              ' learn more.'
+                 WRITE( LOGDEV, * )
+                 CALL LOG_MESSAGE( LOGDEV, XMSG2 ) 
+                 WRITE( LOGDEV, * )
+              END IF
+#ifdef verbose_loadcgrid 
+              WRITE( LOGDEV, * )
+              WRITE ( logdev, '(7x,A55,I1,/,9x,A5,I3,A7,I3,A7,I3,A10,I2,/,7x,A20,I1,A42,/,9x,A51,/,
+     &              9x,A19,1x,A3,8x,A5,8x,A5,8x,A5,8x,A5,8x,A5,8x,A5,8x,A2,/,
+     &              27x,E11.3,1x,E11.3,1x,E11.3,1x,E11.3,1x,E11.3,1x,E11.3,1x,E11.3,4x,F7.3,/,
+     &              9x,A19,1x,A3,8x,A5,8x,A5,8x,A5,8x,A5,8x,A5,8x,A5,8x,A2,/,
+     &              27x,E11.3,1x,E11.3,1x,E11.3,1x,E11.3,1x,E11.3,1x,E11.3,1x,E11.3,4x,F7.3)'),
+     &            'Warning: Applying Aerosol Initial Conditions for mode ',IMODE,
+     &            'Col: ',COL,'  Row: ',ROW,'  Lay: ',LAY,'  Status: ',LSTAT(IMODE),
+     &            'The Offending Mode (',IMODE,') had diameter and/or sigma out of bounds.',
+     &            'It was overwritten by changing the Num and SrfArea.',
+     &            'Modal Props Before:','Num','M2WET','M2DRY','M3WET','M3DRY','DGWET','DGDRY','Sg',(AER_PAR(1,IMODE,j),j=1,8),
+     &            'Modal Props After: ','Num','M2WET','M2DRY','M3WET','M3DRY','DGWET','DGDRY','Sg',(AER_PAR(2,IMODE,j),j=1,8)
+              WRITE( LOGDEV,* )
+#endif
+           END IF    
          ENDIF
-
       ENDDO
-
+      
       End Subroutine CHECK_AERO_ICBC
 
 !-----------------------------------------------------------------------
