@@ -177,9 +177,9 @@ setenv IC_AERO_M2WET F       #> Specify whether or not initial condition aerosol
                              #>    is wet or dry [ default: F = dry ]
 setenv BC_AERO_M2WET F       #> Specify whether or not boundary condition aerosol size distribution 
                              #>    is wet or dry [ default: F = dry ]
-setenv IC_AERO_M2USE T       #> Specify whether or not to use aerosol surface area from initial 
+setenv IC_AERO_M2USE F       #> Specify whether or not to use aerosol surface area from initial 
                              #>    conditions [ default: T = use aerosol surface area  ]
-setenv BC_AERO_M2USE T       #> Specify whether or not to use aerosol surface area from boundary 
+setenv BC_AERO_M2USE F       #> Specify whether or not to use aerosol surface area from boundary 
                              #>    conditions [ default: T = use aerosol surface area  ]
 
 #> Vertical Extraction Options
