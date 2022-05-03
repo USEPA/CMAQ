@@ -152,7 +152,6 @@ setenv CTM_WB_DUST Y         #> use inline windblown dust emissions (only for us
 setenv CTM_LTNG_NO N         #> turn on lightning NOx [ default: N ]
 setenv KZMIN Y               #> use Min Kz option in edyintb [ default: Y ], 
                              #>    otherwise revert to Kz0UT
-setenv CTM_MOSAIC N          #> landuse specific deposition velocities [ default: N ]
 setenv PX_VERSION Y          #> WRF PX LSM
 setenv CLM_VERSION N         #> WRF CLM LSM
 setenv NOAH_VERSION N        #> WRF NOAH LSM
@@ -167,6 +166,12 @@ setenv CTM_GRAV_SETL Y       #> vdiff aerosol gravitational sedimentation [ defa
 setenv CTM_BIOGEMIS_BEIS N   #> calculate in-line biogenic emissions [ default: N ]
 setenv CTM_BIOGEMIS_MEGAN N  #> turns on MEGAN biogenic emission [ default: N ]
 setenv USE_MEGAN_LAI N       #> use separate LAI input file [ default: N ]
+#> Surface Tiled Aerosol and Gaseous Exchange Options
+#> Only active if DepMod=stage at compile time
+setenv CTM_MOSAIC N          #> Output landuse specific deposition velocities [ default: N ]
+setenv CTM_STAGE_P22 N       #> Pleim et al. 2022 Aerosol deposition model [default: N]
+setenv CTM_STAGE_E20 Y       #> Emerson et al. 2020 Aerosol deposition model [default: Y]
+setenv CTM_STAGE_S22 N       #> Shu et al. 2022 (CMAQ v5.3) Aerosol deposition model [default: N]
 
 setenv IC_AERO_M2WET F       #> Specify whether or not initial condition aerosol size distribution 
                              #>    is wet or dry [ default: F = dry ]
@@ -223,7 +228,8 @@ set IN_LTpath = $INPDIR/lightning         #> lightning NOx input directory
 set METpath   = $INPDIR/met/mcip_v43_wrf_v38_ctrl #> meteorology input directory 
 #set JVALpath  = $INPDIR/jproc            #> offline photolysis rate table directory
 set OMIpath   = $BLD                      #> ozone column data for the photolysis model
-set SZpath    = /work/MOD3DEV/sgq/hemisphere/emission/cb05  #> surf zone file for in-line seaspray emissions
+set SZpath    = $INPDIR/surface           #> surf zone file for in-line seaspray emissions
+set EPICpath  = $INPDIR/surface           #> EPIC putput for bidirectional NH3
 
 # =====================================================================
 #> Begin Loop Through Simulation Days
@@ -244,8 +250,8 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   set YYYYMMDD = `date -ud "${TODAYG}" +%Y%m%d` #> Convert YYYY-MM-DD to YYYYMMDD
   set YYYYMM = `date -ud "${TODAYG}" +%Y%m`     #> Convert YYYY-MM-DD to YYYYMM
   set YYMMDD = `date -ud "${TODAYG}" +%y%m%d`   #> Convert YYYY-MM-DD to YYMMDD
+  set MM = `date -ud "${TODAYG}" +%m`           #> Convert YYYY-MM-DD to MM
   set YYYYJJJ = $TODAYJ
-  set MONTH = `date -ud "${TODAYG}" +%m`        #> Convert YYYY-MM-DD to MM
   set YEAR = `date -ud "${TODAYG}" +%Y`         #> Convert YYYY-MM-DD to YYYY
 
   #> Calculate Yesterday's Date
@@ -322,45 +328,9 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   setenv EMISSCTRL_NML ${BLD}/EmissCtrl_${MECH}.nml
   setenv STAGECTRL_NML ${BLD}/CMAQ_Control_STAGE.nml
 
-#> Spatial Masks For Emissions Scaling
-
-     if ($MONTH == '01' ) then 
-      	setenv CMAQ_MASKS $SZpath/hemisphere_oceanfile_JAN.ncf   
-        setenv OCEAN_1 $SZpath/hemisphere_oceanfile_JAN.ncf       	
-     else if ($MONTH == '02' ) then 
-      	setenv CMAQ_MASKS $SZpath/hemisphere_oceanfile_FEB.ncf   
-        setenv OCEAN_1 $SZpath/hemisphere_oceanfile_FEB.ncf   
-     else if ($MONTH == '03' ) then 
-      	setenv CMAQ_MASKS $SZpath/hemisphere_oceanfile_MAR.ncf   
-        setenv OCEAN_1 $SZpath/hemisphere_oceanfile_MAR.ncf         	
-     else if ($MONTH == '04' ) then 
-      	setenv CMAQ_MASKS $SZpath/hemisphere_oceanfile_APR.ncf   
-        setenv OCEAN_1 $SZpath/hemisphere_oceanfile_APR.ncf   
-     else if ($MONTH == '05' ) then 
-      	setenv CMAQ_MASKS $SZpath/hemisphere_oceanfile_MAY.ncf   
-        setenv OCEAN_1 $SZpath/hemisphere_oceanfile_MAY.ncf         	
-     else if ($MONTH == '06' ) then 
-      	setenv CMAQ_MASKS $SZpath/hemisphere_oceanfile_JUN.ncf   
-        setenv OCEAN_1 $SZpath/hemisphere_oceanfile_JUN.ncf         	
-     else if ($MONTH == '07' ) then 
-      	setenv CMAQ_MASKS $SZpath/hemisphere_oceanfile_JUL.ncf
-        setenv OCEAN_1 $SZpath/hemisphere_oceanfile_JUL.ncf         	
-     else if ($MONTH == '08' ) then 
-      	setenv CMAQ_MASKS $SZpath/hemisphere_oceanfile_AUG.ncf   
-        setenv OCEAN_1 $SZpath/hemisphere_oceanfile_AUG.ncf         	
-     else if ($MONTH == '09' ) then 
-      	setenv CMAQ_MASKS $SZpath/hemisphere_oceanfile_SEP.ncf   
-        setenv OCEAN_1 $SZpath/hemisphere_oceanfile_SEP.ncf         	
-     else if ($MONTH == '10' ) then 
-      	setenv CMAQ_MASKS $SZpath/hemisphere_oceanfile_OCT.ncf
-        setenv OCEAN_1 $SZpath/hemisphere_oceanfile_OCT.ncf   
-     else if ($MONTH == '11' ) then
-      	setenv CMAQ_MASKS $SZpath/hemisphere_oceanfile_NOV.ncf
-        setenv OCEAN_1 $SZpath/hemisphere_oceanfile_NOV.ncf
-     else if ($MONTH == '12' ) then
-      	setenv CMAQ_MASKS $SZpath/hemisphere_oceanfile_DEC.ncf
-        setenv OCEAN_1 $SZpath/hemisphere_oceanfile_DEC.ncf
-     endif      
+#> Spatial Masks For Emissions Scaling     
+     setenv CMAQ_MASKS $SZpath/OCEAN_${MM}_L3m_MC_CHL_chlor_a_108NHEMI2.nc     #> horizontal grid-dependent ocean file
+     setenv OCEAN_1 $SZpath/OCEAN_${MM}_L3m_MC_CHL_chlor_a_108NHEMI2.nc        #> horizontal grid-dependent ocean file
 
   #> Gridded Emissions Files 
   setenv N_EMIS_GR 1
@@ -442,9 +412,9 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   #> Bidirectional ammonia configuration
   if ( $CTM_ABFLUX == 'Y' ) then
 # modify for FEST-C v1.4.
-     setenv E2C_SOIL ${LUpath}/epic_festc1.4/epic2011_20180516_soil.nc
-     setenv E2C_CHEM ${LUpath}/epic_festc1.4/epic2011_20180516_time${YYYYMMDD}.nc
-     setenv E2C_LU ${LUpath}/beld4_12kmCONUS_2006nlcd_bench.nc
+     setenv E2C_SOIL ${EPICpath}/epic_festc1.4/epic2011_20180516_soil.nc
+     setenv E2C_CHEM ${EPICpath}/epic_festc1.4/epic2011_20180516_time${YYYYMMDD}.nc
+     setenv E2C_LU ${EPICpath}/beld4_12kmCONUS_2006nlcd_bench.nc
   endif
 
 #> Inline Process Analysis 
