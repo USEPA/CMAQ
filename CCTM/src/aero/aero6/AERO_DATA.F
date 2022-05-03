@@ -1651,7 +1651,7 @@ C-----------------------------------------------------------------------
      &                            L_WRITE_WARNING, COL, ROW, LAY )
 
 C Subroutine checks that all size distributions from boundary and
-C initial conditions are within correct tolerances for diameter and mode
+C initial conditions are within tolerances for diameter and mode
 C width. If any parameters are out of range or particle number or mass
 C are neglgible, this routine will enforce default parameters and
 C recalculate all three moments so that calculations in subsequent 
@@ -1660,7 +1660,9 @@ C
 C Inputs:  IBCON - the actual initial or boundary condition vector of 
 C                  concentrations from the calling routine
 C          LM2WET - Logical identifying if the second moment of the 
-C                   distribution is dry or wet. False = Dry
+C                   distribution is dry or wet. False = Dry. 'Wet'
+C                   aerosol includes species for which the variable
+C                   no_M2Wet is set to True in the aerolist.
 C          USE_M2 - Logical prescribing whether or not to use
 C                       the second moment from the input IC or BC file. 
 C                       True = use the 2nd moment input from the file.
@@ -1701,7 +1703,7 @@ C-----------------------------------------------------------------------
                                  ! modal parameters. See below 
                                                                     ! | Before  After
       REAL    :: AER_PAR( 2, N_MODE, 8 ) !Track the modal parameters! |    N,    N
-                                         !before and after the BC   ! |  M2WET, M2WET
+                                         !before and after the IC/BC! |  M2WET, M2WET
                                          !check routine             ! |  M2DRY, M2DRY
                                                                     ! |  M3WET, M3WET
                                                                     ! |  M3DRY, M3DRY
@@ -1727,7 +1729,8 @@ C-----------------------------------------------------------------------
       !          is valid. Reset Number and Surface Area but don't warn.
       !    6 = Diameter and Standard Deviation are barely invalid. 
       !          Reset Number and Surface Area but don't warn.
-      !    11 = Mass is below limit. Reset distribution to minimum
+      !    11 = Mass is below limit. Reset distribution to minimum valid
+      !           concentration (i.e. conmin).
       !    12 = Number is below limit. Reset number and Surface Area
       !    13 = Surface Area is below limit but diameter is valid.
       !          Set standard deviation to default (def_l2sg) and reset 
@@ -1846,7 +1849,8 @@ C Local variables:
              ! Dry or Wet Mass is below limit -> reset distribution
              LSTAT( IMODE ) = 11
 
-             ! Set Problematic Aerosol Mass to Minimum in Output Vector
+             ! Set Problematic Aerosol Mass to Minimum valid
+             ! concentration (i.e. conmin) in Output Vector
              IF ( IS_BC ) THEN
                 DO IT = 1,N_AE_TRNS
                   IF ( L_AETR_MODE( IMODE,IT ) .AND. L_AETR_MASS( IT ) ) 
