@@ -3403,10 +3403,10 @@ C *** Write data to the average aerosol diagnostic file.
             WRITE( LOGDEV, '( /5X, 3( A, :, 1X ), I8, ":", I6.6 )' )
      &                     'Timestep written to', CTM_AELMO_1,
      &                     'for date and time', MDATE, MTIME
+
+            ELMO_AVRG_STEP = 0
+
          END IF
-     
-         ELMO_AVRG_STEP = 0
-         ELMO_AVRG = 0.0
       RETURN 
 
       END SUBROUTINE WRITE_ELMO
