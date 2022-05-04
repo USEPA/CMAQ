@@ -83,9 +83,9 @@ C biogenics to gas-phase species map
             EM_FILE_SURR( IMIOGSRM )%MW    = 1.0
             EM_FILE_SURR( IMIOGSRM )%USED  = .FALSE.
             EM_FILE_SURR( IMIOGSRM )%CONV  = 1.0
-            EM_FILE_SURR( IMIOGSRM )%BASIS = 'UNIT' ! not MASS, right?
+            EM_FILE_SURR( IMIOGSRM )%BASIS = 'MOLE'
             EM_FILE_SURR( IMIOGSRM )%LAREA = .TRUE.
-            EM_FILE_SURR( IMIOGSRM )%LAREAADJ = .TRUE.
+            EM_FILE_SURR( IMIOGSRM )%LAREAADJ = .FALSE.
 
 
 
