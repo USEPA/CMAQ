@@ -452,7 +452,7 @@
       CHARACTER(200) :: XMSG
       CHARACTER(16), SAVE :: PNAME = 'ELMO_KEY'
 
-      N_KEY = 21
+      N_KEY = 24
       ALLOCATE( ELMO_KEY( N_KEY ), STAT=IOS )
       CALL CHECKMEM( IOS, 'ELMO_KEY',PNAME )
 
@@ -2253,7 +2253,7 @@
      &                     MOMENT3_CONC, WET_AERO_DENS, AEROSPC_CONC,
      &                     AH2O_IDX, AORGH2O_IDX, AEROSPC, CALC_AERODIST_PARAMS,
      &                     AEROMODE, DRY_AERO_DENS, APOC_IDX, APNCOM_IDX
-      USE AEROMET_DATA, ONLY: AIRRH, PI, AIRTEMP, SRFTEMP, AIRPRES
+      USE AEROMET_DATA, ONLY: AIRRH, PI, AIRTEMP, SRFTEMP, AIRPRES, DZ, CFRAC, PV
       USE CGRID_SPCS, ONLY : RHOJ_LOC
       USE SOA_DEFN, ONLY : N_OA, N_OA_NotTracers, OASPC, MAP_OAtoAERO
       USE RUNTIME_VARS, ONLY : PHOTDIAG
@@ -2954,7 +2954,7 @@
       END SUBROUTINE CALC_ELMO
           
 !-------------------------------------------------------------------------
-      SUBROUTINE LOAD_ELMO( C,R,L,CONC,WRITE_STEP, INIT_STEP, INIT_TIME,  )
+      SUBROUTINE LOAD_ELMO( C,R,L,CONC,WRITE_STEP, INIT_STEP, INIT_TIME )
 !     This subroutine maps the PM diagnostic variables that the user has
 !       requested to the entries in the ELMO_DATA table.
 !-------------------------------------------------------------------------
@@ -2981,6 +2981,10 @@
       C1                = C
       R1                = R
       L1                = L
+      ELMO_LOCAL( : )   = 0.0
+      INLET_FRAC(:,:,:) = -1.
+      L_CALC            = .FALSE.
+      CONC_VEC( : )     = CONC( : )
 
       ! Check to make sure the current layer is requested for diagnostic
       ! output.
@@ -2990,24 +2994,15 @@
         ! Calculate All Aerosol Size Distribution Parameters
         CALL CALC_AERODIST_PARAMS( INIT_TIME )
       
-        ! Initalize Local Parameters
-        INLET_FRAC(:,:,:) = -1.
-        L_CALC            = .FALSE.
-        CONC_VEC( : )     = CONC( : )
-       
-        IF ( INIT_TIME .OR. .NOT.INIT_STEP ) THEN
-          ! Loop Through Used Parameters List and Call ELMO Functions 
-          ! to fill in Local Array. ELMO_LOCAL is the same length as the
-          ! ELMO_LIST and is ordered by the ELMO ID numbers so that it
-          ! can be used seamlessly with the CALC_ELMO internal order.
-          DO IUSED = 1,N_ELMO_OUT
-             IM  = USED_ELMO_MODE( IUSED ) ! Map to 
-             IDG = USED_ELMO_ID( IUSED ) ! Map to Parameter ID numbers
-             ELMO_LOCAL( : ) = 0.0
-             CALL CALC_ELMO( IDG, IM, ELMO_LOCAL( IUSED ) )
-          END DO
-        END IF
-
+        ! Loop Through Used Parameters List and Call ELMO Functions 
+        ! to fill in Local Array. ELMO_LOCAL is the same length as the
+        ! ELMO_LIST and is ordered by the ELMO ID numbers so that it
+        ! can be used seamlessly with the CALC_ELMO internal order.
+        DO IUSED = 1,N_ELMO_OUT
+           IM  = USED_ELMO_MODE( IUSED ) ! Map to 
+           IDG = USED_ELMO_ID( IUSED ) ! Map to Parameter ID numbers
+           CALL CALC_ELMO( IDG, IM, ELMO_LOCAL( IUSED ) )
+        END DO
 
         ! *** Aggregate Diagnostic Parameters in Average Array
         !     using trapezoidal rule
@@ -3036,13 +3031,13 @@
                  ! For all other variables, apply trapezoidal rule for
                  ! averaging.
                  IF ( INIT_STEP ) THEN
-                    ELMO_AVRG( C,R,AL,IAVRG ) = ELMO_LOCAL( C,R,AL,IAVRG ) 
+                    ELMO_AVRG( C,R,AL,IAVRG ) = ELMO_LOCAL( MAP_AVRG2USED( IAVRG ) ) 
                  ELSE IF ( WRITE_STEP ) THEN
                     ELMO_AVRG( C,R,AL,IAVRG ) = ELMO_AVRG( C,R,AL,IAVRG ) 
      &                                        + ELMO_LOCAL( MAP_AVRG2USED( IAVRG ) )
                  ELSE
                     ELMO_AVRG( C,R,AL,IAVRG ) = ELMO_AVRG( C,R,AL,IAVRG ) 
-     &                      + 2.0 * ELMO_LOCAL( C,R,AL,IAVRG )
+     &                      + 2.0 * ELMO_LOCAL( MAP_AVRG2USED( IAVRG ) )
                  END IF 
               END IF
            END DO
@@ -3061,7 +3056,7 @@
       END SUBROUTINE LOAD_ELMO
 
 !-------------------------------------------------------------------------
-      SUBROUTINE ELMO_DRIVER( CGRID, JDATE, JTIME, TSTEP, INIT_STEP )
+      SUBROUTINE ELMO_DRIVER( CGRID, JDATE, JTIME, TSTEP, INIT_TIME, INIT_STEP )
 !     This subroutine maps the PM diagnostic variables that the user has
 !       requested to the entries in the ELMO_DATA table.
 !-------------------------------------------------------------------------
@@ -3073,9 +3068,10 @@
      &                     AH2O_IDX, AEROSPC, CALC_AERODIST_PARAMS,
      &                     Extract_Aero
       USE AEROMET_DATA, ONLY: AIRRH, AIRTEMP, AIRQV, AIRDENS, AIRPRES,
-     &                        SRFTEMP, H2OVP, H2OSATVP, MWWAT, MWAIR
+     &                        SRFTEMP, H2OVP, H2OSATVP, MWWAT, MWAIR,
+     &                        CFRAC, DZ, PV
       use phot_met_data, only : cfrac_3d
-      use centralized_io_module, only : interpolate_var
+      use centralized_io_module, only : interpolate_var, cfrac_3d_avail
       use RUNTIME_VARS
 
       IMPLICIT NONE
@@ -3085,12 +3081,13 @@
                                                 ! determine whether to write 
                                                 ! concentrations
       INTEGER, INTENT( IN ) :: TSTEP(3)
+      LOGICAL, INTENT( IN ) :: INIT_TIME        ! Is this the first time step 
+                                                !   of the simulation
       LOGICAL, INTENT( IN ) :: INIT_STEP        ! Is the time step beginning
 
       ! Variable to set time step for writing visibility file
       INTEGER, SAVE :: WSTEP  = 0          ! local write counter
       LOGICAL, SAVE :: WRITE_STEP =.FALSE. ! local write flag
-      LOGICAL, SAVE :: INIT_TIME = .FALSE. ! local write flag for T0
 
       LOGICAL, SAVE :: FIRSTIME = .TRUE.
     
@@ -3134,8 +3131,6 @@
 
       ! Determine if this is a write step
       WRITE_STEP = .FALSE.
-      INIT_TIME = .FALSE.
-      IF ( JDATE .EQ. STDATE .AND. JTIME .EQ. STTIME ) INIT_TIME = .TRUE.
       
       IF ( INIT_STEP ) THEN
          WSTEP = 0
@@ -3164,7 +3159,7 @@
       ! get cloud fraction if photolysis hasn not been called yet
       if ( init_time ) then
           if ( cfrac_3d_avail ) 
-     &         call interpolate_var ('CFRAC_3D', mdate, mtime, CFRACS)
+     &         call interpolate_var ('CFRAC_3D', jdate, jtime, CFRACS)
       else
           cfracs = cfrac_3d
       end if
@@ -3354,7 +3349,7 @@
       END SUBROUTINE OPEN_ELMO 
 
 !-------------------------------------------------------------------------
-      SUBROUTINE WRITE_ELMO ( JDATE, JTIME, TSTEP )
+      SUBROUTINE WRITE_ELMO ( JDATE, JTIME, TSTEP, INIT_TIME )
 ! Revision history
 !   20 Feb - B. Murphy: Created
 !-------------------------------------------------------------------------
@@ -3366,20 +3361,15 @@
       INCLUDE SUBST_FILES_ID
 
       INTEGER, INTENT( IN ) :: JDATE, JTIME, TSTEP(3)
+      LOGICAL, INTENT( IN ) :: INIT_TIME
       INTEGER MDATE, MTIME
       CHARACTER( 300 ) XMSG
 
       CHARACTER( 16 ), SAVE :: PNAME = 'WRITE_ELMO'
-      LOGICAL, SAVE :: INIT_TIME = .FALSE.
 
 C *** If IO Proceesor, then Write Data
          MDATE = JDATE
          MTIME = JTIME
-         IF ( JDATE .EQ. STDATE .AND. JTIME .EQ. STTIME ) THEN
-             INIT_TIME = .TRUE.
-         ELSE
-             INIT_TIME = .FALSE.
-         END IF
 
 C *** Write data to the scalar output file.
          IF ( INST_ACTIVE ) THEN

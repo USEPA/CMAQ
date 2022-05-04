@@ -698,10 +698,22 @@ C Get synchronization and advection time steps, TSTEP(2), ASTEP(L) and NREPS
       END IF
 #endif
 
-C Compute and Write Out Instantaneous ELMO Values if Requested
+C Compute ELMO Values at Beginning of Main Time Step
       IF ( L_ELMO ) THEN
-          CALL ELMO_DRIVER( CGRID, JDATE, JTIME, TSTEP, INIT_STEP=.TRUE. )
-          CALL WRITE_ELMO( JDATE, JTIME, TSTEP )
+        IF ( JDATE .EQ. STDATE .AND. JTIME .EQ. STTIME ) THEN
+             
+             ! Calculate all ELMO variables for both Instantaneous and
+             ! Average parameters
+             CALL ELMO_DRIVER( CGRID, JDATE, JTIME, TSTEP,
+     &                         INIT_TIME=.TRUE., INIT_STEP=.TRUE. )
+             ! Print Instantaneous Values at first time step
+             CALL WRITE_ELMO( JDATE, JTIME, TSTEP, INIT_TIME=.TRUE. )
+
+        ELSE
+             ! Calculate all ELMO Variables for averaging but do not output them
+             CALL ELMO_DRIVER( CGRID, JDATE, JTIME, TSTEP,
+     &                         INIT_TIME=.FALSE., INIT_STEP=.TRUE. )
+        END IF
       END IF
 
 C Initialize Budget Output File and Concentration Array
@@ -758,7 +770,8 @@ C Use trapezoidal rule to time-average data
 
 #endif
          ! OUTPUT DIAGNOSTIC INFORMATION
-         IF ( L_ELMO ) CALL ELMO_DRIVER( CGRID, JDATE, JTIME, TSTEP, INIT_STEP=.FALSE. )
+         IF ( L_ELMO ) CALL ELMO_DRIVER( CGRID, JDATE, JTIME, TSTEP, 
+     &                      INIT_TIME=.FALSE., INIT_STEP=.FALSE. )
 
       END DO
 
@@ -833,7 +846,7 @@ C write conc fields
 #ifdef sens
          CALL WR_ASENS ( JDATE, JTIME, TSTEP( 1 ) )
 #endif
-         IF ( L_ELMO ) CALL WRITE_ELMO( JDATE, JTIME, TSTEP )
+         IF ( L_ELMO ) CALL WRITE_ELMO( JDATE, JTIME, TSTEP, INIT_TIME=.FALSE. )
 
          IF ( LIPR .OR. LIRR ) CALL PA_OUTPUT ( CGRID, JDATE, JTIME )
          IF ( BUDGET_DIAG ) CALL WRITE_BUDGET ( CGRID, JDATE, JTIME, TSTEP )
