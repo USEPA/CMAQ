@@ -2,7 +2,7 @@
 # C-shell script to run CR_EBI_SOLVER 
 
  date; set timestamp; set echo 
-# current working directory assumed ${CMAQ_REPO}/UTIL/create_ebi;change if otherwise
+# current working directory assumed ${CMAQ_REPO}/UTIL/create_ebi/scripts; change if otherwise
  set BASE            = $cwd          
  set EXDIR           = ${BASE}/BLD  
  set EXEC            = cr_ebi_solver 
