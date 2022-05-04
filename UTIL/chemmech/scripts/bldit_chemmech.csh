@@ -57,7 +57,7 @@
 #===============================================================================
 
 #> User choices: working directory and application ID
- set VRSN     = v532                       #> model version
+ set VRSN     = v534                       #> model version
  setenv EXEC    CHEMMECH_${VRSN}.exe       #> executable name for this application
  setenv CFG     CHEMMECH_${VRSN}.cfg       #> BLDMAKE configuration file name!
  setenv CLEAR  "TRUE"                      #> delete build directory if exists
