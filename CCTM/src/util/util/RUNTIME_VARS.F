@@ -59,6 +59,8 @@
 !        running with temporally finer meteorology
 !  10 Jun 2021 (G. Sarwar)
 !     -- Added 'CB6R5M' and deleted "CB6R3M"
+!  4 Mar 2022 (G. Sarwar)
+!     -- Added 'CB6R5'
 !....................................................................
 
       MODULE RUNTIME_VARS
@@ -168,24 +170,31 @@
       REAL    :: GLBL_RTOL = 1.0E-3  ! Relative Tolerance for Rosenbrock Solver
 
       ! Aerosols
-      LOGICAL :: AVISDIAG  = .FALSE. ! flag for Average Visibility File [F], default
-      LOGICAL :: ZERO_PCSOA= .FALSE. ! flag for Zeroing out pcSOA formation
-      LOGICAL :: AOD       = .FALSE. ! flag for printing AOD file
+      LOGICAL :: IC_AERO_M2WET=.FALSE.! flag for specifying wet aerosol size parameters 
+                                      !   for initial conditions. FALSE = dry
+      LOGICAL :: BC_AERO_M2WET=.FALSE.! flag for specifying wet aerosol size parameters 
+                                      !   for boundary conditions. FALSE = dry
+      LOGICAL :: IC_AERO_M2USE=.TRUE. ! flag for using the second moment from the input file
+                                          !   for initial conditions. TRUE = use input 2nd moment
+      LOGICAL :: BC_AERO_M2USE=.TRUE. ! flag for using the second moment from the input file
+                                          !   for boundary conditions.TRUE = use input 2nd moment
 
       ! Cloud Parameters
       LOGICAL :: CLD_DIAG  = .FALSE. ! flag to output cloud diagnostic files
 
       ! Air-Surface Exchange
       LOGICAL :: ABFLUX     = .FALSE. ! flag for ammonia bi-directional flux with in-lining depv
-      LOGICAL :: MOSAIC     = .FALSE. ! flag for mosaic - luc specific deposition - within in-lining depv
-      LOGICAL :: SFC_HONO   = .FALSE. ! flag for HONO interaction with surfaces within in-lining depv
-      LOGICAL :: PX_LSM     = .TRUE.  ! flag for mosaic - luc specific deposition - stomatal flux only - within in-lining depv
-      LOGICAL :: CLM_LSM    = .FALSE. ! flag for mosaic - luc specific deposition - stomatal flux only - within in-lining depv
-      LOGICAL :: NOAH_LSM   = .TRUE.  ! flag for mosaic - luc specific deposition - stomatal flux only - within in-lining depv
-      LOGICAL :: STAGE      = .FALSE. ! flag for mosaic - luc specific deposition - stomatal flux only - within in-lining depvf
-      LOGICAL :: DEPV_DIAG  = .FALSE. ! flag for mosaic - luc specific deposition - stomatal flux only - within in-lining depv
+      LOGICAL :: MOSAIC     = .FALSE. ! flag for STAGE mosaic - output land use specific deposition and deposition velocity
+      LOGICAL :: SFC_HONO   = .FALSE. ! flag for HONO interaction with surfaces 
+      LOGICAL :: PX_LSM     = .TRUE.  ! flag for WRF PX land surface model
+      LOGICAL :: CLM_LSM    = .FALSE. ! flag for WRF CLM land surface model
+      LOGICAL :: NOAH_LSM   = .TRUE.  ! flag for WRF NOAH land surface model
+      LOGICAL :: DEPV_DIAG  = .FALSE. ! flag for grid cell deposition velocity diagnostic file
       Logical :: HGBIDI     = .FALSE. ! flag for Hg bidirectional exchange
       Logical :: BIDI_FERT_NH3 = .TRUE. ! flag to remove fertilizer ammonia from Bidirectional emissions
+      Logical :: STAGE_E20 = .TRUE.   ! flag for the Emerson et al. 2020 Aerosol deposition model PNAS https://www.pnas.org/cgi/doi/10.1073/pnas.2014761117
+      Logical :: STAGE_P22 = .FALSE.  ! flag for the Pleim et al. 2022 Aerosol deposition model
+      Logical :: STAGE_S22 = .FALSE.  ! flag for the Shu et al. 2022 Aerosol deposition model
       CHARACTER(16) :: DUST_LAND_SCHEME = "UNKNOWN" ! NLCD, USGS, etc
  
 
@@ -217,8 +226,6 @@
       LOGICAL :: MGEMDIAG      = .FALSE. ! flag for MGEM diagnostic file
       LOGICAL :: OCEAN_CHEM    = .TRUE.  ! Flag for ocean halogen chemistry and sea spray aerosol emissions
       LOGICAL :: WB_DUST       = .FALSE. ! flag for On-Line Dust Emission Calculation
-      LOGICAL :: ERODE_AGLAND  = .FALSE.  ! Account for Erodible Agricultural Land when 
-                                               !   computing dust Emissions
       LOGICAL :: DUSTEM_DIAG   = .FALSE. ! flag for dustemis diagnostic file
       LOGICAL :: SSEMDIAG      = .FALSE. ! flag for SSEMIS diagnostic file
       LOGICAL :: LTNG_NO       = .FALSE. ! flag for online calculation of NO from lightning
@@ -631,15 +638,17 @@
          WRITE( OUTDEV, '(6x,A)' ), REPEAT( '-',80 )
       END IF
 
-      ! Get aerosol average diagnostic file flag.
-      CALL GET_ENV ( AVISDIAG, 'CTM_AVISDIAG', AVISDIAG, VARDEV )
+      ! Get flag for interpreting initial condition aerosol size distributions as dry
+      CALL GET_ENV ( IC_AERO_M2WET, 'IC_AERO_M2WET', IC_AERO_M2WET, VARDEV )
 
-      ! Retrieve the Environment Variable allowing the User to Toggle
-      ! the pcVOC emissions
-      CALL GET_ENV ( ZERO_PCSOA, 'CTM_ZERO_PCSOA', ZERO_PCSOA, VARDEV )
+      ! Get flag for interpreting initial condition aerosol size distributions as dry
+      CALL GET_ENV ( BC_AERO_M2WET, 'BC_AERO_M2WET', BC_AERO_M2WET, VARDEV )
 
-      ! Get AOD diagnostic file flag.
-      CALL GET_ENV ( AOD, 'CTM_AOD', AOD, VARDEV )
+      ! Get flag for using initial condition aerosol second moment
+      CALL GET_ENV ( IC_AERO_M2USE, 'IC_AERO_M2USE', IC_AERO_M2USE, VARDEV )
+
+      ! Get flag for using initial condition aerosol second moment
+      CALL GET_ENV ( BC_AERO_M2USE, 'BC_AERO_M2USE', BC_AERO_M2USE, VARDEV )
 
       !-------------------------------------------------------------------------------------------------------
       !>> sulfur tracking option
@@ -695,9 +704,6 @@
       ! Flag for NOAH LSM
       CALL GET_ENV ( NOAH_LSM, 'NOAH_VERSION', NOAH_LSM, VARDEV )
 
-      ! Flag for Surface Tiled Aerosol and Gaseous Exchange (STAGE) model
-      CALL GET_ENV ( STAGE, 'CTM_STAGE', STAGE, VARDEV )
-
       ! CTM_DEPV_FILE
       CALL GET_ENV ( DEPV_DIAG, 'CTM_DEPV_FILE', DEPV_DIAG, VARDEV )
 
@@ -710,6 +716,18 @@
       ! Flag for using BELD Land Use for WindBlown Dust 
       CALL GET_ENV ( STRTEMP, 'CTM_WBDUST_BELD', DUST_LAND_SCHEME, VARDEV )
       DUST_LAND_SCHEME = STRTEMP( 1:16)
+
+      ! Get Name of STAGE Control File
+      CALL GET_ENV ( STAGECTRL, 'STAGECTRL_NML', STAGECTRL, VARDEV )
+
+      ! Flag for Surface Tiled Aerosol and Gaseous Exchange (STAGE) model Pleim et al. 2022 Aerosol Deposition Option
+      CALL GET_ENV ( STAGE_P22, 'CTM_STAGE_P22', STAGE_P22, VARDEV )
+
+      ! Flag for Surface Tiled Aerosol and Gaseous Exchange (STAGE) model Emerson et al. 2020 Aerosol Deposition Option
+      CALL GET_ENV ( STAGE_E20, 'CTM_STAGE_E20', STAGE_E20, VARDEV )
+
+      ! Flag for Surface Tiled Aerosol and Gaseous Exchange (STAGE) model Shu et al. 2022 (CMAQ v5.3) Aerosol Deposition Option
+      CALL GET_ENV ( STAGE_S22, 'CTM_STAGE_S22', STAGE_S22, VARDEV )
  
       !-------------------------------------------------------------------------------------------------------
       !>> Transport Processes
@@ -745,10 +763,6 @@
       !-------------------------------------------------------------------------------------------------------
       !>> Emission Environment Variables 
       !-------------------------------------------------------------------------------------------------------
-      
-      IF ( INDEX( MECHNAME, 'CB6R5M' ) .GT. 0 ) then
-         USE_MARINE_GAS_EMISSION = .TRUE.
-      END IF
 
       IF ( MYPE .EQ. 0 ) THEN 
          CALL LOG_SUBHEADING( OUTDEV, "Emissions Parameters" )
@@ -758,9 +772,6 @@
 
       ! Get Name of Emission Control File
       CALL GET_ENV ( EMISSCTRL, 'EMISSCTRL_NML', EMISSCTRL, VARDEV )
-
-      ! Get Name of Emission Control File
-      CALL GET_ENV ( STAGECTRL, 'STAGECTRL_NML', STAGECTRL, VARDEV )
 
       ! Number of Layers for Emissions
       CALL GET_ENV ( EMLAYS_MX, 'CTM_EMLAYS', EMLAYS_MX, VARDEV )
@@ -798,9 +809,6 @@
 
       ! Flag for Online Calculation of Windblown dust emissions
       CALL GET_ENV ( WB_DUST, 'CTM_WB_DUST', WB_DUST, VARDEV )
-
-      ! Get env var for erodible agriculture land fraction
-      !CALL GET_ENV ( ERODE_AGLAND, 'CTM_ERODE_AGLAND', ERODE_AGLAND, VARDEV )
 
       ! Get env var for diagnostic output
       CALL GET_ENV ( DUSTEM_DIAG, 'CTM_DUSTEM_DIAG', DUSTEM_DIAG, VARDEV )
@@ -913,6 +921,12 @@
          CALL M3EXIT( 'INIT_ENV_VARS', JDATE, JTIME, XMSG, EXIT_STATUS )
       END IF
 
+      IF ( OCEAN_CHEM ) THEN
+       IF ( (INDEX( MECHNAME, 'CB6R5M_AE7_AQ') .GT. 0 ) .OR. 
+     &      (INDEX( MECHNAME, 'CB6R5_AE7_AQ' ) .GT. 0) ) then     
+       USE_MARINE_GAS_EMISSION = .TRUE.
+       ENDIF
+      ENDIF
 
 ! for MPAS
 #ifdef mpas

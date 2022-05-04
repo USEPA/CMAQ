@@ -153,6 +153,9 @@
    'EVERYWHERE', 'ALL'     ,'BUTADIENE13','BUTADIENE13' ,'GAS'  ,1.  ,'UNIT','a', 
    'EVERYWHERE', 'ALL'         ,'SULF'   ,'SULF'        ,'GAS'  ,0.  ,'UNIT','a', 
 
+   ! Marine Halogen Chemistry
+   'EVERYWHERE', 'ALL'         ,'DMS'    ,'DMS'         ,'GAS'  ,1.  ,'UNIT','a',
+
    ! Default Aerosols
    'EVERYWHERE', 'ALL'         ,'SULF'   ,'ASO4'        ,'FINE' ,1.  ,'MASS','a', 
    'EVERYWHERE', 'ALL'         ,'PSO4'   ,'ASO4'        ,'FINE' ,1.  ,'UNIT','a', 
@@ -646,5 +649,3 @@
   Budget_Diag = .TRUE.
   BudgetVariables  = '*ALL'
 /
-
-
