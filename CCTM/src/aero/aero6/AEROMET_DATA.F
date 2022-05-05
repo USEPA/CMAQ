@@ -58,7 +58,8 @@ C Meteorological variables
       Real :: H2OsatVP     ! saturation water vapor pressure [ Pa ]
       Real :: H2OVP        ! ambient water vapor pressure [ Pa ]
       Real :: cfrac        ! cloud fraction
-      Real :: dz           ! grid cell height
+      Real :: dz           ! grid cell height between layer faces
+      Real :: zh           ! grid cell midpoint height (mass-weighted)
       Real :: pv           ! potential vorticity in grid cell
 
       End Module aeromet_data

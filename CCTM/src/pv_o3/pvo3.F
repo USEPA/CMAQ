@@ -37,6 +37,7 @@ C-----------------------------------------------------------------------
       USE GRID_CONF           ! horizontal & vertical domain specifications
       USE UTILIO_DEFN
       USE CENTRALIZED_IO_MODULE, only : interpolate_var, lat
+      USE ELMO_DATA, ONLY : ELMO_PV
 
 #ifdef isam
       USE SA_DEFN, ONLY: ISAM, N_SPCTAG, NTAG_SA, ITAG, OTHRTAG,
@@ -99,7 +100,7 @@ C..Scratch Local Variables:
 
       REAL, ALLOCATABLE, SAVE :: CSTARZ( :,: ) ! cstar at 58hPa estimated by polynomial fit
       REAL, ALLOCATABLE, SAVE :: CXX( :,: )    ! intermediate quadratic (< 0 for any lat.)
-      REAL PV( NCOLS,NROWS,NLAYS )             ! potential vorticity
+      REAL ::  PV( NCOLS,NROWS,NLAYS )   ! potential vorticity
       REAL PRES( NCOLS,NROWS,NLAYS )           ! Air pressure [ Pa ]
 
 #ifdef isam
@@ -144,6 +145,14 @@ C Scale only top layer O3 to PV
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
 
+         ALLOCATE ( ELMO_PV( NCOLS,NROWS,NLAYS ), STAT=ALLOCSTAT )
+         IF ( ALLOCSTAT .NE. 0 ) THEN
+            XMSG = 'Failure allocating ELMO_PV'
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         END IF
+         ELMO_PV = 0.
+
+
 #ifdef isam
         IF ( L_OZONE ) S_O3  = INDEX1( 'O3', NSPC_SA, ISAM_SPEC(:,OTHRTAG) )
 #endif
@@ -152,6 +161,7 @@ C Scale only top layer O3 to PV
 
 C.. Get PV 
       call interpolate_var ('PV', jdate, jtime, pv)
+      ELMO_PV = PV
 
 C.. Get PRES
       call interpolate_var ('PRES', jdate, jtime, PRES)

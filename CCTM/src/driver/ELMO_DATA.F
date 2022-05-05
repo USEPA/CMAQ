@@ -224,10 +224,11 @@ c:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       INTEGER, PARAMETER :: ID_KIEPOX =     180
       INTEGER, PARAMETER :: ID_GIMAE =      181
       INTEGER, PARAMETER :: ID_DZ    =      182
-      INTEGER, PARAMETER :: ID_CFRAC =      183
-      INTEGER, PARAMETER :: ID_PV    =      184
-      INTEGER, PARAMETER :: ID_DENS  =      185
-      INTEGER, PARAMETER :: ID_RHOJ  =      186
+      INTEGER, PARAMETER :: ID_ZH    =      183
+      INTEGER, PARAMETER :: ID_CFRAC =      184
+      INTEGER, PARAMETER :: ID_PV    =      185
+      INTEGER, PARAMETER :: ID_DENS  =      186
+      INTEGER, PARAMETER :: ID_RHOJ  =      187
 
       TYPE ELDTP
         CHARACTER (LEN = 16) :: NAME      !Parameter Name
@@ -238,7 +239,7 @@ c:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
         CHARACTER (LEN = 80) :: DESC      !Description
       END TYPE ELDTP
 
-      INTEGER, PARAMETER :: N_ELMO_LIST = 186
+      INTEGER, PARAMETER :: N_ELMO_LIST = 187
 
       TYPE (ELDTP), PARAMETER :: ELMO_LIST( N_ELMO_LIST ) = (/
      &ELDTP( 'STDEV        ',ID_STDEV,      M3REAL, T, '      ', 'Mode standard deviation (dry and wet)' ),
@@ -440,7 +441,8 @@ c:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
      &ELDTP( 'GAMMA_IEPOX  ',ID_GIEPOX,     M3REAL, F, '1     ', 'IEPOX heterogeneous uptake coefficient' ),
      &ELDTP( 'K_IEPOX      ',ID_KIEPOX,     M3REAL, F, 's-1   ', 'IEPOX 1st order particle phase reaction rate const' ),
      &ELDTP( 'GAMMA_IMAE   ',ID_GIMAE,      M3REAL, F, '1     ', 'IMAE+HMML heterogeneous uptake coefficient' ),
-     &ELDTP( 'DZ           ',ID_DZ,         M3REAL, F, 'm     ', 'Height of a grid cell' ),
+     &ELDTP( 'DZ           ',ID_DZ,         M3REAL, F, 'm     ', 'Height of each grid cell computed from top layer height' ),
+     &ELDTP( 'ZH           ',ID_ZH,         M3REAL, F, 'm     ', 'Height of grid cell midpoints (mass-weighted)' ),
      &ELDTP( 'CFRAC        ',ID_CFRAC,      M3REAL, F, '      ', 'Cloud Fraction' ),
      &ELDTP( 'PV           ',ID_PV,         M3REAL, F, '      ', 'Potential Vorticity' ),
      &ELDTP( 'DENS         ',ID_DENS,       M3REAL, F, 'kg m-3', 'Advected Density' ),
@@ -474,6 +476,7 @@ c:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
         REAL, SAVE, ALLOCATABLE :: GAMMA_IMAE (  :,:,:  ) ! IMAE uptake coeff
         REAL, SAVE, ALLOCATABLE :: YCLNO2IJ   (  :,:,:  ) ! Yield CLNO2 in Fine modes 
         REAL, SAVE, ALLOCATABLE :: YCLNO2K    (  :,:,:  ) ! Yield CLNO2 in coarse mode 
+        REAL, SAVE, ALLOCATABLE :: ELMO_PV    (  :,:,:  ) ! Potential Vorticity
   
         LOGICAL, SAVE           :: AERO_CHEM_SET = .FALSE.
  

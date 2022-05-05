@@ -445,14 +445,15 @@
 !       parameters. It also contains the definitions of the ocntents of
 !       each keyword.
 !-------------------------------------------------------------------------
-
+      USE CGRID_SPCS, ONLY: CGRID_NAME, N_CGRID_SPC
+          
       IMPLICIT NONE
 
       INTEGER IOS, ALLOCSTAT
       CHARACTER(200) :: XMSG
       CHARACTER(16), SAVE :: PNAME = 'ELMO_KEY'
 
-      N_KEY = 24
+      N_KEY = 25
       ALLOCATE( ELMO_KEY( N_KEY ), STAT=IOS )
       CALL CHECKMEM( IOS, 'ELMO_KEY',PNAME )
 
@@ -710,13 +711,13 @@
       
       ! Satellite Retrieval Met Products
       ELMO_KEY( 23 )%WORD = 'SATMET'
-      ELMO_KEY( 23 )%N = 6
-      ALLOCATE( ELMO_KEY( 23 )%LIST( 6 ), STAT=ALLOCSTAT )
+      ELMO_KEY( 23 )%N = 7
+      ALLOCATE( ELMO_KEY( 23 )%LIST( 7 ), STAT=ALLOCSTAT )
       IF ( ALLOCSTAT .NE. 0 ) THEN
            XMSG = 'Failure allocating ELMO_KEY(23)'
            CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
       END IF
-      ELMO_KEY( 23 )%LIST = (/'DENS','DZ','CFRAC','PV','P','T'/)
+      ELMO_KEY( 23 )%LIST = (/'DENS','DZ','ZH','CFRAC','PV','P','T'/)
  
       ! Satellite Retrieval products
       ELMO_KEY( 24 )%WORD = 'SATCONC'
@@ -727,6 +728,16 @@
            CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
       END IF
       ELMO_KEY( 24 )%LIST = (/'NO2','SO2','O3','CO','FORM','NH3','AOD_550'/)
+ 
+      ! All Concentrations
+      ELMO_KEY( 25 )%WORD = 'ALLCONC'
+      ELMO_KEY( 25 )%N = N_CGRID_SPC
+      ALLOCATE( ELMO_KEY( 25 )%LIST( N_CGRID_SPC ), STAT=ALLOCSTAT )
+      IF ( ALLOCSTAT .NE. 0 ) THEN
+           XMSG = 'Failure allocating ELMO_KEY(24)'
+           CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
+      END IF
+      ELMO_KEY( 25 )%LIST = CGRID_NAME(:)
  
  
 
@@ -2253,7 +2264,7 @@
      &                     MOMENT3_CONC, WET_AERO_DENS, AEROSPC_CONC,
      &                     AH2O_IDX, AORGH2O_IDX, AEROSPC, CALC_AERODIST_PARAMS,
      &                     AEROMODE, DRY_AERO_DENS, APOC_IDX, APNCOM_IDX
-      USE AEROMET_DATA, ONLY: AIRRH, PI, AIRTEMP, SRFTEMP, AIRPRES, DZ, CFRAC, PV
+      USE AEROMET_DATA, ONLY: AIRRH, PI, AIRTEMP, SRFTEMP, AIRPRES, DZ, CFRAC, PV, ZH
       USE CGRID_SPCS, ONLY : RHOJ_LOC
       USE SOA_DEFN, ONLY : N_OA, N_OA_NotTracers, OASPC, MAP_OAtoAERO
       USE RUNTIME_VARS, ONLY : PHOTDIAG
@@ -2919,6 +2930,10 @@
          CASE ( ID_DZ )
             OUTVAL = DZ
 
+         ! Retrieve ZH
+         CASE ( ID_ZH )
+            OUTVAL = ZH
+
          ! Retrieve Cloud Fraction
          CASE ( ID_CFRAC )
             OUTVAL = CFRAC
@@ -3069,9 +3084,9 @@
      &                     Extract_Aero
       USE AEROMET_DATA, ONLY: AIRRH, AIRTEMP, AIRQV, AIRDENS, AIRPRES,
      &                        SRFTEMP, H2OVP, H2OSATVP, MWWAT, MWAIR,
-     &                        CFRAC, DZ, PV
+     &                        CFRAC, DZ, PV, ZH
       use phot_met_data, only : cfrac_3d
-      use centralized_io_module, only : interpolate_var, cfrac_3d_avail
+      use centralized_io_module, only : interpolate_var, cfrac_3d_avail, pv_avail
       use RUNTIME_VARS
 
       IMPLICIT NONE
@@ -3104,7 +3119,7 @@
 
       REAL, ALLOCATABLE, SAVE :: PRES(:,:,:), TA(:,:,:), TEMP2(:,:),
      &                           QV(:,:,:), DENS(:,:,:), CFRACS(:,:,:),
-     &                           ZF(:,:,:), PVS(:,:,:)
+     &                           ZF(:,:,:), PVS(:,:,:), ZHS(:,:,:)
 
       ! values of AL, BL, and CL are from:
       ! Alduchov and Eskridge, "Improved Magnus Form Approximations of
@@ -3125,6 +3140,7 @@
      &              DENS( NCOLS, NROWS, NLAYS ),
      &              CFRACS( NCOLS, NROWS, NLAYS ),
      &              ZF( NCOLS, NROWS, NLAYS ),
+     &              ZHS( NCOLS, NROWS, NLAYS ),
      &              PVS( NCOLS, NROWS, NLAYS ),
      &              TEMP2( NCOLS, NROWS ) )
       END IF
@@ -3158,18 +3174,31 @@
       
       ! get cloud fraction if photolysis hasn not been called yet
       if ( init_time ) then
-          if ( cfrac_3d_avail ) 
-     &         call interpolate_var ('CFRAC_3D', jdate, jtime, CFRACS)
+          if ( cfrac_3d_avail ) then
+               call interpolate_var ('CFRAC_3D', jdate, jtime, CFRACS)
+          else
+               cfracs = amiss3
+          end if
       else
           cfracs = cfrac_3d
       end if
 
-      ! retrieve all layer heights
+      ! retrieve all layer heights. This is the height of the top of the
+      ! layers
       call interpolate_var ('ZF', jdate, jtime, ZF)
-
-      ! retrieve potential vorticity
-      call interpolate_var ('PV', jdate, jtime, PVS)
       
+      ! retrieve potential vorticity
+      if ( pv_avail ) then
+           call interpolate_var ('PV', jdate, jtime, PVS)
+      else
+           PVS = AMISS3
+      end if
+      
+      ! retrieve layer midpoint heights. This is a mass weighted
+      ! coordinate so is not necessarily consistent with the distance 
+      ! between the heights of the layer bottom and top.
+      call interpolate_var ('ZH', jdate, jtime, ZHS)
+
       ! Process PM Diagnostics for Base Model
 
       DO C = 1,NCOLS
@@ -3190,7 +3219,13 @@
          ELSE
              DZ   = ZF( C,R,L ) - ZF( C,R,L-1 )
          END IF
-         PV       = PVS( C,R,L )
+         ZH       = ZHS( C,R,L )
+
+         IF ( ALLOCATED( ELMO_PV ) ) THEN 
+              PV       = ELMO_PV( C,R,L )
+         ELSE
+              PV       = AMISS3
+         END IF
  
          ! Extract Aerosols
          CALL EXTRACT_AERO( CGRID( C,R,L,: ), .TRUE. )
