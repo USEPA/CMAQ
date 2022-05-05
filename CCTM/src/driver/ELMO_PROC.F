@@ -3220,12 +3220,7 @@
              DZ   = ZF( C,R,L ) - ZF( C,R,L-1 )
          END IF
          ZH       = ZHS( C,R,L )
-
-         IF ( ALLOCATED( ELMO_PV ) ) THEN 
-              PV       = ELMO_PV( C,R,L )
-         ELSE
-              PV       = AMISS3
-         END IF
+         PV       = PVS( C,R,L )
  
          ! Extract Aerosols
          CALL EXTRACT_AERO( CGRID( C,R,L,: ), .TRUE. )

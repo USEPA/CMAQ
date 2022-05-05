@@ -476,7 +476,6 @@ c:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
         REAL, SAVE, ALLOCATABLE :: GAMMA_IMAE (  :,:,:  ) ! IMAE uptake coeff
         REAL, SAVE, ALLOCATABLE :: YCLNO2IJ   (  :,:,:  ) ! Yield CLNO2 in Fine modes 
         REAL, SAVE, ALLOCATABLE :: YCLNO2K    (  :,:,:  ) ! Yield CLNO2 in coarse mode 
-        REAL, SAVE, ALLOCATABLE :: ELMO_PV    (  :,:,:  ) ! Potential Vorticity
   
         LOGICAL, SAVE           :: AERO_CHEM_SET = .FALSE.
  
