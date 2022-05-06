@@ -74,7 +74,7 @@ Defines the name, units, expression and daily operation for each variable in OUT
  @MAXT - uses the hourly value at maximum temperature
  MAXDIF - uses the maximum hourly change
  8HRMAX - uses the maximum 8 hour period
- W126 - computes the secondary ozone standard, weighted average between 8am & 7pm
+ W126 - computes the W126 daily index value as a weighted average of ozone concentrations between 8am & 7pm. These daily index values can then be used to calculate annual W126 values for the secondary ozone standard by first computing 3-month sums of daily W126 index values and then determining the consecutive three month period with the largest 3-month sum of daily W126 values.
  @8HRMAXO3 - averages the value within the 8-hr-max ozone period
  HR@8HRMAX - Starting hour of the 8-hr-max period 
  SUM06 - computes the SUM06 ozone value

@@ -112,13 +112,13 @@ C=======================================================================
          LOGICAL, INTENT( IN ) :: L_DESID_DIAG
 
          INTERFACE
-            SUBROUTINE TMPBEIS312 ( MDATE, MTIME, TSTEP, BEIS_MAP, 
+            SUBROUTINE TMPBEIS ( MDATE, MTIME, TSTEP, BEIS_MAP, 
      &                              VDEMIS_BI, L_DESID_DIAG )
                INTEGER, INTENT(  IN ) :: MDATE, MTIME, TSTEP( 3 )
                INTEGER, INTENT(  IN ) :: BEIS_MAP( : )
                REAL,    INTENT( OUT ) :: VDEMIS_BI( :,:,: )
                LOGICAL, INTENT(  IN ) :: L_DESID_DIAG
-            END SUBROUTINE TMPBEIS312
+            END SUBROUTINE TMPBEIS
          END INTERFACE
 
 C-----------------------------------------------------------------------
@@ -136,7 +136,7 @@ C-----------------------------------------------------------------------
              FIRST_TIME = .FALSE.
          END IF    
 
-         CALL TMPBEIS312( JDATE, JTIME, TSTEP, BEIS_MAP, VDEMIS_BI, L_DESID_DIAG )
+         CALL TMPBEIS( JDATE, JTIME, TSTEP, BEIS_MAP, VDEMIS_BI, L_DESID_DIAG )
 
          RETURN
 

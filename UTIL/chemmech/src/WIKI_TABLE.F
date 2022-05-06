@@ -583,7 +583,8 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
              CASE( 12 )
                  WRITE(TABLE_UNIT,'(A,  ES12.4, A, ES12.4, 2A / A)')' || ', RATE_CONSTANT( 1, NXX),
      &           ' || ', RATE_CONSTANT( 2, NXX), 
-     &           ' || Set to zero if sun is below the horizon and if surface does not include sea or surf zones;',
+     &           ' || Set to zero if sun is below the horizon. SEAWATER equals surface fraction covered by ice'
+     &           // ' free open ocean plus surf zones.',
      &           ' P equals air pressure in atmospheres || ',  '|-'
              CASE( 13 )
                 IF( RATE_CONSTANT( 1, NXX) .LT. 0.0 .OR. RATE_CONSTANT( 1, NXX) .LT. 0.0 )THEN
@@ -700,7 +701,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 5119    FORMAT( ' k<sub>0</sub> = ', ES12.4,'*exp<sup>(',ES12.4,'/T)</sup>*(T/300)<sup>',ES12.4,'</sup>;',
      &          ' k<sub>2</sub> = ', ES12.4,'*exp<sup>(',ES12.4,'/T)</sup>*(T/300)<sup>',ES12.4,'</sup>;',
      &          ' k<sub>3</sub> = ', ES12.4,'*exp<sup>(',ES12.4,'/T)</sup>')
-5120   FORMAT('min(', ES10.3,'*exp<sup>(',ES10.3'*P),</sup> +', ES10.3,'*exp<sup>(',ES10.3'*P),</sup>, ',ES10.3')')
+5120   FORMAT('SEAWATER*min(', ES10.3,'*exp<sup>(',ES10.3'*P),</sup> +', ES10.3,'*exp<sup>(',ES10.3'*P),</sup>, ',ES10.3')')
 
 5121   FORMAT('{|class="wikitable"',
      &        / '|-',
@@ -1250,7 +1251,8 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
              CASE( 12 )
                  WRITE(TABLE_UNIT,'(A,  ES12.4, A, ES12.4, 2A , A)')' | ', RATE_CONSTANT( 1, NXX),
      &           ' | ', RATE_CONSTANT( 2, NXX), 
-     &           ' | Set to zero if sun is below the horizon and if surface does not include sea or surf zones;',
+     &           ' | Set to zero if sun is below the horizon. SEAWATER equals surface fraction covered'
+     &           // ' by ice free open ocean plus surf zones.;',
      &           ' P equals air pressure in atmospheres | | '
              CASE( 13 )
                 IF( RATE_CONSTANT( 1, NXX) .LT. 0.0 .OR. RATE_CONSTANT( 1, NXX) .LT. 0.0 )THEN
@@ -1367,7 +1369,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 5119    FORMAT( ' k<sub>0</sub> = ', ES12.4,'e<sup>(',ES12.4,'/T)</sup>(T/300)<sup>',ES12.4,'</sup>;',
      &          ' k<sub>2</sub> = ', ES12.4,'e<sup>(',ES12.4,'/T)</sup>(T/300)<sup>',ES12.4,'</sup>;',
      &          ' k<sub>3</sub> = ', ES12.4,'e<sup>(',ES12.4,'/T)</sup>')
-5120   FORMAT('min(', ES10.3,'e<sup>(',ES10.3'P),</sup> +', ES10.3,'e<sup>(',ES10.3'P),</sup>, ',ES10.3')')
+5120   FORMAT('SEAWATER*min(', ES10.3,'e<sup>(',ES10.3'P),</sup> +', ES10.3,'e<sup>(',ES10.3'P),</sup>, ',ES10.3')')
 
 5121   FORMAT(  '|Reaction Number|Reaction Label|Reaction|Rate Constant Formula|Value at ',F6.2,' K; ',
      &           ES12.4,' molec/cm<sup>3</sup>; ', F6.2,' Atm.',
@@ -2484,7 +2486,8 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
              CASE( 12 )
                  WRITE(TABLE_UNIT,'(A,  ES12.4, A, ES12.4, 2A , A)')', ', RATE_CONSTANT( 1, NXX),
      &           ', ', RATE_CONSTANT( 2, NXX), 
-     &           ',  Set to zero if sun is below the horizon and if surface does not include sea or surf zones;',
+     &           ',  Set to zero if sun is below the horizon. ',
+     &           ' SEAWATER equals surface fraction covered by ice free open ocean plus surf zones.;',
      &           ' P equals air pressure in atmospheres, ,  '
              CASE( 13 )
                 IF( RATE_CONSTANT( 1, NXX) .LT. 0.0 .OR. RATE_CONSTANT( 1, NXX) .LT. 0.0 )THEN
@@ -2599,7 +2602,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 5119    FORMAT( ' k0 = ', ES12.4,'*exp(',ES12.4,'/T)*(T/300)^',ES12.4,';',
      &          ' k2 = ', ES12.4,'*exp(',ES12.4,'/T)*(T/300)^',ES12.4,';',
      &          ' k3 = ', ES12.4,'*exp(',ES12.4,'/T)')
-5120   FORMAT('min of ', ES10.3,'*exp(',ES10.3'*P), +', ES10.3,'*exp(',ES10.3'*P) and ',ES10.3'')
+5120   FORMAT('SEAWATER*min of ', ES10.3,'*exp(',ES10.3'*P), +', ES10.3,'*exp(',ES10.3'*P) and ',ES10.3'')
 
 5121   FORMAT(  'Reaction Number,Reaction Label,Reaction,Rate Constant Formula,Value at ',F6.2,' K; ',
      &           ES12.4,' molec/cm^3; ', F6.2,' Atm.',
@@ -3134,7 +3137,8 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
              CASE( 12 )
                 WRITE(TABLE_UNIT,1005)RATE_CONSTANT( 1, NXX),RATE_CONSTANT( 1, NXX)
                 WRITE(TABLE_UNIT,1005)RATE_CONSTANT( 2, NXX),RATE_CONSTANT( 2, NXX)
-                WRITE(TABLE_UNIT,1004)'Set to zero if sun is below the horizon and if surface does not include sea or surf zones;'
+                WRITE(TABLE_UNIT,1004)'Set to zero if sun is below the horizon.'
+     &                            // ' SEAWATER equals surface fraction covered by ice free open ocean plus surf zones.'
      &                            // ' P equals air pressure in atmospheres'
                 WRITE(TABLE_UNIT,1004)' '
              CASE( 6 )
@@ -3349,7 +3353,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 5119    FORMAT( ' k0 = ', ES12.4,'exp(',F9.2,'/T)(T/300)<sup>',F6.2,'</sup><br>',
      &          ' k2 = ', ES12.4,'exp(',F9.2,'/T)(T/300)<sup>',F6.2,'</sup><br>',
      &          ' k3 = ', ES12.4,'exp(',F9.2,'/T)')
-5120   FORMAT('min(', ES10.3,'exp(',ES10.3'P) +' ES10.3,'exp(',ES10.3'P), ',ES10.3')')
+5120   FORMAT('SEAWATER*min(', ES10.3,'exp(',ES10.3'P) +' ES10.3,'exp(',ES10.3'P), ',ES10.3')')
 5121   FORMAT( 'Value (molecules/(sec*cm<sup>3</sup>)) <br> at ',
      &         F6.2,' K<br> ', ES12.4,' molec/cm<sup>3</sup><br> ', F6.2,' Atm.')
 
@@ -4054,7 +4058,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 5119    FORMAT( 'k<sub>0</sub>=', ES12.4,'e<sup>',F8.1,'/T</sup>(T/300)<sup>',F6.2,'</sup><br>',
      &          'k<sub>2</sub>=', ES12.4,'e<sup>',F8.1,'/T</sup>(T/300)<sup>',F6.2,'</sup><br>',
      &          'k<sub>3</sub>=', ES12.4,'e<sup>',F9.2,'/T</sup>')
-5120   FORMAT('min(', ES10.3,'e<sup>',ES10.3'P</sup>+', ES10.3,'e<sup>',ES10.3'P</sup>, <br>',ES10.3')')
+5120   FORMAT('SEAWATER*min(', ES10.3,'e<sup>',ES10.3'P</sup>+', ES10.3,'e<sup>',ES10.3'P</sup>, <br>',ES10.3')')
 
 5121   FORMAT(  '|Label|Reaction            |Rate Constant Formula| Value<br> molecules/(sec*cm<sup>3</sup>)|   ',
      &        / '|:---|:-------------------|:--------------------|:----:|   ')
@@ -4066,8 +4070,8 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 95101     FORMAT("<sup>1</sup>Photolysis Reaction;depends on radiation and predicted concentrations     ")
 95102     FORMAT("<sup>2</sup>Heteorogeneous Reaction;Depends predicted concentrations                ")
 95103     FORMAT("<sup>3</sup>Rate constant an Operator;Depends predicted concentrations              ")
-95104     FORMAT("<sup>4</sup>Set to zero if sun is below the horizon and if surface does not ",
-     &           "include sea or surf zones; P equals air pressure in atmospheres                     ")
+95104     FORMAT("<sup>4</sup>Set to zero if sun is below the horizon. SEAWATER equals surface fraction covered by ",
+     &           "ice free open ocean plus surf zones. P equals air pressure in atmospheres.         ")
 95105     FORMAT("<sup>5</sup>Rate constant entered as a character string;",
      &           " CHEMMECH evaluator routine failed to compute value.",
      &           " Check Functions Table if formula use an entry.    ")
@@ -4403,6 +4407,18 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       ISPC=ISPC+1
       DO IDX = ISPC, NUMB_MECH_SPCS 
          WRITE(TABLE_UNIT,'(A)',ADVANCE='NO')"'" // TRIM(MECHANISM_SPC(IDX)) // "'; "
+      END DO
+      ISPC = 0
+      DO I = 1, (N_DROP_SPC/5)
+         DO IDX = 1, 5
+            ISPC = ISPC + 1
+            WRITE(TABLE_UNIT,'(A)',ADVANCE='NO')"'" // TRIM(DROP_SPC(ISPC)) // "'; "
+         END DO
+         WRITE(TABLE_UNIT,'(A)')'...'
+      END DO
+      ISPC=ISPC+1
+      DO IDX = ISPC, N_DROP_SPC
+         WRITE(TABLE_UNIT,'(A)',ADVANCE='NO')"'" // TRIM(DROP_SPC(IDX)) // "'; "
       END DO
       WRITE(TABLE_UNIT,'(A,//)')'};'
       WRITE(TABLE_UNIT,'(A,//)')'AddSpecies'
@@ -4810,14 +4826,16 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      &          'xk2 = ', ES12.4,'.*exp(',ES12.4,'./T);',/)
 7119   FORMAT(A,'xk0+xk1.*M+xk2')     
 5120   FORMAT('ILLUMINATED =  ( SZA > 0.0 );',/,
-     &        'OPEN_OCEAN  = SZA;',/,
-     &        'OPEN_OCEAN  = true;',/,
+     &        'OPEN_OCEAN  = 0.0;',/,
+     &        'SURF_ZONE   = 0.0;',/,
+     &        'SEA_ICE     = 0.0;',/,
+     &        'SEAWATER    = (OPEN_OCEAN+SURF_ZONE)-SEA_ICE;',/,
+     &        'SEAWATER(SEAWATER<0.0)    = 0.0;',/,
      &        'Patm = 0.001.*P;',/,
      &        'a = ',  ES10.3,'.*exp(',ES10.3'.*Patm) +', ES10.3,'.*exp(',ES10.3'.*Patm);',/,
      &        'b = ',ES10.3,';',/,
      &        'a(a>b) = b;',/,
-     &        'k(:,i) = a.*ILLUMINATED.*OPEN_OCEAN;',/)
-
+     &        'k(:,i) = a.*ILLUMINATED.*SEAWATER;',/)
 
 95100  FORMAT(2X,A16,' = 0.0D0')        
 
