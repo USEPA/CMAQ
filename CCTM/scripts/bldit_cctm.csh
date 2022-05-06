@@ -130,12 +130,8 @@ set make_options = "-j"                #> additional options for make command if
  endif
 
  
- if ( ${Mechanism} == cb6r3m_ae7_aq ) then  #> Gas-phase chemistry solver options ($CMAQ_MODEL/CCTM/src/gas)
+ if ( ${Mechanism} == cb6r5m_ae7_aq ) then  #> Gas-phase chemistry solver options ($CMAQ_MODEL/CCTM/src/gas)
      setenv ChemSolver ros3                  #> ros3 (or smvgear) are system independent
- else if ( ${Mechanism} == cb6r5m_ae7_aq ) then  #> Gas-phase chemistry solver options ($CMAQ_MODEL/CCTM/src/gas)
-     setenv ChemSolver ros3                  #> ros3 (or smvgear) are system independent
- else if ( ${Mechanism} == cracmm1_aq ) then
-     setenv ChemSolver ebi                   #> 
  else                                      
      setenv ChemSolver ebi                   #> [ default for most mechanisms: ebi ]
  endif
