@@ -129,7 +129,16 @@ set make_options = "-j"                #> additional options for make command if
      set ModCloud   = cloud/acm_cracmm      # > cloud chemistry module (see $CMAQ_MODEL/CCTM/src/cloud)
  endif
 
- 
+ # Special cloud modules for kmt versions
+ if( ${Mechanism} == cb6r5_ae7_kmt2 ) then
+     set ModCloud = acm_ae7_kmt2
+ else if( ${Mechanism} == saprc07tic_ae6i_aqkmti ) then
+     set ModCloud = acm_ae6i_kmti
+ else if( ${Mechanism} == saprc07tic_ae7i_aqkmt2 ) then
+     set ModCloud = acm_ae7_kmt2
+ endif
+
+ # Gas chem solver
  if ( ${Mechanism} == cb6r5m_ae7_aq ) then  #> Gas-phase chemistry solver options ($CMAQ_MODEL/CCTM/src/gas)
      setenv ChemSolver ros3                  #> ros3 (or smvgear) are system independent
  else                                      
