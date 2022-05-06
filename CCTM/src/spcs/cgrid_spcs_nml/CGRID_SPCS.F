@@ -165,14 +165,6 @@ c !! NO   and to populate the allocated arrays from the stnd gc_spc.ext  !!! NO
             character( 120 ) :: xmsg
             INTEGER :: ISPC, JSPC, IGRID, IDEPV
 
-            !INTERFACE
-            !    FUNCTION PROCESS_AERO_NML_MODES( A ) RESULT( B )
-            !        IMPORT SPECIES_DATA_REG_2, SPC_DIM
-            !        TYPE ( SPECIES_DATA_REG_2 ) :: A(SPC_DIM)
-            !        TYPE ( SPECIES_DATA_REG_2 ) :: B(SPC_DIM)
-            !    END FUNCTION
-            !END INTERFACE
-
             TYPE (SPECIES_DATA_REG_1), ALLOCATABLE :: GC_SPECIES_DATA(:)
             TYPE (SPECIES_DATA_REG_1), ALLOCATABLE :: NR_SPECIES_DATA(:)
             TYPE (SPECIES_DATA_REG_3), ALLOCATABLE :: TR_SPECIES_DATA(:)
@@ -378,10 +370,9 @@ c-------------------------------------------------------------------------------
             read( nml = AE_nml, unit = dev_ae_nml ) 
 
             ! First Expand Aerosol Namelist to Add Modes for Each
-            ! Species based on "T", "A", and "C" columns in the AE
+            ! Species based on Aitken, Accum, and Coarse columns in the AE
             ! namelist
-            ! T = Aitken; A = Accumulation; C = Coarse
-            CALL PROCESS_AERO_NML_MODES()
+            CALL AERO_NML_MODES()
 
             ! Determine Number of Aerosol Species
             N_AE_SPC = 0
