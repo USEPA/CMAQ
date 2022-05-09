@@ -243,11 +243,11 @@ The following commonly modified namelist options for WRF-CMAQ are specified in t
 
    - For example, one option may include manually editing the existing VEGPARM.TBL (found in WRF-CMAQ Build Directory) with the fix seen on the [WRF Repository](https://github.com/wrf-model/WRF/pull/1733/files). 
     
-  - Run the job (if you have a batch queuing system such as SLURM do:) 
+  - Run the job (if you have a batch queuing system such as SLURM use sbatch): 
   ```
-  sbatch run_cctm_Bench_2016_12SE1.WRFCMAQ.csh
+  ./run_cctm_Bench_2016_12SE1.WRFCMAQ.csh
   ```
- 
+  
 ### Verify that the run was successful
    - look for the output directory
    
