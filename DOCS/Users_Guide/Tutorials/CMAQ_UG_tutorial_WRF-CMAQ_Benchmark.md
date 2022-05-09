@@ -188,21 +188,6 @@ If the User sees this, the WRF-CMAQ model has been successfully compiled and bui
     
 ## Running the WRF-CMAQ model
 
-**\* Users using PX Land Surface Model option with NLCD40 dataset are required to fix their VEGPARM.TBL before running WRF-CMAQ, due to a bug in the WRF released VEGPARM.TBL, please see the [WRF Repository](https://github.com/wrf-model/WRF/pull/1733) for more information on the bug.***
-
-To fix this bug please go through the following steps: 
-
-```
-  wget https://raw.githubusercontent.com/wrf-model/WRF/a4eeeabdc6ba3ba76f31d157c4bfbe88353f8b93/run/VEGPARM.TBL ./VEGPARM.TBL_fix
-  
-In your runscript, run_cctm_Bench_2016_12SE1.WRFCMAQ.csh for example, change: 
-     
-From:      
-     ln -s $WRF_DIR/test/em_real/VEGPARM.TBL   VEGPARM.TBL
-To: 
-     ln -s ./VEGPARM.TBL_fix   VEGPARM.TBL
-```
-
 Note, in this new coupled model design, the namelist is used to modify settings for WRF.
 Environment variables such as WRF_CMAQ_FREQ are no longer used.  
 The following commonly modified namelist options for WRF-CMAQ are specified in the run script.
@@ -224,16 +209,17 @@ The following commonly modified namelist options for WRF-CMAQ are specified in t
                             available in the WRF restart file or not)
                             
 * One sample run scripts is provided; run_cctm_Bench_2016_12SE1.WRFCMAQ.csh (for coupled
-  model with SW feedback on.
+  model with SW feedback on).
 
 
   - Start with the run_cctm_Bench_2016_12SE1.WRFCMAQ.csh that specifies direct_sw_feedback = .true.
   - and the CMAQv5.3.3 input benchmark dataset to run CMAQ-WRF with feedback
   - It is configured to run on 16 processors and for 2 days of model simulation
   - Edit the script to specify the paths, modify the number of processors and batch queue commands
-  - Verify that the OMIfile definition matches the latest release of CMAQv5.3.3
+  - Verify that the OMIfile definition matches the latest release of CMAQv5.3.3+
+  - Fix VEGPARM.TBL, since Benchmark runs with PX LSM with NLCD40 Data
   
-  Modify the following section to specify your local paths:
+  Now, modify the following section to specify your local paths:
   
   ```
      set WORKDIR     = /proj/ie/proj/CMAS/WRF-CMAQ/CMAQ_v5.3.3/CCTM/scripts
@@ -252,6 +238,21 @@ The following commonly modified namelist options for WRF-CMAQ are specified in t
     set NPROCS =    16
     set OMIfile    = OMI_1979_to_2019.dat
     ```
+    
+**\* Users using PX Land Surface Model option with NLCD40 dataset are required to fix their VEGPARM.TBL before running WRF-CMAQ, due to a bug in the WRF released VEGPARM.TBL, please see the [WRF Repository](https://github.com/wrf-model/WRF/pull/1733) for more information on the bug.***
+
+   - To fix this bug please go through the following steps: 
+
+```
+  wget https://raw.githubusercontent.com/wrf-model/WRF/a4eeeabdc6ba3ba76f31d157c4bfbe88353f8b93/run/VEGPARM.TBL ./VEGPARM.TBL_fix
+  
+In your runscript, run_cctm_Bench_2016_12SE1.WRFCMAQ.csh for example, change: 
+     
+From:      
+     ln -s $WRF_DIR/test/em_real/VEGPARM.TBL   VEGPARM.TBL
+To: 
+     ln -s ./VEGPARM.TBL_fix   VEGPARM.TBL
+```
     
   - Run the job (if you have a batch queuing system such as SLURM do:) 
   ```
