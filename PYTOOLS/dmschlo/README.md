@@ -32,8 +32,9 @@ and is not relevant for DMS or halogens except indirectly via seasalt.
 OPEN and SURF can be created by the standard CMAQ Spatial Allocator Tool.
 
 DMS and CHLO have previously been provided by scripts maintained and run by
-Brett Gantt. This tool uses similar inputs and processes, but has updated
-interpolation routines that improve the overall product.
+Brett Gantt but was never released to the public. This tool uses similar inputs
+and processes, but has updated interpolation routines that improve the overall
+product.
 
 We have developed a new Jupyter Notebook that allows users to easily create
 DMS and CHLO variables. These Notebooks can be run on your own server or in the
