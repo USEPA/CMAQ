@@ -8,12 +8,14 @@ installation requirements.
 These Python Tools require Python v3.6 or higher. Some are written as Jupyter
 Notebooks, while others as scripts. All will require some libraries.
 
-The best way to test your installation is to run:
+The best way to check your installation is to run:
 
-`python show_versions.py requirements.txt`
+`python install/show_versions.py install/requirements.txt`
 
+For information about how to install, see the install folder.
 
 Tool Listing
 ============
 
+* [install](install/README.md) Describes preparing an environment for CMAQ/PYTOOLS
 * [dmschlo](dmschlo/README.md) Prepares DMS and Chlorophyll-A concentrations for CMAQ.
