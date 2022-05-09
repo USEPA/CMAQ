@@ -10,7 +10,7 @@ The following support software are required for compiling and running WRF-CMAQ.
 2. [Git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git)
 2. Message Passing Interface (MPI), e.g., [OpenMPI](https://www.open-mpi.org) or [MVAPICH2](http://www.mcs.anl.gov/research/projects/mpich2).
 3. Latest release of [netCDF-C](https://www.unidata.ucar.edu/software/netcdf/docs/getting_and_building_netcdf.html) and [netCDF-Fortran](https://www.unidata.ucar.edu/software/netcdf/docs/building_netcdf_fortran.html)
-4. [I/O API](https://www.cmascenter.org/download/software/ioapi/ioapi_3-2.cfm?DB=TRUE) version 3.2 **tagged 20200828**
+4. [I/O API](https://www.cmascenter.org/download/software/ioapi/ioapi_3-2.cfm?DB=TRUE) version 3.2 **tagged 20200828 without OpenMP support**
 5. [C-Shell](https://github.com/tcsh-org/tcsh) 
 
 **Note: if you have not installed the above libraries, please see the CMAQ_UG_tutorial_build_[gcc/intel/pgi].md tutorials available here: 
@@ -188,9 +188,24 @@ If the User sees this, the WRF-CMAQ model has been successfully compiled and bui
     
 ## Running the WRF-CMAQ model
 
+**\* Users using PX Land Surface Model option with NLCD40 dataset are required to fix their VEGPARM.TBL before running WRF-CMAQ, due to a bug in the WRF released VEGPARM.TBL, please see the [WRF Repository](https://github.com/wrf-model/WRF/pull/1733) for more information on the bug.***
+
+To fix this bug please go through the following steps: 
+
+```
+  wget https://raw.githubusercontent.com/wrf-model/WRF/a4eeeabdc6ba3ba76f31d157c4bfbe88353f8b93/run/VEGPARM.TBL ./VEGPARM.TBL_fix
+  
+In your runscript, run_cctm_Bench_2016_12SE1.WRFCMAQ.csh for example, change: 
+     
+From:      
+     ln -s $WRF_DIR/test/em_real/VEGPARM.TBL   VEGPARM.TBL
+To: 
+     ln -s ./VEGPARM.TBL_fix   VEGPARM.TBL
+```
+
 Note, in this new coupled model design, the namelist is used to modify settings for WRF.
 Environment variables such as WRF_CMAQ_FREQ are no longer used.  
-The following commonly modified namelist options for WRF are specified in the run script.
+The following commonly modified namelist options for WRF-CMAQ are specified in the run script.
 
     1. wrf_cmaq_option     (dictates how the coupled model execute)
 
@@ -221,7 +236,7 @@ The following commonly modified namelist options for WRF are specified in the ru
   Modify the following section to specify your local paths:
   
   ```
-   set WORKDIR     = /proj/ie/proj/CMAS/WRF-CMAQ/CMAQ_v5.3.3/CCTM/scripts
+     set WORKDIR     = /proj/ie/proj/CMAS/WRF-CMAQ/CMAQ_v5.3.3/CCTM/scripts
      set WRF_DIR     = $WORKDIR/BLD_WRFv4.3_CCTM_v533_gcc  # WRF source code directory
      set INPDIR      = /proj/ie/proj/CMAS/WRF-CMAQ/from_EPA/from_gdrive/CMAQv5.3.2_Benchmark_2Day_Input/2016_12SE1
      set OMIpath     = $WRF_DIR/cmaq                              # path optics related data files
@@ -255,17 +270,3 @@ The following commonly modified namelist options for WRF are specified in the ru
    tail ./2016183/rsl.out.0000
    ```
    |>---   PROGRAM COMPLETED SUCCESSFULLY   ---<|
-
-### Compare results to the WRF-CMAQ 2 day benchmark results
- 
-   - Download WRF-CMAQ bencmark output data from the google drive folder
-
-     https://drive.google.com/drive/u/1/folders/1ccNJ0GOH8cRCIfXN6dcFj0Dh-_hHXbo9
-
-  - The WRF-CMAQ benchmark output is also available from the the US EPA anoymous ftp server:
-
-     https://gaftp.epa.gov/exposure/CMAQ/V5_3_3/Benchmark/WRFv4.3-CMAQv5.3.3/
-
-   - Compare CCTM_ACONC_4.3533_SE53BENCH_20160701.nc file, and other files to your benchmark results using the m3diff routine from I/O API Tools.
-
-   - Note, the CMAQv5.3.3 output results will not directly compare to the no shortwave feedback (nosw) WRF-CMAQ output, as different meterology and timesteps were used.  To do a comparison between CMAQv5.3.3 and WRF-CMAQ, use WRF-CMAQ to output the MCIP meteorology files, and then use those MCIP inputs with the CMAQv5.3.3 ICON and BCON inputs.
