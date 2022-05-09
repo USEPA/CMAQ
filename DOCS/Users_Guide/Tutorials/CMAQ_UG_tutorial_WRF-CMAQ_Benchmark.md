@@ -241,18 +241,7 @@ The following commonly modified namelist options for WRF-CMAQ are specified in t
     
 **\* Users using PX Land Surface Model option with NLCD40 dataset are required to fix their VEGPARM.TBL before running WRF-CMAQ, due to a bug in the WRF released VEGPARM.TBL, please see the [WRF Repository](https://github.com/wrf-model/WRF/pull/1733) for more information on the bug.***
 
-   - To fix this bug please go through the following steps: 
-
-```
-  wget https://raw.githubusercontent.com/wrf-model/WRF/a4eeeabdc6ba3ba76f31d157c4bfbe88353f8b93/run/VEGPARM.TBL ./VEGPARM.TBL_fix
-  
-In your runscript, run_cctm_Bench_2016_12SE1.WRFCMAQ.csh for example, change: 
-     
-From:      
-     ln -s $WRF_DIR/test/em_real/VEGPARM.TBL   VEGPARM.TBL
-To: 
-     ln -s ./VEGPARM.TBL_fix   VEGPARM.TBL
-```
+   - For example, one option may include manually editing the existing VEGPARM.TBL (found in WRF-CMAQ Build Directory) with the fix seen on the [WRF Repository](https://github.com/wrf-model/WRF/pull/1733/files). 
     
   - Run the job (if you have a batch queuing system such as SLURM do:) 
   ```
