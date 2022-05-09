@@ -4512,7 +4512,6 @@ C   mminlu and num_land_cat are WRF global variables
 
                i  = FLOAT( MOD( STDATE, 1000 ) )
                write( var, '(A4,I3.3)' ) 'FERT', i
-               !NEED TO REPLACE 183 WITH JDAY jwilliso
                IF ( .NOT. XTRACT3( BDSNP_FFILE, var,
      &                             1, 1, strtrow, endrow, strtcol, endcol,
      &                             megan_day, megan_hr, bdsnp_fert(:,:) ) ) THEN
