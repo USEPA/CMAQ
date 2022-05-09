@@ -86,7 +86,6 @@ C biogenics to gas-phase species map
             DESID_EMVAR( IMIOGSRM )%LAREA = .FALSE.
             DESID_EMVAR( IMIOGSRM )%LAREAADJ = .FALSE.
 
-
             ALLOCATE( VDEMIS_ME( NMGNSPC,NCOLS,NROWS ), STAT = STATUS )
             IF ( STATUS .NE. 0 ) THEN
               XMSG = 'VDEMIS_ME memory allocation failed'
@@ -154,6 +153,11 @@ C=======================================================================
          INTEGER, SAVE :: MGN_IHR       ! current simulation hour
          INTEGER          MGN_NDX       ! RAINFALL array timestep index
 #ifndef mpas 
+!        Calculate cell area. 
+!        Could be removed in favor of DESID changes
+         REAL  DX1, DX2                            ! grid-cell width and length
+         REAL  CELL_AREA                            ! grid-cell area [m2]
+
          JDAY   = FLOAT( MOD( JDATE, 1000 ) )
          JYEAR  = FLOAT( JDATE / 1000  )       
          CURRHR = REAL ( TIME2SEC( JTIME ) ) / 3600.0
