@@ -79,12 +79,12 @@ C biogenics to gas-phase species map
             ALLOCATE( EM_FILE_SURR( IMIOGSRM )%LAREAADJ( NMGNSPC ) )
             
             EM_FILE_SURR( IMIOGSRM )%ARRY  = MEGAN_NAMES
-            EM_FILE_SURR( IMIOGSRM )%UNITS = 'MOLES/s/m2'
+            EM_FILE_SURR( IMIOGSRM )%UNITS = 'MOLES/s'
             EM_FILE_SURR( IMIOGSRM )%MW    = 1.0
             EM_FILE_SURR( IMIOGSRM )%USED  = .FALSE.
             EM_FILE_SURR( IMIOGSRM )%CONV  = 1.0
-            EM_FILE_SURR( IMIOGSRM )%BASIS = 'MOLE'
-            EM_FILE_SURR( IMIOGSRM )%LAREA = .TRUE.
+            EM_FILE_SURR( IMIOGSRM )%BASIS = 'UNIT' ! not MASS, right?
+            EM_FILE_SURR( IMIOGSRM )%LAREA = .FALSE.
             EM_FILE_SURR( IMIOGSRM )%LAREAADJ = .FALSE.
 
 
@@ -156,10 +156,27 @@ C=======================================================================
          INTEGER, SAVE :: MGN_IHR       ! current simulation hour
          INTEGER          MGN_NDX       ! RAINFALL array timestep index
 #ifndef mpas 
+!        Calculate cell area. 
+!        Could be removed in favor of DESID changes
+         REAL  DX1, DX2                            ! grid-cell width and length
+         REAL  CELL_AREA                            ! grid-cell area [m2]
+
          JDAY   = FLOAT( MOD( JDATE, 1000 ) )
          JYEAR  = FLOAT( JDATE / 1000  )       
          CURRHR = REAL ( TIME2SEC( JTIME ) ) / 3600.0
          LAYERS = 5  ! canopy layers
+         ! *** Get length and width of each grid cell
+         IF ( GDTYP_GD .EQ. LATGRD3 ) THEN
+            DX1 = DG2M * XCELL_GD ! in m
+            DX2 = DG2M * YCELL_GD
+     &          * COS( PI180*( YORIG_GD + YCELL_GD
+     &          * FLOAT( GL_NROWS/2 ) ) ) ! in m
+         ELSE
+            DX1 = XCELL_GD        ! in m
+            DX2 = YCELL_GD        ! in m
+         END IF
+
+         CELL_AREA = DX1 * DX2
 #endif
 
 
@@ -226,7 +243,7 @@ C=======================================================================
           CALL convert2mech(gamno,non_dimgarma,out_to_cmaq)
         end if
 ! Units for use by EMIS_DEFN.F via vdemis_me: [moles/s/m2]
-         vdemis_me(:,:,:) = out_to_cmaq
+         vdemis_me(:,:,:) = out_to_cmaq*cell_area
 
 
          RETURN
