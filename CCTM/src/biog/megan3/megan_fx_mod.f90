@@ -3012,16 +3012,6 @@ SUBROUTINE MEGVEA(NCOLS,NROWS, LAYERS, JDATE, ZTIME,                &
                           GAMHW(I,J) * GAMAQ(I,J) * GAMHT(I,J) * GAMLT(I,J) *  &
                           GAMSM(I,J) 
 
-!!! experimental section
-!                ER(i,j) = GAMTP*GAMLA(I,J)*LAIC(i,j)*LDFMAP(I,J)
-!!
-!!
-!!                NON_DIMGARMA (S,I,J) = ER(I,J)
-!!                NON_DIMGARMA (2,I,J) = gamtp
-!!                NON_DIMGARMA (3,I,J) = gamla(i,j)
-!!                NON_DIMGARMA (4,I,J) = laic(i,j)
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
             ELSE IF ( S .EQ. 13 ) THEN
             
  !   GAMBD only applied to ethanol and acetaldehyde
@@ -3030,14 +3020,6 @@ SUBROUTINE MEGVEA(NCOLS,NROWS, LAYERS, JDATE, ZTIME,                &
                       GAMHW(I,J) * GAMAQ(I,J) * GAMHT(I,J) * GAMLT(I,J) *      &
                       GAMSM(I,J) 
 
- !       For CO (S=19), LDFMAP not applied
- 
-            ELSE IF ( S .EQ. 19 ) THEN
- !       For CO (S=19), LDFMAP not applied
-            
-                ER(I,J) = LAIc(I,J) * GAMTP * GAMLA(I,J) *                            &
-                      GAMHW(I,J) * GAMAQ(I,J) * GAMHT(I,J) * GAMLT(I,J) * GAMSM(I,J)
-                    
             ELSE
 !  Process remaining species            
             
