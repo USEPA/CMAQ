@@ -1,8 +1,9 @@
 #!/bin/csh -fx
 
  set echo
-#set REPO  = /home/username/CMAQ_repo
- set REPO  = /home/cnolte/cmaq/dev-repo/CMAQ_Dev
+#set REPOsitory path 
+#commands assumes that current direct is UTIL/inline_phot_preproc subdirectory
+ cd ../.. ; set REPO = $cwd ; cd -
  set MECHS = $REPO/CCTM/src/MECHS
 
 #> CMAQ Mechanism under Repository directory CCTM/src/MECHS or

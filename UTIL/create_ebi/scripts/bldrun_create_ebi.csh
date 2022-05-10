@@ -2,7 +2,7 @@
 # C-shell script to run CR_EBI_SOLVER 
 
  date; set timestamp; set echo 
-# current working directory assumed ${CMAQ_REPO}/UTIL/create_ebi;change if otherwise
+# current working directory assumed ${CMAQ_REPO}/UTIL/create_ebi/scripts; change if otherwise
  set BASE            = $cwd          
  set EXDIR           = ${BASE}/BLD  
  set EXEC            = cr_ebi_solver 
@@ -14,7 +14,7 @@
 # RXNS_DATA is the input directory containing the mechanism's data module
 # value will change based on user's goals
 set MECH             = 'cb6r3_ae7_aq'
-set RXNS_DATA        = ${BASE}/../../CCTM/src/MECHS/${MECH}
+set RXNS_DATA        = ${BASE}/../../../CCTM/src/MECHS/${MECH}
 setenv RXNS_DATA_SRC   ${RXNS_DATA}/RXNS_DATA_MODULE.F90
 
 if ( ! ( -e ${RXNS_DATA_SRC} ) )then
@@ -23,9 +23,9 @@ if ( ! ( -e ${RXNS_DATA_SRC} ) )then
 endif 
 
 # Define templates and scource code  directories
- setenv TMPLDIR         ${BASE}/template_RXNSU_OPT
- setenv DEGRADE_CODES   ${BASE}/degrade_codes_serial-RXNST
- setenv SRCDIR          ${BASE}/src_RXNSU
+ setenv TMPLDIR         ${BASE}/../template_RXNSU_OPT
+ setenv DEGRADE_CODES   ${BASE}/../degrade_codes_serial-RXNST
+ setenv SRCDIR          ${BASE}/../src_RXNSU
 
 # Define output directory;value will change based on user's goals
  set day = ` date "+%b-%d-%Y" `
@@ -67,7 +67,7 @@ endif
 
  mkdir BLD
 
- cp makefile.v50XX  ./BLD/Makefile
+ cp ../makefile.v50XX  ./BLD/Makefile
 
  cd BLD
 

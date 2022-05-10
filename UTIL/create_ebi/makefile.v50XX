@@ -113,8 +113,8 @@ driver.o:  $(SRCDIR)/driver.F
 set_glbldata.o:  $(SRCDIR)/set_glbldata.F 
 	$(LOAD) -c $(INCLUDES) $(SRCDIR)/set_glbldata.F
 
-junit.o:  $(SRCDIR)/junit.f
-	$(LOAD) -c $(INCLUDES) $(SRCDIR)/junit.f
+junit.o:  $(SRCDIR)/junit.F
+	$(LOAD) -c $(INCLUDES) $(SRCDIR)/junit.F
 
 name_index.o:  $(SRCDIR)/name_index.f
 	$(LOAD) -c $(INCLUDES) $(SRCDIR)/name_index.f
