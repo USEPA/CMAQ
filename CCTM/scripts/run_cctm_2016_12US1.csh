@@ -149,13 +149,10 @@ setenv CTM_ADV_CFL 0.95      #> max CFL [ default: 0.75]
 
 #> Science Options
 setenv CTM_OCEAN_CHEM Y      #> Flag for ocean halogen chemistry and sea spray aerosol emissions [ default: Y ]
-setenv CTM_WB_DUST N         #> use inline windblown dust emissions [ default: Y ]
-setenv CTM_WBDUST_BELD BELD3 #> landuse database for identifying dust source regions
-                             #>    [ default: BELD3 ]; ignore if CTM_WB_DUST = N
+setenv CTM_WB_DUST N         #> use inline windblown dust emissions (only for use with PX) [ default: N ]
 setenv CTM_LTNG_NO Y         #> turn on lightning NOx [ default: N ]
 setenv KZMIN Y               #> use Min Kz option in edyintb [ default: Y ], 
                              #>    otherwise revert to Kz0UT
-setenv CTM_MOSAIC N          #> landuse specific deposition velocities [ default: N ]
 setenv PX_VERSION Y          #> WRF PX LSM
 setenv CLM_VERSION N         #> WRF CLM LSM
 setenv NOAH_VERSION N        #> WRF NOAH LSM
@@ -171,6 +168,21 @@ setenv CTM_BIOGEMIS_BEIS Y   #> calculate in-line biogenic emissions [ default: 
 setenv CTM_BIOGEMIS_MEGAN N  #> turns on MEGAN biogenic emission [ default: N ]
 setenv USE_MEGAN_LAI N       #> use separate LAI input file [ default: N ]
 
+setenv IC_AERO_M2WET F       #> Specify whether or not initial condition aerosol size distribution 
+                             #>    is wet or dry [ default: F = dry ]
+setenv BC_AERO_M2WET F       #> Specify whether or not boundary condition aerosol size distribution 
+                             #>    is wet or dry [ default: F = dry ]
+setenv IC_AERO_M2USE F       #> Specify whether or not to use aerosol surface area from initial 
+                             #>    conditions [ default: T = use aerosol surface area  ]
+setenv BC_AERO_M2USE F       #> Specify whether or not to use aerosol surface area from boundary 
+                             #>    conditions [ default: T = use aerosol surface area  ]
+                             
+#> Surface Tiled Aerosol and Gaseous Exchange Options
+#> Only active if DepMod=stage at compile time
+setenv CTM_MOSAIC N          #> Output landuse specific deposition velocities [ default: N ]
+setenv CTM_STAGE_P22 N       #> Pleim et al. 2022 Aerosol deposition model [default: N]
+setenv CTM_STAGE_E20 Y       #> Emerson et al. 2020 Aerosol deposition model [default: Y]
+setenv CTM_STAGE_S22 N       #> Shu et al. 2022 (CMAQ v5.3) Aerosol deposition model [default: N]
 
 #> Vertical Extraction Options
 setenv VERTEXT N
@@ -218,7 +230,7 @@ set IN_LTpath = $INPDIR/met/lightning     #> lightning NOx input directory
 set METpath   = $INPDIR/met/mcip_v50_wrf_v411_ltng_lufgood              #> meteorology input directory
 #set JVALpath  = $INPDIR/jproc            #> offline photolysis rate table directory
 set OMIpath   = $BLD                      #> ozone column data for the photolysis model
-set LUpath    = $INPDIR/surface           #> BELD landuse data for windblown dust model
+set EPICpath  = $INPDIR/surface           #> EPIC putput for bidirectional NH3
 set SZpath    = $INPDIR/surface           #> surf zone file for in-line seaspray emissions
 
 # =====================================================================
@@ -241,6 +253,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   set YYYYMM = `date -ud "${TODAYG}" +%Y%m`     #> Convert YYYY-MM-DD to YYYYMM
   set YYYY = `date -ud "${TODAYG}" +%Y`         #> Convert YYYY-MM-DD to YYYY
   set YYMMDD = `date -ud "${TODAYG}" +%y%m%d`   #> Convert YYYY-MM-DD to YYMMDD
+  set MM = `date -ud "${TODAYG}" +%m`           #> Convert YYYY-MM-DD to MM
   set YYYYJJJ = $TODAYJ
 
   #> Calculate Yesterday's Date
@@ -321,7 +334,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   setenv STAGECTRL_NML ${BLD}/CMAQ_Control_STAGE.nml
 
   #> Spatial Masks For Emissions Scaling
-  setenv CMAQ_MASKS $SZpath/12US1_surf.ncf
+  setenv CMAQ_MASKS $SZpath/OCEAN_${MM}_L3m_MC_CHL_chlor_a_12US1.nc  #> horizontal grid-dependent ocean file
 
   #> Determine Representative Emission Days
   set EMDATES = $INPDIR/emis/emis_dates/smk_merge_dates_${YYYYMM}.txt
@@ -413,13 +426,9 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   #> In-line biogenic emissions configuration
   if ( $CTM_BIOGEMIS_BEIS == 'Y' ) then   
      set IN_BEISpath = ${INPDIR}/surface
-     setenv GSPRO      ${BLD}/gspro_biogenics.txt
-     setenv B3GRD      $IN_BEISpath/b3grd.smoke30_beis361.12US1.2011NLCD_FIA5.1_CDL_norm_v3.ncf
-     setenv BIOSW_YN   Y     #> use frost date switch [ default: Y ]
-     setenv BIOSEASON  $IN_BEISpath/bioseason.cmaq.2016j_12US1.ncf_full #> ignore season switch file if BIOSW_YN = N
-     setenv SUMMER_YN  Y     #> Use summer normalized emissions? [ default: Y ]
-     setenv PX_VERSION Y     #> MCIP is PX version? [ default: N ]
-     setenv SOILINP    $OUTDIR/CCTM_SOILOUT_${RUNID}_${YESTERDAY}.nc
+     setenv GSPRO          ${BLD}/gspro_biogenics.txt
+     setenv BEIS_NORM_EMIS $IN_BEISpath/b3grd.smoke30_beis361.12US1.2011NLCD_FIA5.1_CDL_norm_v3.ncf
+     setenv SOILINP        $OUTDIR/CCTM_SOILOUT_${RUNID}_${YESTERDAY}.nc
                              #> Biogenic NO soil input file; ignore if NEW_START = TRUE
   endif
   if ( $CTM_BIOGEMIS_MEGAN == 'Y' ) then
@@ -432,22 +441,15 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
          setenv MEGAN_LDF /work/MOD3DATA/2016_12US1/surface/megan/LDF_CONUS_12km.ncf
   endif
 
-  #> Windblown dust emissions configuration
-  if ( $CTM_WB_DUST == 'Y' ) then
-     # Input variables for BELD3 Landuse option
-     setenv DUST_LU_1 $LUpath/beld3_12US1_459X299_output_a.ncf
-     setenv DUST_LU_2 $LUpath/beld4_12US1_459X299_output_tot.ncf
-  endif
-  
   #> In-line sea spray emissions configuration
-  setenv OCEAN_1 $SZpath/12US1_surf.ncf
+  setenv OCEAN_1 $SZpath/OCEAN_${MM}_L3m_MC_CHL_chlor_a_12US1.nc
 
   #> Bidirectional ammonia configuration
   if ( $CTM_ABFLUX == 'Y' ) then
      # need to modify for FEST-C v1.4.
-     setenv E2C_SOIL ${INPDIR}/surface/toCMAQ_festc1.4_epic/us1_2016_cmaq12km_soil.nc
-     setenv E2C_CHEM ${INPDIR}/surface/toCMAQ_festc1.4_epic/us1_2016_cmaq12km_time${YYYYMMDD}.nc
-     setenv E2C_LU ${INPDIR}/surface/beld4_camq12km_2011_4CMAQioapi.ncf
+     setenv E2C_SOIL ${EPICpath}/toCMAQ_festc1.4_epic/us1_2016_cmaq12km_soil.nc
+     setenv E2C_CHEM ${EPICpath}/toCMAQ_festc1.4_epic/us1_2016_cmaq12km_time${YYYYMMDD}.nc
+     setenv E2C_LU ${EPICpath}/beld4_camq12km_2011_4CMAQioapi.ncf
   endif
 
 #> Inline Process Analysis 

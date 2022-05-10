@@ -188,7 +188,7 @@ C..SCRATCH LOCAL VARIABLES:
       REAL, ALLOCATABLE, SAVE :: QV     ( :, :, : )      ! Cell water vapor (Kg/Kg air)
       REAL, ALLOCATABLE, SAVE :: TA     ( :, :, : )      ! Cell temperature (K)
 
-      LOGICAL, ALLOCATABLE, SAVE :: LAND_ZONE   ( :,: )       ! Is the surface totally land?
+      REAL, ALLOCATABLE, SAVE :: SEAWATER_ZONE   ( :,: ) ! fractional area of OPEN+SURF       
 
       REAL( 8 ), ALLOCATABLE, SAVE :: Y_DEGRADE ( : , : ) ! concentration array used
                                                           ! by degradation routines
@@ -281,15 +281,11 @@ C...Initialize and report data
 
          WRITE( LOGDEV, 92040 ) ERRMAX( 1 ), YLOW( 1 )
 
-         ALLOCATE( LAND_ZONE( NCOLS, NROWS ) )
+         ALLOCATE( SEAWATER_ZONE( NCOLS, NROWS ) )
          
          DO ROW = 1, NROWS
             DO COL = 1, NCOLS
-               IF( OCEAN( COL,ROW ) + SZONE( COL,ROW ) .GT. 0.0 )THEN
-                   LAND_ZONE( COL,ROW ) = .FALSE.
-               ELSE
-                   LAND_ZONE( COL,ROW ) = .TRUE.
-               END IF
+               SEAWATER_ZONE( COL,ROW ) =  OCEAN( COL,ROW ) + SZONE( COL,ROW )                  
              END DO
          END DO
 
@@ -432,11 +428,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
             BLKSVOL( NCELL ) = 1.0 / DENS( COL,ROW,LEV )
             BLKPRES( NCELL ) = REAL( PA2ATM * PRES( COL, ROW, LEV ), 8 )
             BLKCH2O( NCELL ) = REAL( MAX( QV( COL,ROW,LEV ) * MAOMV * CONCOFM, 0.0 ), 8)
-            IF( LAND_ZONE( COL,ROW ) .OR. SEAICE (COL,ROW) .GT. 0.0 )THEN
-                BLKLAND (NCELL) = .TRUE.
-            ELSE
-                BLKLAND (NCELL) = .FALSE.
-            END IF            
+            BLKSEAWATER (NCELL)  = MAX ( 0.0, ( SEAWATER_ZONE( COL,ROW ) - SEAICE (COL,ROW) ) )
          ENDDO
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -480,7 +472,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          ENDDO
          
 !        CALL CALCKS( NPHOTAB, RJBLK )
-         CALL CALC_RCONST( BLKTEMP, BLKPRES, BLKCH2O, RJBLK, BLKHET, LSUNLIGHT, BLKLAND, RK, NUMCELLS )
+         CALL CALC_RCONST( BLKTEMP, BLKPRES, BLKCH2O, RJBLK, BLKHET, LSUNLIGHT, BLKSEAWATER, RK, NUMCELLS )         
 
          IF ( LSUNLIGHT ) THEN
             HMAX = HMAXDAY( NCS )
@@ -545,7 +537,7 @@ C..Output IC for a block
                WRITE( IUNBIC ) ( BLKTEMP( NCELL ),  NCELL = 1, NUMCELLS )
                WRITE( IUNBIC ) ( BLKPRES( NCELL ),  NCELL = 1, NUMCELLS )
                WRITE( IUNBIC ) ( BLKCH2O( NCELL ),  NCELL = 1, NUMCELLS )
-               WRITE( IUNBIC ) ( BLKLAND( NCELL ),  NCELL = 1, NUMCELLS )
+               WRITE( IUNBIC ) ( BLKSEAWATER( NCELL ),  NCELL = 1, NUMCELLS )
 
                DO ISP = 1, ISCHANG( NCS )
                   WRITE( IUNBIC ) CHEMISTRY_SPC( ISP ), ( BLKCONC( NCELL, ISP ),
@@ -573,7 +565,7 @@ C..Output IC for a cell
                WRITE( IUNCIC,93040 ) BLKTEMP( INUMCELL ) 
                WRITE( IUNCIC,93060 ) BLKCH2O( INUMCELL )
                WRITE( IUNCIC,93080 ) BLKPRES( INUMCELL )
-               WRITE( IUNCIC,93085 ) BLKLAND( INUMCELL )
+               WRITE( IUNCIC,93085 ) BLKSEAWATER( INUMCELL )
 
                DO NPH = 1, NMPHOT
                   IRXN = IPH( NPH, 1 )
@@ -623,8 +615,8 @@ C..debug output
      &                                      BLKTEMP( NUMCELLS )
                      WRITE( IUNDBG, 93300 ) BLKPRES( 1 ), BLKPRES( NMID ),
      &                                      BLKPRES( NUMCELLS ) 
-                     WRITE( IUNDBG, 93305 ) BLKLAND( 1 ), BLKLAND( NMID ),
-     &                                      BLKLAND( NUMCELLS ) 
+                     WRITE( IUNDBG, 93305 ) BLKSEAWATER( 1 ), BLKSEAWATER( NMID ),
+     &                                      BLKSEAWATER( NUMCELLS ) 
                   ENDIF
                ENDDO
             ENDIF
@@ -857,7 +849,7 @@ C*********************** FORMAT STATEMENTS ****************************
 93040 FORMAT(   'TEMP', 1X, 1PE15.6 )
 93060 FORMAT(   'H2O ', 1X, 1PE15.6 )
 93080 FORMAT(   'PRES', 1X, 1PE15.6 )
-93085 FORMAT(   'LAND', 1X, L15 )
+93085 FORMAT(   'SEAWATER', 1X, 1PE15.6 )
 93100 FORMAT(   I3, 1X, 1PE15.6 )
 93120 FORMAT(   1X, 'Rate constants at start of irun=', I4, 
      &              ' block=', I4 )
@@ -871,7 +863,7 @@ C*********************** FORMAT STATEMENTS ****************************
 93260 FORMAT(   1X, 'C(0)= ', I3, 2X, 'H2O ', 2X, 3( 1PE20.10 ) )
 93280 FORMAT(   1X, 'TEMP (K)         =   ', 3( 1PE20.10 ) )
 93300 FORMAT(   1X, 'PRESS(ATM)       =   ', 3( 1PE20.10 ) )
-93305 FORMAT(   1X, 'LAND(True/False) =   ', 3( L20 ) )
+93305 FORMAT(   1X, 'SEAWATER (-)          =   ', 3( 1PE20.10 ) )
 93320 FORMAT(  /1X, 'Species concentrations at end of irun=', I4,
      &              ' Cell=', I5 )
 93340 FORMAT(   1x, 'C(end)= ', I3, 2x, A4, 2x, 1PE20.8)
