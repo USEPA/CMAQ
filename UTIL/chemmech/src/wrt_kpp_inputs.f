@@ -248,7 +248,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 ! set up pointers and names for photolysis rate array
       WRITE(KPPEQN_UNIT,4502)
       DO IPR = 1, NPHOTAB
-         WRITE(KPPEQN_UNIT,4503),PHOTAB(IPR),IPR
+         WRITE(KPPEQN_UNIT,4503)PHOTAB(IPR),IPR
       END DO
       DO IPR = 1, NPHOTAB
          WRITE(KPPEQN_UNIT,4557)IPR, PHOTAB(IPR)

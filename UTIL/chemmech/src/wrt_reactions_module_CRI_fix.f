@@ -330,7 +330,7 @@ C Error-check phot tables and report to log
 !         END IF
 !      END DO
       DO IPR = 1, NPHOTAB
-         WRITE(MODULE_UNIT,4503),PHOTAB(IPR),IPR
+         WRITE(MODULE_UNIT,4503)PHOTAB(IPR),IPR
       END DO
 !      DO IPR = 1, NPHOTAB
 !         WRITE(MODULE_UNIT,4557)IPR, PHOTAB(IPR)

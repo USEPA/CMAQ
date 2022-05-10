@@ -2396,7 +2396,7 @@ c     1) reorder the incoming array and return
          IF( NUM_RSLVD .EQ. SAVD_NUM_RSLVD ) THEN  ! Error - could not add any more to list
             WRITE( LUNOUT ,  9600 )
             DO SS1 = 1, N_SS_SPC
-               IF( .NOT. LRSLVD( SS1 ) ) WRITE( LUNOUT, 9620 ), SS_SPC( SS1 )
+               IF( .NOT. LRSLVD( SS1 ) ) WRITE( LUNOUT, 9620 ) SS_SPC( SS1 )
             ENDDO
             WRITE( LUNOUT , 10000 )
             STOP

@@ -50,7 +50,7 @@ set echo
 #> CMAQv5.1 Mechanism Options: cb05tucl_ae6_aq cb05tump_ae6_aq cb05e51_ae6_aq saprc07tb_ae6_aq saprc07tc_ae6_aq  saprc07tic_ae6i_aq   racm2_ae6_aq 
  if ( ! $?MECH ) then
     set MECH      = cb6r5_ae7_aq       #> Mechanism ID
-    set MECH      = cracmm1_aq         #> Mechanism ID    
+#   set MECH      = cracmm1_aq         #> Mechanism ID    
  endif
  setenv CLEAR "TRUE" #> over-write existing output files
                                                       
@@ -121,7 +121,7 @@ set echo
 
 #> Rewrite mechanism definitions file to append reactions with changes in
 #> tracked atoms
- setenv COMPUTE_DELTA_ATOMS T
+ setenv COMPUTE_DELTA_ATOMS F
 
 #> For atoms composing mechanism species, read comment trailing species definitions 
 #>  in species namelists. If NAMELISTS_LIST_ATOMS is False and COMPUTE_DELTA_ATOMS 
