@@ -201,6 +201,9 @@ C-----------------------------------------------------------------------
                 Expand_Spec = .TRUE.
                 BDGVAR(1:15) = BDGVAR(2:16)
              END IF
+             IF ( TRIM(BDGVAR) .EQ. 'ALL' ) THEN
+                Expand_Spec = .TRUE.
+             END IF
 
              ! Retrieve logical vector, DIFF_VEC, indicating diffused species
              ! relevant for DiagSpec(I)
