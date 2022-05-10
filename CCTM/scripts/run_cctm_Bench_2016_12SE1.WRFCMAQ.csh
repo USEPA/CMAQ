@@ -11,7 +11,7 @@
 
 set NPROCS = 64
 
-set wrfv    = 4.3
+set wrfv    = 4.4
 set version = sw_feedback
 set option  = 3
 
@@ -43,7 +43,7 @@ set EXEC      = wrf.exe
 
 # Set Working, Input, and Output Directories
 set WORKDIR     = [your install location]
-set WRF_DIR     = $WORKDIR/BLD_WRFv4.3_CCTM_v533_gcc
+set WRF_DIR     = $WORKDIR/BLD_WRFv4.4_CCTM_v533_gcc
 set INPDIR      = [your_install_dir]/WRF-CMAQ/CMAQ_v5.3.3/data/CMAQv5.3.2_Benchmark_2Day_Input/2016_12SE1                 # Input directory
 set OMIpath     = $WRF_DIR/cmaq                           # path optics related data files
 set OUTPUT_ROOT = [your output directory location]                                # output root directory
@@ -846,6 +846,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
  shadlen                             = 25000.,
  do_radar_ref                        = 1,
  grav_settling                       = 0,
+ ghg_input                           = 0,
  /
 
  &fdda

@@ -698,7 +698,7 @@ set Cfile = ${Bld}/${CFG}.bld      # Config Filename
     cd $CMAQ_HOME/CCTM/scripts
   
     # Downlad WRF repository from GitHub and put CMAQv5.3.X into it
-    set WRF_BLD = BLD_WRF_CCTM_${VRSN}_${compilerString}
+    set WRF_BLD = BLD_WRFv4.4_CCTM_${VRSN}_${compilerString}
     setenv wrf_path ${CMAQ_HOME}/CCTM/scripts/${WRF_BLD}
     setenv WRF_CMAQ 1
 
