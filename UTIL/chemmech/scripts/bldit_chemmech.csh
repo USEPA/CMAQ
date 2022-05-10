@@ -58,7 +58,6 @@
 
 #> User choices: working directory and application ID
  set VRSN     = v534                       #> model version
- setenv EXEC    CHEMMECH_${VRSN}.exe       #> executable name for this application
  setenv CFG     CHEMMECH_${VRSN}.cfg       #> BLDMAKE configuration file name!
  setenv CLEAR  "TRUE"                      #> delete build directory if exists
 
@@ -88,7 +87,7 @@
  cp ${REPOROOT}/src/* $Bld
 
  cd ${Bld}; make clean; make 
- if( ! ( -e ${EXEC} ) )then
+ if( ! ( -e CHEMMECH.exe ) )then
     echo "failed to compile ${Bld}/${EXEC}"
     exit 1
  endif

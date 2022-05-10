@@ -86,10 +86,7 @@ set echo
 #>endif
 
 #> Set the name of the executable.
- setenv EXEC CHEMMECH_${VRSN}.exe
-
-##> name if compiled in UTIL/chemmech/src directory
-#setenv EXEC CHEMMECH
+ setenv EXEC CHEMMECH.exe
 
 #> compile the program if it does not already exist
  if ( ! -e ${BINDIR}/${EXEC} ) then

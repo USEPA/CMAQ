@@ -4768,7 +4768,6 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
           USE MECHANISM_DATA, MECHANISM => MECHNAME
           USE GET_MECHDEF_DATA
           USE SPECIES_ATOMS_DATA
-          USE CGRID_SPCS     ! CGRID mechanism species   
            
           
           IMPLICIT NONE
@@ -4839,7 +4838,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 ! check if atoms_species is a mechanisms and set atoms in mechanism species
 
          CALL SET_ATOMS_MECHANISM_SPC()
-         IF( ATOMS IN_NAMELISTS )THEN
+         IF( ATOMS_IN_NAMELISTS )THEN
             CALL ARE_THEY_ATOM_SPECIES()
          END IF
                   

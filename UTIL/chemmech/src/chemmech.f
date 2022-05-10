@@ -36,7 +36,7 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       USE GET_ENV_VARS
       USE MECHANISM_DATA, MECHANISM => MECHNAME
       USE SPECIES_ATOMS_DATA
-      USE CGRID_SPCS     ! CGRID mechanism species    
+      USE CCTM_SPECIES        ! set cctm to mechanism species    
       USE GET_MECHDEF_DATA
       USE MECHANISM_DOCS
 
@@ -231,9 +231,9 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          CALC_DELTA_ATOMS = GET_ENV_FLAG( COMPUTE_DELTA_ATOMS, "Update MECHDEF with changes in atoms",
      &          .FALSE., STATUS)
          IF( CALC_DELTA_ATOMS )THEN
-             ATOMS IN_NAMELISTS = GET_ENV_FLAG( NAMELISTS_LIST_ATOMS, 
+             ATOMS_IN_NAMELISTS = GET_ENV_FLAG( NAMELISTS_LIST_ATOMS, 
      &                             "Read Species Atoms for namelist comments.", .TRUE., STATUS)
-             IF( ATOMS IN_NAMELISTS .AND. .NOT. USE_SPCS_NAMELISTS )THEN
+             IF( ATOMS_IN_NAMELISTS .AND. .NOT. USE_SPCS_NAMELISTS )THEN
                  WRITE(6,'(4(A,/))')'BELOW ERROR in run script options',
      &           'Execution rewrites mechanism definitions files for reactions change chemical elements',
      &           'and uses species namelists for atomic composition of mechanism species but the option, ',
@@ -286,16 +286,17 @@ C set name of mechanism lower case
          MECHNAME_LOWER_CASE  =  MECHANISM
          CALL CONVERT_CASE( MECHNAME_LOWER_CASE, .FALSE. )
       END IF   
- 
+
+! scan cctm species names and set GC_SPC, AE_SPC, NR, and TR species with molwt's 
+      IF( USE_SPCS_NAMELISTS )THEN
+         CALL READ_MATRICES_ATOMS()
+      END IF
+
 C Determine job should rewrite MECHDEF reaction by appending them with change of
-C tracked atoms
-      IF( CALC_DELTA_ATOMS )THEN
-          IF( ATOMS IN_NAMELISTS )THEN
-             CALL READ_MATRICES_ATOMS()
-          ELSE 
+C tracked atoms    
+      IF( CALC_DELTA_ATOMS .AND. ( .NOT. ATOMS_IN_NAMELISTS ) )THEN
 C read an atoms file for species atoms  
-             CALL READ_SPECIES_ATOMS()
-          END IF
+          CALL READ_SPECIES_ATOMS()
       END IF
       
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -911,7 +912,8 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C Set CGRID mechanism
 
        IF( USE_SPCS_NAMELISTS )THEN
-           IF ( .NOT. CGRID_SPCS_INIT() ) THEN
+!           IF ( .NOT. CGRID_SPCS_INIT() ) THEN
+           IF ( .NOT. MAP_CCTM_SPECIES() ) THEN
                STOP 'Error in CGRID_SPCS:CGRID_SPCS_INIT'
            ELSE
                PRINT*,'Computed CGRID species and indices'

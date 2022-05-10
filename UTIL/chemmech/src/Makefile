@@ -1,10 +1,6 @@
 # original file copied from /home/yoj/src/mech/BLD_2, 1/31/2008
 
-ifndef EXEC
-  MODEL = CHEMMECH
-else
-  MODEL = $(EXEC)
-endif
+  MODEL = CHEMMECH.exe
 
 ifndef compiler
  compiler = intel
@@ -62,9 +58,9 @@ OBJECTS =\
     TEXT_UTILITIES.o \
     BASIC_WRITE_ROUTINES.o \
     MECHANISM_DATA.o \
-    CGRID_SPCS.o  \
     GET_MECHDEF_DATA.o \
     module_functions_evaluator.o \
+    cctm_species.o \
     SPECIES_ATOMS_DATA.o \
     MECHANISM_DOCS.o \
     chemmech.o \

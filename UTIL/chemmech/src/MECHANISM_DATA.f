@@ -167,7 +167,7 @@ c.. Variables for steady-state species
          
 
          LOGICAL, SAVE      :: CALC_DELTA_ATOMS    = .FALSE.  ! calculated how reactions change the tracked elements
-         LOGICAL, SAVE      :: ATOMS IN_NAMELISTS  = .TRUE.   ! read trailing comments line from species namelists
+         LOGICAL, SAVE      :: ATOMS_IN_NAMELISTS  = .TRUE.   ! read trailing comments line from species namelists
          LOGICAL, SAVE      :: USE_SPCS_NAMELISTS  = .TRUE.   ! species data based on CMAQ NMLS
          LOGICAL, SAVE      :: WRITE_CGRID_DATA  = .TRUE.
 
