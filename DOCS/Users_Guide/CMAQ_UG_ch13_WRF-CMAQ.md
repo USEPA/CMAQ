@@ -32,41 +32,10 @@ Hemispheric WRF-CMAQ model simulation over two decades (1990−2010) shows enhan
 
 ## 13.4 Latest WRF-CMAQ Release
 
-The new WRF-CMAQ model is based on WRFv4.3 and CMAQv5.3.3. It supports only RRTMG radiation scheme for short wave aerosol direct effect. It uses core-shell model to perform aerosol optics calculations rather than volume mixing technique as in the previous version of the WRF-CMAQ model. 
+The new WRF-CMAQ model is based on WRF version 4.4 and CMAQ [version 5.3.3.3](https://github.com/USEPA/CMAQ/releases/tag/CMAQv5.3.3.3_10May2022) or later. It supports only RRTMG radiation scheme for short wave aerosol direct effect. It uses core-shell model to perform aerosol optics calculations rather than volume mixing technique as in the previous version of the WRF-CMAQ model. 
 
-The code used to couple the WRFv4.3-CMAQv5.3.3 models is now released as part of the [CMAQ Github Repository](../../../UTIL/wrfcmaq_twoway_coupler).
-
-Build and run instructions are provided in the [WRF-CMAQ Tutorial](Tutorials/CMAQ_UG_tutorial_WRF-CMAQ_build_gcc.md).
-
-## 13.5 Benchmarking WRF-CMAQ
-
-Benchmark input and output datasets are available from the CMAS Center Data Warehouse Google Drive.  Beginning with CMAQv5.3.1, the .tar.gz file with benchmark inputs for the base (uncoupled) model also contains a folder (WRF-CMAQ) with the additional input files needed to run the WRF-CMAQ model. A sample runscript ([run_cctm_Bench_2016_12SE1.WRFCMAQ.csh](../../../CCTM/scripts/run_cctm_Bench_2016_12SE1.WRFCMAQ.csh)) is provided as part of the CMAQ Github Repository. Similarly, the .tar.gz file with benchmark output for the base model also contains a folder (WRFv4.3_CMAQv5.3.3_outputs) with reference output for the WRF-CMAQ model with short-wave radiation calculations. These input and output benchmark files have also been posted on the US EPA annoymous ftp server. 
-
-- [Link to WRF-CMAQ Benchmark input and output datasets on Google Drive](https://drive.google.com/drive/u/1/folders/19U1_biDfrEunMlU9W3fCGNFWX5eZmD3Q)
-- WRF-CMAQ Benchmark input and output datasets on EPA annoymous ftp server: https://gaftp.epa.gov/exposure/CMAQ/V5_3_3/Benchmark
-
-WRF-CMAQ output for a two day benchmark case is provided for both the debug mode turned off (.tar.gz files containing "opt") and the debug mode turned on (.tar.gz files containing "rel_debug") version to allow the user to compare their answers to either. To reduce the impact of compiler flags on the model output, it is preferrable to use the debug version. To compare model results obtained while achieving faster run times due to compiler optimization, the Optimized version output is also provided.
-
-Metadata for the CMAQ benchmark test case is posted on the CMAS Center Dataverse site: https://doi.org/10.15139/S3/IQVABD 
-
-Once users have successfully completed installation and users can run a quick test to ensure model installation was truly successful. Users can setup a run base on the provided run script and a benchmark input dataset. Users should consult with the readme file which was accompanied by the test dataset or the release documentation to use the appropriate compiler flags for this quick test. Once the stimulation is completed, users can compare the newly produced result with the provided benchmark output. The comparison should return identical result if users have the same compiler version and system environment. This quick test gives users a peace of mind that the model installation was truly successful.
-
-Users should note, comparing the results of running WRF-CMAQ with the given input to the results of running CMAQ (offline) with the given input, while on the same domain, will include differences from other sources other than just the coupling of WRF and CMAQ. These differences are due to the version and nudging of WRF used to generate input files for CMAQ (offline) through MCIP, as well as the effect of windowing down to the south-east benchmark from the CONUS done for the CMAQ (offline) case. 
-
-
-## 13.6 WRF Namelist Options
-
-New with this version of the coupled model (WRFv4.3-CMAQv5.3.3), all related runtime options are now controlled via the WRF namelist under the &wrf_cmaq section. For convenience these options are set as runscript variables (look for section labeled &wrf_cmaq in the [sample runscript](../../../CCTM/scripts/run_cctm_Bench_2016_12SE1.WRFCMAQ.csh)) and automatically duplicated when creating the WRF namelist. There are five parameters with varying options see below: 
-  
-  
-| Name | Value | Description | 
-|------|-------|-------------|
-|wrf_cmaq_option| 2 |Dictates how the coupled model execute<br>0 = run WRF only<br>1 = run WRF only producing MCIP like GRID and MET files<br>2 = run WRF-CMAQ coupled model w/o producing MCIP like GRID and MET files<br>3 = run WRF-CMAQ coupled model producing MCIP like GRID and MET files |
-|wrf_cmaq_freq| 5 |Indicates how often WRF and CMAQ interact;<br>For example if set to 5, this means for every 5 WRF steps there will be 1 CMAQ step|
-|met_file_tstep| 10000 |Time step size of MCIP like intermediate output files (HHMMSS)|
-|direct_sw_feedback| .true. |Logical; whether to turn on/off aerosol short ware direct effects|
-|feedback_restart| .false. |Logical; whether aerosol short wave direct effect information is available in the WRF restart file|
-                       
+Build and run instructions are provided in the [WRF-CMAQ Tutorial](Tutorials/CMAQ_UG_tutorial_WRF-CMAQ_Benchmark.md).
+                   
 If you have any questions, please contact David Wong at wong.david-c@epa.gov
 
 
