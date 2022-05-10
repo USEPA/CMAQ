@@ -69,21 +69,21 @@ C-----------------------------------------------------------------------
                  if ( trim(aedat(isp)%species_name) .eq. 'NUM' .or.
      &                trim(aedat(isp)%species_name) .eq. 'SRF'     ) then
                    ! Species is a Number or Surface Area Concentration
-                   if ( aedat(isp)%lait .ne. reqd_modes(iait) ) then
+                   if ( aedat(isp)%lait .neqv. reqd_modes(iait) ) then
                       xmsg = 'Number or Surface Area must have an Aitken-Mode ' //
      &                       'component. Please adjust the aerosol namelist.'
                       Call log_message( OUTDEV, 'Error: '//xmsg )
                       eflag = .True.
                    end if
 
-                   if ( aedat(isp)%lacc .ne. reqd_modes(iacc) ) then
+                   if ( aedat(isp)%lacc .neqv. reqd_modes(iacc) ) then
                       xmsg = 'Number or Surface Area must have an Accumulation-Mode ' //
      &                       'component. Please adjust the aerosol namelist.'
                       Call log_message( OUTDEV, 'Error: '//xmsg )
                       eflag = .True.
                    end if
 
-                   if ( aedat(isp)%lcor .ne. reqd_modes(icor) ) then
+                   if ( aedat(isp)%lcor .neqv. reqd_modes(icor) ) then
                       xmsg = 'Number or Surface Area must have a Coarse-Mode ' //
      &                       'component. Please adjust the aerosol namelist.'
                       Call log_message( OUTDEV, 'Error: '//xmsg )
@@ -102,7 +102,7 @@ C-----------------------------------------------------------------------
               else
 
                   ! Species is a recognized aerosol chemical species
-                   if ( aedat(isp)%lait .ne. aerolist(iaer)%lait ) then
+                   if ( aedat(isp)%lait .neqv. aerolist(iaer)%lait ) then
                       xmsg = 'Aitken Flag for '//
      &                       TRIM(aedat(isp)%species_name)//' set incorrectly in the AE namelist.'
                       xmsg = Trim( pname ) // ': ' // xmsg
@@ -110,7 +110,7 @@ C-----------------------------------------------------------------------
                       eflag = .True.
                    end if
 
-                   if ( aedat(isp)%lacc .ne. aerolist(iaer)%lacc ) then
+                   if ( aedat(isp)%lacc .neqv. aerolist(iaer)%lacc ) then
                       xmsg = 'Accumulation Flag for '//
      &                       TRIM(aedat(isp)%species_name)//' set incorrectly in the AE namelist.'
                       xmsg = Trim( pname ) // ': ' // xmsg
@@ -118,7 +118,7 @@ C-----------------------------------------------------------------------
                       eflag = .True.
                    end if
 
-                   if ( aedat(isp)%lcor .ne. aerolist(iaer)%lcor ) then
+                   if ( aedat(isp)%lcor .neqv. aerolist(iaer)%lcor ) then
                       xmsg = 'Coarse Flag for '//
      &                       TRIM(aedat(isp)%species_name)//' set incorrectly in the AE namelist.'
                       xmsg = Trim( pname ) // ': ' // xmsg
@@ -155,12 +155,18 @@ C-----------------------------------------------------------------------
                     nsp2 = nsp2 + 1
                     aedat_mode(nsp2)%species_name = 
      &                    trim(aedat(isp)%species_name)//modesuff(iait)
-                    aedat_mode(nsp2)%depv_surr = 
-     &                    trim(aedat(isp)%depv_surr)//'I'
-                    aedat_mode(nsp2)%scav_surr = 
-     &                    trim(aedat(isp)%scav_surr)//'_AITKEN'
-                    aedat_mode(nsp2)%cloud_surr = 
-     &                    trim(aedat(isp)%cloud_surr)//'_AITKEN'
+                    aedat_mode(nsp2)%depv_surr = aedat(isp)%depv_surr
+                    if ( aedat(isp)%depv_surr .ne. '' )
+     &                   aedat_mode(nsp2)%depv_surr = 
+     &                         trim(aedat(isp)%depv_surr)//'I'
+                    aedat_mode(nsp2)%scav_surr = aedat(isp)%scav_surr
+                    if ( aedat(isp)%scav_surr .ne. '' )
+     &                   aedat_mode(nsp2)%scav_surr = 
+     &                         trim(aedat(isp)%scav_surr)//'_AITKEN'
+                    aedat_mode(nsp2)%cloud_surr = aedat(isp)%cloud_surr
+                    if ( aedat(isp)%cloud_surr .ne. '' )
+     &                   aedat_mode(nsp2)%cloud_surr = 
+     &                         trim(aedat(isp)%cloud_surr)//'_AITKEN'
                  else
                     ! Mode not allowed for this species. Exit CMAQ
                     xmsg = 'Aitken-mode aerosols have been requested for '//
@@ -212,12 +218,18 @@ C-----------------------------------------------------------------------
                     nsp2 = nsp2 + 1
                     aedat_mode(nsp2)%species_name = 
      &                    trim(aedat(isp)%species_name)//modesuff(iacc)
-                    aedat_mode(nsp2)%depv_surr = 
-     &                    trim(aedat(isp)%depv_surr)//'J'
-                    aedat_mode(nsp2)%scav_surr = 
-     &                    trim(aedat(isp)%scav_surr)//'_ACCUM'
-                    aedat_mode(nsp2)%cloud_surr = 
-     &                    trim(aedat(isp)%cloud_surr)//'_ACCUM'
+                    aedat_mode(nsp2)%depv_surr = aedat(isp)%depv_surr
+                    if ( aedat(isp)%depv_surr .ne. '' )
+     &                   aedat_mode(nsp2)%depv_surr = 
+     &                         trim(aedat(isp)%depv_surr)//'J'
+                    aedat_mode(nsp2)%scav_surr = aedat(isp)%scav_surr
+                    if ( aedat(isp)%scav_surr .ne. '' )
+     &                   aedat_mode(nsp2)%scav_surr = 
+     &                         trim(aedat(isp)%scav_surr)//'_ACCUM'
+                    aedat_mode(nsp2)%cloud_surr = aedat(isp)%cloud_surr
+                    if ( aedat(isp)%cloud_surr .ne. '' )
+     &                   aedat_mode(nsp2)%cloud_surr = 
+     &                         trim(aedat(isp)%cloud_surr)//'_ACCUM'
                  else
                     ! Mode not allowed for this species. Exit CMAQ
                     xmsg = 'Accumulation-mode aerosols have been requested for '//
@@ -282,12 +294,18 @@ C-----------------------------------------------------------------------
                     else  
                        aedat_mode(nsp2)%species_name = 
      &                       trim(aedat(isp)%species_name)//modesuff(icor)
-                       aedat_mode(nsp2)%depv_surr = 
-     &                       trim(aedat(isp)%depv_surr)//'C'
-                       aedat_mode(nsp2)%scav_surr = 
-     &                       trim(aedat(isp)%scav_surr)//'_COARSE'
-                       aedat_mode(nsp2)%cloud_surr = 
-     &                       trim(aedat(isp)%cloud_surr)//'_COARSE'
+                       aedat_mode(nsp2)%depv_surr = aedat(isp)%depv_surr
+                       if ( aedat(isp)%depv_surr .ne. '' )
+     &                      aedat_mode(nsp2)%depv_surr = 
+     &                            trim(aedat(isp)%depv_surr)//'C'
+                       aedat_mode(nsp2)%scav_surr = aedat(isp)%scav_surr
+                       if ( aedat(isp)%scav_surr .ne. '' )
+     &                      aedat_mode(nsp2)%scav_surr = 
+     &                            trim(aedat(isp)%scav_surr)//'_COARSE'
+                       aedat_mode(nsp2)%cloud_surr = aedat(isp)%cloud_surr
+                       if ( aedat(isp)%cloud_surr .ne. '' )
+     &                      aedat_mode(nsp2)%cloud_surr = 
+     &                            trim(aedat(isp)%cloud_surr)//'_COARSE'
                     end if
                  else
                     ! Mode not allowed for this species. Exit CMAQ

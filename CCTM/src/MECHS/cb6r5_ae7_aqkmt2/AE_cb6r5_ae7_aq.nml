@@ -6,7 +6,7 @@ AE_SPECIES_DATA =
 'ASO4'    , 96.00  ,T      ,T     ,T      ,''     ,''     ,-1    ,''     ,-1     ,'VMASS'     , 1  ,'SO4'         , 1  ,'SO4'      ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
 'ANH4'    , 18.00  ,T      ,T     ,T      ,''     ,''     ,-1    ,''     ,-1     ,'VMASS'     , 1  ,'NH4'         , 1  ,'NH4'      ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
 'ANO3'    , 62.00  ,T      ,T     ,T      ,''     ,''     ,-1    ,''     ,-1     ,'VMASS'     , 1  ,'NO3'         , 1  ,'NO3'      ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
-'ANA'     , 23.00  ,T      ,T     ,T      ,''     ,''     ,-1    ,''     ,-1     ,'VMASS'     , 1  ,'NA'          , 1  ,'NA'       ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
+'ANA'     , 23.00  ,T      ,T     ,F      ,''     ,''     ,-1    ,''     ,-1     ,'VMASS'     , 1  ,'NA'          , 1  ,'NA'       ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
 'ACL'     , 35.50  ,T      ,T     ,T      ,''     ,''     ,-1    ,''     ,-1     ,'VMASS'     , 1  ,'CL'          , 1  ,'CL'       ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
 'AISO1'   ,132.00  ,F      ,T     ,F      ,''     ,''     ,-1    ,''     ,-1     ,'VMASS'     , 1  ,'ORG'         , 1  ,'SOA'      ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
 'AISO2'   ,133.00  ,F      ,T     ,F      ,''     ,''     ,-1    ,''     ,-1     ,'VMASS'     , 1  ,'ORG'         , 1  ,'SOA'      ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
