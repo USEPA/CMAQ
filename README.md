@@ -20,8 +20,11 @@ Updates will be issued by the CMAQ development team or other users as Pull Reque
 Potential updates include bugfixes that resolves runtime failures, segmentation faults, initialization issues, etc. Other updates could target algorithm inefficiencies that slow the model down. In these cases, it is expected that an improved algorithm would not change model results.  
 
 ### Record of changes to CMAQv5.3.3+
+Note, each tagged version of CMAQv5.3.3+ contains all updates from previous versions.
+
 |      Tag        |   PR Number       |         PR Name          |   Merge Date     | Brief Description |
 | -------------- | ------------------ | ------------------------ | ---------------- | -----------------------|
+| [CMAQv5.3.3.3_10May2022](https://github.com/USEPA/CMAQ/releases/tag/CMAQv5.3.3.3_10May2022) |[#168](https://github.com/USEPA/CMAQ/pull/168) | WRF-CMAQv533+| 2022-05-10 | Script and documentation update to ensure streamlined building of the WRF-CMAQ model intended for users who would like to run CMAQv5.3.3+ with WRFv4.4+.|
 | [CMAQv5.3.3.2_7May2022](https://github.com/USEPA/CMAQ/releases/tag/CMAQv5.3.3.2_7May2022)     |  [#171](https://github.com/USEPA/CMAQ/pull/171)|Remove files from chemistry utilities causing problems on MAC and WINDOWS systems | 2022-05-07 | Both the create_ebi and inline_phot_prerproc utilities have files in their source code directories that only differ in letter case in filenames. The property does not cause problems on Linux systems but can cause problems on Window and Macintosh systems. The pull request removes the unneeded files causing the problems.|
 |[CMAQv5.3.3.1_11Feb2022](https://github.com/USEPA/CMAQ/releases/tag/CMAQv5.3.3.1_11Feb2022) | | | | |
 | | [#163](https://github.com/USEPA/CMAQ/pull/163)     | Resolve Bug for reading Emission Stream Families        | 2022-02-09 | Bug fix to avoid errors when processing matches for emission stream families related to capitalization. |
