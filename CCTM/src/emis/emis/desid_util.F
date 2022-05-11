@@ -135,8 +135,7 @@
       USE desid_param_module
       USE UTIL_FAMILY_MODULE
       USE VDIFF_MAP, ONLY : DIFF_SPC, N_SPC_DIFF, DIFF_MASK_GAS, 
-     &                      DIFF_MASK_NUM, DIFF_MASK_SRF, DIFF_MASK_NR,
-     &                      DIFF_MASK_TRAC
+     &                      DIFF_MASK_NUM, DIFF_MASK_SRF
 
       IMPLICIT NONE
 
@@ -180,6 +179,9 @@
              Expand_Spec = .TRUE.
              SPECIES(1:15) = SPECIES(2:16)
          END IF
+         IF ( TRIM(SPECIES) .EQ. 'ALL' ) THEN
+             Expand_Spec = .TRUE.
+         END IF
 
          ! Retrieve logical vector, DIFF_VEC, indicating diffused species
          ! relevant for DiagSpec(I)
@@ -199,12 +201,6 @@
                    MAP_toDIFF( NPAIRS ) = J
                    MAP_toDIAG( NPAIRS ) = NSPEC
                    IF ( DIFF_MASK_GAS( J ) ) THEN
-                       ! GAS SPECIES
-                       UNITS( NSPEC ) = 'mol s-1'
-                   ELSE IF ( DIFF_MASK_NR( J ) ) THEN
-                       ! GAS SPECIES
-                       UNITS( NSPEC ) = 'mol s-1'
-                   ELSE IF ( DIFF_MASK_TRAC( J ) ) THEN
                        ! GAS SPECIES
                        UNITS( NSPEC ) = 'mol s-1'
                    ELSE IF ( DIFF_MASK_NUM( J ) ) THEN
@@ -232,12 +228,6 @@
                    MAP_toDIFF( NPAIRS ) = J
                    MAP_toDIAG( NPAIRS ) = NSPEC
                    IF ( DIFF_MASK_GAS( J ) ) THEN
-                       ! GAS SPECIES
-                       UNITS( NSPEC ) = 'mol s-1'
-                   ELSE IF ( DIFF_MASK_NR( J ) ) THEN
-                       ! GAS SPECIES
-                       UNITS( NSPEC ) = 'mol s-1'
-                   ELSE IF ( DIFF_MASK_TRAC( J ) ) THEN
                        ! GAS SPECIES
                        UNITS( NSPEC ) = 'mol s-1'
                    ELSE IF ( DIFF_MASK_NUM( J ) ) THEN
