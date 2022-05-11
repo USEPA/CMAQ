@@ -36,7 +36,7 @@
 !                            BNDY_SENS_1, remove REGIONS_1
 !.......................................................................
 
-      INTEGER, PARAMETER :: N_FILES = 64
+      INTEGER, PARAMETER :: N_FILES = 62
 
       CHARACTER( 16 ) :: LGCL_NAME( N_FILES ) 
       LOGICAL            IN_MODE( N_FILES )
@@ -57,8 +57,6 @@
       CHARACTER( 16 ) :: OCEAN_1       ! OCEAN File
       CHARACTER( 16 ) :: INIT_CONC_1   ! IC FILE for all Species
       CHARACTER( 16 ) :: BNDY_CONC_1   ! BC FILE for all Species
-      CHARACTER( 16 ) :: DUST_LU_1     ! WB Dust Emissions
-      CHARACTER( 16 ) :: DUST_LU_2     ! WB Dust Emissions
       CHARACTER( 16 ) :: E2C_CHEM      ! BIDI NH3 Config.
       CHARACTER( 16 ) :: E2C_CHEM_YEST ! BIDI NH3 Config.
       CHARACTER( 16 ) :: E2C_SOIL      ! BIDI NH3 Config.
@@ -75,8 +73,8 @@
       CHARACTER( 16 ) :: CTM_SSEMIS_1    ! Sea Spray Emissions
       CHARACTER( 16 ) :: CTM_MGEM_1      ! Marine Gas Emissions
       CHARACTER( 16 ) :: CTM_DUST_EMIS_1 ! Dust Emissions 
-      CHARACTER( 16 ) :: CTM_PMDIAG_1    ! On-Hour Particle Diagnostics 
-      CHARACTER( 16 ) :: CTM_APMDIAG_1   ! Hourly Avg. Particle Diagnostics
+      CHARACTER( 16 ) :: CTM_ELMO_1      ! On-Hour Particle Diagnostics 
+      CHARACTER( 16 ) :: CTM_AELMO_1     ! Hourly Avg. Particle Diagnostics
       CHARACTER( 16 ) :: CTM_LTNGDIAG_1  ! Hourly Avg Lightning NO
       CHARACTER( 16 ) :: CTM_LTNGDIAG_2  ! Column Total Lightning NO
       CHARACTER( 16 ) :: A_CONC_1        ! Hourly Avg. Concentrations
@@ -87,9 +85,7 @@
       CHARACTER( 16 ) :: CTM_RJ_3        ! 3D Optical and Radiative Results from Photolysis
       CHARACTER( 16 ) :: MEDIA_CONC      ! NH3 Concentration in Media
       CHARACTER( 16 ) :: CTM_DEPV_MOS    ! Dry Dep Velocity
-      CHARACTER( 16 ) :: CTM_DEPV_FST    ! Dry Dep Velocity
       CHARACTER( 16 ) :: CTM_DRY_DEP_MOS ! Dry Dep
-      CHARACTER( 16 ) :: CTM_DRY_DEP_FST ! Dry Dep
       CHARACTER( 16 ) :: CTM_VDIFF_DIAG  ! Vertical Dispersion Diagnostic
       CHARACTER( 16 ) :: CTM_VSED_DIAG   ! Particle Grav. Settling Velocity  
      
@@ -153,8 +149,8 @@
       DATA CTM_SSEMIS_1     / 'CTM_SSEMIS_1    ' /
       DATA CTM_MGEM_1       / 'CTM_MGEM_1      ' /
       DATA CTM_DUST_EMIS_1  / 'CTM_DUST_EMIS_1 ' /
-      DATA CTM_PMDIAG_1     / 'CTM_PMDIAG_1    ' /
-      DATA CTM_APMDIAG_1    / 'CTM_APMDIAG_1   ' /
+      DATA CTM_ELMO_1       / 'CTM_ELMO_1      ' /
+      DATA CTM_AELMO_1      / 'CTM_AELMO_1     ' /
       DATA CTM_LTNGDIAG_1   / 'CTM_LTNGDIAG_1  ' /
       DATA CTM_LTNGDIAG_2   / 'CTM_LTNGDIAG_2  ' /
       DATA CTM_IPR_1        / 'CTM_IPR_1       ' /
@@ -180,12 +176,8 @@
       DATA A_SENS_1         / 'A_SENS_1        ' /
       DATA CTM_SWETDEP_1    / 'CTM_SWETDEP_1   ' /
       DATA CTM_SDRYDEP_1    / 'CTM_SDRYDEP_1   ' /
-      DATA DUST_LU_1        / 'DUST_LU_1       ' /
-      DATA DUST_LU_2        / 'DUST_LU_2       ' /
       DATA CTM_DEPV_MOS     / 'CTM_DEPV_MOS    ' /
       DATA CTM_DRY_DEP_MOS  / 'CTM_DRY_DEP_MOS ' /
-      DATA CTM_DRY_DEP_FST  / 'CTM_DRY_DEP_FST ' /
-      DATA CTM_DEPV_FST     / 'CTM_DEPV_FST    ' /
       DATA E2C_CHEM         / 'E2C_CHEM        ' /
       DATA E2C_CHEM_YEST    / 'E2C_CHEM_YEST   ' /
       DATA E2C_SOIL         / 'E2C_SOIL        ' /
@@ -218,8 +210,8 @@
       DATA LGCL_NAME( 17 ), IN_MODE( 17 )    / 'CTM_SSEMIS_1    ', .FALSE. /
       DATA LGCL_NAME( 18 ), IN_MODE( 18 )    / 'CTM_MGEM_1      ', .FALSE. /
       DATA LGCL_NAME( 19 ), IN_MODE( 19 )    / 'CTM_DUST_EMIS_1 ', .FALSE. /
-      DATA LGCL_NAME( 20 ), IN_MODE( 20 )    / 'CTM_PMDIAG_1    ', .FALSE. /
-      DATA LGCL_NAME( 21 ), IN_MODE( 21 )    / 'CTM_APMDIAG_1   ', .FALSE. /
+      DATA LGCL_NAME( 20 ), IN_MODE( 20 )    / 'CTM_ELMO_1      ', .FALSE. /
+      DATA LGCL_NAME( 21 ), IN_MODE( 21 )    / 'CTM_AELMO_1     ', .FALSE. /
       DATA LGCL_NAME( 22 ), IN_MODE( 22 )    / 'CTM_LTNGDIAG_1  ', .FALSE. /
       DATA LGCL_NAME( 23 ), IN_MODE( 23 )    / 'CTM_LTNGDIAG_2  ', .FALSE. /
       DATA LGCL_NAME( 24 ), IN_MODE( 24 )    / 'CTM_IPR_1       ', .FALSE. /
@@ -245,23 +237,21 @@
       DATA LGCL_NAME( 44 ), IN_MODE( 44 )    / 'A_SENS_1        ', .FALSE. /
       DATA LGCL_NAME( 45 ), IN_MODE( 45 )    / 'CTM_SWETDEP_1   ', .FALSE. /
       DATA LGCL_NAME( 46 ), IN_MODE( 46 )    / 'CTM_SDRYDEP_1   ', .FALSE. /
-      DATA LGCL_NAME( 47 ), IN_MODE( 47 )    / 'DUST_LU_1       ', .TRUE. /
-      DATA LGCL_NAME( 48 ), IN_MODE( 48 )    / 'DUST_LU_2       ', .TRUE. /
-      DATA LGCL_NAME( 49 ), IN_MODE( 49 )    / 'CTM_DEPV_MOS    ', .FALSE. /
-      DATA LGCL_NAME( 50 ), IN_MODE( 50 )    / 'CTM_DRY_DEP_MOS ', .FALSE. /
-      DATA LGCL_NAME( 51 ), IN_MODE( 51 )    / 'CTM_DRY_DEP_FST ', .FALSE. /
-      DATA LGCL_NAME( 52 ), IN_MODE( 52 )    / 'CTM_DEPV_FST    ', .FALSE. /
-      DATA LGCL_NAME( 53 ), IN_MODE( 53 )    / 'E2C_CHEM        ', .FALSE. /
-      DATA LGCL_NAME( 54 ), IN_MODE( 54 )    / 'E2C_CHEM_YEST   ', .FALSE. /
-      DATA LGCL_NAME( 55 ), IN_MODE( 55 )    / 'E2C_SOIL        ', .FALSE. /
-      DATA LGCL_NAME( 56 ), IN_MODE( 56 )    / 'E2C_LU          ', .FALSE. /
-      DATA LGCL_NAME( 57 ), IN_MODE( 57 )    / 'CTM_SD_TS       ', .FALSE. /
-      DATA LGCL_NAME( 58 ), IN_MODE( 58 )    / 'CTM_VDIFF_DIAG  ', .FALSE. /
-      DATA LGCL_NAME( 59 ), IN_MODE( 59 )    / 'CTM_VSED_DIAG   ', .FALSE. /
-      DATA LGCL_NAME( 60 ), IN_MODE( 60 )    / 'SA_CONC_1       ', .FALSE. /
-      DATA LGCL_NAME( 61 ), IN_MODE( 61 )    / 'SA_CGRID_1      ', .FALSE. /
-      DATA LGCL_NAME( 62 ), IN_MODE( 62 )    / 'SA_ACONC_1      ', .FALSE. /
-      DATA LGCL_NAME( 63 ), IN_MODE( 63 )    / 'SA_DD_1         ', .FALSE. /
-      DATA LGCL_NAME( 64 ), IN_MODE( 64 )    / 'SA_WD_1         ', .FALSE. /
+      DATA LGCL_NAME( 47 ), IN_MODE( 47 )    / 'CTM_DEPV_MOS    ', .FALSE. /
+      DATA LGCL_NAME( 48 ), IN_MODE( 48 )    / 'CTM_DRY_DEP_MOS ', .FALSE. /
+      DATA LGCL_NAME( 49 ), IN_MODE( 49 )    / 'CTM_DRY_DEP_FST ', .FALSE. /
+      DATA LGCL_NAME( 50 ), IN_MODE( 50 )    / 'CTM_DEPV_FST    ', .FALSE. /
+      DATA LGCL_NAME( 51 ), IN_MODE( 51 )    / 'E2C_CHEM        ', .FALSE. /
+      DATA LGCL_NAME( 52 ), IN_MODE( 52 )    / 'E2C_CHEM_YEST   ', .FALSE. /
+      DATA LGCL_NAME( 53 ), IN_MODE( 53 )    / 'E2C_SOIL        ', .FALSE. /
+      DATA LGCL_NAME( 54 ), IN_MODE( 54 )    / 'E2C_LU          ', .FALSE. /
+      DATA LGCL_NAME( 55 ), IN_MODE( 55 )    / 'CTM_SD_TS       ', .FALSE. /
+      DATA LGCL_NAME( 56 ), IN_MODE( 56 )    / 'CTM_VDIFF_DIAG  ', .FALSE. /
+      DATA LGCL_NAME( 57 ), IN_MODE( 57 )    / 'CTM_VSED_DIAG   ', .FALSE. /
+      DATA LGCL_NAME( 58 ), IN_MODE( 58 )    / 'SA_CONC_1       ', .FALSE. /
+      DATA LGCL_NAME( 59 ), IN_MODE( 59 )    / 'SA_CGRID_1      ', .FALSE. /
+      DATA LGCL_NAME( 60 ), IN_MODE( 60 )    / 'SA_ACONC_1      ', .FALSE. /
+      DATA LGCL_NAME( 61 ), IN_MODE( 61 )    / 'SA_DD_1         ', .FALSE. /
+      DATA LGCL_NAME( 62 ), IN_MODE( 62 )    / 'SA_WD_1         ', .FALSE. /
 
 !................   end   FILES_CTM.EXT   .............................

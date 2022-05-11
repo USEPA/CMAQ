@@ -49,7 +49,7 @@ C-----------------------------------------------------------------------
       USE RUNTIME_VARS
       USE GRID_CONF           ! horizontal & vertical domain specifications
       USE UTILIO_DEFN
-      USE EMIS_VARS, ONLY : EMLAYS
+      USE DESID_VARS, ONLY : DESID_LAYS
 
       IMPLICIT NONE
  
@@ -83,7 +83,7 @@ C Set output file characteristics based on GRID_CONF module and open the 3D emis
       TSTEP3D = TSTEP
       NCOLS3D = GL_NCOLS
       NROWS3D = GL_NROWS
-      NLAYS3D = EMLAYS
+      NLAYS3D = DESID_LAYS
       NTHIK3D = 1
       NVARS3D = N_SPC
       GDTYP3D = GDTYP_GD

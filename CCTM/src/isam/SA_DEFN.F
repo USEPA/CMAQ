@@ -25,6 +25,7 @@
 ! 10 Jun 21 G. Sarwar: Added CB6R3M
 ! 23 Jun 21 G. Sarwar: Replaced CB6R3M with CB6R5M
 ! 25 June 21 G. Sarwar: Removed CB6R3_AE6_AQ since it is not suported in CMAQ any more
+! 26 Apr 22 G. Sarwar: Added DMS
 
       USE RUNTIME_VARS, ONLY : VOC_NOX_TRANS, ISAM_NOX_CASE, ISAM_VOC_CASE
       
@@ -754,7 +755,7 @@ c----------------------------------------------------------
         
         !CB6R5_AE7_AQ
         ALLOCATE( ISAM_SPEC_SO4( 2 )%LIST( 1 ) )
-        ISAM_SPEC_SO4( 2 )%LIST = (/'SO2'/ )
+        ISAM_SPEC_SO4( 2 )%LIST = (/'SO2', 'DMS'/ )
         
         !CB6R5M_AE7_AQ
         ALLOCATE( ISAM_SPEC_SO4( 3 )%LIST( 2 ) )

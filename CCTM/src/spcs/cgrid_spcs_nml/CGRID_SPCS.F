@@ -109,7 +109,7 @@ c control species
       INTEGER, SAVE              :: N_CGRID_SPC
       INTEGER, SAVE              :: N_SPC_DEPV
       INTEGER, SAVE              :: RHOJ_LOC
-      CHARACTER( 16 ), ALLOCATABLE, SAVE :: CGRID_NAME     ( : )
+      CHARACTER( 16 ), ALLOCATABLE, SAVE :: CGRID_NAME( : )
       REAL,    ALLOCATABLE, SAVE :: CGRID_MW       ( : )
       CHARACTER( 16 ), ALLOCATABLE, SAVE :: CGRID_UNITS    ( : )
       LOGICAL, ALLOCATABLE, SAVE :: CGRID_MASK_GAS ( : )
@@ -118,6 +118,8 @@ c control species
       LOGICAL, ALLOCATABLE, SAVE :: CGRID_MASK_SRF ( : )
       LOGICAL, ALLOCATABLE, SAVE :: CGRID_MASK_NR  ( : )
       LOGICAL, ALLOCATABLE, SAVE :: CGRID_MASK_TRAC( : )
+      CHARACTER( 16 ), ALLOCATABLE, SAVE :: CGRID_CONC_UNIT ( : )
+      CHARACTER( 256), ALLOCATABLE, SAVE :: CGRID_CONC_DESC ( : )
       INTEGER, ALLOCATABLE, SAVE :: MAP_DEPVtoCGRID( : )
 
 
@@ -401,6 +403,7 @@ c-------------------------------------------------------------------------------
 
             GC_FINI   = GC_STRT + N_GC_SPC - 1
             N_GC_SPCD = GC_FINI + 1
+            GC_SPC( N_GC_SPCD ) = 'AIR_DENSITY'
             RHOJ_LOC  = N_GC_SPCD
 
 
@@ -1007,6 +1010,8 @@ c-------------------------------------------------------------------------------
      &                CGRID_MASK_SRF( N_CGRID_SPC ),
      &                CGRID_MASK_NR( N_CGRID_SPC ),
      &                CGRID_MASK_TRAC( N_CGRID_SPC ),
+     &                CGRID_CONC_UNIT( N_CGRID_SPC ),
+     &                CGRID_CONC_DESC( N_CGRID_SPC ),
      &                MAP_DEPVtoCGRID( N_CGRID_SPC ) )
             CGRID_NAME = ''
             CGRID_MW   = 0.
@@ -1016,6 +1021,8 @@ c-------------------------------------------------------------------------------
             CGRID_MASK_SRF = .FALSE.
             CGRID_MASK_NR  = .FALSE.
             CGRID_MASK_TRAC= .FALSE.
+            CGRID_CONC_UNIT= ''
+            CGRID_CONC_DESC= ''
             MAP_DEPVtoCGRID= 0
             CGRID_UNITS = ''
 
@@ -1028,6 +1035,8 @@ c-------------------------------------------------------------------------------
                 CGRID_NAME( IGRID ) = GC_SPC( ISPC )
                 CGRID_MW( IGRID )   = GC_MOLWT( ISPC )
                 CGRID_MASK_GAS( IGRID )   = .TRUE.
+                CGRID_CONC_UNIT( IGRID )  = 'ppmV'
+                CGRID_CONC_DESC( IGRID )  = 'Molar Mixing Ratio of ' // CGRID_NAME(IGRID)
                 DO JSPC = 1,N_GC_DEPV
                    IF ( GC_DEPV_MAP( JSPC ) .EQ. ISPC ) THEN
                       IDEPV = IDEPV + 1
@@ -1049,8 +1058,18 @@ c-------------------------------------------------------------------------------
                 CGRID_NAME( IGRID ) = AE_SPC( ISPC )
                 CGRID_MW( IGRID )   = AE_MOLWT( ISPC )
                 CGRID_MASK_AERO( IGRID )   = .TRUE.
-                IF ( INDEX( AE_SPC( ISPC ),'NUM') .NE. 0 ) CGRID_MASK_NUM( IGRID )   = .TRUE.
-                IF ( INDEX( AE_SPC( ISPC ),'SRF') .NE. 0 ) CGRID_MASK_SRF( IGRID )   = .TRUE.
+                CGRID_CONC_UNIT( IGRID )  = 'ug m-3'
+                CGRID_CONC_DESC( IGRID )  = 'PM Mass Concentration of ' // CGRID_NAME(IGRID)
+                IF ( INDEX( AE_SPC( ISPC ),'NUM') .NE. 0 ) THEN
+                    CGRID_MASK_NUM( IGRID )   = .TRUE.
+                    CGRID_CONC_UNIT( IGRID )  = 'm-3'
+                    CGRID_CONC_DESC( IGRID )  = 'PM Number Concentration of ' // CGRID_NAME(IGRID)
+                END IF
+                IF ( INDEX( AE_SPC( ISPC ),'SRF') .NE. 0 ) THEN
+                    CGRID_MASK_SRF( IGRID )   = .TRUE.
+                    CGRID_CONC_UNIT( IGRID )  = 'm2 m-3'
+                    CGRID_CONC_DESC( IGRID )  = 'PM Surface Area Concentration of ' // CGRID_NAME(IGRID)
+                END IF
                 DO JSPC = 1,N_AE_DEPV
                    IF ( AE_DEPV_MAP( JSPC ) .EQ. ISPC ) THEN
                       IDEPV = IDEPV + 1
@@ -1074,6 +1093,8 @@ c-------------------------------------------------------------------------------
                 CGRID_NAME( IGRID ) = NR_SPC( ISPC )
                 CGRID_MW( IGRID )   = NR_MOLWT( ISPC )
                 CGRID_MASK_NR( IGRID )   = .TRUE.
+                CGRID_CONC_UNIT( IGRID )  = 'ppmV'
+                CGRID_CONC_DESC( IGRID )  = 'Molar Mixing Ratio of ' // CGRID_NAME(IGRID)
                 DO JSPC = 1,N_NR_DEPV
                    IF ( NR_DEPV_MAP( JSPC ) .EQ. ISPC ) THEN
                       IDEPV = IDEPV + 1
@@ -1089,6 +1110,8 @@ c-------------------------------------------------------------------------------
                 CGRID_NAME( IGRID ) = TR_SPC( ISPC )
                 CGRID_MW( IGRID )   = TR_MOLWT( ISPC )
                 CGRID_MASK_TRAC( IGRID )   = .TRUE.
+                CGRID_CONC_UNIT( IGRID )  = 'ppmV'
+                CGRID_CONC_DESC( IGRID )  = 'Molar Mixing Ratio of ' // CGRID_NAME(IGRID)
                 DO JSPC = 1,N_TR_DEPV
                    IF ( TR_DEPV_MAP( JSPC ) .EQ. ISPC ) THEN
                       IDEPV = IDEPV + 1
@@ -1124,159 +1147,6 @@ c-------------------------------------------------------------------------------
          RETURN
 
          END FUNCTION GET_LOGICAL_NML
-
-c----------------------------------------------------------------------------------------
-         subroutine get_list( ic, str_in, base_out,
-     &                        n_surr1, surr1_out, n_surr2, surr2_out, n_ctrl, ctrl_out )
-
-c assume chem mechanism types are in the order of:
-c 1) CGRID species, CGRID species molecular weight <- base type
-c 2) IC, BC, DEPV, SCAV  [any order]               <- surrogate type 1 (surr name, surr fac)
-c 3) x2AE, x2AQ  [any order]                       <- surrogate type 2 (surr name only )
-c 4) DIFF, DDEP, WDEP, CONC  [any order]           <- control type
-
-            use UTILIO_DEFN
-
-            implicit none
-
-
-            integer,            intent ( in out ) :: ic
-            character( * ),     intent (  in ) :: str_in
-            type( base_type ),  intent ( out ) :: base_out
-            integer,            intent (  in ) :: n_surr1
-            type( surr1_type ), intent ( out ) :: surr1_out( n_surr1 )
-            integer,            intent (  in ) :: n_surr2
-            type( surr2_type ), intent ( out ) :: surr2_out( n_surr2 )
-            integer,            intent (  in ) :: n_ctrl
-            type( ctrl_type ),  intent ( out ) :: ctrl_out( n_ctrl )
-
-            integer, parameter :: nfld = 20
-            character(  1 ), parameter :: dc = ':', bl = ' '  ! namelist field delimiting character, blank character
-            character( 32 ) :: str( nfld ) = bl               ! field substring
-            character(  1 ) :: chr, lastchr
-            integer ip, is, n
-            integer fn                                        ! field number
-            integer :: jp( nfld ), kp( nfld )                 ! field starting and ending position
-            logical :: nbf( nfld )                            ! non-blank field
-            integer maxlen
-!           integer, save :: ic = 0   ! subroutine call count
-
-            ic = ic + 1
-            maxlen = len_trim( str_in )
-            fn = 1; ip = 0
-
-101         continue    ! consume leading blanks in field
-            nbf( fn ) = .true.   ! posit non-blank field
-            ip = ip + 1
-            if ( ip .gt. maxlen ) go to 301   ! end of line
-            chr = str_in( ip:ip )
-            if ( chr .eq. bl ) go to 101   ! skip leading blanks before valid char
-            lastchr = chr
-            jp( fn ) = ip   ! 1st non-blank char in field
-
-201         continue
-            if ( chr .ne. dc ) then
-               if ( chr .ne. bl ) lastchr = chr
-               ip = ip + 1
-               if ( ip .gt. maxlen ) go to 301   ! end of line
-               chr = str_in( ip:ip )
-               go to 201
-            else
-               if ( lastchr .eq. dc ) nbf( fn ) = .false.   ! we've got a blank field
-               kp( fn ) = ip - 1
-               fn = fn + 1
-            end if
-            go to 101
-
-301         continue
-            kp( fn ) = ip - 1
-            if ( chr .eq. dc ) nbf( fn ) = .false.
-
-            do n = 1, fn
-#ifdef Verbose
-               write( logdev,'(3i4,l)' ) n, jp( n ), kp( n ), nbf( n )
-               if ( kp( n ) .lt. jp( n ) ) then   ! don't depend on this - use bf( n )
-                  write( logdev,* ) n, 'end of string < start'
-               end if
-#endif
-               if ( nbf( n ) ) then
-                  str( n ) = str_in( jp( n ):kp( n ) )
-#ifdef Verbose
-                  write( logdev,* ) n, len_trim( str( n ) ), str( n )
-#endif
-               end if
-            end do
-
-c assumed group order: {CGRID spc, mw},
-c                      {IC, BC, DEPV, SCAV} group,
-c                      {x2AE, x2AQ} group,
-c                      {TRNS, DDEP, WDEP, CONC} group
-c str( 1 ) = CGRID name, str( 2 ) = CGRID name molec. wt.
-
-            read( str( 1 ),'( a16 )' )  base_out%name
-            if ( index( str( 2 ), '.' ) .le. 0 ) then   ! integer
-               read( str( 2 ),'( i7 )' ) is
-               base_out%mw = real( is )
-            else
-               read( str( 2 ),'( f7.2 )' ) base_out%mw
-            end if
-
-c type 1 surrogate (surr1)
-c if there is a surrogate name and the factor field is blank, assume fac = 1.0
-            ip = 3
-            do n = 1, n_surr1
-               if ( nbf( ip ) ) then
-                  read( str( ip ),'( a16 )' ) surr1_out( n )%name
-                  surr1_out( n )%map = ic
-                  if ( nbf( ip+1 ) ) then
-                     if ( index( str( ip+1 ), '.' ) .le. 0 ) then   ! integer
-                        read( str( ip+1 ),'( i7 )' ) is
-                        surr1_out( n )%fac = real( is )
-                     else
-                        read( str( ip+1 ),'( f7.2 )' ) surr1_out( n )%fac
-                     end if
-                  else
-                     surr1_out( n )%fac = 1.0
-                  end if
-               else
-                  surr1_out( n )%name = bl
-                  surr1_out( n )%map = 0
-                  surr1_out( n )%fac = 0.0
-               end if
-               ip = ip + 2
-            end do
-
-c type 2 surrogate (surr2)
-            do n = 1, n_surr2
-               if ( nbf( ip ) ) then
-                  surr2_out( n )%map = ic
-                  read( str( ip ),'( a16 )' ) surr2_out( n )%name
-               else
-                  surr2_out( n )%name = bl
-                  surr2_out( n )%map = 0
-               end if
-               ip = ip + 1
-            end do
-
-            do n = 1, n_ctrl
-               if ( nbf( ip ) ) then
-                  if ( str( ip ) .eq. 'yes' .or.
-     &                 str( ip ) .eq. 'Yes' .or.
-     &                 str( ip ) .eq. 'YES' ) then  ! use call upcase
-                     read( str( 1 ),'( a16 )' ) ctrl_out( n )%name
-                     ctrl_out( n )%map = ic
-                  else
-                     ctrl_out( n )%name = bl
-                  end if
-               else
-                  ctrl_out( n )%name = bl
-                  ctrl_out( n )%map = 0
-               end if
-               ip = ip + 1
-            end do
-
-            return
-            end subroutine get_list
 
 c----------------------------------------------------------------------------------------
             subroutine bubble ( n, ia, aa )
