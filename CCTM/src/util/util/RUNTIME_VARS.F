@@ -221,6 +221,8 @@
       LOGICAL :: BIOGEMIS_BEIS = .FALSE. ! flag to in-line biogenic VOC emissions
       LOGICAL :: BIOGEMIS_MEGAN= .FALSE. ! flag to in-line MEGAN biogenic emissions
       LOGICAL :: USE_MEGAN_LAI = .FALSE. ! flag to use MEGAN LAI values
+      LOGICAL :: MGN_ONLN_DEP  = .TRUE.  ! flag to use ONLINE N deposition in BDSNP
+      LOGICAL :: BDSNP_MEGAN   = .FALSE. ! flag to use BDSNP for soil NO 
       CHARACTER(16) :: SPPRO   = 'DEFAULT' ! requested speciation profile name
       LOGICAL :: BEMIS_DIAG    = .TRUE.  ! true: write diagnostic emiss file
       LOGICAL :: MGEMDIAG      = .FALSE. ! flag for MGEM diagnostic file
@@ -787,12 +789,14 @@
       ! present on emissions files
       CALL GET_ENV (  EMISCHK, 'CTM_EMISCHK', EMISCHK, VARDEV )
  
-      ! CTM_BIOGEMIS_BEIS
-      CALL GET_ENV ( BIOGEMIS_BEIS, 'CTM_BIOGEMIS_BEIS', BIOGEMIS_BEIS, VARDEV )
+      ! CTM_BIOGEMIS_BE
+      CALL GET_ENV ( BIOGEMIS_BEIS, 'CTM_BIOGEMIS_BE', BIOGEMIS_BEIS, VARDEV )
 
-      ! CTM_BIOGEMIS_MEGAN
-      CALL GET_ENV(BIOGEMIS_MEGAN, 'CTM_BIOGEMIS_MEGAN', BIOGEMIS_MEGAN,VARDEV )
+      ! CTM_BIOGEMIS_MG
+      CALL GET_ENV(BIOGEMIS_MEGAN, 'CTM_BIOGEMIS_MG', BIOGEMIS_MEGAN,VARDEV )
       CALL GET_ENV(USE_MEGAN_LAI, 'USE_MEGAN_LAI',USE_MEGAN_LAI,VARDEV )
+      CALL GET_ENV(MGN_ONLN_DEP, 'MGN_ONLN_DEP',MGN_ONLN_DEP,VARDEV )
+      CALL GET_ENV(BDSNP_MEGAN, 'BDSNP_MEGAN',BDSNP_MEGAN,VARDEV )
 
       ! Get the speciation profile to use
       CALL GET_ENV ( SPPRO, 'BIOG_SPRO', SPPRO, VARDEV )
