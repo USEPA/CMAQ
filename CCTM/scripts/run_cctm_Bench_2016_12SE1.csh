@@ -152,7 +152,6 @@ setenv CTM_WB_DUST N         #> use inline windblown dust emissions (only for us
 setenv CTM_LTNG_NO N         #> turn on lightning NOx [ default: N ]
 setenv KZMIN Y               #> use Min Kz option in edyintb [ default: Y ], 
                              #>    otherwise revert to Kz0UT
-setenv CTM_MOSAIC N          #> landuse specific deposition velocities [ default: N ]
 setenv PX_VERSION Y          #> WRF PX LSM
 setenv CLM_VERSION N         #> WRF CLM LSM
 setenv NOAH_VERSION N        #> WRF NOAH LSM
@@ -167,6 +166,21 @@ setenv CTM_GRAV_SETL Y       #> vdiff aerosol gravitational sedimentation [ defa
 setenv CTM_BIOGEMIS_BEIS Y   #> calculate in-line biogenic emissions [ default: N ]
 setenv CTM_BIOGEMIS_MEGAN N  #> turns on MEGAN biogenic emission [ default: N ]
 setenv USE_MEGAN_LAI N       #> use separate LAI input file [ default: N ]
+#> Surface Tiled Aerosol and Gaseous Exchange Options
+#> Only active if DepMod=stage at compile time
+setenv CTM_MOSAIC N          #> Output landuse specific deposition velocities [ default: N ]
+setenv CTM_STAGE_P22 N       #> Pleim et al. 2022 Aerosol deposition model [default: N]
+setenv CTM_STAGE_E20 Y       #> Emerson et al. 2020 Aerosol deposition model [default: Y]
+setenv CTM_STAGE_S22 N       #> Shu et al. 2022 (CMAQ v5.3) Aerosol deposition model [default: N]
+
+setenv IC_AERO_M2WET F       #> Specify whether or not initial condition aerosol size distribution 
+                             #>    is wet or dry [ default: F = dry ]
+setenv BC_AERO_M2WET F       #> Specify whether or not boundary condition aerosol size distribution 
+                             #>    is wet or dry [ default: F = dry ]
+setenv IC_AERO_M2USE F       #> Specify whether or not to use aerosol surface area from initial 
+                             #>    conditions [ default: T = use aerosol surface area  ]
+setenv BC_AERO_M2USE F       #> Specify whether or not to use aerosol surface area from boundary 
+                             #>    conditions [ default: T = use aerosol surface area  ]
 
 #> Vertical Extraction Options
 setenv VERTEXT N
@@ -214,6 +228,7 @@ set IN_LTpath = $INPDIR/lightning                   #> lightning NOx input direc
 set METpath   = $INPDIR/met/mcipv5.0                #> meteorology input directory 
 #set JVALpath  = $INPDIR/jproc                      #> offline photolysis rate table directory
 set OMIpath   = $BLD                                #> ozone column data for the photolysis model
+set EPICpath  = $INPDIR/surface           #> EPIC putput for bidirectional NH3
 set SZpath    = $INPDIR/land                        #> surf zone file for in-line seaspray emissions
 
 # =====================================================================
@@ -235,6 +250,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   set YYYYMMDD = `date -ud "${TODAYG}" +%Y%m%d` #> Convert YYYY-MM-DD to YYYYMMDD
   set YYYYMM = `date -ud "${TODAYG}" +%Y%m`     #> Convert YYYY-MM-DD to YYYYMM
   set YYMMDD = `date -ud "${TODAYG}" +%y%m%d`   #> Convert YYYY-MM-DD to YYMMDD
+  set MM = `date -ud "${TODAYG}" +%m`           #> Convert YYYY-MM-DD to MM  
   set YYYYJJJ = $TODAYJ
 
   #> Calculate Yesterday's Date
@@ -289,29 +305,38 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   setenv MET_DOT_3D $METpath/METDOT3D_${YYMMDD}.nc
   setenv MET_BDY_3D $METpath/METBDY3D_${YYMMDD}.nc
   setenv LUFRAC_CRO $METpath/LUFRAC_CRO_${YYMMDD}.nc
-
-  #> Emissions Control File
+      
+  #> Control Files
   #>
   #> IMPORTANT NOTE
   #>
-  #> The emissions control file defined below is an integral part of controlling the behavior of the model simulation.
-  #> Among other things, it controls the mapping of species in the emission files to chemical species in the model and
+  #> The DESID control files defined below are an integral part of controlling the behavior of the model simulation.
+  #> Among other things, they control the mapping of species in the emission files to chemical species in the model and
   #> several aspects related to the simulation of organic aerosols.
-  #> Please carefully review the emissions control file to ensure that it is configured to be consistent with the assumptions
+  #> Please carefully review the DESID control files to ensure that they are configured to be consistent with the assumptions
   #> made when creating the emission files defined below and the desired representation of organic aerosols.
   #> For further information, please see:
   #> + AERO7 Release Notes section on 'Required emission updates':
   #>   https://github.com/USEPA/CMAQ/blob/master/DOCS/Release_Notes/aero7_overview.md
-  #> + CMAQ User's Guide section 6.9.3 on 'Emission Compatability': 
+  #> + CMAQ User's Guide section 6.9.3 on 'Emission Compatability':
   #>   https://github.com/USEPA/CMAQ/blob/master/DOCS/Users_Guide/CMAQ_UG_ch06_model_configuration_options.md#6.9.3_Emission_Compatability
-  #> + Emission Control (DESID) Documentation in the CMAQ User's Guide: 
-  #>   https://github.com/USEPA/CMAQ/blob/master/DOCS/Users_Guide/Appendix/CMAQ_UG_appendixB_emissions_control.md 
+  #> + Emission Control (DESID) Documentation in the CMAQ User's Guide:
+  #>   https://github.com/USEPA/CMAQ/blob/master/DOCS/Users_Guide/Appendix/CMAQ_UG_appendixB_emissions_control.md
   #>
-  setenv EMISSCTRL_NML ${BLD}/EmissCtrl_${MECH}.nml
-  setenv STAGECTRL_NML ${BLD}/CMAQ_Control_STAGE.nml
+  setenv DESID_CTRL_NML ${BLD}/CMAQ_Control_DESID.nml
+  setenv DESID_CHEM_CTRL_NML ${BLD}/CMAQ_Control_DESID_${MECH}.nml
 
+  #> The following namelist configures aggregated output (via the Explicit and Lumped
+  #> Air Quality Model Output (ELMO) Module), domain-wide budget output, and chemical
+  #> family output.
+  setenv MISC_CTRL_NML ${BLD}/CMAQ_Control_Misc.nml
+
+  #> The following namelist controls the mapping of meteorological land use types and the NH3 and Hg emission
+  #> potentials
+  setenv STAGECTRL_NML ${BLD}/CMAQ_Control_STAGE.nml
+ 
   #> Spatial Masks For Emissions Scaling
-  setenv CMAQ_MASKS $SZpath/12US1_surf_bench.nc #> horizontal grid-dependent surf zone file
+  setenv CMAQ_MASKS $SZpath/OCEAN_${MM}_L3m_MC_CHL_chlor_a_SE53BENCH.nc #> horizontal grid-dependent ocean file
 
   #> Gridded Emissions Files 
   setenv N_EMIS_GR 2
@@ -404,14 +429,14 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   endif
 
   #> In-line sea spray emissions configuration
-  setenv OCEAN_1 $SZpath/12US1_surf_bench.nc #> horizontal grid-dependent surf zone file
+  setenv OCEAN_1 $SZpath/OCEAN_${MM}_L3m_MC_CHL_chlor_a_SE53BENCH.nc #> horizontal grid-dependent ocean file
 
   #> Bidirectional ammonia configuration
   if ( $CTM_ABFLUX == 'Y' ) then
-     setenv E2C_SOIL ${LUpath}/epic_festc1.4_20180516/2016_US1_soil_bench.nc
-     setenv E2C_CHEM ${LUpath}/epic_festc1.4_20180516/2016_US1_time${YYYYMMDD}_bench.nc
-     setenv E2C_CHEM_YEST ${LUpath}/epic_festc1.4_20180516/2016_US1_time${YESTERDAY}_bench.nc
-     setenv E2C_LU ${LUpath}/beld4_12kmCONUS_2011nlcd_bench.nc
+     setenv E2C_SOIL ${EPICpath}/epic_festc1.4_20180516/2016_US1_soil_bench.nc
+     setenv E2C_CHEM ${EPICpath}/epic_festc1.4_20180516/2016_US1_time${YYYYMMDD}_bench.nc
+     setenv E2C_CHEM_YEST ${EPICpath}/epic_festc1.4_20180516/2016_US1_time${YESTERDAY}_bench.nc
+     setenv E2C_LU ${EPICpath}/beld4_12kmCONUS_2011nlcd_bench.nc
   endif
 
 #> Inline Process Analysis 
