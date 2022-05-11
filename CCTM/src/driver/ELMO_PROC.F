@@ -538,7 +538,7 @@
            CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
       END IF
 
-      ELMO_KEY( 8 )%LIST = (/'T ','P ','RH' /) 
+      ELMO_KEY( 8 )%LIST = (/'TA  ','PRES','RH  ' /) 
 
       ELMO_KEY( 9 )%WORD = 'CHEM'
       ELMO_KEY( 9 )%N = 7
@@ -717,7 +717,7 @@
            XMSG = 'Failure allocating ELMO_KEY(23)'
            CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
       END IF
-      ELMO_KEY( 23 )%LIST = (/'DENS','DZ','ZH','CFRAC','PV','P','T'/)
+      ELMO_KEY( 23 )%LIST = (/'DENS','DZ','ZH','CFRAC','PV','PRES','TA'/)
  
       ! Satellite Retrieval products
       ELMO_KEY( 24 )%WORD = 'SATCONC'
