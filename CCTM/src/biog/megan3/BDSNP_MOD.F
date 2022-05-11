@@ -29,7 +29,7 @@ C Adopted from MEGAN3.1 and modified for CMAQ 5.4 by Jeff Willison
       
       CONTAINS
 C::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-      SUBROUTINE HRNOBDSNP( JDATE, JTIME, TSTEP,MONTH, NC, NR, 
+      SUBROUTINE HRNOBDSNP( JDATE, JTIME, TSTEP,MONTH,  
      &             L_DESID_DIAG, SOILM, SOILT, RSTYP,LAI,
      &                       BDSNP_NO )
 
@@ -60,15 +60,13 @@ C Arguments:
       INTEGER, INTENT( IN )  :: MONTH             ! current simulation month
 
       INTEGER, INTENT( IN )  :: TSTEP( 3 )        ! time step vector (HHMMSS)
-      INTEGER, INTENT( IN ) :: NC      ! no. columns
-      INTEGER, INTENT( IN ) :: NR      ! no. rows
       LOGICAL, INTENT( IN ) :: L_DESID_DIAG
-      INTEGER, INTENT( IN ) :: RSTYP  ( NC,NR )        ! soil type
-      REAL,    INTENT( IN ) :: SOILM ( NC,NR )         ! soil moisture [m3/m3] (PX)
-      REAL,    INTENT( IN ) :: SOILT  ( NC,NR )        ! soil temperature [K] (PX)
+      INTEGER, INTENT( IN ) :: RSTYP  ( NCOLS,NROWS )        ! soil type
+      REAL,    INTENT( IN ) :: SOILM ( NCOLS,NROWS )         ! soil moisture [m3/m3] (PX)
+      REAL,    INTENT( IN ) :: SOILT  ( NCOLS,NROWS )        ! soil temperature [K] (PX)
 
-      REAL,    INTENT( IN ) :: LAI  ( NC,NR )        ! leaf area index (m2/m2)
-      REAL,    INTENT( OUT ) :: BDSNP_NO ( NC,NR ) ! output NO emissions in nanomol/m^2/s
+      REAL,    INTENT( IN ) :: LAI  ( NCOLS,NROWS )        ! leaf area index (m2/m2)
+      REAL,    INTENT( OUT ) :: BDSNP_NO ( NCOLS,NROWS ) ! output NO emissions in nanomol/m^2/s
 
 C Parameters:
       ! Value calculated by running the 2x2.5 GEOS-Chem model
@@ -200,45 +198,45 @@ C Allocate memory for data and read
              output_step   = time2sec(tstep(1))
              half_syn_step = time2sec(tstep(2)) / 2
 
-         ALLOCATE( FERT( NC,NR ), STAT=IOS )
+         ALLOCATE( FERT( NCOLS,NROWS ), STAT=IOS )
          CALL CHECKMEM( IOS, 'FERT', PNAME )
 
-         ALLOCATE( CFRAC( NC,NR ), STAT=IOS )
+         ALLOCATE( CFRAC( NCOLS,NROWS ), STAT=IOS )
          CALL CHECKMEM( IOS, 'CFRAC', PNAME )
 
-         ALLOCATE( CRF( NC,NR ), STAT=IOS )
+         ALLOCATE( CRF( NCOLS,NROWS ), STAT=IOS )
          CALL CHECKMEM( IOS, 'CRF', PNAME )
 
-         ALLOCATE( CRFAVG( NC,NR ), STAT=IOS )
+         ALLOCATE( CRFAVG( NCOLS,NROWS ), STAT=IOS )
          CALL CHECKMEM( IOS, 'CRFAVG', PNAME )
 
-         ALLOCATE( PULSEAVG( NC,NR ), STAT=IOS )
+         ALLOCATE( PULSEAVG( NCOLS,NROWS ), STAT=IOS )
          CALL CHECKMEM( IOS, 'PULSEAVG', PNAME )
 
-         ALLOCATE( BASESUM( NC,NR ), STAT=IOS )
+         ALLOCATE( BASESUM( NCOLS,NROWS ), STAT=IOS )
          CALL CHECKMEM( IOS, 'BASESUM', PNAME )
 
 
 C ------ Diagnostics -----------------------------------
-         ALLOCATE( THETA_DIAG( NC,NR ), STAT=IOS )
+         ALLOCATE( THETA_DIAG( NCOLS,NROWS ), STAT=IOS )
          CALL CHECKMEM( IOS, 'THETA_DIAG', PNAME )
 
-         ALLOCATE( WET_DIAG( NC,NR ), STAT=IOS )
+         ALLOCATE( WET_DIAG( NCOLS,NROWS ), STAT=IOS )
          CALL CHECKMEM( IOS, 'WET_DIAG', PNAME )
 
-         ALLOCATE( TEMP_DIAG( NC,NR ), STAT=IOS )
+         ALLOCATE( TEMP_DIAG( NCOLS,NROWS ), STAT=IOS )
          CALL CHECKMEM( IOS, 'TEMP_DIAG', PNAME )
 
-         ALLOCATE( A_DIAG( NC,NR ), STAT=IOS )
+         ALLOCATE( A_DIAG( NCOLS,NROWS ), STAT=IOS )
          CALL CHECKMEM( IOS, 'A_DIAG(', PNAME )
 
-         ALLOCATE( AFERT_DIAG( NC,NR ), STAT=IOS )
+         ALLOCATE( AFERT_DIAG( NCOLS,NROWS ), STAT=IOS )
          CALL CHECKMEM( IOS, 'AFERT_DIAG', PNAME )
 
-         ALLOCATE( NRES_FERT_DIAG( NC,NR ), STAT=IOS )
+         ALLOCATE( NRES_FERT_DIAG( NCOLS,NROWS ), STAT=IOS )
          CALL CHECKMEM( IOS, 'NRES_FERT_DIAG', PNAME )
 
-         ALLOCATE( NRES_DEP_DIAG( NC,NR ), STAT=IOS )
+         ALLOCATE( NRES_DEP_DIAG( NCOLS,NROWS ), STAT=IOS )
          CALL CHECKMEM( IOS, 'NRES_DEP_DIAG', PNAME )
 
 C-----------------------------------------------------------------------------
@@ -983,7 +981,7 @@ C Local Variables
 
 C -------------------------------------------------------------------
 
-      SUBROUTINE GET_CANOPY_NOX(JDATE, JTIME, NC, NR, COSZEN,
+      SUBROUTINE GET_CANOPY_NOX(JDATE, JTIME, NCOLS, NROWS, COSZEN,
      & TASFC, SSOLAR, PRES, LANDTYPE, LAI, SNOCOV, CFRAC, WSPD, CRF) ! called tmpbeis, change called BDSNP, add K argument
 
       IMPLICIT NONE
@@ -991,19 +989,19 @@ C -------------------------------------------------------------------
 C Arguments
       INTEGER, INTENT( IN )  :: JDATE             ! current simulation date (YYYYDDD)
       INTEGER, INTENT( IN )  :: JTIME             ! current simulation time (HHMMSS)
-      INTEGER, INTENT( IN ) :: NC      ! no. columns
-      INTEGER, INTENT( IN ) :: NR      ! no. rows
+      INTEGER, INTENT( IN ) :: NCOLS      ! no. columns
+      INTEGER, INTENT( IN ) :: NROWS      ! no. rows
 C     These are arrays 
-      REAL,    INTENT( IN ) :: COSZEN( NC,NR )        ! cosine of zenith angle
-      REAL,    INTENT( IN ) :: TASFC ( NC,NR )        ! surface air temperature [K]
-      REAL,    INTENT( IN ) :: SSOLAR( NC,NR )        ! surface radiation [w/m**2]
-      REAL,    INTENT( IN ) :: PRES  ( NC,NR )        ! surface pressure [Pa]
-      INTEGER, INTENT( IN ) :: LANDTYPE( NC,NR )     ! the biome type in each cell
-      REAL,    INTENT( IN ):: LAI  ( NC,NR )        ! leaf area index (m2/m2)
-      REAL,    INTENT( IN ):: SNOCOV  ( NC,NR )        ! snow cover
-      REAL,    INTENT( IN ):: CFRAC  ( NC,NR )        ! cloud fraction
-      REAL,    INTENT( IN ):: WSPD  ( NC,NR )        ! cloud fraction
-      REAL,    INTENT( OUT ):: CRF  ( NC,NR )        ! outputs the canopy reduction factor
+      REAL,    INTENT( IN ) :: COSZEN( NCOLS,NROWS )        ! cosine of zenith angle
+      REAL,    INTENT( IN ) :: TASFC ( NCOLS,NROWS )        ! surface air temperature [K]
+      REAL,    INTENT( IN ) :: SSOLAR( NCOLS,NROWS )        ! surface radiation [w/m**2]
+      REAL,    INTENT( IN ) :: PRES  ( NCOLS,NROWS )        ! surface pressure [Pa]
+      INTEGER, INTENT( IN ) :: LANDTYPE( NCOLS,NROWS )     ! the biome type in each cell
+      REAL,    INTENT( IN ):: LAI  ( NCOLS,NROWS )        ! leaf area index (m2/m2)
+      REAL,    INTENT( IN ):: SNOCOV  ( NCOLS,NROWS )        ! snow cover
+      REAL,    INTENT( IN ):: CFRAC  ( NCOLS,NROWS )        ! cloud fraction
+      REAL,    INTENT( IN ):: WSPD  ( NCOLS,NROWS )        ! cloud fraction
+      REAL,    INTENT( OUT ):: CRF  ( NCOLS,NROWS )        ! outputs the canopy reduction factor
       ! !LOCAL VARIABLES:
       !
       CHARACTER( 16 )  :: PNAME = 'CANOPY_NOX'  ! procedure name
@@ -1095,8 +1093,8 @@ C     These are arrays
       CRF = 0d0 ! array
       
       ! begin calculating canopy reduction factor
-      DO C=1, NC
-        DO R=1, NR
+      DO C=1, NCOLS
+        DO R=1, NROWS
           IF(LAI(C,R) > 0.0) THEN
             TEMPC = TASFC(C,R) - 273.15d0 ! convert kelvin to Celsius
       ! Compute bulk surface resistance for gases.    

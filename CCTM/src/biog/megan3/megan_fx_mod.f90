@@ -18,6 +18,7 @@
 module megan_fx
     
       USE ASX_DATA_MOD, ONLY : Grid_Data
+      USE HGRD_DEFN, ONLY: NCOLS,NROWS
 ! Aggregated code from MEGAN3.0 by Francis S.Binkowski 
 ! with minor modifications where noted below.
 ! Implemented for CMAQ 5.4 and proofed by Jeff Willison.
@@ -2439,7 +2440,7 @@ CONTAINS    !!-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
         
 ! ///////////////////////////////////////////////////////////////////////////        
         
-      SUBROUTINE MEGCANOPY( NCOLS, NROWS, YEAR, LAYERS, DOY, ZTIME,     &
+      SUBROUTINE MEGCANOPY(  YEAR, LAYERS, DOY, ZTIME,     &
                  LAT, LONG, LAIc, TEMP, PAR, WIND, PRES, QV, CTF,        &
                  ShadeleafTK, SunleafTK, SunFrac, SunPPFD, ShadePPFD  )        !
 
@@ -2544,8 +2545,6 @@ CONTAINS    !!-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
      
 !   INPUT VARIABLES
 
-       INTEGER, INTENT(IN)   :: NCOLS
-       INTEGER, INTENT(IN)   :: NROWS
        INTEGER, INTENT(IN)   :: LAYERS
        REAL, INTENT(IN)      :: YEAR
        REAl, INTENT(IN)      :: DOY
@@ -2712,7 +2711,7 @@ CONTAINS    !!-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
       
 !//////////////////////////////////////////////////////////////////  
     
-SUBROUTINE MEGVEA(NCOLS,NROWS, LAYERS, JDATE, ZTIME,                &
+SUBROUTINE MEGVEA(  LAYERS, JDATE, ZTIME,                &
                     LAIp, LAIc,LDF_in,                              &
                                         GAMSM_in, MaxT, MinT,       &
                     MaxWS,                                          &
@@ -2790,8 +2789,6 @@ SUBROUTINE MEGVEA(NCOLS,NROWS, LAYERS, JDATE, ZTIME,                &
 
     IMPLICIT NONE
 ! INPUT VARIABLES
-    INTEGER, INTENT(IN)  ::  NCOLS
-    INTEGER, INTENT(IN)  ::  NROWS
     INTEGER, INTENT(IN)  ::  LAYERS
     INTEGER, INTENT(IN)  ::  JDATE
     REAL, INTENT(IN)     ::  ZTIME
@@ -3045,7 +3042,7 @@ SUBROUTINE MEGVEA(NCOLS,NROWS, LAYERS, JDATE, ZTIME,                &
 
 ! ///////////////////////////////////////////////////////////////////////////
       SUBROUTINE MEGVSA (IDATE,ITIME,TSTEP,JYEAR,JDAY,                       &
-                    NCOLS,NROWS,L_DESID_DIAG,SLTYP, CTF,LAIc, LAT,           &
+                    L_DESID_DIAG,SLTYP, CTF,LAIc, LAT,           &
                     TEMP, SOILM1,SOILM2, SOILT, PRECADJ,           &
                     CFNO, CFNOG, GAMSM, GAMNO, BDSNP_NO )
 
@@ -3144,7 +3141,6 @@ SUBROUTINE MEGVEA(NCOLS,NROWS, LAYERS, JDATE, ZTIME,                &
 !    input variables
      
      INTEGER, INTENT(IN) :: IDATE, ITIME, TSTEP(3)  
-     INTEGER, INTENT(IN) :: NCOLS, NROWS
      LOGICAL, INTENT( IN ) :: L_DESID_DIAG
      
       INTEGER, INTENT(IN) :: SLTYP  (NCOLS, NROWS)  ! soil type
@@ -3191,7 +3187,7 @@ SUBROUTINE MEGVEA(NCOLS,NROWS, LAYERS, JDATE, ZTIME,                &
 
           call get_date(JYEAR, JDAY, MM, DD)
 
-          CALL HRNOBDSNP( IDATE,ITIME,TSTEP,MM,NCOLS,NROWS,  &
+          CALL HRNOBDSNP( IDATE,ITIME,TSTEP,MM,  &
                     L_DESID_DIAG,SOILM1,SOILT,SLTYP,LAIc,    &
                                             bdsnp_no)
 

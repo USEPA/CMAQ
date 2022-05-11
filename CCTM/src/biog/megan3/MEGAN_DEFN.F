@@ -74,6 +74,8 @@ C biogenics to gas-phase species map
             ALLOCATE( DESID_EMVAR( IMIOGSRM )%USED ( NMGNSPC ) )
             ALLOCATE( DESID_EMVAR( IMIOGSRM )%CONV ( NMGNSPC ) )
             ALLOCATE( DESID_EMVAR( IMIOGSRM )%BASIS( NMGNSPC ) )
+            ALLOCATE( DESID_EMVAR( IMIOGSRM )%LAREA( NMGNSPC ) )
+            ALLOCATE( DESID_EMVAR( IMIOGSRM )%LAREAADJ( NMGNSPC ) )
             
             DESID_EMVAR( IMIOGSRM )%ARRY  = MEGAN_NAMES
             DESID_EMVAR( IMIOGSRM )%UNITS = 'MOLES/S'
@@ -81,6 +83,8 @@ C biogenics to gas-phase species map
             DESID_EMVAR( IMIOGSRM )%USED  = .FALSE.
             DESID_EMVAR( IMIOGSRM )%CONV  = 1.0
             DESID_EMVAR( IMIOGSRM )%BASIS = 'UNIT' 
+            DESID_EMVAR( IMIOGSRM )%LAREA = .FALSE.
+            DESID_EMVAR( IMIOGSRM )%LAREAADJ = .FALSE.
 
 
             ALLOCATE( VDEMIS_ME( NMGNSPC,NCOLS,NROWS ), STAT = STATUS )
@@ -189,7 +193,7 @@ C=======================================================================
          END IF
 
 ! Canopy light calculation
-         CALL MEGCANOPY( NCOLS, NROWS, JYEAR, LAYERS, JDAY,CURRHR,    
+         CALL MEGCANOPY( JYEAR, LAYERS, JDAY,CURRHR,    
      &            grid_data%lat, grid_data%lon, laic,          
      &            met_data%TEMP2, met_data%rgrnd, met_data%wspd10,
      &            met_data%prsfc, met_data%Q2, ctf(1:6,:,:),
@@ -210,7 +214,7 @@ C=======================================================================
           bdsnp_no_out = 0. 
 
           CALL MEGVSA (JDATE,JTIME,TSTEP,JYEAR,JDAY,
-     &    NCOLS,NROWS,L_DESID_DIAG,Grid_Data%SLTYP, 
+     &    L_DESID_DIAG,Grid_Data%SLTYP, 
      &    ctf(1:6,:,:),laic, grid_data%lat, 
      &    met_data%TEMP2,Met_Data%SOIM1, Met_Data%SOIM2,
      &    Met_Data%SOIT1,PRECADJ,
@@ -223,7 +227,7 @@ C=======================================================================
          END IF
 
 ! Emission activity calculation
-         CALL MEGVEA(NCOLS,NROWS, LAYERS, JDATE, CURRHR, 
+         CALL MEGVEA( LAYERS, JDATE, CURRHR, 
      &   laip,laic,ldf,
      &   GAMSM, met_data%TEMP2,met_data%TEMP2,
      &   met_data%wspd10, 
