@@ -64,20 +64,20 @@ C biogenics to gas-phase species map
 
             XMSG = 'Using in-line biogenic emissions option (MEGAN)'
 
-            EM_FILE_SURR( IMIOGSRM )%LEN = NMGNSPC
-            ALLOCATE( EM_FILE_SURR( IMIOGSRM )%ARRY ( NMGNSPC ) )
-            ALLOCATE( EM_FILE_SURR( IMIOGSRM )%UNITS( NMGNSPC ) )
-            ALLOCATE( EM_FILE_SURR( IMIOGSRM )%MW   ( NMGNSPC ) )
-            ALLOCATE( EM_FILE_SURR( IMIOGSRM )%USED ( NMGNSPC ) )
-            ALLOCATE( EM_FILE_SURR( IMIOGSRM )%CONV ( NMGNSPC ) )
-            ALLOCATE( EM_FILE_SURR( IMIOGSRM )%BASIS( NMGNSPC ) )
+            DESID_EMVAR( IMIOGSRM )%LEN = NMGNSPC
+            ALLOCATE( DESID_EMVAR( IMIOGSRM )%ARRY ( NMGNSPC ) )
+            ALLOCATE( DESID_EMVAR( IMIOGSRM )%UNITS( NMGNSPC ) )
+            ALLOCATE( DESID_EMVAR( IMIOGSRM )%MW   ( NMGNSPC ) )
+            ALLOCATE( DESID_EMVAR( IMIOGSRM )%USED ( NMGNSPC ) )
+            ALLOCATE( DESID_EMVAR( IMIOGSRM )%CONV ( NMGNSPC ) )
+            ALLOCATE( DESID_EMVAR( IMIOGSRM )%BASIS( NMGNSPC ) )
             
-            EM_FILE_SURR( IMIOGSRM )%ARRY  = MEGAN_NAMES
-            EM_FILE_SURR( IMIOGSRM )%UNITS = 'MOLES/S'
-            EM_FILE_SURR( IMIOGSRM )%MW    = 1.0
-            EM_FILE_SURR( IMIOGSRM )%USED  = .FALSE.
-            EM_FILE_SURR( IMIOGSRM )%CONV  = 1.0
-            EM_FILE_SURR( IMIOGSRM )%BASIS = 'UNIT' ! not MASS, right?
+            DESID_EMVAR( IMIOGSRM )%ARRY  = MEGAN_NAMES
+            DESID_EMVAR( IMIOGSRM )%UNITS = 'MOLES/S'
+            DESID_EMVAR( IMIOGSRM )%MW    = 1.0
+            DESID_EMVAR( IMIOGSRM )%USED  = .FALSE.
+            DESID_EMVAR( IMIOGSRM )%CONV  = 1.0
+            DESID_EMVAR( IMIOGSRM )%BASIS = 'UNIT' ! not MASS, right?
 
 
             ALLOCATE( VDEMIS_ME( NMGNSPC,NCOLS,NROWS ), STAT = STATUS )
@@ -105,8 +105,8 @@ C=======================================================================
          USE RUNTIME_VARS, only : NEW_START,IGNORE_SOILINP,logdev
          USE UTILIO_DEFN
          USE MEGAN_HRNO_MOD
-         USE EMIS_VARS, ONLY : N_EMIS_ISTR, IMIOGSRM,
-     &                         MAP_EMtoSURR, MAP_EMtoDIFF
+         USE DESID_VARS, ONLY : DESID_N_ISTR, IMIOGSRM,
+     &                         MAP_ISTRtoEMVAR, MAP_ISTRtoDIFF
          USE GRID_CONF, ONLY: GDTYP_GD, XCELL_GD, YCELL_GD, YORIG_GD, GL_NROWS
 !         USE BDSNP_MOD
          USE MEGAN_GSPRO

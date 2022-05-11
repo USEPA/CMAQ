@@ -69,7 +69,7 @@ C                   for input.
 C-----------------------------------------------------------------------
       use lus_defn
       use aero_data
-      use emis_vars
+      use desid_vars
 
       implicit none 
 
@@ -218,32 +218,32 @@ C-----------------------------------------------------------------------
 
 C...Populate Master Emissions Map Vector So That Diagnostics 
 C   can be printed in EMIS_MAP
-         Em_File_Surr( IDUSTSRM )%len = ndust_spc*2
-         Allocate( Em_File_Surr( IDUSTSRM )%arry( ndust_spc*2 ) )
-         Allocate( Em_File_Surr( IDUSTSRM )%units( ndust_spc*2 ) )
-         Allocate( Em_File_Surr( IDUSTSRM )%mw   ( ndust_spc*2 ) )
-         Allocate( Em_File_Surr( IDUSTSRM )%used ( ndust_spc*2 ) )
-         Allocate( Em_File_Surr( IDUSTSRM )%conv ( ndust_spc*2 ) )
-         Allocate( Em_File_Surr( IDUSTSRM )%basis( ndust_spc*2 ) )
-         Allocate( Em_File_Surr( IDUSTSRM )%larea( ndust_spc*2 ) )
-         Allocate( Em_File_Surr( IDUSTSRM )%lareaadj( ndust_spc*2 ) )
-         Em_File_Surr( IDUSTSRM )%arry( : ) = 'NOT_AVAILABLE'
+         DESID_EMVAR( IDUSTSRM )%len = ndust_spc*2
+         Allocate( DESID_EMVAR( IDUSTSRM )%arry( ndust_spc*2 ) )
+         Allocate( DESID_EMVAR( IDUSTSRM )%units( ndust_spc*2 ) )
+         Allocate( DESID_EMVAR( IDUSTSRM )%mw   ( ndust_spc*2 ) )
+         Allocate( DESID_EMVAR( IDUSTSRM )%used ( ndust_spc*2 ) )
+         Allocate( DESID_EMVAR( IDUSTSRM )%conv ( ndust_spc*2 ) )
+         Allocate( DESID_EMVAR( IDUSTSRM )%basis( ndust_spc*2 ) )
+         Allocate( DESID_EMVAR( IDUSTSRM )%larea( ndust_spc*2 ) )
+         Allocate( DESID_EMVAR( IDUSTSRM )%lareaadj( ndust_spc*2 ) )
+         DESID_EMVAR( IDUSTSRM )%arry( : ) = 'NOT_AVAILABLE'
          do i = 1,ndust_spc
             IF ( dust_spc( i )%spcfac(1) .NE. 0.0 ) 
-     &         Em_File_Surr( IDUSTSRM )%arry( i )  = 
+     &         DESID_EMVAR( IDUSTSRM )%arry( i )  = 
      &                    'PMFINE_' // dust_spc(i)%name
             IF ( dust_spc( i )%spcfac(2) .NE. 0.0 ) 
-     &         Em_File_Surr( IDUSTSRM )%arry( i+ndust_spc )  = 
+     &         DESID_EMVAR( IDUSTSRM )%arry( i+ndust_spc )  = 
      &                    'PMCOARSE_' // dust_spc(i)%name
-            Em_File_Surr( IDUSTSRM )%mw( i )  = dust_spc(i)%mw
-            Em_File_Surr( IDUSTSRM )%mw( i+ndust_spc )  = dust_spc(i)%mw
+            DESID_EMVAR( IDUSTSRM )%mw( i )  = dust_spc(i)%mw
+            DESID_EMVAR( IDUSTSRM )%mw( i+ndust_spc )  = dust_spc(i)%mw
          end do
-         Em_File_Surr( IDUSTSRM )%units( : ) = 'G/S'
-         Em_File_Surr( IDUSTSRM )%used ( : ) = .FALSE.
-         Em_File_Surr( IDUSTSRM )%conv ( : ) = 1.0
-         Em_File_Surr( IDUSTSRM )%basis( : ) = 'MASS'
-         Em_File_Surr( IDUSTSRM )%larea( : ) = .FALSE.
-         Em_File_Surr( IDUSTSRM )%lareaadj( : ) = .FALSE.
+         DESID_EMVAR( IDUSTSRM )%units( : ) = 'G/S'
+         DESID_EMVAR( IDUSTSRM )%used ( : ) = .FALSE.
+         DESID_EMVAR( IDUSTSRM )%conv ( : ) = 1.0
+         DESID_EMVAR( IDUSTSRM )%basis( : ) = 'MASS'
+         DESID_EMVAR( IDUSTSRM )%larea( : ) = .FALSE.
+         DESID_EMVAR( IDUSTSRM )%lareaadj( : ) = .FALSE.
  
 C...Count the number of mass emissions species
         n_mass_emissions = 0
@@ -396,7 +396,7 @@ C...append diagnostic variables with mass emissions species
                   if( dust_spc( i )%spcfac( j ) .eq. 0. ) cycle 
                     n = 0
                     do k = 1, idiag   ! determine if dust emissions is already added to diagnostic output
-                       if( trim( EM_FILE_SURR( IDUSTSRM )%ARRY( (j-1)*ndust_spc+i )) 
+                       if( trim( DESID_EMVAR( IDUSTSRM )%ARRY( (j-1)*ndust_spc+i )) 
      &                     .Eq. diagnm( k )%var ) Then
                          n = k
                          exit
@@ -405,7 +405,7 @@ C...append diagnostic variables with mass emissions species
                   if( n .gt. 0  ) cycle ! skip already added 
                   
                   idiag = idiag + 1
-                  diagnm( idiag )%var = EM_FILE_SURR( IDUSTSRM )%ARRY( (j-1)*ndust_spc+i ) 
+                  diagnm( idiag )%var = DESID_EMVAR( IDUSTSRM )%ARRY( (j-1)*ndust_spc+i ) 
                   diagnm( idiag )%units = 'g/m**3/s'
 
                   Select Case( j ) ! assumes only two aerosol modes dust emissions
@@ -1053,15 +1053,15 @@ C 2nd moment multiplied by PI to obtain the surface area emissions rate.
 
 ! Propagate Number and Surface Area Scaling Factors back to Emissions
 ! Module so that the dust emissions can be scaled appropriately            
-            ISD = INDEX1( 'FINE', EM_STREAM_SIZE( IDUSTSRM )%LEN, 
-     &                    EM_STREAM_SIZE( IDUSTSRM )%NAME )
-            EM_STREAM_SIZE( IDUSTSRM )%FACNUM( ISD,2 ) = FACTNUMJ
-            EM_STREAM_SIZE( IDUSTSRM )%FACSRF( ISD,2 ) = FACTSRFJ
+            ISD = INDEX1( 'FINE', DESID_STREAM_AERO( IDUSTSRM )%LEN, 
+     &                    DESID_STREAM_AERO( IDUSTSRM )%NAME )
+            DESID_STREAM_AERO( IDUSTSRM )%FACNUM( ISD,2 ) = FACTNUMJ
+            DESID_STREAM_AERO( IDUSTSRM )%FACSRF( ISD,2 ) = FACTSRFJ
             
-            ISD = INDEX1( 'COARSE', EM_STREAM_SIZE( IDUSTSRM )%LEN, 
-     &                    EM_STREAM_SIZE( IDUSTSRM )%NAME )
-            EM_STREAM_SIZE( IDUSTSRM )%FACNUM( ISD,3 ) = FACTNUMK
-            EM_STREAM_SIZE( IDUSTSRM )%FACSRF( ISD,3 ) = FACTSRFK
+            ISD = INDEX1( 'COARSE', DESID_STREAM_AERO( IDUSTSRM )%LEN, 
+     &                    DESID_STREAM_AERO( IDUSTSRM )%NAME )
+            DESID_STREAM_AERO( IDUSTSRM )%FACNUM( ISD,3 ) = FACTNUMK
+            DESID_STREAM_AERO( IDUSTSRM )%FACSRF( ISD,3 ) = FACTSRFK
 
 #ifdef verbose_wbdust
             if ( m3j .ne. 0.0 ) dusthit = dusthit + 1

@@ -18,7 +18,6 @@
 
  set CMAQ_HOME = /home/username/CMAQ_Project
 
-
 #> This section allows users to choose explicitly which tools
 #> to make available from the repo. For each selected tool,
 #> extract_scripts.csh will copy any build and run scripts

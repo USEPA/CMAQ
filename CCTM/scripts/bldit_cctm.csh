@@ -370,6 +370,8 @@ set make_options = "-j"                #> additional options for make command if
               -DSUBST_GLOBAL_TO_LOCAL_COORD=${Popt}_GLOBAL_TO_LOCAL_COORD\
               -DSUBST_GLOBAL_SUM=${Popt}_GLOBAL_SUM\
               -DSUBST_GLOBAL_LOGICAL=${Popt}_GLOBAL_LOGICAL\
+              -DSUBST_GLOBAL_GATHER=${Popt}_GLOBAL_GATHER\
+              -DSUBST_GLOBAL_BCAST=${Popt}_GLOBAL_BCAST\
               -DSUBST_LOOP_INDEX=${Popt}_LOOP_INDEX\
               -DSUBST_SUBGRID_INDEX=${Popt}_SUBGRID_INDEX )
  set STX2 = ( -DSUBST_HI_LO_BND_PE=${Popt}_HI_LO_BND_PE\

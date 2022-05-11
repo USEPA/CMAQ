@@ -306,25 +306,34 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   setenv MET_DOT_3D $METpath/METDOT3D_${YYYYMMDD}
   setenv MET_BDY_3D $METpath/METBDY3D_${YYYYMMDD}
 #  setenv LUFRAC_CRO $METpath/LUFRAC_CRO_${YYYYMMDD}
-
-  #> Emissions Control File
+ 
+  #> Control Files
   #>
   #> IMPORTANT NOTE
   #>
-  #> The emissions control file defined below is an integral part of controlling the behavior of the model simulation.
-  #> Among other things, it controls the mapping of species in the emission files to chemical species in the model and
+  #> The DESID control files defined below are an integral part of controlling the behavior of the model simulation.
+  #> Among other things, they control the mapping of species in the emission files to chemical species in the model and
   #> several aspects related to the simulation of organic aerosols.
-  #> Please carefully review the emissions control file to ensure that it is configured to be consistent with the assumptions
+  #> Please carefully review the DESID control files to ensure that they are configured to be consistent with the assumptions
   #> made when creating the emission files defined below and the desired representation of organic aerosols.
   #> For further information, please see:
   #> + AERO7 Release Notes section on 'Required emission updates':
   #>   https://github.com/USEPA/CMAQ/blob/master/DOCS/Release_Notes/aero7_overview.md
-  #> + CMAQ User's Guide section 6.9.3 on 'Emission Compatability': 
+  #> + CMAQ User's Guide section 6.9.3 on 'Emission Compatability':
   #>   https://github.com/USEPA/CMAQ/blob/master/DOCS/Users_Guide/CMAQ_UG_ch06_model_configuration_options.md#6.9.3_Emission_Compatability
-  #> + Emission Control (DESID) Documentation in the CMAQ User's Guide: 
-  #>   https://github.com/USEPA/CMAQ/blob/master/DOCS/Users_Guide/Appendix/CMAQ_UG_appendixB_emissions_control.md 
+  #> + Emission Control (DESID) Documentation in the CMAQ User's Guide:
+  #>   https://github.com/USEPA/CMAQ/blob/master/DOCS/Users_Guide/Appendix/CMAQ_UG_appendixB_emissions_control.md
   #>
-  setenv EMISSCTRL_NML ${BLD}/EmissCtrl_${MECH}.nml
+  setenv DESID_CTRL_NML ${BLD}/CMAQ_Control_DESID.nml
+  setenv DESID_CHEM_CTRL_NML ${BLD}/CMAQ_Control_DESID_${MECH}.nml
+
+  #> The following namelist configures aggregated output (via the Explicit and Lumped
+  #> Air Quality Model Output (ELMO) Module), domain-wide budget output, and chemical
+  #> family output.
+  setenv MISC_CTRL_NML ${BLD}/CMAQ_Control_Misc.nml
+
+  #> The following namelist controls the mapping of meteorological land use types and the NH3 and Hg emission
+  #> potentials
   setenv STAGECTRL_NML ${BLD}/CMAQ_Control_STAGE.nml
 
   #> Spatial Masks For Emissions Scaling
