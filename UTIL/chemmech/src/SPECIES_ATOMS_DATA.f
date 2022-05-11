@@ -899,7 +899,7 @@
                   CALL PARSE_STRING(LINE_CONTENT,N_ATOMS,LINE_WORDS)
                   N_ATOMS = N_ATOMS - 1
                   ALLOCATE( ATOMS(N_ATOMS) )
-                  ATOMS(1:N_ATOMS) = LINE_WORDS(2:N_ATOMS)
+                  ATOMS(1:N_ATOMS) = LINE_WORDS(2:N_ATOMS+1)
               END IF
            END DO
 
