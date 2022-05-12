@@ -4863,7 +4863,17 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      &                       // '_reaction_deltas.txt'
          OPEN( FILE=TRIM(EQNAME_ATOMS_REPORT),UNIT=EXUNIT_ATOMS_REPORT,STATUS='UNKNOWN' )                                      
          NXX = 0
-! scan through file      
+! scan through file 
+
+         WRITE( EXUNIT_ATOMS_REPORT, '("!For the mechanism, ",A,",")')TRIM(MECHANISM)
+         WRITE( EXUNIT_ATOMS_REPORT, 95001)
+95001    FORMAT( "! The information is given as comments below each reaction.",/,
+     &           "! the revised mechanism definitions files.",/,
+     &           "! The information is given as comments below each reaction.",/,
+     &           "! Math is between the equal signs.",/,
+     &           "!   For reactants, the format is minus the number of atoms times the element.",/,
+     &           "!   For products, the format is number of atoms times the stiochiometric coefficienct times the element.")
+     
          ELIMINATE_DONE = .FALSE.
          READ_MECHDEF: DO      
          
