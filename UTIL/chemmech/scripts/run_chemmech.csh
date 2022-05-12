@@ -70,7 +70,8 @@ set echo
     set TRAC_NML  = ${CHEMMECH_INPUT}/Species_Table_TR_0.nml #> Tracer namelist ID
  endif
  if ( ! $?OUTDIR ) then
-  setenv OUTDIR ${CHEMMECH_DIR}/output/${MECH}_${VRSN}_${compilerString}
+# setenv OUTDIR ${CHEMMECH_DIR}/output/${MECH}_${VRSN}_${compilerString}
+  setenv OUTDIR ${CHEMMECH_DIR}/output/${MECH}
  endif
 
 #> Set the build directory 
