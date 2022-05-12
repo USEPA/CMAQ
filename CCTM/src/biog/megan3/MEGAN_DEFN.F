@@ -86,7 +86,6 @@ C biogenics to gas-phase species map
             DESID_EMVAR( IMIOGSRM )%LAREA = .FALSE.
             DESID_EMVAR( IMIOGSRM )%LAREAADJ = .FALSE.
 
-
             ALLOCATE( VDEMIS_ME( NMGNSPC,NCOLS,NROWS ), STAT = STATUS )
             IF ( STATUS .NE. 0 ) THEN
               XMSG = 'VDEMIS_ME memory allocation failed'
@@ -242,7 +241,6 @@ C=======================================================================
         end if
 ! Units for use by EMIS_DEFN.F via vdemis_me: [moles/s/m2]
          vdemis_me(:,:,:) = out_to_cmaq*cell_area
-
 
          RETURN
          END SUBROUTINE GET_MEGAN
