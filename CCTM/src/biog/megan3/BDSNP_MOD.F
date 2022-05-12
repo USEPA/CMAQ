@@ -22,6 +22,7 @@ C Adopted from MEGAN3.1 and modified for CMAQ 5.4 by Jeff Willison
       MODULE BDSNP_MOD
  
       USE centralized_io_util_module
+      USE HGRD_DEFN
       USE ASX_DATA_MOD, ONLY: MET_DATA,GRID_DATA
       USE RUNTIME_VARS, ONLY: NEW_START, PX_LSM, MGN_ONLN_DEP
       
@@ -34,7 +35,6 @@ C::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
      &                       BDSNP_NO )
 
   
-      USE HGRD_DEFN
       USE RUNTIME_VARS, ONLY: STTIME,STDATE,RUNLEN
       USE PHOT_MET_DATA, ONLY: CFRAC_2D
 
@@ -268,8 +268,8 @@ C open nitrogen deposition file
                                         
             !attempt to use steady state condition to reduce spin up time by setting dN/dt = 0
             !or NDEPRES = Dep rate * tau, the decay time
-            DO R = 1, NR
-                DO C = 1, NC
+            DO R = 1, NROWS
+                DO C = 1, NCOLS
                 NDEPRES( C,R ) = NDEPRATE( C,R )*TAU_SEC
 C           check for negatives
           IF( NDEPRES(C,R) .lt. 0.0 ) THEN
@@ -311,8 +311,8 @@ C get the days fertilizer
         fert = bdsnp_fert
 
 C Fertilizer N reservoir already calculated and read from file, update deposition reservoir from dep rate
-      DO R = 1, NR
-        DO C = 1, NC
+      DO R = 1, NROWS
+        DO C = 1, NCOLS
             CALL GET_NDEPRES( TSTEP, NDEPRES( C,R ),
      &                                            TAU_SEC, C, R,L_DESID_DIAG)
         END DO
@@ -324,12 +324,12 @@ C Calculate temporal non-speciated soil NO emissions to EMPOL
 C     If False Dont do any calculations to test - replicate 0 output
       IF( .TRUE. ) THEN
 
-      CALL GET_CANOPY_NOX(JDATE, JTIME, NC, NR, Met_Data%COSZEN,
+      CALL GET_CANOPY_NOX(JDATE, JTIME, Met_Data%COSZEN,
      & MET_DATA%TEMP2, MET_DATA%RGRND, met_data%PRSFC, 
      & BDSNP_LANDTYPE, LAI, Met_Data%SNOCOV, CFRAC, Met_Data%WSPD10, CRF)
 
-      DO R = 1, NR
-         DO C = 1, NC
+      DO R = 1, NROWS
+         DO C = 1, NCOLS
 
             SOILNOX  = 0d0
             FERTDIAG = 0d0
@@ -418,8 +418,8 @@ C -----------------------------------------------------
       WRITE( MESG,*) 'BDSNP testing terms'
       
       !!CALL M3MESG(MESG)
-         DO R = 1, NR
-         DO C = 1, NC
+         DO R = 1, NROWS
+         DO C = 1, NCOLS
             K = BDSNP_LANDTYPE( C,R ) !Skip LANDTYPE not present
             ! Temperature-dependent term of soil NOx emissions
             ! [unitless]
@@ -455,7 +455,7 @@ C     &                       PFACTOR( C,R ), DRYPERIOD( C,R ) )
       CALL CPU_TIME(TIMECHECK)
       WRITE(MESG,*)  'PROCESS TOOK:', TIMECHECK, 'SECONDS'
       !CALL M3MESG(MESG)
-      EMPOLAVG = EMPOLSUM/FLOAT(NC*NR)
+      EMPOLAVG = EMPOLSUM/FLOAT(NCOLS*NROWS)
       WRITE( MESG,*) 'average value:', EMPOLAVG
       !CALL M3MESG(MESG)
       EMPOLSUM = 0d0 !array
@@ -981,7 +981,7 @@ C Local Variables
 
 C -------------------------------------------------------------------
 
-      SUBROUTINE GET_CANOPY_NOX(JDATE, JTIME, NCOLS, NROWS, COSZEN,
+      SUBROUTINE GET_CANOPY_NOX(JDATE, JTIME, COSZEN,
      & TASFC, SSOLAR, PRES, LANDTYPE, LAI, SNOCOV, CFRAC, WSPD, CRF) ! called tmpbeis, change called BDSNP, add K argument
 
       IMPLICIT NONE
@@ -989,8 +989,6 @@ C -------------------------------------------------------------------
 C Arguments
       INTEGER, INTENT( IN )  :: JDATE             ! current simulation date (YYYYDDD)
       INTEGER, INTENT( IN )  :: JTIME             ! current simulation time (HHMMSS)
-      INTEGER, INTENT( IN ) :: NCOLS      ! no. columns
-      INTEGER, INTENT( IN ) :: NROWS      ! no. rows
 C     These are arrays 
       REAL,    INTENT( IN ) :: COSZEN( NCOLS,NROWS )        ! cosine of zenith angle
       REAL,    INTENT( IN ) :: TASFC ( NCOLS,NROWS )        ! surface air temperature [K]
