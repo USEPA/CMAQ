@@ -1,7 +1,7 @@
 =======
 !#start   YYYYJJJ  010000
 !#end     YYYYJJJ  000000
-#layer         1
+!#layer         1
 
 /
 ! This Species Definition File is for Use with the COMBINE tool built for

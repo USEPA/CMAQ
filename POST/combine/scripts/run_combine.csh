@@ -63,8 +63,8 @@
  set END_DATE   = "2016-07-14"     #> ending date    (July 14, 2016)
  
 #> Set location of species definition files for concentration and deposition species.
- setenv SPEC_CONC $REPO_HOME/POST/combine/scripts/spec_def_files/SpecDef_${MECH}.txt
- setenv SPEC_DEP  $REPO_HOME/POST/combine/scripts/spec_def_files/SpecDef_Dep_${MECH}.txt
+ setenv SPEC_CONC $CMAQ_HOME/POST/combine/scripts/spec_def_files/SpecDef_${MECH}.txt
+ setenv SPEC_DEP  $CMAQ_HOME/POST/combine/scripts/spec_def_files/SpecDef_Dep_${MECH}.txt
 
 #> Use GENSPEC switch to generate a new specdef file (does not generate output file).
  setenv GENSPEC N

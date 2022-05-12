@@ -707,7 +707,7 @@
            XMSG = 'Failure allocating ELMO_KEY(22)'
            CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
       END IF
-      ELMO_KEY( 22 )%LIST = (/'SATMET','SATCONC'/)
+      ELMO_KEY( 22 )%LIST = (/'SATMET ','SATCONC'/)
       
       ! Satellite Retrieval Met Products
       ELMO_KEY( 23 )%WORD = 'SATMET'
@@ -717,7 +717,8 @@
            XMSG = 'Failure allocating ELMO_KEY(23)'
            CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
       END IF
-      ELMO_KEY( 23 )%LIST = (/'DENS','DZ','ZH','CFRAC','PV','PRES','TA'/)
+      ELMO_KEY( 23 )%LIST = (/'DENS ','DZ   ','ZH   ','CFRAC','PV   ',
+     &                        'PRES ','TA   '/)
  
       ! Satellite Retrieval products
       ELMO_KEY( 24 )%WORD = 'SATCONC'
@@ -727,7 +728,8 @@
            XMSG = 'Failure allocating ELMO_KEY(24)'
            CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
       END IF
-      ELMO_KEY( 24 )%LIST = (/'NO2','SO2','O3','CO','FORM','NH3','AOD_550'/)
+      ELMO_KEY( 24 )%LIST = (/'NO2    ','SO2    ','O3     ','CO     ',
+     &                        'FORM   ','NH3    ','AOD_550'/)
  
       ! All Concentrations
       ELMO_KEY( 25 )%WORD = 'ALLCONC'
