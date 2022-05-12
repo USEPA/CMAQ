@@ -231,7 +231,7 @@ set IN_LTpath = $INPDIR/lightning                   #> lightning NOx input direc
 set METpath   = $INPDIR/met/mcipv5.0                #> meteorology input directory 
 #set JVALpath  = $INPDIR/jproc                      #> offline photolysis rate table directory
 set OMIpath   = $BLD                                #> ozone column data for the photolysis model
-set EPICpath  = $INPDIR/surface           #> EPIC putput for bidirectional NH3
+set EPICpath  = $INPDIR/land                        #> EPIC putput for bidirectional NH3
 set SZpath    = $INPDIR/land                        #> surf zone file for in-line seaspray emissions
 
 # =====================================================================
