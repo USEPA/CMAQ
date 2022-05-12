@@ -323,15 +323,19 @@ C                     Giorgi (1986), changed impaction term according to Slinn
 C                     (1982), and added scaling of diffusion layer resistance 
 C                     (Rd) by LAI for vegetated fraction of grid cell. Developed 
 C                     based on analysis by Qian Shu, University of Florida. 
-C                     Peer-reviewed publication in preparation.
+C  Feb2022 J.Pleim:   Revised aerosol dry deposition model as described in Pleim et al, (2022)
+C                     Note that this version only works for NLCD40, MODIS20 or USGS24
 C-----------------------------------------------------------------------
 
       USE GRID_CONF, Only: ncols, nrows
       USE AEROMET_DATA   ! Includes CONST.EXT
       USE ASX_DATA_MOD, Only: Met_Data, Grid_Data !, Mosaic_Data
       USE AERO_DATA, Only: N_MODE
-
+      Use LSM_Mod, Only: N_LUFRAC
+      USE UTILIO_DEFN
+      USE RUNTIME_VARS, ONLY: LOGDEV
       IMPLICIT NONE
+      CHARACTER( 96 ) :: XMSG = ' '
 
 C *** input arguments
       INTEGER, INTENT( IN ) :: N_AE_DEP_SPC
@@ -393,7 +397,6 @@ C modal sedimentation velocities for number, 2nd, and 3rd moment, or mass:
       REAL, PARAMETER :: BHAT    = 1.246 ! Constant from Cunningham slip correction
       REAL, PARAMETER :: THREEPI = 3.0 * PI
       REAL, PARAMETER :: TWO3    = 2.0 / 3.0
-      REAL, PARAMETER :: A2      = 0.002        ! size of surface element = 2 mm, could be func of LU
 
 C Scalar variables for VARIABLE standard deviations.
 
@@ -420,6 +423,52 @@ C Scalar variables for VARIABLE standard deviations.
 
       REAL    TWOXLM
 
+C Data for new impaction term (Pleim et al 2022)
+
+      REAL, PARAMETER :: Fhair1  = 0.008
+      REAL, PARAMETER :: Fhair2  = 0.002   ! for grass
+      REAL, PARAMETER :: Ahair1  = 0.5e-6  ! micro obstacle size for needleaf and grass
+      REAL, PARAMETER :: Ahair2  = 1.0e-6  ! micro obstacle size for other LU
+
+      REAL Aleaf,Ahair,Fneedle,fveg,fnv,Ustfac,laicr,BAI,Fhair,Fgrass
+      REAL U10,SST,awc,bwc,alfbob,Ewc   ! for whitecap effects
+      REAL STOKEFAC1,STOKEFAC2,Eb,Eim1,Eim2,Vdv,Vdnv,Stoke
+
+C leaf-scale characteristic length (mm) by LU 
+C the 40 categories are for NLCD40 and first 20 are for MODIS20
+      REAL, DIMENSION(40) :: Aleaf_lu,BAI_lu
+      DATA Aleaf_lu                                    ! mm
+     >        / 2.0,    10.0,   2.0,  10.0,    5.0,
+     >          3.0,    2.0,    3.0,   3.0,    0.5,
+     >          3.0,    4.0,    5.0,   1.0,    1.0,
+     >          0.5,    1.0,    2.0,   1.0,    1.0,
+     >          1.0,    1.0,    5.0,   5.0,    5.0,
+     >          5.0,    0.5,   10.0,   2.0,    5.0,
+     >          2.0,    2.0,    0.5,   1.0,    1.0,
+     >          1.0,    0.5,    4.0,   5.0,    3.0  /
+      DATA BAI_lu                                    
+     >        / 1.0,    1.0,    1.0,   1.0,    1.0,
+     >          1.0,    1.0,    1.0,   1.0,    1.0,
+     >          1.0,    1.0,    2.0,   1.0,    1.0,
+     >          1.0,    1.0,    1.0,   1.0,    1.0,
+     >          1.0,    1.0,    1.0,   1.8,    2.0,
+     >          2.3,    1.0,    1.0,   1.0,    1.0,
+     >          1.0,    1.0,    1.0,   1.0,    1.0,
+     >          1.0,    1.0,    1.0,   1.0,    1.0  /
+C For USGS24
+      REAL, DIMENSION(24) :: Aleaf_lu24,BAI_lu24
+      DATA Aleaf_lu24                                    ! mm
+     >        / 5.0,    4.0,    4.0,   4.0,    2.0,
+     >          5.0,    0.5,    2.0,   1.0,    3.0,
+     >          10.0,   2.0,    10.0,  2.0,    5.0,
+     >          1.0,    3.0,    5.0,   0.5,    2.0,
+     >          4.0,    3.0,    1.0,   1.0  /
+      DATA BAI_lu24                                    
+     >        / 2.0,    1.0,    1.0,   1.0,    1.0,
+     >          1.0,    1.0,    1.0,   1.0,    1.0,
+     >          1.0,    1.0,    1.0,   1.0,    1.0,
+     >          1.0,    1.0,    1.0,   1.0,    1.0,
+     >          1.0,    1.0,    1.0,   1.0  /
 C-----------------------------------------------------------------------
 
       VDEP  = 0.0   ! array assignment
@@ -469,47 +518,166 @@ C Calculate characteristic parameters
             VGHAT2  = DCONST3 * ( ES48  + BHAT * KN * ES20 )
             VGHAT3  = DCONST3 * ( ES64  + BHAT * KN * ES28 )
 
+! Set scale parameters for 2-term impaction by LU - For USGS24
+            Aleaf =  0.0
+            BAI = 0.0
+            if (n_lufrac .eq. 24) Then
+              Do j = 1, n_lufrac
+                If ( GRID_DATA%LUFRAC( c,r,j ) .Gt. 0.0 ) Then
+                  Aleaf =  Aleaf + Aleaf_lu24(j) * GRID_DATA%LUFRAC( c,r,j )
+                  BAI =  BAI + BAI_lu24(j) * GRID_DATA%LUFRAC( c,r,j )
+                endif
+             enddo
+            else
+! Set scale parameters for 2-term impaction by LU - For NLCD40 or MODIS20
+              Do j = 1, n_lufrac
+                If ( GRID_DATA%LUFRAC( c,r,j ) .Gt. 0.0 ) Then
+                  Aleaf =  Aleaf + Aleaf_lu(j) * GRID_DATA%LUFRAC( c,r,j )
+                  BAI =  BAI + BAI_lu(j) * GRID_DATA%LUFRAC( c,r,j )
+                endif
+             enddo
+           endif
+
+           Aleaf = Aleaf * 1.e-3   ! mm to m
+           If (n_lufrac .eq. 40) Then
+             Fgrass =  GRID_DATA%LUFRAC( c,r,10 )   !Modis grass
+     &               + GRID_DATA%LUFRAC( c,r,33 )   !NLCD grass
+             Fneedle = GRID_DATA%LUFRAC( c,r,1 )    !Modis Evergreen Needleleaf
+     &               + GRID_DATA%LUFRAC( c,r,3 )    !Modis Deciduous Needleleaf
+     &               + GRID_DATA%LUFRAC( c,r,29 )   !NLCD Evergreen Forest
+     &               + Fgrass
+           else If(n_lufrac .eq. 20) Then
+             Fgrass =  GRID_DATA%LUFRAC( c,r,10 )   !Modis grass
+             Fneedle = GRID_DATA%LUFRAC( c,r,1 )    !Modis Evergreen Needleleaf
+     &               + GRID_DATA%LUFRAC( c,r,3 )    !Modis Deciduous Needleleaf
+     &               + Fgrass
+           else if(n_lufrac .eq. 24) Then
+             Fgrass =  GRID_DATA%LUFRAC( c,r,7 )        !USGS grass
+     &               + 0.5 * GRID_DATA%LUFRAC( c,r,5 )  !USGS Grassland/Cropland Mosaic
+             Fneedle = GRID_DATA%LUFRAC( c,r,14 )       !USGS Evergreen Needleleaf
+     &               + GRID_DATA%LUFRAC( c,r,12 )       !USGS Deciduous Needleleaf
+     &               + Fgrass
+           else
+             XMSG = 'LU scheme not supported in new aero_depv'
+             CALL M3EXIT( 'aero_depv', 0, 0, XMSG, XSTAT1 )
+
+           endif
+
+           Ahair = Ahair2 * (1-Fneedle) + Ahair1 * Fneedle
+           Fhair = Fhair1 * (1-Fgrass) + Fhair2 * Fgrass
+! Different formulations for vegetated and non-vegetated parts
+           fveg = Met_Data%VEG(C,R)
+           LAIcr = max(Met_Data%LAI(C,R),1.0)
+           fnv = 1-Met_Data%VEG(C,R)
+!           if(c.eq.1.and.r.eq.1) Write(Logdev,*) 
+!     >         ' Aleaf,Ahair,fveg,fnv,fneedle=',Aleaf,Ahair,fveg,fnv,fneedle
+
+! For water include effects of whitecaps - Hummelshoj et al. (1992)
+          IF ( NINT(GRID_DATA%LWMASK( c,r )) .EQ. 0 .AND. MET_DATA%SEAICE(c,r) 
+     &           .LE. 0.5 ) Then
+            U10 = Met_Data%WSPD10(C,R)
+            SST = Met_Data%TSEASFC(C,R) - 273.15   ! C
+            awc = 8.46e-5 + 1.63e-6 * SST - 3.35e-8 * SST**2
+            bwc = 3.354 - 0.062 * SST
+            alfbob = awc*(u10+bwc)**2        ! Albert 2016 with SST deg-C
+            Ewc =  alfbob*Met_Data%USTAR( C,R )/u10            
+          ENDIF
 C now calculate the deposition velocities
 
             NU = AMU( C,R ) / Met_Data%DENS1( C,R )
-!            USTFAC = Met_Data%USTAR( C,R ) ** 2 / ( GRAV * NU )
-!            STOKE  = DCONST3 * USTFAC
-            STOKEFAC = Met_Data%USTAR( C,R ) / (GRAV * A2)
-            UTSCALE = (1.+Met_Data%VEG(C,R) * MAX(Met_Data%LAI(C,R)-1.,0.0) )
-     &              * (Met_Data%USTAR( C,R )
-     &              + 0.24 * Met_Data%WSTAR( C,R )**2
-     &              /        Met_Data%USTAR( C,R ) )
+            USTFAC = Met_Data%USTAR( C,R ) ** 2 / ( GRAV * NU )
 
+            STOKEFAC1 = Met_Data%USTAR( C,R ) / (GRAV * Aleaf)
+            STOKEFAC2 = Met_Data%USTAR( C,R ) / (GRAV * Ahair)
 C first do 0th moment for the deposition of number
             SC0 = NU / DCHAT0
-            STOKE2 = (STOKEFAC * VGHAT0)**2
-            EIM = STOKE2 / (1.0 + STOKE2)
-!            EIM = MIN( EIM, 1.0 )
-            RD0 = 1.0 / ( UTSCALE * ( SC0 ** ( -TWO3 ) + EIM ) )
+            IF ( NINT(GRID_DATA%LWMASK( c,r )) .EQ. 0 .AND. MET_DATA%SEAICE(c,r) 
+     &           .LE. 0.5 .AND. SST .GT. -31.) then
+              Eb = (1-alfbob) * SC0 ** ( -TWO3 )/3. + Ewc
+            ELSE
+              Eb = SC0 ** ( -TWO3 )/3.
+            ENDIF
+! Vegetated land
+          Vdv = 0.0
+          IF ( ( NINT(GRID_DATA%LWMASK( c,r )) .NE. 0 ) .AND. ( fveg.GT. 0.001 ) ) THEN  
+            STOKE2 = (STOKEFAC1 * VGHAT0)**2
+            EIM1 = (1-Fhair)*STOKE2 / (1.0 + STOKE2)
+            STOKE2 = (STOKEFAC2 * VGHAT0)**2
+            EIM2 = Fhair*STOKE2 / (1.0 + STOKE2)
+            EIM = EIM1 + EIM2
+            RD0 = 1.0 / ( Met_Data%USTAR( C,R )*laicr * ( Eb + EIM ) )
 
-            VDEP( C,R,VDN( IM ) ) = VGHAT0
-     &             / ( 1.0 - EXP( -VGHAT0 * ( Met_Data%RA( C,R ) + RD0 ) ) )
+            Vdv = VGHAT0 / ( 1.0 - EXP( -VGHAT0 * ( Met_Data%RA( C,R ) + RD0 ) ) )
+          endif
+! Non-vege part
+          Vdnv=0.0
+          if(fnv.gt. 0.001) Then
+            Stoke = USTFAC * VGHAT0
+            Eim = 10.**(-3./Stoke)
+            RD0 = 1.0 / ( Met_Data%USTAR( C,R )*BAI*(Eb + EIM ) )
+            Vdnv = VGHAT0 / ( 1.0 - EXP( -VGHAT0 * ( Met_Data%RA( C,R ) + RD0 ) ) )
+          endif
+            VDEP( C,R,VDN( IM ) ) = fveg*Vdv + fnv*Vdnv
 
 C now do 2nd moment for the deposition of surface area
             SC2 = NU / DCHAT2
-            STOKE2 = (STOKEFAC * VGHAT2)**2
-            EIM = STOKE2 / (1.0 + STOKE2)
-!            EIM = MIN( EIM, 1.0 )
-            RD2 = 1.0 / ( UTSCALE * ( SC2 ** ( -TWO3 ) + EIM ) )
-
-            VDEP( C,R,VDS( IM ) ) = VGHAT2
+            IF ( NINT(GRID_DATA%LWMASK( c,r )) .EQ. 0 .AND. MET_DATA%SEAICE(c,r) 
+     &           .LE. 0.5 .AND. SST .GT. -31.) then
+              Eb = (1-alfbob) * SC2 ** ( -TWO3 )/3. + Ewc
+            ELSE
+              Eb = SC2 ** ( -TWO3 )/3.
+            ENDIF
+! Vegetated land
+          Vdv = 0.0
+          IF ( ( NINT(GRID_DATA%LWMASK( c,r )) .NE. 0 ) .AND. ( fveg.GT. 0.0 ) ) THEN  
+            STOKE2 = (STOKEFAC1 * VGHAT2)**2
+            EIM1 = (1-Fhair)*STOKE2 / (1.0 + STOKE2)
+            STOKE2 = (STOKEFAC2 * VGHAT2)**2
+            EIM2 = Fhair*STOKE2 / (1.0 + STOKE2)
+            EIM = EIM1 + EIM2
+            RD2 = 1.0 / ( Met_Data%USTAR( C,R )*laicr * ( Eb + EIM ) )
+            Vdv = VGHAT2
      &             / ( 1.0 - EXP( -VGHAT2 * ( Met_Data%RA( C,R ) + RD2 ) ) )
-
+          endif
+ ! Non-vege part
+          Vdnv=0.0
+          if(fnv.gt. 0.001) Then
+            Stoke = USTFAC * VGHAT2
+            Eim = 10.**(-3./Stoke)
+            RD2 = 1.0 / (  Met_Data%USTAR( C,R )*BAI*(Eb + EIM ) )
+            Vdnv = VGHAT2 / ( 1.0 - EXP( -VGHAT2 * ( Met_Data%RA( C,R ) + RD2 ) ) )
+          endif
+            VDEP( C,R,VDS( IM ) ) = fveg*Vdv + fnv*Vdnv
 C now do 3rd moment for the deposition of mass
             SC3 = NU / DCHAT3
-            STOKE2 = (STOKEFAC * VGHAT3)**2
-            EIM = STOKE2 / (1.0 + STOKE2)
-!            EIM = MIN( EIM, 1.0 )
-            RD3 = 1.0 / ( UTSCALE * ( SC3 ** ( -TWO3 ) + EIM ) )
-
-            VDEP( C,R,VDM( IM ) ) = VGHAT3
+            IF ( NINT(GRID_DATA%LWMASK( c,r )) .EQ. 0 .AND. MET_DATA%SEAICE(c,r) 
+     &           .LE. 0.5 .AND. SST .GT. -31.) then
+              Eb = (1-alfbob) * SC3 ** ( -TWO3 )/3. + Ewc
+            ELSE
+              Eb = SC3 ** ( -TWO3 )/3.
+            ENDIF
+! Vegetated land
+          Vdv = 0.0
+          IF ( ( NINT(GRID_DATA%LWMASK( c,r )) .NE. 0 ) .AND. ( fveg.GT. 0.0 ) ) THEN  
+            STOKE2 = (STOKEFAC1 * VGHAT3)**2
+            EIM1 = (1-Fhair)*STOKE2 / (1.0 + STOKE2)
+            STOKE2 = (STOKEFAC2 * VGHAT3)**2
+            EIM2 = Fhair*STOKE2 / (1.0 + STOKE2)
+            EIM = EIM1 + EIM2
+            RD3 = 1.0 / ( Met_Data%USTAR( C,R )*laicr * ( Eb + EIM ) )
+            Vdv = VGHAT3
      &             / ( 1.0 - EXP( -VGHAT3 * ( Met_Data%RA( C,R ) + RD3 ) ) )
-
+          endif
+! Non-vege part
+          Vdnv=0.0
+          if(fnv.gt. 0.001) Then
+            Stoke = USTFAC * VGHAT3
+            Eim = 10.**(-3./Stoke)
+            RD3 = 1.0 / ( Met_Data%USTAR( C,R )*BAI*(Eb + EIM ) )
+            Vdnv = VGHAT3
+     &             / ( 1.0 - EXP( -VGHAT3 * ( Met_Data%RA( C,R ) + RD3 ) ) )
+          endif
+            VDEP( C,R,VDM( IM ) ) = fveg*Vdv + fnv*Vdnv
         END DO ! end loop on C
       END DO ! end loop on R
       END DO ! aerosol mode

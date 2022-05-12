@@ -18,7 +18,7 @@
 #SBATCH -p ord
 #SBATCH --gid=mod3dev
 #SBATCH -A mod3dev
-#SBATCH -o /work/MOD3DEV/bplace/log_2018_4LISTOS1_%j.txt
+#SBATCH -o /work/MOD3DEV/has/2021cracmm/cmaq/20220506/log_2018_4LISTOS1_%j.txt
 #SBATCH --mail-user=bplace
 #SBATCH --mail-type=END,FAIL
 
@@ -344,7 +344,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   setenv LUFRAC_CRO $METpath/LUFRAC_CRO_${YYYYMMDD}.nc
 
   #> Emissions Control File
-  setenv EMISSCTRL_NML ${BLD}/EmissCtrl_${MECH}_LISTOS.nml
+  setenv EMISSCTRL_NML ${BLD}/EmissCtrl_${MECH}.nml
 
   #> Spatial Masks For Emissions Scaling
   setenv CMAQ_MASKS ${LUpath}/ocean_file_LISTOS4.ncf #> horizontal grid-dependent surf zone file
@@ -450,7 +450,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   if ( $CTM_BIOGEMIS_BEIS == 'Y' ) then   
      set IN_BEISpath = ${INPDIR}
      setenv GSPRO      $BLD/gspro_biogenics.txt
-     setenv B3GRD      $IN_BEISpath/beis/b3grd_4LISTOS1_2018ff_18j_WR401_fine.ncf
+     setenv BEIS_NORM_EMIS   $IN_BEISpath/beis/b3grd_4LISTOS1_2018ff_18j_WR401_fine.ncf
      setenv BIOSW_YN   Y     #> use frost date switch [ default: Y ]
      setenv BIOSEASON  $IN_BEISpath/beis/bioseason.cmaq.2018_4LISTOS1.ncf 
                              #> ignore season switch file if BIOSW_YN = N

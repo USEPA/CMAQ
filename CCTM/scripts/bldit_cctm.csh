@@ -105,7 +105,7 @@ set make_options = "-j"                #> additional options for make command if
  set ModDepv   = depv/${DepMod}             #> deposition velocity calculation module 
                                             #>     (see $CMAQ_MODEL/CCTM/src/depv)
  set ModEmis   = emis/emis                  #> in-line emissions module
- set ModBiog   = biog/beis3                 #> BEIS3 in-line emissions module 
+ set ModBiog   = biog/beis4                 #> BEIS4 in-line emissions module 
 
  set ModMegBiog   = biog/megan3                #> MEGAN3 in-line emissions module
 
@@ -115,8 +115,7 @@ set make_options = "-j"                #> additional options for make command if
  set ModPhot   = phot/inline                #> photolysis calculation module 
                                             #>     (see $CMAQ_MODEL/CCTM/src/phot)
 
- setenv Mechanism cracmm1_aq                #> chemical mechanism (see $CMAQ_MODEL/CCTM/src/MECHS) 
- #setenv Mechanism cb6r3_ae7_aq              #> chemical mechanism (see $CMAQ_MODEL/CCTM/src/MECHS) 
+ setenv Mechanism cb6r5_ae7_aq              #> chemical mechanism (see $CMAQ_MODEL/CCTM/src/MECHS) 
  set ModMech   = MECHS/${Mechanism}
 
  if ( ${Mechanism} =~ *ae7* ) then          #> ae7 family of aero and cloud chem
@@ -130,13 +129,18 @@ set make_options = "-j"                #> additional options for make command if
      set ModCloud   = cloud/acm_cracmm      # > cloud chemistry module (see $CMAQ_MODEL/CCTM/src/cloud)
  endif
 
- 
- if ( ${Mechanism} == cb6r3m_ae7_aq ) then  #> Gas-phase chemistry solver options ($CMAQ_MODEL/CCTM/src/gas)
+ # Special cloud modules for kmt versions
+ if( ${Mechanism} == cb6r5_ae7_kmt2 ) then
+     set ModCloud = acm_ae7_kmt2
+ else if( ${Mechanism} == saprc07tic_ae6i_aqkmti ) then
+     set ModCloud = acm_ae6i_kmti
+ else if( ${Mechanism} == saprc07tic_ae7i_aqkmt2 ) then
+     set ModCloud = acm_ae7_kmt2
+ endif
+
+ # Gas chem solver
+ if ( ${Mechanism} == cb6r5m_ae7_aq ) then  #> Gas-phase chemistry solver options ($CMAQ_MODEL/CCTM/src/gas)
      setenv ChemSolver ros3                  #> ros3 (or smvgear) are system independent
- else if ( ${Mechanism} == cb6r5m_ae7_aq ) then  #> Gas-phase chemistry solver options ($CMAQ_MODEL/CCTM/src/gas)
-     setenv ChemSolver ros3                  #> ros3 (or smvgear) are system independent
- else if ( ${Mechanism} == cracmm1_aq ) then
-     setenv ChemSolver ebi                   #> 
  else                                      
      setenv ChemSolver ebi                   #> [ default for most mechanisms: ebi ]
  endif
@@ -566,7 +570,7 @@ set Cfile = ${Bld}/${CFG}.bld      # Config Filename
  echo "Module ${ModEmis};"                                         >> $Cfile
  echo                                                              >> $Cfile
 
- set text = "beis3"
+ set text = "beis4"
  echo "// options are" $text                                       >> $Cfile
  echo "Module ${ModBiog};"                                         >> $Cfile
  echo                                                              >> $Cfile

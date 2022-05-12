@@ -17,9 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/aero/aero5/getpar.f,v 1.7 2012/01/19 13:13:27 yoj Exp $
-
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       Subroutine getpar( fixed_sg  )
 
@@ -43,7 +40,7 @@ C  for a "dry" aerosol and the WET_MOMENTS_FLAG is .TRUE., GETPAR would
 C  incorrectly adjust the M2 concentrations!
 C  
 C  Outputs: 
-C    moment3_conc  third moment, porportional to volume [ m3/m3 ]
+C    moment3_conc  third moment, proportional to volume [ m3/m3 ]
 C    moment2_conc  second moment, prop. to surface area [ m2/m3 ] 
 C                     (adjusted if standard dev. hits limit)
 C    aeromode_dens [ kg/m3 ]
@@ -58,8 +55,8 @@ C-----------------------------------------------------------------------
 
       Use aero_data, only : wet_moments_flag, moment3_conc, moment2_conc, moment0_conc,
      &                       aeromode_dens, aeromode_lnsg, aeromode_diam, aeromode_mass,
-     &                       min_diam_g, min_sigma_g, max_sigma_g, n_mode, n_aerospc,
-     &                       aerospc, aero_missing, aerospc_conc, aeromode
+     &                       min_dg_dry, min_dg_wet, min_sigma_g, max_sigma_g, n_mode, 
+     &                       aerospc, aero_missing, aerospc_conc, aeromode, n_aerospc
       Use aeromet_data, only : f6pi   ! Includes CONST.EXT
 
       Implicit None
@@ -67,12 +64,12 @@ C-----------------------------------------------------------------------
 C Arguments:
       Logical, Intent( In ) :: fixed_sg  ! If TRUE, then the second moment is modified 
                                          ! during each call in order to preserve the 
-                                         ! standard deviaiton at the current value.
+                                         ! standard deviation at the current value.
                                          !
                                          ! If FALSE, then the standard deviation is 
                                          ! recalculated to be consistent with the current 
                                          ! combination of the 0th, 2nd and 3rd moments.
-                                         ! During this calculation, standard deviaiton is 
+                                         ! During this calculation, standard deviation is 
                                          ! limited by parameters in AERO_DATA (min_sigma_g 
                                          ! and max_sigma_g)
 
@@ -100,8 +97,6 @@ C Local Variables:
       Real( 8 ) :: sumMass
       Integer   :: n, spc   ! loop counters
 
-      Real( 8 ), Save :: min_ln_sig_g_squ
-      Real( 8 ), Save :: max_ln_sig_g_squ
       Logical,   Save :: FirsTime = .True.
 
 C-----------------------------------------------------------------------
@@ -112,8 +107,6 @@ C-----------------------------------------------------------------------
           maxl2sg = Real( Log( max_sigma_g ) ** 2, 8 )
           FirsTime = .False.
       End If
-
-
 
 C *** Calculate aerosol 3rd moment concentrations [ m**3 / m**3 ]
 
@@ -177,8 +170,14 @@ c         below the minimum limit.
          aeromode_lnsg( n ) = Real( Sqrt( l2sg ) )
 
          ES36 = Real( Exp( 4.5d0 * l2sg ) )
-         aeromode_diam( n ) = Max( min_diam_g( n ), ( moment3_conc( n )
-     &                      / ( moment0_conc( n ) * es36 ) ) ** one3 )
+
+         ! Implement a lower-bound on the number concentration that
+         ! constrains the mean diameter of each mode to less than 100 um
+         moment0_conc( n ) = Max(moment0_conc( n ),
+     &                           moment3_conc( n )/(1.0e-12 * es36) )
+
+         aeromode_diam( n ) = ( moment3_conc( n ) / 
+     &                          ( moment0_conc( n ) * es36 ) ) ** one3 
 
       End Do
 

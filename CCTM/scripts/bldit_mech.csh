@@ -143,7 +143,6 @@
  #> Copy Files Back to Mechanism location
  cp -f ${CHEMMECH_OUTPUT}/RXNS*MODULE.F90 ${MECH_OUT}/.
  cp -f ${CHEMMECH_OUTPUT}/[A,E,G,N]*.nml ${MECH_OUT}/.
- cp -f ${CHEMMECH_OUTPUT}/*.m ${MECH_OUT}/.
 
 
 #################### CSQY Photolysis Processor ##########################

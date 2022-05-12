@@ -4683,7 +4683,6 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      &        'a(a>b) = b;',/,
      &        'k(:,i) = a.*ILLUMINATED.*SEAWATER;',/)
 
-
 95100  FORMAT(2X,A16,' = 0.0D0')        
 
 

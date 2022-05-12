@@ -66,7 +66,7 @@ C-------------------------------------------------------------------------------
 ! Private variables used in this module and subroutines     
       Real, Save,              Private :: C_gam           ! Canadian fertilizer facter   
       Real, Parameter,         Private :: maxgam   = 2.0e5 ! maximum soil gamm. It is assumed that any excess NH4 would from salts
-      Real, Parameter,         Private :: natgam   = 20.0  ! Background soil gamma
+!      Real, Parameter,         Private :: natgam   = 20.0  ! Background soil gamma
 ! variables for STAGE bidi NH3
       Real, Save, Allocatable, Private :: frac_ag( :,: ) ! fraction of ag    
       Real, Save, Allocatable, Private :: knit1  ( :,: ) ! EPIC Grid nitrificaiton rate
@@ -202,6 +202,8 @@ C-------------------------------------------------------------------------------
          Where( F2_NH4 .Ne. F2_NH4 ) F2_NH4 = 0.0
          Where( NH4ps1 .Ne. NH4ps1 ) NH4ps1 = 0.0
          Where( NH4ps2 .Ne. NH4ps2 ) NH4ps2 = 0.0
+         Where( pHs1   .Ne. pHs1   ) pHs1   = 0.0
+         Where( pHs2   .Ne. pHs2   ) pHs2   = 0.0
          Where( Nit1   .Lt. 0.0 ) Nit1   = 0.0
          Where( Nit2   .Lt. 0.0 ) Nit2   = 0.0
          Where( F1_NH4 .Lt. 0.0 ) F1_NH4 = 0.0
@@ -391,24 +393,27 @@ C-------------------------------------------------------------------------------
 !------------------------------------------------------------------------------
 ! Subroutine to get the soil and canopy compensation point for STAGE
 !------------------------------------------------------------------------------          
-         Subroutine Get_NH3_Comp( NH3_st, NH3_g, diff, r, c, l, s )
+         Subroutine Get_NH3_Comp( NH3_st, NH3_ll, NH3_g, diff, r, c, l, l_ag )
          
          Use UTILIO_DEFN
          Use Bidi_Mod, Only: gamma1, gamma2, MHp1, MHp2
          Use ASX_DATA_MOD
          Use LSM_MOD
+         Use MOSAIC_MOD, Only: Tile_Data 
          
          Implicit None
          
          Include SUBST_FILES_ID  ! file name parameters
 
-         Integer, Intent( IN )  :: r, c, l, s 
+         Integer, Intent( IN )  :: r, c, l  ! Row, Column, Land use indices
+         Integer, Intent( IN )  :: l_ag     ! Ag index  
          Real,    Intent( IN )  :: diff     ! NH3 diffusion in air m2/s
          Real,    Intent( OUT ) :: NH3_st   ! Stomatal Compensation point
-         Real,    Intent( OUT ) :: NH3_g    ! ground Compensation point
-!         Real,    Intent( OUT ) :: Rg       ! Soil diffusive resistance to soil water
+         Real,    Intent( OUT ) :: NH3_ll   ! Leaf litter/under canopy Compensation point
+         Real,    Intent( OUT ) :: NH3_g    ! Soil Compensation point
          
          Real                   :: cnh3g1, cnh3g2   ! NH3 compensation concentration for ground [ppm]
+         Real                   :: cnh3ll1      ! NH3 compensation concentration for ground [ppm]
          Real                   :: mNH4         ! Soil total NH4+ mg N / Kg
          Real                   :: Ka           ! NH4 acid dissociation constant
          Real                   :: coef_a       ! intermediate variable to solve for soil solution NHx
@@ -416,6 +421,7 @@ C-------------------------------------------------------------------------------
          Real                   :: coef_c       ! intermediate variable to solve for soil solution NHx
          Real                   :: NH4_sol      ! NH4+ in soil water solution mg N / kg
          Real                   :: NH3_sol      ! NH3 in soil water solution mg N / kg
+         Real                   :: NH3_gam_ll   ! Under canopy leaf litter molar emission potential [NH3]/[H+]
          Real                   :: frac_sol     ! Fraction of NHx in solution
          Real                   :: ldry1
          Real                   :: ldry2
@@ -426,17 +432,18 @@ C-------------------------------------------------------------------------------
          Real( 8 )              :: a1
          Real,        Parameter :: twothree = 2.0/3.0
          Real,        Parameter :: onethree = 1.0/3.0
-         Real,        Parameter :: MolN     = 14.007  ! g/mol N
-         Real,        Parameter :: MolNH3   = 17.01  ! g/mol NH3         
+         Real,        Parameter :: MolN     = 14.007  ! g/mol N      
          Real                   :: wg_ir        ! 1 cm soil moisture  
          Real                   :: w5cm, cg         ! soil moisture in top 5 cm (vol frc)
 
          Integer                :: j
-! Point were soil solution NH4 equals half the maximum sorption capacity Venteria et al. Sci. Rep. doi:10.1038/srep12153
-         Real, Parameter        :: half_sol = 345.0 
-! Maximum NH4 soil sorption capacity Venteria et al. Sci. Rep. doi:10.1038/srep12153
-         Real, Parameter        :: max_sorp = 550.0 
-
+! Point were soil solution NH4 equals half the maximum sorption capacity Alnosour 2020  Bi-directional exchange of
+!  ammonia from soils in row crop agro-ecosystems. Dissertation. North Carolina State University 
+!  http://www.lib.ncsu.edu/resolver/1840.20/37245
+         Real, Parameter        :: half_sol = 124.0 ! update from NC State Alnosour Thesis
+! Maximum NH4 soil sorption capacity 
+         Real, Parameter        :: max_sorp = 426.0 ! update from NC State Alnosour Thesis 
+         Real, Parameter        :: NH3_gam_soil = 20.0 ! bare soil water solution emission potetnial [NH3]/[H+]
  
          If( PX_LSM ) Then
 ! simplified from Darcy's law assuming stationarity and only gravitational draining with the Campbell hydrological functions applied
@@ -475,128 +482,83 @@ C-------------------------------------------------------------------------------
          a1     = 161512.0d0 / real( MET_DATA%SoiT1( c,r ), 8 )
      &          * 10.0d0 ** ( -4507.11d0 / real( MET_DATA%SoiT1( c,r ), 8 ) )
          a1     = a1 * 24.5d0 * 1.0d6  ! ppm
-         NH3_st = a1 * luf_fac( l )       
+         NH3_st       = a1 * Tile_Data%NH3_gam_st( l )
+         NH3_gam_ll = Tile_Data%NH3_gam_grnd( l ) 
          
 !> Set a maximum [NH4]/[H+] ratio at 200,000 based on output from the AIM aerosol
 !> model any [NH4] in excess of this ratio is assumed to partition into the solid
 !> phase. Canada soil gamma taken from Zhang et al 2010 JGR Table 5
-
-         Select Case( cat_lu( l ) )
-            Case( 'WATER','SNOWICE' ) ! water, ice or snow
-               cnh3g1 = 0.0
-               cnh3g2 = 0.0
-               NH3_st = 0.0
-            Case( 'AG','HAY' ) ! Ag
-               if( gamma1( c,r ) .eq. 0.0 ) Then 
-                  cg = wg_ir/1.6 ! L water / kg soil
-                  mNH4    = C_gam*1.0e-7/1.6*14.0*1.0e3 ! assume a bulk density of 1.6 kg/l untill Canadian data is available
-                  Ka      = 5.68853e-10*exp(-6248.151*(1.0/MET_DATA%SoiT1( c,r )-1.0/298.15))
-                  coef_a  = cg * (1.0+Ka/1.0e-7) ! assume a pH of 7
-                  coef_b  = max_sorp+cg * half_sol * (1.0+Ka/1.0e-7) - mNH4
-                  coef_c  = -half_sol * mNH4
-                  NH4_sol = (-coef_b+sqrt(coef_b**2.0-4.0*coef_a*coef_c))/(2.0*coef_a)
-                  NH3_sol = NH4_sol*Ka/1.0e-7 ! mg N/l
-                  cnh3g1  = (NH4_sol+NH3_sol)*1.0e-3/14.0/1.0e-7
-               Else
-                  cg = wg_ir/BDs1( c,r ) ! L water / kg soil
-                  mNH4 = gamma1( c,r )*MHp1( c,r )/BDs1( c,r )*14.0*1.0e3
-                  Ka      = 5.68853e-10*exp(-6248.151*(1.0/MET_DATA%SoiT1( c,r )-1.0/298.15))
-                  coef_a  = cg*(1.0+Ka/MHp1( c,r ))
-                  coef_b  = max_sorp+cg*half_sol*(1.0+Ka/MHp1(c,r)) - mNH4
-                  coef_c  = -half_sol*mNH4
-                  NH4_sol = (-coef_b+sqrt(coef_b**2.0-4.0*coef_a*coef_c))/(2.0*coef_a)
-                  NH3_sol = NH4_sol*Ka/MHp1( c,r ) ! mg N/l
-                  cnh3g1  = (NH4_sol+NH3_sol)*1.0e-3/14.0/MHp1( c,r )
-               End If
-               If( gamma2( c,r ) .eq. 0.0 ) Then 
-                  cg = w5cm/1.6 ! L water / kg soil
-                  mNH4    = C_gam*1.0e-7/1.6*14.0*1.0e3 ! assume a bulk density of 1.6 kg/l untill Canadian data is available
-                  Ka      = 5.68853e-10*exp(-6248.151*(1.0/MET_DATA%SoiT1( c,r )-1.0/298.15))
-                  coef_a  = cg*(1.0+Ka/1.0e-7)
-                  coef_b  = max_sorp+cg*half_sol*(1.0+Ka/1.0e-7) - mNH4
-                  coef_c  = -half_sol*mNH4
-                  NH4_sol = (-coef_b+sqrt(coef_b**2.0-4.0*coef_a*coef_c))/(2.0*coef_a)
-                  NH3_sol = NH4_sol*Ka/1.0e-7 ! mg N/l
-                  cnh3g2  = (NH4_sol+NH3_sol)*1.0e-3/14.0/1.0e-7!/wg_ir
-                  NH3_st   = Max( NH3_st, Real( a1 ) *( C_gam * 1.0e-7
-     &                    * w5cm * MolN * zsoil2 * 1.0e4 * 12.3 + 20.3 ) )
-                Else 
-                  cg = w5cm/BDs2( c,r ) ! L water / kg soil
-                  mNH4 = gamma2( c,r )*MHp2( c,r )/BDs2( c,r )*14.0*1.0e3
-                  Ka      = 5.68853e-10*exp(-6248.151*(1.0/MET_DATA%SoiT1( c,r )-1.0/298.15))
-                  coef_a  = cg*(1.0+Ka/MHp2( c,r ))
-                  coef_b  = max_sorp+cg*half_sol*(1.0+Ka/MHp2(c,r)) - mNH4
-                  coef_c  = -half_sol*mNH4
-                  NH4_sol = (-coef_b+sqrt(coef_b**2.0-4.0*coef_a*coef_c))/(2.0*coef_a)
-                  NH3_sol = NH4_sol*Ka/MHp2( c,r ) ! mg N/l
-                  cnh3g2  = (NH4_sol+NH3_sol)*1.0e-3/14.0/MHp2( c,r )
-                  NH3_st   = Max( NH3_st, Real( a1 ) * ( gamma2(c,r) * 1.0e-7
-     &                    * w5cm * MolN * zsoil2 * 1.0e4 * 12.3 + 20.3 ) )
-               End If
-            Case( 'AGMOS' ) ! Ag mosaic 67% ag 33% mosaic 
-               If( gamma1( c,r ) .eq. 0.0 ) Then 
-                  cg = wg_ir/1.6 ! L water / kg soil
-                  mNH4    = (C_gam*twothree+natgam*onethree)*1.0e-7/1.6*14.0*1.0e3 ! assume a bulk density of 1.6 kg/l untill Canadian data is available
-                  Ka      = 5.68853e-10*exp(-6248.151*(1.0/MET_DATA%SoiT1( c,r )-1.0/298.15))
-                  coef_a  = cg*(1.0+Ka/1.0e-7)
-                  coef_b  = max_sorp+cg*half_sol*(1.0+Ka/1.0e-7) - mNH4
-                  coef_c  = -half_sol*mNH4
-                  NH4_sol = (-coef_b+sqrt(coef_b**2.0-4.0*coef_a*coef_c))/(2.0*coef_a)
-                  NH3_sol = NH4_sol*Ka/1.0e-7 ! mg N/l
-                  cnh3g1  = (NH4_sol+NH3_sol)*1.0e-3/14.0/1.0e-7!/wg_ir
-               Else  
-                  cg = wg_ir/BDs1( c,r ) ! L water / kg soil
-                  mNH4 = (gamma1( c,r )*MHp1( c,r )*twothree + natgam*1.0e-7*onethree)/BDs1( c,r )*14.0*1.0e3
-                  Ka      = 5.68853e-10*exp(-6248.151*(1.0/MET_DATA%SoiT1( c,r )-1.0/298.15))
-                  coef_a  =cg*(1+Ka/MHp1( c,r ))
-                  coef_b  = max_sorp+cg*half_sol*(1.0+Ka/MHp1(c,r)) - mNH4
-                  coef_c  = -half_sol*mNH4
-                  NH4_sol = (-coef_b+sqrt(coef_b**2.0-4.0*coef_a*coef_c))/(2.0*coef_a)
-                  NH3_sol = NH4_sol*Ka/MHp1( c,r ) ! mg N/l
-                  cnh3g1  = (NH4_sol+NH3_sol)*1.0e-3/14.0/MHp1(c,r)!/wg_ir
-               End If
-               If( gamma2( c,r ) .eq. 0.0 ) Then 
-                  cg = w5cm/1.6 ! L water / kg soil
-                  mNH4    = (C_gam*twothree + natgam*onethree)*1.0e-7/1.6*14.0*1.0e3 ! assume a bulk density of 1.6 kg/l untill Canadian data is available
-                  Ka      = 5.68853e-10*exp(-6248.151*(1.0/MET_DATA%SoiT1( c,r )-1.0/298.15))
-                  coef_a  = cg*(1+Ka/1.0e-7)
-                  coef_b  = max_sorp+cg*half_sol*(1.0+Ka/1.0e-7) - mNH4
-                  coef_c  = -half_sol*mNH4
-                  NH4_sol = (-coef_b+sqrt(coef_b**2.0-4.0*coef_a*coef_c))/(2.0*coef_a)
-                  NH3_sol = NH4_sol*Ka/1.0e-7 ! mg N/l
-                  cnh3g2  = (NH4_sol+NH3_sol)*1.0e-3/14.0/1.0e-7!/w5cm
-                  NH3_st   = Max( NH3_st, Real( a1 ) * ( C_gam * 1.0e-7
-     &                    * w5cm * MolN * zsoil2 *1.0e4 * 12.3 + 20.3 ) )
-     &                    * twothree + onethree * NH3_st
-               Else 
-                  cg = w5cm/BDs2( c,r ) ! L water / kg soil
-                  mNH4    = (gamma2( c,r )*MHp2( c,r )/BDs2( c,r )*twothree+natgam/3.0/1.6)*14.0*1.0e3
-                  Ka      = 5.68853e-10*exp(-6248.151*(1.0/MET_DATA%SoiT1( c,r )-1.0/298.15))
-                  coef_a  = cg*(1+Ka/MHp2( c,r ))
-                  coef_b  = max_sorp+cg*half_sol*(1.0+Ka/MHp2(c,r)) - mNH4
-                  coef_c  = -half_sol*mNH4
-                  NH4_sol = (-coef_b+sqrt(coef_b**2.0-4.0*coef_a*coef_c))/(2.0*coef_a)
-                  NH3_sol = NH4_sol*Ka/MHp2( c,r ) ! mg N/l
-                  cnh3g2  = (NH4_sol+NH3_sol)*1.0e-3/14.0/MHp2( c,r )!/w5cm
-                  NH3_st   = Max( NH3_st, Real( a1 ) * ( gamma2(c,r) * 1.0e-7
-     &                    * w5cm * MolN * zsoil2 *1.0e4 * 12.3 + 20.3 ) )
-     &                    * twothree + onethree * NH3_st
-               End If     
-            Case Default ! not ag
-               cnh3g1 = Min( natgam / wg_ir, maxgam )
-               cnh3g2 = Min( natgam / w5cm, maxgam )
-         End Select
-         cnh3g1 = a1 * Max( cnh3g1, 0.01 )
-         cnh3g2 = a1 * Max( cnh3g2, 0.01 )
+         cnh3ll1 = 0.0
+         If( l .Eq. l_ag ) Then
+! Use the soil ammonium sorption model of Venteria et al. Sci. Rep. doi:10.1038/srep12153 to estimate the NHx 
+! available for volatilization 
+           If( gamma1( c,r ) .eq. 0.0 ) Then 
+               cg = wg_ir/1.6 ! L water / kg soil
+               mNH4    = C_gam*1.0e-7/1.6*MolN*1.0e3 ! assume a bulk density of 1.6 kg/l untill Canadian data is available
+               Ka      = 5.68853e-10*exp(-6248.151*(1.0/MET_DATA%SoiT1( c,r )-1.0/298.15))
+               coef_a  = cg * (1.0+Ka/1.0e-7) ! assume a pH of 7
+               coef_b  = max_sorp+cg * half_sol * (1.0+Ka/1.0e-7) - mNH4
+               coef_c  = -half_sol * mNH4
+               NH4_sol = (-coef_b+sqrt(coef_b**2.0-4.0*coef_a*coef_c))/(2.0*coef_a)
+               NH3_sol = NH4_sol*Ka/1.0e-7 ! mg N/l
+               cnh3g1  = (NH4_sol+NH3_sol)*1.0e-3/MolN/1.0e-7
+               cnh3ll1 = cnh3g1
+            Else
+               cg = wg_ir/BDs1( c,r ) ! L water / kg soil
+               mNH4 = gamma1( c,r )*MHp1( c,r )/BDs1( c,r )*MolN*1.0e3
+               Ka      = 5.68853e-10*exp(-6248.151*(1.0/MET_DATA%SoiT1( c,r )-1.0/298.15))
+               coef_a  = cg*(1.0+Ka/MHp1( c,r ))
+               coef_b  = max_sorp+cg*half_sol*(1.0+Ka/MHp1(c,r)) - mNH4
+               coef_c  = -half_sol*mNH4
+               NH4_sol = (-coef_b+sqrt(coef_b**2.0-4.0*coef_a*coef_c))/(2.0*coef_a)
+               NH3_sol = NH4_sol*Ka/MHp1( c,r ) ! mg N/l
+               cnh3g1  = (NH4_sol+NH3_sol)*1.0e-3/MolN/MHp1( c,r )
+               cnh3ll1 = cnh3g1
+            End If
+            If( gamma2( c,r ) .eq. 0.0 ) Then 
+               cg = w5cm/1.6 ! L water / kg soil
+               mNH4    = C_gam*1.0e-7/1.6*MolN*1.0e3 ! assume a bulk density of 1.6 kg/l untill Canadian data is available
+               Ka      = 5.68853e-10*exp(-6248.151*(1.0/MET_DATA%SoiT1( c,r )-1.0/298.15))
+               coef_a  = cg*(1.0+Ka/1.0e-7)
+               coef_b  = max_sorp+cg*half_sol*(1.0+Ka/1.0e-7) - mNH4
+               coef_c  = -half_sol*mNH4
+               NH4_sol = (-coef_b+sqrt(coef_b**2.0-4.0*coef_a*coef_c))/(2.0*coef_a)
+               NH3_sol = NH4_sol*Ka/1.0e-7 ! mg N/l
+               cnh3g2  = (NH4_sol+NH3_sol)*1.0e-3/MolN/1.0e-7!/wg_ir
+               NH3_st   = Max( NH3_st, Real( a1 ) *( C_gam * 1.0e-7
+     &                  * w5cm * MolN * zsoil2 * 1.0e4 * 12.3 + 20.3 ) )
+             Else 
+               cg = w5cm/BDs2( c,r ) ! L water / kg soil
+               mNH4 = gamma2( c,r )*MHp2( c,r )/BDs2( c,r )*MolN*1.0e3
+               Ka      = 5.68853e-10*exp(-6248.151*(1.0/MET_DATA%SoiT1( c,r )-1.0/298.15))
+               coef_a  = cg*(1.0+Ka/MHp2( c,r ))
+               coef_b  = max_sorp+cg*half_sol*(1.0+Ka/MHp2(c,r)) - mNH4
+               coef_c  = -half_sol*mNH4
+               NH4_sol = (-coef_b+sqrt(coef_b**2.0-4.0*coef_a*coef_c))/(2.0*coef_a)
+               NH3_sol = NH4_sol*Ka/MHp2( c,r ) ! mg N/l
+               cnh3g2  = (NH4_sol+NH3_sol)*1.0e-3/MolN/MHp2( c,r )
+               NH3_st   = Max( NH3_st, Real( a1 ) * ( gamma2(c,r) * 1.0e-7
+     &                  * w5cm * MolN * zsoil2 * 1.0e4 * 12.3 + 20.3 ) )
+            End If
+         Else 
+            cnh3ll1 = Min( NH3_gam_ll / wg_ir, maxgam )
+            cnh3g1  = Min( NH3_gam_soil / wg_ir, maxgam )
+            cnh3g2  = Min( NH3_gam_soil / w5cm, maxgam ) ! if the leaf litter is too dry use the soil value
+         End If
+         cnh3ll1 = a1 * Max( cnh3ll1, 0.01 )
+         cnh3g1  = a1 * Max( cnh3g1, 0.01 )
+         cnh3g2  = a1 * Max( cnh3g2, 0.01 )
 
          If( ldry1 .Le. zsoil1 ) Then
-            NH3_g = cnh3g1
-            wg = wg_ir
-            zsoil = zsoil1
+            NH3_g  = cnh3g1
+            NH3_ll = cnh3ll1
+            wg     = wg_ir
+            zsoil  = zsoil1
          Else
-            NH3_g = cnh3g2
-            wg = w5cm
-            zsoil = zsoil2
+            NH3_g  = cnh3g2
+            NH3_ll = cnh3g2
+            wg     = w5cm
+            zsoil  = zsoil2
          End If
          Return         
          End Subroutine Get_NH3_Comp
@@ -605,18 +567,20 @@ C-------------------------------------------------------------------------------
 ! nitrification, leaching, and run off
 ! Soil ammonium, pH, leaching, and run off are defined in the module
 !------------------------------------------------------------------------------
-         Subroutine Calc_Nitrif ( dt, C, R, flux_ag )
+         Subroutine Calc_Nitrif ( dt, C, R, l_ag, flux_ag )
          
          Use UTILIO_DEFN
          Use ASX_DATA_MOD
          Use Bidi_Mod, Only: gamma1, gamma2, MHp1, MHp2
          Use LSM_MOD
+         Use MOSAIC_MOD, Only: Tile_Data 
          
          Implicit None                
          
          Real,      Intent( IN )    :: dt     ! time step in s
          Integer,   Intent( IN )    :: C      ! Column
          Integer,   Intent( IN )    :: R      ! Row
+         Integer,   Intent( IN )    :: L_ag   ! LU Agricuture index
          Real,      Intent( IN )    :: flux_ag ! ag emissions ppm*m/s
 
          Real    :: Kn     ! nitrification rate 1/s
@@ -678,7 +642,7 @@ C-------------------------------------------------------------------------------
                End If
                gam = MNHx / MHp 
             Else
-               gam = natgam
+               gam = Tile_Data%NH3_gam_grnd( L_Ag )
             End If
           Else ! evasion
             Kvs    = -log(1.0-NH3_flux/MNHx)
@@ -693,7 +657,7 @@ C-------------------------------------------------------------------------------
                End If
                gam = MNHx / MHp 
             Else
-               gam = natgam
+               gam = Tile_Data%NH3_gam_grnd( L_Ag )
             End If
           End If
 ! Update soil concentrations
