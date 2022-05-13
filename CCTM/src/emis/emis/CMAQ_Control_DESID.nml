@@ -44,7 +44,7 @@
 !                                                                              !
 !      'Projection Adjustment' - If TRUE, then this stream's emissions will be !
 !                multiplied by the area Map Scale Factor. If AUTO, then DESID  !
-!                will inherit the per=stream value from Area Normalization. If !
+!                will inherit the per-stream value from Area Normalization. If !
 !                Area Normalization is TRUE, the Projection Adjustment is True !
 !------------------------------------------------------------------------------!
 &Desid_AreaNormVars

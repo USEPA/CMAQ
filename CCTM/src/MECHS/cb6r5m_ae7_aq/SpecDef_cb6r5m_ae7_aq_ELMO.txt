@@ -1,6 +1,6 @@
 !#start   YYYYJJJ  010000
 !#end     YYYYJJJ  000000
-!#layer         1
+#layer         1
 
 /
 ! This Species Definition File is for Use with the COMBINE tool built for 
@@ -30,7 +30,7 @@
 
 / File [1]: CMAQ conc/aconc file
 / File [2]: METCRO3D file
-/ File [3]: PMDIAG/APMDIAG file
+/ File [3]: ELMO/AELMO file
 / File [4]: METCRO2D file
 /
 /new species    ,units     ,expression
