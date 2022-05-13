@@ -10,5 +10,5 @@ The following programs are provided to process and prepare input data for the CM
 data
 * **[mcip](mcip/README.md)**: processes meteorological model output from either MM5 or WRF-ARW model into I/O API-formatted files that are compatible with CMAQ and SMOKE
 * **[create_omi](create_omi/README.md)**: produces an OMI input file that supports CMAQ CCTM's in-line calculation of photolysis rates.
-* **[dmschlo](dmschlo/README.md)**: Prepares OCEAN file with DMS and CHLO variables required by DMS and halogen chemistry.
+* **[dmschlo](../PYTOOLS/dmschlo/README.md)**: Prepares OCEAN file with DMS and CHLO variables required by DMS and halogen chemistry.
  
