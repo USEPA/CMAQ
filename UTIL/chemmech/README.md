@@ -8,21 +8,6 @@ The chemical mechanism processor (chemmech) allows altering a photochemical mech
 Two output files implement the photochemical mechanism in CMAQ and are compiled along its source code. Both output files contain FORTRAN 90 modules. RXNS_DATA_MOD.F90 defines the mechanism species, their reactions and rate constants. RXN_FUNC_MOD.F90 specifies functions that map CMAQ model species to photochemical mechanism species and calculate reaction rate constants. chemmech produces additional output files to check whether the two modules represent the photochemical mechanism intended by the user.  One additional ouput file, SPCS.ext, lists the species participating in the photochemical mechanism. 
 
 Other output files support using the Kinetic PreProcess (KPP) (Damian et al., 2002), document the input data, and aid using the input's chemical mechanism in F0AM box model (Wolfe et al., 2016). The KPP file ares prototypes for the species and equations files used to run the program. They have not been tested in several years so a user should use them with discretion. Documentation files are markdown, csv and, html tables that list reactions, their rate constant formula, and values at specified atmospheric conditions. 
-
-## Output Files for F0AM Box Modeling
-
-The output files for running the FOAM boxmodel are listed below.
-
-1. **mechanism_name**_AllRxns.m defines the mechanism species, reactions and their rate constants.
-2. **mechanism_name**_J.m sets the mechanism's photolysis frequencies. Note that F0AM provides a fixed set to available photolysis frequencies so a user has to map the mechanism's frequencies to the available frequencies. If the user wishes to use photolysis frequencies native to the mechanism, they have to perform the below step.
-
-    - Add each frequency' cross-section and quantum yield files to the relevant subdirectories of the F0AM box-model.   
-    - Modify the file, Chem/Photolysis/J_BottomUp.m in the F0AM code.    
-    - Run Chem/Photolysis/calc_HybridJtables.m. in the FOAM code.
-    
-3. J_BottomUp_insert_**mechanism_name**.m contains a list  of the datafiles need to accomplish the above task. The file can also be used to modify Chem/Photolysis/J_BottomUp.m.
-4. **mechanism_name**_K.m sets the heterogeneous reaction rate constants. The file sets their values to zero because CCTM/src/aero/aero6/AEROSOL_CHEMISTRY.F calculates the values in CCTM and is not controlled by the chemmech utility. 
-
    
 ## Using chemmech
 
@@ -72,6 +57,20 @@ Outputs includes FORTRAN 90 modules, RXNS_DATA_MODULE.F90 and RXNS_FUNCTION.F90,
 Besides the species namelists, executing the CCTM requires a CSQY_DATA\_**mechanism-name** file containing cross-sections and quantum yields for the photolysis rates used by the mechanism. The _inline_phot_preproc_ utility creates file by using the data module. Check the subdirectory containing this utility for more information. 
 
 If a user wants to use a gas chemistry solver faster than Rosenbrock or Gear, they have to create a Euler Backward Interative (EBI) solver (Hertel et al., 1993) for the photochemical mechanism. The _create\_ebi_ utility creates an EBI solver specific to a photochemical mechanism by using its data module. Check this utility’s subdirectory for more information.
+
+### Output Files for F0AM Box Modeling
+
+The output files for running the FOAM boxmodel are listed below.
+
+1. **mechanism_name**_AllRxns.m defines the mechanism species, reactions and their rate constants.
+2. **mechanism_name**_J.m sets the mechanism's photolysis frequencies. Note that F0AM provides a fixed set to available photolysis frequencies so a user has to map the mechanism's frequencies to the available frequencies. If the user wishes to use photolysis frequencies native to the mechanism, they have to perform the below step.
+
+    - Add each frequency' cross-section and quantum yield files to the relevant subdirectories of the F0AM box-model.   
+    - Modify the file, Chem/Photolysis/J_BottomUp.m in the F0AM code.    
+    - Run Chem/Photolysis/calc_HybridJtables.m. in the FOAM code.
+    
+3. J_BottomUp_insert_**mechanism_name**.m contains a list  of the datafiles need to accomplish the above task. The file can also be used to modify Chem/Photolysis/J_BottomUp.m.
+4. **mechanism_name**_K.m sets the heterogeneous reaction rate constants. The file sets their values to zero because CCTM/src/aero/aero6/AEROSOL_CHEMISTRY.F calculates the values in CCTM and is not controlled by the chemmech utility. 
 
 ## Option for Elemental Balance Check.
 
