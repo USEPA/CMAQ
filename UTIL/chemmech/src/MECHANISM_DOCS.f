@@ -129,84 +129,6 @@ c..Variables for species to be dropped from mechanism
       INTEGER            :: ICOUNT, IREACT, IPRODUCT
 
 
-      INTERFACE 
-       SUBROUTINE GETRCTNT ( IMECH, INBUF, IEOL, LPOINT, CHR, WORD,
-     &                      NXX, NS, SPARSE_SPECIES, SPC1RX,
-     &                      ICOL, LABEL, N_DROP_SPC, DROP_SPC )
-         INTEGER,         INTENT(   IN  ) :: IMECH
-         CHARACTER( 81 ), INTENT( INOUT ) :: INBUF
-         INTEGER,         INTENT( INOUT ) :: LPOINT
-         INTEGER,         INTENT( INOUT ) :: IEOL
-         CHARACTER(  1 ), INTENT( INOUT ) :: CHR
-         CHARACTER( 16 ), INTENT( INOUT ) :: WORD
-         INTEGER,         INTENT(   IN  ) :: NXX
-         INTEGER,         INTENT( INOUT ) :: NS
-         CHARACTER( 16 ), INTENT( INOUT ) :: SPARSE_SPECIES( : )
-         INTEGER,         INTENT( INOUT ) :: SPC1RX( : )
-         INTEGER,         INTENT( INOUT ) :: ICOL
-         CHARACTER( 16 ), INTENT(   IN  ) :: LABEL( :, : )
-         INTEGER,         INTENT(   IN  ) :: N_DROP_SPC
-         CHARACTER( 16 ), INTENT(   IN  ) :: DROP_SPC( : )
-        END SUBROUTINE GETRCTNT
-        SUBROUTINE GETPRDCT ( IMECH, INBUF, LPOINT, IEOL, CHR, WORD,
-     &                      NXX, NS, SPARSE_SPECIES, SPC1RX,
-     &                      ICOL, N_DROP_SPC, DROP_SPC )
-          INTEGER,         INTENT(   IN  ) :: IMECH
-          CHARACTER( 81 ), INTENT( INOUT ) :: INBUF
-          INTEGER,         INTENT( INOUT ) :: LPOINT
-          INTEGER,         INTENT( INOUT ) :: IEOL
-          CHARACTER(  1 ), INTENT( INOUT ) :: CHR
-          CHARACTER( 16 ), INTENT( INOUT ) :: WORD
-          INTEGER,         INTENT(   IN  ) :: NXX
-          INTEGER,         INTENT( INOUT ) :: NS
-          CHARACTER( 16 ), INTENT( INOUT ) :: SPARSE_SPECIES( : )
-          INTEGER,         INTENT( INOUT ) :: SPC1RX( : )
-          INTEGER,         INTENT( INOUT ) :: ICOL
-          INTEGER,         INTENT(   IN  ) :: N_DROP_SPC
-          CHARACTER( 16 ), INTENT(   IN  ) :: DROP_SPC( : )
-         END SUBROUTINE GETPRDCT
-         SUBROUTINE GETRATE ( IMECH, INBUF, LPOINT, IEOL, CHR,
-     &                         NXX, LABEL, IP )
-           CHARACTER(  1 ), INTENT( INOUT ) :: CHR
-           CHARACTER( 81 ), INTENT( INOUT ) :: INBUF
-           INTEGER,         INTENT( IN )    :: IMECH
-           INTEGER,         INTENT( INOUT ) :: LPOINT
-           INTEGER,         INTENT( INOUT ) :: IEOL
-           INTEGER,         INTENT( INOUT ) :: IP
-           INTEGER,         INTENT( IN )    :: NXX
-           CHARACTER( 16 ), INTENT( INOUT ) :: LABEL( :,: )
-        END SUBROUTINE GETRATE
-        SUBROUTINE WREXTS (EQNAME_MECH, DESCRP_MECH, NS, SPARSE_SPECIES, SPC1RX, NR,
-     &                      IP,  NAMCONSTS, CVAL, SS1RX  ) 
-          CHARACTER( 120 ), INTENT ( IN ) :: EQNAME_MECH
-          CHARACTER(  32 ), INTENT ( IN ) :: DESCRP_MECH
-          INTEGER,          INTENT ( IN ) :: NS                ! no. of species found in mechanism table
-          CHARACTER(  16 ), INTENT ( IN ) :: SPARSE_SPECIES( : ) ! species list from mechanism table
-          INTEGER,          INTENT ( IN ) :: NR
-          INTEGER,          INTENT ( IN ) :: SPC1RX( : ) ! rx index of 1st occurence of species in mechanism table
-          INTEGER,          INTENT ( IN ) :: IP
-          CHARACTER( 16 ),  INTENT ( IN ) :: NAMCONSTS( : )
-          REAL( 8 ),        INTENT ( IN ) :: CVAL( : )
-          INTEGER,          INTENT ( IN ) :: SS1RX( : )
-        END SUBROUTINE WREXTS
-        SUBROUTINE GET_SS_DATA ( LUNOUT, NR ) 
-          INTEGER, INTENT ( IN )         :: LUNOUT   ! Output unit number
-          INTEGER, INTENT ( IN )         :: NR       ! No. of reactions
-        END SUBROUTINE GET_SS_DATA
-        SUBROUTINE CHECK_SS_SPC ( LUNOUT, NS, SPARSE_SPECIES, NR, LABEL, SS1RX )
-         INTEGER, INTENT ( IN )         :: LUNOUT               ! Output unit number
-         INTEGER, INTENT ( IN )         ::  NS                  ! No. of species in mechanism
-         CHARACTER( 16 ), INTENT ( IN ) ::  SPARSE_SPECIES( : )   ! List of mechanism species
-         INTEGER, INTENT ( IN )         ::  NR                  ! No. of reactions
-         CHARACTER( 16 ), INTENT ( IN ) ::  LABEL( :,: ) ! Reaction labels
-         INTEGER, INTENT ( INOUT )      ::  SS1RX( : )
-       END SUBROUTINE CHECK_SS_SPC
-       SUBROUTINE WRSS_EXT( NR ) 
-         INTEGER, INTENT ( IN )         :: NR   ! No. of reactions
-       END SUBROUTINE WRSS_EXT
-      END INTERFACE 
-  
-
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C Create name for output file
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -785,84 +707,6 @@ c..Variables for species to be dropped from mechanism
       INTEGER, EXTERNAL :: JUNIT
       INTEGER            :: ICOUNT, IREACT, IPRODUCT
 
-
-      INTERFACE 
-       SUBROUTINE GETRCTNT ( IMECH, INBUF, IEOL, LPOINT, CHR, WORD,
-     &                      NXX, NS, SPARSE_SPECIES, SPC1RX,
-     &                      ICOL, LABEL, N_DROP_SPC, DROP_SPC )
-         INTEGER,         INTENT(   IN  ) :: IMECH
-         CHARACTER( 81 ), INTENT( INOUT ) :: INBUF
-         INTEGER,         INTENT( INOUT ) :: LPOINT
-         INTEGER,         INTENT( INOUT ) :: IEOL
-         CHARACTER(  1 ), INTENT( INOUT ) :: CHR
-         CHARACTER( 16 ), INTENT( INOUT ) :: WORD
-         INTEGER,         INTENT(   IN  ) :: NXX
-         INTEGER,         INTENT( INOUT ) :: NS
-         CHARACTER( 16 ), INTENT( INOUT ) :: SPARSE_SPECIES( : )
-         INTEGER,         INTENT( INOUT ) :: SPC1RX( : )
-         INTEGER,         INTENT( INOUT ) :: ICOL
-         CHARACTER( 16 ), INTENT(   IN  ) :: LABEL( :, : )
-         INTEGER,         INTENT(   IN  ) :: N_DROP_SPC
-         CHARACTER( 16 ), INTENT(   IN  ) :: DROP_SPC( : )
-        END SUBROUTINE GETRCTNT
-        SUBROUTINE GETPRDCT ( IMECH, INBUF, LPOINT, IEOL, CHR, WORD,
-     &                      NXX, NS, SPARSE_SPECIES, SPC1RX,
-     &                      ICOL, N_DROP_SPC, DROP_SPC )
-          INTEGER,         INTENT(   IN  ) :: IMECH
-          CHARACTER( 81 ), INTENT( INOUT ) :: INBUF
-          INTEGER,         INTENT( INOUT ) :: LPOINT
-          INTEGER,         INTENT( INOUT ) :: IEOL
-          CHARACTER(  1 ), INTENT( INOUT ) :: CHR
-          CHARACTER( 16 ), INTENT( INOUT ) :: WORD
-          INTEGER,         INTENT(   IN  ) :: NXX
-          INTEGER,         INTENT( INOUT ) :: NS
-          CHARACTER( 16 ), INTENT( INOUT ) :: SPARSE_SPECIES( : )
-          INTEGER,         INTENT( INOUT ) :: SPC1RX( : )
-          INTEGER,         INTENT( INOUT ) :: ICOL
-          INTEGER,         INTENT(   IN  ) :: N_DROP_SPC
-          CHARACTER( 16 ), INTENT(   IN  ) :: DROP_SPC( : )
-         END SUBROUTINE GETPRDCT
-         SUBROUTINE GETRATE ( IMECH, INBUF, LPOINT, IEOL, CHR,
-     &                         NXX, LABEL, IP )
-           CHARACTER(  1 ), INTENT( INOUT ) :: CHR
-           CHARACTER( 81 ), INTENT( INOUT ) :: INBUF
-           INTEGER,         INTENT( IN )    :: IMECH
-           INTEGER,         INTENT( INOUT ) :: LPOINT
-           INTEGER,         INTENT( INOUT ) :: IEOL
-           INTEGER,         INTENT( INOUT ) :: IP
-           INTEGER,         INTENT( IN )    :: NXX
-           CHARACTER( 16 ), INTENT( INOUT ) :: LABEL( :,: )
-        END SUBROUTINE GETRATE
-        SUBROUTINE WREXTS (EQNAME_MECH, DESCRP_MECH, NS, SPARSE_SPECIES, SPC1RX, NR,
-     &                      IP,  NAMCONSTS, CVAL, SS1RX  ) 
-          CHARACTER( 120 ), INTENT ( IN ) :: EQNAME_MECH
-          CHARACTER(  32 ), INTENT ( IN ) :: DESCRP_MECH
-          INTEGER,          INTENT ( IN ) :: NS                ! no. of species found in mechanism table
-          CHARACTER(  16 ), INTENT ( IN ) :: SPARSE_SPECIES( : ) ! species list from mechanism table
-          INTEGER,          INTENT ( IN ) :: NR
-          INTEGER,          INTENT ( IN ) :: SPC1RX( : ) ! rx index of 1st occurence of species in mechanism table
-          INTEGER,          INTENT ( IN ) :: IP
-          CHARACTER( 16 ),  INTENT ( IN ) :: NAMCONSTS( : )
-          REAL( 8 ),        INTENT ( IN ) :: CVAL( : )
-          INTEGER,          INTENT ( IN ) :: SS1RX( : )
-        END SUBROUTINE WREXTS
-        SUBROUTINE GET_SS_DATA ( LUNOUT, NR ) 
-          INTEGER, INTENT ( IN )         :: LUNOUT   ! Output unit number
-          INTEGER, INTENT ( IN )         :: NR       ! No. of reactions
-        END SUBROUTINE GET_SS_DATA
-        SUBROUTINE CHECK_SS_SPC ( LUNOUT, NS, SPARSE_SPECIES, NR, LABEL, SS1RX )
-         INTEGER, INTENT ( IN )         :: LUNOUT               ! Output unit number
-         INTEGER, INTENT ( IN )         ::  NS                  ! No. of species in mechanism
-         CHARACTER( 16 ), INTENT ( IN ) ::  SPARSE_SPECIES( : )   ! List of mechanism species
-         INTEGER, INTENT ( IN )         ::  NR                  ! No. of reactions
-         CHARACTER( 16 ), INTENT ( IN ) ::  LABEL( :,: ) ! Reaction labels
-         INTEGER, INTENT ( INOUT )      ::  SS1RX( : )
-       END SUBROUTINE CHECK_SS_SPC
-       SUBROUTINE WRSS_EXT( NR ) 
-         INTEGER, INTENT ( IN )         :: NR   ! No. of reactions
-       END SUBROUTINE WRSS_EXT
-      END INTERFACE 
-  
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C Create name for output file
@@ -1919,83 +1763,6 @@ c..Variables for species to be dropped from mechanism
       INTEGER            :: ICOUNT, IREACT, IPRODUCT
 
 
-      INTERFACE 
-       SUBROUTINE GETRCTNT ( IMECH, INBUF, IEOL, LPOINT, CHR, WORD,
-     &                      NXX, NS, SPARSE_SPECIES, SPC1RX,
-     &                      ICOL, LABEL, N_DROP_SPC, DROP_SPC )
-         INTEGER,         INTENT(   IN  ) :: IMECH
-         CHARACTER( 81 ), INTENT( INOUT ) :: INBUF
-         INTEGER,         INTENT( INOUT ) :: LPOINT
-         INTEGER,         INTENT( INOUT ) :: IEOL
-         CHARACTER(  1 ), INTENT( INOUT ) :: CHR
-         CHARACTER( 16 ), INTENT( INOUT ) :: WORD
-         INTEGER,         INTENT(   IN  ) :: NXX
-         INTEGER,         INTENT( INOUT ) :: NS
-         CHARACTER( 16 ), INTENT( INOUT ) :: SPARSE_SPECIES( : )
-         INTEGER,         INTENT( INOUT ) :: SPC1RX( : )
-         INTEGER,         INTENT( INOUT ) :: ICOL
-         CHARACTER( 16 ), INTENT(   IN  ) :: LABEL( :, : )
-         INTEGER,         INTENT(   IN  ) :: N_DROP_SPC
-         CHARACTER( 16 ), INTENT(   IN  ) :: DROP_SPC( : )
-        END SUBROUTINE GETRCTNT
-        SUBROUTINE GETPRDCT ( IMECH, INBUF, LPOINT, IEOL, CHR, WORD,
-     &                      NXX, NS, SPARSE_SPECIES, SPC1RX,
-     &                      ICOL, N_DROP_SPC, DROP_SPC )
-          INTEGER,         INTENT(   IN  ) :: IMECH
-          CHARACTER( 81 ), INTENT( INOUT ) :: INBUF
-          INTEGER,         INTENT( INOUT ) :: LPOINT
-          INTEGER,         INTENT( INOUT ) :: IEOL
-          CHARACTER(  1 ), INTENT( INOUT ) :: CHR
-          CHARACTER( 16 ), INTENT( INOUT ) :: WORD
-          INTEGER,         INTENT(   IN  ) :: NXX
-          INTEGER,         INTENT( INOUT ) :: NS
-          CHARACTER( 16 ), INTENT( INOUT ) :: SPARSE_SPECIES( : )
-          INTEGER,         INTENT( INOUT ) :: SPC1RX( : )
-          INTEGER,         INTENT( INOUT ) :: ICOL
-          INTEGER,         INTENT(   IN  ) :: N_DROP_SPC
-          CHARACTER( 16 ), INTENT(   IN  ) :: DROP_SPC( : )
-         END SUBROUTINE GETPRDCT
-         SUBROUTINE GETRATE ( IMECH, INBUF, LPOINT, IEOL, CHR,
-     &                         NXX, LABEL, IP )
-           CHARACTER(  1 ), INTENT( INOUT ) :: CHR
-           CHARACTER( 81 ), INTENT( INOUT ) :: INBUF
-           INTEGER,         INTENT( IN )    :: IMECH
-           INTEGER,         INTENT( INOUT ) :: LPOINT
-           INTEGER,         INTENT( INOUT ) :: IEOL
-           INTEGER,         INTENT( INOUT ) :: IP
-           INTEGER,         INTENT( IN )    :: NXX
-           CHARACTER( 16 ), INTENT( INOUT ) :: LABEL( :,: )
-        END SUBROUTINE GETRATE
-        SUBROUTINE WREXTS (EQNAME_MECH, DESCRP_MECH, NS, SPARSE_SPECIES, SPC1RX, NR,
-     &                      IP,  NAMCONSTS, CVAL, SS1RX  ) 
-          CHARACTER( 120 ), INTENT ( IN ) :: EQNAME_MECH
-          CHARACTER(  32 ), INTENT ( IN ) :: DESCRP_MECH
-          INTEGER,          INTENT ( IN ) :: NS                ! no. of species found in mechanism table
-          CHARACTER(  16 ), INTENT ( IN ) :: SPARSE_SPECIES( : ) ! species list from mechanism table
-          INTEGER,          INTENT ( IN ) :: NR
-          INTEGER,          INTENT ( IN ) :: SPC1RX( : ) ! rx index of 1st occurence of species in mechanism table
-          INTEGER,          INTENT ( IN ) :: IP
-          CHARACTER( 16 ),  INTENT ( IN ) :: NAMCONSTS( : )
-          REAL( 8 ),        INTENT ( IN ) :: CVAL( : )
-          INTEGER,          INTENT ( IN ) :: SS1RX( : )
-        END SUBROUTINE WREXTS
-        SUBROUTINE GET_SS_DATA ( LUNOUT, NR ) 
-          INTEGER, INTENT ( IN )         :: LUNOUT   ! Output unit number
-          INTEGER, INTENT ( IN )         :: NR       ! No. of reactions
-        END SUBROUTINE GET_SS_DATA
-        SUBROUTINE CHECK_SS_SPC ( LUNOUT, NS, SPARSE_SPECIES, NR, LABEL, SS1RX )
-         INTEGER, INTENT ( IN )         :: LUNOUT               ! Output unit number
-         INTEGER, INTENT ( IN )         ::  NS                  ! No. of species in mechanism
-         CHARACTER( 16 ), INTENT ( IN ) ::  SPARSE_SPECIES( : )   ! List of mechanism species
-         INTEGER, INTENT ( IN )         ::  NR                  ! No. of reactions
-         CHARACTER( 16 ), INTENT ( IN ) ::  LABEL( :,: ) ! Reaction labels
-         INTEGER, INTENT ( INOUT )      ::  SS1RX( : )
-       END SUBROUTINE CHECK_SS_SPC
-       SUBROUTINE WRSS_EXT( NR ) 
-         INTEGER, INTENT ( IN )         :: NR   ! No. of reactions
-       END SUBROUTINE WRSS_EXT
-      END INTERFACE 
-  
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C Create name for output file
@@ -2559,84 +2326,6 @@ c..Variables for species to be dropped from mechanism
       INTEGER, EXTERNAL :: JUNIT
       INTEGER            :: ICOUNT, IREACT, IPRODUCT
 
-
-      INTERFACE 
-       SUBROUTINE GETRCTNT ( IMECH, INBUF, IEOL, LPOINT, CHR, WORD,
-     &                      NXX, NS, SPARSE_SPECIES, SPC1RX,
-     &                      ICOL, LABEL, N_DROP_SPC, DROP_SPC )
-         INTEGER,         INTENT(   IN  ) :: IMECH
-         CHARACTER( 81 ), INTENT( INOUT ) :: INBUF
-         INTEGER,         INTENT( INOUT ) :: LPOINT
-         INTEGER,         INTENT( INOUT ) :: IEOL
-         CHARACTER(  1 ), INTENT( INOUT ) :: CHR
-         CHARACTER( 16 ), INTENT( INOUT ) :: WORD
-         INTEGER,         INTENT(   IN  ) :: NXX
-         INTEGER,         INTENT( INOUT ) :: NS
-         CHARACTER( 16 ), INTENT( INOUT ) :: SPARSE_SPECIES( : )
-         INTEGER,         INTENT( INOUT ) :: SPC1RX( : )
-         INTEGER,         INTENT( INOUT ) :: ICOL
-         CHARACTER( 16 ), INTENT(   IN  ) :: LABEL( :, : )
-         INTEGER,         INTENT(   IN  ) :: N_DROP_SPC
-         CHARACTER( 16 ), INTENT(   IN  ) :: DROP_SPC( : )
-        END SUBROUTINE GETRCTNT
-        SUBROUTINE GETPRDCT ( IMECH, INBUF, LPOINT, IEOL, CHR, WORD,
-     &                      NXX, NS, SPARSE_SPECIES, SPC1RX,
-     &                      ICOL, N_DROP_SPC, DROP_SPC )
-          INTEGER,         INTENT(   IN  ) :: IMECH
-          CHARACTER( 81 ), INTENT( INOUT ) :: INBUF
-          INTEGER,         INTENT( INOUT ) :: LPOINT
-          INTEGER,         INTENT( INOUT ) :: IEOL
-          CHARACTER(  1 ), INTENT( INOUT ) :: CHR
-          CHARACTER( 16 ), INTENT( INOUT ) :: WORD
-          INTEGER,         INTENT(   IN  ) :: NXX
-          INTEGER,         INTENT( INOUT ) :: NS
-          CHARACTER( 16 ), INTENT( INOUT ) :: SPARSE_SPECIES( : )
-          INTEGER,         INTENT( INOUT ) :: SPC1RX( : )
-          INTEGER,         INTENT( INOUT ) :: ICOL
-          INTEGER,         INTENT(   IN  ) :: N_DROP_SPC
-          CHARACTER( 16 ), INTENT(   IN  ) :: DROP_SPC( : )
-         END SUBROUTINE GETPRDCT
-         SUBROUTINE GETRATE ( IMECH, INBUF, LPOINT, IEOL, CHR,
-     &                         NXX, LABEL, IP )
-           CHARACTER(  1 ), INTENT( INOUT ) :: CHR
-           CHARACTER( 81 ), INTENT( INOUT ) :: INBUF
-           INTEGER,         INTENT( IN )    :: IMECH
-           INTEGER,         INTENT( INOUT ) :: LPOINT
-           INTEGER,         INTENT( INOUT ) :: IEOL
-           INTEGER,         INTENT( INOUT ) :: IP
-           INTEGER,         INTENT( IN )    :: NXX
-           CHARACTER( 16 ), INTENT( INOUT ) :: LABEL( :,: )
-        END SUBROUTINE GETRATE
-        SUBROUTINE WREXTS (EQNAME_MECH, DESCRP_MECH, NS, SPARSE_SPECIES, SPC1RX, NR,
-     &                      IP,  NAMCONSTS, CVAL, SS1RX  ) 
-          CHARACTER( 120 ), INTENT ( IN ) :: EQNAME_MECH
-          CHARACTER(  32 ), INTENT ( IN ) :: DESCRP_MECH
-          INTEGER,          INTENT ( IN ) :: NS                ! no. of species found in mechanism table
-          CHARACTER(  16 ), INTENT ( IN ) :: SPARSE_SPECIES( : ) ! species list from mechanism table
-          INTEGER,          INTENT ( IN ) :: NR
-          INTEGER,          INTENT ( IN ) :: SPC1RX( : ) ! rx index of 1st occurence of species in mechanism table
-          INTEGER,          INTENT ( IN ) :: IP
-          CHARACTER( 16 ),  INTENT ( IN ) :: NAMCONSTS( : )
-          REAL( 8 ),        INTENT ( IN ) :: CVAL( : )
-          INTEGER,          INTENT ( IN ) :: SS1RX( : )
-        END SUBROUTINE WREXTS
-        SUBROUTINE GET_SS_DATA ( LUNOUT, NR ) 
-          INTEGER, INTENT ( IN )         :: LUNOUT   ! Output unit number
-          INTEGER, INTENT ( IN )         :: NR       ! No. of reactions
-        END SUBROUTINE GET_SS_DATA
-        SUBROUTINE CHECK_SS_SPC ( LUNOUT, NS, SPARSE_SPECIES, NR, LABEL, SS1RX )
-         INTEGER, INTENT ( IN )         :: LUNOUT               ! Output unit number
-         INTEGER, INTENT ( IN )         ::  NS                  ! No. of species in mechanism
-         CHARACTER( 16 ), INTENT ( IN ) ::  SPARSE_SPECIES( : )   ! List of mechanism species
-         INTEGER, INTENT ( IN )         ::  NR                  ! No. of reactions
-         CHARACTER( 16 ), INTENT ( IN ) ::  LABEL( :,: ) ! Reaction labels
-         INTEGER, INTENT ( INOUT )      ::  SS1RX( : )
-       END SUBROUTINE CHECK_SS_SPC
-       SUBROUTINE WRSS_EXT( NR ) 
-         INTEGER, INTENT ( IN )         :: NR   ! No. of reactions
-       END SUBROUTINE WRSS_EXT
-      END INTERFACE 
-  
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C Create name for output file
@@ -3295,6 +2984,7 @@ c..Variables for species to be dropped from mechanism
       LOGICAL             :: FALLOFF_RATE       ! whether a reaction is a falloff type
 
 
+      CHARACTER(   2 ) :: MD_MULTIPLE
       CHARACTER(  12 ) :: EXFLNM_SPCS = 'SPCSDATX'
       CHARACTER(  12 ) :: EXFLNM_RXDT = 'RXNSDATX'
       CHARACTER(  12 ) :: EXFLNM_RXCM = 'RXNSCOMX'
@@ -3312,84 +3002,6 @@ c..Variables for species to be dropped from mechanism
       LOGICAL :: MULTI_NOTE  = .FALSE.
       LOGICAL :: EQUIL_NOTE  = .FALSE.
 
-      INTERFACE 
-       SUBROUTINE GETRCTNT ( IMECH, INBUF, IEOL, LPOINT, CHR, WORD,
-     &                      NXX, NS, SPARSE_SPECIES, SPC1RX,
-     &                      ICOL, LABEL, N_DROP_SPC, DROP_SPC )
-         INTEGER,         INTENT(   IN  ) :: IMECH
-         CHARACTER( 81 ), INTENT( INOUT ) :: INBUF
-         INTEGER,         INTENT( INOUT ) :: LPOINT
-         INTEGER,         INTENT( INOUT ) :: IEOL
-         CHARACTER(  1 ), INTENT( INOUT ) :: CHR
-         CHARACTER( 16 ), INTENT( INOUT ) :: WORD
-         INTEGER,         INTENT(   IN  ) :: NXX
-         INTEGER,         INTENT( INOUT ) :: NS
-         CHARACTER( 16 ), INTENT( INOUT ) :: SPARSE_SPECIES( : )
-         INTEGER,         INTENT( INOUT ) :: SPC1RX( : )
-         INTEGER,         INTENT( INOUT ) :: ICOL
-         CHARACTER( 16 ), INTENT(   IN  ) :: LABEL( :, : )
-         INTEGER,         INTENT(   IN  ) :: N_DROP_SPC
-         CHARACTER( 16 ), INTENT(   IN  ) :: DROP_SPC( : )
-        END SUBROUTINE GETRCTNT
-        SUBROUTINE GETPRDCT ( IMECH, INBUF, LPOINT, IEOL, CHR, WORD,
-     &                      NXX, NS, SPARSE_SPECIES, SPC1RX,
-     &                      ICOL, N_DROP_SPC, DROP_SPC )
-          INTEGER,         INTENT(   IN  ) :: IMECH
-          CHARACTER( 81 ), INTENT( INOUT ) :: INBUF
-          INTEGER,         INTENT( INOUT ) :: LPOINT
-          INTEGER,         INTENT( INOUT ) :: IEOL
-          CHARACTER(  1 ), INTENT( INOUT ) :: CHR
-          CHARACTER( 16 ), INTENT( INOUT ) :: WORD
-          INTEGER,         INTENT(   IN  ) :: NXX
-          INTEGER,         INTENT( INOUT ) :: NS
-          CHARACTER( 16 ), INTENT( INOUT ) :: SPARSE_SPECIES( : )
-          INTEGER,         INTENT( INOUT ) :: SPC1RX( : )
-          INTEGER,         INTENT( INOUT ) :: ICOL
-          INTEGER,         INTENT(   IN  ) :: N_DROP_SPC
-          CHARACTER( 16 ), INTENT(   IN  ) :: DROP_SPC( : )
-         END SUBROUTINE GETPRDCT
-         SUBROUTINE GETRATE ( IMECH, INBUF, LPOINT, IEOL, CHR,
-     &                         NXX, LABEL, IP )
-           CHARACTER(  1 ), INTENT( INOUT ) :: CHR
-           CHARACTER( 81 ), INTENT( INOUT ) :: INBUF
-           INTEGER,         INTENT( IN )    :: IMECH
-           INTEGER,         INTENT( INOUT ) :: LPOINT
-           INTEGER,         INTENT( INOUT ) :: IEOL
-           INTEGER,         INTENT( INOUT ) :: IP
-           INTEGER,         INTENT( IN )    :: NXX
-           CHARACTER( 16 ), INTENT( INOUT ) :: LABEL( :,: )
-        END SUBROUTINE GETRATE
-        SUBROUTINE WREXTS (EQNAME_MECH, DESCRP_MECH, NS, SPARSE_SPECIES, SPC1RX, NR,
-     &                      IP,  NAMCONSTS, CVAL, SS1RX  ) 
-          CHARACTER( 120 ), INTENT ( IN ) :: EQNAME_MECH
-          CHARACTER(  32 ), INTENT ( IN ) :: DESCRP_MECH
-          INTEGER,          INTENT ( IN ) :: NS                ! no. of species found in mechanism table
-          CHARACTER(  16 ), INTENT ( IN ) :: SPARSE_SPECIES( : ) ! species list from mechanism table
-          INTEGER,          INTENT ( IN ) :: NR
-          INTEGER,          INTENT ( IN ) :: SPC1RX( : ) ! rx index of 1st occurence of species in mechanism table
-          INTEGER,          INTENT ( IN ) :: IP
-          CHARACTER( 16 ),  INTENT ( IN ) :: NAMCONSTS( : )
-          REAL( 8 ),        INTENT ( IN ) :: CVAL( : )
-          INTEGER,          INTENT ( IN ) :: SS1RX( : )
-        END SUBROUTINE WREXTS
-        SUBROUTINE GET_SS_DATA ( LUNOUT, NR ) 
-          INTEGER, INTENT ( IN )         :: LUNOUT   ! Output unit number
-          INTEGER, INTENT ( IN )         :: NR       ! No. of reactions
-        END SUBROUTINE GET_SS_DATA
-        SUBROUTINE CHECK_SS_SPC ( LUNOUT, NS, SPARSE_SPECIES, NR, LABEL, SS1RX )
-         INTEGER, INTENT ( IN )         :: LUNOUT               ! Output unit number
-         INTEGER, INTENT ( IN )         ::  NS                  ! No. of species in mechanism
-         CHARACTER( 16 ), INTENT ( IN ) ::  SPARSE_SPECIES( : )   ! List of mechanism species
-         INTEGER, INTENT ( IN )         ::  NR                  ! No. of reactions
-         CHARACTER( 16 ), INTENT ( IN ) ::  LABEL( :,: ) ! Reaction labels
-         INTEGER, INTENT ( INOUT )      ::  SS1RX( : )
-       END SUBROUTINE CHECK_SS_SPC
-       SUBROUTINE WRSS_EXT( NR ) 
-         INTEGER, INTENT ( IN )         :: NR   ! No. of reactions
-       END SUBROUTINE WRSS_EXT
-      END INTERFACE 
-  
-
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C     Set flags to write table footnotes
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -3402,6 +3014,10 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       STRING_NOTE = .FALSE.
       MULTI_NOTE  = .FALSE.
       EQUIL_NOTE  = .FALSE.
+
+C Set markdown symbol for multiple sign
+
+      MD_MULTIPLE = ACHAR( 92 ) // ACHAR( 42 )
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C Create name for output file
@@ -3596,16 +3212,16 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
             IF ( ABS( SC( NXX,IPRODUCT ) ) .NE. 1.0 ) THEN
                IF ( SC( NXX,IPRODUCT ) .LT. 0 ) THEN
                   WRITE(TABLE_UNIT,'(A,F8.3,3A)', ADVANCE = 'NO')
-     &           '- ',ABS(SC( NXX,IPRODUCT )),'\*',TRIM(SPARSE_SPECIES( ISPC )),' '
+     &           '- ',ABS(SC( NXX,IPRODUCT )),MD_MULTIPLE,TRIM(SPARSE_SPECIES( ISPC )),' '
                   ICOUNT = ICOUNT + 12 + LEN( SPARSE_SPECIES( ISPC ) )
                ELSE
                   IF( IPRODUCT .EQ. 1 )THEN
                      WRITE(TABLE_UNIT,'(F8.3, 3A)', ADVANCE = 'NO')
-     &               SC( NXX,IPRODUCT ),'\*',TRIM(SPARSE_SPECIES( ISPC )),' '
+     &               SC( NXX,IPRODUCT ),MD_MULTIPLE,TRIM(SPARSE_SPECIES( ISPC )),' '
                      ICOUNT = ICOUNT + 10 + LEN( SPARSE_SPECIES( ISPC ) )
                   ELSE
                      WRITE(TABLE_UNIT,'(A,F8.3,3A)', ADVANCE = 'NO')
-     &               '+ ',SC( NXX,IPRODUCT ),'\*',TRIM(SPARSE_SPECIES( ISPC )),' '
+     &               '+ ',SC( NXX,IPRODUCT ),MD_MULTIPLE,TRIM(SPARSE_SPECIES( ISPC )),' '
                      ICOUNT = ICOUNT + 12 + LEN( SPARSE_SPECIES( ISPC ) )
                   END IF
                END IF
@@ -3830,7 +3446,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
            OUTPUT_FORMULA = REPLACE_TEXT(OUTPUT_FORMULA,"EXP(","exp(")
            DO NXX = 1, NFUNCTIONS
               CLABEL = '*' // TRIM( FUNCTIONS(NXX) ) // '*'
-              OLABEL = '\*' // TRIM( FUNCTIONS(NXX) ) // '\*'
+              OLABEL = '\*' // TRIM( FUNCTIONS(NXX) ) // MD_MULTIPLE
               OUTPUT_FORMULA = REPLACE_TEXT(OUTPUT_FORMULA,CLABEL,OLABEL)
            END DO
            OUTPUT_FORMULA = REPLACE_TEXT(FORMULA(IDX),"*","Times")
@@ -4028,84 +3644,6 @@ c..Variables for species to be dropped from mechanism
       INTEGER, EXTERNAL :: JUNIT
       INTEGER            :: ICOUNT, IREACT, IPRODUCT
 
-
-      INTERFACE 
-       SUBROUTINE GETRCTNT ( IMECH, INBUF, IEOL, LPOINT, CHR, WORD,
-     &                      NXX, NS, SPARSE_SPECIES, SPC1RX,
-     &                      ICOL, LABEL, N_DROP_SPC, DROP_SPC )
-         INTEGER,         INTENT(   IN  ) :: IMECH
-         CHARACTER( 81 ), INTENT( INOUT ) :: INBUF
-         INTEGER,         INTENT( INOUT ) :: LPOINT
-         INTEGER,         INTENT( INOUT ) :: IEOL
-         CHARACTER(  1 ), INTENT( INOUT ) :: CHR
-         CHARACTER( 16 ), INTENT( INOUT ) :: WORD
-         INTEGER,         INTENT(   IN  ) :: NXX
-         INTEGER,         INTENT( INOUT ) :: NS
-         CHARACTER( 16 ), INTENT( INOUT ) :: SPARSE_SPECIES( : )
-         INTEGER,         INTENT( INOUT ) :: SPC1RX( : )
-         INTEGER,         INTENT( INOUT ) :: ICOL
-         CHARACTER( 16 ), INTENT(   IN  ) :: LABEL( :, : )
-         INTEGER,         INTENT(   IN  ) :: N_DROP_SPC
-         CHARACTER( 16 ), INTENT(   IN  ) :: DROP_SPC( : )
-        END SUBROUTINE GETRCTNT
-        SUBROUTINE GETPRDCT ( IMECH, INBUF, LPOINT, IEOL, CHR, WORD,
-     &                      NXX, NS, SPARSE_SPECIES, SPC1RX,
-     &                      ICOL, N_DROP_SPC, DROP_SPC )
-          INTEGER,         INTENT(   IN  ) :: IMECH
-          CHARACTER( 81 ), INTENT( INOUT ) :: INBUF
-          INTEGER,         INTENT( INOUT ) :: LPOINT
-          INTEGER,         INTENT( INOUT ) :: IEOL
-          CHARACTER(  1 ), INTENT( INOUT ) :: CHR
-          CHARACTER( 16 ), INTENT( INOUT ) :: WORD
-          INTEGER,         INTENT(   IN  ) :: NXX
-          INTEGER,         INTENT( INOUT ) :: NS
-          CHARACTER( 16 ), INTENT( INOUT ) :: SPARSE_SPECIES( : )
-          INTEGER,         INTENT( INOUT ) :: SPC1RX( : )
-          INTEGER,         INTENT( INOUT ) :: ICOL
-          INTEGER,         INTENT(   IN  ) :: N_DROP_SPC
-          CHARACTER( 16 ), INTENT(   IN  ) :: DROP_SPC( : )
-         END SUBROUTINE GETPRDCT
-         SUBROUTINE GETRATE ( IMECH, INBUF, LPOINT, IEOL, CHR,
-     &                         NXX, LABEL, IP )
-           CHARACTER(  1 ), INTENT( INOUT ) :: CHR
-           CHARACTER( 81 ), INTENT( INOUT ) :: INBUF
-           INTEGER,         INTENT( IN )    :: IMECH
-           INTEGER,         INTENT( INOUT ) :: LPOINT
-           INTEGER,         INTENT( INOUT ) :: IEOL
-           INTEGER,         INTENT( INOUT ) :: IP
-           INTEGER,         INTENT( IN )    :: NXX
-           CHARACTER( 16 ), INTENT( INOUT ) :: LABEL( :,: )
-        END SUBROUTINE GETRATE
-        SUBROUTINE WREXTS (EQNAME_MECH, DESCRP_MECH, NS, SPARSE_SPECIES, SPC1RX, NR,
-     &                      IP,  NAMCONSTS, CVAL, SS1RX  ) 
-          CHARACTER( 120 ), INTENT ( IN ) :: EQNAME_MECH
-          CHARACTER(  32 ), INTENT ( IN ) :: DESCRP_MECH
-          INTEGER,          INTENT ( IN ) :: NS                ! no. of species found in mechanism table
-          CHARACTER(  16 ), INTENT ( IN ) :: SPARSE_SPECIES( : ) ! species list from mechanism table
-          INTEGER,          INTENT ( IN ) :: NR
-          INTEGER,          INTENT ( IN ) :: SPC1RX( : ) ! rx index of 1st occurence of species in mechanism table
-          INTEGER,          INTENT ( IN ) :: IP
-          CHARACTER( 16 ),  INTENT ( IN ) :: NAMCONSTS( : )
-          REAL( 8 ),        INTENT ( IN ) :: CVAL( : )
-          INTEGER,          INTENT ( IN ) :: SS1RX( : )
-        END SUBROUTINE WREXTS
-        SUBROUTINE GET_SS_DATA ( LUNOUT, NR ) 
-          INTEGER, INTENT ( IN )         :: LUNOUT   ! Output unit number
-          INTEGER, INTENT ( IN )         :: NR       ! No. of reactions
-        END SUBROUTINE GET_SS_DATA
-        SUBROUTINE CHECK_SS_SPC ( LUNOUT, NS, SPARSE_SPECIES, NR, LABEL, SS1RX )
-         INTEGER, INTENT ( IN )         :: LUNOUT               ! Output unit number
-         INTEGER, INTENT ( IN )         ::  NS                  ! No. of species in mechanism
-         CHARACTER( 16 ), INTENT ( IN ) ::  SPARSE_SPECIES( : )   ! List of mechanism species
-         INTEGER, INTENT ( IN )         ::  NR                  ! No. of reactions
-         CHARACTER( 16 ), INTENT ( IN ) ::  LABEL( :,: ) ! Reaction labels
-         INTEGER, INTENT ( INOUT )      ::  SS1RX( : )
-       END SUBROUTINE CHECK_SS_SPC
-       SUBROUTINE WRSS_EXT( NR ) 
-         INTEGER, INTENT ( IN )         :: NR   ! No. of reactions
-       END SUBROUTINE WRSS_EXT
-      END INTERFACE 
-  
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C Create name for output file
