@@ -399,7 +399,7 @@ C Arguments:
 
 C Local Variables:
          REAL             DELT          ! interpolation factor
-         INTEGER          C, R, L, N, S, V, ISTR, ISRM, NL, I, J ! loop induction variables
+         INTEGER          C, R, L, N, S, V, IRGN, ISTR, ISRM, NL, I, J ! loop induction variables
          INTEGER          S_STRT, S_END ! substitute loop induction variables
          REAL, ALLOCATABLE, SAVE :: VDEMIS_READ  ( :,:,:,: ) ! Emissions as they are provided by each stream
          REAL, ALLOCATABLE, SAVE :: VDEMIS_SCALED( :,:,:,: ) ! Emissions after user scaling, and spatial scaling
@@ -502,7 +502,7 @@ C Develop a map of emitted/diffused ISAM species
             END DO
 
 C Initialize geographic regions for ISAM tagging
-            ALLOCATE( ISAMRGN( NTAG_SA, DESID_N_REN ) )
+            ALLOCATE( ISAMRGN( NTAG_SA, DESID_N_REG ) )
             ISAMRGN = 'EVERYWHERE'
             ALLOCATE( ISAMRGN_MAP( NTAG_SA, DESID_N_REG ) )
             ISAMRGN_MAP = 0
