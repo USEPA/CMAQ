@@ -88,6 +88,7 @@
      &         MIOG_MECH_TYPE( 'SAPRC07TB_AE6_AQ       ','SAPRC07T'),
      &         MIOG_MECH_TYPE( 'SAPRC07TC_AE6_AQ       ','SAPRC07T'),
      &         MIOG_MECH_TYPE( 'SAPRC07TIC_AEI6_AQ     ','SAPRC07T'),
+     &         MIOG_MECH_TYPE( 'SAPRC07TIC_AE7I_AQ     ','SAPRC07T'),
      &         MIOG_MECH_TYPE( 'CRACMM1_AQ             ','CRACMM  ') /)
 
             INDX = INDEX1( MECHNAME, NMECHS, MIOG_MECH_MAP%CHEMMECH )
