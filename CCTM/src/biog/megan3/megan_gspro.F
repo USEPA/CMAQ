@@ -39,12 +39,14 @@
             INCLUDE 'SPC_CB6.EXT'
             INCLUDE 'SPC_CB6_AE7.EXT'
             INCLUDE 'SPC_RACM2.EXT'        ! new in MEGAN3
+            INCLUDE 'SPC_CRACMM.EXT'        ! new in CMAQ 5.4
             INCLUDE 'MAP_CV2CB05.EXT'
             INCLUDE 'SPC_SAPRC07.EXT'      ! new in MEGAN3
             INCLUDE 'SPC_SAPRC07T.EXT'    ! new in MEGAN3
             INCLUDE 'MAP_CV2CB6.EXT'      
             INCLUDE 'MAP_CV2CB6_AE7.EXT'      
             INCLUDE 'MAP_CV2RACM2.EXT'
+            INCLUDE 'MAP_CV2CRACMM.EXT'
             INCLUDE 'MAP_CV2SAPRC07.EXT'
             INCLUDE 'MAP_CV2SAPRC07T.EXT'
 
@@ -86,12 +88,13 @@
      &         MIOG_MECH_TYPE( 'SAPRC07TB_AE6_AQ       ','SAPRC07T'),
      &         MIOG_MECH_TYPE( 'SAPRC07TC_AE6_AQ       ','SAPRC07T'),
      &         MIOG_MECH_TYPE( 'SAPRC07TIC_AEI6_AQ     ','SAPRC07T'),
-     &         MIOG_MECH_TYPE( 'SAPRC07TIC_AE7I_AQ     ','SAPRC07T') /)
+     &         MIOG_MECH_TYPE( 'CRACMM1_AQ             ','CRACMM  ') /)
 
             INDX = INDEX1( MECHNAME, NMECHS, MIOG_MECH_MAP%CHEMMECH )
             MECHANISM = MIOG_MECH_MAP( INDX )%MIOGMECH
             EFLAG = .FALSE.
  
+            print *, "==jwilliso getting cracmm n"
           SELECT CASE ( TRIM(MECHANISM) )
             CASE ('SAPRC07')
               n_scon_spc = n_saprc07
@@ -111,6 +114,11 @@
             CASE ('CB6_ae7')
               n_scon_spc = n_cb6_ae7
               NMGNSPC = n_cb6_ae7_spc
+
+            CASE ('CRACMM')
+              print *, "==jwilliso got cracmm n"
+              n_scon_spc = n_cracmm
+              NMGNSPC = n_cracmm_spc
             CASE DEFAULT
               EFLAG = .TRUE.
               XMSG = "Mechanism," // TRIM( MECHNAME ) 
@@ -168,6 +176,13 @@
               conv_fac(1:n_scon_spc) = conv_fac_cb6_ae7(1:n_scon_spc)
               mech_spc(1:NMGNSPC)    = mech_spc_cb6_ae7(1:NMGNSPC)
               mech_mwt(1:NMGNSPC)    = mech_mwt_cb6_ae7(1:NMGNSPC)
+              MEGAN_NAMES(1:NMGNSPC)     = mech_spc(1:NMGNSPC)
+            CASE ('CRACMM')
+              spmh_map(1:n_scon_spc) = spmh_map_cracmm(1:n_scon_spc)
+              mech_map(1:n_scon_spc) = mech_map_cracmm(1:n_scon_spc)
+              conv_fac(1:n_scon_spc) = conv_fac_cracmm(1:n_scon_spc)
+              mech_spc(1:NMGNSPC)    = mech_spc_cracmm(1:NMGNSPC)
+              mech_mwt(1:NMGNSPC)    = mech_mwt_cracmm(1:NMGNSPC)
               MEGAN_NAMES(1:NMGNSPC)     = mech_spc(1:NMGNSPC)
             CASE DEFAULT 
               EFLAG = .TRUE.
