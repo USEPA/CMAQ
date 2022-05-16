@@ -94,7 +94,6 @@
             MECHANISM = MIOG_MECH_MAP( INDX )%MIOGMECH
             EFLAG = .FALSE.
  
-            print *, "==jwilliso getting cracmm n"
           SELECT CASE ( TRIM(MECHANISM) )
             CASE ('SAPRC07')
               n_scon_spc = n_saprc07
@@ -114,9 +113,7 @@
             CASE ('CB6_ae7')
               n_scon_spc = n_cb6_ae7
               NMGNSPC = n_cb6_ae7_spc
-
             CASE ('CRACMM')
-              print *, "==jwilliso got cracmm n"
               n_scon_spc = n_cracmm
               NMGNSPC = n_cracmm_spc
             CASE DEFAULT
