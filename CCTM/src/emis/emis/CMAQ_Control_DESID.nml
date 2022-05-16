@@ -115,7 +115,7 @@
 !        on File'   should be used to populate this particular region.         !
 !------------------------------------------------------------------------------!
 &Desid_RegionDefVars
- Desid_Max_Reg    = 10           ! Maximum number of region definition rules
+ Desid_Max_Reg    = 60           ! Maximum number of region definition rules
  Desid_N_Reg_Fams = 0            ! Exact number of region family definitions
  Desid_Max_Reg_Fam_Members = 100 ! Larger than the number of regions on all
                                  ! family definitions
