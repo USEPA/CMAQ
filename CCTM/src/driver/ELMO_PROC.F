@@ -707,7 +707,7 @@
            XMSG = 'Failure allocating ELMO_KEY(22)'
            CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
       END IF
-      ELMO_KEY( 22 )%LIST = (/'SATMET','SATCONC'/)
+      ELMO_KEY( 22 )%LIST = (/'SATMET ','SATCONC'/)
       
       ! Satellite Retrieval Met Products
       ELMO_KEY( 23 )%WORD = 'SATMET'
@@ -717,7 +717,8 @@
            XMSG = 'Failure allocating ELMO_KEY(23)'
            CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
       END IF
-      ELMO_KEY( 23 )%LIST = (/'DENS','DZ','ZH','CFRAC','PV','PRES','TA'/)
+      ELMO_KEY( 23 )%LIST = (/'DENS ','DZ   ','ZH   ','CFRAC','PV   ',
+     &                        'PRES ','TA   '/)
  
       ! Satellite Retrieval products
       ELMO_KEY( 24 )%WORD = 'SATCONC'
@@ -727,7 +728,8 @@
            XMSG = 'Failure allocating ELMO_KEY(24)'
            CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
       END IF
-      ELMO_KEY( 24 )%LIST = (/'NO2','SO2','O3','CO','FORM','NH3','AOD_550'/)
+      ELMO_KEY( 24 )%LIST = (/'NO2    ','SO2    ','O3     ','CO     ',
+     &                        'FORM   ','NH3    ','AOD_550'/)
  
       ! All Concentrations
       ELMO_KEY( 25 )%WORD = 'ALLCONC'
@@ -1085,7 +1087,7 @@
                 
       ! Loop through all available ELMO_LIST Parameters
       IELMO = 0
-      DO WHILE ( IELMO .LE. NTOT_ELMO_IDS )
+      DO WHILE ( IELMO .LE. N_ELMO_OUT )
           IELMO = IELMO + 1
           IDG = USED_ELMO_ID( IELMO )
           
@@ -3085,8 +3087,7 @@
       USE AEROMET_DATA, ONLY: AIRRH, AIRTEMP, AIRQV, AIRDENS, AIRPRES,
      &                        SRFTEMP, H2OVP, H2OSATVP, MWWAT, MWAIR,
      &                        CFRAC, DZ, PV, ZH
-      use phot_met_data, only : cfrac_3d
-      use centralized_io_module, only : interpolate_var, cfrac_3d_avail, pv_avail
+      use centralized_io_module, only : interpolate_var, pv_avail
       use RUNTIME_VARS
 
       IMPLICIT NONE
@@ -3118,7 +3119,7 @@
       INTEGER C, R, L
 
       REAL, ALLOCATABLE, SAVE :: PRES(:,:,:), TA(:,:,:), TEMP2(:,:),
-     &                           QV(:,:,:), DENS(:,:,:), CFRACS(:,:,:),
+     &                           QV(:,:,:), DENS(:,:,:), CFRACS(:,:),
      &                           ZF(:,:,:), PVS(:,:,:), ZHS(:,:,:)
 
       ! values of AL, BL, and CL are from:
@@ -3138,7 +3139,7 @@
      &              TA( NCOLS, NROWS, NLAYS ),
      &              QV( NCOLS, NROWS, NLAYS ),
      &              DENS( NCOLS, NROWS, NLAYS ),
-     &              CFRACS( NCOLS, NROWS, NLAYS ),
+     &              CFRACS( NCOLS, NROWS ),
      &              ZF( NCOLS, NROWS, NLAYS ),
      &              ZHS( NCOLS, NROWS, NLAYS ),
      &              PVS( NCOLS, NROWS, NLAYS ),
@@ -3173,15 +3174,7 @@
       call interpolate_var ('DENS', jdate, jtime, DENS)
       
       ! get cloud fraction if photolysis hasn not been called yet
-      if ( init_time ) then
-          if ( cfrac_3d_avail ) then
-               call interpolate_var ('CFRAC_3D', jdate, jtime, CFRACS)
-          else
-               cfracs = amiss3
-          end if
-      else
-          cfracs = cfrac_3d
-      end if
+      call interpolate_var ('CFRAC', jdate, jtime, CFRACS)
 
       ! retrieve all layer heights. This is the height of the top of the
       ! layers
@@ -3213,11 +3206,12 @@
          H2OSATVP = ESATL( AIRTEMP )
          H2OVP    = AIRPRES * AIRQV / ( EPSWATER  + AIRQV )
          AIRRH    = MAX( 0.005, MIN( 0.99, H2OVP / H2OSATVP ) ) ! 0-1
-         CFRAC    = CFRACS( C,R,L ) 
          IF ( L .EQ. 1 ) THEN
              DZ   = ZF( C,R,L )
+             CFRAC= CFRACS( C,R ) 
          ELSE
              DZ   = ZF( C,R,L ) - ZF( C,R,L-1 )
+             CFRAC= AMISS3
          END IF
          ZH       = ZHS( C,R,L )
          PV       = PVS( C,R,L )

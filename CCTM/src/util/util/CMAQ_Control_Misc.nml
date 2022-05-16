@@ -19,9 +19,9 @@
 !    Definition of Fields:                                                     !
 !     ELMO_ACTIVATE - turn files on and off                                    !
 !        'INSTANT' - If .TRUE., then the instantaneous ELMO output file will   !
-!                    be printed. If .FALSE. it will not.                       !
+!                    be output. If .FALSE. it will not.                       !
 !        'AVERAGE' - If .TRUE., then the average ELMO output file will         !
-!                    be printed. If .FALSE. it will not.                       !
+!                    be output. If .FALSE. it will not.                       !
 !     ELMO_INST - set parameters for instantaneous output                      !
 !        'INST_LAYER_TOP' - highest CMAQ layer for instantaneous output        ! 
 !        'INST_LAYER_BOT' - lowest CMAQ layer for instantaneous output         !

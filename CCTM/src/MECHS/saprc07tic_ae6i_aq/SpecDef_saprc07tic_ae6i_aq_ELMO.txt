@@ -31,7 +31,7 @@
 
 / File [1]: CMAQ conc/aconc file
 / File [2]: METCRO3D file
-/ File [3]: PMDIAG/APMDIAG file
+/ File [3]: ELMO/AELMO file
 / File [4]: METCRO2D file
 /
 /new species    ,units     ,expression
