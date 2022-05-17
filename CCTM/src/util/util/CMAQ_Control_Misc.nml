@@ -29,8 +29,12 @@
 !             Variables can be listed explicitly (e.g. O3, PM25_FRM, DENS) or  !
 !             by keyword groups. The following keywords and definitions are    !
 !             supported:                                                       !
-!                 'ALL' - all possible parameters                              !
-!                 'ALLCONC' - all raw concentration parameters                 !
+!                 'ALL' - all possible parameters. This keyword activates a    !
+!                         large number of variables including all 180+ ELMO    !
+!                         aggregates variables, all raw concentrations         !
+!                         variables, and all family variables. By default, bulk!
+!                         aerosols are preloaded as families.                  !
+!                 'ALLCONC' - all raw concentration variables                  !
 !                 'DEFAULT' - parameters typically supported by COMBINE        !
 !                             post-processing in the past.                     !
 !                 'AMET' - parameters used for evaluation against AMET database!
