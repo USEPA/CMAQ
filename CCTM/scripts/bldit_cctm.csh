@@ -107,7 +107,7 @@ set make_options = "-j"                #> additional options for make command if
  set ModDepv   = depv/${DepMod}             #> deposition velocity calculation module 
                                             #>     (see $CMAQ_MODEL/CCTM/src/depv)
  set ModEmis   = emis/emis                  #> in-line emissions module
- set ModBiog   = biog/beis3                 #> BEIS3 in-line emissions module 
+ set ModBiog   = biog/beis4                 #> BEIS4 in-line emissions module 
 
  set ModMegBiog   = biog/megan3                #> MEGAN3 in-line emissions module
 
@@ -381,6 +381,8 @@ set make_options = "-j"                #> additional options for make command if
               -DSUBST_GLOBAL_TO_LOCAL_COORD=${Popt}_GLOBAL_TO_LOCAL_COORD\
               -DSUBST_GLOBAL_SUM=${Popt}_GLOBAL_SUM\
               -DSUBST_GLOBAL_LOGICAL=${Popt}_GLOBAL_LOGICAL\
+              -DSUBST_GLOBAL_GATHER=${Popt}_GLOBAL_GATHER\
+              -DSUBST_GLOBAL_BCAST=${Popt}_GLOBAL_BCAST\
               -DSUBST_LOOP_INDEX=${Popt}_LOOP_INDEX\
               -DSUBST_SUBGRID_INDEX=${Popt}_SUBGRID_INDEX )
  set STX2 = ( -DSUBST_HI_LO_BND_PE=${Popt}_HI_LO_BND_PE\
@@ -564,7 +566,7 @@ set Cfile = ${Bld}/${CFG}.bld      # Config Filename
  echo "Module ${ModEmis};"                                         >> $Cfile
  echo                                                              >> $Cfile
 
- set text = "beis3"
+ set text = "beis4"
  echo "// options are" $text                                       >> $Cfile
  echo "Module ${ModBiog};"                                         >> $Cfile
  echo                                                              >> $Cfile

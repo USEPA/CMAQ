@@ -27,7 +27,7 @@ C  PRECONDITIONS: For the CB6R5_AE7_AQ mechanism
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, Jul  8, 2021
+C  REVISION HISTORY: Created by EBI solver program, Mar 24, 2022
 C
 C   18 Jul 14 B.Hutzell: revised to use real(8) variables
 C**********************************************************************
@@ -106,6 +106,7 @@ c..Loss frequency of NO3 ( except NO3 + NO3 if present )
      &    +                 RKI(   205 ) * YC ( XOPN         )   ! NO3+XOPN=0.5000D+...
      &    +                 RKI(   209 ) * YC ( OPEN         )   ! NO3+OPEN=OPO3+HNO3
      &    +                 RKI(   211 ) * YC ( CAT1         )   ! NO3+CAT1=CRO+HNO3
+     &    +                 RKI(   348 ) * YC ( DMS          )   ! NO3+DMS=SO2+HNO3+...
 
 c..Loss frequency of N2O5
       L16 =                 RKI(    37 )                         ! N2O5=NO3+NO2

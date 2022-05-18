@@ -6,7 +6,7 @@
 
 
 ! --------- Photochemical Mechanism Reactions, Rates, etc. DAT ---------
-! Source file: /home/gsarwar/util/MP/MECHS/saprc07tc_ae6_aq/mech_saprc07tc_ae6_aq.def
+! Source file: /work/MOD3DEV/sgq/manage_git/research/condensed_chemistry/UTIL/chemmech/input/saprc07tc_ae6_aq/mech_saprc07tc_ae6_aq.def
 ! for Mechanism Name: SAPRC07TC_AE6_AQ                
 
 ! This file is used to create mechanism data and functions

@@ -26,7 +26,7 @@ C  PRECONDITIONS: For the SAPRC07TC_AE6_AQ mechanism
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED:  HRINIT, HRCALCKS, HRSOLVER
 C
-C  REVISION HISTORY: Created by EBI solver program, Mar 24, 2020
+C  REVISION HISTORY: Created by EBI solver program, Mar 21, 2022
 C                       Based on the algorithm in "Test of Two Numerical
 C                       Schemes for Use in Atmospheric Transport-Chemistry
 C                       Models", O. Hertel, R. Berkowicz, J. Christensen,
@@ -186,7 +186,6 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
             CALL_IRR = .FALSE.
          END IF
 
-
          CALL HRINIT
 
          ITMSTEP = TIME2SEC( TSTEP( 2 ) )
@@ -220,14 +219,10 @@ C Define processor offsets
          PECOL_OFFSET = COLSD_PE( 1, MYPE+1 ) - 1
          PEROW_OFFSET = ROWSD_PE( 1, MYPE+1 ) - 1
 
-         ALLOCATE( LAND_ZONE( NCOLS, NROWS ) )
+         ALLOCATE( SEAWATER_ZONE( NCOLS, NROWS ) )
          DO R = 1, NROWS
             DO C = 1, NCOLS
-               IF( OCEAN( C,R ) + SZONE( C,R ) .GT. 0.0 )THEN
-                   LAND_ZONE( C,R ) = .FALSE.
-               ELSE
-                   LAND_ZONE( C,R ) = .TRUE.
-               END IF
+               SEAWATER_ZONE( C,R ) =  OCEAN( C,R ) + SZONE( C,R )
              END DO
          END DO
 
@@ -359,19 +354,13 @@ c..Load ICs
                   END IF
                END DO
 
-
 c..Set physical quantities
                TEMP( NCELL )     = REAL( TA( C,R,L ), 8)
                DENSITY( NCELL )  = REAL( DENS( C,R,L ), 8)
 !                PRESCELL( NCELL ) = REAL( PRES( C,R,L ), 8)
                ATMPRES( NCELL )  = PA2ATM * REAL( PRES( C,R,L ), 8)
                H2O( NCELL )      = REAL( MAX ( MAOMV * QV( C,R,L ), 0.0 ), 8)
-
-               IF( LAND_ZONE( C,R ) .OR. SEAICE ( C,R ) .GT. 0.0 )THEN
-                   LAND (NCELL) = .TRUE.
-               ELSE
-                   LAND (NCELL) = .FALSE.
-               END IF
+               SEAWATER (NCELL)      = MAX ( 0.0D0, ( REAL( SEAWATER_ZONE( C,R ) - SEAICE (C,R) ,8) ) )
 
 c..Get rate constants
                LSUNLIGHT = .FALSE.
@@ -380,7 +369,7 @@ c..Get rate constants
 
                FORALL ( NPH = 1:NHETERO )HET( NCELL,NPH ) = REAL( KHETERO( NPH,C,R,L ), 8)
 
-               CALL CALC_RCONST( TEMP, ATMPRES, H2O, RJIN, HET, LSUNLIGHT, LAND, RKI_SAV, NCELL )
+               CALL CALC_RCONST( TEMP, ATMPRES, H2O, RJIN, HET, LSUNLIGHT, SEAWATER, RKI_SAV, NCELL )
                FORALL( NPH = 1:NRXNS )RKI( NPH ) = RKI_SAV( NCELL, NPH )
 
 #ifdef isam
@@ -421,7 +410,6 @@ c..Update concentration array
                       CGRID( C,R,L,S ) = REAL( MAX( YC( SPC ), DCONMIN), 4)
                   END IF
                END DO
-
 
 #ifdef isam
                CALL SA_IRR_UPLOAD( C, R, L, DENS( C,R,L ), YC )

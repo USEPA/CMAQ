@@ -176,7 +176,7 @@ C Local Variables:
 
       CHARACTER( 16 ), SAVE :: MNAME   ! logical name for MET_CRO_2D
       CHARACTER( 16 ), SAVE :: SOILINP ! logical name for input NO soil data
-      CHARACTER( 16 ), SAVE :: SOILOUT = 'SOILOUT' ! logical name for output NO soil data
+      CHARACTER( 16 ), SAVE :: SOILOUT = 'BEIS_SOILOUT' ! logical name for output NO soil data
       CHARACTER( 33 ), SAVE :: DESCSTR = 'hrly cnv. & non-cnv. rainfall for'
 
       CHARACTER( 16 ) :: VAR        ! variable name
@@ -260,7 +260,7 @@ C Get description of met file
 
          METSTEP = TSTEP3D
 
-C Check that grid description matches B3GRD file
+C Check that grid description matches MET_CRO_2D file
          IF ( .NOT. CHKGRID( MNAME ) ) THEN
             MESG = 'Grid in file "' // TRIM( MNAME )
      &           // '" does not match grid in file ' // TRIM( MNAME ) // '"'
