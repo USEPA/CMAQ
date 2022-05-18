@@ -54,6 +54,8 @@ C                        GRIDEMIS
 C     22 Nov 2019 F. Sidi: Re-introduced date override variable for representative
 C                          Day Emissions
 C     16 Dec 2019 S.L.Napelenok: ddm-3d implementation for version 5.3.1
+C     06 Jul 2022 D. Wong: Fixed time marching through a day line during simulation
+C                          w.r.t representative Day Emissions in Subroutine GR3D
 C-----------------------------------------------------------------------
       USE RUNTIME_VARS
       USE GRID_CONF           ! horizontal & vertical domain specifications      
@@ -867,9 +869,6 @@ C------------------------------------------------------------------------------
       USE ASX_DATA_MOD, ONLY: MET_DATA, GRID_DATA
       USE CENTRALIZED_IO_MODULE, ONLY: interpolate_var
 
-      !USE EMIS_UTIL
-      !USE UTILIO_DEFN
-
       IMPLICIT NONE
 
       ! Includes:
@@ -887,15 +886,14 @@ C------------------------------------------------------------------------------
 
       ! Local Variables:
       INTEGER   C, R, L, N, S, V, ISTR 
-      INTEGER   S_STRT, S_END, STREAM_LAYS, NDATE, NTIME
+      INTEGER   S_STRT, S_END, STREAM_LAYS, NDATE, NTIME, STAT
 
       REAL, ALLOCATABLE, SAVE :: BUFF( :,:,: )
       CHARACTER( 16 ) :: VNAME
       CHARACTER( 16 ) :: PNAME = 'GR3D'
       CHARACTER( 200 ) :: XMSG = ' '
       LOGICAL, SAVE :: FIRSTIME = .TRUE.
-      INTEGER, ALLOCATABLE, SAVE :: LOC_STDATE(:)
-      LOGICAL         :: L_NEWDAY
+      INTEGER, ALLOCATABLE, SAVE :: DATE_DIFF(:)
 
 !-----------------------------------------------------------------------
 
@@ -905,20 +903,21 @@ C------------------------------------------------------------------------------
 
          ! Allocate Persistent Variables
          ALLOCATE( BUFF( NCOLS,NROWS,MAXVAL( DESID_GRID_LAYS ) ) )
-         ALLOCATE( LOC_STDATE( SIZE(DESID_STREAM_DATE) ) )
+         ALLOCATE( DATE_DIFF( SIZE(DESID_STREAM_DATE) ), STAT=STAT )
 
-         LOC_STDATE = STDATE
+         DATE_DIFF = -9999999
       END IF    !FirstTime
- 
+      ! compute the date difference between simulation date and representative emission date
       ! Ensure that the model and emissions timestamp dates stay synchronized
-      L_NEWDAY = .FALSE.
-      IF (LOC_STDATE(FSTREAM) .NE. JDATE ) THEN 
-         NDATE = JDATE; NTIME = JTIME
-         CALL NEXTIME( NDATE, NTIME, -TSTEP( 1 ) )       ! go back one output tstep
-         CALL NEXTIME( DESID_STREAM_DATE( FSTREAM ), NTIME, TSTEP( 1 ) ) ! advance the start date one time step
-         LOC_STDATE(FSTREAM) = DESID_STREAM_DATE( FSTREAM )
-         L_NEWDAY = .TRUE.
+      IF ( DATE_DIFF(FSTREAM) .EQ. -9999999 ) THEN
+         DATE_DIFF(FSTREAM) = DESID_STREAM_DATE( FSTREAM ) - JDATE
       END IF
+
+      IF ( DESID_STREAM_SYM_DATE( FSTREAM ) ) THEN
+         NDATE = DATE_DIFF( FSTREAM ) + JDATE
+      ELSE 
+         NDATE = JDATE
+      END IF 
 
       ! Read & Interpolate Emissions 
       DO R = 1,NROWS
@@ -937,7 +936,7 @@ C------------------------------------------------------------------------------
         VNAME = LOCAL_EMVAR( ISTR, FSTREAM )
         IF ( VNAME .EQ. '' ) CYCLE
 
-        CALL INTERPOLATE_VAR (VNAME, DESID_STREAM_DATE( FSTREAM ), JTIME, BUFF, DESID_FNAME)
+        CALL INTERPOLATE_VAR (VNAME, NDATE, JTIME, BUFF, DESID_FNAME)
 
         ! Store all emissions in mol/sec or g/sec and convert to ppmv/s later
         IF ( DESID_LAYS .GE. STREAM_LAYS ) THEN 
@@ -954,13 +953,6 @@ C------------------------------------------------------------------------------
         END IF
 
       END DO   ! ISTR
-
-      ! Reset the date of the gridded file if this is diagnostic mode
-      ! and the day has advanced
-      IF ( L_NEWDAY .AND. L_DESID_DIAG ) THEN
-         CALL NEXTIME( DESID_STREAM_DATE( FSTREAM ), NTIME, -TSTEP(1) )
-         LOC_STDATE(FSTREAM) = DESID_STREAM_DATE( FSTREAM )
-      END IF
 
       RETURN
 
@@ -3386,48 +3378,3 @@ C Open Gridded Emission Files (for gas chem, aerosols and non-reactive species)
   
 C-----------------------------------------------------------------------
        END MODULE DESID_MODULE
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
