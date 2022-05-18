@@ -63,10 +63,92 @@ c number of species in CGRID
 
       contains
 
-c init routine to allocate the above allocatables
-c !! NO   and to populate the allocated arrays from the stnd gc_spc.ext  !!! NO
+            SUBROUTINE SET_AERO_MODE_NAMES( COMPONENT,FLAGS,NAMES )
+!         This subroutine expands the aerosol component to set 
+!         mode-specific names.
+              
+              IMPLICIT NONE
+              
+              CHARACTER*(*), INTENT( IN    ) :: COMPONENT
+              LOGICAL,       INTENT( INOUT ) :: FLAGS( : )
+              CHARACTER*(*), INTENT( INOUT ) :: NAMES( : )
+              
+              INTEGER ISP, IM, IAER, IOST, IMODE
+
+              CHARACTER(20), PARAMETER :: PNAME = 'SET_AERO_MODE_NAMES'
+              
+              LOGICAL, SAVE :: INITIALIZE = .TRUE.
+              
+              INTEGER NSP2          
+          
+              IF( INITIALIZE )THEN
+                N_AE_SPC   = 0
+                INITIALIZE = .FALSE.
+              END IF
+                        
+              NSP2 = 0
+              
+              NAMES = ''
+              FLAGS = .FALSE.
+
+              IF ( COMPONENT .EQ. '' ) RETURN
+
+              ! For Aitken-Mode Particles
+              IF ( FLAGS(1) ) THEN
+                   IF ( TRIM( COMPONENT ) .EQ. 'NUM' .OR. 
+     &                  TRIM( COMPONENT ) .EQ. 'SRF' ) THEN
+                      ! Add Aitken Mode Number or Surface Area
+                      NSP2 = NSP2 + 1
+                      NAMES(1) =  trim(COMPONENT)//'ATKN'
+                   ELSE
+                      ! Add Aitken Mode Mass
+                      NSP2 = NSP2 + 1
+                      NAMES(1) =  trim(COMPONENT)//'I'
+                   END IF
+              END IF
+
+              ! For Accumulation-Mode Particles
+              IF ( FLAGS(2) ) THEN
+                   IF ( TRIM( COMPONENT ) .EQ. 'NUM' .OR. 
+     &                  TRIM( COMPONENT ) .EQ. 'SRF' ) THEN
+                      ! Add Accumulation Mode Number or Surface Area
+                      NSP2 = NSP2 + 1
+                      NAMES(2) =  trim(COMPONENT)//'ACC'
+                   ELSE
+                      ! Add Accumulation Mode Mass
+                      nsp2 = nsp2 + 1
+                      NAMES(2) =  trim(COMPONENT)//'J'
+                   END IF
+              END IF
+             
+              ! For Coarse-Mode Particles
+              IF ( FLAGS(3) ) THEN
+                 IF ( TRIM( COMPONENT ) .EQ. 'NUM' .OR. 
+     &                TRIM( COMPONENT ) .EQ. 'SRF' ) THEN
+                    ! Add Coarse Mode Number or Surface Area
+                    NSP2 = NSP2 + 1
+                    NAMES(3) =  trim(COMPONENT)//'COR'
+                 ELSE
+                    ! Add Coarse Mode Mass
+                    NSP2 = NSP2 + 1
+                    IF ( TRIM( COMPONENT )  .EQ. 'ACORS' .OR.
+     &                   TRIM( COMPONENT )  .EQ. 'ASOIL' .OR.
+     &                   TRIM( COMPONENT )  .EQ. 'ASEACAT' .OR.
+     &                   TRIM( COMPONENT )  .EQ. 'ADE_CORS' ) THEN
+                         NAMES(3) =  TRIM(COMPONENT)
+                    ELSE  
+                         NAMES(3) =  TRIM(COMPONENT)//'K'
+                    END IF
+                 END IF
+              END IF
+
+           END SUBROUTINE SET_AERO_MODE_NAMES
 
          function map_cctm_species() result ( success )
+
+C----------------------------------------------------------------------- 
+c  function maps chemistry species to CCTM species
+
             USE GET_ENV_VARS
             USE MECHANISM_DATA
 
@@ -227,6 +309,5 @@ c-------------------------------------------------------------------------------
              index1a = 0
              return
          end function index1a
-
       end module cctm_species
 

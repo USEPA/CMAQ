@@ -33,6 +33,8 @@
      &                           CONVERT_INTEGER                
             END INTERFACE
             
+            LOGICAL, PARAMETER :: AE_NML_V53 = .TRUE.
+            
          CONTAINS
 
             SUBROUTINE READ_MATRICES_ATOMS()
@@ -58,24 +60,31 @@
               
               INTEGER :: NLINES_FILE
               INTEGER :: NLINE
-              INTEGER :: IPOS, IC
+              INTEGER :: IPOS, IC 
+              INTEGER :: NAERO_COMPONENTS
               INTEGER :: POSITION_HEADER
-              INTEGER :: ISPECIES, IATOM
+              INTEGER :: ISPECIES, JSPECIES, IATOM
               INTEGER :: START_POSITION, STOP_POSITION
               INTEGER :: IO_STATUS 
               INTEGER :: LINES_IGNORED 
               
               CHARACTER(586)                         :: FILE_LINE, LINE_CONTENT 
               CHARACTER(100), ALLOCATABLE            :: LINE_WORDS(:)
+              CHARACTER( 16), ALLOCATABLE            :: AERO_COMPONENTS(:)
               CHARACTER( 16 ), SAVE                  :: GC_MATRIX = 'gc_matrix_nml'           
               CHARACTER( 16 ), SAVE                  :: AE_MATRIX = 'ae_matrix_nml'           
               CHARACTER( 16 ), SAVE                  :: NR_MATRIX = 'nr_matrix_nml'           
               CHARACTER( 16 ), SAVE                  :: TR_MATRIX = 'tr_matrix_nml'           
               
+              REAL              :: COMPONENT_WEIGHT
+              REAL, ALLOCATABLE :: ATOM_COUNT( : )
               
-              REAL, ALLOCATABLE                      :: ATOM_COUNT( : )
-              LOGICAL, SAVE :: INITIALIZE = .TRUE. 
-              LOGICAL       :: EFLAG
+              LOGICAL, SAVE     :: INITIALIZE = .TRUE. 
+              LOGICAL           :: EFLAG
+              
+              INTEGER, PARAMETER :: N_MODES = 3
+              CHARACTER( 16 )    :: AERO_NAMES( N_MODES )
+              LOGICAL            :: MODE_FLAGS( N_MODES )
               
 
               
@@ -108,7 +117,7 @@
                  CLOSE( EXUNIT_ATOMS )
                  
                  IC = N_ATOM_SPECIES - IPOS
-                 ALLOCATE( GC_SPC( IC ), GC_MOLWT( IC ) )
+                 ALLOCATE( GC_SPC( IC+1 ), GC_MOLWT( IC+1 ) )
                  GC_SPC   = ''
                  GC_MOLWT = 0.0                 
                  
@@ -125,22 +134,35 @@
                  END IF
                  OPEN( FILE=TRIM(EQNAME_ATOMS),UNIT=EXUNIT_ATOMS,STATUS='OLD',POSITION='REWIND' )                                      
 ! make rough count of AE species and allocate their name and molecular weight arrays 
-                 IPOS           = N_ATOM_SPECIES 
+                 IPOS             = N_ATOM_SPECIES 
+                 NAERO_COMPONENTS = 0
                  DO
                     READ(EXUNIT_ATOMS,'(A)',IOSTAT=IO_STATUS)FILE_LINE
                     IF( IO_STATUS .NE. 0 )THEN
                         EXIT
                     END IF
                     FILE_LINE = ADJUSTL( FILE_LINE )
-                    IF( FILE_LINE(1:1) .EQ. "'" )N_ATOM_SPECIES = N_ATOM_SPECIES + 1
+                    IF( FILE_LINE(1:1) .EQ. "'" )THEN
+                      IF( AE_NML_V53 )THEN
+                          N_ATOM_SPECIES = N_ATOM_SPECIES + 1
+                      ELSE
+                          N_ATOM_SPECIES   = N_ATOM_SPECIES + 3
+                          NAERO_COMPONENTS = NAERO_COMPONENTS + 1
+                      END IF
+                    END IF
                  END DO           
                  CLOSE( EXUNIT_ATOMS )
 
                  IC = N_ATOM_SPECIES - IPOS
-                 ALLOCATE( AE_SPC( IC ), AE_MOLWT( IC ) )
+                 ALLOCATE( AE_SPC( IC+1 ), AE_MOLWT( IC+1 ) )
                  AE_SPC   = ''
                  AE_MOLWT = 0.0                 
-                 
+
+                 IF( AE_NML_V53 )THEN
+                     ALLOCATE( AERO_COMPONENTS( NAERO_COMPONENTS + 1 ) )               
+                     AERO_COMPONENTS = ''
+                 END IF
+                                  
 ! get NR namelist name, open and count number of species
                  CALL VALUE_NAME( NR_MATRIX, EQNAME_ATOMS )                                                                                                 
                  WRITE( 6,'(A)' ) '    NR SPECIES NAMELIST: ', TRIM( EQNAME_ATOMS )
@@ -168,7 +190,7 @@
                  END DO           
                  CLOSE( EXUNIT_ATOMS )                 
                  IC = N_ATOM_SPECIES - IPOS
-                 ALLOCATE( NR_SPC( IC ), NR_MOLWT( IC ) )
+                 ALLOCATE( NR_SPC( IC+1 ), NR_MOLWT( IC+1 ) )
                  NR_SPC   = ''
                  NR_MOLWT = 0.0                 
                  
@@ -350,16 +372,51 @@
                  IF( FILE_LINE(1:1) .NE. "'" )THEN
                      CYCLE
                  END IF
-                 ISPECIES = ISPECIES + 1
+                 IF( AE_NML_V53 )THEN
+                     ISPECIES = ISPECIES + 1
 ! get CMAQ CGRID AE species name, molecular weight, and phase              
-                 CALL PARSE_STRING(FILE_LINE,IC,LINE_WORDS)
-                 ATOM_SPECIES( ISPECIES ) = REPLACE_TEXT( LINE_WORDS(1),"'"," ")
-                 READ( LINE_WORDS(2),*)ATOMS_SPECIES_MOLWT( ISPECIES )
-                 ATOMS_SPECIES_PHASE( ISPECIES ) = 'AE'
-                 N_AE_SPC = N_AE_SPC + 1
-                 AE_SPC( N_AE_SPC )   = ATOM_SPECIES( ISPECIES )
-                 AE_MOLWT( N_AE_SPC ) = ATOMS_SPECIES_MOLWT( ISPECIES )
-                IF( ATOMS_IN_NAMELISTS )THEN  ! subset line for end comments
+                     CALL PARSE_STRING(FILE_LINE,IC,LINE_WORDS)
+                     ATOM_SPECIES( ISPECIES ) = REPLACE_TEXT( LINE_WORDS(1),"'"," ")
+                     READ( LINE_WORDS(2),*)ATOMS_SPECIES_MOLWT( ISPECIES )
+                     ATOMS_SPECIES_PHASE( ISPECIES ) = 'AE'
+                     N_AE_SPC = N_AE_SPC + 1
+                     AE_SPC( N_AE_SPC )   = ATOM_SPECIES( ISPECIES )
+                     AE_MOLWT( N_AE_SPC ) = ATOMS_SPECIES_MOLWT( ISPECIES )
+                 ELSE   
+                     JSPECIES = ISPECIES
+                     NAERO_COMPONENTS = NAERO_COMPONENTS + 1
+                     AERO_COMPONENTS( NAERO_COMPONENTS ) = ADJUSTL(REPLACE_TEXT( LINE_WORDS(1),"'"," "))
+                     READ( LINE_WORDS(2),*)COMPONENT_WEIGHT
+                     DO IC = N_MODES+2,N_MODES+3
+                        LINE_WORDS(IC) = ADJUSTL( REPLACE_TEXT( LINE_WORDS(IC),"'"," ") )
+                        CALL UCASE( LINE_WORDS(IC) )
+                        IF( TRIM( LINE_WORDS(IC) ) .EQ. 'T' )THEN
+                            MODE_FLAGS(IC) = .TRUE.
+                        ELSE IF( TRIM( LINE_WORDS(IC) ) .EQ. 'F' )THEN 
+                            MODE_FLAGS(IC) = .FALSE.
+                        ELSE
+                            EFLAG = .TRUE.
+                            WRITE(6,'(A)')'ERROR: ',TRIM( AERO_COMPONENTS( NAERO_COMPONENTS ) ),
+     &                     ' has bad values for modal logical flags.'
+                        END IF
+                     END DO
+                     CALL SET_AERO_MODE_NAMES( AERO_COMPONENTS(NAERO_COMPONENTS),MODE_FLAGS,
+     &                                         AERO_NAMES )
+                     DO IC = 1,N_MODES
+                        IF( MODE_FLAGS( IC ) )THEN
+                            N_AE_SPC = N_AE_SPC + 1
+                            AE_SPC( N_AE_SPC )   = AERO_NAMES(IC)
+                            AE_MOLWT( N_AE_SPC ) = COMPONENT_WEIGHT
+                            ISPECIES = ISPECIES + 1
+                            ATOM_SPECIES( ISPECIES ) = AERO_NAMES(IC)
+                            ATOMS_SPECIES_MOLWT( ISPECIES ) = COMPONENT_WEIGHT
+                        ELSE 
+!                            N_AE_SPC = MAX( 1,(N_AE_SPC-1) )
+                            N_ATOM_SPECIES = MAX( 1,(N_ATOM_SPECIES-1) )
+                        END IF
+                     END DO 
+                 END IF
+                 IF( ATOMS_IN_NAMELISTS )THEN  ! subset line for end comments
 
                     LINE_CONTENT = Tailing_Comment (FILE_LINE,"!")
                     IF( LEN_TRIM( LINE_CONTENT ) .LE. 1 )CYCLE
@@ -388,20 +445,41 @@
                        EFLAG = .TRUE.
                        CYCLE
                     END IF
-                    ATOMS_SPECIES_REPRESENTATIVE( ISPECIES ) = LINE_WORDS(1)
-                    ATOMS_SPECIES_REPRESENTATION( ISPECIES ) = LINE_WORDS(2)
-                    ATOMS_SPECIES_DSSTOX_ID     ( ISPECIES ) = LINE_WORDS(3)
-                    IF( TRIM( LINE_WORDS(4) ) .NE. 'NA' 
-     &                                         .AND. TRIM( LINE_WORDS(4) ) .NE. 'TBD' )THEN 
-                       ATOMS_SPECIES_SMILES        ( ISPECIES ) = LINE_WORDS(4)
-                       CALL COUNT_SMILES_ATOMS( ATOMS_SPECIES_SMILES(ISPECIES),
-     &                                          ATOM_COUNT )
-                       SPECIES_ATOMS(ISPECIES,1:N_ATOMS) = ATOM_COUNT(1:N_ATOMS)
+                    IF( AE_NML_V53 )THEN
+
+                        ATOMS_SPECIES_REPRESENTATIVE( ISPECIES ) = LINE_WORDS(1)
+                        ATOMS_SPECIES_REPRESENTATION( ISPECIES ) = LINE_WORDS(2)
+                        ATOMS_SPECIES_DSSTOX_ID     ( ISPECIES ) = LINE_WORDS(3)
+                        IF( TRIM( LINE_WORDS(4) ) .NE. 'NA' 
+     &                                             .AND. TRIM( LINE_WORDS(4) ) .NE. 'TBD' )THEN 
+                           ATOMS_SPECIES_SMILES        ( ISPECIES ) = LINE_WORDS(4)
+                           CALL COUNT_SMILES_ATOMS( ATOMS_SPECIES_SMILES(ISPECIES),
+     &                                              ATOM_COUNT )
+                           SPECIES_ATOMS(ISPECIES,1:N_ATOMS) = ATOM_COUNT(1:N_ATOMS)
+                        END IF
+                    ELSE    
+                        IF( TRIM( LINE_WORDS(4) ) .NE. 'NA' 
+     &                                            .AND. TRIM( LINE_WORDS(4) ) .NE. 'TBD' )THEN 
+                             CALL COUNT_SMILES_ATOMS( LINE_WORDS(4),ATOM_COUNT )
+                        END IF
+                        DO IC = 1, N_MODES
+                           IF( MODE_FLAGS( IC ) )THEN
+                               JSPECIES = JSPECIES + 1
+                               ATOMS_SPECIES_REPRESENTATIVE( JSPECIES ) = LINE_WORDS(1)
+                               ATOMS_SPECIES_REPRESENTATION( JSPECIES ) = LINE_WORDS(2)
+                               ATOMS_SPECIES_DSSTOX_ID     ( JSPECIES ) = LINE_WORDS(3)
+                               ATOMS_SPECIES_SMILES        ( JSPECIES ) = LINE_WORDS(4)
+                               SPECIES_ATOMS(JSPECIES,1:N_ATOMS) = ATOM_COUNT(1:N_ATOMS)
+                           END IF
+                        END DO
                     END IF
                     
                  END IF ! atoms in namelist
               END DO          
               CLOSE( EXUNIT_ATOMS )
+              IF( EFLAG )THEN
+                  STOP 'FATAL ERROR in AE namelist'
+              END IF
 
 ! get NR namelist name and open
               CALL VALUE_NAME( NR_MATRIX, EQNAME_ATOMS )                                                                                                 
@@ -1380,4 +1458,5 @@
                END DO
                            
             END FUNCTION CONVERT_INTEGER
+
         END MODULE SPECIES_ATOMS_DATA
