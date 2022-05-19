@@ -62,7 +62,7 @@
 
            CHARACTER( 16 ) :: MECHANISM              ! Mechanism name
            INTEGER ios,INDX
-         INTEGER,        PARAMETER :: NMECHS = 15   ! dimension for number of mechanisms considered
+         INTEGER,        PARAMETER :: NMECHS = 16   ! dimension for number of mechanisms considered
 
          INTEGER I
 
