@@ -71,13 +71,17 @@ C biogenics to gas-phase species map
             ALLOCATE( EM_FILE_SURR( IMIOGSRM )%USED ( NMGNSPC ) )
             ALLOCATE( EM_FILE_SURR( IMIOGSRM )%CONV ( NMGNSPC ) )
             ALLOCATE( EM_FILE_SURR( IMIOGSRM )%BASIS( NMGNSPC ) )
-            
+            ALLOCATE( EM_FILE_SURR( IMIOGSRM )%LAREA( NMGNSPC ) )
+            ALLOCATE( EM_FILE_SURR( IMIOGSRM )%LAREAADJ( NMGNSPC ) ) 
+
             EM_FILE_SURR( IMIOGSRM )%ARRY  = MEGAN_NAMES
             EM_FILE_SURR( IMIOGSRM )%UNITS = 'MOLES/S'
             EM_FILE_SURR( IMIOGSRM )%MW    = 1.0
             EM_FILE_SURR( IMIOGSRM )%USED  = .FALSE.
             EM_FILE_SURR( IMIOGSRM )%CONV  = 1.0
             EM_FILE_SURR( IMIOGSRM )%BASIS = 'UNIT' ! not MASS, right?
+            EM_FILE_SURR( IMIOGSRM )%LAREA = .false. ! not MASS, right?
+            EM_FILE_SURR( IMIOGSRM )%LAREAADJ = .false. ! not MASS, right?
 
 
             ALLOCATE( VDEMIS_ME( NMGNSPC,NCOLS,NROWS ), STAT = STATUS )
