@@ -27,17 +27,17 @@ C=======================================================================
       DATA  MECH_SPC_CRACMM( 4),  MECH_MWT_CRACMM( 4)  / 'LIM             ',  136.30   /
       DATA  MECH_SPC_CRACMM( 5),  MECH_MWT_CRACMM( 5)  / 'HC3             ',  44.10    /
       DATA  MECH_SPC_CRACMM( 6),  MECH_MWT_CRACMM( 6)  / 'FURAN           ',  96.10    /
-      DATA  MECH_SPC_CRACMM( 7),  MECH_MWT_CRACMM( 7)  / 'XYOP            ',  106.20   / ! XYE
+      DATA  MECH_SPC_CRACMM( 7),  MECH_MWT_CRACMM( 7)  / 'XYE             ',  106.20   / 
       DATA  MECH_SPC_CRACMM( 8),  MECH_MWT_CRACMM( 8)  / 'VROCP6ARO       ',  176.30   /
       DATA  MECH_SPC_CRACMM( 9),  MECH_MWT_CRACMM( 9)  / 'XYM             ',  106.20   /
-      DATA  MECH_SPC_CRACMM( 10), MECH_MWT_CRACMM( 10) / 'ROCIOXY         ',  247.00   / ! ROCIOXY
+      DATA  MECH_SPC_CRACMM( 10), MECH_MWT_CRACMM( 10) / 'VROCIOXY        ',  247.00   / 
       DATA  MECH_SPC_CRACMM( 11), MECH_MWT_CRACMM( 11) / 'KET             ',  86.00    /
       DATA  MECH_SPC_CRACMM( 12), MECH_MWT_CRACMM( 12) / 'SESQ            ',  204.40   /
-      DATA  MECH_SPC_CRACMM( 13), MECH_MWT_CRACMM( 13) / 'ROCP5ARO        ',  190.33   / ! VROCP5ARO
-      DATA  MECH_SPC_CRACMM( 14), MECH_MWT_CRACMM( 14) / 'ROCP2           ',  338.66   / ! VROCP2ALK
-      DATA  MECH_SPC_CRACMM( 15), MECH_MWT_CRACMM( 15) / 'ROCP5           ',  198.39   / ! VROCP5ALK
-      DATA  MECH_SPC_CRACMM( 16), MECH_MWT_CRACMM( 16) / 'ROCP1           ',  380.75   / ! VROCP1ALK
-      DATA  MECH_SPC_CRACMM( 17), MECH_MWT_CRACMM( 17) / 'ROCP4           ',  254.50   / ! VROCP4ALK
+      DATA  MECH_SPC_CRACMM( 13), MECH_MWT_CRACMM( 13) / 'VROCP5ARO       ',  190.33   / 
+      DATA  MECH_SPC_CRACMM( 14), MECH_MWT_CRACMM( 14) / 'VROCP2ALK       ',  338.66   / 
+      DATA  MECH_SPC_CRACMM( 15), MECH_MWT_CRACMM( 15) / 'VROCP5ALK       ',  198.39   / 
+      DATA  MECH_SPC_CRACMM( 16), MECH_MWT_CRACMM( 16) / 'VROCP1ALK       ',  380.75   / 
+      DATA  MECH_SPC_CRACMM( 17), MECH_MWT_CRACMM( 17) / 'VROCP4ALK       ',  254.50   / 
       DATA  MECH_SPC_CRACMM( 18), MECH_MWT_CRACMM( 18) / 'MOH             ',  32.00    /
       DATA  MECH_SPC_CRACMM( 19), MECH_MWT_CRACMM( 19) / 'ACT             ',  58.00    /
       DATA  MECH_SPC_CRACMM( 20), MECH_MWT_CRACMM( 20) / 'ACD             ',  44.00    /
@@ -55,12 +55,12 @@ C=======================================================================
       DATA  MECH_SPC_CRACMM( 32), MECH_MWT_CRACMM( 32) / 'BALD            ',  106.00   /
       DATA  MECH_SPC_CRACMM( 33), MECH_MWT_CRACMM( 33) / 'BEN             ',  78.11    /
       DATA  MECH_SPC_CRACMM( 34), MECH_MWT_CRACMM( 34) / 'CSL             ',  136.20   /
-      DATA  MECH_SPC_CRACMM( 35), MECH_MWT_CRACMM( 35) / 'HC8             ',  142.28   / ! HC10
+      DATA  MECH_SPC_CRACMM( 35), MECH_MWT_CRACMM( 35) / 'HC10            ',  142.28   / 
       DATA  MECH_SPC_CRACMM( 36), MECH_MWT_CRACMM( 36) / 'SLOWROC         ',  75.40    /
       DATA  MECH_SPC_CRACMM( 37), MECH_MWT_CRACMM( 37) / 'MACR            ',  70.00    /
       DATA  MECH_SPC_CRACMM( 38), MECH_MWT_CRACMM( 38) / 'MVK             ',  70.10    /
       DATA  MECH_SPC_CRACMM( 39), MECH_MWT_CRACMM( 39) / 'PHEN            ',  110.10   /
-      DATA  MECH_SPC_CRACMM( 40), MECH_MWT_CRACMM( 40) / 'TOLUENE         ',  92.14    / ! TOL
+      DATA  MECH_SPC_CRACMM( 40), MECH_MWT_CRACMM( 40) / 'TOL             ',  92.14    / 
       DATA  MECH_SPC_CRACMM( 41), MECH_MWT_CRACMM( 41) / 'MEK             ',  72.10    /
       DATA  MECH_SPC_CRACMM( 42), MECH_MWT_CRACMM( 42) / 'HC5             ',  72.10    /
       DATA  MECH_SPC_CRACMM( 43), MECH_MWT_CRACMM( 43) / 'NO              ',  30.00    /
