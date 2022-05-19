@@ -33,7 +33,7 @@
      &                           CONVERT_INTEGER                
             END INTERFACE
             
-            LOGICAL, PARAMETER :: AE_NML_V53 = .TRUE.
+            LOGICAL, PARAMETER :: AE_NML_V53 = .FALSE.
             
          CONTAINS
 
@@ -158,7 +158,7 @@
                  AE_SPC   = ''
                  AE_MOLWT = 0.0                 
 
-                 IF( AE_NML_V53 )THEN
+                 IF( .NOT. AE_NML_V53 )THEN
                      ALLOCATE( AERO_COMPONENTS( NAERO_COMPONENTS + 1 ) )               
                      AERO_COMPONENTS = ''
                  END IF
@@ -362,6 +362,7 @@
               
               REWIND( EXUNIT_ATOMS )
               
+              NAERO_COMPONENTS = 0
               DO NLINE = 1,NLINES_FILE
                  READ(EXUNIT_ATOMS,'(A)',IOSTAT=IO_STATUS)FILE_LINE
 ! skip blank lines, comment lines or other lines without species information
@@ -384,29 +385,38 @@
                      AE_MOLWT( N_AE_SPC ) = ATOMS_SPECIES_MOLWT( ISPECIES )
                  ELSE   
                      JSPECIES = ISPECIES
+                     CALL PARSE_STRING(FILE_LINE,IC,LINE_WORDS)
                      NAERO_COMPONENTS = NAERO_COMPONENTS + 1
                      AERO_COMPONENTS( NAERO_COMPONENTS ) = ADJUSTL(REPLACE_TEXT( LINE_WORDS(1),"'"," "))
                      READ( LINE_WORDS(2),*)COMPONENT_WEIGHT
-                     DO IC = N_MODES+2,N_MODES+3
+                     DO IC = 3,3+(N_MODES-1)
+                        IPOS = IC-N_MODES+1
                         LINE_WORDS(IC) = ADJUSTL( REPLACE_TEXT( LINE_WORDS(IC),"'"," ") )
                         CALL UCASE( LINE_WORDS(IC) )
                         IF( TRIM( LINE_WORDS(IC) ) .EQ. 'T' )THEN
-                            MODE_FLAGS(IC) = .TRUE.
+                            MODE_FLAGS(IPOS) = .TRUE.
                         ELSE IF( TRIM( LINE_WORDS(IC) ) .EQ. 'F' )THEN 
-                            MODE_FLAGS(IC) = .FALSE.
+                            MODE_FLAGS(IPOS) = .FALSE.
                         ELSE
                             EFLAG = .TRUE.
-                            WRITE(6,'(A)')'ERROR: ',TRIM( AERO_COMPONENTS( NAERO_COMPONENTS ) ),
-     &                     ' has bad values for modal logical flags.'
+                            WRITE(6,'(A,6(A,1X))')'ERROR: ',TRIM( AERO_COMPONENTS( NAERO_COMPONENTS ) ),
+     &                     ' has bad values for modal logical flag.', LINE_WORDS(IC)
                         END IF
                      END DO
+                     WRITE(6,'(A,A,3(1X,L2))')'SET: ',TRIM( AERO_COMPONENTS( NAERO_COMPONENTS ) ),MODE_FLAGS(:)
                      CALL SET_AERO_MODE_NAMES( AERO_COMPONENTS(NAERO_COMPONENTS),MODE_FLAGS,
      &                                         AERO_NAMES )
+                     WRITE(6,'(A,A,3(1X,L2),3(A16,1X))')'READ: ',TRIM( AERO_COMPONENTS( NAERO_COMPONENTS ) ),MODE_FLAGS(:),
+     &               (trim(LINE_WORDS(IC) ),ic=3,3+(N_MODES-1))
+                     WRITE(6,'(A,A,3(1X,L2),3(A16,1X))')'READ: ',TRIM( AERO_COMPONENTS( NAERO_COMPONENTS ) ),MODE_FLAGS(:),
+     &               (trim(AERO_NAMES(IC)),ic=1,N_MODES)
                      DO IC = 1,N_MODES
                         IF( MODE_FLAGS( IC ) )THEN
                             N_AE_SPC = N_AE_SPC + 1
                             AE_SPC( N_AE_SPC )   = AERO_NAMES(IC)
                             AE_MOLWT( N_AE_SPC ) = COMPONENT_WEIGHT
+                            write(6,'(A,I3,1X,A,1X,f7.2)')"N_AE_SPC, AE_SPC, MOLWT= ",
+     &                       N_AE_SPC,AE_SPC( N_AE_SPC ),AE_MOLWT( N_AE_SPC )
                             ISPECIES = ISPECIES + 1
                             ATOM_SPECIES( ISPECIES ) = AERO_NAMES(IC)
                             ATOMS_SPECIES_MOLWT( ISPECIES ) = COMPONENT_WEIGHT
@@ -477,10 +487,12 @@
                  END IF ! atoms in namelist
               END DO          
               CLOSE( EXUNIT_ATOMS )
+              
               IF( EFLAG )THEN
                   STOP 'FATAL ERROR in AE namelist'
               END IF
-
+              STOP 'Check set aerosol species'
+              
 ! get NR namelist name and open
               CALL VALUE_NAME( NR_MATRIX, EQNAME_ATOMS )                                                                                                 
 !              WRITE( 6,'(A)' ) '    NR SPECIES NAMELIST: ', TRIM( EQNAME_ATOMS )

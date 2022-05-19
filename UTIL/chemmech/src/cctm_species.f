@@ -89,9 +89,11 @@ c number of species in CGRID
               NSP2 = 0
               
               NAMES = ''
-              FLAGS = .FALSE.
 
-              IF ( COMPONENT .EQ. '' ) RETURN
+              IF ( LEN_TRIM( COMPONENT ) .EQ. 0 )THEN
+                 FLAGS = .FALSE.
+                 RETURN
+              END IF
 
               ! For Aitken-Mode Particles
               IF ( FLAGS(1) ) THEN
