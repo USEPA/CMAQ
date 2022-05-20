@@ -106,16 +106,10 @@
       INST_LAYER_TOP   = 1
       INST_LAYER_BOT   = 1
       INST_VARS_NML(:) = ''
-      INST_VARS_NML(1) = 'O3'
-      INST_VARS_NML(2) = 'PM25'
-      INST_VARS_NML(3) = 'PM10'
       AVRG_ACTIVE      = .TRUE.
       AVRG_LAYER_TOP   = 1
       AVRG_LAYER_BOT   = 1
       AVRG_VARS_NML(:) = ''
-      AVRG_VARS_NML(1) = 'O3'
-      AVRG_VARS_NML(2) = 'PM25'
-      AVRG_VARS_NML(3) = 'PM10'
 
       ! Retrieve the Name of the Emission Control File
       IF ( MISC_CTRL .EQ. "MISC_CTRL_NML" ) THEN
@@ -150,7 +144,13 @@
       END IF
       INST_ACTIVE = INSTANT
       AVRG_ACTIVE = AVERAGE
+      L_ELMO = ( INST_ACTIVE .OR. AVRG_ACTIVE )
       
+      IF ( .NOT. L_ELMO ) THEN
+          DEALLOCATE( FAM_LIST ) 
+          RETURN
+      END IF
+
       CALL POPULATE_ELMO_KEY
 
       ! Read Desired ELMO_INST parameters from input namelist
@@ -166,6 +166,11 @@
 
       ! Expand INST list Using Keywords
       N_END = INDEX1( '', N_NML, INST_VARS_NML ) - 1
+      IF ( N_END .LE. 0 ) THEN
+          WRITE( XMSG, '(A,A)' ),'ERROR: Undefined variables requested ',
+     &           'for Instaneous ELMO output '
+          CALL M3EXIT( PNAME, 0, 0, XMSG, 1 )
+      END IF
       INUM = 1
       DO WHILE ( INUM .LE. N_END )
          CALL UPCASE( INST_VARS_NML( INUM ) )
@@ -307,6 +312,11 @@
  
       ! Expand AVRG list Using Keywords
       N_END = INDEX1( '', N_NML, AVRG_VARS_NML ) - 1
+      IF ( N_END .LE. 0 ) THEN
+          WRITE( XMSG, '(A,A)' ),'ERROR: Undefined variables requested ',
+     &           'for Average ELMO output '
+          CALL M3EXIT( PNAME, 0, 0, XMSG, 1 )
+      END IF
       INUM = 1
       DO WHILE ( INUM .LE. N_END )
          CALL UPCASE( AVRG_VARS_NML( INUM ) )
@@ -436,6 +446,8 @@
       END IF
       NLAY_ELMO_AVRG = AVRG_LAYER_TOP - AVRG_LAYER_BOT + 1
  
+      DEALLOCATE( FAM_LIST )
+
       END SUBROUTINE READ_ELMO_NML
 
 !-------------------------------------------------------------------------
@@ -769,7 +781,7 @@
       ! For Now)
       CALL ELMO_INIT_SHARED()
       CALL READ_ELMO_NML()
-      L_ELMO = ( INST_ACTIVE .OR. AVRG_ACTIVE )
+      IF ( .NOT. L_ELMO ) RETURN
 
       ! Map user-defined INST_PARS and AVRG_PARS arrays to the ELMO 
       ! parameters available on the ELMO_LIST. 

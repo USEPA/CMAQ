@@ -286,7 +286,7 @@ c:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
      &ELDTP( 'PMC_SO4      ',ID_PMC_SO4,    M3REAL, F, 'ug m-3', 'Coarse-Mode Sulfate' ),
      &ELDTP( 'PMC_NO3      ',ID_PMC_NO3,    M3REAL, F, 'ug m-3', 'Coarse-Mode Nitrate' ),
      &ELDTP( 'PMC_NH4      ',ID_PMC_NH4,    M3REAL, F, 'ug m-3', 'Coarse-Mode Ammonium' ),
-     &ELDTP( 'PMC_NH4      ',ID_PMC_CL,     M3REAL, F, 'ug m-3', 'Coarse-Mode Chloride' ),
+     &ELDTP( 'PMC_CL       ',ID_PMC_CL,     M3REAL, F, 'ug m-3', 'Coarse-Mode Chloride' ),
      &ELDTP( 'PMC_NA       ',ID_PMC_NA,     M3REAL, F, 'ug m-3', 'Recon Crs Sodium (.8373*ASEACAT+.0626*ASOIL+.0023*ACORS)' ),
      &ELDTP( 'PMC_MG       ',ID_PMC_MG,     M3REAL, F, 'ug m-3', 'Recon Crs Magnesium (.0997*ASEACAT+.0170*ASOIL+.0032*ACORS)'),
      &ELDTP( 'PMC_K        ',ID_PMC_K,      M3REAL, F, 'ug m-3', 'Recon Crs Potasium (.0310*ASEACAT+.0242*ASOIL+.0176*ACORS)' ),
