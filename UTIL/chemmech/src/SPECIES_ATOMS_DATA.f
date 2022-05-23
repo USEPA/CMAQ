@@ -403,13 +403,13 @@
      &                     ' has bad values for modal logical flag.', LINE_WORDS(IC)
                         END IF
                      END DO
-                     WRITE(6,'(A,A,3(1X,L2))')'SET: ',TRIM( AERO_COMPONENTS( NAERO_COMPONENTS ) ),MODE_FLAGS(:)
+!                    WRITE(6,'(A,A,3(1X,L2))')'SET: ',TRIM( AERO_COMPONENTS( NAERO_COMPONENTS ) ),MODE_FLAGS(:)
                      CALL SET_AERO_MODE_NAMES( AERO_COMPONENTS(NAERO_COMPONENTS),MODE_FLAGS,
      &                                         AERO_NAMES )
-                     WRITE(6,'(A,A,3(1X,L2),3(A16,1X))')'READ: ',TRIM( AERO_COMPONENTS( NAERO_COMPONENTS ) ),MODE_FLAGS(:),
-     &               (trim(LINE_WORDS(IC) ),ic=3,3+(N_MODES-1))
-                     WRITE(6,'(A,A,3(1X,L2),3(A16,1X))')'READ: ',TRIM( AERO_COMPONENTS( NAERO_COMPONENTS ) ),MODE_FLAGS(:),
-     &               (trim(AERO_NAMES(IC)),ic=1,N_MODES)
+!                    WRITE(6,'(A,A,3(1X,L2),3(A16,1X))')'READ: ',TRIM( AERO_COMPONENTS( NAERO_COMPONENTS ) ),MODE_FLAGS(:),
+!    &               (trim(LINE_WORDS(IC) ),ic=3,3+(N_MODES-1))
+!                    WRITE(6,'(A,A,3(1X,L2),3(A16,1X))')'READ: ',TRIM( AERO_COMPONENTS( NAERO_COMPONENTS ) ),MODE_FLAGS(:),
+!    &               (trim(AERO_NAMES(IC)),ic=1,N_MODES)
                      DO IC = 1,N_MODES
                         IF( MODE_FLAGS( IC ) )THEN
                             N_AE_SPC = N_AE_SPC + 1
@@ -491,7 +491,6 @@
               IF( EFLAG )THEN
                   STOP 'FATAL ERROR in AE namelist'
               END IF
-              STOP 'Check set aerosol species'
               
 ! get NR namelist name and open
               CALL VALUE_NAME( NR_MATRIX, EQNAME_ATOMS )                                                                                                 
