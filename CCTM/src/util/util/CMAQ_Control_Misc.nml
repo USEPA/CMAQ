@@ -17,17 +17,24 @@
 !    for an AMET evaluation of PM species.                                     !
 !                                                                              !
 !    Definition of Fields:                                                     !
-!     PMDIAG_ACTIVATE - turn files on and off                                  !
-!        'INSTANT' - If .TRUE., then the instantaneous PMDIAG output file will !
-!                    be printed. If .FALSE. it will not.                       !
-!        'AVERAGE' - If .TRUE., then the average PMDIAG output file will       !
-!                    be printed. If .FALSE. it will not.                       !
-!     PMDIAG_INST - set parameters for instantaneous output                    !
+!     ELMO_ACTIVATE - turn files on and off                                    !
+!        'INSTANT' - If .TRUE., then the instantaneous ELMO output file will   !
+!                    be output. If .FALSE. it will not.                       !
+!        'AVERAGE' - If .TRUE., then the average ELMO output file will         !
+!                    be output. If .FALSE. it will not.                       !
+!     ELMO_INST - set parameters for instantaneous output                      !
 !        'INST_LAYER_TOP' - highest CMAQ layer for instantaneous output        ! 
 !        'INST_LAYER_BOT' - lowest CMAQ layer for instantaneous output         !
-!        'INST_VARS' - register of all variables requested by the user.        !
-!             The following keywords and definitions are supported:            !
-!                 'ALL' - all possible parameters                              !
+!        'INST_VARS_NML' - register of all variables requested by the user.    !
+!             Variables can be listed explicitly (e.g. O3, PM25_FRM, DENS) or  !
+!             by keyword groups. The following keywords and definitions are    !
+!             supported:                                                       !
+!                 'ALL' - all possible parameters. This keyword activates a    !
+!                         large number of variables including all 180+ ELMO    !
+!                         aggregates variables, all raw concentrations         !
+!                         variables, and all family variables. By default, bulk!
+!                         aerosols are preloaded as families.                  !
+!                 'ALLCONC' - all raw concentration variables                  !
 !                 'DEFAULT' - parameters typically supported by COMBINE        !
 !                             post-processing in the past.                     !
 !                 'AMET' - parameters used for evaluation against AMET database!
@@ -59,28 +66,38 @@
 !                 'TOXICS' - Species output by the toxics version of CMAQ      !
 !                            (e.g. PM25_HBE, PM25_HNI, PM10_HDIESEL', etc      !
 !                                                                              !
-!     For the list of all supported parameters in ELMO, look in the PMDIAG_LIST!
-!       table within PMDIAG_DATA. For the list of all keywords and their       !
-!       contents refer to the POPULATE_PMDIAG_KEY subroutine in PMDIAG_PROC.   !
+!     ELMO_AVRG - set parameters for average output                            !
+!        'AVRG_LAYER_TOP' - highest CMAQ layer for average output              ! 
+!        'AVRG_LAYER_BOT' - lowest CMAQ layer for avergae output               !
+!        'AVRG_VARS_NML' - register of all variables requested by the user.    !
+!                          Options are equivalent to those for INST_VARS_NML   !
 !                                                                              !
 !------------------------------------------------------------------------------!
 
-&pmdiag_activate
-  instant = .TRUE.
+&elmo_activate
+  instant = .FALSE.
   average = .TRUE.
 /
 
-&pmdiag_inst
+&elmo_inst
   Inst_Layer_Top = 1
   Inst_Layer_Bot = 1
-  Inst_Vars      = 'DEFAULT'
+  Inst_Vars_Nml  = 'DEFAULT'
+  
+! Example for limited output
+! Inst_Vars_Nml = 'NO2', 'FORM', 'SO2', 'O3', 'PM25', 'PM10', 'DENS', 'NOX', 'AOD_550'
 /
 
-&pmdiag_avrg
+&elmo_avrg
   Avrg_Layer_Top = 1
   Avrg_Layer_Bot = 1
-  Avrg_Vars      = 'DEFAULT'
+  Avrg_Vars_Nml  = 'DEFAULT'
+
+! Example for limited output
+! Avrg_Vars_Nml = 'NO2', 'FORM', 'SO2', 'O3', 'PM25', 'PM10', 'DENS', 'NOX', 'AOD_550'
 /
+
+
 
 !------------------------------------------------------------------------------!
 ! Budget Tool Variable and Family Definitions                                  !
@@ -112,8 +129,8 @@
 /
 
 &ChemicalFamilies
- ! ChemFamilyName(1)     = 'NOX'
- ! ChemFamilyMembers(1,:)= 'NO','NO2'
+! ChemFamilyName(1)     = 'NOX'
+! ChemFamilyMembers(1,:)= 'NO','NO2'
 /
 
 

@@ -71,13 +71,14 @@
      &                         log_subheading
       use UTILIO_DEFN
       use desid_param_module, only : Desid_Max_Reg
+      use aero_data, only : n_aerospc, aerospc, n_mode, aero_missing
       
       IMPLICIT NONE
       
       ! Define Dummy Variables for Opening Emission Control Namelist
       CHARACTER( 300 ) :: XMSG
       INTEGER          :: FUNIT
-      INTEGER          :: STAT, IFAM, INUM, IOST
+      INTEGER          :: STAT, IFAM, INUM, IOST, IAER, JAER, IM
       CHARACTER( 200 ) :: TMPLINE
 
 
@@ -126,7 +127,7 @@
           CALL LOG_MESSAGE( LOGDEV, ' ' )
           CALL LOG_MESSAGE( LOGDEV, XMSG )
           N_Chem_Fams          = 0
-          Max_Chem_Fam_Members = 0
+          Max_Chem_Fam_Members = 120
       ELSE IF ( STAT .NE. 0 ) THEN
           ! Read Error Detected for MISC_CTRL
           backspace( FUNIT )
@@ -143,6 +144,7 @@
       END IF
  
       ! Read Chemical Family Specification Section
+      N_Chem_Fams = N_Chem_Fams + n_aerospc
       ALLOCATE( ChemFamilyName( N_Chem_Fams),
      &          ChemFamilyNum( N_Chem_Fams),
      &          ChemFamilyMembers( N_Chem_Fams, Max_Chem_Fam_Members ),
@@ -175,7 +177,29 @@
      &                  'fix the Chemical Families', 1 ) 
  
       END IF
-      ! Capitalize All Family and Member Names
+      ! Add Aerosol Species to Chemical Family List
+      DO IAER = 1,N_AEROSPC
+         JAER = INDEX1( AEROSPC(IAER)%BULKNAME,N_Chem_Fams,ChemFamilyName )
+         IF ( JAER .EQ. 0 ) THEN
+           ! Add Aerosol Bulkname to the end of the chemical family
+           ! list
+           DO IFAM = 1,N_Chem_Fams
+             if ( ChemFamilyName(ifam) .eq. '' ) then
+                  ChemFamilyName(ifam) = aerospc(iaer)%bulkname
+                inum = 0
+                do im = 1,n_mode
+                  if ( .not.aero_missing(iaer,im) ) then
+                     inum = inum + 1
+                     ChemFamilyMembers(ifam,inum) = aerospc(iaer)%name(im)
+                  end if
+                end do
+                exit
+             end if
+           END DO
+         END IF
+      END DO
+
+      ! Populate and Error Check All Family and Member Names
       DO IFAM = 1,N_Chem_Fams
           IF ( ChemFamilyName(IFAM) .EQ. '' ) THEN
              WRITE( XMSG, '(A,I3,A,A,A)' ),'ERROR: The number of Chemical Families ',

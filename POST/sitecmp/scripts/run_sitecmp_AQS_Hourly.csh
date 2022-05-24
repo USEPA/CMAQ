@@ -91,7 +91,7 @@
  setenv GAS_20 ",,10*precip,mm/hr,precip"       
    
 #> PM2.5 Sharp Cutoff Species
-#> Requires preprocessing using CCTM_APMDIAG file
+#> Requires preprocessing using CCTM_AELMO file
  setenv GAS_21 "PM25,ug/m3,PM25_TOT,ug/m3,PM25_TOT"
  setenv GAS_22 "PM25,ug/m3,PM25_FRM,,PM25_FRM"     
 #>> End Species List <<#

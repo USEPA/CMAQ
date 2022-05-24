@@ -63,8 +63,8 @@
  set END_DATE   = "2016-07-14"     #> ending date    (July 14, 2016)
  
 #> Set location of species definition files for concentration and deposition species.
- setenv SPEC_CONC $REPO_HOME/POST/combine/scripts/spec_def_files/SpecDef_${MECH}.txt
- setenv SPEC_DEP  $REPO_HOME/POST/combine/scripts/spec_def_files/SpecDef_Dep_${MECH}.txt
+ setenv SPEC_CONC $CMAQ_HOME/POST/combine/scripts/spec_def_files/SpecDef_${MECH}.txt
+ setenv SPEC_DEP  $CMAQ_HOME/POST/combine/scripts/spec_def_files/SpecDef_Dep_${MECH}.txt
 
 #> Use GENSPEC switch to generate a new specdef file (does not generate output file).
  setenv GENSPEC N
@@ -99,11 +99,11 @@
   #> Define name of input files needed for combine program.
   #> File [1]: CMAQ conc/aconc file
   #> File [2]: MCIP METCRO3D file
-  #> File [3]: CMAQ APMDIAG file
+  #> File [3]: CMAQ AELMO file
   #> File [4]: MCIP METCRO2D file
    setenv INFILE1 $CCTMOUTDIR/CCTM_ACONC_${RUNID}_$YYYY$MM$DD.nc
    setenv INFILE2 $METDIR/METCRO3D_$YY$MM$DD.nc
-   setenv INFILE3 $CCTMOUTDIR/CCTM_APMDIAG_${RUNID}_$YYYY$MM$DD.nc
+   setenv INFILE3 $CCTMOUTDIR/CCTM_AELMO_${RUNID}_$YYYY$MM$DD.nc
    setenv INFILE4 $METDIR/METCRO2D_$YY$MM$DD.nc
 
   #> Executable call:
