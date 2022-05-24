@@ -379,9 +379,9 @@ C                     ---------- - - - ------- ------- ---------- --------- ----
           Real            :: dgvem( n_mode )  ! meters
           Real            :: sgem ( n_mode )  ! dimensionless
       END TYPE em_aero
-      INTEGER, PARAMETER  :: n_em_aero_ref = 9
+      INTEGER, PARAMETER  :: desid_n_aero_ref = 9
 
-      TYPE( em_aero ), Parameter :: em_aero_ref( n_em_aero_ref ) = (/
+      TYPE( em_aero ), Parameter :: desid_aero_ref( desid_n_aero_ref ) = (/
 
 !              ----Name----     -----Split-----    ---Geo. Mean Diameter---   ---Stnd Dev.---
      & em_aero('FINE_REF       ',(/0.1,0.9,0.0/),(/0.06E-6,0.28E-6 ,6.0E-6 /),(/1.7,1.7,2.2/)), ! Default Accum and Aitken Mode
