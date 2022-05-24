@@ -4,7 +4,7 @@
 ## Brief Description
 The ELMO Synthesizer streamlines the definition, calculation, and maintenance of over 170 aggregate particulate matter parameters online in CMAQ. Previously, aggregate parameters like PM2.5 and Fine-mode Sulfate (ASO4I + ASO4J) were calculated through the COMBINE post-processing utility and documented via the SpecDef input file for that program. With ELMO, these variables are defined in PMDIAG_DATA and their calculations are prescribed in PMDIAG_PROC. Thus, CMAQ can now output higher-level parameters without needing to run any particular post-processing tool.  
 
-The interface for using ELMO is on the EmissionControlFile. Please see that file for a description of how to use the options relevant for ELMO.  
+The interface for using ELMO is on the CMAQ Miscellaneous Control File. Please see that file for a description of how to use the options relevant for ELMO.  
 
 There are several distinct advantages to using ELMO over post-processing raw output with COMBINE:  
   - Definitions of parameters like PM2.5, PMF (Fine PM), and PM10.0 automatically adjust as PM species are activated or deactivated in CMAQ. There is no need to modify a SpecDef file to account for a new species.  
