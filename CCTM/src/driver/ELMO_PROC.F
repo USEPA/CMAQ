@@ -1125,6 +1125,12 @@
                CALL INIT_ELMO_COEFFS( IDG, N_VARS, 'COARSE' )
                CALL SET_ELMO_COEFF_MAP( IDG, 1, 'AERO', 'ANH4', 1.0 )
  
+             ! Map PMC_CL - Coarse-Mode Chlorine
+             CASE ( ID_PMC_CL ) 
+               N_VARS = 1
+               CALL INIT_ELMO_COEFFS( IDG, N_VARS, 'COARSE' )
+               CALL SET_ELMO_COEFF_MAP( IDG, 1, 'AERO', 'ACL', 1.0 )
+ 
              ! Map PMC_NA - Coarse-Mode Sodium
              CASE ( ID_PMC_NA ) 
                N_VARS = 3
