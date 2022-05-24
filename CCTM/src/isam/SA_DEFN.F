@@ -1003,7 +1003,7 @@ c----------------------------------------------------------
         IF ( INDEX( TAGCLASSES,'NVPOA' ) .NE. 0 ) THEN
           FOUND_SPECIES = .FALSE.
 
-          CALL ADD_ISAM_SPEC( 'AOC', FOUND_SPECIES, IMECH )
+          CALL ADD_ISAM_SPEC( 'APOC', FOUND_SPECIES, IMECH )
           CALL ADD_ISAM_SPEC( 'APNCOM', FOUND_SPECIES, IMECH )
           
           ! Warn if all species are missing
@@ -1298,8 +1298,8 @@ c----------------------------------------------------------
      &                         ' has been defined in AERO_DATA with condensable ' //
      &                         'vapor species ' // TRIM(GASNAME) // ' and/or '//
      &                         'reaction counter species ' // TRIM(CTRNAME) //
-     &                         ' but neither of these are defined in the ' //
-     &                         'CMAQ GC or NR species namelists. The aerosol '//
+     &                         ' but neither of these are activated as ISAM ' //
+     &                         'species (e.g. in the ISAM control file. The aerosol '//
      &                         'species will be assumed nonvolatile for ISAM.'
                         CALL LOG_MESSAGE( LOGDEV, XMSG )
                       END IF
