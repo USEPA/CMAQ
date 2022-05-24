@@ -111,8 +111,9 @@ C Convert non-molar mixing ratio species and re-order CGRID
 #ifdef isam
       ! Convert PM Mass Only
       CONV_SPCTAG: DO JSPCTAG = 1, N_SPCTAG
-         IBGN = INDEX( VNAM_SPCTAG( JSPCTAG ), '_', .FALSE. ) - 1
-         S = INDEX1( VNAM_SPCTAG( JSPCTAG )( 1:IBGN ), N_AE_SPC, AE_SPC )
+         !IBGN = INDEX( VNAM_SPCTAG( JSPCTAG ), '_', .FALSE. ) - 1
+         !S = INDEX1( VNAM_SPCTAG( JSPCTAG )( 1:IBGN ), N_AE_SPC, AE_SPC )
+         S = INDEX1( ISAM_SPEC( S_SPCTAG(JSPCTAG),1 ), N_AE_SPC, AE_SPC )
          IF ( S .GT. 0 ) THEN
             DO L = 1, NLAYS
                ISAM( :,:,L,S_SPCTAG( JSPCTAG ),T_SPCTAG( JSPCTAG ) ) =
@@ -158,8 +159,9 @@ C Revert non-molar mixing ratio species and re-order CGRID
 #ifdef isam
 Ckrt....JSPCTAG loop on PM mass only.....
       REV_SPCTAG: DO JSPCTAG = 1, N_SPCTAG
-         IBGN = INDEX( VNAM_SPCTAG( JSPCTAG ), '_', .FALSE. ) - 1
-         S = INDEX1( VNAM_SPCTAG( JSPCTAG )( 1:IBGN ), N_AE_SPC, AE_SPC )
+         !IBGN = INDEX( VNAM_SPCTAG( JSPCTAG ), '_', .FALSE. ) - 1
+         !S = INDEX1( VNAM_SPCTAG( JSPCTAG )( 1:IBGN ), N_AE_SPC, AE_SPC )
+         S = INDEX1( ISAM_SPEC( S_SPCTAG(JSPCTAG),1 ), N_AE_SPC, AE_SPC )
          IF ( S .GT. 0 ) THEN
             DO L = 1, NLAYS
                 ISAM( :,:,L,S_SPCTAG( JSPCTAG ),T_SPCTAG( JSPCTAG ) ) =
