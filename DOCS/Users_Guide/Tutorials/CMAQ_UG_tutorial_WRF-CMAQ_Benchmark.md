@@ -28,7 +28,7 @@ The suggested hardware requirements for running the CMAQ Southeast Benchmark cas
 In the directory where you would like to install WRF-CMAQ, create the directory issue the following command to clone the EPA GitHub repository for CMAQv5.3.3+:
 
 ```
-git clone -b v5.3.3+ https://github.com/USEPA/CMAQ.git CMAQ_REPO
+git clone -b 5.3.3+ https://github.com/USEPA/CMAQ.git CMAQ_REPO
 ```
 
 ## Check Out a new Branch in the CMAQ Repository 

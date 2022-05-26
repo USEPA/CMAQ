@@ -990,10 +990,10 @@ End_Of_Namelist
 # ( /usr/bin/time -p mpirun -np $NPROCS $OUTDIR/$EXEC ) |& tee buff_${EXECUTION_ID}.txt
 # /usr/bin/time -p mpirun -np $NPROCS $OUTDIR/$EXEC
 
-  ls -al wrf.exe
+  ls -al ${OUTDIR}/wrf.exe
 
   date
-  time mpirun -np $NPROCS wrf.exe
+  time mpirun -np $NPROCS ${OUTDIR}/wrf.exe
   date
   
   #> Harvest Timing Output so that it may be reported below
