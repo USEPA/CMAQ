@@ -1937,7 +1937,6 @@
       ALLOCATE( ELMO_COEFFS( IDG )%L_MODE( N_MODE ),
      &          ELMO_COEFFS( IDG )%L_GAS ( N_VARS ),
      &          ELMO_COEFFS( IDG )%L_SPC ( N_VARS ),
-     &          ELMO_COEFFS( IDG )%L_PREC( N_VARS ),
      &          ELMO_COEFFS( IDG )%L_AGG ( N_VARS ),
      &          ELMO_COEFFS( IDG )%I_SPEC( N_VARS ),
      &          ELMO_COEFFS( IDG )%COEFF ( N_VARS ),
@@ -1949,7 +1948,6 @@
 
       ELMO_COEFFS( IDG )%L_GAS  ( : )   = .FALSE.
       ELMO_COEFFS( IDG )%L_SPC  ( : )   = .FALSE.
-      ELMO_COEFFS( IDG )%L_PREC ( : )   = .FALSE.
       ELMO_COEFFS( IDG )%L_AGG  ( : )   = .FALSE.
       ELMO_COEFFS( IDG )%I_SPEC ( : )   = 0
       ELMO_COEFFS( IDG )%L_MODE ( : )   = .FALSE.
@@ -2036,48 +2034,9 @@
       CALL UPCASE( TSPEC )
 
       ! Find Index of CSPEC in Gas Array, Aggregate Array or AEROSPC%BULKNAME
-      IF ( TSPEC .EQ. 'PREC' ) THEN 
-          ELMO_COEFFS( IDG )%L_PREC( IVAR ) = .TRUE. 
-
-          ! Map to Gas-Phase Aerosol Precursor
-          ! Check the precursor array
-          ISPEC = INDEX1( CSPEC, N_PRECURSOR, PRECURSOR(:)%NAME )
- 
-          IF ( ISPEC .GT. 0 ) THEN
-             ! Found the Index. Save it!
-             ELMO_COEFFS( IDG )%I_SPEC( IVAR ) = ISPEC
-          ELSE
-             ! Could not find the species in the Gas Precursor Array. Print an
-             ! Error and Warn
-             XMSG = "A PM Diagnostic variable has been requested that relies " //
-     &           "on gas precursor species " // TRIM(CSPEC) // ". This species has not been " //
-     &           "incorporated in the precursor array though. Please check that the table "//
-     &           "in PRECURSOR_DATA is compatible with the PM diagnostics you have called "//
-     &           "for in the Emissions Control Namelist."
-             !CALL LOG_MESSAGE( LOGDEV, XMSG )
-             !CALL M3WARN( 'MAP_ELMO_COEFFS', 0, 0, '' )
-          END IF 
-      ELSE IF ( TSPEC .EQ. 'GAS' ) THEN 
-          ! Map to Generic Gas Species
-          ! First check the precursor array. This is default because if
-          ! the gas component IS an aerosol precursor (and the developer
-          ! doesn't know it), then it is important to map to the
-          ! precursor array because the value may have changed here
-          ! during the aero module and not be reflected in the cgrid
-          ! array
-          ISPEC = INDEX1( CSPEC, N_PRECURSOR, PRECURSOR(:)%NAME )
-
-          ! If it is a precursor gas
-          IF ( ISPEC .NE. 0 ) THEN
-             ! Reassign identity of this variable to the precursor array
-             ! and not the gas section of the cgrid array
-             ELMO_COEFFS( IDG )%L_PREC( IVAR ) = .TRUE.
-             ELMO_COEFFS( IDG )%L_GAS( IVAR )  = .FALSE.
-          ELSE
-             ! Then check the CGRID array
-             ELMO_COEFFS( IDG )%L_GAS( IVAR ) = .TRUE.
-             ISPEC = INDEX1( CSPEC, N_CGRID_SPC, CGRID_NAME(:) )
-          END IF
+      IF ( TSPEC .EQ. 'GAS' ) THEN 
+          ! Find the location of CSPEC in CGRID
+          ISPEC = INDEX1( CSPEC, N_CGRID_SPC, CGRID_NAME(:) )
  
           IF ( ISPEC .GT. 0 ) THEN
              ! Found the Index. Save it!
@@ -2236,12 +2195,11 @@
           COEFF = ELMO_COEFFS( IDG )%COEFF( IVAR )
 
           IF ( ISPEC .GT. 0 ) THEN
-             ! First check if this is a Precursor Gas
-             IF ( ELMO_COEFFS( IDG )%L_PREC( IVAR ) ) THEN
-                 VAL = VAL + REAL( PRECURSOR_CONC( ISPEC ), 4) * COEFF
-          
-             ! Next check if this is a Gas from CGRID
-             ELSE IF  ( ELMO_COEFFS( IDG )%L_GAS( IVAR ) ) THEN
+             ! First check if this is a Gas from CGRID. All species
+             ! labeled as Gas are assumed to be converted to mass units
+             ! using the air density AIRDENS and MW conversions lumped
+             ! into COEFF.
+             IF  ( ELMO_COEFFS( IDG )%L_GAS( IVAR ) ) THEN
                  VAL = VAL + CONC_VEC( ISPEC ) * COEFF * AIRDENS
 
              ! Next check for aggregate variable

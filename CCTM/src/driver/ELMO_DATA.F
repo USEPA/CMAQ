@@ -489,7 +489,6 @@ c:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
                                              !   ASO4 is being used.
             LOGICAL, ALLOCATABLE :: L_GAS(:)    ! Is this variable a gas?
             LOGICAL, ALLOCATABLE :: L_SPC(:)    ! Is this variable a CMAQ species?
-            LOGICAL, ALLOCATABLE :: L_PREC(:)   ! Is this variable a gas-phase precursor already in the aerosol module?
             LOGICAL, ALLOCATABLE :: L_AGG(:)    ! Is this variable another aggregated diagnostic parameter?
             LOGICAL, ALLOCATABLE :: L_MODE(:)   ! For which modes does this aggregate apply
             INTEGER, ALLOCATABLE :: I_SPEC(:)   ! Index of this Variable in Aerosol/Gas/Aggregate Array
