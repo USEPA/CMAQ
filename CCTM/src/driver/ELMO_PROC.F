@@ -3060,6 +3060,7 @@
      &                     MOMENT3_CONC, WET_AERO_DENS, AEROSPC_CONC,
      &                     AH2O_IDX, AEROSPC, CALC_AERODIST_PARAMS,
      &                     Extract_Aero
+      USE SOA_DEFN, ONLY : Extract_Soa
       USE AEROMET_DATA, ONLY: AIRRH, AIRTEMP, AIRQV, AIRDENS, AIRPRES,
      &                        SRFTEMP, H2OVP, H2OSATVP, MWWAT, MWAIR,
      &                        CFRAC, DZ, PV, ZH
@@ -3194,7 +3195,9 @@
  
          ! Extract Aerosols
          CALL EXTRACT_AERO( CGRID( C,R,L,: ), .TRUE. )
+         CALL EXTRACT_SOA( CGRID( C,R,L,: ) )
          
+
          ! Populate Diagnostic Arrays
          CALL LOAD_ELMO( C,R,L, CGRID(C,R,L,:), WRITE_STEP, INIT_STEP, INIT_TIME )
 
