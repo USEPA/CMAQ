@@ -65,11 +65,11 @@ NO              ,ppbV      ,1000.0*NO[1]
 NO2             ,ppbV      ,1000.0*NO2[1]
 NOX             ,ppbV      ,1000.0*(NO[1] + NO2[1])
 ANO3_PPB        ,ppbV      ,(ANO3I[1]+ANO3J[1]+ANO3K[1])/(DENS[2]*(62.0/28.97))
-NTR             ,ppbV      ,1000.0*(ONIT[1]+ISON[1]+TRPN[1]+NALD[1]), organic nitrates in RACM2
+NTR             ,ppbV      ,1000.0*(ONIT[1]+ISON[1]+IHN[1]+TRPN[1]), organic nitrates in RACM2
 PANS            ,ppbV      ,1000.0*(PAN[1]+PPN[1]+MPAN[1])
 NOY             ,ppbV      ,1000.0*(NO[1]+NO2[1]+NO3[1]+2*N2O5[1]+HONO[1] \
                                    +HNO3[1]+HNO4[1]+PAN[1]+PPN[1]+MPAN[1] \
-                                   +ISON[1]+TRPN[1]+ONIT[1]+NALD[1])+ANO3_PPB[0]
+                                   +ISON[1]+IHN[1]+TRPN[1]+ONIT[1])+ANO3_PPB[0]
 O3              ,ppbV      ,1000.0*O3[1]
 SO2             ,ppbV      ,1000.0*SO2[1]
 SO2_UGM3        ,ug m-3    ,1000.0*(SO2[1]*2.2118*DENS[2])
@@ -134,7 +134,9 @@ GROC             ,ppbC      ,1000.0*(2.0*ACD[1]+2.0*ACE[1] \
                                     +5.0*FURAN[1]+4.0*FURANONE[1]+2.0*GLY[1]+10.0*HOM[1] \
                                     +3.0*HC3[1]+5.0*HC5[1]+10.0*HC10[1]  \
                                     +1.0*HCHO[1]+3.0*HKET[1] \
-                                    +5.0*IEPOX[1]+5.0*ISHP[1]+5.0*ISO[1]+5.0*KET[1] \
+                                    +5.0*IEPOX[1]+5.0*ISHP[1]\
+                                    +5.0*IPN[1]+5.0*IHN[1]+5.0*IPC[1]\
+                                    +5.0*ISO[1]+5.0*KET[1] \
                                     +10.0*LIM[1]+10.0*LIMAL[1]+4.0*MACR[1]+4*MAHP[1] \
                                     +7.0*MCT[1]  \
                                     +4.0*MEK[1]+3.0*MGLY[1]+1.0*MOH[1]+4.0*MVK[1] \
@@ -147,7 +149,7 @@ GROC             ,ppbC      ,1000.0*(2.0*ACD[1]+2.0*ACE[1] \
                                     +7.0*TOL[1]+5.0*UALD[1] \
                                     +8.0*XYM[1]+8.0*XYE[1] \         \
                                     +2.0*PAA[1]+2.0*PAN[1]+3.0*PPN[1]+4.0*MPAN[1] \  
-                                    +4.0*ONIT[1]+2.0*NALD[1]+5.0*ISON[1]+10.0*TRPN[1] ) \ 
+                                    +4.0*ONIT[1]+5.0*ISON[1]+10.0*TRPN[1] ) \ 
                                     +SIGROC[0] ,
 !-------------------------------------------!
 !--------------- Particles -----------------!

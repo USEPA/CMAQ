@@ -116,8 +116,11 @@ GC_SPECIES_DATA =
 'ORAP'          , 91.0   ,''     ,-1     ,''     ,-1     ,''                 ,-1   ,''                ,-1  ,''             ,''        ,''    ,''    ,''    ,'Yes',!(carboxymethyl)peroxy,L,NA,[O]OCC(=O)O
 'PPN'           ,135.0   ,''     ,-1     ,''     ,-1     ,'VD_PPN'           , 1   ,'PPN'             , 1  ,''             ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',!Peroxypopionyl nitrate,E,DTXSID90206675,CCC(=O)OO[N+](=O)[O-]
 'MPAN'          ,147.1   ,''     ,-1     ,''     ,-1     ,'VD_MPAN'          , 1   ,'MPAN'            , 1  ,''             ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',!Peroxymethacryloyl nitrate,L,DTXSID10236878,O=N(=O)OOC(=O)C(=C)C
-'NALD'          ,105.0   ,''     ,-1     ,''     ,-1     ,'VD_NALD'          , 1   ,'2NITRO_1BUTNL'   , 1  ,''             ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',!1-(nitrooxy)acetaldehyde,E,NA,O=CCON(=O)=O
 'ISON'          ,147.0   ,''     ,-1     ,''     ,-1     ,'VD_ISON'          , 1   ,'2NITRO_1BUTNL'   , 1  ,'ISON'         ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',!2-methyl-2-(nitrooxy)but-3-en-1-ol,L,NA,OCC(C)(C=C)ON(=O)=O 
+'INO2'          ,161.0   ,''     ,-1     ,''     ,-1     ,'VD_PAN'          , 1   ,'2NITRO_1BUTNL'    , 1  ,''             ,''        ,''    ,''    ,''    ,'Yes',!
+'IHN'           ,147.0   ,''     ,-1     ,''     ,-1     ,'VD_PAN'          , 1   ,'2NITRO_1BUTNL'    , 1  ,''             ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',!
+'IPN'           ,163.0   ,''     ,-1     ,''     ,-1     ,'VD_PAN'          , 1   ,'2NITRO_1BUTNL'    , 1  ,''             ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',!
+'IPC'           ,163.0   ,''     ,-1     ,''     ,-1     ,''                , 1   ,''                , 1   ,''             ,''        ,''    ,''    ,''    ,'Yes',!
 'TRPN'          ,215.0   ,''     ,-1     ,''     ,-1     ,'VD_TRPN'          , 1   ,'2NITRO_1BUTNL'   , 1  ,'TRPN'         ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',!3-hydroxy-2;6;6-trimethylbicyclo[3.1.1]heptan-2-yl nitrate,L,NA,O=N(=O)OC1(C)C(O)CC2CC1C2(C)C
 'MCTP'          ,172.0   ,''     ,-1     ,''     ,-1     ,''                 ,-1   ,''                ,-1  ,''             ,''        ,''    ,''    ,''    ,'Yes',!C7H8O5 Biradical,L,NA,CC(/C=C\[C](O[O])O)=C/C(O)=O
 'OLNN'          ,136.0   ,''     ,-1     ,''     ,-1     ,''                 ,-1   ,''                ,-1  ,''             ,''        ,''    ,''    ,''    ,'Yes',![1-(nitrooxy)propan-2-yl]peroxy,L,NA,CC(O[O])CO[N+]([O-])=O
