@@ -115,7 +115,7 @@
 !    added one photolysis reaction (R014a), updated reaction products for R016 and R017
 !    updated photolysis rate coefficients for CH3COCH3, MEK, KET, ALD, HCHO
 !------------------------------------------------------------------------------ 
-CRACMM1_AQ
+CRACMM1AMORE_AQ
 
 ELIMINATE =
 XN;
