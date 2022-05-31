@@ -102,7 +102,22 @@ Information is based on the mech.def file.
 | ROCARO41   | TOL + HO ---->   0.820\*TOLP +    0.180\*CSL +    0.180\*HO2  |   1.81E-12e<sup>   354.00/T</sup> |   5.9337E-12 |
 | ROCARO51   | XYM + HO ---->   0.830\*XYMP +    0.170\*CSL +    0.170\*HO2  |   2.3300E-11 |   2.3300E-11 |
 | ROCARO61   | XYE + HO ---->   0.820\*XYEP +    0.180\*CSL +    0.180\*HO2  |   7.1600E-12 |   7.1600E-12 |
-| R086   | ISO + HO ----> ISOP  |   2.70E-11e<sup>   390.00/T</sup> |   9.9873E-11 |
+| RAM01   | ISO + O3 ---->   0.531\*MACR +    0.189\*MVK +    1.160\*HCHO +    0.250\*HO +    0.250\*HO2 +    0.080\*MO2 +    0.100\*ACO3 +    0.090\*H2O2 +    0.100\*MACP +    0.140\*CO +    0.280\*ORA1 +    0.150\*OLT  |   1.58E-14e<sup> -2000.00/T</sup> |   1.9293E-17 |
+| RAM02   | ISO + NO3 ----> INO2 +    0.300\*HCHO +    0.300\*NO2 +    0.300\*ISON  |   2.95E-12e<sup>  -450.00/T</sup> |   6.5214E-13 |
+| RAM03   | ISO + HO ----> ISOP +    0.020\*MO2  |   2.69E-11e<sup>   390.00/T</sup> |   9.9503E-11 |
+| RAM04   | ISOP + HO2 ----> ISHP +    0.600\*HO2 +    0.150\*HCHO  |   4.50E-13e<sup>  1300.00/T</sup> |   3.5224E-11 |
+| RAM05   | ISOP + NO ---->   0.140\*IHN +    0.700\*HCHO +    0.440\*MVK +    0.880\*HO2 +    0.780\*NO2 +    0.280\*MACR +    0.021\*GLY  |   2.70E-12e<sup>   350.00/T</sup> |   8.7334E-12 |
+| RAM06   | ISHP + HO ----> ISOP  |   4.60E-12e<sup>   200.00/T</sup> |   8.9967E-12 |
+| RAM07   | INO2 + HO2 ----> IPN + HO  |   3.14E-14e<sup>   580.00/T</sup> |   2.1967E-13 |
+| RAM08   | INO2 + NO ---->   0.900\*HCHO +    0.500\*MGLY +    0.800\*MVK +    0.500\*NO2 + HO2 +    0.200\*ISON +    0.100\*MO2  |   9.42E-16e<sup>   580.00/T</sup> |   6.5902E-15 |
+| RAM9   | IPN + HO2 ---->   0.800\*NO2 +    0.400\*HCHO +    0.050\*GLY +    0.100\*MGLY +    0.400\*MACR +    0.940\*MVK +    0.200\*ISON +    0.100\*MO2  |   3.40E-11e<sup>   390.00/T</sup> |   1.2577E-10 |
+| RAM10   | IHN + HO ----> ISON + HO +    0.200\*IEPOX  |   2.40E-07e<sup>   580.00/T</sup> |   1.6790E-06 |
+| RAM11   | ISHP + HO ---->   0.150\*HCHO +    0.050\*MGLY +    0.150\*MACR +    0.020\*GLY +    0.200\*MVK +    0.400\*NO2 +    0.050\*IPC +    0.580\*IEPOX +    0.800\*HO  |   2.97E-11e<sup>   390.00/T</sup> |   1.0986E-10 |
+| RAM12   | ISHP ---->   0.400\*HCHO +    0.100\*MGLY +    0.060\*ACO3  | HCHO_RAD_RACM2 | Not Available<sup>1</sup> | 
+| RAM13   | IPC + NO ---->   0.350\*NO2 +    0.800\*NO  |   1.0000E-10 |   1.0000E-10 |
+| RAM14   | ISON + HO ----> CO +    0.120\*NO2  |   5.0000E-11 |   5.0000E-11 |
+| RAM15   | ISON + NO3 ----> CO  |   2.0000E-14 |   2.0000E-14 |
+| RAM16   | IHN ----> HNO3 + ROH  |   2.3000E-05 |   2.3000E-05 |
 | R087   | API + HO ---->   0.975\*APIP1 +    0.025\*APIP2  |   1.21E-11e<sup>   440.00/T</sup> |   5.2930E-11 |
 | R088   | LIM + HO ---->   0.945\*LIMP1 +    0.055\*LIMP2  |   4.20E-11e<sup>   401.00/T</sup> |   1.6120E-10 |
 | TRP04   | PINAL + HO ---->   0.230\*PINALP +    0.770\*RCO3  |   5.20E-12e<sup>   600.00/T</sup> |   3.8903E-11 |
@@ -134,7 +149,6 @@ Information is based on the mech.def file.
 | R114   | OP2 + HO ---->   0.010\*HO +    0.440\*HC3P +    0.070\*XO2 +    0.080\*ALD +    0.410\*KET  |   3.40E-12e<sup>   190.00/T</sup> |   6.4304E-12 |
 | TRP06   | OPB + HO ---->   0.010\*HO +    0.440\*HC10P +    0.070\*XO2 +    0.080\*ALD +    0.410\*KET  |   3.40E-12e<sup>   190.00/T</sup> |   6.4304E-12 |
 | R114a   | OP3 + HO ---->   0.010\*HO +    0.440\*HC10P +    0.070\*XO2 +    0.080\*ALD +    0.410\*KET  |   3.40E-12e<sup>   190.00/T</sup> |   6.4304E-12 |
-| R115   | ISHP + HO ----> HO + MACR +    0.904\*IEPOX  |   1.0000E-10 |   1.0000E-10 |
 | R116   | MAHP + HO ----> MACP  |   3.0000E-11 |   3.0000E-11 |
 | R117   | ORA1 + HO ----> HO2  |   4.5000E-13 |   4.5000E-13 |
 | R118   | ORA2 + HO ---->   0.640\*MO2 +    0.360\*ORAP  |   4.00E-14e<sup>   850.00/T</sup> |   6.9214E-13 |
@@ -144,12 +158,9 @@ Information is based on the mech.def file.
 | R122   | MPAN + HO ----> NO2 + HKET  |   3.2000E-11 |   3.2000E-11 |
 | R123   | ONIT + HO ----> HC3P + NO2  |   5.31E-12e<sup>  -260.00/T</sup> |   2.2201E-12 |
 | TRP07   | TRPN + HO ----> HOM  |   4.8000E-12 |   4.8000E-12 |
-| R124   | NALD + HO ----> NO2 + XO2 + HKET  |   5.60E-12e<sup>   270.00/T</sup> |   1.3851E-11 |
-| R125   | ISON + HO ----> NALD +    0.070\*HKET +    0.070\*HCHO  |   1.3000E-11 |   1.3000E-11 |
 | R126   | ETE + O3 ---->   0.080\*HO +    0.150\*HO2 +    0.430\*CO + HCHO +    0.370\*ORA1  |   9.14E-15e<sup> -2580.00/T</sup> |   1.5953E-18 |
 | R127   | OLT + O3 ---->   0.220\*HO +    0.320\*HO2 +    0.080\*MO2 +    0.060\*ETHP +    0.040\*HC3P +    0.020\*HC5P +    0.068\*H2O2 +    0.430\*CO +    0.020\*ETH +    0.015\*HC3 +    0.006\*HC5 +    0.032\*BEN +    0.560\*HCHO +    0.010\*ACD +    0.440\*ALD +    0.030\*ACT +    0.020\*BALD +    0.060\*MEK +    0.010\*HKET +    0.030\*ORA1 +    0.060\*ORA2  |   4.33E-15e<sup> -1800.00/T</sup> |   1.0341E-17 |
 | R128   | OLI + O3 ---->   0.460\*HO +    0.070\*HO2 +    0.320\*MO2 +    0.070\*ETHP +    0.040\*HC3P +    0.090\*ACO3 +    0.370\*CO +    0.026\*H2O2 +    0.010\*ETH +    0.010\*HC3 +    0.090\*HCHO +    0.457\*ACD +    0.730\*ALD +    0.110\*ACT +    0.017\*KET +    0.044\*HKET +    0.017\*ORA2  |   4.40E-15e<sup>  -845.00/T</sup> |   2.5858E-16 |
-| R130   | ISO + O3 ---->   0.250\*HO +    0.250\*HO2 +    0.080\*MO2 +    0.100\*ACO3 +    0.100\*MACP +    0.090\*H2O2 +    0.140\*CO +    0.580\*HCHO +    0.461\*MACR +    0.189\*MVK +    0.280\*ORA1 +    0.153\*OLT  |   7.86E-15e<sup> -1913.00/T</sup> |   1.2850E-17 |
 | R131   | API + O3 ---->   0.900\*HO +    0.900\*APIP1 +    0.050\*APIP2 +    0.050\*PINAL +    0.050\*H2O2 +    0.140\*CO  |   5.00E-16e<sup>  -530.00/T</sup> |   8.4519E-17 |
 | R132   | LIM + O3 ---->   0.840\*HO +    0.840\*LIMP1 +    0.110\*LIMP2 +    0.050\*LIMAL +    0.050\*H2O2 +    0.140\*CO  |   2.95E-15e<sup>  -783.00/T</sup> |   2.1344E-16 |
 | TRP08   | LIMAL + O3 ---->   0.040\*HO +    0.670\*HC10P +    0.790\*HCHO +    0.330\*KET +    0.040\*HO2 +    0.200\*CO  |   8.3000E-18 |   8.3000E-18 |
@@ -164,7 +175,6 @@ Information is based on the mech.def file.
 | R141   | ETE + NO3 ---->   0.800\*OLNN +    0.200\*OLND  |   4.39E-13e<sup> -2282.00/T</sup>(T/300)<sup>  2.00 </sup> |   2.0571E-16 |
 | R142   | OLT + NO3 ---->   0.430\*OLNN +    0.570\*OLND  |   1.79E-13e<sup>  -450.00/T</sup> |   3.9570E-14 |
 | R143   | OLI + NO3 ---->   0.110\*OLNN +    0.890\*OLND  |   8.64E-13e<sup>   450.00/T</sup> |   3.9084E-12 |
-| R145   | ISO + NO3 ----> ISON  |   3.03E-12e<sup>  -446.00/T</sup> |   6.7887E-13 |
 | R146   | API + NO3 ---->   0.975\*APINP1 +    0.025\*APINP2  |   1.19E-12e<sup>   490.00/T</sup> |   6.1560E-12 |
 | R147   | LIM + NO3 ---->   0.945\*LIMNP1 +    0.055\*LIMNP2  |   1.2200E-11 |   1.2200E-11 |
 | TRP10   | TRPN + NO3 ----> HOM  |   3.15E-14e<sup>  -448.00/T</sup> |   7.0104E-15 |
@@ -198,7 +208,6 @@ Information is based on the mech.def file.
 | ROCARO43   | TOLP + NO ---->   0.000\*ONIT +    0.001\*VROCP4OXY2 +    0.001\*VROCN1OXY6 +    0.998\*NO2 +    0.998\*HO2 +    0.085\*BALD +    0.548\*GLY +    0.365\*MGLY +    0.365\*FURANONE +    0.548\*DCB1  |   2.70E-12e<sup>   360.00/T</sup> |   9.0313E-12 |
 | ROCARO53   | XYMP + NO ---->   0.000\*ONIT +    0.001\*VROCP3OXY2 +    0.001\*VROCP0OXY4 +    0.998\*NO2 +    0.998\*HO2 +    0.048\*BALD +    0.703\*GLY +    0.247\*MGLY +    0.351\*FURANONE +    0.598\*DCB2  |   2.70E-12e<sup>   360.00/T</sup> |   9.0313E-12 |
 | ROCARO63   | XYEP + NO ---->   0.000\*ONIT +    0.001\*VROCP3OXY2 +    0.001\*VROCP0OXY4 +    0.998\*NO2 +    0.998\*HO2 +    0.085\*BALD +    0.548\*GLY +    0.365\*MGLY +    0.456\*FURANONE +    0.456\*DCB2  |   2.70E-12e<sup>   360.00/T</sup> |   9.0313E-12 |
-| R188   | ISOP + NO ---->   0.880\*HO2 +    0.880\*NO2 +    0.200\*HCHO +    0.280\*MACR +    0.440\*MVK +    0.120\*ISON +    0.021\*GLY +    0.029\*HKET +    0.027\*ALD  |   2.43E-12e<sup>   360.00/T</sup> |   8.1282E-12 |
 | R189   | APIP1 + NO ---->   0.820\*HO2 +    0.820\*NO2 +    0.820\*PINAL +    0.180\*TRPN  |   4.0000E-12 |   4.0000E-12 |
 | TRP13   | APIP2 + NO ---->   0.820\*HO +    0.820\*NO2 + HOM  |   4.0000E-12 |   4.0000E-12 |
 | TRP14   | APINP1 + NO ---->   2.000\*NO2 + PINAL  |   4.0000E-12 |   4.0000E-12 |
@@ -241,7 +250,6 @@ Information is based on the mech.def file.
 | ROCARO42   | TOLP + HO2 ---->   0.720\*OP2 +    0.281\*VROCN1OXY6  |   2.91E-13e<sup>  1300.00/T</sup> |   2.2778E-11 |
 | ROCARO52   | XYMP + HO2 ---->   0.048\*OP2 +    0.675\*OP3 +    0.277\*VROCP0OXY4  |   2.91E-13e<sup>  1300.00/T</sup> |   2.2778E-11 |
 | ROCARO62   | XYEP + HO2 ---->   0.085\*OP2 +    0.634\*OP3 +    0.281\*VROCP0OXY4  |   2.91E-13e<sup>  1300.00/T</sup> |   2.2778E-11 |
-| R228   | ISOP + HO2 ----> ISHP  |   2.05E-13e<sup>  1300.00/T</sup> |   1.6046E-11 |
 | R229   | APIP1 + HO2 ----> OPB  |   1.5000E-11 |   1.5000E-11 |
 | TRP21   | APIP2 + HO2 ----> HOM  |   1.5000E-11 |   1.5000E-11 |
 | TRP22   | APINP1 + HO2 ----> TRPN  |   1.5000E-11 |   1.5000E-11 |
@@ -394,7 +402,7 @@ Information is based on the mech.def file.
 | TRP50   | LIMNP2 + APIP1 ---->   0.960\*HOM +    0.480\*ROH +    0.480\*PINAL +    0.480\*NO2 +    0.480\*HO2 +    0.040\*ELHOM  |   1.0000E-10 |   1.0000E-10 |
 | TRP51   | LIMNP2 + LIMP1 ---->   0.960\*HOM +    0.480\*ROH +    0.480\*LIMAL +    0.480\*NO2 +    0.480\*HO2 +    0.040\*ELHOM  |   1.0000E-10 |   1.0000E-10 |
 | TRP52   | LIMNP2 + ISOP ---->   0.960\*HOM +    0.480\*ROH +    0.480\*HCHO +    0.480\*MVK +    0.480\*NO2 +    0.480\*HO2 +    0.040\*ELHOM  |   1.0000E-10 |   1.0000E-10 |
-| SA14   | IEPOX + HO ----> HO  |   5.78E-11e<sup>  -400.00/T</sup> |   1.5110E-11 |
+| RAM17   | IEPOX + HO ----> HO  |   5.78E-11e<sup>  -400.00/T</sup> |   1.5110E-11 |
 | R001c   | VROCIOXY + HO ---->   0.852\*ETHP +    0.149\*ASOATJ  |   6.8900E-12 |   6.8900E-12 |
 | R002c   | SLOWROC + HO ----> ETHP +    0.001\*ASOATJ  |   6.5500E-14 |   6.5500E-14 |
 | T17   | ACRO + HO ---->   0.570\*MACP +    0.430\*MCP  |   8.00E-12e<sup>   380.00/T</sup> |   2.8616E-11 |
