@@ -371,7 +371,6 @@ C-----------------------------------------------------------------------
       USE PRECURSOR_DATA
       USE SOA_DEFN
       USE ELMO_DATA
-      USE ELMO_PROC
       USE CENTRALIZED_IO_MODULE
 
       IMPLICIT NONE

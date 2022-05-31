@@ -3061,6 +3061,7 @@
      &                     AH2O_IDX, AEROSPC, CALC_AERODIST_PARAMS,
      &                     Extract_Aero
       USE SOA_DEFN, ONLY : Extract_Soa
+      USE AEROSOL_CHEMISTRY, ONLY: HETCHEM_RATES
       USE AEROMET_DATA, ONLY: AIRRH, AIRTEMP, AIRQV, AIRDENS, AIRPRES,
      &                        SRFTEMP, H2OVP, H2OSATVP, MWWAT, MWAIR,
      &                        CFRAC, DZ, PV, ZH
@@ -3069,7 +3070,7 @@
 
       IMPLICIT NONE
 
-      REAL, INTENT( IN )    :: CGRID( :,:,:,: ) ! Master concentration grid
+      REAL, POINTER         :: CGRID( :,:,:,: ) ! Master concentration grid
       INTEGER, INTENT( IN ) :: JDATE, JTIME     ! Date and time inputs to 
                                                 ! determine whether to write 
                                                 ! concentrations
@@ -3169,8 +3170,10 @@
       ! between the heights of the layer bottom and top.
       call interpolate_var ('ZH', jdate, jtime, ZHS)
 
-      ! Process PM Diagnostics for Base Model
+      ! Calculate Heterogeneous Chemistry Rates
+      CALL HETCHEM_RATES( TA, PRES, QV, CGRID, DENS )
 
+      ! Process PM Diagnostics for Base Model
       DO C = 1,NCOLS
       DO R = 1,NROWS
       DO L = 1,NLAYS
@@ -3197,7 +3200,6 @@
          CALL EXTRACT_AERO( CGRID( C,R,L,: ), .TRUE. )
          CALL EXTRACT_SOA( CGRID( C,R,L,: ) )
          
-
          ! Populate Diagnostic Arrays
          CALL LOAD_ELMO( C,R,L, CGRID(C,R,L,:), WRITE_STEP, INIT_STEP, INIT_TIME )
 
