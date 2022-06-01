@@ -26,14 +26,17 @@
             
             CHARACTER( 300 ), ALLOCATABLE ::  DELTA_ATOMS  ( : )
             LOGICAL,          ALLOCATABLE ::  NONZERO_DELTA( :,: )
-            
-            INTERFACE CONVERT_NUMBER
+     
+            INTERFACE CONVERT_NUMBER                     ! convert number to text with real(4) with decimals            
                 MODULE PROCEDURE CONVERT_REAL4,
      &                           CONVERT_REAL8,
      &                           CONVERT_INTEGER                
             END INTERFACE
+            INTEGER, PARAMETER :: PRECISION_CONVERT = 4      ! number of decimal places CONVERT_NUMBER
+            REAL(4), PARAMETER :: OFF_SET           = 5.0D-7 ! rounding parameter in CONVERT_NUMBER 
+
             
-            LOGICAL, PARAMETER :: AE_NML_V53 = .FALSE.
+            LOGICAL, PARAMETER :: AE_NML_V53 = .TRUE.
             
          CONTAINS
 
@@ -798,40 +801,51 @@
                
                CHARACTER( 16 ) :: COEFF_STRING
                
-               LOGICAL  :: EFLAG 
+               LOGICAL       :: EFLAG 
+               LOGICAL, SAVE :: FIRSTCALL = .TRUE.
                
                EFLAG = .FALSE.
-                  
-               ALLOCATE( REACTION_DELTA(NRXNS,N_ATOMS),
-     &                   DELTA_ATOMS(NRXNS),
-     &                   NONZERO_DELTA(NRXNS,N_ATOMS))   
                
-               REACTION_DELTA  = 0.0
+                  
+               IF( FIRSTCALL )THEN
+               
+                   ALLOCATE( REACTION_DELTA(NRXNS,N_ATOMS),
+     &                       DELTA_ATOMS(NRXNS),
+     &                       NONZERO_DELTA(NRXNS,N_ATOMS))   
+                   
+                   REACTION_DELTA  = 0.0
+                   NONZERO_DELTA   = .FALSE.
+                   DELTA_ATOMS     = ' '
+               
+               END IF
+
                DELTA_ATOMS     = ' '
-               NONZERO_DELTA   = .FALSE.
+               
                
                DO IRXN = 1, NRXNS                 
                   DO IATOM = 1, N_ATOMS
-                     REACTION_DELTA(IRXN,IATOM) = 0.0
-                     DO IREACT = 1,3
-                        IF( IRR(IRXN,IREACT) .GT. 0 )THEN
-                            REACTION_DELTA(IRXN,IATOM) = REACTION_DELTA(IRXN,IATOM)
-     &                                                 - MECH_SPECIES_ATOMS( IRR(IRXN,IREACT),IATOM )
-                        END IF 
-                     END DO
-                     DO IPRODUCT = 1,MAXPRODS
-                        IF( IRR(IRXN,IPRODUCT+3) .GT. 0 )THEN
-                            REACTION_DELTA(IRXN,IATOM) = REACTION_DELTA(IRXN,IATOM)
-     &                                                 + SC(IRXN,IPRODUCT)*MECH_SPECIES_ATOMS( IRR(IRXN,IPRODUCT+3),IATOM )
+                     IF( FIRSTCALL )THEN
+                        REACTION_DELTA(IRXN,IATOM) = 0.0
+                        DO IREACT = 1,3
+                           IF( IRR(IRXN,IREACT) .GT. 0 )THEN
+                               REACTION_DELTA(IRXN,IATOM) = REACTION_DELTA(IRXN,IATOM)
+     &                                                    + MECH_SPECIES_ATOMS( IRR(IRXN,IREACT),IATOM )
+                           END IF 
+                        END DO
+                        DO IPRODUCT = 1,MAXPRODS
+                           IF( IRR(IRXN,IPRODUCT+3) .GT. 0 )THEN
+                               REACTION_DELTA(IRXN,IATOM) = REACTION_DELTA(IRXN,IATOM)
+     &                                                    - SC(IRXN,IPRODUCT)*MECH_SPECIES_ATOMS( IRR(IRXN,IPRODUCT+3),IATOM )
+                           END IF
+                        END DO
+                        IF( ABS( REACTION_DELTA(IRXN,IATOM) ) .LE. 9.99999E-8 )THEN
+                            REACTION_DELTA(IRXN,IATOM) = 0.0
                         END IF
-                     END DO
-                     IF( ABS( REACTION_DELTA(IRXN,IATOM) ) .LE. 9.99999E-8 )THEN
-                         REACTION_DELTA(IRXN,IATOM) = 0.0
-                     END IF
+                     END IF  
                      IPOS1 = LEN_TRIM( DELTA_ATOMS(IRXN) ) + 1
                      IPOS2 = IPOS1 + 23
-                     IF( REACTION_DELTA(IRXN,IATOM) .GT. 1.0E-7 )THEN
-!                        WRITE(DELTA_ATOMS(IRXN)(IPOS1:IPOS2),'(" + ",F10.7,"*DELTA_",A," ")')
+                     IF( REACTION_DELTA(IRXN,IATOM) .GT. 0.0 )THEN
+!                        WRITE(DELTA_ATOMS(IRXN)(IPOS1:IPOS2),'(" + ",F7.4,"*DELTA_",A," ")')
 !     &                  REACTION_DELTA(IRXN,IATOM),TRIM(ATOMS(IATOM))
                         COEFF_STRING = CONVERT_NUMBER(ABS(REACTION_DELTA(IRXN,IATOM)))
                         WRITE(DELTA_ATOMS(IRXN)(IPOS1:IPOS2),'(" + ",A,"*DELTA_",A," ")')
@@ -848,15 +862,18 @@
                   END DO
                END DO
 
-               DO IATOM = 1,N_ATOMS
-                  IF( MAXVAL( ABS( REACTION_DELTA( :,IATOM ) ) ) .GT. 0.0 )THEN
-                      print*,ATOMS(IATOM),' is present among mechanism species: ',MAXVAL( ABS( REACTION_DELTA( :,IATOM ) ) )
-                      ATOM_FOUND( IATOM ) = .TRUE.
-                      NONZERO_ATOMS       = .TRUE.
-                  ELSE
-                      ATOM_FOUND(IATOM) = .FALSE.  
-                  END IF
-               END DO
+               IF( FIRSTCALL )THEN
+                  DO IATOM = 1,N_ATOMS
+                     IF( MAXVAL( ABS( REACTION_DELTA( :,IATOM ) ) ) .GT. 0.0 )THEN
+                         print*,ATOMS(IATOM),' is present among mechanism species: ',MAXVAL( ABS( REACTION_DELTA( :,IATOM ) ) )
+                         ATOM_FOUND( IATOM ) = .TRUE.
+                         NONZERO_ATOMS       = .TRUE.
+                     ELSE
+                         ATOM_FOUND(IATOM) = .FALSE.  
+                     END IF
+                  END DO
+                  FIRSTCALL = .FALSE.
+               END IF
              
             END SUBROUTINE REACTION_DELTA_ATOMS
          SUBROUTINE READ_SPECIES_ATOMS()
@@ -1370,6 +1387,12 @@
                INTEGER  :: IPRODUCT
                REAL     :: REACTION_BALANCE
                
+               LOGICAL, SAVE :: WRITTEN = .FALSE.
+               
+               IF( WRITTEN )RETURN
+               
+               IF( IRXN .GE. NRXNS ) WRITTEN = .TRUE.
+               
                DO IATOM = N_ATOMS,1,-1
                   IF( ATOM_FOUND( IATOM ) )THEN
                      REACTION_BALANCE = 0.0
@@ -1377,21 +1400,21 @@
                      DO IREACT = 1,3
                         IF( IRR(IRXN,IREACT) .GT. 0 )THEN
                             REACTION_BALANCE = REACTION_BALANCE
-     &                                       - MECH_SPECIES_ATOMS( IRR(IRXN,IREACT),IATOM )
-                            WRITE(IUNIT,'(A,F6.3,"*",A)',ADVANCE='NO')' - ',MECH_SPECIES_ATOMS( IRR(IRXN,IREACT),IATOM ),
+     &                                       + MECH_SPECIES_ATOMS( IRR(IRXN,IREACT),IATOM )
+                            WRITE(IUNIT,'(A,F6.3,"*",A)',ADVANCE='NO')' + ',MECH_SPECIES_ATOMS( IRR(IRXN,IREACT),IATOM ),
      &                      TRIM(ATOMS(IATOM) )                           
                         END IF 
                      END DO
                      DO IPRODUCT = 1,MAXPRODS
                         IF( IRR(IRXN,IPRODUCT+3) .GT. 0 )THEN
                             REACTION_BALANCE = REACTION_BALANCE
-     &                                       + SC(IRXN,IPRODUCT)*MECH_SPECIES_ATOMS( IRR(IRXN,IPRODUCT+3),IATOM )
+     &                                       - SC(IRXN,IPRODUCT)*MECH_SPECIES_ATOMS( IRR(IRXN,IPRODUCT+3),IATOM )
                             IF( SC(IRXN,IPRODUCT) .GT. 0.0 )THEN
-                               WRITE(IUNIT,'(A,F6.3,"*",F10.7,"*",A)',ADVANCE='NO')' + ', 
+                               WRITE(IUNIT,'(A,F6.3,"*",F10.7,"*",A)',ADVANCE='NO')' - ', 
      &                         MECH_SPECIES_ATOMS( IRR(IRXN,IPRODUCT+3),IATOM ),SC(IRXN,IPRODUCT),
      &                         TRIM(ATOMS(IATOM))
                             ELSE
-                               WRITE(IUNIT,'(A,F6.3,"*",F10.7,"*",A)',ADVANCE='NO')' - ', 
+                               WRITE(IUNIT,'(A,F6.3,"*",F10.7,"*",A)',ADVANCE='NO')' + ', 
      &                         MECH_SPECIES_ATOMS( IRR(IRXN,IPRODUCT+3),IATOM ),SC(IRXN,IPRODUCT),
      &                         TRIM(ATOMS(IATOM))
                             END IF
@@ -1412,16 +1435,21 @@
                INTEGER         :: IPOS
                INTEGER         :: IPOS_DOT
                
-               WRITE(WORD,'(F14.9)')ABS( NUMBER ) ! + 1.0E-8
+               IF( PRECISION_CONVERT .LE. 6 )THEN
+                   WRITE(WORD,'(F14.9)')ABS( NUMBER ) + OFF_SET
+               END IF
+               
                WORD = ADJUSTL( WORD )
-               IPOS_DOT = INDEX(WORD,".",BACK=.TRUE.)+2
-               DO
-                 IPOS = LEN_TRIM( WORD )
-                 IF( WORD(IPOS:IPOS) .NE. '0' )EXIT
-                 IPOS = IPOS-1
-                 IF( IPOS .LE. IPOS_DOT )EXIT
-                 WORD = WORD(1:IPOS)
-               END DO
+               IPOS_DOT = INDEX(WORD,".",BACK=.TRUE.)+PRECISION_CONVERT
+               WORD = WORD(1:IPOS_DOT)
+               RETURN
+!               DO
+!                 IPOS = LEN_TRIM( WORD )
+!                 IF( WORD(IPOS:IPOS) .NE. '0' )EXIT
+!                 IPOS = IPOS-1
+!                 IF( IPOS .LE. IPOS_DOT .OR. IPOS .GT. IPOS_DOT )EXIT                 
+!                 WORD = WORD(1:IPOS)
+!               END DO
                            
             END FUNCTION CONVERT_REAL4
             FUNCTION CONVERT_REAL8( NUMBER ) RESULT( WORD )
@@ -1434,17 +1462,22 @@
                INTEGER         :: IPOS
                INTEGER         :: IPOS_DOT
                
-               WRITE(WORD,'(F14.9)')ABS( REAL(NUMBER,4) ) ! + 1.0E-8
+               IF( PRECISION_CONVERT .LE. 6 )THEN
+                   WRITE(WORD,'(F14.9)')ABS( NUMBER ) + OFF_SET
+               END IF
+
                WORD = ADJUSTL( WORD )
-               IPOS_DOT = INDEX(WORD,".",BACK=.TRUE.)+2
-               DO
-                 IPOS = LEN_TRIM( WORD )
-                 IF( WORD(IPOS:IPOS) .NE. '0' )EXIT
-                 IPOS = IPOS-1
-                 IF( IPOS .LE. IPOS_DOT )EXIT
-                 IPOS = INDEX(WORD,"0",BACK=.TRUE.)-1
-                 WORD = WORD(1:IPOS)
-               END DO
+               IPOS_DOT = INDEX(WORD,".",BACK=.TRUE.)+PRECISION_CONVERT
+               WORD = WORD(1:IPOS_DOT)
+               RETURN
+!               DO
+!                 IPOS = LEN_TRIM( WORD )
+!                 IF( WORD(IPOS:IPOS) .NE. '0' )EXIT
+!                 IPOS = IPOS-1
+!                 IF( IPOS .LE. IPOS_DOT .OR. IPOS .GT. IPOS_DOT )EXIT                 
+!                 IPOS = INDEX(WORD,"0",BACK=.TRUE.)-1
+!                 WORD = WORD(1:IPOS)
+!               END DO
                            
             END FUNCTION CONVERT_REAL8
             FUNCTION CONVERT_INTEGER( NUMBER ) RESULT( WORD )
@@ -1456,17 +1489,22 @@
                CHARACTER( 16 ) :: WORD
                INTEGER         :: IPOS
                INTEGER         :: IPOS_DOT
-               
-               WRITE(WORD,'(F14.9)')ABS( REAL(NUMBER,4) )
+
+               IF( PRECISION_CONVERT .LE. 6 )THEN
+                   WRITE(WORD,'(F14.9)')ABS( NUMBER ) + OFF_SET
+               END IF
+
                WORD = ADJUSTL( WORD )
-               IPOS_DOT = INDEX(WORD,".",BACK=.TRUE.)+2
-               DO
-                 IPOS = LEN_TRIM( WORD )
-                 IF( WORD(IPOS:IPOS) .NE. '0' )EXIT
-                 IPOS = IPOS-1
-                 IF( IPOS .LE. IPOS_DOT )EXIT
-                 WORD = WORD(1:IPOS)
-               END DO
+               IPOS_DOT = INDEX(WORD,".",BACK=.TRUE.)+PRECISION_CONVERT
+               WORD = WORD(1:IPOS_DOT)
+               RETURN
+!               DO
+!                 IPOS = LEN_TRIM( WORD )
+!                 IF( WORD(IPOS:IPOS) .NE. '0' )EXIT
+!                 IPOS = IPOS-1
+!                 IF( IPOS .LE. IPOS_DOT .OR. IPOS .GT. IPOS_DOT+5 )EXIT                 
+!                 WORD = WORD(1:IPOS)
+!               END DO
                            
             END FUNCTION CONVERT_INTEGER
 

@@ -109,9 +109,37 @@ When _NAMELISTS\_LIST\_ATOMS_ equals true, the model species namelists give the 
 | DTXSID | Label identifies the species in Distributed Structure-Searchable Toxicity database of the US EPA | Also found at the US EPA's CompTox Chemistry Dashboard |
 | SMILES | Character String describing the chemical structure and composition | **Upper case required for determining elemental composition** | 
 
-When _NAMELISTS\_LIST\_ATOMS_ equals False, an ASCII file defined by the ATOMS_FILE environment variable contains the information in comma deliminated format. The file gives the information in one of two ways. One way, a SMILES table, uses the content listed in Table 2. The second way, a brakedown table, brakes down each chemistry species versus elements listed in the ATOM_FILE's header line as in Figure 1. Different ATOMS_FILEs can list different number and order of chemical elements.
+When _NAMELISTS\_LIST\_ATOMS_ equals False, an ASCII file defined by the ATOMS_FILE environment variable contains the information in comma deliminated format. The file gives the information in one of two ways. One way, a SMILES table, uses the content listed in Table 2 and is illustrated in Figure 1.
 
-<center> Figure 1. ATOMS_FILE using a species brakedown table </center>
+<center> Figure 1. ATOMS_FILE using a SMILES table </center>
+
+     !species information 
+     SPECIES       ,RepCmp,ExplicitorLumped,DTXSID,SMILES
+     O3            ,Ozone,E,DTXSID0021098,[O-][O+]=O
+     O3P           ,Ground state oxygen,E,DTXSID00170378,[O]
+     O1D           ,Excited oxygen,E,DTXSID00170378,[O]
+     H2O2          ,Hydrogen peroxide,E,DTXSID2020715,OO
+     HO            ,Hydroxyl radical,E,NA,[OH]
+     NO2           ,Nitrogen dioxide,E,DTXSID7020974,N(=O)[O]
+     NO            ,Nitric oxide,E,DTXSID1020938,[N]=O
+     NO3           ,Nitrate radical,E,NA,[O]N(=O)=O
+     HONO          ,Nitrous acid,E,DTXSID7064813,N(=O)O
+     HNO3          ,Nitric acid,E,DTXSID5029685,[N+](=O)(O)[O-]
+     HNO4          ,Hydroxy nitrate,E,DTXSID201030501,[N+](=O)([O-])OO
+     HO2           ,Hydroperoxy,E,DTXSID30894777,O[O-] 
+     HCHO          ,Formaldehyde,E,DTXSID7020637,C=O
+     CO            ,Carbon monoxide,E,DTXSID5027273,[C-]#[O+]
+     ACD           ,Acetaldehyde,E,DTXSID5039224,CC=O
+     MO2           ,Methylperoxy,E,DTXSID10944007,CO[O]
+     ALD           ,Propanal,L,DTXSID2021658,CCC=O
+     ETHP          ,Ethylperoxy,L,DTXSID90953652,CCO[O]
+     ACT           ,Acetone,E,DTXSID8021482,CC(C)=O
+     ACO3          ,Acetylperoxy,E,DTXSID40957943,CC(=O)O[O]
+
+
+The second way, a brakedown table, brakes down each chemistry species versus elements listed in the ATOM_FILE's header line as in Figure 1. Different ATOMS_FILEs can list different number and order of chemical elements.
+
+<center> Figure 2. ATOMS_FILE using a species brakedown table </center>
 
     Species     ,      N,  S, CL
     NO2         ,   1.0, 0.0,0.0

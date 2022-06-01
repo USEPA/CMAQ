@@ -915,8 +915,6 @@ C Set CGRID mechanism
 !           IF ( .NOT. CGRID_SPCS_INIT() ) THEN
            IF ( .NOT. MAP_CCTM_SPECIES() ) THEN
                STOP 'Error in CGRID_SPCS:CGRID_SPCS_INIT'
-           ELSE
-               PRINT*,'Computed CGRID species and indices'
            END IF
        ELSE
            SPECIES_TYPE = 'GC'
@@ -1015,16 +1013,16 @@ C functions block
       CALL WRT_RATE_CONSTANT( NR, IP, NS, SPCLIS, LABEL  )
       
       CLOSE( EXUNIT_SPCS )
+      CLOSE(COPY_MECHANISM)
+      IF( CALC_DELTA_ATOMS )THEN
+          CALL ECHO_MECH( IMECH,N_DROP_SPC,DROP_SPC  )
+      END IF
       CALL WRT_KPP_INPUTS( NR, IP, LABEL, NS  )
       CALL WRT_WIKI_TABLE( NR, IP, LABEL, NS  )
       CALL WRT_MD_SUBTABLE( NR, IP, LABEL, NS  )
       CALL WRT_CSV_TABLE( NR, IP, LABEL, NS  )
       CALL WRT_HTML_TABLE( NR, IP, LABEL, NS  )
       CALL WRT_FOAM_TABLES( NR, IP, LABEL, NS  )
-      CLOSE(COPY_MECHANISM)
-      IF( CALC_DELTA_ATOMS )THEN
-          CALL ECHO_MECH( IMECH,N_DROP_SPC,DROP_SPC  )
-      END IF
       CLOSE( IMECH )
 
 

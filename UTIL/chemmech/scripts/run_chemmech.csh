@@ -119,13 +119,17 @@ set echo
 
 #> Rewrite mechanism definitions file to append reactions with changes in
 #> tracked atoms
+if ( ! $?COMPUTE_DELTA_ATOMS ) then
  setenv COMPUTE_DELTA_ATOMS F
+endif
 
 #> For atoms composing mechanism species, read comment trailing species definitions 
 #>  in species namelists. If NAMELISTS_LIST_ATOMS is False and COMPUTE_DELTA_ATOMS 
 #> is True, read species atoms from an additional input file defined by the
 #> the environment variable ATOMS_FILE
+if ( ! $?NAMELISTS_LIST_ATOMS ) then
  setenv NAMELISTS_LIST_ATOMS T
+endif
  
 #> get name of user to tag html output file
  setenv NAME ` getent passwd $USER | cut -d : -f 5 | cut -d ";"  -f 1 `
