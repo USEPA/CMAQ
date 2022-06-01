@@ -3211,16 +3211,16 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
             ISPC = IRR( NXX, IPRODUCT + 3 )
             IF ( ABS( SC( NXX,IPRODUCT ) ) .NE. 1.0 ) THEN
                IF ( SC( NXX,IPRODUCT ) .LT. 0 ) THEN
-                  WRITE(TABLE_UNIT,'(A,F8.3,3A)', ADVANCE = 'NO')
+                  WRITE(TABLE_UNIT,'(A,F9.4,3A)', ADVANCE = 'NO')
      &           '- ',ABS(SC( NXX,IPRODUCT )),MD_MULTIPLE,TRIM(SPARSE_SPECIES( ISPC )),' '
                   ICOUNT = ICOUNT + 12 + LEN( SPARSE_SPECIES( ISPC ) )
                ELSE
                   IF( IPRODUCT .EQ. 1 )THEN
-                     WRITE(TABLE_UNIT,'(F8.3, 3A)', ADVANCE = 'NO')
+                     WRITE(TABLE_UNIT,'(F9.4, 3A)', ADVANCE = 'NO')
      &               SC( NXX,IPRODUCT ),MD_MULTIPLE,TRIM(SPARSE_SPECIES( ISPC )),' '
                      ICOUNT = ICOUNT + 10 + LEN( SPARSE_SPECIES( ISPC ) )
                   ELSE
-                     WRITE(TABLE_UNIT,'(A,F8.3,3A)', ADVANCE = 'NO')
+                     WRITE(TABLE_UNIT,'(A,F9.4,3A)', ADVANCE = 'NO')
      &               '+ ',SC( NXX,IPRODUCT ),MD_MULTIPLE,TRIM(SPARSE_SPECIES( ISPC )),' '
                      ICOUNT = ICOUNT + 12 + LEN( SPARSE_SPECIES( ISPC ) )
                   END IF
@@ -3562,6 +3562,7 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
       USE GET_ENV_VARS
       USE MECHANISM_DATA
+      USE SPECIES_ATOMS_DATA
       
       IMPLICIT NONE
 
@@ -3587,6 +3588,7 @@ c..local Variables for steady-state species
       INTEGER, EXTERNAL :: INDEX1
       INTEGER            :: LPOINT, IEOL
       INTEGER            :: I, ICOL, ISPC, IRX, IDX
+      INTEGER            :: IATOM
       INTEGER            :: NXX, IPR, IPHOTAB, NC
       INTEGER            :: DUMMY_COEF( MAXRXNUM )               ! Yields for the DUMMY variable in each reaction
       INTEGER            :: SS1RX( MAXNLIST )                    ! First reaction occurrence for each SS species
@@ -3643,7 +3645,10 @@ c..Variables for species to be dropped from mechanism
 
       INTEGER, EXTERNAL :: JUNIT
       INTEGER            :: ICOUNT, IREACT, IPRODUCT
+      
+      LOGICAL, SAVE     :: WRITE_DELTA_ATOMS = .FALSE.
 
+     
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C Create name for output file
@@ -3668,10 +3673,19 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       BOTTOM_UP_UNIT = JUNIT()
       OPEN ( UNIT = BOTTOM_UP_UNIT, FILE = BOTTOM_UP_FILE, STATUS = 'UNKNOWN'  )
 ! 
-      WRITE(TABLE_UNIT, 69099)TRIM(MECHNAME_LOWER_CASE),NUMB_MECH_SPCS,NR,TRIM( AUTHOR )
+      IF( ALLOCATED( DELTA_ATOMS ) )THEN
+          WRITE_DELTA_ATOMS = .TRUE.
+          ICOUNT = COUNT(ATOM_FOUND)
+      ELSE
+          ICOUNT = 0
+      END IF 
+
+      WRITE(TABLE_UNIT, 69099)TRIM(MECHNAME_LOWER_CASE),(NUMB_MECH_SPCS+ICOUNT),NR,
+     &                        TRIM( AUTHOR )
       WRITE(JTABLE_UNIT,95200)TRIM(MECHNAME),TRIM(MECHNAME_LOWER_CASE),TRIM(MECHNAME_LOWER_CASE)
       WRITE(KTABLE_UNIT,95300)TRIM(MECHNAME),TRIM(MECHNAME_LOWER_CASE),NHETERO
       CALL CALCULATE_RATES( NR )
+      
 
       IF( .NOT. ALLOCATED( IOLD2NEW ) )THEN
          ALLOCATE( IOLD2NEW( NUMB_MECH_SPCS ), STAT = IOS )
@@ -3791,21 +3805,48 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       DO IDX = ISPC, NUMB_MECH_SPCS 
          WRITE(TABLE_UNIT,'(A)',ADVANCE='NO')"'" // TRIM(MECHANISM_SPC(IDX)) // "'; "
       END DO
-      ISPC = 0
-      DO I = 1, (N_DROP_SPC/5)
-         DO IDX = 1, 5
-            ISPC = ISPC + 1
-            WRITE(TABLE_UNIT,'(A)',ADVANCE='NO')"'" // TRIM(DROP_SPC(ISPC)) // "'; "
-         END DO
-         WRITE(TABLE_UNIT,'(A)')'...'
-      END DO
-      ISPC=ISPC+1
-      DO IDX = ISPC, N_DROP_SPC
-         WRITE(TABLE_UNIT,'(A)',ADVANCE='NO')"'" // TRIM(DROP_SPC(IDX)) // "'; "
-      END DO
+!      ISPC = 0
+!      DO I = 1, (N_DROP_SPC/5)
+!         DO IDX = 1, 5
+!            ISPC = ISPC + 1
+!            WRITE(TABLE_UNIT,'(A)',ADVANCE='NO')"'" // TRIM(DROP_SPC(ISPC)) // "'; "
+!         END DO
+!         WRITE(TABLE_UNIT,'(A)')'...'
+!      END DO
+!      ISPC=ISPC+1
+!      DO IDX = ISPC, N_DROP_SPC
+!         WRITE(TABLE_UNIT,'(A)',ADVANCE='NO')"'" // TRIM(DROP_SPC(IDX)) // "'; "
+!      END DO
+       IF( WRITE_DELTA_ATOMS )THEN
+          ISPC = 0
+          ICOL = 0
+          WRITE(TABLE_UNIT,'(A)')'...'
+          DO IATOM = 1,MAX(1,N_ATOMS/5)
+             DO IDX = 1, 5
+                ISPC = ISPC + 1
+                IF( ATOM_FOUND( ISPC ) )THEN
+                  ICOL = ICOL + 1
+                  WRITE(TABLE_UNIT,'(A,"; GG")',ADVANCE='NO')TRIM( "'DELTA_" // TRIM( ATOMS(ISPC)) )// "'"
+                  IF( MOD( ICOL,5 ) .EQ. 0 )THEN
+                     WRITE(TABLE_UNIT,'(A)')'...'
+                     CYCLE
+                  END IF
+                ELSE
+                END IF
+             END DO
+             IF( ISPC .EQ. N_ATOMS )EXIT
+          END DO
+          ISPC=ISPC+1
+          DO IDX = ISPC, N_ATOMS 
+             IF( .NOT. ATOM_FOUND( IDX ) )CYCLE
+             WRITE(TABLE_UNIT,'(A,"; ")',ADVANCE='NO')TRIM( "'DELTA_" // TRIM( ATOMS(IDX)) )// "'"
+          END DO
+      END IF
+
       WRITE(TABLE_UNIT,'(A,//)')'};'
       WRITE(TABLE_UNIT,'(A,//)')'AddSpecies'
             
+
       DO NXX = 1, NSPECIAL
          WRITE(TABLE_UNIT,'(A,A)', ADVANCE = 'NO' )' * ',TRIM(SPECIAL( NXX ) )
          FIRST_TERM = .TRUE.
@@ -3947,7 +3988,11 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 !                WRITE(TABLE_UNIT, * )' '
 !                WRITE(TABLE_UNIT,'(A16)', ADVANCE = 'NO')' '
 !            END IF
-         END DO 
+         END DO
+         IF( WRITE_DELTA_ATOMS )THEN
+             WRITE(TABLE_UNIT,'(3A)', ADVANCE = 'NO')TRIM( DELTA_ATOMS(NXX) )
+             ICOUNT = ICOUNT + LEN_TRIM( DELTA_ATOMS(NXX) ) 
+         END IF
          WRITE(TABLE_UNIT,'(A)')"';"
 
 
@@ -4116,15 +4161,30 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          DO IPRODUCT = 1, NPRDCT( NXX )
             ISPC = IRR( NXX, IPRODUCT + 3 )
             IF(SC(NXX,IPRODUCT) .GT. 0.0)THEN
-                WRITE(TABLE_UNIT,'(A,F7.3,A)', ADVANCE = 'NO')
+                WRITE(TABLE_UNIT,'(A,F8.4,A)', ADVANCE = 'NO')
      &          "f" // TRIM(SPARSE_SPECIES( ISPC )) // "(i)=f" // TRIM(SPARSE_SPECIES( ISPC )) // "(i)+",
      &           SC(NXX,IPRODUCT),";"
             ELSE
-                WRITE(TABLE_UNIT,'(A,F7.3,A)', ADVANCE = 'NO')
+                WRITE(TABLE_UNIT,'(A,F8.4,A)', ADVANCE = 'NO')
      &          "f" // TRIM(SPARSE_SPECIES( ISPC )) // "(i)=f" // TRIM(SPARSE_SPECIES( ISPC )) // "(i)-",
      &           ABS(SC(NXX,IPRODUCT)),";"
             END IF
          END DO
+         IF( WRITE_DELTA_ATOMS )THEN
+             DO IATOM = 1, N_ATOMS
+                IF( NONZERO_DELTA(NXX,IATOM) )THEN
+                   IF( REACTION_DELTA(NXX,IATOM) .GT. 0.0)THEN
+                       WRITE(TABLE_UNIT,'(A,F8.4,A)', ADVANCE = 'NO')
+     &                    "fDELTA_" // TRIM(ATOMS(IATOM)) // "(i)=fDELTA_" // TRIM(ATOMS(IATOM)) // "(i)+",
+     &                     REACTION_DELTA(NXX,IATOM),";"
+                   ELSE
+                       WRITE(TABLE_UNIT,'(A,F8.4,A)', ADVANCE = 'NO')
+     &                    "fDELTA_" // TRIM(ATOMS(IATOM)) // "(i)=fDELTA_" // TRIM(ATOMS(IATOM)) // "(i)-",
+     &                     ABS(REACTION_DELTA(NXX,IATOM)),";"
+                   END IF
+                END IF
+             END DO
+         END IF         
          WRITE(TABLE_UNIT,'(/)')
       END DO
       DO IDX = 1,NPHOTAB
