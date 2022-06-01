@@ -193,6 +193,8 @@ REACTIONS[CM] =
                                        + ALD          # 1.0/<OP1_RACM2>;
 <TRP03> OPB                = HO        + HO2
                                        + ALD          # 1.0/<OP1_RACM2>;
+<R029a> OP3                = HO        + HO2
+                                       + ALD          # 1.0/<OP1_RACM2>;
 <R030>  PAA                = HO        + MO2          # 1.0/<PAA_RACM2>;
 <R031>  ONIT               = HO2       + NO2
                                        + 0.20*ALD 
@@ -330,6 +332,10 @@ REACTIONS[CM] =
                                         + 0.08*ALD 
                                         + 0.41*KET    # 3.40E-12 @ -190.0;
 <TRP06> OPB  + HO          = 0.01*HO    + 0.44*HC10P
+                                        + 0.07*XO2
+                                        + 0.08*ALD
+                                        + 0.41*KET    # 3.40E-12 @ -190.0;
+<R114a> OP3  + HO          = 0.01*HO    + 0.44*HC10P
                                         + 0.07*XO2
                                         + 0.08*ALD
                                         + 0.41*KET    # 3.40E-12 @ -190.0;
@@ -1373,7 +1379,7 @@ REACTIONS[CM] =
                                       + 3.66*XC  # 1.34E-14@2283.;
 < T12>  BDE13 + NO3        = 0.900*OLNN 
                                       + 0.100*OLND 
-                                      + 0.900*MACR  # 1E-13;
+                                      + 0.900*ACRO  # 1E-13;
 
 ! Furans based on 5 species aggregate using  Wang et al. JGR 2021, Schwantes, and Coggon
 ! Use RACM2 o-xylene RO2+HO2, RACM2 (same as MCM) RO2+NO rate constants
