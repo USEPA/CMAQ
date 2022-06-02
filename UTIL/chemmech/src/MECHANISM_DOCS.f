@@ -3822,11 +3822,11 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
           ICOL = 0
           WRITE(TABLE_UNIT,'(A)')'...'
           DO IATOM = 1,MAX(1,N_ATOMS/5)
-             DO IDX = 1, 5
+             DO IDX = 1, MIN(1,N_ATOMS)
                 ISPC = ISPC + 1
                 IF( ATOM_FOUND( ISPC ) )THEN
                   ICOL = ICOL + 1
-                  WRITE(TABLE_UNIT,'(A,"; GG")',ADVANCE='NO')TRIM( "'DELTA_" // TRIM( ATOMS(ISPC)) )// "'"
+                  WRITE(TABLE_UNIT,'(A,"; ")',ADVANCE='NO')TRIM( "'DELTA_" // TRIM( ATOMS(ISPC)) )// "'"
                   IF( MOD( ICOL,5 ) .EQ. 0 )THEN
                      WRITE(TABLE_UNIT,'(A)')'...'
                      CYCLE
