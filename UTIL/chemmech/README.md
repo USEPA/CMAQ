@@ -76,7 +76,7 @@ Outputs includes two FORTRAN 90 modules, RXNS_DATA_MODULE.F90 and RXNS_FUNCTION.
 
 Besides the species namelists, executing the CCTM requires a CSQY_DATA\_**mechanism-name** file containing cross-sections and quantum yields for the photolysis rates used by the mechanism. The _inline_phot_preproc_ utility creates file by using the data module. Check the subdirectory containing this utility for more information. 
 
-If a user wants to use a gas chemistry solver faster than Rosenbrock or Gear, they have to create a Euler Backward Interative (EBI) solver (Hertel et al., 1993) for the photochemical mechanism. The _create\_ebi_ utility creates an EBI solver specific to a photochemical mechanism by using its data module. Check this utility’s subdirectory for more information.
+If a user wants to use a gas chemistry solver faster than Rosenbrock or Gear, they have to create a Euler Backward Interative (EBI) solver (Hertel et al., 1993) for the photochemical mechanism. The _create\_ebi_ utility creates an EBI solver specific to a photochemical mechanism by using its data module. Check this utility's subdirectory for more information.
 
 ### Output Files for F0AM Box Modeling <a name="Output Files for F0AM Box Modeling"></a>
 
@@ -158,7 +158,7 @@ The second way, a brakedown table, brakes down each chemistry species versus ele
             
 ## Chemical Reactions Input Format <a name="Chemical Reactions Input Format"></a>
 
-A mech.def file follows formatting rules based on Gery and Grouse (1990) and Jeffries (1990) but the rules have evolved along with the CMAQ model.  The file consists six sequential blocks: a mechanism name, operator definitions, an ignored species list, the reactions list, constant and functions definitions. Only the reaction list is required. Blocks after the mechanism name begin with the respective key words, SPECIAL, ELIMINATE, REACTIONS, CONSTANT, and FUNCTIONS. These blocks terminate with “END” or “end” (case sensitive). Their content also follows the below rules and use the same elements to define information.
+A mech.def file follows formatting rules based on Gery and Grouse (1990) and Jeffries (1990) but the rules have evolved along with the CMAQ model.  The file consists six sequential blocks: a mechanism name, operator definitions, an ignored species list, the reactions list, constant and functions definitions. Only the reaction list is required. Blocks after the mechanism name begin with the respective key words, SPECIAL, ELIMINATE, REACTIONS, CONSTANT, and FUNCTIONS. These blocks terminate with Â“ENDÂ” or Â“endÂ” (case sensitive). Their content also follows the below rules and use the same elements to define information.
 
 Each block will be discussed separately below but first the discussion lists rules and elements for entering the mechanism data.
 
@@ -169,13 +169,13 @@ Each block will be discussed separately below but first the discussion lists rul
 * Data lines can wrap around (i.e., entries can be continued on a subsequent line after a hard return).  
 * Lines beginning with an exclamation point contain a comment line.  
 * Data lines cannot contain a comment line.   
-* Text enclosed by “{}” or “()” contain comments within a data line.
+* Text enclosed by Â“{}Â” or Â“()Â” contain comments within a data line.
 
 ### Defining Elements. <a name="Defining Elements"></a>
 
 1.  Species Types and Naming Rules.  
     1.  Constants species whose names and volume mixing ratio are fixed. Names include M (any molecule in the atmosphere), O2 (oxygen), CH4 (methane), H2 (hydrogen), N2 (nitrogen), and H2O (water vapor).  Reactions use constant species to calculate rate constants by including them as reactants. Their names cannot be used to represent other species.  
-    2.  Model species are produced or destroyed by the mechanism’s reactions. Species namelist define them. Their names satisfy the below rules.  
+    2.  Model species are produced or destroyed by the mechanismÂ’s reactions. Species namelist define them. Their names satisfy the below rules.  
         1.   Do not contain blanks and can be up to 16 characters long. However, the maximum length is recommended to equal 13 if the mechanism is to be used in the DDM version of the CMAQ model.  
         2.   Must begin with an alphabetic character but may contain any alphanumeric character (i.e., "A-Z," "a-z," and "0-9") or the characters ":" and "\_" after the first position.  
         3.   Changing case changes the species so NO2 and no2 represent two different model species.  
@@ -246,7 +246,7 @@ This key word followed by an equal sign lists products used in reactions that ar
 
 #### REACTIONS. <a name="REACTIONS"></a>
 
-The key word proceeds the list of reactions in the mechanism. Only the first four characters (i.e., REAC) are actually required. The key word is followed closed brackets and an equal sign. The bracket’s enclosure indicates units for rate constants. Allowed enclosures "PP" and "CM," ppm-min units and molecule-cc-sec units, respectively. Either enclosure is case insensitive. A delimiter is not required after the equal sign but a "hard return" after the entry is suggested for clarity of the input file. Examples of valid inputs include the following:
+The key word proceeds the list of reactions in the mechanism. Only the first four characters (i.e., REAC) are actually required. The key word is followed closed brackets and an equal sign. The bracketÂ’s enclosure indicates units for rate constants. Allowed enclosures "PP" and "CM," ppm-min units and molecule-cc-sec units, respectively. Either enclosure is case insensitive. A delimiter is not required after the equal sign but a "hard return" after the entry is suggested for clarity of the input file. Examples of valid inputs include the following:
 
                            REAC[PP]=
                            RE ACTIONS [CM]=
@@ -255,13 +255,13 @@ The key word proceeds the list of reactions in the mechanism. Only the first fou
 
 Individual reactions lines consist of the following: 1) an optional label, 2) up to 3 reactants 3) an equal sign (=) to separate reactants from products, 4) up to 40 products with optional numerical coefficients, 5) a reaction rate constant in one of the prescribed formats, and 6) an ending semicolon (;). Because line wrapping is allowed, a single reaction can span multiple lines in the input file. A reaction has the below generic format where brackets denotes optional content.
 
-            [<label>]    reac1,[+reac2[+reac3]] = [±[p,*]prod1, [±[p2*]prod2 [... ± [p3*]prod3]]]  RKI;
+            [<label>]    reac1,[+reac2[+reac3]] = [Â±[p,*]prod1, [Â±[p2*]prod2 [... Â± [p3*]prod3]]]  RKI;
 
-•	label names the reaction    
-•	reacn defines the nth reactant                                           
-•	prodn defines the nth product   
-•	pn gives the stoichiometric coefficient of the nth product   
-•	RKI defines type and parameters of the rate constant   
+Â•	label names the reaction    
+Â•	reacn defines the nth reactant                                           
+Â•	prodn defines the nth product   
+Â•	pn gives the stoichiometric coefficient of the nth product   
+Â•	RKI defines type and parameters of the rate constant   
 
 Each of the components of the reaction is described below:
 
@@ -271,7 +271,7 @@ A reaction can have a maximum number of three reactants. Stoichiometric coeffici
 
 Products consist species names separated by plus (+) or minus (-) signs with optional numerical coefficients. As noted above, a reaction can have up to 40 products. Stoichiometric coefficients use the number formats mentioned above and must be separated from the species names by an asterisk(*).
 
-Rate constant parameters begin with either a # sign or the expression, "%s#", where s equal 1, 2, 3, or H. The following characters and numbers specify parameters to calculate the reaction’s rate constant. Table 2 defines formats corresponding to the available formulas. A semi-colon (;) denote the end of a reaction’s definition.   
+Rate constant parameters begin with either a # sign or the expression, "%s#", where s equal 1, 2, 3, or H. The following characters and numbers specify parameters to calculate the reactionÂ’s rate constant. Table 2 defines formats corresponding to the available formulas. A semi-colon (;) denote the end of a reactionÂ’s definition.   
 
 <center>  Table 3.  </center>
 
@@ -389,7 +389,7 @@ If errors occur at running CHEMMECH, check the _Compiling and debugging CHEMMECH
 
 Damian V., Sandu A., Damian M., Potra F., Carmichael G.R. (2002). The kinetic preprocessor KPP - A software environment for solving chemical kinetics. Computers and Chemical Engineering,  26(11) , pp. 1567-1579.
 
-Gery, M.W. and Crouse, R.R. (1990) User’s Guide for Executing OZIPR,” EPA/6008-90, U.S. Enivironmental Protection Agency, Research Trianlge Park, 27711, NC.
+Gery, M.W. and Crouse, R.R. (1990) UserÂ’s Guide for Executing OZIPR,Â” EPA/6008-90, U.S. Enivironmental Protection Agency, Research Trianlge Park, 27711, NC.
 
 Hertel O., Berkowicz R., Christensen J., and Hov O. (1993).  Test of Two Numerical Schemes for Use in Atmospheric Transport-Chemistry Models. Atmospheric Environment, Vol. 27A, No. 16, 2591-2661.
 
