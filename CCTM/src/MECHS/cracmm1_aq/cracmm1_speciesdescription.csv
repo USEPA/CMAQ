@@ -213,7 +213,7 @@ OP3,Semivolatile organic peroxide
 IEPOXP,IEPOX intermediate (tracking species)
 ATRPN,TRPN and its hydrolysis products
 AISON,ISON and its hydrolysis products
-IHN:Isoprene-derived hydroxy nitrates
-INO2:Isoprene nitrate-derived peroxy radicals
-IPN:Isoprene-derived peroxy nitrates
-IPC:Isoprene-derived hydroperoxyenals (HPALD)
+IHN,Isoprene-derived hydroxy nitrates
+INO2,Isoprene nitrate-derived peroxy radicals
+IPN,Isoprene-derived peroxy nitrates
+IPC,Isoprene-derived hydroperoxyenals (HPALD)
