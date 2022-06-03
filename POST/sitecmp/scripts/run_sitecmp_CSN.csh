@@ -78,7 +78,7 @@
  setenv AERO_8 "88320+88321,ug/m3,AOCIJ+AECIJ,,TC"    # Total Carbon
      
  #> PM2.5 Sharp Cutoff Species
- #> Requires preprocessing using setenv CCTM_APMDIAG file
+ #> Requires preprocessing using setenv CCTM_AELMO file
   setenv AERO_9 "SO4,ug/m3, PM25_SO4,,PM25_SO4"                    # sulfate (sharp cutoff)
   setenv AERO_10 "NO3,ug/m3, PM25_NO3,,PM25_NO3"                   # nitrate (sharp cutoff)
   setenv AERO_11 "NH4,ug/m3, PM25_NH4,,PM25_NH4"                   # ammonium (sharp cutoff)

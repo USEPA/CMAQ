@@ -261,6 +261,7 @@
 
 ! availability of various variable
         logical :: CFRAC_3D_AVAIL = .true.,  ! CFRAC_3D is available or not
+     &             PV_AVAIL       = .false., ! Potential Vorticity is available or not
      &             TSEASFC_AVAIL  = .false., ! SST is available or not
      &             WSPD10_AVAIL,             ! WSPD10 is available or not
      &             UWINDC_AVAIL,             ! UWINDC is available in DOT file or not
@@ -640,6 +641,7 @@
           c3d_name(:,3) = 'm'    ! denote met variable
 
           CFRAC_3D_AVAIL = (INDEX1( 'CFRAC_3D', NVARS3D, VNAME3D ) .gt. 0)
+          PV_AVAIL       = (INDEX1( 'PV', NVARS3D, VNAME3D ) .gt. 0)
           QI_AVAIL       = (INDEX1( 'QI', NVARS3D, VNAME3D ) .gt. 0)
           QS_AVAIL       = (INDEX1( 'QS', NVARS3D, VNAME3D ) .gt. 0)
           QG_AVAIL       = (INDEX1( 'QG', NVARS3D, VNAME3D ) .gt. 0)

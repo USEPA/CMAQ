@@ -28,8 +28,8 @@ In this section, details on the routine CCTM output files are provided. All CMAQ
 |[CCTM_MEDIA](#media)<a id=media_t></a>|GRDDED3|Hourly Instantaneous|XY
 |[CCTM_SOILOUT](#soilout) <a id=soilout_t></a>|GRDDED3|n/a (see detailed file description below)|XY
 |**Diagnostic and Advanced**| | | |
-|[CCTM_PMDIAG](#pmdiag) <a id=pmdiag_t></a>|GRDDED3|Hourly Instantaneous|XYZ'
-|[CCTM_APMDIAG](#apmdiag) <a id=apmdiag_t></a>|GRDDED3|Hourly Averaged|XYZ'
+|[CCTM_ELMO](#ELMO) <a id=ELMO_t></a>|GRDDED3|Hourly Instantaneous|XYZ'
+|[CCTM_AELMO](#aELMO) <a id=aELMO_t></a>|GRDDED3|Hourly Averaged|XYZ'
 |[CCTM_B3GTS_S](#b3gts) <a id=b3gts_t></a>|GRDDED3|Hourly Instantaneous| XY
 |[CCTM_DEPV](#depv) <a id=depv_t></a>|GRDDED3|Hourly Instantaneous|XY
 |[CCTM_PT3D](#pt3d) <a id=pt3d_t></a>|GRDDED3|Hourly Instantaneous|XYZ
@@ -49,7 +49,7 @@ In this section, details on the routine CCTM output files are provided. All CMAQ
 
 <sup>1</sup>By default, output files are named CCTM_XXX_${CTM_APPL}.nc where XXX is the file identifier and ${CTM_APPL} is a user defined string that identifies the model run.   
 <sup>2</sup>While "Hourly" is indicated, users may define a different time step (e.g., 30 minutes) for model output by changing the TSTEP variable in the runscript. Hourly Instantaneous represents the model value at the exact model output time step.  Hourly Averaged values represent the average model values for the 60 minutes beginning with the model output time step.  Hourly Cumulative represent the cumulative (summed) model values for the 60 minutes ending at the model output time step.  
-<sup>3</sup>X is the dimension along the x-axis, Y is the dimension along the y-axis, Z is the vertical dimension, Z' is the user pre-defined size of the vertical dimension controlled by the environment variables CONC_BLEV_ELEV, ACONC_BLEV_ELEV, APMDIAG_BLEV_ELEV, and NLAYS_PHOTDIAG (range from 1 to all layers) and W is a non-layer dimension, e.g. number of LU fractions, number of sites for vertical extraction.    
+<sup>3</sup>X is the dimension along the x-axis, Y is the dimension along the y-axis, Z is the vertical dimension, Z' is the user pre-defined size of the vertical dimension controlled by the environment variables CONC_BLEV_ELEV, ACONC_BLEV_ELEV, AELMO_BLEV_ELEV, and NLAYS_PHOTDIAG (range from 1 to all layers) and W is a non-layer dimension, e.g. number of LU fractions, number of sites for vertical extraction.    
 <sup>4</sup>A special ASCII output file, FLOOR_xxx with xxx being the processor number, contains information when a simulation results in negative concentrations. 
 
 ## 7.2 CCTM Output Files
@@ -180,27 +180,27 @@ Installation instructions for I/O API v5.3-large are provided in README.txt in t
 
 This optional ASCII file contains specific gridcells/timesteps in which species with negative concentrations are reset to zero. The location and name of the file is set by the FLOOR_FILE environment variable.
 
-<a id=pmdiag></a>
+<a id=ELMO></a>
 
-**CCTM_PMDIAG: instantaneous hourly aerosol diagnostics file**
+**CCTM_ELMO: instantaneous hourly aerosol diagnostics file**
 <!-- BEGIN COMMENT -->
-[Return to Table 7-1](#pmdiag_t)
+[Return to Table 7-1](#ELMO_t)
 <!-- END COMMENT -->
 
 This optional 2-D or 3-D CCTM diagnostic file contains instantaneous information at the end of the hour for each model hour on the geometric mean diameters, geometric standard deviations, bulk densities, 2nd moments and 3rd moments for the lognormal modes. 
 It also includes the fraction of each mode that contributes to PM1, PM2.5, and PM10 and the AMS transmission factor for each mode. Many diagnostics relating to heterogenous chemistry are provided including the N<sub>2</sub>O<sub>5</sub> reaction probability, 
-the ClNO<sub>2</sub> reaction yield, and the IEPOX uptake coefficient. Units for all variables are specified in the output file. The number of layers in this output file is determined by the setting of the CONC_BLEV_ELEV environment variable in the RunScript. This file is only created if the CTM_APMDIAG environment variable in the RunScript is set to Y (Default is N).
+the ClNO<sub>2</sub> reaction yield, and the IEPOX uptake coefficient. Units for all variables are specified in the output file. The number of layers in this output file is determined by the setting of the CONC_BLEV_ELEV environment variable in the RunScript. This file is only created if the CTM_AELMO environment variable in the RunScript is set to Y (Default is N).
 
-<a id=apmdiag></a>
+<a id=aELMO></a>
 
-**CCTM_APMDIAG: average hourly aerosol diagnostics file**
+**CCTM_AELMO: average hourly aerosol diagnostics file**
 <!-- BEGIN COMMENT -->
-[Return to Table 7-1](#apmdiag_t)
+[Return to Table 7-1](#aELMO_t)
 <!-- END COMMENT -->
 
 This optional 2-D or 3-D CCTM diagnostic file contains integral average information for each model hour on the geometric mean diameters, geometric standard deviations, bulk densities, 2nd moments and 3rd moments for the lognormal modes. 
 It also includes the fraction of each mode that contributes to PM1, PM2.5, and PM10 and the AMS transmission factor for each mode. Many diagnostics relating to heterogenous chemistry are provided including the N<sub>2</sub>O<sub>5</sub> reaction probability, 
-the ClNO<sub>2</sub> reaction yield, and the IEPOX uptake coefficient. Units for all variables are specified in the output file. The number of layers in this output file is determined by the setting of the APMDIAG_BLEV_ELEV environment variable in the RunScript. This file is only created if the CTM_APMDIAG environment variable in the RunScript is set to Y (Default is N).
+the ClNO<sub>2</sub> reaction yield, and the IEPOX uptake coefficient. Units for all variables are specified in the output file. 
 
 <a id=b3gts></a>
 

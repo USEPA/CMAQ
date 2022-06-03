@@ -106,6 +106,8 @@ C-----------------------------------------------------------------------
       USE RXNS_DATA             ! chemical mechanism data
       USE BUDGET_DEFN
       USE AERO_DATA
+      USE ELMO_DATA, ONLY : L_ELMO
+      USE ELMO_PROC, ONLY : ELMO_DRIVER, WRITE_ELMO, MAP_ELMO
 #ifdef mpas
       USE CGRID_SPCS            ! CGRID mechanism species
       USE HGRD_DEFN, ONLY: MYPE
@@ -503,6 +505,9 @@ C and Emission Stream Families
 C Initiliaze IO Arrays and Open Files
          call centralized_io_init
 
+C Initialize ELMO Arrays and Maps
+         call map_elmo
+
 C Initialize conc field: Copy IC's to CONC file as step 0
 C Convention: the input file concentration units are always ppmV.
          CALL INITSCEN ( CGRID, TSTEP )
@@ -566,8 +571,8 @@ C Verify input file header consistency and run duration
 
         call setfile (EMIS_1)
 
-        if (pmdiag) then
-           call fcreate (CTM_PMDIAG_1, io_mode)
+        if (ELMO) then
+           call fcreate (CTM_ELMO_1, io_mode)
         end if
 
         call fcreate (CTM_DRY_DEP_1, io_mode)
@@ -693,6 +698,24 @@ C Get synchronization and advection time steps, TSTEP(2), ASTEP(L) and NREPS
       END IF
 #endif
 
+C Compute ELMO Values at Beginning of Main Time Step
+      IF ( L_ELMO ) THEN
+        IF ( JDATE .EQ. STDATE .AND. JTIME .EQ. STTIME ) THEN
+             
+             ! Calculate all ELMO variables for both Instantaneous and
+             ! Average parameters
+             CALL ELMO_DRIVER( CGRID, JDATE, JTIME, TSTEP,
+     &                         INIT_TIME=.TRUE., INIT_STEP=.TRUE. )
+             ! Print Instantaneous Values at first time step
+             CALL WRITE_ELMO( JDATE, JTIME, TSTEP, INIT_TIME=.TRUE. )
+
+        ELSE
+             ! Calculate all ELMO Variables for averaging but do not output them
+             CALL ELMO_DRIVER( CGRID, JDATE, JTIME, TSTEP,
+     &                         INIT_TIME=.FALSE., INIT_STEP=.TRUE. )
+        END IF
+      END IF
+
 C Initialize Budget Output File and Concentration Array
       IF ( BUDGET_DIAG ) CALL BUDGET_INIT( CGRID, JDATE, JTIME, TSTEP )
 
@@ -702,7 +725,7 @@ C science process sequence:
 
       DO IREP = 1, NREPS
 
-            CALL SCIPROC ( CGRID, JDATE, JTIME, TSTEP, ASTEP )
+         CALL SCIPROC ( CGRID, JDATE, JTIME, TSTEP, ASTEP )
 
 #ifndef mpas
 C Use trapezoidal rule to time-average data
@@ -728,24 +751,27 @@ C Use trapezoidal rule to time-average data
      &      AVG_PRES( :,:,: ) = AVG_PRES + 2.0 * MET_DATA%PRES( :,:,ACONC_BLEV:ACONC_ELEV )
 
 #ifdef isam
-            ! average isam
-            DO ITAG = 1, NTAG_SA
-               DO V = 1, NSPC_SA
-                  L = 0
-                  DO K = AISAM_BLEV, AISAM_ELEV
-                     L = L + 1
-                     DO R = 1, NROWS
-                        DO C = 1, NCOLS
-                           AISAM( C,R,L,V,ITAG ) = AISAM( C,R,L,V,ITAG )
-     &                                           + 2.0 * ISAM( C,R,K,V,ITAG )
-                        END DO
+         ! average isam
+         DO ITAG = 1, NTAG_SA
+            DO V = 1, NSPC_SA
+               L = 0
+               DO K = AISAM_BLEV, AISAM_ELEV
+                  L = L + 1
+                  DO R = 1, NROWS
+                     DO C = 1, NCOLS
+                        AISAM( C,R,L,V,ITAG ) = AISAM( C,R,L,V,ITAG )
+     &                                        + 2.0 * ISAM( C,R,K,V,ITAG )
                      END DO
                   END DO
                END DO
             END DO
+         END DO
 #endif
 
 #endif
+         ! OUTPUT DIAGNOSTIC INFORMATION
+         IF ( L_ELMO ) CALL ELMO_DRIVER( CGRID, JDATE, JTIME, TSTEP, 
+     &                      INIT_TIME=.FALSE., INIT_STEP=.FALSE. )
 
       END DO
 
@@ -820,6 +846,8 @@ C write conc fields
 #ifdef sens
          CALL WR_ASENS ( JDATE, JTIME, TSTEP( 1 ) )
 #endif
+         IF ( L_ELMO ) CALL WRITE_ELMO( JDATE, JTIME, TSTEP, INIT_TIME=.FALSE. )
+
          IF ( LIPR .OR. LIRR ) CALL PA_OUTPUT ( CGRID, JDATE, JTIME )
          IF ( BUDGET_DIAG ) CALL WRITE_BUDGET ( CGRID, JDATE, JTIME, TSTEP )
          IF ( PRINT_PROC_TIME ) CALL TIMING_SPLIT ( CPU_TIME_START, 3 )
