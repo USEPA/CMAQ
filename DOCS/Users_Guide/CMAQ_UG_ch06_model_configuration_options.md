@@ -710,7 +710,7 @@ Refer to the [README.md](../../CCTM/src/MECHS/README.md) under CCTM/src/MECHS fo
 Chemical mechanisms available with CMAQv5.3 can be found in [Table 6-3](#Table6-3). Atmospheric chemistry mechanisms of varying complexity are available to support diverse applications across scales and explore extensions for emerging problems and contaminants.
 
 <a id=Table6-3></a>
-**Table 6-3. Chemical Mechanisms Available with CMAQv5.3** 
+**Table 6-3. Chemical Mechanisms Available with CMAQv5.4** 
 
 |**Mechanism Name** | **Comment** |
 | ----------------- | ---------------------------------------------------- |
