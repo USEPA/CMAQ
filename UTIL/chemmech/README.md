@@ -158,7 +158,7 @@ The second way, a brakedown table, brakes down each chemistry species versus ele
             
 ## Chemical Reactions Input Format <a name="Chemical Reactions Input Format"></a>
 
-A mech.def file follows formatting rules based on Gery and Grouse (1990) and Jeffries (1990) but the rules have evolved along with the CMAQ model.  The file consists six sequential blocks: a mechanism name, operator definitions, an ignored species list, the reactions list, constant and functions definitions. Only the reaction list is required. Blocks after the mechanism name begin with the respective key words, SPECIAL, ELIMINATE, REACTIONS, CONSTANT, and FUNCTIONS. These blocks terminate with END or end (case sensitive). Their content also follows the below rules and use the same elements to define information.
+A mech.def file follows formatting rules based on Gery and Grouse (1990) and Jeffries (1990) but the rules have evolved along with the CMAQ model.  The file consists six sequential blocks: a mechanism name, operator definitions, an ignored species list, the reactions list, constant and functions definitions. Only the reaction list is required. Blocks after the mechanism name begin with the respective key words, SPECIAL, ELIMINATE, REACTIONS, CONSTANT, and FUNCTIONS. These blocks terminate with _END_ or _end_ (case sensitive). Their content also follows the below rules and use the same elements to define information.
 
 Each block will be discussed separately below but first the discussion lists rules and elements for entering the mechanism data.
 
@@ -169,13 +169,13 @@ Each block will be discussed separately below but first the discussion lists rul
 * Data lines can wrap around (i.e., entries can be continued on a subsequent line after a hard return).  
 * Lines beginning with an exclamation point contain a comment line.  
 * Data lines cannot contain a comment line.   
-* Text enclosed by {} or () contain comments within a data line.
+* Text enclosed by _{}_ or _()_ contain comments within a data line.
 
 ### Defining Elements. <a name="Defining Elements"></a>
 
 1.  Species Types and Naming Rules.  
     1.  Constants species whose names and volume mixing ratio are fixed. Names include M (any molecule in the atmosphere), O2 (oxygen), CH4 (methane), H2 (hydrogen), N2 (nitrogen), and H2O (water vapor).  Reactions use constant species to calculate rate constants by including them as reactants. Their names cannot be used to represent other species.  
-    2.  Model species are produced or destroyed by the mechanisms reactions. Species namelist define them. Their names satisfy the below rules.  
+    2.  Model species are produced or destroyed by the mechanism's reactions. Species namelist define them. Their names satisfy the below rules.  
         1.   Do not contain blanks and can be up to 16 characters long. However, the maximum length is recommended to equal 13 if the mechanism is to be used in the DDM version of the CMAQ model.  
         2.   Must begin with an alphabetic character but may contain any alphanumeric character (i.e., "A-Z," "a-z," and "0-9") or the characters ":" and "\_" after the first position.  
         3.   Changing case changes the species so NO2 and no2 represent two different model species.  
@@ -246,7 +246,7 @@ This key word followed by an equal sign lists products used in reactions that ar
 
 #### REACTIONS. <a name="REACTIONS"></a>
 
-The key word proceeds the list of reactions in the mechanism. Only the first four characters (i.e., REAC) are actually required. The key word is followed closed brackets and an equal sign. The brackets enclosure indicates units for rate constants. Allowed enclosures "PP" and "CM," ppm-min units and molecule-cc-sec units, respectively. Either enclosure is case insensitive. A delimiter is not required after the equal sign but a "hard return" after the entry is suggested for clarity of the input file. Examples of valid inputs include the following:
+The key word proceeds the list of reactions in the mechanism. Only the first four characters (i.e., REAC) are actually required. The key word is followed closed brackets and an equal sign. The bracket's enclosure indicates units for rate constants. Allowed enclosures "PP" and "CM," ppm-min units and molecule-cc-sec units, respectively. Either enclosure is case insensitive. A delimiter is not required after the equal sign but a "hard return" after the entry is suggested for clarity of the input file. Examples of valid inputs include the following:
 
                            REAC[PP]=
                            RE ACTIONS [CM]=
@@ -257,11 +257,11 @@ Individual reactions lines consist of the following: 1) an optional label, 2) up
 
             [<label>]    reac1,[+reac2[+reac3]] = [±[p,*]prod1, [±[p2*]prod2 [... ± [p3*]prod3]]]  RKI;
 
-	label names the reaction    
-	reacn defines the nth reactant                                           
-	prodn defines the nth product   
-	pn gives the stoichiometric coefficient of the nth product   
-	RKI defines type and parameters of the rate constant   
+-	label names the reaction    
+-	reacn defines the nth reactant                                           
+-	prodn defines the nth product   
+-	pn gives the stoichiometric coefficient of the nth product   
+-	RKI defines type and parameters of the rate constant   
 
 Each of the components of the reaction is described below:
 
@@ -271,7 +271,7 @@ A reaction can have a maximum number of three reactants. Stoichiometric coeffici
 
 Products consist species names separated by plus (+) or minus (-) signs with optional numerical coefficients. As noted above, a reaction can have up to 40 products. Stoichiometric coefficients use the number formats mentioned above and must be separated from the species names by an asterisk(*).
 
-Rate constant parameters begin with either a # sign or the expression, "%s#", where s equal 1, 2, 3, or H. The following characters and numbers specify parameters to calculate the reactions rate constant. Table 2 defines formats corresponding to the available formulas. A semi-colon (;) denote the end of a reactions definition.   
+Rate constant parameters begin with either a # sign or the expression, "%s#", where s equal 1, 2, 3, or H. The following characters and numbers specify parameters to calculate the reaction's rate constant. Table 2 defines formats corresponding to the available formulas. A semi-colon (;) denote the end of a reaction's definition.   
 
 <center>  Table 3.  </center>
 
