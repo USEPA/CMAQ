@@ -16,6 +16,8 @@
         - [SPECIAL](#special-)
         - [ELIMINATE](#eliminate-)
         - [REACTIONS](#reactions-)
+        - [CONSTANTS](#constants-)
+        - [FUNCTIONS](#functions-)
 6.  [Debugging CHEMMECH](#debugging-chemmech-)
 7.  [Reporting errors or problems with CHEMMECH](#reporting-errors-or-problems-with-chemmech-)
 8.  [References](#references-)
@@ -283,8 +285,8 @@ Rate constant parameters begin with either a # sign or the expression, "%s#", wh
 | 2   | #  A \^B             | A\*(T/300)\*\*B |
 | 3   | #  A@C             | A\*EXP(-C/T) |
 | 4   | #  A\^B@C           | A\*(T/300)\*\*B\*EXP(-C/T) |
-| 5   | #  A@C\*E<REACTION> | K\*EXP(C/T)/A |
-| 6   | #  A*K<REACTION>   | A\*K |
+| 5   | #  A@C\*E\<REACTION\> | K\*EXP(C/T)/A |
+| 6   | #  A*K\<REACTION\>   | A\*K |
 | 7   | %1  #  A           | A\*(1+0.6\*P) |
 | 8   | %2  #  A0@C0&A2@C2&A3@C3       | k0  +  k3\*M/(1+k3/k2) where  k0  =  A0\*exp(-C0/T),  k2  =  A2\*EXP(-C2/T),  and  k3  =  A3\*EXP(-C3/T)  |
 | 9   | %3  #  A0@C0&A1@C1             | A0\*EXP(-C0/T)+A1\*EXP(-C1/T)\*M |
@@ -295,42 +297,30 @@ Rate constant parameters begin with either a # sign or the expression, "%s#", wh
 | 13  | %4 # _Text String_     | Simple Fortran formula for rate constant |
 
 **Notes:**
-1.  For rate constants with the form A<Reference> or A*Reference, reference gives label for a photolysis rate (J), a heteorogeneous rate constant (H), rate constant for the given (K) reaction label or an operator (O). A equals one if not given.
-2.  Reaction Type 4 represents the rate constant for the reverse equilibrium reaction to the reaction labeled K.
+1.  For rate constants with the form A\<Reference\> or A\*Reference, reference gives label for a photolysis rate (J), a heteorogeneous rate constant (H), rate constant for the given (K) reaction label or an operator (O). A equals one if not given.
+2.  Reaction Type 5 represents the rate constant for the reverse equilibrium reaction to the reaction label specified between the brackets.
 3.  Calculating the photolysis and heteorogeneous rates takes place outside the RXNS_FUNC_MODULE.F90 file produced by the CHEMMECH processor.
 4.  Operators are defined the SPECIAL block where <''REACTION''> is the rate constant for the given ''REACTION'' and [''species''] equals the concentration of a mechanism ''species'' at the beginning of the integration time-step for the chemistry's n
 5.  Type 12 is used to include ozone destruction by marine bromine and iodide compounds. It parameterizes effects from by a photochemical mechanism that includes such compounds.
 6.  Type 13 can use TEMP (K), PRES (atm), and the constant atmospheric species (molec/cm\*\*3). They also can use function and operator defined in the __FUNCTIONS__ and __SPECIAL__ blocks.
 
+#### CONSTANTS <a name="CONSTANTS"></a>
 
-| Type | Mechanism Definition File Expression| Formula, where M is air number density (molecules/cm3), T is air temperature(degrees K), and P is air pressure (Atm) |                                                                                     
-|:---:|:-------------------:|:---:|                                                                                                                                                                                                                       **Notes:**   
-| -1   | #  A\\< HETEOROGENOUS>  | A\*H |                                                                                                                                                                                                                 1.  For rate constants with the form A<Reference> or A*Reference, reference gives label for a photolysis rate (J), a heteorogeneous rate constant (H), rate constant for the given (K) reaction label or an operator (O). A equals one if not given.
-| 0   | #  A\\< PHOTOLYSIS>  | A\*J |                                                                                                                                                                                                                     2.  Reaction Type 4 represents the rate constant for the reverse equilibrium reaction to the reaction labeled K.  
-| 1   | #  A               | A   |                                                                                                                                                                                                                        3.  Calculating the photolysis and heteorogeneous rates takes place outside the RXNS_FUNC_MODULE.F90 file produced by the CHEMMECH processor.   
-| 2   | #  A \^B             | A\*(T/300)\*\*B |                                                                                                                                                                                                          4.  Operators are defined the SPECIAL block where <''REACTION''> is the rate constant for the given ''REACTION'' and [''species''] equals the concentration of a mechanism ''species'' at the beginning of the integration time-step for the chemistry's numerical solver.   
-| 3   | #  A@C             | A\*EXP(-C/T) |                                                                                                                                                                                                               5.  Type 12 is used to include ozone destruction by marine bromine and iodide compounds. It parameters effects from reactions predicted by a photochemical mechanism that includes them.  
-| 4   | #  A\^B@C           | A\*(T/300)\*\*B\*EXP(-C/T) |                                                                                                                                                                                                6.  Type 13 can use TEMP (K), PRES (atm), and the constant atmospheric species (molec/cm\*\*3). They also can use function and operator defined in the __FUNCTIONS__ and __SPECIAL__ blocks.
-| 5   | #  A@C\*E<REACTION> | K\*EXP(C/T)/A |                                                                                                                                                                                                             
-| 6   | #  A*K<REACTION>   | A\*K |                                                                                                                                                                                                                       #### CONSTANTS.
-| 7   | %1  #  A           | A\*(1+0.6\*P) |                                                                                                                                                                                                              
-| 8   | %2  #  A0@C0&A2@C2&A3@C3       | k0  +  k3\*M/(1+k3/k2) where  k0  =  A0\*exp(-C0/T),  k2  =  A2\*EXP(-C2/T),  and  k3  =  A3\*EXP(-C3/T)  |                                                                                                      The key word defines volume mixing ratio of the subset of fixed list of constant species as below.
-| 9   | %3  #  A0@C0&A1@C1             | A0\*EXP(-C0/T)+A1\*EXP(-C1/T)\*M |                                                                                                                                                                               
-| 9.1 | %3  #  A0^B0@C0&A1\^B1@C1&A2@C2 | A0\*(T/300)\*\*B0\*EXP(-C0/T)+A1\*(T/300)\*\*B1\*EXP(-C1/T)\*M+A2\*EXP(-C2/T) |                                                                                                                                       CONSTANTS
-| 10  | #  A0^B0@C0&A1\^B1@C1&N&F       | [  ko\*M/(1+ko\*M/kinf)]F\*\*G  where  ko  =  A0\*(T/300)\*\*B0\*EXP(-C0/T),  kinf  =  A1\*(T/300)\*\*B1\*EXP(-C1/T)  and  G  =  G=1/[1+(log10(k0\*M/kinf)/n)**2)]  |                                                  < C1> ATM_AIR = 1.0E+06
-| 11  | #A?OPERATOR                    | A\*O |                                                                                                                                                                                                                  < C2> ATM_H2   = 0.56
-| 12  |  %H  #  A0@C0&A1@C1&A2            | min(A0\*EXP(-C0\*P)+A1\*EXP(-C1\*P), A2)  if  the  sun  is  above  the  horizon  and  open  water  plus  surf  zone covers the surface by more than 0.1\%.  0.0  if  otherwise |                                     < C3> ATM_N2   = 0.7808E+06
-| 13  | %4 # _Text String_     | Simple Fortran formula for rate constant |                                                                                                                                                                                      < C4> ATM_O2   = 0.2095E+06
-                                                                                                                                                                                                                                                                 < C5> ATM_CH4 = 1.85
-**Notes:**                                                                                                                                                                                                                                                       end constants
-1.  For rate constants with the form A<Reference> or A*Reference, reference gives label for a photolysis rate (J), a heteorogeneous rate constant (H), rate constant for the given (K) reaction label or an operator (O). A equals one if not given.      
-2.  Reaction Type 4 represents the rate constant for the reverse equilibrium reaction to the reaction labeled K.                                                                                                                                          The values have units of parts per million. ATM_AIR equals the mixing ratio of M, any gas molecule. The block does not define the mixing ratio for H2O because the meteorological input data specific their values so the values depend on time and location.
-3.  Calculating the photolysis and heteorogeneous rates takes place outside the RXNS_FUNC_MODULE.F90 file produced by the CHEMMECH processor.                                                                                                             
-4.  Operators are defined the SPECIAL block where <''REACTION''> is the rate constant for the given ''REACTION'' and [''species''] equals the concentration of a mechanism ''species'' at the beginning of the integration time-step for the chemistry's n#### FUNCTIONS.
-5.  Type 12 is used to include ozone destruction by marine bromine and iodide compounds. It parameters effects from reactions predicted by a photochemical mechanism that includes them.                                                                  
-6.  Type 13 can use TEMP (K), PRES (atm), and the constant atmospheric species (molec/cm\*\*3). They also can use function and operator defined in the __FUNCTIONS__ and __SPECIAL__ blocks.                                                              The FUNCTIONS block defines formulas for calculating rate constant that can used by reaction Type 13. 
-They are limited to one line in lenght but can reference preceeding formulas within the FUNCTIONS block.
-They can use TEMP (K), PRES (atm), and the constant atmospheric species (molec/cm\*\*3). The syntax obeys
+The key word defines volume mixing ratio of the subset of fixed list of constant species as below.
+
+      CONSTANTS
+       < C1> ATM_AIR = 1.0E+06
+       < C2> ATM_H2   = 0.56
+       < C3> ATM_N2   = 0.7808E+06
+       < C4> ATM_O2   = 0.2095E+06
+       < C5> ATM_CH4 = 1.85
+       end constants
+
+The values have units of parts per million. ATM_AIR equals the mixing ratio of M, any gas molecule. The block does not define the mixing ratio for H2O because the meteorological input data specific their values so the values depend on time and location.
+
+#### FUNCTIONS <a name="FUNCTIONS"></a>
+    
+The FUNCTIONS block defines formulas for calculating rate constant that can used by reaction Type 13. They are limited to one line in lenght but can reference preceeding formulas within the FUNCTIONS block. They can use TEMP (K), PRES (atm), and the constant atmospheric species (molec/cm\*\*3). The syntax obeys
 FORTRAN mathematical expressions.
 
 The below lines gives an example based on the CRI mechanism version version 2.1 (Jenkin et al., 2008 and Watson et al., 2008).
@@ -389,7 +379,7 @@ If errors occur at running CHEMMECH, check the _Compiling and debugging CHEMMECH
 
 Damian V., Sandu A., Damian M., Potra F., Carmichael G.R. (2002). The kinetic preprocessor KPP - A software environment for solving chemical kinetics. Computers and Chemical Engineering,  26(11) , pp. 1567-1579.
 
-Gery, M.W. and Crouse, R.R. (1990) Users Guide for Executing OZIPR, EPA/6008-90, U.S. Enivironmental Protection Agency, Research Trianlge Park, 27711, NC.
+Gery, M.W. and Crouse, R.R. (1990) User's Guide for Executing OZIPR, EPA/6008-90, U.S. Enivironmental Protection Agency, Research Triangle Park, 27711, NC.
 
 Hertel O., Berkowicz R., Christensen J., and Hov O. (1993).  Test of Two Numerical Schemes for Use in Atmospheric Transport-Chemistry Models. Atmospheric Environment, Vol. 27A, No. 16, 2591-2661.
 
