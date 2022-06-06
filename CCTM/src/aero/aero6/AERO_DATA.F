@@ -2086,7 +2086,7 @@ C Local variables:
       End Subroutine CHECK_AERO_ICBC
 
 !-----------------------------------------------------------------------
-      Subroutine CALC_AERODIST_PARAMS
+      Subroutine CALC_AERODIST_PARAMS( INIT_TIME )
 
 ! Subroutine calculates the wet and then dry aerosol distribution parameters
 !     and stores them in public arrays to be passed to the diagnostic 
@@ -2094,6 +2094,13 @@ C Local variables:
 !-----------------------------------------------------------------------
  
       IMPLICIT NONE
+
+      LOGICAL, INTENT( IN ) :: INIT_TIME
+
+      IF ( INIT_TIME ) THEN
+         CALL CALCMOMENTS( .TRUE. )
+         CALL GETPAR( FIXED_sg )
+      END IF
 
       WET_AERO_DIAM( : ) = AEROMODE_DIAM( : ) * 1.0E6 ! um
       WET_AERO_M2  ( : ) = MOMENT2_CONC( : )

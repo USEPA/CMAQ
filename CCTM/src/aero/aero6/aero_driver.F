@@ -139,8 +139,6 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 #ifdef twoway
      &                      , N_GC_CONC, GC_CONC, GC_STRT, GC_CONC_MAP
 #endif
-      USE PMDIAG_DATA, ONLY: L_PMDIAG, PMDIAG_AVRG_STEP
-      USE PMDIAG_PROC
       USE RUNTIME_VARS, ONLY: LOGDEV, END_TIME
       USE AERO_BUDGET, ONLY: AERO_COAG, AERO_COND, AERO_GROWTH, AERO_NPF
 
@@ -194,7 +192,6 @@ C *** Grid Description
 
 C *** Variable to set time step for writing visibility file
       INTEGER, SAVE :: WSTEP  = 0   ! local write counter
-      LOGICAL, SAVE :: WRITETIME = .FALSE. ! local write flag
 
 C *** meteorological variables
       REAL PRES   ( NCOLS,NROWS,NLAYS )  ! Atmospheric pressure [ Pa ]
@@ -307,30 +304,12 @@ C ------------------ begin body of AERO_DRIVER -------------------------
          END IF
 #endif
 
-C *** Open the aerosol parameters file (diameters and standard deviations).
-         IF ( L_PMDIAG .AND. IO_PE_INCLUSIVE ) THEN
-             CALL OPEN_PMDIAG ( JDATE, JTIME, TSTEP( 1 ) )
-             PMDIAG_AVRG_STEP = 0
-         END IF
-
       END IF    ! FIRSTIME
 
       MDATE  = JDATE
       MTIME  = JTIME
       MSTEP = TIME2SEC( TSTEP( 2 ) )
       CALL NEXTIME ( MDATE, MTIME, SEC2TIME( MSTEP / 2 ) )
-
-      ! Determine if this is a write step
-      WSTEP = WSTEP + TIME2SEC( TSTEP( 2 ) )
-      IF ( WSTEP .GE. TIME2SEC( TSTEP( 1 ) ) ) THEN
-           WRITETIME = .TRUE.
-           WSTEP = 0
-      END IF
-      
-      IF ( L_PMDIAG ) THEN 
-         IF ( PMDIAG_AVRG_STEP .EQ. 0 ) PMDIAG_AVRG = 0.0
-         PMDIAG_AVRG_STEP = PMDIAG_AVRG_STEP + 1
-      END IF
 
 C *** Set floating point synchronization time step:
       DT = FLOAT( MSTEP ) ! set time step in seconds
@@ -437,9 +416,6 @@ C *** Get wet moment info (dry will be converted to wet)
                CALL calcmoments( .true. )
                CALL GETPAR( FIXED_sg ) ! update AEROMODE_DIAM,DENS,SDEV
 
-C *** OUTPUT DIAGNOSTIC INFORMATION
-               CALL LOAD_PMDIAG( C,R,L, CGRID(C,R,L,:), WRITETIME )
-
 ! *** Calculate 2nd and 3rd moments of the "dry" aerosol distribution
 !     NOTE! "dry" aerosol excludes both H2O and SOA  (Jan 2004 --SJR)
 !     EXCEPT nonvolatile SOA is part of dry aerosol (Oct 2007 --PVB)
@@ -465,12 +441,6 @@ C *** OUTPUT DIAGNOSTIC INFORMATION
             END DO ! loop on COLS
          END DO ! loop on ROWS
       END DO ! loop on NLAYS
-
-      IF ( L_PMDIAG .AND. WRITETIME ) THEN
-          CALL WRITE_PMDIAG( JDATE, JTIME, TSTEP )
-          PMDIAG_AVRG_STEP = 0
-          WRITETIME = .FALSE.
-      END IF
 
       RETURN
       END
