@@ -72,7 +72,14 @@ C**********************************************************************
       USE PHOT_MOD, Only: INIT_PHOT_SHARED, RJ     ! photolysis rate, in-line module
       USE PA_DEFN, Only: LIRR                      ! Process Analysis control and data variable
       USE PA_IRR_CLT
-R5      USE DEGRADE_SETUP_TOX, ONLY : N_REACT, RXTANT_MAP
+R5#ifndef isam
+R5      USE DEGRADE_ROUTINES, ONLY : N_REACT, RXTANT_MAP, DEG_LAY, DEG_COL, DEG_ROW,
+R5     &                              FIND_DEGRADED, INIT_DEGRADE, FINAL_DEGRADE
+R5#else      
+R5      USE DEGRADE_ROUTINES, ONLY : N_REACT, RXTANT_MAP, SA_DEGRADE_EXTRACT, 
+R5     &                              FIND_DEGRADED, INIT_DEGRADE, FINAL_DEGRADE,
+R5     &                              SA_DEGRADE_UPLOAD, DEG_LAY, DEG_COL, DEG_ROW
+R5#endif
       USE CENTRALIZED_IO_MODULE, ONLY : INTERPOLATE_VAR, OCEAN, SZONE
 #ifdef sens
       USE DDM3D_CHEM
@@ -145,22 +152,6 @@ R0
            INTEGER, INTENT( IN ) :: JTIME    ! Current time (HHMMSS)
            INTEGER, INTENT( IN ) :: C, R, L  ! Cell col, row, lev
         END SUBROUTINE HRSOLVER
-R5         SUBROUTINE FIND_DEGRADED( JDATE, JTIME, CALL_DEGRADE )
-R5           INTEGER, INTENT( IN )  :: JDATE        ! current model date , coded YYYYDDD
-R5           INTEGER, INTENT( IN )  :: JTIME        ! current model time , coded HHMMSS
-R5           LOGICAL, INTENT( OUT ) :: CALL_DEGRADE ! whether to call degradation routines
-R5         END SUBROUTINE FIND_DEGRADED
-R5         SUBROUTINE INIT_DEGRADE( CBLK, TCELL, DCELL, PHOTO_CELL, JDATE, JTIME )
-R5           REAL( 8 ), INTENT( IN ) :: CBLK( : )       !  species concentration in cell
-R5           REAL,      INTENT( IN ) :: TCELL           !  cell temperature  [ k ]
-R5           REAL,      INTENT( IN ) :: DCELL           !  cell air density  [ kg/m^3 ]
-R5           REAL( 8 ), INTENT( IN ) :: PHOTO_CELL( : ) !  Photolysis table for cell [1/s]
-R5           INTEGER,   INTENT( IN ) :: JDATE  ! current model date , coded YYYYDDD
-R5           INTEGER,   INTENT( IN ) :: JTIME  ! current model time , coded HHMMSS
-R5         END SUBROUTINE INIT_DEGRADE      
-R5         SUBROUTINE FINAL_DEGRADE( CBLK )
-R5           REAL( 8 ), INTENT( INOUT ) :: CBLK( : )    !  species concentration in cell
-R5         END SUBROUTINE FINAL_DEGRADE
         SUBROUTINE HETCHEM_UPDATE_AERO( CGRID )
            REAL, POINTER :: CGRID( :,:,:,: )  !  species concentration in cell
         END SUBROUTINE HETCHEM_UPDATE_AERO 
@@ -382,6 +373,10 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          DO R = 1, NROWS
             DO C = 1, NCOLS
 
+R5               DEG_LAY = L
+R5               DEG_ROW = R
+R5               DEG_COL = C
+
 c..reset CALL_IRR based on cell's values            
                CALL_IRR = LFLAGIRR( C,R,L )
 
@@ -403,8 +398,12 @@ R5                  YCCELL = 0.0D0
 R5                  DO S = 1, MODEL_SPECIES
 R5                     YCCELL( S ) = REAL( CGRID(C,R,L,S), 8)
 R5                  END DO
-R5                  CALL INIT_DEGRADE(YCCELL,TA(C,R,L),DENS(C,R,L),RJIN(NCELL,:),
+R5                  CALL INIT_DEGRADE(YCCELL,TA(C,R,L),DENS(C,R,L),PRES(C,R,L),QV(C,R,L),RJIN(NCELL,:),
 R5     &                              JDATE, JTIME)
+R5
+R5#ifdef isam
+R5                  CALL SA_DEGRADE_EXTRACT( C,R,L,DENS(C,R,L) )
+R5#endif     
 R5               END IF
 
 c..Set physical quantities
@@ -474,6 +473,9 @@ R5                        IF(  CGRID_INDEX( S ) .EQ. ISP )CYCLE UPDATE_DEGRADED
 R5                     END DO
 R5                     CGRID(C,R,L,ISP) = REAL( YCCELL(ISP), 4)
 R5                  END DO UPDATE_DEGRADED
+R5#ifdef isam
+R5                  CALL SA_DEGRADE_UPLOAD( C,R,L,DENS(C,R,L) )
+R5#endif
 R5               END IF
 
 #ifdef isam

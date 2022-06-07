@@ -142,6 +142,7 @@ set make_options = "-j"                #> additional options for make command if
  set ModPvO3   = pv_o3                      #> potential vorticity from the free troposphere
  set ModISAM   = isam                       #> CCTM Integrated Source Apportionment Method
  set ModDDM3D  = ddm3d                      #> Decoupled Direct Method in 3D
+ set ModDegrade = reactive_tracers          #> Linear Chemical Loss for a fixed set of species treated as reactive tracers
 
 #============================================================================================
 #> Computing System Configuration:
@@ -577,6 +578,11 @@ set Cfile = ${Bld}/${CFG}.bld      # Config Filename
  set text = "inline and table"
  echo "// options are" $text                                       >> $Cfile
  echo "Module ${ModPhot};"                                         >> $Cfile
+ echo                                                              >> $Cfile
+
+ set text = "degrade"
+ echo "// reactive_tracer options are" $text                       >> $Cfile
+ echo "Module ${ModDegrade};"                                      >> $Cfile
  echo                                                              >> $Cfile
 
  set text = "gas chemistry solvers"

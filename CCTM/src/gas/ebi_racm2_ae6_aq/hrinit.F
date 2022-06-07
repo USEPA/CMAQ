@@ -29,7 +29,7 @@ C  RETURN VALUES: None
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, Mar 21, 2022
+C  REVISION HISTORY: Created by EBI solver program, Mar 14, 2022
 C   21 Jun 10 J.Young:   convert for Namelist redesign
 C   18 Jul 14 B.Hutzell: revised to use the RXNS_DATA and RXNS_FUNCTION
 C                        modules instead of include files
@@ -174,7 +174,7 @@ c..Allocate and define ebi species
       EBISP(  20 ) = DCB1
       EBISP(  21 ) = DCB2
       EBISP(  22 ) = BALD
-      EBISP(  23 ) = CHO
+      EBISP(  23 ) = CHOHCHOP'
       EBISP(  24 ) = OP1
       EBISP(  25 ) = OP2
       EBISP(  26 ) = PAA
@@ -290,7 +290,7 @@ c..Allocate and define ebi species
       EBISP( 136 ) = APAH1J
       EBISP( 137 ) = APAH2J
       EBISP( 138 ) = AALK1J
-      EBISP( 139 ) = AALK2J
+      EBISP( 139 ) = AALK2JHCHOP'
       EBISP( 140 ) = APOCI
       EBISP( 141 ) = APNCOMI
       EBISP( 142 ) = APOCJ

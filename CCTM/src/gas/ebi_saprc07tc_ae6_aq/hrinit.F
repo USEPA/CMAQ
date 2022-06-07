@@ -29,7 +29,7 @@ C  RETURN VALUES: None
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, Mar 21, 2022
+C  REVISION HISTORY: Created by EBI solver program, Mar 14, 2022
 C   21 Jun 10 J.Young:   convert for Namelist redesign
 C   18 Jul 14 B.Hutzell: revised to use the RXNS_DATA and RXNS_FUNCTION
 C                        modules instead of include files
@@ -135,6 +135,13 @@ C***********************************************************************
 
        NING1 = 4
        NING2 = 4
+
+      ALLOCATE( YCCELL( MODEL_SPECIES), STAT = IOS )  ! array for degradation routines
+       IF ( IOS .NE. 0 ) THEN
+          MSG = 'Error allocating YCCELL '
+          CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
+       END IF
+
 
 c..Allocate and define ebi species
 
