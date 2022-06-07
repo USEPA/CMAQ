@@ -32,7 +32,7 @@
 ! 10 May 16 H. Pye: Merged with AEROSOL_CHEMISTRY.F from aero6i
 !                   Size of NAMES_AERO_RATES reduced to match RXN_DATA_MODULE
 !    May 16 H. Pye, B. Murphy: Updated treatment of aerosol moments
-! 23 May 16 D. Wong: Allow for calculation for AELMO even if ELMO is turned off.
+! 23 May 16 D. Wong: Allow for calculation for APMDIAG even if PMDIAG is turned off.
 ! 10 Jun 16 B.Hutzell: reduce occurrences of numerical underflow
 ! 17 Jul 18 G. Sarwar: Added heterogeneous uptakes of CLNO3, bromine and iodine species
 ! 01 Feb 19 David Wong: removed MY_N clauses
@@ -371,7 +371,6 @@ C-----------------------------------------------------------------------
       USE PRECURSOR_DATA
       USE SOA_DEFN
       USE ELMO_DATA
-      USE ELMO_PROC
       USE CENTRALIZED_IO_MODULE
 
       IMPLICIT NONE

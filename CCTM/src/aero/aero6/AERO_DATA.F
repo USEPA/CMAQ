@@ -2085,10 +2085,8 @@ C Local variables:
 
       LOGICAL, INTENT( IN ) :: INIT_TIME
 
-      IF ( INIT_TIME ) THEN
-         CALL CALCMOMENTS( .TRUE. )
-         CALL GETPAR( FIXED_sg )
-      END IF
+      CALL CALCMOMENTS( .TRUE. )
+      CALL GETPAR( FIXED_sg )
 
       WET_AERO_DIAM( : ) = AEROMODE_DIAM( : ) * 1.0E6 ! um
       WET_AERO_M2  ( : ) = MOMENT2_CONC( : )

@@ -106,16 +106,10 @@
       INST_LAYER_TOP   = 1
       INST_LAYER_BOT   = 1
       INST_VARS_NML(:) = ''
-      INST_VARS_NML(1) = 'O3'
-      INST_VARS_NML(2) = 'PM25'
-      INST_VARS_NML(3) = 'PM10'
       AVRG_ACTIVE      = .TRUE.
       AVRG_LAYER_TOP   = 1
       AVRG_LAYER_BOT   = 1
       AVRG_VARS_NML(:) = ''
-      AVRG_VARS_NML(1) = 'O3'
-      AVRG_VARS_NML(2) = 'PM25'
-      AVRG_VARS_NML(3) = 'PM10'
 
       ! Retrieve the Name of the Emission Control File
       IF ( MISC_CTRL .EQ. "MISC_CTRL_NML" ) THEN
@@ -150,7 +144,13 @@
       END IF
       INST_ACTIVE = INSTANT
       AVRG_ACTIVE = AVERAGE
+      L_ELMO = ( INST_ACTIVE .OR. AVRG_ACTIVE )
       
+      IF ( .NOT. L_ELMO ) THEN
+          DEALLOCATE( FAM_LIST ) 
+          RETURN
+      END IF
+
       CALL POPULATE_ELMO_KEY
 
       ! Read Desired ELMO_INST parameters from input namelist
@@ -166,6 +166,11 @@
 
       ! Expand INST list Using Keywords
       N_END = INDEX1( '', N_NML, INST_VARS_NML ) - 1
+      IF ( N_END .LE. 0 ) THEN
+          WRITE( XMSG, '(A,A)' ),'ERROR: Undefined variables requested ',
+     &           'for Instaneous ELMO output '
+          CALL M3EXIT( PNAME, 0, 0, XMSG, 1 )
+      END IF
       INUM = 1
       DO WHILE ( INUM .LE. N_END )
          CALL UPCASE( INST_VARS_NML( INUM ) )
@@ -307,6 +312,11 @@
  
       ! Expand AVRG list Using Keywords
       N_END = INDEX1( '', N_NML, AVRG_VARS_NML ) - 1
+      IF ( N_END .LE. 0 ) THEN
+          WRITE( XMSG, '(A,A)' ),'ERROR: Undefined variables requested ',
+     &           'for Average ELMO output '
+          CALL M3EXIT( PNAME, 0, 0, XMSG, 1 )
+      END IF
       INUM = 1
       DO WHILE ( INUM .LE. N_END )
          CALL UPCASE( AVRG_VARS_NML( INUM ) )
@@ -436,6 +446,8 @@
       END IF
       NLAY_ELMO_AVRG = AVRG_LAYER_TOP - AVRG_LAYER_BOT + 1
  
+      DEALLOCATE( FAM_LIST )
+
       END SUBROUTINE READ_ELMO_NML
 
 !-------------------------------------------------------------------------
@@ -769,7 +781,7 @@
       ! For Now)
       CALL ELMO_INIT_SHARED()
       CALL READ_ELMO_NML()
-      L_ELMO = ( INST_ACTIVE .OR. AVRG_ACTIVE )
+      IF ( .NOT. L_ELMO ) RETURN
 
       ! Map user-defined INST_PARS and AVRG_PARS arrays to the ELMO 
       ! parameters available on the ELMO_LIST. 
@@ -1112,6 +1124,12 @@
                N_VARS = 1
                CALL INIT_ELMO_COEFFS( IDG, N_VARS, 'COARSE' )
                CALL SET_ELMO_COEFF_MAP( IDG, 1, 'AERO', 'ANH4', 1.0 )
+ 
+             ! Map PMC_CL - Coarse-Mode Chlorine
+             CASE ( ID_PMC_CL ) 
+               N_VARS = 1
+               CALL INIT_ELMO_COEFFS( IDG, N_VARS, 'COARSE' )
+               CALL SET_ELMO_COEFF_MAP( IDG, 1, 'AERO', 'ACL', 1.0 )
  
              ! Map PMC_NA - Coarse-Mode Sodium
              CASE ( ID_PMC_NA ) 
@@ -1919,7 +1937,6 @@
       ALLOCATE( ELMO_COEFFS( IDG )%L_MODE( N_MODE ),
      &          ELMO_COEFFS( IDG )%L_GAS ( N_VARS ),
      &          ELMO_COEFFS( IDG )%L_SPC ( N_VARS ),
-     &          ELMO_COEFFS( IDG )%L_PREC( N_VARS ),
      &          ELMO_COEFFS( IDG )%L_AGG ( N_VARS ),
      &          ELMO_COEFFS( IDG )%I_SPEC( N_VARS ),
      &          ELMO_COEFFS( IDG )%COEFF ( N_VARS ),
@@ -1931,7 +1948,6 @@
 
       ELMO_COEFFS( IDG )%L_GAS  ( : )   = .FALSE.
       ELMO_COEFFS( IDG )%L_SPC  ( : )   = .FALSE.
-      ELMO_COEFFS( IDG )%L_PREC ( : )   = .FALSE.
       ELMO_COEFFS( IDG )%L_AGG  ( : )   = .FALSE.
       ELMO_COEFFS( IDG )%I_SPEC ( : )   = 0
       ELMO_COEFFS( IDG )%L_MODE ( : )   = .FALSE.
@@ -2018,48 +2034,9 @@
       CALL UPCASE( TSPEC )
 
       ! Find Index of CSPEC in Gas Array, Aggregate Array or AEROSPC%BULKNAME
-      IF ( TSPEC .EQ. 'PREC' ) THEN 
-          ELMO_COEFFS( IDG )%L_PREC( IVAR ) = .TRUE. 
-
-          ! Map to Gas-Phase Aerosol Precursor
-          ! Check the precursor array
-          ISPEC = INDEX1( CSPEC, N_PRECURSOR, PRECURSOR(:)%NAME )
- 
-          IF ( ISPEC .GT. 0 ) THEN
-             ! Found the Index. Save it!
-             ELMO_COEFFS( IDG )%I_SPEC( IVAR ) = ISPEC
-          ELSE
-             ! Could not find the species in the Gas Precursor Array. Print an
-             ! Error and Warn
-             XMSG = "A PM Diagnostic variable has been requested that relies " //
-     &           "on gas precursor species " // TRIM(CSPEC) // ". This species has not been " //
-     &           "incorporated in the precursor array though. Please check that the table "//
-     &           "in PRECURSOR_DATA is compatible with the PM diagnostics you have called "//
-     &           "for in the Emissions Control Namelist."
-             !CALL LOG_MESSAGE( LOGDEV, XMSG )
-             !CALL M3WARN( 'MAP_ELMO_COEFFS', 0, 0, '' )
-          END IF 
-      ELSE IF ( TSPEC .EQ. 'GAS' ) THEN 
-          ! Map to Generic Gas Species
-          ! First check the precursor array. This is default because if
-          ! the gas component IS an aerosol precursor (and the developer
-          ! doesn't know it), then it is important to map to the
-          ! precursor array because the value may have changed here
-          ! during the aero module and not be reflected in the cgrid
-          ! array
-          ISPEC = INDEX1( CSPEC, N_PRECURSOR, PRECURSOR(:)%NAME )
-
-          ! If it is a precursor gas
-          IF ( ISPEC .NE. 0 ) THEN
-             ! Reassign identity of this variable to the precursor array
-             ! and not the gas section of the cgrid array
-             ELMO_COEFFS( IDG )%L_PREC( IVAR ) = .TRUE.
-             ELMO_COEFFS( IDG )%L_GAS( IVAR )  = .FALSE.
-          ELSE
-             ! Then check the CGRID array
-             ELMO_COEFFS( IDG )%L_GAS( IVAR ) = .TRUE.
-             ISPEC = INDEX1( CSPEC, N_CGRID_SPC, CGRID_NAME(:) )
-          END IF
+      IF ( TSPEC .EQ. 'GAS' ) THEN 
+          ! Find the location of CSPEC in CGRID
+          ISPEC = INDEX1( CSPEC, N_CGRID_SPC, CGRID_NAME(:) )
  
           IF ( ISPEC .GT. 0 ) THEN
              ! Found the Index. Save it!
@@ -2218,12 +2195,11 @@
           COEFF = ELMO_COEFFS( IDG )%COEFF( IVAR )
 
           IF ( ISPEC .GT. 0 ) THEN
-             ! First check if this is a Precursor Gas
-             IF ( ELMO_COEFFS( IDG )%L_PREC( IVAR ) ) THEN
-                 VAL = VAL + REAL( PRECURSOR_CONC( ISPEC ), 4) * COEFF
-          
-             ! Next check if this is a Gas from CGRID
-             ELSE IF  ( ELMO_COEFFS( IDG )%L_GAS( IVAR ) ) THEN
+             ! First check if this is a Gas from CGRID. All species
+             ! labeled as Gas are assumed to be converted to mass units
+             ! using the air density AIRDENS and MW conversions lumped
+             ! into COEFF.
+             IF  ( ELMO_COEFFS( IDG )%L_GAS( IVAR ) ) THEN
                  VAL = VAL + CONC_VEC( ISPEC ) * COEFF * AIRDENS
 
              ! Next check for aggregate variable
@@ -3084,6 +3060,8 @@
      &                     MOMENT3_CONC, WET_AERO_DENS, AEROSPC_CONC,
      &                     AH2O_IDX, AEROSPC, CALC_AERODIST_PARAMS,
      &                     Extract_Aero
+      USE SOA_DEFN, ONLY : Extract_Soa
+      USE AEROSOL_CHEMISTRY, ONLY: HETCHEM_RATES
       USE AEROMET_DATA, ONLY: AIRRH, AIRTEMP, AIRQV, AIRDENS, AIRPRES,
      &                        SRFTEMP, H2OVP, H2OSATVP, MWWAT, MWAIR,
      &                        CFRAC, DZ, PV, ZH
@@ -3092,7 +3070,7 @@
 
       IMPLICIT NONE
 
-      REAL, INTENT( IN )    :: CGRID( :,:,:,: ) ! Master concentration grid
+      REAL, POINTER         :: CGRID( :,:,:,: ) ! Master concentration grid
       INTEGER, INTENT( IN ) :: JDATE, JTIME     ! Date and time inputs to 
                                                 ! determine whether to write 
                                                 ! concentrations
@@ -3192,8 +3170,10 @@
       ! between the heights of the layer bottom and top.
       call interpolate_var ('ZH', jdate, jtime, ZHS)
 
-      ! Process PM Diagnostics for Base Model
+      ! Calculate Heterogeneous Chemistry Rates
+      CALL HETCHEM_RATES( TA, PRES, QV, CGRID, DENS )
 
+      ! Process PM Diagnostics for Base Model
       DO C = 1,NCOLS
       DO R = 1,NROWS
       DO L = 1,NLAYS
@@ -3218,6 +3198,7 @@
  
          ! Extract Aerosols
          CALL EXTRACT_AERO( CGRID( C,R,L,: ), .TRUE. )
+         CALL EXTRACT_SOA( CGRID( C,R,L,: ) )
          
          ! Populate Diagnostic Arrays
          CALL LOAD_ELMO( C,R,L, CGRID(C,R,L,:), WRITE_STEP, INIT_STEP, INIT_TIME )
