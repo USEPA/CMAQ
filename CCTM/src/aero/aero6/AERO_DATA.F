@@ -1663,7 +1663,7 @@ C     moment [ m**2/m**3 ]
 
 C
 C-----------------------------------------------------------------------
-      Subroutine CHECK_AERO_ICBC( IBCON, LM2WET, USE_M2, IS_BC, 
+      Subroutine CHECK_AERO_ICBC( IBCON0, LM2WET, USE_M2, IS_BC, 
      &                            L_WRITE_WARNING, COL, ROW, LAY )
 
 C Subroutine checks that all size distributions from boundary and
@@ -1702,7 +1702,7 @@ C-----------------------------------------------------------------------
 
       Implicit None
 
-      REAL, INTENT(INOUT)        :: IBCON( : )
+      REAL, INTENT(INOUT)   :: IBCON0( : )
       LOGICAL, INTENT( IN ) :: LM2WET          ! FALSE (Default) for Dry distribution parameters
                                                ! TRUE  for Wet distribution parameters
       LOGICAL, INTENT( IN ) :: USE_M2          ! TRUE (Default) to use second moment from input file
@@ -1718,7 +1718,7 @@ C-----------------------------------------------------------------------
                                  ! Nonzero values indicate problem with
                                  ! modal parameters. See below 
                                                                     ! | Before  After
-      REAL    :: AER_PAR( 2, N_MODE, 8 ) !Track the modal parameters! |    N,    N
+      REAL(8) :: AER_PAR( 2, N_MODE, 8 ) !Track the modal parameters! |    N,    N
                                          !before and after the IC/BC! |  M2WET, M2WET
                                          !check routine             ! |  M2DRY, M2DRY
                                                                     ! |  M3WET, M3WET
@@ -1732,9 +1732,9 @@ C-----------------------------------------------------------------------
       LOGICAL, SAVE    :: FIRST_TIME = .TRUE.
       LOGICAL          :: LBC
 
-      REAL, PARAMETER  :: F1PI = 1.0 / pi
-      REAL, PARAMETER  :: ONE_THIRD  = 1.0 / 3.0
-      REAL, PARAMETER  :: TWO_THIRDS = 2.0 / 3.0
+      REAL(8), PARAMETER  :: F1PI = 1.d0 / REAL(pi,8)
+      REAL(8), PARAMETER  :: ONE_THIRD  = 1.0d0 / 3.0d0
+      REAL(8), PARAMETER  :: TWO_THIRDS = 2.0d0 / 3.0d0
       CHARACTER( 199 ) :: XMSG2 = ' '
       
       ! Definition of Distribution Error Statuses (LSTAT):
@@ -1761,7 +1761,8 @@ C-----------------------------------------------------------------------
 C Local variables:
 
       INTEGER   :: IMODE, IT, IS
-      REAL      :: NUM, M2, M3, M3DRY, M3WET, M2WET, M2DRY, 
+      REAL(8), ALLOCATABLE :: IBCON(:)
+      REAL(8)   :: NUM, M2, M3, M3DRY, M3WET, M2WET, M2DRY, 
      &             l2sg, dg, dgdry, dgwet, sg, l2sg_new
       REAL, Parameter :: KGPMG = 1.0E-9 !Kilogram per microgram m-3
 
@@ -1799,11 +1800,13 @@ C Local variables:
 
       ! Initialize Aerosol ICBC Check Routine
       LSTAT    = 0
-      AER_PAR = 0.0
-      dg      = 0.0
-      sg      = 0.0
+      AER_PAR = 0.0d0
+      dg      = 0.0d0
+      sg      = 0.0d0
        
       CALL MAP_AERO()
+      ALLOCATE( IBCON( SIZE(IBCON0) ) )
+      IBCON = REAL( IBCON0, 8 )
 
       !Loop Through Each Aerosol Mode. Sum up the third moment, then calculate 
       !the Dg and Sg of the mode and check to make sure they are valid. When 
@@ -1816,20 +1819,20 @@ C Local variables:
             NUM = SUM( IBCON( : ), MASK = ( L_AETR_MODE( IMODE,: ) .AND. L_AETR_NUM ) ) 
             M2  = SUM( IBCON( : ), MASK = ( L_AETR_MODE( IMODE,: ) .AND. L_AETR_SRF ) ) * F1PI
            
-            M3DRY = SUM( IBCON( : ) * AEROCGRID_RHOINV * F6PI, 
+            M3DRY = SUM( IBCON( : ) * REAL( AEROCGRID_RHOINV * F6PI, 8), 
      &                   MASK = ( L_AETR_MASS .AND. L_AETR_MODE( IMODE,: )  
      &                            .AND. L_AETR_DRY ) ) 
-            M3WET = SUM( IBCON( : ) * AEROCGRID_RHOINV * F6PI, 
+            M3WET = SUM( IBCON( : ) * REAL( AEROCGRID_RHOINV * F6PI, 8), 
      &                   MASK = ( L_AETR_MASS .AND. L_AETR_MODE( IMODE,: ) ) )
          ELSE
             ! IBCON is stored in order of CGRID
             NUM = SUM( IBCON( : ), MASK = ( L_AESP_MODE( IMODE,: ) .AND. L_AESP_NUM ) )
             M2  = SUM( IBCON( : ), MASK = ( L_AESP_MODE( IMODE,: ) .AND. L_AESP_SRF ) ) * F1PI
            
-            M3DRY = SUM( IBCON( : ) * AEROCGRID_RHOINV * F6PI, 
+            M3DRY = SUM( IBCON( : ) * REAL( AEROCGRID_RHOINV * F6PI, 8), 
      &                   MASK = ( L_AESP_MASS .AND. L_AESP_MODE( IMODE,: )  
      &                            .AND. L_AESP_DRY ) ) 
-            M3WET = SUM( IBCON( : ) * AEROCGRID_RHOINV * F6PI, 
+            M3WET = SUM( IBCON( : ) * REAL( AEROCGRID_RHOINV * F6PI, 8), 
      &                   MASK = ( L_AESP_MASS .AND. L_AESP_MODE( IMODE,: ) ) ) 
          END IF
          
@@ -1847,8 +1850,8 @@ C Local variables:
          ! before applying aerosol density (kg m-3). If checking Initial
          ! Conditions, we do need to convert micrograms to kilograms.
          IF ( .NOT. IS_BC ) THEN 
-             M3WET = M3WET * KGPMG
-             M3DRY = M3DRY * KGPMG
+             M3WET = M3WET * REAL( KGPMG,8)
+             M3DRY = M3DRY * REAL( KGPMG,8)
          END IF
 
          AER_PAR ( 1, IMODE, 1 ) = NUM
@@ -1872,27 +1875,27 @@ C Local variables:
                   IF ( L_AETR_MODE( IMODE,IT ) .AND. L_AETR_MASS( IT ) ) 
      &               IBCON(IT) = MAX( IBCON(IT), CONMIN )
                 END DO
-                M3DRY = SUM( IBCON( : ) * AEROCGRID_RHOINV * F6PI, 
+                M3DRY = SUM( IBCON( : ) * REAL(AEROCGRID_RHOINV * F6PI,8), 
      &                       MASK = ( L_AETR_MASS .AND. L_AETR_MODE( IMODE,: )  
      &                                .AND. L_AETR_DRY ) ) 
-                M3WET = SUM( IBCON( : ) * AEROCGRID_RHOINV * F6PI, 
+                M3WET = SUM( IBCON( : ) * REAL(AEROCGRID_RHOINV * F6PI,8), 
      &                       MASK = ( L_AETR_MASS .AND. L_AETR_MODE( IMODE,: ) ) )
              ELSE
                 DO IS = 1,N_AE_SPC
                   IF ( L_AESP_MODE( IMODE,IS ) .AND. L_AESP_MASS( IS ) ) 
      &               IBCON(IS) = MAX( IBCON(IS), CONMIN )
                 END DO
-                M3DRY = SUM( IBCON( : ) * AEROCGRID_RHOINV * F6PI, 
+                M3DRY = SUM( IBCON( : ) * REAL(AEROCGRID_RHOINV * F6PI,8), 
      &                       MASK = ( L_AESP_MASS .AND. L_AESP_MODE( IMODE,: )  
      &                                .AND. L_AESP_DRY ) ) 
-                M3WET = SUM( IBCON( : ) * AEROCGRID_RHOINV * F6PI, 
+                M3WET = SUM( IBCON( : ) * REAL(AEROCGRID_RHOINV * F6PI,8), 
      &                       MASK = ( L_AESP_MASS .AND. L_AESP_MODE( IMODE,: ) ) ) 
              END IF
 
-             L2SG  = DEF_L2SG( IMODE )
+             L2SG  = REAL( DEF_L2SG( IMODE ),8)
              SG    = EXP( SQRT( L2SG ) )
              
-             DGDRY = DEF_DIAM( IMODE )  ! Dry Diameter Default
+             DGDRY = REAL( DEF_DIAM( IMODE ),8)  ! Dry Diameter Default
              NUM   = M3DRY * ( EXP( -4.5 * L2SG ) ) / ( DGDRY ) ** 3
              M2DRY = EXP( ONE_THIRD * LOG( NUM ) + TWO_THIRDS * LOG( M3DRY ) - L2SG )
              
@@ -1904,10 +1907,10 @@ C Local variables:
              !  default dry diameter and default standard deviation
              LSTAT( IMODE ) = 12
 
-             L2SG  = DEF_L2SG( IMODE )
+             L2SG  = REAL( DEF_L2SG( IMODE ), 8)
              SG    = EXP( SQRT( L2SG ) )
 
-             DGDRY = DEF_DIAM( IMODE )  ! Dry Diameter Default
+             DGDRY = REAL( DEF_DIAM( IMODE ), 8)  ! Dry Diameter Default
              NUM   = M3DRY * ( EXP( -4.5 * L2SG ) ) / ( DGDRY ) ** 3
              M2DRY = EXP( ONE_THIRD * LOG( NUM ) + TWO_THIRDS * LOG( M3DRY ) - L2SG )
 
@@ -1922,7 +1925,7 @@ C Local variables:
              ! representative sigma.
              LSTAT( IMODE ) = 13
 
-             L2SG  = DEF_L2SG( IMODE )
+             L2SG  = REAL( DEF_L2SG( IMODE ), 8)
              SG    = EXP( SQRT( L2SG ) )
 
              DGDRY = ( M3DRY / NUM * EXP( -4.5 * L2SG ) )  ** ( ONE_THIRD )
@@ -1940,18 +1943,18 @@ C Local variables:
                 L2SG = ( ONE_THIRD * LOG( NUM ) + TWO_THIRDS * LOG( M3DRY ) - LOG( M2DRY ))
              END IF
 
-             sg = 1.0
-             IF ( L2SG .gt. 0.0 ) SG = EXP( SQRT( L2SG ) )
+             sg = 1.0d0
+             IF ( L2SG .gt. 0.0d0 ) SG = EXP( SQRT( L2SG ) )
              AER_PAR( 1, IMODE, 8 ) = SG
-             IF ( (L2SG .LT. MIN_L2SG .AND. L2SG .GT. 0.95 * MIN_L2SG) .OR.
-     &            (L2SG .GT. MAX_L2SG .AND. L2SG .LT. 1.05 * MAX_L2SG) ) THEN
+             IF ( (L2SG .LT. REAL( MIN_L2SG,8) .AND. L2SG .GT. 0.95d0 * REAL(MIN_L2SG,8)) .OR.
+     &            (L2SG .GT. REAL( MAX_L2SG,8) .AND. L2SG .LT. 1.05d0 * REAL(MAX_L2SG,8)) ) THEN
                   ! Standard deviation is barely invalid. Don't trigger warning
                   LSTAT( IMODE ) = 4
-             ELSE IF ( L2SG .LT. 0.95*MIN_L2SG .OR. L2SG .GT. 1.05*MAX_L2SG ) THEN 
+             ELSE IF ( L2SG .LT. REAL( 0.95*MIN_L2SG,8) .OR. L2SG .GT. REAL(1.05*MAX_L2SG,8) ) THEN 
                   ! Standard deviation is invalid. Reset Standard Deviation
                   LSTAT( IMODE ) = 14
              END IF
-             L2SG  = MIN( MAX( L2SG, MIN_L2SG ), MAX_L2SG )
+             L2SG  = MIN( MAX( L2SG, REAL(MIN_L2SG,8) ), REAL(MAX_L2SG,8) )
              SG   = EXP( SQRT( L2SG ) )
 
              ! Diagnose and Check Dry Diameter against Limits
@@ -1960,8 +1963,8 @@ C Local variables:
              DGWET = ( M3WET / NUM * EXP( -4.5 * L2SG ) )  ** ( ONE_THIRD )
              AER_PAR( 1, IMODE, 6 ) = DGWET
 
-             IF ( (DGDRY .GT. 0.95*MIN_DG_DRY(IMODE) .AND. DGDRY .LT. MIN_DG_DRY(IMODE)) .OR.
-     &            (DGDRY .GT. MAX_DG_DRY(IMODE) .AND. DGDRY .LT. 1.05*MAX_DG_DRY(IMODE)) ) THEN
+             IF ( (DGDRY .GT. REAL(0.95*MIN_DG_DRY(IMODE),8) .AND. DGDRY .LT. REAL(MIN_DG_DRY(IMODE),8)) .OR.
+     &            (DGDRY .GT. REAL(MAX_DG_DRY(IMODE),8) .AND. DGDRY .LT. REAL(1.05*MAX_DG_DRY(IMODE),8)) ) THEN
                   ! Diameter is barely invalid. Don't trigger warning
                   IF ( LSTAT( IMODE ) .EQ. 4 ) THEN
                      LSTAT( IMODE ) = 6  ! Both sg and dg are barely invalid
@@ -1969,8 +1972,8 @@ C Local variables:
                      LSTAT( IMODE ) = 5  ! Just dg is barely invalid
                   END IF
              
-             ELSE IF ( DGDRY .LT. 0.95*MIN_DG_DRY( IMODE )  .OR. 
-     &                 DGDRY .GT. 1.05*MAX_DG_DRY(IMODE) ) THEN
+             ELSE IF ( DGDRY .LT. REAL(0.95*MIN_DG_DRY( IMODE ),8)  .OR. 
+     &                 DGDRY .GT. REAL(1.05*MAX_DG_DRY(IMODE) ,8 ) ) THEN
                  ! Diameter is invalid. Reset Diameter
                  IF ( LSTAT( IMODE ) .EQ. 4 .OR. LSTAT( IMODE ) .EQ. 12 ) THEN
                     LSTAT( IMODE ) = 16  ! Both dg and sg are invalid
@@ -2002,13 +2005,13 @@ C Local variables:
 
          IF ( IS_BC ) THEN
             DO IT = 1,N_AE_TRNS
-              IF ( L_AETR_MODE( IMODE,IT ) .AND. L_AETR_NUM( IT ) ) IBCON(IT) = NUM
-              IF ( L_AETR_MODE( IMODE,IT ) .AND. L_AETR_SRF( IT ) ) IBCON(IT) = M2 * PI
+              IF ( L_AETR_MODE( IMODE,IT ) .AND. L_AETR_NUM( IT ) ) IBCON0(IT) = REAL(NUM,4)
+              IF ( L_AETR_MODE( IMODE,IT ) .AND. L_AETR_SRF( IT ) ) IBCON0(IT) = REAL(M2,4) * PI
             END DO
          ELSE
             DO IS = 1,N_AE_SPC
-              IF ( L_AESP_MODE( IMODE,IS ) .AND. L_AESP_NUM( IS ) ) IBCON(IS) = NUM
-              IF ( L_AESP_MODE( IMODE,IS ) .AND. L_AESP_SRF( IS ) ) IBCON(IS) = M2 * PI
+              IF ( L_AESP_MODE( IMODE,IS ) .AND. L_AESP_NUM( IS ) ) IBCON0(IS) = REAL(NUM,4)
+              IF ( L_AESP_MODE( IMODE,IS ) .AND. L_AESP_SRF( IS ) ) IBCON0(IS) = REAL(M2,4) * PI
             END DO
          END IF
 
