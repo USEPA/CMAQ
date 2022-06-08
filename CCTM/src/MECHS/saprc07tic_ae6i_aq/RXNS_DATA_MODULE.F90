@@ -6,7 +6,7 @@
 
 
 ! --------- Photochemical Mechanism Reactions, Rates, etc. DAT ---------
-! Source file: /home/bmurphy/cmaq_projects/bicicle_1.6/UTIL/chemmech/input/saprc07tic_ae6i_aq/mech_saprc07tic_ae6i_aq.def
+! Source file: /home/bmurphy/cmaq_projects/bicicle_1.7/UTIL/chemmech/input/saprc07tic_ae6i_aq/mech_saprc07tic_ae6i_aq.def
 ! for Mechanism Name: SAPRC07TIC_AE6I_AQ              
 
 ! This file is used to create mechanism data and functions

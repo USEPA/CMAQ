@@ -364,7 +364,7 @@ C Set up for grav. settling
           ISAM_DEPV     = 0
           DO ITAG = 1, N_SPCTAG
             DO V = 1, N_SPC_DEPV
-              IBGN         = INDEX( VNAM_SPCTAG( ITAG ), '_', .FALSE. ) - 1
+              IBGN         = INDEX( VNAM_SPCTAG( ITAG ), '_', BACK = .TRUE. ) - 1
               ISAM_SPECIES = VNAM_SPCTAG( ITAG )( 1:IBGN )
               IF ( TRIM( ISAM_SPECIES ) .EQ. DV2DF_SPC( V ) ) THEN
                 ISAM_DEPV( ITAG ) = V
