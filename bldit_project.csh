@@ -16,9 +16,7 @@
 #> the repository. The user may also set their own preferred 
 #> directory.
 
-#set CMAQ_HOME = [your_install_path]/openmpi_4.0.1_gcc_9.1.0_debug 
-set CMAQ_HOME = /home/username/CMAQ_Project
-
+ set CMAQ_HOME = /home/username/CMAQ_Project
 
 #> This section allows users to choose explicitly which tools
 #> to make available from the repo. For each selected tool,

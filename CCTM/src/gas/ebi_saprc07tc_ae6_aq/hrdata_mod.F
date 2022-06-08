@@ -27,7 +27,7 @@ C  PRECONDITIONS: For the SAPRC07TC_AE6_AQ mechanism
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, Mar 21, 2022
+C  REVISION HISTORY: Created by EBI solver program, Mar 14, 2022
 C
 C   18 Jul 14 B.Hutzell: revised to use real(8) variables for solution
 C*************************************************************************
@@ -52,12 +52,17 @@ c..Control flags
       LOGICAL   L_AQ_VRSN    ! Flag for aqueous chemistry version of mech
       LOGICAL   CALL_IRR     ! Flag initializing for IRR and calling PA_IRR
 
+  ! SWITCH for calling DEGRADE routine
+      LOGICAL, SAVE :: CALL_DEG = .TRUE.
+
 c..Miscellaneous variables
       INTEGER   N_EBI_IT      ! No. of iterations for EBI
       INTEGER   N_EBI_STEPS   ! No. of time steps for EBI
       INTEGER   N_INR_STEPS   ! No. of inner time steps for EBI
       INTEGER   PECOL_OFFSET  ! Local Column Offset for processor
       INTEGER   PEROW_OFFSET  ! Local Column Offset for processor
+  
+      INTEGER, SAVE ::   MODEL_SPECIES ! No. of species in CGRID
 
       REAL( 8 )    EBI_TMSTEP          ! Time step for EBI loops (min)
       REAL( 8 )    CHEMSTEP            ! Chemistry integration interval (min)
@@ -81,6 +86,7 @@ c...Allocatable arrays
 
       REAL( 8 ), ALLOCATABLE ::  RXRAT( : )     ! Reaction rates
       REAL( 8 ), ALLOCATABLE ::  RTOL(  : )        ! Species tolerances
+      REAL( 8 ), ALLOCATABLE ::  YCCELL( : )       ! ALL Species in cgrid
       REAL( 8 ), ALLOCATABLE ::  PROD(  : )     ! Prod of species
       REAL( 8 ), ALLOCATABLE ::  LOSS(  : )     ! Loss of species
 
