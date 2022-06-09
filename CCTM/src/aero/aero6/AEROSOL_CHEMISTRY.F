@@ -367,11 +367,11 @@ C-----------------------------------------------------------------------
       USE GRID_CONF             ! horizontal & vertical domain specifications
       USE RXNS_DATA
       USE AERO_DATA
-      USE AEROMET_DATA, ONLY: f6dpi
+      USE AEROMET_DATA, ONLY: f6dpi, airdens
       USE PRECURSOR_DATA
       USE SOA_DEFN
       USE ELMO_DATA
-      USE ELMO_PROC
+      !USE ELMO_PROC
       USE CENTRALIZED_IO_MODULE
 
       IMPLICIT NONE
@@ -813,6 +813,8 @@ C *** Calculate rate constants at each grid cell location
 #endif         
 C *** Extract aerosol concentrations and update aerosol volume, surface
 C     area and diameter values.
+               AIRDENS = DENS( C,R,L )
+
                CALL HETCHEM_EXTRACT_AERO( CGRID( C,R,L,: ), C, R, L,
      &               WET_M2, WET_M3, DE_WET )
 
