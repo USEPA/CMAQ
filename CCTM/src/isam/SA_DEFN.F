@@ -25,6 +25,7 @@
 ! 10 Jun 21 G. Sarwar: Added CB6R3M
 ! 23 Jun 21 G. Sarwar: Replaced CB6R3M with CB6R5M
 ! 25 June 21 G. Sarwar: Removed CB6R3_AE6_AQ since it is not suported in CMAQ any more
+! 26 Apr 22 G. Sarwar: Added DMS
 
       USE RUNTIME_VARS, ONLY : VOC_NOX_TRANS, ISAM_NOX_CASE, ISAM_VOC_CASE
       
@@ -137,27 +138,28 @@ C ...Tagging indices for bcon, others, icon
 
         INTEGER, PARAMETER, PRIVATE :: MAX_STRING     = 32  ! max length of tagclass name
         INTEGER, PARAMETER, PRIVATE :: MAX_TAGCLASSES = 200 ! max number of tagclasses
-        INTEGER, PARAMETER, PRIVATE :: NUMB_CLASSES   = 18  ! number of defined tagclasses
+        INTEGER, PARAMETER, PRIVATE :: NUMB_CLASSES   = 19  ! number of defined tagclasses
         
         CHARACTER( MAX_STRING ), PARAMETER, PRIVATE :: DEFINED_CLASSES( NUMB_CLASSES ) = 
-     & (/ 'AMMONIUM  ',
-     &    'OA_TOT    ',
-     &    'NVPOA     ',
-     &    'CHLORINE  ',
-     &    'EC        ',
-     &    'SULFATE   ',
-     &    'OZONE     ',
-     &    'NITRATE   ',
-     &    'VOC       ',
-     &    'PM_IONS   ',
-     &    'ALL       ',
-     &    'PM_TOT    ',
-     &    'HAP_GAS   ',
-     &    'HAP_AERO  ',
-     &    'HAP_TOT   ',
-     &    'PAH_TEQ   ',
-     &    'BENAPYRENE',
-     &    'MERCURY   '/)
+     & (/ 'AMMONIUM    ',
+     &    'OA_TOT      ',
+     &    'NVPOA       ',
+     &    'CHLORINE    ',
+     &    'EC          ',
+     &    'SULFATE     ',
+     &    'OZONE       ',
+     &    'NITRATE     ',
+     &    'VOC         ',
+     &    'PM_IONS     ',
+     &    'ALL         ',
+     &    'PM_TOT      ',
+     &    'HAP_GAS     ',
+     &    'HAP_AERO    ',
+     &    'HAP_TOT     ',
+     &    'URBAN_TOXICS',
+     &    'PAH_TEQ     ',
+     &    'BENAPYRENE  ',
+     &    'MERCURY     '/)
         
       
       CONTAINS
@@ -194,13 +196,13 @@ C-----------------------------------------------------------
         INPUT_UNIT = JUNIT()
          
         OPEN ( UNIT = INPUT_UNIT, FILE = EQNAME, STATUS = 'OLD', IOSTAT = IOST )
-        XMSG = 'Error Opening SA_IO_LIST file'
+        XMSG = 'Error Opening ' // TRIM( EQNAME ) // ', the SA_IOLIST file'
         IF ( IOST .NE. 0 ) THEN
-          CALL M3EXIT ( 'SA_IOLIST', 0, 0, XMSG, XSTAT1 )
+          CALL M3EXIT ( PNAME, 0, 0, XMSG, XSTAT1 )
         ENDIF
 
         IF ( MYPE .EQ. 0 ) THEN        
-          WRITE(LOGDEV, *) 'SA_IO_LIST Sucessfully Opened'
+          WRITE(LOGDEV, *) TRIM( EQNAME ) // ': Sucessfully Opened'
           WRITE(LOGDEV, *) 'Start counting the list...'
         ENDIF
         NTAGS = 0
@@ -213,17 +215,15 @@ C-----------------------------------------------------------
           ENDIF ! if tag_name
 c check to see if bidirectional tag is necessary
           IF ( ABFLUX ) THEN
-            IF ( TXTLINE( 1:11 ) .EQ. 'TAG CLASSES' ) THEN
+            IF ( INDEX( TXTLINE, 'TAG CLASSES') .GT. 0 ) THEN
               IOST = INDEX( TXTLINE,'AMMONIUM', BACK = .FALSE. )
               IF ( IOST .NE. 0 ) THEN
                 SA_BIDI = .TRUE.
                 NTAGS   = NTAGS + 1
-c               BIDITAG = NTAGS ! set to last tag
               END IF
             END IF
           END IF
         ENDDO COUNTTAG
-
 
         IF ( SA_BIDI ) BIDITAG = NTAGS ! set to last tag
 
@@ -274,11 +274,11 @@ C-----------------------------------------------------------
         INPUT_UNIT = JUNIT()
 
         OPEN ( UNIT = INPUT_UNIT, FILE = EQNAME, STATUS = 'OLD', IOSTAT = IOST )
-        XMSG = 'Error Opening SA_IO_LIST file'
+        XMSG = 'Error Opening ' // TRIM( EQNAME ) // ', the SA_IOLIST file'
         IF ( IOST .NE. 0 ) THEN
-          CALL M3EXIT ( 'SA_IOLIST', 0, 0, XMSG, XSTAT1 )
+          CALL M3EXIT ( PNAME, 0, 0, XMSG, XSTAT1 )
         ENDIF
-        
+
         CHR = CHAR(124)
 101     READ ( INPUT_UNIT, '(A)' ) TXTLINE
         IF ( TXTLINE(1:3) .EQ. '!!!' .OR. TXTLINE(1:3) .EQ. '' ) GOTO 101
@@ -328,6 +328,11 @@ C-----------------------------------------------------------
               TAGNAME( ITAG ) = TXTLINE( DELIMINATOR_INDEX:LEN_TRIM( TXTLINE ) )
               IF( LEN_TRIM( TAGNAME( ITAG ) ) .LT. 1 )THEN
                  XMSG = 'ISAM ERROR: a "TAG NAME" in control file is blank. '
+                 CALL M3EXIT('SA_IOLIST', 0, 0, XMSG, XSTAT2 )
+              END IF
+              IF( INDEX( TAGNAME( ITAG ), "_", BACK = .FALSE. ) .GT. 0 )THEN
+                 XMSG = 'ISAM ERROR: TAG NAME: ' // TRIM( TAGNAME( ITAG ) ) 
+     &               // ' cannot use the underscore character.'
                  CALL M3EXIT('SA_IOLIST', 0, 0, XMSG, XSTAT2 )
               END IF
           ELSE   
@@ -707,9 +712,9 @@ c----------------------------------------------------------
         ALLOCATE( ISAM_SPEC_SO4( 1 )%LIST( 1 ) )
         ISAM_SPEC_SO4( 1 )%LIST = (/'SO2'/ )
         
-        !CB6R3_AE7_AQ
+        !CB6R5_AE7_AQ
         ALLOCATE( ISAM_SPEC_SO4( 2 )%LIST( 1 ) )
-        ISAM_SPEC_SO4( 2 )%LIST = (/'SO2'/ )
+        ISAM_SPEC_SO4( 2 )%LIST = (/'SO2', 'DMS'/ )
         
         !CB6R5M_AE7_AQ
         ALLOCATE( ISAM_SPEC_SO4( 3 )%LIST( 2 ) )

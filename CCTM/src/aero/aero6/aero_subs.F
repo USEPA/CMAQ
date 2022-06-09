@@ -275,7 +275,7 @@ C *** variables for advancing concentrations one time step
       REAL( 8 ) :: LOSS, PROD, POL
       REAL         TMASS
       REAL         FACTRANS ! special factor to compute mass transfer
-      REAL         M20      ! for initial condidtions in time stepping
+      REAL         M30(3), M20(3), M00(3)      ! for initial condidtions in time stepping
 
 C *** Variables for mode merging
       REAL         GETAF
@@ -420,88 +420,17 @@ C     following equations. 2) new particle formation and condensational
 C     growth are now treated in the VOLINORG subroutine, so they do not
 C     appear in the following equations.
  
-C     M2 is updated before M0 because the intermodal transfer rate of
-C     M2 is a function of the number concentrations.  In contrast,
-C     production and loss rates of M0 are independent of M2.  Advancing
-C     M2 before M0 avoids operator splitting within the modal-dynamic-
-C     equation solution.  A similar rearrangement would be necessary
-C     for the M3 update, but the dependence of M3 on number
-C     concentrations already is accounted for in the C30ATAC term.
+      ! Initial Moment Values
+      M00 = MOMENT0_CONC
+      M20 = MOMENT2_CONC
+      M30 = MOMENT3_CONC
 
-C *** UPDATE SECOND MOMENT
-C     For each lognormal mode, solve equations of form:
-C        dM2/dt = P2 - L2*M2   ! if L2 > 0
-C     with solution
-C        M2(t) = P2/L2 + ( M2(t0) - P2/L2 ) * exp( -L2*dt )
-C     or
-C        dM2/dt = P2           ! if L2 = 0
-C     with solution
-C        M2(t) = M2(t0) + P2*dt
-
-C *** Aitken mode: initial value of M2
-      M20 = MOMENT2_CONC( 1 )
-
-C *** Loss of 2nd moment from Aitken mode is due to intermodal
-C     coagulation with accumulation mode and intramodal coagulation.
-C     Production term is removed, because new particle formation
-C     and condensational growth are accounted for in VOLINORG.
-      LOSS = (
-     &        ( BATAT( 2 ) * MOMENT0_CONC( 1 )
-     &        + BATAC( 2 ) * MOMENT0_CONC( 2 ) ) * MOMENT0_CONC( 1 )
-     &       ) / M20
-
-C *** Solve for M2_Aitken based on LOSS during this time step
-C     Note: LOSS is assumed to be non-negative.
-      IF ( LOSS .GT. 0.0 ) THEN
-         Y = M20 * EXP( -LOSS * DT )
-      ELSE
-         Y = M20
-      END IF ! test on loss
-
-C *** Transfer new value of M2_Aitken to the array
-      MOMENT2_CONC( 1 ) = MAX( REAL( AEROMODE_MINM2( 1 ) ), REAL( Y ) )
-
-C *** Accumulation mode: initial value of M2
-      M20 = MOMENT2_CONC( 2 )
-
-C *** Production of 2nd moment in accumulation mode is due to
-C     intermodal coagulation Aitken mode
-      PROD = BACAT( 2 ) * MOMENT0_CONC( 1 ) * MOMENT0_CONC( 2 )
-
-C *** Loss of 2nd moment from accumulation mode is due only to
-C     intramodal coagulation
-      LOSS = ( BACAC( 2 ) * MOMENT0_CONC( 2 ) * MOMENT0_CONC( 2 ) ) / M20
-
-C *** Solve for M2_accum based on PROD and LOSS during this time step
-C     Note: LOSS is assumed to be non-negative.
-      IF ( LOSS .GT. 0.0 ) THEN
-         POL = PROD / LOSS
-         Y = POL + ( M20 - POL ) * EXP( -LOSS * DT )
-      ELSE
-         Y = M20 + PROD * DT
-      END IF ! test on loss
-
-C *** Transfer new value of M2_accum to moment array
-      MOMENT2_CONC( 2 ) = MAX( REAL( AEROMODE_MINM2( 2 ) ), REAL( Y ) )
-
-C *** Coarse mode: no change because coagulation of coarse particles
-C     is neglected in current model version.
-
-! ** Update Budget Variable for Second Moment
-      COAG_BUDGET( AEROSRF_MAP( 1 ),1 ) = MOMENT2_CONC( 1 ) * PI - CBUDGET0_SRF( 1 )
-      COAG_BUDGET( AEROSRF_MAP( 2 ),2 ) = MOMENT2_CONC( 2 ) * PI - CBUDGET0_SRF( 2 )
-
-C *** end of update for second moment
-
-C *** Update Zeroth Moment (i.e. number concentration)
-
-C *** Aitken mode: initial value of M0
-
+! *** Update Zeroth Moment (i.e. number concentration)
+! *** Aitken mode: initial value of M0
       Y0 = MOMENT0_CONC( 1 )
 
-C *** The rate of change for M0_Aitken is described in Equation 8a of
-C     Binkowski & Roselle (2003), with the c_i term equal to 0.
-
+      ! The rate of change for M0_Aitken is described in Equation 8a of
+      ! Binkowski & Roselle (2003), with the c_i term equal to 0.
       A = BATAT( 1 )                      ! intramodal coagulation
       B = BATAC( 1 ) * moment0_conc( 2 )  ! intermodal coagulation
 
@@ -512,30 +441,31 @@ C     Binkowski & Roselle (2003), with the c_i term equal to 0.
          Y = Y0                 ! solution in the limit that B approaches zero
       END IF
 
-C *** Transfer new value of M0_Aitken to the moment array
+      ! Transfer new value of M0_Aitken to the moment array
       MOMENT0_CONC( 1 ) = MAX( AEROMODE_MINNUM( 1 ), REAL( Y ) )
 
-C *** Accumulation mode: initial value of M0
+      ! Accumulation mode: initial value of M0
       Y0 = MOMENT0_CONC( 2 )
 
-C *** The rate of change for M0_accum is described in Equation 8b of
-C     Binkowski & Roselle (2003), except the coefficient C is zero
-C     because emissions are treated outside the CMAQ aerosol module.
-C     The equation reduces to the form: dY/dt = -A * Y**2 , where
+      ! The rate of change for M0_accum is described in Equation 8b of
+      ! Binkowski & Roselle (2003), except the coefficient C is zero
+      ! because emissions are treated outside the CMAQ aerosol module.
+      ! The equation reduces to the form: dY/dt = -A * Y**2 , where
       A = BACAC( 1 )                 ! intramodal coagulation
 
-C *** Solve for M0_accum using Smoluchowski`s solution
+      ! Solve for M0_accum using Smoluchowski`s solution
       Y = Y0 / ( 1.0D0 + A * Y0 * DT )
 
-C *** Transfer new value of M0_accum to the moment array
+      ! Transfer new value of M0_accum to the moment array
       MOMENT0_CONC( 2 ) = MAX( AEROMODE_MINNUM( 2 ), REAL( Y ) )
 
-! ** Update Budget Variable for Second Moment
+      ! ** Update Budget Variable for Zeroth Moment
       COAG_BUDGET( AERONUM_MAP( 1 ),1 ) = MOMENT0_CONC( 1 ) - CBUDGET0_NUM( 1 )
       COAG_BUDGET( AERONUM_MAP( 2 ),2 ) = MOMENT0_CONC( 2 ) - CBUDGET0_NUM( 2 )
 
-C *** end of update for zeroth moment - note that the coarse mode number does
-C     not change because coarse-mode coagulation is neglected in the model
+! *** end of update for zeroth moment - note that the coarse mode number does
+! *** not change because coarse-mode coagulation is neglected in the model
+ 
 
 C *** UPDATE MASS CONCENTRATIONS (for each species)
 C     The following procedure is described in Paragraphs 21-23
@@ -562,19 +492,19 @@ C     concentration.
 
       LOSS = C30ATAC / MOMENT3_CONC( 1 )
 
-C *** Set up extra variables to solve for Aitken mode mass concentrations
+      ! Set up extra variables to solve for Aitken mode mass concentrations
       FACTRANS = REAL( LOSS,4 ) * DT
       EXPDT = EXP( -FACTRANS )
 
-C *** Transfer mass from Aitken to accumulation mode, resulting from 
-C     intermodal coagulation.
+      ! Transfer mass from Aitken to accumulation mode, resulting from 
+      ! intermodal coagulation.
 
       DO SPC = 1, N_AEROSPC
          IF ( AERO_MISSING(SPC,1) ) CYCLE
  
          TMASS = AEROSPC_CONC( SPC,1 ) + AEROSPC_CONC( SPC,2 )
          IF( SPC .EQ. APHGJ_IDX  )THEN 
-! assumes all production adsorb onto accumulation mode
+             ! assumes all production adsorb onto accumulation mode
              TMASS = TMASS + PHG_RATE * DT
          END IF
 
@@ -595,6 +525,75 @@ C     intermodal coagulation.
       END DO
 
 C *** end of update for species mass concentrations
+ 
+! *** UPDATE SECOND MOMENT
+      IF ( COAG_MOMENTS .EQ. 3 ) THEN
+        ! For each lognormal mode, solve equations of form:
+        !    dM2/dt = P2 - L2*M2   ! if L2 > 0
+        ! with solution
+        !    M2(t) = P2/L2 + ( M2(t0) - P2/L2 ) * exp( -L2*dt )
+        ! or
+        !    dM2/dt = P2           ! if L2 = 0
+        ! with solution
+        !    M2(t) = M2(t0) + P2*dt
+
+        ! Loss of 2nd moment from Aitken mode is due to intermodal
+        ! coagulation with accumulation mode and intramodal coagulation.
+        ! Production term is removed, because new particle formation
+        ! and condensational growth are accounted for in VOLINORG.
+        LOSS = (
+     &          ( BATAT( 2 ) * M00( 1 )
+     &          + BATAC( 2 ) * M00( 2 ) ) * M00( 1 )
+     &         ) / M20( 1 )
+
+        ! Solve for M2_Aitken based on LOSS during this time step
+        ! Note: LOSS is assumed to be non-negative.
+        IF ( LOSS .GT. 0.0 ) THEN
+           Y = M20( 1 ) * EXP( -LOSS * DT )
+        ELSE
+           Y = M20( 1 )
+        END IF ! test on loss
+
+        ! Transfer new value of M2_Aitken to the array
+        MOMENT2_CONC( 1 ) = MAX( REAL( AEROMODE_MINM2( 1 ) ), REAL( Y ) )
+
+        ! Production of 2nd moment in accumulation mode is due to
+        ! intermodal coagulation Aitken mode
+        PROD = BACAT( 2 ) * M00( 1 ) * M00( 2 )
+
+        ! Loss of 2nd moment from accumulation mode is due only to
+        ! intramodal coagulation
+        LOSS = ( BACAC( 2 ) * M00( 2 ) * M00( 2 ) ) / M20( 2 )
+
+        ! Solve for M2_accum based on PROD and LOSS during this time step
+        ! Note: LOSS is assumed to be non-negative.
+        IF ( LOSS .GT. 0.0 ) THEN
+           POL = PROD / LOSS
+           Y = POL + ( M20(2) - POL ) * EXP( -LOSS * DT )
+        ELSE
+           Y = M20(2) + PROD * DT
+        END IF ! test on loss
+     
+        ! Transfer new value of M2_accum to moment array
+        MOMENT2_CONC( 2 ) = MAX( REAL( AEROMODE_MINM2( 2 ) ), REAL( Y ) )
+
+        ! Coarse mode: no change because coagulation of coarse particles
+        ! is neglected in current model version.
+
+      ELSE IF ( COAG_MOMENTS .EQ. 2 ) THEN
+        ! Assume constant modal standard deviation and solve for new
+        ! second moment as a function of the change in the third moment.
+        MOMENT2_CONC( 1 ) = M20( 1 )*( MOMENT3_CONC( 1 ) / M30( 1 ) ) ** ( 2.0 / 3.0 )
+        MOMENT2_CONC( 2 ) = M20( 2 )*( MOMENT3_CONC( 2 ) / M30( 2 ) ) ** ( 2.0 / 3.0 )
+
+      END IF
+
+      ! Update Budget Variable for Second Moment
+      COAG_BUDGET( AEROSRF_MAP( 1 ),1 ) = MOMENT2_CONC( 1 ) * PI - CBUDGET0_SRF( 1 )
+      COAG_BUDGET( AEROSRF_MAP( 2 ),2 ) = MOMENT2_CONC( 2 ) * PI - CBUDGET0_SRF( 2 )
+
+C *** end of update for second moment
+ 
 
 C *** Mode Merging
 C     This code implements Section 1.5 of Binkowski and Roselle (2003).
@@ -3168,13 +3167,13 @@ C  Called by: Gas-Phase Chemistry Driver
 
       USE AERO_DATA, ONLY : AEROSPC_CONC, AEROSPC, N_MODE, 
      &                      AH2O_IDX, AORGH2O_IDX
-      USE PMDIAG_DATA
+      USE ELMO_DATA
 
       IMPLICIT NONE
 
       ! Input variables
       INTEGER, INTENT( INOUT ) :: INLET ! Integer prescribing the inlet type
-                                        !   (see PMDIAG_INLET table in PMDIAG_DATA module)
+                                        !   (see ELMO_INLET table in ELMO_DATA module)
       INTEGER, INTENT( INOUT ) :: WETNESS ! 1 = Wet Aerosol; 2 = Dry Aerosol
 
       ! Output variable
@@ -3203,12 +3202,12 @@ C ----------------------- Begin solution -------------------------------
 !     Calls the AERO_INLET routine for calculating the fraction of each 
 !       mode collected by inlet prescribed by INLET. This subroutine is
 !       only for PM0.1, PM1, PM2.5, PM10 and PM2.5to10. It is not for
-!       AMS inlet calculation. If the user expands the PMDIAG_INLET
+!       AMS inlet calculation. If the user expands the ELMO_INLET
 !       table to consider more cutoff ranges, this subroutine can be
 !       used to calculate them as well.
 !-----------------------------------------------------------------------
 
-      USE PMDIAG_DATA
+      USE ELMO_DATA
       USE AERO_DATA, ONLY : WET_AERO_DIAM, AEROMODE_LNSG, WET_AERO_DENS,
      &                      DRY_AERO_DIAM, DRY_AERO_DENS
 
@@ -3216,7 +3215,7 @@ C ----------------------- Begin solution -------------------------------
 
       ! Input variables
       INTEGER, INTENT( INOUT ) :: INLET ! Integer prescribing the inlet type
-                                        !   (see PMDIAG_INLET table in PMDIAG_DATA module)
+                                        !   (see ELMO_INLET table in ELMO_DATA module)
       INTEGER, INTENT( INOUT ) ::  IMODE   ! Aerosol Mode of interest
       INTEGER, INTENT( INOUT ) ::  WETNESS ! 1 = Wet Aerosol; 2 = Dry Aerosol
 
@@ -3230,14 +3229,14 @@ C ----------------------- Begin solution -------------------------------
          IF ( WETNESS .EQ. IWET ) THEN
            CALL AERO_INLET( WET_AERO_DIAM( IMODE ), AEROMODE_LNSG( IMODE ),
      &                      WET_AERO_DENS( IMODE ), 
-     &                      PMDIAG_INLET( INLET )%DIAM_LO, 
-     &                      PMDIAG_INLET( INLET )%DIAM_HI, 
+     &                      ELMO_INLET( INLET )%DIAM_LO, 
+     &                      ELMO_INLET( INLET )%DIAM_HI, 
      &                      FRAC )
          ELSE
            CALL AERO_INLET( DRY_AERO_DIAM( IMODE ), AEROMODE_LNSG( IMODE ),
      &                      DRY_AERO_DENS( IMODE ), 
-     &                      PMDIAG_INLET( INLET )%DIAM_LO, 
-     &                      PMDIAG_INLET( INLET )%DIAM_HI, 
+     &                      ELMO_INLET( INLET )%DIAM_LO, 
+     &                      ELMO_INLET( INLET )%DIAM_HI, 
      &                      FRAC )
          END IF
          
@@ -3257,13 +3256,13 @@ C ----------------------- Begin solution -------------------------------
 
       USE AERO_DATA, ONLY : DRY_AERO_DIAM, WET_AERO_DIAM,
      &                      AEROMODE_LNSG, MOMENT0_CONC
-      USE PMDIAG_DATA
+      USE ELMO_DATA
 
       IMPLICIT NONE
 
       ! Input variables
       INTEGER, INTENT( INOUT ) :: INLET ! Integer prescribing the inlet type
-                                        !   (see PMDIAG_INLET table in PMDIAG_DATA module)
+                                        !   (see ELMO_INLET table in ELMO_DATA module)
       INTEGER, INTENT( INOUT ) ::  WETNESS ! 1 = Wet Aerosol; 2 = Dry Aerosol
 
       ! Output variable
@@ -3278,13 +3277,13 @@ C ----------------------- Begin solution -------------------------------
       DO IM = 1,N_MODE
          IF ( WETNESS .EQ. IWET ) THEN
            CALL NUM_INLET( WET_AERO_DIAM( IM ), AEROMODE_LNSG( IM ),
-     &                      PMDIAG_INLET( INLET )%DIAM_LO, 
-     &                      PMDIAG_INLET( INLET )%DIAM_HI, 
+     &                      ELMO_INLET( INLET )%DIAM_LO, 
+     &                      ELMO_INLET( INLET )%DIAM_HI, 
      &                      FRAC )
          ELSE
            CALL NUM_INLET( DRY_AERO_DIAM( IM ), AEROMODE_LNSG( IM ),
-     &                      PMDIAG_INLET( INLET )%DIAM_LO, 
-     &                      PMDIAG_INLET( INLET )%DIAM_HI, 
+     &                      ELMO_INLET( INLET )%DIAM_LO, 
+     &                      ELMO_INLET( INLET )%DIAM_HI, 
      &                      FRAC )
          END IF
  

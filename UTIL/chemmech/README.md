@@ -175,24 +175,24 @@ Rate constant parameters begin with either a # sign or the expression, "%s#", wh
 
 <center>  Table 2.  </center>
 
-| Type | Mechanism Definition File Expression| Formula, where M is air number density (molecules/cm3), T is air temperature(degrees K), and P is air pressure (Atm) |  
-|:---:|:-------------------:|:---:|   
-| -1   | #  A\\< HETEOROGENOUS>  | A\*H |  
-| 0   | #  A\\< PHOTOLYSIS>  | A\*J |  
-| 1   | #  A               | A   |  
-| 2   | #  A \^B             | A\*(T/300)\*\*B |  
-| 3   | #  A@B             | A\*EXP(-B/T) |  
-| 4   |	#  A\^B@B           | A\*(T/300)\*\*B\*EXP(-E/T) |  
-| 5   |	#  A@C\*E<REACTION> | K\*EXP(C/T)/A |  
-| 6   |	#  A*K<REACTION>   | A\*K |  
-| 7   |	%1  #  A           | A\*(1+0.6\*P) |  
-| 8   |	%2  #  A0@E0&A2@E2&A3@E3       | k0  +  k3\*M/(1+k3/k2) where  k0  =  A0\*exp(-E0/T),  k2  =  A2\*EXP(-E2/T),  and  k3  =  A3\*EXP(-E3/T)  |  
-| 9   |	%3  #  A0@E0&A1@E1             | A0\*EXP(-E0/T)+A1\*EXP(-E1/T)\*M |  
-| 9.1 | %3  #  A0^B0@E0&A1\^B1@E1&A2@E2 | A0\*(T/300)\*\*B0\*EXP(-E0/T)+A1\*(T/300)\*\*B1\*EXP(-E1/T)\*M+A2\*EXP(-E2/T) |  
-| 10  | #  A0^B0@E0&A1\^B1@E1&N&F       | [  ko\*M/(1+ko\*M/kinf)]F\*\*G  where  ko  =  A0\*(T/300)\*\*B0\*EXP(-E0/T),  kinf  =  A1\*(T/300)\*\*B1\*EXP(-E1/T)  and  G  =  G=1/[1+(log10(k0\*M/kinf)/n)**2)]  |  
-| 11  | #A?OPERATOR                    | A\*O |  
-| 12  |  %H  #  A0@E0&A1@E1&A2            | min(A0\*EXP(-E0\*P)+A1\*EXP(-E1\*P), A2)  if  the  sun  is  above  the  horizon  and  the  surface  is over  open  water  with  no  surf  zone.  0.0  if  otherwise |  
-| 13  | %4 # _Text String_     | Simple Fortran formula for rate constant | 
+| Type | Mechanism Definition File Expression| Formula, where M is air number density (molecules/cm3), T is air temperature(degrees K), and P is air pressure (Atm) |
+|:---:|:-------------------:|:---:|
+| -1   | #  A\\< HETEOROGENOUS>  | A\*H |
+| 0   | #  A\\< PHOTOLYSIS>  | A\*J |
+| 1   | #  A               | A   |
+| 2   | #  A \^B             | A\*(T/300)\*\*B |
+| 3   | #  A@C             | A\*EXP(-C/T) |
+| 4   | #  A\^B@C           | A\*(T/300)\*\*B\*EXP(-C/T) |
+| 5   | #  A@C\*E<REACTION> | K\*EXP(C/T)/A |
+| 6   | #  A*K<REACTION>   | A\*K |
+| 7   | %1  #  A           | A\*(1+0.6\*P) |
+| 8   | %2  #  A0@C0&A2@C2&A3@C3       | k0  +  k3\*M/(1+k3/k2) where  k0  =  A0\*exp(-C0/T),  k2  =  A2\*EXP(-C2/T),  and  k3  =  A3\*EXP(-C3/T)  |
+| 9   | %3  #  A0@C0&A1@C1             | A0\*EXP(-C0/T)+A1\*EXP(-C1/T)\*M |
+| 9.1 | %3  #  A0^B0@C0&A1\^B1@C1&A2@C2 | A0\*(T/300)\*\*B0\*EXP(-C0/T)+A1\*(T/300)\*\*B1\*EXP(-C1/T)\*M+A2\*EXP(-C2/T) |
+| 10  | #  A0^B0@C0&A1\^B1@C1&N&F       | [  ko\*M/(1+ko\*M/kinf)]F\*\*G  where  ko  =  A0\*(T/300)\*\*B0\*EXP(-C0/T),  kinf  =  A1\*(T/300)\*\*B1\*EXP(-C1/T)  and  G  =  G=1/[1+(log10(k0\*M/kinf)/n)**2)]  |
+| 11  | #A?OPERATOR                    | A\*O |
+| 12  |  %H  #  A0@C0&A1@C1&A2            | min(A0\*EXP(-C0\*P)+A1\*EXP(-C1\*P), A2)  if  the  sun  is  above  the  horizon  and  open  water  plus  surf  zone covers the surface by more than 0.1\%.  0.0  if  otherwise |  
+| 13  | %4 # _Text String_     | Simple Fortran formula for rate constant |
 
 **Notes:**   
 1.  For rate constants with the form A<Reference> or A*Reference, reference gives label for a photolysis rate (J), a heteorogeneous rate constant (H), rate constant for the given (K) reaction label or an operator (O). A equals one if not given.

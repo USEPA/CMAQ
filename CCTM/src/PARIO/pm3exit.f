@@ -111,6 +111,7 @@ C.......  Do M3EXIT tasks.
           WRITE( OUTDEV,91010 ) PCALLER, TRIM( MSGTXT )
 
           WRITE( LOGDEV,91010 ) PCALLER, TRIM( MSGTXT )
+          FLUSH( LOGDEV )
 
           IF ( JDATE .GT. 0  .OR.  JTIME .GT. 0 ) THEN
               DTBUF = DT2STR( JDATE, JTIME )

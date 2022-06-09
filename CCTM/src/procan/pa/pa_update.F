@@ -28,7 +28,7 @@
       USE PA_DEFN               ! Process Anaylsis control and data variables
       USE PAGRD_DEFN            ! PA horiz domain specs
       USE UTILIO_DEFN           ! inherits PARUTILIO
-      USE EMIS_VARS
+      USE DESID_VARS
       USE CENTRALIZED_IO_MODULE
       USE BUDGET_DEFN
 

@@ -33,7 +33,7 @@ C
 C  Preconditions: None
 C
 C  Key Subroutines/Functions Called: 
-C                                    DEGRADE
+C                                    DEGRADE_BLK
 C
 C  Revision History: Prototype created by Jerry Gipson, August, 2004
 C                    Based on the solver described by Sandu et al
@@ -55,12 +55,14 @@ C                               with UTILIO_DEFN
 C                    15 Jul 14 B.Hutzell: replaced mechanism include files with 
 C                    RXNS_DATA module, updated explicit interfaces and revised
 C                    block for FPP flag redebug is set in compilation
+C                    21 Mar 22 G . Sarwar: changed BLKLAND to BLKSEAWATER
 C**********************************************************************
 !     USE GRID_CONF               ! horizontal & vertical domain specifications
       USE RXNS_DATA
       USE RBDATA                  ! ROS3 solver data
       USE CGRID_SPCS              ! CGRID mechanism species
       USE UTILIO_DEFN
+      USE DEGRADE_ROUTINES, ONLY: DEGRADE_BLK
       USE PA_IRR_MODULE
       
       IMPLICIT NONE 
@@ -184,13 +186,6 @@ c.....ROS3 intermediate variables
             REAL( 8 ), INTENT( INOUT ) :: YIN(  :, : )  ! Species concs, ppm
             REAL( 8 ), INTENT(   OUT ) :: YDOT( :, : )  ! Species rates of change, ppm/min
          END SUBROUTINE RBFEVAL
-         SUBROUTINE DEGRADE( CBLK, DT, JDATE, JTIME, BLKID )
-           REAL( 8 ), INTENT( IN ) :: CBLK( :,  : ) ! array holding species concentrations
-           REAL( 8 ), INTENT( IN ) :: DT            ! time step for integrations [sec]
-           INTEGER,   INTENT( IN ) :: JDATE         ! current model date , coded YYYYDDD
-           INTEGER,   INTENT( IN ) :: JTIME         ! current model time , coded HHMMSS
-           INTEGER,   INTENT( IN ) :: BLKID         ! ID number for the BLK
-         END SUBROUTINE DEGRADE
          SUBROUTINE RBSOLVE( NCSP, RHS )
            INTEGER,   INTENT( IN ) :: NCSP        ! Index of chem mech to use: 1=gas/day, 2=gas/night
            REAL( 8 ), INTENT( INOUT ) :: RHS( :,: )  ! Right hand side = {b}
@@ -497,7 +492,7 @@ c..Estimate error
 
                NCALL_DEGRADE = NCALL_DEGRADE + 1
 
-               CALL DEGRADE( Y_DEGRADE, DT_DEGRADE, JDATE, JTIME, BLKID )
+               CALL DEGRADE_BLK( Y_DEGRADE, DT_DEGRADE, JDATE, JTIME, BLKID )
 
             END IF            !:WTH
 
@@ -548,7 +543,7 @@ c..Estimate error
                END DO
 
                WRITE( LOGDEV, 92215 ) BLKTEMP( CELL_MAXERR ), BLKPRES( CELL_MAXERR ),
-     &         BLKDENS( CELL_MAXERR ), BLKCH2O( CELL_MAXERR ), BLKLAND( CELL_MAXERR ) 
+     &         BLKDENS( CELL_MAXERR ), BLKCH2O( CELL_MAXERR ), BLKSEAWATER( CELL_MAXERR ) 
 
                WRITE( LOGDEV, 92115 )
 
@@ -617,7 +612,7 @@ c..write photolysis rates used in cell
      &       / 'Press = ', ES12.4,' Pa '
      &       / 'Dens = ', ES12.4, ' Kg/m3 ' 
      &       / 'H2O Vapor = ', ES12.4, ' ppm '
-     &       / 'LAND(True/False) = ', L7 )
+     &       / 'SEAWATER( - ) = ', ES12.4 )
       
       END
 
