@@ -27,7 +27,7 @@ C
 C  KEY SUBROUTINES/FUNCTIONS CALLED:  HRINIT, HRCALCKS, HRSOLVER
 C                                     FIND_DEGRADED, INIT_DEGRADE, FINAL_DEGRADE
 C
-C  REVISION HISTORY: Created by EBI solver program, Mar 24, 2022
+C  REVISION HISTORY: Created by EBI solver program, Jun  8, 2022
 C                       Based on the algorithm in "Test of Two Numerical
 C                       Schemes for Use in Atmospheric Transport-Chemistry
 C                       Models", O. Hertel, R. Berkowicz, J. Christensen,
@@ -235,7 +235,7 @@ c..If emissions processing requested stop
 
 #ifdef hrstats
          ISTFL = JUNIT()
-         OPEN( UNIT=ISTFL, FILE='iterstat.dat' )HCHOP'
+         OPEN( UNIT=ISTFL, FILE='iterstat.dat' )
          WRITE( ISTFL, 94020 )
 #endif
 C Define processor offsets

@@ -27,7 +27,7 @@ C
 C  KEY SUBROUTINES/FUNCTIONS CALLED:  HRINIT, HRCALCKS, HRSOLVER
 C                                     FIND_DEGRADED, INIT_DEGRADE, FINAL_DEGRADE
 C
-C  REVISION HISTORY: Created by EBI solver program, Mar 14, 2022
+C  REVISION HISTORY: Created by EBI solver program, Jun  8, 2022
 C                       Based on the algorithm in "Test of Two Numerical
 C                       Schemes for Use in Atmospheric Transport-Chemistry
 C                       Models", O. Hertel, R. Berkowicz, J. Christensen,
@@ -254,7 +254,7 @@ C Define processor offsets
      &             QV  ( NCOLS, NROWS, NLAYS ), TA  ( NCOLS, NROWS, NLAYS ),
      &             SEAICE( NCOLS, NROWS ) )
 
-C..Initialize shared photolysis dataHCHOP'
+C..Initialize shared photolysis data
          CALL INIT_PHOT_SHARED()
 
 C..Determine which cells need IRR
