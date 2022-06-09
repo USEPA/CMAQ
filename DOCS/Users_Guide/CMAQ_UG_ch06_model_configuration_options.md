@@ -725,6 +725,8 @@ Chemical mechanisms available with CMAQv5.3 can be found in [Table 6-3](#Table6-
 | saprc07tic_ae6i_aq | State Air Pollution Research Center version 07tc with extended isoprene chemistry and aero6i treatment of SOA set up for standard cloud chemistry | 
 | saprc07tic_ae6i_aqkmti | State Air Pollution Research Center version 07tc with extended isoprene chemistry and aero6i treatment of SOA for expanded organic cloud chemistry for isoprene  | 
 | saprc07tc_ae6_aq | State Air Pollution Research Center version 07tc with aero6 treatment of SOA set up for with standard cloud chemistry  | 
+| cracmm1_aq | Community Regional Atmospheric Chemistry Multiphase Mechanism version 1.0 | 
+| cracmm1amore_aq | Community Regional Atmospheric Chemistry Multiphase Mechanism version 1.0 with AMORE isoprene chemistry  | 
 
 <a id=6.10.2_Solver></a>
 
@@ -802,6 +804,84 @@ setenv CTM_SFC_HONO Y
 CMAQ uses a default setting of Y to include the production of HONO from the heterogeneous reaction on ground surface. Ground surface areas for buildings and other structures for urban environments is assumed to be proportional to the percent urban area in any grid cell. This data is usually available via MCIP represented by the variable PURB, however, in some instances this data may not be available. If the data is not available, the model assumes the percent urban area to be 0.0 which will inhibit the heterogeneous reaction on buildings and other structures for urban environments causing lower predicted HONO.
 
 The user can set it to N to exclude the heterogeneous production from the reaction. Note that the default setting for the inline deposition calculation (CTM_ILDEPV) flag is Y. If the flag is changed to N, then the production of HONO from the heterogeneous reaction on ground surface will not work properly. Additional description of the HONO chemistry in CMAQ can be found in Sarwar et al. (2008).
+
+### 6.10.5 CRACMM Version 1.0
+
+The Community Regional Atmospheric Chemistry Multiphase Mechanism (CRACMM) builds on the history of the Regional Atmospheric Chemistry Mechanism, Version 2 (RACM2) and aims to couple gas- and particle-phase chemistry by treating the entire pool of atmospheric reactive organic carbon (ROC) relevant to present-day emissions. CRACMM species were developed to represent the total emissions of ROC, considering the OH reactivity, ability to form ozone and secondary organic aerosol (SOA), and other properties of individual emitted compounds. The chemistry of CRACMM, which includes autoxidation, multigenerational oxidation, and the treatment of semivolatile and intermediate volatility compounds, was built using a variety of sources including literature and other mechanisms (RACM2, MCM, GECKO, and SAPRC18/mechgen). 
+
+CRACMMv1 is available in two flavors: base CRACMMv1 and CRACMMv1AMORE. The development of base CRACMMv1 is described by Pye et al. and the application of CRACMMv1 within CMAQ to the northeast U.S. in summer 2018 as well as comparison with other mechanisms is presented by Place et al. CRACMMv1AMORE replaces the base isoprene chemistry of CRACMMv1 (which was ported from base RACM2) with a graph theory-based condensation of a detailed isoprene mechanism developed by Prof. Faye McNeill's team at Columbia University. The AMORE version is documented in work by Wiser et al.
+
+When selected as the gas-phase mechanism, use of CRACMM1 (and CRACMM1AMORE) fully specifies CMAQ's aerosol treatment. CRACMM was designed as a multiphase mechanism and thus includes pathways to SOA and precursors to inorganic aerosol. The aero versioned by number no longer applies, and potential combustion SOA (pcSOA) is deprecated in CRACMM. 
+
+One feature of CRACMM is the specification of representative structures for all species in the mechanism. This information is available as metadata describing all gas, particulate, and nonreactive species. Metadata exists in (csv-separated) columns appended to the species namelist files and in a new species description file. The information is not used at runtime by the CMAQ simulation, but should be updated if CRACMM species are updated to facilitate communication of how mechanism species are conceptualized. The metadata is leveraged to determine conservation of mass across chemical reactions (see the CHEMMECH README in the UTIL directory), determination of species properties such as solubility, and to communicate how species are conceptualized. Supplemental code automatically processes the metadata into markdown files for the CMAQ code repository.
+
+#### CRACMM Species Description File
+Both cracmm1 mechanisms (cracmm1_aq and cracmm1amore_aq) share one species description file (located in MECHS/cracmm1_aq/cracmm1_speciesdescription.csv and linked for cracmm1amore) where the species in the mechanism are described. This file is a simple csv file with two values per line: 
+
+- Species name (string): All the GC.nml, AE.nml, and NR.nml species excluding phase (V,A) and particle size mode (I,J,K) identifiers
+- Description (string): string describing the species
+
+The description should reflect the lumped nature of the category if the species is lumped. For example, the entry for HC10 is:
+
+- HC10,Alkanes and other species with HO rate constant greater than 6.8x10-12 cm3 s-1
+
+In the case of emitted species, the actual emitted individual species mapped to a mechanism species is based on a hierarchy of rules as described by Pye et al. in prep with supporting code available on github at [USEPA/CRACMM](https://github.com/USEPA/CRACMM). For example, HC10 is one of the last species to be mapped to in the hierarchy and all semi and intermediate volatility compounds (S/IVOCs) as well as those with aromaticity or double bonds have already been mapped to other mechanism species. Consult the official hierarchy of emission mapping to get the full definition for emitted species.
+
+Note that CRACMM (both flavors) include some species that can partition between the gas and aerosol phase and thus have both a gas-phase component (in the GC.nml) and particulate component (in the AE.nml). Rather than entering the same description for each phase, species that have multiphase components should be entered once and the phase identifier (V prepended on a gas species in GC.nml (if used) or A prepended on a particulate species in AE.nml) should not be included. In addition, separate entries are not needed for a species existing in multiple size modes. For example, this is the entry describing the species OP3 which exists in the GC.nml as OP3 and in the particle as AOP3J:
+
+- OP3,Semivolatile organic peroxide
+
+As another example, this describes a species, that exists in the gas phase as VROCP3OXY2 and in the particle as AROCP3OXY2J: 
+
+- ROCP3OXY2,Oxygenated ROC species with log10C* of 10+3 ug/m3 and O:C of 0.2
+
+See information below about the python code to create markdown files and what characters will be recognized and autoformatted. In general, species that exist in two phases with the gas phase species identified as 'VROCname' and the particle as 'AROCname' will be automatically matched. Exceptions (currently AHOM-HOM, AELHOM-ELHOM, AOP3-OP3) can be manually added in the python code.
+
+#### CRACMM Metadata in Species nml
+All mechanisms in CMAQ use namelists to specify the gas-phase (GC.nml), particle phase (AE.nml), and nonreactive (NR.nml) species. In cracmm mechanisms, the namelists are appended with the following information:
+
+- RepCmp (string):  Representative compound following IUPAC or other common nomenclature.
+- ExplicitorLumped (E or L): indication if the species represents an individual, explicit compound (E) or aggregation of several structures and is thus lumped (L).
+- DTXSID (string): if available, an identifier from the [EPA Chemicals Dashboard](https://comptox.epa.gov/dashboard/) for the RepCMP. If unavailable, use NA.
+- SMILES (string): A [SMILES string](https://en.wikipedia.org/wiki/Simplified_molecular-input_line-entry_system) string for the RepCmp.
+
+For example, here is the metadata for HC10:
+
+- Decane,L,DTXSID6024913,CCCCCCCCCC
+
+In general, molecular weights (MOLWT) in the namelists should match the representative compound (RepCmp) structure. If a species is highly aggregated and the representative structure is a very poor representation of the class, the molecular weight may be set independently of the RepCmp. When properties of mechanism species such as Henry's law coefficients or vapor pressures are needed, we recommend using OPERA algorithms (Mansouri et al.) which can be accessed in the EPA Chemicals Dashboard for a curated set of compounds or via the Chemical Transformation Simulator (CTS) (https://qed.epa.gov/cts/pchemprop/) for any SMILES string.
+
+For species that exist in multiple phases, the metadata should only be specified in the GC.nml.
+
+#### CRACMM supporting code archive
+A supporting code archive is distributed at [USEPA/CRACMM](https://github.com/USEPA/CRACMM) to the implementation of CRACMM in CMAQ and provide information that can be used by other models to implement CRACMM. This information includes documentation on how individual species map to the mechanism (available schematically and in python code), inputs to models such as Speciation Tool and SMOKE, and mapping of the SPECIATE database to CRACMM.
+
+One of the python routines available in the archive combines the CRACMM species information from the CMAQ namelists and species description file to create the species markdown files in (MECHS/mechanism_information). The processor will automatically format the following strings in markdown if used in the species description file:
+
+| Species Description File String | Converted String in Github Markdown Rendering |
+| --- | ---|
+| 'ug/m3' | '&#956;g m<sup>-3</sup>' |
+| 'log10C' | 'log<sub>10</sub>C' |
+| 'kOH'   | 'k<sub>OH</sub>' |
+| 'cm3'   | 'cm<sup>3</sup>' |
+| 's-1'   | 's<sup>-1</sup>' |
+| '10-10' | '10<sup>-10</sup>' |
+| '10-11' | '10<sup>-11</sup>' |
+| '10-12' | '10<sup>-12</sup>' |
+| '10-13' | '10<sup>-13</sup>' |
+| '10-14' | '10<sup>-14</sup>' |
+| '10-2'  | '10<sup>-2</sup>' |
+| '10-1'  | '10<sup>-1</sup>' |
+| '10+1'  | '10<sup>+1</sup>' |
+| '10+2'  | '10<sup>+2</sup>' |
+| '10+3'  | '10<sup>+3</sup>' |
+| '10+4'  | '10<sup>+4</sup>' |
+| '10+5'  | '10<sup>+5</sup>' |
+| '10+6'  | '10<sup>+6</sup>' |
+
+The python code creates the mechanism specific species markdown file based on the intersection of what exists in the namelists and species description file which is why the two CRACMM flavors share the same species description file.
+
+In cases where a species exists in the gas and particle phase (e.g., AOP3J and OP3) the python code also checks that the molecular weights match across the phases and will print a warning (">>gas and particle molecular weights have an inconsistency<<") if they are not an exact match and will print ">>gas and particle molecular weights match<<" if they do match.
 
 
 <a id=6.11_Aerosol_Dynamics></a>
@@ -987,6 +1067,8 @@ Odman, M.T., & Russell, A.G. (2000). Mass conservative coupling of non-hydrostat
 
 Ovadnevaite, J., Manders, A., de Leeuw, G., Ceburnis, D., Monahan, C., Partanen, A.I., Korhonen, H., & O'Dowd, C. D. (2014). A sea spray aerosol flux parameterization encapsulating wave state. Atmos. Chem. Phys., 14, 1837-1852.  [doi: 10.5194/acp-14-1837-2014](https://doi.org/10.5194/acp-14-1837-2014).
 
+Place, B, K. Seltzer, C. Allen, B. Murphy, K. Appel, I. Piletic, E. D'Ambro, R. Schwantes, M. Coggon, S. Farrell, E. Saunders, L. Xu, G. Sarwar, W. Hutzell, W. Stockwell, A. Torres-Vazquez, J. Pleim and H. Pye, Application of the Community Regional Atmospheric Chemistry Multiphase Mechanism (CRACMM) to simulation of air quality in the Northeast USA, in preparation for Atmospheric Chemistry and Physics.
+
 Pleim, J., Venkatram, A., Yamartino, R. (1984). ADOM/TADAP Model development program: The dry deposition module. Ontario Ministry of the Environment, 4.
 
 Pleim, J.E. (2007a). A combined local and nonlocal closure model for the atmospheric boundary layer. Part I: Model description and testing. Journal of Applied Meteorology and Climatology, 46(9), 1383-1395.
@@ -998,6 +1080,8 @@ Pleim, J., & Ran, L. (2011). Surface flux modeling for air quality applications.
 Pleim, J. E., Ran, L., Appel, W., Shephard, M.W., & Cady-Pereira K. (2019). New bidirectional ammonia flux model in an air quality model coupled with an agricultural model. JAMES in review.
 
 Pye, H.O.T., Pinder, R.W., Piletic, I.R., Xie, Y., Capps, S.L., Lin, Y.H., Surratt, J.D., Zhang, Z.F., Gold, A., Luecken, D.J., Hutzell W.T., Jaoui, M., Offenberg, J.H., Kleindienst, T.E., Lewandowski, M., & Edney, E.O. (2013). Epoxide pathways improve model predictions of isoprene markers and reveal key role of acidity in aerosol formation. Environ. Sci. Technol., 47(19), 11056-11064.
+
+Pye, H., B. Place, B. Murphy, K. Seltzer, C. Allen, I. Piletic, E. D'Ambro, R. Schwantes, M. Coggon, S. Farrell, E. Saunders, L. Xu, G. Sarwar, W. Hutzell, K. Foley, G. Pouliot and W. Stockwell, Linking Gas, Particulate, and Toxic Endpoints to Air Emissions In The Community Regional Atmospheric Chemistry Multiphase Mechanism (CRACMM) version 1.0, in preparation for Atmospheric Chemistry and Physics.
 
 Ran, L., Cooter, E., Benson, V., & He, Q. (2011). Chapter 36: Development of an agricultural fertilizer modeling system for bi-directional ammonia fluxes in the CMAQ model. In D. G. Steyn, & S. Trini Castelli (Eds.), air pollution modeling and its application XXI. Springer, 213-219.
 
@@ -1022,6 +1106,8 @@ Smagorinsky, J. (1963). General circulation experiments with the primitive equat
 Tan, Y., Perri, M.J., Seitzinger, S.P., & Turpin, B.J. (2009). Effects of precursor concentration and acidic sulfate in aqueous glyoxal-OH radical oxidation and implications for secondary organic aerosol. Env. Sci. Technol., 43, 8105–8112.
 
 Warneck, P. (1999). The relative importance of various pathways for the oxidation of sulfur dioxide and nitrogen dioxide in sunlit continental fair weather clouds. Phys. Chem. Chem. Phys., 1, 5471-5483.
+
+Wiser, F., B. Place, H. Pye, and V. F. McNeill, Development and application of the AMORE isoprene chemistry condensation, in preparation for Geoscientific Model Development.
 
 Xing, J., Mathur, R., Pleim, J., Hogrefe, C., Wang, J., Gan, C.M., Sarwar, G., Wong, D., & McKeen, S. (2016). Representing the effects of stratosphere-troposphere exchange on 3D O3 distributions in chemistry transport models using a potential vorticity based parameterization, Atmos. Chem. Phys., 16, 10865-10877,  [doi:10.5194/acp-16-10865-2016](https://doi.org/10.5194/acp-16-10865-2016).
 
