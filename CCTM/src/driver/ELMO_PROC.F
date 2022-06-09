@@ -3067,6 +3067,9 @@
      &                        CFRAC, DZ, PV, ZH
       use centralized_io_module, only : interpolate_var, pv_avail
       use RUNTIME_VARS
+#ifdef sens
+      USE DDM3D_DEFN, ONLY : SENGRID
+#endif 
 
       IMPLICIT NONE
 
@@ -3197,7 +3200,11 @@
          PV       = PVS( C,R,L )
  
          ! Extract Aerosols
+#ifdef sens
+         CALL EXTRACT_AERO( CGRID( C,R,L,: ), .TRUE., SENGRID( C,R,L,:,: ), .TRUE. )
+#else
          CALL EXTRACT_AERO( CGRID( C,R,L,: ), .TRUE. )
+#endif
          CALL EXTRACT_SOA( CGRID( C,R,L,: ) )
          
          ! Populate Diagnostic Arrays
