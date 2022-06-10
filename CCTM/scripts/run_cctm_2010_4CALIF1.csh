@@ -149,13 +149,10 @@ setenv CTM_ADV_CFL 0.95      #> max CFL [ default: 0.75]
 
 #> Science Options
 setenv CTM_OCEAN_CHEM Y      #> Flag for ocean halogen chemistry and sea spray aerosol emissions [ default: Y ]
-setenv CTM_WB_DUST Y         #> use inline windblown dust emissions [ default: Y ]
-setenv CTM_WBDUST_BELD BELD3 #> landuse database for identifying dust source regions 
-                             #>    [ default: UNKNOWN ]; ignore if CTM_WB_DUST = N 
+setenv CTM_WB_DUST Y         #> use inline windblown dust emissions (only for use with PX) [ default: N ]
 setenv CTM_LTNG_NO N         #> turn on lightning NOx [ default: N ]
 setenv KZMIN Y               #> use Min Kz option in edyintb [ default: Y ], 
                              #>    otherwise revert to Kz0UT
-setenv CTM_MOSAIC N          #> landuse specific deposition velocities [ default: N ]
 setenv PX_VERSION Y          #> WRF PX LSM
 setenv CLM_VERSION N         #> WRF CLM LSM
 setenv NOAH_VERSION N        #> WRF NOAH LSM
@@ -164,10 +161,31 @@ setenv CTM_ABFLUX N          #> ammonia bi-directional flux for in-line depositi
 setenv CTM_HGBIDI N          #> mercury bi-directional flux for in-line deposition 
                              #>    velocities [ default: N ]
 setenv CTM_SFC_HONO Y        #> surface HONO interaction [ default: Y ]
+                             #> please see user guide (6.10.4 Nitrous Acid (HONO)) 
+                             #> for dependency on percent urban fraction dataset
 setenv CTM_GRAV_SETL Y       #> vdiff aerosol gravitational sedimentation [ default: Y ]
-setenv CTM_BIOGEMIS_BEIS Y   #> calculate in-line biogenic emissions [ default: N ]
-setenv CTM_BIOGEMIS_MEGAN N  #> turns on MEGAN biogenic emission [ default: N ]
-setenv USE_MEGAN_LAI N       #> use separate LAI input file [ default: N ]
+
+setenv CTM_BIOGEMIS_BE Y     #> calculate in-line biogenic emissions with BEIS [ default: N ]
+setenv CTM_BIOGEMIS_MG N     #> turns on MEGAN biogenic emission [ default: N ]
+setenv BDSNP_MEGAN N         #> turns on BDSNP soil NO emissions [ default: N ]
+
+#> Surface Tiled Aerosol and Gaseous Exchange Options 
+#> Only active if DepMod=stage at compile time
+setenv CTM_MOSAIC N          #> Output landuse specific deposition velocities [ default: N ]
+setenv CTM_STAGE_P22 N       #> Pleim et al. 2022 Aerosol deposition model [default: N]
+setenv CTM_STAGE_E20 Y       #> Emerson et al. 2020 Aerosol deposition model [default: Y]
+setenv CTM_STAGE_S22 N       #> Shu et al. 2022 (CMAQ v5.3) Aerosol deposition model [default: N]
+
+
+setenv IC_AERO_M2WET F       #> Specify whether or not initial condition aerosol size distribution 
+                             #>    is wet or dry [ default: F = dry ]
+setenv BC_AERO_M2WET F       #> Specify whether or not boundary condition aerosol size distribution 
+                             #>    is wet or dry [ default: F = dry ]
+setenv IC_AERO_M2USE F       #> Specify whether or not to use aerosol surface area from initial 
+                             #>    conditions [ default: T = use aerosol surface area  ]
+setenv BC_AERO_M2USE F       #> Specify whether or not to use aerosol surface area from boundary 
+                             #>    conditions [ default: T = use aerosol surface area  ]
+
 
 #> Vertical Extraction Options
 setenv VERTEXT N
@@ -214,7 +232,7 @@ set IN_LTpath = $INPDIR/met/lightning     #> lightning NOx input directory
 set METpath   = $INPDIR/met/mcip_v4.3_wrf_v3.8.1    #> meteorology input directory
 #set JVALpath  = $INPDIR/jproc            #> offline photolysis rate table directory
 set OMIpath   = $BLD                      #> ozone column data for the photolysis model
-set LUpath    = $INPDIR/surface           #> BELD landuse data for windblown dust model
+set EPICpath  = $INPDIR/surface           #> EPIC putput for bidirectional NH3
 set SZpath    = $INPDIR/surface           #> surf zone file for in-line seasalt emissions
 
 # =====================================================================
@@ -292,24 +310,31 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   setenv MET_BDY_3D  $METpath/METBDY3D.$GRID_NAME.${NZ}L.$YYMMDD
 #  setenv LUFRAC_CRO  $METpath/LUFRAC_CRO.$GRID_NAME.${NZ}L.$YYMMDD
 
-  #> Emissions Control File
+  #> Control Files
   #>
   #> IMPORTANT NOTE
   #>
-  #> The emissions control file defined below is an integral part of controlling the behavior of the model simulation.
-  #> Among other things, it controls the mapping of species in the emission files to chemical species in the model and
+  #> The DESID control files defined below are an integral part of controlling the behavior of the model simulation.
+  #> Among other things, they control the mapping of species in the emission files to chemical species in the model and
   #> several aspects related to the simulation of organic aerosols.
-  #> Please carefully review the emissions control file to ensure that it is configured to be consistent with the assumptions
+  #> Please carefully review the DESID control files to ensure that they are configured to be consistent with the assumptions
   #> made when creating the emission files defined below and the desired representation of organic aerosols.
   #> For further information, please see:
   #> + AERO7 Release Notes section on 'Required emission updates':
   #>   https://github.com/USEPA/CMAQ/blob/master/DOCS/Release_Notes/aero7_overview.md
-  #> + CMAQ User's Guide section 6.9.3 on 'Emission Compatability': 
+  #> + CMAQ User's Guide section 6.9.3 on 'Emission Compatability':
   #>   https://github.com/USEPA/CMAQ/blob/master/DOCS/Users_Guide/CMAQ_UG_ch06_model_configuration_options.md#6.9.3_Emission_Compatability
-  #> + Emission Control (DESID) Documentation in the CMAQ User's Guide: 
-  #>   https://github.com/USEPA/CMAQ/blob/master/DOCS/Users_Guide/Appendix/CMAQ_UG_appendixB_emissions_control.md 
+  #> + Emission Control (DESID) Documentation in the CMAQ User's Guide:
+  #>   https://github.com/USEPA/CMAQ/blob/master/DOCS/Users_Guide/Appendix/CMAQ_UG_appendixB_emissions_control.md
   #>
-  setenv EMISSCTRL_NML ${BLD}/EmissCtrl_${MECH}.nml
+  setenv DESID_CTRL_NML ${BLD}/CMAQ_Control_DESID.nml
+  setenv DESID_CHEM_CTRL_NML ${BLD}/CMAQ_Control_DESID_${MECH}.nml
+  
+  #> The following namelist configures aggregated output (via the Explicit and Lumped 
+  #> Air Quality Model Output (ELMO) Module), domain-wide budget output, and chemical 
+  #> family output.
+  setenv MISC_CTRL_NML ${BLD}/CMAQ_Control_Misc.nml
+  
   #> The following namelist controls the mapping of meteorological land use types and the NH3 and Hg emission
   #> potentials
   setenv STAGECTRL_NML ${BLD}/CMAQ_Control_STAGE.nml
@@ -391,12 +416,12 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   endif
 
   #> In-line biogenic emissions configuration
-  if ( $CTM_BIOGEMIS_MEGAN == 'Y' ) then
+  if ( $CTM_BIOGEMIS_MG == 'Y' ) then
 
-    setenv SOILINP    $OUTDIR/CCTM_SOILOUT_${RUNID}_${YESTERDAY}.nc
+    setenv MEGAN_SOILINP    $OUTDIR/CCTM_MSOILOUT_${RUNID}_${YESTERDAY}.nc
                              #> Biogenic NO soil input file; ignore if INITIAL_RUN = Y
                              #>                            ; ignore if IGNORE_SOILINP = Y
-         # Files for this domain are not available.They must be created using the MEGAN preprocessor
+         # Files for this domain are not available. They must be created using the MEGAN preprocessor
           #setenv MEGAN_CTS # location of CTS input file
           #setenv MEGAN_EFS # location of EFS input file
           #setenv MEGAN_LAI # location of LAI input file (optional) 
@@ -404,34 +429,23 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
          echo "*** Selected MEGAN without required input files - run ABORTED ***"
          exit 1
   endif
-  if ( $CTM_BIOGEMIS_BEIS == 'Y' ) then   
+  if ( $CTM_BIOGEMIS_BE == 'Y' ) then   
      set IN_BEISpath = ${INPDIR}/surface
-     setenv GSPRO      $BLD/gspro_biogenics.txt
-     setenv B3GRD      $IN_BEISpath/b3grd_4CALIF1_2011en_cb6_10.ncf
-     setenv BIOSW_YN   Y     #> use frost date switch [ default: Y ]
-     setenv BIOSEASON  $IN_BEISpath/bioseason.cmaq.2010j_4CALIF1.ncf_full 
-                             #> ignore season switch file if BIOSW_YN = N
-     setenv SUMMER_YN  Y     #> Use summer normalized emissions? [ default: Y ]
-     setenv PX_VERSION Y     #> MCIP is PX version? [ default: N ]
-     setenv SOILINP    $OUTDIR/CCTM_SOILOUT_${RUNID}_${YESTERDAY}.nc
+     setenv GSPRO          $BLD/gspro_biogenics.txt
+     setenv BEIS_NORM_EMIS $IN_BEISpath/b3grd_4CALIF1_2011en_cb6_10.ncf
+     setenv BEIS_SOILINP        $OUTDIR/CCTM_BSOILOUT_${RUNID}_${YESTERDAY}.nc
                              #> Biogenic NO soil input file; ignore if NEW_START = TRUE
   endif
 
-  #> Windblown dust emissions configuration
-  if ( $CTM_WB_DUST == 'Y' ) then
-     # Input variables for BELD3 Landuse option
-     setenv DUST_LU_1  $LUpath/beld3_4CALIF1_output_a.ncf
-     setenv DUST_LU_2  $LUpath/beld3_4CALIF1_output_tot.ncf
-  endif
   
   #> In-line Sea Spray emissions configuration
   setenv OCEAN_1 ${SZpath}/surf_4calif1.ncf #> horizontal grid-dependent surf zone file
 
   #> Bidirectional ammonia configuration
   if ( $CTM_ABFLUX == 'Y' ) then
-     setenv E2C_SOIL ${LUpath}/epic/US1_12km_soil.nc
-     setenv E2C_CHEM ${LUpath}/epic/US1_12km_time${YYYYMMDD}.nc
-     setenv E2C_LU ${LUpath}/beld4_12kmCONUS_2006nlcd.ncf
+     setenv E2C_SOIL ${EPICpath}/epic/US1_12km_soil.nc
+     setenv E2C_CHEM ${EPICpath}/epic/US1_12km_time${YYYYMMDD}.nc
+     setenv E2C_LU ${EPICpath}/beld4_12kmCONUS_2006nlcd.ncf
   endif
 
 #> Inline Process Analysis 
@@ -545,11 +559,13 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   setenv CTM_DRY_DEP_1   "$OUTDIR/CCTM_DRYDEP_${CTM_APPL}.nc -v"     #> Hourly Dry Deposition
   setenv CTM_DEPV_DIAG   "$OUTDIR/CCTM_DEPV_${CTM_APPL}.nc -v"       #> Dry Deposition Velocities
   setenv B3GTS_S         "$OUTDIR/CCTM_B3GTS_S_${CTM_APPL}.nc -v"    #> Biogenic Emissions
-  setenv SOILOUT         "$OUTDIR/CCTM_SOILOUT_${CTM_APPL}.nc"       #> Soil Emissions
+  setenv BEIS_SOILOUT    "$OUTDIR/CCTM_BSOILOUT_${CTM_APPL}.nc"      #> Soil Emissions
+  setenv MEGAN_SOILOUT   "$OUTDIR/CCTM_MSOILOUT_${CTM_APPL}.nc"      #> Soil Emissions
+  setenv BDSNPOUT        "$OUTDIR/CCTM_BDSNPOUT_${CTM_APPL}.nc"      #> Soil Emissions
   setenv CTM_WET_DEP_1   "$OUTDIR/CCTM_WETDEP1_${CTM_APPL}.nc -v"    #> Wet Dep From All Clouds
   setenv CTM_WET_DEP_2   "$OUTDIR/CCTM_WETDEP2_${CTM_APPL}.nc -v"    #> Wet Dep From SubGrid Clouds
-  setenv CTM_PMDIAG_1    "$OUTDIR/CCTM_PMDIAG_${CTM_APPL}.nc -v"     #> On-Hour Particle Diagnostics
-  setenv CTM_APMDIAG_1   "$OUTDIR/CCTM_APMDIAG_${CTM_APPL}.nc -v"    #> Hourly Avg. Particle Diagnostics
+  setenv CTM_ELMO_1      "$OUTDIR/CCTM_ELMO_${CTM_APPL}.nc -v"       #> On-Hour Particle Diagnostics
+  setenv CTM_AELMO_1     "$OUTDIR/CCTM_AELMO_${CTM_APPL}.nc -v"      #> Hourly Avg. Particle Diagnostics
   setenv CTM_RJ_1        "$OUTDIR/CCTM_PHOTDIAG1_${CTM_APPL}.nc -v"  #> 2D Surface Summary from Inline Photolysis
   setenv CTM_RJ_2        "$OUTDIR/CCTM_PHOTDIAG2_${CTM_APPL}.nc -v"  #> 3D Photolysis Rates 
   setenv CTM_RJ_3        "$OUTDIR/CCTM_PHOTDIAG3_${CTM_APPL}.nc -v"  #> 3D Optical and Radiative Results from Photolysis
@@ -579,10 +595,10 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   set log_test = `cat buff.txt`; rm -f buff.txt
 
   set OUT_FILES = (${FLOOR_FILE} ${S_CGRID} ${CTM_CONC_1} ${A_CONC_1} ${MEDIA_CONC}         \
-             ${CTM_DRY_DEP_1} $CTM_DEPV_DIAG $B3GTS_S $SOILOUT $CTM_WET_DEP_1\
-             $CTM_WET_DEP_2 $CTM_PMDIAG_1 $CTM_APMDIAG_1             \
+             ${CTM_DRY_DEP_1} $CTM_DEPV_DIAG $B3GTS_S $MEGAN_SOILOUT $BEIS_SOILOUT $BDSNPOUT \
+             $CTM_WET_DEP_1 $CTM_WET_DEP_2 $CTM_ELMO_1 $CTM_AELMO_1             \
              $CTM_RJ_1 $CTM_RJ_2 $CTM_RJ_3 $CTM_SSEMIS_1 $CTM_DUST_EMIS_1 $CTM_IPR_1 $CTM_IPR_2       \
-             $CTM_IPR_3 $CTM_BUDGET $CTM_IRR_1 $CTM_IRR_2 $CTM_IRR_3 $CTM_DRY_DEP_MOS                   \
+             $CTM_IPR_3 $CTM_BUDGET $CTM_IRR_1 $CTM_IRR_2 $CTM_IRR_3 $CTM_DRY_DEP_MOS                 \
              $CTM_DEPV_MOS $CTM_VDIFF_DIAG $CTM_VSED_DIAG $CTM_LTNGDIAG_1 $CTM_LTNGDIAG_2 $CTM_VEXT_1 )             
   if ( $?CTM_ISAM ) then
      if ( $CTM_ISAM == 'Y' || $CTM_ISAM == 'T' ) then

@@ -148,6 +148,7 @@ C...........Local Variables:
       REAL          KH                  ! Henry's law constant (mol/l/atm)
       REAL          NUMAKN              ! Aitken mode aerosol # (#/m3)
       REAL          MASAKN              ! Total Aitken mode mass (ug/m3)
+      REAL(8)       MASAKN_D            ! Double-precision verson of MASAKN
       REAL          SRFAKN
       REAL          ONE_OVER_TWASH      ! 1 / TWASH
       REAL,    SAVE :: HPLUS = 1.0E-4   ! typical value hydrogen ion concentration [mol/l]
@@ -282,7 +283,7 @@ C...compute total Aitken mode number (#/m3)
 
 C...compute total Aitken mode mass (ug/m3)
 
-      MASAKN = 0.0
+      MASAKN_D = 0.0D0
 
       DO I = 1, N_MASAKN
         PNTR = CGRID_SCAV_MAP( L_MASAKN( I ) )
@@ -290,10 +291,12 @@ C...compute total Aitken mode mass (ug/m3)
      &      ( INDEX( CGRID_SCAV( L_MASAKN( I ) ), 'SRF' ) .EQ. 0 ) .AND.
      &      ( INDEX( CGRID_SCAV( L_MASAKN( I ) ), 'H2O' ) .EQ. 0 ) .AND.
      &      ( INDEX( CGRID_SCAV( L_MASAKN( I ) ), 'TRACER' ) .EQ. 0 ) ) THEN
-          MASAKN = MASAKN + ( POLC( PNTR ) * AIRM / CTHK1
-     &           * AE_MOLWT( PNTR - AE_STRT + 1 ) * 1.0E6 )
+          MASAKN_D = MASAKN_D + REAL( ( POLC( PNTR ) * AIRM / CTHK1
+     &           * AE_MOLWT( PNTR - AE_STRT + 1 )),8) * 1.0D6 
         END IF
       END DO
+
+      MASAKN = REAL( MASAKN_D, 4 )
 
 C...compute total Aitken mode surface area (m2/m3)
 

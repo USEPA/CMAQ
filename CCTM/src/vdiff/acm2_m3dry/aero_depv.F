@@ -645,7 +645,7 @@ C now do 2nd moment for the deposition of surface area
             Stoke = USTFAC * VGHAT2
             Eim = 10.**(-3./Stoke)
             RD2 = 1.0 / (  Met_Data%USTAR( C,R )*BAI*(Eb + EIM ) )
-            Vdnv = VGHAT0 / ( 1.0 - EXP( -VGHAT2 * ( Met_Data%RA( C,R ) + RD2 ) ) )
+            Vdnv = VGHAT2 / ( 1.0 - EXP( -VGHAT2 * ( Met_Data%RA( C,R ) + RD2 ) ) )
           endif
             VDEP( C,R,VDS( IM ) ) = fveg*Vdv + fnv*Vdnv
 C now do 3rd moment for the deposition of mass

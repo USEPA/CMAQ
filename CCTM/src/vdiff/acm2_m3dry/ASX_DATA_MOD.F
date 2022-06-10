@@ -79,6 +79,7 @@ C    G. Sarwar: made minor changes to halogen species and added several iodine s
 C    D. Wong: Implemented centralized I/O approach, removed all MY_N clauses, removed
 C             unnecessary SAVE attribute (02/2019)
 C    G. Sarwar: Removed CH3BR (03/2021)
+C    R. Gilliam: Include PX soil texture information when available (03/2022)
 C-------------------------------------------------------------------------------
       Use RUNTIME_VARS
       Use GRID_CONF           ! horizontal & vertical domain specifications
@@ -119,7 +120,7 @@ C-------------------------------------------------------------------------------
          Real,    Allocatable :: SOIM1    ( :,: )  ! 1 cm soil moisture [m**3/m**3]
          Real,    Allocatable :: SOIM2    ( :,: )  ! 1 m soil moisture  [m**3/m**3]
          Real,    Allocatable :: SOIT1    ( :,: )  ! 1 cm soil temperature [K]
-!        Real,    Allocatable :: SOIT2    ( :,: )  ! 1 m soil temperature [K]
+         Real,    Allocatable :: SOIT2    ( :,: )  ! 1 m soil temperature [K]
          Real,    Allocatable :: SEAICE   ( :,: )  ! Sea ice coverage [%]
          Real,    Allocatable :: MOL      ( :,: )  ! Monin-Obukhov length [m]
          Real,    Allocatable :: MOLI     ( :,: )  ! inverse of Monin-Obukhov length [m]
@@ -130,6 +131,7 @@ C-------------------------------------------------------------------------------
          Real,    Allocatable :: PBL      ( :,: )  ! pbl height (m)
 !         Real,    Allocatable :: NACL_EMIS( :,: )  ! NACL mass emission rate of particles with d <10 um (g/m2/s)
          Real,    Allocatable :: COSZEN   ( :,: )  ! Cosine of the zenith angle
+         Real,    Allocatable :: CFRAC    ( :,: )  ! cloud fraction
 !> U and V wind components on the cross grid points
          Real,    Allocatable :: UWIND    ( :,:,: )  ! [m/s]
          Real,    Allocatable :: VWIND    ( :,:,: )  ! [m/s]                    
@@ -170,8 +172,11 @@ C-------------------------------------------------------------------------------
          Real,    Allocatable :: BSLP   ( :,: )  ! B Slope 
          Real,    Allocatable :: WRES   ( :,: )  ! Soil residual moisture point
          Real,    Allocatable :: WFC    ( :,: )  ! soil field capacity 
+         Real,    Allocatable :: CLAY_PX  ( :,: )  ! Clay fraction from PX LSM 
+         Real,    Allocatable :: CSAND_PX ( :,: )  ! Coarse sand fraction from PX LSM
+         Real,    Allocatable :: FMSAND_PX( :,: )  ! Fine-medium sand fraction from PX LSM
 !        Real,    Allocatable :: RHOB   ( :,: )  ! soil bulk density
-         Real, Allocatable :: LUFRAC  ( :,:,: ) ! land use fraction (col,row,lu_type)[ratio]
+         Real,    Allocatable :: LUFRAC  ( :,:,: ) ! land use fraction (col,row,lu_type)[ratio]
 C Land use information:
          Character( 16 ), Allocatable   :: NAME    ( : )     ! LU name
          Character( 16 ), Allocatable   :: LU_Type ( : )     ! general land use type e.g. water, forest, etc.
@@ -507,6 +512,7 @@ C-----------------------------------------------------------------------
      &             Met_Data%PBL      ( NCOLS,NROWS ),
 !     &             Met_Data%NACL_EMIS( NCOLS,NROWS ),
      &             Met_Data%COSZEN   ( NCOLS,NROWS ),
+     &             Met_Data%CFRAC    ( NCOLS,NROWS ),
      &             Met_Data%UWIND    ( NCOLS+1,NROWS+1,NLAYS ),
      &             Met_Data%VWIND    ( NCOLS+1,NROWS+1,NLAYS ),
      &             Met_Data%KZMIN    ( NCOLS,NROWS,NLAYS ),
@@ -541,7 +547,11 @@ C-----------------------------------------------------------------------
      &             Grid_Data%PURB    ( NCOLS,NROWS ),
      &             Grid_Data%SLTYP   ( NCOLS,NROWS ),
      &             Grid_Data%WSAT    ( NCOLS,NROWS ),
+     &             Grid_Data%WWLT    ( NCOLS,NROWS ),
      &             Grid_Data%WFC     ( NCOLS,NROWS ),   !We now use WFC whether BIDI is on or off
+     &             Grid_Data%CLAY_PX   ( NCOLS,NROWS ),
+     &             Grid_Data%CSAND_PX  ( NCOLS,NROWS ),
+     &             Grid_Data%FMSAND_PX ( NCOLS,NROWS ),
      &             Grid_Data%NAME    ( n_lufrac ),
      &             Grid_Data%LU_Type ( n_lufrac ),
      &             Grid_Data%LUFRAC ( NCOLS,NROWS,n_lufrac ),
@@ -550,11 +560,24 @@ C-----------------------------------------------------------------------
             XMSG = 'Failure allocating grid vars'
             Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          End If
-         Grid_Data%NAME    = name_lu
-         Grid_Data%LU_Type = cat_lu
-         Grid_Data%WSAT    = 0.0
-         Grid_Data%WFC     = 0.0
+         Grid_Data%NAME      = name_lu
+         Grid_Data%LU_Type   = cat_lu
+         Grid_Data%WWLT      = 0.0
+         Grid_Data%WSAT      = 0.0
+         Grid_Data%WFC       = 0.0
+         Grid_Data%CLAY_PX   = 0.0
+         Grid_Data%CSAND_PX  = 0.0
+         Grid_Data%FMSAND_PX = 0.0
          
+         If ( BIOGEMIS_BEIS ) Then
+            ALLOCATE( Met_Data%SOIT2    ( NCOLS,NROWS ),
+     &                STAT = ALLOCSTAT )
+            If ( ALLOCSTAT .Ne. 0 ) Then
+               XMSG = 'Failure allocating layer 2 soil temperature'
+               Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+            End If
+         End If
+
          If ( ABFLUX .or. BIOGEMIS_MEGAN  ) Then
             ALLOCATE( Met_Data%SOIM2    ( NCOLS,NROWS ),
      &                STAT = ALLOCSTAT )
@@ -562,27 +585,18 @@ C-----------------------------------------------------------------------
                XMSG = 'Failure allocating layer 2 soil moisture'
                Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             End If
-            ALLOCATE( Grid_Data%WWLT   ( NCOLS,NROWS ),
-     &                STAT = ALLOCSTAT )
-            If ( ALLOCSTAT .Ne. 0 ) Then
-               XMSG = 'Failure allocating Soil grid vars'
-               Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-            End If
-            Grid_Data%WWLT    = 0.0
          END IF
          
          If ( ABFLUX .or. HGBIDI ) Then
 
             ALLOCATE( Grid_Data%BSLP   ( NCOLS,NROWS ),
      &                Grid_Data%WRES   ( NCOLS,NROWS ),
-!    &                Grid_Data%WFC    ( NCOLS,NROWS ),
      &                STAT = ALLOCSTAT )
             If ( ALLOCSTAT .Ne. 0 ) Then
                XMSG = 'Failure allocating Soil grid vars'
                Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             End If
 
-!           Grid_Data%WFC     = 0.0
             Grid_Data%WRES    = 0.0
             Grid_Data%BSLP    = 0.0
          End If
@@ -645,24 +659,23 @@ C-----------------------------------------------------------------------
          Grid_Data%SLTYP = NINT( SOILCAT_A )
          Grid_Data%LUFRAC = LUFRAC
 
-         If ( ABFLUX .or. BIOGEMIS_MEGAN) Then
+         If ( (ABFLUX .or. HGBIDI .or. BIOGEMIS_MEGAN .or. BIOGEMIS_BEIS) .and. .not. PXSOIL_AVAIL) Then
             Forall( C = 1:NCOLS, R = 1:NROWS, Grid_Data%SLTYP(C,R) .Le. N_SOIL_TYPE )
                Grid_Data%WWLT( C,R ) = WWLT( Grid_Data%SLTYP( C,R ) )
+               Grid_Data%WSAT( C,R ) = WSAT( Grid_Data%SLTYP( C,R ) )
+            End Forall
+         End If
+
+         If (.not. PXSOIL_AVAIL) Then
+            Forall( C = 1:NCOLS, R = 1:NROWS, Grid_Data%SLTYP(C,R) .Le. N_SOIL_TYPE )
+               Grid_Data%WFC ( C,R ) = WFC ( Grid_Data%SLTYP( C,R ) )
             End Forall
          End If
 
          If ( ABFLUX .or. HGBIDI ) Then
-
             Forall( C = 1:NCOLS, R = 1:NROWS, Grid_Data%SLTYP(C,R) .Le. N_SOIL_TYPE )
-               Grid_Data%WSAT( C,R ) = WSAT( Grid_Data%SLTYP( C,R ) )
-               Grid_Data%WFC ( C,R ) = WFC ( Grid_Data%SLTYP( C,R ) )
                Grid_Data%WRES( C,R ) = WRES( Grid_Data%SLTYP( C,R ) )
                Grid_Data%BSLP( C,R ) = BSLP( Grid_Data%SLTYP( C,R ) )
-            End Forall
-         Else
-            Forall( C = 1:NCOLS, R = 1:NROWS, Grid_Data%SLTYP(C,R) .Le. N_SOIL_TYPE )
-               Grid_Data%WSAT( C,R ) = WSAT( Grid_Data%SLTYP( C,R ) )
-               Grid_Data%WFC ( C,R ) = WFC ( Grid_Data%SLTYP( C,R ) )
             End Forall
          End If
 
@@ -775,6 +788,10 @@ C Soil vars
 
          call interpolate_var ('SOIT1', jdate, jtime, Met_Data%SOIT1)
 
+         If ( BIOGEMIS_BEIS ) Then
+            call interpolate_var ('SOIT2', jdate, jtime, Met_Data%SOIT2)
+         End If
+
          call interpolate_var ('SEAICE', jdate, jtime, Met_Data%SEAICE)
 
 C met vars
@@ -807,11 +824,27 @@ C met vars
 
          call interpolate_var ('PBL', jdate, jtime, Met_Data%PBL)
 
+        ! Update for WRFV4.1+ PX LSM runs that have soil texture in output for
+        !  CMAQ dust scheme. These are initialized to 0 if not present in MCIP.
+        !  DUST_EMIS.F will use table lookup values if 0 (old WRF or other LSMs).  
+         If ( PXSOIL_AVAIL ) Then
+            call interpolate_var ('CLAY_PX',   jdate, jtime, Grid_Data%CLAY_PX)
+            call interpolate_var ('CSAND_PX',  jdate, jtime, Grid_Data%CSAND_PX)
+            call interpolate_var ('FMSAND_PX', jdate, jtime, Grid_Data%FMSAND_PX)
+            call interpolate_var ('WSAT_PX', jdate, jtime, Grid_Data%WSAT)
+            call interpolate_var ('WFC_PX',  jdate, jtime, Grid_Data%WFC)
+            call interpolate_var ('WWLT_PX', jdate, jtime, Grid_Data%WWLT)
+         End If
+
+
 C Met_cro_2D variables that have recently changed due to MCIP or WRF/CMAQ
 
          call interpolate_var (vname_rn, jdate, jtime, Met_Data%RN)
 
          call interpolate_var (vname_rc, jdate, jtime, Met_Data%RC)
+
+         call interpolate_var ('CFRAC', jdate, jtime, Met_Data%CFRAC)
+
 
          If ( WR_AVAIL ) Then
             call interpolate_var ('WR', jdate, jtime, Met_Data%WR)

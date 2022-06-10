@@ -169,12 +169,12 @@ run_cctm.csh |& tee run_cctm.log
 
 ### 5.7.1 CCTM Logfiles
 
-The CCTM simulation will write two types of logfile, a master logfile (e.g. run_cctm.log) and processor-specific logfiles that have the name convention:  
+The CCTM simulation will write two types of logfile, a main logfile (e.g. run_cctm.log) and processor-specific logfiles that have the name convention:  
 ```
 CTM_LOG_[ProcessorID].v53_[compiler]_[data_name]/_[RUNDATE].log
 ```
 
-The master logfile contains extensive metadata and useful information about the details of your simulation. The following examples describe some of this information:  
+The main logfile contains extensive metadata and useful information about the details of your simulation. The following examples describe some of this information:  
 ```
 Start Model Run At  Tue Apr 9 08:18:06 EDT 2019
 Compiler is set to intel
@@ -447,7 +447,7 @@ The output results will have been placed in the directory:
 $CMAQ_DATA/output_CCTM_v53_[compiler]_[data_name]
 ```
 
-and can include the following netCDF-type files: ACONC, APMDIAG, B3GTS_S, CGRID, CONC, DEPV, DRYDEP, DUSTEMIS, LTNGDIAG1, LTNGDIAG2, MEDIA_CONC, PMDIAG, PT3D_DIAG, RJ_1, RJ_2, RJ_3, SOILOUT, SSEMIS, VDIFF, VSED, WETDEP1, WETDEP2 and VEXT_1. The in-depth description about each of these files is described in [Chapter 7](CMAQ_UG_ch07_model_outputs.md).
+and can include the following netCDF-type files: ACONC, AELMO, B3GTS_S, CGRID, CONC, DEPV, DRYDEP, DUSTEMIS, LTNGDIAG1, LTNGDIAG2, MEDIA_CONC, ELMO, PT3D_DIAG, RJ_1, RJ_2, RJ_3, SOILOUT, SSEMIS, VDIFF, VSED, WETDEP1, WETDEP2 and VEXT_1. The in-depth description about each of these files is described in [Chapter 7](CMAQ_UG_ch07_model_outputs.md).
 
 
 ### 5.7.3 Common errors causing the CCTM simulation to crash

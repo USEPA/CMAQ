@@ -19,37 +19,37 @@ In this section, details on the routine CCTM output files are provided. All CMAQ
 |----------------------------|------|----|-----------------------------------|
 |**Standard**| | | |
 |[Output Log](#cmaq_output_log) <a id=cmaq_output_log_t></a>|ASCII|n/a|n/a
-|[CCTM_CONC](#conc)<a id=conc_t></a>|GRDDED3|Hourly|XYZ'
-|[CCTM_ACONC](#aconc) <a id=aconc_t></a>|GRDDED3|Hourly|XYZ'
-|[CCTM_DRYDEP](#drydep) <a id=drydep_t></a>|GRDDED3|Hourly|XY
-|[CCTM_WETDEP1](#wetdep) <a id=wetdep_t></a>|GRDDED3|Hourly|XY
+|[CCTM_CONC](#conc)<a id=conc_t></a>|GRDDED3|Hourly Instantaneous|XYZ'
+|[CCTM_ACONC](#aconc) <a id=aconc_t></a>|GRDDED3|Hourly Averaged|XYZ'
+|[CCTM_DRYDEP](#drydep) <a id=drydep_t></a>|GRDDED3|Hourly Cumulative|XY
+|[CCTM_WETDEP1](#wetdep) <a id=wetdep_t></a>|GRDDED3|Hourly Cumulative|XY
 |**Restart**| | | |
-|[CCTM_CGRID](#cgrid) <a id=cgrid_t></a>|GRDDED3|1-hour|XYZ
-|[CCTM_MEDIA](#media)<a id=media_t></a>|GRDDED3|Hourly|XY
+|[CCTM_CGRID](#cgrid) <a id=cgrid_t></a>|GRDDED3|Hourly Instantaneous|XYZ
+|[CCTM_MEDIA](#media)<a id=media_t></a>|GRDDED3|Hourly Instantaneous|XY
 |[CCTM_SOILOUT](#soilout) <a id=soilout_t></a>|GRDDED3|n/a (see detailed file description below)|XY
 |**Diagnostic and Advanced**| | | |
-|[CCTM_PMDIAG](#pmdiag) <a id=pmdiag_t></a>|GRDDED3|Hourly|XYZ'
-|[CCTM_APMDIAG](#apmdiag) <a id=apmdiag_t></a>|GRDDED3|Hourly|XYZ'
-|[CCTM_B3GTS_S](#b3gts) <a id=b3gts_t></a>|GRDDED3|Hourly| XY
-|[CCTM_DEPV](#depv) <a id=depv_t></a>|GRDDED3|Hourly|XY
-|[CCTM_PT3D](#pt3d) <a id=pt3d_t></a>|GRDDED3|Hourly|XYZ
-|[CCTM_DUSTEMIS](#dust) <a id=dust_t></a>|GRDDED3|Hourly|XY
-|[CCTM_DEPVMOS](#depv_mos) <a id=depv_mos_t></a>|GRDDED3|Hourly|XYW
-|[CCTM_DEPVFST](#depv_fst) <a id=depv_fst_t></a>|GRDDED3|Hourly|XYW
-|[CCTM_DDEP_MOS](#dry_dep_mos) <a id=dry_dep_mos_t></a>|GRDDED3|Hourly|XYW
-|[CCTM_DDEP_FST](#dry_dep_fst) <a id=dry_dep_fst_t></a>|GRDDED3|Hourly|XYW
-|[CCTM_LTNGHRLY](#ltngdiag1) <a id=ltngdiag1_t></a>|GRDDED3|Hourly|XYZ
-|[CCTM_LTNGCOL](#ltngdiag2) <a id=ltngdiag2_t></a>|GRDDED3|Hourly|XY
-|[CCTM_PHOTDIAG1](#ctm_rj_1) <a id=ctm_rj1_t></a>|GRDDED3|Hourly|XY
-|[CCTM_PHOTDIAG2](#ctm_rj_2) <a id=ctm_rj2_t></a>|GRDDED3|Hourly|XYZ'
-|[CCTM_PHOTDIAG3](#ctm_rj_3) <a id=ctm_rj3_t></a>|GRDDED3|Hourly|XYZ'
-|[CCTM_SSEMIS](#ssemis) <a id=ssemis_t></a>|GRDDED3|Hourly|XY
-|[CCTM_WETDEP2](#wetdep2) <a id=wetdep2_t></a>|GRDDED3|Hourly|XY
-|[CCTM_VEXT](#vext) <a id=vext_t></a>|GRDDED3|Hourly|WZ
+|[CCTM_ELMO](#ELMO) <a id=ELMO_t></a>|GRDDED3|Hourly Instantaneous|XYZ'
+|[CCTM_AELMO](#aELMO) <a id=aELMO_t></a>|GRDDED3|Hourly Averaged|XYZ'
+|[CCTM_B3GTS_S](#b3gts) <a id=b3gts_t></a>|GRDDED3|Hourly Instantaneous| XY
+|[CCTM_DEPV](#depv) <a id=depv_t></a>|GRDDED3|Hourly Instantaneous|XY
+|[CCTM_PT3D](#pt3d) <a id=pt3d_t></a>|GRDDED3|Hourly Instantaneous|XYZ
+|[CCTM_DUSTEMIS](#dust) <a id=dust_t></a>|GRDDED3|Hourly Instantaneous|XY
+|[CCTM_DEPVMOS](#depv_mos) <a id=depv_mos_t></a>|GRDDED3|Hourly Instantaneous|XYW
+|[CCTM_DEPVFST](#depv_fst) <a id=depv_fst_t></a>|GRDDED3|Hourly Instantaneous|XYW
+|[CCTM_DDEP_MOS](#dry_dep_mos) <a id=dry_dep_mos_t></a>|GRDDED3|Hourly Cumulative|XYW
+|[CCTM_DDEP_FST](#dry_dep_fst) <a id=dry_dep_fst_t></a>|GRDDED3|Hourly Cumulative|XYW
+|[CCTM_LTNGHRLY](#ltngdiag1) <a id=ltngdiag1_t></a>|GRDDED3|Hourly Instantaneous|XYZ
+|[CCTM_LTNGCOL](#ltngdiag2) <a id=ltngdiag2_t></a>|GRDDED3|Hourly Instantaneous|XY
+|[CCTM_PHOTDIAG1](#ctm_rj_1) <a id=ctm_rj1_t></a>|GRDDED3|Hourly Instantaneous|XY
+|[CCTM_PHOTDIAG2](#ctm_rj_2) <a id=ctm_rj2_t></a>|GRDDED3|Hourly Instantaneous|XYZ'
+|[CCTM_PHOTDIAG3](#ctm_rj_3) <a id=ctm_rj3_t></a>|GRDDED3|Hourly Instantaneous|XYZ'
+|[CCTM_SSEMIS](#ssemis) <a id=ssemis_t></a>|GRDDED3|Hourly Instantaneous|XY
+|[CCTM_WETDEP2](#wetdep2) <a id=wetdep2_t></a>|GRDDED3|Hourly Cumulative|XY
+|[CCTM_VEXT](#vext) <a id=vext_t></a>|GRDDED3|Hourly Instantaneous|WZ
 
 <sup>1</sup>By default, output files are named CCTM_XXX_${CTM_APPL}.nc where XXX is the file identifier and ${CTM_APPL} is a user defined string that identifies the model run.   
-<sup>2</sup>While "Hourly" is indicated, users may define a different time step (e.g. 30 minutes) for model output by changing the TSTEP variable in the runscript. From here onward, the term "Hourly" will be used for description purposes.    
-<sup>3</sup>X is the dimension along the x-axis, Y is the dimension along the y-axis, Z is the vertical dimension, Z' is the user pre-defined size of the vertical dimension controlled by the environment variables CONC_BLEV_ELEV, ACONC_BLEV_ELEV, APMDIAG_BLEV_ELEV, and NLAYS_PHOTDIAG (range from 1 to all layers) and W is a non-layer dimension, e.g. number of LU fractions, number of sites for vertical extraction.    
+<sup>2</sup>While "Hourly" is indicated, users may define a different time step (e.g., 30 minutes) for model output by changing the TSTEP variable in the runscript. Hourly Instantaneous represents the model value at the exact model output time step.  Hourly Averaged values represent the average model values for the 60 minutes beginning with the model output time step.  Hourly Cumulative represent the cumulative (summed) model values for the 60 minutes ending at the model output time step.  
+<sup>3</sup>X is the dimension along the x-axis, Y is the dimension along the y-axis, Z is the vertical dimension, Z' is the user pre-defined size of the vertical dimension controlled by the environment variables CONC_BLEV_ELEV, ACONC_BLEV_ELEV, AELMO_BLEV_ELEV, and NLAYS_PHOTDIAG (range from 1 to all layers) and W is a non-layer dimension, e.g. number of LU fractions, number of sites for vertical extraction.    
 <sup>4</sup>A special ASCII output file, FLOOR_xxx with xxx being the processor number, contains information when a simulation results in negative concentrations. 
 
 ## 7.2 CCTM Output Files
@@ -96,7 +96,7 @@ The 2-D or 3-D CCTM integral average concentration file contains average model s
 [Return to Table 7-1](#drydep_t)
 <!-- END COMMENT -->
 
-The 2-D CCTM dry deposition file contains cumulative hourly dry deposition fluxes (kg hectare<sup>-1</sup>) for selected model species. CCTM calculates dry deposition for all of the species listed in the dry deposition column of the [Species NameLists files](CMAQ_UG_ch04_model_inputs.md#matrix_nml) within the mechanism directories. The GC_*mechname*.nml file lists the gas-phase species, the AE_*mechname*.nml file lists the aerosol species, and the NR_*mechname*.nml lists the nonreactive (inert) species. Species can be removed from the dry deposition file by editing the DDEP column in the NameList file(s).
+The 2-D CCTM dry deposition file contains cumulative hourly dry deposition fluxes (kg hectare<sup>-1</sup>) for selected model species.  CCTM calculates dry deposition for all of the species listed in the dry deposition column of the [Species NameLists files](CMAQ_UG_ch04_model_inputs.md#matrix_nml) within the mechanism directories. The GC_*mechname*.nml file lists the gas-phase species, the AE_*mechname*.nml file lists the aerosol species, and the NR_*mechname*.nml lists the nonreactive (inert) species. Species can be removed from the dry deposition file by editing the DDEP column in the NameList file(s).
 
 ##### NH<sub>3</sub> flux components in CCTM_DRYDEP
 CMAQ v5.3 and later contains two build-time options for calculating dry deposition/surface exchange: M3DRY and STAGE. (See [Section 6.8 ](CMAQ_UG_ch06_model_configuration_options.md#68-dry-depositionair-surface-exchange) for further information).  Both M3DRY and STAGE support modeling ammonia bidirectional surface flux.  The definition of the NH3 flux components in the CCTM_DRYDEP file will depend on whether or not bidirectional NH<sub>3</sub> flux option has been enabled (a run-time option controlled by setting CTM_ABFLUX to Y or N).  When the model is run without the bidirectional NH<sub>3</sub> flux option enabled (CTM_ABFLUX set to N), the variable NH3 in the CCTM_DRYDEP file represents the unidirectional ammonia dry deposition flux in both STAGE and M3DRY.
@@ -180,27 +180,27 @@ Installation instructions for I/O API v5.3-large are provided in README.txt in t
 
 This optional ASCII file contains specific gridcells/timesteps in which species with negative concentrations are reset to zero. The location and name of the file is set by the FLOOR_FILE environment variable.
 
-<a id=pmdiag></a>
+<a id=ELMO></a>
 
-**CCTM_PMDIAG: instantaneous hourly aerosol diagnostics file**
+**CCTM_ELMO: instantaneous hourly aerosol diagnostics file**
 <!-- BEGIN COMMENT -->
-[Return to Table 7-1](#pmdiag_t)
+[Return to Table 7-1](#ELMO_t)
 <!-- END COMMENT -->
 
 This optional 2-D or 3-D CCTM diagnostic file contains instantaneous information at the end of the hour for each model hour on the geometric mean diameters, geometric standard deviations, bulk densities, 2nd moments and 3rd moments for the lognormal modes. 
 It also includes the fraction of each mode that contributes to PM1, PM2.5, and PM10 and the AMS transmission factor for each mode. Many diagnostics relating to heterogenous chemistry are provided including the N<sub>2</sub>O<sub>5</sub> reaction probability, 
-the ClNO<sub>2</sub> reaction yield, and the IEPOX uptake coefficient. Units for all variables are specified in the output file. The number of layers in this output file is determined by the setting of the CONC_BLEV_ELEV environment variable in the RunScript. This file is only created if the CTM_APMDIAG environment variable in the RunScript is set to Y (Default is N).
+the ClNO<sub>2</sub> reaction yield, and the IEPOX uptake coefficient. Units for all variables are specified in the output file. The number of layers in this output file is determined by the setting of the CONC_BLEV_ELEV environment variable in the RunScript. This file is only created if the CTM_AELMO environment variable in the RunScript is set to Y (Default is N).
 
-<a id=apmdiag></a>
+<a id=aELMO></a>
 
-**CCTM_APMDIAG: average hourly aerosol diagnostics file**
+**CCTM_AELMO: average hourly aerosol diagnostics file**
 <!-- BEGIN COMMENT -->
-[Return to Table 7-1](#apmdiag_t)
+[Return to Table 7-1](#aELMO_t)
 <!-- END COMMENT -->
 
 This optional 2-D or 3-D CCTM diagnostic file contains integral average information for each model hour on the geometric mean diameters, geometric standard deviations, bulk densities, 2nd moments and 3rd moments for the lognormal modes. 
 It also includes the fraction of each mode that contributes to PM1, PM2.5, and PM10 and the AMS transmission factor for each mode. Many diagnostics relating to heterogenous chemistry are provided including the N<sub>2</sub>O<sub>5</sub> reaction probability, 
-the ClNO<sub>2</sub> reaction yield, and the IEPOX uptake coefficient. Units for all variables are specified in the output file. The number of layers in this output file is determined by the setting of the APMDIAG_BLEV_ELEV environment variable in the RunScript. This file is only created if the CTM_APMDIAG environment variable in the RunScript is set to Y (Default is N).
+the ClNO<sub>2</sub> reaction yield, and the IEPOX uptake coefficient. Units for all variables are specified in the output file. 
 
 <a id=b3gts></a>
 

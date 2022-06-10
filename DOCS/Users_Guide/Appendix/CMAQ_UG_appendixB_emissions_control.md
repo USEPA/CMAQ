@@ -13,7 +13,7 @@
 
 ## B.1 Emissions Control with the Detailed Emissions Scaling, Isolation and Diagnostics Module (DESID)
 
-In addition to the options available in the RunScript, CMAQ now reads a dedicated namelist in order to apply comprehensive rules for reading and scaling emissions. The namelist, called the **Emission Control Namelist** is named "EmissCtrl.nml" by default and a separate version exists for every mechanism because these namelists are preloaded with likely rules linking emissions of important CMAQ primary species to their typical surrogate names as output by SMOKE. By default, this namelist is stored in each chemical mechanism folder (e.g. MECHS/cb6r3_ae7_aq) and is copied into the user's build directory when bldit_cctm.csh is executed. If the user modifies the name or location of this namelist, then the following command in the RunScript should be updated as well:
+In addition to the options available in the RunScript, CMAQ now reads a dedicated namelist in order to apply comprehensive rules for reading and scaling emissions. The namelist, called the **Emission Control Namelist** is named "EmissCtrl.nml" by default and a separate version exists for every mechanism because these namelists are preloaded with likely rules linking emissions of important CMAQ primary species to their typical emission species names as output by SMOKE. By default, this namelist is stored in each chemical mechanism folder (e.g. MECHS/cb6r3_ae7_aq) and is copied into the user's build directory when bldit_cctm.csh is executed. If the user modifies the name or location of this namelist, then the following command in the RunScript should be updated as well:
 ```
 setenv EMISSCTRL_NML ${BLD}/EmissCtrl.nml
 ```
@@ -26,7 +26,7 @@ The Detailed Emissions Scaling, Isolation and Diagnostics (DESID) module include
 With the rules present in this section, the user is able to exert sophisticated, precise control over the scaling applied to emissions from specific streams, in specific geographic areas, and/or for specific compounds. The set of rules used by CMAQ to interpret emissions shall be provided in one array called EM_NML. It is necessary that every field (i.e. column) be populated for every rule. The fields are given and defined here and in the comment section of the Emission Control Namelist:
 ```
 ! Region      | Stream Label  |Emission | CMAQ-        |Phase/|Scale |Basis |Op  
-!  Label      |               |Surrogate| Species      |Mode  |Factor|      |
+!  Label      |               |Species  | Species      |Mode  |Factor|      |
 ```
 - 'Region Label' - Apply scaling for specific regions of the domain. Set this field to "EVERYWHERE" to apply the rule to the entire domain.
 - 'Stream Label' - Short Name from Run Script (e.g. the value of GR_EMIS_01_LAB or STK_EMIS_01_LAB). There are a few reserved names that apply to online emissions streams. These are:
@@ -37,12 +37,12 @@ With the rules present in this section, the user is able to exert sophisticated,
   - SeaSpray - Sea Spray Aerosol Emissions  
 
   Set this field to 'ALL' to apply the rule to all emission streams.  
-- 'Emission Surrogate' - The character string identifying the surrogate on the emission file or in the online calculation that the CMAQ species should be mapped to. Usually this name is the same as the CMAQ species for convenience. For aerosols, it's usually slightly different (e.g ANO3 vs. PNO3). Set this field to 'ALL' to apply the rule to all emission surrogates.  
+- 'Emission Species' - The character string identifying the species on the emission file or in the online calculation that the CMAQ species should be mapped to. Usually this name is the same as the CMAQ species for convenience. For aerosols, it's usually slightly different (e.g ANO3 vs. PNO3). Set this field to 'ALL' to apply the rule to all emission species.  
 - 'CMAQ-Species' - Internal Species Name. Set this field to 'ALL' to apply the rule to all CMAQ internal species.
 - 'Phase/Mode' - If the CMAQ-Species is a Gas, this field should equal 'Gas'. If the CMAQ-Species is an aerosol, this field should indicate one of the possible emission aerosol modes. Every stream by default is given a 'COARSE' and 'FINE' mode. The user may refer to these or define others above and refer to them as well. This level of specificity is needed so that aerosol number and surface area are calculated correctly, and so that any unit conversions between gases and aerosols can be handled correctly.  
 - 'Scale Factor' - Adjustment factor to be applied to the mapping
-- 'Basis' - Specifies whether the scaling option should directly apply, or if the operation should conserve moles or mass when performing scaling operations. CMAQ has a lookup table of molecular weights for known emission surrogate species and can use these to translate molar and mass emission rates from the input file to the CMAQ species. CMAQ determines the units of the emission surrogate species by reading the file header (i.e. it is important the units are accurate. Options for input are:
-  - 'MASS' - Conserve Mass. For example, if emissions of an aerosol are to be scaled to emissions of a gas surrogate, it is common to want to conserve mass.
+- 'Basis' - Specifies whether the scaling option should directly apply, or if the operation should conserve moles or mass when performing scaling operations. CMAQ has a lookup table of molecular weights for known emission species and can use these to translate molar and mass emission rates from the input file to the CMAQ species. CMAQ determines the units of the emission species by reading the file header (i.e. it is important the units are accurate. Options for input are:
+  - 'MASS' - Conserve Mass. For example, if emissions of an aerosol are to be scaled to emissions of a gas species, it is common to want to conserve mass.
   - 'MOLE' - Conserve Moles. For example, if emissions of a gas-phase species are to be scaled to another gas, it is sometimes desired to conserve moles since gas emissions are provided on a mole basis.
   - 'UNIT' - Ignore molecular weight conversions and apply emission rate directly regardless of units.
 - 'Operation' - Specifies the kind of rule to be carried out. Options are:
@@ -54,10 +54,10 @@ With the rules present in this section, the user is able to exert sophisticated,
 The Emission Control Namelists provided with the CMAQ repo have default rules included that correspond to each chemical mechanism. Here is an example default rule that links NO in CMAQ to NO from every emission stream in every model grid cell with a scale factor of 1.0.
 ```
 ! Region      | Stream Label  |Emission | CMAQ-        |Phase/|Scale |Basis |Op  
-!  Label      |               |Surrogate| Species      |Mode  |Factor|      |
+!  Label      |               |Species  | Species      |Mode  |Factor|      |
 'EVERYWHERE'  , 'All'         ,'NO'     ,'NO'          ,'GAS' ,1.0  ,'UNIT','a',
 ```
-Many rules are needed here in order to properly link every emitted pollutant to a CMAQ species. Rules are needed for gas- and aerosol-phase species. Additional rules also exist for online aerosol modules like wind-blown dust and sea spray because the names of aerosol surrogates from these modules are different than those typically used for SMOKE output. For example, fine-mode aerosol sulfate is commonly called PSO4 in SMOKE, but is PMFINE_SO4 from dust and sea spray.
+Many rules are needed here in order to properly link every emitted pollutant to a CMAQ species. Rules are needed for gas- and aerosol-phase species. Additional rules also exist for online aerosol modules like wind-blown dust and sea spray because the names of aerosol emission species from these modules are different than those typically used for SMOKE output. For example, fine-mode aerosol sulfate is commonly called PSO4 in SMOKE, but is PMFINE_SO4 from dust and sea spray.
 
 ### B.2.2 Modifying Default rules
 The user can modify any default rule to change the scale factor applied. Alternatively, the user can add new rules after the default rules to customize the emissions. Typical modifications may include multiplying the emissions of a particular species from a particular stream by a factor of 2, zeroing out emissions of all species from a particular stream, etc. Please see the tutorial on [Prescribing Emissions with DESID](../Tutorials/CMAQ_UG_appendixB_emissions_control.md) for specific examples of modifications and the syntax used to invoke them.
@@ -97,11 +97,28 @@ If the user would like to apply the default volatility distribution to the POA e
 ```
 Notice that for each species (e.g. ALVPO1) a rule is needed to link the species to the emissions of POC and another rule is needed to add PNCOM. This is because both carbon and noncarbon mass are part of the emissions of every semivolatile species. To change the volatility distribution for all streams, the user may modify the scaling factors in the default rules above. To introduce specialized volatility distributions for specific stream (e.g. residential wood burning, forest fires, diesel vehicles, etc), rules may be added which explicitly identify a stream in the "Stream Label" field.
 
+To avoid large swigns in repartitioning after emission, it''s a good idea to split mass between gas and particle phases, with all mass going to the particle in the C* = 0.1-1 range and all gas for C* = 100-1000. Species with C*=10 can generally have mass split between gas and particle or be put in all gas if conditions are very clean. If too much mass evaporates or condenses upon emission, the aerosol size distribution will be affected.  
+
+#### B.2.2.2 Supporting Potential Combustion SOA
+
+Potential Combustion SOA (pcSOA) is a CMAQ species introduced to account for missing pathways for SOA formation from combustion sources. It includes IVOC oxidation as well as other phenomena (Murphy et al., ACP, 2017). It was parameterized primarily in LA, where vehicle exhaust continues to dominate. The following emission rulese add the gas-phase precursor to pcSOA to the model scaled to POA.
+    'EVERYWHERE', 'ALL'          ,'POC'   ,'PCVOC'      ,'GAS' ,6.579,'MASS','a',  
+    'EVERYWHERE', 'ALL'          ,'PNCOM' ,'PCVOC'      ,'GAS' ,6.579,'MASS','a',  
+
+However, the added pcSOA is probably inappropriate for Fire sources, especially in its current configuration. This pathway should be zeroed out for all fire and wood-burning related sources. The default emission control interfaces include a number of emission rules with the most common stream names for fire emission inputs in order to maximize the likelihood of zeroing out pcSOA from fires. The user should confirm that pcVOC emissions from fire sources are zero for all simulations.  
+    'EVERYWHERE', 'PT_FIRES'     ,'ALL'   ,'PCVOC'      ,'GAS' ,0.0  ,'MASS','o',
+    'EVERYWHERE', 'PT_RXFIRES'   ,'ALL'   ,'PCVOC'      ,'GAS' ,0.0  ,'MASS','o',
+    'EVERYWHERE', 'PT_AGFIRES'   ,'ALL'   ,'PCVOC'      ,'GAS' ,0.0  ,'MASS','o',
+    'EVERYWHERE', 'PT_OTHFIRES'  ,'ALL'   ,'PCVOC'      ,'GAS' ,0.0  ,'MASS','o',
+    'EVERYWHERE', 'PT_FIRES_MXCA','ALL'   ,'PCVOC'      ,'GAS' ,0.0  ,'MASS','o',
+    'EVERYWHERE', 'GR_RES_FIRES' ,'ALL'   ,'PCVOC'      ,'GAS' ,0.0  ,'MASS','o',
+
+
 ## B.3 Applying Masks for Spatial Dependence
 Gridded masks are used to apply rules to specific areas of the domain. For example, the following rule:
 ```
 ! Region      | Stream Label  |Emission | CMAQ-        |Phase/|Scale |Basis |Op  
-!  Label      |               |Surrogate| Species      |Mode  |Factor|      |
+!  Label      |               |Species  | Species      |Mode  |Factor|      |
 'KENTUCKY'    , 'All'         ,'All'    ,'All'         ,'All' ,1.50 ,'UNIT','m',
 ```
 will scale emissions of all species from all streams by +50% but only in grid cells in the state of Kentucky. One or more I/O API formatted input files containing geographic region definitions are required to take advantage of this option.  Such files should contain a separate variable for each spatial region of interest.  Each variable is a gridded field of real numbers from 0.0 to 1.0, with 0.0 outside of the region of interest and 1.0 completely inside the region. Region border grid cells should have the geographic fraction attributed to the region (for example, a grid cell that 35% in Kentucky and 65% in Tennessee would have have the number 0.35 for the variable representing the Kentucky mask.
@@ -137,10 +154,10 @@ Two example mask files are available on the CMAS Data Warehouse: US states grid 
 ## B.4 Aerosol Size Distributions
 The treatment of aerosol size distributions in CMAQv5.3 has been updated to be more consistent with the way particle sizes and modes are treated by the National Emission Inventory and in emissions processing tools like SMOKE, MOVES, SPECIATE, and Speciation Tool. Specifically, in these tools, aerosol emissions are typically parameterized into two main modes, Fine and Coarse. Although the size distribution parameters (i.e. total number, diameter, standard deviation, etc.) for these modes will vary among emission sources, previous versions of CMAQ assumed that all primary fine particles had the same size distribution upon emission. Coarse-mode particles were assumed to exhibit a larger diameter but were also uniform across all sources (excluding wind-blown dust and sea spray).
 
-In CMAQv5.3, users link particle emission surrogates to CMAQ particle species via the [EmissionScalingRules](CMAQ_UG_appendixB_emissions_control.md#b3-emission-scaling-rules) section of the Emission Control Namelist. Examples of default mapping rules can be found in any of the Emission Control Namelists in the CMAQ repository. The three lines below assign emissions for all streams for particulate-phase sulfate, ammonium, and nitrate.
+In CMAQv5.3, users link particle emission species to CMAQ particle species via the [EmissionScalingRules](CMAQ_UG_appendixB_emissions_control.md#b3-emission-scaling-rules) section of the Emission Control Namelist. Examples of default mapping rules can be found in any of the Emission Control Namelists in the CMAQ repository. The three lines below assign emissions for all streams for particulate-phase sulfate, ammonium, and nitrate.
 ```
 ! Region      | Stream Label  |Emission | CMAQ-        |Phase/|Scale |Basis |Op  
-!  Label      |               |Surrogate| Species      |Mode  |Factor|      |
+!  Label      |               |Species  | Species      |Mode  |Factor|      |
 'EVERYWHERE'  , 'ALL'         ,'PSO4'   ,'ASO4'        ,'FINE',1.0   ,'UNIT','a',
 'EVERYWHERE'  , 'ALL'         ,'PNH4'   ,'ANH4'        ,'FINE',1.0   ,'UNIT','a',
 'EVERYWHERE'  , 'ALL'         ,'PNO3'   ,'ANO3'        ,'FINE',1.0   ,'UNIT','a',
@@ -197,53 +214,48 @@ CMAQ will use the size distribution reference value linked to each emissions sca
 In the example above, fine mode Wind-Blown Dust are linked to 'FINE_WBDUST', sea spray aerosols are linked to 'FINE_SEASPRAY' and all other sources are linked to 'FINE_REF'. Thus, different size distributions will be calculated for each of these streams. However, if the user wants to scale the mass of all fine mode aerosol by a factor of 2, the following emission rule is valid:
 ```
 ! Region      | Stream Label  |Emission | CMAQ-        |Phase/|Scale |Basis |Op  
-!  Label      |               |Surrogate| Species      |Mode  |Factor|      |
+!  Label      |               |Species  | Species      |Mode  |Factor|      |
 'EVERYWHERE'  , 'ALL'         ,'ALL'    ,'ALL'         ,'FINE',1.0   ,'UNIT','m',
 ```
 
-## B.5 Additional DESID Features
-### B.5.1 Summary Output to Processor-Specific Logfiles
-Diagnostic output is an important feature of the new emissions module, DESID. Because the impact of emissions is so critical for CMAQ predictions and because the features available for scaling emissions are now quite complex, a comprehensive text-based output has been added to the CMAQ logfiles to enhance transparency.
+### B.5 Area Normalization
+This component allows the user to specify area-normalized emission fluxes from input streams. If emission inputs are provided to CMAQ in area-normalized fluxes for any stream, this component may be used to convert them correctly to emission rates appropriate for the model simulation grid projection. For example, if offline biogenic emissions are provided in units of moles/m2/s, then that stream may be identified here and DESID can be instructed to adjust each flux to moles/s and adjust the rates using the map scale factor that converts emissions in real geographic space into projected grid space.  
 
-The logfiles now provide several lists of information to help protect users from mistakes like inconsistent naming between emissions and CMAQ speciation. First, CMAQ reports for each stream the number and names of all the surrogate species that were not used. Second, it prints the names of surrogates that the user told it to look for but that it could not find on any of the emission streams. If the environment variable:
-```
-setenv CTM_EMISCHK Y         #> Abort CMAQ if missing surrogates from emissions Input files
-```
-is set to 'Y' or 'True', then the model will abort if it cannot find any individual surrogate. If the variable is set to 'N' or 'False' then CMAQ will print a warning and proceed.
+Definition of Fields:  
+  'Stream - Label for the emission stream that the specication will apply 
+    Label'  to. If the label is 'ALL', then the instruction will be       
+            expanded to all OFFLINE streams. Online streams must be       
+            specified explicitly because we assume that essentially all   
+            users will want to treat Online streams the way they have been
+            written and implemented (in projected space).                 
+  'Area Normalization' - If TRUE, then this stream's emissions will be    
+            multiplied by grid cell area. If FALSE, the stream's emissions
+            will not be multiplied by area, regardless of the units. If   
+            AUTO, then DESID will try to deduce from the units string     
+            whether or not each variable on the stream should be          
+            multiplied by area. By default, all streams are set to AUTO.  
+  'Projection Adjustment' - If TRUE, then this stream's emissions will be 
+            multiplied by the area Map Scale Factor. If FALSE, then the   
+            stream's emissions will not be multiplied by scale factor     
+            area, regardless of the units of eahc variable. If AUTO, then 
+            DESID will try to deduce from the units string whether or not 
+            each variable on the stream should be multiplied by the area  
+            scale factor (i.e. are the units consistent with area fluxes. 
+            By default, all streams are set to AUTO.                      
 
-Finally, CMAQ loops through streams and outputs the size distribution modes available for each stream and the full list of every emission instructions applied to each stream. These are ordered by CMAQ species (with 'i', 'j', and 'k' modes listed separately) and surrogate species name so that a full understanding of the scaling rules applied to each CMAQ species' emissions can be grasped quickly. Columns are printed for the applicable region(s) of the grid, the phase/mode applied, the input scale factor, the scaling basis, the operation, and the final scale factor applied taking into account any molecular weight conversions, if needed, and size distribution fractions.
+Example:
+```
+&AreaNorm
+ AREA_NML  =
+ !         | Stream Label   | Area Normalization | Projection Adjustment
+                'ALL'       ,'AUTO'              ,'AUTO',
+ !<Example>     'GRIDDED'   ,'TRUE'              ,'TRUE',
+ !<Example>     'FIRES'     ,'TRUE'              ,'FALSE',
+ !<Example>     'VCP'       ,'FALSE'             ,'TRUE',
+/
+```
 
-### B.5.2 Diagnostic Gridded Output Files
-Many complex scaling procedures are now possible with DESID. Users are advised to confirm that the emissions are scaled the way they have intended. One tool to help this step is the Gridded Diagnostic Output. This is enabled on a stream-by-stream basis in the CMAQ RunScript with the following options:
-```
-# Gridded Emissions Diagnostic files
-  setenv GR_EMIS_DIAG_001 TRUE
-  setenv GR_EMIS_DIAG_002 2D
-
-# Stack emissions diagnostic files
-  setenv STK_EMIS_DIAG_001 2DSUM
-  setenv STK_EMIS_DIAG_002 2DSUM
-  setenv STK_EMIS_DIAG_003 FALSE
-  setenv STK_EMIS_DIAG_004 2DSUM
-  setenv STK_EMIS_DIAG_005 2DSUM
-```
-The lines above set the behavior of the gridded diagnostic output for gridded and inline emission streams. The values available for each stream are 'TRUE', 'FALSE', '2D', '2DSUM', and '3D'. The '2D' option prints just the surface layer of emissions for a particular stream. The '3D' option prints all layers populated by that stream. The '2DSUM' option prints one 2D field, but it equals the column of sum of emissions throughout the gridded model domain. The 'TRUE' option equates to '2D'. The user can also set the diagnostic behavior of online streams using the following variables:
-```
-setenv BIOG_EMIS_DIAG TRUE
-setenv MG_EMIS_DIAG TRUE
-setenv LTNG_EMIS_DIAG TRUE
-setenv DUST_EMIS_DIAG TRUE
-setenv SEASPRAY_EMIS_DIAG TRUE
-```
-The gridded diagnostic output files that are created are named systematically with the format "CCTM_EMDIAG_[XXX]_[CTM_APPL]_[DATE].nc" where XXX is the emissions stream label, CTM_APPL is the application name defined in the CCTM runscript, and DATE is the date of the simulation. To change the default value for the diagnostic output of all emission streams, modify the "EMIS_DIAG" variable:
-```
-setenv EMIS_DIAG TRUE
-```  
-This variable sets the default behavior for all streams. If the variables for any specific streams are provided in the RunScript, they will override this default value.  
-
-The emission rates printed to the diagnostic files reflect all the scaling rules applied and are written just before the emissions are added to the CMAQ transport module. Because the model interpolates in time, it is very likely that the rates written to the diagnostic file will not correspond in time to the rates from the input files. In most cases, the rates will be one-half time step before the top of the hour, the time point of the emission inputs. For this reason, it is not entirely helpful for users to compare the scaled emissions directly to the rates on the input files. However, comparing them qualitatively can be helpful.
-
-### B.5.3 Defining and Using Chemical, Regional, and Stream Families  
+### B.6 Defining and Using Chemical, Regional, and Stream Families  
 The emission control file provides an interface for defining chemical, regional, and stream families that can be used to dramatically simplify the rules a user wishes to apply to their emissions inputs. For example, NO and NO2 may be grouped into one chemical family, which the user could then call NOx. Additionally, a user could group regions defined in the RegionsRegistry together. For example, if there are already regions that represent North Carolina (let's call it NC) and South Carolina (let's call it SC), then the user could group NC and SC together and call them "CAROLINAS". Then when "CAROLINAS" is used as the region in a scaling rule, the rule will be distributed and applied to grid cells in both NC and SC. Finally, users can group specific emission streams together. This could be especially useful when defining, for example, a group emission streams relevant for electric power generation or mobile sources.  
 
 Please see the Emission Control file sections on ChemicalFamilies, StreamFamilies, and RegionFamilies for examples demonstrating how to invoke them. For example, the following lines create a family called NOX made from NO and NO2 and a family called XYLENES made from MXYL, OXYL, and PXYL.  
@@ -258,16 +270,79 @@ Please see the Emission Control file sections on ChemicalFamilies, StreamFamilie
   ChemFamilyMembers(2,:)= 'OXYL','MXYL','PXYL' ! The names of the members of the second family  
 /  
 ```
-The other types of familes can be defined similarly. One additional note, if a chemical familiy is defined for use in an emission scaling rule, the user should be careful about confirming that the members of that family are present on the emission input file or the CMAQ model species list, depending on which the user is trying to modify. Since the names on the input files are often different than those on the CMAQ model species list, care is advised. DESID will print warnings to the CMAQ log file when it can't find species that it is looking for from a chemical family on an input file or in the list of CMAQ model species. Please confirm that the model is operating as you expect.  
+The other types of familes can be defined similarly. One additional note, if a chemical familiy is defined for use in an emission scaling rule, the user should be careful about confirming that the members of that family are present on the emission input file or the CMAQ model species list, depending on which the user is trying to modify. Since the names on the input files are often different than those on the CMAQ model species list, care is advised. DESID will print warnings to the CMAQ log file when it cannot find species that it is looking for from a chemical family on an input file or in the list of CMAQ model species. Please confirm that the model is operating as you expect.  
+ 
+## B.7 Emissions Diagnostics  
+### B.7.1 Summary Output to Processor-Specific Logfiles  
+Diagnostic output is an important feature of the new emissions module, DESID. Because the impact of emissions is so critical for CMAQ predictions and because the features available for scaling emissions are now quite complex, a comprehensive text-based output has been added to the CMAQ logfiles to enhance transparency.
 
-## B.6 Explicit and Lumped MOdel Output (ELMO) 
-The ELMO module makes aerosol diagnostic parameters as well as aggregated and highly proceed aerosol metrics available driectly in CMAQ output files rather than requiring follow-up post-processing steps.
+The logfiles now provide several lists of information to help protect users from mistakes like inconsistent naming between emissions and CMAQ speciation. First, CMAQ reports for each stream the number and names of all the emission species that were not used. Second, it prints the names of emission species that the user told it to look for but that it could not find on any of the emission streams. If the environment variable:
+```
+setenv CTM_EMISCHK Y         #> Abort CMAQ if missing emission species from emissions Input files
+```
+is set to 'Y' or 'True', then the model will abort if it cannot find any individual emission species. If the variable is set to 'N' or 'False' then CMAQ will print a warning and proceed.
 
-### B.6.1
-Prescribing features of instantaneous and average PM diagnostic files
+Finally, CMAQ loops through streams and outputs the size distribution modes available for each stream and the full list of every emission instructions applied to each stream. These are ordered by CMAQ species (with 'i', 'j', and 'k' modes listed separately) and emission species name so that a full understanding of the scaling rules applied to each CMAQ species'' emissions can be grasped quickly. Columns are printed for the applicable region(s) of the grid, the phase/mode applied, the input scale factor, the scaling basis, the operation, and the final scale factor applied taking into account any molecular weight conversions, if needed, and size distribution fractions.
 
-### B.6.2 
-Identifying aerosol parameters and aggregate metrics to be output
+### B.7.2 Diagnostic Gridded Output Files
+This component allows users to specify individual species for output on emissions diagnostic output files. In this way, users are able to probe emissions magnitudes and scaling changes for species of interest while not sacrificing the hard disk space needed to save the emission rates of all species for every emission stream. It is also possible to combine components of chemical families or stream families as the user''s interest dictates.   
+  Description of Variables:  
+   NEmissDiag - this is the number of diagnostic *instructions* that you are  
+                giving. It will very likely be different than the number      
+                of diagnostic emissions output files. For example, if you wish
+                to expand the streams using the ALL keyword, then all of the  
+                streams will have a file, but only one instruction is needed. 
+   EmissDiagStreams(NEmissDiag,:) - The stream names that are to be exported. 
+        In addition to the labels of individual streams, you may also use     
+        stream family names here to identify more than one stream at a time.  
+        By default, each stream family entry will instruct CMAQ to sum all of 
+        the streams in that group. The keywords 'ALL' and 'TOTAL' are avail-  
+        able by default. You may use a '*' at the beginning of a keyword or   
+        family name to instruct CMAQ to expand that keyword and export files  
+        for all of the streams in that group.                                 
+   EmissDiagFmt(NEmissDiag) - the format of every stream created as a result  
+        of the instruction. Options are:                                      
+              - COLSUM = the column-sum                                       
+              - 3D = 3D output                                                
+              - LAYER1 = Just the surface layer                               
+              - OFF = Turn Off File                                           
+   EmissDiagSpec(NEmissDiag,:) - The species to be added to each diagnostic   
+        file. Species will only appear on a diagnostic file if the relevant   
+        stream or group of streams for the file have that species present.    
+        Chemical families may be used in this list. By default, CMAQ will sum 
+        all of the components of a chemical family. You may precede the       
+        species name with a '*' to instruct CMAQ to expand the field and      
+        include all of the components of that family separately. The keyword  
+        'ALL' may also be used to easily add all species of any stream.       
+
+Examples:  
+```
+&EmissionDiagnostic
+  NEmissDiag           = 3    ! Add 3 example instructions
+
+! Sum up all streams to create a diagnostic file of 2D column sums. NO,
+! NO2, and total NOX will all be on the file.
+  EmissDiagStreams(1,:)= 'ALL'
+  EmissDiagFmt(1)      = 'COLSUM'    ! Options: 2D, 2DCOL, 3D
+  EmissDiagSpec(1,:)   = 'NO','NO2','NOX','ASO4','CO'
+
+! Activate all streams using the keyword TOTAL with the '*' expansion and create
+! a diagnostic for each one. Each of these files will be 3D and will include
+! three variables: 'AEC' = AECI + AECJ + AECK; 'AECI'; 'NO2'; 'ACLK'; 'AMG' and
+! 'TERP' if those variables are avilable on the stream.
+  EmissDiagStreams(2,:)= '*TOTAL'
+  EmissDiagFmt(2)      = '3D'
+  EmissDiagSpec(2,:)   = 'AEC','AECI','NO2','ACLK','AMG','TERP'
+
+! Create a diagnostic of the sum of the components of the PT_SOURCES family
+! (defined in the example above). This file will be column sums and will include
+! all the emitted species appearing on at least one of the streams within
+! PT_SOURCES.
+  EmissDiagStreams(3,:)= 'PT_SOURCES'
+  EmissDiagFmt(3)      = 'COLSUM'
+  EmissDiagSpec(3,:)   = '*ALL'
+/
+```
 
 <!-- BEGIN COMMENT -->
 
