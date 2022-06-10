@@ -82,7 +82,10 @@ C**********************************************************************
       USE UTILIO_DEFN
       USE GRVARS              ! inherits GRID_CONF
       USE AEROSOL_CHEMISTRY
-      USE DEGRADE_SETUP_TOX, ONLY : N_REACT, RXTANT_MAP
+      USE DEGRADE_ROUTINES, ONLY : NCELLS, N_REACT, RXTANT_MAP,
+     &                              ICELL_WRITE, WRITE_CELL, WRITE_BLOCK,
+     &                              FIND_DEGRADED, INIT_DEGRADE_BLK, FINAL_DEGRADE_BLK
+
       USE PHOT_MOD, Only: INIT_PHOT_SHARED, RJ     ! photolysis rate, in-line module
       USE PA_DEFN,  Only: LIRR                     ! Process Anaylsis control and data variable
       USE PA_IRR_CLT
@@ -212,25 +215,6 @@ C..SCRATCH LOCAL VARIABLES:
             LOGICAL,   INTENT( IN ) :: LIRRFLAG     ! Flag for IRR calculations
             REAL( 8 ), INTENT( IN ) :: CHEMSTEP     ! Chemistry integration interval (min) 
          END SUBROUTINE SMVGEAR
-         SUBROUTINE FIND_DEGRADED( JDATE, JTIME, CALL_DEGRADE )
-           INTEGER, INTENT( IN )  :: JDATE        ! current model date , coded YYYYDDD
-           INTEGER, INTENT( IN )  :: JTIME        ! current model time , coded HHMMSS
-           LOGICAL, INTENT( OUT ) :: CALL_DEGRADE ! whether to call degradation routines
-         END SUBROUTINE FIND_DEGRADED
-         SUBROUTINE INIT_DEGRADE( CBLK, TCELL, DCELL, PHOTO_CELL, NUMCELLS,
-     &                         JDATE, JTIME, BLKID )
-           REAL( 8 ), INTENT( IN ) :: CBLK ( :, : )      !  species concentration in cell
-           REAL( 8 ), INTENT( IN ) :: TCELL( : )         !  cell temperature  [ k ]
-           REAL( 8 ), INTENT( IN ) :: DCELL( : )         !  cell air density  [ kg/m^3 ]
-           REAL( 8 ), INTENT( IN ) :: PHOTO_CELL( :, : ) !  Photolysis table for cell [1/s]
-           INTEGER,   INTENT( IN ) :: NUMCELLS  ! number of grid cells in block
-           INTEGER,   INTENT( IN ) :: JDATE     ! current model date , coded YYYYDDD
-           INTEGER,   INTENT( IN ) :: JTIME     ! current model time , coded HHMMSS
-           INTEGER,   INTENT( IN ) :: BLKID     ! number for the block
-         END SUBROUTINE INIT_DEGRADE      
-         SUBROUTINE FINAL_DEGRADE( CBLK )
-           REAL( 8 ), INTENT( INOUT ) :: CBLK( :, : ) ! species conc in cell
-         END SUBROUTINE FINAL_DEGRADE
          SUBROUTINE HETCHEM_UPDATE_AERO( CGRID )
            REAL, POINTER :: CGRID( :,:,:,: )    !  species concentration in cell
          END SUBROUTINE HETCHEM_UPDATE_AERO       
@@ -486,6 +470,7 @@ C..WTH: Put concentrations into degradation array
 
          IF ( CALL_DEG ) THEN
             Y_DEGRADE = 0.0D0
+! Use FPP flag to check results from species degrade routines
             DO ISP = 1, NSPCSD
                DO NCELL = 1, NUMCELLS
                   CELLNUM = NORDCELL( OFFSET + NCELL )
@@ -496,10 +481,28 @@ C..WTH: Put concentrations into degradation array
                ENDDO                 
             ENDDO
 
+! Use FPP flag to check results from species degrade routines
+#ifdef verbose_gas
+            WRITE_BLOCK = .FALSE.
+            ICELL_WRITE = 1
+            DO NCELL = 1, NUMCELLS
+                CELLNUM = NORDCELL( OFFSET + NCELL )
+                COL = CCOL( CELLNUM )
+                ROW = CROW( CELLNUM )
+                LEV = CLEV( CELLNUM )
+                IF( LEV .EQ. 1 .AND. ROW .EQ. 1 .AND. COL .EQ. 1 )THEN
+                    WRITE_BLOCK = .TRUE.
+                    ICELL_WRITE = NCELL
+                    WRITE_CELL( NCELL ) = .TRUE.
+                ELSE
+                    WRITE_CELL( NCELL ) = .FALSE.
+                END IF
+            END DO
+#endif
 C..initialize degradation routines
-              
-            CALL INIT_DEGRADE( Y_DEGRADE, BLKTEMP, BLKDENS, RJBLK, 
-     &                         NUMCELLS, JDATE, JTIME, BLKID )
+            NCELLS = NUMCELLS 
+            CALL INIT_DEGRADE_BLK( Y_DEGRADE, BLKTEMP, BLKDENS, BLKPRES, BLKCH2O, RJBLK, 
+     &                         JDATE, JTIME )
   
          ENDIF
 
@@ -715,7 +718,7 @@ C               END DO
 
 
 C  Update CGRID based on the degradation routines
-               CALL FINAL_DEGRADE( Y_DEGRADE )
+               CALL FINAL_DEGRADE_BLK( Y_DEGRADE )
                UPDATE_DEGRADED: DO ISP = 1, N_REACT
                   VAR = RXTANT_MAP( ISP )
                   IF( VAR .LE. 0 )CYCLE UPDATE_DEGRADED

@@ -270,10 +270,10 @@ Ckrt Identify species index in ISAM array
              DO K = 1,NTAG_SA
                ! Find Source Apportionment of the low volatility vapor species
                ! or, if it doesn't exist, the reaction counter
-               IF ( JCTR .GT. 0 ) THEN
-                  TAG_FRAC( :,:,: ) = ISAM0( :,:,:,JCTR,K ) / BULK0( :,:,:,JCTR )
-               ELSE  IF ( JGAS .GT. 0 ) THEN
+               IF ( JGAS .GT. 0 ) THEN
                   TAG_FRAC( :,:,: ) = ISAM0( :,:,:,JGAS,K ) / BULK0( :,:,:,JGAS )
+               ELSE  IF ( JCTR .GT. 0 ) THEN
+                  TAG_FRAC( :,:,: ) = ISAM0( :,:,:,JCTR,K ) / BULK0( :,:,:,JCTR )
                ELSE
                   XMSG = 'Either a Low-Volatility Gas or a Reaction Counter ' //
      &                   'must be defined for Irreversible Aerosol Species '// 

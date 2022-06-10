@@ -228,7 +228,6 @@
     
     # Copy EBI files to EBI_SOLVER_OUT directory
     cp -f ${EBI_OUTPUT}/hr*.F ${EBI_SOLVER_OUT}/.
-    cp -f ${EBI_OUTPUT}/[d,D,f,i]*.[f,F]  ${EBI_SOLVER_OUT}/.
  endif
 
 exit
