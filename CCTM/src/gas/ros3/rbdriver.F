@@ -83,6 +83,10 @@ C**********************************************************************
       USE PA_DEFN, Only: LIRR   ! Process Anaylsis control and data variable
       USE PA_IRR_CLT
       USE CENTRALIZED_IO_MODULE, ONLY : INTERPOLATE_VAR, OCEAN, SZONE
+#ifdef sens
+      USE DDM3D_CHEM
+      Use DDM3D_DEFN, Only: DATENUM, STARTDATE, IPT, IDATE, HIGH, NP, NPMAX, CKTIME
+#endif
       
       IMPLICIT NONE 
 
@@ -192,25 +196,6 @@ C..Local Variables:
             INTEGER,   INTENT( INOUT ) :: NIRRCLS
             INTEGER,   INTENT( IN ) :: IRRCELL( : )
          END SUBROUTINE RBSOLVER
-!        SUBROUTINE FIND_DEGRADED( JDATE, JTIME, CALL_DEGRADE )
-!          INTEGER, INTENT( IN )  :: JDATE        ! current model date , coded YYYYDDD
-!          INTEGER, INTENT( IN )  :: JTIME        ! current model time , coded HHMMSS
-!          LOGICAL, INTENT( OUT ) :: CALL_DEGRADE ! whether to call degradation routines
-!        END SUBROUTINE FIND_DEGRADED
-!        SUBROUTINE INIT_DEGRADE_BLK( CBLK, TCELL, DCELL, PRESS_CELL, QV_CELL, PHOTO_CELL,
-!    &                            JDATE, JTIME )
-!          REAL( 8 ), INTENT( IN ) :: CBLK( :,: )               !  species concentration in cell
-!          REAL( 8 ), INTENT( IN ) :: TCELL( : )                !  cell temperature  [ k ]
-!          REAL( 8 ), INTENT( IN ) :: DCELL( : )                !  cell air density  [ kg/m^3 ]
-!          REAL( 8 ), INTENT( IN ) :: PRESS_CELL( : )           !  cell Pressure  [ Pa ]
-!          REAL( 8 ), INTENT( IN ) :: QV_CELL( : )              !  cell water vapor mass mixing ratio  [ kg/kg ]
-!          REAL( 8 ), INTENT( IN ) :: PHOTO_CELL( :,: )         !  Photolysis table for cell [1/s]           
-!          INTEGER, INTENT( IN ) :: JDATE  ! current model date , coded YYYYDDD
-!          INTEGER, INTENT( IN ) :: JTIME  ! current model time , coded HHMMSS
-!        END SUBROUTINE INIT_DEGRADE_BLK      
-!        SUBROUTINE FINAL_DEGRADE_BLK( CBLK )
-!          REAL( 8 ), INTENT( INOUT ) :: CBLK( :,: ) ! species conc in cell
-!        END SUBROUTINE FINAL_DEGRADE_BLK
          SUBROUTINE HETCHEM_UPDATE_AERO( CGRID )
            REAL, POINTER :: CGRID( :,:,:,: )    !  species concentration in cell
          END SUBROUTINE HETCHEM_UPDATE_AERO      
@@ -226,12 +211,6 @@ C**********************************************************************
       CALL M3EXIT( PNAME, JDATE, JTIME, MSG, XSTAT1 )
 #endif
 
-#ifdef sens
-      MSG = 'ERROR: Rosenbrock Chemistry Solver does not perform DDM3 calculation.'
-      WRITE(LOGDEV,'(A)')TRIM( MSG )
-      MSG = 'Must use the EBI solver for the chemical mechanism'
-      CALL M3EXIT( PNAME, JDATE, JTIME, MSG, XSTAT1 )
-#endif
 
       IF ( NUMB_MECH_SPC .EQ. 0 ) THEN
          CALL M3MESG( '*** WARNING: Gas-Chemistry processing bypassed!' )
@@ -366,6 +345,20 @@ C set up degradation array
 
          ALLOCATE( Y_DEGRADE( BLKSIZE, NSPCSD ) )
 
+#ifdef sens
+         CALL INIT_DDM3D_CHEM()
+
+C For higher order sensitivities
+         IF ( HIGH ) THEN
+            DO IRXN = 1, NRXNS
+               IF( NREACT( IRXN ) .LE. 1 ) THEN
+                  ORDER1( IRXN ) = .TRUE.
+               ELSE
+                  ORDER1( IRXN ) = .FALSE.
+               END IF
+            END DO
+         END IF
+#endif
       END IF      ! First call
 
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -405,6 +398,21 @@ C   a snapshot of the aerosol surface area so that it can be
 C   appropriately updated after the solver finds a solution.
 
       CALL HETCHEM_RATES( TA, PRES, QV, CONC, DENS )
+
+#ifdef sens
+C Set the date and hour counters used in sensitivity calls
+      DATENUM = 1 + JDATE - STARTDATE 
+
+C For reaction rate sensitivities
+      DO NP = 1, NPMAX
+         IF ( IPT( NP ) .EQ. 5 ) THEN
+            CALL CKTIME( JDATE,JTIME,NP,RXNFLAG(NP) ) ! Rxnflag set to true if ipt=5 and time, date within bounds
+            IF ( IDATE( NP, DATENUM ) .NE. 1 ) RXNFLAG( NP ) = .FALSE.
+         ELSE
+            RXNFLAG( NP ) = .FALSE.
+         END IF
+      END DO
+#endif sens
 
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  Set flag for reordering of cells and put cells in sequential  
@@ -581,17 +589,6 @@ C..Update concentrations
 
 
             IF ( CALL_DEG ) THEN
-
-C  Update degradation array with species treated by Rosenbach solver
-C
-C               DO ISP = 1, ISCHANG( NCS )
-C                  ISPOLD  = INEW2OLD( ISP, NCS )
-C                  DO NCELL = 1, NUMCELLS
-C                     Y_DEGRADE( NCELL,ISPOLD ) = Y( NCELL,ISP )
-C                  END DO
-C               END DO
-
-
 C  Update CGRID based on the degradation routines
                CALL FINAL_DEGRADE_BLK( Y_DEGRADE )
                UPDATE_DEGRADED: DO ISP = 1, N_REACT
@@ -609,6 +606,52 @@ C  Update CGRID based on the degradation routines
                   END DO
                END DO UPDATE_DEGRADED
             END IF            !WTH
+
+#ifdef sens
+
+#ifdef parallel
+!            CPU_ROS3_START =  MPI_WTIME()
+#else
+!            CALL CPU_TIME( REAL_TIME )
+!            CPU_ROS3_START =  REAL( REAL_TIME,8 )
+#endif
+
+            DO NCELL = 1, NUMCELLS
+               DO IRXN = 1, NRXNS
+                  SRK( IRXN ) = RKI( NCELL,IRXN )
+                  IF ( HIGH ) THEN
+                     IF ( NREACT( IRXN ) .LE. 1 ) THEN
+                        SRK2( IRXN ) = 0.0
+                     ELSE IF ( NREACT( IRXN ) .EQ. 2 ) THEN
+                        SRK2( IRXN ) = REAL( RKI( NCELL,IRXN ), 4 )
+                     ELSE IF ( NREACT( IRXN ) .EQ. 3 ) THEN
+! used average partial derivative in termolecular reaction rate
+!                             ISP1 = IRM2( NRK,1,NCS )
+!                             ISP2 = IRM2( NRK,2,NCS )
+!                             ISP3 = IRM2( NRK,3,NCS )
+                              SRK2( IRXN ) = REAL( RKI( NCELL,IRXN ),4 )
+                     ELSE
+                              SRK2( IRXN ) = 0.0
+                     END IF
+                  END IF
+              END DO
+              DO ISP = 1,NUMB_MECH_SPC
+                 ISPOLD = INEW2OLD( ISP,NCS )
+                 YCDDM( ISPOLD ) = REAL( YAVE(NCELL,ISP),4 )
+!                 IF( COL .EQ. 1 .AND. ROW .EQ. 1 .AND. LEV .EQ. 1 )THEN
+!                 ISPNEW = INEW2OLD( IOLD2NEW( ISPOLD,NCS ),NCS )
+!                     WRITE(ROS3_LOG,'(3A,ES12.4)')CHEMISTRY_SPC(ISPOLD),CHEMISTRY_SPC(ISPNEW)," = ",
+!     &               YCDDM( ISPOLD )
+!                 END IF                  
+               END DO
+               CELLNUM = NORDCELL( OFFSET + NCELL )
+               COL = CCOL( CELLNUM )
+               ROW = CROW( CELLNUM )
+               LEV = CLEV( CELLNUM )
+               CALL SOLVE_DDM3D_CHEM( COL,ROW,LEV,CHEMSTEP )
+            END DO
+!            CALL TIMING_UPDATE( CPU_ROS3_START, DELTA_CPU_TIME )
+#endif
 
 #ifdef rbstats
 
