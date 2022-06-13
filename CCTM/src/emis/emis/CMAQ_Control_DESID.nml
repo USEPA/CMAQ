@@ -85,7 +85,7 @@
 &Desid_SizeDist
  Desid_Sd_nml    = 
 
- !         | Stream Label   | Emiss. Mode  | Ref. Mode 
+ !           Stream Label   | Emiss. Mode  | Ref. Mode 
              'ALL'          ,'FINE'        ,'FINE_REF',
              'ALL'          ,'COARSE'      ,'COARSE_REF',
              'WBDUST'       ,'FINE'        ,'FINE_WBDUST',
@@ -123,7 +123,7 @@
 
 &Desid_RegionDef
  Desid_Reg_nml  =   
- !          | Region Label   | File_Label  | Variable on File
+ !            Region Label   | File_Label  | Variable on File
                'EVERYWHERE'  ,'N/A'        ,'N/A',
  !<Example>    'WATER'       ,'CMAQ_MASKS' ,'OPEN',
  !<Example>    'ALL'         ,'CMAQ_MASKS' ,'ALL',

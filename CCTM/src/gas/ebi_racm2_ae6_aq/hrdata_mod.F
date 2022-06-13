@@ -27,7 +27,8 @@ C  PRECONDITIONS: For the RACM2_AE6_AQ mechanism
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, Mar 14, 2022
+C  REVISION HISTORY: Created by EBI solver program, Jun  8, 2022
+C
 C   18 Jul 14 B.Hutzell: revised to use real(8) variables for solution
 C*************************************************************************
 
@@ -53,7 +54,6 @@ c..Control flags
 
   ! SWITCH for calling DEGRADE routine
       LOGICAL, SAVE :: CALL_DEG = .TRUE.
-
 
 c..Miscellaneous variables
       INTEGER   N_EBI_IT      ! No. of iterations for EBI
