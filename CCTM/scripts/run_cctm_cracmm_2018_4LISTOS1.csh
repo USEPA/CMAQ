@@ -425,14 +425,6 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   setenv STK_EM_SYM_DATE_005 F
   setenv STK_EM_SYM_DATE_006 T
 
-  # Stack emissions diagnostic files
-  #setenv STK_EMIS_DIAG_001 2DSUM
-  #setenv STK_EMIS_DIAG_002 2DSUM
-  #setenv STK_EMIS_DIAG_003 2DSUM
-  #setenv STK_EMIS_DIAG_004 2DSUM
-  #setenv STK_EMIS_DIAG_005 2DSUM
-
-
   #> Lightning NOx configuration
   if ( $CTM_LTNG_NO == 'Y' ) then
      setenv LTNGNO "InLine"    #> set LTNGNO to "Inline" to activate in-line calculation
