@@ -88,7 +88,7 @@
  setenv AERO_18 "NH4,ug/m3,ANH4IJ,ug/m3,NH4"               # PM2.5 Total Mass
  
 #> PM2.5 Sharp Cutoff Species
-#> Requires preprocessing using setenv CCTM_APMDIAG file
+#> Requires preprocessing using setenv CCTM_AELMO file
  setenv AERO_19 "PM25,ug/m3,PM25_TOT,ug/m3,PM25_TOT"       # PM2.5 Total Mass with sharp cutoff
  setenv AERO_20 "PM25,ug/m3,PM25_FRM,,PM25_FRM"            # PM2.5 Total Mass (cutoff with FRM adjustment)
  setenv AERO_21 "SO4,ug/m3, PM25_SO4,,PM25_SO4"            # sulfate (sharp cutoff)

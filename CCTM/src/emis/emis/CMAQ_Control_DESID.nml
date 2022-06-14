@@ -37,13 +37,15 @@
 !        Label'  will be expanded to all OFFLINE streams.                      !
 !                                                                              !
 !      'Area Normalization' - If TRUE, then this stream's emissions will be    !
-!                multiplied by grid cell area.                                 !
+!                multiplied by grid cell area. If AUTO, then DESID will deduce !
+!                from the units string whether or not each variable on the     !
+!                stream input file should be multiplied by the area scale      !
+!                factor.                                                       !
 !                                                                              !
 !      'Projection Adjustment' - If TRUE, then this stream's emissions will be !
 !                multiplied by the area Map Scale Factor. If AUTO, then DESID  !
-!                will deduce from the units string whether or not each variable!
-!                on the stream input file should be multiplied by the area     !
-!                scale factor                                                  ! 
+!                will inherit the per-stream value from Area Normalization. If !
+!                Area Normalization is TRUE, the Projection Adjustment is True !
 !------------------------------------------------------------------------------!
 &Desid_AreaNormVars
  Desid_Max_Area = 30  ! Maximum number of Area Normalization rules
@@ -83,7 +85,7 @@
 &Desid_SizeDist
  Desid_Sd_nml    = 
 
- !         | Stream Label   | Emiss. Mode  | Ref. Mode 
+ !           Stream Label   | Emiss. Mode  | Ref. Mode 
              'ALL'          ,'FINE'        ,'FINE_REF',
              'ALL'          ,'COARSE'      ,'COARSE_REF',
              'WBDUST'       ,'FINE'        ,'FINE_WBDUST',
@@ -121,7 +123,7 @@
 
 &Desid_RegionDef
  Desid_Reg_nml  =   
- !          | Region Label   | File_Label  | Variable on File
+ !            Region Label   | File_Label  | Variable on File
                'EVERYWHERE'  ,'N/A'        ,'N/A',
  !<Example>    'WATER'       ,'CMAQ_MASKS' ,'OPEN',
  !<Example>    'ALL'         ,'CMAQ_MASKS' ,'ALL',

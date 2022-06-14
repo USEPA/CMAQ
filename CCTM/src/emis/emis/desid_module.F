@@ -416,7 +416,7 @@ C Local Variables:
          LOGICAL, SAVE   :: FIRST_TIME = .TRUE.
 
 #ifdef isam
-         INTEGER                    :: IDX, SPC, LAYER, RGN
+         INTEGER                    :: IDX, SPC, LAYER, RGN, IRGN
          CHARACTER(96)              :: TXTSTRING
          REAL                       :: MINCHECK, TOTAL
 #endif
@@ -504,7 +504,7 @@ C Develop a map of emitted/diffused ISAM species
             END DO
 
 C Initialize geographic regions for ISAM tagging
-            ALLOCATE( ISAMRGN( NTAG_SA, DESID_N_REN ) )
+            ALLOCATE( ISAMRGN( NTAG_SA, DESID_N_REG ) )
             ISAMRGN = 'EVERYWHERE'
             ALLOCATE( ISAMRGN_MAP( NTAG_SA, DESID_N_REG ) )
             ISAMRGN_MAP = 0
@@ -572,8 +572,13 @@ C Map the user specified ISAM regions to available CMAQ regions
 #endif
          END IF  ! First Time
 
+C Initialize Emissions Array
+         VDEMIS_DIFF = 0.0
+         VDEMIS_CONV = 0.0
+
 #ifdef isam
          SA_VDEMIS_DIFF = 0.0
+         SA_VDEMIS_CONV = 0.0
 #endif
 
 #ifdef sens

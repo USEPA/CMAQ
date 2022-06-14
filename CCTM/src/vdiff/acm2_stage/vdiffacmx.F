@@ -354,7 +354,7 @@ C set auxiliary depv arrays
          ITAG = 0
          WRITE(LOGDEV,'(/,A7,1X,2(A16,1X))')'JSPCTAG','ISAM_SPECIES','DEPV Value'
          DO JSPCTAG = 1, N_SPCTAG
-            IBGN         = INDEX( VNAM_SPCTAG( JSPCTAG ), '_', .FALSE. ) - 1
+            IBGN         = INDEX( VNAM_SPCTAG( JSPCTAG ), '_', BACK = .TRUE. ) - 1
             ISAM_SPECIES = VNAM_SPCTAG( JSPCTAG )( 1:IBGN )
             IF( TRIM( ISAM_SPECIES ) .EQ. 'HONO' )THEN
                ITAG = ITAG + 1
@@ -389,7 +389,7 @@ C set auxiliary depv arrays
         IF ( ABFLUX .AND. L_NH4 ) THEN
           ITAG = 0
           DO JSPCTAG = 1, N_SPCTAG
-            IBGN         = INDEX( VNAM_SPCTAG( JSPCTAG ), '_', .FALSE. ) - 1
+            IBGN         = INDEX( VNAM_SPCTAG( JSPCTAG ), '_', BACK = .TRUE. ) - 1
             ISAM_SPECIES = VNAM_SPCTAG( JSPCTAG )( 1:IBGN )
             IF( TRIM( ISAM_SPECIES ) .EQ. 'NH3' )THEN
                ITAG = ITAG + 1

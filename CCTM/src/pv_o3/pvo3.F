@@ -99,7 +99,7 @@ C..Scratch Local Variables:
 
       REAL, ALLOCATABLE, SAVE :: CSTARZ( :,: ) ! cstar at 58hPa estimated by polynomial fit
       REAL, ALLOCATABLE, SAVE :: CXX( :,: )    ! intermediate quadratic (< 0 for any lat.)
-      REAL PV( NCOLS,NROWS,NLAYS )             ! potential vorticity
+      REAL ::  PV( NCOLS,NROWS,NLAYS )   ! potential vorticity
       REAL PRES( NCOLS,NROWS,NLAYS )           ! Air pressure [ Pa ]
 
 #ifdef isam

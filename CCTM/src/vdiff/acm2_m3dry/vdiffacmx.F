@@ -352,7 +352,7 @@ C set auxiliary depv arrays
          ITAG = 0
          WRITE(LOGDEV,'(/,A7,1X,2(A16,1X))')'JSPCTAG','ISAM_SPECIES','DEPV Value'
          DO JSPCTAG = 1, N_SPCTAG
-            IBGN         = INDEX( VNAM_SPCTAG( JSPCTAG ), '_', .FALSE. ) - 1
+            IBGN         = INDEX( VNAM_SPCTAG( JSPCTAG ), '_', BACK = .TRUE. ) - 1
             ISAM_SPECIES = VNAM_SPCTAG( JSPCTAG )( 1:IBGN )
             IF( TRIM( ISAM_SPECIES ) .EQ. 'HONO' )THEN
                ITAG = ITAG + 1
@@ -363,14 +363,8 @@ C set auxiliary depv arrays
                     ISAM_DEPV( JSPCTAG ) = V
                END IF  
             END DO
-            IF ( ISAM_DEPV( JSPCTAG ) .GT. 0 ) THEN
-               V = ISAM_DEPV( JSPCTAG )
-               WRITE(LOGDEV,'(I4,4X,2(A16,1X))')JSPCTAG,ISAM_SPECIES,DV2DF_SPC( V )
-            ELSE
-               WRITE(LOGDEV,'(I4,4X,2(A16,1X))')JSPCTAG,ISAM_SPECIES,'NONE'
-            END IF   
         END DO       
-        WRITE(LOGDEV,'(/,A4,1X,A13,1X,A16))')'ITAG','INDEX_SA_HONO','ISAM_SPECIES'
+        WRITE(LOGDEV,'(/,A4,1X,A13,1X,A16)')'ITAG','INDEX_SA_HONO','ISAM_SPECIES'
         DO ITAG = 1, NTAG_SA
            JSPCTAG = INDEX_SA_HONO( ITAG )
            IF ( JSPCTAG .GT. 0 ) THEN
@@ -386,7 +380,7 @@ C set auxiliary depv arrays
         IF ( ABFLUX .AND. L_NH4 ) THEN
           ITAG = 0
           DO JSPCTAG = 1, N_SPCTAG
-            IBGN         = INDEX( VNAM_SPCTAG( JSPCTAG ), '_', .FALSE. ) - 1
+            IBGN         = INDEX( VNAM_SPCTAG( JSPCTAG ), '_', BACK = .TRUE. ) - 1
             ISAM_SPECIES = VNAM_SPCTAG( JSPCTAG )( 1:IBGN )
             IF( TRIM( ISAM_SPECIES ) .EQ. 'NH3' )THEN
                ITAG = ITAG + 1
@@ -1132,6 +1126,7 @@ c Recalculate bidi NH3 deposition
 
 301      CONTINUE                 ! end sub time loop
 
+
          DO L = 1, NLAYS
             DO V = 1, N_SPC_DIFF
                CNGRD( DIFF_MAP( V ),L,C,R ) = CONC( V,L )
@@ -1142,6 +1137,7 @@ c Recalculate bidi NH3 deposition
                   ISAM( C,R,L,S_SPCTAG( JSPCTAG ),T_SPCTAG( JSPCTAG ) ) = SACONC( JSPCTAG,L )
                END IF
             END DO
+ 
 #endif
          END DO
 
