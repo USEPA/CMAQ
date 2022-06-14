@@ -109,7 +109,7 @@ ALDX            ,ppbV      ,1000.0*ALD[1],            C3 and higher aldehydes is
 !NOZ             ,ppbV      ,NOY[0]-NOX[0]
 !SULF            ,ppbV      ,1000.0*SULF[1]
 ! SIGROC: S/IVOC alk and oxy gas species
-SIGROC           ,ppbC      ,1000.0* (9.5*VROCIOXY[1] \
+LSIVROC         ,ppbC      ,1000.0* (9.5*VROCIOXY[1] \
                                     +14.0*VROCP5ARO[1]+13.0*VROCP6ARO[1] \
                                     +30.0*VROCN2ALK[1]+29.0*VROCN1ALK[1] \
                                     +28.0*VROCP0ALK[1]+27.0*VROCP1ALK[1] \
@@ -124,8 +124,8 @@ SIGROC           ,ppbC      ,1000.0* (9.5*VROCIOXY[1] \
                                     +12.0*VROCP2OXY2[1]+11.0*VROCP3OXY2[1] \ 
                                     +9.0*VROCP4OXY2[1]+11.0*VROCP5OXY1[1] \ 
                                     +9.0*VROCP6OXY1[1] ),                  
-! GROC: Total gas-phase reactive organic carbon (stable species only) 
-GROC             ,ppbC      ,1000.0*(2.0*ACD[1]+2.0*ACE[1] \
+! VROC: Total gas-phase (vapor) reactive organic carbon (stable species only) 
+VROC             ,ppbC      ,1000.0*(2.0*ACD[1]+2.0*ACE[1] \
                                     +3.0*ACRO[1]+3.0*ACT[1]+3.0*ALD[1]+10*API[1] \
                                     +7.0*BALD[1]+4.0*BDE13[1]+6.0*BEN[1] \
                                     +9.0*CSL[1]+5.0*DCB1[1]+6.0*DCB2[1]+4.0*DCB3[1] \
@@ -148,7 +148,7 @@ GROC             ,ppbC      ,1000.0*(2.0*ACD[1]+2.0*ACE[1] \
                                     +8.0*XYM[1]+8.0*XYE[1] \         \
                                     +2.0*PAA[1]+2.0*PAN[1]+3.0*PPN[1]+4.0*MPAN[1] \  
                                     +4.0*ONIT[1]+2.0*NALD[1]+5.0*ISON[1]+10.0*TRPN[1] ) \ 
-                                    +SIGROC[0] ,
+                                    +LSIVROC[0] ,
 !-------------------------------------------!
 !--------------- Particles -----------------!
 !-------------------------------------------!

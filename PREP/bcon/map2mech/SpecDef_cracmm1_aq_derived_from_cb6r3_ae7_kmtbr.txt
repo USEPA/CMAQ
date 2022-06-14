@@ -4,7 +4,8 @@
 /
 
 ! This Specices Definition File was generated for mapping 
-! from CB6 to cracmm1_aq for LISTOS_cracmmv1 testing.
+! from CB6 to cracmm1_aq for LISTOS_cracmmv1 2018 testing.
+! Any split factors were based on a 2017 emissions inventory analysis.
 
 
 / File [1]: CMAQ conc/aconc file
@@ -61,7 +62,7 @@ ORA2            ,ppmV            ,AACD[1], CRACMM mapping of AACD
 
 RCO3            ,ppmV            ,CXO3[1], CRACMM mapping of CXO3
 
-HCHO            ,ppmV            ,FORM[1] + FORM_PRIMARY[1], CRACMM mapping of FORM and FORM_PRIMARY
+HCHO            ,ppmV            ,FORM[1], CRACMM mapping of FORM 
 
 OP1             ,ppmV            ,MEPX[1], CRACMM mapping of MEPX
 
@@ -79,7 +80,7 @@ ALD             ,ppmV            ,ALDX[1] + GLYD[1], CRACMM mapping of ALDX and 
 
 UALD            ,ppmV            ,HPLD[1], CRACMM mapping of HPLD
 
-ACD             ,ppmV            ,ALD2[1] + ALD2_PRIMARY[1], CRACMM mapping of ALD2 and ALD2_PRIMARY
+ACD             ,ppmV            ,ALD2[1], CRACMM mapping of ALD2 
 
 GLY             ,ppmV            ,GLY[1], CRACMM mapping of GLY
 
@@ -113,7 +114,7 @@ ISO             ,ppmV            ,ISOP[1], CRACMM mapping of ISOP
 
 ISOP            ,ppmV            ,ISO2[1], CRACMM mapping of ISO2
 
-ACR             ,ppmV            ,ACROLEIN[1] + ACRO_PRIMARY[1], CRACMM mapping of ACROLEIN and ACRO_PRIMARY
+ACR             ,ppmV            ,ACROLEIN[1], CRACMM mapping of ACROLEIN 
 
 MACR            ,ppmV            ,ISPD[1]*0.26, CRACMM mapping of ISPD
 
