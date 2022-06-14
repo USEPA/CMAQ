@@ -36,7 +36,7 @@
             REAL(4), PARAMETER :: OFF_SET           = 5.0D-7 ! rounding parameter in CONVERT_NUMBER 
 
             
-            LOGICAL, PARAMETER :: AE_NML_V53 = .TRUE.
+            LOGICAL, PARAMETER :: AE_NML_V53 = .FALSE.
             
          CONTAINS
 

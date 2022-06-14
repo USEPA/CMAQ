@@ -326,10 +326,6 @@ C                     ---------- - - - ------- ------- ---------- --------- ----
      & spcs_list_type('APCSO   ',F,T,F, cm_set, 1400.0, 'LVPCSOG','PCSOARXN',1.0 ,'REV',F,F,  0,  4.0, 6.1,T, 'DUST  ', 0.12), ! pcSOA
                                                                                   
        ! Lumped anthropogenic SOA (introduced aero7, M. Qin, 8/2018)
-     & spcs_list_type('AAVB1   ', cm_set, 1400.0, 'SVAVB1 ','       ',0.0  ,'REV',F,F,  0,  2.8, 6.1,T, 'DUST  ', 0.20),
-     & spcs_list_type('AAVB2   ', cm_set, 1400.0, 'SVAVB2 ','       ',0.0  ,'REV',F,F,  0,  2.8, 6.1,T, 'DUST  ', 0.15),
-     & spcs_list_type('AAVB3   ', cm_set, 1400.0, 'SVAVB3 ','       ',0.0  ,'REV',F,F,  0,  2.8, 6.1,T, 'DUST  ', 0.14),
-     & spcs_list_type('AAVB4   ', cm_set, 1400.0, 'SVAVB4 ','       ',0.0  ,'REV',F,F,  0,  2.8, 6.1,T, 'DUST  ', 0.12),
      & spcs_list_type('AAVB1   ',F,T,F, cm_set, 1400.0, 'SVAVB1 ','       ',0.0  ,'REV',F,F,  0,  2.8, 6.1,T, 'DUST  ', 0.20),
      & spcs_list_type('AAVB2   ',F,T,F, cm_set, 1400.0, 'SVAVB2 ','       ',0.0  ,'REV',F,F,  0,  2.8, 6.1,T, 'DUST  ', 0.15),
      & spcs_list_type('AAVB3   ',F,T,F, cm_set, 1400.0, 'SVAVB3 ','       ',0.0  ,'REV',F,F,  0,  2.8, 6.1,T, 'DUST  ', 0.14),
@@ -377,7 +373,7 @@ C                     ---------- - - - ------- ------- ---------- --------- ----
       ! The following species are associated with the marine chemistry code
      & spcs_list_type('ABR     ',F,T,T, cm_set, 2200.0, '       ','       ',0.0  ,'NVL',F,F, -1,  1.7, 1.7,F, 'SOLUTE', 0.00), ! Bromide 
       ! Species created for CRACMM
-     & spcs_list_type('ASOATJ  ',F,T,F, cm_set, 1400.0, '       ','       ',0.0  ,'NVL',F,F,  0,  2.8, 6.1,T, 'DUST  ', 0.13), ! Lumped SOA not otherwise specified, OM/OC=2.1
+     & spcs_list_type('ASOAT   ',F,T,F, cm_set, 1400.0, '       ','       ',0.0  ,'NVL',F,F,  0,  2.8, 6.1,T, 'DUST  ', 0.13), ! Lumped SOA not otherwise specified, OM/OC=2.1
 
       ! The following species are associated with the sulfur tracking model
      & spcs_list_type('ASO4AQH2O2',T,T,T,cm_set,1800.0, '       ','       ',0.0  ,'NVL',F,T,  0,  0.0, 0.0,F, 'SOLUTE', 0.00), ! SO4 from aqueous H2O2 rxn

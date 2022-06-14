@@ -28,7 +28,7 @@ AE_SPECIES_DATA =
 'AORGH2O'   , 18.00 ,F      ,T     ,F      ,''     ,'' ,-1     ,'' ,-1     ,'VMASS'     , 1  ,'H2O'        , 1  ,'H2O'      ,'Yes'   ,''      ,''      ,'Yes',!Water,E,DTXSID6026296,O
 'AH2O'      , 18.00 ,T      ,T     ,T      ,''     ,'' ,-1     ,'' ,-1     ,'VMASS'     , 1  ,'H2O'        , 1  ,'H2O'      ,'Yes'   ,''      ,''      ,'Yes',!Water,E,DTXSID6026296,O
 'AH3OP'     , 19.00 ,T      ,T     ,T      ,''     ,'' ,-1     ,'' ,-1     ,'VMASS'     , 1  ,''           ,-1  ,''         ,'Yes'   ,''      ,''      ,'Yes',!Hydronium ion,E,DTXSID20893597,[OH3+]
-'ANAJ'      , 23.00 ,T      ,T     ,F      ,''     ,'' ,-1     ,'' ,-1     ,'VMASS'     , 1  ,'NA'         , 1  ,'NA'       ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!Sodium ion,E,DTXSID8037671,[Na+]
+'ANA'       , 23.00 ,T      ,T     ,F      ,''     ,'' ,-1     ,'' ,-1     ,'VMASS'     , 1  ,'NA'         , 1  ,'NA'       ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!Sodium ion,E,DTXSID8037671,[Na+]
 'ACL'       , 35.50 ,T      ,T     ,T      ,''     ,'' ,-1     ,'' ,-1     ,'VMASS'     , 1  ,'CL'         , 1  ,'CL'       ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!Chloride ion,E,DTXSID6043969,[Cl-]
 'ASEACAT'   , 23.75 ,F      ,F     ,T      ,''     ,'' ,-1     ,'' ,-1     ,'VMASS'     , 1  ,'PRI'        , 1  ,'SEAS'     ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!Coarse sea spray cations,L,NA,NA
 'APOC'      ,220.00 ,T      ,T     ,F      ,''     ,'' ,-1     ,'' ,-1     ,'VMASS'     , 1  ,'ORG'        , 1  ,'POA'      ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!Organic carbon,L,NA,NA 
