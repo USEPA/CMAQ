@@ -81,8 +81,8 @@ C-----------------------------------------------------------------------
 
       USE CGRID_SPCS          ! CGRID mechanism species
       USE GRID_CONF
-      USE EMIS_VARS, ONLY : VDEMIS_DIFF, EMLAYS
-      USE EMIS_DEFN, ONLY : EMIS_INIT, GET_EMIS_DRIVER
+      USE DESID_VARS, ONLY : VDEMIS_DIFF, DESID_LAYS
+      USE DESID_MODULE, ONLY : DESID_INIT, DESID_DRIVER
       USE DEPV_DEFN
       USE ASX_DATA_MOD
 !      USE MPAS_DATA_MOD
@@ -282,7 +282,7 @@ C Allocate and initialize dry deposition array
          CALL LOG_HEADING( LOGDEV, "Initialize Emissions Module" )
 
 C Allocate and initialize emissions
-         IF ( .NOT. EMIS_INIT ( JDATE, JTIME, TSTEP( 1 ) ) ) THEN
+         IF ( .NOT. DESID_INIT ( JDATE, JTIME, TSTEP( 1 ) ) ) THEN
             XMSG = 'Failure initializing emissions module'
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
@@ -364,7 +364,7 @@ C Set up for grav. settling
           ISAM_DEPV     = 0
           DO ITAG = 1, N_SPCTAG
             DO V = 1, N_SPC_DEPV
-              IBGN         = INDEX( VNAM_SPCTAG( ITAG ), '_', .FALSE. ) - 1
+              IBGN         = INDEX( VNAM_SPCTAG( ITAG ), '_', BACK = .TRUE. ) - 1
               ISAM_SPECIES = VNAM_SPCTAG( ITAG )( 1:IBGN )
               IF ( TRIM( ISAM_SPECIES ) .EQ. DV2DF_SPC( V ) ) THEN
                 ISAM_DEPV( ITAG ) = V
@@ -421,12 +421,12 @@ C Calculate the changes in the layer J-,K-mode aerosol concentrations
       END IF
 
 C read & interpolate emissions data => VDEMIS_DIFF from EMIS_DEFN module
-      CALL GET_EMIS_DRIVER ( MDATE, MTIME, TSTEP, CGRID )
+      CALL DESID_DRIVER ( MDATE, MTIME, TSTEP, CGRID )
 
       IF ( BUDGET_DIAG .OR. LIPR ) THEN
          EMIS_PA = 0.0
          DO S = 1, N_SPC_DIFF
-            DO L = 1, EMLAYS
+            DO L = 1, DESID_LAYS
                DO R = 1, NROWS
                   DO C = 1, NCOLS
                      EMIS_PA( C,R,L,DIFF_MAP(S) ) = VDEMIS_DIFF( S,L,C,R )

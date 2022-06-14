@@ -1,0 +1,235 @@
+!------------------------------------------------------------------------------!
+! Emission Control Interface                                                   !
+!    for the                                                                   !
+! Detailed Emissions Scaling, Isolation, and Diagnostics (DESID) Module,       !
+!    part of the                                                               !
+! Community Multiscale Air Quality (CMAQ) Model                                !
+!    developed and maintained by the                                           !
+! Center for Environmental Measurement and Modeling (CEMM),                    !
+! Office of Research and Development (ORD)                                     !
+! U.S. Environmental Protection Agency (USEPA)                                 !
+!                                                                              !
+! This namelist is consistent with CMAQv5.4 (Release AUGUST 2022)              !
+!                                                                              !
+! See CMAQ User's Guide Appendix B (https://github.com/USEPA/CMAQ/blob/main/   !
+!     DOCS/Users_Guide/Appendix/CMAQ_UG_appendixB_emissions_control.md)        !
+!     and Murphy et al., Geoscientific Model Development, 14, 3407-3420,       !
+!     https://doi.org/10.5194/gmd-14-3407-2021, 2021.                          !
+!------------------------------------------------------------------------------!
+
+!------------------------------------------------------------------------------!
+! Emissions Scaling Rule Specification Component                               !
+!   Each rule is presented as a row of inputs. The syntax of the               !
+!   emissions scaling rules is the following:                                  !
+!      EM_INSTR(I) = 'Region Label', 'Stream Label', 'Emission-Species',       !
+!                     'CMAQ-Species', 'Phase/Mode', 'Scale Factor', 'Basis',   !
+!                     'Operation'                                              !
+!                                                                              !
+!    See the User's Guide for detailed definitions of each field.              !
+!                                                                              !
+!    You may confirm the effect of the (default and custom) rules below by     !
+!       inspecting the processor-dependent log files ("CTM_LOG_XXX...")        !
+!                                                                              !
+!    Note: If no rules are provided for a species, then there is no emission   !
+!       of that species.                                                       !
+!------------------------------------------------------------------------------!
+&Desid_ScalingVars
+ Desid_Max_Rules = 2500
+/
+
+&Desid_Scaling
+ Desid_Rules_nml =
+ ! Region      | Stream Label  |Emission | CMAQ-        |Phase/|Scale |Basis |Op  
+ !  Label      |               |Surrogate| Species      |Mode  |Factor|      |     
+                                                                             
+                            !> DEFAULT MAPPING <!                  
+   ! Note: Without default mapping for a species, 
+   !       there is no emission of that species.
+
+   ! Default Gases                                                                  
+   'EVERYWHERE', 'ALL'         ,'NO2'    ,'NO2'         ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'NO'     ,'NO'          ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'HONO'   ,'HONO'        ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'HCHO'   ,'HCHO'        ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'CO'     ,'CO'          ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'ACD'    ,'ACD'         ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'ALD'    ,'ALD'         ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'ACT'    ,'ACT'         ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'UALD'   ,'UALD'        ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'KET'    ,'KET'         ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'MEK'    ,'MEK'         ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'HKET'   ,'HKET'        ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'MACR'   ,'MACR'        ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'MVK'    ,'MVK'         ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'GLY'    ,'GLY'         ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'MGLY'   ,'MGLY'        ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'BALD'   ,'BALD'        ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'SO2'    ,'SO2'         ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'SULF'   ,'SULF'        ,'GAS'  ,0.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'ETH'    ,'ETH'         ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'HC3'    ,'HC3'         ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'HC5'    ,'HC5'         ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'HC8'    ,'HC10'        ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'ETE'    ,'ETE'         ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'OLT'    ,'OLT'         ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'OLI'    ,'OLI'         ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'DIEN'   ,'BDE13'       ,'GAS'  ,1.  ,'UNIT','a', ! RACM2 to CRACMM
+   'EVERYWHERE', 'ALL'         ,'ACE'    ,'ACE'         ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'ORA1'   ,'ORA1'        ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'BEN'    ,'BEN'         ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'PHEN'   ,'PHEN'        ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'TOL'    ,'TOL'         ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'CSL'    ,'CSL'         ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'XYM'    ,'XYM'         ,'GAS'  ,1.  ,'UNIT','a', 
+!   'EVERYWHERE', 'ALL'         ,'XYP'    ,'XYP'         ,'GAS'  ,1.  ,'UNIT','a', 
+!   'EVERYWHERE', 'ALL'         ,'XYO'    ,'XYO'         ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'ISO'    ,'ISO'         ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'API'    ,'API'         ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'LIM'    ,'LIM'         ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'MOH'    ,'MOH'         ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'EOH'    ,'EOH'         ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'ROH'    ,'ROH'         ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'ETEG'   ,'ETEG'        ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'ORA2'   ,'ORA2'        ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'SESQ'   ,'SESQ'        ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'NAPH'   ,'NAPH'        ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'NH3'    ,'NH3'         ,'GAS'  ,1.  ,'UNIT','a', 
+   ! New CRACMM species
+   'EVERYWHERE', 'ALL'         ,'ACT'    ,'VROCIOXY'    ,'GAS'  ,0.156,'UNIT','a', ! proxied to ACT based on 2017 US Emissions
+   'EVERYWHERE', 'ALL'         ,'ACT'    ,'SLOWROC'     ,'GAS'  ,0.574,'UNIT','a', ! proxied to ACT based on 2017 US Emissions
+   'EVERYWHERE', 'ALL'         ,'ACT'    ,'ACRO'        ,'GAS'  ,0.139,'UNIT','a', ! proxied to ACT based on 2017 US Emissions
+   'EVERYWHERE', 'ALL'         ,'ACT'    ,'PROG'        ,'GAS'  ,0.171,'UNIT','a', ! proxied to ACT based on 2017 US Emissions
+   'EVERYWHERE', 'ALL'         ,'XYP'    ,'XYE'         ,'GAS'  ,0.483,'UNIT','a', ! Assume XYO+XYP map to XYE and FURAN
+   'EVERYWHERE', 'ALL'         ,'XYO'    ,'XYE'         ,'GAS'  ,0.483,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'XYP'    ,'FURAN'       ,'GAS'  ,0.517,'UNIT','a', ! Assume XYO+XYP map to XYE and FURAN
+   'EVERYWHERE', 'ALL'         ,'XYO'    ,'FURAN'       ,'GAS'  ,0.517,'UNIT','a', 
+
+   ! Default Aerosols
+   'EVERYWHERE', 'ALL'         ,'SULF'   ,'ASO4'        ,'FINE' ,1.  ,'MASS','a', 
+   'EVERYWHERE', 'ALL'         ,'PSO4'   ,'ASO4'        ,'FINE' ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'PNH4'   ,'ANH4'        ,'FINE' ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'PNO3'   ,'ANO3'        ,'FINE' ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'PCL'    ,'ACL'         ,'FINE' ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'PNA'    ,'ANA'         ,'FINE' ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'PEC'    ,'AEC'         ,'FINE' ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'PMOTHR' ,'AOTHR'       ,'FINE' ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'PFE'    ,'AFE'         ,'FINE' ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'PAL'    ,'AAL'         ,'FINE' ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'PSI'    ,'ASI'         ,'FINE' ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'PTI'    ,'ATI'         ,'FINE' ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'PCA'    ,'ACA'         ,'FINE' ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'PMG'    ,'AMG'         ,'FINE' ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'PK'     ,'AK'          ,'FINE' ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'PMN'    ,'AMN'         ,'FINE' ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'PH2O'   ,'AH2O'        ,'FINE' ,1.  ,'UNIT','a', 
+                                                        
+   ! Coarse-Mode Inorganic Ions Scaling                 
+   'EVERYWHERE', 'ALL'         ,'PMC'    ,'ACORS'   ,'COARSE',0.99675,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'PMC'    ,'ASO4'    ,'COARSE',0.001  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'PMC'    ,'ANO3'    ,'COARSE',0.00048,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'PMC'    ,'ACL'     ,'COARSE',0.00145,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'PMC'    ,'AH2O'    ,'COARSE',0.00032,'UNIT','a', 
+
+   ! Fine-Mode Primary Organic Aerosol Scaling
+   !   There are a series of species available for propagating emissions of primary
+   !   organic particles and vapor. APOC and APNCOM are nonvolatile species that
+   !   age chemically in the particle phase. Traditionally, all POC (primary organic
+   !   carbon) and PNCOM (primary non-carbon organic matter) have been represented
+   !   by these species.
+   !   It is more correct to use semivolatile species to account for the gas-particle
+   !   partitioning of this POA mass. Several particle and gas-phase species are 
+   !   provided for this task, and these species vary in their volatility, which is
+   !   quantified with the metric C*. See Donahue et al. (ES&T, 2006).
+   !     Gas Species :      VLVPO1  VSVPO1  VSVPO2  VSVPO3  VIVPO1
+   !     Particle Species : ALVPO1  ASVPO1  ASVPO2  ASVPO3  AIVPO1
+   !     C* (ug m-3) :       0.1      1       10     100     1000
+   !                 (Mostly Particle)                    (Mostly Vapor)
+   !   To enable semivolaitle partitioning, you may direct a fraction of mass from the
+   !   nonvolatile emission surrogates (POC and PNCOM) to each of these semivolatile 
+   !   CMAQ species. To conserve mass, the total of the scale factors should sum to 1.
+   !     Note: Each of the semivolatile species accounts for both OC and NCOM mass, so
+   !           rules should come in pairs (one for POC and one for PNCOM) in order to
+   !           conserve the total. For Example,
+   !            'EVERYWHERE', 'ALL' ,'POC'  ,'VSVPO2'   ,'GAS' ,0.14 ,'MASS','a', 
+   !            'EVERYWHERE', 'ALL' ,'PNCOM','VSVPO2'   ,'GAS' ,0.14 ,'MASS','a', 
+   !     Note: To avoid large swigns in repartitioning after emission, it's a good idea
+   !           to split mass between gas and particle phases, with all mass going to 
+   !           the particle in the C* = 0.1-1 range and all gas for C* = 100-1000. 
+   !           Species with C*=10 can generally have mass split between gas and particle
+   !           or be put in all gas if conditions are very clean. If too much mass 
+   !           evaporates or condenses upon emission, the aerosol size distribution 
+   !           will be affected.
+   !     Note: It is common to specify different volatility distributions for different
+   !           emission sources. Please use this interface to specify your model
+   !           parameters.
+   !
+   ! --> Nonvolatile POA
+    'EVERYWHERE', 'ALL'         ,'POC'    ,'APOC'       ,'FINE',0.   ,'MASS','a', 
+    'EVERYWHERE', 'ALL'         ,'PNCOM'  ,'APNCOM'     ,'FINE',0.   ,'MASS','a', 
+   ! --> Semivolatile POA
+    'EVERYWHERE', 'ALL'         ,'POC'    ,'VROCN1ALK'  ,'GAS' ,0.   ,'MASS','a', 
+    'EVERYWHERE', 'ALL'         ,'PNCOM'  ,'VROCN1ALK'  ,'GAS' ,0.   ,'MASS','a', 
+    'EVERYWHERE', 'ALL'         ,'POC'    ,'VROCP0ALK'  ,'GAS' ,0.045,'MASS','a', 
+    'EVERYWHERE', 'ALL'         ,'PNCOM'  ,'VROCP0ALK'  ,'GAS' ,0.045,'MASS','a', 
+    'EVERYWHERE', 'ALL'         ,'POC'    ,'VROCP1ALK'  ,'GAS' ,0.14 ,'MASS','a', 
+    'EVERYWHERE', 'ALL'         ,'PNCOM'  ,'VROCP1ALK'  ,'GAS' ,0.14 ,'MASS','a', 
+    'EVERYWHERE', 'ALL'         ,'POC'    ,'VROCP2ALK'  ,'GAS' ,0.18 ,'MASS','a', 
+    'EVERYWHERE', 'ALL'         ,'PNCOM'  ,'VROCP2ALK'  ,'GAS' ,0.18 ,'MASS','a', 
+    'EVERYWHERE', 'ALL'         ,'POC'    ,'VROCP3ALK'  ,'GAS' ,0.50 ,'MASS','a', 
+    'EVERYWHERE', 'ALL'         ,'PNCOM'  ,'VROCP3ALK'  ,'GAS' ,0.50 ,'MASS','a', 
+    'EVERYWHERE', 'ALL'         ,'POC'    ,'AROCN1ALK'  ,'FINE',0.09 ,'MASS','a', 
+    'EVERYWHERE', 'ALL'         ,'PNCOM'  ,'AROCN1ALK'  ,'FINE',0.09 ,'MASS','a', 
+    'EVERYWHERE', 'ALL'         ,'POC'    ,'AROCP0ALK'  ,'FINE',0.045,'MASS','a', 
+    'EVERYWHERE', 'ALL'         ,'PNCOM'  ,'AROCP0ALK'  ,'FINE',0.045,'MASS','a', 
+    'EVERYWHERE', 'ALL'         ,'POC'    ,'AROCP1ALK'  ,'FINE',0.   ,'MASS','a', 
+    'EVERYWHERE', 'ALL'         ,'PNCOM'  ,'AROCP1ALK'  ,'FINE',0.   ,'MASS','a', 
+    'EVERYWHERE', 'ALL'         ,'POC'    ,'AROCP2ALK'  ,'FINE',0.   ,'MASS','a', 
+    'EVERYWHERE', 'ALL'         ,'PNCOM'  ,'AROCP2ALK'  ,'FINE',0.   ,'MASS','a', 
+   
+   ! pcSOA is a CMAQ species introduced to account for missing pathways for SOA
+   ! formation from combustion sources. It includes IVOC oxidation as well as other
+   ! phenomena (Murphy et al., ACP, 2017). It was parameterized primarily in LA,
+   ! where vehicle exhaust continues to dominate.
+   ! pcSOA is deprecated in CRACMM
+   
+   ! Wind-Blown Dust and Sea Spray Scaling
+   ! Fine Components
+   'EVERYWHERE', 'ALL'    ,'PMFINE_SO4'  ,'ASO4'        ,'FINE',1.   ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'    ,'PMFINE_NO3'  ,'ANO3'        ,'FINE',1.   ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'    ,'PMFINE_CL'   ,'ACL'         ,'FINE',1.   ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'    ,'PMFINE_NH4'  ,'ANH4'        ,'FINE',1.   ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'    ,'PMFINE_NA'   ,'ANA'         ,'FINE',1.   ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'    ,'PMFINE_CA'   ,'ACA'         ,'FINE',1.   ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'    ,'PMFINE_MG'   ,'AMG'         ,'FINE',1.   ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'    ,'PMFINE_K'    ,'AK'          ,'FINE',1.   ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'    ,'PMFINE_FE'   ,'AFE'         ,'FINE',1.   ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'    ,'PMFINE_AL'   ,'AAL'         ,'FINE',1.   ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'    ,'PMFINE_SI'   ,'ASI'         ,'FINE',1.   ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'    ,'PMFINE_TI'   ,'ATI'         ,'FINE',1.   ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'    ,'PMFINE_MN'   ,'AMN'         ,'FINE',1.   ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'    ,'PMFINE_H2O'  ,'AH2O'        ,'FINE',1.   ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'    ,'PMFINE_OTHR' ,'AOTHR'       ,'FINE',1.   ,'UNIT','a', 
+
+   ! :Scaling of Fine-Mode POA from Wind-Blown Dust or Sea Spray. Either the 
+   ! :Nonvolatile POA should be propagated to the transport model, or the Low 
+   ! :Volatility POA should be propagated, not both.
+   ! :  --> Nonvolatile POA
+      !'EVERYWHERE', 'ALL'    ,'PMFINE_POC' ,'APOC'         ,'FINE',1.   ,'UNIT','a', 
+      !'EVERYWHERE', 'ALL'   ,'PMFINE_PNCOM','APNCOM'       ,'FINE',1.   ,'UNIT','a', 
+   ! :  --> Semivolatile POA
+      'EVERYWHERE', 'ALL'    ,'PMFINE_LVPO1','AROCN1ALK'      ,'FINE',1.   ,'UNIT','a', 
+      'EVERYWHERE', 'ALL'    ,'PMFINE_LVOO1','AROCN1ALK'      ,'FINE',1.   ,'UNIT','a', 
+
+   ! Wind-Blown Dust and Sea Spray Scaling
+   ! Coarse Components                                               
+   'EVERYWHERE', 'ALL'    ,'PMCOARSE_SO4','ASO4'      ,'COARSE',1.   ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'    ,'PMCOARSE_NO3','ANO3'      ,'COARSE',1.   ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'    ,'PMCOARSE_CL' ,'ACL'       ,'COARSE',1.   ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'    ,'PMCOARSE_H2O','AH2O'      ,'COARSE',1.   ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'   ,'PMCOARSE_SOIL','ASOIL'     ,'COARSE',1.   ,'UNIT','a', 
+   'EVERYWHERE', 'ALL' ,'PMCOARSE_SEACAT','ASEACAT'   ,'COARSE',1.   ,'UNIT','a', 
+   
+/
+ 
+ 
+ 

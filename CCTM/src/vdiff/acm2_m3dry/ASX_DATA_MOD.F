@@ -131,6 +131,7 @@ C-------------------------------------------------------------------------------
          Real,    Allocatable :: PBL      ( :,: )  ! pbl height (m)
 !         Real,    Allocatable :: NACL_EMIS( :,: )  ! NACL mass emission rate of particles with d <10 um (g/m2/s)
          Real,    Allocatable :: COSZEN   ( :,: )  ! Cosine of the zenith angle
+         Real,    Allocatable :: CFRAC    ( :,: )  ! cloud fraction
 !> U and V wind components on the cross grid points
          Real,    Allocatable :: UWIND    ( :,:,: )  ! [m/s]
          Real,    Allocatable :: VWIND    ( :,:,: )  ! [m/s]                    
@@ -591,6 +592,7 @@ C-----------------------------------------------------------------------
      &             Met_Data%PBL      ( NCOLS,NROWS ),
 !     &             Met_Data%NACL_EMIS( NCOLS,NROWS ),
      &             Met_Data%COSZEN   ( NCOLS,NROWS ),
+     &             Met_Data%CFRAC    ( NCOLS,NROWS ),
      &             Met_Data%UWIND    ( NCOLS+1,NROWS+1,NLAYS ),
      &             Met_Data%VWIND    ( NCOLS+1,NROWS+1,NLAYS ),
      &             Met_Data%KZMIN    ( NCOLS,NROWS,NLAYS ),
@@ -920,6 +922,9 @@ C Met_cro_2D variables that have recently changed due to MCIP or WRF/CMAQ
          call interpolate_var (vname_rn, jdate, jtime, Met_Data%RN)
 
          call interpolate_var (vname_rc, jdate, jtime, Met_Data%RC)
+
+         call interpolate_var ('CFRAC', jdate, jtime, Met_Data%CFRAC)
+
 
          If ( WR_AVAIL ) Then
             call interpolate_var ('WR', jdate, jtime, Met_Data%WR)

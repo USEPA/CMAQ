@@ -56,7 +56,7 @@ C--------------------------------------------------------------------
       USE HGRD_DEFN, ONLY: NCOLS, NROWS, GL_NCOLS, GL_NROWS, COLSX_PE, ROWSX_PE, MYPE
       USE VGRD_DEFN, ONLY: NLAYS
       USE RXNS_DATA, ONLY: NRXNS
-      USE em_param_module, ONLY: EM_REGIONS, EM_REG_FAC, N_EM_RGN
+      USE desid_param_module, ONLY: DESID_REG, DESID_REG_FAC, DESID_N_REG
 
 
       IMPLICIT NONE
