@@ -1,6 +1,6 @@
 #! /bin/csh -f
 
-# ===================== APPENDWRFv5.3.X Run Script ==================
+# ===================== APPENDWRFv5.4.X Run Script ==================
 # Usage: run.appendwrf >&! appendwrf.log &
 #
 # To report problems or request help with this script/program:
@@ -20,7 +20,7 @@
  source ./config_cmaq.csh
 
 #> Set the model version
- set VRSN = v532
+ set VRSN = v54
 
 #> Set the build directory if this was not set above 
 #> (this is where the executable is located by default).
