@@ -13,7 +13,11 @@
 
 PRES            ,Pa              ,PRES[1], RACM2 mapping of PRES
 
+ZH              ,m               ,ZH[1], AVERAGE OF ZH
+
 TA              ,m               ,TA[1], RACM2 mapping of TA
+
+ZF              ,m               ,ZF[1], AVERAGE OF ZF
 
 RH              ,m               ,RH[1], RACM2 mapping of RH
 
@@ -61,7 +65,7 @@ ORA2            ,ppmV            ,AACD[1], RACM2 mapping of AACD
 
 RCO3            ,ppmV            ,CXO3[1], RACM2 mapping of CXO3
 
-HCHO            ,ppmV            ,FORM[1] + FORM_PRIMARY[1], RACM2 mapping of FORM and FORM_PRIMARY
+HCHO            ,ppmV            ,FORM[1], RACM2 mapping of FORM
 
 OP1             ,ppmV            ,MEPX[1], RACM2 mapping of MEPX
 
@@ -83,7 +87,7 @@ ALD             ,ppmV            ,ALDX[1] + GLYD[1], RACM2 mapping of ALDX and G
 
 UALD            ,ppmV            ,HPLD[1], RACM2 mapping of HPLD
 
-ACD             ,ppmV            ,ALD2[1] + ALD2_PRIMARY[1], RACM2 mapping of ALD2 and ALD2_PRIMARY
+ACD             ,ppmV            ,ALD2[1], RACM2 mapping of ALD2 and ALD2_PRIMARY
 
 GLY             ,ppmV            ,GLY[1], RACM2 mapping of GLY
 
@@ -97,9 +101,9 @@ MEK             ,ppmV            ,KET[1]*0.5, RACM2 mapping of KET
 
 KET             ,ppmV            ,KET[1]*0.5, RACM2 mapping of KET
 
-HC5             ,ppmV            ,PAR[1]*0.33, RACM2 splitting of PAR based on emissions
+HC5             ,ppmV            ,PAR[1]*0.33, RACM2 splitting of PAR based on 2017 US emissions
 
-HC8             ,ppmV            ,PAR[1]*0.67, RACM2 splitting of PAR based on emissions
+HC8             ,ppmV            ,PAR[1]*0.67, RACM2 splitting of PAR based on 2017 US emissions
 
 ACT             ,ppmV            ,ACET[1], RACM2 mapping of ACET
 
