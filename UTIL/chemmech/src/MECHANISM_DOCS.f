@@ -29,13 +29,13 @@ C $Header$
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C @(#)CHEMMECH.F 1.1 /project/mod3/MECH/src/driver/mech/SCCS/s.CHEMMECH.F 02 Jan 1997 15:26:41
 
-      MODULE WIKI_TABLE
+      MODULE MECHANISM_DOCS
 
         IMPLICIT NONE
 
           PUBLIC                 :: WRT_WIKI_TABLE, WRT_MD_TABLE, WRT_CSV_TABLE, 
      &                              CALCULATE_RATES, WRT_HTML_TABLE, WRT_MD_SUBTABLE,
-     &                              WRT_FOAM_TABLES
+     &                              WRT_FOAM_TABLES, ECHO_MECH
           PRIVATE
 
 ! standard atmosphere ar alt = 0 and 2 km
@@ -62,7 +62,6 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE WRT_WIKI_TABLE( NR, IP, LABEL, NS  )
 
  
-      USE KPP_DATA 
       USE GET_ENV_VARS
       USE MECHANISM_DATA
       
@@ -85,7 +84,6 @@ c..local Variables for steady-state species
       CHARACTER( 627 ) :: FWIKI_OUT_FILE
 
       INTEGER, EXTERNAL :: INDEX1
-      INTEGER, EXTERNAL :: INDEXES
       INTEGER            :: LPOINT, IEOL
       INTEGER            :: I, ICOL, ISPC, IRX, IDX
       INTEGER            :: NXX, IPR, IPHOTAB, NC
@@ -130,88 +128,6 @@ c..Variables for species to be dropped from mechanism
       INTEGER, EXTERNAL :: JUNIT
       INTEGER            :: ICOUNT, IREACT, IPRODUCT
 
-
-      INTERFACE 
-       SUBROUTINE GETRCTNT ( IMECH, INBUF, IEOL, LPOINT, CHR, WORD,
-     &                      NXX, NS, SPARSE_SPECIES, SPC1RX,
-     &                      ICOL, LABEL, N_DROP_SPC, DROP_SPC )
-         INTEGER,         INTENT(   IN  ) :: IMECH
-         CHARACTER( 81 ), INTENT( INOUT ) :: INBUF
-         INTEGER,         INTENT( INOUT ) :: LPOINT
-         INTEGER,         INTENT( INOUT ) :: IEOL
-         CHARACTER(  1 ), INTENT( INOUT ) :: CHR
-         CHARACTER( 16 ), INTENT( INOUT ) :: WORD
-         INTEGER,         INTENT(   IN  ) :: NXX
-         INTEGER,         INTENT( INOUT ) :: NS
-         CHARACTER( 16 ), INTENT( INOUT ) :: SPARSE_SPECIES( : )
-         INTEGER,         INTENT( INOUT ) :: SPC1RX( : )
-         INTEGER,         INTENT( INOUT ) :: ICOL
-         CHARACTER( 16 ), INTENT(   IN  ) :: LABEL( :, : )
-         INTEGER,         INTENT(   IN  ) :: N_DROP_SPC
-         CHARACTER( 16 ), INTENT(   IN  ) :: DROP_SPC( : )
-        END SUBROUTINE GETRCTNT
-        SUBROUTINE GETPRDCT ( IMECH, INBUF, LPOINT, IEOL, CHR, WORD,
-     &                      NXX, NS, SPARSE_SPECIES, SPC1RX,
-     &                      ICOL, N_DROP_SPC, DROP_SPC )
-          INTEGER,         INTENT(   IN  ) :: IMECH
-          CHARACTER( 81 ), INTENT( INOUT ) :: INBUF
-          INTEGER,         INTENT( INOUT ) :: LPOINT
-          INTEGER,         INTENT( INOUT ) :: IEOL
-          CHARACTER(  1 ), INTENT( INOUT ) :: CHR
-          CHARACTER( 16 ), INTENT( INOUT ) :: WORD
-          INTEGER,         INTENT(   IN  ) :: NXX
-          INTEGER,         INTENT( INOUT ) :: NS
-          CHARACTER( 16 ), INTENT( INOUT ) :: SPARSE_SPECIES( : )
-          INTEGER,         INTENT( INOUT ) :: SPC1RX( : )
-          INTEGER,         INTENT( INOUT ) :: ICOL
-          INTEGER,         INTENT(   IN  ) :: N_DROP_SPC
-          CHARACTER( 16 ), INTENT(   IN  ) :: DROP_SPC( : )
-         END SUBROUTINE GETPRDCT
-         SUBROUTINE GETRATE ( IMECH, INBUF, LPOINT, IEOL, CHR,
-     &                         NXX, LABEL, IP )
-           CHARACTER(  1 ), INTENT( INOUT ) :: CHR
-           CHARACTER( 81 ), INTENT( INOUT ) :: INBUF
-           INTEGER,         INTENT( IN )    :: IMECH
-           INTEGER,         INTENT( INOUT ) :: LPOINT
-           INTEGER,         INTENT( INOUT ) :: IEOL
-           INTEGER,         INTENT( INOUT ) :: IP
-           INTEGER,         INTENT( IN )    :: NXX
-           CHARACTER( 16 ), INTENT( INOUT ) :: LABEL( :,: )
-        END SUBROUTINE GETRATE
-        SUBROUTINE WREXTS (EQNAME_MECH, DESCRP_MECH, NS, SPARSE_SPECIES, SPC1RX, NR,
-     &                      IP,  NAMCONSTS, CVAL, SS1RX  ) 
-          CHARACTER( 120 ), INTENT ( IN ) :: EQNAME_MECH
-          CHARACTER(  32 ), INTENT ( IN ) :: DESCRP_MECH
-          INTEGER,          INTENT ( IN ) :: NS                ! no. of species found in mechanism table
-          CHARACTER(  16 ), INTENT ( IN ) :: SPARSE_SPECIES( : ) ! species list from mechanism table
-          INTEGER,          INTENT ( IN ) :: NR
-          INTEGER,          INTENT ( IN ) :: SPC1RX( : ) ! rx index of 1st occurence of species in mechanism table
-          INTEGER,          INTENT ( IN ) :: IP
-          CHARACTER( 16 ),  INTENT ( IN ) :: NAMCONSTS( : )
-          REAL( 8 ),        INTENT ( IN ) :: CVAL( : )
-          INTEGER,          INTENT ( IN ) :: SS1RX( : )
-        END SUBROUTINE WREXTS
-        SUBROUTINE GET_SS_DATA ( LUNOUT, NR ) 
-          INTEGER, INTENT ( IN )         :: LUNOUT   ! Output unit number
-          INTEGER, INTENT ( IN )         :: NR       ! No. of reactions
-        END SUBROUTINE GET_SS_DATA
-        SUBROUTINE CHECK_SS_SPC ( LUNOUT, NS, SPARSE_SPECIES, NR, LABEL, SS1RX )
-         INTEGER, INTENT ( IN )         :: LUNOUT               ! Output unit number
-         INTEGER, INTENT ( IN )         ::  NS                  ! No. of species in mechanism
-         CHARACTER( 16 ), INTENT ( IN ) ::  SPARSE_SPECIES( : )   ! List of mechanism species
-         INTEGER, INTENT ( IN )         ::  NR                  ! No. of reactions
-         CHARACTER( 16 ), INTENT ( IN ) ::  LABEL( :,: ) ! Reaction labels
-         INTEGER, INTENT ( INOUT )      ::  SS1RX( : )
-       END SUBROUTINE CHECK_SS_SPC
-       SUBROUTINE WRSS_EXT( NR ) 
-         INTEGER, INTENT ( IN )         :: NR   ! No. of reactions
-       END SUBROUTINE WRSS_EXT
-       SUBROUTINE CONVERT_CASE ( BUFFER, UPPER )
-         CHARACTER*(*), INTENT( INOUT ) :: BUFFER
-         LOGICAL,       INTENT( IN )    :: UPPER
-       END SUBROUTINE CONVERT_CASE
-      END INTERFACE 
-  
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C Create name for output file
@@ -286,11 +202,6 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
                END IF
             END IF
          END DO
-! determine conditions whether reaction string needs a non-zero multiple of dummy
-! variable added to reaction 
-         DUMMY_COEF( NXX ) = INDEXES(REACTION_STR( NXX ),(NXX-1),REACTION_STR )
-         IF( NPRDCT( NXX ) .LT. 1 )DUMMY_COEF( NXX ) = DUMMY_COEF( NXX ) + 1 
-         IF(  KPP_DUMMY )KPP_DUMMY = .TRUE.
          
        END DO
       
@@ -730,7 +641,6 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE WRT_MD_TABLE( NR, IP, LABEL, NS  )
 
  
-      USE KPP_DATA 
       USE GET_ENV_VARS
       USE MECHANISM_DATA
       
@@ -753,7 +663,6 @@ c..local Variables for steady-state species
       CHARACTER( 627 ) :: FWIKI_OUT_FILE
 
       INTEGER, EXTERNAL :: INDEX1
-      INTEGER, EXTERNAL :: INDEXES
       INTEGER            :: LPOINT, IEOL
       INTEGER            :: I, ICOL, ISPC, IRX, IDX
       INTEGER            :: NXX, IPR, IPHOTAB, NC
@@ -798,88 +707,6 @@ c..Variables for species to be dropped from mechanism
       INTEGER, EXTERNAL :: JUNIT
       INTEGER            :: ICOUNT, IREACT, IPRODUCT
 
-
-      INTERFACE 
-       SUBROUTINE GETRCTNT ( IMECH, INBUF, IEOL, LPOINT, CHR, WORD,
-     &                      NXX, NS, SPARSE_SPECIES, SPC1RX,
-     &                      ICOL, LABEL, N_DROP_SPC, DROP_SPC )
-         INTEGER,         INTENT(   IN  ) :: IMECH
-         CHARACTER( 81 ), INTENT( INOUT ) :: INBUF
-         INTEGER,         INTENT( INOUT ) :: LPOINT
-         INTEGER,         INTENT( INOUT ) :: IEOL
-         CHARACTER(  1 ), INTENT( INOUT ) :: CHR
-         CHARACTER( 16 ), INTENT( INOUT ) :: WORD
-         INTEGER,         INTENT(   IN  ) :: NXX
-         INTEGER,         INTENT( INOUT ) :: NS
-         CHARACTER( 16 ), INTENT( INOUT ) :: SPARSE_SPECIES( : )
-         INTEGER,         INTENT( INOUT ) :: SPC1RX( : )
-         INTEGER,         INTENT( INOUT ) :: ICOL
-         CHARACTER( 16 ), INTENT(   IN  ) :: LABEL( :, : )
-         INTEGER,         INTENT(   IN  ) :: N_DROP_SPC
-         CHARACTER( 16 ), INTENT(   IN  ) :: DROP_SPC( : )
-        END SUBROUTINE GETRCTNT
-        SUBROUTINE GETPRDCT ( IMECH, INBUF, LPOINT, IEOL, CHR, WORD,
-     &                      NXX, NS, SPARSE_SPECIES, SPC1RX,
-     &                      ICOL, N_DROP_SPC, DROP_SPC )
-          INTEGER,         INTENT(   IN  ) :: IMECH
-          CHARACTER( 81 ), INTENT( INOUT ) :: INBUF
-          INTEGER,         INTENT( INOUT ) :: LPOINT
-          INTEGER,         INTENT( INOUT ) :: IEOL
-          CHARACTER(  1 ), INTENT( INOUT ) :: CHR
-          CHARACTER( 16 ), INTENT( INOUT ) :: WORD
-          INTEGER,         INTENT(   IN  ) :: NXX
-          INTEGER,         INTENT( INOUT ) :: NS
-          CHARACTER( 16 ), INTENT( INOUT ) :: SPARSE_SPECIES( : )
-          INTEGER,         INTENT( INOUT ) :: SPC1RX( : )
-          INTEGER,         INTENT( INOUT ) :: ICOL
-          INTEGER,         INTENT(   IN  ) :: N_DROP_SPC
-          CHARACTER( 16 ), INTENT(   IN  ) :: DROP_SPC( : )
-         END SUBROUTINE GETPRDCT
-         SUBROUTINE GETRATE ( IMECH, INBUF, LPOINT, IEOL, CHR,
-     &                         NXX, LABEL, IP )
-           CHARACTER(  1 ), INTENT( INOUT ) :: CHR
-           CHARACTER( 81 ), INTENT( INOUT ) :: INBUF
-           INTEGER,         INTENT( IN )    :: IMECH
-           INTEGER,         INTENT( INOUT ) :: LPOINT
-           INTEGER,         INTENT( INOUT ) :: IEOL
-           INTEGER,         INTENT( INOUT ) :: IP
-           INTEGER,         INTENT( IN )    :: NXX
-           CHARACTER( 16 ), INTENT( INOUT ) :: LABEL( :,: )
-        END SUBROUTINE GETRATE
-        SUBROUTINE WREXTS (EQNAME_MECH, DESCRP_MECH, NS, SPARSE_SPECIES, SPC1RX, NR,
-     &                      IP,  NAMCONSTS, CVAL, SS1RX  ) 
-          CHARACTER( 120 ), INTENT ( IN ) :: EQNAME_MECH
-          CHARACTER(  32 ), INTENT ( IN ) :: DESCRP_MECH
-          INTEGER,          INTENT ( IN ) :: NS                ! no. of species found in mechanism table
-          CHARACTER(  16 ), INTENT ( IN ) :: SPARSE_SPECIES( : ) ! species list from mechanism table
-          INTEGER,          INTENT ( IN ) :: NR
-          INTEGER,          INTENT ( IN ) :: SPC1RX( : ) ! rx index of 1st occurence of species in mechanism table
-          INTEGER,          INTENT ( IN ) :: IP
-          CHARACTER( 16 ),  INTENT ( IN ) :: NAMCONSTS( : )
-          REAL( 8 ),        INTENT ( IN ) :: CVAL( : )
-          INTEGER,          INTENT ( IN ) :: SS1RX( : )
-        END SUBROUTINE WREXTS
-        SUBROUTINE GET_SS_DATA ( LUNOUT, NR ) 
-          INTEGER, INTENT ( IN )         :: LUNOUT   ! Output unit number
-          INTEGER, INTENT ( IN )         :: NR       ! No. of reactions
-        END SUBROUTINE GET_SS_DATA
-        SUBROUTINE CHECK_SS_SPC ( LUNOUT, NS, SPARSE_SPECIES, NR, LABEL, SS1RX )
-         INTEGER, INTENT ( IN )         :: LUNOUT               ! Output unit number
-         INTEGER, INTENT ( IN )         ::  NS                  ! No. of species in mechanism
-         CHARACTER( 16 ), INTENT ( IN ) ::  SPARSE_SPECIES( : )   ! List of mechanism species
-         INTEGER, INTENT ( IN )         ::  NR                  ! No. of reactions
-         CHARACTER( 16 ), INTENT ( IN ) ::  LABEL( :,: ) ! Reaction labels
-         INTEGER, INTENT ( INOUT )      ::  SS1RX( : )
-       END SUBROUTINE CHECK_SS_SPC
-       SUBROUTINE WRSS_EXT( NR ) 
-         INTEGER, INTENT ( IN )         :: NR   ! No. of reactions
-       END SUBROUTINE WRSS_EXT
-       SUBROUTINE CONVERT_CASE ( BUFFER, UPPER )
-         CHARACTER*(*), INTENT( INOUT ) :: BUFFER
-         LOGICAL,       INTENT( IN )    :: UPPER
-       END SUBROUTINE CONVERT_CASE
-      END INTERFACE 
-  
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C Create name for output file
@@ -955,11 +782,6 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
                END IF
             END IF
          END DO
-! determine conditions whether reaction string needs a non-zero multiple of dummy
-! variable added to reaction 
-         DUMMY_COEF( NXX ) = INDEXES(REACTION_STR( NXX ),(NXX-1),REACTION_STR )
-         IF( NPRDCT( NXX ) .LT. 1 )DUMMY_COEF( NXX ) = DUMMY_COEF( NXX ) + 1 
-         IF(  KPP_DUMMY )KPP_DUMMY = .TRUE.
          
        END DO
 
@@ -1380,97 +1202,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 95100  FORMAT(2X,A16,' = 0.0D0')        
 
 
-       END SUBROUTINE WRT_MD_TABLE
-          
-       SUBROUTINE  CONVERT_CASE_BAK ( BUFFER, UPPER )
-C***********************************************************************
-
-C  subroutine body starts at line  41
-C
-C  FUNCTION:  converts to upcase or lower the text in BUFFER
-C             based on values of logic flag UPPER
-C
-C  PRECONDITIONS REQUIRED:  text is ASCII
-C
-C  SUBROUTINES AND FUNCTIONS CALLED:  none
-C
-C  REVISION  HISTORY:  prototype 1/91 by CJC
-C
-C***********************************************************************
-
-      IMPLICIT NONE
-
-C...........   ARGUMENTS and their descriptions:
-
-        CHARACTER*(*)   BUFFER
-        LOGICAL         UPPER
-
-
-C...........   PARAMETER:  ASCII for 'a', 'z', 'A'
-
-        INTEGER       IA, IZ, AADIF
-
-        PARAMETER   ( IA    = 97,
-     &                IZ    = 122,
-     &                AADIF = 32 )
-
-
-C...........   SCRATCH LOCAL VARIABLES and their descriptions:
-
-        INTEGER       I, L
-        INTEGER       C
-        INTEGER       FACTOR
-        INTEGER       STRT, FINI
-        
-
-
-C***********************************************************************
-C   begin body of subroutine  UPCASE
-
-        L  =  LEN ( BUFFER )
-        IF( UPPER )THEN
-            FACTOR =  - AADIF
-            STRT   =    IA
-            FINI   =    IZ
-        ELSE
-            FACTOR =    AADIF
-            STRT   =    IA - AADIF
-            FINI   =    IZ - AADIF
-        END IF 
-        
-        DO  111  I = 1 , L
-            C = ICHAR ( BUFFER ( I:I ) )
-            IF ( C .GE. STRT  .AND.  C .LE. FINI ) THEN
-                BUFFER ( I:I ) = CHAR ( C + FACTOR )
-            END IF
-111     CONTINUE        !  end loop on I
-
-        RETURN
-        END SUBROUTINE CONVERT_CASE_BAK
-
-      SUBROUTINE WRITE_RATE_CONVERT_BAK(OUT_UNIT, RXN_ORDER)
-        IMPLICIT NONE
-        INTEGER, INTENT( IN ) :: OUT_UNIT
-        INTEGER, INTENT( IN ) :: RXN_ORDER
-        
-         RETURN
-
-         SELECT CASE( RXN_ORDER )
-           CASE( 0 )
-             WRITE(OUT_UNIT, 95000, ADVANCE = 'NO')
-           CASE( 1 )
-             WRITE(OUT_UNIT, 95001, ADVANCE = 'NO')
-           CASE( 2 )
-             WRITE(OUT_UNIT, 95002, ADVANCE = 'NO')
-           CASE( 3 )
-             WRITE(OUT_UNIT, 95003, ADVANCE = 'NO')
-        END SELECT
-95000   FORMAT(' INV_RFACTOR * ')                
-95001   FORMAT(' 60.0D0 * ')                
-95002   FORMAT(' RFACTOR * ')                
-95003   FORMAT(' RFACTOR_SQU * ')                
-        RETURN
-      END SUBROUTINE WRITE_RATE_CONVERT_BAK
+       END SUBROUTINE WRT_MD_TABLE          
        SUBROUTINE CALCULATE_RATES( NREACTIONS )
 
          USE MECHANISM_DATA
@@ -1964,8 +1696,6 @@ C   begin body of subroutine  UPCASE
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE WRT_CSV_TABLE( NR, IP, LABEL, NS  )
 
- 
-      USE KPP_DATA 
       USE GET_ENV_VARS
       USE MECHANISM_DATA
       
@@ -1988,7 +1718,6 @@ c..local Variables for steady-state species
       CHARACTER( 627 ) :: FWIKI_OUT_FILE
 
       INTEGER, EXTERNAL :: INDEX1
-      INTEGER, EXTERNAL :: INDEXES
       INTEGER            :: LPOINT, IEOL
       INTEGER            :: I, ICOL, ISPC, IRX, IDX
       INTEGER            :: NXX, IPR, IPHOTAB, NC
@@ -2034,87 +1763,6 @@ c..Variables for species to be dropped from mechanism
       INTEGER            :: ICOUNT, IREACT, IPRODUCT
 
 
-      INTERFACE 
-       SUBROUTINE GETRCTNT ( IMECH, INBUF, IEOL, LPOINT, CHR, WORD,
-     &                      NXX, NS, SPARSE_SPECIES, SPC1RX,
-     &                      ICOL, LABEL, N_DROP_SPC, DROP_SPC )
-         INTEGER,         INTENT(   IN  ) :: IMECH
-         CHARACTER( 81 ), INTENT( INOUT ) :: INBUF
-         INTEGER,         INTENT( INOUT ) :: LPOINT
-         INTEGER,         INTENT( INOUT ) :: IEOL
-         CHARACTER(  1 ), INTENT( INOUT ) :: CHR
-         CHARACTER( 16 ), INTENT( INOUT ) :: WORD
-         INTEGER,         INTENT(   IN  ) :: NXX
-         INTEGER,         INTENT( INOUT ) :: NS
-         CHARACTER( 16 ), INTENT( INOUT ) :: SPARSE_SPECIES( : )
-         INTEGER,         INTENT( INOUT ) :: SPC1RX( : )
-         INTEGER,         INTENT( INOUT ) :: ICOL
-         CHARACTER( 16 ), INTENT(   IN  ) :: LABEL( :, : )
-         INTEGER,         INTENT(   IN  ) :: N_DROP_SPC
-         CHARACTER( 16 ), INTENT(   IN  ) :: DROP_SPC( : )
-        END SUBROUTINE GETRCTNT
-        SUBROUTINE GETPRDCT ( IMECH, INBUF, LPOINT, IEOL, CHR, WORD,
-     &                      NXX, NS, SPARSE_SPECIES, SPC1RX,
-     &                      ICOL, N_DROP_SPC, DROP_SPC )
-          INTEGER,         INTENT(   IN  ) :: IMECH
-          CHARACTER( 81 ), INTENT( INOUT ) :: INBUF
-          INTEGER,         INTENT( INOUT ) :: LPOINT
-          INTEGER,         INTENT( INOUT ) :: IEOL
-          CHARACTER(  1 ), INTENT( INOUT ) :: CHR
-          CHARACTER( 16 ), INTENT( INOUT ) :: WORD
-          INTEGER,         INTENT(   IN  ) :: NXX
-          INTEGER,         INTENT( INOUT ) :: NS
-          CHARACTER( 16 ), INTENT( INOUT ) :: SPARSE_SPECIES( : )
-          INTEGER,         INTENT( INOUT ) :: SPC1RX( : )
-          INTEGER,         INTENT( INOUT ) :: ICOL
-          INTEGER,         INTENT(   IN  ) :: N_DROP_SPC
-          CHARACTER( 16 ), INTENT(   IN  ) :: DROP_SPC( : )
-         END SUBROUTINE GETPRDCT
-         SUBROUTINE GETRATE ( IMECH, INBUF, LPOINT, IEOL, CHR,
-     &                         NXX, LABEL, IP )
-           CHARACTER(  1 ), INTENT( INOUT ) :: CHR
-           CHARACTER( 81 ), INTENT( INOUT ) :: INBUF
-           INTEGER,         INTENT( IN )    :: IMECH
-           INTEGER,         INTENT( INOUT ) :: LPOINT
-           INTEGER,         INTENT( INOUT ) :: IEOL
-           INTEGER,         INTENT( INOUT ) :: IP
-           INTEGER,         INTENT( IN )    :: NXX
-           CHARACTER( 16 ), INTENT( INOUT ) :: LABEL( :,: )
-        END SUBROUTINE GETRATE
-        SUBROUTINE WREXTS (EQNAME_MECH, DESCRP_MECH, NS, SPARSE_SPECIES, SPC1RX, NR,
-     &                      IP,  NAMCONSTS, CVAL, SS1RX  ) 
-          CHARACTER( 120 ), INTENT ( IN ) :: EQNAME_MECH
-          CHARACTER(  32 ), INTENT ( IN ) :: DESCRP_MECH
-          INTEGER,          INTENT ( IN ) :: NS                ! no. of species found in mechanism table
-          CHARACTER(  16 ), INTENT ( IN ) :: SPARSE_SPECIES( : ) ! species list from mechanism table
-          INTEGER,          INTENT ( IN ) :: NR
-          INTEGER,          INTENT ( IN ) :: SPC1RX( : ) ! rx index of 1st occurence of species in mechanism table
-          INTEGER,          INTENT ( IN ) :: IP
-          CHARACTER( 16 ),  INTENT ( IN ) :: NAMCONSTS( : )
-          REAL( 8 ),        INTENT ( IN ) :: CVAL( : )
-          INTEGER,          INTENT ( IN ) :: SS1RX( : )
-        END SUBROUTINE WREXTS
-        SUBROUTINE GET_SS_DATA ( LUNOUT, NR ) 
-          INTEGER, INTENT ( IN )         :: LUNOUT   ! Output unit number
-          INTEGER, INTENT ( IN )         :: NR       ! No. of reactions
-        END SUBROUTINE GET_SS_DATA
-        SUBROUTINE CHECK_SS_SPC ( LUNOUT, NS, SPARSE_SPECIES, NR, LABEL, SS1RX )
-         INTEGER, INTENT ( IN )         :: LUNOUT               ! Output unit number
-         INTEGER, INTENT ( IN )         ::  NS                  ! No. of species in mechanism
-         CHARACTER( 16 ), INTENT ( IN ) ::  SPARSE_SPECIES( : )   ! List of mechanism species
-         INTEGER, INTENT ( IN )         ::  NR                  ! No. of reactions
-         CHARACTER( 16 ), INTENT ( IN ) ::  LABEL( :,: ) ! Reaction labels
-         INTEGER, INTENT ( INOUT )      ::  SS1RX( : )
-       END SUBROUTINE CHECK_SS_SPC
-       SUBROUTINE WRSS_EXT( NR ) 
-         INTEGER, INTENT ( IN )         :: NR   ! No. of reactions
-       END SUBROUTINE WRSS_EXT
-       SUBROUTINE CONVERT_CASE ( BUFFER, UPPER )
-         CHARACTER*(*), INTENT( INOUT ) :: BUFFER
-         LOGICAL,       INTENT( IN )    :: UPPER
-       END SUBROUTINE CONVERT_CASE
-      END INTERFACE 
-  
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C Create name for output file
@@ -2190,11 +1838,6 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
                END IF
             END IF
          END DO
-! determine conditions whether reaction string needs a non-zero multiple of dummy
-! variable added to reaction 
-         DUMMY_COEF( NXX ) = INDEXES(REACTION_STR( NXX ),(NXX-1),REACTION_STR )
-         IF( NPRDCT( NXX ) .LT. 1 )DUMMY_COEF( NXX ) = DUMMY_COEF( NXX ) + 1 
-         IF(  KPP_DUMMY )KPP_DUMMY = .TRUE.
          
        END DO
 
@@ -2615,8 +2258,6 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE WRT_HTML_TABLE( NR, IP, LABEL, NS  )
 
- 
-      USE KPP_DATA 
       USE GET_ENV_VARS
       USE MECHANISM_DATA
       
@@ -2639,7 +2280,6 @@ c..local Variables for steady-state species
       CHARACTER( 627 ) :: FWIKI_OUT_FILE
 
       INTEGER, EXTERNAL :: INDEX1
-      INTEGER, EXTERNAL :: INDEXES
       INTEGER            :: LPOINT, IEOL
       INTEGER            :: I, ICOL, ISPC, IRX, IDX
       INTEGER            :: NXX, IPR, IPHOTAB, NC
@@ -2686,88 +2326,6 @@ c..Variables for species to be dropped from mechanism
       INTEGER, EXTERNAL :: JUNIT
       INTEGER            :: ICOUNT, IREACT, IPRODUCT
 
-
-      INTERFACE 
-       SUBROUTINE GETRCTNT ( IMECH, INBUF, IEOL, LPOINT, CHR, WORD,
-     &                      NXX, NS, SPARSE_SPECIES, SPC1RX,
-     &                      ICOL, LABEL, N_DROP_SPC, DROP_SPC )
-         INTEGER,         INTENT(   IN  ) :: IMECH
-         CHARACTER( 81 ), INTENT( INOUT ) :: INBUF
-         INTEGER,         INTENT( INOUT ) :: LPOINT
-         INTEGER,         INTENT( INOUT ) :: IEOL
-         CHARACTER(  1 ), INTENT( INOUT ) :: CHR
-         CHARACTER( 16 ), INTENT( INOUT ) :: WORD
-         INTEGER,         INTENT(   IN  ) :: NXX
-         INTEGER,         INTENT( INOUT ) :: NS
-         CHARACTER( 16 ), INTENT( INOUT ) :: SPARSE_SPECIES( : )
-         INTEGER,         INTENT( INOUT ) :: SPC1RX( : )
-         INTEGER,         INTENT( INOUT ) :: ICOL
-         CHARACTER( 16 ), INTENT(   IN  ) :: LABEL( :, : )
-         INTEGER,         INTENT(   IN  ) :: N_DROP_SPC
-         CHARACTER( 16 ), INTENT(   IN  ) :: DROP_SPC( : )
-        END SUBROUTINE GETRCTNT
-        SUBROUTINE GETPRDCT ( IMECH, INBUF, LPOINT, IEOL, CHR, WORD,
-     &                      NXX, NS, SPARSE_SPECIES, SPC1RX,
-     &                      ICOL, N_DROP_SPC, DROP_SPC )
-          INTEGER,         INTENT(   IN  ) :: IMECH
-          CHARACTER( 81 ), INTENT( INOUT ) :: INBUF
-          INTEGER,         INTENT( INOUT ) :: LPOINT
-          INTEGER,         INTENT( INOUT ) :: IEOL
-          CHARACTER(  1 ), INTENT( INOUT ) :: CHR
-          CHARACTER( 16 ), INTENT( INOUT ) :: WORD
-          INTEGER,         INTENT(   IN  ) :: NXX
-          INTEGER,         INTENT( INOUT ) :: NS
-          CHARACTER( 16 ), INTENT( INOUT ) :: SPARSE_SPECIES( : )
-          INTEGER,         INTENT( INOUT ) :: SPC1RX( : )
-          INTEGER,         INTENT( INOUT ) :: ICOL
-          INTEGER,         INTENT(   IN  ) :: N_DROP_SPC
-          CHARACTER( 16 ), INTENT(   IN  ) :: DROP_SPC( : )
-         END SUBROUTINE GETPRDCT
-         SUBROUTINE GETRATE ( IMECH, INBUF, LPOINT, IEOL, CHR,
-     &                         NXX, LABEL, IP )
-           CHARACTER(  1 ), INTENT( INOUT ) :: CHR
-           CHARACTER( 81 ), INTENT( INOUT ) :: INBUF
-           INTEGER,         INTENT( IN )    :: IMECH
-           INTEGER,         INTENT( INOUT ) :: LPOINT
-           INTEGER,         INTENT( INOUT ) :: IEOL
-           INTEGER,         INTENT( INOUT ) :: IP
-           INTEGER,         INTENT( IN )    :: NXX
-           CHARACTER( 16 ), INTENT( INOUT ) :: LABEL( :,: )
-        END SUBROUTINE GETRATE
-        SUBROUTINE WREXTS (EQNAME_MECH, DESCRP_MECH, NS, SPARSE_SPECIES, SPC1RX, NR,
-     &                      IP,  NAMCONSTS, CVAL, SS1RX  ) 
-          CHARACTER( 120 ), INTENT ( IN ) :: EQNAME_MECH
-          CHARACTER(  32 ), INTENT ( IN ) :: DESCRP_MECH
-          INTEGER,          INTENT ( IN ) :: NS                ! no. of species found in mechanism table
-          CHARACTER(  16 ), INTENT ( IN ) :: SPARSE_SPECIES( : ) ! species list from mechanism table
-          INTEGER,          INTENT ( IN ) :: NR
-          INTEGER,          INTENT ( IN ) :: SPC1RX( : ) ! rx index of 1st occurence of species in mechanism table
-          INTEGER,          INTENT ( IN ) :: IP
-          CHARACTER( 16 ),  INTENT ( IN ) :: NAMCONSTS( : )
-          REAL( 8 ),        INTENT ( IN ) :: CVAL( : )
-          INTEGER,          INTENT ( IN ) :: SS1RX( : )
-        END SUBROUTINE WREXTS
-        SUBROUTINE GET_SS_DATA ( LUNOUT, NR ) 
-          INTEGER, INTENT ( IN )         :: LUNOUT   ! Output unit number
-          INTEGER, INTENT ( IN )         :: NR       ! No. of reactions
-        END SUBROUTINE GET_SS_DATA
-        SUBROUTINE CHECK_SS_SPC ( LUNOUT, NS, SPARSE_SPECIES, NR, LABEL, SS1RX )
-         INTEGER, INTENT ( IN )         :: LUNOUT               ! Output unit number
-         INTEGER, INTENT ( IN )         ::  NS                  ! No. of species in mechanism
-         CHARACTER( 16 ), INTENT ( IN ) ::  SPARSE_SPECIES( : )   ! List of mechanism species
-         INTEGER, INTENT ( IN )         ::  NR                  ! No. of reactions
-         CHARACTER( 16 ), INTENT ( IN ) ::  LABEL( :,: ) ! Reaction labels
-         INTEGER, INTENT ( INOUT )      ::  SS1RX( : )
-       END SUBROUTINE CHECK_SS_SPC
-       SUBROUTINE WRSS_EXT( NR ) 
-         INTEGER, INTENT ( IN )         :: NR   ! No. of reactions
-       END SUBROUTINE WRSS_EXT
-       SUBROUTINE CONVERT_CASE ( BUFFER, UPPER )
-         CHARACTER*(*), INTENT( INOUT ) :: BUFFER
-         LOGICAL,       INTENT( IN )    :: UPPER
-       END SUBROUTINE CONVERT_CASE
-      END INTERFACE 
-  
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C Create name for output file
@@ -3364,8 +2922,6 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE WRT_MD_SUBTABLE( NR, IP, LABEL, NS  )
 
- 
-      USE KPP_DATA 
       USE GET_ENV_VARS
       USE MECHANISM_DATA
       
@@ -3388,7 +2944,6 @@ c..local Variables for steady-state species
       CHARACTER( 627 ) :: FWIKI_OUT_FILE
 
       INTEGER, EXTERNAL :: INDEX1
-      INTEGER, EXTERNAL :: INDEXES
       INTEGER            :: LPOINT, IEOL
       INTEGER            :: I, ICOL, ISPC, IRX, IDX
       INTEGER            :: NXX, IPR, IPHOTAB, NC
@@ -3429,6 +2984,7 @@ c..Variables for species to be dropped from mechanism
       LOGICAL             :: FALLOFF_RATE       ! whether a reaction is a falloff type
 
 
+      CHARACTER(   2 ) :: MD_MULTIPLE
       CHARACTER(  12 ) :: EXFLNM_SPCS = 'SPCSDATX'
       CHARACTER(  12 ) :: EXFLNM_RXDT = 'RXNSDATX'
       CHARACTER(  12 ) :: EXFLNM_RXCM = 'RXNSCOMX'
@@ -3446,88 +3002,6 @@ c..Variables for species to be dropped from mechanism
       LOGICAL :: MULTI_NOTE  = .FALSE.
       LOGICAL :: EQUIL_NOTE  = .FALSE.
 
-      INTERFACE 
-       SUBROUTINE GETRCTNT ( IMECH, INBUF, IEOL, LPOINT, CHR, WORD,
-     &                      NXX, NS, SPARSE_SPECIES, SPC1RX,
-     &                      ICOL, LABEL, N_DROP_SPC, DROP_SPC )
-         INTEGER,         INTENT(   IN  ) :: IMECH
-         CHARACTER( 81 ), INTENT( INOUT ) :: INBUF
-         INTEGER,         INTENT( INOUT ) :: LPOINT
-         INTEGER,         INTENT( INOUT ) :: IEOL
-         CHARACTER(  1 ), INTENT( INOUT ) :: CHR
-         CHARACTER( 16 ), INTENT( INOUT ) :: WORD
-         INTEGER,         INTENT(   IN  ) :: NXX
-         INTEGER,         INTENT( INOUT ) :: NS
-         CHARACTER( 16 ), INTENT( INOUT ) :: SPARSE_SPECIES( : )
-         INTEGER,         INTENT( INOUT ) :: SPC1RX( : )
-         INTEGER,         INTENT( INOUT ) :: ICOL
-         CHARACTER( 16 ), INTENT(   IN  ) :: LABEL( :, : )
-         INTEGER,         INTENT(   IN  ) :: N_DROP_SPC
-         CHARACTER( 16 ), INTENT(   IN  ) :: DROP_SPC( : )
-        END SUBROUTINE GETRCTNT
-        SUBROUTINE GETPRDCT ( IMECH, INBUF, LPOINT, IEOL, CHR, WORD,
-     &                      NXX, NS, SPARSE_SPECIES, SPC1RX,
-     &                      ICOL, N_DROP_SPC, DROP_SPC )
-          INTEGER,         INTENT(   IN  ) :: IMECH
-          CHARACTER( 81 ), INTENT( INOUT ) :: INBUF
-          INTEGER,         INTENT( INOUT ) :: LPOINT
-          INTEGER,         INTENT( INOUT ) :: IEOL
-          CHARACTER(  1 ), INTENT( INOUT ) :: CHR
-          CHARACTER( 16 ), INTENT( INOUT ) :: WORD
-          INTEGER,         INTENT(   IN  ) :: NXX
-          INTEGER,         INTENT( INOUT ) :: NS
-          CHARACTER( 16 ), INTENT( INOUT ) :: SPARSE_SPECIES( : )
-          INTEGER,         INTENT( INOUT ) :: SPC1RX( : )
-          INTEGER,         INTENT( INOUT ) :: ICOL
-          INTEGER,         INTENT(   IN  ) :: N_DROP_SPC
-          CHARACTER( 16 ), INTENT(   IN  ) :: DROP_SPC( : )
-         END SUBROUTINE GETPRDCT
-         SUBROUTINE GETRATE ( IMECH, INBUF, LPOINT, IEOL, CHR,
-     &                         NXX, LABEL, IP )
-           CHARACTER(  1 ), INTENT( INOUT ) :: CHR
-           CHARACTER( 81 ), INTENT( INOUT ) :: INBUF
-           INTEGER,         INTENT( IN )    :: IMECH
-           INTEGER,         INTENT( INOUT ) :: LPOINT
-           INTEGER,         INTENT( INOUT ) :: IEOL
-           INTEGER,         INTENT( INOUT ) :: IP
-           INTEGER,         INTENT( IN )    :: NXX
-           CHARACTER( 16 ), INTENT( INOUT ) :: LABEL( :,: )
-        END SUBROUTINE GETRATE
-        SUBROUTINE WREXTS (EQNAME_MECH, DESCRP_MECH, NS, SPARSE_SPECIES, SPC1RX, NR,
-     &                      IP,  NAMCONSTS, CVAL, SS1RX  ) 
-          CHARACTER( 120 ), INTENT ( IN ) :: EQNAME_MECH
-          CHARACTER(  32 ), INTENT ( IN ) :: DESCRP_MECH
-          INTEGER,          INTENT ( IN ) :: NS                ! no. of species found in mechanism table
-          CHARACTER(  16 ), INTENT ( IN ) :: SPARSE_SPECIES( : ) ! species list from mechanism table
-          INTEGER,          INTENT ( IN ) :: NR
-          INTEGER,          INTENT ( IN ) :: SPC1RX( : ) ! rx index of 1st occurence of species in mechanism table
-          INTEGER,          INTENT ( IN ) :: IP
-          CHARACTER( 16 ),  INTENT ( IN ) :: NAMCONSTS( : )
-          REAL( 8 ),        INTENT ( IN ) :: CVAL( : )
-          INTEGER,          INTENT ( IN ) :: SS1RX( : )
-        END SUBROUTINE WREXTS
-        SUBROUTINE GET_SS_DATA ( LUNOUT, NR ) 
-          INTEGER, INTENT ( IN )         :: LUNOUT   ! Output unit number
-          INTEGER, INTENT ( IN )         :: NR       ! No. of reactions
-        END SUBROUTINE GET_SS_DATA
-        SUBROUTINE CHECK_SS_SPC ( LUNOUT, NS, SPARSE_SPECIES, NR, LABEL, SS1RX )
-         INTEGER, INTENT ( IN )         :: LUNOUT               ! Output unit number
-         INTEGER, INTENT ( IN )         ::  NS                  ! No. of species in mechanism
-         CHARACTER( 16 ), INTENT ( IN ) ::  SPARSE_SPECIES( : )   ! List of mechanism species
-         INTEGER, INTENT ( IN )         ::  NR                  ! No. of reactions
-         CHARACTER( 16 ), INTENT ( IN ) ::  LABEL( :,: ) ! Reaction labels
-         INTEGER, INTENT ( INOUT )      ::  SS1RX( : )
-       END SUBROUTINE CHECK_SS_SPC
-       SUBROUTINE WRSS_EXT( NR ) 
-         INTEGER, INTENT ( IN )         :: NR   ! No. of reactions
-       END SUBROUTINE WRSS_EXT
-       SUBROUTINE CONVERT_CASE ( BUFFER, UPPER )
-         CHARACTER*(*), INTENT( INOUT ) :: BUFFER
-         LOGICAL,       INTENT( IN )    :: UPPER
-       END SUBROUTINE CONVERT_CASE
-      END INTERFACE 
-  
-
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C     Set flags to write table footnotes
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -3540,6 +3014,10 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       STRING_NOTE = .FALSE.
       MULTI_NOTE  = .FALSE.
       EQUIL_NOTE  = .FALSE.
+
+C Set markdown symbol for multiple sign
+
+      MD_MULTIPLE = ACHAR( 92 ) // ACHAR( 42 )
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C Create name for output file
@@ -3615,11 +3093,6 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
                END IF
             END IF
          END DO
-! determine conditions whether reaction string needs a non-zero multiple of dummy
-! variable added to reaction 
-         DUMMY_COEF( NXX ) = INDEXES(REACTION_STR( NXX ),(NXX-1),REACTION_STR )
-         IF( NPRDCT( NXX ) .LT. 1 )DUMMY_COEF( NXX ) = DUMMY_COEF( NXX ) + 1 
-         IF(  KPP_DUMMY )KPP_DUMMY = .TRUE.
          
        END DO
 
@@ -3738,17 +3211,17 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
             ISPC = IRR( NXX, IPRODUCT + 3 )
             IF ( ABS( SC( NXX,IPRODUCT ) ) .NE. 1.0 ) THEN
                IF ( SC( NXX,IPRODUCT ) .LT. 0 ) THEN
-                  WRITE(TABLE_UNIT,'(A,F8.3,3A)', ADVANCE = 'NO')
-     &           '- ',ABS(SC( NXX,IPRODUCT )),'\*',TRIM(SPARSE_SPECIES( ISPC )),' '
+                  WRITE(TABLE_UNIT,'(A,F9.4,3A)', ADVANCE = 'NO')
+     &           '- ',ABS(SC( NXX,IPRODUCT )),MD_MULTIPLE,TRIM(SPARSE_SPECIES( ISPC )),' '
                   ICOUNT = ICOUNT + 12 + LEN( SPARSE_SPECIES( ISPC ) )
                ELSE
                   IF( IPRODUCT .EQ. 1 )THEN
-                     WRITE(TABLE_UNIT,'(F8.3, 3A)', ADVANCE = 'NO')
-     &               SC( NXX,IPRODUCT ),'\*',TRIM(SPARSE_SPECIES( ISPC )),' '
+                     WRITE(TABLE_UNIT,'(F9.4, 3A)', ADVANCE = 'NO')
+     &               SC( NXX,IPRODUCT ),MD_MULTIPLE,TRIM(SPARSE_SPECIES( ISPC )),' '
                      ICOUNT = ICOUNT + 10 + LEN( SPARSE_SPECIES( ISPC ) )
                   ELSE
-                     WRITE(TABLE_UNIT,'(A,F8.3,3A)', ADVANCE = 'NO')
-     &               '+ ',SC( NXX,IPRODUCT ),'\*',TRIM(SPARSE_SPECIES( ISPC )),' '
+                     WRITE(TABLE_UNIT,'(A,F9.4,3A)', ADVANCE = 'NO')
+     &               '+ ',SC( NXX,IPRODUCT ),MD_MULTIPLE,TRIM(SPARSE_SPECIES( ISPC )),' '
                      ICOUNT = ICOUNT + 12 + LEN( SPARSE_SPECIES( ISPC ) )
                   END IF
                END IF
@@ -3973,7 +3446,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
            OUTPUT_FORMULA = REPLACE_TEXT(OUTPUT_FORMULA,"EXP(","exp(")
            DO NXX = 1, NFUNCTIONS
               CLABEL = '*' // TRIM( FUNCTIONS(NXX) ) // '*'
-              OLABEL = '\*' // TRIM( FUNCTIONS(NXX) ) // '\*'
+              OLABEL = '\*' // TRIM( FUNCTIONS(NXX) ) // MD_MULTIPLE
               OUTPUT_FORMULA = REPLACE_TEXT(OUTPUT_FORMULA,CLABEL,OLABEL)
            END DO
            OUTPUT_FORMULA = REPLACE_TEXT(FORMULA(IDX),"*","Times")
@@ -4087,10 +3560,9 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE WRT_FOAM_TABLES( NR, IP, LABEL, NS  )
 
- 
-      USE KPP_DATA 
       USE GET_ENV_VARS
       USE MECHANISM_DATA
+      USE SPECIES_ATOMS_DATA
       
       IMPLICIT NONE
 
@@ -4114,9 +3586,9 @@ c..local Variables for steady-state species
       CHARACTER( 627 ) :: JFILE_OUT_FILE
 
       INTEGER, EXTERNAL :: INDEX1
-      INTEGER, EXTERNAL :: INDEXES
       INTEGER            :: LPOINT, IEOL
       INTEGER            :: I, ICOL, ISPC, IRX, IDX
+      INTEGER            :: IATOM
       INTEGER            :: NXX, IPR, IPHOTAB, NC
       INTEGER            :: DUMMY_COEF( MAXRXNUM )               ! Yields for the DUMMY variable in each reaction
       INTEGER            :: SS1RX( MAXNLIST )                    ! First reaction occurrence for each SS species
@@ -4173,89 +3645,10 @@ c..Variables for species to be dropped from mechanism
 
       INTEGER, EXTERNAL :: JUNIT
       INTEGER            :: ICOUNT, IREACT, IPRODUCT
+      
+      LOGICAL, SAVE     :: WRITE_DELTA_ATOMS = .FALSE.
 
-
-      INTERFACE 
-       SUBROUTINE GETRCTNT ( IMECH, INBUF, IEOL, LPOINT, CHR, WORD,
-     &                      NXX, NS, SPARSE_SPECIES, SPC1RX,
-     &                      ICOL, LABEL, N_DROP_SPC, DROP_SPC )
-         INTEGER,         INTENT(   IN  ) :: IMECH
-         CHARACTER( 81 ), INTENT( INOUT ) :: INBUF
-         INTEGER,         INTENT( INOUT ) :: LPOINT
-         INTEGER,         INTENT( INOUT ) :: IEOL
-         CHARACTER(  1 ), INTENT( INOUT ) :: CHR
-         CHARACTER( 16 ), INTENT( INOUT ) :: WORD
-         INTEGER,         INTENT(   IN  ) :: NXX
-         INTEGER,         INTENT( INOUT ) :: NS
-         CHARACTER( 16 ), INTENT( INOUT ) :: SPARSE_SPECIES( : )
-         INTEGER,         INTENT( INOUT ) :: SPC1RX( : )
-         INTEGER,         INTENT( INOUT ) :: ICOL
-         CHARACTER( 16 ), INTENT(   IN  ) :: LABEL( :, : )
-         INTEGER,         INTENT(   IN  ) :: N_DROP_SPC
-         CHARACTER( 16 ), INTENT(   IN  ) :: DROP_SPC( : )
-        END SUBROUTINE GETRCTNT
-        SUBROUTINE GETPRDCT ( IMECH, INBUF, LPOINT, IEOL, CHR, WORD,
-     &                      NXX, NS, SPARSE_SPECIES, SPC1RX,
-     &                      ICOL, N_DROP_SPC, DROP_SPC )
-          INTEGER,         INTENT(   IN  ) :: IMECH
-          CHARACTER( 81 ), INTENT( INOUT ) :: INBUF
-          INTEGER,         INTENT( INOUT ) :: LPOINT
-          INTEGER,         INTENT( INOUT ) :: IEOL
-          CHARACTER(  1 ), INTENT( INOUT ) :: CHR
-          CHARACTER( 16 ), INTENT( INOUT ) :: WORD
-          INTEGER,         INTENT(   IN  ) :: NXX
-          INTEGER,         INTENT( INOUT ) :: NS
-          CHARACTER( 16 ), INTENT( INOUT ) :: SPARSE_SPECIES( : )
-          INTEGER,         INTENT( INOUT ) :: SPC1RX( : )
-          INTEGER,         INTENT( INOUT ) :: ICOL
-          INTEGER,         INTENT(   IN  ) :: N_DROP_SPC
-          CHARACTER( 16 ), INTENT(   IN  ) :: DROP_SPC( : )
-         END SUBROUTINE GETPRDCT
-         SUBROUTINE GETRATE ( IMECH, INBUF, LPOINT, IEOL, CHR,
-     &                         NXX, LABEL, IP )
-           CHARACTER(  1 ), INTENT( INOUT ) :: CHR
-           CHARACTER( 81 ), INTENT( INOUT ) :: INBUF
-           INTEGER,         INTENT( IN )    :: IMECH
-           INTEGER,         INTENT( INOUT ) :: LPOINT
-           INTEGER,         INTENT( INOUT ) :: IEOL
-           INTEGER,         INTENT( INOUT ) :: IP
-           INTEGER,         INTENT( IN )    :: NXX
-           CHARACTER( 16 ), INTENT( INOUT ) :: LABEL( :,: )
-        END SUBROUTINE GETRATE
-        SUBROUTINE WREXTS (EQNAME_MECH, DESCRP_MECH, NS, SPARSE_SPECIES, SPC1RX, NR,
-     &                      IP,  NAMCONSTS, CVAL, SS1RX  ) 
-          CHARACTER( 120 ), INTENT ( IN ) :: EQNAME_MECH
-          CHARACTER(  32 ), INTENT ( IN ) :: DESCRP_MECH
-          INTEGER,          INTENT ( IN ) :: NS                ! no. of species found in mechanism table
-          CHARACTER(  16 ), INTENT ( IN ) :: SPARSE_SPECIES( : ) ! species list from mechanism table
-          INTEGER,          INTENT ( IN ) :: NR
-          INTEGER,          INTENT ( IN ) :: SPC1RX( : ) ! rx index of 1st occurence of species in mechanism table
-          INTEGER,          INTENT ( IN ) :: IP
-          CHARACTER( 16 ),  INTENT ( IN ) :: NAMCONSTS( : )
-          REAL( 8 ),        INTENT ( IN ) :: CVAL( : )
-          INTEGER,          INTENT ( IN ) :: SS1RX( : )
-        END SUBROUTINE WREXTS
-        SUBROUTINE GET_SS_DATA ( LUNOUT, NR ) 
-          INTEGER, INTENT ( IN )         :: LUNOUT   ! Output unit number
-          INTEGER, INTENT ( IN )         :: NR       ! No. of reactions
-        END SUBROUTINE GET_SS_DATA
-        SUBROUTINE CHECK_SS_SPC ( LUNOUT, NS, SPARSE_SPECIES, NR, LABEL, SS1RX )
-         INTEGER, INTENT ( IN )         :: LUNOUT               ! Output unit number
-         INTEGER, INTENT ( IN )         ::  NS                  ! No. of species in mechanism
-         CHARACTER( 16 ), INTENT ( IN ) ::  SPARSE_SPECIES( : )   ! List of mechanism species
-         INTEGER, INTENT ( IN )         ::  NR                  ! No. of reactions
-         CHARACTER( 16 ), INTENT ( IN ) ::  LABEL( :,: ) ! Reaction labels
-         INTEGER, INTENT ( INOUT )      ::  SS1RX( : )
-       END SUBROUTINE CHECK_SS_SPC
-       SUBROUTINE WRSS_EXT( NR ) 
-         INTEGER, INTENT ( IN )         :: NR   ! No. of reactions
-       END SUBROUTINE WRSS_EXT
-       SUBROUTINE CONVERT_CASE ( BUFFER, UPPER )
-         CHARACTER*(*), INTENT( INOUT ) :: BUFFER
-         LOGICAL,       INTENT( IN )    :: UPPER
-       END SUBROUTINE CONVERT_CASE
-      END INTERFACE 
-  
+     
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C Create name for output file
@@ -4280,10 +3673,19 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       BOTTOM_UP_UNIT = JUNIT()
       OPEN ( UNIT = BOTTOM_UP_UNIT, FILE = BOTTOM_UP_FILE, STATUS = 'UNKNOWN'  )
 ! 
-      WRITE(TABLE_UNIT, 69099)TRIM(MECHNAME_LOWER_CASE),NUMB_MECH_SPCS,NR,TRIM( AUTHOR )
+      IF( ALLOCATED( DELTA_ATOMS ) )THEN
+          WRITE_DELTA_ATOMS = .TRUE.
+          ICOUNT = COUNT(ATOM_FOUND)
+      ELSE
+          ICOUNT = 0
+      END IF 
+
+      WRITE(TABLE_UNIT, 69099)TRIM(MECHNAME_LOWER_CASE),(NUMB_MECH_SPCS+ICOUNT),NR,
+     &                        TRIM( AUTHOR )
       WRITE(JTABLE_UNIT,95200)TRIM(MECHNAME),TRIM(MECHNAME_LOWER_CASE),TRIM(MECHNAME_LOWER_CASE)
       WRITE(KTABLE_UNIT,95300)TRIM(MECHNAME),TRIM(MECHNAME_LOWER_CASE),NHETERO
       CALL CALCULATE_RATES( NR )
+      
 
       IF( .NOT. ALLOCATED( IOLD2NEW ) )THEN
          ALLOCATE( IOLD2NEW( NUMB_MECH_SPCS ), STAT = IOS )
@@ -4366,11 +3768,6 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
                END IF
             END IF
          END DO
-! determine conditions whether reaction string needs a non-zero multiple of dummy
-! variable added to reaction 
-         DUMMY_COEF( NXX ) = INDEXES(REACTION_STR( NXX ),(NXX-1),REACTION_STR )
-         IF( NPRDCT( NXX ) .LT. 1 )DUMMY_COEF( NXX ) = DUMMY_COEF( NXX ) + 1 
-         IF(  KPP_DUMMY )KPP_DUMMY = .TRUE.
          
        END DO
 
@@ -4408,21 +3805,48 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       DO IDX = ISPC, NUMB_MECH_SPCS 
          WRITE(TABLE_UNIT,'(A)',ADVANCE='NO')"'" // TRIM(MECHANISM_SPC(IDX)) // "'; "
       END DO
-      ISPC = 0
-      DO I = 1, (N_DROP_SPC/5)
-         DO IDX = 1, 5
-            ISPC = ISPC + 1
-            WRITE(TABLE_UNIT,'(A)',ADVANCE='NO')"'" // TRIM(DROP_SPC(ISPC)) // "'; "
-         END DO
-         WRITE(TABLE_UNIT,'(A)')'...'
-      END DO
-      ISPC=ISPC+1
-      DO IDX = ISPC, N_DROP_SPC
-         WRITE(TABLE_UNIT,'(A)',ADVANCE='NO')"'" // TRIM(DROP_SPC(IDX)) // "'; "
-      END DO
+!      ISPC = 0
+!      DO I = 1, (N_DROP_SPC/5)
+!         DO IDX = 1, 5
+!            ISPC = ISPC + 1
+!            WRITE(TABLE_UNIT,'(A)',ADVANCE='NO')"'" // TRIM(DROP_SPC(ISPC)) // "'; "
+!         END DO
+!         WRITE(TABLE_UNIT,'(A)')'...'
+!      END DO
+!      ISPC=ISPC+1
+!      DO IDX = ISPC, N_DROP_SPC
+!         WRITE(TABLE_UNIT,'(A)',ADVANCE='NO')"'" // TRIM(DROP_SPC(IDX)) // "'; "
+!      END DO
+       IF( WRITE_DELTA_ATOMS )THEN
+          ISPC = 0
+          ICOL = 0
+          WRITE(TABLE_UNIT,'(A)')'...'
+          DO IATOM = 1,MAX(1,N_ATOMS/5)
+             DO IDX = 1, MIN(1,N_ATOMS)
+                ISPC = ISPC + 1
+                IF( ATOM_FOUND( ISPC ) )THEN
+                  ICOL = ICOL + 1
+                  WRITE(TABLE_UNIT,'(A,"; ")',ADVANCE='NO')TRIM( "'DELTA_" // TRIM( ATOMS(ISPC)) )// "'"
+                  IF( MOD( ICOL,5 ) .EQ. 0 )THEN
+                     WRITE(TABLE_UNIT,'(A)')'...'
+                     CYCLE
+                  END IF
+                ELSE
+                END IF
+             END DO
+             IF( ISPC .EQ. N_ATOMS )EXIT
+          END DO
+          ISPC=ISPC+1
+          DO IDX = ISPC, N_ATOMS 
+             IF( .NOT. ATOM_FOUND( IDX ) )CYCLE
+             WRITE(TABLE_UNIT,'(A,"; ")',ADVANCE='NO')TRIM( "'DELTA_" // TRIM( ATOMS(IDX)) )// "'"
+          END DO
+      END IF
+
       WRITE(TABLE_UNIT,'(A,//)')'};'
       WRITE(TABLE_UNIT,'(A,//)')'AddSpecies'
             
+
       DO NXX = 1, NSPECIAL
          WRITE(TABLE_UNIT,'(A,A)', ADVANCE = 'NO' )' * ',TRIM(SPECIAL( NXX ) )
          FIRST_TERM = .TRUE.
@@ -4449,7 +3873,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
                  END IF
              ELSE
                  IF( IRX .GT. 0 )THEN
-                    WRITE(TABLE_UNIT, 4706, ADVANCE = 'NO')TRIM(PHRASE),TRIM(LABEL(IRX,1))
+                    WRITE(TABLE_UNIT, 3708, ADVANCE = 'NO')TRIM(PHRASE),TRIM(LABEL(IRX,1))
                  ELSE
                     WRITE(TABLE_UNIT, 4709, ADVANCE = 'NO')TRIM(PHRASE)
                  END IF
@@ -4564,7 +3988,11 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 !                WRITE(TABLE_UNIT, * )' '
 !                WRITE(TABLE_UNIT,'(A16)', ADVANCE = 'NO')' '
 !            END IF
-         END DO 
+         END DO
+         IF( WRITE_DELTA_ATOMS )THEN
+             WRITE(TABLE_UNIT,'(3A)', ADVANCE = 'NO')TRIM( DELTA_ATOMS(NXX) )
+             ICOUNT = ICOUNT + LEN_TRIM( DELTA_ATOMS(NXX) ) 
+         END IF
          WRITE(TABLE_UNIT,'(A)')"';"
 
 
@@ -4733,15 +4161,30 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          DO IPRODUCT = 1, NPRDCT( NXX )
             ISPC = IRR( NXX, IPRODUCT + 3 )
             IF(SC(NXX,IPRODUCT) .GT. 0.0)THEN
-                WRITE(TABLE_UNIT,'(A,F7.3,A)', ADVANCE = 'NO')
+                WRITE(TABLE_UNIT,'(A,F8.4,A)', ADVANCE = 'NO')
      &          "f" // TRIM(SPARSE_SPECIES( ISPC )) // "(i)=f" // TRIM(SPARSE_SPECIES( ISPC )) // "(i)+",
      &           SC(NXX,IPRODUCT),";"
             ELSE
-                WRITE(TABLE_UNIT,'(A,F7.3,A)', ADVANCE = 'NO')
+                WRITE(TABLE_UNIT,'(A,F8.4,A)', ADVANCE = 'NO')
      &          "f" // TRIM(SPARSE_SPECIES( ISPC )) // "(i)=f" // TRIM(SPARSE_SPECIES( ISPC )) // "(i)-",
      &           ABS(SC(NXX,IPRODUCT)),";"
             END IF
          END DO
+         IF( WRITE_DELTA_ATOMS )THEN
+             DO IATOM = 1, N_ATOMS
+                IF( NONZERO_DELTA(NXX,IATOM) )THEN
+                   IF( REACTION_DELTA(NXX,IATOM) .GT. 0.0)THEN
+                       WRITE(TABLE_UNIT,'(A,F8.4,A)', ADVANCE = 'NO')
+     &                    "fDELTA_" // TRIM(ATOMS(IATOM)) // "(i)=fDELTA_" // TRIM(ATOMS(IATOM)) // "(i)+",
+     &                     REACTION_DELTA(NXX,IATOM),";"
+                   ELSE
+                       WRITE(TABLE_UNIT,'(A,F8.4,A)', ADVANCE = 'NO')
+     &                    "fDELTA_" // TRIM(ATOMS(IATOM)) // "(i)=fDELTA_" // TRIM(ATOMS(IATOM)) // "(i)-",
+     &                     ABS(REACTION_DELTA(NXX,IATOM)),";"
+                   END IF
+                END IF
+             END DO
+         END IF         
          WRITE(TABLE_UNIT,'(/)')
       END DO
       DO IDX = 1,NPHOTAB
@@ -4780,6 +4223,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      &          "the integration time-step for the chemistry's numerical solver." /)
 
 4706   FORMAT("k(:,", I4,")")
+3708   FORMAT(A,1X,".*", A)
 4708   FORMAT(A,1X,ES9.2,".*", A)
 5708   FORMAT(A,1X,ES9.2,".*", A)
 4709   FORMAT( A )     
@@ -4913,6 +4357,487 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      &        "end")
 
        END SUBROUTINE WRT_FOAM_TABLES
+C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+       SUBROUTINE ECHO_MECH( IUNIT,N_DROP_SPC,DROP_SPC  )
+ 
+  
+          USE GET_ENV_VARS
+          USE MECHANISM_DATA, MECHANISM => MECHNAME
+          USE GET_MECHDEF_DATA
+          USE SPECIES_ATOMS_DATA
+           
+          
+          IMPLICIT NONE
+          
+          INTEGER,         INTENT( IN     ) :: IUNIT  ! unit number for in mechanism definitions files
+          INTEGER,         INTENT( INOUT  ) :: N_DROP_SPC
+          CHARACTER( 16 ), INTENT( INOUT  ) :: DROP_SPC( : )
+          
+          
+          
+          
+c..local Variables for steady-state species
+
+         CHARACTER(  1 ) :: CHR
+         CHARACTER( 16 ) :: WORD
+         CHARACTER( 37 ) :: PHRASE
+         CHARACTER( 181 ) :: INBUF
+         CHARACTER( 181 ) :: INBUF2
+         
+         CHARACTER(  3 )   :: END
+         INTEGER, EXTERNAL :: INDEX1
+         INTEGER           :: LPOINT, IEOL
+         INTEGER           :: I, ICOL, ISPC, JSPC, IRX, IDX      
+         INTEGER           :: NR, IPX, NXX, NS, IPR, IPHOTAB, NC
+         
+         CHARACTER( 12 )  :: MECHNAME      = 'MECHDEF'
+         CHARACTER( 586 ) :: EQNAME_MECH
+         CHARACTER( 600 ) :: COPY_MECH
+         CHARACTER( 891 ) :: RATE_FORMULA
+         CHARACTER(  16 ) :: COEFF_STRING
+         CHARACTER(  32 ) :: DESCRP_MECH
+         
+         
+         CHARACTER(  16 ) :: CLABEL                  ! mechanism constants label
+         REAL( 8 )        :: CONSTVAL                ! retrieved constant
+         
+         INTEGER, PARAMETER :: LUNOUT = 6
+         
+         
+         REAL             :: REACTION_BALANCE 
+         
+         CHARACTER(   16 ) :: OUT_DIR          = 'OUTDIR'
+         CHARACTER( 1000 ) :: REACTION_STRING
+         CHARACTER(  100 ) :: SUB_STRING
+         CHARACTER(   16 ) :: NAME_PRODUCT
+         
+         
+         INTEGER, EXTERNAL  :: JUNIT
+         INTEGER            :: ICOUNT, IREACT, IPRODUCT, IATOM
+         INTEGER            :: POUND 
+         INTEGER            :: PERCENT
+         INTEGER            :: SEMICOLON
+         INTEGER            :: IPOS, IPOS_DOT
+         
+         INTEGER            :: STATUS
+         
+         LOGICAL            :: PAST_REACTIONS
+         LOGICAL            :: SAVE_RATE
+         LOGICAL            :: ECHO_TAIL
+         LOGICAL            :: ECHO_HEAD
+         
+         LOGICAL            :: ELIMINATE_DONE
+           
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+C Initialize module and local mechanism array variables
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+
+! check if atoms_species is a mechanisms and set atoms in mechanism species
+
+         CALL SET_ATOMS_MECHANISM_SPC()
+         IF( ATOMS_IN_NAMELISTS )THEN
+            CALL ARE_THEY_ATOM_SPECIES()
+         END IF
+                  
+! determine how reactions change atoms
+     
+         CALL REACTION_DELTA_ATOMS()
+
+! determine whether to write out CMAQ CGRID species name and indices to output
+
+         REWIND( IUNIT )
+
+         CALL VALUE_NAME ( MECHNAME, EQNAME_MECH )
+         CALL VALUE_NAME ( OUT_DIR, OUTDIR )
+         COPY_MECHANISM = JUNIT()
+         ICOL = LEN_TRIM( EQNAME_MECH )
+         IDX  = INDEX( EQNAME_MECH,'/',.TRUE.)
+         COPY_MECH = TRIM( OUTDIR )  // EQNAME_MECH(IDX:ICOL)  ! // "_deltas"
+         OPEN ( UNIT = COPY_MECHANISM, FILE = COPY_MECH, STATUS = 'UNKNOWN' )
+         ECHO_TAIL = .FALSE.
+         ECHO_HEAD = .TRUE.
+         EXUNIT_ATOMS_REPORT = JUNIT()
+         EQNAME_ATOMS_REPORT = TRIM( OUTDIR ) // '/' // TRIM( MECHNAME_LOWER_CASE ) 
+     &                       // '_reaction_deltas.txt'
+         OPEN( FILE=TRIM(EQNAME_ATOMS_REPORT),UNIT=EXUNIT_ATOMS_REPORT,STATUS='UNKNOWN' )                                      
+         NXX = 0
+! scan through file 
+
+         WRITE( EXUNIT_ATOMS_REPORT, '("!For the mechanism, ",A,",")')TRIM(MECHANISM)
+         WRITE( EXUNIT_ATOMS_REPORT, 95001)
+95001    FORMAT( "! The information is given as comments below each reaction.",/,
+     &           "! the revised mechanism definitions files.",/,
+     &           "! The information is given as comments below each reaction.",/,
+     &           "! Math is between the equal signs.",/,
+     &           "!   For reactants, the format is minus the number of atoms times the element.",/,
+     &           "!   For products, the format is number of atoms times the stiochiometric coefficienct times the element.")
+     
+         ELIMINATE_DONE = .FALSE.
+         READ_MECHDEF: DO      
+         
+           READ(IUNIT,'(A)',END=999)INBUF
+           INBUF2  = INBUF
+           CALL CONVERT_CASE ( INBUF2, .TRUE. )
+           WORD(1:4) = INBUF2(1:4)
+         
+           IF( WORD(1:4) .NE. 'ELIM' .AND. WORD(1:4) .NE. 'REAC' )THEN
+           
+              IF( LEN_TRIM(INBUF2) .LT. 1 .OR. INBUF2(1:1) .EQ. "!")THEN
+                  WRITE(COPY_MECHANISM,'(A)')TRIM( INBUF )
+                  CYCLE
+              ELSE IF( ECHO_TAIL )THEN
+                  WRITE(COPY_MECHANISM,'(A)')TRIM(INBUF)
+              ELSE IF( ECHO_HEAD )THEN
+                  WRITE(COPY_MECHANISM,'(A)')TRIM(INBUF)
+              END IF
+         
+           END IF 
+           
+           IF( WORD(1:4) .EQ. 'ELIM' )THEN
+! skip original elimnate block and rewrite      
+               DO
+                  READ(IUNIT,'(A)',END=999)INBUF
+                  INBUF2  = ADJUSTL(INBUF) 
+                  CALL CONVERT_CASE ( INBUF2, .TRUE. )
+                  IF( INBUF2(1:3) .EQ. 'END' )EXIT
+               END DO
+           END IF
+           IF( NONZERO_ATOMS .AND. .NOT. ELIMINATE_DONE )THEN
+! reset drop_spc
+              WRITE(COPY_MECHANISM,'(/,"ELIMINATE = ")')
+               N_DROP_SPC = 0
+               DROP_SPC   = ''
+               DO IATOM = 1,N_ATOMS
+                  IF( ATOM_FOUND( IATOM ) )THEN
+                      N_DROP_SPC = N_DROP_SPC + 1
+                      DROP_SPC( N_DROP_SPC ) = "DELTA_" // TRIM( ATOMS(IATOM))
+                      WRITE(COPY_MECHANISM,'(A,";")')TRIM( DROP_SPC(N_DROP_SPC) )
+                  END IF
+               END DO
+               WRITE(COPY_MECHANISM,'("END ELIMINATE",/)')
+               ELIMINATE_DONE = .TRUE.
+!               CYCLE
+           END IF 
+
+                
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+C check if reactions block encountered
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+225        IF ( WORD( 1:4 ) .EQ. 'REAC' ) THEN
+           
+                ECHO_HEAD = .FALSE.
+                WRITE(COPY_MECHANISM,'(A)')INBUF
+                
+                READ_REACTIONS: DO
+                  READ(IUNIT,'(A)',END=999)INBUF
+                  INBUF2  = ADJUSTL(INBUF)               
+                  CALL CONVERT_CASE ( INBUF2, .TRUE. )
+                  IF( LEN_TRIM(INBUF2) .LT. 1 .OR. INBUF2(1:1) .EQ. "!")THEN
+                     WRITE(COPY_MECHANISM,'(A)')TRIM( INBUF )
+                     CYCLE
+                  ELSE IF( INBUF2(1:1) .EQ. '<' )THEN
+                     NXX = NXX + 1 
+! find start of substring with rate constant formula               
+                     SAVE_RATE = .FALSE.
+                     RATE_FORMULA(:) = ' '
+                     FIND_RATE: DO 
+                        POUND     = INDEX(INBUF,'#')
+                        PERCENT   = INDEX(INBUF,'%')
+                        IF( PERCENT .GT. 0 )THEN
+                           SAVE_RATE = .TRUE.
+                           ICOL = PERCENT
+                           EXIT FIND_RATE
+                        ELSE IF( POUND .GT. 0 )THEN
+                           SAVE_RATE = .TRUE.
+                           ICOL = POUND
+                           EXIT FIND_RATE
+                        END IF
+                        READ(IUNIT,'(A)',END=999)INBUF
+                     END DO FIND_RATE
+! save substring with rate constant formula               
+                     IF( SAVE_RATE )THEN
+                        IDX = LEN_TRIM(INBUF)
+                        IPX  = IDX - ICOL + 1   
+!                        RATE_FORMULA(1:) = INBUF(ICOL:IDX)
+                        
+                        BUILD_FORMULA: DO                    
+! append formula until semicolon found
+                           SEMICOLON = INDEX(INBUF,';')
+                           IPR = LEN_TRIM( RATE_FORMULA ) + 1
+                           IF( SEMICOLON .GT. 0 )THEN
+                               IF( IPR .GT. 1 )THEN
+                                  RATE_FORMULA = TRIM(RATE_FORMULA) 
+     &                                        // " " // TRIM(ADJUSTL(INBUF))
+                               ELSE
+                                  RATE_FORMULA(1:IPX) = INBUF(ICOL:IDX)
+                               END IF
+                              EXIT                           
+                           END IF
+                           RATE_FORMULA(IPR:) = " " // TRIM( INBUF(ICOL:) )
+                           READ(IUNIT,'(A)',END=999)INBUF
+                        END DO BUILD_FORMULA                       
+                     END IF
+! write reaction and rate formula                
+!                    WRITE(COPY_MECHANISM,'(A)',ADVANCE='NO')'<' // TRIM( RXLABEL( NXX) ) // '> '
+                     REACTION_STRING(:) = ''
+                     REACTION_STRING(1:) = '<' // TRIM( RXLABEL( NXX) ) // '> '
+                     WRITE_REACTANTS: DO IREACT = 1, NREACT( NXX )
+                           SUB_STRING(:)      = ' '
+                           ISPC = IRR( NXX, IREACT )
+                           IF( IREACT .LT. 2 )THEN
+                              ICOUNT = 1 + LEN( SPARSE_SPECIES( ISPC ) )
+                              WRITE(SUB_STRING,'(A, A)')TRIM(SPARSE_SPECIES( ISPC )),' '
+                              ICOUNT = 1 + LEN( SPARSE_SPECIES( ISPC ) )
+                           ELSE
+                              WRITE(SUB_STRING,'(3A)')'+ ',TRIM(SPARSE_SPECIES( ISPC )),' '
+                              ICOUNT = 1 + LEN( SPARSE_SPECIES( ISPC ) )
+                              ICOUNT = 3 + LEN( SPARSE_SPECIES( ISPC ) )                  
+                           END IF
+                           REACTION_STRING = TRIM( REACTION_STRING ) // ' ' // TRIM( SUB_STRING )
+                     END DO WRITE_REACTANTS
+                     DO I = 1, MAXRCTNTS
+                         SUB_STRING(:)      = ''
+                         IF( INDEX_FIXED_SPECIES( NXX, I ) .GT. 0 .AND. INDEX_FIXED_SPECIES( NXX, I ) .LT. 7 )THEN
+                             ISPC = INDEX_FIXED_SPECIES( NXX, I )
+                              WRITE(SUB_STRING,'(3A)')'+ ',TRIM( FIXED_SPECIES( ISPC ) ),' '
+                              ICOUNT = 1 + LEN( FIXED_SPECIES( ISPC ) )
+                              ICOUNT = 3 + LEN( FIXED_SPECIES( ISPC ) )                  
+                         ELSE 
+                              IF( INDEX_FIXED_SPECIES( NXX, I ) .GE. 7 )THEN
+                                 WRITE(*,*)'WARNING: INDEX_FIXED_SPECIES( ', NXX,',', I, ') = ',INDEX_FIXED_SPECIES( NXX, I )
+                              END IF
+                         END IF         
+                         REACTION_STRING = TRIM( REACTION_STRING ) // ' ' // TRIM( SUB_STRING )
+                     END DO
+                     REACTION_STRING = TRIM( REACTION_STRING ) // ' ='
+! write out products, both constant and mechanism species
+                     WRITE_PRODUCTS: DO IPRODUCT = 1, N_ALL_PRODUCTS(NXX) ! NPRDCT( NXX )
+                        JSPC = INDEX_PRODUCT( NXX,IPRODUCT )
+                        IF( JSPC .GT. 0 )THEN ! product is mechanism species
+                           NAME_PRODUCT  = SPARSE_SPECIES( JSPC )
+                        ELSE IF( JSPC .LT. 0 ) THEN ! product is a constant species
+                           NAME_PRODUCT  = FIXED_SPECIES( ABS( JSPC ) )
+                        ELSE
+                           NAME_PRODUCT  = 'UNDEFINED'
+                        END IF
+                        SUB_STRING(:) = ''
+! convert stoichemtric cofficient to character string
+                        IF( STOICHIOMETRIC_COEFF( NXX,IPRODUCT ) .NE. 0.0 )THEN
+                           WRITE(COEFF_STRING,'(F14.9)')ABS( STOICHIOMETRIC_COEFF( NXX,IPRODUCT ) )
+                           COEFF_STRING = ADJUSTL( COEFF_STRING )
+                           IPOS_DOT = INDEX(COEFF_STRING,".",BACK=.TRUE.)+2
+                           DO
+                             IPOS = LEN_TRIM( COEFF_STRING )
+                             IF( COEFF_STRING(IPOS:IPOS) .NE. '0')EXIT
+                             IPOS = IPOS-1
+                             IF( IPOS .LE. IPOS_DOT )EXIT
+                             COEFF_STRING = COEFF_STRING(1:IPOS)
+                           END DO
+                        ELSE
+                           COEFF_STRING = "0.000"
+                        END IF
+                        IF ( ABS( STOICHIOMETRIC_COEFF( NXX,IPRODUCT ) ) .NE. 1.0 ) THEN
+                           IF (  STOICHIOMETRIC_COEFF( NXX,IPRODUCT ) .LT. 0.0 ) THEN
+                              WRITE(SUB_STRING,'(A,A,3A)')
+     &                       '- ',TRIM(COEFF_STRING),'*',TRIM(NAME_PRODUCT),' '
+                              ICOUNT = ICOUNT + 12 + LEN_TRIM( NAME_PRODUCT )
+                           ELSE
+                              IF( IPRODUCT .EQ. 1 )THEN
+                                 WRITE(SUB_STRING,'(A, 3A)')
+     &                           TRIM(COEFF_STRING),'*',TRIM(NAME_PRODUCT),' '
+                                 ICOUNT = ICOUNT + 10 + LEN_TRIM(NAME_PRODUCT)
+                              ELSE
+                                 WRITE(SUB_STRING,'(A,A,3A)')
+     &                           '+ ',TRIM(COEFF_STRING),'*',TRIM(NAME_PRODUCT),' '
+                                 ICOUNT = ICOUNT + 12 + LEN_TRIM(NAME_PRODUCT)
+                              END IF
+                           END IF
+                        ELSE IF (  STOICHIOMETRIC_COEFF( NXX,IPRODUCT ) .LT. 0.0 ) THEN
+                           WRITE(SUB_STRING,'(3A)')
+     &                           '- ',TRIM(NAME_PRODUCT),' '
+                           ICOUNT = ICOUNT + 3 + LEN_TRIM(NAME_PRODUCT)
+                        ELSE
+                           IF( IPRODUCT .EQ. 1 )THEN
+                              WRITE(SUB_STRING,'(3A)')
+     &                        TRIM(NAME_PRODUCT),' '
+                              ICOUNT = ICOUNT + 2 + LEN_TRIM(NAME_PRODUCT)
+                           ELSE
+                              WRITE(SUB_STRING,'(3A)')
+     &                         '+ ',TRIM(NAME_PRODUCT),' '
+                              ICOUNT = ICOUNT + 3 + LEN_TRIM(NAME_PRODUCT)
+                           END IF
+                        END IF
+                        REACTION_STRING = TRIM( REACTION_STRING ) // ' ' // TRIM( SUB_STRING )
+                     END DO  WRITE_PRODUCTS
+                     REACTION_STRING = TRIM( REACTION_STRING ) // ' ' // TRIM(DELTA_ATOMS(NXX))
+                     REACTION_STRING = TRIM( REACTION_STRING ) // ' ' // TRIM(RATE_FORMULA)
+                     CALL WRITE_REACTION (iunit=COPY_MECHANISM,text=REACTION_STRING,width=72)
+! write reaction and math for delta atoms for inspection                   
+                      WRITE(EXUNIT_ATOMS_REPORT,'(2A)')TRIM(REACTION_STRING)
+                      CALL WRITE_DELTA_MATH(EXUNIT_ATOMS_REPORT,NXX)
+                   ELSE IF( INBUF2(1:3) .EQ. 'END' )THEN
+                     WRITE(COPY_MECHANISM,'(A)')TRIM(INBUF)
+                     PAST_REACTIONS   = .TRUE.
+                     ECHO_TAIL        = .TRUE.
+                     EXIT READ_REACTIONS
+                   END IF                
+             END DO READ_REACTIONS    
+        END IF
+         
+      END DO READ_MECHDEF
+      
+      CLOSE(EXUNIT_ATOMS_REPORT)
+999   CLOSE(COPY_MECHANISM) 
+
+1013  FORMAT(  3X, 'Reaction: ',A16,' uses ',A16,' defined in the functions block' )
+                       
+      
+1993  FORMAT( / 5X, '*** ERROR: Special label already used'
+     &        / 5X, 'Processing for special label number:', I6 )
+1994  FORMAT( / 5X, '*** ERROR: Equal sign expected after special label'
+     &        / 5X, 'Last line read was:' / A81 )
+2003  FORMAT( / 5X, '*** ERROR: Units must be either cm, CM, PPM, or ppm'
+     &        / 5X, 'Last line read was:' / A81 )
+2005  FORMAT( / 5X, '*** ERROR: End bracket, ], missing for units code'
+     &        / 5X, 'Last line read was:' / A81 )
+2007  FORMAT( / 5X, '*** ERROR: First word of reaction input must be REAC'
+     &        / 5X, 'Last line read was:' / A81 )
+2009  FORMAT( / 5X, '*** ERROR: Equal sign expected after REACTIONS'
+     &        / 5X, 'Last line read was:' / A81 )
+2011  FORMAT( / 5X, '*** ERROR: Maximum number of reactions exceeded'
+     &        / 5X, 'Last line read was:' / A81 )
+2013  FORMAT( / 5X, '*** ERROR: Equal sign expected after reactants'
+     &        / 5X, 'Last line read was:' / A81 )
+2014  FORMAT( / 5X, '*** ERROR: Reactants cannot have negative coefficients'
+     &        / 5X, 'Last line read was:' / A81 )
+!013  FORMAT( / 5X, '*** ERROR: Rate constant data must begin with a # or %'
+!    &        / 5X, 'Last line read was:' / A81 )
+2015  FORMAT( / 5X, '*** ERROR: Reactions line must end with a ;'
+     &        / 5X, 'Last line read was:' / A81 )
+2017  FORMAT( / 5X, '*** ERROR: Linear dependency photolysis reaction label',
+     &          1X, 'points to undefined reaction'
+     &        / 5X, 'Processing for reaction number:', I6 )
+2019  FORMAT( / 5X, '*** ERROR: Reaction label refers to undefined reaction type'
+     &        / 5X, 'Processing for reaction number:', I6, 1X, A )
+2023  FORMAT( / 5X, '*** ERROR: KTYPE 12 reaction: Number, Label: ', I6, 1X, A,
+     &        / 5X, 'points to nonexistant photolysis rate: ', A )
+2021  FORMAT( / 5X, '*** ERROR: Label points to currently undefined reaction'
+     &        / 5X, 'Processing for reaction #:', I6,' Label: ', A16,' references label:', A16)
+2024  FORMAT( / 5X, '*** ERROR: Reaction label refers to reference itself for rate constant '
+     &        / 5X, 'Processing for reaction number:', I6, 1X, A )
+2031  FORMAT( / 5X, '*** ERROR: Special Rate Coefficient ', A16,
+     &              ' uses the unlisted reaction label ', A16 )
+2032  FORMAT( / 5X, '*** ERROR: Special Rate Coefficient ', A16,
+     &              ' incorrectly uses the reaction ', A16,'.',
+     &              ' The reaction order is misinterpreted as 1st or 2nd')
+2033  FORMAT( / 5X, '*** ERROR: Special Rate Coefficient ', A16,
+     &              ' uses the unlisted species ', A16 )
+2034  FORMAT( / 5X, '*** ERROR: Special Rate Coefficient ', A16,
+     &              ' incorrectly uses the reaction ', A16,'.',
+     &              ' The reaction order is not 2nd.')
+
+3010  FORMAT( / 5X, '*** ERROR: The following steady-state species is also in the ',
+     &              'ELIMINATE list' )
+3011  FORMAT( 16X, A )
+
+4001  FORMAT( / 5X, '*** ERROR: Number of Steady-state species exceeds max allowable;',
+     &              ' increase MAXNLIST' )
+
+4002  FORMAT( / 5X, '*** ERROR: Number of ELIMINATE species exceeds max allowable;',
+     &              ' increase MAXNLIST' )
+4505  FORMAT('REAL(dp)  :: RKI_RXN_', A16,' ! rate constant for stated reaction label')        
+4506  FORMAT('REAL(dp)  :: ', A16,'         ! time dependent rate econstant ')        
+4500  FORMAT('#INLINE F90_RATES'
+     &      / 'REAL(kind=dp) FUNCTION FALL_OFF ( A0,B0,C0,A1,B1,C1,CE,CF)'
+     &      / '  IMPLICIT NONE'
+     &      / '  REAL(kind=dp), INTENT( IN ) :: A0,B0,C0,A1,B1,C1,CE,CF'
+     &      / '  REAL(kind=dp) K0, K1, KEND'
+     &      / '! K0 = A0 * COEFF_FALLOFF * DEXP(B0/TEMP)* (TEMP/300.0_dp)**C0'
+     &      / '! K1 = A1 * DEXP(B1/TEMP) * (TEMP/300.0_dp)**C1'
+     &      / '  K0 = A0 * COEFF_FALLOFF * DEXP(B0*INV_TEMP)* (TEMP/300.0_dp)**C0'
+     &      / '  K1 = A1 * DEXP(B1*INV_TEMP) * (TEMP/300.0_dp)**C1'
+     &      / '  KEND = ( ( 1.0_dp + ( ( 1.0_dp / CE ) * DLOG10( K0 / K1 ) ) ** 2.0_dp ) )'
+     &      / '  KEND = 1.0_dp / KEND'
+     &      / '  FALL_OFF = ( K0 / ( 1.0_dp + K0/K1 ) ) * CF ** KEND'
+     &      / 'END FUNCTION FALL_OFF'
+     &      / '#ENDINLINE' )
+    
+4501   FORMAT( '! Name of Mechanism '
+     &        / 'CHARACTER(32), PARAMETER :: MECHNAME = ''', A, '''' / '!' / '!'
+     &        / 'REAL(dp), PARAMETER :: INV_T300 = 1.0D0 / 300.0D0 ! reciprocal 300K'
+     &        / 'REAL(dp)            :: CAIR          ! air number density (wet) [molec/cm^3]'
+     &        / 'REAL(dp)            :: INV_TEMP      ! reciprocal of air temperature, K-1'
+     &        / 'REAL(dp)            :: PRESS         ! pressure [Atm] '
+     &        / 'REAL(dp)            :: INV_RFACTOR   ! Convertor: ppm/min to molec/(cm^3*sec)'
+     &        / 'REAL(dp)            :: RFACTOR_SQU   ! Convertor cm^6/(molec^2*sec) to 1/(ppm^2*min)'
+     &        / 'REAL(dp)            :: RFACTOR       ! Convertor cm^3/(molec*sec) to 1/(ppm*min)'
+     &        / 'REAL(dp)            :: COEFF_FALLOFF ! Factor in pressure limiting rate constants, [molec/cm^3] '
+     &        / 'REAL                :: H2O                ! Cell H2O mixing ratio (ppmV)'
+     &        / 'INTEGER, PARAMETER  :: NPHOTAB  = ', I3,'     ! number of photolysis rates '
+     &        / 'CHARACTER(16), SAVE :: PHOTAB( NPHOTAB )  ! Names of  photolysis '
+     &        / 'REAL(dp)            :: RJCELL( NPHOTAB )  ! grid cell photolysis rates ,[min-1]'
+     &        / 'LOGICAL             :: CALC_RCONST        ! compute temp and dens dependent rate constants')
+4502   FORMAT(  '! pointers and names to specific photolysis rates' )
+4503   FORMAT(  'INTEGER, PARAMETER  :: IJ_',A16,' = ', I3 )
+4504   FORMAT('#ENDINLINE' )
+4555   FORMAT('#INLINE F90_INIT')
+4556   FORMAT( 'RFACTOR       = 6.0D-5  * CAIR'
+     &       / 'INV_RFACTOR   = 6.0D+7  / CAIR'
+     &       / 'RFACTOR_SQU   = 6.0D-11 * CAIR * CAIR'
+     &       / 'CFACTOR       = 1.0D0'
+     &       / 'INV_TEMP      = 1.0D0 / TEMP'
+     &       / 'COEFF_FALLOFF = CAIR ' )
+4557   FORMAT('DATA PHOTAB(', I3,' ) / ''',A16,''' /')
+4507  FORMAT('RKI_RXN_', A16,A4)        
+4706  FORMAT(A,1X,'RCONST( ', I4,' ) ')
+4708  FORMAT(A,1X,1PD12.4,' * RCONST( ', I4,' ) ')
+4709  FORMAT( A )     
+4710  FORMAT(A,1X,1PD12.4,' * ', A)
+4711  FORMAT(' & ' / ' & ' 18X)
+4712  FORMAT(A, 1X, A)
+4713  FORMAT( '!If( .Not. CALC_RCONST )Then'
+     &      / '!   Return'
+     &      / '!Else'
+     &      / '!   CALC_RCONST = .False.'
+     &      / '!End If' 
+     &      / '! Rate Constant Units produce reaction rates in ppm/min' )
+4714  FORMAT('! number mixing ratios of constant atmospheric species, ppmV')     
+4749   FORMAT('!Flag to call SPECIAL_RATES rountine in Integrator ')
+4750   FORMAT('  LOGICAL,  PARAMETER :: USE_SPECIAL_RATES = .TRUE. ')
+4751   FORMAT('  LOGICAL,  PARAMETER :: USE_SPECIAL_RATES = .FALSE.')
+5000   FORMAT(1PD12.4,' * RJCELL( IJ_',A,' )')
+5001   FORMAT(  'RJCELL( IJ_',A, ' )' )
+5100   FORMAT(1PD12.4,' * RCONST( ',I4,' )')
+5101   FORMAT(  'RCONST( ',I4,' )')
+5002   FORMAT('ARRD( ',1PD12.4,', 0.0000D+0,', 1PD12.4,' )')
+5003   FORMAT('ARR2D( ',1PD12.4,', ', 1PD12.4,' )')
+5004   FORMAT('ARRD( ', 1PD12.4,', ', 1PD12.4,', ', 1PD12.4,' )')
+5005   FORMAT('RCONST( ' I4, ' ) / ARR2( ',1PD12.4,', ',1PD12.4,' )')            
+5006   FORMAT(1PD12.4,' * RCONST( ' I4, ' ) ')   
+5007   FORMAT(1PD12.4,' *( 1.0D0 + 0.6D0 * PRESS )')             
+5008   FORMAT('EP2D( ', 5(1PD12.4,', '), 1PD12.4, ' )' )
+5009   FORMAT('EP3D( ', 3(1PD12.4,', '), 1PD12.4,' )')
+5010   FORMAT('FALL_OFF( ', 2(1PD12.4,', '),' & ' / ' &', 5(1PD12.4,', '),' & ' / ' &', 1PD12.4,' )')
+5011   FORMAT(1PD12.4,' * ',A)             
+5012   FORMAT(A)
+5014   FORMAT('ARRD( ',1PD12.4,', 0.0000D+0,', 1PD12.4,' )  * PRESS ')             
+5019   FORMAT('EP4D( ', 5(1PD12.4,', '), 1PD12.4,' )')
+95050  FORMAT( 'SUBROUTINE SPECIAL_RATES( N, Y)'
+     &       /  '!Purpose: calculate special rate operators and update'
+     &       /  '!         appropriate rate constants'
+     &      //  '  USE ', A,'_Global'
+     &      /   '  IMPLICIT NONE'
+     &      //  '!Arguments:'
+     &      //  '   INTEGER,       INTENT( IN ) :: N      ! number of species'
+     &      /   '   REAL(kind=dp), INTENT( IN ) :: Y( N ) ! species concs'
+     &      // )
+95060  FORMAT( 'RETURN'
+     &      /  'END SUBROUTINE SPECIAL_RATES')
+95100  FORMAT(2X,A16,' = 0.0D0')        
 
 
-       END MODULE WIKI_TABLE
+ 
+       RETURN 
+       END SUBROUTINE ECHO_MECH
+
+       END MODULE MECHANISM_DOCS

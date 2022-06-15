@@ -48,6 +48,17 @@ set CopySrc                            #> copy the source files into the build d
                                        #>   comment out to compile the model (default if not set)
 #set build_mech                        #> uncomment to build mechanism source code files using the 
                                        #>   chemmech utility.
+
+#> Below are chemmech options for revising the mechanism definitions file. The option needs information on the
+#> composition of each chemistry. See UTIL/chemmech/README.md for more information.
+#> Uncomment to use.
+#>    Rewrite reactions by appending them with changes in tracked atoms or elements from reactants to products
+      #setenv COMPUTE_DELTA_ATOMS F
+#>    The species namelist contains the composition information as comments at the end of lines defining species.
+#>    Note that if a defining line does not have an ending comment, the species is taken to have none of the tacked atoms.
+#>    If NAMELISTS_LIST_ATOMS equals F, an additional ASCII file contains the information.
+      #setenv NAMELISTS_LIST_ATOMS T
+
 #set clobber_mech                      #> when commented, the bldit_mech.csh script will halt if 
                                        #>   newly created mechanism files are attempting replace
                                        #>   existing ones. When uncommented, the existing files

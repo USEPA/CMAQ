@@ -32,6 +32,8 @@
    echo "setting compiler to intel"
  endif
 
+set echo
+
 #> Source the config.cmaq file to set the build environment
  if( -e ../../../config_cmaq.csh )then
     cd ../../..
@@ -43,11 +45,12 @@
     setenv CMAQ_HOME $cwd/..
     setenv CMAQ_REPO ${CMAQ_HOME}
  endif
- set VRSN      = v532               #> Code Version
+ set VRSN      = v534               #> Code Version
 
 #> CMAQv5.1 Mechanism Options: cb05tucl_ae6_aq cb05tump_ae6_aq cb05e51_ae6_aq saprc07tb_ae6_aq saprc07tc_ae6_aq  saprc07tic_ae6i_aq   racm2_ae6_aq 
  if ( ! $?MECH ) then
-    set MECH      = cb6r3_ae7_aq       #> Mechanism ID
+    set MECH      = cb6r5_ae7_aq       #> Mechanism ID
+#   set MECH      = cracmm1_aq         #> Mechanism ID    
  endif
  setenv CLEAR "TRUE" #> over-write existing output files
                                                       
@@ -67,17 +70,24 @@
     set TRAC_NML  = ${CHEMMECH_INPUT}/Species_Table_TR_0.nml #> Tracer namelist ID
  endif
  if ( ! $?OUTDIR ) then
-   setenv OUTDIR ${CHEMMECH_DIR}/output/${MECH}
+# setenv OUTDIR ${CHEMMECH_DIR}/output/${MECH}_${VRSN}_${compilerString}
+  setenv OUTDIR ${CHEMMECH_DIR}/output/${MECH}
  endif
 
 #> Set the build directory 
-#> where the CMAQ executable is located by default
+#> where chemmech executable is located if using build script
  if ( ! $?BINDIR ) then
    setenv BINDIR $WORKDIR/BLD_chemmech_${VRSN}_${compilerString}
  endif
+ 
+##>where  chemmech executable is located if compiled in UTIL/chemmech/src
+##>directory
+#>if ( ! $?BINDIR ) then
+#>  setenv BINDIR $CHEMMECH_DIR/src
+#>endif
 
 #> Set the name of the executable.
- setenv EXEC CHEMMECH_${VRSN}.exe
+ setenv EXEC CHEMMECH.exe
 
 #> compile the program if it does not already exist
  if ( ! -e ${BINDIR}/${EXEC} ) then
@@ -106,6 +116,21 @@
 
 #> option use CMAQ species namelists to determine CGRID species indices
  setenv USE_SPCS_NAMELISTS T
+
+#> Rewrite mechanism definitions file to append reactions with changes in
+#> tracked atoms
+if ( ! $?COMPUTE_DELTA_ATOMS ) then
+ setenv COMPUTE_DELTA_ATOMS F
+endif
+
+#> For atoms composing mechanism species, read comment trailing species definitions 
+#>  in species namelists. If NAMELISTS_LIST_ATOMS is False and COMPUTE_DELTA_ATOMS 
+#> is True, read species atoms from an additional input file defined by the
+#> the environment variable ATOMS_FILE
+if ( ! $?NAMELISTS_LIST_ATOMS ) then
+ setenv NAMELISTS_LIST_ATOMS T
+endif
+ 
 #> get name of user to tag html output file
  setenv NAME ` getent passwd $USER | cut -d : -f 5 | cut -d ";"  -f 1 `
 
@@ -114,6 +139,7 @@
 # =====================================================================
 
  setenv MECHDEF         ${CHEMMECH_INPUT}/mech_${MECH}.def
+ setenv ATOMS_FILE      ${CHEMMECH_INPUT}/spcs_atoms_${MECH}.dat
  setenv MAPPING_ROUTINE "${BINDIR}/map_chemistry_spc.F90"
  
  setenv gc_matrix_nml ${CHEMMECH_INPUT}/GC_${MECH}.nml
@@ -124,7 +150,16 @@
 
 
 #Check if input files exist
- set input_files = ( ${MECHDEF} ${MAPPING_ROUTINE} ${gc_matrix_nml} ${nr_matrix_nml} ${tr_matrix_nml} )
+ if( ${USE_SPCS_NAMELISTS} == "T" )then
+    setenv gc_matrix_nml ${CHEMMECH_INPUT}/GC_${MECH}.nml
+    setenv ae_matrix_nml ${CHEMMECH_INPUT}/AE_${MECH}.nml
+    setenv nr_matrix_nml ${CHEMMECH_INPUT}/NR_${MECH}.nml
+    setenv tr_matrix_nml ${TRAC_NML}
+    #setenv tr_matrix_nml ${CHEMMECH_INPUT}/trac0/Species_Table_TR_0.nml
+    set input_files = ( ${MECHDEF} ${MAPPING_ROUTINE} ${gc_matrix_nml} ${nr_matrix_nml} ${tr_matrix_nml} )
+ else
+    set  input_files = ( ${MECHDEF} ${MAPPING_ROUTINE} )
+ endif
  foreach file ( ${input_files} )
    if( ! ( -e $file ) )then
      setenv missing_file "Y"
@@ -146,8 +181,14 @@
  endif
 
  # Copy input files to Output Directory
- cp -f $MECHDEF $OUTDIR/
- cp -f ${CHEMMECH_INPUT}/*nml $OUTDIR/
+cp -f ${CHEMMECH_INPUT}/*nml $OUTDIR/
+if( ! $?COMPUTE_DELTA_ATOMS )then
+  cp -f $MECHDEF $OUTDIR/
+else  
+  if( ${COMPUTE_DELTA_ATOMS} != "F" || ${COMPUTE_DELTA_ATOMS} != "N" )then
+     cp -f $MECHDEF $OUTDIR/
+  endif
+endif
 
  # Set Path for Output Files
  setenv SPCSDATX         ${OUTDIR}/SPCS.ext # lists species in mechanism

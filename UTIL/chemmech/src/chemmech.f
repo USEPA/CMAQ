@@ -33,11 +33,12 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       PROGRAM CHEMMECH
 
  
-      USE KPP_DATA
       USE GET_ENV_VARS
       USE MECHANISM_DATA, MECHANISM => MECHNAME
-      USE CGRID_SPCS     ! CGRID mechanism species    
-      USE WIKI_TABLE
+      USE SPECIES_ATOMS_DATA
+      USE CCTM_SPECIES        ! set cctm to mechanism species    
+      USE GET_MECHDEF_DATA
+      USE MECHANISM_DOCS
 
       IMPLICIT NONE
 
@@ -54,7 +55,6 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       CHARACTER(  3 ) :: END
       CHARACTER( 16 ) :: SPCLIS( MAXSPEC )
       INTEGER, EXTERNAL :: INDEX1
-      INTEGER, EXTERNAL :: INDEXES
       INTEGER IMECH, LPOINT, IEOL
       INTEGER I, ICOL, ISPC, IRX, IDX
 
@@ -74,6 +74,7 @@ c..Variables for species to be dropped from mechanism
       INTEGER         :: N_DROP_SPC = 0
       CHARACTER( 16 ) :: DROP_SPC( MAXNLIST )
       LOGICAL         :: LERROR
+      LOGICAL         :: READ_MECHNAME
       LOGICAL         :: KPP_DUMMY   = .FALSE.
       LOGICAL         :: FIRST_TERM  = .TRUE.
       REAL( 8 )       :: WREXT_COEFFS( MAXSPECTERMS)
@@ -88,7 +89,7 @@ c..Variables for species to be dropped from mechanism
       CHARACTER( 586 ) :: SPC_MECH_KPP
       CHARACTER( 891 ) :: REACTION_STR(  MAXRXNUM )
       CHARACTER(  16 ) :: COEFF_STR
-      CHARACTER(  32 ) :: DESCRP_MECH
+      CHARACTER(  32 ) :: DESCRP_MECH  = '00000000'
 
       CHARACTER(  16 ) :: NAMCONSTS( MAXCONSTS ) = (/
      &                    'ATM_AIR         ',
@@ -105,9 +106,6 @@ c..Variables for species to be dropped from mechanism
 
       INTEGER, PARAMETER :: LUNOUT = 6
 
-!         INTEGER IRR( MAXRXNUM,MAXPRODS+3 )
-!         REAL    SC ( MAXRXNUM,MAXPRODS )
-
 
       CHARACTER(  12 ) :: EXFLNM_SPCS = 'SPCSDATX'
       CHARACTER(  12 ) :: EXFLNM_RXDT = 'RXNSDATX'
@@ -119,93 +117,16 @@ c..Variables for species to be dropped from mechanism
       CHARACTER(  16 ) :: OUT_DIR          = 'OUTDIR'
 
       CHARACTER(  5 )    :: CGRID_DATA
-      CHARACTER( 32 )    :: CGRID_NMLS = 'USE_SPCS_NAMELISTS'
+      CHARACTER( 32 )    :: CGRID_NMLS           = 'USE_SPCS_NAMELISTS'
+      CHARACTER( 32 )    :: COMPUTE_DELTA_ATOMS  = 'COMPUTE_DELTA_ATOMS'
+      CHARACTER( 32 )    :: NAMELISTS_LIST_ATOMS = 'NAMELISTS_LIST_ATOMS'
+      
 
       INTEGER, EXTERNAL  :: JUNIT
       INTEGER            :: ICOUNT, IREACT, IPRODUCT
-!     EXTERNAL NAMEVAL
       INTEGER            :: STATUS
 
       INTERFACE 
-        SUBROUTINE GETCHAR ( IMECH, INBUF, LPOINT, IEOL, CHR )
-         INTEGER,         INTENT( IN )    :: IMECH
-         CHARACTER*( * ), INTENT( INOUT ) :: INBUF
-         INTEGER,         INTENT( INOUT ) :: IEOL, LPOINT
-         CHARACTER*( * ), INTENT( INOUT ) :: CHR
-        END SUBROUTINE GETCHAR
-       SUBROUTINE RDLINE ( IMECH, INBUF, LPOINT, IEOL )
-         CHARACTER*( * ), INTENT( INOUT ) :: INBUF
-         INTEGER,         INTENT( IN )    :: IMECH
-         INTEGER,         INTENT( INOUT ) :: IEOL, LPOINT
-       END SUBROUTINE RDLINE
-       SUBROUTINE GETWORD ( IMECH, INBUF, LPOINT, IEOL, CHR, WORD )
-         CHARACTER*( * ), INTENT( INOUT ) :: CHR
-         CHARACTER*( * ), INTENT( INOUT ) :: INBUF
-         INTEGER,         INTENT( IN )    :: IMECH
-         INTEGER,         INTENT( INOUT ) :: IEOL, LPOINT
-         CHARACTER*( * ), INTENT(  OUT  ) :: WORD
-       END SUBROUTINE GETWORD
-       SUBROUTINE GETLABEL ( IMECH, INBUF, LPOINT, IEOL, CHR, LABEL )
-         INTEGER,         INTENT( IN )    :: IMECH
-         CHARACTER*( * ), INTENT( INOUT ) :: INBUF
-         INTEGER,         INTENT( INOUT ) :: IEOL, LPOINT
-         CHARACTER*( * ), INTENT( INOUT ) :: CHR
-         CHARACTER*( * ), INTENT( INOUT ) :: LABEL
-       END SUBROUTINE GETLABEL
-       SUBROUTINE GETREAL ( IMECH, INBUF, LPOINT, IEOL, CHR, NUMBER )
-         INTEGER,         INTENT( IN )    :: IMECH   ! IO unit for mechanism file
-         CHARACTER*( * ), INTENT( INOUT ) :: CHR     ! current character from buffer
-         CHARACTER*( * ), INTENT( INOUT ) :: INBUF   ! string read from mechanism file
-         INTEGER,         INTENT( INOUT ) :: LPOINT  ! character position in INBUF
-         INTEGER,         INTENT( INOUT ) :: IEOL    ! end of line position
-         REAL( 8 ),       INTENT( OUT )   :: NUMBER  ! number from file
-       END SUBROUTINE GETREAL
-       SUBROUTINE GETRCTNT ( IMECH, INBUF, IEOL, LPOINT, CHR, WORD,
-     &                      NXX, NS, SPCLIS, SPC1RX,
-     &                      ICOL, LABEL, N_DROP_SPC, DROP_SPC )
-         INTEGER,         INTENT(   IN  ) :: IMECH
-         CHARACTER( 81 ), INTENT( INOUT ) :: INBUF
-         INTEGER,         INTENT( INOUT ) :: LPOINT
-         INTEGER,         INTENT( INOUT ) :: IEOL
-         CHARACTER(  1 ), INTENT( INOUT ) :: CHR
-         CHARACTER( 16 ), INTENT( INOUT ) :: WORD
-         INTEGER,         INTENT(   IN  ) :: NXX
-         INTEGER,         INTENT( INOUT ) :: NS
-         CHARACTER( 16 ), INTENT( INOUT ) :: SPCLIS( : )
-         INTEGER,         INTENT( INOUT ) :: SPC1RX( : )
-         INTEGER,         INTENT( INOUT ) :: ICOL
-         CHARACTER( 16 ), INTENT(   IN  ) :: LABEL( :, : )
-         INTEGER,         INTENT(   IN  ) :: N_DROP_SPC
-         CHARACTER( 16 ), INTENT(   IN  ) :: DROP_SPC( : )
-        END SUBROUTINE GETRCTNT
-        SUBROUTINE GETPRDCT ( IMECH, INBUF, LPOINT, IEOL, CHR, WORD,
-     &                      NXX, NS, SPCLIS, SPC1RX,
-     &                      ICOL, N_DROP_SPC, DROP_SPC )
-          INTEGER,         INTENT(   IN  ) :: IMECH
-          CHARACTER( 81 ), INTENT( INOUT ) :: INBUF
-          INTEGER,         INTENT( INOUT ) :: LPOINT
-          INTEGER,         INTENT( INOUT ) :: IEOL
-          CHARACTER(  1 ), INTENT( INOUT ) :: CHR
-          CHARACTER( 16 ), INTENT( INOUT ) :: WORD
-          INTEGER,         INTENT(   IN  ) :: NXX
-          INTEGER,         INTENT( INOUT ) :: NS
-          CHARACTER( 16 ), INTENT( INOUT ) :: SPCLIS( : )
-          INTEGER,         INTENT( INOUT ) :: SPC1RX( : )
-          INTEGER,         INTENT( INOUT ) :: ICOL
-          INTEGER,         INTENT(   IN  ) :: N_DROP_SPC
-          CHARACTER( 16 ), INTENT(   IN  ) :: DROP_SPC( : )
-         END SUBROUTINE GETPRDCT
-         SUBROUTINE GETRATE ( IMECH, INBUF, LPOINT, IEOL, CHR,
-     &                         NXX, LABEL, IP )
-           CHARACTER(  1 ), INTENT( INOUT ) :: CHR
-           CHARACTER( 81 ), INTENT( INOUT ) :: INBUF
-           INTEGER,         INTENT( IN )    :: IMECH
-           INTEGER,         INTENT( INOUT ) :: LPOINT
-           INTEGER,         INTENT( INOUT ) :: IEOL
-           INTEGER,         INTENT( INOUT ) :: IP
-           INTEGER,         INTENT( IN )    :: NXX
-           CHARACTER( 16 ), INTENT( INOUT ) :: LABEL( :,: )
-        END SUBROUTINE GETRATE
         SUBROUTINE WREXTS (EQNAME_MECH, DESCRP_MECH, NS, SPCLIS, SPC1RX, SS1RX ) 
           CHARACTER( 120 ), INTENT ( IN ) :: EQNAME_MECH
           CHARACTER(  32 ), INTENT ( IN ) :: DESCRP_MECH
@@ -214,18 +135,6 @@ c..Variables for species to be dropped from mechanism
           INTEGER,          INTENT ( IN ) :: SPC1RX( : ) ! rx index of 1st occurence of species in mechanism table
           INTEGER,          INTENT ( IN ) :: SS1RX( : )
         END SUBROUTINE WREXTS
-        SUBROUTINE GET_SS_DATA ( LUNOUT, NR ) 
-          INTEGER, INTENT ( IN )         :: LUNOUT   ! Output unit number
-          INTEGER, INTENT ( IN )         :: NR       ! No. of reactions
-        END SUBROUTINE GET_SS_DATA
-        SUBROUTINE CHECK_SS_SPC ( LUNOUT, NS, SPCLIS, NR, LABEL, SS1RX )
-         INTEGER, INTENT ( IN )         :: LUNOUT               ! Output unit number
-         INTEGER, INTENT ( IN )         ::  NS                  ! No. of species in mechanism
-         CHARACTER( 16 ), INTENT ( IN ) ::  SPCLIS( : )   ! List of mechanism species
-         INTEGER, INTENT ( IN )         ::  NR                  ! No. of reactions
-         CHARACTER( 16 ), INTENT ( IN ) ::  LABEL( :,: ) ! Reaction labels
-         INTEGER, INTENT ( INOUT )      ::  SS1RX( : )
-       END SUBROUTINE CHECK_SS_SPC
        SUBROUTINE WRSS_EXT( NR ) 
          INTEGER, INTENT ( IN )         :: NR   ! No. of reactions
        END SUBROUTINE WRSS_EXT
@@ -264,10 +173,6 @@ c..Variables for species to be dropped from mechanism
            CHARACTER( 16 ), INTENT( IN ) :: SPCLIS( : )
            CHARACTER( 16 ), INTENT( IN ) :: LABEL( :,: ) ! LABEL(NXX,1) 1st label found in rx NXX
        END SUBROUTINE WRT_RATE_CONSTANT
-       SUBROUTINE CONVERT_CASE ( BUFFER, UPPER )
-         CHARACTER*(*), INTENT( INOUT ) :: BUFFER
-         LOGICAL,       INTENT( IN )    :: UPPER
-       END SUBROUTINE CONVERT_CASE
       END INTERFACE 
   
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -297,15 +202,12 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
 ! determine whether to write out CMAQ CGRID species name and indices to output
 
-!        CALL NAMEVAL ( USER_NAME, AUTHOR )
-!        CALL GET_ENV_STRING( USER_NAME, USER_NAME, 'UNKNOWN', AUTHOR, STATUS)
          CALL VALUE_NAME ( USER_NAME, AUTHOR )
-         print*,'USER_NAME = ', TRIM( AUTHOR )
 
-         USE_SPCS_NAMELISTS = GET_ENV_FLAG( CGRID_NMLS, " ", .TRUE., STATUS)
-         print*,'CGRID_NMLS = ', USE_SPCS_NAMELISTS
+         USE_SPCS_NAMELISTS = GET_ENV_FLAG( CGRID_NMLS, "Check species namelist for chemistry species",
+     &                                     .TRUE., STATUS)
+         print*,' USE_SPCS_NAMELISTS  = ',USE_SPCS_NAMELISTS
          CALL VALUE_NAME ( CGRID_NMLS, CGRID_DATA )
-         print*,'CGRID_NMLS = ', CGRID_DATA
          
 
          CALL CONVERT_CASE( CGRID_DATA, .TRUE.)
@@ -324,7 +226,22 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      &       // ' Using default value of F'
              USE_SPCS_NAMELISTS = .FALSE.
          END IF
+         print*,' USE_SPCS_NAMELISTS  = ',USE_SPCS_NAMELISTS 
 
+         CALC_DELTA_ATOMS = GET_ENV_FLAG( COMPUTE_DELTA_ATOMS, "Update MECHDEF with changes in atoms",
+     &          .FALSE., STATUS)
+         IF( CALC_DELTA_ATOMS )THEN
+             ATOMS_IN_NAMELISTS = GET_ENV_FLAG( NAMELISTS_LIST_ATOMS, 
+     &                             "Read Species Atoms for namelist comments.", .TRUE., STATUS)
+             IF( ATOMS_IN_NAMELISTS .AND. .NOT. USE_SPCS_NAMELISTS )THEN
+                 WRITE(6,'(4(A,/))')'BELOW ERROR in run script options',
+     &           'Execution rewrites mechanism definitions files for reactions change chemical elements',
+     &           'and uses species namelists for atomic composition of mechanism species but the option, ',
+     &           TRIM( CGRID_NMLS ) // ', set to Yes or True.'
+                 STOP
+             END IF
+         END IF
+         
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C Open mechanism input file and get the first non-comment line
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -342,21 +259,46 @@ c symbolic link locates "EXFLNM_..."; setenv requires INQUIRE (NAMEVAL):
 
       OPEN ( UNIT = EXUNIT_SPCS, FILE = EQNAME_SPCS, STATUS = 'UNKNOWN' )
 
+
       CALL RDLINE ( IMECH, INBUF, LPOINT, IEOL )
       CALL GETCHAR ( IMECH, INBUF, LPOINT, IEOL, CHR )
       WORD( 1:4 ) = '    '
       WORD( 1:4 ) = INBUF( LPOINT:LPOINT+3 )
-      IF ( WORD( 1:4 ) .NE. 'SPEC' ) THEN
+
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C The first string is the mechanism descriptive name 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      READ_MECHNAME =  ( WORD( 1:4 ) .NE. 'SPEC' .AND. 
+     &                   WORD( 1:4 ) .NE. 'ELIM' .AND. 
+     &                   WORD( 1:4 ) .NE. 'STEA'  )
+      IF ( READ_MECHNAME  ) THEN
          DESCRP_MECH = INBUF( LPOINT:LPOINT+31 )
          CALL RDLINE ( IMECH, INBUF, LPOINT, IEOL )
          CALL GETCHAR ( IMECH, INBUF, LPOINT, IEOL, CHR )
          CALL GETWORD ( IMECH, INBUF, LPOINT, IEOL, CHR, WORD )
-      ELSE
-         DESCRP_MECH = '00000000'
       END IF
+
+C set name for mechanism
+      IF( LEN( DESCRP_MECH ) .GT. 0 )THEN
+         MECHANISM = TRIM( DESCRP_MECH )
+         CALL CONVERT_CASE( MECHNAME, .TRUE. )
+C set name of mechanism lower case
+         MECHNAME_LOWER_CASE  =  MECHANISM
+         CALL CONVERT_CASE( MECHNAME_LOWER_CASE, .FALSE. )
+      END IF   
+
+! scan cctm species names and set GC_SPC, AE_SPC, NR, and TR species with molwt's 
+      IF( USE_SPCS_NAMELISTS )THEN
+         CALL READ_MATRICES_ATOMS()
+      END IF
+
+C Determine job should rewrite MECHDEF reaction by appending them with change of
+C tracked atoms    
+      IF( CALC_DELTA_ATOMS .AND. ( .NOT. ATOMS_IN_NAMELISTS ) )THEN
+C read an atoms file for species atoms  
+          CALL READ_SPECIES_ATOMS()
+      END IF
+      
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C Read Special Block for reaction coefficients
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -379,12 +321,10 @@ C brake down expression for special rate coefficients
                 IF ( CHR .EQ. '=' )THEN
                     CALL GETCHAR ( IMECH, INBUF, LPOINT, IEOL, CHR )
 199                 CALL GET_OPERATOR ( IMECH, INBUF, LPOINT, IEOL, CHR, WORD )
-                    print*,WORD, TRIM(INBUF)
 
                     IF(CHR .EQ. ';')THEN
                        GO TO 198
                     ELSE
-                        print*,'chr = ', chr
 C                       CALL RDLINE ( IMECH, INBUF, LPOINT, IEOL ) 
 C                       CALL GETCHAR ( IMECH, INBUF, LPOINT, IEOL, CHR)
                        GO TO 199
@@ -393,7 +333,7 @@ C                       CALL GETCHAR ( IMECH, INBUF, LPOINT, IEOL, CHR)
                     WRITE( LUNOUT, 1994 ) INBUF( 1:IEOL )
                     STOP ' *** CHEMMECH ERROR ***'
                 ENDIF
-            ELSEIF( CHR .EQ. 'E' .OR. CHR .EQ. 'e' )THEN
+            ELSE IF( CHR .EQ. 'E' .OR. CHR .EQ. 'e' )THEN
                 END = INBUF( LPOINT:LPOINT+2 )
                 print*,END,TRIM(INBUF( LPOINT:LPOINT+2 ))
                 IF( END .NE. 'END' .AND. END .NE. 'end' )GO TO 198
@@ -403,15 +343,15 @@ C                       CALL GETCHAR ( IMECH, INBUF, LPOINT, IEOL, CHR)
            GO TO 210
 
          ENDIF
-
+         
          CALL RDLINE ( IMECH, INBUF, LPOINT, IEOL )
          CALL GETCHAR ( IMECH, INBUF, LPOINT, IEOL, CHR )
          CALL GETWORD ( IMECH, INBUF, LPOINT, IEOL, CHR, WORD )
 210      CONTINUE
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C Read block to get steady-state species
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-
+         CALL UCASE( WORD )
 212      IF ( WORD( 1:4 ) .EQ. 'STEA' ) THEN
            
 211         CALL RDLINE( IMECH, INBUF, LPOINT, IEOL )
@@ -455,7 +395,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C Read block to get species to be dropped from mechanism
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
- 
+         CALL UCASE( WORD )
 215      IF ( WORD( 1:4 ) .EQ. 'ELIM' ) THEN
            
 216         CALL RDLINE( IMECH, INBUF, LPOINT, IEOL )
@@ -510,10 +450,12 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C Make sure this word is REAC and then check for ppm or cm units
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+         CALL UCASE( WORD )
 225      IF ( WORD( 1:4 ) .EQ. 'REAC' ) THEN
          IF ( CHR .EQ. '[' ) THEN
             CALL GETCHAR ( IMECH, INBUF, LPOINT, IEOL, CHR )
             CALL GETWORD ( IMECH, INBUF, LPOINT, IEOL, CHR, WORD )
+            CALL UCASE( WORD )
             IF ( WORD( 1:2 ) .EQ. 'PP' .OR. WORD( 1:2 ) .EQ. 'pp' ) THEN
                KUNITS = 1
             ELSE IF ( WORD( 1:2 ) .EQ. 'CM' .OR. WORD( 1:2 ) .EQ. 'cm' ) THEN
@@ -564,15 +506,14 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
              CALL GETRCTNT ( IMECH, INBUF, IEOL, LPOINT, CHR, WORD,
      &  		     NXX, NS, SPCLIS, SPC1RX,
      &  		     ICOL, 
-     &  		     LABEL, N_DROP_SPC, DROP_SPC ) ! ,
-!         &		      N_SS_SPC, SS_SPC, SS_RCT_COEF ) ! , IRR, SC )
+     &  		     LABEL, N_DROP_SPC, DROP_SPC ) 
              IF ( CHR .EQ. '+' ) THEN
-        	CALL GETCHAR ( IMECH, INBUF, LPOINT, IEOL, CHR )
+                CALL GETCHAR ( IMECH, INBUF, LPOINT, IEOL, CHR )
              ELSE IF( CHR .EQ. '-' ) THEN
                 WRITE( LUNOUT, 2014 ) INBUF
                 STOP ' *** CHEMMECH ERROR ***'
              ELSE
-        	EXIT READ_REACTANTS
+                EXIT READ_REACTANTS
              END IF
 301       END DO READ_REACTANTS
 303       CONTINUE
@@ -715,6 +656,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       CALL RDLINE ( IMECH, INBUF, LPOINT, IEOL )
       IF ( IEOL .GE. 0 ) THEN   ! not end of mechanism
          WORD( 1:9 ) = INBUF( IEOL-8:IEOL )
+         CALL UCASE( WORD )
          IF ( WORD( 1:9 ) .EQ. 'CONSTANTS' .OR.
      &        WORD( 1:9 ) .EQ. 'constants' .OR.
      &        WORD( 1:9 ) .EQ. 'Constants' ) THEN
@@ -749,6 +691,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       CALL RDLINE ( IMECH, INBUF, LPOINT, IEOL )
       IF ( IEOL .GE. 0 ) THEN   ! not end of mechanism
          WORD( 1:8 ) = INBUF( IEOL-8:IEOL )
+         CALL UCASE( WORD )
          IF ( WORD( 1:9 ) .EQ. 'FUNCTIONS' .OR.
      &        WORD( 1:9 ) .EQ. 'functions' .OR.
      &        WORD( 1:9 ) .EQ. 'Functions' ) THEN
@@ -816,7 +759,6 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C Resolve all reactions label references
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       WRITE( LUNOUT, * ) ' '
-!      IPR = 0 
       DO 501 IRX = 1, NR
          IF ( LABEL( IRX,2 ) .NE. '>>>>>>>>>>>>>>>>' ) THEN
 C search all rx's for LABEL(,1) match ...
@@ -965,23 +907,14 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          END IF    
        END DO
 
-      IF( LEN( DESCRP_MECH ) .GT. 0 )THEN
-C set name for mechanism
-         MECHANISM = TRIM( DESCRP_MECH )
-         CALL CONVERT_CASE( MECHNAME, .TRUE. )
-C set name of mechanism lower case
-         MECHNAME_LOWER_CASE  =  MECHANISM
-         CALL CONVERT_CASE( MECHNAME_LOWER_CASE, .FALSE. )
-      END IF   
       
       CONST( 1:MAXCONSTS ) = CVAL( 1:MAXCONSTS )
 C Set CGRID mechanism
 
        IF( USE_SPCS_NAMELISTS )THEN
-           IF ( .NOT. CGRID_SPCS_INIT() ) THEN
+!           IF ( .NOT. CGRID_SPCS_INIT() ) THEN
+           IF ( .NOT. MAP_CCTM_SPECIES() ) THEN
                STOP 'Error in CGRID_SPCS:CGRID_SPCS_INIT'
-           ELSE
-               PRINT*,'Computed CGRID species and indices'
            END IF
        ELSE
            SPECIES_TYPE = 'GC'
@@ -994,30 +927,20 @@ C Set CGRID mechanism
            N_GAS_CHEM_SPC =  N_GAS_CHEM_SPC + 1
        END DO
 
-      NRXNS = NR
-!      N_SPEC = NS
-
-!      MXRCT = MAXRCTNTS
-      
+      NRXNS = NR      
       MXRR   = 3 * MAXRCTNTS
       MXRP   = 3 * MXPRD
       MAXGL3  = 2 * NRXNS
       MXARRAY = NUMB_MECH_SPCS * NUMB_MECH_SPCS
       IF( REORDER_SPECIES ) CALL SET_SPARSE_DATA( )
 
-!      MXCOUNT1 = N_SPEC * MAXGL3 * 3
-!      MXCOUNT2 = N_SPEC * MAXGL3 * 3
       
       CALL WREXTS ( EQNAME_MECH, MECHANISM,
      &              NS, SPCLIS, SPC1RX, SS1RX ) 
      
 
-!      CALL WRSPECIAL_EXT( )
-
       IF( N_SS_SPC .GT. 0 ) CALL GET_SS_DATA( LUNOUT, NR ) 
 
-
-!      CALL WRSS_EXT( NR ) 
      
       EQUATIONS_MECHFILE = EQNAME_MECH
 
@@ -1079,7 +1002,6 @@ C functions block
          DO I = 1, NRATE_STRING
             IRX = KSTRING( I )
             DO IPR = 1, NFUNCTIONS
-!               if( i .eq. 1 )print*,TRIM(FUNCTIONS( IPR )),' = ',TRIM(FORMULA( IPR ))
                IF( INDEX( RATE_STRING( I ), TRIM(FUNCTIONS( IPR )) ) .GT. 0 )THEN
                    WRITE( LUNOUT, 1013 ) LABEL( IRX, 1 ), FUNCTIONS( IPR )
                END IF
@@ -1091,9 +1013,12 @@ C functions block
       CALL WRT_RATE_CONSTANT( NR, IP, NS, SPCLIS, LABEL  )
       
       CLOSE( EXUNIT_SPCS )
+      CLOSE(COPY_MECHANISM)
+      IF( CALC_DELTA_ATOMS )THEN
+          CALL ECHO_MECH( IMECH,N_DROP_SPC,DROP_SPC  )
+      END IF
       CALL WRT_KPP_INPUTS( NR, IP, LABEL, NS  )
       CALL WRT_WIKI_TABLE( NR, IP, LABEL, NS  )
-!      CALL WRT_MD_TABLE( NR, IP, LABEL, NS  )
       CALL WRT_MD_SUBTABLE( NR, IP, LABEL, NS  )
       CALL WRT_CSV_TABLE( NR, IP, LABEL, NS  )
       CALL WRT_HTML_TABLE( NR, IP, LABEL, NS  )
@@ -1246,101 +1171,6 @@ C functions block
 95060  FORMAT( 'RETURN'
      &      /  'END SUBROUTINE SPECIAL_RATES')
 95100  FORMAT(2X,A16,' = 0.0D0')        
-
-
  
        STOP
-       END     
-       SUBROUTINE  CONVERT_CASE ( BUFFER, UPPER )
-C***********************************************************************
-
-C  subroutine body starts at line  41
-C
-C  FUNCTION:  converts to upcase or lower the text in BUFFER
-C             based on values of logic flag UPPER
-C
-C  PRECONDITIONS REQUIRED:  text is ASCII
-C
-C  SUBROUTINES AND FUNCTIONS CALLED:  none
-C
-C  REVISION  HISTORY:  prototype 1/91 by CJC
-C
-C***********************************************************************
-
-      IMPLICIT NONE
-
-C...........   ARGUMENTS and their descriptions:
-
-        CHARACTER*(*), INTENT( INOUT ) :: BUFFER
-        LOGICAL,       INTENT( IN )    :: UPPER
-
-
-C...........   PARAMETER:  ASCII for 'a', 'z', 'A'
-
-        INTEGER       IA, IZ, AADIF
-
-        PARAMETER   ( IA    = 97,
-     &                IZ    = 122,
-     &                AADIF = 32 )
-
-
-C...........   SCRATCH LOCAL VARIABLES and their descriptions:
-
-        INTEGER       I, L
-        INTEGER       C
-        INTEGER       FACTOR
-        INTEGER       STRT, FINI
-        
-
-
-C***********************************************************************
-C   begin body of subroutine  UPCASE
-
-        L  =  LEN ( BUFFER )
-        IF( UPPER )THEN
-            FACTOR =  - AADIF
-            STRT   =    IA
-            FINI   =    IZ
-        ELSE
-            FACTOR =    AADIF
-            STRT   =    IA - AADIF
-            FINI   =    IZ - AADIF
-        END IF
-        
-        DO  111  I = 1 , L
-            C = ICHAR ( BUFFER ( I:I ) )
-            IF ( C .GE. STRT  .AND.  C .LE. FINI ) THEN
-                BUFFER ( I:I ) = CHAR ( C + FACTOR )
-            END IF
-111     CONTINUE        !  end loop on I
-
-        RETURN
-        END SUBROUTINE CONVERT_CASE
-
-      SUBROUTINE WRITE_RATE_CONVERT(OUT_UNIT, RXN_ORDER)
-        IMPLICIT NONE
-        INTEGER, INTENT( IN ) :: OUT_UNIT
-        INTEGER, INTENT( IN ) :: RXN_ORDER
-        
-         SELECT CASE( RXN_ORDER )
-           CASE( 0 )
-             WRITE(OUT_UNIT, 95000, ADVANCE = 'NO')
-           CASE( 1 )
-             WRITE(OUT_UNIT, 95001, ADVANCE = 'NO')
-           CASE( 2 )
-             WRITE(OUT_UNIT, 95002, ADVANCE = 'NO')
-           CASE( 3 )
-             WRITE(OUT_UNIT, 95003, ADVANCE = 'NO')
-           CASE( -1 )
-             WRITE(OUT_UNIT, 95004, ADVANCE = 'NO')
-           CASE( -2 )
-             WRITE(OUT_UNIT, 95005, ADVANCE = 'NO')
-        END SELECT
-95000   FORMAT(' INV_RFACTOR * ')                
-95001   FORMAT(' 60.0D0 * ')                
-95002   FORMAT(' RFACTOR * ')                
-95003   FORMAT(' RFACTOR_SQU * ')                
-95004   FORMAT(' ( 60.0D0 / RFACTOR ) * ')                
-95005   FORMAT(' ( 60.0D0 / RFACTOR_SQU ) * ')                
-        RETURN
-      END SUBROUTINE WRITE_RATE_CONVERT
+       END PROGRAM CHEMMECH

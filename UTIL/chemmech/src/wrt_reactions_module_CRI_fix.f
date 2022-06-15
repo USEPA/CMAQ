@@ -1,3 +1,6 @@
+
+
+
 C***************************************************************************
 C  Significant portions of Models-3/CMAQ software were developed by        *
 C  Government employees and under a United States Government contract.     *
@@ -21,6 +24,13 @@ C  Portions of I/O API, PAVE, and the model builder are Copyrighted        *
 C  1993-1997 by MCNC--North Carolina Supercomputing Center and are         *
 C  used with their permissions subject to the above restrictions.          *
 C***************************************************************************
+
+C RCS file, release, date & time of last delta, author, state, [and locker]
+C $Header$
+
+C what(1) key, module and SID; SCCS file; date and time of last delta:
+C @(#)CHEMMECH.F 1.1 /project/mod3/MECH/src/driver/mech/SCCS/s.CHEMMECH.F 02 Jan 1997 15:26:41
+
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE WRT_RATE_CONSTANT( NR, IP, NS, SPCLIS, LABEL  )
 
@@ -29,6 +39,7 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       USE GET_ENV_VARS
       USE GET_MECHDEF_DATA
       USE BASIC_WRITE_ROUTINES
+
       
       IMPLICIT NONE
 
@@ -188,30 +199,39 @@ c..Variables for species to be dropped from mechanism
       LOGICAL FALLOFF_RATE       ! whether a reaction is a falloff type
   
       INTERFACE 
-         SUBROUTINE WREXTS_FORTRAN90 (WRUNIT, EQNAME_MECH, DESCRP_MECH, NS,
-     &                                SPCLIS, SPC1RX, NR, IP,  NAMCONSTS, CVAL, SS1RX, LITE  )
-           INTEGER,          INTENT( IN )  ::  WRUNIT     ! logical write unit no.
-           CHARACTER( 120 ), INTENT ( IN ) :: EQNAME_MECH
-           CHARACTER(  32 ), INTENT ( IN ) :: DESCRP_MECH
-           INTEGER,          INTENT ( IN ) :: NS                ! no. of species found in mechanism table
-           CHARACTER(  16 ), INTENT ( IN ) :: SPCLIS( : ) ! species list from mechanism table
-           INTEGER,          INTENT ( IN ) :: NR
-           INTEGER,          INTENT ( IN ) :: SPC1RX( : ) ! rx index of 1st occurence of species in mechanism table
-           INTEGER,          INTENT ( IN ) :: IP
-           CHARACTER( 16 ),  INTENT ( IN ) :: NAMCONSTS( : )
-           REAL( 8 ),        INTENT ( IN ) :: CVAL( : )
-           INTEGER,          INTENT ( IN ) :: SS1RX( : )
-           LOGICAL,          INTENT ( IN ) :: LITE               ! option to omit specific write statements
-         END SUBROUTINE WREXTS_FORTRAN90
-        SUBROUTINE WRSS_EXT_FORTRAN90( WRUNIT, NR )
-          INTEGER, INTENT( IN )    ::  WRUNIT     ! logical write unit no.
-          INTEGER, INTENT ( IN )   :: NR   ! No. of reactions
-        END SUBROUTINE WRSS_EXT_FORTRAN90
-        SUBROUTINE WRT_RATES( IOUNIT )
-          INTEGER, INTENT( IN ) :: IOUNIT
-        END SUBROUTINE WRT_RATES
-       END INTERFACE
-
+        SUBROUTINE WREXTS_FORTRAN90 (WRUNIT, EQNAME_MECH, DESCRP_MECH, NS, 
+     &                      SPCLIS, SPC1RX, NR, IP,  NAMCONSTS, CVAL, SS1RX, LITE  ) 
+          INTEGER,          INTENT( IN )  ::  WRUNIT     ! logical write unit no.
+          CHARACTER( 120 ), INTENT ( IN ) :: EQNAME_MECH
+          CHARACTER(  32 ), INTENT ( IN ) :: DESCRP_MECH
+          INTEGER,          INTENT ( IN ) :: NS                ! no. of species found in mechanism table
+          CHARACTER(  16 ), INTENT ( IN ) :: SPCLIS( : ) ! species list from mechanism table
+          INTEGER,          INTENT ( IN ) :: NR
+          INTEGER,          INTENT ( IN ) :: SPC1RX( : ) ! rx index of 1st occurence of species in mechanism table
+          INTEGER,          INTENT ( IN ) :: IP
+          CHARACTER( 16 ),  INTENT ( IN ) :: NAMCONSTS( : )
+          REAL( 8 ),        INTENT ( IN ) :: CVAL( : )
+          INTEGER,          INTENT ( IN ) :: SS1RX( : )
+          LOGICAL,          INTENT ( IN ) :: LITE               ! option to omit specific write statements
+        END SUBROUTINE WREXTS_FORTRAN90
+       SUBROUTINE WRSS_EXT_FORTRAN90( WRUNIT, NR ) 
+         INTEGER, INTENT( IN )    ::  WRUNIT     ! logical write unit no.
+         INTEGER, INTENT ( IN )   :: NR   ! No. of reactions
+       END SUBROUTINE WRSS_EXT_FORTRAN90
+       SUBROUTINE WRT_RATES( IOUNIT )
+         INTEGER, INTENT( IN ) :: IOUNIT
+       END SUBROUTINE WRT_RATES
+      END INTERFACE 
+  
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+C Initialize module and local mechanism array variables
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      
+      IF( .NOT. ALLOCATED( INDEX_FIXED_SPECIES ) )THEN
+          ALLOCATE( INDEX_FIXED_SPECIES( MAXRXNUM, MAXRCTNTS ) )
+      END IF
+      
+   
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C Find names for output module file
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -493,6 +513,10 @@ C Error-check phot tables and report to log
 95701 FORMAT(/ '! define rate constants in terms of special rate operators ' /)
       DO NXX = 1, NSPECIAL_RXN
          IDX = ISPECIAL( NXX,1 )
+         IF( KTYPE( IDX ) .EQ. 14 )THEN
+           WRITE(MODULE_UNIT, 95046 )IDX,ADJUSTL( RATE_STRING( ISPECIAL( NXX,2 ) ) )
+           CYCLE
+         END IF
          IF( RTDAT( 1, IDX ) .NE. 1.0 .AND. RTDAT( 1, IDX ) .GE. 0.0 )THEN
              IF( RTDAT( 3, IDX ) .EQ. 0.0 )THEN
                  WRITE(MODULE_UNIT, 95068 )IDX,REAL(RTDAT( 1, IDX ), 8),
@@ -605,7 +629,7 @@ C Error-check phot tables and report to log
          END DO
 	 IF( HALOGEN_PARAMETER )THEN
 !	     WRITE(MODULE_UNIT,'(2/ 16X, A)')'IF( .NOT. PRESENT( LAND ) )CYCLE'
-	     WRITE(MODULE_UNIT,'(2/ 16X, A)') 'IF ( SEAWATER (NCELL) .GT. 0.001D0 ) THEN'	                     
+	     WRITE(MODULE_UNIT,'(2/ 16X, A)')'IF( .NOT. LAND( NCELL ) )THEN'
              DO NXX = 1, NR
 	        IF( KTYPE( NXX ) .NE. 12 )CYCLE
 	        WRITE(MODULE_UNIT, 5118, ADVANCE= 'NO') LABEL(NXX,1), NXX
@@ -616,22 +640,13 @@ C Error-check phot tables and report to log
                 WRITE( MODULE_UNIT, 5120 )RTDAT(1, NXX ),RFDAT(1, IDX),RTDAT(2, NXX ),RFDAT(2, IDX),
      &          RTDAT(3, NXX )  ! ,PHOTAB(HAL_PHOTAB(NXX))
              END DO
-       WRITE(MODULE_UNIT,'(16X, A)')'ELSE'
-       
-             DO NXX = 1, NR
-	             IF( KTYPE( NXX ) .NE. 12 )CYCLE  
-               WRITE(MODULE_UNIT,5121) NXX                 
-             END DO
- 
-	     WRITE(MODULE_UNIT,'(16X, A)')'END IF'	     
+	     WRITE(MODULE_UNIT,'(16X, A)')'END IF'
 	 END IF
          WRITE(MODULE_UNIT,99881)
       END IF
 
 5117  FORMAT(/    '!  Reaction Label ', A / 16X, 'RKI( NCELL, ', I4, ') = ')
-5118  FORMAT(     '!  Reaction Label ', A / 19X, 'RKI( NCELL, ', I4, ') = SEAWATER (NCELL) * ')
-5121  FORMAT( 19X, 'RKI( NCELL, ', I4, ') = 0.0D0 ' )
-
+5118  FORMAT(     '!  Reaction Label ', A / 19X, 'RKI( NCELL, ', I4, ') = ')
       WRITE(MODULE_UNIT,99882)
       IF( LINES_CAPTURED .GT. 0 )WRITE(MODULE_UNIT,99884)
       IF( ( KTN5 + KTN6 ) .GT. 0 )WRITE(MODULE_UNIT,99883)
@@ -1377,7 +1392,7 @@ C Error-check phot tables and report to log
 94200 FORMAT( 1X,'DIMENSION: MXRP     = ',I6,' VARIABLE: NDPMAX  = ',I6)
 94220 FORMAT( 1X,'DIMENSION: MXRR     = ',I6,' VARIABLE: NDLMAX  = ',I6)
 
-95050  FORMAT( 7X,'SUBROUTINE SPECIAL_RATES( NUMCELLS, Y, TEMP, DENS, RKI )'
+95050  FORMAT( 7X,'SUBROUTINE SPECIAL_RATES( NUMCELLS, Y, TAIR, DENS, RKI )'
      &       /  '! Purpose: calculate special rate operators and update'
      &       /  '!         appropriate rate constants'
      &      //  7X,'USE RXNS_DATA'
@@ -1385,27 +1400,34 @@ C Error-check phot tables and report to log
      &      //  '! Arguments:'
      &      /   7X,'INTEGER,      INTENT( IN  )   :: NUMCELLS        ! Number of cells in block '
      &      /   7X,'REAL( 8 ),    INTENT( IN )    :: Y( :, : )       ! species concs'
-     &      /   7X,'REAL( 8 ),    INTENT( IN )    :: TEMP( : )       ! air temperature, K '
+     &      /   7X,'REAL( 8 ),    INTENT( IN )    :: TAIR( : )       ! air temperature, K '
      &      /   7X,'REAL( 8 ),    INTENT( IN )    :: DENS( : )       ! air density, Kg/m3'
      &      /   7X,'REAL( 8 ),    INTENT( INOUT ) :: RKI( :, : )     ! reaction rate constant, ppm/min '
      &      /   '! Local:'
      &      /   7X,'REAL( 8 ), PARAMETER :: DENSITY_TO_NUMBER = 2.07930D+19 ! Kg/m3 to molecules/cm3' /
      &      /   7X,'INTEGER   :: NCELL'
+     &      /   7X,'REAL( 8 ) :: TEMP'
      &      /   7X,'REAL( 8 ) :: INV_TEMP'
-     &      /   7X,'REAL( 8 ) :: CAIR'
-     &      /   7X,'REAL( 8 ) :: CFACT         ! scales operator if not multiplied by RKI, cm^3/(molecule) to 1/(ppm)'
-     &      /   7X,'REAL( 8 ) :: CFACT_SQU     ! scales operator if not multiplied by RKI, cm^6/(molec^2) to 1/(ppm^2)'
-     &      /   '! special rate operators listed below' //)
+     &      /   7X,'REAL( 8 ) :: CAIR'  )
      
      
-95051  FORMAT(/ 7X,'DO NCELL = 1, NUMCELLS'
-     &      /   7X,'   INV_TEMP  = 1.0D0 / TEMP( NCELL )'
+95051  FORMAT(  7X,'REAL( 8 ) :: CFACT         ! scales operator if not multiplied by RKI, cm^3/(molecule*min) to 1/(ppm*min)'
+     &      /   7X,'REAL( 8 ) :: CFACT_SQU     ! scales operator if not multiplied by RKI, cm^6/(molec^2*min) to 1/(ppm^2*min)'
+     &      /   '! special rate operators listed below'
+     &      //  7X,'DO NCELL = 1, NUMCELLS'
+     &      /   7X,'   TEMP      = TAIR( NCELL )'
+     &      /   7X,'   INV_TEMP  = 1.0D0 / TEMP '
      &      /   7X,'   CAIR      = DENSITY_TO_NUMBER * DENS( NCELL )'
-     &      /   7X,'   CFACT     = 1.0D-06 * CAIR'  
-     &      /   7X,'   CFACT_SQU = 1.0D-12 * CAIR * CAIR' /
+     &      /   7X,'   CFACT     = 6.0D-05 * CAIR'  
+     &      /   7X,'   CFACT_SQU = 6.0D-11 * CAIR * CAIR' /
      &      //  '! define special rate operators' / )
-95052  FORMAT(/ 7X,'DO NCELL = 1, NUMCELLS'
-     &      /   7X,'   INV_TEMP  = 1.0D0 / TEMP( NCELL )'
+     
+95052  FORMAT(  7X,'REAL( 8 ) :: CFACT         ! scales operator if not multiplied by RKI, 1/(ppm*min) to 1/(ppm*min)'
+     &      /   7X,'REAL( 8 ) :: CFACT_SQU     ! scales operator if not multiplied by RKI, 1/(ppm^2*min) to 1/(ppm*min)'
+     &      /   '! special rate operators listed below'
+     &      //  7X,'DO NCELL = 1, NUMCELLS'
+     &      /   7X,'   TEMP      = TAIR( NCELL )'
+     &      /   7X,'   INV_TEMP  = 1.0D0 / TEMP '
      &      /   7X,'   CAIR      = 1.0D+6'
      &      /   7X,'   CFACT     = 1.0D0'  
      &      /   7X,'   CFACT_SQU = 1.0D0' /
@@ -1415,9 +1437,10 @@ C Error-check phot tables and report to log
      &          / 7X,'END SUBROUTINE SPECIAL_RATES')
 95100  FORMAT(2X,A16,' = 0.0D0')        
 
-95066 FORMAT(11X,'RKI( NCELL,',I4,' ) = DEXP( -',1PD11.4,'*INV_TEMP ) * ', A16,' ! reaction: ',A)
-95067 FORMAT(11X,'RKI( NCELL,',I4,' ) = ',1PD11.4,' * DEXP( -',1PD11.4,'*INV_TEMP ) * ', A16,' ! reaction: ',A)
-95068 FORMAT(11X,'RKI( NCELL,',I4,' ) = ',1PD11.4,' * ', A16,' ! reaction: ',A)
+95046 FORMAT(11X,'RKI( NCELL,',I4,' ) = ',A )
+95066 FORMAT(11X,'RKI( NCELL,',I4,' ) = DEXP( -',1PD10.4,'*INV_TEMP ) * ', A16,' ! reaction: ',A)
+95067 FORMAT(11X,'RKI( NCELL,',I4,' ) = ',1PD10.4,' * DEXP( -',1PD10.4,'*INV_TEMP ) * ', A16,' ! reaction: ',A)
+95068 FORMAT(11X,'RKI( NCELL,',I4,' ) = ',1PD10.4,' * ', A16,' ! reaction: ',A)
 95069 FORMAT(11X,'RKI( NCELL,',I4,' ) = ')
 95076 FORMAT(11X,'RKI( NCELL,',I4,' ) = DEXP( ',1PD11.4,'*INV_TEMP ) * ', A16,' ! reaction: ',A)
 95077 FORMAT(11X,'RKI( NCELL,',I4,' ) = ',1PD11.4,' * DEXP( ',1PD11.4,'*INV_TEMP ) * ', A16,' ! reaction: ',A)
@@ -1428,7 +1451,7 @@ C Error-check phot tables and report to log
 95071 FORMAT('RKI( NCELL,',I4,' ) ')
 
 
-99870 FORMAT(7X,'SUBROUTINE CALC_RCONST( BLKTEMP, BLKPRES, BLKH2O, RJBLK, BLKHET, LSUNLIGHT, SEAWATER, RKI, NUMCELLS )' //
+99870 FORMAT(7X,'SUBROUTINE CALC_RCONST( BLKTEMP, BLKPRES, BLKH2O, RJBLK, BLKHET, LSUNLIGHT, LAND, RKI, NUMCELLS )' //
      & '!**********************************************************************' //
      & '!  Function: To compute thermal and photolytic reaction rate' /
      & '!            coefficients for each reaction.' //
@@ -1448,8 +1471,9 @@ C Error-check phot tables and report to log
      & '        REAL( 8 ),           INTENT( IN  ) :: BLKHET ( :, : )   ! heterogeneous rate constants, ???/min'/
      & '        INTEGER,             INTENT( IN  ) :: NUMCELLS          ! Number of cells in block ' /
      & '        LOGICAL,             INTENT( IN  ) :: LSUNLIGHT         ! Is there sunlight? ' /
-     & '        REAL( 8 ),           INTENT( IN  ) :: SEAWATER( : )     ! fractional area of OPEN+SURF ' /
+     & '        LOGICAL,             INTENT( IN  ) :: LAND( : )         ! Is the surface totally land? ' /
      & '        REAL( 8 ),           INTENT( OUT ) :: RKI ( :, : )      ! reaction rate constant, ppm/min '/
+!     & '        LOGICAL,   OPTIONAL, INTENT( IN  ) :: LAND( : )         ! Is the surface totally land? ' /
      & '!..Parameters: ' //
      & '        REAL( 8 ), PARAMETER :: COEF1  = 7.33981D+15     ! Molec/cc to ppm conv factor ' /
      & '        REAL( 8 ), PARAMETER :: CONSTC = 0.6D+0          ! Constant for reaction type 7' /
