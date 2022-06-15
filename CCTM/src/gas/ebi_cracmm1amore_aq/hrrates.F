@@ -27,7 +27,7 @@ C  PRECONDITIONS: For the CRACMM1AMORE_AQ mechanism
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, May 31, 2022
+C  REVISION HISTORY: Created by EBI solver program, Jun 15, 2022
 C
 C***********************************************************************
       USE HRDATA
@@ -150,13 +150,13 @@ C..NOTE: RXRAT commented out are not referenced by any routine
       RXRAT(     94 ) = RKI(    94 ) * YC(  INO2 ) * YC(  HO2 )
       RXRAT(     95 ) = RKI(    95 ) * YC(  INO2 ) * YC(  NO )
       RXRAT(     96 ) = RKI(    96 ) * YC(  IPN ) * YC(  HO2 )
-      RXRAT(     97 ) = RKI(    97 ) * YC(  IHN ) * YC(  HO )
+      RXRAT(     97 ) = RKI(    97 ) * YC(  ISON ) * YC(  HO )
       RXRAT(     98 ) = RKI(    98 ) * YC(  ISHP ) * YC(  HO )
       RXRAT(     99 ) = RKI(    99 ) * YC(  ISHP )
       RXRAT(    100 ) = RKI(   100 ) * YC(  IPC ) * YC(  NO )
-      RXRAT(    101 ) = RKI(   101 ) * YC(  ISON ) * YC(  HO )
-      RXRAT(    102 ) = RKI(   102 ) * YC(  ISON ) * YC(  NO3 )
-      RXRAT(    103 ) = RKI(   103 ) * YC(  IHN )
+      RXRAT(    101 ) = RKI(   101 ) * YC(  NALD ) * YC(  HO )
+      RXRAT(    102 ) = RKI(   102 ) * YC(  NALD ) * YC(  NO3 )
+      RXRAT(    103 ) = RKI(   103 ) * YC(  ISON )
       RXRAT(    104 ) = RKI(   104 ) * YC(  API ) * YC(  HO )
       RXRAT(    105 ) = RKI(   105 ) * YC(  LIM ) * YC(  HO )
       RXRAT(    106 ) = RKI(   106 ) * YC(  PINAL ) * YC(  HO )

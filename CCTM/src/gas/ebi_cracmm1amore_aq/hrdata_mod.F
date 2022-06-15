@@ -27,7 +27,7 @@ C  PRECONDITIONS: For the CRACMM1AMORE_AQ mechanism
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, May 31, 2022
+C  REVISION HISTORY: Created by EBI solver program, Jun 15, 2022
 C
 C   18 Jul 14 B.Hutzell: revised to use real(8) variables for solution
 C*************************************************************************
@@ -184,10 +184,10 @@ c..Species indices
       INTEGER, PARAMETER :: XYEP             =   72
       INTEGER, PARAMETER :: ISO              =   73
       INTEGER, PARAMETER :: INO2             =   74
-      INTEGER, PARAMETER :: ISON             =   75
+      INTEGER, PARAMETER :: NALD             =   75
       INTEGER, PARAMETER :: ISOP             =   76
       INTEGER, PARAMETER :: ISHP             =   77
-      INTEGER, PARAMETER :: IHN              =   78
+      INTEGER, PARAMETER :: ISON             =   78
       INTEGER, PARAMETER :: IPN              =   79
       INTEGER, PARAMETER :: IEPOX            =   80
       INTEGER, PARAMETER :: IPC              =   81

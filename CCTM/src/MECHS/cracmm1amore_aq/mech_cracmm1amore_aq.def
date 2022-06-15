@@ -295,11 +295,11 @@ REACTIONS[CM] =
                                        + 0.15*OLT    # 1.58E-14 @ 2000;
 <RAM02> ISO + NO3          = INO2      + 0.3*HCHO  
                                        + 0.3*NO2
-                                       + 0.3*ISON     # 2.95E-12 @ 450;
+                                       + 0.3*NALD     # 2.95E-12 @ 450;
 <RAM03> ISO + HO           = ISOP      + 0.02*MO2     # 2.69E-11 @ -390;
 <RAM04> ISOP + HO2         = ISHP      + 0.6*HO2
                                        + 0.15*HCHO    # 4.5E-13 @ -1300;
-<RAM05> ISOP + NO          = 0.14*IHN  + 0.7*HCHO
+<RAM05> ISOP + NO          = 0.14*ISON + 0.7*HCHO
                                        + 0.44*MVK
                                        + 0.88*HO2
                                        + 0.78*NO2
@@ -311,16 +311,17 @@ REACTIONS[CM] =
                                        + 0.8*MVK
                                        + 0.5*NO2
                                        + 1*HO2
-                                       + 0.2*ISON
+                                       + 0.2*NALD
                                        + 0.1*MO2      # 9.42E-16 @ -580;
-<RAM9> IPN + HO2           = 0.8*NO2   + 0.4*HCHO
+<RAM9> IPN + HO2           = 0.8*NO2   + 1.0*HO2
+                                       + 0.4*HCHO
                                        + 0.05*GLY
                                        + 0.1*MGLY
                                        + 0.4*MACR
                                        + 0.94*MVK
-                                       + 0.2*ISON
+                                       + 0.2*NALD
                                        + 0.1*MO2      # 3.4E-11 @ -390;
-<RAM10> IHN + HO           = ISON      + HO
+<RAM10> ISON + HO          = NALD      + HO
                                        + 0.2*IEPOX    # 2.4E-7 @ -580;
 <RAM11> ISHP + HO          = 0.15*HCHO + 0.05*MGLY
                                        + 0.15*MACR
@@ -333,9 +334,9 @@ REACTIONS[CM] =
 <RAM12> ISHP               = 0.4*HCHO  + 0.1*MGLY
                                        + 0.06*ACO3    # 1.0/<HCHO_RAD_RACM2>;
 <RAM13> IPC + NO           = 0.35*NO2  + 0.8*NO       # 1.0E-10;
-<RAM14> ISON + HO          = CO        + 0.12*NO2     # 5E-11;
-<RAM15> ISON + NO3         = CO                       # 2.0E-14;
-<RAM16> IHN                = HNO3      + ROH          # 2.3E-5;
+<RAM14> NALD + HO          = CO        + 0.12*NO2     # 5E-11;
+<RAM15> NALD + NO3         = CO                       # 2.0E-14;
+<RAM16> ISON               = HNO3      + ROH          # 2.3E-5;
 <R087>  API  + HO          = 0.975*APIP1 + 0.025*APIP2  # 1.21E-11 @ -440.;
 <R088>  LIM  + HO          = 0.945*LIMP1 + 0.055*LIMP2  # 4.20E-11 @ -401.;
 <TRP04> PINAL  + HO        = 0.23*PINALP + 0.77*RCO3  # 5.20E-12 @ -600.;

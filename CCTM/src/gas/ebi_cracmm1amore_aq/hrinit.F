@@ -29,7 +29,7 @@ C  RETURN VALUES: None
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, May 31, 2022
+C  REVISION HISTORY: Created by EBI solver program, Jun 15, 2022
 C   21 Jun 10 J.Young:   convert for Namelist redesign
 C   18 Jul 14 B.Hutzell: revised to use the RXNS_DATA and RXNS_FUNCTION
 C                        modules instead of include files
@@ -213,10 +213,10 @@ c..Allocate and define ebi species
       EBISP(  59 ) = XYEP
       EBISP(  60 ) = ISO
       EBISP(  61 ) = INO2
-      EBISP(  62 ) = ISON
+      EBISP(  62 ) = NALD
       EBISP(  63 ) = ISOP
       EBISP(  64 ) = ISHP
-      EBISP(  65 ) = IHN
+      EBISP(  65 ) = ISON
       EBISP(  66 ) = IPN
       EBISP(  67 ) = IEPOX
       EBISP(  68 ) = IPC
@@ -399,10 +399,10 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       RTOL( XYEP        ) = 5.0D-04
       RTOL( ISO         ) = 5.0D-04
       RTOL( INO2        ) = 5.0D-04
-      RTOL( ISON        ) = 5.0D-04
+      RTOL( NALD        ) = 5.0D-04
       RTOL( ISOP        ) = 5.0D-04
       RTOL( ISHP        ) = 5.0D-04
-      RTOL( IHN         ) = 5.0D-04
+      RTOL( ISON        ) = 5.0D-04
       RTOL( IPN         ) = 5.0D-04
       RTOL( IEPOX       ) = 5.0D-04
       RTOL( IPC         ) = 5.0D-04

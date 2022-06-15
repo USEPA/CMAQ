@@ -103,21 +103,21 @@ Information is based on the mech.def file.
 | ROCARO51   | XYM + HO ---->   0.830\*XYMP +    0.170\*CSL +    0.170\*HO2  |   2.3300E-11 |   2.3300E-11 |
 | ROCARO61   | XYE + HO ---->   0.820\*XYEP +    0.180\*CSL +    0.180\*HO2  |   7.1600E-12 |   7.1600E-12 |
 | RAM01   | ISO + O3 ---->   0.531\*MACR +    0.189\*MVK +    1.160\*HCHO +    0.250\*HO +    0.250\*HO2 +    0.080\*MO2 +    0.100\*ACO3 +    0.090\*H2O2 +    0.100\*MACP +    0.140\*CO +    0.280\*ORA1 +    0.150\*OLT  |   1.58E-14e<sup> -2000.00/T</sup> |   1.9293E-17 |
-| RAM02   | ISO + NO3 ----> INO2 +    0.300\*HCHO +    0.300\*NO2 +    0.300\*ISON  |   2.95E-12e<sup>  -450.00/T</sup> |   6.5214E-13 |
+| RAM02   | ISO + NO3 ----> INO2 +    0.300\*HCHO +    0.300\*NO2 +    0.300\*NALD  |   2.95E-12e<sup>  -450.00/T</sup> |   6.5214E-13 |
 | RAM03   | ISO + HO ----> ISOP +    0.020\*MO2  |   2.69E-11e<sup>   390.00/T</sup> |   9.9503E-11 |
 | RAM04   | ISOP + HO2 ----> ISHP +    0.600\*HO2 +    0.150\*HCHO  |   4.50E-13e<sup>  1300.00/T</sup> |   3.5224E-11 |
-| RAM05   | ISOP + NO ---->   0.140\*IHN +    0.700\*HCHO +    0.440\*MVK +    0.880\*HO2 +    0.780\*NO2 +    0.280\*MACR +    0.021\*GLY  |   2.70E-12e<sup>   350.00/T</sup> |   8.7334E-12 |
+| RAM05   | ISOP + NO ---->   0.140\*ISON +    0.700\*HCHO +    0.440\*MVK +    0.880\*HO2 +    0.780\*NO2 +    0.280\*MACR +    0.021\*GLY  |   2.70E-12e<sup>   350.00/T</sup> |   8.7334E-12 |
 | RAM06   | ISHP + HO ----> ISOP  |   4.60E-12e<sup>   200.00/T</sup> |   8.9967E-12 |
 | RAM07   | INO2 + HO2 ----> IPN + HO  |   3.14E-14e<sup>   580.00/T</sup> |   2.1967E-13 |
-| RAM08   | INO2 + NO ---->   0.900\*HCHO +    0.500\*MGLY +    0.800\*MVK +    0.500\*NO2 + HO2 +    0.200\*ISON +    0.100\*MO2  |   9.42E-16e<sup>   580.00/T</sup> |   6.5902E-15 |
-| RAM9   | IPN + HO2 ---->   0.800\*NO2 +    0.400\*HCHO +    0.050\*GLY +    0.100\*MGLY +    0.400\*MACR +    0.940\*MVK +    0.200\*ISON +    0.100\*MO2  |   3.40E-11e<sup>   390.00/T</sup> |   1.2577E-10 |
-| RAM10   | IHN + HO ----> ISON + HO +    0.200\*IEPOX  |   2.40E-07e<sup>   580.00/T</sup> |   1.6790E-06 |
+| RAM08   | INO2 + NO ---->   0.900\*HCHO +    0.500\*MGLY +    0.800\*MVK +    0.500\*NO2 + HO2 +    0.200\*NALD +    0.100\*MO2  |   9.42E-16e<sup>   580.00/T</sup> |   6.5902E-15 |
+| RAM9   | IPN + HO2 ---->   0.800\*NO2 + HO2 +    0.400\*HCHO +    0.050\*GLY +    0.100\*MGLY +    0.400\*MACR +    0.940\*MVK +    0.200\*NALD +    0.100\*MO2  |   3.40E-11e<sup>   390.00/T</sup> |   1.2577E-10 |
+| RAM10   | ISON + HO ----> NALD + HO +    0.200\*IEPOX  |   2.40E-07e<sup>   580.00/T</sup> |   1.6790E-06 |
 | RAM11   | ISHP + HO ---->   0.150\*HCHO +    0.050\*MGLY +    0.150\*MACR +    0.020\*GLY +    0.200\*MVK +    0.400\*NO2 +    0.050\*IPC +    0.580\*IEPOX +    0.800\*HO  |   2.97E-11e<sup>   390.00/T</sup> |   1.0986E-10 |
 | RAM12   | ISHP ---->   0.400\*HCHO +    0.100\*MGLY +    0.060\*ACO3  | HCHO_RAD_RACM2 | Not Available<sup>1</sup> | 
 | RAM13   | IPC + NO ---->   0.350\*NO2 +    0.800\*NO  |   1.0000E-10 |   1.0000E-10 |
-| RAM14   | ISON + HO ----> CO +    0.120\*NO2  |   5.0000E-11 |   5.0000E-11 |
-| RAM15   | ISON + NO3 ----> CO  |   2.0000E-14 |   2.0000E-14 |
-| RAM16   | IHN ----> HNO3 + ROH  |   2.3000E-05 |   2.3000E-05 |
+| RAM14   | NALD + HO ----> CO +    0.120\*NO2  |   5.0000E-11 |   5.0000E-11 |
+| RAM15   | NALD + NO3 ----> CO  |   2.0000E-14 |   2.0000E-14 |
+| RAM16   | ISON ----> HNO3 + ROH  |   2.3000E-05 |   2.3000E-05 |
 | R087   | API + HO ---->   0.975\*APIP1 +    0.025\*APIP2  |   1.21E-11e<sup>   440.00/T</sup> |   5.2930E-11 |
 | R088   | LIM + HO ---->   0.945\*LIMP1 +    0.055\*LIMP2  |   4.20E-11e<sup>   401.00/T</sup> |   1.6120E-10 |
 | TRP04   | PINAL + HO ---->   0.230\*PINALP +    0.770\*RCO3  |   5.20E-12e<sup>   600.00/T</sup> |   3.8903E-11 |

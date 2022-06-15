@@ -29,7 +29,7 @@ C  PRECONDITIONS: For the CRACMM1AMORE_AQ mechanism
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, May 31, 2022
+C  REVISION HISTORY: Created by EBI solver program, Jun 15, 2022
 C
 C   18 Jul 14 B.Hutzell: revised to use real(8) variables
 C   01 Jun 18 B.Hutzell: replaced steady solution for O1D with backward Euler
@@ -257,7 +257,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      &   +    8.0000D-01 * RXRAT(    96 )      ! IPN+HO2=0.8000D+...
      &   +    4.0000D-01 * RXRAT(    98 )      ! ISHP+HO=0.4000D+...
      &   +    1.5000D-01 * RXRAT(   100 )      ! NO+IPC=0.3500D+00*NO2+...
-     &   +    1.2000D-01 * RXRAT(   101 )      ! ISON+HO=0.1200D+00*NO2+CO
+     &   +    1.2000D-01 * RXRAT(   101 )      ! NALD+HO=0.1200D+00*NO2+CO
      &   +                 RXRAT(   141 )      ! MPAN+HO=NO2+HKET
      &   +                 RXRAT(   142 )      ! ONIT+HO=NO2+HC3P
      &   +    6.8000D-01 * RXRAT(   167 )      ! MACR+NO3=0.6800D+...
