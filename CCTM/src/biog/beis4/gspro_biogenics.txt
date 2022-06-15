@@ -21,7 +21,8 @@
 #             emissions when in-line option is enabled with RACM2
 #      Replaced "B10RD" with "B3V10" for RACM2 (06/08/2021)
 #      B10SP: SAPRC07t-based mechanisms (aero6 and aero7 compatible)
-#      CRACMM1: CRACMM1-based biogenic mapping (added 9/2021, dev by K.S.)
+#      CRACMM1: CRACMM1-based biogenic mapping (added 9/2021, dev by K.S. and H.O.T.P)
+#               valid for CRACMM1_AQ and CRACMM1AMORE_AQ
 # POLNAM
 #    Name of Specific VOC emitted by 
 #    biogenic source;
