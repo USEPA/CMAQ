@@ -164,8 +164,8 @@ setenv CTM_HGBIDI N          #> mercury bi-directional flux for in-line depositi
                              #>    velocities [ default: N ]
 setenv CTM_SFC_HONO Y        #> surface HONO interaction [ default: Y ]
 setenv CTM_GRAV_SETL Y       #> vdiff aerosol gravitational sedimentation [ default: Y ]
-setenv CTM_BIOGEMIS_BEIS Y   #> calculate in-line biogenic emissions [ default: N ]
-setenv CTM_BIOGEMIS_MEGAN N  #> turns on MEGAN biogenic emission [ default: N ]
+setenv CTM_BIOGEMIS_BE Y     #> calculate in-line biogenic emissions [ default: N ]
+setenv CTM_BIOGEMIS_MG N     #> turns on MEGAN biogenic emission [ default: N ]
 setenv USE_MEGAN_LAI N       #> use separate LAI input file [ default: N ]
 
 setenv IC_AERO_M2WET F       #> Specify whether or not initial condition aerosol size distribution 
@@ -341,8 +341,18 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   #> + Emission Control (DESID) Documentation in the CMAQ User's Guide: 
   #>   https://github.com/USEPA/CMAQ/blob/master/DOCS/Users_Guide/Appendix/CMAQ_UG_appendixB_emissions_control.md 
   #>
-  setenv EMISSCTRL_NML ${BLD}/EmissCtrl_${MECH}.nml
+  setenv DESID_CTRL_NML ${BLD}/CMAQ_Control_DESID.nml
+  setenv DESID_CHEM_CTRL_NML ${BLD}/CMAQ_Control_DESID_${MECH}.nml
+
+  #> The following namelist configures aggregated output (via the Explicit and Lumped
+  #> Air Quality Model Output (ELMO) Module), domain-wide budget output, and chemical
+  #> family output.
+  setenv MISC_CTRL_NML ${BLD}/CMAQ_Control_Misc.nml
+
+  #> The following namelist controls the mapping of meteorological land use types and the NH3 and Hg emission
+  #> potentials
   setenv STAGECTRL_NML ${BLD}/CMAQ_Control_STAGE.nml
+
 
   #> Spatial Masks For Emissions Scaling
   setenv CMAQ_MASKS ${LUpath}/ocean_file_LISTOS4.ncf #> horizontal grid-dependent surf zone file
@@ -438,7 +448,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   endif
 
   #> In-line biogenic emissions configuration
-  if ( $CTM_BIOGEMIS_BEIS == 'Y' ) then   
+  if ( $CTM_BIOGEMIS_BE == 'Y' ) then   
      set IN_BEISpath = ${INPDIR}
      setenv GSPRO      $BLD/gspro_biogenics.txt
      setenv BEIS_NORM_EMIS   $IN_BEISpath/beis/b3grd_4LISTOS1_2018ff_18j_WR401_fine.ncf
@@ -450,6 +460,11 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
      setenv SOILINP    $OUTDIR/CCTM_SOILOUT_${RUNID}_${YESTERDAY}.nc
                              #> Biogenic NO soil input file; ignore if INITIAL_RUN = Y
   endif
+  if ( $CTM_BIOGEMIS_MG == 'Y' ) then
+     echo "Error: MEGAN Inputs unavailable for 2018 4LIST1 case"
+     exit()
+  endif
+
 
   #> Windblown dust emissions configuration
   if ( $CTM_WB_DUST == 'Y' ) then
