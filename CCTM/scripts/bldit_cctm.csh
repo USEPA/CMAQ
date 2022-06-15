@@ -88,6 +88,9 @@ set make_options = "-j"                #> additional options for make command if
  set EXEC  = CCTM_${VRSN}.exe          #> executable name
  set CFG   = CCTM_${VRSN}.cfg          #> configuration file name
 
+ if ( $?build_twoway ) then            # WRF Version used for WRF-CMAQ Model (must be v4.4+)
+    set WRF_VRSN = v4.4
+ endif   
 
 #========================================================================
 #> CCTM Science Modules
@@ -750,5 +753,51 @@ set Cfile = ${Bld}/${CFG}.bld      # Config Filename
     mv $Bld/${CFG} $Bld/${CFG}.old
  endif
  mv ${CFG}.bld $Bld/${CFG}
+
+#> If Building WRF-CMAQ, download WRF, download auxillary files and build
+#> model
+ if ( $?build_twoway ) then
+
+#> Check if the user has git installed on their system
+  git --version >& /dev/null
+  
+  if ($? == 0) then
+   set git_check
+  endif
+ 
+  if ($?git_check) then
+
+    cd $CMAQ_HOME/CCTM/scripts
+  
+    # Downlad WRF repository from GitHub and put CMAQv5.4 into it
+    set WRF_BLD = BLD_WRF${WRF_VRSN}_CCTM_${VRSN}_${compilerString}
+    setenv wrf_path ${CMAQ_HOME}/CCTM/scripts/${WRF_BLD}
+    setenv WRF_CMAQ 1
+
+    if ( ! -d $WRF_BLD ) then 
+      git clone --branch ${WRF_VRSN} https://github.com/wrf-model/WRF.git ./$WRF_BLD >& /dev/null
+      cd $wrf_path
+      mv $Bld ./cmaq
+  
+      # Configure WRF
+        ./configure <<EOF
+        ${WRF_ARCH}
+        1
+EOF
+
+    else
+      # Clean-up 
+      rm -r $Bld
+      cd $wrf_path
+    endif
+
+     # Compile WRF-CMAQ
+     ./compile em_real |& tee -a wrf-cmaq_buildlog.log
+
+     cd ${CMAQ_HOME}/CCTM/scripts
+
+   endif
+
+ endif 
 
 exit
