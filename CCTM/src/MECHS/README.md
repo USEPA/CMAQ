@@ -26,6 +26,7 @@ Table 1.  CMAQv5.3 Chemical Mechanisms
 | saprc07tic_ae6i_aqkmti | [State Air Pollution Research Center version 07tc with extended isoprene chemistry and aero6i treatment of SOA](mechanism_information/saprc07tic_ae6i_aq/mech_saprc07tic_ae6i_aq.md)  | [species table 7](mechanism_information/saprc07tic_ae6i_aq/saprc07tic_ae6i_aq_species_table.md)                   | acm_ae6_kmti          |
 | saprc07tc_ae6_aq | [State Air Pollution Research Center version 07tc with aero6 treatment of SOA](mechanism_information/saprc07tc_ae6_aq/mech_saprc07tc_ae6_aq.md)  | [species table 8](mechanism_information/saprc07tc_ae6_aq/saprc07tc_ae6_aq_species_table.md)                   | acm_ae6         |       
 | cracmm1_aq | [Community Regional Atmospheric Chemistry Multiphase Mechanism version 1.0](mechanism_information/cracmm1_aq/mech_cracmm1_aq.md)  | [species table 9](mechanism_information/cracmm1_aq/cracmm1_aq_species_table.md)                   | acm     |       
+| cracmm1amore_aq | [Community Regional Atmospheric Chemistry Multiphase Mechanism version 1.0 with AMORE isoprene condensation](mechanism_information/cracmm1amore_aq/mech_cracmm1amore_aq.md)  | [species table 10](mechanism_information/cracmm1amore_aq/cracmm1amore_aq_species_table.md)                   | acm     |       
 
 1. mechanisms can share the same model species but differ cloud chemistry
 2. species tables define model species in a mechanism's GC, AE, and NR namelists.
