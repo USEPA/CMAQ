@@ -1,6 +1,6 @@
 #! /bin/csh -f
 
-# ================== CHEMMECHv5.3.x Build Script ==================== #
+# ================== CHEMMECHv5.4.x Build Script ==================== #
 # Usage: bldit_chemmech.csh >&! bldit_chemmech.log                    #
 # Requirements: None                                                  #
 #                                                                     #
