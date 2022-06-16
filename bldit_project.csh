@@ -1,6 +1,6 @@
 #!/bin/csh -f
 
-# ================= CMAQv5.3.X Extraction Script ==================== #
+# ================= CMAQv5.4.X Extraction Script ==================== #
 # Requirements: CMAQ git source code repository                       #
 #                                                                     #
 # To report problems or request help with this script/program:        #

@@ -1,6 +1,6 @@
 #! /bin/csh -f
 
-# ==================== APPENDWRFv5.3.X Build Script ================= #
+# ==================== APPENDWRFv5.4.X Build Script ================= #
 # Usage: bldit_appendwrf.csh >&! bldit_appendwrf.log                  #
 # Requirements: I/O API & netCDF libraries; a Fortran compiler        #
 #                                                                     #
@@ -45,7 +45,7 @@
 #===============================================================================
 
 #> User choices: working directory and application ID
- set VRSN     = v532                        #> model version
+ set VRSN     = v54                          #> model version
  set EXEC     = appendwrf_${VRSN}.exe        #> executable name for this application
  set CFG      = appendwrf_${VRSN}.cfg        #> BLDMAKE configuration file name
  setenv BLDER   ${CMAQ_HOME}/UTIL/bldmake/bldmake_${compilerString}.exe #> location of makefile builder executable 
