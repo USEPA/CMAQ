@@ -1,6 +1,6 @@
 #!/bin/csh -f
 
-# ===================== CCTMv5.3 Run Script ========================= 
+# ===================== CCTMv5.4.X Run Script ========================= 
 # Usage: run.cctm >&! cctm_v53.log &                                
 #
 # To report problems or request help with this script/program:
@@ -33,7 +33,7 @@ echo 'Start Model Run At ' `date`
  cd CCTM/scripts
 
 #> Set General Parameters for Configuring the Simulation
- set VRSN      = v532              #> Code Version
+ set VRSN      = v534              #> Code Version
  set PROC      = mpi               #> serial or mpi
  set MECH      = cracmm1_aq      #> Mechanism ID
  set EMIS      = 2018ff            #> Emission Inventory Details
