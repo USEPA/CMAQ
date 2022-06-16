@@ -6,7 +6,7 @@
 
 
 ! --------- Photochemical Mechanism Reactions, Rates, etc. DAT ---------
-! Source file: /work/MOD3DEV/has/2021cracmm/cmaq/20220615amorereview/UTIL/chemmech/input/cracmm1amore_aq/mech_cracmm1amore_aq.def
+! Source file: /home/hwo/CCTM_git_repository/UTIL/chemmech/input/cracmm1amore_aq__delta_atoms/mech_cracmm1amore_aq.def
 ! for Mechanism Name: CRACMM1AMORE_AQ                 
 
 ! This file is used to create mechanism data and functions
@@ -358,7 +358,7 @@
       & MEMBER("ETH             ",   46, "GC",   30.10D0, F), &
       & MEMBER("HC3             ",   47, "GC",   44.10D0, F), &
       & MEMBER("HC3P            ",   48, "GC",   75.00D0, F), &
-      & MEMBER("ASOATJ          ",  187, "AE",  200.00D0, T), &
+      & MEMBER("ASOATJ          ",  190, "AE",  200.00D0, T), &
       & MEMBER("HC5             ",   49, "GC",   72.10D0, F), &
       & MEMBER("HC5P            ",   50, "GC",  103.00D0, F), &
       & MEMBER("ETE             ",   54, "GC",   28.10D0, F), &
@@ -449,10 +449,10 @@
       & MEMBER("SESQRO2         ",  136, "GC",  253.40D0, F), &
       & MEMBER("VROCP0OXY2      ",  171, "GC",  242.40D0, F), &
       & MEMBER("VROCP1OXY3      ",  174, "GC",  202.30D0, F), &
-      & MEMBER("AGLYJ           ",  188, "AE",   66.40D0, T), &
+      & MEMBER("AGLYJ           ",  191, "AE",   66.40D0, T), &
       & MEMBER("IEPOXP          ",  108, "GC",  118.10D0, F), &
       & MEMBER("AISO3NOSJ       ",  265, "AE",  136.20D0, T), &
-      & MEMBER("ASO4J           ",  181, "AE",   96.00D0, T), &
+      & MEMBER("ASO4J           ",  182, "AE",   96.00D0, T), &
       & MEMBER("AISO3OSJ        ",  266, "AE",  216.20D0, T), &
       & MEMBER("VROCP6ALK       ",  152, "GC",  184.37D0, F), &
       & MEMBER("VROCP6ALKP      ",  158, "GC",  215.36D0, F), &
@@ -723,7 +723,7 @@
       DATA CGRID_INDEX(  49 ), SPECIES_TYPE(  49 ), CONVERT_CONC(  49 ) /   46, 'GC', F /  ! ETH
       DATA CGRID_INDEX(  50 ), SPECIES_TYPE(  50 ), CONVERT_CONC(  50 ) /   47, 'GC', F /  ! HC3
       DATA CGRID_INDEX(  51 ), SPECIES_TYPE(  51 ), CONVERT_CONC(  51 ) /   48, 'GC', F /  ! HC3P
-      DATA CGRID_INDEX(  52 ), SPECIES_TYPE(  52 ), CONVERT_CONC(  52 ) /  187, 'AE', T /  ! ASOATJ
+      DATA CGRID_INDEX(  52 ), SPECIES_TYPE(  52 ), CONVERT_CONC(  52 ) /  190, 'AE', T /  ! ASOATJ
       DATA CGRID_INDEX(  53 ), SPECIES_TYPE(  53 ), CONVERT_CONC(  53 ) /   49, 'GC', F /  ! HC5
       DATA CGRID_INDEX(  54 ), SPECIES_TYPE(  54 ), CONVERT_CONC(  54 ) /   50, 'GC', F /  ! HC5P
       DATA CGRID_INDEX(  55 ), SPECIES_TYPE(  55 ), CONVERT_CONC(  55 ) /   54, 'GC', F /  ! ETE
@@ -814,10 +814,10 @@
       DATA CGRID_INDEX( 140 ), SPECIES_TYPE( 140 ), CONVERT_CONC( 140 ) /  136, 'GC', F /  ! SESQRO2
       DATA CGRID_INDEX( 141 ), SPECIES_TYPE( 141 ), CONVERT_CONC( 141 ) /  171, 'GC', F /  ! VROCP0OXY2
       DATA CGRID_INDEX( 142 ), SPECIES_TYPE( 142 ), CONVERT_CONC( 142 ) /  174, 'GC', F /  ! VROCP1OXY3
-      DATA CGRID_INDEX( 143 ), SPECIES_TYPE( 143 ), CONVERT_CONC( 143 ) /  188, 'AE', T /  ! AGLYJ
+      DATA CGRID_INDEX( 143 ), SPECIES_TYPE( 143 ), CONVERT_CONC( 143 ) /  191, 'AE', T /  ! AGLYJ
       DATA CGRID_INDEX( 144 ), SPECIES_TYPE( 144 ), CONVERT_CONC( 144 ) /  108, 'GC', F /  ! IEPOXP
       DATA CGRID_INDEX( 145 ), SPECIES_TYPE( 145 ), CONVERT_CONC( 145 ) /  265, 'AE', T /  ! AISO3NOSJ
-      DATA CGRID_INDEX( 146 ), SPECIES_TYPE( 146 ), CONVERT_CONC( 146 ) /  181, 'AE', T /  ! ASO4J
+      DATA CGRID_INDEX( 146 ), SPECIES_TYPE( 146 ), CONVERT_CONC( 146 ) /  182, 'AE', T /  ! ASO4J
       DATA CGRID_INDEX( 147 ), SPECIES_TYPE( 147 ), CONVERT_CONC( 147 ) /  266, 'AE', T /  ! AISO3OSJ
       DATA CGRID_INDEX( 148 ), SPECIES_TYPE( 148 ), CONVERT_CONC( 148 ) /  152, 'GC', F /  ! VROCP6ALK
       DATA CGRID_INDEX( 149 ), SPECIES_TYPE( 149 ), CONVERT_CONC( 149 ) /  158, 'GC', F /  ! VROCP6ALKP
