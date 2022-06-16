@@ -54,6 +54,8 @@ set CopySrc                            #> copy the source files into the build d
                                        #>   will be overwritten.
 set ParOpt                             #> uncomment to build a multiple processor (MPI) executable; 
                                        #>   comment out for a single processor (serial) executable
+#set DistrEnv                          #> uncomment to distribute environmental variables to multiple machines
+                                       #>   comment out for a single processor (serial) executable (MPI only)
 #set build_parallel_io                 #> uncomment to build with parallel I/O (pnetcdf); 
                                        #>   comment out to use standard netCDF I/O
 #set Debug_CCTM                        #> uncomment to compile CCTM with debug option equal to TRUE
@@ -86,6 +88,9 @@ set make_options = "-j"                #> additional options for make command if
  set EXEC  = CCTM_${VRSN}.exe          #> executable name
  set CFG   = CCTM_${VRSN}.cfg          #> configuration file name
 
+ if ( $?build_twoway ) then            # WRF Version used for WRF-CMAQ Model (must be v4.4+)
+    set WRF_VRSN = v4.4
+ endif   
 
 #========================================================================
 #> CCTM Science Modules
@@ -243,6 +248,10 @@ set make_options = "-j"                #> additional options for make command if
     set LIB3 = "${mpi_lib} ${extra_lib}"
     set Str1 = (// Parallel / Include message passing definitions)
     set Str2 = (include SUBST_MPI mpif.h;)
+    # Distribute Environment to different machines if not done automatically 
+    if ( $?DistrEnv ) then
+      set PAR = ($PAR -Dcluster) 
+    endif
  else
     #Serial system configuration
     echo "   Not Parallel; set Serial (no-op) flags"
@@ -315,7 +324,13 @@ set make_options = "-j"                #> additional options for make command if
 
 #> Set and create the "BLD" directory for checking out and compiling 
 #> source code. Move current directory to that build directory.
- set Bld = $CMAQ_HOME/CCTM/scripts/BLD_CCTM_${VRSN}_${compilerString}
+ if ( $?Debug_CCTM ) then
+    set Bld = $CMAQ_HOME/CCTM/scripts/BLD_CCTM_${VRSN}_${compilerString}_debug
+ else
+    set Bld = $CMAQ_HOME/CCTM/scripts/BLD_CCTM_${VRSN}_${compilerString}
+ endif
+
+
  if ( ! -e "$Bld" ) then
     mkdir $Bld
  else
@@ -738,5 +753,51 @@ set Cfile = ${Bld}/${CFG}.bld      # Config Filename
     mv $Bld/${CFG} $Bld/${CFG}.old
  endif
  mv ${CFG}.bld $Bld/${CFG}
+
+#> If Building WRF-CMAQ, download WRF, download auxillary files and build
+#> model
+ if ( $?build_twoway ) then
+
+#> Check if the user has git installed on their system
+  git --version >& /dev/null
+  
+  if ($? == 0) then
+   set git_check
+  endif
+ 
+  if ($?git_check) then
+
+    cd $CMAQ_HOME/CCTM/scripts
+  
+    # Downlad WRF repository from GitHub and put CMAQv5.4 into it
+    set WRF_BLD = BLD_WRF${WRF_VRSN}_CCTM_${VRSN}_${compilerString}
+    setenv wrf_path ${CMAQ_HOME}/CCTM/scripts/${WRF_BLD}
+    setenv WRF_CMAQ 1
+
+    if ( ! -d $WRF_BLD ) then 
+      git clone --branch ${WRF_VRSN} https://github.com/wrf-model/WRF.git ./$WRF_BLD >& /dev/null
+      cd $wrf_path
+      mv $Bld ./cmaq
+  
+      # Configure WRF
+        ./configure <<EOF
+        ${WRF_ARCH}
+        1
+EOF
+
+    else
+      # Clean-up 
+      rm -r $Bld
+      cd $wrf_path
+    endif
+
+     # Compile WRF-CMAQ
+     ./compile em_real |& tee -a wrf-cmaq_buildlog.log
+
+     cd ${CMAQ_HOME}/CCTM/scripts
+
+   endif
+
+ endif 
 
 exit
