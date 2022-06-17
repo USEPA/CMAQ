@@ -1,7 +1,7 @@
 #!/bin/csh -f
 
 # ===================== CCTMv5.4.X Run Script ========================= 
-# Usage: run.cctm >&! cctm_v53.log &                                
+# Usage: run.cctm >&! cctm_v54X.log &                                
 #
 # To report problems or request help with this script/program:
 #             http://www.epa.gov/cmaq    (EPA CMAQ Website)
@@ -33,9 +33,9 @@ echo 'Start Model Run At ' `date`
  cd CCTM/scripts
 
 #> Set General Parameters for Configuring the Simulation
- set VRSN      = v534              #> Code Version
+ set VRSN      = v54               #> Code Version
  set PROC      = mpi               #> serial or mpi
- set MECH      = cracmm1_aq      #> Mechanism ID
+ set MECH      = cracmm1_aq        #> Mechanism ID
  set EMIS      = 2018ff            #> Emission Inventory Details
  set APPL      = 4LISTOS1          #> Application Name (e.g. Gridname)
                                                        

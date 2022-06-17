@@ -150,21 +150,21 @@
 
 &Desid_StreamFam
 ! For emission streams available in several run scripts under CCTM/scripts
+! Set Desid_N_Stream_Fams to 2 !!!!!!!
  ! StreamFamilyName(1)     = 'PT_SOURCES'
- ! StreamFamilyMembers(1,:)= 'PT_NONEGU','PT_EGU','PT_OTHER'
+ ! StreamFamilyMembers(1,1:3)= 'PT_NONEGU','PT_EGU','PT_OTHER'
 
 ! For emission streams unique in CCTM/src/run_cctm_cracmm_4LIST1.csh script
- !StreamFamilyName(1)     = 'GENERAL_POA' ! Sources that do nto have a source-specific POA treatment
- !StreamFamilyNum(1)      = 5
- !StreamFamilyMembers(1,:)= 'GRIDDED_OTHER','GRIDDED_SOLVENTS','PT_CANADA_SOLVENTS','PT_OTHER','PT_US_SOLVENTS'
-
- !StreamFamilyName(2)     = 'DIESEL' ! Sources like diesel
- !StreamFamilyNum(2)      = 2
- !StreamFamilyMembers(2,:)= 'GRIDDED_DIESEL','PT_CMV'
-
- !StreamFamilyName(3)     = 'AIRCRAFT' ! US and Canada Aircraft
- !StreamFamilyNum(3)      = 2
- !StreamFamilyMembers(3,:)= 'GRIDDED_US_AIRCRAFT','PT_CANADA_AIRPORTS'
+! Set Desid_N_Stream_Fams to 3 !!!!!!!
+ ! Sources that do not have a source-specific POA treatment
+ !StreamFamilyName(1)     = 'GENERAL_POA'
+ !StreamFamilyMembers(1,1:5)= 'GRIDDED_OTHER','GRIDDED_SOLVENTS','PT_CANADA_SOLVENTS','PT_OTHER','PT_US_SOLVENTS'
+ ! Diesel-Like Sources
+ !StreamFamilyName(2)     = 'DIESEL' 
+ !StreamFamilyMembers(2,1:2)= 'GRIDDED_DIESEL','PT_CMV'
+ ! US and Canada Aircraft
+ !StreamFamilyName(3)     = 'AIRCRAFT'
+ !StreamFamilyMembers(3,1:2)= 'GRIDDED_US_AIRCRAFT','PT_CANADA_AIRPORTS'
 
 /
 
