@@ -150,11 +150,11 @@
 
 &Desid_StreamFam
 ! For emission streams available in several run scripts under CCTM/scripts
-! Set Desid_N_Stream_Fams to 2 !!!!!!!
+! Set Desid_N_Stream_Fams to 1 !!!!!!!
  ! StreamFamilyName(1)     = 'PT_SOURCES'
  ! StreamFamilyMembers(1,1:3)= 'PT_NONEGU','PT_EGU','PT_OTHER'
 
-! For emission streams unique in CCTM/src/run_cctm_cracmm_4LIST1.csh script
+! For emission streams unique in CCTM/src/run_cctm_cracmm_4LISTOS1.csh script
 ! Set Desid_N_Stream_Fams to 3 !!!!!!!
  ! Sources that do not have a source-specific POA treatment
  !StreamFamilyName(1)     = 'GENERAL_POA'
