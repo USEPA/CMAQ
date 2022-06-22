@@ -412,6 +412,7 @@ C Local Variables:
          INTEGER         :: ERROR_NEG
          INTEGER, SAVE   :: WSTEP
          LOGICAL, SAVE   :: FIRST_TIME = .TRUE.
+         LOGICAL         :: EFLAG
 
 #ifdef isam
          INTEGER                    :: IDX, SPC, LAYER, RGN, IRGN
@@ -419,6 +420,8 @@ C Local Variables:
          REAL                       :: MINCHECK, TOTAL
 #endif
 C-----------------------------------------------------------------------
+
+         EFLAG = .FALSE.
 
          IF ( FIRST_TIME ) THEN
             FIRST_TIME = .FALSE.
@@ -486,7 +489,8 @@ C Find emissions stream in the list of available streams
                    XMSG = " User specified ISAM tag - " //
      &                    TRIM( TAGSTREAMS(ITAG,ISRM) )// 
      &                    " - not found in available emissions streams "
-                   CALL M3EXIT( 'ISAM_STREAMS', 1, 1, XMSG, XSTAT1 )
+                   CALL M3MESG(XMSG)
+                   EFLAG = .TRUE.
                  ELSE
                    TAGS_PER_STREAM( IDX ) = TAGS_PER_STREAM( IDX ) + 1
                    STREAM_TO_TAG(IDX,TAGS_PER_STREAM( IDX )) = ITAG
@@ -494,6 +498,14 @@ C Find emissions stream in the list of available streams
               END DO
 
             END DO
+            IF( EFLAG )THEN
+                WRITE(LOGDEV,'(A)')'Available Emissions Streams'
+                DO ITAG = 1,DESID_N_SRM
+                   WRITE(LOGDEV,'(4X,A)')DESID_STREAM_LAB(ITAG)
+                END DO
+                XMSG = 'INCORRECT Emissions Stream used in ISAM control file'
+                CALL M3EXIT( 'ISAM_STREAMS', 1, 1, XMSG, XSTAT1 )
+            END IF
 
 C Develop a map of emitted/diffused ISAM species
             MAP_DIFFtoSA = 0
