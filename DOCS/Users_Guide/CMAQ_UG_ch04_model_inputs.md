@@ -120,7 +120,7 @@ This section describes each of the input files required by the various CMAQ prog
 |[NLDN_STRIKES](#nldn_strikes) <a id=nldn_strikes_t></a>| GRDDED3 | Hourly | XY |Must purchase data|optional for including NO from lightning|
 |[LTNGPARMS_FILE](#ltngparm_file) <a id=ltngparm_file_t></a>| GRDDED3 | Time-invariant | XY |CMAS|required for including NO from lightning|
 |**Biogenic and Land Surface Inputs**||||||
-|[OCEAN_1](#ocean_1) <a id=ocean_1_t></a>| GRDDED3 | Time-invariant | XY |Spatial Allocator|required|
+|[OCEAN_1](#ocean_1) <a id=ocean_1_t></a>| GRDDED3 | Time-invariant | XY |Spatial Allocator, Ocean file python tool|required|
 |[GSPRO](#gspro) <a id=gspro_t></a>| ASCII | Time-invariant | N/a | CMAQ repo|required for running CMAQ with online BEIS biogenics|
 |[B3GRD](#b3grd) <a id=b3grd_t></a>| GRDDED3 | Time-invariant | XY | SMOKE|required for running CMAQ with online BEIS biogenics|
 |[BIOSEASON](#bioseason) <a id=bioseason_t></a>|GRDDED3 |Time-invariant | XY | SMOKE|run-time option for running CMAQ with online BEIS biogenics|
