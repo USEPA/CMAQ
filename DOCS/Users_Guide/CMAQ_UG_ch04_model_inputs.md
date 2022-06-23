@@ -68,6 +68,9 @@ The [Spatial Allocator](https://www.cmascenter.org/sa-tools/) is a set of tools 
 
 SA is used to generate the surf zone and open ocean file that is a required input for utilizing marine emissions and chemistry in CMAQ. This file is discussed later in this chapter under the [OCEAN_1: Sea spray mask](#ocean_1) section.
 
+**Python tool for adding DMS and CHLO in the OCEAN file** 
+An ocean mask file (OCEAN) containing OPEN (open ocean) and SURF (surf zone) is needed for sea spray emissions module in CMAQ. CB6r5m_ae7_aq includes halogen and DMS chemistry which requires two additional parameters in the OCEAN file: DMS (DMS concentrations in seawater) and CHLO (monthly climatological chl-a concentration from MODIS). A Python based tool has been developed for adding DMS and CHLO to the OCEAN file (PYTOOLS/dmschlo/CMAQ_DMS_ChlorA_Plot.ipynb). CB6r5_ae7_aq includes DMS chemistry and also needs DMS in the OCEAN file. Other chemical mechanisms do not need DMS or CHLO.
+
 Additional information on processing data for CMAQ inputs is provided in [Appendix C](Appendix/CMAQ_UG_appendixC_spatial_data.md).
 
 <a id=inputs></a>
@@ -574,9 +577,9 @@ Use of lightning strike data in CMAQ simulations is discussed further in [Chapte
 
 Used by: CCTM
 
-The CMAQ sea spray emissions module requires the input of an ocean mask file (OCEAN). OCEAN is a time-independent I/O API file that identifies the fractional [0-1] coverage in each model grid cell allocated to open ocean (OPEN) or surf zone (SURF). The CCTM uses this coverage information to calculate sea spray emission fluxes from the model grid cells online during a CCTM run.
+The CMAQ sea spray emissions module requires the input of an ocean mask file (OCEAN). OCEAN is a time-independent I/O API file that identifies the fractional [0-1] coverage in each model grid cell allocated to open ocean (OPEN) or surf zone (SURF). The CCTM uses this coverage information to calculate sea spray emission fluxes from the model grid cells online during a CCTM run. 
 
-Additionally, CMAQ's gas-phase chemical mechanisms except cb6r3m_ae7_kmtbr contain an effective first order halogen mediated ozone loss over the ocean (where OPEN + SURF > 0.0). The OCEAN file is also required for this process. The cb6r3m_ae7_kmtbr mechanism contains more explicit marine chemistry, but also requires the OCEAN file.
+Additionally, CMAQ's gas-phase chemical mechanisms except cb6r5m_ae7_aq contain an effective first order halogen mediated ozone loss over the ocean (where OPEN + SURF > 0.001). The OCEAN file is also required for this process. The cb6r5m_ae7_aq mechanism contains more explicit marine chemistry and requires the OCEAN file with two additional parameters: DMS (DMS concentrations in seawater) and CHLO (monthly climatological chl-a concentration from MODIS). CB6r5_ae7_aq includes DMS chemistry and also needs DMS in the OCEAN file. Other chemical mechanisms do not need DMS or CHLO.
 
 See the [CMAQ Ocean File Tutorial](Tutorials/CMAQ_UG_tutorial_oceanfile.md) for step by step instructions on creating this file. 
 
