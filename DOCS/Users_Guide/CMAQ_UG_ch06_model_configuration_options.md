@@ -570,7 +570,7 @@ setenv CTM_OCEAN_CHEM Y
 ```
 
 Speciation of sea spray emissions is controlled by AERO_DATA.F under CCTM/src/aero. 
-Note that CMAQ employing Carbon Bond 6 version r3 with DMS and marine halogen chemistry (cb6r3m_ae7_kmtbr) slightly modifies the speciation of Sea Spray emissions by including bromide from Sea Spray emissions.
+Note that CMAQ employing Carbon Bond 6 version r5 with DMS and marine halogen chemistry (cb6r5m_ae7_aq) slightly modifies the speciation of Sea Spray emissions by including bromide from Sea Spray emissions.
 
 Note that if the CTM_OCEAN_CHEM flag is set to N to indicate zero sea spray emissions, users should set the CTM_EMISCHK variable in the RunScript to FALSE to avoid crashing CMAQ when it cannot find species it is looking for from sea spray. 
 
@@ -609,6 +609,11 @@ Alternatively, users can also edit the emission control file by commenting out t
 | PMCOARSE_BR     | ABR      | Coarse-mode Bromine                    |                       
 | PMFINE_H2O      | AH2O     | Fine-mode Water                        |                       
 | PMCOARSE_H2O    | AH2O     | Coarse-mode Water                      |                       
+
+<a id=DMS_emission></a>
+#### DMS emissions
+
+DMS emissions are calculated using the gas transfer velocity and the monthly mean climatological DMS concentrations in seawater. Ocean file needs to include DMS concentration in seawater. CTM_OCEAN_CHEM should be set to Y to include DMS emissions in the model; otherwise CMAQ will not include any DMS emissions. The details of DMS emissions estimations method in CMAQ are described in Zhao et al. (2021)
 
 
 <a id=Lightning_NO></a>
@@ -678,7 +683,7 @@ Potential Combustion SOA (PCSOA) was added to CMAQv5.2 to account for missing PM
 
 <a id=a-pinene></a>
 #### &#945;-Pinene separated from other monoterpenes
-If using chemical mechanism CB6r3 and aerosol module AERO7 (cb6r3_ae7) with offline biogenic emissions, &#945;-pinene should be separated from all other monoterpenes. This will prevent overestimation in PM2.5 SOA as &#945;-pinene should not make SOA through nitrate radical reaction.  Users can use biogenic emission files created for older model versions by updating the emission control file to separate &#945;-pinene. No action is required for aerosol module AERO6 (any mechanism), in-line biogenics (any mechanism, any aerosol module), or aero7 with SAPRC mechanisms. See the [AERO7 overview release notes](../Release_Notes/CMAQv5.3_aero7_overview.md) for further details. 
+If using chemical mechanism CB6r3 or CB6r5 and aerosol module AERO7 (cb6r3_ae7_aq or cb6r5_ae7_aq) with offline biogenic emissions, &#945;-pinene should be separated from all other monoterpenes. This will prevent overestimation in PM2.5 SOA as &#945;-pinene should not make SOA through nitrate radical reaction.  Users can use biogenic emission files created for older model versions by updating the emission control file to separate &#945;-pinene. No action is required for aerosol module AERO6 (any mechanism), in-line biogenics (any mechanism, any aerosol module), or aero7 with SAPRC mechanisms. See the [AERO7 overview release notes](../Release_Notes/CMAQv5.3_aero7_overview.md) for further details. 
 
 <a id=6.10_Gas_Phase_Chem></a>
 
@@ -738,7 +743,7 @@ Chemical mechanisms available with CMAQv5.3 can be found in [Table 6-3](#Table6-
 
 <!-- END COMMENT -->
 
-To solve the photochemistry, the model uses one of three numerical methods or solvers. They differ by accuracy, generalization, and computational efficiency, i.e. model run times. Options include Euler Backward Iterative (EBI) solver (Hertel et al., 1993),  Rosenbrock (ROS3) solver (Sandu et al., 1997), and Sparse Matrix Vectorized GEAR (SMVGEAR) solver (Jacobson and Turco, 1994). The EBI solver is default method because it is the fastest but is less accurate and must be _tailored_ for each mechanism. The BuildScript defines which EBI solver to use as below.   
+To solve the photochemistry, the model uses one of three numerical methods or solvers. They differ by accuracy, generalization, and computational efficiency, i.e. model run times. Options include Euler Backward Iterative (EBI) solver (Hertel et al., 1993),  Rosenbrock (ROS3) solver (Sandu et al., 1997), and Sparse Matrix Vectorized GEAR (SMVGEAR) solver (Jacobson and Turco, 1994). The EBI solver is the default method for all chemical mechanisms except cb6r5m_ae7_aq because it is the fastest but is less accurate and must be _tailored_ for each mechanism. The dafault solver for cb6r5m_ae7_aq is ROS3 since it is faster than the EBI solver. The BuildScript defines which EBI solver to use as below.   
 
 ```
  set ModGas    = gas/ebi_${Mechanism} 
@@ -1112,6 +1117,8 @@ Wiser, F., B. Place, H. Pye, and V. F. McNeill, Development and application of t
 Xing, J., Mathur, R., Pleim, J., Hogrefe, C., Wang, J., Gan, C.M., Sarwar, G., Wong, D., & McKeen, S. (2016). Representing the effects of stratosphere-troposphere exchange on 3D O3 distributions in chemistry transport models using a potential vorticity based parameterization, Atmos. Chem. Phys., 16, 10865-10877,  [doi:10.5194/acp-16-10865-2016](https://doi.org/10.5194/acp-16-10865-2016).
 
 Yi, C. (2008). Momentum transfer within canopies. J. App. Meteor. Clim., 47, 262-275.
+
+Zhao, J., Sarwar, G., Gantt, B., Foley, K., Kang, D., Fahey, K., Mathur, R., Henderson, B. H., Pye, H. O. T., Zhang, Y., Saiz-Lopez, A. 2021. Impact of dimethylsulfide chemistry on air quality over the Northern Hemisphere, Atmospheric Environment, 244: 117961, 1-10.
 
 
 <!-- BEGIN COMMENT -->
