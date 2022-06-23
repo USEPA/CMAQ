@@ -611,9 +611,9 @@ Alternatively, users can also edit the emission control file by commenting out t
 | PMCOARSE_H2O    | AH2O     | Coarse-mode Water                      |                       
 
 <a id=DMS_emission></a>
-#### DMS emissions
+#### Dimethyl sulfide (DMS) and Halocarbon emissions
 
-DMS emissions are calculated using the gas transfer velocity and the monthly mean climatological DMS concentrations in seawater. Ocean file needs to include DMS concentration in seawater. CTM_OCEAN_CHEM should be set to Y to include DMS emissions in the model; otherwise CMAQ will not include any DMS emissions. The details of DMS emissions estimations method in CMAQ are described in Zhao et al. (2021)
+DMS and hlocarbon emissions are needed for cb6r5m_ae7_aq. DMS emissions are also needed for cb6r5_ae7_aq and. DMS emissions are calculated using the monthly mean climatological DMS concentrations in seawater and halocarbon emissions are calculated using the monthly-average climatological chl-a concentrations derived from the Moderate Resolution Imaging Spectroradiometer (MODIS). Ocean file needs to include DMS and CHLO concentrations in seawater for cb6r5m_ae7_aq and DMS for cb6r5_ae7_aq. CTM_OCEAN_CHEM should be set to Y to include DMS and halocarbon emissions; otherwise CMAQ will not include any DMS or halocarbon emissions. The details of DMS emissions estimations method in CMAQ are described in Zhao et al. (2021) while the details of halocarbon emissions are described in Sarwar et al. (2015) and Sarwar et al. (2019). 
 
 
 <a id=Lightning_NO></a>
