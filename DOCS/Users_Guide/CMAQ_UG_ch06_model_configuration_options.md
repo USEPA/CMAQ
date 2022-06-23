@@ -715,10 +715,10 @@ Chemical mechanisms available with CMAQv5.3 can be found in [Table 6-3](#Table6-
 |**Mechanism Name** | **Comment** |
 | ----------------- | ---------------------------------------------------- |
 | cb6r3_ae7_aq      | Carbon Bond 6 version r3 with aero7 treatment of SOA set up for standard cloud chemistry |
-| cb6r3_ae7_aqkmt2    | Carbon Bond 6 version r3 with aero7 treatment of SOA set up for expanded organic cloud chemistry version 2  |
-| cb6r3m_ae7_kmtbr  | Carbon Bond 6 version r3 with aero7 treatment of SOA and DMS and marine halogen chemistry set up for expanded organic and halogen cloud chemistry  | 
-| cb6r3_ae6_aq      | Carbon Bond 6 version r3 with aero6 treatment of SOA set up for with standard cloud chemistry | 
-| cb6mp_ae6_aq      | Carbon Bond 6 version r3 with air toxics and aero6 treatment of SOA set up for standard cloud chemistry | 
+| cb6r5_ae7_aq      | Carbon Bond 6 version r5 with aero7 treatment of SOA set up for standard cloud chemistry |
+| cb6r5_ae7_aqkmt2    | Carbon Bond 6 version r5 with aero7 treatment of SOA set up for expanded organic cloud chemistry version 2  |
+| cb6r5m_ae7_aq     | Carbon Bond 6 version r5 with aero7 treatment of SOA and DMS and marine halogen chemistry set up for standard cloud chemistry  | 
+| cb6r5hap_ae7_aq      | Carbon Bond 6 version r5 with air toxics and aero7 treatment of SOA set up for standard cloud chemistry | 
 | racm2_ae6_aq      | Regional Atmospheric Chemistry Mechanism version 2 with aero6 treatment of SOA set up for with standard cloud chemistry |
 | saprc07tic_ae7i_aq | State Air Pollution Research Center version 07tc with extended isoprene chemistry and aero7i treatment of SOA set up for with standard cloud chemistry | 
 | saprc07tic_ae7i_aqkmt2 | State Air Pollution Research Center version 07tc with extended isoprene chemistry and aero7i treatment of SOA for expanded organic cloud chemistry version 2  |
