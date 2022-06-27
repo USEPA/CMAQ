@@ -78,7 +78,7 @@ C-----------------------------------------------------------------------
       Logical, Parameter, Private :: T = .true.
       Logical, Parameter, Private :: F = .false.
 
-      Integer, Parameter :: n_oa_list = 78   ! # of potential partitioning SVOCs
+      Integer, Parameter :: n_oa_list = 79   ! # of potential partitioning SVOCs
       Integer, Save      :: n_oa             ! Total # of simulated SOA vapors
       Integer, Save      :: n_oa_NotTracers  ! # of simulated SOA vapors that are not tracers
       Integer, Save      :: n_oa_tracers      ! # of simulated SOA vapors that are tracers
@@ -165,6 +165,7 @@ C-----------------------------------------------------------------------
      & oa_type('AOLGA  ', '        ', '        ',  0.0000,   1.e-10,   1.0E0,1.067,2.50, F,  T,  F,  T ),
      & oa_type('AOLGB  ', '        ', '        ',  0.0000,   1.e-10,   1.0E0, .747,2.10, F,  F,  T,  T ),
      & oa_type('AOP3   ', 'OP3     ', '        ',  0.0000,    1.e+1,  81.0E3, .600,1.92, F,  T,  F,  F ),
+     & oa_type('ASOAT  ', '        ', '        ',  0.0000,  1.0E-10,   1.0E0,0.857,2.31, F,  T,  F,  T ),
      & oa_type('AROCN2ALK','VROCN2ALK','        ', 0.0000,    1.e-2, 104.0E3, .000,1.39, T,  T,  F,  F ),
      & oa_type('AROCN1ALK','VROCN1ALK','        ', 0.0000,    1.e-1,  96.0E3, .000,1.32, T,  T,  F,  F ),
      & oa_type('AROCP0ALK','VROCP0ALK','        ', 0.0000,    1.e+0,  85.0E3, .000,1.17, T,  T,  F,  F ),
