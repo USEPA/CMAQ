@@ -120,7 +120,7 @@ C----------------------------------------------------------------------
 #ifdef sens
       USE DDM3D_DEFN, ONLY : NP, NPMAX
       Use aero_ddm3d, ONLY : s_aerospc_conc, ae_ddm3d_ready,
-     &                       init_aero_ddm3d, s_aerospc_conc
+     &                       init_aero_ddm3d
 #endif 
 
 

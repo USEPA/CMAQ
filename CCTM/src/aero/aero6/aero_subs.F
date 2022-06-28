@@ -694,8 +694,14 @@ C *** Set minimum value for all concentrations in the CBLK array
          DO SPC = 1, N_AEROSPC
             AEROSPC_CONC( SPC,N ) = MAX( AEROSPC_CONC( SPC,N ),
      &                                   AEROSPC( SPC )%MIN_CONC( N ) )
+#ifdef sens
+            IF (AEROSPC_CONC( SPC,N ) .EQ. AEROSPC( SPC )%MIN_CONC( N ) )  THEN
+               S_AEROSPC_CONC( SPC,N,: ) = 0.0
+            ENDIF
+#endif
          END DO
       END DO
+
 
 ! *** Propagate Mode Merging and Minimum value impacts to budget variables
       GROWTH_BUDGET( AERONUM_MAP(:) ) = MOMENT0_CONC(:) - CBUDGET0_NUM(:)
@@ -1141,17 +1147,17 @@ C *** Growth values for mode merge condition
       CGR( 2 ) = SO4FAC * SCONDRATE * OMEGA_AC_SO4
 
 ! *** Initialize Budget Counter Variables         
-      CBUDGET0_NUM( : ) = MOMENT0_CONC( : )
+      CBUDGET0_NUM( : ) = REAL( MOMENT0_CONC( : ), 8)
       CBUDGET0_NUM( 1 ) = CBUDGET0_NUM( 1 ) + DNDT * DELT
       CBUDGET0_SRF( : ) = MOMENT2_CONC( : ) * PI
       CBUDGET0_SRF( 1 ) = CBUDGET0_SRF( 1 ) + DM2DT * DELT * PI
       CBUDGET0_SO4( : ) = AEROSPC_CONC( ASO4_IDX, : )
       CBUDGET0_SO4( 1 ) = CBUDGET0_SO4( 1 ) + DMDT_SO4 * DELT
-      CBUDGET0_NO3( : ) = AEROSPC_CONC( ANO3_IDX, : )
-      CBUDGET0_NH4( : ) = AEROSPC_CONC( ANH4_IDX, : )
-      CBUDGET0_CL ( : ) = AEROSPC_CONC( ACL_IDX , : )
-      CBUDGET0_H2O( : ) = AEROSPC_CONC( AH2O_IDX, : )
-      CBUDGET0_H3OP( : )= AEROSPC_CONC( AH3OP_IDX, : )
+      CBUDGET0_NO3( : ) = REAL( AEROSPC_CONC( ANO3_IDX, : ), 8)
+      CBUDGET0_NH4( : ) = REAL( AEROSPC_CONC( ANH4_IDX, : ), 8)
+      CBUDGET0_CL ( : ) = REAL( AEROSPC_CONC( ACL_IDX , : ), 8)
+      CBUDGET0_H2O( : ) = REAL( AEROSPC_CONC( AH2O_IDX, : ), 8)
+      CBUDGET0_H3OP( : )= REAL( AEROSPC_CONC( AH3OP_IDX, : ), 8)
 
 ! *** Diagnose Condensaiton Sink to Each Mode
       CONDSO4( 1 ) = OMEGA_AT_SO4 * SCONDRATE      
@@ -1466,6 +1472,10 @@ C *** Set flags to account for mass conservation violations in ISRP3F
 #ifndef noiso
       CALL ISOROPIA( WI, RHI, TEMPI, CNTRL, WT, GAS, AERLIQ,
      &               AERSLD, SCASI, OTHER )
+
+#ifdef sens
+      CALL AERO_SENS( SCASI, WI )
+#endif
 
 C *** Save H+ concentration information in microgram/m3 for consistency
       EQLBHIJ = AERLIQ(1) * 1.0D6 * AEROSPC_MW( ah3op_idx)
@@ -3065,8 +3075,12 @@ C     also converts dry surface area to wet second moment
 
 C *** extract in inorganic aerosol processors
 
+#ifdef sens
+               CALL EXTRACT_PRECURSOR( CONCVEC(:), SENGRID( NCOLS,NROWS,NLAYS,:,: ) )
+#else
                CALL EXTRACT_PRECURSOR( CONCVEC(:) ) 
- 
+#endif
+
 C *** Update geometric mean diameters, geometric
 C     standard deviations, modal mass totals, and modal particle
 C     densities, based on the concentrations of M2, M0, and speciated

@@ -399,17 +399,33 @@ C     into aerospc_conc in aero_data module (set minimum)
 
 C *** Extract grid cell concentrations of gas precursors from CGRID (ppm)
 C     into precursr_conc in precursor_data
+#ifdef sens
+               CALL EXTRACT_PRECURSOR( CGRID( C,R,L,: ), SENGRID( C,R,L,:,: ) )
+#else
                CALL EXTRACT_PRECURSOR( CGRID( C,R,L,: ) )
+#endif
 
 C *** Calculate SO4RATE stored in module
                SO4RATE = REAL( PRECURSOR_CONC( SULPRD_IDX ), 4 ) / DT
- 
+#ifdef sens
+               DO NP = 1, NPMAX
+                  S_SO4RATE( NP ) =  S_PRECURSOR_CONC( SULPRD_IDX,NP ) / DT
+               END DO
+#endif
                IF ( PHGRXN_IDX .GT. 0 ) THEN
 C *** Calculate PHG_RATE stored in module
                   PHG_RATE = REAL( PRECURSOR_CONC( PHGRXN_IDX ), 4 ) / DT
+#ifdef sens
+                  DO NP = 1, NPMAX
+                     S_PHG_RATE( NP ) = S_PRECURSOR_CONC( PHGRXN_IDX,NP ) / DT
+                  END DO
+#endif
                ELSE
                   PHG_RATE = 0.0
-               END IF
+#ifdef sens
+                  S_PHG_RATE = 0.0
+#endif
+          END IF
 
 C *** Extract soa concentrations from CGRID and 
 C     convert M2 to wet
@@ -427,7 +443,11 @@ C     and convert M2 to dry and save as surface area
 #endif
 
 C *** Update precursor variables conc back into CGRID
+#ifdef sens
+               CALL UPDATE_PRECURSOR( CGRID( C,R,L,: ), SENGRID( C,R,L,:,: ) )
+#else
                CALL UPDATE_PRECURSOR( CGRID( C,R,L,: ) )
+#endif
 
 C *** Update gas soa concentrations back to CGRID
                CALL UPDATE_ORGVAPOR( CGRID( C,R,L,: ) )

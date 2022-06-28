@@ -93,7 +93,7 @@ C
 C
 C *** VARIABLES FOR GAS PHASE ******************************************
 C
-      COMMON /GAS / GNH3, GHNO3, GHCL 
+      COMMON /GAS / GNH3, GHNO3, GHCL, GNH3D, GHNO3D, GHCLD
 C
 C *** EQUILIBRIUM CONSTANTS ********************************************
 C
@@ -127,6 +127,18 @@ C *** GENERIC VARIABLES ************************************************
 C
       CHARACTER VERSION*15
       COMMON /CGEN/ GREAT, TINY, TINY2, ZERO, ONE, VERSION
+
+C *** Wen added for ddmisrpia
+C
+C *** MOLAL BEFORE ADJUSTMENT OF MINOR SPEICIES ************************
+C
+      DOUBLE PRECISION MOLALD
+      COMMON /MINOR/ MOLALD(NIONS)
+C
+C *** WEN ADDED FOR FILTERING OUT NONPHYSICAL POINTS IN CALCD3
+C
+      INTEGER NONPYS,SAT
+      COMMON /FILT/ NONPYS,SAT
 C
 C *** END OF INCLUDE FILE **********************************************
 C
