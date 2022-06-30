@@ -72,6 +72,8 @@ C-----------------------------------------------------------------------
       USE HGRD_DEFN             ! horizontal domain specifications
       USE CGRID_SPCS            ! CGRID mechanism species
       USE UTILIO_DEFN
+      USE ELMO_DATA, ONLY : L_ELMO, ELMO_AVRG_STEP 
+      USE ELMO_PROC, ONLY : OPEN_ELMO
 #ifdef parallel
       USE SE_MODULES            ! stenex (using SE_UTIL_MODULE)
 #else
@@ -228,7 +230,14 @@ C Get tracer IC's
 C Test opening existing conc file for update
       CALL LOG_HEADING( LOGDEV, "Open or Create Concentration File" )
 
+C *** Open the aerosol parameters file (diameters and standard deviations).
+      IF ( L_ELMO .AND. IO_PE_INCLUSIVE ) THEN
+           CALL OPEN_ELMO ( STDATE, STTIME, TSTEP( 1 ) )
+           ELMO_AVRG_STEP = 0
+      END IF
+
       IF ( .NOT. OPEN3( CTM_CONC_1, FSRDWR3, PNAME ) ) THEN
+
 #ifndef twoway
          BACKSPACE( LOGDEV )
 #endif

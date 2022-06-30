@@ -74,6 +74,11 @@
 !                     an extreme case, i.e. simulation runs in a hourly basis, in the
 !                     retrieve_boundary_data subroutine.
 !  08/06/20, D. Wong:- fixed excessive reading of time independent boundary file data
+!  02/23/21, D. Wong:- used KZMIN setting to determine reading in PURB or not
+!  03/23/21. D. Wong:- modified code to accommodate a flexibility to allow each input 
+!                      can have different XORIG and YORIG settings than the simulation
+!                      domain if it can be overlapped with the simulation domain 
+!                      perfectly w.r.t. domain resolution
 !  11/17/21, G. Sarwar: Changed minimum values from 0.0 to 0.001 for ocean and szone  
 !                       to ensure values are nonnegative and greater than 0.001
 !  01/17/22, D. Wong: Added SAVE attribute to variable FIRSTIME
@@ -175,14 +180,24 @@
      &                       LAI_M(:,:,:),      ! from MEGANMAP data
      &                       EFMAPS(:,:,:),     ! from MEGANMAP data
      &                       CTF(:,:,:),        ! from MEGANMAP data
-     &                       T24y(:,:),         ! from SOILINP data
-     &                       SW24y(:,:),        ! from SOILINP data
-     &                       lai_y(:,:)         ! from SOILINP data
+     &                       BDSNP_NDEP(:,:,:),  ! from MEGAN_BDSNP data
+     &                       BDSNP_FERT(:,:),    ! from MEGAN_BDSNP data
+     &                       DRYPERIOD(:,:),     ! from BDSNPINP data
+     &                       NDEPRES(:,:),       ! from BDSNPINP data
+     &                       NDEPRATE(:,:),      ! from BDSNPINP data
+     &                       PFACTOR(:,:),       ! from BDSNPINP data
+     &                       SOILMPREV(:,:),     ! from BDSNPINP data
+     &                       T24y(:,:),          ! from MEGAN_SOILINP data
+     &                       SW24y(:,:),         ! from MEGAN_SOILINP data
+     &                       lai_y(:,:)          ! from MEGAN_SOILINP data
 
 
         integer, allocatable :: PTYPE(:,:),        ! from SOILINP data
      &                          PULSEDATE(:,:),    ! from SOILINP data
-     &                          PULSETIME(:,:)     ! from SOILINP data
+     &                          PULSETIME(:,:),    ! from SOILINP data
+     &                          BDSNP_LANDTYPE(:,:),! from MEGAN_BDSNP data
+     &                          BDSNP_ARID(:,:),    ! from MEGAN_BDSNP data
+     &                          BDSNP_NONARID(:,:)  ! from MEGAN_BDSNP data
 
         character( 16 ), allocatable :: DDTTM( : ) ! for SOILINP data, description date and time
 
@@ -215,6 +230,10 @@
         integer, allocatable :: cio_emis_file_loc(:)
         integer, allocatable :: cio_emis_nvars(:)
         integer, allocatable :: cio_emis_file_layer(:)
+        integer, allocatable :: cio_emis_file_startcol(:)
+        integer, allocatable :: cio_emis_file_endcol(:)
+        integer, allocatable :: cio_emis_file_startrow(:)
+        integer, allocatable :: cio_emis_file_endrow(:)
         integer              :: cio_emis_nlays                     ! max value among cio_emis_file_layer
 
 ! this is for MPAS only
@@ -251,6 +270,7 @@
 
 ! availability of various variable
         logical :: CFRAC_3D_AVAIL = .true.,  ! CFRAC_3D is available or not
+     &             PV_AVAIL       = .false., ! Potential Vorticity is available or not
      &             TSEASFC_AVAIL  = .false., ! SST is available or not
      &             WSPD10_AVAIL,             ! WSPD10 is available or not
      &             UWINDC_AVAIL,             ! UWINDC is available in DOT file or not
@@ -282,13 +302,14 @@
         INTEGER :: TSEASFC_LOC
 
         integer :: STRTCOLSTD,  ENDCOLSTD,  STRTROWSTD,  ENDROWSTD,   ! this is for standard domain useful for coupled model
-     &             STRTCOLGC2,  ENDCOLGC2,  STRTROWGC2,  ENDROWGC2,
-     &             STRTCOLGD2,  ENDCOLGD2,  STRTROWGD2,  ENDROWGD2,
      &             STRTCOLMC2,  ENDCOLMC2,  STRTROWMC2,  ENDROWMC2,
      &             STRTCOLMC2x, ENDCOLMC2x, STRTROWMC2x, ENDROWMC2x,  ! extension setup for READMC2
      &             STRTCOLMC3,  ENDCOLMC3,  STRTROWMC3,  ENDROWMC3,
      &             STRTCOLMD3,  ENDCOLMD3,  STRTROWMD3,  ENDROWMD3,
-     &             STRTCOLMD3x, ENDCOLMD3x, STRTROWMD3x, ENDROWMD3x   ! extension setup for READMD3
+     &             STRTCOLMD3x, ENDCOLMD3x, STRTROWMD3x, ENDROWMD3x,  ! extension setup for READMD3
+     &             STRTCOLIC,   ENDCOLIC,   STRTROWIC,   ENDROWIC,    ! for ICFILE
+     &             STRTCOLISIC, ENDCOLISIC, STRTROWISIC, ENDROWISIC,  ! for ISAM ICFILE
+     &             STRTCOLLNT,  ENDCOLLNT,  STRTROWLNT,  ENDROWLNT   ! for lightning strike file
 
         private :: gridded_files_setup,
      &             retrieve_lufrac_cro_data
@@ -392,7 +413,7 @@
 !  lus_setup
 !  centralized_io_init
 !  INIT_EMIS_REGIONS
-!  READ_EMISS_NAMELIST
+!  DESID_READ_NAMELIST
         
         contains
 
@@ -400,7 +421,7 @@
         subroutine gridded_files_setup
 
           USE UTILIO_DEFN
-          use HGRD_DEFN, only : ncols, nrows
+          use HGRD_DEFN, only : ncols, nrows, mype, colsx_pe, rowsx_pe
           USE VGRD_DEFN, only : VGTYP_GD, nlays
           USE RUNTIME_VARS, only : N_FILE_GR, BIOGEMIS_BEIS, 
      &                             STDATE, WB_DUST, ISAM_NEW_START,
@@ -465,8 +486,6 @@
           END IF
 
           n_grid_cro_data_vars = nvars3d
-          CALL SUBHFILE ( GRID_CRO_2D, GXOFF, GYOFF,
-     &                    STRTCOLGC2, ENDCOLGC2, STRTROWGC2, ENDROWGC2 )
 
           LAND_SCHEME = 'UNKNOWN'
 
@@ -502,8 +521,6 @@
              XMSG = 'Could not open '// GRID_DOT_2D // ' file'
              CALL M3EXIT ( PNAME, 0, 0, XMSG, XSTAT1 )
           END IF
-          CALL SUBHFILE ( GRID_DOT_2D, GXOFF, GYOFF,
-     &                    STRTCOLGD2, ENDCOLGD2, STRTROWGD2, ENDROWGD2 )
 
 ! lufrac cro file
           IF ( .NOT. OPEN3( LUFRAC_CRO, FSREAD3, PNAME ) ) THEN
@@ -519,9 +536,6 @@
                 XMSG = 'Could not get ' // LUFRAC_CRO //' file description'
                 CALL M3EXIT ( PNAME, 0, 0, XMSG, XSTAT1 )
              END IF
-
-             CALL SUBHFILE ( LUFRAC_CRO, GXOFF, GYOFF,
-     &                       STRTCOLGC2, ENDCOLGC2, STRTROWGC2, ENDROWGC2 )
           END IF
 
 ! met cro 2d file
@@ -630,6 +644,7 @@
           c3d_name(:,3) = 'm'    ! denote met variable
 
           CFRAC_3D_AVAIL = (INDEX1( 'CFRAC_3D', NVARS3D, VNAME3D ) .gt. 0)
+          PV_AVAIL       = (INDEX1( 'PV', NVARS3D, VNAME3D ) .gt. 0)
           QI_AVAIL       = (INDEX1( 'QI', NVARS3D, VNAME3D ) .gt. 0)
           QS_AVAIL       = (INDEX1( 'QS', NVARS3D, VNAME3D ) .gt. 0)
           QG_AVAIL       = (INDEX1( 'QG', NVARS3D, VNAME3D ) .gt. 0)
@@ -760,13 +775,19 @@
 
 ! emission file, could be one or multiple layer
 
-          call read_emiss_namelist
-          call init_emis_regions()
+          call desid_read_namelist()
+          call desid_init_regions()
 
           allocate (cio_emis_file_name(N_FILE_GR),
      &              cio_emis_file_loc(N_FILE_GR),
      &              cio_emis_nvars(N_FILE_GR),
      &              f_emis(N_FILE_GR),
+#ifndef mpas
+     &              cio_emis_file_startcol(N_FILE_GR),
+     &              cio_emis_file_endcol(N_FILE_GR),
+     &              cio_emis_file_startrow(N_FILE_GR),
+     &              cio_emis_file_endrow(N_FILE_GR),
+#endif
      &              stat=stat)
 
 #ifdef mpas
@@ -853,6 +874,10 @@
                 CALL M3EXIT ( PNAME, 0, 0, XMSG, XSTAT1 )
              END IF
 
+             call subhfile ( cio_emis_file_name(n), gxoff, gyoff,
+     &                       cio_emis_file_startcol(n), cio_emis_file_endcol(n), 
+     &                       cio_emis_file_startrow(n), cio_emis_file_endrow(n) )
+
              file_sdate(f_emis(n)) = sdate3d
              file_stime(f_emis(n)) = stime3d
              file_tstep(f_emis(n)) = tstep3d
@@ -916,7 +941,9 @@
              XMSG = 'Could not get description of file  '// ICFILE 
              CALL M3EXIT ( PNAME, 0, 0, XMSG, XSTAT1 )
           END IF
-          
+          call subhfile ( ICFILE, gxoff, gyoff,
+     &                    STRTCOLIC, ENDCOLIC, STRTROWIC, ENDROWIC )
+         
 ! remove duplicate name from MET_CRO_3D file
           adj = nvars3d
           do v = nvars3d, 1, -1
@@ -939,9 +966,6 @@
           i3d_name(:,2) = 'ic'                  ! denote initial condition variable
           i3d_name(:,3) = ' '                   ! denote non met variable
 
-          CALL SUBHFILE ( ICFILE, GXOFF, GYOFF,
-     &                    STRTCOLSTD, ENDCOLSTD, STRTROWSTD, ENDROWSTD )
-
 ! setup initial condition file for ISAM
           n_is3d = 0
 
@@ -956,6 +980,9 @@
                 XMSG = 'Could not get description of file  '// ISAM_PREVDAY 
                 CALL M3EXIT ( PNAME, 0, 0, XMSG, XSTAT1 )
              END IF
+             call subhfile ( ISAM_PREVDAY, gxoff, gyoff,
+     &                       STRTCOLISIC, ENDCOLISIC, STRTROWISIC, ENDROWISIC )
+
              n_is3d = nvars3d
              allocate (is3d_name(n_is3d, 3), stat=stat)
              if (stat .ne. 0) then
@@ -1042,6 +1069,8 @@
                 XMSG = 'Could not get description of file  '// NLDN_STRIKES 
                 CALL M3EXIT ( PNAME, 0, 0, XMSG, XSTAT1 )
              END IF
+             call subhfile ( NLDN_STRIKES, gxoff, gyoff,
+     &                       STRTCOLLNT, ENDCOLLNT, STRTROWLNT, ENDROWLNT)
 
              file_sdate(f_ltng) = sdate3d
              file_stime(f_ltng) = stime3d
@@ -1086,6 +1115,11 @@
           cro_nrows = ENDROWMC2 - STRTROWMC2 + 1
 
 ! for standard domain
+          STRTCOLSTD = COLSX_PE( 1, MYPE+1 )
+          ENDCOLSTD  = COLSX_PE( 2, MYPE+1 )
+          STRTROWSTD = ROWSX_PE( 1, MYPE+1 )
+          ENDROWSTD  = ROWSX_PE( 2, MYPE+1 )
+
           s_cro_ncols = ENDCOLSTD - STRTCOLSTD + 1
           s_cro_nrows = ENDROWSTD - STRTROWSTD + 1
 #endif
@@ -1212,7 +1246,6 @@
              else if (cio_grid_var_name(v,2) .eq. 'md3') then
                 d_size = size_d3dx
              else if ((cio_grid_var_name(v,2) .eq. 'lnt') .or.
-!     &                (cio_grid_var_name(v,2) .eq. 'bs') .or.
      &                (cio_grid_var_name(v,2) .eq. 'wb')) then
                 d_size = size_s2d
              else
@@ -1484,8 +1517,9 @@
                    data_jdate = loc_jdate(f_emis(fnum))
                    data_jtime = loc_jtime(f_emis(fnum))
 
-                   IF ( .NOT. XTRACT3( cio_emis_file_name(fnum), loc_vname,
-     &                                 1, 1, STRTROWSTD, ENDROWSTD, STRTCOLSTD, ENDCOLSTD, 
+                   IF ( .NOT. XTRACT3( cio_emis_file_name(fnum), loc_vname, 1, 1,
+     &                                 cio_emis_file_startrow(fnum), cio_emis_file_endrow(fnum),
+     &                                 cio_emis_file_startcol(fnum), cio_emis_file_endcol(fnum),
      &                                 data_jdate, data_jtime, cio_grid_data(begin:end) ) ) THEN
                       XMSG = 'Could not extract ' // cio_emis_file_name(fnum) // ' file'
                       CALL M3EXIT ( PNAME, data_jdate, data_jtime, XMSG, XSTAT1 )
@@ -1554,7 +1588,9 @@
                    data_jtime = loc_jtime(f_emis(fnum))
 
                    IF ( .NOT. XTRACT3( cio_emis_file_name(fnum), loc_vname,
-     &                                 1, cio_emis_file_layer(fnum), STRTROWSTD, ENDROWSTD, STRTCOLSTD, ENDCOLSTD, 
+     &                                 1, cio_emis_file_layer(fnum), 
+     &                                 cio_emis_file_startrow(fnum), cio_emis_file_endrow(fnum),
+     &                                 cio_emis_file_startcol(fnum), cio_emis_file_endcol(fnum),
      &                                 data_jdate, data_jtime, cio_grid_data(begin:end) ) ) THEN
                       XMSG = 'Could not extract ' // cio_emis_file_name(fnum) // ' file'
                       CALL M3EXIT ( PNAME, data_jdate, data_jtime, XMSG, XSTAT1 )
@@ -1571,7 +1607,7 @@
                    if (iter == 1) then
                    
                       IF ( .NOT. XTRACT3( ICFILE, cio_grid_var_name(v,1),
-     &                                    1, nlays, STRTROWSTD, ENDROWSTD, STRTCOLSTD, ENDCOLSTD, 
+     &                                    1, nlays, STRTROWIC, ENDROWIC, STRTCOLIC, ENDCOLIC, 
      &                                    data_jdate, data_jtime, cio_grid_data(begin:end) ) ) THEN
                          XMSG = 'Could not extract ' // ICFILE // ' file'
                          CALL M3EXIT ( PNAME, data_jdate, data_jtime, XMSG, XSTAT1 )
@@ -1588,7 +1624,7 @@
                    if ((iter == 1) .and. (ISAM_NEW_START == 'N')) then
                       
                       IF ( .NOT. XTRACT3( ISAM_PREVDAY, cio_grid_var_name(v,1),
-     &                                    1, nlays, STRTROWSTD, ENDROWSTD, STRTCOLSTD, ENDCOLSTD, 
+     &                                    1, nlays, STRTROWISIC, ENDROWISIC, STRTCOLISIC, ENDCOLISIC, 
      &                                    data_jdate, data_jtime, cio_grid_data(begin:end) ) ) THEN
                          XMSG = 'Could not extract ' // ISAM_PREVDAY // ' file'
                          CALL M3EXIT ( PNAME, data_jdate, data_jtime, XMSG, XSTAT1 )
@@ -1603,7 +1639,7 @@
                    data_jtime = loc_jtime(f_ltng)
 
                    IF ( .NOT. XTRACT3( NLDN_STRIKES, cio_grid_var_name(v,1), 
-     &                                 1, cio_LTLYRS, STRTROWSTD, ENDROWSTD, STRTCOLSTD, ENDCOLSTD, 
+     &                                 1, cio_LTLYRS, STRTROWLNT, ENDROWLNT, STRTCOLLNT, ENDCOLLNT, 
      &                                 data_jdate, data_jtime, cio_grid_data(begin:end) ) ) THEN
                       XMSG = 'Could not extract ' // NLDN_STRIKES // ' file'
                       CALL M3EXIT ( PNAME, data_jdate, data_jtime, XMSG, XSTAT1 )
@@ -1668,6 +1704,7 @@
           INCLUDE SUBST_FILES_ID             ! file name parameters
 
           Character( 40 ), parameter :: pname = 'retrieve_lufrac_cro_data'
+          integer :: startcol, endcol, startrow, endrow, gxoff, gyoff
 
           CHARACTER( 120 ) :: XMSG = ' '
           INTEGER          :: STAT, n, c
@@ -1687,8 +1724,11 @@
              end do
           end do
 #else
+           CALL SUBHFILE ( LUFRAC_CRO, GXOFF, GYOFF,
+     &                    startcol, endcol, startrow, endrow )
+
            IF ( .Not. XTRACT3( LUFRAC_CRO, 'LUFRAC',
-     &                         1, n_lufrac, STRTROWGC2, ENDROWGC2, STRTCOLGC2, ENDCOLGC2, 
+     &                         1, n_lufrac, startrow, endrow, startcol, endcol, 
      &                         0, 0, LUFRAC ) ) THEN
               XMSG = 'Error interpolating variable LUFRAC from ' // LUFRAC_CRO
               Call M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
@@ -2550,6 +2590,7 @@
           CHARACTER( 256 ) :: MESG
           CHARACTER( 16 ) :: VAR
           INTEGER :: STAT, i, j, k
+          integer :: startcol, endcol, startrow, endrow, gxoff, gyoff
 
           ALLOCATE( AVGEMIS( NCOLS,NROWS,NSEF-1,NSEASONS ),
      &              STAT=STAT )
@@ -2565,6 +2606,10 @@
              CALL M3MESG( XMSG )
           END IF
 
+          call subhfile ( biogemis_fname, gxoff, gyoff,
+     &                    startcol, endcol, startrow, endrow )
+
+
 C Read the various categories of normalized emissions
           DO I = 1, NSEASONS
 
@@ -2572,7 +2617,7 @@ C Read the various categories of normalized emissions
                 VAR = 'AVG_' // TRIM( BIOTYPES( J ) ) // SEASON( I )
 
                 IF ( .NOT. XTRACT3( biogemis_fname, VAR,
-     &                              1,1, STRTROWSTD, ENDROWSTD, STRTCOLSTD, ENDCOLSTD,
+     &                              1,1, startrow, endrow, startcol, endcol,
      &                              0, 0, AVGEMIS( :,:,J,I ) ) ) THEN
                    MESG = 'Could not read "' // TRIM( VAR ) //
      &                    '" from file "' // TRIM( biogemis_fname ) // '"'
@@ -2596,6 +2641,7 @@ C Read the various categories of normalized emissions
           CHARACTER( 256 ) :: MESG
           CHARACTER( 16 ) :: VAR
           INTEGER :: STAT
+          integer :: startcol, endcol, startrow, endrow, gxoff, gyoff
 
           ALLOCATE( GROWAGNO( NCOLS,NROWS ),
      &              NGROWAGNO( NCOLS,NROWS ),
@@ -2608,9 +2654,12 @@ C Read the various categories of normalized emissions
           END IF
           n_opened_file = n_opened_file + 1
 
+          call subhfile ( fname, gxoff, gyoff,
+     &                    startcol, endcol, startrow, endrow )
+
           VAR = 'AVG_NOAG_GROW'
           IF ( .NOT. XTRACT3( fname, VAR,
-     &                        1,1, STRTROWSTD, ENDROWSTD, STRTCOLSTD, ENDCOLSTD,
+     &                        1,1, startrow, endrow, startcol, endcol,
      &                        0, 0, GROWAGNO ) ) THEN
              MESG = 'Could not read "' // TRIM( VAR ) //
      &              '" from file "' // TRIM( fname ) // '"'
@@ -2619,7 +2668,7 @@ C Read the various categories of normalized emissions
 
           VAR = 'AVG_NOAG_NONGROWNB3'
           IF ( .NOT. XTRACT3( fname, VAR,
-     &                        1,1, STRTROWSTD, ENDROWSTD, STRTCOLSTD, ENDCOLSTD,
+     &                        1,1, startrow, endrow, startcol, endcol,
      &                        0, 0, NGROWAGNO ) ) THEN
              MESG = 'Could not read "' // TRIM( VAR ) //
      &              '" from file "' // TRIM( fname ) // '"'
@@ -2628,7 +2677,7 @@ C Read the various categories of normalized emissions
 
           VAR = 'AVG_NONONAG'
           IF ( .NOT. XTRACT3( fname, VAR,
-     &                        1,1, STRTROWSTD, ENDROWSTD, STRTCOLSTD, ENDCOLSTD,
+     &                        1,1, startrow, endrow, startcol, endcol,
      &                        0, 0, NONAGNO ) ) THEN
              MESG = 'Could not read "' // TRIM( VAR ) //
      &              '" from file "' // TRIM( fname ) // '"'
@@ -2652,6 +2701,7 @@ C Read the various categories of normalized emissions
           CHARACTER( 256 ) :: MESG
           CHARACTER( 16 ) :: vname
           INTEGER :: STAT, i, j, k, jdate_yest
+          integer :: startcol, endcol, startrow, endrow, gxoff, gyoff
 
           Allocate ( Beld_ag ( ncols, nrows, e2c_cats ),
      &               pHs1 ( ncols, nrows, e2c_cats ),      ! for E2C_SOIL file
@@ -2666,10 +2716,13 @@ C Read the various categories of normalized emissions
           END IF
           n_opened_file = n_opened_file + 1
 
+          call subhfile ( E2C_LU, gxoff, gyoff,
+     &                    startcol, endcol, startrow, endrow )
+
           Do k = 1, e2c_cats
              vname = BELD_Names(k)
              IF ( .NOT. XTRACT3( E2C_LU, vname,
-     &                            1, 1, STRTROWSTD, ENDROWSTD, STRTCOLSTD, ENDCOLSTD,
+     &                            1, 1, startrow, endrow, startcol, endcol,
      &                            0, 0, Beld_ag( :,:,k ) ) ) Then
                 MESG = 'Could not read "' // TRIM( vname ) //
      &                 '" from file "' // TRIM( E2C_LU ) // '"'
@@ -2684,17 +2737,20 @@ C Read the various categories of normalized emissions
           End If
           n_opened_file = n_opened_file + 1
 
+          call subhfile ( E2C_SOIL, gxoff, gyoff,
+     &                    startcol, endcol, startrow, endrow )
+
           vname = 'L1_PH'
-          If ( .Not. Xtract3 ( E2C_SOIL, vname, 1, e2c_cats, STRTROWSTD, ENDROWSTD, 
-     &                         STRTCOLSTD, ENDCOLSTD, 0, 0, pHs1 ) ) Then
+          If ( .Not. Xtract3 ( E2C_SOIL, vname, 1, e2c_cats, startrow, endrow,
+     &                         startcol, endcol, 0, 0, pHs1 ) ) Then
              MESG = 'Could not read "' // TRIM( vname ) //
      &              '" from file "' // TRIM( E2C_SOIL ) // '"'
              CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
           End If
 
           vname = 'L2_PH'
-          If ( .Not. Xtract3 ( E2C_SOIL, vname, 1, e2c_cats, STRTROWSTD, ENDROWSTD, 
-     &                         STRTCOLSTD, ENDCOLSTD, 0, 0, pHs2 ) ) Then
+          If ( .Not. Xtract3 ( E2C_SOIL, vname, 1, e2c_cats, startrow, endrow,
+     &                         startcol, endcol, 0, 0, pHs2 ) ) Then
              MESG = 'Could not read "' // TRIM( vname ) //
      &              '" from file "' // TRIM( E2C_SOIL ) // '"'
              CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
@@ -2710,48 +2766,48 @@ C Read the various categories of normalized emissions
      &               STAT=STAT )
 
           vname = 'L1_Porosity'
-          If ( .Not. Xtract3 ( E2C_SOIL, vname, 1, e2c_cats, STRTROWSTD, ENDROWSTD, 
-     &                         STRTCOLSTD, ENDCOLSTD, 0, 0, por1 ) ) Then
+          If ( .Not. Xtract3 ( E2C_SOIL, vname, 1, e2c_cats, startrow, endrow,
+     &                         startcol, endcol, 0, 0, por1 ) ) Then
              MESG = 'Could not read "' // TRIM( vname ) //
      &              '" from file "' // TRIM( E2C_SOIL ) // '"'
              CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
           End If
 
           vname = 'L2_Porosity'
-          If ( .Not. Xtract3 ( E2C_SOIL, vname, 1, e2c_cats, STRTROWSTD, ENDROWSTD, 
-     &                         STRTCOLSTD, ENDCOLSTD, 0, 0, por2 ) ) Then
+          If ( .Not. Xtract3 ( E2C_SOIL, vname, 1, e2c_cats, startrow, endrow,
+     &                         startcol, endcol, 0, 0, por2 ) ) Then
              MESG = 'Could not read "' // TRIM( vname ) //
      &              '" from file "' // TRIM( E2C_SOIL ) // '"'
              CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
           End If
 
           vname = 'L1_Wilt_P'
-          If ( .Not. Xtract3 ( E2C_SOIL, vname, 1, e2c_cats, STRTROWSTD, ENDROWSTD, 
-     &                         STRTCOLSTD, ENDCOLSTD, 0, 0, wp1 ) ) Then
+          If ( .Not. Xtract3 ( E2C_SOIL, vname, 1, e2c_cats, startrow, endrow,
+     &                         startcol, endcol, 0, 0, wp1 ) ) Then
              MESG = 'Could not read "' // TRIM( vname ) //
      &              '" from file "' // TRIM( E2C_SOIL ) // '"'
              CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
           End If
 
           vname = 'L2_Wilt_P'
-          If ( .Not. Xtract3 ( E2C_SOIL, vname, 1, e2c_cats, STRTROWSTD, ENDROWSTD, 
-     &                         STRTCOLSTD, ENDCOLSTD, 0, 0, wp2 ) ) Then
+          If ( .Not. Xtract3 ( E2C_SOIL, vname, 1, e2c_cats, startrow, endrow,
+     &                         startcol, endcol, 0, 0, wp2 ) ) Then
              MESG = 'Could not read "' // TRIM( vname ) //
      &              '" from file "' // TRIM( E2C_SOIL ) // '"'
              CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
           End If
 
           vname = 'L1_Cation'
-          If ( .Not. Xtract3 ( E2C_SOIL, vname, 1, e2c_cats, STRTROWSTD, ENDROWSTD, 
-     &                         STRTCOLSTD, ENDCOLSTD, 0, 0, cec1 ) ) Then
+          If ( .Not. Xtract3 ( E2C_SOIL, vname, 1, e2c_cats, startrow, endrow,
+     &                         startcol, endcol, 0, 0, cec1 ) ) Then
              MESG = 'Could not read "' // TRIM( vname ) //
      &              '" from file "' // TRIM( E2C_SOIL ) // '"'
              CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
           End If
  
           vname = 'L2_Cation'
-          If ( .Not. Xtract3 ( E2C_SOIL, vname, 1, e2c_cats, STRTROWSTD, ENDROWSTD, 
-     &                         STRTCOLSTD, ENDCOLSTD, 0, 0, cec2 ) ) Then
+          If ( .Not. Xtract3 ( E2C_SOIL, vname, 1, e2c_cats, startrow, endrow,
+     &                         startcol, endcol, 0, 0, cec2 ) ) Then
              MESG = 'Could not read "' // TRIM( vname ) //
      &              '" from file "' // TRIM( E2C_SOIL ) // '"'
              CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
@@ -2771,22 +2827,25 @@ C Read the various categories of normalized emissions
              CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
           END IF
 
+          call subhfile ( E2C_CHEM, gxoff, gyoff,
+     &                    startcol, endcol, startrow, endrow )
+
           GMN_AVAIL = .false.
           if (index1 ('GMN', nvars3d, vname3d) .gt. 0) then
              GMN_AVAIL = .true.          
           end if
 
           vname = 'L1_NH3'
-          If ( .Not. Xtract3 (E2C_CHEM, vname, 1, e2c_cats, STRTROWSTD, ENDROWSTD, 
-     &                        STRTCOLSTD, ENDCOLSTD, cio_model_sdate, 0, NH4ps1) ) Then
+          If ( .Not. Xtract3 (E2C_CHEM, vname, 1, e2c_cats, startrow, endrow,
+     &                        startcol, endcol, cio_model_sdate, 0, NH4ps1) ) Then
              MESG = 'Could not read "' // TRIM( vname ) //
      &              '" from file "' // TRIM( E2C_CHEM ) // '"'
              CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
           End If
 
           vname = 'L2_NH3'
-          If ( .Not. Xtract3 (E2C_CHEM, vname, 1, e2c_cats, STRTROWSTD, ENDROWSTD, 
-     &                        STRTCOLSTD, ENDCOLSTD, cio_model_sdate, 0, NH4ps2) ) Then
+          If ( .Not. Xtract3 (E2C_CHEM, vname, 1, e2c_cats, startrow, endrow,
+     &                        startcol, endcol, cio_model_sdate, 0, NH4ps2) ) Then
              MESG = 'Could not read "' // TRIM( vname ) //
      &              '" from file "' // TRIM( E2C_CHEM ) // '"'
              CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
@@ -2800,24 +2859,24 @@ C Read the various categories of normalized emissions
      &               STAT=STAT )
 
           vname = 'L1_SW'
-          If ( .Not. Xtract3 (E2C_CHEM, vname, 1, e2c_cats, STRTROWSTD, ENDROWSTD, 
-     &                        STRTCOLSTD, ENDCOLSTD, cio_model_sdate, 0, wep1)) Then
+          If ( .Not. Xtract3 (E2C_CHEM, vname, 1, e2c_cats, startrow, endrow,
+     &                        startcol, endcol, cio_model_sdate, 0, wep1)) Then
              MESG = 'Could not read "' // TRIM( vname ) //
      &              '" from file "' // TRIM( E2C_CHEM ) // '"'
              CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
           End If
 
           vname = 'L2_SW'
-          If ( .Not. Xtract3 (E2C_CHEM, vname, 1, e2c_cats, STRTROWSTD, ENDROWSTD, 
-     &                        STRTCOLSTD, ENDCOLSTD, cio_model_sdate, 0, wep2)) Then
+          If ( .Not. Xtract3 (E2C_CHEM, vname, 1, e2c_cats, startrow, endrow,
+     &                        startcol, endcol, cio_model_sdate, 0, wep2)) Then
              MESG = 'Could not read "' // TRIM( vname ) //
      &              '" from file "' // TRIM( E2C_CHEM ) // '"'
              CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
           End If
 
           vname = 'L2_DEP'
-          If ( .Not. Xtract3 (E2C_CHEM, vname, 1, e2c_cats, STRTROWSTD, ENDROWSTD, 
-     &                        STRTCOLSTD, ENDCOLSTD, cio_model_sdate, 0, dep2)) Then
+          If ( .Not. Xtract3 (E2C_CHEM, vname, 1, e2c_cats, startrow, endrow,
+     &                        startcol, endcol, cio_model_sdate, 0, dep2)) Then
              MESG = 'Could not read "' // TRIM( vname ) //
      &              '" from file "' // TRIM( E2C_CHEM ) // '"'
              CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
@@ -2833,43 +2892,43 @@ C Read the various categories of normalized emissions
      &              STAT=STAT )
 
           vname = 'L1_NITR'
-          If ( .Not. Xtract3 (E2C_CHEM, vname, 1, e2c_cats, STRTROWSTD, ENDROWSTD, 
-     &                        STRTCOLSTD, ENDCOLSTD, cio_model_sdate, 0, Nit1 ) ) Then
+          If ( .Not. Xtract3 (E2C_CHEM, vname, 1, e2c_cats, startrow, endrow,
+     &                        startcol, endcol, cio_model_sdate, 0, Nit1 ) ) Then
              Write( mesg,9001 ) vname, E2C_CHEM
              CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
           End If
 
           vname = 'L2_NITR'
-          If ( .Not. Xtract3 (E2C_CHEM, vname, 1, e2c_cats, STRTROWSTD, ENDROWSTD, 
-     &                        STRTCOLSTD, ENDCOLSTD, cio_model_sdate, 0, Nit2 ) ) Then
+          If ( .Not. Xtract3 (E2C_CHEM, vname, 1, e2c_cats, startrow, endrow,
+     &                        startcol, endcol, cio_model_sdate, 0, Nit2 ) ) Then
              Write( mesg,9001 ) vname, E2C_CHEM
              CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
           End If
 
           vname = 'L1_ON'
-          If ( .Not. Xtract3 (E2C_CHEM, vname, 1, e2c_cats, STRTROWSTD, ENDROWSTD, 
-     &                        STRTCOLSTD, ENDCOLSTD, cio_model_sdate, 0, L1_ON ) ) Then
+          If ( .Not. Xtract3 (E2C_CHEM, vname, 1, e2c_cats, startrow, endrow,
+     &                        startcol, endcol, cio_model_sdate, 0, L1_ON ) ) Then
              Write( mesg,9001 ) vname, E2C_CHEM
              CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
           End If
 
           vname = 'L2_ON'
-          If ( .Not. Xtract3 (E2C_CHEM, vname, 1, e2c_cats, STRTROWSTD, ENDROWSTD, 
-     &                        STRTCOLSTD, ENDCOLSTD, cio_model_sdate, 0, L2_ON ) ) Then
+          If ( .Not. Xtract3 (E2C_CHEM, vname, 1, e2c_cats, startrow, endrow,
+     &                        startcol, endcol, cio_model_sdate, 0, L2_ON ) ) Then
              Write( mesg,9001 ) vname, E2C_CHEM
              CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
           End If
 
           vname = 'L1_BD'
-          If ( .Not. Xtract3 (E2C_CHEM, vname, 1, e2c_cats, STRTROWSTD, ENDROWSTD, 
-     &                        STRTCOLSTD, ENDCOLSTD, cio_model_sdate, 0, BDc1 ) ) Then
+          If ( .Not. Xtract3 (E2C_CHEM, vname, 1, e2c_cats, startrow, endrow,
+     &                        startcol, endcol, cio_model_sdate, 0, BDc1 ) ) Then
              Write( mesg,9001 ) vname, E2C_CHEM
              CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
           End If
 
           vname = 'L2_BD'
-          If ( .Not. Xtract3 (E2C_CHEM, vname, 1, e2c_cats, STRTROWSTD, ENDROWSTD, 
-     &                        STRTCOLSTD, ENDCOLSTD, cio_model_sdate, 0, BDc2 ) ) Then
+          If ( .Not. Xtract3 (E2C_CHEM, vname, 1, e2c_cats, startrow, endrow,
+     &                        startcol, endcol, cio_model_sdate, 0, BDc2 ) ) Then
              Write( mesg,9001 ) vname, E2C_CHEM
              CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
           End If
@@ -2882,8 +2941,8 @@ C Read the various categories of normalized emissions
              End If
 
              vname = 'GMN'
-             If ( .Not. Xtract3 (E2C_CHEM, vname, 1, e2c_cats, STRTROWSTD, ENDROWSTD, 
-     &                        STRTCOLSTD, ENDCOLSTD, cio_model_sdate, 0, GMN ) ) Then
+             If ( .Not. Xtract3 (E2C_CHEM, vname, 1, e2c_cats, startrow, endrow,
+     &                        startcol, endcol, cio_model_sdate, 0, GMN ) ) Then
                 Write( mesg,9001 ) vname, E2C_CHEM
                 CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
              End If
@@ -2897,30 +2956,33 @@ C Read the various categories of normalized emissions
      &              STAT=STAT )
 
           if ( MEDC_AVAIL ) then
+             call subhfile ( INIT_MEDC_1, gxoff, gyoff,
+     &                       startcol, endcol, startrow, endrow )
+
              vname = 'Gamma1'
-             If ( .Not. Xtract3 ( INIT_MEDC_1, vname, 1, 1, STRTROWSTD, ENDROWSTD, 
-     &                            STRTCOLSTD, ENDCOLSTD, cio_model_sdate, 0, gamma1 ) ) Then
+             If ( .Not. Xtract3 ( INIT_MEDC_1, vname, 1, 1, startrow, endrow,
+     &                            startcol, endcol, cio_model_sdate, 0, gamma1 ) ) Then
                 Write( mesg,9001 ) vname, INIT_MEDC_1
                 CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
              End If
 
              vname = 'Gamma2'
-             If ( .Not. Xtract3 ( INIT_MEDC_1, vname, 1, 1, STRTROWSTD, ENDROWSTD, 
-     &                            STRTCOLSTD, ENDCOLSTD, cio_model_sdate, 0, gamma2 ) ) Then
+             If ( .Not. Xtract3 ( INIT_MEDC_1, vname, 1, 1, startrow, endrow,
+     &                            startcol, endcol, cio_model_sdate, 0, gamma2 ) ) Then
                 Write( mesg,9001 ) vname, INIT_MEDC_1
                 CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
              End If
 
              vname = 'L1_ANH3'
-             If ( .Not. Xtract3 ( E2C_CHEM, vname, 1, e2c_cats, STRTROWSTD, ENDROWSTD, 
-     &                            STRTCOLSTD, ENDCOLSTD, cio_model_sdate, 0, F1_NH4 ) ) Then
+             If ( .Not. Xtract3 ( E2C_CHEM, vname, 1, e2c_cats, startrow, endrow,
+     &                            startcol, endcol, cio_model_sdate, 0, F1_NH4 ) ) Then
                 Write( mesg,9001 ) vname, E2C_CHEM
                 CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
              End If
 
              vname = 'L2_ANH3'
-             If ( .Not. Xtract3 ( E2C_CHEM, vname, 1, e2c_cats, STRTROWSTD, ENDROWSTD, 
-     &                            STRTCOLSTD, ENDCOLSTD, cio_model_sdate, 0, F2_NH4 ) ) Then
+             If ( .Not. Xtract3 ( E2C_CHEM, vname, 1, e2c_cats, startrow, endrow,
+     &                            startcol, endcol, cio_model_sdate, 0, F2_NH4 ) ) Then
                 Write( mesg,9001 ) vname, E2C_CHEM
                 CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
              End If
@@ -2962,30 +3024,36 @@ C Read the various categories of normalized emissions
                    CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
                 END IF
 
+                call subhfile ( E2C_CHEM, gxoff, gyoff,
+     &                          startcol, endcol, startrow, endrow )
+
                 vname = 'L1_AON'
-                If ( .Not. Xtract3 (E2C_CHEM, vname, 1, e2c_cats, STRTROWSTD, ENDROWSTD, 
-     &                              STRTCOLSTD, ENDCOLSTD, cio_model_sdate, 0, F1_ON ) ) Then
+                If ( .Not. Xtract3 (E2C_CHEM, vname, 1, e2c_cats, startrow, endrow,
+     &                              startcol, endcol, cio_model_sdate, 0, F1_ON ) ) Then
                    Write( mesg,9001 ) vname, E2C_CHEM
                    CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
                 End If
 
                 vname = 'L2_AON'
-                If ( .Not. Xtract3 (E2C_CHEM, vname, 1, e2c_cats, STRTROWSTD, ENDROWSTD, 
-     &                              STRTCOLSTD, ENDCOLSTD, cio_model_sdate, 0, F2_ON ) ) Then
+                If ( .Not. Xtract3 (E2C_CHEM, vname, 1, e2c_cats, startrow, endrow,
+     &                              startcol, endcol, cio_model_sdate, 0, F2_ON ) ) Then
                    Write( mesg,9001 ) vname, E2C_CHEM
                    CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
                 End If
 
+                call subhfile ( E2C_CHEM_YEST, gxoff, gyoff,
+     &                          startcol, endcol, startrow, endrow )
+
                 vname = 'L1_ON'
-                If ( .Not. Xtract3 (E2C_CHEM_YEST, vname, 1, e2c_cats, STRTROWSTD, ENDROWSTD, 
-     &                              STRTCOLSTD, ENDCOLSTD, jdate_yest, 0, L1_ON_Yest ) ) Then
+                If ( .Not. Xtract3 (E2C_CHEM_YEST, vname, 1, e2c_cats, startrow, endrow,
+     &                              startcol, endcol, jdate_yest, 0, L1_ON_Yest ) ) Then
                    Write( mesg,9001 ) vname, E2C_CHEM
                    CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
                 End If
 
                 vname = 'L2_ON'
-                If ( .Not. Xtract3 (E2C_CHEM_YEST, vname, 1, e2c_cats, STRTROWSTD, ENDROWSTD, 
-     &                              STRTCOLSTD, ENDCOLSTD, jdate_yest, 0, L2_ON_Yest ) ) Then
+                If ( .Not. Xtract3 (E2C_CHEM_YEST, vname, 1, e2c_cats, startrow, endrow,
+     &                              startcol, endcol, jdate_yest, 0, L2_ON_Yest ) ) Then
                    Write( mesg,9001 ) vname, E2C_CHEM
                    CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
                 End If
@@ -3011,6 +3079,7 @@ C Read the various categories of normalized emissions
 
           CHARACTER( 256 ) :: xmsg
           integer :: v
+          integer :: startcol, endcol, startrow, endrow, gxoff, gyoff
 
           CALL INIT_BIDI( )
 
@@ -3020,9 +3089,12 @@ C Read the various categories of normalized emissions
           END IF
           n_opened_file = n_opened_file + 1
 
+          call subhfile ( INIT_MEDC_1, gxoff, gyoff,
+     &                    startcol, endcol, startrow, endrow )
+
           DO v = 1, Hg_TOT
             IF ( .NOT. Xtract3( INIT_MEDC_1, MEDIA_NAMES( V ), 1, 1, 
-     &                          STRTROWSTD, ENDROWSTD, STRTCOLSTD, ENDCOLSTD,  
+     &                          startrow, endrow, startcol, endcol,
      &                          cio_model_sdate, 0, CMEDIA(:,:,v) ) )THEN
                xmsg = 'Could not read ' // trim( MEDIA_NAMES( V ) )
      &                // ' from ' // trim( INIT_MEDC_1 )
@@ -3037,14 +3109,17 @@ C Read the various categories of normalized emissions
 
           USE UTILIO_DEFN
           use HGRD_DEFN, only : ncols, nrows
-          use RUNTIME_VARS, only : NEW_START,BIOGEMIS_MEGAN,IGNORE_SOILINP
+          use RUNTIME_VARS, only : NEW_START,BIOGEMIS_MEGAN,BIOGEMIS_BEIS,
+     &                             BDSNP_MEGAN,IGNORE_SOILINP
 
 
           INCLUDE SUBST_FILES_ID             ! file name parameters
 
           integer, parameter :: mxhrs = 24
           Character( 40 ), parameter :: pname = 'soilinp_setup'
-          Character( 40 ), parameter :: soilinp = 'SOILINP'
+          Character( 40 ), parameter :: msoilinp = 'MEGAN_SOILINP'
+          Character( 40 ), parameter :: bsoilinp = 'BEIS_SOILINP'
+          Character( 40 ), parameter :: bdsnpinp = 'BDSNPINP'
 
           CHARACTER( 16 )  :: var
           CHARACTER( 256 ) :: mesg
@@ -3067,6 +3142,19 @@ C Read the various categories of normalized emissions
      &              HRNO_SW  ( NCOLS,NROWS, mxhrs ),
      &              HRNO_T2M ( NCOLS,NROWS, mxhrs ),
      &                 stat=stat)
+             if (BDSNP_MEGAN) then
+             ALLOCATE (PFACTOR   ( ncols,nrows       ),
+     &                 DRYPERIOD ( ncols,nrows       ),
+     &                 NDEPRES   ( ncols,nrows       ),
+     &                 NDEPRATE  ( ncols,nrows       ),
+     &                 SOILMPREV ( ncols,nrows       ),
+     &                 stat=stat)
+                 pfactor = 0.0
+                 dryperiod = 0.0
+                 soilmprev = 0.0
+                 ndepres =0.0
+                 ndeprate =0.0
+             end if
      
                IF ( STAT .NE. 0 ) THEN
                     MESG = 'Failure BIOGEMIS_MEGAN arrays'
@@ -3075,29 +3163,107 @@ C Read the various categories of normalized emissions
           end if
 
           
-          if (.not. NEW_START .and. .not. IGNORE_SOILINP) then
-             IF ( .NOT. OPEN3( SOILINP, FSREAD3, PNAME ) ) THEN
-                mesg = 'Open failure for ' // SOILINP
+          if (BIOGEMIS_BEIS .and. .not. NEW_START .and. .not. IGNORE_SOILINP) then
+             IF ( .NOT. OPEN3( BSOILINP, FSREAD3, PNAME ) ) THEN
+                mesg = 'Open failure for ' // BSOILINP
                 Call M3EXIT( PNAME, 0, 0, mesg, XSTAT1 )
              END IF
              n_opened_file = n_opened_file + 1
 
 ! Get description of NO rain data file
-             IF ( .NOT. DESC3( SOILINP ) ) THEN
+             IF ( .NOT. DESC3( BSOILINP ) ) THEN
                 MESG = 'Could not get description of file "' //
-     &                  TRIM( SOILINP ) // '"'
+     &                  TRIM( BSOILINP ) // '"'
                 CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
              END IF
 
 ! Check that the file start date and time are consistent
              IF ( SDATE3D .NE. cio_model_sdate ) THEN
-                WRITE( MESG, 94010 ) 'Cannot use SOILINP file; ' //
+                WRITE( MESG, 94011 ) 'Cannot use BEIS_SOILINP file; ' //
      &              'found date ', SDATE3D, ' expecting ', cio_model_sdate
                 CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
              END IF
 
              IF ( STIME3D .NE. cio_model_stime ) THEN
-                WRITE( MESG, 94010 ) 'Cannot use SOILINP file; ' //
+                WRITE( MESG, 94011 ) 'Cannot use BEIS_SOILINP file; ' //
+     &              'found time ', STIME3D, ' expecting ', cio_model_stime
+                CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
+             END IF
+
+94011        FORMAT( A, F10.2, 1X, A, I3, ',', I3 )
+
+             VAR = 'PTYPE'
+             IF ( .NOT. XTRACT3( BSOILINP, 'PTYPE', 1, 1,
+     &                           STRTROWSTD, ENDROWSTD, STRTCOLSTD, ENDCOLSTD,  
+     &                           0, 0, PTYPE ) ) THEN
+                MESG = 'Could not read "' // TRIM( VAR ) //
+     &                 '" from file "' // TRIM( BSOILINP ) // '"'
+                CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
+             END IF
+
+             VAR = 'PULSEDATE'
+             IF ( .NOT. XTRACT3( BSOILINP, VAR, 1, 1,
+     &                           STRTROWSTD, ENDROWSTD, STRTCOLSTD, ENDCOLSTD,  
+     &                           0, 0, PULSEDATE ) ) THEN
+                MESG = 'Could not read "' // TRIM( VAR ) //
+     &                 '" from file "' // TRIM( BSOILINP ) // '"'
+                CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
+             END IF
+
+             VAR = 'PULSETIME'
+             IF ( .NOT. XTRACT3( BSOILINP, VAR, 1, 1,
+     &                           STRTROWSTD, ENDROWSTD, STRTCOLSTD, ENDCOLSTD,  
+     &                           0, 0, PULSETIME ) ) THEN
+                MESG = 'Could not read "' // TRIM( VAR ) //
+     &                 '" from file "' // TRIM( BSOILINP ) // '"'
+                CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
+             END IF
+
+
+             RAINFALL = 0.0
+
+             DDTTM = ' '   ! array
+             DO I = 1, mxhrs
+                WRITE( VAR, '(A8,I2.2)' ) 'RAINFALL', I
+                IF ( .NOT. XTRACT3( BSOILINP, VAR, 1, 1,
+     &                              STRTROWSTD, ENDROWSTD, STRTCOLSTD, ENDCOLSTD,  
+     &                              0, 0, RAINFALL( :,:,I ) ) ) THEN
+                   MESG = 'Could not read "' // TRIM( VAR ) //
+     &                    '" from file "' // TRIM( BSOILINP ) // '"'
+                   CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
+                END IF
+                J = INDEX( VDESC3D( I+3 ), 'for' ) + 3
+                K = LEN_TRIM( VDESC3D( I+3 ) )
+                DDTTM( I ) = VDESC3D( I+3 )( J:K )
+             END DO
+
+           end if ! end beis section 
+
+
+           if (BIOGEMIS_MEGAN .and. .not. NEW_START .and. .not. IGNORE_SOILINP) then
+
+             IF ( .NOT. OPEN3( MSOILINP, FSREAD3, PNAME ) ) THEN
+                mesg = 'Open failure for ' // MSOILINP
+                Call M3EXIT( PNAME, 0, 0, mesg, XSTAT1 )
+             END IF
+             n_opened_file = n_opened_file + 1
+
+! Get description of NO rain data file
+             IF ( .NOT. DESC3( MSOILINP ) ) THEN
+                MESG = 'Could not get description of file "' //
+     &                  TRIM( MSOILINP ) // '"'
+                CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
+             END IF
+
+! Check that the file start date and time are consistent
+             IF ( SDATE3D .NE. cio_model_sdate ) THEN
+                WRITE( MESG, 94010 ) 'Cannot use MEGAN_SOILINP file; ' //
+     &              'found date ', SDATE3D, ' expecting ', cio_model_sdate
+                CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
+             END IF
+
+             IF ( STIME3D .NE. cio_model_stime ) THEN
+                WRITE( MESG, 94010 ) 'Cannot use MEGAN_SOILINP file; ' //
      &              'found time ', STIME3D, ' expecting ', cio_model_stime
                 CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
              END IF
@@ -3105,93 +3271,133 @@ C Read the various categories of normalized emissions
 94010        FORMAT( A, F10.2, 1X, A, I3, ',', I3 )
 
              VAR = 'PTYPE'
-             IF ( .NOT. XTRACT3( SOILINP, 'PTYPE', 1, 1,
+             IF ( .NOT. XTRACT3( MSOILINP, 'PTYPE', 1, 1,
      &                           STRTROWSTD, ENDROWSTD, STRTCOLSTD, ENDCOLSTD,  
      &                           0, 0, PTYPE ) ) THEN
                 MESG = 'Could not read "' // TRIM( VAR ) //
-     &                 '" from file "' // TRIM( SOILINP ) // '"'
+     &                 '" from file "' // TRIM( MSOILINP ) // '"'
                 CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
              END IF
 
              VAR = 'PULSEDATE'
-             IF ( .NOT. XTRACT3( SOILINP, VAR, 1, 1,
+             IF ( .NOT. XTRACT3( MSOILINP, VAR, 1, 1,
      &                           STRTROWSTD, ENDROWSTD, STRTCOLSTD, ENDCOLSTD,  
      &                           0, 0, PULSEDATE ) ) THEN
                 MESG = 'Could not read "' // TRIM( VAR ) //
-     &                 '" from file "' // TRIM( SOILINP ) // '"'
+     &                 '" from file "' // TRIM( MSOILINP ) // '"'
                 CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
              END IF
 
              VAR = 'PULSETIME'
-             IF ( .NOT. XTRACT3( SOILINP, VAR, 1, 1,
+             IF ( .NOT. XTRACT3( MSOILINP, VAR, 1, 1,
      &                           STRTROWSTD, ENDROWSTD, STRTCOLSTD, ENDCOLSTD,  
      &                           0, 0, PULSETIME ) ) THEN
                 MESG = 'Could not read "' // TRIM( VAR ) //
-     &                 '" from file "' // TRIM( SOILINP ) // '"'
+     &                 '" from file "' // TRIM( MSOILINP ) // '"'
                 CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
              END IF
 
-             RAINFALL = 0.0
-             if (BIOGEMIS_MEGAN) then
               sw24sum  = 0.0
               t24sum   = 0.0
               lai_y    = 0.0
-             end if
+              RAINFALL = 0.0
 
              DDTTM = ' '   ! array
              DO I = 1, mxhrs
                 WRITE( VAR, '(A8,I2.2)' ) 'RAINFALL', I
-                IF ( .NOT. XTRACT3( SOILINP, VAR, 1, 1,
+                IF ( .NOT. XTRACT3( MSOILINP, VAR, 1, 1,
      &                              STRTROWSTD, ENDROWSTD, STRTCOLSTD, ENDCOLSTD,  
      &                              0, 0, RAINFALL( :,:,I ) ) ) THEN
                    MESG = 'Could not read "' // TRIM( VAR ) //
-     &                    '" from file "' // TRIM( SOILINP ) // '"'
+     &                    '" from file "' // TRIM( MSOILINP ) // '"'
                    CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
                 END IF
                 J = INDEX( VDESC3D( I+3 ), 'for' ) + 3
                 K = LEN_TRIM( VDESC3D( I+3 ) )
                 DDTTM( I ) = VDESC3D( I+3 )( J:K )
 
-
-             if (BIOGEMIS_MEGAN .and. .not. IGNORE_SOILINP) then
                 WRITE( VAR, '(A2,I2.2)' ) 'SW', I
-                IF ( .NOT. XTRACT3( SOILINP, VAR, 1, 1,
+                IF ( .NOT. XTRACT3( MSOILINP, VAR, 1, 1,
      &                              STRTROWSTD, ENDROWSTD, STRTCOLSTD,ENDCOLSTD,
      &                              0, 0, sw24y( :,: ) ) ) THEN
                    MESG = 'Could not read "' // TRIM( VAR ) //
-     &                    '" from file "' // TRIM( SOILINP ) // '"'
+     &                    '" from file "' // TRIM( MSOILINP ) // '"'
                    CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
                 END IF
                    sw24sum = sw24y + sw24sum
 
                 WRITE( VAR, '(A3,I2.2)' ) 'T2M', I
-                IF ( .NOT. XTRACT3( SOILINP, VAR, 1, 1,
+                IF ( .NOT. XTRACT3( MSOILINP, VAR, 1, 1,
      &                              STRTROWSTD, ENDROWSTD, STRTCOLSTD,ENDCOLSTD,
      &                              0, 0, t24y( :,: ) ) ) THEN
                    MESG = 'Could not read "' // TRIM( VAR ) //
-     &                    '" from file "' // TRIM( SOILINP ) // '"'
+     &                    '" from file "' // TRIM( MSOILINP ) // '"'
                    CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
                 END IF
                    t24sum = t24y + t24sum
-             end if
 
-             END DO
+             END DO ! looping over 24 hrs 
 
-             if (BIOGEMIS_MEGAN .and. .not. IGNORE_SOILINP) then
                 sw24y = sw24sum/mxhrs
                 t24y  = t24sum/mxhrs
 
-                IF ( .NOT. XTRACT3( SOILINP, 'LAI', 1, 1,
+                IF ( .NOT. XTRACT3( MSOILINP, 'LAI', 1, 1,
      &                              STRTROWSTD, ENDROWSTD, STRTCOLSTD,ENDCOLSTD,
      &                              0, 0, lai_y( :,: ) ) ) THEN
                    MESG = 'Could not read "' // 'LAI' //
-     &                    '" from file "' // TRIM( SOILINP ) // '"'
+     &                    '" from file "' // TRIM( MSOILINP ) // '"'
                    CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
                 END IF
-             end if
 
-          end if
+                if (BDSNP_MEGAN) then
+               ! BDSNP daily inputs
+       
+                    IF ( .NOT. OPEN3( BDSNPINP, FSREAD3, PNAME ) ) THEN
+                       mesg = 'Open failure for ' // BDSNPINP
+                       Call M3EXIT( PNAME, 0, 0, mesg, XSTAT1 )
+                    END IF
+       
+                    IF ( .NOT. DESC3( BDSNPINP ) ) THEN
+                       MESG = 'Could not get description of file "' //
+     &                  TRIM( BDSNPINP ) // '"'
+                       CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT1 )
+                    END IF
+                    IF ( .NOT. XTRACT3( BDSNPINP, 'DRYPERIOD',
+     &                             1, 1, STRTROWSTD, ENDROWSTD, STRTCOLSTD,ENDCOLSTD,
+     &                             0, 0, dryperiod(:,:) ) ) THEN
+                       mesg = 'Could not extract ' // BDSNPINP // ' file'
+                          CALL M3EXIT ( PNAME, 0, 0, mesg, XSTAT1 )
+                      END IF
+                       IF ( .NOT. XTRACT3( BDSNPINP, 'NDEPRES',
+     &                             1, 1, STRTROWSTD, ENDROWSTD, STRTCOLSTD,ENDCOLSTD,
+     &                             0, 0, ndepres(:,:) ) ) THEN
+                       mesg = 'Could not extract ' // BDSNPINP // ' file'
+                          CALL M3EXIT ( PNAME, 0, 0, mesg, XSTAT1 )
+                      END IF
+                       IF ( .NOT. XTRACT3( BDSNPINP, 'NDEPRATE_DIAG',
+     &                             1, 1, STRTROWSTD, ENDROWSTD, STRTCOLSTD,ENDCOLSTD,
+     &                             0, 0, ndeprate(:,:) ) ) THEN
+                       mesg = 'Could not extract ' // BDSNPINP // ' file'
+                          CALL M3EXIT ( PNAME, 0, 0, mesg, XSTAT1 )
+                      END IF
+                       IF ( .NOT. XTRACT3( BDSNPINP, 'PFACTOR',
+     &                             1, 1, STRTROWSTD, ENDROWSTD, STRTCOLSTD,ENDCOLSTD,
+     &                             0, 0, pfactor(:,:) ) ) THEN
+                       mesg = 'Could not extract ' // BDSNPINP // ' file'
+                          CALL M3EXIT ( PNAME, 0, 0, mesg, XSTAT1 )
+                      END IF
+                       IF ( .NOT. XTRACT3( BDSNPINP, 'SOILMPREV',
+     &                             1, 1, STRTROWSTD, ENDROWSTD,STRTCOLSTD,ENDCOLSTD,
+     &                             0, 0, soilmprev(:,:) ) ) THEN
+                       mesg = 'Could not extract ' // BDSNPINP // ' file'
+                          CALL M3EXIT ( PNAME, 0, 0, mesg, XSTAT1 )
+                      END IF
 
+       
+                    end if ! bdsnp check
+             end if ! megan check
+
+         
         end subroutine soilinp_setup
 
 ! -------------------------------------------------------------------------
@@ -3204,6 +3410,8 @@ C Read the various categories of normalized emissions
           INCLUDE SUBST_FILES_ID             ! file name parameters
 
           Character( 40 ), parameter :: pname = 'retrieve_grid_cro_2d_data'
+          integer :: gxoff, gyoff, 
+     &               STRTCOLGC2,  ENDCOLGC2,  STRTROWGC2,  ENDROWGC2
 
           CHARACTER( 120 ) :: XMSG = ' '
           Character( 16 )  :: vname
@@ -3220,6 +3428,9 @@ C Read the various categories of normalized emissions
                XMSG = 'Failure allocating MSFX2 or other arrays'
                CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT3 )
           END IF
+
+          CALL SUBHFILE ( GRID_CRO_2D, GXOFF, GYOFF,
+     &                    STRTCOLGC2, ENDCOLGC2, STRTROWGC2, ENDROWGC2 )
 
 #ifdef twoway
           IF ( .NOT. INTERPX( GRID_CRO_2D, 'MSFX2', PNAME,
@@ -3257,12 +3468,16 @@ C Read the various categories of normalized emissions
              Call M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
           END IF
 
-          IF ( .NOT. INTERPX( GRID_CRO_2D, 'PURB', PNAME,
-     &                        STRTCOLGC2, ENDCOLGC2, STRTROWGC2, ENDROWGC2, 1, 1 ,
-     &                        0, 0, PURB ) ) THEN
-             XMSG = ' Error interpolating variable PURB from ' // GRID_CRO_2D
-             Call M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
-          END IF
+          if (minkz) then
+             IF ( .NOT. INTERPX( GRID_CRO_2D, 'PURB', PNAME,
+     &                           STRTCOLGC2, ENDCOLGC2, STRTROWGC2, ENDROWGC2, 1, 1 ,
+     &                           0, 0, PURB ) ) THEN
+                XMSG = ' Error interpolating variable PURB from ' // GRID_CRO_2D
+                Call M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
+             END IF
+          else
+             purb = 0.0
+          end if
 
           IF ( .NOT. LUCRO_AVAIL ) THEN
 
@@ -3322,12 +3537,16 @@ C Read the various categories of normalized emissions
              Call M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
           END IF
 
-          IF ( .NOT. XTRACT3( GRID_CRO_2D, 'PURB',
-     &                        1, 1, STRTROWGC2, ENDROWGC2, STRTCOLGC2, ENDCOLGC2, 
-     &                        0, 0, PURB ) ) THEN
-             XMSG = ' Error interpolating variable PURB from ' // GRID_CRO_2D
-             Call M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
-          END IF
+          if (minkz) then
+             IF ( .NOT. XTRACT3( GRID_CRO_2D, 'PURB',
+     &                           1, 1, STRTROWGC2, ENDROWGC2, STRTCOLGC2, ENDCOLGC2, 
+     &                           0, 0, PURB ) ) THEN
+                XMSG = ' Error interpolating variable PURB from ' // GRID_CRO_2D
+                Call M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
+             END IF
+          else
+             purb = 0.0
+          end if
 
           IF ( .NOT. LUCRO_AVAIL ) THEN
 
@@ -3365,6 +3584,8 @@ C Read the various categories of normalized emissions
 
           INTEGER          :: STAT
           CHARACTER( 120 ) :: XMSG = ' '
+          INTEGER          :: gxoff, gyoff, 
+     &                        STRTCOLGD2, ENDCOLGD2, STRTROWGD2, ENDROWGD2
 
           ALLOCATE ( MSFD2( NCOLS+1, NROWS+1 ), STAT = STAT )
           IF ( STAT .NE. 0 ) THEN
@@ -3372,16 +3593,19 @@ C Read the various categories of normalized emissions
              CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT3 )
           END IF
 
+          CALL SUBHFILE ( GRID_DOT_2D, GXOFF, GYOFF,
+     &                    STRTCOLGD2, ENDCOLGD2, STRTROWGD2, ENDROWGD2 )
+
 #ifdef twoway
           IF ( .NOT. INTERPX( GRID_DOT_2D, 'MSFD2', PNAME, 
-     &                        STRTCOLGD2, ENDCOLGD2,STRTROWGD2, ENDROWGD2, 1, 1,
+     &                        STRTCOLGD2, ENDCOLGD2, STRTROWGD2, ENDROWGD2, 1, 1,
      &                        0, 0, MSFD2 ) ) THEN
              XMSG = 'Could not interpolate MSFD2 from ' // GRID_DOT_2D
              CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
           END IF
 #else
           IF ( .NOT. XTRACT3( GRID_DOT_2D, 'MSFD2',
-     &                        1, 1, STRTROWGD2, ENDROWGD2, STRTCOLGD2, ENDCOLGD2, 
+     &                        1, 1, STRTROWGD2, ENDROWGD2, STRTCOLGD2, ENDCOLGD2,
      &                        0, 0, MSFD2 ) ) THEN
              XMSG = 'Could not interpolate MSFD2 from ' // GRID_DOT_2D
              CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
@@ -3399,6 +3623,7 @@ C Read the various categories of normalized emissions
           INCLUDE SUBST_FILES_ID             ! file name parameters
 
           Character( 40 ), parameter :: pname = 'retrieve_ocean_data'
+          integer :: startcol, endcol, startrow, endrow, gxoff, gyoff
 
           INTEGER          :: STAT
           CHARACTER( 120 ) :: XMSG = ' '
@@ -3436,15 +3661,19 @@ C Read the various categories of normalized emissions
                 Call M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
              ELSE 
                 n_opened_file = n_opened_file + 1
+
+                call subhfile ( OCEAN_1, gxoff, gyoff,
+     &                          startcol, endcol, startrow, endrow )
+
                 IF ( .NOT. XTRACT3( OCEAN_1, 'OPEN',
-     &                        1, 1, STRTROWSTD, ENDROWSTD, STRTCOLSTD, ENDCOLSTD, 
+     &                        1, 1, startrow, endrow, startcol, endcol,
      &                        0, 0, ocean ) ) Then
                    XMSG = 'Could not read OPEN from ' // OCEAN_1
                    CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
                 END IF
 
                 IF ( .NOT. XTRACT3( OCEAN_1, 'SURF',
-     &                        1, 1, STRTROWSTD, ENDROWSTD, STRTCOLSTD, ENDCOLSTD, 
+     &                        1, 1, startrow, endrow, startcol, endcol,
      &                        0, 0, szone ) ) Then
                    XMSG = 'Could not interpolate SURF from ' // OCEAN_1
                    CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
@@ -3465,15 +3694,19 @@ C Read the various categories of normalized emissions
                 Call M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
              ELSE 
                 n_opened_file = n_opened_file + 1
+
+                call subhfile ( OCEAN_1, gxoff, gyoff,
+     &                          startcol, endcol, startrow, endrow )
+
                 IF ( .NOT. XTRACT3( OCEAN_1, 'OPEN',
-     &                        1, 1, STRTROWSTD, ENDROWSTD, STRTCOLSTD, ENDCOLSTD, 
+     &                        1, 1, startrow, endrow, startcol, endcol,
      &                        0, 0, ocean ) ) Then
                    XMSG = 'Could not read OPEN from ' // OCEAN_1
                    CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
                 END IF
 
                 IF ( .NOT. XTRACT3( OCEAN_1, 'SURF',
-     &                        1, 1, STRTROWSTD, ENDROWSTD, STRTCOLSTD, ENDCOLSTD, 
+     &                        1, 1, startrow, endrow, startcol, endcol,
      &                        0, 0, szone ) ) Then
                    XMSG = 'Could not interpolate SURF from ' // OCEAN_1
                    CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
@@ -3485,14 +3718,14 @@ C Read the various categories of normalized emissions
                 If ( INDEX( MECHNAME, 'CB6R5M_AE7_AQ' ) .GT. 0 ) then
       
                 If ( .Not. XTRACT3( OCEAN_1, 'CHLO',
-     &                              1, 1, STRTROWSTD, ENDROWSTD, STRTCOLSTD, ENDCOLSTD, 
+     &                        1, 1, startrow, endrow, startcol, endcol,
      &                              0, 0, chlr ) ) Then
                    XMSG = 'Could not read CHLO from ' // OCEAN_1
                    Call M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
                 End If
 
                 If ( .Not. XTRACT3( OCEAN_1, 'DMS',
-     &                              1, 1, STRTROWSTD, ENDROWSTD, STRTCOLSTD, ENDCOLSTD, 
+     &                        1, 1, startrow, endrow, startcol, endcol,
      &                              0, 0, dmsl ) ) Then
                    XMSG = 'Could not read DMS from ' // OCEAN_1
                    Call M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
@@ -3503,7 +3736,7 @@ C Read the various categories of normalized emissions
                 chlr = 0.0
                 
                 If ( .Not. XTRACT3( OCEAN_1, 'DMS',
-     &                              1, 1, STRTROWSTD, ENDROWSTD, STRTCOLSTD, ENDCOLSTD, 
+     &                        1, 1, startrow, endrow, startcol, endcol,
      &                              0, 0, dmsl ) ) Then
                    XMSG = 'Could not read DMS from ' // OCEAN_1
                    Call M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
@@ -3529,6 +3762,7 @@ C Read the various categories of normalized emissions
 
           INTEGER          :: STAT
           CHARACTER( 120 ) :: XMSG = ' '
+          integer :: startcol, endcol, startrow, endrow, gxoff, gyoff
 
           allocate (OCEAN_MASK(ncols, nrows), 
      &              SLOPE(ncols, nrows), 
@@ -3549,50 +3783,53 @@ C Read the various categories of normalized emissions
           END IF
           n_opened_file = n_opened_file + 1
 
+          call subhfile ( LTNGPARMS_FILE, gxoff, gyoff,
+     &                    startcol, endcol, startrow, endrow )
+
           IF ( .NOT. XTRACT3( LTNGPARMS_FILE, "OCNMASK", 1, 1,
-     &                        STRTROWSTD, ENDROWSTD, STRTCOLSTD, ENDCOLSTD, 
+     &                        startrow, endrow, startcol, endcol,
      &                        0, 0, OCEAN_MASK ) ) Then
              XMSG = 'Could not interpolate OPEN from ' // LTNGPARMS_FILE
              Call M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
           End If
 
           IF ( .NOT. XTRACT3( LTNGPARMS_FILE, "SLOPE", 1, 1,
-     &                        STRTROWSTD, ENDROWSTD, STRTCOLSTD, ENDCOLSTD, 
+     &                        startrow, endrow, startcol, endcol,
      &                        0, 0, SLOPE ) ) Then
              XMSG = 'Could not interpolate OPEN from ' // LTNGPARMS_FILE
              Call M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
           End If
 
           IF ( .NOT. XTRACT3( LTNGPARMS_FILE, "INTERCEPT", 1, 1,
-     &                        STRTROWSTD, ENDROWSTD, STRTCOLSTD, ENDCOLSTD, 
+     &                        startrow, endrow, startcol, endcol,
      &                        0, 0, INTERCEPT ) ) Then
              XMSG = 'Could not interpolate OPEN from ' // LTNGPARMS_FILE
              Call M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
           End If
 
           IF ( .NOT. XTRACT3( LTNGPARMS_FILE, "SLOPE_lg", 1, 1,
-     &                        STRTROWSTD, ENDROWSTD, STRTCOLSTD, ENDCOLSTD, 
+     &                        startrow, endrow, startcol, endcol,
      &                        0, 0, SLOPE_lg ) ) Then
              XMSG = 'Could not interpolate OPEN from ' // LTNGPARMS_FILE
              Call M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
           End If
 
           IF ( .NOT. XTRACT3( LTNGPARMS_FILE, "INTERCEPT_lg", 1, 1,
-     &                        STRTROWSTD, ENDROWSTD, STRTCOLSTD, ENDCOLSTD, 
+     &                        startrow, endrow, startcol, endcol,
      &                        0, 0, INTERCEPT_lg ) ) Then
              XMSG = 'Could not interpolate OPEN from ' // LTNGPARMS_FILE
              Call M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
           End If
 
           IF ( .NOT. XTRACT3( LTNGPARMS_FILE, "ICCG_SUM", 1, 1,
-     &                        STRTROWSTD, ENDROWSTD, STRTCOLSTD, ENDCOLSTD, 
+     &                        startrow, endrow, startcol, endcol,
      &                        0, 0, ICCG_SUM ) ) Then
              XMSG = 'Could not interpolate OPEN from ' // LTNGPARMS_FILE
              Call M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
           End If
 
           IF ( .NOT. XTRACT3( LTNGPARMS_FILE, "ICCG_WIN", 1, 1,
-     &                        STRTROWSTD, ENDROWSTD, STRTCOLSTD, ENDCOLSTD, 
+     &                        startrow, endrow, startcol, endcol,
      &                        0, 0, ICCG_WIN ) ) Then
              XMSG = 'Could not interpolate OPEN from ' // LTNGPARMS_FILE
              Call M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
@@ -4122,7 +4359,8 @@ C   mminlu and num_land_cat are WRF global variables
         subroutine megan_setup ! reads in variables from MEGAN_PARAMS (see file_inputs.txt and run script)
           use hgrd_defn, only : ncols,nrows
           USE UTILIO_DEFN
-          use RUNTIME_VARS, only : logdev, USE_MEGAN_LAI
+          use RUNTIME_VARS, only : logdev, USE_MEGAN_LAI, BDSNP_MEGAN,
+     &                             MGN_ONLN_DEP
         
           integer                    :: stat, i, megan_hr, megan_day, strtcol,
      &                                  endcol, strtrow, endrow, gxoff, gyoff 
@@ -4135,9 +4373,31 @@ C   mminlu and num_land_cat are WRF global variables
           character( 40 ), parameter :: MEGAN_LAI = 'MEGAN_LAI'
           character( 40 ), parameter :: MEGAN_EFS = 'MEGAN_EFS'
           character( 40 ), parameter :: MEGAN_CTS = 'MEGAN_CTS'
+          character( 40 ), parameter :: BDSNP_NFILE = 'BDSNP_NFILE'
+          character( 40 ), parameter :: BDSNP_AFILE = 'BDSNP_AFILE'
+          character( 40 ), parameter :: BDSNP_NAFILE = 'BDSNP_NAFILE'
+          character( 40 ), parameter :: BDSNP_FFILE = 'BDSNP_FFILE'
+          character( 40 ), parameter :: BDSNP_LFILE = 'BDSNP_LFILE'
           character( 256 )           :: mesg
           character( 40 )            :: var
       
+         if (BDSNP_MEGAN) then
+          allocate (bdsnp_fert( ncols,nrows),
+     &              bdsnp_arid( ncols,nrows),
+     &              bdsnp_nonarid( ncols,nrows),
+     &              bdsnp_landtype( ncols,nrows),
+     &              bdsnp_ndep( ncols,nrows,12),
+     &              stat=stat)
+               IF ( STAT .NE. 0 ) THEN
+                    MESG = 'Failure BIOGEMIS_MEGAN arrays in megan_setup'
+                    CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT3 )
+               END IF
+                   bdsnp_fert     = 0.
+                   bdsnp_arid     = 0.
+                   bdsnp_nonarid  = 0.
+                   bdsnp_landtype = 0.
+                   bdsnp_ndep     = 0.
+         end if
 
 #ifdef mpas
 
@@ -4289,15 +4549,141 @@ C   mminlu and num_land_cat are WRF global variables
              megan_day = sdate3d 
              megan_hr  = stime3d
 
-             do I=1,nvars3d
-                    WRITE( VAR, '(A3,I2.2)' ) 'LDF', I
-                    IF ( .NOT. XTRACT3( MEGAN_LDF, VAR, 
-     &                                  1, 1, strtrow, endrow, strtcol, endcol, 
-     &                                  megan_day, megan_hr, LDF(:,:,I) ) ) THEN
-                       mesg = 'Could not extract ' // MEGAN_LDF // ' file'
-                       CALL M3EXIT ( PNAME, 0, 0, mesg, XSTAT1 )
-                    END IF
-             end do
+             IF ( .NOT. XTRACT3( MEGAN_LDF, 'ALL', 
+     &                           1, 1, strtrow, endrow, strtcol, endcol, 
+     &                           megan_day, megan_hr, LDF(:,:,:) ) ) THEN
+                 mesg = 'Could not extract ' // MEGAN_LDF // ' file'
+                 CALL M3EXIT ( PNAME, 0, megan_hr, mesg, XSTAT1 )
+             END IF
+             if (BDSNP_MEGAN) then
+
+           ! Optional BDSNP nitrogen input
+             if (.not. MGN_ONLN_DEP) then
+                IF ( .NOT. OPEN3( BDSNP_NFILE, FSREAD3, PNAME ) ) THEN
+                   mesg = 'Open failure for ' // BDSNP_NFILE
+                   Call M3EXIT( PNAME, 0, 0, mesg, XSTAT1 )
+                END IF
+
+                IF ( .NOT. DESC3( BDSNP_NFILE ) ) THEN
+                   MESG = 'Could not get description of file "' //
+     &                     TRIM( BDSNP_NFILE ) // '"'
+                   CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT1 )
+                END IF
+
+
+                call subhfile( BDSNP_NFILE, gxoff, gyoff, strtcol,
+     &                        endcol, strtrow, endrow )
+
+                megan_day = sdate3d
+                megan_hr  = stime3d
+                do i = 1,12
+                 write( var, '(A8,I2.2)' ) 'NITROGEN', i
+                  IF ( .NOT. XTRACT3( BDSNP_NFILE, var,
+     &                                1, 1, strtrow, endrow, strtcol, endcol,
+     &                                megan_day, megan_hr, bdsnp_ndep(:,:,i) ) ) THEN
+                      mesg = 'Could not extract ' // BDSNP_NFILE // ' file'
+                      CALL M3EXIT ( PNAME, 0, megan_hr, mesg, XSTAT1 )
+                  END IF
+                end do
+             end if
+
+        ! BDSNP fertilizer input
+
+             IF ( .NOT. OPEN3( BDSNP_FFILE, FSREAD3, PNAME ) ) THEN
+                mesg = 'Open failure for ' // BDSNP_FFILE
+                Call M3EXIT( PNAME, 0, 0, mesg, XSTAT1 )
+             END IF
+
+             IF ( .NOT. DESC3( BDSNP_FFILE ) ) THEN
+                MESG = 'Could not get description of file "' //
+     &                  TRIM( BDSNP_FFILE ) // '"'
+                CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT1 )
+             END IF
+
+             call subhfile( BDSNP_FFILE, gxoff, gyoff, strtcol,
+     &                     endcol, strtrow, endrow )
+
+               i  = FLOAT( MOD( STDATE, 1000 ) )
+               write( var, '(A4,I3.3)' ) 'FERT', i
+               IF ( .NOT. XTRACT3( BDSNP_FFILE, var,
+     &                             1, 1, strtrow, endrow, strtcol, endcol,
+     &                             megan_day, megan_hr, bdsnp_fert(:,:) ) ) THEN
+                   mesg = 'Could not extract ' // BDSNP_FFILE // ' file'
+                   CALL M3EXIT ( PNAME, 0, megan_hr, mesg, XSTAT1 )
+               END IF
+
+         ! BDSNP arid input
+
+             IF ( .NOT. OPEN3( BDSNP_AFILE, FSREAD3, PNAME ) ) THEN
+                mesg = 'Open failure for ' // BDSNP_AFILE
+                Call M3EXIT( PNAME, 0, 0, mesg, XSTAT1 )
+             END IF
+
+             IF ( .NOT. DESC3( BDSNP_AFILE ) ) THEN
+                MESG = 'Could not get description of file "' //
+     &                  TRIM( BDSNP_AFILE ) // '"'
+                CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT1 )
+             END IF
+
+             call subhfile( BDSNP_AFILE, gxoff, gyoff, strtcol,
+     &                     endcol, strtrow, endrow )
+
+
+               IF ( .NOT. XTRACT3( BDSNP_AFILE, 'ARID',
+     &                             1, 1, strtrow, endrow, strtcol, endcol,
+     &                             megan_day, megan_hr, bdsnp_arid(:,:) ) ) THEN
+                   mesg = 'Could not extract ' // BDSNP_AFILE // ' file'
+                   CALL M3EXIT ( PNAME, 0, megan_hr, mesg, XSTAT1 )
+               END IF
+
+         ! BDSNP nonarid input
+
+             IF ( .NOT. OPEN3( BDSNP_NAFILE, FSREAD3, PNAME ) ) THEN
+                mesg = 'Open failure for ' // BDSNP_NAFILE
+                Call M3EXIT( PNAME, 0, 0, mesg, XSTAT1 )
+             END IF
+
+             IF ( .NOT. DESC3( BDSNP_NAFILE ) ) THEN
+                MESG = 'Could not get description of file "' //
+     &                  TRIM( BDSNP_NAFILE ) // '"'
+                CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT1 )
+             END IF
+
+             call subhfile( BDSNP_NAFILE, gxoff, gyoff, strtcol,
+     &                     endcol, strtrow, endrow )
+
+
+               IF ( .NOT. XTRACT3( BDSNP_NAFILE, 'NONARID',
+     &                             1, 1, strtrow, endrow, strtcol, endcol,
+     &                             megan_day, megan_hr, bdsnp_nonarid(:,:) ) ) THEN
+                   mesg = 'Could not extract ' // BDSNP_NAFILE // ' file'
+                   CALL M3EXIT ( PNAME, 0, megan_hr, mesg, XSTAT1 )
+               END IF
+
+         ! BDSNP landtype input
+
+             IF ( .NOT. OPEN3( BDSNP_LFILE, FSREAD3, PNAME ) ) THEN
+                mesg = 'Open failure for ' // BDSNP_LFILE
+                Call M3EXIT( PNAME, 0, 0, mesg, XSTAT1 )
+             END IF
+
+             IF ( .NOT. DESC3( BDSNP_LFILE ) ) THEN
+                MESG = 'Could not get description of file "' //
+     &                  TRIM( BDSNP_LFILE ) // '"'
+                CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT1 )
+             END IF
+
+             call subhfile( BDSNP_LFILE, gxoff, gyoff, strtcol,
+     &                     endcol, strtrow, endrow )
+
+               IF ( .NOT. XTRACT3( BDSNP_LFILE, 'LANDTYPE',
+     &                             1, 1, strtrow, endrow, strtcol, endcol,
+     &                             megan_day, megan_hr, bdsnp_landtype(:,:) ) ) THEN
+                   mesg = 'Could not extract ' // BDSNP_LFILE // ' file'
+                   CALL M3EXIT ( PNAME, 0, megan_hr, mesg, XSTAT1 )
+               END IF
+
+         end if
 
 #endif
         end subroutine megan_setup
@@ -4482,7 +4868,7 @@ C   mminlu and num_land_cat are WRF global variables
         end subroutine centralized_io_init
  
 !-----------------------------------------------------------------------
-      SUBROUTINE INIT_EMIS_REGIONS( )
+      SUBROUTINE DESID_INIT_REGIONS( )
 !
 !     This subroutine defines several hardcoded rules for emissions
 !     scaling that will apply by default. These include subtracting NH3
@@ -4493,10 +4879,17 @@ C   mminlu and num_land_cat are WRF global variables
 !----------------------------------------------------------------------- 
       USE GRID_CONF
       USE UTILIO_DEFN
-      USE em_param_module
+      USE desid_param_module
       USE UTIL_FAMILY_MODULE
 #ifdef mpas
       USE util_module, only : index1, upcase
+
+#endif
+
+#ifdef parallel
+      USE SE_MODULES   ! stenex (using SE_UTIL_MODULE,SE_DATA_COPY_MODULE)
+#else
+      USE NOOP_MODULES ! stenex (using NOOP_UTIL_MODULE,NOOP_DATA_COPY_MODULE)
 #endif
 
 #ifdef sens
@@ -4505,37 +4898,38 @@ C   mminlu and num_land_cat are WRF global variables
 
       IMPLICIT NONE
                                                      
-      TYPE( EM_REG      ) :: EM_REG_READ( N_REGIONS_REG )
+      TYPE( DESID_REG_TYPE) :: DESID_REG_READ( DESID_MAX_REG )
       INTEGER, PARAMETER :: NFILE0 = 200
       CHARACTER( 32 )    :: FILENAMES( NFILE0 ) = ''
       CHARACTER( 32 ) :: VNAME
 
       INTEGER :: IRGN, NFILE, IDX, IFILE, IREAD, IVAR, IFAM, JRGN
       INTEGER :: GXOFF, GYOFF, ENDCOL, ENDROW, STARTCOL, STARTROW
-      INTEGER :: N_EM_READ
-      CHARACTER( 16 )    :: PNAME = "INIT_REGIONS"
+      INTEGER :: N_REG_RULE
+      CHARACTER( 16 )    :: PNAME = "DESID_INIT_REGIONS"
       CHARACTER( 250)    :: XMSG
+      REAL, ALLOCATABLE  :: REG_FACI(:,:), REG_FACJ(:,:)
       integer :: ldate, ltime, floc
       CHARACTER( 16 ) :: lvname
 
       ! Find the total number of regions to be processed
-      N_EM_READ = 0  ! The first region is the entire domain
-      DO IRGN = 1,N_REGIONS_REG
-          IF ( RGN_NML( IRGN )%LABEL .EQ. '' ) EXIT
-          N_EM_READ = N_EM_READ + 1
+      N_REG_RULE = 0  ! The first region is the entire domain
+      DO IRGN = 1,DESID_MAX_REG
+          IF ( DESID_REG_NML( IRGN )%LABEL .EQ. '' ) EXIT
+          N_REG_RULE = N_REG_RULE + 1
       END DO
 
       ! Allocate Vectors and Arrays for Each Region
-      ALLOCATE( EM_REGIONS( N_REGIONS_REG ) )
-      EM_REGIONS( 1 )%LABEL = 'EVERYWHERE'
-      EM_REGIONS( 1 )%FILE  = 'N/A'
-      EM_REGIONS( 1 )%VAR   = 'N/A'
-      EM_REGIONS( 1 )%FILENUM = 1
-      N_EM_RGN = 1
+      ALLOCATE( DESID_REG( DESID_MAX_REG ) )
+      DESID_REG( 1 )%LABEL = 'EVERYWHERE'
+      DESID_REG( 1 )%FILE  = 'N/A'
+      DESID_REG( 1 )%VAR   = 'N/A'
+      DESID_REG( 1 )%FILENUM = 1
+      DESID_N_REG = 1
       
-      ALLOCATE( EM_REG_FAC( NCOLS,NROWS,N_REGIONS_REG ) )
-      EM_REG_FAC = 0.0
-      EM_REG_FAC( :,:,1 ) = 1.0
+      ALLOCATE( DESID_REG_FAC( NCOLS,NROWS,DESID_MAX_REG ) )
+      DESID_REG_FAC = 0.0
+      DESID_REG_FAC( :,:,1 ) = 1.0
 
       ! Populate global Region properties structure. Also assign each
       ! region a number according to the file it comes from. 1 =
@@ -4543,24 +4937,24 @@ C   mminlu and num_land_cat are WRF global variables
       NFILE = 1
       FILENAMES( 1 ) = 'N/A'
 
-      IF ( N_EM_READ .GT. 0 ) THEN
-        DO IREAD = 1,N_EM_READ
-           CALL UPCASE( RGN_NML( IREAD )%LABEL )
-           CALL UPCASE( RGN_NML( IREAD )%FILE  )
-           CALL UPCASE( RGN_NML( IREAD )%VAR   )
+      IF ( N_REG_RULE .GT. 0 ) THEN
+        DO IREAD = 1,N_REG_RULE
+           CALL UPCASE( DESID_REG_NML( IREAD )%LABEL )
+           CALL UPCASE( DESID_REG_NML( IREAD )%FILE  )
+           CALL UPCASE( DESID_REG_NML( IREAD )%VAR   )
 
-           EM_REG_READ( IREAD )%LABEL = RGN_NML( IREAD )%LABEL  ! Region Name
-           EM_REG_READ( IREAD )%FILE  = RGN_NML( IREAD )%FILE   ! Logical filename
-           EM_REG_READ( IREAD )%VAR   = RGN_NML( IREAD )%VAR    ! Variable from file 
-                                                                !   used to inform mask
+           DESID_REG_READ( IREAD )%LABEL = DESID_REG_NML( IREAD )%LABEL  ! Region Name
+           DESID_REG_READ( IREAD )%FILE  = DESID_REG_NML( IREAD )%FILE   ! Logical filename
+           DESID_REG_READ( IREAD )%VAR   = DESID_REG_NML( IREAD )%VAR    ! Variable from file 
+                                                                         !   used to inform mask
 
-           IDX = INDEX1( EM_REG_READ( IREAD )%FILE, NFILE, FILENAMES(1:NFILE) )
+           IDX = INDEX1( DESID_REG_READ( IREAD )%FILE, NFILE, FILENAMES(1:NFILE) )
            IF ( IDX .NE. 0 ) THEN
-             EM_REG_READ( IREAD )%FILENUM = IDX
+             DESID_REG_READ( IREAD )%FILENUM = IDX
            ELSE
              NFILE = NFILE + 1
-             EM_REG_READ( IREAD )%FILENUM = NFILE
-             FILENAMES( NFILE ) = EM_REG_READ( IREAD )%FILE
+             DESID_REG_READ( IREAD )%FILENUM = NFILE
+             FILENAMES( NFILE ) = DESID_REG_READ( IREAD )%FILE
            END IF                                                           
         END DO
       
@@ -4595,12 +4989,12 @@ C   mminlu and num_land_cat are WRF global variables
 #endif
 
           ! Read data from regions file into region array 
-          DO IREAD = 1,N_EM_READ
-              IF ( EM_REG_READ( IREAD )%FILENUM .EQ. IFILE ) THEN
-                  IF ( EM_REG_READ( IREAD )%VAR .EQ. 'ALL' ) THEN
+          DO IREAD = 1,N_REG_RULE
+              IF ( DESID_REG_READ( IREAD )%FILENUM .EQ. IFILE ) THEN
+                  IF ( DESID_REG_READ( IREAD )%VAR .EQ. 'ALL' ) THEN
                      ! Populate the region array with all of the
                      ! variables on this file
-                     IF ( EM_REG_READ( IREAD )%LABEL .NE. 'ALL' ) THEN
+                     IF ( DESID_REG_READ( IREAD )%LABEL .NE. 'ALL' ) THEN
                         XMSG = 'Error reading Region input in Emissions Control file.'//
      &                         'If the variable name is set to "ALL", then the label must'//
      &                         'also be set to "ALL".'
@@ -4613,18 +5007,18 @@ C   mminlu and num_land_cat are WRF global variables
                         DO IVAR = 1,NVARS3D
                            lvname = vname3d( ivar )
 #endif
-                           N_EM_RGN = N_EM_RGN + 1
-                           EM_REGIONS( N_EM_RGN )%LABEL   = lvname
-                           EM_REGIONS( N_EM_RGN )%VAR     = lvname
-                           EM_REGIONS( N_EM_RGN )%FILE    = EM_REG_READ( IREAD )%FILE
-                           EM_REGIONS( N_EM_RGN )%FILENUM = EM_REG_READ( IREAD )%FILENUM
+                           DESID_N_REG = DESID_N_REG + 1
+                           DESID_REG( DESID_N_REG )%LABEL   = lvname
+                           DESID_REG( DESID_N_REG )%VAR     = lvname
+                           DESID_REG( DESID_N_REG )%FILE    = DESID_REG_READ( IREAD )%FILE
+                           DESID_REG( DESID_N_REG )%FILENUM = DESID_REG_READ( IREAD )%FILENUM
 
 #ifdef mpas
-                           call mio_fread (FILENAMES(IFILE), lvname, EM_REG_FAC(:,1,N_EM_RGN))
+                           call mio_fread (FILENAMES(IFILE), lvname, DESID_REG_FAC(:,1,DESID_N_REG))
 #else
                            IF ( .NOT. XTRACT3( FILENAMES( IFILE ), VNAME3D(IVAR), 1, 1,
      &                                         STARTROW, ENDROW, STARTCOL, ENDCOL,
-     &                                         0, 0, EM_REG_FAC( 1,1,N_EM_RGN ) ) ) Then
+     &                                         0, 0, DESID_REG_FAC( 1,1,DESID_N_REG ) ) ) Then
                               XMSG = 'Could not read ' // VNAME3D(IVAR) //
      &                               'from file ' // FILENAMES( IFILE ) 
                               CALL M3WARN ( PNAME, 0, 0, XMSG )
@@ -4635,16 +5029,16 @@ C   mminlu and num_land_cat are WRF global variables
                      END IF
                   ELSE
                      ! Populate the region array with only this variable
-                     N_EM_RGN = N_EM_RGN + 1
-                     EM_REGIONS( N_EM_RGN ) = EM_REG_READ( IREAD )
-                     VNAME = EM_REG_READ( IREAD )%VAR
+                     DESID_N_REG = DESID_N_REG + 1
+                     DESID_REG( DESID_N_REG ) = DESID_REG_READ( IREAD )
+                     VNAME = DESID_REG_READ( IREAD )%VAR
 
 #ifdef mpas
-                     call mio_fread (FILENAMES(IFILE), VNAME, EM_REG_FAC(:,1,N_EM_RGN))
+                     call mio_fread (FILENAMES(IFILE), VNAME, DESID_REG_FAC(:,1,DESID_N_REG))
 #else
                      IF ( .NOT. XTRACT3( FILENAMES( IFILE ), VNAME, 1, 1,
      &                                   STARTROW, ENDROW, STARTCOL, ENDCOL,
-     &                                   0, 0, EM_REG_FAC( 1,1,N_EM_RGN ) ) ) Then
+     &                                   0, 0, DESID_REG_FAC( 1,1,DESID_N_REG ) ) ) Then
                         XMSG = 'Could not read ' // VNAME //
      &                         'from file ' // FILENAMES( IFILE ) 
                         CALL M3WARN ( PNAME, 0, 0, XMSG )
@@ -4665,45 +5059,90 @@ C   mminlu and num_land_cat are WRF global variables
          
           ! Error Check the Regions Array
           ! Any Negatives?
-          DO IRGN = 1,N_EM_RGN
-            IF ( ANY( EM_REG_FAC( :,:,IRGN ) .LT. 0.0 ) ) THEN
-               XMSG = 'Region ' // TRIM( EM_REGIONS( IRGN )%LABEL) // ' on file ' //
+          DO IRGN = 1,DESID_N_REG
+            IF ( ANY( DESID_REG_FAC( :,:,IRGN ) .LT. 0.0 ) ) THEN
+               XMSG = 'Region ' // TRIM( DESID_REG( IRGN )%LABEL) // ' on file ' //
      &                TRIM( FILENAMES( IFILE )) // ' contains a ' //
      &                'negative value. The expected range is 0-1.'
                CALL M3ERR( PNAME, STDATE, STTIME, XMSG, .TRUE. )
-            ELSE IF ( ANY( EM_REG_FAC( :,:,IRGN ) .GT. 1.01 ) ) THEN
-               XMSG = 'Region ' // TRIM( EM_REGIONS( IRGN )%LABEL) // ' on file ' //
+            ELSE IF ( ANY( DESID_REG_FAC( :,:,IRGN ) .GT. 1.01 ) ) THEN
+               XMSG = 'Region ' // TRIM( DESID_REG( IRGN )%LABEL) // ' on file ' //
      &                TRIM( FILENAMES( IFILE )) // ' contains a ' //
      &                'value greater than 1. The expected range is 0-1.'
                CALL M3ERR( PNAME, STDATE, STTIME, XMSG, .TRUE. )
             END IF
-          END DO
+          
+            ! Condition mask values to be at most 1.0
+            DESID_REG_FAC( :,:,IRGN ) = MIN( 1.0, DESID_REG_FAC( :,:,IRGN ) )
 
+          END DO
+          
         END DO ! IFILE
  
         ! Augment Emission Region Structure with Region Families
-        DO IFAM = 1,NRegionFamilies
-           N_EM_RGN = N_EM_RGN + 1
+        DO IFAM = 1,Desid_N_Reg_Fams
+           DESID_N_REG = DESID_N_REG + 1
            CALL UPCASE( RegionFamilyName( IFAM ) )
-           EM_REGIONS( N_EM_RGN )%LABEL   = RegionFamilyName( IFAM )
-           EM_REGIONS( N_EM_RGN )%VAR     = 'Family'
-           EM_REGIONS( N_EM_RGN )%FILE    = 'Family'
-           EM_REGIONS( N_EM_RGN )%FILENUM = 0
+           DESID_REG( DESID_N_REG )%LABEL   = RegionFamilyName( IFAM )
+           DESID_REG( DESID_N_REG )%VAR     = 'Family'
+           DESID_REG( DESID_N_REG )%FILE    = 'Family'
+           DESID_REG( DESID_N_REG )%FILENUM = 0
 
            DO IRGN = 1,RegionFamilyNum( IFAM )
               CALL UPCASE( RegionFamilyMembers( IFAM,IRGN ) )
-              JRGN = INDEX1( RegionFamilyMembers( IFAM,IRGN ), N_EM_RGN-1,
-     &                      EM_REGIONS( 1:(N_EM_RGN-1) )%VAR )
+              JRGN = INDEX1( RegionFamilyMembers( IFAM,IRGN ), DESID_N_REG-1,
+     &                      DESID_REG( 1:(DESID_N_REG-1) )%VAR )
               IF ( JRGN .GT. 0 ) 
-     &             EM_REG_FAC( :,:,N_EM_RGN ) = 
-     &                MIN( 1.0, EM_REG_FAC( :,:,N_EM_RGN ) + 
-     &                          EM_REG_FAC( :,:,JRGN ) )
+     &             DESID_REG_FAC( :,:,DESID_N_REG ) = 
+     &                MIN( 1.0, DESID_REG_FAC( :,:,DESID_N_REG ) + 
+     &                          DESID_REG_FAC( :,:,JRGN ) )
            END DO
         END DO
       END IF
 
-      EM_REGIONS = EM_REGIONS( 1:N_EM_RGN )
-      EM_REG_FAC = EM_REG_FAC( :,:,1:N_EM_RGN )
+      DESID_REG = DESID_REG( 1:DESID_N_REG )
+      DESID_REG_FAC = DESID_REG_FAC( :,:,1:DESID_N_REG )
+
+      ! Determine Which Regions are Subsets of Larger Regions and
+      ! save special relationship for use in EMISS_SCALING.
+      ALLOCATE( DESID_REG_SUB( DESID_N_REG, DESID_N_REG ) )
+      DESID_REG_SUB(:,:) = .FALSE.  ! Initialize with no region subsets
+      DESID_REG_SUB(1,:) = .TRUE.   ! All regions are a subset of Region 1 (Everywhere)
+      DESID_REG_SUB(1,1) = .FALSE.  ! No regions are subsets of themselves
+
+      ALLOCATE( REG_FACI(GL_NCOLS,GL_NROWS), 
+     &          REG_FACJ(GL_NCOLS,GL_NROWS)  )
+
+      DO IRGN = 2,DESID_N_REG
+#ifdef parallel
+        CALL SUBST_GLOBAL_GATHER( DESID_REG_FAC(:,:,IRGN), REG_FACI )
+#else  
+        REG_FACI = DESID_REG_FAC(:,:,IRGN)
+#endif
+        DO JRGN = 1,DESID_N_REG
+#ifdef parallel
+          CALL SUBST_GLOBAL_GATHER( DESID_REG_FAC(:,:,JRGN), REG_FACJ )
+#else      
+          REG_FACJ = DESID_REG_FAC(:,:,JRGN)
+#endif
+          IF ( MYPE .EQ. 0 ) THEN
+             IF (  JRGN .NE. IRGN .AND.
+     &                ANY( REG_FACJ(:,:) .GT. 0. ) .AND.
+     &                ALL( REG_FACI(:,:)+1.0E-6 .GT.
+     &                     REG_FACJ(:,:) ) ) THEN
+               ! Assume JRGN is a subset of IRGN. Both have to be
+               ! non-zero somewhere in the domain.
+               DESID_REG_SUB( IRGN,JRGN ) = .TRUE.
+             END IF
+          END IF  ! Only perform algorithm on main processor
+        END DO
+      END DO
+
+      DEALLOCATE( REG_FACI, REG_FACJ )
+
+#ifdef parallel
+      CALL SUBST_GLOBAL_BCAST( DESID_REG_SUB )
+#endif
 
 #ifdef sens
 ! Populate IREGION(NCOLS,NROW,NLAYS,NPMAX) with regions data if specified
@@ -4712,20 +5151,20 @@ C   mminlu and num_land_cat are WRF global variables
       DO NP = 1, NPMAX
         IF ( S_NRGN( NP ) .GT. 0 .AND. S_NRGN( NP ) .LT. 99 ) THEN !  
           DO IRGN = 1, S_NRGN( NP )
-            IREAD = INDEX1( S_RGNLBL(NP,IRGN), N_EM_RGN, EM_REGIONS%LABEL ) ! identify region
+            IREAD = INDEX1( S_RGNLBL(NP,IRGN), DESID_N_REG, DESID_REG%LABEL ) ! identify region
             IF ( IREAD .EQ. 0 ) THEN
               XMSG = " User specified DDM3D region - " //
      &               TRIM( S_RGNLBL(NP,IRGN) ) //
      &               " - not found in available emissions regions. " //
      &               " Check sensinput.dat file "
               WRITE(LOGDEV,*) " Available region definitions: "
-              DO IFILE = 1, N_EM_RGN
-                WRITE(LOGDEV,*) IFILE, EM_REGIONS( IFILE )%LABEL
+              DO IFILE = 1, DESID_N_REG
+                WRITE(LOGDEV,*) IFILE, DESID_REG( IFILE )%LABEL
               END DO
               CALL M3EXIT( PNAME, 1, 1, XMSG, XSTAT1 )
             ELSE
               IREGION(:,:,1,NP) = IREGION( :,:,1,NP )
-     &                          + EM_REG_FAC( :,:,IREAD )
+     &                          + DESID_REG_FAC( :,:,IREAD )
             END IF
           END DO
 ! Limit IREGION to < 1.0 incase some regions overlap.
@@ -4739,21 +5178,21 @@ C   mminlu and num_land_cat are WRF global variables
 
 #endif
       
-      END SUBROUTINE INIT_EMIS_REGIONS
+      END SUBROUTINE DESID_INIT_REGIONS
 
 !-----------------------------------------------------------------------
-      SUBROUTINE READ_EMISS_NAMELIST( )
+      SUBROUTINE DESID_READ_NAMELIST( )
 !
 !     This subroutine opens and reads the Emissions Control Namelist. It 
 !     attempts to deal with errors like missing file or missing file 
 !     sections by error checking and setting defaults.
 !-----------------------------------------------------------------------
 
-      use em_param_module
-      use RUNTIME_VARS, only : EMISSCTRL, logdev
+      use desid_param_module
       use util_family_module
-      use RUNTIME_VARS, only: EMISSCTRL, logdev, log_message, log_subheading
-      use PA_DEFN, ONLY : BudgetVariables, N_BUDGET_VARS_REG, BUDGET_DIAG
+      use RUNTIME_VARS, only: MISC_CTRL, DESID_CTRL, DESID_CHEM_CTRL,
+     &                        logdev, log_message, log_subheading
+      use PA_DEFN, ONLY : BudgetVariables, MAX_BUDGET_VARS_NML, BUDGET_DIAG
 #ifdef mpas
       use util_module, only : junit, upcase
 #endif
@@ -4761,268 +5200,518 @@ C   mminlu and num_land_cat are WRF global variables
       IMPLICIT NONE
 
          ! Define Dummy Variables for Opening Emission Control Namelist
-         CHARACTER( 300 ) :: EQNAME, XMSG
-         INTEGER          :: EMCTRL_NML
-         INTEGER          :: STAT, IFAM, INUM, IRULE
+         CHARACTER( 300 ) :: XMSG    
+         INTEGER          :: Desid_N_Diag_Rules, Desid_Max_Area, Desid_Max_Sd
+         INTEGER          :: FUNIT
+         INTEGER          :: IOST, IFAM, INUM, IRULE
          CHARACTER( 200 ) :: TMPLINE
          
-         ! Define Emissions Rules Input from Emissions Control Namelist
-         NAMELIST / EmissionScalingRules / EM_NML
-         NAMELIST / AreaNorm             / AREA_NML
-         NAMELIST / SizeDistributions    / SD_NML 
-         NAMELIST / RegionsRegistry      / RGN_NML
-         NAMELIST / BudgetOptions        / Budget_Diag, BudgetVariables
-         NAMELIST / EmissionDiagnostic   / NEmissDiag, EmissDiagStreams,
-     &                                     EmissDiagFmt, EmissDiagSpec
+         ! Define Namelist Input from Control Files
+         ! CMAQ Control Util
+         Namelist / Budget_Options       / Budget_Diag, BudgetVariables
          
+         ! DESID Chem Control
+         Namelist / Desid_ScalingVars    / Desid_Max_Rules
+         Namelist / Desid_Scaling        / Desid_Rules_Nml
+         
+         ! DESID Control
+         Namelist / Desid_Options        / Desid_MaxLays
+
+         Namelist / Desid_AreaNormVars   / Desid_Max_Area
+         Namelist / Desid_AreaNorm       / Desid_Area_Nml
+
+         Namelist / Desid_SizeDistVars   / Desid_Max_Sd
+         Namelist / Desid_SizeDist       / Desid_Sd_Nml
+
+         Namelist / Desid_RegionDefVars  / Desid_Max_Reg,
+     &                                     Desid_N_Reg_Fams, 
+     &                                     Desid_Max_Reg_Fam_Members
+         Namelist / Desid_RegionDef      / Desid_Reg_Nml
+
+         Namelist / Desid_DiagVars       / Desid_N_Diag_Rules,
+     &                                     Desid_Max_Diag_Streams,
+     &                                     Desid_Max_Diag_Spec
+         Namelist / Desid_Diag           / Desid_Diag_Streams_Nml,
+     &                                     Desid_Diag_Fmt_Nml, 
+     &                                     Desid_Diag_Spec_Nml
+
          CALL LOG_MESSAGE( LOGDEV, ' ' )
          CALL LOG_SUBHEADING( LOGDEV, 'Reading Emission Control Namelist')
          
-         ! Allocate and Initialize Budget Variables
-         Budget_Diag = .FALSE.
-         ALLOCATE( BudgetVariables( N_Budget_Vars_Reg ) )
-         BudgetVariables = ''
+         !!! Budget Options !!!
+           ! Allocate and Initialize Budget Variables
+           Budget_Diag = .FALSE.
+           ALLOCATE( BudgetVariables( Max_Budget_Vars_Nml ) )
+           BudgetVariables = ''
+          
+           ! Retrieve the Name of the Emission Control File
+           IF ( MISC_CTRL .EQ. "MISC_CTRL_NML" ) THEN
+               XMSG = 'You have chosen not to indicate the location of an' //
+     &                'CMAQ Control namelist file. You must give a value ' //
+     &                'for the MISC_CTRL variable in the CMAQ runscript.'
+               CALL M3EXIT( 'DESID_READ_NAMELIST',0,0,XMSG,1 )
+           END IF
+          
+           ! Open Emission Control Namelist File
+           FUNIT = JUNIT()
+           OPEN( FILE = MISC_CTRL, UNIT = FUNIT, STATUS = 'OLD',
+     &           POSITION = 'REWIND', FORM='FORMATTED', IOSTAT = IOST )
+          
+           ! Check for Error in File Open Process
+           IF ( IOST .NE. 0 ) THEN
+               WRITE( XMSG, '(A,A,A)' ),'ERROR: Could not read ',
+     &                'CMAQ control namelist file: ',TRIM( MISC_CTRL )
+               CALL M3EXIT( 'DESID_READ_NAMELIST',0,0,XMSG,1 )
+           END IF
+          
+           ! Read Budget Variables Specification Section
+           REWIND( FUNIT )
+           READ( NML = Budget_Options, UNIT = FUNIT, IOSTAT= IOST )
+           IF ( IOST .EQ. -1 ) THEN
+               WRITE( LOGDEV, "(5x,A,/,5x,A,/,5x,A,/,5x,A)" ),
+     &                'Note: The BudgetOptions section of the Emissions Control ',
+     &                'Namelist is missing. Default values for this section will be ',
+     &                'assumed.'
+               Budget_Diag   = .FALSE.
+               BudgetVariables  = 'ALL'
+           ELSE IF ( IOST .NE. 0 ) THEN
+               ! Read Error Detected for BudgetOptions
+               backspace( FUNIT )
+               read( FUNIT, fmt='(A)' ) tmpline
+               XMSG = 'ERROR: There was a syntax error reading the Budget_Options '//
+     &                'variable in the CMAQ control namelist. Please check the format of '//
+     &                'each line for syntax errors. The invalid line was likely: '
+               CALL LOG_MESSAGE( LOGDEV, ' ')
+               CALL LOG_MESSAGE( LOGDEV, XMSG )
+               WRITE( LOGDEV, '(8x,A)' ) TMPLINE
+               CALL M3EXIT ( 'DESID_READ_NAMELIST', 0, 0, 'CMAQ must Crash until you '//
+     &                       'fix the Budget Variables specification', 1 ) 
+           END IF
+           ! Capitalize All Budget Variables Names
+           DO IFAM = 1,Max_Budget_Vars_Nml
+               CALL UPCASE( BudgetVariables( IFAM ) )
+           END DO
+          
+           CLOSE( FUNIT )
 
-         ! Initialize Namelist Variables
-         EM_NML%REGION = ''
-         EM_NML%STREAM = ''
-         EM_NML%SURR   = ''
-         EM_NML%SPEC   = ''
-         EM_NML%PHASE  = ''
-         EM_NML%OP     = ''
-         EM_NML%BASIS  = ''
-         EM_NML%FAC    = 0.
+         !----------------------------!
+         !!! DESID Chemical Mapping !!!
+           ! Retrieve the Name of the Emission Control File
+           IF ( DESID_CHEM_CTRL .EQ. "DESID_CHEM_CTRL_NML" ) THEN
+               XMSG = 'You have chosen not to indicate the location of an' //
+     &                'Emission Control namelist file. You must give a value ' //
+     &                'for the DESID_CHEM_CTRL variable in the CMAQ runscript.'
+               CALL M3EXIT( 'DESID_READ_NAMELIST',0,0,XMSG,1 )
+           END IF
+           
+           ! Open Emission Control Namelist File
+           FUNIT = JUNIT()
+           OPEN( FILE = DESID_CHEM_CTRL, UNIT = FUNIT, STATUS = 'OLD',
+     &           POSITION = 'REWIND', FORM='FORMATTED', IOSTAT = IOST )
+           
+           ! Check for Error in File Open Process
+           IF ( IOST .NE. 0 ) THEN
+               WRITE( XMSG, '(A,A,A)' ),'ERROR: Could not read ',
+     &                'emissions control namelist file: ',TRIM( DESID_CHEM_CTRL )
+               CALL M3EXIT( 'DESID_READ_NAMELIST',0,0,XMSG,1 )
+           END IF
+           
+           ! Read the number of Max Emissions Rules to inform scaling operations
+           REWIND( FUNIT )
+           READ( NML = Desid_ScalingVars, UNIT = FUNIT, IOSTAT=IOST )
+           IF ( IOST .EQ. -1 ) THEN
+               ! The DESID_Max_Rules Variable was completely missing
+               XMSG = 'WARNING: Maximum Number of DESID Scaling Rules was not specified. '//
+     &                'If you intended to specify Desid_Max_Rules, check the DESID_CHEM_CTRL file.'
+               CALL LOG_MESSAGE( LOGDEV, ' ')
+               CALL LOG_MESSAGE( LOGDEV, XMSG )
+               DESID_MAX_RULES = 500
+           
+           ELSE IF ( IOST .NE. 0 ) THEN
+               ! Read Error Detected for DESID_RULES_NML
+               backspace( FUNIT )
+               read( FUNIT, fmt='(A)' ) tmpline
+               XMSG = 'ERROR: There was a syntax error reading ithe max number of '//
+     &                'Emission Scaling Rules for use by the DESID module. Please '//
+     &                'check the format of each line for syntax errors. The '//
+     &                'invalid line was likely: '
+               CALL LOG_MESSAGE( LOGDEV, ' ')
+               CALL LOG_MESSAGE( LOGDEV, XMSG )
+               WRITE( LOGDEV, '(8x,A)' ) TMPLINE
+               CALL M3EXIT ( 'DESID_READ_NAMELIST', 0, 0, 'CMAQ must Crash until you '//
+     &                       'fix Desid_Max_Rules', 1 )
+           END IF
+           
+           ! Allocate Initialize Namelist Variables
+           ALLOCATE( DESID_RULES_NML( DESID_MAX_RULES ), STAT=IOST )
+           CALL CHECKMEM( IOST, 'DESID_RULES_NML','DESID_READ_NAMELIST')
+           DESID_RULES_NML%REGION = ''
+           DESID_RULES_NML%STREAM = ''
+           DESID_RULES_NML%EMVAR  = ''
+           DESID_RULES_NML%SPEC   = ''
+           DESID_RULES_NML%PHASE  = ''
+           DESID_RULES_NML%OP     = ''
+           DESID_RULES_NML%BASIS  = ''
+           DESID_RULES_NML%FAC    = 0.
+           
+           ! Read the Emissions Rules to inform scaling operations
+           REWIND( FUNIT )
+           READ( NML = Desid_Scaling, UNIT = FUNIT, IOSTAT=IOST )
+           IF ( IOST .EQ. -1 ) THEN
+               ! The DESID_RULES_NML Variable was completely missing
+               XMSG = 'WARNING: There were no valid Emission Scaling Rules specified '//
+     &                'for use by the DESID module. If you intended to specify '//
+     &                'rules in the emission control file, check the file you have '//
+     &                'provided for DESID_CHEM_CTRL.' 
+               CALL LOG_MESSAGE( LOGDEV, ' ')
+               CALL LOG_MESSAGE( LOGDEV, XMSG )
+               DESID_RULES_NML%REGION = ''
+               DESID_RULES_NML%STREAM = ''
+               DESID_RULES_NML%EMVAR  = ''
+               DESID_RULES_NML%SPEC   = ''
+               DESID_RULES_NML%PHASE  = ''
+               DESID_RULES_NML%OP     = ''
+               DESID_RULES_NML%BASIS  = ''
+               DESID_RULES_NML%FAC    = 0.
+           
+           ELSE IF ( IOST .NE. 0 ) THEN
+               ! Read Error Detected for DESID_RULES_NML
+               backspace( FUNIT )
+               read( FUNIT, fmt='(A)' ) tmpline
+               XMSG = 'ERROR: There was a syntax error reading Emission Scaling '//
+     &                'Rules for use by the DESID module. Please check the format of '//
+     &                'each line for syntax errors. The invalid line was likely: '
+               CALL LOG_MESSAGE( LOGDEV, ' ')
+               CALL LOG_MESSAGE( LOGDEV, XMSG )
+               WRITE( LOGDEV, '(8x,A)' ) TMPLINE
+               CALL M3EXIT ( 'DESID_READ_NAMELIST', 0, 0, 'CMAQ must Crash until you '//
+     &                       'fix the Emission Scaling Rules', 1 )
+           END IF
+           
+           CALL LOG_MESSAGE( LOGDEV,' ' )
+           CALL LOG_MESSAGE( LOGDEV,'Performing Basic Error Checks for Emission Scaling Rules' )
+           
+           ! Check that the operator field is correct since it has not so
+           ! many possible values.
+           DO IRULE = 1,DESID_MAX_RULES
+               IF( DESID_RULES_NML( IRULE )%SPEC .EQ. '' ) EXIT
+               IF( DESID_RULES_NML( IRULE )%OP .NE. 'a' .AND. DESID_RULES_NML( IRULE )%OP .NE. 'A' .AND.
+     &              DESID_RULES_NML( IRULE )%OP .NE. 'o' .AND. DESID_RULES_NML( IRULE )%OP .NE. 'O'.AND.
+     &              DESID_RULES_NML( IRULE )%OP .NE. 'm' .AND. DESID_RULES_NML( IRULE )%OP .NE. 'M' ) THEN
+                 WRITE( XMSG, '(A23,I4,A27,A3)'),'Emission Scaling Rule #',IRULE,
+     &                ' has a bad operator value: ',DESID_RULES_NML(IRULE)%OP
+                 call m3exit ( 'DESID_READ_NAMELIST', 0, 0, XMSG, 1 )
+               END IF
+           ENDDO     
+           
+           CLOSE( FUNIT )
 
-         ! Allocate and Initialize Area Normalization Namelist Variables
-         AREA_NML%STREAM  = 'ALL'
-         AREA_NML%AREA    = 'AUTO'
-         AREA_NML%ADJ     = 'AUTO'
- 
-         ! Allocate and Initialize Size Distribution Namelist Variables
-         SD_NML%STREAM   = ''
-         SD_NML%MODE     = ''
-         SD_NML%MODE_REF = ''
-
-         ! Initalize Region Namelist Variables
-         RGN_NML%LABEL = ''
-         RGN_NML%FILE  = ''
-         RGN_NML%VAR   = ''
-         
-         ! Initalize Emissions Diagnostic Namelist Variables
-         NEmissDiag       = 0
-         EmissDiagStreams = ''
-         EmissDiagFmt     = ''  
-         EmissDiagSpec    = ''
- 
+         !-----------------------------!
+         !!! Open DESID Control File !!!
+         !-----------------------------!
          ! Retrieve the Name of the Emission Control File
-         IF ( EMISSCTRL .EQ. "EMISSCTRL_NML" ) THEN
+         IF ( DESID_CTRL .EQ. "DESID_CTRL_NML" ) THEN
              XMSG = 'You have chosen not to indicate the location of an' //
      &              'Emission Control namelist file. You must give a value ' //
-     &              'for the EMISSCTRL variable in the CMAQ runscript.'
-             CALL M3EXIT( 'READ_EMISS_NAMELIST',0,0,XMSG,1 )
+     &              'for the DESID_CTRL variable in the CMAQ runscript.'
+             CALL M3EXIT( 'DESID_READ_NAMELIST',0,0,XMSG,1 )
          END IF
 
          ! Open Emission Control Namelist File
-         EMCTRL_NML = JUNIT()
-         OPEN( FILE = EMISSCTRL, UNIT = EMCTRL_NML, STATUS = 'OLD',
-     &         POSITION = 'REWIND', FORM='FORMATTED', IOSTAT = STAT )
+         FUNIT = JUNIT()
+         OPEN( FILE = DESID_CTRL, UNIT = FUNIT, STATUS = 'OLD',
+     &         POSITION = 'REWIND', FORM='FORMATTED', IOSTAT = IOST )
 
          ! Check for Error in File Open Process
-         IF ( STAT .NE. 0 ) THEN
+         IF ( IOST .NE. 0 ) THEN
              WRITE( XMSG, '(A,A,A)' ),'ERROR: Could not read ',
-     &              'emissions control namelist file: ',TRIM( EMISSCTRL )
-             CALL M3EXIT( 'READ_EMISS_NAMELIST',0,0,XMSG,1 )
-         END IF
-         
-         ! Read the Regions Registry
-         REWIND( EMCTRL_NML )
-         READ( NML = RegionsRegistry, UNIT = EMCTRL_NML, IOSTAT=STAT )
-         IF ( STAT .EQ. -1 ) THEN
-             XMSG = 'Note: The Regions_Registry section of the Emissions Control '//
-     &              'Interface is missing. Default values for this section will be '//
-     &              'assumed.'
-             CALL LOG_MESSAGE( LOGDEV,' ')
-             CALL LOG_MESSAGE( LOGDEV, XMSG )
-             RGN_NML%LABEL = ''
-             RGN_NML%FILE  = ''
-             RGN_NML%VAR   = ''
-         ELSE IF ( STAT .NE. 0 ) THEN
-             ! Read Error Detected for RGN_NML
-             backspace( EMCTRL_NML )
-             read( EMCTRL_NML, fmt='(A)' ) tmpline
-             XMSG = 'ERROR: There was a syntax error reading the RegionsRegistry '//
-     &              'variable for use by the DESID module. Please check the format of '//
-     &              'each line for syntax errors. The invalid line was likely: '
-             CALL LOG_MESSAGE( LOGDEV, ' ')
-             CALL LOG_MESSAGE( LOGDEV, XMSG )
-             WRITE( LOGDEV, '(8x,A)' ) TMPLINE
-             CALL M3EXIT ( 'Read_Emiss_Namelist', 0, 0, 'CMAQ must Crash until you '//
-     &                     'fix the Regions Registry', 1 ) 
- 
+     &              'emissions control namelist file: ',TRIM( DESID_CTRL )
+             CALL M3EXIT( 'DESID_READ_NAMELIST',0,0,XMSG,1 )
          END IF
  
-         ! Read the Area Normalization Registry
-         REWIND( EMCTRL_NML )
-         READ( NML = AreaNorm, UNIT = EMCTRL_NML, IOSTAT=STAT )
-         IF ( STAT .EQ. -1 ) THEN
-             XMSG = 'Note: The Area Normalization section of the Emissions Control '//
-     &              'Interface is missing. Default values for this section will be '//
-     &              'assumed.'
-             CALL LOG_MESSAGE( LOGDEV,' ')
-             CALL LOG_MESSAGE( LOGDEV, XMSG )
-             AREA_NML%STREAM = 'ALL'
-             AREA_NML%AREA   = 'AUTO'
-             AREA_NML%ADJ    = 'AUTO'
-         ELSE IF ( STAT .NE. 0 ) THEN
-             ! Read Error Detected for AREA_NML
-             backspace( EMCTRL_NML )
-             read( EMCTRL_NML, fmt='(A)' ) tmpline
-             XMSG = 'ERROR: There was a syntax error reading the Area Normalization '//
-     &              'variable for use by the DESID module. Please check the format of '//
-     &              'each line for syntax errors. The invalid line was likely: '
-             CALL LOG_MESSAGE( LOGDEV, ' ')
-             CALL LOG_MESSAGE( LOGDEV, XMSG )
-             WRITE( LOGDEV, '(8x,A)' ) TMPLINE
-             CALL M3EXIT ( 'Read_Emiss_Namelist', 0, 0, 'CMAQ must Crash until you '// 
-     &                     'fix the Area Normalization section', 1 ) 
-         END IF
+         !----------------------!
+         !!! DESID Top Layer  !!!
+           ! Read the Maximum Emissions Layer
+           REWIND( FUNIT )
+           READ( NML = Desid_Options, UNIT = FUNIT, IOSTAT=IOST )
+           IF ( IOST .EQ. -1 ) THEN
+               ! The Desid_Max_Lays Variable was completely missing
+               XMSG = 'WARNING: Maximum Layer for emissions input was not specified. '//
+     &                'If you intended to specify Desid_Max_Lays, check the DESID_CTRL file.'
+               CALL LOG_MESSAGE( LOGDEV, ' ')
+               CALL LOG_MESSAGE( LOGDEV, XMSG )
+               Desid_MaxLays = 0
+           
+           ELSE IF ( IOST .NE. 0 ) THEN
+               ! Read Error Detected for Desid_Max_Lays
+               backspace( FUNIT )
+               read( FUNIT, fmt='(A)' ) tmpline
+               XMSG = 'ERROR: There was a syntax error reading the max number of '//
+     &                'Emission Layers for use by the DESID module. Please '//
+     &                'check the format of each line for syntax errors. The '//
+     &                'invalid line was likely: '
+               CALL LOG_MESSAGE( LOGDEV, ' ')
+               CALL LOG_MESSAGE( LOGDEV, XMSG )
+               WRITE( LOGDEV, '(8x,A)' ) TMPLINE
+               CALL M3EXIT ( 'DESID_READ_NAMELIST', 0, 0, 'CMAQ must Crash until you '//
+     &                       'fix Desid_Max_Lays', 1 )
+           END IF
  
-         ! Read Budget Variables Specification Section
-         REWIND( EMCTRL_NML )
-         READ( NML = BudgetOptions, UNIT = EMCTRL_NML, IOSTAT=STAT )
-         IF ( STAT .EQ. -1 ) THEN
-             WRITE( LOGDEV, "(5x,A,/,5x,A,/,5x,A,/,5x,A)" ),
-     &              'Note: The BudgetOptions section of the Emissions Control ',
-     &              'Namelist is missing. Default values for this section will be ',
-     &              'assumed.'
-             Budget_Diag   = .FALSE.
-             BudgetVariables  = '*ALL'
-         ELSE IF ( STAT .NE. 0 ) THEN
-             ! Read Error Detected for BudgetOptions
-             backspace( EMCTRL_NML )
-             read( EMCTRL_NML, fmt='(A)' ) tmpline
-             XMSG = 'ERROR: There was a syntax error reading the BudgetOptions '//
-     &              'variable for use by the DESID module. Please check the format of '//
-     &              'each line for syntax errors. The invalid line was likely: '
-             CALL LOG_MESSAGE( LOGDEV, ' ')
-             CALL LOG_MESSAGE( LOGDEV, XMSG )
-             WRITE( LOGDEV, '(8x,A)' ) TMPLINE
-             CALL M3EXIT ( 'Read_Emiss_Namelist', 0, 0, 'CMAQ must Crash until you '//
-     &                     'fix the Budget Variables specification', 1 ) 
-         END IF
-         ! Capitalize All Budget Variables Names
-         DO IFAM = 1,N_Budget_Vars_Reg
-             CALL UPCASE( BudgetVariables( IFAM ) )
-         END DO
-
-         ! Read the size distribution specification section
-         REWIND( EMCTRL_NML )
-         READ( NML = SizeDistributions, UNIT = EMCTRL_NML, IOSTAT=STAT )
-         IF ( STAT .EQ. -1 ) THEN
-             XMSG = 'Note: The SizeDistReg section of the Emissions Control '//
-     &              'Interface is missing. Default values for this section '//
-     &              'will be assumed.'
-             CALL LOG_MESSAGE( LOGDEV,' ')
-             CALL LOG_MESSAGE( LOGDEV, XMSG )
-             SD_NML%STREAM   = ''
-             SD_NML%MODE     = ''
-             SD_NML%MODE_REF = ''
-         ELSE IF ( STAT .NE. 0 ) THEN
-             ! Read Error Detected for SD_NML
-             backspace( EMCTRL_NML )
-             read( EMCTRL_NML, fmt='(A)' ) tmpline
-             XMSG = 'ERROR: There was a syntax error reading the SizeDistReg '//
-     &              'variable for use by the DESID module. Please check the format of '//
-     &              'each line for syntax errors. The invalid line was likely: '
-             CALL LOG_MESSAGE( LOGDEV, ' ')
-             CALL LOG_MESSAGE( LOGDEV, XMSG )
-             WRITE( LOGDEV, '(8x,A)' ) TMPLINE
-             CALL M3EXIT ( 'Read_Emiss_Namelist', 0, 0, 'CMAQ must Crash until you '//
-     &                     'fix the Size Distribution Rule', 1 ) 
-         END IF
+         !------------------------------!
+         !!! DESID Area Normalization !!!
+           ! Read the number of Max Emissions Rules to inform scaling operations
+           REWIND( FUNIT )
+           READ( NML = Desid_AreaNormVars, UNIT = FUNIT, IOSTAT=IOST )
+           IF ( IOST .EQ. -1 ) THEN
+               ! The DESID_Max_Rules Variable was completely missing
+               XMSG = 'WARNING: Maximum Number of DESID Area Normalization Rules was not specified. '//
+     &                'If you intended to specify Desid_Max_Area, check the DESID_CTRL file.'
+               CALL LOG_MESSAGE( LOGDEV, ' ')
+               CALL LOG_MESSAGE( LOGDEV, XMSG )
+               DESID_MAX_AREA = 30
+           
+           ELSE IF ( IOST .NE. 0 ) THEN
+               ! Read Error Detected for DESID_RULES_NML
+               backspace( FUNIT )
+               read( FUNIT, fmt='(A)' ) tmpline
+               XMSG = 'ERROR: There was a syntax error reading the max number of '//
+     &                'Emission Area Normalization Rules for use by the DESID module. Please '//
+     &                'check the format of each line for syntax errors. The '//
+     &                'invalid line was likely: '
+               CALL LOG_MESSAGE( LOGDEV, ' ')
+               CALL LOG_MESSAGE( LOGDEV, XMSG )
+               WRITE( LOGDEV, '(8x,A)' ) TMPLINE
+               CALL M3EXIT ( 'DESID_READ_NAMELIST', 0, 0, 'CMAQ must Crash until you '//
+     &                       'fix Desid_Max_Area', 1 )
+           END IF
+           
+           ! Allocate Initialize Namelist Variables
+           ALLOCATE( DESID_AREA_NML( DESID_MAX_AREA ), STAT=IOST )
+           CALL CHECKMEM( IOST, 'DESID_AREA_NML','DESID_READ_NAMELIST')
+           DESID_AREA_NML%STREAM  = 'ALL'
+           DESID_AREA_NML%AREA    = 'AUTO'
+           DESID_AREA_NML%ADJ     = 'AUTO'
+           
+           ! Read the Area Normalization Registry
+           REWIND( FUNIT )
+           READ( NML = Desid_AreaNorm, UNIT = FUNIT, IOSTAT=IOST )
+           IF ( IOST .EQ. -1 ) THEN
+               XMSG = 'Note: The Area Normalization section of the Emissions Control '//
+     &                'Interface is missing. Default values for this section will be '//
+     &                'assumed.'
+               CALL LOG_MESSAGE( LOGDEV,' ')
+               CALL LOG_MESSAGE( LOGDEV, XMSG )
+               DESID_AREA_NML%STREAM = 'ALL'
+               DESID_AREA_NML%AREA   = 'AUTO'
+               DESID_AREA_NML%ADJ    = 'AUTO'
+           ELSE IF ( IOST .NE. 0 ) THEN
+               ! Read Error Detected for DESID_AREA_NML
+               backspace( FUNIT )
+               read( FUNIT, fmt='(A)' ) tmpline
+               XMSG = 'ERROR: There was a syntax error reading the Area Normalization '//
+     &                'variable for use by the DESID module. Please check the format of '//
+     &                'each line for syntax errors. The invalid line was likely: '
+               CALL LOG_MESSAGE( LOGDEV, ' ')
+               CALL LOG_MESSAGE( LOGDEV, XMSG )
+               WRITE( LOGDEV, '(8x,A)' ) TMPLINE
+               CALL M3EXIT ( 'DESID_READ_NAMELIST', 0, 0, 'CMAQ must Crash until you '// 
+     &                       'fix the Area Normalization section', 1 ) 
+           END IF
+              
+         !-----------------------------!
+         !!! DESID Region Definition !!!
+           ! Read the number of Max Emissions Rules to inform scaling operations
+           REWIND( FUNIT )
+           READ( NML = Desid_RegionDefVars, UNIT = FUNIT, IOSTAT=IOST )
+           IF ( IOST .EQ. -1 ) THEN
+               ! The DESID_Max_Rules Variable was completely missing
+               XMSG = 'WARNING: Maximum Number of DESID Region Def Variables was not specified. '//
+     &                'If you intended to specify Desid_Max_Reg, check the DESID_CTRL file.'
+               CALL LOG_MESSAGE( LOGDEV, ' ')
+               CALL LOG_MESSAGE( LOGDEV, XMSG )
+               DESID_MAX_REG = 30
+           
+           ELSE IF ( IOST .NE. 0 ) THEN
+               ! Read Error Detected for DESID_RULES_NML
+               backspace( FUNIT )
+               read( FUNIT, fmt='(A)' ) tmpline
+               XMSG = 'ERROR: There was a syntax error reading the max number of '//
+     &                'Region Definitions for use by the DESID module. Please '//
+     &                'check the format of each line for syntax errors. The '//
+     &                'invalid line was likely: '
+               CALL LOG_MESSAGE( LOGDEV, ' ')
+               CALL LOG_MESSAGE( LOGDEV, XMSG )
+               WRITE( LOGDEV, '(8x,A)' ) TMPLINE
+               CALL M3EXIT ( 'DESID_READ_NAMELIST', 0, 0, 'CMAQ must Crash until you '//
+     &                       'fix Desid_Max_Reg', 1 )
+           END IF
  
-         ! Read the Emissions Diagnostic Section
-         REWIND( EMCTRL_NML )
-         READ( NML = EmissionDiagnostic, UNIT = EMCTRL_NML, IOSTAT=STAT )
-         IF ( STAT .EQ. -1 ) THEN
-             ! The Emissions Diagnostic Section was completely missing
-             XMSG = 'WARNING: There were no valid Emission Diagnostic Values specified '//
-     &              'for use by the DESID module. If you intended to specify '//
-     &              'diagnostic output in the emission control interface, check the '//
-     &              'file you have provided for EMISSCTRL_NML.' 
-             CALL LOG_MESSAGE( LOGDEV, ' ')
-             CALL LOG_MESSAGE( LOGDEV, XMSG )
-             NEmissDiag       = 0
-             EmissDiagStreams = ''
-             EmissDiagFmt     = ''  
-             EmissDiagSpec    = ''
-         ELSE IF ( STAT .NE. 0 ) THEN
-             ! Read Error for Emissions Diagnostic
-             backspace( EMCTRL_NML )
-             read( EMCTRL_NML, fmt='(A)' ) tmpline
-             XMSG = 'ERROR: There was a syntax error reading Emission Diagnostic '//
-     &              'Variables for output by the DESID module. Please check the format of '//
-     &              'each line for syntax errors. The invalid line was likely: '
-             CALL LOG_MESSAGE( LOGDEV, ' ')
-             CALL LOG_MESSAGE( LOGDEV, XMSG )
-             WRITE( LOGDEV, '(8x,A)' ) TMPLINE
-             CALL M3EXIT ( 'Read_Emiss_Namelist', 0, 0, 'CMAQ must Crash until you '//
-     &                     'fix the Emission Diagnostic Specification.', 1 )
-         END IF
+           ! Allocate and Initialize Namelist Variables
+           ALLOCATE( DESID_REG_NML( DESID_MAX_REG ), STAT=IOST )
+           CALL CHECKMEM( IOST, 'DESID_REG_NML','DESID_READ_NAMELIST')
+           DESID_REG_NML%LABEL = ''
+           DESID_REG_NML%FILE  = ''
+           DESID_REG_NML%VAR   = ''
+           
+           ! Read the Regions Registry
+           REWIND( FUNIT )
+           READ( NML = Desid_RegionDef, UNIT = FUNIT, IOSTAT=IOST )
+           IF ( IOST .EQ. -1 ) THEN
+               XMSG = 'Note: The Desid_RegionDef component of the Emissions Control '//
+     &                'Interface is missing. Default values for this section will be '//
+     &                'assumed.'
+               CALL LOG_MESSAGE( LOGDEV,' ')
+               CALL LOG_MESSAGE( LOGDEV, XMSG )
+               DESID_REG_NML%LABEL = ''
+               DESID_REG_NML%FILE  = ''
+               DESID_REG_NML%VAR   = ''
+           ELSE IF ( IOST .NE. 0 ) THEN
+               ! Read Error Detected for DESID_REG_NML
+               backspace( FUNIT )
+               read( FUNIT, fmt='(A)' ) tmpline
+               XMSG = 'ERROR: There was a syntax error reading the Desid_RegionDef '//
+     &                'variable for use by the DESID module. Please check the format of '//
+     &                'each line for syntax errors. The invalid line was likely: '
+               CALL LOG_MESSAGE( LOGDEV, ' ')
+               CALL LOG_MESSAGE( LOGDEV, XMSG )
+               WRITE( LOGDEV, '(8x,A)' ) TMPLINE
+               CALL M3EXIT ( 'DESID_READ_NAMELIST', 0, 0, 'CMAQ must Crash until you '//
+     &                       'fix Desid_RegionDef', 1 ) 
+           END IF
+           
+           
+         !------------------------------!
+         !!! DESID Size Distributions !!!
+           ! Read the number of Max Size Dist Rules to inform scaling operations
+           REWIND( FUNIT )
+           READ( NML = Desid_SizeDistVars, UNIT = FUNIT, IOSTAT=IOST )
+           IF ( IOST .EQ. -1 ) THEN
+               ! The DESID_Max_Sd Variable was completely missing
+               XMSG = 'WARNING: Maximum Number of DESID Size Dist Rules was not specified. '//
+     &                'If you intended to specify Desid_Max_Sd, check the DESID_CTRL file.'
+               CALL LOG_MESSAGE( LOGDEV, ' ')
+               CALL LOG_MESSAGE( LOGDEV, XMSG )
+               DESID_MAX_SD = 10
+           
+           ELSE IF ( IOST .NE. 0 ) THEN
+               ! Read Error Detected for DESID_RULES_NML
+               backspace( FUNIT )
+               read( FUNIT, fmt='(A)' ) tmpline
+               XMSG = 'ERROR: There was a syntax error reading the max number of '//
+     &                'Size Distribution RUles for use by the DESID module. Please '//
+     &                'check the format of each line for syntax errors. The '//
+     &                'invalid line was likely: '
+               CALL LOG_MESSAGE( LOGDEV, ' ')
+               CALL LOG_MESSAGE( LOGDEV, XMSG )
+               WRITE( LOGDEV, '(8x,A)' ) TMPLINE
+               CALL M3EXIT ( 'DESID_READ_NAMELIST', 0, 0, 'CMAQ must Crash until you '//
+     &                       'fix Desid_Max_Sd', 1 )
+           END IF
  
-         ! Read the Emissions Rules to inform scaling operations
-         REWIND( EMCTRL_NML )
-         READ( NML = EmissionScalingRules, UNIT = EMCTRL_NML, IOSTAT=STAT )
-         IF ( STAT .EQ. -1 ) THEN
-             ! The EM_NML Variable was completely missing
-             XMSG = 'WARNING: There were no valid Emission Scaling Rules specified '//
-     &              'for use by the DESID module. If you intended to specify '//
-     &              'rules in the emission control file, check the file you have '//
-     &              'provided for EMISSCTRL_NML.' 
-             CALL LOG_MESSAGE( LOGDEV, ' ')
-             CALL LOG_MESSAGE( LOGDEV, XMSG )
-             EM_NML%REGION = ''
-             EM_NML%STREAM = ''
-             EM_NML%SURR   = ''
-             EM_NML%SPEC   = ''
-             EM_NML%PHASE  = ''
-             EM_NML%OP     = ''
-             EM_NML%BASIS  = ''
-             EM_NML%FAC    = 0.
+           ! Allocate and Initialize Namelist Variables
+           ALLOCATE( DESID_SD_NML( DESID_MAX_SD ), STAT=IOST )
+           CALL CHECKMEM( IOST, 'DESID_SD_NML','DESID_READ_NAMELIST') 
+           DESID_SD_NML%STREAM   = ''
+           DESID_SD_NML%MODE     = ''
+           DESID_SD_NML%MODE_REF = ''
+           
+        !!! Read the size distribution specification section
+           REWIND( FUNIT )
+           READ( NML = Desid_SizeDist, UNIT = FUNIT, IOSTAT=IOST )
+           IF ( IOST .EQ. -1 ) THEN
+               XMSG = 'Note: The Desid_SizeDist component of the Emissions Control '//
+     &                'Interface is missing. Default values for this section '//
+     &                'will be assumed.'
+               CALL LOG_MESSAGE( LOGDEV,' ')
+               CALL LOG_MESSAGE( LOGDEV, XMSG )
+               DESID_SD_NML%STREAM   = ''
+               DESID_SD_NML%MODE     = ''
+               DESID_SD_NML%MODE_REF = ''
+           ELSE IF ( IOST .NE. 0 ) THEN
+               ! Read Error Detected for DESID_SD_NML
+               backspace( FUNIT )
+               read( FUNIT, fmt='(A)' ) tmpline
+               XMSG = 'ERROR: There was a syntax error reading the Desid_SizeDist '//
+     &                'variable for use by the DESID module. Please check the format of '//
+     &                'each line for syntax errors. The invalid line was likely: '
+               CALL LOG_MESSAGE( LOGDEV, ' ')
+               CALL LOG_MESSAGE( LOGDEV, XMSG )
+               WRITE( LOGDEV, '(8x,A)' ) TMPLINE
+               CALL M3EXIT ( 'DESID_READ_NAMELIST', 0, 0, 'CMAQ must Crash until you '//
+     &                       'fix the Size Distribution Rule', 1 ) 
+           END IF
 
-         ELSE IF ( STAT .NE. 0 ) THEN
-             ! Read Error Detected for EM_NML
-             backspace( EMCTRL_NML )
-             read( EMCTRL_NML, fmt='(A)' ) tmpline
-             XMSG = 'ERROR: There was a syntax error reading Emission Scaling '//
-     &              'Rules for use by the DESID module. Please check the format of '//
-     &              'each line for syntax errors. The invalid line was likely: '
-             CALL LOG_MESSAGE( LOGDEV, ' ')
-             CALL LOG_MESSAGE( LOGDEV, XMSG )
-             WRITE( LOGDEV, '(8x,A)' ) TMPLINE
-             CALL M3EXIT ( 'Read_Emiss_Namelist', 0, 0, 'CMAQ must Crash until you '//
-     &                     'fix the Emission Scaling Rules', 1 )
-         END IF
+         !----------------------------------!
+         !!! DESID Diagnostic File Inputs !!!
+           ! Read the number of Max Emissions Rules to inform scaling operations
+           REWIND( FUNIT )
+           READ( NML = Desid_DiagVars, UNIT = FUNIT, IOSTAT=IOST )
+           IF ( IOST .EQ. -1 ) THEN
+               ! The DESID_N_Diag_Rules Variable was completely missing
+               XMSG = 'WARNING: Number of DESID Diagnostic Rules was not specified. '//
+     &                'If you intended to specify Desid_N_Diag_Rules, check the DESID_CTRL file.'
+               CALL LOG_MESSAGE( LOGDEV, ' ')
+               CALL LOG_MESSAGE( LOGDEV, XMSG )
+               DESID_N_DIAG_RULES = 0
+               DESID_MAX_DIAG_STREAMS = 0
+               DESID_MAX_DIAG_SPEC = 0
 
-         CALL LOG_MESSAGE( LOGDEV,' ' )
-         CALL LOG_MESSAGE( LOGDEV,'Performing Basic Error Checks for Emission Scaling Rules' )
-         
-         ! Check that the operator field is correct since it has not so
-         ! many possible values.
-         DO IRULE = 1,N_EM_RULE_REG
-             IF( EM_NML( IRULE )%SPEC .EQ. '' ) EXIT
-             IF( EM_NML( IRULE )%OP .NE. 'a' .AND. EM_NML( IRULE )%OP .NE. 'A' .AND.
-     &            EM_NML( IRULE )%OP .NE. 'o' .AND. EM_NML( IRULE )%OP .NE. 'O'.AND.
-     &            EM_NML( IRULE )%OP .NE. 'm' .AND. EM_NML( IRULE )%OP .NE. 'M' ) THEN
-               WRITE( XMSG, '(A23,I4,A27,A3)'),'Emission Scaling Rule #',IRULE,
-     &              ' has a bad operator value: ',EM_NML(IRULE)%OP
-               call m3exit ( 'Read_Emiss_Namelist', 0, 0, XMSG, 1 )
-             END IF
-         ENDDO     
+           ELSE IF ( IOST .NE. 0 ) THEN
+               ! Read Error Detected for DESID_N_DIAG_RULES
+               backspace( FUNIT )
+               read( FUNIT, fmt='(A)' ) tmpline
+               XMSG = 'ERROR: There was a syntax error reading the number of '//
+     &                'Diagnostic Rules for use by the DESID module. Please '//
+     &                'check the format of each line for syntax errors. The '//
+     &                'invalid line was likely: '
+               CALL LOG_MESSAGE( LOGDEV, ' ')
+               CALL LOG_MESSAGE( LOGDEV, XMSG )
+               WRITE( LOGDEV, '(8x,A)' ) TMPLINE
+               CALL M3EXIT ( 'DESID_READ_NAMELIST', 0, 0, 'CMAQ must Crash until you '//
+     &                       'fix Desid_N_Diag_Rules', 1 )
+           END IF
 
-         CLOSE( UNIT = EMCTRL_NML )
+           ! Allocate and Initialize Namelist Variables
+           ALLOCATE( DESID_DIAG_STREAMS_NML( DESID_N_DIAG_RULES,DESID_MAX_DIAG_SPEC ),
+     &               DESID_DIAG_FMT_NML( DESID_N_DIAG_RULES ),
+     &               DESID_DIAG_SPEC_NML( DESID_N_DIAG_RULES,DESID_MAX_DIAG_SPEC ),
+     &               STAT=IOST )
+           CALL CHECKMEM( IOST, 'DESID_DIAG_NML','DESID_READ_NAMELIST')
+           Desid_Diag_Streams_Nml = ''
+           Desid_Diag_Fmt_Nml     = ''  
+           Desid_Diag_Spec_Nml    = ''
+           
+           ! Read the Emissions Diagnostic Section
+           REWIND( FUNIT )
+           READ( NML = Desid_Diag, UNIT = FUNIT, IOSTAT=IOST )
+           IF ( IOST .EQ. -1 ) THEN
+               ! The Emissions Diagnostic Section was completely missing
+               XMSG = 'WARNING: There were no valid Emission Diagnostic Values specified '//
+     &                'for use by the DESID module. If you intended to specify '//
+     &                'diagnostic output in the emission control interface, check the '//
+     &                'file you have provided for DESID_CTRL_NML.' 
+               CALL LOG_MESSAGE( LOGDEV, ' ')
+               CALL LOG_MESSAGE( LOGDEV, XMSG )
+               Desid_Diag_Streams_Nml = ''
+               Desid_Diag_Fmt_Nml     = ''  
+               Desid_Diag_Spec_Nml    = ''
+           ELSE IF ( IOST .NE. 0 ) THEN
+               ! Read Error for Emissions Diagnostic
+               backspace( FUNIT )
+               read( FUNIT, fmt='(A)' ) tmpline
+               XMSG = 'ERROR: There was a syntax error reading Emission Diagnostic '//
+     &                'Variables for output by the DESID module. Please check the format of '//
+     &                'each line for syntax errors. The invalid line was likely: '
+               CALL LOG_MESSAGE( LOGDEV, ' ')
+               CALL LOG_MESSAGE( LOGDEV, XMSG )
+               WRITE( LOGDEV, '(8x,A)' ) TMPLINE
+               CALL M3EXIT ( 'DESID_READ_NAMELIST', 0, 0, 'CMAQ must Crash until you '//
+     &                       'fix the Emission Diagnostic Specification.', 1 )
+           END IF
+           
+         CLOSE( UNIT = FUNIT )
 
-      END SUBROUTINE READ_EMISS_NAMELIST  
+      END SUBROUTINE DESID_READ_NAMELIST  
 
 #ifdef mpas
 ! -------------------------------------------------------------------------

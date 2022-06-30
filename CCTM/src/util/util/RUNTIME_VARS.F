@@ -209,8 +209,10 @@
 
 
       ! Emissions Processes
-      CHARACTER( MAXLEN_CCTM_APPL ) :: EMISSCTRL  = 'EMISSCTRL_NML' ! Emission Control Filename
       CHARACTER( MAXLEN_CCTM_APPL ) :: STAGECTRL  = 'STAGECTRL_NML' ! STAGE Deposition Control Filename
+      CHARACTER( MAXLEN_CCTM_APPL ) :: MISC_CTRL  = 'MISC_CTRL_NML' ! Emission Control Filename
+      CHARACTER( MAXLEN_CCTM_APPL ) :: DESID_CTRL  = 'DESID_CTRL_NML' ! Emission Control Filename
+      CHARACTER( MAXLEN_CCTM_APPL ) :: DESID_CHEM_CTRL  = 'DESID_CHEM_CTRL_NML' ! Emission Control Filename
       INTEGER :: EMLAYS_MX     = 0       ! Emission Layers
       INTEGER :: N_FILE_GR     = 0       ! Number of Gridded Emission Files
       INTEGER :: N_FILE_TR     = 0       ! NUmber of Tracer Emission Files
@@ -219,6 +221,8 @@
       LOGICAL :: BIOGEMIS_BEIS = .FALSE. ! flag to in-line biogenic VOC emissions
       LOGICAL :: BIOGEMIS_MEGAN= .FALSE. ! flag to in-line MEGAN biogenic emissions
       LOGICAL :: USE_MEGAN_LAI = .FALSE. ! flag to use MEGAN LAI values
+      LOGICAL :: MGN_ONLN_DEP  = .TRUE.  ! flag to use ONLINE N deposition in BDSNP
+      LOGICAL :: BDSNP_MEGAN   = .FALSE. ! flag to use BDSNP for soil NO 
       CHARACTER(16) :: SPPRO   = 'DEFAULT' ! requested speciation profile name
       LOGICAL :: BEMIS_DIAG    = .TRUE.  ! true: write diagnostic emiss file
       LOGICAL :: MGEMDIAG      = .FALSE. ! flag for MGEM diagnostic file
@@ -768,11 +772,13 @@
          WRITE( OUTDEV, '(6x,A)' ), REPEAT( '-',80 )
       END IF
 
-      ! Get Name of Emission Control File
-      CALL GET_ENV ( EMISSCTRL, 'EMISSCTRL_NML', EMISSCTRL, VARDEV )
-
       ! Number of Layers for Emissions
       CALL GET_ENV ( EMLAYS_MX, 'CTM_EMLAYS', EMLAYS_MX, VARDEV )
+
+      ! Get Name of Emission Control File
+      CALL GET_ENV ( MISC_CTRL, 'MISC_CTRL_NML', MISC_CTRL, VARDEV )
+      CALL GET_ENV ( DESID_CTRL, 'DESID_CTRL_NML', DESID_CTRL, VARDEV )
+      CALL GET_ENV ( DESID_CHEM_CTRL,'DESID_CHEM_CTRL_NML', DESID_CHEM_CTRL, VARDEV )
 
       ! Get number of different Gridded File Emissions Streams
       CALL GET_ENV ( N_FILE_GR, 'N_EMIS_GR', N_FILE_GR, VARDEV )
@@ -784,12 +790,14 @@
       ! present on emissions files
       CALL GET_ENV (  EMISCHK, 'CTM_EMISCHK', EMISCHK, VARDEV )
  
-      ! CTM_BIOGEMIS_BEIS
-      CALL GET_ENV ( BIOGEMIS_BEIS, 'CTM_BIOGEMIS_BEIS', BIOGEMIS_BEIS, VARDEV )
+      ! CTM_BIOGEMIS_BE
+      CALL GET_ENV ( BIOGEMIS_BEIS, 'CTM_BIOGEMIS_BE', BIOGEMIS_BEIS, VARDEV )
 
-      ! CTM_BIOGEMIS_MEGAN
-      CALL GET_ENV(BIOGEMIS_MEGAN, 'CTM_BIOGEMIS_MEGAN', BIOGEMIS_MEGAN,VARDEV )
+      ! CTM_BIOGEMIS_MG
+      CALL GET_ENV(BIOGEMIS_MEGAN, 'CTM_BIOGEMIS_MG', BIOGEMIS_MEGAN,VARDEV )
       CALL GET_ENV(USE_MEGAN_LAI, 'USE_MEGAN_LAI',USE_MEGAN_LAI,VARDEV )
+      CALL GET_ENV(MGN_ONLN_DEP, 'MGN_ONLN_DEP',MGN_ONLN_DEP,VARDEV )
+      CALL GET_ENV(BDSNP_MEGAN, 'BDSNP_MEGAN',BDSNP_MEGAN,VARDEV )
 
       ! Get the speciation profile to use
       CALL GET_ENV ( SPPRO, 'BIOG_SPRO', SPPRO, VARDEV )

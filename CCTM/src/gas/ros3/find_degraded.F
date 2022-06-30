@@ -1,1 +1,0 @@
-../smvgear/find_degraded.F

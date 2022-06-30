@@ -112,7 +112,7 @@ C...........INCLUDES and their descriptions
 
 C...........PARAMETERS and their descriptions:
 
-      INTEGER, PARAMETER :: MXSPCS = 244     ! Number of substances
+      INTEGER, PARAMETER :: MXSPCS = 272     ! Number of substances
       INTEGER, PARAMETER :: MXDSPCS = 19     ! Number of dissociating species
 
 C...pointers for the dissociation constants (array B and D)
@@ -424,6 +424,34 @@ C...  Atmospheric Chemistry and Physics, 1997
       DATA SUBNAME(242), A(242), E(242) / 'ORA1OPERA       ', 5.95E+03, 0.0E+00 /   ! CRACMM RepCmp value (OPERA SAR)
       DATA SUBNAME(243), A(243), E(243) / 'MCTOPERA        ', 5.80E+03, 0.0E+00 /   ! CRACMM RepCmp value (OPERA SAR)
       DATA SUBNAME(244), A(244), E(244) / 'FURANONEOPERA   ', 7.87E+04, 0.0E+00 /   ! CRACMM RepCmp value (OPERA SAR)
+      DATA SUBNAME(245), A(245), E(245) / 'IPCOPERA        ', 4.72E+05, 0.0E+00 /   ! CRACMM RepCMP value (OPERA SAR)
+      DATA SUBNAME(246), A(246), E(246) / 'IPNOPERA        ', 4.69E+04, 0.0E+00 /   ! CRACMM RepCMP value (OPERA SAR)
+      DATA SUBNAME(247), A(247), E(247) / 'VROCN2OXY2OPERA ', 1.15E+05, 0.0E+00 /   ! CRACMM RepCMP value (OPERA SAR)
+      DATA SUBNAME(248), A(248), E(248) / 'VROCN2OXY4OPERA ', 9.71E+05, 0.0E+00 /   ! CRACMM RepCMP value (OPERA SAR)
+      DATA SUBNAME(249), A(249), E(249) / 'VROCN2OXY8OPERA ', 3.80E+06, 0.0E+00 /   ! CRACMM RepCMP value (OPERA SAR)
+      DATA SUBNAME(250), A(250), E(250) / 'VROCN1OXY1OPERA ', 2.14E+04, 0.0E+00 /   ! CRACMM RepCMP value (OPERA SAR)
+      DATA SUBNAME(251), A(251), E(251) / 'VROCN1OXY3OPERA ', 2.87E+06, 0.0E+00 /   ! CRACMM RepCMP value (OPERA SAR)
+      DATA SUBNAME(252), A(252), E(252) / 'VROCN1OXY6OPERA ', 1.01E+06, 0.0E+00 /   ! CRACMM RepCMP value (OPERA SAR)
+      DATA SUBNAME(253), A(253), E(253) / 'VROCP0OXY2OPERA ', 4.03E+05, 0.0E+00 /   ! CRACMM RepCMP value (OPERA SAR)
+      DATA SUBNAME(254), A(254), E(254) / 'VROCP0OXY4OPERA ', 8.55E+05, 0.0E+00 /   ! CRACMM RepCMP value (OPERA SAR)
+      DATA SUBNAME(255), A(255), E(255) / 'VROCP1OXY1OPERA ', 4.52E+04, 0.0E+00 /   ! CRACMM RepCMP value (OPERA SAR)
+      DATA SUBNAME(256), A(256), E(256) / 'VROCP1OXY3OPERA ', 1.02E+04, 0.0E+00 /   ! CRACMM RepCMP value (OPERA SAR)
+      DATA SUBNAME(257), A(257), E(257) / 'VROCP2OXY2OPERA ', 4.93E+03, 0.0E+00 /   ! CRACMM RepCMP value (OPERA SAR)
+      DATA SUBNAME(258), A(258), E(258) / 'VROCP3OXY2OPERA ', 1.10E+02, 0.0E+00 /   ! CRACMM RepCMP value (OPERA SAR)
+      DATA SUBNAME(259), A(259), E(259) / 'VROCP4OXY2OPERA ', 6.45E+02, 0.0E+00 /   ! CRACMM RepCMP value (OPERA SAR)
+      DATA SUBNAME(260), A(260), E(260) / 'VROCP5OXY1OPERA ', 1.57E+00, 0.0E+00 /   ! CRACMM RepCMP value (OPERA SAR)
+      DATA SUBNAME(261), A(261), E(261) / 'VROCP6OXY1OPERA ', 1.37E+00, 0.0E+00 /   ! CRACMM RepCMP value (OPERA SAR)
+      DATA SUBNAME(262), A(262), E(262) / 'VROCP5AROOPERA  ', 4.15E-01, 0.0E+00 /   ! CRACMM RepCmp value (OPERA SAR)
+      DATA SUBNAME(263), A(263), E(263) / 'VROCP6AROOPERA  ', 1.87E-01, 0.0E+00 /   ! CRACMM RepCmp value (OPERA SAR)
+      DATA SUBNAME(264), A(264), E(264) / 'VROCN2ALKOPERA  ', 1.34E+03, 0.0E+00 /   ! CRACMM RepCmp value (OPERA SAR)
+      DATA SUBNAME(265), A(265), E(265) / 'VROCN1ALKOPERA  ', 1.34E+03, 0.0E+00 /   ! CRACMM RepCmp value (OPERA SAR)
+      DATA SUBNAME(266), A(266), E(266) / 'VROCP0ALKOPERA  ', 1.33E+03, 0.0E+00 /   ! CRACMM RepCmp value (OPERA SAR)
+      DATA SUBNAME(267), A(267), E(267) / 'VROCP1ALKOPERA  ', 1.33E+03, 0.0E+00 /   ! CRACMM RepCmp value (OPERA SAR)
+      DATA SUBNAME(268), A(268), E(268) / 'VROCP2ALKOPERA  ', 1.17E+03, 0.0E+00 /   ! CRACMM RepCmp value (OPERA SAR)
+      DATA SUBNAME(269), A(269), E(269) / 'VROCP3ALKOPERA  ', 6.10E+02, 0.0E+00 /   ! CRACMM RepCmp value (OPERA SAR)
+      DATA SUBNAME(270), A(270), E(270) / 'VROCP4ALKOPERA  ', 2.94E+01, 0.0E+00 /   ! CRACMM RepCmp value (OPERA SAR)
+      DATA SUBNAME(271), A(271), E(271) / 'VROCP5ALKOPERA  ', 5.41E-02, 0.0E+00 /   ! CRACMM RepCmp value (OPERA SAR)
+      DATA SUBNAME(272), A(272), E(272) / 'VROCP6ALKOPERA  ', 6.90E-03, 0.0E+00 /   ! CRACMM RepCmp value (OPERA SAR)
 
       DATA B( LSO2   ), D( LSO2   ) / 1.30E-02,  1.96E+03 /  ! SO2*H2O<=>HSO3+H     : Smith and Martell (1976)
       DATA B( LHSO3  ), D( LHSO3  ) / 6.60E-08,  1.50E+03 /  ! HSO3<=>SO3+H         : Smith and Martell (1976)

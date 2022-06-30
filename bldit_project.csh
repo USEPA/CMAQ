@@ -1,6 +1,6 @@
 #!/bin/csh -f
 
-# ================= CMAQv5.3.X Extraction Script ==================== #
+# ================= CMAQv5.4.X Extraction Script ==================== #
 # Requirements: CMAQ git source code repository                       #
 #                                                                     #
 # To report problems or request help with this script/program:        #
@@ -16,7 +16,6 @@
 #> the repository. The user may also set their own preferred 
 #> directory.
 
-#set CMAQ_HOME = [your_install_path]/openmpi_4.0.1_gcc_9.1.0_debug 
  set CMAQ_HOME = /home/username/path
 
 #> This section allows users to choose explicitly which tools
