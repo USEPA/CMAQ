@@ -237,7 +237,7 @@ C                                                                               
 C                                                                                       | | Charge      | OM           
 C                      Name      T A C Min_Con Density Gas-Name   CTR-Name  Yield Vol   | |   | Visidx  |  |  OptSurr   korg  
 C                     ---------- - - - ------- ------- ---------- --------- ----- ----- + +   + ------ --- +  -------- ----- 
-     & spcs_list_type('ASO4    ',T,T,T, cm_so4, 1800.0, 'SULF   ','SULPRD ',1.0  ,'IRV',F,F, -2,  2.2, 4.8,F, 'SOLUTE', 0.00), ! Sulfate
+     & spcs_list_type('ASO4    ',T,T,T, cm_so4, 1800.0, 'SULF   ','SULRXN ',1.0  ,'IRV',F,F, -2,  2.2, 4.8,F, 'SOLUTE', 0.00), ! Sulfate
      & spcs_list_type('ANO3    ',T,T,T, cm_set, 1800.0, 'HNO3   ','       ',0.0  ,'REV',F,F, -1,  2.4, 5.1,F, 'SOLUTE', 0.00), ! Nitrate
      & spcs_list_type('ACL     ',T,T,T, cm_set, 2200.0, 'HCL    ','       ',0.0  ,'REV',F,F, -1,  1.7, 1.7,F, 'SOLUTE', 0.00), ! Chloride
      & spcs_list_type('ANH4    ',T,T,T, cm_set, 1800.0, 'NH3    ','       ',0.0  ,'REV',F,F,  1,  0.0, 0.0,F, 'SOLUTE', 0.00), ! Ammonium

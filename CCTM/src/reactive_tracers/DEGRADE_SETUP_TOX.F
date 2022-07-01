@@ -69,6 +69,9 @@ C..saved cell concentrations
 
       REAL( 8 ), ALLOCATABLE :: OLD_CONC( : )
       REAL( 8 ), ALLOCATABLE :: NEW_CONC( : )
+#ifdef sens
+      REAL,      ALLOCATABLE :: SENS_CONC( :,: )
+#endif
       REAL( 8 )              :: TEMP_AIR            ! cell temperature [ K ]
       REAL( 8 )              :: CONC_AIR            ! cell air number density [ 1/CM^3 ]
       REAL( 8 )              :: CONC_N2             ! cell N2 number density [ 1/CM^3 ]
@@ -81,6 +84,9 @@ C..saved blocked cells concentrations
 
       REAL( 8 ), ALLOCATABLE :: PREV_CONC( :,: )   
       REAL( 8 ), ALLOCATABLE :: CURR_CONC( :,: )
+#ifdef sens
+      REAL,      ALLOCATABLE :: SENS_BLK( :,:,: )
+#endif
       REAL( 4 ), ALLOCATABLE :: AERO_BLK ( :,: )
       REAL( 8 ), ALLOCATABLE :: TEMP( : )           ! cell temperature [ K ]
       REAL( 8 ), ALLOCATABLE :: PRESS( : )          ! cell Pressure    [ Pa ]
