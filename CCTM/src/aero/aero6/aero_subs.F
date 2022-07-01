@@ -514,7 +514,7 @@ C     concentration.
      &                                TMASS - AEROSPC_CONC( SPC,1 ) )
 
 
-         ! Update Budget Variable for Second Moment
+         ! Update Budget Variable for Speciated Mass
          IF ( AEROSPC_MAP( SPC,1 ) .NE. 0 ) 
      &      COAG_BUDGET( AEROSPC_MAP( SPC,1 ),1 ) = 
      &           AEROSPC_CONC( SPC,1 ) - CBUDGET0_MASS( SPC,1 )
