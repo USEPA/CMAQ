@@ -5008,6 +5008,12 @@ C   mminlu and num_land_cat are WRF global variables
                            lvname = vname3d( ivar )
 #endif
                            DESID_N_REG = DESID_N_REG + 1
+                           IF ( DESID_N_REG .GT. DESID_MAX_REG ) THEN
+                              XMSG = 'The number of DESID regions has exceeded '//
+     &                               'the maximum. Set Desid_Max_Reg in the '//
+     &                               'CMAQ_Control_DESID.nml file to a higher value.'
+                              CALL M3EXIT( PNAME, SDATE3D, STIME3D, XMSG, XSTAT1 )
+                           END IF
                            DESID_REG( DESID_N_REG )%LABEL   = lvname
                            DESID_REG( DESID_N_REG )%VAR     = lvname
                            DESID_REG( DESID_N_REG )%FILE    = DESID_REG_READ( IREAD )%FILE
@@ -5030,6 +5036,13 @@ C   mminlu and num_land_cat are WRF global variables
                   ELSE
                      ! Populate the region array with only this variable
                      DESID_N_REG = DESID_N_REG + 1
+                     IF ( DESID_N_REG .GT. DESID_MAX_REG ) THEN
+                        XMSG = 'The number of DESID regions has exceeded '//
+     &                         'the maximum. Set Desid_Max_Reg in the '//
+     &                         'CMAQ_Control_DESID.nml file to a higher value.'
+                        CALL M3EXIT( PNAME, SDATE3D, STIME3D, XMSG, XSTAT1 )
+                     END IF
+
                      DESID_REG( DESID_N_REG ) = DESID_REG_READ( IREAD )
                      VNAME = DESID_REG_READ( IREAD )%VAR
 

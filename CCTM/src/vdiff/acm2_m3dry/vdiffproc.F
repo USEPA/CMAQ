@@ -98,7 +98,7 @@ C-----------------------------------------------------------------------
 
 #ifdef isam
       USE SA_DEFN, Only: ITAG, N_SPCTAG, VNAM_SPCTAG, SA_DDEP, SA_BIDI, ISAM, NTAG_SA, 
-     &                   VNAM_SPCTAG, NSPC_SA, ISAM_SPEC, OTHRTAG
+     &                   S_SPCTAG, NSPC_SA, ISAM_SPEC, OTHRTAG
 #endif
 
 #ifdef sens
@@ -364,8 +364,7 @@ C Set up for grav. settling
           ISAM_DEPV     = 0
           DO ITAG = 1, N_SPCTAG
             DO V = 1, N_SPC_DEPV
-              IBGN         = INDEX( VNAM_SPCTAG( ITAG ), '_', BACK = .TRUE. ) - 1
-              ISAM_SPECIES = VNAM_SPCTAG( ITAG )( 1:IBGN )
+              ISAM_SPECIES =  ISAM_SPEC( S_SPCTAG(ITAG),1 )
               IF ( TRIM( ISAM_SPECIES ) .EQ. DV2DF_SPC( V ) ) THEN
                 ISAM_DEPV( ITAG ) = V
               END IF

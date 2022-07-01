@@ -902,6 +902,9 @@ C**********************************************************************
       USE RUNTIME_VARS
       USE RXNS_DATA
       USE AERO_DATA
+#ifdef sens
+      USE DDM3D_DEFN, ONLY : NP, NPMAX
+#endif
 
       IMPLICIT NONE
 
@@ -971,6 +974,10 @@ C**********************************************************************
          
          ALLOCATE( OLD_CONC( ISIZE ) )
          ALLOCATE( NEW_CONC( ISIZE ) )
+#ifdef sens
+         ALLOCATE( SENS_CONC ( NPMAX, N_AE_SPC ) )
+         SENS_CONC = 0.0
+#endif
          ALLOCATE( CHANGE_CONC( ISIZE ) )
          ALLOCATE( IS_AERO_ORGANIC ( N_AEROSPC ) )
          ALLOCATE( CELL_RKI( N_PROCESSES, N_REACT ) )
@@ -1093,7 +1100,11 @@ C..initialize concentrations and their changes
 
 
          IF ( AE7ORGH2O ) THEN ! use water absorbed by organic mass
+#ifdef sens
+             CALL EXTRACT_AERO( REAL( CBLK( : ),4 ), .FALSE., SENS_CONC, .FALSE. )
+#else
              CALL EXTRACT_AERO( REAL( CBLK( : ),4 ), .FALSE. )
+#endif
              ORG_H2O  = SUM( AEROSPC_CONC( AORGH2O_IDX, 1:2 ) ) * AEROSPC_MWINV( AORGH2O_IDX )
              ORG_AERO = SUM( SUM( AEROSPC_CONC( :,1:2 ),2 ) * AEROSPC_MWINV( : ), 
      &                            MASK=IS_AERO_ORGANIC( : ) ) 
@@ -1182,6 +1193,9 @@ C**********************************************************************
       USE RUNTIME_VARS
       USE RXNS_DATA
       USE AERO_DATA
+#ifdef sens
+      USE DDM3D_DEFN, ONLY : NP, NPMAX
+#endif
 
       IMPLICIT NONE
 
@@ -1252,6 +1266,10 @@ C**********************************************************************
 
          ALLOCATE( PREV_CONC ( BLKSIZE, NSPCSD ) )
          ALLOCATE( CURR_CONC ( BLKSIZE, NSPCSD ) )
+#ifdef sens
+         ALLOCATE( SENS_BLK  ( BLKSIZE, NPMAX, N_AE_SPC ) )
+         SENS_BLK = 0.0
+#endif
          ALLOCATE( DELT_CONC ( BLKSIZE, NSPCSD ) )
          ALLOCATE( TEMP      ( BLKSIZE ) )
          ALLOCATE( INV_TEMP  ( BLKSIZE ) )
@@ -1460,7 +1478,12 @@ C..initialize concentrations and their changes
 
          IF ( AE7ORGH2O ) THEN ! use water absorbed by organic mass
              DO ICELL = 1, NCELLS
-                CALL EXTRACT_AERO( REAL( CBLK(ICELL, : ),4 ), .FALSE. )
+#ifdef sens
+                CALL EXTRACT_AERO( REAL( CBLK( ICELL,: ),4 ), .FALSE., SENS_BLK(ICELL,:,:), .FALSE.)
+#else
+ 
+                CALL EXTRACT_AERO( REAL( CBLK(ICELL,: ),4 ), .FALSE. )
+#endif
                 ORG_H2O  = SUM( AEROSPC_CONC( AORGH2O_IDX, 1:2 ) ) * AEROSPC_MWINV( AORGH2O_IDX )
                 ORG_AERO = SUM( SUM( AEROSPC_CONC( :,1:2 ),2 ) * AEROSPC_MWINV( : ),
      &                          MASK=IS_AERO_ORGANIC( : ) )
