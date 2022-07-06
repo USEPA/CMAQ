@@ -43,7 +43,7 @@
     setenv CMAQ_HOME $cwd/..
     setenv CMAQ_REPO ${CMAQ_HOME}
  endif
- set VRSN      = v532               #> Code Version
+ set VRSN      = v54                #> Code Version
 
 #> CMAQv5.1 Mechanism Options: cb05tucl_ae6_aq cb05tump_ae6_aq cb05e51_ae6_aq saprc07tb_ae6_aq saprc07tc_ae6_aq  saprc07tic_ae6i_aq   racm2_ae6_aq 
  if ( ! $?MECH ) then

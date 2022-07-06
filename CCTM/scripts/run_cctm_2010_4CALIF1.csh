@@ -1,6 +1,6 @@
 #!/bin/csh -f
 
-# ===================== CCTMv5.3.X Run Script ========================= 
+# ===================== CCTMv5.4.X Run Script ========================= 
 # Usage: run.cctm.csh >&! cctm_2010_4CALIF1.log &                                
 #
 # To report problems or request help with this script/program:     
@@ -33,7 +33,7 @@ echo 'Start Model Run At ' `date`
  cd CCTM/scripts
 
 #> Set General Parameters and Labels for Configuring the Simulation
- set VRSN      = v532               #> Code Version
+ set VRSN      = v54               #> Code Version
  set PROC      = mpi                #> serial or mpi
  set MECH      = saprc07tic_ae7i_aq #> Mechanism ID
  set EMIS      = 2011eh_saprc_10g   #> Emission Inventory Details

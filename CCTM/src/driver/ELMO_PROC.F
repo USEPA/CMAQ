@@ -1309,7 +1309,7 @@
                N_VARS = 2
                CALL INIT_ELMO_COEFFS( IDG, N_VARS, 'FINE' )
                CALL SET_ELMO_COEFF_MAP( IDG, 1, 'AGG', 'PMF_OA', 1.0 )
-               CALL SET_ELMO_COEFF_MAP( IDG, 1, 'AGG', 'PMF_OC',-1.0 )
+               CALL SET_ELMO_COEFF_MAP( IDG, 2, 'AGG', 'PMF_OC',-1.0 )
  
              ! Map PMF_CLDGLY - Fine-Mode SOA from glyoxal and methylglyoxal
              CASE ( ID_PMF_CLDGLY ) 

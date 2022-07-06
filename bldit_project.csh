@@ -1,6 +1,6 @@
 #!/bin/csh -f
 
-# ================= CMAQv5.3.X Extraction Script ==================== #
+# ================= CMAQv5.4.X Extraction Script ==================== #
 # Requirements: CMAQ git source code repository                       #
 #                                                                     #
 # To report problems or request help with this script/program:        #
@@ -16,8 +16,8 @@
 #> the repository. The user may also set their own preferred 
 #> directory.
 
- #set CMAQ_HOME = /home/username/CMAQ_Project
- set CMAQ_HOME = /home/bmurphy/cmaq_projects/bicicle_1.7
+#set CMAQ_HOME = [your_install_path]/openmpi_4.0.1_gcc_9.1.0_debug 
+ set CMAQ_HOME = /home/username/path
 
 #> This section allows users to choose explicitly which tools
 #> to make available from the repo. For each selected tool,
@@ -101,16 +101,10 @@
     endif
     cp CCTM/scripts/bldit_cctm.csh $CMAQ_HOME/CCTM/scripts/bldit_cctm.csh
     cp CCTM/scripts/bldit_mech.csh $CMAQ_HOME/CCTM/scripts/bldit_mech.csh
-    cp CCTM/scripts/run_cctm_Bench_2011_12SE1.csh $CMAQ_HOME/CCTM/scripts/run_cctm_Bench_2011_12SE1.csh
-    cp CCTM/scripts/run_cctm_2010_4CALIF1.csh $CMAQ_HOME/CCTM/scripts/run_cctm_2010_4CALIF1.csh
-    cp CCTM/scripts/run_cctm_2011_12US1.csh $CMAQ_HOME/CCTM/scripts/run_cctm_2011_12US1.csh
-    cp CCTM/scripts/run_cctm_2014_12US1.csh $CMAQ_HOME/CCTM/scripts/run_cctm_2014_12US1.csh
-    cp CCTM/scripts/run_cctm_2015_HEMI.csh $CMAQ_HOME/CCTM/scripts/run_cctm_2015_HEMI.csh
-    cp CCTM/scripts/run_cctm_2016_12US1.csh $CMAQ_HOME/CCTM/scripts/run_cctm_2016_12US1.csh
     cp CCTM/scripts/lonlat.csv $CMAQ_HOME/CCTM/scripts/lonlat.csv
     cp CCTM/scripts/isam_control.txt $CMAQ_HOME/CCTM/scripts/isam_control.txt
     cp CCTM/scripts/sensinput.dat $CMAQ_HOME/CCTM/scripts/sensinput.dat
-    cp CCTM/scripts/run_cctm_Bench_2016_12SE1.csh $CMAQ_HOME/CCTM/scripts/run_cctm_Bench_2016_12SE1.csh
+    cp CCTM/scripts/run_cctm_*.csh $CMAQ_HOME/CCTM/scripts/
  endif
 
 #===============================================================================

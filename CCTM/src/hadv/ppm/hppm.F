@@ -239,6 +239,7 @@ C----------------------------------------------------------------------
             XMSG = '*** Error allocating FM, FP, CM, CL, CR, DC, or C6'
             CALL M3EXIT ( PNAME, 0, 0, XMSG, XSTAT1 )
          END IF
+         
 #ifdef isam
 #else
       END IF   ! Firstime
