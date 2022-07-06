@@ -158,6 +158,8 @@ C..Local Variables:
       INTEGER ROW             ! Row index
       INTEGER SPC             ! Species loop index
       INTEGER VAR             ! Variable number on I/O API file
+      
+      INTEGER NUMB_CELLS
 
       INTEGER, ALLOCATABLE, SAVE :: IRRCELL( : )   ! Cell No. of an IRR cell
        
@@ -615,8 +617,9 @@ C  Update CGRID based on the degradation routines
 !            CALL CPU_TIME( REAL_TIME )
 !            CPU_ROS3_START =  REAL( REAL_TIME,8 )
 #endif
-
-            DO NCELL = 1, NUMCELLS
+            NUMB_CELLS = NUMCELLS
+            
+            DO NCELL = 1, NUMB_CELLS
                DO IRXN = 1, NRXNS
                   SRK( IRXN ) = RKI( NCELL,IRXN )
                   IF ( HIGH ) THEN
@@ -635,9 +638,11 @@ C  Update CGRID based on the degradation routines
                      END IF
                   END IF
               END DO
+
               DO ISP = 1,NUMB_MECH_SPC
-                 ISPOLD = INEW2OLD( ISP,NCS )
-                 YCDDM( ISPOLD ) = REAL( YAVE(NCELL,ISP),4 )
+!                  ISPOLD = INEW2OLD( ISP,NCS )
+!                  YCDDM( ISPOLD ) = YAVE(NCELL,ISP)
+                  YCDDM( ISP ) = YAVE(NCELL,ISP)
 !                 IF( COL .EQ. 1 .AND. ROW .EQ. 1 .AND. LEV .EQ. 1 )THEN
 !                 ISPNEW = INEW2OLD( IOLD2NEW( ISPOLD,NCS ),NCS )
 !                     WRITE(ROS3_LOG,'(3A,ES12.4)')CHEMISTRY_SPC(ISPOLD),CHEMISTRY_SPC(ISPNEW)," = ",
@@ -648,8 +653,11 @@ C  Update CGRID based on the degradation routines
                COL = CCOL( CELLNUM )
                ROW = CROW( CELLNUM )
                LEV = CLEV( CELLNUM )
-               CALL SOLVE_DDM3D_CHEM( COL,ROW,LEV,CHEMSTEP )
+
+!                CALL SOLVE_DDM3D_CHEM( COL,ROW,LEV,CHEMSTEP )
+               CALL SOLVE_DDM3D_CHEM( COL,ROW,LEV,CHEMSTEP,IOLD2NEW,INEW2OLD )
             END DO
+            NUMCELLS = NUMB_CELLS
 !            CALL TIMING_UPDATE( CPU_ROS3_START, DELTA_CPU_TIME )
 #endif
 
