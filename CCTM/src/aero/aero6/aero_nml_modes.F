@@ -127,6 +127,15 @@ C-----------------------------------------------------------------------
                    end if
               end if
 
+              if( eflag )then
+                  xmsg = 'AE Namelist has fatal errors. Check Processor log '
+     &                 // Trim( cmype )
+                  Call log_message( outdev, 'Error: '//xmsg )
+                  xmsg = Trim( pname ) // ': ' // xmsg
+                  call m3mesg( xmsg )
+                  call m3exit( pname, 0, 0, 'FATAL ERROR', xstat2 )
+              end if
+
               ! If no modes are selected, warn and move on
               if ( .not.aedat(isp)%lait .and. 
      %             .not.aedat(isp)%lacc .and. 
@@ -340,15 +349,6 @@ C-----------------------------------------------------------------------
               end if
 
           end do
-
-          if( eflag )then
-              xmsg = 'AE Namelist has fatal errors. Check Processor log '
-     &             // Trim( cmype )
-              Call log_message( outdev, 'Error: '//xmsg )
-              xmsg = Trim( pname ) // ': ' // xmsg
-              call m3mesg( xmsg )
-              call m3exit( pname, 0, 0, 'FATAL ERROR', xstat2 )
-          end if
 
           write( xmsg, '(A,I3)' ), 'Total number of aerosol species: ',nsp2
           Call log_message( LOGDEV, '' )
