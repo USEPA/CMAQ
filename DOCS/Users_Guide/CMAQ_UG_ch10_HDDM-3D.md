@@ -129,7 +129,7 @@ CMAQ-DDM-3D is flexible in the number of files that the code can handle and also
 For each sensitivity:
 1. (mandatory) The first line is the name of the sensitivity parameter; any 3-character name of the user's choosing, no leading spaces
 2. (mandatory) The next line specifies the type of sensitivity (One leading space followed by 4 capitalized characters)
-      * EMIS: Emissions (If this is used, the next line must be a comma-delimited list of emissions stream labels).
+      * EMIS: Emissions 
       * INIT: Initial Conditions
       * BOUN: Boundary Conditions
       * RATE: Reaction rate
