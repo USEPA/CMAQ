@@ -1,7 +1,7 @@
 Python Tools for CMAQ
 =====================
 
-This folder holds python tools for CMAQ. These toolsmay fill roles that are
+This folder holds python tools for CMAQ. These tools may fill roles that are
 usually stored in PREP or POST folders. They are stored here to centralize the
 installation requirements.
 

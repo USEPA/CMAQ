@@ -21,15 +21,20 @@ Overview
 This tool is designed to augment standard CMAQ "Ocean" files to enable dimethyl
 sulfide (DMS) and halogen chemistry. DMS emissions are calculated based on DMS
 ocean-water concentrations (nM). Halogen emissons are calculated based on
-chlorophyll-a (CHLO) concentrations (mg/m**3).
+chlorophyll-a (CHLO) concentrations (`mg/m**3`).
 
-This processor requires a CMAQ OCEAN file as an input. The OCEAN file should
-include a open ocean variable (OPEN) and a surf zone variable (SURF), where both
-variables contain the fraction of the grid cell covered. OPEN and SURF should
-already account for SEAICE grid cell coverage. This affects seasalt emissions,
-and is not relevant for DMS or halogens except indirectly via seasalt.
+* DMS concentrations are required in the OCEAN file for cb6r5,
+* DMS concentrations and CHLO concentrations are required for cb6r5m, and
+* DMS and CHLO are available at monthly resolution to make 12 OCEAN files.
 
-OPEN and SURF can be created by the standard CMAQ Spatial Allocator Tool.
+This processor requires a CMAQ OCEAN file as an input. OCEAN is a time-
+independent I/O API file that identifies the fractional [0-1] coverage in each
+model grid cell allocated to open ocean (OPEN) or surf zone (SURF). OPEN and
+SURF should already account for SEAICE grid cell coverage. This affects seasalt
+emissions, and is not relevant for DMS or halogens except indirectly via
+seasalt.
+
+For details on how to make a OCEAN file, see the [OCEAN File Tutorial](https://github.com/USEPA/CMAQ_Dev/blob/operational/DOCS/Users_Guide/Tutorials/CMAQ_UG_tutorial_oceanfile.md)
 
 DMS and CHLO have previously been provided by scripts maintained and run by
 Brett Gantt but was never released to the public. This tool uses similar inputs
@@ -66,11 +71,11 @@ Known Issues
   * Status: Resolved
   * Summary: When running for a polar stereographic domain, you require CDO v1.9.6+. Earlier versions did not support second-order flux conserving remapping.
   * Resolution: I have changed the prerequisite installation process to use conda. This allows a newer version of cdo.
-2. Cloud-based DMS/Chlor-A processing needs access to Ocean outputs
-  * Status: Resolved
-  * Summary: When running in the cloud, ocean files are notyour results from each Notebook may not be available from the previous step unless you upload them.
-  * Resolution: I have updated each notebook to create a zip file of outputs and updated the DMS_ChlorA notebook to look for an uploaded zip files (downloadocean.zip and downloadseaice.zip) as part of the process. This does require that users download results at each step and upload them to the DMS/Chlor-A instance.
-3. DMS results look blocky
+2. DMS results look blocky
   * Status: Open
   * Summary: Old DMS used bilinear interpolation. We are using area overlap fraction, which leads to some blockiness.
   * Resolution: N/A
+3. Visualization Notebook cannot open results on Google Colab (or other web service)
+  * Status: Known
+  * Summary: When the CMAQ_DMS_ChlorA.ipynb is complete, the results should be downloaded from the web service. Starting the visualization notebook may create a new virtual machine. That machine will not have the output unless you upload it.
+  * Resolution: Download outputs and upload them before using visualization tool.
