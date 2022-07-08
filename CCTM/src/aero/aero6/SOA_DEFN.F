@@ -78,7 +78,7 @@ C-----------------------------------------------------------------------
       Logical, Parameter, Private :: T = .true.
       Logical, Parameter, Private :: F = .false.
 
-      Integer, Parameter :: n_oa_list = 57   ! # of potential partitioning SVOCs
+      Integer, Parameter :: n_oa_list = 79   ! # of potential partitioning SVOCs
       Integer, Save      :: n_oa             ! Total # of simulated SOA vapors
       Integer, Save      :: n_oa_NotTracers  ! # of simulated SOA vapors that are not tracers
       Integer, Save      :: n_oa_tracers      ! # of simulated SOA vapors that are tracers
@@ -125,6 +125,8 @@ C-----------------------------------------------------------------------
      & oa_type('AMT5   ', 'SVMT5   ', 'TRPRXN  ',   0.143,  100.000,  58.0E3, .333,1.57, F,  F,  T,  F ),
      & oa_type('AMT6   ', 'SVMT6   ', 'TRPRXN  ',   0.285, 1000.000,  47.0E3, .200,1.40, F,  F,  T,  F ),
      & oa_type('AMT7   ', 'SVMT7   ', 'TRPRXN  ',   0.160,10000.000,  36.0E3, .222,1.43, F,  F,  T,  F ),
+     & oa_type('AHOM   ', 'HOM     ', '        ',     0.0,  6.3E-03, 130.0E3, .700,2.08, F,  F,  T,  F ),
+     & oa_type('AELHOM ', 'ELHOM   ', '        ',     0.0,  1.0E-05, 160.0E3, .400,1.67, F,  F,  T,  F ),
      & oa_type('AMTNO3 ', 'MTNO3   ', '        ',     0.0,     12.0,  40.0E3, .587,1.90, F,  F,  T,  F ),
      & oa_type('AISOPNN', 'ISOPNN  ', '        ',     0.0,     8.9,   40.0E3,2.107,3.80, F,  F,  T,  F ),
      & oa_type('AMTHYD ', '        ', '        ',     0.0,   1.E-10,   1.0E0, .299,1.54, F,  F,  T,  T ),
@@ -162,6 +164,26 @@ C-----------------------------------------------------------------------
      & oa_type('AAVB4  ', 'SVAVB4  ', '        ',  0.0000,  100.000,  18.0E3, .659,1.99, F,  T,  F,  F ),
      & oa_type('AOLGA  ', '        ', '        ',  0.0000,   1.e-10,   1.0E0,1.067,2.50, F,  T,  F,  T ),
      & oa_type('AOLGB  ', '        ', '        ',  0.0000,   1.e-10,   1.0E0, .747,2.10, F,  F,  T,  T ),
+     & oa_type('AOP3   ', 'OP3     ', '        ',  0.0000,    1.e+1,  81.0E3, .600,1.92, F,  T,  F,  F ),
+     & oa_type('ASOAT  ', '        ', '        ',  0.0000,  1.0E-10,   1.0E0,0.857,2.31, F,  T,  F,  T ),
+     & oa_type('AROCN2ALK','VROCN2ALK','        ', 0.0000,    1.e-2, 104.0E3, .000,1.39, T,  T,  F,  F ),
+     & oa_type('AROCN1ALK','VROCN1ALK','        ', 0.0000,    1.e-1,  96.0E3, .000,1.32, T,  T,  F,  F ),
+     & oa_type('AROCP0ALK','VROCP0ALK','        ', 0.0000,    1.e+0,  85.0E3, .000,1.17, T,  T,  F,  F ),
+     & oa_type('AROCP1ALK','VROCP1ALK','        ', 0.0000,    1.e+1,  81.0E3, .000,1.17, T,  T,  F,  F ),
+     & oa_type('AROCP2ALK','VROCP2ALK','        ', 0.0000,    1.e+2,  77.0E3, .000,1.17, T,  T,  F,  F ),
+     & oa_type('AROCP3ALK','VROCP3ALK','        ', 0.0000,    1.e+3,  73.0E3, .000,1.17, T,  T,  F,  F ),
+     & oa_type('AROCN2OXY2','VROCN2OXY2','        ',0.0000,   1.e-2,  93.0E3, .200,1.42, F,  T,  F,  F ),
+     & oa_type('AROCN2OXY4','VROCN2OXY4','        ',0.0000,   1.e-2,  93.0E3, .400,1.67, F,  T,  F,  F ),
+     & oa_type('AROCN2OXY8','VROCN2OXY8','        ',0.0000,   1.e-2,  93.0E3, .800,2.17, F,  T,  F,  F ),
+     & oa_type('AROCN1OXY1','VROCN1OXY1','        ',0.0000,   1.e-1,  89.0E3, .100,1.29, F,  T,  F,  F ),
+     & oa_type('AROCN1OXY3','VROCN1OXY3','        ',0.0000,   1.e-1,  89.0E3, .300,1.54, F,  T,  F,  F ),
+     & oa_type('AROCN1OXY6','VROCN1OXY6','        ',0.0000,   1.e-1,  89.0E3, .600,1.92, F,  T,  F,  F ),
+     & oa_type('AROCP0OXY2','VROCP0OXY2','        ',0.0000,   1.e+0,  85.0E3, .200,1.42, F,  T,  F,  F ),
+     & oa_type('AROCP0OXY4','VROCP0OXY4','        ',0.0000,   1.e+0,  85.0E3, .400,1.67, F,  T,  F,  F ),
+     & oa_type('AROCP1OXY1','VROCP1OXY1','        ',0.0000,   1.e+1,  81.0E3, .100,1.29, F,  T,  F,  F ),
+     & oa_type('AROCP1OXY3','VROCP1OXY3','        ',0.0000,   1.e+1,  81.0E3, .300,1.54, F,  T,  F,  F ),
+     & oa_type('AROCP2OXY2','VROCP2OXY2','        ',0.0000,   1.e+2,  77.0E3, .200,1.42, F,  T,  F,  F ),
+     & oa_type('AROCP3OXY2','VROCP3OXY2','        ',0.0000,   1.e+3,  73.0E3, .200,1.42, F,  T,  F,  F ),
      & oa_type('ABENAPY', 'BENAPY  ', '        ',  0.0000,   0.0396, 105.0E3, .000,1.00, F,  T,  F,  F ) /)
       ! Table Comments:
       ! *Reaction Counters are only needed if the vapor species is not formed
@@ -376,12 +398,22 @@ C-----------------------------------------------------------------------
            End If
          End Do
 
-         ! Find indices of required species
-         iso1_idx   = findVapor( req_sviso1, .True. )
-         iso2_idx   = findVapor( req_sviso2, .True. )
-         aiso1_idx  = findAero( req_aeiso1, .True. )
-         aiso2_idx  = findAero( req_aeiso2, .True. )
-         aiso3_idx  = findAero( req_aeiso3, .True. )
+         ! Find indices of required species based on mechname
+         If( index( mechname,'CRACMM1_AQ' ) .eq. 0 
+     &          .and. index( mechname,'CRACMM1AMORE_AQ') .eq. 0 ) Then
+             iso1_idx   = findVapor( req_sviso1, .True. )
+             iso2_idx   = findVapor( req_sviso2, .True. )
+             aiso1_idx  = findAero( req_aeiso1, .True. )
+             aiso2_idx  = findAero( req_aeiso2, .True. )
+             aiso3_idx  = findAero( req_aeiso3, .True. )
+         Else
+             iso1_idx   = findVapor( req_sviso1, .False. )
+             iso2_idx   = findVapor( req_sviso2, .False. )
+             aiso1_idx  = findAero( req_aeiso1, .False. )
+             aiso2_idx  = findAero( req_aeiso2, .False. )
+             aiso3_idx  = findAero( req_aeiso3, .False. )
+         End If
+
          aorgc_idx  = findAero( req_aeorgc, .True. )
 
       End If     ! mapping condition
