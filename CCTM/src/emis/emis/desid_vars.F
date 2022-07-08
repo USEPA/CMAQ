@@ -150,7 +150,7 @@
           REAL            :: MW    ! Emissions Variable Molecular Weight [g mol-1]
       End Type desid_legend
       
-      Integer, Parameter :: Desid_N_Emvar_Table = 150
+      Integer, Parameter :: Desid_N_Emvar_Table = 162
       Type ( desid_legend ), Parameter :: 
      &  Desid_Emvar_Table( Desid_N_Emvar_Table ) = (/
      &    desid_legend( 'NO2          ' ,046.0 ),
@@ -302,6 +302,18 @@
      &    desid_legend( 'MANGANESE_C  ' ,054.9 ),
      &    desid_legend( 'ARSENIC_F    ' ,074.92),
      &    desid_legend( 'ARSENIC_C    ' ,074.92),
-     &    desid_legend( 'PHGI         ' ,200.5 )  /)
+     &    desid_legend( 'PHGI         ' ,200.5 ),
+     &    desid_legend( 'PMNCOMN2     ' ,422.83), ! CRACMM/ae8, POC value
+     &    desid_legend( 'PMOCN2       ' ,422.83), ! CRACMM/ae8, PNCOM value
+     &    desid_legend( 'PNCOMN2      ' ,506.99), ! CRACMM/ae8, based on ALK equivalent C*
+     &    desid_legend( 'POCN2        ' ,506.99), ! CRACMM/ae8, "
+     &    desid_legend( 'PNCOMN1      ' ,408.80), ! CRACMM/ae8, "
+     &    desid_legend( 'POCN1        ' ,408.80), ! CRACMM/ae8, "
+     &    desid_legend( 'PNCOMP0      ' ,394.77), ! CRACMM/ae8, "
+     &    desid_legend( 'POCP0        ' ,394.77), ! CRACMM/ae8, "
+     &    desid_legend( 'PNCOMP1      ' ,380.75), ! CRACMM/ae8, "
+     &    desid_legend( 'POCP1        ' ,380.75), ! CRACMM/ae8, "
+     &    desid_legend( 'PNCOMP2      ' ,338.66), ! CRACMM/ae8, "
+     &    desid_legend( 'POCP2        ' ,338.66)/)! CRACMM/ae8, "
 
       END MODULE DESID_VARS
