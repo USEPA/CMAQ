@@ -60,7 +60,7 @@ Users must define the DDM-3D sensitivity parameters in the DDM-3D Control File `
 The DDM-3D Control File accommodates various types of sensitivity configuration parameters for CMAQ-DDM-3D simulations, including the tagging of multiple emission sources and/or species. As proper formatting of this file is required, users are referred to the sample control file provided with the release for formatting examples. Sample definitions of sensitivity parameters are shown below.
 
 Example 1
-Calculate the sensitivity to total emissions of SO2.  The keyphrase 'TOTA' indication all model emissions:
+Calculate the sensitivity to total emissions of SO2.  The keyphrase 'TOTA' indicates all model emissions:
 
     ES2     
      EMIS
