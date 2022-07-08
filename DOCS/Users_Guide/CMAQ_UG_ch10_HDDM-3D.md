@@ -17,15 +17,13 @@ Emissions sensitivities can be calculated by simply running the air quality mode
 
 Alternatively, model sensitivities can be calculated with CMAQ-DDM-3D. This is done by altering the existing model algorithms to allow for sensitivity propagation through every science module in CMAQ. While this process does require more computational resources than standard CMAQ, it scales favorably with the number of desired parameters.
 
-Besides emissions, sensitivities to other model parameters can also be calculated. Currently, CMAQ-DDM-3D can be used for sensitivity to emission rates, boundary conditions, initial conditions, reaction rates, potential vorticity, or any combination of these parameters. Second order sensitivity calculations, or sensitivity of sensitivity, sometimes known as higher-order DDM-3D (HDDM-3D) are also available.  Note: second order sensitivity outputs for particulate matter species are still in development and should be considered as a research option. 
+Besides emissions, sensitivities to other model parameters can also be calculated. Currently, CMAQ-DDM-3D can be used for sensitivity to emission rates, boundary conditions, initial conditions, reaction rates, potential vorticity, or any combination of these parameters. Second order sensitivity calculations, or sensitivity of sensitivity, sometimes known as higher-order DDM-3D (HDDM-3D) are also available.  Note: second order sensitivity output for particulate matter species are still in development. 
 
 ## 10.2 CMAQ-DDM-3D Releases
 
-Current CMAQ-DDM-3D implementation is available for version 5.2 of the Community Multiscale Air Quality (CMAQ) model.  
+Starting from CMAQv5.4, DDM-3D has been fully integrated into the base model and is accessed through a compiler pre-processor flag as detailed in the instructions linked below.   
 
-* [Link to CMAQv5.2 DDM-3D source code and scripts](https://github.com/USEPA/CMAQ/tree/5.2_DDM-3D)
-* [Direct download to CMAQv5.2 DDM-3D source code and scripts](https://github.com/USEPA/CMAQ/archive/5.2_DDM-3D.zip)
-* [Documentation for CMAQv5.2 DDM-3D](https://github.com/USEPA/CMAQ/blob/5.2_DDM-3D/DOCS/Instrumented_Docs/CMAQ_DDM.md)
+* [Documentation for CMAQv5.4 DDM-3D](https://github.com/USEPA/CMAQ/blob/5.2_DDM-3D/DOCS/Instrumented_Docs/CMAQ_DDM.md)
 
 The migration of DDM-3D to the more recent CMAQ release is currently in development and will be included sometime after the base model release.  This documentation will be updated at that time.  
 
