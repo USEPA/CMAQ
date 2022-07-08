@@ -71,7 +71,7 @@ Calculate the sensitivity to total emissions of SO2.  The keyphrase 'TOTA' indic
     END
     
 Example 2
-Calculate the sensitivity to NOx emissions from point source EGU and gridded emissions at the same time: (gridded sources, point sources, and/or inline sources). 
+Calculate the sensitivity to NOx emissions from point source EGU and gridded emissions at the same time: (gridded sources, point sources, and/or inline sources are all allowed). 
 
 These environment variables, with the full path to the files, must be defined in the run script:
 
