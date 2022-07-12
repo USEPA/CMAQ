@@ -414,7 +414,7 @@ C For reaction rate sensitivities
             RXNFLAG( NP ) = .FALSE.
          END IF
       END DO
-#endif sens
+#endif
 
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  Set flag for reordering of cells and put cells in sequential  
@@ -611,12 +611,6 @@ C  Update CGRID based on the degradation routines
 
 #ifdef sens
 
-#ifdef parallel
-!            CPU_ROS3_START =  MPI_WTIME()
-#else
-!            CALL CPU_TIME( REAL_TIME )
-!            CPU_ROS3_START =  REAL( REAL_TIME,8 )
-#endif
             NUMB_CELLS = NUMCELLS
             
             DO NCELL = 1, NUMB_CELLS
@@ -628,13 +622,9 @@ C  Update CGRID based on the degradation routines
                      ELSE IF ( NREACT( IRXN ) .EQ. 2 ) THEN
                         SRK2( IRXN ) = REAL( RKI( NCELL,IRXN ), 4 )
                      ELSE IF ( NREACT( IRXN ) .EQ. 3 ) THEN
-! used average partial derivative in termolecular reaction rate
-!                             ISP1 = IRM2( NRK,1,NCS )
-!                             ISP2 = IRM2( NRK,2,NCS )
-!                             ISP3 = IRM2( NRK,3,NCS )
-                              SRK2( IRXN ) = REAL( RKI( NCELL,IRXN ),4 )
+                        SRK2( IRXN ) = REAL( RKI( NCELL,IRXN ),4 )
                      ELSE
-                              SRK2( IRXN ) = 0.0
+                        SRK2( IRXN ) = 0.0
                      END IF
                   END IF
               END DO
@@ -643,11 +633,6 @@ C  Update CGRID based on the degradation routines
 !                  ISPOLD = INEW2OLD( ISP,NCS )
 !                  YCDDM( ISPOLD ) = YAVE(NCELL,ISP)
                   YCDDM( ISP ) = YAVE(NCELL,ISP)
-!                 IF( COL .EQ. 1 .AND. ROW .EQ. 1 .AND. LEV .EQ. 1 )THEN
-!                 ISPNEW = INEW2OLD( IOLD2NEW( ISPOLD,NCS ),NCS )
-!                     WRITE(ROS3_LOG,'(3A,ES12.4)')CHEMISTRY_SPC(ISPOLD),CHEMISTRY_SPC(ISPNEW)," = ",
-!     &               YCDDM( ISPOLD )
-!                 END IF                  
                END DO
                CELLNUM = NORDCELL( OFFSET + NCELL )
                COL = CCOL( CELLNUM )
@@ -658,7 +643,6 @@ C  Update CGRID based on the degradation routines
                CALL SOLVE_DDM3D_CHEM( COL,ROW,LEV,CHEMSTEP,IOLD2NEW,INEW2OLD )
             END DO
             NUMCELLS = NUMB_CELLS
-!            CALL TIMING_UPDATE( CPU_ROS3_START, DELTA_CPU_TIME )
 #endif
 
 #ifdef rbstats
