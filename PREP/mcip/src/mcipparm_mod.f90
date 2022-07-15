@@ -147,6 +147,7 @@ MODULE mcipparm
 !                        release, version for MCIP will become consistent
 !                        with CMAQ. Therefore, the versioning skips from 
 !                        MCIPv5.1 to MCIPv5.3.3. (T. Spero)
+!           12 Jul 2022  Updated version stamp. (M. Mallard)
 !-------------------------------------------------------------------------------
 
   USE m3utilio, ONLY: mxdesc3
@@ -315,7 +316,7 @@ MODULE mcipparm
 
   CHARACTER(LEN=80)                 :: fdesc      ( mxdesc3 )
   CHARACTER(LEN=16),  PARAMETER     :: progname   = 'MCIP'
-  CHARACTER(LEN=10),  PARAMETER     :: vdate      = '06/30/2021'
-  CHARACTER(LEN=8),   PARAMETER     :: ver        = 'V5.3.3'
+  CHARACTER(LEN=10),  PARAMETER     :: vdate      = '07/12/2022'
+  CHARACTER(LEN=8),   PARAMETER     :: ver        = 'V5.4'
 
 END MODULE mcipparm
