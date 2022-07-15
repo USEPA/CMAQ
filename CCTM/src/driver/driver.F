@@ -479,8 +479,6 @@ C Initialize optional derived vertical velocity writes to conc file
 
 #ifdef sens
 C Initialize ddm3d calculations
-c        CALL INIT_DDM3D
-
          IF ( .NOT. S_PCGRID_IN( NPMAX ) ) THEN
             XMSG = 'Failure defining horizontal sens domain'
             CALL M3EXIT ( PNAME, 0, 0, XMSG, XSTAT2  )
