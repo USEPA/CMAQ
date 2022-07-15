@@ -32,7 +32,7 @@ Goal: Modify the gas- and aerosol-phase chemical mechanisms in CMAQ, create a ne
 
 <a id=mech_def></a>
 ### 2. Edit mech.def.
-The mech.def file lists all of CMAQ's chemical reactions and is located at $CMAQ_REPO/CCTM/src/MECHS/${mechanism}/mech_${mechanism}.def. The [chemmech documentation](../../../UTIL/chemmech/README.md) describes formats for reaction rate constants dependent on temperature, atmospheric number density, water vapor, sunlight, model species and constants such as oxygen and methane mixing ratios. The documentation also gives a more detailed explanation of the mech.def (mechanism definitions) sections and formatting rules.
+The mech.def file lists all of CMAQ's chemical reactions and is located at $CMAQ_REPO/CCTM/src/MECHS/{mechanism}/mech_{mechanism}.def. The [chemmech documentation](../../../UTIL/chemmech/README.md) describes formats for reaction rate constants dependent on temperature, atmospheric number density, water vapor, sunlight, model species and constants such as oxygen and methane mixing ratios. The documentation also gives a more detailed explanation of the mech.def (mechanism definitions) sections and formatting rules.
 - All reactions must begin with a name in < > brackets.
 - All reactions must end with # followed by a reaction rate constant with units of cm<sup>3</sup>/(molecules s)
 - In this tutorial, all reactions regenerate the oxidant.
@@ -49,7 +49,7 @@ To form a nonvolatile, accumulation mode SOA species (ANONVJ) from a gas-phase I
 
 <a id=GCnml></a>
 ### 3. Edit GC namelist.
-The GC namelist defines gas-phase species and their physical and chemical properties. It's located at $CMAQ_REPO/CCTM/src/MECHS/${mechanism}/GC_${mechanism}.nml.
+The GC namelist defines gas-phase species and their physical and chemical properties. It's located at $CMAQ_REPO/CCTM/src/MECHS/{mechanism}/GC_{mechanism}.nml.
 You must add a new row for every gas-phase species that was added to [mech.def](#mech_def). See [Chapter 4](../CMAQ_UG_ch04_model_inputs.md) for more information.
 TPROD, SVTPROD1, SVTPROD2, and NONVG from the examples above must be added to the GC namelist because they're gas-phase species. Column descriptions can be found in [Chapter 4](../CMAQ_UG_ch04_model_inputs.md). In this example, TPROD does not participate in dry deposition - similar to many other VOCs in CMAQ - so 'DRYDEP SURR' and 'DDEP' are empty and FAC is -1. NONVG (an IVOC as defined above), SVTPROD1, and SVTPROD2 do participate in dry deposition because of their low volatilities. This tutorial does not explain the process of creating new dry deposition surrogates, but it is possible to do so and replace 'VD_GEN_ALD'. The WET-SCAV SURR are described in the [hlconst.F](#hlconst) section below. 'GC2AE SURR' lists the species that partition between gas and aerosol phases in [SOA_DEFN.F](#SOA_DEFN). When modifying CRACMM mechanisms, the user is encouraged to append a representative compound structure as a comment at the end of the line. See [Chapter 6] (../CMAQ_UG_ch06_model_configuration_options.md#cracmm-metadata-in-species-nml) for CRACMM species metadata.
 ```
@@ -64,7 +64,7 @@ TPROD, SVTPROD1, SVTPROD2, and NONVG from the examples above must be added to th
 
 <a id=AEnml></a>
 ### 4. Edit AE namelist.
-The AE namelist defines all aerosol-phase species and their physical and chemical properties and is located at $CMAQ_REPO/CCTM/src/MECHS/${mechanism}/AE_${mechanism}.nml
+The AE namelist defines all aerosol-phase species and their physical and chemical properties and is located at $CMAQ_REPO/CCTM/src/MECHS/{mechanism}/AE_{mechanism}.nml
 You must add a new row for every aerosol-phase species added to [AERO_DATA.F](#AERO_DATA). See [Chapter 4](../CMAQ_UG_ch04_model_inputs.md) for more information.
 Starting in CMAQv5.4, separate lines are not needed in the AE namelist for species in multiple size modes. Each species (without appended size information) is added as one line. In this example, ANONV and the aerosol products from the Odum 2-product model must be added to the AE namelist. The Accum variable is set to "T" to indicate representation in the J mode. The semivolatile Odum 2-product species (SVTPROD1 and SVTPROD2) partition between the gas and accumulation mode aerosol phase with ATPROD1 and ATPROD2. Column descriptions can be found in [Chapter 4](../CMAQ_UG_ch04_model_inputs.md). 
 ```
@@ -78,21 +78,21 @@ Starting in CMAQv5.4, separate lines are not needed in the AE namelist for speci
 
 <a id=NRnml></a>
 ### 5. Edit NR namelist.
-The NR namelist defines gas-phase species that are not in the mech.def file, and their physical and chemical properties. Species in this file are typically the semivolatile gases that partition between the gas- and aerosol-phases. It's located at $CMAQ_REPO/CCTM/src/MECHS/${mechanism}/NR_${mechanism}.nml.
+The NR namelist defines gas-phase species that are not in the mech.def file, and their physical and chemical properties. Species in this file are typically the semivolatile gases that partition between the gas- and aerosol-phases. It's located at $CMAQ_REPO/CCTM/src/MECHS/{mechanism}/NR_{mechanism}.nml.
 You must add a new row for every nonreactive species, if any, added to the chemical mechanism that is not explicitly modeled in [mech.def](#mech_def). See [Chapter 4](../CMAQ_UG_ch04_model_inputs.md) for descriptions of the information in each column.
-The examples used in this tutorial do not include species that need to be added to the NR namelist. Follow the sesquiterpene SOA formation mechanism as an example of NR species (e.g. follow SESQRXN, SVSQT, and ASQTJ in $CMAQ_REPO/CCTM/src/MECHS/${mechanism}/ and $CMAQ_REPO/CCTM/src/aero/aero6/).
+The examples used in this tutorial do not include species that need to be added to the NR namelist. Follow the sesquiterpene SOA formation mechanism as an example of NR species (e.g. follow SESQRXN, SVSQT, and ASQTJ in $CMAQ_REPO/CCTM/src/MECHS/{mechanism}/ and $CMAQ_REPO/CCTM/src/aero/aero6/).
 
 
 
 <a id=EmissCtrl></a>
 ### 6. Edit DESID Control file.
-The DESID Control file (formerly the EmissCtrl namelist) describes how to input emissions and is located at $CMAQ_REPO/CCTM/src/MECHS/${mechanism}/CMAQ_Control_DESID_${mechanism}.nml. Any new species included in the mech.def or GC, AE, and NR namelists that is directly emitted should be included in this file. Examples of adding new species and further description can be found in the [DESID tutorial](CMAQ_UG_tutorial_emissions.md).
+The DESID Control file (formerly the EmissCtrl namelist) describes how to input emissions and is located at $CMAQ_REPO/CCTM/src/MECHS/{mechanism}/CMAQ_Control_DESID_{mechanism}.nml. Any new species included in the mech.def or GC, AE, and NR namelists that is directly emitted should be included in this file. Examples of adding new species and further description can be found in the [DESID tutorial](CMAQ_UG_tutorial_emissions.md).
 
 
 
 <a id=SpecDef></a>
 ### 7. Edit SpecDef file.
-The SpecDef file is used to aggregate CMAQ output species (e.g. into PM<sub>2.5</sub>) and convert units. It is used to run the post-processing tool [combine](../../../POST/combine/README.md) and is located at $CMAQ_REPO/CCTM/src/MECHS/${mechanism}/SpecDef_{mechanism}.txt.
+The SpecDef file is used to aggregate CMAQ output species (e.g. into PM<sub>2.5</sub>) and convert units. It is used to run the post-processing tool [combine](../../../POST/combine/README.md) and is located at $CMAQ_REPO/CCTM/src/MECHS/{mechanism}/SpecDef_{mechanism}.txt.
 To convert the units of a gas-phase species to ppb, add the following line:
 ```
 NEWGAS          ,ppbV      ,1000.*NEWGAS[1]
