@@ -94,7 +94,7 @@ EOF
 
 ### STEP 3: (optional): Map to a different chemical mechanism </strong>
 
-If a chemical mechanism other than cb6r3_ae7_aq, cb6r3_ae7_aqkmt2, or cb6r3m_ae7_kmtbr will be used for the regional-scale CMAQ simulations, the species in the downloaded file need to be mapped to that other chemical mechanism. An example script for using the `combine` program to map from cb6r3m_ae7_kmtbr to racm_ae6_aq, saprc07tc_ae6_aq, or saprc07tic_ae7i_aq is provided in a directory alongside the BCON and ICON [source code](../../../PREP/bcon/map2mech). Species definition files used for the mechanism mapping are also provided in that directory.
+If a chemical mechanism other than cb6r3_ae7_aq, cb6r5_ae7_aq, cb6r5_ae7_aqkmt2, or cb6r5m_ae7_aq will be used for the regional-scale CMAQ simulations, the species in the downloaded file need to be mapped to that other chemical mechanism. An example script for using the `combine` program to map from cb6r3m_ae7_kmtbr to racm_ae6_aq, racm2_ae6_aq, saprc07tc_ae6_aq, saprc07tic_ae7i_aq, or craccm1_aq is provided in a directory alongside the BCON and ICON [source code](../../../PREP/bcon/map2mech). Species definition files used for the mechanism mapping are also provided in that directory.
 
 ### STEP 4: Compile the ICON and BCON executables</strong>
 
