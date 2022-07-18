@@ -364,7 +364,7 @@ C ============================================================================
       DOUBLE PRECISION DGAMA(NIONSPC,NPAIR)
       DOUBLE PRECISION SION
 
-      DOUBLE PRECISION AGAMA, CH
+      DOUBLE PRECISION CH
 c     INTEGER, SAVE :: LOGDEV
 c     LOGICAL, SAVE :: FIRSTIME = .TRUE.
 
@@ -525,7 +525,7 @@ C ============================================================================
       DOUBLE PRECISION DGAMA(NIONSPC,NPAIR)
       DOUBLE PRECISION SION
 
-      DOUBLE PRECISION AGAMA, CH
+      DOUBLE PRECISION CH
 
       integer frow(nsen)
       INTEGER I,J,K
