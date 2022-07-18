@@ -47,7 +47,7 @@ c     --  remove limiting checks for stot and psen
 c
 c  Variables passed from ISORROPIA:
 c
-c  W		total concentration vector (mole/m3-air)
+c  W            total concentration vector (mole/m3-air)
 c               WI(1) - sodium
 c               WI(2) - sulfate
 c               WI(3) - ammonium
@@ -61,13 +61,14 @@ c               SCASI - ISORROPIA case name
 c
 c  Variables calculated:
 c
-c  asen		speciated aerosol sensitivities (total of I & J modes)
-c  		asen(1)	aerosol sulfate
-c  		asen(2)	aerosol nitrate
-c  		asen(3)	aerosol ammonia
-c  		asen(4)	aerosol sodium
-c  		asen(5)	aerosol chlorine
-c  		asen(6)	aerosol hydrogen
+c  asen         speciated aerosol sensitivities (total of I & J modes)
+c  __________________________________________________________________
+c  asen(1)	aerosol sulfate
+c  asen(2)	aerosol nitrate
+c  asen(3)	aerosol ammonia
+c  asen(4)	aerosol sodium
+c  asen(5)	aerosol chlorine
+c  asen(6)	aerosol hydrogen
 
       USE AERO_DATA, ONLY : aerospc_conc, aerospc_mw, ASO4_IDX, ANH4_IDX, ANO3_IDX, n_aerospc
       USE DDM3D_DEFN, ONLY : NPMAX, IPT, IPARM, HIGH, SEN_PAR, IHIGH
@@ -318,6 +319,8 @@ c     22 MAR 2017: S.L.Napelenok do updates only if case was solved.
       USE UTILIO_DEFN
  
 c     USE DDM3D_DEFN, ONLY : WRFLAG
+
+      implicit none
 
       integer ncomp
       integer nsize

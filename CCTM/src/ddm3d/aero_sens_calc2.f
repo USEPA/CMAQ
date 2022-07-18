@@ -42,6 +42,8 @@ C ===================================================================
 
 c     USE DDM3D_DEFN, ONLY : WRFLAG
 
+      IMPLICIT NONE
+
       INCLUDE 'isrpia.inc'
       INCLUDE 'aero_sens_data.inc'
 
@@ -148,6 +150,9 @@ C *** END OF HDDMSENS ***
       END
          
       SUBROUTINE RHSGAMA1( RG, S1, S2 )
+
+      IMPLICIT NONE
+        
       INCLUDE 'isrpia.inc'
       INCLUDE 'aero_sens_data.inc'
       INCLUDE 'dact.inc'
@@ -241,6 +246,9 @@ c     DO I = 1, NIONSPC
       END
   
       SUBROUTINE RHSGAMA2( RG, S1, S2 )
+
+      IMPLICIT NONE
+
       INCLUDE 'isrpia.inc'
       INCLUDE 'aero_sens_data.inc'
       INCLUDE 'dact.inc'
@@ -380,7 +388,9 @@ c     DO I = 1, NIONSPC
       END
   
       SUBROUTINE RDKMFUL(RG0,NPAIRS,IONIC,TEMP,RI,RHG,SI1,SI2)
-  
+
+      IMPLICIT NONE
+
       INTEGER N,NPAIRS
       REAL IONIC,TEMP
       DOUBLE PRECISION RI, RHG, RG0(NPAIRS)
@@ -429,7 +439,9 @@ c     DO I = 1, NIONSPC
       END
   
       SUBROUTINE RDKMFUL2(RG0,NPAIRS,IONIC,TEMP,RI,RHG,SI1,SI2)
-  
+
+      IMPLICIT NONE
+
       INTEGER N,NPAIRS
       REAL IONIC,TEMP
       DOUBLE PRECISION RI, RHG, RG0(NPAIRS)
@@ -476,7 +488,9 @@ c     DO I = 1, NIONSPC
       END
   
       SUBROUTINE RDMKBI(RG0, IONIC, Q, ZIP, RI, RHG, SI1, SI2)
-  
+
+      IMPLICIT NONE
+
       REAL IONIC, Q, ZIP
       DOUBLE PRECISION RI, RHG, RI1, RI2, RG0
       DOUBLE PRECISION SI1, SI2 ! sln 4sep14 
@@ -502,7 +516,9 @@ c     DO I = 1, NIONSPC
       END
   
       SUBROUTINE RHS(S1, S2, RG, FROW)
-       
+
+      IMPLICIT NONE
+
       INCLUDE 'isrpia.inc'
       INCLUDE 'aero_sens_data.inc'
   
@@ -754,6 +770,8 @@ c     DO I = 1, NIONSPC
   
       SUBROUTINE HDCALCNH3(SENS, S1, S2)
 
+      IMPLICIT NONE
+
       INCLUDE 'isrpia.inc'
       INCLUDE 'aero_sens_data.inc'
  
@@ -785,6 +803,8 @@ c     IF (WATER.LE.TINY) RETURN
       END
 
       SUBROUTINE HDCALCNA(SENS, S1, S2)
+
+      IMPLICIT NONE
 
       INCLUDE 'isrpia.inc'
       INCLUDE 'aero_sens_data.inc'
@@ -821,6 +841,8 @@ c     IF (WTAER.LE.TINY) RETURN
       END
   
       SUBROUTINE HDCALCHA(SENS, S1, S2)
+
+      IMPLICIT NONE
 
       INCLUDE 'isrpia.inc'
       INCLUDE 'aero_sens_data.inc'
@@ -866,6 +888,8 @@ c     IF (WTAER.LE.TINY) RETURN
       END
   
       SUBROUTINE HDCALCNHA(SENS, S1, S2)
+
+      IMPLICIT NONE
 
       INCLUDE 'isrpia.inc'
       INCLUDE 'aero_sens_data.inc'
@@ -928,6 +952,8 @@ c     IF (WTAER.LE.TINY) RETURN
       END
 
       SUBROUTINE HDCALCHS4(SENS, S1, S2)
+
+      IMPLICIT NONE
 
       INCLUDE 'isrpia.inc'
       INCLUDE 'aero_sens_data.inc'
