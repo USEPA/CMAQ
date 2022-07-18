@@ -44,7 +44,7 @@ c     USE DDM3D_DEFN, ONLY : WRFLAG
       Use aero_ddm3d, ONLY : cbsens
       USE UTILIO_DEFN         ! I/O API
 
-      IMPLICIT NONE
+c     IMPLICIT NONE
 
       INCLUDE 'isrpia.inc'
       INCLUDE 'aero_sens_data.inc'
@@ -158,7 +158,7 @@ C ============================================================================
 c     USE DDM3D_DEFN, ONLY : WRFLAG
       USE UTILIO_DEFN         ! I/O API
 
-      IMPLICIT NONE
+c     IMPLICIT NONE
 
       INCLUDE 'isrpia.inc'
       INCLUDE 'aero_sens_data.inc'
@@ -352,7 +352,7 @@ C CALCULATE dGAMA/dA, A IS IONIC SPECIES FOR A-J CASES
 C ============================================================================
       SUBROUTINE DELGAMA1 ( DGAMA )
 
-      IMPLICIT NONE
+c     IMPLICIT NONE
  
       INCLUDE 'isrpia.inc'
       INCLUDE 'aero_sens_data.inc'
@@ -513,7 +513,7 @@ C CALCULATE dGAMA/dA, A IS IONIC SPECIES FOR O-K CASES
 C ============================================================================
       SUBROUTINE DELGAMA2 ( DGAMA,frow )
 
-      IMPLICIT NONE
+c     IMPLICIT NONE
 
       INCLUDE 'isrpia.inc'
       INCLUDE 'aero_sens_data.inc'
@@ -917,7 +917,7 @@ C =============================================================================
       USE UTILIO_DEFN
 c     USE DDM3D_DEFN, ONLY : WRFLAG
 
-      IMPLICIT NONE
+c     IMPLICIT NONE
 
       INCLUDE 'isrpia.inc'
       INCLUDE 'aero_sens_data.inc'
@@ -1349,7 +1349,7 @@ C
 
       SUBROUTINE DZSR(SW)
 
-      IMPLICIT NONE
+c     IMPLICIT NONE
 
       INCLUDE 'isrpia.inc'
       INCLUDE 'aero_sens_data.inc'
@@ -1688,7 +1688,7 @@ C
 
       SUBROUTINE DCALCI1A(TSW)
      
-      IMPLICIT NONE
+c     IMPLICIT NONE
 
       INCLUDE 'isrpia.inc'
       INCLUDE 'aero_sens_data.inc'
@@ -1727,7 +1727,7 @@ C
                     
       SUBROUTINE DCALCL1A(TSW)
 
-      IMPLICIT NONE
+c     IMPLICIT NONE
 
       INCLUDE 'isrpia.inc'
       INCLUDE 'aero_sens_data.inc'
@@ -1798,7 +1798,7 @@ c     USE DDM3D_DEFN, ONLY : WRFLAG
       USE UTILIO_DEFN         ! I/O API
       USE RUNTIME_VARS, ONLY: LOGDEV
 
-      IMPLICIT NONE
+c     IMPLICIT NONE
       
       INCLUDE 'isrpia.inc'
       INCLUDE 'aero_sens_data.inc'
@@ -1899,7 +1899,7 @@ C
 
       SUBROUTINE DCALCNH3(SENS)
 
-      IMPLICIT NONE
+c     IMPLICIT NONE
 
       INCLUDE 'isrpia.inc'
       INCLUDE 'aero_sens_data.inc'
@@ -1938,7 +1938,7 @@ c     IF (WATER.LE.TINY) RETURN
 
       SUBROUTINE DCALCNA(SENS)
 
-      IMPLICIT NONE
+c     IMPLICIT NONE
 
       INCLUDE 'isrpia.inc'
       INCLUDE 'aero_sens_data.inc'
@@ -1971,7 +1971,7 @@ c     IF (WTAER.LE.TINY) RETURN
 
       SUBROUTINE DCALCNHA(SENS)
 
-      IMPLICIT NONE
+c     IMPLICIT NONE
 
       INCLUDE 'isrpia.inc'
       INCLUDE 'aero_sens_data.inc'
@@ -2043,7 +2043,7 @@ c     IF (MOLAL(jCL).EQ.TINY.AND.MOLAL(jNO3).EQ.TINY) THEN
       
       SUBROUTINE DCALCHA(SENS)
 
-      IMPLICIT NONE
+c     IMPLICIT NONE
         
       INCLUDE 'isrpia.inc'
       INCLUDE 'aero_sens_data.inc'
@@ -2077,7 +2077,7 @@ c     IF (WTAER.LE.TINY) RETURN
 
       SUBROUTINE DCALCHS4(SENS)
 
-      IMPLICIT NONE
+c     IMPLICIT NONE
 
       INCLUDE 'isrpia.inc'
       INCLUDE 'aero_sens_data.inc'

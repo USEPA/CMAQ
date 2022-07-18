@@ -42,7 +42,7 @@ C ===================================================================
 
 c     USE DDM3D_DEFN, ONLY : WRFLAG
 
-      IMPLICIT NONE
+c     IMPLICIT NONE
 
       INCLUDE 'isrpia.inc'
       INCLUDE 'aero_sens_data.inc'
@@ -153,7 +153,7 @@ C *** END OF HDDMSENS ***
          
       SUBROUTINE RHSGAMA1( RG, S1, S2 )
 
-      IMPLICIT NONE
+c     IMPLICIT NONE
         
       INCLUDE 'isrpia.inc'
       INCLUDE 'aero_sens_data.inc'
@@ -252,7 +252,7 @@ c     DO I = 1, NIONSPC
   
       SUBROUTINE RHSGAMA2( RG, S1, S2 )
 
-      IMPLICIT NONE
+c     IMPLICIT NONE
 
       INCLUDE 'isrpia.inc'
       INCLUDE 'aero_sens_data.inc'
@@ -529,7 +529,7 @@ c     DO I = 1, NIONSPC
   
       SUBROUTINE RHS(S1, S2, RG, FROW)
 
-      IMPLICIT NONE
+c     IMPLICIT NONE
 
       INCLUDE 'isrpia.inc'
       INCLUDE 'aero_sens_data.inc'
@@ -784,7 +784,7 @@ c     DO I = 1, NIONSPC
   
       SUBROUTINE HDCALCNH3(SENS, S1, S2)
 
-      IMPLICIT NONE
+c     IMPLICIT NONE
 
       INCLUDE 'isrpia.inc'
       INCLUDE 'aero_sens_data.inc'
@@ -818,7 +818,7 @@ c     IF (WATER.LE.TINY) RETURN
 
       SUBROUTINE HDCALCNA(SENS, S1, S2)
 
-      IMPLICIT NONE
+c     IMPLICIT NONE
 
       INCLUDE 'isrpia.inc'
       INCLUDE 'aero_sens_data.inc'
@@ -856,7 +856,7 @@ c     IF (WTAER.LE.TINY) RETURN
   
       SUBROUTINE HDCALCHA(SENS, S1, S2)
 
-      IMPLICIT NONE
+c     IMPLICIT NONE
 
       INCLUDE 'isrpia.inc'
       INCLUDE 'aero_sens_data.inc'
@@ -903,7 +903,7 @@ c     IF (WTAER.LE.TINY) RETURN
   
       SUBROUTINE HDCALCNHA(SENS, S1, S2)
 
-      IMPLICIT NONE
+c     IMPLICIT NONE
 
       INCLUDE 'isrpia.inc'
       INCLUDE 'aero_sens_data.inc'
@@ -967,7 +967,7 @@ c     IF (WTAER.LE.TINY) RETURN
 
       SUBROUTINE HDCALCHS4(SENS, S1, S2)
 
-      IMPLICIT NONE
+c     IMPLICIT NONE
 
       INCLUDE 'isrpia.inc'
       INCLUDE 'aero_sens_data.inc'
