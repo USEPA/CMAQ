@@ -22,7 +22,8 @@ C ===================================================================
       DOUBLE PRECISION X(6,4), Y(6,4)
    	  DOUBLE PRECISION DX(NIONSPC,6,4),DY(NIONSPC,6,4)
       INTEGER IJMAP(6,4)
- 
+      DOUBLE PRECISION AGAMA
+
       COMMON /HDDMISO/ H,   G0P,  X,   Y,
      &                 DI,  DY,  DX,  DG0, DH,
      &                 AGAMA, IJMAP

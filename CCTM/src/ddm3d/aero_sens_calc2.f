@@ -70,6 +70,8 @@ c        FIRSTIME = .FALSE.
 c        LOGDEV = INIT3 ()
 c     ENDIF
 
+      INTEGER I
+
       CC = SCASI(1:1)
 
 C *** INITIALIZE SINI ***
@@ -164,7 +166,10 @@ C *** END OF HDDMSENS ***
       DOUBLE PRECISION RX(3,4), RY(3,4)
       DOUBLE PRECISION RF1(3), RF2(4)
       DOUBLE PRECISION ISR, IM5, IM1, IM15
-  
+      DOUBLE PRECISION SUMZS1, SUMZS2, DN, DN2, DN3
+      INTEGER I, J
+      DOUBLE PRECISION ZPL, XPL, ZMI, XMI, CH, RXIJ, RYJI
+
       SUMZS1 = 0.D0
       SUMZS2 = 0.D0
 c     DO I = 1, NIONSPC
@@ -260,7 +265,10 @@ c     DO I = 1, NIONSPC
       DOUBLE PRECISION RX(6,4), RY(6,4)
       DOUBLE PRECISION RF1(6), RF2A(4), RF2B(4)
       DOUBLE PRECISION ISR, IM5, IM1, IM15
-  
+      INTEGER I, J
+      DOUBLE PRECISION ZPL, XPL, SUMZS1, SUMZS2, DN, DN2, DN3, ZMI, XMI
+      DOUBLE PRECISION CH, RXIJ, RYJI
+
       SUMZS1 = 0.D0
       SUMZS2 = 0.D0
 c     DO I = 1, NIONSPC
@@ -409,6 +417,8 @@ c     DO I = 1, NIONSPC
       REAL SION  ! sln 13sep13
       REAL AGAMA ! sln 23sep13
 
+      REAL*8 TI, CF1, CF2, RCF2
+
       SION = SQRT(IONIC) ! sln 13sep13
       AGAMA = 0.511*(298.0/TEMP)**1.5 ! Debye Huckel const. at T  ! sln 23sep13
 
@@ -459,6 +469,8 @@ c     DO I = 1, NIONSPC
 
       REAL SION  ! sln 13sep13
       REAL AGAMA ! sln 23sep13
+
+      REAL*8 TI, CF1, CF2, RCF2
 
       SION = SQRT(IONIC) ! sln 13sep13
       AGAMA = 0.511*(298.0/TEMP)**1.5 ! Debye Huckel const. at T  ! sln 23sep13
@@ -525,8 +537,10 @@ c     DO I = 1, NIONSPC
       DOUBLE PRECISION S1(NSEN), S2(NSEN)
       DOUBLE PRECISION RG(NPAIR)
       INTEGER          FROW(NSEN)
+      INTEGER iEQ
+      DOUBLE PRECISION C1, C2 
+      DOUBLE PRECISION CNA, CK, CMG
 
- 
       iEQ = iK1
  
       IF (FROW(iEQ).EQ.1) THEN
@@ -601,7 +615,7 @@ c     DO I = 1, NIONSPC
 
       IF (FROW(iEQ).EQ.1) THEN
          C1 = -3.*LN10
-         SINI(iEQ) =    C1*RG(mNN42S4)
+         SINI(iEQ) =    C1*RG(mNH42S4)
      &             + 2.*S1(jNH4)*S2(jNH4)/MOLALD(jNH4)/MOLALD(jNH4)
      &             +    S1(jSO4)*S2(jSO4)/MOLALD(jSO4)/MOLALD(jSO4)
      &             - 3.*S1(jH2O)*S2(jH2O)/WATER/WATER
@@ -849,7 +863,7 @@ c     IF (WTAER.LE.TINY) RETURN
 
       DOUBLE PRECISION SENS(NSEN), S1(NSEN), S2(NSEN)
       DOUBLE PRECISION DELT,GR,SR,WR,C
- 
+      DOUBLE PRECISION DCL, DNO 
  
 c     IF (WTAER.LE.TINY) RETURN
       IF (WATER.LE.TINY) RETURN

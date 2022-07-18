@@ -34,27 +34,50 @@ C *** UPDATED BY CHRISTOS FOUNTOUKIS
 C
 C=======================================================================
 C
-      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
-      PARAMETER (NCOMP=8,NIONS=10,NGASAQ=3,NSLDS=19,NPAIR=23,NZSR=100,
-     &           NERRMX=25)
+c     IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+      INTEGER, PARAMETER :: NCOMP=8,NIONS=10,NGASAQ=3,NSLDS=19,NPAIR=23,NZSR=100,
+     &           NERRMX=25
 C
 C *** INPUT VARIABLES **************************************************
 C
       INTEGER METSTBL
-      COMMON /INPT/ W(NCOMP), WAER(NCOMP), TEMP, RH, IPROB, METSTBL,
+      REAL*8 W(NCOMP), WAER(NCOMP), TEMP, RH, IPROB, NADJ
+      COMMON /INPT/ W, WAER, TEMP, RH, IPROB, METSTBL,
      &              NADJ
 C
 C *** WATER ACTIVITIES OF PURE SALT SOLUTIONS **************************
 C
-      COMMON /ZSR / AWAS(NZSR), AWSS(NZSR), AWAC(NZSR), AWSC(NZSR),
-     &              AWAN(NZSR), AWSN(NZSR), AWSB(NZSR), AWAB(NZSR),
-     &              AWSA(NZSR), AWLC(NZSR), AWCS(NZSR), AWCN(NZSR),
-     &              AWCC(NZSR), AWPS(NZSR), AWPB(NZSR), AWPN(NZSR),
-     &              AWPC(NZSR), AWMS(NZSR), AWMN(NZSR), AWMC(NZSR)
+      REAL*8 AWAS(NZSR), AWSS(NZSR), AWAC(NZSR), AWSC(NZSR),
+     &       AWAN(NZSR), AWSN(NZSR), AWSB(NZSR), AWAB(NZSR),
+     &       AWSA(NZSR), AWLC(NZSR), AWCS(NZSR), AWCN(NZSR),
+     &       AWCC(NZSR), AWPS(NZSR), AWPB(NZSR), AWPN(NZSR),
+     &       AWPC(NZSR), AWMS(NZSR), AWMN(NZSR), AWMC(NZSR)
+
+      COMMON /ZSR / AWAS, AWSS, AWAC, AWSC,
+     &              AWAN, AWSN, AWSB, AWAB,
+     &              AWSA, AWLC, AWCS, AWCN,
+     &              AWCC, AWPS, AWPB, AWPN,
+     &              AWPC, AWMS, AWMN, AWMC
+     
 C
 C *** DELIQUESCENCE RELATIVE HUMIDITIES ********************************
 C
       INTEGER WFTYP
+      REAL*8 DRH2SO4,  DRNH42S4, DRNAHSO4, DRNACL,   DRNANO3, 
+     &       DRNA2SO4, DRNH4HS4, DRLC,     DRNH4NO3, DRNH4CL,
+     &       DRCASO4,  DRCANO32, DRCACL2,  DRK2SO4,  DRKHSO4,
+     &       DRKNO3,   DRKCL,    DRMGSO4,  DRMGNO32, DRMGCL2
+C
+      REAL*8 DRMLCAB,  DRMLCAS,  DRMASAN,  DRMG1,    DRMG2,
+     &       DRMG3,    DRMH1,    DRMH2,    DRMI1,    DRMI2,
+     &       DRMI3,    DRMQ1,    DRMR1,    DRMR2,    DRMR3,
+     &       DRMR4,    DRMR5,    DRMR6,    DRMR7,    DRMR8,
+     &       DRMR9,    DRMR10,   DRMR11,   DRMR12,   DRMR13
+C
+      REAL*8 DRMO1,    DRMO2,    DRMO3,    DRML1,    DRML2,
+     &       DRML3,    DRMM1,    DRMM2,    DRMP1,    DRMP2,
+     &       DRMP3,    DRMP4,    DRMP5,    DRMV1
+
       COMMON /DRH / DRH2SO4,  DRNH42S4, DRNAHSO4, DRNACL,   DRNANO3, 
      &              DRNA2SO4, DRNH4HS4, DRLC,     DRNH4NO3, DRNH4CL,
      &              DRCASO4,  DRCANO32, DRCACL2,  DRK2SO4,  DRKHSO4,
@@ -74,29 +97,49 @@ C
 C
 C *** VARIABLES FOR LIQUID AEROSOL PHASE *******************************
 C
-      DOUBLE PRECISION MOLAL, MOLALR, M0
+c     DOUBLE PRECISION MOLAL, MOLALR, M0
       REAL IONIC
       LOGICAL CALAOU, CALAIN, FRST, DRYF
-      COMMON /IONS/ MOLAL(NIONS), MOLALR(NPAIR), GAMA(NPAIR), ZZ(NPAIR),
-     &              Z(NIONS),     GAMOU(NPAIR),  GAMIN(NPAIR),M0(NPAIR),
-     &              GASAQ(NGASAQ),
+
+      REAL*8 MOLAL(NIONS), MOLALR(NPAIR), GAMA(NPAIR), ZZ(NPAIR),
+     &       Z(NIONS),     GAMOU(NPAIR),  GAMIN(NPAIR),M0(NPAIR),
+     &       GASAQ(NGASAQ),
+     &       EPSACT,       COH,           CHNO3,       CHCL,         
+     &       WATER,        IACALC      
+
+      COMMON /IONS/ MOLAL, MOLALR, GAMA, ZZ,
+     &              Z,     GAMOU,  GAMIN,M0,
+     &              GASAQ,
      &              EPSACT,       COH,           CHNO3,       CHCL,         
      &              WATER,        IONIC,         IACALC,      
      &              FRST,         CALAIN,        CALAOU,      DRYF
+     
 C
 C *** VARIABLES FOR SOLID AEROSOL PHASE ********************************
 C
+      REAL*8 CH2SO4,  CNH42S4, CNH4HS4, CNACL,   CNA2SO4, 
+     &       CNANO3,  CNH4NO3, CNH4CL,  CNAHSO4, CLC, CCASO4,
+     &       CCANO32, CCACL2,  CK2SO4,  CKHSO4,  CKNO3, CKCL,
+     &       CMGSO4,  CMGNO32, CMGCL2
+
       COMMON /SALT/ CH2SO4,  CNH42S4, CNH4HS4, CNACL,   CNA2SO4, 
      &              CNANO3,  CNH4NO3, CNH4CL,  CNAHSO4, CLC, CCASO4,
      &              CCANO32, CCACL2,  CK2SO4,  CKHSO4,  CKNO3, CKCL,
      &              CMGSO4,  CMGNO32, CMGCL2
+
 C
 C *** VARIABLES FOR GAS PHASE ******************************************
 C
+      REAL*8 GNH3, GHNO3, GHCL, GNH3D, GHNO3D, GHCLD
       COMMON /GAS / GNH3, GHNO3, GHCL, GNH3D, GHNO3D, GHCLD
 C
 C *** EQUILIBRIUM CONSTANTS ********************************************
 C
+      REAL*8        XK1, XK2, XK3, XK4, XK5, XK6, XK7, XK8, XK9, XK10,
+     &              XK11,XK12,XK13,XK14,XKW, XK21,XK22,XK31,XK32,XK41,
+     &              XK42, XK15, XK16, XK17, XK18, XK19, XK20, XK23,
+     &              XK24, XK25
+
       COMMON /EQUK/ XK1, XK2, XK3, XK4, XK5, XK6, XK7, XK8, XK9, XK10,
      &              XK11,XK12,XK13,XK14,XKW, XK21,XK22,XK31,XK32,XK41,
      &              XK42, XK15, XK16, XK17, XK18, XK19, XK20, XK23,
@@ -105,15 +148,18 @@ C     &              , XK26, XK27
 C
 C *** MOLECULAR WEIGHTS ************************************************
 C
-      DOUBLE PRECISION IMW
-      COMMON /OTHR/ R, IMW(NIONS), WMW(NCOMP), SMW(NPAIR)
+c     DOUBLE PRECISION IMW
+      REAL*8        R, IMW(NIONS), WMW(NCOMP), SMW(NPAIR)
+      COMMON /OTHR/ R, IMW, WMW, SMW
 C
 C *** SOLUTION/INFO VARIABLES ******************************************
 C
       CHARACTER SCASE*15
+      REAL*8 SULRATW, SULRAT, SODRAT, SO4RAT, CRNARAT, CRRAT
       COMMON /CASE/ SULRATW, SULRAT, SODRAT, SO4RAT, CRNARAT, CRRAT,
      &              SCASE
 C
+      REAL*8 EPS, MAXIT, NSWEEP, NDIV, ICLACT
       COMMON /SOLN/ EPS, MAXIT, NSWEEP, NDIV, ICLACT
 C
 C *** ERROR SYSTEM *****************************************************
@@ -126,6 +172,7 @@ C
 C *** GENERIC VARIABLES ************************************************
 C
       CHARACTER VERSION*15
+      REAL*8 GREAT, TINY, TINY2, ZERO, ONE
       COMMON /CGEN/ GREAT, TINY, TINY2, ZERO, ONE, VERSION
 
 C *** Wen added for ddmisrpia
