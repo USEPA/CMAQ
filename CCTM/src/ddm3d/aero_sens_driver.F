@@ -1,5 +1,4 @@
 #ifdef sens
-
 !------------------------------------------------------------------------!
 !  The Community Multiscale Air Quality (CMAQ) system software is in     !
 !  continuous development by various groups and is based on information  !
@@ -48,7 +47,7 @@ c     --  remove limiting checks for stot and psen
 c
 c  Variables passed from ISORROPIA:
 c
-c  W            total concentration vector (mole/m3-air)
+c  W		total concentration vector (mole/m3-air)
 c               WI(1) - sodium
 c               WI(2) - sulfate
 c               WI(3) - ammonium
@@ -62,22 +61,21 @@ c               SCASI - ISORROPIA case name
 c
 c  Variables calculated:
 c
-c  asen         speciated aerosol sensitivities (total of I & J modes)
-c  __________________________________________________________________
-c  asen(1)	aerosol sulfate
-c  asen(2)	aerosol nitrate
-c  asen(3)	aerosol ammonia
-c  asen(4)	aerosol sodium
-c  asen(5)	aerosol chlorine
-c  asen(6)	aerosol hydrogen
+c  asen		speciated aerosol sensitivities (total of I & J modes)
+c  		asen(1)	aerosol sulfate
+c  		asen(2)	aerosol nitrate
+c  		asen(3)	aerosol ammonia
+c  		asen(4)	aerosol sodium
+c  		asen(5)	aerosol chlorine
+c  		asen(6)	aerosol hydrogen
 
       USE AERO_DATA, ONLY : aerospc_conc, aerospc_mw, ASO4_IDX, ANH4_IDX, ANO3_IDX, n_aerospc
       USE DDM3D_DEFN, ONLY : NPMAX, IPT, IPARM, HIGH, SEN_PAR, IHIGH
       Use aero_ddm3d, ONLY : s_precursor_conc, s_aerospc_conc, cbsens
       USE UTILIO_DEFN
-      USE RUNTIME_VARS, ONLY: LOGDEV
 
       IMPLICIT NONE
+
 
 C sln =-=-=-=-=-=-=  DDM-3D sensitivity variables
 
@@ -107,55 +105,18 @@ C sln =-=-=-=-=-=-=  DDM-3D sensitivity variables
       REAL(KIND=8), DIMENSION(n_aerospc) :: fi   ! Size distribution for concentration
       REAL(KIND=8) fji                           ! 
 
-c     INTEGER, SAVE :: LOGDEV
+      INTEGER, SAVE :: LOGDEV
       LOGICAL, SAVE :: FIRSTIME = .TRUE.
       CHARACTER( 96 ) :: XMSG = ' '
       INTEGER ALLOCSTAT
-
-      INTERFACE
-
-        SUBROUTINE total_sens(stot,ncomp,ip)
-            REAL*8,  INTENT( OUT )   :: stot(:)
-            INTEGER, INTENT( IN )    :: ncomp
-            INTEGER, INTENT( IN )    :: ip
-        END SUBROUTINE total_sens
-
-        SUBROUTINE aero_sens_calc2(stot,psen,s1,s2,s1d,s2d,SCASI,FCOL)
-            REAL*8,  INTENT( IN  )          :: stot(:)
-            REAL*8,  INTENT( OUT )          :: psen(:)
-            REAL*8,  INTENT( IN  )          :: s1(:)
-            REAL*8,  INTENT( IN  )          :: s2(:)
-            REAL*8,  INTENT( IN  )          :: s1d(:)
-            REAL*8,  INTENT( IN  )          :: s2d(:)
-            CHARACTER( 15 ), INTENT( IN )   :: SCASI
-            INTEGER, INTENT( INOUT )        :: FCOL(:)
-        END SUBROUTINE aero_sens_calc2
-
-        SUBROUTINE aero_sens_calc1(stot,psen,psend,SCASI,FCOL)
-            REAL*8,  INTENT( IN  )          :: stot(:)
-            REAL*8,  INTENT( OUT )          :: psen(:)
-            REAL*8,  INTENT( OUT )          :: psend(:)
-            CHARACTER( 15 ), INTENT( IN )   :: SCASI
-            INTEGER, INTENT( INOUT )        :: FCOL(:)
-        END SUBROUTINE aero_sens_calc1
-        
-        SUBROUTINE asupdt(psen,fi,ncomp,nsize,ip, FCOL)
-            REAL*8,  INTENT( IN )          :: psen(:)
-            REAL*8,  INTENT( IN )          :: fi(:)
-            INTEGER, INTENT( IN )          :: ncomp
-            INTEGER, INTENT( IN )          :: nsize
-            INTEGER, INTENT( IN )          :: ip
-            INTEGER, INTENT( IN )          :: FCOL(:)
-        END SUBROUTINE asupdt
-
-      END INTERFACE
-              
 
 C sln =-=-=-=-=-=-=  end DDM-3D sensitivity variables
 
 c-----------------------------------------------------------------------------------------------------------------------
 
       IF ( FIRSTIME ) THEN
+         FIRSTIME = .FALSE.
+         LOGDEV = INIT3 ()
          ALLOCATE( sens1 ( nsize, NPMAX ), 
      &             sens1d( nsize, NPMAX ),
      &             STAT = ALLOCSTAT )
@@ -164,8 +125,6 @@ c-------------------------------------------------------------------------------
             CALL M3EXIT( 'aero_sens', 0 , 0, XMSG, XSTAT2 )
          END IF
       END IF
-
-      FCOL = 0
 
 c calculate modal fractions
 
@@ -266,7 +225,6 @@ c-------------------------------------------------------------------------------
       Use aero_ddm3d, ONLY : cbsens
  
       USE UTILIO_DEFN
-      USE RUNTIME_VARS, ONLY: LOGDEV
 
 c     USE DDM3D_DEFN, ONLY : WRFLAG
 
@@ -279,15 +237,15 @@ c     USE DDM3D_DEFN, ONLY : WRFLAG
   
       real(kind=8), dimension(ncomp)   :: stot
  
-c     INTEGER, SAVE :: LOGDEV
-c     LOGICAL, SAVE :: FIRSTIME = .TRUE.
+      INTEGER, SAVE :: LOGDEV
+      LOGICAL, SAVE :: FIRSTIME = .TRUE.
 
 c-----------------------------------------------------------------------------------------------------------------------
 
-c     IF ( FIRSTIME ) THEN
-c        FIRSTIME = .FALSE.
-c        LOGDEV = INIT3 ()
-c     END IF
+      IF ( FIRSTIME ) THEN
+         FIRSTIME = .FALSE.
+         LOGDEV = INIT3 ()
+      END IF
 
  
       stot = 0.0d0
@@ -358,11 +316,8 @@ c     22 MAR 2017: S.L.Napelenok do updates only if case was solved.
      &                      ACA_IDX, AK_IDX, AMG_IDX, n_aerospc
       USE PRECURSOR_DATA, ONLY : precursor_mw, HNO3_IDX, NH3_IDX, SULPRD_IDX, HCL_IDX
       USE UTILIO_DEFN
-      USE RUNTIME_VARS, ONLY: LOGDEV
  
 c     USE DDM3D_DEFN, ONLY : WRFLAG
-
-      implicit none
 
       integer ncomp
       integer nsize
@@ -381,13 +336,13 @@ c     USE DDM3D_DEFN, ONLY : WRFLAG
       integer, parameter               :: jHCL  = 13
       integer, parameter               :: jHNO3 = 14
 
-c     INTEGER, SAVE :: LOGDEV
-c     LOGICAL, SAVE :: FIRSTIME = .TRUE.
+      INTEGER, SAVE :: LOGDEV
+      LOGICAL, SAVE :: FIRSTIME = .TRUE.
 
-c     IF ( FIRSTIME ) THEN
-c        FIRSTIME = .FALSE.
-c        LOGDEV = INIT3 ()
-c     ENDIF
+      IF ( FIRSTIME ) THEN
+         FIRSTIME = .FALSE.
+         LOGDEV = INIT3 ()
+      ENDIF
 
 c Filter very small numbers
       do m = 1, nsize
@@ -463,6 +418,6 @@ c     endif
 
       return
       end
-  
-#endif
 
+#endif  
+  
