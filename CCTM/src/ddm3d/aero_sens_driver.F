@@ -108,43 +108,44 @@ C sln =-=-=-=-=-=-=  DDM-3D sensitivity variables
       REAL(KIND=8) fji                           ! 
 
 c     INTEGER, SAVE :: LOGDEV
-c     LOGICAL, SAVE :: FIRSTIME = .TRUE.
+      LOGICAL, SAVE :: FIRSTIME = .TRUE.
       CHARACTER( 96 ) :: XMSG = ' '
       INTEGER ALLOCSTAT
 
       INTERFACE
 
         SUBROUTINE total_sens(stot,ncomp,ip)
-            REAL*8,  INTENT( OUT )   :: stot(ncomp)
+            REAL*8,  INTENT( OUT )   :: stot(:)
             INTEGER, INTENT( IN )    :: ncomp
             INTEGER, INTENT( IN )    :: ip
         END SUBROUTINE total_sens
 
         SUBROUTINE aero_sens_calc2(stot,psen,s1,s2,s1d,s2d,SCASI,FCOL)
-            REAL*8,  INTENT( IN  )          :: stot(ncomp)
-            REAL*8,  INTENT( OUT )          :: psen(nsize)
-            REAL*8,  INTENT( IN  )          :: s1(nsize)
-            REAL*8,  INTENT( IN  )          :: s2(nsize)
-            REAL*8,  INTENT( IN  )          :: s1d(nsize)
-            REAL*8,  INTENT( IN  )          :: s2d(nsize)
+            REAL*8,  INTENT( IN  )          :: stot(:)
+            REAL*8,  INTENT( OUT )          :: psen(:)
+            REAL*8,  INTENT( IN  )          :: s1(:)
+            REAL*8,  INTENT( IN  )          :: s2(:)
+            REAL*8,  INTENT( IN  )          :: s1d(:)
+            REAL*8,  INTENT( IN  )          :: s2d(:)
             CHARACTER( 15 ), INTENT( IN )   :: SCASI
-            INTEGER, INTENT( INOUT )        :: FCOL(nsize)
-        END SUBROUTINE total_sens_calc2
+            INTEGER, INTENT( INOUT )        :: FCOL(:)
+        END SUBROUTINE aero_sens_calc2
 
         SUBROUTINE aero_sens_calc1(stot,psen,psend,SCASI,FCOL)
-            REAL*8,  INTENT( IN  )          :: stot(ncomp)
-            REAL*8,  INTENT( OUT )          :: psen(nsize)
-            REAL*8,  INTENT( OUT )          :: psend(nsize)
+            REAL*8,  INTENT( IN  )          :: stot(:)
+            REAL*8,  INTENT( OUT )          :: psen(:)
+            REAL*8,  INTENT( OUT )          :: psend(:)
             CHARACTER( 15 ), INTENT( IN )   :: SCASI
-            INTEGER, INTENT( INOUT )        :: FCOL(nsize)
+            INTEGER, INTENT( INOUT )        :: FCOL(:)
         END SUBROUTINE aero_sens_calc1
         
         SUBROUTINE asupdt(psen,fi,ncomp,nsize,ip, FCOL)
-            REAL*8,  INTENT( IN )          :: psen(nsize)
+            REAL*8,  INTENT( IN )          :: psen(:)
+            REAL*8,  INTENT( IN )          :: fi(:)
             INTEGER, INTENT( IN )          :: ncomp
             INTEGER, INTENT( IN )          :: nsize
             INTEGER, INTENT( IN )          :: ip
-            INTEGER, INTENT( IN )          :: FCOL(nsize)
+            INTEGER, INTENT( IN )          :: FCOL(:)
         END SUBROUTINE asupdt
 
       END INTERFACE

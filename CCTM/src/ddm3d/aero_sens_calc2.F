@@ -66,50 +66,50 @@ c     IMPLICIT NONE
       INTERFACE
          
          SUBROUTINE FLAGS( FROW, FCOL )
-            INTEGER, INTENT( OUT )   :: FROW(NSEN)
-            INTEGER, INTENT( OUT )   :: FCOL(NSEN)
+            INTEGER, INTENT( OUT )   :: FROW(:)
+            INTEGER, INTENT( OUT )   :: FCOL(:)
          END SUBROUTINE FLAGS
 
          SUBROUTINE  AMAT( COEF, FROW, FCOL, DGAMA )
-            REAL*8,  INTENT( OUT )   :: COEF(NSEN,NSEN) 
-            INTEGER, INTENT( IN )    :: FROW(NSEN)
-            INTEGER, INTENT( IN )    :: FCOL(NSEN)
-            REAL*8,  INTENT( IN )    :: DGAMA(NIONSPC,NPAIR) 
+            REAL*8,  INTENT( OUT )   :: COEF(:,:) 
+            INTEGER, INTENT( IN )    :: FROW(:)
+            INTEGER, INTENT( IN )    :: FCOL(:)
+            REAL*8,  INTENT( IN )    :: DGAMA(:,:) 
          END SUBROUTINE AMAT
 
          SUBROUTINE  DELGAMA1( DGAMA )
-            REAL*8,  INTENT( INOUT ) :: DGAMA(NIONSPC,NPAIR)
+            REAL*8,  INTENT( INOUT ) :: DGAMA(:,:)
          END SUBROUTINE DELGAMA1
          
          SUBROUTINE DELGAMA2( DGAMA )
-            REAL*8,  INTENT( INOUT ) :: DGAMA(NIONSPC,NPAIR)
+            REAL*8,  INTENT( INOUT ) :: DGAMA(:,:)
          END SUBROUTINE DELGAMA2
 
          SUBROUTINE RHSGAMA1( RGAMA, S1D, S2D )
-            REAL*8,  INTENT( INOUT ) :: RGAMA(NPAIR) 
-            REAL*8,  INTENT( IN    ) :: S1D(NSEN)
-            REAL*8,  INTENT( IN    ) :: S2D(NSEN)   
+            REAL*8,  INTENT( INOUT ) :: RGAMA(:) 
+            REAL*8,  INTENT( IN    ) :: S1D(:)
+            REAL*8,  INTENT( IN    ) :: S2D(:)   
          END SUBROUTINE RHSGAMA1
 
          SUBROUTINE RHSGAMA2( RGAMA, S1D, S2D )
-            REAL*8,  INTENT( INOUT ) :: RGAMA(NPAIR) 
-            REAL*8,  INTENT( IN    ) :: S1D(NSEN)
-            REAL*8,  INTENT( IN    ) :: S2D(NSEN)
+            REAL*8,  INTENT( INOUT ) :: RGAMA(:) 
+            REAL*8,  INTENT( IN    ) :: S1D(:)
+            REAL*8,  INTENT( IN    ) :: S2D(:)
          END SUBROUTINE RHSGAMA2
 
          SUBROUTINE RHS( S1D, S2D, RGAMA, FROW )
-            REAL*8,  INTENT( IN    ) :: S1D(NSEN)
-            REAL*8,  INTENT( IN    ) :: S2D(NSEN)
-            REAL*8,  INTENT( INOUT ) :: RGAMA(NPAIR) 
-            INTEGER, INTENT( IN )    :: FROW(NSEN)
+            REAL*8,  INTENT( IN    ) :: S1D(:)
+            REAL*8,  INTENT( IN    ) :: S2D(:)
+            REAL*8,  INTENT( INOUT ) :: RGAMA(:) 
+            INTEGER, INTENT( IN )    :: FROW(:)
          END SUBROUTINE RHS
 
          SUBROUTINE EQNSLV( FROW, FCOL, COEF, SENS, SENSD )
-            INTEGER, INTENT( IN )    :: FROW(NSEN)
-            INTEGER, INTENT( IN )    :: FCOL(NSEN)
-            REAL*8,  INTENT( IN )    :: COEF(NSEN,NSEN) 
-            REAL*8,  INTENT( OUT )   :: SENS(NSEN) 
-            REAL*8,  INTENT( OUT )   :: SENSD(NSEN) 
+            INTEGER, INTENT( IN )    :: FROW(:)
+            INTEGER, INTENT( IN )    :: FCOL(:)
+            REAL*8,  INTENT( IN )    :: COEF(:,:) 
+            REAL*8,  INTENT( OUT )   :: SENS(:) 
+            REAL*8,  INTENT( OUT )   :: SENSD(:) 
          END SUBROUTINE EQNSLV
 
       END INTERFACE
