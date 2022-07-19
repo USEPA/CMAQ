@@ -1,3 +1,4 @@
+#ifdef sens
 
 !------------------------------------------------------------------------!
 !  The Community Multiscale Air Quality (CMAQ) system software is in     !
@@ -74,9 +75,9 @@ c  asen(6)	aerosol hydrogen
       USE DDM3D_DEFN, ONLY : NPMAX, IPT, IPARM, HIGH, SEN_PAR, IHIGH
       Use aero_ddm3d, ONLY : s_precursor_conc, s_aerospc_conc, cbsens
       USE UTILIO_DEFN
+      USE RUNTIME_VARS, ONLY: LOGDEV
 
       IMPLICIT NONE
-
 
 C sln =-=-=-=-=-=-=  DDM-3D sensitivity variables
 
@@ -106,18 +107,54 @@ C sln =-=-=-=-=-=-=  DDM-3D sensitivity variables
       REAL(KIND=8), DIMENSION(n_aerospc) :: fi   ! Size distribution for concentration
       REAL(KIND=8) fji                           ! 
 
-      INTEGER, SAVE :: LOGDEV
-      LOGICAL, SAVE :: FIRSTIME = .TRUE.
+c     INTEGER, SAVE :: LOGDEV
+c     LOGICAL, SAVE :: FIRSTIME = .TRUE.
       CHARACTER( 96 ) :: XMSG = ' '
       INTEGER ALLOCSTAT
+
+      INTERFACE
+
+        SUBROUTINE total_sens(stot,ncomp,ip)
+            REAL*8,  INTENT( OUT )   :: stot(ncomp)
+            INTEGER, INTENT( IN )    :: ncomp
+            INTEGER, INTENT( IN )    :: ip
+        END SUBROUTINE total_sens
+
+        SUBROUTINE aero_sens_calc2(stot,psen,s1,s2,s1d,s2d,SCASI,FCOL)
+            REAL*8,  INTENT( IN  )          :: stot(ncomp)
+            REAL*8,  INTENT( OUT )          :: psen(nsize)
+            REAL*8,  INTENT( IN  )          :: s1(nsize)
+            REAL*8,  INTENT( IN  )          :: s2(nsize)
+            REAL*8,  INTENT( IN  )          :: s1d(nsize)
+            REAL*8,  INTENT( IN  )          :: s2d(nsize)
+            CHARACTER( 15 ), INTENT( IN )   :: SCASI
+            INTEGER, INTENT( INOUT )        :: FCOL(nsize)
+        END SUBROUTINE total_sens_calc2
+
+        SUBROUTINE aero_sens_calc1(stot,psen,psend,SCASI,FCOL)
+            REAL*8,  INTENT( IN  )          :: stot(ncomp)
+            REAL*8,  INTENT( OUT )          :: psen(nsize)
+            REAL*8,  INTENT( OUT )          :: psend(nsize)
+            CHARACTER( 15 ), INTENT( IN )   :: SCASI
+            INTEGER, INTENT( INOUT )        :: FCOL(nsize)
+        END SUBROUTINE aero_sens_calc1
+        
+        SUBROUTINE asupdt(psen,fi,ncomp,nsize,ip, FCOL)
+            REAL*8,  INTENT( IN )          :: psen(nsize)
+            INTEGER, INTENT( IN )          :: ncomp
+            INTEGER, INTENT( IN )          :: nsize
+            INTEGER, INTENT( IN )          :: ip
+            INTEGER, INTENT( IN )          :: FCOL(nsize)
+        END SUBROUTINE asupdt
+
+      END INTERFACE
+              
 
 C sln =-=-=-=-=-=-=  end DDM-3D sensitivity variables
 
 c-----------------------------------------------------------------------------------------------------------------------
 
       IF ( FIRSTIME ) THEN
-         FIRSTIME = .FALSE.
-         LOGDEV = INIT3 ()
          ALLOCATE( sens1 ( nsize, NPMAX ), 
      &             sens1d( nsize, NPMAX ),
      &             STAT = ALLOCSTAT )
@@ -126,6 +163,8 @@ c-------------------------------------------------------------------------------
             CALL M3EXIT( 'aero_sens', 0 , 0, XMSG, XSTAT2 )
          END IF
       END IF
+
+      FCOL = 0
 
 c calculate modal fractions
 
@@ -226,6 +265,7 @@ c-------------------------------------------------------------------------------
       Use aero_ddm3d, ONLY : cbsens
  
       USE UTILIO_DEFN
+      USE RUNTIME_VARS, ONLY: LOGDEV
 
 c     USE DDM3D_DEFN, ONLY : WRFLAG
 
@@ -238,15 +278,15 @@ c     USE DDM3D_DEFN, ONLY : WRFLAG
   
       real(kind=8), dimension(ncomp)   :: stot
  
-      INTEGER, SAVE :: LOGDEV
-      LOGICAL, SAVE :: FIRSTIME = .TRUE.
+c     INTEGER, SAVE :: LOGDEV
+c     LOGICAL, SAVE :: FIRSTIME = .TRUE.
 
 c-----------------------------------------------------------------------------------------------------------------------
 
-      IF ( FIRSTIME ) THEN
-         FIRSTIME = .FALSE.
-         LOGDEV = INIT3 ()
-      END IF
+c     IF ( FIRSTIME ) THEN
+c        FIRSTIME = .FALSE.
+c        LOGDEV = INIT3 ()
+c     END IF
 
  
       stot = 0.0d0
@@ -317,6 +357,7 @@ c     22 MAR 2017: S.L.Napelenok do updates only if case was solved.
      &                      ACA_IDX, AK_IDX, AMG_IDX, n_aerospc
       USE PRECURSOR_DATA, ONLY : precursor_mw, HNO3_IDX, NH3_IDX, SULPRD_IDX, HCL_IDX
       USE UTILIO_DEFN
+      USE RUNTIME_VARS, ONLY: LOGDEV
  
 c     USE DDM3D_DEFN, ONLY : WRFLAG
 
@@ -339,13 +380,13 @@ c     USE DDM3D_DEFN, ONLY : WRFLAG
       integer, parameter               :: jHCL  = 13
       integer, parameter               :: jHNO3 = 14
 
-      INTEGER, SAVE :: LOGDEV
-      LOGICAL, SAVE :: FIRSTIME = .TRUE.
+c     INTEGER, SAVE :: LOGDEV
+c     LOGICAL, SAVE :: FIRSTIME = .TRUE.
 
-      IF ( FIRSTIME ) THEN
-         FIRSTIME = .FALSE.
-         LOGDEV = INIT3 ()
-      ENDIF
+c     IF ( FIRSTIME ) THEN
+c        FIRSTIME = .FALSE.
+c        LOGDEV = INIT3 ()
+c     ENDIF
 
 c Filter very small numbers
       do m = 1, nsize
@@ -422,4 +463,5 @@ c     endif
       return
       end
   
-  
+#endif
+

@@ -1,4 +1,4 @@
-
+#ifdef sens
 !------------------------------------------------------------------------!
 !  The Community Multiscale Air Quality (CMAQ) system software is in     !
 !  continuous development by various groups and is based on information  !
@@ -58,16 +58,47 @@ c     IMPLICIT NONE
       DOUBLE PRECISION COEF(NSEN,NSEN)        ! COEFFICIENT MATRIX 
       DOUBLE PRECISION DGAMA(NIONSPC,NPAIR)   ! dGAMA/dA
     
-c     LOGICAL, SAVE :: FIRSTIME = .TRUE.
-
-c     IF ( FIRSTIME ) THEN
-c        FIRSTIME = .FALSE.
-c        LOGDEV = INIT3 ()
-c     ENDIF
-
       INTEGER I
 
+      INTERFACE
+         
+         SUBROUTINE FLAGS( FROW, FCOL )
+            INTEGER, INTENT( OUT )   :: FROW(NSEN)
+            INTEGER, INTENT( OUT )   :: FCOL(NSEN)
+         END SUBROUTINE FLAGS
+
+         SUBROUTINE  AMAT( COEF, FROW, FCOL, DGAMA )
+            REAL*8,  INTENT( OUT )   :: COEF(NSEN,NSEN) 
+            INTEGER, INTENT( IN )    :: FROW(NSEN)
+            INTEGER, INTENT( IN )    :: FCOL(NSEN)
+            REAL*8,  INTENT( IN )    :: DGAMA(NIONSPC,NPAIR) 
+         END SUBROUTINE AMAT
+
+         SUBROUTINE  DELGAMA1( DGAMA )
+            REAL*8,  INTENT( INOUT ) :: DGAMA(NIONSPC,NPAIR)
+         END SUBROUTINE DELGAMA1
+         
+         SUBROUTINE DELGAMA2( DGAMA )
+            REAL*8,  INTENT( INOUT ) :: DGAMA(NIONSPC,NPAIR)
+         END SUBROUTINE DELGAMA2
+
+         SUBROUTINE EQNSLV( FROW, FCOL, COEF, SENS, SENSD )
+            INTEGER, INTENT( IN )    :: FROW(NSEN)
+            INTEGER, INTENT( IN )    :: FCOL(NSEN)
+            REAL*8,  INTENT( IN )    :: COEF(NSEN,NSEN) 
+            REAL*8,  INTENT( OUT )   :: SENS(NSEN) 
+            REAL*8,  INTENT( OUT )   :: SENSD(NSEN) 
+         END SUBROUTINE EQNSLV
+
+      END INTERFACE
+
+
       CC = SCASI(1:1)
+      DGAMA = 0.0D0
+      SENS  = 0.0D0
+      SENSD = 0.0D0
+      FROW  = 0
+      FCOL  = 0
 
 C sln 13feb2015 prevent small number from messing up the matrix solution
       DO I = 1,NIONS
@@ -109,7 +140,7 @@ c    &    CC.EQ.'G'.OR.CC.EQ.'H'.OR.CC.EQ.'I'.OR.
 c    &    CC.EQ.'J') THEN
 c       CALL DELGAMA1( DGAMA )
 c     ELSE
-c        CALL DELGAMA2( DGAMA,frow )
+c        CALL DELGAMA2( DGAMA )
 c     ENDIF
 
       DGAMA = 0.0D0 ! set to ignore activity
@@ -164,15 +195,6 @@ c     IMPLICIT NONE
       INCLUDE 'aero_sens_data.inc'
 
       INTEGER FROW(NSEN),FCOL(NSEN)
-
-c     INTEGER, SAVE :: LOGDEV
-c     LOGICAL, SAVE :: FIRSTIME = .TRUE.
-
-c     IF ( FIRSTIME ) THEN
-c        FIRSTIME = .FALSE.
-c        LOGDEV = INIT3 ()
-c     ENDIF
-
       INTEGER I,J,K
 
       
@@ -365,14 +387,6 @@ c     IMPLICIT NONE
       DOUBLE PRECISION SION
 
       DOUBLE PRECISION CH
-c     INTEGER, SAVE :: LOGDEV
-c     LOGICAL, SAVE :: FIRSTIME = .TRUE.
-
-c     IF ( FIRSTIME ) THEN
-c        FIRSTIME = .FALSE.
-c        LOGDEV = INIT3 ()
-c     ENDIF
-
       INTEGER I,J,K
 
 C 
@@ -511,7 +525,7 @@ C
 C ============================================================================
 C CALCULATE dGAMA/dA, A IS IONIC SPECIES FOR O-K CASES
 C ============================================================================
-      SUBROUTINE DELGAMA2 ( DGAMA,frow )
+      SUBROUTINE DELGAMA2 ( DGAMA )
 
 c     IMPLICIT NONE
 
@@ -527,7 +541,6 @@ c     IMPLICIT NONE
 
       DOUBLE PRECISION CH
 
-      integer frow(nsen)
       INTEGER I,J,K
 
 C 
@@ -927,21 +940,6 @@ c     IMPLICIT NONE
       DOUBLE PRECISION DGAMA(NIONSPC,NPAIR)
 
       DOUBLE PRECISION AM_TEMP(NSEN)
-
-c     INTEGER, SAVE :: LOGDEV
-c     LOGICAL, SAVE :: FIRSTIME = .TRUE.
-
-c     IF ( FIRSTIME ) THEN
-c        FIRSTIME = .FALSE.
-c        LOGDEV = INIT3 ()
-c     ENDIF
-
-c     DO I = 1,NSEN
-c        DO J = 1,NSEN
-c           AM(I,J) = 0.D0
-c        ENDDO
-c     ENDDO
-
       INTEGER I,J,K, iEQ
       REAL*8 C1, C2
 
@@ -1812,15 +1810,6 @@ c     IMPLICIT NONE
       INTEGER I,J,K
       INTEGER ICOL, INFO, IROW, IPVT
 
-c     INTEGER, SAVE :: LOGDEV
-c     LOGICAL, SAVE :: FIRSTIME = .TRUE.
-
-c     IF ( FIRSTIME ) THEN
-c        FIRSTIME = .FALSE.
-c        LOGDEV = INIT3 ()
-c     ENDIF
-
-
 C
 C *** ELIMINATE A-MATRIX AND B-VECTOR ***
 C
@@ -1838,7 +1827,6 @@ C
            BB(I) = SINI(IROW)
          ENDIF
       ENDDO
-
 
 C
 C *** LU-DECOMPOSITION ***
@@ -1907,15 +1895,6 @@ c     IMPLICIT NONE
       DOUBLE PRECISION SENS(NSEN)
       DOUBLE PRECISION DPSI,GR,C,SR
      
-c     INTEGER, SAVE :: LOGDEV
-c     LOGICAL, SAVE :: FIRSTIME = .TRUE.
-
-c     IF ( FIRSTIME ) THEN
-c        FIRSTIME = .FALSE.
-c        LOGDEV = INIT3 ()
-c     ENDIF
-
-
 c     IF (WATER.LE.TINY) RETURN
       IF ( WATER       .LE. TINY .OR.
      &     MOLAL(jNH4) .LE. TINY .OR.
@@ -1978,14 +1957,6 @@ c     IMPLICIT NONE
 
       DOUBLE PRECISION SENS(NSEN)
       DOUBLE PRECISION DNO,DCL,C11,C12,C21,C22,B1,B2,SR,WR,GR
-
-c     INTEGER, SAVE :: LOGDEV
-c     LOGICAL, SAVE :: FIRSTIME = .TRUE.
-
-c     IF ( FIRSTIME ) THEN
-c        FIRSTIME = .FALSE.
-c        LOGDEV = INIT3 ()
-c     ENDIF
 
       IF (WATER.LE.TINY) THEN
          SENS(jHNO3) = SINI(iMBNO3)
@@ -2531,3 +2502,7 @@ c
    30 continue
       return
       end
+
+
+
+#endif

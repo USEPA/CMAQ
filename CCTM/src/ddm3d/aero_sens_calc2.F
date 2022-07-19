@@ -1,4 +1,4 @@
-
+#ifdef sens
 !------------------------------------------------------------------------!
 !  The Community Multiscale Air Quality (CMAQ) system software is in     !
 !  continuous development by various groups and is based on information  !
@@ -61,18 +61,64 @@ c     IMPLICIT NONE
       DOUBLE PRECISION DGAMA(NIONSPC,NPAIR)   !dGAMA/dA
       DOUBLE PRECISION RGAMA(NPAIR)       ! RHS FROM 2ND-ORDER GAMA SENSITIVITIES
 
-c     INTEGER, SAVE :: LOGDEV
-c     LOGICAL, SAVE :: FIRSTIME = .TRUE.
-
-
-c     IF ( FIRSTIME ) THEN
-c        FIRSTIME = .FALSE.
-c        LOGDEV = INIT3 ()
-c     ENDIF
-
       INTEGER I
 
+      INTERFACE
+         
+         SUBROUTINE FLAGS( FROW, FCOL )
+            INTEGER, INTENT( OUT )   :: FROW(NSEN)
+            INTEGER, INTENT( OUT )   :: FCOL(NSEN)
+         END SUBROUTINE FLAGS
+
+         SUBROUTINE  AMAT( COEF, FROW, FCOL, DGAMA )
+            REAL*8,  INTENT( OUT )   :: COEF(NSEN,NSEN) 
+            INTEGER, INTENT( IN )    :: FROW(NSEN)
+            INTEGER, INTENT( IN )    :: FCOL(NSEN)
+            REAL*8,  INTENT( IN )    :: DGAMA(NIONSPC,NPAIR) 
+         END SUBROUTINE AMAT
+
+         SUBROUTINE  DELGAMA1( DGAMA )
+            REAL*8,  INTENT( INOUT ) :: DGAMA(NIONSPC,NPAIR)
+         END SUBROUTINE DELGAMA1
+         
+         SUBROUTINE DELGAMA2( DGAMA )
+            REAL*8,  INTENT( INOUT ) :: DGAMA(NIONSPC,NPAIR)
+         END SUBROUTINE DELGAMA2
+
+         SUBROUTINE RHSGAMA1( RGAMA, S1D, S2D )
+            REAL*8,  INTENT( INOUT ) :: RGAMA(NPAIR) 
+            REAL*8,  INTENT( IN    ) :: S1D(NSEN)
+            REAL*8,  INTENT( IN    ) :: S2D(NSEN)   
+         END SUBROUTINE RHSGAMA1
+
+         SUBROUTINE RHSGAMA2( RGAMA, S1D, S2D )
+            REAL*8,  INTENT( INOUT ) :: RGAMA(NPAIR) 
+            REAL*8,  INTENT( IN    ) :: S1D(NSEN)
+            REAL*8,  INTENT( IN    ) :: S2D(NSEN)
+         END SUBROUTINE RHSGAMA2
+
+         SUBROUTINE RHS( S1D, S2D, RGAMA, FROW )
+            REAL*8,  INTENT( IN    ) :: S1D(NSEN)
+            REAL*8,  INTENT( IN    ) :: S2D(NSEN)
+            REAL*8,  INTENT( INOUT ) :: RGAMA(NPAIR) 
+            INTEGER, INTENT( IN )    :: FROW(NSEN)
+         END SUBROUTINE RHS
+
+         SUBROUTINE EQNSLV( FROW, FCOL, COEF, SENS, SENSD )
+            INTEGER, INTENT( IN )    :: FROW(NSEN)
+            INTEGER, INTENT( IN )    :: FCOL(NSEN)
+            REAL*8,  INTENT( IN )    :: COEF(NSEN,NSEN) 
+            REAL*8,  INTENT( OUT )   :: SENS(NSEN) 
+            REAL*8,  INTENT( OUT )   :: SENSD(NSEN) 
+         END SUBROUTINE EQNSLV
+
+      END INTERFACE
+
+
       CC = SCASI(1:1)
+      DGAMA = 0.0D0 
+      RGAMA = 0.0D0 
+
 
 C *** INITIALIZE SINI ***
 
@@ -102,7 +148,7 @@ c    &    CC.EQ.'J') THEN
 c        CALL DELGAMA1( DGAMA )
 c        CALL RHSGAMA1( RGAMA, S1D, S2D )
 c     ELSE
-c        CALL DELGAMA2( DGAMA,frow )
+c        CALL DELGAMA2( DGAMA )
 c        CALL RHSGAMA2( RGAMA, S1D, S2D )
 c     ENDIF
 
@@ -1004,4 +1050,5 @@ c     IF (MOLAL(jHSO4).EQ.ZERO) RETURN
       RETURN
       END  
 
+#endif
 
