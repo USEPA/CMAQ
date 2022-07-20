@@ -257,7 +257,9 @@ C**********************************************************************
 
       END IF
 
+#ifdef sens
         CAVEG = 0.0D0
+#endif
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  Set up for debug output and initialize variables
