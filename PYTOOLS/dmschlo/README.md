@@ -29,12 +29,11 @@ chlorophyll-a (CHLO) concentrations (`mg/m**3`).
 
 This processor requires a CMAQ OCEAN file as an input. OCEAN is a time-
 independent I/O API file that identifies the fractional [0-1] coverage in each
-model grid cell allocated to open ocean (OPEN) or surf zone (SURF). OPEN and
-SURF should already account for SEAICE grid cell coverage. This affects seasalt
-emissions, and is not relevant for DMS or halogens except indirectly via
-seasalt.
+model grid cell allocated to open ocean (OPEN) or surf zone (SURF). This
+affects seasalt emissions, and is not relevant for DMS or halogens except
+indirectly via seasalt.
 
-For details on how to make a OCEAN file, see the [OCEAN File Tutorial](https://github.com/USEPA/CMAQ_Dev/blob/operational/DOCS/Users_Guide/Tutorials/CMAQ_UG_tutorial_oceanfile.md)
+For details on how to make a OCEAN file, see the [OCEAN File Tutorial](../../DOCS/Users_Guide/Tutorials/CMAQ_UG_tutorial_oceanfile.md)
 
 DMS and CHLO have previously been provided by scripts maintained and run by
 Brett Gantt but was never released to the public. This tool uses similar inputs
