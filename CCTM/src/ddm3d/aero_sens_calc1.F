@@ -1,4 +1,3 @@
-#ifdef sens
 !------------------------------------------------------------------------!
 !  The Community Multiscale Air Quality (CMAQ) system software is in     !
 !  continuous development by various groups and is based on information  !
@@ -38,31 +37,38 @@ C     Geoscientific Model Development, 5(2), 355-368.
 C     doi: 10.5194/gmd-5-355-2012
 C ===================================================================
 
+#ifdef sens
       SUBROUTINE AERO_SENS_CALC1(STOT,SENS,SENSD,SCASI,FCOL)
+
 
 c     USE DDM3D_DEFN, ONLY : WRFLAG
       Use aero_ddm3d, ONLY : cbsens
+      USE UTILIO_DEFN         ! I/O API
+
+c     IMPLICIT NONE
 
       INCLUDE 'isrpia.inc'
       INCLUDE 'aero_sens_data.inc'
 
-      DOUBLE PRECISION STOT(NCOMP)            ! (input) gas+pm total sensitivity
-      DOUBLE PRECISION SENS(NSEN)             ! (output) partitioned SENSITIVITIES
-      DOUBLE PRECISION SENSD(NSEN)            ! (output) partitioned SENSITIVITIES BEFORE MINOR
-      CHARACTER( 15 ) :: SCASI                ! (input) subcase number from ISOROPIA
+      DOUBLE PRECISION, INTENT( IN  ) :: STOT( : )  ! (input) gas+pm total sensitivity
+      DOUBLE PRECISION, INTENT( OUT ) :: SENS( : )  ! (output) partitioned SENSITIVITIES
+      DOUBLE PRECISION, INTENT( OUT ) :: SENSD( : ) ! (output) partitioned SENSITIVITIES BEFORE MINOR
+      CHARACTER( 15 ),  INTENT( IN  ) :: SCASI      ! (input) subcase number from ISOROPIA
+      INTEGER, INTENT( IN ) :: FCOL( : )            ! Flags for matrix reduction
 
-      INTEGER FROW(NSEN),FCOL(NSEN)           ! Flags for matrix reduction
+      INTEGER FROW( NSEN )           ! Flags for matrix reduction
       DOUBLE PRECISION COEF(NSEN,NSEN)        ! COEFFICIENT MATRIX 
       DOUBLE PRECISION DGAMA(NIONSPC,NPAIR)   ! dGAMA/dA
     
-      INTEGER, SAVE :: LOGDEV
-      LOGICAL, SAVE :: FIRSTIME = .TRUE.
+c     LOGICAL, SAVE :: FIRSTIME = .TRUE.
 
-      IF ( FIRSTIME ) THEN
-         FIRSTIME = .FALSE.
-         LOGDEV = INIT3 ()
-      ENDIF
-      
+c     IF ( FIRSTIME ) THEN
+c        FIRSTIME = .FALSE.
+c        LOGDEV = INIT3 ()
+c     ENDIF
+
+      INTEGER I
+
       CC = SCASI(1:1)
 
 C sln 13feb2015 prevent small number from messing up the matrix solution
@@ -144,7 +150,7 @@ c     ENDIF
 
 C *** END OF DDMSENS ***
       RETURN
-      END
+      END  SUBROUTINE AERO_SENS_CALC1
 
 C ============================================================================
 C SET FLAGS FOR MATRIX SUBSTRACTION
@@ -152,21 +158,24 @@ C ============================================================================
       SUBROUTINE FLAGS(FROW,FCOL)
 
 c     USE DDM3D_DEFN, ONLY : WRFLAG
+      USE UTILIO_DEFN         ! I/O API
 
-
+c     IMPLICIT NONE
 
       INCLUDE 'isrpia.inc'
       INCLUDE 'aero_sens_data.inc'
 
       INTEGER FROW(NSEN),FCOL(NSEN)
 
-      INTEGER, SAVE :: LOGDEV
-      LOGICAL, SAVE :: FIRSTIME = .TRUE.
+c     INTEGER, SAVE :: LOGDEV
+c     LOGICAL, SAVE :: FIRSTIME = .TRUE.
 
-      IF ( FIRSTIME ) THEN
-         FIRSTIME = .FALSE.
-         LOGDEV = INIT3 ()
-      ENDIF
+c     IF ( FIRSTIME ) THEN
+c        FIRSTIME = .FALSE.
+c        LOGDEV = INIT3 ()
+c     ENDIF
+
+      INTEGER I,J,K
 
       
 C *** CLEAR FLAGS ***
@@ -357,6 +366,7 @@ c     IMPLICIT NONE
       DOUBLE PRECISION DGAMA(NIONSPC,NPAIR)
       DOUBLE PRECISION SION
 
+      DOUBLE PRECISION CH
 c     INTEGER, SAVE :: LOGDEV
 c     LOGICAL, SAVE :: FIRSTIME = .TRUE.
 
@@ -364,6 +374,8 @@ c     IF ( FIRSTIME ) THEN
 c        FIRSTIME = .FALSE.
 c        LOGDEV = INIT3 ()
 c     ENDIF
+
+      INTEGER I,J,K
 
 C 
 C *** Mapping of electrolyte to ion index ***
@@ -502,7 +514,9 @@ C ============================================================================
 C CALCULATE dGAMA/dA, A IS IONIC SPECIES FOR O-K CASES
 C ============================================================================
       SUBROUTINE DELGAMA2 ( DGAMA,frow )
- 
+
+c     IMPLICIT NONE
+
       INCLUDE 'isrpia.inc'
       INCLUDE 'aero_sens_data.inc'
       INCLUDE 'dact.inc'
@@ -513,7 +527,10 @@ C ============================================================================
       DOUBLE PRECISION DGAMA(NIONSPC,NPAIR)
       DOUBLE PRECISION SION
 
+      DOUBLE PRECISION CH
+
       integer frow(nsen)
+      INTEGER I,J,K
 
 C 
 C *** Mapping of electrolyte to ion index ***
@@ -733,11 +750,11 @@ C =============================================================================
 
       INTEGER   NPAIRD, I, J, K
       PARAMETER (NPAIRD=10)               ! Number of ion pairs whose Q value is available
-      INTEGER   IG(NPAIRD)
+      INTEGER, SAVE :: IG(NPAIRD)
       DATA IG / 1,2,3,4,5,6,7,8,10,11 /
-      REAL    ZI(NPAIRD)                ! Mapping of Q to the internal order of ion pairs
+      REAL, SAVE :: ZI(NPAIRD)                ! Mapping of Q to the internal order of ion pairs
       DATA ZI / 1., 2., 1., 2., 1., 1., 2., 1., 1., 1. /
-      REAL  Q(NPAIRD)                 ! Kusik-Meissner parameters (see KMFUL)
+      REAL, SAVE :: Q(NPAIRD)                 ! Kusik-Meissner parameters (see KMFUL)
       DATA Q  / 2.23,-0.19,-0.39,-0.25,-1.15,0.82,-0.1,
      &          8.0,2.6,6.0 /
 
@@ -798,12 +815,12 @@ C =============================================================================
 
       INTEGER   NPAIRD, I, K
       PARAMETER (NPAIRD=18)               ! Number of ion pairs whose Q value is available
-      INTEGER   IG(NPAIRD)
+      INTEGER, SAVE :: IG(NPAIRD)
       DATA IG / 1,2,3,4,5,6,7,8,10,11,15,16,17,19,20,21,22,23 /
-      REAL      ZI(NPAIRD)                ! Mapping of Q to the internal order of ion pairs
+      REAL,    SAVE :: ZI(NPAIRD)                ! Mapping of Q to the internal order of ion pairs
       DATA ZI / 1., 2., 1., 2., 1., 1., 2., 1., 1., 1., 2., 2., 
      &          2., 1., 1., 4., 2., 2. /
-      REAL      Q(NPAIRD)                 ! Kusik-Meissner parameters (see KMFUL)
+      REAL, SAVE ::    Q(NPAIRD)                 ! Kusik-Meissner parameters (see KMFUL)
       DATA Q  / 2.23,-0.19,-0.39,-0.25,-1.15,0.82,-0.1,8.0,2.6,6.0,
      &          0.93,2.4,-0.25,-2.33,0.92,0.15,2.32,2.9 /
 C
@@ -858,6 +875,8 @@ C =============================================================================
 
       SUBROUTINE DMKBI (N,Q,IONIC,SION,CUBI,ZIP,G,DELI,DELG)
 C
+      IMPLICIT NONE
+        
       INTEGER            N, K
       REAL               IONIC, SION, CUBI, Q, ZIP
       DOUBLE PRECISION   G, DELI(N), DELG(N)
@@ -900,6 +919,8 @@ C =============================================================================
       USE UTILIO_DEFN
 c     USE DDM3D_DEFN, ONLY : WRFLAG
 
+c     IMPLICIT NONE
+
       INCLUDE 'isrpia.inc'
       INCLUDE 'aero_sens_data.inc'
 
@@ -909,19 +930,23 @@ c     USE DDM3D_DEFN, ONLY : WRFLAG
 
       DOUBLE PRECISION AM_TEMP(NSEN)
 
-      INTEGER, SAVE :: LOGDEV
-      LOGICAL, SAVE :: FIRSTIME = .TRUE.
+c     INTEGER, SAVE :: LOGDEV
+c     LOGICAL, SAVE :: FIRSTIME = .TRUE.
 
-      IF ( FIRSTIME ) THEN
-         FIRSTIME = .FALSE.
-         LOGDEV = INIT3 ()
-      ENDIF
+c     IF ( FIRSTIME ) THEN
+c        FIRSTIME = .FALSE.
+c        LOGDEV = INIT3 ()
+c     ENDIF
 
 c     DO I = 1,NSEN
 c        DO J = 1,NSEN
 c           AM(I,J) = 0.D0
 c        ENDDO
 c     ENDDO
+
+      INTEGER I,J,K, iEQ
+      REAL*8 C1, C2
+
 
       AM = 0.D0 
 
@@ -1013,7 +1038,7 @@ c     ENDDO
       IF (FROW(iEQ).EQ.1) THEN
          C1 =  3.*LN10
          DO I = 1, NIONSPC
-            AM(iEQ,I) = C1*DGAMA(I,mNN42S4)
+            AM(iEQ,I) = C1*DGAMA(I,mNH42S4)
          ENDDO
          AM(iEQ,jNH4)  = AM(iEQ,jNH4)  + 2.*ONE/MOLALD(jNH4)
          AM(iEQ,jSO4)  = AM(iEQ,jSO4)  +    ONE/MOLALD(jSO4)
@@ -1326,6 +1351,8 @@ C
 
       SUBROUTINE DZSR(SW)
 
+c     IMPLICIT NONE
+
       INCLUDE 'isrpia.inc'
       INCLUDE 'aero_sens_data.inc'
 
@@ -1333,6 +1360,8 @@ C
       DOUBLE PRECISION SO4I  ,HSOI ,AML5
       DOUBLE PRECISION FRNH4 ,FRCA ,FRK ,FRMG ,FRSO4 ,FRCL ,FRNO3,
      &                 DFRNH4,DFRCA,DFRK,DFRMG,DFRSO4,DFRCL,DFRNO3
+
+      DOUBLE PRECISION HSO4I, FRNA, DFRNA, DDRCL
 
       SW(jH2O) = -1.D0
       RHS      = 0.D0
@@ -1660,12 +1689,15 @@ C
       END
 
       SUBROUTINE DCALCI1A(TSW)
-      
+     
+c     IMPLICIT NONE
+
       INCLUDE 'isrpia.inc'
       INCLUDE 'aero_sens_data.inc'
 
       DOUBLE PRECISION TSW(NSEN)
       DOUBLE PRECISION FRSO4
+      INTEGER I,J,K
 
       DO I = 1, NSEN
          TSW(I) = 0.0
@@ -1696,12 +1728,17 @@ C
       END
                     
       SUBROUTINE DCALCL1A(TSW)
-      
+
+c     IMPLICIT NONE
+
       INCLUDE 'isrpia.inc'
       INCLUDE 'aero_sens_data.inc'
 
       DOUBLE PRECISION TSW(NSEN)
       DOUBLE PRECISION FRSO4
+      INTEGER I,J,K
+
+      DOUBLE PRECISION DFRSO4, FRSO4T, DFRSO4T
 
       DO I = 1, NSEN
          TSW(I) = 0.0
@@ -1760,8 +1797,10 @@ C
       SUBROUTINE EQNSLV(FROW,FCOL,COEF,SENS,SENSD)
 
 c     USE DDM3D_DEFN, ONLY : WRFLAG
+      USE UTILIO_DEFN         ! I/O API
+      USE RUNTIME_VARS, ONLY: LOGDEV
 
-
+c     IMPLICIT NONE
       
       INCLUDE 'isrpia.inc'
       INCLUDE 'aero_sens_data.inc'
@@ -1772,14 +1811,16 @@ c     USE DDM3D_DEFN, ONLY : WRFLAG
       DIMENSION IPVT(NDIM)
       DOUBLE PRECISION AA(NDIM,NDIM),BB(NDIM)
       DOUBLE PRECISION AAT(NDIM*NDIM)
+      INTEGER I,J,K
+      INTEGER ICOL, INFO, IROW, IPVT
 
-      INTEGER, SAVE :: LOGDEV
-      LOGICAL, SAVE :: FIRSTIME = .TRUE.
+c     INTEGER, SAVE :: LOGDEV
+c     LOGICAL, SAVE :: FIRSTIME = .TRUE.
 
-      IF ( FIRSTIME ) THEN
-         FIRSTIME = .FALSE.
-         LOGDEV = INIT3 ()
-      ENDIF
+c     IF ( FIRSTIME ) THEN
+c        FIRSTIME = .FALSE.
+c        LOGDEV = INIT3 ()
+c     ENDIF
 
 
 C
@@ -1860,6 +1901,8 @@ C
 
       SUBROUTINE DCALCNH3(SENS)
 
+c     IMPLICIT NONE
+
       INCLUDE 'isrpia.inc'
       INCLUDE 'aero_sens_data.inc'
  
@@ -1897,6 +1940,8 @@ c     IF (WATER.LE.TINY) RETURN
 
       SUBROUTINE DCALCNA(SENS)
 
+c     IMPLICIT NONE
+
       INCLUDE 'isrpia.inc'
       INCLUDE 'aero_sens_data.inc'
 
@@ -1928,9 +1973,10 @@ c     IF (WTAER.LE.TINY) RETURN
 
       SUBROUTINE DCALCNHA(SENS)
 
+c     IMPLICIT NONE
+
       INCLUDE 'isrpia.inc'
       INCLUDE 'aero_sens_data.inc'
-
 
       DOUBLE PRECISION SENS(NSEN)
       DOUBLE PRECISION DNO,DCL,C11,C12,C21,C22,B1,B2,SR,WR,GR
@@ -1999,6 +2045,8 @@ c     IF (MOLAL(jCL).EQ.TINY.AND.MOLAL(jNO3).EQ.TINY) THEN
       
       SUBROUTINE DCALCHA(SENS)
 
+c     IMPLICIT NONE
+        
       INCLUDE 'isrpia.inc'
       INCLUDE 'aero_sens_data.inc'
 
@@ -2030,6 +2078,8 @@ c     IF (WTAER.LE.TINY) RETURN
 
 
       SUBROUTINE DCALCHS4(SENS)
+
+c     IMPLICIT NONE
 
       INCLUDE 'isrpia.inc'
       INCLUDE 'aero_sens_data.inc'
@@ -2483,6 +2533,4 @@ c
    30 continue
       return
       end
-
 #endif
-

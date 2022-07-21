@@ -1,5 +1,4 @@
 #ifdef sens
-
 !------------------------------------------------------------------------!
 !  The Community Multiscale Air Quality (CMAQ) system software is in     !
 !  continuous development by various groups and is based on information  !
@@ -43,19 +42,22 @@ C ===================================================================
 
 c     USE DDM3D_DEFN, ONLY : WRFLAG
 
+c     IMPLICIT NONE
+
       INCLUDE 'isrpia.inc'
       INCLUDE 'aero_sens_data.inc'
 
-      INTEGER FROW(NSEN),FCOL(NSEN)
-      DOUBLE PRECISION STOT(NCOMP)
-      DOUBLE PRECISION COEF(NSEN,NSEN)   !COEFFICIENT MATRIX 
-      DOUBLE PRECISION SENS(NSEN)        !OUTPUT, HDDM
-      DOUBLE PRECISION S1(NSEN)          !INPUT, 1ST ORDER SENS
-      DOUBLE PRECISION S2(NSEN)          !INPUT, 2ND ORDER SENS
-      DOUBLE PRECISION S1D(NSEN)         !INPUT, 1ST ORDER SENS
-      DOUBLE PRECISION S2D(NSEN)         !INPUT, 2ND ORDER SENS
-      CHARACTER( 15 ) :: SCASI                ! (input) subcase number from ISOROPIA
+      INTEGER, INTENT (INOUT) :: FCOL( : )
+      DOUBLE PRECISION, INTENT( IN    ) :: STOT( : )
+      DOUBLE PRECISION, INTENT( OUT   ) :: SENS( : )     !OUTPUT, HDDM
+      DOUBLE PRECISION, INTENT( IN    ) :: S1( : )       !INPUT, 1ST ORDER SENS
+      DOUBLE PRECISION, INTENT( IN    ) :: S2( : )       !INPUT, 2ND ORDER SENS
+      DOUBLE PRECISION, INTENT( IN    ) :: S1D( : )      !INPUT, 1ST ORDER SENS
+      DOUBLE PRECISION, INTENT( IN    ) :: S2D( : )      !INPUT, 2ND ORDER SENS
+      CHARACTER( 15 ),  INTENT( IN    ) :: SCASI         ! (input) subcase number from ISOROPIA
 
+      INTEGER FROW(NSEN)
+      DOUBLE PRECISION :: COEF(NSEN,NSEN) !COEFFICIENT MATRIX 
       DOUBLE PRECISION SENSD(NSEN)
       DOUBLE PRECISION DGAMA(NIONSPC,NPAIR)   !dGAMA/dA
       DOUBLE PRECISION RGAMA(NPAIR)       ! RHS FROM 2ND-ORDER GAMA SENSITIVITIES
@@ -68,6 +70,8 @@ c     IF ( FIRSTIME ) THEN
 c        FIRSTIME = .FALSE.
 c        LOGDEV = INIT3 ()
 c     ENDIF
+
+      INTEGER I
 
       CC = SCASI(1:1)
 
@@ -146,9 +150,12 @@ c     ENDIF
 C *** END OF HDDMSENS ***
 
       RETURN
-      END
+      END SUBROUTINE AERO_SENS_CALC2
          
       SUBROUTINE RHSGAMA1( RG, S1, S2 )
+
+c     IMPLICIT NONE
+        
       INCLUDE 'isrpia.inc'
       INCLUDE 'aero_sens_data.inc'
       INCLUDE 'dact.inc'
@@ -160,7 +167,10 @@ C *** END OF HDDMSENS ***
       DOUBLE PRECISION RX(3,4), RY(3,4)
       DOUBLE PRECISION RF1(3), RF2(4)
       DOUBLE PRECISION ISR, IM5, IM1, IM15
-  
+      DOUBLE PRECISION SUMZS1, SUMZS2, DN, DN2, DN3
+      INTEGER I, J
+      DOUBLE PRECISION ZPL, XPL, ZMI, XMI, CH, RXIJ, RYJI
+
       SUMZS1 = 0.D0
       SUMZS2 = 0.D0
 c     DO I = 1, NIONSPC
@@ -239,9 +249,12 @@ c     DO I = 1, NIONSPC
       ENDDO
   
       RETURN
-      END
+      END 
   
       SUBROUTINE RHSGAMA2( RG, S1, S2 )
+
+c     IMPLICIT NONE
+
       INCLUDE 'isrpia.inc'
       INCLUDE 'aero_sens_data.inc'
       INCLUDE 'dact.inc'
@@ -253,7 +266,10 @@ c     DO I = 1, NIONSPC
       DOUBLE PRECISION RX(6,4), RY(6,4)
       DOUBLE PRECISION RF1(6), RF2A(4), RF2B(4)
       DOUBLE PRECISION ISR, IM5, IM1, IM15
-  
+      INTEGER I, J
+      DOUBLE PRECISION ZPL, XPL, SUMZS1, SUMZS2, DN, DN2, DN3, ZMI, XMI
+      DOUBLE PRECISION CH, RXIJ, RYJI
+
       SUMZS1 = 0.D0
       SUMZS2 = 0.D0
 c     DO I = 1, NIONSPC
@@ -381,7 +397,9 @@ c     DO I = 1, NIONSPC
       END
   
       SUBROUTINE RDKMFUL(RG0,NPAIRS,IONIC,TEMP,RI,RHG,SI1,SI2)
-  
+
+      IMPLICIT NONE
+
       INTEGER N,NPAIRS
       REAL IONIC,TEMP
       DOUBLE PRECISION RI, RHG, RG0(NPAIRS)
@@ -399,6 +417,8 @@ c     DO I = 1, NIONSPC
 
       REAL SION  ! sln 13sep13
       REAL AGAMA ! sln 23sep13
+
+      REAL*8 TI, CF1, CF2, RCF2
 
       SION = SQRT(IONIC) ! sln 13sep13
       AGAMA = 0.511*(298.0/TEMP)**1.5 ! Debye Huckel const. at T  ! sln 23sep13
@@ -430,7 +450,9 @@ c     DO I = 1, NIONSPC
       END
   
       SUBROUTINE RDKMFUL2(RG0,NPAIRS,IONIC,TEMP,RI,RHG,SI1,SI2)
-  
+
+      IMPLICIT NONE
+
       INTEGER N,NPAIRS
       REAL IONIC,TEMP
       DOUBLE PRECISION RI, RHG, RG0(NPAIRS)
@@ -448,6 +470,8 @@ c     DO I = 1, NIONSPC
 
       REAL SION  ! sln 13sep13
       REAL AGAMA ! sln 23sep13
+
+      REAL*8 TI, CF1, CF2, RCF2
 
       SION = SQRT(IONIC) ! sln 13sep13
       AGAMA = 0.511*(298.0/TEMP)**1.5 ! Debye Huckel const. at T  ! sln 23sep13
@@ -477,7 +501,9 @@ c     DO I = 1, NIONSPC
       END
   
       SUBROUTINE RDMKBI(RG0, IONIC, Q, ZIP, RI, RHG, SI1, SI2)
-  
+
+      IMPLICIT NONE
+
       REAL IONIC, Q, ZIP
       DOUBLE PRECISION RI, RHG, RI1, RI2, RG0
       DOUBLE PRECISION SI1, SI2 ! sln 4sep14 
@@ -503,15 +529,19 @@ c     DO I = 1, NIONSPC
       END
   
       SUBROUTINE RHS(S1, S2, RG, FROW)
-       
+
+c     IMPLICIT NONE
+
       INCLUDE 'isrpia.inc'
       INCLUDE 'aero_sens_data.inc'
   
       DOUBLE PRECISION S1(NSEN), S2(NSEN)
       DOUBLE PRECISION RG(NPAIR)
       INTEGER          FROW(NSEN)
+      INTEGER iEQ
+      DOUBLE PRECISION C1, C2 
+      DOUBLE PRECISION CNA, CK, CMG
 
- 
       iEQ = iK1
  
       IF (FROW(iEQ).EQ.1) THEN
@@ -586,7 +616,7 @@ c     DO I = 1, NIONSPC
 
       IF (FROW(iEQ).EQ.1) THEN
          C1 = -3.*LN10
-         SINI(iEQ) =    C1*RG(mNN42S4)
+         SINI(iEQ) =    C1*RG(mNH42S4)
      &             + 2.*S1(jNH4)*S2(jNH4)/MOLALD(jNH4)/MOLALD(jNH4)
      &             +    S1(jSO4)*S2(jSO4)/MOLALD(jSO4)/MOLALD(jSO4)
      &             - 3.*S1(jH2O)*S2(jH2O)/WATER/WATER
@@ -755,6 +785,8 @@ c     DO I = 1, NIONSPC
   
       SUBROUTINE HDCALCNH3(SENS, S1, S2)
 
+c     IMPLICIT NONE
+
       INCLUDE 'isrpia.inc'
       INCLUDE 'aero_sens_data.inc'
  
@@ -786,6 +818,8 @@ c     IF (WATER.LE.TINY) RETURN
       END
 
       SUBROUTINE HDCALCNA(SENS, S1, S2)
+
+c     IMPLICIT NONE
 
       INCLUDE 'isrpia.inc'
       INCLUDE 'aero_sens_data.inc'
@@ -823,12 +857,14 @@ c     IF (WTAER.LE.TINY) RETURN
   
       SUBROUTINE HDCALCHA(SENS, S1, S2)
 
+c     IMPLICIT NONE
+
       INCLUDE 'isrpia.inc'
       INCLUDE 'aero_sens_data.inc'
 
       DOUBLE PRECISION SENS(NSEN), S1(NSEN), S2(NSEN)
       DOUBLE PRECISION DELT,GR,SR,WR,C
- 
+      DOUBLE PRECISION DCL, DNO 
  
 c     IF (WTAER.LE.TINY) RETURN
       IF (WATER.LE.TINY) RETURN
@@ -867,6 +903,8 @@ c     IF (WTAER.LE.TINY) RETURN
       END
   
       SUBROUTINE HDCALCNHA(SENS, S1, S2)
+
+c     IMPLICIT NONE
 
       INCLUDE 'isrpia.inc'
       INCLUDE 'aero_sens_data.inc'
@@ -929,6 +967,8 @@ c     IF (WTAER.LE.TINY) RETURN
       END
 
       SUBROUTINE HDCALCHS4(SENS, S1, S2)
+
+c     IMPLICIT NONE
 
       INCLUDE 'isrpia.inc'
       INCLUDE 'aero_sens_data.inc'

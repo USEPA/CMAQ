@@ -47,7 +47,7 @@ c     --  remove limiting checks for stot and psen
 c
 c  Variables passed from ISORROPIA:
 c
-c  W		total concentration vector (mole/m3-air)
+c  W            total concentration vector (mole/m3-air)
 c               WI(1) - sodium
 c               WI(2) - sulfate
 c               WI(3) - ammonium
@@ -61,13 +61,13 @@ c               SCASI - ISORROPIA case name
 c
 c  Variables calculated:
 c
-c  asen		speciated aerosol sensitivities (total of I & J modes)
-c  		asen(1)	aerosol sulfate
-c  		asen(2)	aerosol nitrate
-c  		asen(3)	aerosol ammonia
-c  		asen(4)	aerosol sodium
-c  		asen(5)	aerosol chlorine
-c  		asen(6)	aerosol hydrogen
+c  asen         speciated aerosol sensitivities (total of I & J modes)
+c               asen(1) aerosol sulfate
+c               asen(2) aerosol nitrate
+c               asen(3) aerosol ammonia
+c               asen(4) aerosol sodium
+c               asen(5) aerosol chlorine
+c               asen(6) aerosol hydrogen
 
       USE AERO_DATA, ONLY : aerospc_conc, aerospc_mw, ASO4_IDX, ANH4_IDX, ANO3_IDX, n_aerospc
       USE DDM3D_DEFN, ONLY : NPMAX, IPT, IPARM, HIGH, SEN_PAR, IHIGH
@@ -79,8 +79,8 @@ c  		asen(6)	aerosol hydrogen
 
 C sln =-=-=-=-=-=-=  DDM-3D sensitivity variables
 
-      CHARACTER( 15 )                   :: SCASI    ! (INPUT) subcase number output
-      REAL(KIND=8), DIMENSION(8)        :: W        ! (INPUT) WI concentrations 
+      CHARACTER( 15 ), INTENT( IN ) :: SCASI    ! (INPUT) subcase number output
+      REAL(KIND=8),    INTENT( IN ) :: W( : )   ! (INPUT) WI concentrations 
   
       REAL, PARAMETER                   :: cmin = 1.0E-25     ! minimum concentration
 
@@ -109,6 +109,26 @@ C sln =-=-=-=-=-=-=  DDM-3D sensitivity variables
       LOGICAL, SAVE :: FIRSTIME = .TRUE.
       CHARACTER( 96 ) :: XMSG = ' '
       INTEGER ALLOCSTAT
+
+      INTERFACE
+         SUBROUTINE AERO_SENS_CALC1(STOT,SENS,SENSD,SCASI,FCOL)
+            DOUBLE PRECISION, INTENT( IN  ) :: STOT( : )  ! (input) gas+pm total sensitivity
+            DOUBLE PRECISION, INTENT( OUT ) :: SENS( : )  ! (output) partitioned SENSITIVITIES
+            DOUBLE PRECISION, INTENT( OUT ) :: SENSD( : ) ! (output) partitioned SENSITIVITIES BEFORE MINOR
+            CHARACTER( 15 ),  INTENT( IN  ) :: SCASI      ! (input) subcase number from ISOROPIA
+            INTEGER, INTENT( IN ) :: FCOL( : )            ! Flags for matrix reduction
+         END SUBROUTINE AERO_SENS_CALC1
+         SUBROUTINE AERO_SENS_CALC2(STOT,SENS,S1,S2,S1D,S2D,SCASI,FCOL)
+            INTEGER, INTENT (INOUT) :: FCOL( : )
+            DOUBLE PRECISION, INTENT( IN    ) :: STOT( : )
+            DOUBLE PRECISION, INTENT( OUT   ) :: SENS( : )     !OUTPUT, HDDM
+            DOUBLE PRECISION, INTENT( IN    ) :: S1( : )       !INPUT, 1ST ORDER SENS
+            DOUBLE PRECISION, INTENT( IN    ) :: S2( : )       !INPUT, 2ND ORDER SENS
+            DOUBLE PRECISION, INTENT( IN    ) :: S1D( : )      !INPUT, 1ST ORDER SENS
+            DOUBLE PRECISION, INTENT( IN    ) :: S2D( : )      !INPUT, 2ND ORDER SENS
+            CHARACTER( 15 ),  INTENT( IN    ) :: SCASI         ! (input) subcase number from ISOROPIA
+         END SUBROUTINE AERO_SENS_CALC2
+      END INTERFACE
 
 C sln =-=-=-=-=-=-=  end DDM-3D sensitivity variables
 
@@ -319,6 +339,8 @@ c     22 MAR 2017: S.L.Napelenok do updates only if case was solved.
  
 c     USE DDM3D_DEFN, ONLY : WRFLAG
 
+      implicit none
+
       integer ncomp
       integer nsize
       INTEGER FCOL(nsize)           ! Flags for matrix reduction
@@ -418,6 +440,5 @@ c     endif
 
       return
       end
-
-#endif  
   
+#endif  
