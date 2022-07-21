@@ -212,7 +212,8 @@ C-----------------------------------------------------------------------
 
 #ifdef sens
       USE DDM3D_DEFN, ONLY : NP, NPMAX
-      USE AERO_DDM3D, ONLY : s_aerospc_conc, s_precursor_conc, s_so4rate, s_vapor_conc, s_orgprod_conc
+      USE AERO_DDM3D, ONLY : s_aerospc_conc, s_precursor_conc,
+     &                       s_so4rate
 #endif
 
 

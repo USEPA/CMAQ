@@ -22,12 +22,15 @@ c aero_data, precursor_data, soa_defn
       Real( 8 ), Allocatable, Save :: s_phg_rate( : )          ! particulate mercury gas-phase production rate [ug/m^3*s]
       Real( 8 ), Allocatable, Save :: s_xh2so4( : ) 
 
-      Real( 8 ), Allocatable, Save :: s_vapor_conc( :,: )      ! vapor sensitivity
-      Real( 8 ), Allocatable, Save :: s_orgprod_conc( :,: )    ! orgprod sensitivity
+      Real( 8 ), Allocatable, Save :: og_sens( :,: )           ! vapors sensitivity
+      Real( 8 ), Allocatable, Save :: rog_dsens( :,: )         ! reaction counters senstivity
 
       Logical, Save :: ae_ddm3d_ready = .False.
 
       Real( 8 ) :: cbsens
+
+
+      Logical, Save :: wrt_flag = .False.
 
       Contains
 C-----------------------------------------------------------------------
