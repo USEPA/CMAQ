@@ -383,6 +383,11 @@ C Set CGRID mechanism
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
          END IF
 
+#ifdef sens
+C Initialize ddm3d calculations
+         CALL INIT_DDM3D
+#endif
+
          CALL MAP_AERO()
 
 #ifdef verbose_driver
@@ -476,8 +481,6 @@ C Initialize optional derived vertical velocity writes to conc file
 
 #ifdef sens
 C Initialize ddm3d calculations
-         CALL INIT_DDM3D
-
          IF ( .NOT. S_PCGRID_IN( NPMAX ) ) THEN
             XMSG = 'Failure defining horizontal sens domain'
             CALL M3EXIT ( PNAME, 0, 0, XMSG, XSTAT2  )
