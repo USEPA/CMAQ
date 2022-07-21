@@ -142,7 +142,7 @@ C ===================================================================
       CHARACTER        CC*1
       DOUBLE PRECISION SINI(NSEN)          !INITIAL SENSITIVITIES
       DOUBLE PRECISION SGAMA(NPAIR)
-	  DOUBLE PRECISION SI1, SH1, SY1(6,4),SX1(6,4),SG01(NPAIR)
+      DOUBLE PRECISION SI1, SH1, SY1(6,4),SX1(6,4),SG01(NPAIR)
       DOUBLE PRECISION SI2, SH2, SY2(6,4),SX2(6,4),SG02(NPAIR)
       COMMON /DDMISO/ CC, SINI, SGAMA, NDIM,
      &                SI1, SH1, SY1, SX1, SG01,
