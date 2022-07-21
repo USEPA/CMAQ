@@ -28,7 +28,8 @@ C
 C         Ben Murphy 2022-03-25
 C-----------------------------------------------------------------------
           Use aero_data, only : n_aerolist, aerolist, modesuff,
-     &                          iait, iacc, icor, reqd_modes
+     &                          iait, iacc, icor, reqd_modes,
+     &                          populate_aerolist
           Use runtime_vars, only : log_message, log_subheading, logdev,
      &                             outdev, cmype
           Use cgrid_spcs_types
@@ -45,7 +46,9 @@ C-----------------------------------------------------------------------
           Character(300) xmsg
           Character(20) :: pname = 'aero_nml_modes'
           Logical eflag
-                    
+          
+          call populate_aerolist()
+
           aedat = ae_species_data
           aedat_mode = aedat
           nsp2 = 0
@@ -93,9 +96,9 @@ C-----------------------------------------------------------------------
                  else
                    ! Species is not a recognized aerosol chemical species or aerosol
                    ! parameter
-                   xmsg = 'An aerosol chemical species appears on the AE '//
-     &                     'namelist that is not available in AERO_DATA. Please '//
-     &                     'see the aerolist table.'
+                   xmsg = 'An aerosol chemical species '// TRIM(aedat(isp)%species_name)//
+     &                    'appears on the AE namelist that is not available in AERO_DATA. '//
+     &                    'Please see the aerolist table.'
                    Call log_message( OUTDEV, 'Error: '//xmsg )
                    eflag = .True.
                  end if

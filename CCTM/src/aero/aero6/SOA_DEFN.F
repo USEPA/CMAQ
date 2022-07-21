@@ -503,7 +503,7 @@ C-----------------------------------------------------------------------
       Real            :: vtmp
       Integer         :: n, a, g
       Integer         :: spc
-      Integer         :: map_OAtoOAlist( 200 )
+      Integer         :: map_OAtoOAlist( n_oa_list )
 
       ! Map All OA Species and Load Properties
       If ( .Not. mapped ) Then

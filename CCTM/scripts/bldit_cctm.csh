@@ -143,6 +143,9 @@ set make_options = "-j"                #> additional options for make command if
  else if ( ${Mechanism} =~ *cracmm* ) then  #> CRACMM family of aero and cloud chem
      set ModAero    = aero/cracmm           # > aerosol chemistry module (see $CMAQ_MODEL/CCTM/src/aero)
      set ModCloud   = cloud/acm_cracmm      # > cloud chemistry module (see $CMAQ_MODEL/CCTM/src/cloud)
+ else if ( ${Mechanism} =~ *2DVBS* ) then   #> 2DVBS family of aero and cloud chem
+     set ModAero    = aero/2DVBS            # > aerosol chemistry module (see $CMAQ_MODEL/CCTM/src/aero)
+     set ModCloud   = cloud/acm_2DVBS       # > cloud chemistry module (see $CMAQ_MODEL/CCTM/src/cloud)
  endif
 
  # Special cloud modules for kmt versions
