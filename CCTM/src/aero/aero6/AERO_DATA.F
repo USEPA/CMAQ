@@ -1381,8 +1381,9 @@ C Find indices of required species
       asoil_idx   = findAero( req_soil,   .True. )
       acors_idx   = findAero( req_cors,   .True. )
       aseacat_idx = findAero( req_seacat, .True. )
-      apoc_idx    = findAero( req_poc,    .True. )
-      apncom_idx  = findAero( req_ncom,   .True. )
+      
+      apoc_idx    = findAero( req_poc,    .False. )
+      apncom_idx  = findAero( req_ncom,   .False. )
 
       If ( ( Index( mechname, 'SAPRC07TIC_AE6I' ) .Gt. 0 ) .OR.
      &     ( Index( mechname, 'SAPRC07TIC_AE7I' ) .Gt. 0 ) .OR.

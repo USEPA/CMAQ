@@ -40,8 +40,6 @@ AE_SPECIES_DATA =
 'AIMGA'   ,120.10  ,F,     T,     F,      '',      ''     ,-1     ,''     ,-1     ,'VMASS'    , 1  ,'ORG'    , 1  ,'SOA'    ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
 'AIMOS'   ,200.16  ,F,     T,     F,      '',      ''     ,-1     ,''     ,-1     ,'VMASS'    , 1  ,'ORG'    , 1  ,'SOA'    ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
 'AGLY'    , 66.40  ,F,     T,     F,      '',      ''     ,-1     ,''     ,-1     ,'VMASS'    , 1  ,'ORG'    , 1  ,'SOA'    ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
-'APOC'    ,220.00  ,T,     T,     F,      '',      ''     ,-1     ,''     ,-1     ,'VMASS'    , 1  ,'ORG'    , 1  ,'POA'    ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',  
-'APNCOM'  ,220.00  ,T,     T,     F,      '',      ''     ,-1     ,''     ,-1     ,'VMASS'    , 1  ,'ORG'    , 1  ,'POA'    ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',  
 'AM110'   ,178.00  ,F,     T,     F,      '',      ''     ,-1     ,''     ,-1     ,'VMASS'    , 1  ,'ORG'    , 1  ,'SOA'    ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
 'A0010'   ,164.80  ,F,     T,     F,      '',      ''     ,-1     ,''     ,-1     ,'VMASS'    , 1  ,'ORG'    , 1  ,'SOA'    ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
 'A0110'   ,151.60  ,F,     T,     F,      '',      ''     ,-1     ,''     ,-1     ,'VMASS'    , 1  ,'ORG'    , 1  ,'SOA'    ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
