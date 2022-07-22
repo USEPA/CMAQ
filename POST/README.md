@@ -2,11 +2,8 @@ Post-processing Tools
 ========
 
 ## Overview
-The following utility programs are provided to process and prepare data for model evaluation.  Documentation for each utility is provided in the README files within each subdirectory.  Note that in previous CMAQ releases these utilities have been located under "models/TOOLS".
+The following utility programs are provided to process and prepare data for model evaluation.  Documentation for each utility is provided in the README files within each subdirectory.
 
-## Release Notes for version 5.3.2
-The following link summarizes an update to the combine utility since the previous release (CMAQ v5.3.1).
-* [New functions available in combine utility](../DOCS/Release_Notes/CMAQv5.3.2_add_ERF_and_SIGN_to_COMBINEs_grid_cell_functions.md)
 
 ## Utility Programs
 * **[appendwrf](appendwrf/README.md)**:  user can concatenate variables from multiple WRF input or output files into a single file along the time (unlimited) dimension.
