@@ -94,7 +94,7 @@ C-----------------------------------------------------------------------
       Real, Parameter :: o2cvbs(n_o2cvbs) = (/
      &                  0.0, 0.1, 0.2, 0.4, 0.7, 1.0, 1.5, 2.0/)
       Real, Parameter :: om2ocvbs(n_o2cvbs) = (/
-     &          3.667, 3.041, 2.417, 2.042, 1.667, 1.417, 1.292, 1.167/)
+     &          1.167, 1.292, 1.417, 1.667, 2.042, 2.417, 3.041, 3.667/)
       Type oa_type
          Character( 16 ) :: name        ! Organic Aerosol Species Name
          Character( 16 ) :: gas_name    ! Condensable Vapor Species Name

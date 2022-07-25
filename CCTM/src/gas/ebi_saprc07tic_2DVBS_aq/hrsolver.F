@@ -29,8 +29,9 @@ C  PRECONDITIONS: For the SAPRC07TIC_2DVBS_AQ mechanism
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED:  HRRATES, HRG1, HRG2, HRG3
 C                                     HRG4, HRPRODLOSS
+C                                     DEGRADE
 C
-C  REVISION HISTORY: Created by EBI solver program, Aug 30, 2021
+C  REVISION HISTORY: Created by EBI solver program, Jul 24, 2022
 C   21 Jun 10 J.Young: convert for Namelist redesign
 C   18 Jul 14 B.Hutzell: revised 1) to use the RXNS_DATA and RXNS_FUNCTION
 C                        modules instead of include files and 2) to use
@@ -45,6 +46,11 @@ C**********************************************************************
 #ifdef isam
       USE SA_IRR_DEFN
 #endif
+#ifdef sens
+      USE DDM3D_CHEM, ONLY: YCDDM
+      USE CGRID_SPCS, ONLY: GC_SPC
+#endif
+      USE DEGRADE_ROUTINES, ONLY : DEGRADE, SA_DEGRADE_STEP
 
 
       IMPLICIT NONE
@@ -65,6 +71,7 @@ C..PARAMETERS:
       REAL( 8 ), PARAMETER :: EPSLON  = 1.0D-30    ! Small number
       REAL( 8 ), PARAMETER :: MAXPRED = 1.0D+03    ! Upper limit on predicted conc
       REAL( 8 ), PARAMETER :: ZERO    = 1.0D-40    ! effective zero
+      REAL( 8 ), PARAMETER :: FLOOR   = 1.0D-08    ! Min conc for RTOL
 
 C..EXTERNAL FUNCTIONS:
 
@@ -93,6 +100,7 @@ C..SCRATCH LOCAL VARIABLES:
 #ifdef hrdebug
       INTEGER N               ! Loop index
 #endif
+      INTEGER M               ! species index
       INTEGER EBI             ! Loop index
       INTEGER NBKUPS          ! No. of times time step reduced
       INTEGER ERR             ! Allocate error flag
@@ -102,6 +110,7 @@ C..SCRATCH LOCAL VARIABLES:
       LOGICAL MXFL               ! hit MAXPRED flag
 
       REAL( 8 ) DTC              ! Time step to take
+      REAL( 8 ) DTG         ! Time step in degrade routines, sec
       REAL( 8 ) FXDLOSS          ! Total loss due to negative stoichiometry
       REAL( 8 ) VARLOSS          ! Loss excluding negative stoichiometry
 
@@ -157,6 +166,9 @@ C**********************************************************************
 
        END IF
 
+#ifdef sens
+       YCDDM = 0.0D0
+#endif
 
 c++++++++++++++++++++++++Debug section++++++++++++++++++++++++++++++++++
 #ifdef hrdebug
@@ -222,12 +234,13 @@ c++++++++++++++++++++++++Debug section++++++++++++++++++++++++++++++++++
 
 ! Initial PA_IRR
       IF( CALL_IRR ) CALL PA_IRR ( .TRUE., RKI, YC, DTC )
+      SA_DEGRADE_STEP = 0
       TSTEP_EBI: DO    ! EBI time-step loop
 
          SUBSTEP_EBI: DO NINR = 1, N_INR_STEPS   ! time substeps loop
 !  first attempt is sub time-step equals EBI time-step
 
-            IF( LEBI_CONV ) FORALL( S = 1:NUMB_MECH_SPC )YC0( S ) = YC( S )   ! Set ICs for EBI iterations
+            IF( LEBI_CONV ) YC0 = YC   ! Set ICs for EBI iterations
 
             ITER_SUBSTEP: DO ITER = 1, NEBITER  ! iteration loop solving for sub time-step
 
@@ -290,10 +303,9 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
                DO S = 1, NUMB_MECH_SPC
                   LEBISPFL( S ) = .FALSE.
                   YCP( S ) = MAX( ZERO, YCP( S ) )
-                  AERROR( S ) = ABS( YC(S)-YCP(S) )
-                  RERROR( S ) = AERROR( S ) / ABS( YC(S)+YCP(S) )
-                   IF( RERROR( S ) .GT. RTOL(S) .OR. AERROR( S ) .GT. 1.0D-5 )THEN
-!                 IF( RERROR( S ) .GT. RTOL(S)  )THEN
+                  AERROR( S ) = MAX( ABS( YC(S)-YCP(S) ), EPSLON )
+                  RERROR( S ) = AERROR( S ) / MAX( FLOOR, ABS( YC(S)+YCP(S) ) )
+                  IF( RERROR( S ) .GT. RTOL(S) .OR. AERROR( S ) .GT. 1.0D-5 )THEN
                      LEBI_CONV     = .FALSE.
                      LEBISPFL( S ) = .TRUE.
                   END IF
@@ -331,11 +343,27 @@ c++++++++++++++++++++++++Debug section++++++++++++++++++++++++++++++++++
 
                IF( LEBI_CONV ) THEN
 
+                DTG = 60.0D0 * DTC
+                DO S = 1, NUMB_MECH_SPC
+                   M = CGRID_INDEX( S )
+                   YCCELL( M ) = YC( S )
+                END DO
+#if defined(isam) || defined(verbose_isam)
+                SA_DEGRADE_STEP = SA_DEGRADE_STEP + 1
+#endif
+                IF( CALL_DEG )CALL DEGRADE(YCCELL, DTG, JDATE, JTIME) ! :WTH Call degradation routine
+
                  IF( CALL_IRR ) CALL PA_IRR ( .FALSE., RKI, YC, DTC )
 #ifdef isam
                  IF( NEBI .EQ. N_EBI_STEPS )UPDATE_SOLD = .TRUE.
                  CALL SA_IRR_UNBLOCKED ( .FALSE., RKI, YC, DTC )
                  UPDATE_PROBABILITIES = .FALSE.
+#endif
+
+#ifdef sens
+C Update the sum for the average over the chemistry integration
+                 YCDDM = YCDDM
+     &                 + ( ( 0.5D0 * DTC ) * ( YC + YC0 )  )
 #endif
 
                  CYCLE SUBSTEP_EBI ! solve for next sub time-step
@@ -364,7 +392,7 @@ c++++++++++++++++++++++++Debug section++++++++++++++++++++++++++++++++++
                   END DO
                END IF
 
-               FORALL( S = 1:NUMB_MECH_SPC )YC( S ) = YC0( S )   ! Set ICs for EBI time-step
+               YC = YC0   ! Set ICs for EBI time-step
 
                DTC = 0.5D0 * DTC
 
@@ -392,7 +420,7 @@ c++++++++++++++++++++++++Debug section++++++++++++++++++++++++++++++++++
          IF( LEBI_CONV )THEN
              NEBI        = 1 + NEBI
 ! test for completing final EBI time-step
-             IF( NEBI .GT. N_EBI_STEPS )RETURN
+             IF( NEBI .GT. N_EBI_STEPS )EXIT TSTEP_EBI
 ! test whether backups were done
              IF( NBKUPS .EQ. 0 )CYCLE TSTEP_EBI
 ! Reset NBKUPS, N_INR_STEPS and sub-time step
@@ -402,6 +430,13 @@ c++++++++++++++++++++++++Debug section++++++++++++++++++++++++++++++++++
          END IF
 
       END DO TSTEP_EBI
+
+#ifdef sens
+! Compute average over integration and filter values
+      YCDDM = YCDDM / CHEMSTEP
+      WHERE (  YCDDM .LT. 1.0D-25 ) YCDDM = 0.0D0
+#endif
+
 
       RETURN
 

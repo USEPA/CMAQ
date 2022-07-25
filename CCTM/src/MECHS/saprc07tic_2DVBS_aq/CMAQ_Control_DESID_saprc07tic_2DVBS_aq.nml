@@ -138,157 +138,104 @@
 
    ! VBS organic compounds emissions scaling
 
-   ! Since organic emissions from different emission sectors have different distributions
-   ! in the 2D-VBS space, users should provide sector-specific emissions for both primary
-   ! organic aerosol (POA) and gaseous intermediate/semi/low volatility organic compounds
-   ! (gaseous I/S/LVOC, or GISLV).
-   !
-   ! Here we provide the users with two sector division schemes. One is relatively coarse
-   ! sector division. Users should include the following variables in the emission input
-   ! files:
-   !     POA_DO: POA emission from domestic combustion
-   !     GISLV_DO: gaseous I/S/LVOC emission from domestic combustion
-   !     POA_TR: POA emission from transportation
-   !     GISLV_TR: gaseous I/S/LVOC emission from transportation
-   !     POA_BB: POA emission from biomass open burning
-   !     GISLV_BB: gaseous I/S/LVOC emission from biomass open burning
-   !     POA_PI: POA emission from power plants and industry
-   !     GISLV_PI: gaseous I/S/LVOC emission from power and industrial boilers
-   !     GISLV_VP: gaseous I/S/LVOC emission from volatile chemical products (VCPs)
-
-   ! The other is relatively fine sector division. Users should include the following
-   ! variables in the emission input files:
-   !     POA_BC: POA emission from domestic combustion of bituminous coal
-   !     GISLV_BC: gaseous I/S/LVOC emission from domestic combustion of bituminous coal
-   !     POA_AC: POA emission from domestic combustion of anthracite coal
-   !     GISLV_AC: gaseous I/S/LVOC emission from domestic combustion of anthracite coal
-   !     POA_BI: POA emission from domestic combustion of biomass
-   !     GISLV_BI: gaseous I/S/LVOC emission from domestic combustion of biomass
-   !     POA_GV: POA emission from on-road gasoline transportation
-   !     GISLV_GV: gaseous I/S/LVOC emission from on-road gasoline transportation
-   !     POA_DV: POA emission from on-road diesel transportation
-   !     GISLV_DV: gaseous I/S/LVOC emission from on-road diesel transportation
-   !     POA_OF: POA emission from off-road transportation
-   !     GISLV_OF: gaseous I/S/LVOC emission from off-road transportation
-   !     POA_BB: POA emission from biomass open burning
-   !     GISLV_BB: gaseous I/S/LVOC emission from biomass open burning
-   !     POA_PI: POA emission from power plants and industry
-   !     GISLV_PI: gaseous I/S/LVOC emission from power plants and industry
-   !     GISLV_VP: gaseous I/S/LVOC emission from volatile chemical products (VCPs)
-
-   ! Note that users should choose to prepare the emission variables following either the
-   ! coarse or fine sector division. Providing both (e.g. providing both POA_DO and POA_BC)
-   ! will result in double counting.
-
-   ! Furthermore, for users who do not have the emissions for gaseous I/S/LVOC, here we
-   ! provide the empirical I/S/LVOC:POA or I/S/LVOC:VOC ratios for major sectors, which
-   ! which they may use to estimate gaseous I/S/LVOC emissions from POA or VOC emissions.
-   !     Sectors 	I/S/LVOC:POA 	I/S/LVOC:VOC 
-   !     GISLV_PI 	0.796     	0.442
-   !     GISLV_DO	0.452     	0.300
-   !     GISLV_TR	3.460     	0.048
-   !     GISLV_BB	0.597        	0.607
-   !     GISLV_VP	-              	0.105
-
-   ! Average of domestic combustion
-    'EVERYWHERE', 'ALL'         ,'POC' ,'Am104P'     ,'FINE',0.2739,'UNIT','a',
-    'EVERYWHERE', 'ALL'         ,'POC' ,'A0004P'     ,'FINE',0.0384,'UNIT','a',
-    'EVERYWHERE', 'ALL'         ,'POC' ,'A0104P'     ,'FINE',0.0661,'UNIT','a',
-    'EVERYWHERE', 'ALL'         ,'POC' ,'A0204P'     ,'FINE',0.0749,'UNIT','a',
-    'EVERYWHERE', 'ALL'         ,'POC' ,'A0304P'     ,'FINE',0.0596,'UNIT','a',
-    'EVERYWHERE', 'ALL'         ,'POC' ,'A0404P'     ,'FINE',0.1226,'UNIT','a',
-    'EVERYWHERE', 'ALL'         ,'POC' ,'A0504P'     ,'FINE',0.0363,'UNIT','a',
-    'EVERYWHERE', 'ALL'         ,'POC' ,'A0604P'     ,'FINE',0.0203,'UNIT','a',
-    'EVERYWHERE', 'ALL'         ,'POC' ,'Am102P'     ,'FINE',0.0242,'UNIT','a',
-    'EVERYWHERE', 'ALL'         ,'POC' ,'A0002P'     ,'FINE',0.0016,'UNIT','a',
-    'EVERYWHERE', 'ALL'         ,'POC' ,'A0102P'     ,'FINE',0.0025,'UNIT','a',
-    'EVERYWHERE', 'ALL'         ,'POC' ,'A0202P'     ,'FINE',0.0108,'UNIT','a',
-    'EVERYWHERE', 'ALL'         ,'POC' ,'A0302P'     ,'FINE',0.0075,'UNIT','a',
-    'EVERYWHERE', 'ALL'         ,'POC' ,'A0402P'     ,'FINE',0.0062,'UNIT','a',
-    'EVERYWHERE', 'ALL'         ,'POC' ,'A0502P'     ,'FINE',0.0029,'UNIT','a',
-    'EVERYWHERE', 'ALL'         ,'POC' ,'A0602P'     ,'FINE',0.0009,'UNIT','a',
-    'EVERYWHERE', 'ALL'         ,'POC' ,'Am101P'     ,'FINE',0.0457,'UNIT','a',
-    'EVERYWHERE', 'ALL'         ,'POC' ,'A0001P'     ,'FINE',0.0026,'UNIT','a',
-    'EVERYWHERE', 'ALL'         ,'POC' ,'A0101P'     ,'FINE',0.0068,'UNIT','a',
-    'EVERYWHERE', 'ALL'         ,'POC' ,'A0201P'     ,'FINE',0.0221,'UNIT','a',
-    'EVERYWHERE', 'ALL'         ,'POC' ,'A0301P'     ,'FINE',0.0180,'UNIT','a',
-    'EVERYWHERE', 'ALL'         ,'POC' ,'A0401P'     ,'FINE',0.0229,'UNIT','a',
-    'EVERYWHERE', 'ALL'         ,'POC' ,'A0501P'     ,'FINE',0.0055,'UNIT','a',
-    'EVERYWHERE', 'ALL'         ,'POC' ,'A0601P'     ,'FINE',0.0033,'UNIT','a',
-    'EVERYWHERE', 'ALL'         ,'POC' ,'Am100P'     ,'FINE',0.0169,'UNIT','a',
-    'EVERYWHERE', 'ALL'         ,'POC' ,'A0000P'     ,'FINE',0.0033,'UNIT','a',
-    'EVERYWHERE', 'ALL'         ,'POC' ,'A0100P'     ,'FINE',0.0060,'UNIT','a',
-    'EVERYWHERE', 'ALL'         ,'POC' ,'A0200P'     ,'FINE',0.0200,'UNIT','a',
-    'EVERYWHERE', 'ALL'         ,'POC' ,'A0300P'     ,'FINE',0.0330,'UNIT','a',
-    'EVERYWHERE', 'ALL'         ,'POC' ,'A0400P'     ,'FINE',0.0320,'UNIT','a',
-    'EVERYWHERE', 'ALL'         ,'POC' ,'A0500P'     ,'FINE',0.0091,'UNIT','a',
-    'EVERYWHERE', 'ALL'         ,'POC' ,'A0600P'     ,'FINE',0.0041,'UNIT','a',
+    'EVERYWHERE', 'ALL'         ,'POC' ,'Am104P'     ,'FINE',0.2012,'UNIT','a',
+    'EVERYWHERE', 'ALL'         ,'POC' ,'A0004P'     ,'FINE',0.0372,'UNIT','a',
+    'EVERYWHERE', 'ALL'         ,'POC' ,'A0104P'     ,'FINE',0.1685,'UNIT','a',
+    'EVERYWHERE', 'ALL'         ,'POC' ,'A0204P'     ,'FINE',0.0860,'UNIT','a',
+    'EVERYWHERE', 'ALL'         ,'POC' ,'A0304P'     ,'FINE',0.0634,'UNIT','a',
+    'EVERYWHERE', 'ALL'         ,'POC' ,'A0404P'     ,'FINE',0.0997,'UNIT','a',
+    'EVERYWHERE', 'ALL'         ,'POC' ,'A0504P'     ,'FINE',0.0182,'UNIT','a',
+    'EVERYWHERE', 'ALL'         ,'POC' ,'A0604P'     ,'FINE',0.0105,'UNIT','a',
+    'EVERYWHERE', 'ALL'         ,'POC' ,'Am102P'     ,'FINE',0.0198,'UNIT','a',
+    'EVERYWHERE', 'ALL'         ,'POC' ,'A0002P'     ,'FINE',0.0015,'UNIT','a',
+    'EVERYWHERE', 'ALL'         ,'POC' ,'A0102P'     ,'FINE',0.0026,'UNIT','a',
+    'EVERYWHERE', 'ALL'         ,'POC' ,'A0202P'     ,'FINE',0.0114,'UNIT','a',
+    'EVERYWHERE', 'ALL'         ,'POC' ,'A0302P'     ,'FINE',0.0074,'UNIT','a',
+    'EVERYWHERE', 'ALL'         ,'POC' ,'A0402P'     ,'FINE',0.0053,'UNIT','a',
+    'EVERYWHERE', 'ALL'         ,'POC' ,'A0502P'     ,'FINE',0.0019,'UNIT','a',
+    'EVERYWHERE', 'ALL'         ,'POC' ,'A0602P'     ,'FINE',0.0006,'UNIT','a',
+    'EVERYWHERE', 'ALL'         ,'POC' ,'Am101P'     ,'FINE',0.0371,'UNIT','a',
+    'EVERYWHERE', 'ALL'         ,'POC' ,'A0001P'     ,'FINE',0.0035,'UNIT','a',
+    'EVERYWHERE', 'ALL'         ,'POC' ,'A0101P'     ,'FINE',0.0209,'UNIT','a',
+    'EVERYWHERE', 'ALL'         ,'POC' ,'A0201P'     ,'FINE',0.0248,'UNIT','a',
+    'EVERYWHERE', 'ALL'         ,'POC' ,'A0301P'     ,'FINE',0.0199,'UNIT','a',
+    'EVERYWHERE', 'ALL'         ,'POC' ,'A0401P'     ,'FINE',0.0199,'UNIT','a',
+    'EVERYWHERE', 'ALL'         ,'POC' ,'A0501P'     ,'FINE',0.0042,'UNIT','a',
+    'EVERYWHERE', 'ALL'         ,'POC' ,'A0601P'     ,'FINE',0.0024,'UNIT','a',
+    'EVERYWHERE', 'ALL'         ,'POC' ,'Am100P'     ,'FINE',0.0143,'UNIT','a',
+    'EVERYWHERE', 'ALL'         ,'POC' ,'A0000P'     ,'FINE',0.0029,'UNIT','a',
+    'EVERYWHERE', 'ALL'         ,'POC' ,'A0100P'     ,'FINE',0.0161,'UNIT','a',
+    'EVERYWHERE', 'ALL'         ,'POC' ,'A0200P'     ,'FINE',0.0196,'UNIT','a',
+    'EVERYWHERE', 'ALL'         ,'POC' ,'A0300P'     ,'FINE',0.0375,'UNIT','a',
+    'EVERYWHERE', 'ALL'         ,'POC' ,'A0400P'     ,'FINE',0.0309,'UNIT','a',
+    'EVERYWHERE', 'ALL'         ,'POC' ,'A0500P'     ,'FINE',0.0076,'UNIT','a',
+    'EVERYWHERE', 'ALL'         ,'POC' ,'A0600P'     ,'FINE',0.0032,'UNIT','a',
  
-    'EVERYWHERE', 'ALL'         ,'PNCOM' ,'Am104P'     ,'FINE',0.2739,'UNIT','a',
-    'EVERYWHERE', 'ALL'         ,'PNCOM' ,'A0004P'     ,'FINE',0.0384,'UNIT','a',
-    'EVERYWHERE', 'ALL'         ,'PNCOM' ,'A0104P'     ,'FINE',0.0661,'UNIT','a',
-    'EVERYWHERE', 'ALL'         ,'PNCOM' ,'A0204P'     ,'FINE',0.0749,'UNIT','a',
-    'EVERYWHERE', 'ALL'         ,'PNCOM' ,'A0304P'     ,'FINE',0.0596,'UNIT','a',
-    'EVERYWHERE', 'ALL'         ,'PNCOM' ,'A0404P'     ,'FINE',0.1226,'UNIT','a',
-    'EVERYWHERE', 'ALL'         ,'PNCOM' ,'A0504P'     ,'FINE',0.0363,'UNIT','a',
-    'EVERYWHERE', 'ALL'         ,'PNCOM' ,'A0604P'     ,'FINE',0.0203,'UNIT','a',
-    'EVERYWHERE', 'ALL'         ,'PNCOM' ,'Am102P'     ,'FINE',0.0242,'UNIT','a',
-    'EVERYWHERE', 'ALL'         ,'PNCOM' ,'A0002P'     ,'FINE',0.0016,'UNIT','a',
-    'EVERYWHERE', 'ALL'         ,'PNCOM' ,'A0102P'     ,'FINE',0.0025,'UNIT','a',
-    'EVERYWHERE', 'ALL'         ,'PNCOM' ,'A0202P'     ,'FINE',0.0108,'UNIT','a',
-    'EVERYWHERE', 'ALL'         ,'PNCOM' ,'A0302P'     ,'FINE',0.0075,'UNIT','a',
-    'EVERYWHERE', 'ALL'         ,'PNCOM' ,'A0402P'     ,'FINE',0.0062,'UNIT','a',
-    'EVERYWHERE', 'ALL'         ,'PNCOM' ,'A0502P'     ,'FINE',0.0029,'UNIT','a',
-    'EVERYWHERE', 'ALL'         ,'PNCOM' ,'A0602P'     ,'FINE',0.0009,'UNIT','a',
-    'EVERYWHERE', 'ALL'         ,'PNCOM' ,'Am101P'     ,'FINE',0.0457,'UNIT','a',
-    'EVERYWHERE', 'ALL'         ,'PNCOM' ,'A0001P'     ,'FINE',0.0026,'UNIT','a',
-    'EVERYWHERE', 'ALL'         ,'PNCOM' ,'A0101P'     ,'FINE',0.0068,'UNIT','a',
-    'EVERYWHERE', 'ALL'         ,'PNCOM' ,'A0201P'     ,'FINE',0.0221,'UNIT','a',
-    'EVERYWHERE', 'ALL'         ,'PNCOM' ,'A0301P'     ,'FINE',0.0180,'UNIT','a',
-    'EVERYWHERE', 'ALL'         ,'PNCOM' ,'A0401P'     ,'FINE',0.0229,'UNIT','a',
-    'EVERYWHERE', 'ALL'         ,'PNCOM' ,'A0501P'     ,'FINE',0.0055,'UNIT','a',
-    'EVERYWHERE', 'ALL'         ,'PNCOM' ,'A0601P'     ,'FINE',0.0033,'UNIT','a',
-    'EVERYWHERE', 'ALL'         ,'PNCOM' ,'Am100P'     ,'FINE',0.0169,'UNIT','a',
-    'EVERYWHERE', 'ALL'         ,'PNCOM' ,'A0000P'     ,'FINE',0.0033,'UNIT','a',
-    'EVERYWHERE', 'ALL'         ,'PNCOM' ,'A0100P'     ,'FINE',0.0060,'UNIT','a',
-    'EVERYWHERE', 'ALL'         ,'PNCOM' ,'A0200P'     ,'FINE',0.0200,'UNIT','a',
-    'EVERYWHERE', 'ALL'         ,'PNCOM' ,'A0300P'     ,'FINE',0.0330,'UNIT','a',
-    'EVERYWHERE', 'ALL'         ,'PNCOM' ,'A0400P'     ,'FINE',0.0320,'UNIT','a',
-    'EVERYWHERE', 'ALL'         ,'PNCOM' ,'A0500P'     ,'FINE',0.0091,'UNIT','a',
-    'EVERYWHERE', 'ALL'         ,'PNCOM' ,'A0600P'     ,'FINE',0.0041,'UNIT','a',
+    'EVERYWHERE', 'ALL'         ,'PNCOM' ,'Am104P'     ,'FINE',0.2012,'UNIT','a',
+    'EVERYWHERE', 'ALL'         ,'PNCOM' ,'A0004P'     ,'FINE',0.0372,'UNIT','a',
+    'EVERYWHERE', 'ALL'         ,'PNCOM' ,'A0104P'     ,'FINE',0.1685,'UNIT','a',
+    'EVERYWHERE', 'ALL'         ,'PNCOM' ,'A0204P'     ,'FINE',0.0860,'UNIT','a',
+    'EVERYWHERE', 'ALL'         ,'PNCOM' ,'A0304P'     ,'FINE',0.0634,'UNIT','a',
+    'EVERYWHERE', 'ALL'         ,'PNCOM' ,'A0404P'     ,'FINE',0.0997,'UNIT','a',
+    'EVERYWHERE', 'ALL'         ,'PNCOM' ,'A0504P'     ,'FINE',0.0182,'UNIT','a',
+    'EVERYWHERE', 'ALL'         ,'PNCOM' ,'A0604P'     ,'FINE',0.0105,'UNIT','a',
+    'EVERYWHERE', 'ALL'         ,'PNCOM' ,'Am102P'     ,'FINE',0.0198,'UNIT','a',
+    'EVERYWHERE', 'ALL'         ,'PNCOM' ,'A0002P'     ,'FINE',0.0015,'UNIT','a',
+    'EVERYWHERE', 'ALL'         ,'PNCOM' ,'A0102P'     ,'FINE',0.0026,'UNIT','a',
+    'EVERYWHERE', 'ALL'         ,'PNCOM' ,'A0202P'     ,'FINE',0.0114,'UNIT','a',
+    'EVERYWHERE', 'ALL'         ,'PNCOM' ,'A0302P'     ,'FINE',0.0074,'UNIT','a',
+    'EVERYWHERE', 'ALL'         ,'PNCOM' ,'A0402P'     ,'FINE',0.0053,'UNIT','a',
+    'EVERYWHERE', 'ALL'         ,'PNCOM' ,'A0502P'     ,'FINE',0.0019,'UNIT','a',
+    'EVERYWHERE', 'ALL'         ,'PNCOM' ,'A0602P'     ,'FINE',0.0006,'UNIT','a',
+    'EVERYWHERE', 'ALL'         ,'PNCOM' ,'Am101P'     ,'FINE',0.0371,'UNIT','a',
+    'EVERYWHERE', 'ALL'         ,'PNCOM' ,'A0001P'     ,'FINE',0.0035,'UNIT','a',
+    'EVERYWHERE', 'ALL'         ,'PNCOM' ,'A0101P'     ,'FINE',0.0209,'UNIT','a',
+    'EVERYWHERE', 'ALL'         ,'PNCOM' ,'A0201P'     ,'FINE',0.0248,'UNIT','a',
+    'EVERYWHERE', 'ALL'         ,'PNCOM' ,'A0301P'     ,'FINE',0.0199,'UNIT','a',
+    'EVERYWHERE', 'ALL'         ,'PNCOM' ,'A0401P'     ,'FINE',0.0199,'UNIT','a',
+    'EVERYWHERE', 'ALL'         ,'PNCOM' ,'A0501P'     ,'FINE',0.0042,'UNIT','a',
+    'EVERYWHERE', 'ALL'         ,'PNCOM' ,'A0601P'     ,'FINE',0.0024,'UNIT','a',
+    'EVERYWHERE', 'ALL'         ,'PNCOM' ,'Am100P'     ,'FINE',0.0143,'UNIT','a',
+    'EVERYWHERE', 'ALL'         ,'PNCOM' ,'A0000P'     ,'FINE',0.0029,'UNIT','a',
+    'EVERYWHERE', 'ALL'         ,'PNCOM' ,'A0100P'     ,'FINE',0.0161,'UNIT','a',
+    'EVERYWHERE', 'ALL'         ,'PNCOM' ,'A0200P'     ,'FINE',0.0196,'UNIT','a',
+    'EVERYWHERE', 'ALL'         ,'PNCOM' ,'A0300P'     ,'FINE',0.0375,'UNIT','a',
+    'EVERYWHERE', 'ALL'         ,'PNCOM' ,'A0400P'     ,'FINE',0.0309,'UNIT','a',
+    'EVERYWHERE', 'ALL'         ,'PNCOM' ,'A0500P'     ,'FINE',0.0076,'UNIT','a',
+    'EVERYWHERE', 'ALL'         ,'PNCOM' ,'A0600P'     ,'FINE',0.0032,'UNIT','a',
  
-    'EVERYWHERE', 'ALL'         ,'VOC_INV','Csm1O2C04P' ,'GAS' ,0.0000,'MASS','a',
-    'EVERYWHERE', 'ALL'         ,'VOC_INV','Cs00O2C04P' ,'GAS' ,0.0000,'MASS','a',
-    'EVERYWHERE', 'ALL'         ,'VOC_INV','Cs01O2C04P' ,'GAS' ,0.0000,'MASS','a',
-    'EVERYWHERE', 'ALL'         ,'VOC_INV','Cs02O2C04P' ,'GAS' ,0.0000,'MASS','a',
-    'EVERYWHERE', 'ALL'         ,'VOC_INV','Cs03O2C04P' ,'GAS' ,0.0000,'MASS','a',
-    'EVERYWHERE', 'ALL'         ,'VOC_INV','Cs04O2C04P' ,'GAS' ,0.0101,'MASS','a',
-    'EVERYWHERE', 'ALL'         ,'VOC_INV','Cs05O2C04P' ,'GAS' ,0.0068,'MASS','a',
-    'EVERYWHERE', 'ALL'         ,'VOC_INV','Cs06O2C04P' ,'GAS' ,0.0014,'MASS','a',
-    'EVERYWHERE', 'ALL'         ,'VOC_INV','Csm1O2C02P' ,'GAS' ,0.0000,'MASS','a',
-    'EVERYWHERE', 'ALL'         ,'VOC_INV','Cs00O2C02P' ,'GAS' ,0.0000,'MASS','a',
-    'EVERYWHERE', 'ALL'         ,'VOC_INV','Cs01O2C02P' ,'GAS' ,0.0000,'MASS','a',
-    'EVERYWHERE', 'ALL'         ,'VOC_INV','Cs02O2C02P' ,'GAS' ,0.0000,'MASS','a',
-    'EVERYWHERE', 'ALL'         ,'VOC_INV','Cs03O2C02P' ,'GAS' ,0.0000,'MASS','a',
-    'EVERYWHERE', 'ALL'         ,'VOC_INV','Cs04O2C02P' ,'GAS' ,0.0101,'MASS','a',
-    'EVERYWHERE', 'ALL'         ,'VOC_INV','Cs05O2C02P' ,'GAS' ,0.0068,'MASS','a',
-    'EVERYWHERE', 'ALL'         ,'VOC_INV','Cs06O2C02P' ,'GAS' ,0.0000,'MASS','a',
-    'EVERYWHERE', 'ALL'         ,'VOC_INV','Csm1O2C01P' ,'GAS' ,0.0000,'MASS','a',
-    'EVERYWHERE', 'ALL'         ,'VOC_INV','Cs00O2C01P' ,'GAS' ,0.0000,'MASS','a',
-    'EVERYWHERE', 'ALL'         ,'VOC_INV','Cs01O2C01P' ,'GAS' ,0.0062,'MASS','a',
-    'EVERYWHERE', 'ALL'         ,'VOC_INV','Cs02O2C01P' ,'GAS' ,0.0000,'MASS','a',
-    'EVERYWHERE', 'ALL'         ,'VOC_INV','Cs03O2C01P' ,'GAS' ,0.0360,'MASS','a',
-    'EVERYWHERE', 'ALL'         ,'VOC_INV','Cs04O2C01P' ,'GAS' ,0.0745,'MASS','a',
-    'EVERYWHERE', 'ALL'         ,'VOC_INV','Cs05O2C01P' ,'GAS' ,0.1409,'MASS','a',
-    'EVERYWHERE', 'ALL'         ,'VOC_INV','Cs06O2C01P' ,'GAS' ,0.2029,'MASS','a',
-    'EVERYWHERE', 'ALL'         ,'VOC_INV','Csm1O2C00P' ,'GAS' ,0.0000,'MASS','a',
-    'EVERYWHERE', 'ALL'         ,'VOC_INV','Cs00O2C00P' ,'GAS' ,0.0000,'MASS','a',
-    'EVERYWHERE', 'ALL'         ,'VOC_INV','Cs01O2C00P' ,'GAS' ,0.0042,'MASS','a',
-    'EVERYWHERE', 'ALL'         ,'VOC_INV','Cs02O2C00P' ,'GAS' ,0.0395,'MASS','a',
-    'EVERYWHERE', 'ALL'         ,'VOC_INV','Cs03O2C00P' ,'GAS' ,0.1071,'MASS','a',
-    'EVERYWHERE', 'ALL'         ,'VOC_INV','Cs04O2C00P' ,'GAS' ,0.0815,'MASS','a',
-    'EVERYWHERE', 'ALL'         ,'VOC_INV','Cs05O2C00P' ,'GAS' ,0.1151,'MASS','a',
-    'EVERYWHERE', 'ALL'         ,'VOC_INV','Cs06O2C00P' ,'GAS' ,0.1571,'MASS','a',
+    'EVERYWHERE', 'ALL'         ,'VOC_INV','Csm1O2C04P' ,'GAS' ,0.00000,'MASS','a',
+    'EVERYWHERE', 'ALL'         ,'VOC_INV','Cs00O2C04P' ,'GAS' ,0.00003,'MASS','a',
+    'EVERYWHERE', 'ALL'         ,'VOC_INV','Cs01O2C04P' ,'GAS' ,0.00000,'MASS','a',
+    'EVERYWHERE', 'ALL'         ,'VOC_INV','Cs02O2C04P' ,'GAS' ,0.00049,'MASS','a',
+    'EVERYWHERE', 'ALL'         ,'VOC_INV','Cs03O2C04P' ,'GAS' ,0.00252,'MASS','a',
+    'EVERYWHERE', 'ALL'         ,'VOC_INV','Cs04O2C04P' ,'GAS' ,0.00685,'MASS','a',
+    'EVERYWHERE', 'ALL'         ,'VOC_INV','Cs05O2C04P' ,'GAS' ,0.00357,'MASS','a',
+    'EVERYWHERE', 'ALL'         ,'VOC_INV','Cs06O2C04P' ,'GAS' ,0.02038,'MASS','a',
+    'EVERYWHERE', 'ALL'         ,'VOC_INV','Csm1O2C02P' ,'GAS' ,0.00000,'MASS','a',
+    'EVERYWHERE', 'ALL'         ,'VOC_INV','Cs00O2C02P' ,'GAS' ,0.00000,'MASS','a',
+    'EVERYWHERE', 'ALL'         ,'VOC_INV','Cs01O2C02P' ,'GAS' ,0.00000,'MASS','a',
+    'EVERYWHERE', 'ALL'         ,'VOC_INV','Cs02O2C02P' ,'GAS' ,0.00005,'MASS','a',
+    'EVERYWHERE', 'ALL'         ,'VOC_INV','Cs03O2C02P' ,'GAS' ,0.00162,'MASS','a',
+    'EVERYWHERE', 'ALL'         ,'VOC_INV','Cs04O2C02P' ,'GAS' ,0.00204,'MASS','a',
+    'EVERYWHERE', 'ALL'         ,'VOC_INV','Cs05O2C02P' ,'GAS' ,0.00122,'MASS','a',
+    'EVERYWHERE', 'ALL'         ,'VOC_INV','Cs06O2C02P' ,'GAS' ,0.00783,'MASS','a',
+    'EVERYWHERE', 'ALL'         ,'VOC_INV','Csm1O2C01P' ,'GAS' ,0.00000,'MASS','a',
+    'EVERYWHERE', 'ALL'         ,'VOC_INV','Cs00O2C01P' ,'GAS' ,0.00000,'MASS','a',
+    'EVERYWHERE', 'ALL'         ,'VOC_INV','Cs01O2C01P' ,'GAS' ,0.00008,'MASS','a',
+    'EVERYWHERE', 'ALL'         ,'VOC_INV','Cs02O2C01P' ,'GAS' ,0.00000,'MASS','a',
+    'EVERYWHERE', 'ALL'         ,'VOC_INV','Cs03O2C01P' ,'GAS' ,0.00047,'MASS','a',
+    'EVERYWHERE', 'ALL'         ,'VOC_INV','Cs04O2C01P' ,'GAS' ,0.00099,'MASS','a',
+    'EVERYWHERE', 'ALL'         ,'VOC_INV','Cs05O2C01P' ,'GAS' ,0.00210,'MASS','a',
+    'EVERYWHERE', 'ALL'         ,'VOC_INV','Cs06O2C01P' ,'GAS' ,0.00674,'MASS','a',
+    'EVERYWHERE', 'ALL'         ,'VOC_INV','Csm1O2C00P' ,'GAS' ,0.00000,'MASS','a',
+    'EVERYWHERE', 'ALL'         ,'VOC_INV','Cs00O2C00P' ,'GAS' ,0.00000,'MASS','a',
+    'EVERYWHERE', 'ALL'         ,'VOC_INV','Cs01O2C00P' ,'GAS' ,0.00005,'MASS','a',
+    'EVERYWHERE', 'ALL'         ,'VOC_INV','Cs02O2C00P' ,'GAS' ,0.00047,'MASS','a',
+    'EVERYWHERE', 'ALL'         ,'VOC_INV','Cs03O2C00P' ,'GAS' ,0.00182,'MASS','a',
+    'EVERYWHERE', 'ALL'         ,'VOC_INV','Cs04O2C00P' ,'GAS' ,0.00276,'MASS','a',
+    'EVERYWHERE', 'ALL'         ,'VOC_INV','Cs05O2C00P' ,'GAS' ,0.00917,'MASS','a',
+    'EVERYWHERE', 'ALL'         ,'VOC_INV','Cs06O2C00P' ,'GAS' ,0.01405,'MASS','a',
 
    ! End of VBS scaling
 
@@ -310,6 +257,12 @@
    'EVERYWHERE', 'ALL'    ,'PMFINE_MN'   ,'AMN'         ,'FINE',1.   ,'UNIT','a', 
    'EVERYWHERE', 'ALL'    ,'PMFINE_H2O'  ,'AH2O'        ,'FINE',1.   ,'UNIT','a', 
    'EVERYWHERE', 'ALL'    ,'PMFINE_OTHR' ,'AOTHR'       ,'FINE',1.   ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'    ,'PMFINE_LVPO1','AM101P'      ,'FINE',0.15 ,'UNIT','a',
+   'EVERYWHERE', 'ALL'    ,'PMFINE_LVPO1','AM102P'      ,'FINE',0.85 ,'UNIT','a',
+   'EVERYWHERE', 'ALL'    ,'PMFINE_LVOO1','AM107'       ,'FINE',0.376,'UNIT','a',
+   'EVERYWHERE', 'ALL'    ,'PMFINE_LVOO1','AM110'       ,'FINE',0.624,'UNIT','a',
+
+
 
 
    ! Wind-Blown Dust and Sea Spray Scaling

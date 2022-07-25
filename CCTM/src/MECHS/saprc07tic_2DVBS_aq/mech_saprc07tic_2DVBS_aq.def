@@ -1643,7 +1643,8 @@ REACTIONS [CM] =
 
 ! Simplified ozone loss from oceanic halogens excluding chlorine
 
-<HAL_Ozone> O3 =  %H # 1.0000E-40@-78.4256 & 4.0582E-9@-5.8212;
+<HAL_Ozone> O3 =  %H # 6.7006E-11@-10.7435 & 3.4153E-08@0.6713
+                                                & 2.0E-6;
 
 ! Isoprene epoxide uptake reactions, uptake followed by speciation
 <HET_IEPOX>   IEPOX  = IEPOXP            # 1.0~<HETERO_IEPOX>;

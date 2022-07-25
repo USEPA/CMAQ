@@ -1,7 +1,0 @@
-EmissCtrl_saprc07_2DVBS.nml is the data used for all simulations before 2021.10.27. The POA_BB and POA_BI are not corrected. POA_CO and POA_BR use data that include volatility bins above 7.
-EmissCtrl_saprc07_2DVBS.release.nml has the same data with EmissCtrl_saprc07_2DVBS.nml but different expression. The comments are denied by Zhao Bin.
-EmissCtrl_saprc07_2DVBS.release.V2.nml (20211109 renamed to EmissCtrl_saprc07tic_2DVBS_aq.release.V2.nml) has the data corrected for POA_BB and POA_BI, and POA_CO and POA_BR use data that exclude volatility bins above 7. The precision of gaseous ratios are enhanced for 1 digit.
-EmissCtrl_saprc07_2DVBS.V2.nml has the same data with EmissCtrl_saprc07_2DVBS.release.V2.nml and same expression with EmissCtrl_saprc07_2DVBS.nml.
-
-2022-07-21:
-A streamlined version of CMAQ_Control_DESID_saprc07tic_2DVBS_aq.nml was added so that emissions could be easily mapped from existing, highly lumped emissions without source resolution. The CMAQ team recommends using CMAQ_Control_DESID_saprc07tic_2DVBS_aq_Base.nml, the version used at Tsignhua for detailed studies to date, by default if possible.
