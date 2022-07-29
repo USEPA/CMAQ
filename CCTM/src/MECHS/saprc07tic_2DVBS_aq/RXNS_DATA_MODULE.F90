@@ -6,8 +6,8 @@
 
 
 ! --------- Photochemical Mechanism Reactions, Rates, etc. DAT ---------
-! Source file: ./input/saprc07tic_2DVBS_aq/mech_saprc07tic_2DVBS_aq.def
-! for Mechanism Name: SAPRC07TIC_2DVBS_AQ 
+! Source file: /home/changx10/CMAQv5.4/UTIL/chemmech/input/saprc07tic_2DVBS_aq/mech_saprc07tic_2DVBS_aq.def
+! for Mechanism Name: SAPRC07TIC_2DVBS_AQ             
 
 ! This file is used to create mechanism data and functions
 
@@ -720,24 +720,24 @@
       & MEMBER("IHMML           ",  185, "GC",  102.00D0, F), &
       & MEMBER("H2NO3PIJ        ",  186, "GC",   64.00D0, F), &
       & MEMBER("H2NO3PK         ",  187, "GC",   64.00D0, F), &
-      & MEMBER("ACLI            ",  466, "AE",   35.50D0, T), &
-      & MEMBER("ACLJ            ",  465, "AE",   35.50D0, T), &
-      & MEMBER("ACLK            ",  468, "AE",   35.50D0, T), &
+      & MEMBER("ACLI            ",  470, "AE",   35.50D0, T), &
+      & MEMBER("ACLJ            ",  471, "AE",   35.50D0, T), &
+      & MEMBER("ACLK            ",  472, "AE",   35.50D0, T), &
       & MEMBER("IEPOXP          ",  188, "GC",  118.13D0, F), &
       & MEMBER("IMAEP           ",  189, "GC",  102.00D0, F), &
       & MEMBER("IHMMLP          ",  190, "GC",  102.00D0, F), &
       & MEMBER("AIETETJ         ",  476, "AE",  136.15D0, T), &
-      & MEMBER("ASO4J           ",  426, "AE",   96.00D0, T), &
+      & MEMBER("ASO4J           ",  427, "AE",   96.00D0, T), &
       & MEMBER("AIEOSJ          ",  477, "AE",  216.20D0, T), &
       & MEMBER("ADIMJ           ",  478, "AE",  248.23D0, T), &
       & MEMBER("AIMGAJ          ",  479, "AE",  120.10D0, T), &
       & MEMBER("AIMOSJ          ",  480, "AE",  200.16D0, T), &
-      & MEMBER("AISO1J          ",  433, "AE",  132.00D0, T), &
+      & MEMBER("AISO1J          ",  436, "AE",  132.00D0, T), &
       & MEMBER("AOLGBJ          ",  474, "AE",  248.00D0, T), &
-      & MEMBER("AISO2J          ",  434, "AE",  133.00D0, T), &
-      & MEMBER("AMTNO3J         ",  432, "AE",  231.00D0, T), &
+      & MEMBER("AISO2J          ",  437, "AE",  133.00D0, T), &
+      & MEMBER("AMTNO3J         ",  435, "AE",  231.00D0, T), &
       & MEMBER("AMTHYDJ         ",  475, "AE",  186.00D0, T), &
-      & MEMBER("AISOPNNJ        ",  436, "AE",  226.00D0, T), &
+      & MEMBER("AISOPNNJ        ",  439, "AE",  226.00D0, T), &
       & MEMBER("AGLYJ           ",  481, "AE",   66.40D0, T), &
       & MEMBER("CS00O2C07A      ",  327, "GC",   24.50D0, F), &
       & MEMBER("CS00O2C04A      ",  336, "GC",   20.00D0, F), &
@@ -1559,24 +1559,24 @@
       DATA CGRID_INDEX( 185 ), SPECIES_TYPE( 185 ), CONVERT_CONC( 185 ) /  185, 'GC', F /  ! IHMML
       DATA CGRID_INDEX( 186 ), SPECIES_TYPE( 186 ), CONVERT_CONC( 186 ) /  186, 'GC', F /  ! H2NO3PIJ
       DATA CGRID_INDEX( 187 ), SPECIES_TYPE( 187 ), CONVERT_CONC( 187 ) /  187, 'GC', F /  ! H2NO3PK
-      DATA CGRID_INDEX( 188 ), SPECIES_TYPE( 188 ), CONVERT_CONC( 188 ) /  466, 'AE', T /  ! ACLI
-      DATA CGRID_INDEX( 189 ), SPECIES_TYPE( 189 ), CONVERT_CONC( 189 ) /  465, 'AE', T /  ! ACLJ
-      DATA CGRID_INDEX( 190 ), SPECIES_TYPE( 190 ), CONVERT_CONC( 190 ) /  468, 'AE', T /  ! ACLK
+      DATA CGRID_INDEX( 188 ), SPECIES_TYPE( 188 ), CONVERT_CONC( 188 ) /  470, 'AE', T /  ! ACLI
+      DATA CGRID_INDEX( 189 ), SPECIES_TYPE( 189 ), CONVERT_CONC( 189 ) /  471, 'AE', T /  ! ACLJ
+      DATA CGRID_INDEX( 190 ), SPECIES_TYPE( 190 ), CONVERT_CONC( 190 ) /  472, 'AE', T /  ! ACLK
       DATA CGRID_INDEX( 191 ), SPECIES_TYPE( 191 ), CONVERT_CONC( 191 ) /  188, 'GC', F /  ! IEPOXP
       DATA CGRID_INDEX( 192 ), SPECIES_TYPE( 192 ), CONVERT_CONC( 192 ) /  189, 'GC', F /  ! IMAEP
       DATA CGRID_INDEX( 193 ), SPECIES_TYPE( 193 ), CONVERT_CONC( 193 ) /  190, 'GC', F /  ! IHMMLP
       DATA CGRID_INDEX( 194 ), SPECIES_TYPE( 194 ), CONVERT_CONC( 194 ) /  476, 'AE', T /  ! AIETETJ
-      DATA CGRID_INDEX( 195 ), SPECIES_TYPE( 195 ), CONVERT_CONC( 195 ) /  426, 'AE', T /  ! ASO4J
+      DATA CGRID_INDEX( 195 ), SPECIES_TYPE( 195 ), CONVERT_CONC( 195 ) /  427, 'AE', T /  ! ASO4J
       DATA CGRID_INDEX( 196 ), SPECIES_TYPE( 196 ), CONVERT_CONC( 196 ) /  477, 'AE', T /  ! AIEOSJ
       DATA CGRID_INDEX( 197 ), SPECIES_TYPE( 197 ), CONVERT_CONC( 197 ) /  478, 'AE', T /  ! ADIMJ
       DATA CGRID_INDEX( 198 ), SPECIES_TYPE( 198 ), CONVERT_CONC( 198 ) /  479, 'AE', T /  ! AIMGAJ
       DATA CGRID_INDEX( 199 ), SPECIES_TYPE( 199 ), CONVERT_CONC( 199 ) /  480, 'AE', T /  ! AIMOSJ
-      DATA CGRID_INDEX( 200 ), SPECIES_TYPE( 200 ), CONVERT_CONC( 200 ) /  433, 'AE', T /  ! AISO1J
+      DATA CGRID_INDEX( 200 ), SPECIES_TYPE( 200 ), CONVERT_CONC( 200 ) /  436, 'AE', T /  ! AISO1J
       DATA CGRID_INDEX( 201 ), SPECIES_TYPE( 201 ), CONVERT_CONC( 201 ) /  474, 'AE', T /  ! AOLGBJ
-      DATA CGRID_INDEX( 202 ), SPECIES_TYPE( 202 ), CONVERT_CONC( 202 ) /  434, 'AE', T /  ! AISO2J
-      DATA CGRID_INDEX( 203 ), SPECIES_TYPE( 203 ), CONVERT_CONC( 203 ) /  432, 'AE', T /  ! AMTNO3J
+      DATA CGRID_INDEX( 202 ), SPECIES_TYPE( 202 ), CONVERT_CONC( 202 ) /  437, 'AE', T /  ! AISO2J
+      DATA CGRID_INDEX( 203 ), SPECIES_TYPE( 203 ), CONVERT_CONC( 203 ) /  435, 'AE', T /  ! AMTNO3J
       DATA CGRID_INDEX( 204 ), SPECIES_TYPE( 204 ), CONVERT_CONC( 204 ) /  475, 'AE', T /  ! AMTHYDJ
-      DATA CGRID_INDEX( 205 ), SPECIES_TYPE( 205 ), CONVERT_CONC( 205 ) /  436, 'AE', T /  ! AISOPNNJ
+      DATA CGRID_INDEX( 205 ), SPECIES_TYPE( 205 ), CONVERT_CONC( 205 ) /  439, 'AE', T /  ! AISOPNNJ
       DATA CGRID_INDEX( 206 ), SPECIES_TYPE( 206 ), CONVERT_CONC( 206 ) /  481, 'AE', T /  ! AGLYJ
       DATA CGRID_INDEX( 207 ), SPECIES_TYPE( 207 ), CONVERT_CONC( 207 ) /  327, 'GC', F /  ! CS00O2C07A
       DATA CGRID_INDEX( 208 ), SPECIES_TYPE( 208 ), CONVERT_CONC( 208 ) /  336, 'GC', F /  ! CS00O2C04A
@@ -9561,7 +9561,7 @@
      &     1.0000D+00, 1.0000D+00, 1.0000D+00, 3.0000D-11, 1.0000D-12, & ! +   
      &     4.4000D-12, 1.6600D-11, 1.9200D-10, 7.2000D-12, 1.0000D+00, & ! 7   
      &     1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! +   
-     &     1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D-40, 1.0000D+00, & ! 8   
+     &     1.0000D+00, 1.0000D+00, 1.0000D+00, 6.7006D-11, 1.0000D+00, & ! 8   
      &     1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! +   
      &     1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! 9   
      &     1.0000D+00, 9.4882D-06, 9.4882D-06, 9.2590D-05, 9.2590D-05, & ! +   
@@ -9789,7 +9789,7 @@
      &     7.0000D+01, 7.0000D+01, 7.0000D+01, 0.0000D+00, 0.0000D+00, & ! +   
      &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
      &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
-     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 4.0582D-09, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 3.4153D-08, 0.0000D+00, & ! 8   
      &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
      &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
      &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
@@ -10017,7 +10017,7 @@
      &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
      &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
      &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
-     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 2.0000D-06, 0.0000D+00, & ! 8   
      &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
      &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
      &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
@@ -10079,14 +10079,14 @@
      &     3.0000D-11, 2.1990D+03, 0.0000D+00, 2.9000D-12, 5.4200D+15, & 
      &     9.8000D+02, 3.1800D+03, 1.6000D-12, 1.2100D-11, 4.0000D+16, & 
      &     8.8000D-12, 8.3000D-13, 1.0000D-10, 1.0000D-10, 1.5000D-11, & 
-     &     3.7100D+15, 3.1000D-10, 2.2000D-10, 7.8426D+01/
+     &     3.7100D+15, 3.1000D-10, 2.2000D-10, 1.0743D+01/
 
       DATA ( RFDAT( 2,IRXXN ), IRXXN = 1, NFALLOFF ) / & 
      &     0.0000D+00,-7.0000D-01, 2.0000D-01, 1.0000D-01,-1.0000D-01, & 
      &     0.0000D+00, 6.5000D-34, 0.0000D+00,-1.1000D+00,-2.3000D+00, & 
      &     0.0000D+00, 0.0000D+00, 0.0000D+00,-9.0000D-01, 0.0000D+00, & 
      &    -8.5000D-01,-2.0000D+00,-1.0000D+00,-1.0000D+00,-1.9000D+00, & 
-     &     3.5000D+00,-1.0000D+00, 0.0000D+00, 5.8212D+00/
+     &     3.5000D+00,-1.0000D+00, 0.0000D+00,-6.7130D-01/
 
       DATA ( RFDAT( 3,IRXXN ), IRXXN = 1, NFALLOFF ) / & 
      &     0.0000D+00, 0.0000D+00, 0.0000D+00,-1.1080D+04, 0.0000D+00, & 

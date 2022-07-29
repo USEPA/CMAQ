@@ -25,8 +25,9 @@ C
 C  PRECONDITIONS: For the SAPRC07TIC_2DVBS_AQ mechanism
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED:  HRINIT, HRCALCKS, HRSOLVER
+C                                     FIND_DEGRADED, INIT_DEGRADE, FINAL_DEGRADE
 C
-C  REVISION HISTORY: Created by EBI solver program, Aug 30, 2021
+C  REVISION HISTORY: Created by EBI solver program, Jul 24, 2022
 C                       Based on the algorithm in "Test of Two Numerical
 C                       Schemes for Use in Atmospheric Transport-Chemistry
 C                       Models", O. Hertel, R. Berkowicz, J. Christensen,
@@ -71,7 +72,19 @@ C**********************************************************************
       USE PHOT_MOD, Only: INIT_PHOT_SHARED, RJ     ! photolysis rate, in-line module
       USE PA_DEFN, Only: LIRR                      ! Process Analysis control and data variable
       USE PA_IRR_CLT
+#ifndef isam
+      USE DEGRADE_ROUTINES, ONLY : N_REACT, RXTANT_MAP, DEG_LAY, DEG_COL, DEG_ROW,
+     &                              FIND_DEGRADED, INIT_DEGRADE, FINAL_DEGRADE
+#else
+      USE DEGRADE_ROUTINES, ONLY : N_REACT, RXTANT_MAP, SA_DEGRADE_EXTRACT,
+     &                              FIND_DEGRADED, INIT_DEGRADE, FINAL_DEGRADE,
+     &                              SA_DEGRADE_UPLOAD, DEG_LAY, DEG_COL, DEG_ROW
+#endif
       USE CENTRALIZED_IO_MODULE, ONLY : INTERPOLATE_VAR, OCEAN, SZONE
+#ifdef sens
+      USE DDM3D_CHEM
+      Use DDM3D_DEFN, Only: DATENUM, STARTDATE, IPT, IDATE, HIGH, NP, NPMAX, CKTIME
+#endif
 
       IMPLICIT NONE
 
@@ -132,8 +145,6 @@ C..Scratch Local Variables:
       REAL       SUMEBI       ! Sum of EBI iterations
 #endif
 
-      REAL( 8 )  CHEMSTEP     ! Chemistry integration interval (min)
-
       INTERFACE
         SUBROUTINE HRSOLVER( JDATE, JTIME, C, R, L )
            INTEGER, INTENT( IN ) :: JDATE    ! Current date (YYYYDDD)
@@ -184,6 +195,20 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
             CALL_IRR = .FALSE.
          END IF
 
+         MODEL_SPECIES = NSPCSD    ! WTH: find number of model species
+
+! Determine whether DEGRADE rountines are needed.
+
+         CALL FIND_DEGRADED( JDATE, JTIME, CALL_DEG )
+         IF( CALL_DEG )THEN
+            WRITE(LOGDEV,*)'TX DEGRADE ROUTINES USED'
+            WRITE(LOGDEV,*)'Mechanism contains degraded species'
+#ifdef verbose_gas
+         ELSE
+            WRITE(LOGDEV,*)'TX DEGRADE ROUTINES OMITTED'
+            WRITE(LOGDEV,*)'MECHANISM does not include degraded species'
+#endif
+         END IF
 
          CALL HRINIT
 
@@ -218,14 +243,10 @@ C Define processor offsets
          PECOL_OFFSET = COLSD_PE( 1, MYPE+1 ) - 1
          PEROW_OFFSET = ROWSD_PE( 1, MYPE+1 ) - 1
 
-         ALLOCATE( LAND_ZONE( NCOLS, NROWS ) )
+         ALLOCATE( SEAWATER_ZONE( NCOLS, NROWS ) )
          DO R = 1, NROWS
             DO C = 1, NCOLS
-               IF( OCEAN( C,R ) + SZONE( C,R ) .GT. 0.0 )THEN
-                   LAND_ZONE( C,R ) = .FALSE.
-               ELSE
-                   LAND_ZONE( C,R ) = .TRUE.
-               END IF
+               SEAWATER_ZONE( C,R ) =  OCEAN( C,R ) + SZONE( C,R )
              END DO
          END DO
 
@@ -244,6 +265,22 @@ C..Determine which cells need IRR
         NUMB_ISAM_CELLS = 1.0D0 / ( NCOLS * NROWS * NLAYS )
         CALL SA_IRR_INIT
 #endif
+
+#ifdef sens
+         CALL INIT_DDM3D_CHEM()
+
+C For higher order sensitivities
+         IF ( HIGH ) THEN
+            DO RXN = 1, NRXNS
+               IF( NREACT( RXN ) .EQ. 1 ) THEN
+                  ORDER1( RXN ) = .TRUE.
+               ELSE
+                  ORDER1( RXN ) = .FALSE.
+               END IF
+            END DO
+         END IF
+#endif
+
          LFIRST = .FALSE.
 
       END IF      ! First time
@@ -295,6 +332,21 @@ C.. Get pressure in Pascals
 C.. Get Heteorogeneous rates and Update Aerosol Distribution Properties
       CALL HETCHEM_RATES( TA, PRES, QV, CGRID, DENS )
 
+#ifdef sens
+      DATENUM = 1 + JDATE - STARTDATE !  Set the date and hour counters used in sensitivity calls
+
+C For reaction rate sensitivities
+      DO NP = 1, NPMAX
+         IF ( IPT( NP ) .EQ. 5 ) THEN
+            CALL CKTIME( JDATE,JTIME,NP,RXNFLAG(NP) ) ! Rxnflag set to true iff ipt=5 and time, date within bounds
+            IF ( IDATE( NP, DATENUM ) .NE. 1 ) RXNFLAG( NP ) = .FALSE.
+         ELSE
+            RXNFLAG( NP ) = .FALSE.
+         END IF
+      END DO
+
+#endif sens
+
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  Top of loop over cells
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -311,6 +363,10 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          DO R = 1, NROWS
             DO C = 1, NCOLS
 
+               DEG_LAY = L
+               DEG_ROW = R
+               DEG_COL = C
+
 c..reset CALL_IRR based on cell's values
                CALL_IRR = LFLAGIRR( C,R,L )
 
@@ -326,6 +382,19 @@ c..Load ICs
                   END IF
                END DO
 
+               IF(CALL_DEG)THEN ! INITIALIZE degradation routines
+
+                  YCCELL = 0.0D0
+                  DO S = 1, MODEL_SPECIES
+                     YCCELL( S ) = REAL( CGRID(C,R,L,S), 8)
+                  END DO
+                  CALL INIT_DEGRADE(YCCELL,TA(C,R,L),DENS(C,R,L),PRES(C,R,L),QV(C,R,L),RJIN(NCELL,:),
+     &                              JDATE, JTIME)
+
+#ifdef isam
+                  CALL SA_DEGRADE_EXTRACT( C,R,L,DENS(C,R,L) )
+#endif
+               END IF
 
 c..Set physical quantities
                TEMP( NCELL )     = REAL( TA( C,R,L ), 8)
@@ -333,12 +402,7 @@ c..Set physical quantities
 !                PRESCELL( NCELL ) = REAL( PRES( C,R,L ), 8)
                ATMPRES( NCELL )  = PA2ATM * REAL( PRES( C,R,L ), 8)
                H2O( NCELL )      = REAL( MAX ( MAOMV * QV( C,R,L ), 0.0 ), 8)
-
-               IF( LAND_ZONE( C,R ) .OR. SEAICE ( C,R ) .GT. 0.0 )THEN
-                   LAND (NCELL) = .TRUE.
-               ELSE
-                   LAND (NCELL) = .FALSE.
-               END IF
+               SEAWATER (NCELL)      = MAX ( 0.0D0, ( REAL( SEAWATER_ZONE( C,R ) - SEAICE (C,R) ,8) ) )
 
 c..Get rate constants
                LSUNLIGHT = .FALSE.
@@ -347,7 +411,7 @@ c..Get rate constants
 
                FORALL ( NPH = 1:NHETERO )HET( NCELL,NPH ) = REAL( KHETERO( NPH,C,R,L ), 8)
 
-               CALL CALC_RCONST( TEMP, ATMPRES, H2O, RJIN, HET, LSUNLIGHT, LAND, RKI_SAV, NCELL )
+               CALL CALC_RCONST( TEMP, ATMPRES, H2O, RJIN, HET, LSUNLIGHT, SEAWATER, RKI_SAV, NCELL )
                FORALL( NPH = 1:NRXNS )RKI( NPH ) = RKI_SAV( NCELL, NPH )
 
 #ifdef isam
@@ -389,6 +453,20 @@ c..Update concentration array
                   END IF
                END DO
 
+               IF(CALL_DEG)THEN  ! WTH: update based on degrade routines
+                  CALL FINAL_DEGRADE(YCCELL)
+                  UPDATE_DEGRADED: DO SPC = 1, N_REACT
+                     ISP = RXTANT_MAP( SPC )
+                     IF( ISP .LE. 0 )CYCLE UPDATE_DEGRADED
+                     DO S = 1, NUMB_MECH_SPC
+                        IF(  CGRID_INDEX( S ) .EQ. ISP )CYCLE UPDATE_DEGRADED
+                     END DO
+                     CGRID(C,R,L,ISP) = REAL( YCCELL(ISP), 4)
+                  END DO UPDATE_DEGRADED
+#ifdef isam
+                  CALL SA_DEGRADE_UPLOAD( C,R,L,DENS(C,R,L) )
+#endif
+               END IF
 
 #ifdef isam
                CALL SA_IRR_UPLOAD( C, R, L, DENS( C,R,L ), YC )
@@ -396,6 +474,21 @@ c..Update concentration array
 
 c..update irrout arrays if needed
                IF ( LFLAGIRR( C,R,L ) )CALL PA_IRR_CELLENDF( C, R, L )
+#ifdef sens
+               DO RXN = 1, NRXNS
+                  SRK( RXN ) = RKI( RXN )
+                  IF ( HIGH ) THEN
+                     IF ( ORDER1 (RXN ) ) THEN
+                        SRK2( RXN ) = 0.0
+                     ELSE
+                        SRK2( RXN ) = RKI( RXN )
+                     END IF
+                  END IF
+               END DO
+
+
+               CALL SOLVE_DDM3D_CHEM( C,R,L,CHEMSTEP )
+#endif
 
             END DO
          END DO

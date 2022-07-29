@@ -27,7 +27,7 @@ C  PRECONDITIONS: For the SAPRC07TIC_2DVBS_AQ mechanism
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, Aug 30, 2021
+C  REVISION HISTORY: Created by EBI solver program, Jul 24, 2022
 C
 C***********************************************************************
       USE HRDATA
