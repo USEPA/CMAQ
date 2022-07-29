@@ -56,8 +56,6 @@ C--------------------------------------------------------------------
       USE HGRD_DEFN, ONLY: NCOLS, NROWS, GL_NCOLS, GL_NROWS, COLSX_PE, ROWSX_PE, MYPE
       USE VGRD_DEFN, ONLY: NLAYS
       USE RXNS_DATA, ONLY: NRXNS
-      USE desid_param_module, ONLY: DESID_REG, DESID_REG_FAC, DESID_N_REG
-
 
       IMPLICIT NONE
 
