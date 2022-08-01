@@ -7,9 +7,20 @@ Purpose: This tutorial describes how to create an ocean mask file that defines t
 
 The CMAQ sea spray emissions module requires the input of an ocean mask file (OCEAN). OCEAN is a time-independent I/O API file that identifies the fractional [0-1] coverage in each model grid cell allocated to open ocean (OPEN) or surf zone (SURF). The CCTM uses this coverage information to calculate sea spray emission fluxes from the model grid cells online during a CCTM run.
 
-Additionally, CMAQ's gas-phase chemical mechanisms except cb6r3m_ae7_kmtbr contain an effective first order halogen mediated ozone loss  over the ocean (where OPEN + SURF > 0.0). The OCEAN file is also required for this process. The cb6r3m_ae7_kmtbr mechanism contains more explicit marine chemistry, but also requires the OCEAN file.
+Additionally, CMAQ's gas-phase chemical mechanisms except cb6r5* contain an effective first order halogen mediated ozone loss over the ocean (where OPEN + SURF > 0.0). The OCEAN file is also required for this process. The cb6r5_* mechanisms contain more explicit chemistry and require that the OCEAN file contain DMS information. The cb6r5m_ae7_aq mechanism requires an OCEAN file with both DMS and CHLO variables.
 
-If your domain includes ocean, OPTION 1 is recommended. However, if your modeling domain does not contain any ocean, or you wish to bypass the CMAQ sea spray module and the reaction of ozone with oceanic halogens, follow OPTION 2 or 3.  
+```mermaid
+graph TD
+    A[CTM_OCEAN_CHEM = N]  --> D(No monthly ocean files required); 
+    T[CB6R5M] --> |requires| B
+    B[CTM_OCEAN_CHEM = Y] --> |requires ocean file with| Y
+    L[CB6R5, CRACMM, CB6R3, SAPRC, RACM] --> |optional| B   
+    Y[OPEN, SURF] --> |CB6R5 | G(DMS)
+    Y-->|CB6R5M| H(DMS,CHLO)
+```
+
+If your domain includes ocean, OPTION 1 below is recommended. However, if your modeling domain does not contain any ocean, or you wish to bypass the CMAQ sea spray module and the reaction of ozone with oceanic halogens, follow OPTION 2 or 3.  
+
 
 ## OPTION 1: Create OCEAN file from shapefile of domain
 
@@ -24,6 +35,8 @@ If your domain is in the U.S., there is a shapefile included with the SA tool in
 Using the sample script `alloc_srf_zone_to_oceanfile.csh` (located in the **scripts** directory of the SA tool) as a guide, customize a script to run the SA executable on your machine.
 
 The default alloc_srf_zone_to_oceanfile.csh script is shown below. To customize this script for a new domain, set the `GRIDDESC` variable to point to an I/O API grid description file that includes the new domain definition. Set `OUTPUT_GRID_NAME` to the name of the new grid as defined in the GRIDDESC file. If needed, change the `OUTPUT_FILE_MAP_PRJN` variable to the projection definition for the new domain.
+
+
 
 ```
 #! /bin/csh -f
@@ -73,12 +86,18 @@ $TIME $EXE
 
 Run the script and check the output directory designated in the run script for the new OCEAN file.
 
+### STEP 3: Add halogen chemistry variables
+
+The OCEAN file should be further modified to include DMS and CHLO if using a CB6R5* mechanism. This can be accomplished with the dmschlo python tool. See its [README](../../../PREP/PYTOOLS/dmschlo/README.md) for more information. 
+
 ## OPTION 2: Run without an OCEAN input file in CMAQv5.3 and later
-If your modeling domain does not contain any coastal area, you can run CMAQ without an OCEAN input file. This will turn off both sea-spray emissions and the first-order decay of ozone over the ocean. To do this, set the run script option "CTM_OCEAN_CHEM" to "N" or "F". 
+If your modeling domain does not contain any coastal area, you can run CMAQ without an OCEAN input file. This will turn off both sea-spray emissions and the first-order decay of ozone over the ocean. To do this, set the run script option "CTM_OCEAN_CHEM" to "N" or "F". This option is not available for the mechanism with detailed halogen chemistry (cb6r5m_ae7_aq).
 
-## OPTION 3: Zero Out Sea-Spray Emissions in CMAQv5.2 or earlier
+If using a cb6r5_* mechanism and you prefer not to use DMS chemistry, the m3fake script below can be adapted to create a DMS variable with zero values. 
 
-Even if your modeling domain does not contain areas of sea spray emissions, you need to provide an OCEAN file to the CCTM. You can create a dummy OCEAN file for domains with no sea spray sources or if you prefer to set sea spray emissions to zero. Copy and run the following I/O API Tool m3fake script to create an OCEAN file containing zeros for the open ocean and surf zone coverage fractions. Using this file will effectively configure a CCTM simulation with zero sea spray emissions.  
+## OPTION 3: Zero Out Sea-Spray Emissions in CMAQv5.2
+
+Even if your modeling domain does not contain areas of sea spray emissions, you need to provide an OCEAN file to the CCTM. You can create a dummy OCEAN file for domains with no sea spray sources or if you prefer to set sea spray emissions to zero. Copy and run the following I/O API Tool m3fake script to create an OCEAN file containing zeros for the open ocean and surf zone coverage fractions. Using this file will effectively configure a CCTM simulation with zero sea spray emissions.
 
 Note that you will need the [I/O API Tools](www.cmascenter.org/ioapi) installed and compiled on your Linux system to use this script.
 
