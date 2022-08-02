@@ -86,7 +86,7 @@ Run the script and check the output directory designated in the run script for t
 
 This section uses a Jupyter Notebook. Jupyter Notebooks can be run on cloud-based systems like SageMaker, Binder, Google Colab, or any linux system with Jupyter installed (https://jupyter.org/install).
 
-The Jupyter notebook CMAQ_DMS_ChlorA.ipynb (located in the [PREP](../../../PREP) directory) can be used to add DMS and CHLO to the existing OCEAN file. See the tool’s [README] (../../../PREP/PYTOOLS/dmschlo/README.md) for instructions on how to configure an environment for this notebook. The notebook requires setting the following 6 variables: dom, ocnintmpl, ocnouttmpl, gdpath, overwrite, getlatestchlo.
+The Jupyter notebook CMAQ_DMS_ChlorA.ipynb (located in the [PREP](../../../PREP) directory) can be used to add DMS and CHLO to the existing OCEAN file. See the tool’s [README](../../../PREP/PYTOOLS/dmschlo/README.md) for instructions on how to configure an environment for this notebook. The notebook requires setting the following 6 variables: dom, ocnintmpl, ocnouttmpl, gdpath, overwrite, getlatestchlo.
 
 Variable “dom” is the output domain which can be defined as follows (12US1 is the output domain name):
 dom = '12US1'
