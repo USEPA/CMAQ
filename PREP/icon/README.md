@@ -18,6 +18,8 @@ There are two distinct modes of operation for ICON.  When running ICON, the
 user must specify whether to generate ICs from:  (1) an existing CONC file
 (*regrid*); or (2) an ASCII file of vertical profiles (*profile*).
 
+The User's Guide contains a [tutorial on how to use ICON to create initial conditions from seasonal or daily average hemispheric CMAQ output files](../../DOCS/Users_Guide/Tutorials/CMAQ_UG_tutorial_HCMAQ_IC_BC.md) distributed through the CMAS data warehouse.
+
 CMAQ can also use initial conditions derived from global chemistry models
 (GCMs). While ICON does not directly support processing of datasets from GCMs
 (in their native formats), users could develop their own custom codes to

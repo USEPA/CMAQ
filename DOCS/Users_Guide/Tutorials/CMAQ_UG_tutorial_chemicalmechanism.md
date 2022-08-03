@@ -12,12 +12,12 @@ Goal: Modify the gas- and aerosol-phase chemical mechanisms in CMAQ, create a ne
 2. AE namelist
 3. GC namelist
 4. NR namelist
-5. EmissCtrl namelist
+5. DESID control file 
 6. AERO_DATA.F
 7. SOA_DEFN.F
 8. hlconst.F
-9. SpecDef_*.txt
-10. SpecDef_Dep_*.txt
+9. SpecDef_*.txt (optional)
+10. SpecDef_Dep_*.txt (optional)
 
 
 ### Utilities to use
@@ -32,7 +32,7 @@ Goal: Modify the gas- and aerosol-phase chemical mechanisms in CMAQ, create a ne
 
 <a id=mech_def></a>
 ### 2. Edit mech.def.
-The mech.def file lists all of CMAQ's chemical reactions and is located at $CMAQ_REPO/CCTM/src/MECHS/${mechanism}/mech_${mechanism}.def. The [chemmech documentation](../../../UTIL/chemmech/README.md) describes formats for reaction rate constants dependent on temperature, atmospheric number density, water vapor, sunlight, model species and constants such as oxygen and methane mixing ratios. The documentation also gives a more detailed explanation of the mech.def (mechanism definitions) sections and formatting rules.
+The mech.def file lists all of CMAQ's chemical reactions and is located at $CMAQ_REPO/CCTM/src/MECHS/{mechanism}/mech_{mechanism}.def. The [chemmech documentation](../../../UTIL/chemmech/README.md) describes formats for reaction rate constants dependent on temperature, atmospheric number density, water vapor, sunlight, model species and constants such as oxygen and methane mixing ratios. The documentation also gives a more detailed explanation of the mech.def (mechanism definitions) sections and formatting rules.
 - All reactions must begin with a name in < > brackets.
 - All reactions must end with # followed by a reaction rate constant with units of cm<sup>3</sup>/(molecules s)
 - In this tutorial, all reactions regenerate the oxidant.
@@ -49,9 +49,9 @@ To form a nonvolatile, accumulation mode SOA species (ANONVJ) from a gas-phase I
 
 <a id=GCnml></a>
 ### 3. Edit GC namelist.
-The GC namelist defines gas-phase species and their physical and chemical properties. It's located at $CMAQ_REPO/CCTM/src/MECHS/${mechanism}/GC_${mechanism}.nml.
+The GC namelist defines gas-phase species and their physical and chemical properties. It's located at $CMAQ_REPO/CCTM/src/MECHS/{mechanism}/GC_{mechanism}.nml.
 You must add a new row for every gas-phase species that was added to [mech.def](#mech_def). See [Chapter 4](../CMAQ_UG_ch04_model_inputs.md) for more information.
-TPROD, SVTPROD1, SVTPROD2, and NONVG from the examples above must be added to the GC namelist because they're gas-phase species. Column descriptions can be found in [Chapter 4](../CMAQ_UG_ch04_model_inputs.md). In this example, TPROD does not participate in dry deposition - similar to many other VOCs in CMAQ - so 'DRYDEP SURR' and 'DDEP' are empty and FAC is -1. NONVG (an IVOC as defined above), SVTPROD1, and SVTPROD2 do participate in dry deposition because of their low volatilities. This tutorial does not explain the process of creating new dry deposition surrogates, but it is possible to do so and replace 'VD_GEN_ALD'. The WET-SCAV SURR are described in the [hlconst.F](#hlconst) section below. 'GC2AE SURR' lists the species that partition between gas and aerosol phases in [SOA_DEFN.F](#SOA_DEFN).
+TPROD, SVTPROD1, SVTPROD2, and NONVG from the examples above must be added to the GC namelist because they're gas-phase species. Column descriptions can be found in [Chapter 4](../CMAQ_UG_ch04_model_inputs.md). In this example, TPROD does not participate in dry deposition - similar to many other VOCs in CMAQ - so 'DRYDEP SURR' and 'DDEP' are empty and FAC is -1. NONVG (an IVOC as defined above), SVTPROD1, and SVTPROD2 do participate in dry deposition because of their low volatilities. This tutorial does not explain the process of creating new dry deposition surrogates, but it is possible to do so and replace 'VD_GEN_ALD'. The WET-SCAV SURR are described in the [hlconst.F](#hlconst) section below. 'GC2AE SURR' lists the species that partition between gas and aerosol phases in [SOA_DEFN.F](#SOA_DEFN). When modifying CRACMM mechanisms, the user is encouraged to append a representative compound structure as a comment at the end of the line. See [Chapter 6] (../CMAQ_UG_ch06_model_configuration_options.md#cracmm-metadata-in-species-nml) for CRACMM species metadata.
 ```
 !SPECIES        ,MOLWT   ,IC     ,IC_FAC ,BC     ,BC_FAC ,DRYDEP SURR       ,FAC  ,WET-SCAV SURR     ,FAC ,GC2AE SURR     ,GC2AQ SURR,TRNS  ,DDEP  ,WDEP  ,CONC
 'SVTPROD1'      ,216.66  ,''     ,-1     ,''     ,-1     ,'VD_GEN_ALD'      , 1   ,'SVTPROD1'        , 1  ,'SVTPROD1'     ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',
@@ -64,90 +64,86 @@ TPROD, SVTPROD1, SVTPROD2, and NONVG from the examples above must be added to th
 
 <a id=AEnml></a>
 ### 4. Edit AE namelist.
-The AE namelist defines all aerosol-phase species and their physical and chemical properties and is located at $CMAQ_REPO/CCTM/src/MECHS/${mechanism}/AE_${mechanism}.nml
+The AE namelist defines all aerosol-phase species and their physical and chemical properties and is located at $CMAQ_REPO/CCTM/src/MECHS/{mechanism}/AE_{mechanism}.nml
 You must add a new row for every aerosol-phase species added to [AERO_DATA.F](#AERO_DATA). See [Chapter 4](../CMAQ_UG_ch04_model_inputs.md) for more information.
-ANONVJ and the aerosol products from the Odum 2-product model must be added to the AE namelist. The semivolatile Odum 2-product species (SVTPROD1 and SVTPROD2) partition between the gas and accumulation mode aerosol phase with ATPROD1J and ATPROD2J. Column descriptions can be found in [Chapter 4](../CMAQ_UG_ch04_model_inputs.md). 
+Starting in CMAQv5.4, separate lines are not needed in the AE namelist for species in multiple size modes. Each species (without appended size information) is added as one line. In this example, ANONV and the aerosol products from the Odum 2-product model must be added to the AE namelist. The Accum variable is set to "T" to indicate representation in the J mode. The semivolatile Odum 2-product species (SVTPROD1 and SVTPROD2) partition between the gas and accumulation mode aerosol phase with ATPROD1 and ATPROD2. Column descriptions can be found in [Chapter 4](../CMAQ_UG_ch04_model_inputs.md). 
 ```
-!SPECIES   ,MOLWT   ,IC     ,IC_FAC ,BC     ,BC_FAC ,DRYDEP SURR ,FAC ,WET-SCAV SURR  ,FAC ,AE2AQ SURR     ,TRNS    ,DDEP    ,WDEP    ,CONC
-'ATPROD1J' ,216.66  ,''     ,-1     ,''     ,-1     ,'VMASSJ'    , 1  ,'ORG_ACCUM'    , 1  ,'SOA_ACCUM'    ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
-'ATPROD2J' ,182.66  ,''     ,-1     ,''     ,-1     ,'VMASSJ'    , 1  ,'ORG_ACCUM'    , 1  ,'SOA_ACCUM'    ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
-'ANONVJ'   ,135.54  ,''     ,-1     ,''     ,-1     ,'VMASSJ'    , 1  ,'ORG_ACCUM'    , 1  ,'SOA_ACCUM'    ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
+!SPECIES    ,MOLWT  ,Aitken ,Accum ,Coarse ,OPTICS ,IC ,IC_FAC ,BC ,BC_FAC ,DRYDEP SURR ,FAC ,WET-SCAV SURR,FAC ,AE2AQ SURR ,TRNS    ,DDEP    ,WDEP    ,CONC
+'ATPROD1'   ,216.66 ,F      ,T     ,F      ,''     ,'' ,-1     ,'' ,-1     ,'VMASSJ'    , 1  ,'ORG_ACCUM'  , 1  ,'SOA_ACCUM','Yes'   ,'Yes'   ,'Yes'   ,'Yes',
+'ATPROD2'   ,182.66 ,F      ,T     ,F      ,''     ,'' ,-1     ,'' ,-1     ,'VMASSJ'    , 1  ,'ORG_ACCUM'  , 1  ,'SOA_ACCUM','Yes'   ,'Yes'   ,'Yes'   ,'Yes',
+'ANONV'     ,135.54 ,F      ,T     ,F      ,''     ,'' ,-1     ,'' ,-1     ,'VMASSJ'    , 1  ,'ORG_ACCUM'  , 1  ,'SOA_ACCUM','Yes'   ,'Yes'   ,'Yes'   ,'Yes',
 ```
 
 
 
 <a id=NRnml></a>
 ### 5. Edit NR namelist.
-The NR namelist defines gas-phase species that are not in the mech.def file, and their physical and chemical properties. Species in this file are typically the semivolatile gases that partition between the gas- and aerosol-phases. It's located at $CMAQ_REPO/CCTM/src/MECHS/${mechanism}/NR_${mechanism}.nml.
+The NR namelist defines gas-phase species that are not in the mech.def file, and their physical and chemical properties. Species in this file are typically the semivolatile gases that partition between the gas- and aerosol-phases. It's located at $CMAQ_REPO/CCTM/src/MECHS/{mechanism}/NR_{mechanism}.nml.
 You must add a new row for every nonreactive species, if any, added to the chemical mechanism that is not explicitly modeled in [mech.def](#mech_def). See [Chapter 4](../CMAQ_UG_ch04_model_inputs.md) for descriptions of the information in each column.
-The examples used in this tutorial do not include species that need to be added to the NR namelist. Follow the sesquiterpene SOA formation mechanism as an example of NR species (e.g. follow SESQRXN, SVSQT, and ASQTJ in $CMAQ_REPO/CCTM/src/MECHS/${mechanism}/ and $CMAQ_REPO/CCTM/src/aero/aero6/).
+The examples used in this tutorial do not include species that need to be added to the NR namelist. Follow the sesquiterpene SOA formation mechanism as an example of NR species (e.g. follow SESQRXN, SVSQT, and ASQTJ in $CMAQ_REPO/CCTM/src/MECHS/{mechanism}/ and $CMAQ_REPO/CCTM/src/aero/aero6/).
 
 
 
 <a id=EmissCtrl></a>
-### 6. Edit Emissions Control file.
-The Emissions Control file describes how to input emissions and is located at $CMAQ_REPO/CCTM/src/MECHS/${mechanism}/EmissCtrl_${mechanism}.nml. Any new species included in the mech.def or GC, AE, and NR namelists that is directly emitted should be included in this file. Examples of adding new species are given in the !> CUSTOM MAPPING EXAMPLES <! section and further description can be found in the [DESID tutorial](CMAQ_UG_tutorial_emissions.md).
+### 6. Edit DESID Control file.
+The DESID Control file (formerly the EmissCtrl namelist) describes how to input emissions and is located at $CMAQ_REPO/CCTM/src/MECHS/{mechanism}/CMAQ_Control_DESID_{mechanism}.nml. Any new species included in the mech.def or GC, AE, and NR namelists that is directly emitted should be included in this file. Examples of adding new species and further description can be found in the [DESID tutorial](CMAQ_UG_tutorial_emissions.md).
 
 
 
 <a id=SpecDef></a>
 ### 7. Edit SpecDef file.
-The SpecDef file is used to aggregate CMAQ output species (e.g. into PM<sub>2.5</sub>) and convert units. It is used to run the post-processing tool [combine](../../../POST/combine/README.md) and is located at $CMAQ_REPO/CCTM/src/MECHS/${mechanism}/SpecDef_{mechanism}.txt.
+The SpecDef file is used to aggregate CMAQ output species (e.g. into PM<sub>2.5</sub>) and convert units. It is used to run the post-processing tool [combine](../../../POST/combine/README.md) and is located at $CMAQ_REPO/CCTM/src/MECHS/{mechanism}/SpecDef_{mechanism}.txt.
 To convert the units of a gas-phase species to ppb, add the following line:
 ```
 NEWGAS          ,ppbV      ,1000.*NEWGAS[1]
 ```
-To add a new species to OA mass, add it to the appropriate POA or SOA variables. For example, to add a new SOA accumulation-mode aerosol species ANEWJ, include '+ANEWJ[1]' in ASOMJ. This change will be reflected in subsequent variable definitions that use ASOMJ.
-
-If your simulation domain is an urban area, move AGLYJ from AORGB (biogenic VOC-derived aerosol) to AORGA (anthropogenic VOC-derived SOA).
-
-In some cases you may want to remove pcSOA from your SOA. In this case, you must create new variables with APCSOJ subtracted. For example, to calculate PM<sub>1</sub> SOA without pcSOA, update the following variables:
-```
-AOMJ_MP         ,ug m-3    ,APOMJ[0]  + ASOMJ[0] - APCSOJ[1]
-ATOTJ_MP        ,ug m-3    ,ASO4J[1]+ANO3J[1]+ANH4J[1]+ANAJ[1]+ACLJ[1] \
-                           +AECJ[1]+AOMJ_MP[0]+AOTHRJ[1]+AFEJ[1]+ASIJ[1]  \
-                           +ATIJ[1]+ACAJ[1]+AMGJ[1]+AMNJ[1]+AALJ[1]+AKJ[1]
-PM1_TOT_MP      ,ug m-3    ,ATOTI[0]*PM1AT[3]+ATOTJ_MP[0]*PM1AC[3]+ATOTK[0]*PM1CO[3]
-```
-To update the OC variables or the deposition of OC variables in the SpecDef_Dep_{mechanism}.txt file, you must know the OM:OC ratios of the new organic aerosol species.
-
-
+In CMAQ v5.4, ELMO will automatically calculate and output aerosol quantities that used to be manually coded in SpecDef. SpecDef files are set up to use ELMO for calculation of total PM2.5, OC, and other quantities. During runtime, ELMO determines whether a species is part of organic aerosol based on the OM flag in $CMAQ_REPO/CCTM/src/aero/aero6/AERO_DATA.F (see below for how to modify). OM:OC for calculation of OC is based on information in $CMAQ_REPO/CCTM/src/aero/aero6/SOA_DEFN.F (see below for how to modify). Organic aerosol species can be labeled as primary (POA), anthropogenic, or biogenic. For some SOA quantities, the anthropogenic vs biogenic nature depends on the local emission profile and can be customized by the user. 
 
 <a id=SOA_DEFN></a>
 ### 8. Edit SOA_DEFN.F
-SOA_DEFN.F describes SOA precursors, SOA species and their properties dealing with gas to particle partitioning. It is located at $CMAQ_REPO/CCTM/src/aero/aero6/SOA_DEFN.F. Note that the aero7 directory is linked to the aero6 directory.
+SOA_DEFN.F describes SOA precursors, SOA species and their properties dealing with gas to particle partitioning. It is located at $CMAQ_REPO/CCTM/src/aero/aero6/SOA_DEFN.F. Note that all aero directories (aero7 and cracmm) are linked to the aero6 directory.
 
 You must add a row for every new SOA species and increase n_oa_list by the number of species added to the list.
 
-To add semivolatile species that partition between the gas and aerosol phases (with a gas-phase species defined in the [GC namelist](#GCnml)), include their effective saturation concentrations (C*) and enthalpies of vaporization. In this example, ATPROD1 has the corresponding gas-phase species SVTPROD1 and has C* = 0.95 ug/m<sup>3</sup> and enthalpy of vaporization = 131 J/mol. ATPROD2 has the corresponding gas-phase species SVTPROD2 and has C* = 485 ug/m<sup>3</sup> and enthalpy of vaporization = 101 J/mol:
+To add semivolatile species that partition between the gas and aerosol phases (with a gas-phase species defined in the [GC namelist](#GCnml)), include their effective saturation concentrations (C*) and enthalpies of vaporization. In this example, ATPROD1 (nominally biogenic) has the corresponding gas-phase species SVTPROD1 and has C* = 0.95 ug/m<sup>3</sup> and enthalpy of vaporization = 131 J/mol. ATPROD2 has the corresponding gas-phase species SVTPROD2 and has C* = 485 ug/m<sup>3</sup> and enthalpy of vaporization = 101 J/mol:
 ```
-& oa_type('ATPROD1', 'SVTPROD1', '        ',  0.0000,     0.95, 131.0E3,   F ),
-& oa_type('ATPROD2', 'SVTPROD2', '        ',  0.0000,   485.00, 101.0E3,   F )
+      !                                                                                  ANTHROPOGENIC
+      !                                                                                      | BIOGENIC
+      !         PM          Vapor       Rxn Cntr     Alpha   CStar^    Enth-   O:C OM:OC     |   |   Nonvol-     
+      !         Name        Name        Name*                           alpy             POA |   |   atile        
+      !        ----------  ----------  ----------   ------  --------  -------  --- ----- --- --- --- ---    
+     & oa_type('ATPROD1', 'SVTPROD1', '        ',  0.0000,     0.95, 131.0E3,  0.3, 1.6, F,  F,  T,  F ),
+     & oa_type('ATPROD2', 'SVTPROD2', '        ',  0.0000,   485.00, 101.0E3,  0.2, 1.4, F,  F,  T,  F )
 ```
-To add a nonvolatile aerosol species:
+To add a nonvolatile aerosol species (assumed anthropogenic):
 ```
-& oa_type('ANONV  ', '        ', '        ',  0.0000,   1.E-10,   1.0E0,   T )
+     & oa_type('ANONV  ', '        ', '        ',  0.0000,   1.E-10,   1.0E0,  0.6, 1.9, F,  T,  F,  T )
 ```
-Note that these aerosol definitions do not include a specification of the size bin they fall into. That is instead defined in the [AE namelist](#AEnml) by I, J, or K (for Aitken, accumulation, or coarse mode aerosol, respectively) at the end of the variable name.
+Note that these aerosol definitions do not include a specification of the size bin they fall into. That is instead defined in the [AE namelist](#AEnml) by a series of T/F indicators (for Aitken, accumulation, or coarse mode aerosol, respectively).
 
 
 
 <a id=AERO_DATA></a>
 ### 9. Edit AERO_DATA.F
-AERO_DATA.F defines all aerosol species and some of their properties. It is located at $CMAQ_REPO/CCTM/src/aero/aero6/AERO_DATA.F. Note that the aero7 directory is linked to the aero6 directory.
+AERO_DATA.F defines all aerosol species and some of their properties. It is located at $CMAQ_REPO/CCTM/src/aero/aero6/AERO_DATA.F. Note that all aero directories (aero7 and cracmm) are linked to the aero6 directory.
 
-You must add a row for every new aerosol species and increase n_aerolist be the number of species added to the list.
+You must add a row for every new aerosol species and increase n_aerolist be the number of species added to the list. For all species except particulate water and hydronium ion (a tracer), CMAQ now sets no_M2Wet to F.
 
-To add a semivolatile organic aerosol species, set OM to T, set no_M2Wet to T, calculate korg from e.g. Pye et al., ACP, 2017, and use properties that match other organic species:
+To add a semivolatile (Vol=REV) organic aerosol species in the Accumulation mode (T,A,C=F,T,F), set OM to T, calculate korg from e.g. Pye et al. (ACP, 2017) or another source, and use properties that match other organic species:
 ```
-& spcs_list_type('ATPROD1 ', cm_set, 1400.0, T,F,  0,  2.8, 6.1,T, 'DUST  ', 0.09),
-& spcs_list_type('ATPROD2 ', cm_set, 1400.0, T,F,  0,  2.8, 6.1,T, 'DUST  ', 0.05),
+C                                                                                           Visidx_Large
+C                                                                               no_M2Wet Tracer        |
+C                                                                                       | | Charge      | OM           
+C                      Name      T A C Min_Con Density Gas-Name   CTR-Name  Yield Vol   | |   | Visidx  |  |  OptSurr   korg  
+C                     ---------- - - - ------- ------- ---------- --------- ----- ----- + +   + ------ --- +  -------- ----- 
+      & spcs_list_type('ATPROD1',F,T,F, cm_set, 1400.0, '       ', '      ',  0.0,REV,  F,F,  0,  2.8, 6.1,T, 'DUST  ', 0.09),
+      & spcs_list_type('ATPROD2',F,T,F, cm_set, 1400.0, '       ', '      ',  0.0,REV,  F,F,  0,  2.8, 6.1,T, 'DUST  ', 0.05),
 ```
-To add a nonvolatile organic aerosol species, set no_M2Wet to F:
+To add a nonvolatile (Vol=NVL) organic aerosol species, set no_M2Wet to F:
 ```
-& spcs_list_type('ANONV   ', cm_set, 1400.0, F,F,  0,  2.8, 6.1,T, 'DUST  ', 0.07),
+      & spcs_list_type('ANONV  ',F,T,F, cm_set, 1400.0, '       ', '      ',  0.0,NVL,  F,F,  0,  2.8, 6.1,T, 'DUST  ', 0.07),
 ```
-Note that these aerosol definitions do not include a specification of the size bin they fall into. That is instead defined in the [AE namelist](#AEnml) by I, J, or K (for Aitken, accumulation, or coarse mode aerosol, respectively) at the end of the variable name.
+Note that these aerosol definitions now include a specification of the size bin they fall into (T, A, C comment headings indicating lait, lacc, lcor T/F values). In order to turn on a specific size on in the [AE namelist](#AEnml) for Aitken, accumulation, or coarse mode aerosol it must be available in AERO_DATA.F.
 
 
 

@@ -127,15 +127,15 @@ This section describes each of the input files required by the various CMAQ prog
 |[GSPRO](#gspro) <a id=gspro_t></a>| ASCII | Time-invariant | N/a | CMAQ repo|required for running CMAQ with online BEIS biogenics|
 |[B3GRD](#b3grd) <a id=b3grd_t></a>| GRDDED3 | Time-invariant | XY | SMOKE|required for running CMAQ with online BEIS biogenics|
 |[BIOSEASON](#bioseason) <a id=bioseason_t></a>|GRDDED3 |Time-invariant | XY | SMOKE|run-time option for running CMAQ with online BEIS biogenics|
-|[MEGAN_CTS](#MEGAN_CTS) <a id=megan_cts_t></a>| GRDDED3 | Time-invariant | XYZ | MEGAN preprocessor|required for running CMAQ with online MEGAN biogenics|
-|[MEGAN_LDF](#MEGAN_LDF) <a id=megan_ldf_t></a>| GRDDED3 | Time-invariant | XY | MEGAN preprocessor|required for running CMAQ with online MEGAN biogenics|
-|[MEGAN_EFS](#MEGAN_EFS) <a id=megan_efs_t></a>| GRDDED3 | Time-invariant | XY | MEGAN preprocessor|required for running CMAQ with online MEGAN biogenics|
-|[MEGAN_LAI](#MEGAN_LAI) <a id=megan_lai_t></a>| GRDDED3 | Time-invariant | XY | MEGAN preprocessor|optional for running CMAQ with online MEGAN biogenics|
-|[MEGAN_ARID](#MEGAN_ARID) <a id=megan_arid_t></a>| GRDDED3 | Time-invariant | XY | MEGAN preprocessor|required for running CMAQ with online MEGAN biogenics and BDSNP soil NO|
-|[MEGAN_NONARID](#MEGAN_NONARID) <a id=megan_nonarid_t></a>| GRDDED3 | Time-invariant | XY | MEGAN preprocessor|required for running CMAQ with online MEGAN biogenics and BDSNP soil NO|
-|[MEGAN_LANDTYPE](#MEGAN_LANDTYPE) <a id=megan_landtype_t></a>| GRDDED3 | Time-invariant | XY | MEGAN preprocessor|required for running CMAQ with online MEGAN biogenics and BDSNP soil NO|
-|[MEGAN_FERT](#MEGAN_FERT) <a id=megan_fert_t></a>| GRDDED3 | Time-invariant | XY | MEGAN preprocessor|required for running CMAQ with online MEGAN biogenics and BDSNP soil NO|
-|[MEGAN_NDF](#MEGAN_NDF) <a id=megan_ndf_t></a>| GRDDED3 | Time-invariant | XY | MEGAN preprocessor|required for running CMAQ with online MEGAN biogenics and BDSNP soil NO|
+|[MEGAN_CTS](#megan_cts) <a id=megan_cts_t></a>| GRDDED3 | Time-invariant | XYZ | MEGAN preprocessor|required for running CMAQ with online MEGAN biogenics|
+|[MEGAN_LDF](#megan_ldf) <a id=megan_ldf_t></a>| GRDDED3 | Time-invariant | XY | MEGAN preprocessor|required for running CMAQ with online MEGAN biogenics|
+|[MEGAN_EFS](#megan_efs) <a id=megan_efs_t></a>| GRDDED3 | Time-invariant | XY | MEGAN preprocessor|required for running CMAQ with online MEGAN biogenics|
+|[MEGAN_LAI](#megan_lai) <a id=megan_lai_t></a>| GRDDED3 | Time-invariant | XY | MEGAN preprocessor|optional for running CMAQ with online MEGAN biogenics|
+|[BDSNP_AFILE](#megan_arid) <a id=megan_arid_t></a>| GRDDED3 | Time-invariant | XY | MEGAN preprocessor|required for BDSNP soil NO|
+|[BDSNP_NAFILE](#megan_nonarid) <a id=megan_nonarid_t></a>| GRDDED3 | Time-invariant | XY | MEGAN preprocessor|required for BDSNP soil NO model |
+|[BDSNP_LFILE](#megan_landtype) <a id=megan_landtype_t></a>| GRDDED3 | Time-invariant | XY | MEGAN preprocessor|required for BDSNP soil NO model |
+|[BDSNP_FFILE](#megan_fert) <a id=megan_fert_t></a>| GRDDED3 | Time-invariant | XY | MEGAN preprocessor|required for BDSNP soil NO model |
+|[BDSNP_NFILE](#megan_ndf) <a id=megan_ndf_t></a>| GRDDED3 | Time-invariant | XY | MEGAN preprocessor|required for BDSNP soil NO model |
 |[E2C_LU](#e2c_lu) <a id=e2c_lu_t></a>| GRDDED3 | Time-invariant |XY|EPIC|required for running CMAQ with bidirectional NH3|
 |[E2C_SOIL](#e2c_soil) <a id=e2c_soil_t></a>| GRDDED3 | Time-invariant | XY|EPIC|required for running CMAQ with bidirectional NH3|
 |[E2C_CHEM](#e2c_chem) <a id=e2c_chem_t></a>| GRDDED3 | Daily |XY|EPIC|optional|
@@ -581,6 +581,7 @@ The CMAQ sea spray emissions module requires the input of an ocean mask file (OC
 
 Additionally, CMAQ's gas-phase chemical mechanisms except cb6r5m_ae7_aq contain an effective first order halogen mediated ozone loss over the ocean (where OPEN + SURF > 0.001). The OCEAN file is also required for this process. The cb6r5m_ae7_aq mechanism contains more explicit marine chemistry and requires the OCEAN file with two additional parameters: DMS (DMS concentrations in seawater) and CHLO (monthly climatological chl-a concentration from MODIS). CB6r5_ae7_aq includes DMS chemistry and also needs DMS in the OCEAN file. Other chemical mechanisms do not need DMS or CHLO.
 
+
 See the [CMAQ Ocean File Tutorial](Tutorials/CMAQ_UG_tutorial_oceanfile.md) for step by step instructions on creating this file. 
 
 <a id=gspro></a>
@@ -625,87 +626,87 @@ Used by: CCTM – online MEGAN biogenics emissions version only
 The MEGAN_CTS file is an I/O API GRDDED3 file that is created using the MEGAN preprocessor. It contains canopy fraction information for six canopy types in one variable, CTS, which is nondimensional and ranges from 0-100. The vegetation types are needleleaf trees, tropical forest trees, temperate broadleaf trees, shrubs, herbaceous plants, and crops. 
 
 <a id=megan_ldf></a>
-**MEGAN_LDF: canopy types**
+**MEGAN_LDF: light dependence**
 <!-- BEGIN COMMENT -->
 [Return to Table 4-1](#megan_ldf_t)
 <!-- END COMMENT -->
 
 Used by: CCTM – online MEGAN biogenics emissions version only
 
-The MEGAN_LDF file is an I/O API GRDDED3 file that is created using the MEGAN preprocessor. It contains nondimensional light dependence fractions for 20 MEGAN chemical species. 
+The MEGAN_LDF file is an I/O API GRDDED3 file that is created using the MEGAN preprocessor. It contains nondimensional light dependence fractions for 4 of the 19 MEGAN chemical species. 
 
 <a id=megan_efs></a>
-**MEGAN_EFS: canopy types**
+**MEGAN_EFS: emission factors**
 <!-- BEGIN COMMENT -->
 [Return to Table 4-1](#megan_efs_t)
 <!-- END COMMENT -->
 
 Used by: CCTM – online MEGAN biogenics emissions version only
 
-The MEGAN_EFS file is an I/O API GRDDED3 file that is created using the MEGAN preprocessor. It contains emission factors for the 20 MEGAN chemical species. 
+The MEGAN_EFS file is an I/O API GRDDED3 file that is created using the MEGAN preprocessor. It contains emission factors for the 19 MEGAN chemical species. 
 
 <a id=megan_lai></a>
-**MEGAN_LAI: canopy types**
+**MEGAN_LAI: leaf area index**
 <!-- BEGIN COMMENT -->
 [Return to Table 4-1](#megan_lai_t)
 <!-- END COMMENT -->
 
 Used by: CCTM – online MEGAN biogenics emissions version only
 
-The MEGAN_LAI file is an optional I/O API GRDDED3 file that is created using the MEGAN preprocessor. It contains leaf area index that is separate from LAI values used in the rest of CMAQ. 
+The MEGAN_LAI file is an I/O API GRDDED3 file that is created using the MEGAN preprocessor. It contains leaf area index that is separate from LAI values used in the rest of CMAQ. By default MEGAN will use this file for LAI, but users can choose to use the LAI values that are read in from MCIP files by setting the environmental variable USE_MEGAN_LAI to N in their run script. 
 
 <a id=megan_arid></a>
-**MEGAN_ARID: canopy types**
+**BDSNP_AFILE: arid flag**
 <!-- BEGIN COMMENT -->
 [Return to Table 4-1](#megan_arid_t)
 <!-- END COMMENT -->
 
 Used by: CCTM – online MEGAN biogenics emissions' BDSNP soil nitrogen model option
 
-The MEGAN_ARID file is an I/O API GRDDED3 file that is created using the MEGAN preprocessor for use with the BDSNP soil nitrogen option. It identifies climatically arid grid cells with 1s and 0s. 
+The BDSNP_AFILE file is an I/O API GRDDED3 file that is created using the MEGAN preprocessor for use with the BDSNP soil nitrogen option. It identifies climatically arid grid cells with 1s and 0s. 
 
 
 <a id=megan_nonarid></a>
-**MEGAN_NONARID: canopy types**
+**BDSNP_NAFILE: nonarid flag**
 <!-- BEGIN COMMENT -->
 [Return to Table 4-1](#megan_nonarid_t)
 <!-- END COMMENT -->
 
 Used by: CCTM – online MEGAN biogenics emissions' BDSNP soil nitrogen model option
 
-The MEGAN_NONARID file is an I/O API GRDDED3 file that is created using the MEGAN preprocessor for use with the BDSNP soil nitrogen option. It identifies climatically non-arid grid cells with 1s and 0s. 
+The BDSNP_NAFILE file is an I/O API GRDDED3 file that is created using the MEGAN preprocessor for use with the BDSNP soil nitrogen option. It identifies climatically non-arid grid cells with 1s and 0s. 
 
 
 <a id=megan_landtype></a>
-**MEGAN_LANDTYPE: canopy types**
+**BDSNP_LFILE: landfile type**
 <!-- BEGIN COMMENT -->
 [Return to Table 4-1](#megan_landtype_t)
 <!-- END COMMENT -->
 
 Used by: CCTM – online MEGAN biogenics emissions' BDSNP soil nitrogen model option
 
-The MEGAN_LANDTYPE file is an I/O API GRDDED3 file that is created using the MEGAN preprocessor for use with the BDSNP soil nitrogen option. It assigns each grid cell to one of 24 land types.
+The BDSNP_LFILE file is an I/O API GRDDED3 file that is created using the MEGAN preprocessor for use with the BDSNP soil nitrogen option. It assigns each grid cell to one of 24 land types.
 
 <a id=megan_fert></a>
-**MEGAN_FERT: canopy types**
+**BDSNP_FFILE: fertilizer reservoir**
 <!-- BEGIN COMMENT -->
 [Return to Table 4-1](#megan_fert_t)
 <!-- END COMMENT -->
 
 Used by: CCTM – online MEGAN biogenics emissions' BDSNP soil nitrogen model option
 
-The MEGAN_FERT file is an I/O API GRDDED3 file that is created using the MEGAN preprocessor for use with the BDSNP soil nitrogen option. It contains daily fertilizer information in ng/m3 using 366 variables. 
+The BDSNP_FFILE file is an I/O API GRDDED3 file that is created using the MEGAN preprocessor for use with the BDSNP soil nitrogen option. It contains daily fertilizer information in ng N/m2 using 366 variables. 
 
 
 <a id=megan_ndf></a>
-**MEGAN_NDF: canopy types**
+**BDSNP_NFILE: nitrogen deposition**
 <!-- BEGIN COMMENT -->
 [Return to Table 4-1](#megan_ndf_t)
 <!-- END COMMENT -->
 
 Used by: CCTM – online MEGAN biogenics emissions' BDSNP soil nitrogen model option
 
-The MEGAN_NDF file is an I/O API GRDDED3 file that is created using the MEGAN preprocessor for use with the BDSNP soil nitrogen option. It contains monthly average total nitrogen deposition values in ng/m2/s using 12 variables. 
+The BDSNP_NFILE file is an I/O API GRDDED3 file that is created using the MEGAN preprocessor for use with the BDSNP soil nitrogen option. It contains monthly average nitrogen deposition values in ng/m2/s using 12 variables. 
 
 
 <a id=e2c_lu></a>

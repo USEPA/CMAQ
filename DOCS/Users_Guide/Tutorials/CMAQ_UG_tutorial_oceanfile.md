@@ -1,15 +1,24 @@
 ## CMAQ Tutorial ##
 ### Creating an OCEAN file for input to CMAQ ###
-Purpose: This tutorial describes how to create an ocean mask file that defines the fraction of each grid cell covered by open ocean or surf zone in the CMAQ modeling domain.
-
+Purpose: This tutorial describes how to create an ocean mask file that defines the fraction of each grid cell covered by open ocean or surf zone in the CMAQ modeling domain and for adding DMS and CHLO to the ocean file.
 
 ------------
 
 The CMAQ sea spray emissions module requires the input of an ocean mask file (OCEAN). OCEAN is a time-independent I/O API file that identifies the fractional [0-1] coverage in each model grid cell allocated to open ocean (OPEN) or surf zone (SURF). The CCTM uses this coverage information to calculate sea spray emission fluxes from the model grid cells online during a CCTM run.
 
-Additionally, CMAQ's gas-phase chemical mechanisms except cb6r3m_ae7_kmtbr contain an effective first order halogen mediated ozone loss  over the ocean (where OPEN + SURF > 0.0). The OCEAN file is also required for this process. The cb6r3m_ae7_kmtbr mechanism contains more explicit marine chemistry, but also requires the OCEAN file.
+Additionally, CMAQ's gas-phase chemical mechanisms except cb6r5m_ae7_aq contain an effective first order halogen mediated ozone loss over the ocean (where OPEN + SURF > 0.0) and also require the OCEAN file. The cb6r5m_ae7_aq mechanism contains bromine, iodine and DMS chemistry, and also requires the OCEAN file with two additional variables: DMS (monthly mean climatological DMS concentrations in seawater) and CHLO (monthly mean climatological chlorophyll concentration). The cb6r5_ae7_aq mechanism contains DMS chemistry and requires the OCEAN file with DMS (monthly mean climatological DMS concentration in seawater). 
 
-If your domain includes ocean, OPTION 1 is recommended. However, if your modeling domain does not contain any ocean, or you wish to bypass the CMAQ sea spray module and the reaction of ozone with oceanic halogens, follow OPTION 2 or 3.  
+```mermaid
+graph TD
+    A[CTM_OCEAN_CHEM = N]  --> D(No monthly ocean files required); 
+    T[CB6R5M] --> |requires| B
+    B[CTM_OCEAN_CHEM = Y] --> |requires ocean file with| Y
+    L[CB6R5, CRACMM, CB6R3, SAPRC, RACM] --> |optional| B   
+    Y[OPEN, SURF] --> |CB6R5 | G(DMS)
+    Y-->|CB6R5M| H(DMS,CHLO)
+```
+
+If your domain includes ocean, OPTION 1 is recommended. However, if your modeling domain does not contain any ocean, or you wish to bypass the CMAQ sea spray module and the reaction of ozone with oceanic halogens, follow OPTION 2 or 3.
 
 ## OPTION 1: Create OCEAN file from shapefile of domain
 
@@ -73,8 +82,36 @@ $TIME $EXE
 
 Run the script and check the output directory designated in the run script for the new OCEAN file.
 
+### STEP 3: Add DMS and CHLO to the OCEAN file
+
+This section uses a Jupyter Notebook. Jupyter Notebooks can be run on cloud-based systems like SageMaker, Binder, Google Colab, or any linux system with Jupyter installed (https://jupyter.org/install).
+
+The Jupyter notebook CMAQ_DMS_ChlorA.ipynb (located in the [PREP](../../../PREP) directory) can be used to add DMS and CHLO to the existing OCEAN file. See the tool’s [README](../../../PREP/PYTOOLS/dmschlo/README.md) for instructions on how to configure an environment for this notebook. The notebook requires setting the following 6 variables: dom, ocnintmpl, ocnouttmpl, gdpath, overwrite, getlatestchlo.
+
+Variable “dom” is the output domain which can be defined as follows (12US1 is the output domain name):
+dom = '12US1'
+
+Variable “ocnintmpl” is the  location of the existing OCEAN file containing OPEN and SURF. The notebook will add DMS and CHLO to this file:
+ocnintmpl = f’/work/MOD3DATA/2016_12US1/surface/12US1_surf.ncf’
+
+Variable “ocnouttmpl” is the location of the new OCEAN files to be created by the notebook:
+ocnouttmpl = f'output/{dom}/OCEAN_%m_L3m_MC_CHL_chlor_a_{dom}.nc'
+
+Variable “gdpath” is the path of an IOAPI file using the domain. For most cases, the path of the existing ocean file (ocnintmpl) can be used. 
+gdpath = ocnintmpl
+
+The notebook creates many intermediates files. Variable “overwrite” is used to control the intermediate files. Assigning it “False” will keep the existing intermediate files which is faster when re-processing files for a domain. Otherwise, assign it “True”.  In most cases, users can keep it as “False”.
+overwrite = False
+
+The notebook obtains monthly mean climatology from NASA which is controlled by a variable “getlatestchlo”. If it is set to “False”, then it uses a previously downloaded climatology from NASA. If it is set to “True”, then it downloads the latest climatology from NASA. In most cases, users can keep it as “False”.
+getlatestchlo = False
+
+Once these variables are set, then users can execute the script to generate ocean files for the domain. It will create 12 monthly ocean files; each file will contain OPEN, SURF, DMS and CHLO. Check the output directory (ocnouttmpl) designated in the script. Month-specific ocean file needs to be used in the CMAQ model for DMS and halogen chemistry.
+
 ## OPTION 2: Run without an OCEAN input file in CMAQv5.3 and later
 If your modeling domain does not contain any coastal area, you can run CMAQ without an OCEAN input file. This will turn off both sea-spray emissions and the first-order decay of ozone over the ocean. To do this, set the run script option "CTM_OCEAN_CHEM" to "N" or "F". 
+
+If using a cb6r5_ae7_aq and you prefer not to use DMS chemistry, the m3fake approach below can be adapted to create a DMS variable with zero values.
 
 ## OPTION 3: Zero Out Sea-Spray Emissions in CMAQv5.2 or earlier
 
