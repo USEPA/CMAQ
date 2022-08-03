@@ -48,6 +48,17 @@ set CopySrc                            #> copy the source files into the build d
                                        #>   comment out to compile the model (default if not set)
 #set build_mech                        #> uncomment to build mechanism source code files using the 
                                        #>   chemmech utility.
+
+#> Below are chemmech options for revising the mechanism definitions file. The option needs information on the
+#> composition of each chemistry. See UTIL/chemmech/README.md for more information.
+#> Uncomment to use.
+#>    Rewrite reactions by appending them with changes in tracked atoms or elements from reactants to products
+      #setenv COMPUTE_DELTA_ATOMS F
+#>    The species namelist contains the composition information as comments at the end of lines defining species.
+#>    Note that if a defining line does not have an ending comment, the species is taken to have none of the tacked atoms.
+#>    If NAMELISTS_LIST_ATOMS equals F, an additional ASCII file contains the information.
+      #setenv NAMELISTS_LIST_ATOMS T
+
 #set clobber_mech                      #> when commented, the bldit_mech.csh script will halt if 
                                        #>   newly created mechanism files are attempting replace
                                        #>   existing ones. When uncommented, the existing files
@@ -120,14 +131,34 @@ set make_options = "-j"                #> additional options for make command if
  set ModPhot   = phot/inline                #> photolysis calculation module 
                                             #>     (see $CMAQ_MODEL/CCTM/src/phot)
 
- setenv Mechanism cb6r5_ae7_aq              #> chemical mechanism (see $CMAQ_MODEL/CCTM/src/MECHS)
-
+ setenv Mechanism cb6r5_ae7_aq              #> chemical mechanism (see $CMAQ_MODEL/CCTM/src/MECHS) 
  set ModMech   = MECHS/${Mechanism}
- 
- if ( ${Mechanism} == cb6r5m_ae7_aq ) then  #> Gas-phase chemistry solver options
-     setenv ChemSolver ros3                 #> gas-phase chemistry solver (see $CMAQ_MODEL/CCTM/src/gas)
- else                                       #> use ros3 or smvgear for a solver independent
-     setenv ChemSolver ebi                  #> of the photochemical mechanism [ default for most mechanisms: ebi ]
+
+ if ( ${Mechanism} =~ *ae7* ) then          #> ae7 family of aero and cloud chem
+     set ModAero   = aero/aero7             # > aerosol chemistry module (see $CMAQ_MODEL/CCTM/src/aero)
+     set ModCloud  = cloud/acm_ae7          # > cloud chemistry module (see $CMAQ_MODEL/CCTM/src/cloud)
+ else if ( ${Mechanism} =~ *ae6* ) then     #> ae6 family of aero and cloud chem
+     set ModAero   = aero/aero6             # > aerosol chemistry module (see $CMAQ_MODEL/CCTM/src/aero)
+     set ModCloud  = cloud/acm_ae6          # > cloud chemistry module (see $CMAQ_MODEL/CCTM/src/cloud)
+ else if ( ${Mechanism} =~ *cracmm* ) then  #> CRACMM family of aero and cloud chem
+     set ModAero    = aero/cracmm           # > aerosol chemistry module (see $CMAQ_MODEL/CCTM/src/aero)
+     set ModCloud   = cloud/acm_cracmm      # > cloud chemistry module (see $CMAQ_MODEL/CCTM/src/cloud)
+ endif
+
+ # Special cloud modules for kmt versions
+ if( ${Mechanism} == cb6r5_ae7_kmt2 ) then
+     set ModCloud = acm_ae7_kmt2
+ else if( ${Mechanism} == saprc07tic_ae6i_aqkmti ) then
+     set ModCloud = acm_ae6i_kmti
+ else if( ${Mechanism} == saprc07tic_ae7i_aqkmt2 ) then
+     set ModCloud = acm_ae7_kmt2
+ endif
+
+ # Gas chem solver
+ if ( ${Mechanism} == cb6r5m_ae7_aq ) then  #> Gas-phase chemistry solver options ($CMAQ_MODEL/CCTM/src/gas)
+     setenv ChemSolver ros3                  #> ros3 (or smvgear) are system independent
+ else                                      
+     setenv ChemSolver ebi                   #> [ default for most mechanisms: ebi ]
  endif
                                          
  if ( $ChemSolver == ebi ) then             
@@ -137,8 +168,6 @@ set make_options = "-j"                #> additional options for make command if
     set ModGas    = gas/${ChemSolver}
  endif
     
- set ModAero   = aero/aero7                 #> aerosol chemistry module (see $CMAQ_MODEL/CCTM/src/aero)
- set ModCloud  = cloud/acm_ae7              #> cloud chemistry module (see $CMAQ_MODEL/CCTM/src/cloud)
  set ModUtil   = util/util                  #> CCTM utility modules
  set ModDiag   = diag                       #> CCTM diagnostic modules
  set Tracer    = trac0                      #> tracer configuration directory under 

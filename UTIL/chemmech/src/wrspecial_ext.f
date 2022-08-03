@@ -6,9 +6,9 @@ C   special rate coefficients
 c   Modified 7/09 by J. Gipson to close files in no special reation coeffs
 
       USE MECHANISM_DATA
+      USE BASIC_WRITE_ROUTINES
       
       IMPLICIT NONE
-!      INCLUDE 'PARMS.e'
 
 C INPUTS
 
@@ -33,16 +33,6 @@ C LOCAL
       INTEGER LUNOUT
       INTEGER, SAVE :: IBUFF( MAXSPECRXNS ) = 0
       INTEGER I, ISPC, IRX, IRXXN, IFLD0, IFLD1, IFLD2
-
-
-      INTERFACE
-        SUBROUTINE WRBF6 ( WRUNIT, AWPL, NEL, IVAR )
-         INTEGER, INTENT( IN ) ::  WRUNIT     ! logical write unit no.
-         INTEGER, INTENT( IN ) ::  AWPL       ! words per line (max at 10)
-         INTEGER, INTENT( IN ) ::  NEL        ! number of list elements
-         INTEGER, INTENT( IN ) ::  IVAR( : )  ! integer variable to write
-         END SUBROUTINE WRBF6 
-      END INTERFACE
 
 
 3300  WRITE( EXUNIT_RXCM, 1049 )
