@@ -80,7 +80,7 @@ C-----------------------------------------------------------------------
 #ifdef sens
       USE DDM3D_DEFN, ONLY : NP, NPMAX, S_POLC, S_CEND, S_REMOV,
      &                       S_REMOVAC, S_HPWDEP, S_GAS, S_GASWDEP,
-     &                       S_AEROSOL, S_AERWDEP, S_WSRGGAS, S_WSRGAER
+     &                       S_AEROSOL, S_AERWDEP
 #endif 
 
       IMPLICIT NONE
@@ -217,12 +217,6 @@ C... Allocate sensitivity arrays
           XMSG = 'Failure allocating S_AEROSOL or S_AERWDEP'
           CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
         END IF
-
-        ALLOCATE ( S_WSRGGAS( NPMAX,NGAS,MXSRG ), S_WSRGAER( NPMAX,NAER,NMODES,MXSRG ), STAT = STAT )
-        IF ( STAT .NE. 0 ) THEN
-          XMSG = 'Failure allocating S_WSRGGAS or S_WSRGAER'
-          CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-        END IF
 #endif
 
       END IF
@@ -242,7 +236,6 @@ C...load gas-phase concentrations
 
 #ifdef sens
       S_GAS = 0.0D0
-      S_WSRGGAS = 0.0D0
       S_GASWDEP = 0.0D0
 #endif
 
@@ -262,24 +255,10 @@ C...load gas-phase concentrations
           DO ISRG = 1, NSRGGAS( IGAS )
             PNTR = CGRID2AQ_MAP( LSRGGAS( IGAS, ISRG ) )
             WSRGGAS( IGAS, ISRG ) = REAL( POLC( PNTR ), 8 ) / GAS( IGAS )
-#ifdef sens
-            DO NP = 1, NPMAX
-               IF ( S_GAS( NP, IGAS ) .NE. 0.0D0 ) THEN
-                  S_WSRGGAS( NP, IGAS, ISRG ) = S_POLC( NP,PNTR ) / S_GAS(NP,IGAS)
-               ELSE
-                  S_WSRGGAS( NP, IGAS, ISRG ) = 0.0D0
-               END IF
-            END DO
-#endif
           END DO
         ELSE
           DO ISRG = 1, NSRGGAS( IGAS )
             WSRGGAS( IGAS, ISRG ) = 1.0D0 / REAL( NSRGGAS( IGAS ), 8 )
-#ifdef sens
-            DO NP = 1, NPMAX
-               S_WSRGGAS( NP, IGAS, ISRG ) = 0.0D0
-            END DO
-#endif
           END DO
         END IF
 
@@ -304,7 +283,6 @@ C...load aerosol concentrations
 
 #ifdef sens
       S_AEROSOL = 0.0D0
-      S_WSRGAER = 0.0D0
       S_AERWDEP = 0.0D0
 #endif
 
@@ -333,25 +311,10 @@ C...load aerosol concentrations
                 PNTR = CGRID2AQ_MAP( LSRGAER( IAER, IMODE, ISRG ) )
                 WSRGAER( IAER, IMODE, ISRG ) = REAL( POLC( PNTR ), 8 )
      &                                       / REAL( AEROSOL( IAER, IMODE ), 8 )
-#ifdef sens
-               DO NP = 1, NPMAX
-                  IF ( S_AEROSOL( NP, IAER, IMODE ) .NE. 0.0D0 ) THEN
-                     S_WSRGAER( NP, IAER, IMODE, ISRG ) = S_POLC( NP, PNTR )
-     &                                               / S_AEROSOL( NP, IAER, IMODE )
-                  ELSE
-                     S_WSRGAER( NP, IAER, IMODE, ISRG ) = 0.0D0
-                  END IF
-               END DO
-#endif
               END DO
             ELSE
               DO ISRG = 1, NSRGAER( IAER, IMODE )
                 WSRGAER( IAER, IMODE, ISRG ) = 1.0D0 / REAL( NSRGAER( IAER, IMODE ), 8 )
-#ifdef sens
-                DO NP = 1, NPMAX
-                    S_WSRGAER( NP, IAER, IMODE, ISRG ) = 0.0D0
-                ENDDO
-#endif
               END DO
             END IF
 
@@ -430,8 +393,6 @@ C...Now, re-apportion mass back into cend/remov (cgrid-type) array
           REMOV( PNTR ) = GASWDEP( IGAS ) * WSRGGAS( IGAS, ISRG )
 #ifdef sens
           DO NP = 1, NPMAX
-c           S_CEND ( NP, PNTR ) = S_GAS    ( NP, IGAS ) * S_WSRGGAS( NP, IGAS, ISRG )
-c           S_REMOV( NP, PNTR ) = S_GASWDEP( NP, IGAS ) * S_WSRGGAS( NP, IGAS, ISRG )
             S_CEND ( NP, PNTR ) = S_GAS    ( NP, IGAS ) * WSRGGAS( IGAS, ISRG )
             S_REMOV( NP, PNTR ) = S_GASWDEP( NP, IGAS ) * WSRGGAS( IGAS, ISRG )
           ENDDO
@@ -448,8 +409,6 @@ c           S_REMOV( NP, PNTR ) = S_GASWDEP( NP, IGAS ) * S_WSRGGAS( NP, IGAS, I
               REMOV( PNTR ) = AERWDEP( IAER, IMODE ) * WSRGAER( IAER, IMODE, ISRG )
 #ifdef sens
               DO NP = 1, NPMAX
-c               S_CEND ( NP, PNTR ) = S_AEROSOL( NP, IAER, IMODE ) * S_WSRGAER( NP, IAER, IMODE, ISRG )
-c               S_REMOV( NP, PNTR ) = S_AERWDEP( NP, IAER, IMODE ) * S_WSRGAER( NP, IAER, IMODE, ISRG )
                 S_CEND ( NP, PNTR ) = S_AEROSOL( NP, IAER, IMODE ) * WSRGAER( IAER, IMODE, ISRG )
                 S_REMOV( NP, PNTR ) = S_AERWDEP( NP, IAER, IMODE ) * WSRGAER( IAER, IMODE, ISRG )
               ENDDO
