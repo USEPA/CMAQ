@@ -498,8 +498,8 @@ C Land use information:
       DATA subname(255), dif0(255), ar(255), meso(255), lebas(255) / 'ADIPIC_ACID     ',0.0464,    9.6,      0.0, 221.0/    
       DATA subname(256), dif0(256), ar(256), meso(256), lebas(256) / 'ADIPIC_ACID     ',0.0355,    1.0,      0.0, 375.0/    
       DATA subname(257), dif0(257), ar(257), meso(257), lebas(257) / 'ADIPIC_ACID     ',0.0489,    1.0,      0.0, 198.7/
-      DATA subname(258), dif0(258), ar(258), meso(258), lebas(258) / 'IPN             ',0.0652,   86.6,      0.3, 104.8/ ! VD_IPN   
-      DATA subname(259), dif0(259), ar(259), meso(259), lebas(259) / 'IPC             ',0.0687,    1.0,      0.3,  99.3/ ! VD_IPC       
+      DATA subname(258), dif0(258), ar(258), meso(258), lebas(258) / 'IPNOPERA        ',0.0652,   86.6,      0.3, 104.8/ ! VD_IPN   
+      DATA subname(259), dif0(259), ar(259), meso(259), lebas(259) / 'IPCOPERA        ',0.0687,    1.0,      0.3,  99.3/ ! VD_IPC       
 
       CONTAINS
 
