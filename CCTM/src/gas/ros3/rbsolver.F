@@ -338,6 +338,9 @@ c++++++++++++++++++++++++Debug section++++++++++++++++++++++++++++++++++
       END IF
 
 
+#ifdef sens
+       YAVE = 0.0D0
+#endif
       DO 100 WHILE ( TNOW .LT. CHEMSTEP )
 
          CALL RBFEVAL( NCSP, Y, YDOT )
@@ -462,6 +465,11 @@ c..Estimate error
 
             DO N = 1, NUMB_MECH_SPC
                DO NCELL = 1, NUMCELLS
+#ifdef sens
+                  YAVE( NCELL,N ) = YAVE( NCELL,N ) 
+     &                            + 0.5D0 * (Y( NCELL,N )+ MAX(YP( NCELL,N),CONMIN))
+     &                            * DT
+#endif
                   Y( NCELL,N ) = MAX( YP( NCELL,N ), CONMIN )
                END DO
             END DO
@@ -580,6 +588,12 @@ c..write photolysis rates used in cell
 
 100   END DO  ! end time integration loop
 
+
+#ifdef sens
+!   complete calculation for YAVE
+       YAVE(1:NUMCELLS,1:NUMB_MECH_SPC) = YAVE(1:NUMCELLS,1:NUMB_MECH_SPC) / CHEMSTEP
+!        YAVE = 0.5D0*(YAVE+Y)
+#endif
       RETURN
 
 92100 FORMAT( '      Convergence failure ', 

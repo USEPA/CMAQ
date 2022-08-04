@@ -257,6 +257,10 @@ C**********************************************************************
 
       END IF
 
+#ifdef sens
+        CAVEG = 0.0D0
+#endif
+
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  Set up for debug output and initialize variables
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -443,14 +447,20 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       IF( CALL_DEG ) THEN   !:WTH Initialize for degradation routines
          YNEW_DEGRADE = 0.0D0
          DO I = 1, ISCHAN
-            ISPOLD = INEW2OLD( I,NCS )
-            SPC    = CGRID_INDEX( ISPOLD )
+            SPC    = CGRID_INDEX( I )
             DO NCELL = 1, NUMCELLS
                YNEW_DEGRADE( NCELL,SPC ) = BLKCONC( NCELL, I )
             END DO
          END DO
       ENDIF
 
+#ifdef sens
+          DO ISPOLD = 1, ISCHAN
+             DO NCELL = 1, NUMCELLS
+                CFINI( NCELL,ISPOLD ) = BLKCONC( NCELL, ISPOLD )
+             END DO
+         END DO
+#endif
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  Update coefficients of the order. NQQ is the order. ASET and 
 c  PERTST are defined in SUBROUTINE JSPARSE. Note that PERTST    
@@ -987,6 +997,18 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
             ENDIF
          ENDIF
 
+#ifdef sens
+         DO ISPOLD = 1, ISCHAN
+           ISPNEW = IOLD2NEW( ISPOLD,1 )
+           DO NCELL = 1, NUMCELLS
+              CAVEG( NCELL, ISPOLD ) = CAVEG( NCELL, ISPOLD ) 
+     &                                + 0.5D0 * ( CFINI( NCELL, ISPOLD ) + CONC( NCELL, ISPNEW ) ) 
+     &                                * DELT
+              CFINI( NCELL, ISPOLD ) = CONC( NCELL, ISPNEW ) 
+           ENDDO
+         ENDDO
+#endif
+
          IF( LCONCOUT ) THEN
             WRITE( IUNCOUT ) IRUN, BLKID, CELLOUT, CCOLOUT, CROWOUT, 
      &                       CLEVOUT, NSTEPS, ( RUNMIN + XELAPS ),
@@ -1168,6 +1190,15 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
             IF( CNEW( NCELL, ISPC ) .LE. ZBOUND ) 
      &          CNEW( NCELL, ISPC ) = CONCMIN
  1180 CONTINUE
+ 
+#ifdef sens
+        CHEMSTEP  = 1.0D0 / CHEMSTEP
+         DO I = 1, ISCHAN
+            DO NCELL = 1, NUMCELLS
+              CAVEG( NCELL,I ) = MAX( CAVEG( NCELL,I )*CHEMSTEP,CONCMIN )
+            ENDDO
+        ENDDO
+#endif
  
       IF( LTRCOUT ) THEN
          WRITE( IUNTRC, 93200 ) IRUN, N999, NSUBFUN, NPDERIV, NUMNEWT,
