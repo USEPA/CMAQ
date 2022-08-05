@@ -35,7 +35,7 @@ Note: While this User's Guide is packaged with the code when it is downloaded or
 
 [Chapter 8 (Analysis Tools):](CMAQ_UG_ch08_analysis_tools.md) Post-processing, visualization and evaluation tools for CMAQ.
 
-[Chapter 9 (Process Analysis):](CMAQ_UG_ch09_process_analysis.md) Instrumented Models - Integrated Process Rates (IPR) and Integrated Reaction Rates (IRR).
+[Chapter 9 (Process Analysis and Budget):](CMAQ_UG_ch09_process_analysis.md) Instrumented Models - Integrated Process Rates (IPR), Integrated Reaction Rates (IRR), and Budget Tool.
 
 [Chapter 10 (HDDM-3D):](CMAQ_UG_ch10_HDDM-3D.md) Instrumented Models - Decoupled Direct Method in Three Dimensions (DDM-3D).
 
@@ -58,6 +58,8 @@ Note: While this User's Guide is packaged with the code when it is downloaded or
 [Appendix E (Configuring WRF):](Appendix/CMAQ_UG_appendixE_configuring_WRF.md) Configuring the Weather Research and Forecasting Model (WRF) for use with CMAQ
 
 [Appendix F (Importing bugfixes):](Appendix/CMAQ_UG_appendixF_importing_bugfixes.md) Directions on importing bugfixes from CMAQ GitHub Issues page
+
+[Appendix G (ELMO Output):](Appendix/CMAQ_UG_appendixG_elmo_output.md) Description of the Explicit and Lumped CMAQ Model Output Module
 
 ***
 
