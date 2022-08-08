@@ -1159,9 +1159,8 @@ C-----------------------------------------------------------------------
       ! zero out emissions values for diffused species not included in emissions list.
       ! ...accounts for emissions species names as a subset of the vert. diffused species list
       DO L = 1,NL
-        DO ISTR = 1,DESID_N_ISTR
-          VDEMIS( :,L,:,: ) = 0.0
-        END DO
+        VDEMIS( :,L,:,: ) = 0.0
+
         DO ISTR = 1,DESID_N_ISTR 
           IF ( MAP_ISTRtoDIFF( ISTR ) .NE. 0 ) 
      &        VDEMIS( MAP_ISTRtoDIFF( ISTR ),L,:,: ) = 
