@@ -7,7 +7,7 @@ A series of short tutorials provide practical examples of how to set up and run 
 - [Running the CMAQ-ISAM Test Case](CMAQ_UG_tutorial_ISAM.md): This tutorial describes how to build and run the CMAQ-ISAM model using GNU GCC compiler.
 - [Building CMAQ for GNU](CMAQ_UG_tutorial_build_library_gcc.md): This tutorial describes how to install netCDF and I/O API libraries and build CMAQ using the GNU GCC compiler version 9.1.0. 
 - [Building CMAQ for Intel](CMAQ_UG_tutorial_build_library_intel.md): This tutorial describes how to install netCDF and I/O API libraries and build CMAQ using the Intel compiler version 18.2. 
-- [Building WRF-CMAQ for GNU](CMAQ_UG_tutorial_WRF-CMAQ_build_gcc.md) This tutorial describes how to build and run the WRF-CMAQ model using the GNU GCC compiler 9.1.0.
+- [Building WRF-CMAQ for GNU](CMAQ_UG_tutorial_WRF-CMAQ_Benchmark.md) This tutorial describes how to build and run the WRF-CMAQ model using the GNU GCC compiler 9.1.0.
 - [Debugging Tips](CMAQ_UG_tutorial_debug.md): This tutorial describes how to examine log files and debug issues encountered when installing and running the CMAQ test case. 
 - [Prescribing Emissions Using the DESID Module](CMAQ_UG_tutorial_emissions.md): This tutorial describes how to use the Emission Control namelist to manipulate emission inputs, e.g. zero out emissions, scaling emissions, adding emissions for a new tracer.
 - [Creating an OCEAN file](CMAQ_UG_tutorial_oceanfile.md): This tutorial describes methods to a CMAQ Ocean file.
