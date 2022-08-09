@@ -597,7 +597,6 @@ C Initialize Emissions Array
 
 C Retrieve Emissions from All Stream Types
          IF ( DESID_N_SRM .GT. 0 ) THEN
-         VDEMIS_DIFF = 0.0
 
          DO ISRM = 1,DESID_N_SRM
            DO R = 1,NROWS
@@ -869,7 +868,7 @@ C Subset the emissions array for DDM-3D (by species and region)
          ! Write Out the Sum of All Aggregate Diagnostic Emissions to Files
          IF ( L_DESID_DIAG ) CALL DESID_WRITE_DIAG( JDATE, JTIME )
          
-         END IF
+         END IF  ! DESID_N_SRM
 
          RETURN
 
