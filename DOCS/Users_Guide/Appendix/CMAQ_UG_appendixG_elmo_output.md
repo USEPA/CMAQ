@@ -95,7 +95,7 @@ This and other ELMO keywords are defined in Table G-1.
 | **AMET**             | PMF_MASS, PMF_FRM, PMC_MASS, PMF_OC, PMF_EC, PMF_NA, PMF_CL, PMF_SO4, PMF_NO3, PMF_NH4, PM25, PM25_FRM, PM25_SO4, PM25_NO3, PM25_NH4, PM25_OC, PM25_EC, PMF_FE, PMF_AL, PMF_SI, PMF_TI, PMF_CA, PMF_MG, PMF_K, PMF_MN, PMF_SOILIMPV, PMF_UN_IMPV1, PMF_NCOM, PMF_UN_IMPV2, TNO3, PM_MASS, PMC_MASS, **MET**, Tsurf, AOD_550 |  
 | **MASS**             | PMF_MASS, PMC_MASS, PM01, PM1, PM25, PM10, PM25TO10, PMU_MASS, PMAMS, PMAIT_MASS, PMACC_MASS |  
 | **NUMBER**           | PM_NUM, PMF_NUM, PMC_NUM, N10, N20, N40, N100 |   
-| **SIZE**             | **NUMBER**, DRY_DG, WET_DG, STDEV, DRY_M3, WET_M3, WET_M2, DRY_DENS, WET_DENS |  
+| **SIZE**             | **NUMBER**, DRY_DG<sup>#</sup>, WET_DG, STDEV, DRY_M3, WET_M3, WET_M2, DRY_DENS, WET_DENS |  
 | **SURFACE**          | PM_SRF, PMU_SRF, PMF_SRF, PMC_SRF, WET_M2 |  
 | **ORGANIC**          | **FINE_ORG**, PM1_OC, PM1_OA, PMAMS_OA, PMAMS_OTOC, PM25_OA |  
 | **MET**              | TA, PRES, RH |  
@@ -116,6 +116,7 @@ This and other ELMO keywords are defined in Table G-1.
 | **SATMET**           | DENS, DZ, ZH, CFRAC, PV, PRES, TA |  
 | **SATCONC**          | NO2, SO2, O3, CO, FORM, NH3, AOD_550 |  
 | **ALLCONC**          | All CMAQ Internal Species |  
+<sub>#</sup>As noted for red variables in Fig. G-1, several variables are populated for each aerosol mode including diameters, standard deviation, and density, etc.
 
 The ELMO variables are defined in [ELMO_DATA.F](../../../CCTM/src/driver/ELMO_DATA.F). 
 Before ELMO maps output variables to internal model species or meteorological inputs, ELMO recursively expands all Keywords to their members and then filters out duplicates. There is no disadvantage to specifying a variable twice in the CMAQ Control namelist. 
