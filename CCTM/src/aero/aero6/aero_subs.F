@@ -766,6 +766,11 @@ C    aerosols. ATMOSPHERIC CHEMISTRY AND PHYSICS. 7, 4639-4659
       USE AEROMET_DATA
       USE UTILIO_DEFN
 
+#ifdef sens
+      USE DDM3D_DEFN, ONLY : NP, NPMAX
+      USE AERO_DDM3D, ONLY : S_SO4RATE, S_PRECURSOR_CONC
+#endif
+
       IMPLICIT NONE
 
 C *** Arguments:
@@ -1106,6 +1111,16 @@ C     on Equations A21 and A23 of Binkowski & Shankar (1995).
          XH2SO4 = SO4RATE / REAL( TMP,4 )
          XH2SO4 = MAX( XH2SO4, CONMIN )
          !PRECURSOR_CONC( SULF_IDX ) = REAL( XH2SO4, 8 )
+
+#ifdef sens
+         DO NP = 1, NPMAX
+            IF ( XH2SO4 .EQ. CONMIN ) THEN
+               S_PRECURSOR_CONC( SULF_IDX, NP ) = 0.D0
+            ELSE
+               S_PRECURSOR_CONC( SULF_IDX, NP ) = S_SO4RATE( NP ) / REAL(TMP,8)
+            ENDIF
+         END DO
+#endif
 
 C *** Calculate new particle production rate for 0th, 2nd, & 3rd moments
          CALL NEWPART3 ( AIRRH, AIRTEMP, XH2SO4, SO4RATE,
@@ -1691,7 +1706,7 @@ C *** Update gas-phase concentrations from Aitken and Accumulation Mode Partitio
      &                            -CFINAL( KNO3,1:2) ) * HNO3RAT  
       PRECURSOR_CONC( HCL_IDX )  = GCLR8 + sum( CINORG( KCL,1:2 )
      &                            -CFINAL( KCL,1:2) ) * HCLRAT 
-         
+
 2023  FORMAT( 1X, 'VOLINORG returning negative gas concentrations from ISOROPIA:'
      &       /10X, 'GAS(1) = NH3, GAS(2) = HNO3, GAS(3) = HCl' )
 2029  FORMAT( 1X, '[see VOLINORG msg]'

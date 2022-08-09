@@ -20,7 +20,7 @@ c aero_data, precursor_data, soa_defn
       Real( 8 ), Allocatable, Save :: s_precursor_conc( :,: )  ! precursor sensitivity [ug/m^3]
       Real( 8 ), Allocatable, Save :: s_so4rate( : )
       Real( 8 ), Allocatable, Save :: s_phg_rate( : )          ! particulate mercury gas-phase production rate [ug/m^3*s]
-      Real( 8 ), Allocatable, Save :: s_xh2so4( : ) 
+c     Real( 8 ), Allocatable, Save :: s_xh2so4( : ) 
 
       Real( 8 ), Allocatable, Save :: og_sens( :,: )           ! vapors sensitivity
       Real( 8 ), Allocatable, Save :: rog_dsens( :,: )         ! reaction counters senstivity
@@ -59,11 +59,11 @@ C-----------------------------------------------------------------------
          Call m3exit ( 'init_aero_ddm3d', 0, 0, xmsg, xstat2 )
       End If
 
-      Allocate ( s_xh2so4( npmax ), stat = allocstat )
-      If ( allocstat .Ne. 0 ) then
-         xmsg = 'Failure allocating s_xh2so4'
-         Call m3exit ( 'init_aero_ddm3d', 0, 0, xmsg, xstat2 )
-      End If
+c     Allocate ( s_xh2so4( npmax ), stat = allocstat )
+c     If ( allocstat .Ne. 0 ) then
+c        xmsg = 'Failure allocating s_xh2so4'
+c        Call m3exit ( 'init_aero_ddm3d', 0, 0, xmsg, xstat2 )
+c     End If
 
       ae_ddm3d_ready = .True.
 
