@@ -24,7 +24,7 @@ C Adopted from MEGAN3.1 and modified for CMAQ 5.4 by Jeff Willison
       USE centralized_io_util_module
       USE HGRD_DEFN
       USE ASX_DATA_MOD, ONLY: MET_DATA,GRID_DATA
-      USE RUNTIME_VARS, ONLY: NEW_START, PX_LSM, MGN_ONLN_DEP
+      USE RUNTIME_VARS, ONLY: NEW_START, PX_LSM, MGN_ONLN_DEP, IGNORE_SOILINP
       
       IMPLICIT NONE
       
@@ -245,7 +245,7 @@ C to determine DRYPERIOD, pulse state, prev. timestep soil moisture, and N reser
 
         
 C If initial run, initialize some variables, otherwise get them from file
-         IF ( NEW_START ) THEN
+         IF ( NEW_START .or. IGNORE_SOILINP) THEN
 
             PFACTOR   = 1d0   ! array
             DRYPERIOD = 0.01  ! array initialized non-zero to avoid log(0)
@@ -261,9 +261,12 @@ C If initial run, initialize some variables, otherwise get them from file
             NDEPRES   = 0d0   ! array
 
 C open nitrogen deposition file
-           if (MGN_ONLN_DEP) THEN
+
+           if (.not. MGN_ONLN_DEP) THEN 
              ndeprate = bdsnp_ndep(:,:,month)  ! optional for using offline NDEP
                                                !         instead of online NDEP
+            ! When using online deposition there is no attempt to shorten the
+            ! spin up time so we do not initialize this.
            end if
                                         
             !attempt to use steady state condition to reduce spin up time by setting dN/dt = 0
@@ -282,7 +285,14 @@ C           check for negatives
               END DO
            END DO
 
-        ELSE ! SOILINSTATE file available
+        ELSE ! SOILINSTATE file available for NDEPRES
+            BASESUM = 0.0
+            CRFAVG = 0.0
+            PULSEAVG = 0.0
+           if (.not. MGN_ONLN_DEP) THEN 
+             ndeprate = bdsnp_ndep(:,:,month)  ! For using offline NDEP
+                                               ! instead of online NDEP
+           end if
 
         END IF  ! initial run check
 
