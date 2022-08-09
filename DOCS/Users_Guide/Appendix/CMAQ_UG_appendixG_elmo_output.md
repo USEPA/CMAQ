@@ -90,6 +90,7 @@ This and other ELMO keywords are defined in Table G-1.
 **Table G-1. Map of all ELMO Keywords to CMAQ species, ELMO variables, or other Keywords.  
 
 |**ELMO Keyword**  |**Variables and/or** ***Keywords***|  
+|------------------|----------------------------------|
 | DEFAULT          | *AMET*, *CUTOFF_FRACTIONS*, *MASS*, PM_NUM, PMF_NUM, PMC_NUM, *MET*, *CHEM*, *FINE_SPECIES*, *COARSE_SPECIES*, *PM25_SPECIES*, *SIZE*, *AMS*, *PM25TO10_SPECIES* |  
 | AMET             | PMF_MASS, PMF_FRM, PMC_MASS, PMF_OC, PMF_EC, PMF_NA, PMF_CL, PMF_SO4, PMF_NO3, PMF_NH4, PM25, PM25_FRM, PM25_SO4, PM25_NO3, PM25_NH4, PM25_OC, PM25_EC, PMF_FE, PMF_AL, PMF_SI, PMF_TI, PMF_CA, PMF_MG, PMF_K, PMF_MN, PMF_SOILIMPV, PMF_UN_IMPV1, PMF_NCOM, PMF_UN_IMPV2, TNO3, PM_MASS, PMC_MASS, *MET*, Tsurf, AOD_550 |  
 | MASS             | PMF_MASS, PMC_MASS, PM01, PM1, PM25, PM10, PM25TO10, PMU_MASS, PMAMS, PMAIT_MASS< PMACC_MASS |  
