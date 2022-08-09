@@ -263,7 +263,7 @@ C..Parameters:
             IF ( EFLAG  ) THEN
                MSG = 'Above Fatal Error encountered '
                WRITE(ERROR_LOG,*)TRIM(MSG)
-               CALL M3EXIT ( PNAME, 0, 0, MSG, XSTAT2 )
+               CALL M3EXIT ( PNAME, 0, 0, MSG, 2 )
             END IF
             
 ! map species time derivative and jacobian array
@@ -467,7 +467,7 @@ C=======================================================
      
         IF ( IOS .NE. 0 ) THEN
            MSG = 'Error allocating IREACTION and COEFF_NET arrays'
-           CALL M3EXIT ( PNAME, 0, 0, MSG, XSTAT2 )
+           CALL M3EXIT ( PNAME, 0, 0, MSG, 2 )
         END IF 
         
         ALLOCATE( JACOB_PARTIAL_INDEX(3*NUMB_MECH_SPC*NRXNS),
@@ -476,14 +476,14 @@ C=======================================================
      &            JACOB_PARTIAL_COL(3*NUMB_MECH_SPC*NRXNS),   STAT = IOS ) 
         IF ( IOS .NE. 0 ) THEN
            MSG = 'Error allocating JACOB arrays'
-           CALL M3EXIT ( PNAME, 0, 0, MSG, XSTAT2 )
+           CALL M3EXIT ( PNAME, 0, 0, MSG, 2 )
         END IF 
         
 ! set matrix noting where day/night jacobian of chemistry ODE is always zero.
         ALLOCATE( JACOBIAN_FILLED( NUMB_MECH_SPC,NUMB_MECH_SPC,2 ), STAT = IOS )
         IF ( IOS .NE. 0 ) THEN
            MSG = 'Error allocating YDOT array'
-           CALL M3EXIT ( PNAME, 0, 0, MSG, XSTAT2 )
+           CALL M3EXIT ( PNAME, 0, 0, MSG, 2 )
         END IF
         JACOBIAN_FILLED = .FALSE.
         DO I = 1, NUMB_MECH_SPC  ! set diagonal to to true
@@ -494,7 +494,7 @@ C=======================================================
         ALLOCATE( REACTION_CHART( NRXNS ), STAT = IOS )
         IF ( IOS .NE. 0 ) THEN
            MSG = 'Error allocating MECHANISM_BUDGET'
-           CALL M3EXIT ( PNAME, 0, 0, MSG, XSTAT2 )
+           CALL M3EXIT ( PNAME, 0, 0, MSG, 2 )
         END IF 
         DO R = 1, NRXNS
            IP = 0
@@ -565,7 +565,7 @@ C=======================================================
      &                   REACTION_CHART( R )%COEFF_PROD( IP ),  STAT = IOS )
                IF ( IOS .NE. 0 ) THEN
                     MSG = 'Error allocating production MECHANISM_BUDGET arrays'
-           CALL M3EXIT ( PNAME, 0, 0, MSG, XSTAT2 )
+           CALL M3EXIT ( PNAME, 0, 0, MSG, 2 )
                END IF 
                REACTION_CHART( R )%ISPECIES_PRODUCED( 1:IP ) = ISPECIES_PROD( 1:IP )
                REACTION_CHART( R )%COEFF_PROD( 1:IP )        = COEFF_PROD( 1:IP ) 
@@ -576,7 +576,7 @@ C=======================================================
      &                   REACTION_CHART( R )%COEFF_NPROD( IPNEG ),  STAT = IOS )
                IF ( IOS .NE. 0 ) THEN
                     MSG = 'Error allocating production MECHANISM_BUDGET arrays'
-                    CALL M3EXIT ( PNAME, 0, 0, MSG, XSTAT2 )
+                    CALL M3EXIT ( PNAME, 0, 0, MSG, 2 )
                END IF 
                REACTION_CHART( R )%ISPECIES_NPRODUCED( 1:IPNEG ) = ISPECIES_NPROD( 1:IPNEG )
                REACTION_CHART( R )%COEFF_NPROD( 1:IPNEG )        = COEFF_NPROD( 1:IPNEG ) 
@@ -587,7 +587,7 @@ C=======================================================
      &                   REACTION_CHART( R )%COEFF_LOSS( IL ),  STAT = IOS )
                IF ( IOS .NE. 0 ) THEN
                     MSG = 'Error allocating production MECHANISM_BUDGET arrays'
-                    CALL M3EXIT ( PNAME, 0, 0, MSG, XSTAT2 )
+                    CALL M3EXIT ( PNAME, 0, 0, MSG, 2 )
                END IF 
                REACTION_CHART( R )%ISPECIES_DESTROYED( 1:IL ) = ISPECIES_LOSS( 1:IL )
                REACTION_CHART( R )%COEFF_LOSS( 1:IL )         = COEFF_LOSS( 1:IL ) 
@@ -1181,7 +1181,7 @@ c..Add the number of species molecules produced in this reaction
 
             IF ( IOS .NE. 0 ) THEN
                WRITE(ERROR_LOG,95102)
-               CALL M3EXIT ( 'WRITE_OUTPUT', 0, 0, ' ', XSTAT2 )
+               CALL M3EXIT ( 'WRITE_OUTPUT', 0, 0, ' ', 2 )
             END IF
                        
             ! write the data
@@ -1196,7 +1196,7 @@ c..Add the number of species molecules produced in this reaction
             RETURN
 
 1000        WRITE(ERROR_LOG,95102)
-            CALL M3EXIT ( 'WRITE_OUTPUT', 0, 0, ' ', XSTAT2 )
+            CALL M3EXIT ( 'WRITE_OUTPUT', 0, 0, ' ', 2 )
             
 95100       FORMAT(16X,"T(I)",1001(A16,1X)) 
 95101       FORMAT(I3,1X,1001(ES16.6,1X))

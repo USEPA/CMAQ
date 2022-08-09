@@ -168,7 +168,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          IF( MECHNAME .NE. 'CB6R5M_AE7_AQ' ) THEN
              MSG = 'This version of the EBI solver can only be used with'
      &            // ' the CB6R5M_AE7_AQ chemical mechanism'
-             CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
+             CALL M3EXIT( PNAME, 0, 0, MSG, 1 )
          END IF
 
 #ifdef emis_chem
@@ -228,7 +228,7 @@ c..If emissions processing requested stop
 
             MSG = 'ERROR: EBI solver not configured to '//
      &            'process emissions in chemistry'
-            CALL M3EXIT( PNAME, JDATE, JTIME, MSG, XSTAT1 )
+            CALL M3EXIT( PNAME, JDATE, JTIME, MSG, 1 )
 
          END IF   ! End if doing emissions
 

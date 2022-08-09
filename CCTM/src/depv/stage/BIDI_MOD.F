@@ -438,7 +438,7 @@ C--------------------------------------------------------------------------
             
          If ( .Not. OPEN3( MEDIA_CONC, FSNEW3, PNAME ) ) Then
             XMSG = 'Could not create '// TRIM( MEDIA_CONC) // ' file'
-            Call M3EXIT( PNAME, SDATE3D, STIME3D, XMSG, XSTAT1 )
+            Call M3EXIT( PNAME, SDATE3D, STIME3D, XMSG, 1 )
          End If                   
 
          Return
@@ -494,7 +494,7 @@ C--------------------------------------------------------------------------
             If ( .Not. IO_PE_INCLUSIVE ) Then
                If ( .Not. OPEN3( MEDIA_CONC, FSREAD3, PNAME ) ) Then
                   XMSG = 'Could not open ' // TRIM( MEDIA_CONC )
-                  Call M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
+                  Call M3EXIT( PNAME, MDATE, MTIME, XMSG, 1 )
                End If
             End If
          End If
@@ -510,7 +510,7 @@ C--------------------------------------------------------------------------
             If ( .Not. WRITE3( MEDIA_CONC, MEDIA_NAMES( V ), MDATE, MTIME,
      &                WRMC ) ) Then
                XMSG = 'Could not write ' // MEDIA_CONC // ' file'
-               Call M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
+               Call M3EXIT( PNAME, MDATE, MTIME, XMSG, 1 )
             End If
 
          End Do                 

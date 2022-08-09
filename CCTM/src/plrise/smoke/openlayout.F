@@ -152,11 +152,11 @@ C Set up and open diagnostic file(s)
             WRITE( LNAME( N ),'( "PLAY_", I2.2 )' ) N
             IF ( .NOT. SETENVVAR ( LNAME( N ), PLAY_EQ ) ) THEN
                XMSG = 'Could not set environment variable for ' // PLAY_EQ
-               CALL M3EXIT( PNAME, SDATE, STIME, XMSG, XSTAT3 )
+               CALL M3EXIT( PNAME, SDATE, STIME, XMSG, 3 )
             END IF
             IF ( .NOT. OPEN3( LNAME( N ), FSNEW3, UPNAM3D ) ) THEN
                XMSG = 'Could not open ' // TRIM( FDESC3D( 1 ) ) // ' file'
-               CALL M3EXIT( PNAME, SDATE, STIME, XMSG, XSTAT1 )
+               CALL M3EXIT( PNAME, SDATE, STIME, XMSG, 1 )
             END IF
 
          ELSE

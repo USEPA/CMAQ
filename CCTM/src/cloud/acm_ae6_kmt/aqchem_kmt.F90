@@ -257,19 +257,19 @@
 
         IF ( INDEX ( MECHNAME, 'AE6' ) .LE. 0 ) THEN
           XMSG = 'This version of AQCHEM requires an AE6 chemical mechanism'
-          CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
+          CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 3 )
         END IF 
 
 !...Make sure STM option is not set
 
          IF ( STM ) THEN
             XMSG = 'STM option not implemented in KMT AQCHEM'
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 3 )
          END IF
 
 #ifdef isam
         XMSG = 'Source Apportionment is not implemented in KMT AQCHEM'
-        CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
+        CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 3 )
 #endif        
 
 !... set MW ratios and speciation factors for molar concentrations of coarse
@@ -337,7 +337,7 @@
 
       IF ( TEMP2 .LE. 0.0D0 .OR. AIRM .LE. 0.0D0 .OR. PRES_PA .LE. 0.0D0 ) THEN
          XMSG = 'MET DATA ERROR'
-         CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
+         CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 2 )
       END IF
       
       JDATEKPP = JDATE

@@ -171,7 +171,7 @@ C-----------------------------------------------------------------------
          ALLOCATE ( INDX( MXSPC ), ICBC_FAC( MXSPC ), STAT = ASTAT )
          IF ( ASTAT .NE. 0 ) THEN
             XMSG = 'ERROR allocating INDX or ICBC_FAC'
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 2 )
          END IF
       END IF
 
@@ -179,12 +179,12 @@ C-----------------------------------------------------------------------
 
       IF ( .NOT. OPEN3( FNAME, FSREAD3, PNAME ) ) THEN
          XMSG = 'Could not open ' // FNAME // ' file'
-         CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
       END IF
  
       IF ( .NOT. DESC3( FNAME ) ) THEN
          XMSG = 'Could not get ' // FNAME // ' file description'
-         CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
       END IF
  
       IF ( GL_NCOLS .NE. NCOLS3D ) THEN
@@ -201,7 +201,7 @@ C-----------------------------------------------------------------------
  
       IF ( NLAYS .NE. NLAYS3D ) THEN
          XMSG = 'Wrong number of layers in ' // FNAME // ' file'
-         CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
       END IF
 
       ESTR2 = ' in ' // TRIM( FNAME ) // '; Look for '
@@ -387,7 +387,7 @@ C If there is no surrogate or it cant be found, look for the (main) species name
          N_SPCS = 0
       ELSE
          XMSG = 'Species categories incorrect for CGRID '
-         CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
+         CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 2 )
       END IF
         
 C Read into CGRID
@@ -483,7 +483,7 @@ C Set pointers for gas (vapor) phase sulfur species
                ISO4AJ = AE_STRT - 1 + NDX
             ELSE
                XMSG = 'Could not find ' // VNAME // 'in aerosol table'
-               CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
+               CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 3 )
             END IF
 
             VNAME = 'SULF'
@@ -493,7 +493,7 @@ C Set pointers for gas (vapor) phase sulfur species
                MWH2SO4 = GC_MOLWT( GC_G2AE_MAP( NDX ) )
             ELSE
                XMSG = 'Could not find ' // VNAME // 'in gas chem aerosol table'
-               CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
+               CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 3 )
             END IF
 
             VNAME = 'ASO4I'
@@ -502,7 +502,7 @@ C Set pointers for gas (vapor) phase sulfur species
                ISO4AI = AE_STRT - 1 + NDX
             ELSE
                XMSG = 'Could not find ' // VNAME // 'in aerosol table'
-               CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
+               CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 3 )
             END IF
             VNAME = 'NUMATKN'
             NDX = INDEX1( VNAME, N_AE_SPC, AE_SPC )
@@ -510,7 +510,7 @@ C Set pointers for gas (vapor) phase sulfur species
                INUMATKN = AE_STRT - 1 + NDX
             ELSE
                XMSG = 'Could not find ' // VNAME // 'in aerosol table'
-               CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
+               CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 3 )
             END IF
             VNAME = 'NUMACC'
             NDX = INDEX1( VNAME, N_AE_SPC, AE_SPC )
@@ -518,7 +518,7 @@ C Set pointers for gas (vapor) phase sulfur species
                INUMACC = AE_STRT - 1 + NDX
             ELSE
                XMSG = 'Could not find ' // VNAME // 'in aerosol table'
-               CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
+               CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 3 )
             END IF
 
             call interpolate_var ('DENS', jdate, jtime, DENS)

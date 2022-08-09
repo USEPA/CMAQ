@@ -237,7 +237,7 @@ C..Quality control on pairs of Reactant and Products
             IF ( LEN_NAME < 1 ) THEN
                WRITE( LOGDEV,* ) 'A Reactant has no name.'
      &              // ' Check file degrade module'
-               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
+               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 3 )
             ENDIF
             
             DO K = 1, N_REACT
@@ -252,7 +252,7 @@ C..Quality control on pairs of Reactant and Products
      &                 TRIM( VNAME( 1 ) ), ' is a destroyed  and produced.'
      &                 // ' The property is not allowed because it'
      &                 // ' brakes linear assumptions used.'
-                    CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
+                    CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 3 )
                   END IF
                END DO    
             
@@ -264,7 +264,7 @@ C..Quality control on pairs of Reactant and Products
      &                 TRIM( VNAME( 1 ) ), ' has same name'
      &                 // ' same as a species causing its bimolecular loss.'
      &                 // ' This brakes linear assumptions used.'
-                  CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
+                  CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 3 )
                ENDIF
             ENDDO
 
@@ -275,7 +275,7 @@ C..Quality control on pairs of Reactant and Products
      &                 TRIM( VNAME( 1 ) ), ' has same name as'
      &                 // ' a species causing its trimolecular loss.'
      &                 // ' This brakes linear assumptions used.'
-                  CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
+                  CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 3 )
                ENDIF
             ENDDO
 
@@ -285,7 +285,7 @@ C..Quality control on pairs of Reactant and Products
      &                 VNAME( 1 )( 1:LEN_NAME ), ' has'
      &                 // ' same name as a species causing its Langmuir'
      &                 // '-Hinshwood loss. This brakes linear assumptions used. '
-                  CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
+                  CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 3 )
                ENDIF
             ENDDO
 
@@ -363,7 +363,7 @@ C..check UNIMOLECULAR decay rates
                   WRITE( LOGDEV,* ) 'Species ', REACT( I ), ' has a'
      &                 // 'negative rate for unimolecular decay.'
      &                 // 'Check degrade module'
-                  CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
+                  CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 3 )
                ENDIF
 
                WRITE( LOGDEV,1100 ) VNAME( 1 ), RXTANT_MAP( I ),
@@ -386,7 +386,7 @@ C..checking degradation rates
                   WRITE( LOGDEV,* ) 'Species ', REACT( I ), 'has a negative'
      &                 // ' rate for degradation by ', WNAME( 1:LEN_NAME ), '.'
      &                 // ' Check degrade module.'
-                  CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
+                  CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 3 )
                ENDIF
 
                WNAME = BICAUSE( J, I )
@@ -461,7 +461,7 @@ C..checking degradation rates
                   WRITE( LOGDEV,* ) 'Species ', REACT( I ), 'has a negative'
      &                 // ' rate for trimolecular degradation.'
      &                 // ' Check degrade module.'
-                  CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
+                  CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 3 )
                ENDIF
 
                ICOUNT = 0
@@ -578,7 +578,7 @@ C..checking degradation rates
                   WRITE( LOGDEV,* ) 'Species ', REACT( I ), 'has a negative'
      &                 // ' rate for degradation by ', WNAME( 1:LEN_NAME ), '.'
      &                 // ' Check degrade module.'
-                  CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
+                  CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 3 )
                ENDIF
 
                WNAME = LHCAUSE( J, I )
@@ -773,7 +773,7 @@ C..Save pointer for isam species found in chemistry species
                END DO
                IF( L .NE. ISAM_DEGRADED_SPC )THEN
                    MSG = 'ERROR mapping isam to chemistry species: inconsistent number found'
-                   CALL M3EXIT ( PNAME, 0, 0, MSG, XSTAT1 )
+                   CALL M3EXIT ( PNAME, 0, 0, MSG, 1 )
                END IF
            ELSE
                MSG = 'NO ISAM species are degraded '

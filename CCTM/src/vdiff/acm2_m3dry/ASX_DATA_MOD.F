@@ -547,7 +547,7 @@ C-----------------------------------------------------------------------
      &              BUFF3D( NCOLS,NROWS,NLAYS ), STAT = ALLOCSTAT )
          If ( ALLOCSTAT .Ne. 0 ) Then
             XMSG = 'Failure allocating Buffers'
-            Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+            Call M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
          End If
 
          BUFF1D = 0.0
@@ -612,7 +612,7 @@ C-----------------------------------------------------------------------
      &             STAT = ALLOCSTAT )
          If ( ALLOCSTAT .Ne. 0 ) Then
             XMSG = 'Failure allocating met vars'
-            Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+            Call M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
          End If
 
          ALLOCATE( Grid_Data%DX3F    ( NLAYS ),
@@ -638,7 +638,7 @@ C-----------------------------------------------------------------------
      &             STAT = ALLOCSTAT )
          If ( ALLOCSTAT .Ne. 0 ) Then
             XMSG = 'Failure allocating grid vars'
-            Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+            Call M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
          End If
          Grid_Data%NAME      = name_lu
          Grid_Data%LU_Type   = cat_lu
@@ -654,7 +654,7 @@ C-----------------------------------------------------------------------
      &                STAT = ALLOCSTAT )
             If ( ALLOCSTAT .Ne. 0 ) Then
                XMSG = 'Failure allocating layer 2 soil temperature'
-               Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+               Call M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
             End If
          End If
 
@@ -663,7 +663,7 @@ C-----------------------------------------------------------------------
      &                STAT = ALLOCSTAT )
             If ( ALLOCSTAT .Ne. 0 ) Then
                XMSG = 'Failure allocating layer 2 soil moisture'
-               Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+               Call M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
             End If
          END IF
          
@@ -674,7 +674,7 @@ C-----------------------------------------------------------------------
      &                STAT = ALLOCSTAT )
             If ( ALLOCSTAT .Ne. 0 ) Then
                XMSG = 'Failure allocating Soil grid vars'
-               Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+               Call M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
             End If
 
             Grid_Data%WRES    = 0.0

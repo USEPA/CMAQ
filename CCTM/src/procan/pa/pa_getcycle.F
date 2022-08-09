@@ -64,7 +64,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          CALL M3MESG( MSG )
          WRITE( MSG, 94020 ) MAXCYCLES
          CALL M3MESG( MSG )
-         CALL M3EXIT( 'GETCYCLE', IZERO, IZERO, ' ', XSTAT2 )
+         CALL M3EXIT( 'GETCYCLE', IZERO, IZERO, ' ', 2 )
       ENDIF
 
       CALL GETWORD
@@ -77,7 +77,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          CALL M3MESG( MSG )
          WRITE( MSG, 94520 ) CHR
          CALL M3MESG( MSG )
-         CALL M3EXIT( 'GETCYCLE', IZERO, IZERO, ' ', XSTAT2 )
+         CALL M3EXIT( 'GETCYCLE', IZERO, IZERO, ' ', 2 )
       ELSE
          CALL GETCHR
       ENDIF
@@ -98,7 +98,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          CALL M3MESG( MSG )
          WRITE( MSG, 94520 ) CHR
          CALL M3MESG( MSG )
-         CALL M3EXIT( 'GETCYCLE', IZERO, IZERO, ' ', XSTAT2 ) 
+         CALL M3EXIT( 'GETCYCLE', IZERO, IZERO, ' ', 2 ) 
       END IF
 
 C----------------------- FORMAT Statements -----------------------------

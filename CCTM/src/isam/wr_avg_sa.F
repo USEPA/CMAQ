@@ -100,7 +100,7 @@ c    &     'Flag to Override default beginning time timestamp for ACONC'
 c        END_TIME = ENVYN( ACONC_END_TIME, VARDESC, END_TIME, STATUS )
 c        IF ( STATUS .EQ. 1 ) THEN
 c           XMSG = 'Environment variable improperly formatted'
-c           CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+c           CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
 c        ELSE IF ( STATUS .NE. 0 ) THEN
 c           WRITE( LOGDEV, '(5X, A)' ) VARDESC
 c           XMSG = '... Using default:'
@@ -143,7 +143,7 @@ C Get default file header attibutes from CONC file (assumes file already open)
                   XMSG = 'Could not get '
      &                 // TRIM( SA_CONC_1 )
      &                 // ' file description'
-                  CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+                  CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
                END IF
 
 C Set file header attributes that differ from CONC and open the file
@@ -195,7 +195,7 @@ C Set file header attributes that differ from CONC and open the file
                IF ( .NOT. OPEN3( SA_ACONC_1, FSNEW3, PNAME ) ) THEN
                   XMSG = 'Could not open '
      &                 // TRIM( SA_ACONC_1 ) // ' file'
-                  CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
+                  CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, 1 )
                END IF
 
             END IF   ! MYPE = 0
@@ -208,7 +208,7 @@ C File exists. Make sure it matches requested output.
                XMSG = 'Could not get '
      &              // TRIM( SA_CONC_1 )
      &              // ' file description'
-               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
             END IF
 
             TSTEP_RF = TSTEP3D
@@ -232,13 +232,13 @@ C File exists. Make sure it matches requested output.
                XMSG = 'Could not get '
      &              // TRIM( SA_ACONC_1 )
      &              // ' file description'
-               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
             END IF
 
             IF ( N_SPCTAG .NE. NVARS3D ) THEN
                WRITE( XMSG, '( A, 2I6 )' )
      &         'Number of variables don''t match file: ', N_SPCTAG, NVARS3D
-               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
+               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 2 )
             END IF
 
             DO SPC = 1, N_SPCTAG
@@ -246,14 +246,14 @@ C File exists. Make sure it matches requested output.
                   IF ( VNAM_SPCTAG( SPC ) .EQ. VNAME3D( VAR ) ) GO TO 101
                END DO
                XMSG = 'Could not find ' // VNAM_SPCTAG( SPC )
-               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
+               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 2 )
 101            CONTINUE
             END DO
 
             IF ( A_NLYS .NE. NLAYS3D ) THEN
                WRITE( XMSG, '( A, 2I6 )' )
      &         'Number of layers don''t match file: ', A_NLYS, NLAYS3D
-               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
+               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 2 )
             END IF
 
 C Check other header data with CONC file as reference
@@ -264,36 +264,36 @@ C Check other header data with CONC file as reference
      &           NROWS_RF .NE. NROWS3D .OR.
      &           GDTYP_RF .NE. GDTYP3D ) THEN
                  XMSG = 'Header inconsistent on existing SA_ACONC_1'
-                 CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
+                 CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 2 )
             END IF
             IF ( P_ALP_RF .NE. P_ALP3D .OR.
      &           P_BET_RF .NE. P_BET3D .OR.
      &           P_GAM_RF .NE. P_GAM3D ) THEN
                  XMSG = 'Header inconsistent on existing SA_ACONC_1'
-                 CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
+                 CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 2 )
             END IF
             IF ( XCENT_RF .NE. XCENT3D .OR.
      &           YCENT_RF .NE. YCENT3D ) THEN
                  XMSG = 'Header inconsistent on existing SA_ACONC_1'
-                 CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
+                 CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 2 )
             END IF
             IF ( XORIG_RF .NE. XORIG3D .OR.
      &           YORIG_RF .NE. YORIG3D ) THEN
                XMSG = 'Header inconsistent on existing SA_ACONC_1'
-               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
+               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 2 )
             END IF
             IF ( XCELL_RF .NE. XCELL3D .OR.
      &           YCELL_RF .NE. YCELL3D ) THEN
                XMSG = 'Header inconsistent on existing SA_ACONC_1'
-               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
+               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 2 )
             END IF
             IF ( VGTYP_RF .NE. VGTYP3D ) THEN
                XMSG = 'Header inconsistent on existing SA_ACONC_1'
-               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
+               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 2 )
             END IF
             IF ( VGTOP_RF .NE. VGTOP3D ) THEN
                XMSG = 'Header inconsistent on existing SA_ACONC_1'
-               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
+               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 2 )
             END IF
 
          END IF   ! .NOT. OPEN SA_ACONC_1
@@ -316,7 +316,7 @@ c        CALL SUBST_BARRIER
             XMSG = 'Could not write '
      &           // VNAM_SPCTAG( SPC )
      &           // ' to ' // SA_ACONC_1
-            CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
+            CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, 1 )
          END IF
 !     write( logdev,* ) ' <>var, A_GC_SPC: ', VAR, A_GC_SPC( SPC )
       END DO

@@ -79,13 +79,13 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
      &              RJ_SUB  ( NCOLS, NROWS, NLAYS, NPHOTAB ), STAT = ALLOCSTAT )
           IF ( ALLOCSTAT .NE. 0 ) THEN
               XMSG = 'Failure allocating photolysis rate arrays'
-              CALL M3EXIT ( 'INIT_PHOT_SHARED', 0, 0, XMSG, XSTAT1 )
+              CALL M3EXIT ( 'INIT_PHOT_SHARED', 0, 0, XMSG, 1 )
           END IF
 
 !          ALLOCATE( ETOT_SFC_WL( NCOLS,NROWS,NWL ), STAT = ALLOCSTAT )
 !          IF ( ALLOCSTAT .NE. 0 ) THEN
 !              XMSG = 'Failure allocating irradiance rate array'
-!              CALL M3EXIT ( 'INIT_PHOT_SHARED', 0, 0, XMSG, XSTAT1 )
+!              CALL M3EXIT ( 'INIT_PHOT_SHARED', 0, 0, XMSG, 1 )
 !          END IF
 
           RJ = 0.0; RJ_RES = 0.0; RJ_SUB = 0.0
@@ -144,7 +144,7 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
           IF( ERROR_FLAG )THEN
             XMSG = 'The above fatal error(s) found initializing'
-            CALL M3EXIT ( 'INIT_PHOT_SHARED', 0, 0, XMSG, XSTAT1 )
+            CALL M3EXIT ( 'INIT_PHOT_SHARED', 0, 0, XMSG, 1 )
           END IF
 
            

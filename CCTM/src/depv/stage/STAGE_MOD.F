@@ -129,15 +129,15 @@ C Check aerosol deposition options
          If( ( STAGE_E20 .And. STAGE_P22 ) ) Then
             XMSG = 'Both CTM_STAGE_E20 and CTM_STAGE_P22 aerosol dry ' //
      &             ' deposition options were set to Y. Please select one. '
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
          Else If ( STAGE_E20 .And. STAGE_S22 ) Then
             XMSG = 'Both CTM_STAGE_E20 and CTM_STAGE_S22 aerosol dry ' //
      &             ' deposition options were set to Y. Please select one. '
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
          Else If ( STAGE_P22 .And. STAGE_S22 ) Then
             XMSG = 'Both CTM_STAGE_S22 and CTM_STAGE_P22 aerosol dry ' //
      &             ' deposition options were set to Y. Please select one. '
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
          End If
 C if abflux this specifies soil, vegetation and water compensation points for NH3
          IF ( abflux ) THEN
@@ -150,7 +150,7 @@ C  Allocate arrays
 
          IF ( ALLOCSTAT .NE. 0 ) THEN
             XMSG = 'Failure allocating Water, Ag, or a_cut'
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
          END IF
                          
          ALLOCATE ( VDEP( N_AE_DEP_SPC ), 
@@ -158,13 +158,13 @@ C  Allocate arrays
      &              DEPV_SUR( N_AE_DEPV ), STAT = ALLOCSTAT )
          IF ( ALLOCSTAT .NE. 0 ) THEN
             XMSG = 'Failure allocating VDEP, VDEPJ, DEPV_SUR'
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
          END IF
 
          ALLOCATE ( DG( N_MODE ), XXLSG( N_MODE ), PDENS( N_MODE), STAT = ALLOCSTAT )
          IF ( ALLOCSTAT .NE. 0 ) THEN
             XMSG = 'Failure allocating DG, XXLSG, or PDENS'
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
          END IF
 
 C Set the dep vel surrogate pointers

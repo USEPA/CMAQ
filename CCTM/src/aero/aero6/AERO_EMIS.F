@@ -214,7 +214,7 @@ C *** set up for sea-spray emission processing
          IF ( OCEAN_CHEM ) THEN
             IF ( .NOT. SSEMIS_INIT( JDATE, JTIME, TSTEP ) ) THEN
                XMSG = 'Failure initializing sea-spray emission processing'
-               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
+               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 2 )
             END IF
          END IF
 
@@ -222,7 +222,7 @@ C *** set up for dust emission processing
          IF ( WB_DUST ) THEN
             IF ( .NOT. DUST_EMIS_INIT( JDATE, JTIME, TSTEP ) ) THEN
                XMSG = 'Failure initializing dust emission processing'
-               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
+               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 2 )
             END IF
          END IF
 
@@ -384,7 +384,7 @@ C-----------------------------------------------------------------------
                       WRITE( XMSG,'(A,A,A,/,A,I2,A)' ), '*** Reference Aerosol Mode (', 
      &                       DESID_SD_NML( IRULE )%MODE_REF, 'Specified in Emissions Size ',
      &                       'Dist Rule ',IRULE,' does not exist in AERO_DATA.'
-                      CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+                      CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
                    END IF
 
                ELSEIF ( DESID_SD_NML( IRULE )%MODE .EQ. 'COARSE' ) THEN
@@ -396,7 +396,7 @@ C-----------------------------------------------------------------------
                       WRITE( XMSG,'(A,A,A,/,A,I2,A)' ), '*** Reference Aerosol Mode (', 
      &                       DESID_SD_NML( IRULE )%MODE_REF, 'Specified in Emissions Size ',
      &                       'Dist Rule ',IRULE,' does not exist in AERO_DATA.'
-                      CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+                      CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
                    END IF
 
                ELSE
@@ -413,7 +413,7 @@ C-----------------------------------------------------------------------
                       WRITE( XMSG,'(A,A,A,/,A,I2,A)' ), '*** Reference Aerosol Mode (', 
      &                       DESID_SD_NML( IRULE )%MODE_REF, 'Specified in Emissions Size ',
      &                       'Dist Rule ',IRULE,' does not exist in AERO_DATA.'
-                      CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+                      CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
                    END IF
 
                END IF

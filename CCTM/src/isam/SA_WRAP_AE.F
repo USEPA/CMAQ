@@ -94,7 +94,7 @@ Ckrt Identify species index in ISAM array
            XMSG = 'Failure allocating CCOND, SPEC_BULK0, '
      &          //'BULK0, BULK1, BULK_TRANS_SRC, TAG_FRAC, '
      &          //'ISAM0, or ISAM1.'
-           CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+           CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
         END IF
 
         ! Store Masks for Aerosol features in vectors of length NSPC_SA
@@ -279,7 +279,7 @@ Ckrt Identify species index in ISAM array
      &                   'must be defined for Irreversible Aerosol Species '// 
      &                   'source apporitonment. Please check the AERO_DATA '//
      &                   'aerosol properties table (gasname, ctrname).'
-                  CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+                  CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
                END IF
 
                ! Apportion condensed mass based on gas apporitonment

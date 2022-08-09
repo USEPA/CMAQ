@@ -233,7 +233,7 @@ C Get dx1 from COORD include file
      &              BUF_EW    ( NROWS,NLAYS,N_SPC_DIFF ), STAT = IOS )
          IF ( IOS .NE. 0 ) THEN
             XMSG = 'Failure allocating HALO_SOUTH, HALO_NORTH, HALO_WEST, HALO_EAST, BUF_NS, or BUF_EW'
-            CALL M3EXIT ( PNAME, FDATE, FTIME, XMSG, XSTAT1 )
+            CALL M3EXIT ( PNAME, FDATE, FTIME, XMSG, 1 )
          END IF
 
 #ifdef isam
@@ -246,7 +246,7 @@ C Get dx1 from COORD include file
          IF ( IOS .NE. 0 ) THEN
             XMSG = 'Failure allocating SA_HALO_SOUTH, SA_HALO_NORTH,'
      &           // ' SA_HALO_WEST, SA_HALO_EAST, SA_BUF_NS, or SA_BUF_EW'
-            CALL M3EXIT ( PNAME, FDATE, FTIME, XMSG, XSTAT1 )
+            CALL M3EXIT ( PNAME, FDATE, FTIME, XMSG, 1 )
          END IF
 #endif
 
@@ -260,7 +260,7 @@ C Get dx1 from COORD include file
          IF ( IOS .NE. 0 ) THEN
             XMSG = 'Failure allocating S_HALO_SOUTH, S_HALO_NORTH,'
      &           // ' S_HALO_WEST, S_HALO_EAST, S_BUF_NS, or S_BUF_EW'
-            CALL M3EXIT ( PNAME, FDATE, FTIME, XMSG, XSTAT1 )
+            CALL M3EXIT ( PNAME, FDATE, FTIME, XMSG, 1 )
          END IF
 #endif
 
@@ -268,7 +268,7 @@ C Get dx1 from COORD include file
          ALLOCATE ( DIFF_MAP( N_SPC_DIFF ), STAT = IOS )
          IF ( IOS .NE. 0 ) THEN
             XMSG = 'Failure allocating DIFF_MAP'
-            CALL M3EXIT ( PNAME, FDATE, FTIME, XMSG, XSTAT1 )
+            CALL M3EXIT ( PNAME, FDATE, FTIME, XMSG, 1 )
          END IF
 
 C Create global map to CGRID

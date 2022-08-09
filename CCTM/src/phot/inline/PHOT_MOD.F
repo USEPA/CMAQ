@@ -173,13 +173,13 @@ C-----------------------------------------------------------------------
      &              RJ_SUB  ( NCOLS, NROWS, NLAYS, NPHOTAB ), STAT = ALLOCSTAT )
           IF ( ALLOCSTAT .NE. 0 ) THEN
               XMSG = 'Failure allocating photolysis rate arrays'
-              CALL M3EXIT ( 'INIT_PHOT_SHARED', 0, 0, XMSG, XSTAT1 )
+              CALL M3EXIT ( 'INIT_PHOT_SHARED', 0, 0, XMSG, 1 )
           END IF
 
           ALLOCATE( ETOT_SFC_WL( NCOLS,NROWS,NWL ), STAT = ALLOCSTAT )
           IF ( ALLOCSTAT .NE. 0 ) THEN
               XMSG = 'Failure allocating irradiance rate array'
-              CALL M3EXIT ( 'INIT_PHOT_SHARED', 0, 0, XMSG, XSTAT1 )
+              CALL M3EXIT ( 'INIT_PHOT_SHARED', 0, 0, XMSG, 1 )
           END IF
 
           RJ = 0.0; RJ_RES = 0.0; RJ_SUB = 0.0
@@ -698,7 +698,7 @@ C*** find ozone column density for atmosphere, stratosphere, and troposphere
      &               CLOUD_ICE_EXT( II,IWL ), CLOUD_ICE_SCAT( II,IWL )
                      WRITE( LOGDEV,'(A,2(ES12.4,1X))')'AGGREG_EXT, AGGREG_SCAT = ',
      &               CLOUD_AGGREG_EXT( II,IWL ), CLOUD_AGGREG_SCAT( II,IWL )
-                     CALL M3EXIT( 'NEW_OPTICS', JDATE, JTIME, ' ', XSTAT1 )
+                     CALL M3EXIT( 'NEW_OPTICS', JDATE, JTIME, ' ', 1 )
                   END IF
                ELSE 
                   OM_CLOUD = 1.0
@@ -744,7 +744,7 @@ C*** find ozone column density for atmosphere, stratosphere, and troposphere
                      WRITE( LOGDEV,'(A,2(ES12.4,1X))' )
      &                  'AGGREG_ASY, AGGREG_SCAT = ',
      &                  CLOUD_AGGREG_ASY( II,IWL ), CLOUD_AGGREG_SCAT( II,IWL )
-                     CALL M3EXIT( 'NEW_OPTICS', JDATE, JTIME, ' ', XSTAT1 )
+                     CALL M3EXIT( 'NEW_OPTICS', JDATE, JTIME, ' ', 1 )
                   END IF
                ELSE
                   G_CLOUD = 0.0

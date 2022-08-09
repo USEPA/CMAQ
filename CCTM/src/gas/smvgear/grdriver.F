@@ -233,7 +233,7 @@ C**********************************************************************
       MSG = 'ERROR: SMVGEAR Chemistry Solver does not perform source apportionment.'
       WRITE(LOGDEV,'(A)')TRIM( MSG )
       MSG = 'Must use the EBI solver for the chemical mechanism'
-      CALL M3EXIT( PNAME, JDATE, JTIME, MSG, XSTAT1 )
+      CALL M3EXIT( PNAME, JDATE, JTIME, MSG, 1 )
 #endif
 
       IF ( NUMB_MECH_SPC .EQ. 0 ) RETURN
@@ -399,7 +399,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
             MSG = 'Failure allocating NSTPERF, MXORDPERF, NITERPERF,'
      &          // ' NSUBPERF, NPDPERF, NCFAILPERF, NEFAILPERF,'
      &          // ' IRSPERF, or NBKUPS'
-            CALL M3EXIT ( PNAME, JDATE, JTIME, MSG, XSTAT1 )
+            CALL M3EXIT ( PNAME, JDATE, JTIME, MSG, 1 )
          END IF
       END IF
 
@@ -582,7 +582,7 @@ C..Output IC for a block
                ENDDO
 
                MSG = 'Stopping in CHEM after dumping block IC'
-               CALL M3EXIT( 'CHEM', JDATE, JTIME, MSG, XSTAT0 )
+               CALL M3EXIT( 'CHEM', JDATE, JTIME, MSG, 0 )
             ENDIF
             
 C..Output IC for a cell            
@@ -605,7 +605,7 @@ C..Output IC for a cell
                ENDDO
 
                MSG = 'Stopping in CHEM after dumping cell ic'
-               CALL M3EXIT( 'CHEM', JDATE, JTIME, MSG, XSTAT0 )
+               CALL M3EXIT( 'CHEM', JDATE, JTIME, MSG, 0 )
             ENDIF
             
 C..debug output            

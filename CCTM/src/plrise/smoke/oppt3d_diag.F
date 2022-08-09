@@ -132,7 +132,7 @@ C create header
       IF ( IO_PE_INCLUSIVE ) THEN   ! open new
          IF ( .NOT. OPEN3( PT3DNAME, FSNEW3, PNAME ) ) THEN
             XMSG = 'Could not open ' // TRIM( PT3DNAME )
-            CALL M3EXIT( PNAME, STDATE, STTIME, XMSG, XSTAT1 )
+            CALL M3EXIT( PNAME, STDATE, STTIME, XMSG, 1 )
          END IF
       END IF
 

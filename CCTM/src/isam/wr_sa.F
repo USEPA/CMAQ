@@ -87,12 +87,12 @@ Ckrt     print*, N_SPCTAG, JDATE, JTIME
 
 !0710    IF ( .NOT. OPEN3( FILE_NAME, FSRDWR3, PNAME ) ) THEN
 !0710       XMSG = 'Could not open ' // FILE_NAME // ' file for update'
-!0710       CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+!0710       CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
 !0710    END IF
 
 !0711    IF ( .NOT. DESC3( FILE_NAME ) ) THEN
 !0711       XMSG = 'Could not get file description from ' // FILE_NAME
-!0711       CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+!0711       CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
 !0711    END IF
 
       IF ( FIRSTIME ) THEN  ! 20140228
@@ -103,13 +103,13 @@ Ckrt     print*, N_SPCTAG, JDATE, JTIME
         IF ( MYPE .NE. 0 ) THEN
           IF ( .NOT. OPEN3( SA_CONC_1, FSREAD3, PNAME ) ) THEN
             XMSG = 'Could not open ' // SA_CONC_1 // 'file for update'
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
           END IF !open3
         END IF ! mype nonzero
 
         IF ( .NOT. DESC3( SA_CONC_1 ) ) THEN
           XMSG = 'Could not get file description from ' // SA_CONC_1
-          CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+          CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
         END IF
 
         IF ( ISAM_ELEV .EQ. -1 ) ISAM_ELEV = NLAYS
@@ -120,7 +120,7 @@ Ckrt     print*, N_SPCTAG, JDATE, JTIME
      &     STAT = ALLOCSTAT )
          IF ( ALLOCSTAT .NE. 0 ) THEN
            XMSG = 'Failure allocating ISAM_BUFF'
-           CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+           CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
          ENDIF
 
       IF ( ISAM_ELEV .EQ. -1 ) ISAM_ELEV = NLAYS
@@ -146,7 +146,7 @@ Ckrt     print*, N_SPCTAG, JDATE, JTIME
          XMSG = 'Could not write to ' 
 !0711&        // FILE_NAME 
      &        // SA_CONC_1 
-         CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
        END IF
       END DO
 !20140306         IF ( ALLOCATED(ISAM_BUFF) ) DEALLOCATE( ISAM_BUFF )

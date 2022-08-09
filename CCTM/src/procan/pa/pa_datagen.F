@@ -87,7 +87,7 @@ C----------------------------------------------------------------------
       IF ( LIPR .OR. LIRR ) THEN
          IF ( .NOT. PAGRD_INIT( MYPE ) ) THEN
             XMSG = '*** Failure defining PA domain configuration'
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
          END IF
       END IF
  

@@ -541,19 +541,19 @@ C...Make sure an AE6 version of the mechanism is being used
 
         IF ( INDEX ( MECHNAME, 'AE6' ) .LE. 0 ) THEN
           XMSG = 'This version of AQCHEM requires an AE6 chemical mechanism'
-          CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
+          CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 3 )
         END IF 
 
 !...Make sure STM option is not set
 
         IF ( STM ) THEN
            XMSG = 'STM option not implemented in multipollutant version of AQCHEM'
-           CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
+           CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 3 )
         END IF
 
 #ifdef isam
         XMSG = 'Source Apportionment is not implemented in multipollutant version of AQCHEM'
-        CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
+        CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 3 )
 #endif        
 
 C... set MW ratios and speciation factors for molar concentrations of coarse
@@ -605,7 +605,7 @@ C...check for bad temperature, cloud air mass, or pressure
 
       IF ( TEMP .LE. 0.0D0 .OR. AIRM .LE. 0.0D0 .OR. PRES_PA .LE. 0.0D0 ) THEN
         XMSG = 'MET DATA ERROR'
-        CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
+        CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 2 )
       END IF
 
 C...initialize counters and compute several conversion factors
@@ -853,7 +853,7 @@ C...loop If kinetic calculations are made, return to this point
 
         IF ( I20C .GE. 10000 ) THEN
           XMSG = 'EXCESSIVE LOOPING AT I20C'
-          CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
+          CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 2 )
         END IF
 
 C...set aitken-mode aerosol loading (mol/liter)
@@ -1067,7 +1067,7 @@ C...HGII_FINE deposition is accounted above by the depostion of adsorbed mercury
 
           IF ( I7777C .GE. 10000 ) THEN
             XMSG = 'EXCESSIVE LOOPING AT I7777C'
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 2 )
           END IF
 
           HA = MAX( HA - 0.8D0, 0.1D0 )
@@ -1169,7 +1169,7 @@ C...Start iteration and bisection ****************<<<<<<<
 
             IF ( I30C .GE. 10000 ) THEN
               XMSG = 'EXCESSIVE LOOPING AT I30C'
-              CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
+              CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 2 )
             END IF
 
             BB = ( HA + HB ) / 2.0D0
@@ -1178,7 +1178,7 @@ C...Start iteration and bisection ****************<<<<<<<
             ICNTAQ = ICNTAQ + 1
             IF ( ICNTAQ .GE. 60000 ) THEN
               XMSG = 'Maximum AQCHEM total iterations exceeded'
-              CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
+              CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 2 )
             END IF
 
             RECIPA1 = 1.0D0 / ( AE * ACT1 )
@@ -1359,7 +1359,7 @@ C...return an error if the pH is not in range
         IF ( ( HA .LT. 0.1D0 ) .OR. ( HA .GT. 9.9D0 ) ) THEN
 !         write( logdev,* ) ha
           XMSG = 'PH VALUE OUT OF RANGE'
-          CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
+          CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 2 )
         END IF
 
 C...Make those concentration calculations which can be made outside

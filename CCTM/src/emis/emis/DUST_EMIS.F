@@ -284,7 +284,7 @@ C Allocate private arrays
 C Initialize land use/cover variables
          if ( .not. lus_init( jdate, jtime ) ) then
             xmsg = 'Failure initializing land use module'
-            call m3exit( pname, jdate, jtime, xmsg, xstat2 )
+            call m3exit( pname, jdate, jtime, xmsg, 2 )
          end if
 
          if ( dustem_diag ) then    ! Open the emissions diagnostic file
@@ -549,7 +549,7 @@ C Set output file characteristics based on COORD.EXT and open diagnostic file
 C Open windblown dust emissions diagnostic file
             if ( .not. open3( ctm_dust_emis_1, fsnew3, pname ) ) then
                xmsg = 'Could not create the CTM_DUST_EMIS_1 file'
-               call m3exit( pname, sdate3d, stime3d, xmsg, xstat1 )
+               call m3exit( pname, sdate3d, stime3d, xmsg, 1 )
             end if
 
          end if
@@ -736,7 +736,7 @@ C-----------------------------------------------------------------------
      &                 elus( ncols,nrows,n_dlcat+1 ), stat = status )
             if ( status .ne. 0 ) then
                xmsg = '*** Failure allocating USTR, QAM, FRUF, KVH, or ELUS'
-               call m3exit( pname, jdate, jtime, xmsg, xstat1 )
+               call m3exit( pname, jdate, jtime, xmsg, 1 )
             end if
          end if
 
@@ -945,7 +945,7 @@ C ------- Start Loop Over Erodible Landuse ----
 
                      if ( elus( c,r,m ) .gt. 100.0 .or. elus( c,r,m ) .lt. 0.0 ) then
                         write( xmsg,2009 ) elus( c,r,m ), c, r, m
-                        call m3exit( pname, jdate, jtime, xmsg, xstat1 )
+                        call m3exit( pname, jdate, jtime, xmsg, 1 )
                      end if
 
                      if ( elus( c,r,m ) .gt. 0.0 ) then
@@ -1000,7 +1000,7 @@ C---Vert-to-Horiz dust flux ratio : Kang et al. [JGR, 2011] : Eq. (12)
 
                      if ( elus( c,r,m ) .eq. 0.0 .and. qam( c,r,m ) .ne. 0.0 ) then
                         xmsg = 'Erodible land use = 0, but emissions .ne. 0'
-                        call m3exit( pname, jdate, jtime, xmsg, xstat1 )
+                        call m3exit( pname, jdate, jtime, xmsg, 1 )
                      end if
 
                      dust_em( c,r ) = dust_em( c,r ) + qam( c,r,m )
@@ -1161,7 +1161,7 @@ C Then reset the emissions array and local write counter.
                if ( .not. currstep( jdate, jtime, stdate, sttime, tstep( 1 ),
      &                              mdate, mtime ) ) then
                   xmsg = 'Cannot get step date and time'
-                  call m3exit( pname, jdate, jtime, xmsg, xstat3 )
+                  call m3exit( pname, jdate, jtime, xmsg, 3 )
                end if
                call nextime( mdate, mtime, tstep( 1 ) )
 
@@ -1188,7 +1188,7 @@ C Then reset the emissions array and local write counter.
      &                       mdate, mtime, wrbuf ) ) then
                      xmsg = 'Could not write ' // trim( diagnm( v )%var )
      &                    // ' to CTM_DUST_EMIS_1'
-                     call m3exit( pname, mdate, mtime, xmsg, xstat1 )
+                     call m3exit( pname, mdate, mtime, xmsg, 1 )
                   end if
                end do
                write( logdev,'( /5x, 2( a, 1x ), i8, ":", i6.6 )' )

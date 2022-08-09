@@ -84,7 +84,7 @@ C-----------------------------------------------------------------------
       IF ( .NOT. IO_PE_INCLUSIVE ) THEN
          IF ( .NOT. OPEN3( CTM_CONC_1, FSREAD3, PNAME ) ) THEN
             XMSG = 'Could not open ' // CTM_CONC_1
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
          END IF
       END IF
 #endif
@@ -97,7 +97,7 @@ C (inital data assumed to be in correct output units)
      &           DBUFFQV( NCOLS, NROWS, C_NLAYS), STAT = ALLOCSTAT )
       IF ( ALLOCSTAT .NE. 0 ) THEN
          XMSG = 'Failure allocating DBUFF(s)'
-         CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
       END IF
 
       WRITE( LOGDEV,* ) ' '
@@ -117,7 +117,7 @@ C (inital data assumed to be in correct output units)
             XMSG = 'Could not write ' //
      &             TRIM( C_GC_SPC( SPC ) ) //
      &             ' to ' // CTM_CONC_1
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
          END IF
 
          WRITE( LOGDEV,'( 5X, I4, " (", I3, ") ", A )' )
@@ -138,7 +138,7 @@ C (inital data assumed to be in correct output units)
             XMSG = 'Could not write ' //
      &             TRIM( C_AE_SPC( SPC ) ) //
      &             ' to ' // CTM_CONC_1
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
          END IF
 
          WRITE( LOGDEV,'( 5X, I4, " (", I3, ") ", A )' )
@@ -159,7 +159,7 @@ C (inital data assumed to be in correct output units)
             XMSG = 'Could not write ' //
      &             TRIM( C_NR_SPC( SPC ) ) //
      &             ' to ' // CTM_CONC_1
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
          END IF
 
          WRITE( LOGDEV,'( 5X, I4, " (", I3, ") ", A )' )
@@ -179,7 +179,7 @@ C (inital data assumed to be in correct output units)
             XMSG = 'Could not write ' //
      &             TRIM( C_TR_SPC( SPC ) ) //
      &             ' to ' // CTM_CONC_1
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
          END IF
 
          WRITE( LOGDEV,'( 5X, I4, " (", I3, ") ", A )' )
@@ -194,7 +194,7 @@ C (inital data assumed to be in correct output units)
          IF ( .NOT. WRITE3( CTM_CONC_1, 'W_VEL',
      &                      JDATE, JTIME, DBUFF ) ) THEN
             XMSG = 'Could not write Vertical Velocity (W_VEL) to ' // CTM_CONC_1
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
          END IF
       END IF
  
@@ -205,7 +205,7 @@ C (inital data assumed to be in correct output units)
          IF ( .NOT. WRITE3( CTM_CONC_1, 'TA',
      &                      JDATE, JTIME, DBUFFTA ) ) THEN
             XMSG = 'Could not write Temperature to ' // CTM_CONC_1
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
          END IF
       END IF
 
@@ -216,7 +216,7 @@ C (inital data assumed to be in correct output units)
          IF ( .NOT. WRITE3( CTM_CONC_1, 'PRES',
      &                      JDATE, JTIME, DBUFFP ) ) THEN
             XMSG = 'Could not write Pressure to ' // CTM_CONC_1
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
          END IF
       END IF
 
@@ -234,7 +234,7 @@ C (inital data assumed to be in correct output units)
      &                      JDATE, JTIME, DBUFF ) ) THEN
             XMSG = 'Could not write Relative Humidity to ' // CTM_CONC_1
 
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
          END IF
       END IF
 

@@ -88,13 +88,13 @@ C open conc file for update
          IF ( .NOT. IO_PE_INCLUSIVE ) THEN
             IF ( .NOT. OPEN3( CTM_CONC_1, FSREAD3, PNAME ) ) THEN
                XMSG = 'Could not open ' // CTM_CONC_1 // ' file for update'
-               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
             END IF
          END IF
 
          IF ( .NOT. DESC3( CTM_CONC_1 ) ) THEN
             XMSG = 'Could not get file description from ' // CTM_CONC_1
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
          END IF
          
          ! Retrieve number and values of variable names
@@ -114,7 +114,7 @@ C open conc file for update
             XMSG = 'Could not write '
      &           // TRIM( C_GC_SPC( SPC ) )
      &           // ' to ' // CTM_CONC_1
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
          END IF
       END DO
  
@@ -126,7 +126,7 @@ C open conc file for update
             XMSG = 'Could not write '
      &           // TRIM( C_AE_SPC( SPC ) )
      &           // ' to ' // CTM_CONC_1
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
          END IF
       END DO
 
@@ -138,7 +138,7 @@ C open conc file for update
             XMSG = 'Could not write '
      &           // TRIM( C_NR_SPC( SPC ) )
      &           // ' to ' // CTM_CONC_1
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
          END IF
       END DO
 
@@ -150,7 +150,7 @@ C open conc file for update
             XMSG = 'Could not write '
      &           // TRIM( C_TR_SPC( SPC ) )
      &           // ' to ' // CTM_CONC_1
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
          END IF
       END DO
 
@@ -159,7 +159,7 @@ C open conc file for update
          IF ( .NOT. WRITE3( CTM_CONC_1, 'W_VEL',
      &      JDATE, JTIME, WVEL( :,:,CONC_BLEV:CONC_ELEV ) ) ) THEN
             XMSG = 'Could not write W_VEL to ' // CTM_CONC_1
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
          END IF
       END IF   ! W_VEL
 
@@ -168,7 +168,7 @@ C open conc file for update
       IF ( .NOT. WRITE3( CTM_CONC_1, 'RH',
      &     JDATE, JTIME, MET_DATA%RH( :,:,CONC_BLEV:CONC_ELEV ) ) ) THEN
          XMSG = 'Could not write RH to ' // CTM_CONC_1
-         CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
       END IF
       END IF
 
@@ -177,7 +177,7 @@ C open conc file for update
       IF ( .NOT. WRITE3( CTM_CONC_1, 'TA',
      &     JDATE, JTIME, MET_DATA%TA( :,:,CONC_BLEV:CONC_ELEV ) ) ) THEN
          XMSG = 'Could not write Temperature to ' // CTM_CONC_1
-         CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
       END IF
       END IF
 
@@ -186,7 +186,7 @@ C open conc file for update
       IF ( .NOT. WRITE3( CTM_CONC_1, 'PRES',
      &     JDATE, JTIME, MET_DATA%PRES( :,:,CONC_BLEV:CONC_ELEV ) ) ) THEN
          XMSG = 'Could not write Pressure to ' // CTM_CONC_1
-         CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
       END IF
       END IF
 

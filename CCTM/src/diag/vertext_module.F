@@ -320,12 +320,12 @@ C create header
 
             IF ( .NOT. OPEN3( CTM_VEXT_1, FSNEW3, PNAME ) ) THEN
                XMSG = 'Could not open ' // CTM_VEXT_1
-               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
             END IF
 
             IF ( .NOT. FLUSH3 ( CTM_VEXT_1 ) ) THEN
                XMSG = 'Could not sync to disk ' // CTM_VEXT_1
-               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
             END IF
 
          END IF
@@ -631,13 +631,13 @@ C open vext file for update
                IF ( .NOT. OPEN3( CTM_VEXT_1, FSREAD3, PNAME ) ) THEN
                   XMSG = 'Could not open ' // CTM_VEXT_1 //
      &                    ' file for update'
-                  CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+                  CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
                END IF
             END IF
 
 !           IF ( .NOT. DESC3( CTM_VEXT_1 ) ) THEN
 !              XMSG = 'Could not get file description from ' // CTM_VEXT_1
-!              CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+!              CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
 !           END IF
 !           NVARS = NVARS3D
 !           ALLOCATE ( VNAME( NVARS ), STAT=ALLOCSTAT )
@@ -649,7 +649,7 @@ C open vext file for update
                ALLOCATE ( DBUFF( NVERTEXT, NLAYS ), STAT = ALLOCSTAT )
                IF ( ALLOCSTAT .NE. 0 ) THEN
                   XMSG = 'Failure allocating DBUFF'
-                  CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+                  CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
                END IF
             END IF
 
@@ -664,7 +664,7 @@ C open vext file for update
                XMSG = 'PWRGRDD failed writing variable '
      &              // TRIM( CONC_FILE_SPCS(V) ) //
      &              ' to file '// TRIM( CTM_VEXT_1 )
-               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
             ELSE
                XMSG = 'PWRGRDD wrote variable '
      &              // TRIM( CONC_FILE_SPCS(V) ) //
@@ -680,7 +680,7 @@ C open vext file for update
      &                     NVERTEXT, VERTEXTI, VERTEXTJ     ) ) THEN
             XMSG = 'PWRGRDD failed writing variable WVEL'
      &          // ' to file '// TRIM( CTM_VEXT_1 )
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
          END IF
          END IF
          
@@ -691,7 +691,7 @@ C open vext file for update
      &                     NVERTEXT, VERTEXTI, VERTEXTJ     ) ) THEN
             XMSG = 'PWRGRDD failed writing variable RH'
      &          // ' to file '// TRIM( CTM_VEXT_1 )
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
          END IF
          END IF
          
@@ -703,7 +703,7 @@ C open vext file for update
      &                     NVERTEXT, VERTEXTI, VERTEXTJ     ) ) THEN
             XMSG = 'PWRGRDD failed writing variable PRES'
      &          // ' to file '// TRIM( CTM_VEXT_1 )
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
          END IF
          END IF
          
@@ -714,7 +714,7 @@ C open vext file for update
      &                     NVERTEXT, VERTEXTI, VERTEXTJ     ) ) THEN
             XMSG = 'PWRGRDD failed writing variable TA '
      &          // ' to file '// TRIM( CTM_VEXT_1 )
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
          END IF
          END IF
 
@@ -755,14 +755,14 @@ C-----------------------------------------------------------------------
          IF ( STATUS .NE. 0 ) THEN
             XMSG = TRIM(VEXT_COORD_PATH) //
      &             ' Could not be opened'
-            CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
+            CALL M3EXIT( PNAME, 0, 0, XMSG, 1 )
          END IF
 ! READ NUMBER OF VERTICES
          READ(FUNIT, *, IOSTAT=STATUS) NVERT
          IF ( STATUS .NE. 0 ) THEN
             XMSG = TRIM(VEXT_COORD_PATH) //
      &             ' did not contain one integer on the first line'
-            CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
+            CALL M3EXIT( PNAME, 0, 0, XMSG, 1 )
          END IF
 ! ALLOCATE OUTPUT VARIABLES
          ALLOCATE ( VERTLAT(NVERT), VERTLON(NVERT), STAT = STATUS )
@@ -774,7 +774,7 @@ C-----------------------------------------------------------------------
                XMSG = TRIM(VEXT_COORD_PATH) //
      &                ' did not contain two reals on line: ' //
      &                TRIM(XMSG)
-               CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
+               CALL M3EXIT( PNAME, 0, 0, XMSG, 1 )
             END IF
          ENDDO
 ! CLOSE FILE
@@ -841,7 +841,7 @@ C-----------------------------------------------------------------------
              ENDDO
          ELSE
              XMSG = 'Unsupported coordinate system type'
-             CALL M3EXIT(PNAME, 0, 0, XMSG, XSTAT2)
+             CALL M3EXIT(PNAME, 0, 0, XMSG, 2)
          END IF
 
          END SUBROUTINE LONLAT2XY

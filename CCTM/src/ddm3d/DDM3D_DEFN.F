@@ -210,7 +210,7 @@ c Determine number of parameters
       IF ( STATUS .NE. 0 ) WRITE( LOGDEV, '(5X, A)' ) VARDESC
       IF ( STATUS .EQ. 1 ) THEN
          XMSG = 'Environment variable improperly formatted'
-         CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT2 )
+         CALL M3EXIT( PNAME, 0, 0, XMSG, 2 )
       ELSE IF ( STATUS .EQ. -1 ) THEN
          XMSG = 'Envt variable set, but empty...Using default:'
          WRITE( LOGDEV, '(5X, A, I9)' ) XMSG, 0
@@ -227,7 +227,7 @@ C dates are in the model run, for use in dimensioning IDATE
       IF ( STATUS .NE. 0 ) WRITE( LOGDEV, '(5X, A)' ) VARDESC
       IF ( STATUS .EQ. 1 ) THEN
          XMSG = 'Environment variable improperly formatted'
-         CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT2 )
+         CALL M3EXIT( PNAME, 0, 0, XMSG, 2 )
       ELSE IF ( STATUS .EQ. -1 ) THEN
          XMSG = 'Envirnmt variable set, but empty ... Using default:'
          WRITE( LOGDEV, '(5X, A, I9)' ) XMSG, BGNTIME
@@ -242,7 +242,7 @@ C dates are in the model run, for use in dimensioning IDATE
       IF ( STATUS .NE. 0 ) WRITE( LOGDEV, '(5X, A)' ) VARDESC
       IF ( STATUS .EQ. 1 ) THEN
          XMSG = 'Environment variable improperly formatted'
-         CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT2 )
+         CALL M3EXIT( PNAME, 0, 0, XMSG, 2 )
       ELSE IF ( STATUS .EQ. -1 ) THEN
          XMSG = 'Envirnmt variable set, but empty ... Using default:'
          WRITE( LOGDEV, '(5X, A, I9)' ) XMSG, BGNTIME
@@ -260,7 +260,7 @@ c IREGION
      &             STAT = ALLOCSTAT )
       IF ( ALLOCSTAT .NE. 0 ) THEN
          XMSG = 'Failure allocating TGT_IREGION'
-         CALL M3EXIT ( 'TGT_IREGION', 0, 0, XMSG, XSTAT2 )
+         CALL M3EXIT ( 'TGT_IREGION', 0, 0, XMSG, 2 )
       END IF
       TGT_IREGION = 0.0
       IREGION => TGT_IREGION
@@ -269,7 +269,7 @@ c IPT
       ALLOCATE   ( TGT_IPT( NPMAX ), STAT = ALLOCSTAT )
       IF ( ALLOCSTAT .NE. 0 ) THEN
          XMSG = 'Failure allocating TGT_IPT'
-         CALL M3EXIT ( 'TGT_IPT', 0, 0, XMSG, XSTAT2 )
+         CALL M3EXIT ( 'TGT_IPT', 0, 0, XMSG, 2 )
       END IF
       TGT_IPT = 0
       IPT => TGT_IPT
@@ -278,7 +278,7 @@ c IPARM
       ALLOCATE   ( TGT_IPARM( NPMAX, NSPCSD ), STAT = ALLOCSTAT )
       IF ( ALLOCSTAT .NE. 0 ) THEN
          XMSG = 'Failure allocating TGT_IPARM'
-         CALL M3EXIT ( 'TGT_IPARM', 0, 0, XMSG, XSTAT2 )
+         CALL M3EXIT ( 'TGT_IPARM', 0, 0, XMSG, 2 )
       END IF
       TGT_IPARM = 0
       IPARM => TGT_IPARM
@@ -287,7 +287,7 @@ c GRID_FILE
       ALLOCATE   ( TGT_GRID_FILE( NPMAX, 9 ), STAT = ALLOCSTAT )
       IF ( ALLOCSTAT .NE. 0 ) THEN
          XMSG = 'Failure allocating TGT_GRID_FILE'
-         CALL M3EXIT ( 'TGT_GRID_FILE', 0, 0, XMSG, XSTAT2 )
+         CALL M3EXIT ( 'TGT_GRID_FILE', 0, 0, XMSG, 2 )
       END IF
       TGT_GRID_FILE = ' '
       GRID_FILE => TGT_GRID_FILE
@@ -296,7 +296,7 @@ c PT3D_FILE
       ALLOCATE   ( TGT_PT3D_FILE( NPMAX, 2, 9 ), STAT = ALLOCSTAT )
       IF ( ALLOCSTAT .NE. 0 ) THEN
          XMSG = 'Failure allocating TGT_PT3D_FILE'
-         CALL M3EXIT ( 'TGT_PT3D_FILE', 0, 0, XMSG, XSTAT2 )
+         CALL M3EXIT ( 'TGT_PT3D_FILE', 0, 0, XMSG, 2 )
       END IF
       TGT_PT3D_FILE = ' '
       PT3D_FILE => TGT_PT3D_FILE
@@ -305,7 +305,7 @@ c GRID_NUM
       ALLOCATE   ( TGT_GRID_NUM( NPMAX ), STAT = ALLOCSTAT )
       IF ( ALLOCSTAT .NE. 0 ) THEN
          XMSG = 'Failure allocating TGT_GRID_NUM'
-         CALL M3EXIT ( 'TGT_GRID_NUM', 0, 0, XMSG, XSTAT2 )
+         CALL M3EXIT ( 'TGT_GRID_NUM', 0, 0, XMSG, 2 )
       END IF
       TGT_GRID_NUM = 0
       GRID_NUM => TGT_GRID_NUM
@@ -314,7 +314,7 @@ c PT3D_NUM
       ALLOCATE   ( TGT_PT3D_NUM( NPMAX ), STAT = ALLOCSTAT )
       IF ( ALLOCSTAT .NE. 0 ) THEN
                XMSG = 'Failure allocating TGT_PT3D_NUM'
-               CALL M3EXIT ( 'TGT_PT3D_NUM', 0, 0, XMSG, XSTAT2 )
+               CALL M3EXIT ( 'TGT_PT3D_NUM', 0, 0, XMSG, 2 )
                END IF
       TGT_PT3D_NUM = 0
       PT3D_NUM => TGT_PT3D_NUM
@@ -323,7 +323,7 @@ c IAMOUNT
       ALLOCATE   ( TGT_IAMOUNT( NPMAX, NSPCSD, 25 ), STAT = ALLOCSTAT )
       IF ( ALLOCSTAT .NE. 0 ) THEN
          XMSG = 'Failure allocating TGT_IAMOUNT'
-         CALL M3EXIT ( 'TGT_IAMOUNT', 0, 0, XMSG, XSTAT2 )
+         CALL M3EXIT ( 'TGT_IAMOUNT', 0, 0, XMSG, 2 )
       END IF
       TGT_IAMOUNT = 0.0
       IAMOUNT => TGT_IAMOUNT
@@ -332,7 +332,7 @@ c ILAYER
       ALLOCATE   ( TGT_ILAYER( NPMAX, NLAYS), STAT = ALLOCSTAT )
       IF ( ALLOCSTAT .NE. 0 ) THEN
          XMSG = 'Failure allocating TGT_ILAYER'
-         CALL M3EXIT ( 'TGT_ILAYER', 0, 0, XMSG, XSTAT2 )
+         CALL M3EXIT ( 'TGT_ILAYER', 0, 0, XMSG, 2 )
       END IF
       TGT_ILAYER = 0
       ILAYER => TGT_ILAYER
@@ -341,7 +341,7 @@ c IRXN
       ALLOCATE   ( TGT_IRXN( NPMAX,NRXNS ), STAT = ALLOCSTAT )
       IF ( ALLOCSTAT .NE. 0 ) THEN
          XMSG = 'Failure allocating TGT_IRXN'
-         CALL M3EXIT ( 'TGT_IRXN', 0, 0, XMSG, XSTAT2 )
+         CALL M3EXIT ( 'TGT_IRXN', 0, 0, XMSG, 2 )
       END IF
       TGT_IRXN = 0
       IRXN => TGT_IRXN
@@ -350,7 +350,7 @@ c IDATE
       ALLOCATE   ( TGT_IDATE( NPMAX, NDAYS ), STAT = ALLOCSTAT )
       IF ( ALLOCSTAT .NE. 0 ) THEN
          XMSG = 'Failure allocating TGT_IDATE'
-         CALL M3EXIT ( 'TGT_IDATE', 0, 0, XMSG, XSTAT2 )
+         CALL M3EXIT ( 'TGT_IDATE', 0, 0, XMSG, 2 )
       END IF
       TGT_IDATE = 0
       IDATE => TGT_IDATE
@@ -359,7 +359,7 @@ c ITIME
       ALLOCATE   ( TGT_ITIME( NPMAX, 2 ), STAT = ALLOCSTAT )
       IF ( ALLOCSTAT .NE. 0 ) THEN
          XMSG = 'Failure allocating TGT_ITIME'
-         CALL M3EXIT ( 'TGT_ITIME', 0, 0, XMSG, XSTAT2 )
+         CALL M3EXIT ( 'TGT_ITIME', 0, 0, XMSG, 2 )
       END IF
       TGT_ITIME = 0
       ITIME => TGT_ITIME
@@ -368,7 +368,7 @@ c SENPAR
       ALLOCATE   ( TGT_SENPAR( NPMAX ), STAT = ALLOCSTAT )
       IF ( ALLOCSTAT .NE. 0 ) THEN
          XMSG = 'Failure allocating TGT_SENPAR'
-         CALL M3EXIT ( 'TGT_SENPAR', 0, 0, XMSG, XSTAT2 )
+         CALL M3EXIT ( 'TGT_SENPAR', 0, 0, XMSG, 2 )
       END IF
       TGT_SENPAR = ' '
       SEN_PAR => TGT_SENPAR
@@ -380,7 +380,7 @@ c Using restart file?
       IF ( STATUS .NE. 0 ) WRITE( LOGDEV, '(5X, A)' ) VARDESC
       IF ( STATUS .EQ. 1 ) THEN
          XMSG = 'Environment variable improperly formatted'
-         CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT2 )
+         CALL M3EXIT( PNAME, 0, 0, XMSG, 2 )
       ELSE IF ( STATUS .EQ. -1 ) THEN
          XMSG = 'Environment variable set, but empty ... Using default:'
          WRITE( LOGDEV, '(5X, A, A16, L5)' ) XMSG, DDM3D_RST, RST
@@ -396,7 +396,7 @@ c Reading sensitivity boundaries
       IF ( STATUS .NE. 0 ) WRITE( LOGDEV, '(5X, A)' ) VARDESC
       IF ( STATUS .EQ. 1 ) THEN
          XMSG = 'Environment variable improperly formatted'
-         CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT2 )
+         CALL M3EXIT( PNAME, 0, 0, XMSG, 2 )
       ELSE IF ( STATUS .EQ. -1 ) THEN
          XMSG = 'Environment variable set, but empty ... Using default:'
          WRITE( LOGDEV, '(5X, A, A16, L5)' ) XMSG, DDM3D_BCS, BCS
@@ -412,7 +412,7 @@ c Computing higher order sensitivities
       IF ( STATUS .NE. 0 ) WRITE( LOGDEV, '(5X, A)' ) VARDESC
       IF ( STATUS .EQ. 1 ) THEN
          XMSG = 'Environment variable improperly formatted'
-         CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT2 )
+         CALL M3EXIT( PNAME, 0, 0, XMSG, 2 )
       ELSE IF ( STATUS .EQ. -1 ) THEN
          XMSG = 'Environment variable set, but empty ... Using default:'
          WRITE( LOGDEV, '(5X, A, A16, L5)' ) XMSG, DDM3D_HIGH, HIGH
@@ -424,14 +424,14 @@ c Computing higher order sensitivities
 c     ALLOCATE( YCDDM (N_GC_SPC),  STAT = ALLOCSTAT )
 c     IF ( ALLOCSTAT .NE. 0 ) THEN
 c        XMSG = 'Failure allocating YCDDM'
-c        CALL M3EXIT ( 'YCDDM', 0, 0, XMSG, XSTAT2 )
+c        CALL M3EXIT ( 'YCDDM', 0, 0, XMSG, 2 )
 c     END IF
 
 c IHIGH
       ALLOCATE   ( TGT_IHIGH( NPMAX, 2 ), STAT = ALLOCSTAT )
       IF ( ALLOCSTAT .NE. 0 ) THEN
          XMSG = 'Failure allocating TGT_IHIGH'
-         CALL M3EXIT ( 'TGT_IHIGH', 0, 0, XMSG, XSTAT2 )
+         CALL M3EXIT ( 'TGT_IHIGH', 0, 0, XMSG, 2 )
       END IF
       TGT_IHIGH = 0
       IHIGH => TGT_IHIGH
@@ -440,35 +440,35 @@ c Emissions
       ALLOCATE ( S_NSTREAMS( NPMAX ), STAT = ALLOCSTAT )
       IF ( ALLOCSTAT .NE. 0 ) THEN
          XMSG = 'Failure allocating S_NSTREAMS(NPMAX)'
-         CALL M3EXIT ( 'INIT_DDM3D', 0, 0, XMSG, XSTAT2 )
+         CALL M3EXIT ( 'INIT_DDM3D', 0, 0, XMSG, 2 )
       END IF
       S_NSTREAMS = 0
 
       ALLOCATE ( S_STREAMLBL( NPMAX, 99 ), STAT = ALLOCSTAT )
       IF ( ALLOCSTAT .NE. 0 ) THEN
          XMSG = 'Failure allocating S_STREAMLBL(NPMAX,99)'
-         CALL M3EXIT ( 'INIT_DDM3D', 0, 0, XMSG, XSTAT2 )
+         CALL M3EXIT ( 'INIT_DDM3D', 0, 0, XMSG, 2 )
       END IF
       S_STREAMLBL = 'empty'
 
       ALLOCATE ( S_NRGN( NPMAX ), STAT = ALLOCSTAT )
       IF ( ALLOCSTAT .NE. 0 ) THEN
          XMSG = 'Failure allocating S_NRGN(NPMAX)'
-         CALL M3EXIT ( 'INIT_DDM3D', 0, 0, XMSG, XSTAT2 )
+         CALL M3EXIT ( 'INIT_DDM3D', 0, 0, XMSG, 2 )
       END IF
       S_NRGN = 0
 
       ALLOCATE ( S_RGNLBL( NPMAX,99 ), STAT = ALLOCSTAT )
       IF ( ALLOCSTAT .NE. 0 ) THEN
          XMSG = 'Failure allocating S_RGNLBL(NPMAX,99)'
-         CALL M3EXIT ( 'INIT_DDM3D', 0, 0, XMSG, XSTAT2 )
+         CALL M3EXIT ( 'INIT_DDM3D', 0, 0, XMSG, 2 )
       END IF
       S_RGNLBL = 'empty'
 
       ALLOCATE ( S_SPCLIST( NPMAX, 999 ), STAT = ALLOCSTAT )
       IF ( ALLOCSTAT .NE. 0 ) THEN
          XMSG = 'Failure allocating S_SPCLIST( NPMAX, 999 )'
-         CALL M3EXIT ( 'INIT_DDM3D', 0, 0, XMSG, XSTAT2 )
+         CALL M3EXIT ( 'INIT_DDM3D', 0, 0, XMSG, 2 )
       END IF
       S_SPCLIST = ''
 

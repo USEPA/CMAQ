@@ -143,7 +143,7 @@ C IOFDESC common now loaded with MET_CRO_3D header
          ALLOCATE ( INDX( MXSPC*NPMAX ),  STAT = ASTAT )
          IF ( ASTAT .NE. 0 ) THEN
             XMSG = 'ERROR allocating INDX'
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 2 )
          END IF
       END IF
 
@@ -154,12 +154,12 @@ c     WRITE( CONCMIN,'(1PE8.2)' ) CMIN
 
       IF ( .NOT. OPEN3( FNAME, FSREAD3, PNAME ) ) THEN
          XMSG = 'Could not open ' // FNAME // ' file'
-         CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
       END IF
  
       IF ( .NOT. DESC3( FNAME ) ) THEN
          XMSG = 'Could not get ' // FNAME // ' file description'
-         CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
       END IF
  
       IF ( GL_NCOLS .NE. NCOLS3D ) THEN
@@ -176,7 +176,7 @@ c     WRITE( CONCMIN,'(1PE8.2)' ) CMIN
  
       IF ( NLAYS .NE. NLAYS3D ) THEN
          XMSG = 'Wrong number of layers in ' // FNAME // ' file'
-         CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
       END IF
 
 c     ESTR2 = ' in ' // TRIM( FNAME ) // '; set to ' // TRIM( CONCMIN )
@@ -294,7 +294,7 @@ c           SPCNAME = TR_SPC( SPC )( 1:12 )
       ELSE
 
          XMSG = 'Species categories incorrect for CGRID '
-         CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
+         CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 2 )
 
       END IF
         
@@ -316,7 +316,7 @@ C IOFDESC common now loaded with FNAME header
      &              JDATE, JTIME, DBUFF ) ) THEN
                   XMSG = 'Could not read ' // TRIM( VNAME3D( NDX ) )
      &                 // ' from ' // FNAME
-                  CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+                  CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
                END IF
                DO L = 1, NLAYS
                   DO R = 1, NROWS
@@ -349,7 +349,7 @@ C Load RHOJ for transport and mixing ratio advection adjustment
      &              1,NLAYS, STRTROWMC3,ENDROWMC3, STRTCOLMC3,ENDCOLMC3,
      &              JDATE, JTIME, RHOJ ) ) THEN
              XMSG = 'Could not read DENSA_J from ' // MET_CRO_3D
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
          END IF
 
          ASPC = GC_STRT - 1 + N_GC_SPCD
@@ -372,7 +372,7 @@ C Close the file
 
 !     IF ( .NOT. CLOSE3( FNAME ) ) THEN
 !        XMSG = 'Could not close ' // FNAME // ' file'
-!        CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+!        CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
 !     END IF
 
       RETURN

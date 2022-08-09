@@ -128,7 +128,7 @@ C    Open dry deposition file
 
          IF ( .NOT. OPEN3( SADEPFILE, FSNEW3, PNAME ) ) THEN
             XMSG = 'Could not create '// SADEPFILE // ' file'
-            CALL M3EXIT( PNAME, SDATE3D, STIME3D, XMSG, XSTAT1 )
+            CALL M3EXIT( PNAME, SDATE3D, STIME3D, XMSG, 1 )
          END IF
 
       END IF

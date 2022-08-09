@@ -189,7 +189,7 @@ C...  event-statistics variables.
      &             STAT = STAT)
         IF (STAT .NE. 0) THEN
            XMSG = 'Memory allocation failure'
-           CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+           CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
         END IF
 
         CALL AQ_DATA_INIT()      

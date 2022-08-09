@@ -66,7 +66,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          CALL M3MESG( MSG )
          WRITE( MSG, 94520 ) CHR
          CALL M3MESG( MSG )
-         CALL M3EXIT( 'GETDESC', IZERO, IZERO, ' ', XSTAT2 )
+         CALL M3EXIT( 'GETDESC', IZERO, IZERO, ' ', 2 )
       ELSE
          CALL GETCHR
       END IF
@@ -81,7 +81,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          CALL M3MESG( MSG )
          WRITE( MSG, 94520 ) CHR
          CALL M3MESG( MSG )
-         CALL M3EXIT( 'GETDESC', IZERO, IZERO, ' ', XSTAT2 )
+         CALL M3EXIT( 'GETDESC', IZERO, IZERO, ' ', 2 )
       ELSE
          CALL GETQUOTE
          IF ( LASTCMND .EQ. 'IRR_OUTPUT' ) THEN
@@ -104,7 +104,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          CALL M3MESG( MSG )
          WRITE( MSG, 94520 ) CHR
          CALL M3MESG( MSG )
-         CALL M3EXIT( 'GETDESC', IZERO, IZERO, ' ', XSTAT2 )
+         CALL M3EXIT( 'GETDESC', IZERO, IZERO, ' ', 2 )
       ELSE
          CALL GETCHR
          RETURN

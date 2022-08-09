@@ -165,7 +165,7 @@
           WRITE( XMSG, '(A,I3,A)' ),
      &        'No Emission Species have been selected for group ',IDIAG,
      &        ' of the emission diagnostic input. Please correct.'
-          CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )     
+          CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )     
       END IF
 
       ! Now Error Check and Expand the CMAQ Species Field

@@ -152,7 +152,7 @@ C-------------------------------------------------------------------------------
      &             STAT = ALLOCSTAT )
          If ( ALLOCSTAT .Ne. 0 ) Then
             XMSG = 'Failure allocating EPIC vars'
-            Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+            Call M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
          End If
          L1_MIN  = 0.0
          L2_MIN  = 0.0
@@ -177,7 +177,7 @@ C-------------------------------------------------------------------------------
      &              STAT = ALLOCSTAT )
          If ( ALLOCSTAT .Ne. 0 ) Then
             XMSG = 'Failure allocating soil vars'
-            Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+            Call M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
          End If
 
          fagam1  = 0.0
@@ -220,7 +220,7 @@ C-------------------------------------------------------------------------------
 
             If ( .Not. E2C_CHEM_AVAIL ) Then
                xmsg = E2C_CHEM // ' file not available'
-               Call M3exit ( pname, jdate, jtime, xmsg, xstat1 )
+               Call M3exit ( pname, jdate, jtime, xmsg, 1 )
             End If
 
             If( GMN_AVAIL ) Then
@@ -378,7 +378,7 @@ C-------------------------------------------------------------------------------
 ! Error handling section
 !------------------------------------------------------------------------------
 1001     Continue
-         Call M3exit( pname, jdate, jtime, xmsg, xstat1 )
+         Call M3exit( pname, jdate, jtime, xmsg, 1 )
 
 C-------------------------------------------------------------------------------
 C Format statements.
@@ -682,7 +682,7 @@ C-------------------------------------------------------------------------------
             Write( logdev,* ) 'kn     :', kn
             Write( logdev,* ) 'zsoil  :', zsoil
             Write( logdev,* ) 'frac_ag:', frac_ag( c,r )
-            Call M3exit( pname, 0, 0, xmsg, xstat1)
+            Call M3exit( pname, 0, 0, xmsg, 1)
          End If
 
          Return

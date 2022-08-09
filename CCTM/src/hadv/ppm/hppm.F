@@ -237,7 +237,7 @@ C----------------------------------------------------------------------
      &             STAT = ASTAT )
          IF ( ASTAT .NE. 0 ) THEN
             XMSG = '*** Error allocating FM, FP, CM, CL, CR, DC, or C6'
-            CALL M3EXIT ( PNAME, 0, 0, XMSG, XSTAT1 )
+            CALL M3EXIT ( PNAME, 0, 0, XMSG, 1 )
          END IF
          
 #ifdef isam

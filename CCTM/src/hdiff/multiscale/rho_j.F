@@ -194,7 +194,7 @@ C Interpolate Jacobian X Air Density
       ALLOCATE ( RHOJ( LCB:HCB,LRB:HRB,MLAYS ), STAT = ALLOCSTAT )
       IF ( ALLOCSTAT .NE. 0 ) THEN
          XMSG = 'Failure allocating RHOJ'
-         CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
          END IF
 
       IF ( WINDOW ) THEN
@@ -206,7 +206,7 @@ C Interpolate Jacobian X Air Density
          ALLOCATE ( DENSJ_BUF( ncols,nrows,NLAYS ), STAT = ALLOCSTAT )
          IF ( ALLOCSTAT .NE. 0 ) THEN
             XMSG = 'Failure allocating DENSJ_BUF'
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
             END IF
 
          call interpolate_var ('DENSA_J', mdate, mtime, DENSJ_BUF)
@@ -214,7 +214,7 @@ C Interpolate Jacobian X Air Density
          ALLOCATE ( DENSJ_BND( NBNDY,MLAYS ), STAT = ALLOCSTAT )
          IF ( ALLOCSTAT .NE. 0 ) THEN
             XMSG = 'Failure allocating DENSJ_BND'
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
             END IF
 
          call interpolate_var ('DENSA_J', mdate, mtime, DENSJ_BND, 'b')

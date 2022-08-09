@@ -87,7 +87,7 @@ C processes (NPROCS)
         ELSE
            MSG = 'EXIT: Output time step ' // HHMMSS( MODEL_TSTEP ) //
      &           ' does not divide duration ' // HHMMSS( RUNLEN )
-           CALL M3EXIT( 'CMAQ_MAIN', STDATE, STTIME, MSG, XSTAT1 )
+           CALL M3EXIT( 'CMAQ_MAIN', STDATE, STTIME, MSG, 1 )
         END IF
         
         ! Call to driver, for nsteps or how often the model synchronization step
@@ -115,7 +115,7 @@ C Shut down MPI
         CALL MPI_FINALIZE ( PAR_ERR )
         IF ( PAR_ERR .NE. 0 ) THEN
            MSG = 'Error terminating MPI'
-           CALL M3EXIT( 'CMAQ_MAIN', STDATE, STTIME, MSG, XSTAT1 )
+           CALL M3EXIT( 'CMAQ_MAIN', STDATE, STTIME, MSG, 1 )
         END IF
 #endif
 

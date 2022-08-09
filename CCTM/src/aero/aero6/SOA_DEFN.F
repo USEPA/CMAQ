@@ -480,7 +480,7 @@ C-----------------------------------------------------------------------
 
       If ( .Not. mapped ) Then
          xmsg = 'CGRID Species has not been mapped'
-         Call m3exit( pname, 0, 0, xmsg, xstat3 )
+         Call m3exit( pname, 0, 0, xmsg, 3 )
       End If
 
       ! Compute gas conversion constant
@@ -1141,7 +1141,7 @@ C-----------------------------------------------------------------------
                 If ( check ) Then
                    Write( xmsg,'( A,I4 )' ) 
      &                    ' *** Problem in NEWT at Layer = ', layer
-                   Call m3exit( pname, 0, 0, xmsg, xstat3 )
+                   Call m3exit( pname, 0, 0, xmsg, 3 )
                 End If
              End If
 
@@ -2035,7 +2035,7 @@ C     abstol (absolute) amount
 #endif
            Write( xmsg,'(a,2(1pe15.5))' )
      &           'Error: no solution between bounds in soa bisection:', flower, fupper
-           Call m3exit( pname, 0, 0, xmsg, xstat3)
+           Call m3exit( pname, 0, 0, xmsg, 3)
         End If
 
         iter   = iter + 1
@@ -2053,7 +2053,7 @@ C     abstol (absolute) amount
 #else
           xmsg = 'Warning: number of organic aerosol moles going to zero in soa bisection'
 #endif
-          Call m3exit( pname, 0, 0, xmsg, xstat3 )
+          Call m3exit( pname, 0, 0, xmsg, 3 )
         End If
 
         test = fnguess * flower
@@ -2102,7 +2102,7 @@ C     abstol (absolute) amount
 #else
           xmsg = 'Error: too many iterations in soa bisection'
 #endif
-          Call m3exit( pname, 0, 0, xmsg, xstat3 )
+          Call m3exit( pname, 0, 0, xmsg, 3 )
         End If
       End Do
 

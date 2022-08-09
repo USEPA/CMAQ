@@ -198,7 +198,7 @@ C-----------------------------------------------------------
         OPEN ( UNIT = INPUT_UNIT, FILE = EQNAME, STATUS = 'OLD', IOSTAT = IOST )
         XMSG = 'Error Opening ' // TRIM( EQNAME ) // ', the SA_IOLIST file'
         IF ( IOST .NE. 0 ) THEN
-          CALL M3EXIT ( PNAME, 0, 0, XMSG, XSTAT1 )
+          CALL M3EXIT ( PNAME, 0, 0, XMSG, 1 )
         ENDIF
 
         IF ( MYPE .EQ. 0 ) THEN        
@@ -276,7 +276,7 @@ C-----------------------------------------------------------
         OPEN ( UNIT = INPUT_UNIT, FILE = EQNAME, STATUS = 'OLD', IOSTAT = IOST )
         XMSG = 'Error Opening ' // TRIM( EQNAME ) // ', the SA_IOLIST file'
         IF ( IOST .NE. 0 ) THEN
-          CALL M3EXIT ( PNAME, 0, 0, XMSG, XSTAT1 )
+          CALL M3EXIT ( PNAME, 0, 0, XMSG, 1 )
         ENDIF
 
         CHR = CHAR(124)
@@ -286,17 +286,17 @@ C-----------------------------------------------------------
            DELIMINATOR_INDEX = INDEX( TXTLINE, CHAR( 124 ) ) + 1
            IF(  DELIMINATOR_INDEX .LE. 1 )THEN
               XMSG = 'ISAM ERROR: TAG CLASSES line missing the "|" deliminator'
-              CALL M3EXIT('SA_IOLIST', 0, 0, XMSG, XSTAT2 )
+              CALL M3EXIT('SA_IOLIST', 0, 0, XMSG, 2 )
            END IF 
            TAGCLASSES = TXTLINE( DELIMINATOR_INDEX:LEN_TRIM( TXTLINE ) )
            IF( LEN_TRIM( TAGCLASSES ) .LT. 1 )THEN
               XMSG = "ISAM ERROR: TAGCLASSES in control file is blank. "
-              CALL M3EXIT('SA_IOLIST', 0, 0, XMSG, XSTAT2 )
+              CALL M3EXIT('SA_IOLIST', 0, 0, XMSG, 2 )
            END IF
         ELSE   
            XMSG = "ISAM ERROR: First Nonblank or Noncomment line "
      &         // "in control file must define TAG CLASSES. "
-           CALL M3EXIT('SA_IOLIST', 0, 0, XMSG, XSTAT2 )
+           CALL M3EXIT('SA_IOLIST', 0, 0, XMSG, 2 )
         END IF
 
         IF ( MYPE .eq. 0 ) then
@@ -323,22 +323,22 @@ C-----------------------------------------------------------
               DELIMINATOR_INDEX = INDEX( TXTLINE, CHAR( 124 ) ) + 1
               IF(  DELIMINATOR_INDEX .LE. 1 )THEN
                  XMSG = 'ISAM ERROR: "TAG NAME" line missing the "|" deliminator'
-                 CALL M3EXIT('SA_IOLIST', 0, 0, XMSG, XSTAT2 )
+                 CALL M3EXIT('SA_IOLIST', 0, 0, XMSG, 2 )
               END IF 
               TAGNAME( ITAG ) = TXTLINE( DELIMINATOR_INDEX:LEN_TRIM( TXTLINE ) )
               IF( LEN_TRIM( TAGNAME( ITAG ) ) .LT. 1 )THEN
                  XMSG = 'ISAM ERROR: a "TAG NAME" in control file is blank. '
-                 CALL M3EXIT('SA_IOLIST', 0, 0, XMSG, XSTAT2 )
+                 CALL M3EXIT('SA_IOLIST', 0, 0, XMSG, 2 )
               END IF
               IF( INDEX( TAGNAME( ITAG ), "_", BACK = .FALSE. ) .GT. 0 )THEN
                  XMSG = 'ISAM ERROR: TAG NAME: ' // TRIM( TAGNAME( ITAG ) ) 
      &               // ' cannot use the underscore character.'
-                 CALL M3EXIT('SA_IOLIST', 0, 0, XMSG, XSTAT2 )
+                 CALL M3EXIT('SA_IOLIST', 0, 0, XMSG, 2 )
               END IF
           ELSE   
               XMSG = "ISAM ERROR: First line defining a TAG "
      &            // 'in control file must contain the "TAG NAME" ' 
-              CALL M3EXIT('SA_IOLIST', 0, 0, XMSG, XSTAT2 )
+              CALL M3EXIT('SA_IOLIST', 0, 0, XMSG, 2 )
           END IF
 
 103       READ ( INPUT_UNIT, '(A)' ) TXTLINE
@@ -347,17 +347,17 @@ C-----------------------------------------------------------
               DELIMINATOR_INDEX = INDEX( TXTLINE, CHAR( 124 )  ) + 1
               IF(  DELIMINATOR_INDEX .LE. 1 )THEN
                  XMSG = 'ISAM ERROR: a "REGION(s)" line missing the "|" deliminator'
-                 CALL M3EXIT('SA_IOLIST', 0, 0, XMSG, XSTAT2 )
+                 CALL M3EXIT('SA_IOLIST', 0, 0, XMSG, 2 )
               END IF 
               ISAMRGN_TEMP( ITAG ) = TXTLINE( DELIMINATOR_INDEX:LEN_TRIM( TXTLINE ) )
               IF( LEN_TRIM( ISAMRGN_TEMP( ITAG ) ) .LT. 1 )THEN
                  XMSG = 'ISAM ERROR: a "REGION(s)" in control file is blank. '
-                 CALL M3EXIT('SA_IOLIST', 0, 0, XMSG, XSTAT2 )
+                 CALL M3EXIT('SA_IOLIST', 0, 0, XMSG, 2 )
               END IF
           ELSE   
               XMSG = "ISAM ERROR: Second line defining a TAG "
      &            // 'in control file must contain the "REGION(s)" ' 
-              CALL M3EXIT('SA_IOLIST', 0, 0, XMSG, XSTAT2 )
+              CALL M3EXIT('SA_IOLIST', 0, 0, XMSG, 2 )
           END IF
 
 104       READ ( INPUT_UNIT, '(A)' ) TXTLINE
@@ -366,17 +366,17 @@ C-----------------------------------------------------------
               DELIMINATOR_INDEX = INDEX( TXTLINE, CHAR( 124 )  ) + 1
               IF(  DELIMINATOR_INDEX .LE. 1 )THEN
                  XMSG = 'ISAM ERROR: a "EMIS STREAM(s)" line missing the "|" deliminator'
-                 CALL M3EXIT('SA_IOLIST', 0, 0, XMSG, XSTAT2 )
+                 CALL M3EXIT('SA_IOLIST', 0, 0, XMSG, 2 )
               END IF 
               TAGSTREAMS_TEMP( ITAG ) = TXTLINE( DELIMINATOR_INDEX:LEN_TRIM( TXTLINE ) )
               IF( LEN_TRIM( TAGSTREAMS_TEMP( ITAG ) ) .LT. 1 )THEN
                  XMSG = 'ISAM ERROR: a "EMIS STREAM(s)" in control file is blank. '
-                 CALL M3EXIT('SA_IOLIST', 0, 0, XMSG, XSTAT2 )
+                 CALL M3EXIT('SA_IOLIST', 0, 0, XMSG, 2 )
               END IF
           ELSE   
               XMSG = "ISAM ERROR: Third line defining a TAG "
      &            // 'in control file must contain the "EMIS STREAM(s)" ' 
-              CALL M3EXIT('SA_IOLIST', 0, 0, XMSG, XSTAT2 )
+              CALL M3EXIT('SA_IOLIST', 0, 0, XMSG, 2 )
           END IF
 
         END DO
@@ -902,7 +902,7 @@ c----------------------------------------------------------
                 
         IF( NCLASSES .LT. 1 )THEN
            XMSG = "ISAM ERROR: TAGCLASSES in control file incorrectly defined. "
-           CALL M3EXIT('GET_NSPC_SA', 0, 0, XMSG, XSTAT2 )
+           CALL M3EXIT('GET_NSPC_SA', 0, 0, XMSG, 2 )
         END IF
         
         DO J = 1, NCLASSES
@@ -925,7 +925,7 @@ c----------------------------------------------------------
               WRITE(LOGDEV,'(2X,A)')TRIM( DEFINED_CLASSES( J ) )
            END DO
            XMSG = 'Above fatal error(s) in setting up ISAM'
-           CALL M3EXIT('GET_NSPC_SA', 0, 0, XMSG, XSTAT2 )
+           CALL M3EXIT('GET_NSPC_SA', 0, 0, XMSG, 2 )
         END IF 
 
         ! Initialize Control Variables
@@ -1330,7 +1330,7 @@ c----------------------------------------------------------
 
         ! Exit CMAQ if There has been a fatal ISAM Error
         IF ( EFLAG ) THEN
-          CALL M3EXIT( 'GET_NSPC_SA', 0, 0, 'Above Fatal ISAM ERROR(s) Encountered', XSTAT2 )
+          CALL M3EXIT( 'GET_NSPC_SA', 0, 0, 'Above Fatal ISAM ERROR(s) Encountered', 2 )
         END IF 
 
         END SUBROUTINE GET_NSPC_SA
@@ -1387,7 +1387,7 @@ C do not count until 1st char in string
      &            // TRIM( ENV_VAL ) // ',  has too long, greater than ' 
               WRITE(LOGDEV,'(A,I8)')TRIM( XMSG ), MAX_LEN
               XMSG = 'Above fatal error encountered '
-              CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT2 )                     
+              CALL M3EXIT( PNAME, 0, 0, XMSG, 2 )                     
            END IF
 101        LOOP_101: DO  ! read list
               IP = IP + 1
@@ -1400,7 +1400,7 @@ C do not count until 1st char in string
      &                // ', greater than the size of its storage array, '
                   WRITE(LOGDEV,'(A,I4)')TRIM( XMSG ), SIZE( VAL_LIST )
                   XMSG = 'Above fatal error encountered '
-                  CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT2 )                     
+                  CALL M3EXIT( PNAME, 0, 0, XMSG, 2 )                     
               END IF
               NVARS = NVARS + 1
               JP( NVARS ) = IP   ! 1st char
@@ -1427,7 +1427,7 @@ C do not count until 1st char in string
                       WRITE(LOGDEV,'(A,1X,I2,A,I2)')TRIM( XMSG ), V, ' max allowed ',
      &                MAX_STRING
                       XMSG = 'Above fatal error encountered '
-                      CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT2 )                     
+                      CALL M3EXIT( PNAME, 0, 0, XMSG, 2 )                     
                     END IF
                     EXIT LOOP_201
                  END IF 
@@ -1440,7 +1440,7 @@ C do not count until 1st char in string
      &             //  TRIM( ENV_VAL ) // ', greater than '
               WRITE(LOGDEV,'(A,I4)')TRIM( XMSG ), SIZE( VAL_LIST )
               XMSG = 'Above fatal error encountered '
-              CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT2 )                     
+              CALL M3EXIT( PNAME, 0, 0, XMSG, 2 )                     
            END IF
            DO V = 1, NVARS
               VAL_LIST( V ) = ENV_VAL( JP( V ):KP( V ) )
@@ -1552,7 +1552,7 @@ c----------------------------------------------------------
           END IF
         END DO 
         IF ( EFLAG ) THEN
-          CALL M3EXIT( 'GET_MAP_SAtoCGR', 0, 0, 'Above Fatal Error Encountered', XSTAT2 )
+          CALL M3EXIT( 'GET_MAP_SAtoCGR', 0, 0, 'Above Fatal Error Encountered', 2 )
         END IF 
 
 C...Map SA species for Advection
@@ -1653,7 +1653,7 @@ c             MAP_DEPVtoSA(N) = INDEX1( ISAM_SPEC(J_SPC,1), CMAQ_DEPV, CMAQ_DEPV
 c             IF( MAP_DEPVtoSA(N) .LT. 1 )THEN
 c                XMSG = 'ISAM WARNING: Tagged Species, ' // TRIM( ISAM_SPEC(J_SPC,1) )
 c    &               // ' not in DEPV list.'
-c                CALL M3EXIT ( 'MAP_DEPVtoSA', 0, 0, XMSG, XSTAT1 )
+c                CALL M3EXIT ( 'MAP_DEPVtoSA', 0, 0, XMSG, 1 )
 c             END IF
 c          END DO
 !       END DO

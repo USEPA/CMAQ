@@ -52,12 +52,12 @@ C open existing file for readonly access
 
       IF ( .NOT. OPEN3( FNAME, FSREAD3, PNAME ) ) THEN
          XMSG = 'Could not open '// FNAME
-         CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
+         CALL M3EXIT( PNAME, 0, 0, XMSG, 1 )
          END IF
 
       IF ( .NOT. DESC3( FNAME ) ) THEN
          XMSG = 'Could not get ' // FNAME // ' file description'
-         CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT2 )
+         CALL M3EXIT( PNAME, 0, 0, XMSG, 2 )
          END IF
  
       LSTEP = SEC2TIME( ( MXREC3D - 1 ) * TIME2SEC( TSTEP3D ) )

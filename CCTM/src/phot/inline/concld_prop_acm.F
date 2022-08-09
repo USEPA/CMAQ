@@ -383,14 +383,14 @@ C...open MET_CRO_3D
 
 !       IF ( .NOT. OPEN3( MET_CRO_3D, FSREAD3, PNAME ) ) THEN
 !         XMSG = 'Could not open '// MET_CRO_3D // ' file'
-!         CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+!         CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
 !       END IF
 
 C...get description from the met file
 
 !       IF ( .NOT. DESC3( MET_CRO_2D ) ) THEN
 !         XMSG = 'Could not get ' // MET_CRO_2D //' file description'
-!         CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+!         CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
 !       END IF
 
 C cccccccccccccccccccc enable backward compatiblity ccccccccccccccccccccc
@@ -433,7 +433,7 @@ C...allocate saved arrays
         ALLOCATE ( SIGF( 0:NLAYS ), STAT = ALLOCSTAT )
         IF ( ALLOCSTAT .NE. 0 ) THEN
           XMSG = 'Failure allocating SIGF'
-          CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+          CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
         END IF
 
         DO LAY = 1, NLAYS
@@ -447,7 +447,7 @@ C...allocate saved arrays
         IF ( ALLOCSTAT .NE. 0 ) THEN
           XMSG = 'Failure allocating BMOL, CBASE0, CBASEF, CEND, POLC, REMOV,'
      &         // 'QLQD or QICE'
-          CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+          CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
         END IF
 
 
@@ -515,7 +515,7 @@ C...  on the input file are amounts within the metfiles timestep.
       IF ( .NOT. CURRSTEP( JDATE, JTIME, SDATE, STIME, MSTEP,
      &                     MDATE, MTIME ) ) THEN
         XMSG = 'Cannot get step-starting date and time'
-        CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
+        CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 3 )
       END IF
 
       CALL NEXTIME ( MDATE, MTIME, MSTEP )  ! set mdate:mtime to the hour
@@ -535,7 +535,7 @@ C...  threshold
       END DO
       IF ( MINVAL( RAIN ) .LT. 0.0 ) THEN
         XMSG = 'NEGATIVE RAIN...PROBABLY BAD MET DATA... in' // MET_CRO_2D
-        CALL M3EXIT ( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
+        CALL M3EXIT ( PNAME, MDATE, MTIME, XMSG, 1 )
       END IF
 
 C...Loop through all grid cells
@@ -931,7 +931,7 @@ C...test for convergence, then cut the interval in half
               WRITE( XMSG, 91010 )
      &             'NO CONVERGENCE IN ENTRAINMENT SOLVER AT COL= ',
      &             COL, ' ROW= ',  ROW, ' ICLDTYPE= ', ICLDTYPE
-              CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
+              CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 2 )
             END IF
 
             TEMPC = ( TEMPA + TEMPB ) * 0.5

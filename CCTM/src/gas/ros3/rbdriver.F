@@ -210,7 +210,7 @@ C**********************************************************************
       MSG = 'ERROR: Rosenbrock Chemistry Solver does not perform source apportionment.'
       WRITE(LOGDEV,'(A)')TRIM( MSG )
       MSG = 'Must use the EBI solver for the chemical mechanism'
-      CALL M3EXIT( PNAME, JDATE, JTIME, MSG, XSTAT1 )
+      CALL M3EXIT( PNAME, JDATE, JTIME, MSG, 1 )
 #endif
 
 
@@ -230,7 +230,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
          IF ( .NOT. CELLVAR_ALLOC() ) THEN
             MSG = 'Failure allocating variables dependent on horizontal extents'
-            CALL M3EXIT( PNAME, JDATE, JTIME, MSG, XSTAT1 )
+            CALL M3EXIT( PNAME, JDATE, JTIME, MSG, 1 )
          END IF
 
          CALL RBINIT
@@ -277,13 +277,13 @@ c..Open file for solver stats if requested
 
             IF ( .NOT. OPEN3( CTM_CONC_1, FSREAD3, PNAME ) ) THEN
                MSG = 'Could not open ' // CTM_CONC_1 // ' file for readonly'
-               CALL M3EXIT( PNAME, JDATE, JTIME, MSG, XSTAT2 )
+               CALL M3EXIT( PNAME, JDATE, JTIME, MSG, 2 )
             END IF
 
             IF ( .NOT. DESC3( CTM_CONC_1 ) ) THEN
                MSG = 'Could not get description of concentration file '
      &             // CTM_CONC_1
-               CALL M3EXIT( PNAME, JDATE, JTIME, MSG, XSTAT2 )
+               CALL M3EXIT( PNAME, JDATE, JTIME, MSG, 2 )
             END IF
 
             EDATE = JDATE
@@ -310,7 +310,7 @@ c..Open file for solver stats if requested
             VTYPE3D( 3 ) = M3REAL
             IF ( .NOT. OPEN3( CTM_RBSTATS_1, FSNEW3, PNAME ) ) THEN
                MSG = 'Could not create '// TRIM( CTM_RBSTATS_1 ) // ' file'
-               CALL M3EXIT( PNAME, SDATE3D, STIME3D, MSG, XSTAT2 )
+               CALL M3EXIT( PNAME, SDATE3D, STIME3D, MSG, 2 )
             END IF
 
          END IF
@@ -746,7 +746,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
             IF ( .NOT. WRITE3( CTM_RBSTATS_1, VSTATS( S ),
      &            EDATE, ETIME, STATOUT ) ) THEN
                XMSG = 'Could not write ' // CTM_RBSTATS_1 // ' file'
-               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
             END IF  
 
          END DO

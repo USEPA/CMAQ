@@ -161,7 +161,7 @@
      &             dge           ( nlays ), stat = allocstat )
          If( allocstat .ne. 0 )Then
            xmsg = 'Failure Allocating cloud_layering, rel, dge'
-           call m3exit( pname, 0, 0, xmsg, xstat1 )
+           call m3exit( pname, 0, 0, xmsg, 1 )
          End If
 
          max_dge     = maxi_diameter_ice-low
@@ -177,7 +177,7 @@
      
          If( allocstat .ne. 0 )Then
            xmsg = 'Failure Allocating cloud_liquid_ext, cloud_liquid_scat, cloud_liquid_ssa, cloud_liquid_asy'
-           call m3exit( pname, 0, 0, xmsg, xstat1 )
+           call m3exit( pname, 0, 0, xmsg, 1 )
          End If
 
          cloud_liquid_ext  = 0.0
@@ -193,7 +193,7 @@
      
          If( allocstat .ne. 0 )Then
            xmsg = 'Failure Allocating cloud_ice_ext, cloud_ice_ext,cloud_ice_ssa, cloud_ice_del, ice_asy_rcld'
-           call m3exit( pname, 0, 0, xmsg, xstat1 )
+           call m3exit( pname, 0, 0, xmsg, 1 )
          End If
          
          cloud_ice_ext  = 0.0
@@ -209,7 +209,7 @@
          If( allocstat .ne. 0 )Then
            xmsg = 'Failure Allocating cloud_aggreg_ext, cloud_aggreg_ext,cloud_aggreg_ssa,'
      &         // 'cloud_aggreg_del, cloud_aggreg_asy'
-           call m3exit( pname, 0, 0, xmsg, xstat1 )
+           call m3exit( pname, 0, 0, xmsg, 1 )
          End If
 
          cloud_aggreg_ext  = cldmin
@@ -223,14 +223,14 @@
      
          If( allocstat .ne. 0 )Then
            xmsg = 'Failure Allocating cloud_ext_coeff, cloud_scat_coef, cloud_asy_fact'
-           call m3exit( pname, 0, 0, xmsg, xstat1 )
+           call m3exit( pname, 0, 0, xmsg, 1 )
          End If
          
          allocate( total_tau_cld( nwl_ref ), stat = allocstat )
      
          If( allocstat .ne. 0 )Then
            xmsg = 'Failure Allocating total_tau'
-           call m3exit( pname, 0, 0, xmsg, xstat1 )
+           call m3exit( pname, 0, 0, xmsg, 1 )
          End If
 
 #ifdef phot_debug
@@ -239,7 +239,7 @@
      
          If( allocstat .ne. 0 )Then
            xmsg = 'Failure Allocating ave_asymm, ave_ssa'
-           call m3exit( pname, 0, 0, xmsg, xstat1 )
+           call m3exit( pname, 0, 0, xmsg, 1 )
          End If
 #endif         
          
@@ -508,7 +508,7 @@
             if( error_flag )then
                write(xmsg,99951)'Encountered the above Errors at COLUMN = ', col_cloud,
      &         ' and ROW = ', row_cloud
-               call m3exit(pname,0,0,'Encountered the above Errors', XSTAT1 )
+               call m3exit(pname,0,0,'Encountered the above Errors', 1 )
             end if
 #endif
              
@@ -693,7 +693,7 @@
             if( error_flag )then
                write(xmsg,99951)'Encountered the above Errors at COLUMN = ', col_cloud,
      &         ' and ROW = ', row_cloud
-               call m3exit(pname,0,0,'Encountered the above Errors', XSTAT1 )
+               call m3exit(pname,0,0,'Encountered the above Errors', 1 )
             end if
 #endif
            
@@ -1158,7 +1158,7 @@
             if( error_flag )then
                write(xmsg,99961)'Encountered the above Errors at COLUMN = ', col_cloud,
      &         ' and ROW = ', row_cloud
-               call m3exit(pname,0,0,'Encountered the above Errors', XSTAT1 )
+               call m3exit(pname,0,0,'Encountered the above Errors', 1 )
             end if
 #endif           
 

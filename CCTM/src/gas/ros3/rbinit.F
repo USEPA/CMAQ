@@ -109,20 +109,20 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      &          NDERIVP ( NRXNS,NCS2 ), STAT = STATUS )
       IF ( STATUS .NE. 0 ) THEN
          XMSG = 'ERROR allocating NKUSERAT, NDERIVL or NDERIVP'
-         CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT2 )
+         CALL M3EXIT( PNAME, 0, 0, XMSG, 2 )
       END IF
 
       ALLOCATE( IRM2( NRXNS,MXRCT+MXPRD,NCS2 ),
      &          ICOEFF( NRXNS,MXRP,NCS2 ), STAT = STATUS )
       IF ( STATUS .NE. 0 ) THEN
          XMSG = 'ERROR allocating IRM2 or ICOEFF'
-         CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT2 )
+         CALL M3EXIT( PNAME, 0, 0, XMSG, 2 )
       END IF
 
       ALLOCATE( JARRAYPT( NUMB_MECH_SPC,NUMB_MECH_SPC,NCS2 ), STAT = STATUS )
       IF ( STATUS .NE. 0 ) THEN
          XMSG = 'ERROR allocating JARRAYPT'
-         CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT2 )
+         CALL M3EXIT( PNAME, 0, 0, XMSG, 2 )
       END IF
 
       ALLOCATE( JARRL( NRXNS,MXRR,NCS2 ),
@@ -131,21 +131,21 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      &          JPIAL( NRXNS,MXRP,NCS2 ), STAT = STATUS )
       IF ( STATUS .NE. 0 ) THEN
          XMSG = 'ERROR allocating JARRL, JARRP, JLIAL, or JPIAL'
-         CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT2 )
+         CALL M3EXIT( PNAME, 0, 0, XMSG, 2 )
       END IF
 
       ALLOCATE( INEW2OLD( NUMB_MECH_SPC,NCS ),
      &          IOLD2NEW( NUMB_MECH_SPC,NCS ), STAT = STATUS )
       IF ( STATUS .NE. 0 ) THEN
          XMSG = 'ERROR allocating INEW2OLD or IOLD2NEW'
-         CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT2 )
+         CALL M3EXIT( PNAME, 0, 0, XMSG, 2 )
       END IF
 
       ALLOCATE( JZEROA( MXARRAY ),
      &          JZEROB( MXARRAY ), STAT = STATUS )
       IF ( STATUS .NE. 0 ) THEN
          XMSG = 'ERROR allocating JZEROA or JZEROB'
-         CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT2 )
+         CALL M3EXIT( PNAME, 0, 0, XMSG, 2 )
       END IF
 
       ALLOCATE( JZLO( NCS2 ),
@@ -153,7 +153,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      &          IDEC1HI( NUMB_MECH_SPC,NCS2 ), STAT = STATUS )
       IF ( STATUS .NE. 0 ) THEN
          XMSG = 'ERROR allocating JZLO, IDEC1LO or IDEC1HI'
-         CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT2 )
+         CALL M3EXIT( PNAME, 0, 0, XMSG, 2 )
       END IF
 
       ALLOCATE( IJDECA( MXCOUNT2 ),
@@ -164,7 +164,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      &          KJDECB( MXCOUNT2 ), STAT = STATUS )
       IF ( STATUS .NE. 0 ) THEN
          XMSG = 'ERROR allocating IJDECA, IJDECB, IKDECA, IKDECB, KJDECA, or KJDECB'
-         CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT2 )
+         CALL M3EXIT( PNAME, 0, 0, XMSG, 2 )
       END IF
 
       ALLOCATE( JHIZ1( NUMB_MECH_SPC,NCS2 ),
@@ -175,13 +175,13 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      &          KZHI1( NUMB_MECH_SPC,NCS2 ), STAT = STATUS )
       IF ( STATUS .NE. 0 ) THEN
          XMSG = 'ERROR allocating JHIZ1, JHIZ2, KZLO1, KZLO2, KZHI0, or KZHI1'
-         CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT2 )
+         CALL M3EXIT( PNAME, 0, 0, XMSG, 2 )
       END IF
 
       ALLOCATE( KZERO( MXARRAY,NCS2 ), STAT = STATUS )
       IF ( STATUS .NE. 0 ) THEN
          XMSG = 'ERROR allocating KZERO'
-         CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT2 )
+         CALL M3EXIT( PNAME, 0, 0, XMSG, 2 )
       END IF
 
       ALLOCATE( KZILCH( NUMB_MECH_SPC,NCS2 ),
@@ -192,19 +192,19 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      &          MZLO2 ( NUMB_MECH_SPC,NCS2 ), STAT = STATUS )
       IF ( STATUS .NE. 0 ) THEN
          XMSG = 'ERROR allocating KZILCH, MZHI0, MZHI1, MZILCH, MZLO1, or MZLO2'
-         CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT2 )
+         CALL M3EXIT( PNAME, 0, 0, XMSG, 2 )
       END IF
 
       ALLOCATE( VDIAG( BLKSIZE,NUMB_MECH_SPC ), STAT = STATUS )
       IF ( STATUS .NE. 0 ) THEN
          XMSG = 'ERROR allocating VDIAG'
-         CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT2 )
+         CALL M3EXIT( PNAME, 0, 0, XMSG, 2 )
       END IF
 
       ALLOCATE( CC2( BLKSIZE,0:MXARRAY ), STAT = STATUS )
       IF ( STATUS .NE. 0 ) THEN
          XMSG = 'ERROR allocating CC2'
-         CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT2 )
+         CALL M3EXIT( PNAME, 0, 0, XMSG, 2 )
       END IF
 
 c..cell & solver data
@@ -217,14 +217,14 @@ c..cell & solver data
       IF ( STATUS .NE. 0 ) THEN
          XMSG = 'ERROR allocating BLKTEMP, BLKPRES, BLKCH2O, BLKDENS, '
      &       // 'BLKSVOL, BLKSEAWATER '
-         CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT2 )
+         CALL M3EXIT( PNAME, 0, 0, XMSG, 2 )
       END IF
 
       NJPHOT  = NPHOTAB
       ALLOCATE( RJBLK( BLKSIZE,NJPHOT ), STAT = STATUS )    
       IF ( STATUS .NE. 0 ) THEN
          XMSG = 'ERROR allocating RJBLK'
-         CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT2 )
+         CALL M3EXIT( PNAME, 0, 0, XMSG, 2 )
       END IF
 
       ALLOCATE( RKI( BLKSIZE,NRXNS ),
@@ -235,14 +235,14 @@ c..cell & solver data
      &          Y( BLKSIZE,NUMB_MECH_SPC ), STAT = STATUS )
       IF ( STATUS .NE. 0 ) THEN
          XMSG = 'ERROR allocating RKI, ATOL, RTOL, or Y'
-         CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT2 )
+         CALL M3EXIT( PNAME, 0, 0, XMSG, 2 )
       END IF
 
 #ifdef sens
       ALLOCATE( YAVE( BLKSIZE,NUMB_MECH_SPC ), STAT = STATUS )
       IF ( STATUS .NE. 0 ) THEN
          XMSG = 'ERROR allocating YAVE'
-         CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT2 )
+         CALL M3EXIT( PNAME, 0, 0, XMSG, 2 )
       END IF
 #endif
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -251,7 +251,7 @@ c  one set of tolerances for all species
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       IF( .NOT. MAP_CHEMISTRY_SPECIES() )THEN
          XMSG = 'Detected above error(s) when mapping Chemistry species from CGRID species'
-         CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT2 )
+         CALL M3EXIT( PNAME, 0, 0, XMSG, 2 )
       END IF
 
       DO N = 1, NUMB_MECH_SPC
@@ -287,7 +287,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       NBLKS = 1 + ( NOXYZ - 1 ) / BLKSIZE
       IF ( NBLKS .GT. MXBLKS ) THEN
          WRITE( XMSG, 92020 ) NBLKS, MXBLKS
-         CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
+         CALL M3EXIT( PNAME, 0, 0, XMSG, 1 )
       END IF
 
       IAVGSIZE = 1 + ( NOXYZ - 1 ) / NBLKS

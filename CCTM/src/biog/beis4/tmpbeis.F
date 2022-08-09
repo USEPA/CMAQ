@@ -201,7 +201,7 @@ C Get description of met file
          IF ( .NOT. DESC3( MNAME ) ) THEN
             MESG = 'Could not get description of file "'
      &           // TRIM( MNAME ) // '"'
-            CALL M3EXIT( PNAME, JDATE, JTIME, MESG, XSTAT2 )
+            CALL M3EXIT( PNAME, JDATE, JTIME, MESG, 2 )
          END IF
 
 C Check that grid description matches BGRD file
@@ -267,7 +267,7 @@ C Open mass output file (tons/hour)
             IF ( IO_PE_INCLUSIVE ) THEN
                IF ( .NOT. OPEN3( SNAME, FSNEW3, PNAME ) ) THEN
                   MESG = 'Could not open "' // TRIM( SNAME ) // '" file'
-                  CALL M3EXIT( PNAME, JDATE, JTIME, MESG, XSTAT1 )
+                  CALL M3EXIT( PNAME, JDATE, JTIME, MESG, 1 )
                END IF
             END IF
 
@@ -309,7 +309,7 @@ C Allocate memory for arrays
             IF ( .NOT. IO_PE_INCLUSIVE ) THEN
                IF ( .NOT. OPEN3( SNAME, FSREAD3, PNAME ) ) THEN
                   MESG = 'Could not open ' // TRIM(SNAME)
-                  CALL M3EXIT( PNAME, JDATE, JTIME, MESG, XSTAT2 )
+                  CALL M3EXIT( PNAME, JDATE, JTIME, MESG, 2 )
                END IF
             END IF
 #endif
@@ -352,7 +352,7 @@ C repopulate the met_cro_2d variable attributes
       IF ( .NOT. DESC3( MNAME ) ) THEN
          MESG = 'Could not get description of file "'
      &           // TRIM( MNAME ) // '"'
-         CALL M3EXIT( PNAME, JDATE, JTIME, MESG, XSTAT2 )
+         CALL M3EXIT( PNAME, JDATE, JTIME, MESG, 2 )
       END IF
 
 C Calculate temporal non-speciated beis emissions
@@ -421,7 +421,7 @@ C Speciate emissions
                IF ( BEIS_MAP( S ) .GT. 0 ) THEN
                   IF ( .NOT. WRITE3( SNAME, EMSPC( S ), MDATE, MTIME, EMISS(:,:,S) ) ) THEN
                      MESG = 'Could not write to output file "' // TRIM( SNAME ) // '"'
-                     CALL M3EXIT( PNAME, JDATE, JTIME, MESG, XSTAT2 )
+                     CALL M3EXIT( PNAME, JDATE, JTIME, MESG, 2 )
                   END IF
                END IF
             END DO

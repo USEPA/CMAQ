@@ -69,7 +69,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          CALL M3MESG( MSG ) 
          WRITE( MSG, 94020 )  MAXRXNSUM
          CALL M3MESG( MSG ) 
-         CALL M3EXIT( 'GETRXNSUM',  IZERO,  IZERO, ' ', XSTAT2 ) 
+         CALL M3EXIT( 'GETRXNSUM',  IZERO,  IZERO, ' ', 2 ) 
       END IF
 
       TERMNUM = 0
@@ -83,7 +83,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          CALL M3MESG( MSG ) 
          WRITE( MSG, 94520 )  CHR
          CALL M3MESG( MSG ) 
-         CALL M3EXIT( 'GETRXNSUM',  IZERO,  IZERO, ' ', XSTAT2 ) 
+         CALL M3EXIT( 'GETRXNSUM',  IZERO,  IZERO, ' ', 2 ) 
       ELSE
          CALL GETCHR
       END IF
@@ -101,7 +101,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          CALL M3MESG( MSG ) 
          WRITE( MSG, 94080 )  MAXRXTERMS
          CALL M3MESG( MSG ) 
-         CALL M3EXIT( 'GETRXNSUM',  IZERO,  IZERO, ' ', XSTAT2 ) 
+         CALL M3EXIT( 'GETRXNSUM',  IZERO,  IZERO, ' ', 2 ) 
       END IF
 
 c..Get coefficient for the reaction
@@ -118,7 +118,7 @@ c..Get the reaction label
          CALL M3MESG( MSG ) 
          WRITE( MSG, 94520 )  CHR
          CALL M3MESG( MSG ) 
-         CALL M3EXIT( 'GETRXNSUM',  IZERO,  IZERO, ' ', XSTAT2 ) 
+         CALL M3EXIT( 'GETRXNSUM',  IZERO,  IZERO, ' ', 2 ) 
       END IF
 
 c..check for more terms or end delimiter         
@@ -135,7 +135,7 @@ c..check for more terms or end delimiter
          CALL M3MESG( MSG ) 
          WRITE( MSG, 94520 )  CHR
          CALL M3MESG( MSG ) 
-         CALL M3EXIT( 'GETRXNSUM',  IZERO,  IZERO, ' ', XSTAT2 ) 
+         CALL M3EXIT( 'GETRXNSUM',  IZERO,  IZERO, ' ', 2 ) 
       END IF
       
 C----------------------- FORMAT Statements -----------------------------

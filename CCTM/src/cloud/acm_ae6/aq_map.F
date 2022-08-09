@@ -195,7 +195,7 @@ C...  event-statistics variables.
      &             STAT = STAT)
         IF (STAT .NE. 0) THEN
            XMSG = 'Memory allocation failure'
-           CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+           CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
         END IF
 
 #ifdef sens
@@ -203,25 +203,25 @@ C... Allocate sensitivity arrays
         ALLOCATE ( S_HPWDEP( NPMAX ), STAT = STAT )
         IF ( STAT .NE. 0 ) THEN
           XMSG = 'Failure allocating S_HPWDEP'
-          CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+          CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
         END IF
 
         ALLOCATE ( S_GAS( NPMAX,NGAS ), S_GASWDEP( NPMAX,NGAS ), STAT = STAT )
         IF ( STAT .NE. 0 ) THEN
           XMSG = 'Failure allocating S_GAS or S_GASWDEP'
-          CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+          CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
         END IF
 
         ALLOCATE ( S_AEROSOL( NPMAX,NAER,NMODES ), S_AERWDEP( NPMAX,NAER,NMODES ), STAT = STAT )
         IF ( STAT .NE. 0 ) THEN
           XMSG = 'Failure allocating S_AEROSOL or S_AERWDEP'
-          CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+          CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
         END IF
 
         ALLOCATE ( S_WSRGGAS( NPMAX,NGAS,MXSRG ), S_WSRGAER( NPMAX,NAER,NMODES,MXSRG ), STAT = STAT )
         IF ( STAT .NE. 0 ) THEN
           XMSG = 'Failure allocating S_WSRGGAS or S_WSRGAER'
-          CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+          CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
         END IF
 #endif
 

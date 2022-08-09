@@ -102,7 +102,7 @@ C Get default file header attibutes from CONC file (assumes file already open)
                   XMSG = 'Could not get '
      &                 // TRIM( CTM_CONC_1 )
      &                 // ' file description'
-                  CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+                  CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
                END IF
 
 C Set tstep negative to create "circular buffer" type file
@@ -187,7 +187,7 @@ C pick up transported RHOJ
                IF ( .NOT. OPEN3( S_CGRID, FSNEW3, PNAME ) ) THEN
                   XMSG = 'Could not open '
      &                 // TRIM( S_CGRID ) // ' file'
-                  CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+                  CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
                END IF
 
             END IF   ! IO_PE_INCLUSIVE
@@ -203,7 +203,7 @@ C proc 0 has CTM_CONC_1 open
                   XMSG = 'Could not get '
      &                 // TRIM( CTM_CONC_1 )
      &                 // ' file description'
-                  CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+                  CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
                END IF
 
                TSTEP_RF = TSTEP3D
@@ -227,7 +227,7 @@ C proc 0 has CTM_CONC_1 open
                   XMSG = 'Could not get '
      &                 // TRIM( S_CGRID )
      &                 // ' file description'
-                  CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+                  CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
                END IF
 
                IF ( TSTEP_RF .NE. ABS( TSTEP3D ) .OR.
@@ -236,36 +236,36 @@ C proc 0 has CTM_CONC_1 open
      &              NROWS_RF .NE. NROWS3D .OR.
      &              GDTYP_RF .NE. GDTYP3D ) THEN
                     XMSG = 'Header inconsistent on existing S_CGRID'
-                    CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
+                    CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 2 )
                END IF
                IF ( P_ALP_RF .NE. P_ALP3D .OR.
      &              P_BET_RF .NE. P_BET3D .OR.
      &              P_GAM_RF .NE. P_GAM3D ) THEN
                     XMSG = 'Header inconsistent on existing S_CGRID'
-                    CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
+                    CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 2 )
                END IF
                IF ( XCENT_RF .NE. XCENT3D .OR.
      &              YCENT_RF .NE. YCENT3D ) THEN
                     XMSG = 'Header inconsistent on existing S_CGRID'
-                    CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
+                    CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 2 )
                END IF
                IF ( XORIG_RF .NE. XORIG3D .OR.
      &              YORIG_RF .NE. YORIG3D ) THEN
                     XMSG = 'Header inconsistent on existing S_CGRID'
-                    CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
+                    CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 2 )
                END IF
                IF ( XCELL_RF .NE. XCELL3D .OR.
      &              YCELL_RF .NE. YCELL3D ) THEN
                     XMSG = 'Header inconsistent on existing S_CGRID'
-                    CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
+                    CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 2 )
                END IF
                IF ( VGTYP_RF .NE. VGTYP3D ) THEN
                     XMSG = 'Header inconsistent on existing S_CGRID'
-                    CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
+                    CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 2 )
                END IF
                IF ( VGTOP_RF .NE. VGTOP3D ) THEN
                     XMSG = 'Header inconsistent on existing S_CGRID'
-                    CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
+                    CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 2 )
                END IF
 
             END IF   ! IO_PE_INCLUSIVE
@@ -278,32 +278,32 @@ C proc 0 has CTM_CONC_1 open
       IF ( IO_PE_INCLUSIVE ) THEN
          IF ( .NOT. FLUSH3 ( S_CGRID ) ) THEN
             XMSG = 'Could not sync to disk ' // TRIM( S_CGRID )
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
          END IF
       END IF
       CALL SUBST_BARRIER
       IF ( .NOT. IO_PE_INCLUSIVE ) THEN
          IF ( .NOT. OPEN3( S_CGRID, FSREAD3, PNAME ) ) THEN
             XMSG = 'Could not open ' // TRIM( S_CGRID )
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
          END IF
       END IF
 
       IF ( .NOT. WRITE3( S_CGRID, ALLVAR3, JDATE, JTIME, CGRID ) ) THEN
          XMSG = 'Could not write S_CGRID'
-         CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
       END IF
 #else
 
 #ifdef parallel
       IF ( .NOT. PTRWRITE3( S_CGRID, ALLVAR3, JDATE, JTIME, CGRID ) ) THEN
          XMSG = 'Could not write S_CGRID'
-         CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
       END IF
 #else
       IF ( .NOT. WRITE3( S_CGRID, ALLVAR3, JDATE, JTIME, CGRID ) ) THEN
          XMSG = 'Could not write S_CGRID'
-         CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
       END IF
 #endif
 

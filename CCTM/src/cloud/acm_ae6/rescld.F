@@ -304,7 +304,7 @@ C...  the met timestep in hours
      &             REMOV( MXSPCS ), STAT = ALLOCSTAT )
         IF ( ALLOCSTAT .NE. 0 ) THEN
           XMSG = 'Failure allocating CEND, POLC or REMOV'
-          CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+          CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
         END IF
 
 #ifdef isam
@@ -325,7 +325,7 @@ C...  the met timestep in hours
      &             STAT = ALLOCSTAT )
         IF ( ALLOCSTAT .NE. 0 ) THEN
           XMSG = 'Failure allocating SA_POLC or SA_CEND'
-          CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+          CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
         END IF
 #endif
 
@@ -333,25 +333,25 @@ C...  the met timestep in hours
         IF ( .NOT. ALLOCATED( S_CEND ) ) ALLOCATE ( S_CEND ( NPMAX, MXSPCS ), STAT = ALLOCSTAT )
         IF ( ALLOCSTAT .NE. 0 ) THEN
           XMSG = 'Failure allocating S_CEND'
-          CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+          CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
         END IF
 
         IF ( .NOT. ALLOCATED( S_POLC ) ) ALLOCATE ( S_POLC ( NPMAX, MXSPCS ), STAT = ALLOCSTAT )
         IF ( ALLOCSTAT .NE. 0 ) THEN
           XMSG = 'Failure allocating S_POLC'
-          CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+          CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
         END IF
 
         IF ( .NOT. ALLOCATED( S_REMOV ) ) ALLOCATE ( S_REMOV ( NPMAX, MXSPCS ), STAT = ALLOCSTAT )
         IF ( ALLOCSTAT .NE. 0 ) THEN
           XMSG = 'Failure allocating S_REMOV'
-          CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+          CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
         END IF
 
         IF ( .NOT. ALLOCATED( S_REMOVAC ) ) ALLOCATE ( S_REMOVAC ( NPMAX ), STAT = ALLOCSTAT )
         IF ( ALLOCSTAT .NE. 0 ) THEN
           XMSG = 'Failure allocating S_REMOVAC'
-          CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+          CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
         END IF 
         S_REMOVAC = 0.0
 #endif
@@ -457,7 +457,7 @@ C...  on the input file are amounts within the metfiles timestep.
       IF ( .NOT. CURRSTEP( JDATE, JTIME, SDATE, STIME, MSTEP,
      &                     MDATE, MTIME ) ) THEN
         XMSG = 'Cannot get step-starting date and time'
-        CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
+        CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 3 )
       END IF
 
       CALL NEXTIME ( MDATE, MTIME, MSTEP )  ! set mdate:mtime to the hour
@@ -478,7 +478,7 @@ C...Convert the rainfall into a rainfall rate (mm/hr)
           IF ( RAIN .LT. 0.0 ) THEN
             XMSG = 'NEGATIVE RAIN...PROBABLE BAD MET DATA...'
      &              // MET_CRO_2D
-            CALL M3EXIT ( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
+            CALL M3EXIT ( PNAME, MDATE, MTIME, XMSG, 1 )
           END IF
 
 C...calculate the integrated column cloud+rain water content

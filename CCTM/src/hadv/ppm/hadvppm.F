@@ -153,7 +153,7 @@ C-----------------------------------------------------------------------
          ALLOCATE( XYFIRST( NLAYS ), STAT = ALLOCSTAT )
          IF ( ALLOCSTAT .NE. 0 ) THEN
             XMSG = 'Failure allocating XYFIRST'
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
          END IF
          XYFIRST( : ) = .TRUE.
 
@@ -164,7 +164,7 @@ C Get CGRID offsets
          ALLOCATE ( BCON( NBNDY,N_SPC_ADV ), STAT = ALLOCSTAT )
          IF ( ALLOCSTAT .NE. 0 ) THEN
             XMSG = 'Failure allocating BCON'
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
          END IF
 
          IF ( LIPR ) THEN
@@ -179,7 +179,7 @@ C Get CGRID offsets
          ALLOCATE ( BSEN( NBNDY,N_SPC_ADV,NPMAX ), STAT = ALLOCSTAT )
          IF ( ALLOCSTAT .NE. 0 ) THEN
             XMSG = 'Failure allocating BSEN'
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
          END IF
 #endif
 

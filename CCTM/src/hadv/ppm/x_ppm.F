@@ -230,7 +230,7 @@ C Get dx1 from HGRD_DEFN module
      &              VELX( NCOLS+1 ), STAT = ALLOCSTAT ) ! Vel along a row
          IF ( ALLOCSTAT .NE. 0 ) THEN
             XMSG = 'Failure allocating VELX, or CONX'
-            CALL M3EXIT ( PNAME, FDATE, FTIME, XMSG, XSTAT1 )
+            CALL M3EXIT ( PNAME, FDATE, FTIME, XMSG, 1 )
          END IF
 #ifdef isam
          SA_CONX = 0.0
@@ -238,7 +238,7 @@ C Get dx1 from HGRD_DEFN module
          ALLOCATE ( ADV_MAP( N_SPC_ADV ), STAT = ALLOCSTAT )
          IF ( ALLOCSTAT .NE. 0 ) THEN
             XMSG = 'Failure allocating ADV_MAP'
-            CALL M3EXIT ( PNAME, FDATE, FTIME, XMSG, XSTAT1 )
+            CALL M3EXIT ( PNAME, FDATE, FTIME, XMSG, 1 )
          END IF
 
 #ifdef parallel
@@ -254,7 +254,7 @@ C Get dx1 from HGRD_DEFN module
 
          IF ( ALLOCSTAT .NE. 0 ) THEN
             XMSG = 'Failure allocating HALO_EAST, HALO_WEST, or BUF_EW'
-            CALL M3EXIT ( PNAME, FDATE, FTIME, XMSG, XSTAT1 )
+            CALL M3EXIT ( PNAME, FDATE, FTIME, XMSG, 1 )
          END IF
          HALO_EAST = 0.0   ! array
          HALO_WEST = 0.0   ! array
@@ -272,7 +272,7 @@ C Get dx1 from HGRD_DEFN module
          ALLOCATE ( SENX( 1-SWP:NCOLS+SWP,N_SPC_ADV ), STAT = ALLOCSTAT )
          IF ( ALLOCSTAT .NE. 0 ) THEN
             XMSG = 'Failure allocating SENX'
-            CALL M3EXIT ( PNAME, FDATE, FTIME, XMSG, XSTAT1 )
+            CALL M3EXIT ( PNAME, FDATE, FTIME, XMSG, 1 )
          END IF
 #ifdef parallel
          ALLOCATE ( S_HALO_EAST( SWP,NROWS,N_SPC_ADV,NPMAX ),
@@ -281,7 +281,7 @@ C Get dx1 from HGRD_DEFN module
          IF ( ALLOCSTAT .NE. 0 ) THEN
             XMSG =
      &        'Failure allocating S_HALO_EAST, S_HALO_WEST, or S_BUF_EW'
-            CALL M3EXIT ( PNAME, FDATE, FTIME, XMSG, XSTAT1 )
+            CALL M3EXIT ( PNAME, FDATE, FTIME, XMSG, 1 )
          END IF
          S_HALO_EAST = 0.0   ! array
          S_HALO_WEST = 0.0   ! array

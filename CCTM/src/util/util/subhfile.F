@@ -95,12 +95,12 @@ C open cross file for subsequent comparison
 
 !        IF ( .NOT. OPEN3( BNAME, FSREAD3, PNAME ) ) THEN
 !           XMSG = 'Could not open '// BNAME
-!           CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
+!           CALL M3EXIT( PNAME, 0, 0, XMSG, 1 )
 !           END IF
 
 !        IF ( .NOT. DESC3( BNAME ) ) THEN
 !           XMSG = 'Could not get ' // BNAME // ' file description'
-!           CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT2 )
+!           CALL M3EXIT( PNAME, 0, 0, XMSG, 2 )
 !           END IF
 
 C set base header data
@@ -135,13 +135,13 @@ C open existing file for readonly access
 
       IF ( .NOT. OPEN3( FNAME, FSREAD3, PNAME ) ) THEN
          XMSG = 'Could not open '// FNAME
-         CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
+         CALL M3EXIT( PNAME, 0, 0, XMSG, 1 )
       END IF
 
       IF ( .NOT. DESC3( FNAME ) ) THEN
          XMSG = 'Could not get ' // TRIM( FNAME )
      &        // ' file description'
-         CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT2 )
+         CALL M3EXIT( PNAME, 0, 0, XMSG, 2 )
       END IF
 
 C check some header data against the reference file in this met set -
@@ -162,7 +162,7 @@ C mother grid center and grid cell resolution
 
 !        XMSG = 'File header inconsistent with GRID_CRO_2D'
 !#ifndef twoway
-!        CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT2 )
+!        CALL M3EXIT( PNAME, 0, 0, XMSG, 2 )
 !#endif
 !     END IF
 
@@ -182,7 +182,7 @@ C check some header data against GRIDDESC
      &          / 5X, 'YCELL_B:', F20.12, 2X, 'YCELL3D (file):', F20.12 )
 
          XMSG = 'File header inconsistent with GRIDDESC'
-         CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT2 )
+         CALL M3EXIT( PNAME, 0, 0, XMSG, 2 )
       END IF
 
 C Convert to grid cell coord and truncate
@@ -203,7 +203,7 @@ C Check if file (cross or dot) is "lined up"
             WRITE( LOGDEV,* ) '    RELOFFX: ', RELOFFX
             WRITE( LOGDEV,* ) '    XORIG_C, XORIG_F: ', XORIG_C, XORIG_F
             XMSG = 'Inconsistent Base/File Xorig'
-            CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT2 )
+            CALL M3EXIT( PNAME, 0, 0, XMSG, 2 )
             END IF
       END IF
 
@@ -216,12 +216,12 @@ C Check if file (cross or dot) is "lined up"
             WRITE( LOGDEV,* ) '    RELOFFY: ', RELOFFY
             WRITE( LOGDEV,* ) '    YORIG_C, YORIG_F: ', YORIG_C, YORIG_F
             XMSG = 'Inconsistent Base/File Yorig'
-            CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT2 )
+            CALL M3EXIT( PNAME, 0, 0, XMSG, 2 )
             END IF
       END IF
       IF ( ABS( RELOFFX - RELOFFY ) .GT. MIN_DOUBLE ) THEN
          XMSG = 'Inconsistent X- and Y-resolution (file vs. file)'
-         CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT2 )
+         CALL M3EXIT( PNAME, 0, 0, XMSG, 2 )
       END IF
 
 C check the file against the processor setup (COORD.EXT), and get the offsets
@@ -236,7 +236,7 @@ C check the file against the processor setup (COORD.EXT), and get the offsets
             WRITE( LOGDEV,* ) '    RELOFFX: ', RELOFFX
             WRITE( LOGDEV,* ) '    XORIG_GD, XORIG_F: ', XORIG_C, XORIG_F
             XMSG = 'File Xorig inconsistent with GRIDDESC'
-            CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT2 )
+            CALL M3EXIT( PNAME, 0, 0, XMSG, 2 )
             END IF
       END IF
 
@@ -249,14 +249,14 @@ C check the file against the processor setup (COORD.EXT), and get the offsets
             WRITE( LOGDEV,* ) '    RELOFFY: ', RELOFFY
             WRITE( LOGDEV,* ) '    YORIG_GD, YORIG_F: ', YORIG_C, YORIG_F
             XMSG = 'File Yorig inconsistent with GRIDDESC'
-            CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT2 )
+            CALL M3EXIT( PNAME, 0, 0, XMSG, 2 )
             ELSE
             DOTFILE = 1
             END IF
       END IF
       IF ( ABS( RELOFFX - RELOFFY ) .GT. MIN_DOUBLE ) THEN
          XMSG = 'Inconsistent X- and Y-resolution (file vs. model)'
-         CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT2 )
+         CALL M3EXIT( PNAME, 0, 0, XMSG, 2 )
       END IF
 
       INDX = MYPE + 1
@@ -269,7 +269,7 @@ C check the file against the processor setup (COORD.EXT), and get the offsets
 #ifndef twoway
       IF ( GXOFF .LT. 0 .OR. GYOFF .LT. 0 ) THEN
          XMSG = 'Model domain is outside file domain'
-         CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT2 )
+         CALL M3EXIT( PNAME, 0, 0, XMSG, 2 )
       END IF
 #endif
 

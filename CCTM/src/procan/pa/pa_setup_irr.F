@@ -246,7 +246,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      &          COEFOUTIND( NUMOUTIND ), STAT = ASTAT )
       IF ( ASTAT .NE. 0 ) THEN
          MSG = 'ERROR 1 allocating IRR variables'
-         CALL M3EXIT ( 'PA_SETUP_IRR', 0, 0, MSG, XSTAT2 )
+         CALL M3EXIT ( 'PA_SETUP_IRR', 0, 0, MSG, 2 )
       END IF
 
       TEMPOUTPOS = TEMPOUTPOS_TMP( 1:NUMOUTPOS )
@@ -286,7 +286,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      &          TEMPCOEF ( NUMTEMPS,MXTEMPTRMS ), STAT = ASTAT )
       IF ( ASTAT .NE. 0 ) THEN
          MSG = 'ERROR 2 allocating IRR variables'
-         CALL M3EXIT ( 'PA_SETUP_IRR', 0, 0, MSG, XSTAT2 )
+         CALL M3EXIT ( 'PA_SETUP_IRR', 0, 0, MSG, 2 )
       END IF
 
       TEMPTERMS = TEMPTERMS_TMP( 1:NUMTEMPS )

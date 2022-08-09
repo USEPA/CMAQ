@@ -216,7 +216,7 @@ c   segment integral ave. conc. = cr(i) + 1/2[c6(i)-dc(i)]dx -1/3[c6(i)]dx**2
 !              end if
                IF ( ICNT .GT. MAXCNT ) THEN
                   XMSG = ' max iterations exceeded in vppm at 66'
-                  CALL M3EXIT( 'VPPM', 0, 0, XMSG, XSTAT1 )                     
+                  CALL M3EXIT( 'VPPM', 0, 0, XMSG, 1 )                     
                END IF
                GO TO 66
             END IF
@@ -238,7 +238,7 @@ c   segment integral ave. conc. = cr(i) + 1/2[c6(i)-dc(i)]dx -1/3[c6(i)]dx**2
 !              end if
                IF ( ICNT .GT. MAXCNT ) THEN
                   XMSG = ' max iterations exceeded in vppm at 77'
-                  CALL M3EXIT( 'VPPM', 0, 0, XMSG, XSTAT1 )                     
+                  CALL M3EXIT( 'VPPM', 0, 0, XMSG, 1 )                     
                END IF
                GO TO 77
             END IF
@@ -446,7 +446,7 @@ C----------------------------------------------------------------------
          IF ( ALLOCSTAT .NE. 0 ) THEN
             XMSG = 'Failure allocating '
      &           // 'ALPHA, MU, NU, LAMBDA, CHI, PSI, OR CM'
-            CALL M3EXIT( 'VPPM', 0, 0, XMSG, XSTAT1 )
+            CALL M3EXIT( 'VPPM', 0, 0, XMSG, 1 )
          END IF
 
          DO I = 2, NI-1

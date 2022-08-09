@@ -64,7 +64,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          CALL M3MESG( MSG )
          WRITE( MSG, 94020 ) MAXFAMLYS
          CALL M3MESG( MSG )
-         CALL M3EXIT( 'GETFAMILY', IZERO, IZERO, ' ', XSTAT2 )
+         CALL M3EXIT( 'GETFAMILY', IZERO, IZERO, ' ', 2 )
       END IF
 
       CALL GETWORD
@@ -77,7 +77,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          CALL M3MESG( MSG )
          WRITE( MSG, 94520 ) CHR
          CALL M3MESG( MSG )
-         CALL M3EXIT( 'GETFAMILY', IZERO, IZERO,' ', XSTAT2 )
+         CALL M3EXIT( 'GETFAMILY', IZERO, IZERO,' ', 2 )
       ELSE
          CALL GETCHR
       END IF
@@ -95,7 +95,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          CALL M3MESG( MSG )
          WRITE( MSG, 94080 ) MAXFAMMEM
          CALL M3MESG( MSG )
-         CALL M3EXIT( 'GETFAMILY', IZERO, IZERO, ' ', XSTAT2 )
+         CALL M3EXIT( 'GETFAMILY', IZERO, IZERO, ' ', 2 )
       END IF
 
 c..Set the coefficient for family member 
@@ -119,7 +119,7 @@ c..Go back and get the next family member, return, or err off
          CALL M3MESG( MSG )
          WRITE( MSG, 94520 ) CHR
          CALL M3MESG( MSG )
-         CALL M3EXIT( 'GETFAMILY', IZERO, IZERO, ' ', XSTAT2 ) 
+         CALL M3EXIT( 'GETFAMILY', IZERO, IZERO, ' ', 2 ) 
       END IF
 
 C----------------------- FORMAT Statements -----------------------------

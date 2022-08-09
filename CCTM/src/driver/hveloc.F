@@ -173,7 +173,7 @@ C Get/compute DX1 & DX2
          ALLOCATE ( DENSJ( 0:NCOLS+1,0:NROWS+1,NLAYS ), STAT = ALLOCSTAT )
          IF ( ALLOCSTAT .NE. 0 ) THEN
             XMSG = 'Failure allocating DENSJ'
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
          END IF
 
          IF ( .NOT. WINDOW ) THEN
@@ -181,13 +181,13 @@ C Get/compute DX1 & DX2
             ALLOCATE ( DENSJ_BUF( ncols, nrows, NLAYS ),STAT = ALLOCSTAT )
             IF ( ALLOCSTAT .NE. 0 ) THEN
                XMSG = 'Failure allocating DENSJ_BUF'
-               CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+               CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
             END IF
 
             ALLOCATE ( DENSJ_BND( NBNDY,NLAYS ), STAT = ALLOCSTAT )
             IF ( ALLOCSTAT .NE. 0 ) THEN
                XMSG = 'Failure allocating DENSJ_BND'
-               CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+               CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
             END IF
 
          END IF

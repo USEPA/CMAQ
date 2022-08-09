@@ -479,7 +479,7 @@
      &         'input chemical namelists (ie. GC, AE, etc). Note that aerosol',
      &         'Number and Surface Area Species are not valid for scaling.'
              XMSG = 'Error in Emissions Map Processing.'
-             CALL M3EXIT( 'Map_Chem_Families', 0, 0, XMSG, XSTAT1 )
+             CALL M3EXIT( 'Map_Chem_Families', 0, 0, XMSG, 1 )
             END IF
          END DO
       END IF 

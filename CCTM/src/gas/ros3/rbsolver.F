@@ -240,7 +240,7 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
      &              ERR ( BLKSIZE ), STAT = IOS )
          IF ( IOS .NE. 0 ) THEN
             XMSG = '*** Memory Allocation Error'
-            CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
+            CALL M3EXIT( PNAME, 0, 0, XMSG, 1 )
          END IF
 
 !        IF ( LIRRFLAG ) THEN   !*** This works only if in irr subdomain window
@@ -249,7 +249,7 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
      &                 DUMMY ( BLKSIZE ),         STAT = IOS )
             IF ( IOS .NE. 0 ) THEN
                XMSG = '*** Memory Allocation Error'
-               CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
+               CALL M3EXIT( PNAME, 0, 0, XMSG, 1 )
             END IF
 !        END IF
 
@@ -580,7 +580,7 @@ c..write photolysis rates used in cell
                   END IF
                END DO
  
-               CALL M3EXIT( PNAME, JDATE, JTIME, ' ', XSTAT2 )
+               CALL M3EXIT( PNAME, JDATE, JTIME, ' ', 2 )
 
             END IF
 

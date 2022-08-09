@@ -67,7 +67,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          CALL M3MESG( MSG )
          WRITE( MSG, 94020 ) MAXIRROUT
          CALL M3MESG( MSG )
-         CALL M3EXIT( 'GETIRROUT', IZERO, IZERO, ' ', XSTAT2 )
+         CALL M3EXIT( 'GETIRROUT', IZERO, IZERO, ' ', 2 )
       END IF
 
       CALL GETWORD
@@ -83,7 +83,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          CALL M3MESG( MSG )
          WRITE( MSG, 94520 ) CHR
          CALL M3MESG( MSG )
-         CALL M3EXIT( 'GETIRROUT', IZERO, IZERO, ' ', XSTAT2 )
+         CALL M3EXIT( 'GETIRROUT', IZERO, IZERO, ' ', 2 )
       ELSE
          CALL GETCHR
       END IF
@@ -101,7 +101,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          CALL M3MESG( MSG )
          WRITE( MSG, 94080 ) MAXOUTTERMS
          CALL M3MESG( MSG )
-         CALL M3EXIT( 'GETIRROUT', IZERO, IZERO, ' ', XSTAT2 )
+         CALL M3EXIT( 'GETIRROUT', IZERO, IZERO, ' ', 2 )
       END IF      
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -135,7 +135,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
                CALL M3MESG( MSG )
                WRITE( MSG, 94520 ) CHR
                CALL M3MESG( MSG )
-               CALL M3EXIT( 'GETIRROUT', IZERO, IZERO, ' ', XSTAT2 )
+               CALL M3EXIT( 'GETIRROUT', IZERO, IZERO, ' ', 2 )
             END IF
 
 c..FROM option
@@ -149,7 +149,7 @@ c..FROM option
                   CALL M3MESG( MSG )
                   WRITE( MSG, 94540 ) WORD
                   CALL M3MESG( MSG )
-                  CALL M3EXIT( 'GETIRROUT', IZERO, IZERO, ' ', XSTAT2 )
+                  CALL M3EXIT( 'GETIRROUT', IZERO, IZERO, ' ', 2 )
                END IF
                IF ( CHR .EQ. '[' ) THEN
                   CALL GETLABEL
@@ -161,7 +161,7 @@ c..FROM option
                   CALL M3MESG( MSG )
                   WRITE( MSG, 94520 ) CHR
                   CALL M3MESG( MSG )
-                  CALL M3EXIT( 'GETIRROUT', IZERO, IZERO, ' ', XSTAT2 )
+                  CALL M3EXIT( 'GETIRROUT', IZERO, IZERO, ' ', 2 )
                END IF
             END IF
 
@@ -178,7 +178,7 @@ c..AND/OR operator
                   CALL M3MESG( MSG )
                   WRITE( MSG, 94540 ) WORD
                   CALL M3MESG( MSG )
-                  CALL M3EXIT( 'GETIRROUT', IZERO, IZERO, ' ', XSTAT2 )
+                  CALL M3EXIT( 'GETIRROUT', IZERO, IZERO, ' ', 2 )
                ELSE
                   OUTOP2( NIRROUT, TERMNUM ) = WORD
                   IF ( CHR .EQ. '[' ) THEN
@@ -191,7 +191,7 @@ c..AND/OR operator
                      CALL M3MESG( MSG )
                      WRITE( MSG, 94520 ) CHR
                      CALL M3MESG( MSG )
-                     CALL M3EXIT( 'GETIRROUT', IZERO, IZERO, ' ', XSTAT2 )
+                     CALL M3EXIT( 'GETIRROUT', IZERO, IZERO, ' ', 2 )
                    END IF
                 END IF
              END IF
@@ -211,7 +211,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
                CALL M3MESG( MSG )
                WRITE( MSG, 94520 ) CHR
                CALL M3MESG( MSG )
-               CALL M3EXIT( 'GETIRROUT', IZERO, IZERO, ' ', XSTAT2 )
+               CALL M3EXIT( 'GETIRROUT', IZERO, IZERO, ' ', 2 )
             END IF
 
             OUTOP2(   NIRROUT, TERMNUM ) = ''
@@ -228,7 +228,7 @@ c..AND/OR operator
                   CALL M3MESG( MSG )
                   WRITE( MSG, 94540 ) WORD
                   CALL M3MESG( MSG )
-                  CALL M3EXIT( 'GETIRROUT', IZERO, IZERO, ' ', XSTAT2 )
+                  CALL M3EXIT( 'GETIRROUT', IZERO, IZERO, ' ', 2 )
                ELSE
                   OUTOP2( NIRROUT, TERMNUM ) = WORD
                   IF ( CHR .EQ. '[' ) THEN
@@ -241,7 +241,7 @@ c..AND/OR operator
                      CALL M3MESG( MSG )
                      WRITE( MSG, 94520 ) CHR
                      CALL M3MESG( MSG )
-                     CALL M3EXIT( 'GETIRROUT', IZERO, IZERO, ' ', XSTAT2 )
+                     CALL M3EXIT( 'GETIRROUT', IZERO, IZERO, ' ', 2 )
                   END IF
                END IF
             END IF
@@ -264,7 +264,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
                CALL M3MESG( MSG )
                WRITE( MSG, 94520 ) CHR
                CALL M3MESG( MSG )
-               CALL M3EXIT( 'GETIRROUT', IZERO, IZERO, ' ', XSTAT2 )
+               CALL M3EXIT( 'GETIRROUT', IZERO, IZERO, ' ', 2 )
             END IF
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -283,7 +283,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
                   CALL M3MESG( MSG )
                   WRITE( MSG, 94540 ) LABEL
                   CALL M3MESG( MSG )
-                  CALL M3EXIT( 'GETIRROUT', IZERO, IZERO, ' ', XSTAT2 )
+                  CALL M3EXIT( 'GETIRROUT', IZERO, IZERO, ' ', 2 )
                ELSE          
                   OUTPNFLAG( NIRROUT, TERMNUM ) = LABEL
                END IF
@@ -306,7 +306,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          CALL M3MESG( MSG )
          WRITE( MSG, 94520 ) CHR
          CALL M3MESG( MSG )
-         CALL M3EXIT( 'GETIRROUT', IZERO, IZERO, ' ', XSTAT2 )
+         CALL M3EXIT( 'GETIRROUT', IZERO, IZERO, ' ', 2 )
       END IF            
 
 C----------------------- FORMAT Statements -----------------------------

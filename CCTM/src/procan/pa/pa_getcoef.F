@@ -78,7 +78,7 @@ C-----------------------------------------------------------------------
             CALL M3MESG( MSG )
             WRITE( MSG, 94520 ) CHR
             CALL M3MESG( MSG )
-            CALL M3EXIT( 'GETCOEF', IZERO, IZERO, ' ', XSTAT2 )
+            CALL M3EXIT( 'GETCOEF', IZERO, IZERO, ' ', 2 )
          END IF
       END IF
       IF ( LNEG ) COEF = -COEF

@@ -134,7 +134,7 @@ C Reset decomposition map
      &                        MY_PACOLS, MY_PAROWS, NPCOL, NPROW, NPCOL*NPROW,
      &                        MYPE ) ) THEN
             XMSG = 'Failed to re-initialize parallel I/O library.'
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 2 )
             RETURN
          END IF
       END IF
@@ -149,7 +149,7 @@ C Reset decomposition map
      &                        MY_PACOLS, MY_PAROWS, NPCOL, NPROW, NPCOL*NPROW,
      &                        MYPE, wflg = WFLG ) ) THEN
             XMSG = 'Failed to re-initialize parallel I/O library.'
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 2 )
             RETURN
          END IF
 #endif
@@ -172,14 +172,14 @@ C Reset decomposition map
                   IPRFNAM( NFL ) = CTM_IPR_3
                ELSE IF ( NFL .GT. 3 ) THEN
                   XMSG = 'Maximum number of IPR output files exceeded'
-                  CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
+                  CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 2 )
                END IF
 
                IF ( MYPE .EQ. 0 ) THEN
                   IF ( .NOT. OPEN3( IPRFNAM( NFL ), FSRDWR3, PNAME ) ) THEN
                      XMSG = 'Could not open Integrated Process Rate Output File: '
      &                    // IPRFNAM( NFL )
-                     CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+                     CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
                   END IF
                END IF
 
@@ -205,14 +205,14 @@ C Reset decomposition map
                   IRRFNAM( NFL ) = CTM_IRR_3
                ELSE IF ( NFL .GT. 3 ) THEN
                   XMSG = 'Maximum number of IRR output files exceeded'
-                  CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
+                  CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 2 )
                END IF
 
                IF ( MYPE .EQ. 0 ) THEN
                   IF ( .NOT. OPEN3( IRRFNAM( NFL ), FSRDWR3, PNAME ) ) THEN
                      XMSG = 'Could not open Integrated Reaction Rate Output File: '
      &                    // IRRFNAM( NFL )
-                     CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+                     CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
                   END IF
                END IF
 
@@ -237,7 +237,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
                IF ( .NOT. WRITE3( IPRFNAM( NFL ), IPRNAME( VARINDX ),
      &                 JDATE, JTIME, DELC( :,:,:,VARINDX ) ) ) THEN 
                   XMSG = 'Could not write ' // IPRFNAM( NFL )
-                  CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+                  CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
                END IF
 
             END DO
@@ -285,7 +285,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
                IF ( .NOT. WRITE3( IRRFNAM( NFL ), IRRNAME( VARINDX ),
      &              JDATE, JTIME, DBUFF ) ) THEN 
                   XMSG = 'Could not write ' // IRRFNAM( NFL )
-                  CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+                  CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
                END IF
 
             END DO
@@ -321,7 +321,7 @@ C Reset decomposition map
      &                        NCOLS, NROWS, NPCOL, NPROW, NPCOL*NPROW,
      &                        MYPE ) ) THEN
             XMSG = 'Failed to re-initialize parallel I/O library.'
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 2 )
             RETURN
          END IF
       ELSE
@@ -329,7 +329,7 @@ C Reset decomposition map
      &                        NCOLS, NROWS, NPCOL, NPROW, NPCOL*NPROW,
      &                        MYPE, wflg = WFLG ) ) THEN
             XMSG = 'Failed to re-initialize parallel I/O library.'
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 2 )
             RETURN
          END IF
       END IF

@@ -177,7 +177,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      &             STAT = IOS )
          IF ( IOS .NE. 0 ) THEN
             MSG = '*** Memory allocation failed'
-            CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
+            CALL M3EXIT( PNAME, 0, 0, MSG, 1 )
          END IF
        
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -299,7 +299,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      &          JZERO ( MXCOUNT1 ), STAT = IOS )
       IF ( IOS .NE. 0 ) THEN
          MSG = '*** Memory allocation failed'
-         CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
+         CALL M3EXIT( PNAME, 0, 0, MSG, 1 )
       END IF
 
       ALLOCATE( LZERO   ( NUMB_MECH_SPC,NUMB_MECH_SPC ),
@@ -307,7 +307,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      &          JZILCH  ( NUMB_MECH_SPC,NCS2 ), STAT = IOS )
       IF ( IOS .NE. 0 ) THEN
          MSG = '*** Memory allocation failed'
-         CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
+         CALL M3EXIT( PNAME, 0, 0, MSG, 1 )
       END IF
 
       

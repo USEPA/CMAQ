@@ -686,7 +686,7 @@ C     end of the gas-phase chemical driver
            IF ( INDX .LT. 1 ) THEN
                XMSG = 'Heterogeneous Reaction Label '// TRIM ( HETERO( IRATE ) )
      &             // ' is not in list of available Reaction Rates.'
-               CALL M3EXIT( 'HETCHEM_RATES', 0, 0, XMSG, XSTAT3 )
+               CALL M3EXIT( 'HETCHEM_RATES', 0, 0, XMSG, 3 )
            END IF 
            SELECTED_AERO_RATES = SELECTED_AERO_RATES + 1
            WHICH_AERO_RATE( SELECTED_AERO_RATES ) = INDEX_AERO_RATES( INDX )
@@ -2431,7 +2431,7 @@ C        Store information with speciation for IEPOX
                end if
             else
                xmsg = 'For IEPOX parent, reaction product not recognized '
-               CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT2 )
+               CALL M3EXIT( PNAME, 0, 0, XMSG, 2 )
             end if
          end if
 
@@ -2444,7 +2444,7 @@ C        Store information with speciation for IMAE
               kchemtet( 2 ) = kchemtet( 2 )  + kchem
             else
                xmsg = 'For IMAE parent, reaction product not recognized '
-               CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT2 )
+               CALL M3EXIT( PNAME, 0, 0, XMSG, 2 )
             end if
          end if
       End Do      

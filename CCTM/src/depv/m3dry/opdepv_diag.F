@@ -152,7 +152,7 @@ C Open diagnostic file, then close it for subsequent open by all processors
 
             IF ( .NOT. OPEN3( CTM_DEPV_DIAG, FSNEW3, PNAME ) ) THEN
                XMSG = 'Could not create '// TRIM( CTM_DEPV_DIAG ) // ' file'
-               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
             END IF
 
          END IF

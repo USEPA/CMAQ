@@ -530,7 +530,7 @@ C...Sulfur tracking
           ALLOCATE ( AECONCMIN( N_AE_SPC ), STAT = ALLOCSTAT )
           IF ( ALLOCSTAT .NE. 0 ) THEN
             XMSG = 'Failure allocating AECONCMIN'
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
           END IF
           CALL SET_AECONCMIN ( AECONCMIN )
 
@@ -567,13 +567,13 @@ C...allocate saved arrays
         ALLOCATE ( F( NLAYS ), STAT = ALLOCSTAT )
         IF ( ALLOCSTAT .NE. 0 ) THEN
           XMSG = 'Failure allocating F'
-          CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+          CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
         END IF
 
         ALLOCATE ( DZH( NLAYS ), STAT = ALLOCSTAT )
         IF ( ALLOCSTAT .NE. 0 ) THEN
           XMSG = 'Failure allocating DZH'
-          CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+          CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
         END IF
 
         MXSPCS = NSPCSD
@@ -583,7 +583,7 @@ C...allocate saved arrays
      &             CBELOW( MXSPCS ), STAT = ALLOCSTAT )
         IF ( ALLOCSTAT .NE. 0 ) THEN
           XMSG = 'Failure allocating CCR, CONC or CBELOW'
-          CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+          CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
         END IF
 
         ALLOCATE ( BMOL   ( MXSPCS ),
@@ -598,14 +598,14 @@ C...allocate saved arrays
         IF ( ALLOCSTAT .NE. 0 ) THEN
           XMSG = 'Failure allocating BMOL, CBASE0, CBASEF, CEND, POLC, REMOV,'
      &         // ' QLQD or QICE'
-          CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+          CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
         END IF
 
         ALLOCATE ( CONCMINL( MXSPCS,NLAYS ),
      &             PCLD    ( MXSPCS,NLAYS ), STAT = ALLOCSTAT )
         IF ( ALLOCSTAT .NE. 0 ) THEN
           XMSG = 'Failure allocating CONCMINL or PCLD'
-          CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+          CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
         END IF
 
 C...Calculate the Sundqvist et al. 1989 threshold humidities for cloud formation based on 
@@ -703,7 +703,7 @@ C Move this to a better place later
      &             STAT = ALLOCSTAT )
         IF ( ALLOCSTAT .NE. 0 ) THEN
           XMSG = 'Failure allocating SA arrays'
-          CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+          CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
         END IF
 #endif
 
@@ -711,46 +711,46 @@ C Move this to a better place later
         IF ( .NOT. ALLOCATED( S_CEND ) ) ALLOCATE ( S_CEND ( NPMAX, MXSPCS ), STAT = ALLOCSTAT )
         IF ( ALLOCSTAT .NE. 0 ) THEN
           XMSG = 'Failure allocating S_CEND'
-          CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+          CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
         END IF
 
         IF ( .NOT. ALLOCATED( S_POLC ) ) ALLOCATE ( S_POLC ( NPMAX, MXSPCS ), STAT = ALLOCSTAT )
         IF ( ALLOCSTAT .NE. 0 ) THEN
           XMSG = 'Failure allocating S_POLC'
-          CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+          CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
         END IF
 
         IF ( .NOT. ALLOCATED( S_REMOV ) ) ALLOCATE ( S_REMOV ( NPMAX, MXSPCS ), STAT = ALLOCSTAT )
         IF ( ALLOCSTAT .NE. 0 ) THEN
           XMSG = 'Failure allocating S_REMOV'
-          CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+          CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
         END IF
 
         IF ( .NOT. ALLOCATED( S_REMOVAC ) ) ALLOCATE ( S_REMOVAC ( NPMAX ), STAT = ALLOCSTAT )
         IF ( ALLOCSTAT .NE. 0 ) THEN
           XMSG = 'Failure allocating S_REMOVAC'
-          CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+          CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
         END IF
         S_REMOVAC = 0.0
 
         IF ( .NOT. ALLOCATED( S_CCR ) ) ALLOCATE ( S_CCR ( NPMAX,MXSPCS,NLAYS ), STAT = ALLOCSTAT )
         IF ( ALLOCSTAT .NE. 0 ) THEN
           XMSG = 'Failure allocating S_CCR'
-          CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+          CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
         END IF
         S_CCR = 0.0D0
 
         IF ( .NOT. ALLOCATED( S_CBELOW ) ) ALLOCATE ( S_CBELOW ( NPMAX,MXSPCS ), STAT = ALLOCSTAT )
         IF ( ALLOCSTAT .NE. 0 ) THEN
           XMSG = 'Failure allocating S_REMOVAC'
-          CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+          CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
         END IF
         S_CBELOW = 0.0D0
 
         ALLOCATE ( S_CONC  ( NPMAX,MXSPCS,NLAYS ), STAT = ALLOCSTAT )
         IF ( ALLOCSTAT .NE. 0 ) THEN
           XMSG = 'Failure allocating S_CONC'
-          CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+          CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
         END IF
 
         ALLOCATE ( S_BMOL   ( NPMAX,MXSPCS ),
@@ -758,7 +758,7 @@ C Move this to a better place later
      &             S_CBASEF ( NPMAX,MXSPCS ), STAT = ALLOCSTAT )
         IF ( ALLOCSTAT .NE. 0 ) THEN
           XMSG = 'Failure allocating S_BMOL, S_CBASE0, or S_CBASEF'
-          CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+          CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
         END IF
 
         ALLOCATE ( S_BCLDWT  ( NPMAX,MXSPCS,NLAYS ),
@@ -767,7 +767,7 @@ C Move this to a better place later
      &             S_PCLD    ( NPMAX,MXSPCS,NLAYS ), STAT = ALLOCSTAT )
         IF ( ALLOCSTAT .NE. 0 ) THEN
           XMSG = 'Failure allocating S_BCLDWT, S_INCLOUD, S_OUTCLOUD or S_PCLD'
-          CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+          CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
         END IF
 #endif
 
@@ -861,7 +861,7 @@ C...  on the input file are amounts within the metfiles timestep.
       IF ( .NOT. CURRSTEP( JDATE, JTIME, SDATE, STIME, MSTEP,
      &                     MDATE, MTIME ) ) THEN
         XMSG = 'Cannot get step-starting date and time'
-        CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
+        CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 3 )
       END IF
 
       CALL NEXTIME ( MDATE, MTIME, MSTEP )  ! set mdate:mtime to the hour
@@ -881,7 +881,7 @@ C...  threshold
       END DO
       IF ( MINVAL( RAIN ) .LT. 0.0 ) THEN
         XMSG = 'NEGATIVE RAIN...PROBABLY BAD MET DATA... in' // MET_CRO_2D
-        CALL M3EXIT ( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
+        CALL M3EXIT ( PNAME, MDATE, MTIME, XMSG, 1 )
       END IF
       WHERE ( RAIN .GE. RTHRESH ) CONV_DEP( :,:,N_SPC_WDEP + 6 ) = 1.0
 
@@ -1431,7 +1431,7 @@ C...test for convergence, then cut the interval in half
               WRITE( XMSG, 91010 )
      &             'NO CONVERGENCE IN ENTRAINMENT SOLVER AT COL= ',
      &             COL, ' ROW= ',  ROW, ' ICLDTYPE= ', ICLDTYPE
-              CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
+              CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 2 )
             END IF
 
             TEMPC = ( TEMPA + TEMPB ) * 0.5

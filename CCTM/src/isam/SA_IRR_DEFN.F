@@ -249,7 +249,7 @@ C=======================================================
                  WRITE(LOGDEV,'(A)')'ISAM_O3_WEIGHTS set to 5 but nitric acid not found gas chemistry.'
              END IF
              MSG = 'Above Error(s) not found using ISAM runtime option'
-             CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
+             CALL M3EXIT( PNAME, 0, 0, MSG, 1 )
           END IF        
           IF ( O3_INDEX .LT. 1 ) THEN
              WRITE(LOGDEV,'(A)')'ISAM_O3_WEIGHTS set to 5 but gas chemistry does not have ozone.'
@@ -278,7 +278,7 @@ C..Save pointer for isam species found in chemistry species
            END DO
            IF( L .NE. ISAM_CHEMISTRY_SPC )THEN
              MSG = 'ERROR mapping isam to chemistry species: inconsistent number found'
-             CALL M3EXIT ( PNAME, 0, 0, MSG, XSTAT1 )
+             CALL M3EXIT ( PNAME, 0, 0, MSG, 1 )
            END IF
         ELSE
            MSG = 'NO ISAM species participate in photochemistry '
@@ -306,27 +306,27 @@ C...Allocate and set conversion factors for isam chemistry species
         ALLOCATE( CONVERT_ISAM( ISAM_CHEMISTRY_SPC ), STAT = IOS )
         IF ( IOS .NE. 0 ) THEN
              MSG = 'Error allocating CONVERT_ISAM'
-             CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
+             CALL M3EXIT( PNAME, 0, 0, MSG, 1 )
         END IF 
               
         ALLOCATE( UGM3_TO_PPM( ISAM_CHEMISTRY_SPC ),
      &            PPM_TO_UGM3( ISAM_CHEMISTRY_SPC ), STAT = IOS )
         IF ( IOS .NE. 0 ) THEN
              MSG = 'Error allocating UGM3_TO_PPM or PPM_TO_UGM3'
-             CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
+             CALL M3EXIT( PNAME, 0, 0, MSG, 1 )
         END IF 
 
         ALLOCATE( IS_ISAM_OX_RADICAL( ISAM_CHEMISTRY_SPC ), STAT = IOS )
         IF ( IOS .NE. 0 ) THEN
              MSG = 'Error allocating IS_ISAM_A_RADICAL'
-             CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
+             CALL M3EXIT( PNAME, 0, 0, MSG, 1 )
         END IF 
         IS_ISAM_OX_RADICAL = .FALSE.
 
         ALLOCATE( IS_CHEM_OX_RADICAL( NUMB_MECH_SPC ), STAT = IOS )
         IF ( IOS .NE. 0 ) THEN
              MSG = 'Error allocating IS_ISAM_A_RADICAL'
-             CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
+             CALL M3EXIT( PNAME, 0, 0, MSG, 1 )
         END IF 
         IS_CHEM_OX_RADICAL = .FALSE.
 
@@ -336,19 +336,19 @@ C...Allocate and set conversion factors for isam chemistry species
         ALLOCATE( IS_TAG_NONZERO( NTAG_SA ), STAT = IOS )
         IF ( IOS .NE. 0 ) THEN
              MSG = 'Error allocating IS_TAG_NONZERO'
-             CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
+             CALL M3EXIT( PNAME, 0, 0, MSG, 1 )
         END IF 
 
 !       ALLOCATE( FRAC_TOTAL( NTAG_SA ), STAT = IOS )
 !       IF ( IOS .NE. 0 ) THEN
 !            MSG = 'Error allocating FRAC_TOTAL'
-!            CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
+!            CALL M3EXIT( PNAME, 0, 0, MSG, 1 )
 !       END IF 
 
         ALLOCATE( ISAM_SPECIES( NUMB_MECH_SPC ), STAT = IOS )
         IF ( IOS .NE. 0 ) THEN
            MSG = 'Error allocating ISAM_SPECIES'
-           CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
+           CALL M3EXIT( PNAME, 0, 0, MSG, 1 )
         END IF
         ISAM_SPECIES = .FALSE. 
 
@@ -383,7 +383,7 @@ C...Allocate and set conversion factors for isam chemistry species
         ALLOCATE( OX_INDEX( OX_RADICAL_FOUND ), STAT = IOS )
         IF ( IOS .NE. 0 ) THEN
            MSG = 'Error allocating SOLD'
-           CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
+           CALL M3EXIT( PNAME, 0, 0, MSG, 1 )
         END IF 
         OX_INDEX = 0
 
@@ -396,13 +396,13 @@ C...Allocate and set conversion factors for isam chemistry species
         ALLOCATE( SOLD( NTAG_SA, NUMB_MECH_SPC ), STAT = IOS )
         IF ( IOS .NE. 0 ) THEN
            MSG = 'Error allocating SOLD'
-           CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
+           CALL M3EXIT( PNAME, 0, 0, MSG, 1 )
         END IF 
         
         ALLOCATE( MECHANISM_BUDGET( NUMB_MECH_SPC ), STAT = IOS )
         IF ( IOS .NE. 0 ) THEN
            MSG = 'Error allocating MECHANISM_BUDGET'
-           CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
+           CALL M3EXIT( PNAME, 0, 0, MSG, 1 )
         END IF 
 
         ALLOCATE( IREACTION( NRXNS ),
@@ -413,7 +413,7 @@ C...Allocate and set conversion factors for isam chemistry species
      &            COEFF_NET( NRXNS ),  STAT = IOS )     
         IF ( IOS .NE. 0 ) THEN
            MSG = 'Error allocating IREACTION and COEFF_NET arrays'
-           CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
+           CALL M3EXIT( PNAME, 0, 0, MSG, 1 )
         END IF 
 
         ISAM_WITH_OZONE = ( ISAM_WITH_OZONE .AND. OX_RADICAL_FOUND .GT. 0 )
@@ -421,7 +421,7 @@ C...Allocate and set conversion factors for isam chemistry species
            ALLOCATE( OX_RADICAL_BUDGET( OX_RADICAL_FOUND ), STAT = IOS )
            IF ( IOS .NE. 0 ) THEN
               MSG = 'Error allocating MECHANISM_BUDGET'
-              CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
+              CALL M3EXIT( PNAME, 0, 0, MSG, 1 )
            END IF 
         END IF
 
@@ -473,7 +473,7 @@ C...Allocate and set conversion factors for isam chemistry species
      &                   MECHANISM_BUDGET( SPC )%COEFF_NET( S ),  STAT = IOS )
                IF ( IOS .NE. 0 ) THEN
                     MSG = 'Error allocating bulk MECHANISM_BUDGET arrays'
-                   CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
+                   CALL M3EXIT( PNAME, 0, 0, MSG, 1 )
                END IF 
                MECHANISM_BUDGET( SPC )%IREACTION( 1:S ) = IREACTION( 1:S )
                MECHANISM_BUDGET( SPC )%COEFF_NET( 1:S ) = COEFF_NET( 1:S )
@@ -483,7 +483,7 @@ C...Allocate and set conversion factors for isam chemistry species
      &                       OX_RADICAL_BUDGET( L )%COEFF_NET( S ),  STAT = IOS )
                    IF ( IOS .NE. 0 ) THEN
                        MSG = 'Error allocating production OX_RADICAL_BUDGET arrays'
-                       CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
+                       CALL M3EXIT( PNAME, 0, 0, MSG, 1 )
                    END IF 
                    OX_RADICAL_BUDGET( L )%IREACTION( 1:S )  = IRXN_PROD( 1:S )
                    OX_RADICAL_BUDGET( L )%COEFF_NET( 1:S )  = COEFF_NET( 1:S )
@@ -495,7 +495,7 @@ C...Allocate and set conversion factors for isam chemistry species
      &                      MECHANISM_BUDGET( SPC )%COEFF_POS( IP ),  STAT = IOS )
                   IF ( IOS .NE. 0 ) THEN
                        MSG = 'Error allocating production MECHANISM_BUDGET arrays'
-                      CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
+                      CALL M3EXIT( PNAME, 0, 0, MSG, 1 )
                   END IF 
                   MECHANISM_BUDGET( SPC )%IRXN_PROD( 1:IP )  = IRXN_PROD( 1:IP )
                   MECHANISM_BUDGET( SPC )%COEFF_POS( 1:IP )  = COEFF_POS( 1:IP )
@@ -506,7 +506,7 @@ C...Allocate and set conversion factors for isam chemistry species
      &                         OX_RADICAL_BUDGET( L )%COEFF_POS( IP ),  STAT = IOS )
                      IF ( IOS .NE. 0 ) THEN
                          MSG = 'Error allocating production OX_RADICAL_BUDGET arrays'
-                         CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
+                         CALL M3EXIT( PNAME, 0, 0, MSG, 1 )
                      END IF 
                      OX_RADICAL_BUDGET( L )%IRXN_PROD( 1:IP )  = IRXN_PROD( 1:IP )
                      OX_RADICAL_BUDGET( L )%COEFF_POS( 1:IP )  = COEFF_POS( 1:IP )
@@ -520,7 +520,7 @@ C...Allocate and set conversion factors for isam chemistry species
      &                      MECHANISM_BUDGET( SPC )%COEFF_NEG( IL ),  STAT = IOS )
                   IF ( IOS .NE. 0 ) THEN
                        MSG = 'Error allocating destruction MECHANISM_BUDGET arrays'
-                      CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
+                      CALL M3EXIT( PNAME, 0, 0, MSG, 1 )
                   END IF 
                   MECHANISM_BUDGET( SPC )%IRXN_LOSS( 1:IL ) = IRXN_LOSS( 1:IL )
                   MECHANISM_BUDGET( SPC )%COEFF_NEG( 1:IL ) = COEFF_NEG( 1:IL )
@@ -531,7 +531,7 @@ C...Allocate and set conversion factors for isam chemistry species
      &                         OX_RADICAL_BUDGET( L )%COEFF_NEG( IL ),  STAT = IOS )
                      IF ( IOS .NE. 0 ) THEN
                          MSG = 'Error allocating production OX_RADICAL_BUDGET arrays'
-                         CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
+                         CALL M3EXIT( PNAME, 0, 0, MSG, 1 )
                      END IF 
                      OX_RADICAL_BUDGET( L )%IRXN_LOSS( 1:IL )  = IRXN_LOSS( 1:IL )
                      OX_RADICAL_BUDGET( L )%COEFF_NEG( 1:IL )  = COEFF_NET( 1:IL )
@@ -560,7 +560,7 @@ C...Allocate and set conversion factors for isam chemistry species
      &                   H2O2_BUDGET%COEFF_NET( S ),  STAT = IOS )
                IF ( IOS .NE. 0 ) THEN
                     MSG = 'Error allocating H2O2 budget array'
-                   CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
+                   CALL M3EXIT( PNAME, 0, 0, MSG, 1 )
                END IF
                H2O2_BUDGET%IREACTION( 1:S ) = MECHANISM_BUDGET( H2O2_INDEX )%IREACTION( 1:S )
                H2O2_BUDGET%COEFF_NET( 1:S ) = MECHANISM_BUDGET( H2O2_INDEX )%COEFF_NET( 1:S )
@@ -575,7 +575,7 @@ C...Allocate and set conversion factors for isam chemistry species
      &                   H2O2_BUDGET%COEFF_POS( IP ),  STAT = IOS )
                IF ( IOS .NE. 0 ) THEN
                     MSG = 'Error allocating production H2O2_BUDGET arrays'
-                   CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
+                   CALL M3EXIT( PNAME, 0, 0, MSG, 1 )
                END IF
                H2O2_BUDGET%IRXN_PROD( 1:IP ) = MECHANISM_BUDGET( H2O2_INDEX )%IRXN_PROD( 1:IP )
                H2O2_BUDGET%COEFF_POS( 1:IP ) = MECHANISM_BUDGET( H2O2_INDEX )%COEFF_POS( 1:IP )
@@ -590,7 +590,7 @@ C...Allocate and set conversion factors for isam chemistry species
      &                   H2O2_BUDGET%COEFF_NEG( IL ),  STAT = IOS )
                IF ( IOS .NE. 0 ) THEN
                     MSG = 'Error allocating production H2O2_BUDGET arrays'
-                   CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
+                   CALL M3EXIT( PNAME, 0, 0, MSG, 1 )
                END IF
                H2O2_BUDGET%IRXN_LOSS( 1:IL ) = MECHANISM_BUDGET( H2O2_INDEX )%IRXN_LOSS( 1:IL )
                H2O2_BUDGET%COEFF_NEG( 1:IL ) = MECHANISM_BUDGET( H2O2_INDEX )%COEFF_NEG( 1:IL )
@@ -610,7 +610,7 @@ C...Allocate and set conversion factors for isam chemistry species
      &                   HNO3_BUDGET%COEFF_NET( S ),  STAT = IOS )
                IF ( IOS .NE. 0 ) THEN
                     MSG = 'Error allocating HNO3 budget array'
-                   CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
+                   CALL M3EXIT( PNAME, 0, 0, MSG, 1 )
                END IF
                HNO3_BUDGET%IREACTION( 1:S ) = MECHANISM_BUDGET( HNO3_INDEX )%IREACTION( 1:S )
                HNO3_BUDGET%COEFF_NET( 1:S ) = MECHANISM_BUDGET( HNO3_INDEX )%COEFF_NET( 1:S )
@@ -624,7 +624,7 @@ C...Allocate and set conversion factors for isam chemistry species
      &                   HNO3_BUDGET%COEFF_POS( IP ),  STAT = IOS )
                IF ( IOS .NE. 0 ) THEN
                     MSG = 'Error allocating production HNO3_BUDGET arrays'
-                   CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
+                   CALL M3EXIT( PNAME, 0, 0, MSG, 1 )
                END IF
                HNO3_BUDGET%IRXN_PROD( 1:IP ) = MECHANISM_BUDGET( HNO3_INDEX )%IRXN_PROD( 1:IP )
                HNO3_BUDGET%COEFF_POS( 1:IP ) = MECHANISM_BUDGET( HNO3_INDEX )%COEFF_POS( 1:IP )
@@ -637,7 +637,7 @@ C...Allocate and set conversion factors for isam chemistry species
      &                   HNO3_BUDGET%COEFF_NEG( IL ),  STAT = IOS )
                IF ( IOS .NE. 0 ) THEN
                     MSG = 'Error allocating production HNO3_BUDGET arrays'
-                   CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
+                   CALL M3EXIT( PNAME, 0, 0, MSG, 1 )
                END IF
                HNO3_BUDGET%IRXN_LOSS( 1:IL ) = MECHANISM_BUDGET( HNO3_INDEX )%IRXN_LOSS( 1:IL )
                HNO3_BUDGET%COEFF_NEG( 1:IL ) = MECHANISM_BUDGET( HNO3_INDEX )%COEFF_NEG( 1:IL )
@@ -651,7 +651,7 @@ C...Allocate and set conversion factors for isam chemistry species
            ALLOCATE( H2O2_HNO3_PROD_RXNS( NRXNS_PROD_H2O2_HNO3 ),STAT = IOS )
            IF ( IOS .NE. 0 ) THEN
                 MSG = 'Error allocating production H2O2_HNO3_PROD_RXNS arrays'
-               CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
+               CALL M3EXIT( PNAME, 0, 0, MSG, 1 )
            END IF
            IP = NRXNS_PROD_H2O2
            IL = NRXNS_PROD_HNO3
@@ -660,7 +660,7 @@ C...Allocate and set conversion factors for isam chemistry species
            ALLOCATE( H2O2_HNO3_YIELD( NRXNS_PROD_H2O2_HNO3 ),STAT = IOS )
            IF ( IOS .NE. 0 ) THEN
                 MSG = 'Error allocating production H2O2_HNO3_YIELD arrays'
-               CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
+               CALL M3EXIT( PNAME, 0, 0, MSG, 1 )
            END IF
            H2O2_HNO3_YIELD( 1:IP ) = H2O2_BUDGET%COEFF_POS( 1:IP ) 
            H2O2_HNO3_YIELD( (IP+1):IP+IL ) = HNO3_BUDGET%COEFF_POS( 1:IL ) 
@@ -669,7 +669,7 @@ C...Allocate and set conversion factors for isam chemistry species
         ALLOCATE( ISAM_SPC_BUDGET( ISAM_CHEMISTRY_SPC ), STAT = IOS )
         IF ( IOS .NE. 0 ) THEN
              MSG = 'Error allocating ISAM_SPC_BUDGET'
-             CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
+             CALL M3EXIT( PNAME, 0, 0, MSG, 1 )
         END IF 
 
         DO SPC = 1, ISAM_CHEMISTRY_SPC
@@ -685,7 +685,7 @@ C...Allocate and set conversion factors for isam chemistry species
      &                   ISAM_SPC_BUDGET( SPC )%COEFF_NET( S ),  STAT = IOS )
                IF ( IOS .NE. 0 ) THEN
                     MSG = 'Error allocating bulk ISAM_SPC_BUDGET arrays'
-                   CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
+                   CALL M3EXIT( PNAME, 0, 0, MSG, 1 )
                END IF 
                ISAM_SPC_BUDGET( SPC )%IREACTION( 1:S ) = MECHANISM_BUDGET( R )%IREACTION( 1:S )
                ISAM_SPC_BUDGET( SPC )%COEFF_NET( 1:S ) = MECHANISM_BUDGET( R )%COEFF_NET( 1:S )
@@ -697,7 +697,7 @@ C...Allocate and set conversion factors for isam chemistry species
      &                  ISAM_SPC_BUDGET( SPC )%COEFF_POS( IP ),  STAT = IOS )
               IF ( IOS .NE. 0 ) THEN
                   MSG = 'Error allocating production ISAM_SPC_BUDGET arrays'
-                  CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
+                  CALL M3EXIT( PNAME, 0, 0, MSG, 1 )
               END IF 
               ISAM_SPC_BUDGET( SPC )%IRXN_PROD( 1:IP )  = MECHANISM_BUDGET( R )%IRXN_PROD( 1:IP )
               ISAM_SPC_BUDGET( SPC )%COEFF_POS( 1:IP )  = MECHANISM_BUDGET( R )%COEFF_POS( 1:IP )
@@ -709,7 +709,7 @@ C...Allocate and set conversion factors for isam chemistry species
      &                  ISAM_SPC_BUDGET( SPC )%COEFF_NEG( IL ),  STAT = IOS )
               IF ( IOS .NE. 0 ) THEN
                   MSG = 'Error allocating production ISAM_SPC_BUDGET arrays'
-                  CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
+                  CALL M3EXIT( PNAME, 0, 0, MSG, 1 )
               END IF 
               ISAM_SPC_BUDGET( SPC )%IRXN_LOSS( 1:IL )  = MECHANISM_BUDGET( R )%IRXN_LOSS( 1:IL )
               ISAM_SPC_BUDGET( SPC )%COEFF_NEG( 1:IL )  = MECHANISM_BUDGET( R )%COEFF_NEG( 1:IL )
@@ -1234,25 +1234,25 @@ C Allocate arrays:
         ALLOCATE( YCOLD( NUMB_MECH_SPC ), STAT = ASTAT )
         IF ( ASTAT .NE. 0 ) THEN
            MSG = 'ERROR allocating YCOLD variable'
-           CALL M3EXIT ( 'SA_IRR', 0, 0, MSG, XSTAT2 )
+           CALL M3EXIT ( 'SA_IRR', 0, 0, MSG, 2 )
         END IF
 
         ALLOCATE( YCMID( NUMB_MECH_SPC ), STAT = ASTAT )
         IF ( ASTAT .NE. 0 ) THEN
            MSG = 'ERROR allocating YCOLD variable'
-           CALL M3EXIT ( 'SA_IRR', 0, 0, MSG, XSTAT2 )
+           CALL M3EXIT ( 'SA_IRR', 0, 0, MSG, 2 )
         END IF
         
         ALLOCATE( YCRATES( NUMB_MECH_SPC ), STAT = ASTAT )
         IF ( ASTAT .NE. 0 ) THEN
            MSG = 'ERROR allocating YCRATES variable'
-           CALL M3EXIT ( 'SA_IRR', 0, 0, MSG, XSTAT2 )
+           CALL M3EXIT ( 'SA_IRR', 0, 0, MSG, 2 )
         END IF
         
         ALLOCATE( OUTSIDE( NUMB_MECH_SPC ), STAT = ASTAT )
         IF ( ASTAT .NE. 0 ) THEN
            MSG = 'ERROR allocating YCOLD variable'
-           CALL M3EXIT ( 'SA_IRR', 0, 0, MSG, XSTAT2 )
+           CALL M3EXIT ( 'SA_IRR', 0, 0, MSG, 2 )
         END IF
         
         OUTSIDE = 0.0D0
@@ -1261,93 +1261,93 @@ C Allocate arrays:
      &            INTRXN ( NRXNS ), STAT = ASTAT )
         IF ( ASTAT .NE. 0 ) THEN
            MSG = 'ERROR allocating SA_IRR variables'
-           CALL M3EXIT ( 'SA_IRR', 0, 0, MSG, XSTAT2 )
+           CALL M3EXIT ( 'SA_IRR', 0, 0, MSG, 2 )
         END IF
 
 !         ALLOCATE( ONE_OVER_CONC( NUMB_MECH_SPC ), STAT = ASTAT )
 !         IF ( ASTAT .NE. 0 ) THEN
 !           MSG = 'ERROR allocating SA_IRR variables'
-!           CALL M3EXIT ( 'SA_IRR', 0, 0, MSG, XSTAT2 )
+!           CALL M3EXIT ( 'SA_IRR', 0, 0, MSG, 2 )
 !         END IF
 
          ALLOCATE( TOTAL_ISAM_CONC( NUMB_MECH_SPC ), STAT = ASTAT )
          IF ( ASTAT .NE. 0 ) THEN
            MSG = 'ERROR allocating SA_IRR variables'
-           CALL M3EXIT ( 'SA_IRR', 0, 0, MSG, XSTAT2 )
+           CALL M3EXIT ( 'SA_IRR', 0, 0, MSG, 2 )
          END IF
 
          ALLOCATE( NOT_ISAM_SOURCE( NTAG_SA, NUMB_MECH_SPC ), STAT = ASTAT )
          IF ( ASTAT .NE. 0 ) THEN
            MSG = 'ERROR allocating SA_IRR variables'
-           CALL M3EXIT ( 'SA_IRR', 0, 0, MSG, XSTAT2 )
+           CALL M3EXIT ( 'SA_IRR', 0, 0, MSG, 2 )
          END IF
 
          ALLOCATE( ISAM_SOURCE( NTAG_SA, NUMB_MECH_SPC ), STAT = ASTAT )
          IF ( ASTAT .NE. 0 ) THEN
            MSG = 'ERROR allocating SA_IRR variables'
-           CALL M3EXIT ( 'SA_IRR', 0, 0, MSG, XSTAT2 )
+           CALL M3EXIT ( 'SA_IRR', 0, 0, MSG, 2 )
          END IF
 
          ALLOCATE( SOURCE_PROBABILITY( NTAG_SA + 1, NRXNS ), STAT = ASTAT )
          IF ( ASTAT .NE. 0 ) THEN
            MSG = 'ERROR allocating SA_IRR variables'
-           CALL M3EXIT ( 'SA_IRR', 0, 0, MSG, XSTAT2 )
+           CALL M3EXIT ( 'SA_IRR', 0, 0, MSG, 2 )
          END IF
 
          ALLOCATE( ISAM_PROBABILITY( NTAG_SA, NRXNS ), STAT = ASTAT )
          IF ( ASTAT .NE. 0 ) THEN
            MSG = 'ERROR allocating ISAM_PROBABILITY variables'
-           CALL M3EXIT ( 'SA_IRR', 0, 0, MSG, XSTAT2 )
+           CALL M3EXIT ( 'SA_IRR', 0, 0, MSG, 2 )
          END IF
 
          ALLOCATE( ZERO_ISAM( NRXNS ), STAT = ASTAT )
          IF ( ASTAT .NE. 0 ) THEN
            MSG = 'ERROR allocating ZERO_ISAM '
-           CALL M3EXIT ( 'SA_IRR', 0, 0, MSG, XSTAT2 )
+           CALL M3EXIT ( 'SA_IRR', 0, 0, MSG, 2 )
          END IF
 
          ALLOCATE( REBALANCE( NUMB_MECH_SPC ), STAT = ASTAT )
          IF ( ASTAT .NE. 0 ) THEN
            MSG = 'ERROR allocating REBALANCE '
-           CALL M3EXIT ( 'SA_IRR', 0, 0, MSG, XSTAT2 )
+           CALL M3EXIT ( 'SA_IRR', 0, 0, MSG, 2 )
          END IF
          REBALANCE = .FALSE.
              
          ALLOCATE( SOURCE_DELTA( NTAG_SA + 1, NUMB_MECH_SPC ), STAT = ASTAT )
          IF ( ASTAT .NE. 0 ) THEN
            MSG = 'ERROR allocating SOURCE_DELTA '
-           CALL M3EXIT ( 'SA_IRR', 0, 0, MSG, XSTAT2 )
+           CALL M3EXIT ( 'SA_IRR', 0, 0, MSG, 2 )
          END IF
 
          ALLOCATE( SA_DELTA( NTAG_SA ), STAT = ASTAT )
          IF ( ASTAT .NE. 0 ) THEN
            MSG = 'ERROR allocating SA_DELTA '
-           CALL M3EXIT ( 'SA_IRR', 0, 0, MSG, XSTAT2 )
+           CALL M3EXIT ( 'SA_IRR', 0, 0, MSG, 2 )
          END IF
 
          ALLOCATE( SA_LOSS( NTAG_SA ), STAT = ASTAT )
          IF ( ASTAT .NE. 0 ) THEN
            MSG = 'ERROR allocating SA_LOSS '
-           CALL M3EXIT ( 'SA_IRR', 0, 0, MSG, XSTAT2 )
+           CALL M3EXIT ( 'SA_IRR', 0, 0, MSG, 2 )
          END IF
 
          ALLOCATE( SOURCE_ZERO( NTAG_SA + 1 ), STAT = ASTAT )
          IF ( ASTAT .NE. 0 ) THEN
            MSG = 'ERROR allocating SOURCE_ZERO '
-           CALL M3EXIT ( 'SA_IRR', 0, 0, MSG, XSTAT2 )
+           CALL M3EXIT ( 'SA_IRR', 0, 0, MSG, 2 )
          END IF
          LFIRST = .FALSE.
 
          ALLOCATE( NOT_OUTSIDE_ISAM( NUMB_MECH_SPC ), STAT = ASTAT )
          IF ( ASTAT .NE. 0 ) THEN
            MSG = 'ERROR allocating SA_IRR variables'
-           CALL M3EXIT ( 'SA_IRR', 0, 0, MSG, XSTAT2 )
+           CALL M3EXIT ( 'SA_IRR', 0, 0, MSG, 2 )
          END IF
 
          ALLOCATE( SOURCE_NONZERO( NTAG_SA, NUMB_MECH_SPC ), STAT = ASTAT )
          IF ( ASTAT .NE. 0 ) THEN
            MSG = 'ERROR allocating SA_IRR variables'
-           CALL M3EXIT ( 'SA_IRR', 0, 0, MSG, XSTAT2 )
+           CALL M3EXIT ( 'SA_IRR', 0, 0, MSG, 2 )
          END IF
 
          SOURCE_NONZERO = .TRUE.
@@ -1357,7 +1357,7 @@ C Allocate arrays:
          ALLOCATE( MAP_REACTANT_CASE( NRXNS ), STAT = ASTAT )
          IF ( ASTAT .NE. 0 ) THEN
            MSG = 'ERROR allocating SA_IRR variables'
-           CALL M3EXIT ( 'SA_IRR', 0, 0, MSG, XSTAT2 )
+           CALL M3EXIT ( 'SA_IRR', 0, 0, MSG, 2 )
          END IF
          MAP_REACTANT_CASE = -1
          
@@ -1382,7 +1382,7 @@ C Allocate arrays:
             ALLOCATE( TWO_REACTANT_CASE( NBIAS,ISP2,3 ), STAT = ASTAT )
             IF ( ASTAT .NE. 0 ) THEN
               MSG = 'ERROR allocating SA_IRR variables'
-              CALL M3EXIT ( 'SA_IRR', 0, 0, MSG, XSTAT2 )
+              CALL M3EXIT ( 'SA_IRR', 0, 0, MSG, 2 )
             END IF
             TWO_REACTANT_CASE = .FALSE.
          END IF
@@ -1391,7 +1391,7 @@ C Allocate arrays:
             ALLOCATE( THREE_REACTANT_CASE( NBIAS,ISP3,7 ), STAT = ASTAT )
             IF ( ASTAT .NE. 0 ) THEN
               MSG = 'ERROR allocating SA_IRR variables'
-              CALL M3EXIT ( 'SA_IRR', 0, 0, MSG, XSTAT2 )
+              CALL M3EXIT ( 'SA_IRR', 0, 0, MSG, 2 )
             END IF
             THREE_REACTANT_CASE = .FALSE.
          END IF         
@@ -1731,7 +1731,7 @@ C..Normalize sources probabilities for reaction
 
                MSG = 'TOTAL_PROBABILITY < zero from reaction label: ' 
      &             // TRIM( RXLABEL( NRX ) )
-               CALL M3EXIT ( 'SA_IRR', 0, 0, MSG, XSTAT2 )
+               CALL M3EXIT ( 'SA_IRR', 0, 0, MSG, 2 )
             ELSE IF( TOTAL_PROBABILITY .EQ. 0.0D0 )THEN   
                TOTAL_PROBABILITY = 1.0D0
             END IF
@@ -2046,7 +2046,7 @@ C..Local
             ALLOCATE( RXRAT( NRXNS_PROD_H2O2_HNO3 ),  STAT = IOS )
             IF ( IOS .NE. 0 ) THEN
                 MSG = 'Error allocating RXRAT arrays'
-                CALL M3EXIT( ' PH2O2_OVER_PHNO3', 0, 0, MSG, XSTAT1 )
+                CALL M3EXIT( ' PH2O2_OVER_PHNO3', 0, 0, MSG, 1 )
             END IF  
           END IF
                    

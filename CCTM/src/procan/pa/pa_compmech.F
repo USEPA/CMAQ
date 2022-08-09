@@ -174,7 +174,7 @@ c..List products
                IF ( LINNUM .GT. MXMECHLINE ) THEN
                   WRITE( MSG, 94000 )
                   CALL M3MESG( MSG )
-                  CALL M3EXIT( 'MECHCOMP', IZERO, IZERO, ' ', XSTAT2 )
+                  CALL M3EXIT( 'MECHCOMP', IZERO, IZERO, ' ', 2 )
                END IF
                LINOUT = ''
                LINOUT( 1:1 ) = ' '
@@ -229,7 +229,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
                IF ( LINNUM .GT. MXFAMLINE ) THEN
                    WRITE( MSG, 94020 )
                    CALL M3MESG( MSG )
-                   CALL M3EXIT( 'MECHCOMP', IZERO, IZERO, ' ', XSTAT2 )
+                   CALL M3EXIT( 'MECHCOMP', IZERO, IZERO, ' ', 2 )
                END IF
                LINOUT = ''
                LINOUT( 1:1 ) = ' '

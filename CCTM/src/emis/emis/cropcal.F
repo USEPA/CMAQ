@@ -125,7 +125,7 @@ C Calculate erodible ag land fraction
 
                if ( ( crpdt1 + 14.0 ) .gt. 365.0 ) then
                   xmsg = '*** Error in cropland erodibility'
-                  call m3exit ( pname, jdate, jtime, xmsg, xstat1 )
+                  call m3exit ( pname, jdate, jtime, xmsg, 1 )
                end if
 
                ! before planting after harvest BEGIN IF2

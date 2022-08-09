@@ -79,7 +79,7 @@ C----------------------------------------------------------------------
      &           NROWS_SN( NPROW ), STAT=ASTAT )
       IF ( ASTAT .NE. 0 ) THEN
          XMSG = 'Error allocating NCOLS_WE or NCOLS_SN'
-         CALL M3EXIT ( PNAME, 0, 0, XMSG, XSTAT2 )
+         CALL M3EXIT ( PNAME, 0, 0, XMSG, 2 )
          RETURN
       END IF
 
@@ -160,7 +160,7 @@ C Calculate row range of this PE in the global domain
      &             NROWS_SN, STAT=ASTAT )
       IF ( ASTAT .NE. 0 ) THEN
          XMSG = 'Error deallocating NCOLS_WE or NROWS_SN'
-         CALL M3EXIT ( PNAME, 0, 0, XMSG, XSTAT2 )
+         CALL M3EXIT ( PNAME, 0, 0, XMSG, 2 )
       END IF
 
 

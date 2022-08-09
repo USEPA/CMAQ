@@ -149,13 +149,13 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
          ALLOCATE ( SINLATS( NCOLS,NROWS ), STAT = ASTAT )
          IF ( ASTAT .NE. 0 ) THEN
             XMSG = 'Failure allocating SINLATS'
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
          END IF
 
          ALLOCATE ( COSLATS( NCOLS,NROWS ), STAT = ASTAT )
          IF ( ASTAT .NE. 0 ) THEN
             XMSG = 'Failure allocating COSLATS'
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
          END IF
 
          DO ROW = 1, NROWS
@@ -168,67 +168,67 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
          ALLOCATE ( COSINE_ZENITH( NCOLS,NROWS ), STAT = ASTAT )
          IF ( ASTAT .NE. 0 ) THEN
             XMSG = 'Failure allocating COSINE_ZENITH'
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
          END IF
 
          ALLOCATE ( CFRAC( NCOLS,NROWS ), STAT = ASTAT )
          IF ( ASTAT .NE. 0 ) THEN
             XMSG = 'Failure allocating CFRAC'
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
          END IF
 
          ALLOCATE ( DENS( NCOLS,NROWS,NLAYS ), STAT = ASTAT )
          IF ( ASTAT .NE. 0 ) THEN
             XMSG = 'Failure allocating DENS'
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
          END IF
 
          ALLOCATE ( TA( NCOLS,NROWS,NLAYS ), STAT = ASTAT )
          IF ( ASTAT .NE. 0 ) THEN
             XMSG = 'Failure allocating TA'
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
          END IF
 
          ALLOCATE ( PRES( NCOLS,NROWS,NLAYS ), STAT = ASTAT )
          IF ( ASTAT .NE. 0 ) THEN
             XMSG = 'Failure allocating PRES'
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
          END IF
 
          ALLOCATE ( ZM( NCOLS,NROWS,NLAYS ), STAT = ASTAT )
          IF ( ASTAT .NE. 0 ) THEN
             XMSG = 'Failure allocating ZM'
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
          END IF
          
          ALLOCATE ( ZFULL( NCOLS,NROWS,NLAYS ), STAT = ASTAT )
          IF ( ASTAT .NE. 0 ) THEN
             XMSG = 'Failure allocating ZFULL'
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
          END IF
 
          ALLOCATE ( DELTA_Z( NCOLS,NROWS,NLAYS ), STAT = ASTAT )
          IF ( ASTAT .NE. 0 ) THEN
             XMSG = 'Failure allocating DELTA_Z'
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
          END IF
 
          ALLOCATE ( QV( NCOLS,NROWS,NLAYS ), STAT = ASTAT )
          IF ( ASTAT .NE. 0 ) THEN
             XMSG = 'Failure allocating QV'
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
          END IF
 
          ALLOCATE ( QC( NCOLS,NROWS,NLAYS ), STAT = ASTAT )
          IF ( ASTAT .NE. 0 ) THEN
             XMSG = 'Failure allocating QC'
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
          END IF
 
          ALLOCATE ( QR( NCOLS,NROWS,NLAYS ), STAT = ASTAT )
          IF ( ASTAT .NE. 0 ) THEN
             XMSG = 'Failure allocating QR'
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
          END IF
          
          HYDROMETEORS = 1   ! always cloud water and rain
@@ -267,21 +267,21 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
          ALLOCATE ( QG( NCOLS,NROWS,NLAYS ), STAT = ASTAT )
          IF ( ASTAT .NE. 0 ) THEN
             XMSG = 'Failure allocating QG'
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
          END IF        
          QG = 0.0
         
          ALLOCATE ( QI( NCOLS,NROWS,NLAYS ), STAT = ASTAT )
          IF ( ASTAT .NE. 0 ) THEN
             XMSG = 'Failure allocating QI'
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
          END IF
          QI = 0.0
 
          ALLOCATE ( QS( NCOLS,NROWS,NLAYS ), STAT = ASTAT )
          IF ( ASTAT .NE. 0 ) THEN
             XMSG = 'Failure allocating QS'
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
          END IF
          QS = 0.0
 
@@ -306,20 +306,20 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
          ALLOCATE ( CFRAC_3D( NCOLS,NROWS,NLAYS ), STAT = ASTAT )
          IF ( ASTAT .NE. 0 ) THEN
             XMSG = 'Failure allocating CFRAC_3D'
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
          END IF
          CFRAC_3D = 0.0
 
          ALLOCATE ( CFRAC_2D( NCOLS,NROWS ), STAT = ASTAT )
          IF ( ASTAT .NE. 0 ) THEN
             XMSG = 'Failure allocating CFRAC_2D'
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
          END IF
 
          ALLOCATE ( AVE_HYDROMETEORS( NCOLS,NROWS ), STAT = ASTAT )
          IF ( ASTAT .NE. 0 ) THEN
             XMSG = 'Failure allocating AVE_HYDROMETEORS'
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
          END IF
 
 ! report out hydrometeors found
@@ -540,7 +540,7 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
                      write( logdev,"(a,2es12.4)" ) "WEIGHT, CFRAC_3D = ",
      &                                             weight, cfrac_3d( col,row,lay ) 
                      xmsg = 'Floating point exception for CFRAC_2D'
-                     call m3exit ( pname, jdate, jtime, xmsg, xstat1 )
+                     call m3exit ( pname, jdate, jtime, xmsg, 1 )
                   end if
 #endif              
                END DO
@@ -996,7 +996,7 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
      &                 WEIGHT( NCOLS,NROWS,NLAYS ), STAT = ASTAT )
             IF ( ASTAT .NE. 0 ) THEN
                XMSG = 'Failure allocating QCLD or WEIGHT'
-               CALL M3EXIT ( 'CAL_CFRAC_3D', 0, 0, XMSG, XSTAT1 )
+               CALL M3EXIT ( 'CAL_CFRAC_3D', 0, 0, XMSG, 1 )
             END IF
          END IF
 
@@ -1105,7 +1105,7 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
                      WRITE( LOGDEV,'(/2X,A,4ES12.4)' )
      &                     'SUBSAT, RHUM, RHGRID, ARG = ', SUBSAT, RHUM, RHGRID, ARG
                      XMSG = 'Floating point exception for CFRAC_3D'
-                     CALL M3EXIT ( 'CAL_CFRAC_3D', 0, 0, XMSG, XSTAT1 )
+                     CALL M3EXIT ( 'CAL_CFRAC_3D', 0, 0, XMSG, 1 )
                   END IF
 
                END DO   ! i
@@ -1190,37 +1190,37 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
             ALLOCATE ( ACM_CFRAC( NLAYS,NCOLS,NROWS ), STAT = ASTAT )
             IF ( ASTAT .NE. 0 ) THEN
                XMSG = 'Failure allocating ACM_CFRAC'
-               CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+               CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
             END IF
             ALLOCATE ( ACM_QC( NLAYS,NCOLS,NROWS ), STAT = ASTAT )
             IF ( ASTAT .NE. 0 ) THEN
                XMSG = 'Failure allocating ACM_QC'
-               CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+               CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
             END IF
             ALLOCATE ( ACM_QI( NLAYS,NCOLS,NROWS ), STAT = ASTAT )
             IF ( ASTAT .NE. 0 ) THEN
                XMSG = 'Failure allocating ACM_QI'
-               CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+               CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
             END IF
             ALLOCATE ( ACM_QR( NLAYS,NCOLS,NROWS ), STAT = ASTAT )
             IF ( ASTAT .NE. 0 ) THEN
                XMSG = 'Failure allocating ACM_QR'
-               CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+               CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
             END IF
             ALLOCATE ( ACM_QG( NLAYS,NCOLS,NROWS ), STAT = ASTAT )
             IF ( ASTAT .NE. 0 ) THEN
                XMSG = 'Failure allocating ACM_QG'
-               CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+               CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
             END IF
             ALLOCATE ( ACM_CLOUDS( NCOLS,NROWS ), STAT = ASTAT )
             IF ( ASTAT .NE. 0 ) THEN
                XMSG = 'Failure allocating ACM_CLOUDS'
-               CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+               CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
             END IF
             ALLOCATE ( ACM_AVE_H2O( NCOLS,NROWS ), STAT = ASTAT )
             IF ( ASTAT .NE. 0 ) THEN
                XMSG = 'Failure allocating ACM_AVE_H2O'
-               CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+               CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
             END IF
  
             ACM_CLOUDS  = 0.0

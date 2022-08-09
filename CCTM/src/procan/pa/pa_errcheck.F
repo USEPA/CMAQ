@@ -496,7 +496,7 @@ c..If all species requested, insert all species into position
                   CALL M3MESG( MSG )
                   WRITE( MSG, 94840 )
                   CALL M3MESG( MSG )
-                  CALL M3EXIT( 'ERRCHECK', IZERO, IZERO, ' ', XSTAT1 )
+                  CALL M3EXIT( 'ERRCHECK', IZERO, IZERO, ' ', 1 )
                END IF
 
                OFFSET = PAINDX - 1 + N_CGRID_SPC - NOUT
@@ -562,7 +562,7 @@ c determine NIRRRXNS
       ALLOCATE( NIRRRXNS( NIRRVAR ), STAT = ASTAT )   ! NIRRVAR .ge. NIRROUT
       IF ( ASTAT .NE. 0 ) THEN
          MSG = 'ERROR 1 allocating IRR variables'
-         CALL M3EXIT ( 'PA_ERRCHECK', 0, 0, MSG, XSTAT2 )
+         CALL M3EXIT ( 'PA_ERRCHECK', 0, 0, MSG, 2 )
       END IF
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -633,7 +633,7 @@ c..Flag reactions included in Cycles for elimination in operators
      &          IRRCOEF( NIRRVAR,MXNIRRRXNS ), STAT = ASTAT )
       IF ( ASTAT .NE. 0 ) THEN
          MSG = 'ERROR 2 allocating IRR variables'
-         CALL M3EXIT ( 'PA_ERRCHECK', 0, 0, MSG, XSTAT2 )
+         CALL M3EXIT ( 'PA_ERRCHECK', 0, 0, MSG, 2 )
       END IF
 
       IRRRXN  = IRRRXN_TMP( 1:NIRRVAR,1:MXNIRRRXNS )
@@ -767,7 +767,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       IF ( LERREND ) THEN
          WRITE( MSG, 95740 )
          CALL M3MESG( MSG )
-         CALL M3EXIT( 'ERRCHECK', IZERO, IZERO, ' ', XSTAT1 )
+         CALL M3EXIT( 'ERRCHECK', IZERO, IZERO, ' ', 1 )
       ELSE
          WRITE( MSG, 95760 )
          CALL M3MESG( MSG )

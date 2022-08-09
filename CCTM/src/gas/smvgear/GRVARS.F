@@ -404,7 +404,7 @@ C-----------------------------------------------------------------------
             IF ( IOS .NE. 0 ) THEN
                MSG = '*** Memory allocation failed for '
      &              // 'IJDECA, IJDECB, IKDECA, IKDECB, KJDECA,or KJDECB'
-               CALL M3EXIT( PNAME, JDATE, JTIME, MSG, XSTAT2 )
+               CALL M3EXIT( PNAME, JDATE, JTIME, MSG, 2 )
             END IF
             IJDECA = 0   ! array assignment
             IJDECB = 0   ! array assignment
@@ -434,13 +434,13 @@ C-----------------------------------------------------------------------
      &              // 'IDEC1LO, IDEC1HI, INEW2OLD, IOLD2NEW, JHIZ1, JHIZ2, '
      &              // 'KZHI0, KZHI1, KZILCH, KZLO1, KZLO2, '
      &              // 'MZHI0, MZHI1, MZILCH, MZLO1, or MZLO2'
-               CALL M3EXIT( PNAME, JDATE, JTIME, MSG, XSTAT2 )
+               CALL M3EXIT( PNAME, JDATE, JTIME, MSG, 2 )
             END IF
 
             ALLOCATE ( JARRAYPT( NUMB_MECH_SPC, NUMB_MECH_SPC, NCS2 ), STAT = IOS )
             IF ( IOS .NE. 0 ) THEN
                MSG = '*** Memory allocation failed for JARRAYPT'
-               CALL M3EXIT( PNAME, JDATE, JTIME, MSG, XSTAT2 )
+               CALL M3EXIT( PNAME, JDATE, JTIME, MSG, 2 )
             END IF
             JARRAYPT = 0   ! array assignment
 
@@ -452,7 +452,7 @@ C-----------------------------------------------------------------------
             IF ( IOS .NE. 0 ) THEN
                MSG = '*** Memory allocation failed for '
      &             // 'BLKCONC, CNEW, EMBLK, GLOSS, or VDIAG'
-               CALL M3EXIT( PNAME, JDATE, JTIME, MSG, XSTAT2 )
+               CALL M3EXIT( PNAME, JDATE, JTIME, MSG, 2 )
             END IF
 
 #ifdef sens
@@ -461,7 +461,7 @@ C-----------------------------------------------------------------------
      &                CAVEG( BLKSIZE,NUMB_MECH_SPC ), STAT = IOS )
            IF ( IOS .NE. 0 ) THEN
               MSG = 'ERROR allocating CINIT,CFINI,CAVEG'
-              CALL M3EXIT( PNAME, JDATE, JTIME, MSG, XSTAT2 )
+              CALL M3EXIT( PNAME, JDATE, JTIME, MSG, 2 )
            END IF
 #endif
 
@@ -475,7 +475,7 @@ C-----------------------------------------------------------------------
             IF ( IOS .NE. 0 ) THEN
                MSG = '*** Memory allocation failed for'
      &              // ' CCOL, CROW, CLEV, BLKCNO, BLKLEN, NORDCELL, or ERRMX2'
-               CALL M3EXIT( PNAME, JDATE, JTIME, MSG, XSTAT2 )
+               CALL M3EXIT( PNAME, JDATE, JTIME, MSG, 2 )
             END IF
 
 c..cell & solver data
@@ -488,7 +488,7 @@ c..cell & solver data
            IF ( IOS .NE. 0 ) THEN
               MSG = 'ERROR allocating BLKTEMP, BLKPRES, BLKCH2O, BLKDENS, '
      &            // 'BLKSVOL, BLKSEAWATER '
-              CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT2 )
+              CALL M3EXIT( PNAME, 0, 0, MSG, 2 )
            END IF
 
 
@@ -496,19 +496,19 @@ c..cell & solver data
      &               BLKHET( BLKSIZE, NHETERO ), STAT = IOS )    
            IF ( IOS .NE. 0 ) THEN
                 MSG = 'ERROR allocating RJBLK or BLKHET'
-                CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT2 )
+                CALL M3EXIT( PNAME, 0, 0, MSG, 2 )
            END IF
 
           ALLOCATE( FORWARD_CONV( NUMB_MECH_SPC ),
      &              REVERSE_CONV( NUMB_MECH_SPC ), STAT = IOS )
           IF ( IOS .NE. 0 ) THEN
              MSG = 'ERROR allocating FORWARD_CONV or REVERSE_CONV'
-             CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT2 )
+             CALL M3EXIT( PNAME, 0, 0, MSG, 2 )
           END IF
 
           IF( .NOT. MAP_CHEMISTRY_SPECIES() )THEN
                MSG = 'Detected above error(s) when mapping Chemistry species from CGRID species'
-               CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT2 )
+               CALL M3EXIT( PNAME, 0, 0, MSG, 2 )
           END IF
 
           DO N = 1, NUMB_MECH_SPC
@@ -521,14 +521,14 @@ c..cell & solver data
      &              NDERIVP ( NRXNS,NCS2 ), STAT = IOS )
           IF ( IOS .NE. 0 ) THEN
                MSG = 'ERROR allocating NKUSERAT, NDERIVL or NDERIVP'
-               CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT2 )
+               CALL M3EXIT( PNAME, 0, 0, MSG, 2 )
           END IF
 
           ALLOCATE(    RK( BLKSIZE,NRXNS ),
      &              RXRAT( BLKSIZE,NRXNS ), STAT = IOS )
           IF ( IOS .NE. 0 ) THEN
              MSG = 'ERROR allocating RK  or RXRAT'
-             CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT2 )
+             CALL M3EXIT( PNAME, 0, 0, MSG, 2 )
           END IF
          
           ALLOCATE( JARRL( NRXNS,MXRR,NCS2 ),
@@ -537,14 +537,14 @@ c..cell & solver data
      &              JPIAL( NRXNS,MXRP,NCS2 ), STAT = IOS )
           IF ( IOS .NE. 0 ) THEN
              MSG = 'ERROR allocating JARRL, JARRP, JLIAL, or JPIAL'
-             CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT2 )
+             CALL M3EXIT( PNAME, 0, 0, MSG, 2 )
           END IF
 
           ALLOCATE( IRM2( NRXNS,MXRCT+MXPRD,NCS2 ),
      &              ICOEFF( NRXNS,MXRP,NCS2 ), STAT = IOS )
           IF ( IOS .NE. 0 ) THEN
                MSG = 'ERROR allocating IRM2 or ICOEFF'
-               CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT2 )
+               CALL M3EXIT( PNAME, 0, 0, MSG, 2 )
           END IF
 
          END SUBROUTINE GRVARS_INIT

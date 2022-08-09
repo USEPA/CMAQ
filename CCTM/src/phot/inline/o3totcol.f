@@ -109,7 +109,7 @@
 
         if ( tmunit .lt. 0 ) then
           xmsg = 'Error opening ' // tmfile
-          call m3exit ( pname, jdate, 0, xmsg, xstat1 )
+          call m3exit ( pname, jdate, 0, xmsg, 1 )
         end if
 
         read( tmunit, '(5x,i7)') nlat
@@ -121,13 +121,13 @@
         allocate ( lat( nlat ), stat = allocstat )
         if ( allocstat .ne. 0 ) then
           xmsg = 'Failure allocating lat'
-          call m3exit ( pname, jdate, 0, xmsg, xstat1 )
+          call m3exit ( pname, jdate, 0, xmsg, 1 )
         end if
 
         allocate ( lon( nlon ), stat = allocstat )
         if ( allocstat .ne. 0 ) then
           xmsg = 'Failure allocating lon'
-          call m3exit ( pname, jdate, 0, xmsg, xstat1 )
+          call m3exit ( pname, jdate, 0, xmsg, 1 )
         end if
         
 ! Assign values to array of longitudes: lon
@@ -148,13 +148,13 @@
         allocate ( t( nt ), stat = allocstat )
         if ( allocstat .ne. 0 ) then
           xmsg = 'Failure allocating T'
-          call m3exit ( pname, jdate, 0, xmsg, xstat1 )
+          call m3exit ( pname, jdate, 0, xmsg, 1 )
         end if
 
         allocate ( oz( nlat, nlon, 2 ), stat = allocstat )
         if ( allocstat .ne. 0 ) then
           xmsg = 'Failure allocating oz '
-          call m3exit ( pname, jdate, 0, xmsg, xstat1 )
+          call m3exit ( pname, jdate, 0, xmsg, 1 )
         end if
 
         rewind( tmunit )
@@ -521,7 +521,7 @@
 !     &       oz( ilat,   ilon+1, 2 ), oz( ilat  , ilon  , 2 ), 
 !     &       oz( ilat+1, ilon+1, 2 ), oz( ilat+1, ilon  , 2 )
 !        write(logdev,'(A,20(F10.4,1X))')'Weights, x1, x2,x3: ',x1, x2,x3
-!        CALL M3EXIT( 'o3totcol', JDATE, JTIME, XMSG, XSTAT1 )
+!        CALL M3EXIT( 'o3totcol', JDATE, JTIME, XMSG, 1 )
       else if ( ozone .gt. 800.0 ) then
 !        xmsg = 'interpolated ozone column above 800 DU'
 !        write(logdev,'(A,20(F10.4,1X))')'For time:',tdate_temp
@@ -536,7 +536,7 @@
 !     &       oz( ilat,   ilon+1, 2 ), oz( ilat  , ilon  , 2 ), 
 !     &       oz( ilat+1, ilon+1, 2 ), oz( ilat+1, ilon  , 2 )
 !        write(logdev,'(A,20(F10.4,1X))')'Weights, x1, x2,x3: ',x1, x2,x3
-!        CALL M3EXIT( 'o3totcol', JDATE, JTIME, XMSG, XSTAT1 )
+!        CALL M3EXIT( 'o3totcol', JDATE, JTIME, XMSG, 1 )
         ozone = 800.0
       end if
 

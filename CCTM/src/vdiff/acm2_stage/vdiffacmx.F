@@ -225,7 +225,7 @@ C set auxiliary depv arrays
      &              EMIS_OVER_VD ( N_SPC_DEPV ), STAT = ASTAT )
          IF ( ASTAT .NE. 0 ) THEN
             XMSG = 'Failure allocating DD_FAC, DDBF, DEPVCR, EFAC1, EFAC2, or EMIS_OVER_VDs'
-            CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
+            CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, 1 )
          END IF
 
          IF ( PRESENT ( DDEPJ ) ) XMOSAIC = .TRUE.
@@ -236,21 +236,21 @@ C set auxiliary depv arrays
      &                 DEPVJCR( Tile_Data%N_LUFRAC,N_SPC_DEPV ), STAT = ASTAT )
             IF ( ASTAT .NE. 0 ) THEN
                XMSG = 'Failure allocating DD_FACJ, DDBFJ or DEPVJCR'
-               CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
+               CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, 1 )
             END IF
          END IF   ! if Mosaic
 
          ALLOCATE ( TMP_BD_EMIS( N_BD_EMIS ), STAT = ASTAT )
          IF ( ASTAT .NE. 0 ) THEN
             XMSG = 'Failure allocating TMP_BD_EMIS'
-            CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
+            CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, 1 )
          END IF
 
          ALLOCATE ( CONC( N_SPC_DIFF,NLAYS ),
      &              EMIS( N_SPC_DIFF,NLAYS ), STAT = ASTAT )
          IF ( ASTAT .NE. 0 ) THEN
             XMSG = 'Failure allocating CONC or EMIS'
-            CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
+            CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, 1 )
          END IF
          CONC = 0.0; EMIS = 0.0   ! array assignment
 
@@ -258,7 +258,7 @@ C set auxiliary depv arrays
      &              UU( N_SPC_DIFF,NLAYS ), STAT = ASTAT )
          IF ( ASTAT .NE. 0 ) THEN
             XMSG = 'Failure allocating DD or UU'
-            CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
+            CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, 1 )
          END IF
          DD = 0.0; UU = 0.0   ! array assignment
 
@@ -288,13 +288,13 @@ C set auxiliary depv arrays
      &               SA_UU ( N_SPCTAG, NLAYS ), STAT = ASTAT )
          IF ( ASTAT .NE. 0 ) THEN
             XMSG = 'Failure ISAM diffusion variables'
-            CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
+            CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, 1 )
          END IF
          ALLOCATE (  SAFRAC ( N_SPCTAG ),
      &               ISAM_DEPV( N_SPCTAG ), STAT = ASTAT )
          IF ( ASTAT .NE. 0 ) THEN
             XMSG = 'Failure ISAM depv variables'
-            CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
+            CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, 1 )
          END IF
          
          ALLOCATE ( SA_NO2( NTAG_SA ),
@@ -302,7 +302,7 @@ C set auxiliary depv arrays
      &              INDEX_SA_NH3 ( NTAG_SA ), STAT = ASTAT )
          IF ( ASTAT .NE. 0 ) THEN
             XMSG = 'Failure ISAM HONO/NH3 variables'
-            CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
+            CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, 1 )
          END IF
          
          SACONC = 0.0
@@ -346,7 +346,7 @@ C set auxiliary depv arrays
              PLDV_INDEX_NH3 = S
            ELSE
              XMSG = 'NH3 not found in DEPV_SPC array'
-             CALL M3EXIT( 'PLDV_INDEX_NH3', 0, 0, XMSG, XSTAT1 )
+             CALL M3EXIT( 'PLDV_INDEX_NH3', 0, 0, XMSG, 1 )
            END IF
          END IF
 
@@ -448,7 +448,7 @@ C conjoin ACM & EDDY ---------------------------------------------------
      &                             SEDDY( 1,C,R ), MEDDY, FNL, Met_Data%HOL( C,R )
                XMSG = '*** ACM fails ***'
                WRITE( LOGDEV,*)' c,r=', gl_c,gl_r,' pbl,ust=',Met_Data%PBL( C,R ),Met_Data%USTAR( C,R )
-!               CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT2 )
+!               CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, 2 )
             END IF
 
             IF ( ( FNL .LE. 0.0 ) .OR.            ! never gonna happen for CONVCT
@@ -693,7 +693,7 @@ C Pass selected N species to the BDSNP Soil NO emissions scheme
                        XMSG = 'Negative Deposition'
 !                  WRITE( LOGDEV,*) 'BDSNP Negative Deposition vdiff, variable:', 
 !     &            TRIM( DV2DF_SPC( V )), ( DDBF(V)- DDEP( V,C,R) ), C, R                  
-!                      CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
+!                      CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, 1 )
                        CALL GET_N_DEP (DV2DF_SPC( V ), 0/
      &                           DTSEC, C, R )
                       else

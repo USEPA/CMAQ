@@ -116,7 +116,7 @@ C***********************************************************************
          ALLOCATE ( CEFF( BLKSIZE, NUMB_MECH_SPC ), STAT = IOS )
          IF ( IOS .NE. 0 ) THEN
             MSG = '*** Memory allocation error for CEFF'
-            CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
+            CALL M3EXIT( PNAME, 0, 0, MSG, 1 )
          END IF
       END IF
 

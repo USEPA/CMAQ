@@ -145,7 +145,7 @@ C...include files
      &              Tile_Data%Aleaf        ( n_stage_lu ),STAT = ALLOCSTAT )
          If ( ALLOCSTAT .Ne. 0 ) Then
             XMSG = 'Failure allocating tile land use specific data'
-            Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+            Call M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
          End If
 
 ! STAGE land use 
@@ -172,7 +172,7 @@ C...include files
          ALLOCATE ( BUFF2D( ncols,nrows ), STAT = ALLOCSTAT )
          If ( ALLOCSTAT .Ne. 0 ) Then
             XMSG = 'Failure allocating 2D Buffers'
-            Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+            Call M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
          End If
          
          ALLOCATE ( fseas          ( ncols,nrows ),
@@ -185,7 +185,7 @@ C...include files
      &              lu_mean_ustar  ( ncols,nrows ),  STAT = ALLOCSTAT )
          If ( ALLOCSTAT .Ne. 0 ) Then
             XMSG = 'Failure allocating MOSAIC 2D variables'
-            Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+            Call M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
          End If
          f_land        = 0.0
 
@@ -194,7 +194,7 @@ C...include files
      &                 lstwettime     ( ncols,nrows ), STAT = ALLOCSTAT )
             If ( ALLOCSTAT .Ne. 0 ) Then
                XMSG = 'Failure allocating MOSAIC lstwetdate and lstwettime'
-               Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+               Call M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
             End If
             lstwetdate  = 0
             lstwettime  = 0
@@ -212,7 +212,7 @@ C...include files
      &              STAT = ALLOCSTAT ) 
          If ( ALLOCSTAT .Ne. 0 ) Then
             XMSG = 'Failure allocating MOSAIC deposition velocities'
-            Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+            Call M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
          End If
          Tile_Data%Lu_Vd     = 0.0
          Tile_Data%Grd_Vd    = 0.0
@@ -234,7 +234,7 @@ C...include files
      &              is_water ( Tile_Data%n_lufrac ), STAT = ALLOCSTAT )   
          If ( ALLOCSTAT .Ne. 0 ) Then
             XMSG = 'Failure allocating is_ag, is_agmos, is_water'
-            Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+            Call M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
          End If
          is_ag    = .FALSE.
          is_agmos = .FALSE.

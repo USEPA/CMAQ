@@ -654,7 +654,7 @@ C-----------------------------------------------------------------------
                IF ( .NOT. CURRSTEP( WDATE, WTIME, STDATE, STTIME, TSTEP( 1 ),
      &                              CDATE, CTIME ) ) THEN
                   XMSG = 'Cannot get step date and time'
-                  CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
+                  CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 3 )
                END IF
                WDATE = CDATE; WTIME = CTIME
                WSTEP = 0
@@ -670,7 +670,7 @@ C-----------------------------------------------------------------------
                      IF ( .NOT. IO_PE_INCLUSIVE ) THEN
                         IF ( .NOT. OPEN3( CTM_DEPV_DIAG, FSREAD3, PNAME ) ) THEN
                            XMSG = 'Could not open ' // TRIM( CTM_DEPV_DIAG )
-                           CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+                           CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
                         END IF
                      END IF
                   END IF
@@ -694,7 +694,7 @@ C-----------------------------------------------------------------------
                      IF ( .NOT. WRITE3( CTM_DEPV_DIAG, UNIQUE_GDEPV( NDX ),
      &                                  WDATE, WTIME, DBUFF ) ) THEN
                          XMSG = 'Could not write ' // CTM_DEPV_DIAG // ' file'
-                         CALL M3EXIT ( PNAME, WDATE, WTIME, XMSG, XSTAT1 )
+                         CALL M3EXIT ( PNAME, WDATE, WTIME, XMSG, 1 )
                      END IF
 
                   END IF
@@ -715,7 +715,7 @@ C-----------------------------------------------------------------------
                      IF ( .NOT. WRITE3( CTM_DEPV_DIAG, UNIQUE_GDEPV( NDX ),
      &                                  WDATE, WTIME, DBUFF ) ) THEN
                          XMSG = 'Could not write ' // CTM_DEPV_DIAG // ' file'
-                         CALL M3EXIT ( PNAME, WDATE, WTIME, XMSG, XSTAT1 )
+                         CALL M3EXIT ( PNAME, WDATE, WTIME, XMSG, 1 )
                      END IF
 
                   END IF
@@ -734,7 +734,7 @@ C-----------------------------------------------------------------------
                   IF ( .NOT. WRITE3( CTM_DEPV_DIAG, UNIQUE_ADEPV( N ),
      &                               WDATE, WTIME, DBUFF ) ) THEN
                       XMSG = 'Could not write ' // CTM_DEPV_DIAG // ' file'
-                      CALL M3EXIT ( PNAME, WDATE, WTIME, XMSG, XSTAT1 )
+                      CALL M3EXIT ( PNAME, WDATE, WTIME, XMSG, 1 )
                   END IF
 
                END DO

@@ -136,19 +136,19 @@ C  Allocate arrays
      &           //  ' dgacc, dgcor,'
      &           //  ' pdensac, pdensco,'
      &           //  ' xlm, or amu'
-            call m3exit( pname, jdate, jtime, xmsg, xstat1 )
+            call m3exit( pname, jdate, jtime, xmsg, 1 )
          end if
 
          allocate( vsed( nlays,n_ae_spc), stat = astat )
          if ( astat .ne. 0 ) then
             xmsg = 'Failure allocating vsed'
-            call m3exit( pname, jdate, jtime, xmsg, xstat1 )
+            call m3exit( pname, jdate, jtime, xmsg, 1 )
          end if
 
          allocate( sedi_sur( n_ae_spc ), stat = astat )
          if ( astat .ne. 0 ) then
             xmsg = 'Failure allocating sedi_sur'
-            call m3exit( pname, jdate, jtime, xmsg, xstat1 )
+            call m3exit( pname, jdate, jtime, xmsg, 1 )
          end if
 
 C Set the settling vel surrogate pointers according to the depv table

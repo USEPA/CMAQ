@@ -210,7 +210,7 @@ C--------------------------------------------------------------------------
 !               END DO
 !            CASE DEFAULT
 !               xmsg = 'Land use scheme not supported'
-!               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
+!               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 2 )
 !         END SELECT
 
 C **** Read in saved surface layer concentrations
@@ -231,7 +231,7 @@ C **** Read in saved surface layer concentrations
 ! Error handeling section
 !------------------------------------------------------------------------------
 1001     CONTINUE
-         CALL M3EXIT( pname, jdate, jtime, xmsg, xstat1 )
+         CALL M3EXIT( pname, jdate, jtime, xmsg, 1 )
 C-------------------------------------------------------------------------------
 C Format statements.
 C-------------------------------------------------------------------------------
@@ -657,7 +657,7 @@ C******************************************************************************
             WRITE(LOGDEV,*) 'NHS    :',NHS
             WRITE(LOGDEV,*) 'KO     :',KO
             WRITE(LOGDEV,*) 'cgHgII0: ',cgHgII0
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1)
+            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1)
          END IF
 
          CMEDIA( c,r,1 ) = 0.0 ! water
@@ -858,7 +858,7 @@ C******************************************************************************
             XMSG = '*** Negative concentration ***'   
             WRITE(LOGDEV,*) 'awhg',awhg,'HG',HG
             WRITE(LOGDEV,*) 'DGM',DGM,'DRM',DRM             
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
+            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 2 )
 
          END IF 
 

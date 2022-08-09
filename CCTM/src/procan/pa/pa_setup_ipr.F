@@ -105,7 +105,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
                CALL M3MESG( MSG )
                WRITE( MSG, 94020 ) MAXIPROUT
                CALL M3MESG( MSG )
-               CALL M3EXIT( 'GETEXTDAT', IZERO, IZERO, ' ', XSTAT2 )
+               CALL M3EXIT( 'GETEXTDAT', IZERO, IZERO, ' ', 2 )
             END IF
 
             IF ( IPR_OPNAME( NIPR,N )( 1:4 ) .EQ. 'ZADV' ) THEN
@@ -255,7 +255,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
             ELSE
                MSG = 'Unknown Process ' // TRIM(IPR_OPNAME(NIPR,N )) //
      &               ' has been selected in Process Analysis.'
-               CALL M3EXIT( 'PA_SETUP_IPR',0,0,MSG,XSTAT2 )
+               CALL M3EXIT( 'PA_SETUP_IPR',0,0,MSG,2 )
             END IF
          END DO
       END DO
@@ -268,7 +268,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      &          STAT = ASTAT )
       IF ( ASTAT .NE. 0 ) THEN
          MSG = 'ERROR 2 allocating IPR variables'
-         CALL M3EXIT ( 'PA_SETUP_IPR', 0, 0, MSG, XSTAT2 )
+         CALL M3EXIT ( 'PA_SETUP_IPR', 0, 0, MSG, 2 )
       END IF
       IPRNAME = IPRNAME_TMP( 1:NIPRVAR )
       IPRDESC = IPRDESC_TMP( 1:NIPRVAR )
@@ -284,7 +284,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      &           STAT = ASTAT )
       IF ( ASTAT .NE. 0 ) THEN
          MSG = 'ERROR 3 allocating IPR variables'
-         CALL M3EXIT ( 'PA_SETUP_IPR', 0, 0, MSG, XSTAT2 )
+         CALL M3EXIT ( 'PA_SETUP_IPR', 0, 0, MSG, 2 )
       END IF
       
       ! Map IPR Species Names to CGRID
@@ -315,7 +315,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      &          STAT = ASTAT )
       IF ( ASTAT .NE. 0 ) THEN
          MSG = 'ERROR 4 allocating IPR variables'
-         CALL M3EXIT ( 'PA_SETUP_IPR', 0, 0, MSG, XSTAT2 )
+         CALL M3EXIT ( 'PA_SETUP_IPR', 0, 0, MSG, 2 )
       END IF
       MAP_IPRtoCGRID  = MAP_IPRtoCGRID_TMP( 1:N_IPR_SPC,1:MXCGRID )
       SPCOEF          = SPCOEF_TMP( 1:N_IPR_SPC,1:MXCGRID )

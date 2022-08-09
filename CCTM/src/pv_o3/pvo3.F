@@ -141,7 +141,7 @@ C Scale only top layer O3 to PV
      &              CXX( NCOLS,NROWS ), STAT = ALLOCSTAT )
          IF ( ALLOCSTAT .NE. 0 ) THEN
             XMSG = 'Failure allocating CSTARZ, or CXX'
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
          END IF
 
 #ifdef isam
@@ -228,11 +228,11 @@ C   of a 22-layer configuration
                    ELSE
                      XMSG = ' ERROR: Possible overspecification of ' //
      &                      'ISAM tags for PV'
-                     CALL M3EXIT ( 'ISAM_PV', JDATE, JTIME, XMSG, XSTAT1 )
+                     CALL M3EXIT ( 'ISAM_PV', JDATE, JTIME, XMSG, 1 )
                    ENDIF
                  ELSE
                    XMSG = ' ERROR in ISAM PV definitions '
-                   CALL M3EXIT ( 'ISAM_PV', JDATE, JTIME, XMSG, XSTAT1 )
+                   CALL M3EXIT ( 'ISAM_PV', JDATE, JTIME, XMSG, 1 )
                  END IF
                END IF
 #endif

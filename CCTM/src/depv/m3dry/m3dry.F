@@ -307,7 +307,7 @@ C-------------------------------------------------------------------------------
 
          IF ( .NOT. desc3( met_cro_2d ) ) THEN
             xmsg = 'Could not get  met_cro_2d  file description'
-            CALL m3exit( pname, jdate, jtime, xmsg, xstat2 )
+            CALL m3exit( pname, jdate, jtime, xmsg, 2 )
          END IF
 
          xcent = real( xcent3d, 4 )
@@ -826,7 +826,7 @@ C-------------------------------------------------------------------------------
 
 1001  CONTINUE
 
-      CALL m3exit( pname, jdate, jtime, xmsg, xstat1 )
+      CALL m3exit( pname, jdate, jtime, xmsg, 1 )
 
       RETURN
 
