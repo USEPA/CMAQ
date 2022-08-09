@@ -1,38 +1,41 @@
 ## CMAQ Tutorial ##
 
-Author: Elyse Pennington (epenning@caltech.edu)
+Author: Elyse Pennington (epenning@caltech.edu) | v5.3  
+Update: Ben Murphy | v5.4  
 
 ### Modifying a Chemical Mechanism in CMAQ ###
 
 
-Goal: Modify the gas- and aerosol-phase chemical mechanisms in CMAQ, create a new solver, and reflect all the changes in Github. This tutorial includes examples impacting SOA precursors and products, and does not include impacts on ozone or other radical chemistry. Caution: If significant modifications are made to the gas-phase mechanism that alter the radical balance, the ebi implementation of the modified mechanism should be checked against an alternative solver such as ros3 or smvgear. This example does not include extensive modifications.
+Goal: Modify the gas- and aerosol-phase chemical mechanisms in CMAQ, create new solver source code files, and propagate all the changes in Github. This tutorial includes examples with expected impacts on SOA precursors and products, and is not expected to have substantial impacts on ozone or other radical chemistry. Caution: If significant modifications are made to the gas-phase mechanism that alter the radical balance, the ebi implementation of the modified mechanism should be checked against an alternative solver such as ros3 or smvgear. This example does not include extensive modifications of that nature.  
 
-### Files to edit ##
+### Files to generate or edit ##
 1. mech_*.def
 2. AE namelist
 3. GC namelist
 4. NR namelist
-5. EmissCtrl namelist
+5. CMAQ_Control_DESID_*.nml namelist
 6. AERO_DATA.F
 7. SOA_DEFN.F
 8. hlconst.F
-9. SpecDef_*.txt
-10. SpecDef_Dep_*.txt
+9. BIOG_EMIS.F
+10. SpecDef_*.txt (if not using ELMO-supported products)
+11. SpecDef_Dep_*.txt
+12. ELMO_PROC.F
 
 
-### Utilities to use
+### Key Utilities  
 1. chemmech (see [documentation](../../../UTIL/chemmech/README.md))
 2. create_ebi (see [documentation](../../../UTIL/create_ebi/README.md))
-
+*Note that these utilities are automatically run by the Autochem feature of the bldit_cctm.csh script, if it is activated.
 
 <a id=modifychem></a>
 ## Modifying the chemical mechanism ##
-### 1. See the [git instructions](#github) below if you'd like to reflect the chemical mechanism changes in your Github repository.
+### 1. See the [git instructions](#github) below if you would like to propagate the chemical mechanism changes in your Github repository. If you are assigning a new name to your mechanism, create a new folder under $CMAQ_REPO/CCTM/src/MECHS and copy and update the names of all chemical namelist files, the mech_*.def file, the CMAQ_Control_DESID_*.nml namelist, and the SpecDef_*.txt file, if desired.  
 
 
 <a id=mech_def></a>
 ### 2. Edit mech.def.
-The mech.def file lists all of CMAQ's chemical reactions and is located at $CMAQ_REPO/CCTM/src/MECHS/${mechanism}/mech_${mechanism}.def. The [chemmech documentation](../../../UTIL/chemmech/README.md) describes formats for reaction rate constants dependent on temperature, atmospheric number density, water vapor, sunlight, model species and constants such as oxygen and methane mixing ratios. The documentation also gives a more detailed explanation of the mech.def (mechanism definitions) sections and formatting rules.
+The mech.def file lists all of CMAQ chemical reactions and is located at $CMAQ_REPO/CCTM/src/MECHS/${mechanism}/mech_${mechanism}.def. The [chemmech documentation](../../../UTIL/chemmech/README.md) describes formats for reaction rate constants dependent on temperature, atmospheric number density, water vapor, sunlight, model species and constants such as oxygen and methane mixing ratios. The documentation also gives a more detailed explanation of the mech.def (mechanism definitions) sections and formatting rules.
 - All reactions must begin with a name in < > brackets.
 - All reactions must end with # followed by a reaction rate constant with units of cm<sup>3</sup>/(molecules s)
 - In this tutorial, all reactions regenerate the oxidant.
@@ -49,9 +52,9 @@ To form a nonvolatile, accumulation mode SOA species (ANONVJ) from a gas-phase I
 
 <a id=GCnml></a>
 ### 3. Edit GC namelist.
-The GC namelist defines gas-phase species and their physical and chemical properties. It's located at $CMAQ_REPO/CCTM/src/MECHS/${mechanism}/GC_${mechanism}.nml.
+The GC namelist defines gas-phase species and their physical and chemical properties. It is located at $CMAQ_REPO/CCTM/src/MECHS/${mechanism}/GC_${mechanism}.nml.
 You must add a new row for every gas-phase species that was added to [mech.def](#mech_def). See [Chapter 4](../CMAQ_UG_ch04_model_inputs.md) for more information.
-TPROD, SVTPROD1, SVTPROD2, and NONVG from the examples above must be added to the GC namelist because they're gas-phase species. Column descriptions can be found in [Chapter 4](../CMAQ_UG_ch04_model_inputs.md). In this example, TPROD does not participate in dry deposition - similar to many other VOCs in CMAQ - so 'DRYDEP SURR' and 'DDEP' are empty and FAC is -1. NONVG (an IVOC as defined above), SVTPROD1, and SVTPROD2 do participate in dry deposition because of their low volatilities. This tutorial does not explain the process of creating new dry deposition surrogates, but it is possible to do so and replace 'VD_GEN_ALD'. The WET-SCAV SURR are described in the [hlconst.F](#hlconst) section below. 'GC2AE SURR' lists the species that partition between gas and aerosol phases in [SOA_DEFN.F](#SOA_DEFN).
+TPROD, SVTPROD1, SVTPROD2, and NONVG from the examples above must be added to the GC namelist because they are gas-phase species. Column descriptions can be found in [Chapter 4](../CMAQ_UG_ch04_model_inputs.md). In this example, TPROD does not participate in dry deposition - similar to many other VOCs in CMAQ - so 'DRYDEP SURR' and 'DDEP' are empty and FAC is -1. NONVG (an IVOC as defined above), SVTPROD1, and SVTPROD2 do participate in dry deposition because of their low volatilities. This tutorial does not explain the process of creating new dry deposition surrogates, but it is possible to do so and replace 'VD_GEN_ALD'. The WET-SCAV SURR are described in the [hlconst.F](#hlconst) section below. 'GC2AE SURR' lists the species that partition between gas and aerosol phases in [SOA_DEFN.F](#SOA_DEFN).
 ```
 !SPECIES        ,MOLWT   ,IC     ,IC_FAC ,BC     ,BC_FAC ,DRYDEP SURR       ,FAC  ,WET-SCAV SURR     ,FAC ,GC2AE SURR     ,GC2AQ SURR,TRNS  ,DDEP  ,WDEP  ,CONC
 'SVTPROD1'      ,216.66  ,''     ,-1     ,''     ,-1     ,'VD_GEN_ALD'      , 1   ,'SVTPROD1'        , 1  ,'SVTPROD1'     ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',
@@ -66,14 +69,12 @@ TPROD, SVTPROD1, SVTPROD2, and NONVG from the examples above must be added to th
 ### 4. Edit AE namelist.
 The AE namelist defines all aerosol-phase species and their physical and chemical properties and is located at $CMAQ_REPO/CCTM/src/MECHS/${mechanism}/AE_${mechanism}.nml
 You must add a new row for every aerosol-phase species added to [AERO_DATA.F](#AERO_DATA). See [Chapter 4](../CMAQ_UG_ch04_model_inputs.md) for more information.
-ANONVJ and the aerosol products from the Odum 2-product model must be added to the AE namelist. The semivolatile Odum 2-product species (SVTPROD1 and SVTPROD2) partition between the gas and accumulation mode aerosol phase with ATPROD1J and ATPROD2J. Column descriptions can be found in [Chapter 4](../CMAQ_UG_ch04_model_inputs.md). 
+ANONV and the aerosol products from the Odum 2-product model must be added to the AE namelist. The semivolatile Odum 2-product species (SVTPROD1 and SVTPROD2) partition between the gas and accumulation mode aerosol phase with ATPROD1 and ATPROD2. Column descriptions can be found in [Chapter 4](../CMAQ_UG_ch04_model_inputs.md). The aerosol species names should omit any suffix indicating the particle mode of the species (e.g. i, j, or k). Instead, users should indicate which modes the species is in using the 'Aitken', 'Accum', and 'Coarse' columns.  
 ```
-!SPECIES   ,MOLWT   ,IC     ,IC_FAC ,BC     ,BC_FAC ,DRYDEP SURR ,FAC ,WET-SCAV SURR  ,FAC ,AE2AQ SURR     ,TRNS    ,DDEP    ,WDEP    ,CONC
-'ATPROD1J' ,216.66  ,''     ,-1     ,''     ,-1     ,'VMASSJ'    , 1  ,'ORG_ACCUM'    , 1  ,'SOA_ACCUM'    ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
-'ATPROD2J' ,182.66  ,''     ,-1     ,''     ,-1     ,'VMASSJ'    , 1  ,'ORG_ACCUM'    , 1  ,'SOA_ACCUM'    ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
-'ANONVJ'   ,135.54  ,''     ,-1     ,''     ,-1     ,'VMASSJ'    , 1  ,'ORG_ACCUM'    , 1  ,'SOA_ACCUM'    ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
-```
-
+!SPECIES   ,MOLWT   ,Aitken  ,Accum  ,Coarse  ,IC     ,IC_FAC ,BC     ,BC_FAC ,DRYDEP SURR ,FAC ,WET-SCAV SURR  ,FAC ,AE2AQ SURR     ,TRNS    ,DDEP    ,WDEP    ,CONC
+'ATPROD1'  ,216.66  ,F       ,T      ,F       ,''     ,-1     ,''     ,-1     ,'VMASSJ'    , 1  ,'ORG_ACCUM'    , 1  ,'SOA_ACCUM'    ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
+'ATPROD2'  ,182.66  ,F       ,T      ,F       ,''     ,-1     ,''     ,-1     ,'VMASSJ'    , 1  ,'ORG_ACCUM'    , 1  ,'SOA_ACCUM'    ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
+'ANONV'    ,135.54  ,F       ,T      ,F       ,''     ,-1     ,''     ,-1     ,'VMASSJ'    , 1  ,'ORG_ACCUM'    , 1  ,'SOA_ACCUM'    ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
 
 
 <a id=NRnml></a>
@@ -85,8 +86,8 @@ The examples used in this tutorial do not include species that need to be added 
 
 
 <a id=EmissCtrl></a>
-### 6. Edit Emissions Control file.
-The Emissions Control file describes how to input emissions and is located at $CMAQ_REPO/CCTM/src/MECHS/${mechanism}/EmissCtrl_${mechanism}.nml. Any new species included in the mech.def or GC, AE, and NR namelists that is directly emitted should be included in this file. Examples of adding new species are given in the !> CUSTOM MAPPING EXAMPLES <! section and further description can be found in the [DESID tutorial](CMAQ_UG_tutorial_emissions.md).
+### 6. Edit DESID Chemical Mapping Control file.
+The DESID Chemical Mapping Control file describes how to input emissions and is located at $CMAQ_REPO/CCTM/src/MECHS/${mechanism}/CMAQ_Control_DESID_${mechanism}.nml. Any new species included in the mech_*.def or GC, AE, and NR namelists that is directly emitted should be included in this file. Examples of adding new species are given in the [DESID tutorial](CMAQ_UG_tutorial_emissions.md).
 
 
 
