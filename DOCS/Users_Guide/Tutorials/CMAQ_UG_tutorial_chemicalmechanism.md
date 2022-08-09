@@ -30,12 +30,12 @@ Goal: Modify the gas- and aerosol-phase chemical mechanisms in CMAQ, create new 
 
 <a id=modifychem></a>
 ## 1. Modifying the chemical mechanism inputs ##
-### 1.1 See the [git instructions](#github) below if you would like to propagate the chemical mechanism changes in your Github repository. If you are assigning a new name to your mechanism, create a new folder under \$CMAQ_REPO/CCTM/src/MECHS and copy and update the names of all chemical namelist files, the mech_*.def file, the CMAQ_Control_DESID_*.nml namelist, and the SpecDef_*.txt file, if desired.  
+### 1.1 See the [git instructions](#github) below if you would like to propagate the chemical mechanism changes in your Github repository. If you are assigning a new name to your mechanism, create a new folder under /$CMAQ_REPO/CCTM/src/MECHS and copy and update the names of all chemical namelist files, the mech_*.def file, the CMAQ_Control_DESID_*.nml namelist, and the SpecDef_*.txt file, if desired.  
 
 
 <a id=mech_def></a>
 ### 1.2 Edit mech_*.def.
-The mech_*.def file lists all of CMAQ chemical reactions and is located at \$CMAQ_REPO/CCTM/src/MECHS/\${mechanism}/mech_\${mechanism}.def. The [chemmech documentation](../../../UTIL/chemmech/README.md) describes formats for reaction rate constants dependent on temperature, atmospheric number density, water vapor, sunlight, model species and constants such as oxygen and methane mixing ratios. The documentation also gives a more detailed explanation of the mech.def (mechanism definitions) sections and formatting rules.
+The mech_*.def file lists all of CMAQ chemical reactions and is located at /$CMAQ_REPO/CCTM/src/MECHS//${mechanism}/mech_/${mechanism}.def. The [chemmech documentation](../../../UTIL/chemmech/README.md) describes formats for reaction rate constants dependent on temperature, atmospheric number density, water vapor, sunlight, model species and constants such as oxygen and methane mixing ratios. The documentation also gives a more detailed explanation of the mech.def (mechanism definitions) sections and formatting rules.
 - All reactions must begin with a name in < > brackets.
 - All reactions must end with # followed by a reaction rate constant with units of cm<sup>3</sup>/(molecules s)
 - In this tutorial, all reactions regenerate the oxidant.
@@ -52,7 +52,7 @@ To form a nonvolatile, accumulation mode SOA species (ANONVJ) from a gas-phase I
 
 <a id=GCnml></a>
 ### 1.3 Edit GC namelist.
-The GC namelist defines gas-phase species and their physical and chemical properties. It is located at \$CMAQ_REPO/CCTM/src/MECHS/\${mechanism}/GC_\${mechanism}.nml.
+The GC namelist defines gas-phase species and their physical and chemical properties. It is located at /$CMAQ_REPO/CCTM/src/MECHS//${mechanism}/GC_/${mechanism}.nml.
 You must add a new row for every gas-phase species that was added to [mech.def](#mech_def). See [Chapter 4](../CMAQ_UG_ch04_model_inputs.md) for more information.
 TPROD, SVTPROD1, SVTPROD2, and NONVG from the examples above must be added to the GC namelist because they are gas-phase species. Column descriptions can be found in [Chapter 4](../CMAQ_UG_ch04_model_inputs.md). In this example, TPROD does not participate in dry deposition - similar to many other VOCs in CMAQ - so 'DRYDEP SURR' and 'DDEP' are empty and FAC is -1. NONVG (an IVOC as defined above), SVTPROD1, and SVTPROD2 do participate in dry deposition because of their low volatilities. This tutorial does not explain the process of creating new dry deposition surrogates, but it is possible to do so and replace 'VD_GEN_ALD'. The WET-SCAV SURR are described in the [hlconst.F](#hlconst) section below. 'GC2AE SURR' lists the species that partition between gas and aerosol phases in [SOA_DEFN.F](#SOA_DEFN).
 ```
@@ -67,7 +67,7 @@ TPROD, SVTPROD1, SVTPROD2, and NONVG from the examples above must be added to th
 
 <a id=AEnml></a>
 ### 1.4 Edit AE namelist.
-The AE namelist defines all aerosol-phase species and their physical and chemical properties and is located at \$CMAQ_REPO/CCTM/src/MECHS/\${mechanism}/AE_\${mechanism}.nml
+The AE namelist defines all aerosol-phase species and their physical and chemical properties and is located at /$CMAQ_REPO/CCTM/src/MECHS//${mechanism}/AE_/${mechanism}.nml
 You must add a new row for every aerosol-phase species added to [AERO_DATA.F](#AERO_DATA). See [Chapter 4](../CMAQ_UG_ch04_model_inputs.md) for more information.
 ANONV and the aerosol products from the Odum 2-product model must be added to the AE namelist. The semivolatile Odum 2-product species (SVTPROD1 and SVTPROD2) partition between the gas and accumulation mode aerosol phase with ATPROD1 and ATPROD2. Column descriptions can be found in [Chapter 4](../CMAQ_UG_ch04_model_inputs.md). The aerosol species names should omit any suffix indicating the particle mode of the species (e.g. i, j, or k). Instead, users should indicate which modes the species is in using the 'Aitken', 'Accum', and 'Coarse' columns.  
 ```
@@ -79,21 +79,21 @@ ANONV and the aerosol products from the Odum 2-product model must be added to th
 
 <a id=NRnml></a>
 ### 1.5 Edit NR namelist.
-The NR namelist defines gas-phase species that are not in the mech.def file, and their physical and chemical properties. Species in this file are typically the semivolatile gases that partition between the gas- and aerosol-phases. It is located at \$CMAQ_REPO/CCTM/src/MECHS/\${mechanism}/NR_\${mechanism}.nml.
+The NR namelist defines gas-phase species that are not in the mech.def file, and their physical and chemical properties. Species in this file are typically the semivolatile gases that partition between the gas- and aerosol-phases. It is located at /$CMAQ_REPO/CCTM/src/MECHS//${mechanism}/NR_/${mechanism}.nml.
 You must add a new row for every nonreactive species, if any, added to the chemical mechanism that is not explicitly modeled in [mech.def](#mech_def). See [Chapter 4](../CMAQ_UG_ch04_model_inputs.md) for descriptions of the information in each column.
-The examples used in this tutorial do not include species that need to be added to the NR namelist. Follow the sesquiterpene SOA formation mechanism as an example of NR species (e.g. follow SESQRXN, SVSQT, and ASQTJ in \$CMAQ_REPO/CCTM/src/MECHS/\${mechanism}/ and \$CMAQ_REPO/CCTM/src/aero/aero6/). If an aerosol species is added via the NR namelist, its name must (for now) include the suffix denoting the size of the mode the species is active in (i.e. i, j, or k).
+The examples used in this tutorial do not include species that need to be added to the NR namelist. Follow the sesquiterpene SOA formation mechanism as an example of NR species (e.g. follow SESQRXN, SVSQT, and ASQTJ in /$CMAQ_REPO/CCTM/src/MECHS//${mechanism}/ and /$CMAQ_REPO/CCTM/src/aero/aero6/). If an aerosol species is added via the NR namelist, its name must (for now) include the suffix denoting the size of the mode the species is active in (i.e. i, j, or k).
 
 
 
 <a id=DESID_Ctrl></a>
 ### 1.6 Edit DESID Chemical Mapping Control file.
-The DESID Chemical Mapping Control file describes how to input emissions and is located at \$CMAQ_REPO/CCTM/src/MECHS/\${mechanism}/CMAQ_Control_DESID_\${mechanism}.nml. Any new species included in the mech_*.def or GC, AE, and NR namelists that is directly emitted should be included in this file. Examples of adding new species are given in the [DESID tutorial](CMAQ_UG_tutorial_emissions.md).
+The DESID Chemical Mapping Control file describes how to input emissions and is located at /$CMAQ_REPO/CCTM/src/MECHS//${mechanism}/CMAQ_Control_DESID_/${mechanism}.nml. Any new species included in the mech_*.def or GC, AE, and NR namelists that is directly emitted should be included in this file. Examples of adding new species are given in the [DESID tutorial](CMAQ_UG_tutorial_emissions.md).
 
 
 
 <a id=SpecDef></a>
 ### 1.7 Edit SpecDef file.
-The SpecDef file is used to aggregate CMAQ output species (e.g. into PM<sub>2.5</sub>) and convert units. It is used to run the post-processing tool [combine](../../../POST/combine/README.md) and is located at \$CMAQ_REPO/CCTM/src/MECHS/\${mechanism}/SpecDef_{mechanism}.txt.
+The SpecDef file is used to aggregate CMAQ output species (e.g. into PM<sub>2.5</sub>) and convert units. It is used to run the post-processing tool [combine](../../../POST/combine/README.md) and is located at /$CMAQ_REPO/CCTM/src/MECHS//${mechanism}/SpecDef_{mechanism}.txt.
 To convert the units of a gas-phase species to ppb, add the following line:
 ```
 NEWGAS          ,ppbV      ,1000.*NEWGAS[1]
@@ -118,7 +118,7 @@ In CMAQv5.4, the new Explicit and Lumped CMAQ Model Output (ELMO) module perform
 
 <a id=SOA_DEFN></a>
 ### 1.8 Edit SOA_DEFN.F
-SOA_DEFN.F describes SOA precursors, SOA species and their properties dealing with gas to particle partitioning. It is located at \$CMAQ_REPO/CCTM/src/aero/aero6/SOA_DEFN.F. Note that the aero7 directory is linked to the aero6 directory.
+SOA_DEFN.F describes SOA precursors, SOA species and their properties dealing with gas to particle partitioning. It is located at /$CMAQ_REPO/CCTM/src/aero/aero6/SOA_DEFN.F. Note that the aero7 directory is linked to the aero6 directory.
 
 You must add a row for every new SOA species and increase n_oa_list by the number of species added to the list.
 
@@ -137,7 +137,7 @@ Note that these aerosol definitions do not include a specification of the size b
 
 <a id=AERO_DATA></a>
 ### 1.9 Edit AERO_DATA.F
-AERO_DATA.F defines all aerosol species and some of their properties. It is located at \$CMAQ_REPO/CCTM/src/aero/aero6/AERO_DATA.F. Note that the aero7 directory is linked to the aero6 directory.
+AERO_DATA.F defines all aerosol species and some of their properties. It is located at /$CMAQ_REPO/CCTM/src/aero/aero6/AERO_DATA.F. Note that the aero7 directory is linked to the aero6 directory.
 
 You must add a row for every new aerosol species and increase n_aerolist be the number of species added to the list.
 
@@ -157,7 +157,7 @@ After this category, the user must choose whether the species is to be treated a
 
 <a id=hlconst></a>
 ### 1.10 Edit hlconst.F
-hlconst.F calculates Henry's Law constants for species that participate in wet deposition. It's located in the relevant cloud directory at \$CMAQ_REPO/CCTM/src/cloud/*/hlconst.F.
+hlconst.F calculates Henry's Law constants for species that participate in wet deposition. It's located in the relevant cloud directory at /$CMAQ_REPO/CCTM/src/cloud/*/hlconst.F.
 
 Each new row corresponds to a name used in the 'WET-SCAV SURR' column of the [GC namelist](#GCnml). Increase MXSPCS by the number of species added to the list.
 
@@ -193,9 +193,9 @@ Two options are possible for this step. There are several utilities that must be
 #### 2.2.a1 Build chemmech.
 Copy the source code from CMAQ_REPO to CMAQ_PROJECT.
 ```
-cp -r \$CMAQ_REPO/UTIL/chemmech/ $CMAQ_PROJECT/UTIL/
+cp -r /$CMAQ_REPO/UTIL/chemmech/ $CMAQ_PROJECT/UTIL/
 ```
-Edit \$CMAQ_PROJECT/UTIL/chemmech/scripts/bldit_chemmech.csh to make sure the correct compiler is set. Then run the build script.
+Edit /$CMAQ_PROJECT/UTIL/chemmech/scripts/bldit_chemmech.csh to make sure the correct compiler is set. Then run the build script.
 ```
 ./bldit_chemmech.csh
 ```
@@ -208,7 +208,7 @@ Edit run_chemmech.csh
 - Set Mpath to the location of the [mech.def](#mech_def) file you modified above.
 - Change the location of the tracer namelist file
 ```
-set TR_NML = \$CMAQ_REPO/CCTM/src/MECHS/trac0/Species_Table_TR_0.nml
+set TR_NML = /$CMAQ_REPO/CCTM/src/MECHS/trac0/Species_Table_TR_0.nml
 ```
 Run:
 ```
@@ -220,16 +220,16 @@ Normal Completion of CHEMMECH
 Author is NAME
 output written to ../output/saprc07tic_ae7i_aq-Sep-02-2020
 ```
-and will write RXNS_DATA_MODULE.F90 and RXNS_FUNC_MODULE.F90 to the output path. Check the output mechanism csv, html, and markdown files to confirm that chemmech ran correctly. Copy the two Fortran files to \$CMAQ_REPO/CCTM/src/MECHS/\${Mechanism}/.
+and will write RXNS_DATA_MODULE.F90 and RXNS_FUNC_MODULE.F90 to the output path. Check the output mechanism csv, html, and markdown files to confirm that chemmech ran correctly. Copy the two Fortran files to /$CMAQ_REPO/CCTM/src/MECHS//${Mechanism}/.
 
 
 <a id=ebi_build></a>
 #### 2.2.a3 Build+run create_ebi.
 Copy the source code from CMAQ_REPO to CMAQ_PROJECT.
 ```
-cp -r \$CMAQ_REPO/UTIL/create_ebi/ \$CMAQ_PROJECT/UTIL/
+cp -r /$CMAQ_REPO/UTIL/create_ebi/ /$CMAQ_PROJECT/UTIL/
 ```
-Move bldrun_create_ebi.csh up one directory (from \$CMAQ_PROJECT/UTIL/create_ebi/scripts/ to \$CMAQ_PROJECT/UTIL/create_ebi/). Edit bldrun_create_ebi.csh:
+Move bldrun_create_ebi.csh up one directory (from /$CMAQ_PROJECT/UTIL/create_ebi/scripts/ to /$CMAQ_PROJECT/UTIL/create_ebi/). Edit bldrun_create_ebi.csh:
 - COMPILER
 - Update MECH for your mechanism.
 - Set RXNS_DATA to the location of your chemmech output files.
@@ -261,18 +261,18 @@ Program CR_EBI_SOLVER completed successfully
 if ( F == T ) then
 exit ( )
 ```
-and will write the hr*.F files to \${CMAQ_HOME}/CMAQv533/UTIL/create_ebi/output/ebi_\${Mechanism}-\$DATE-\${COMPILER}/. Copy the hr*.F files to \${CMAQ_REPO}/CCTM/src/gas/ebi_\${Mechanism}/.
+and will write the hr*.F files to /${CMAQ_HOME}/CMAQv533/UTIL/create_ebi/output/ebi_/${Mechanism}-/$DATE-/${COMPILER}/. Copy the hr*.F files to /${CMAQ_REPO}/CCTM/src/gas/ebi_/${Mechanism}/.
 
 
 
 <a id=cctm_build></a>
 #### 2.2.a4 Build the CCTM executable.
-See [Chapter 5](../CMAQ_UG_ch05_running_a_simulation.md) or the [Tutorials](README.md) for more information. This will include all of the new files from \${CMAQ_REPO}/CCTM/src/ in \$CMAQ_PROJECT/CCTM/BLD.
+See [Chapter 5](../CMAQ_UG_ch05_running_a_simulation.md) or the [Tutorials](README.md) for more information. This will include all of the new files from /${CMAQ_REPO}/CCTM/src/ in /$CMAQ_PROJECT/CCTM/BLD.
 
 
 <a id=cmaq_run></a>
 #### 2.2.a5 Run CCTM and post-processing tools.
-See [Chapter 5](../CMAQ_UG_ch05_running_a_simulation.md) for more information about running the CCTM. See [Chapter 8](../CMAQ_UG_ch08_analysis_tools.md) for more information about running AMET, combine, sitecmp, etc. While running these post-processing tools, be sure to set file paths to the new files created in \$CMAQ_REPO or \$CMAQ_PROJECT/CCTM/BLD.
+See [Chapter 5](../CMAQ_UG_ch05_running_a_simulation.md) for more information about running the CCTM. See [Chapter 8](../CMAQ_UG_ch08_analysis_tools.md) for more information about running AMET, combine, sitecmp, etc. While running these post-processing tools, be sure to set file paths to the new files created in /$CMAQ_REPO or /$CMAQ_PROJECT/CCTM/BLD.
 
 
 <a id=autochem></a>
