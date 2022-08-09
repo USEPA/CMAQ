@@ -116,6 +116,7 @@ This and other ELMO keywords are defined in Table G-1.
 | **SATMET**           | DENS, DZ, ZH, CFRAC, PV, PRES, TA |  
 | **SATCONC**          | NO2, SO2, O3, CO, FORM, NH3, AOD_550 |  
 | **ALLCONC**          | All CMAQ Internal Species |  
+
 <sub>#</sup>As noted for red variables in Fig. G-1, several variables are populated for each aerosol mode including diameters, standard deviation, and density, etc.
 
 The ELMO variables are defined in [ELMO_DATA.F](../../../CCTM/src/driver/ELMO_DATA.F). 
