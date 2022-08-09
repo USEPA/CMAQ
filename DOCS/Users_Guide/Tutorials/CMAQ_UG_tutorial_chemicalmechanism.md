@@ -67,7 +67,7 @@ TPROD, SVTPROD1, SVTPROD2, and NONVG from the examples above must be added to th
 
 <a id=AEnml></a>
 ### 1.4 Edit AE namelist.
-The AE namelist defines all aerosol-phase species and their physical and chemical properties and is located at $CMAQ_REPO/CCTM/src/MECHS/${mechanism}/AE_${mechanism}.nml
+The AE namelist defines all aerosol-phase species and their physical and chemical properties and is located at $CMAQ\_REPO/CCTM/src/MECHS/${mechanism}/AE_${mechanism}.nml
 You must add a new row for every aerosol-phase species added to [AERO_DATA.F](#AERO_DATA). See [Chapter 4](../CMAQ_UG_ch04_model_inputs.md) for more information.
 ANONV and the aerosol products from the Odum 2-product model must be added to the AE namelist. The semivolatile Odum 2-product species (SVTPROD1 and SVTPROD2) partition between the gas and accumulation mode aerosol phase with ATPROD1 and ATPROD2. Column descriptions can be found in [Chapter 4](../CMAQ_UG_ch04_model_inputs.md). The aerosol species names should omit any suffix indicating the particle mode of the species (e.g. i, j, or k). Instead, users should indicate which modes the species is in using the 'Aitken', 'Accum', and 'Coarse' columns.  
 ```
@@ -75,13 +75,13 @@ ANONV and the aerosol products from the Odum 2-product model must be added to th
 'ATPROD1'  ,216.66  ,F       ,T      ,F       ,''     ,-1     ,''     ,-1     ,'VMASSJ'    , 1  ,'ORG_ACCUM'    , 1  ,'SOA_ACCUM'    ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
 'ATPROD2'  ,182.66  ,F       ,T      ,F       ,''     ,-1     ,''     ,-1     ,'VMASSJ'    , 1  ,'ORG_ACCUM'    , 1  ,'SOA_ACCUM'    ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
 'ANONV'    ,135.54  ,F       ,T      ,F       ,''     ,-1     ,''     ,-1     ,'VMASSJ'    , 1  ,'ORG_ACCUM'    , 1  ,'SOA_ACCUM'    ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
-
+```
 
 <a id=NRnml></a>
 ### 1.5 Edit NR namelist.
 The NR namelist defines gas-phase species that are not in the mech.def file, and their physical and chemical properties. Species in this file are typically the semivolatile gases that partition between the gas- and aerosol-phases. It is located at $CMAQ_REPO/CCTM/src/MECHS/${mechanism}/NR_${mechanism}.nml.
 You must add a new row for every nonreactive species, if any, added to the chemical mechanism that is not explicitly modeled in [mech.def](#mech_def). See [Chapter 4](../CMAQ_UG_ch04_model_inputs.md) for descriptions of the information in each column.
-The examples used in this tutorial do not include species that need to be added to the NR namelist. Follow the sesquiterpene SOA formation mechanism as an example of NR species (e.g. follow SESQRXN, SVSQT, and ASQTJ in $CMAQ_REPO/CCTM/src/MECHS/${mechanism}/ and $CMAQ_REPO/CCTM/src/aero/aero6/). If an aerosol species is added via the NR namelist, its name must (for now) include the suffix denoting the size of the mode the species is active in (i.e. i, j, or k).
+The examples used in this tutorial do not include species that need to be added to the NR namelist. Follow the sesquiterpene SOA formation mechanism as an example of NR species (e.g. follow SESQRXN, SVSQT, and ASQTJ in $CMAQ\_REPO/CCTM/src/MECHS/${mechanism}/ and $CMAQ_REPO/CCTM/src/aero/aero6/). If an aerosol species is added via the NR namelist, its name must (for now) include the suffix denoting the size of the mode the species is active in (i.e. i, j, or k).
 
 
 
