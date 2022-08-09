@@ -948,8 +948,6 @@ C------------------------------------------------------------------------------
       END DO
       END DO
 
-      VDEMIS = 0.0
-
       DO ISTR = 1, DESID_N_ISTR 
         VNAME = LOCAL_EMVAR( ISTR, FSTREAM )
         IF ( VNAME .EQ. '' ) CYCLE
