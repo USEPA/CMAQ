@@ -59,7 +59,7 @@ Note: While this User's Guide is packaged with the code when it is downloaded or
 
 [Appendix F (Importing bugfixes):](Appendix/CMAQ_UG_appendixF_importing_bugfixes.md) Directions on importing bugfixes from CMAQ GitHub Issues page
 
-[Appendix G (ELMO Output):](Appendix/CMAQ_UG_appendixG_elmo_output.md) Description of the Explicit and Lumped CMAQ Model Output Module
+[Appendix G (ELMO Module):](Appendix/CMAQ_UG_appendixG_elmo_output.md) Description of the Explicit and Lumped CMAQ Model Output Module
 
 ***
 
