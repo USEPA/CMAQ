@@ -245,14 +245,14 @@ Upgrades for version 5.3 include larger surface resistances for deposition to sn
 
 <!-- END COMMENT -->
 
-In CMAQ v5.3., a new tiled, land use specific, dry deposition scheme, the Surface Tiled Aerosol and Gaseous Exchange (STAGE), option has been developed to better estimate atmospheric deposition for terrestrial and aquatic ecosystem health and applications to evaluate the impact of dry deposition on ambient air quality. This new scheme explicitly supports Weather Research and Forecasting (WRF) simulations with a variety of land surface schemes (Noah, Pleim-Xiu, etc). The model resistance framework, [Figure 6-2](#Figure6-2), parameterizes air-surface exchange as a gradient process and is used for both bidirectional exchange and dry deposition following the widely used resistance model of Nemitz et al. (2001). Grid scale fluxes are estimated from sub-grid cell land use specific fluxes and are area weighted to the grid cell totals which are then output in the standard dry deposition file with positive values indicating deposition and negative values indicating evasion. 
+In CMAQ v5.3., a new tiled, land use specific, dry deposition scheme, the Surface Tiled Aerosol and Gaseous Exchange (STAGE), option has been developed to better estimate atmospheric deposition for terrestrial and aquatic ecosystem health and applications to evaluate the impact of dry deposition on ambient air quality. This new scheme explicitly supports Weather Research and Forecasting (WRF) simulations with a variety of land surface schemes (Noah, Pleim-Xiu, etc). The model resistance framework, [Figure 6-1](#Figure6-1), parameterizes air-surface exchange as a gradient process and is used for both bidirectional exchange and dry deposition following the widely used resistance model of Nemitz et al. (2001). Grid scale fluxes are estimated from sub-grid cell land use specific fluxes and are area weighted to the grid cell totals which are then output in the standard dry deposition file with positive values indicating deposition and negative values indicating evasion. 
 The model resistances are largely estimated following Massad et al. (2010) with the following exceptions.  Deposition to wetted surfaces considers the bulk accommodation coefficient, following Fahey et al. (2017), and can be a limiting factor for highly soluble compounds.  The in-canopy resistance is derived using the canopy momentum attenuation parameterization from Yi (2008). Aerosol dry deposition includes parameterizations for deposition to water or bare ground surfaces (Giorgi 1986), and vegetated surfaces (Slinn 1982), using the characteristic leaf radius parameterization of Zhang et al. (2001). 
 The ammonia bidirectional option follows the ammonia specific parameterizations of Massad et al. (2010). Mercury bidirectional exchange is also available and follows the parameterization of Bash (2010). In this modeling framework, it is possible to consider bidirectional exchange for any species by providing a parametrization or constant that sets the stomatal, cuticular, soil and/or water compensation point as a value greater than 0. 
-<a id=Figure6-2></a>
+<a id=Figure6-1></a>
 
 
-![Figure 6-2](images/Figure6_8_2.png)  
-**Figure 6-2. STAGE resistance diagram (modified from Nemitz et al., 2001) with a table of variables descriptions.**
+![Figure 6-1](images/Figure6_8_2.png)  
+**Figure 6-1. STAGE resistance diagram (modified from Nemitz et al., 2001) with a table of variables descriptions.**
 
 STAGE options in the RunScript:
 ```
@@ -283,13 +283,13 @@ Sets the correct soil hydrological properties and soil layer information needed 
 CMAQ introduces emissions of trace gases and aerosols from a variety of important sources (e.g. electric generating utilities, vehicles, fires, trees, dust storms, farms, etc.). Some emissions are applied in the surface layer of the model grid, while others are applied at higher altitudes if, for example, they originate from point source like an elevated stack, or a large forest fire. Many sources that are related to local meteorology may be calculated online in CMAQ. However, most sources, especially anthropogenic ones, are preprocessed using software like the Sparse Matrix Operator Kerner Emissions (SMOKE) Modeling System. Once these external tools have calculated the offline emissions, they may merge them into larger aggregated files. We refer to emissions that are either calculated online or read into CMAQ from a file as emission "streams".
 
 Because CMAQ represents both primary and secondary pollutants, emissions are processed for a subset of the species CMAQ treats. The emissions chemical speciation must be compatible with the chemical mechanism chosen for CMAQ (e.g. cb6r5_ae7_aq) because different mechanisms represent large compounds like functionalized hydrocarbons with different surrogates. The emissions mapping is carried out via the Detailed Emission Scaling, Isolation, and Diagnostic (DESID) Module.  
-[Figure 6-1](#Figure6-1) illustrates the combination of data flowing from multiple types of emission streams into the CMAQ model system through the DESID interface. 
+[Figure 6-2](#Figure6-2) illustrates the combination of data flowing from multiple types of emission streams into the CMAQ model system through the DESID interface. 
 Mapping rules are prescribed in the DESID Chemical Mapping Control File, and default versions of this namelist file are provided for every chemical mechanism. 
 If the user does not provide a Chemical Mapping Control File or the path to the file in the RunScript is incorrect, then zero emissions will be assumed for every stream. However, the configuration of various other scientific options in the RunScript  (e.g. correcting for biderectional emission of fertilizer emissions)may conspire to create non-physical values for the emission rates. If the user would like all emissions set to 0, it is recommended that they use the syntax outlined in Appendix B and the DESID tutorial to do so.  
 
-<a id=Figure6-1></a>  
-![Figure 6-1](images/Figure6-1.png)  
-**Figure 6-1. Offline and online emission streams pass pollutant emission rates to the core CMAQ model through the DESID interface.**
+<a id=Figure6-2></a>  
+![Figure 6-2](images/Figure6-1.png)  
+**Figure 6-2. Offline and online emission streams pass pollutant emission rates to the core CMAQ model through the DESID interface.**
 
 CMAQv5.3 introduced DESID so that the process of mapping emissions species to CMAQ species would be more transparent and flexible (see [Appendix B: Emission Control with DESID](Appendix/CMAQ_UG_appendixB_emissions_control.md)). In fact, users can now toggle, modify, and augment emissions from all available streams in order to confidently customize their simulations to the science or policy questions they are asking CMAQ to help answer. For tutorials covering specific tasks, please see the [DESID tutorial page](Tutorials/CMAQ_UG_tutorial_emissions.md).  
 
