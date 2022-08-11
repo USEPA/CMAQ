@@ -92,7 +92,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          IFILE = GETEFILE ( 'pa.inp', LRDONLY, LFMTTED, PNAME )
          IF ( IFILE .LT. 0 ) THEN 
             MSG = 'ERROR: Could not open PACM input file'
-            CALL M3EXIT( PNAME, IZERO, IZERO, MSG, 2 )
+            CALL M3EXIT( PNAME, IZERO, IZERO, MSG, XSTAT2 )
          END IF
       END IF
  
@@ -116,7 +116,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
             CALL M3MESG( MSG )
             WRITE( MSG, 94020 ) CHR
             CALL M3MESG( MSG )
-            CALL M3EXIT( PNAME, IZERO, IZERO, ' ', 2 )
+            CALL M3EXIT( PNAME, IZERO, IZERO, ' ', XSTAT2 )
          END IF
          CALL GETCHR
          CALL GETWORD
@@ -137,7 +137,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
             CALL M3MESG( MSG )
             WRITE( MSG, 94040 ) WORD
             CALL M3MESG( MSG )
-            CALL M3EXIT( PNAME, IZERO, IZERO, ' ', 2 )
+            CALL M3EXIT( PNAME, IZERO, IZERO, ' ', XSTAT2 )
          END IF
          IF ( CHR .NE. ';' ) THEN
             WRITE( MSG, 94100 ) 
@@ -146,7 +146,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
             CALL M3MESG( MSG )
             WRITE( MSG, 94020 ) CHR
             CALL M3MESG( MSG )
-            CALL M3EXIT( PNAME, IZERO, IZERO, ' ', 2 )
+            CALL M3EXIT( PNAME, IZERO, IZERO, ' ', XSTAT2 )
          ELSE
             CALL GETCHR
             CALL GETWORD
@@ -173,7 +173,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
             CALL M3MESG( MSG )
             WRITE( MSG,94040 ) WORD
             CALL M3MESG( MSG )
-            CALL M3EXIT( PNAME, IZERO, IZERO, ' ', 2 )
+            CALL M3EXIT( PNAME, IZERO, IZERO, ' ', XSTAT2 )
          END IF
       ELSE IF ( WORD .EQ. 'IPR_OUTPUT' ) THEN
          CALL GETIPROUT
@@ -190,7 +190,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          CALL M3MESG( MSG )
          WRITE( MSG, 94040 ) WORD
          CALL M3MESG( MSG )
-         CALL M3EXIT( PNAME, IZERO, IZERO, ' ', 2 )
+         CALL M3EXIT( PNAME, IZERO, IZERO, ' ', XSTAT2 )
       END IF
       LASTCMND = CMND
       CALL GETWORD
@@ -231,7 +231,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      &           IRRDESC( NIRRVAR ), STAT = ASTAT )
       IF ( ASTAT .NE. 0 ) THEN
          WRITE( MSG, 94460 )
-         CALL M3EXIT( PNAME, IZERO, IZERO, MSG, 2 )
+         CALL M3EXIT( PNAME, IZERO, IZERO, MSG, XSTAT2 )
       END IF
       IRRNAME = IRRNAME_TMP( 1:NIRRVAR )
       IRRDESC = IRRDESC_TMP( 1:NIRRVAR )

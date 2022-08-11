@@ -182,7 +182,7 @@ C    Open dry deposition file
 
          IF ( .NOT. OPEN3( CTM_DRY_DEP_1, FSNEW3, PNAME ) ) THEN
             XMSG = 'Could not create '// CTM_DRY_DEP_1 // ' file'
-            CALL M3EXIT( PNAME, SDATE3D, STIME3D, XMSG, 1 )
+            CALL M3EXIT( PNAME, SDATE3D, STIME3D, XMSG, XSTAT1 )
          END IF
 
       END IF
@@ -273,7 +273,7 @@ C...define dry deposition output descriptors for tracer species
 C...create a new file
          IF ( .NOT. OPEN3( CTM_SDRYDEP_1, FSNEW3, PNAME ) ) THEN
             XMSG = 'Could not create '// CTM_DRY_DEP_1 // ' file'
-            CALL M3EXIT( PNAME, SDATE3D, STIME3D, XMSG, 1 )
+            CALL M3EXIT( PNAME, SDATE3D, STIME3D, XMSG, XSTAT1 )
          END IF
 
       END IF

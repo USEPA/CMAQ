@@ -562,7 +562,7 @@ C Open NO rain data save file
       IF ( IO_PE_INCLUSIVE ) THEN
          IF ( .NOT. OPEN3( SOILOUT, FSNEW3, PNAME ) ) THEN
             MESG = 'Could not open "' // TRIM( SOILOUT ) // '" file'
-            CALL M3EXIT( PNAME, JDATE, JTIME, MESG, 1 )
+            CALL M3EXIT( PNAME, JDATE, JTIME, MESG, XSTAT1 )
          END IF
       END IF
 
@@ -570,14 +570,14 @@ C Open NO rain data save file
       IF ( IO_PE_INCLUSIVE ) THEN
          IF ( .NOT. FLUSH3 ( SOILOUT ) ) THEN
             MESG = 'Could not sync to disk ' // TRIM( SOILOUT )
-            CALL M3EXIT( PNAME, JDATE, JTIME, MESG, 2 )
+            CALL M3EXIT( PNAME, JDATE, JTIME, MESG, XSTAT2 )
          END IF
       END IF
       CALL SE_BARRIER
       IF ( .NOT. IO_PE_INCLUSIVE ) THEN
          IF ( .NOT. OPEN3( SOILOUT, FSREAD3, PNAME ) ) THEN
             MESG = 'Could not open ' // TRIM( SOILOUT )
-            CALL M3EXIT( PNAME, JDATE, JTIME, MESG, 2 )
+            CALL M3EXIT( PNAME, JDATE, JTIME, MESG, XSTAT2 )
          END IF
       END IF
 #endif
@@ -585,92 +585,92 @@ C Open NO rain data save file
       IF ( .NOT. WRITE3(SOILOUT,'PFACTOR',NDATE,NTIME,PFACTOR)) THEN
         CALL NAMEVAL (SOILOUT, MESG)  ! get input file name and path
         MESG = 'Error writing to file: '//TRIM(MESG)
-        CALL M3EXIT(PNAME,JDATE,JTIME,MESG,2)
+        CALL M3EXIT(PNAME,JDATE,JTIME,MESG,XSTAT2)
       ENDIF
 !
       IF ( .NOT. WRITE3(SOILOUT,'DRYPERIOD',NDATE,NTIME,DRYPERIOD )) THEN
         CALL NAMEVAL (SOILOUT, MESG)  ! get input file name and path
         MESG = 'Error writing to file: '//TRIM(MESG)
-        CALL M3EXIT(PNAME,JDATE,JTIME,MESG,2)
+        CALL M3EXIT(PNAME,JDATE,JTIME,MESG,XSTAT2)
       ENDIF
 
       IF ( .NOT. WRITE3(SOILOUT,'NDEPRES',NDATE,NTIME,NDEPRES )) THEN
         CALL NAMEVAL (SOILOUT, MESG)  ! get input file name and path
         MESG = 'Error writing to file: '//TRIM(MESG)
-        CALL M3EXIT(PNAME,JDATE,JTIME,MESG,2)
+        CALL M3EXIT(PNAME,JDATE,JTIME,MESG,XSTAT2)
       ENDIF
 
       IF ( .NOT. WRITE3(SOILOUT,'SOILMPREV',NDATE,NTIME,SOILM )) THEN
         CALL NAMEVAL (SOILOUT, MESG)  ! get input file name and path
         MESG = 'Error writing to file: '//TRIM(MESG)
-        CALL M3EXIT(PNAME,JDATE,JTIME,MESG,2)
+        CALL M3EXIT(PNAME,JDATE,JTIME,MESG,XSTAT2)
       ENDIF
 !
 !C ---- DIAGNOSTICS -------------------------------------------------------------------
       IF ( .NOT. WRITE3(SOILOUT,'THETA_DIAG',NDATE,NTIME,THETA_DIAG )) THEN ! diagnostic theta
         CALL NAMEVAL (SOILOUT, MESG)  ! get input file name and path
         MESG = 'Error writing THETA_DIAG to file: '//TRIM(MESG)
-        CALL M3EXIT(PNAME,JDATE,JTIME,MESG,2)
+        CALL M3EXIT(PNAME,JDATE,JTIME,MESG,XSTAT2)
       ENDIF
 
       IF ( .NOT. WRITE3(SOILOUT,'WET_TERM_DIAG',NDATE,NTIME,WET_DIAG )) THEN ! diagnostic theta
 !        CALL NAMEVAL (SOILOUT, MESG)  ! get input file name and path
          MESG = 'Could not write "' // TRIM( 'WET_TERM_DIAG' ) //
      &          '" to file "' // TRIM( SOILOUT ) // '"'
-         CALL M3EXIT( PNAME, JDATE, JTIME, MESG, 2 )
+         CALL M3EXIT( PNAME, JDATE, JTIME, MESG, XSTAT2 )
       ENDIF
 
 
       IF ( .NOT. WRITE3(SOILOUT,'TEMP_DIAG',NDATE,NTIME,SOILT)) THEN ! diagnostic theta
         CALL NAMEVAL (SOILOUT, MESG)  ! get input file name and path
         MESG = 'Error writing TEMP_DIAG to file: '//TRIM(MESG)
-        CALL M3EXIT(PNAME,JDATE,JTIME,MESG,2)
+        CALL M3EXIT(PNAME,JDATE,JTIME,MESG,XSTAT2)
       ENDIF
 
       IF ( .NOT.WRITE3(SOILOUT,'TEMP_TERM_DIAG',NDATE,NTIME,TEMP_DIAG)) THEN ! diagnostic theta
         CALL NAMEVAL (SOILOUT, MESG)  ! get input file name and path
         MESG = 'Error writing TEMP_TERM_DIAG to file: '//TRIM(MESG)
-        CALL M3EXIT(PNAME,JDATE,JTIME,MESG,2)
+        CALL M3EXIT(PNAME,JDATE,JTIME,MESG,XSTAT2)
       ENDIF
 
       IF ( .NOT.WRITE3(SOILOUT,'A_DIAG',NDATE,NTIME,A_DIAG)) THEN ! diagnostic theta
         CALL NAMEVAL (SOILOUT, MESG)  ! get input file name and path
         MESG = 'Error writing A_DIAG to file: '//TRIM(MESG)
-        CALL M3EXIT(PNAME,JDATE,JTIME,MESG,2)
+        CALL M3EXIT(PNAME,JDATE,JTIME,MESG,XSTAT2)
       ENDIF
 
       IF ( .NOT.WRITE3(SOILOUT,'AFERT_DIAG',NDATE,NTIME,AFERT_DIAG)) THEN ! diagnostic theta
         CALL NAMEVAL (SOILOUT, MESG)  ! get input file name and path
         MESG = 'Error writing AFERT_DIAG to file: '//TRIM(MESG)
-        CALL M3EXIT(PNAME,JDATE,JTIME,MESG,2)
+        CALL M3EXIT(PNAME,JDATE,JTIME,MESG,XSTAT2)
       ENDIF
 
       IF ( .NOT.WRITE3(SOILOUT,'NRES_FERT_DIAG',NDATE,NTIME,
      &                                  NRES_FERT_DIAG)) THEN ! diagnostic theta
         CALL NAMEVAL (SOILOUT, MESG)  ! get input file name and path
         MESG = 'Error writing NRES_FERT_DIAG to file: '//TRIM(MESG)
-        CALL M3EXIT(PNAME,JDATE,JTIME,MESG,2)
+        CALL M3EXIT(PNAME,JDATE,JTIME,MESG,XSTAT2)
       ENDIF
 
       IF ( .NOT.WRITE3(SOILOUT,'NDEPRATE_DIAG',NDATE,NTIME,
      &                                  NDEPRATE)) THEN !diagnostic theta
         CALL NAMEVAL (SOILOUT, MESG)  ! get input file name and path
         MESG = 'Error writing NDEPRATE_DIAG to file: '//TRIM(MESG)
-        CALL M3EXIT(PNAME,JDATE,JTIME,MESG,2)
+        CALL M3EXIT(PNAME,JDATE,JTIME,MESG,XSTAT2)
       ENDIF
 
       IF ( .NOT.WRITE3(SOILOUT,'CRFAVG',NDATE,NTIME,
      &                                  CRFAVG/BASESUM)) THEN !diagnostic theta
         CALL NAMEVAL (SOILOUT, MESG)  ! get input file name and path
         MESG = 'Error writing CRFAVG to file: '//TRIM(MESG)
-        CALL M3EXIT(PNAME,JDATE,JTIME,MESG,2)
+        CALL M3EXIT(PNAME,JDATE,JTIME,MESG,XSTAT2)
       ENDIF
 
       IF ( .NOT.WRITE3(SOILOUT,'PULSEAVG',NDATE,NTIME,
      &                                  PULSEAVG/BASESUM)) THEN !diagnostic theta
         CALL NAMEVAL (SOILOUT, MESG)  ! get input file name and path
         MESG = 'Error writing PULSEAVG to file: '//TRIM(MESG)
-        CALL M3EXIT(PNAME,JDATE,JTIME,MESG,2)
+        CALL M3EXIT(PNAME,JDATE,JTIME,MESG,XSTAT2)
       ENDIF
 
 
@@ -883,13 +883,13 @@ C -----------------------------------------------------------------------------
                NDEPRATE( C,R ) = NDEPRATE( C,R ) + DEP*HAOM2*NGOKG*MWN/MWPAN
             Else
                MESG = 'Invalid Species Name in Get_N_Dep: "' // SPEC // '"'
-               !CALL M3EXIT( PNAME, JDATE, JTIME, MESG, 2 )
+               !CALL M3EXIT( PNAME, JDATE, JTIME, MESG, XSTAT2 )
             END IF
             
             IF( (DEP<0.0) .OR. (NDEPRATE( C,R )<0.0) ) then
             Write(*,*) 'DEP or sum negative',DEP, ' ',NDEPRATE( C,R)
             MESG = 'negative'
-               CALL M3EXIT( 'GET_N_DEP', 0, 0, MESG, 2 )
+               CALL M3EXIT( 'GET_N_DEP', 0, 0, MESG, XSTAT2 )
             END if
 
          RETURN
@@ -915,7 +915,7 @@ C Local Variables
          SOILTEMP = 0d0
 C         BENCHMARKING:
 C         MESG = 'temperature less than 0 in august florida?'
-C         CALL M3EXIT( PNAME, JDATE, JTIME, MESG, 1 )
+C         CALL M3EXIT( PNAME, JDATE, JTIME, MESG, XSTAT1 )
 
          ELSE
 
@@ -1308,7 +1308,7 @@ C         write(*,*) TEMPC, CFRAC(C,R), DRYCOEFF(K), RT
 C         write(*,*) 'RI(K),RLU(K),RAC(K),RGSS(K),RGSO(K),RCLS(K),RCLO(K)'
 C         write(*,*) RI(K), RLU(K),RAC(K),RGSS(K),RGSO(K),RCLS(K),RCLO(K)
 C         MESG = 'CRF too high'
-C         CALL M3EXIT( PNAME, JDATE, JTIME, MESG, 1 )
+C         CALL M3EXIT( PNAME, JDATE, JTIME, MESG, XSTAT1 )
 C         END IF   
 
             ELSE ! CRF < 0.0

@@ -376,7 +376,7 @@ CONTAINS
           VAR( ind_L_HPLUS ) = Kw / VAR( ind_L_OHMIN )
       ELSE
          XMSG = 'ERROR IN INITIAL PH CALC -- [OH-] <= 0.'
-         CALL M3EXIT ( PNAME, JDATEKPP, JTIMEKPP, XMSG, 2 )    
+         CALL M3EXIT ( PNAME, JDATEKPP, JTIMEKPP, XMSG, XSTAT2 )    
       END IF
           
       VAR( ind_L_OHMIN ) = VAR( ind_L_OHMIN ) * INVPHI2   ! convert to molec/cm3

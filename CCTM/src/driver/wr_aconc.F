@@ -86,7 +86,7 @@ C Override default beginning time timestamp for ACONC?
          IF ( .NOT. IO_PE_INCLUSIVE ) THEN
             IF ( .NOT. OPEN3( A_CONC_1, FSREAD3, PNAME ) ) THEN
                XMSG = 'Could not open ' // A_CONC_1 // ' file for update'
-               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
+               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             END IF
          END IF
 
@@ -109,7 +109,7 @@ C Override default beginning time timestamp for ACONC?
             XMSG = 'Could not write '
      &           // TRIM( A_GC_SPC( SPC ) )
      &           // ' to ' // A_CONC_1
-            CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, 1 )
+            CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
          END IF
       END DO
  
@@ -120,7 +120,7 @@ C Override default beginning time timestamp for ACONC?
             XMSG = 'Could not write '
      &           // TRIM( A_AE_SPC( SPC ) )
      &           // ' to ' // A_CONC_1
-            CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, 1 )
+            CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
          END IF
       END DO
  
@@ -131,7 +131,7 @@ C Override default beginning time timestamp for ACONC?
             XMSG = 'Could not write '
      &           // TRIM( A_NR_SPC( SPC ) )
      &           // ' to ' // A_CONC_1
-            CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, 1 )
+            CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
          END IF
       END DO
  
@@ -143,7 +143,7 @@ C Override default beginning time timestamp for ACONC?
             XMSG = 'Could not write '
      &           // TRIM( A_TR_SPC( SPC ) )
      &           // ' to ' // A_CONC_1
-            CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, 1 )
+            CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
          END IF
       END DO
  
@@ -153,7 +153,7 @@ C Override default beginning time timestamp for ACONC?
      &        MDATE, MTIME, AVG_WVEL ) ) THEN
               XMSG = 'Could not write Vertical Wind Velocity'
      &             // ' to ' // A_CONC_1
-              CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, 1 )
+              CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
         END IF 
       END IF
  
@@ -163,7 +163,7 @@ C Override default beginning time timestamp for ACONC?
      &        MDATE, MTIME, AVG_RH ) ) THEN
               XMSG = 'Could not write Relative Humidity'
      &             // ' to ' // A_CONC_1
-              CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, 1 )
+              CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
         END IF 
       END IF
       
@@ -173,7 +173,7 @@ C Override default beginning time timestamp for ACONC?
      &        MDATE, MTIME, AVG_TA ) ) THEN
               XMSG = 'Could not write Temperature'
      &             // ' to ' // A_CONC_1
-              CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, 1 )
+              CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
         END IF 
       END IF
  
@@ -184,7 +184,7 @@ C Override default beginning time timestamp for ACONC?
      &        MDATE, MTIME, AVG_PRES ) ) THEN
               XMSG = 'Could not write Pressure'
      &             // ' to ' // A_CONC_1
-              CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, 1 )
+              CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
         END IF 
       END IF
  

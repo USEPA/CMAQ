@@ -1098,7 +1098,7 @@ C Build mapping to CGRID for aero # and surf area variables
      &           //' is not in AE namelist'
             AE_eflag  = .True.
             Call m3warn( pname, 0, 0, xmsg )
-!            Call m3exit( pname, 0, 0, xmsg, 3 )
+!            Call m3exit( pname, 0, 0, xmsg, xstat3 )
          Else
             aeronum_map( m ) = ae_strt - 1 + n
             aerocgrid_rhoinv( n ) = 1.0
@@ -1117,7 +1117,7 @@ C Build mapping to CGRID for aero # and surf area variables
      &           // ' is not in AE namelist'
             AE_eflag  = .True.
             Call m3warn( pname, 0, 0, xmsg )
-!            Call m3exit( pname, 0, 0, xmsg, 3 )
+!            Call m3exit( pname, 0, 0, xmsg, xstat3 )
          Else
             aerosrf_map( m ) = ae_strt - 1 + n
             aerocgrid_rhoinv( n ) = 1.0
@@ -1267,7 +1267,7 @@ C compute aeromode_minNum and aeromode_minM2
          Write(logdev,99901) Trim( mechname )
           xmsg = 'The FATAL errors found in namelist used. Check '
      &    //  'the log of exiting processor if more details are needed.'
-         Call m3exit( pname, 0, 0, xmsg, 3 )
+         Call m3exit( pname, 0, 0, xmsg, xstat3 )
       End If 
 
       mapped = .True.
@@ -1444,7 +1444,7 @@ C Local variables:
 
       If ( .Not. mapped ) Then
          xmsg = 'CGRID Species has not been mapped'
-         Call m3exit( pname, 0, 0, xmsg, 3 )
+         Call m3exit( pname, 0, 0, xmsg, xstat3 )
       End If
 
 C Copy aerospc_conc back to grid cell concentrations

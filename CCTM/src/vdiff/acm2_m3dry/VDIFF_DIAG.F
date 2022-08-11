@@ -266,12 +266,12 @@ C get CONC file header description
             if ( grvsetl ) then
                if ( .not. open3 ( ctm_vsed_diag, fsread3, pname ) ) then
                   xmsg = 'Could not open ' // trim( ctm_vsed_diag )
-                  call m3exit ( pname, jdate, jtime, xmsg, 2 )
+                  call m3exit ( pname, jdate, jtime, xmsg, xstat2 )
                end if
             end if
             if ( .not. open3 ( ctm_vdiff_diag, fsread3, pname ) ) then
                xmsg = 'Could not open ' // trim( ctm_vdiff_diag )
-               call m3exit ( pname, jdate, jtime, xmsg, 2 )
+               call m3exit ( pname, jdate, jtime, xmsg, xstat2 )
             end if
          end if
 #endif

@@ -561,7 +561,7 @@
       IF ( ISAM_CHEM_BIAS .LT. 1 .OR. ISAM_CHEM_BIAS .GT. 5 ) THEN
          XMSG = 'ISAM_O3_WEIGHTS must equal 1 thru 5'
          WRITE( OUTDEV, '(A)' )TRIM( XMSG )
-         CALL M3EXIT ( PNAME, 0, 0, XMSG, 1 )
+         CALL M3EXIT ( PNAME, 0, 0, XMSG, XSTAT1 )
       END IF
 
       IF ( ISAM_CHEM_BIAS .EQ. 5 ) THEN
@@ -587,7 +587,7 @@
               WRITE( OUTDEV, '(A)' )TRIM( XMSG )
               EFLAG = .TRUE.
           END IF 
-          IF ( EFLAG ) CALL M3EXIT ( PNAME, 0, 0, 'Found errors in ISAM options', 1 )
+          IF ( EFLAG ) CALL M3EXIT ( PNAME, 0, 0, 'Found errors in ISAM options', XSTAT1 )
       END IF   
 #endif
       
@@ -944,12 +944,12 @@
 ! to obtain WRF version information
       IF ( .NOT. OPEN3( MET_CRO_3D, FSREAD3, PNAME ) ) THEN
          XMSG = 'Could not open '// MET_CRO_3D // ' file'
-         CALL M3EXIT ( PNAME, 0, 0, XMSG, 1 )
+         CALL M3EXIT ( PNAME, 0, 0, XMSG, XSTAT1 )
       END IF
 
       IF ( .NOT. DESC3( MET_CRO_3D ) ) THEN
          XMSG = 'Could not get ' // MET_CRO_3D //' file description'
-         CALL M3EXIT ( PNAME, 0, 0, XMSG, 1 )
+         CALL M3EXIT ( PNAME, 0, 0, XMSG, XSTAT1 )
       END IF
 
       ! Get environ. variable met_tstep to control meteorology frequency
@@ -961,7 +961,7 @@
       IF (MOD(TIME2SEC(MET_TSTEP), TIME2SEC(TSTEP3D)) .NE. 0) then
           XMSG = 'MET_TSTEP environmental variable not equal to or a 
      & multiple greater than time step of met file ' // MET_CRO_3D
-          CALL M3EXIT(PNAME, 0, 0, XMSG, 1)
+          CALL M3EXIT(PNAME, 0, 0, XMSG, XSTAT1)
       end if 
 
       FOUND = .FALSE.
@@ -989,7 +989,7 @@
 
       IF ( .NOT. CLOSE3( MET_CRO_3D ) ) THEN
         XMSG = 'Could not close ' // MET_CRO_3D
-        CALL M3EXIT( PNAME, 0, 0, XMSG, 1 )
+        CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
       END IF
 #endif
 

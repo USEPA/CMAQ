@@ -194,7 +194,7 @@ C Get index for surface ozone concentration
             LGC_O3 = INDEX1( VARNM, N_GC_SPC, GC_SPC )
             IF ( LGC_O3 .LE. 0 ) THEN
                XMSG = 'Could not find ' // VARNM // 'in species table'
-               CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 3 )
+               CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
             END IF
 
             IF (USE_MARINE_GAS_EMISSION .AND. MGEMDIAG ) THEN           ! Open the marine gas emission diagnostic file
@@ -322,7 +322,7 @@ C Set output file characteristics based on COORD.EXT and open diagnostic file
 C Open marine gas emissions diagnostic file
             IF ( .NOT. OPEN3( CTM_MGEM_1, FSNEW3, PNAME ) ) THEN
                XMSG = 'Could not create the CTM_MGEM_1 file'
-               CALL M3EXIT( PNAME, SDATE3D, STIME3D, XMSG, 1 )
+               CALL M3EXIT( PNAME, SDATE3D, STIME3D, XMSG, XSTAT1 )
             END IF
 
          END IF
@@ -627,7 +627,7 @@ C Then reset the MG emissions array and local write counter.
                 IF ( .NOT. CURRSTEP( JDATE, JTIME, STDATE, STTIME, TSTEP( 1 ),
      &                                MDATE, MTIME ) ) THEN
                      XMSG = 'Cannot get step date and time'
-                     CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 3 )
+                     CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
                 END IF
                 CALL NEXTIME( MDATE, MTIME, TSTEP( 1 ) )
                 IWSTEP = 1.0 / REAL( WSTEP )
@@ -635,7 +635,7 @@ C Then reset the MG emissions array and local write counter.
                 IF ( .NOT. IO_PE_INCLUSIVE ) THEN
                   IF ( .NOT. OPEN3( CTM_MGEM_1, FSREAD3, PNAME ) ) THEN
                        XMSG = 'Could not open ' // TRIM(CTM_MGEM_1)
-                       CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, 1 )
+                       CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
                   END IF
                 END IF
 #endif
@@ -648,7 +648,7 @@ C Then reset the MG emissions array and local write counter.
                    IF ( .NOT. WRITE3( CTM_MGEM_1, WRMG_SPC( V ),
      &                        MDATE, MTIME, WRMG ) ) THEN
                      XMSG = 'Couldnt write ' // CTM_MGEM_1 // 'file'
-                     CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, 1 )
+                     CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
                    END IF
                END DO
                WRITE( LOGDEV, '( /5X, 3( A, :, 1X ), I8, ":", I6.6 )')

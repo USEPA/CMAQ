@@ -135,7 +135,7 @@ c conc_map - from cgrid to ae_trns species
      &              conc_map( n_ae_spc ),  stat = astat )
          if ( astat .ne. 0 ) then
             xmsg = 'Failure allocating VSED_MAP or CONC_MAP'
-            call m3exit( pname, mdate, mtime, xmsg, 1 )
+            call m3exit( pname, mdate, mtime, xmsg, xstat1 )
          end if
 
          map_sedi2cgrid = 0
@@ -159,14 +159,14 @@ c conc_map - from cgrid to ae_trns species
          allocate ( vsed_ae( n_ae_spc,nlays ), stat = astat )
          if ( astat .ne. 0 ) then
             xmsg = 'Failure allocating VSED_AE'
-            call m3exit( pname, mdate, mtime, xmsg, 1 )
+            call m3exit( pname, mdate, mtime, xmsg, xstat1 )
          end if
          vsed_ae = 0.0  ! array assignment
 
          allocate ( cgrd( nlays,size( cgrid,4 ) ), stat = astat )
          if ( astat .ne. 0 ) then
             xmsg = 'Failure allocating CGRD'
-            call m3exit( pname, mdate, mtime, xmsg, 1 )
+            call m3exit( pname, mdate, mtime, xmsg, xstat1 )
          end if
 
          allocate ( conc( n_sedi_map,nlays ),
@@ -174,7 +174,7 @@ c conc_map - from cgrid to ae_trns species
      &              dtsvsed( n_sedi_map,nlays ), stat = astat )
          if ( astat .ne. 0 ) then
             xmsg = 'Failure allocating CONC, VSED,  or DTSVSED'
-            call m3exit( pname, mdate, mtime, xmsg, 1 )
+            call m3exit( pname, mdate, mtime, xmsg, xstat1 )
          end if
          conc = 0.0  ! array assignment
          vsed = 0.0  ! array assignment
@@ -184,14 +184,14 @@ c conc_map - from cgrid to ae_trns species
      &              ldens( nlays ), stat = astat )
          if ( astat .ne. 0 ) then
             xmsg = 'Failure allocating RDL, RRHODZ, or LDENS'
-            call m3exit( pname, mdate, mtime, xmsg, 1 )
+            call m3exit( pname, mdate, mtime, xmsg, xstat1 )
          end if
 
          if ( vdiffdiag ) then
             allocate ( sumvsed( n_ae_spc,nlays ), stat = astat )
             if ( astat .ne. 0 ) then
                xmsg = 'Failure allocating SUMVSED'
-               call m3exit( pname, mdate, mtime, xmsg, 1 )
+               call m3exit( pname, mdate, mtime, xmsg, xstat1 )
             end if
          end if
 

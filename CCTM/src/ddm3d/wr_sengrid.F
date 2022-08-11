@@ -97,7 +97,7 @@ C-----------------------------------------------------------------------
          ALLOCATE ( WRBUFF( NCOLS,NROWS,NLAYS,NSPCSD*NPMAX ), STAT = ALLOCSTAT  )
          IF ( ALLOCSTAT .NE. 0 ) THEN
             XMSG = 'WRBUFF memory allocation failed'
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
 
 C Try to open existing file for update
@@ -120,7 +120,7 @@ C Get default file header attibutes from CONC file (assumes file already open)
                   XMSG = 'Could not get '
      &                 // TRIM( CTM_CONC_1 )
      &                 // ' file description'
-                  CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
+                  CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
                END IF
 
                SDATE3D = JDATE
@@ -222,7 +222,7 @@ c open the file
                IF ( .NOT. OPEN3( CTM_SENS_1, FSNEW3, PNAME ) ) THEN
                   XMSG = 'Could not open '
      &                 // TRIM( CTM_SENS_1 )  // ' file'
-                  CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
+                  CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
                END IF
 
             END IF   ! MYPE = 0
@@ -239,7 +239,7 @@ c           IF ( MYPE .EQ. 0 ) THEN
                   XMSG = 'Could not get '
      &                 // TRIM( CTM_CONC_1 )
      &                 // ' file description'
-                  CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
+                  CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
                END IF
 
                TSTEP_RF = TSTEP3D
@@ -263,7 +263,7 @@ c           IF ( MYPE .EQ. 0 ) THEN
                   XMSG = 'Could not get '
      &                 // TRIM( CTM_SENS_1 )
      &                 // ' file description'
-                  CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
+                  CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
                END IF
 
                IF ( TSTEP_RF .NE. ABS( TSTEP3D ) .OR.
@@ -272,36 +272,36 @@ c           IF ( MYPE .EQ. 0 ) THEN
      &              NROWS_RF .NE. NROWS3D .OR.
      &              GDTYP_RF .NE. GDTYP3D ) THEN
                     XMSG = 'Header inconsistent on existing CTM_SENS_1'
-                    CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 2 )
+                    CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
                END IF
                IF ( P_ALP_RF .NE. P_ALP3D .OR.
      &              P_BET_RF .NE. P_BET3D .OR.
      &              P_GAM_RF .NE. P_GAM3D ) THEN
                     XMSG = 'Header inconsistent on existing CTM_SENS_1'
-                    CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 2 )
+                    CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
                END IF
                IF ( XCENT_RF .NE. XCENT3D .OR.
      &              YCENT_RF .NE. YCENT3D ) THEN
                     XMSG = 'Header inconsistent on existing CTM_SENS_1'
-                    CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 2 )
+                    CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
                END IF
                IF ( XORIG_RF .NE. XORIG3D .OR.
      &              YORIG_RF .NE. YORIG3D ) THEN
                     XMSG = 'Header inconsistent on existing CTM_SENS_1'
-                    CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 2 )
+                    CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
                END IF
                IF ( XCELL_RF .NE. XCELL3D .OR.
      &              YCELL_RF .NE. YCELL3D ) THEN
                     XMSG = 'Header inconsistent on existing CTM_SENS_1'
-                    CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 2 )
+                    CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
                END IF
                IF ( VGTYP_RF .NE. VGTYP3D ) THEN
                     XMSG = 'Header inconsistent on existing CTM_SENS_1'
-                    CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 2 )
+                    CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
                END IF
                IF ( VGTOP_RF .NE. VGTOP3D ) THEN
                     XMSG = 'Header inconsistent on existing CTM_SENS_1'
-                    CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 2 )
+                    CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
                END IF
 
             END IF   ! MYPE = 0
@@ -331,32 +331,32 @@ c         CALL SUBST_BARRIER
       IF ( IO_PE_INCLUSIVE ) THEN
          IF ( .NOT. FLUSH3 ( CTM_SENS_1 ) ) THEN
             XMSG = 'Could not flush ' // TRIM(CTM_SENS_1)
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
+            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
       END IF
       CALL SE_BARRIER
       IF ( .NOT. IO_PE_INCLUSIVE ) THEN
          IF ( .NOT. OPEN3( CTM_SENS_1, FSNONIO, PNAME ) ) THEN
             XMSG = 'Could not open ' // TRIM(CTM_SENS_1)
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
+            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
       END IF
 
       IF ( .NOT. WRITE3( CTM_SENS_1, ALLVAR3, JDATE, JTIME, WRBUFF ) ) THEN
          XMSG = 'Could not write CTM_SENS_1'
-         CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
+         CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
       END IF
 #else
 
 #ifdef parallel
       IF ( .NOT. PTRWRITE3( CTM_SENS_1, ALLVAR3, JDATE, JTIME, WRBUFF ) ) THEN
          XMSG = 'Could not write SENGRID'
-         CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
+         CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
       END IF
 #else
       IF ( .NOT. WRITE3( CTM_SENS_1, ALLVAR3, JDATE, JTIME, WRBUFF ) ) THEN
          XMSG = 'Could not write SENGRID'
-         CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
+         CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
       END IF
 #endif
 

@@ -192,19 +192,19 @@ C  Allocate arrays
      &              PDENS( NCOLS,NROWS,N_MODE ), STAT = ALLOCSTAT )
          IF ( ALLOCSTAT .NE. 0 ) THEN
             XMSG = 'Failure allocating XLM, AMU, DG, XXLSG, or PDENS.'
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
+            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
          
          ALLOCATE ( VDEP( NCOLS,NROWS,N_AE_DEP_SPC ), STAT = ALLOCSTAT )
          IF ( ALLOCSTAT .NE. 0 ) THEN
             XMSG = 'Failure allocating VDEP'
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
+            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
 
          ALLOCATE ( DEPV_SUR( N_AE_DEPV ), STAT = ALLOCSTAT )
          IF ( ALLOCSTAT .NE. 0 ) THEN
             XMSG = 'Failure allocating DEPV_SUR'
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
+            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
 
 C Set the dep vel surrogate pointers
@@ -559,7 +559,7 @@ C Calculate characteristic parameters
      &               + Fgrass
            else
              XMSG = 'LU scheme not supported in new aero_depv'
-             CALL M3EXIT( 'aero_depv', 0, 0, XMSG, 1 )
+             CALL M3EXIT( 'aero_depv', 0, 0, XMSG, XSTAT1 )
 
            endif
 

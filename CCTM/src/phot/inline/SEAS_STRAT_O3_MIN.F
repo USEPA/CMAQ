@@ -2475,7 +2475,7 @@
             ALLOCATE ( XCROSS_PROFILE( NLAT_PROFILE ), STAT = ASTAT )
             IF ( ASTAT .NE. 0 ) THEN
               XMSG = 'Failure allocating XCROSS_PROFILE'
-              CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
+              CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             END IF
 
 !determine model time           

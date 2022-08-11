@@ -218,7 +218,7 @@ C-----------------------------------------------------------------------
 
          IF ( .NOT. DEPV_INIT ( JDATE, JTIME, TSTEP, CGRID ) ) THEN
             XMSG = 'Failure initializing deposition velocities module'
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
 
          IF ( BUDGET_DIAG .OR. LIPR ) THEN
@@ -229,7 +229,7 @@ C-----------------------------------------------------------------------
 C create global maps
          IF ( .NOT. VDIFF_MAP_INIT( ) ) THEN
             XMSG = 'Failure initializing index mapping module'
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
 
 C Initialize the met data
@@ -252,7 +252,7 @@ C Open vdiff diagnostics file (ioapi header from cgrd)
          IF ( VDIFFDIAG ) THEN
             IF ( .NOT. VDIFF_DIAG_INIT ( JDATE, JTIME, TSTEP( 1 ), GRAV_SETL ) ) THEN
                XMSG = 'Failure initializing vdiff diagnostics module'
-               CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
+               CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             END IF
          END IF
 
@@ -261,21 +261,21 @@ C Allocate and initialize dry deposition array
          ALLOCATE ( DDEP( N_SPC_DEPV,NCOLS,NROWS ), STAT = ASTAT )
          IF ( ASTAT .NE. 0 ) THEN
             XMSG = 'Failure allocating DDEP'
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
+            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
          DDEP = 0.0   ! array assignment
          
          ALLOCATE ( DDEP0( N_SPC_DEPV,NCOLS,NROWS ), STAT = ASTAT )
          IF ( ASTAT .NE. 0 ) THEN
             XMSG = 'Failure allocating DDEP0'
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
+            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
          DDEP0 = 0.0   ! array assignment
  
          ALLOCATE ( ICMP( LCMP,NCOLS,NROWS ), STAT = ASTAT )
          IF ( ASTAT .NE. 0 ) THEN
             XMSG = 'Failure allocating ICMP'
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
+            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
          ICMP = 0.0   ! array assignment
 
@@ -284,14 +284,14 @@ C Allocate and initialize dry deposition array
 C Allocate and initialize emissions
          IF ( .NOT. DESID_INIT ( JDATE, JTIME, TSTEP( 1 ) ) ) THEN
             XMSG = 'Failure initializing emissions module'
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
 
 #ifdef isam
          ALLOCATE ( SA_DDEP( NCOLS,NROWS,N_SPCTAG ), STAT = ASTAT )
          IF ( ASTAT .NE. 0 ) THEN
             XMSG = 'Failure allocating SA_DDEP'
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
+            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
          SA_DDEP = 0.0
 #endif
@@ -303,12 +303,12 @@ C Set up for budget accumulation and process analysis
             ALLOCATE ( EMIS_PA( NCOLS,NROWS,NLAYS,N_CGRID_SPC ), STAT = ASTAT )
             IF ( ASTAT .NE. 0 ) THEN
                XMSG = 'EMIS_PA memory allocation failed'
-               CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
+               CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             END IF
             ALLOCATE ( DDEP_PA( NCOLS,NROWS,N_CGRID_SPC ), STAT = ASTAT )
             IF ( ASTAT .NE. 0 ) THEN
                XMSG = 'DDEP_PA memory allocation failed'
-               CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
+               CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             END IF
          END IF
 C Set up for grav. settling
@@ -318,7 +318,7 @@ C Set up for grav. settling
             ALLOCATE ( VSED_AE( N_AE_SPC,NLAYS,NCOLS,NROWS ), STAT = ASTAT )
             IF ( ASTAT .NE. 0 ) THEN
                XMSG = 'Failure allocating VSED_AE'
-               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
+               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             END IF
          END IF
 
@@ -327,7 +327,7 @@ C Set up for grav. settling
          ALLOCATE ( CNGRD( N_SPC_CGRID,NLAYS,NCOLS,NROWS ), STAT = ASTAT )
          IF ( ASTAT .NE. 0 ) THEN
             XMSG = 'Failure allocating CNGRD'
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
+            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
          CNGRD = 0.0   ! array assignment
  
@@ -340,14 +340,14 @@ C Set up for grav. settling
          ALLOCATE ( S_DDEP( N_SPC_DEPV,NCOLS,NROWS,NPMAX ), STAT = ASTAT )
          IF ( ASTAT .NE. 0 ) THEN
             XMSG = 'Failure allocating S_DDEP'
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
+            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             END IF
          S_DDEP = 0.0
 
          ALLOCATE ( SNGRD( N_SPC_CGRID,NLAYS,NCOLS,NROWS,NPMAX ), STAT = ASTAT )
          IF ( ASTAT .NE. 0 ) THEN
             XMSG = 'Failure allocating SNGRD'
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
+            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
          SNGRD = 0.0
 #endif
@@ -359,7 +359,7 @@ C Set up for grav. settling
      &               NH3_TAG_FRACTION( NTAG_SA ), STAT = ASTAT )
           IF ( ASTAT .NE. 0 ) THEN
             XMSG = 'Failure Allocating ISAM variables in VDIFF'
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
+            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
           END IF
           ISAM_DEPV     = 0
           DO ITAG = 1, N_SPCTAG
@@ -544,13 +544,13 @@ C If last call this hour:  write accumulated depositions:
             IF ( .NOT. IO_PE_INCLUSIVE ) THEN
                IF ( .NOT. OPEN3( CTM_DRY_DEP_1, FSREAD3, PNAME ) ) THEN
                   XMSG = 'Could not open ' // TRIM(CTM_DRY_DEP_1)
-                  CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
+                  CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
                END IF
 
 #ifdef sens
                IF ( .NOT. OPEN3( CTM_SDRYDEP_1, FSNONIO, PNAME ) ) THEN
                   XMSG = 'Could not open ' // TRIM(CTM_SDRYDEP_1`)
-                  CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
+                  CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
                END IF
 #endif 
 
@@ -604,7 +604,7 @@ C If last call this hour:  write accumulated depositions:
             IF ( .NOT. WRITE3( CTM_DRY_DEP_1, DDEP_SPC( V ),
      &                 MDATE, MTIME, WRDD ) ) THEN
                XMSG = 'Could not write ' // CTM_DRY_DEP_1 // ' file'
-               CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, 1 )
+               CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
             END IF
          END DO 
 C Write extra arrays for NH3 emission and net flux for bidi
@@ -613,12 +613,12 @@ C Write extra arrays for NH3 emission and net flux for bidi
             IF ( .NOT. WRITE3( CTM_DRY_DEP_1, NAME_NH3_FLUX,
      &                 MDATE, MTIME, NH3_FLUX ) ) THEN
                XMSG = 'Could not write ' // CTM_DRY_DEP_1 // ' file'
-               CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, 1 )
+               CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
             END IF
             IF ( .NOT. WRITE3( CTM_DRY_DEP_1, NAME_NH3_EMIS,
      &                 MDATE, MTIME, NH3_EMIS ) ) THEN
                XMSG = 'Could not write ' // CTM_DRY_DEP_1 // ' file'
-               CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, 1 )
+               CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
             END IF
 ! must ensure the col/row being written to log is not larger than 
 ! the subdomain size for this PE. 
@@ -648,7 +648,7 @@ C Write vdiff diagnostics
      &                               MDATE, MTIME, VSED_BUF( 1,1,1,V ) ) ) THEN
                      XMSG = 'Could not write ' // TRIM( VSED_NAME( V ) )
      &                    // ' to ' // CTM_VSED_DIAG
-                     CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, 1 )
+                     CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
                   END IF
                END DO
 
@@ -663,17 +663,17 @@ C Write other diagnostics
             IF ( .NOT. WRITE3( CTM_VDIFF_DIAG, 'NLP_MEAN',
      &                         MDATE, MTIME, NLPCR_MEAN ) ) THEN
                XMSG = 'Could not write ' //  'NLP_MEAN to ' // CTM_VDIFF_DIAG
-               CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, 1 )
+               CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
             END IF
             IF ( .NOT. WRITE3( CTM_VDIFF_DIAG, 'NLP_MAX',
      &                         MDATE, MTIME, NLPCR_MAX ) ) THEN
                XMSG = 'Could not write ' //  'NLP_MAX to ' // CTM_VDIFF_DIAG
-               CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, 1 )
+               CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
             END IF
             IF ( .NOT. WRITE3( CTM_VDIFF_DIAG, 'NLP_MIN',
      &                         MDATE, MTIME, NLPCR_MIN ) ) THEN
                XMSG = 'Could not write ' //  'NLP_MIN to ' // CTM_VDIFF_DIAG
-               CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, 1 )
+               CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
             END IF
             NLPCR_MAX = 0.0      ! array assignment
             NLPCR_MIN = 9.9E30   ! array assignment
@@ -684,17 +684,17 @@ C Write other diagnostics
                IF ( .NOT. WRITE3( CTM_VDIFF_DIAG, 'SEDI_DTC_MEAN',
      &                            MDATE, MTIME, DTCCR_MEAN ) ) THEN
                   XMSG = 'Could not write ' //  'SEDI_DTC_MEAN to ' // CTM_VDIFF_DIAG
-                  CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, 1 )
+                  CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
                END IF
                IF ( .NOT. WRITE3( CTM_VDIFF_DIAG, 'SEDI_DTC_MAX',
      &                            MDATE, MTIME, DTCCR_MAX ) ) THEN
                   XMSG = 'Could not write ' //  'SEDI_DTC_MAX to ' // CTM_VDIFF_DIAG
-                  CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, 1 )
+                  CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
                END IF
                IF ( .NOT. WRITE3( CTM_VDIFF_DIAG, 'SEDI_DTC_MIN',
      &                            MDATE, MTIME, DTCCR_MIN ) ) THEN
                   XMSG = 'Could not write ' //  'SEDI_DTC_MIN to ' // CTM_VDIFF_DIAG
-                  CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, 1 )
+                  CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
                END IF
                DTCCR_MAX = 0.0      ! array assignment
                DTCCR_MIN = 9.9E30   ! array assignment
@@ -710,13 +710,13 @@ C Write other diagnostics
             IF ( .NOT. WRITE3( CTM_VDIFF_DIAG, 'CONVCT',
      &                         MDATE, MTIME, CNVCT ) ) THEN
                XMSG = 'Could not write ' //  'convct to ' // CTM_VDIFF_DIAG
-               CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, 1 )
+               CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
             END IF
 
             IF ( .NOT. WRITE3( CTM_VDIFF_DIAG, 'LPBL',
      &                         MDATE, MTIME, REAL( Met_Data%LPBL ) ) ) THEN
                XMSG = 'Could not write ' //  'lpbl to ' // CTM_VDIFF_DIAG
-               CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, 1 )
+               CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
             END IF
 
             WRITE( LOGDEV, '( /5X, 3( A, :, 1X ), I8, ":", I6.6, I6 )' )
@@ -743,7 +743,7 @@ C Write other diagnostics
             IF ( .NOT. WRITE3( SA_DD_1, VNAM_SPCTAG( ITAG ),
      &                         MDATE, MTIME, WRDD ) ) THEN
                XMSG = 'Could not write ' // SA_DD_1 // ' file'
-               CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, 1 )
+               CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
             END IF
          END DO
          SA_DDEP = 0.0
@@ -770,7 +770,7 @@ C WT - write out dry deposition sensitivities
                IF ( .NOT. WRITE3( CTM_SDRYDEP_1, SPCNAME,
      &                 MDATE, MTIME, WRDD ) ) THEN
                   XMSG = 'Could not write ' // CTM_SDRYDEP_1 // ' file'
-                  CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, 1 )
+                  CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
                END IF
 
             ENDDO

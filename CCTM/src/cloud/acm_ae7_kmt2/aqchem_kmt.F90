@@ -296,7 +296,7 @@
          IF ( INDEX ( MECHNAME, 'CB6' ) .LE. 0  .AND. &
             ( INDEX ( MECHNAME, 'SAPRC07TIC' ) .LE. 0 ) ) THEN
             XMSG = 'This version of AQCHEM requires SAPRC07TIC or a CB6 gas mech'
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 3 )
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
          END IF 
  
          IF ( INDEX ( MECHNAME, 'SAPRC07TIC' ) .GT. 0 ) THEN
@@ -307,12 +307,12 @@
 
          IF ( STM ) THEN
             XMSG = 'STM option not implemented in KMT AQCHEM'
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 3 )
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
          END IF
 
 #ifdef isam
         XMSG = 'Source Apportionment is not implemented in KMT AQCHEM'
-        CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 3 )
+        CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
 #endif        
 
 !... set MW ratios and speciation factors for molar concentrations of coarse
@@ -419,7 +419,7 @@
 
       IF ( TEMP2 .LE. 0.0D0 .OR. AIRM .LE. 0.0D0 .OR. PRES_PA .LE. 0.0D0 ) THEN
          XMSG = 'MET DATA ERROR'
-         CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 2 )
+         CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
       END IF
       
       JDATEKPP = JDATE

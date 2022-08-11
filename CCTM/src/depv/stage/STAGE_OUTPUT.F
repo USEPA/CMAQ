@@ -132,7 +132,7 @@ C Open diagnostic file, then close it for subsequent open by all processors
 
             IF ( .NOT. OPEN3( CTM_DEPV_DIAG, FSNEW3, PNAME ) ) THEN
                XMSG = 'Could not create '// TRIM( CTM_DEPV_DIAG ) // ' file'
-               CALL M3EXIT( PNAME, DATE, TIME, XMSG, 1 )
+               CALL M3EXIT( PNAME, DATE, TIME, XMSG, XSTAT1 )
             END IF
 
          END IF
@@ -207,7 +207,7 @@ C Open diagnostic file
 
             IF ( .NOT. OPEN3( CTM_DEPV_MOS, FSNEW3, PNAME ) ) THEN
                XMSG = 'Could not create '// TRIM( CTM_DEPV_MOS) // ' file'
-               CALL M3EXIT( PNAME, DATE, TIME, XMSG, 1 )
+               CALL M3EXIT( PNAME, DATE, TIME, XMSG, XSTAT1 )
             END IF
 
          END IF
@@ -240,7 +240,7 @@ C Open diagnostic file
                IF ( .NOT. WRITE3( CTM_DEPV_DIAG, trim( Tile_Data%Vd_Name( N ) ),
      &                            DATE, TIME, Tile_Data%Grd_Vd(:,:,N)*100.0 ) ) THEN
                   XMSG = 'Could not write ' // CTM_DEPV_DIAG // ' file'
-                  CALL M3EXIT ( PNAME, DATE, TIME, XMSG, 1 )
+                  CALL M3EXIT ( PNAME, DATE, TIME, XMSG, XSTAT1 )
                END IF
             End If
          END DO
@@ -255,44 +255,44 @@ C Open diagnostic file
                IF ( .NOT. WRITE3( CTM_DEPV_MOS, 'LUFRAC',
      &                            DATE, TIME, Tile_Data%LUFRAC ) ) THEN
                    XMSG = 'Could not write ' // CTM_DEPV_MOS // ' file'
-                  CALL M3EXIT ( PNAME, DATE, TIME, XMSG, 1 )
+                  CALL M3EXIT ( PNAME, DATE, TIME, XMSG, XSTAT1 )
                END IF
 
 
                IF ( .NOT. WRITE3( CTM_DEPV_MOS, 'RA',
      &                            DATE, TIME, MOSAIC_DATA%RA ) ) THEN
                    XMSG = 'Could not write ' // CTM_DEPV_MOS // ' file'
-                  CALL M3EXIT ( PNAME, DATE, TIME, XMSG, 1 )
+                  CALL M3EXIT ( PNAME, DATE, TIME, XMSG, XSTAT1 )
                END IF
 
                IF ( .NOT. WRITE3( CTM_DEPV_MOS, 'RST',
      &                            DATE, TIME, Mosaic_Data%RSTW ) ) THEN
                    XMSG = 'Could not write ' // CTM_DEPV_MOS // ' file'
-                  CALL M3EXIT ( PNAME, DATE, TIME, XMSG, 1 )
+                  CALL M3EXIT ( PNAME, DATE, TIME, XMSG, XSTAT1 )
                END IF
 
                IF ( .NOT. WRITE3( CTM_DEPV_MOS, 'LAI',
      &                            DATE, TIME, MOSAIC_DATA%LAI ) ) THEN
                    XMSG = 'Could not write ' // CTM_DEPV_MOS // ' file'
-                  CALL M3EXIT ( PNAME, DATE, TIME, XMSG, 1 )
+                  CALL M3EXIT ( PNAME, DATE, TIME, XMSG, XSTAT1 )
                END IF
 
                IF ( .NOT. WRITE3( CTM_DEPV_MOS, 'USTAR',
      &                            DATE, TIME, MOSAIC_DATA%USTAR ) ) THEN
                    XMSG = 'Could not write ' // CTM_DEPV_MOS // ' file'
-                  CALL M3EXIT ( PNAME, DATE, TIME, XMSG, 1 )
+                  CALL M3EXIT ( PNAME, DATE, TIME, XMSG, XSTAT1 )
                END IF
 
                IF ( .NOT. WRITE3( CTM_DEPV_MOS, 'Z0',
      &                            DATE, TIME, MOSAIC_DATA%Z0 ) ) THEN
                    XMSG = 'Could not write ' // CTM_DEPV_MOS // ' file'
-                  CALL M3EXIT ( PNAME, DATE, TIME, XMSG, 1 )
+                  CALL M3EXIT ( PNAME, DATE, TIME, XMSG, XSTAT1 )
                END IF
 
                IF ( .NOT. WRITE3( CTM_DEPV_MOS, 'VEG',
      &                            DATE, TIME, MOSAIC_DATA%VEG ) ) THEN
                    XMSG = 'Could not write ' // CTM_DEPV_MOS // ' file'
-                  CALL M3EXIT ( PNAME, DATE, TIME, XMSG, 1 )
+                  CALL M3EXIT ( PNAME, DATE, TIME, XMSG, XSTAT1 )
                END IF
 
                DO N = 1, N_SPC_DEPV
@@ -301,7 +301,7 @@ C Open diagnostic file
      &                                  trim( Tile_Data%Vd_Name( N ) ),
      &                                  DATE, TIME,  Tile_Data%Lu_Vd(:,:,N,:)*100.0 ) ) THEN
                          XMSG = 'Could not write ' // CTM_DEPV_MOS // ' file'
-                        CALL M3EXIT ( PNAME, DATE, TIME, XMSG, 1 )
+                        CALL M3EXIT ( PNAME, DATE, TIME, XMSG, XSTAT1 )
                      End If
                   End If
                END DO

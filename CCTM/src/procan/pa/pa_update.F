@@ -307,14 +307,14 @@ C-----------------------------------------------------------------------
      &                STAT = ASTAT )
            IF ( ASTAT .NE. 0 ) THEN
               MSG = '*** ERROR allocating CNGRD'
-              CALL M3EXIT( PNAME, JDATE, JTIME, MSG, 1 )
+              CALL M3EXIT( PNAME, JDATE, JTIME, MSG, XSTAT1 )
            END IF
          END IF
 
          ALLOCATE ( PA_EMIS_CONV( N_CGRID_SPC ), STAT = ASTAT )
          IF ( ASTAT .NE. 0 ) THEN
             MSG = 'Failure allocating PA_EMIS_CONV'
-            CALL M3EXIT( PNAME, JDATE, JTIME, MSG, 1 )
+            CALL M3EXIT( PNAME, JDATE, JTIME, MSG, XSTAT1 )
          END IF
 
          ! Get conversion factors for aero emissions; incoming
@@ -466,7 +466,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          ALLOCATE ( PA_DEPV_CONV( N_CGRID_SPC ), STAT = ASTAT )
          IF ( ASTAT .NE. 0 ) THEN
             MSG = 'Failure allocating PA_DEPV_CONV'
-            CALL M3EXIT( PNAME, JDATE, JTIME, MSG, 1 )
+            CALL M3EXIT( PNAME, JDATE, JTIME, MSG, XSTAT1 )
          END IF
 
          ! Set layer thickenesses

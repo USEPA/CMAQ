@@ -130,7 +130,7 @@ C #/m**3 (number density), and m**2/m**3 (surface area) species
      &                 SAE( N_AE_SPC ), STAT = ALLOCSTAT )
             IF ( ALLOCSTAT .NE. 0 ) THEN
                XMSG = 'Failure allocating QAE, NAE, or SAE'
-               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
+               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             END IF
             NQAE = 0       ! no. of micro-grams/m**3 species
             NNAE = 0       ! no. of #/m**3 species

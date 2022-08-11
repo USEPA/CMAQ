@@ -169,7 +169,7 @@ C Open input file SEN_INPUT
       IF ( TXT( :1 ) .EQ. BLANK ) THEN
           XMSG = 'Expecting sensitivity name. ' //
      &           'Cannot begin with a space.'
-          CALL M3EXIT( PNAME, STDATE, STTIME, XMSG, 1 )
+          CALL M3EXIT( PNAME, STDATE, STTIME, XMSG, XSTAT1 )
       END IF
 
   20  CONTINUE
@@ -178,7 +178,7 @@ C Open input file SEN_INPUT
       IF ( NPSEN .GT. NPMAX ) THEN
         XMSG = 'NPSEN exceeds NPMAX.  Change NPMAX in run script.' 
         write(logdev,*) 'NPSEN counter up to ', NPSEN, ' NPMAX = ', NPMAX
-        CALL M3EXIT( PNAME, STDATE, STTIME, XMSG, 1 )
+        CALL M3EXIT( PNAME, STDATE, STTIME, XMSG, XSTAT1 )
       END IF
 
       SEN_PAR( NPSEN ) = TXT( 1:3 ) 
@@ -217,7 +217,7 @@ CCCCCCC Sensitivity to vorticity CCCCCCCCCCCCCCCCCCCCC
           IF ( TXT ( :8 ) .NE. ' SPECIES' ) THEN
             XMSG = 'Expecting header SPECIES ' //
      &             '(allcap, 1 leading space).'
-            CALL M3EXIT( PNAME,STDATE,STTIME,XMSG,1 )
+            CALL M3EXIT( PNAME,STDATE,STTIME,XMSG,XSTAT1 )
           END IF
 
 CCCCCCC Sensitivity to initial conditions CCCCCCCCCCCCCCCCCCCCC
@@ -229,7 +229,7 @@ CCCCCCC Sensitivity to initial conditions CCCCCCCCCCCCCCCCCCCCC
           IF ( TXT ( :8 ) .NE. ' SPECIES' ) THEN
             XMSG = 'Expecting header SPECIES ' //
      &             '(allcap, 1 leading space).'
-            CALL M3EXIT( PNAME,STDATE,STTIME,XMSG,1 )
+            CALL M3EXIT( PNAME,STDATE,STTIME,XMSG,XSTAT1 )
           END IF  
 
 CCCCCCC Sensitivity to boundary conditions CCCCCCCCCCCCCCCCCC
@@ -241,7 +241,7 @@ CCCCCCC Sensitivity to boundary conditions CCCCCCCCCCCCCCCCCC
           IF ( TXT ( :8 ) .NE. ' SPECIES' ) THEN
             XMSG = 'Expecting header SPECIES ' //
      &             '(allcap, 1 leading space).'
-            CALL M3EXIT( PNAME,STDATE,STTIME,XMSG,1 )
+            CALL M3EXIT( PNAME,STDATE,STTIME,XMSG,XSTAT1 )
           END IF
 
 CCCCCCC Higher-order sensitivity CCCCCCCCCCCCCCCCCCCCCCCCCCCC
@@ -249,7 +249,7 @@ CCCCCCC Higher-order sensitivity CCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
           IF ( .NOT. HIGH ) THEN
              XMSG = 'hddm-3d option not set'
-             CALL M3EXIT( PNAME,STDATE,STTIME,XMSG,1 )
+             CALL M3EXIT( PNAME,STDATE,STTIME,XMSG,XSTAT1 )
           END IF
 
           IPT( NPSEN ) = 4
@@ -273,7 +273,7 @@ CCCCCCC Higher-order sensitivity CCCCCCCCCCCCCCCCCCCCCCCCCCCC
             XMSG = 'Could not match sensitivity name ' //
      &             TXT( 2:9 ) //
      &             ' for higher-order sens.'
-            CALL M3EXIT( PNAME,STDATE,STTIME,XMSG,1 )
+            CALL M3EXIT( PNAME,STDATE,STTIME,XMSG,XSTAT1 )
           END IF
 
           CHECK = 0
@@ -297,7 +297,7 @@ CCCCCCC Higher-order sensitivity CCCCCCCCCCCCCCCCCCCCCCCCCCCC
             XMSG = 'Could not match sensitivity name ' //
      &             TXT( 2:9 ) //
      &             ' for higher-order sens.'
-            CALL M3EXIT( PNAME,STDATE,STTIME,XMSG,1 )
+            CALL M3EXIT( PNAME,STDATE,STTIME,XMSG,XSTAT1 )
           END IF
 
  32       CONTINUE
@@ -311,7 +311,7 @@ CCCCCCC Higher-order sensitivity CCCCCCCCCCCCCCCCCCCCCCCCCCCC
             GOTO 20
           ELSE
             XMSG = 'Unexpected text ' // TXT
-            CALL M3EXIT( PNAME,STDATE,STTIME,XMSG,1 )
+            CALL M3EXIT( PNAME,STDATE,STTIME,XMSG,XSTAT1 )
           END IF
 
 CCCCCCC Sensitivity to a chemical reaction rate constant CCCCC
@@ -323,14 +323,14 @@ CCCCCCC Sensitivity to a chemical reaction rate constant CCCCC
           IF ( TXT ( :9 ) .NE. ' REACTION' ) THEN
             XMSG = 'Expecting header REACTION ' //
      &             '(allcap, 1 leading space).'
-            CALL M3EXIT( PNAME,STDATE,STTIME,XMSG,1 )
+            CALL M3EXIT( PNAME,STDATE,STTIME,XMSG,XSTAT1 )
           END IF
 
           ! Which reaction?
           READ( JVUNIT, '(A80)', END = 999 ) TXT
           IF ( TXT( :2 ) .NE. BLANK2 ) THEN
              XMSG = 'Expected two blanks before reaction name.'
-             CALL M3EXIT( PNAME,STDATE,STTIME,XMSG,1 )
+             CALL M3EXIT( PNAME,STDATE,STTIME,XMSG,XSTAT1 )
           END IF
 
  33       CONTINUE 
@@ -355,7 +355,7 @@ CCCCCCC Unrecognized or non-implemented sens type CCCCCCCCCCCC
         ELSE
           XMSG = 'Sentype not recognized: ' // TXT //
      &           '. Use EMIS, ICON, BCON, RATE, HIGH, or PVO3 '
-          CALL M3EXIT( PNAME,STDATE,STTIME,XMSG,1 )
+          CALL M3EXIT( PNAME,STDATE,STTIME,XMSG,XSTAT1 )
 
         END IF  ! Finished setting sentype
 
@@ -366,7 +366,7 @@ CCCCCCC Which species? CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
         IF ( TXT( :2 ) .NE. BLANK2 ) THEN
           XMSG = 'Need two leading spaces before a species.'
-          CALL M3EXIT( PNAME,STDATE,STTIME,XMSG,1 )
+          CALL M3EXIT( PNAME,STDATE,STTIME,XMSG,XSTAT1 )
         END IF
 
         IF ( INDEX( TXT, 'ALL' ) .NE. 0 ) THEN ! all CMAQ species
@@ -405,12 +405,12 @@ CCCCCCC Specify emission amount? CCCCCCCCCCCCCCCCCCCCCCCCC
           IF ( IPT( NPSEN ) .NE. 3 ) THEN
             XMSG = 'Amount specification only implemented ' //
      &             'for emissions so far.'
-            CALL M3EXIT( PNAME,STDATE,STTIME,XMSG,1 )
+            CALL M3EXIT( PNAME,STDATE,STTIME,XMSG,XSTAT1 )
           END IF
 
           IF ( S_NSTREAMS( NPSEN ) .NE. 99 ) THEN
             XMSG = 'Amount can only be specified for total emissions.'
-            CALL M3EXIT( PNAME,STDATE,STTIME,XMSG,1 )
+            CALL M3EXIT( PNAME,STDATE,STTIME,XMSG,XSTAT1 )
           END IF
 
           DO S = 1, NSPC( NPSEN )
@@ -420,7 +420,7 @@ CCCCCCC Specify emission amount? CCCCCCCCCCCCCCCCCCCCCCCCC
 
             IF ( TXT( :2 ) .NE. BLANK2 ) THEN
               XMSG = 'Expected two blanks before specifying amount.'
-              CALL M3EXIT( PNAME,STDATE,STTIME,XMSG,1 )
+              CALL M3EXIT( PNAME,STDATE,STTIME,XMSG,XSTAT1 )
             END IF
 
             IF ( AMOUNT .GE. 0 ) THEN
@@ -431,11 +431,11 @@ CCCCCCC Specify emission amount? CCCCCCCCCCCCCCCCCCCCCCCCC
      &            TXT, AMOUNT
                 IF ( TXT( :2 ) .NE. BLANK2 ) THEN
                   XMSG = 'Expected two blanks before specifying amount.'
-                  CALL M3EXIT( PNAME,STDATE,STTIME,XMSG,1 )
+                  CALL M3EXIT( PNAME,STDATE,STTIME,XMSG,XSTAT1 )
                 END IF
                 IF ( AMOUNT .LT. 0 ) THEN
                   XMSG = 'Amount must be non-negative.'
-                  CALL M3EXIT( PNAME,STDATE,STTIME,XMSG,1 )
+                  CALL M3EXIT( PNAME,STDATE,STTIME,XMSG,XSTAT1 )
                 ELSE
                   IAMOUNT( NPSEN, SPC, HOUR ) = AMOUNT
                 END IF
@@ -456,11 +456,11 @@ CCCCCCC Specify emission amount? CCCCCCCCCCCCCCCCCCCCCCCCC
      &          TXT, LAYER
             IF ( TXT( :3 ) .NE. BLANK3 ) THEN
               XMSG = 'Expected three blanks before layer number.'
-              CALL M3EXIT( PNAME,STDATE,STTIME,XMSG,1 )
+              CALL M3EXIT( PNAME,STDATE,STTIME,XMSG,XSTAT1 )
             END IF
             IF ( ( LAYER .LT. 1 ) .OR. ( LAYER .GT. NLAYS ) ) THEN
               XMSG = 'Layer out of range.'
-              CALL M3EXIT( PNAME,STDATE,STTIME,XMSG,1 )
+              CALL M3EXIT( PNAME,STDATE,STTIME,XMSG,XSTAT1 )
             ELSE
               ! Set the layer to 1, all others to 0
               ILAYER( NPSEN, 1:NLAYS ) = 0
@@ -484,7 +484,7 @@ CCCCCCC What date(s)? CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
         IF ( TXT( :5 ) .EQ. ' DATE' ) THEN
           IF ( IPT( NPSEN ) .EQ. 1 ) THEN
             XMSG = 'Cannot specify date for initial condition.'
-            CALL M3EXIT( PNAME,STDATE,STTIME,XMSG,1 )
+            CALL M3EXIT( PNAME,STDATE,STTIME,XMSG,XSTAT1 )
           END IF
 
           READ( JVUNIT, '( a2, i7 )', END = 999 )
@@ -492,12 +492,12 @@ CCCCCCC What date(s)? CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
           IF ( TXT( :2 ) .NE. BLANK2 ) THEN
             XMSG = 'Expected two blanks before specifying date.'
-            CALL M3EXIT( PNAME,STDATE,STTIME,XMSG,1 )
+            CALL M3EXIT( PNAME,STDATE,STTIME,XMSG,XSTAT1 )
           END IF
           IF ( ( NUMDATES .LT. 1 ) .OR.
      &         ( NUMDATES .GT. NDAYS ) ) THEN
             XMSG = 'Number of dates out of bounds.'
-            CALL M3EXIT( PNAME,STDATE,STTIME,XMSG,1 )
+            CALL M3EXIT( PNAME,STDATE,STTIME,XMSG,XSTAT1 )
           END IF
 
           LASTDATE = STDATE + NDAYS
@@ -507,7 +507,7 @@ CCCCCCC What date(s)? CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
             IF ( ( DATE .LT. STDATE ) .OR.
      &           ( DATE .GT. LASTDATE ) ) THEN
               XMSG = 'Date out of bounds.'
-              CALL M3EXIT( PNAME,STDATE,STTIME,XMSG,1 )
+              CALL M3EXIT( PNAME,STDATE,STTIME,XMSG,XSTAT1 )
             ELSE
               IDATE( NPSEN, 1 + DATE - STDATE ) = 1
             END IF
@@ -529,7 +529,7 @@ CCCCCCC What time? CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
         IF ( TXT( :5 ) .EQ. ' TIME' ) THEN
           IF ( IPT( NPSEN ) .EQ. 1 ) THEN
             XMSG = 'Cannot specify time for initial condition.'
-            CALL M3EXIT( PNAME,STDATE,STTIME,XMSG,1 )
+            CALL M3EXIT( PNAME,STDATE,STTIME,XMSG,XSTAT1 )
           END IF
 
           READ( JVUNIT, '(a2,i6,a1,i6)', END = 999 )
@@ -537,19 +537,19 @@ CCCCCCC What time? CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
           IF ( TXT( :2 ) .NE. BLANK2 ) THEN
             XMSG = 'Expected two blanks before specifying time.'
-            CALL M3EXIT( PNAME,STDATE,STTIME,XMSG,1 )
+            CALL M3EXIT( PNAME,STDATE,STTIME,XMSG,XSTAT1 )
           END IF
           IF ( JUNK .NE. BLANK ) THEN
             XMSG = 'Expected a space between begin time & end time.'
-            CALL M3EXIT( PNAME,STDATE,STTIME,XMSG,1 )
+            CALL M3EXIT( PNAME,STDATE,STTIME,XMSG,XSTAT1 )
           END IF
           IF ( ( TIME1 .LT. 0 ) .OR. ( TIME1 .GT. 240000 ) ) THEN
             XMSG = 'Begin time must be between 0 and 240000.'
-            CALL M3EXIT( PNAME,STDATE,STTIME,XMSG,1 )
+            CALL M3EXIT( PNAME,STDATE,STTIME,XMSG,XSTAT1 )
           END IF
           IF ( ( TIME2 .LT. 0 ) .OR. ( TIME2 .GT. 240000 ) ) THEN
             XMSG = 'End time must be between 0 and 240000.'
-            CALL M3EXIT( PNAME,STDATE,STTIME,XMSG,1 )
+            CALL M3EXIT( PNAME,STDATE,STTIME,XMSG,XSTAT1 )
           END IF
 
           ITIME( NPSEN, 1 ) = TIME1
@@ -599,7 +599,7 @@ CCCCCCC End REGION CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
           XMSG = 'Text not recognized. Expecting ' //
      &           'END, a new sensitivity name, ' //
      &           'or a blank line.'
-          CALL M3EXIT( PNAME,STDATE,STTIME,XMSG,1 )
+          CALL M3EXIT( PNAME,STDATE,STTIME,XMSG,XSTAT1 )
         END IF
 
   999 CONTINUE
@@ -608,7 +608,7 @@ CCCCCCC End REGION CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       ! of sensitivity parameters indicated by NPMAX in runscript.
       IF ( NPSEN .NE. NPMAX ) THEN
         XMSG = 'Wrong number of sens specified. Does not match NPMAX.'
-        CALL M3EXIT( PNAME, STDATE, STTIME, XMSG, 1 )
+        CALL M3EXIT( PNAME, STDATE, STTIME, XMSG, XSTAT1 )
       END IF
 
 
@@ -643,13 +643,13 @@ c Calculate 2nd order mapping
                If ( IHIGH(NP,1) .Eq. 0 .Or. IHIGH(NP,2) .Eq. 0 ) Then
                   XMSG = 'Required 1st order parameters not found'
      &                   // ' for parameter = > ' // SEN_PAR(NP)
-                  CALL M3EXIT( 'sinput', 0 , 0, XMSG, 2 )
+                  CALL M3EXIT( 'sinput', 0 , 0, XMSG, XSTAT2 )
                End If
             End If
          End Do
 c     Else
 c        XMSG = 'DDM-3D HIGH option not enabled - check runscript'
-c        CALL M3EXIT ( 'sinput', 0, 0, XMSG, 2 )
+c        CALL M3EXIT ( 'sinput', 0, 0, XMSG, XSTAT2 )
       End If
 
       RETURN
@@ -706,7 +706,7 @@ C
       IF(NUM .EQ. 0) THEN
          XMSG = 'Sensitivity parameter ' // TEMP //
      &          'not found in species name array'
-         CALL M3EXIT( PNAME, 0, 0, XMSG, 1 )
+         CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
       ENDIF
 
       RETURN
@@ -751,7 +751,7 @@ C------------------------------------------------------------
       IF(NUM .EQ. 0) THEN
          XMSG = 'Sensitivity parameter ' // TEMP //
      &          'not found in RXLABEL array'
-         CALL M3EXIT( PNAME, 0, 0, XMSG, 1 )
+         CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
       ENDIF
 
       RETURN

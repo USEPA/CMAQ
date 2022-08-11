@@ -47,19 +47,19 @@ C-----------------------------------------------------------------------
       Allocate ( s_so4rate( npmax ), stat = allocstat )
       If ( allocstat .Ne. 0 ) then
          xmsg = 'Failure allocating s_so4rate'
-         Call m3exit ( 'init_aero_ddm3d', 0, 0, xmsg, 2 )
+         Call m3exit ( 'init_aero_ddm3d', 0, 0, xmsg, xstat2 )
       End If
 
       Allocate ( s_phg_rate( npmax ), stat = allocstat )
       If ( allocstat .Ne. 0 ) then
          xmsg = 'Failure allocating s_phg_rate'
-         Call m3exit ( 'init_aero_ddm3d', 0, 0, xmsg, 2 )
+         Call m3exit ( 'init_aero_ddm3d', 0, 0, xmsg, xstat2 )
       End If
 
       Allocate ( s_xh2so4( npmax ), stat = allocstat )
       If ( allocstat .Ne. 0 ) then
          xmsg = 'Failure allocating s_xh2so4'
-         Call m3exit ( 'init_aero_ddm3d', 0, 0, xmsg, 2 )
+         Call m3exit ( 'init_aero_ddm3d', 0, 0, xmsg, xstat2 )
       End If
 
       ae_ddm3d_ready = .True.

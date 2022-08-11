@@ -236,7 +236,7 @@ C Find indices of required species
          Write(logdev,99901) Trim( mechname )
              xmsg = 'The FATAL errors found in namelist used. Check '
      &          //  'the log of exiting processor if more details are needed.'
-         Call m3exit( pname, 0, 0, xmsg, 3 )
+         Call m3exit( pname, 0, 0, xmsg, xstat3 )
       End If 
 
       mapped = .True.
@@ -364,7 +364,7 @@ C local variables:
 
       If ( .Not. mapped ) Then
          xmsg = 'CGRID Species has not been mapped'
-         Call m3exit( 'update_precursor', 0, 0, xmsg, 3 )
+         Call m3exit( 'update_precursor', 0, 0, xmsg, xstat3 )
       End If
 
 C compute gas conversion constant

@@ -81,7 +81,7 @@ C***********************************************************************
        IF ( IOS .NE. 0 ) THEN
           MSG = 'Error allocating RKI, RXRAT, RTOL, YC, YC0, YCP, FORWARD_CONV, '
      &       // 'REVERSE_CONV, PROD, LOSS, or PNEG'
-          CALL M3EXIT( PNAME, 0, 0, MSG, 1 )
+          CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
        END IF
 
        ALLOCATE( ATMPRES( MAX_CELLS_EBI ),
@@ -95,19 +95,19 @@ C***********************************************************************
 
        IF ( IOS .NE. 0 ) THEN
           MSG = 'Error allocating ATMPRES, H2O, TEMP, HET, RJIN, SEAWATER '
-          CALL M3EXIT( PNAME, 0, 0, MSG, 1 )
+          CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
        END IF
 
        IF( NSPECIAL .GT. 0 )THEN
           ALLOCATE( SYC( MAX_CELLS_EBI, NUMB_MECH_SPC ), STAT = IOS )
           IF ( IOS .NE. 0 ) THEN
                MSG = 'Error allocating SYC'
-               CALL M3EXIT( PNAME, 0, 0, MSG, 1 )
+               CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
           END IF
           ALLOCATE( IOLD2NEW( NUMB_MECH_SPC, 1 ), STAT = IOS )
           IF ( IOS .NE. 0 ) THEN
                MSG = 'Error allocating IOLD2NEW'
-               CALL M3EXIT( PNAME, 0, 0, MSG, 1 )
+               CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
           END IF
           DO N = 1, NUMB_MECH_SPC
              IOLD2NEW( N, 1 ) = N
@@ -116,7 +116,7 @@ C***********************************************************************
 
        IF( .NOT. MAP_CHEMISTRY_SPECIES() )THEN
           MSG = 'Detected above error(s) when mapping Chemistry species from CGRID species'
-          CALL M3EXIT( PNAME, 0, 0, MSG, 2 )
+          CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT2 )
        END IF
 
        DO N = 1, NUMB_MECH_SPC
@@ -139,7 +139,7 @@ C***********************************************************************
        ALLOCATE( YCCELL( MODEL_SPECIES), STAT = IOS )  ! array for degradation routines
        IF ( IOS .NE. 0 ) THEN
           MSG = 'Error allocating YCCELL '
-          CALL M3EXIT( PNAME, 0, 0, MSG, 1 )
+          CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
        END IF
 
 
@@ -149,7 +149,7 @@ c..Allocate and define ebi species
       ALLOCATE( EBISP( N_EBISP ), STAT = IOS ) 
       IF ( IOS .NE. 0 ) THEN
          MSG = 'Error allocating EBISP' 
-         CALL M3EXIT( PNAME, 0, 0, MSG, 1 )
+         CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
       END IF
 
       EBISP(   1 ) = H2O2

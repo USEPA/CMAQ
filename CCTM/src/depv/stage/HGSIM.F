@@ -187,7 +187,7 @@ C--------------------------------------------------------------------------
 ! Error handling section
 !------------------------------------------------------------------------------
 1001     CONTINUE
-         CALL M3EXIT( pname, jdate, jtime, xmsg, 1 )
+         CALL M3EXIT( pname, jdate, jtime, xmsg, xstat1 )
 C-------------------------------------------------------------------------------
 C Format statements.
 C-------------------------------------------------------------------------------
@@ -437,7 +437,7 @@ C*****************************************************************************
                Write(logdev,*) 'EIVEC', VR(1,1), VR(2,2)
                Write(logdev,*) 'NHS', NHS(1), NHS(2)
          
-               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 2 )
+               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
    
             END IF       
             CMEDIA( c,r,1 ) = Hg_wat    ! ppm

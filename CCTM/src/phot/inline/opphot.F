@@ -337,7 +337,7 @@ C...Open the 1st photolysis diagnostic file
 
          IF ( .NOT. OPEN3( CTM_RJ_1, FSNEW3, PNAME ) ) THEN
             XMSG = 'Could not create '// CTM_RJ_1 // ' file'
-            CALL M3EXIT ( PNAME, SDATE3D, STIME3D, XMSG, 1 )
+            CALL M3EXIT ( PNAME, SDATE3D, STIME3D, XMSG, XSTAT1 )
          END IF
 
       END IF
@@ -413,7 +413,7 @@ C...load data from photolysis reaction list
 
          IF ( .NOT. OPEN3( CTM_RJ_2, FSNEW3, PNAME ) ) THEN
             XMSG = 'Could not create '// CTM_RJ_2 // ' file'
-            CALL M3EXIT ( PNAME, SDATE3D, STIME3D, XMSG, 1 )
+            CALL M3EXIT ( PNAME, SDATE3D, STIME3D, XMSG, XSTAT1 )
          END IF
 
       END IF
@@ -548,7 +548,7 @@ C...Open the 3rd photolysis diagnostic file
 
          IF ( .NOT. OPEN3( CTM_RJ_3, FSNEW3, PNAME ) ) THEN
             XMSG = 'Could not create '// CTM_RJ_3 // ' file'
-            CALL M3EXIT ( PNAME, SDATE3D, STIME3D, XMSG, 1 )
+            CALL M3EXIT ( PNAME, SDATE3D, STIME3D, XMSG, XSTAT1 )
          END IF
 
       END IF

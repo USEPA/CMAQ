@@ -255,7 +255,7 @@ C Get description of met file
          IF ( .NOT. DESC3( MNAME ) ) THEN
             MESG = 'Could not get description of file "'
      &           // TRIM( MNAME ) // '"'
-            CALL M3EXIT( PNAME, JDATE, JTIME, MESG, 2 )
+            CALL M3EXIT( PNAME, JDATE, JTIME, MESG, XSTAT2 )
          END IF
 
          METSTEP = TSTEP3D
@@ -267,7 +267,7 @@ C Check that grid description matches MET_CRO_2D file
 #ifdef twoway
             CALL M3WARN( PNAME, 0, 0, MESG )
 #else
-            CALL M3EXIT( PNAME, JDATE, JTIME, MESG, 2 )
+            CALL M3EXIT( PNAME, JDATE, JTIME, MESG, XSTAT2 )
 #endif
          END IF
 
@@ -305,7 +305,7 @@ C at a constant rate for an output timestep.
       IF ( .NOT. CURRSTEP( JDATE, JTIME, STDATE, STTIME, METSTEP,
      &                     NDATE, NTIME ) ) THEN
          MESG = 'Cannot get step date and time'
-         CALL M3EXIT( PNAME, JDATE, JTIME, MESG, 3 )
+         CALL M3EXIT( PNAME, JDATE, JTIME, MESG, XSTAT3 )
       END IF
 
 C Store current time step rainfall totals
@@ -605,7 +605,7 @@ C Open NO rain data save file
       IF ( IO_PE_INCLUSIVE ) THEN
          IF ( .NOT. OPEN3( SOILOUT, FSNEW3, PNAME ) ) THEN
             MESG = 'Could not open "' // TRIM( SOILOUT ) // '" file'
-            CALL M3EXIT( PNAME, JDATE, JTIME, MESG, 1 )
+            CALL M3EXIT( PNAME, JDATE, JTIME, MESG, XSTAT1 )
          END IF
       END IF
 
@@ -613,14 +613,14 @@ C Open NO rain data save file
       IF ( IO_PE_INCLUSIVE ) THEN
          IF ( .NOT. FLUSH3 ( SOILOUT ) ) THEN
             MESG = 'Could not sync to disk ' // TRIM( SOILOUT )
-            CALL M3EXIT( PNAME, JDATE, JTIME, MESG, 2 )
+            CALL M3EXIT( PNAME, JDATE, JTIME, MESG, XSTAT2 )
          END IF
       END IF
       CALL SE_BARRIER
       IF ( .NOT. IO_PE_INCLUSIVE ) THEN
          IF ( .NOT. OPEN3( SOILOUT, FSREAD3, PNAME ) ) THEN
             MESG = 'Could not open ' // TRIM( SOILOUT )
-            CALL M3EXIT( PNAME, JDATE, JTIME, MESG, 2 )
+            CALL M3EXIT( PNAME, JDATE, JTIME, MESG, XSTAT2 )
          END IF
       END IF
 #endif
@@ -631,21 +631,21 @@ C Write soil NO rain data file
       IF ( .NOT. WRITE3( SOILOUT, VAR, NDATE, NTIME, PTYPE ) ) THEN
          MESG = 'Could not write "' // TRIM( VAR ) //
      &          '" to file "' // TRIM( SOILOUT ) // '"'
-         CALL M3EXIT( PNAME, JDATE, JTIME, MESG, 2 )
+         CALL M3EXIT( PNAME, JDATE, JTIME, MESG, XSTAT2 )
       END IF
 
       VAR = 'PULSEDATE'
       IF ( .NOT. WRITE3( SOILOUT, VAR, NDATE, NTIME, PULSEDATE ) ) THEN
          MESG = 'Could not write "' // TRIM( VAR ) //
      &          '" to file "' // TRIM( SOILOUT ) // '"'
-         CALL M3EXIT( PNAME, JDATE, JTIME, MESG, 2 )
+         CALL M3EXIT( PNAME, JDATE, JTIME, MESG, XSTAT2 )
       END IF
 
       VAR = 'PULSETIME'
       IF ( .NOT. WRITE3( SOILOUT, VAR, NDATE, NTIME, PULSETIME ) ) THEN
          MESG = 'Could not write "' // TRIM( VAR ) //
      &          '" to file "' // TRIM( SOILOUT ) // '"'
-         CALL M3EXIT( PNAME, JDATE, JTIME, MESG, 2 )
+         CALL M3EXIT( PNAME, JDATE, JTIME, MESG, XSTAT2 )
       END IF
 
       NDX = 1 + MOD( IHR, MXRHRS )
@@ -655,7 +655,7 @@ C Write soil NO rain data file
          IF ( .NOT. WRITE3( SOILOUT, VAR, NDATE, NTIME, RAINFALL( 1,1,I ) ) ) THEN
             MESG = 'Could not write "' // TRIM( VAR ) //
      &             '" to file "' // TRIM( SOILOUT ) // '"'
-            CALL M3EXIT( PNAME, JDATE, JTIME, MESG, 2 )
+            CALL M3EXIT( PNAME, JDATE, JTIME, MESG, XSTAT2 )
          END IF
       END DO
 

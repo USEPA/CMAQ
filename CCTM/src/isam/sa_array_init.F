@@ -145,13 +145,13 @@ C Get domain decomp info from the emissions file
       
       IF ( .NOT. OPEN3( INNAME, FSREAD3, PNAME) )THEN 
          WRITE(LOGDEV, *) 'Error: open file failed', INNAME
-         CALL M3EXIT( 'READ_ISAM_ICON', 0, 0, 'Above Fatal Error Encountered', 2 )
+         CALL M3EXIT( 'READ_ISAM_ICON', 0, 0, 'Above Fatal Error Encountered', XSTAT2 )
       ENDIF 
       
       
       IF ( .NOT. DESC3( INNAME ) ) THEN
          WRITE(LOGDEV, *) 'Error: read', INNAME, 'failed'
-         CALL M3EXIT( 'READ_ISAM_ICON', 0, 0, 'Above Fatal Error Encountered', 2 )
+         CALL M3EXIT( 'READ_ISAM_ICON', 0, 0, 'Above Fatal Error Encountered', XSTAT2 )
       ENDIF 
 
 cyqwang...begin  Get The last step data
@@ -185,7 +185,7 @@ Ckrt allocate data-loading array
      &         ' end of file...'
                 WRITE(LOGDEV,*) PNAME, JDATE, JTIME,
      &          TRIM( XMSG )
-             CALL M3EXIT( 'READ_ISAM_ICON', 0, 0, 'Above Fatal Error Encountered', 2 )             
+             CALL M3EXIT( 'READ_ISAM_ICON', 0, 0, 'Above Fatal Error Encountered', XSTAT2 )             
         END IF
         !KRT: identify isam indices from input species names
         IBGN = INDEX( VNAME3D( JSPCTAG ),'_', BACK = .TRUE. )
@@ -229,7 +229,7 @@ Ckrt allocate data-loading array
       END DO ! jspctag
 
       IF ( EFLAG ) THEN
-         CALL M3EXIT( 'READ_ISAM_ICON', 0, 0, 'Above Fatal Error Encountered', 2 )
+         CALL M3EXIT( 'READ_ISAM_ICON', 0, 0, 'Above Fatal Error Encountered', XSTAT2 )
       END IF
       
       DEALLOCATE(TEMP)

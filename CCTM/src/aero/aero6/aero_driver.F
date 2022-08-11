@@ -300,7 +300,7 @@ C ------------------ begin body of AERO_DRIVER -------------------------
             O3 = GC_STRT - 1 + GC_CONC_MAP( N )
          ELSE
             XMSG = 'Could not find ' // VNAME // 'in gas chem aerosol table'
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 3 )
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
          END IF
 #endif
 

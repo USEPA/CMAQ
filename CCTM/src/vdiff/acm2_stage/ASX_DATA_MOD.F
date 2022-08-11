@@ -284,7 +284,7 @@ C-----------------------------------------------------------------------
      &              BUFF3D( NCOLS,NROWS,NLAYS ), STAT = ALLOCSTAT )
          If ( ALLOCSTAT .Ne. 0 ) Then
             XMSG = 'Failure allocating Buffers'
-            Call M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
+            Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          End If
 
          BUFF1D = 0.0
@@ -349,7 +349,7 @@ C-----------------------------------------------------------------------
      &             STAT = ALLOCSTAT )
          If ( ALLOCSTAT .Ne. 0 ) Then
             XMSG = 'Failure allocating met vars'
-            Call M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
+            Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          End If
 
 
@@ -378,7 +378,7 @@ C-----------------------------------------------------------------------
      &             STAT = ALLOCSTAT )
          If ( ALLOCSTAT .Ne. 0 ) Then
             XMSG = 'Failure allocating grid vars'
-            Call M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
+            Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          End If
          Grid_Data%WSAT    = 0.0
          Grid_Data%WWLT    = 0.0
@@ -395,7 +395,7 @@ C-----------------------------------------------------------------------
      &             STAT = ALLOCSTAT )
          If ( ALLOCSTAT .Ne. 0 ) Then
             XMSG = 'Failure allocating mosaic met vars'
-            Call M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
+            Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          End If
 
          Grid_Data%WSAT    = 0.0
@@ -539,7 +539,7 @@ C-----------------------------------------------------------------------
      &             STAT = ALLOCSTAT )
          If ( ALLOCSTAT .Ne. 0 ) Then
             XMSG = 'Failure allocating mosaic vars'
-            Call M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
+            Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          End If
          Mosaic_Data%USTAR   = 0.0
          Mosaic_Data%LAI     = 0.0
@@ -613,14 +613,14 @@ C Check consistency with WRF LSM and CMAQ options
 C-----------------------------------------------------------------------
          If( .Not. PX_LSM .And. .Not. CLM_LSM .And. .Not. NOAH_LSM ) Then
             XMSG = 'WRF LSM is not supported. PX, CLM and NOAH are supported'
-            Call M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
+            Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             If( ABFLUX ) Then
                XMSG = 'NH3 bidirectional exchange is not supported using this WRF LSM option. Set CTM_ABFLUX to N.'
-               Call M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
+               Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             End IF
             If( HGBIDI ) Then
                XMSG = 'Hg bidirectional exchange is not supported using this WRF LSM option. Set CTM_HGBIDI to N.'
-               Call M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
+               Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             End IF
          End IF
 

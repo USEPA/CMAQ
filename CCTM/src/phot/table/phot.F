@@ -226,7 +226,7 @@ C----------------------------------------------------------------------
 
         IF ( JVUNIT .LT. 0 ) THEN
           XMSG = 'Error opening JVALUE file'
-          CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
+          CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
         END IF
 
 C...read julian start date from the file..............................
@@ -235,13 +235,13 @@ C...read julian start date from the file..............................
 
         XMSG = 'Error reading file header from JVALUE file'
         IF ( IOST .NE. 0 )
-     &    CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
+     &    CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
 
 C...note differences in start dates to the log
 
         XMSG = 'Date on JVALUE file differs from model start date'
         IF ( JVDATE .NE. LOC_STDATE )
-     &    CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 2 )
+     &    CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
 
 C...read number of levels.............................................
 
@@ -249,14 +249,14 @@ C...read number of levels.............................................
 
         XMSG = 'Error reading number of LEVELS from JVALUE file'
         IF ( IOST .NE. 0 )
-     &    CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
+     &    CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
 
 C...allocate arrays dependent on number of levels
 
         ALLOCATE ( XZJV( JVHT ), STAT = ALLOCSTAT )
         IF ( ALLOCSTAT .NE. 0 ) THEN
           XMSG = 'Failure allocating XZJV'
-          CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
+          CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
         END IF
 
 C...read levels
@@ -265,7 +265,7 @@ C...read levels
 
         XMSG = 'Error reading LEVELS from JVALUE file'
         IF ( IOST .NE. 0 )
-     &    CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
+     &    CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
 
 C...read number of latitude bands.....................................
 
@@ -273,14 +273,14 @@ C...read number of latitude bands.....................................
 
         XMSG = 'Error reading number of LATITUDES from JVALUE file'
         IF ( IOST .NE. 0 )
-     &    CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
+     &    CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
 
 C...allocate arrays dependent on number of latitudinal bands
 
         ALLOCATE ( XLATJV( JVLAT ), STAT = ALLOCSTAT )
         IF ( ALLOCSTAT .NE. 0 ) THEN
           XMSG = 'Failure allocating XLATJV'
-          CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
+          CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
         END IF
 
 C...read latitude bands
@@ -290,7 +290,7 @@ C...read latitude bands
 
         XMSG = 'Error reading LATITUDES from JVALUE file'
         IF ( IOST .NE. 0 )
-     &    CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
+     &    CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
 
 C...read hour number angles...........................................
 
@@ -298,14 +298,14 @@ C...read hour number angles...........................................
 
         XMSG = 'Error reading number of HOURS from JVALUE file'
         IF ( IOST .NE. 0 )
-     &    CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
+     &    CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
 
 C...allocate arrays dependent on number of hour angles
 
         ALLOCATE ( XHAJV( JVTMAX ), STAT = ALLOCSTAT )
         IF ( ALLOCSTAT .NE. 0 ) THEN
           XMSG = 'Failure allocating XHAJV'
-          CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
+          CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
         END IF
 
 C...read hour angles
@@ -314,7 +314,7 @@ C...read hour angles
 
         XMSG = 'Error reading HOURS from JVALUE file'
         IF ( IOST .NE. 0 )
-     &    CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
+     &    CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
 
 C...read number of reactions..........................................
 
@@ -322,33 +322,33 @@ C...read number of reactions..........................................
 
         XMSG = 'Error reading number of REACTIONS from JVALUE file'
         IF ( IOST .NE. 0 )
-     &    CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
+     &    CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
 
 C...make sure number of reactions is correct
 
         XMSG = 'Photolysis reactions on JVALUE file do not '
      &          //'match the expected list (NPHOTAB)'
         IF ( JPHOT .NE. NPHOTAB )
-     &    CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 2 )
+     &    CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
 
 C...allocate arrays dependent on number of photolysis reactions
 
         ALLOCATE ( PHOTNM( JPHOT ), STAT = ALLOCSTAT )
         IF ( ALLOCSTAT .NE. 0 ) THEN
           XMSG = 'Failure allocating PHOTNM'
-          CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
+          CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
         END IF
 
         ALLOCATE ( ACLD( JPHOT ), STAT = ALLOCSTAT )
         IF ( ALLOCSTAT .NE. 0 ) THEN
           XMSG = 'Failure allocating ACLD'
-          CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
+          CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
         END IF
 
         ALLOCATE ( PHID( JPHOT ), STAT = ALLOCSTAT )
         IF ( ALLOCSTAT .NE. 0 ) THEN
           XMSG = 'Failure allocating PHID'
-          CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
+          CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
         END IF
 
 C...read reaction id's and ACLD array
@@ -358,7 +358,7 @@ C...read reaction id's and ACLD array
           READ( JVUNIT, *, IOSTAT = IOST ) PHOTNM( NPHOT ),
      &                                     ACLD( NPHOT )
           IF ( IOST .NE. 0 )
-     &      CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
+     &      CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
         END DO
 
 C...check the file list
@@ -370,7 +370,7 @@ C...check the file list
         DO NPHOT = 1, NPHOTAB
            PHID( NPHOT ) = INDEX1( PHOTAB( NPHOT ), JPHOT, PHOTNM )
            IF ( PHID( NPHOT ) .LE. 0 )
-     &        CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
+     &        CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
         END DO
 
 C...allocate the XJVAL array
@@ -378,7 +378,7 @@ C...allocate the XJVAL array
         ALLOCATE ( XJVAL( JPHOT, JVTMAX, JVLAT, JVHT ), STAT = ALLOCSTAT )
         IF ( ALLOCSTAT .NE. 0 ) THEN
           XMSG = 'Failure allocating XJVAL'
-          CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
+          CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
         END IF
 
 C...read the j-values
@@ -391,7 +391,7 @@ C...read the j-values
               READ( JVUNIT, *, IOSTAT = IOST ) NHTO, NLATO, NPHOTO
 
               IF ( IOST .NE. 0 )
-     &          CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
+     &          CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
 
               IF ( PHID( NPHOT ) .NE. 0 ) THEN
 
@@ -399,14 +399,14 @@ C...read the j-values
      &               ( XJVAL( PHID( NPHOT ), NT, NLAT, NHT ), NT = 1, JVTMAX )
 
                  IF ( IOST .NE. 0 )
-     &             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
+     &             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
 
               ELSE
 
                  READ( JVUNIT, *, IOSTAT = IOST ) DUMP
 
                  IF ( IOST .NE. 0 )
-     &             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
+     &             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
 
               END IF
 
@@ -421,7 +421,7 @@ C...close the jvalue file
         ALLOCATE ( ZM( NCOLS,NROWS, NLAYS ), STAT = ALLOCSTAT )
         IF ( ALLOCSTAT .NE. 0 ) THEN
           XMSG = 'Failure allocating LAT'
-          CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
+          CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
         END IF
 
         CALL INIT_PHOT_SHARED()
@@ -430,14 +430,14 @@ C...close the jvalue file
         ALLOCATE( ELMO_AOD_550    ( NCOLS,NROWS ) )
         IF ( ALLOCSTAT .NE. 0 ) THEN
              XMSG = 'Failure allocating 2D ELMO_AOD_550. Note that it is not used by this phot_table module'
-             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
+             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
         END IF
         ELMO_AOD_550 = 0.0
         
         ALLOCATE ( ELMO_EXT_550( NCOLS,NROWS,NLAYS ), STAT = ALLOCSTAT )
         IF ( ALLOCSTAT .NE. 0 ) THEN
              XMSG = 'Failure allocating 3D ELMO_EXT_550. Note that it is not used by this phot_table module'
-             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
+             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
         END IF
         ELMO_EXT_550 = 0.0
 
@@ -459,7 +459,7 @@ C...open the photolysis rate diagnostic files
          IF ( .NOT. IO_PE_INCLUSIVE ) THEN
             IF ( .NOT. OPEN3( CTM_RJ_2, FSNONIO, PNAME ) ) THEN
                XMSG = 'Could not open ' // TRIM(CTM_RJ_2)
-               CALL M3EXIT( PNAME, ODATE, OTIME, XMSG, 1 )
+               CALL M3EXIT( PNAME, ODATE, OTIME, XMSG, XSTAT1 )
             END IF
          END IF
 #endif
@@ -521,7 +521,7 @@ C...  (assumes sun below horizon at *all* levels!)
             IF ( .NOT. WRITE3( CTM_RJ_2, PHOTAB( JP ), JDATE,
      &                         JTIME, RJ( :,:,:,JP ) ) ) THEN
               XMSG = 'Could not write ' // CTM_RJ_2 // ' file'
-              CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
+              CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             END IF
           END DO
 
@@ -739,7 +739,7 @@ C...  in cloud - linearly interpolate between base and top value
         DO JP = 1, NPHOTAB
           IF ( .NOT. WRITE3( CTM_RJ_2, PHOTAB( JP ), ODATE, OTIME, RJ( :,:,:,JP ) ) ) THEN
             XMSG = 'Could not write ' // CTM_RJ_2 // ' file'
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
           END IF
         END DO
 

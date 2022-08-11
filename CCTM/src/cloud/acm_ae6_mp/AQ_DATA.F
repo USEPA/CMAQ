@@ -396,7 +396,7 @@ C-----------------------------------------------------------------------
       Allocate ( aename( n_ae_a2aq ), stat = ios )
       If ( ios .Ne. 0 ) Then
          xmsg = '*** Error allocating aename'
-         Call m3exit( 'aq_data_init', 0, 0, xmsg, 3 )
+         Call m3exit( 'aq_data_init', 0, 0, xmsg, xstat3 )
       End If
 
 C...Build array of AE names that are mapped to AE_A2AQ
@@ -411,25 +411,25 @@ C...Set number of species in CGRID and used in Aqeuous module
 !    &           cgrid2aq_map( n_cgrid2aq ), stat = ios )
 !     If ( ios .Ne. 0 ) Then
 !        xmsg = '*** Error allocating cgrid2aq or cgrid2aq_map'
-!        Call m3exit( 'aq_data_init', 0, 0, xmsg, 3 )
+!        Call m3exit( 'aq_data_init', 0, 0, xmsg, xstat3 )
 !     End If
 
       Allocate ( cgrid2aq( n_cgrid2aq ), stat = ios )
       If ( ios .Ne. 0 ) Then
          xmsg = '*** Error allocating cgrid2aq'
-         Call m3exit( 'aq_data_init', 0, 0, xmsg, 3 )
+         Call m3exit( 'aq_data_init', 0, 0, xmsg, xstat3 )
       End If
 
       Allocate ( cgrid2aq_map( n_cgrid2aq ), stat = ios )
       If ( ios .Ne. 0 ) Then
          xmsg = '*** Error allocating cgrid2aq_map'
-         Call m3exit( 'aq_data_init', 0, 0, xmsg, 3 )
+         Call m3exit( 'aq_data_init', 0, 0, xmsg, xstat3 )
       End If
 
       Allocate ( cgrid2aq_name( n_cgrid2aq ), stat = ios )
       If ( ios .Ne. 0 ) Then
          xmsg = '*** Error allocating cgrid2aq_name'
-         Call m3exit( 'aq_data_init', 0, 0, xmsg, 3 )
+         Call m3exit( 'aq_data_init', 0, 0, xmsg, xstat3 )
       End If
 
 C...Map aero species
@@ -440,19 +440,19 @@ C...Map aero species
       Allocate ( srgaer( naer ), stat = ios )
       If ( ios .Ne. 0 ) Then
          xmsg = '*** Error allocating srgaer'
-         Call m3exit( 'aq_data_init', 0, 0, xmsg, 3 )
+         Call m3exit( 'aq_data_init', 0, 0, xmsg, xstat3 )
       End If
 
       Allocate ( nsrgaer( naer,nmodes ), stat = ios )
       If ( ios .Ne. 0 ) Then
          xmsg = '*** Error allocating nsrgaer'
-         Call m3exit( 'aq_data_init', 0, 0, xmsg, 3 )
+         Call m3exit( 'aq_data_init', 0, 0, xmsg, xstat3 )
       End If
 
       Allocate ( lsrgaer( naer,nmodes,mxsrg ), stat = ios )
       If ( ios .Ne. 0 ) Then
          xmsg = '*** Error allocating lsrgaer'
-         Call m3exit( 'aq_data_init', 0, 0, xmsg, 3 )
+         Call m3exit( 'aq_data_init', 0, 0, xmsg, xstat3 )
       End If
 
 C...Add missing optional aerosol surrogate species      
@@ -593,7 +593,7 @@ C...Create the pointers from CGRID to the aerosol species needed by AQCHEM
                   Do isrg = 1, nsrgaer( iaer,n )
                      If ( isrg .Gt. mxsrg ) Then
                         xmsg = 'lsrg will index out of bounds. Increase mxsrg in AQ_DATA.F'
-                        Call m3exit( 'AQ_DATA', 0, 0, xmsg, 3 )
+                        Call m3exit( 'AQ_DATA', 0, 0, xmsg, xstat3 )
                      End If
                      lsrgaer( iaer,n,isrg ) = lsrg( isrg )
 #ifdef verbose_cloud
@@ -760,7 +760,7 @@ C Local Variables:
       End Do
 
       xmsg = 'Required Species ' // Trim( vname ) // ' Not found in SgrGas names array'
-      Call m3exit( 'AQ_DATA', 0, 0, xmsg, 3 )
+      Call m3exit( 'AQ_DATA', 0, 0, xmsg, xstat3 )
 
       Return
       End Function findSgrGas
@@ -799,7 +799,7 @@ C Local Variables:
       End Do
 
       xmsg = 'Required Species ' // Trim( vname ) // ' Not found in SgrAer names array'
-      Call m3exit( 'AQ_DATA', 0, 0, xmsg, 3 )
+      Call m3exit( 'AQ_DATA', 0, 0, xmsg, xstat3 )
 
       Return
       End Function findSgrAer

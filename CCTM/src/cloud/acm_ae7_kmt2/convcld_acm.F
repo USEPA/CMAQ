@@ -461,7 +461,7 @@ C...  event-statistics variables.
           ALLOCATE ( AECONCMIN( N_AE_SPC ), STAT = ALLOCSTAT )
           IF ( ALLOCSTAT .NE. 0 ) THEN
             XMSG = 'Failure allocating AECONCMIN'
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
+            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
           END IF
           CALL SET_AECONCMIN ( AECONCMIN )
 
@@ -498,13 +498,13 @@ C...allocate saved arrays
         ALLOCATE ( F( NLAYS ), STAT = ALLOCSTAT )
         IF ( ALLOCSTAT .NE. 0 ) THEN
           XMSG = 'Failure allocating F'
-          CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
+          CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
         END IF
 
         ALLOCATE ( DZH( NLAYS ), STAT = ALLOCSTAT )
         IF ( ALLOCSTAT .NE. 0 ) THEN
           XMSG = 'Failure allocating DZH'
-          CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
+          CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
         END IF
 
         MXSPCS = NSPCSD
@@ -514,7 +514,7 @@ C...allocate saved arrays
      &             CBELOW( MXSPCS ), STAT = ALLOCSTAT )
         IF ( ALLOCSTAT .NE. 0 ) THEN
           XMSG = 'Failure allocating CCR, CONC or CBELOW'
-          CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
+          CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
         END IF
 
         ALLOCATE ( BMOL   ( MXSPCS ),
@@ -529,14 +529,14 @@ C...allocate saved arrays
         IF ( ALLOCSTAT .NE. 0 ) THEN
           XMSG = 'Failure allocating BMOL, CBASE0, CBASEF, CEND, POLC, REMOV,'
      &         // ' QLQD or QICE'
-          CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
+          CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
         END IF
 
         ALLOCATE ( CONCMINL( MXSPCS,NLAYS ),
      &             PCLD    ( MXSPCS,NLAYS ), STAT = ALLOCSTAT )
         IF ( ALLOCSTAT .NE. 0 ) THEN
           XMSG = 'Failure allocating CONCMINL or PCLD'
-          CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
+          CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
         END IF
 
 C...Calculate the Sundqvist et al. 1989 threshold humidities for cloud formation based on 
@@ -635,7 +635,7 @@ C...  on the input file are amounts within the metfiles timestep.
       IF ( .NOT. CURRSTEP( JDATE, JTIME, SDATE, STIME, MSTEP,
      &                     MDATE, MTIME ) ) THEN
         XMSG = 'Cannot get step-starting date and time'
-        CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 3 )
+        CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
       END IF
 
       CALL NEXTIME ( MDATE, MTIME, MSTEP )  ! set mdate:mtime to the hour
@@ -655,7 +655,7 @@ C...  threshold
       END DO
       IF ( MINVAL( RAIN ) .LT. 0.0 ) THEN
         XMSG = 'NEGATIVE RAIN...PROBABLY BAD MET DATA... in' // MET_CRO_2D
-        CALL M3EXIT ( PNAME, MDATE, MTIME, XMSG, 1 )
+        CALL M3EXIT ( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
       END IF
       WHERE ( RAIN .GE. RTHRESH ) CONV_DEP( :,:,N_SPC_WDEP + 6 ) = 1.0
 
@@ -1131,7 +1131,7 @@ C...test for convergence, then cut the interval in half
               WRITE( XMSG, 91010 )
      &             'NO CONVERGENCE IN ENTRAINMENT SOLVER AT COL= ',
      &             COL, ' ROW= ',  ROW, ' ICLDTYPE= ', ICLDTYPE
-              CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 2 )
+              CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
             END IF
 
             TEMPC = ( TEMPA + TEMPB ) * 0.5

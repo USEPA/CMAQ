@@ -476,7 +476,7 @@ CONTAINS !  SUBROUTINES internal to Rosenbrock
       XMSG = 'Ros ERROR: Unknown Error code'
    END SELECT
 
-      CALL M3EXIT ( PNAME, JDATEKPP, JTIMEKPP, XMSG, 2 )  
+      CALL M3EXIT ( PNAME, JDATEKPP, JTIMEKPP, XMSG, XSTAT2 )  
 !kf   PRINT *, "T=", T, "and H=", H                                   
      
  END SUBROUTINE ros_ErrorMsg

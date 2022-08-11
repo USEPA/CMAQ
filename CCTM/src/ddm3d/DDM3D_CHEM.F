@@ -73,25 +73,25 @@ C-----------------------------------------------------------------------
       ALLOCATE( YCHECK ( NUMB_MECH_SPC), STAT = ALLOCSTAT )
       IF ( ALLOCSTAT .NE. 0 ) THEN
          XMSG = 'Failure allocating YCHECK'
-         CALL M3EXIT ( PNAME, 0, 0, XMSG, 2 )
+         CALL M3EXIT ( PNAME, 0, 0, XMSG, XSTAT2 )
       END IF
 
       ALLOCATE( YCDDM ( NUMB_MECH_SPC), STAT = ALLOCSTAT )
       IF ( ALLOCSTAT .NE. 0 ) THEN
          XMSG = 'Failure allocating YCDDM'
-         CALL M3EXIT ( PNAME, 0, 0, XMSG, 2 )
+         CALL M3EXIT ( PNAME, 0, 0, XMSG, XSTAT2 )
       END IF
 
       ALLOCATE( DDM_CHECK( NUMB_MECH_SPC), STAT = ALLOCSTAT )
       IF ( ALLOCSTAT .NE. 0 ) THEN
          XMSG = 'Failure allocating  DDM_CHECK'
-         CALL M3EXIT ( PNAME, 0, 0, XMSG, 2 )
+         CALL M3EXIT ( PNAME, 0, 0, XMSG, XSTAT2 )
       END IF
 
       ALLOCATE( RXNFLAG( NPMAX ),  STAT = ALLOCSTAT )
       IF ( ALLOCSTAT .NE. 0 ) THEN
          XMSG = 'Failure allocating RXNFLAG'
-         CALL M3EXIT ( PNAME, 0, 0, XMSG, 2 )
+         CALL M3EXIT ( PNAME, 0, 0, XMSG, XSTAT2 )
       END IF
 
       ALLOCATE( SRK( NRXNS ), 
@@ -100,7 +100,7 @@ C-----------------------------------------------------------------------
      &          ORDER1 ( NRXNS ), STAT = ALLOCSTAT )
       IF ( ALLOCSTAT .NE. 0 ) THEN
          XMSG = 'Failure allocating SRK, SRK2, RK, or ORDER1'
-         CALL M3EXIT ( PNAME, 0, 0, XMSG, 2 )
+         CALL M3EXIT ( PNAME, 0, 0, XMSG, XSTAT2 )
       END IF
 
       ALLOCATE( A( NUMB_MECH_SPC, NUMB_MECH_SPC ),
@@ -109,19 +109,19 @@ C-----------------------------------------------------------------------
      &          PDT2( NUMB_MECH_SPC, NUMB_MECH_SPC ), STAT = ALLOCSTAT )
       IF ( ALLOCSTAT .NE. 0 ) THEN
          XMSG = 'Failure allocating A, A1, PDT, or PDT2'
-         CALL M3EXIT ( PNAME, 0, 0, XMSG, 2 )
+         CALL M3EXIT ( PNAME, 0, 0, XMSG, XSTAT2 )
       END IF
 
       ALLOCATE( SMID( NUMB_MECH_SPC,NPMAX ), STAT = ALLOCSTAT )
       IF ( ALLOCSTAT .NE. 0 ) THEN
          XMSG = 'Failure allocating SMID'
-         CALL M3EXIT ( PNAME, 0, 0, XMSG, 2 )
+         CALL M3EXIT ( PNAME, 0, 0, XMSG, XSTAT2 )
       END IF
 
       ALLOCATE( SEND( 1,NUMB_MECH_SPC ), STAT = ALLOCSTAT )
       IF ( ALLOCSTAT .NE. 0 ) THEN
          XMSG = 'Failure allocating SEND'
-         CALL M3EXIT ( PNAME, 0, 0, XMSG, 2 )
+         CALL M3EXIT ( PNAME, 0, 0, XMSG, XSTAT2 )
       END IF
       SEND = 0.0D0
 
@@ -132,14 +132,14 @@ C-----------------------------------------------------------------------
      &          SMIDJAC( NUMB_MECH_SPC ), STAT = ALLOCSTAT )
       IF ( ALLOCSTAT .NE. 0 ) THEN
         XMSG = 'Failure allocating PRD, SOLD, IPVT, PRD_RATE,or SMIDJAC'
-         CALL M3EXIT ( PNAME, 0, 0, XMSG, 2 )
+         CALL M3EXIT ( PNAME, 0, 0, XMSG, XSTAT2 )
       END IF
 
       ALLOCATE( SENS_INDEX( NUMB_MECH_SPC ),
      &          MECH_INDEX( NUMB_MECH_SPC ), STAT = ALLOCSTAT )
       IF ( ALLOCSTAT .NE. 0 ) THEN
          XMSG = 'Failure allocating SENS_INDEX or MECH_INDEX'
-         CALL M3EXIT ( PNAME, 0, 0, XMSG, 2 )
+         CALL M3EXIT ( PNAME, 0, 0, XMSG, XSTAT2 )
       END IF
       
       DO ISPC = 1, NUMB_MECH_SPC
@@ -361,7 +361,7 @@ C Begin code specific to reaction rate sensitivities
      &                          * YCDDM( ISPECIES_REACTION( 3,RXN ) )
                      ELSE
                         XMSG = 'NREACT out of expected bounds of 1-3.'
-                        CALL M3EXIT( PNAME, 0, 0, XMSG, 1 )
+                        CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
                      END IF
   
                      DO NRCT = 1, NREACT( RXN ) ! Loop over the reactants

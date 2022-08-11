@@ -65,7 +65,7 @@ c..Increment the counter and check for too many
          CALL M3MESG( MSG )
          WRITE( MSG, 94020 ) MAXIPRSPC
          CALL M3MESG( MSG )
-         CALL M3EXIT( PNAME, IZERO, IZERO, ' ', 2 )
+         CALL M3EXIT( PNAME, IZERO, IZERO, ' ', XSTAT2 )
       END IF
 
 c..get the name of the species for IPR_OUTPUT
@@ -88,7 +88,7 @@ c..the next character must be an equal sign
          CALL M3MESG( MSG )
          WRITE( MSG, 94520 ) CHR
          CALL M3MESG( MSG )
-         CALL M3EXIT( PNAME, IZERO, IZERO, ' ', 2 )
+         CALL M3EXIT( PNAME, IZERO, IZERO, ' ', XSTAT2 )
       END IF
 
 c..top of loop for getting operators for this species
@@ -105,7 +105,7 @@ c..increment the counters and check for too many
          CALL M3MESG( MSG )
          WRITE( MSG, 94080 ) MAXTERMS
          CALL M3MESG( MSG )
-         CALL M3EXIT( PNAME, IZERO, IZERO, ' ', 2 )
+         CALL M3EXIT( PNAME, IZERO, IZERO, ' ', XSTAT2 )
       END IF
 
 c..get the operator name
@@ -125,7 +125,7 @@ c..if more operators, go back or return or err off
          CALL M3MESG( MSG )
          WRITE( MSG, 94520 ) CHR
          CALL M3MESG( MSG )
-         CALL M3EXIT( PNAME, IZERO, IZERO, ' ', 2 )
+         CALL M3EXIT( PNAME, IZERO, IZERO, ' ', XSTAT2 )
       END IF
 
 C----------------------- FORMAT Statements -----------------------------

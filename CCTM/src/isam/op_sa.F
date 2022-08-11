@@ -199,10 +199,10 @@ cyqw    TSTEP3D = TSTEP(1)
    
                
         IF ( MYPE .EQ. 0 ) THEN
-!           CALL M3EXIT( 'OP_SA', 0, 0, 'Fatal Error Encountered', 2 )
+!           CALL M3EXIT( 'OP_SA', 0, 0, 'Fatal Error Encountered', XSTAT2 )
            IF ( .NOT. OPEN3( FILE_NAME, FSNEW3, PNAME ) ) THEN
               XMSG = 'Could not create '// FILE_NAME // ' file'
-              CALL M3EXIT ( PNAME, SDATE3D, STIME3D, XMSG, 1 )
+              CALL M3EXIT ( PNAME, SDATE3D, STIME3D, XMSG, XSTAT1 )
            END IF
         END IF
 
@@ -211,7 +211,7 @@ Ckrt...Write initial conditions to sa_conc_1 ( or last hour sa_cgrid_1 )
      &     STAT = ALLOCSTAT )
           IF ( ALLOCSTAT .NE. 0 ) THEN
             XMSG = 'Failure allocating ISAM_BUFF'
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
           ENDIF
           ISAM_BUFF = 0.0
 C
@@ -225,7 +225,7 @@ C
      &     ISAM_BUFF ) ) THEN
             XMSG = 'Could not write to '
      &         // FILE_NAME
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
+            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
           END IF
           if ( MYPE .eq. 0 ) then
             !print*,'Finished write3 S =',S

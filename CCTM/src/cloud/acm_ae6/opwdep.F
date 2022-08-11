@@ -111,14 +111,14 @@ C Try to open existing wet deposition file for update
 
               IF ( .NOT. OPEN3( MET_CRO_2D, FSREAD3, PNAME ) ) THEN
                 XMSG = 'Could not open '// MET_CRO_2D // ' file'
-                CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
+                CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
               END IF
 
 !...get description from the met file
 
               IF ( .NOT. DESC3( MET_CRO_2D ) ) THEN
                 XMSG = 'Could not get ' // MET_CRO_2D //' file description'
-                CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
+                CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
               END IF
 
               NCOLS3D = GL_NCOLS
@@ -216,7 +216,7 @@ C Try to open existing wet deposition file for update
 
               IF ( .NOT. OPEN3( CTM_WET_DEP_1, FSNEW3, PNAME ) ) THEN
                  XMSG = 'Could not create '// CTM_WET_DEP_1 // ' file'
-                 CALL M3EXIT ( PNAME, SDATE3D, STIME3D, XMSG, 1 )
+                 CALL M3EXIT ( PNAME, SDATE3D, STIME3D, XMSG, XSTAT1 )
               END IF
 
            END IF   ! open CTM_WET_DEP_1 read/write
@@ -315,7 +315,7 @@ C...initialize the file descriptors
 C...try to open the output file new
                IF ( .NOT. OPEN3( CTM_SWETDEP_1, FSNEW3, PNAME ) ) THEN
                   XMSG = 'Could not create '// CTM_SWETDEP_1 // ' file'
-                  CALL M3EXIT ( PNAME, SDATE3D, STIME3D, XMSG, 1 )
+                  CALL M3EXIT ( PNAME, SDATE3D, STIME3D, XMSG, XSTAT1 )
                END IF
 
            END IF   ! open CTM_SWETDEP_1 read/write
@@ -340,7 +340,7 @@ C...try to open the output file new
 
                  IF ( .NOT. DESC3( CTM_WET_DEP_1 ) ) THEN
                     XMSG = 'Could not get ' // CTM_WET_DEP_1 //' file description'
-                    CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
+                    CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
                  END IF
 
 !...advance to time variable for the output file to the next hour
@@ -454,7 +454,7 @@ C...try to open the output file new
 
                  IF ( .NOT. OPEN3( CTM_WET_DEP_2, FSNEW3, PNAME ) ) THEN
                     XMSG = 'Could not create '// CTM_WET_DEP_2 // ' file'
-                    CALL M3EXIT ( PNAME, SDATE3D, STIME3D, XMSG, 1 )
+                    CALL M3EXIT ( PNAME, SDATE3D, STIME3D, XMSG, XSTAT1 )
                  END IF
 
               END IF   ! open CTM_WET_DEP_2 read/write

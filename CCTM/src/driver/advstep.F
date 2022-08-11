@@ -195,7 +195,7 @@ C-----------------------------------------------------------------------
          IF ( SIGST .GT. VGLVS_GD( 2 ) .OR.
      &        SIGST .LT. VGLVS_GD( NLAYS + 1 ) ) THEN
             WRITE(XMSG, '(A, 1PE12.3)') 'SIGMA_SYNC_TOP incorrect', SIGST
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 2 )
+            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
          END IF
 
          IF ( SIGST .EQ. VGLVS_GD( NLAYS + 1 ) ) THEN
@@ -228,7 +228,7 @@ C Check file data against COORD.EXT
             WRITE( LOGDEV,* ) 'XCELL3D, XCELL_GD, YCELL3D, YCELL_GD: '
             WRITE( LOGDEV,* ) XCELL3D, XCELL_GD, YCELL3D,YCELL_GD
             XMSG = 'File grid sizes do not match CTM domain definition'
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 3 )
+            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
          END IF
 
 C Get cell size in meters (from COORD.EXT)
@@ -246,7 +246,7 @@ C Get the time of starting wind field: do not interpolate
          IF ( .NOT. CURRSTEP( JDATE, JTIME, SDATE, STIME, FSTEP,
      &                        FDATE, FTIME) ) THEN
             XMSG = 'Cannot get step-starting date and time'
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 3 )
+            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
          END IF
 
          ALLOCATE( WIND_IDX_BEG( NLAYS ),
@@ -254,7 +254,7 @@ C Get the time of starting wind field: do not interpolate
      &             WIND_IDX    ( NLAYS ), STAT = ALLOCSTAT )
          IF ( ALLOCSTAT .NE. 0 ) THEN
             XMSG = 'Failure allocating WIND_IDX*'
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
+            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
 
          ALLOCATE( MX_HDIV_BEG( NLAYS ),
@@ -262,7 +262,7 @@ C Get the time of starting wind field: do not interpolate
      &             MX_HDIV    ( NLAYS ), STAT = ALLOCSTAT )
          IF ( ALLOCSTAT .NE. 0 ) THEN
             XMSG = 'Failure allocating MX_HDIV*'
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
+            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
  
          IF ( .NOT. COLUMN_MODEL ) THEN
@@ -313,14 +313,14 @@ C Make sure MINSYNC <= output time step
       IF ( MINSYNC .GT. OSTEP ) THEN
          WRITE( LOGDEV,92009 ) OSTEP, MINSYNC
          XMSG = ' '
-         CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 3 )
+         CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
       END IF
 
 C Make sure MINSYNC <= MAXSYNC
       IF ( MINSYNC .GT. MAXSYNC ) THEN
          WRITE( LOGDEV,92010 ) MAXSYNC, MINSYNC
          XMSG = ' '
-         CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 3 )
+         CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
       END IF
 
 C Determine MINSECS, the smallest time step (sec) between MINSYNC and MAXSYNC
@@ -338,7 +338,7 @@ C that divides the output step
             END IF
 C A satisfactory MINSECS could not be found
             WRITE( XMSG,92012 ) MINSYNC, OSTEP
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 3 )
+            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
          END DO
       END IF
 
@@ -427,7 +427,7 @@ C If you get here: could not determine satisfactory advection time step.
 
       WRITE( LOGDEV,94011 ) min(TSTEP( 1 ), FSTEP), MXUOVDX
       XMSG = ' '
-      CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 3 )
+      CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
 
 301   CONTINUE
 
@@ -459,7 +459,7 @@ C If you get here: could not determine satisfactory advection time step.
 
          WRITE( LOGDEV,94013 ) min(TSTEP( 1 ), FSTEP), L, WIND_IDX( L )
          XMSG = ' '
-         CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 3 )
+         CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
 
 401      CONTINUE
 
@@ -487,7 +487,7 @@ C If you get here: could not determine satisfactory advection time step.
 
             WRITE( LOGDEV,94013 ) min(TSTEP( 1 ), FSTEP), L, WIND_IDX( L )
             XMSG = ' '
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 3 )
+            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
 
 501         CONTINUE
             WRITE( LOGDEV,92029 ) L, ASTEP( L ), NADVS( L )

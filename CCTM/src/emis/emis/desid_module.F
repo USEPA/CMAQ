@@ -188,7 +188,7 @@ C Initialize 3D Point Source Emissions
          CALL LOG_SUBHEADING( LOGDEV, 'Initialize Point Emissions' )
          IF ( .NOT. PT3D_INIT( JDATE, JTIME, TSTEP ) ) THEN
             XMSG = 'Failure initializing plume rise emissions module'
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
 
          IF ( BIOGEMIS_MEGAN ) THEN
@@ -196,7 +196,7 @@ C Initialize Online Biogenic Emissions, MEGAN
           CALL LOG_SUBHEADING( LOGDEV, 'Initialize BEIS Biogenic Emissions' )
           IF ( .NOT. MEGAN_INIT( JDATE, JTIME, TSTEP ) ) THEN
              XMSG = 'Failure initializing biogenics emissions module'
-             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
+             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
           END IF
          END IF
          IF ( BIOGEMIS_BEIS ) THEN 
@@ -204,28 +204,28 @@ C Initialize Online Biogenic Emissions, BEIS
           CALL LOG_SUBHEADING( LOGDEV, 'Initialize MEGAN Biogenic Emissions' )
           IF ( .NOT. BEIS_INIT( JDATE, JTIME, TSTEP ) ) THEN
             XMSG = 'Failure initializing biogenics emissions module'
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
           END IF
          END IF
 C Initialize Online Marine Gas Emissions
          CALL LOG_SUBHEADING( LOGDEV, 'Initialize Marine Gas Emissions' )
          IF ( .NOT. MGEMIS_INIT( JDATE, JTIME, TSTEP ) ) THEN
             XMSG = 'Failure initializing marine gas emissions module'
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
 
 C Initialize Online Lightning NOx Emissions
          CALL LOG_SUBHEADING( LOGDEV, 'Initialize Lightning NO Emissions' )
          IF ( .NOT. LTNG_INIT( JDATE, JTIME, TSTEP ) ) THEN
             XMSG = 'Failure initializing lightning emissions module'
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
 
 C Initialize Aerosol Emissions         
          CALL LOG_SUBHEADING( LOGDEV,'Process Aerosol Emissions' )
          IF ( .NOT. AERO_EMIS_INIT( JDATE, JTIME, TSTEP ) ) THEN
             XMSG = 'Failure initializing aerosol emissions module'
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
 
 C Map the Emission Variables Available on the Input Files To the
@@ -464,13 +464,13 @@ C Find emissions stream in the list of available streams
                     ELSE
                       XMSG = " Must specifiy OZONE ISAM TAG CLASS" //
      &                       " in isam_control to track PVO3 "
-                      CALL M3EXIT( 'ISAM_PVO3', 1, 1, XMSG, 1 )
+                      CALL M3EXIT( 'ISAM_PVO3', 1, 1, XMSG, XSTAT1 )
                     ENDIF
 #else
                     XMSG = " To track PVO3, model must be compiled" //
      &                     " with -Dpotvorto3 option. Check Makefile" //
      &                     " and/or build script."
-                    CALL M3EXIT( 'ISAM_PVO3', 1, 1, XMSG, 1 )
+                    CALL M3EXIT( 'ISAM_PVO3', 1, 1, XMSG, XSTAT1 )
 #endif
                  ENDIF
 
@@ -480,7 +480,7 @@ C Find emissions stream in the list of available streams
                    ELSE
                      XMSG = " BIDIRECTIONALNH3 specified," //
      &                      " but ABLUX set to FALSE "
-                     CALL M3EXIT( 'ISAM_PVO3', 1, 1, XMSG, 1 )
+                     CALL M3EXIT( 'ISAM_PVO3', 1, 1, XMSG, XSTAT1 )
                    ENDIF           
                  END IF
 
@@ -504,7 +504,7 @@ C Find emissions stream in the list of available streams
                    WRITE(LOGDEV,'(4X,A)')DESID_STREAM_LAB(ITAG)
                 END DO
                 XMSG = 'INCORRECT Emissions Stream used in ISAM control file'
-                CALL M3EXIT( 'ISAM_STREAMS', 1, 1, XMSG, 1 )
+                CALL M3EXIT( 'ISAM_STREAMS', 1, 1, XMSG, XSTAT1 )
             END IF
 
 C Develop a map of emitted/diffused ISAM species
@@ -543,7 +543,7 @@ C Map the user specified ISAM regions to available CMAQ regions
                   XMSG = " User specified ISAM region - " //
      &                    TRIM( ISAMRGN(ITAG,ISRM) ) //
      &                    " - not found in available emissions regions "
-                   CALL M3EXIT( 'ISAM_STREAMS', 1, 1, XMSG, 1 )
+                   CALL M3EXIT( 'ISAM_STREAMS', 1, 1, XMSG, XSTAT1 )
                 ELSE
                    ISAMRGN_MAP(ITAG,ISRM) = IDX
                 END IF
@@ -571,7 +571,7 @@ C Map the user specified ISAM regions to available CMAQ regions
                     XMSG = " User specified DDM Emissions Stream - " //
      &                    TRIM( S_STREAMLBL(NP,ISRM) )//
      &                    " - not found in available emissions streams "
-                    CALL M3EXIT( 'ISAM_STREAMS', 1, 1, XMSG, 1 )
+                    CALL M3EXIT( 'ISAM_STREAMS', 1, 1, XMSG, XSTAT1 )
                   ELSE
                     SENS_PER_STREAM( SENNUM ) = SENS_PER_STREAM( SENNUM ) + 1
                     STREAM_TO_SENS(SENNUM,SENS_PER_STREAM( SENNUM )) = NP
@@ -1218,7 +1218,7 @@ C-----------------------------------------------------------------------
      &      'Please inspect the Emission Control Namelist File (Search for ',
      &      '"Reading Emission Control Namelist" in this Log File).'
           XMSG = 'Negative Emissions Detected'
-          CALL M3EXIT( 'EMISS_NEG_CHECK', 0, 0, XMSG, 1 )
+          CALL M3EXIT( 'EMISS_NEG_CHECK', 0, 0, XMSG, XSTAT1 )
 
       ELSE ! reset slightly negative values to 0.0
           WHERE ( VDEMIS .LT. 0.0 ) VDEMIS = 0.0
@@ -1339,7 +1339,7 @@ C-----------------------------------------------------------------------
                 IF ( .NOT. WRITE3( DESID_DIAG_LOGICAL(IDIAG), DESID_DIAG_SPEC(IDIAG)%SPEC(ISPEC),
      &               JDATE, JTIME, VDEMIS_OUT( :,:,1:LAYS ) ) ) THEN
                    XMSG = 'Could not write ' // TRIM( DESID_DIAG_FILENAME(IDIAG) ) // ' file'
-                   CALL M3EXIT( 'WRITE_EMISS_DIAG', JDATE, JTIME, XMSG, 1 )
+                   CALL M3EXIT( 'WRITE_EMISS_DIAG', JDATE, JTIME, XMSG, XSTAT1 )
                 END IF
               ELSE
                 ! Other streams contribute as well. Sum these emission
@@ -1380,7 +1380,7 @@ C-----------------------------------------------------------------------
                   IF ( .NOT. WRITE3( DESID_DIAG_LOGICAL(IDIAG), DESID_DIAG_SPEC( IDIAG )%SPEC( ISPEC ),
      &                     JDATE, JTIME, VDEMIS_DIAG( JSPEC,:,:,1:LAYS ) ) ) THEN
                     XMSG = 'Could not write ' // TRIM( DESID_DIAG_FILENAME(IDIAG) ) // ' file'
-                    CALL M3EXIT( 'WRITE_EMISS_DIAG', JDATE, JTIME, XMSG, 1 )
+                    CALL M3EXIT( 'WRITE_EMISS_DIAG', JDATE, JTIME, XMSG, XSTAT1 )
                   END IF
                END DO
             END IF
@@ -1895,7 +1895,7 @@ C and allowing the model to proceed.
                  END IF
                  XMSG = 'Species with the missing emission variable ' 
      &                //'must have a variable found in at least one stream.'
-                 CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
+                 CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
               END IF
             END IF
  
@@ -1949,7 +1949,7 @@ C and allowing the model to proceed.
      &               'input chemical namelists (ie. GC, AE, etc). Note that aerosol',
      &               'Number and Surface Area Species are not valid for scaling.'
                    XMSG = 'Error in Emissions Map Processing.'
-                   CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
+                   CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
                  END IF
                END DO
            END IF 
@@ -1997,7 +1997,7 @@ C and allowing the model to proceed.
                  WRITE( LOGDEV, * )
                  XMSG = 'Species with the missing mode ' 
      &                //'must have a mode found in at least one stream.'
-                 CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
+                 CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             END IF
  
             !------   ------   ------   ------   ------   ------
@@ -2024,7 +2024,7 @@ C and allowing the model to proceed.
                  WRITE( LOGDEV, * )
                  XMSG = 'Regions used in the Emissions Scaling must ' 
      &                //'be defined on the Emission Control File.'
-                 CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
+                 CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             END IF
  
             !------   ------   ------   ------   ------
@@ -2040,7 +2040,7 @@ C and allowing the model to proceed.
      &             '. Please check the your emissions control inputs.'
                WRITE( LOGDEV, * )TRIM( XMSG )
                XMSG = 'Error in Emissions Map Processing.'
-               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
+               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             END IF
             
             !------   ------   ------   ------   ------   ------ ------
@@ -3027,7 +3027,7 @@ C stkemis_init.
                WRITE( XMSG, '(A,I3,A,A)' ),
      &             'The format for Emission Diagnostic group ',IDIAG,
      &             ' is not allowed. Please correct:',TRIM( Desid_Diag_Fmt_Nml(IDIAG))
-               CALL M3EXIT( 'Map_Emiss_Diag', 0, 0, XMSG, 1 )     
+               CALL M3EXIT( 'Map_Emiss_Diag', 0, 0, XMSG, XSTAT1 )     
            END IF
    
            ! Determine number of stream labels to expand
@@ -3037,7 +3037,7 @@ C stkemis_init.
                WRITE( XMSG, '(A,I3,A)' ),
      &             'No Emission Streams have been selected for group ',IDIAG,
      &             ' of the emission diagnostic input. Please correct.'
-               CALL M3EXIT( 'Map_Emiss_Diag', 0, 0, XMSG, 1 )     
+               CALL M3EXIT( 'Map_Emiss_Diag', 0, 0, XMSG, XSTAT1 )     
            END IF
    
            ! Expand Desid_Diag_Streams_Nml to discover all matching streams
@@ -3241,7 +3241,7 @@ C Open All Tracer Emission Files
              ! Assign Tracer Emissions Species
              IF ( .NOT. DESC3( DESID_STREAM_NAME( ISRM ) ) ) THEN
                 XMSG = 'Could not get '// DESID_STREAM_NAME( ISRM ) // ' file description'
-                CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 2 )
+                CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
              END IF
   
              ! Assign Layers to Common Vector
@@ -3255,7 +3255,7 @@ C Open All Tracer Emission Files
                   IF ( UNITSCK .EQ. 'BLANK' ) UNITSCK = UNITS3D( N )
                   IF ( UNITS3D( N ) .NE. UNITSCK ) THEN
                      XMSG = 'Units not uniform on ' // DESID_STREAM_LAB( ISRM )
-                     CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 2 )
+                     CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
                   END IF
                 END IF
                 DESID_EMVAR( ISRM )%UNITS( N ) = UNITS3D( N )
@@ -3278,7 +3278,7 @@ C Open Gridded Emission Files (for gas chem, aerosols and non-reactive species)
   
             IF ( .NOT. DESC3( DESID_STREAM_NAME( ISRM ) ) ) THEN
               XMSG = 'Could not get '// DESID_STREAM_NAME( ISRM ) // ' file description'
-              CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 2 )
+              CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
             END IF
             
             ! Let the date for this emission stream come from the model
@@ -3391,7 +3391,7 @@ C Open Gridded Emission Files (for gas chem, aerosols and non-reactive species)
           ! Open emissions stream diagnostic file
           IF ( .NOT. OPEN3( DESID_DIAG_LOGICAL( IDIAG ), FSNEW3, PNAME ) ) THEN
              XMSG = 'Could not create the ' // TRIM( DESID_DIAG_FILENAME( IDIAG ) ) // ' file'
-             CALL M3EXIT( PNAME, SDATE3D, STIME3D, XMSG, 1 )
+             CALL M3EXIT( PNAME, SDATE3D, STIME3D, XMSG, XSTAT1 )
           END IF
   
         END IF   ! DESID_STREAM_LDIAG?

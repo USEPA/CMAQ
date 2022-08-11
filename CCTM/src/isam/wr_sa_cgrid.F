@@ -104,13 +104,13 @@ C-----------------------------------------------------------------------
             IF ( .NOT. OPEN3( SA_CONC_1, FSRDWR3, PNAME ) ) THEN
               XMSG = 'Could not open ' // SA_CONC_1 // 
      & ' file for update '
-              CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
+              CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             ENDIF ! sa_conc_1 opened ?
       
             ! Get description of sa_conc_1
             IF ( .NOT. DESC3( SA_CONC_1 ) ) THEN
               XMSG = 'Could not get file description from ' // SA_CONC_1
-              CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
+              CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             ENDIF ! sa_conc_1 description obtained ?
 
             SDATE3D = JDATE
@@ -120,7 +120,7 @@ C-----------------------------------------------------------------------
             ! Create sa_cgrid_1
             IF ( .NOT. OPEN3( SA_CGRID_1, FSNEW3, PNAME ) ) THEN
               XMSG = 'Could not open' // SA_CGRID_1 
-              CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
+              CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             ENDIF !
           ENDIF ! mype0 ?
 
@@ -131,7 +131,7 @@ C-----------------------------------------------------------------------
             IF ( .NOT. DESC3( SA_CONC_1 ) ) THEN
               XMSG = 'Could not get' // TRIM(SA_CONC_1) //
      &  'file description'
-              CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
+              CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             ENDIF
 
             TSTEP_RF = TSTEP3D
@@ -154,7 +154,7 @@ C-----------------------------------------------------------------------
             IF ( .NOT. DESC3( SA_CGRID_1 ) ) THEN
               XMSG = 'Could not get' // TRIM(SA_CGRID_1) // 
      &  'file description'
-              CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
+              CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             ENDIF
 
             IF ( TSTEP_RF .NE. ABS( TSTEP3D ) .OR.
@@ -163,36 +163,36 @@ C-----------------------------------------------------------------------
      &           NROWS_RF .NE. NROWS3D .OR.
      &           GDTYP_RF .NE. GDTYP3D ) THEN
                  XMSG = 'Header inconsistent on existing SA_CGRID_1'
-                 CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 2 )
+                 CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
             END IF
             IF ( P_ALP_RF .NE. P_ALP3D .OR.
      &           P_BET_RF .NE. P_BET3D .OR.
      &           P_GAM_RF .NE. P_GAM3D ) THEN
                  XMSG = 'Header inconsistent on existing SA_CGRID_1'
-                 CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 2 )
+                 CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
             END IF
             IF ( XCENT_RF .NE. XCENT3D .OR.
      &           YCENT_RF .NE. YCENT3D ) THEN
                  XMSG = 'Header inconsistent on existing SA_CGRID_1'
-                 CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 2 )
+                 CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
             END IF
             IF ( XORIG_RF .NE. XORIG3D .OR.
      &           YORIG_RF .NE. YORIG3D ) THEN
                  XMSG = 'Header inconsistent on existing SA_CGRID_1'
-                 CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 2 )
+                 CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
             END IF
             IF ( XCELL_RF .NE. XCELL3D .OR.
      &           YCELL_RF .NE. YCELL3D ) THEN
                  XMSG = 'Header inconsistent on existing SA_CGRID_1'
-                 CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 2 )
+                 CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
             END IF
             IF ( VGTYP_RF .NE. VGTYP3D ) THEN
                  XMSG = 'Header inconsistent on existing SA_CGRID_1'
-                 CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 2 )
+                 CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
             END IF
             IF ( VGTOP_RF .NE. VGTOP3D ) THEN
                  XMSG = 'Header inconsistent on existing SA_CGRID_1'
-                 CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 2 )
+                 CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
             END IF
 
           ENDIF  ! mype 0
@@ -205,7 +205,7 @@ C-----------------------------------------------------------------------
      &     STAT = ALLOCSTAT )
         IF ( ALLOCSTAT .NE. 0 ) THEN
           XMSG = 'Failure allocating ISAM_BUFF'
-          CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
+          CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
         ENDIF
 
       ENDIF  !firstime
@@ -219,7 +219,7 @@ C-----------------------------------------------------------------------
      &          ISAM_BUFF(:,:,:,S)) ) THEN
            XMSG = 'Could not write to ' 
      &           // SA_CGRID_1 
-           CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
+           CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
         END IF
       END DO ! S
 !      DEALLOCATE( ISAM_BUFF )

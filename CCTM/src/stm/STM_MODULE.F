@@ -279,7 +279,7 @@ C  begin body of subroutine stm_wrap_gas
      &              Stat = allocstat )
          If ( allocstat .Ne. 0 ) Then
             xmsg = 'Failure allocating so4_b4 '
-            Call m3exit( pname, jdate, jtime, xmsg, 1 )
+            Call m3exit( pname, jdate, jtime, xmsg, xstat1 )
          End If
 
          firstime = .False.
@@ -480,7 +480,7 @@ C Local variables:
 
       If ( .Not. stm_mapped ) Then
          xmsg = 'CGRID Species has not been mapped in stm_update_aero'
-         Call m3exit( pname, 0, 0, xmsg, 3 )
+         Call m3exit( pname, 0, 0, xmsg, xstat3 )
       End If
 
 C Copy aero_conc back to grid cell concentrations

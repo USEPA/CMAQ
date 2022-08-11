@@ -117,73 +117,73 @@ C...Allocate needed arrays
          ALLOCATE ( VOL_MINS( N_MODE ), STAT = ALLOCSTAT )
          IF ( ALLOCSTAT .NE. 0 ) THEN
             XMSG = 'Failure allocating VOL_MINS'
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
          
          ALLOCATE ( BLK_AE_CONC( N_AEROSPC,N_MODE,NLAYS ), STAT = ALLOCSTAT )
          IF ( ALLOCSTAT .NE. 0 ) THEN
             XMSG = 'Failure allocating BLK_AE_CONC'
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
 
          ALLOCATE ( SHELL_MOMENT3( N_MODE,NLAYS ), STAT = ALLOCSTAT )
          IF ( ALLOCSTAT .NE. 0 ) THEN
             XMSG = 'Failure allocating SHELL_MOMENT3'
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
 
          ALLOCATE ( BLK_AE_VOL( N_MODE,NLAYS ), STAT = ALLOCSTAT )
          IF ( ALLOCSTAT .NE. 0 ) THEN
             XMSG = 'Failure allocating BLK_AE_VOL'
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
 
          ALLOCATE ( BLK_AE_LSG( N_MODE,NLAYS ), STAT = ALLOCSTAT )
          IF ( ALLOCSTAT .NE. 0 ) THEN
             XMSG = 'Failure allocating BLK_AE_LSG'
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
 
          ALLOCATE ( BLK_AE_DGN( N_MODE,NLAYS ), STAT = ALLOCSTAT )
          IF ( ALLOCSTAT .NE. 0 ) THEN
             XMSG = 'Failure allocating BLK_AE_DGN'
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
 
          ALLOCATE ( AE_DGN_SHELL( N_MODE,NLAYS ), STAT = ALLOCSTAT )
          IF ( ALLOCSTAT .NE. 0 ) THEN
             XMSG = 'Failure allocating AE_DGN_SHELL'
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
 
          ALLOCATE ( AE_NR_SHELL( N_MODE,NLAYS,NWL ), STAT = ALLOCSTAT )
          IF ( ALLOCSTAT .NE. 0 ) THEN
             XMSG = 'Failure allocating  AE_NR_SHELL'
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
 
          ALLOCATE ( AE_NI_SHELL( N_MODE,NLAYS,NWL ), STAT = ALLOCSTAT )
          IF ( ALLOCSTAT .NE. 0 ) THEN
             XMSG = 'Failure allocating  AE_NI_SHELL'
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
 
          ALLOCATE ( AERO_ASYM_FAC( NLAYS,NWL ), STAT = ALLOCSTAT )
          IF ( ALLOCSTAT .NE. 0 ) THEN
             XMSG = 'Failure allocating AERO_ASYM_FAC'
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
 
          ALLOCATE ( AERO_EXTI_COEF( NLAYS,NWL ), STAT = ALLOCSTAT )
          IF ( ALLOCSTAT .NE. 0 ) THEN
             XMSG = 'Failure allocating AERO_EXTI_FAC'
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
 
          ALLOCATE ( AERO_SCAT_COEF( NLAYS,NWL ), STAT = ALLOCSTAT )
          IF ( ALLOCSTAT .NE. 0 ) THEN
             XMSG = 'Failure allocating AERO_EXTI_FAC'
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
 
          AERO_SCAT_COEF = 0.0
@@ -194,7 +194,7 @@ C...Allocate needed arrays
             ALLOCATE ( AERO_EXTI_550( NLAYS ), STAT = ALLOCSTAT )
             IF ( ALLOCSTAT .NE. 0 ) THEN
                XMSG = 'Failure allocating AERO_EXTI_550'
-               CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
+               CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             END IF
             AERO_EXTI_550  = 0.0
          END IF   
@@ -204,20 +204,20 @@ C...Allocate needed arrays
          ALLOCATE( M3_FACTOR( N_AEROSPC ), STAT = ALLOCSTAT )
          IF ( ALLOCSTAT .NE. 0 ) THEN
             XMSG = 'Failure allocating  M3_FACTOR'
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
          
          ALLOCATE( REFRACT_INDX_MAP( N_AEROSPC ), STAT = ALLOCSTAT )
          IF ( ALLOCSTAT .NE. 0 ) THEN
             XMSG = 'Failure allocating REFRACT_INDX_MAP'
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
          
 !        IF( CORE_SHELL )THEN
             ALLOCATE( IS_CORE_SPCS( N_AEROSPC,N_MODE ), STAT = ALLOCSTAT )
             IF ( ALLOCSTAT .NE. 0 ) THEN
                XMSG = 'Failure allocating IS_CORE_SPCS'
-               CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
+               CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             END IF
          
             IS_CORE_SPCS = .FALSE.
@@ -225,25 +225,25 @@ C...Allocate needed arrays
             ALLOCATE ( CORE_MOMENT3( N_MODE,NLAYS ), STAT = ALLOCSTAT )
             IF ( ALLOCSTAT .NE. 0 ) THEN
                XMSG = 'Failure allocating CORE_MOMENT3'
-               CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
+               CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             END IF
       
             ALLOCATE ( AE_DGN_CORE( N_MODE,NLAYS ), STAT = ALLOCSTAT )
             IF ( ALLOCSTAT .NE. 0 ) THEN
                XMSG = 'Failure allocating AE_DGN_CORE'
-               CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
+               CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             END IF
       
             ALLOCATE ( AE_NR_CORE( N_MODE,NLAYS,NWL ), STAT = ALLOCSTAT )
             IF ( ALLOCSTAT .NE. 0 ) THEN
                XMSG = 'Failure allocating AE_NR_CORE'
-               CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
+               CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             END IF
       
             ALLOCATE ( AE_NI_CORE( N_MODE,NLAYS,NWL ), STAT = ALLOCSTAT )
             IF ( ALLOCSTAT .NE. 0 ) THEN
                XMSG = 'Failure allocating AE_NI_CORE'
-               CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
+               CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             END IF
 !        END IF
 C ***    Create map for refactive index for each species
@@ -304,7 +304,7 @@ C ***    Create map for refactive index for each species
                   IF ( aero_missing(spc,n) ) CYCLE
                   XMSG = 'Species ' // TRIM( AEROSPC( SPC )%NAME( M ) )
      &                 // ' does not use defined refractive index.'
-                  CALL M3EXIT ( PNAME, 0, 0, XMSG, 3 )
+                  CALL M3EXIT ( PNAME, 0, 0, XMSG, XSTAT3 )
                END DO
             END IF
          END DO
@@ -730,7 +730,7 @@ C *** Core-Shell case for optics
      &               BLK_AE_LSG( MODE,L )
      
                      XMSG =  'FAILURE IN AERO_OPTICAL_CS: core with shell case '
-                     CALL M3EXIT( PNAME, 0, 0, XMSG, 1 )
+                     CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
                      
                   END IF
 
@@ -817,7 +817,7 @@ C***  and contribution to the overall asymmetry factor
      &               BLK_AE_LSG( MODE,L )
      
                      XMSG =  'FAILURE IN AERO_OPTICAL2: shell only case '
-                     CALL M3EXIT( PNAME, 0, 0, XMSG, 1 )
+                     CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
                      
                   END IF
 
@@ -1212,7 +1212,7 @@ C*** factor for aerosols.
      &               BLK_AE_LSG( MODE,L )
 
                      XMSG =  'FAILURE IN AERO_OPTICAL2: shell only case '
-                     CALL M3EXIT( PNAME, 0, 0, XMSG, 1 )
+                     CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
 
                   END IF
 

@@ -168,7 +168,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      &             STAT = IOS )
          IF ( IOS .NE. 0 ) THEN
             MSG = '*** Memory allocation failed'
-            CALL M3EXIT( PNAME, 0, 0, MSG, 1 )
+            CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
          END IF
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -296,7 +296,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      &          JZERO ( MXCOUNT1 ), STAT = IOS )
       IF ( IOS .NE. 0 ) THEN
          MSG = '*** Memory allocation failed'
-         CALL M3EXIT( PNAME, 0, 0, MSG, 1 )
+         CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
       END IF
 
       ALLOCATE( LZERO   ( NUMB_MECH_SPC,NUMB_MECH_SPC ),
@@ -304,7 +304,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      &          JZILCH  ( NUMB_MECH_SPC,NCS2 ), STAT = IOS )
       IF ( IOS .NE. 0 ) THEN
          MSG = '*** Memory allocation failed'
-         CALL M3EXIT( PNAME, 0, 0, MSG, 1 )
+         CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
       END IF
 
       
@@ -617,7 +617,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
             WRITE( MSG, 94100 ) MXARRAY, JCCOUNT, MAXGL3
             WRITE( LOGDEV,94110 )
             CALL M3MESG( MSG )
-            CALL M3EXIT( PNAME, IZERO, IZERO, ' ', 1 )
+            CALL M3EXIT( PNAME, IZERO, IZERO, ' ', XSTAT1 )
          END IF           
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -664,7 +664,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
             CALL M3MESG( MSG )
             WRITE( MSG, 94220 ) MXRR, NDLMAX 
             CALL M3MESG( MSG )
-            CALL M3EXIT( PNAME, IZERO, IZERO, ' ', 1 ) 
+            CALL M3EXIT( PNAME, IZERO, IZERO, ' ', XSTAT1 ) 
          END IF
 700   END DO LOOP_SUN
 

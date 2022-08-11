@@ -133,7 +133,7 @@ C-----------------------------------------------------------------------
                   Call log_message( outdev, 'Error: '//xmsg )
                   xmsg = Trim( pname ) // ': ' // xmsg
                   call m3mesg( xmsg )
-                  call m3exit( pname, 0, 0, 'FATAL ERROR', 2 )
+                  call m3exit( pname, 0, 0, 'FATAL ERROR', xstat2 )
               end if
 
               ! If no modes are selected, warn and move on
@@ -183,7 +183,7 @@ C-----------------------------------------------------------------------
      &                     ' but they are not available for this species. See '//
      &                     'aerolist table in AERO_DATA.'
                     Call log_message( outdev, 'Error: '//xmsg )
-                    call m3exit( pname, 0, 0, xmsg, 2 ) 
+                    call m3exit( pname, 0, 0, xmsg, xstat2 ) 
                  end if
  
                  aedat_mode(nsp2)%molwt = aedat(isp)%molwt
@@ -246,7 +246,7 @@ C-----------------------------------------------------------------------
      &                     ' but they are not available for this species. See '//
      &                     'aerolist table in AERO_DATA.'
                     Call log_message( outdev, 'Error: '//xmsg )
-                    call m3exit( pname, 0, 0, xmsg, 2 ) 
+                    call m3exit( pname, 0, 0, xmsg, xstat2 ) 
                  end if
  
                  aedat_mode(nsp2)%molwt = aedat(isp)%molwt
@@ -323,7 +323,7 @@ C-----------------------------------------------------------------------
      &                     ' but they are not available for this species. See '//
      &                     'aerolist table in AERO_DATA.'
                     Call log_message( outdev, 'Error: '//xmsg )
-                    call m3exit( pname, 0, 0, xmsg, 2 ) 
+                    call m3exit( pname, 0, 0, xmsg, xstat2 ) 
                  end if
 
                  aedat_mode(nsp2)%molwt = aedat(isp)%molwt

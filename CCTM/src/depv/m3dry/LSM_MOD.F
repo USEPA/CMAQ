@@ -425,7 +425,7 @@ C-------------------------------------------------------------------------------
      &                       HGLU_FAC ( n_lufrac ), STAT = ALLOCSTAT )
                   IF ( ALLOCSTAT .NE. 0 ) THEN
                      XMSG = 'Failure allocating land use data'
-                     CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
+                     CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
                   END IF
                End If
                cat_lu   = USGS24%lu_cat
@@ -441,7 +441,7 @@ C-------------------------------------------------------------------------------
      &                       HGLU_FAC ( n_lufrac ), STAT = ALLOCSTAT )
                   IF ( ALLOCSTAT .NE. 0 ) THEN
                      XMSG = 'Failure allocating land use data'
-                     CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
+                     CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
                   END IF
                End If
                cat_lu   = MODIS%lu_cat
@@ -457,7 +457,7 @@ C-------------------------------------------------------------------------------
      &                       HGLU_FAC ( n_lufrac ), STAT = ALLOCSTAT )
                   IF ( ALLOCSTAT .NE. 0 ) THEN
                      XMSG = 'Failure allocating land use data'
-                     CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
+                     CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
                   END IF
                End If
                cat_lu   = NLCD50%lu_cat
@@ -473,7 +473,7 @@ C-------------------------------------------------------------------------------
      &                       HGLU_FAC ( n_lufrac ), STAT = ALLOCSTAT )
                   IF ( ALLOCSTAT .NE. 0 ) THEN
                      XMSG = 'Failure allocating land use data'
-                     CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
+                     CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
                   END IF
                End If
                cat_lu   = NLCD40%lu_cat
@@ -482,7 +482,7 @@ C-------------------------------------------------------------------------------
                HGLU_FAC = NLCD40%HGLU_FAC
             CASE DEFAULT                       
                xmsg = 'Land use scheme not supported'
-               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 2 )
+               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
          END SELECT                            
                                                
          END SUBROUTINE Init_LSM               

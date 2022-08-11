@@ -128,7 +128,7 @@ C Retrieve the layer range used in the concentration file
         IF ( CONC_BLEV .LE. 0 .OR. CONC_ELEV .GT. NLAYS ) THEN
                WRITE( XMSG,'( "Layer range", 2I4, " invalid for this model" )' )
      &         CONC_BLEV, CONC_ELEV
-               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 3 )
+               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
          END IF
          IF ( CONC_BLEV .NE. 1 ) THEN
                WRITE( XMSG,'( "Layer", I3, " Not 1st layer in CGRID" )' )
@@ -144,7 +144,7 @@ C Create conc subset array
      &              STAT = ALLOCSTAT )
          IF ( ALLOCSTAT .NE. 0 ) THEN
             XMSG = 'SGRID memory allocation failed'
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
 
          SGRID = 0.0
@@ -162,7 +162,7 @@ C get starting index in CGRID and total count for each species class
      &              TR_MAP( N_CONC_VARS ), STAT = ALLOCSTAT )
          IF ( ALLOCSTAT .NE. 0 ) THEN
             XMSG = 'CONC species mapping  memory allocation failed'
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 3 )
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
          END IF
 
          N_C_GC_SPC = 0
@@ -211,7 +211,7 @@ C get starting index in CGRID and total count for each species class
                      ELSE IF ( CONC_FILE_SPCS( VAR ) .NE. 'WVEL' ) THEN
                         XMSG = 'Variable ' // CONC_FILE_SPCS( VAR )
      &                  // ' incorrect for this model'
-                        CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 3 )
+                        CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
                      END IF
                   END IF
                END IF
@@ -233,7 +233,7 @@ C get starting index in CGRID and total count for each species class
          ALLOCATE ( CONC_MAP( N_CSPCS ), STAT = ALLOCSTAT )
          IF ( ALLOCSTAT .NE. 0 ) THEN
             XMSG = 'CONC_MAP memory allocation failed'
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 3 )
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
          END IF
 
          VAR = 0

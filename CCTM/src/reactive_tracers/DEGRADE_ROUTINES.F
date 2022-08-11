@@ -139,7 +139,7 @@ C..Quality Control on time step
       TSTEP = DT
       BLOCK_A : IF ( TSTEP < 0.0D0 ) THEN
          XMSG = ' Time step has negative value. '
-         CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 3 )
+         CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
       ENDIF BLOCK_A
 
 C..Loop over each reactant
@@ -419,7 +419,7 @@ C..Quality Control on time step
       TSTEP = DT
       BLOCK_A : IF ( TSTEP < 0.0D0 ) THEN
          WRITE(XMSG,'(A)')TRIM(' Time step has negative value. ')
-         CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 3 )
+         CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
       ENDIF BLOCK_A
 
 C..Update concentrations except degraded species

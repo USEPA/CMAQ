@@ -162,7 +162,7 @@ C-----------------------------------------------------------------------
          IF ( .NOT. DESC3( MET_DOT_3D ) ) THEN
             XMSG = 'Could not get '
      &           // TRIM( MET_DOT_3D ) // ' file description'
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
+            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
 
          VNAME = 'UWINDC'
@@ -177,7 +177,7 @@ C-----------------------------------------------------------------------
             ALLOCATE ( DENSJ( 0:NCOLS+1,0:NROWS+1 ), STAT = ESTAT )
             IF ( ESTAT .NE. 0 ) THEN
                XMSG = 'Failure allocating DENSJ'
-               CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
+               CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             END IF
 
             IF ( .NOT. WINDOW ) THEN
@@ -185,12 +185,12 @@ C-----------------------------------------------------------------------
 !              ALLOCATE ( DENSJ_BUF( NCOLSDENS,NROWSDENS ),      STAT = ESTAT )
                IF ( ESTAT .NE. 0 ) THEN
                   XMSG = 'Failure allocating DENSJ_BUF'
-                  CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
+                  CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
                END IF
                ALLOCATE ( DENSJ_BND( NBNDY,NLAYS ), STAT = ESTAT )
                IF ( ESTAT .NE. 0 ) THEN
                   XMSG = 'Failure allocating DENSJ_BND'
-                  CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
+                  CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
                END IF
             END IF
 
@@ -234,7 +234,7 @@ C-----------------------------------------------------------------------
 
       IF ( LVL .GT. NLAYS ) THEN
          WRITE( XMSG,'( "layer", I4, " greater than NLAYS" )') LVL
-         CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
+         CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
       END IF
 
 C Try to read u-component wind on C-staggered grid from variable UWINDC.
@@ -263,7 +263,7 @@ C grid.  Otherwise, read v-component wind from B-staggered grid.
       ELSE
 
          XMSG = 'UORV Flag, not set correctly'
-         CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, 2 )
+         CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT2 )
 
       END IF   ! if UORV
 

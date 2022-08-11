@@ -156,7 +156,7 @@ C-----------------------------------------------------------------------
       IF ( LERROR ) THEN
          MSG = 'Inconsistent header data on input files'
          IF ( FL_ERR_STOP ) THEN       
-            CALL M3EXIT ( PNAME, STDATE, STTIME, MSG, 2 )
+            CALL M3EXIT ( PNAME, STDATE, STTIME, MSG, XSTAT2 )
          ELSE
             CALL M3WARN ( PNAME, STDATE, STTIME, MSG )
             RETURN

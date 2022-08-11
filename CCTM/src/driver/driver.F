@@ -362,7 +362,7 @@ C Set up horizontal domain, calculate processor-to-subdomain maps
 C and define vertical layer structure (in module GRID_CONF)
          IF ( .NOT. GRID_INIT ( NPROCS, MYPE ) ) THEN
             XMSG = '*** Failure defining domain configuration'
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
 
 #ifdef verbose_driver
@@ -410,7 +410,7 @@ C Initialize PARIO
      &                        NCOLS, NROWS, NPCOL, NPROW, NPROCS, MYPE,
      &                        wflg = WFLG, io_pe_inclusive = IO_PE_INCLUSIVE ) ) THEN
             XMSG = 'Failed to initialize parallel I/O library.'
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
 
 #endif
@@ -439,13 +439,13 @@ C by I/O-API
             CALL LOG_MESSAGE( LOGDEV, XMSG )
             XMSG = 'Recompile with an I/O-API lib having a larger MXVARS3'
             CALL LOG_MESSAGE( LOGDEV, XMSG )
-            CALL M3EXIT( PNAME, JDATE, JTIME, ' ', 1 )
+            CALL M3EXIT( PNAME, JDATE, JTIME, ' ', XSTAT1 )
          END IF
 
 C Initialize PCGRID
          IF ( .NOT. PCGRID_INIT () ) THEN
             XMSG = 'Failure defining horizontal domain'
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 2  )
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2  )
          END IF
       
          CGRID => PCGRID( 1:NCOLS,1:NROWS,:,: )   ! required for PinG
@@ -467,7 +467,7 @@ c        CALL GET_SA_LAYS ()
 C Initialize PISAM
          IF ( .NOT. PISAM_INIT ( NSPC_SA, NTAG_SA ) ) THEN
             XMSG = 'Failure in defining SA horizontal domain'
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 2  )
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2  )
          END IF
          ISAM => PISAM( 1:NCOLS,1:NROWS,:,:,: )
 
@@ -476,14 +476,14 @@ C Initialize PISAM
 C Initialize optional derived vertical velocity writes to conc file
          IF ( .NOT. WVEL_INIT () ) THEN
             XMSG = 'Failure initializing derived vertical velocity writes'
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 2  )
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2  )
          END IF
 
 #ifdef sens
 C Initialize ddm3d calculations
          IF ( .NOT. S_PCGRID_IN( NPMAX ) ) THEN
             XMSG = 'Failure defining horizontal sens domain'
-            CALL M3EXIT ( PNAME, 0, 0, XMSG, 2  )
+            CALL M3EXIT ( PNAME, 0, 0, XMSG, XSTAT2  )
          END IF
 
          SENGRID => S_PCGRID(1:NCOLS,1:NROWS,:,:,:)
@@ -492,7 +492,7 @@ C Initialize ddm3d calculations
          ALLOCATE ( SAGRID( NCOLS,NROWS,A_NLYS,NPMAX,N_ASPCS ), STAT = STATUS)
          IF ( STATUS .NE. 0 ) THEN
             XMSG = 'SAGRID memory allocation failed'
-            CALL M3EXIT ( PNAME, 0, 0, XMSG, 1 )
+            CALL M3EXIT ( PNAME, 0, 0, XMSG, XSTAT1 )
          END IF
 
          SAGRID = 0.0
@@ -531,20 +531,20 @@ C Verify input file header consistency and run duration
          ALLOCATE ( AGRID( NCOLS,NROWS,A_NLYS,N_ASPCS ), STAT = ALLOCSTAT )
          IF ( ALLOCSTAT .NE. 0 ) THEN
             XMSG = 'AGRID memory allocation failed'
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
 
          ALLOCATE ( ASTEP( NLAYS ), STAT = ALLOCSTAT )
          IF ( ALLOCSTAT .NE. 0 ) THEN
             XMSG = 'ASTEP memory allocation failed'
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
 
 #ifdef isam
          ALLOCATE ( AISAM( NCOLS,NROWS,NLAYS,NSPC_SA,NTAG_SA ),STAT = ALLOCSTAT )
          IF ( ALLOCSTAT .NE. 0 ) THEN
             XMSG = 'AISAM memory allocation failed'
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
          AISAM = 0.
 #endif

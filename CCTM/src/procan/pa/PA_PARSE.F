@@ -92,7 +92,7 @@ c..eof file encountered -- exit program
          CALL M3MESG( MSG )
          WRITE( MSG, 94020 )
          CALL M3MESG( MSG )
-         CALL M3EXIT( 'RDLINE', IZERO, IZERO, ' ', 2 )
+         CALL M3EXIT( 'RDLINE', IZERO, IZERO, ' ', XSTAT2 )
 
 94000    FORMAT( 'ERROR: End of file reached on the Process Analysis',
      &           ' command file' )
@@ -168,7 +168,7 @@ c..Setup and make sure the first character is alphabetic
             CALL M3MESG( MSG )
             WRITE( MSG, 94040 ) CHR
             CALL M3MESG( MSG )
-            CALL M3EXIT( 'GETWORD', IZERO, IZERO, ' ', 2 )
+            CALL M3EXIT( 'GETWORD', IZERO, IZERO, ' ', XSTAT2 )
          END IF
 
 c..Get the remaining characters; stop if a word spans a line
@@ -187,7 +187,7 @@ c..Get the next line if necessary (word wrap not allowed)
                WRITE( MSG, 94060 )
                CALL M3MESG( MSG )
                WRITE( MSG, 94020 ) LINNUM, SAVBUF
-               CALL M3EXIT( 'GETWORD', IZERO, IZERO, ' ', 2 )
+               CALL M3EXIT( 'GETWORD', IZERO, IZERO, ' ', XSTAT2 )
             ELSE
                GO TO 40  ! Word does not wrap around line
             END IF
@@ -308,7 +308,7 @@ c..Check for decimal point
                CALL M3MESG( MSG )
                WRITE( MSG, 94520 ) INBUF( START:LPOINT )
                CALL M3MESG( MSG )
-               CALL M3EXIT( 'GETREAL', IZERO, IZERO,' ', 2 )
+               CALL M3EXIT( 'GETREAL', IZERO, IZERO,' ', XSTAT2 )
             END IF        
          END IF   
 
@@ -327,7 +327,7 @@ c..Check for exponent term
                CALL M3MESG( MSG )
                WRITE( MSG, 94520 ) INBUF( START:LPOINT )
                CALL M3MESG( MSG )
-               CALL M3EXIT( 'GETREAL', IZERO, IZERO, ' ', 2 )
+               CALL M3EXIT( 'GETREAL', IZERO, IZERO, ' ', XSTAT2 )
             END IF
          END IF
          
@@ -343,7 +343,7 @@ c..check for sign
                CALL M3MESG( MSG )
                WRITE( MSG, 94520 ) INBUF( START:LPOINT )
                CALL M3MESG( MSG )
-               CALL M3EXIT( 'GETREAL', IZERO, IZERO, ' ', 2 )
+               CALL M3EXIT( 'GETREAL', IZERO, IZERO, ' ', XSTAT2 )
             END IF
          END IF
 
@@ -369,7 +369,7 @@ c..Error converting numeric string to real number
          CALL M3MESG( MSG )
          WRITE( MSG, 94520 ) INBUF( START:LPOINT )
          CALL M3MESG( MSG )
-         CALL M3EXIT( 'GETREAL', IZERO, IZERO, ' ', 2 )
+         CALL M3EXIT( 'GETREAL', IZERO, IZERO, ' ', XSTAT2 )
          
 94000    FORMAT( 'ERROR: Two decimal points found in a numeric field' )
 94020    FORMAT( 'ERROR: More than one E or e found in a numeric field' )
@@ -428,7 +428,7 @@ c..if the end of the label has not been reached, store the character
                CALL M3MESG( MSG )
                WRITE( MSG, 94040 ) BEGCHR, LABEL
                CALL M3MESG( MSG )
-               CALL M3EXIT( 'PA_GETLABEL', IZERO, IZERO, ' ', 2 )
+               CALL M3EXIT( 'PA_GETLABEL', IZERO, IZERO, ' ', XSTAT2 )
             END IF
             LABEL( LENGTH : LENGTH ) = CHR
             GO TO 20
@@ -514,7 +514,7 @@ c..length is OK
                CALL M3MESG( MSG )
                WRITE( MSG, 94020 ) LINNUM, INBUF
                CALL M3MESG( MSG )
-               CALL M3EXIT( 'PA_GETQUOTE', IZERO, IZERO, ' ', 2 )
+               CALL M3EXIT( 'PA_GETQUOTE', IZERO, IZERO, ' ', XSTAT2 )
             END IF
 
             IF ( LENGTH .EQ. 1 ) THEN

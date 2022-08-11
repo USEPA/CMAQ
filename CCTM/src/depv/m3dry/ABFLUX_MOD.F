@@ -223,7 +223,7 @@ C-------------------------------------------------------------------------------
 !                        If ( IsNaN( gamma1( c,r ) ) .Or. IsNaN( gamma2( c,r ) ) .Or.
 !     &                       IsNaN( MHp2( c,r ) ) .Or. IsNaN( MHp2( c,r ) ) ) Then
 !                           xmsg = 'NaN in grid cell Gamma Calculation'
-!                           Call M3exit( pname, jdate, jtime, xmsg, 1 )
+!                           Call M3exit( pname, jdate, jtime, xmsg, xstat1 )
 !                        End If
                         tcec1         = tcec1 / Tot_Ag
                         tcec2         = tcec2 / Tot_Ag
@@ -253,7 +253,7 @@ C-------------------------------------------------------------------------------
 ! Error handling section
 !------------------------------------------------------------------------------
 1001     Continue
-         Call M3exit( pname, jdate, jtime, xmsg, 1 )
+         Call M3exit( pname, jdate, jtime, xmsg, xstat1 )
 
 C-------------------------------------------------------------------------------
 C Format statements.

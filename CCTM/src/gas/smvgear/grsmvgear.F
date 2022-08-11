@@ -240,7 +240,7 @@ C**********************************************************************
          IF ( IOS .NE. 0 ) THEN
             MSG = '*** Memory allocation failure for '
      &          // 'CEST, CHOLD, DTLOS, CONC, YNEW_DEGRADE, or DELY'
-            CALL M3EXIT( PNAME, JDATE, JTIME, MSG, 1 )             
+            CALL M3EXIT( PNAME, JDATE, JTIME, MSG, XSTAT1 )             
          END IF
 
 !        IF ( LIRRFLAG ) THEN
@@ -250,7 +250,7 @@ C**********************************************************************
             IF ( IOS .NE. 0 ) THEN
                MSG = '*** Memory allocation failure for '
      &             // 'CIRR, DUMMY, DTCELL, or RKIRR'
-               CALL M3EXIT( PNAME, JDATE, JTIME, MSG, 1 )             
+               CALL M3EXIT( PNAME, JDATE, JTIME, MSG, XSTAT1 )             
             END IF
             
 !        END IF

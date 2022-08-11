@@ -97,7 +97,7 @@ C-----------------------------------------------------------------------
 
             IF ( ALLOCSTAT .NE. 0 ) THEN
                XMSG = 'Failure allocating JACF'
-               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
+               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             END IF
 
             ALLOCATE( WY( NLAYS,NCOLS,NROWS ) )
@@ -113,7 +113,7 @@ C-----------------------------------------------------------------------
             ALLOCATE ( DBUFF( NCOLS,NROWS,NLAYS ), STAT = ALLOCSTAT )
             IF ( ALLOCSTAT .NE. 0 ) THEN
                XMSG = 'Failure allocating DBUFF'
-               CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
+               CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             END IF
          END IF
 

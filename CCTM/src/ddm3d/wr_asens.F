@@ -106,7 +106,7 @@ C Override default beginning time timestamp for ACONC?
          END_TIME = ENVYN( AVG_FILE_ENDTIME, VARDESC, END_TIME, STATUS )
          IF ( STATUS .EQ. 1 ) THEN
             XMSG = 'Environment variable improperly formatted'
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
+            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          ELSE IF ( STATUS .NE. 0 ) THEN
             WRITE( LOGDEV, '(5X, A)' ) VARDESC
             XMSG = '... Using default:'
@@ -116,7 +116,7 @@ C Override default beginning time timestamp for ACONC?
          IF ( .NOT. IO_PE_INCLUSIVE ) THEN
             IF ( .NOT. OPEN3( A_SENS_1, FSREAD3, PNAME ) ) THEN
                XMSG = 'Could not open ' // A_SENS_1 // ' file for update'
-               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
+               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             END IF
          END IF
 
@@ -126,7 +126,7 @@ c Create a species name list of ASENS file
          ALLOCATE( VARNAME_ASENS( NPMAX, N_ASENS_SPC ), STAT = ALLOCSTAT )
          IF ( ALLOCSTAT .NE. 0 ) THEN
             XMSG = 'Failure allocating VARNAME_ASENS(NPMAX,N_ASENS_SPC)'
-            CALL M3EXIT ( 'PNAME', 0, 0, XMSG, 2 )
+            CALL M3EXIT ( 'PNAME', 0, 0, XMSG, XSTAT2 )
          END IF
          VARNAME_ASENS = ''
 
@@ -174,7 +174,7 @@ c Create a species name list of ASENS file
      &         MDATE, MTIME, SAGRID( :,:,:,NP,SPC ) ) ) THEN
                XMSG = 'Could not write '// VARNAME_ASENS( NP, SPC ) 
      &              // ' to ' // A_SENS_1
-               CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, 1 )
+               CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
             END IF
          END DO
       END DO

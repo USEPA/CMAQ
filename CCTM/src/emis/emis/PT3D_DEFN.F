@@ -621,7 +621,7 @@ C-----------------------------------------------------------------------
                IF ( .NOT. IO_PE_INCLUSIVE ) THEN
                   IF ( .NOT. OPEN3( CTM_PT3D_DIAG, FSREAD3, PNAME ) ) THEN
                      XMSG = 'Could not open ' // TRIM(CTM_PT3D_DIAG)
-                     CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 3 )
+                     CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
                   END IF
                END IF
 #endif
@@ -650,7 +650,7 @@ C Based on the current time step, find whether or not a report should be written
 !            IF ( .NOT. CURRSTEP( WDATE, WTIME, SDATE, STIME, TSTEP( 1 ),
 !     &                           CDATE, CTIME ) ) THEN
 !               XMSG = 'Cannot get step date and time'
-!               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 3 )
+!               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
 !            END IF
 !            WDATE = CDATE; WTIME = CTIME
 !            WSTEP = 0
@@ -765,13 +765,13 @@ C Write Out Diagnostic Info
      &                               MY_NSRC( N ), DESID_LAYS, LFRAC ) ) THEN
                XMSG = 'Error writing "LFRAC" to file "' //
      &                 PLAYNAME( N )( 1:LEN_TRIM( PLAYNAME( N ) ) ) // '."'
-               CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 2 )
+               CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
             END IF
             IF ( .NOT. WRITE3_DISTR( PLAYNAME( N ), 'ZPLUME', WDATE, WTIME,
      &                               MY_NSRC( N ), DESID_LAYS, ZPLUM ) ) THEN
                XMSG = 'Error writing "ZPLUM" to file "' //
      &                 PLAYNAME( N )( 1:LEN_TRIM( PLAYNAME( N ) ) ) // '."'
-               CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 2 )
+               CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
             END IF
             WRITE( LOGDEV,94030 )
      &         'Timestep written to', TRIM( PLAYNAME( N ) ),
@@ -1067,7 +1067,7 @@ C (~mass concentration -- minor hydrostatic assumption) from bottom to top.
             WRITE( LOGDEV,* ) '    Zbot: ', ZBOT, ' Ztop: ', ZTOP
             WRITE( LOGDEV,* ) '    Stack Top: ', STK_HT( N )%ARRY( S ),
      &                        ' Plume Top: ', ZPLM
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 2 )
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
          END IF
 
 C Allocate plume to layers (compute layer plume fractions)
@@ -1249,7 +1249,7 @@ C-----------------------------------------------------------------------
             IF ( .NOT. DESC3( FNAME ) ) THEN
                XMSG = 'Could not get description of file "' //
      &                FNAME( 1:LEN_TRIM( FNAME ) ) // '"'
-               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 2 )
+               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
             END IF
 
             RETURN

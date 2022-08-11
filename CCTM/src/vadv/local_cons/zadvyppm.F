@@ -209,7 +209,7 @@ C-----------------------------------------------------------------------
          ALLOCATE ( DS( NLAYS ), STAT = ALLOCSTAT )
          IF ( ALLOCSTAT .NE. 0 ) THEN
             XMSG = 'Failure allocating DS'
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
 
          N_SPC_ADV = N_GC_TRNS + N_AE_TRNS + N_NR_TRNS + N_TR_ADV + 1
@@ -218,14 +218,14 @@ C-----------------------------------------------------------------------
      &              ADV_MAP( N_SPC_ADV ), STAT = ALLOCSTAT )
          IF ( ALLOCSTAT .NE. 0 ) THEN
             XMSG = 'Failure allocating CON1 or ADV_MAP'
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
 
 #ifdef isam
          ALLOCATE ( NAME_ADV( N_SPC_ADV ), STAT = ALLOCSTAT )
          IF ( ALLOCSTAT .NE. 0 ) THEN
             XMSG = 'Failure allocating NAME_ADV'
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
 #endif
 
@@ -233,7 +233,7 @@ C-----------------------------------------------------------------------
          ALLOCATE ( SEN1( NLAYS,N_SPC_ADV,NPMAX ), STAT = ALLOCSTAT )
          IF ( ALLOCSTAT .NE. 0 ) THEN
             XMSG = 'Failure allocating SEN1'
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
 #endif
         
@@ -421,7 +421,7 @@ C sub-steps.
 2013              FORMAT( 'vert adv soln failed at', I7.6,  ' with adv step:',
      &                     I7.6, ' HHMMSS', 2X, 'Max Iterations =', I3 )
 !                 if ( iter .gt. maxiter ) then
-                  CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 3 )
+                  CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
 !                 end if
                END IF
 

@@ -242,12 +242,12 @@ C create header
 
          IF ( .NOT. OPEN3( CTM_CONC_1, FSNEW3, PNAME ) ) THEN
             XMSG = 'Could not open ' // CTM_CONC_1
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
+            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
 
          IF ( .NOT. FLUSH3 ( CTM_CONC_1 ) ) THEN
             XMSG = 'Could not sync to disk ' // CTM_CONC_1
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
+            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
 
       END IF

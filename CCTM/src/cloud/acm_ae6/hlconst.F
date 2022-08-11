@@ -496,7 +496,7 @@ C...error if species not found in table
       IF ( SPC .LE. 0 ) THEN
         XMSG = TRIM( CNAME ) // ' not found in Henry''s '//
      &         ' Law Constant table in routine HLCONST.'
-        CALL M3EXIT ( PNAME, 0, 0, XMSG, 2 )
+        CALL M3EXIT ( PNAME, 0, 0, XMSG, XSTAT2 )
       END IF
 
 C...compute the Henry's Law Constant
@@ -512,7 +512,7 @@ C...compute the effective Henry's law constants
         IF ( HPLUS .LE. 0.0 ) THEN
           XMSG = 'Negative or Zero [H+] concentration specified ' //
      &           'in HLCONST '
-          CALL M3EXIT ( PNAME, 0, 0, XMSG, 2 )
+          CALL M3EXIT ( PNAME, 0, 0, XMSG, XSTAT2 )
         END IF
 
         HPLUSI = 1.0 / HPLUS

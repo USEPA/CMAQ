@@ -89,7 +89,7 @@ C Map advected species to bc`s
          ALLOCATE ( WRVAR( N_GC_TRNS + N_AE_TRNS + N_NR_TRNS + N_TR_ADV ), STAT = IERR )
          IF ( IERR .NE. 0 ) THEN
             XMSG = 'Error allocating WRVAR'
-            CALL M3EXIT( PNAME, XDATE, XTIME, XMSG, 1 )
+            CALL M3EXIT( PNAME, XDATE, XTIME, XMSG, XSTAT1 )
          END IF
 
       END IF

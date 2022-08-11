@@ -188,7 +188,7 @@ C...  for scavenging, otherwise notify the user and return
      &             CGRID_SCAV_FAC( N_CGRID_SCAV ), STAT = ASTAT )
         IF ( ASTAT .NE. 0 ) THEN
           XMSG = 'Failure allocating CGRID_SCAV, CGRID_SCAV_MAP or CGRID_SCAV_FAC'
-          CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
+          CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
         END IF
 
         MXSPCS = N_GC_SPCD + N_AE_SPC + N_NR_SPC + N_TR_SPC
@@ -198,7 +198,7 @@ C...  for scavenging, otherwise notify the user and return
      &             L_SRFAKN( MXSPCS ), STAT = ASTAT )
         IF ( ASTAT .NE. 0 ) THEN
           XMSG = 'Failure allocating L_NUMAKN, L_MASAKN or L_SRFAKN'
-          CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
+          CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
         END IF
 
 C...prepare indices for scavenged species

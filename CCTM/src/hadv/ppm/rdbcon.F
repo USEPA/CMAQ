@@ -154,7 +154,7 @@ C-----------------------------------------------------------------------
          ALLOCATE ( BBUF( NBNDY,NLAYS ), STAT = ALLOCSTAT )
          IF ( ALLOCSTAT .NE. 0 ) THEN
             XMSG = 'Failure allocating BBUF'
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
          ALLOCATE ( BBUF_TMP( NBNDY,NLAYS ), STAT = ALLOCSTAT )
 
@@ -167,7 +167,7 @@ C-----------------------------------------------------------------------
      &              ONFILE( N_SPC_ADV ), STAT = ALLOCSTAT )
          IF ( ALLOCSTAT .NE. 0 ) THEN
             XMSG = 'Failure allocating BCNAME, BCFAC, or ONFILE'
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
 
 C create advected species map to bc`s
@@ -177,13 +177,13 @@ C create advected species map to bc`s
          ALLOCATE ( JACOBM_BND( NBNDY,NLAYS ), STAT = ALLOCSTAT )
          IF ( ALLOCSTAT .NE. 0 ) THEN
             XMSG = 'Failure allocating JACOBM_BND'
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
 
          ALLOCATE ( RHOJ_BND( NBNDY,NLAYS ), STAT = ALLOCSTAT )
          IF ( ALLOCSTAT .NE. 0 ) THEN
             XMSG = 'Failure allocating RHOJ_BND'
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
 
          IF ( WINDOW ) THEN
@@ -192,14 +192,14 @@ C create advected species map to bc`s
      &                 STAT = ALLOCSTAT )
             IF ( ALLOCSTAT .NE. 0 ) THEN
                XMSG = 'Failure allocating JACOBM_BUF'
-               CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
+               CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             END IF
 
             ALLOCATE ( RHOJ_BUF( 0:NCOLS+1,0:NROWS+1 ),
      &                 STAT = ALLOCSTAT )
             IF ( ALLOCSTAT .NE. 0 ) THEN
                XMSG = 'Failure allocating RHOJ_BUF'
-               CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
+               CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             END IF
 
          END IF
@@ -208,7 +208,7 @@ C create advected species map to bc`s
          ALLOCATE ( S_BCNAME( N_SPC_ADV,NPMAX ), STAT = ALLOCSTAT )
          IF ( ALLOCSTAT .NE. 0 ) THEN
             XMSG = 'Failure allocating S_BCNAME'
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
 
          IF ( BCS ) THEN
@@ -487,7 +487,7 @@ c                 IF ( .NOT. INTERPB( BNDY_SENS_1, S_BCNAME( VAR,NP ), PNAME,
 c    &                                MDATE, MTIME, NBNDY*NLAYS, BBUF ) ) THEN
 c                    XMSG = 'Could not read ' // TRIM( S_BCNAME( VAR,NP ) ) // ' from '
 c    &                    // BNDY_SENS_1
-c                    CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, 1 )
+c                    CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
 c                 ELSE   ! found bc's (PPM) on file; convert
 c                    DO BND = 1, NBNDY
 c                       BSEN( BND,VAR,NP ) = BCFAC( VAR ) * BBUF( BND,LVL )
@@ -512,7 +512,7 @@ c                 IF ( .NOT. INTERPB ( BNDY_SENS_1, S_BCNAME( VAR,NP ), PNAME,
 c    &                                 MDATE, MTIME, NBNDY*NLAYS, BBUF ) ) THEN
 c                    XMSG = 'Could not read ' // TRIM( S_BCNAME ( VAR,NP ) ) // ' from '
 c    &                    // BNDY_SENS_1
-c                    CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, 1 )
+c                    CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
 c                 ELSE   ! found bc's (microgram/m**3, m**2/m**3, or number/m**3)
 c                           ! on file; convert
 c                    IF ( AE_TRNS( SPC )( 1:3 ) .EQ. 'NUM' ) THEN
@@ -548,7 +548,7 @@ c                 IF ( .NOT. INTERPB ( BNDY_SENS_1, S_BCNAME( VAR,NP ), PNAME,
 c    &                                 MDATE, MTIME, NBNDY*NLAYS, BBUF ) ) THEN
 c                    XMSG = 'Could not read ' // TRIM( S_BCNAME( VAR,NP ) ) // ' from '
 c    &                    // BNDY_SENS_1
-c                    CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, 1 )
+c                    CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
 c                    ELSE   ! found bc's (PPM) on file; convert
 c                    DO BND = 1, NBNDY
 c                       BSEN( BND,VAR,NP ) = BCFAC( VAR ) * BBUF( BND,LVL )
@@ -571,7 +571,7 @@ c                 IF ( .NOT. INTERPB ( BNDY_SENS_1, S_BCNAME( VAR,NP ), PNAME,
 c    &                                 MDATE, MTIME, NBNDY*NLAYS, BBUF ) ) THEN
 c                    XMSG = 'Could not read ' // TRIM( S_BCNAME( VAR,NP ) ) // ' from '
 c    &                    // BNDY_SENS_1
-c                    CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, 1 )
+c                    CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
 c                 ELSE   ! found bc's (PPM) on file; convert
 c                    DO BND = 1, NBNDY
 c                       BSEN( BND,VAR,NP ) = BCFAC( VAR ) * BBUF( BND,LVL )

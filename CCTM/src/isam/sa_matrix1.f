@@ -74,7 +74,7 @@ C-----------------------------------------------------------------------
           ALLOCATE ( BETA( N_SPCTAG ), STAT = IOS )
           IF ( IOS .NE. 0 ) THEN
              XMSG = 'Failure allocating BETA'
-             CALL M3EXIT( 'SA_MATRIX', 0, 0, XMSG, 1 )
+             CALL M3EXIT( 'SA_MATRIX', 0, 0, XMSG, XSTAT1 )
           END IF
        END IF   ! FIRSTIME
 

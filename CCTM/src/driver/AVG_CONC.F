@@ -138,7 +138,7 @@ C Retrieve the layer range used in integral average concentration file
          IF ( ACONC_BLEV .LE. 0 .OR. ACONC_ELEV .GT. NLAYS ) THEN
             WRITE( XMSG,'( "Layer range", 2I4, " invalid for this model" )' )
      &      ACONC_BLEV, ACONC_ELEV
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 3 )
+            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
          END IF
 
          A_NLYS = ACONC_ELEV - ACONC_BLEV + 1
@@ -158,7 +158,7 @@ C get starting index in AGRID and total count for each species class
             XMSG = 'AVG_CONC_MAP or A_GC_SPC or A_AE_SPC or A_NR_SPC'
      &           // ' or A_TR_SPC or GC_MAP or AE_MAP or NR_MAP or TR_MAP'
      &           // ' memory allocation failed'
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 3 )
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
          END IF
 
 C The selected species MUST be contiguous with the classes,
@@ -217,7 +217,7 @@ C and the classes must be in the sequence: GC, AE, NR, TR
      &                  // ' was requested for average concentration '
      &                  // ' output, but it is not available from any '
      &                  // ' species namelist.'
-                        CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 3 )
+                        CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
                      END IF
                   END IF
                END IF

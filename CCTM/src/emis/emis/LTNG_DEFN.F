@@ -297,13 +297,13 @@
                IF ( IO_PE_INCLUSIVE ) THEN
                   IF ( .NOT. OPEN3( CTM_LTNGDIAG_1, FSUNKN3, PNAME ) ) THEN
                      XMSG = 'Could not open ' // TRIM( CTM_LTNGDIAG_1 )
-                     CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
+                     CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
                   END IF
                   NLAYS3D = 1
                   VDESC3D( 1 ) = 'Column NO produced from lightning'
                   IF ( .NOT. OPEN3( CTM_LTNGDIAG_2, FSUNKN3, PNAME ) ) THEN
                      XMSG = 'Could not open ' // TRIM( CTM_LTNGDIAG_2 )
-                     CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
+                     CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
                   END IF
 
                END IF
@@ -480,7 +480,7 @@ C statement function for ERF approximation
             ALLOCATE( COLUMN_LTNG_NO( NCOLS,NROWS ), STAT = STATUS )
             IF ( STATUS .NE. 0 ) THEN
                XMSG = 'COLUMN_LTNG_NO memory allocation failed'
-               CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 2 )
+               CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
             END IF
             COLUMN_LTNG_NO( :,: ) = 0.0
 !C Iterate over each grid cell and distribute lightning NO vertically
@@ -582,7 +582,7 @@ C statement function for ERF approximation
      &                                    COLUMN_LTNG_NO( COL,ROW ),
      &                                    BOTTOM_FRAC, TOP_FRAC
                         XMSG = '*** Ltng NO emis is less than zero'
-                        CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 2 )
+                        CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
                      END IF
 
                   END DO   ! end layers loop 
@@ -621,7 +621,7 @@ C statement function for ERF approximation
                   COLUMN_DIAG = COLUMN_DIAG*DIVFAC
                   IF ( .NOT. WRITE3( CTM_LTNGDIAG_1, LTSPC, ADJ_LDATE, ADJ_LTIME, VDEMIS_LTDIAG ) )  THEN
                      XMSG = 'Could not write to ' // TRIM( CTM_LTNGDIAG_1 )
-                     CALL M3EXIT( PNAME, ADJ_LDATE, ADJ_LTIME, XMSG, 2 )
+                     CALL M3EXIT( PNAME, ADJ_LDATE, ADJ_LTIME, XMSG, XSTAT2 )
                   ELSE
                      WRITE( LOGDEV,94040 )
      &                    'Timestep written to', TRIM( CTM_LTNGDIAG_1 ),
@@ -629,7 +629,7 @@ C statement function for ERF approximation
                   END IF
                   IF ( .NOT. WRITE3( CTM_LTNGDIAG_2, LTSPC, ADJ_LDATE, ADJ_LTIME, COLUMN_DIAG ) )  THEN
                      XMSG = 'Could not write to ' // TRIM( CTM_LTNGDIAG_2 )
-                     CALL M3EXIT( PNAME, ADJ_LDATE, ADJ_LTIME, XMSG, 2 )
+                     CALL M3EXIT( PNAME, ADJ_LDATE, ADJ_LTIME, XMSG, XSTAT2 )
                   ELSE
                      WRITE( LOGDEV,94040 )
      &                    'Timestep written to', TRIM( CTM_LTNGDIAG_2 ),

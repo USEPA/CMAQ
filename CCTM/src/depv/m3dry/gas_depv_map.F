@@ -57,14 +57,14 @@ C----------------------------------------------------------------------
 
       IF ( ( N_GC_SPC + N_NR_SPC + N_TR_SPC ) .LE. 0 ) THEN
          XMSG = 'Model not compiled for gases'
-         CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
+         CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
       END IF
 
 C Set up names and indices
 
       IF ( .NOT. DEPVVARS_INIT( ) ) THEN
          XMSG = 'Failure initializing depvvars module'
-         CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
+         CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
       END IF
 
 C Set up the DEPV pointers to calculated deposition velocities
@@ -90,7 +90,7 @@ C Set up the DEPV pointers to calculated deposition velocities
      &             ' in '            // TRIM( DEPV_METHOD )     //
      &             ' surrogate table.'
 !    &             ' surrogate table. >>> Dep vel set to zero <<< '
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
+            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
       END DO
 
@@ -128,7 +128,7 @@ C Locate model species' DEPVs in the unique DEPV_NAMES list
          ELSE
             XMSG = 'Could not find ' // TRIM( GC_DEPV( V ) )
      &           // ' in DEPV table.'  
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
+            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
       END DO
 
@@ -142,7 +142,7 @@ C Locate model species' DEPVs in the unique DEPV_NAMES list
          ELSE
             XMSG = 'Could not find ' // TRIM( NR_DEPV( V ) )
      &           // ' in DEPV table.'  
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
+            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
       END DO
 
@@ -156,7 +156,7 @@ C Locate model species' DEPVs in the unique DEPV_NAMES list
          ELSE
             XMSG = 'Could not find ' // TRIM( TR_DEPV( V ) )
      &           // ' in DEPV table.'  
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
+            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
       END DO
 

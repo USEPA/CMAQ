@@ -192,7 +192,7 @@
           
           IF( EFLAG )THEN
              XMSG = 'Above Error(s) detected'
-             CALL M3EXIT('MAP_MEGAN', 0, 0, XMSG, 1 )
+             CALL M3EXIT('MAP_MEGAN', 0, 0, XMSG, XSTAT1 )
           END IF
 
 

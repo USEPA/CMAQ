@@ -254,7 +254,7 @@
             ! model.
             XMSG = 'An Instantaneous ELMO Parameter ' // TRIM( INST_VARS_NML( INUM )) //
      &             ' has been requested that does not exist.'
-            CALL M3EXIT( PNAME, 0, 0, XMSG, 1 )
+            CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
          END IF
       END DO
 
@@ -287,15 +287,15 @@
       IF ( INST_LAYER_TOP .LE. 0 .OR. INST_LAYER_TOP .GT. NLAYS ) THEN
            XMSG = 'INST_LAYER_TOP must be prescribed between 1 and NLAYS,' //
      &            ' or set to -1 to automatically choose NLAYS.'
-           CALL M3EXIT( PNAME, 0, 0, XMSG, 1 )
+           CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
       END IF
       IF ( INST_LAYER_BOT .LE. 0 .OR. INST_LAYER_BOT .GT. NLAYS ) THEN
            XMSG = 'INST_LAYER_BOT must be prescribed between 1 and NLAYS.'
-           CALL M3EXIT( PNAME, 0, 0, XMSG, 1 )
+           CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
       END IF
       IF ( INST_LAYER_BOT .GT. INST_LAYER_TOP ) THEN
            XMSG = 'INST_LAYER_BOT must be less than or equal to INST_LAYER_TOP.'
-           CALL M3EXIT( PNAME, 0, 0, XMSG, 1 )
+           CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
       END IF
       NLAY_ELMO_INST = INST_LAYER_TOP - INST_LAYER_BOT + 1
 
@@ -401,7 +401,7 @@
             ! model.
             XMSG = 'An Average ELMO Parameter ' // TRIM( AVRG_VARS_NML( INUM )) //
      &             ' has been requested that does not exist.'
-            CALL M3EXIT( PNAME, 0, 0, XMSG, 1 )
+            CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
          END IF
       END DO
 
@@ -434,15 +434,15 @@
       IF ( AVRG_LAYER_TOP .LE. 0 .OR. AVRG_LAYER_TOP .GT. NLAYS ) THEN
            XMSG = 'AVRG_LAYER_TOP must be prescribed between 1 and NLAYS,' //
      &            ' or set to -1 to automatically choose NLAYS.'
-           CALL M3EXIT( PNAME, 0, 0, XMSG, 1 )
+           CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
       END IF
       IF ( AVRG_LAYER_BOT .LE. 0 .OR. AVRG_LAYER_BOT .GT. NLAYS ) THEN
            XMSG = 'AVRG_LAYER_BOT must be prescribed between 1 and NLAYS.'
-           CALL M3EXIT( PNAME, 0, 0, XMSG, 1 )
+           CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
       END IF
       IF ( AVRG_LAYER_BOT .GT. AVRG_LAYER_TOP ) THEN
            XMSG = 'AVRG_LAYER_BOT must be less than or equal to AVRG_LAYER_TOP.'
-           CALL M3EXIT( PNAME, 0, 0, XMSG, 1 )
+           CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
       END IF
       NLAY_ELMO_AVRG = AVRG_LAYER_TOP - AVRG_LAYER_BOT + 1
  
@@ -526,7 +526,7 @@
       ALLOCATE( ELMO_KEY( 6 )%LIST( 5 ), STAT=ALLOCSTAT )
       IF ( ALLOCSTAT .NE. 0 ) THEN
            XMSG = 'Failure allocating ELMO_KEY(6)'
-           CALL M3EXIT( PNAME, 0, 0, XMSG, 1 )
+           CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
       END IF
 
       ELMO_KEY( 6 )%LIST = (/'PM_SRF ','PMU_SRF','PMF_SRF','PMC_SRF','WET_M2 '/)
@@ -536,7 +536,7 @@
       ALLOCATE( ELMO_KEY( 7 )%LIST( 6 ), STAT=ALLOCSTAT )
       IF ( ALLOCSTAT .NE. 0 ) THEN
            XMSG = 'Failure allocating ELMO_KEY(7)'
-           CALL M3EXIT( PNAME, 0, 0, XMSG, 1 )
+           CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
       END IF
 
       ELMO_KEY( 7 )%LIST = (/'FINE_ORG  ','PM1_OC    ','PM1_OA    ',
@@ -547,7 +547,7 @@
       ALLOCATE( ELMO_KEY( 8 )%LIST( 3 ), STAT=ALLOCSTAT )
       IF ( ALLOCSTAT .NE. 0 ) THEN
            XMSG = 'Failure allocating ELMO_KEY(8)'
-           CALL M3EXIT( PNAME, 0, 0, XMSG, 1 )
+           CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
       END IF
 
       ELMO_KEY( 8 )%LIST = (/'TA  ','PRES','RH  ' /) 
@@ -557,7 +557,7 @@
       ALLOCATE( ELMO_KEY( 9 )%LIST( 7 ),STAT=ALLOCSTAT )
       IF ( ALLOCSTAT .NE. 0 ) THEN
            XMSG = 'Failure allocating ELMO_KEY(9)'
-           CALL M3EXIT( PNAME, 0, 0, XMSG, 1 )
+           CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
       END IF
 
       ELMO_KEY( 9 )%LIST = (/'GAMMA_N2O5  ','GAMMA_N2O5K ','YIELD_CLNO2 ',
@@ -568,7 +568,7 @@
       ALLOCATE( ELMO_KEY( 10 )%LIST( 17 ),STAT=ALLOCSTAT )
       IF ( ALLOCSTAT .NE. 0 ) THEN
            XMSG = 'Failure allocating ELMO_KEY(10)'
-           CALL M3EXIT( PNAME, 0, 0, XMSG, 1 )
+           CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
       END IF
 
       ELMO_KEY( 10 )%LIST = (/'PMF_SO4     ','PMF_NO3     ','PMF_NH4     ',
@@ -582,7 +582,7 @@
       ALLOCATE( ELMO_KEY( 11 )%LIST( 8 ), STAT=ALLOCSTAT )
       IF ( ALLOCSTAT .NE. 0 ) THEN
            XMSG = 'Failure allocating ELMO_KEY(11)'
-           CALL M3EXIT( PNAME, 0, 0, XMSG, 1 )
+           CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
       END IF
 
       ELMO_KEY( 11 )%LIST = (/'PMC_MASS','PMC_SO4 ','PMC_NO3 ','PMC_NH4 ',
@@ -593,7 +593,7 @@
       ALLOCATE( ELMO_KEY( 12 )%LIST( 7 ), STAT=ALLOCSTAT )
       IF ( ALLOCSTAT .NE. 0 ) THEN
            XMSG = 'Failure allocating ELMO_KEY(12)'
-           CALL M3EXIT( PNAME, 0, 0, XMSG, 1 )
+           CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
       END IF
 
       ELMO_KEY( 12 )%LIST = (/'PMAMS     ','PMAMS_SO4 ','PMAMS_NO3 ',
@@ -604,7 +604,7 @@
       ALLOCATE( ELMO_KEY( 13 )%LIST( 21 ),STAT=ALLOCSTAT )
       IF ( ALLOCSTAT .NE. 0 ) THEN
            XMSG = 'Failure allocating ELMO_KEY(13)'
-           CALL M3EXIT( PNAME, 0, 0, XMSG, 1 )
+           CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
       END IF
 
       ELMO_KEY( 13 )%LIST = (/'PM1        ','PM1_SO4    ','PM1_NO3    ',
@@ -619,7 +619,7 @@
       ALLOCATE( ELMO_KEY( 14 )%LIST( 22 ), STAT=ALLOCSTAT )
       IF ( ALLOCSTAT .NE. 0 ) THEN
            XMSG = 'Failure allocating ELMO_KEY(14)'
-           CALL M3EXIT( PNAME, 0, 0, XMSG, 1 )
+           CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
       END IF
 
       ELMO_KEY( 14 )%LIST = (/'PM25        ','PM25_SO4    ','PM25_NO3    ',
@@ -634,7 +634,7 @@
       ALLOCATE( ELMO_KEY( 15 )%LIST( 6 ), STAT=ALLOCSTAT )
       IF ( ALLOCSTAT .NE. 0 ) THEN
            XMSG = 'Failure allocating ELMO_KEY(15)'
-           CALL M3EXIT( PNAME, 0, 0, XMSG, 1 )
+           CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
       END IF
 
       ELMO_KEY( 15 )%LIST = (/'PM25TO10    ','PM25TO10_SO4','PM25TO10_NO3',
@@ -645,7 +645,7 @@
       ALLOCATE( ELMO_KEY( 16 )%LIST( 2 ), STAT=ALLOCSTAT )
       IF ( ALLOCSTAT .NE. 0 ) THEN
            XMSG = 'Failure allocating ELMO_KEY(16)'
-           CALL M3EXIT( PNAME, 0, 0, XMSG, 1 )
+           CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
       END IF
 
       ELMO_KEY( 16 )%LIST = (/'AOD_550   ','PM_EXT_550'/)
@@ -655,7 +655,7 @@
       ALLOCATE( ELMO_KEY( 17 )%LIST( 16 ), STAT=ALLOCSTAT )
       IF ( ALLOCSTAT .NE. 0 ) THEN
            XMSG = 'Failure allocating ELMO_KEY(17)'
-           CALL M3EXIT( PNAME, 0, 0, XMSG, 1 )
+           CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
       END IF
 
       ELMO_KEY( 17 )%LIST = (/'PMF_POC     ','PMF_SOC     ','PMF_POA     ',
@@ -669,7 +669,7 @@
       ALLOCATE( ELMO_KEY( 18 )%LIST( 6 ), STAT=ALLOCSTAT )
       IF ( ALLOCSTAT .NE. 0 ) THEN
            XMSG = 'Failure allocating ELMO_KEY(18)'
-           CALL M3EXIT( PNAME, 0, 0, XMSG, 1 )
+           CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
       END IF
 
       ELMO_KEY( 18 )%LIST = (/'FPM01    ','FPM1     ','FPM25    ',
@@ -680,7 +680,7 @@
       ALLOCATE( ELMO_KEY( 19 )%LIST( 21 ), STAT=ALLOCSTAT )
       IF ( ALLOCSTAT .NE. 0 ) THEN
            XMSG = 'Failure allocating ELMO_KEY(19)'
-           CALL M3EXIT( PNAME, 0, 0, XMSG, 1 )
+           CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
       END IF
 
       ELMO_KEY( 19 )%LIST = (/'PM25_HDIESEL','PM25_HBE    ','PM25_HCD    ',
@@ -695,7 +695,7 @@
       ALLOCATE( ELMO_KEY( 20 )%LIST( 2 ), STAT=ALLOCSTAT )
       IF ( ALLOCSTAT .NE. 0 ) THEN
            XMSG = 'Failure allocating ELMO_KEY(20)'
-           CALL M3EXIT( PNAME, 0, 0, XMSG, 1 )
+           CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
       END IF
 
       ELMO_KEY( 20 )%LIST = (/'PM25','PM10'/)
@@ -705,7 +705,7 @@
       ALLOCATE( ELMO_KEY( 21 )%LIST( 5 ), STAT=ALLOCSTAT )
       IF ( ALLOCSTAT .NE. 0 ) THEN
            XMSG = 'Failure allocating ELMO_KEY(21)'
-           CALL M3EXIT( PNAME, 0, 0, XMSG, 1 )
+           CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
       END IF
 
       ELMO_KEY( 21 )%LIST = (/'PMAMS_CL ','PMAMS_NH4','PMAMS_NO3',
@@ -717,7 +717,7 @@
       ALLOCATE( ELMO_KEY( 22 )%LIST( 2 ), STAT=ALLOCSTAT )
       IF ( ALLOCSTAT .NE. 0 ) THEN
            XMSG = 'Failure allocating ELMO_KEY(22)'
-           CALL M3EXIT( PNAME, 0, 0, XMSG, 1 )
+           CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
       END IF
       ELMO_KEY( 22 )%LIST = (/'SATMET ','SATCONC'/)
       
@@ -727,7 +727,7 @@
       ALLOCATE( ELMO_KEY( 23 )%LIST( 7 ), STAT=ALLOCSTAT )
       IF ( ALLOCSTAT .NE. 0 ) THEN
            XMSG = 'Failure allocating ELMO_KEY(23)'
-           CALL M3EXIT( PNAME, 0, 0, XMSG, 1 )
+           CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
       END IF
       ELMO_KEY( 23 )%LIST = (/'DENS ','DZ   ','ZH   ','CFRAC','PV   ',
      &                        'PRES ','TA   '/)
@@ -738,7 +738,7 @@
       ALLOCATE( ELMO_KEY( 24 )%LIST( 7 ), STAT=ALLOCSTAT )
       IF ( ALLOCSTAT .NE. 0 ) THEN
            XMSG = 'Failure allocating ELMO_KEY(24)'
-           CALL M3EXIT( PNAME, 0, 0, XMSG, 1 )
+           CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
       END IF
       ELMO_KEY( 24 )%LIST = (/'NO2    ','SO2    ','O3     ','CO     ',
      &                        'FORM   ','NH3    ','AOD_550'/)
@@ -749,7 +749,7 @@
       ALLOCATE( ELMO_KEY( 25 )%LIST( N_CGRID_SPC ), STAT=ALLOCSTAT )
       IF ( ALLOCSTAT .NE. 0 ) THEN
            XMSG = 'Failure allocating ELMO_KEY(24)'
-           CALL M3EXIT( PNAME, 0, 0, XMSG, 1 )
+           CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
       END IF
       ELMO_KEY( 25 )%LIST = CGRID_NAME(:)
  
@@ -796,7 +796,7 @@
       IF ( ALLOCSTAT .NE. 0 ) THEN
            XMSG = 'Failure allocating USED_ELMO_MODE, USED_ELMO_ID, ' // 
      &            'or MAP_ID2USED'
-           CALL M3EXIT( PNAME, 0, 0, XMSG, 1 )
+           CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
       END IF
       USED_ELMO_MODE = 0
       USED_ELMO_ID = 0
@@ -823,7 +823,7 @@
      &             STAT = ALLOCSTAT )
          IF ( ALLOCSTAT .NE. 0 ) THEN
               XMSG = 'Failure allocating MAP_INST2USED, etc., '
-              CALL M3EXIT( PNAME, 0, 0, XMSG, 1 )
+              CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
          END IF
 
          ! Initialize number of Instantaneous Output Variables
@@ -906,14 +906,14 @@
              ELSE
                 XMSG = 'An Instantaneous ELMO Parameter '//TRIM(INST_PARS(J))//
      &                 ' has been requested that does not exist.'
-                CALL M3EXIT( PNAME, 0, 0, XMSG, 1 )
+                CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
              END IF
          END DO
          ALLOCATE( ELMO_INST( NCOLS,NROWS,NLAY_ELMO_INST,
      &                          N_ELMO_INST_OUT),STAT=ALLOCSTAT )
          IF ( ALLOCSTAT .NE. 0 ) THEN
               XMSG = 'Failure allocating ELMO_INST' 
-              CALL M3EXIT( PNAME, 0, 0, XMSG, 1 )
+              CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
          END IF
          ELMO_INST = 0.0
       END IF
@@ -928,7 +928,7 @@
      &             STAT = ALLOCSTAT )
          IF ( ALLOCSTAT .NE. 0 ) THEN
               XMSG = 'Failure allocating MAP_AVRG2USED, etc.' 
-              CALL M3EXIT( PNAME, 0, 0, XMSG, 1 )
+              CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
          END IF
 
          ! Initialize number of Average output variables
@@ -1049,7 +1049,7 @@
              ELSE
                 XMSG = 'An Average ELMO Parameter '//TRIM(AVRG_PARS(J))//
      &                 ' has been requested that does not exist.'
-                CALL M3EXIT( PNAME, 0, 0, XMSG, 1 )
+                CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
              END IF
          END DO
          ALLOCATE( ELMO_AVRG( NCOLS,NROWS,NLAY_ELMO_AVRG,
@@ -1943,7 +1943,7 @@
      &          STAT=ALLOCSTAT )
       IF ( ALLOCSTAT .NE. 0 ) THEN
            XMSG = 'Failure allocating ELMO_COEFFS' 
-           CALL M3EXIT( PNAME, 0, 0, XMSG, 1 )
+           CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
       END IF
 
       ELMO_COEFFS( IDG )%L_GAS  ( : )   = .FALSE.
@@ -2003,7 +2003,7 @@
          CASE DEFAULT
              XMSG = 'An aerosol descriptor (' // trim(AEROTYPE) // ') has been given ' //
      &              'for the mapping of a ELMO parameter. It is not recognized.'
-             CALL M3EXIT( 'INIT_ELMO_COEFFS', 0, 0, XMSG, 1 )
+             CALL M3EXIT( 'INIT_ELMO_COEFFS', 0, 0, XMSG, XSTAT1 )
       END SELECT
 
 
@@ -2083,7 +2083,7 @@
      &           "table in ELMO_DATA is compatible with the PM diagnostics you have defined "//
      &           "in ELMO_PROC."
              CALL LOG_MESSAGE( LOGDEV, XMSG )
-             CALL M3EXIT( 'MAP_ELMO_COEFFS', 0, 0, '', 1 )
+             CALL M3EXIT( 'MAP_ELMO_COEFFS', 0, 0, '', XSTAT1 )
           END IF          
   
       ELSE IF ( TSPEC .EQ. 'SPC' ) THEN 
@@ -2154,7 +2154,7 @@
      &          'sure it is being mapped to an actual calculation in CALC_ELMO ' //
      &          'or MAP_ELMO_COEFFS.'
          CALL LOG_MESSAGE( LOGDEV, XMSG )
-         CALL M3EXIT( 'CALC_CONCOUT_AGG', 0, 0, '', 1 )
+         CALL M3EXIT( 'CALC_CONCOUT_AGG', 0, 0, '', XSTAT1 )
       END IF
 
       ! Initialize value of aggregate parameter
@@ -3311,7 +3311,7 @@
             ! Open the Instantaneous aerosol diagnostic file
             IF ( .NOT. OPEN3( CTM_ELMO_1, FSNEW3, PNAME ) ) THEN
                XMSG = 'Could not create '// CTM_ELMO_1 // ' file'
-               CALL M3EXIT ( PNAME, SDATE3D, STIME3D, XMSG, 1 )
+               CALL M3EXIT ( PNAME, SDATE3D, STIME3D, XMSG, XSTAT1 )
             END IF
 
          END IF
@@ -3352,7 +3352,7 @@
             ! Open the Instantaneous aerosol diagnostic file
             IF ( .NOT. OPEN3( CTM_AELMO_1, FSNEW3, PNAME ) ) THEN
                XMSG = 'Could not create '// CTM_AELMO_1 // ' file'
-               CALL M3EXIT ( PNAME, SDATE3D, STIME3D, XMSG, 1 )
+               CALL M3EXIT ( PNAME, SDATE3D, STIME3D, XMSG, XSTAT1 )
             END IF
  
          END IF
@@ -3389,7 +3389,7 @@ C *** Write data to the scalar output file.
      &           ALLVAR3, MDATE, MTIME,
      &           ELMO_INST(:,:,:,:) ) ) THEN
                XMSG = 'Could not write ' // CTM_ELMO_1 // ' file'
-               CALL M3EXIT ( PNAME, MDATE, MTIME, XMSG, 1 )
+               CALL M3EXIT ( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
             END IF
 
             WRITE( LOGDEV, '( /5X, 3( A, :, 1X ), I8, ":", I6.6 )' )
@@ -3409,7 +3409,7 @@ C *** Write data to the average aerosol diagnostic file.
      &           ELMO_AVRG(:,:,:,:) / 2.0 / 
      &           ELMO_AVRG_STEP ) ) THEN
                XMSG = 'Could not write ' // CTM_AELMO_1 // ' file'
-               CALL M3EXIT ( PNAME, MDATE, MTIME, XMSG, 1 )
+               CALL M3EXIT ( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
             END IF
 
             WRITE( LOGDEV, '( /5X, 3( A, :, 1X ), I8, ":", I6.6 )' )

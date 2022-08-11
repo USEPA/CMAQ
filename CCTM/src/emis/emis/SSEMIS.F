@@ -406,7 +406,7 @@ C Open the sea-salt emission dignostic file
                IF ( .NOT. IO_PE_INCLUSIVE ) THEN
                   IF ( .NOT. OPEN3( CTM_SSEMIS_1, FSREAD3, PNAME ) ) THEN
                      XMSG = 'Could not open ' // TRIM(CTM_SSEMIS_1)
-                     CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 2 )
+                     CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
                   END IF
                END IF
 #endif
@@ -503,7 +503,7 @@ C Set output file characteristics based on COORD.EXT and open diagnostic file
 C Open sea-salt emissions diagnostic file
             IF ( .NOT. OPEN3( CTM_SSEMIS_1, FSNEW3, PNAME ) ) THEN
                XMSG = 'Could not create the CTM_SSEMIS_1 file'
-               CALL M3EXIT( PNAME, SDATE3D, STIME3D, XMSG, 1 )
+               CALL M3EXIT( PNAME, SDATE3D, STIME3D, XMSG, XSTAT1 )
             END IF
 
          END IF
@@ -942,7 +942,7 @@ C Then reset the sea-salt emissions array and local write counter.
                   IF ( .NOT. IO_PE_INCLUSIVE ) THEN
                      IF ( .NOT. OPEN3( CTM_DRY_DEP_1, FSREAD3, PNAME ) ) THEN
                         XMSG = 'Could not open ' // TRIM( CTM_DRY_DEP_1 )
-                        CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
+                        CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
                      END IF
                   END IF
                END IF
@@ -954,7 +954,7 @@ C Then reset the sea-salt emissions array and local write counter.
                   IF ( .NOT. CURRSTEP( JDATE, JTIME, STDATE, STTIME, TSTEP( 1 ),
      &                                 MDATE, MTIME ) ) THEN
                      XMSG = 'Cannot get step date and time'
-                     CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 3 )
+                     CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
                   END IF
                   CALL NEXTIME( MDATE, MTIME, TSTEP( 1 ) )
                   DO V = 1, NSSDIAG
@@ -966,7 +966,7 @@ C Then reset the sea-salt emissions array and local write counter.
                      IF ( .NOT. WRITE3( CTM_SSEMIS_1, WRSS_SPC( V ),
      &                          MDATE, MTIME, WRSS ) ) THEN
                         XMSG = 'Could not write ' // CTM_SSEMIS_1 // ' file'
-                        CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, 1 )
+                        CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
                      END IF
                   END DO
                   WRITE( LOGDEV, '( /5X, 3( A, :, 1X ), I8, ":", I6.6 )' )

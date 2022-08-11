@@ -144,7 +144,7 @@ C     26 June 2014 J.Bash: initial implementation
      &              gc_depv_name( dep_gas_all ),STAT = ALLOCSTAT )
          If ( ALLOCSTAT .Ne. 0 ) Then
             XMSG = 'Failure allocating chemical deposition parameters '
-            Call M3EXIT( PNAME, 0, 0, XMSG, 1 )
+            Call M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
          End If
           
 ! load arrays from STAGE namelist data
@@ -206,7 +206,7 @@ C     26 June 2014 J.Bash: initial implementation
 ! Map the deposition surrogate species 
          IF ( ( N_GC_SPC + N_NR_SPC + N_TR_SPC ) .LE. 0 ) THEN
             XMSG = 'Model not compiled for gases'
-            CALL M3EXIT ( PNAME, 0, 0, XMSG, 1 )
+            CALL M3EXIT ( PNAME, 0, 0, XMSG, XSTAT1 )
          END IF
 
 C Set up names and indices
@@ -227,7 +227,7 @@ C Set up the DEPV pointers to calculated deposition velocities
                XMSG = 'Could not find ' // TRIM( DEPV_NAMES( V ) ) // 
      &                ' in '            // TRIM( DEPV_METHOD )     //
      &                ' surrogate table.'
-               CALL M3EXIT( PNAME, 0, 0, XMSG, 1 )
+               CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
             END IF
          END DO
 
@@ -252,7 +252,7 @@ C Locate model species' DEPVs in the unique DEPV_NAMES list
             ELSE
                XMSG = 'Could not find ' // TRIM( GC_DEPV( V ) )
      &              // ' in STAGE Deposition Namelist.'  
-               CALL M3EXIT( PNAME, 0, 0, XMSG, 1 )
+               CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
             END IF
          END DO
 
@@ -266,7 +266,7 @@ C Locate model species' DEPVs in the unique DEPV_NAMES list
             ELSE
                XMSG = 'Could not find ' // TRIM( NR_DEPV( V ) )
      &              // ' in STAGE Deposition Namelist.'  
-               CALL M3EXIT( PNAME, 0, 0, XMSG, 1 )
+               CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
             END IF
          END DO
 
@@ -280,7 +280,7 @@ C Locate model species' DEPVs in the unique DEPV_NAMES list
             ELSE
                XMSG = 'Could not find ' // TRIM( TR_DEPV( V ) )
      &              // ' in STAGE Deposition Namelist.'  
-               CALL M3EXIT( PNAME, 0, 0, XMSG, 1 )
+               CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
             END IF
          END DO
 

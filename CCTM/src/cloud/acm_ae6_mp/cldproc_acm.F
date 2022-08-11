@@ -183,7 +183,7 @@ C...and return
         ALLOCATE ( WDEP_MAP( N_SPC_WDEP ), STAT = ALLOCSTAT )
         IF ( ALLOCSTAT .NE. 0 ) THEN
           XMSG = 'Failure allocating WDEP_MAP'
-          CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
+          CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
         END IF
         IF ( N_SPC_WDEP .LE. 0 ) THEN
 
@@ -240,7 +240,7 @@ C...  # / m**3 (number density), and m**2 / m**3 (surface area) units
      &               SAE( N_AE_SPC ), STAT = ALLOCSTAT )
           IF ( ALLOCSTAT .NE. 0 ) THEN
             XMSG = 'Failure allocating QAE, NAE, or SAE'
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
+            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
           END IF
 
           NQAE = 0       ! number of ug/m3 species
@@ -268,7 +268,7 @@ C...initialize the deposition array before processing clouds
      &             STAT = ALLOCSTAT )
         IF ( ALLOCSTAT .NE. 0 ) THEN
           XMSG = 'Failure allocating TOT_DEP'
-          CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
+          CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
         END IF
         TOT_DEP = 0.0   ! array assignment
 
@@ -276,42 +276,42 @@ C...initialize the deposition array before processing clouds
      &             STAT = ALLOCSTAT )
         IF ( ALLOCSTAT .NE. 0 ) THEN
           XMSG = 'Failure allocating CONV_DEP'
-          CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
+          CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
         END IF
         CONV_DEP = 0.0   ! array assignment
 
         ALLOCATE ( RESTRANS ( NCOLS,NROWS ), STAT = ALLOCSTAT )
         IF ( ALLOCSTAT .NE. 0 ) THEN
           XMSG = 'Failure allocating RESTRANS'
-          CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
+          CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
         END IF
         RESTRANS = 1.0   ! array assignment
 
         ALLOCATE ( SUBTRANS ( NCOLS,NROWS,2 ), STAT = ALLOCSTAT )
         IF ( ALLOCSTAT .NE. 0 ) THEN
           XMSG = 'Failure allocating SUBTRANS'
-          CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
+          CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
         END IF
         SUBTRANS = 1.0   ! array assignment
 
         ALLOCATE ( DENS( NCOLS,NROWS,NLAYS ), STAT = ALLOCSTAT )
         IF ( ALLOCSTAT .NE. 0 ) THEN
            XMSG = 'Failure allocating DENS'
-           CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
+           CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
         END IF
 
 #ifdef parallel_io
          IF ( .NOT. IO_PE_INCLUSIVE ) THEN
             IF ( .NOT. OPEN3( CTM_WET_DEP_1, FSREAD3, PNAME ) ) THEN
                XMSG = 'Could not open ' // TRIM( CTM_WET_DEP_1 )
-               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
+               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             END IF
          END IF
          IF ( CLD_DIAG ) THEN
             IF ( .NOT. IO_PE_INCLUSIVE ) THEN
                IF ( .NOT. OPEN3( CTM_WET_DEP_2, FSREAD3, PNAME ) ) THEN
                   XMSG = 'Could not open ' // TRIM( CTM_WET_DEP_2 )
-                  CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, 1 )
+                  CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
                END IF
             END IF
          END IF
@@ -500,7 +500,7 @@ C...write data to the normal wet deposition file
         IF ( .NOT. WRITE3( CTM_WET_DEP_1, ALLVAR3, NDATE,
      &                     NTIME, TOT_DEP ) ) THEN
           XMSG = 'Could not write ' // CTM_WET_DEP_1 // ' file'
-          CALL M3EXIT ( PNAME, NDATE, NTIME, XMSG, 1 )
+          CALL M3EXIT ( PNAME, NDATE, NTIME, XMSG, XSTAT1 )
         END IF
 
         WRITE( LOGDEV, '( /5X, 3( A, :, 1X ), I8, ":", I6.6 )' )
@@ -514,7 +514,7 @@ C...write data to the diagnostic file if requested by the user
           IF ( .NOT. WRITE3( CTM_WET_DEP_2, ALLVAR3, NDATE,
      &                       NTIME, CONV_DEP ) ) THEN
           XMSG = 'Could not write ' // CTM_WET_DEP_2 // ' file'
-            CALL M3EXIT ( PNAME, NDATE, NTIME, XMSG, 1 )
+            CALL M3EXIT ( PNAME, NDATE, NTIME, XMSG, XSTAT1 )
           END IF
 
           WRITE( LOGDEV, '( /5X, 3( A, :, 1X ), I8, ":", I6.6 )' )

@@ -142,7 +142,7 @@ c-------------------------------------------------------------------------------
      &             STAT = ALLOCSTAT )
          IF ( ALLOCSTAT .NE. 0 ) THEN
             XMSG = 'Failure allocating sens1 or sens1d'
-            CALL M3EXIT( 'aero_sens', 0 , 0, XMSG, 2 )
+            CALL M3EXIT( 'aero_sens', 0 , 0, XMSG, XSTAT2 )
          END IF
       END IF
 
@@ -198,7 +198,7 @@ c       end do
 
            else
               XMSG = 'DDM-3D HIGH option not enabled - check runscript'
-              CALL M3EXIT ( 'aero_sens', 0, 0, XMSG, 3 )
+              CALL M3EXIT ( 'aero_sens', 0, 0, XMSG, XSTAT3 )
            endif
   
         else ! calculate first-order sensitivities

@@ -112,7 +112,7 @@ C Allocate PA_DEFN arrays:
      &              IRRBLK ( BLKSIZE,NIRRVAR ), STAT = ASTAT )
          IF ( ASTAT .NE. 0 ) THEN
             MSG = 'Failure initializing IRRSTEP of IRRBLK'
-            CALL M3EXIT( PNAME, 0, 0, MSG, 1 )
+            CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
          END IF
 C  On first call, flag the reactions for which to calculate IRRs
         ALLOCATE( LINTRXN( NRXNS ),
@@ -123,13 +123,13 @@ C  On first call, flag the reactions for which to calculate IRRs
      &            TEMPIRR( BLKSIZE, NRXNS ), STAT = ASTAT )
          IF ( ASTAT .NE. 0 ) THEN
            MSG = 'ERROR allocating PA_IRR variables'
-           CALL M3EXIT ( 'PA_IRR', 0, 0, MSG, 2 )
+           CALL M3EXIT ( 'PA_IRR', 0, 0, MSG, XSTAT2 )
          END IF
      
          IF ( LFULLIRR .AND. NIRRVAR .NE. NRXNS ) THEN
             MSG = 'Number of reactions for PA does not match number of ' //
      &            'reactions in mechanism'
-            CALL M3EXIT( PNAME, 0, 0, MSG, 2 )
+            CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT2 )
          END IF
  
          IF ( LFULLIRR ) THEN
@@ -143,7 +143,7 @@ C  On first call, flag the reactions for which to calculate IRRs
                      IF ( NRX .GT. NRXNS ) THEN
                         MSG = 'Number of reactions for PA does not match ' //
      &                        'number of reactions in mechanism'
-                        CALL M3EXIT( PNAME, 0, 0, MSG, 2 )
+                        CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT2 )
                      END IF
                      LINTRXN( NRX ) = .TRUE.
                   END DO
@@ -158,7 +158,7 @@ C  On first call, flag the reactions for which to calculate IRRs
                         IF ( NRX .GT. NRXNS ) THEN
                            MSG = 'Number of reactions for PA does not match ' //
      &                           'number of reactions in mechanism'
-                           CALL M3EXIT( PNAME, 0, 0, MSG, 2 )
+                           CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT2 )
                         END IF
                         LINTRXN( NRX ) = .TRUE.
                      END DO
@@ -483,7 +483,7 @@ C Allocate PA_DEFN arrays:
      &              IRRSUM( NIRRVAR ), STAT = ASTAT )
         IF ( ASTAT .NE. 0 ) THEN
             MSG = 'Failure initializing IRRSTEP of IRRBLK'
-            CALL M3EXIT( 'PA_IRR', 0, 0, MSG, 1 )
+            CALL M3EXIT( 'PA_IRR', 0, 0, MSG, XSTAT1 )
         END IF
 
         ALLOCATE( LINTRXN( NRXNS ),
@@ -492,13 +492,13 @@ C Allocate PA_DEFN arrays:
      &            TEMPIRR( NRXNS ), STAT = ASTAT )
          IF ( ASTAT .NE. 0 ) THEN
            MSG = 'ERROR allocating PA_IRR variables'
-           CALL M3EXIT ( 'PA_IRR', 0, 0, MSG, 2 )
+           CALL M3EXIT ( 'PA_IRR', 0, 0, MSG, XSTAT2 )
          END IF
     
          IF ( LFULLIRR .AND. NIRRVAR .NE. NRXNS ) THEN
             CALL M3EXIT( PNAME, 0, 0,
      &        'Number of reactions for PA does not match number of ' //
-     &        'reactions in mechanism', 2 )
+     &        'reactions in mechanism', XSTAT2 )
          END IF
  
          IF ( LFULLIRR )THEN
@@ -509,7 +509,7 @@ C Allocate PA_DEFN arrays:
                IF( ANY( TEMPRXN .GT. NRXNS ) )THEN 
                    CALL M3EXIT( PNAME, 0, 0,
      &             'Number of reactions for PA does not match ' //
-     &             'number of reactions in mechanism', 2 )
+     &             'number of reactions in mechanism', XSTAT2 )
                END IF
                DO NTEMP = 1, NUMTEMPS 
                   DO NTERM = 1, TEMPTERMS( NTEMP )
@@ -522,7 +522,7 @@ C Allocate PA_DEFN arrays:
                IF( ANY( NIRRRXNS .GT. NRXNS ) )THEN 
                    CALL M3EXIT( PNAME, 0, 0,
      &             'Number of reactions for PA does not match ' //
-     &             'number of reactions in mechanism', 2 )
+     &             'number of reactions in mechanism', XSTAT2 )
                END IF
                DO NOUT = 1, NIRRVAR
                   IF ( NIRRRXNS( NOUT ) .GT. 0 ) THEN

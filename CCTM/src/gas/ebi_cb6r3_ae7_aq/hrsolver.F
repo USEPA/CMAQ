@@ -137,31 +137,31 @@ C**********************************************************************
           ALLOCATE ( LEBISPFL( NUMB_MECH_SPC ), STAT = ERR )
           IF ( ERR .NE. 0 ) THEN
              MSG = 'Error allocating LEBISPFL'
-             CALL M3EXIT( PNAME, JDATE, JTIME, MSG, 1 )
+             CALL M3EXIT( PNAME, JDATE, JTIME, MSG, XSTAT1 )
           END IF
 
           ALLOCATE ( MAXCONC( NUMB_MECH_SPC ), STAT = ERR )
           IF ( ERR .NE. 0 ) THEN
              MSG = 'Error allocating MAXCONC'
-             CALL M3EXIT( PNAME, JDATE, JTIME, MSG, 1 )
+             CALL M3EXIT( PNAME, JDATE, JTIME, MSG, XSTAT1 )
           END IF
 
           ALLOCATE ( NOTMAX( NUMB_MECH_SPC ), STAT = ERR )
           IF ( ERR .NE. 0 ) THEN
              MSG = 'Error allocating NOTMAX'
-             CALL M3EXIT( PNAME, JDATE, JTIME, MSG, 1 )
+             CALL M3EXIT( PNAME, JDATE, JTIME, MSG, XSTAT1 )
           END IF
 
           ALLOCATE ( RERROR( NUMB_MECH_SPC ), STAT = ERR )
           IF ( ERR .NE. 0 ) THEN
              MSG = 'Error allocating ERROR'
-             CALL M3EXIT( PNAME, JDATE, JTIME, MSG, 1 )
+             CALL M3EXIT( PNAME, JDATE, JTIME, MSG, XSTAT1 )
           END IF
 
           ALLOCATE ( AERROR( NUMB_MECH_SPC ), STAT = ERR )
           IF ( ERR .NE. 0 ) THEN
              MSG = 'Error allocating AERROR'
-             CALL M3EXIT( PNAME, JDATE, JTIME, MSG, 1 )
+             CALL M3EXIT( PNAME, JDATE, JTIME, MSG, XSTAT1 )
           END IF
 
        END IF
@@ -420,7 +420,7 @@ C Update the sum for the average over the chemistry integration
                END DO
 
                MSG = 'ERROR: Stopping because of EBI convergence failures'
-               CALL M3EXIT( PNAME, JDATE, JTIME, MSG, 2 )
+               CALL M3EXIT( PNAME, JDATE, JTIME, MSG, XSTAT2 )
 
             END IF
 
