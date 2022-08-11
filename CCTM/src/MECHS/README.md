@@ -10,7 +10,7 @@ To modify or change photochemistry, requires modifying or replacing the modules 
 
 To select a predefined mechanism configuration in CMAQ, set the *Mechanism* variable in the build scripts to a one of the mechanism subdirectories located under $CMAQ_MODEL/CCTM/src/MECHS. The below table lists mechanisms available in this version of the CMAQ model.
 
-Table 1.  CMAQv5.3 Chemical Mechanisms
+Table 1.  CMAQv5.4 Chemical Mechanisms
 
 |**Mechanism Name** | **Photochemistry**                                   | **Model Species<sup>1,2</sup>**    | **Cloud Chemistry Module<sup>3</sup>** |
 | ----------------- | ---------------------------------------------------- | -------------------- | ---------------------- |
@@ -22,8 +22,6 @@ Table 1.  CMAQv5.3 Chemical Mechanisms
 | racm2_ae6_aq      | [Regional Atmospheric Chemistry Mechanism version 2 with aero6 treatment of SOA](mechanism_information/racm2_ae6_aq/mech_racm2_ae6_aq.md) | [species table 5](mechanism_information/racm2_ae6_aq/racm2_ae6_aq_species_table.md)                   | acm_ae6          |
 | saprc07tic_ae7i_aq | [State Air Pollution Research Center version 07tc with extended isoprene chemistry and aero7i treatment of SOA]( mechanism_information/saprc07tic_ae7i_aq/mech_saprc07tic_ae7i_aq.md) | [species table 6](mechanism_information/saprc07tic_ae7i_aq/saprc07tic_ae7i_aq_species_table.md)                   | acm_ae7          |
 | saprc07tic_ae7i_aqkmt2 | [State Air Pollution Research Center version 07tc with extended isoprene chemistry and aero7i treatment of SOA](mechanism_information/saprc07tic_ae7i_aq/mech_saprc07tic_ae7i_aq.md)  | [species table 6](mechanism_information/saprc07tic_ae7i_aq/saprc07tic_ae7i_aq_species_table.md)                   | acm_ae7_kmt2          |
-| saprc07tic_ae6i_aq | [State Air Pollution Research Center version 07tc with extended isoprene chemistry and aero6i treatment of SOA]( mechanism_information/saprc07tic_ae6i_aq/mech_saprc07tic_ae6i_aq.md) | [species table 7](mechanism_information/saprc07tic_ae6i_aq/saprc07tic_ae6i_aq_species_table.md)                   | acm_ae6          |
-| saprc07tic_ae6i_aqkmti | [State Air Pollution Research Center version 07tc with extended isoprene chemistry and aero6i treatment of SOA](mechanism_information/saprc07tic_ae6i_aq/mech_saprc07tic_ae6i_aq.md)  | [species table 7](mechanism_information/saprc07tic_ae6i_aq/saprc07tic_ae6i_aq_species_table.md)                   | acm_ae6_kmti          |
 | saprc07tc_ae6_aq | [State Air Pollution Research Center version 07tc with aero6 treatment of SOA](mechanism_information/saprc07tc_ae6_aq/mech_saprc07tc_ae6_aq.md)  | [species table 8](mechanism_information/saprc07tc_ae6_aq/saprc07tc_ae6_aq_species_table.md)                   | acm_ae6         |       
 | cracmm1_aq | [Community Regional Atmospheric Chemistry Multiphase Mechanism version 1.0](mechanism_information/cracmm1_aq/mech_cracmm1_aq.md)  | [species table 9](mechanism_information/cracmm1_aq/cracmm1_aq_species_table.md)                   | acm     |       
 | cracmm1amore_aq | [Community Regional Atmospheric Chemistry Multiphase Mechanism version 1.0 with AMORE isoprene condensation](mechanism_information/cracmm1amore_aq/mech_cracmm1amore_aq.md)  | [species table 10](mechanism_information/cracmm1amore_aq/cracmm1amore_aq_species_table.md)                   | acm     |       

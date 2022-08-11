@@ -33,6 +33,7 @@
 	* [6.10.2 Solvers](#6.10.2_Solver)
 	* [6.10.3 Photolysis](#6.10.3_Photolysis)
 	* [6.10.4 Nitrous Acid (HONO)](#6.10.4_HONO)
+	* [6.10.5 CRACMM v1](#6.10.5_CRACMM)
 * [6.11 Aerosol Dynamics and Chemistry](#6.11_Aerosol_Dynamics)
 * [6.12 Aqueous Chemistry, Scavenging and Wet Deposition](#6.12_Aqueous_Chemistry)
 * [6.13 Potential Vorticity Scaling](#6.13_Potential_Vort)
@@ -268,7 +269,7 @@ setenv PX_VERSION   Y
 setenv CLM_VERSION Y
 setenv NOAH_VERSION Y 
 ```
-Sets the correct soil hydrological properties and soil layer information needed to calculate soil NO emissions, NH<sub>3</sub> bidirectional exchange and O<sub>3</sub> deposition. These options are currently based on WRF 3.8.1 and earlier values for PX and CLM and WRF 4.0 for NOAH. If the land surface model is run with another look up table or parameterization, soil moisture will be constrained between saturation and residual water content from the parameterization in CMAQ. This is also the case for the m3dry deposition option, soil NO emissions, and wind blown dust.   
+Sets the correct soil hydrological properties and soil layer information needed to calculate soil NO emissions, NH<sub>3</sub> bidirectional exchange and O<sub>3</sub> deposition. These options are currently based on WRF 3.8.1 and earlier values for PX and CLM and WRF 4.0 for NOAH. If the land surface model is run with another look up table or parameterization, soil moisture will be constrained between saturation and residual water content from the parameterization in CMAQ. This is also the case for the m3dry deposition option, soil NO emissions, and wind-blown dust.   
 
 <a id=6.9_Emissions></a>
 
@@ -504,7 +505,7 @@ The SOILINP and SOILOUT functionality is the same as for BEIS (see above), with 
 
 <a id=Wind_Blown_Dust></a>
 #### Wind-Blown Dust
-The actual amount of dust emitted from an arid surface depends on wind speed, surface roughness, moisture content of the soil, vegetation coverage, soil type and texture, and air density.  The main mechanism behind strong dust storms is called “saltation bombardment” or “sandblasting.” The physics of saltation include the movement of sand particles due to wind, the impact of these particles to the surface that removes part of the soil volume, and the release of smaller dust particles. CMAQ first calculates friction velocity at the surface of the Earth. Once this friction velocity exceeds a threshold value, saltation, or horizontal movement, flux is obtained. Finally, the vertical flux of the dust is calculated based on a sandblasting efficiency formulation – a vertical-to-horizontal dust flux ratio.
+The actual amount of dust emitted from an arid surface depends on wind speed, surface roughness, moisture content of the soil, vegetation coverage, soil type and texture, and air density.  The main mechanism behind strong dust storms is called “saltation bombardment” or “sandblasting.” The physics of saltation include the movement of sand particles due to wind, the impact of these particles to the surface that removes part of the soil volume, and the release of smaller dust particles. CMAQ first calculates friction velocity at the surface of the Earth. Once this friction velocity exceeds a threshold value, saltation, or horizontal movement, flux is obtained. Finally, the vertical flux of the dust is calculated based on a sandblasting efficiency formulation - a vertical-to-horizontal dust flux ratio.
 
 CMAQ uses time-varying vegetation coverage, soil moisture and wind speed from the meteorological model, WRF. The vegetation coverage in WRF can vary depending on the configuration. In WRFv4.1+, the Pleim-Xiu land-surface model (PX LSM) was modified to provide CMAQ vegetation fraction (VEGF_PX in WRF renamed VEG in MCIP) from either the old fractional land use weighting table lookup method (pxlsm_modis_veg = 0), or a new option where vegetation fraction is directly read from the monthly MODIS derived vegetation coverage (pxlsm_modis_veg = 1) found in the wrflowinp_d0* file(s). This was done because in recent years WRF has provided high resolution (~1 km) monthly vegetation coverage that is more accurate than tables. Updates are backward compatible with older version of MCIP or WRF as long as VEG and VEGF_PX/VEGFRA are in those files. Using the MODIS data in WRF via the new PX vegetation option provides the dust model a more accurate representation of vegetation in regions where windblown dust most occurs. 
 
@@ -577,7 +578,7 @@ setenv CTM_OCEAN_CHEM Y
 ```
 
 Speciation of sea spray emissions is controlled by AERO_DATA.F under CCTM/src/aero. 
-Note that CMAQ employing Carbon Bond 6 version r3 with DMS and marine halogen chemistry (cb6r3m_ae7_kmtbr) slightly modifies the speciation of Sea Spray emissions by including bromide from Sea Spray emissions.
+Note that CMAQ employing Carbon Bond 6 version r5 with DMS and marine halogen chemistry (cb6r5m_ae7_aq) slightly modifies the speciation of Sea Spray emissions by including bromide from Sea Spray emissions.
 
 Note that if the CTM_OCEAN_CHEM flag is set to N to indicate zero sea spray emissions, users should set the CTM_EMISCHK variable in the RunScript to FALSE to avoid crashing CMAQ when it cannot find species it is looking for from sea spray. 
 
@@ -616,6 +617,11 @@ Alternatively, users can also edit the emission control file by commenting out t
 | PMCOARSE_BR     | ABR      | Coarse-mode Bromine                    |                       
 | PMFINE_H2O      | AH2O     | Fine-mode Water                        |                       
 | PMCOARSE_H2O    | AH2O     | Coarse-mode Water                      |                       
+
+<a id=DMS_emission></a>
+#### Dimethyl sulfide (DMS) and Halocarbon emissions
+
+DMS and hlocarbon emissions are needed for cb6r5m_ae7_aq. DMS emissions are also needed for cb6r5_ae7_aq and. DMS emissions are calculated using the monthly mean climatological DMS concentrations in seawater and halocarbon emissions are calculated using the monthly-average climatological chl-a concentrations derived from the Moderate Resolution Imaging Spectroradiometer (MODIS). Ocean file needs to include DMS and CHLO concentrations in seawater for cb6r5m_ae7_aq and DMS for cb6r5_ae7_aq. CTM_OCEAN_CHEM should be set to Y to include DMS and halocarbon emissions; otherwise CMAQ will not include any DMS or halocarbon emissions. The details of DMS emissions estimations method in CMAQ are described in Zhao et al. (2021) while the details of halocarbon emissions are described in Sarwar et al. (2015) and Sarwar et al. (2019). 
 
 
 <a id=Lightning_NO></a>
@@ -685,7 +691,7 @@ Potential Combustion SOA (PCSOA) was added to CMAQv5.2 to account for missing PM
 
 <a id=a-pinene></a>
 #### &#945;-Pinene separated from other monoterpenes
-If using chemical mechanism CB6r3 and aerosol module AERO7 (cb6r3_ae7) with offline biogenic emissions, &#945;-pinene should be separated from all other monoterpenes. This will prevent overestimation in PM2.5 SOA as &#945;-pinene should not make SOA through nitrate radical reaction.  Users can use biogenic emission files created for older model versions by updating the emission control file to separate &#945;-pinene. No action is required for aerosol module AERO6 (any mechanism), in-line biogenics (any mechanism, any aerosol module), or aero7 with SAPRC mechanisms. See the [AERO7 overview release notes](../Release_Notes/CMAQv5.3_aero7_overview.md) for further details. 
+If using chemical mechanism CB6r3 or CB6r5 and aerosol module AERO7 (cb6r3_ae7_aq or cb6r5_ae7_aq) with offline biogenic emissions, &#945;-pinene should be separated from all other monoterpenes. This will prevent overestimation in PM2.5 SOA as &#945;-pinene should not make SOA through nitrate radical reaction.  Users can use biogenic emission files created for older model versions by updating the emission control file to separate &#945;-pinene. No action is required for aerosol module AERO6 (any mechanism), in-line biogenics (any mechanism, any aerosol module), or aero7 with SAPRC mechanisms. See the [AERO7 overview release notes](../Release_Notes/CMAQv5.3_aero7_overview.md) for further details. 
 
 <a id=6.10_Gas_Phase_Chem></a>
 
@@ -701,7 +707,7 @@ If using chemical mechanism CB6r3 and aerosol module AERO7 (cb6r3_ae7) with offl
 
 <!-- END COMMENT -->
 
-The CMAQ modeling system accounts for chemistry in three phases: a gas, particulate (solid or liquid), and aqueous-cloud phase. Refer to the release notes to find the gas‑phase chemistry mechanisms available in each version of CMAQ. Several variations of the base gas-phase mechanisms, with and without chlorine, mercury, and toxic species chemistry, are distributed with CMAQ. The modularity of CMAQ makes it possible to create or modify the gas-phase chemical mechanism.
+The CMAQ modeling system accounts for chemistry in three phases: a gas, particulate (solid or liquid), and aqueous-cloud phase. Refer to the release notes to find the gas‑phase chemistry mechanisms available in each version of CMAQ. Several variations of the base gas-phase mechanisms, with and without chlorine, DMS, mercury, and toxic species chemistry, are distributed with CMAQ. The modularity of CMAQ makes it possible to create or modify the gas-phase chemical mechanism.
 
 Gas-phase chemical mechanisms are defined in CMAQ based on Fortran source files. Located in subdirectories of the CCTM/src/MECHS directory (each corresponding to a mechanism name), these files define the source, reaction parameters, and atmospheric processes (e.g., diffusion, deposition, advection) of the various mechanism species. The species definitions for each mechanism are contained in namelist files that are read in during execution of the CMAQ programs. The CMAQ mechanism configuration is more similar to the science module configuration than to the horizontal grid or vertical layer configuration in that the mechanism is defined at build time, resulting in executables that are hard-wired to a specific gas-phase mechanism. To change chemical mechanisms between simulations, a new executable that includes the desired mechanism configuration must be compiled.
 
@@ -714,24 +720,24 @@ To select a predefined mechanism configuration in CMAQ, set the *Mechanism* vari
 
 Refer to the [README.md](../../CCTM/src/MECHS/README.md) under CCTM/src/MECHS for detailed information reactions and on model species names for each mechanism. 
 
-Chemical mechanisms available with CMAQv5.3 can be found in [Table 6-3](#Table6-3). Atmospheric chemistry mechanisms of varying complexity are available to support diverse applications across scales and explore extensions for emerging problems and contaminants.
+Chemical mechanisms available with CMAQv5.4 can be found in [Table 6-3](#Table6-3). Atmospheric chemistry mechanisms of varying complexity are available to support diverse applications across scales and explore extensions for emerging problems and contaminants.
 
 <a id=Table6-3></a>
-**Table 6-3. Chemical Mechanisms Available with CMAQv5.3** 
+**Table 6-3. Chemical Mechanisms Available with CMAQv5.4** 
 
 |**Mechanism Name** | **Comment** |
 | ----------------- | ---------------------------------------------------- |
 | cb6r3_ae7_aq      | Carbon Bond 6 version r3 with aero7 treatment of SOA set up for standard cloud chemistry |
-| cb6r3_ae7_aqkmt2    | Carbon Bond 6 version r3 with aero7 treatment of SOA set up for expanded organic cloud chemistry version 2  |
-| cb6r3m_ae7_kmtbr  | Carbon Bond 6 version r3 with aero7 treatment of SOA and DMS and marine halogen chemistry set up for expanded organic and halogen cloud chemistry  | 
-| cb6r3_ae6_aq      | Carbon Bond 6 version r3 with aero6 treatment of SOA set up for with standard cloud chemistry | 
-| cb6mp_ae6_aq      | Carbon Bond 6 version r3 with air toxics and aero6 treatment of SOA set up for standard cloud chemistry | 
+| cb6r5_ae7_aq      | Carbon Bond 6 version r5 with aero7 treatment of SOA set up for standard cloud chemistry |
+| cb6r5_ae7_aqkmt2    | Carbon Bond 6 version r5 with aero7 treatment of SOA set up for expanded organic cloud chemistry version 2  |
+| cb6r5m_ae7_aq     | Carbon Bond 6 version r5 with aero7 treatment of SOA and DMS and marine halogen chemistry set up for standard cloud chemistry  | 
+| cb6r5hap_ae7_aq      | Carbon Bond 6 version r5 with air toxics and aero7 treatment of SOA set up for standard cloud chemistry | 
 | racm2_ae6_aq      | Regional Atmospheric Chemistry Mechanism version 2 with aero6 treatment of SOA set up for with standard cloud chemistry |
 | saprc07tic_ae7i_aq | State Air Pollution Research Center version 07tc with extended isoprene chemistry and aero7i treatment of SOA set up for with standard cloud chemistry | 
 | saprc07tic_ae7i_aqkmt2 | State Air Pollution Research Center version 07tc with extended isoprene chemistry and aero7i treatment of SOA for expanded organic cloud chemistry version 2  |
-| saprc07tic_ae6i_aq | State Air Pollution Research Center version 07tc with extended isoprene chemistry and aero6i treatment of SOA set up for standard cloud chemistry | 
-| saprc07tic_ae6i_aqkmti | State Air Pollution Research Center version 07tc with extended isoprene chemistry and aero6i treatment of SOA for expanded organic cloud chemistry for isoprene  | 
 | saprc07tc_ae6_aq | State Air Pollution Research Center version 07tc with aero6 treatment of SOA set up for with standard cloud chemistry  | 
+| cracmm1_aq | Community Regional Atmospheric Chemistry Multiphase Mechanism version 1.0 | 
+| cracmm1amore_aq | Community Regional Atmospheric Chemistry Multiphase Mechanism version 1.0 with AMORE isoprene chemistry  | 
 
 <a id=6.10.2_Solver></a>
 
@@ -743,7 +749,7 @@ Chemical mechanisms available with CMAQv5.3 can be found in [Table 6-3](#Table6-
 
 <!-- END COMMENT -->
 
-To solve the photochemistry, the model uses one of three numerical methods or solvers. They differ by accuracy, generalization, and computational efficiency, i.e. model run times. Options include Euler Backward Iterative (EBI) solver (Hertel et al., 1993),  Rosenbrock (ROS3) solver (Sandu et al., 1997), and Sparse Matrix Vectorized GEAR (SMVGEAR) solver (Jacobson and Turco, 1994). The EBI solver is default method because it is the fastest but is less accurate and must be _tailored_ for each mechanism. The BuildScript defines which EBI solver to use as below.   
+To solve the photochemistry, the model uses one of three numerical methods or solvers. They differ by accuracy, generalization, and computational efficiency, i.e. model run times. Options include Euler Backward Iterative (EBI) solver (Hertel et al., 1993),  Rosenbrock (ROS3) solver (Sandu et al., 1997), and Sparse Matrix Vectorized GEAR (SMVGEAR) solver (Jacobson and Turco, 1994). The EBI solver is the default method for all chemical mechanisms except cb6r5m_ae7_aq because it is the fastest but is less accurate and must be _tailored_ for each mechanism. The dafault solver for cb6r5m_ae7_aq is ROS3 since it is faster than the EBI solver. The BuildScript defines which EBI solver to use as below.   
 
 ```
  set ModGas    = gas/ebi_${Mechanism} 
@@ -810,6 +816,86 @@ CMAQ uses a default setting of Y to include the production of HONO from the hete
 
 The user can set it to N to exclude the heterogeneous production from the reaction. Note that the default setting for the inline deposition calculation (CTM_ILDEPV) flag is Y. If the flag is changed to N, then the production of HONO from the heterogeneous reaction on ground surface will not work properly. Additional description of the HONO chemistry in CMAQ can be found in Sarwar et al. (2008).
 
+<a id=6.10.5_CRACMM></a>
+### 6.10.5 CRACMM Version 1.0
+
+The Community Regional Atmospheric Chemistry Multiphase Mechanism (CRACMM) builds on the history of the Regional Atmospheric Chemistry Mechanism, Version 2 (RACM2) and aims to couple gas- and particle-phase chemistry by treating the entire pool of atmospheric reactive organic carbon (ROC) relevant to present-day emissions. CRACMM species were developed to represent the total emissions of ROC, considering the OH reactivity, ability to form ozone and secondary organic aerosol (SOA), and other properties of individual emitted compounds. The chemistry of CRACMM, which includes autoxidation, multigenerational oxidation, and the treatment of semivolatile and intermediate volatility compounds, was built using a variety of sources including literature and other mechanisms (RACM2, MCM, GECKO, and SAPRC18/mechgen). 
+
+CRACMMv1 is available in two versions: base CRACMMv1 and CRACMMv1AMORE. The development of base CRACMMv1 is described by Pye et al. and the application of CRACMMv1 within CMAQ to the northeast U.S. in summer 2018 as well as comparison with other mechanisms is presented by Place et al. CRACMMv1AMORE replaces the base isoprene chemistry of CRACMMv1 (which was ported from RACM2) with a graph theory-based condensation of a detailed isoprene mechanism developed by Prof. Faye McNeill's team at Columbia University. The AMORE version is documented in work by Wiser et al.
+
+When selected as the gas-phase mechanism, use of CRACMM1 (and CRACMM1AMORE) fully specifies CMAQ's aerosol treatment. CRACMM was designed as a multiphase mechanism and thus includes pathways to SOA and precursors to inorganic aerosol. The aero versioned by number no longer applies, and potential combustion SOA (pcSOA) is deprecated in CRACMM. Methane reaction with OH is considered and methane is set to a fixed concentration of 1.85 ppm by default, roughly mathching global conditions in the later part of the 2010s. Year or location specific [methane concentrations](https://gml.noaa.gov/ccgg/trends_ch4/) could be used (see the end of the mechanism definition file to make the update).
+
+One feature of CRACMM is the specification of representative structures for all species in the mechanism. This information is available as metadata describing all gas, particulate, and nonreactive species. Metadata exists in (csv-separated) columns appended to the species namelist files and in a new species description file. The information is not used at runtime by the CMAQ simulation, but should be updated if CRACMM species are updated to facilitate communication of how mechanism species are conceptualized. The metadata is leveraged to determine conservation of mass across chemical reactions (see the CHEMMECH README in the UTIL directory), determination of species properties such as solubility, and to communicate how species are conceptualized. Supplemental code automatically processes the metadata into markdown files for the CMAQ code repository.
+
+#### CRACMM Species Description File
+Both cracmm1 mechanisms (cracmm1_aq and cracmm1amore_aq) share one species description file (located in MECHS/cracmm1_aq/cracmm1_speciesdescription.csv and linked for cracmm1amore) where the species in the mechanism are described. This file is a simple csv file with two values per line: 
+
+- Species name (string): All the GC.nml, AE.nml, and NR.nml species excluding phase (V,A) and particle size mode (I,J,K) identifiers
+- Description (string): string describing the species
+
+The description should reflect the lumped nature of the category if the species is lumped. For example, the entry for HC10 is:
+
+- HC10,Alkanes and other species with HO rate constant greater than 6.8x10-12 cm3 s-1
+
+In the case of emitted species, the actual emitted individual species mapped to a mechanism species is based on a hierarchy of rules as described by Pye et al. in prep with supporting code available on github at [USEPA/CRACMM](https://github.com/USEPA/CRACMM). For example, HC10 is one of the last species to be mapped to in the hierarchy and all semi and intermediate volatility compounds (S/IVOCs) as well as those with aromaticity or double bonds have already been mapped to other mechanism species. Consult the official hierarchy of emission mapping to get the full definition for emitted species.
+
+Note that CRACMM (both versions) include some species that can partition between the gas and aerosol phase and thus have both a gas-phase component (in the GC.nml) and particulate component (in the AE.nml). Rather than entering the same description for each phase, species that have multiphase components should be entered once and the phase identifier (V prepended on a gas species in GC.nml (if used) or A prepended on a particulate species in AE.nml) should not be included. In addition, separate entries are not needed for a species existing in multiple size modes. For example, this is the entry describing the species OP3 which exists in the GC.nml as OP3 and in the particle as AOP3J:
+
+- OP3,Semivolatile organic peroxide
+
+As another example, this describes a species, that exists in the gas phase as VROCP3OXY2 and in the particle as AROCP3OXY2J: 
+
+- ROCP3OXY2,Oxygenated ROC species with C* of 10+3 ug/m3 and O:C of 0.2
+
+See information below about the python code to create markdown files and what characters will be recognized and autoformatted. In general, species that exist in two phases with the gas phase species identified as 'VROCname' and the particle as 'AROCname' will be automatically matched. Exceptions (currently AHOM-HOM, AELHOM-ELHOM, AOP3-OP3) can be manually added in the python code.
+
+#### CRACMM Metadata in Species nml
+All mechanisms in CMAQ use namelists to specify the gas-phase (GC.nml), particle phase (AE.nml), and nonreactive (NR.nml) species. In cracmm mechanisms, the namelists are appended with the following information:
+
+- RepCmp (string):  Representative compound following IUPAC or other common nomenclature.
+- ExplicitorLumped (E or L): indication if the species represents an individual, explicit compound (E) or aggregation of several structures and is thus lumped (L).
+- DTXSID (string): if available, an identifier from the [EPA Chemicals Dashboard](https://comptox.epa.gov/dashboard/) for the RepCMP. If unavailable, use NA.
+- SMILES (string): A [SMILES string](https://en.wikipedia.org/wiki/Simplified_molecular-input_line-entry_system) string for the RepCmp.
+
+For example, here is the metadata for HC10:
+
+- Decane,L,DTXSID6024913,CCCCCCCCCC
+
+In general, molecular weights (MOLWT) in the namelists should match the representative compound (RepCmp) structure. If a species is highly aggregated and the representative structure is a very poor representation of the class, the molecular weight may be set independently of the RepCmp. When properties of mechanism species such as Henry's law coefficients or vapor pressures are needed, we recommend using OPERA algorithms (Mansouri et al.) which can be accessed in the EPA Chemicals Dashboard for a curated set of compounds or via the Chemical Transformation Simulator (CTS) (https://qed.epa.gov/cts/pchemprop/) for any SMILES string.
+
+For species that exist in multiple phases, the metadata should only be specified in the GC.nml.
+
+#### CRACMM supporting code archive
+A supporting code archive will be distributed at [USEPA/CRACMM](https://github.com/USEPA/CRACMM) to provide information that can be used by other models to implement CRACMM. This information includes documentation on how individual species map to the mechanism (available schematically and in python code), inputs to models such as Speciation Tool and SMOKE, and mapping of the SPECIATE database to CRACMM.
+
+One of the python routines available in the archive combines the CRACMM species information from the CMAQ namelists and species description file to create the species markdown files in (MECHS/mechanism_information). The processor will automatically format the following strings in markdown if used in the species description file:
+
+| Species Description File String | Converted String in Github Markdown Rendering |
+| --- | ---|
+| 'ug/m3' | '&#956;g m<sup>-3</sup>' |
+| 'log10C' | 'log<sub>10</sub>C' |
+| 'kOH'   | 'k<sub>OH</sub>' |
+| 'cm3'   | 'cm<sup>3</sup>' |
+| 's-1'   | 's<sup>-1</sup>' |
+| '10-10' | '10<sup>-10</sup>' |
+| '10-11' | '10<sup>-11</sup>' |
+| '10-12' | '10<sup>-12</sup>' |
+| '10-13' | '10<sup>-13</sup>' |
+| '10-14' | '10<sup>-14</sup>' |
+| '10-2'  | '10<sup>-2</sup>' |
+| '10-1'  | '10<sup>-1</sup>' |
+| '10+1'  | '10<sup>+1</sup>' |
+| '10+2'  | '10<sup>+2</sup>' |
+| '10+3'  | '10<sup>+3</sup>' |
+| '10+4'  | '10<sup>+4</sup>' |
+| '10+5'  | '10<sup>+5</sup>' |
+| '10+6'  | '10<sup>+6</sup>' |
+
+The python code creates the mechanism specific species markdown file based on the intersection of what exists in the namelists and species description file which is why the two CRACMM flavors share the same species description file.
+
+In cases where a species exists in the gas and particle phase (e.g., AOP3J and OP3) the python code also checks that the molecular weights match across the phases and will print a warning (">>gas and particle molecular weights have an inconsistency<<") if they are not an exact match and will print ">>gas and particle molecular weights match<<" if they do match.
+
+
 <a id=6.11_Aerosol_Dynamics></a>
 
 ## 6.11 Aerosol Dynamics and Chemistry
@@ -824,13 +910,17 @@ Particulate Matter (PM) can be either primary (directly emitted) or secondary (f
 
 The 6th generation CMAQ aerosol module (AERO6) was introduced in CMAQv5.0.2 and expanded the chemical speciation of PM. Eight new PM species were added to CMAQ in AERO6: Al, Ca, Fe, Si, Ti, Mg, K, and Mn. Four species that were explicitly treated in previous versions of CMAQ but were not modeled can now be treated as primary anthropogenic species: H<sub>2</sub>O, Na, Cl, and NH<sub>4</sub>. The PM emissions mass that remains after speciation into the new components is now input to the model as PMOTHER. AERO6 requires 18 PM emissions species: OC, EC, sulfate, nitrate, H<sub>2</sub>O, Na, Cl, NH<sub>4</sub>, NCOM, Al, Ca, Fe, Si, Ti, Mg, K, Mn, and Other (Reff et al., 2009).  AERO6 continued to be incrementally updated in CMAQ v5.1-5.2.1 (see https://www.epa.gov/cmaq/how-cite-cmaq or release notes for when specific updates occured).
 
-The 7th generation aerosol module (AERO7) is introduced in CMAQv5.3 with modifications and updates to the speciation and prediction of organic aerosols. For computational efficiency, the 2-product style speciation for SOA species from traditional aromatic VOC precursors (alkanes, toluene, xylenes, and benzene) has been replaced with four surrogate species with specific vapor pressures, following a VBS-style approaches used widely in models. In addition, the yield of organic aerosol from monoterpene reactions with OH and ozone has been increased, and monoterpene organic nitrates are explicitly treated as a SOA source. The treatment of alpha-pinene has also been made explicit in AERO7 in order to exclude alpha-pinene reactions with nitrate as a source of SOA. If users are employing online biogenic VOC emissions (via BEIS), then the alpha-pinene emissions will be treated correctly. If however, users are providing biogenic emissions to CMAQ from offline and only TERP is specified, we recommend scaling the alpha-pinene emissions to 30% of the total TERP emisisons and treating the remaining 70% of emitted TERP as TERP in CMAQ. This can be accomplished with the DESID emissions interface. AERO7 also includes consideration of water uptake to the organic particle phase (ORGH2O).
+The 7th generation aerosol module (AERO7) was introduced in CMAQv5.3 with modifications and updates to the speciation and prediction of organic aerosols. For computational efficiency, the 2-product style speciation for SOA species from traditional aromatic VOC precursors (alkanes, toluene, xylenes, and benzene) was replaced with four surrogate species with specific vapor pressures, following a VBS-style approaches used widely in models. In addition, the yield of organic aerosol from monoterpene reactions with OH and ozone was increased, and monoterpene organic nitrates were explicitly treated as a SOA source. The treatment of alpha-pinene was been made explicit in AERO7 in order to exclude alpha-pinene reactions with nitrate as a source of SOA. If users are employing online biogenic VOC emissions (via BEIS), then the alpha-pinene emissions will be treated correctly. If however, users are providing biogenic emissions to CMAQ from offline and only TERP is specified, we recommend scaling the alpha-pinene emissions to 30% of the total TERP emisisons and treating the remaining 70% of emitted TERP as TERP in CMAQ. This can be accomplished with the DESID emissions interface. AERO7 also includes consideration of water uptake to the organic particle phase (ORGH2O).
 
-Selection of AERO7 or AERO6 is accomplished through selection of the chemical mechanism in the build script as described in section 6.10 and [Table 6-3](#Table6-3). The aerosol microphysics (i.e. coagulation, condensation, new particle formation, deposition, etc.) are consistent for the two modules. The modules differ by the chemical species used to treat the PM constituents.
+The CRACMM aerosol module is introduced in CMAQv5.4. Since CRACMM is a fully coupled gas and particle mechanism, the use of CRACMM for the gas phase automatically specifies the use of a specific aerosol treatment. See the chemistry section for more information on [CRACMM](#6.10.5_CRACMM).
 
-Both AERO7 and AERO6 mechanisms available in CMAQv5.3 are compatible with semivolatile primary organic aerosol (POA). For the nonvolatile POA configuration, mass is tracked separately in terms of its carbon (OC) and non-carbon (NCOM) content. With this approach, mass can be added to the non-carbon species to simulate the aging of POA in response to atmospheric oxidants. Simon and Bhave (2012) document the implementation of the second-order reaction between primary organic carbon and OH radicals. The semivolatile POA configuration segregates POA into several model species based on a combination of volatility and oxidation state. There are five POA species at low oxidation state representing low volatility, semivolatile and intermediate volatility compounds (LVPO1, SVPO1, SVPO2, SVPO3, IVPO1). As the gas-phase species (e.g. VLVPO1) oxidize with OH they form species with higher oxidation state (i.e. LVOO1, LVOO2, SVOO1, SVOO2, SVOO3). The multigenerational aging chemistry for the semivolatile POA configuration is derived from the approach of Donahue et al. (2012) which takes into account the functionalization and fragmentation of organic vapors upon oxidation. The semivolatile POA configuration also includes the option (on by default) of potential secondary organic aerosol from combustion sources (pcSOA). This species is emitted as a VOC (pcVOC) and forms SOA after reaction with OH. The emissions of pcVOC may be zeroed out by the user for specific sources using the DESID emissions control file; zeroing out pcVOC emissions is recommended for biomass and wood burning sources.
+Selection of the aerosol module (CRACMM, AERO7, or AERO6) is accomplished through selection of the chemical mechanism in the build script as described in section 6.10 and [Table 6-3](#Table6-3). Starting in CMAQv5.4, the bldit script will select the aerosol module by parsing the gas-phase mechanism string name. The aerosol microphysics (i.e. coagulation, condensation, new particle formation, deposition, etc.) are consistent for the three modules. The modules differ by the chemical species used to treat the PM constituents.
 
-The aerosol module uses ISORROPIA v2.2 in the reverse mode to calculate the condensation/evaporation of volatile inorganic gases to/from the gas-phase concentrations of known coarse particle surfaces. It also uses ISORROPIA in the forward mode to calculate instantaneous thermodynamic equilibrium between the gas and fine-particle modes. The mass transfer of all semivolatile organic species is calculated assuming equilibrium absorptive partitioning, although some nonvolatile species do exist (e.g. cloud-processed organic aerosol, oligomers, nonvolatile POA (if selected)).
+All aerosol mechanisms available in CMAQv5.4 are compatible with semivolatile primary organic aerosol (POA). For the nonvolatile POA configuration, mass is tracked separately in terms of its carbon (OC) and non-carbon (NCOM) content. With this approach in AERO6 and AERO7, mass can be added to the non-carbon species to simulate the aging of POA in response to atmospheric oxidants. Simon and Bhave (2012) document the implementation of the second-order reaction between primary organic carbon and OH radicals. The semivolatile POA configuration segregates POA into several model species based on a combination of volatility and oxidation state. In AERO6/7, there are five POA species at low oxidation state representing low volatility, semivolatile and intermediate volatility compounds (LVPO1, SVPO1, SVPO2, SVPO3, IVPO1). As the gas-phase species (e.g. VLVPO1) oxidize with OH they form species with higher oxidation state (i.e. LVOO1, LVOO2, SVOO1, SVOO2, SVOO3). The multigenerational aging chemistry for the semivolatile POA configuration is derived from the approach of Donahue et al. (2012) which takes into account the functionalization and fragmentation of organic vapors upon oxidation. The semivolatile POA configuration also includes the option (on by default) of potential secondary organic aerosol from combustion sources (pcSOA). This species is emitted as a VOC (pcVOC) and forms SOA after reaction with OH. The emissions of pcVOC may be zeroed out by the user for specific sources using the DESID emissions control file; zeroing out pcVOC emissions is recommended for biomass and wood burning sources.
+
+CRACMM includes a series of semivolate and intermediate volatility compounds with alkane-like and oxygenated functionality that can represent semivolatile POA emissions as well as oxidation products (ROCALK and ROCOXY species). By default, volatility profiles are applied to POA emissions in CRACMM using the DESID module as in AERO6/7. In the future, semivolatile emissions will be directly propagated to the mechanism via the emissions processing infrastructure. CRACMM does not include heterogenous aging of nonvolatile POA, but POC and NCOM are available as tracer species that can be advected. pcSOA is not available in CRACMM and has been replaced by other SOA systems.
+
+All aerosol modules uses ISORROPIA v2.2 in the reverse mode to calculate the condensation/evaporation of volatile inorganic gases to/from the gas-phase concentrations of known coarse particle surfaces. ISORROPIA is also used in the forward mode to calculate instantaneous thermodynamic equilibrium between the gas and fine-particle modes. The mass transfer of all semivolatile organic species is calculated assuming equilibrium absorptive partitioning, although some nonvolatile species do exist (e.g. cloud-processed organic aerosol, oligomers, nonvolatile POA (if selected)).
 
 CMAQ can output the reduction in visual range caused by the presence of PM, perceived as haze. CCTM integrates Mie scattering (a generalized particulate light-scattering mechanism that follows from the laws of electromagnetism applied to particulate matter) over the entire range of particle sizes to obtain a single visibility value for each model grid cell at each time step. More detailed descriptions of the PM calculation techniques used in CCTM can be found in Binkowski and Shankar (1995), Binkowski and Roselle (2003), and Byun and Schere (2006).
 
@@ -852,57 +942,31 @@ Clouds are an important component of air quality modeling and play a key role in
 
 When liquid water content (LWC), represented as the sum of cloud water, rain water, and graupel, in a cell (or column average in the case of sub-grid clouds) exceeds a critical threshold of 0.01 gm<sup>-3</sup>, a call is made to the cloud chemistry module where in-cloud scavenging and wet deposition are calculated in addition to aqueous phase chemistry.  Accumulation and coarse mode aerosols are assumed to be instantaneously activated (i.e., nucleation scavenging), and Aitken mode particles (i.e., interstitial aerosol) are scavenged by the cloud droplets for the duration of cloud processing (Binkowski and Roselle, 2003).  Gas phase species that participate in aqueous chemistry are taken up into the cloud water according to their Henry’s Law coefficient, dissociation constants, and droplet pH.  For each cloud chemistry time step, dissolved gas and aerosol species and associated ions are deposited out of the system according to a scavenging rate that is based on precipitation rate, cloud/layer thickness, and total water content (i.e., the sum of cloud water, rain water, graupel, ice, and snow).  When the liquid water content does not exceed the threshold to call the cloud chemistry module (or for all species that do not participate in cloud chemistry), the wet deposition is calculated in a similar way in the “scavwdep” subroutine.  Using the same expression for the washout coefficient as in the aqueous chemistry module, aerosol species are subject to wet removal assuming they are incorporated into cloud/rain water as above; while the fraction of gas phase species’ concentrations subject to wet removal is a function of their effective Henry’s Law coefficients at a prescribed droplet pH of 4. Essentially what is represented in CMAQ is in-cloud scavenging (or “rainout”); though arguably some effects of below-cloud scavenging (or “washout”) may also be represented by including rain water in the LWC considered in calling/calculating cloud chemistry, as well as calculating aqueous chemistry and scavenging for the column (extending from the cloud top to the ground) in the case of sub-grid raining clouds.  Explicit treatment of below-cloud scavenging (e.g., impaction scavenging of below-cloud aerosols by rain drops and snow) is not implemented at this time.  
 
-CMAQ’s standard cloud chemistry treatment (AQCHEM) estimates sulfate production from five sulfur oxidation pathways and also includes a simple parameterization to estimate secondary organic aerosol formation from the reactions of glyoxal and methylglyoxal with the hydroxyl radical. The distribution between gas and aqueous phases is determined by instantaneous Henry’s law equilibrium, and the bisection method is used to estimate pH (and the distribution of ionic species) assuming electroneutrality.  Beginning with CMAQv5.1 a new set of options for cloud chemistry was introduced that relies on the Kinetic PreProcessor (KPP), version 2.2.3 (Damian et al., 2002) to generate a Rosenbrock integrator to solve the chemical kinetics, ionic dissociation, wet deposition, and kinetic mass transfer between the gas and aqueous phases in CMAQ clouds.  These options can be collectively referred to as the AQCHEM "KMT” cloud chemistry treatments (Fahey et al., 2017).  
+CMAQ’s standard cloud chemistry treatment (AQCHEM) estimates sulfate production from five sulfur oxidation pathways and also includes a simple parameterization to estimate secondary organic aerosol formation from the reactions of glyoxal and methylglyoxal with the hydroxyl radical. The distribution between gas and aqueous phases is determined by instantaneous Henry’s law equilibrium, and the bisection method is used to estimate pH (and the distribution of ionic species) assuming electroneutrality.  Beginning with CMAQv5.1 a new set of options for cloud chemistry (currently, KMT version 2 or "KMT2") was introduced that relies on the Kinetic PreProcessor (KPP), version 2.2.3 (Damian et al., 2002) to generate a Rosenbrock integrator to solve the chemical kinetics, ionic dissociation, wet deposition, and kinetic mass transfer (Schwartz, 1986) between the gas and aqueous phases in CMAQ clouds (Fahey et al., 2017; 2022 (in preparation)). In addition to the five sulfur reactions in the standard cloud chemistry module, KMT2 replaces the simple in-cloud yield parameterization of SOA from glyoxal and methylglyoxal with a more mechanistic representation of the multi-step formation of oxalic acid/oxalate and other organic acids (assumed here to remain in the aerosol phase after cloud droplet evaporation) from the reactions of hydroxyl radical with glyoxal, methylglyoxal, glycolaldehyde, and acetic acid (Lim et al., 2005; Tan et al., 2009). KMT2 also includes in-cloud SOA formation from biogenic-derived epoxides (Pye et al., 2013) as well additional reactions for S, N, O-H, and C species (Leriche et al., 2013; Warneck, 1999; Lee and Schwartz, 1983).   
 
-There are several KMT chemistry options currently available in CMAQv5.3.  AQCHEM-KMT treats the standard cloud chemistry mechanism and only differs from AQCHEM with the treatment of kinetic mass transfer between the phases (Schwartz, 1986) and Rosenbrock solver.  AQCHEM-KMTI also includes an expanded aqueous-phase chemical mechanism that treats SOA formation from biogenic-derived epoxides (Pye et al., 2013) in cloud, in addition to the standard sulfur and alpha-dicarbonyl oxidation reactions. With CMAQv5.3 we introduce two additional cloud chemistry options: AQCHEM-KMT2 and AQCHEM-KMTBR.  AQCHEM-KMT2 replaces the simple yield parameterization of SOA from glyoxal and methylglyoxal with a more mechanistic representation of the multi-step formation of oxalic acid/oxalate and other organic acids (assumed here to remain in the aerosol phase after cloud droplet evaporation) from the reactions of hydroxyl radical with glyoxal, methylglyoxal, glycolaldehyde, and acetic acid (Lim et al., 2005; Tan et al., 2009).  AQCHEM-KMT2 also expands upon the reactions in AQCHEM-KMTI with additional chemistry for S, N, O-H, and C species (Leriche et al., 2013; Warneck, 1999; Lee and Schwartz, 1983). AQCHEM-KMTBR is the companion aqueous chemistry routine to the gas-phase cb6r3m_ae7_kmtbr mechanism and contains the standard 5 S(IV) oxidation reactions, SOA parameterization from glyoxal and methylglyoxal, as well as additional reactions involving Bromine species in cloud water (Sarwar et al., 2019).  
-
-The AQCHEM KMT family of cloud chemistry options can be significantly more computationally demanding than standard AQCHEM and may be thus better suited for research applications, particularly those investigating cloud/fog events or the evolution of species whose concentrations are potentially heavily influenced by cloud processing and not explicitly represented in the standard AQCHEM mechanism (e.g., oxalate – AQCHEM-KMT2).  Note that when using the gas-phase mechanism with marine chemistry (CB6R3M_AE7_KMTBR), one is required to also run the companion aqueous chemistry routine, AQCHEM-KMTBR.  For limited-area simulations where the primary focus is on simulating ozone or total PM<sub>2.5</sub> concentrations, especially for longer-term averages, standard AQCHEM would likely capture the most important cloud chemistry impacts (i.e., sulfate formation from the main aqueous oxidation pathways) and is significantly more computationally efficient.
+KMT2 can be significantly more computationally demanding than standard AQCHEM and may be thus better suited for research applications, particularly those investigating cloud/fog events or the evolution of species whose concentrations are potentially heavily influenced by cloud processing and not explicitly represented in the standard AQCHEM mechanism (e.g., oxalate).  For simulations where the primary focus is on simulating ozone or total PM<sub>2.5</sub> concentrations, especially for longer-term averages, standard AQCHEM would likely capture the most important cloud chemistry impacts (i.e., sulfate formation from the main aqueous oxidation pathways) and is significantly more computationally efficient.
 
 To invoke the default AQCHEM cloud chemistry option, the BuildScript under the CCTM Science Modules section should be set as follows: 
 
 ```
 set ModCloud  = cloud/acm_ae7
-or
-set ModCloud  = cloud/acm_ae6
-```
-For the AQCHEM-KMT cloud chemistry option, use the following option in the BuildScript: 
-
-```
-set ModCloud  = cloud/acm_ae6_kmt
-```
-
-AQCHEM and AQCHEM-KMT can be used with any of the cb6r3_ae6, cb6r3_ae7, racm, or saprc07 gas phase chemistry mechanisms.
-
-For the AQCHEM-KMTI cloud chemistry option, use the following option in the BuildScript: 
-```
-set ModCloud  = cloud/acm_ae6i_kmti
-```
-AQCHEM-KMTI is meant to be used with the saprc07tic_ae6i gas phase chemistry option; i.e., in the BuildScript:
-
-```
-set Mechanism = saprc07tic_ae6i_aqkmti
 ```
 
 For the AQCHEM-KMT2 cloud chemistry option, use the following option in the BuildScript: 
 ```
 set ModCloud  = cloud/acm_ae7_kmt2
 ```
-AQCHEM-KMT2 should only be used in conjunction with the cb6r3_ae7 or saprc07tic_ae7i gas phase chemical mechanisms; i.e., in the BuildScript:
+
+AQCHEM-KMT2 should only be used in conjunction with the cb6r5_ae7 or saprc07tic_ae7i gas phase chemical mechanisms; i.e., in the BuildScript:
 
 ```
-set Mechanism = cb6r3_ae7_aqkmt2
+set Mechanism = cb6r5_ae7_aqkmt2
 ```
 OR
 
 ```
 set Mechanism = saprc07tic_ae7i_aqkmt2
 ```
-
-For the AQCHEM-KMTBR cloud chemistry option, use the following option in the BuildScript: 
-```
-set ModCloud  = cloud/acm_ae7_kmtbr
-```
-Note that this cloud chemistry option will be used automatically (and should be used only) when the gas phase chemistry option “cb6r3m_ae7_kmtbr” is chosen.
 
 For toxics/Hg simulations (using the gas phase “cb6mp_ae6_aq” mechanism), one may also invoke the complementary cloud chemistry routine that includes aqueous phase chemistry for some toxic species in addition to the default chemistry:
 
@@ -993,6 +1057,8 @@ Odman, M.T., & Russell, A.G. (2000). Mass conservative coupling of non-hydrostat
 
 Ovadnevaite, J., Manders, A., de Leeuw, G., Ceburnis, D., Monahan, C., Partanen, A.I., Korhonen, H., & O'Dowd, C. D. (2014). A sea spray aerosol flux parameterization encapsulating wave state. Atmos. Chem. Phys., 14, 1837-1852.  [doi: 10.5194/acp-14-1837-2014](https://doi.org/10.5194/acp-14-1837-2014).
 
+Place, B, K. Seltzer, C. Allen, B. Murphy, K. Appel, I. Piletic, E. D'Ambro, R. Schwantes, M. Coggon, S. Farrell, E. Saunders, L. Xu, G. Sarwar, W. Hutzell, W. Stockwell, A. Torres-Vazquez, J. Pleim and H. Pye, Application of the Community Regional Atmospheric Chemistry Multiphase Mechanism (CRACMM) to simulation of air quality in the Northeast USA, in preparation for Atmospheric Chemistry and Physics.
+
 Pleim, J., Venkatram, A., Yamartino, R. (1984). ADOM/TADAP Model development program: The dry deposition module. Ontario Ministry of the Environment, 4.
 
 Pleim, J.E. (2007a). A combined local and nonlocal closure model for the atmospheric boundary layer. Part I: Model description and testing. Journal of Applied Meteorology and Climatology, 46(9), 1383-1395.
@@ -1005,13 +1071,17 @@ Pleim, J. E., Ran, L., Appel, W., Shephard, M.W., & Cady-Pereira K. (2019). New 
 
 Pye, H.O.T., Pinder, R.W., Piletic, I.R., Xie, Y., Capps, S.L., Lin, Y.H., Surratt, J.D., Zhang, Z.F., Gold, A., Luecken, D.J., Hutzell W.T., Jaoui, M., Offenberg, J.H., Kleindienst, T.E., Lewandowski, M., & Edney, E.O. (2013). Epoxide pathways improve model predictions of isoprene markers and reveal key role of acidity in aerosol formation. Environ. Sci. Technol., 47(19), 11056-11064.
 
+Pye, H., B. Place, B. Murphy, K. Seltzer, C. Allen, I. Piletic, E. D'Ambro, R. Schwantes, M. Coggon, S. Farrell, E. Saunders, L. Xu, G. Sarwar, W. Hutzell, K. Foley, G. Pouliot and W. Stockwell, Linking Gas, Particulate, and Toxic Endpoints to Air Emissions In The Community Regional Atmospheric Chemistry Multiphase Mechanism (CRACMM) version 1.0, in preparation for Atmospheric Chemistry and Physics.
+
 Ran, L., Cooter, E., Benson, V., & He, Q. (2011). Chapter 36: Development of an agricultural fertilizer modeling system for bi-directional ammonia fluxes in the CMAQ model. In D. G. Steyn, & S. Trini Castelli (Eds.), air pollution modeling and its application XXI. Springer, 213-219.
 
 Reff, A., Bhave, P.V., Simon, H., Pace, T.G., Pouliot, G.A., Mobley, J.D., & Houyoux, M. (2009). Emissions inventory of PM2.5 trace elements across the United States. Env. Sci. & Technol. 43, 5790-5796.
 
 Sandu, A., Verwer, J.G., Blom, J.G., Spee, E.J., Carmichael, G.R., & Potra, F.A. (1997). Benchmarking stiff ODE solvers for atmospheric chemistry problems. II: Rosenbrock solvers. Atmos. Environ., 31, 3459–3472.
 
-Sarwar, G., Gantt, B., Foley, K., Fahey, K., Spero, T.L., Kang, D., Mathur, R., Foroutan, H., Xing, J., Sherwen, T, & Saiz-Lopez, A. (2019). Influence of bromine and iodine chemistry on annual, seasonal, diurnal, and background ozone: CMAQ simulations over the Northern Hemisphere. Atmos. Env., Accepted.
+Sarwar, G., Gantt, B.; Schwede, D.; Foley, K.; Mathur, R.; Saiz-Lopez, A. 2015. Impact of enhanced ozone deposition and halogen chemistry on tropospheric ozone over the Northern Hemisphere. Environmental Science & Technology, 49(15): 9203-9211.
+
+Sarwar, G., Gantt, B., Foley, K., Fahey, K., Spero, T.L., Kang, D., Mathur, R., Foroutan, H., Xing, J., Sherwen, T., Saiz-Lopez, A. 2019. Influence of bromine and iodine chemistry on annual, seasonal, diurnal, and background ozone: CMAQ simulations over the Northern Hemisphere. Atmospheric Environment, 213: 395-404.
 
 Sarwar, G., Roselle, R., Mathur, R., Appel, W., Dennis, R. L., & Vogel, B. (2008). A Comparison of CMAQ HONO Predictions with Observations from the Northeast Oxidant and Particle Study, Atmospheric Environment, 42, 5760-5770.
 
@@ -1029,10 +1099,13 @@ Tan, Y., Perri, M.J., Seitzinger, S.P., & Turpin, B.J. (2009). Effects of precur
 
 Warneck, P. (1999). The relative importance of various pathways for the oxidation of sulfur dioxide and nitrogen dioxide in sunlit continental fair weather clouds. Phys. Chem. Chem. Phys., 1, 5471-5483.
 
+Wiser, F., B. Place, H. Pye, and V. F. McNeill, Development and application of the AMORE isoprene chemistry condensation, in preparation for Geoscientific Model Development.
+
 Xing, J., Mathur, R., Pleim, J., Hogrefe, C., Wang, J., Gan, C.M., Sarwar, G., Wong, D., & McKeen, S. (2016). Representing the effects of stratosphere-troposphere exchange on 3D O3 distributions in chemistry transport models using a potential vorticity based parameterization, Atmos. Chem. Phys., 16, 10865-10877,  [doi:10.5194/acp-16-10865-2016](https://doi.org/10.5194/acp-16-10865-2016).
 
 Yi, C. (2008). Momentum transfer within canopies. J. App. Meteor. Clim., 47, 262-275.
 
+Zhao, J., Sarwar, G., Gantt, B., Foley, K., Kang, D., Fahey, K., Mathur, R., Henderson, B. H., Pye, H. O. T., Zhang, Y., Saiz-Lopez, A. 2021. Impact of dimethylsulfide chemistry on air quality over the Northern Hemisphere, Atmospheric Environment, 244: 117961, 1-10.
 
 <!-- BEGIN COMMENT -->
 
@@ -1041,3 +1114,4 @@ Yi, C. (2008). Momentum transfer within canopies. J. App. Meteor. Clim., 47, 262
 CMAQ User's Guide (c) 2020<br>
 
 <!-- END COMMENT -->
+

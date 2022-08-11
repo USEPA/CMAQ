@@ -22,7 +22,6 @@ Goal: Modify the gas- and aerosol-phase chemical mechanisms in CMAQ, create new 
 11. SpecDef_Dep_*.txt
 12. ELMO_PROC.F
 
-
 ### Key Utilities  
 1. chemmech (see [documentation](../../../UTIL/chemmech/README.md))
 2. create_ebi (see [documentation](../../../UTIL/create_ebi/README.md))
@@ -122,12 +121,12 @@ SOA_DEFN.F describes SOA precursors, SOA species and their properties dealing wi
 
 You must add a row for every new SOA species and increase n_oa_list by the number of species added to the list.
 
-To add semivolatile species that partition between the gas and aerosol phases (with a gas-phase species defined in the [GC namelist](#GCnml)), include their effective saturation concentrations (C*) and enthalpies of vaporization. In this example, ATPROD1 has the corresponding gas-phase species SVTPROD1 and has C* = 0.95 ug/m<sup>3</sup> and enthalpy of vaporization = 131 J/mol. ATPROD2 has the corresponding gas-phase species SVTPROD2 and has C* = 485 ug/m<sup>3</sup> and enthalpy of vaporization = 101 J/mol:
+To add semivolatile species that partition between the gas and aerosol phases (with a gas-phase species defined in the [GC namelist](#GCnml)), include their effective saturation concentrations (C*) and enthalpies of vaporization. In this example, ATPROD1 (nominally biogenic) has the corresponding gas-phase species SVTPROD1 and has C* = 0.95 ug/m<sup>3</sup> and enthalpy of vaporization = 131 J/mol. ATPROD2 has the corresponding gas-phase species SVTPROD2 and has C* = 485 ug/m<sup>3</sup> and enthalpy of vaporization = 101 J/mol:
 ```
 & oa_type('ATPROD1', 'SVTPROD1', '        ',  0.0000,     0.95, 131.0E3,   0.400, 1.67,  F,  F,  T,  F ),
 & oa_type('ATPROD2', 'SVTPROD2', '        ',  0.0000,   485.00, 101.0E3,   0.333, 1.57,  F,  F,  T,  F )
 ```
-To add a nonvolatile aerosol species:
+To add a nonvolatile aerosol species (assumed anthropogenic):
 ```
 & oa_type('ANONV  ', '        ', '        ',  0.0000,   1.E-10,   1.0E0,   0.667, 2.00,  F,  F,  F,  T )
 ```
@@ -139,19 +138,20 @@ Note that these aerosol definitions do not include a specification of the size b
 ### 1.9 Edit AERO_DATA.F
 AERO_DATA.F defines all aerosol species and some of their properties. It is located at /$CMAQ_REPO/CCTM/src/aero/aero6/AERO_DATA.F. Note that the aero7 directory is linked to the aero6 directory.
 
-You must add a row for every new aerosol species and increase n_aerolist be the number of species added to the list.
+You must add a row for every new aerosol species and increase n_aerolist be the number of species added to the list. For all species except particulate water and hydronium ion (a tracer), CMAQ now sets no_M2Wet to F.
 
-To add a semivolatile organic aerosol species, set OM to T, set no_M2Wet to T, calculate korg from e.g. Pye et al., ACP, 2017, and use properties that match other organic species:
+To add a semivolatile (Vol=REV) organic aerosol species in the Accumulation mode (T,A,C=F,T,F), set OM to T, calculate korg from e.g. Pye et al. (ACP, 2017) or another source, and use properties that match other organic species:
 ```
 & spcs_list_type('ATPROD1 ', F,T,F, cm_set, 1400.0, 'VTRPOD1','     ',0.00,'REV',F,F,  0,  2.8, 6.1,T, 'DUST  ', 0.09),
 & spcs_list_type('ATPROD2 ', F,T,F, cm_set, 1400.0, 'VTRPOD2','     ',0.00,'REV',F,F,  0,  2.8, 6.1,T, 'DUST  ', 0.05),
 ```
-To add a nonvolatile organic aerosol species, set no_M2Wet to F:
+To add a nonvolatile (Vol=NVL) organic aerosol species, set no_M2Wet to F:
 ```
 & spcs_list_type('ANONV   ', T,T,F, cm_set, 1400.0, '       ','     ',0.00,'NVL',F,F,  0,  2.8, 6.1,T, 'DUST  ', 0.07),
 ```
 Note that these aerosol names do not include a specification of the size bin they fall into. That is instead indicated by the first three T/F fields (i.e. Aitken, Accumulation and Coarse). When CMAQ expands the vaiables from the AE namelist to the aerosol modes, it checks this table to make sure that mode is allowed for the species being considered. The condensable vapor in equilribium with the aerosol species should also be specified (e.g. VTRPOD1), as well as the reaction counter (e.g. ALKRXN), if it exists , and the kind of mass-transfer category the species fits (e.g. REV = reversible; IRV = Irreversible; NVL = nonvolatile; H2O = water).
 After this category, the user must choose whether the species is to be treated as wet (almost none are now except water species).
+
 
 
 
