@@ -738,6 +738,7 @@ Chemical mechanisms available with CMAQv5.4 can be found in [Table 6-3](#Table6-
 | saprc07tc_ae6_aq | State Air Pollution Research Center version 07tc with aero6 treatment of SOA set up for with standard cloud chemistry  | 
 | cracmm1_aq | Community Regional Atmospheric Chemistry Multiphase Mechanism version 1.0 | 
 | cracmm1amore_aq | Community Regional Atmospheric Chemistry Multiphase Mechanism version 1.0 with AMORE isoprene chemistry  | 
+| 2DVBS           | The 2D-VBS mechanism is contributed by collaborators at Tsinghua University. It is built on top of SAPRC07 mechanism. This mechanism available in a separate research branch of the CMAQ repo. Please contact Professor Bin Zhao (bzhao@mail.tsinghua.edu.cn) for more details. |
 
 <a id=6.10.2_Solver></a>
 
