@@ -224,7 +224,9 @@ This optional ASCII file contains specific gridcells/timesteps in which species 
 <!-- END COMMENT -->
 
 This optional ascii file outputs domain-wide changes for user-specified species every output time step in units of kg for gases and aerosols, number for particle number, and m<sup>2</sup> for particle surface area. See [Chapter 9 (Process Analysis and Budget):](CMAQ_UG_ch09_process_analysis.md) for a description of the Budget Tool methods, interface, and potential applications.
- 
+
+In CMAQv5.4, the destination folder of this output file must be specified with the $OUTDIR environment variable in the RunScript. If this variable is not specified, the destination will be the root directory.    
+
 <a id=b3gts></a>
 
 **CCTM_B3GTS_S: biogenic emissions diagnostic file**
