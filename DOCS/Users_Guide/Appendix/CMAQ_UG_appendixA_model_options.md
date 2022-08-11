@@ -685,20 +685,20 @@ Options for use with MEGAN:
 -   `MEGAN_LAI`<a id=MEGAN_CTS></a>
     Optional. Points to leaf area index file that was created using the MEGAN preprocessor.
 
--   `MEGAN_ARID`<a id=MEGAN_ARID></a>
+-   `BDSNP_AFILE`<a id=MEGAN_ARID></a>
     For BDSNP. Points to the ARID file that was created using the MEGAN preprocessor.
 
--   `MEGAN_NONARID`<a id=MEGAN_NONARID></a>
+-   `BDSNP_NAFILE`<a id=MEGAN_NONARID></a>
     For BDSNP. Points to the NONARID file that was created using the MEGAN preprocessor.
 
--   `MEGAN_FERT`<a id=MEGAN_FERT></a>
+-   `BDSNP_FFILE`<a id=MEGAN_FERT></a>
     For BDSNP. Points to the FERT file that was created using the MEGAN preprocessor.
 
--   `MEGAN_LANDTYPE`<a id=MEGAN_FERT></a>
+-   `BDSNP_LFILE`<a id=MEGAN_FERT></a>
     For BDSNP. Points to the LANDTYPE file that was created using the MEGAN preprocessor.
 
--   `MEGAN_NDF`<a id=MEGAN_NDF></a>
-    For BDSNP. Points to the NDF file that was created using the MEGAN preprocessor.
+-   `BDSNP_NFILE`<a id=MEGAN_NDF></a>
+    For BDSNP. Points to the nitrogen deposition file that was created using the MEGAN preprocessor.
 
 
 <a id=windblown_dust_config></a>
