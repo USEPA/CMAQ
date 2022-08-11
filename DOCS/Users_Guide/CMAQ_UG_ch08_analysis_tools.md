@@ -56,7 +56,7 @@ There are separate modules in AMET for evaluating meteorological and air quality
 
 A more detailed description of AMET can be found at https://www.epa.gov/cmaq/atmospheric-model-evaluation-tool, including a flow diagram of the AMET system and example output plots from the tool. The AMET github repository resides at https://github.com/USEPA/AMET. The repository includes the latest version of AMET, along with a complete description of the tool, a comprehensive User's Guide, an Installation Guide, and a Quick Start Guide. Finally, additional information regarding AMET (including how to download AMET-ready observation data files) can be found on the CMAS Center website: https://www.cmascenter.org/amet/.
 
-The AMETv1.4 repository includes a new script to set up and execute multiple post-processing steps from a single file, including running *combine*, *sitecmp*, *sitecmp_dailyo3*, and "batch" AMET evaluation plots. After installing AMET, users can find this script under scripts_db/aqExample/aqProject_pre_and_post.csh.  Documenation for configuring this main evaluation script are provided in the AMET docs folder: AMET_aqProject_Pre_and_Post_Analysis_Script_Guide_v14b.md
+The AMET repository includes a script to set up and execute multiple post-processing steps from a single file, including running *combine*, *sitecmp*, *sitecmp_dailyo3*, and "batch" AMET evaluation plots. After installing AMET, users can find this script under scripts_db/aqExample/aqProject_pre_and_post.csh.  Documenation for configuring this main evaluation script are provided in the AMET docs folder: AMET_aqProject_Pre_and_Post_Analysis_Script_Guide_v15.md
 
 
 ## 8.5 Visualization Environment for Rich Data Interpretation (VERDI)
