@@ -25,8 +25,7 @@ C Purpose:  Computes aerosol and gaseous air surface exchange for sub-
 C           grid land use categories. All gaseous species are treated 
 C           as having bidirectional exchange following the two layer 
 C           model from Nemitz et al. 2001 and aerosol species deposition 
-C           follows Binkowski and Shankar 1995. Note that the Nemitz et al. 
-C           2001 parameterization reduces to a standard deposition velocity
+C           follows Binkowski and Shankar 1995. Note that the Nemitz et al.            2001 parameterization reduces to a standard deposition velocity
 C           if the pollutant concentration on the leaf, in the leaf stomata, 
 C           in and the soil are zero.
 C 
@@ -774,6 +773,7 @@ C modal sedimentation velocities for number, 2nd, and 3rd moment, or mass:
 
          REAL DCONST,  DCONST1
          REAL DCONST2, DCONST3
+         REAL EINHAT0, EINHAT2, EINHAT3 ! Interception integration terms
          REAL SC0                      ! Schmidt numbers for number
          REAL SC2                      ! Schmidt numbers for 2ND MOMENT
          REAL SC3                      ! Schmidt numbers for 3rd moment
@@ -890,6 +890,11 @@ C Calculate characteristic parameters
             VGHAT2  = DCONST3 * ( ES48  + BHAT * KN * ES20 )
             VGHAT3  = DCONST3 * ( ES64  + BHAT * KN * ES28 )  
 
+C Integrated Emerson et al 2020 Interception term.
+            EINHAT0 = EXP(L2SG*((0.64)/2.0))
+            EINHAT2 = EXP(L2SG*((1.6*2.0 + 0.64)/2.0))
+            EINHAT3 = EXP(L2SG*((1.6*3.0 + 0.64)/2.0))
+
             SC0 = NU / DCHAT0
             SC2 = NU / DCHAT2   
             SC3 = NU / DCHAT3
@@ -919,11 +924,11 @@ C first do 0th moment (number), second do 2nd moment (surface area), third do 3r
 C Emerson et al 2020 PNAS https://www.pnas.org/cgi/doi/10.1073/pnas.2014761117
                If( STAGE_E20 ) Then
                   VDEPJ( L,VDN( IM ) ) = aero_depv_e20(veg, lai, Ustar, Ra, wet, l_width, Alpha, 
-     &                                             DG(IM), SC0, NU, VGHAT0 ) ! Number
+     &                                             DG(IM), SC0, NU, VGHAT0, EINHAT0 ) ! Number
                   VDEPJ( L,VDS( IM ) ) = aero_depv_e20(veg, lai, Ustar, Ra, wet, l_width, Alpha,
-     &                                             DG(IM), SC2, NU, VGHAT2 ) ! Surface area
+     &                                             DG(IM), SC2, NU, VGHAT2, EINHAT2 ) ! Surface area
                   VDEPJ( L,VDM( IM ) ) = aero_depv_e20(veg, lai, Ustar, Ra, wet, l_width, Alpha, 
-     &                                             DG(IM), SC3, NU, VGHAT3 ) ! Mass
+     &                                             DG(IM), SC3, NU, VGHAT3, EINHAT3 ) ! Mass
 C Pleim et al 2022
                Else If( STAGE_P22 ) Then 
                   VDEPJ( L,VDN( IM ) ) = aero_depv_p22(veg, lai, BAI, Ustar, Ubar, Ra, Water(L), Aleaf, 
