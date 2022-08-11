@@ -30,6 +30,7 @@ In this section, details on the routine CCTM output files are provided. All CMAQ
 |[CCTM_MEDIA](#media)<a id=media_t></a>|GRDDED3|Hourly Instantaneous|XY
 |[CCTM_BSOILOUT](#soilout) <a id=soilout_t></a>|GRDDED3|n/a (see detailed file description below)|XY
 |[CCTM_MSOILOUT](#soilout) <a id=soilout_t></a>|GRDDED3|n/a (see detailed file description below)|XY
+|[CCTM_BDSNPOUT](#bdsnpout) <a id=soilout_t></a>|GRDDED3|n/a (see detailed file description below)|XY
 |**Diagnostic and Advanced**| | | |
 |[CCTM_B3GTS_S](#b3gts) <a id=b3gts_t></a>|GRDDED3|Hourly Instantaneous| XY
 |[CCTM_BUDGET](#budget) <a id=budget_t></a>|ASCII|Hourly Instantaneous| Domain-Wide
@@ -202,6 +203,13 @@ The 2-D "soilout" file contains hourly total rainfall information for subsequent
  *MEGAN*
  
 As with BEIS, the file set by the environmental variable MEGAN_SOILOUT contains rainfall information that is needed for the calculation of soil NO emissions when CTM_BIOGEMIS_MG is set to Y (Default is N). When enabling in-line MEGAN this file will also contains LAI, temperature, and radiation information that is used to calculate biogenic emissions. The input file from the previous day is identified by the environmental variable MEGAN_SOILINP in the run script.
+ 
+**CCTM_BDSNPOUT**
+<!-- BEGIN COMMENT -->
+[Return to Table 7-1](#bdsnpout)
+<!-- END COMMENT -->
+ 
+This file is required when setting both CTM_BIOGEMIS_MG to Y and BDSNP_MEGAN to Y, since the BDSNP soil NO model requires information about the previous day's meteorology and nitrogen deposition reservoir. The output file is created at the end of the simulation day and its name is defined by setting the environmental variable BDSNPOUT. The input file for the previous day is defined by setting the environmental variable BDSNPINP. 
 
 ## 7.4 Diagnostic and Advanced CMAQ Output Files
 
