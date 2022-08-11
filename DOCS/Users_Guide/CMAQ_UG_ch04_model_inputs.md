@@ -98,6 +98,7 @@ This section describes each of the input files required by the various CMAQ prog
 |[ae_matrix_nml](#matrix_nml) <a id=matrix_nml_t></a>|ASCII|n/a|n/a|CMAQ repo|required|
 |[nr_matrix_nml](#matrix_nml) <a id=matrix_nml_t></a>|ASCII|n/a|n/a|CMAQ repo|required|
 |[tr_matrix_nml](#matrix_nml) <a id=matrix_nml_t></a>|ASCII|n/a|n/a|CMAQ repo|required|
+|[MISC_CTRL_NML](#miscctrl) <a id=miscctrl_t></a>|ASCII|n/a|n/a|CMAQ repo|required|
 |**Initial Conditions Inputs**|  | | ||
 |[INIT_CONC_1](#init_conc_1) <a id=init_conc_1_t></a>|GRDDED3|Time-invariant | XYZ | ICON or CCTM |required|
 |**Boundary Conditions Inputs**| | | | ||
@@ -116,7 +117,8 @@ This section describes each of the input files required by the various CMAQ prog
 |[mcip.nc](#mcip) <a id=mcip_t></a>| netCDF | varies by field | varies by field | MCIP|required if IOFORM=2 (Currently not compatible with rest of CMAQ system.)|
 |[mcip_bdy.nc](#mcip_bdy) <a id=mcip_bdyt></a>| netCDF | varies by field | varies by field | MCIP|required if IOFORM=2 (Currently not compatible with rest of CMAQ system.)|
 |**Emissions Inputs**||||||
-|[EmissCtrl_matrix_nml](#emissctrl) <a id=emissctrl_t></a>|ASCII|n/a|n/a|CMAQ repo|required|
+|[DESID_CTRL_NML](#desidctrl) <a id=desidctrl_t></a>|ASCII|n/a|n/a|CMAQ repo|required|
+|[DESID_CHEM_CTRL_NML](#desidchemctrl) <a id=desidchemctrl_t></a>|ASCII|n/a|n/a|CMAQ repo|required|
 |[GR_EMIS_XXX*](#emis_xxx) <a id=emis_xxx_t></a> | GRDDED3 | Hourly | XYZ | SMOKE|required|
 |[STK_GRPS_XXX](#stk_grps) <a id=stk_grps_t></a> | GRDDED3 |Time-invariant|XY | SMOKE|required|
 |[STK_EMIS_XXX](#stk_emis) <a id=stk_emis_t></a> | GRDDED3 | Hourly | XY | SMOKE|required|
@@ -249,6 +251,35 @@ The namelist files contain header information that describe which class of speci
 
 
 The namelist files for the other pollutant classes have similar configurations as the gas-phase species configuration shown in [Table 4-2](#Table4-2). For an example see this [link](../../CCTM/src/MECHS/cb06r3_ae7_aq/GC_cb6r3_ae7_aq.nml) to the GC namelist species file for the cb06r3_ae7_aq mechanism.
+
+<a id=miscctrl></a>
+
+**CMAQ_Control_Misc.nml: Miscellaneous Control Variables**
+<!-- BEGIN COMMENT -->
+[Return to Table 4-1](#miscctrl_t)
+<!-- END COMMENT -->
+
+Used by: ELMO, Budget Tool, DESID
+ 
+This control file provides an interface to activate/deactivate and set parameters for the operation of the Explicit and Lumped CMAQ Model Output module (ELMO; Appendix G), the Budget Tool (Chapter 9), and an aspect of the DESID emissions interface. The variables for the ELMO and Budget Tool modules should be chosen in this file in the &elmo_activate, &elmo_inst, &elmo_avrg, and &Budget_Options sections. 
+
+The final sections (&Chemical_FamVars and &ChemicalFamilies) allow users to define chemical families for output that can be referred to by ELMO, The Budget Tool or DESID. For example, 'NOX' may be defined as a chemical family containing 'NO' and 'NO2'. 
+The &Chemical_FamVars section should be used to define the total number of chemical families that will be specified (N_Chem_Fams) and the maximum number of chemical species among all defined chemical families (Max_Chem_Fam_Members). For example, if a user defined three chemical families including 'NOX','AROMATICS', and 'BSOA', then a chemical family entry could be written as follows:
+
+`&Chem_FamVars  
+  N_Chem_Fams = 3  
+  Max_Chem_Fam_Members = 10  
+ /  
+ &ChemicalFamilies  
+  ChemFamilyName(1) = 'NOX'
+  ChemFamilyMembers(1,:) = 'NO','NO2'  
+  
+  ChemFamilyName(2) = 'AROMATICS'
+  ChemFamilyMembers(2,:) = 'TOL','XYL','BENZ','NAPH'  
+  
+  ChemFamilyName(3) = 'DUST'
+  ChemFamilyMembers(3,:) = 'ACORS','ASOIL','AECI','AECJ','AFEJ','AALJ','ATIJ','ASIJ','ACAJ','AMGJ','AKJ','AMNJ'  
+ /  `
 
 <a id=init_conc_1></a>
 
@@ -436,21 +467,41 @@ Used by: ICON, BCON, CCTM, and some optional programs
 ## 4.8 Emissions Inputs
 <a id=emis_xxx></a>
 
-**EmissCtrl_matrix_nml: Emissions Control Namelist**
-<a id=emissctrl></a>
+<a id=desidctrl></a>
+**DESID_Ctrl_nml: DESID Control Namelist**
 
 <!-- BEGIN COMMENT -->
 
-[Return to Table 4-1](#emissctrl_t)
+[Return to Table 4-1](#desidctrl_t)
 
 <!-- END COMMENT -->
 
-In addition to the options available in the RunScript, CMAQ now reads a dedicated namelist in order to apply comprehensive rules for reading and scaling emissions. The namelist, called the Emission Control Namelist is named "EmissCtrl.nml" by default and a separate version exists for every mechanism because these namelists are preloaded with likely rules linking emissions of important CMAQ primary species to their typical surrogate names as output by SMOKE. By default, this namelist is stored in each chemical mechanism folder (e.g. MECHS/cb6r3_ae7_aq) and is copied into the user's build directory when bldit_cctm.csh is executed. If the user modifies the name or location of this namelist, then the following command in the RunScript should be updated as well:
+In addition to the options available in the RunScript, CMAQ now reads dedicated namelists in order to apply comprehensive rules for reading and scaling emissions. The first of these namelists, called the DESID Control Namelist is named "CMAQ_Control_DESID.nml" by default. This namelist is stored in the repo in the emissions source code folder and is copied into the user's build directory when bldit_cctm.csh is executed. If the user modifies the name or location of this namelist, then the following command in the RunScript should be updated as well:
 ```
-setenv EMISSCTRL_NML ${BLD}/EmissCtrl.nml
+setenv DESID_CTRL_NML ${BLD}/CMAQ_DESID_Ctrl.nml
 ```
 
-The Detailed Emissions Scaling, Isolation and Diagnostics (DESID) module included with CMAQv5.3 provides comprehensive customization and transparency of emissions manipulation to the user. The customization of emissions is accomplished via the Emission Control Namelist, which contains four sections of variables that modify the behavior of the emissions module. These include ***General Specs***, ***Emission Scaling Rules***, ***Size Distributions***, and ***Regions Registry***
+The Detailed Emissions Scaling, Isolation and Diagnostics (DESID) module included with CMAQv5.3 and beyond provides comprehensive customization and transparency of emissions manipulation to the user. The customization of emissions is accomplished via two namelist files, the first of which is the DESID Control Namelist. This namelist contains several sections of distinct options that modify the behavior of the emissions module. These include ***Desid_Options***, ***Area Normalization***, ***Size Distributions***, ***Region Definitions***, ***Stream Family Definitions***, and ***Diagnostic Output Options***.
+
+* [Jump to DESID Tutorial](Tutorials/CMAQ_UG_tutorial_emissions.md) for step by step instructions on performing some basic manipulation of emission streams.
+* [Jump to Emissions overview](CMAQ_UG_ch06_model_configuration_options.md) in Chapter 6 of this User's Guide.
+ 
+
+**DESID_Chem_Ctrl_nml: DESID Chemical Mapping Control Namelist**
+<a idi=desidchemctrl></a>
+
+<!-- BEGIN COMMENT -->
+
+[Return to Table 4-1](#desidchemctrl_t)
+
+<!-- END COMMENT -->
+
+The second namelist used for specifying DESID operations is the DESID Chemical Mapping Control namelist, named "CMAQ_Control_DESID_[mech]". By default, every mechanism has its own version of this namelist because each is preloaded with likely rules linking emissions of important CMAQ primary species to their typical surrogate names as output by SMOKE. By default, this namelist is stored in each chemical mechanism folder (e.g. MECHS/cb6r3_ae7_aq) and is copied into the user's build directory when bldit_cctm.csh is executed. If the user modifies the name or location of this namelist, then the following command in the RunScript should be updated as well:
+```
+setenv DESID_CTRL_NML ${BLD}/CMAQ_Control_DESID_[mech].nml
+```
+
+This file contains only one section, the chemical mapping table, which link chemical variables on the emissions streams (external files or online processes) to CMAQ species, and offers scaling capabilities, geographic specicficity with the regions functionalities, size distribution customization, and the use of chemical families.
 
 * [Jump to DESID Tutorial](Tutorials/CMAQ_UG_tutorial_emissions.md) for step by step instructions on performing some basic manipulation of emission streams.
 * [Jump to Emissions overview](CMAQ_UG_ch06_model_configuration_options.md) in Chapter 6 of this User's Guide.

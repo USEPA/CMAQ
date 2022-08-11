@@ -5,10 +5,10 @@
 
 <!-- END COMMENT -->
 
-# 9. Process Analysis
+# 9. Process Analysis and Budget
 
 ## 9.1 Introduction
-Most applications of CMAQ, as well as other 3-D grid models, output concentration fields of chemical species of interest at selected time steps that reflect the cumulative effect of all processes (emissions, chemical reaction, transport, etc.) that act on the chemical species over the time period.  While concentrations are useful per se, knowing only the net result of all processes can limit the understanding of *why* the concentrations are the levels that are calculated.  For some applications, the user may want to unravel this net impact and examine the quantitative impact of the individual processes, to identify those which are most important or uncertain. Process Analysis (PA) is a technique for separating out and quantifying the contributions of individual physical and chemical processes to the changes in the predicted concentrations of a pollutant. PA does *not* have to be activated in a CMAQ simulation but including PA in a simulation during runtime provides additional information that can be useful in interpreting CMAQ results. PA has two components:  Integrated Process Rate (IPR) analysis, and Integrated Reaction Rate (IRR) analysis. IPR analysis quantifies the net change in species through physical processes of advection, diffusion, emissions, dry deposition, aerosol processes, and cloud processes, and the overall impact of chemical processes. IRR analysis allows the output of individual chemical reaction rates or user-specified combinations of chemical reactions and species cycling.
+Most applications of CMAQ, as well as other 3-D grid models, output concentration fields of chemical species of interest at selected time steps that reflect the cumulative effect of all processes (emissions, chemical reaction, transport, etc.) that act on the chemical species over the time period.  While concentrations are useful per se, knowing only the net result of all processes can limit the understanding of *why* the concentrations are the levels that are calculated.  For some applications, the user may want to unravel this net impact and examine the quantitative impact of the individual processes, to identify those which are most important or uncertain. Process Analysis (PA) is a technique for separating out and quantifying the contributions of individual physical and chemical processes to the changes in the predicted concentrations of a pollutant. PA does *not* have to be activated in a CMAQ simulation but including PA in a simulation during runtime provides additional information that can be useful in interpreting CMAQ results. PA has two components:  Integrated Process Rate (IPR) analysis, and Integrated Reaction Rate (IRR) analysis. IPR analysis quantifies the net change in species through physical processes of advection, diffusion, emissions, dry deposition, aerosol processes, and cloud processes, and the overall impact of chemical processes. IRR analysis allows the output of individual chemical reaction rates or user-specified combinations of chemical reactions and species cycling. The Budget Tool (section 9.7) is an optional ascii output that summarizes the domain-wide process changes gathered by the IPR analysis. 
 
 As a tool for identifying the relative importance of individual chemical and physical processes, PA has many applications, including:
 
@@ -195,7 +195,24 @@ In this case, we have summed up all throughput over the first 15 levels of the m
 
 **Figure 9-2. Relative contribution of HNO3 formation pathways at three grid locations**
 
-## 9.7 References
+## 9.7 Budget Tool
+
+The existing Process Analysis module outputs process rates for variables or families of variables on a gridded domain. 
+The Budget Tool outputs as a text file (CCTM_BUDGET_xxx.txt), the domain-wide process rates and total abundance change for every variable or family requested by the user in the CMAQ_Control_Misc.nml file. 
+Output is produced for every output time step (generally hourly). Units for both gases and particles are in kilograms per output time step.
+
+The output produced by the Budget Tool is quite powerful when applying or developing CMAQ. It can be used to better understand the large-scale source and loss pathways of individual trace species or families of species. For example, the fraction of a species that is transported out of the domain versus lost by dry or wet deposition is immediately accessible as a function of output time step. Additionally, one can use this output to diagnose potential errors if, for example, the Budget Tool reports emissions or chemical production of a species and the developer knows it should not be possible. Figure 9-3 illustrates process rates for O<sub>3<\sub> for an annual simulation of 2016. The top bar of each pair dileneates the rates by season of the year, while the bottom bar shows the contribution split between day and night.
+
+To activate (or deactivate) the Budget Tool calculation and output, set the variable Budget_Diag to .TRUE. (or .FALSE.) in the &Budget_Options section of the CMAQ_Control_Misc.nml namelist. Here the user may also choose the variables they would like to output data for. The default is 'ALL' CMAQ species, including transported, non-transported, reactive, and non-reactive species. 
+Alternatively or additionally, a list of species may be given, including names of chemical families, defined by the user in the &Chemical_FamVars section of the CMAQ_Control_Misc.nml file. 
+Lastly, if an aerosol species name is provided (e.g. 'ASO4', 'AEC') without the suffix denoting an aerosol mode, the Budget Tool will provide the sum of the process changes across all modes.
+
+![Figure 9-3: Contribution of model processes to O<sub>3<\sub> production and loss during a CMAQ simulation of the U.S. for 2016](./images/Figure9-3.png)
+
+**Figure 9-3. Contribution of model processes to O<sub>3<\sub> production and loss during a CMAQ simulation of the U.S. for 2016**
+
+
+## 9.8 References
 
 Gipson, G.L. (1999). Chapter 16: Process analysis. In science algorithms of the EPA models-3 Community Multiscale Air Quality (CMAQ) Modeling System. EPA/600/R-99/030.
 

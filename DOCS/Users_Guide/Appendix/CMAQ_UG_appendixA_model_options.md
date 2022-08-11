@@ -54,6 +54,9 @@ Note that for multiprocessor applications it is recommended that the Fortran MPI
 -   `CMAQ_DATA`<a id=CMAQ_DATA></a>
     Automatically set by config_cmaq.csh; note that this variable is M3DATA prior to CMAQv5.2
 
+-   `OUTDIR`<a id=OUTDIR></a>
+    Only necessary if the Budget Tool is activated. If this variable is unspecified, CMAQ will try to output the Budget Tool file to the root directory. This will be updated in future CMAQ versions to be consistent with other output files.  
+
 -   `CMAQ_LIB`<a id=CMAQ_LIB></a>
     Automatically set by config_cmaq.csh; note that this variable is M3LIB prior to CMAQv5.2
 
