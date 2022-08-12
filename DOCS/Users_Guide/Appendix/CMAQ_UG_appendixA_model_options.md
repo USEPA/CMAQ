@@ -633,10 +633,10 @@ Aerosol Diagnostics are now handled by the Explicit and Lumped Model Output modu
 
 <!-- END COMMENT -->
 
--   `SOILOUT [default: [Out Directory/CCTM_SOILOUT_$RUNID_$TODAY]`<a id=SOILOUT></a>  
+-   `BEIS_SOILOUT [default: [Out Directory/CCTM_BSOILOUT_$RUNID_$TODAY]`<a id=SOILOUT></a>  
     Directory path and file name of biogenic NO soil emissions output file. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#biogenics) for further information.   
 
--   `SOILINP [default: [Out Directory/CCTM_SOILOUT_$RUNID_$YESTERDAY]`<a id=SOILINP></a>  
+-   `BEIS_SOILINP [default: [Out Directory/CCTM_BSOILOUT_$RUNID_$YESTERDAY]`<a id=SOILINP></a>  
     Directory path and file name of biogenic NO soil emissions input file. If NEW_START is set to N or F, the soil NO emissions file from the previous day's simulation will be a required input file. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#biogenics) for further information.   
 
 Options for use with BEIS:
@@ -670,8 +670,14 @@ Options for use with MEGAN:
 -   `USE_MEGAN_LAI [default: N]`<a id=USE_MEGAN_LAI></a>
     By default MEGAN will use the same leaf area index information as the rest of CMAQ. Toggle if a separate LAI dataset is desired. When this option is enabled the user must also set the environment variable MEGAN_LAI. 
     
+-   `MEGAN_SOILOUT [default: [Out Directory/CCTM_MSOILOUT_$RUNID_$TODAY]`<a id=SOILOUT></a>  
+    Directory path and file name of MEGAN's biogenic NO soil emissions output file. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#biogenics) for further information.   
+
+-   `MEGAN_SOILINP [default: [Out Directory/CCTM_MSOILOUT_$RUNID_$YESTERDAY]`<a id=SOILINP></a>  
+    Directory path and file name of MEGAN's biogenic NO soil emissions input file. If NEW_START is set to N or F, or if IGNORE_SOILINP is set to F (Default), the soil NO emissions file from the previous day's simulation will be a required input file. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#biogenics) for further information.   
+    
 -   `IGNORE_SOILINP [default: N]`<a id=IGNORE_SOILINP></a>
-    Similar to the deprecated INITIAL_RUN option for BEIS, this option allows a user to perform a CMAQ restart without needing a SOILINP file for the previous day. Instanteous values of shortwave radiation and surface temperature will be used instead of the previous daily average, and soil NO variables are set to their initialization values as for a new run. 
+    Similar to the obsolete INITIAL_RUN option for BEIS, this option allows a user to perform a CMAQ restart without needing an MEGAN_SOILINP file for the previous day. Instanteous values of shortwave radiation and surface temperature will be used instead of the previous daily average, and soil NO variables are set to their initialization values as for a new run. 
 
 -   `USE_MEGAN_BDSNP [default: N ]`<a id=USE_MEGAN_BDSNP></a>
     Toggle to use the Berkeley-Dalhousie Soil NOx Parameterization (BDSNP) instead of the default option based on Yinger and Levy (1995). If the BDSNP option is activated, several additional variables must be set (see below). See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#biogenics) for further information.
