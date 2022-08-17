@@ -90,6 +90,10 @@ C**********************************************************************
       USE PA_DEFN,  Only: LIRR                     ! Process Anaylsis control and data variable
       USE PA_IRR_CLT
       USE CENTRALIZED_IO_MODULE, ONLY : INTERPOLATE_VAR, OCEAN, SZONE
+#ifdef sens
+      USE DDM3D_CHEM, DDM_RK => RK
+      Use DDM3D_DEFN, Only: DATENUM, STARTDATE, IPT, IDATE, HIGH, NP, NPMAX, CKTIME
+#endif
 
       IMPLICIT NONE 
 
@@ -232,13 +236,6 @@ C**********************************************************************
       CALL M3EXIT( PNAME, JDATE, JTIME, MSG, XSTAT1 )
 #endif
 
-#ifdef sens
-      MSG = 'ERROR: SMVGEAR Chemistry Solver does not perform DDM3D calculations.'
-      WRITE(LOGDEV,'(A)')TRIM( MSG )
-      MSG = 'Must use the EBI solver for the chemical mechanism'
-      CALL M3EXIT( PNAME, JDATE, JTIME, MSG, XSTAT1 )
-#endif
-
       IF ( NUMB_MECH_SPC .EQ. 0 ) RETURN
 
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -299,6 +296,20 @@ C:WTH set up degradation array
 
          ALLOCATE( Y_DEGRADE( BLKSIZE, NSPCSD ) )
 
+#ifdef sens
+         CALL INIT_DDM3D_CHEM()
+
+C For higher order sensitivities
+         IF ( HIGH ) THEN
+            DO IRXN = 1, NRXNS
+               IF( NREACT( IRXN ) .LE. 1 ) THEN
+                  ORDER1( IRXN ) = .TRUE.
+               ELSE
+                  ORDER1( IRXN ) = .FALSE.
+               END IF
+            END DO
+         END IF
+#endif
       ENDIF      ! First call
 
 #ifdef sunws
@@ -348,6 +359,21 @@ C   store the initial surface area so that it can be updated after the
 C   solver finds a solution.
 
       CALL HETCHEM_RATES( TA, PRES, QV, CONC, DENS )
+
+#ifdef sens
+C Set the date and hour counters used in sensitivity calls
+      DATENUM = 1 + JDATE - STARTDATE 
+
+C For reaction rate sensitivities
+      DO NP = 1, NPMAX
+         IF ( IPT( NP ) .EQ. 5 ) THEN
+            CALL CKTIME( JDATE,JTIME,NP,RXNFLAG(NP) ) ! Rxnflag set to true if ipt=5 and time, date within bounds
+            IF ( IDATE( NP, DATENUM ) .NE. 1 ) RXNFLAG( NP ) = .FALSE.
+         ELSE
+            RXNFLAG( NP ) = .FALSE.
+         END IF
+      END DO
+#endif
       
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  Set flag for reordering of cells and put cells in sequential  
@@ -433,6 +459,9 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
                    CNEW( NCELL,ISPNEW ) = REAL( MAX( CONC( COL,ROW,LEV,SPC ), CONCMIN), 8 )
                END IF
                BLKCONC( NCELL, ISP ) = CNEW( NCELL,ISPNEW )
+#ifdef sens
+               CINIT( NCELL, ISP )   = CNEW( NCELL,ISPNEW )
+#endif
             ENDDO                 
          ENDDO
 
@@ -694,6 +723,9 @@ C..Update concentrations
                   ROW = CROW( CELLNUM )
                   COL = CCOL( CELLNUM )
                   LEV = CLEV( CELLNUM )
+#ifdef sens
+                  CFINI( NCELL, ISPOLD )   = CNEW( NCELL,ISP )
+#endif
                   IF( CONVERT_CONC( ISPOLD ) )THEN 
                      CONC( COL,ROW,LEV,SPC ) = REAL( REVERSE_CONV( ISPOLD ) 
      &                                       *       BLKDENS( NCELL ) * CNEW( NCELL,ISP ), 4)
@@ -737,8 +769,39 @@ C  Update CGRID based on the degradation routines
              
              IF ( LIRRBLK ) CALL PA_IRR_BLKENDC ( OFFSET, CCOL, CROW, CLEV,
      &                                            NORDCELL, NIRRCLS, IRRCELL )
-         ENDIF
 
+#ifdef sens
+            
+            DO NCELL = 1, NUMCELLS
+               DO IRXN = 1, NRXNS
+                  SRK( IRXN ) = RK( NCELL,IRXN )
+                  IF ( HIGH ) THEN
+                     IF ( NREACT( IRXN ) .LE. 1 ) THEN
+                        SRK2( IRXN ) = 0.0
+                     ELSE IF ( NREACT( IRXN ) .EQ. 2 ) THEN
+                        SRK2( IRXN ) = REAL( RK( NCELL,IRXN ), 4 )
+                     ELSE IF ( NREACT( IRXN ) .EQ. 3 ) THEN
+                        SRK2( IRXN ) = REAL( RK( NCELL,IRXN ),4 )
+                     ELSE
+                        SRK2( IRXN ) = 0.0
+                     END IF
+                  END IF
+              END DO
+
+              DO ISP = 1,NUMB_MECH_SPC
+!                  ISPOLD = INEW2OLD( ISP,NCS )
+!                   YCDDM( ISP ) = 0.5D0 * ( CINIT(NCELL,ISP)+CFINI( NCELL,ISP ) )
+                  YCDDM( ISP ) = CAVEG(NCELL,ISP)
+               END DO
+               CELLNUM = NORDCELL( OFFSET + NCELL )
+               COL = CCOL( CELLNUM )
+               ROW = CROW( CELLNUM )
+               LEV = CLEV( CELLNUM )
+                CALL SOLVE_DDM3D_CHEM( COL,ROW,LEV,CHEMSTEP )
+!               CALL SOLVE_DDM3D_CHEM( COL,ROW,LEV,CHEMSTEP,IOLD2NEW,INEW2OLD )
+            END DO
+#endif
+         ENDIF
 500   CONTINUE
 
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
