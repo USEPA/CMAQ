@@ -78,7 +78,7 @@ C-----------------------------------------------------------------------
       Logical, Parameter, Private :: T = .true.
       Logical, Parameter, Private :: F = .false.
 
-      Integer, Parameter :: n_oa_list = 79   ! # of potential partitioning SVOCs
+      Integer, Parameter :: n_oa_list = 81   ! # of potential partitioning SVOCs
       Integer, Save      :: n_oa             ! Total # of simulated SOA vapors
       Integer, Save      :: n_oa_NotTracers  ! # of simulated SOA vapors that are not tracers
       Integer, Save      :: n_oa_tracers      ! # of simulated SOA vapors that are tracers
@@ -135,6 +135,8 @@ C-----------------------------------------------------------------------
      & oa_type('ADIM   ', '        ', '        ',     0.0,   1.E-10,   1.0E0, .723,2.07, F,  F,  T,  T ),
      & oa_type('AIMGA  ', '        ', '        ',     0.0,   1.E-10,   1.0E0,1.067,2.50, F,  F,  T,  T ),
      & oa_type('AIMOS  ', '        ', '        ',     0.0,   1.E-10,   1.0E0,2.403,4.17, F,  F,  T,  T ),
+     & oa_type('AISO3NOS','        ','         ',     0.0,   1.e-10,   1.0E0,  0.8,2.27, F,  F,  T,  T ),
+     & oa_type('AISO3OS ','        ','         ',     0.0,   1.e-10,   1.0E0,  1.4,3.60, F,  F,  T,  T ),
      & oa_type('AISO1  ', 'SVISO1  ', 'ISOPRXN ',  0.2320, 116.0100,  40.0E3, .827,2.20, F,  F,  T,  F ),
      & oa_type('AISO2  ', 'SVISO2  ', 'ISOPRXN ',  0.0288,   0.6170,  40.0E3, .851,2.23, F,  F,  T,  F ),
      & oa_type('AISO3  ', '        ', '        ',     0.0,   1.e-10,   1.0E0,1.307,2.80, F,  F,  T,  T ),
@@ -184,6 +186,8 @@ C-----------------------------------------------------------------------
      & oa_type('AROCP1OXY3','VROCP1OXY3','        ',0.0000,   1.e+1,  81.0E3, .300,1.54, F,  T,  F,  F ),
      & oa_type('AROCP2OXY2','VROCP2OXY2','        ',0.0000,   1.e+2,  77.0E3, .200,1.42, F,  T,  F,  F ),
      & oa_type('AROCP3OXY2','VROCP3OXY2','        ',0.0000,   1.e+3,  73.0E3, .200,1.42, F,  T,  F,  F ),
+     & spcs_list_type('AISO3NOS',F,T,F,cm_set, 1400.0, '       ','       ',0.0  ,'NVL',F,F,  0,  2.8, 6.1,T, 'DUST  ', 0.15), ! Iso. nonsulfated SOA
+     & spcs_list_type('AISO3OS ',F,T,F,cm_set, 1400.0, '       ','       ',0.0  ,'NVL',F,F,  0,  2.8, 6.1,T, 'DUST  ', 0.30), ! Iso. Organosulfate SOA
      & oa_type('ABENAPY', 'BENAPY  ', '        ',  0.0000,   0.0396, 105.0E3, .000,1.00, F,  T,  F,  F ) /)
       ! Table Comments:
       ! *Reaction Counters are only needed if the vapor species is not formed
