@@ -600,11 +600,13 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
             EXITSTAT = 2
             CALL M3EXIT( PNAME, IZERO, IZERO, ' ', EXITSTAT )
          ENDIF           
+#ifdef debug_gear
          IF( LDEBUG ) THEN
             WRITE( IUNDBG, 93000 ) NCS12, KOUNT0A, KOUNT0, KNTARRAY, 
      &                             IARRAY2, ICNTA, ICNTB, JCNTA, JCNTB,
      &                              KCNTA, KCNT, MCNTA, MCNT
          ENDIF
+#endif
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  Set final arrays for partial derivative calculations

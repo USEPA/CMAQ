@@ -150,6 +150,7 @@ C lcellconc option -- output conc. of one cell at Gear time steps
       INTEGER IRUNPRO1        ! Starting run number for output
       INTEGER IRUNPRO2        ! Ending run number for output
       INTEGER IUNCOUT         ! Unit number of output file
+      INTEGER  NCELL1          ! cell where col, row, lev equal one
       
 C  Other variables      
       INTEGER NBLKS               ! Number of blocks of cells
@@ -315,7 +316,8 @@ C......................................................................
       REAL( 8 ), ALLOCATABLE       :: CAVEG( :,: )     ! Average species concentrations over time step
       REAL( 8 ), ALLOCATABLE       :: CINIT( :,: )     ! species concentrations at start of subtime step
       REAL( 8 ), ALLOCATABLE       :: CFINI( :,: )     ! species concentrations at start of subtime step
-#endif      
+#endif
+      
                                                       ! in sorted species order (ppm)
       REAL( 8 ), ALLOCATABLE, SAVE :: EMBLK( :, : )   ! Species emissions in each cell
       REAL( 8 ), ALLOCATABLE, SAVE :: GLOSS( :, : )   ! dc/dt for each species (i.e., RHS)
@@ -548,5 +550,149 @@ c..cell & solver data
           END IF
 
          END SUBROUTINE GRVARS_INIT
+       SUBROUTINE OPTIMAL_ATOL_PPM( YP, NUMCELLS, YP_ABST )
+       
+!         USE RBDATA      ! ROS3 solver data
+          USE RXNS_DATA
+          
+          
+          IMPLICIT NONE
+! arguments:
+          REAL( 8 ), INTENT( IN  ) :: YP( :,: )
+          INTEGER,   INTENT( IN  ) :: NUMCELLS       
+          REAL( 8 ), INTENT( INOUT  ) :: YP_ABST( : )
+! local:          
+          REAL( 8 ), PARAMETER :: MASS_TO_NUMBER = 2.079267D19             !  coefficient to air mass (kg/m3) to number density (molec/cm3)
+          REAL( 8 ), PARAMETER :: COEFF1         = 1.0D-6 * MASS_TO_NUMBER !  coefficient to convert ppm to molec/cm3
+          REAL( 8 ), PARAMETER :: COEFF2         = 1.0D0  / COEFF1         !  coefficient to convert molec/cm3 to ppm 
+          REAL( 8 ), PARAMETER :: COEFF1_STP     = 2.54103D13
+          
+          INTEGER, PARAMETER   :: NBINS = 5
+          INTEGER, SAVE        :: SPECIES_CUTOFF 
+          REAL( 8 ), SAVE      :: ATOL_LEVEL( NBINS + 1 )
+          REAL( 8 ), SAVE      :: ATOL_FLOOR
+          
+          INTEGER, ALLOCATABLE, SAVE :: BIN_COUNTS( :,: ) 
+          INTEGER, ALLOCATABLE, SAVE :: CUM_COUNTS( :,: ) 
+          
+          LOGICAL, SAVE :: FIRST_CALL = .TRUE.
+          
+          INTEGER   :: I       
+          INTEGER   :: JSPC       
+          INTEGER   :: NCELL
+          INTEGER   :: NBIN
+          
+          REAL( 8 ) :: ABHI
+          REAL( 8 ) :: ABLO
+          
+
+          IF ( FIRST_CALL ) THEN 
+             SPECIES_CUTOFF = INT( 0.4E0 * REAL( NUMB_MECH_SPC ) )        
+! set absolute tolerance bins
+             ABHI           = LOG10( GEAR_ATOL ) + 1.5D0 
+             ABLO           = LOG10( GEAR_ATOL ) 
+!            
+             ATOL_LEVEL( 1 ) = 10.0D0**ABHI
+             ATOL_LEVEL( NBINS + 1 ) = 10.0D0**ABLO
+             ATOL_FLOOR              = ( GEAR_RTOL ** 1.5D0 ) * GEAR_ATOL
+             DO I = 2, NBINS
+                ATOL_LEVEL(I)  = 10.0D0**(ABLO + (ABHI - ABLO) * REAL( (NBINS-I+1),8 ) / REAL( NBINS,8 ) )
+             END DO
+             ALLOCATE ( BIN_COUNTS( BLKSIZE,NBINS+1 ),
+     &                  CUM_COUNTS( BLKSIZE,NBINS+1 ))
+             FIRST_CALL = .FALSE. 
+          END IF
+ 
+! *********************************************************************
+!                determine initial absolute error tolerance 
+! *********************************************************************
+! iabovk  = number of species whose concentrations are larger than yabst
+! BIN_COUNTS    = counts number of concentrations above ATOL_LEVEL(i), i = 1..  
+! yabst   = absolute error tolerance (molec. cm-3 for gases) 
+! abtol   = pre-defined absolute error tolerances 
+!
+          BIN_COUNTS = 0
+          CUM_COUNTS = 0
+!         
+          DO  JSPC  = 1,  NUMB_MECH_SPC
+              DO NCELL = 1, NUMCELLS
+                 IF (YP(NCELL,JSPC).GE.ATOL_LEVEL(1)) THEN
+
+                    BIN_COUNTS(NCELL,1) = BIN_COUNTS(NCELL,1) + 1
+
+                 ELSE IF (YP(NCELL,JSPC).GE.ATOL_LEVEL(2)) THEN
+
+                    BIN_COUNTS(NCELL,2) = BIN_COUNTS(NCELL,2) + 1
+
+                 ELSE IF (YP(NCELL,JSPC).GE.ATOL_LEVEL(3)) THEN
+
+                    BIN_COUNTS(NCELL,3) = BIN_COUNTS(NCELL,3) + 1
+
+                 ELSE IF (YP(NCELL,JSPC).GE.ATOL_LEVEL(4)) THEN
+
+                    BIN_COUNTS(NCELL,4) = BIN_COUNTS(NCELL,4) + 1
+
+                 ELSE IF (YP(NCELL,JSPC).GE.ATOL_LEVEL(5)) THEN
+
+                    BIN_COUNTS(NCELL,5) = BIN_COUNTS(NCELL,5) + 1
+
+                 ELSE IF (YP(NCELL,JSPC).GE.ATOL_FLOOR)THEN
+
+                    BIN_COUNTS(NCELL,6) = BIN_COUNTS(NCELL,6) + 1
+
+                 ENDIF
+              END DO   ! JSPC
+          END DO  ! NCELL
+          
+          DO NCELL = 1,  NUMCELLS
+
+!
+             CUM_COUNTS(NCELL,1) = BIN_COUNTS(NCELL,1)
+
+             CUM_COUNTS(NCELL,2) = BIN_COUNTS(NCELL,2)
+     &                           + CUM_COUNTS(NCELL,1)
+
+             CUM_COUNTS(NCELL,3) = BIN_COUNTS(NCELL,3)
+     &                           + CUM_COUNTS(NCELL,2)
+
+             CUM_COUNTS(NCELL,4) = BIN_COUNTS(NCELL,4)
+     &                           + CUM_COUNTS(NCELL,3)
+
+             CUM_COUNTS(NCELL,5) = BIN_COUNTS(NCELL,5)
+     &                           + CUM_COUNTS(NCELL,4)
+
+             CUM_COUNTS(NCELL,6) = BIN_COUNTS(NCELL,6)
+     &                           + CUM_COUNTS(NCELL,5)
+
+          END DO
+
+          SPECIES_CUTOFF = INT( 0.4E0 * REAL( CUM_COUNTS(NCELL,6) ) )
+
+          YP_ABST = ATOL_LEVEL(6)
+          DO NCELL = 1,  NUMCELLS
+             IF (CUM_COUNTS(NCELL,1).GE.SPECIES_CUTOFF) THEN
+                YP_ABST(NCELL) = ATOL_LEVEL(1)
+                NBIN = 1
+             ELSE IF (CUM_COUNTS(NCELL,2).GE.SPECIES_CUTOFF) THEN
+                YP_ABST(NCELL) = ATOL_LEVEL(2)
+                NBIN = 2
+             ELSE IF (CUM_COUNTS(NCELL,3).GE.SPECIES_CUTOFF) THEN
+                YP_ABST(NCELL) = ATOL_LEVEL(3)
+                NBIN = 3
+             ELSE IF (CUM_COUNTS(NCELL,4).GE.SPECIES_CUTOFF) THEN
+                YP_ABST(NCELL) = ATOL_LEVEL(4)
+                NBIN = 4
+             ELSE IF (CUM_COUNTS(NCELL,5).GE.SPECIES_CUTOFF) THEN
+                YP_ABST(NCELL) = ATOL_LEVEL(5)
+                NBIN = 5
+             ELSE
+                YP_ABST(NCELL) = ATOL_LEVEL(6)
+                NBIN = 6
+             ENDIF
+          END DO ! NCELL
+          
+          RETURN
+          
+        END SUBROUTINE OPTIMAL_ATOL_PPM
 
       END MODULE GRVARS

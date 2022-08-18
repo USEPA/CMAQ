@@ -91,6 +91,7 @@ C***********************************************************************
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  Set control parameters for output report options
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+#ifdef debug_gear
       LDEBUG = .FALSE.
       IF( LDEBUG ) THEN
          IRUNBUG  = 1 
@@ -152,6 +153,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          OPEN( UNIT = IUNCOUT, FILE = 'PROFILE.OUT', 
      &         FORM = 'UNFORMATTED')
       ENDIF
+#endif
    
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  Set some constants for the Gear solver
@@ -179,6 +181,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
                CROW( NCOUNT ) = ROW
                CCOL( NCOUNT ) = COL
                CLEV( NCOUNT ) = LEV
+               IF( ROW .EQ. 1 .AND. COL .EQ. 1 .AND. LEV .EQ. 1 )NCELL1 = NCOUNT
             END DO
          END DO
       END DO

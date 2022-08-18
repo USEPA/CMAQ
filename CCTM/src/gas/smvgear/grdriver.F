@@ -119,9 +119,6 @@ C Pascal to atm conversion factor
       REAL, PARAMETER :: PA2ATM = 1.0 / STDATMPA
 
 C..EXTERNAL FUNCTIONS:
-#ifdef sunws
-      REAL, EXTERNAL :: DTIME          ! Execution time elapsed since last call
-#endif
 
 C..SAVED LOCAL VARIABLES:
       LOGICAL, SAVE :: LFIRST = .TRUE. ! Flag for first call to this subroutine
@@ -199,15 +196,6 @@ C..SCRATCH LOCAL VARIABLES:
 
       REAL( 8 ), ALLOCATABLE, SAVE :: Y_DEGRADE ( : , : ) ! concentration array used
                                                           ! by degradation routines
-
-#ifdef sunws
-      REAL    ERRSTAT          ! for DTIME()
-      REAL    TARRAY( 2 )      ! for DTIME():TARRAY(1)=user time,
-                               ! TARRAY(2)=system time
-      REAL    DRIVER_TIME      ! accumulated driver user time for this step
-      REAL    SOLVER_TIME      ! accumulated solver user time for this step
-#endif
-
       INTERFACE
          SUBROUTINE SMVGEAR ( IRUN, JDATE, JTIME, CHEMSTEP,
      &                        LIRRFLAG, NIRRCLS, IRRCELL )
@@ -312,13 +300,6 @@ C For higher order sensitivities
 #endif
       ENDIF      ! First call
 
-#ifdef sunws
-C initialize run clock
-
-      ERRSTAT = DTIME ( TARRAY )
-      DRIVER_TIME = 0.0
-      SOLVER_TIME = 0.0
-#endif
 
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C  Start of integration driver after first call
@@ -484,8 +465,23 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
             END DO
          ENDDO
          
-!        CALL CALCKS( NPHOTAB, RJBLK )
          CALL CALC_RCONST( BLKTEMP, BLKPRES, BLKCH2O, RJBLK, BLKHET, LSUNLIGHT, BLKSEAWATER, RK, NUMCELLS )         
+
+#ifdef debug_gear
+         DO NCELL = 1, NUMCELLS
+            CELLNUM = NORDCELL( OFFSET + NCELL )
+            NCSP = 1
+            IF( NCELL1 .EQ. CELLNUM )THEN
+                CALL SUBFUN
+                DO ISP = 1, NUMB_MECH_SPC
+                   WRITE(LOGDEV,'(A,ES12.4)')CHEMISTRY_SPC(ISP)//' = ',BLKCONC( NCELL1, ISP )
+                END DO
+                DO NPH = 1,NRXNS
+                   WRITE(LOGDEV,'(I3,1X,A,2(1X,ES12.4))')NPH,RXLABEL(NPH),RK(NCELL1,NPH),RXRAT(NCELL1,NPH)
+                END DO
+            END IF
+         END DO
+#endif
 
          IF ( LSUNLIGHT ) THEN
             HMAX = HMAXDAY( NCS )
@@ -535,6 +531,7 @@ C..initialize degradation routines
   
          ENDIF
 
+#ifdef debug_gear
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C  If cells are not being reordered, do the outputs if needed and 
 C  it is time
@@ -660,26 +657,18 @@ C..debug output
          ELSE
             LTRCOUT = .FALSE.
          ENDIF 
-
-#ifdef sunws
-         ERRSTAT = DTIME ( TARRAY )
-         DRIVER_TIME = DRIVER_TIME + TARRAY( 1 )
 #endif
 
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C   Call Gear solver for the integration interval
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          CALL SMVGEAR( IRUNC, JDATE, JTIME, CHEMSTEP, LIRRBLK, NIRRCLS, IRRCELL )
-
-#ifdef sunws
-         ERRSTAT = DTIME ( TARRAY )
-         SOLVER_TIME = SOLVER_TIME + TARRAY( 1 )
-#endif
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C  If not ordering cells, save performance statistics, do debug output
 C  if requested, and store updated concentrations.
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          IF ( .NOT. LORDERING ) THEN
+#ifdef debug_gear
             IF ( LPERFSMRY ) THEN
                NSTPERF(    BLK ) = NSTEPS
                MXORDPERF(  BLK ) = MXORDUSED
@@ -713,6 +702,7 @@ C..debug output
      &                                   CNEW( NUMCELLS, ISP )
                ENDDO
             ENDIF
+#endif
 
 C..Update concentrations
            DO ISP = 1, ISCHANG( NCS )
@@ -797,11 +787,12 @@ C  Update CGRID based on the degradation routines
                COL = CCOL( CELLNUM )
                ROW = CROW( CELLNUM )
                LEV = CLEV( CELLNUM )
-                CALL SOLVE_DDM3D_CHEM( COL,ROW,LEV,CHEMSTEP )
-!               CALL SOLVE_DDM3D_CHEM( COL,ROW,LEV,CHEMSTEP,IOLD2NEW,INEW2OLD )
+               CALL SOLVE_DDM3D_CHEM( COL,ROW,LEV,CHEMSTEP )
+!              CALL SOLVE_DDM3D_CHEM( COL,ROW,LEV,CHEMSTEP,IOLD2NEW,INEW2OLD )
             END DO
 #endif
          ENDIF
+
 500   CONTINUE
 
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -883,16 +874,6 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          DEALLOCATE ( IRSPERF )
          DEALLOCATE ( NBKUPS )
       ENDIF
-
-#ifdef sunws
-      ERRSTAT = DTIME( TARRAY )
-      DRIVER_TIME = DRIVER_TIME + TARRAY( 1 )
-
-      WRITE( LOGDEV, 93400 ), DRIVER_TIME, SOLVER_TIME
-93400 FORMAT( / 10X, 'Timing Statistics in Chemistry ...'
-     &        / 10X, 'Driver time for this step:', 1PG13.5
-     &        / 10X, 'Solver time for this step:', 1PG13.5 )
-#endif
 
       RETURN
       
