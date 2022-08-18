@@ -1435,7 +1435,7 @@ c                                    * ( 1.0 - kpart( nsvol) )
 
 #ifdef sens
            Do np = 1, npmax
-              og_sens( i,npmax ) = s_ctotf( nsvol,np ) - s_caer( nsvol,np )
+              og_sens( i,np ) = s_ctotf( nsvol,np ) - s_caer( nsvol,np )
            End Do
 #endif
         End Do  ! Partitioning Vapor Loop
@@ -1458,7 +1458,7 @@ c                                    * ( 1.0 - kpart( nsvol) )
 #ifdef sens
             Do np = 1, npmax
                s_aerospc_conc( indx, 1:n_mode,np ) = 0.0
-               og_sens( i,npmax ) = s_ctotf( nsvol,np ) -
+               og_sens( i,np ) = s_ctotf( nsvol,np ) -
      &                       sum( s_aerospc_conc( indx,:,np ), 
      &                            mask=.not.aero_missing( indx,: ) )
 
