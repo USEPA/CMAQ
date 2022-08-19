@@ -481,15 +481,12 @@ C Create soil NO state save file at the end of the run for restart purposes
 C Final timestamp
       NDATE = EDATE; NTIME = ETIME
 
-!       NDATE = JDATE
-!       NTIME = JTIME
-
 !       Avoid divide by zero over water where BASESUM = 0
-             WHERE ( BASESUM .eq. 0) BASESUM = 1.0  ! ensure no NaNs
+             WHERE ( BASESUM .eq. 0) BASESUM = 1.0  
              CRFAVG   = CRFAVG/BASESUM
              PULSEAVG = PULSEAVG/BASESUM
-             WHERE ( CRFAVG .gt. 100 ) CRFAVG = 0.0  ! ensure no NaNs
-             WHERE ( PULSEAVG .gt. 100) PULSEAVG = 0.0  ! ensure no NaNs
+             WHERE ( CRFAVG   .gt. 100 ) CRFAVG   = 0.0  
+             WHERE ( PULSEAVG .gt. 100 ) PULSEAVG = 0.0  
 
 #ifdef mpas
              call julian_to_mpas_date_time (jdate, jtime, time_stamp)
