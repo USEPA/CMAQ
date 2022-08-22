@@ -16,7 +16,7 @@ Thus, CMAQ can output higher-level parameters without needing to run any particu
 As a result, users may choose to limit their output to just the variables they are most interested in (perhaps just O<sub>3</sub> and PM2.5, for example). Or they may elect to output a more complex selection of scalar and aggregate variables. 
 Post-processing is still needed to concatenate days of output together onto monthly, seasonal, or annual files. 
 
-<a id=FigureF-1></a> ![Figure F-1](../images/FigureG-1.png)
+<a id=FigureF-1></a> ![Figure F-1](../images/FigureF-1.png)
 **Figure F-1. Comprehensive list of diagnostic and aggregate variables currently available in ELMO. The table headings are just for presentation. They are not equivalent to ELMO Keywords, which are discussed in section F.4**
 
 Concentrations of scalar variables like NO, NO2, O3, ASO4J, and others are available for output to ELMO files as well. An aggregate variable for total VOC has not been provided for CMAQv5.4 because differences among chemical mechanisms are so significant. This capabality will be added in a future CMAQ version.
@@ -27,7 +27,7 @@ CMAQv5.4 maintains the CONC and ACONC files - they are available for use identic
 If a user would like to continue using the COMBINE workflow to aggregate PM variables, they may output necessary variables like FPM25ACC to ELMO files and use those with CONC output. 
 On the contrary, a user may elect to rely exclusively on ELMO output files alone and set the CONC_SPCS and AVG_CONC_SPCS variables in the CMAQ runscript to just one variable (e.g. O3) to minimize their I/O time and storage space footprint. 
 
-<a id=FigureF-2></a> ![Figure F-2](../images/FigureG-2.png)  
+<a id=FigureF-2></a> ![Figure F-2](../images/FigureF-2.png)  
 **Figure F-2. Schematic of data workflow in v5.3 and v5.4 with ELMO**
 
 There are several distinct advantages to using ELMO over post-processing CONC and ACONC output with COMBINE:
