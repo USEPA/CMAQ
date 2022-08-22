@@ -426,7 +426,7 @@ Running CMAQ with BEIS is controlled by the following RunScript flag:
 
 
 ```
-setenv CTM_BIOGEMIS_BEIS Y
+setenv CTM_BIOGEMIS_BE Y
 ```
 
 Running CMAQ with online BEIS requires a user-supplied, gridded normalized biogenic emissions input netCDF file, B3GRD.  This file is created with the [normbeis3](https://www.cmascenter.org/smoke/documentation/4.6/html/ch06s12.html) program in SMOKE prior to running the inline biogenic option in CMAQ and contains winter and summer normalized emissions and Leaf Area Indices. The location of the B3GRD file is set in the RunScript:
@@ -465,7 +465,7 @@ setenv NEW_START FALSE
 ```
 
 ```
-setenv SOILINP /home/user/path-to-file/cctm_soilout.nc
+setenv BEIS_SOILINP /home/user/path-to-file/cctm_soilout.nc
 ```
 
 #### MEGAN
@@ -478,7 +478,7 @@ Running CMAQ with MEGAN is controlled by the following RunScript flag:
 
 
 ```
-setenv CTM_BIOGEMIS_MEGAN Y
+setenv CTM_BIOGEMIS_MG Y
 ```
 
 Running CMAQ with online MEGAN requires user-supplied input netCDF files that can be created with the [MEGAN preprocessor](https://bai.ess.uci.edu/megan/data-and-code). Three files are required:
@@ -499,7 +499,7 @@ setenv MEGAN_LDF /home/user/path-to-file/LDF.nc
 These files describe the canopy type, the emission factors for each MEGAN species, and the light dependent fraction of each grid cell. The user may also choose to set MEGAN_LAI to use a MEGAN-formatted leaf area index dataset that they might prefer. 
 
 
-The SOILINP and SOILOUT functionality is the same as for BEIS (see above), with the addition of shortwave radiation and surface temperature values to the buffer files. The IGNORE_SOILINP option gives similar control to the user as the INITAL_RUN option described above.
+The MEGAN_SOILINP and MEGAN_SOILOUT functionality is the same as for BEIS (see above), with the addition of shortwave radiation and surface temperature values to the buffer files. 
 
 
 
