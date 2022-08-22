@@ -568,10 +568,10 @@ c..cell & solver data
           REAL( 8 ), PARAMETER :: COEFF1_STP     = 2.54103D13
           
           INTEGER, PARAMETER   :: NBINS = 5
-          INTEGER, SAVE        :: SPECIES_CUTOFF 
           REAL( 8 ), SAVE      :: ATOL_LEVEL( NBINS + 1 )
           REAL( 8 ), SAVE      :: ATOL_FLOOR
           
+          INTEGER, ALLOCATABLE, SAVE :: SPECIES_CUTOFF( : )
           INTEGER, ALLOCATABLE, SAVE :: BIN_COUNTS( :,: ) 
           INTEGER, ALLOCATABLE, SAVE :: CUM_COUNTS( :,: ) 
           
@@ -587,7 +587,6 @@ c..cell & solver data
           
 
           IF ( FIRST_CALL ) THEN 
-             SPECIES_CUTOFF = INT( 0.4E0 * REAL( NUMB_MECH_SPC ) )        
 ! set absolute tolerance bins
              ABHI           = LOG10( GEAR_ATOL ) + 1.5D0 
              ABLO           = LOG10( GEAR_ATOL ) 
@@ -599,8 +598,10 @@ c..cell & solver data
                 ATOL_LEVEL(I)  = 10.0D0**(ABLO + (ABHI - ABLO) * REAL( (NBINS-I+1),8 ) / REAL( NBINS,8 ) )
              END DO
              ALLOCATE ( BIN_COUNTS( BLKSIZE,NBINS+1 ),
-     &                  CUM_COUNTS( BLKSIZE,NBINS+1 ))
+     &                  CUM_COUNTS( BLKSIZE,NBINS+1 ),
+     &                      SPECIES_CUTOFF( BLKSIZE ) )
              FIRST_CALL = .FALSE. 
+             SPECIES_CUTOFF = INT( 0.4E0 * REAL( NUMB_MECH_SPC ) )        
           END IF
  
 ! *********************************************************************
@@ -664,25 +665,25 @@ c..cell & solver data
              CUM_COUNTS(NCELL,6) = BIN_COUNTS(NCELL,6)
      &                           + CUM_COUNTS(NCELL,5)
 
+             SPECIES_CUTOFF( NCELL ) = INT( 0.4E0 * REAL(CUM_COUNTS(NCELL,6)) )
           END DO
 
-          SPECIES_CUTOFF = INT( 0.4E0 * REAL( CUM_COUNTS(NCELL,6) ) )
 
           YP_ABST = ATOL_LEVEL(6)
           DO NCELL = 1,  NUMCELLS
-             IF (CUM_COUNTS(NCELL,1).GE.SPECIES_CUTOFF) THEN
+             IF (CUM_COUNTS(NCELL,1).GE.SPECIES_CUTOFF(NCELL)) THEN
                 YP_ABST(NCELL) = ATOL_LEVEL(1)
                 NBIN = 1
-             ELSE IF (CUM_COUNTS(NCELL,2).GE.SPECIES_CUTOFF) THEN
+             ELSE IF (CUM_COUNTS(NCELL,2).GE.SPECIES_CUTOFF(NCELL) ) THEN
                 YP_ABST(NCELL) = ATOL_LEVEL(2)
                 NBIN = 2
-             ELSE IF (CUM_COUNTS(NCELL,3).GE.SPECIES_CUTOFF) THEN
+             ELSE IF (CUM_COUNTS(NCELL,3).GE.SPECIES_CUTOFF(NCELL) ) THEN
                 YP_ABST(NCELL) = ATOL_LEVEL(3)
                 NBIN = 3
-             ELSE IF (CUM_COUNTS(NCELL,4).GE.SPECIES_CUTOFF) THEN
+             ELSE IF (CUM_COUNTS(NCELL,4).GE.SPECIES_CUTOFF(NCELL) ) THEN
                 YP_ABST(NCELL) = ATOL_LEVEL(4)
                 NBIN = 4
-             ELSE IF (CUM_COUNTS(NCELL,5).GE.SPECIES_CUTOFF) THEN
+             ELSE IF (CUM_COUNTS(NCELL,5).GE.SPECIES_CUTOFF(NCELL) ) THEN
                 YP_ABST(NCELL) = ATOL_LEVEL(5)
                 NBIN = 5
              ELSE
