@@ -50,7 +50,7 @@ C           09 Jan 2021: G. Sarwar: removed CH3BR
 C-----------------------------------------------------------------------
 
       INTEGER, PARAMETER :: LDDEP = 4
-      INTEGER, PARAMETER :: LTOTG = 257
+      INTEGER, PARAMETER :: LTOTG = 259
       INTEGER, PARAMETER :: LCMP  = 8
       CHARACTER( 16 )    :: DEPV_METHOD
 
@@ -342,6 +342,8 @@ C-------------------------------------------------------------------------------
          DEPSPC( 255) = 'VROCP2OXY2      '      
          DEPSPC( 256) = 'VROCP3ALK       '       
          DEPSPC( 257) = 'VROCP3OXY2      '
+         DEPSPC( 258) = 'IPN             '
+         DEPSPC( 259) = 'IPC             '
 
          N_USE_DEPSPC = 0
          USE_DEPSPC = .FALSE.   ! array
