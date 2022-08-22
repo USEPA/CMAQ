@@ -721,7 +721,7 @@ Options for use with MEGAN:
 <!-- END COMMENT -->
 
 -   `CTM_WB_DUST [default: False]`<a id=CTM_WB_DUST></a>  
-    Setting to calculate online windblown dust emissions in CCTM. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#wind-blown-dust) for further information.
+    Setting to calculate online windblown dust emissions in CCTM. Requires additional setting of environmental variable `PX_VERSION` to "Y". See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#wind-blown-dust) for further information.
     
 
 

@@ -514,6 +514,7 @@ As of version CMAQ version 5.4 the windblown dust module no longer accepts addit
 The CMAQ windblown dust module is controlled by the following RunScript flag:
 
 ```
+setenv PX_VERSION Y
 setenv CTM_WB_DUST Y
 ```
 
