@@ -1,34 +1,34 @@
 <!-- BEGIN COMMENT -->
 
-[<< Previous Appendix](CMAQ_UG_appendixF_importing_bugfixes.md) - [Home](../README.md) 
+[<< Previous Appendix](CMAQ_UG_appendixE_configuring_WRF.md) - [Home](../README.md) 
 
 <!-- END COMMENT -->
 
 * * *
 
-# Appendix G: Explicit and Lumped Model Output (ELMO) 
+# Appendix F: Explicit and Lumped Model Output (ELMO) 
 The ELMO module makes aerosol diagnostic parameters as well as aggregated and highly processed aerosol metrics available driectly in CMAQ output files rather than requiring follow-up post-processing steps. 
 
-### G.1 Output concentration and diagnostic variables
+### F.1 Output concentration and diagnostic variables
 The ELMO Module streamlines the definition, calculation, and maintenance of gas and particulate concentrations, as well as over 200 aggregate and diagnostic variables, listed in Fig. 1. 
-With ELMO, aggregate and diagnostic variables are registered in the ELMO_DATA.F, their calculations are prescribed in ELMO_PROC.F, and CMAQ calculates them online. 
+With ELMO, aggregate and diagnostic variables are registered in the [ELMO_DATA.F](../../../CCTM/src/driver/ELMO_DATA.F), their calculations are prescribed in [ELMO_PROC.F](../../../CCTM/src/driver/ELMO_PROC.F), and CMAQ calculates them online. 
 Thus, CMAQ can output higher-level parameters without needing to run any particular post-processing tool. 
 As a result, users may choose to limit their output to just the variables they are most interested in (perhaps just O<sub>3</sub> and PM2.5, for example). Or they may elect to output a more complex selection of scalar and aggregate variables. 
 Post-processing is still needed to concatenate days of output together onto monthly, seasonal, or annual files. 
 
-<a id=FigureG-1></a> ![Figure G-1](../images/FigureG-1.png)
-**Figure G-1. Comprehensive list of diagnostic and aggregate variables currently available in ELMO. The table headings are just for presentation. They are not equivalent to ELMO Keywords, which are discussed in section G.4**
+<a id=FigureF-1></a> ![Figure F-1](../images/FigureF-1.png)
+**Figure F-1. Comprehensive list of diagnostic and aggregate variables currently available in ELMO. The table headings are just for presentation. They are not equivalent to ELMO Keywords, which are discussed in section F.4**
 
 Concentrations of scalar variables like NO, NO2, O3, ASO4J, and others are available for output to ELMO files as well. An aggregate variable for total VOC has not been provided for CMAQv5.4 because differences among chemical mechanisms are so significant. This capabality will be added in a future CMAQ version.
 
-### G.2 Relationship to previous CMAQ versions
-Previously, aggregate parameters like PM<sub>2.5</sub> and Fine-mode Sulfate (ASO4I + ASO4J) were calculated offline through the COMBINE post-processing utility and documented via the species definition (SpecDef) input file for COMBINE, as depcited in Fig. G-2.  
+### F.2 Relationship to previous CMAQ versions
+Previously, aggregate parameters like PM<sub>2.5</sub> and Fine-mode Sulfate (ASO4I + ASO4J) were calculated offline through the COMBINE post-processing utility and documented via the species definition (SpecDef) input file for COMBINE, as depcited in Fig. F-2.  
 CMAQv5.4 maintains the CONC and ACONC files - they are available for use identically to CMAQv5.3.3. However, PMDIAG and APMDIAG files have been eliminated. 
 If a user would like to continue using the COMBINE workflow to aggregate PM variables, they may output necessary variables like FPM25ACC to ELMO files and use those with CONC output. 
 On the contrary, a user may elect to rely exclusively on ELMO output files alone and set the CONC_SPCS and AVG_CONC_SPCS variables in the CMAQ runscript to just one variable (e.g. O3) to minimize their I/O time and storage space footprint. 
 
-<a id=FigureG-2></a> ![Figure G-2](../images/FigureG-2.png)  
-**Figure G-2. Schematic of data workflow in v5.3 and v5.4 with ELMO**
+<a id=FigureF-2></a> ![Figure F-2](../images/FigureF-2.png)  
+**Figure F-2. Schematic of data workflow in v5.3 and v5.4 with ELMO**
 
 There are several distinct advantages to using ELMO over post-processing CONC and ACONC output with COMBINE:
 
@@ -41,14 +41,14 @@ There are several distinct advantages to using ELMO over post-processing CONC an
 
 - New parameters are available that were not before like N10, N20, N40 and N100, the number of particles above 10, 20, 40 and 100 nm in diameter. AOD at 550 nm and extinction have also been supported as options; these were previously only available on the photlysis diagnostic file.  
 
-- Keywords are available (see section G.4) to select groups of variables of interest. 
+- Keywords are available (see section F.4) to select groups of variables of interest. 
 
 - Variables may be added to the ELMO_LIST table in ELMO_DATA.F and then prescribed in ELMO_PROC.F with greater ease.
  
 ELMO has no significant quantitative impact on results, but there will be a noticeable positive impact on the time invested in post-processing aggregate PM components and storage volumes required for standard runs. There can be some slight numerical differences realized when one compares quantities averaged directly online with ELMO vs. calculated offline using averages. For exmaple, total PM2.5 have some small deviations when it is calculated as the hourly average of the sum of species (online) versus the sum of hourly averaged species (offline).
 
 
-### G.3 Prescribing features of ELMO output files
+### F.3 Prescribing features of ELMO output files
 The interface for prescribing ELMO file properties is located in the CMAQ Miscellaneous Control File. The following lines activate or deactivate instantaneous (CCTM_ELMO) and average (CCTM_AELMO) files, respectively:
 ```
 &elmo_activate
@@ -78,16 +78,16 @@ It is recommended to output all model layers if you are otuputting variables for
 When 2D variables are output on a 3D ELMO file, ELMO will put real data in layer 1, and I/O-API missing values above layer 1. 
 
 
-### G.4 Selecting ELMO output variables
-All CMAQ scalar variables and all variables in Fig. G-1 are available for output on ELMO files. 
-The CMAQ Miscellaneous Control file variables Inst_Vars_Nml and Avrg_Vars_Nml (shown in section G.3) control the variables output to the instantaneous and average ELMO files, respectively. 
+### F.4 Selecting ELMO output variables
+All CMAQ scalar variables and all variables in Fig. F-1 are available for output on ELMO files. 
+The CMAQ Miscellaneous Control file variables Inst_Vars_Nml and Avrg_Vars_Nml (shown in section F.3) control the variables output to the instantaneous and average ELMO files, respectively. 
 Up to 1000 strings may be specified here. 
 To avoid relying on intimidatingly log lists of variable names, ELMO uses Keywords that expand to groups of variables (often particularly meaningful or useful ones). 
 In this way, ELMO improves transparency and reduces the risk of needing to rerun simulations to produce mistakenly omitted variables. 
 The ELMO Keyword "DEFAULT" loads all scalar and aggregate variables that would have been generated by using the default COMBINE approach for CMAQv5.3.3 and previous. 
-This and other ELMO keywords are defined in Table G-1.  
+This and other ELMO keywords are defined in Table F-1.  
 
-**Table G-1. Map of all ELMO Keywords to CMAQ species, ELMO variables, or other Keywords.  
+**Table F-1. Map of all ELMO Keywords to CMAQ species, ELMO variables, or other Keywords.  
 
 |**ELMO Keyword**  |Variables and/or **Keywords**|  
 |------------------|----------------------------------|
@@ -117,13 +117,13 @@ This and other ELMO keywords are defined in Table G-1.
 | **SATCONC**          | NO2, SO2, O3, CO, FORM, NH3, AOD_550 |  
 | **ALLCONC**          | All CMAQ Internal Species |  
 
-<sub>#</sup>As noted for red variables in Fig. G-1, several variables are populated for each aerosol mode including diameters, standard deviation, and density, etc.
+<sub>#</sup>As noted for red variables in Fig. F-1, several variables are populated for each aerosol mode including diameters, standard deviation, and density, etc.
 
 The ELMO variables are defined in [ELMO_DATA.F](../../../CCTM/src/driver/ELMO_DATA.F). 
 Before ELMO maps output variables to internal model species or meteorological inputs, ELMO recursively expands all Keywords to their members and then filters out duplicates. There is no disadvantage to specifying a variable twice in the CMAQ Control namelist. 
 
 
-### G.5 ELMO Implementation in CMAQ
+### F.5 ELMO Implementation in CMAQ
 ELMO works by putting all of the diagnostic parameters first on the ELMO_LIST table in ELMO_DATA.F. There is also a list of ID numbers (integers) above that table which allow for a master order to be preserved while the order of the parameters in the table and their calculations in ELMO_PROC.F are allowed to move in sequence. The subroutine LOAD_ELMO (ELMO_PROC.F) is called from DRIVER and cycles through the list of selected variables as defined by the interface in the CMAQ Miscellaneous Control file.
 
 For each variable, the recursive subroutine CALC_ELMO is called to execute the calculation. For many of the calculations, all that is required is an assignment from an already existing diagnostic variable (e.g. RH, STDEV_ACC). 
@@ -133,7 +133,7 @@ Follow the example of existing variables to prescribe the species to be added, t
 
 <!-- BEGIN COMMENT -->
 
-[<< Previous Appendix](CMAQ_UG_appendixF_importing_bugfixes.md) - [Home](../README.md) <br>
+[<< Previous Appendix](CMAQ_UG_appendixE_configuring_WRF.md) - [Home](../README.md) <br>
 CMAQ User's Guide (c) 2020<br>
 
 <!-- END COMMENT -->

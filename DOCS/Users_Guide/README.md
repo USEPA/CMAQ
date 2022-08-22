@@ -57,9 +57,7 @@ Note: While this User's Guide is packaged with the code when it is downloaded or
 
 [Appendix E (Configuring WRF):](Appendix/CMAQ_UG_appendixE_configuring_WRF.md) Configuring the Weather Research and Forecasting Model (WRF) for use with CMAQ
 
-[Appendix F (Importing bugfixes):](Appendix/CMAQ_UG_appendixF_importing_bugfixes.md) Directions on importing bugfixes from CMAQ GitHub Issues page
-
-[Appendix G (ELMO Module):](Appendix/CMAQ_UG_appendixG_elmo_output.md) Description of the Explicit and Lumped CMAQ Model Output Module
+[Appendix F (ELMO Module):](Appendix/CMAQ_UG_appendixF_elmo_output.md) Description of the Explicit and Lumped CMAQ Model Output Module
 
 ***
 
