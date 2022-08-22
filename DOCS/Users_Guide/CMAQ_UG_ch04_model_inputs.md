@@ -261,7 +261,7 @@ The namelist files for the other pollutant classes have similar configurations a
 
 Used by: ELMO, Budget Tool, DESID
  
-This control file provides an interface to activate/deactivate and set parameters for the operation of the Explicit and Lumped CMAQ Model Output module (ELMO; Appendix G), the Budget Tool (Chapter 9), and an aspect of the DESID emissions interface. The variables for the ELMO and Budget Tool modules should be chosen in this file in the &elmo_activate, &elmo_inst, &elmo_avrg, and &Budget_Options sections. 
+This control file provides an interface to activate/deactivate and set parameters for the operation of the Explicit and Lumped CMAQ Model Output module (ELMO; [Appendix F](Appendix/CMAQ_UG_appendixF_elmo_output.md)), the Budget Tool (Chapter 9), and an aspect of the DESID emissions interface. The variables for the ELMO and Budget Tool modules should be chosen in this file in the &elmo_activate, &elmo_inst, &elmo_avrg, and &Budget_Options sections. 
 
 The final sections (&Chemical_FamVars and &ChemicalFamilies) allow users to define chemical families for output that can be referred to by ELMO, The Budget Tool or DESID. For example, 'NOX' may be defined as a chemical family containing 'NO' and 'NO2'. 
 The &Chemical_FamVars section should be used to define the total number of chemical families that will be specified (N_Chem_Fams) and the maximum number of chemical species among all defined chemical families (Max_Chem_Fam_Members). For example, if a user defined three chemical families including 'NOX','AROMATICS', and 'BSOA', then a chemical family entry could be written as follows:

@@ -108,7 +108,7 @@ Many diagnostics relating to heterogenous chemistry are provided including the N
 Units for all variables are specified in the output file. 
 
 The namelist input file CMAQ_Control_Misc.nml allows users to omit this file (set instant = .FALSE. under &elmo_activate), to set the top and bottom layers to be output (Inst_Layer_Top and Inst_Layer_Bot under &elmo_inst) and which variables to output (Inst_Vars_Nml under &elmo_inst).
-See [Appendix G (ELMO Output):](Appendix/CMAQ_UG_appendixG_elmo_output.md) for more details.
+See [Appendix F (ELMO Output):](Appendix/CMAQ_UG_appendixF_elmo_output.md) for more details.
 
 <a id=aELMO></a>
 
@@ -125,7 +125,7 @@ Many diagnostics relating to heterogenous chemistry are provided including the N
 Units for all variables are specified in the output file. 
 
 The namelist input file CMAQ_Control_Misc.nml allows users to omit this file (set instant = .FALSE. under &elmo_activate), to set the top and bottom layers to be output (Inst_Layer_Top and Inst_Layer_Bot under &elmo_inst) and which variables to output (Inst_Vars_Nml under &elmo_inst).
-See [Appendix G (ELMO Output):](Appendix/CMAQ_UG_appendixG_elmo_output.md) for more details. 
+See [Appendix F (ELMO Output):](Appendix/CMAQ_UG_appendixF_elmo_output.md) for more details. 
  
 <a id=drydep></a>
 
