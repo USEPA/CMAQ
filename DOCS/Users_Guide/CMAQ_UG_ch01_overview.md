@@ -74,7 +74,7 @@ Building on previous versions of the modeling system, numerous updates to the pr
 Collectively, these updates improve model capabilities for addressing local nonattainment issues, quantifying natural contributions versus anthropogenic enhancements, enabling examination of regional air pollution in context of changing global emissions, and for cross-media applications. Additionally, changes to model structure in CMAQv5.4 are oriented towards improving transparency of model assumptions, improved diagnostic tools for model probing, and improvements in overall numerical and computational efficiency of the modeling system.
 
 ## 1.5 System Recommendations
-CMAQ is a comprehensive air pollution modeling system whose source code is written in Fortran. CMAQ execution is typically performed on Linux based systems. The hardware configuration of such a system depends on the domain size, grid resolution and simulation duration. Since typical input and output data sets for CMAQ entail three dimensional descriptions of the dynamical and chemical state of the simulated atmosphere, these data sets could require upwards of several gigabytes of disk storage per simulation day.
+CMAQ is a comprehensive air pollution modeling system whose source code is written mostly in Fortran. CMAQ execution is typically performed on Linux based systems. The hardware configuration of such a system depends on the domain size, grid resolution and simulation duration. Since typical input and output data sets for CMAQ entail three dimensional descriptions of the dynamical and chemical state of the simulated atmosphere, these data sets could require upwards of several gigabytes of disk storage per simulation day.
 
 ## 1.6 CMAQ Support Resources
 
