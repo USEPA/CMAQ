@@ -1,6 +1,6 @@
 <!-- BEGIN COMMENT -->
 
-[<< Previous Appendix](CMAQ_UG_appendixD_importing_bugfixes.md) - [Home](../README.md) 
+[<< Previous Appendix](CMAQ_UG_appendixE_configuring_WRF.md) - [Home](../README.md) 
 
 <!-- END COMMENT -->
 
@@ -11,7 +11,7 @@ The ELMO module makes aerosol diagnostic parameters as well as aggregated and hi
 
 ### F.1 Output concentration and diagnostic variables
 The ELMO Module streamlines the definition, calculation, and maintenance of gas and particulate concentrations, as well as over 200 aggregate and diagnostic variables, listed in Fig. 1. 
-With ELMO, aggregate and diagnostic variables are registered in the ELMO_DATA.F, their calculations are prescribed in ELMO_PROC.F, and CMAQ calculates them online. 
+With ELMO, aggregate and diagnostic variables are registered in the [ELMO_DATA.F](../../../CCTM/src/driver/ELMO_DATA.F), their calculations are prescribed in [ELMO_PROC.F](../../../CCTM/src/driver/ELMO_PROC.F), and CMAQ calculates them online. 
 Thus, CMAQ can output higher-level parameters without needing to run any particular post-processing tool. 
 As a result, users may choose to limit their output to just the variables they are most interested in (perhaps just O<sub>3</sub> and PM2.5, for example). Or they may elect to output a more complex selection of scalar and aggregate variables. 
 Post-processing is still needed to concatenate days of output together onto monthly, seasonal, or annual files. 
@@ -133,7 +133,7 @@ Follow the example of existing variables to prescribe the species to be added, t
 
 <!-- BEGIN COMMENT -->
 
-[<< Previous Appendix](CMAQ_UG_appendixD_importing_bugfixes.md) - [Home](../README.md) <br>
+[<< Previous Appendix](CMAQ_UG_appendixE_configuring_WRF.md) - [Home](../README.md) <br>
 CMAQ User's Guide (c) 2020<br>
 
 <!-- END COMMENT -->
