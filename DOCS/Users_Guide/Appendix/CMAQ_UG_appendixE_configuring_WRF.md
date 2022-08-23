@@ -8,7 +8,7 @@
 
 ## E.1 WRF version 4.3+
 
-* **[Guide for running WRF for CMAQ applications](http://www2.mmm.ucar.edu/wrf/users/docs/PX-ACM.pdf):**
+* **[WRF configuration guide for CMAQ applications](http://www2.mmm.ucar.edu/wrf/users/docs/PX-ACM.pdf)**
 * UPDATE: Modified the ACM2 PBL height algorithm for stable conditions so that the Richardson number is computed using windspeed
 in layer k rather than wind speed difference between layer k and ksrc.
 * UPDATE: Added new pathway for evaporation from the ground in the vegetated fraction of the grid cell in PX LSM module.
