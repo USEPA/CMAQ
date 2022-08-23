@@ -8,19 +8,19 @@
 
 ## E.1 WRF version 4.3+
 
-* Modified the ACM2 PBL height algorithm for stable conditions so that the Richardson number is computed using windspeed
+* **[Guide for running WRF for CMAQ applications](http://www2.mmm.ucar.edu/wrf/users/docs/PX-ACM.pdf):**
+* UPDATE: Modified the ACM2 PBL height algorithm for stable conditions so that the Richardson number is computed using windspeed
 in layer k rather than wind speed difference between layer k and ksrc.
-* Added new pathway for evaporation from the ground in the vegetated fraction of the grid cell in PX LSM module.
-* Clean old commented out calculations and notes from tracking code pre-Git-Hub. Fixed several instances where code was not aligned consistently. This was done for all US EPA contributed code here including the module_sf_pxsfclay.F that was not modified otherwise.
-* Consolidated WRF PX LSM code with MPAS versions. The PX LSM code in WRFv4.3 is the exact same code as that for MPASv7.2+
+* UPDATE: Added new pathway for evaporation from the ground in the vegetated fraction of the grid cell in PX LSM module.
+* UPDATE: Consolidated WRF PX LSM code with MPAS versions. The PX LSM code in WRFv4.3 is the exact same code as that for MPASv7.2+
 
 
 ## E.2 WRF version 4.0
 
 * WRF4.0 has updates to the ACM2 PBL model to account for the new default hybrid coordinate system. Our internal model runs suggest that the hybrid option (hybrid_opt =2) improves the model in areas where topographical variations are more extreme like the Rocky Mountains. As such, it is suggested, but not a requirement, to use this option in WRF that became the default in WRF4.0.
 
-* Added vegetation and leaf-area index option for Pleim-Xiu land-surface runs. Until this version, the PX LSM uses VEGFRA and LAI computed from the module_sf_pxlsm_data.F PX data table. This uses fractional landuse and these lookup values to compute the LAI and VEGFRA for each grid cell. The new option (pxlsm_modis_veg = 1) is activated using this option in the physics section of the namelist.input file. It uses the time-varying VEGFRA and LAI from the wrflowinp_d01 file instead of the look-up values in the PX data table. This allows use of more accurate high resolution MODIS that is now available in WPS in WRFv4+. Alternatively, users can process their own MODIS data for specific years and put in this same input file.
-* Also, the soil calculation in the PX LSM were modified to use analytical functions from Noilhan and Mahfouf (1996) for field capacity, saturation and wilting point based on fractional soil data. Also, variables for fractional clay, fine and coarse sand were added in PX for output to the CMAQ air quality model. This is an important update because these data are used for dust emissions in the air quality model along with the new soil properties (wilting, saturation and field capacity). SOILTYP was also updated in PX LSM so soil classes are consistent with the standard 16 soil types in the WRF system. Prior, PX only had 12 classes and classes 4-12 were not the same as those classes used by other LSMs.
+* UPDATE: Added vegetation and leaf-area index option for Pleim-Xiu land-surface runs. Until this version, the PX LSM uses VEGFRA and LAI computed from the module_sf_pxlsm_data.F PX data table. This uses fractional landuse and these lookup values to compute the LAI and VEGFRA for each grid cell. The new option (pxlsm_modis_veg = 1) is activated using this option in the physics section of the namelist.input file. It uses the time-varying VEGFRA and LAI from the wrflowinp_d01 file instead of the look-up values in the PX data table. This allows use of more accurate high resolution MODIS that is now available in WPS in WRFv4+. Alternatively, users can process their own MODIS data for specific years and put in this same input file.
+* UPDATE: Also, the soil calculation in the PX LSM were modified to use analytical functions from Noilhan and Mahfouf (1996) for field capacity, saturation and wilting point based on fractional soil data. Also, variables for fractional clay, fine and coarse sand were added in PX for output to the CMAQ air quality model. This is an important update because these data are used for dust emissions in the air quality model along with the new soil properties (wilting, saturation and field capacity). SOILTYP was also updated in PX LSM so soil classes are consistent with the standard 16 soil types in the WRF system. Prior, PX only had 12 classes and classes 4-12 were not the same as those classes used by other LSMs.
 
 
 ## E.3 WRF version 3.7 
