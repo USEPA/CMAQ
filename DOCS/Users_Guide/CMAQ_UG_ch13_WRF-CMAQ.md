@@ -36,21 +36,7 @@ The new WRF-CMAQ model is based on WRFv4.4 and CMAQv5.4. It supports only RRTMG 
 
 The code used to couple the WRFv4.4-CMAQv5.4 models is now released as part of the [CMAQ Github Repository](../../../UTIL/wrfcmaq_twoway_coupler).
 
-Starting from WRF V4.4 and CMAQ v5.3.3, user can construct the coupled model with any version of WRF (v4.4 or later) and any version of CMAQ (v5.3.3 or later) with the following steps:
-
-     -- download the desirable version of WRF
-     -- download the desirable version of CMAQ
-     -- build CMAQ with build_twoway turns on
-     -- move the built CMAQ code, BLD* into WRF direction with the name cmaq
-     -- setenv WRF_CMAQ 1
-     -- setenv IOAPI the_path_IOAPI     (for example: /home/wdx/lib/x86_64/gcc-9.1/ioapi_3.2)
-     -- setenv WRFIO_NCD_LARGE_FILE_SUPPORT 1
-     -- configure
-     -- compile em_real
-
-The "setenv WRF_CMAQ 1" must be there when you compile or recompile code and the "setenv IOAPI the_path_IOAPI" must be there before typing configure.
-
-A complete step by step build process and run instructions are provided in the [WRF-CMAQ Tutorial](Tutorials/CMAQ_UG_tutorial_WRF-CMAQ_build_gcc.md).
+Starting from WRF V4.4 and CMAQ v5.3.3, a user can construct the coupled model with any version of WRF (v4.4 or later) and any version of CMAQ (v5.3.3 or later).  A complete step by step build process and run instructions are provided in the [WRF-CMAQ Tutorial](Tutorials/CMAQ_UG_tutorial_WRF-CMAQ_Benchmark.md).
 
 ## 13.5 Benchmarking WRF-CMAQ
 
