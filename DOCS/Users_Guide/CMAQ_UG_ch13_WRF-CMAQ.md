@@ -34,9 +34,7 @@ Hemispheric WRF-CMAQ model simulation over two decades (1990−2010) shows enhan
 
 The new WRF-CMAQ model is based on WRFv4.4 and CMAQv5.4. It supports only RRTMG radiation scheme for short wave aerosol direct effect. It uses core-shell model to perform aerosol optics calculations rather than volume mixing technique as in the previous version of the WRF-CMAQ model. 
 
-The code used to couple the WRFv4.4-CMAQv5.4 models is now released as part of the [CMAQ Github Repository](../../../UTIL/wrfcmaq_twoway_coupler).
-
-Starting from WRF V4.4 and CMAQ v5.3.3, a user can construct the coupled model with any version of WRF (v4.4 or later) and any version of CMAQ (v5.3.3 or later).  A complete step by step build process and run instructions are provided in the [WRF-CMAQ Tutorial](Tutorials/CMAQ_UG_tutorial_WRF-CMAQ_Benchmark.md).
+Starting from WRFv4.4 and CMAQv5.3.3, a user can construct the coupled model with any version of WRF (v4.4 or later) and any version of CMAQ (v5.3.3 or later).  A complete step by step build process and run instructions are provided in the [WRF-CMAQ Tutorial](Tutorials/CMAQ_UG_tutorial_WRF-CMAQ_Benchmark.md).
 
 ## 13.5 Benchmarking WRF-CMAQ
 
