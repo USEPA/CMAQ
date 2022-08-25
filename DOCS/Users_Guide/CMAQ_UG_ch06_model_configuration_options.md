@@ -22,7 +22,7 @@
 * [6.6 Horizontal Diffusion](#6.6_Horizontal_Diff)
 * [6.7 Vertical Diffusion](#6.7_Vertical_Diff)
 * [6.8 Dry Deposition/Air-surface exchange](#6.8_Dry_Dep/Air)
-	* [6.8.1 Dry Deposition - m3dry](#6.8.1_Dry_Depm3dry)
+	* [6.8.1 Dry Deposition - M3Dry](#6.8.1_Dry_Depm3dry)
 	* [6.8.2 Dry Deposition - STAGE](#6.8.2_Dry_STAGE)
 * [6.9 Emissions](#6.9_Emissions)
 	* [6.9.1 Emission Streams](#6.9.1_Emission_Streams)
