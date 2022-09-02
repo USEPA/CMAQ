@@ -963,6 +963,15 @@ C *** Local Saved Variables
 
       logical, save :: write1 = .true.
 
+#ifdef sens
+      INTERFACE
+         SUBROUTINE AERO_SENS( SCASI, W )
+           CHARACTER( 15 ), INTENT( IN ) :: SCASI    ! (INPUT) subcase number output
+           REAL(KIND=8),    INTENT( IN ) :: W( : )   ! (INPUT) WI concentrations 
+         END SUBROUTINE AERO_SENS
+      END INTERFACE 
+#endif
+
 C-----------------------------------------------------------------------
  
       IF ( FIRSTIME ) THEN
