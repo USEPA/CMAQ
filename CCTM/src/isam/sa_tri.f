@@ -91,9 +91,9 @@ C Decomposition and forward substitution:
       DO K = 2, NLAYS
          GAM( K ) = BET * U( K-1 )
          BET = 1.0 / ( D( K ) - L( K ) * GAM( K ) )
-	 DO V = 1, N_SPCTAG
+         DO V = 1, N_SPCTAG
             X( V, K ) = BET * ( B( V,K ) - L( K ) * X( V,K-1 ) )
-	 END DO
+         END DO
       END DO
 
 C Back-substitution:

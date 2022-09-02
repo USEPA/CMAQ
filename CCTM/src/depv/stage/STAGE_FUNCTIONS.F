@@ -636,7 +636,7 @@ C Calculate Canopy Covered Soil Resistance Nemitz et al 2000 https://doi.org/10.
 !-------------------------------------------------------------------------------------------------
 ! Aerosol surface resistance for vegitative surfaces
 !-------------------------------------------------------------------------------------------------
-         Pure Function RD_Veg_E20(Vghat, ustar, SC,l_width, lai, Dp, wet, Alpha) Result( RD )
+         Pure Function RD_Veg_E20(Vghat, ustar, SC,l_width, lai, Dp, wet, Alpha, EINHAT) Result( RD )
                   
          Implicit None
 
@@ -650,6 +650,7 @@ C Calculate Canopy Covered Soil Resistance Nemitz et al 2000 https://doi.org/10.
          Real, Intent( IN ) :: alpha
          Real, Intent( IN ) :: Dp
          Real, Intent( IN ) :: wet
+         Real, Intent( IN ) :: EINHAT
          Real               :: RD
          Real               :: veg_ustar ! intgrated lai * ustar through the canopy is equal to 3 * ustar at lai = 5.5
          Real               :: ST
@@ -661,9 +662,9 @@ C Calculate Canopy Covered Soil Resistance Nemitz et al 2000 https://doi.org/10.
 ! Integration of lai(z)/hc u*(z) from 0 to hc.   
          veg_ustar = max((4.0 - (2.0 * lai + 4.0) * exp( -lai/2.0 )) * ustar, 1.0e-3) ! Replaces the constant 3 in Zhang et 2001
          ST        = Vghat * ustar / ( GRAV * l_width )
-         R1        = Exp( -SQRT( ST ) ) ! only apply to particles with diameter larger than 5 cm Zhang et al 2001
+         R1        = Exp( -SQRT( ST ) ) ! only apply to particles with diameter larger than 5 um Zhang et al 2001
          EIB       = Calc_EIB_E20( SC )
-         EIN       = EIN_Veg_E20( Dp, l_width )
+         EIN       = EIN_Veg_E20( Dp, l_width ) * EINHAT
          EIM       = EIM_Veg_E20( ST, alpha )
          RD        = 1.0 / (      wet  * ( veg_ustar * ( EIB + EIN + EIM ) ) +      ! Wet surface
      &                     (1.0 - wet) * ( veg_ustar * ( EIB + EIN + EIM ) * R1 ) ) ! Dry surface
@@ -703,7 +704,7 @@ C Calculate Canopy Covered Soil Resistance Nemitz et al 2000 https://doi.org/10.
 !-------------------------------------------------------------------------------------------------
 ! Aerosol Deposition Velocity
 !-------------------------------------------------------------------------------------------------
-         Pure Function aero_depv_E20(veg, lai, Ustar, Ra, wet, l_aero, Alpha, DG, SC, NU, VGHAT)
+         Pure Function aero_depv_E20(veg, lai, Ustar, Ra, wet, l_aero, Alpha, DG, SC, NU, VGHAT, EINHAT)
      &                               Result( depv )
                   
          Implicit None
@@ -719,6 +720,7 @@ C Calculate Canopy Covered Soil Resistance Nemitz et al 2000 https://doi.org/10.
          Real, Intent( IN ) :: SC
          Real, Intent( IN ) :: NU
          Real, Intent( IN ) :: Vghat
+         Real, Intent( IN ) :: EINHAT ! interception modal integration term
          Real               :: depv
          Real               :: RD_VegL   ! Resistance to vegetation leaves
          Real               :: RD_VegG   ! Resistance to vegetation ground
@@ -729,7 +731,7 @@ C Calculate Canopy Covered Soil Resistance Nemitz et al 2000 https://doi.org/10.
          RD_GW = RD_Smooth_E20(VGHAT, Ustar, 0.0, SC, NU, wet )
          If( lai .gt. 0.0 .and. veg .gt. 0.0 ) Then
             Rinc      = Calc_Rinc( Ra, lai )
-            RD_VegL   = RD_Veg_E20( Vghat, Ustar, SC,l_aero, lai, DG, wet, Alpha )
+            RD_VegL   = RD_Veg_E20( Vghat, Ustar, SC,l_aero, lai, DG, wet, Alpha, EINHAT )
             RD_VegG   = RD_Smooth_E20(VGHAT, Ustar, lai, SC, NU, wet )
 ! Resistance to:                  Soil              Canopy
             Rc   = 1.0 /( 1.0/(Rinc + RD_VegG) + 1.0/RD_VegL )  

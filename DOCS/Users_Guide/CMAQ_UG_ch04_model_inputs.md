@@ -66,7 +66,7 @@ FEST-C is used to create the [E2C_LU](#e2c_lu), [E2C_SOIL](#e2c_soil), and [E2C_
 **Processing Spatial Data with the Spatial Allocator (SA)**
 The [Spatial Allocator](https://www.cmascenter.org/sa-tools/) is a set of tools that helps users manipulate and generate data files related to emissions and air quality modeling. The tools perform functions similar to Geographic Information Systems (GIS), but are provided to the modeling community free of charge. In addition, the tools are designed to support some of the unique aspects of the file formats used for CMAQ, SMOKE and WRF modeling.
 
-SA is used to generate the surf zone and open ocean file that is a required input for utilizing marine emissions and chemistry in CMAQ. This file is discussed later in this chapter under the [OCEAN_1: Sea spray mask](#ocean_1) section.
+SA is used to generate the surf zone and open ocean file that is a required input for utilizing marine emissions and chemistry in CMAQ. Some chemical mechanisms require the presence of additional variables in the ocean file which can be added by using a Python based tool. This file is discussed later in this chapter under the [OCEAN_1: Sea spray mask](#ocean_1) section.
 
 Additional information on processing data for CMAQ inputs is provided in [Appendix C](Appendix/CMAQ_UG_appendixC_spatial_data.md).
 
@@ -120,7 +120,7 @@ This section describes each of the input files required by the various CMAQ prog
 |[NLDN_STRIKES](#nldn_strikes) <a id=nldn_strikes_t></a>| GRDDED3 | Hourly | XY |Must purchase data|optional for including NO from lightning|
 |[LTNGPARMS_FILE](#ltngparm_file) <a id=ltngparm_file_t></a>| GRDDED3 | Time-invariant | XY |CMAS|required for including NO from lightning|
 |**Biogenic and Land Surface Inputs**||||||
-|[OCEAN_1](#ocean_1) <a id=ocean_1_t></a>| GRDDED3 | Time-invariant | XY |Spatial Allocator|required|
+|[OCEAN_1](#ocean_1) <a id=ocean_1_t></a>| GRDDED3 | Time-invariant | XY |Spatial Allocator and a Python-based tool|required for running CMAQ with sea-spray aerosol, halogen or DMS chemistry|
 |[GSPRO](#gspro) <a id=gspro_t></a>| ASCII | Time-invariant | N/a | CMAQ repo|required for running CMAQ with online BEIS biogenics|
 |[B3GRD](#b3grd) <a id=b3grd_t></a>| GRDDED3 | Time-invariant | XY | SMOKE|required for running CMAQ with online BEIS biogenics|
 |[BIOSEASON](#bioseason) <a id=bioseason_t></a>|GRDDED3 |Time-invariant | XY | SMOKE|run-time option for running CMAQ with online BEIS biogenics|
@@ -576,9 +576,9 @@ Used by: CCTM
 
 The CMAQ sea spray emissions module requires the input of an ocean mask file (OCEAN). OCEAN is a time-independent I/O API file that identifies the fractional [0-1] coverage in each model grid cell allocated to open ocean (OPEN) or surf zone (SURF). The CCTM uses this coverage information to calculate sea spray emission fluxes from the model grid cells online during a CCTM run.
 
-Additionally, CMAQ's gas-phase chemical mechanisms except cb6r3m_ae7_kmtbr contain an effective first order halogen mediated ozone loss over the ocean (where OPEN + SURF > 0.0). The OCEAN file is also required for this process. The cb6r3m_ae7_kmtbr mechanism contains more explicit marine chemistry, but also requires the OCEAN file.
+Additionally, CMAQ's gas-phase chemical mechanisms except cb6r5m_ae7_aq contain an effective first order halogen mediated ozone loss over the ocean (where OPEN + SURF > 0.0). The OCEAN file is also required for this process. The cb6r5m_ae7_aq mechanism contains bromine, iodine and DMS chemistry and requires the OCEAN file with two additional variables: DMS (monthly mean climatological DMS concentrations in seawater) and CHLO (monthly mean climatological chlorophyll concentration). The cb6r5_ae7_aq mechanism contains DMS chemistry and requires the OCEAN file with DMS (monthly mean climatological DMS concentration in seawater).
 
-See the [CMAQ Ocean File Tutorial](Tutorials/CMAQ_UG_tutorial_oceanfile.md) for step by step instructions on creating this file. 
+See the [CMAQ Ocean File Tutorial](Tutorials/CMAQ_UG_tutorial_oceanfile.md) for step by step instructions on creating this file and for adding DMS and CHLO to the ocean files.
 
 <a id=gspro></a>
 **GSPRO: Speciation profiles**

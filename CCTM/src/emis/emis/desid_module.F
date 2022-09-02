@@ -584,7 +584,6 @@ C Map the user specified ISAM regions to available CMAQ regions
 
 C Retrieve Emissions from All Stream Types
          IF ( DESID_N_SRM .GT. 0 ) THEN
-         VDEMIS_DIFF = 0.0
 
          DO ISRM = 1,DESID_N_SRM
            DO R = 1,NROWS
@@ -856,7 +855,7 @@ C Subset the emissions array for DDM-3D (by species and region)
          ! Write Out the Sum of All Aggregate Diagnostic Emissions to Files
          IF ( L_DESID_DIAG ) CALL DESID_WRITE_DIAG( JDATE, JTIME )
          
-         END IF
+         END IF  ! DESID_N_SRM
 
          RETURN
 
@@ -953,8 +952,6 @@ C------------------------------------------------------------------------------
 !     END DO
 !     END DO
 !     END DO
-
-      VDEMIS = 0.0
 
       DO ISTR = 1, DESID_N_ISTR 
         VNAME = LOCAL_EMVAR( ISTR, FSTREAM )
@@ -1166,9 +1163,8 @@ C-----------------------------------------------------------------------
       ! zero out emissions values for diffused species not included in emissions list.
       ! ...accounts for emissions species names as a subset of the vert. diffused species list
       DO L = 1,NL
-        DO ISTR = 1,DESID_N_ISTR
-          VDEMIS( :,L,:,: ) = 0.0
-        END DO
+        VDEMIS( :,L,:,: ) = 0.0
+
         DO ISTR = 1,DESID_N_ISTR 
           IF ( MAP_ISTRtoDIFF( ISTR ) .NE. 0 ) 
      &        VDEMIS( MAP_ISTRtoDIFF( ISTR ),L,:,: ) = 
