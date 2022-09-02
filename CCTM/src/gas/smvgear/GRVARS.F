@@ -533,17 +533,17 @@ c..cell & solver data
              CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT2 )
           END IF
          
-          ALLOCATE( JARRL( NRXNS,MXRR,NCS2 ),
-     &              JARRP( NRXNS,MXRP,NCS2 ),
-     &              JLIAL( NRXNS,MXRR,NCS2 ),
-     &              JPIAL( NRXNS,MXRP,NCS2 ), STAT = IOS )
+          ALLOCATE( JARRL( MXRR,NRXNS,NCS2 ),
+     &              JARRP( MXRP,NRXNS,NCS2 ),
+     &              JLIAL( MXRR,NRXNS,NCS2 ),
+     &              JPIAL( MXRP,NRXNS,NCS2 ), STAT = IOS )
           IF ( IOS .NE. 0 ) THEN
              MSG = 'ERROR allocating JARRL, JARRP, JLIAL, or JPIAL'
              CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT2 )
           END IF
 
-          ALLOCATE( IRM2( NRXNS,MXRCT+MXPRD,NCS2 ),
-     &              ICOEFF( NRXNS,MXRP,NCS2 ), STAT = IOS )
+          ALLOCATE( IRM2( MXRCT+MXPRD,NRXNS,NCS2 ),
+     &              ICOEFF( MXRP,NRXNS,NCS2 ), STAT = IOS )
           IF ( IOS .NE. 0 ) THEN
                MSG = 'ERROR allocating IRM2 or ICOEFF'
                CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT2 )
@@ -593,7 +593,7 @@ c..cell & solver data
 !            
              ATOL_LEVEL( 1 ) = 10.0D0**ABHI
              ATOL_LEVEL( NBINS + 1 ) = 10.0D0**ABLO
-             ATOL_FLOOR              = ( GEAR_RTOL ** 1.5D0 ) * GEAR_ATOL
+             ATOL_FLOOR              = ( GEAR_RTOL ** 1.0D0 ) * GEAR_ATOL
              DO I = 2, NBINS
                 ATOL_LEVEL(I)  = 10.0D0**(ABLO + (ABHI - ABLO) * REAL( (NBINS-I+1),8 ) / REAL( NBINS,8 ) )
              END DO

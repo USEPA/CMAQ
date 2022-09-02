@@ -169,8 +169,8 @@ c...partial derivative term for reactions with 1 reactant
   
 c...partial derivative terms for reactions with 2 reactants
          ELSEIF( NREACT( NRK ) .EQ. 2 ) THEN
-            JR1 = IRM2( NRK, 1, NCS )
-            JR2 = IRM2( NRK, 2, NCS )
+            JR1 = IRM2( 1, NRK, NCS )
+            JR2 = IRM2( 2, NRK, NCS )
             DO NCELL  = 1, NUMCELLS
                EXPLIC( NCELL, 1 )  = RK( NCELL, NRK ) * CEFF( NCELL, JR2 )
                EXPLIC( NCELL, 2 )  = RK( NCELL, NRK ) * CEFF( NCELL, JR1 )
@@ -178,9 +178,9 @@ c...partial derivative terms for reactions with 2 reactants
  
 c.....partial derivative terms for reactions with 3 reactants
          ELSEIF( NREACT( NRK ).EQ.3 ) THEN
-            JR1 = IRM2( NRK, 1, NCS )
-            JR2 = IRM2( NRK, 2, NCS )
-            JR3 = IRM2( NRK, 3, NCS )
+            JR1 = IRM2( 1, NRK, NCS )
+            JR2 = IRM2( 2, NRK, NCS )
+            JR3 = IRM2( 3, NRK, NCS )
             DO NCELL = 1, NUMCELLS
                CR2 = RK( NCELL, NRK ) * CEFF( NCELL, JR2 )
                EXPLIC( NCELL, 1 ) = CR2 * CEFF( NCELL, JR3 )
@@ -196,8 +196,8 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c...loss terms
          NLD = NDERIVL( NRK, NCSP )         
          DO NL = 1, NLD
-            IARP = JARRL( NRK, NL, NCSP )
-            IALP = JLIAL( NRK, NL, NCSP )
+            IARP = JARRL( NL, NRK, NCSP )
+            IALP = JLIAL( NL, NRK, NCSP )
             DO NCELL = 1, NUMCELLS
                CC2( NCELL, IARP ) = CC2( NCELL, IARP )
      &                           - R1DELT * EXPLIC( NCELL, IALP ) 
@@ -207,15 +207,15 @@ c...loss terms
 c...production terms with stoichiomteric coeff EQ 1.0 and NE 1.0
          NPD = NDERIVP( NRK, NCSP )
          DO NP = 1, NPD
-            IARP = JARRP( NRK, NP, NCSP )
-            IALP = JPIAL( NRK, NP, NCSP )
-            IF( ICOEFF( NRK, NP, NCSP ) .EQ. 0 ) THEN
+            IARP = JARRP( NP, NRK, NCSP )
+            IALP = JPIAL( NP, NRK, NCSP )
+            IF( ICOEFF( NP, NRK, NCSP ) .EQ. 0 ) THEN
                DO NCELL = 1, NUMCELLS
                   CC2( NCELL, IARP ) = CC2( NCELL, IARP ) 
      &                              + R1DELT * EXPLIC( NCELL, IALP ) 
                END DO
             ELSE
-               ISCP = ICOEFF( NRK, NP, NCSP )
+               ISCP = ICOEFF( NP, NRK, NCSP )
                FRACN = REAL( SC( NRK, ISCP ), 8 ) * R1DELT 
                DO NCELL = 1, NUMCELLS
                   CC2( NCELL, IARP ) = CC2( NCELL, IARP ) 
