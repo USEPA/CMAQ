@@ -360,6 +360,10 @@ Information is based on the mech.def file.
 | HG3   | HG + H2O2 ----> HGIIGAS + H2O2  |   8.5000E-19 |   8.5000E-19 |
 | HG4   | HG + OH ---->   0.500\*HGIIAER +    0.500\*HGIIGAS + OH  |   7.7000E-14 |   7.7000E-14 |
 | HG5   | HG + CL + M ---->   0.500\*HG +    0.500\*HGIIGAS + CL  |   2.25E-33e<sup>   680.00/T</sup> |   2.2014E-32 |
+| DMS1   | DMS + OH ----> SO2 + MEO2 + FORM  |   1.12E-11e<sup>  -250.00/T</sup> |   4.8424E-12 |
+| DMS2   | DMS + OH ---->   0.750\*SO2 +    0.250\*MSA + MEO2  | k<sub>o</sub>=  1.99E-39e<sup>  5270.0/T</sup>(T/300)<sup>  0.00</sup><br>k<sub>i</sub> =   1.26E-10e<sup>  -340.0/T</sup>(T/300)<sup>  0.00</sup><br>n=     1.00;F=     1.00 |   2.1985E-12 |
+| DMS3   | DMS + NO3 ----> SO2 + HNO3 + MEO2 + FORM  |   1.90E-13e<sup>   520.00/T</sup> |   1.0869E-12 |
+| DMS4   | DMS + CL ---->   0.860\*SO2 + MEO2 +    0.450\*FORM +    0.450\*HCL +    0.140\*MSA +    0.550\*CLO  |   3.40E-13e<sup>  2081.00/T</sup> |   3.6537E-10 |
 
 <sup>0</sup>Units molecules/(sec*cm<sup>3</sup>); Value at 298.15 K;   2.4615E+19 molcules/cm<sup>3</sup>;   1.00 Atm.     
 <sup>1</sup>Photolysis Reaction;depends on radiation and predicted concentrations     
