@@ -26,6 +26,7 @@
 | CRO               | alkoxy radical from cresol                                                   | 107.1                | L                      |
 | CRON              | nitro-cresols                                                                | 153.1                | L                      |
 | CXO3              | acetylperoxy radicals with 3 or more carbons                                 | 89                   | L                      |
+| DMS               | dimethylsulfide                                                              | 62.0                 | E                      |
 | ECH4              | methane                                                                      | 16                   | E                      |
 | EPOX              | isoprene epoxydiol                                                           | 118.1                | L                      |
 | EPX2              | peroxy radical from EPOX+OH reaction                                         | 149.1                | L                      |
@@ -64,7 +65,8 @@
 | MEOH              | methanol                                                                     | 32                   | E                      |
 | MEPX              | methylhydroperoxide                                                          | 48                   | E                      |
 | MGLY              | methyl glyoxal                                                               | 72                   | E                      |
-| MMTNO3            | organic nitrates from monoterpene oxidation (Should not to be included for tracking nitrogen)                                       | 231.0                   | L                      |
+| MMTNO3            | organic nitrates from monoterpene oxidation (Should not to be included for tracking nitrogen)  | 231.0 | L                   |
+|MSA                | methane sulfonic acid                                                        |   96.0               | E                      |
 | N2O5              | dinitrogen pentoxide                                                         | 108                  | E                      |
 | NAPH              | naphthalene                                                                  | 128.2                | E                      |
 | NO                | nitric oxide                                                                 | 30                   | E                      |
