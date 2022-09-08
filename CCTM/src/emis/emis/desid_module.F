@@ -54,6 +54,8 @@ C                        GRIDEMIS
 C     22 Nov 2019 F. Sidi: Re-introduced date override variable for representative
 C                          Day Emissions
 C     16 Dec 2019 S.L.Napelenok: ddm-3d implementation for version 5.3.1
+C     6 Jul 2021 D.Wong: fixed time marching through a day line during simulation w.r.t.
+C                        representative Day Emissions in subroutine GR3D
 C-----------------------------------------------------------------------
       USE RUNTIME_VARS
       USE GRID_CONF           ! horizontal & vertical domain specifications      
@@ -932,7 +934,7 @@ C------------------------------------------------------------------------------
          NDATE = JDATE; NTIME = JTIME
          CALL NEXTIME( NDATE, NTIME, -TSTEP( 1 ) )       ! go back one output tstep
          CALL NEXTIME( DESID_STREAM_DATE( FSTREAM ), NTIME, TSTEP( 1 ) ) ! advance the start date one time step
-         LOC_STDATE(FSTREAM) = DESID_STREAM_DATE( FSTREAM )
+         LOC_STDATE(FSTREAM) = JDATE
          L_NEWDAY = .TRUE.
       END IF
 
@@ -973,7 +975,7 @@ C------------------------------------------------------------------------------
       ! and the day has advanced
       IF ( L_NEWDAY .AND. L_DESID_DIAG ) THEN
          CALL NEXTIME( DESID_STREAM_DATE( FSTREAM ), NTIME, -TSTEP(1) )
-         LOC_STDATE(FSTREAM) = DESID_STREAM_DATE( FSTREAM )
+         LOC_STDATE(FSTREAM) = NDATE
       END IF
 
       RETURN
