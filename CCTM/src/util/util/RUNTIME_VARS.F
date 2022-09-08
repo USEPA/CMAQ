@@ -221,7 +221,7 @@
       LOGICAL :: BIOGEMIS_BEIS = .FALSE. ! flag to in-line biogenic VOC emissions
       LOGICAL :: BIOGEMIS_MEGAN= .FALSE. ! flag to in-line MEGAN biogenic emissions
       LOGICAL :: USE_MEGAN_LAI = .FALSE. ! flag to use MEGAN LAI values
-      LOGICAL :: MGN_ONLN_DEP  = .TRUE.  ! flag to use ONLINE N deposition in BDSNP
+      LOGICAL :: MGN_ONLN_DEP  = .FALSE. ! flag to use ONLINE N deposition in BDSNP
       LOGICAL :: BDSNP_MEGAN   = .FALSE. ! flag to use BDSNP for soil NO 
       CHARACTER(16) :: SPPRO   = 'DEFAULT' ! requested speciation profile name
       LOGICAL :: BEMIS_DIAG    = .TRUE.  ! true: write diagnostic emiss file
