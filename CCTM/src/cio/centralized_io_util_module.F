@@ -339,8 +339,7 @@
              end if
 
           else
-             write (6, *) ' Abort: Invalid operator'
-             stop
+             call m3exit ( 'cal_date', 0, 0, ' Abort: Invalid operator', 2)
           end if
 
         end function cal_date

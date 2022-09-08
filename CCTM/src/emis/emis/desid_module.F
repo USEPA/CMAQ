@@ -56,8 +56,6 @@ C                          Day Emissions
 C     16 Dec 2019 S.L.Napelenok: ddm-3d implementation for version 5.3.1
 C     6 Jul 2021 D.Wong: fixed time marching through a day line during simulation w.r.t.
 C                        representative Day Emissions in subroutine GR3D
-C     7 Jul 2022 D.Wong: replaced JDATE1 - JDATE2 and JDATE1 + NDAYS with a more robust routine
-C                        cal_date to perform those operations
 C-----------------------------------------------------------------------
       USE RUNTIME_VARS
       USE GRID_CONF           ! horizontal & vertical domain specifications      
@@ -416,13 +414,16 @@ C Local Variables:
          INTEGER         :: ERROR_NEG
          INTEGER, SAVE   :: WSTEP
          LOGICAL, SAVE   :: FIRST_TIME = .TRUE.
+         LOGICAL         :: EFLAG
 
 #ifdef isam
-         INTEGER                    :: IDX, SPC, LAYER, RGN
+         INTEGER                    :: IDX, SPC, LAYER, RGN, IRGN
          CHARACTER(96)              :: TXTSTRING
          REAL                       :: MINCHECK, TOTAL
 #endif
 C-----------------------------------------------------------------------
+
+         EFLAG = .FALSE.
 
          IF ( FIRST_TIME ) THEN
             FIRST_TIME = .FALSE.
@@ -490,7 +491,8 @@ C Find emissions stream in the list of available streams
                    XMSG = " User specified ISAM tag - " //
      &                    TRIM( TAGSTREAMS(ITAG,ISRM) )// 
      &                    " - not found in available emissions streams "
-                   CALL M3EXIT( 'ISAM_STREAMS', 1, 1, XMSG, XSTAT1 )
+                   CALL M3MESG(XMSG)
+                   EFLAG = .TRUE.
                  ELSE
                    TAGS_PER_STREAM( IDX ) = TAGS_PER_STREAM( IDX ) + 1
                    STREAM_TO_TAG(IDX,TAGS_PER_STREAM( IDX )) = ITAG
@@ -498,6 +500,14 @@ C Find emissions stream in the list of available streams
               END DO
 
             END DO
+            IF( EFLAG )THEN
+                WRITE(LOGDEV,'(A)')'Available Emissions Streams'
+                DO ITAG = 1,DESID_N_SRM
+                   WRITE(LOGDEV,'(4X,A)')DESID_STREAM_LAB(ITAG)
+                END DO
+                XMSG = 'INCORRECT Emissions Stream used in ISAM control file'
+                CALL M3EXIT( 'ISAM_STREAMS', 1, 1, XMSG, XSTAT1 )
+            END IF
 
 C Develop a map of emitted/diffused ISAM species
             MAP_DIFFtoSA = 0
@@ -506,7 +516,7 @@ C Develop a map of emitted/diffused ISAM species
             END DO
 
 C Initialize geographic regions for ISAM tagging
-            ALLOCATE( ISAMRGN( NTAG_SA, DESID_N_REN ) )
+            ALLOCATE( ISAMRGN( NTAG_SA, DESID_N_REG ) )
             ISAMRGN = 'EVERYWHERE'
             ALLOCATE( ISAMRGN_MAP( NTAG_SA, DESID_N_REG ) )
             ISAMRGN_MAP = 0
@@ -574,8 +584,13 @@ C Map the user specified ISAM regions to available CMAQ regions
 #endif
          END IF  ! First Time
 
+C Initialize Emissions Array
+         VDEMIS_DIFF = 0.0
+         VDEMIS_CONV = 0.0
+
 #ifdef isam
          SA_VDEMIS_DIFF = 0.0
+         SA_VDEMIS_CONV = 0.0
 #endif
 
 #ifdef sens
@@ -869,7 +884,6 @@ C------------------------------------------------------------------------------
       USE CGRID_SPCS          ! CGRID mechanism species
       USE ASX_DATA_MOD, ONLY: MET_DATA, GRID_DATA
       USE CENTRALIZED_IO_MODULE, ONLY: interpolate_var
-      USE centralized_io_util_module, ONLY: cal_date
 
       !USE EMIS_UTIL
       !USE UTILIO_DEFN
@@ -890,7 +904,7 @@ C------------------------------------------------------------------------------
       REAL, INTENT( OUT )  :: VDEMIS( :,:,:,: )     ! Emission Rate Array
 
       ! Local Variables:
-      INTEGER   C, R, L, N, S, V, ISTR , STAT
+      INTEGER   C, R, L, N, S, V, ISTR 
       INTEGER   S_STRT, S_END, STREAM_LAYS, NDATE, NTIME
 
       REAL, ALLOCATABLE, SAVE :: BUFF( :,:,: )
@@ -898,9 +912,8 @@ C------------------------------------------------------------------------------
       CHARACTER( 16 ) :: PNAME = 'GR3D'
       CHARACTER( 200 ) :: XMSG = ' '
       LOGICAL, SAVE :: FIRSTIME = .TRUE.
-!     INTEGER, ALLOCATABLE, SAVE :: LOC_STDATE(:)
-!     LOGICAL         :: L_NEWDAY
-      INTEGER, ALLOCATABLE, SAVE :: DATE_DIFF(:)
+      INTEGER, ALLOCATABLE, SAVE :: LOC_STDATE(:)
+      LOGICAL         :: L_NEWDAY
 
 !-----------------------------------------------------------------------
 
@@ -910,55 +923,37 @@ C------------------------------------------------------------------------------
 
          ! Allocate Persistent Variables
          ALLOCATE( BUFF( NCOLS,NROWS,MAXVAL( DESID_GRID_LAYS ) ) )
-!        ALLOCATE( LOC_STDATE( SIZE(DESID_STREAM_DATE) ) )
-         ALLOCATE( DATE_DIFF( SIZE(DESID_STREAM_DATE) ), STAT=STAT )
+         ALLOCATE( LOC_STDATE( SIZE(DESID_STREAM_DATE) ) )
 
-!        LOC_STDATE = STDATE
-         DATE_DIFF = -9999999
+         LOC_STDATE = STDATE
       END IF    !FirstTime
-
-      IF (DATE_DIFF(FSTREAM) == -9999999) THEN
-!        DATE_DIFF(FSTREAM) = DESID_STREAM_DATE(FSTREAM) - JDATE
-         DATE_DIFF(FSTREAM) = cal_date (DESID_STREAM_DATE(FSTREAM), JDATE, '-')
-      END IF
-
-! Ensure that the model and emissions timestamp dates stay synchronized
-      IF ( DESID_STREAM_SYM_DATE( FSTREAM ) ) THEN
-!        NDATE = DATE_DIFF(FSTREAM) + JDATE
-         NDATE = cal_date (JDATE, DATE_DIFF(FSTREAM), '+')
-         WRITE(LOGDEV,*) NDATE
-      ELSE
-         NDATE = JDATE
-      END IF
  
       ! Ensure that the model and emissions timestamp dates stay synchronized
-!     L_NEWDAY = .FALSE.
-!     IF (LOC_STDATE(FSTREAM) .NE. JDATE ) THEN 
-!        NDATE = JDATE; NTIME = JTIME
-!        CALL NEXTIME( NDATE, NTIME, -TSTEP( 1 ) )       ! go back one output tstep
-!        CALL NEXTIME( DESID_STREAM_DATE( FSTREAM ), NTIME, TSTEP( 1 ) ) ! advance the start date one time step
-!        LOC_STDATE(FSTREAM) = DESID_STREAM_DATE( FSTREAM )
-!        L_NEWDAY = .TRUE.
-!     END IF
+      L_NEWDAY = .FALSE.
+      IF (LOC_STDATE(FSTREAM) .NE. JDATE ) THEN 
+         NDATE = JDATE; NTIME = JTIME
+         CALL NEXTIME( NDATE, NTIME, -TSTEP( 1 ) )       ! go back one output tstep
+         CALL NEXTIME( DESID_STREAM_DATE( FSTREAM ), NTIME, TSTEP( 1 ) ) ! advance the start date one time step
+         LOC_STDATE(FSTREAM) = JDATE
+         L_NEWDAY = .TRUE.
+      END IF
 
       ! Read & Interpolate Emissions 
-! since VDEMIS is set to 0.0 later, this block is uncessary
-!     DO R = 1,NROWS
-!     DO C = 1,NCOLS
-!     DO L = 1,DESID_LAYS
-!     DO ISTR = 1,DESID_N_ISTR
-!       VDEMIS(ISTR,L,C,R) = 0.0
-!     END DO
-!     END DO
-!     END DO
-!     END DO
+      DO R = 1,NROWS
+      DO C = 1,NCOLS
+      DO L = 1,DESID_LAYS
+      DO ISTR = 1,DESID_N_ISTR
+        VDEMIS(ISTR,L,C,R) = 0.0
+      END DO
+      END DO
+      END DO
+      END DO
 
       DO ISTR = 1, DESID_N_ISTR 
         VNAME = LOCAL_EMVAR( ISTR, FSTREAM )
         IF ( VNAME .EQ. '' ) CYCLE
 
-!       CALL INTERPOLATE_VAR (VNAME, DESID_STREAM_DATE( FSTREAM ), JTIME, BUFF, DESID_FNAME)
-        CALL INTERPOLATE_VAR (VNAME, NDATE, JTIME, BUFF, DESID_FNAME, 1)
+        CALL INTERPOLATE_VAR (VNAME, DESID_STREAM_DATE( FSTREAM ), JTIME, BUFF, DESID_FNAME)
 
         ! Store all emissions in mol/sec or g/sec and convert to ppmv/s later
         IF ( DESID_LAYS .GE. STREAM_LAYS ) THEN 
@@ -978,10 +973,10 @@ C------------------------------------------------------------------------------
 
       ! Reset the date of the gridded file if this is diagnostic mode
       ! and the day has advanced
-!     IF ( L_NEWDAY .AND. L_DESID_DIAG ) THEN
-!        CALL NEXTIME( DESID_STREAM_DATE( FSTREAM ), NTIME, -TSTEP(1) )
-!        LOC_STDATE(FSTREAM) = DESID_STREAM_DATE( FSTREAM )
-!     END IF
+      IF ( L_NEWDAY .AND. L_DESID_DIAG ) THEN
+         CALL NEXTIME( DESID_STREAM_DATE( FSTREAM ), NTIME, -TSTEP(1) )
+         LOC_STDATE(FSTREAM) = NDATE
+      END IF
 
       RETURN
 
