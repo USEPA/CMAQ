@@ -127,8 +127,7 @@ This section describes each of the input files required by the various CMAQ prog
 |**Biogenic and Land Surface Inputs**||||||
 |[OCEAN_1](#ocean_1) <a id=ocean_1_t></a>| GRDDED3 | Time-invariant | XY |Spatial Allocator and a Python-based tool|required for running CMAQ with sea-spray aerosol, halogen or DMS chemistry|
 |[GSPRO](#gspro) <a id=gspro_t></a>| ASCII | Time-invariant | N/a | CMAQ repo|required for running CMAQ with online BEIS biogenics|
-|[B3GRD](#b3grd) <a id=b3grd_t></a>| GRDDED3 | Time-invariant | XY | SMOKE|required for running CMAQ with online BEIS biogenics|
-|[BIOSEASON](#bioseason) <a id=bioseason_t></a>|GRDDED3 |Time-invariant | XY | SMOKE|run-time option for running CMAQ with online BEIS biogenics|
+|[BEIS_NORM_EMIS](#beis_norm_emis) <a id=b3grd_t></a>| GRDDED3 | Time-invariant | XY | SMOKE|required for running CMAQ with online BEIS biogenics|
 |[MEGAN_CTS](#megan_cts) <a id=megan_cts_t></a>| GRDDED3 | Time-invariant | XYZ | MEGAN preprocessor|required for running CMAQ with online MEGAN biogenics|
 |[MEGAN_LDF](#megan_ldf) <a id=megan_ldf_t></a>| GRDDED3 | Time-invariant | XY | MEGAN preprocessor|required for running CMAQ with online MEGAN biogenics|
 |[MEGAN_EFS](#megan_efs) <a id=megan_efs_t></a>| GRDDED3 | Time-invariant | XY | MEGAN preprocessor|required for running CMAQ with online MEGAN biogenics|
@@ -140,7 +139,9 @@ This section describes each of the input files required by the various CMAQ prog
 |[BDSNP_NFILE](#megan_ndf) <a id=megan_ndf_t></a>| GRDDED3 | Time-invariant | XY | MEGAN preprocessor|required for BDSNP soil NO model |
 |[E2C_LU](#e2c_lu) <a id=e2c_lu_t></a>| GRDDED3 | Time-invariant |XY|EPIC|required for running CMAQ with bidirectional NH3|
 |[E2C_SOIL](#e2c_soil) <a id=e2c_soil_t></a>| GRDDED3 | Time-invariant | XY|EPIC|required for running CMAQ with bidirectional NH3|
-|[E2C_CHEM](#e2c_chem) <a id=e2c_chem_t></a>| GRDDED3 | Daily |XY|EPIC|optional|
+|[E2C_CHEM](#e2c_chem) <a id=e2c_chem_t></a>| GRDDED3 | Daily |XY|EPIC|required for running CMAQ with bidirectional NH3|
+|**STAGE Deposition Option**||||||
+|[STAGECTRL_NML](#stagectrl_nml) <a id=desidctrl_t></a>|ASCII|n/a|n/a|CMAQ repo|required|
 |**Photolysis** | | | |||
 |[OMI](#omi) <a id=omi_t></a>| ASCII | Daily | n/a |CMAQ repo or create_omi|required|
 
@@ -645,26 +646,15 @@ Used by: CCTM  online BEIS biogenics emissions version only
 
 The speciation profile file, GSPRO, contains the factors that are used to separate aggregated inventory pollutant emissions totals into emissions of model species in the form required by CMAQ. If only biogenic emissions are being calculated online in CMAQ, the GSPRO file used by CCTM needs to contain split factors only for the biogenic VOC emissions that are input in the B3GRD file. If other emissions sources are being calculated by CCTM, VOC split factors for these other sources must be included in the GSPRO file. The GSPRO file format is listed in the SMOKE user’s manual, see: [GSPRO documentation](https://www.cmascenter.org/smoke/documentation/4.0/html/ch08s05s02.html).
 
-<a id=b3grd></a>
-**B3GRD: Gridded, normalized biogenic emissions**
+<a id=beis_norm_emis></a>
+**BEIS_NORM_EMIS: Gridded, normalized biogenic emissions**
 <!-- BEGIN COMMENT -->
-[Return to Table 4-1](#b3grd_t)
+[Return to Table 4-1](#beis_norm_emis)
 <!-- END COMMENT -->
 
 Used by: CCTM  online BEIS biogenics emissions version only
 
-An I/O API GRDDED3 file of gridded, normalized biogenic emissions (in grams of carbon or nitrogen per hour, depending on the species) and leaf area index. The B3GRD file contains normalized emissions calculated with both summer and winter emissions factors. The B3GRD file is generated with the SMOKE program NORMBEIS3 using gridded land use data. For additional information about creating the B3GRD file, see the [NORMBEIS3 documentation](https://www.cmascenter.org/smoke/documentation/4.0/html/ch06s12.html) in the SMOKE users’ manual.
-
-<a id=bioseason></a>
-**BIOSEASON: Freeze dates**
-<!-- BEGIN COMMENT -->
-[Return to Table 4-1](#bioseason_t)
-<!-- END COMMENT -->
-
-Used by: CCTM  online BEIS biogenics emissions version only
-
-The BIOSEASON switch file is an I/O API GRDDED3 file used to indicate which biogenic emissions factor to use on each day in a given year for every grid cell in the modeling domain. This file can be created using the Metscan utility program that is distributed with SMOKE. The BIOSEASON file is time-dependent and usually contains data for an entire year (365 or 366 days). It uses one variable, SEASON, which is either 0 (grid cell should use winter factors for current day) or 1 (grid cell should use summer factors for current day). For additional information about creating the BIOSEASON file, see the [Metscan documentation](https://www.cmascenter.org/smoke/documentation/4.0/html/ch05s03s10.html) in the SMOKE user’s manual.
-
+An I/O API GRDDED3 file of gridded, normalized biogenic emissions (in grams of carbon or nitrogen per hour, depending on the species) and leaf area index. The BEIS_NORM_EMIS file contains normalized emissions calculated with both summer and winter emissions factors. The B3GRD file is generated with the SMOKE program NORMBEIS4 using gridded land use data. For additional information about creating the BEIS_NORM_EMIS file, see the [NORMBEIS4 documentation](https://www.cmascenter.org/smoke/documentation/4.9/html/ch07s11.html) in the SMOKE users’ manual.
 
 <a id=megan_cts></a>
 **MEGAN_CTS: canopy types**
@@ -790,6 +780,55 @@ This 3-D file is created by the EPIC to CMAQ tool via the FEST-C interface.  It 
 Used by: CCTM  bidirectional NH<sub>3</sub> flux version only
 
 This is a 3-D daily file created by the EPIC to CMAQ tool via the FEST-C interface.  The tool extracts EPIC simulated soil chemistry information including fertilization for the Layer 1 and Layer 2 soil profiles along with plant growth information in each grid cell with agricultural land.  The FEST-C interface facilitates EPIC simulations for any CMAQ modeling domain over the conterminous U.S. area.  Additional information on the EPIC simulation and the FEST-C interface are available at https://www.cmascenter.org/fest-c/. 
+
+## STAGE Deposition Option
+
+<a id=stagectrl_nml></a>
+
+**STAGECTRL_NML: STAGE Control Namelist**
+
+<!-- BEGIN COMMENT -->
+[Return to Table 4-1](#stagectrl_nml)
+<!-- END COMMENT -->
+
+**Table 4-6** Variables in the STAGE_DATA section of STAGECTRL_NML.
+
+|**Variable Name**|**Description**|**Units**|
+|--------|---------------|--------------|
+|Species Name | Deposited species name from the GR, NR, or TR namelists|unitless|
+|rel_rx| Relative reactivity for resistance estimates for cuticular and soil surfaces | unitless |
+|f0| Wesely (1989) mesophyll resistance parameter | unitless |
+|Molar Vol| The LeBas molar volume of the trace gas |L mol<sup>-1</sup>|
+|Mass accommodation coef| The probability that a trace gas molecule is incorporated into a wet surface |unitless|
+
+The STAGE_DATA section allows for the user to add species that exist in GC,TR, or NR namelists to dry deposition estiamtes without the need to recompile CMAQ. 
+
+**Table 4-7** Variables in the STAGE_LU section of STAGECTRL_NML.
+|**Variable Name**|**Description**|**Units**|
+|--------|---------------|--------------|
+| Land Use Name | Name of the sub-grid land use | unitless |
+| Land Use Tag | Name of the land use tag for aggrigating data<sub>1</sub> | unitless |
+| RSMIN | Minimum stomatal resistance of the land use<sub>2</sub> | s m<sup>-1</sup> |
+| Z0 | Momentum roughness lenght of the land use | m |
+| Max VEG | Maximum vegetation coverage of the land use taken from the MODIS MCD12Q1 documentation | % |
+| Min VEG | Minimum vegetation coverage of the land use taken from the MODIS MCD12Q1 documentation | % |
+| Max VEG | Maximum single sided leaf area index of the vegetated fraction of the land use | ratio |
+| Min VEG | Minimum single sided leaf area index of the vegetated fraction of the land use | ratio |
+| Ground NH3 Gam | NH3 emissions potential of the non-vegetated surface, e.g. leaf litter, soil, etc.<sub>3</sub> | mol NH3 (mol H)<sup>-1</sup> |
+| Veg NH3 Gam | NH3 emissions potential of the leaf mesophyll<sub>3</sub> | mol NH3 (mol H)<sup>-1</sup> |
+| Soil Hg | Soil Hg content of the land use<sub>4</sub> | micro mol Hg (g soil)<sup>-1<\sup> |
+| Leaf Width | Aerodynamic leaf width | m |
+| Alpha | Zhang et al. 2001 land use parameter for aerosol dry deposition | unitless |
+| BAI | Building area index | ratio |
+| Ahair | Leaf hair width | m |
+| Fhair | Ratio of leaf covered in hair | ratio |
+| Aleaf | Pleim et al. 2022 aerodynamic leaf width | m |
+| LU Index | STAGE land use index for mapping | unitless |
+
+<sub>1</sub> Available land use tags are WATER, AG, AGMOS, HAY, URBAN, DECFORB, DECFORN, EVEFORB, EVEFORN, MIXFOR, HERB, SHRUB, GRASS, and WETLAND
+<sub>2</sub> This is used relatively preserving the area averaged stomatal resistance from the meteorological model
+<sub>3</sub> Used in NH3 the bidirectional exchange option.
+<sub>4</sub> Used in Hg the bidirectional exchange option.
 
 
 ## 4.10 Photolysis Inputs
