@@ -145,7 +145,7 @@ For each sensitivity:
 3. (mandatory) For EMIS, the next line specifies the emissions streams to be used for this parameter. The comma-delimited list must have two leading spaces. The stream names must be defined in the run script. Alternatively, the key word 'TOTA' will use all model emissions for this parameter. 
 4. (mandatory)
       * For EMIS, INIT, or BOUN sensitivity: The term ' SPECIES' (all-cap, one leading space) must appear next.
-      * For RATE sensitivity: The term ' REACTION' (all-cap, one leading space must appear next.
+      * For RATE sensitivity: The term ' REACTION' (all-cap, one leading space) must appear next.
       * For HIGH sensitivity: The next 2 lines must each be one leading space followed by the name of the sensitivity to which we're taking higher order sensitivity. That name must have already been defined as the name of a sensitivity parameter. No further information should be defined for a higher-order sensitivity parameter.
 5. (mandatory)
       * For EMIS, INIT, or BOUN sensitivity: Specify one or more species.  The comma-delimited species list must have two leading spaces and then exactly match a species from model species list. The keyword 'ALL' here allows for all model species instead.
