@@ -121,7 +121,16 @@ Several sensitivities can be calculated in one simulation. In the example below,
 
     END
     
-CMAQ-DDM-3D is flexible in the number of files that the code can handle and also allows for inline emissions streams as well.
+CMAQ-DDM-3D is flexible in the number of files that the code can handle and also allows for inline emissions streams as well.  Depending on the application and model settings, the following inline streams may be available for sensitivity calculation:
+
+|Stream Keyword | Description|
+|:-------------:|-----|
+|BIOG|BEIS biogenic emissions|
+|MIOG|MEGAN biogenic emissions|
+|MGEM|Marine Gas Emissions|
+|LTNG|Lightning NO Emissions|
+|ASEA|Sea Spray Aerosol Emissions|
+|DUST|Wind-Blown Dust Emissions|
 
 ## 10.3.2.1 DDM-3D Control File Format
 
