@@ -142,14 +142,15 @@ For each sensitivity:
       * BOUN: Boundary Conditions
       * RATE: Reaction rate
       * HIGH: Higher-order sensitivity.
-3. (mandatory)
+3. (mandatory) For EMIS, the next line specifies the emissions streams to be used for this parameter. The comma-delimited list must have two leading spaces. The stream names must be defined in the run script. Alternatively, the key word 'TOTA' will use all model emissions for this parameter. 
+4. (mandatory)
       * For EMIS, INIT, or BOUN sensitivity: The term ' SPECIES' (all-cap, one leading space) must appear next.
       * For RATE sensitivity: The term ' REACTION' (all-cap, one leading space must appear next.
       * For HIGH sensitivity: The next 2 lines must each be one leading space followed by the name of the sensitivity to which we're taking higher order sensitivity. That name must have already been defined as the name of a sensitivity parameter. No further information should be defined for a higher-order sensitivity parameter.
-4. (mandatory)
+5. (mandatory)
       * For EMIS, INIT, or BOUN sensitivity: Specify one or more species.  The comma-delimited species list must have two leading spaces and then exactly match a species from model species list. The keyword 'ALL' here allows for all model species instead.
       * For RATE sensitivity: Specify one or more reactions.  Names must have two leading spaces and then exactly match the _label_ from mech.def (also in RXDT.EXT).
-9. (optional) 
+6. (optional) 
      * The term ' REGION' (all-cap, one leading space). If this term is used, the next line must be a comma-delimited list of region variables.
      
  * NOTE1: This list must be consistent with the max # of sens parameters (NPMAX) set in the runscript.
