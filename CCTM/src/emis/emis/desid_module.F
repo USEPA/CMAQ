@@ -859,7 +859,7 @@ C Subset the emissions array for DDM-3D (by species and region)
                SVDEMIS_DIFF( S,L,:,:,NP ) = 
      &                        SVDEMIS_DIFF( S,L,:,:,NP )
      &                      * IREGION( :,:,L,NP )
-     &                      * IPARM( NP, DIFF_MAP( S ) )
+     &                      * REAL( IPARM( NP, DIFF_MAP( S ) ), 4 )
              END DO
            END DO
          END DO
