@@ -154,7 +154,7 @@ For each sensitivity:
      * The term ' REGION' (all-cap, one leading space). If this term is used, the next line must be a comma-delimited list of region variables.
      
  * NOTE1: This list must be consistent with the max # of sens parameters (NPMAX) set in the runscript.
- * NOTE2: For better understanding of how this file is read, or to modify/add features, look at sinput.F in the CMAQ-DDM code.
+ * NOTE2: For better understanding of how this file is read, or to modify/add features, look at sinput.F in the code.
 
 
 ## 10.4 DDM-3D Input/Output Files
