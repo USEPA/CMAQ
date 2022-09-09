@@ -35,7 +35,7 @@ I/O APIv3.2  supports up to MXFILE3=64 open files, each with up to MXVARS3=2048.
 
 # 10.3 CMAQ-DDM-3D Run Instructions
 
-The included model run scripts each have a section that enables CMAQ-DDM-3D options. The DDM-3D configuration options shown in the table below. Additinally, a seperate DDM-3D control input file is also required. Details on this file are included below.
+The included model run scripts each have a section that enables CMAQ-DDM-3D options. The DDM-3D configuration options shown in the table below. Additinally, a separate DDM-3D control input file is also required. Details on this file are included below.
 
 The CMAQ-DDM-3D benchmark simulation uses the same input data as the base model.  
 
@@ -43,15 +43,14 @@ The CMAQ-DDM-3D benchmark simulation uses the same input data as the base model.
 
 |Option | Settings | Description|
 |:-------------:|:-------------:|-----|
-|CTM_DDM3D|Y/N|Activate the DDM-3D calculations; requires that the CCTM was compiled for DDM simulations
-|CTM_NPMAX|#|Number of sensitivity parameters|
-|DDM3D_HIGH|Y/N|Allow higher order sensitivity parameters|
-|DDM3D_RGN|Y/N|Use an input file to specify DDM source regions|
-|DDM3D_BCRGN|Y/N|Use an input file to specify DDM boundary regions
-|DDM3D_ES|Y/N|Split the emissions into different categories|
+|CTM_DDM3D|Y/N|Sets up requisite script settings for DDM-3D; requires that the CCTM was compiled for DDM simulations|
+|CTM_NPMAX|#|Number of sensitivity parameters defined in SEN_INPUT|
+|SEN_INPUT||Path and name of the sensitivity control file|
+|DDM3D_HIGH|Y/N|Allow higher order sensitivity parameters in SEN_INPUT|
 |DDM3D_RST|Y/N|Begin sensitivities from a restart file|
-|DDM3D_BCS|Y/N|Use a sensitivity BC file for nested simulations|
-|SEN_INPUT||Name of the sensitivity control file|
+|S_ICpath||Path of the restart file; Analogous to ICpath
+|S_ICfile||Name of the restart file; Analogous to ICfile
+
 
 # 10.3.2 CMAQ-DDM-3D Control File (SEN_INPUT)
 
@@ -85,7 +84,7 @@ These environment variables, with the full path to the files, must be defined in
 The variables 'GRIDDEDEMIS' and 'PT_EGU' are comma-delimited in the control file and are both defined in the runscript. The list of species is also comma-delimited in the control file.
 
 Example 3
-Calculate the sensitivity to inline biogenic emissions of isprene:
+It is also possible to calculate sensitivity to inline emissions streams. The following example calculates sensitivity to inline BEIS emissions of isprene:
 
     EBI     
      EMIS
@@ -152,7 +151,7 @@ For each sensitivity:
 
 With the exception of the control file, CMAQ-DDM-3D requires the same input files as a normal CMAQ run.  Additional input files may be required depending on the choice of calculated sensitivity parameters.  The following table includes a list of all possible files specific to sensitivity calculations.
 
-Files Specific to DDM-3D Simulations
+Output Files Specific to DDM-3D Simulations
 
 |File|Type|Contains|Base model analog|
 |----|----|--------|-----------------|
@@ -160,7 +159,6 @@ Files Specific to DDM-3D Simulations
 | SENGRID| Output| Last hour's sensitivity fields to be used as initial conditions for the following time period| CGRID|
 | SENWDEP| Output| Sensitivities of wet deposited species| WETDEP1|
 | SENDDEP| Output| Sensitivities of dry deposited species| DRYDEP|
-| REGIONS| Input| Regional definitions| N/A|
 
 
 # 10.5 Summary
