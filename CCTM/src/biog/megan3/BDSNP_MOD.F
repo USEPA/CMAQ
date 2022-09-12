@@ -24,7 +24,7 @@ C Adopted from MEGAN3.1 and modified for CMAQ 5.4 by Jeff Willison
       USE centralized_io_util_module
       USE HGRD_DEFN
       USE ASX_DATA_MOD, ONLY: MET_DATA,GRID_DATA
-      USE RUNTIME_VARS, ONLY: NEW_START, PX_LSM, MGN_ONLN_DEP
+      USE RUNTIME_VARS, ONLY: NEW_START, PX_LSM, MGN_ONLN_DEP, IGNORE_SOILINP
       
       IMPLICIT NONE
       
@@ -245,7 +245,7 @@ C to determine DRYPERIOD, pulse state, prev. timestep soil moisture, and N reser
 
         
 C If initial run, initialize some variables, otherwise get them from file
-         IF ( NEW_START ) THEN
+         IF ( NEW_START .or. IGNORE_SOILINP) THEN
 
             PFACTOR   = 1d0   ! array
             DRYPERIOD = 0.01  ! array initialized non-zero to avoid log(0)
@@ -261,9 +261,12 @@ C If initial run, initialize some variables, otherwise get them from file
             NDEPRES   = 0d0   ! array
 
 C open nitrogen deposition file
-           if (MGN_ONLN_DEP) THEN
+
+           if (.not. MGN_ONLN_DEP) THEN 
              ndeprate = bdsnp_ndep(:,:,month)  ! optional for using offline NDEP
                                                !         instead of online NDEP
+            ! When using online deposition there is no attempt to shorten the
+            ! spin up time so we do not initialize this.
            end if
                                         
             !attempt to use steady state condition to reduce spin up time by setting dN/dt = 0
@@ -282,7 +285,14 @@ C           check for negatives
               END DO
            END DO
 
-        ELSE ! SOILINSTATE file available
+        ELSE ! SOILINSTATE file available for NDEPRES
+            BASESUM = 0.0
+            CRFAVG = 0.0
+            PULSEAVG = 0.0
+           if (.not. MGN_ONLN_DEP) THEN 
+             ndeprate = bdsnp_ndep(:,:,month)  ! For using offline NDEP
+                                               ! instead of online NDEP
+           end if
 
         END IF  ! initial run check
 
@@ -401,6 +411,7 @@ C            ENDDO
      &             * ( 1.d0 - CRF_TERM  )
      &             *  3600.0 * 10.0**-9 ![ng N/m2/s] *  s/hr * g/ng
 
+
 C--------- MORE DIAGNOSTICS  ---------------------------------
            A_DIAG( C,R ) = A_BIOME(K)
            AFERT_DIAG( C,R ) = A_FERT
@@ -470,8 +481,12 @@ C Create soil NO state save file at the end of the run for restart purposes
 C Final timestamp
       NDATE = EDATE; NTIME = ETIME
 
-!       NDATE = JDATE
-!       NTIME = JTIME
+!       Avoid divide by zero over water where BASESUM = 0
+             WHERE ( BASESUM .eq. 0) BASESUM = 1.0  
+             CRFAVG   = CRFAVG/BASESUM
+             PULSEAVG = PULSEAVG/BASESUM
+             WHERE ( CRFAVG   .gt. 100 ) CRFAVG   = 0.0  
+             WHERE ( PULSEAVG .gt. 100 ) PULSEAVG = 0.0  
 
 #ifdef mpas
              call julian_to_mpas_date_time (jdate, jtime, time_stamp)
@@ -660,14 +675,14 @@ C Open NO rain data save file
       ENDIF
 
       IF ( .NOT.WRITE3(SOILOUT,'CRFAVG',NDATE,NTIME,
-     &                                  CRFAVG/BASESUM)) THEN !diagnostic theta
+     &                                  CRFAVG)) THEN !diagnostic theta
         CALL NAMEVAL (SOILOUT, MESG)  ! get input file name and path
         MESG = 'Error writing CRFAVG to file: '//TRIM(MESG)
         CALL M3EXIT(PNAME,JDATE,JTIME,MESG,XSTAT2)
       ENDIF
 
       IF ( .NOT.WRITE3(SOILOUT,'PULSEAVG',NDATE,NTIME,
-     &                                  PULSEAVG/BASESUM)) THEN !diagnostic theta
+     &                                  PULSEAVG)) THEN !diagnostic theta
         CALL NAMEVAL (SOILOUT, MESG)  ! get input file name and path
         MESG = 'Error writing PULSEAVG to file: '//TRIM(MESG)
         CALL M3EXIT(PNAME,JDATE,JTIME,MESG,XSTAT2)

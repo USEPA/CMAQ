@@ -408,7 +408,11 @@ C *** Calculate PHG_RATE stored in module
 
 C *** Extract soa concentrations from CGRID and 
 C     convert M2 to wet
+#ifdef sens
+               CALL EXTRACT_SOA( CGRID( C,R,L,: ), SENGRID( C,R,L,:,: ), .TRUE. )
+#else
                CALL EXTRACT_SOA( CGRID( C,R,L,: ) )
+#endif
 
 C *** Aerosol process routines
                CALL AEROPROC( DT, C, R, L )
@@ -429,7 +433,11 @@ C *** Update precursor variables conc back into CGRID
 #endif
 
 C *** Update gas soa concentrations back to CGRID
+#ifdef sens
+               CALL UPDATE_ORGVAPOR( CGRID( C,R,L,: ), SENGRID( C,R,L,:,: ) )
+#else
                CALL UPDATE_ORGVAPOR( CGRID( C,R,L,: ) )
+#endif
 
 C *** OUTPUT DIAGNOSTIC INFORMATION
 C *** Get wet moment info (dry will be converted to wet)

@@ -513,7 +513,11 @@ C     Also converts dry surface area to wet second moment
 
 C *** extract soa concentrations from CGRID
          AIRDENS  = DENS ( COL,ROW,L )
+#ifdef sens
+         CALL EXTRACT_SOA ( CGRID( COL,ROW,L,: ), CGRID( COL,ROW,:,: ), .FALSE. )
+#else
          CALL EXTRACT_SOA ( CGRID( COL,ROW,L,: ) )
+#endif
 
 C *** Calculate geometric mean diameters and standard deviations of "wet" size distribution
          CALL GETPAR ( .FALSE. )
@@ -1059,7 +1063,11 @@ C     Also converts surface area to wet second moment
 #endif
 
 C *** extract soa concentrations from CGRID
+#ifdef sens
+         CALL EXTRACT_SOA ( CGRID( COL,ROW,L,: ), CGRID( COL,ROW,:,: ), .FALSE. )
+#else
          CALL EXTRACT_SOA ( CGRID( COL,ROW,L,: ) )
+#endif
 
 C *** Calculate geometric mean diameters and standard deviations of "wet" size distribution
          CALL GETPAR ( .FALSE. )

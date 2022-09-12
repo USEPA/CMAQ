@@ -72,13 +72,17 @@ C 17 Jan 20 B.Hutzell -Added algorithm to handle tracer species and
 C                     -added benzo[a]pyrene to oa_list. Its cstar is based
 C                      on the subcooled vapor pressure in Lei et. al (2002)
 C-----------------------------------------------------------------------
+#ifdef sens
+      USE DDM3D_DEFN, ONLY : NP, NPMAX
+      Use aero_ddm3d, ONLY : init_aero_ddm3d, ae_ddm3d_ready, og_sens, rog_dsens
+#endif 
       Implicit None
 
       ! Define Logical values as T and F for the OA table
       Logical, Parameter, Private :: T = .true.
       Logical, Parameter, Private :: F = .false.
 
-      Integer, Parameter :: n_oa_list = 79   ! # of potential partitioning SVOCs
+      Integer, Parameter :: n_oa_list = 81   ! # of potential partitioning SVOCs
       Integer, Save      :: n_oa             ! Total # of simulated SOA vapors
       Integer, Save      :: n_oa_NotTracers  ! # of simulated SOA vapors that are not tracers
       Integer, Save      :: n_oa_tracers      ! # of simulated SOA vapors that are tracers
@@ -135,6 +139,8 @@ C-----------------------------------------------------------------------
      & oa_type('ADIM   ', '        ', '        ',     0.0,   1.E-10,   1.0E0, .723,2.07, F,  F,  T,  T ),
      & oa_type('AIMGA  ', '        ', '        ',     0.0,   1.E-10,   1.0E0,1.067,2.50, F,  F,  T,  T ),
      & oa_type('AIMOS  ', '        ', '        ',     0.0,   1.E-10,   1.0E0,2.403,4.17, F,  F,  T,  T ),
+     & oa_type('AISO3NOS','        ','         ',     0.0,   1.e-10,   1.0E0,  0.8,2.27, F,  F,  T,  T ),
+     & oa_type('AISO3OS ','        ','         ',     0.0,   1.e-10,   1.0E0,  1.4,3.60, F,  F,  T,  T ),
      & oa_type('AISO1  ', 'SVISO1  ', 'ISOPRXN ',  0.2320, 116.0100,  40.0E3, .827,2.20, F,  F,  T,  F ),
      & oa_type('AISO2  ', 'SVISO2  ', 'ISOPRXN ',  0.0288,   0.6170,  40.0E3, .851,2.23, F,  F,  T,  F ),
      & oa_type('AISO3  ', '        ', '        ',     0.0,   1.e-10,   1.0E0,1.307,2.80, F,  F,  T,  T ),
@@ -239,7 +245,11 @@ C-----------------------------------------------------------------------
       Contains
 
 C-----------------------------------------------------------------------
+#ifdef sens
+      Subroutine extract_soa( conc, s_conc, schk )
+#else
       Subroutine extract_soa( conc )
+#endif
 
 C  Extracts the required soa data from CGRID into the conc array.
 
@@ -271,6 +281,11 @@ C-----------------------------------------------------------------------
 
       ! Arguments:
       Real, Intent( In ) :: conc( : )
+#ifdef sens
+      Real, Intent( In ) :: s_conc( :,: )
+      Logical, Intent( In ) :: schk  ! necessary because some routines don't require sensitivity updates
+#endif
+
 
       ! Local Variables:
       Character( 300 ):: xmsg
@@ -333,6 +348,11 @@ C-----------------------------------------------------------------------
           Allocate ( map_OGtoCGRID( n_oa ))
           Allocate ( lnonvol_oa( n_aerospc ))
           Allocate ( l_oa( n_aerospc ))
+
+#ifdef sens
+          Allocate ( og_sens( n_oa,npmax ) )
+          Allocate ( rog_dsens( n_oa,npmax ) )
+#endif
 
           ! Initialize and populate key OA variables
           map_OAtoAERO = 0
@@ -418,22 +438,53 @@ C-----------------------------------------------------------------------
 
       End If     ! mapping condition
 
+#ifdef sens
+      If ( .Not. ae_ddm3d_ready ) Then
+         Call init_aero_ddm3d()
+      End If
+#endif
 
       ! Copy grid cell concentrations of vapor species
       og_conc   = 0.0
       rog_dconc = 0.0
       gasconv = airdens * inv_mwair ! Compute gas conversion constant
+#ifdef sens      
+      og_sens   = 0.0
+      rog_dsens = 0.0
+#endif
 
       Do spc = 1, n_oa
          n = map_OGtoCGRID( spc )
          If ( n .Ne. 0 ) Then
             vtmp = gasconv * og_mw( spc )
             og_conc( spc ) = Max( conc( n ) * vtmp, min_gasconc )
+#ifdef sens 
+            If (schk ) Then
+               Do np = 1, npmax
+                  If ( og_conc( spc ) .eq. min_gasconc ) Then
+                     og_sens( spc,np ) = 0.0
+                  Else
+                     og_sens( spc,np ) = s_conc( np,n ) * vtmp
+                  Endif
+               End Do
+            End If
+#endif
          End If
          
          n = map_ROGtoCGRID( spc )
          If ( n .Ne. 0 ) Then
             rog_dconc( spc ) = Max( conc( n ), min_gasconc )
+#ifdef sens 
+            If (schk ) Then
+               Do np = 1, npmax
+                  If ( rog_dconc( spc ) .eq. min_gasconc ) Then
+                     rog_dsens( spc,np ) = 0.0
+                  Else
+                     rog_dsens( spc,np ) = s_conc( np,n )
+                  Endif
+               End Do
+            End If
+#endif
          End If
       End Do
 
@@ -450,7 +501,11 @@ C-----------------------------------------------------------------------
       End Subroutine extract_soa
 
 C-----------------------------------------------------------------------
+#ifdef sens
+      Subroutine update_orgvapor( conc, s_conc )
+#else
       Subroutine update_orgvapor( conc )
+#endif
 
 C  Populates CGRID from the conc array with updated SOA values.
 
@@ -470,6 +525,9 @@ C-----------------------------------------------------------------------
 
       ! Arguments:
       Real, Intent( Out ) :: conc( : )
+#ifdef sens
+      Real, Intent( Out ) :: s_conc( :,: )
+#endif
 
       ! Local Variables:
       Character( 80 ) :: xmsg
@@ -492,6 +550,15 @@ C-----------------------------------------------------------------------
          If ( n .Ne. 0 ) Then
             vtmp = og_mw( spc ) * gasconv
             conc( n ) = Max ( og_conc( spc ) / vtmp, min_gasconc )
+#ifdef sens
+            Do np = 1, npmax
+               If ( conc( n ) .Eq. min_gasconc ) Then
+                  s_conc( np,n ) = 0.0
+               Else
+                  s_conc( np,n ) = og_sens( spc,np ) / vtmp
+               End If
+            End Do
+#endif
                   
             ! Convert Budget Process Numbers from ug m-3 to ppmv
             ! for application to process analysis and ISAM
@@ -951,6 +1018,19 @@ C Key Subroutines/Functions called:  newt, soabisection
       Real               :: lowb, upb, orgmoles      ! lower bound, upper bound, total aerosol moles
       Logical, Parameter :: newtpartition = .False.   ! true to use original method, false to use new bisection
 
+#ifdef sens
+C Sensitivity variables
+      Real( 8 ), Allocatable, Save :: s_totrog( :,: ) ! drog conc mapped to each SVOC [ ug/m3 ]
+      Real( 8 ), Allocatable, Save :: s_ctoti ( :,: ) ! Total (g+p) conc before current time step [ ug/m3 ]
+      Real( 8 ), Allocatable, Save :: s_prod  ( :,: ) ! Total G+P produced during current step [ ug/m3 ]
+      Real( 8 ), Allocatable, Save :: s_ctotf ( :,: ) ! Total sens after current time step [ ug/m3 ]
+      Real( 8 ), Allocatable, Save :: s_caer  ( :,: ) ! Particle sens in aerosol phase after current step [ ug/m3 ]
+      Real( 4 ), Allocatable, Save :: kpart( : )      ! partitioning factor caer/(ctotf)
+      Real( 8 ), Allocatable, Save :: s_dcaer ( : )   ! Change in SVOC sens after partitioning happens[ ug/m3 ]
+      Real( 8 ), Allocatable, Save :: s_caer0 ( :,: ) ! Particle sens before current time step [ ug/m3 ]
+      Integer allocstat
+#endif
+
 C-----------------------------------------------------------------------
 
       If ( first_time )  Then
@@ -983,6 +1063,22 @@ C-----------------------------------------------------------------------
      &             c0( nsvol ), caer0( nsvol ), ctoti( nsvol ),
      &             prod( nsvol ), ctotf( nsvol ), caer( nsvol ) )
 
+#ifdef sens
+         Allocate (
+     &              s_totrog( n_oa,npmax ),
+     &              s_ctoti( nsvol,npmax ),
+     &              s_ctotf( nsvol,npmax ),
+     &              s_caer( nsvol,npmax ),    
+     &              kpart( nsvol ),
+     &              s_prod( nsvol,npmax ),    
+     &              s_dcaer( npmax ),
+     &              s_caer0( nsvol,npmax ),
+     &              stat = allocstat )
+         If ( allocstat .Ne. 0 ) Then
+            xmsg = 'Failure allocating sensitivity variables in ORGAER'
+            Call m3exit ( 'ORGAER', 0, 0, xmsg, xstat1 )
+         End If
+#endif
       End If ! first_time
 
       ! Set temperature factors
@@ -1045,6 +1141,13 @@ C-----------------------------------------------------------------------
       ! gas tracer species to the array that will be multiplied by alpha
       ! to give newly formed semivolatile vapors.
       totrog( : ) = rog_dconc( : ) * rog_ppm2ug( : ) * convfac
+#ifdef sens
+      Do np = 1, npmax
+         Do i = 1, n_oa
+            s_totrog( i, np ) = rog_dsens( i, np )* rog_ppm2ug( i ) * convfac
+         End Do
+      End Do
+#endif
 
       ! Transfer non-volatile products directly to aerospc_conc array (2nd mode)
       Do i = 1, n_oa_NotTracers
@@ -1052,6 +1155,13 @@ C-----------------------------------------------------------------------
             aerospc_conc( map_OAtoAERO( i ),2 ) =
      &      aerospc_conc( map_OAtoAERO( i ),2 )
      &      + oaspc( i )%alpha * totrog( i )
+#ifdef sens
+            Do np = 1, npmax
+               s_aerospc_conc( map_OAtoAERO( i ),2,np ) =
+     &         s_aerospc_conc( map_OAtoAERO( i ),2,np )
+     &         + oaspc( i )%alpha * s_totrog( i,np )
+            End Do
+#endif
          End If
       End Do
 
@@ -1093,11 +1203,26 @@ C-----------------------------------------------------------------------
           ctoti( nsvol ) = og_conc( i )
      &                   + aerospc_conc( n,2 ) + aerospc_conc( n,1 )
 
+#ifdef sens
+          Do np = 1, npmax
+             s_caer0( nsvol,np ) = s_aerospc_conc( n,2,np ) 
+     &                           + s_aerospc_conc( n,1,np )
+             s_ctoti( nsvol,np ) = og_sens( i,np )
+     &                           + s_aerospc_conc( n,2,np ) 
+     &                           + s_aerospc_conc( n,1,np )
+          End Do
+#endif
           ! Calculate C* at current temperature
           tempcorr      = tt1 * Exp( oaspc( i )%enth * rgas1 * tt2 )
           c0( nsvol )   = oaspc( i )%cstar * tempcorr      ! Satn Conc. [ug/m3]
           prod( nsvol ) = oaspc( i )%alpha * totrog( i )   ! Total Vapor Produced [ug/m3]
           ctotf( nsvol )= ctoti( nsvol ) + prod( nsvol )   ! Vapor + Particle [ug/m3]
+#ifdef sens
+          Do np = 1, npmax
+             s_prod( nsvol,np )  = oaspc( i )%alpha * s_totrog( i,np ) 
+             s_ctotf( nsvol,np ) = s_ctoti( nsvol,np ) + s_prod( nsvol,np ) 
+          End Do
+#endif
 
           If ( .Not. aerospc( n )%tracer ) Then ! partition only based on NotTracer mass
               threshold  = threshold +  ctotf( nsvol ) / c0( nsvol )
@@ -1105,6 +1230,11 @@ C-----------------------------------------------------------------------
               faer   = totorg                                  ! initial fraction in aerosol
      &               / (totorg + c0( nsvol ) * mw_inv( i ) ) 
               caer( nsvol )  = ctotf( nsvol ) * faer           ! initial amount in aerosol
+#ifdef sens
+              Do np = 1, npmax
+              s_caer( nsvol,np ) = s_ctotf( nsvol,np ) * faer
+              End Do
+#endif if
               upb        = upb + ctotf( nsvol ) * mw_inv( i )  ! upper bound: just semivolatile
                                                                !  moles for now. Nonvolatile moles 
                                                                !  will be added later.
@@ -1203,6 +1333,24 @@ C-----------------------------------------------------------------------
               End Do  
            End If  ! End OA paritioning solver METHOD selection
 
+#ifdef sens 
+c approximate partioning for sensitivities
+           kpart = 0.0
+           Do i = nsvol_NotTracers+1, nsvol
+              If ( ctotf( i ) .gt. 0.0 ) Then
+                 kpart( i ) = caer( i ) / ctotf( i )
+              Else
+                 kpart( i ) = 0.5
+              Endif
+              kpart( i ) = max( min(kpart( i ),1.0), 0.0 )
+           End Do
+
+           Do np = 1, npmax
+              Do i = nsvol_NotTracers+1, nsvol
+                 s_caer( i,np ) = s_ctotf( i,np ) * Real( kpart( i ),8 )
+              End Do
+           End Do
+#endif
 
         ! Constrain caer to values between conmin and ctotf
         nsvol = 0
@@ -1218,6 +1366,14 @@ C-----------------------------------------------------------------------
      &                              ' reset to evapmin.'
               ctotf( nsvol ) = ctotf( nsvol ) - caer( nsvol ) + evapmin
               caer( nsvol ) = evapmin
+#ifdef sens
+              Do np = 1, npmax
+                 s_ctotf( nsvol,np ) = s_ctotf( nsvol,np ) - s_caer( nsvol,np) 
+c                s_ctotf( nsvol,np ) = s_ctotf( nsvol,np ) 
+c                                    * ( 1.0 - kpart( nsvol) ) 
+                 s_caer( nsvol,np )  = 0.0
+              End Do
+#endif              
            End If
 
            ! Check that the mass of aerosol condensed does not exceed
@@ -1227,11 +1383,20 @@ C-----------------------------------------------------------------------
                Write( logdev,* ) 'caer: ', caer( nsvol ), ' ctotf: ', ctotf( nsvol )
                Write( logdev,* ) 'caer reset to ctotf'
                caer( nsvol ) = ctotf( nsvol )
+#ifdef sens
+               Do np = 1, npmax
+                 s_caer( nsvol,np )  = s_ctotf( nsvol,np ) 
+               End Do
+#endif                   
            End If
-
 
            ! Calculate total change in OA Species Concentration
            dcaer = caer( nsvol ) - caer0( nsvol )  
+#ifdef sens
+           Do np = 1, npmax
+              s_dcaer( np ) = s_caer( nsvol,np ) - s_caer0( nsvol,np )
+           End Do
+#endif           
 
            ! Sum the total aerosol mass of this compound across all
            ! aerosol modes
@@ -1247,15 +1412,34 @@ C-----------------------------------------------------------------------
                  Phi = aerospc_conc( indx,im ) / totaer
                  aerospc_conc( indx,im ) = 
      &                aerospc_conc( indx,im ) + dcaer * Phi
+#ifdef sens
+                 Do np = 1, npmax
+                    s_aerospc_conc( indx,im,np ) = 
+     &                   s_aerospc_conc( indx,im,np ) + s_dcaer( np ) * Phi
+                 End Do
+#endif
               Else
                  ! Condense using mode-dependent condensaiton flux 
                  ! fraction
                  aerospc_conc( indx,im ) = aerospc_conc( indx,im ) 
      &                + dcaer * GR3FRAC( i,im )
+#ifdef sens
+                 Do np = 1, npmax
+                    s_aerospc_conc( indx,im,np ) = 
+     &                   s_aerospc_conc( indx,im,np )
+     &                 + s_dcaer( np ) * GR3FRAC( i,im )  
+                 End Do
+#endif
               End If
            End Do
 
            og_conc( i ) = ctotf( nsvol ) - caer( nsvol )
+
+#ifdef sens
+           Do np = 1, npmax
+              og_sens( i,np ) = s_ctotf( nsvol,np ) - s_caer( nsvol,np )
+           End Do
+#endif
         End Do  ! Partitioning Vapor Loop
  
       Else   ! threshold not exceeded; no material transferred to aerosol phase
@@ -1273,6 +1457,15 @@ C-----------------------------------------------------------------------
             og_conc( i ) = ctotf( nsvol ) -
      &                       sum( aerospc_conc( indx,: ), 
      &                            mask=.not.aero_missing( indx,: ) )
+#ifdef sens
+            Do np = 1, npmax
+               s_aerospc_conc( indx, 1:n_mode,np ) = 0.0
+               og_sens( i,np ) = s_ctotf( nsvol,np ) -
+     &                       sum( s_aerospc_conc( indx,:,np ), 
+     &                            mask=.not.aero_missing( indx,: ) )
+
+            End Do
+#endif
         End Do
 
       End If    ! check on equilibrium threshold

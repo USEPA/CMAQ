@@ -240,7 +240,10 @@ C=======================================================================
           CALL convert2mech(gamno,non_dimgarma,out_to_cmaq)
         end if
 ! Units for use by EMIS_DEFN.F via vdemis_me: [moles/s/m2]
-         vdemis_me(:,:,:) = out_to_cmaq*cell_area
+         do i=1,NMGNSPC
+           vdemis_me(i,:,:) = out_to_cmaq(i,:,:)*cell_area/msfx2
+         end do
+
 
          RETURN
          END SUBROUTINE GET_MEGAN
