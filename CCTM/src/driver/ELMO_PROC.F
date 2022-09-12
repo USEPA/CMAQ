@@ -3206,11 +3206,11 @@
          ! Extract Aerosols
 #ifdef sens
          CALL EXTRACT_AERO( CGRID( C,R,L,: ), .TRUE., SENGRID( C,R,L,:,: ), .TRUE. )
+         CALL EXTRACT_SOA( CGRID( C,R,L,: ), SENGRID( C,R,L,:,: ), .TRUE. )
 #else
          CALL EXTRACT_AERO( CGRID( C,R,L,: ), .TRUE. )
-#endif
          CALL EXTRACT_SOA( CGRID( C,R,L,: ) )
-         
+#endif         
          ! Populate Diagnostic Arrays
          CALL LOAD_ELMO( C,R,L, CGRID(C,R,L,:), WRITE_STEP, INIT_STEP, INIT_TIME )
 

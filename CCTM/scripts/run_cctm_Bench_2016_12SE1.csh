@@ -521,39 +521,32 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
     endif
  endif
 
-#> CMAQ-DDM-3D
- setenv CTM_DDM3D N
- set NPMAX    = 1
+#> Decoupled Direct Method in 3D (DDM-3D) Options
+ setenv CTM_DDM3D N    # Sets up requisite script settings for DDM-3D (default is N/F)
+                       # Additionally requires for CCTM to be compiled for DDM-3D simulations
+
+ set NPMAX    = 1      # Number of sensitivity parameters defined in SEN_INPUT
  setenv SEN_INPUT ${WORKDIR}/sensinput.dat
 
- setenv DDM3D_HIGH N     # allow higher-order sensitivity parameters [ T | Y | F | N ] (default is N/F)
+ setenv DDM3D_HIGH N   # allow higher-order sensitivity parameters in SEN_INPUT [ T | Y | F | N ] (default is N/F)
 
  if ($NEW_START == true || $NEW_START == TRUE ) then
-    setenv DDM3D_RST N   # begins from sensitivities from a restart file [ T | Y | F | N ] (default is Y/T)
-    set S_ICpath =
+    setenv DDM3D_RST N # begins from sensitivities from a restart file [ T | Y | F | N ] (default is Y/T)
+    set S_ICpath =     # sensitivity fields are initialized to 0.0 on the first hour of the first day
     set S_ICfile =
  else
-    setenv DDM3D_RST Y
+    setenv DDM3D_RST Y # begins from sensitivities from a restart file [ T | Y | F | N ] (default is Y/T)  
     set S_ICpath = $OUTDIR
     set S_ICfile = CCTM_SENGRID_${RUNID}_${YESTERDAY}.nc
  endif
-
- setenv DDM3D_BCS F      # use sensitivity bc file for nested runs [ T | Y | F | N ] (default is N/F)                                            
- set S_BCpath =
- set S_BCfile =
 
  setenv CTM_NPMAX       $NPMAX
  setenv CTM_SENS_1      "$OUTDIR/CCTM_SENGRID_${CTM_APPL}.nc -v"
  setenv A_SENS_1        "$OUTDIR/CCTM_ASENS_${CTM_APPL}.nc -v"
  setenv CTM_SWETDEP_1   "$OUTDIR/CCTM_SENWDEP_${CTM_APPL}.nc -v"
  setenv CTM_SDRYDEP_1   "$OUTDIR/CCTM_SENDDEP_${CTM_APPL}.nc -v"
- setenv CTM_NPMAX       $NPMAX
-    if ( $?CTM_DDM3D ) then
-       if ( $CTM_DDM3D == 'Y' || $CTM_DDM3D == 'T' ) then 
  setenv INIT_SENS_1     $S_ICpath/$S_ICfile
- setenv BNDY_SENS_1     $S_BCpath/$S_BCfile
-       endif
-    endif
+ 
  
 # =====================================================================
 #> Output Files
