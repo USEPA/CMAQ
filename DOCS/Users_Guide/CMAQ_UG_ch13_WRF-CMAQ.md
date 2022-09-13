@@ -32,15 +32,13 @@ Hemispheric WRF-CMAQ model simulation over two decades (1990−2010) shows enhan
 
 ## 13.4 Latest WRF-CMAQ Release
 
-The new WRF-CMAQ model is based on WRFv4.3 and CMAQv5.3.3. It supports only RRTMG radiation scheme for short wave aerosol direct effect. It uses core-shell model to perform aerosol optics calculations rather than volume mixing technique as in the previous version of the WRF-CMAQ model. 
+The new WRF-CMAQ model is based on WRFv4.4 and CMAQv5.4. It supports only RRTMG radiation scheme for short wave aerosol direct effect. It uses core-shell model to perform aerosol optics calculations rather than volume mixing technique as in the previous version of the WRF-CMAQ model. 
 
-The code used to couple the WRFv4.3-CMAQv5.3.3 models is now released as part of the [CMAQ Github Repository](../../../UTIL/wrfcmaq_twoway_coupler).
-
-Build and run instructions are provided in the [WRF-CMAQ Tutorial](Tutorials/CMAQ_UG_tutorial_WRF-CMAQ_build_gcc.md).
+Starting from WRFv4.4 and CMAQv5.3.3, a user can construct the coupled model with any version of WRF (v4.4 or later) and any version of CMAQ (v5.3.3 or later).  A complete step by step build process and run instructions are provided in the [WRF-CMAQ Tutorial](Tutorials/CMAQ_UG_tutorial_WRF-CMAQ_Benchmark.md).
 
 ## 13.5 Benchmarking WRF-CMAQ
 
-Benchmark input and output datasets are available from the CMAS Center Data Warehouse Google Drive.  Beginning with CMAQv5.3.1, the .tar.gz file with benchmark inputs for the base (uncoupled) model also contains a folder (WRF-CMAQ) with the additional input files needed to run the WRF-CMAQ model. A sample runscript ([run_cctm_Bench_2016_12SE1.WRFCMAQ.csh](../../../CCTM/scripts/run_cctm_Bench_2016_12SE1.WRFCMAQ.csh)) is provided as part of the CMAQ Github Repository. Similarly, the .tar.gz file with benchmark output for the base model also contains a folder (WRFv4.3_CMAQv5.3.3_outputs) with reference output for the WRF-CMAQ model with short-wave radiation calculations. These input and output benchmark files have also been posted on the US EPA annoymous ftp server. 
+Benchmark input and output datasets are available from the CMAS Center Data Warehouse Google Drive.  Beginning with CMAQv5.3.1, the .tar.gz file with benchmark inputs for the base (uncoupled) model also contains a folder (WRF-CMAQ) with the additional input files needed to run the WRF-CMAQ model. A sample runscript ([run_cctm_Bench_2016_12SE1.WRFCMAQ.csh](../../../CCTM/scripts/run_cctm_Bench_2016_12SE1.WRFCMAQ.csh)) is provided as part of the CMAQ Github Repository. Similarly, the .tar.gz file with benchmark output for the base model also contains a folder (WRFv4.4_CMAQv5.4_outputs) with reference output for the WRF-CMAQ model with short-wave radiation calculations. These input and output benchmark files have also been posted on the US EPA annoymous ftp server. 
 
 - [Link to WRF-CMAQ Benchmark input and output datasets on Google Drive](https://drive.google.com/drive/u/1/folders/19U1_biDfrEunMlU9W3fCGNFWX5eZmD3Q)
 - WRF-CMAQ Benchmark input and output datasets on EPA annoymous ftp server: https://gaftp.epa.gov/exposure/CMAQ/V5_3_3/Benchmark
@@ -56,7 +54,7 @@ Users should note, comparing the results of running WRF-CMAQ with the given inpu
 
 ## 13.6 WRF Namelist Options
 
-New with this version of the coupled model (WRFv4.3-CMAQv5.3.3), all related runtime options are now controlled via the WRF namelist under the &wrf_cmaq section. For convenience these options are set as runscript variables (look for section labeled &wrf_cmaq in the [sample runscript](../../../CCTM/scripts/run_cctm_Bench_2016_12SE1.WRFCMAQ.csh)) and automatically duplicated when creating the WRF namelist. There are five parameters with varying options see below: 
+New with this version of the coupled model (WRFv4.4-CMAQv5.4), all related runtime options are now controlled via the WRF namelist under the &wrf_cmaq section. For convenience these options are set as runscript variables (look for section labeled &wrf_cmaq in the [sample runscript](../../../CCTM/scripts/run_cctm_Bench_2016_12SE1.WRFCMAQ.csh)) and automatically duplicated when creating the WRF namelist. There are five parameters with varying options see below: 
   
   
 | Name | Value | Description | 

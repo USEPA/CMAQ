@@ -18,6 +18,8 @@ There are two distinct modes of operation for BCON.  When running BCON, the
 user must specify whether to generate BCs from:  (1) an existing CONC file
 (*regrid*); or (2) an ASCII file of vertical profiles (*profile*).
 
+The User's Guide contains a [tutorial on how to use BCON to create boundary conditions from seasonal or daily average hemispheric CMAQ output files](../../DOCS/Users_Guide/Tutorials/CMAQ_UG_tutorial_HCMAQ_IC_BC.md) distributed through the CMAS data warehouse.
+
 CMAQ can also use boundary conditions derived from global chemistry models
 (GCMs). While BCON does not directly support processing of datasets from GCMs
 (in their native formats), users could develop their own custom codes to
@@ -26,7 +28,7 @@ datasets to be input into BCON to generate BCs for the CCTM. In addition, other
 tools exist in the community to generate BCs from GCMs. For example, the CAMx
 developers (Ramboll Environ) have codes available for extracting regional model
 BCs from both GEOS- Chem and MOZART. Visit the [Support Software section of
-www.CAMx.com](http://www.camx.com/download/support-software.aspx) to download
+www.CAMx.com](https://www.camx.com/download/support-software/) to download
 these utilities.
 
 ## Runtime Environment Variables:
