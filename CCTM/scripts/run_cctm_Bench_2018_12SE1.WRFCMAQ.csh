@@ -1,12 +1,19 @@
 #!/bin/csh -f
 
-# ===================== CCTMv5.4.X Run Script ========================= 
-# Usage: run.cctm >&! cctm_Bench_2018_12SE1.log &                                
+# ===================== WRF-CMAQ Run Script =========================
+# Usage: run_cctm_Bench_2018_12SE1.WRFCMAQ.csh >& run_cctm_Bench_2018_12SE1.WRFCMAQ.log &
+# Slurm Usage: sbatch run_cctm_Bench_2018_12SE1.WRFCMAQ.csh 
 #
-# To report problems or request help with this script/program:     
+# To report problems or request help with this script/program:
 #             http://www.epa.gov/cmaq    (EPA CMAQ Website)
 #             http://www.cmascenter.org  (CMAS Website)
-# ===================================================================  
+# ===================================================================
+
+set NPROCS = 32
+
+set wrfv    = 4.4
+set version = sw_feedback
+set option  = 3
 
 # ===================================================================
 #> Runtime Environment Options
@@ -16,159 +23,167 @@ echo 'Start Model Run At ' `date`
 
 #> Toggle Diagnostic Mode which will print verbose information to 
 #> standard output
- setenv CTM_DIAG_LVL 0
+setenv CTM_DIAG_LVL 0 
 
-#> Choose compiler and set up CMAQ environment with correct 
-#> libraries using config.cmaq. Options: intel | gcc | pgi
- if ( ! $?compiler ) then
-   setenv compiler intel
- endif
- if ( ! $?compilerVrsn ) then
-   setenv compilerVrsn Empty
- endif
+#> Set General Parameters and Labels for Configuring the Simulation
+set VRSN        = ${wrfv}54          #> Code Version
+set PROC        = mpi                #> serial or mpi
+set MECH        = cb6r5_ae7_aq       #> Mechanism ID
+set APPL        = Bench_2018_12NE3   #> Application Name (e.g. Domain)
 
-#> Source the config.cmaq file to set the build environment
- cd ../..
- source ./config_cmaq.csh $compiler $compilerVrsn
- cd CCTM/scripts
-
-#> Set General Parameters for Configuring the Simulation
- set VRSN      = v54              #> Code Version
- set PROC      = mpi               #> serial or mpi
- set MECH      = cb6r5_ae7_aq      #> Mechanism ID
- set APPL      = Bench_2018_12NE3  #> Application Name (e.g. Gridname)
-                                                       
 #> Define RUNID as any combination of parameters above or others. By default,
 #> this information will be collected into this one string, $RUNID, for easy
 #> referencing in output binaries and log files as well as in other scripts.
- setenv RUNID  ${VRSN}_${compilerString}_${APPL}
+setenv RUNID  ${VRSN}_${APPL}
 
-#> Set the build directory (this is where the CMAQ executable
-#> is located by default).
- set BLD       = ${CMAQ_HOME}/CCTM/scripts/BLD_CCTM_${VRSN}_${compilerString}
- set EXEC      = CCTM_${VRSN}.exe  
+set EXEC      = wrf.exe
 
 #> Output Each line of Runscript to Log File
- if ( $CTM_DIAG_LVL != 0 ) set echo 
+ if ( $CTM_DIAG_LVL != 0 ) set echo
 
-#> Set Working, Input, and Output Directories
- setenv WORKDIR ${CMAQ_HOME}/CCTM/scripts          #> Working Directory. Where the runscript is.
- setenv OUTDIR  ${CMAQ_DATA}/output_CCTM_${RUNID}  #> Output Directory
- setenv INPDIR  ${CMAQ_DATA}/2018_12NE3            #> Input Directory
- setenv LOGDIR  ${OUTDIR}/LOGS     #> Log Directory Location
- setenv NMLpath ${BLD}             #> Location of Namelists. Common places are: 
-                                   #>   ${WORKDIR} | ${CCTM_SRC}/MECHS/${MECH} | ${BLD}
+# Set Working, Input, and Output Directories
+set WORKDIR     = ${PWD}                                  # Pathname of current Working Directory
+set WRF_DIR     = $WORKDIR/BLD_WRFv4.4_CCTM_v54_intel18.0 # Location of WRF-CMAQ Install
+set INPDIR      = ../../data                              # Input directory for WRF & CMAQ
+set OUTPUT_ROOT = $WORKDIR                                # output root directory
+set output_direct_name = WRFCMAQ-output-${version}        # Output Directory Name
+setenv OUTDIR $OUTPUT_ROOT/$output_direct_name   # output files and directories
+set NMLpath     = $WRF_DIR/cmaq                           # path with *.nml file mechanism dependent
 
- echo ""
- echo "Working Directory is $WORKDIR"
- echo "Build Directory is $BLD"
- echo "Output Directory is $OUTDIR"
- echo "Log Directory is $LOGDIR"
- echo "Executable Name is $EXEC"
+echo ""
+echo "Working Directory is $WORKDIR"
+echo "Output Root Directory is $OUTPUT_ROOT"
+echo "Executable Name is $EXEC"
 
 # =====================================================================
-#> CCTM Configuration Options
+# WRF-CMAQ coupled Configuration Options
 # =====================================================================
 
 #> Set Start and End Days for looping
- setenv NEW_START TRUE             #> Set to FALSE for model restart
- set START_DATE = "2018-07-01"     #> beginning date (July 1, 2016)
- set END_DATE   = "2018-07-01"     #> ending date    (July 1, 2016)
+setenv NEW_START TRUE             # Set to FALSE for model restart
+set START_DATE = "2018-07-01"     # beginning date (July 1, 2016)
+set END_DATE   = "2018-07-02"     # ending date    (July 14, 2016)
 
 #> Set Timestepping Parameters
-set STTIME     = 000000            #> beginning GMT time (HHMMSS)
-set NSTEPS     = 240000            #> time duration (HHMMSS) for this run
-set TSTEP      = 010000            #> output time step interval (HHMMSS)
+set STTIME     = 000000           # beginning GMT time (HHMMSS)
+set NSTEPS     = 240000           # time duration (HHMMSS) for this run
+set TSTEP      = 010000           # output time step interval (HHMMSS)
 
-#> Horizontal domain decomposition
-if ( $PROC == serial ) then
-   setenv NPCOL_NPROW "1 1"; set NPROCS   = 1 # single processor setting
+set resolution = 12000            # domain resolution in meter
+
+set wrf_cmaq_option      =  ${option} # 0 = run WRF only
+                                      # 1 = run WRF only and produce GRID and MET files as well
+                                      # 2 = run WRF-CMAQ coupled model w/o producing GRID and MET files
+                                      # 3 = run WRF-CMAQ coupled model w   producing GRID and MET files
+set direct_sw_feedback   =    .true.  # direct Shortwave aerosol feedback effect [.false]
+set wrf_cmaq_freq        =        5   # WRF-CMAQ couple model frequency [1]
+
+set cont_from_spinup_run =        F   # indicates whether a wrf spinup run prior to the twoway model run
+set wrf_tstep            =       60   # WRF model time-step
+set NUM_LAND_USE_TYPE    =       40   # MODIS IS 20, USGS is 24, NCLD50 is 50, NCLD40 is 40
+set radt                 =       20   # radiation module time step
+set met_file_tstep       =    10000
+
+set ltg_assim            =  .false.   # Option for lightning assimilation in Kain-Fritsch when cu_physics=1 [ .false. ]
+set suppress_opt         =        0   # Suppression option if ltg assim used. 
+                                      # 0 = nosuppress
+                                      # 1 = fullsuppress
+                                      # 2 = shallonly
+setenv CTM_LTNG_OPTION            0   # 0 - use nothing
+                                      # 1 - use WRF convective cloud calculation currently
+                                      #     this only work with two-way coupled model
+                                      # 2 - use lightning flashes data
+                                      # 3 - use lightning parameter
+                                      # 4 - use NOx emission data file
+
+if ($$direct_sw_feedback == .true.) then
+   set feedback = sf
 else
-   @ NPCOL  =  8; @ NPROW =  4
-   @ NPROCS = $NPCOL * $NPROW
-   setenv NPCOL_NPROW "$NPCOL $NPROW"; 
+   set feedback = nf
 endif
-
-#> Define Execution ID: e.g. [CMAQ-Version-Info]_[User]_[Date]_[Time]
-if ( ! -e ${BLD}/CCTM_${VRSN}.cfg ) then
-   set SHAID = ""
-else
-   set SHAID = `grep "sha_ID" ${BLD}/CCTM_${VRSN}.cfg | cut -c 13-22`
-   if ( $SHAID == not_a_repo ) then
-     set SHAID = ""
-   else
-     set SHAID = "_sha="$SHAID
-   endif
-endif
-setenv EXECUTION_ID "CMAQ_CCTM${VRSN}${SHAID}_`id -u -n`_`date -u +%Y%m%d_%H%M%S_%N`"    #> Inform IO/API of the Execution ID
-echo ""
-echo "---CMAQ EXECUTION ID: $EXECUTION_ID ---"
-
+ 
 #> Keep or Delete Existing Output Files
 set CLOBBER_DATA = TRUE 
 
-#> Logfile Options
-#> Master Log File Name; uncomment to write standard output to a log, otherwise write to screen
-#setenv LOGFILE $CMAQ_HOME/$RUNID.log  
-if (! -e $LOGDIR ) then
-  mkdir -p $LOGDIR
+setenv PRINT_PROC_TIME Y           # Print timing for all science subprocesses to Logfile
+                                   #   [ TRUE or Y ]
+setenv STDOUT T                    # Override I/O-API trying to write information to both the processor 
+                                   #   logs and STDOUT [ options: T | F ]
+
+setenv GRID_NAME 2018_12NE3         # check GRIDDESC file for GRID_NAME options
+setenv GRIDDESC $OUTDIR/GRIDDESC   # grid description file
+
+#> WRF-CMAQ number of columns, rows and layers 
+setenv WRF_COL_DIM        113   # wrf west_east_stag
+setenv WRF_ROW_DIM        118   # wrf south_north_stag
+setenv WRF_LAY_DIM         36   # wrf bottom_top_stag
+
+setenv CMAQ_COL_DIM       100   # CMAQ Domain Columns
+setenv CMAQ_ROW_DIM       105   # CMAQ Domain Rows
+setenv TWOWAY_DELTA_X       6   # distance between the wrf and cmaq lower left corner in the x-direction
+setenv TWOWAY_DELTA_Y       6   # distance between the wrf and cmaq lower left corner in the y-direction
+
+setenv WRF_LC_REF_LAT    40.0   # WRF Lambert conformal reference latitude
+
+if (! -e $OUTDIR ) then
+  mkdir -p $OUTDIR
 endif
-setenv PRINT_PROC_TIME Y           #> Print timing for all science subprocesses to Logfile
-                                   #>   [ default: TRUE or Y ]
-setenv STDOUT T                    #> Override I/O-API trying to write information to both the processor 
-                                   #>   logs and STDOUT [ options: T | F ]
 
-setenv GRID_NAME 2018_12NE3         #> check GRIDDESC file for GRID_NAME options
-setenv GRIDDESC $INPDIR/GRIDDESC    #> grid description file
+# convert STTIME to WRF format HH:MM::SS
+@ second = $STTIME % 100
+@ minute = ($STTIME / 100) % 100
+@ hour   = $STTIME / 10000
 
-#> Retrieve the number of columns, rows, and layers in this simulation
-set NZ = 35
-set NX = `grep -A 1 ${GRID_NAME} ${GRIDDESC} | tail -1 | sed 's/  */ /g' | cut -d' ' -f6`
-set NY = `grep -A 1 ${GRID_NAME} ${GRIDDESC} | tail -1 | sed 's/  */ /g' | cut -d' ' -f7`
-set NCELLS = `echo "${NX} * ${NY} * ${NZ}" | bc -l`
+set wrf_sttime = `date -ud "$hour":"$minute":"$second" +%H:%M:%S`
 
-#> Output Species and Layer Options
-   #> CONC file species; comment or set to "ALL" to write all species to CONC
-   setenv CONC_SPCS "O3 NO ANO3I ANO3J NO2 FORM ISOP NH3 ANH4I ANH4J ASO4I ASO4J" 
-   setenv CONC_BLEV_ELEV " 1 1" #> CONC file layer range; comment to write all layers to CONC
+set wrf_hr = $NSTEPS
 
-   #> ACONC file species; comment or set to "ALL" to write all species to ACONC
-   #setenv AVG_CONC_SPCS "O3 NO CO NO2 ASO4I ASO4J NH3" 
-   setenv AVG_CONC_SPCS "ALL" 
-   setenv ACONC_BLEV_ELEV " 1 1" #> ACONC file layer range; comment to write all layers to ACONC
-   setenv AVG_FILE_ENDTIME N     #> override default beginning ACONC timestamp [ default: N ]
+#> setup wrf start hour, minute, and second
+@ wrf_sec = $NSTEPS % 100
+@ wrf_min = ($NSTEPS / 100) % 100
+@ wrf_hr  = $NSTEPS / 10000
 
-#> Synchronization Time Step and Tolerance Options
-setenv CTM_MAXSYNC 300       #> max sync time step (sec) [ default: 720 ]
-setenv CTM_MINSYNC  60       #> min sync time step (sec) [ default: 60 ]
-setenv SIGMA_SYNC_TOP 0.7    #> top sigma level thru which sync step determined [ default: 0.7 ] 
-#setenv ADV_HDIV_LIM 0.95    #> maximum horiz. div. limit for adv step adjust [ default: 0.9 ]
-setenv CTM_ADV_CFL 0.95      #> max CFL [ default: 0.75]
-#setenv RB_ATOL 1.0E-09      #> global ROS3 solver absolute tolerance [ default: 1.0E-07 ] 
+@ wrf_restart_interval = $wrf_min + ($wrf_hr * 60)
 
-#> Science Options
-setenv CTM_OCEAN_CHEM Y      #> Flag for ocean halgoen chemistry and sea spray aerosol emissions [ default: Y ]
-setenv CTM_WB_DUST N         #> use inline windblown dust emissions (only for use with PX) [ default: N ]
-setenv CTM_LTNG_NO N         #> turn on lightning NOx [ default: N ]
-setenv KZMIN Y               #> use Min Kz option in edyintb [ default: Y ], 
-                             #>    otherwise revert to Kz0UT
-setenv PX_VERSION Y          #> WRF PX LSM
-setenv CLM_VERSION N         #> WRF CLM LSM
-setenv NOAH_VERSION N        #> WRF NOAH LSM
-setenv CTM_ABFLUX Y          #> ammonia bi-directional flux for in-line deposition 
-                             #>    velocities [ default: N ]
-setenv CTM_BIDI_FERT_NH3 T   #> subtract fertilizer NH3 from emissions because it will be handled
-                             #>    by the BiDi calculation [ default: Y ]
-setenv CTM_HGBIDI N          #> mercury bi-directional flux for in-line deposition 
-                             #>    velocities [ default: N ]
-setenv CTM_SFC_HONO Y        #> surface HONO interaction [ default: Y ]
-                             #> please see user guide (6.10.4 Nitrous Acid (HONO)) 
-                             #> for dependency on percent urban fraction dataset
-setenv CTM_GRAV_SETL Y       #> vdiff aerosol gravitational sedimentation [ default: Y ]
+# Output Species and Layer Options
+# CONC file species; comment or set to "ALL" to write all species to CONC
+setenv CONC_SPCS "O3 NO ANO3I ANO3J NO2 FORM ISOP NH3 ANH4I ANH4J ASO4I ASO4J" 
+setenv CONC_BLEV_ELEV " 1 1"  # CONC file layer range; comment to write all layers to CONC
 
-setenv CTM_BIOGEMIS_BE Y     #> calculate in-line biogenic emissions with BEIS [ default: N ]
-setenv CTM_BIOGEMIS_MG N     #> turns on MEGAN biogenic emission [ default: N ]
-setenv BDSNP_MEGAN N         #> turns on BDSNP soil NO emissions [ default: N ]
+# ACONC file species; comment or set to "ALL" to write all species to ACONC
+# setenv AVG_CONC_SPCS "O3 NO CO NO2 ASO4I ASO4J NH3" 
+setenv AVG_CONC_SPCS "ALL" 
+setenv ACONC_BLEV_ELEV " 1 1" # ACONC file layer range; comment to write all layers to ACONC
+setenv AVG_FILE_ENDTIME N     # override default beginning ACONC timestamp [ default: N ]
+
+# Synchronization Time Step and Tolerance Options
+setenv CTM_MAXSYNC         300   #> max sync time step (sec) [ default: 720 ]
+setenv CTM_MINSYNC          60   #> min sync time step (sec) [ default: 60 ]
+setenv SIGMA_SYNC_TOP      0.7   #> top sigma level thru which sync step determined [ default: 0.7 ]
+#setenv ADV_HDIV_LIM      0.95   #> maximum horiz. div. limit for adv step adjust [ default: 0.9 ]
+setenv CTM_ADV_CFL        0.95   #> max CFL [ default: 0.75]
+#setenv RB_ATOL        1.0E-09   #> global ROS3 solver absolute tolerance [ default: 1.0E-07 ]
+
+# Science Options
+setenv CTM_OCEAN_CHEM        Y   #> Flag for ocean halgoen chemistry and sea spray aerosol emissions [ Y ]
+setenv CTM_WB_DUST           N   #> use inline windblown dust emissions [ Y ]
+setenv CTM_LTNG_NO           N   #> turn on lightning NOx [ N ]
+setenv KZMIN                 Y   #> use Min Kz option in edyintb [ Y ],
+                                 #>    otherwise revert to Kz0UT
+setenv PX_VERSION            Y   #> WRF PX LSM
+setenv CLM_VERSION           N   #> WRF CLM LSM
+setenv NOAH_VERSION          N   #> WRF NOAH LSM
+setenv CTM_ABFLUX            Y   #> ammonia bi-directional flux for in-line deposition velocities [ N ]
+setenv CTM_BIDI_FERT_NH3     T   #> subtract fertilizer NH3 from emissions because it will be handled
+                                 #>    by the BiDi calculation [ Y ]
+setenv CTM_HGBIDI            N   #> mercury bi-directional flux for in-line deposition velocities [ N ]
+setenv CTM_SFC_HONO          Y   #> surface HONO interaction [ Y ]
+setenv CTM_GRAV_SETL         Y   #> vdiff aerosol gravitational sedimentation [ Y ]
+setenv CTM_BIOGEMIS_BE Y         #> calculate in-line biogenic emissions with BEIS [ default: N ]
+setenv CTM_BIOGEMIS_MG N         #> turns on MEGAN biogenic emission [ default: N ]
+setenv BDSNP_MEGAN N             #> turns on BDSNP soil NO emissions [ default: N ]
+
+setenv CTM_TURN_ON_PV        N   # WRF-CMAQ ONLY turn on/off PV [ N -- make sure compiled with pv on ]
 
 #> Surface Tiled Aerosol and Gaseous Exchange Options
 #> Only active if DepMod=stage at compile time
@@ -186,39 +201,46 @@ setenv IC_AERO_M2USE F       #> Specify whether or not to use aerosol surface ar
 setenv BC_AERO_M2USE F       #> Specify whether or not to use aerosol surface area from boundary 
                              #>    conditions [ default: T = use aerosol surface area  ]
 
-
 #> Vertical Extraction Options
-setenv VERTEXT N
-setenv VERTEXT_COORD_PATH ${WORKDIR}/lonlat.csv
+setenv VERTEXT               N
+# setenv VERTEXT_COORD_PATH ${WORKDIR}/lonlat.csv
 
 #> I/O Controls
-setenv IOAPI_LOG_WRITE F     #> turn on excess WRITE3 logging [ options: T | F ]
-setenv FL_ERR_STOP N         #> stop on inconsistent input files
-setenv PROMPTFLAG F          #> turn on I/O-API PROMPT*FILE interactive mode [ options: T | F ]
-setenv IOAPI_OFFSET_64 YES   #> support large timestep records (>2GB/timestep record) [ options: YES | NO ]
-setenv IOAPI_CHECK_HEADERS N #> check file headers [ options: Y | N ]
-setenv CTM_EMISCHK N         #> Abort CMAQ if missing surrogates from emissions Input files
+setenv IOAPI_LOG_WRITE         F  #> turn on excess WRITE3 logging [ options: T | F ]
+setenv FL_ERR_STOP             N  #> stop on inconsistent input files
+setenv PROMPTFLAG              F  #> turn on I/O-API PROMPT*FILE interactive mode [ options: T | F ]
+setenv IOAPI_OFFSET_64       YES  #> support large timestep records (>2GB/timestep record) [ options: YES | NO ]
+setenv IOAPI_CHECK_HEADERS     N  #> check file headers [ options: Y | N ]
+setenv CTM_EMISCHK             N  #> Abort CMAQ if missing surrogates from emissions Input files
 
 #> Diagnostic Output Flags
-setenv CTM_CKSUM Y           #> checksum report [ default: Y ]
-setenv CLD_DIAG N            #> cloud diagnostic file [ default: N ]
+setenv CTM_CKSUM               Y  #> checksum report [ Y ]
+setenv CLD_DIAG                N  #> cloud diagnostic file [ N ]
 
-setenv CTM_PHOTDIAG N        #> photolysis diagnostic file [ default: N ]
-setenv NLAYS_PHOTDIAG "1"    #> Number of layers for PHOTDIAG2 and PHOTDIAG3 from 
-                             #>     Layer 1 to NLAYS_PHOTDIAG  [ default: all layers ] 
-#setenv NWAVE_PHOTDIAG "294 303 310 316 333 381 607"  #> Wavelengths written for variables
-                                                      #>   in PHOTDIAG2 and PHOTDIAG3 
-                                                      #>   [ default: all wavelengths ]
+setenv CTM_PHOTDIAG            N  #> photolysis diagnostic file [ N ]
+setenv NLAYS_PHOTDIAG        "1"  #> Number of layers for PHOTDIAG2 and PHOTDIAG3 from
+                                  #>     Layer 1 to NLAYS_PHOTDIAG  [ default: all layers ]
+#setenv NWAVE_PHOTDIAG "294 303 310 316 333 381 607"  # Wavelengths written for variables
+                                                      #   in PHOTDIAG2 and PHOTDIAG3 
+                                                      #   [ default: all wavelengths ]
 
-setenv CTM_SSEMDIAG N        #> sea-spray emissions diagnostic file [ default: N ]
-setenv CTM_DUSTEM_DIAG N     #> windblown dust emissions diagnostic file [ default: N ]; 
-                             #>     Ignore if CTM_WB_DUST = N
-setenv CTM_DEPV_FILE N       #> deposition velocities diagnostic file [ default: N ]
-setenv VDIFF_DIAG_FILE N     #> vdiff & possibly aero grav. sedimentation diagnostic file [ default: N ]
-setenv LTNGDIAG N            #> lightning diagnostic file [ default: N ]
-setenv B3GTS_DIAG N          #> BEIS mass emissions diagnostic file [ default: N ]
-setenv CTM_WVEL Y            #> save derived vertical velocity component to conc 
-                             #>    file [ default: Y ]
+setenv CTM_SSEMDIAG            N  #> sea-spray emissions diagnostic file [ N ]
+setenv CTM_DUSTEM_DIAG         N  #> windblown dust emissions diagnostic file [ N ];
+                                  #>     Ignore if CTM_WB_DUST = N
+setenv CTM_DEPV_FILE           N  #> deposition velocities diagnostic file [ N ]
+setenv VDIFF_DIAG_FILE         N  #> vdiff & possibly aero grav. sedimentation diagnostic file [ N ]
+setenv LTNGDIAG                N  #> lightning diagnostic file [ N ]
+setenv B3GTS_DIAG              N  #> BEIS mass emissions diagnostic file [ N ]
+setenv CTM_WVEL                Y  #> save derived vertical velocity component to conc file [ Y ]
+
+setenv SD_TIME_SERIES          F  # WRF-CMAQ sub domain time series output option [F]
+#setenv SD_SCOL              241  # WRF-CMAQ sub domain time series starting column
+#setenv SD_ECOL              248  # WRF-CMAQ sub domain time series ending column
+#setenv SD_SROW              160  # WRF-CMAQ sub domain time series starting row
+#setenv SD_EROW              169  # WRF-CMAQ sub domain time series ending row
+#setenv SD_CONC_SPCS       "NO2 NO O3 NO3 CO ASO4J ASO4I ANH4J ANH4I ANO3J ANO3I AORGAJ AORGAI AORGPAJ AORGPAI AORGBJ AORGBI AECJ AECI A25J A25I ACORS ASEAS ASOIL" #> sub domain time series species subset list
+
+setenv FILE_TIME_STEP  $met_file_tstep
 
 # =====================================================================
 #> Input Directories and Filenames
@@ -229,9 +251,9 @@ set BCpath    = $INPDIR/icbc                        #> boundary conditions input
 set EMISpath  = $INPDIR/emis                        #> gridded emissions input directory
 set IN_PTpath = $INPDIR/emis                        #> point source emissions input directory
 set IN_LTpath = $INPDIR/lightning                   #> lightning NOx input directory
-set METpath   = $INPDIR/met/mcipv5.4                #> meteorology input directory 
+set METpath   = $INPDIR/met/wrfv4.4_inputs          #> meteorology input directory 
 #set JVALpath  = $INPDIR/jproc                      #> offline photolysis rate table directory
-set OMIpath   = $BLD                                #> ozone column data for the photolysis model
+set OMIpath   = $WRF_DIR/cmaq                       #> ozone column data for the photolysis model
 set EPICpath  = $INPDIR/epic                        #> EPIC putput for bidirectional NH3
 set SZpath    = $INPDIR/surface                     #> surf zone file for in-line seaspray emissions
 
@@ -254,11 +276,10 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   set YYYYMMDD = `date -ud "${TODAYG}" +%Y%m%d` #> Convert YYYY-MM-DD to YYYYMMDD
   set YYYYMM = `date -ud "${TODAYG}" +%Y%m`     #> Convert YYYY-MM-DD to YYYYMM
   set YYMMDD = `date -ud "${TODAYG}" +%y%m%d`   #> Convert YYYY-MM-DD to YYMMDD
-  set MM = `date -ud "${TODAYG}" +%m`           #> Convert YYYY-MM-DD to MM  
   set YYYYJJJ = $TODAYJ
 
   #> Calculate Yesterday's Date
-  set YESTERDAY = `date -ud "${TODAYG}-1days" +%Y%m%d` #> Convert YYYY-MM-DD to YYYYJJJ
+  set YESTERDAY = `date -ud "${TODAYG}-1days" +%Y%m%d`
 
 # =====================================================================
 #> Set Output String and Propagate Model Configuration Documentation
@@ -268,10 +289,12 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
 
   #> set output file name extensions
   setenv CTM_APPL ${RUNID}_${YYYYMMDD} 
+  setenv CTM_APPL_yesterday ${RUNID}_${YESTERDAY}
   
   #> Copy Model Configuration To Output Folder
   if ( ! -d "$OUTDIR" ) mkdir -p $OUTDIR
-  cp $BLD/CCTM_${VRSN}.cfg $OUTDIR/CCTM_${CTM_APPL}.cfg
+
+# cp $BLD/cmaq/CCTM_${VRSN}.cfg $OUTDIR/CCTM_${CTM_APPL}.cfg
 
 # =====================================================================
 #> Input Files (Some are Day-Dependent)
@@ -281,10 +304,25 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   if ($NEW_START == true || $NEW_START == TRUE ) then
      setenv ICFILE CCTM_ICON_v54_${MECH}_12NE3_20180701.nc
      setenv INIT_MEDC_1 notused
+
+     #> WRF-CMAQ Configuration
+     set feedback_restart = .false. # indicates no CMAQ aerosol information in the initial step
+     if ($cont_from_spinup_run == T) then
+        setenv WRF_RSTFLAG .TRUE.   # indicates WRF restart file exist
+        set pxlsm_smois_init = 0    # Init PX Soil Moisture from prevoius run
+     else
+        setenv WRF_RSTFLAG .false.  # indicates WRF restart file does not exist
+        set pxlsm_smois_init = 1    # Init PX Soil Moisture from TBL method 
+     endif
   else
      set ICpath = $OUTDIR
      setenv ICFILE CCTM_CGRID_${RUNID}_${YESTERDAY}.nc
      setenv INIT_MEDC_1 $ICpath/CCTM_MEDIA_CONC_${RUNID}_${YESTERDAY}.nc
+
+     #> WRF-CMAQ Configuration
+     setenv WRF_RSTFLAG .true.      # indicates WRF restart file exist
+     set feedback_restart = .true.  # indicates CMAQ aerosol information is available
+     set pxlsm_smois_init = 0       # Init PX Soil Moisture from prevoius run
   endif
 
   #> Boundary conditions
@@ -300,15 +338,15 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   set OPTfile = PHOT_OPTICS.dat
 
   #> MCIP meteorology files 
-  setenv GRID_BDY_2D $METpath/GRIDBDY2D_12NE3_${YYYYMMDD}.nc  # GRID files are static, not day-specific
-  setenv GRID_CRO_2D $METpath/GRIDCRO2D_12NE3_${YYYYMMDD}.nc
-  setenv GRID_CRO_3D $METpath/GRIDCRO3D_12NE3_${YYYYMMDD}.nc
-  setenv GRID_DOT_2D $METpath/GRIDDOT2D_12NE3_${YYYYMMDD}.nc
-  setenv MET_CRO_2D $METpath/METCRO2D_12NE3_${YYYYMMDD}.nc
-  setenv MET_CRO_3D $METpath/METCRO3D_12NE3_${YYYYMMDD}.nc
-  setenv MET_DOT_3D $METpath/METDOT3D_12NE3_${YYYYMMDD}.nc
-  setenv MET_BDY_3D $METpath/METBDY3D_12NE3_${YYYYMMDD}.nc
-  setenv LUFRAC_CRO $METpath/LUFRAC_CRO_12NE3_${YYYYMMDD}.nc
+  setenv GRID_BDY_2D BUFFERED  # GRID files are static, not day-specific
+  setenv GRID_CRO_2D BUFFERED
+  setenv GRID_CRO_3D BUFFERED
+  setenv GRID_DOT_2D BUFFERED
+  setenv MET_CRO_2D BUFFERED 
+  setenv MET_CRO_3D BUFFERED
+  setenv MET_DOT_3D BUFFERED
+  setenv MET_BDY_3D BUFFERED
+  #setenv LUFRAC_CRO BUFFERED
 
   #> Control Files
   #>
@@ -327,17 +365,17 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   #> + Emission Control (DESID) Documentation in the CMAQ User's Guide:
   #>   https://github.com/USEPA/CMAQ/blob/master/DOCS/Users_Guide/Appendix/CMAQ_UG_appendixB_emissions_control.md
   #>
-  setenv DESID_CTRL_NML ${BLD}/CMAQ_Control_DESID.nml
-  setenv DESID_CHEM_CTRL_NML ${BLD}/CMAQ_Control_DESID_${MECH}.nml
+  setenv DESID_CTRL_NML ${WRF_DIR}/cmaq/CMAQ_Control_DESID.nml
+  setenv DESID_CHEM_CTRL_NML ${WRF_DIR}/cmaq/CMAQ_Control_DESID_${MECH}.nml
 
   #> The following namelist configures aggregated output (via the Explicit and Lumped
   #> Air Quality Model Output (ELMO) Module), domain-wide budget output, and chemical
   #> family output.
-  setenv MISC_CTRL_NML ${BLD}/CMAQ_Control_Misc.nml
+  setenv MISC_CTRL_NML ${WRF_DIR}/cmaq/CMAQ_Control_Misc.nml
 
   #> The following namelist controls the mapping of meteorological land use types and the NH3 and Hg emission
   #> potentials
-  setenv STAGECTRL_NML ${BLD}/CMAQ_Control_STAGE.nml
+  setenv STAGECTRL_NML ${WRF_DIR}/cmaq/CMAQ_Control_STAGE.nml
  
   #> Spatial Masks For Emissions Scaling
   setenv CMAQ_MASKS $SZpath/OCEAN_${MM}_L3m_MC_CHL_chlor_a_12NE3.nc #> horizontal grid-dependent ocean file
@@ -415,7 +453,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   #> In-line lightning NOx options
      setenv USE_NLDN  Y        #> use hourly NLDN strike file [ default: Y ]
      if ( $USE_NLDN == Y ) then
-        setenv NLDN_STRIKES ${IN_LTpath}/NLDN_12km_60min_${YYYYMMDD}.ioapi
+        setenv NLDN_STRIKES ${IN_LTpath}/NLDN.12US1.${YYYYMMDD}.ioapi
      endif
      setenv LTNGPARMS_FILE ${IN_LTpath}/LTNG_AllParms_12NE3.nc #> lightning parameter file
   endif
@@ -423,7 +461,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   #> In-line biogenic emissions configuration
   if ( $CTM_BIOGEMIS_BE == 'Y' ) then
      set IN_BEISpath = ${INPDIR}/surface
-     setenv GSPRO          $BLD/gspro_biogenics.txt
+     setenv GSPRO          ${WRF_DIR}/cmaq/gspro_biogenics.txt
      setenv BEIS_NORM_EMIS $IN_BEISpath/beis4_beld6_norm_emis.12NE3.nc
      setenv BEIS_SOILINP        $OUTDIR/CCTM_BSOILOUT_${RUNID}_${YESTERDAY}.nc
                              #> Biogenic NO soil input file; ignore if NEW_START = TRUE
@@ -552,7 +590,6 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
  setenv CTM_SDRYDEP_1   "$OUTDIR/CCTM_SENDDEP_${CTM_APPL}.nc -v"
  setenv INIT_SENS_1     $S_ICpath/$S_ICfile
  
- 
 # =====================================================================
 #> Output Files
 # =====================================================================
@@ -591,13 +628,31 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   setenv CTM_LTNGDIAG_1  "$OUTDIR/CCTM_LTNGHRLY_${CTM_APPL}.nc -v"   #> Hourly Avg Lightning NO
   setenv CTM_LTNGDIAG_2  "$OUTDIR/CCTM_LTNGCOL_${CTM_APPL}.nc -v"    #> Column Total Lightning NO
   setenv CTM_VEXT_1      "$OUTDIR/CCTM_VEXT_${CTM_APPL}.nc -v"       #> On-Hour 3D Concs at select sites
+  
+# this is for creating physical files
+  setenv PGRID_DOT_2D "$OUTDIR/GRID_DOT_2D_${CTM_APPL}.nc -v"
+  setenv PGRID_CRO_2D "$OUTDIR/GRID_CRO_2D_${CTM_APPL}.nc -v"
+  setenv PMET_CRO_2D  "$OUTDIR/MET_CRO_2D_${CTM_APPL}.nc -v"
+  setenv PMET_DOT_3D  "$OUTDIR/MET_DOT_2D_${CTM_APPL}.nc -v"
+  setenv PMET_CRO_3D  "$OUTDIR/MET_CRO_3D_${CTM_APPL}.nc -v"
+# WRF-CMAQ Files
+  if ($SD_TIME_SERIES == T) then
+     setenv CTM_SD_TS "$OUTDIR/SD_TSfile_${CTM_APPL}.nc -v"
+  endif
+  setenv     LAYER_FILE      MET_CRO_3D
+  @ n = 0
+  while ($n < $NPROCS)
+    set name = `printf "_%3.3d\n" $n`
+    setenv feed_back$name BUFFERED   # for feedback file
+    @ n++
+  end
 
   #> set floor file (neg concs)
   setenv FLOOR_FILE ${OUTDIR}/FLOOR_${CTM_APPL}.txt
 
   #> look for existing log files and output files
   ( ls CTM_LOG_???.${CTM_APPL} > buff.txt ) >& /dev/null
-  ( ls ${LOGDIR}/CTM_LOG_???.${CTM_APPL} >> buff.txt ) >& /dev/null
+  ( ls ${OUTDIR}/CTM_LOG_???.${CTM_APPL} >> buff.txt ) >& /dev/null
   set log_test = `cat buff.txt`; rm -f buff.txt
 
   set OUT_FILES = (${FLOOR_FILE} ${S_CGRID} ${CTM_CONC_1} ${A_CONC_1} ${MEDIA_CONC}         \
@@ -637,7 +692,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
         #echo "Deleting output file: $file"
         /bin/rm -f $file  
      end
-     /bin/rm -f ${OUTDIR}/CCTM_DESID*${RUNID}_${YYYYMMDD}.nc
+     /bin/rm -f ${OUTDIR}/CCTM_EMDIAG*${RUNID}_${YYYYMMDD}.nc
 
   else
      #> error if previous log files exist
@@ -670,6 +725,8 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   setenv OMI $OMIpath/$OMIfile
   setenv OPTICS_DATA $OMIpath/$OPTfile
  #setenv XJ_DATA $JVALpath/$JVALfile
+  set TR_DVpath = $METpath
+  set TR_DVfile = $MET_CRO_2D
  
   #> species defn & photolysis
   setenv gc_matrix_nml ${NMLpath}/GC_$MECH.nml
@@ -679,72 +736,300 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
  
   #> check for photolysis input data
   setenv CSQY_DATA ${NMLpath}/CSQY_DATA_$MECH
+  
+  cd $OUTDIR
 
-  if (! (-e $CSQY_DATA ) ) then
-     echo " $CSQY_DATA  not found "
-     exit 1
-  endif
-  if (! (-e $OPTICS_DATA ) ) then
-     echo " $OPTICS_DATA  not found "
-     exit 1
-  endif
+# ===================================================================
+#> Building WRF Namelist. 
+# ===================================================================
 
+      if ( -f namelist.input ) rm -f namelist.input
+
+      cat << End_Of_Namelist  > namelist.input
+
+ &time_control
+ run_hours                           = $wrf_hr,			  
+ run_minutes                         = $wrf_min,
+ run_seconds                         = $wrf_sec,
+ start_year                          = `date -ud "${TODAYG}" +%Y`, 
+ start_month                         = `date -ud "${TODAYG}" +%m`,
+ start_day                           = `date -ud "${TODAYG}" +%d`,
+ start_hour                          = `date -ud "$wrf_sttime" +%H`,
+ start_minute                        = `date -ud "$wrf_sttime" +%M`,  
+ start_second                        = `date -ud "$wrf_sttime" +%S`,  
+ interval_seconds                    = 10800,
+ input_from_file                     = .true.,
+ HISTORY_INTERVAL                    = 60,
+ FRAMES_PER_OUTFILE                  = 25,
+ restart                             = $WRF_RSTFLAG,
+ restart_interval                    = $wrf_restart_interval,
+ write_hist_at_0h_rst                = .true.,
+ io_form_history                     = 2,
+ io_form_restart                     = 2,
+ io_form_input                       = 2,
+ io_form_boundary                    = 2,
+ io_form_auxinput2                   = 2,
+ io_form_auxinput4                   = 2,
+ debug_level                         = 0,
+ auxinput4_inname                    = "wrflowinp_d01",
+ auxinput4_interval                  = 360,
+ auxinput4_end_h                     = 1000000,
+ reset_simulation_start              = .false.,
+/
+
+ &wrf_cmaq
+ wrf_cmaq_option                     = $wrf_cmaq_option,
+ wrf_cmaq_freq                       = $wrf_cmaq_freq,
+ met_file_tstep                      = $met_file_tstep,
+ direct_sw_feedback                  = $direct_sw_feedback,
+ feedback_restart                    = $feedback_restart,
+/
+
+ &domains
+ time_step                           = $wrf_tstep,
+ time_step_fract_num                 = 0,
+ time_step_fract_den                 = 1,
+ max_dom                             = 1,
+ s_we                                = 1,   
+ e_we                                = $WRF_COL_DIM,   
+ s_sn                                = 1,  
+ e_sn                                = $WRF_ROW_DIM, 
+ s_vert                              = 1, 
+ e_vert                              = $WRF_LAY_DIM,
+ p_top_requested                     = 5000,
+ eta_levels                          = 1.000, 0.9975, 0.995, 0.990, 0.985,
+                                       0.980, 0.970, 0.960, 0.950,
+                                       0.940, 0.930, 0.920, 0.910,
+                                       0.900, 0.880, 0.860, 0.840,
+                                       0.820, 0.800, 0.770, 0.740,
+                                       0.700, 0.650, 0.600, 0.550,
+                                       0.500, 0.450, 0.400, 0.350,
+                                       0.300, 0.250, 0.200, 0.150,
+                                       0.100, 0.050, 0.000
+ num_metgrid_levels                  = 40,
+ dx                                  = $resolution, 
+ dy                                  = $resolution,
+ grid_id                             = 1, 
+ parent_id                           = 0,  
+ i_parent_start                      = 0,   
+ j_parent_start                      = 0,     
+ parent_grid_ratio                   = 1,   
+ parent_time_step_ratio              = 1,    
+ feedback                            = 1,
+ smooth_option                       = 0,
+ /
+
+ &physics
+ mp_physics                          = 10, 
+ mp_zero_out                         = 2,
+ mp_zero_out_thresh                  = 1.0e-8,
+ ra_lw_physics                       = 4, 
+ ra_sw_physics                       = 4, 
+ radt                                = $radt, 
+ co2tf                               = 1,  
+ sf_sfclay_physics                   = 7, 
+ num_soil_layers                     = 2,
+ pxlsm_smois_init                    = $pxlsm_smois_init,
+ pxlsm_modis_veg                     = 1,
+ sf_surface_physics                  = 7, 
+ sf_urban_physics                    = 0,
+ bl_pbl_physics                      = 7, 
+ bldt                                = 0, 
+ cu_physics                          = 1, 
+ kfeta_trigger                       = 2
+ cudt                                = 0, 
+ ishallow                            = 0,
+ shcu_physics                        = 0,
+ prec_acc_dt                         = 60,
+ isfflx                              = 1,
+ ifsnow                              = 1,
+ icloud                              = 1,
+ cu_rad_feedback                     = .true.,
+ surface_input_source                = 1,
+ num_land_cat                        = $NUM_LAND_USE_TYPE,
+ num_soil_cat                        = 16,
+ sst_update                          = 1,
+ seaice_threshold                    = 100,
+ slope_rad                           = 1,
+ topo_shading                        = 1,
+ shadlen                             = 25000.,
+ do_radar_ref                        = 1,
+ grav_settling                       = 0,
+ /
+
+ &fdda
+ grid_fdda                           = 1,    
+ grid_sfdda                          = 1,
+ gfdda_inname                        = "wrffdda_d01",
+ sgfdda_inname                       = "wrfsfdda_d01",
+ pxlsm_soil_nudge                    = 1,
+ sgfdda_end_h                        = 1000000,
+ sgfdda_interval_m                   = 180,
+ GFDDA_END_H                         = 1000000,
+ gfdda_interval_m                    = 180,  
+ fgdt                                = 0,    
+ if_no_pbl_nudging_uv                = 1,    
+ if_no_pbl_nudging_t                 = 1,     
+ if_no_pbl_nudging_q                 = 1,     
+ if_zfac_uv                          = 0,     
+  k_zfac_uv                          = 13,   
+ if_zfac_t                           = 0,    
+  k_zfac_t                           = 13,   
+ if_zfac_q                           = 0,     
+  k_zfac_q                           = 13,   
+ guv                                 = 0.0001,     
+ gt                                  = 0.0001,    
+ gq                                  = 0.00001, 
+ guv_sfc                             = 0.0000,
+ gt_sfc                              = 0.0000,
+ gq_sfc                              = 0.0000,
+ if_ramping                          = 1,
+ dtramp_min                          = 60.0,
+ io_form_gfdda                       = 2,
+ rinblw                              = 250.0
+ /
+
+ &dynamics
+ hybrid_opt                          = 2,
+ w_damping                           = 1,
+ diff_opt                            = 1,
+ km_opt                              = 4,
+ diff_6th_opt                        = 2,
+ diff_6th_factor                     = 0.12,
+ damp_opt                            = 3,
+ base_temp                           = 290.
+ zdamp                               = 5000., 
+ dampcoef                            = 0.05,  
+ khdif                               = 0,     
+ kvdif                               = 0,    
+ non_hydrostatic                     = .true., 
+ moist_adv_opt                       = 2,
+ tke_adv_opt                         = 2,
+ scalar_adv_opt                      = 2,
+ use_theta_m                         = 1,
+ /
+
+ &bdy_control
+ spec_bdy_width                      = 5,
+ spec_zone                           = 1,
+ relax_zone                          = 4,
+ specified                           = .true., 
+ spec_exp                            = 0.0,
+ nested                              = .false.,
+ /
+
+ &grib2
+ /
+
+ &namelist_quilt
+ nio_tasks_per_group = 0,
+ nio_groups = 1,
+ /
+ 
+End_Of_Namelist
+
+      rm -f wrfbdy_d01 wrffdda_d01 wrfsfdda_d01 wrfinput_d01 wrflowinp_d01
+      ln -sf $METpath/wrfbdy_d01 wrfbdy_d01
+      ln -sf $METpath/wrffdda_d01 wrffdda_d01
+      ln -sf $METpath/wrfsfdda_d01 wrfsfdda_d01
+      if (${WRF_RSTFLAG} == .false.) then
+         ln -sf $METpath/wrfinput_d01 wrfinput_d01
+      endif
+      ln -sf $METpath/wrflowinp_d01 wrflowinp_d01
+
+#-----------------------------------------------------------------------
+# Set up and run WRF-EM executable.
+#-----------------------------------------------------------------------
+
+      if ( -f wrf.exe       ) rm -f wrf.exe
+
+      if ( -f ETAMPNEW_DATA ) rm -f ETAMPNEW_DATA
+      if ( -f GENPARM.TBL   ) rm -f GENPARM.TBL
+      if ( -f landFilenames ) rm -f landFilenames
+      if ( -f LANDUSE.TBL   ) rm -f LANDUSE.TBL
+      if ( -f RRTM_DATA     ) rm -f RRTM_DATA
+      if ( -f SOILPARM.TBL  ) rm -f SOILPARM.TBL
+      if ( -f tr49t67       ) rm -f tr49t67
+      if ( -f tr49t85       ) rm -f tr49t85
+      if ( -f tr67t85       ) rm -f tr67t85
+      if ( -f VEGPARM.TBL   ) rm -f VEGPARM.TBL
+
+      ln -s $WRF_DIR/main/wrf.exe              wrf.exe
+
+      ln -s $WRF_DIR/test/em_real/ETAMPNEW_DATA ETAMPNEW_DATA
+      ln -s $WRF_DIR/test/em_real/GENPARM.TBL   GENPARM.TBL
+      ln -s $WRF_DIR/test/em_real/landFilenames landFilenames
+      ln -s $WRF_DIR/test/em_real/LANDUSE.TBL   LANDUSE.TBL
+      ln -s $WRF_DIR/test/em_real/RRTM_DATA     RRTM_DATA
+      ln -s $WRF_DIR/test/em_real/RRTMG_SW_DATA RRTMG_SW_DATA
+      ln -s $WRF_DIR/test/em_real/RRTMG_LW_DATA RRTMG_LW_DATA
+      ln -s $WRF_DIR/test/em_real/SOILPARM.TBL  SOILPARM.TBL
+      ln -s $WRF_DIR/test/em_real/tr49t67       tr49t67
+      ln -s $WRF_DIR/test/em_real/tr49t85       tr49t85
+      ln -s $WRF_DIR/test/em_real/tr67t85       tr67t85
+      ln -s /work/MOD3DEV/fsidi/CMAQ_Integration/PR_938/sens/CCTM/scripts/VEGPARM.TBL   VEGPARM.TBL
+      ln -s $WRF_DIR/test/em_real/ozone_plev.formatted  ozone_plev.formatted
+      ln -s $WRF_DIR/test/em_real/ozone_lat.formatted   ozone_lat.formatted
+      ln -s $WRF_DIR/test/em_real/ozone.formatted       ozone.formatted
+      ln -s $WRF_DIR/test/em_real/CAMtr_volume_mixing_ratio CAMtr_volume_mixing_ratio
 # ===================================================================
 #> Execution Portion
 # ===================================================================
-
-  #> Print attributes of the executable
-  if ( $CTM_DIAG_LVL != 0 ) then
-     ls -l $BLD/$EXEC
-     size $BLD/$EXEC
-     unlimit
-     limit
-  endif
 
   #> Print Startup Dialogue Information to Standard Out
   echo 
   echo "CMAQ Processing of Day $YYYYMMDD Began at `date`"
   echo 
 
-  #> Executable call for single PE, uncomment to invoke
-  #( /usr/bin/time -p $BLD/$EXEC ) |& tee buff_${EXECUTION_ID}.txt
+  ls -al ${OUTDIR}/wrf.exe
 
-  #> Executable call for multi PE, configure for your system 
-  # set MPI = /usr/local/intel/impi/3.2.2.006/bin64
-  # set MPIRUN = $MPI/mpirun
-  ( /usr/bin/time -p mpirun -np $NPROCS $BLD/$EXEC ) |& tee buff_${EXECUTION_ID}.txt
+  date
+  time mpirun -np $NPROCS ${OUTDIR}/wrf.exe
+  date
   
   #> Harvest Timing Output so that it may be reported below
-  set rtarray = "${rtarray} `tail -3 buff_${EXECUTION_ID}.txt | grep -Eo '[+-]?[0-9]+([.][0-9]+)?' | head -1` "
-  rm -rf buff_${EXECUTION_ID}.txt
+# set rtarray = "${rtarray} `tail -3 buff_${EXECUTION_ID}.txt | grep -Eo '[+-]?[0-9]+([.][0-9]+)?' | head -1` "
+# rm -rf buff_${EXECUTION_ID}.txt
 
   #> Abort script if abnormal termination
-  if ( ! -e $OUTDIR/CCTM_CGRID_${CTM_APPL}.nc ) then
-    echo ""
-    echo "**************************************************************"
-    echo "** Runscript Detected an Error: CGRID file was not written. **"
-    echo "**   This indicates that CMAQ was interrupted or an issue   **"
-    echo "**   exists with writing output. The runscript will now     **"
-    echo "**   abort rather than proceeding to subsequent days.       **"
-    echo "**************************************************************"
-    break
-  endif
+  if ($wrf_cmaq_option > 1) then
+     if ( ! -e $OUTDIR/CCTM_CGRID_${CTM_APPL}.nc ) then
+       echo ""
+       echo "**************************************************************"
+       echo "** Runscript Detected an Error: CGRID file was not written. **"
+       echo "**   This indicates that CMAQ was interrupted or an issue   **"
+       echo "**   exists with writing output. The runscript will now     **"
+       echo "**   abort rather than proceeding to subsequent days.       **"
+       echo "**************************************************************"
+       break
+     endif
 
-  #> Print Concluding Text
-  echo 
-  echo "CMAQ Processing of Day $YYYYMMDD Finished at `date`"
-  echo
-  echo "\\\\\=====\\\\\=====\\\\\=====\\\\\=====/////=====/////=====/////=====/////"
-  echo
+     #> Print Concluding Text
+     echo
+     echo "CMAQ Processing of Day $YYYYMMDD Finished at `date`"
+     echo
+     echo "\\\\\=====\\\\\=====\\\\\=====\\\\\=====/////=====/////=====/////=====/////"
+     echo
+  endif
 
 # ===================================================================
 #> Finalize Run for This Day and Loop to Next Day
 # ===================================================================
 
   #> Save Log Files and Move on to Next Simulation Day
-  mv CTM_LOG_???.${CTM_APPL} $LOGDIR
+  #mv CTM_LOG_???.${CTM_APPL} $OUTDIR
+  #> WRF-CMAQ LOGS are combined into WRF_LOGS no CTM_LOGS_* will be generated 
+  if ( ! -e $OUTDIR/${TODAYJ}) then
+    mkdir $OUTDIR/${TODAYJ} 
+  endif
+  mv rsl.* $OUTDIR/${TODAYJ}
+  if (($wrf_cmaq_option == 1) || ($wrf_cmaq_option == 3)) then
+    mv MET* $OUTDIR/${TODAYJ}
+    mv GRI* $OUTDIR/${TODAYJ}
+  endif
+  
   if ( $CTM_DIAG_LVL != 0 ) then
-    mv CTM_DIAG_???.${CTM_APPL} $LOGDIR
+    mv CTM_DIAG_???.${CTM_APPL} $OUTDIR
   endif
 
   #> The next simulation day will, by definition, be a restart
@@ -776,8 +1061,6 @@ echo "Start Day: ${START_DATE}"
 echo "End Day:   ${END_DATE}"
 echo "Number of Simulation Days: ${NDAYS}"
 echo "Domain Name:               ${GRID_NAME}"
-echo "Number of Grid Cells:      ${NCELLS}  (ROW x COL x LAY)"
-echo "Number of Layers:          ${NZ}"
 echo "Number of Processes:       ${NPROCS}"
 echo "   All times are in seconds."
 echo
