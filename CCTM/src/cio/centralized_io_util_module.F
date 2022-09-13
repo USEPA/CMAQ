@@ -26,11 +26,15 @@
 !  08/01/19, D. Wong: modified code to work with two-way model
 !  11/20/19, F. Sidi: Modified time to sec to handle negative numbers
 !  03/05/20, D. Wong: Expanded CIO functionalities to MPAS as well
+!  07/07/20, D. Wong: Formulated a robust routine to compute JDATE1 - JDATE2
+!                     and JDATE + NDAYS
 !------------------------------------------------------------------------!
 
       module centralized_io_util_module
 
         implicit none
+
+        private :: leap_year
 
         interface quicksort
           module procedure quicksort1d,
@@ -38,6 +42,23 @@
         end interface
 
         contains
+
+! -----------------------------------------------------------
+        logical function leap_year (year)
+
+          integer :: year
+
+          if (mod(year, 4) .ne. 0) then
+             leap_year = .false.
+          else if (mod(year, 400) .eq. 0) then
+             leap_year = .true.
+          else if (mod(year, 100) .eq. 0) then
+             leap_year = .false.
+          else
+             leap_year = .true.
+          endif
+
+        end function leap_year
 
 ! -------------------------------------------------------------------------
         recursive subroutine quicksort1d (name, begin, end)
@@ -203,7 +224,7 @@
         end function time_diff
 
 !--------------------------------------------------------------------------
-       integer function next_day (jday)
+        integer function next_day (jday)
 
 ! This function determermins the next day for time interpolation 
           implicit none
@@ -237,6 +258,90 @@
              End If
           End If
 
-       end function next_day
+        end function next_day
+
+! -------------------------------------------------------------------------
+        integer function cal_date (date1, date2, operator)
+
+          integer, intent(in)   :: date1, date2
+          character, intent(in) :: operator
+
+          integer :: ldate1, ldate2, yr1, yr2, day1, day2, dsum, y,
+     &               adj, adj_yr, remainder, ndays
+          logical :: done
+
+          if (operator == '-') then
+             if (date1 <= date2) then
+                ldate1 = date1
+                ldate2 = date2
+                adj    = -1
+             else
+                ldate1 = date2
+                ldate2 = date1
+                adj    = 1
+             end if
+
+             yr1  = ldate1 / 1000
+             yr2  = ldate2 / 1000
+             day1 = mod(ldate1, 1000)
+             day2 = mod(ldate2, 1000)
+
+             dsum = 0
+             do y = yr1, yr2
+                if (leap_year(y)) then
+                   dsum = dsum + 366
+                else
+                   dsum = dsum + 365
+                end if
+             end do
+
+             dsum = dsum - day1
+             if (leap_year(yr2)) then
+                dsum = dsum - 366 + day2
+             else
+                dsum = dsum - 365 + day2
+             end if
+           
+             cal_date = dsum * adj
+
+          else if (operator == '+') then
+
+             yr1  = date1 / 1000
+             day1 = mod(date1, 1000)
+             if (date2 < 0) then
+                adj_yr = -1
+                adj    =  1
+             else
+                adj_yr =  1
+                adj    = -1
+             end if
+
+             day1 = day1 + date2
+             done = .false.
+             do while (.not. done)
+                if (leap_year(yr1)) then
+                   ndays = 366
+                else
+                   ndays = 365
+                end if
+                if ((day1 > 0) .and. (day1 <= ndays)) then
+                   done = .true.
+                else
+                   yr1 = yr1 + adj_yr
+                   day1 = day1 + ndays * adj
+                end if
+             end do
+
+             if ((date2 < 0) .and. (leap_year(yr1))) then
+                cal_date = yr1 * 1000 + day1 + 1
+             else
+                cal_date = yr1 * 1000 + day1
+             end if
+
+          else
+             call m3exit ( 'cal_date', 0, 0, ' Abort: Invalid operator', 2)
+          end if
+
+        end function cal_date
 
       end module centralized_io_util_module
