@@ -967,7 +967,7 @@ End_Of_Namelist
       ln -s $WRF_DIR/test/em_real/tr49t67       tr49t67
       ln -s $WRF_DIR/test/em_real/tr49t85       tr49t85
       ln -s $WRF_DIR/test/em_real/tr67t85       tr67t85
-      ln -s /work/MOD3DEV/fsidi/CMAQ_Integration/PR_938/sens/CCTM/scripts/VEGPARM.TBL   VEGPARM.TBL
+      ln -s $WRF_DIR/test/em_real/VEGPARM.TBL   VEGPARM.TBL
       ln -s $WRF_DIR/test/em_real/ozone_plev.formatted  ozone_plev.formatted
       ln -s $WRF_DIR/test/em_real/ozone_lat.formatted   ozone_lat.formatted
       ln -s $WRF_DIR/test/em_real/ozone.formatted       ozone.formatted
