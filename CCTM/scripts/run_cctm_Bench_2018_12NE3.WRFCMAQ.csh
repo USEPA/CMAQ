@@ -21,6 +21,20 @@ set option  = 3
 
 echo 'Start Model Run At ' `date`
 
+#> Choose compiler and set up CMAQ environment with correct 
+#> libraries using config.cmaq. Options: intel | gcc | pgi
+ if ( ! $?compiler ) then
+   setenv compiler intel
+ endif
+ if ( ! $?compilerVrsn ) then
+   setenv compilerVrsn Empty
+ endif
+
+#> Source the config.cmaq file to set the build environment
+ cd ../..
+ source ./config_cmaq.csh $compiler $compilerVrsn
+ cd CCTM/scripts
+
 #> Toggle Diagnostic Mode which will print verbose information to 
 #> standard output
 setenv CTM_DIAG_LVL 0 
@@ -44,7 +58,7 @@ set EXEC      = wrf.exe
 # Set Working, Input, and Output Directories
 set WORKDIR     = ${PWD}                                  # Pathname of current Working Directory
 set WRF_DIR     = $WORKDIR/BLD_WRFv4.4_CCTM_v54_intel18.0 # Location of WRF-CMAQ Install
-set INPDIR      = ../../data                              # Input directory for WRF & CMAQ
+set INPDIR      = ${CMAQ_DATA}/2018_12NE3               # Input directory for WRF & CMAQ
 set OUTPUT_ROOT = $WORKDIR                                # output root directory
 set output_direct_name = WRFCMAQ-output-${version}        # Output Directory Name
 setenv OUTDIR $OUTPUT_ROOT/$output_direct_name   # output files and directories
@@ -62,7 +76,7 @@ echo "Executable Name is $EXEC"
 #> Set Start and End Days for looping
 setenv NEW_START TRUE             # Set to FALSE for model restart
 set START_DATE = "2018-07-01"     # beginning date (July 1, 2016)
-set END_DATE   = "2018-07-02"     # ending date    (July 14, 2016)
+set END_DATE   = "2018-07-01"     # ending date    (July 14, 2016)
 
 #> Set Timestepping Parameters
 set STTIME     = 000000           # beginning GMT time (HHMMSS)
@@ -78,7 +92,7 @@ set wrf_cmaq_option      =  ${option} # 0 = run WRF only
 set direct_sw_feedback   =    .true.  # direct Shortwave aerosol feedback effect [.false]
 set wrf_cmaq_freq        =        5   # WRF-CMAQ couple model frequency [1]
 
-set cont_from_spinup_run =        F   # indicates whether a wrf spinup run prior to the twoway model run
+set cont_from_spinup_run =        T   # indicates whether a wrf spinup run prior to the twoway model run
 set wrf_tstep            =       60   # WRF model time-step
 set NUM_LAND_USE_TYPE    =       40   # MODIS IS 20, USGS is 24, NCLD50 is 50, NCLD40 is 40
 set radt                 =       20   # radiation module time step
@@ -378,7 +392,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   setenv STAGECTRL_NML ${WRF_DIR}/cmaq/CMAQ_Control_STAGE.nml
  
   #> Spatial Masks For Emissions Scaling
-  setenv CMAQ_MASKS $SZpath/OCEAN_${MM}_L3m_MC_CHL_chlor_a_12NE3.nc #> horizontal grid-dependent ocean file
+  setenv CMAQ_MASKS $SZpath/OCEAN_07_L3m_MC_CHL_chlor_a_12NE3.nc #> horizontal grid-dependent ocean file
 
   #> Gridded Emissions Files 
   setenv N_EMIS_GR 2
@@ -484,7 +498,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   endif
 
   #> In-line sea spray emissions configuration
-  setenv OCEAN_1 $SZpath/OCEAN_${MM}_L3m_MC_CHL_chlor_a_12NE3.nc #> horizontal grid-dependent ocean file
+  setenv OCEAN_1 $SZpath/OCEAN_07_L3m_MC_CHL_chlor_a_12NE3.nc #> horizontal grid-dependent ocean file
 
   #> Bidirectional ammonia configuration
   if ( $CTM_ABFLUX == 'Y' ) then
@@ -934,6 +948,8 @@ End_Of_Namelist
       ln -sf $METpath/wrfsfdda_d01 wrfsfdda_d01
       if (${WRF_RSTFLAG} == .false.) then
          ln -sf $METpath/wrfinput_d01 wrfinput_d01
+      else if (${WRF_RSTFLAG} == .TRUE.) then
+         ln -sf $METpath/wrfrst_d01_${TODAYG}_00:00:00
       endif
       ln -sf $METpath/wrflowinp_d01 wrflowinp_d01
 
