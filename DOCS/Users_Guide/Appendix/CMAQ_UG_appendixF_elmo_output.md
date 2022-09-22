@@ -25,15 +25,20 @@ Concentrations of scalar variables like NO, NO2, O3, ASO4J, and others are avail
 Previously, aggregate parameters like PM<sub>2.5</sub> and Fine-mode Sulfate (ASO4I + ASO4J) were calculated offline through the COMBINE post-processing utility and documented via the species definition (SpecDef) input file for COMBINE, as depcited in Fig. F-2.  
 CMAQv5.4 maintains the CONC and ACONC files - they are available for use identically to CMAQv5.3.3. However, PMDIAG and APMDIAG files have been eliminated. 
 If a user would like to continue using the COMBINE workflow to aggregate PM variables, they may output necessary variables like FPM25ACC to ELMO files and use those with CONC output. 
-On the contrary, a user may elect to rely exclusively on ELMO output files alone and set the CONC_SPCS and AVG_CONC_SPCS variables in the CMAQ runscript to just one variable (e.g. O3) to minimize their I/O time and storage space footprint. 
+Alternatively, a user may elect to rely exclusively on ELMO output files alone and set the CONC_SPCS and AVG_CONC_SPCS variables in the CMAQ runscript to just one variable (e.g. O3) to minimize their I/O time and storage space footprint. 
 
 <a id=FigureF-2></a> ![Figure F-2](../images/FigureF-2.png)  
 **Figure F-2. Schematic of data workflow in v5.3 and v5.4 with ELMO**
 
 There are several distinct advantages to using ELMO over post-processing CONC and ACONC output with COMBINE:
 
-- Definitions of products like PM25 mass, PMF (Fine PM mass), and PM10 mass automatically adjust as PM species are activated or deactivated by CMAQ users or chemical mechanisms are switched. There is no need to modify a SpecDef file to account for a new or eliminated species.
-- Complex properties like O:C, OM:OC, particle acidity, etc. can be calculated using species properties available within CMAQ. This resolves a potential vulnerability where, for example, the OM:OC of organic species may become out of sync between the SpecDef and the SOA_DEFN table within the model. This could have potentially led to errors in the calculation of OC (organic carbon). With ELMO, there is no such risk.  
+- Definitions of products like PM25 mass, PMF (Fine PM mass), and PM10 mass automatically adjust as PM species are activated or deactivated by CMAQ users or chemical mechanisms are switched. There is no need to modify a SpecDef file to account for a new or eliminated species.  
+   - Note that some of the diagnostic species defined in FINE_ORG, specifically those meant to provide an approximate distinction between primary and secondary or anthropogenic and biogenic organic aerosols, should generally only be used in a qualitative manner. 
+A number of emitted compounds forming organic aerosols in the atmosphere can have both anthropogenic and biogenic sources so a quantitative attribution of organic aerosols to specific sources cannot be based on an analysis of concentrations alone and should use ISAM instead. 
+Moreover, their interpretation may not be consistent across mechanisms (e.g. cb6r5_aero7 vs. cracmm1) depending on the assumptions made during emissions processing and the mapping of emitted species to CMAQ mechanism species in DESID.
+
+- Complex properties like O:C, OM:OC, particle acidity, etc. can be calculated using species properties available within CMAQ. 
+This resolves a potential vulnerability where, for example, the OM:OC of organic species may become out of sync between the SpecDef and the SOA_DEFN table within the model. This could have potentially led to errors in the calculation of OC (organic carbon). With ELMO, there is no such risk.  
 
 - If a user is only interested in aggregate parameters like PM25 mass, they can avoid the I/O time and storage required saving the raw output of every PM variable and then post-processing with COMBINE. This can be particularly helpful when processing 3D data.
 
@@ -45,7 +50,9 @@ There are several distinct advantages to using ELMO over post-processing CONC an
 
 - Variables may be added to the ELMO_LIST table in ELMO_DATA.F and then prescribed in ELMO_PROC.F with greater ease.
  
-ELMO has no significant quantitative impact on results, but there will be a noticeable positive impact on the time invested in post-processing aggregate PM components and storage volumes required for standard runs. There can be some slight numerical differences realized when one compares quantities averaged directly online with ELMO vs. calculated offline using averages. For exmaple, total PM2.5 have some small deviations when it is calculated as the hourly average of the sum of species (online) versus the sum of hourly averaged species (offline).
+ELMO has no significant quantitative impact on results, but there will be a noticeable positive impact on the time invested in post-processing aggregate PM components and storage volumes required for standard runs. 
+There can be some slight numerical differences realized when one compares quantities averaged directly online with ELMO vs. calculated offline using averages. 
+For example, total PM2.5 have some small deviations when it is calculated as the hourly average of the sum of species (online) versus the sum of hourly averaged species (offline).
 
 
 ### F.3 Prescribing features of ELMO output files
@@ -74,7 +81,7 @@ Likewise, the average ELMO file output layers are set in the elmo_avrg variable 
 ```
 Inst_Layer_Top and Avrg_Layer_Top may not exceed the total number of model layers. 
 
-It is recommended to output all model layers if you are otuputting variables for comparison to satellite column data like NO2. Aerosol Optical Depth (AOD_550) may be output as a surface (i.e. just layer 1) or for multiple layers. 
+It is recommended to output all model layers if you are outputting variables for comparison to satellite column data like NO2. Aerosol Optical Depth (AOD_550) may be output as a surface (i.e. just layer 1) or for multiple layers. 
 When 2D variables are output on a 3D ELMO file, ELMO will put real data in layer 1, and I/O-API missing values above layer 1. 
 
 
@@ -82,7 +89,7 @@ When 2D variables are output on a 3D ELMO file, ELMO will put real data in layer
 All CMAQ scalar variables and all variables in Fig. F-1 are available for output on ELMO files. 
 The CMAQ Miscellaneous Control file variables Inst_Vars_Nml and Avrg_Vars_Nml (shown in section F.3) control the variables output to the instantaneous and average ELMO files, respectively. 
 Up to 1000 strings may be specified here. 
-To avoid relying on intimidatingly log lists of variable names, ELMO uses Keywords that expand to groups of variables (often particularly meaningful or useful ones). 
+To avoid relying on intimidatingly long lists of variable names, ELMO uses Keywords that expand to groups of variables (often particularly meaningful or useful ones). 
 In this way, ELMO improves transparency and reduces the risk of needing to rerun simulations to produce mistakenly omitted variables. 
 The ELMO Keyword "DEFAULT" loads all scalar and aggregate variables that would have been generated by using the default COMBINE approach for CMAQv5.3.3 and previous. 
 This and other ELMO keywords are defined in Table F-1.  
