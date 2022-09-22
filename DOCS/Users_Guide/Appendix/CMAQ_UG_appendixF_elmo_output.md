@@ -42,9 +42,9 @@ This resolves a potential vulnerability where, for example, the OM:OC of organic
 
 - If a user is only interested in aggregate parameters like PM25 mass, they can avoid the I/O time and storage required saving the raw output of every PM variable and then post-processing with COMBINE. This can be particularly helpful when processing 3D data.
 
-- ELMO functionality will be critical in the future for applications like ISAM where there is a large runtime and storage penalty for outputting raw species concentrations for every emission source. This capacity isunder development for CMAQv5.4.1.
+- ELMO functionality will be critical in the future for applications like ISAM where there is a large runtime and storage penalty for outputting raw species concentrations for every emission source. This capacity is under development for CMAQv5.4.1.
 
-- New parameters are available that were not before like N10, N20, N40 and N100, the number of particles above 10, 20, 40 and 100 nm in diameter. AOD at 550 nm and extinction have also been supported as options; these were previously only available on the photlysis diagnostic file.  
+- New parameters are available that were not before like N10, N20, N40 and N100, the number of particles above 10, 20, 40 and 100 nm in diameter. AOD and extinction at 550 nm have also been supported as options; these were previously only available on the photlysis diagnostic file.  
 
 - Keywords are available (see section F.4) to select groups of variables of interest. 
 
@@ -81,7 +81,7 @@ Likewise, the average ELMO file output layers are set in the elmo_avrg variable 
 ```
 Inst_Layer_Top and Avrg_Layer_Top may not exceed the total number of model layers. 
 
-It is recommended to output all model layers if you are outputting variables for comparison to satellite column data like NO2. Aerosol Optical Depth (AOD_550) may be output as a surface (i.e. just layer 1) or for multiple layers. 
+It is recommended to output all model layers if you are outputting variables for comparison to satellite column data like NO2. Aerosol Optical Depth (AOD_550) may be output as a surface (i.e. just layer 1) or for multiple layers (layer-dependent extinction multiplied by layer thickness). 
 When 2D variables are output on a 3D ELMO file, ELMO will put real data in layer 1, and I/O-API missing values above layer 1. 
 
 
