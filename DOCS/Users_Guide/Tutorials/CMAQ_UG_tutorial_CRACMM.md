@@ -43,8 +43,8 @@ Current EPA workflows implement semivolatile POA parameterizations in CMAQ-CRACM
 The SMOKE input files available in the CRACMM supporting repository will generate CMAQ-CRACMM inputs with two POA species, both nonvolatile. 
 The gspro files in the supporting repository will label the total organic carbon in POA as 'PMOCN2' and non-carbon organic matter in POA as 'PMNCOMN2'. 
 The mapping of species on CMAQ-ready files to mechanisms in CMAQ is handled with mechanism specific namelists and the [DESID utility](
-https://doi.org/10.5194/gmd-14-3407-2021). The current DESID files for CRACMM in v5.4 add together PMOCN2 and PMNOCMN2 to create a 
-total POA equivalent that is then distributed to different volatility species based on the expected volatility of POA emissions. 
+https://doi.org/10.5194/gmd-14-3407-2021). The current DESID files for CRACMM in v5.4 add together PMOCN2 and PMNOCMN2 on the emission files to create a 
+total POA equivalent that is then distributed to different volatility species in the model based on the expected volatility of POA emissions. 
 By default, a conservative profile with limited evaporation should be applied but other example profiles for diesel vehicles and wood burning are provided. For emissions to be properly ingested by CMAQ, three files need to be customized and synchronized for your simulation: 
 * The run script. This is where the model is told what files to read in and each file (stream) is given a string label.
 * The DESID mechanism-specific namelist. This is where PMOCN2 and PMNCOMN2 can be mapped to species of different volatility.
@@ -52,7 +52,7 @@ By default, a conservative profile with limited evaporation should be applied bu
 
 **The main CMAQ log file and the log file for at least one processor should be checked for any initial run.** Warnings about potential emission problems will be displayed in those logs. More guidance on using DESID is available in a [CMAQ tutorial](https://github.com/USEPA/CMAQ/tree/main/DOCS/Users_Guide/Tutorials).
 
-CRACMM mechanisms currently allow traditional nonvolatile 'APOC' and 'ANCOM' as legacy species in the model. The species can be transported and removed but do not undergo any heterogeneous or other chemistry. This species will be removed in a future version.
+CRACMM mechanisms currently allow traditional nonvolatile 'APOC' and 'ANCOM' as legacy species in the model. The species can be transported and removed but do not undergo any heterogeneous or other chemistry. This species will be removed in a future version. To use the model species 'APOC' and 'ANCOM', the DESID control file would need to include their mappings.
 
 If your emission preparation workflow is custom, you can create semivolatle POA species directly in your inputs. CRACMM contains low volatility through semivolatile organic species with either alkane-like or oxygenated functionality that can represent semivolatile POA emissions. You can use the CRACMM python emission mapper to map emissions to representative CRACMM species. In CMAQ, check that the DESID files include your species names.
 
