@@ -135,7 +135,18 @@ ELMO works by putting all of the diagnostic parameters first on the ELMO_LIST ta
 
 For each variable, the recursive subroutine CALC_ELMO is called to execute the calculation. For many of the calculations, all that is required is an assignment from an already existing diagnostic variable (e.g. RH, STDEV_ACC). 
 For the parameters which are linear combinations of CMAQ species or other parameters (e.g. fine-mode nitrate PMF_NO3 = ANO3I + ANO3J), they may be defined in the subroutine MAP_ELMO_COEFFS (in ELMO_PROC.F). 
-Follow the example of existing variables to prescribe the species to be added, the inlet type to assume for collection, etc. New PM inlet types can be added via the ELMO_INLET table in ELMO_DATA.F. For more complicated variables like fine-mode acidity (PMF_PH) or the PM25 mass collected by a Federal Reference Method sampler (PM25_FRM), calculations appear directly in CALC_ELMO.
+Follow the example of existing variables to prescribe the species to be added, the inlet type to assume for collection, etc. New PM inlet types can be added via the ELMO_INLET table in ELMO_DATA.F. For more complicated variables like fine-mode acidity (PMF_PH) or the PM25 mass collected by a Federal Reference Method sampler (PM25_FRM), calculations appear directly in CALC_ELMO. For example, PMF_MASS is computed by referencing the information in AERO_DATA to identify all variables that are included in fine-mode particulates (excluding 'tracer' species, which by definition, don't contribute to the bulk particle mass in CMAQ). The following algorithm shows how the return variable, outval, is summed across all modes while neglecting aerosol inorganic and organic water.
+
+```
+ DO IMODE = 1,N_MODE
+    IF ( AEROMODE( IMODE )%FINE_MASK ) THEN
+         OUTVAL = OUTVAL + SUM( AEROSPC_CONC( :,IMODE ),
+                  MASK=.NOT.AEROSPC(:)%TRACER)  - AEROSPC_CONC( AH2O_IDX,IMODE )
+         IF ( AORGH2O_IDX .GT. 0 ) OUTVAL = OUTVAL
+&              - AEROSPC_CONC( AORGH2O_IDX,IMODE ) ! ug m-3
+    END IF
+END DO
+```
  
 
 <!-- BEGIN COMMENT -->
