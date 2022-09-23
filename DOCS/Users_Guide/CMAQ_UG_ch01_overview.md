@@ -70,6 +70,7 @@ Building on previous versions of the modeling system, numerous updates to the pr
 4. The process of building model code for coupling CMAQ with WRFv4.4+ has been streamlined and better documented.  
 5. The AMETv1.5 tool is released with new analysis scripts on both the meteorological and air quality sides of AMET. The release also includes new and improved interactive scripts, improved error checking, and various bug fixes.  
 6. The CMAQ-ISAM and CMAQ-DDM systems have been generalized, streamlined, and improved so that they support multiple model configurations. CMAQ-ISAM is now equipped with options for apportioning Carbon and Nitrogen.
+7. Community partners from Tsinghua University have contributed a research-grade chemical mechanism that implements the Two-Dimensional Volatility Basis Set (2D-VBS) for SOA formation and aging. It is built upon the SAPRC07 gas-phase mechanism and is available from the Github repo via a dedicated branch ('2DVBS').  
 
 Collectively, these updates improve model capabilities for addressing local nonattainment issues, quantifying natural contributions versus anthropogenic enhancements, enabling examination of regional air pollution in context of changing global emissions, and for cross-media applications. Additionally, changes to model structure in CMAQv5.4 are oriented towards improving transparency of model assumptions, improved diagnostic tools for model probing, and improvements in overall numerical and computational efficiency of the modeling system.
 
