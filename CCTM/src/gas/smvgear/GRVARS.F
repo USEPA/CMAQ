@@ -606,7 +606,7 @@ c..cell & solver data
 ! *********************************************************************
 ! iabovk  = number of species whose concentrations are larger than yabst
 ! BIN_COUNTS    = counts number of concentrations above ATOL_LEVEL(i), i = 1..  
-! yabst   = absolute error tolerance (molec. cm-3 for gases) 
+! yabst   = absolute error tolerance (ppm) 
 ! abtol   = pre-defined absolute error tolerances 
 !
           BIN_COUNTS = 0
