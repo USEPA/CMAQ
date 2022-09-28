@@ -247,11 +247,11 @@ C......................................................................
       REAL( 8 ) :: ASET( 10, 8 )       ! Gear parameters for calculating [P] and
                                        ! and determining the order
 
-      REAL( 8 ) :: PERTST( MXORDER, 3 )  = ! Gear coefficients used to select order and step size
-!     DATA PERTST /   ! (7,3)
-     &   (/ 2.0D0,  4.5D0,  7.333D0, 10.42D0,  13.7D0,     17.15D0,     1.0D0,
+      REAL( 8 ) :: PERTST( MXORDER, 3 )  ! Gear coefficients used to select order and step size
+      DATA PERTST /   ! (7,3)
+     &      2.0D0,  4.5D0,  7.333D0, 10.42D0,  13.7D0,     17.15D0,     1.0D0,
      &      3.0D0,  6.0D0,  9.167D0, 12.5D0,   15.98D0,     1.0D0,      1.0D0,
-     &      1.0D0,  1.0D0,  0.5D0,    0.1667D0, 0.04133D0,  0.008267D0, 1.0D0 /)
+     &      1.0D0,  1.0D0,  0.5D0,    0.1667D0, 0.04133D0,  0.008267D0, 1.0D0 /
 
 C......................................................................
 C  INCLUDE FILE: GRVARS3.EXT
