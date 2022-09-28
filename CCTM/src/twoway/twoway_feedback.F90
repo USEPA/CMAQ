@@ -445,6 +445,9 @@ SUBROUTINE feedback_read (grid, jdate, jtime)
 !           25 Sep 2015  (David Wong)
 !             -- replace SUBST_MODULES with SE_MODULES
 !             -- removed ae_mass access
+!           08 Sep 2022  (David Wong)
+!              -- fixed a bug that caused by changed value of NLAYS3D in the
+!                 subsequent time step
 !===============================================================================
 
   USE module_domain           ! WRF module
@@ -484,6 +487,8 @@ SUBROUTINE feedback_read (grid, jdate, jtime)
 
   character (len = 4), save :: pe_str
 
+  integer, save :: loc_nlays
+
   tstep = tstep + 1
 
   if (firstime) then
@@ -521,6 +526,8 @@ SUBROUTINE feedback_read (grid, jdate, jtime)
      if (mod(mype, npcol) .eq. 0) then
         west_bndy_pe = .true.
      end if
+
+     loc_nlays = nlays3d
 
      firstime = .false.
 
@@ -568,7 +575,7 @@ SUBROUTINE feedback_read (grid, jdate, jtime)
     end do
  end if
 
-  do l = 1, nlays3d
+  do l = 1, loc_nlays
      do r = tw_sr, tw_er
         do c = tw_sc, tw_ec
            grid%mass_ws_i(c, l, r)  = feedback_data_wrf(c-tw_sc+1,r-tw_sr+1,l,1)
@@ -607,32 +614,32 @@ SUBROUTINE feedback_read (grid, jdate, jtime)
      end do
   end do
 
-  grid%mass_ws_i(:,nlays3d+1,:) = grid%mass_ws_i(:,nlays3d,:)
-  grid%mass_ws_j(:,nlays3d+1,:) = grid%mass_ws_j(:,nlays3d,:)
-  grid%mass_ws_k(:,nlays3d+1,:) = grid%mass_ws_k(:,nlays3d,:)
-  grid%mass_in_i(:,nlays3d+1,:) = grid%mass_in_i(:,nlays3d,:)
-  grid%mass_in_j(:,nlays3d+1,:) = grid%mass_in_j(:,nlays3d,:)
-  grid%mass_in_k(:,nlays3d+1,:) = grid%mass_in_k(:,nlays3d,:)
-  grid%mass_ec_i(:,nlays3d+1,:) = grid%mass_ec_i(:,nlays3d,:)
-  grid%mass_ec_j(:,nlays3d+1,:) = grid%mass_ec_j(:,nlays3d,:)
-  grid%mass_ec_k(:,nlays3d+1,:) = grid%mass_ec_k(:,nlays3d,:)
-  grid%mass_ss_i(:,nlays3d+1,:) = grid%mass_ss_i(:,nlays3d,:)
-  grid%mass_ss_j(:,nlays3d+1,:) = grid%mass_ss_j(:,nlays3d,:)
-  grid%mass_ss_k(:,nlays3d+1,:) = grid%mass_ss_k(:,nlays3d,:)
-  grid%mass_h2o_i(:,nlays3d+1,:) = grid%mass_h2o_i(:,nlays3d,:)
-  grid%mass_h2o_j(:,nlays3d+1,:) = grid%mass_h2o_j(:,nlays3d,:)
-  grid%mass_h2o_k(:,nlays3d+1,:) = grid%mass_h2o_k(:,nlays3d,:)
-  grid%dgn_i(:,nlays3d+1,:) = grid%dgn_i(:,nlays3d,:)
-  grid%dgn_j(:,nlays3d+1,:) = grid%dgn_j(:,nlays3d,:)
-  grid%dgn_k(:,nlays3d+1,:) = grid%dgn_k(:,nlays3d,:)
-  grid%sig_i(:,nlays3d+1,:) = grid%sig_i(:,nlays3d,:)
-  grid%sig_j(:,nlays3d+1,:) = grid%sig_j(:,nlays3d,:)
-  grid%sig_k(:,nlays3d+1,:) = grid%sig_k(:,nlays3d,:)
+  grid%mass_ws_i(:,loc_nlays+1,:) = grid%mass_ws_i(:,loc_nlays,:)
+  grid%mass_ws_j(:,loc_nlays+1,:) = grid%mass_ws_j(:,loc_nlays,:)
+  grid%mass_ws_k(:,loc_nlays+1,:) = grid%mass_ws_k(:,loc_nlays,:)
+  grid%mass_in_i(:,loc_nlays+1,:) = grid%mass_in_i(:,loc_nlays,:)
+  grid%mass_in_j(:,loc_nlays+1,:) = grid%mass_in_j(:,loc_nlays,:)
+  grid%mass_in_k(:,loc_nlays+1,:) = grid%mass_in_k(:,loc_nlays,:)
+  grid%mass_ec_i(:,loc_nlays+1,:) = grid%mass_ec_i(:,loc_nlays,:)
+  grid%mass_ec_j(:,loc_nlays+1,:) = grid%mass_ec_j(:,loc_nlays,:)
+  grid%mass_ec_k(:,loc_nlays+1,:) = grid%mass_ec_k(:,loc_nlays,:)
+  grid%mass_ss_i(:,loc_nlays+1,:) = grid%mass_ss_i(:,loc_nlays,:)
+  grid%mass_ss_j(:,loc_nlays+1,:) = grid%mass_ss_j(:,loc_nlays,:)
+  grid%mass_ss_k(:,loc_nlays+1,:) = grid%mass_ss_k(:,loc_nlays,:)
+  grid%mass_h2o_i(:,loc_nlays+1,:) = grid%mass_h2o_i(:,loc_nlays,:)
+  grid%mass_h2o_j(:,loc_nlays+1,:) = grid%mass_h2o_j(:,loc_nlays,:)
+  grid%mass_h2o_k(:,loc_nlays+1,:) = grid%mass_h2o_k(:,loc_nlays,:)
+  grid%dgn_i(:,loc_nlays+1,:) = grid%dgn_i(:,loc_nlays,:)
+  grid%dgn_j(:,loc_nlays+1,:) = grid%dgn_j(:,loc_nlays,:)
+  grid%dgn_k(:,loc_nlays+1,:) = grid%dgn_k(:,loc_nlays,:)
+  grid%sig_i(:,loc_nlays+1,:) = grid%sig_i(:,loc_nlays,:)
+  grid%sig_j(:,loc_nlays+1,:) = grid%sig_j(:,loc_nlays,:)
+  grid%sig_k(:,loc_nlays+1,:) = grid%sig_k(:,loc_nlays,:)
 
 ! begin: this is for indirect effect only, temporary blocked
 ! if (indirect_effect) then
-!    grid%ae_mass(:,nlays3d+1,:,:) = grid%ae_mass(:,nlays3d,:,:)
-!    grid%ae_num(:,nlays3d+1,:,:)  = grid%ae_num(:,nlays3d,:,:)
+!    grid%ae_mass(:,loc_nlays+1,:,:) = grid%ae_mass(:,loc_nlays,:,:)
+!    grid%ae_num(:,loc_nlays+1,:,:)  = grid%ae_num(:,loc_nlays,:,:)
 ! end if
 ! end: this is for indirect effect only, temporary blocked
 
