@@ -211,9 +211,9 @@ The following configuration settings may have multiple options. Select one optio
     -   `emis/emis`
 
 
--   `ModBiog: [default: biog/beis3]`<a id=ModBiog></a>  
-Calculate biogenic emissions online with the BEIS3 model. Online biogenic emissions are activated in the CCTM run script. Do not change this module setting. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#biogenics) for further information.
-    - `biog/beis3`
+-   `ModBiog: [default: biog/beis4]`<a id=ModBiog></a>  
+Calculate biogenic emissions online with the BEIS4 model. Online biogenic emissions are activated in the CCTM run script. Do not change this module setting. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#biogenics) for further information.
+    - `biog/beis4`
 -   `ModMegBiog: [default: biog/megan3]`<a id=ModMegBiog></a>  
 Calculate biogenic emissions online with the MEGAN3.1 model. Online biogenic emissions are activated in the CCTM run script. Do not change this module setting. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#biogenics) for further information.
     - `biog/megan3`
@@ -448,8 +448,12 @@ Sets if the CCTM will run in multi-processor or serial mode.
     If KZMIN is set to Y, CCTM will read the urban land use fraction variable (PURB) from the GRID_CRO_2D meteorology file and use this information to determine the minimum eddy diffusivity in each grid cell. In CMAQv5, grid cells that are predominantly urban use a KZMIN value of 1.0 m<sup>2</sup>/s and non-urban cells use a value of 0.01 m<sup>2</sup>/s. If this variable is set to N, the PURB variable will not be used and a uniform KZMIN value of 1.0 m<sup>2</sup>/s will be used throughout the modeling domain.
 -   `CTM_MOSAIC [default N]`<a id=CTM_MOSAIC></a>  
     Y/N setting to ouput land use specific deposition velocities and fluxes. This option is only available when using the STAGE deposition module. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#682-dry-depostion---stage) for further information.
--   `CTM_FST [default: N]`<a id=CTM_FST></a>  
-   Y/N setting to output land-use specific stomatal flux. This option is only available when using the STAGE deposition module and when CTM_MOSAIC is set to Y. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#682-dry-depostion---stage) for further information.
+-   `CTM_STAGE_P22 [default: N]`<a id=CTM_FST></a>  
+   Y/N setting to select the land use specific implementation of the Pleim et al. 2022 and v5.4 M3Dry aerosol deposition parameterization in the STAGE deposition option. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#682-dry-depostion---stage) for further information.
+-   `CTM_STAGE_E20 [default: Y]`<a id=CTM_FST></a>  
+   Y/N setting to select the land use specific and modal implementation of the Emerson et al. 2020 aerosol deposition parameterization in the STAGE deposition option. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#682-dry-depostion---stage) for further information.
+-   `CTM_STAGE_S22 [default: N]`<a id=CTM_FST></a>  
+   Y/N setting to select the land use specific implementation of the Shu et al. 2022 and v5.3 STAGE aerosol deposition parameterization in the STAGE deposition option. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#682-dry-depostion---stage) for further information.   
 -   `PX_VERSION` <a id=PX_VERSION></a>
     Y/N setting to indicate whether the Pleim-Xiu land-surface model was used for the input meteorology. If this setting is set to Y the input meteorology data must include soil moisture (SOILM), soil temperature (SOILT), and soil type (ISLTYP) variables for use in the calculation of soil NO emissions. Additionally, the soil properties from PX will be used in the dust model and in the STAGE deposition module for calculating the soil compensation point for ammonia bidirectional exchange. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#682-dry-depostion---stage) for further information.
 -   `CLM_VERSION` <a id=CLM_VERSION></a>
@@ -644,18 +648,9 @@ Options for use with BEIS:
 -   `GSPRO [default: Build Directory]`<a id=GSPRO></a>  
     Directory path and file name for input ASCII speciation profiles. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#biogenics) for further information. 
 
--   `B3GRD [default: None]`<a id=B3GRD></a>  
+-   `BEIS_NORM_EMIS [default: None]`<a id=BEIS_NORM_EMIS></a>  
     Grid-normalized biogenic emissions input netCDF file. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#biogenics) for further information.  
     
--   `BIOSW_YN [default: Y]`<a id=BIOSW_YN></a>  
-    Use the frost dates switch file to determine whether to use winter or summer biogenic emissions.  See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#biogenics) for further information.   
-
--   `BIOSEASON [default: False]`<a id=BIOSEASON></a>  
-    File name for the frost dates switch input netCDF file. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#biogenics) for further information.   
-
--   `SUMMER_YN [default: False]`<a id=SUMMER_YN></a>  
-    Toggle for summer season normalized biogenic emissions. This variable is ignored if BIOSW_YN is set to Y. Comment out or set to Y to select summer season biogenic emissions factors; set to N to turn off. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#biogenics) for further information.  
-
 -   `PX_VERSION [default: True]`<a id=PX_VERSION></a>  
     Setting to indicate whether the Pleim-Xiu land-surface model was used for the input meteorology. If this setting is set to Y the input meteorology data must include soil moisture (SOILM), soil temperature (SOILT), and soil type (ISLTYP) variables for use in the calculation of soil NO emissions.  
 
