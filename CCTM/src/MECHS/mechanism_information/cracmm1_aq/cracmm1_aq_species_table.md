@@ -1,6 +1,8 @@
 Gas (G) and particle (P) species from the namelists. SMILES link to representative structures in the EPA Chemicals Dashboard (if available).
 
- Species | Description | Phase | Molecular Weight (g/mol) | Explicit/Lumped | Representative Structure | SMILES 
+Note that for each particulate species in CMAQ, a letter will be appended to the name to designate the size, or mode, of the aerosol being represented: I = Aitken mode, J = Accumulation mode, K = Coarse mode. 
+
+ <sub>Species</sub> | <sub>Description</sub> | <sub>Phase</sub> | <sub>Molecular Weight (g/mol)</sub> | <sub>Explicit/ Lumped</sub> | <sub>Representative Structure</sub> | <sub>SMILES</sub> 
  ----- | ----- | ----- | ----- | ----- | ----- | ----- 
 AAL|Aluminum ion|P|27.0|E|Aluminum ion|[\[Al+3\]](https://comptox.epa.gov/dashboard/chemical/details/DTXSID70912343)
 ACA|Calcium ion|P|40.1|E|Calcium ion|[\[Ca++\]](https://comptox.epa.gov/dashboard/chemical/details/DTXSID7037638)
@@ -211,4 +213,3 @@ XYEP|Peroxy radicals formed from XYE|G|187.17|L|{5-ethyl-8-hydroxy-6,7-dioxabicy
 XYM|M-xylene and other more reactive volatile aromatics with k<sub>OH</sub> > 1.46x10<sup>-11</sup> cm<sup>3</sup> s<sup>-1</sup> |G|106.2|L|m-Xylene|[CC1=CC\(C\)=CC=C1](https://comptox.epa.gov/dashboard/chemical/details/DTXSID6026298)
 XYMP|Peroxy radicals formed from XYM|G|187.17|L|{8-hydroxy-1,5-dimethyl-6,7-dioxabicyclo[3.2.1]oct-3-en-2-yl}peroxy|\[O\]OC1C=CC2\(C\)OOC1\(C\)C2O
 
-Note that for each aerosol mass species, a letter will be appended to the name to designate the size, or mode, of the aerosol being represented: I = Aitken mode, J = Accumulation mode, K = Coarse mode. 
