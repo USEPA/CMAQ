@@ -585,12 +585,12 @@ c..cell & solver data
 
           IF ( FIRST_CALL ) THEN 
 ! set absolute tolerance bins
-             ABHI           = LOG10( REAL( GEAR_MAX_ATOL,8 ) ) ! LOG10( MAX_YLOW( NCS ) ) ! LOG10( GEAR_ATOL ) + 1.5D0 
-             ABLO           = LOG10( REAL( GEAR_MIN_ATOL,8 ) ) ! LOG10( GEAR_ATOL ) 
+             ABHI           = LOG10( REAL( GEAR_MAX_ATOL,8 ) ) 
+             ABLO           = LOG10( REAL( GEAR_MIN_ATOL,8 ) ) 
 !            
              ATOL_LEVEL( 1 ) = 10.0D0**ABHI
              ATOL_LEVEL( NBINS + 1 ) = 10.0D0**ABLO
-             ATOL_FLOOR              = REAL( GEAR_CONC_FLOOR,8 ) ! YLOW_FLOOR( NCS ) ! ( GEAR_RTOL ** 1.0D0 ) * GEAR_ATOL
+             ATOL_FLOOR              = REAL( GEAR_CONC_FLOOR,8 ) 
              DO I = 2, NBINS
                 ATOL_LEVEL(I)  = 10.0D0**(ABLO + (ABHI - ABLO) * REAL( (NBINS-I+1),8 ) / REAL( NBINS,8 ) )
              END DO
