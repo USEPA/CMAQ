@@ -127,9 +127,7 @@ NH3|Ammonia|G|17.0|E|Ammonia|[N](https://comptox.epa.gov/dashboard/chemical/deta
 NO|Nitric oxide |G|30.0|E|Nitric oxide|[\[N\]=O](https://comptox.epa.gov/dashboard/chemical/details/DTXSID1020938)
 NO2|Nitrogen dioxide |G|46.0|E|Nitrogen dioxide|[N\(=O\)\[O\]](https://comptox.epa.gov/dashboard/chemical/details/DTXSID7020974)
 NO3|Nitrogen trioxide|G|62.0|E|Nitrate radical|\[O\]N\(=O\)=O
-NUMACC|Number of accumulation mode particles|P|1.0|L|Accumulation number|
-NUMATKN|Number of Aitken mode particles|P|1.0|L|Aitken number|
-NUMCOR|Number of coarse mode particles|P|1.0|L|Coarse number|
+NUM|Number of particles|P|1.0|L|Number of particles|
 O1D|Excited state oxygen atom, O(1D) |G|16.0|E|Excited oxygen|[\[O\]](https://comptox.epa.gov/dashboard/chemical/details/DTXSID00170378)
 O3|Ozone|G|48.0|E|Ozone|[\[O-\]\[O+\]=O](https://comptox.epa.gov/dashboard/chemical/details/DTXSID0021098)
 O3P|Ground state oxygen atom, O(3P)|G|16.0|E|Ground state oxygen|[\[O\]](https://comptox.epa.gov/dashboard/chemical/details/DTXSID00170378)
@@ -156,55 +154,53 @@ PPN|Peroxypropionyl nitrate|G|135.0|E|Peroxypopionyl nitrate|[CCC\(=O\)OO\[N+\]\
 PROG|Propylene glyocol and other 3 carbon dialcohols|G|76.1|E|1,2-Propylene glycol|[CC\(O\)CO](https://comptox.epa.gov/dashboard/chemical/details/DTXSID0021206)
 RCO3|Higher saturated acyl peroxy radicals|G|89.0|L|Propanoylperoxy|CCC\(=O\)O\[O\]
 ROCIOXY|Intermediate volatility oxygenated ROC species (directly emitted)|G|247.0|L|Decamethylcyclopentasiloxane|[C\[Si\]1\(C\)O\[Si\]\(C\)\(C\)O\[Si\]\(C\)\(C\)O\[Si\]\(C\)\(C\)O\[Si\]\(C\)\(C\)O1](https://comptox.epa.gov/dashboard/chemical/details/DTXSID1027184)
-ROCN1ALK|Alkane-like ROC species with log<sub>10</sub>C* of 10<sup>-1</sup> &#956;g m<sup>-3</sup>|GP|408.8|L|5,9-Dimethylheptacosane|[CCCCCCCCCCCCCCCCCCC\(C\)CCCC\(C\)CCCC](https://comptox.epa.gov/dashboard/chemical/details/DTXSID40823452)
-ROCN1OXY1|Oxygenated ROC species with log<sub>10</sub>C* of 10<sup>-1</sup> &#956;g m<sup>-3</sup> and O:C of 0.1|GP|312.5|L|Arachidic Acid|[CCCCCCCCCCCCCCCCCCCC\(=O\)O](https://comptox.epa.gov/dashboard/chemical/details/DTXSID1060134)
-ROCN1OXY3|Oxygenated ROC species with log<sub>10</sub>C* of 10<sup>-1</sup> &#956;g m<sup>-3</sup> and O:C of 0.3|GP|230.3|L|DODECANEDIOIC ACID|[C\(CCCCCC\(=O\)O\)CCCCC\(=O\)O](https://comptox.epa.gov/dashboard/chemical/details/DTXSID3027297)
-ROCN1OXY6|Oxygenated ROC species with log<sub>10</sub>C* of 10<sup>-1</sup> &#956;g m<sup>-3</sup> and O:C of 0.6|GP|190.2|L|2-hydroxy-octanedioic acid|C\(CCC\(C\(=O\)O\)O\)CCC\(=O\)O
-ROCN2ALK|Alkane-like ROC species with log<sub>10</sub>C* of 10<sup>-2</sup> &#956;g m<sup>-3</sup>|GP|422.83|L|Triacontane|[CCCCCCCCCCCCCCCCCCCCCCCCCCCCCC](https://comptox.epa.gov/dashboard/chemical/details/DTXSID0060935)
-ROCN2OXY2|Oxygenated ROC species with log<sub>10</sub>C* of 10<sup>-1</sup> &#956;g m<sup>-3</sup> and O:C of 0.2|GP|282.4|L|12(S)-hydroxy-16-Heptadecynoic Acid|C#CCCC\[C@H\]\(CCCCCCCCCCC\(=O\)O\)O
-ROCN2OXY4|Oxygenated ROC species with log<sub>10</sub>C* of 10<sup>-2</sup> &#956;g m<sup>-3</sup> and O:C of 0.4|GP|232.3|L|2-HYDROXYUNDECANEDIOIC ACID|[C\(CCCCC\(=O\)O\)CCCC\(C\(=O\)O\)O](https://comptox.epa.gov/dashboard/chemical/details/DTXSID90726525)
-ROCN2OXY8|Oxygenated ROC species with log<sub>10</sub>C* of 10<sup>-2</sup> &#956;g m<sup>-3</sup> and O:C of 0.8|GP|194.2|L|3,4,5,6,7-Pentahydroxyheptan-2-one|[CC\(=O\)C\(C\(C\(C\(CO\)O\)O\)O\)O](https://comptox.epa.gov/dashboard/chemical/details/DTXSID80956455)
-ROCP0ALK|Alkane-like ROC species with log<sub>10</sub>C* of 1 &#956;g m<sup>-3</sup>|GP|394.77|L|11-Methylheptacosane|[CCCCCCCCCCCCCCCCC\(C\)CCCCCCCCCC](https://comptox.epa.gov/dashboard/chemical/details/DTXSID40333900)
-ROCP0OXY2|Oxygenated ROC species with log<sub>10</sub>C* of 1 &#956;g m<sup>-3</sup> and O:C of 0.2|GP|242.4|L|3-oxotetradecanoic acid|[CCCCCCCCCCCC\(=O\)CC\(=O\)O](https://comptox.epa.gov/dashboard/chemical/details/DTXSID10332384)
-ROCP0OXY4|Oxygenated ROC species with log<sub>10</sub>C* of 1 &#956;g m<sup>-3</sup> and O:C of 0.4|GP|202.3|L|DECANEDIOIC ACID|[C\(CCCCC\(=O\)O\)CCCC\(=O\)O](https://comptox.epa.gov/dashboard/chemical/details/DTXSID7026867)
-ROCP1ALK|Alkane-like ROC species with log<sub>10</sub>C* of 10 &#956;g m<sup>-3</sup>|GP|380.75|L|Heptacosane|[CCCCCCCCCCCCCCCCCCCCCCCCCCC](https://comptox.epa.gov/dashboard/chemical/details/DTXSID6058637)
+ROCN1ALK|Alkane-like ROC species with C* of 10<sup>-1</sup> &#956;g m<sup>-3</sup>|GP|408.8|L|5,9-Dimethylheptacosane|[CCCCCCCCCCCCCCCCCCC\(C\)CCCC\(C\)CCCC](https://comptox.epa.gov/dashboard/chemical/details/DTXSID40823452)
+ROCN1OXY1|Oxygenated ROC species with C* of 10<sup>-1</sup> &#956;g m<sup>-3</sup> and O:C of 0.1|GP|312.5|L|Arachidic Acid|[CCCCCCCCCCCCCCCCCCCC\(=O\)O](https://comptox.epa.gov/dashboard/chemical/details/DTXSID1060134)
+ROCN1OXY3|Oxygenated ROC species with C* of 10<sup>-1</sup> &#956;g m<sup>-3</sup> and O:C of 0.3|GP|230.3|L|DODECANEDIOIC ACID|[C\(CCCCCC\(=O\)O\)CCCCC\(=O\)O](https://comptox.epa.gov/dashboard/chemical/details/DTXSID3027297)
+ROCN1OXY6|Oxygenated ROC species with C* of 10<sup>-1</sup> &#956;g m<sup>-3</sup> and O:C of 0.6|GP|190.2|L|2-hydroxy-octanedioic acid|C\(CCC\(C\(=O\)O\)O\)CCC\(=O\)O
+ROCN2ALK|Alkane-like ROC species with C* of 10<sup>-2</sup> &#956;g m<sup>-3</sup>|GP|422.83|L|Triacontane|[CCCCCCCCCCCCCCCCCCCCCCCCCCCCCC](https://comptox.epa.gov/dashboard/chemical/details/DTXSID0060935)
+ROCN2OXY2|Oxygenated ROC species with C* of 10<sup>-1</sup> &#956;g m<sup>-3</sup> and O:C of 0.2|GP|282.4|L|12(S)-hydroxy-16-Heptadecynoic Acid|C#CCCC\[C@H\]\(CCCCCCCCCCC\(=O\)O\)O
+ROCN2OXY4|Oxygenated ROC species with C* of 10<sup>-2</sup> &#956;g m<sup>-3</sup> and O:C of 0.4|GP|232.3|L|2-HYDROXYUNDECANEDIOIC ACID|[C\(CCCCC\(=O\)O\)CCCC\(C\(=O\)O\)O](https://comptox.epa.gov/dashboard/chemical/details/DTXSID90726525)
+ROCN2OXY8|Oxygenated ROC species with C* of 10<sup>-2</sup> &#956;g m<sup>-3</sup> and O:C of 0.8|GP|194.2|L|3,4,5,6,7-Pentahydroxyheptan-2-one|[CC\(=O\)C\(C\(C\(C\(CO\)O\)O\)O\)O](https://comptox.epa.gov/dashboard/chemical/details/DTXSID80956455)
+ROCP0ALK|Alkane-like ROC species with C* of 1 &#956;g m<sup>-3</sup>|GP|394.77|L|11-Methylheptacosane|[CCCCCCCCCCCCCCCCC\(C\)CCCCCCCCCC](https://comptox.epa.gov/dashboard/chemical/details/DTXSID40333900)
+ROCP0OXY2|Oxygenated ROC species with C* of 1 &#956;g m<sup>-3</sup> and O:C of 0.2|GP|242.4|L|3-oxotetradecanoic acid|[CCCCCCCCCCCC\(=O\)CC\(=O\)O](https://comptox.epa.gov/dashboard/chemical/details/DTXSID10332384)
+ROCP0OXY4|Oxygenated ROC species with C* of 1 &#956;g m<sup>-3</sup> and O:C of 0.4|GP|202.3|L|DECANEDIOIC ACID|[C\(CCCCC\(=O\)O\)CCCC\(=O\)O](https://comptox.epa.gov/dashboard/chemical/details/DTXSID7026867)
+ROCP1ALK|Alkane-like ROC species with C* of 10 &#956;g m<sup>-3</sup>|GP|380.75|L|Heptacosane|[CCCCCCCCCCCCCCCCCCCCCCCCCCC](https://comptox.epa.gov/dashboard/chemical/details/DTXSID6058637)
 ROCP1ALKP|Peroxy radicals from ROCP1ALK oxidation|G|411.74|L|heptacosan-3-ylperoxy|CCCCCCCCCCCCCCCCCCCCCCCCC\(CC\)O\[O\]
 ROCP1ALKP2|Hydroxy peroxy radicals from ROCP1ALK alkoxy product|G|427.73|L|(3-hydroxyheptacosan-6-yl)peroxy|CCCCCCCCCCCCCCCCCCCCCC\(O\[O\]\)CCC\(O\)CC
-ROCP1OXY1|Oxygenated ROC species with log<sub>10</sub>C* of 10 &#956;g m<sup>-3</sup> and O:C of 0.1|GP|270.5|L|HEPTADECANOIC ACID|[CCCCCCCCCCCCCCCCC\(=O\)O](https://comptox.epa.gov/dashboard/chemical/details/DTXSID5021596)
-ROCP1OXY3|Oxygenated ROC species with log<sub>10</sub>C* of 10 &#956;g m<sup>-3</sup> and O:C of 0.3|GP|202.3|L|11-hydroxyundecanoic acid|[C\(CCCCCO\)CCCCC\(=O\)O](https://comptox.epa.gov/dashboard/chemical/details/DTXSID40190136)
-ROCP2ALK|Alkane-like ROC species with log<sub>10</sub>C* of 10<sup>+2</sup> &#956;g m<sup>-3</sup>|GP|338.66|L|Tetracosane|[CCCCCCCCCCCCCCCCCCCCCCCC](https://comptox.epa.gov/dashboard/chemical/details/DTXSID8060955)
+ROCP1OXY1|Oxygenated ROC species with C* of 10 &#956;g m<sup>-3</sup> and O:C of 0.1|GP|270.5|L|HEPTADECANOIC ACID|[CCCCCCCCCCCCCCCCC\(=O\)O](https://comptox.epa.gov/dashboard/chemical/details/DTXSID5021596)
+ROCP1OXY3|Oxygenated ROC species with C* of 10 &#956;g m<sup>-3</sup> and O:C of 0.3|GP|202.3|L|11-hydroxyundecanoic acid|[C\(CCCCCO\)CCCCC\(=O\)O](https://comptox.epa.gov/dashboard/chemical/details/DTXSID40190136)
+ROCP2ALK|Alkane-like ROC species with C* of 10<sup>+2</sup> &#956;g m<sup>-3</sup>|GP|338.66|L|Tetracosane|[CCCCCCCCCCCCCCCCCCCCCCCC](https://comptox.epa.gov/dashboard/chemical/details/DTXSID8060955)
 ROCP2ALKP|Peroxy radicals from ROCP2ALK oxidation|G|369.65|L|tetracosan-3-ylperoxy|CCCCCCCCCCCCCCCCCCCCCC\(CC\)O\[O\]
 ROCP2ALKP2|Hydroxy peroxy radicals from ROCP2ALK alkoxy product|G|385.65|L|(3-hydroxytetracosan-6-yl)peroxy|CCCCCCCCCCCCCCCCCCC\(O\[O\]\)CCC\(O\)CC
-ROCP2OXY2|Oxygenated ROC species with log<sub>10</sub>C* of 10<sup>+2</sup> &#956;g m<sup>-3</sup> and O:C of 0.2|GP|200.3|L|Dodecanoic Acid|[CCCCCCCCCCCC\(=O\)O](https://comptox.epa.gov/dashboard/chemical/details/DTXSID5021590)
-ROCP3ALK|Alkane-like ROC species with log<sub>10</sub>C* of 10<sup>+3</sup> &#956;g m<sup>-3</sup>|GP|296.58|L|Heneicosane|[CCCCCCCCCCCCCCCCCCCCC](https://comptox.epa.gov/dashboard/chemical/details/DTXSID9047097)
+ROCP2OXY2|Oxygenated ROC species with C* of 10<sup>+2</sup> &#956;g m<sup>-3</sup> and O:C of 0.2|GP|200.3|L|Dodecanoic Acid|[CCCCCCCCCCCC\(=O\)O](https://comptox.epa.gov/dashboard/chemical/details/DTXSID5021590)
+ROCP3ALK|Alkane-like ROC species with C* of 10<sup>+3</sup> &#956;g m<sup>-3</sup>|GP|296.58|L|Heneicosane|[CCCCCCCCCCCCCCCCCCCCC](https://comptox.epa.gov/dashboard/chemical/details/DTXSID9047097)
 ROCP3ALKP|Peroxy radicals from ROCP3ALK oxidation|G|327.57|L|henicosan-3-ylperoxy|CCCCCCCCCCCCCCCCCCC\(CC\)O\[O\]
 ROCP3ALKP2|Hydroxy peroxy radicals from ROCP3ALK alkoxy product|G|343.57|L|(3-hydroxyhenicosan-6-yl)peroxy|CCCCCCCCCCCCCCCC\(O\[O\]\)CCC\(O\)CC
-ROCP3OXY2|Oxygenated ROC species with log<sub>10</sub>C* of 10<sup>+3</sup> &#956;g m<sup>-3</sup> and O:C of 0.2|GP|186.3|L|11-hydroxyundecanal|C\(CCCCCO\)CCCCC=O
-ROCP4ALK|Alkane-like ROC species with log<sub>10</sub>C* of 10<sup>+4</sup> &#956;g m<sup>-3</sup>|G|254.5|L|Octadecane|[CCCCCCCCCCCCCCCCCC](https://comptox.epa.gov/dashboard/chemical/details/DTXSID9047172)
+ROCP3OXY2|Oxygenated ROC species with C* of 10<sup>+3</sup> &#956;g m<sup>-3</sup> and O:C of 0.2|GP|186.3|L|11-hydroxyundecanal|C\(CCCCCO\)CCCCC=O
+ROCP4ALK|Alkane-like ROC species with C* of 10<sup>+4</sup> &#956;g m<sup>-3</sup>|G|254.5|L|Octadecane|[CCCCCCCCCCCCCCCCCC](https://comptox.epa.gov/dashboard/chemical/details/DTXSID9047172)
 ROCP4ALKP|Peroxy radicals from ROCP4ALK oxidation|G|285.49|L|octadecan-3-ylperoxy|CCCCCCCCCCCCCCCC\(CC\)O\[O\]
 ROCP4ALKP2|Hydroxy peroxy radicals from ROCP4ALK alkoxy product|G|301.49|L|(3-hydroxyoctadecan-6-yl)peroxy|CCCCCCCCCCCCC\(O\[O\]\)CCC\(O\)CC
-ROCP4OXY2|Oxygenated ROC species with log<sub>10</sub>C* of 10<sup>+4</sup> &#956;g m<sup>-3</sup> and O:C of 0.2|G|158.2|L|2-Ethylheptanoic Acid|[CCCCCC\(CC\)C\(=O\)O](https://comptox.epa.gov/dashboard/chemical/details/DTXSID40880929)
-ROCP5ALK|Alkane-like ROC species with log<sub>10</sub>C* of 10<sup>+5</sup> &#956;g m<sup>-3</sup>|G|198.39|L|Tetradecane|[CCCCCCCCCCCCCC](https://comptox.epa.gov/dashboard/chemical/details/DTXSID1027267)
+ROCP4OXY2|Oxygenated ROC species with C* of 10<sup>+4</sup> &#956;g m<sup>-3</sup> and O:C of 0.2|G|158.2|L|2-Ethylheptanoic Acid|[CCCCCC\(CC\)C\(=O\)O](https://comptox.epa.gov/dashboard/chemical/details/DTXSID40880929)
+ROCP5ALK|Alkane-like ROC species with C* of 10<sup>+5</sup> &#956;g m<sup>-3</sup>|G|198.39|L|Tetradecane|[CCCCCCCCCCCCCC](https://comptox.epa.gov/dashboard/chemical/details/DTXSID1027267)
 ROCP5ALKP|Peroxy radicals from ROCP5ALK oxidation|G|229.38|L|tetradecan-3-ylperoxy|CCCCCCCCCCCC\(CC\)O\[O\]
 ROCP5ALKP2|Hydroxy peroxy radicals from ROCP5ALK alkoxy product|G|245.38|L|(3-hydroxytetradecan-6-yl)peroxy|CCCCCCCCC\(O\[O\]\)CCC\(O\)CC
-ROCP5ARO|Aromatic ROC species with log<sub>10</sub>C* of 10<sup>+5</sup> &#956;g m<sup>-3</sup>|G|190.33|L|Benzene, octyl-|[CCCCCCCCC1=CC=CC=C1](https://comptox.epa.gov/dashboard/chemical/details/DTXSID2062240)
+ROCP5ARO|Aromatic ROC species with C* of 10<sup>+5</sup> &#956;g m<sup>-3</sup>|G|190.33|L|Benzene, octyl-|[CCCCCCCCC1=CC=CC=C1](https://comptox.epa.gov/dashboard/chemical/details/DTXSID2062240)
 ROCP5AROP|Peroxy radicals from ROCP5ARO oxidation|G|271.33|L|{8-hydroxy-5-octyl-6,7-dioxabicyclo[3.2.1]oct-3-en-2-yl}peroxy|CCCCCCCCC1\(OO2\)C=CC\(O\[O\]\)C2C1O
-ROCP5OXY1|Oxygenated ROC species with log<sub>10</sub>C* of 10<sup>+5</sup> &#956;g m<sup>-3</sup> and O:C of 0.1|G|170.3|L|Undecanal|[CCCCCCCCCCC=O](https://comptox.epa.gov/dashboard/chemical/details/DTXSID4021688)
-ROCP6ALK|Alkane-like ROC species with log<sub>10</sub>C* of 10<sup>+6</sup> &#956;g m<sup>-3</sup>|G|184.37|L|Tridecane|[CCCCCCCCCCCCC](https://comptox.epa.gov/dashboard/chemical/details/DTXSID6027266)
+ROCP5OXY1|Oxygenated ROC species with C* of 10<sup>+5</sup> &#956;g m<sup>-3</sup> and O:C of 0.1|G|170.3|L|Undecanal|[CCCCCCCCCCC=O](https://comptox.epa.gov/dashboard/chemical/details/DTXSID4021688)
+ROCP6ALK|Alkane-like ROC species with C* of 10<sup>+6</sup> &#956;g m<sup>-3</sup>|G|184.37|L|Tridecane|[CCCCCCCCCCCCC](https://comptox.epa.gov/dashboard/chemical/details/DTXSID6027266)
 ROCP6ALKP|Peroxy radicals from ROCP6ALK oxidation|G|215.36|L|tridecan-3-ylperoxy|CCCCCCCCCCC\(CC\)O\[O\]
 ROCP6ALKP2|Hydroxy peroxy radicals from ROCP6ALK alkoxy product|G|231.36|L|(3-hydroxytridecan-6-yl)peroxy|CCCCCCCC\(O\[O\]\)CCC\(O\)CC
-ROCP6ARO|Aromatic ROC species with log<sub>10</sub>C* of 10<sup>+6</sup> &#956;g m<sup>-3</sup>|G|176.3|L|1-Hexyl-4-methylbenzene|[CCCCCCC1=CC=C\(C\)C=C1](https://comptox.epa.gov/dashboard/chemical/details/DTXSID30333914)
+ROCP6ARO|Aromatic ROC species with C* of 10<sup>+6</sup> &#956;g m<sup>-3</sup>|G|176.3|L|1-Hexyl-4-methylbenzene|[CCCCCCC1=CC=C\(C\)C=C1](https://comptox.epa.gov/dashboard/chemical/details/DTXSID30333914)
 ROCP6AROP|Peroxy radicals from ROCP6ARO oxidation|G|257.3|L|{2-hexyl-8-hydroxy-5-methyl-6,7-dioxabicyclo[3.2.1]oct-3-en-2-yl}peroxy|OC1C2C\(CCCCCC\)\(O\[O\]\)C=CC1\(C\)OO2
-ROCP6OXY1|Oxygenated ROC species with log<sub>10</sub>C* of 10<sup>+6</sup> &#956;g m<sup>-3</sup> and O:C of 0.1|G|142.2|L|Nonanal|[CCCCCCCCC=O](https://comptox.epa.gov/dashboard/chemical/details/DTXSID9021639)
+ROCP6OXY1|Oxygenated ROC species with C* of 10<sup>+6</sup> &#956;g m<sup>-3</sup> and O:C of 0.1|G|142.2|L|Nonanal|[CCCCCCCCC=O](https://comptox.epa.gov/dashboard/chemical/details/DTXSID9021639)
 ROH|C3 and higher alcohols |G|60.0|L|Propanol|[CCCO](https://comptox.epa.gov/dashboard/chemical/details/DTXSID2021739)
 SESQ|Sesquiterpenes |G|204.4|L|b-caryophyllene|[C/C1=C/CCC\(=C\)C2CC\(C\)\(C\)C2CC\1](https://comptox.epa.gov/dashboard/chemical/details/DTXSID8024739)
 SESQNRO2|Peroxy radicals from SESQ reaction with nitrate radicals|G|298.4|L|[4,11,11-trimethyl-8-methylidene-5-(nitrooxy)bicyclo[7.2.0]undecan-4-yl]peroxy|\[O\]OC1\(C\)CCC2C\(CC2\(C\)C\)C\(=C\)CCC1O\[N+\]\(=O\)\[O-\]
 SESQRO2|Peroxy radicals from SESQ reaction with OH|G|253.4|L|{5-hydroxy-4,11,11-trimethyl-8-methylidenebicyclo[7.2.0]undecan-4-yl}peroxy|\[O\]OC1\(C\)CCC2C\(CC2\(C\)C\)C\(=C\)CCC1O
 SLOWROC|Slowly reacting ROC with k<sub>OH</sub>< 3.5x10<sup>-13</sup> cm<sup>3</sup> s<sup>-1</sup> |G|75.4|L|Hydrogen cyanide|[C#N](https://comptox.epa.gov/dashboard/chemical/details/DTXSID9024148)
 SO2|Sulfur dioxide |G|64.0|E|Sulfur dioxide|[O=S=O](https://comptox.epa.gov/dashboard/chemical/details/DTXSID6029672)
-SRFACC|Surface area of accumulation mode particles|P|1.0|L|Surface area of accumulation|
-SRFATKN|Surface area of Aitken mode particles|P|1.0|L|Surface area of Aitken|
-SRFCOR|Surface area of coarse mode particles|P|1.0|L|Surface area of coarse|
+SRF|Surface area of particles|P|1.0|L|Surface area of particles|
 SULF|Sulfuric acid|G|98.0|E|Sulfuric acid|[OS\(=O\)\(=O\)O](https://comptox.epa.gov/dashboard/chemical/details/DTXSID5029683)
 SULRXN|Precursor of Aerosol Sulfate (tracking species) |G|98.0||NA|
 TOL|Toluene |G|92.14|E|Toluene|[CC1=CC=CC=C1](https://comptox.epa.gov/dashboard/chemical/details/DTXSID7021360)
