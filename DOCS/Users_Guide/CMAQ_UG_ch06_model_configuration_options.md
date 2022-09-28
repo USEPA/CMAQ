@@ -263,16 +263,20 @@ STAGE options in the RunScript:
 setenv CTM_MOSAIC Y
 ```
 Sets output for land use specific dry deposition and dry deposition velocities. Note: To retrieve the grid cell average from these files it should be area weighted by the land use fraction by summing the product of the land use fraction and the dry deposition/deposition velocity for each grid cell. 
-```
-setenv CTM_FST Y
-```
-Sets output for land use specific dry deposition to leaf stomata. 
+
 ```
 setenv PX_VERSION   Y
 setenv CLM_VERSION Y
 setenv NOAH_VERSION Y 
 ```
 Sets the correct soil hydrological properties and soil layer information needed to calculate soil NO emissions, NH<sub>3</sub> bidirectional exchange and O<sub>3</sub> deposition. These options are currently based on WRF 3.8.1 and earlier values for PX and CLM and WRF 4.0 for NOAH. If the land surface model is run with another look up table or parameterization, soil moisture will be constrained between saturation and residual water content from the parameterization in CMAQ. This is also the case for the m3dry deposition option, soil NO emissions, and wind-blown dust.   
+
+```
+setenv CTM_STAGE_P22 N       
+setenv CTM_STAGE_E20 Y       #> Emerson et al. 2020 Aerosol deposition model [default: Y]
+setenv CTM_STAGE_S22 N       #> Shu et al. 2022 (CMAQ v5.3) Aerosol deposition model [default: N]
+```
+Sets the aerosol dry deposition option in STAGE. CTM_STAGE_P22 is a tiled/land use specific Pleim et al. (2022) aerosol deposition option. CTM_STAGE_E20 is the tiled implementation of the Emerson et al. (2020) aerosol deposition model. CTM_STAGE_S22 is the tiled version of Shu et al. (2022) aerosol deposition model (the same as the STAGE parameterization in CMAQ v5.3 STAGE). CTM_STAGE_E20 is the default option and will be used in model simulation unless one of the other options is specified.   
 
 <a id=6.9_Emissions></a>
 

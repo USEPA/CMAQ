@@ -816,7 +816,7 @@ The STAGE_DATA section allows for the user to add species that exist in GC,TR, o
 | Min VEG | Minimum single sided leaf area index of the vegetated fraction of the land use | ratio |
 | Ground NH3 Gam | NH3 emissions potential of the non-vegetated surface, e.g. leaf litter, soil, etc.<sub>3</sub> | mol NH3 (mol H)<sup>-1</sup> |
 | Veg NH3 Gam | NH3 emissions potential of the leaf mesophyll<sub>3</sub> | mol NH3 (mol H)<sup>-1</sup> |
-| Soil Hg | Soil Hg content of the land use<sub>4</sub> | micro mol Hg (g soil)<sup>-1<\sup> |
+| Soil Hg | Soil Hg content of the land use<sub>4</sub> | micro mol Hg (g soil)<sup>-1</sup> |
 | Leaf Width | Aerodynamic leaf width | m |
 | Alpha | Zhang et al. 2001 land use parameter for aerosol dry deposition | unitless |
 | BAI | Building area index | ratio |
@@ -830,6 +830,17 @@ The STAGE_DATA section allows for the user to add species that exist in GC,TR, o
 <sub>3</sub> Used in NH3 the bidirectional exchange option.
 <sub>4</sub> Used in Hg the bidirectional exchange option.
 
+STAGE is a tiled surface exchange option that estimates deposition and emissions by land use and area weights them to the grid cell. New in v5.4, is the option to develop custom land use mappings to reduce the redundancy in model calculations and allow the user to customize land use specific deposition for their specific ecosystem exposure or deposition needs. The MET_TO_STAGE_LU section of CMAQ_Control_STAGE namelist allows for the mapping of the meteorological model’s land use data to the user defined STAGE land use categories. These tables have been populated for WRF implimentations of MODIS, NLCD and USGS land use types and require no further modification for the default land use mapping. 
+
+**Table 4-8** Variables in the MET_TO_STAGE_LU section of STAGECTRL_NML.
+|**Variable Name**|**Description**|
+|---------------|-----------------------------|
+| Met_LU_Name   | Name of the meteorological land use variable in LUFRAC_CRO (for documentation only) |
+| Met_Index     | Layer of the meteorological land use variable in LUFRAC_CRO |
+| STAGE_LU_name | Name of the STAGE land use variable in the Land Use Name column of the STAGE_LU section of STAGECTRL_NML|
+| STAGE_Index   | Layer of the STAGE land use variable in the LU Index column of the STAGE_LU section of STAGECTRL_NML |
+| Factor        | Land use factor for the mapping. This must sum up to 1 for each unique element of the Met_Index |
+| Description   | Description of the meteorological model's land use (for documentation only) |
 
 ## 4.10 Photolysis Inputs
 
