@@ -158,16 +158,18 @@
       CHARACTER(256) :: TR_NAMELIST = '' ! Tracer Species Namelist
      
       ! Chemistry and Photolysis
-      LOGICAL :: PHOTDIAG  = .FALSE. ! Flag for PHOTDIAG file
-      INTEGER :: NLAYS_DIAG = 0      ! Number of Diagnostic Layers to write out for photolysis
-      INTEGER :: NWAVE = 0           ! Number of Diagnostic Wavelengths
-      CHARACTER(16) :: WAVE_ENV(100) ! Targeted wavelengths for diagnostic output
-      LOGICAL :: CORE_SHELL= .FALSE. ! flag for using core-shell mixing model for aerosol optics
-      LOGICAL :: MIE_CALC  = .FALSE. ! flag for using Mie Theory in aerosol optics calculation
-      REAL    :: GEAR_ATOL = 1.0E-9  ! Absolute Tolerance for Gear Solver
-      REAL    :: GEAR_RTOL = 1.0E-3  ! Relative Tolerance for Gear Solver
-      REAL    :: GLBL_ATOL = 1.0E-7  ! Absolute Tolerance for Rosenbrock Solver
-      REAL    :: GLBL_RTOL = 1.0E-3  ! Relative Tolerance for Rosenbrock Solver
+      LOGICAL :: PHOTDIAG  = .FALSE.       ! Flag for PHOTDIAG file
+      INTEGER :: NLAYS_DIAG = 0            ! Number of Diagnostic Layers to write out for photolysis
+      INTEGER :: NWAVE = 0                 ! Number of Diagnostic Wavelengths
+      CHARACTER(16) :: WAVE_ENV(100)       ! Targeted wavelengths for diagnostic output
+      LOGICAL :: CORE_SHELL= .FALSE.       ! flag for using core-shell mixing model for aerosol optics
+      LOGICAL :: MIE_CALC  = .FALSE.       ! flag for using Mie Theory in aerosol optics calculation
+      REAL    :: GEAR_RTOL = 1.0E-3        ! Relative Tolerance for Gear Solver
+      REAL    :: GEAR_MAX_ATOL = 1.0E-7    ! Upper Bound for Absolute Tolerance in Gear Solver
+      REAL    :: GEAR_MIN_ATOL = 1.0E-9    ! Lower Bound for Absolute Tolerance in Gear Solver
+      REAL    :: GEAR_CONC_FLOOR = 1.0E-12 ! Lowest Concentration used determing ATOL in Gear Solver
+      REAL    :: GLBL_ATOL = 1.0E-7        ! Absolute Tolerance for Rosenbrock Solver
+      REAL    :: GLBL_RTOL = 1.0E-3        ! Relative Tolerance for Rosenbrock Solver
 
       ! Aerosols
       LOGICAL :: IC_AERO_M2WET=.FALSE.! flag for specifying wet aerosol size parameters 
@@ -618,8 +620,14 @@
       ! Get flag to use fast optics for volume mixing model for aerosol optical properties
       CALL GET_ENV ( MIE_CALC, 'OPTICS_MIE_CALC', MIE_CALC, VARDEV )
 
-      !Absolute Tolerance for SMVGEAR
-      CALL GET_ENV ( GEAR_ATOL, 'GEAR_ATOL', GEAR_ATOL, VARDEV )
+      ! Upper Bound for Absolute Tolerance for Gear Solver
+      CALL GET_ENV ( GEAR_MAX_ATOL, 'GEAR_MAX_ATOL', GEAR_MAX_ATOL, VARDEV )
+      
+      ! Lower Bound for Absolute Tolerance for Gear Solver
+      CALL GET_ENV ( GEAR_MIN_ATOL, 'GEAR_MIN_ATOL', GEAR_MIN_ATOL, VARDEV )
+      
+      ! Lowest Concentration used determing ATOL for Gear Solver
+      CALL GET_ENV ( GEAR_CONC_FLOOR, 'GEAR_CONC_FLOOR', GEAR_CONC_FLOOR, VARDEV )
       
       !Relative Tolerance for SMVGEAR
       CALL GET_ENV ( GEAR_RTOL, 'GEAR_RTOL', GEAR_RTOL, VARDEV )

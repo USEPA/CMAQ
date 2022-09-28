@@ -246,15 +246,12 @@ C......................................................................
       REAL( 8 ) :: ENQQ3 ( MXORDER )   !
       REAL( 8 ) :: ASET( 10, 8 )       ! Gear parameters for calculating [P] and
                                        ! and determining the order
-      REAL( 8 ) :: PERTST( MXORDER, 3 )  ! Gear coefficients used to select order
-                                       ! and step size
-                             
-C........................... end GRVARS2.EXT ..........................
 
-      DATA PERTST /   ! (7,3)
-     &  2.0D0,  4.5D0,  7.333D0, 10.42D0,  13.7D0,     17.15D0,     1.0D0,
-     &  3.0D0,  6.0D0,  9.167D0, 12.5D0,   15.98D0,     1.0D0,      1.0D0,
-     &  1.0D0,  1.0D0,  0.5D0,    0.1667D0, 0.04133D0,  0.008267D0, 1.0D0 /
+      REAL( 8 ) :: PERTST( MXORDER, 3 )  = ! Gear coefficients used to select order and step size
+!     DATA PERTST /   ! (7,3)
+     &   (/ 2.0D0,  4.5D0,  7.333D0, 10.42D0,  13.7D0,     17.15D0,     1.0D0,
+     &      3.0D0,  6.0D0,  9.167D0, 12.5D0,   15.98D0,     1.0D0,      1.0D0,
+     &      1.0D0,  1.0D0,  0.5D0,    0.1667D0, 0.04133D0,  0.008267D0, 1.0D0 /)
 
 C......................................................................
 C  INCLUDE FILE: GRVARS3.EXT
@@ -588,12 +585,12 @@ c..cell & solver data
 
           IF ( FIRST_CALL ) THEN 
 ! set absolute tolerance bins
-             ABHI           = LOG10( GEAR_ATOL ) + 1.5D0 
-             ABLO           = LOG10( GEAR_ATOL ) 
+             ABHI           = LOG10( REAL( GEAR_MAX_ATOL,8 ) ) ! LOG10( MAX_YLOW( NCS ) ) ! LOG10( GEAR_ATOL ) + 1.5D0 
+             ABLO           = LOG10( REAL( GEAR_MIN_ATOL,8 ) ) ! LOG10( GEAR_ATOL ) 
 !            
              ATOL_LEVEL( 1 ) = 10.0D0**ABHI
              ATOL_LEVEL( NBINS + 1 ) = 10.0D0**ABLO
-             ATOL_FLOOR              = ( GEAR_RTOL ** 1.0D0 ) * GEAR_ATOL
+             ATOL_FLOOR              = REAL( GEAR_CONC_FLOOR,8 ) ! YLOW_FLOOR( NCS ) ! ( GEAR_RTOL ** 1.0D0 ) * GEAR_ATOL
              DO I = 2, NBINS
                 ATOL_LEVEL(I)  = 10.0D0**(ABLO + (ABHI - ABLO) * REAL( (NBINS-I+1),8 ) / REAL( NBINS,8 ) )
              END DO
@@ -669,21 +666,21 @@ c..cell & solver data
           END DO
 
 
-          YP_ABST = ATOL_LEVEL(6)
+!          YP_ABST = ATOL_LEVEL(6)
           DO NCELL = 1,  NUMCELLS
-             IF (CUM_COUNTS(NCELL,1).GE.SPECIES_CUTOFF(NCELL)) THEN
+             IF (CUM_COUNTS(NCELL,1).GT.SPECIES_CUTOFF(NCELL)) THEN
                 YP_ABST(NCELL) = ATOL_LEVEL(1)
                 NBIN = 1
-             ELSE IF (CUM_COUNTS(NCELL,2).GE.SPECIES_CUTOFF(NCELL) ) THEN
+             ELSE IF (CUM_COUNTS(NCELL,2).GT.SPECIES_CUTOFF(NCELL) ) THEN
                 YP_ABST(NCELL) = ATOL_LEVEL(2)
                 NBIN = 2
-             ELSE IF (CUM_COUNTS(NCELL,3).GE.SPECIES_CUTOFF(NCELL) ) THEN
+             ELSE IF (CUM_COUNTS(NCELL,3).GT.SPECIES_CUTOFF(NCELL) ) THEN
                 YP_ABST(NCELL) = ATOL_LEVEL(3)
                 NBIN = 3
-             ELSE IF (CUM_COUNTS(NCELL,4).GE.SPECIES_CUTOFF(NCELL) ) THEN
+             ELSE IF (CUM_COUNTS(NCELL,4).GT.SPECIES_CUTOFF(NCELL) ) THEN
                 YP_ABST(NCELL) = ATOL_LEVEL(4)
                 NBIN = 4
-             ELSE IF (CUM_COUNTS(NCELL,5).GE.SPECIES_CUTOFF(NCELL) ) THEN
+             ELSE IF (CUM_COUNTS(NCELL,5).GT.SPECIES_CUTOFF(NCELL) ) THEN
                 YP_ABST(NCELL) = ATOL_LEVEL(5)
                 NBIN = 5
              ELSE

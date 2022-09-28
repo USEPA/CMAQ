@@ -366,24 +366,6 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          NORDCELL( NCELL ) = NCELL
       ENDDO
 
-      IF( LPERFSMRY ) THEN
-         ALLOCATE ( NSTPERF(    MXBLKS ), STAT = ALLOCSTAT )
-         ALLOCATE ( MXORDPERF(  MXBLKS ), STAT = ALLOCSTAT )
-         ALLOCATE ( NITERPERF(  MXBLKS ), STAT = ALLOCSTAT )
-         ALLOCATE ( NSUBPERF(   MXBLKS ), STAT = ALLOCSTAT )
-         ALLOCATE ( NPDPERF(    MXBLKS ), STAT = ALLOCSTAT )
-         ALLOCATE ( NCFAILPERF( MXBLKS ), STAT = ALLOCSTAT )
-         ALLOCATE ( NEFAILPERF( MXBLKS ), STAT = ALLOCSTAT )
-         ALLOCATE ( IRSPERF(    MXBLKS ), STAT = ALLOCSTAT )
-         ALLOCATE ( NBKUPS(     MXBLKS ), STAT = ALLOCSTAT )
-         IF ( ALLOCSTAT .NE. 0 ) THEN
-            MSG = 'Failure allocating NSTPERF, MXORDPERF, NITERPERF,'
-     &          // ' NSUBPERF, NPDPERF, NCFAILPERF, NEFAILPERF,'
-     &          // ' IRSPERF, or NBKUPS'
-            CALL M3EXIT ( PNAME, JDATE, JTIME, MSG, XSTAT1 )
-         END IF
-      END IF
-
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C  Top of loop over blocks. This loop will be done once if
 C  no reordering, twice if reordering is required
@@ -531,133 +513,6 @@ C..initialize degradation routines
   
          ENDIF
 
-#ifdef debug_gear
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-C  If cells are not being reordered, do the outputs if needed and 
-C  it is time
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-         IF ( .NOT. LORDERING ) THEN         
-C..Output a concentrations for a single cell
-            IF ( LCELLCONC ) THEN
-               LCONCOUT = .FALSE.
-               CELLOUT = 0
-               IF ( IRUNC .GE. IRUNPRO1 .AND. IRUNC .LE. IRUNPRO2 ) THEN
-                  DO NCELL = 1, NUMCELLS
-                     CELLNUM = NORDCELL( OFFSET + NCELL )
-                     COL = CCOL( CELLNUM )
-                     ROW = CROW( CELLNUM )
-                     LEV = CLEV( CELLNUM )
-                     IF ( COL.EQ.CCOLOUT .AND. ROW.EQ.CROWOUT .AND.
-     &                    LEV.EQ.CLEVOUT ) THEN
-                        LCONCOUT = .TRUE.
-                        CELLOUT = NCELL
-                        WRITE( IUNCOUT ) IRUNC, BLKID, CELLOUT, CCOLOUT,
-     &                                   CROWOUT, CLEVOUT, IZERO,  
-     &                                   RUNMIN, ( CNEW( CELLOUT,ISP ),
-     &                                   ISP = 1, ISCHANG( NCS ) )
-                     ENDIF
-                  ENDDO
-               ENDIF
-            ENDIF
-               
-C..Output IC for a block                                    
-            IF ( LDUMPBLK .AND. IRUNC .EQ. IRUNBLK .AND. BLKID .EQ. IBLKBLK ) THEN
-               WRITE( IUNBIC ) NUMCELLS, CHEMSTEP
-               WRITE( IUNBIC ) ( BLKTEMP( NCELL ),  NCELL = 1, NUMCELLS )
-               WRITE( IUNBIC ) ( BLKPRES( NCELL ),  NCELL = 1, NUMCELLS )
-               WRITE( IUNBIC ) ( BLKCH2O( NCELL ),  NCELL = 1, NUMCELLS )
-               WRITE( IUNBIC ) ( BLKSEAWATER( NCELL ),  NCELL = 1, NUMCELLS )
-
-               DO ISP = 1, ISCHANG( NCS )
-                  WRITE( IUNBIC ) CHEMISTRY_SPC( ISP ), ( BLKCONC( NCELL, ISP ),
-     &                            NCELL = 1, NUMCELLS )
-               ENDDO
-
-               DO NPH = 1, NMPHOT
-                  IRXN = IPH( NPH, 1 )
-                  WRITE( IUNBIC ) ( RK( NCELL, IRXN ), NCELL = 1, NUMCELLS )
-               ENDDO
-
-               MSG = 'Stopping in CHEM after dumping block IC'
-               CALL M3EXIT( 'CHEM', JDATE, JTIME, MSG, XSTAT0 )
-            ENDIF
-            
-C..Output IC for a cell            
-            IF ( LDUMPCELL .AND. IRUNC .EQ. IRUNCELL .AND. BLKID .EQ. IBLKCELL ) THEN 
-               WRITE( IUNCIC, 93000 )
-
-               DO ISP = 1, ISCHANG( NCS )
-                  WRITE( IUNCIC, 93020 ) CHEMISTRY_SPC( ISP ),
-     &                                BLKCONC( INUMCELL, ISP )
-               ENDDO
-
-               WRITE( IUNCIC,93040 ) BLKTEMP( INUMCELL ) 
-               WRITE( IUNCIC,93060 ) BLKCH2O( INUMCELL )
-               WRITE( IUNCIC,93080 ) BLKPRES( INUMCELL )
-               WRITE( IUNCIC,93085 ) BLKSEAWATER( INUMCELL )
-
-               DO NPH = 1, NMPHOT
-                  IRXN = IPH( NPH, 1 )
-                  WRITE( IUNCIC,93100 ) IRXN, RK( INUMCELL, IRXN )
-               ENDDO
-
-               MSG = 'Stopping in CHEM after dumping cell ic'
-               CALL M3EXIT( 'CHEM', JDATE, JTIME, MSG, XSTAT0 )
-            ENDIF
-            
-C..debug output            
-            IF ( LDEBUG .AND. IRUNC .EQ. IRUNBUG ) THEN
-               ICPR = 0
-               IBLKBUG = 0
-               DO NCELL = 1, NUMCELLS
-                  CELLNUM = NORDCELL( OFFSET + NCELL )
-                  COL = CCOL( CELLNUM )
-                  ROW = CROW( CELLNUM )
-                  LEV = CLEV( CELLNUM )
-                  IF( COL .EQ. DBGCOL .AND. ROW .EQ. DBGROW .AND. LEV .EQ. DBGLEV ) THEN
-                     IBLKBUG = BLK
-                     ICPR = NCELL
-                     WRITE( IUNDBG, 93120 ) IRUNC, BLKID
-
-                     DO NRX = 1, NRXNS
-                        WRITE( IUNDBG, 93140 ) NRX, RK( ICPR, NRX )
-                     ENDDO
-
-                     WRITE( IUNDBG,93160 ) IRUNC, BLKID
-                     NMID = NUMCELLS / 2
-                     IF( NMID .LE. 0 ) NMID = 1
-                     WRITE( IUNDBG,93360 ) NMID, NUMCELLS
-               
-                     DO ISP = 1, ISCHANG( NCS )
-                        ISPOLD = INEW2OLD( ISP,NCS )
-                        WRITE( IUNDBG, 93380 ) ISP, CHEMISTRY_SPC( ISPOLD ),
-     &                                   CNEW( 1,ISP ), CNEW( NMID,ISP ),
-     &                                   CNEW( NUMCELLS, ISP )
-                     ENDDO
-               
-                     WRITE( IUNDBG, 93200 ) ISCHANG( NCS ) + 1, CONCOFM
-                     WRITE( IUNDBG, 93220 ) ISCHANG( NCS ) + 2, 0.2095*CONCOFM
-                     WRITE( IUNDBG, 93240 ) ISCHANG( NCS ) + 3, 0.7808*CONCOFM
-                     WRITE( IUNDBG, 93260 ) ISCHANG( NCS ) + 4, BLKCH2O( 1 ),
-     &                                      BLKCH2O( NMID ), BLKCH2O( NUMCELLS )
-                     WRITE( IUNDBG, 93280 ) BLKTEMP( 1 ), BLKTEMP( NMID ),
-     &                                      BLKTEMP( NUMCELLS )
-                     WRITE( IUNDBG, 93300 ) BLKPRES( 1 ), BLKPRES( NMID ),
-     &                                      BLKPRES( NUMCELLS ) 
-                     WRITE( IUNDBG, 93305 ) BLKSEAWATER( 1 ), BLKSEAWATER( NMID ),
-     &                                      BLKSEAWATER( NUMCELLS ) 
-                  ENDIF
-               ENDDO
-            ENDIF
-         ENDIF
-         
-         IF ( LTRACE .AND. IRUNC .GE. IRUNTRC1 .AND. IRUNC .LE. IRUNTRC2
-     &               .AND. BLKID .EQ. IBLKTRC ) THEN 
-            LTRCOUT = .TRUE.
-         ELSE
-            LTRCOUT = .FALSE.
-         ENDIF 
-#endif
 
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C   Call Gear solver for the integration interval
@@ -668,41 +523,6 @@ C  If not ordering cells, save performance statistics, do debug output
 C  if requested, and store updated concentrations.
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          IF ( .NOT. LORDERING ) THEN
-#ifdef debug_gear
-            IF ( LPERFSMRY ) THEN
-               NSTPERF(    BLK ) = NSTEPS
-               MXORDPERF(  BLK ) = MXORDUSED
-               NITERPERF(  BLK ) = NUMNEWT
-               NSUBPERF(   BLK ) = NSUBFUN
-               NPDPERF(    BLK ) = NPDERIV
-               NCFAILPERF( BLK ) = NCFAIL
-               NEFAILPERF( BLK ) = NEFAIL
-               IRSPERF(    BLK ) = IRSTART
-               NBKUPS(     BLK ) = NUMBKUPS
-            ENDIF
-
-
-C..debug output
-            IF ( LDEBUG .AND. IRUNC .EQ. IRUNBUG .AND. BLK .EQ. IBLKBUG ) THEN
-               WRITE( IUNDBG, 93320 ) IRUNC, ICPR
-               DO ISP = 1, ISCHANG( NCS )
-                  ISPNEW = IOLD2NEW( ISP, NCS )
-                  WRITE( IUNDBG, 93340 ) ISP, CHEMISTRY_SPC( ISP ),
-     &                                   CNEW( ICPR, ISPNEW )
-               ENDDO
-
-               NMID = NUMCELLS / 2
-               IF ( NMID .LE. 0 ) NMID = 1
-               WRITE( IUNDBG, 93360 ) NMID, NUMCELLS
-               DO ISP = 1, ISCHANG( NCS )
-                  ISPOLD  = INEW2OLD( ISP, NCS )
-                  WRITE( IUNDBG, 93380 ) ISP, CHEMISTRY_SPC( ISPOLD ),
-     &                                   CNEW( 1,ISP ), 
-     &                                   CNEW( NMID, ISP ),
-     &                                   CNEW( NUMCELLS, ISP )
-               ENDDO
-            ENDIF
-#endif
 
 C..Update concentrations
            DO ISP = 1, ISCHANG( NCS )
@@ -817,11 +637,6 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
             IF ( IRVAL.EQ.1 ) THEN
                ERRMX2( IRVAL ) = VALLOW
                NORDCELL( IRVAL ) = JREORD
-!              if ( bingo2 ) then
-!                 bingo1 = .true.
-!                 bingo2 = .false.
-!                 write( *,* ) 'grdriver-mype,heapsort,LORDERING: ', mype, lordering
-!              end if
                GO TO 100
             ENDIF
          ENDIF
@@ -849,31 +664,6 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
        
       !Update Aerosol Surface Area
       CALL HETCHEM_UPDATE_AERO( CONC )
-
-ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-C  Output performance statistics if required and return
-ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      IF ( LPERFSMRY ) THEN
-         WRITE( IUNPERF ) IRUNC, NBLKS, JTIME, CHEMSTEP
-         WRITE( IUNPERF ) ( NSTPERF(    BLK ), BLK = 1, NBLKS )
-         WRITE( IUNPERF ) ( MXORDPERF(  BLK ), BLK = 1, NBLKS )
-         WRITE( IUNPERF ) ( NITERPERF(  BLK ), BLK = 1, NBLKS )
-         WRITE( IUNPERF ) ( NSUBPERF(   BLK ), BLK = 1, NBLKS )
-         WRITE( IUNPERF ) ( NPDPERF(    BLK ), BLK = 1, NBLKS )
-         WRITE( IUNPERF ) ( NCFAILPERF( BLK ), BLK = 1, NBLKS )    
-         WRITE( IUNPERF ) ( NEFAILPERF( BLK ), BLK = 1, NBLKS )
-         WRITE( IUNPERF ) ( IRSPERF(    BLK ), BLK = 1, NBLKS )
-         WRITE( IUNPERF ) ( NBKUPS(     BLK ), BLK = 1, NBLKS )
-         DEALLOCATE ( NSTPERF )
-         DEALLOCATE ( MXORDPERF )
-         DEALLOCATE ( NITERPERF )
-         DEALLOCATE ( NSUBPERF )
-         DEALLOCATE ( NPDPERF )
-         DEALLOCATE ( NCFAILPERF )
-         DEALLOCATE ( NEFAILPERF )
-         DEALLOCATE ( IRSPERF )
-         DEALLOCATE ( NBKUPS )
-      ENDIF
 
       RETURN
       

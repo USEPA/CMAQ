@@ -163,7 +163,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       HMAXDAY( NCS ) = 15.0D0
       HMAXNIT        = 5.0D0
       HMIN           = 1.0D-10
-      YLOW   ( NCS ) = REAL( GEAR_ATOL, 8 )
+      YLOW   ( NCS ) = REAL( GEAR_MIN_ATOL, 8 )
       ERRMAX ( NCS ) = REAL( GEAR_RTOL, 8 )
       FRACDEC        = 0.25D0
       CONCMIN        = 1.0D-30
