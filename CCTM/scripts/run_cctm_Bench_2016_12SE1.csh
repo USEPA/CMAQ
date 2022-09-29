@@ -468,7 +468,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
  setenv CTM_ISAM N
  if ( $?CTM_ISAM ) then
     if ( $CTM_ISAM == 'Y' || $CTM_ISAM == 'T' ) then
-       setenv SA_IOLIST ${WORKDIR}/isam_control.txt
+       setenv SA_IOLIST ${WORKDIR}/isam_control.2016_12SE1.txt
        setenv ISAM_BLEV_ELEV " 1 1"
        setenv AISAM_BLEV_ELEV " 1 1"
 
@@ -526,7 +526,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
                        # Additionally requires for CCTM to be compiled for DDM-3D simulations
 
  set NPMAX    = 1      # Number of sensitivity parameters defined in SEN_INPUT
- setenv SEN_INPUT ${WORKDIR}/sensinput.dat
+ setenv SEN_INPUT ${WORKDIR}/sensinput.2016_12SE1.dat
 
  setenv DDM3D_HIGH N   # allow higher-order sensitivity parameters in SEN_INPUT [ T | Y | F | N ] (default is N/F)
 
