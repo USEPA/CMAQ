@@ -7,7 +7,7 @@
 * * *
 
 # Appendix F: Explicit and Lumped Model Output (ELMO) 
-The ELMO module makes aerosol diagnostic parameters as well as aggregated and highly processed aerosol metrics available driectly in CMAQ output files rather than requiring follow-up post-processing steps. 
+The ELMO module makes aerosol diagnostic parameters as well as aggregated and highly processed aerosol metrics available directly in CMAQ output files rather than requiring follow-up post-processing steps. 
 
 ### F.1 Output concentration and diagnostic variables
 The ELMO Module streamlines the definition, calculation, and maintenance of gas and particulate concentrations, as well as over 200 aggregate and diagnostic variables, listed in Fig. 1. 
@@ -44,7 +44,7 @@ This resolves a potential vulnerability where, for example, the OM:OC of organic
 
 - ELMO functionality will be critical in the future for applications like ISAM where there is a large runtime and storage penalty for outputting raw species concentrations for every emission source. This capacity is under development for CMAQv5.4.1.
 
-- New parameters are available that were not before like N10, N20, N40 and N100, the number of particles above 10, 20, 40 and 100 nm in diameter. AOD and extinction at 550 nm have also been supported as options; these were previously only available on the photlysis diagnostic file.  
+- New parameters are available that were not before like N10, N20, N40 and N100, the number of particles above 10, 20, 40 and 100 nm in diameter. AOD and extinction at 550 nm have also been supported as options; these were previously only available on the photolysis diagnostic file.  
 
 - Keywords are available (see section F.4) to select groups of variables of interest. 
 
@@ -56,7 +56,7 @@ For example, total PM2.5 have some small deviations when it is calculated as the
 
 
 ### F.3 Prescribing features of ELMO output files
-The interface for prescribing ELMO file properties is located in the CMAQ Miscellaneous Control File. The following lines activate or deactivate instantaneous (CCTM_ELMO) and average (CCTM_AELMO) files, respectively:
+The interface for prescribing ELMO file properties is located in the [CMAQ Miscellaneous Control File](https://github.com/USEPA/CMAQ_Dev/blob/research/DOCS/Users_Guide/CMAQ_UG_ch04_model_inputs.md#miscctrl). The following lines activate or deactivate instantaneous (CCTM_ELMO) and average (CCTM_AELMO) files, respectively:
 ```
 &elmo_activate
   instant = .FALSE.
@@ -87,7 +87,7 @@ When 2D variables are output on a 3D ELMO file, ELMO will put real data in layer
 
 ### F.4 Selecting ELMO output variables
 All CMAQ scalar variables and all variables in Fig. F-1 are available for output on ELMO files. 
-The CMAQ Miscellaneous Control file variables Inst_Vars_Nml and Avrg_Vars_Nml (shown in section F.3) control the variables output to the instantaneous and average ELMO files, respectively. 
+The [CMAQ Miscellaneous Control File](https://github.com/USEPA/CMAQ_Dev/blob/research/DOCS/Users_Guide/CMAQ_UG_ch04_model_inputs.md#miscctrl) variables Inst_Vars_Nml and Avrg_Vars_Nml (shown in section F.3) control the variables output to the instantaneous and average ELMO files, respectively. 
 Up to 1000 strings may be specified here. 
 To avoid relying on intimidatingly long lists of variable names, ELMO uses Keywords that expand to groups of variables (often particularly meaningful or useful ones). 
 In this way, ELMO improves transparency and reduces the risk of needing to rerun simulations to produce mistakenly omitted variables. 
