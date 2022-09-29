@@ -17,7 +17,7 @@ CMAQ source code can be installed either using git or from tarballs downloaded f
 
 ### 5.2.1 Git Installation
 
-In the directory where you would like to install CMAQ, issue the following command to clone the official EPA GitHub repository for CMAQv5.3:
+In the directory where you would like to install CMAQ, issue the following command to clone the official EPA GitHub repository for CMAQv5.4:
 
 `git clone -b main https://github.com/USEPA/CMAQ CMAQ_REPO`
 
@@ -28,7 +28,9 @@ CMAQ_REPO/CCTM
 CMAQ_REPO/PREP
 CMAQ_REPO/POST
 CMAQ_REPO/UTIL
+CMAQ_REPO/PYTOOLS
 CMAQ_REPO/DOCS
+
 ```
 
 ### 5.2.2 Zip file Installation
@@ -48,10 +50,11 @@ CMAQ-main/CCTM
 CMAQ-main/PREP
 CMAQ-main/POST
 CMAQ-main/UTIL
+CMAQ-main/PYTOOLS
 CMAQ-main/DOCS
 ```
 
-The Git and Zip file installation options will produce slightly different subdirectories on your Linux system. The base installation directory using the git clone command will be `CMAQ_REPO`; the directory from the Zip file will be `CMAQ-main`. The subsequent instructions in this guide will be based on the git clone installation. For Zip file installations, replace `CMAQ_REPO` with `CMAQ-main` in the instructions that follow. The differences in the directory names highlights the difference in functionality between the two options. Cloning the repository gives the user access to the full repository and its history, while downloading the Zip file will only give access to version 5.3.
+The Git and Zip file installation options will produce slightly different subdirectories on your Linux system. The base installation directory using the git clone command will be `CMAQ_REPO`; the directory from the Zip file will be `CMAQ-main`. The subsequent instructions in this guide will be based on the git clone installation. For Zip file installations, replace `CMAQ_REPO` with `CMAQ-main` in the instructions that follow. The differences in the directory names highlights the difference in functionality between the two options. Cloning the repository gives the user access to the full repository and its history, while downloading the Zip file will only give access to version 5.4.
 
 ## 5.3 The CMAQ Repository Structure
 
@@ -59,17 +62,19 @@ After downloading the source codes the user is encouraged to look through the re
 
 <a id=Figure5-1></a>
 
-![Figure 5-1](images/Figure5-1.png)
+![image](https://user-images.githubusercontent.com/47453034/193078832-ca2369c8-f86a-4b81-8dbb-3bfcfc711e09.png)
 
 **Figure 5‑1. CMAQ repository structure**
 
-In this image it can be seen that there are four main sub folders within the CMAQ repository. The first folder, CCTM, houses all the source codes (i.e. fortran/C programs) and scripts that drive the CMAQ Chemistry Transport Model (CCTM). 
+In this image it can be seen that there are six main sub folders within the CMAQ repository. The first folder, CCTM, houses all the source codes (i.e. Fortran/C programs) and scripts that drive the CMAQ Chemistry Transport Model (CCTM). 
 
-The second folder, DOCS, contains all relevant documentation pertaining to the CMAQ program suite including the User Manual, Release Notes and Known issues associated with the current release and a Developers Guide for a general description of CMAQ's open-source collaboration workflow and step-by-step instructions for how to make code contributions through GitHub.
+The second folder, DOCS, contains all relevant documentation pertaining to the CMAQ program suite including the User Manual, and Known issues associated with the current release and a Developers Guide for a general description of CMAQ's open-source collaboration workflow and step-by-step instructions for how to make code contributions through GitHub.
 
 The third folder in the repository is the POST folder which contains several very useful tools for post-processing of the input/output data files. Each tool within the folder comes wth the source code, scripts and a README used to run the tool. A technical description of the tools within this folder can be found in [Chapter 8](CMAQ_UG_ch08_analysis_tools.md).
 
 The fourth folder in the repository is the PREP folder which contains several pre-processing programs that can be run before the CCTM to prepare meteorology, initial conditions and boundary conditions inputs. Similar to the POST tools, documentation on compiling and running the programs is provided within each subfolder under PREP.
+
+The fifth folder in the repository is the PYTOOLS folder, newly released in CMAQv5.4, which holds python tools for CMAQ.
 
 The last folder within the repository is the UTIL folder which contains useful utilities relating to the CMAQ program suite. An example is the bldmake utility which is used to compile the source code into executables when you use any of the build scripts in the CMAQ repository. Also included in this repository is a top-level README file with an overview of the contents of the release and two additional C-Shell scripts, `bldit_project.csh` and `config_cmaq.csh`.  `bldit_project.csh` allows the user to extract the build and run scripts and compile the model outside of the repository, while `config_cmaq.csh` helps enforce consistent environment setting for the CMAQ project. Both these scripts will be discussed in the following sections.
 
