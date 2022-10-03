@@ -8,7 +8,7 @@ Information is based on the mech.def file.
 * For rate constants with the form A<_Reference_>, k equals A times a reference that represents photolysis rate, a heteorogeneous rate constant, rate constant for the given reaction or an operator. A equals one if not given.
 
 * In the mechanism definition file, the rate is formatted as
- * A~<_HETEOROGENEOUS_>
+ * A~<_HETEROGENEOUS_>
  * A*K<_REACTION_>
  * A/<_PHOTOLYSIS_>
  * A?<_OPERATOR_>
@@ -524,8 +524,8 @@ Information is based on the mech.def file.
 | ROCOXY15c   | VROCP6OXY1 + HO ----> HO +    0.006\*VROCN1OXY6 +    0.005\*VROCN1OXY3 +    0.022\*VROCP0OXY4 +    0.050\*VROCP1OXY3 +    0.002\*VROCP1OXY1 +    0.088\*VROCP2OXY2 +    0.138\*VROCP3OXY2 +    0.146\*VROCP4OXY2 +    0.043\*VROCP5OXY1 +    0.096\*VROCP6OXY1 +    0.032\*OP3 +    0.059\*OP2 +    0.057\*DCB1 +    0.057\*HKET +    0.057\*MEK +    0.057\*ACD +    0.057\*ALD +    0.057\*MO2 +    0.057\*ETHP +    0.057\*HC3P +    0.057\*MEKP +    0.154\*HC5P  |   2.0500E-11 |   2.0500E-11 |
 | ROCOXY16c   | OP3 + HO ----> HO +    0.119\*VROCN2OXY8 +    0.001\*VROCN2OXY4 +    0.039\*VROCN1OXY6 +    0.011\*VROCP0OXY4 +    0.227\*DCB1 +    0.227\*MEK +    0.227\*ACD +    0.227\*ALD +    0.227\*MO2 +    0.227\*ETHP +    0.227\*HC3P +    0.227\*MEKP  |   4.6900E-11 |   4.6900E-11 |
 
-<sup>0</sup>Units molecules/(sec*cm<sup>3</sup>); Value at 298.15 K;   2.4615E+19 molcules/cm<sup>3</sup>;   1.00 Atm.     
-<sup>1</sup>Photolysis Reaction;depends on radiation and predicted concentrations     
-<sup>2</sup>Heteorogeneous Reaction;Depends predicted concentrations                
+<sup>0</sup>Units molecules/(sec*cm<sup>3</sup>); Value at 298.15 K;   2.4615E+19 molecules/cm<sup>3</sup>;   1.00 Atm.     
+<sup>1</sup>Photolysis Reaction; depends on radiation and predicted concentrations     
+<sup>2</sup>Heterogeneous Reaction; depends on predicted concentrations                
 <sup>4</sup>Set to zero if sun is below the horizon. SEAWATER equals surface fraction covered by ice free open ocean plus surf zones. P equals air pressure in atmospheres.         
 <sup>8</sup>Rate constant scaled as reverse equilibrium to constant for listed reaction    
