@@ -34,37 +34,38 @@ Table 3-1 provides a general snapshot of three different CMAQ setups for a day o
 | 2016 Southeast US | 100 X 80 X 35| 218 |6.7GB |6.3GB |8 min/day (32); 47 min/day (4) |
 | 2016 CONUS | 459 X 299 X 35 | 219 |18GB| 107GB | 50 min/day (128); 90 min/day (32) |
 | 2016 N. Hemisphere | 187 X 187 X 44 | 255 |15GB| 40GB | 25 min/day (128) |
+| 2018 North East US | 100 X 105 X 35 | 225 |26GB| 2GB | 15 min/day (32) |
 
 
 ## 3.3 Software Requirements
 
-To build the CMAQ program suite, users must install these libraries in the order listed: MPI, netCDF and IOAPI. As always, we recommend using the latest release available at the time of your CMAQ installation. A table of the minimum required software versions is shown below: 
+To build the CMAQ program suite, users must install these libraries in the order listed: MPI, netCDF and IOAPI. As always, we recommend using the latest release available at the time of your CMAQ installation. A table of the software versions CMAQ has been developed and tested with is shown below: 
 
 <a id=Table3-2></a>
 
-**Table 3‑2. Minimum required software versions**
+**Table 3‑2. CMAQ Development and Testing software versions**
 
-|**Software**|**Version**|
+|**Software**|**Versions**|
 |:--------------:|:----:|
-| Intel Compiler | 17.0 | 
-| GNU Compiler | 6.1.0 | 
-| PGI Compiler | 17.4 |
+| Intel Compiler | 18.0, 21.4  | 
+| GNU Compiler | 6.1.0, 9.1 | 
+| PGI Compiler | 17.4, 21.9  |
 
 **NOTE: The CMAQ team recommends using a single compiler suite when building these libraries. Mixing compiler suites when building these libraries can cause unexpected behavior (e.g., mixing intel 18.0 to build netCDF C libraries and gcc 6.1.0 to build netCDF fortran libraries is not going to work).** 
 
 ### 3.3.1 Message Passing Interface (MPI) library
 
-CMAQ is a MPI based program that runs on parallel programming platforms. Various flavour of MPI libraries are available for users to choose. CMAQ has been tested with the [OpenMPI](https://www.open-mpi.org), [MPICH](https://www.mpich.org/downloads), [MVAPICH2](http://mvapich.cse.ohio-state.edu), and the [Intel MPI](https://software.intel.com/en-us/intel-mpi-library) libraries. The choice of MPI library may affect model run time. For example, if you have Intel compiler suite available on your system, chooses Intel MPI or if your system is using InfiniBand (IB) interconnect, chooses MVAPICH2 which is tailored for IB.
+CMAQ is a MPI based program that runs on parallel programming platforms. Various flavour of MPI libraries are available for users to choose. CMAQ has been tested with the [OpenMPI](https://www.open-mpi.org), [MPICH](https://www.mpich.org/downloads), [MVAPICH2](http://mvapich.cse.ohio-state.edu), and the [Intel MPI](https://software.intel.com/en-us/intel-mpi-library) libraries. The choice of MPI library may affect model run time. For example, if you have the Intel compiler suite available on your system, choose Intel MPI or if your system is using InfiniBand (IB) interconnects, choose MVAPICH2 which is tailored for IB.
 
-Users can download the MPI library source code from one of these sites and follow provided procedures for proper installation. **Minimum versions: IntelMPI 2017.0 | MPICH 3.3.1 | MVAPICH2 2.3.1 | OpenMPI 2.1.0**
+Users can download the MPI library source code from one of these sites and follow provided procedures for proper installation. **Versions Tested: IntelMPI 2017.0, 21.4 | MPICH 3.3.1 | MVAPICH2 2.3.1 | OpenMPI 2.1.0, 4.1.4**
 
 ### 3.3.2 netCDF library
 
-Most of the CMAQ input files and all output files are in netCDF format (the rest are in ASCII format). Hence the netCDF library is an essential component of the CMAQ model. The netCDF library is available for download at http://www.unidata.ucar.edu/software/netcdf/ and users should follow the instructions for proper installation. Users should install **classic shared netCDF C and Fortran libraries only without netCDF4, HDF5, HDF4, DAP client, PnetCDF, or zlib support.** In order to do so, users should provide the appropriate flags to build and install minimal netCDF-3 with no DAP client support, such as --disable-netcdf-4 and --disable-dap, at the configure stage for netCDF C. After successful installation, check the environment PATH & LD_LIBRARY_PATH to ensure that the paths have been updated to include the path of the netCDF C and Fortran libraries and bin. Note you may have to set these paths manually if not set, and these paths must be loaded every time you start a new shell. **Minimum versions: NetCDF-C 4.2 | NetCDF-Fortran 4.4.2**
+Most of the CMAQ input files and all output files are in netCDF format (the rest are in ASCII format). Hence the netCDF library is an essential component of the CMAQ model. The netCDF library is available for download at http://www.unidata.ucar.edu/software/netcdf/; users should follow the instructions for proper installation of **both** netCDF-C and netCDF-Fortran libraries. After successful installation, check the environment PATH & LD_LIBRARY_PATH to ensure that the paths have been updated to include the path of the netCDF C and Fortran libraries and bin. Note you may have to set these paths manually if not set, and these paths must be loaded every time you start a new shell. For additional installation resources plesae see the [CMAQ Tutorial Page](./Tutorials). **Versions Tested: NetCDF-C 4.2, 4.8.1 | NetCDF-Fortran 4.4.2, 4.5.3**
 
 ### 3.3.3 I/O API library
 
-The I/O API library provides an interface between the netCDF libraries and CMAQ, as well as WRF-CMAQ, to handle input and output (I/O) calls throughout the CMAQ code. The version of the I/O API library supported with CMAQv5.3.2 (version 3.2 tagged 20200828) is available for download at https://github.com/cjcoats/ioapi-3.2/releases/tag/20200828. Users should note that the I/O API library requires netCDF files to be adhere to a strict formatting guidelines that can be found in the I/O API documentation. For simplicity, files following the IOAPI-netCDF formatting guidelines will be called "IOAPI FILES" from now on. **Version Supported: IOAPI 3.2 tagged 20200828**
+The I/O API library provides an interface between the netCDF libraries and CMAQ, as well as WRF-CMAQ, to handle input and output (I/O) calls throughout the CMAQ code. The version of the I/O API library supported with CMAQv5.3.2+ (version 3.2 tagged 20200828) is available for download at https://github.com/cjcoats/ioapi-3.2/releases/tag/20200828. Users should note that the I/O API library requires netCDF files to be adhere to a strict formatting guidelines that can be found in the I/O API documentation. For simplicity, files following the IOAPI-netCDF formatting guidelines will be called "IOAPI FILES" from now on. **Versions Tested: IOAPI 3.2 tagged 20200828**
 
 The general steps for installation of I/O API libraries on a Linux system (with C-shell and GNU compilers) are below. These instructions are an example and we recommend using the latest release available at the time of your CMAQ installation.
 
