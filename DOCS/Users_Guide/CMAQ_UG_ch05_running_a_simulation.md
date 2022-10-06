@@ -407,25 +407,25 @@ Start Day: 2017-12-22
 End Day:   2018-01-01
 Number of Simulation Days: 8
 Domain Name:               12US1
-Number of Grid Cells:      4803435  (ROW x COL x LAY)
+Number of Grid Cells:      1538636  (ROW x COL x LAY)
 Number of Layers:          44
 Number of Processes:       128
    All times are in seconds.
 
 Num  Day        Wall Time
 01   2017-12-22   6394.83
-02   2017-10-23   717.89
-03   2017-10-24   709.40
-04   2017-10-25   701.84
-05   2017-10-26   703.34
-06   2017-10-27   708.96
-07   2017-10-28   708.07
-08   2017-10-29   707.25
-09   2017-10-30   706.42
-10   2017-10-31   703.56
-11   2018-01-01   707.77
-     Total Time = 9938.60
-      Avg. Time = 709.90 
+02   2017-12-23   6137.89
+03   2017-12-24   6039.40
+04   2017-12-25   6201.84
+05   2017-12-26   6403.34
+06   2017-12-27   6108.96
+07   2017-12-28   6308.07
+08   2017-12-29   6207.25
+09   2017-12-30   6306.42
+10   2017-12-31   6303.56
+11   2018-01-01   6107.77
+     Total Time = 68519.33
+      Avg. Time = 6229.03 
 ``` 
 
 The processor-specific logfiles provide detailed information on the operation of hundreds of model tasks from mapping variables to opening and reading input files. Warnings that may be important for users to be aware of are printed to these files. To confirm that the model ran to completion view the run.[data].log file. For MPI runs, you may check any of the CTM_LOG_[ProcessorID]*.log files. A successful run will contain the following line at the bottom of the log(s):
@@ -437,7 +437,7 @@ The processor-specific logfiles provide detailed information on the operation of
 Note: The log file for each processor is also moved from the $CMAQ_HOME/CCTM/scripts directory to the data output directory:
 
 ```
-$CMAQ_DATA/output_CCTM_v53_[compiler]/[data_name]
+$CMAQ_DATA/output_CCTM_v54_[compiler]/[data_name]
 ```
 
 ### 5.7.2 CCTM Output files
@@ -445,7 +445,7 @@ $CMAQ_DATA/output_CCTM_v53_[compiler]/[data_name]
 The output results will have been placed in the directory:
 
 ```
-$CMAQ_DATA/output_CCTM_v53_[compiler]_[data_name]
+$CMAQ_DATA/output_CCTM_v54_[compiler]_[data_name]
 ```
 
 and can include the following netCDF-type files: ACONC, AELMO, B3GTS_S, CGRID, CONC, DEPV, DRYDEP, DUSTEMIS, LTNGDIAG1, LTNGDIAG2, MEDIA_CONC, ELMO, RJ_1, RJ_2, RJ_3, SOILOUT, SSEMIS, VDIFF, VSED, WETDEP1, WETDEP2 and VEXT_1. The in-depth description about each of these files is described in [Chapter 7](CMAQ_UG_ch07_model_outputs.md).
@@ -464,6 +464,6 @@ Check the last few lines of the CCTM output log for messages to help diagnose wh
 <!-- BEGIN COMMENT -->
 
 [<< Previous Chapter](CMAQ_UG_ch04_model_inputs.md) - [Home](README.md) - [Next Chapter >>](CMAQ_UG_ch06_model_configuration_options.md)<br>
-CMAQ User's Guide (c) 2020<br>
+CMAQ User's Guide (c) 2022<br>
 
 <!-- END COMMENT -->
