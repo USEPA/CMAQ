@@ -147,7 +147,7 @@ source bldit_cctm.csh [compiler] [version] |& tee build_cctm.log
 The bldit script invokes the CMAQ utility program [bldmake](../../UTIL/bldmake/README.md), which extracts source code from your CMAQ GIT repository, constructs a Makefile based on your selected options, and compiles the executable automatically.  Following normal termination of the script with the default configuration, the user will notice a BLD directory created. This is the location of the CCTM executable along with the relevant source codes and the Makefile needed to build the model. In this directory a few useful commands can be used to update the executable if any changes are made to the Fortran source codes via the MakeFile. For example, if the user wants to recompile the source codes in debug mode _instead_ of re-running the `bldit_cctm.csh` script the user can use the following commands:
 
 ```
-cd BLD_CCTM_v53_[compiler][version]
+cd BLD_CCTM_v54_[compiler][version]
 make clean
 make DEBUG=TRUE
 ```
@@ -155,7 +155,7 @@ make DEBUG=TRUE
 In another example, if the user has made any changes to the source codes in the BLD directory and wanted to update the CCTM executable to reflect these changes the user can use the following commands:
 
 ```
-cd BLD_CCTM_v53_[compiler][version]
+cd BLD_CCTM_v54_[compiler][version]
 make
 ```
 
@@ -175,7 +175,7 @@ run_cctm.csh |& tee run_cctm.log
 
 The CCTM simulation will write two types of logfile, a main logfile (e.g. run_cctm.log) and processor-specific logfiles that have the name convention:  
 ```
-CTM_LOG_[ProcessorID].v53_[compiler]_[data_name]/_[RUNDATE].log
+CTM_LOG_[ProcessorID].v54_[compiler]_[data_name]/_[RUNDATE].log
 ```
 
 The main logfile contains extensive metadata and useful information about the details of your simulation. The following examples describe some of this information:  
