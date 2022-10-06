@@ -21,7 +21,20 @@ particulates, toxics, and acid deposition.
 
 ## New features in CMAQ version 5.4 include:
 
-* **Update list for v5.4**
+* Updated chemistry for ozone (O3) and particulate matter (PM) formation from global-to-local scales
+* Introduction of the Community Regional Atmospheric Chemistry Multiphase Model (CRACMM)
+* Biogenic emissions algorithm options have been expanded
+* MEGAN emission model now available online
+* Revised algorithms for modeling the dry deposition of particles from the atmosphere (M3DRY and STAGE updates)
+* Streamlined building of the WRF-CMAQ compatible with WRFv4.4+ 
+* Improved efficiency, accuracy, and user experience for CMAQ instrumented model extensions like CMAQ-DDM and CMAQ-ISAM
+* Expansion of emissions diagnostic output features
+* Introduction of a domain-wide Budget calculation tool 
+* Online integration of common pollutant post-processing tasks (i.e. output total PM2.5 mass and more directly!)
+* Community Contribution: Incorporation of the Two-Dimensional Volatility Bases Set (2D-VBS) chemical mechanism
+
+## Important update for WRF-CMAQ users
+A bug was identified within the CMAQ to WRF coupling routine (twoway_feedback.F90) where aerosol feedback information is transferred from CMAQ to WRF. In doing so, it was found that WRF was not receiving the correct aerosol feedback information due to a looping error relating to the number of layers set to 1 in some cases. The bug impacts the WRF-CMAQ coupled system in the CMAQv5.3 release series (v5.3, v5.3.1, v5.3.2, v5.3.3) when running with short wave radiative feedback. The bug was not present in prior WRF-CMAQ versions. The bugfix in CMAQv5.4 now correctly captures the variations in the aerosol optical properties and consequently the direct feedback effects through all layers.  **Users of WRF-CMAQ are strongly encouraged to update to CMAQv5.4.** 
 
 ## Getting the CMAQ Repository
 This CMAQ Git archive is organized with each official public release stored as a branch on the main USEPA/CMAQ repository. The most recently released version of the the model will always be on the branch called 'main'. To clone code from the CMAQ Git archive, specify the branch (i.e. version number) and issue the following command from within
@@ -60,19 +73,6 @@ Benchmark/tutorial data for each CMAQ release version are available from the CMA
 |v5.3.2|Output| Southeast US| July 1 - 2, 2016|https://doi.org/10.15139/S3/PDE4SS |
 |v5.3.3|Output| Southeast US| July 1 - 2, 2016|https://doi.org/10.15139/S3/PDE4SS |
 
-## Previous CMAQ Versions
-The following release versions of CMAQ are currently available on GitHub.  DOI values from Zenodo can be used when referencing a specific version.
-* [v5.3.2 (October 2020)](https://github.com/USEPA/CMAQ/tree/5.3.2) - [doi:10.5281/zenodo.4081737]((https://doi.org/10.5281/zenodo.4081737) | [Users Guide](https://github.com/USEPA/CMAQ/blob/5.3.2/DOCS/Users_Guide/README.md) | [Release Notes](https://github.com/USEPA/CMAQ/blob/5.3.1/DOCS/Release_Notes/README.md) | [Tutorials](https://github.com/USEPA/CMAQ/blob/5.3.1/DOCS/Users_Guide/Tutorials/README.md) 
-* [v5.3.1 (December 2019)](https://github.com/USEPA/CMAQ/tree/5.3.1) - [doi:10.5281/zenodo.3585898](https://doi.org/10.5281/zenodo.3585898) | [Users Guide](https://github.com/USEPA/CMAQ/blob/5.3.1/DOCS/Users_Guide/README.md) | [Release Notes](https://github.com/USEPA/CMAQ/blob/5.3.1/DOCS/Release_Notes/README.md) | [Tutorials](https://github.com/USEPA/CMAQ/blob/5.3.1/DOCS/Users_Guide/Tutorials/README.md) 
-* [v5.3 (August 2019)](https://github.com/USEPA/CMAQ/tree/5.3) - [doi:10.5281/zenodo.1212601](https://doi.org/10.5281/zenodo.3379043) | [Users Guide](https://github.com/USEPA/CMAQ/blob/5.3/DOCS/Users_Guide/README.md) | [Release Notes](https://github.com/USEPA/CMAQ/blob/5.3/DOCS/Release_Notes/README.md) | [Tutorials](https://github.com/USEPA/CMAQ/blob/5.3/DOCS/Users_Guide/Tutorials/README.md) 
-* [v5.2.1 (March 2018)](https://github.com/USEPA/CMAQ/tree/5.2.1) - [doi:10.5281/zenodo.1212601](https://zenodo.org/record/1212601) | [Users Guide](https://github.com/USEPA/CMAQ/blob/5.2.1/DOCS/User_Manual/README.md) | [Release Notes](https://github.com/USEPA/CMAQ/blob/5.2.1/CCTM/docs/Release_Notes/README.md) | [Tutorials](https://github.com/USEPA/CMAQ/tree/5.2.1/DOCS/Tutorials)  
-
-* [v5.2 (June 2017)](https://github.com/USEPA/CMAQ/tree/5.2) - [doi:10.5281/zenodo.1167892](https://zenodo.org/record/1167892) | [Users Guide](https://github.com/USEPA/CMAQ/blob/5.2/DOCS/User_Manual/README.md)  | [Release Notes](https://github.com/USEPA/CMAQ/blob/5.2/CCTM/docs/Release_Notes/README.md) | [Tutorials](https://github.com/USEPA/CMAQ/blob/5.2/DOCS/Tutorials/README.md)
-* [v5.1   (December 2015)](https://github.com/USEPA/CMAQ/tree/5.1) - [doi:10.5281/zenodo.1079909](https://zenodo.org/record/1079909)
-* [v5.0.2 (April 2014)](https://github.com/USEPA/CMAQ/tree/5.0.2) - [doi:10.5281/zenodo.1079898](https://zenodo.org/record/1079898)
-* [v5.0.1 (July 2012)](https://github.com/USEPA/CMAQ/tree/5.0.1)
-* [v5.0   (February 2012)](https://github.com/USEPA/CMAQ/tree/5.0) - [doi:10.5281/zenodo.1079888](https://zenodo.org/record/1079888)
-* [v4.7.1 (June 2010)](https://github.com/USEPA/CMAQ/tree/4.7.1) - [doi:10.5281/zenodo.1079879](https://zenodo.org/record/1079879)
  
 ## User Support
 * [Frequent CMAQ Questions](https://www.epa.gov/cmaq/frequent-cmaq-questions) are available on our website. 
