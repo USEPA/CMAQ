@@ -35,7 +35,6 @@ In this section, details on the routine CCTM output files are provided. All CMAQ
 |[CCTM_B3GTS_S](#b3gts) <a id=b3gts_t></a>|GRDDED3|Hourly Instantaneous| XY
 |[CCTM_BUDGET](#budget) <a id=budget_t></a>|ASCII|Hourly Instantaneous| Domain-Wide
 |[CCTM_DEPV](#depv) <a id=depv_t></a>|GRDDED3|Hourly Instantaneous|XY
-|[CCTM_PT3D](#pt3d) <a id=pt3d_t></a>|GRDDED3|Hourly Instantaneous|XYZ
 |[CCTM_DUSTEMIS](#dust) <a id=dust_t></a>|GRDDED3|Hourly Instantaneous|XY
 |[CCTM_DESIDX](#desid) <a id=desid_t></a>|GRDDED3|Hourly Instantaneous|XYZ
 |[CCTM_DEPVMOS](#depv_mos) <a id=depv_mos_t></a>|GRDDED3|Hourly Instantaneous|XYW
@@ -259,14 +258,6 @@ This optional 2-D CCTM hourly output file contains total hourly biogenic emissio
 
 This optional 2-D CCTM file contains the deposition velocity (m/s) for each chemical species calculated for the final time step for the hour. CCTM calculates the deposition velocity for all of the species listed in the deposition velocity column of the [Species NameLists files](CMAQ_UG_ch04_model_inputs.md#matrix_nml) files within the mechanism directories. The GC_*mechname*.nml file lists the gas-phase species, the AE_*mechname*.nml file lists the aerosol species, and the NR_*mechname*.nml lists the nonreactive (inert) species. Species can be removed from the deposition velocity file by editing the DDEP column in the NameList file(s). This file is only created if the CTM_DEPV_FILE environment variable in the RunScript is set to Y (Default is N). 
 
-<a id=pt3d></a>
-
-**CCTM_PT3D: point source emissions diagnostics file**
-<!-- BEGIN COMMENT -->
-[Return to Table 7-1](#pt3d_t)
-<!-- END COMMENT -->
-
-This optional 3-D CCTM file records the 3-D point source emissions for each layer as a linear average over the output timestep. This file is only created if the PT3DDIAG environment variable in the RunScript is set to Y (Default is N).
 
 <a id=dust></a>
 

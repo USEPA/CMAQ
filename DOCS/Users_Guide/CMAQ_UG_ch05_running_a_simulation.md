@@ -17,7 +17,7 @@ CMAQ source code can be installed either using git or from tarballs downloaded f
 
 ### 5.2.1 Git Installation
 
-In the directory where you would like to install CMAQ, issue the following command to clone the official EPA GitHub repository for CMAQv5.3:
+In the directory where you would like to install CMAQ, issue the following command to clone the official EPA GitHub repository for CMAQv5.4:
 
 `git clone -b main https://github.com/USEPA/CMAQ CMAQ_REPO`
 
@@ -28,7 +28,9 @@ CMAQ_REPO/CCTM
 CMAQ_REPO/PREP
 CMAQ_REPO/POST
 CMAQ_REPO/UTIL
+CMAQ_REPO/PYTOOLS
 CMAQ_REPO/DOCS
+
 ```
 
 ### 5.2.2 Zip file Installation
@@ -48,10 +50,11 @@ CMAQ-main/CCTM
 CMAQ-main/PREP
 CMAQ-main/POST
 CMAQ-main/UTIL
+CMAQ-main/PYTOOLS
 CMAQ-main/DOCS
 ```
 
-The Git and Zip file installation options will produce slightly different subdirectories on your Linux system. The base installation directory using the git clone command will be `CMAQ_REPO`; the directory from the Zip file will be `CMAQ-main`. The subsequent instructions in this guide will be based on the git clone installation. For Zip file installations, replace `CMAQ_REPO` with `CMAQ-main` in the instructions that follow. The differences in the directory names highlights the difference in functionality between the two options. Cloning the repository gives the user access to the full repository and its history, while downloading the Zip file will only give access to version 5.3.
+The Git and Zip file installation options will produce slightly different subdirectories on your Linux system. The base installation directory using the git clone command will be `CMAQ_REPO`; the directory from the Zip file will be `CMAQ-main`. The subsequent instructions in this guide will be based on the git clone installation. For Zip file installations, replace `CMAQ_REPO` with `CMAQ-main` in the instructions that follow. The differences in the directory names highlights the difference in functionality between the two options. Cloning the repository gives the user access to the full repository and its history, while downloading the Zip file will only give access to version 5.4.
 
 ## 5.3 The CMAQ Repository Structure
 
@@ -59,17 +62,19 @@ After downloading the source codes the user is encouraged to look through the re
 
 <a id=Figure5-1></a>
 
-![Figure 5-1](images/Figure5-1.png)
+![image](https://user-images.githubusercontent.com/47453034/193078832-ca2369c8-f86a-4b81-8dbb-3bfcfc711e09.png)
 
 **Figure 5‑1. CMAQ repository structure**
 
-In this image it can be seen that there are four main sub folders within the CMAQ repository. The first folder, CCTM, houses all the source codes (i.e. fortran/C programs) and scripts that drive the CMAQ Chemistry Transport Model (CCTM). 
+In this image it can be seen that there are six main sub folders within the CMAQ repository. The first folder, CCTM, houses all the source codes (i.e. Fortran/C programs) and scripts that drive the CMAQ Chemistry Transport Model (CCTM). 
 
-The second folder, DOCS, contains all relevant documentation pertaining to the CMAQ program suite including the User Manual, Release Notes and Known issues associated with the current release and a Developers Guide for a general description of CMAQ's open-source collaboration workflow and step-by-step instructions for how to make code contributions through GitHub.
+The second folder, DOCS, contains the CMAQ User's Guide and a Developers Guide for a general description of CMAQ's open-source collaboration workflow and step-by-step instructions for how to make code contributions through GitHub.
 
 The third folder in the repository is the POST folder which contains several very useful tools for post-processing of the input/output data files. Each tool within the folder comes wth the source code, scripts and a README used to run the tool. A technical description of the tools within this folder can be found in [Chapter 8](CMAQ_UG_ch08_analysis_tools.md).
 
 The fourth folder in the repository is the PREP folder which contains several pre-processing programs that can be run before the CCTM to prepare meteorology, initial conditions and boundary conditions inputs. Similar to the POST tools, documentation on compiling and running the programs is provided within each subfolder under PREP.
+
+The fifth folder in the repository is the PYTOOLS folder, newly released in CMAQv5.4. This folder holds python tools relating to OCEAN file augmentation and tools relating to PREP and POST processing of inputs for CMAQ. Similar to the PREP and POST tools, documentation on how to run these tools is provided within each subfolder under PYTOOLS.
 
 The last folder within the repository is the UTIL folder which contains useful utilities relating to the CMAQ program suite. An example is the bldmake utility which is used to compile the source code into executables when you use any of the build scripts in the CMAQ repository. Also included in this repository is a top-level README file with an overview of the contents of the release and two additional C-Shell scripts, `bldit_project.csh` and `config_cmaq.csh`.  `bldit_project.csh` allows the user to extract the build and run scripts and compile the model outside of the repository, while `config_cmaq.csh` helps enforce consistent environment setting for the CMAQ project. Both these scripts will be discussed in the following sections.
 
@@ -78,7 +83,7 @@ The last folder within the repository is the UTIL folder which contains useful u
 When cloning the repository or unpacking the tar file of the CMAQ distribution, the top-level directory is recognized by the default build and run scripts as `CMAQ_HOME` (formerly M3HOME prior to CMAQv5.2). This directory is an arbitrary base location of the CMAQ installation on your Linux system for a specific application. If the user will build and run CMAQ within the repository folder structure, then `CMAQ_HOME` does not need to be set explicitly in the `bldit_project.csh` script. If, on the other hand, the user wishes to extract the build and run scripts and compile the model outside of the repository, then `CMAQ_HOME` will need to be specified in `bldit_project.csh`. Executing `bldit_project.csh` will automatically perform this extraction and create a CMAQ folder structure under the location now specified by `CMAQ_HOME`. To perform this operation, modify the variable `CMAQ_HOME` in the `bldit_project.csh ` script to identify the folder that you would like to install the CMAQ package under. For example:
 
 ```
-set CMAQ_HOME = /home/username/CMAQ_v5.3
+set CMAQ_HOME = /home/username/CMAQ_v5.4
 ```
 
 Now execute the script:
@@ -91,9 +96,9 @@ It should be noted that from now on, the other CMAQ directories are referenced r
 
 ## 5.5 Initialization of CMAQ Environment
 
-Consistency of configuration variables is critical for building CMAQ itself, not just its libraries. Accordingly CMAQ includes the configuration script `config_cmaq.csh` to help enforce consistent environment settings for CMAQ and its associated libraries [Appendix A](Appendix/CMAQ_UG_appendixA_model_options.md) lists the `config_cmaq.csh` variables defined for the build process and suggests values to which to set those variables.
+Consistency of configuration variables is critical for building CMAQ itself, not just its libraries. Accordingly CMAQ includes the configuration script `config_cmaq.csh` to help enforce consistent environment settings for CMAQ and its associated libraries. [Appendix A](Appendix/CMAQ_UG_appendixA_model_options.md) lists the `config_cmaq.csh` variables defined for the build process and suggests values to which to set those variables.
 
-Note that for multiprocessor applications it is recommended that the Fortran MPI wrapper script mpifort (for Intel compiler and for GNU and PGI fortran compiler, use mpifort) be specified for the Fortran compiler (myFC). Using this script, instead of a direct call to the Fortran compiler, will ensure that the full suite of MPI components (libraries and include files) for the compiler are included in the parallel build without anything provided by the user explicitly.
+Note that for multiprocessor applications it is recommended that the Fortran MPI wrapper script mpiifort (for Intel compiler; for GNU and PGI fortran compiler, use mpifort) be specified for the Fortran compiler (myFC). Using this script, instead of a direct call to the Fortran compiler, will ensure that the full suite of MPI components (libraries and include files) for the compiler are included in the parallel build without anything provided by the user explicitly.
 
 Use the following steps to initialize your CMAQ environment:
 
@@ -113,7 +118,7 @@ Sourcing the `config_cmaq.csh` script only needs to be invoked during a new inst
 
 ## 5.6 Compiling CMAQ Chemistry-Transport Model (CCTM)
 
-After all required CMAQ inputs are generated using the preprocessors mentioned above the user is now ready to compile CCTM. CMAQ’s current coding structure is based on a modularity level that distinguishes from each other CCTM’s main driver, science modules, data estimation modules, and control/utility subroutines. Also distinguished from each other are the science models (including submodels for meteorology, emissions, chemistry-transport modeling) and the analysis and visualization subsystems.
+After all required CMAQ inputs are generated using the preprocessors mentioned above the user is now ready to compile CCTM. CMAQ’s current coding structure is based on a modular design principle that seperates CCTM’s main driver, science modules, data estimation modules, and control/utility subroutines. Also distinguished from each other are the science models (including submodels for meteorology, emissions, chemistry-transport modeling) and the analysis and visualization subsystems.
 
 In CCTM, the process modules that affect the pollutant concentration fields are classified as listed below. Each bullet contains a description of the process followed by module name in parentheses. These modules are discussed further in [Chapter 6](CMAQ_UG_ch06_configuring_the_model.md).
 
@@ -123,15 +128,14 @@ Science Modules:
 -  Vertical advection (vadv)
 -  Horizontal diffusion (hdiff)
 -  Vertical diffusion (vdiff)
--  Emissions (emis) 
--  In-line BEIS3 biogenic emissions (biog)
--  In-line plume rise (plrise)
+-  Emissions (offline and online emissions sources) (emis) 
+-  Dry Deposition/Air Surface Exchange (depv)
 -  Gas-phase chemical reaction solver (gas)
 -  Aqueous-phase reactions and cloud mixing (cloud)
 -  Aerosol dynamics and size distributions (aero)
 -  Potential vorticity scaling for stratosphere/troposphere exchange (pv_o3)
 
-The user has the ability to configure the model in a multitude of ways by selecting from different options for each scientific process. Model configuration is split into build time options and run time options. To modify any science options during build time, edit the `bldit_cctm.csh` script. The `bldit_cctm.csh` script also contains other information, such as the option to run in single or multiprocessor mode as well as debug mode. To modify any run time options, such as turn on in-line biogenic emission calculation or use in-line windblown dust emission, edit the run script, `run_cctm.csh`, and set the corresponding environment variable. To read more about build and run time configurations for specific scientific processes, see the next chapter [(Chapter 6)](CMAQ_UG_ch06_model_configuration_options.md).  To see a complete list configuration options reference [Appendix A](Appendix/CMAQ_UG_appendixA_model_options.md).
+The user has the ability to configure the model in a multitude of ways by selecting from different options for each scientific process. Model configuration is split into build time options and run time options. To modify any science options during build time, edit the `bldit_cctm.csh` script. The `bldit_cctm.csh` script also contains other information, such as the option to run in single or multiprocessor mode as well as debug mode. It should be noted default build time options are alrady set within the `bldit_cctm.csh`. To modify any run time options, such as turning on in-line biogenic emission calculation or using in-line windblown dust emission, edit the run script, `run_cctm.csh`, and set the corresponding environment variable. To read more about build and run time configurations for specific scientific processes, see the next chapter [(Chapter 6)](CMAQ_UG_ch06_model_configuration_options.md). To see a complete list configuration options reference [Appendix A](Appendix/CMAQ_UG_appendixA_model_options.md).  
 
 Once the `bldit_cctm.csh` script is configured to the user's preference, the user is ready to run the script to build the CCTM executable. To do this run the following commands:
 
@@ -140,10 +144,10 @@ cd $CMAQ_HOME/CCTM/scripts
 source bldit_cctm.csh [compiler] [version] |& tee build_cctm.log
 ```
 
-The bldit script invokes the CMAQ utility program [bldmake](../../UTIL/bldmake/README.md), which extracts source code from your CMAQ GIT repository, constructs a Makefile based on your selected options, and compiles the executable automatically.  Following normal termination of the script with the default configuration, the user will notice a BLD directory created. This is the location of the CCTM executable along with the relevant source codes and the Makefile needed to build the model. In this directory a few useful commands can be used to update the executable if any changes are made to the fortran source codes via the MakeFile. For example, if the user wants to recompile the source codes in debug mode instead of re-running the `bldit_cctm.csh` script the user can use the following commands:
+The bldit script invokes the CMAQ utility program [bldmake](../../UTIL/bldmake/README.md), which extracts source code from your CMAQ GIT repository, constructs a Makefile based on your selected options, and compiles the executable automatically.  Following normal termination of the script with the default configuration, the user will notice a BLD directory created. This is the location of the CCTM executable along with the relevant source codes and the Makefile needed to build the model. In this directory a few useful commands can be used to update the executable if any changes are made to the Fortran source codes via the MakeFile. For example, if the user wants to recompile the source codes in debug mode _instead_ of re-running the `bldit_cctm.csh` script the user can use the following commands:
 
 ```
-cd BLD_CCTM_v53_[compiler][version]
+cd BLD_CCTM_v54_[compiler][version]
 make clean
 make DEBUG=TRUE
 ```
@@ -151,11 +155,11 @@ make DEBUG=TRUE
 In another example, if the user has made any changes to the source codes in the BLD directory and wanted to update the CCTM executable to reflect these changes the user can use the following commands:
 
 ```
-cd BLD_CCTM_v53_[compiler][version]
+cd BLD_CCTM_v54_[compiler][version]
 make
 ```
 
-The Make utility is smart enough to compile only the modified files and all associated file which are defined by the dependency of each source file in the Makefile.
+The Make utility only compiles the modified files and all associated file which are defined by the dependency of each source file in the Makefile.
 
 ## 5.7 Running CCTM
 
@@ -171,29 +175,29 @@ run_cctm.csh |& tee run_cctm.log
 
 The CCTM simulation will write two types of logfile, a main logfile (e.g. run_cctm.log) and processor-specific logfiles that have the name convention:  
 ```
-CTM_LOG_[ProcessorID].v53_[compiler]_[data_name]/_[RUNDATE].log
+CTM_LOG_[ProcessorID].v54_[compiler]_[data_name]/_[RUNDATE].log
 ```
 
 The main logfile contains extensive metadata and useful information about the details of your simulation. The following examples describe some of this information:  
 ```
-Start Model Run At  Tue Apr 9 08:18:06 EDT 2019
+Start Model Run At Tue Sep 13 14:55:26 EDT 2022
 Compiler is set to intel
-No compiler version given. Atmos system Detected. Assume Intel 18.0
+No compiler version given. Atmos system Detected. Assume Intel 21.0
 
 Working Directory is ...
 Build Directory is ...
 Output Directory is ...
 Log Directory is ...
-Executable Name is CCTM_v53.exe
+Executable Name is CCTM_v54.exe
 
----CMAQ EXECUTION ID: CMAQ_CCTMv53_[userID]_YYYYMMDD_hhmmss_nanosecs ---
+---CMAQ EXECUTION ID: CMAQ_CCTMv54_sha=[git-SHA]_[userID]_YYYYMMDD_hhmmss_nanosecs ---
 
 Set up input and output files for Day YYYY-MM-DD.
 
 Existing Logs and Output Files for Day YYYY-MM-DD Will Be Deleted
 /bin/rm: No match.
 
-CMAQ Processing of Day 20140620 Began at Tue Apr  9 08:18:07 EDT 2019
+CMAQ Processing of Day 20170722 Began at Tue Sep 13 14:55:26 EDT 2022
 ```
 This section documents the folder structure, username, and run date for the simulation, and is meant to aid in maintaining transparency of simulation results after runs have been completed. This section is followed by the CMAQ and I/O API headers, and a record of all environment variables and their values for this simulation.
 
@@ -340,56 +344,56 @@ With this output, users will be able to trace issues that occur on specific proc
 
 Then, as the time-dependent portion of the model begins, output is provided for every timestep with the following form:
 ```
-     Processing Day/Time [YYYYDDD:HHMMSS]: 2015274:000000
-       Which is Equivalent to (UTC): 0:00:00  Thursday,  Oct. 1, 2015
+     Processing Day/Time [YYYYDDD:HHMMSS]: 2017356:000000
+       Which is Equivalent to (UTC): 0:00:00  Friday,  Dec. 22, 2017
        Time-Step Length (HHMMSS): 000500
-                 VDIFF completed...    6.2 seconds
-                COUPLE completed...    0.0 seconds
-                  HADV completed...    0.3 seconds
-                  ZADV completed...    0.0 seconds
-                 HDIFF completed...    0.1 seconds
+                 VDIFF completed...    3.7 seconds
+                COUPLE completed...    0.1 seconds
+                  HADV completed...    8.4 seconds
+                  ZADV completed...    0.3 seconds
+                 HDIFF completed...    0.3 seconds
               DECOUPLE completed...    0.0 seconds
-                  PHOT completed...    0.6 seconds
-               CLDPROC completed...    0.0 seconds
-                  CHEM completed...    0.4 seconds
-                  AERO completed...    0.4 seconds
+                  PHOT completed...    1.4 seconds
+               CLDPROC completed...    0.3 seconds
+                  CHEM completed...    1.5 seconds
+                  AERO completed...    2.5 seconds
             Master Time Step
-            Processing completed...    8.0 seconds
+            Processing completed...    18.7 seconds
 ```
 This section documents the date and time the model is currently processing along with the time spent calculating every major sub-process. At the end of each simulation hour, the calculation time is also printed for the output process.
 ```
-    Processing Day/Time [YYYYDDD:HHMMSS]: 2015274:005500
-       Which is Equivalent to (UTC): 0:55:00  Thursday,  Oct. 1, 2015
+    Processing Day/Time [YYYYDDD:HHMMSS]: 2017356:005500
+       Which is Equivalent to (UTC): 0:55:00  Thursday,  Dec. 22, 2017
        Time-Step Length (HHMMSS): 000500
-                 VDIFF completed...    0.9 seconds
-                COUPLE completed...    0.0 seconds
-                  HADV completed...    0.2 seconds
-                  ZADV completed...    0.0 seconds
-                 HDIFF completed...    0.0 seconds
+                 VDIFF completed...    31.7 seconds
+                COUPLE completed...    0.2 seconds
+                  HADV completed...    2.3 seconds
+                  ZADV completed...    0.4 seconds
+                 HDIFF completed...    0.5 seconds
               DECOUPLE completed...    0.0 seconds
-                  PHOT completed...    0.2 seconds
-               CLDPROC completed...    0.3 seconds
-                  CHEM completed...    0.4 seconds
-                  AERO completed...    1.0 seconds
+                  PHOT completed...    0.6 seconds
+               CLDPROC completed...    19.1 seconds
+                  CHEM completed...    1.5 seconds
+                  AERO completed...    2.5 seconds
             Master Time Step
-            Processing completed...    3.0 seconds
+            Processing completed...    58.9 seconds
  
-      =--> Data Output completed...    0.3 seconds
+      =--> Data Output completed...    52.2 seconds
 ```
 This procedure repeats for every hour of the output day until completion of that day.
 ```
      ==============================================
      |>---   PROGRAM COMPLETED SUCCESSFULLY   ---<|
      ==============================================
-     Date and time 0:00:00   Oct. 2, 2015   (2015275:000000)
+     Date and time 0:00:00   Dec. 23, 2017   (2017357:000000)
  
-     The elapsed time for this simulation was     733.0 seconds.
+     The elapsed time for this simulation was     6390.3 seconds.
  
-real 734.70
-user 0.07
-sys 0.17
+real 6394.83
+user 2000938.03
+sys 827.71
 
-CMAQ Processing of Day 20151001 Finished at Fri Apr  5 11:21:20 EDT 2019
+CMAQ Processing of Day 20171222 Finished at Tue Sep 13 16:42:02 EDT 2022
 
 \\\\\=====\\\\\=====\\\\\=====\\\\\=====/////=====/////=====/////=====/////
 ```
@@ -399,32 +403,29 @@ After the final day has been completed, summary information is printed for the c
 ==================================
   ***** CMAQ TIMING REPORT *****
 ==================================
-Start Day: 2015-10-01
-End Day:   2015-10-14
-Number of Simulation Days: 14
-Domain Name:               WRF_CMAQ_2WAY
+Start Day: 2017-12-22
+End Day:   2018-01-01
+Number of Simulation Days: 8
+Domain Name:               12US1
 Number of Grid Cells:      1538636  (ROW x COL x LAY)
 Number of Layers:          44
 Number of Processes:       128
    All times are in seconds.
 
 Num  Day        Wall Time
-01   2015-10-01   727.67
-02   2015-10-02   717.89
-03   2015-10-03   709.40
-04   2015-10-04   701.84
-05   2015-10-05   703.34
-06   2015-10-06   708.96
-07   2015-10-07   708.07
-08   2015-10-08   707.25
-09   2015-10-09   706.42
-10   2015-10-10   703.56
-11   2015-10-11   707.74
-12   2015-10-12   705.44
-13   2015-10-13   712.43
-14   2015-10-14   718.59
-     Total Time = 9938.60
-      Avg. Time = 709.90 
+01   2017-12-22   6394.83
+02   2017-12-23   6137.89
+03   2017-12-24   6039.40
+04   2017-12-25   6201.84
+05   2017-12-26   6403.34
+06   2017-12-27   6108.96
+07   2017-12-28   6308.07
+08   2017-12-29   6207.25
+09   2017-12-30   6306.42
+10   2017-12-31   6303.56
+11   2018-01-01   6107.77
+     Total Time = 68519.33
+      Avg. Time = 6229.03 
 ``` 
 
 The processor-specific logfiles provide detailed information on the operation of hundreds of model tasks from mapping variables to opening and reading input files. Warnings that may be important for users to be aware of are printed to these files. To confirm that the model ran to completion view the run.[data].log file. For MPI runs, you may check any of the CTM_LOG_[ProcessorID]*.log files. A successful run will contain the following line at the bottom of the log(s):
@@ -436,7 +437,7 @@ The processor-specific logfiles provide detailed information on the operation of
 Note: The log file for each processor is also moved from the $CMAQ_HOME/CCTM/scripts directory to the data output directory:
 
 ```
-$CMAQ_DATA/output_CCTM_v53_[compiler]/[data_name]
+$CMAQ_DATA/output_CCTM_v54_[compiler]/[data_name]
 ```
 
 ### 5.7.2 CCTM Output files
@@ -444,10 +445,10 @@ $CMAQ_DATA/output_CCTM_v53_[compiler]/[data_name]
 The output results will have been placed in the directory:
 
 ```
-$CMAQ_DATA/output_CCTM_v53_[compiler]_[data_name]
+$CMAQ_DATA/output_CCTM_v54_[compiler]_[data_name]
 ```
 
-and can include the following netCDF-type files: ACONC, AELMO, B3GTS_S, CGRID, CONC, DEPV, DRYDEP, DUSTEMIS, LTNGDIAG1, LTNGDIAG2, MEDIA_CONC, ELMO, PT3D_DIAG, RJ_1, RJ_2, RJ_3, SOILOUT, SSEMIS, VDIFF, VSED, WETDEP1, WETDEP2 and VEXT_1. The in-depth description about each of these files is described in [Chapter 7](CMAQ_UG_ch07_model_outputs.md).
+and can include the following netCDF-type files: ACONC, AELMO, B3GTS_S, CGRID, CONC, DEPV, DRYDEP, DUSTEMIS, LTNGDIAG1, LTNGDIAG2, MEDIA_CONC, ELMO, RJ_1, RJ_2, RJ_3, SOILOUT, SSEMIS, VDIFF, VSED, WETDEP1, WETDEP2 and VEXT_1. The in-depth description about each of these files is described in [Chapter 7](CMAQ_UG_ch07_model_outputs.md).
 
 
 ### 5.7.3 Common errors causing the CCTM simulation to crash
@@ -463,6 +464,6 @@ Check the last few lines of the CCTM output log for messages to help diagnose wh
 <!-- BEGIN COMMENT -->
 
 [<< Previous Chapter](CMAQ_UG_ch04_model_inputs.md) - [Home](README.md) - [Next Chapter >>](CMAQ_UG_ch06_model_configuration_options.md)<br>
-CMAQ User's Guide (c) 2020<br>
+CMAQ User's Guide (c) 2022<br>
 
 <!-- END COMMENT -->
