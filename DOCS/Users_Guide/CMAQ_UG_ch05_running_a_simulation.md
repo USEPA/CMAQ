@@ -68,7 +68,7 @@ After downloading the source codes the user is encouraged to look through the re
 
 In this image it can be seen that there are six main sub folders within the CMAQ repository. The first folder, CCTM, houses all the source codes (i.e. Fortran/C programs) and scripts that drive the CMAQ Chemistry Transport Model (CCTM). 
 
-The second folder, DOCS, contains all relevant documentation pertaining to the CMAQ program suite including the User Manual, and Known issues associated with the current release and a Developers Guide for a general description of CMAQ's open-source collaboration workflow and step-by-step instructions for how to make code contributions through GitHub.
+The second folder, DOCS, contains the CMAQ User's Guide and a Developers Guide for a general description of CMAQ's open-source collaboration workflow and step-by-step instructions for how to make code contributions through GitHub.
 
 The third folder in the repository is the POST folder which contains several very useful tools for post-processing of the input/output data files. Each tool within the folder comes wth the source code, scripts and a README used to run the tool. A technical description of the tools within this folder can be found in [Chapter 8](CMAQ_UG_ch08_analysis_tools.md).
 
