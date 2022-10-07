@@ -61,17 +61,13 @@ Code documentation is included within this repository (they are version-controll
 * [Developers' Guide](DOCS/Developers_Guide/CMAQ_Dev_Guide.md)   
 * [FAQ for upgrading to the latest CMAQ version](DOCS/Release_Notes/CMAQ_FAQ.md) 
 
-## CMAQ Test Cases  
-**Needs to be updated for new benchmark data**  
-Benchmark/tutorial data for each CMAQ release version are available from the CMAS Data Warehouse.  The input and output files are stored on Google Drive with metadata organized through Dataverse.  CMAQv5.3.2 comes with new input and output benchmark data for July 1-2, 2016 over the Southeast US (links provided below). The input datasets for these two days are identical to those released with v5.3.1 except for the addition of a grid mask file for the United States: [GRIDMASK_STATES_12SE1.nc](https://drive.google.com/file/d/16JJ4d6ChBJsvMc_ErqwDBrFfGh2MnVYR/view?usp=sharing). As a result, there is no need for users who have already downloaded the v5.3.1 Southeast benchmark input data to download the v5.3.2 files unless they need the grid mask file for running the new [ISAM test case](DOCS/Users_Guide/Tutorials/CMAQ_UG_tutorial_ISAM.md) or to test out regional emissions scaling with [DESID](DOCS/Users_Guide/Tutorials/CMAQ_UG_tutorial_emissions.md). The Southeast benchmark output data for v5.3.2 is slightly different from what was released with v5.3 as described in the [CMAQv5.3.2 Rlease Notes FAQ](DOCS/Release_Notes/CMAQ_FAQ.md).
+## CMAQ Test Cases   
+Benchmark/tutorial data for the CMAQv5.4 release are available from the CMAS Data Warehouse.  The input and output files are stored on Google Drive with metadata organized through Dataverse.  CMAQv5.4 comes with new input and output benchmark data for July 1-2, 2018 over the Northeast US (links provided below). Tutorials are provided for using the benchmark data to test running of the base [CMAQ model](DOCS/Users_Guide/Tutorials/CMAQ_UG_tutorial_benchmark.md), [WRF-CMAQ](DOCS/Users_Guide/Tutorials/CMAQ_UG_tutorial_WRF-CMAQ_Benchmark.md), [CMAQ-ISAM](DOCS/Users_Guide/Tutorials/CMAQ_UG_tutorial_ISAM.md), and [CMAQ-DDM-3D](DOCS/Users_Guide/Tutorials/CMAQ_UG_tutorial_DDM.md).  The input datasets include a grid mask file for the United States (GRIDMASK_STATES_12SE1.nc). The grid mask file is used for running the new ISAM and DDM-3D test cases, or to test out regional emissions scaling with [DESID](DOCS/Users_Guide/Tutorials/CMAQ_UG_tutorial_emissions.md).  The input datasets also include ocean files with new variables needed to use the cb6r5_ae7 and cb6r5m_ae7 mechanisms.  See the [Ocean File tutorial](DOCS/Users_Guide/Tutorials/CMAQ_UG_tutorial_oceanfile.md) for more information on changes to the ocean file in v5.4.  
 
 |**CMAQ Version**|**Data Type**|**Domain**|**Simulation Dates**|**Dataverse DOI**| 
 |:----:|:----:|:--------------:|:----:|:--------:|
-|v5.3|Input| CONUS | Jan 1 - Dec 31, 2016 | https://doi.org/10.15139/S3/MHNUNE |
-|v5.3, v5.3.1, v5.3.2, v5.3.3|Input| Southeast US| July 1 - 14, 2016| https://doi.org/10.15139/S3/IQVABD |
-|v5.3, v5.3.1|Output| Southeast US| July 1 - 14, 2016|https://doi.org/10.15139/S3/PDE4SS |
-|v5.3.2|Output| Southeast US| July 1 - 2, 2016|https://doi.org/10.15139/S3/PDE4SS |
-|v5.3.3|Output| Southeast US| July 1 - 2, 2016|https://doi.org/10.15139/S3/PDE4SS |
+|v5.4|Input| Northeast US| July 1 - 2, 2018|https://doi.org/ |
+|v5.4|Output| Northeast US| July 1 - 2, 2018|https://doi.org/ |
 
  
 ## User Support
