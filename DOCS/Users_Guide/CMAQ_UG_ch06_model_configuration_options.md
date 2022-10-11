@@ -209,7 +209,7 @@ Exchange of pollutants between the atmosphere and Earth's surface can be modeled
 
 Currently, most chemicals in CMAQ are modeled as depositing only.  However, ammonia and mercury can be both emitted from the surface and deposited and are therefore modeled as bidirectional. Estimates of the soil and stomatal compensation concentrations needed to compute the bidirectional ammonia flux in CMAQ are derived from input provided by the Environmental Policy Integrated Climate (EPIC) agricultural ecosystem model that is executed using the Fertilizer Emission Scenario Tool for CMAQ (FEST-C, https://www.cmascenter.org/fest-c ) (Ran et al., 2011; Cooter et al., 2012). Information for surface concentrations of mercury are initially specified using land use specific tabular data and then by modeling the accumulation, transformation and evasion of mercury in the surface media (Bash 2010).
 
-CMAQ v5.3 contains two options for calculating dry deposition/surface exchange which are invoked in the BuildScript as:
+Starting with CMAQ v5.3, there are two options for calculating dry deposition/surface exchange which are invoked in the BuildScript as:
 
 ```
 Set DepMod   = m3dry

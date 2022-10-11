@@ -29,7 +29,7 @@ The suggested hardware requirements for running the CMAQ Southeast Benchmark cas
 
 ## Install CMAQ and Required Libraries 
 
-In the directory where you would like to install CMAQ, create the directory issue the following command to clone the EPA GitHub repository for CMAQv5.3.3:
+In the directory where you would like to install CMAQ, create the directory issue the following command to clone the EPA GitHub repository for CMAQv5.4:
 
 ```
 git clone -b main https://github.com/USEPA/CMAQ.git CMAQ_REPO
@@ -54,7 +54,7 @@ In the top level of CMAQ_REPO, the bldit_project.csh script will automatically r
 
 In bldit_project.csh, modify the variable $CMAQ_HOME to identify the folder that you would like to install the CMAQ package under. For example:
 ```
-set CMAQ_HOME = [your_install_path]/CMAQ_v5.3.3
+set CMAQ_HOME = [your_install_path]/CMAQ_v5.4
 ```
 Now execute the script.
 ```
@@ -96,21 +96,23 @@ source config_cmaq.csh gcc 9.1
 
 ## Install the CMAQ input reference/benchmark data
 
-Download the CMAQ two day reference data from the CMAS Center Data Warehouse Google Drive.  For CMAQv5.3.3 there is no new input benchmark data. Users can use the benchmark input released with v5.3.2 for testing their CMAQv5.3.3 and CMAQv5.3.3-ISAM builds.
-The CMAQ benchmark test case is a two day simulation for July 1-2 2016 on a 100 column x 80 row x 35 layer 12-km resolution domain over the southeast U.S.  
-- [Input data for CMAQv5.3.2 and v5.3.3](https://drive.google.com/drive/u/1/folders/1jAKw1EeEzxLSsmalMplNwYtUv08pwUYk)
-- [Output data for CMAQv5.3.3](https://drive.google.com/drive/folders/1K7f9WQEeavae5VlAWz9Z6nNrjgF6UKV8?usp=sharing) 
-- Metadata for the CMAQ benchmark test case is posted on the CMAS Center Dataverse site: https://doi.org/10.15139/S3/IQVABD 
+Download the CMAQ two day reference data from the CMAS Center Data Warehouse Google Drive.  
+The CMAQ benchmark test case is a two day simulation for July 1-2 2018 on a 100 column x 105 row x 35 layer 12-km resolution domain over the northeast U.S.  
+- [Input data for CMAQv5.4](https://drive.google.com/drive/u/1/folders/)
+- [Output data for CMAQv5.4](https://drive.google.com/drive/folders/) 
+- Metadata for the CMAQ benchmark test case is posted on the CMAS Center Dataverse site: https://doi.org/10.15139/S3/IQVABD  (need to update)
 
-The benchmark data is also available form the US EPA annoymous ftp server: https://gaftp.epa.gov/exposure/CMAQ/
+The benchmark data is also available form the US EPA annoymous ftp server: https://gaftp.epa.gov/exposure/CMAQ/  ??
 
 Copy the data to `$CMAQ_DATA`. Navigate to the `$CMAQ_DATA` directory, unzip and untar the two day benchmark input and output files:
 
 ```
 cd $CMAQ_DATA
-tar xvzf CMAQv5.3.2_Benchmark_2Day_Input.tar.gz
-tar xvzf CMAQv5.3.3_Benchmark_2Day_Output_Optimized.tar.gz
+tar xvzf 2018_12NE3.tar.gz
+tar xvzf CMAQv5.4_Benchmark_2Day_Output.tar.gz (need to update?)
 ```
+
+#### CMAQv5.4 benchmark data is for a new 12NE3 region.
 
 #### A note about differences in the v5.3 and v5.3+ benchmark data
 For CMAQv5.3.1, the benchmark data for the July 2016 test case over the Southeast US provided both input and output files.  The CMAQv5.3.1 input datasets were identical to those released wtih v5.3 but additional files are now included in the .tar.gz files that will allow users to test the WRFv4.1.1-CMAQv5.3+ coupled model on the Southeast US benchmark domain. As a result, there is no need for users who have already downloaded the v5.3 Southeast benchmark input data to download the v5.3+ files unless they are planning to run the coupled model.  
@@ -174,13 +176,13 @@ For an MPI configuration with 16 processors,
 cd $CMAQ_HOME/CCTM/scripts
 ```
 
-Edit the CCTM run script (run_cctm_Bench_2016_12SE1.csh) for the MPI configuration and compiler that you will use:
+Edit the CCTM run script (run_cctm_Bench_2018_12NE3.csh) for the MPI configuration and compiler that you will use:
 
 ```
 setenv compiler gcc
 setenv compilerVrsn 9.1
-setenv INPDIR  ${CMAQ_DATA}/CMAQv5.3.2_Benchmark_2Day_Input
-@ NPCOL 4 ; @ NPROW = 4
+setenv INPDIR  ${CMAQ_DATA}/2018_12NE3
+@ NPCOL 8 ; @ NPROW = 4
 ```
 
 Most clustered multiprocessor systems require a command to start the MPI run-time environment. The default CCTM run script uses the *mpirun* command. Consult your system administrator to find out how to invoke MPI when running multiprocessor applications.
@@ -202,13 +204,13 @@ CCTM Science Configuration Options set to **Y** in the RunScript for the benchma
 -  ```CTM_GRAV_SETL``` - vdiff aerosol gravitational sedmentation
 -  ```CTM_BIOGEMIS``` - online biogenic emissions
 
-To configure these parameters, the Science Options within the $CMAQ_HOME/CCTM/scripts/run_cctm_Bench_2016_12SE1.csh need to be set. The comments within the script itself should help guide the user on the options for each variable and how to set them. Further information on variable names can be found in 
+To configure these parameters, the Science Options within the $CMAQ_HOME/CCTM/scripts/run_cctm_Bench_2018_12NE3.csh need to be set. The comments within the script itself should help guide the user on the options for each variable and how to set them. Further information on variable names can be found in 
 [Appendix A](../Appendix/CMAQ_UG_appendixA_model_options.md).
 
 After configuring the MPI settings for your Linux system, check the rest of the script to ensure the correct path, date and names are used for the input data files. Per the note above, different Linux systems have different requirements for submitting MPI jobs.  The command below is an example of how to submit the CCTM run script and may differ depending on the MPI requirements of your Linux system. 
 
 ```
-./run_cctm_Bench_2016_12SE1.csh |& tee cctm.log
+./run_cctm_Bench_2018_12NE3.csh |& tee cctm.log
 ```
 
 ## Confirm that the Benchmark Simulation Completed
@@ -220,22 +222,22 @@ To confirm that the benchmark case ran to completion view the run.benchmark.log 
 Note: If you are running on multiple processors the log file for each processor is also moved from the $CMAQ_HOME/CCTM/scripts directory to the benchmark output directory: 
 
 ```
-$CMAQ_DATA/output_CCTM_v533_[compiler]_Bench_2016_12SE1
+$CMAQ_DATA/output_CCTM_v54_[compiler]_Bench_2018_12NE3_2day
 ```
 and these log files have the name convention: 
 
 ```
-CTM_LOG_[ProcessorID].v533_[compiler]_[APPL]_[YYYYMMDD]
-CTM_LOG_[ProcessorID].v533_gcc_Bench_2016_12SE1_20160701
+CTM_LOG_[ProcessorID].v54_[compiler]_[APPL]_[YYYYMMDD]
+CTM_LOG_[ProcessorID].v54_gcc_Bench_2018_12NE3_2day_20180702
 ```
 
 The benchmark output results will have been placed in the directory: 
 
 ```
-$CMAQ_DATA/output_CCTM_v533_[compiler]_Bench_2016_12SE1
+$CMAQ_DATA/output_CCTM_v54_[compiler]_Bench_2018_12NE3_2day
 ```
 
-and can include upto 23 netCDF-type files: ACONC, AOD_DIAG, AELMO, APMVIS, B3GTS_S, CGRID, CONC, DEPV, DRYDEP, DUSTEMIS, LTNGCOL, LTNGHRLY, MEDIA_CONC, PHOTDIAG1, PHOTDIAG2, ELMO, PMVIS, SOILOUT, SSEMIS, VDIFF, VSED, WETDEP1, and WETDEP2.
+and can include upto 23 netCDF-type files: ACONC, AOD_DIAG, AELMO, APMVIS, B3GTS_S, BSOILOUT, BUDGET, CGRID, CONC, DEPV, DRYDEP, DUSTEMIS, LTNGCOL, LTNGHRLY, MEDIA_CONC, PHOTDIAG1, PHOTDIAG2, ELMO, PMVIS, SOILOUT, SSEMIS, VDIFF, VSED, WETDEP1, and WETDEP2.
 
 
 Common errors in a CCTM simulation include the following:
@@ -251,9 +253,9 @@ To determine if CMAQ is correctly installed on your Linux system compare the res
 - Red Hat Enterprise Linux Server 7.3 (Maipo) (use command: cat /etc/os-release)
 - GNU GCC compiler version 9.1.0, 16 processors with OpenMPIv4.0.1 and I/O APIv3.2 tagged version 20200828
 - Debug mode turned off (```set Debug_CCTM``` commented out in $CMAQ_HOME/CCTM/scripts/bldit_cctm.csh)
-- CMAQv5.3.3
+- CMAQv5.4
 
-The CMAQv5.3.3 reference output data includes a set of CCTM_ACONC_\*.nc files with layer 1 average model species concentrations for each model hour for 226 variables and a set of CCTM_WETDEP1_\*.nc files with cumulative hourly wet deposition fluxes for an additional 136 variables. The CCTM_SA_ACONC_\*.nc, CCTM_SA_CGRID_\*.nc, CCTM_SA_CONC_\*.nc, CCTM_SA_WETDEP_\*.nc and CCTM_SA_DRYDEP_\*.nc are generated when you run the CMAQ-ISAM benchmark. See the [CMAQ-ISAM Tutorial](../Tutorials/CMAQ_UG_tutorial_ISAM.md) for more information.
+The CMAQv5.4 reference output data includes a set of CCTM_ACONC_\*.nc files with layer 1 average model species concentrations for each model hour for 226 variables and a set of CCTM_WETDEP1_\*.nc files with cumulative hourly wet deposition fluxes for an additional 136 variables. The CCTM_SA_ACONC_\*.nc, CCTM_SA_CGRID_\*.nc, CCTM_SA_CONC_\*.nc, CCTM_SA_WETDEP_\*.nc and CCTM_SA_DRYDEP_\*.nc are generated when you run the CMAQ-ISAM benchmark. See the [CMAQ-ISAM Tutorial](../Tutorials/CMAQ_UG_tutorial_ISAM.md) for more information.
 
 Use your netCDF evaluation tool of choice to evaluate your benchmark results. For example, [VERDI](https://www.verdi-tool.org/) is a visualization tool to view CCTM results as tile plots. Statistical comparison of the results can be made with the I/O API Tools or R. 
 
