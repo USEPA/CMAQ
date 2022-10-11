@@ -40,7 +40,7 @@
 
 [Table 6-2. Aerosol Species Predicted by the Sea-Spray Aerosol Module](CMAQ_UG_ch06_model_configuration_options.md#Table6-2)
 
-[Table 6-3. Chemical mechanisms available with CMAQv5.3](CMAQ_UG_ch06_model_configuration_options.md#Table6-3)
+[Table 6-3. Chemical mechanisms available with CMAQv5.4](CMAQ_UG_ch06_model_configuration_options.md#Table6-3)
 
 [Table 7-1. CMAQ output files](CMAQ_UG_ch07_model_outputs.md#Table7-1)
 
