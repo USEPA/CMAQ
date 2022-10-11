@@ -83,7 +83,6 @@ C represents data computed from time 1995196:090000 to 1995196:100000
          FIRSTIME = .FALSE.
 
 C Override default beginning time timestamp for ACONC?
-
          IF ( .NOT. IO_PE_INCLUSIVE ) THEN
             IF ( .NOT. OPEN3( A_CONC_1, FSREAD3, PNAME ) ) THEN
                XMSG = 'Could not open ' // A_CONC_1 // ' file for update'
