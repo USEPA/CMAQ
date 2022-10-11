@@ -2,7 +2,7 @@
 
 ### Procedure to build and run the CMAQ-ISAM model using gnu compiler: ###
 
-### Step 1: Download and run the CMAQv5.3.3 benchmark case (without ISAM) to confirm that your model run is consistent with the provided benchmark output.
+### Step 1: Download and run the CMAQv5.4 benchmark case (without ISAM) to confirm that your model run is consistent with the provided benchmark output.
 - [CMAQ Benchmark Tutorial](CMAQ_UG_tutorial_benchmark.md)
 
 If you encounter any errors, try running the model in debug mode and refer to the CMAS User Forum to determine if any issues have been reported.
@@ -14,22 +14,22 @@ https://forum.cmascenter.org/
 
 Note: This benchmark is intended to demonstrate how to build and run CMAQ-ISAM with the provided input files:
 
-The following isam control file is provided in the CCTM/scripts directory when you obtain the CMAQv5.3.3 code from github (step 5 below):
+The following isam control file is provided in the CCTM/scripts directory when you obtain the CMAQv5.4 code from github (step 5 below):
 
 ```
 isam_control.txt
 ```
 
-The following gridmask file is provided with the benchmark inputs in the CMAQv5.3.2_Benchmark_2Day_Input/2016_12SE1 directory (see step 10 below)
+The following gridmask file is provided with the benchmark inputs in the 2018_12NE3_BENCH/2018_12NE3 directory (see step 10 below)
 
 ```
-GRIDMASK_STATES_12SE1.nc
+GRIDMASK_STATES_12NE3.nc
 ```
 
-The instructions require the user to edit the emissions control namelist file in the BLD directory (see step 9 below).
+The instructions require the user to edit the DESID emissions control namelist file in the BLD directory (see step 9 below).
 
 ```
-EmissCtrl_cb6r3_ae7_aq.nml
+CMAQ_Control_DESID.nml
 ```
 
 
@@ -65,7 +65,7 @@ In the top level of CMAQ_REPO, the bldit_project.csh script will automatically r
 Edit bldit_project.csh, to modify the variable $CMAQ_HOME to identify the folder that you would like to install the CMAQ package under. For example:
 
 ```
-set CMAQ_HOME = [your_install_path]/CMAQ_v5.3.3
+set CMAQ_HOME = [your_install_path]/CMAQ_v5.4
 ```
 
 Now execute the script.
@@ -77,7 +77,7 @@ Now execute the script.
 Change directories to the CMAQ_HOME directory
 
 ```
-cd [your_install_path]/CMAQ_v5.3.3
+cd [your_install_path]/CMAQ_v5.4
 ```
 
 
@@ -107,99 +107,102 @@ set ISAM_CCTM                         #> uncomment to compile CCTM with ISAM act
 
 Change directories to the build directory
 ```
-cd BLD_CCTM_v532_ISAM_gcc
+cd BLD_CCTM_v54_ISAM_gcc
 ```
 
-edit the emissions namelist file
+edit the DESID emissions namelist file
 
 ```
-gedit EmissCtrl_cb6r3_ae7_aq.nml 
+gedit CMAQ_Control_DESID.nml
 ```
 
 Uncomment the line that contains ISAM_REGIONS as the File Label
 
 ```
-&RegionsRegistry
- RGN_NML  =
- !          | Region Label   | File_Label  | Variable on File
- !<Default>    'EVERYWHERE'  ,'N/A'        ,'N/A',
+&Desid_RegionDef
+ Desid_Reg_nml  =
+ !            Region Label   | File_Label  | Variable on File
+               'EVERYWHERE'  ,'N/A'        ,'N/A',
+               'NY'          ,'CMAQ_MASKS', 'NY',
  !<Example>    'WATER'       ,'CMAQ_MASKS' ,'OPEN',
  !<Example>    'ALL'         ,'CMAQ_MASKS' ,'ALL',
-               'ALL'         ,'ISAM_REGIONS','ALL',
+ !<Example>    'ALL'         ,'ISAM_REGIONS','ALL',
 ```
   
 ### Step 10: Download the benchmark input data
 
-[Link to CMAQv5.3.2_Benchmark_2Day_Input.tar.gz input data on the following Google Drive Folder](https://drive.google.com/drive/u/1/folders/1jAKw1EeEzxLSsmalMplNwYtUv08pwUYk)
+[Link to 2018_12NE3.tar.gz input data on the following Google Drive Folder](https://drive.google.com/drive/u/1/folders/1AFUB-4kzIXXoZr4hOHNBqRvy9JQ9_MDp)
 
-  - You can see a list of the files in the Benchmark dataset: by clicking on CMAQv5.3.2_Benchmark_2Day_Input.tar.gz.list
+  - You can see a list of the files in the Benchmark dataset: by clicking on 2018_12NEtar.log
   - Use the gdrive command to download the dataset.
   - If this is the first time that you are using gdrive, or if you have an issue with your token, please read the following instructions
   - [Tips to download data from CMAS Data Warehouse](https://docs.google.com/document/d/1e7B94zFkbKygVWfrhGwEZL51jF4fGXGXZbvi6KzXYQ4)
   
   
   ```
-  gdrive download 1ex6Wr4dX6a0fgaDfhO0VEJNaCKqOflI5
+  gdrive download 16ieLfUhYh34QXYlm8rtl43lEbuBAyh6-
   ```
   
     
 ### Step 11: Edit the CMAQ-ISAM runscript
 
 ```
-gedit run_cctm_Bench_2016_12SE1.csh
+cp run_cctm_Bench_2018_12NE3.csh run_cctm_Bench_2018_12NE3.ISAM.csh
+gedit run_cctm_Bench_2018_12NE3.ISAM.csh
 ```
 
 Set General Parameters for Configuring the Simulation
 
 ```
-set VRSN = v532_ISAM
+set VRSN = v54_ISAM
 ```
 
 
-Turn on ISAM and uncomment ISAM regions file
+Turn on ISAM and uncomment the SA_IOLIST file and uncomment the ISAM regions file
 
 ```
 setenv CTM_ISAM Y
-setenv ISAM_REGIONS $INPDIR/GRIDMASK_STATES_12SE1.nc
+setenv SA_IOLIST ${WORKDIR}/isam_control.2018_12NE3.txt
+setenv ISAM_REGIONS $INPDIR/GRIDMASK_STATES_12NE3.nc
 ```
    
 Run or Submit the script to the batch queueing system
 
 ```
-./run_cctm_Bench_2016_12SE1.csh
+./run_cctm_Bench_2018_12NE3.ISAM.csh
 ```
 
 OR (If using SLRUM)
 
 ```
-sbatch run_cctm_Bench_2016_12SE1.csh
+sbatch run_cctm_Bench_2018_12NE3.ISAM.csh
 ```
 
 ### Step 12: Verify that the run was successful
    - look for the output directory
    
    ```
-   cd ../../data/output_CCTM_v532_ISAM_gcc_Bench_2016_12SE1
+   cd ../../data/output_CCTM_v54_ISAM_gcc_Bench_2018_12NE3_2day_ISAM
    ```
    If the run was successful you will see the following output
    
    ```
-   tail ./LOGS/CTM_LOG_000.v532_ISAM_gcc_Bench_2016_12SE1_20160701
+   tail ./LOGS/CTM_LOG_000.v532_ISAM_gcc_Bench_2016_12SE1_20160702
    ```
    |>---   PROGRAM COMPLETED SUCCESSFULLY   ---<|
 
 ### Step 13: Compare output with the 2 day benchmark outputs provided on the google drive
 
 
-    https://drive.google.com/drive/u/1/folders/1jAKw1EeEzxLSsmalMplNwYtUv08pwUYk
+    https://drive.google.com/drive/u/1/folders/
 
     Note, the following ISAM output files are generated in addition to the standard CMAQ output files.
 
 ```
-    CCTM_SA_CONC_v532_ISAM_gcc_Bench_2016_12SE1_20160701.nc
-    CCTM_SA_WETDEP_v532_ISAM_gcc_Bench_2016_12SE1_20160701.nc
-    CCTM_SA_DRYDEP_v532_ISAM_gcc_Bench_2016_12SE1_20160701.nc
-    CCTM_SA_ACONC_v532_ISAM_gcc_Bench_2016_12SE1_20160701.nc
-    CCTM_SA_CGRID_v532_ISAM_gcc_Bench_2016_12SE1_20160701.nc
+CCTM_SA_DRYDEP_v54_ISAM_gcc_Bench_2018_12NE3_2day_ISAM_20180702.nc
+CCTM_SA_WETDEP_v54_ISAM_gcc_Bench_2018_12NE3_2day_ISAM_20180702.nc
+CCTM_SA_CONC_v54_ISAM_gcc_Bench_2018_12NE3_2day_ISAM_20180702.nc
+CCTM_SA_ACONC_v54_ISAM_gcc_Bench_2018_12NE3_2day_ISAM_20180702.nc
+CCTM_SA_CGRID_v54_ISAM_gcc_Bench_2018_12NE3_2day_ISAM_20180702.nc
 ```
 
