@@ -20,13 +20,13 @@ The following  control file is provided in the CCTM/scripts directory when you o
 sensinput.2018_12NE3.dat
 ```
 
-The following gridmask file is provided with the benchmark inputs in the CMAQv5.3.2_Benchmark_2Day_Input/2016_12SE1 directory (see step 10 below)
+The following gridmask file is provided with the benchmark inputs in the 2018_12NE3_BENCH/2018_12NE3 directory (see step 10 below)
 
 ```
-GRIDMASK_STATES_12SE1.nc
+GRIDMASK_STATES_12NE3.nc
 ```
 
-The instructions require the user to edit the emissions control namelist file in the BLD directory (see step 9 below).
+The instructions require the user to edit the DESID emissions control namelist file in the BLD directory (see step 9 below).
 
 ```
 CMAQ_Control_DESID.nml
