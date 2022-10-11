@@ -85,7 +85,6 @@ C-----------------------------------------------------------------------
 
 C open conc file for update
 
-#ifdef parallel_io
          IF ( .NOT. IO_PE_INCLUSIVE ) THEN
             IF ( .NOT. OPEN3( CTM_CONC_1, FSREAD3, PNAME ) ) THEN
                XMSG = 'Could not open ' // CTM_CONC_1 // ' file for update'
@@ -97,12 +96,11 @@ C open conc file for update
             XMSG = 'Could not get file description from ' // CTM_CONC_1
             CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
-#endif
          
          ! Retrieve number and values of variable names
-!         NVARS = NVARS3D
-!         ALLOCATE ( VNAME( NVARS ), STAT=ALLOCSTAT )
-!         VNAME = VNAME3D( 1:NVARS )
+         NVARS = NVARS3D
+         ALLOCATE ( VNAME( NVARS ), STAT=ALLOCSTAT )
+         VNAME = VNAME3D( 1:NVARS )
 
       END IF   ! firstime
 
