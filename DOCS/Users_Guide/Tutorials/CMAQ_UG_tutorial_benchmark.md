@@ -176,13 +176,13 @@ For an MPI configuration with 16 processors,
 cd $CMAQ_HOME/CCTM/scripts
 ```
 
-Edit the CCTM run script (run_cctm_Bench_2016_12SE1.csh) for the MPI configuration and compiler that you will use:
+Edit the CCTM run script (run_cctm_Bench_2018_12NE3.csh) for the MPI configuration and compiler that you will use:
 
 ```
 setenv compiler gcc
 setenv compilerVrsn 9.1
-setenv INPDIR  ${CMAQ_DATA}/CMAQv5.3.2_Benchmark_2Day_Input
-@ NPCOL 4 ; @ NPROW = 4
+setenv INPDIR  ${CMAQ_DATA}/2018_12NE3
+@ NPCOL 8 ; @ NPROW = 4
 ```
 
 Most clustered multiprocessor systems require a command to start the MPI run-time environment. The default CCTM run script uses the *mpirun* command. Consult your system administrator to find out how to invoke MPI when running multiprocessor applications.
@@ -204,7 +204,7 @@ CCTM Science Configuration Options set to **Y** in the RunScript for the benchma
 -  ```CTM_GRAV_SETL``` - vdiff aerosol gravitational sedmentation
 -  ```CTM_BIOGEMIS``` - online biogenic emissions
 
-To configure these parameters, the Science Options within the $CMAQ_HOME/CCTM/scripts/run_cctm_Bench_2016_12SE1.csh need to be set. The comments within the script itself should help guide the user on the options for each variable and how to set them. Further information on variable names can be found in 
+To configure these parameters, the Science Options within the $CMAQ_HOME/CCTM/scripts/run_cctm_Bench_2018_12NE3.csh need to be set. The comments within the script itself should help guide the user on the options for each variable and how to set them. Further information on variable names can be found in 
 [Appendix A](../Appendix/CMAQ_UG_appendixA_model_options.md).
 
 After configuring the MPI settings for your Linux system, check the rest of the script to ensure the correct path, date and names are used for the input data files. Per the note above, different Linux systems have different requirements for submitting MPI jobs.  The command below is an example of how to submit the CCTM run script and may differ depending on the MPI requirements of your Linux system. 
