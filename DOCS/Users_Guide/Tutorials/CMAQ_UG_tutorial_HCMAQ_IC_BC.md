@@ -29,7 +29,7 @@ https://drive.google.com/file/d/15Vt6f5WuyN8RiLRjTlKeQUHjYbZ6QCrA/view?usp=shari
 
 **Daily average hemispheric CMAQ output**
 
-EPA distributes a series of monthly files containing daily average 3D species concentrations from a hemispheric CMAQ simulation performed for 2002 - 2017 over the northern hemisphere. These simulations were performed with a modified version of CMAQv5.3.2 using the following configuration:  
+EPA distributes a series of monthly files containing daily average 3D species concentrations from a hemispheric CMAQ simulation performed for 2002 - 2017 over the northern hemisphere as part of the EPA's Air Quality Time Series (EQUATES) Project. These simulations were performed with a modified version of CMAQv5.3.2 using the following configuration:  
 
 - Model version: CMAQv5.3.2 with modifications to halogen chemistry and O3-PV scaling  
 - Grid spacing: 108 x 108 km on a polar stereographic grid covering the northern hemisphere  
@@ -38,10 +38,9 @@ EPA distributes a series of monthly files containing daily average 3D species co
 - Chemical mechanism: CB6R3M_AE7_KMTBR  
 - Dry Deposition: M3DRY  
 
-These files are named CCTM_CONC_v532_intel18.0_CMAQv53_TS_108NHEMI_${YYYY}${MM}_dailyav.nc and can be downloaded here
+These files are named CCTM_CONC_v532_intel18.0_CMAQv53_TS_108NHEMI_${YYYY}${MM}_dailyav.nc and can be downloaded here https://drive.google.com/drive/folders/1A1ZzJE1t7OgwSezQNvy3rt9aATnXA0k2
 
-https://drive.google.com/drive/folders/1A1ZzJE1t7OgwSezQNvy3rt9aATnXA0k2
-
+Metadata and DOI for EQUATES data:  https://doi.org/10.15139/S3/F2KJSK
 
 ### STEP 2 (optional): Time shift the downloaded seasonal or daily average hemispheric CMAQ output files </strong>
 

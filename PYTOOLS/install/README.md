@@ -9,7 +9,7 @@ The best way to test your installation is to run `python show_versions.py`
 
 ## Installing Python >=3.6
 
-Installing Python >=3.6 can be done by installing using the installer for your
+Installing Python >=3.6 can be done by using the installer for your
 system from python.org, or you can use a package like Anaconda.
 
 ## Virtual Environment (optional)
@@ -29,7 +29,7 @@ deactivate
 If you're making a virtual environment and your python is from Anaconda,
 the ensurepip module will be missing and the `python -m venv ./cmaqpy`
 command will fail. Usually, Anaconda does not use venv but instead uses
-conda env. If you do want to use venv with Anaconda, add modify the above 
+conda env. If you do want to use venv with Anaconda, modify the above 
 as follows:
 
 ```
