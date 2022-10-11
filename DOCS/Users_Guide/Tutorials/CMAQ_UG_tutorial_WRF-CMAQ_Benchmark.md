@@ -261,6 +261,6 @@ The following commonly modified namelist options for WRF-CMAQ are specified in t
    If the run was successful you will see the following output
    
    ```
-   tail ./rsl.out.0000
+   tail ./2018182/rsl.out.0000
    ```
    |>---   PROGRAM COMPLETED SUCCESSFULLY   ---<|
