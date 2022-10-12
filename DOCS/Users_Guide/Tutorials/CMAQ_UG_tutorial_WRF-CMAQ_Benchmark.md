@@ -180,7 +180,7 @@ If the User sees this, the WRF-CMAQ model has been successfully compiled and bui
 
 ## Install the CMAQ input reference/benchmark data
 
-[Link to 2018_12NE3.tar.gz input data on Google Drive](https://drive.google.com/file/d/1AFUB-4kzIXXoZr4hOHNBqRvy9JQ9_MDp/view?usp=sharing)
+[Link to v5.4 benchmark input and output test case data on Google Drive](https://drive.google.com/drive/folders/1AFUB-4kzIXXoZr4hOHNBqRvy9JQ9_MDp?usp=sharing)
 
   - Use the gdrive command to download the dataset.
   - If this is the first time that you are using gdrive, or if you have an issue with your token, please read the following instructions
@@ -190,7 +190,7 @@ If the User sees this, the WRF-CMAQ model has been successfully compiled and bui
   ```
   gdrive download 16ieLfUhYh34QXYlm8rtl43lEbuBAyh6-
   ```
-  
+
     
 ## Running the WRF-CMAQ model
 
