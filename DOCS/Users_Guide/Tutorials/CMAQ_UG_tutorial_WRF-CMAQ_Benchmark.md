@@ -71,6 +71,12 @@ Note: WRF source code expects that you have already collated the netCDF-C and ne
 
 Once netCDF collation is completed, navigate back to your WRF-CMAQ project directory and edit the config_cmaq.csh script like the following example: 
 
+If you are using netCDF classic - no HDF5 compression then set the following environment variable
+
+```
+setenv NETCDF_classic 1 
+```
+
 ```
 Navigate to the compiler of your choice for. For example, for GNU based compilers go to section 148 of the script. Then set the 
 
@@ -218,8 +224,12 @@ The following commonly modified namelist options for WRF-CMAQ are specified in t
   - Edit the script to specify the paths, modify the number of processors and batch queue commands
   - Fix VEGPARM.TBL, since Benchmark runs with PX LSM with NLCD40 Data
   
+**\* Users using PX Land Surface Model option with NLCD40 dataset are required to fix their VEGPARM.TBL before running WRF-CMAQ, due to a bug in the WRF released VEGPARM.TBL, please see the [WRF Repository](https://github.com/wrf-model/WRF/pull/1733) for more information on the bug.***
+
+   - For example, one option may include manually editing the existing VEGPARM.TBL (found in WRF-CMAQ Build Directory) with the fix seen on the [WRF Repository](https://github.com/wrf-model/WRF/pull/1733/files). 
+
   Now, modify the following section to specify your local paths:
-  
+
   ```
      set WORKDIR     = ${PWD}
      set WRF_DIR     = $WORKDIR/BLD_WRFv4.4_CCTM_v54_intel18.0  # WRF source code directory
@@ -228,17 +238,14 @@ The following commonly modified namelist options for WRF-CMAQ are specified in t
      set output_direct_name = WRFCMAQ-output-${version}        # Output Directory Name
      setenv OUTDIR $OUTPUT_ROOT/$output_direct_name   # output files and directories
      set NMLpath     = $WRF_DIR/cmaq                           # path with *.nml file mechanism dependent
-  
-  ```  
-  
+
+  ```
+
    - Verify the following settings
     ```
     set NPROCS =    32
     ```
-    
-**\* Users using PX Land Surface Model option with NLCD40 dataset are required to fix their VEGPARM.TBL before running WRF-CMAQ, due to a bug in the WRF released VEGPARM.TBL, please see the [WRF Repository](https://github.com/wrf-model/WRF/pull/1733) for more information on the bug.***
 
-   - For example, one option may include manually editing the existing VEGPARM.TBL (found in WRF-CMAQ Build Directory) with the fix seen on the [WRF Repository](https://github.com/wrf-model/WRF/pull/1733/files). 
     
   - Run the job (if you have a batch queuing system such as SLURM use sbatch): 
   ```
@@ -254,6 +261,6 @@ The following commonly modified namelist options for WRF-CMAQ are specified in t
    If the run was successful you will see the following output
    
    ```
-   tail ./2016183/rsl.out.0000
+   tail ./2018182/rsl.out.0000
    ```
    |>---   PROGRAM COMPLETED SUCCESSFULLY   ---<|
