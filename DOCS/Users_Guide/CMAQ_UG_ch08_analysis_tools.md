@@ -77,6 +77,6 @@ The CMAS Center currently hosts VERDI at https://www.cmascenter.org/verdi, provi
 <!-- BEGIN COMMENT -->
 
 [<< Previous Chapter](CMAQ_UG_ch07_model_outputs.md) - [Home](README.md) - [Next Chapter >>](CMAQ_UG_ch09_process_analysis.md)<br>
-CMAQ User's Guide (c) 2020<br>
+CMAQ User's Guide (c) 2022<br>
 
 <!-- END COMMENT -->
