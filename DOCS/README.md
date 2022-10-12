@@ -6,7 +6,7 @@ While documentation is packaged with the code when it is downloaded or cloned, u
 
 The following documents are available for each CMAQ release:
 
-- **Release Notes**: Technical notes on the new features and science in this release of CMAQ are available on the [CMAQ Wiki](https://github.com/USEPA/CMAQ/wiki/CMAQ-Release-Notes)
+- **[Release Notes](https://github.com/USEPA/CMAQ/wiki/CMAQ-Release-Notes)**: Technical notes on the new features and science in this release of CMAQ are available on the CMAQ Wiki.
 
 - **[CMAQ User's Guide](Users_Guide/README.md)**: Instructions on how to set up and run the model and information on CMAQ's different science options and instrumented versions.
 
