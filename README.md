@@ -1,12 +1,12 @@
 CMAQv5.4
 ==========
 
-Community Multiscale Air Quality Model US EPA CMAQ Website: (https://www.epa.gov/cmaq).
+US EPA Community Multiscale Air Quality Model (CMAQ) Website: https://www.epa.gov/cmaq
 
 **Add DOI link**
 
 CMAQ is an active open-source development project of the U.S. EPA's Office of Research and Development that consists of a suite of programs for conducting air quality model simulations.
-CMAQ is supported by the CMAS Center: (http://www.cmascenter.org).
+CMAQ is supported by the CMAS Center: http://www.cmascenter.org
 
 CMAQ combines current knowledge in atmospheric science and air quality modeling with multi-processor
 computing techniques in an open-source framework to deliver fast, technically sound estimates of ozone,
@@ -15,8 +15,8 @@ particulates, toxics, and acid deposition.
 
 ## CMAQ version 5.4 Overview:
 
+* [Frequently asked questions for upgrading to the latest CMAQ version](DOCS/Release_Notes/CMAQ_FAQ.md) **- Updated for v5.4 release.** 
 * [CMAQv5.4 Release Notes](https://github.com/USEPA/CMAQ/wiki/CMAQv5.4-Release-Notes) - Release Notes are available on the CMAQ GitHub wiki.
-* [Frequently asked questions for upgrading to the latest CMAQ version](DOCS/Release_Notes/CMAQ_FAQ.md) **- Updated for v5.3.3 release.** 
 * [Tutorials for setting up and running CMAQ](DOCS/Users_Guide/Tutorials/README.md) **- Tutorials on running CMAQ, CMAQ-ISAM, CMAQ-DDM, and WRF-CMAQ test cases.**
 
 ## New features in CMAQ version 5.4 include:
@@ -32,6 +32,7 @@ particulates, toxics, and acid deposition.
 * Introduction of a domain-wide Budget calculation tool 
 * Online integration of common pollutant post-processing tasks (i.e. output total PM2.5 mass and more directly!)
 * Community Contribution: Incorporation of the Two-Dimensional Volatility Bases Set (2D-VBS) chemical mechanism
+* **See the full list of CMAQv5.4 updates on our new CMAQ Wiki page. [**CMAQv5.4 Updates**](https://github.com/USEPA/CMAQ/wiki/CMAQv5.4-Series-FAQ#do-i-need-to-update-from-v533-to-v54)**
 
 ## Important update for WRF-CMAQ users
 A bug was identified within the CMAQ to WRF coupling routine (twoway_feedback.F90) where aerosol feedback information is transferred from CMAQ to WRF. In doing so, it was found that WRF was not receiving the correct aerosol feedback information due to a looping error relating to the number of layers set to 1 in some cases. The bug impacts the WRF-CMAQ coupled system in the CMAQv5.3 release series (v5.3, v5.3.1, v5.3.2, v5.3.3) when running with short wave radiative feedback. The bug was not present in prior WRF-CMAQ versions. The bugfix in CMAQv5.4 now correctly captures the variations in the aerosol optical properties and consequently the direct feedback effects through all layers.  **Users of WRF-CMAQ are strongly encouraged to update to CMAQv5.4.** 
@@ -50,16 +51,18 @@ Source code and scripts are organized as follows:
 * **DOCS:** CMAQ User's Guide, developers guidance, and short tutorials.
 * **PREP:** Data preprocessing tools for important input files like initial and boundary conditions, meteorology, etc.
 * **POST:** Data postprocessing tools for aggregating and evaluating CMAQ output products (e.g. Combine, Site-Compare, etc)
+* **PYTOOLS:** Python pre- and postprocessing tools (currently this includes the DMSCHLO preprocessor)
 * **UTIL:** Utilities for generating code and using CMAQ (e.g. chemical mechanism generation)
 
 ## Documentation
 Code documentation is included within this repository (they are version-controlled along with the code itself).  
 
-* [CMAQ User's Guide](DOCS/Users_Guide/README.md)   
+* [FAQ for upgrading to the latest CMAQ version](https://github.com/USEPA/CMAQ/wiki/CMAQv5.4-Series-FAQ) 
 * [CMAQv5.4 Release Notes](https://github.com/USEPA/CMAQ/wiki)   
 * [Tutorials](DOCS/Users_Guide/Tutorials/README.md)   
+* [CMAQ User's Guide](DOCS/Users_Guide/README.md)   
 * [Developers' Guide](DOCS/Developers_Guide/CMAQ_Dev_Guide.md)   
-* [FAQ for upgrading to the latest CMAQ version](DOCS/Release_Notes/CMAQ_FAQ.md) 
+
 
 ## CMAQ Test Cases   
 Benchmark/tutorial data for the CMAQv5.4 release are available from the CMAS Data Warehouse.  The input and output files are stored on Google Drive and an annoymous FTP server.  CMAQv5.4 comes with new input and output benchmark data for July 1-2, 2018 over the Northeast US (links provided below). Tutorials are provided for using the benchmark data to test running of the base [CMAQ model](DOCS/Users_Guide/Tutorials/CMAQ_UG_tutorial_benchmark.md), [WRF-CMAQ](DOCS/Users_Guide/Tutorials/CMAQ_UG_tutorial_WRF-CMAQ_Benchmark.md), [CMAQ-ISAM](DOCS/Users_Guide/Tutorials/CMAQ_UG_tutorial_ISAM.md), and [CMAQ-DDM-3D](DOCS/Users_Guide/Tutorials/CMAQ_UG_tutorial_DDM.md).  The input datasets include a grid mask file for the United States (GRIDMASK_STATES_12SE1.nc). The grid mask file is used for running the new ISAM and DDM-3D test cases, or to test out regional emissions scaling with [DESID](DOCS/Users_Guide/Tutorials/CMAQ_UG_tutorial_emissions.md).  The input datasets also include ocean files with new variables needed to use the cb6r5_ae7 and cb6r5m_ae7 mechanisms.  See the [Ocean File tutorial](DOCS/Users_Guide/Tutorials/CMAQ_UG_tutorial_oceanfile.md) for more information on changes to the ocean file in v5.4.  
