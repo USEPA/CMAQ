@@ -100,6 +100,6 @@ and for more details on the 2-way Coupled WRF-CMAQ system see: http://www.cmasce
 <!-- BEGIN COMMENT -->
 
 [<< Previous Chapter](CMAQ_UG_ch12_sulfur_tracking.md) - [Home](README.md) - [Tables and Figures >>](CMAQ_UG_tables_figures.md)<br>
-CMAQ User's Guide (c) 2021<br>
+CMAQ User's Guide (c) 2022<br>
 
 <!-- END COMMENT -->
