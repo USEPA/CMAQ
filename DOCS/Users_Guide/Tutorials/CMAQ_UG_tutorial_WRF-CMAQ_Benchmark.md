@@ -224,7 +224,7 @@ The following commonly modified namelist options for WRF-CMAQ are specified in t
   - Edit the script to specify the paths, modify the number of processors and batch queue commands
   - Fix VEGPARM.TBL, since Benchmark runs with PX LSM with NLCD40 Data
   
-**\* Users using PX Land Surface Model option with NLCD40 dataset are required to fix their VEGPARM.TBL before running WRF-CMAQ, due to a bug in the WRF released VEGPARM.TBL, please see the [WRF Repository](https://github.com/wrf-model/WRF/pull/1733) for more information on the bug.***
+**\* Users using PX Land Surface Model option with NLCD40 dataset are required to fix their VEGPARM.TBL before running WRF-CMAQ, due to a bug in the WRF released VEGPARM.TBL. Please see the [WRF Repository](https://github.com/wrf-model/WRF/pull/1733) for more information on the bug.***
 
    - For example, one option may include manually editing the existing VEGPARM.TBL (found in WRF-CMAQ Build Directory) with the fix seen on the [WRF Repository](https://github.com/wrf-model/WRF/pull/1733/files). 
 
