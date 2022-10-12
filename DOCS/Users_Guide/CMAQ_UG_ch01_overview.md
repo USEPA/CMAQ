@@ -95,6 +95,6 @@ ___
 <!-- BEGIN COMMENT -->
 
 [Home](README.md) - [Next Chapter >>](CMAQ_UG_ch02_program_structure.md)<br>
-CMAQ User's Guide (c) 2020<br>
+CMAQ User's Guide (c) 2022<br>
 
 <!-- END COMMENT -->
