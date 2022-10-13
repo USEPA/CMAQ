@@ -101,6 +101,7 @@ Download the CMAQ two day reference input and output data from the [CMAS Center 
   - Use the gdrive command to download the dataset.
   - If this is the first time that you are using gdrive, or if you have an issue with your token, please read the following instructions
   - [Tips to download data from CMAS Data Warehouse](https://docs.google.com/document/d/1e7B94zFkbKygVWfrhGwEZL51jF4fGXGXZbvi6KzXYQ4)
+  - Text files are included that provide a list of the files in the benchmark input and output datasets.
 
 The benchmark data is also available form the US EPA annoymous ftp server: https://gaftp.epa.gov/exposure/CMAQ/V5_4.
 
