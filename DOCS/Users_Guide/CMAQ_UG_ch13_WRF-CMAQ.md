@@ -39,21 +39,8 @@ Starting from WRFv4.4 and CMAQv5.4, a user can construct the coupled model with 
 #### WRF-CMAQ bug in v5.3 series
 A bug was identified within the CMAQ to WRF coupling routine (twoway_feedback.F90) where aerosol feedback information is transferred from CMAQ to WRF. In doing so, it was found that WRF was not receiving the correct aerosol feedback information due to a looping error relating to the number of layers set to 1 in some cases. The bug impacts the WRF-CMAQ coupled system in the CMAQv5.3 release series (v5.3, v5.3.1, v5.3.2, v5.3.3) when running with short wave radiative feedback. The bug was not present in prior WRF-CMAQ versions. The bugfix in CMAQv5.4 now correctly captures the variations in the aerosol optical properties and consequently the direct feedback effects through all layers. **Users of WRF-CMAQ are strongly encouraged to update to CMAQv5.4.**
 
-## 13.5 Benchmarking WRF-CMAQ
-
-Benchmark input and output datasets are available from the CMAS Center Data Warehouse Google Drive.  Beginning with CMAQv5.3.1, the .tar.gz file with benchmark inputs for the base (uncoupled) model also contains a folder (WRF-CMAQ) with the additional input files needed to run the WRF-CMAQ model. A sample runscript ([run_cctm_Bench_2018_12NE3.WRFCMAQ.csh](../../../CCTM/scripts/run_cctm_Bench_2018_12NE3.WRFCMAQ.csh)) is provided as part of the CMAQ Github Repository. Similarly, the .tar.gz file with benchmark output for the base model also contains a folder (WRFv4.4_CMAQv5.4_outputs) with reference output for the WRF-CMAQ model with short-wave radiation calculations. These input and output benchmark files have also been posted on the US EPA annoymous ftp server. 
-
-- [Link to WRF-CMAQ Benchmark input and output datasets on Google Drive](https://drive.google.com/drive/u/1/folders/19U1_biDfrEunMlU9W3fCGNFWX5eZmD3Q)
-- WRF-CMAQ Benchmark input and output datasets on EPA annoymous ftp server: https://gaftp.epa.gov/exposure/CMAQ/V5_3_3/Benchmark
-
-WRF-CMAQ output for a two day benchmark case is provided for both the debug mode turned off (.tar.gz files containing "opt") and the debug mode turned on (.tar.gz files containing "rel_debug") version to allow the user to compare their answers to either. To reduce the impact of compiler flags on the model output, it is preferrable to use the debug version. To compare model results obtained while achieving faster run times due to compiler optimization, the Optimized version output is also provided.
-
-Metadata for the CMAQ benchmark test case is posted on the CMAS Center Dataverse site: https://doi.org/10.15139/S3/IQVABD 
-
-Once users have successfully completed installation and users can run a quick test to ensure model installation was truly successful. Users can setup a run base on the provided run script and a benchmark input dataset. Users should consult with the readme file which was accompanied by the test dataset or the release documentation to use the appropriate compiler flags for this quick test. Once the stimulation is completed, users can compare the newly produced result with the provided benchmark output. The comparison should return identical result if users have the same compiler version and system environment. This quick test gives users a peace of mind that the model installation was truly successful.
-
-Users should note, comparing the results of running WRF-CMAQ with the given input to the results of running CMAQ (offline) with the given input, while on the same domain, will include differences from other sources other than just the coupling of WRF and CMAQ. These differences are due to the version and nudging of WRF used to generate input files for CMAQ (offline) through MCIP, as well as the effect of windowing down to the south-east benchmark from the CONUS done for the CMAQ (offline) case. 
-
+## 13.5 WRF-CMAQ Benchmark Test Case
+See the [WRF-CMAQ Benchmark Tutorial](Tutorials/CMAQ_UG_tutorial_WRF-CMAQ_Benchmark.md) for step-by-step instructions for running the 2 day benchmark case.  The input files for the WRF-CMAQ benchmark case are provided in the base model benchmark inputs .tar file. Output WRF-CMAQ files associated with the sample run script for the coupled WRF-CMAQ model in this release package are provided in the base model benchmark outputs .tar file.   
 
 ## 13.6 WRF Namelist Options
 
@@ -100,6 +87,6 @@ and for more details on the 2-way Coupled WRF-CMAQ system see: http://www.cmasce
 <!-- BEGIN COMMENT -->
 
 [<< Previous Chapter](CMAQ_UG_ch12_sulfur_tracking.md) - [Home](README.md) - [Tables and Figures >>](CMAQ_UG_tables_figures.md)<br>
-CMAQ User's Guide (c) 2021<br>
+CMAQ User's Guide (c) 2022<br>
 
 <!-- END COMMENT -->

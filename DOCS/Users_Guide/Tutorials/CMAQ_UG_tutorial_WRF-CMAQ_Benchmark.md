@@ -178,19 +178,28 @@ Users should look for the following message at the end of their bldit_cctm_twowa
 
 If the User sees this, the WRF-CMAQ model has been successfully compiled and built. If not, the User should double check the library paths above and try again. If it still fails, please reach post on the [CMAS Forum](https://forum.cmascenter.org/c/wrf-cmaq).
 
-## Install the CMAQ input reference/benchmark data
 
-[Link to 2018_12NE3.tar.gz input data on Google Drive](https://drive.google.com/file/d/1AFUB-4kzIXXoZr4hOHNBqRvy9JQ9_MDp/view?usp=sharing)
+### Install the WRF-CMAQ reference input and output benchmark data
+
+Download the CMAQ two day reference input and output data from the [CMAS Center Data Warehouse Google Drive]([https://drive.google.com/file/d/1AFUB-4kzIXXoZr4hOHNBqRvy9JQ9_MDp/view?usp=sharing](https://drive.google.com/drive/folders/1AFUB-4kzIXXoZr4hOHNBqRvy9JQ9_MDp?usp=sharing). The CMAQ benchmark test case is a two day simulation for July 1-2 2018 on a 100 column x 105 row x 35 layer 12-km resolution domain over the northeast U.S.  
 
   - Use the gdrive command to download the dataset.
   - If this is the first time that you are using gdrive, or if you have an issue with your token, please read the following instructions
   - [Tips to download data from CMAS Data Warehouse](https://docs.google.com/document/d/1e7B94zFkbKygVWfrhGwEZL51jF4fGXGXZbvi6KzXYQ4)
-  
-  
-  ```
-  gdrive download 16ieLfUhYh34QXYlm8rtl43lEbuBAyh6-
-  ```
-  
+  - Text files are included that provide a list of the files in the benchmark input and output datasets.
+
+The benchmark data is also available form the US EPA annoymous ftp server: https://gaftp.epa.gov/exposure/CMAQ/V5_4.
+
+Copy the data to `$CMAQ_DATA`. Navigate to the `$CMAQ_DATA` directory, unzip and untar the two day benchmark input and output files:
+
+```
+cd $CMAQ_DATA
+tar xvzf CMAQv5.4_2018_12NE3_Benchmark_2Day_Input.tar.gz
+tar xvzf CMAQv5.4_2018_12NE3_Benchmark_2Day_Output.tar.gz
+```
+
+The input files for the WRF-CMAQ benchmark case are provided in the base model benchmark inputs .tar file. Output WRF-CMAQ files associated with the sample run script for the coupled WRF-CMAQ model in this release package are provided in the base model benchmark outputs .tar file.  
+    
     
 ## Running the WRF-CMAQ model
 
@@ -211,11 +220,11 @@ The following commonly modified namelist options for WRF-CMAQ are specified in t
 
     4. direct_sw_feedback  (indicate to turn on aerosol short wave direct effect)
 
-    5. feedback_restart    (indicate aerosol SW direct effect information is
+    5. feedback_restart    (indicate aerosol short wave direct effect information is
                             available in the WRF restart file or not)
                             
-* One sample run scripts is provided; run_cctm_Bench_2018_12NE3.WRFCMAQ.csh (for coupled
-  model with SW feedback on).
+* One sample run scripts is provided (run_cctm_Bench_2018_12NE3.WRFCMAQ.csh) for running the coupled
+  model with short wave radiation feedback turned on.  Reference benchmark output is provided for a test simulations with short wave radiation feedback turned on ("sf") and turned off ("nf"). 
 
 
   - Start with the run_cctm_Bench_2018_12NE3.WRFCMAQ.csh that specifies direct_sw_feedback = .true.
@@ -224,7 +233,7 @@ The following commonly modified namelist options for WRF-CMAQ are specified in t
   - Edit the script to specify the paths, modify the number of processors and batch queue commands
   - Fix VEGPARM.TBL, since Benchmark runs with PX LSM with NLCD40 Data
   
-**\* Users using PX Land Surface Model option with NLCD40 dataset are required to fix their VEGPARM.TBL before running WRF-CMAQ, due to a bug in the WRF released VEGPARM.TBL, please see the [WRF Repository](https://github.com/wrf-model/WRF/pull/1733) for more information on the bug.***
+**\* Users using PX Land Surface Model option with NLCD40 dataset are required to fix their VEGPARM.TBL before running WRF-CMAQ, due to a bug in the WRF released VEGPARM.TBL. Please see the [WRF Repository](https://github.com/wrf-model/WRF/pull/1733) for more information on the bug.***
 
    - For example, one option may include manually editing the existing VEGPARM.TBL (found in WRF-CMAQ Build Directory) with the fix seen on the [WRF Repository](https://github.com/wrf-model/WRF/pull/1733/files). 
 
@@ -256,7 +265,7 @@ The following commonly modified namelist options for WRF-CMAQ are specified in t
    - look for the output directory
    
    ```
-   cd WRFCMAQ-output-sw_feedback
+   cd WRFCMAQ-output-sf_feedback
    ```
    If the run was successful you will see the following output
    
