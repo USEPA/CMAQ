@@ -40,7 +40,7 @@ Starting from WRFv4.4 and CMAQv5.4, a user can construct the coupled model with 
 A bug was identified within the CMAQ to WRF coupling routine (twoway_feedback.F90) where aerosol feedback information is transferred from CMAQ to WRF. In doing so, it was found that WRF was not receiving the correct aerosol feedback information due to a looping error relating to the number of layers set to 1 in some cases. The bug impacts the WRF-CMAQ coupled system in the CMAQv5.3 release series (v5.3, v5.3.1, v5.3.2, v5.3.3) when running with short wave radiative feedback. The bug was not present in prior WRF-CMAQ versions. The bugfix in CMAQv5.4 now correctly captures the variations in the aerosol optical properties and consequently the direct feedback effects through all layers. **Users of WRF-CMAQ are strongly encouraged to update to CMAQv5.4.**
 
 ## 13.5 WRF-CMAQ Benchmark Test Case
-See the [WRF-CMAQ Benchmark Tutorial](Tutorials/CMAQ_UG_tutorial_WRF-CMAQ_Benchmark.md) for step-by-step instructions for running the 2 day benchmark case.  The input files for the WRF-CMAQ benchmark case are the same as the benchmark inputs for the base model. Output WRF-CMAQ files associated with the sample run script for the coupled WRF-CMAQ model in this release package are provided.   
+See the [WRF-CMAQ Benchmark Tutorial](Tutorials/CMAQ_UG_tutorial_WRF-CMAQ_Benchmark.md) for step-by-step instructions for running the 2 day benchmark case.  The input files for the WRF-CMAQ benchmark case are provided in the base model benchmark inputs .tar file. Output WRF-CMAQ files associated with the sample run script for the coupled WRF-CMAQ model in this release package are provided in the base model benchmark outputs .tar file.   
 
 ## 13.6 WRF Namelist Options
 
