@@ -66,10 +66,10 @@ Code documentation is included within this repository (they are version-controll
 ## CMAQ Test Cases   
 Benchmark/tutorial data for the CMAQv5.4 release are available from the CMAS Data Warehouse.  The input and output files are stored on Google Drive and an annoymous FTP server.  CMAQv5.4 comes with new input and output benchmark data for July 1-2, 2018 over the Northeast US (links provided below). Tutorials are provided for using the benchmark data to test running of the base [CMAQ model](DOCS/Users_Guide/Tutorials/CMAQ_UG_tutorial_benchmark.md), [WRF-CMAQ](DOCS/Users_Guide/Tutorials/CMAQ_UG_tutorial_WRF-CMAQ_Benchmark.md), [CMAQ-ISAM](DOCS/Users_Guide/Tutorials/CMAQ_UG_tutorial_ISAM.md), and [CMAQ-DDM-3D](DOCS/Users_Guide/Tutorials/CMAQ_UG_tutorial_DDM.md).  The input datasets include a grid mask file for the United States (GRIDMASK_STATES_12SE1.nc). The grid mask file is used for running the new ISAM and DDM-3D test cases, or to test out regional emissions scaling with [DESID](DOCS/Users_Guide/Tutorials/CMAQ_UG_tutorial_emissions.md).  The input datasets also include ocean files with new variables needed to use the cb6r5_ae7 and cb6r5m_ae7 mechanisms.  See the [Ocean File tutorial](DOCS/Users_Guide/Tutorials/CMAQ_UG_tutorial_oceanfile.md) for more information on changes to the ocean file in v5.4.  
 
-|**CMAQ Version**|**Data Type**|**Domain**|**Simulation Dates**|**Data Access**| 
+|**CMAQ Version**|**Data Type (Size)**|**Domain**|**Simulation Dates**|**Data Access**| 
 |:----:|:----:|:--------------:|:----:|:--------:|
-|v5.4|Input and Output| Northeast US| July 1 - 2, 2018|[Google Drive Link](https://drive.google.com/drive/folders/1AFUB-4kzIXXoZr4hOHNBqRvy9JQ9_MDp)  <br /> [FTP Link](https://gaftp.epa.gov/exposure/CMAQ/V5_4/)  |
-
+|v5.4|Input (11 Gb)| Northeast US| July 1 - 2, 2018|[Google Drive Link](https://drive.google.com/drive/folders/1AFUB-4kzIXXoZr4hOHNBqRvy9JQ9_MDp)  <br /> [FTP Link](https://gaftp.epa.gov/exposure/CMAQ/V5_4/)  |
+|v5.4|Output (2.9 Gb)| Northeast US| July 1 - 2, 2018|[Google Drive Link](https://drive.google.com/drive/folders/1AFUB-4kzIXXoZr4hOHNBqRvy9JQ9_MDp)  <br /> [FTP Link](https://gaftp.epa.gov/exposure/CMAQ/V5_4/)  |
  
 ## User Support
 * [Frequent CMAQ Questions](https://www.epa.gov/cmaq/frequent-cmaq-questions) are available on our website. 
