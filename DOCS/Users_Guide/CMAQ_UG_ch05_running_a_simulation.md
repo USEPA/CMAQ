@@ -460,6 +460,9 @@ Common errors in a CCTM simulation include the following:
 
 Check the last few lines of the CCTM output log for messages to help diagnose why the simulation did not complete.
 
+## 5.8 CMAQ Benchmark Test Case
+See the [CMAQ Installation and Benchmarking Tutorial](Tutorials/CMAQ_UG_tutorial_benchmark.md) for step-by-step instructions for running the 2 day benchmark case and links to reference input and output data. 
+
 
 <!-- BEGIN COMMENT -->
 
