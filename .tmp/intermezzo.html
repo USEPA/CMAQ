@@ -1,0 +1,9 @@
+<HTML>
+<HEAD>
+<TITLE>Bad Request</TITLE>
+</HEAD>
+<BODY BGCOLOR="#FFFFFF" TEXT="#000000">
+<H1>Bad Request</H1>
+<H2>Error 400</H2>
+</BODY>
+</HTML>
