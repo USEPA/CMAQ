@@ -191,6 +191,27 @@ If the User sees this, the WRF-CMAQ model has been successfully compiled and bui
   gdrive download 16ieLfUhYh34QXYlm8rtl43lEbuBAyh6-
   ```
 
+### Install the WRF-CMAQ reference input and output benchmark data
+
+Download the CMAQ two day reference input and output data from the [CMAS Center Data Warehouse Google Drive]([https://drive.google.com/file/d/1AFUB-4kzIXXoZr4hOHNBqRvy9JQ9_MDp/view?usp=sharing](https://drive.google.com/drive/folders/1AFUB-4kzIXXoZr4hOHNBqRvy9JQ9_MDp?usp=sharing). The CMAQ benchmark test case is a two day simulation for July 1-2 2018 on a 100 column x 105 row x 35 layer 12-km resolution domain over the northeast U.S.  
+
+  - Use the gdrive command to download the dataset.
+  - If this is the first time that you are using gdrive, or if you have an issue with your token, please read the following instructions
+  - [Tips to download data from CMAS Data Warehouse](https://docs.google.com/document/d/1e7B94zFkbKygVWfrhGwEZL51jF4fGXGXZbvi6KzXYQ4)
+  - Text files are included that provide a list of the files in the benchmark input and output datasets.
+
+The benchmark data is also available form the US EPA annoymous ftp server: https://gaftp.epa.gov/exposure/CMAQ/V5_4.
+
+Copy the data to `$CMAQ_DATA`. Navigate to the `$CMAQ_DATA` directory, unzip and untar the two day benchmark input and output files:
+
+```
+cd $CMAQ_DATA
+tar xvzf CMAQv5.4_2018_12NE3_Benchmark_2Day_Input.tar.gz
+tar xvzf CMAQv5.4_2018_12NE3_Benchmark_2Day_Output.tar.gz
+```
+
+The input files for the WRF-CMAQ benchmark case are provided in the base model benchmark inputs .tar file. Output WRF-CMAQ files associated with the sample run script for the coupled WRF-CMAQ model in this release package are provided in the base model benchmark outputs .tar file.  
+    
     
 ## Running the WRF-CMAQ model
 
