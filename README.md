@@ -68,8 +68,8 @@ Benchmark/tutorial data for the CMAQv5.4 release are available from the CMAS Dat
 
 |**CMAQ Version**|**Data Type (Size)**|**Domain**|**Simulation Dates**|**Data Access**| 
 |:----:|:----:|:--------------:|:----:|:--------:|
-|v5.4|Input (11 Gb)| Northeast US| July 1 - 2, 2018|[Google Drive Link](https://drive.google.com/drive/folders/1AFUB-4kzIXXoZr4hOHNBqRvy9JQ9_MDp)  <br /> [FTP Link](https://gaftp.epa.gov/exposure/CMAQ/V5_4/)  |
-|v5.4|Output (2.9 Gb)| Northeast US| July 1 - 2, 2018|[Google Drive Link](https://drive.google.com/drive/folders/1AFUB-4kzIXXoZr4hOHNBqRvy9JQ9_MDp)  <br /> [FTP Link](https://gaftp.epa.gov/exposure/CMAQ/V5_4/)  |
+|v5.4|Input (10.3 Gb)| Northeast US| July 1 - 2, 2018|[Google Drive Link](https://drive.google.com/drive/folders/1AFUB-4kzIXXoZr4hOHNBqRvy9JQ9_MDp)  <br /> [FTP Link](https://gaftp.epa.gov/exposure/CMAQ/V5_4/)  |
+|v5.4|Output (13.9 Gb)| Northeast US| July 1 - 2, 2018|[Google Drive Link](https://drive.google.com/drive/folders/1AFUB-4kzIXXoZr4hOHNBqRvy9JQ9_MDp)  <br /> [FTP Link](https://gaftp.epa.gov/exposure/CMAQ/V5_4/)  |
  
 ## User Support
 * [Frequent CMAQ Questions](https://www.epa.gov/cmaq/frequent-cmaq-questions) are available on our website. 
