@@ -178,18 +178,6 @@ Users should look for the following message at the end of their bldit_cctm_twowa
 
 If the User sees this, the WRF-CMAQ model has been successfully compiled and built. If not, the User should double check the library paths above and try again. If it still fails, please reach post on the [CMAS Forum](https://forum.cmascenter.org/c/wrf-cmaq).
 
-## Install the CMAQ input reference/benchmark data
-
-[Link to v5.4 benchmark input and output test case data on Google Drive](https://drive.google.com/drive/folders/1AFUB-4kzIXXoZr4hOHNBqRvy9JQ9_MDp?usp=sharing)
-
-  - Use the gdrive command to download the dataset.
-  - If this is the first time that you are using gdrive, or if you have an issue with your token, please read the following instructions
-  - [Tips to download data from CMAS Data Warehouse](https://docs.google.com/document/d/1e7B94zFkbKygVWfrhGwEZL51jF4fGXGXZbvi6KzXYQ4)
-  
-  
-  ```
-  gdrive download 16ieLfUhYh34QXYlm8rtl43lEbuBAyh6-
-  ```
 
 ### Install the WRF-CMAQ reference input and output benchmark data
 
@@ -232,11 +220,11 @@ The following commonly modified namelist options for WRF-CMAQ are specified in t
 
     4. direct_sw_feedback  (indicate to turn on aerosol short wave direct effect)
 
-    5. feedback_restart    (indicate aerosol SW direct effect information is
+    5. feedback_restart    (indicate aerosol short wave direct effect information is
                             available in the WRF restart file or not)
                             
-* One sample run scripts is provided; run_cctm_Bench_2018_12NE3.WRFCMAQ.csh (for coupled
-  model with SW feedback on).
+* One sample run scripts is provided (run_cctm_Bench_2018_12NE3.WRFCMAQ.csh) for running the coupled
+  model with short wave radiation feedback turned on.  Reference benchmark output is provided for a test simulations with short wave radiation feedback turned on ("sf") and turned off ("nf"). 
 
 
   - Start with the run_cctm_Bench_2018_12NE3.WRFCMAQ.csh that specifies direct_sw_feedback = .true.
@@ -277,7 +265,7 @@ The following commonly modified namelist options for WRF-CMAQ are specified in t
    - look for the output directory
    
    ```
-   cd WRFCMAQ-output-sw_feedback
+   cd WRFCMAQ-output-sf_feedback
    ```
    If the run was successful you will see the following output
    
