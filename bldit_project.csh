@@ -37,9 +37,6 @@
  
  # Post-Processing Tools
  set EXT_COMBINE = Y 
- set EXT_APPENDWRF = Y 
- set EXT_BLDOVERLAY = Y 
- set EXT_BLOCK_EXTRACT = Y 
  set EXT_CALC_TMETRIC = Y 
  set EXT_HR2DAY = Y 
  set EXT_SITECMP = Y
@@ -206,39 +203,6 @@
     mkdir $CMAQ_HOME/POST/combine/scripts/spec_def_files
     cp -L POST/combine/scripts/spec_def_files/SpecDef* $CMAQ_HOME/POST/combine/scripts/spec_def_files
 
- endif
-
-#===============================================================================
-#> Copy Appendwrf Post-Processor scripts
-#===============================================================================
- if ( $EXT_APPENDWRF == 'Y' ) then
-    if ( ! -e "$CMAQ_HOME/POST/appendwrf/scripts" ) then
-       mkdir -pv $CMAQ_HOME/POST/appendwrf/scripts
-    endif
-    cp POST/appendwrf/scripts/bldit_appendwrf.csh  $CMAQ_HOME/POST/appendwrf/scripts/bldit_appendwrf.csh
-    cp POST/appendwrf/scripts/run_appendwrf.csh    $CMAQ_HOME/POST/appendwrf/scripts/run_appendwrf.csh
- endif
-
-#===============================================================================
-#> Copy bldoverlay Post-Processor scripts
-#===============================================================================
- if ( $EXT_BLDOVERLAY == 'Y' ) then
-    if ( ! -e "$CMAQ_HOME/POST/bldoverlay/scripts" ) then
-       mkdir -pv $CMAQ_HOME/POST/bldoverlay/scripts
-    endif
-    cp POST/bldoverlay/scripts/bldit_bldoverlay.csh  $CMAQ_HOME/POST/bldoverlay/scripts/bldit_bldoverlay.csh
-    cp POST/bldoverlay/scripts/run_bldoverlay.csh    $CMAQ_HOME/POST/bldoverlay/scripts/run_bldoverlay.csh
- endif
-
-#===============================================================================
-#> Copy block_extract Post-Processor scripts
-#===============================================================================
- if ( $EXT_BLOCK_EXTRACT == 'Y' ) then
-    if ( ! -e "$CMAQ_HOME/POST/block_extract/scripts" ) then
-       mkdir -pv $CMAQ_HOME/POST/block_extract/scripts
-    endif
-    cp POST/block_extract/scripts/bldit_block_extract.csh  $CMAQ_HOME/POST/block_extract/scripts/bldit_block_extract.csh
-    cp POST/block_extract/scripts/run_block_extract.csh    $CMAQ_HOME/POST/block_extract/scripts/run_block_extract.csh
  endif
 
 #===============================================================================
