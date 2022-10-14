@@ -13,8 +13,8 @@ particulates, toxics, and acid deposition.
 
 ## CMAQ version 5.4 Overview:
 
-* [Frequently asked questions for upgrading to the latest CMAQ version](DOCS/Release_Notes/CMAQ_FAQ.md) **- Updated for v5.4 release.** 
-* [CMAQv5.4 Release Notes](https://github.com/USEPA/CMAQ/wiki/CMAQv5.4-Release-Notes) - Release Notes are available on the CMAQ GitHub wiki.
+* [Frequently asked questions for upgrading to the latest CMAQ version](https://github.com/USEPA/CMAQ/wiki/CMAQv5.4-Series-FAQ)) **- Updated for v5.4 release.** 
+* [CMAQv5.4 Release Notes](https://github.com/USEPA/CMAQ/wiki/CMAQ-Release-Notes) - Release Notes are available on the CMAQ GitHub wiki.
 * [Tutorials for setting up and running CMAQ](DOCS/Users_Guide/Tutorials/README.md) **- Tutorials on running CMAQ, CMAQ-ISAM, CMAQ-DDM, and WRF-CMAQ test cases.**
 
 ## New features in CMAQ version 5.4 include:
