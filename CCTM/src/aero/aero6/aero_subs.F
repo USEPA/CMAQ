@@ -212,7 +212,8 @@ C-----------------------------------------------------------------------
 
 #ifdef sens
       USE DDM3D_DEFN, ONLY : NP, NPMAX
-      USE AERO_DDM3D, ONLY : s_aerospc_conc, s_precursor_conc, s_so4rate, s_vapor_conc, s_orgprod_conc
+      USE AERO_DDM3D, ONLY : s_aerospc_conc, s_precursor_conc,
+     &                       s_so4rate
 #endif
 
 
@@ -694,8 +695,14 @@ C *** Set minimum value for all concentrations in the CBLK array
          DO SPC = 1, N_AEROSPC
             AEROSPC_CONC( SPC,N ) = MAX( AEROSPC_CONC( SPC,N ),
      &                                   AEROSPC( SPC )%MIN_CONC( N ) )
+#ifdef sens
+            IF (AEROSPC_CONC( SPC,N ) .EQ. AEROSPC( SPC )%MIN_CONC( N ) )  THEN
+               S_AEROSPC_CONC( SPC,N,: ) = 0.0
+            ENDIF
+#endif
          END DO
       END DO
+
 
 ! *** Propagate Mode Merging and Minimum value impacts to budget variables
       GROWTH_BUDGET( AERONUM_MAP(:) ) = MOMENT0_CONC(:) - CBUDGET0_NUM(:)
@@ -758,6 +765,11 @@ C    aerosols. ATMOSPHERIC CHEMISTRY AND PHYSICS. 7, 4639-4659
       USE SOA_DEFN
       USE AEROMET_DATA
       USE UTILIO_DEFN
+
+#ifdef sens
+      USE DDM3D_DEFN, ONLY : NP, NPMAX
+      USE AERO_DDM3D, ONLY : S_SO4RATE, S_PRECURSOR_CONC
+#endif
 
       IMPLICIT NONE
 
@@ -951,6 +963,15 @@ C *** Local Saved Variables
 
       logical, save :: write1 = .true.
 
+#ifdef sens
+      INTERFACE
+         SUBROUTINE AERO_SENS( SCASI, W )
+           CHARACTER( 15 ), INTENT( IN ) :: SCASI    ! (INPUT) subcase number output
+           REAL(KIND=8),    INTENT( IN ) :: W( : )   ! (INPUT) WI concentrations 
+         END SUBROUTINE AERO_SENS
+      END INTERFACE 
+#endif
+
 C-----------------------------------------------------------------------
  
       IF ( FIRSTIME ) THEN
@@ -1100,6 +1121,16 @@ C     on Equations A21 and A23 of Binkowski & Shankar (1995).
          XH2SO4 = MAX( XH2SO4, CONMIN )
          !PRECURSOR_CONC( SULF_IDX ) = REAL( XH2SO4, 8 )
 
+#ifdef sens
+         DO NP = 1, NPMAX
+            IF ( XH2SO4 .EQ. CONMIN ) THEN
+               S_PRECURSOR_CONC( SULF_IDX, NP ) = 0.D0
+            ELSE
+               S_PRECURSOR_CONC( SULF_IDX, NP ) = S_SO4RATE( NP ) / REAL(TMP,8)
+            ENDIF
+         END DO
+#endif
+
 C *** Calculate new particle production rate for 0th, 2nd, & 3rd moments
          CALL NEWPART3 ( AIRRH, AIRTEMP, XH2SO4, SO4RATE,
      &                   DNDT, DMDT_SO4, DM2DT )
@@ -1141,17 +1172,17 @@ C *** Growth values for mode merge condition
       CGR( 2 ) = SO4FAC * SCONDRATE * OMEGA_AC_SO4
 
 ! *** Initialize Budget Counter Variables         
-      CBUDGET0_NUM( : ) = MOMENT0_CONC( : )
+      CBUDGET0_NUM( : ) = REAL( MOMENT0_CONC( : ), 8)
       CBUDGET0_NUM( 1 ) = CBUDGET0_NUM( 1 ) + DNDT * DELT
       CBUDGET0_SRF( : ) = MOMENT2_CONC( : ) * PI
       CBUDGET0_SRF( 1 ) = CBUDGET0_SRF( 1 ) + DM2DT * DELT * PI
       CBUDGET0_SO4( : ) = AEROSPC_CONC( ASO4_IDX, : )
       CBUDGET0_SO4( 1 ) = CBUDGET0_SO4( 1 ) + DMDT_SO4 * DELT
-      CBUDGET0_NO3( : ) = AEROSPC_CONC( ANO3_IDX, : )
-      CBUDGET0_NH4( : ) = AEROSPC_CONC( ANH4_IDX, : )
-      CBUDGET0_CL ( : ) = AEROSPC_CONC( ACL_IDX , : )
-      CBUDGET0_H2O( : ) = AEROSPC_CONC( AH2O_IDX, : )
-      CBUDGET0_H3OP( : )= AEROSPC_CONC( AH3OP_IDX, : )
+      CBUDGET0_NO3( : ) = REAL( AEROSPC_CONC( ANO3_IDX, : ), 8)
+      CBUDGET0_NH4( : ) = REAL( AEROSPC_CONC( ANH4_IDX, : ), 8)
+      CBUDGET0_CL ( : ) = REAL( AEROSPC_CONC( ACL_IDX , : ), 8)
+      CBUDGET0_H2O( : ) = REAL( AEROSPC_CONC( AH2O_IDX, : ), 8)
+      CBUDGET0_H3OP( : )= REAL( AEROSPC_CONC( AH3OP_IDX, : ), 8)
 
 ! *** Diagnose Condensaiton Sink to Each Mode
       CONDSO4( 1 ) = OMEGA_AT_SO4 * SCONDRATE      
@@ -1467,6 +1498,10 @@ C *** Set flags to account for mass conservation violations in ISRP3F
       CALL ISOROPIA( WI, RHI, TEMPI, CNTRL, WT, GAS, AERLIQ,
      &               AERSLD, SCASI, OTHER )
 
+#ifdef sens
+      CALL AERO_SENS( SCASI, WI )
+#endif
+
 C *** Save H+ concentration information in microgram/m3 for consistency
       EQLBHIJ = AERLIQ(1) * 1.0D6 * AEROSPC_MW( ah3op_idx)
 
@@ -1680,7 +1715,7 @@ C *** Update gas-phase concentrations from Aitken and Accumulation Mode Partitio
      &                            -CFINAL( KNO3,1:2) ) * HNO3RAT  
       PRECURSOR_CONC( HCL_IDX )  = GCLR8 + sum( CINORG( KCL,1:2 )
      &                            -CFINAL( KCL,1:2) ) * HCLRAT 
-         
+
 2023  FORMAT( 1X, 'VOLINORG returning negative gas concentrations from ISOROPIA:'
      &       /10X, 'GAS(1) = NH3, GAS(2) = HNO3, GAS(3) = HCl' )
 2029  FORMAT( 1X, '[see VOLINORG msg]'
@@ -3065,8 +3100,12 @@ C     also converts dry surface area to wet second moment
 
 C *** extract in inorganic aerosol processors
 
+#ifdef sens
+               CALL EXTRACT_PRECURSOR( CONCVEC(:), SENGRID( NCOLS,NROWS,NLAYS,:,: ) )
+#else
                CALL EXTRACT_PRECURSOR( CONCVEC(:) ) 
- 
+#endif
+
 C *** Update geometric mean diameters, geometric
 C     standard deviations, modal mass totals, and modal particle
 C     densities, based on the concentrations of M2, M0, and speciated

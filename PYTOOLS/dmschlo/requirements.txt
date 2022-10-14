@@ -1,0 +1,10 @@
+setuptools >= 58.0
+importlib_metadata >= 4.6
+numpy >= 1.19.5
+pandas >= 1.1.5
+netCDF4 >= 1.5.8
+matplotlib >= 3.3.4
+pycno >= 0.2.0
+pyproj >= 2.6.1
+pseudonetcdf >= 3.2.0
+cdo == 1.5.3

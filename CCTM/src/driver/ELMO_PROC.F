@@ -2357,8 +2357,12 @@
          ! Retrieve Total Particle Mass
          CASE ( ID_PM_MASS )
             DO IMODE = 1,N_MODE
-               OUTVAL = SUM( AEROSPC_CONC( :,IMODE ), 
-     &                  MASK=.NOT.AEROSPC(:)%TRACER ) ! ug m-3
+               OUTVAL = OUTVAL +
+     &            SUM( AEROSPC_CONC( :,IMODE ),
+     &                 MASK=.NOT.AEROSPC(:)%TRACER ) ! ug m-3
+     &             - AEROSPC_CONC( AH2O_IDX,IMODE )
+               IF ( AORGH2O_IDX .GT. 0 ) OUTVAL = OUTVAL
+     &             - AEROSPC_CONC( AORGH2O_IDX,IMODE ) ! ug m-3 
             END DO
 
          ! Retrieve Ultrafine Particle Mass
@@ -3213,11 +3217,11 @@
          ! Extract Aerosols
 #ifdef sens
          CALL EXTRACT_AERO( CGRID( C,R,L,: ), .TRUE., SENGRID( C,R,L,:,: ), .TRUE. )
+         CALL EXTRACT_SOA( CGRID( C,R,L,: ), SENGRID( C,R,L,:,: ), .TRUE. )
 #else
          CALL EXTRACT_AERO( CGRID( C,R,L,: ), .TRUE. )
-#endif
          CALL EXTRACT_SOA( CGRID( C,R,L,: ) )
-         
+#endif         
          ! Populate Diagnostic Arrays
          CALL LOAD_ELMO( C,R,L, CGRID(C,R,L,:), WRITE_STEP, INIT_STEP, INIT_TIME )
 

@@ -149,12 +149,10 @@ set make_options = "-j"                #> additional options for make command if
  endif
 
  # Special cloud modules for kmt versions
- if( ${Mechanism} == cb6r5_ae7_kmt2 ) then
-     set ModCloud = acm_ae7_kmt2
- else if( ${Mechanism} == saprc07tic_ae6i_aqkmti ) then
-     set ModCloud = acm_ae6i_kmti
+ if( ${Mechanism} == cb6r5_ae7_aqkmt2 ) then
+     set ModCloud = cloud/acm_ae7_kmt2
  else if( ${Mechanism} == saprc07tic_ae7i_aqkmt2 ) then
-     set ModCloud = acm_ae7_kmt2
+     set ModCloud = cloud/acm_ae7_kmt2
  endif
 
  # Gas chem solver
@@ -639,7 +637,7 @@ set Cfile = ${Bld}/${CFG}.bld      # Config Filename
  echo "Module ${ModGas};"                                          >> $Cfile
  echo                                                              >> $Cfile
 
- set MechList = "cb6r5hap_ae7_aq, cb6r3_ae7_aq, cb6r5_ae7_aq, cb6r5_ae7_aqkmt2, cb6r5m_ae7_aq, racm2_ae6_aq, saprc07tc_ae6_aq, saprc07tic_ae6i_aq, saprc07tic_ae6i_aqkmti, saprc07tic_ae7i_aq, saprc07tic_ae7i_aqkmt2"
+ set MechList = "cb6r5hap_ae7_aq, cb6r3_ae7_aq, cb6r5_ae7_aq, cb6r5_ae7_aqkmt2, cb6r5m_ae7_aq, racm2_ae6_aq, saprc07tc_ae6_aq, saprc07tic_ae7i_aq, saprc07tic_ae7i_aqkmt2"
 
  set text = "gas chemistry mechanisms"
  echo "// " $text                                                  >> $Cfile

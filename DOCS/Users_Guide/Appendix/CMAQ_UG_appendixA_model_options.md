@@ -54,6 +54,9 @@ Note that for multiprocessor applications it is recommended that the Fortran MPI
 -   `CMAQ_DATA`<a id=CMAQ_DATA></a>
     Automatically set by config_cmaq.csh; note that this variable is M3DATA prior to CMAQv5.2
 
+-   `OUTDIR`<a id=OUTDIR></a>
+    Only necessary if the Budget Tool is activated. If this variable is unspecified, CMAQ will try to output the Budget Tool file to the root directory. This will be updated in future CMAQ versions to be consistent with other output files.  
+
 -   `CMAQ_LIB`<a id=CMAQ_LIB></a>
     Automatically set by config_cmaq.csh; note that this variable is M3LIB prior to CMAQv5.2
 
@@ -630,10 +633,10 @@ Aerosol Diagnostics are now handled by the Explicit and Lumped Model Output modu
 
 <!-- END COMMENT -->
 
--   `SOILOUT [default: [Out Directory/CCTM_SOILOUT_$RUNID_$TODAY]`<a id=SOILOUT></a>  
+-   `BEIS_SOILOUT [default: [Out Directory/CCTM_BSOILOUT_$RUNID_$TODAY]`<a id=SOILOUT></a>  
     Directory path and file name of biogenic NO soil emissions output file. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#biogenics) for further information.   
 
--   `SOILINP [default: [Out Directory/CCTM_SOILOUT_$RUNID_$YESTERDAY]`<a id=SOILINP></a>  
+-   `BEIS_SOILINP [default: [Out Directory/CCTM_BSOILOUT_$RUNID_$YESTERDAY]`<a id=SOILINP></a>  
     Directory path and file name of biogenic NO soil emissions input file. If NEW_START is set to N or F, the soil NO emissions file from the previous day's simulation will be a required input file. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#biogenics) for further information.   
 
 Options for use with BEIS:
@@ -667,8 +670,14 @@ Options for use with MEGAN:
 -   `USE_MEGAN_LAI [default: N]`<a id=USE_MEGAN_LAI></a>
     By default MEGAN will use the same leaf area index information as the rest of CMAQ. Toggle if a separate LAI dataset is desired. When this option is enabled the user must also set the environment variable MEGAN_LAI. 
     
+-   `MEGAN_SOILOUT [default: [Out Directory/CCTM_MSOILOUT_$RUNID_$TODAY]`<a id=SOILOUT></a>  
+    Directory path and file name of MEGAN's biogenic NO soil emissions output file. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#biogenics) for further information.   
+
+-   `MEGAN_SOILINP [default: [Out Directory/CCTM_MSOILOUT_$RUNID_$YESTERDAY]`<a id=SOILINP></a>  
+    Directory path and file name of MEGAN's biogenic NO soil emissions input file. If NEW_START is set to N or F, or if IGNORE_SOILINP is set to F (Default), the soil NO emissions file from the previous day's simulation will be a required input file. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#biogenics) for further information.   
+    
 -   `IGNORE_SOILINP [default: N]`<a id=IGNORE_SOILINP></a>
-    Similar to the deprecated INITIAL_RUN option for BEIS, this option allows a user to perform a CMAQ restart without needing a SOILINP file for the previous day. Instanteous values of shortwave radiation and surface temperature will be used instead of the previous daily average, and soil NO variables are set to their initialization values as for a new run. 
+    Similar to the obsolete INITIAL_RUN option for BEIS, this option allows a user to perform a CMAQ restart without needing an MEGAN_SOILINP file for the previous day. Instanteous values of shortwave radiation and surface temperature will be used instead of the previous daily average, and soil NO variables are set to their initialization values as for a new run. 
 
 -   `USE_MEGAN_BDSNP [default: N ]`<a id=USE_MEGAN_BDSNP></a>
     Toggle to use the Berkeley-Dalhousie Soil NOx Parameterization (BDSNP) instead of the default option based on Yinger and Levy (1995). If the BDSNP option is activated, several additional variables must be set (see below). See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#biogenics) for further information.
@@ -685,20 +694,20 @@ Options for use with MEGAN:
 -   `MEGAN_LAI`<a id=MEGAN_CTS></a>
     Optional. Points to leaf area index file that was created using the MEGAN preprocessor.
 
--   `MEGAN_ARID`<a id=MEGAN_ARID></a>
+-   `BDSNP_AFILE`<a id=MEGAN_ARID></a>
     For BDSNP. Points to the ARID file that was created using the MEGAN preprocessor.
 
--   `MEGAN_NONARID`<a id=MEGAN_NONARID></a>
+-   `BDSNP_NAFILE`<a id=MEGAN_NONARID></a>
     For BDSNP. Points to the NONARID file that was created using the MEGAN preprocessor.
 
--   `MEGAN_FERT`<a id=MEGAN_FERT></a>
+-   `BDSNP_FFILE`<a id=MEGAN_FERT></a>
     For BDSNP. Points to the FERT file that was created using the MEGAN preprocessor.
 
--   `MEGAN_LANDTYPE`<a id=MEGAN_FERT></a>
+-   `BDSNP_LFILE`<a id=MEGAN_FERT></a>
     For BDSNP. Points to the LANDTYPE file that was created using the MEGAN preprocessor.
 
--   `MEGAN_NDF`<a id=MEGAN_NDF></a>
-    For BDSNP. Points to the NDF file that was created using the MEGAN preprocessor.
+-   `BDSNP_NFILE`<a id=MEGAN_NDF></a>
+    For BDSNP. Points to the nitrogen deposition file that was created using the MEGAN preprocessor.
 
 
 <a id=windblown_dust_config></a>
@@ -712,7 +721,7 @@ Options for use with MEGAN:
 <!-- END COMMENT -->
 
 -   `CTM_WB_DUST [default: False]`<a id=CTM_WB_DUST></a>  
-    Setting to calculate online windblown dust emissions in CCTM. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#wind-blown-dust) for further information.
+    Setting to calculate online windblown dust emissions in CCTM. Requires additional setting of environmental variable `PX_VERSION` to "Y". See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#wind-blown-dust) for further information.
     
 
 

@@ -54,6 +54,8 @@ C                        GRIDEMIS
 C     22 Nov 2019 F. Sidi: Re-introduced date override variable for representative
 C                          Day Emissions
 C     16 Dec 2019 S.L.Napelenok: ddm-3d implementation for version 5.3.1
+C     6 Jul 2021 D.Wong: fixed time marching through a day line during simulation w.r.t.
+C                        representative Day Emissions in subroutine GR3D
 C-----------------------------------------------------------------------
       USE RUNTIME_VARS
       USE GRID_CONF           ! horizontal & vertical domain specifications      
@@ -597,7 +599,6 @@ C Initialize Emissions Array
 
 C Retrieve Emissions from All Stream Types
          IF ( DESID_N_SRM .GT. 0 ) THEN
-         VDEMIS_DIFF = 0.0
 
          DO ISRM = 1,DESID_N_SRM
            DO R = 1,NROWS
@@ -858,7 +859,7 @@ C Subset the emissions array for DDM-3D (by species and region)
                SVDEMIS_DIFF( S,L,:,:,NP ) = 
      &                        SVDEMIS_DIFF( S,L,:,:,NP )
      &                      * IREGION( :,:,L,NP )
-     &                      * IPARM( NP, DIFF_MAP( S ) )
+     &                      * REAL( IPARM( NP, DIFF_MAP( S ) ), 4 )
              END DO
            END DO
          END DO
@@ -869,7 +870,7 @@ C Subset the emissions array for DDM-3D (by species and region)
          ! Write Out the Sum of All Aggregate Diagnostic Emissions to Files
          IF ( L_DESID_DIAG ) CALL DESID_WRITE_DIAG( JDATE, JTIME )
          
-         END IF
+         END IF  ! DESID_N_SRM
 
          RETURN
 
@@ -933,7 +934,7 @@ C------------------------------------------------------------------------------
          NDATE = JDATE; NTIME = JTIME
          CALL NEXTIME( NDATE, NTIME, -TSTEP( 1 ) )       ! go back one output tstep
          CALL NEXTIME( DESID_STREAM_DATE( FSTREAM ), NTIME, TSTEP( 1 ) ) ! advance the start date one time step
-         LOC_STDATE(FSTREAM) = DESID_STREAM_DATE( FSTREAM )
+         LOC_STDATE(FSTREAM) = JDATE
          L_NEWDAY = .TRUE.
       END IF
 
@@ -947,8 +948,6 @@ C------------------------------------------------------------------------------
       END DO
       END DO
       END DO
-
-      VDEMIS = 0.0
 
       DO ISTR = 1, DESID_N_ISTR 
         VNAME = LOCAL_EMVAR( ISTR, FSTREAM )
@@ -976,7 +975,7 @@ C------------------------------------------------------------------------------
       ! and the day has advanced
       IF ( L_NEWDAY .AND. L_DESID_DIAG ) THEN
          CALL NEXTIME( DESID_STREAM_DATE( FSTREAM ), NTIME, -TSTEP(1) )
-         LOC_STDATE(FSTREAM) = DESID_STREAM_DATE( FSTREAM )
+         LOC_STDATE(FSTREAM) = NDATE
       END IF
 
       RETURN

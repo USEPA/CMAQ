@@ -66,7 +66,10 @@ FEST-C is used to create the [E2C_LU](#e2c_lu), [E2C_SOIL](#e2c_soil), and [E2C_
 **Processing Spatial Data with the Spatial Allocator (SA)**
 The [Spatial Allocator](https://www.cmascenter.org/sa-tools/) is a set of tools that helps users manipulate and generate data files related to emissions and air quality modeling. The tools perform functions similar to Geographic Information Systems (GIS), but are provided to the modeling community free of charge. In addition, the tools are designed to support some of the unique aspects of the file formats used for CMAQ, SMOKE and WRF modeling.
 
-SA is used to generate the surf zone and open ocean file that is a required input for utilizing marine emissions and chemistry in CMAQ. This file is discussed later in this chapter under the [OCEAN_1: Sea spray mask](#ocean_1) section.
+SA is used to generate the surf zone and open ocean file that is a required input for utilizing marine emissions and chemistry in CMAQ. Some chemical mechanisms require the presence of additional variables in the ocean file which can be added by using a Python based tool. This file is discussed later in this chapter under the [OCEAN_1: Sea spray mask](#ocean_1) section.
+
+**Python tool for adding DMS and CHLO in the OCEAN file** 
+An ocean mask file (OCEAN) containing OPEN (open ocean) and SURF (surf zone) is needed for sea spray emissions module in CMAQ. CB6r5m_ae7_aq includes halogen and DMS chemistry which requires two additional parameters in the OCEAN file: DMS (DMS concentrations in seawater) and CHLO (monthly climatological chl-a concentration from MODIS). A Python based tool has been developed for adding DMS and CHLO to the OCEAN file (PYTOOLS/dmschlo/CMAQ_DMS_ChlorA_Plot.ipynb). CB6r5_ae7_aq includes DMS chemistry and also needs DMS in the OCEAN file. Other chemical mechanisms do not need DMS or CHLO.
 
 Additional information on processing data for CMAQ inputs is provided in [Appendix C](Appendix/CMAQ_UG_appendixC_spatial_data.md).
 
@@ -95,6 +98,7 @@ This section describes each of the input files required by the various CMAQ prog
 |[ae_matrix_nml](#matrix_nml) <a id=matrix_nml_t></a>|ASCII|n/a|n/a|CMAQ repo|required|
 |[nr_matrix_nml](#matrix_nml) <a id=matrix_nml_t></a>|ASCII|n/a|n/a|CMAQ repo|required|
 |[tr_matrix_nml](#matrix_nml) <a id=matrix_nml_t></a>|ASCII|n/a|n/a|CMAQ repo|required|
+|[MISC_CTRL_NML](#miscctrl) <a id=miscctrl_t></a>|ASCII|n/a|n/a|CMAQ repo|required|
 |**Initial Conditions Inputs**|  | | ||
 |[INIT_CONC_1](#init_conc_1) <a id=init_conc_1_t></a>|GRDDED3|Time-invariant | XYZ | ICON or CCTM |required|
 |**Boundary Conditions Inputs**| | | | ||
@@ -113,29 +117,31 @@ This section describes each of the input files required by the various CMAQ prog
 |[mcip.nc](#mcip) <a id=mcip_t></a>| netCDF | varies by field | varies by field | MCIP|required if IOFORM=2 (Currently not compatible with rest of CMAQ system.)|
 |[mcip_bdy.nc](#mcip_bdy) <a id=mcip_bdyt></a>| netCDF | varies by field | varies by field | MCIP|required if IOFORM=2 (Currently not compatible with rest of CMAQ system.)|
 |**Emissions Inputs**||||||
-|[EmissCtrl_matrix_nml](#emissctrl) <a id=emissctrl_t></a>|ASCII|n/a|n/a|CMAQ repo|required|
+|[DESID_CTRL_NML](#desidctrl) <a id=desidctrl_t></a>|ASCII|n/a|n/a|CMAQ repo|required|
+|[DESID_CHEM_CTRL_NML](#desidchemctrl) <a id=desidchemctrl_t></a>|ASCII|n/a|n/a|CMAQ repo|required|
 |[GR_EMIS_XXX*](#emis_xxx) <a id=emis_xxx_t></a> | GRDDED3 | Hourly | XYZ | SMOKE|required|
 |[STK_GRPS_XXX](#stk_grps) <a id=stk_grps_t></a> | GRDDED3 |Time-invariant|XY | SMOKE|required|
 |[STK_EMIS_XXX](#stk_emis) <a id=stk_emis_t></a> | GRDDED3 | Hourly | XY | SMOKE|required|
 |[NLDN_STRIKES](#nldn_strikes) <a id=nldn_strikes_t></a>| GRDDED3 | Hourly | XY |Must purchase data|optional for including NO from lightning|
 |[LTNGPARMS_FILE](#ltngparm_file) <a id=ltngparm_file_t></a>| GRDDED3 | Time-invariant | XY |CMAS|required for including NO from lightning|
 |**Biogenic and Land Surface Inputs**||||||
-|[OCEAN_1](#ocean_1) <a id=ocean_1_t></a>| GRDDED3 | Time-invariant | XY |Spatial Allocator|required|
+|[OCEAN_1](#ocean_1) <a id=ocean_1_t></a>| GRDDED3 | Time-invariant | XY |Spatial Allocator and a Python-based tool|required for running CMAQ with sea-spray aerosol, halogen or DMS chemistry|
 |[GSPRO](#gspro) <a id=gspro_t></a>| ASCII | Time-invariant | N/a | CMAQ repo|required for running CMAQ with online BEIS biogenics|
-|[B3GRD](#b3grd) <a id=b3grd_t></a>| GRDDED3 | Time-invariant | XY | SMOKE|required for running CMAQ with online BEIS biogenics|
-|[BIOSEASON](#bioseason) <a id=bioseason_t></a>|GRDDED3 |Time-invariant | XY | SMOKE|run-time option for running CMAQ with online BEIS biogenics|
-|[MEGAN_CTS](#MEGAN_CTS) <a id=megan_cts_t></a>| GRDDED3 | Time-invariant | XYZ | MEGAN preprocessor|required for running CMAQ with online MEGAN biogenics|
-|[MEGAN_LDF](#MEGAN_LDF) <a id=megan_ldf_t></a>| GRDDED3 | Time-invariant | XY | MEGAN preprocessor|required for running CMAQ with online MEGAN biogenics|
-|[MEGAN_EFS](#MEGAN_EFS) <a id=megan_efs_t></a>| GRDDED3 | Time-invariant | XY | MEGAN preprocessor|required for running CMAQ with online MEGAN biogenics|
-|[MEGAN_LAI](#MEGAN_LAI) <a id=megan_lai_t></a>| GRDDED3 | Time-invariant | XY | MEGAN preprocessor|optional for running CMAQ with online MEGAN biogenics|
-|[MEGAN_ARID](#MEGAN_ARID) <a id=megan_arid_t></a>| GRDDED3 | Time-invariant | XY | MEGAN preprocessor|required for running CMAQ with online MEGAN biogenics and BDSNP soil NO|
-|[MEGAN_NONARID](#MEGAN_NONARID) <a id=megan_nonarid_t></a>| GRDDED3 | Time-invariant | XY | MEGAN preprocessor|required for running CMAQ with online MEGAN biogenics and BDSNP soil NO|
-|[MEGAN_LANDTYPE](#MEGAN_LANDTYPE) <a id=megan_landtype_t></a>| GRDDED3 | Time-invariant | XY | MEGAN preprocessor|required for running CMAQ with online MEGAN biogenics and BDSNP soil NO|
-|[MEGAN_FERT](#MEGAN_FERT) <a id=megan_fert_t></a>| GRDDED3 | Time-invariant | XY | MEGAN preprocessor|required for running CMAQ with online MEGAN biogenics and BDSNP soil NO|
-|[MEGAN_NDF](#MEGAN_NDF) <a id=megan_ndf_t></a>| GRDDED3 | Time-invariant | XY | MEGAN preprocessor|required for running CMAQ with online MEGAN biogenics and BDSNP soil NO|
+|[BEIS_NORM_EMIS](#beis_norm_emis) <a id=b3grd_t></a>| GRDDED3 | Time-invariant | XY | SMOKE|required for running CMAQ with online BEIS biogenics|
+|[MEGAN_CTS](#megan_cts) <a id=megan_cts_t></a>| GRDDED3 | Time-invariant | XYZ | MEGAN preprocessor|required for running CMAQ with online MEGAN biogenics|
+|[MEGAN_LDF](#megan_ldf) <a id=megan_ldf_t></a>| GRDDED3 | Time-invariant | XY | MEGAN preprocessor|required for running CMAQ with online MEGAN biogenics|
+|[MEGAN_EFS](#megan_efs) <a id=megan_efs_t></a>| GRDDED3 | Time-invariant | XY | MEGAN preprocessor|required for running CMAQ with online MEGAN biogenics|
+|[MEGAN_LAI](#megan_lai) <a id=megan_lai_t></a>| GRDDED3 | Time-invariant | XY | MEGAN preprocessor|optional for running CMAQ with online MEGAN biogenics|
+|[BDSNP_AFILE](#megan_arid) <a id=megan_arid_t></a>| GRDDED3 | Time-invariant | XY | MEGAN preprocessor|required for BDSNP soil NO|
+|[BDSNP_NAFILE](#megan_nonarid) <a id=megan_nonarid_t></a>| GRDDED3 | Time-invariant | XY | MEGAN preprocessor|required for BDSNP soil NO model |
+|[BDSNP_LFILE](#megan_landtype) <a id=megan_landtype_t></a>| GRDDED3 | Time-invariant | XY | MEGAN preprocessor|required for BDSNP soil NO model |
+|[BDSNP_FFILE](#megan_fert) <a id=megan_fert_t></a>| GRDDED3 | Time-invariant | XY | MEGAN preprocessor|required for BDSNP soil NO model |
+|[BDSNP_NFILE](#megan_ndf) <a id=megan_ndf_t></a>| GRDDED3 | Time-invariant | XY | MEGAN preprocessor|required for BDSNP soil NO model |
 |[E2C_LU](#e2c_lu) <a id=e2c_lu_t></a>| GRDDED3 | Time-invariant |XY|EPIC|required for running CMAQ with bidirectional NH3|
 |[E2C_SOIL](#e2c_soil) <a id=e2c_soil_t></a>| GRDDED3 | Time-invariant | XY|EPIC|required for running CMAQ with bidirectional NH3|
-|[E2C_CHEM](#e2c_chem) <a id=e2c_chem_t></a>| GRDDED3 | Daily |XY|EPIC|optional|
+|[E2C_CHEM](#e2c_chem) <a id=e2c_chem_t></a>| GRDDED3 | Daily |XY|EPIC|required for running CMAQ with bidirectional NH3|
+|**STAGE Deposition Option**||||||
+|[STAGECTRL_NML](#stagectrl_nml) <a id=desidctrl_t></a>|ASCII|n/a|n/a|CMAQ repo|required|
 |**Photolysis** | | | |||
 |[OMI](#omi) <a id=omi_t></a>| ASCII | Daily | n/a |CMAQ repo or create_omi|required|
 
@@ -200,21 +206,21 @@ Used by: CCTM, CHEMMECH
 Namelist look-up tables for different classes of simulated pollutants are used to define the parameters of different model species during the execution of the CMAQ programs. Gas-phase (gc), aerosol (ae), non-reactive (nr), and tracer (tr) species namelist files contain parameters for the model species that are included in these different classifications. The species namelist files are used to control how the different CMAQ programs and processes handle the model species. The namelist files define the following processes for each model species:
 
 
--   Initial conditions – which initial condition species is the pollutant mapped to; if not specified, this will default to the species name.
--   IC Factor – if the pollutant is mapped to an initial condition species, uniformly apply a scaling factor to the concentrations.
--   Boundary conditions – which boundary condition species is the pollutant mapped to; if not specified, this will default to the species name.
--   BC Factor – if the pollutant is mapped to a boundary condition species, uniformly apply a scaling factor to the concentrations.
--   Deposition velocity – which (if any) deposition velocity is the deposition velocity for the pollutant mapped to; allowed velocities are specified within the model source code.
--   Deposition velocity factor – if the pollutant is mapped to a deposition velocity, uniformly apply a scaling factor to this velocity.
+-   Initial conditions  which initial condition species is the pollutant mapped to; if not specified, this will default to the species name.
+-   IC Factor  if the pollutant is mapped to an initial condition species, uniformly apply a scaling factor to the concentrations.
+-   Boundary conditions  which boundary condition species is the pollutant mapped to; if not specified, this will default to the species name.
+-   BC Factor  if the pollutant is mapped to a boundary condition species, uniformly apply a scaling factor to the concentrations.
+-   Deposition velocity  which (if any) deposition velocity is the deposition velocity for the pollutant mapped to; allowed velocities are specified within the model source code.
+-   Deposition velocity factor  if the pollutant is mapped to a deposition velocity, uniformly apply a scaling factor to this velocity.
 -   Scavenging - which (if any) species is the pollutant mapped to; Allowed scavenging surrogates are specified within the model source code ("[hlconst.F](../../CCTM/src/cloud/acm_ae6/hlconst.F)").
 -   Scavenging factor - if the pollutant is mapped to a species for scavenging, uniformly apply a scaling factor to the scavenging rate.
--   Gas-to-aerosol conversion – which (if any) aerosol chemistry species does the gas phase pollutant concentration go into for transformation from the gas-phase to the aerosol-phase.  Allowed gas-to-aerosol surrogates are specified within the model source code ("[PRECURSOR_DATA.F](../../CCTM/src/aero/aero6/PRECURSOR_DATA.F)" and "[SOA_DEFN.F](../../CCTM/src/aero/aero6/SOA_DEFN.F)")
--   Gas-to-aqueous Surrogate – which (if any) cloud chemistry species does the gas pollutant concentration go into for simulating chemistry within cloud water. Allowed gas-to-aqueous surrogates are specified within the model source code and depends on the cloud model/aqueous chemistry being used (for example, for the acm_ae6, see "[AQ_DATA.F](../../CCTM/src/cloud/acm_ae6/AQ_DATA.F)").
--   Aerosol-to-aqueous Surrogate – which (if any) cloud chemistry species does the aerosol pollutant concentration go into for simulating chemistry within cloud water.  Allowed aerosol-to-aqueous surrogates are specified within the model source code and depends on the cloud model/aqueous chemistry being used (for example, for the acm_ae6, see "[AQ_DATA.F](../../CCTM/src/cloud/acm_ae6/AQ_DATA.F)").
--   Transport – is the pollutant transported by advection and diffusion in the model?
--   Dry deposition – Write the pollutant to the dry deposition output file?
--   Wet deposition – Write the pollutant to the wet deposition output file?
--   Concentration – Write the pollutant to the instantaneous concentration output file?
+-   Gas-to-aerosol conversion  which (if any) aerosol chemistry species does the gas phase pollutant concentration go into for transformation from the gas-phase to the aerosol-phase.  Allowed gas-to-aerosol surrogates are specified within the model source code ("[PRECURSOR_DATA.F](../../CCTM/src/aero/aero6/PRECURSOR_DATA.F)" and "[SOA_DEFN.F](../../CCTM/src/aero/aero6/SOA_DEFN.F)")
+-   Gas-to-aqueous Surrogate  which (if any) cloud chemistry species does the gas pollutant concentration go into for simulating chemistry within cloud water. Allowed gas-to-aqueous surrogates are specified within the model source code and depends on the cloud model/aqueous chemistry being used (for example, for the acm_ae6, see "[AQ_DATA.F](../../CCTM/src/cloud/acm_ae6/AQ_DATA.F)").
+-   Aerosol-to-aqueous Surrogate  which (if any) cloud chemistry species does the aerosol pollutant concentration go into for simulating chemistry within cloud water.  Allowed aerosol-to-aqueous surrogates are specified within the model source code and depends on the cloud model/aqueous chemistry being used (for example, for the acm_ae6, see "[AQ_DATA.F](../../CCTM/src/cloud/acm_ae6/AQ_DATA.F)").
+-   Transport  is the pollutant transported by advection and diffusion in the model?
+-   Dry deposition  Write the pollutant to the dry deposition output file?
+-   Wet deposition  Write the pollutant to the wet deposition output file?
+-   Concentration  Write the pollutant to the instantaneous concentration output file?
 
 The namelist files contain header information that describe which class of species are contained in the file, the number of parameters contained in the file, headers describing the parameter fields, and then a series of rows with configuration parameters for every model species. [Table 4-2](#Table4-2) contains the namelist file format for the gas-phase (GC) species namelist file. The namelist files for the other species classifications (AE, NR, TR) are similar to the format shown in [Table 4-2](#Table4-2).
 
@@ -246,6 +252,35 @@ The namelist files contain header information that describe which class of speci
 
 
 The namelist files for the other pollutant classes have similar configurations as the gas-phase species configuration shown in [Table 4-2](#Table4-2). For an example see this [link](../../CCTM/src/MECHS/cb06r3_ae7_aq/GC_cb6r3_ae7_aq.nml) to the GC namelist species file for the cb06r3_ae7_aq mechanism.
+
+<a id=miscctrl></a>
+
+**CMAQ_Control_Misc.nml: Miscellaneous Control Variables**
+<!-- BEGIN COMMENT -->
+[Return to Table 4-1](#miscctrl_t)
+<!-- END COMMENT -->
+
+Used by: ELMO, Budget Tool, DESID
+ 
+This control file provides an interface to activate/deactivate and set parameters for the operation of the Explicit and Lumped CMAQ Model Output module (ELMO; [Appendix F](Appendix/CMAQ_UG_appendixF_elmo_output.md)), the Budget Tool (Chapter 9), and an aspect of the DESID emissions interface. The variables for the ELMO and Budget Tool modules should be chosen in this file in the &elmo_activate, &elmo_inst, &elmo_avrg, and &Budget_Options sections. 
+
+The final sections (&Chemical_FamVars and &ChemicalFamilies) allow users to define chemical families for output that can be referred to by ELMO, The Budget Tool or DESID. For example, 'NOX' may be defined as a chemical family containing 'NO' and 'NO2'. 
+The &Chemical_FamVars section should be used to define the total number of chemical families that will be specified (N_Chem_Fams) and the maximum number of chemical species among all defined chemical families (Max_Chem_Fam_Members). For example, if a user defined three chemical families including 'NOX','AROMATICS', and 'BSOA', then a chemical family entry could be written as follows:
+
+`&Chem_FamVars  
+  N_Chem_Fams = 3  
+  Max_Chem_Fam_Members = 10  
+ /  
+ &ChemicalFamilies  
+  ChemFamilyName(1) = 'NOX'
+  ChemFamilyMembers(1,:) = 'NO','NO2'  
+  
+  ChemFamilyName(2) = 'AROMATICS'
+  ChemFamilyMembers(2,:) = 'TOL','XYL','BENZ','NAPH'  
+  
+  ChemFamilyName(3) = 'DUST'
+  ChemFamilyMembers(3,:) = 'ACORS','ASOIL','AECI','AECJ','AFEJ','AALJ','ATIJ','ASIJ','ACAJ','AMGJ','AKJ','AMNJ'  
+ /  `
 
 <a id=init_conc_1></a>
 
@@ -433,21 +468,41 @@ Used by: ICON, BCON, CCTM, and some optional programs
 ## 4.8 Emissions Inputs
 <a id=emis_xxx></a>
 
-**EmissCtrl_matrix_nml: Emissions Control Namelist**
-<a id=emissctrl></a>
+<a id=desidctrl></a>
+**DESID_Ctrl_nml: DESID Control Namelist**
 
 <!-- BEGIN COMMENT -->
 
-[Return to Table 4-1](#emissctrl_t)
+[Return to Table 4-1](#desidctrl_t)
 
 <!-- END COMMENT -->
 
-In addition to the options available in the RunScript, CMAQ now reads a dedicated namelist in order to apply comprehensive rules for reading and scaling emissions. The namelist, called the Emission Control Namelist is named "EmissCtrl.nml" by default and a separate version exists for every mechanism because these namelists are preloaded with likely rules linking emissions of important CMAQ primary species to their typical surrogate names as output by SMOKE. By default, this namelist is stored in each chemical mechanism folder (e.g. MECHS/cb6r3_ae7_aq) and is copied into the user's build directory when bldit_cctm.csh is executed. If the user modifies the name or location of this namelist, then the following command in the RunScript should be updated as well:
+In addition to the options available in the RunScript, CMAQ now reads dedicated namelists in order to apply comprehensive rules for reading and scaling emissions. The first of these namelists, called the DESID Control Namelist is named "CMAQ_Control_DESID.nml" by default. This namelist is stored in the repo in the emissions source code folder and is copied into the user's build directory when bldit_cctm.csh is executed. If the user modifies the name or location of this namelist, then the following command in the RunScript should be updated as well:
 ```
-setenv EMISSCTRL_NML ${BLD}/EmissCtrl.nml
+setenv DESID_CTRL_NML ${BLD}/CMAQ_DESID_Ctrl.nml
 ```
 
-The Detailed Emissions Scaling, Isolation and Diagnostics (DESID) module included with CMAQv5.3 provides comprehensive customization and transparency of emissions manipulation to the user. The customization of emissions is accomplished via the Emission Control Namelist, which contains four sections of variables that modify the behavior of the emissions module. These include ***General Specs***, ***Emission Scaling Rules***, ***Size Distributions***, and ***Regions Registry***
+The Detailed Emissions Scaling, Isolation and Diagnostics (DESID) module included with CMAQv5.3 and beyond provides comprehensive customization and transparency of emissions manipulation to the user. The customization of emissions is accomplished via two namelist files, the first of which is the DESID Control Namelist. This namelist contains several sections of distinct options that modify the behavior of the emissions module. These include ***Desid_Options***, ***Area Normalization***, ***Size Distributions***, ***Region Definitions***, ***Stream Family Definitions***, and ***Diagnostic Output Options***.
+
+* [Jump to DESID Tutorial](Tutorials/CMAQ_UG_tutorial_emissions.md) for step by step instructions on performing some basic manipulation of emission streams.
+* [Jump to Emissions overview](CMAQ_UG_ch06_model_configuration_options.md) in Chapter 6 of this User's Guide.
+ 
+
+**DESID_Chem_Ctrl_nml: DESID Chemical Mapping Control Namelist**
+<a idi=desidchemctrl></a>
+
+<!-- BEGIN COMMENT -->
+
+[Return to Table 4-1](#desidchemctrl_t)
+
+<!-- END COMMENT -->
+
+The second namelist used for specifying DESID operations is the DESID Chemical Mapping Control namelist, named "CMAQ_Control_DESID_[mech]". By default, every mechanism has its own version of this namelist because each is preloaded with likely rules linking emissions of important CMAQ primary species to their typical surrogate names as output by SMOKE. By default, this namelist is stored in each chemical mechanism folder (e.g. MECHS/cb6r3_ae7_aq) and is copied into the user's build directory when bldit_cctm.csh is executed. If the user modifies the name or location of this namelist, then the following command in the RunScript should be updated as well:
+```
+setenv DESID_CTRL_NML ${BLD}/CMAQ_Control_DESID_[mech].nml
+```
+
+This file contains only one section, the chemical mapping table, which link chemical variables on the emissions streams (external files or online processes) to CMAQ species, and offers scaling capabilities, geographic specicficity with the regions functionalities, size distribution customization, and the use of chemical families.
 
 * [Jump to DESID Tutorial](Tutorials/CMAQ_UG_tutorial_emissions.md) for step by step instructions on performing some basic manipulation of emission streams.
 * [Jump to Emissions overview](CMAQ_UG_ch06_model_configuration_options.md) in Chapter 6 of this User's Guide.
@@ -479,7 +534,7 @@ Starting in CMAQv5.3, users can run with as many gridded emission files as desir
 
 <!-- END COMMENT -->
 
-Used by: CCTM – inline emissions version only
+Used by: CCTM  inline emissions version only
 
 The XXX mark is unique and represents the stream identification. Make sure the N_EMIS_PT runtime variable is set to reflect the total number of inline emission streams.
 
@@ -495,7 +550,7 @@ The stack groups file is an I/O API file containing stack parameters for elevate
 
 <!-- END COMMENT -->
 
-Used by: CCTM – inline emissions version only
+Used by: CCTM  inline emissions version only
 
 The XXX mark is unique and represents the stream identification. Make sure the N_EMIS_PT runtime variable is set to reflect the total number of inline emission streams.
 
@@ -511,7 +566,7 @@ The elevated-point-source emissions file is an I/O API GRDDED3 file with emissio
 
 <!-- END COMMENT -->
 
-Used by: CCTM – lightning NO<sub>x</sub> version only
+Used by: CCTM  lightning NO<sub>x</sub> version only
 
 The NLDN lightning strikes file is used for calculating online NO emissions from hourly observed strike counts. (Hourly NLDN lightning strike data can be purchased from a private vendor.) This file contains the following variables interpolated to the modeling grid:
 
@@ -535,7 +590,7 @@ Use of lightning strike data in CMAQ simulations is discussed further in [Chapte
 
 <!-- END COMMENT -->
 
-Used by: CCTM – lightning NO<sub>x</sub> version only
+Used by: CCTM  lightning NO<sub>x</sub> version only
 
 The lightning parameters file is used for calculating online NO emissions from hourly observed strike counts. 
 This file can be downloaded from the [CMAS Data Warehouse](https://drive.google.com/drive/folders/1R8ENVSpQiv4Bt4S0LFuUZWFzr3-jPEeY). 
@@ -574,11 +629,12 @@ Use of lightning strike data in CMAQ simulations is discussed further in [Chapte
 
 Used by: CCTM
 
-The CMAQ sea spray emissions module requires the input of an ocean mask file (OCEAN). OCEAN is a time-independent I/O API file that identifies the fractional [0-1] coverage in each model grid cell allocated to open ocean (OPEN) or surf zone (SURF). The CCTM uses this coverage information to calculate sea spray emission fluxes from the model grid cells online during a CCTM run.
+The CMAQ sea spray emissions module requires the input of an ocean mask file (OCEAN). OCEAN is a time-independent I/O API file that identifies the fractional [0-1] coverage in each model grid cell allocated to open ocean (OPEN) or surf zone (SURF). The CCTM uses this coverage information to calculate sea spray emission fluxes from the model grid cells online during a CCTM run. 
 
-Additionally, CMAQ's gas-phase chemical mechanisms except cb6r3m_ae7_kmtbr contain an effective first order halogen mediated ozone loss over the ocean (where OPEN + SURF > 0.0). The OCEAN file is also required for this process. The cb6r3m_ae7_kmtbr mechanism contains more explicit marine chemistry, but also requires the OCEAN file.
+Additionally, CMAQ's gas-phase chemical mechanisms except cb6r5m_ae7_aq contain an effective first order halogen mediated ozone loss over the ocean (where OPEN + SURF > 0.0). The OCEAN file is also required for this process. The cb6r5m_ae7_aq mechanism contains bromine, iodine and DMS chemistry and requires the OCEAN file with two additional variables: DMS (monthly mean climatological DMS concentrations in seawater) and CHLO (monthly mean climatological chlorophyll concentration). The cb6r5_ae7_aq mechanism contains DMS chemistry and requires the OCEAN file with DMS (monthly mean climatological DMS concentration in seawater).
 
-See the [CMAQ Ocean File Tutorial](Tutorials/CMAQ_UG_tutorial_oceanfile.md) for step by step instructions on creating this file. 
+
+See the [CMAQ Ocean File Tutorial](Tutorials/CMAQ_UG_tutorial_oceanfile.md) for step by step instructions on creating this file and for adding DMS and CHLO to the ocean files. 
 
 <a id=gspro></a>
 **GSPRO: Speciation profiles**
@@ -586,30 +642,19 @@ See the [CMAQ Ocean File Tutorial](Tutorials/CMAQ_UG_tutorial_oceanfile.md) for 
 [Return to Table 4-1](#gspro_t)
 <!-- END COMMENT -->
 
-Used by: CCTM – online BEIS biogenics emissions version only
+Used by: CCTM  online BEIS biogenics emissions version only
 
 The speciation profile file, GSPRO, contains the factors that are used to separate aggregated inventory pollutant emissions totals into emissions of model species in the form required by CMAQ. If only biogenic emissions are being calculated online in CMAQ, the GSPRO file used by CCTM needs to contain split factors only for the biogenic VOC emissions that are input in the B3GRD file. If other emissions sources are being calculated by CCTM, VOC split factors for these other sources must be included in the GSPRO file. The GSPRO file format is listed in the SMOKE user’s manual, see: [GSPRO documentation](https://www.cmascenter.org/smoke/documentation/4.0/html/ch08s05s02.html).
 
-<a id=b3grd></a>
-**B3GRD: Gridded, normalized biogenic emissions**
+<a id=beis_norm_emis></a>
+**BEIS_NORM_EMIS: Gridded, normalized biogenic emissions**
 <!-- BEGIN COMMENT -->
-[Return to Table 4-1](#b3grd_t)
+[Return to Table 4-1](#beis_norm_emis)
 <!-- END COMMENT -->
 
-Used by: CCTM – online BEIS biogenics emissions version only
+Used by: CCTM  online BEIS biogenics emissions version only
 
-An I/O API GRDDED3 file of gridded, normalized biogenic emissions (in grams of carbon or nitrogen per hour, depending on the species) and leaf area index. The B3GRD file contains normalized emissions calculated with both summer and winter emissions factors. The B3GRD file is generated with the SMOKE program NORMBEIS3 using gridded land use data. For additional information about creating the B3GRD file, see the [NORMBEIS3 documentation](https://www.cmascenter.org/smoke/documentation/4.0/html/ch06s12.html) in the SMOKE users’ manual.
-
-<a id=bioseason></a>
-**BIOSEASON: Freeze dates**
-<!-- BEGIN COMMENT -->
-[Return to Table 4-1](#bioseason_t)
-<!-- END COMMENT -->
-
-Used by: CCTM – online BEIS biogenics emissions version only
-
-The BIOSEASON switch file is an I/O API GRDDED3 file used to indicate which biogenic emissions factor to use on each day in a given year for every grid cell in the modeling domain. This file can be created using the Metscan utility program that is distributed with SMOKE. The BIOSEASON file is time-dependent and usually contains data for an entire year (365 or 366 days). It uses one variable, SEASON, which is either 0 (grid cell should use winter factors for current day) or 1 (grid cell should use summer factors for current day). For additional information about creating the BIOSEASON file, see the [Metscan documentation](https://www.cmascenter.org/smoke/documentation/4.0/html/ch05s03s10.html) in the SMOKE user’s manual.
-
+An I/O API GRDDED3 file of gridded, normalized biogenic emissions (in grams of carbon or nitrogen per hour, depending on the species) and leaf area index. The BEIS_NORM_EMIS file contains normalized emissions calculated with both summer and winter emissions factors. The B3GRD file is generated with the SMOKE program NORMBEIS4 using gridded land use data. For additional information about creating the BEIS_NORM_EMIS file, see the [NORMBEIS4 documentation](https://www.cmascenter.org/smoke/documentation/4.9/html/ch07s11.html) in the SMOKE users’ manual.
 
 <a id=megan_cts></a>
 **MEGAN_CTS: canopy types**
@@ -617,124 +662,173 @@ The BIOSEASON switch file is an I/O API GRDDED3 file used to indicate which biog
 [Return to Table 4-1](#megan_cts_t)
 <!-- END COMMENT -->
 
-Used by: CCTM – online MEGAN biogenics emissions version only
+Used by: CCTM  online MEGAN biogenics emissions version only
 
 The MEGAN_CTS file is an I/O API GRDDED3 file that is created using the MEGAN preprocessor. It contains canopy fraction information for six canopy types in one variable, CTS, which is nondimensional and ranges from 0-100. The vegetation types are needleleaf trees, tropical forest trees, temperate broadleaf trees, shrubs, herbaceous plants, and crops. 
 
 <a id=megan_ldf></a>
-**MEGAN_LDF: canopy types**
+**MEGAN_LDF: light dependence**
 <!-- BEGIN COMMENT -->
 [Return to Table 4-1](#megan_ldf_t)
 <!-- END COMMENT -->
 
-Used by: CCTM – online MEGAN biogenics emissions version only
+Used by: CCTM  online MEGAN biogenics emissions version only
 
-The MEGAN_LDF file is an I/O API GRDDED3 file that is created using the MEGAN preprocessor. It contains nondimensional light dependence fractions for 20 MEGAN chemical species. 
+The MEGAN_LDF file is an I/O API GRDDED3 file that is created using the MEGAN preprocessor. It contains nondimensional light dependence fractions for 4 of the 19 MEGAN chemical species. 
 
 <a id=megan_efs></a>
-**MEGAN_EFS: canopy types**
+**MEGAN_EFS: emission factors**
 <!-- BEGIN COMMENT -->
 [Return to Table 4-1](#megan_efs_t)
 <!-- END COMMENT -->
 
-Used by: CCTM – online MEGAN biogenics emissions version only
+Used by: CCTM  online MEGAN biogenics emissions version only
 
-The MEGAN_EFS file is an I/O API GRDDED3 file that is created using the MEGAN preprocessor. It contains emission factors for the 20 MEGAN chemical species. 
+The MEGAN_EFS file is an I/O API GRDDED3 file that is created using the MEGAN preprocessor. It contains emission factors for the 19 MEGAN chemical species. 
 
 <a id=megan_lai></a>
-**MEGAN_LAI: canopy types**
+**MEGAN_LAI: leaf area index**
 <!-- BEGIN COMMENT -->
 [Return to Table 4-1](#megan_lai_t)
 <!-- END COMMENT -->
 
-Used by: CCTM – online MEGAN biogenics emissions version only
+Used by: CCTM  online MEGAN biogenics emissions version only
 
-The MEGAN_LAI file is an optional I/O API GRDDED3 file that is created using the MEGAN preprocessor. It contains leaf area index that is separate from LAI values used in the rest of CMAQ. 
+The MEGAN_LAI file is an I/O API GRDDED3 file that is created using the MEGAN preprocessor. It contains leaf area index that is separate from LAI values used in the rest of CMAQ. By default MEGAN will use this file for LAI, but users can choose to use the LAI values that are read in from MCIP files by setting the environmental variable USE_MEGAN_LAI to N in their run script. 
 
 <a id=megan_arid></a>
-**MEGAN_ARID: canopy types**
+**BDSNP_AFILE: arid flag**
 <!-- BEGIN COMMENT -->
 [Return to Table 4-1](#megan_arid_t)
 <!-- END COMMENT -->
 
-Used by: CCTM – online MEGAN biogenics emissions' BDSNP soil nitrogen model option
+Used by: CCTM  online MEGAN biogenics emissions' BDSNP soil nitrogen model option
 
-The MEGAN_ARID file is an I/O API GRDDED3 file that is created using the MEGAN preprocessor for use with the BDSNP soil nitrogen option. It identifies climatically arid grid cells with 1s and 0s. 
+The BDSNP_AFILE file is an I/O API GRDDED3 file that is created using the MEGAN preprocessor for use with the BDSNP soil nitrogen option. It identifies climatically arid grid cells with 1s and 0s. 
 
 
 <a id=megan_nonarid></a>
-**MEGAN_NONARID: canopy types**
+**BDSNP_NAFILE: nonarid flag**
 <!-- BEGIN COMMENT -->
 [Return to Table 4-1](#megan_nonarid_t)
 <!-- END COMMENT -->
 
-Used by: CCTM – online MEGAN biogenics emissions' BDSNP soil nitrogen model option
+Used by: CCTM  online MEGAN biogenics emissions' BDSNP soil nitrogen model option
 
-The MEGAN_NONARID file is an I/O API GRDDED3 file that is created using the MEGAN preprocessor for use with the BDSNP soil nitrogen option. It identifies climatically non-arid grid cells with 1s and 0s. 
+The BDSNP_NAFILE file is an I/O API GRDDED3 file that is created using the MEGAN preprocessor for use with the BDSNP soil nitrogen option. It identifies climatically non-arid grid cells with 1s and 0s. 
 
 
 <a id=megan_landtype></a>
-**MEGAN_LANDTYPE: canopy types**
+**BDSNP_LFILE: landfile type**
 <!-- BEGIN COMMENT -->
 [Return to Table 4-1](#megan_landtype_t)
 <!-- END COMMENT -->
 
-Used by: CCTM – online MEGAN biogenics emissions' BDSNP soil nitrogen model option
+Used by: CCTM  online MEGAN biogenics emissions' BDSNP soil nitrogen model option
 
-The MEGAN_LANDTYPE file is an I/O API GRDDED3 file that is created using the MEGAN preprocessor for use with the BDSNP soil nitrogen option. It assigns each grid cell to one of 24 land types.
+The BDSNP_LFILE file is an I/O API GRDDED3 file that is created using the MEGAN preprocessor for use with the BDSNP soil nitrogen option. It assigns each grid cell to one of 24 land types.
 
 <a id=megan_fert></a>
-**MEGAN_FERT: canopy types**
+**BDSNP_FFILE: fertilizer reservoir**
 <!-- BEGIN COMMENT -->
 [Return to Table 4-1](#megan_fert_t)
 <!-- END COMMENT -->
 
-Used by: CCTM – online MEGAN biogenics emissions' BDSNP soil nitrogen model option
+Used by: CCTM  online MEGAN biogenics emissions' BDSNP soil nitrogen model option
 
-The MEGAN_FERT file is an I/O API GRDDED3 file that is created using the MEGAN preprocessor for use with the BDSNP soil nitrogen option. It contains daily fertilizer information in ng/m3 using 366 variables. 
+The BDSNP_FFILE file is an I/O API GRDDED3 file that is created using the MEGAN preprocessor for use with the BDSNP soil nitrogen option. It contains daily fertilizer information in ng N/m2 using 366 variables. 
 
 
 <a id=megan_ndf></a>
-**MEGAN_NDF: canopy types**
+**BDSNP_NFILE: nitrogen deposition**
 <!-- BEGIN COMMENT -->
 [Return to Table 4-1](#megan_ndf_t)
 <!-- END COMMENT -->
 
-Used by: CCTM – online MEGAN biogenics emissions' BDSNP soil nitrogen model option
+Used by: CCTM  online MEGAN biogenics emissions' BDSNP soil nitrogen model option
 
-The MEGAN_NDF file is an I/O API GRDDED3 file that is created using the MEGAN preprocessor for use with the BDSNP soil nitrogen option. It contains monthly average total nitrogen deposition values in ng/m2/s using 12 variables. 
+The BDSNP_NFILE file is an I/O API GRDDED3 file that is created using the MEGAN preprocessor for use with the BDSNP soil nitrogen option. It contains monthly average nitrogen deposition values in ng/m2/s using 12 variables. 
 
 
 <a id=e2c_lu></a>
-**E2C_LU – Fractional crop distributions**
+**E2C_LU  Fractional crop distributions**
 <!-- BEGIN COMMENT -->
 [Return to Table 4-1](#e2c_lu_t)
 <!-- END COMMENT -->
 
-Used by: CCTM – bidirectional NH<sub>3</sub> flux version only
+Used by: CCTM  bidirectional NH<sub>3</sub> flux version only
 
 Land use data including fractional crop and tree distributions gridded to the modeling domain.  This data set is created when generating the land use data for EPIC simulations over the conterminous U.S. domain by the BELD4 Data Generation tool in the FEST-C interface.  Detailed information on the tool and FEST-C interface are available at https://www.cmascenter.org/fest-c/. 
 
 
 <a id="e2c_soil"></a>
-**E2C_SOIL – EPIC soil properties**
+**E2C_SOIL  EPIC soil properties**
 <!-- BEGIN COMMENT -->
 [Return to Table 4-1](#e2c_soil_t)
 <!-- END COMMENT -->
 
-Used by: CCTM – bidirectional NH<sub>3</sub> flux version only
+Used by: CCTM  bidirectional NH<sub>3</sub> flux version only
 
 This 3-D file is created by the EPIC to CMAQ tool via the FEST-C interface.  It contains soil properties for Layer 1 (0 to 1 cm depth) and Layer 2 (1 cm to 100 cm depth) and for each crop in grid cells with agricultural land.  Additional information on the EPIC simulation and the FEST-C interface are available at https://www.cmascenter.org/fest-c/. 
 
 <a id="e2c_chem"></a>
-**E2C_CHEM – EPIC crop types and fertilizer application**
+**E2C_CHEM  EPIC crop types and fertilizer application**
 <!-- BEGIN COMMENT -->
 [Return to Table 4-1](#e2c_chem_t)
 <!-- END COMMENT -->
 
-Used by: CCTM – bidirectional NH<sub>3</sub> flux version only
+Used by: CCTM  bidirectional NH<sub>3</sub> flux version only
 
 This is a 3-D daily file created by the EPIC to CMAQ tool via the FEST-C interface.  The tool extracts EPIC simulated soil chemistry information including fertilization for the Layer 1 and Layer 2 soil profiles along with plant growth information in each grid cell with agricultural land.  The FEST-C interface facilitates EPIC simulations for any CMAQ modeling domain over the conterminous U.S. area.  Additional information on the EPIC simulation and the FEST-C interface are available at https://www.cmascenter.org/fest-c/. 
+
+## STAGE Deposition Option
+
+<a id=stagectrl_nml></a>
+
+**STAGECTRL_NML: STAGE Control Namelist**
+
+<!-- BEGIN COMMENT -->
+[Return to Table 4-1](#stagectrl_nml)
+<!-- END COMMENT -->
+
+**Table 4-6** Variables in the STAGE_DATA section of STAGECTRL_NML.
+
+|**Variable Name**|**Description**|**Units**|
+|--------|---------------|--------------|
+|Species Name | Deposited species name from the GR, NR, or TR namelists|unitless|
+|rel_rx| Relative reactivity for resistance estimates for cuticular and soil surfaces | unitless |
+|f0| Wesely (1989) mesophyll resistance parameter | unitless |
+|Molar Vol| The LeBas molar volume of the trace gas |L mol<sup>-1</sup>|
+|Mass accommodation coef| The probability that a trace gas molecule is incorporated into a wet surface |unitless|
+
+The STAGE_DATA section allows for the user to add species that exist in GC,TR, or NR namelists to dry deposition estiamtes without the need to recompile CMAQ. 
+
+**Table 4-7** Variables in the STAGE_LU section of STAGECTRL_NML.
+|**Variable Name**|**Description**|**Units**|
+|--------|---------------|--------------|
+| Land Use Name | Name of the sub-grid land use | unitless |
+| Land Use Tag | Name of the land use tag for aggrigating data<sub>1</sub> | unitless |
+| RSMIN | Minimum stomatal resistance of the land use<sub>2</sub> | s m<sup>-1</sup> |
+| Z0 | Momentum roughness lenght of the land use | m |
+| Max VEG | Maximum vegetation coverage of the land use taken from the MODIS MCD12Q1 documentation | % |
+| Min VEG | Minimum vegetation coverage of the land use taken from the MODIS MCD12Q1 documentation | % |
+| Max VEG | Maximum single sided leaf area index of the vegetated fraction of the land use | ratio |
+| Min VEG | Minimum single sided leaf area index of the vegetated fraction of the land use | ratio |
+| Ground NH3 Gam | NH3 emissions potential of the non-vegetated surface, e.g. leaf litter, soil, etc.<sub>3</sub> | mol NH3 (mol H)<sup>-1</sup> |
+| Veg NH3 Gam | NH3 emissions potential of the leaf mesophyll<sub>3</sub> | mol NH3 (mol H)<sup>-1</sup> |
+| Soil Hg | Soil Hg content of the land use<sub>4</sub> | micro mol Hg (g soil)<sup>-1<\sup> |
+| Leaf Width | Aerodynamic leaf width | m |
+| Alpha | Zhang et al. 2001 land use parameter for aerosol dry deposition | unitless |
+| BAI | Building area index | ratio |
+| Ahair | Leaf hair width | m |
+| Fhair | Ratio of leaf covered in hair | ratio |
+| Aleaf | Pleim et al. 2022 aerodynamic leaf width | m |
+| LU Index | STAGE land use index for mapping | unitless |
+
+<sub>1</sub> Available land use tags are WATER, AG, AGMOS, HAY, URBAN, DECFORB, DECFORN, EVEFORB, EVEFORN, MIXFOR, HERB, SHRUB, GRASS, and WETLAND
+<sub>2</sub> This is used relatively preserving the area averaged stomatal resistance from the meteorological model
+<sub>3</sub> Used in NH3 the bidirectional exchange option.
+<sub>4</sub> Used in Hg the bidirectional exchange option.
 
 
 ## 4.10 Photolysis Inputs
@@ -759,3 +853,4 @@ OMI ozone column data by latitude and longitude for use in the photolysis calcul
  CMAQ User's Guide (c) 2020<br>
 
 <!-- END COMMENT -->
+

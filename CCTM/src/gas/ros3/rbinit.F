@@ -238,6 +238,13 @@ c..cell & solver data
          CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT2 )
       END IF
 
+#ifdef sens
+      ALLOCATE( YAVE( BLKSIZE,NUMB_MECH_SPC ), STAT = STATUS )
+      IF ( STATUS .NE. 0 ) THEN
+         XMSG = 'ERROR allocating YAVE'
+         CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT2 )
+      END IF
+#endif
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  Set convergence tolerances for each species; currently uses
 c  one set of tolerances for all species
