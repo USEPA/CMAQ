@@ -51,7 +51,7 @@ C-----------------------------------------------------------------------
       Integer, Save      :: naer        ! number of aerosol surrogate species for AQCHEM
       Integer, Parameter :: nliqs = 60  ! number of liquid-phase species in AQCHEM
       Integer, Parameter :: nmodes = 3  ! number of aerosol modes
-      Integer, Parameter :: mxsrg = 70  ! maximum number of species for surrogate
+      Integer, Parameter :: mxsrg = 400  ! maximum number of species for surrogate
 
       integer, parameter :: akn = 1     ! number for Aitken mode
       Integer, Parameter :: acc = 2     ! number for Accumulation mode

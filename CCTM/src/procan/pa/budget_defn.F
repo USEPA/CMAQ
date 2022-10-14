@@ -96,9 +96,9 @@ C-----------------------------------------------------------------------
       LOGICAL, SAVE   :: FIRST_TIME = .TRUE.
       INTEGER         :: SDATE, STIME
 
-      CHARACTER( 16 ) :: BDGSPEC_TMP( 500 ), BDGVAR
-      INTEGER :: MAP_toCGRID_TMP( 1000 )
-      INTEGER :: MAP_toBDG_TMP( 1000 )
+      CHARACTER( 16 ) :: BDGSPEC_TMP( 2000 ), BDGVAR
+      INTEGER :: MAP_toCGRID_TMP( 2000 )
+      INTEGER :: MAP_toBDG_TMP( 2000 )
       INTEGER :: N_BDG_REG
       LOGICAL :: EXPAND_SPEC
       LOGICAL, ALLOCATABLE :: CGRID_VEC( : )

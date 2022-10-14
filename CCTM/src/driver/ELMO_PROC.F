@@ -2679,8 +2679,15 @@
                END IF
             END DO
             ! Add POC/PNCOM Contribution to Weighted O:C
-            POC = SUM( AEROSPC_CONC(APOC_IDX,:),MASK = AEROMODE(:)%FINE_MASK )
-            POM = POC + SUM( AEROSPC_CONC(APNCOM_IDX,:), MASK = AEROMODE(:)%FINE_MASK )
+            POC = 0.0
+            IF ( APOC_IDX .GT. 0 ) THEN
+               POC = SUM( AEROSPC_CONC(APOC_IDX,:),MASK = AEROMODE(:)%FINE_MASK )
+            END IF
+            IF ( APNCOM_IDX .GT. 0 ) THEN
+               POM = POC + SUM( AEROSPC_CONC(APNCOM_IDX,:), MASK = AEROMODE(:)%FINE_MASK )
+            ELSE
+               POM = 1.8 * POC  ! Assume OM:OC = 1.8
+            END IF
             OtoC = 12./15. * ( POM / ( POC + TINY(0.0) ) )- 14./15.  
             
             OUTVAL = ( VAL2 + OtoC*POM ) / ( VAL + TINY(0.0))
@@ -2784,13 +2791,17 @@
                   END IF
                END DO
                ! Add POC/PNCOM Contribution to Weighted O:C
-               VAL3 = ( AEROSPC_CONC(APOC_IDX,IMODE) 
-     &                + AEROSPC_CONC(APNCOM_IDX,IMODE) )
-     &                     * INLET_FRAC( IPMAMS,IMODE,IWET )
-               VAL3 = ( 12./15. * ( VAL3 / ( AEROSPC_CONC(APOC_IDX,IMODE)
-     &                                      *INLET_FRAC(IPMAMS,IMODE,IWET) 
-     &                           + TINY(0.0) ) ) - 14./15. ) * VAL3
-               VAL4 = VAL4 + VAL3
+               POC = 0.0
+               IF ( APOC_IDX .GT. 0 ) 
+     &            POC = AEROSPC_CONC(APOC_IDX,IMODE) * INLET_FRAC( IPMAMS,IMODE,IWET )
+               IF ( APNCOM_IDX .GT. 0 ) THEN
+                  POM = POC + AEROSPC_CONC(APNCOM_IDX,IMODE) 
+     &                       * INLET_FRAC( IPMAMS,IMODE,IWET )
+               ELSE
+                  POM = POC * 1.8
+               END IF
+               OtoC = ( 12./15. * ( POM / (POC+TINY(0.0)) ) - 14./15. )
+               VAL4 = VAL4 + OtoC*POM
             END DO
             OUTVAL = ( VAL2 + VAL4 ) / ( VAL + TINY(0.0))
  

@@ -82,11 +82,23 @@ C-----------------------------------------------------------------------
       Logical, Parameter, Private :: T = .true.
       Logical, Parameter, Private :: F = .false.
 
-      Integer, Parameter :: n_oa_list = 81   ! # of potential partitioning SVOCs
+      Integer, Parameter :: n_oa_list = 293  ! # of potential partitioning SVOCs
       Integer, Save      :: n_oa             ! Total # of simulated SOA vapors
       Integer, Save      :: n_oa_NotTracers  ! # of simulated SOA vapors that are not tracers
       Integer, Save      :: n_oa_tracers      ! # of simulated SOA vapors that are tracers
 
+      Integer, Parameter :: n_cstar = 9
+      Integer, Parameter :: n_o2cvbs = 8
+      Real, Parameter :: cstar300( n_cstar ) = (/
+     &                      1.0E-02, 1.0E+00, 1.0E+01, 1.0E+02, 1.0E+03,
+     &                      1.0E+04, 1.0E+05, 1.0E+06, 1.0E+07/)
+      Real, Parameter :: enth0( n_cstar ) = (/
+     &                  1.02E+02, 9.00E+01, 8.40E+01, 7.80E+01,7.20E+01,
+     &                  6.60E+01, 6.00E+01, 5.40E+01, 4.80E+01/)
+      Real, Parameter :: o2cvbs(n_o2cvbs) = (/
+     &                  0.0, 0.1, 0.2, 0.4, 0.7, 1.0, 1.5, 2.0/)
+      Real, Parameter :: om2ocvbs(n_o2cvbs) = (/
+     &          1.167, 1.292, 1.417, 1.667, 2.042, 2.417, 3.041, 3.667/)
       Type oa_type
          Character( 16 ) :: name        ! Organic Aerosol Species Name
          Character( 16 ) :: gas_name    ! Condensable Vapor Species Name
@@ -190,7 +202,220 @@ C-----------------------------------------------------------------------
      & oa_type('AROCP1OXY3','VROCP1OXY3','        ',0.0000,   1.e+1,  81.0E3, .300,1.54, F,  T,  F,  F ),
      & oa_type('AROCP2OXY2','VROCP2OXY2','        ',0.0000,   1.e+2,  77.0E3, .200,1.42, F,  T,  F,  F ),
      & oa_type('AROCP3OXY2','VROCP3OXY2','        ',0.0000,   1.e+3,  73.0E3, .200,1.42, F,  T,  F,  F ),
-     & oa_type('ABENAPY', 'BENAPY  ', '        ',  0.0000,   0.0396, 105.0E3, .000,1.00, F,  T,  F,  F ) /)
+     & oa_type('ABENAPY', 'BENAPY  ', '        ',  0.0000,   0.0396, 105.0E3, .000,1.00, F,  T,  F,  F ),
+     & oa_type('AM110J ', 'CSM1O2C10 ', '        ',  0.0000, cstar300( 1), enth0( 1), o2cvbs(6),om2ocvbs(6), F, T, F,  F ),
+     & oa_type('A0010J ', 'CS00O2C10 ', '        ',  0.0000, cstar300( 2), enth0( 2), o2cvbs(6),om2ocvbs(6), F, T, F,  F ),
+     & oa_type('A0110J ', 'CS01O2C10 ', '        ',  0.0000, cstar300( 3), enth0( 3), o2cvbs(6),om2ocvbs(6), F, T, F,  F ),
+     & oa_type('A0210J ', 'CS02O2C10 ', '        ',  0.0000, cstar300( 4), enth0( 4), o2cvbs(6),om2ocvbs(6), F, T, F,  F ),
+     & oa_type('A0310J ', 'CS03O2C10 ', '        ',  0.0000, cstar300( 5), enth0( 5), o2cvbs(6),om2ocvbs(6), F, T, F,  F ),
+     & oa_type('A0410J ', 'CS04O2C10 ', '        ',  0.0000, cstar300( 6), enth0( 6), o2cvbs(6),om2ocvbs(6), F, T, F,  F ),
+     & oa_type('A0510J ', 'CS05O2C10 ', '        ',  0.0000, cstar300( 7), enth0( 7), o2cvbs(6),om2ocvbs(6), F, T, F,  F ),
+     & oa_type('A0610J ', 'CS06O2C10 ', '        ',  0.0000, cstar300( 8), enth0( 8), o2cvbs(6),om2ocvbs(6), F, T, F,  F ),
+     & oa_type('A0710J ', 'CS07O2C10 ', '        ',  0.0000, cstar300( 9), enth0( 9), o2cvbs(6),om2ocvbs(6), F, T, F,  F ),
+     & oa_type('AM107J ', 'CSM1O2C07 ', '        ',  0.0000, cstar300( 1), enth0( 1), o2cvbs(5),om2ocvbs(5), F, T, F,  F ),
+     & oa_type('A0007J ', 'CS00O2C07 ', '        ',  0.0000, cstar300( 2), enth0( 2), o2cvbs(5),om2ocvbs(5), F, T, F,  F ),
+     & oa_type('A0107J ', 'CS01O2C07 ', '        ',  0.0000, cstar300( 3), enth0( 3), o2cvbs(5),om2ocvbs(5), F, T, F,  F ),
+     & oa_type('A0207J ', 'CS02O2C07 ', '        ',  0.0000, cstar300( 4), enth0( 4), o2cvbs(5),om2ocvbs(5), F, T, F,  F ),
+     & oa_type('A0307J ', 'CS03O2C07 ', '        ',  0.0000, cstar300( 5), enth0( 5), o2cvbs(5),om2ocvbs(5), F, T, F,  F ),
+     & oa_type('A0407J ', 'CS04O2C07 ', '        ',  0.0000, cstar300( 6), enth0( 6), o2cvbs(5),om2ocvbs(5), F, T, F,  F ),
+     & oa_type('A0507J ', 'CS05O2C07 ', '        ',  0.0000, cstar300( 7), enth0( 7), o2cvbs(5),om2ocvbs(5), F, T, F,  F ),
+     & oa_type('A0607J ', 'CS06O2C07 ', '        ',  0.0000, cstar300( 8), enth0( 8), o2cvbs(5),om2ocvbs(5), F, T, F,  F ),
+     & oa_type('A0707J ', 'CS07O2C07 ', '        ',  0.0000, cstar300( 9), enth0( 9), o2cvbs(5),om2ocvbs(5), F, T, F,  F ),
+     & oa_type('AM104J ', 'CSM1O2C04 ', '        ',  0.0000, cstar300( 1), enth0( 1), o2cvbs(4),om2ocvbs(4), F, T, F,  F ),
+     & oa_type('A0004J ', 'CS00O2C04 ', '        ',  0.0000, cstar300( 2), enth0( 2), o2cvbs(4),om2ocvbs(4), F, T, F,  F ),
+     & oa_type('A0104J ', 'CS01O2C04 ', '        ',  0.0000, cstar300( 3), enth0( 3), o2cvbs(4),om2ocvbs(4), F, T, F,  F ),
+     & oa_type('A0204J ', 'CS02O2C04 ', '        ',  0.0000, cstar300( 4), enth0( 4), o2cvbs(4),om2ocvbs(4), F, T, F,  F ),
+     & oa_type('A0304J ', 'CS03O2C04 ', '        ',  0.0000, cstar300( 5), enth0( 5), o2cvbs(4),om2ocvbs(4), F, T, F,  F ),
+     & oa_type('A0404J ', 'CS04O2C04 ', '        ',  0.0000, cstar300( 6), enth0( 6), o2cvbs(4),om2ocvbs(4), F, T, F,  F ),
+     & oa_type('A0504J ', 'CS05O2C04 ', '        ',  0.0000, cstar300( 7), enth0( 7), o2cvbs(4),om2ocvbs(4), F, T, F,  F ),
+     & oa_type('A0604J ', 'CS06O2C04 ', '        ',  0.0000, cstar300( 8), enth0( 8), o2cvbs(4),om2ocvbs(4), F, T, F,  F ),
+     & oa_type('A0704J ', 'CS07O2C04 ', '        ',  0.0000, cstar300( 9), enth0( 9), o2cvbs(4),om2ocvbs(4), F, T, F,  F ),
+     & oa_type('AM102J ', 'CSM1O2C02 ', '        ',  0.0000, cstar300( 1), enth0( 1), o2cvbs(3),om2ocvbs(3), F, T, F,  F ),
+     & oa_type('A0002J ', 'CS00O2C02 ', '        ',  0.0000, cstar300( 2), enth0( 2), o2cvbs(3),om2ocvbs(3), F, T, F,  F ),
+     & oa_type('A0102J ', 'CS01O2C02 ', '        ',  0.0000, cstar300( 3), enth0( 3), o2cvbs(3),om2ocvbs(3), F, T, F,  F ),
+     & oa_type('A0202J ', 'CS02O2C02 ', '        ',  0.0000, cstar300( 4), enth0( 4), o2cvbs(3),om2ocvbs(3), F, T, F,  F ),
+     & oa_type('A0302J ', 'CS03O2C02 ', '        ',  0.0000, cstar300( 5), enth0( 5), o2cvbs(3),om2ocvbs(3), F, T, F,  F ),
+     & oa_type('A0402J ', 'CS04O2C02 ', '        ',  0.0000, cstar300( 6), enth0( 6), o2cvbs(3),om2ocvbs(3), F, T, F,  F ),
+     & oa_type('A0502J ', 'CS05O2C02 ', '        ',  0.0000, cstar300( 7), enth0( 7), o2cvbs(3),om2ocvbs(3), F, T, F,  F ),
+     & oa_type('A0602J ', 'CS06O2C02 ', '        ',  0.0000, cstar300( 8), enth0( 8), o2cvbs(3),om2ocvbs(3), F, T, F,  F ),
+     & oa_type('A0702J ', 'CS07O2C02 ', '        ',  0.0000, cstar300( 9), enth0( 9), o2cvbs(3),om2ocvbs(3), F, T, F,  F ),
+     & oa_type('AM101J ', 'CSM1O2C01 ', '        ',  0.0000, cstar300( 1), enth0( 1), o2cvbs(2),om2ocvbs(2), F, T, F,  F ),
+     & oa_type('A0001J ', 'CS00O2C01 ', '        ',  0.0000, cstar300( 2), enth0( 2), o2cvbs(2),om2ocvbs(2), F, T, F,  F ),
+     & oa_type('A0101J ', 'CS01O2C01 ', '        ',  0.0000, cstar300( 3), enth0( 3), o2cvbs(2),om2ocvbs(2), F, T, F,  F ),
+     & oa_type('A0201J ', 'CS02O2C01 ', '        ',  0.0000, cstar300( 4), enth0( 4), o2cvbs(2),om2ocvbs(2), F, T, F,  F ),
+     & oa_type('A0301J ', 'CS03O2C01 ', '        ',  0.0000, cstar300( 5), enth0( 5), o2cvbs(2),om2ocvbs(2), F, T, F,  F ),
+     & oa_type('A0401J ', 'CS04O2C01 ', '        ',  0.0000, cstar300( 6), enth0( 6), o2cvbs(2),om2ocvbs(2), F, T, F,  F ),
+     & oa_type('A0501J ', 'CS05O2C01 ', '        ',  0.0000, cstar300( 7), enth0( 7), o2cvbs(2),om2ocvbs(2), F, T, F,  F ),
+     & oa_type('A0601J ', 'CS06O2C01 ', '        ',  0.0000, cstar300( 8), enth0( 8), o2cvbs(2),om2ocvbs(2), F, T, F,  F ),
+     & oa_type('A0701J ', 'CS07O2C01 ', '        ',  0.0000, cstar300( 9), enth0( 9), o2cvbs(2),om2ocvbs(2), F, T, F,  F ),
+     & oa_type('AM100J ', 'CSM1O2C00 ', '        ',  0.0000, cstar300( 1), enth0( 1), o2cvbs(1),om2ocvbs(1), F, T, F,  F ),
+     & oa_type('A0000J ', 'CS00O2C00 ', '        ',  0.0000, cstar300( 2), enth0( 2), o2cvbs(1),om2ocvbs(1), F, T, F,  F ),
+     & oa_type('A0100J ', 'CS01O2C00 ', '        ',  0.0000, cstar300( 3), enth0( 3), o2cvbs(1),om2ocvbs(1), F, T, F,  F ),
+     & oa_type('A0200J ', 'CS02O2C00 ', '        ',  0.0000, cstar300( 4), enth0( 4), o2cvbs(1),om2ocvbs(1), F, T, F,  F ),
+     & oa_type('A0300J ', 'CS03O2C00 ', '        ',  0.0000, cstar300( 5), enth0( 5), o2cvbs(1),om2ocvbs(1), F, T, F,  F ),
+     & oa_type('A0400J ', 'CS04O2C00 ', '        ',  0.0000, cstar300( 6), enth0( 6), o2cvbs(1),om2ocvbs(1), F, T, F,  F ),
+     & oa_type('A0500J ', 'CS05O2C00 ', '        ',  0.0000, cstar300( 7), enth0( 7), o2cvbs(1),om2ocvbs(1), F, T, F,  F ),
+     & oa_type('A0600J ', 'CS06O2C00 ', '        ',  0.0000, cstar300( 8), enth0( 8), o2cvbs(1),om2ocvbs(1), F, T, F,  F ),
+     & oa_type('A0700J ', 'CS07O2C00 ', '        ',  0.0000, cstar300( 9), enth0( 9), o2cvbs(1),om2ocvbs(1), F, T, F,  F ),
+     & oa_type('AM104PJ', 'CSM1O2C04P', '        ',  0.0000, cstar300( 1), enth0( 1), o2cvbs(4),om2ocvbs(4), T, T, F,  F ),
+     & oa_type('A0004PJ', 'CS00O2C04P', '        ',  0.0000, cstar300( 2), enth0( 2), o2cvbs(4),om2ocvbs(4), T, T, F,  F ),
+     & oa_type('A0104PJ', 'CS01O2C04P', '        ',  0.0000, cstar300( 3), enth0( 3), o2cvbs(4),om2ocvbs(4), T, T, F,  F ),
+     & oa_type('A0204PJ', 'CS02O2C04P', '        ',  0.0000, cstar300( 4), enth0( 4), o2cvbs(4),om2ocvbs(4), T, T, F,  F ),
+     & oa_type('A0304PJ', 'CS03O2C04P', '        ',  0.0000, cstar300( 5), enth0( 5), o2cvbs(4),om2ocvbs(4), T, T, F,  F ),
+     & oa_type('A0404PJ', 'CS04O2C04P', '        ',  0.0000, cstar300( 6), enth0( 6), o2cvbs(4),om2ocvbs(4), T, T, F,  F ),
+     & oa_type('A0504PJ', 'CS05O2C04P', '        ',  0.0000, cstar300( 7), enth0( 7), o2cvbs(4),om2ocvbs(4), T, T, F,  F ),
+     & oa_type('A0604PJ', 'CS06O2C04P', '        ',  0.0000, cstar300( 8), enth0( 8), o2cvbs(4),om2ocvbs(4), T, T, F,  F ),
+     & oa_type('AM102PJ', 'CSM1O2C02P', '        ',  0.0000, cstar300( 1), enth0( 1), o2cvbs(3),om2ocvbs(3), T, T, F,  F ),
+     & oa_type('A0002PJ', 'CS00O2C02P', '        ',  0.0000, cstar300( 2), enth0( 2), o2cvbs(3),om2ocvbs(3), T, T, F,  F ),
+     & oa_type('A0102PJ', 'CS01O2C02P', '        ',  0.0000, cstar300( 3), enth0( 3), o2cvbs(3),om2ocvbs(3), T, T, F,  F ),
+     & oa_type('A0202PJ', 'CS02O2C02P', '        ',  0.0000, cstar300( 4), enth0( 4), o2cvbs(3),om2ocvbs(3), T, T, F,  F ),
+     & oa_type('A0302PJ', 'CS03O2C02P', '        ',  0.0000, cstar300( 5), enth0( 5), o2cvbs(3),om2ocvbs(3), T, T, F,  F ),
+     & oa_type('A0402PJ', 'CS04O2C02P', '        ',  0.0000, cstar300( 6), enth0( 6), o2cvbs(3),om2ocvbs(3), T, T, F,  F ),
+     & oa_type('A0502PJ', 'CS05O2C02P', '        ',  0.0000, cstar300( 7), enth0( 7), o2cvbs(3),om2ocvbs(3), T, T, F,  F ),
+     & oa_type('A0602PJ', 'CS06O2C02P', '        ',  0.0000, cstar300( 8), enth0( 8), o2cvbs(3),om2ocvbs(3), T, T, F,  F ),
+     & oa_type('AM101PJ', 'CSM1O2C01P', '        ',  0.0000, cstar300( 1), enth0( 1), o2cvbs(2),om2ocvbs(2), T, T, F,  F ),
+     & oa_type('A0001PJ', 'CS00O2C01P', '        ',  0.0000, cstar300( 2), enth0( 2), o2cvbs(2),om2ocvbs(2), T, T, F,  F ),
+     & oa_type('A0101PJ', 'CS01O2C01P', '        ',  0.0000, cstar300( 3), enth0( 3), o2cvbs(2),om2ocvbs(2), T, T, F,  F ),
+     & oa_type('A0201PJ', 'CS02O2C01P', '        ',  0.0000, cstar300( 4), enth0( 4), o2cvbs(2),om2ocvbs(2), T, T, F,  F ),
+     & oa_type('A0301PJ', 'CS03O2C01P', '        ',  0.0000, cstar300( 5), enth0( 5), o2cvbs(2),om2ocvbs(2), T, T, F,  F ),
+     & oa_type('A0401PJ', 'CS04O2C01P', '        ',  0.0000, cstar300( 6), enth0( 6), o2cvbs(2),om2ocvbs(2), T, T, F,  F ),
+     & oa_type('A0501PJ', 'CS05O2C01P', '        ',  0.0000, cstar300( 7), enth0( 7), o2cvbs(2),om2ocvbs(2), T, T, F,  F ),
+     & oa_type('A0601PJ', 'CS06O2C01P', '        ',  0.0000, cstar300( 8), enth0( 8), o2cvbs(2),om2ocvbs(2), T, T, F,  F ),
+     & oa_type('AM100PJ', 'CSM1O2C00P', '        ',  0.0000, cstar300( 1), enth0( 1), o2cvbs(1),om2ocvbs(1), T, T, F,  F ),
+     & oa_type('A0000PJ', 'CS00O2C00P', '        ',  0.0000, cstar300( 2), enth0( 2), o2cvbs(1),om2ocvbs(1), T, T, F,  F ),
+     & oa_type('A0100PJ', 'CS01O2C00P', '        ',  0.0000, cstar300( 3), enth0( 3), o2cvbs(1),om2ocvbs(1), T, T, F,  F ),
+     & oa_type('A0200PJ', 'CS02O2C00P', '        ',  0.0000, cstar300( 4), enth0( 4), o2cvbs(1),om2ocvbs(1), T, T, F,  F ),
+     & oa_type('A0300PJ', 'CS03O2C00P', '        ',  0.0000, cstar300( 5), enth0( 5), o2cvbs(1),om2ocvbs(1), T, T, F,  F ),
+     & oa_type('A0400PJ', 'CS04O2C00P', '        ',  0.0000, cstar300( 6), enth0( 6), o2cvbs(1),om2ocvbs(1), T, T, F,  F ),
+     & oa_type('A0500PJ', 'CS05O2C00P', '        ',  0.0000, cstar300( 7), enth0( 7), o2cvbs(1),om2ocvbs(1), T, T, F,  F ),
+     & oa_type('A0600PJ', 'CS06O2C00P', '        ',  0.0000, cstar300( 8), enth0( 8), o2cvbs(1),om2ocvbs(1), T, T, F,  F ),
+     & oa_type('AM120AJ', 'CSM1O2C20A', '        ',  0.0000, cstar300( 1), enth0( 1), o2cvbs(8),om2ocvbs(8), F, T, F,  F ),
+     & oa_type('A0020AJ', 'CS00O2C20A', '        ',  0.0000, cstar300( 2), enth0( 2), o2cvbs(8),om2ocvbs(8), F, T, F,  F ),
+     & oa_type('A0120AJ', 'CS01O2C20A', '        ',  0.0000, cstar300( 3), enth0( 3), o2cvbs(8),om2ocvbs(8), F, T, F,  F ),
+     & oa_type('A0220AJ', 'CS02O2C20A', '        ',  0.0000, cstar300( 4), enth0( 4), o2cvbs(8),om2ocvbs(8), F, T, F,  F ),
+     & oa_type('A0320AJ', 'CS03O2C20A', '        ',  0.0000, cstar300( 5), enth0( 5), o2cvbs(8),om2ocvbs(8), F, T, F,  F ),
+     & oa_type('A0420AJ', 'CS04O2C20A', '        ',  0.0000, cstar300( 6), enth0( 6), o2cvbs(8),om2ocvbs(8), F, T, F,  F ),
+     & oa_type('A0520AJ', 'CS05O2C20A', '        ',  0.0000, cstar300( 7), enth0( 7), o2cvbs(8),om2ocvbs(8), F, T, F,  F ),
+     & oa_type('A0620AJ', 'CS06O2C20A', '        ',  0.0000, cstar300( 8), enth0( 8), o2cvbs(8),om2ocvbs(8), F, T, F,  F ),
+     & oa_type('A0720AJ', 'CS07O2C20A', '        ',  0.0000, cstar300( 9), enth0( 9), o2cvbs(8),om2ocvbs(8), F, T, F,  F ),
+     & oa_type('AM115AJ', 'CSM1O2C15A', '        ',  0.0000, cstar300( 1), enth0( 1), o2cvbs(7),om2ocvbs(7), F, T, F,  F ),
+     & oa_type('A0015AJ', 'CS00O2C15A', '        ',  0.0000, cstar300( 2), enth0( 2), o2cvbs(7),om2ocvbs(7), F, T, F,  F ),
+     & oa_type('A0115AJ', 'CS01O2C15A', '        ',  0.0000, cstar300( 3), enth0( 3), o2cvbs(7),om2ocvbs(7), F, T, F,  F ),
+     & oa_type('A0215AJ', 'CS02O2C15A', '        ',  0.0000, cstar300( 4), enth0( 4), o2cvbs(7),om2ocvbs(7), F, T, F,  F ),
+     & oa_type('A0315AJ', 'CS03O2C15A', '        ',  0.0000, cstar300( 5), enth0( 5), o2cvbs(7),om2ocvbs(7), F, T, F,  F ),
+     & oa_type('A0415AJ', 'CS04O2C15A', '        ',  0.0000, cstar300( 6), enth0( 6), o2cvbs(7),om2ocvbs(7), F, T, F,  F ),
+     & oa_type('A0515AJ', 'CS05O2C15A', '        ',  0.0000, cstar300( 7), enth0( 7), o2cvbs(7),om2ocvbs(7), F, T, F,  F ),
+     & oa_type('A0615AJ', 'CS06O2C15A', '        ',  0.0000, cstar300( 8), enth0( 8), o2cvbs(7),om2ocvbs(7), F, T, F,  F ),
+     & oa_type('A0715AJ', 'CS07O2C15A', '        ',  0.0000, cstar300( 9), enth0( 9), o2cvbs(7),om2ocvbs(7), F, T, F,  F ),
+     & oa_type('AM110AJ', 'CSM1O2C10A', '        ',  0.0000, cstar300( 1), enth0( 1), o2cvbs(6),om2ocvbs(6), F, T, F,  F ),
+     & oa_type('A0010AJ', 'CS00O2C10A', '        ',  0.0000, cstar300( 2), enth0( 2), o2cvbs(6),om2ocvbs(6), F, T, F,  F ),
+     & oa_type('A0110AJ', 'CS01O2C10A', '        ',  0.0000, cstar300( 3), enth0( 3), o2cvbs(6),om2ocvbs(6), F, T, F,  F ),
+     & oa_type('A0210AJ', 'CS02O2C10A', '        ',  0.0000, cstar300( 4), enth0( 4), o2cvbs(6),om2ocvbs(6), F, T, F,  F ),
+     & oa_type('A0310AJ', 'CS03O2C10A', '        ',  0.0000, cstar300( 5), enth0( 5), o2cvbs(6),om2ocvbs(6), F, T, F,  F ),
+     & oa_type('A0410AJ', 'CS04O2C10A', '        ',  0.0000, cstar300( 6), enth0( 6), o2cvbs(6),om2ocvbs(6), F, T, F,  F ),
+     & oa_type('A0510AJ', 'CS05O2C10A', '        ',  0.0000, cstar300( 7), enth0( 7), o2cvbs(6),om2ocvbs(6), F, T, F,  F ),
+     & oa_type('A0610AJ', 'CS06O2C10A', '        ',  0.0000, cstar300( 8), enth0( 8), o2cvbs(6),om2ocvbs(6), F, T, F,  F ),
+     & oa_type('A0710AJ', 'CS07O2C10A', '        ',  0.0000, cstar300( 9), enth0( 9), o2cvbs(6),om2ocvbs(6), F, T, F,  F ),
+     & oa_type('AM107AJ', 'CSM1O2C07A', '        ',  0.0000, cstar300( 1), enth0( 1), o2cvbs(5),om2ocvbs(5), F, T, F,  F ),
+     & oa_type('A0007AJ', 'CS00O2C07A', '        ',  0.0000, cstar300( 2), enth0( 2), o2cvbs(5),om2ocvbs(5), F, T, F,  F ),
+     & oa_type('A0107AJ', 'CS01O2C07A', '        ',  0.0000, cstar300( 3), enth0( 3), o2cvbs(5),om2ocvbs(5), F, T, F,  F ),
+     & oa_type('A0207AJ', 'CS02O2C07A', '        ',  0.0000, cstar300( 4), enth0( 4), o2cvbs(5),om2ocvbs(5), F, T, F,  F ),
+     & oa_type('A0307AJ', 'CS03O2C07A', '        ',  0.0000, cstar300( 5), enth0( 5), o2cvbs(5),om2ocvbs(5), F, T, F,  F ),
+     & oa_type('A0407AJ', 'CS04O2C07A', '        ',  0.0000, cstar300( 6), enth0( 6), o2cvbs(5),om2ocvbs(5), F, T, F,  F ),
+     & oa_type('A0507AJ', 'CS05O2C07A', '        ',  0.0000, cstar300( 7), enth0( 7), o2cvbs(5),om2ocvbs(5), F, T, F,  F ),
+     & oa_type('A0607AJ', 'CS06O2C07A', '        ',  0.0000, cstar300( 8), enth0( 8), o2cvbs(5),om2ocvbs(5), F, T, F,  F ),
+     & oa_type('A0707AJ', 'CS07O2C07A', '        ',  0.0000, cstar300( 9), enth0( 9), o2cvbs(5),om2ocvbs(5), F, T, F,  F ),
+     & oa_type('AM104AJ', 'CSM1O2C04A', '        ',  0.0000, cstar300( 1), enth0( 1), o2cvbs(4),om2ocvbs(4), F, T, F,  F ),
+     & oa_type('A0004AJ', 'CS00O2C04A', '        ',  0.0000, cstar300( 2), enth0( 2), o2cvbs(4),om2ocvbs(4), F, T, F,  F ),
+     & oa_type('A0104AJ', 'CS01O2C04A', '        ',  0.0000, cstar300( 3), enth0( 3), o2cvbs(4),om2ocvbs(4), F, T, F,  F ),
+     & oa_type('A0204AJ', 'CS02O2C04A', '        ',  0.0000, cstar300( 4), enth0( 4), o2cvbs(4),om2ocvbs(4), F, T, F,  F ),
+     & oa_type('A0304AJ', 'CS03O2C04A', '        ',  0.0000, cstar300( 5), enth0( 5), o2cvbs(4),om2ocvbs(4), F, T, F,  F ),
+     & oa_type('A0404AJ', 'CS04O2C04A', '        ',  0.0000, cstar300( 6), enth0( 6), o2cvbs(4),om2ocvbs(4), F, T, F,  F ),
+     & oa_type('A0504AJ', 'CS05O2C04A', '        ',  0.0000, cstar300( 7), enth0( 7), o2cvbs(4),om2ocvbs(4), F, T, F,  F ),
+     & oa_type('A0604AJ', 'CS06O2C04A', '        ',  0.0000, cstar300( 8), enth0( 8), o2cvbs(4),om2ocvbs(4), F, T, F,  F ),
+     & oa_type('A0704AJ', 'CS07O2C04A', '        ',  0.0000, cstar300( 9), enth0( 9), o2cvbs(4),om2ocvbs(4), F, T, F,  F ),
+     & oa_type('AM102AJ', 'CSM1O2C02A', '        ',  0.0000, cstar300( 1), enth0( 1), o2cvbs(3),om2ocvbs(3), F, T, F,  F ),
+     & oa_type('A0002AJ', 'CS00O2C02A', '        ',  0.0000, cstar300( 2), enth0( 2), o2cvbs(3),om2ocvbs(3), F, T, F,  F ),
+     & oa_type('A0102AJ', 'CS01O2C02A', '        ',  0.0000, cstar300( 3), enth0( 3), o2cvbs(3),om2ocvbs(3), F, T, F,  F ),
+     & oa_type('A0202AJ', 'CS02O2C02A', '        ',  0.0000, cstar300( 4), enth0( 4), o2cvbs(3),om2ocvbs(3), F, T, F,  F ),
+     & oa_type('A0302AJ', 'CS03O2C02A', '        ',  0.0000, cstar300( 5), enth0( 5), o2cvbs(3),om2ocvbs(3), F, T, F,  F ),
+     & oa_type('A0402AJ', 'CS04O2C02A', '        ',  0.0000, cstar300( 6), enth0( 6), o2cvbs(3),om2ocvbs(3), F, T, F,  F ),
+     & oa_type('A0502AJ', 'CS05O2C02A', '        ',  0.0000, cstar300( 7), enth0( 7), o2cvbs(3),om2ocvbs(3), F, T, F,  F ),
+     & oa_type('A0602AJ', 'CS06O2C02A', '        ',  0.0000, cstar300( 8), enth0( 8), o2cvbs(3),om2ocvbs(3), F, T, F,  F ),
+     & oa_type('A0702AJ', 'CS07O2C02A', '        ',  0.0000, cstar300( 9), enth0( 9), o2cvbs(3),om2ocvbs(3), F, T, F,  F ),
+     & oa_type('AM101AJ', 'CSM1O2C01A', '        ',  0.0000, cstar300( 1), enth0( 1), o2cvbs(2),om2ocvbs(2), F, T, F,  F ),
+     & oa_type('A0001AJ', 'CS00O2C01A', '        ',  0.0000, cstar300( 2), enth0( 2), o2cvbs(2),om2ocvbs(2), F, T, F,  F ),
+     & oa_type('A0101AJ', 'CS01O2C01A', '        ',  0.0000, cstar300( 3), enth0( 3), o2cvbs(2),om2ocvbs(2), F, T, F,  F ),
+     & oa_type('A0201AJ', 'CS02O2C01A', '        ',  0.0000, cstar300( 4), enth0( 4), o2cvbs(2),om2ocvbs(2), F, T, F,  F ),
+     & oa_type('A0301AJ', 'CS03O2C01A', '        ',  0.0000, cstar300( 5), enth0( 5), o2cvbs(2),om2ocvbs(2), F, T, F,  F ),
+     & oa_type('A0401AJ', 'CS04O2C01A', '        ',  0.0000, cstar300( 6), enth0( 6), o2cvbs(2),om2ocvbs(2), F, T, F,  F ),
+     & oa_type('A0501AJ', 'CS05O2C01A', '        ',  0.0000, cstar300( 7), enth0( 7), o2cvbs(2),om2ocvbs(2), F, T, F,  F ),
+     & oa_type('A0601AJ', 'CS06O2C01A', '        ',  0.0000, cstar300( 8), enth0( 8), o2cvbs(2),om2ocvbs(2), F, T, F,  F ),
+     & oa_type('A0701AJ', 'CS07O2C01A', '        ',  0.0000, cstar300( 9), enth0( 9), o2cvbs(2),om2ocvbs(2), F, T, F,  F ),
+     & oa_type('AM100AJ', 'CSM1O2C00A', '        ',  0.0000, cstar300( 1), enth0( 1), o2cvbs(1),om2ocvbs(1), F, T, F,  F ),
+     & oa_type('A0000AJ', 'CS00O2C00A', '        ',  0.0000, cstar300( 2), enth0( 2), o2cvbs(1),om2ocvbs(1), F, T, F,  F ),
+     & oa_type('A0100AJ', 'CS01O2C00A', '        ',  0.0000, cstar300( 3), enth0( 3), o2cvbs(1),om2ocvbs(1), F, T, F,  F ),
+     & oa_type('A0200AJ', 'CS02O2C00A', '        ',  0.0000, cstar300( 4), enth0( 4), o2cvbs(1),om2ocvbs(1), F, T, F,  F ),
+     & oa_type('A0300AJ', 'CS03O2C00A', '        ',  0.0000, cstar300( 5), enth0( 5), o2cvbs(1),om2ocvbs(1), F, T, F,  F ),
+     & oa_type('A0400AJ', 'CS04O2C00A', '        ',  0.0000, cstar300( 6), enth0( 6), o2cvbs(1),om2ocvbs(1), F, T, F,  F ),
+     & oa_type('A0500AJ', 'CS05O2C00A', '        ',  0.0000, cstar300( 7), enth0( 7), o2cvbs(1),om2ocvbs(1), F, T, F,  F ),
+     & oa_type('A0600AJ', 'CS06O2C00A', '        ',  0.0000, cstar300( 8), enth0( 8), o2cvbs(1),om2ocvbs(1), F, T, F,  F ),
+     & oa_type('A0700AJ', 'CS07O2C00A', '        ',  0.0000, cstar300( 9), enth0( 9), o2cvbs(1),om2ocvbs(1), F, T, F,  F ),
+     & oa_type('AM110BJ', 'CSM1O2C10B', '        ',  0.0000, cstar300( 1), enth0( 1), o2cvbs(6),om2ocvbs(6), F, F, T,  F ),
+     & oa_type('A0010BJ', 'CS00O2C10B', '        ',  0.0000, cstar300( 2), enth0( 2), o2cvbs(6),om2ocvbs(6), F, F, T,  F ),
+     & oa_type('A0110BJ', 'CS01O2C10B', '        ',  0.0000, cstar300( 3), enth0( 3), o2cvbs(6),om2ocvbs(6), F, F, T,  F ),
+     & oa_type('A0210BJ', 'CS02O2C10B', '        ',  0.0000, cstar300( 4), enth0( 4), o2cvbs(6),om2ocvbs(6), F, F, T,  F ),
+     & oa_type('A0310BJ', 'CS03O2C10B', '        ',  0.0000, cstar300( 5), enth0( 5), o2cvbs(6),om2ocvbs(6), F, F, T,  F ),
+     & oa_type('A0410BJ', 'CS04O2C10B', '        ',  0.0000, cstar300( 6), enth0( 6), o2cvbs(6),om2ocvbs(6), F, F, T,  F ),
+     & oa_type('A0510BJ', 'CS05O2C10B', '        ',  0.0000, cstar300( 7), enth0( 7), o2cvbs(6),om2ocvbs(6), F, F, T,  F ),
+     & oa_type('A0610BJ', 'CS06O2C10B', '        ',  0.0000, cstar300( 8), enth0( 8), o2cvbs(6),om2ocvbs(6), F, F, T,  F ),
+     & oa_type('A0710BJ', 'CS07O2C10B', '        ',  0.0000, cstar300( 9), enth0( 9), o2cvbs(6),om2ocvbs(6), F, F, T,  F ),
+     & oa_type('AM107BJ', 'CSM1O2C07B', '        ',  0.0000, cstar300( 1), enth0( 1), o2cvbs(5),om2ocvbs(5), F, F, T,  F ),
+     & oa_type('A0007BJ', 'CS00O2C07B', '        ',  0.0000, cstar300( 2), enth0( 2), o2cvbs(5),om2ocvbs(5), F, F, T,  F ),
+     & oa_type('A0107BJ', 'CS01O2C07B', '        ',  0.0000, cstar300( 3), enth0( 3), o2cvbs(5),om2ocvbs(5), F, F, T,  F ),
+     & oa_type('A0207BJ', 'CS02O2C07B', '        ',  0.0000, cstar300( 4), enth0( 4), o2cvbs(5),om2ocvbs(5), F, F, T,  F ),
+     & oa_type('A0307BJ', 'CS03O2C07B', '        ',  0.0000, cstar300( 5), enth0( 5), o2cvbs(5),om2ocvbs(5), F, F, T,  F ),
+     & oa_type('A0407BJ', 'CS04O2C07B', '        ',  0.0000, cstar300( 6), enth0( 6), o2cvbs(5),om2ocvbs(5), F, F, T,  F ),
+     & oa_type('A0507BJ', 'CS05O2C07B', '        ',  0.0000, cstar300( 7), enth0( 7), o2cvbs(5),om2ocvbs(5), F, F, T,  F ),
+     & oa_type('A0607BJ', 'CS06O2C07B', '        ',  0.0000, cstar300( 8), enth0( 8), o2cvbs(5),om2ocvbs(5), F, F, T,  F ),
+     & oa_type('A0707BJ', 'CS07O2C07B', '        ',  0.0000, cstar300( 9), enth0( 9), o2cvbs(5),om2ocvbs(5), F, F, T,  F ),
+     & oa_type('AM104BJ', 'CSM1O2C04B', '        ',  0.0000, cstar300( 1), enth0( 1), o2cvbs(4),om2ocvbs(4), F, F, T,  F ),
+     & oa_type('A0004BJ', 'CS00O2C04B', '        ',  0.0000, cstar300( 2), enth0( 2), o2cvbs(4),om2ocvbs(4), F, F, T,  F ),
+     & oa_type('A0104BJ', 'CS01O2C04B', '        ',  0.0000, cstar300( 3), enth0( 3), o2cvbs(4),om2ocvbs(4), F, F, T,  F ),
+     & oa_type('A0204BJ', 'CS02O2C04B', '        ',  0.0000, cstar300( 4), enth0( 4), o2cvbs(4),om2ocvbs(4), F, F, T,  F ),
+     & oa_type('A0304BJ', 'CS03O2C04B', '        ',  0.0000, cstar300( 5), enth0( 5), o2cvbs(4),om2ocvbs(4), F, F, T,  F ),
+     & oa_type('A0404BJ', 'CS04O2C04B', '        ',  0.0000, cstar300( 6), enth0( 6), o2cvbs(4),om2ocvbs(4), F, F, T,  F ),
+     & oa_type('A0504BJ', 'CS05O2C04B', '        ',  0.0000, cstar300( 7), enth0( 7), o2cvbs(4),om2ocvbs(4), F, F, T,  F ),
+     & oa_type('A0604BJ', 'CS06O2C04B', '        ',  0.0000, cstar300( 8), enth0( 8), o2cvbs(4),om2ocvbs(4), F, F, T,  F ),
+     & oa_type('A0704BJ', 'CS07O2C04B', '        ',  0.0000, cstar300( 9), enth0( 9), o2cvbs(4),om2ocvbs(4), F, F, T,  F ),
+     & oa_type('AM102BJ', 'CSM1O2C02B', '        ',  0.0000, cstar300( 1), enth0( 1), o2cvbs(3),om2ocvbs(3), F, F, T,  F ),
+     & oa_type('A0002BJ', 'CS00O2C02B', '        ',  0.0000, cstar300( 2), enth0( 2), o2cvbs(3),om2ocvbs(3), F, F, T,  F ),
+     & oa_type('A0102BJ', 'CS01O2C02B', '        ',  0.0000, cstar300( 3), enth0( 3), o2cvbs(3),om2ocvbs(3), F, F, T,  F ),
+     & oa_type('A0202BJ', 'CS02O2C02B', '        ',  0.0000, cstar300( 4), enth0( 4), o2cvbs(3),om2ocvbs(3), F, F, T,  F ),
+     & oa_type('A0302BJ', 'CS03O2C02B', '        ',  0.0000, cstar300( 5), enth0( 5), o2cvbs(3),om2ocvbs(3), F, F, T,  F ),
+     & oa_type('A0402BJ', 'CS04O2C02B', '        ',  0.0000, cstar300( 6), enth0( 6), o2cvbs(3),om2ocvbs(3), F, F, T,  F ),
+     & oa_type('A0502BJ', 'CS05O2C02B', '        ',  0.0000, cstar300( 7), enth0( 7), o2cvbs(3),om2ocvbs(3), F, F, T,  F ),
+     & oa_type('A0602BJ', 'CS06O2C02B', '        ',  0.0000, cstar300( 8), enth0( 8), o2cvbs(3),om2ocvbs(3), F, F, T,  F ),
+     & oa_type('A0702BJ', 'CS07O2C02B', '        ',  0.0000, cstar300( 9), enth0( 9), o2cvbs(3),om2ocvbs(3), F, F, T,  F ),
+     & oa_type('AM101BJ', 'CSM1O2C01B', '        ',  0.0000, cstar300( 1), enth0( 1), o2cvbs(2),om2ocvbs(2), F, F, T,  F ),
+     & oa_type('A0001BJ', 'CS00O2C01B', '        ',  0.0000, cstar300( 2), enth0( 2), o2cvbs(2),om2ocvbs(2), F, F, T,  F ),
+     & oa_type('A0101BJ', 'CS01O2C01B', '        ',  0.0000, cstar300( 3), enth0( 3), o2cvbs(2),om2ocvbs(2), F, F, T,  F ),
+     & oa_type('A0201BJ', 'CS02O2C01B', '        ',  0.0000, cstar300( 4), enth0( 4), o2cvbs(2),om2ocvbs(2), F, F, T,  F ),
+     & oa_type('A0301BJ', 'CS03O2C01B', '        ',  0.0000, cstar300( 5), enth0( 5), o2cvbs(2),om2ocvbs(2), F, F, T,  F ),
+     & oa_type('A0401BJ', 'CS04O2C01B', '        ',  0.0000, cstar300( 6), enth0( 6), o2cvbs(2),om2ocvbs(2), F, F, T,  F ),
+     & oa_type('A0501BJ', 'CS05O2C01B', '        ',  0.0000, cstar300( 7), enth0( 7), o2cvbs(2),om2ocvbs(2), F, F, T,  F ),
+     & oa_type('A0601BJ', 'CS06O2C01B', '        ',  0.0000, cstar300( 8), enth0( 8), o2cvbs(2),om2ocvbs(2), F, F, T,  F ),
+     & oa_type('A0701BJ', 'CS07O2C01B', '        ',  0.0000, cstar300( 9), enth0( 9), o2cvbs(2),om2ocvbs(2), F, F, T,  F ),
+     & oa_type('AM100BJ', 'CSM1O2C00B', '        ',  0.0000, cstar300( 1), enth0( 1), o2cvbs(1),om2ocvbs(1), F, F, T,  F ),
+     & oa_type('A0000BJ', 'CS00O2C00B', '        ',  0.0000, cstar300( 2), enth0( 2), o2cvbs(1),om2ocvbs(1), F, F, T,  F ),
+     & oa_type('A0100BJ', 'CS01O2C00B', '        ',  0.0000, cstar300( 3), enth0( 3), o2cvbs(1),om2ocvbs(1), F, F, T,  F ),
+     & oa_type('A0200BJ', 'CS02O2C00B', '        ',  0.0000, cstar300( 4), enth0( 4), o2cvbs(1),om2ocvbs(1), F, F, T,  F ),
+     & oa_type('A0300BJ', 'CS03O2C00B', '        ',  0.0000, cstar300( 5), enth0( 5), o2cvbs(1),om2ocvbs(1), F, F, T,  F ),
+     & oa_type('A0400BJ', 'CS04O2C00B', '        ',  0.0000, cstar300( 6), enth0( 6), o2cvbs(1),om2ocvbs(1), F, F, T,  F ),
+     & oa_type('A0500BJ', 'CS05O2C00B', '        ',  0.0000, cstar300( 7), enth0( 7), o2cvbs(1),om2ocvbs(1), F, F, T,  F ),
+     & oa_type('A0600BJ', 'CS06O2C00B', '        ',  0.0000, cstar300( 8), enth0( 8), o2cvbs(1),om2ocvbs(1), F, F, T,  F ),
+     & oa_type('A0700BJ', 'CS07O2C00B', '        ',  0.0000, cstar300( 9), enth0( 9), o2cvbs(1),om2ocvbs(1), F, F, T,  F )
+     &/)
       ! Table Comments:
       ! *Reaction Counters are only needed if the vapor species is not formed
       !  directly in the gas-phase chemistry mechanism.
@@ -293,7 +518,7 @@ C-----------------------------------------------------------------------
       Real            :: vtmp
       Integer         :: n, a, g
       Integer         :: spc
-      Integer         :: map_OAtoOAlist( 200 )
+      Integer         :: map_OAtoOAlist( n_oa_list )
 
       ! Map All OA Species and Load Properties
       If ( .Not. mapped ) Then
@@ -1498,11 +1723,13 @@ c                                    * ( 1.0 - kpart( nsvol) )
 
          ! Account for Kappa of Nonvolatile POC and PNCOM species. This
          ! must be done separately because PNCOM has infinite OM:OC
-         poa = aerospc_conc( apoc_idx, im ) + aerospc_conc( apncom_idx, im )
-         kappaVorg = kappaVorg + 
+         If((apoc_idx > 0).and.(apncom_idx > 0)) Then
+           poa = aerospc_conc( apoc_idx, im ) + aerospc_conc( apncom_idx, im )
+           kappaVorg = kappaVorg + 
      &               (0.11*poa / ( aerospc_conc(apoc_idx, im ) + tiny(0.0) ) -0.10)
      &               * (aerospc_conc( apncom_idx, im ) / aerospc( apncom_idx )%density +
      &                  aerospc_conc( apoc_idx,   im ) / aerospc( apoc_idx )%density )*1.0e-9
+         End If
 
          ! Calculate Aggregate Kappa and volume Equivalent Diameter
          overallkappa = kappaVorg/totvol

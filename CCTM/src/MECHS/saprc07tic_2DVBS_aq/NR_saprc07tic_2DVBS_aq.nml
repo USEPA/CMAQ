@@ -1,0 +1,9 @@
+&NR_nml
+
+NR_SPECIES_DATA = 
+
+!SPECIES         ,MOLWT   ,IC     ,IC_FAC ,BC     ,BC_FAC ,DRYDEP SURR       ,FAC  ,WET-SCAV SURR     ,FAC ,NR2AE SURR     ,NR2AQ SURR,TRNS  ,DDEP  ,WDEP  ,CONC
+'NH3'            , 17.0   ,''     ,-1     ,''     ,-1     ,'VD_NH3'          , 1   ,'NH3'             , 1  ,'NH3'          ,'NH3'     ,'Yes' ,'Yes' ,'Yes' ,'Yes',
+'SVISO1'         ,132.0   ,''     ,-1     ,''     ,-1     ,'VD_SVISO1'       , 1   ,'SVISO1'          , 1  ,'SVISO1'       ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',
+'SVISO2'         ,133.0   ,''     ,-1     ,''     ,-1     ,'VD_SVISO2'       , 1   ,'SVISO2'          , 1  ,'SVISO2'       ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',
+/
