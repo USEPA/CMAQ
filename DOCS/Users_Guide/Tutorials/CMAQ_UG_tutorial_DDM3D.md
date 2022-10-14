@@ -9,8 +9,8 @@ If you encounter any errors, try running the model in debug mode and refer to th
 
 https://forum.cmascenter.org/
 
-### Step 2: Read the User Guide Chapter on Integrated Source Apportionment Method.
-- [CMAQ User's Guide Chapter on DDM3D](../CMAQ_UG_ch10_HDDM-3D.md)
+### Step 2: Read the User Guide Chapter on the Decoupled Direct Method in Three Dimensions
+- [CMAQ User's Guide Chapter on DDM-3D](../CMAQ_UG_ch10_HDDM-3D.md)
 
 Note: This benchmark is intended to demonstrate how to build and run CMAQ-DDM-3D with the provided input files:
 
@@ -45,7 +45,7 @@ module load openmpi_4.0.1/gcc_9.1.0
 
 ### Step 4 (optional): Install I/O API (note, this assumes you have already installed netCDF C and Fortran Libraries)
 
-I/O APIv3.2 supports up to MXFILE3=256 open files, each with up to MXVARS3=2048. ISAM applications configured to calculate source attribution of a large number of sources may exceed this upper limit of model variables, leading to a model crash. To avoid this issue, users may use I/O API version 3.2 "large" that increases MXFILE3 to 512 and MXVARS3 to 16384. Instructions to build this version are found in Chapter 3. Note, using this ioapi-large version is <b>NOT REQUIRED</b> for the CMAQ-ISAM Benchmark Case. If a user needs to use these larger setting for MXFILE3 and MXVAR3 to support their application, the memory requirements will be increased. If needed, this version is available as a zip file from the following address:
+I/O APIv3.2 supports up to MXFILE3=256 open files, each with up to MXVARS3=2048. DDM-3D applications configured to calculate sensitivities to a large number of parameters may exceed this upper limit of model variables, leading to a model crash. To avoid this issue, users may use I/O API version 3.2 "large" that increases MXFILE3 to 512 and MXVARS3 to 16384. Instructions to build this version are found in Chapter 3. Note, using this ioapi-large version is <b>NOT REQUIRED</b> for the CMAQ-DDM Benchmark Case. If a user needs to use these larger setting for MXFILE3 and MXVAR3 to support their application, the memory requirements will be increased. If needed, this version is available as a zip file from the following address:
 
 https://www.cmascenter.org/ioapi/download/ioapi-3.2-large-20200828.tar.gz
 
