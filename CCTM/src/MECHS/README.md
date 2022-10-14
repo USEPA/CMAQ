@@ -10,7 +10,7 @@ To modify or change photochemistry, requires modifying or replacing the modules 
 
 To select a predefined mechanism configuration in CMAQ, set the *Mechanism* variable in the build scripts to a one of the mechanism subdirectories located under $CMAQ_MODEL/CCTM/src/MECHS. The below table lists mechanisms available in this version of the CMAQ model.
 
-Table 1.  CMAQv5.3 Chemical Mechanisms
+Table 1.  CMAQv5.4 Chemical Mechanisms
 
 |**Mechanism Name** | **Photochemistry**                                   | **Model Species<sup>1,2</sup>**    | **Cloud Chemistry Module<sup>3</sup>** |
 | ----------------- | ---------------------------------------------------- | -------------------- | ---------------------- |
