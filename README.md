@@ -17,6 +17,20 @@ particulates, toxics, and acid deposition.
 * [CMAQv5.4 Release Notes](https://github.com/USEPA/CMAQ/wiki/CMAQ-Release-Notes) - Release Notes are available on the CMAQ GitHub wiki.
 * [Tutorials for setting up and running CMAQ](DOCS/Users_Guide/Tutorials/README.md) **- Tutorials on running CMAQ, CMAQ-ISAM, CMAQ-DDM, and WRF-CMAQ test cases.**
 
+## Two-Dimensional VBS Branch:
+This branch contains a community-contributed chemical mechanism (saprc07tic_2DVBS_aq) that implements the Two-Dimensional Volatility Basis Set (2D-VBS) for secondary organic aerosol (SOA) formation and aging. 
+This chemical mechanism couples the saprc07tic gas chemistry, the 2D-VBS mechanism for organic aerosol chemistry, aero7 for other aerosol chemistry, and cloud chemistry. 
+This mechanism provides flexible options for emission inputs. Users may either simply use the default CMAQ emission files or provide more detailed emission data to make the best of the recently developed full-volatility emission framework (see CCTM/src/MECHS/saprc07tic_2DVBS_aq/Readme.md and CCTM/src/MECHS/saprc07tic_2DVBS_aq/CMAQ_Control* for details). 
+The 2D-VBS mechanism as well as the full-volatility emission framework was developed by Tsinghua University. Details are given by Zhao et al., Scientific Reports, 2016, Zhao et al., ES&T, 2015, Chang et al., One Earth, 2022, and Chang et al., 2022 (under review). 
+Questions regarding this mechanism can be directed to Bin Zhao at Tsinghua University (bzhao@mail.tsinghua.edu.cn or zhaob1206@gmail.com).
+
+**References:**  
+* Zhao, B., Wang, S. X., Donahue, N. M., Jathar, S. H., Huang, X. F., Wu, W. J., Hao, J. M., and Robinson, A. L.: Quantifying the effect of organic aerosol aging and intermediate-volatility emissions on regional-scale aerosol pollution in China, Scientific Reports, 6, 28815, DOI 10.1038/srep28815, 2016.  
+* Zhao, B., Wang, S. X., Donahue, N. M., Chuang, W., Hildebrandt Ruiz, L., Ng, N. L., Wang, Y. J., and Hao, J. M.: Evaluation of one-dimensional and two-dimensional volatility basis sets in simulating the aging of secondary organic aerosols with smog-chamber experiments, Environmental Science & Technology, 49 (4), 2245-2254, DOI 10.1021/es5048914, 2015.  
+* Chang, X., Zhao, B., Zheng, H. T., Wang, S. X., Cai, S. Y., Guo, F. Q., Gui, P., Huang, G. H., Wu, D., Han, L. C., Xing, J., Man, H. Y., Hu, R. L., Liang, C. R., Xu, Q. C., Qiu, X. H., Ding, D., Liu, K. Y., Robinson, A. L., Donahue, N. M.: Full-volatility emission framework corrects missing and underestimated secondary organic aerosol sources, One Earth, 5(4), 403-412, DOI 10.1016/j.oneear.2022.03.015, 2022.  
+* Chang, X., Zheng, H. T., Zhao, B., Yan, C., Jiang, Y. Q., Hu, R. L., Song, S. J., Dong, Z. X., Li, S. Y., Li, Z. Q., Zhu, Y., Shi, H. R., Jiang, Z., Xing, J., Wang, S. X.: Drivers of the high concentrations of secondary organic aerosol in northern China during the COVID-19 lockdown, 2022, under review.  
+
+
 ## New features in CMAQ version 5.4 include:
 
 * Updated chemistry for ozone (O3) and particulate matter (PM) formation from global-to-local scales
