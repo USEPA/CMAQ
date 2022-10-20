@@ -1,6 +1,6 @@
 ## CMAQ Tutorial ##
 ### Creating an OCEAN file for input to CMAQ ###
-Purpose: This tutorial describes how to create an ocean mask file that defines the fraction of each grid cell covered by open ocean or surf zone in the CMAQ modeling domain and for adding DMS and CHLO to the ocean file.
+Purpose: This tutorial describes how to create an ocean mask file that defines the fraction of each grid cell covered by open ocean or surf zone in the CMAQ modeling domain and for adding the variables DMS and CHLO to the ocean file.
 
 ------------
 
@@ -111,7 +111,7 @@ Once these variables are set, then users can execute the script to generate ocea
 ## OPTION 2: Run without an OCEAN input file in CMAQv5.3 and later
 If your modeling domain does not contain any coastal area, you can run CMAQ without an OCEAN input file. This will turn off both sea-spray emissions and the first-order decay of ozone over the ocean. To do this, set the run script option "CTM_OCEAN_CHEM" to "N" or "F". 
 
-If using a cb6r5_ae7_aq and you prefer not to use DMS chemistry, the m3fake approach below can be adapted to create a DMS variable with zero values.
+If using cb6r5_ae7_aq and you prefer not to use DMS chemistry, the m3fake approach below can be adapted to create a DMS variable with zero values.
 
 ## OPTION 3: Zero Out Sea-Spray Emissions in CMAQv5.2 or earlier
 

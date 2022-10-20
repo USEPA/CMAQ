@@ -171,7 +171,10 @@ Output Files Specific to DDM-3D Simulations
 | SENDDEP| Output| Sensitivities of dry deposited species| DRYDEP|
 
 
-# 10.5 Summary
+## 11.5 DDM-3D Benchmark Test Case
+See the [CMAQ-DDM-3D Benchmark Tutorial](Tutorials/CMAQ_UG_tutorial_DDM3D.md) for step-by-step instructions for running the 2 day benchmark case.  The input files for the CMAQv5.4 DDM-3D benchmark case are the same as the benchmark inputs for the base model. Output DDM files associated with the sample DDM control file `sensinput.2018_12NE3.dat` provided in this release package are included in the benchmark outputs for the base model.  
+
+# 10.6 Summary
 
 CMAQ-DDM-3D has proven to be a very effective tool for air quality studies.  This implementation in CMAQ has been done with the intent to provide flexibility and computational efficiency, and also maintain the base CMAQ code structure. CMAQ-DDM-3D has been found to accurately simulate sensitivity of ozone and PM species to initial conditions, boundary conditions, and emissions of precursor species. However, CMAQ-DDM-3D remains a work in progress with known shortcomings and its accuracy has not been tested for all conceivable applications. Any errors should be reported to the provided contacts.
 
@@ -197,6 +200,6 @@ Dunker, A. 1984: The decoupled direct method for calculating sensitivity coeffic
 <!-- BEGIN COMMENT -->
 
 [<< Previous Chapter](CMAQ_UG_ch09_process_analysis.md) - [Home](README.md) - [Next Chapter >>](CMAQ_UG_ch11_ISAM.md)<br>
-CMAQ User's Guide (c) 2020<br>
+CMAQ User's Guide (c) 2022<br>
 
 <!-- END COMMENT -->

@@ -340,7 +340,8 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   setenv STAGECTRL_NML ${BLD}/CMAQ_Control_STAGE.nml
  
   #> Spatial Masks For Emissions Scaling
-  setenv CMAQ_MASKS $SZpath/OCEAN_${MM}_L3m_MC_CHL_chlor_a_12NE3.nc #> horizontal grid-dependent ocean file
+  #setenv CMAQ_MASKS $SZpath/OCEAN_${MM}_L3m_MC_CHL_chlor_a_12NE3.nc #> horizontal grid-dependent ocean file
+  setenv CMAQ_MASKS $INPDIR/GRIDMASK_STATES_12NE3.nc
 
   #> Gridded Emissions Files 
   setenv N_EMIS_GR 2
@@ -494,7 +495,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
        setenv SA_CGRID_1      "$OUTDIR/CCTM_SA_CGRID_${CTM_APPL}.nc -v"
 
        #> Set optional ISAM regions files
-       #setenv ISAM_REGIONS $INPDIR/GRIDMASK_STATES_12SE1.nc
+       setenv ISAM_REGIONS $INPDIR/GRIDMASK_STATES_12NE3.nc
 
        #> Options used to favor tracked species in reaction for Ozone-NOx chemistry
        setenv ISAM_O3_WEIGHTS 5   # weights for tracked species Default is 5

@@ -526,7 +526,7 @@ C Convention: the input file concentration units are always ppmV.
          IF ( LIPR .OR. LIRR ) CALL PA_INIT ( CGRID, JDATE, JTIME, TSTEP )
 
 C Verify input file header consistency and run duration
-         CALL FLCHECK ( JDATE, JTIME, TSTEP( 1 ) )
+!         CALL FLCHECK ( JDATE, JTIME, TSTEP( 1 ) )
 
          ALLOCATE ( AGRID( NCOLS,NROWS,A_NLYS,N_ASPCS ), STAT = ALLOCSTAT )
          IF ( ALLOCSTAT .NE. 0 ) THEN
