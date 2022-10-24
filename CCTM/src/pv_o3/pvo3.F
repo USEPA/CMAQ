@@ -42,7 +42,11 @@ C-----------------------------------------------------------------------
       USE SA_DEFN, ONLY: ISAM, N_SPCTAG, NTAG_SA, ITAG, OTHRTAG,
      &                   ISAM_PVO3_MAP, ISAM_SPEC, L_OZONE,
      &                   ISAMRGN_NUM, ISAMRGN_MAP, NSPC_SA
-      USE em_param_module, ONLY: EM_REG_FAC, N_EM_RGN
+      USE desid_param_module, ONLY: DESID_REG_FAC, DESID_N_REG
+#endif
+
+#ifdef sens
+      USE DDM3D_DEFN, ONLY : NP, NPMAX, SENGRID, IPT
 #endif
 
       IMPLICIT NONE
@@ -215,9 +219,9 @@ C   of a 22-layer configuration
                           DO RGN = 1, ISAMRGN_NUM( ITAG )
                             ISAM( C,R,L,S_O3,ITAG ) = ISAM( C,R,L,S_O3,ITAG )
      &                            + CGRID( C,R,L,VO3 )
-     &                            * EM_REG_FAC(C,R,ISAMRGN_MAP(ITAG,RGN))
+     &                            * DESID_REG_FAC(C,R,ISAMRGN_MAP(ITAG,RGN))
                             PVO3_STORE = PVO3_STORE
-     &                            - EM_REG_FAC(C,R,ISAMRGN_MAP(ITAG,RGN))
+     &                            - DESID_REG_FAC(C,R,ISAMRGN_MAP(ITAG,RGN))
                           END DO
                         END IF 
                      END IF
@@ -236,6 +240,15 @@ C   of a 22-layer configuration
                  END IF
                END IF
 #endif
+
+#ifdef sens
+               DO NP = 1, NPMAX
+                  IF ( IPT( NP ) .EQ. 6 ) THEN
+                     SENGRID( C, R, L, NP, VO3 ) = CGRID( C, R, L, VO3 )
+                  END IF
+               END DO
+#endif
+
                IF ( VO3T .GT. 0 ) THEN
                   CGRID( C,R,L,VO3T ) = CGRID( C,R,L,VO3 )
                END IF
