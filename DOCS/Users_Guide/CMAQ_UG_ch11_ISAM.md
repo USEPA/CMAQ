@@ -216,14 +216,8 @@ For item 3), these are processes in the model that create a given species but no
 
 Finally, ISAM is an approximation for attribution. In the formulation, assumptions are made about which species are most important in the chemical formuation of the species being studied.  For example in cb6r3 based mechanisms, peroxyl radicals from aromatic compounds affect ozone production by a small amount so ISAM neglects their contribution. The contribution to ozone from species not included in the ISAM formulation will go into 'O3_OTH', even if the emission source of these species is included in the control file. 
 
-## 11.4 ISAM Benchmark data
-The input files for the CMAQv5.4 ISAM benchmark case are the same as the benchmark inputs for the base model, described in the [CMAQ Benchmark Tutorial](Tutorials/CMAQ_UG_tutorial_benchmark.md).  Output source apportionment files associated with the sample `isam_control.txt` provided in this release package are included in the benchmark outputs for the base model.  
-
-The CMAQ benchmark data can be downloaded from the [CMAS Center Data Warehouse SE53BENCH](https://drive.google.com/drive/folders/1wvz0jQuqnuT8RNj_EMuLec154-rFXucv) Google Drive folder.  The CMAQ benchmark test case is a two day simulation for July 1-2 2016 on a 100 column x 80 row x 35 layer 12-km resolution domain over the southeast U.S.  Input and output files for a two week case covering July 1-14, 2016 are also available within the same Google Drive folder.
-
-- Metadata for the CMAQ benchmark inputs: https://doi.org/10.15139/S3/IQVABD 
-- Metadata for the CMAQ benchmark outputs: https://doi.org/10.15139/S3/PDE4SS
-
+## 11.4 ISAM Benchmark 
+See the [CMAQ-ISAM Benchmark Tutorial](Tutorials/CMAQ_UG_tutorial_ISAM.md) for step-by-step instructions for running the 2 day benchmark case.  The input files for the CMAQv5.4 ISAM benchmark case are the same as the benchmark inputs for the base model. Output source apportionment files associated with the sample `isam_control.txt` provided in this release package are included in the benchmark outputs for the base model.  
 
 ## 11.5 References
 
@@ -245,6 +239,6 @@ Tonnesen, G.S. & Dennis, R.L. (2000b). Analysis of radical propagation efficienc
 <!-- BEGIN COMMENT -->
 
 [<< Previous Chapter](CMAQ_UG_ch10_HDDM-3D.md) - [Home](README.md) - [Next Chapter >>](CMAQ_UG_ch12_sulfur_tracking.md)<br>
-CMAQ User's Guide (c) 2020<br>
+CMAQ User's Guide (c) 2022<br>
 
 <!-- END COMMENT -->

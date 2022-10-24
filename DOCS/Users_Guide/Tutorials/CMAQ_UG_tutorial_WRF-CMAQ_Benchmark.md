@@ -16,7 +16,7 @@ The following support software are required for compiling and running WRF-CMAQ.
 **Note: if you have not installed the above libraries, please see the CMAQ_UG_tutorial_build_[gcc/intel/pgi].md tutorials available here: 
 https://github.com/USEPA/CMAQ/tree/main/DOCS/Users_Guide/Tutorials**
 
-The suggested hardware requirements for running the CMAQ Southeast Benchmark case on a Linux workstation are:
+The suggested hardware requirements for running the CMAQ Northeast Benchmark case on a Linux workstation are:
 
 1. Linux environment with a 16 processors
 2. 16 GB RAM
@@ -25,10 +25,10 @@ The suggested hardware requirements for running the CMAQ Southeast Benchmark cas
 
 ## Installing WRF-CMAQ ##
 
-In the directory where you would like to install WRF-CMAQ, create the directory issue the following command to clone the EPA GitHub repository for CMAQv5.3.3+:
+In the directory where you would like to install WRF-CMAQ, create the directory issue the following command to clone the EPA GitHub repository for CMAQv5.4:
 
 ```
-git clone -b 5.3.3+ https://github.com/USEPA/CMAQ.git CMAQ_REPO
+git clone -b main https://github.com/USEPA/CMAQ.git CMAQ_REPO
 ```
 
 ## Check Out a new Branch in the CMAQ Repository 
@@ -45,7 +45,7 @@ In the top level of CMAQ_REPO, the bldit_project.csh script will automatically r
 
 In bldit_project.csh, modify the variable $CMAQ_HOME to identify the folder that you would like to install the CMAQ package under. For example:
 ```
-set CMAQ_HOME = [your_install_path]/WRF_CMAQv533+
+set CMAQ_HOME = [your_install_path]/CMAQv5.4
 ```
 Now execute the script.
 ```
@@ -70,6 +70,12 @@ Note: WRF source code expects that you have already collated the netCDF-C and ne
 ```
 
 Once netCDF collation is completed, navigate back to your WRF-CMAQ project directory and edit the config_cmaq.csh script like the following example: 
+
+If you are using netCDF classic - no HDF5 compression then set the following environment variable
+
+```
+setenv NETCDF_classic 1 
+```
 
 ```
 Navigate to the compiler of your choice for. For example, for GNU based compilers go to section 148 of the script. Then set the 
@@ -172,19 +178,28 @@ Users should look for the following message at the end of their bldit_cctm_twowa
 
 If the User sees this, the WRF-CMAQ model has been successfully compiled and built. If not, the User should double check the library paths above and try again. If it still fails, please reach post on the [CMAS Forum](https://forum.cmascenter.org/c/wrf-cmaq).
 
-## Install the CMAQ input reference/benchmark data
 
-[Link to CMAQv5.3.2_Benchmark_2Day_Input.tar.gz input data on Google Drive](https://drive.google.com/file/d/1ex6Wr4dX6a0fgaDfhO0VEJNaCKqOflI5/view?usp=sharing)
+### Install the WRF-CMAQ reference input and output benchmark data
+
+Download the CMAQ two day reference input and output data from the [CMAS Center Data Warehouse Google Drive]([https://drive.google.com/file/d/1AFUB-4kzIXXoZr4hOHNBqRvy9JQ9_MDp/view?usp=sharing](https://drive.google.com/drive/folders/1AFUB-4kzIXXoZr4hOHNBqRvy9JQ9_MDp?usp=sharing). The CMAQ benchmark test case is a two day simulation for July 1-2 2018 on a 100 column x 105 row x 35 layer 12-km resolution domain over the northeast U.S.  
 
   - Use the gdrive command to download the dataset.
   - If this is the first time that you are using gdrive, or if you have an issue with your token, please read the following instructions
   - [Tips to download data from CMAS Data Warehouse](https://docs.google.com/document/d/1e7B94zFkbKygVWfrhGwEZL51jF4fGXGXZbvi6KzXYQ4)
-  
-  
-  ```
-  gdrive download 1ex6Wr4dX6a0fgaDfhO0VEJNaCKqOflI5
-  ```
-  
+  - Text files are included that provide a list of the files in the benchmark input and output datasets.
+
+The benchmark data is also available form the US EPA annoymous ftp server: https://gaftp.epa.gov/exposure/CMAQ/V5_4.
+
+Copy the data to `$CMAQ_DATA`. Navigate to the `$CMAQ_DATA` directory, unzip and untar the two day benchmark input and output files:
+
+```
+cd $CMAQ_DATA
+tar xvzf CMAQv5.4_2018_12NE3_Benchmark_2Day_Input.tar.gz
+tar xvzf CMAQv5.4_2018_12NE3_Benchmark_2Day_Output.tar.gz
+```
+
+The input files for the WRF-CMAQ benchmark case are provided in the base model benchmark inputs .tar file. Output WRF-CMAQ files associated with the sample run script for the coupled WRF-CMAQ model in this release package are provided in the base model benchmark outputs .tar file.  
+    
     
 ## Running the WRF-CMAQ model
 
@@ -205,58 +220,56 @@ The following commonly modified namelist options for WRF-CMAQ are specified in t
 
     4. direct_sw_feedback  (indicate to turn on aerosol short wave direct effect)
 
-    5. feedback_restart    (indicate aerosol SW direct effect information is
+    5. feedback_restart    (indicate aerosol short wave direct effect information is
                             available in the WRF restart file or not)
                             
-* One sample run scripts is provided; run_cctm_Bench_2016_12SE1.WRFCMAQ.csh (for coupled
-  model with SW feedback on).
+* One sample run scripts is provided (run_cctm_Bench_2018_12NE3.WRFCMAQ.csh) for running the coupled
+  model with short wave radiation feedback turned on.  Reference benchmark output is provided for a test simulations with short wave radiation feedback turned on ("sf") and turned off ("nf"). 
 
 
-  - Start with the run_cctm_Bench_2016_12SE1.WRFCMAQ.csh that specifies direct_sw_feedback = .true.
-  - and the CMAQv5.3.3 input benchmark dataset to run CMAQ-WRF with feedback
-  - It is configured to run on 16 processors and for 2 days of model simulation
+  - Start with the run_cctm_Bench_2018_12NE3.WRFCMAQ.csh that specifies direct_sw_feedback = .true.
+  - and the CMAQv5.4 input benchmark dataset to run CMAQ-WRF with feedback
+  - It is configured to run on 32 processors and for 1 day of model simulation
   - Edit the script to specify the paths, modify the number of processors and batch queue commands
-  - Verify that the OMIfile definition matches the latest release of CMAQv5.3.3+
   - Fix VEGPARM.TBL, since Benchmark runs with PX LSM with NLCD40 Data
   
-  Now, modify the following section to specify your local paths:
-  
-  ```
-     set WORKDIR     = /proj/ie/proj/CMAS/WRF-CMAQ/CMAQ_v5.3.3/CCTM/scripts
-     set WRF_DIR     = $WORKDIR/BLD_WRFv4.3_CCTM_v533_gcc  # WRF source code directory
-     set INPDIR      = /proj/ie/proj/CMAS/WRF-CMAQ/from_EPA/from_gdrive/CMAQv5.3.2_Benchmark_2Day_Input/2016_12SE1
-     set OMIpath     = $WRF_DIR/cmaq                              # path optics related data files
-     set OUTPUT_ROOT = $WORKDIR  # output root directory
-     set NMLpath     = $WRF_DIR/cmaq                              # path with *.nml file mechanism dependent
-     set NMLpath2    = $WRF_DIR/cmaq                              # path with Species_Table_TR_0.nml file
-     set EMISSCTRL   = $WRF_DIR/cmaq                              # path of Emissions Control Fil
-  
-  ```  
-  
-   - Verify the following settings
-    ```
-    set NPROCS =    16
-    set OMIfile    = OMI_1979_to_2019.dat
-    ```
-    
-**\* Users using PX Land Surface Model option with NLCD40 dataset are required to fix their VEGPARM.TBL before running WRF-CMAQ, due to a bug in the WRF released VEGPARM.TBL, please see the [WRF Repository](https://github.com/wrf-model/WRF/pull/1733) for more information on the bug.***
+**\* Users using PX Land Surface Model option with NLCD40 dataset are required to fix their VEGPARM.TBL before running WRF-CMAQ, due to a bug in the WRF released VEGPARM.TBL. Please see the [WRF Repository](https://github.com/wrf-model/WRF/pull/1733) for more information on the bug.***
 
    - For example, one option may include manually editing the existing VEGPARM.TBL (found in WRF-CMAQ Build Directory) with the fix seen on the [WRF Repository](https://github.com/wrf-model/WRF/pull/1733/files). 
+
+  Now, modify the following section to specify your local paths:
+
+  ```
+     set WORKDIR     = ${PWD}
+     set WRF_DIR     = $WORKDIR/BLD_WRFv4.4_CCTM_v54_intel18.0  # WRF source code directory
+     set INPDIR      = ${CMAQ_DATA}/2018_12NE3
+     set OUTPUT_ROOT = $WORKDIR  # output root directory
+     set output_direct_name = WRFCMAQ-output-${version}        # Output Directory Name
+     setenv OUTDIR $OUTPUT_ROOT/$output_direct_name   # output files and directories
+     set NMLpath     = $WRF_DIR/cmaq                           # path with *.nml file mechanism dependent
+
+  ```
+
+   - Verify the following settings
+    ```
+    set NPROCS =    32
+    ```
+
     
   - Run the job (if you have a batch queuing system such as SLURM use sbatch): 
   ```
-  ./run_cctm_Bench_2016_12SE1.WRFCMAQ.csh
+  ./run_cctm_Bench_2018_12NE3.WRFCMAQ.csh
   ```
   
 ### Verify that the run was successful
    - look for the output directory
    
    ```
-   cd WRFCMAQ-output-sw_feedback
+   cd WRFCMAQ-output-sf_feedback
    ```
    If the run was successful you will see the following output
    
    ```
-   tail ./2016183/rsl.out.0000
+   tail ./2018182/rsl.out.0000
    ```
    |>---   PROGRAM COMPLETED SUCCESSFULLY   ---<|
