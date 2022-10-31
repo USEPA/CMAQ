@@ -209,7 +209,7 @@ The CMAQ model allows several types of emissions that are calculated in-line or 
 | DUST | Wind-Blown Dust Emissions |
 | PVO3 | Potential Vorticity Incursion* |
 
-*Although it is not an emission stream, it is possible to tag the ozone incursions at the top of the simulated volume if the base model is compiled with potential vorticity module turned enabled.
+*Although it is not an emission stream, it is possible to tag the ozone incursions at the top of the simulated volume if the base model is compiled with potential vorticity module enabled.
 
 #### Interpretation of 'OTH' tag
 The OTH tag (e.g.“O3_OTH” in the ISAM benchmark) represents concentrations for that species attributed to 1) all other emissions streams, 2) precursor species not included in the specified tag class(es), and 3) other processes in the model.
