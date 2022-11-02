@@ -13,5 +13,13 @@ If this resolves a known issue, include the link to the GitHub Issue number.
 **Tests conducted:**  
 Describe tests that were conducted including domain and time period (e.g. BLDCHECK; June 1-2 2016 SEBENCH; Jan 2017 12US1) and results of the tests.  Include plots of relevant results.  
 
-**Release Note:**  
-Link to release note section on CMAQ_Dev wiki.
+--- 
+**Release Note - Must be filled out before PR is merged**  
+### [Fill in Title]
+[[Fill in contact name](mailto:contact.email@epa.gov)], U.S. Environmental Protection Agency    
+**Type of update**: [examples: Bug Fix, Science Update, Documentation, New Feature]   
+**Release Version/Date**:  
+**Description**:  
+**Significance and Impact**:    
+**References**:   
+**Internal PRs**: [PR#xxx](https://github.com/USEPA/CMAQ_Dev/pull/xxx)  
