@@ -1,16 +1,26 @@
-CMAQv5.4
-==========
+CMAQv5.4+
+===========
 
-US EPA Community Multiscale Air Quality Model (CMAQ) Website: https://www.epa.gov/cmaq
+Community Multiscale Air Quality Model US EPA CMAQ Website: (https://www.epa.gov/cmaq).
 
+The most recent publicly released CMAQ version may be cited using:
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.7218076.svg)](https://doi.org/10.5281/zenodo.7218076)
-
-CMAQ is an active open-source development project of the U.S. EPA's Office of Research and Development that consists of a suite of programs for conducting air quality model simulations.
-CMAQ is supported by the CMAS Center: http://www.cmascenter.org
 
 CMAQ combines current knowledge in atmospheric science and air quality modeling with multi-processor
 computing techniques in an open-source framework to deliver fast, technically sound estimates of ozone,
 particulates, toxics, and acid deposition.
+
+## CMAQ version 5.4+ Overview:
+CMAQv5.4+ is a continually evolving branch based on the most recent publicly released CMAQ version (5.4). It is intended to be used by researchers or other users who wish to adopt the most recent bugfixes or minor updates that improve model stability, efficiency, etc. CMAQv5.4+ has not been thoroughly evaluated or characterized so users must assume the risk of any unforeseen and undocumented impacts of code changes that have been incorporated since the most recent documented public release.
+
+### Proposing updates to a continually evolving branch
+Updates will be issued by the CMAQ development team or other users as Pull Requests to this branch. Please follow the default Pull Request template provided by the CMAQ team. Pull Requests will be reviewed by the CMAQ team and merged when and if they are deemed to contribute to the robustness of the model and improve predictions or performance.  
+
+### Examples of updates to a continually evolving branch  
+Potential updates include bugfixes that resolves runtime failures, segmentation faults, initialization issues, etc. Other updates could target algorithm inefficiencies that slow the model down. In these cases, it is expected that an improved algorithm would not change model results.  
+
+### Record of changes to CMAQv5.4+
+There are no current changes to the CMAQv5.4+ branch.  The CMAQv5.4 code on the main branch is the most recent release. 
 
 
 ## CMAQ version 5.4 Overview:
