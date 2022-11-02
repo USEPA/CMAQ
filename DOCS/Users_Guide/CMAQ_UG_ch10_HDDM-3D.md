@@ -111,8 +111,8 @@ Several sensitivities can be calculated in one simulation. In the example below,
 
     2NX
      HIGH
-     EMISNOX
-     EMISNOX
+     ENX
+     ENX
 
     RT1
      RATE
@@ -120,6 +120,14 @@ Several sensitivities can be calculated in one simulation. In the example below,
       1
 
     END
+    
+Example 5
+It is possible to calculate the sensitivity to ozone incursions at the top of the simulated volume if the base model is compiled with potential vorticity module enabled.
+
+    PO3
+     PVO3
+     SPECIES
+      O3  
     
 CMAQ-DDM-3D is flexible in the number of files that the code can handle and also allows for inline emissions streams as well.  Depending on the application and model settings, the following inline streams may be available for sensitivity calculation:
 
@@ -131,6 +139,7 @@ CMAQ-DDM-3D is flexible in the number of files that the code can handle and also
 |LTNG|Lightning NO Emissions|
 |ASEA|Sea Spray Aerosol Emissions|
 |DUST|Wind-Blown Dust Emissions|
+
 
 ## 10.3.2.1 DDM-3D Control File Format
 
