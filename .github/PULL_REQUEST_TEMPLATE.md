@@ -20,6 +20,6 @@ Describe tests that were conducted including domain and time period (e.g. BLDCHE
 **Type of update**: [examples: Bug Fix, Science Update, Documentation, New Feature]   
 **Release Version/Date**:  
 **Description**:  
-**Significance and Impact**:    
+**Significance and Impact**: (This can be very similar to the sections above but geared toward our user community rather than the development team, e.g., could be a shortned or less technical version.)
 **References**:   
 **Internal PRs**: [PR#xxx](https://github.com/USEPA/CMAQ_Dev/pull/xxx)  
