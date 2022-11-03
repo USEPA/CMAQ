@@ -208,13 +208,13 @@ C   of a 22-layer configuration
                  ISAM( C,R,L,S_O3,: ) = 1E-30
                  PVO3_STORE = 1.0
                  IF ( SUM( ISAM_PVO3_MAP(:) ) .EQ. 0 ) THEN  ! no PV tracking specified, toss it into OTHER
-                   ISAM( C,R,L,S_O3,OTHRTAG ) = PVO3_STORE
+                   ISAM( C,R,L,S_O3,OTHRTAG ) = CGRID( C,R,L,VO3 )
                  ELSE IF ( SUM( ISAM_PVO3_MAP(:) ) .GE. 1 ) THEN ! at least 1 PVO3 tag
                    DO ITAG = 1, NTAG_SA-3
                      IF( ISAM_PVO3_MAP(ITAG) .EQ. 1 ) THEN ! PV for this tag
                         IF ( ISAMRGN_NUM( ITAG ) .LT. 1 ) THEN ! full domain
-                          ISAM( C,R,L,S_O3,ITAG ) = PVO3_STORE
-                          PVO3_STORE = PVO3_STORE - ISAM( C,R,L,S_O3,ITAG )
+                          ISAM( C,R,L,S_O3,ITAG ) = CGRID( C,R,L,VO3 )
+                          PVO3_STORE = 0.0
                         ELSE ! split into regions and other
                           DO RGN = 1, ISAMRGN_NUM( ITAG )
                             ISAM( C,R,L,S_O3,ITAG ) = ISAM( C,R,L,S_O3,ITAG )
@@ -226,7 +226,7 @@ C   of a 22-layer configuration
                         END IF 
                      END IF
                    END DO
-                   IF ( PVO3_STORE .LT. 1E-6 ) PVO3_STORE = 0.0 ! round off precision error
+                   IF ( PVO3_STORE .LT. 1E-6 .AND. PVO3_STORE .GT. 0.0 ) PVO3_STORE = 0.0 ! round off precision error
                    IF ( PVO3_STORE .GE. 0.0 ) THEN ! put the rest into OTHER tag
                      ISAM( C,R,L,S_O3,OTHRTAG ) = PVO3_STORE * CGRID( C,R,L,VO3 )
                    ELSE
