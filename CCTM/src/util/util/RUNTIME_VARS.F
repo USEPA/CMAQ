@@ -1160,7 +1160,7 @@
       CASE ( 1 )
           ! Write Out The Time to Complete Each Sub-Process
           WRITE( XMSG, 1002 ),TRIM( CPROC ), CPU_TIME_FINISH-CPU_TIME_START
-1002      FORMAT ( 2x, A15, ' completed... ', F6.1, ' seconds' )
+1002      FORMAT ( 2x, A15, ' completed... ', F9.4, ' seconds' )
 
       CASE ( 2 ) 
           ! Write out the time to complete the entire master time step
@@ -1169,14 +1169,14 @@
 #ifndef twoway
           IF ( MYPE .EQ. 0 ) CALL LOG_MESSAGE( OUTDEV, XMSG )
 #endif
-          WRITE( XMSG, '(7x,A24,F6.1,A8)' ),'Processing completed... ',
+          WRITE( XMSG, '(7x,A24,F9.4,A8)' ),'Processing completed... ',
      &                     (CPU_TIME_FINISH-CPU_TIME_START),' seconds'
           CALL LOG_MESSAGE( LOGDEV, XMSG )
           WRITE( LOGDEV, * )
 
       CASE ( 3 ) 
           ! Write out the time to complete the output procedure
-          WRITE( XMSG, '(1x,A32,F4.1,A)' ), '=--> Data Output completed...   ',
+          WRITE( XMSG, '(1x,A32,F7.4,A)' ), '=--> Data Output completed...   ',
      &                     (CPU_TIME_FINISH-CPU_TIME_START),' seconds'
           CALL LOG_MESSAGE( LOGDEV, XMSG )
           WRITE( LOGDEV, * )
