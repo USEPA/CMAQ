@@ -217,8 +217,10 @@ Ckrt...Write initial conditions to sa_conc_1 ( or last hour sa_cgrid_1 )
 C
          ! print *, S, N_SPCTAG,ISAM_BLEV, ISAM_ELEV
           DO S = 1, N_SPCTAG
+            K = 0
             DO L = ISAM_BLEV, ISAM_ELEV
-              ISAM_BUFF( :,:,L,S ) = ISAM( :,:,L,S_SPCTAG(S),T_SPCTAG(S) )
+              K = K + 1
+              ISAM_BUFF( :,:,K,S ) = ISAM( :,:,L,S_SPCTAG(S),T_SPCTAG(S) )
             ENDDO
           END DO ! loop over total tags
           IF ( .NOT. WRITE3( FILE_NAME, ALLVAR3, JDATE, JTIME, 
