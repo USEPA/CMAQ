@@ -185,8 +185,10 @@ cyqw    TSTEP3D = TSTEP(1)
         VGTOP3D = VGTOP_GD
 
 
-        DO L = ISAM_BLEV, ISAM_ELEV !1, NLAYS3D + 1
-            VGLVS3D( L ) = VGLVS_GD( L )
+        K = 0
+        DO L = ISAM_BLEV, ISAM_ELEV
+           K = 1 + K
+           VGLVS3D( K ) = VGLVS_GD( L )
         END DO
 
 !       GDNAM3D = GDNAME_GD
