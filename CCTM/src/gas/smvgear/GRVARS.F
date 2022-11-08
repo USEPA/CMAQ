@@ -549,7 +549,7 @@ c..cell & solver data
          END SUBROUTINE GRVARS_INIT
        SUBROUTINE OPTIMAL_ATOL_PPM( YP, NUMCELLS, YP_ABST )
        
-!         USE RBDATA      ! ROS3 solver data
+          USE UTILIO_DEFN
           USE RXNS_DATA
           
           
@@ -582,8 +582,15 @@ c..cell & solver data
           REAL( 8 ) :: ABHI
           REAL( 8 ) :: ABLO
           
+          CHARACTER( 82 ) :: XMSG
 
           IF ( FIRST_CALL ) THEN 
+! ensure GEAR_MAX_ATOL is greater than GEAR_MAX_ATOL
+             IF( GEAR_MAX_ATOL .LE. GEAR_MIN_ATOL )THEN
+                 XMSG = "GEAR_MAX_ATOL must be greater than GEAR_MIN_ATOL"
+                 CALL M3EXIT( 'OPTIMAL_ATOL_PPM', 0, 0, XMSG, XSTAT2 )
+             END IF
+
 ! set absolute tolerance bins
              ABHI           = LOG10( REAL( GEAR_MAX_ATOL,8 ) ) 
              ABLO           = LOG10( REAL( GEAR_MIN_ATOL,8 ) ) 
@@ -591,6 +598,12 @@ c..cell & solver data
              ATOL_LEVEL( 1 ) = 10.0D0**ABHI
              ATOL_LEVEL( NBINS + 1 ) = 10.0D0**ABLO
              ATOL_FLOOR              = REAL( GEAR_CONC_FLOOR,8 ) 
+! ensure GEAR_MAX_ATOL is greater than GEAR_MAX_ATOL
+             IF( GEAR_MIN_ATOL .LE. GEAR_CONC_FLOOR )THEN
+                 XMSG = "GEAR_MIN_ATOL must be greater than GEAR_CONC_FLOOR"
+                 CALL M3EXIT( 'OPTIMAL_ATOL_PPM', 0, 0, XMSG, XSTAT2 )
+             END IF
+
              DO I = 2, NBINS
                 ATOL_LEVEL(I)  = 10.0D0**(ABLO + (ABHI - ABLO) * REAL( (NBINS-I+1),8 ) / REAL( NBINS,8 ) )
              END DO
