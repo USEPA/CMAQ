@@ -59,7 +59,7 @@ C-----------------------------------------------------------------------
 !      USE LSM_MOD, ONLY: N_LUFRAC
       USE VDIFF_DIAG, NLPCR => NLPCR_MEAN
       USE HGRD_DEFN,only : COLSX_PE, ROWSX_PE
-      USE BDSNP_MOD, ONLY: GET_N_DEP
+      USE BDSNP_MOD, only: GET_N_DEP
 #ifdef isam
       USE SA_DEFN, ONLY: N_SPCTAG, ISAM, VNAM_SPCTAG, TRANSPORT_SPC,
      &                   SA_VDEMIS_DIFF, ITAG, NTAG_SA, NSPC_SA,
@@ -719,7 +719,7 @@ C --------- END of HET HONO RX ----------
 
 C Pass selected N species to the BDSNP Soil NO emissions scheme
 
-                  IF ( BDSNP_MEGAN ) THEN
+                  IF ( MGN_ONLN_DEP ) THEN
 
                     IF(SPECLOG) then
                       IF( V .eq. N_SPC_DEPV)  THEN

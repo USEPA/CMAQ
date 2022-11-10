@@ -2037,7 +2037,6 @@ CONTAINS    !!-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
       INTEGER  JDAY
       INTEGER  GSJULIAN_START
       INTEGER  GSJULIAN_END
-      OPEN(UNIT = 10, FILE = 'growseason_error_outoputs.txt')
 !-----------------------------------------------------------------------------
 !   NOTE: The use of "julian Day" to describe the day of tHE year is
 !     technically incorrect. 
