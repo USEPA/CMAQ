@@ -130,10 +130,12 @@ Ckrt     print*, N_SPCTAG, JDATE, JTIME
       ISAM_BUFF = 0.0
 !Ckrt  print*,'S,VNAME3D(S),S_SPCTAG(S),T_SPCTAG(S)'
       DO S = 1, N_SPCTAG
+       K = 0
        DO L = ISAM_BLEV, ISAM_ELEV
+        K = K + 1
         DO R = 1, NROWS
          DO C = 1, NCOLS
-          ISAM_BUFF( C,R,L,S ) = ISAM( C,R,L,S_SPCTAG(S),T_SPCTAG(S) )
+          ISAM_BUFF( C,R,K,S ) = ISAM( C,R,L,S_SPCTAG(S),T_SPCTAG(S) )
          ENDDO
         ENDDO
        ENDDO
