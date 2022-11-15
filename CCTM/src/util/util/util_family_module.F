@@ -177,7 +177,9 @@
      &                  'fix the Chemical Families', 1 ) 
  
       END IF
-      ! Add Aerosol Species to Chemical Family List
+
+      ! Add Aerosol Species to Chemical Family List if they aren't
+      ! already there
       DO IAER = 1,N_AEROSPC
          JAER = INDEX1( AEROSPC(IAER)%BULKNAME,N_Chem_Fams,ChemFamilyName )
          IF ( JAER .EQ. 0 ) THEN
@@ -196,8 +198,16 @@
                 exit
              end if
            END DO
+         ELSE
+           N_Chem_Fams = N_Chem_Fams - 1
          END IF
       END DO
+
+      ! Reallocate Chemical Family Arrays in case N_Chem_Fams was
+      ! shortened due to aerosol bulknames being already present in the
+      ! user-defined family list.
+      ChemFamilyName = ChemFamilyName(1:N_Chem_Fams)
+      ChemFamilyMembers = ChemFamilyMembers(1:N_Chem_Fams,1:Max_Chem_Fam_Members)
 
       ! Populate and Error Check All Family and Member Names
       DO IFAM = 1,N_Chem_Fams
