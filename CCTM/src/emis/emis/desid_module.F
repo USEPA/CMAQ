@@ -1806,7 +1806,9 @@ C and allowing the model to proceed.
                ! Family and if So, Apply the Rule to all members of that 
                ! Family
                IFAM = INDEX1( DESID_RULES_NML( IRULE )%EMVAR, N_Chem_Fams, ChemFamilyName )
-               IAERO= INDEX1( ChemFamilyName(IFAM), N_AEROSPC, AEROSPC(:)%BULKNAME )
+               IAERO = 0
+               IF ( IFAM .GT. 0 ) 
+     &            IAERO= INDEX1( ChemFamilyName(IFAM), N_AEROSPC, AEROSPC(:)%BULKNAME )
                IF ( IFAM .EQ. 0 .OR. IAERO .NE. 0 ) THEN
                   ! This Emission Variable Label Does not match any families or this is an
                   ! aerosol bulkname. Just look for one variable
