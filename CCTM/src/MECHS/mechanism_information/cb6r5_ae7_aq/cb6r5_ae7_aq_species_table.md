@@ -86,7 +86,7 @@
 | PAHRO2            | counter species for aerosol from NAPH+OH                                     | 187.2                | L                      |
 | PAN               | peroxyacylnitrate                                                            | 121                  | E                      |
 | PANX              | peroxyacylnitrates with 3 or more carbons                                    | 135                  | L                      |
-| PAR               | carbon-carbon single bond                                                    | 72.1                 | L                      |
+| PAR               | carbon-carbon single bond                                                    | 14.0                 | L                      |
 | PCSOARXN          | counter species for potential aerosol from combustion (from PCVOC reactions) | 170                  | L                      |
 | PCVOC             | tracer for potential combustion SOA VOCs                                     | 170                  | L                      |
 | PNA               | peroxynitric acid                                                            | 79                   | E                      |
