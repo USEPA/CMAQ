@@ -323,6 +323,6 @@ AHOMJ           ,ug m-3          ,AMTNO3J[1] + AMTHYDJ[1]+ AMT1J[1] + AMT2J[1] +
 
 NH3             ,ppmV            ,NH3[1], CRACMM mapping of NH3
 
-HCL             ,ppmV            ,NH3[1], CRACMM mapping of HCL
+HCL             ,ppmV            ,HCL[1], CRACMM mapping of HCL
 
 VROCP1OXY       ,ppmV            ,SVSQT[1], CRACMM mapping of SVSQT
