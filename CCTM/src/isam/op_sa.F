@@ -185,8 +185,10 @@ cyqw    TSTEP3D = TSTEP(1)
         VGTOP3D = VGTOP_GD
 
 
-        DO L = ISAM_BLEV, ISAM_ELEV !1, NLAYS3D + 1
-            VGLVS3D( L ) = VGLVS_GD( L )
+        K = 0
+        DO L = ISAM_BLEV, ISAM_ELEV
+           K = 1 + K
+           VGLVS3D( K ) = VGLVS_GD( L )
         END DO
 
 !       GDNAM3D = GDNAME_GD
@@ -217,8 +219,10 @@ Ckrt...Write initial conditions to sa_conc_1 ( or last hour sa_cgrid_1 )
 C
          ! print *, S, N_SPCTAG,ISAM_BLEV, ISAM_ELEV
           DO S = 1, N_SPCTAG
+            K = 0
             DO L = ISAM_BLEV, ISAM_ELEV
-              ISAM_BUFF( :,:,L,S ) = ISAM( :,:,L,S_SPCTAG(S),T_SPCTAG(S) )
+              K = K + 1
+              ISAM_BUFF( :,:,K,S ) = ISAM( :,:,L,S_SPCTAG(S),T_SPCTAG(S) )
             ENDDO
           END DO ! loop over total tags
           IF ( .NOT. WRITE3( FILE_NAME, ALLVAR3, JDATE, JTIME, 

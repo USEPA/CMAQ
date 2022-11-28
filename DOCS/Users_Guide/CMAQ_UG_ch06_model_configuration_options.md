@@ -209,7 +209,7 @@ Exchange of pollutants between the atmosphere and Earth's surface can be modeled
 
 Currently, most chemicals in CMAQ are modeled as depositing only.  However, ammonia and mercury can be both emitted from the surface and deposited and are therefore modeled as bidirectional. Estimates of the soil and stomatal compensation concentrations needed to compute the bidirectional ammonia flux in CMAQ are derived from input provided by the Environmental Policy Integrated Climate (EPIC) agricultural ecosystem model that is executed using the Fertilizer Emission Scenario Tool for CMAQ (FEST-C, https://www.cmascenter.org/fest-c ) (Ran et al., 2011; Cooter et al., 2012). Information for surface concentrations of mercury are initially specified using land use specific tabular data and then by modeling the accumulation, transformation and evasion of mercury in the surface media (Bash 2010).
 
-CMAQ v5.3 contains two options for calculating dry deposition/surface exchange which are invoked in the BuildScript as:
+Starting with CMAQ v5.3, there are two options for calculating dry deposition/surface exchange which are invoked in the BuildScript as:
 
 ```
 Set DepMod   = m3dry
@@ -237,7 +237,7 @@ The M3Dry option for dry deposition and ammonia bidirectional surface flux in CM
 
 Upgrades for version 5.3 include larger surface resistances for deposition to snow and ice and reduced resistance for deposition to bare ground for ozone with dependence on surface soil moisture content.  The aerosol deposition has also been revised including a new dependence on LAI.  The ammonia bidirectional surface flux from croplands has been substantially revised from earlier versions.  The new version has close linkages with the EPIC agricultural ecosystem model.  Daily values of all soil parameters needed to compute the available soil ammonia concentrations (soil ammonia content, soil moisture, soil texture parameters, soil pH, and Cation Exchange Capacity (CEC)) for each of 21 agricultural production types that are either rainfed or irrigated (42 types total) are input to CMAQ.  Soil ammonia concentrations and soil pH are combined to derive the soil compensation concentration for the bidirectional flux calculation (Pleim et al., 2019).
 
-The main upgrade for version 5.4 is the replacement of the aerosol dry deposition model with a new version that compares better to size-resolved observations, especially in forests, than the preveous version and other models used in AQ modeling (Pleim et al 2022). The key innovations are dependence on leaf area index (LAI) for the vegetated part of the grid cell and two terms for inertial impaction for both macroscale obstacles (e.g., leaves and needles) and microscale obstacles (e.g., leaf hairs and microscale ridges).  When the modally integrated form is applied in CMAQ, the accumulation mode deposition velocities increase by more than an order of magnitude in highly forested areas resulting in lower concentrations of PM2.5.  
+The main upgrade for version 5.4 is the replacement of the aerosol dry deposition model with a new version that compares better to size-resolved observations, especially in forests, than the previous version and other models used in AQ modeling (Pleim et al 2022). The key innovations are dependence on leaf area index (LAI) for the vegetated part of the grid cell and two terms for inertial impaction for both macroscale obstacles (e.g., leaves and needles) and microscale obstacles (e.g., leaf hairs and microscale ridges).  When the modally integrated form is applied in CMAQ, the accumulation mode deposition velocities increase by more than an order of magnitude in highly forested areas resulting in lower concentrations of PM2.5.  
 
 <a id=6.8.2_Dry_STAGE></a>
 
@@ -251,7 +251,7 @@ The main upgrade for version 5.4 is the replacement of the aerosol dry depositio
 
 In CMAQ v5.3., a new tiled, land use specific, dry deposition scheme, the Surface Tiled Aerosol and Gaseous Exchange (STAGE), option has been developed to better estimate atmospheric deposition for terrestrial and aquatic ecosystem health and applications to evaluate the impact of dry deposition on ambient air quality. This new scheme explicitly supports Weather Research and Forecasting (WRF) simulations with a variety of land surface schemes (Noah, Pleim-Xiu, etc). The model resistance framework, [Figure 6-1](#Figure6-1), parameterizes air-surface exchange as a gradient process and is used for both bidirectional exchange and dry deposition following the widely used resistance model of Nemitz et al. (2001). Grid scale fluxes are estimated from sub-grid cell land use specific fluxes and are area weighted to the grid cell totals which are then output in the standard dry deposition file with positive values indicating deposition and negative values indicating evasion. 
 The model resistances are largely estimated following Massad et al. (2010) with the following exceptions.  Deposition to wetted surfaces considers the bulk accommodation coefficient, following Fahey et al. (2017), and can be a limiting factor for highly soluble compounds.  The in-canopy resistance is derived using the canopy momentum attenuation parameterization from Yi (2008). Aerosol dry deposition includes parameterizations for deposition to water or bare ground surfaces (Giorgi 1986), and vegetated surfaces (Slinn 1982), using the characteristic leaf radius parameterization of Zhang et al. (2001). 
-The ammonia bidirectional option follows the ammonia specific parameterizations of Massad et al. (2010). Mercury bidirectional exchange is also available and follows the parameterization of Bash (2010). In this modeling framework, it is possible to consider bidirectional exchange for any species by providing a parametrization or constant that sets the stomatal, cuticular, soil and/or water compensation point as a value greater than 0. 
+The ammonia bidirectional option follows the ammonia specific parameterizations of Massad et al. (2010). Mercury bidirectional exchange is also available and follows the parameterization of Bash (2010). In this modeling framework, it is possible to consider bidirectional exchange for any species by providing a parametrization or constant that sets the stomatal, cuticular, soil and/or water compensation point as a value greater than 0. The ammonia bidirectional exchange model has been found to capture the seasonality of satellite and in-situ observations ([Wang et al., 2020](https://doi.org/10.1029/2020GL090579)). In CMAQv5.4, the non-agriculture NH<sub>3</sub> emission potentials have been revised following recent observations ([Walker et al., 2022](https://doi.org/10.5194/bg-2022-133)).
 <a id=Figure6-1></a>
 
 
@@ -263,16 +263,22 @@ STAGE options in the RunScript:
 setenv CTM_MOSAIC Y
 ```
 Sets output for land use specific dry deposition and dry deposition velocities. Note: To retrieve the grid cell average from these files it should be area weighted by the land use fraction by summing the product of the land use fraction and the dry deposition/deposition velocity for each grid cell. 
-```
-setenv CTM_FST Y
-```
-Sets output for land use specific dry deposition to leaf stomata. 
+
 ```
 setenv PX_VERSION   Y
 setenv CLM_VERSION Y
 setenv NOAH_VERSION Y 
 ```
-Sets the correct soil hydrological properties and soil layer information needed to calculate soil NO emissions, NH<sub>3</sub> bidirectional exchange and O<sub>3</sub> deposition. These options are currently based on WRF 3.8.1 and earlier values for PX and CLM and WRF 4.0 for NOAH. If the land surface model is run with another look up table or parameterization, soil moisture will be constrained between saturation and residual water content from the parameterization in CMAQ. This is also the case for the m3dry deposition option, soil NO emissions, and wind-blown dust.   
+Sets the correct soil hydrological properties and soil layer information needed to calculate soil NO emissions, NH<sub>3</sub> bidirectional exchange and O<sub>3</sub> deposition. These options are currently based on WRF 3.8.1 and earlier values for PX and CLM and WRF 4.0 for NOAH. If the land surface model is run with another look up table or parameterization, soil moisture will be constrained between saturation and residual water content from the parameterization in CMAQ. This is also the case for the m3dry deposition option, soil NO emissions, and wind-blown dust. 
+
+In CMAQ v5.4, the user can select one of three different aerosol deposition parameters within the STAGE deposition option. 
+
+```
+setenv CTM_STAGE_P22 N       
+setenv CTM_STAGE_E20 Y       
+setenv CTM_STAGE_S22 N       
+```
+CTM_STAGE_P22 is a tiled/land use specific [Pleim et al. (2022)](https://doi.org/10.1002/essoar.10510541.1) aerosol deposition option. CTM_STAGE_E20 is the tiled implementation of the [Emerson et al. (2020)](https://doi.org/10.1073/pnas.2014761117) aerosol deposition model. CTM_STAGE_S22 is the tiled version of [Shu et al. (2022)](https://doi.org/10.1016/j.atmosenv.2022.119343) aerosol deposition model (the same as the STAGE parameterization in CMAQ v5.3 STAGE). CTM_STAGE_E20 is the default option and will be used in model simulation unless one of the other options is specified. In v5.4, the user can modify land use and chemical species dependent variables used by STAGE by editing the [STAGE Control Namelist](https://github.com/kmfoley/CMAQ_Dev/blob/v5.4_documentation/DOCS/Users_Guide/CMAQ_UG_ch04_model_inputs.md#stagectrl_nml) to update model parameters without the need to recompile.
 
 <a id=6.9_Emissions></a>
 
@@ -826,7 +832,7 @@ The user can set it to N to exclude the heterogeneous production from the reacti
 
 The Community Regional Atmospheric Chemistry Multiphase Mechanism (CRACMM) builds on the history of the Regional Atmospheric Chemistry Mechanism, Version 2 (RACM2) and aims to couple gas- and particle-phase chemistry by treating the entire pool of atmospheric reactive organic carbon (ROC) relevant to present-day emissions. CRACMM species were developed to represent the total emissions of ROC, considering the OH reactivity, ability to form ozone and secondary organic aerosol (SOA), and other properties of individual emitted compounds. The chemistry of CRACMM, which includes autoxidation, multigenerational oxidation, and the treatment of semivolatile and intermediate volatility compounds, was built using a variety of sources including literature and other mechanisms (RACM2, MCM, GECKO, and SAPRC18/mechgen). 
 
-CRACMMv1 is available in two versions: base CRACMMv1 and CRACMMv1AMORE. The development of base CRACMMv1 is described by Pye et al. and the application of CRACMMv1 within CMAQ to the northeast U.S. in summer 2018 as well as comparison with other mechanisms is presented by Place et al. CRACMMv1AMORE replaces the base isoprene chemistry of CRACMMv1 (which was ported from RACM2) with a graph theory-based condensation of a detailed isoprene mechanism developed by Prof. Faye McNeill's team at Columbia University. The AMORE version is documented in work by Wiser et al.
+CRACMMv1 is available in two versions: base CRACMMv1 and CRACMMv1AMORE. The development of base CRACMMv1 is described by Pye et al. (2022) and the application of CRACMMv1 within CMAQ to the northeast U.S. in summer 2018 as well as comparison with other mechanisms is presented by Place et al. (in prep.). CRACMMv1AMORE replaces the base isoprene chemistry of CRACMMv1 (which was ported from RACM2) with a graph theory-based condensation of a detailed isoprene mechanism developed by Prof. Faye McNeill's team at Columbia University. The AMORE version is documented in work by Wiser et al. (2022).
 
 When selected as the gas-phase mechanism, use of CRACMM1 (and CRACMM1AMORE) fully specifies CMAQ's aerosol treatment. CRACMM was designed as a multiphase mechanism and thus includes pathways to SOA and precursors to inorganic aerosol. The aero versioned by number no longer applies, and potential combustion SOA (pcSOA) is deprecated in CRACMM. Methane reaction with OH is considered and methane is set to a fixed concentration of 1.85 ppm by default, roughly mathching global conditions in the later part of the 2010s. Year or location specific [methane concentrations](https://gml.noaa.gov/ccgg/trends_ch4/) could be used (see the end of the mechanism definition file to make the update).
 
@@ -842,7 +848,7 @@ The description should reflect the lumped nature of the category if the species 
 
 - HC10,Alkanes and other species with HO rate constant greater than 6.8x10-12 cm3 s-1
 
-In the case of emitted species, the actual emitted individual species mapped to a mechanism species is based on a hierarchy of rules as described by Pye et al. in prep with supporting code available on github at [USEPA/CRACMM](https://github.com/USEPA/CRACMM). For example, HC10 is one of the last species to be mapped to in the hierarchy and all semi and intermediate volatility compounds (S/IVOCs) as well as those with aromaticity or double bonds have already been mapped to other mechanism species. Consult the official hierarchy of emission mapping to get the full definition for emitted species.
+In the case of emitted species, the actual emitted individual species mapped to a mechanism species is based on a hierarchy of rules as described by Pye et al. (2022) with supporting code available on github at [USEPA/CRACMM](https://github.com/USEPA/CRACMM). For example, HC10 is one of the last species to be mapped to in the hierarchy and all semi and intermediate volatility compounds (S/IVOCs) as well as those with aromaticity or double bonds have already been mapped to other mechanism species. Consult the official hierarchy of emission mapping to get the full definition for emitted species.
 
 Note that CRACMM (both versions) include some species that can partition between the gas and aerosol phase and thus have both a gas-phase component (in the GC.nml) and particulate component (in the AE.nml). Rather than entering the same description for each phase, species that have multiphase components should be entered once and the phase identifier (V prepended on a gas species in GC.nml (if used) or A prepended on a particulate species in AE.nml) should not be included. In addition, separate entries are not needed for a species existing in multiple size modes. For example, this is the entry describing the species OP3 which exists in the GC.nml as OP3 and in the particle as AOP3J:
 
@@ -1062,7 +1068,7 @@ Odman, M.T., & Russell, A.G. (2000). Mass conservative coupling of non-hydrostat
 
 Ovadnevaite, J., Manders, A., de Leeuw, G., Ceburnis, D., Monahan, C., Partanen, A.I., Korhonen, H., & O'Dowd, C. D. (2014). A sea spray aerosol flux parameterization encapsulating wave state. Atmos. Chem. Phys., 14, 1837-1852.  [doi: 10.5194/acp-14-1837-2014](https://doi.org/10.5194/acp-14-1837-2014).
 
-Place, B, K. Seltzer, C. Allen, B. Murphy, K. Appel, I. Piletic, E. D'Ambro, R. Schwantes, M. Coggon, S. Farrell, E. Saunders, L. Xu, G. Sarwar, W. Hutzell, W. Stockwell, A. Torres-Vazquez, J. Pleim and H. Pye, Application of the Community Regional Atmospheric Chemistry Multiphase Mechanism (CRACMM) to simulation of air quality in the Northeast USA, in preparation for Atmospheric Chemistry and Physics.
+Place, B. K., Hutzell, W. T., Appel, K. W., Farrell, S., Valin, L., Murphy, B. N., Seltzer, K. M., Sarwar, G., Allen, C., Piletic, I., D'Ambro, E., Saunders, E., Simon, H., Torres-Vasquez, A., Pleim, J., Schwantes, R., Coggon, M., Xu, L., Stockwell, W. R., & Pye, H. O. T.. Initial evaluation of the CRACMMv1.0 chemical mechanism: Surface ozone predictions across the Northeast US summer 2018 in CMAQ, in preparation for Atmospheric Chemistry and Physics.
 
 Pleim, J., Venkatram, A., Yamartino, R. (1984). ADOM/TADAP Model development program: The dry deposition module. Ontario Ministry of the Environment, 4.
 
@@ -1076,7 +1082,7 @@ Pleim, J. E., Ran, L., Appel, W., Shephard, M.W., & Cady-Pereira K. (2019). New 
 
 Pye, H.O.T., Pinder, R.W., Piletic, I.R., Xie, Y., Capps, S.L., Lin, Y.H., Surratt, J.D., Zhang, Z.F., Gold, A., Luecken, D.J., Hutzell W.T., Jaoui, M., Offenberg, J.H., Kleindienst, T.E., Lewandowski, M., & Edney, E.O. (2013). Epoxide pathways improve model predictions of isoprene markers and reveal key role of acidity in aerosol formation. Environ. Sci. Technol., 47(19), 11056-11064.
 
-Pye, H., B. Place, B. Murphy, K. Seltzer, C. Allen, I. Piletic, E. D'Ambro, R. Schwantes, M. Coggon, S. Farrell, E. Saunders, L. Xu, G. Sarwar, W. Hutzell, K. Foley, G. Pouliot and W. Stockwell, Linking Gas, Particulate, and Toxic Endpoints to Air Emissions In The Community Regional Atmospheric Chemistry Multiphase Mechanism (CRACMM) version 1.0, in preparation for Atmospheric Chemistry and Physics.
+Pye, H. O. T., Place, B. K., Murphy, B. N., Seltzer, K. M., D'Ambro, E. L., Allen, C., Piletic, I. R., Farrell, S., Schwantes, R. H., Coggon, M. M., Saunders, E., Xu, L., Sarwar, G., Hutzell, W. T., Foley, K. M., Pouliot, G., Bash, J., & Stockwell, W. R. (2022). Linking gas, particulate, and toxic endpoints to air emissions in the Community Regional Atmospheric Chemistry Multiphase Mechanism (CRACMM) version 1.0, Atmos. Chem. Phys. Discuss. [preprint], https://doi.org/10.5194/acp-2022-695, in review.
 
 Ran, L., Cooter, E., Benson, V., & He, Q. (2011). Chapter 36: Development of an agricultural fertilizer modeling system for bi-directional ammonia fluxes in the CMAQ model. In D. G. Steyn, & S. Trini Castelli (Eds.), air pollution modeling and its application XXI. Springer, 213-219.
 
@@ -1104,7 +1110,7 @@ Tan, Y., Perri, M.J., Seitzinger, S.P., & Turpin, B.J. (2009). Effects of precur
 
 Warneck, P. (1999). The relative importance of various pathways for the oxidation of sulfur dioxide and nitrogen dioxide in sunlit continental fair weather clouds. Phys. Chem. Chem. Phys., 1, 5471-5483.
 
-Wiser, F., B. Place, H. Pye, and V. F. McNeill, Development and application of the AMORE isoprene chemistry condensation, in preparation for Geoscientific Model Development.
+Wiser, F., Place, B., Sen, S., Pye, H. O. T., Yang, B., Westervelt, D. M., Henze, D. K., Fiore, A. M., & McNeill, V. F. (2022). AMORE-Isoprene v1.0: A new reduced mechanism for gas-phase isoprene oxidation, Geosci. Model Dev. Discuss. [preprint], https://doi.org/10.5194/gmd-2022-240, in review.
 
 Xing, J., Mathur, R., Pleim, J., Hogrefe, C., Wang, J., Gan, C.M., Sarwar, G., Wong, D., & McKeen, S. (2016). Representing the effects of stratosphere-troposphere exchange on 3D O3 distributions in chemistry transport models using a potential vorticity based parameterization, Atmos. Chem. Phys., 16, 10865-10877,  [doi:10.5194/acp-16-10865-2016](https://doi.org/10.5194/acp-16-10865-2016).
 
@@ -1116,7 +1122,7 @@ Zhao, J., Sarwar, G., Gantt, B., Foley, K., Kang, D., Fahey, K., Mathur, R., Hen
 
 [<< Previous Chapter](CMAQ_UG_ch05_running_a_simulation.md) - [Home](README.md) - [Next Chapter >>](CMAQ_UG_ch07_model_outputs.md)
 <br>
-CMAQ User's Guide (c) 2020<br>
+CMAQ User's Guide (c) 2022<br>
 
 <!-- END COMMENT -->
 
