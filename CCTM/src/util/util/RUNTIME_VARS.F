@@ -620,6 +620,10 @@
       ! Get flag to use fast optics for volume mixing model for aerosol optical properties
       CALL GET_ENV ( MIE_CALC, 'OPTICS_MIE_CALC', MIE_CALC, VARDEV )
 
+      IF ( MYPE .EQ. 0 ) THEN
+         WRITE( OUTDEV, '(/,6x,A,/)' )'--ATOL settings are in ppmV.--'
+      END IF
+
       ! Upper Bound for Absolute Tolerance for Gear Solver
       CALL GET_ENV ( GEAR_MAX_ATOL, 'GEAR_MAX_ATOL', GEAR_MAX_ATOL, VARDEV )
       
