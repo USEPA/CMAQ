@@ -68,6 +68,7 @@ C                    15 Jul 14 B.Hutzell: replaced mechanism include files with
 C                    RXNS_DATA module and added intent declarations to arguments
 C**********************************************************************
 
+      USE RUNTIME_VARS, ONLY: LOGDEV
       USE RXNS_DATA
       USE CGRID_SPCS          ! CGRID species number and offsets
       USE UTILIO_DEFN
@@ -115,7 +116,7 @@ C..LOCAL VARIABLES:
       CHARACTER( 132 ) :: MSG = ' '        ! Message text
       CHARACTER( 12 )  :: REAL_CLOCK( 3 )
       
-      LOGICAL LDBOUT         ! Flag for debug output
+      LOGICAL HIGHER_ORDER   ! use next order for relative timestep
       
       INTEGER COL            ! Column number of cell
       INTEGER EXITSTAT       ! Exit status code
@@ -158,6 +159,7 @@ C..LOCAL VARIABLES:
       INTEGER ROW            ! Row number of cell
       INTEGER  SPC           ! species index
       INTEGER IOS            ! Allocate status
+      INTEGER NCELLMAX       ! cell with maximum total error
 
       INTEGER, SAVE :: S_DATE_TIME( 8 )
       INTEGER, SAVE :: F_DATE_TIME( 8 )
@@ -210,18 +212,17 @@ C..LOCAL VARIABLES:
       REAL( 8 ) :: TIMREMAIN         ! Remaining integration time (min)
       REAL( 8 ) :: TOLD              ! Elapsed time at previous step (min)
       REAL( 8 ) :: XELAPS            ! Elasped time (min)
-      REAL( 8 ) :: YLOWA             ! Gear absolute error tolerance used
-      REAL( 8 ) :: YLOWEPS           ! Tolerance ratio used in h0 calc
-      REAL( 8 ) :: YLOWEPS1          ! Absolute tol over relative tol
       REAL( 8 ), ALLOCATABLE, SAVE :: DELY ( : )   ! Sum of squares of error estimates
       REAL( 8 ), ALLOCATABLE, SAVE :: CEST ( :,: ) ! Error estimates for previous step 
       REAL( 8 ), ALLOCATABLE, SAVE :: CHOLD( :,: ) ! Factor for error tests
       REAL( 8 ), ALLOCATABLE, SAVE :: DTLOS( :,: ) ! Correction array for Newton iter.
       REAL( 8 ), ALLOCATABLE, SAVE :: CONC ( :,: ) ! Old concs and derivatives  
+      REAL( 8 ), ALLOCATABLE, SAVE :: ERROR_CNEW ( :,: ) ! error in species predictions
       REAL( 8 ), ALLOCATABLE, SAVE :: YNEW_DEGRADE( :,:) ! concs for degradation routines
+      REAL( 8 ), ALLOCATABLE, SAVE :: YLOWA( : )    ! Gear absolute error tolerance used
+      REAL( 8 ), ALLOCATABLE, SAVE :: YLOWEPS( : )  ! Tolerance ratio used in h0 calc
+      REAL( 8 ), ALLOCATABLE, SAVE :: YLOWEPS1( : ) ! Absolute tol over relative tol
 
-!     logical, save :: bingo1 = .true.
-!     logical, save :: bingo2
 
 
 C**********************************************************************      
@@ -235,6 +236,7 @@ C**********************************************************************
      &              CHOLD( BLKSIZE, NUMB_MECH_SPC ),
      &              DTLOS( BLKSIZE, NSPCS1 ),
      &              CONC ( BLKSIZE, NUMB_MECH_SPC*MXORDER ),
+     &              ERROR_CNEW( BLKSIZE, NUMB_MECH_SPC ),
      &              YNEW_DEGRADE( BLKSIZE, NSPCSD),
      &              DELY( BLKSIZE ), STAT = IOS )
          IF ( IOS .NE. 0 ) THEN
@@ -242,6 +244,17 @@ C**********************************************************************
      &          // 'CEST, CHOLD, DTLOS, CONC, YNEW_DEGRADE, or DELY'
             CALL M3EXIT( PNAME, JDATE, JTIME, MSG, XSTAT1 )             
          END IF
+
+         ALLOCATE ( YLOWA   ( BLKSIZE ),
+     &              YLOWEPS ( BLKSIZE ),
+     &              YLOWEPS1( BLKSIZE ), STAT = IOS )
+         IF ( IOS .NE. 0 ) THEN
+            MSG = '*** Memory allocation failure for '
+     &          // 'YLOWA, YLOWEPS, or YLOWEPS1'
+            CALL M3EXIT( PNAME, JDATE, JTIME, MSG, XSTAT1 )             
+         END IF
+! initial absolute tolerance to run script option         
+         YLOWA     = YLOW( 1 ) 
 
 !        IF ( LIRRFLAG ) THEN
             ALLOCATE ( CIRR(  BLKSIZE, NUMB_MECH_SPC ),
@@ -258,26 +271,13 @@ C**********************************************************************
       END IF
 
 #ifdef sens
-        CAVEG = 0.0D0
+       CAVEG = 0.0D0
 #endif
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  Set up for debug output and initialize variables
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      IF( LDEBUG .AND. IRUN .EQ. IRUNBUG .AND. BLKID .EQ. IBLKBUG ) THEN
-         LDBOUT = .TRUE.
-      ELSE
-         LDBOUT = .FALSE.
-      ENDIF
-      IF( LTRCOUT ) THEN
-         NQUSED   = 0
-         NTRSTEP  = -1
-         NTRSUB   = 0
-         NTRPDV   = 0
-         NTRNEWT  = 0
-         NTRCFAIL = 0
-         NTREFAIL = 0
-      ENDIF
+
       NSUBFUN   = 0 
       NPDERIV   = 0 
       NSTEPS    = 0
@@ -288,9 +288,14 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       NUMBKUPS  = 0
       IRSTART   = -1
       NYLOWRED  = 0
-      YLOWA     = YLOW( NCS ) 
+      IF ( LORDERING ) THEN
+         YLOWA = YLOW( 1 )
+      ELSE
+         CALL OPTIMAL_ATOL_PPM( CNEW, NUMCELLS, YLOWA )
+      END IF
       EPS       = ERRMAX( NCS ) 
       EPS1      = 1.0D0 / EPS
+      EPSLOW    = MIN( EPS, PT003 )
       ISCHAN    = ISCHANG( NCS )
       ISCHAN1   = ISCHAN - 1
       ORDER     = REAL( ISCHAN, 8 )
@@ -314,55 +319,31 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  Enter here either at beginning of interval or if delt < hmin
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-  100 CONTINUE
-      IFSUCCESS = 1
-      IDOUB     = 2
-      XELAPS    = 0.0D0 
-      TOLD      = XELAPS
-!     RDELMAX   = 1.E4
-      RDELMAX   = 10000.0D0
-      NSLP      = MBETWEEN
-      JRESTAR   = 0 
-      HRMAX     = 0.3D0
-      HRATIO    = 0.0D0
-      ASN1      = 1.0D0
-      YLOWEPS1  = YLOWA * EPS1 
-      TIMREMAIN = CHEMSTEP
-C:WTH
-      DT_DEGRADE = 0.0D0      
+      LOOP_BEGIN: DO 
+         IFSUCCESS = 1
+         IDOUB     = 2
+         XELAPS    = 0.0D0 
+         TOLD      = XELAPS
+         RDELMAX   = 10000.0D0
+         NSLP      = MBETWEEN
+         JRESTAR   = 0 
+         HRMAX     = 0.3D0
+         HRATIO    = 0.0D0
+         ASN1      = 1.0D0
+         YLOWEPS1  = YLOWA * EPS1 
+         TIMREMAIN = CHEMSTEP
+C:WTH    
+         DT_DEGRADE = 0.0D0      
       
+
+         LOOP_INITIALIZE: DO
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  Calculate initial values of first derivatives and do debug output 
 c  if necessary
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-  120 CONTINUE
-      CALL SUBFUN
-      IF( LDBOUT .AND. ( .NOT. LORDERING ) ) THEN
-         IF( NSUBFUN .EQ. NSUBOUT ) THEN    
-            WRITE( IUNDBG, 93000 ) IRUN, NSTEPS+1, NSUBFUN
-            DO NRX = 1, NRXNS
-               WRITE( IUNDBG, 93020 ) NRX, RK( ICPR, NRX ),
-     &                                RXRAT( ICPR, NRX )
-            ENDDO
-            WRITE( IUNDBG, 93040 ) IRUN, NSTEPS + 1, NSUBFUN
-            DO ISPNEW = 1, ISCHAN
-               ISPOLD = INEW2OLD( ISPNEW, NCS )
-               WRITE( IUNDBG, 93060 ) ISPNEW, CHEMISTRY_SPC( ISPOLD ), 
-     &                                CNEW( ICPR, ISPNEW )
-            ENDDO
-            WRITE( IUNDBG, 93080 ) ISCHAN + 1, CONCOFM
-            WRITE( IUNDBG, 93100 ) ISCHAN + 2, 0.2095*CONCOFM
-            WRITE( IUNDBG, 93120 ) ISCHAN + 3, 0.7808*CONCOFM
-            WRITE( IUNDBG, 93140 ) ISCHAN + 4, BLKCH2O( ICPR )
-            WRITE( IUNDBG, 93160 ) IRUN, NSTEPS+1, NSUBFUN
-            DO ISPNEW = 1, ISCHAN
-               ISPOLD = INEW2OLD( ISPNEW, NCS )
-               WRITE( IUNDBG, 93180 ) ISPNEW, CHEMISTRY_SPC( ISPOLD ),
-     &                                GLOSS( ICPR, ISPNEW )
-            ENDDO
-         ENDIF
-      ENDIF
-      
+
+            CALL SUBFUN
+
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  At the integration start or restart (e.g., the first time-step   
 c  or if excessive failures occur), the time-step is predicted with
@@ -370,96 +351,85 @@ c  the formula from LSODES (Hindmarsh and Sherman, 1983 - ODEPACK).
 c  However, if the cells are being reordered, return after estimating
 c  the stiffness.
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-!     EPSLOW = MIN( EPS, 1.0E-03 )
-      EPSLOW = MIN( EPS, PT003 )
-      YLOWEPS = YLOWA / EPSLOW 
-      DO NCELL = 1, NUMCELLS
-        DELY( NCELL ) = 0.0D0
-      ENDDO        
-
+            YLOWEPS = YLOWA / EPSLOW 
+            DO NCELL = 1, NUMCELLS
+              DELY( NCELL ) = 0.0D0
+            ENDDO        
+            
 c...compute sum of squares of dcdt/conc
-      DO 220 JSPC = 1, ISCHAN     
-         DO 220 NCELL = 1, NUMCELLS 
-            ERRYMAX  = GLOSS( NCELL, JSPC ) / 
-     &                ( CNEW( NCELL, JSPC ) + YLOWEPS )
-            DELY( NCELL ) = DELY( NCELL ) + ERRYMAX * ERRYMAX  
- 220  CONTINUE
- 
+            DO 220 JSPC = 1, ISCHAN     
+               DO 220 NCELL = 1, NUMCELLS 
+                  ERRYMAX  = GLOSS( NCELL, JSPC ) / 
+     &                      ( CNEW( NCELL, JSPC ) + YLOWEPS( NCELL ) )
+                  DELY( NCELL ) = DELY( NCELL ) + ERRYMAX * ERRYMAX  
+                  ERROR_CNEW(NCELL,JSPC) = ERRYMAX
+ 220        CONTINUE
+         
 c.....if reordering, store stiffness estimate and return  
-      IF( LORDERING ) THEN
-         DO NCELL = 1, NUMCELLS 
-            ERRMX2( OFFSET + NCELL ) = DELY( NCELL )
-         ENDDO
-         RETURN
-      ENDIF
-      
+            IF( LORDERING ) THEN
+               DO NCELL = 1, NUMCELLS 
+                  ERRMX2( OFFSET + NCELL ) = DELY( NCELL )
+               ENDDO
+               RETURN
+            ENDIF
+         
 c.....get largest stiffness estimate and compute from 
 c.....sqrt(rmstop / [epslow * order]) = rmsnorm of error scaled 
 c.....to epslow * cnew + ylow
-      RMSTOP  = 0.0
-      DO 260 NCELL = 1, NUMCELLS
-         IF( DELY( NCELL ) .GT. RMSTOP ) THEN
-            RMSTOP = DELY( NCELL )   
-!           IF ( IRUN .EQ. 24 .AND. BLKID .EQ. 19 ) THEN
-!              NUMCELL = NORDCELL( OFFSET + NCELL )
-!              WRITE( MSG,93900 ) NCELL, RMSTOP, CCOL( NUMCELL ),
-!    &                            CROW( NUMCELL ), CLEV( NUMCELL )
-!              CALL M3MESG( MSG )  
-!              END IF
-            END IF
-  260 CONTINUE
-      DELT = SQRT( EPSLOW / ( ABST2 + RMSTOP / ORDER ) ) * H0FAC
-      DELT = MIN( DELT, CHEMSTEP ) 
-      DELT = MIN( DELT, HMAX ) 
-      DELT = MAX( DELT, HMIN )
-      NQQ      = 1
+            RMSTOP  = 0.0
+            DO 260 NCELL = 1, NUMCELLS
+               IF( DELY( NCELL ) .GT. RMSTOP ) THEN
+                  RMSTOP = DELY( NCELL )   
+               END IF
+  260       CONTINUE
+            DELT = SQRT( EPSLOW / ( ABST2 + RMSTOP / ORDER ) ) * H0FAC
+            DELT = MIN( DELT, CHEMSTEP ) 
+            DELT = MIN( DELT, HMAX ) 
+            DELT = MAX( DELT, HMIN )
+            NQQ      = 1
       
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  Store initial concentration and first derivatives x time-step and
 c  initialize/save some data 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      DO 280 JSPC = 1, ISCHAN 
-         JS1 = ISCHAN + JSPC
-         DO 280 NCELL = 1, NUMCELLS
-            CONC( NCELL, JSPC ) = CNEW( NCELL, JSPC )
-            CONC( NCELL, JS1 )  = DELT * GLOSS( NCELL, JSPC ) 
-  280 CONTINUE
-      NQQOLD = 0
-      RDELT  = 1.0D0 
-      JEVAL  = 1
-      IF( LTRCOUT ) THEN
-         HUSED  = DELT
-         HLAST  = DELT
-         NQUSED = 0
-      ENDIF
-
-      IF( LIRRFLAG ) THEN
-         DTCELL = 0.0D0
-         DO I = 1, ISCHAN
-            DO NCELL = 1, NIRRCLS
-               CIRR( NCELL, I ) = BLKCONC( IRRCELL( NCELL ), I )
-            ENDDO
-         ENDDO
-         CALL PA_IRR ( .TRUE., .FALSE., RKIRR, CIRR, DTCELL, 
-     &                    NIRRCLS, DUMMY )
-      ENDIF
-
-      IF( CALL_DEG ) THEN   !:WTH Initialize for degradation routines
-         YNEW_DEGRADE = 0.0D0
-         DO I = 1, ISCHAN
-            SPC    = CGRID_INDEX( I )
-            DO NCELL = 1, NUMCELLS
-               YNEW_DEGRADE( NCELL,SPC ) = BLKCONC( NCELL, I )
-            END DO
-         END DO
-      ENDIF
-
+            DO 280 JSPC = 1, ISCHAN 
+               JS1 = ISCHAN + JSPC
+               DO 280 NCELL = 1, NUMCELLS
+                  CONC( NCELL, JSPC ) = CNEW( NCELL, JSPC )
+                  CONC( NCELL, JS1 )  = DELT * GLOSS( NCELL, JSPC ) 
+  280       CONTINUE
+            
+            NQQOLD = 0
+            RDELT  = 1.0D0 
+            JEVAL  = 1
+            
+            IF( LIRRFLAG ) THEN
+               DTCELL = 0.0D0
+               DO I = 1, ISCHAN
+                  DO NCELL = 1, NIRRCLS
+                     CIRR( NCELL, I ) = BLKCONC( IRRCELL( NCELL ), I )
+                  ENDDO
+               ENDDO
+               CALL PA_IRR ( .TRUE., .FALSE., RKIRR, CIRR, DTCELL, 
+     &                          NIRRCLS, DUMMY )
+            ENDIF
+            
+            IF( CALL_DEG ) THEN   !:WTH Initialize for degradation routines
+               YNEW_DEGRADE = 0.0D0
+               DO I = 1, ISCHAN
+                  SPC    = CGRID_INDEX( I )
+                  DO NCELL = 1, NUMCELLS
+                     YNEW_DEGRADE( NCELL,SPC ) = BLKCONC( NCELL, I )
+                  END DO
+               END DO
+            ENDIF
+         
 #ifdef sens
-          DO ISPOLD = 1, ISCHAN
-             DO NCELL = 1, NUMCELLS
-                CFINI( NCELL,ISPOLD ) = BLKCONC( NCELL, ISPOLD )
-             END DO
-         END DO
+            DO ISPOLD = 1, ISCHAN
+                DO NCELL = 1, NUMCELLS
+                   CFINI( NCELL,ISPOLD ) = BLKCONC( NCELL,ISPOLD )
+                END DO
+            END DO
 #endif
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  Update coefficients of the order. NQQ is the order. ASET and 
@@ -467,154 +437,123 @@ c  PERTST are defined in SUBROUTINE JSPARSE. Note that PERTST
 c  is the original pertst**2. Also, exit smvgear if we reach the 
 c  end of the time-interval
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
- 300  CONTINUE
-      TIMREMAIN = CHEMSTEP - XELAPS
-      IF( NSTEPS .EQ. 0 ) IRSTART = IRSTART + 1
-
-c.....first do trace output if the last step was successful
-      IF( LTRCOUT .AND. NSTEPS .NE. NTRSTEP ) THEN
-         HRATNTR = HUSED / HLAST
-         WRITE( IUNTRC, 93200 ) IRUN, NSTEPS, NSUBFUN - NTRSUB, 
-     &                          NPDERIV-NTRPDV, NUMNEWT - NTRNEWT,
-     &                          NCFAIL-NTRCFAIL, NEFAIL - NTREFAIL,
-     &                          NQUSED, XELAPS, HUSED, HRATNTR
-         NTRSUB   = NSUBFUN
-         NTRPDV   = NPDERIV
-         NTRNEWT  = NUMNEWT
-         NTRCFAIL = NCFAIL
-         NTREFAIL = NEFAIL
-         HLAST    = HUSED
-         NTRSTEP  = NSTEPS
-      ENDIF
-
+            LOOP_ORDER: DO
+            
+               HIGHER_ORDER = .TRUE.
+               TIMREMAIN = CHEMSTEP - XELAPS
+               IF( NSTEPS .EQ. 0 ) IRSTART = IRSTART + 1
+         
+         
 c.....quit or update coefficients
-!     IF( TIMREMAIN .LE. 1.0E-06 ) GO TO 1160
-      IF( TIMREMAIN .LE. OMIC ) GO TO 1160
-      IF( NQQ .NE. NQQOLD ) THEN
-         NQQOLD  = NQQ 
-         KSTEP   = NQQ + 1
-         HRATIO  = HRATIO * ASET( NQQ, 1 ) / ASN1
-         ASN1    = ASET(   NQQ, 1 )  
-         ENQQ    = PERTST( NQQ, 1 ) * ORDER
-         EUP     = PERTST( NQQ, 2 ) * ORDER 
-         EDWN    = PERTST( NQQ, 3 ) * ORDER  
-         NQQISC  = NQQ * ISCHAN 
-      ENDIF
+              IF( TIMREMAIN .LE. OMIC )EXIT LOOP_BEGIN
+              
+              IF( NQQ .NE. NQQOLD ) THEN
+                 NQQOLD  = NQQ 
+                 KSTEP   = NQQ + 1
+                 HRATIO  = HRATIO * ASET( NQQ, 1 ) / ASN1
+                 ASN1    = ASET(   NQQ, 1 )  
+                 ENQQ    = PERTST( NQQ, 1 ) * ORDER
+                 EUP     = PERTST( NQQ, 2 ) * ORDER 
+                 EDWN    = PERTST( NQQ, 3 ) * ORDER  
+                 NQQISC  = NQQ * ISCHAN 
+              ENDIF
       
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  Update the time step and do debug output if necessary
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      RDELT   = MIN( RDELT, RDELMAX, HMAX/DELT, TIMREMAIN/DELT )
-      DELT    = DELT   * RDELT
-      HRATIO  = HRATIO * RDELT
-      IF( LDBOUT ) THEN
-         WRITE( IUNDBG, 93220 ) NSTEPS + 1, IRUN, BLKID
-         NUMCELL = NORDCELL( OFFSET + ICPR )
-         COL = CCOL( NUMCELL )
-         ROW = CROW( NUMCELL )
-         LEV = CLEV( NUMCELL )
-         WRITE( IUNDBG, 93240 ) IRUN, BLKID, ICPR, COL, ROW, LEV
-         WRITE( IUNDBG, 93260 ) XELAPS, DELT/RDELT, DELT, TIMREMAIN,
-     &                          RDELT, NQQ, KSTEP, IDOUB, JEVAL
-         IF( NSTEPS + 1 .EQ. NSTEPOUT ) THEN
-            WRITE( IUNDBG, 93280 ) 
-            DO ISPNEW = 1, ISCHAN
-               ISPOLD = INEW2OLD( ISPNEW, NCS )
-               JSPC1  = ISPNEW +     ISCHAN
-               JSPC2  = ISPNEW + 2 * ISCHAN
-               JSPC3  = ISPNEW + 3 * ISCHAN
-               WRITE( IUNDBG, 93300 ) ISPNEW, CHEMISTRY_SPC( ISPOLD ),
-     &                        CONC( ICPR, ISPNEW ), CONC( ICPR, JSPC1 ),
-     &                        CONC( ICPR, JSPC2 ),  CONC( ICPR, JSPC3 )
-            ENDDO
-         ENDIF
-      ENDIF
-      
+              RDELT   = MIN( RDELT, RDELMAX, HMAX/DELT, TIMREMAIN/DELT )
+              DELT    = DELT   * RDELT
+              HRATIO  = HRATIO * RDELT
+            
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  If delt < hmin, decrease ylowa and re-start the time-interval
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      IF( DELT .LT. HMIN ) THEN
-         WRITE( MSG, 94000 ) DELT, XELAPS, TIMREMAIN, YLOWA, EPS
-         CALL M3MESG( MSG )  
-         WRITE( MSG, 94010 ) NSTEPS, BLKID, IRUN, NQQ
-         CALL M3MESG( MSG )  
-         WRITE( MSG, 94015 ) RDELT, DER2MAX, ENQQ
-         CALL M3MESG( MSG )  
-         YLOWA     =  YLOWA * 0.1 
-         NYLOWRED  =  NYLOWRED + 1
-         IF( NYLOWRED .LT. MXLOWRED ) THEN
-            DO 340 ISPNEW = 1, ISCHAN 
-               ISPOLD   = INEW2OLD( ISPNEW, NCS )
-               DO 340 NCELL = 1, NUMCELLS
-                  CNEW( NCELL, ISPNEW ) = BLKCONC( NCELL, ISPOLD )
- 340        CONTINUE
-            GO TO 100 
-         ELSE
-            WRITE( MSG, 94020 )
-            EXITSTAT = 2
-            CALL M3EXIT( 'SMVGEAR', JDATE, JTIME, MSG, EXITSTAT )             
-         ENDIF
-      ENDIF
-
+              IF( DELT .LT. HMIN ) THEN
+                 WRITE( MSG, 94000 ) DELT, XELAPS, TIMREMAIN, MAXVAL(YLOWA), EPS
+                 CALL M3MESG( MSG )  
+                 WRITE( MSG, 94010 ) NSTEPS, BLKID, IRUN, NQQ
+                 CALL M3MESG( MSG )  
+                 WRITE( MSG, 94015 ) RDELT, DER2MAX, ENQQ
+                 CALL M3MESG( MSG )  
+                 YLOWA     =  YLOWA * 0.1 
+                 NYLOWRED  =  NYLOWRED + 1
+                 IF( NYLOWRED .LT. MXLOWRED ) THEN
+                    DO 340 ISPNEW = 1, ISCHAN 
+                       ISPOLD   = INEW2OLD( ISPNEW, NCS )
+                       DO 340 NCELL = 1, NUMCELLS
+                          CNEW( NCELL, ISPNEW ) = BLKCONC( NCELL, ISPOLD )
+ 340                CONTINUE
+                    CYCLE LOOP_BEGIN
+                 ELSE
+              
+                  WRITE(LOGDEV,'(A16,6(1X,A12))')'CHEMSTRY_SPECIES',' Pred.Conc  ',' Init.Conc  ',' Squar.Erro  '
+                  DO ISPOLD = 1, ISCHAN
+                     ISPNEW   = IOLD2NEW( ISPOLD, NCS )
+                     WRITE(LOGDEV,'(A16,6(1X,ES12.4))')CHEMISTRY_SPC(ISPOLD),
+     &               CNEW( NCELLMAX, ISPNEW ), BLKCONC( NCELLMAX, ISPOLD ),
+     &               (ERROR_CNEW(NCELLMAX,ISPNEW)*ERROR_CNEW(NCELLMAX,ISPNEW))
+                  END DO
+                  write(logdev,'(A,ES12.4)')'For error = ',DELY( NCELLMAX )
+                  WRITE(LOGDEV,'(A16,3(1X,A12))')'Reaction.Label',' Rate.Const ',' React.Rate  '
+                  DO J = 1,NRXNS
+                     WRITE(LOGDEV,'(A16,3(1X,ES12.4))')RXLABEL(J),RK(NCELLMAX,J),RXRAT(NCELLMAX,J)
+                  END DO
+              
+                    WRITE( MSG, 94020 )
+                    CALL M3EXIT( 'SMVGEAR', JDATE, JTIME, MSG, XSTAT2 )             
+                 ENDIF
+              ENDIF
+            
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc      
 c  If delt is different than during the last step (if rdelt.ne.1),
 c  scale the derivatives
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      IF( RDELT .NE. 1.0 ) THEN
-         RDELTA = 1.0
-         I1 = 1
-         DO 360 J = 2, KSTEP 
-            RDELTA = RDELTA * RDELT 
-            I1 = I1 + ISCHAN 
-            DO 360 I = I1, I1 + ISCHAN1
-               DO 360 NCELL = 1, NUMCELLS
-                  CONC( NCELL, I )  = CONC( NCELL, I ) * RDELTA 
-  360    CONTINUE
-      ENDIF
-      IF( RDELT .LT. 1.0 ) NUMBKUPS = NUMBKUPS + 1
+              IF( RDELT .NE. 1.0 ) THEN
+                 RDELTA = 1.0
+                 I1 = 1
+                 DO 360 J = 2, KSTEP 
+                    RDELTA = RDELTA * RDELT 
+                    I1 = I1 + ISCHAN 
+                    DO 360 I = I1, I1 + ISCHAN1
+                       DO 360 NCELL = 1, NUMCELLS
+                          CONC( NCELL, I )  = CONC( NCELL, I ) * RDELTA 
+  360            CONTINUE
+              ENDIF
+              IF( RDELT .LT. 1.0 ) NUMBKUPS = NUMBKUPS + 1
       
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  If the last step was successful, reset rdelmax = 10 and update
 c  the chold array with current values of cnew.
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      IF( IFSUCCESS .EQ. 1 ) THEN
-         RDELMAX = 10.0
-         DO 380 JSPC = 1, ISCHAN
-            DO 380 NCELL = 1, NUMCELLS
-               CHOLD( NCELL, JSPC )  = EPS1 / 
-     &             ( ABS( CNEW( NCELL, JSPC ) ) + YLOWEPS1 )
-  380    CONTINUE
-      ENDIF
-      
+              IF( IFSUCCESS .EQ. 1 ) THEN
+                 RDELMAX = 10.0
+                 IF( MOD( NSTEPS,3 ) .EQ. 2 )THEN
+                    CALL OPTIMAL_ATOL_PPM( CNEW, NUMCELLS, YLOWA )       
+                 END IF  
+                 YLOWEPS1  = YLOWA * EPS1 
+                 DO 380 JSPC = 1, ISCHAN
+                    DO 380 NCELL = 1, NUMCELLS
+                       CHOLD( NCELL, JSPC )  = EPS1 / 
+     &                     ( ABS( CNEW( NCELL, JSPC ) ) + YLOWEPS1(NCELL) )
+  380            CONTINUE
+              ENDIF
+            
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c                           PREDICTION
 c  Check whether the Jacobian should be updated, compute the predicted 
 c  concentration and derivatives by multiplying previous values by
 c  the pascal triangle matrix, and  do debug output if necessary
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      IF( ABS( HRATIO-1.0 ) .GT. HRMAX. OR. NSTEPS .GE. NSLP ) JEVAL = 1
-      XELAPS = XELAPS + DELT 
-      I1 = NQQISC + 1
-      DO 400 JB = 1,   NQQ
-         I1 = I1 - ISCHAN
-         DO 400 I = I1, NQQISC
-            J = I + ISCHAN
-            DO 400 NCELL  = 1, NUMCELLS
-               CONC( NCELL, I ) = CONC( NCELL, I ) + CONC( NCELL, J )
-  400 CONTINUE
-      IF( LDBOUT .AND. NSTEPS+1 .EQ. NSTEPOUT ) THEN
-         WRITE( IUNDBG, 93320 ) IRUN, NSTEPS+1, DELT      
-         DO ISPNEW = 1, ISCHAN
-            ISPOLD = INEW2OLD( ISPNEW, NCS )            
-            JSPC1 = ISPNEW +     ISCHAN
-            JSPC2 = ISPNEW + 2 * ISCHAN
-            JSPC3 = ISPNEW + 3 * ISCHAN
-            WRITE( IUNDBG, 93340 ) ISPNEW, CHEMISTRY_SPC( ISPOLD ), 
-     &                        CONC( ICPR, ISPNEW ), CONC( ICPR, JSPC1 ),
-     &                        CONC( ICPR, JSPC2 ), CONC( ICPR, JSPC3 )
-         ENDDO
-         WRITE( IUNDBG, 93360 )
-      ENDIF
+              IF( ABS( HRATIO-1.0 ) .GT. HRMAX. OR. NSTEPS .GE. NSLP ) JEVAL = 1
+              XELAPS = XELAPS + DELT 
+              I1 = NQQISC + 1
+              DO 400 JB = 1,   NQQ
+                 I1 = I1 - ISCHAN
+                 DO 400 I = I1, NQQISC
+                    J = I + ISCHAN
+                    DO 400 NCELL  = 1, NUMCELLS
+                       CONC( NCELL, I ) = CONC( NCELL, I ) + CONC( NCELL, J )
+  400         CONTINUE
       
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c                          NEWTON ITERATION
@@ -626,171 +565,96 @@ c  multiplied by delt**kstep / (factorial(kstep-1)*ASET(kstep)); thus,
 c  it is proportional to the actual errors to the lowest power of
 c  delt present (delt**kstep)
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-  440 L3 = 0
-
+  440         L3 = 0
+         
 c.....Increment counter, initialize cnew, and zero the correction array
-      NUMNEWT = NUMNEWT + 1
-      DO 460 I = 1, ISCHAN
-      DO 460 NCELL = 1, NUMCELLS
-         CNEW(  NCELL, I ) = CONC( NCELL, I )
-         DTLOS( NCELL, I ) = 0.0D0
-  460 CONTINUE
+              NUMNEWT = NUMNEWT + 1
+              DO 460 I = 1, ISCHAN
+              DO 460 NCELL = 1, NUMCELLS
+                 CNEW(  NCELL, I ) = CONC( NCELL, I )
+                 DTLOS( NCELL, I ) = 0.0D0
+  460         CONTINUE
   
 c.....If JEVAL = 1, re-evaluate predictor matrix before starting the
 c.....corrector iteration. After calling PDERIV and DECOMP, set 
 c.....JEVAL = -1 to prevent recalling PDERIV until necessary 
-      IF( JEVAL .EQ. 1 ) THEN
-         R1DELT = -ASN1 * DELT
-         CALL PDERIV
-
-         IF( LDBOUT ) THEN
-            WRITE( IUNDBG, 93380 ) IRUN, NSTEPS+1, NPDERIV, HRATIO
-            IF( NPDERIV .EQ. NPDOUT ) THEN
-               WRITE( IUNDBG, 93400 ) IRUN, NSTEPS+1, NPDOUT, L3, DELT
-               DO ISPC = 1, ISCHAN
-                  DO 480 JSPC = 1, ISCHAN
-                     IPTR = JARRAYPT( ISPC, JSPC, NCSP )
-                     IF( JARRAYPT( ISPC, JSPC, NCSP ) .EQ. 0 ) GO TO 480
-                     ISPOLD = INEW2OLD( ISPC, NCS )
-                     JSPOLD = INEW2OLD( JSPC, NCS )
-                     WRITE( IUNDBG, 93420 ) ISPC, JSPC, IPTR, 
-     &                               CHEMISTRY_SPC( ISPOLD ), CHEMISTRY_SPC( JSPOLD ),
-     &                               CC2( ICPR, IPTR )
-  480             CONTINUE
-               ENDDO
-               WRITE( IUNDBG, 93360 )
-            ENDIF
-         ENDIF
-         
-         CALL DECOMP
-         JEVAL    = -1 
-         HRATIO   = 1.0D0
-         NSLP     = NSTEPS + MBETWEEN
-         DRATE    = 0.70D0
-      ENDIF
+              IF( JEVAL .EQ. 1 ) THEN
+                 R1DELT = -ASN1 * DELT
+                 CALL PDERIV         
+                 CALL DECOMP
+                 JEVAL    = -1 
+                 HRATIO   = 1.0D0
+                 NSLP     = NSTEPS + MBETWEEN
+                 DRATE    = 0.70D0
+              ENDIF
       
 c.....evaluate the first derivative using latest cnew and do debug
 c.....output if necessary
-  520 CONTINUE
-      CALL SUBFUN
-
-      IF( LDBOUT ) THEN
-         WRITE( IUNDBG, 93440 ) IRUN, NSTEPS+1, NSUBFUN, L3+1
-         IF( NSUBFUN .EQ. NSUBOUT ) THEN
-            IF( NSUBOUT .GT. 1 ) THEN    
-               WRITE( IUNDBG, 93000 ) IRUN, NSTEPS+1, NSUBFUN
-               DO NRX = 1, NRXNS
-                  WRITE( IUNDBG, 93020 ) NRX, RK( ICPR, NRX )
-               ENDDO
-               WRITE( IUNDBG, 93040 ) IRUN, NSTEPS+1, NSUBFUN
-               DO ISPNEW = 1, ISCHAN
-                  ISPOLD = INEW2OLD( ISPNEW, NCS )
-                  WRITE( IUNDBG, 93060 ) ISPNEW, CHEMISTRY_SPC( ISPOLD ),
-     &                                   CNEW( ICPR, ISPNEW )
-               ENDDO
-               WRITE( IUNDBG, 93080 ) ISCHAN + 1, CONCOFM
-               WRITE( IUNDBG, 93100 ) ISCHAN + 2, 0.2095 * CONCOFM
-               WRITE( IUNDBG, 93120 ) ISCHAN + 3, 0.7808 * CONCOFM
-               WRITE( IUNDBG, 93140 ) ISCHAN + 4, BLKCH2O( ICPR )
-            ENDIF
-            WRITE( IUNDBG, 93500 ) IRUN, NSTEPS+1, NSUBFUN
-            DO ISPNEW = 1,ISCHAN
-               ISPOLD = INEW2OLD( ISPNEW, NCS )
-               WRITE( IUNDBG, 93520 ) ISPNEW, CHEMISTRY_SPC( ISPOLD ), 
-     &                                GLOSS( ICPR, ISPNEW )
-            ENDDO
-            WRITE( IUNDBG, 93360 )
-         ENDIF         
-         IF( NSTEPS + 1 .EQ. NSTEPOUT ) THEN
-            WRITE( IUNDBG, 93460 ) L3+1, IRUN, NSTEPS+1, DELT      
-            DO ISPNEW = 1,ISCHAN
-               ISPOLD = INEW2OLD( ISPNEW, NCS )
-               WRITE( IUNDBG, 93480 ) L3, ISPNEW, CHEMISTRY_SPC( ISPOLD ), 
-     &                                CNEW( ICPR, ISPNEW )
-            ENDDO
-         ENDIF        
-      ENDIF
-
+  520         CONTINUE
+              CALL SUBFUN
+              
 c.....compute error (gloss) from the corrected calculation of the 
 c.....first derivative and do debug output if necessary
-      DO 620  ISPC = 1,  ISCHAN
-         JSPC  = ISPC + ISCHAN
-         DO 620 NCELL = 1, NUMCELLS
-            GLOSS( NCELL, ISPC ) = DELT * GLOSS( NCELL, ISPC ) -
-     &                             ( CONC( NCELL, JSPC ) +
-     &                               DTLOS( NCELL, ISPC ) )
- 620  CONTINUE
-      IF( LDBOUT .AND. NSTEPS + 1 .EQ. NSTEPOUT ) THEN
-         WRITE( IUNDBG, 93540 ) IRUN ,NSTEPS+1, L3+1, DELT
-         DO ISPNEW = 1, ISCHAN
-            ISPOLD = INEW2OLD( ISPNEW, NCS )
-            WRITE( IUNDBG, 93560 ) ISPNEW, CHEMISTRY_SPC( ISPOLD ), 
-     &                             GLOSS( ICPR, ISPNEW )
-         ENDDO
-      ENDIF
-      
+              DO 620  ISPC = 1,  ISCHAN
+                 JSPC  = ISPC + ISCHAN
+                 DO 620 NCELL = 1, NUMCELLS
+                    GLOSS( NCELL, ISPC ) = DELT * GLOSS( NCELL, ISPC ) -
+     &                                     ( CONC( NCELL, JSPC ) +
+     &                                       DTLOS( NCELL, ISPC ) )
+ 620          CONTINUE
+            
 c.....Solve the linear system of equations with the corrector error.
 c.....Backsub.f originally from numerical recipes (Press et al.)
-      CALL BACKSUB
-
-      IF( LDBOUT .AND. NSTEPS + 1 .EQ. NSTEPOUT ) THEN
-         WRITE( IUNDBG, 93580 ) IRUN, NSTEPS+1, L3+1, DELT
-         DO ISPNEW = 1, ISCHAN
-           ISPOLD = INEW2OLD( ISPNEW, NCS )
-           WRITE( IUNDBG, 93600 ) ISPNEW, CHEMISTRY_SPC( ISPOLD ),
-     &                            GLOSS( ICPR, ISPNEW )
-         ENDDO
-         WRITE( IUNDBG, 93360 )
-      ENDIF
-      
+              CALL BACKSUB
+         
+         
 c.....Sum-up the accumulated error, correct the concentration with the
 c.....error, and begin to calculate the rmsnorm of the error relative
 c.....to chold. If a negative conc occurs, treat it like a 
 c.....convergence failure.
-      DO NCELL = 1, NUMCELLS
-         DELY( NCELL ) = 0.0D0
-      ENDDO         
-
-      NEGFLAG = + 1
-      DO 700 ISPC = 1, ISCHAN
-         DO 700 NCELL  = 1, NUMCELLS
-            DTLOS( NCELL, ISPC ) = DTLOS( NCELL, ISPC ) +
-     &                             GLOSS( NCELL, ISPC )
-            CNEW(  NCELL, ISPC ) = CONC(  NCELL, ISPC ) + ASN1 * 
-     &                             DTLOS( NCELL ,ISPC )
-            ERRYMAX  = GLOSS( NCELL, ISPC ) * CHOLD( NCELL, ISPC )
-            DELY( NCELL ) = DELY( NCELL ) + ERRYMAX * ERRYMAX
-c           IF( CNEW( NCELL, ISPC ).LT. 0.0 ) GO TO 740
- 700  CONTINUE
-      NEGFLAG = 0
-
+              DO NCELL = 1, NUMCELLS
+                 DELY( NCELL ) = 0.0D0
+              ENDDO         
+              
+              NEGFLAG = + 1
+              DO 700 ISPC = 1, ISCHAN
+                 DO 700 NCELL  = 1, NUMCELLS
+                    DTLOS( NCELL, ISPC ) = DTLOS( NCELL, ISPC ) +
+     &                                     GLOSS( NCELL, ISPC )
+                    CNEW(  NCELL, ISPC ) = CONC(  NCELL, ISPC ) + ASN1 * 
+     &                                     DTLOS( NCELL ,ISPC )
+                    ERRYMAX  = GLOSS( NCELL, ISPC ) * CHOLD( NCELL, ISPC )
+                    DELY( NCELL ) = DELY( NCELL ) + ERRYMAX * ERRYMAX
+                    ERROR_CNEW(NCELL,ISPC) = ERRYMAX
+ 700          CONTINUE
+              NEGFLAG = 0
+              
 c....Save the previous rms error and calculate the new rms error.
-      RMSERRP   = RMSERR
-      DER2MAX   = 0.0D0
-      DO NCELL = 1, NUMCELLS
-         IF( DELY( NCELL ).GT.DER2MAX ) DER2MAX = DELY( NCELL )   
-      ENDDO
-      RMSERR   = SQRT( DER2MAX / ORDER )
-      L3       = L3 + 1
-      RMSRAT   = 0.0D0
-      IF( L3.GT.1 ) THEN
-         RMSRAT   =  RMSERR / RMSERRP
-         DRATE    =  MAX( 0.2 * DRATE, RMSRAT )
-      ENDIF
+              RMSERRP   = RMSERR
+              DER2MAX   = 0.0D0
+              DO NCELL = 1, NUMCELLS
+                 IF( DELY( NCELL ).GT.DER2MAX )THEN
+                        DER2MAX = DELY( NCELL )   
+                        NCELLMAX = NCELL
+                 END IF
+              ENDDO
+              RMSERR   = SQRT( DER2MAX / ORDER )
+              L3       = L3 + 1
+              RMSRAT   = 0.0D0
+              IF( L3.GT.1 ) THEN
+                 RMSRAT   =  RMSERR / RMSERRP
+                 DRATE    =  MAX( 0.2 * DRATE, RMSRAT )
+              ENDIF
       
 c....If dcon < 1, then sufficient convergence has occurred. Otherwise,
 c....if the ratio of the current to previous rmserr is decreasing,
 c....iterate more. If it is not, then the convergence test failed.
-      DCON = RMSERR * MIN( CONPST( NQQ ), CONP15( NQQ ) * DRATE )
-      IF( DCON .LE. 1.0 ) GO TO 780
-
-      IF( LDBOUT ) THEN
-         WRITE( IUNDBG, 93620 ) IRUN, NSTEPS+1, L3, DELT, DCON, RMSRAT
-      ENDIF
+              DCON = RMSERR * MIN( CONPST( NQQ ), CONP15( NQQ ) * DRATE )
+              IF( DCON .LE. 1.0 ) GO TO 780 ! convergence achieved
               
-      IF( L3 .LT. MSTEP .AND. ( L3 .EQ. 1 .OR. RMSRAT .LE. 0.9 ) ) 
-     &     GO TO 520
-      
+                      
+              IF( L3 .LT. MSTEP ) GO TO 520 ! continue Newton Iteration
+          
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c                        CONVERGENCE FAILURE
 c  The next block of code is executed when the convergence test fails.
@@ -799,36 +663,28 @@ c  try for convergence again. If the Jacobian is current, reduce the
 c  time-step, re-set the accumulated derivatives to their values
 c  before the failed step, and retry with the smaller step.
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-  740 CONTINUE
-      NCFAIL = NCFAIL + 1
-
-      IF( LDBOUT ) THEN
-         WRITE( IUNDBG , 93640 ) IRUN, NSTEPS+1, L3, NEGFLAG
-      ENDIF
-      
-      IF( JEVAL .EQ. 0 ) THEN
-         JEVAL   = 1
-         GO TO 440
-      ENDIF
-      RDELMAX    = 2.0
-      XELAPS     = TOLD
-      RDELT      = FRACDEC
-      JEVAL      = 1
-      IFSUCCESS  = 0
-      I1         = NQQISC + 1
-      DO 760 JB = 1,   NQQ
-         I1 = I1 - ISCHAN
-         DO 760 I = I1,  NQQISC
-            J = I + ISCHAN
-            DO 760 NCELL = 1, NUMCELLS
-               CONC( NCELL, I ) = CONC( NCELL, I ) - CONC( NCELL, J )
- 760  CONTINUE
- 
-      IF( LDBOUT ) THEN
-         WRITE( IUNDBG, 93660 ) IRUN, NSTEPS+1, RDELT
-      ENDIF
-      
-      GO TO 300
+               NCFAIL = NCFAIL + 1
+               
+               IF( JEVAL .EQ. 0 ) THEN
+                  JEVAL   = 1
+                  GO TO 440  ! restart Newton Iteration with updated Jacobian
+               ENDIF
+               RDELMAX    = 2.0
+               XELAPS     = TOLD
+               RDELT      = FRACDEC
+               JEVAL      = 1
+               IFSUCCESS  = 0
+               I1         = NQQISC + 1
+               DO 760 JB = 1,   NQQ
+                  I1 = I1 - ISCHAN
+                  DO 760 I = I1,  NQQISC
+                     J = I + ISCHAN
+                     DO 760 NCELL = 1, NUMCELLS
+                        CONC( NCELL, I ) = CONC( NCELL, I ) - CONC( NCELL, J )
+ 760           CONTINUE
+               
+               
+               CYCLE LOOP_ORDER   
       
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c                        CONVERGENCE ACHIEVED
@@ -836,37 +692,29 @@ c  The program comes here when the corrector iteration converges. Set
 c  JEVAL = 0 so that it does not need to be called on the next step and
 c  then test the accumulated error.
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-  780 JEVAL  = 0
-
-      IF( LDBOUT ) THEN
-         WRITE( IUNDBG, 93680 ) IRUN, NSTEPS+1, L3, DELT
-         IF( NSTEPS + 1 .EQ. NSTEPOUT ) THEN
-            WRITE( IUNDBG, 93700 )
-            DO ISPC = 1, ISCHAN
-               CCONOUT = CONC(  ICPR, ISPC ) + ASET( NQQ, 1 ) * 
-     &                   DTLOS( ICPR, ISPC )
-               ISPOLD = INEW2OLD( ISPC, NCS )
-               WRITE( IUNDBG, 93720 ) I, CHEMISTRY_SPC( ISPOLD ), CCONOUT
-            ENDDO
-            WRITE( IUNDBG, 93360 )
-         ENDIF
-      ENDIF
+  780          JEVAL  = 0
+               
+               
+               IF( L3 .GT. 1 ) THEN
+                  DO NCELL  = 1, NUMCELLS
+                     DELY( NCELL )  = 0.0D0
+                  ENDDO
+                  DO 840 JSPC   = 1, ISCHAN     
+                     DO 840 NCELL = 1, NUMCELLS 
+                        ERRYMAX  = DTLOS( NCELL, JSPC ) * CHOLD( NCELL, JSPC )
+                        DELY( NCELL ) = DELY( NCELL ) + ERRYMAX * ERRYMAX
+                        ERROR_CNEW(NCELL,JSPC) = ERRYMAX
+  840             CONTINUE
+                  DER2MAX  = 0.0D0
+                  DO NCELL  = 1, NUMCELLS
+                     IF( DELY( NCELL ) .GT. DER2MAX )THEN
+                         DER2MAX = DELY( NCELL )   
+                         NCELLMAX = NCELL
+                     END IF
+                  ENDDO
+               ENDIF
       
-      IF( L3 .GT. 1 ) THEN
-         DO NCELL  = 1, NUMCELLS
-            DELY( NCELL )  = 0.0D0
-         ENDDO
-         DO 840 JSPC   = 1, ISCHAN     
-            DO 840 NCELL = 1, NUMCELLS 
-               ERRYMAX  = DTLOS( NCELL, JSPC ) * CHOLD( NCELL, JSPC )
-               DELY( NCELL ) = DELY( NCELL ) + ERRYMAX * ERRYMAX
-  840    CONTINUE
-         DER2MAX  = 0.0D0
-         DO NCELL  = 1, NUMCELLS
-            IF( DELY( NCELL ) .GT. DER2MAX ) DER2MAX = DELY( NCELL )   
-         ENDDO
-      ENDIF
-      
+               IF( DER2MAX .GT. ENQQ ) THEN
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c                          ERROR TEST FAILURE
 c  The next block of code is executed when the error test fails.  In 
@@ -881,55 +729,48 @@ c  (c) If the number of failures is GT 20, the order is reset to one,
 c      the time-step lowered by 0.1, and the step retried;
 c  (d) if the number of failures is GE 100, the program is stopped.
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      IF( DER2MAX .GT. ENQQ ) THEN
-         NEFAIL = NEFAIL + 1
-         
-         IF( LDBOUT ) THEN
-            WRITE( IUNDBG, 93740 ) IRUN, NSTEPS+1, DELT, DER2MAX, ENQQ
-         ENDIF
-         
-         XELAPS = TOLD
-         JFAIL  = JFAIL  + 1
-         I1     = NQQISC + 1
-         DO 880 JB = 1, NQQ
-            I1  = I1 - ISCHAN
-            DO 880 I = I1, NQQISC
-               J = I + ISCHAN
-               DO 880 NCELL   = 1, NUMCELLS
-                  CONC( NCELL, I ) = CONC( NCELL, I ) - CONC( NCELL, J )
- 880     CONTINUE
-         RDELMAX          = 2.0D0
-         
-         IF( JFAIL .LE. 6 ) THEN
-            IFSUCCESS       = 0 
-            RDELTUP         = 0.0D0
-            GO TO 1060
-         ELSEIF( JFAIL .LE. 20 ) THEN
-            IFSUCCESS       = 0 
-            RDELT           = FRACDEC
-            GO TO 300 
-         ELSE
-            IFSUCCESS       = 1  
-            DELT            = DELT * 0.1D0
-            RDELT           = 1.0D0
-            JFAIL           = 0 
-            JRESTAR         = JRESTAR + 1
-            IDOUB           = 5
-            DO 900 I = 1, ISCHAN
-               DO 900 NCELL   = 1, NUMCELLS
-                  CNEW( NCELL, I ) = CONC( NCELL, I )
-  900       CONTINUE
-            WRITE( MSG, 94040 ) DELT, XELAPS 
-            IF( JRESTAR .EQ. 100 ) THEN
-               MSG = 'Integration stopped because of excessive errors.'
-               EXITSTAT = 2
-               CALL M3EXIT( 'SMVGEAR', JDATE, JTIME, MSG, EXITSTAT )
-            ENDIF
-            GO TO 120
-         ENDIF
-         
-      ELSE
-      
+                  NEFAIL = NEFAIL + 1
+                           
+                  XELAPS = TOLD
+                  JFAIL  = JFAIL  + 1
+                  I1     = NQQISC + 1
+                  DO 880 JB = 1, NQQ
+                     I1  = I1 - ISCHAN
+                     DO 880 I = I1, NQQISC
+                        J = I + ISCHAN
+                        DO 880 NCELL   = 1, NUMCELLS
+                           CONC( NCELL, I ) = CONC( NCELL, I ) - CONC( NCELL, J )
+ 880              CONTINUE
+                  RDELMAX          = 2.0D0
+                  
+                  IF( JFAIL .LE. 6 ) THEN
+                     IFSUCCESS       = 0 
+                     RDELTUP         = 0.0D0
+                     HIGHER_ORDER    = .FALSE.
+                  ELSEIF( JFAIL .LE. 20 ) THEN
+                     IFSUCCESS       = 0 
+                     RDELT           = FRACDEC
+                     CYCLE LOOP_ORDER
+                  ELSE
+                     IFSUCCESS       = 1  
+                     DELT            = DELT * 0.1D0
+                     RDELT           = 1.0D0
+                     JFAIL           = 0 
+                     JRESTAR         = JRESTAR + 1
+                     IDOUB           = 5
+                     DO 900 I = 1, ISCHAN
+                        DO 900 NCELL   = 1, NUMCELLS
+                           CNEW( NCELL, I ) = CONC( NCELL, I )
+  900                CONTINUE
+                     WRITE( MSG, 94040 ) DELT, XELAPS 
+                     IF( JRESTAR .EQ. 100 ) THEN
+                        MSG = 'Integration stopped because of excessive errors.'
+                        CALL M3EXIT( 'SMVGEAR', JDATE, JTIME, MSG, XSTAT2 )
+                     ENDIF
+                     CYCLE LOOP_INITIALIZE
+                  ENDIF
+               
+               ELSE      
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c                          ERROR TEST PASSED
 c  The following block of code is executed when the error test is
@@ -939,103 +780,76 @@ c  concentration and all derivatives, zero concentrations and
 c  derivatives below the specified lower concentration bound, do
 c  any requested outputs, and go the end if this is the last step.
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-         JFAIL     = 0
-         IFSUCCESS = 1
-         TOLD      = XELAPS
-         NSTEPS    = NSTEPS + 1
-         NQUSED    = NQQ
-         HUSED     = DELT
-         MXORDUSED = MAX( MXORDUSED, NQUSED )
-         IF( LTRCOUT ) NTRSTEP = -1
-         I1 = 1 - ISCHAN
-         DO 920 J = 1, KSTEP
-            I1 = I1 + ISCHAN
-            DO 920 I = I1, I1 + ISCHAN1
-               JSPC = I - I1 + 1
-               DO 920 NCELL = 1, NUMCELLS
-                  CONC( NCELL, I ) = CONC( NCELL, I ) + ASET( NQQ, J ) *
-     &                               DTLOS( NCELL, JSPC )
-  920    CONTINUE
-  
-         DO 940 I = 1, ISCHAN
-            DO 940 NCELL = 1, NUMCELLS
-               IF( CONC( NCELL, I ) .LE. CONCMIN ) THEN
-                   CONC( NCELL, I ) = ZBOUND
-                   CNEW( NCELL, I ) = ZBOUND
-                   CONC( NCELL, I +     ISCHAN ) = 0.0D0
-                   CONC( NCELL, I + 2 * ISCHAN ) = 0.0D0
-                   CONC( NCELL, I + 3 * ISCHAN ) = 0.0D0
-                   CONC( NCELL, I + 4 * ISCHAN ) = 0.0D0
-                   CONC( NCELL, I + 5 * ISCHAN ) = 0.0D0
-               ENDIF
-  940    CONTINUE 
-    
-         IF( LIRRFLAG ) THEN
-            DTCELL = DELT
-            DO I = 1, ISCHAN
-               ISPOLD = INEW2OLD( I, NCS )
-               DO NCELL = 1, NIRRCLS
-                  CIRR( NCELL, ISPOLD ) = CONC( IRRCELL( NCELL ), I )
-               ENDDO
-            ENDDO
-            CALL PA_IRR ( .FALSE., .FALSE., RKIRR, CIRR, DTCELL, 
-     &                       NIRRCLS, DUMMY )
-         ENDIF
-
-         IF( CALL_DEG ) THEN   !:WTH update DT_DEGRADE and apply
-            DT_DEGRADE = 60.0D0 * DELT + DT_DEGRADE
-            IF( DT_DEGRADE .GE. DTMIN_DEGRADE .OR. ( CHEMSTEP - XELAPS ) .LE. OMIC ) THEN
-               DO I = 1, ISCHAN
-                  ISPOLD = INEW2OLD( I, NCS )
-                  SPC      = CGRID_INDEX( ISPOLD )
-                  DO NCELL = 1, NUMCELLS
-                     YNEW_DEGRADE( NCELL, SPC ) = CONC( NCELL, I )
+                  JFAIL     = 0
+                  IFSUCCESS = 1
+                  TOLD      = XELAPS
+                  NSTEPS    = NSTEPS + 1
+                  NQUSED    = NQQ
+                  HUSED     = DELT
+                  MXORDUSED = MAX( MXORDUSED, NQUSED )
+                  
+                  I1 = 1 - ISCHAN
+                  DO 920 J = 1, KSTEP
+                     I1 = I1 + ISCHAN
+                     DO 920 I = I1, I1 + ISCHAN1
+                        JSPC = I - I1 + 1
+                        DO 920 NCELL = 1, NUMCELLS
+                           CONC( NCELL, I ) = CONC( NCELL, I ) + ASET( NQQ, J ) *
+     &                                        DTLOS( NCELL, JSPC )
+  920             CONTINUE
+                  
+                  DO 940 I = 1, ISCHAN
+                     DO 940 NCELL = 1, NUMCELLS
+                        IF( CONC( NCELL, I ) .LE. CONCMIN ) THEN
+                            CONC( NCELL, I ) = ZBOUND
+                            CNEW( NCELL, I ) = ZBOUND
+                            CONC( NCELL, I +     ISCHAN ) = 0.0D0
+                            CONC( NCELL, I + 2 * ISCHAN ) = 0.0D0
+                            CONC( NCELL, I + 3 * ISCHAN ) = 0.0D0
+                            CONC( NCELL, I + 4 * ISCHAN ) = 0.0D0
+                            CONC( NCELL, I + 5 * ISCHAN ) = 0.0D0
+                        ENDIF
+  940             CONTINUE 
+                  
+                  IF( LIRRFLAG ) THEN
+                     DTCELL = DELT
+                     DO I = 1, ISCHAN
+                        ISPOLD = INEW2OLD( I, NCS )
+                        DO NCELL = 1, NIRRCLS
+                           CIRR( NCELL, ISPOLD ) = CONC( IRRCELL( NCELL ), I )
+                        ENDDO
+                     ENDDO
+                     CALL PA_IRR ( .FALSE., .FALSE., RKIRR, CIRR, DTCELL, 
+     &                                NIRRCLS, DUMMY )
+                  ENDIF
+                  
+                  IF( CALL_DEG ) THEN   !:WTH update DT_DEGRADE and apply
+                     DT_DEGRADE = 60.0D0 * DELT + DT_DEGRADE
+                     IF( DT_DEGRADE .GE. DTMIN_DEGRADE .OR. ( CHEMSTEP - XELAPS ) .LE. OMIC ) THEN
+                        DO I = 1, ISCHAN
+                           ISPOLD = INEW2OLD( I, NCS )
+                           SPC      = CGRID_INDEX( ISPOLD )
+                           DO NCELL = 1, NUMCELLS
+                              YNEW_DEGRADE( NCELL, SPC ) = CONC( NCELL, I )
+                           ENDDO
+                        ENDDO
+                        CALL DEGRADE_BLK( YNEW_DEGRADE, DT_DEGRADE, JDATE, JTIME, BLKID )
+                        DT_DEGRADE = 0.0D0
+                     ENDIF
+                  ENDIF
+                  
+#ifdef sens       
+                  DO ISPOLD = 1, ISCHAN
+                    ISPNEW = IOLD2NEW( ISPOLD,1 )
+                    DO NCELL = 1, NUMCELLS
+                       CAVEG( NCELL, ISPOLD ) = CAVEG( NCELL, ISPOLD )
+     &                                         + 0.5D0 * ( CFINI( NCELL, ISPOLD ) + CONC( NCELL, ISPNEW ) )
+     &                                         * DELT
+                       CFINI( NCELL, ISPOLD ) = CONC( NCELL, ISPNEW )
+                    ENDDO
                   ENDDO
-               ENDDO
-               CALL DEGRADE_BLK( YNEW_DEGRADE, DT_DEGRADE, JDATE, JTIME, BLKID )
-               DT_DEGRADE = 0.0D0
-            ENDIF
-         ENDIF
-
-#ifdef sens
-         DO ISPOLD = 1, ISCHAN
-           ISPNEW = IOLD2NEW( ISPOLD,1 )
-           DO NCELL = 1, NUMCELLS
-              CAVEG( NCELL, ISPOLD ) = CAVEG( NCELL, ISPOLD ) 
-     &                                + 0.5D0 * ( CFINI( NCELL, ISPOLD ) + CONC( NCELL, ISPNEW ) ) 
-     &                                * DELT
-              CFINI( NCELL, ISPOLD ) = CONC( NCELL, ISPNEW ) 
-           ENDDO
-         ENDDO
-#endif
-
-         IF( LCONCOUT ) THEN
-            WRITE( IUNCOUT ) IRUN, BLKID, CELLOUT, CCOLOUT, CROWOUT, 
-     &                       CLEVOUT, NSTEPS, ( RUNMIN + XELAPS ),
-     &                       ( CONC( CELLOUT, I ),I = 1, ISCHAN )
-         ENDIF
+#endif         
                  
-         IF( LDBOUT ) THEN 
-            WRITE( IUNDBG, 93760 ) NSTEPS, IRUN, DELT, XELAPS, NQQ, KSTEP,
-     &                             IDOUB
-            IF( NSTEPS .EQ. NSTEPOUT ) THEN
-               WRITE( IUNDBG, 93780 ) NSTEPS, IRUN
-               DO JSPC = 1, ISCHAN
-                  ISPOLD = INEW2OLD( JSPC, NCS )
-                  JSPC1  = I + ISCHAN
-                  JSPC2  = I + 2 * ISCHAN
-                  JSPC3  = I + 3 * ISCHAN
-                  WRITE( IUNDBG, 93800 ) JSPC, CHEMISTRY_SPC( ISPOLD ), 
-     &                                   CONC( ICPR,  JSPC ),
-     &                                   CONC( ICPR, JSPC1 ),
-     &                                   CONC( ICPR, JSPC2 ),
-     &                                   CONC( ICPR, JSPC3 )
-               ENDDO
-               WRITE( IUNDBG, 93360 )
-            ENDIF
-!           IF( CHEMSTEP - XELAPS .LE. 1.0E-06 ) GO TO 1160
-            IF( CHEMSTEP - XELAPS .LE. OMIC ) GO TO 1160
-         ENDIF
          
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c                    SELECTION OF NEXT TIME-STEP
@@ -1050,28 +864,24 @@ c                but go on to the next step with the current step-
 c                size and order. 
 c  If IDOUB = 0, test the time-step and order for a change.  
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-         IF( IDOUB .GT. 1 ) THEN
-            IDOUB = IDOUB - 1
-            IF( IDOUB .EQ. 1 ) THEN
-               DO 980 JSPC = 1, ISCHAN, 2 
-                  JSPC1 = JSPC + 1
-                  DO 980 NCELL = 1, NUMCELLS
-                     CEST( NCELL,  JSPC ) = DTLOS( NCELL,  JSPC )
-                     CEST( NCELL, JSPC1 ) = DTLOS( NCELL, JSPC1 )
-  980          CONTINUE
-            ENDIF
-            RDELT = 1.0
+                  IF( IDOUB .GT. 1 ) THEN
+                     IDOUB = IDOUB - 1
+                     IF( IDOUB .EQ. 1 ) THEN
+                        DO 980 JSPC = 1, ISCHAN, 2 
+                           JSPC1 = JSPC + 1
+                           DO 980 NCELL = 1, NUMCELLS
+                              CEST( NCELL,  JSPC ) = DTLOS( NCELL,  JSPC )
+                              CEST( NCELL, JSPC1 ) = DTLOS( NCELL, JSPC1 )
+  980                   CONTINUE
+                     ENDIF
+                     RDELT = 1.0
+                                 
+                     CYCLE LOOP_ORDER
+                  ENDIF
             
-            IF( LDBOUT ) THEN
-               WRITE( IUNDBG, 93820 ) RDELT, IDOUB, IRUN, NSTEPS
-               WRITE( IUNDBG, 93840 ) NSTEPS
-            ENDIF
-            
-            GO TO 300
-         ENDIF
-         
-      ENDIF        ! End of error test block
+               ENDIF        ! End of error test block
 
+               IF( HIGHER_ORDER )THEN
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  The following block of code gets estimates for the next step-size by 
 c  computing step sizes at the curent order, one order higher than
@@ -1081,62 +891,65 @@ c  The final step-size and order selected are the ones that give the
 c  largest step-size.
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c.....estimate the time-step ratio at one order higher
-      IF( NQQ .LT. MAXORD ) THEN  
-         DO NCELL = 1, NUMCELLS
-            DELY( NCELL ) = 0.0D0
-         ENDDO
-         DO 1020 JSPC = 1, ISCHAN     
-            DO 1020 NCELL = 1, NUMCELLS 
-               ERRYMAX = ( DTLOS( NCELL, JSPC ) - 
-     &                     CEST( NCELL, JSPC ) ) * CHOLD( NCELL, JSPC )
-               DELY( NCELL ) = DELY( NCELL ) + ERRYMAX * ERRYMAX
- 1020    CONTINUE
-         DER3MAX = 0.0D0
-         DO NCELL = 1, NUMCELLS
-            IF( DELY( NCELL ) .GT. DER3MAX ) DER3MAX = DELY( NCELL )   
-         ENDDO       
-         PR3  = 1.4 * ( DER3MAX / EUP ) ** ENQQ3( NQQ )
-!        RDELTUP  = 1.0 / ( PR3 + 1.4E-6 )
-         RDELTUP  = 1.0D0 / ( PR3 + OPT4MIC )
-      ELSE
-         RDELTUP  = 0.0D0
-      ENDIF
-
+                  IF( NQQ .LT. MAXORD ) THEN  
+                     DO NCELL = 1, NUMCELLS
+                        DELY( NCELL ) = 0.0D0
+                     ENDDO
+                     DO 1020 JSPC = 1, ISCHAN     
+                        DO 1020 NCELL = 1, NUMCELLS 
+                           ERRYMAX = ( DTLOS( NCELL, JSPC ) - 
+     &                                 CEST( NCELL, JSPC ) ) * CHOLD( NCELL, JSPC )
+                           DELY( NCELL ) = DELY( NCELL ) + ERRYMAX * ERRYMAX
+                           ERROR_CNEW(NCELL,JSPC) = ERRYMAX
+ 1020                CONTINUE
+                     DER3MAX = 0.0D0
+                     DO NCELL = 1, NUMCELLS
+                        IF( DELY( NCELL ) .GT. DER3MAX )THEN
+                            DER3MAX = DELY( NCELL )   
+                            NCELLMAX = NCELL
+                        END IF
+                     ENDDO       
+                     PR3  = 1.4 * ( DER3MAX / EUP ) ** ENQQ3( NQQ )
+                     RDELTUP  = 1.0D0 / ( PR3 + OPT4MIC )
+                  ELSE
+                     RDELTUP  = 0.0D0
+                  ENDIF
+               END IF ! HIGHER_ORDER
+               HIGHER_ORDER = .TRUE.
+      
 c.....estimate the time-step ratio at the current order
- 1060 PR2       = 1.2D0 * ( DER2MAX / ENQQ ) ** ENQQ2( NQQ )
-!     RDELTSM   = 1.0 / ( PR2 + 1.2E-6 )
-      RDELTSM   = 1.0D0 / ( PR2 + OPT2MIC )
-      
+ 1060          PR2       = 1.2D0 * ( DER2MAX / ENQQ ) ** ENQQ2( NQQ )
+               RDELTSM   = 1.0D0 / ( PR2 + OPT2MIC )
+               
 c.....estimate the time-step ratio at one order lower
-      IF( NQQ .GT. 1 ) THEN
-         DO NCELL = 1, NUMCELLS
-            DELY( NCELL ) = 0.0D0
-         ENDDO
-         DO 1100 JSPC = 1, ISCHAN     
-            I = JSPC + ( KSTEP - 1 ) * ISCHAN
-            DO 1100 NCELL = 1, NUMCELLS 
-                ERRYMAX       = CONC( NCELL, I ) * CHOLD( NCELL, JSPC )
-                DELY( NCELL ) = DELY( NCELL ) + ERRYMAX * ERRYMAX
- 1100    CONTINUE
-         DER1MAX       = 0.0D0
-         DO NCELL = 1, NUMCELLS
-            IF( DELY( NCELL ) .GT. DER1MAX ) DER1MAX = DELY( NCELL )   
-         ENDDO        
-         PR1      = 1.3D0 * ( DER1MAX / EDWN ) ** ENQQ1( NQQ )
-!        RDELTDN  = 1.0 / ( PR1 + 1.3E-6 )
-         RDELTDN  = 1.0D0 / ( PR1 + OPT3MIC )
-      ELSE
-         RDELTDN  = 0.0D0
-      ENDIF
-
+               IF( NQQ .GT. 1 ) THEN
+                  DO NCELL = 1, NUMCELLS
+                     DELY( NCELL ) = 0.0D0
+                  ENDDO
+                  DO 1100 JSPC = 1, ISCHAN     
+                     I = JSPC + ( KSTEP - 1 ) * ISCHAN
+                     DO 1100 NCELL = 1, NUMCELLS 
+                         ERRYMAX       = CONC( NCELL, I ) * CHOLD( NCELL, JSPC )
+                         DELY( NCELL ) = DELY( NCELL ) + ERRYMAX * ERRYMAX
+                         ERROR_CNEW(NCELL,JSPC) = ERRYMAX
+ 1100             CONTINUE
+                  DER1MAX       = 0.0D0
+                  DO NCELL = 1, NUMCELLS
+                     IF( DELY( NCELL ) .GT. DER1MAX )THEN
+                         DER1MAX = DELY( NCELL )   
+                         NCELLMAX = NCELL
+                     END IF
+                  ENDDO        
+                  PR1      = 1.3D0 * ( DER1MAX / EDWN ) ** ENQQ1( NQQ )
+                  RDELTDN  = 1.0D0 / ( PR1 + OPT3MIC )
+               ELSE
+                  RDELTDN  = 0.0D0
+               ENDIF
+         
 c.....choose the largest of the predicted time-steps ratios 
-      RDELT      = MAX( RDELTSM, RDELTUP, RDELTDN )
-      
-      IF( LDBOUT ) THEN
-         WRITE( IUNDBG, 93860 ) RDELTSM, RDELTUP, RDELTDN
-         IF( IFSUCCESS .EQ. 1 ) WRITE( IUNDBG, 93840 ) NSTEPS
-      ENDIF
-      
+               RDELT      = MAX( RDELTSM, RDELTUP, RDELTDN )
+            
+            
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  The next block of code selects the final size of the next time
 c  step and then returns to statement 440 to do the next step.
@@ -1144,70 +957,62 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c.....If the last step was successful and rdelt is small, keep the
 c.....current step and order and require three successful steps before
 c.....re-checking the time-step and order
-      IF( RDELT .LT. 1.1 .AND. IFSUCCESS .EQ. 1 ) THEN
-         IDOUB = 3
-         GO TO 300
-      ENDIF
+               IF( RDELT .LT. 1.1 .AND. IFSUCCESS .EQ. 1 ) THEN
+                  IDOUB = 3
+                  CYCLE LOOP_ORDER
+               ENDIF
       
 c.....If the maximum time-step ratio is that of one order lower than
 c.....the current order, decrease the order. If the current step failed,
 c.....make sure the next step-size is no larger than the current size
-      IF( RDELT .EQ. RDELTDN ) THEN
-         NQQ = NQQ - 1
-!        IF( IFSUCCESS .EQ. 0 ) RDELT = MIN( RDELT, 1.0 )
-         IF( IFSUCCESS .EQ. 0 ) RDELT = MIN( RDELT, ONE )
-      ELSEIF( RDELT .EQ. RDELTUP ) THEN
-      
+               IF( RDELT .EQ. RDELTDN ) THEN
+                  NQQ = NQQ - 1
+                  IF( IFSUCCESS .EQ. 0 ) RDELT = MIN( RDELT, ONE )
+               ELSEIF( RDELT .EQ. RDELTUP ) THEN
+         
 c.....If the maximum time-step ratio is that of one order higher than
 c.....the current order, increase the order and add a derivative term
 c.....for the higher order.
-         CONSMULT   = ASET( NQQ, KSTEP ) / REAL( KSTEP, 8 )
-         NQQ        = KSTEP
-         NQISC      = NQQ * ISCHAN
-         DO 1140 JSPC = 1, ISCHAN
-            I1 = JSPC + NQISC
-            DO 1140 NCELL  = 1, NUMCELLS 
-               CONC( NCELL, I1 ) = DTLOS( NCELL, JSPC ) * CONSMULT
- 1140    CONTINUE
-      ENDIF
+                  CONSMULT   = ASET( NQQ, KSTEP ) / REAL( KSTEP, 8 )
+                  NQQ        = KSTEP
+                  NQISC      = NQQ * ISCHAN
+                  DO 1140 JSPC = 1, ISCHAN
+                     I1 = JSPC + NQISC
+                     DO 1140 NCELL  = 1, NUMCELLS 
+                        CONC( NCELL, I1 ) = DTLOS( NCELL, JSPC ) * CONSMULT
+ 1140             CONTINUE
+               ENDIF
 
 c.....If the last two steps have failed, minimize the time-step ratio.
 c.....In all cases, re-set idoub to the current order + 1.
-!     IF( JFAIL .GE. 2 ) RDELT = MIN( RDELT, 0.2E+00 )
-      IF( JFAIL .GE. 2 ) RDELT = MIN( RDELT, PT2 )
-      IDOUB = NQQ + 1
-      GO TO 300
-       
+               IF( JFAIL .GE. 2 ) RDELT = MIN( RDELT, PT2 )
+               IDOUB = NQQ + 1
+              END DO LOOP_ORDER
+             
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  The next block of code is performed when the integration has been
 c  succesfully completed for the required time period. Set final
 c  concentrations, update counters,do any required output, and return
 c  to the driver subroutine -- CHEM.
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc        
- 1160 CONTINUE
+         END DO LOOP_INITIALIZE
+      END DO LOOP_BEGIN
+         
       DO 1180 ISPC = 1, ISCHAN
          DO 1180 NCELL = 1, NUMCELLS
             IF( CNEW( NCELL, ISPC ) .LE. ZBOUND ) 
      &          CNEW( NCELL, ISPC ) = CONCMIN
  1180 CONTINUE
  
-#ifdef sens
-        CHEMSTEP  = 1.0D0 / CHEMSTEP
+#ifdef sens 
+         CHEMSTEP  = 1.0D0 / CHEMSTEP
          DO I = 1, ISCHAN
             DO NCELL = 1, NUMCELLS
-              CAVEG( NCELL,I ) = MAX( CAVEG( NCELL,I )*CHEMSTEP,CONCMIN )
+               CAVEG( NCELL,I ) = MAX( CAVEG( NCELL,I )*CHEMSTEP,CONCMIN )
             ENDDO
         ENDDO
 #endif
- 
-      IF( LTRCOUT ) THEN
-         WRITE( IUNTRC, 93200 ) IRUN, N999, NSUBFUN, NPDERIV, NUMNEWT,
-     &                          NCFAIL, NEFAIL, NZERO, XELAPS, ZERO,
-     &                          ZERO
-      ENDIF
-      
-      IF( LCONCOUT ) RUNMIN = RUNMIN + XELAPS
-      
+       
       RETURN
 
 C********************** FORMAT STATEMENTS ******************************
