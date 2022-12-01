@@ -72,7 +72,7 @@ C-----------------------------------------------------------------------
       USE HGRD_DEFN             ! horizontal domain specifications
       USE CGRID_SPCS            ! CGRID mechanism species
       USE UTILIO_DEFN
-      USE ELMO_DATA, ONLY : L_ELMO, ELMO_AVRG_STEP 
+      USE ELMO_DATA, ONLY : L_ELMO, ELMO_NSTEP 
       USE ELMO_PROC, ONLY : OPEN_ELMO
 #ifdef parallel
       USE SE_MODULES            ! stenex (using SE_UTIL_MODULE)
@@ -233,7 +233,7 @@ C Test opening existing conc file for update
 C *** Open the aerosol parameters file (diameters and standard deviations).
       IF ( L_ELMO .AND. IO_PE_INCLUSIVE ) THEN
            CALL OPEN_ELMO ( STDATE, STTIME, TSTEP( 1 ) )
-           ELMO_AVRG_STEP = 0
+           ELMO_NSTEP = 0.0
       END IF
 
       IF ( .NOT. OPEN3( CTM_CONC_1, FSRDWR3, PNAME ) ) THEN
