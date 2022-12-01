@@ -3071,6 +3071,8 @@
      &                        CFRAC, DZ, PV, ZH
       use centralized_io_module, only : interpolate_var, pv_avail
       use RUNTIME_VARS
+      Use phot_mod, Only: init_phot_shared 
+
 #ifdef sens
       USE DDM3D_DEFN, ONLY : SENGRID
 #endif 
@@ -3179,6 +3181,7 @@
       call interpolate_var ('ZH', jdate, jtime, ZHS)
 
       ! Calculate Heterogeneous Chemistry Rates
+      CALL INIT_PHOT_SHARED()
       CALL HETCHEM_RATES( TA, PRES, QV, CGRID, DENS )
 
       ! Process PM Diagnostics for Base Model
