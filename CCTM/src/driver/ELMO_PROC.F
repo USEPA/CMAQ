@@ -3053,7 +3053,7 @@
       END SUBROUTINE LOAD_ELMO
 
 !-------------------------------------------------------------------------
-      SUBROUTINE ELMO_DRIVER( CGRID, JDATE, JTIME, TSTEP, INIT_TIME, INIT_STEP )
+      SUBROUTINE ELMO_DRIVER( CGRID, JDATE, JTIME, TSTEP, INIT_TIME )
 !     This subroutine maps the PM diagnostic variables that the user has
 !       requested to the entries in the ELMO_DATA table.
 !-------------------------------------------------------------------------
@@ -3071,6 +3071,8 @@
      &                        CFRAC, DZ, PV, ZH
       use centralized_io_module, only : interpolate_var, pv_avail
       use RUNTIME_VARS
+      Use phot_mod, Only: init_phot_shared 
+
 #ifdef sens
       USE DDM3D_DEFN, ONLY : SENGRID
 #endif 
@@ -3084,7 +3086,7 @@
       INTEGER, INTENT( IN ) :: TSTEP(3)
       LOGICAL, INTENT( IN ) :: INIT_TIME        ! Is this the first time step 
                                                 !   of the simulation
-      LOGICAL, INTENT( IN ) :: INIT_STEP        ! Is the time step beginning
+      LOGICAL :: INIT_STEP        ! Is the time step beginning
 
       ! Variable to set time step for writing visibility file
       INTEGER, SAVE :: WSTEP  = 0          ! local write counter
@@ -3118,7 +3120,7 @@
       IF ( FIRSTIME ) THEN
           FIRSTIME = .FALSE.
           ! Initialize Number of Steps Used for Calculating Average
-          ELMO_AVRG_STEP = 0
+          ELMO_NSTEP = 0.
 
           ALLOCATE( PRES( NCOLS, NROWS, NLAYS),
      &              TA( NCOLS, NROWS, NLAYS ),
@@ -3133,15 +3135,16 @@
 
       ! Determine if this is a write step
       WRITE_STEP = .FALSE.
-      
-      IF ( INIT_STEP ) THEN
+      INIT_STEP  = .FALSE.
+      IF ( ELMO_NSTEP .LT. 1.0 ) THEN
          WSTEP = 0
+         INIT_STEP = .TRUE.
       ELSE
-         ELMO_AVRG_STEP = ELMO_AVRG_STEP + 1
          WSTEP = WSTEP + TIME2SEC( TSTEP( 2 ) )
          IF ( WSTEP .GE. TIME2SEC( TSTEP( 1 ) ) ) 
      &        WRITE_STEP = .TRUE.
       END IF
+      ELMO_NSTEP = ELMO_NSTEP + 1.0
      
       ! Get Meteorological Variables
 
@@ -3178,6 +3181,7 @@
       call interpolate_var ('ZH', jdate, jtime, ZHS)
 
       ! Calculate Heterogeneous Chemistry Rates
+      CALL INIT_PHOT_SHARED()
       CALL HETCHEM_RATES( TA, PRES, QV, CGRID, DENS )
 
       ! Process PM Diagnostics for Base Model
@@ -3403,25 +3407,27 @@ C *** Write data to the scalar output file.
          END IF
      
 C *** Write data to the average aerosol diagnostic file.
-         IF ( AVRG_ACTIVE .AND. .NOT.INIT_TIME ) THEN
-            IF ( .NOT. END_TIME ) THEN   ! ending time timestamp
-               CALL NEXTIME ( MDATE, MTIME, -TSTEP(1) )
-            END IF
-
-            IF ( .NOT. WRITE3( CTM_AELMO_1, 
-     &           ALLVAR3, MDATE, MTIME, 
-     &           ELMO_AVRG(:,:,:,:) / 2.0 / 
-     &           ELMO_AVRG_STEP ) ) THEN
-               XMSG = 'Could not write ' // CTM_AELMO_1 // ' file'
-               CALL M3EXIT ( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
-            END IF
-
-            WRITE( LOGDEV, '( /5X, 3( A, :, 1X ), I8, ":", I6.6 )' )
-     &                     'Timestep written to', CTM_AELMO_1,
-     &                     'for date and time', MDATE, MTIME
-
-            ELMO_AVRG_STEP = 0
-
+         IF ( .NOT.INIT_TIME ) THEN
+           IF ( AVRG_ACTIVE ) THEN
+              IF ( .NOT. END_TIME ) THEN   ! ending time timestamp
+                 CALL NEXTIME ( MDATE, MTIME, -TSTEP(1) )
+              END IF
+          
+              IF ( .NOT. WRITE3( CTM_AELMO_1, 
+     &             ALLVAR3, MDATE, MTIME, 
+     &             ELMO_AVRG(:,:,:,:) / 2.0 / 
+     &             (ELMO_NSTEP-1.0) ) ) THEN
+                 XMSG = 'Could not write ' // CTM_AELMO_1 // ' file'
+                 CALL M3EXIT ( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
+              END IF
+          
+              WRITE( LOGDEV, '( /5X, 3( A, :, 1X ), I8, ":", I6.6 )' )
+     &                       'Timestep written to', CTM_AELMO_1,
+     &                       'for date and time', MDATE, MTIME
+          
+          
+           END IF
+           ELMO_NSTEP = 0.
          END IF
       RETURN 
 
