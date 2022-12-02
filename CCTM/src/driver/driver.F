@@ -106,7 +106,7 @@ C-----------------------------------------------------------------------
       USE RXNS_DATA             ! chemical mechanism data
       USE BUDGET_DEFN
       USE AERO_DATA
-      USE ELMO_DATA, ONLY : L_ELMO
+      USE ELMO_DATA, ONLY : L_ELMO, ELMO_NSTEP
       USE ELMO_PROC, ONLY : ELMO_DRIVER, WRITE_ELMO, MAP_ELMO
 #ifdef mpas
       USE CGRID_SPCS            ! CGRID mechanism species
@@ -707,15 +707,13 @@ C Compute ELMO Values at Beginning of Main Time Step
              
              ! Calculate all ELMO variables for both Instantaneous and
              ! Average parameters
-             CALL ELMO_DRIVER( CGRID, JDATE, JTIME, TSTEP,
-     &                         INIT_TIME=.TRUE., INIT_STEP=.TRUE. )
+             CALL ELMO_DRIVER( CGRID, JDATE, JTIME, TSTEP, INIT_TIME=.TRUE.)
              ! Print Instantaneous Values at first time step
              CALL WRITE_ELMO( JDATE, JTIME, TSTEP, INIT_TIME=.TRUE. )
 
-        ELSE
+        ELSE IF ( ELMO_NSTEP .LT. 1.0 ) THEN
              ! Calculate all ELMO Variables for averaging but do not output them
-             CALL ELMO_DRIVER( CGRID, JDATE, JTIME, TSTEP,
-     &                         INIT_TIME=.FALSE., INIT_STEP=.TRUE. )
+             CALL ELMO_DRIVER( CGRID, JDATE, JTIME, TSTEP, INIT_TIME=.FALSE. )
         END IF
       END IF
 
@@ -773,8 +771,7 @@ C Use trapezoidal rule to time-average data
 
 #endif
          ! OUTPUT DIAGNOSTIC INFORMATION
-         IF ( L_ELMO ) CALL ELMO_DRIVER( CGRID, JDATE, JTIME, TSTEP, 
-     &                      INIT_TIME=.FALSE., INIT_STEP=.FALSE. )
+         IF ( L_ELMO ) CALL ELMO_DRIVER( CGRID, JDATE, JTIME, TSTEP, INIT_TIME=.FALSE. )
 
       END DO
 
