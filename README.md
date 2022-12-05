@@ -18,10 +18,13 @@ Updates will be issued by the CMAQ development team or other users as Pull Reque
 
 ### Examples of updates to a continually evolving branch  
 Potential updates include bugfixes that resolves runtime failures, segmentation faults, initialization issues, etc. Other updates could target algorithm inefficiencies that slow the model down. In these cases, it is expected that an improved algorithm would not change model results.  
-
+ 
 ### Record of changes to CMAQv5.4+
-There are no current changes to the CMAQv5.4+ branch.  The CMAQv5.4 code on the main branch is the most recent release. 
-
+|      Tag        |   PR Number       |         PR Name          |   Merge Date     | Brief Description |
+| -------------- | ------------------ | ------------------------ | ---------------- | -----------------------|
+|  |[#182](https://github.com/USEPA/CMAQ/pull/182) | Add precision to logfile process timing| 2022-12-02 | At high computational efficiency, the default precision provided for the timing metrics in the logfile was yielding 0.0. This PR adds 3 decimal places of precision to the timing output.|
+|  |  [#181](https://github.com/USEPA/CMAQ/pull/181)|Resolve time-stepping issue in ELMO when used within WRF-CMAQ and MPAS-CMAQ | 2022-12-02 | ELMO gives erroneous results in WRF-CMAQ and when using met inputs not aligned with hour time steps. This PR resolves the problem by adjusting the algorithm for identifying when the initial time step is hit for the simulation and synchronization cycles.|
+| | [#180](https://github.com/USEPA/CMAQ/pull/180)     | BDSNP fix  | 2022-12-02 | Online nitrogen deposition (NDEP) is erroneously enabled when using BDSNP in the released version of CMAQ 5.4. This PR corrects an IF statement that was meant to disable online nitrogen deposition. |
 
 ## CMAQ version 5.4 Overview:
 
