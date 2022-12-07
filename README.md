@@ -22,7 +22,7 @@ Potential updates include bugfixes that resolves runtime failures, segmentation 
 ### Record of changes to CMAQv5.4+
 |      Tag        |   PR Number       |         PR Name          |   Merge Date     | Brief Description |
 | -------------- | ------------------ | ------------------------ | ---------------- | -----------------------|
-|[CMAQv5.3.0.1_7Dec2022](https://github.com/USEPA/CMAQ/releases/tag/CMAQv5.4.0.1_7Dec2022)|||||
+|[CMAQv5.4.0.1_7Dec2022](https://github.com/USEPA/CMAQ/releases/tag/CMAQv5.4.0.1_7Dec2022)|||||
 |  |[#183](https://github.com/USEPA/CMAQ/pull/183) | Enable DDM-3D and ISAM calculations and output for Potential Vorticity option| 2022-12-07 | Inadvertently, DDM-3D and ISAM code were not functioning with the CMAQ 5.4 release when the potential vorticity option was enabled during compilation. This pull request corrects both models.|
 |  |[#182](https://github.com/USEPA/CMAQ/pull/182) | Add precision to logfile process timing| 2022-12-02 | At high computational efficiency, the default precision provided for the timing metrics in the logfile was yielding 0.0. This PR adds 3 decimal places of precision to the timing output.|
 |  |  [#181](https://github.com/USEPA/CMAQ/pull/181)|Resolve time-stepping issue in ELMO when used within WRF-CMAQ and MPAS-CMAQ | 2022-12-02 | ELMO gives erroneous results in WRF-CMAQ and when using met inputs not aligned with hour time steps. This PR resolves the problem by adjusting the algorithm for identifying when the initial time step is hit for the simulation and synchronization cycles.|
