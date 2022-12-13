@@ -46,7 +46,7 @@ Note, using this ioapi-large version is not required for the CMAQ-ISAM Benchmark
 If a user needs to use larger setting for MXFILE3 and MXVAR3 to support their application, note that the memory requirements will be increased.
 This version is available as a zip file from the following address:
 
-https://www.cmascenter.org/ioapi/download/ioapi-3.2-large-2020220.tar.gz
+https://www.cmascenter.org/ioapi/download/ioapi-3.2-large-20200828.tar.gz
 
 ## 11.3 Run Instructions
 
