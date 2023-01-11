@@ -1,18 +1,17 @@
 ## CMAQ Tutorial ##
 ### Add Chemically Inert Tracer Species to CMAQ ###
-Purpose: This tutorial will step you through the process of adding chemically inert tracers to the CMAQ model. Additional details are provided in the CMAQ Operational [Guidance Document (OGD)](https://github.com/USEPA/CMAQ/blob/5.3/DOCS/User_Guide).
-
+Purpose: This tutorial will step you through the process of adding chemically inert tracers to the CMAQ model. 
 
 ------------
 
 
 ### STEP 1: Create tracer namelist</strong>
 
-Create namelist according to Table 3.4 in the [CMAQ OGD](CMAQ_UG_ch04_model_inputs.md#Table3-4). Include one line for each tracer species with the following format (refer to the table below for more information on the abbreviations):
+Create namelist according to Table 4-2 in the [CMAQ User's Guide](../CMAQ_UG_ch04_model_inputs.md#Table4-2). Include one line for each tracer species with the following format (refer to the table below for more information on the abbreviations):
 
 <a id=Table3-4></a>
 
-<center> **Amended from Table 3-4. in CMAQ UG** </center>
+<center> **Amended from Table 4-2 in the CMAQ User's Guide** </center>
 
 | **Line**| **Column** |**Name** | **Type**| **Description** |**Options for Syntax**:|
 |-----|-----|----------------------|----------|--------------------------------------------|----------------------------|
