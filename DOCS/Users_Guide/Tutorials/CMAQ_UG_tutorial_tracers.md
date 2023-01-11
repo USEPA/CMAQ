@@ -11,7 +11,7 @@ Create namelist according to Table 4-2 in the [CMAQ User's Guide](../CMAQ_UG_ch0
 
 <a id=Table3-4></a>
 
-<center> **Amended from Table 4-2 in the CMAQ User's Guide** </center>
+**Amended from Table 4-2 in the CMAQ User's Guide** 
 
 | **Line**| **Column** |**Name** | **Type**| **Description** |**Options for Syntax**:|
 |-----|-----|----------------------|----------|--------------------------------------------|----------------------------|
