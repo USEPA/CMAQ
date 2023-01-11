@@ -27,7 +27,7 @@ CMAQv5.4 maintains the CONC and ACONC files - they are available for use identic
 If a user would like to continue using the COMBINE workflow to aggregate PM variables, they may output necessary variables like FPM25ACC to ELMO files and use those with CONC output. 
 Alternatively, a user may elect to rely exclusively on ELMO output files alone and set the CONC_SPCS and AVG_CONC_SPCS variables in the CMAQ runscript to just one variable (e.g. O3) to minimize their I/O time and storage space footprint. 
 
-<a id=FigureF-2></a> ![Figure F-2](../images/FigureF-2.png)  
+<a id=FigureF-2></a> ![Figure F-2](../images/FigureF-2b.png)  
 **Figure F-2. Schematic of data workflow in v5.3 and v5.4 with ELMO**
 
 There are several distinct advantages to using ELMO over post-processing CONC and ACONC output with COMBINE:
