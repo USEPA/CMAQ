@@ -101,7 +101,7 @@ TR_SPECIES_DATA =
   * does not participate in gas-to-aerosol or gas-to-aqueous transformations
   * will undergo advection and diffusion
   * will be written to the DDEP, WDEP, and CONC output files  
-  * to map emissions of this species to total CO emissions, use the following rule in the CMAQ_Control_DESID_${mech}.nml file.
+  * see the instructions below for how to map emissions to this tracer species using DESID.
   
 **The last tracer species ICT_50PPB**
   * is defined to have a molecular weight of 1 g/mole
