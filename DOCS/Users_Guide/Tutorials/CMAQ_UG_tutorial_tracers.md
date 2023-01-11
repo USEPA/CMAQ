@@ -55,7 +55,6 @@ TR_SPECIES_DATA =
 
 **The first tracer species O3_BC**
   * is defined to have the same molecular weight as ozone
-  * is not mapped to any emissions species
   * uses the ozone dry deposition velocity (VD_O3) scaled with a factor of 1 as its surrogate for dry deposition
   * uses ozone as its scavenging surrogate scaled with a factor of 1
   * will try to obtain its boundary conditions from a CMAQ species named 'O3' in the boundary condition files with a scaling factor of 1 
@@ -66,7 +65,6 @@ TR_SPECIES_DATA =
   
 **The second tracer species CO_BC**
   * is defined to have the same molecular weight as CO
-  * is not mapped to any emissions species
   * uses the CO dry deposition velocity (VD_CO) scaled with a factor of 1 as its surrogate for dry deposition
   * uses CO as its scavenging surrogate scaled with a factor of 1
   * will try to obtain its boundary conditions from a species named 'CO' in the boundary condition files with a scaling factor of 1
@@ -77,7 +75,6 @@ TR_SPECIES_DATA =
   
   **The third tracer species O3_IC**
   * is defined to have the same molecular weight as ozone
-  * is not mapped to any emissions species
   * uses the ozone dry deposition velocity (VD_O3) scaled with a factor of 1 as its surrogate for dry deposition
   * uses ozone as its scavenging surrogate scaled with a factor of 1
   * will try to obtain its initial conditions from a species named 'O3' in the initial condition files with scaling factor of -1
@@ -88,7 +85,6 @@ TR_SPECIES_DATA =
   
 **The fourth tracer species O3_BC_50PC**
   * is defined to have the same molecular weight as ozone
-  * is not mapped to any emissions species
   * uses the ozone dry deposition velocity (VD_O3) scaled with a factor of 1 as its surrogate for dry deposition
   * uses ozone as its scavenging surrogate scaled with a factor of 1
   * will try to obtain its  boundary conditions from a species named 'O3' in the boundary condition files with a scaling factor of 0.5
@@ -99,17 +95,16 @@ TR_SPECIES_DATA =
   
 **The fifth tracer species CO_EMIS**
   * is defined to have the same molecular weight as CO
-  * uses CO emissions scaled with a factor of 1 as its emission surrogate
   * uses the CO dry deposition velocity (VD_CO) scaled with a factor of 1 as its surrogate for dry deposition
   * uses CO as its scavenging surrogate scaled with a factor of 1
   * is not mapped to any initial/boundary condition surrogate, therefore uses default scaling factor of -1
   * does not participate in gas-to-aerosol or gas-to-aqueous transformations
   * will undergo advection and diffusion
   * will be written to the DDEP, WDEP, and CONC output files  
+  * to map emissions of this species to total CO emissions, use the following rule in the CMAQ_Control_DESID_${mech}.nml file.
   
 **The last tracer species ICT_50PPB**
   * is defined to have a molecular weight of 1 g/mole
-  * is not mapped to any emissions species
   * is not mapped to any dry deposition velocity surrogate, i.e. does not undergo dry deposition, therefore uses default scaling factor of -1
   * is not mapped to any scavenging surrogate, i.e. does not undergo scavenging , therfore uses default scaling factor of -1
   * will try to obtain its initial from a species named ICT_50PPB in the initial condition files
@@ -232,8 +227,10 @@ Once the script is made, execute the run script with the following commands:
 The CO_EMIS tracer is designed to track the fate of CO emissions without any influence from initial or boundary conditions and therefore no IC/BC surrogate was specified and no additional species needs to be added to the initial condition file for this tracer. However, it must be specified in the mechanism-specific CMAQ_Control_DESID file found under CCTM/src/MECHS/*{mechanism name}* in the CMAQ repository. For example if running the cb6r3_ae7_aq mechanism, edit the CMAQ_Control_DESID_cb6r3_ae7_aq.nml  file to include the following line after the Custom Mapping Examples in the Emissions Scaling Rules section: 
 
 ```
+   ! Region      | Stream Label  |Emission | CMAQ-        |Phase/|Scale |Basis |Op
+   !  Label      |               |Species  | Species      |Mode  |Factor|      |
    !Tracer
-   'EVERYWHERE', 'ALL'         ,'CO'     ,'CO_EMIS'          ,'GAS'  ,1.  ,'UNIT','a',
+   'EVERYWHERE'  , 'ALL'         ,'CO'     ,'CO_EMIS'      ,'GAS',1.    ,'UNIT','a',
 ```
 
 Further details on how to change and customize the emissions control file to the users specification outside the scope of this tutorial can be found in the [emissions tutorial](CMAQ_UG_tutorial_emissions.md). 
