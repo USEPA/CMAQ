@@ -1,6 +1,6 @@
 ## CMAQ Tutorial ##
-### Add Chemically Inert Tracer Species to CMAQ ###
-Purpose: This tutorial will step you through the process of adding chemically inert tracers to the CMAQ model. 
+### Add Chemically Inert Gas Phase Tracer Species to CMAQ ###
+Purpose: This tutorial will step you through the process of adding chemically inert gas phase tracers to the CMAQ model.  Inert tracers can be used as a development tool to test mass conservation when modifying processes in CMAQ.  They can also be used for exploratory analysis such as studying the persistence or impact of initial and/or boundary conditions on air quality model estimates, e.g., [Hogrefe et al. (2017)](https://doi.org/10.1016/j.atmosenv.2017.04.009), [Liu et al. (2018)](https://doi.org/10.5194/acp-18-17157-2018). Note that inert tracers are not a replacement for source contribution analysis (e.g., [CMAQ ISAM](../CMAQ_UG_ch11_ISAM.md)) that provides an estimate of how much of a modeled pollutant came from specific sources or processes  ([Baker et al. (2015)](https://doi.org/10.1016/j.atmosenv.2015.10.055)). 
 
 ------------
 
@@ -130,7 +130,7 @@ Note that adding species (if any) to the initial condition file is only necessar
 
 #### Script to add O3_IC and ICT_50PPB to an existing initial condition file ####
 
-The run script below uses the [`combine`](../../POST/combine) program to add species ICT_50PB to an existing initial condition file. . ICT_50PPB is set to a constant mixing ratio of 0.05 ppm for all grid cells. From the CMAQ Home directory run the following commands to build the combine executable: 
+The run script below uses the [`combine`](../../../POST/combine) program to add species ICT_50PB to an existing initial condition file. . ICT_50PPB is set to a constant mixing ratio of 0.05 ppm for all grid cells. From the CMAQ Home directory run the following commands to build the combine executable: 
 
 ```
 cd $CMAQ_HOME/POST/combine/scripts
@@ -229,7 +229,7 @@ Once the script is made, execute the run script with the following commands:
 ./run.{script_name}.csh |& tee run.combine.log
 ```
 
-The CO_EMIS tracer is designed to track the fate of CO emissions without any influence from initial or boundary conditions and therefore no IC/BC surrogate was specified and no additional species needs to be added to the initial condition file for this tracer. However, it must be specified in the [emissions input](CMAQ_UG_ch04_model_inputs.md#EmissionsInputs) file. Depending on the mechanism the user plans to use navigate the [CMAQ repository](CMAQ_UG_ch05_running_CMAQ.md#5.3TheCMAQRepositoryStructure) to find the EmissCtrl_{mechanism_name}.nml file. For example if running the cb6r3_ae7_aq mechanism, edit EmissCtrl_cb6r3_ae7_aq.nml file to include the following line after the Custom Mapping Examples in the Emissions Scaling Rules section: 
+The CO_EMIS tracer is designed to track the fate of CO emissions without any influence from initial or boundary conditions and therefore no IC/BC surrogate was specified and no additional species needs to be added to the initial condition file for this tracer. However, it must be specified in the mechanism-specific CMAQ_Control_DESID file found under CCTM/src/MECHS/*{mechanism name}* in the CMAQ repository. For example if running the cb6r3_ae7_aq mechanism, edit the CMAQ_Control_DESID_cb6r3_ae7_aq.nml  file to include the following line after the Custom Mapping Examples in the Emissions Scaling Rules section: 
 
 ```
    !Tracer
