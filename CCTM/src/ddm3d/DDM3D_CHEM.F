@@ -430,7 +430,6 @@ C end edit
             END DO
 C Added by A.Digar
             DO S = 1, NUMB_MECH_SPC
-c              PROD(S) = 0.0
                PRD(S) = 0.0
                J = JOLD2NEW(S,1)
                SOLD(J) = SENGRID( C, R, L, NP, CGRID_INDEX(S) ) 
