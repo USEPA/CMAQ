@@ -10,6 +10,7 @@ The Community Multiscale Air Quality (CMAQ) model was used to simulate the trans
 Updates to CMAQ physical and chemical processes included the following:
 * Added PFAS gas and aerosol species to the GC and AE namelists in the CB6r3_ae7 mechanism. Aerosol species were also added to the master table in AERO_DATA.F
 * PFAS-specific Henry's Law Coefficients were added to hlconst.F. The update to hlconst.F is relevant for dry deposition to wet surfaces as well as uptake of PFAS vapors into hydrometeors. For carboxylic acids, pH-dependence was also treated via specification of acid disssociation constants. An alternative version of hlconst.F (hlconst_carbacid.F) replaces the Henry's Law Coefficients of all acyl fluorides with those of carboxylic acids. 
+* Chemical properties were added for PFAS compounds to the STAGE module to support deposition calculations. Currently, CMAQ-PFAS does not run with m3dry, but this will be resolved in a future release.
 * The gas-particle partitioning of PFAS was treated in aero_subs.F. Equilibrium partitioning was assumed and the fraction of the total PFAS in the particle organic phase (controlled by saturation concentration, C*) and the particle aqueous phase (controlled by pH-dependent Henry's Law) was solved simultaneously. The C* of each PFAS was added to the table in SOA_DEFN.F.
 * SpecDef files for CB6r3_ae7 were updated to calculate aggregate PFAS output variables.
 
