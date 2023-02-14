@@ -4,7 +4,7 @@ Purpose: This guide describes how to install and run the CMAQ test case, which s
 
 Benchmarking refers to a simulation that is used to verify that the software is installed correctly.  Benchmarking CMAQ is recommended in the following circumstances:
 - Installation by a new user
-- Installation on a new server     
+- Installation on a new server     f
 - Following kernel upgrades
 - Following Fortran/C compiler upgrades
 - Following netCDF or I/O API library upgrades
@@ -103,7 +103,7 @@ Download the CMAQ two day reference input and output data from the [CMAS Center 
   - [Tips to download data from CMAS Data Warehouse](https://docs.google.com/document/d/1e7B94zFkbKygVWfrhGwEZL51jF4fGXGXZbvi6KzXYQ4)
   - Text files are included that provide a list of the files in the benchmark input and output datasets.
 
-The benchmark data is also available form the US EPA annoymous ftp server: https://gaftp.epa.gov/exposure/CMAQ/V5_4.
+The benchmark data is also available from the [CMAS Center Data Warehouse Amazon Web Services S3 Bucket](https://cmas-cmaq.s3.amazonaws.com/index.html). 
 
 Copy the data to `$CMAQ_DATA`. Navigate to the `$CMAQ_DATA` directory, unzip and untar the two day benchmark input and output files:
 
