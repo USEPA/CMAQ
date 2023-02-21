@@ -16,7 +16,7 @@ echo 'Start Model Run At ' `date`
 
 #> Toggle Diagnostic Mode which will print verbose information to 
 #> standard output
- setenv CTM_DIAG_LVL 0oc
+ setenv CTM_DIAG_LVL 0
 
 #> Choose compiler and set up CMAQ environment with correct 
 #> libraries using config.cmaq. Options: intel | gcc | pgi

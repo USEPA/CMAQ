@@ -4,7 +4,7 @@ Purpose: This guide describes how to install and run the CMAQ test case, which s
 
 Benchmarking refers to a simulation that is used to verify that the software is installed correctly.  Benchmarking CMAQ is recommended in the following circumstances:
 - Installation by a new user
-- Installation on a new server     f
+- Installation on a new server     
 - Following kernel upgrades
 - Following Fortran/C compiler upgrades
 - Following netCDF or I/O API library upgrades
