@@ -158,16 +158,18 @@
       CHARACTER(256) :: TR_NAMELIST = '' ! Tracer Species Namelist
      
       ! Chemistry and Photolysis
-      LOGICAL :: PHOTDIAG  = .FALSE. ! Flag for PHOTDIAG file
-      INTEGER :: NLAYS_DIAG = 0      ! Number of Diagnostic Layers to write out for photolysis
-      INTEGER :: NWAVE = 0           ! Number of Diagnostic Wavelengths
-      CHARACTER(16) :: WAVE_ENV(100) ! Targeted wavelengths for diagnostic output
-      LOGICAL :: CORE_SHELL= .FALSE. ! flag for using core-shell mixing model for aerosol optics
-      LOGICAL :: MIE_CALC  = .FALSE. ! flag for using Mie Theory in aerosol optics calculation
-      REAL    :: GEAR_ATOL = 1.0E-9  ! Absolute Tolerance for Gear Solver
-      REAL    :: GEAR_RTOL = 1.0E-3  ! Relative Tolerance for Gear Solver
-      REAL    :: GLBL_ATOL = 1.0E-7  ! Absolute Tolerance for Rosenbrock Solver
-      REAL    :: GLBL_RTOL = 1.0E-3  ! Relative Tolerance for Rosenbrock Solver
+      LOGICAL :: PHOTDIAG  = .FALSE.       ! Flag for PHOTDIAG file
+      INTEGER :: NLAYS_DIAG = 0            ! Number of Diagnostic Layers to write out for photolysis
+      INTEGER :: NWAVE = 0                 ! Number of Diagnostic Wavelengths
+      CHARACTER(16) :: WAVE_ENV(100)       ! Targeted wavelengths for diagnostic output
+      LOGICAL :: CORE_SHELL= .FALSE.       ! flag for using core-shell mixing model for aerosol optics
+      LOGICAL :: MIE_CALC  = .FALSE.       ! flag for using Mie Theory in aerosol optics calculation
+      REAL    :: GEAR_RTOL = 1.0E-3        ! Relative Tolerance for Gear Solver
+      REAL    :: GEAR_MAX_ATOL = 1.0E-7    ! Upper Bound for Absolute Tolerance in Gear Solver (ppmV)
+      REAL    :: GEAR_MIN_ATOL = 1.0E-9    ! Lower Bound for Absolute Tolerance in Gear Solver (ppmV)
+      REAL    :: GEAR_CONC_FLOOR = 1.0E-12 ! Lowest Concentration used determing ATOL in Gear Solver (ppmV)
+      REAL    :: GLBL_ATOL = 1.0E-7        ! Absolute Tolerance for Rosenbrock Solver (ppmV)
+      REAL    :: GLBL_RTOL = 1.0E-3        ! Relative Tolerance for Rosenbrock Solver
 
       ! Aerosols
       LOGICAL :: IC_AERO_M2WET=.FALSE.! flag for specifying wet aerosol size parameters 
@@ -618,8 +620,18 @@
       ! Get flag to use fast optics for volume mixing model for aerosol optical properties
       CALL GET_ENV ( MIE_CALC, 'OPTICS_MIE_CALC', MIE_CALC, VARDEV )
 
-      !Absolute Tolerance for SMVGEAR
-      CALL GET_ENV ( GEAR_ATOL, 'GEAR_ATOL', GEAR_ATOL, VARDEV )
+      IF ( MYPE .EQ. 0 ) THEN
+         WRITE( OUTDEV, '(/,6x,A,/)' )'--ATOL settings are in ppmV.--'
+      END IF
+
+      ! Upper Bound for Absolute Tolerance for Gear Solver
+      CALL GET_ENV ( GEAR_MAX_ATOL, 'GEAR_MAX_ATOL', GEAR_MAX_ATOL, VARDEV )
+      
+      ! Lower Bound for Absolute Tolerance for Gear Solver
+      CALL GET_ENV ( GEAR_MIN_ATOL, 'GEAR_MIN_ATOL', GEAR_MIN_ATOL, VARDEV )
+      
+      ! Lowest Concentration used determing ATOL for Gear Solver
+      CALL GET_ENV ( GEAR_CONC_FLOOR, 'GEAR_CONC_FLOOR', GEAR_CONC_FLOOR, VARDEV )
       
       !Relative Tolerance for SMVGEAR
       CALL GET_ENV ( GEAR_RTOL, 'GEAR_RTOL', GEAR_RTOL, VARDEV )
@@ -1160,7 +1172,7 @@
       CASE ( 1 )
           ! Write Out The Time to Complete Each Sub-Process
           WRITE( XMSG, 1002 ),TRIM( CPROC ), CPU_TIME_FINISH-CPU_TIME_START
-1002      FORMAT ( 2x, A15, ' completed... ', F6.1, ' seconds' )
+1002      FORMAT ( 2x, A15, ' completed... ', F12.4, ' seconds' )
 
       CASE ( 2 ) 
           ! Write out the time to complete the entire master time step
@@ -1169,14 +1181,14 @@
 #ifndef twoway
           IF ( MYPE .EQ. 0 ) CALL LOG_MESSAGE( OUTDEV, XMSG )
 #endif
-          WRITE( XMSG, '(7x,A24,F6.1,A8)' ),'Processing completed... ',
+          WRITE( XMSG, '(7x,A24,F12.4,A8)' ),'Processing completed... ',
      &                     (CPU_TIME_FINISH-CPU_TIME_START),' seconds'
           CALL LOG_MESSAGE( LOGDEV, XMSG )
           WRITE( LOGDEV, * )
 
       CASE ( 3 ) 
           ! Write out the time to complete the output procedure
-          WRITE( XMSG, '(1x,A32,F4.1,A)' ), '=--> Data Output completed...   ',
+          WRITE( XMSG, '(1x,A32,F10.4,A)' ), '=--> Data Output completed...   ',
      &                     (CPU_TIME_FINISH-CPU_TIME_START),' seconds'
           CALL LOG_MESSAGE( LOGDEV, XMSG )
           WRITE( LOGDEV, * )
