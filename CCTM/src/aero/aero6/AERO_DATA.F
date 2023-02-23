@@ -1202,6 +1202,7 @@ C AORGH2O is not required, but highly recommended for aero7
          aso4icbc_idx   = findAero( req_so4icbc,   .True. )
          If ( ( ae6isoa ) .OR.
      &        ( Index( mechname, 'CB6R3_AE7'       ) .Gt. 0 ) .OR.
+     &        ( Index( mechname, 'CB6R5_AE7'       ) .Gt. 0 ) .OR.
      &        ( Index( mechname, 'CB6R5M_AE7'      ) .Gt. 0 ) ) Then
             oso4_idx       = findAero( req_oso4,       .True. )
             oso4aqh2o2_idx = findAero( req_oso4aqh2o2, .True. )

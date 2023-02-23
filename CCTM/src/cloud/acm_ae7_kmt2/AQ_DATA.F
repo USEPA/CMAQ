@@ -230,6 +230,9 @@ C...Required aerosol species
       Character( 16 ), Parameter, Private :: req_ak     = 'K'
       Character( 16 ), Parameter, Private :: req_num    = 'NUM_ACCUM'
       Character( 16 ), Parameter, Private :: req_srf    = 'SRF_ACCUM'
+      
+      Character( 16 ), Parameter, Private :: req_tracernoakn  = 'TRACERNOAKN_ACCUM'
+      Character( 16 ), Parameter, Private :: req_tracernoaknc  = 'TRACERNOAKN_COARSE'
 
       Character( 16 ), Parameter, Private :: req_caacc  = 'CA_ACCUM'    ! SLN 16March2011
       Character( 16 ), Parameter, Private :: req_mgacc  = 'MG_ACCUM'    ! SLN 16March2011
@@ -276,6 +279,10 @@ C...Pointers for the AQCHEM array AEROSOL
 !     Integer :: lk       !  Potassium aerosol (Cl- tracked separately) (place holder)
       Integer :: lnum     !  Number
       Integer :: lsrf     !  Surface area
+      
+      Integer :: ltracernoakn  ! Tracer aerosol without Aitken (Accumulation)
+      Integer :: ltracernoaknc ! Tracer aerosol without Aitken (Coarse)
+      
 C...TXHG aersosols      
       Integer :: ltracer_akn  !  Tracer aerosols (Aitken)
       Integer :: ltracer_acc  !  Tracer aerosols (Accumulation)
@@ -722,6 +729,10 @@ C...Create the pointers for required aerosol surrogate species needed by AQCHEM
       limga  = findSgrAer( req_aimga )   !  2-Methylglyceric acid           
       limos  = findSgrAer( req_aimos )   !  MAE/HMML-derived-organosulfates 
       liso3  = findSgrAer( req_aiso3 )   !  2-Methyltetrols etc 
+      
+      ltracernoakn = findSgrAer( req_tracernoakn )   !  Tracer without Aitken in accumation mode 
+      ltracernoaknc = findSgrAer( req_tracernoaknc ) !  Tracer without Aitken in coarse mode  
+      
 C...For TXHG version
       ltracer_akn    = findSgrAer( req_traceri  )   !  Tracer aitken mode 
       ltracer_acc    = findSgrAer( req_tracerj  )   !  Tracer accumation mode 
@@ -797,6 +808,9 @@ C...For TXHG version
       Write( logdev,'( 5x, a, i4 )' ) 'lphg_akn:     ', lphg_akn
       Write( logdev,'( 5x, a, i4 )' ) 'lphg_acc:     ', lphg_acc
       Write( logdev,'( 5x, a, i4 )' ) 'lphg_cor:     ', lphg_cor
+      
+      Write( logdev,'( 5x, a, i4 )' ) 'ltracernoakn:       ', ltracernoakn
+      Write( logdev,'( 5x, a, i4 )' ) 'ltracernoaknc:      ', ltracernoaknc
 #endif
 
       Write( logdev,'( / 5x, a / )' ) ' --- AQCHEM Gas and Aerosol Species Mapped ---'

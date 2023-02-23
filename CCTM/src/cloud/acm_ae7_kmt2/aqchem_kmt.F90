@@ -582,6 +582,8 @@ kron: DO WHILE (T < TEND)
       AERWDEP( LNH4, COR )   = AEROSOL( LNH4,COR ) * ( 1.d0 - EXPWET ) * CFACTOR
       AERWDEP( LNO3, COR )   = AEROSOL( LNO3,COR ) * ( 1.d0 - EXPWET ) * CFACTOR
       AERWDEP( LCL, COR )    = AEROSOL( LCL,COR ) * ( 1.d0 - EXPWET ) * CFACTOR
+      AERWDEP( LTRACERNOAKNC, COR ) = AEROSOL( LTRACERNOAKNC,COR ) * &
+                                    ( 1.d0 - EXPWET ) * CFACTOR 
 
 !...AEROSOL species, coarse mode 
 
@@ -592,13 +594,18 @@ kron: DO WHILE (T < TEND)
       AEROSOL( LSO4, COR )   = AEROSOL( LSO4, COR ) * EXPWET
       AEROSOL( LNH4, COR )   = AEROSOL( LNH4, COR ) * EXPWET
       AEROSOL( LNO3, COR )   = AEROSOL( LNO3, COR ) * EXPWET
-      AEROSOL( LCL, COR )    = AEROSOL( LCL, COR ) * EXPWET      
+      AEROSOL( LCL, COR )    = AEROSOL( LCL, COR ) * EXPWET   
+      
+      AEROSOL( LTRACERNOAKNC, COR )  = AEROSOL( LTRACERNOAKNC, COR ) * EXPWET     
             
 !...AERWDEP species, accumulation mode 
 
       AERWDEP( LSOA, ACC ) = AEROSOL( LSOA, ACC ) * ( 1 - EXPWET) * CFACTOR ! SOA is only impacted by wet dep process 
                                                                             ! and not included in the list of dynamic 
                                                                             ! species, VAR
+									    
+      AERWDEP( LTRACERNOAKN, ACC ) = AEROSOL( LTRACERNOAKN, ACC ) * &
+                                   ( 1 - EXPWET ) * CFACTOR         
       
       WDFECOR   = SOIL_FE_FAC * AERWDEP( LSOILC, COR ) + CORS_FE_FAC * AERWDEP( LANTHC, COR )
       WDMNCOR   = SOIL_MN_FAC * AERWDEP( LSOILC, COR ) + CORS_MN_FAC * AERWDEP( LANTHC, COR )     
@@ -676,6 +683,9 @@ kron: DO WHILE (T < TEND)
                                                               ! and not included in the list of dynamic 
                                                               ! species, VAR
                        
+      AEROSOL( LTRACERNOAKN, ACC )  = AEROSOL( LTRACERNOAKN, ACC ) &
+                                    * EXPWET                  
+		       
       IF(ISPC8 .gt. 0) THEN                                                                                               
          AEROSOL( LIETET, ACC ) = VAR( ind_L_IETET ) * INVCFAC
          AEROSOL( LIEOS, ACC )  = VAR( ind_L_IEOS ) * INVCFAC

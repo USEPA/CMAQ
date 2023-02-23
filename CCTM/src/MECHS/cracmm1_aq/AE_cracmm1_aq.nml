@@ -14,9 +14,9 @@ AE_SPECIES_DATA =
 'AEC'       , 12.00 ,T      ,T     ,F      ,''     ,'' ,-1     ,'' ,-1     ,'VMASS'     , 1  ,'PRI'        , 1  ,'EC'       ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!Carbon,L,NA,[C]
 'AOTHR'     ,200.00 ,T      ,T     ,F      ,''     ,'' ,-1     ,'' ,-1     ,'VMASS'     , 1  ,'PRI'        , 1  ,'PRI'      ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!Unspeciated PM,L,NA,NA
 'AFE'       , 55.80 ,F      ,T     ,F      ,''     ,'' ,-1     ,'' ,-1     ,'VMASS'     , 1  ,'PRI'        , 1  ,'FE'       ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!Iron ion,E,DTXSID4042672,[Fe++]
-'AAL'       , 27.00 ,F      ,T     ,F      ,''     ,'' ,-1     ,'' ,-1     ,'VMASS'     , 1  ,'PRI'        , 1  ,'PRI'      ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!Aluminum ion,E,DTXSID70912343,[Al+3]
-'ASI'       , 28.10 ,F      ,T     ,F      ,''     ,'' ,-1     ,'' ,-1     ,'VMASS'     , 1  ,'PRI'        , 1  ,'PRI'      ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!Total Silicon,E,DTXSID0051441,[Si]
-'ATI'       , 47.90 ,F      ,T     ,F      ,''     ,'' ,-1     ,'' ,-1     ,'VMASS'     , 1  ,'PRI'        , 1  ,'PRI'      ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!Total Titanium,E,DTXSID3047764,[Ti]
+'AAL'       , 27.00 ,F      ,T     ,F      ,''     ,'' ,-1     ,'' ,-1     ,'VMASS'     , 1  ,'PRI'        , 1  ,'TRACERNOAKN'      ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!Aluminum ion,E,DTXSID70912343,[Al+3]
+'ASI'       , 28.10 ,F      ,T     ,F      ,''     ,'' ,-1     ,'' ,-1     ,'VMASS'     , 1  ,'PRI'        , 1  ,'TRACERNOAKN'      ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!Total Silicon,E,DTXSID0051441,[Si]
+'ATI'       , 47.90 ,F      ,T     ,F      ,''     ,'' ,-1     ,'' ,-1     ,'VMASS'     , 1  ,'PRI'        , 1  ,'TRACERNOAKN'      ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!Total Titanium,E,DTXSID3047764,[Ti]
 'ACA'       , 40.10 ,F      ,T     ,F      ,''     ,'' ,-1     ,'' ,-1     ,'VMASS'     , 1  ,'PRI'        , 1  ,'CA'       ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!Calcium ion,E,DTXSID7037638,[Ca++]
 'AMG'       , 24.30 ,F      ,T     ,F      ,''     ,'' ,-1     ,'' ,-1     ,'VMASS'     , 1  ,'PRI'        , 1  ,'MG'       ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!Magnesium ion,E,NA,[Mg++]
 'AK'        , 39.10 ,F      ,T     ,F      ,''     ,'' ,-1     ,'' ,-1     ,'VMASS'     , 1  ,'PRI'        , 1  ,'K'        ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!Potassium ion,E,DTXSID9042671,[K+]
@@ -38,18 +38,18 @@ AE_SPECIES_DATA =
 'AROCN1ALK' ,408.80 ,T      ,T     ,F      ,''     ,'' ,-1     ,'' ,-1     ,'VMASS'     , 1  ,'ORG'        , 1  ,'POA'      ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!NA,NA,NA,NA
 'AROCP0ALK' ,394.77 ,T      ,T     ,F      ,''     ,'' ,-1     ,'' ,-1     ,'VMASS'     , 1  ,'ORG'        , 1  ,'POA'      ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!NA,NA,NA,NA
 'AROCP1ALK' ,380.75 ,T      ,T     ,F      ,''     ,'' ,-1     ,'' ,-1     ,'VMASS'     , 1  ,'ORG'        , 1  ,'POA'      ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!NA,NA,NA,NA
-'AROCP2ALK' ,338.66 ,F      ,T     ,F      ,''     ,'' ,-1     ,'' ,-1     ,'VMASS'     , 1  ,'ORG'        , 1  ,'POA'      ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!NA,NA,NA,NA
-'AROCP3ALK' ,296.58 ,F      ,T     ,F      ,''     ,'' ,-1     ,'' ,-1     ,'VMASS'     , 1  ,'ORG'        , 1  ,'POA'      ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!NA,NA,NA,NA
-'AROCN2OXY2',282.4  ,T      ,T     ,F      ,''     ,'' ,-1     ,'' ,-1     ,'VMASS'     , 1  ,'ORG'        , 1  ,'SOA'      ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!NA,NA,NA,NA
-'AROCN2OXY4',232.3  ,T      ,T     ,F      ,''     ,'' ,-1     ,'' ,-1     ,'VMASS'     , 1  ,'ORG'        , 1  ,'SOA'      ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!NA,NA,NA,NA
-'AROCN2OXY8',194.2  ,T      ,T     ,F      ,''     ,'' ,-1     ,'' ,-1     ,'VMASS'     , 1  ,'ORG'        , 1  ,'SOA'      ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!NA,NA,NA,NA
-'AROCN1OXY1',312.5  ,T      ,T     ,F      ,''     ,'' ,-1     ,'' ,-1     ,'VMASS'     , 1  ,'ORG'        , 1  ,'SOA'      ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!NA,NA,NA,NA
-'AROCN1OXY3',230.3  ,T      ,T     ,F      ,''     ,'' ,-1     ,'' ,-1     ,'VMASS'     , 1  ,'ORG'        , 1  ,'SOA'      ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!NA,NA,NA,NA
-'AROCN1OXY6',190.2  ,T      ,T     ,F      ,''     ,'' ,-1     ,'' ,-1     ,'VMASS'     , 1  ,'ORG'        , 1  ,'SOA'      ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!NA,NA,NA,NA
-'AROCP0OXY2',242.4  ,T      ,T     ,F      ,''     ,'' ,-1     ,'' ,-1     ,'VMASS'     , 1  ,'ORG'        , 1  ,'SOA'      ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!NA,NA,NA,NA
-'AROCP0OXY4',202.3  ,T      ,T     ,F      ,''     ,'' ,-1     ,'' ,-1     ,'VMASS'     , 1  ,'ORG'        , 1  ,'SOA'      ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!NA,NA,NA,NA
-'AROCP1OXY1',270.5  ,T      ,T     ,F      ,''     ,'' ,-1     ,'' ,-1     ,'VMASS'     , 1  ,'ORG'        , 1  ,'SOA'      ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!NA,NA,NA,NA
-'AROCP1OXY3',202.3  ,T      ,T     ,F      ,''     ,'' ,-1     ,'' ,-1     ,'VMASS'     , 1  ,'ORG'        , 1  ,'SOA'      ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!NA,NA,NA,NA
+'AROCP2ALK' ,338.66 ,F      ,T     ,F      ,''     ,'' ,-1     ,'' ,-1     ,'VMASS'     , 1  ,'ORG'        , 1  ,'TRACERNOAKN'      ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!NA,NA,NA,NA
+'AROCP3ALK' ,296.58 ,F      ,T     ,F      ,''     ,'' ,-1     ,'' ,-1     ,'VMASS'     , 1  ,'ORG'        , 1  ,'TRACERNOAKN'      ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!NA,NA,NA,NA
+'AROCN2OXY2',282.4  ,T      ,T     ,F      ,''     ,'' ,-1     ,'' ,-1     ,'VMASS'     , 1  ,'ORG'        , 1  ,'TRACER'      ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!NA,NA,NA,NA
+'AROCN2OXY4',232.3  ,T      ,T     ,F      ,''     ,'' ,-1     ,'' ,-1     ,'VMASS'     , 1  ,'ORG'        , 1  ,'TRACER'      ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!NA,NA,NA,NA
+'AROCN2OXY8',194.2  ,T      ,T     ,F      ,''     ,'' ,-1     ,'' ,-1     ,'VMASS'     , 1  ,'ORG'        , 1  ,'TRACER'      ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!NA,NA,NA,NA
+'AROCN1OXY1',312.5  ,T      ,T     ,F      ,''     ,'' ,-1     ,'' ,-1     ,'VMASS'     , 1  ,'ORG'        , 1  ,'TRACER'      ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!NA,NA,NA,NA
+'AROCN1OXY3',230.3  ,T      ,T     ,F      ,''     ,'' ,-1     ,'' ,-1     ,'VMASS'     , 1  ,'ORG'        , 1  ,'TRACER'      ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!NA,NA,NA,NA
+'AROCN1OXY6',190.2  ,T      ,T     ,F      ,''     ,'' ,-1     ,'' ,-1     ,'VMASS'     , 1  ,'ORG'        , 1  ,'TRACER'      ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!NA,NA,NA,NA
+'AROCP0OXY2',242.4  ,T      ,T     ,F      ,''     ,'' ,-1     ,'' ,-1     ,'VMASS'     , 1  ,'ORG'        , 1  ,'TRACER'      ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!NA,NA,NA,NA
+'AROCP0OXY4',202.3  ,T      ,T     ,F      ,''     ,'' ,-1     ,'' ,-1     ,'VMASS'     , 1  ,'ORG'        , 1  ,'TRACER'      ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!NA,NA,NA,NA
+'AROCP1OXY1',270.5  ,T      ,T     ,F      ,''     ,'' ,-1     ,'' ,-1     ,'VMASS'     , 1  ,'ORG'        , 1  ,'TRACER'      ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!NA,NA,NA,NA
+'AROCP1OXY3',202.3  ,T      ,T     ,F      ,''     ,'' ,-1     ,'' ,-1     ,'VMASS'     , 1  ,'ORG'        , 1  ,'TRACER'      ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!NA,NA,NA,NA
 'AROCP2OXY2',200.3  ,F      ,T     ,F      ,''     ,'' ,-1     ,'' ,-1     ,'VMASS'     , 1  ,'ORG'        , 1  ,'SOA'      ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!NA,NA,NA,NA
 'AROCP3OXY2',186.3  ,F      ,T     ,F      ,''     ,'' ,-1     ,'' ,-1     ,'VMASS'     , 1  ,'ORG'        , 1  ,'SOA'      ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!NA,NA,NA,NA
 'AISO3NOS'  ,136.20 ,F      ,T     ,F      ,''     ,'' ,-1     ,'' ,-1     ,'VMASS'     , 1  ,'ORG'        , 1  ,'SOA'      ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!2-methylbutane-1;2;3;4-tetrol,L,NA,C(O)C(O)(C)C(O)CO
