@@ -55,7 +55,9 @@ ACO3            ,ppmV            ,C2O3[1], CRACMM mapping of C2O3
 
 MO2             ,ppmV            ,MEO2[1], CRACMM mapping of MEO2
 
-PAN             ,ppmV            ,PAN[1] + PANX[1], CRACMM mapping of PAN and PANX
+PAN             ,ppmV            ,PAN[1], CRACMM mapping of PAN
+
+PPN             ,ppmV            ,PANX[1], CRACMM mapping of PANX
 
 PAA             ,ppmV            ,PACD[1], CRACMM mapping of PACD
 
@@ -95,9 +97,9 @@ MEK             ,ppmV            ,KET[1]*0.5, CRACMM splitting of KET (assumed e
 
 KET             ,ppmV            ,KET[1]*0.5, CRACMM splitting of KET (assumed equal)
 
-HC5             ,ppmV            ,PAR[1]*0.33, CRACMM splitting of PAR based on emissions
+HC5             ,ppmV            ,PAR[1]*0.33/5.0, CRACMM splitting of PAR based on emissions
 
-HC10            ,ppmV            ,PAR[1]*0.67, CRACMM splitting of PAR based on emissions
+HC10            ,ppmV            ,PAR[1]*0.67/10.0, CRACMM splitting of PAR based on emissions
 
 ACT             ,ppmV            ,ACET[1], CRACMM mapping of ACET
 
