@@ -9,7 +9,7 @@
 ! Any split factors were based on a 2017 emissions inventory analysis.
 
 
-/ File [1]: cb6r3_ae7_kmtbr BCON or ICON file to be mapped to cracmm1
+/ File [1]: cb6r5m_ae7_aq BCON or ICON file to be mapped to cracmm1
 
 /new species,    units,     expression,   description
 
