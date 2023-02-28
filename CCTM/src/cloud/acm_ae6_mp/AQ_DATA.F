@@ -42,8 +42,8 @@ C-----------------------------------------------------------------------
 
       Integer, Parameter :: ngas = 20   ! number of gas-phase species for AQCHEM
 !     Integer, Parameter :: naddaer = 7 ! number of additional aerosol surrogate species for AQCHEM
-      Integer, Parameter :: naddaer = 3 ! number of additional aerosol surrogate species for AQCHEM
-      Integer, Parameter :: nadd_tx = 5 ! number of surrogates for HAPS aerosol species for AQCHEM
+      Integer, Parameter :: naddaer = 2 ! number of additional aerosol surrogate species for AQCHEM
+      Integer, Parameter :: nadd_tx = 7 ! number of surrogates for HAPS aerosol species for AQCHEM
 
       Integer, Parameter :: max_naer = n_aerolist + naddaer +  nadd_tx ! max number aero surrogates
 
@@ -159,19 +159,20 @@ C                      -------------    -------------    -------------    ------
 !    & sur_aer_type((/'             ', '             ', 'A3FE         '/),   0.0,     55.8, 2000.0),
 !    & sur_aer_type((/'             ', '             ', 'B2MN         '/),   0.0,     54.9, 2000.0),
 !    & sur_aer_type((/'             ', '             ', 'K            '/),   0.0,     39.1, 2200.0),
-     & sur_aer_type((/'             ', '             ', 'TRACERNOAKN_COARSE'/),   0.0,    100.0, 2200.0),
-     & sur_aer_type((/'NUM_AITKEN   ', 'NUM_ACCUM    ', 'NUM_COARSE   '/),   0.0,      0.0,    1.0),
-     & sur_aer_type((/'SRF_AITKEN   ', 'SRF_ACCUM    ', 'SRF_COARSE   '/),   0.0,      0.0,    1.0)/)
+     & sur_aer_type((/'NUM_AITKEN    ', 'NUM_ACCUM     ', 'NUM_COARSE    '/),   0.0,      0.0,    1.0),
+     & sur_aer_type((/'SRF_AITKEN    ', 'SRF_ACCUM     ', 'SRF_COARSE    '/),   0.0,      0.0,    1.0)/)
 
-C...TX species added to Aerosol surrogate if not found in AE namelist file      
+C...TX and other species added to Aerosol surrogate if not found in AE namelist file      
       Type ( sur_aer_type ), private :: srgaer_addtx( nadd_tx ) = (/
 C                         Aitken           Accum            Coarse        Background MolWt  Density
 C                      -------------    -------------    -------------    ---------- -----  ------
-     & sur_aer_type((/'TRACER_AITKEN', '             ', '             '/),   0.0,    100.0, 2200.0),
-     & sur_aer_type((/'             ', 'TRACER_ACCUM ', '             '/),   0.0,    100.0, 2200.0),
-     & sur_aer_type((/'             ', '             ', 'TRACER_COARSE'/),   0.0,    100.0, 2200.0),
-     & sur_aer_type((/'PHG_AITKEN   ', 'PHG_ACCUM    ', '             '/),   0.0,    200.5, 2200.0),
-     & sur_aer_type((/'             ', '             ', 'PHG_COARSE   '/),   0.0,    200.5, 2200.0)/)
+     & sur_aer_type((/'              ', '              ', 'TRACNOI_COARSE'/),   0.0,    100.0, 2200.0),
+     & sur_aer_type((/'TRACER_AITKEN ', '              ', '              '/),   0.0,    100.0, 2200.0),
+     & sur_aer_type((/'              ', 'TRACER_ACCUM  ', '              '/),   0.0,    100.0, 2200.0),
+     & sur_aer_type((/'              ', '              ', 'TRACER_COARSE '/),   0.0,    100.0, 2200.0),
+     & sur_aer_type((/'PHG_AITKEN    ', '              ', '              '/),   0.0,    200.5, 2200.0),
+     & sur_aer_type((/'              ', 'PHG_ACCUM     ', '              '/),   0.0,    200.5, 2200.0),
+     & sur_aer_type((/'              ', '              ', 'PHG_COARSE    '/),   0.0,    200.5, 2200.0)/)
 
 C...Required aerosol species
       Character( 16 ), Parameter, Private :: req_aso4   = 'SO4_ACCUM'
@@ -193,8 +194,8 @@ C...Required aerosol species
       Character( 16 ), Parameter, Private :: req_num    = 'NUM_ACCUM'
       Character( 16 ), Parameter, Private :: req_srf    = 'SRF_ACCUM'
       
-      Character( 16 ), Parameter, Private :: req_tracernoakn  = 'TRACERNOAKN_ACCUM'
-      Character( 16 ), Parameter, Private :: req_tracernoaknc = 'TRACERNOAKN_COARSE'
+      Character( 16 ), Parameter, Private :: req_tracnoi  = 'TRACNOI_ACCUM'
+      Character( 16 ), Parameter, Private :: req_tracnoic = 'TRACNOI_COARSE'
 
       Character( 16 ), Parameter, Private :: req_caacc  = 'CA_ACCUM'    ! SLN 16March2011
       Character( 16 ), Parameter, Private :: req_mgacc  = 'MG_ACCUM'    ! SLN 16March2011
@@ -232,8 +233,8 @@ C...Pointers for the AQCHEM array AEROSOL
       Integer :: lnum     !  Number
       Integer :: lsrf     !  Surface area
       
-      Integer :: ltracernoakn  ! Tracer aerosol without Aitken (Accumulation)
-      Integer :: ltracernoaknc ! Tracer aerosol without Aitken (Coarse)
+      Integer :: ltracnoi  ! Tracer aerosol without Aitken (Accumulation)
+      Integer :: ltracnoic ! Tracer aerosol without Aitken (Coarse)
             
 C...TXHG aersosols      
       Integer :: ltracer_akn  !  Tracer aerosols (Aitken)
@@ -328,8 +329,8 @@ C mercuric compounds
       integer, parameter :: lshgohcll   = 71  ! Sorbed SHgOHCl
       integer, parameter :: lphgcorl    = 72  ! Coarse-mode TRACER
       
-      Integer, Parameter :: ltracernoaknl = 73  ! Tracer without Aitken
-      Integer, Parameter :: ltracernoakncl = 74 ! Coarse mode Tracer without Aitken      
+      Integer, Parameter :: ltracnoil = 73  ! Tracer without Aitken
+      Integer, Parameter :: ltracnoicl = 74 ! Coarse mode Tracer without Aitken      
 
       Integer    :: nsrggas( ngas )           ! # surrogates in CGRID for each gas
       Integer    :: lsrggas( ngas,mxsrg )
@@ -669,8 +670,8 @@ C...Create the pointers for required aerosol surrogate species needed by AQCHEM
       lanthc = findSgrAer( req_anthc )   !  CORS in Coarse mode  (AE6)    SLN 16March2011
       lseasc = findSgrAer( req_seasc )   !  SEAS in Coarse mode  (AE6)    SLN 16March2011
       
-      ltracernoakn = findSgrAer( req_tracernoakn )   !  Tracer without Aitken in accumation mode 
-      ltracernoaknc = findSgrAer( req_tracernoaknc ) !  Tracer without Aitken in coarse mode  
+      ltracnoi = findSgrAer( req_tracnoi )   !  Tracer without Aitken in accumation mode 
+      ltracnoic = findSgrAer( req_tracnoic ) !  Tracer without Aitken in coarse mode  
       
 C...For TXHG version
       ltracer_akn    = findSgrAer( req_traceri  )   !  Tracer aitken mode 
@@ -730,8 +731,8 @@ C...For TXHG version
       Write( logdev,'( 5x, a, i4 )' ) 'lphg:     ', lphg
       Write( logdev,'( 5x, a, i4 )' ) 'lphg_cor: ', lphg_cor
       
-      Write( logdev,'( 5x, a, i4 )' ) 'ltracernoakn:       ', ltracernoakn
-      Write( logdev,'( 5x, a, i4 )' ) 'ltracernoaknc:      ', ltracernoaknc
+      Write( logdev,'( 5x, a, i4 )' ) 'ltracnoi:       ', ltracnoi
+      Write( logdev,'( 5x, a, i4 )' ) 'ltracnoic:      ', ltracnoic
 #endif
 
       Write( logdev,'( / 5x, a / )' ) ' --- AQCHEM Gas and Aerosol Species Mapped ---'

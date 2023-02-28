@@ -582,7 +582,7 @@ kron: DO WHILE (T < TEND)
       AERWDEP( LNH4, COR )   = AEROSOL( LNH4,COR ) * ( 1.d0 - EXPWET ) * CFACTOR
       AERWDEP( LNO3, COR )   = AEROSOL( LNO3,COR ) * ( 1.d0 - EXPWET ) * CFACTOR
       AERWDEP( LCL, COR )    = AEROSOL( LCL,COR ) * ( 1.d0 - EXPWET ) * CFACTOR
-      AERWDEP( LTRACERNOAKNC, COR ) = AEROSOL( LTRACERNOAKNC,COR ) * &
+      AERWDEP( LTRACNOIC, COR ) = AEROSOL( LTRACNOIC,COR ) * &
                                     ( 1.d0 - EXPWET ) * CFACTOR 
 
 !...AEROSOL species, coarse mode 
@@ -596,7 +596,7 @@ kron: DO WHILE (T < TEND)
       AEROSOL( LNO3, COR )   = AEROSOL( LNO3, COR ) * EXPWET
       AEROSOL( LCL, COR )    = AEROSOL( LCL, COR ) * EXPWET   
       
-      AEROSOL( LTRACERNOAKNC, COR )  = AEROSOL( LTRACERNOAKNC, COR ) * EXPWET     
+      AEROSOL( LTRACNOIC, COR )  = AEROSOL( LTRACNOIC, COR ) * EXPWET     
             
 !...AERWDEP species, accumulation mode 
 
@@ -604,7 +604,7 @@ kron: DO WHILE (T < TEND)
                                                                             ! and not included in the list of dynamic 
                                                                             ! species, VAR
 									    
-      AERWDEP( LTRACERNOAKN, ACC ) = AEROSOL( LTRACERNOAKN, ACC ) * &
+      AERWDEP( LTRACNOI, ACC ) = AEROSOL( LTRACNOI, ACC ) * &
                                    ( 1 - EXPWET ) * CFACTOR         
       
       WDFECOR   = SOIL_FE_FAC * AERWDEP( LSOILC, COR ) + CORS_FE_FAC * AERWDEP( LANTHC, COR )
@@ -683,7 +683,7 @@ kron: DO WHILE (T < TEND)
                                                               ! and not included in the list of dynamic 
                                                               ! species, VAR
                        
-      AEROSOL( LTRACERNOAKN, ACC )  = AEROSOL( LTRACERNOAKN, ACC ) &
+      AEROSOL( LTRACNOI, ACC )  = AEROSOL( LTRACNOI, ACC ) &
                                     * EXPWET                  
 		       
       IF(ISPC8 .gt. 0) THEN                                                                                               

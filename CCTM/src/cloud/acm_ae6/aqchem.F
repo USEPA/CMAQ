@@ -443,8 +443,8 @@ C...for sulfur tracking
       REAL( 8 ) :: FE_SOL          ! Fractional Fe solubility, GS - July 1, 2011
       REAL( 8 ) :: MN_SOL          ! Fractional Mn solubility, GS - July 1, 2011
       
-      REAL( 8 ) :: TRACERNOAKN          ! species that do not partipate in aqueous
-      REAL( 8 ) :: TRACERNOAKNCOR       ! chemistry or ionize or have an Aitken mode
+      REAL( 8 ) :: TRACNOI          ! species that do not partipate in aqueous
+      REAL( 8 ) :: TRACNOICOR       ! chemistry or ionize or have an Aitken mode
 
       REAL( 8 ), SAVE :: SOIL_FE_FAC  ! Fe molar fraction of ASOIL
       REAL( 8 ), SAVE :: CORS_FE_FAC  ! Fe molar fraction of ACORS
@@ -943,8 +943,8 @@ C...   = Initial amount - amount deposited  (mol/liter)
 !       A       = 3.0D0 * FE
 !       B       = 2.0D0 * MN
 
-	TRACERNOAKN    = LOADING( LTRACERNOAKN,  ACC ) - WETDEP( LTRACERNOAKNL  ) * XC1
-	TRACERNOAKNCOR   = LOADING( LTRACERNOAKNC,  COR ) - WETDEP( LTRACERNOAKNCL  ) * XC1
+	TRACNOI    = LOADING( LTRACNOI,  ACC ) - WETDEP( LTRACNOIL  ) * XC1
+	TRACNOICOR   = LOADING( LTRACNOIC,  COR ) - WETDEP( LTRACNOICL  ) * XC1
 
 !       FE_OX = 0.5D0 * 0.62D0 * FE      ! SLN 28March2011
 !       MN_OX = 1.0D0 * 0.84D0 * MN      ! SLN 28March2011
@@ -1010,8 +1010,8 @@ C...don't allow aerosol concentrations to go below zero
 !       PRIMCOR = MAX( PRIMCOR, 0.0D0 )
         NUMCOR  = MAX( NUMCOR,  0.0D0 )
 	
-	TRACERNOAKN    = MAX( TRACERNOAKN,     0.0D0 )
-	TRACERNOAKNCOR = MAX( TRACERNOAKNCOR,     0.0D0 )
+	TRACNOI    = MAX( TRACNOI,     0.0D0 )
+	TRACNOICOR = MAX( TRACNOICOR,     0.0D0 )
 	
         FE_OX = FE_III * FE_SOL * FE     ! GS 01July2011
         MN_OX = MN_II  * MN_SOL * MN     ! GS 01July2011
@@ -1654,8 +1654,8 @@ C...load the liquid concentration array with current values
         LIQUID( LFEACCL   ) = FEACC   ! AE6 - SLN 22March2011
         LIQUID( LMNACCL   ) = MNACC   ! AE6 - SLN 22March2011
 	
-	LIQUID( LTRACERNOAKNL   ) = TRACERNOAKN
-	LIQUID( LTRACERNOAKNCL  ) = TRACERNOAKNCOR
+	LIQUID( LTRACNOIL   ) = TRACNOI
+	LIQUID( LTRACNOICL  ) = TRACNOICOR
         
 	IF ( STM ) THEN
           LIQUID( LTS6AQH2O2L   ) = TS6AQH2O2
@@ -2356,8 +2356,8 @@ C...  to the accumulation mode particles
       AERWDEP( LORGC, ACC ) = WETDEP( LORGCL )
       AERWDEP( LPOA,  ACC ) = WETDEP( LPOAL )
       
-      AERWDEP( LTRACERNOAKN, ACC ) = WETDEP( LTRACERNOAKNL )
-      AERWDEP( LTRACERNOAKNC, COR ) = WETDEP( LTRACERNOAKNCL )
+      AERWDEP( LTRACNOI, ACC ) = WETDEP( LTRACNOIL )
+      AERWDEP( LTRACNOIC, COR ) = WETDEP( LTRACNOICL )
 
       AERWDEP( LSO4, COR ) = WETDEP( LTS6CORL  )
       AERWDEP( LNO3, COR ) = WETDEP( LNO3CORL  )
@@ -2462,8 +2462,8 @@ C...aerosol concentrations (mol/molV)
       AEROSOL( LORGC, ACC ) = ORGC * XL * RECIPAP1
       AEROSOL( LPOA,  ACC ) = POA  * XL * RECIPAP1
       
-      AEROSOL( LTRACERNOAKN, ACC ) = TRACERNOAKN  * XL * RECIPAP1 
-      AEROSOL( LTRACERNOAKNC, COR ) = TRACERNOAKNCOR  * XL * RECIPAP1 
+      AEROSOL( LTRACNOI, ACC ) = TRACNOI  * XL * RECIPAP1 
+      AEROSOL( LTRACNOIC, COR ) = TRACNOICOR  * XL * RECIPAP1 
 
       AEROSOL( LNH4, ACC ) = FNH4ACC * TOTAMM
       AEROSOL( LNO3, ACC ) = FNO3ACC * TOTNIT
