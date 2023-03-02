@@ -4,11 +4,12 @@
 /
 
 ! This Specices Definition File was generated for mapping 
-! from CB6 to cracmm1_aq for LISTOS_cracmmv1 2018 testing.
+! from CB6 to cracmm1_aq for LISTOS_cracmmv1 2018 testing
+! and 12US1 2018 CMAQv5.4 CRACMM1 testing.
 ! Any split factors were based on a 2017 emissions inventory analysis.
 
 
-/ File [1]: CMAQ conc/aconc file
+/ File [1]: cb6r5m_ae7_aq BCON or ICON file to be mapped to cracmm1
 
 /new species,    units,     expression,   description
 
@@ -54,7 +55,9 @@ ACO3            ,ppmV            ,C2O3[1], CRACMM mapping of C2O3
 
 MO2             ,ppmV            ,MEO2[1], CRACMM mapping of MEO2
 
-PAN             ,ppmV            ,PAN[1] + PANX[1], CRACMM mapping of PAN and PANX
+PAN             ,ppmV            ,PAN[1], CRACMM mapping of PAN
+
+PPN             ,ppmV            ,PANX[1], CRACMM mapping of PANX
 
 PAA             ,ppmV            ,PACD[1], CRACMM mapping of PACD
 
@@ -94,9 +97,9 @@ MEK             ,ppmV            ,KET[1]*0.5, CRACMM splitting of KET (assumed e
 
 KET             ,ppmV            ,KET[1]*0.5, CRACMM splitting of KET (assumed equal)
 
-HC5             ,ppmV            ,PAR[1]*0.33, CRACMM splitting of PAR based on emissions
+HC5             ,ppmV            ,PAR[1]*0.33/5.0, CRACMM splitting of PAR based on emissions
 
-HC10            ,ppmV            ,PAR[1]*0.67, CRACMM splitting of PAR based on emissions
+HC10            ,ppmV            ,PAR[1]*0.67/10.0, CRACMM splitting of PAR based on emissions
 
 ACT             ,ppmV            ,ACET[1], CRACMM mapping of ACET
 
@@ -130,8 +133,6 @@ MACP            ,ppmV            ,OPO3[1], CRACMM mapping of OPO3
 
 IEPOX           ,ppmV            ,EPOX[1], CRACMM mapping of EPOX
 
-IEPOXP          ,ppmV            ,EPX2[1], CRACMM mapping of EPX2
-
 LIM             ,ppmV            ,TERP[1], CRACMM mapping of TERP
 
 API             ,ppmV            ,APIN[1], CRACMM mapping of APIN
@@ -148,8 +149,6 @@ TOL             ,ppmV            ,TOL[1], CRACMM mapping of TOL
 
 TOLP            ,ppmV            ,TO2[1], CRACMM mapping of TO2
 
-TOLRO2          ,ppmV            ,TOLRO2[1], CRACMM mapping of TOLRO2
-
 XYM             ,ppmV            ,XYLMN[1]*0.70, CRACCM splitting of XYLMN based on emissions
 
 XYE             ,ppmV            ,XYLMN[1]*0.30, CRACMM splitting of XYLMN based on emissions
@@ -157,8 +156,6 @@ XYE             ,ppmV            ,XYLMN[1]*0.30, CRACMM splitting of XYLMN based
 XYMP            ,ppmV            ,XLO2[1]*0.50, CRACMM mapping of XLO2
 
 XYEP            ,ppmV            ,XLO2[1]*0.50, CRACMM mapping of XLO2
-
-XYLRO2          ,ppmV            ,XYLRO2[1], CRACMM mapping of XYLRO2
 
 XO2             ,ppmV            ,XO2[1], CRACMM mapping of XO2
 
@@ -203,8 +200,6 @@ ANH4I           ,ug m-3          ,ANH4I[1], CRACMM mapping of ANH4I
 ANO3J           ,ug m-3          ,ANO3J[1], CRACMM mapping of ANO3J
 
 ANO3I           ,ug m-3          ,ANO3I[1], CRACMM mapping of ANO3I
-
-AISONJ          ,ug m-3          ,AISO1J[1] + AISO2J[1], CRACMM mapping of AISO1J and AISO2J
 
 AROCP1OXY1J     ,ug m-3          ,ASQTJ[1], CRACMM mapping of ASQTJ
 
@@ -256,10 +251,6 @@ AH2OJ           ,ug m-3          ,AH2OJ[1], CRACMM mapping of AH2OJ
 
 AH2OI           ,ug m-3          ,AH2OI[1], CRACMM mapping of AH2OI
 
-AH3OPJ          ,ug m-3          ,AH3OPJ[1], CRACMM mapping of AH3OPJ
-
-AH3OPI          ,ug m-3          ,AH3OPI[1], CRACMM mapping of AH3OPI
-
 ANAJ            ,ug m-3          ,ANAJ[1], CRACMM mapping of ANAJ
 
 ANAI            ,ug m-3          ,ANAI[1], CRACMM mapping of ANAI
@@ -280,17 +271,13 @@ ANO3K           ,ug m-3          ,ANO3K[1], CRACMM mapping of ANO3K
 
 AH2OK           ,ug m-3          ,AH2OK[1], CRACMM mapping of AH2OK
 
-AH3OPK          ,ug m-3          ,AH3OPK[1], CRACMM mapping of AH3OPK
-
 AISO3OSJ        ,ug m-3          ,AISO3J[1], CRACMM mapping of AISO3J
 
 AROCN2OXY2J     ,ug m-3          ,AOLGAJ[1] + APCSOJ[1], CRACMM mapping of AOLGAJ and APCSOJ
 
-AOLGBJ          ,ug m-3          ,AOLGBJ[1], CRACMM mapping of AOLGBJ
+AISO3NOSJ       ,ug m-3          ,AISO1J[1] + AISO2J[1] + AOLGBJ[1], CRACMM mapping of AISO1J and AISO2J and AOLGBJ
 
 AGLYJ           ,ug m-3          ,AGLYJ[1], CRACMM mapping of AGLYJ
-
-ATRPNJ          ,ug m-3          ,AMTNO3J[1] + AMTHYDJ[1], CRACMM mapping of AMTNO3J and AMTHYDJ
 
 APOCI           ,ug m-3          ,APOCI[1], CRACMM mapping of APOCI
 
@@ -334,14 +321,10 @@ AROCP1OXY3J     ,ug m-3          ,ASVOO2J[1] + AAVB3J[1], CRACMM mapping of ASVO
 
 AROCP2OXY2J     ,ug m-3          ,ASVOO3J[1] + AAVB4J[1], CRACMM mapping of ASVOO3J and AAVB4J
 
-AHOMJ           ,ug m-3          ,AMT1J[1] + AMT2J[1] + AMT3J[1], CRACMM mapping of AMT1J and AMT2J and AMT3J
+AHOMJ           ,ug m-3          ,AMTNO3J[1] + AMTHYDJ[1]+ AMT1J[1] + AMT2J[1] + AMT3J[1], CRACMM mapping of all lower volatility terpene SOA 
 
 NH3             ,ppmV            ,NH3[1], CRACMM mapping of NH3
 
-HCL             ,ppmV            ,NH3[1], CRACMM mapping of HCL
+HCL             ,ppmV            ,HCL[1], CRACMM mapping of HCL
 
 VROCP1OXY       ,ppmV            ,SVSQT[1], CRACMM mapping of SVSQT
-
-
-
-
