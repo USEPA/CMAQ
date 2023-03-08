@@ -549,7 +549,7 @@ C-----------------------------------------------------------------------
          SA_SUM = 0.0
          DO V = 1, NSPC_SA
             DO ITAG = 1, NTAG_SA
-               SA_SUM( V ) = SA_SUM( V ) + ISAM( C,R,L,V,ITAG )
+               SA_SUM( V ) = SA_SUM( V ) + ISAM( C,R,1,V,ITAG )
             END DO
             SA_SUM( V ) = MAX ( 1.0E-30, SA_SUM( V ) )
          END DO
