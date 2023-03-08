@@ -20,7 +20,8 @@
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE AQCHEM ( JDATE, JTIME, TEMP, PRES_PA, TAUCLD, PRCRATE,
      &                    WCAVG, WTAVG, AIRM, ALFA0, ALFA2, ALFA3, GAS,
-     &                    AEROSOL, GASWDEP, AERWDEP, HPWDEP, BETASO4, DARK )
+     &                    AEROSOL, GASWDEP, AERWDEP, HPWDEP, BETASO4, DARK,
+     &                    FRACTR, FRACPOA, FRACPRI )
 
 C-----------------------------------------------------------------------
 C  Description:
@@ -195,6 +196,9 @@ C...........Arguments:
       REAL( 8 ), INTENT( INOUT ) :: GASWDEP( : )   ! gas phase wet deposition array (mm mol/liter)
       REAL( 8 ), INTENT( INOUT ) :: AERWDEP( :,: ) ! aerosol wet deposition array (mm mol/liter)
       LOGICAL,   INTENT( IN )    :: DARK           ! DARK = TRUE is night,  DARK = FALSE is day
+      REAL( 8 ), INTENT( OUT ) :: FRACTR    ! Fraction of J mode tracer scavenged from I mode 
+      REAL( 8 ), INTENT( OUT ) :: FRACPOA   ! Fraction of J mode poa scavenged from I mode 
+      REAL( 8 ), INTENT( OUT ) :: FRACPRI   ! Fraction of J mode pri scavenged from I mode 
 
 C...........Local Variables (scalars):
 
@@ -2137,6 +2141,24 @@ C...Compute for Aerosol species in  TXHG Version
 
       AEROSOL( LPHG, ACC )        = HGII_FINE * XL * RECIPAP1
       AEROSOL( LPHG_COR, COR )    = HGCOR * XL * RECIPAP1
+      
+      IF( AEROSOL(LTRACER_ACC, ACC) .GT. 0.d0 ) THEN
+         FRACTR  = (TRACI  * XL * RECIPAP1) / AEROSOL(LTRACER_ACC, ACC) 
+      ELSE 
+         FRACTR = 0.d0
+      END IF
+      
+      IF( AEROSOL(LPOA, ACC) .GT. 0.d0 ) THEN
+         FRACPOA = (POAI  * XL * RECIPAP1) / AEROSOL(LPOA, ACC)
+      ELSE 
+         FRACPOA = 0.d0
+      END IF 
+      
+      IF( AEROSOL(LPRI, ACC) .GT. 0.d0 ) THEN
+         FRACPRI = (PRII  * XL * RECIPAP1) / AEROSOL(LPRI, ACC)
+      ELSE 
+         FRACPRI = 0.d0
+      END IF 
 
 C...store the amount of hydrogen deposition
 

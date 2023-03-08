@@ -20,7 +20,8 @@
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE AQCHEM ( JDATE, JTIME, TEMP, PRES_PA, TAUCLD, PRCRATE,
      &                    WCAVG, WTAVG, AIRM, ALFA0, ALFA2, ALFA3, GAS,
-     &                    AEROSOL, GASWDEP, AERWDEP, HPWDEP, BETASO4, DARK )
+     &                    AEROSOL, GASWDEP, AERWDEP, HPWDEP, BETASO4, DARK,
+     &                    FRACTR, FRACPOA, FRACPRI )
 
 C-----------------------------------------------------------------------
 C  Description:
@@ -204,6 +205,10 @@ C...........Arguments:
       REAL( 8 ), INTENT( INOUT ) :: GASWDEP( : )   ! gas phase wet deposition array (mm mol/liter)
       REAL( 8 ), INTENT( INOUT ) :: AERWDEP( :,: ) ! aerosol wet deposition array (mm mol/liter)
       LOGICAL,   INTENT( IN )    :: DARK           ! DARK = TRUE is night,  DARK = FALSE is day
+      REAL( 8 ), INTENT( OUT ) :: FRACTR    ! Fraction of J mode tracer scavenged from I mode 
+      REAL( 8 ), INTENT( OUT ) :: FRACPOA   ! Fraction of J mode poa scavenged from I mode 
+      REAL( 8 ), INTENT( OUT ) :: FRACPRI   ! Fraction of J mode pri scavenged from I mode 
+      
 
 C...........Local Variables (scalars):
 
@@ -442,9 +447,8 @@ C...for sulfur tracking
 
       REAL( 8 ) :: FE_SOL          ! Fractional Fe solubility, GS - July 1, 2011
       REAL( 8 ) :: MN_SOL          ! Fractional Mn solubility, GS - July 1, 2011
-      
-      REAL( 8 ) :: TRACNOI          ! species that do not partipate in aqueous
-      REAL( 8 ) :: TRACNOICOR       ! chemistry or ionize or have an Aitken mode
+					    
+      REAL( 8 ) :: TRACI, POAI, PRII
 
       REAL( 8 ), SAVE :: SOIL_FE_FAC  ! Fe molar fraction of ASOIL
       REAL( 8 ), SAVE :: CORS_FE_FAC  ! Fe molar fraction of ACORS
@@ -942,9 +946,10 @@ C...   = Initial amount - amount deposited  (mol/liter)
         NUMCOR  = LOADING( LNUM,  COR ) - WETDEP( LNUMCORL  ) * XC1
 !       A       = 3.0D0 * FE
 !       B       = 2.0D0 * MN
-
-	TRACNOI    = LOADING( LTRACNOI,  ACC ) - WETDEP( LTRACNOIL  ) * XC1
-	TRACNOICOR   = LOADING( LTRACNOIC,  COR ) - WETDEP( LTRACNOICL  ) * XC1
+	
+        TRACI = LOADING( LTRACER_AKN, AKN ) - WETDEP( LTRACIL ) * XC1
+	POAI = LOADING( LPOA, AKN ) - WETDEP( LPOAIL ) * XC1
+	PRII = LOADING( LPRI, AKN ) - WETDEP( LPRIIL ) * XC1
 
 !       FE_OX = 0.5D0 * 0.62D0 * FE      ! SLN 28March2011
 !       MN_OX = 1.0D0 * 0.84D0 * MN      ! SLN 28March2011
@@ -1010,8 +1015,9 @@ C...don't allow aerosol concentrations to go below zero
 !       PRIMCOR = MAX( PRIMCOR, 0.0D0 )
         NUMCOR  = MAX( NUMCOR,  0.0D0 )
 	
-	TRACNOI    = MAX( TRACNOI,     0.0D0 )
-	TRACNOICOR = MAX( TRACNOICOR,     0.0D0 )
+	TRACI    = MAX( TRACI,     0.0D0 )
+	POAI     = MAX( POAI,     0.0D0 )
+	PRII     = MAX( PRII,     0.0D0 )
 	
         FE_OX = FE_III * FE_SOL * FE     ! GS 01July2011
         MN_OX = MN_II  * MN_SOL * MN     ! GS 01July2011
@@ -1654,8 +1660,9 @@ C...load the liquid concentration array with current values
         LIQUID( LFEACCL   ) = FEACC   ! AE6 - SLN 22March2011
         LIQUID( LMNACCL   ) = MNACC   ! AE6 - SLN 22March2011
 	
-	LIQUID( LTRACNOIL   ) = TRACNOI
-	LIQUID( LTRACNOICL  ) = TRACNOICOR
+	LIQUID( LTRACIL ) = TRACI
+	LIQUID( LPOAIL ) = POAI
+	LIQUID( LPRIIL ) = PRII
         
 	IF ( STM ) THEN
           LIQUID( LTS6AQH2O2L   ) = TS6AQH2O2
@@ -2355,9 +2362,6 @@ C...  to the accumulation mode particles
       AERWDEP( LSOA,  ACC ) = WETDEP( LSOAL  )
       AERWDEP( LORGC, ACC ) = WETDEP( LORGCL )
       AERWDEP( LPOA,  ACC ) = WETDEP( LPOAL )
-      
-      AERWDEP( LTRACNOI, ACC ) = WETDEP( LTRACNOIL )
-      AERWDEP( LTRACNOIC, COR ) = WETDEP( LTRACNOICL )
 
       AERWDEP( LSO4, COR ) = WETDEP( LTS6CORL  )
       AERWDEP( LNO3, COR ) = WETDEP( LNO3CORL  )
@@ -2461,9 +2465,6 @@ C...aerosol concentrations (mol/molV)
       AEROSOL( LSOA,  ACC ) = SOA  * XL * RECIPAP1
       AEROSOL( LORGC, ACC ) = ORGC * XL * RECIPAP1
       AEROSOL( LPOA,  ACC ) = POA  * XL * RECIPAP1
-      
-      AEROSOL( LTRACNOI, ACC ) = TRACNOI  * XL * RECIPAP1 
-      AEROSOL( LTRACNOIC, COR ) = TRACNOICOR  * XL * RECIPAP1 
 
       AEROSOL( LNH4, ACC ) = FNH4ACC * TOTAMM
       AEROSOL( LNO3, ACC ) = FNO3ACC * TOTNIT
@@ -2544,6 +2545,24 @@ C...Compute for Aerosol species in  TXHG Version
       AEROSOL( LPHG_AKN, AKN )    = AEROSOL( LPHG_AKN, AKN ) * EALFA3T
       AEROSOL( LPHG_ACC, ACC )    = HGFINE * XL * RECIPAP1
       AEROSOL( LPHG_COR, COR )    = HGCOR * XL * RECIPAP1
+      
+      IF( AEROSOL(LTRACER_ACC, ACC) .GT. 0.d0 ) THEN
+         FRACTR  = (TRACI  * XL * RECIPAP1) / AEROSOL(LTRACER_ACC, ACC) 
+      ELSE 
+         FRACTR = 0.d0
+      END IF
+      
+      IF( AEROSOL(LPOA, ACC) .GT. 0.d0 ) THEN
+         FRACPOA = (POAI  * XL * RECIPAP1) / AEROSOL(LPOA, ACC)
+      ELSE 
+         FRACPOA = 0.d0
+      END IF 
+      
+      IF( AEROSOL(LPRI, ACC) .GT. 0.d0 ) THEN
+         FRACPRI = (PRII  * XL * RECIPAP1) / AEROSOL(LPRI, ACC)
+      ELSE 
+         FRACPRI = 0.d0
+      END IF 
 
 C...store the amount of hydrogen deposition
 

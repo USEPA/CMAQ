@@ -104,15 +104,15 @@ C                                                       DRYDEP SURR             
 C                                          ICFAC  BCFAC    |                                         TRNS | WDEP
 C                      SPECIES      MW   IC  |  BC  |      |    FAC WET-SCAV SURR  FAC AE2AQ SURR     | | | CONC  
 C                      ------------ ---- -- -+- -- -+- ----+--- --- -------------- --- -------------- + + + +
-     & STM_SPC_DATA_2('OSO4J'      ,96.0,'',0.0,'',0.0,'VMASSJ',1.0,'TRACER_ACCUM',1.0,'TRACNOI_ACCUM',Y,Y,Y,Y),
-     & STM_SPC_DATA_2('OSO4AQH2O2J',96.0,'',0.0,'',0.0,'VMASSJ',1.0,'TRACER_ACCUM',1.0,'TRACNOI_ACCUM',Y,Y,Y,Y),
-     & STM_SPC_DATA_2('OSO4AQO3J'  ,96.0,'',0.0,'',0.0,'VMASSJ',1.0,'TRACER_ACCUM',1.0,'TRACNOI_ACCUM',Y,Y,Y,Y),
-     & STM_SPC_DATA_2('OSO4AQFEMNJ',96.0,'',0.0,'',0.0,'VMASSJ',1.0,'TRACER_ACCUM',1.0,'TRACNOI_ACCUM',Y,Y,Y,Y),
-     & STM_SPC_DATA_2('OSO4AQMHPJ' ,96.0,'',0.0,'',0.0,'VMASSJ',1.0,'TRACER_ACCUM',1.0,'TRACNOI_ACCUM',Y,Y,Y,Y),
-     & STM_SPC_DATA_2('OSO4AQPAAJ' ,96.0,'',0.0,'',0.0,'VMASSJ',1.0,'TRACER_ACCUM',1.0,'TRACNOI_ACCUM',Y,Y,Y,Y),
-     & STM_SPC_DATA_2('OSO4GASJ'   ,96.0,'',0.0,'',0.0,'VMASSJ',1.0,'TRACER_ACCUM',1.0,'TRACNOI_ACCUM',Y,Y,Y,Y),
-     & STM_SPC_DATA_2('OSO4EMISJ'  ,96.0,'',0.0,'',0.0,'VMASSJ',1.0,'TRACER_ACCUM',1.0,'TRACNOI_ACCUM',Y,Y,Y,Y),
-     & STM_SPC_DATA_2('OSO4ICBCJ'  ,96.0,'',0.0,'',0.0,'VMASSJ',1.0,'TRACER_ACCUM',1.0,'TRACNOI_ACCUM',Y,Y,Y,Y)
+     & STM_SPC_DATA_2('OSO4J'      ,96.0,'',0.0,'',0.0,'VMASSJ',1.0,'TRACER_ACCUM',1.0,'TRACER_ACCUM',Y,Y,Y,Y),
+     & STM_SPC_DATA_2('OSO4AQH2O2J',96.0,'',0.0,'',0.0,'VMASSJ',1.0,'TRACER_ACCUM',1.0,'TRACER_ACCUM',Y,Y,Y,Y),
+     & STM_SPC_DATA_2('OSO4AQO3J'  ,96.0,'',0.0,'',0.0,'VMASSJ',1.0,'TRACER_ACCUM',1.0,'TRACER_ACCUM',Y,Y,Y,Y),
+     & STM_SPC_DATA_2('OSO4AQFEMNJ',96.0,'',0.0,'',0.0,'VMASSJ',1.0,'TRACER_ACCUM',1.0,'TRACER_ACCUM',Y,Y,Y,Y),
+     & STM_SPC_DATA_2('OSO4AQMHPJ' ,96.0,'',0.0,'',0.0,'VMASSJ',1.0,'TRACER_ACCUM',1.0,'TRACER_ACCUM',Y,Y,Y,Y),
+     & STM_SPC_DATA_2('OSO4AQPAAJ' ,96.0,'',0.0,'',0.0,'VMASSJ',1.0,'TRACER_ACCUM',1.0,'TRACER_ACCUM',Y,Y,Y,Y),
+     & STM_SPC_DATA_2('OSO4GASJ'   ,96.0,'',0.0,'',0.0,'VMASSJ',1.0,'TRACER_ACCUM',1.0,'TRACER_ACCUM',Y,Y,Y,Y),
+     & STM_SPC_DATA_2('OSO4EMISJ'  ,96.0,'',0.0,'',0.0,'VMASSJ',1.0,'TRACER_ACCUM',1.0,'TRACER_ACCUM',Y,Y,Y,Y),
+     & STM_SPC_DATA_2('OSO4ICBCJ'  ,96.0,'',0.0,'',0.0,'VMASSJ',1.0,'TRACER_ACCUM',1.0,'TRACER_ACCUM',Y,Y,Y,Y)
      & /)
 
       TYPE (STM_SPC_DATA_1), Parameter :: STM_NR_SPECIES_DATA(N_STM_NR_SPC) = (/

@@ -45,7 +45,7 @@ C-----------------------------------------------------------------------
       Integer, Parameter :: ngas = 29   ! number of gas-phase species for AQCHEM
 !     Integer, Parameter :: naddaer = 7 ! number of additional aerosol surrogate species for AQCHEM
       Integer, Parameter :: naddaer = 2 ! number of additional aerosol surrogate species for AQCHEM
-      Integer, Parameter :: nadd_tx = 7 ! number of surrogates for HAPS aerosol species for AQCHEM
+      Integer, Parameter :: nadd_tx = 6 ! number of surrogates for HAPS aerosol species for AQCHEM
       Integer, Parameter :: nadd_i = 6  ! number of surrogates for AEI aerosol species for AQCHEM
 
       Integer, Parameter :: max_naer = n_aerolist + naddaer +  nadd_tx + nadd_i ! max number aero surrogates
@@ -193,7 +193,6 @@ C...TX and other species added to Aerosol surrogate if not found in AE namelist 
       Type ( sur_aer_type ), private :: srgaer_addtx( nadd_tx ) = (/
 C                         Aitken           Accum            Coarse        Background MolWt  Density
 C                      -------------    -------------    -------------    ---------- -----  ------
-     & sur_aer_type((/'              ', '              ', 'TRACNOI_COARSE'/),   0.0,    100.0, 2200.0),
      & sur_aer_type((/'TRACER_AITKEN ', '              ', '              '/),   0.0,    100.0, 2200.0),
      & sur_aer_type((/'              ', 'TRACER_ACCUM  ', '              '/),   0.0,    100.0, 2200.0),
      & sur_aer_type((/'              ', '              ', 'TRACER_COARSE '/),   0.0,    100.0, 2200.0),
@@ -232,9 +231,6 @@ C...Required aerosol species
       Character( 16 ), Parameter, Private :: req_ak     = 'K'
       Character( 16 ), Parameter, Private :: req_num    = 'NUM_ACCUM'
       Character( 16 ), Parameter, Private :: req_srf    = 'SRF_ACCUM'
-      
-      Character( 16 ), Parameter, Private :: req_tracnoi  = 'TRACNOI_ACCUM'
-      Character( 16 ), Parameter, Private :: req_tracnoic  = 'TRACNOI_COARSE'
 
       Character( 16 ), Parameter, Private :: req_caacc  = 'CA_ACCUM'    ! SLN 16March2011
       Character( 16 ), Parameter, Private :: req_mgacc  = 'MG_ACCUM'    ! SLN 16March2011
@@ -281,9 +277,6 @@ C...Pointers for the AQCHEM array AEROSOL
 !     Integer :: lk       !  Potassium aerosol (Cl- tracked separately) (place holder)
       Integer :: lnum     !  Number
       Integer :: lsrf     !  Surface area
-      
-      Integer :: ltracnoi  ! Tracer aerosol without Aitken (Accumulation)
-      Integer :: ltracnoic ! Tracer aerosol without Aitken (Coarse)
       
 C...TXHG aersosols      
       Integer :: ltracer_akn  !  Tracer aerosols (Aitken)
@@ -732,9 +725,6 @@ C...Create the pointers for required aerosol surrogate species needed by AQCHEM
       limos  = findSgrAer( req_aimos )   !  MAE/HMML-derived-organosulfates 
       liso3  = findSgrAer( req_aiso3 )   !  2-Methyltetrols etc 
       
-      ltracnoi = findSgrAer( req_tracnoi )   !  Tracer without Aitken in accumation mode 
-      ltracnoic = findSgrAer( req_tracnoic ) !  Tracer without Aitken in coarse mode  
-      
 C...For TXHG version
       ltracer_akn    = findSgrAer( req_traceri  )   !  Tracer aitken mode 
       ltracer_acc    = findSgrAer( req_tracerj  )   !  Tracer accumation mode 
@@ -810,9 +800,7 @@ C...For TXHG version
       Write( logdev,'( 5x, a, i4 )' ) 'lphg_akn:     ', lphg_akn
       Write( logdev,'( 5x, a, i4 )' ) 'lphg_acc:     ', lphg_acc
       Write( logdev,'( 5x, a, i4 )' ) 'lphg_cor:     ', lphg_cor
-      
-      Write( logdev,'( 5x, a, i4 )' ) 'ltracnoi:       ', ltracnoi
-      Write( logdev,'( 5x, a, i4 )' ) 'ltracnoic:      ', ltracnoic
+
 #endif
 
       Write( logdev,'( / 5x, a / )' ) ' --- AQCHEM Gas and Aerosol Species Mapped ---'
