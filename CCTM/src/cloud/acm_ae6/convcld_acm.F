@@ -1741,7 +1741,7 @@ c                 IF ( ( CCR( SPC,LAY ) / FRAC) .EQ. PCLD( SPC,LAY ) ) THEN
 c                   SA_PCLD( CSPC,LAY,ITAG ) = SA_CCR( CSPC,LAY,ITAG ) / FRAC 
 c                 END IF
 
-                  SA_PCLD( SPC,LAY,ITAG ) = MIN( SA_PCLD( SPC,LAY,ITAG ), SA_CCR( SPC,LAY,ITAG ) / FRAC )
+                  SA_PCLD( CSPC,LAY,ITAG ) = MIN( SA_PCLD( CSPC,LAY,ITAG ), SA_CCR( CSPC,LAY,ITAG ) / FRAC )
 
                   SA_POLC( CSPC,ITAG ) = SA_POLC( CSPC,ITAG )
      &                              + SA_PCLD( CSPC,LAY,ITAG ) * RHOM2( LAY )
