@@ -564,6 +564,9 @@ C...determine no. of moles of tracer gas per moles of air by volume
 c ISAM  unit conversion
       DO SPC = 1, NSPC_SA
         VAR = MAP_SAtoCGR(SPC)
+
+        IF ( VAR .EQ. (N_GC_SPC + 1) ) CYCLE    ! RHOJ 
+
         IF ( VAR .LE. N_GC_SPC .OR. VAR .GE. NR_STRT ) THEN ! this is not an aerosol
           DO ITAG = 1, NTAG_SA
             DO LAY = 1, NLAYS
@@ -890,6 +893,9 @@ C...convert to ppmV tracer gas
 c ISAM  unit conversion
       DO SPC = 1, NSPC_SA
         VAR = MAP_SAtoCGR(SPC)
+
+        IF ( VAR .EQ. (N_GC_SPC + 1) ) CYCLE    ! RHOJ 
+
         IF ( VAR .LE. N_GC_SPC .OR. VAR .GE. NR_STRT ) THEN ! this is not an aerosol
           DO ITAG = 1, NTAG_SA
             DO LAY = 1, NLAYS
