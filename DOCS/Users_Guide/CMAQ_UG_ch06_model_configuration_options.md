@@ -281,7 +281,7 @@ setenv CTM_STAGE_S22 N
 ```
 CTM_STAGE_P22 is a tiled/land use specific [Pleim et al. (2022)](https://doi.org/10.1002/essoar.10510541.1) aerosol deposition option. CTM_STAGE_E20 is the tiled implementation of the [Emerson et al. (2020)](https://doi.org/10.1073/pnas.2014761117) aerosol deposition model. CTM_STAGE_S22 is the tiled version of [Shu et al. (2022)](https://doi.org/10.1016/j.atmosenv.2022.119343) aerosol deposition model (the same as the STAGE parameterization in CMAQ v5.3 STAGE). CTM_STAGE_E20 is the default option and will be used in model simulation unless one of the other options is specified. In v5.4, the user can modify land use and chemical species dependent variables used by STAGE by editing the [STAGE Control Namelist](https://github.com/kmfoley/CMAQ_Dev/blob/v5.4_documentation/DOCS/Users_Guide/CMAQ_UG_ch04_model_inputs.md#stagectrl_nml) to update model parameters without the need to recompile.
 
-<a id=6.9_Emissions></a>
+<a id=6.8.3_Enhanced_Ozone_Deposition></a>
 
 ### 6.8.3 Enhanced Ozone Deposition
 
