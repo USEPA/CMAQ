@@ -421,6 +421,7 @@ c-------------------------------------------------------------------------------
 
                If ( ( Index( mechname, 'SAPRC07TIC_AE6I' ) .Gt. 0 ) .OR.
      &              ( Index( mechname, 'SAPRC07TIC_AE7I' ) .Gt. 0 ) .OR.
+     &              ( Index( mechname, 'CRACMM'       ) .Gt. 0 ) .OR.
      &              ( Index( mechname, 'CB6R3_AE7'       ) .Gt. 0 ) .OR.
      &              ( Index( mechname, 'CB6R5_AE7'       ) .Gt. 0 ) .OR.
      &              ( Index( mechname, 'CB6R5M_AE7'      ) .Gt. 0 ) ) Then
