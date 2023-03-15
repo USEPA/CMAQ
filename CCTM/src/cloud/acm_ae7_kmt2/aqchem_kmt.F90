@@ -710,13 +710,6 @@ kron: DO WHILE (T < TEND)
       ELSE 
          FRACPRI = 0.d0
       END IF
-      
-      IF (ABS((POAJINIT+(POAIinit - AEROSOL(LPOA, AKN)))*EXPWET-AEROSOL(LPOA, ACC)) .GT. 1e-7) THEN
-        XMSG = 'KMT error in fraction calcs'
-	 write(*,*) "KMT ERROR"
-         write(*,*) AEROSOL(LPOA, ACC), (POAJINIT+(POAIinit - AEROSOL(LPOA, AKN)))*EXPWET
-         CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
-      END IF 
 
       IF(ISPC8 .gt. 0) THEN                                                                                               
          AEROSOL( LIETET, ACC ) = VAR( ind_L_IETET ) * INVCFAC
