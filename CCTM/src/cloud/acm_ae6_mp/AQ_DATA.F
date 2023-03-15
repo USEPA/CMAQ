@@ -169,8 +169,7 @@ C                      -------------    -------------    -------------    ------
      & sur_aer_type((/'TRACER_AITKEN ', '              ', '              '/),   0.0,    100.0, 2200.0),
      & sur_aer_type((/'              ', 'TRACER_ACCUM  ', '              '/),   0.0,    100.0, 2200.0),
      & sur_aer_type((/'              ', '              ', 'TRACER_COARSE '/),   0.0,    100.0, 2200.0),
-     & sur_aer_type((/'PHG_AITKEN    ', '              ', '              '/),   0.0,    200.5, 2200.0),
-     & sur_aer_type((/'              ', 'PHG_ACCUM     ', '              '/),   0.0,    200.5, 2200.0),
+     & sur_aer_type((/'PHG_AITKEN    ', 'PHG_ACCUM     ', '              '/),   0.0,    200.5, 2200.0),
      & sur_aer_type((/'              ', '              ', 'PHG_COARSE    '/),   0.0,    200.5, 2200.0)/)
 
 C...Required aerosol species

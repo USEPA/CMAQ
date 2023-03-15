@@ -142,6 +142,9 @@ C Local Variables (scalars):
       REAL( 8 ), ALLOCATABLE, SAVE  :: WSRGAER( :, :, :)  ! weights for surrogate
 
       REAL( 8 ) :: FRACTR, FRACPOA, FRACPRI
+      
+      CHARACTER(16) :: NAMEI, NAMEJ
+      INTEGER LS2, LS1, I, LS3, LS4, ISRG2, ISRGI, IAERI
 
 C External Functions:
 
@@ -342,36 +345,106 @@ C...Now, re-apportion mass back into cend/remov (cgrid-type) array
               PNTR = CGRID2AQ_MAP( LSRGAER( IAER, IMODE, ISRG ) )
               CEND ( PNTR ) = AEROSOL( IAER, IMODE ) * WSRGAER( IAER, IMODE, ISRG )
               REMOV( PNTR ) = AERWDEP( IAER, IMODE ) * WSRGAER( IAER, IMODE, ISRG )
+	      
 	      IF( IMODE .EQ. 2 ) THEN
-	         IF( IAER .EQ. LPOA ) THEN
-		    CEND ( PNTR ) = (1.d0 - FRACPOA) * AEROSOL( IAER, IMODE ) * 
+	         
+                 IF(IAER .EQ. LPOA .OR. IAER .EQ. LPRI .OR. IAER .EQ. LTRACER_ACC) THEN
+		 
+		    NAMEJ = CGRID2AQ_NAME( LSRGAER( IAER,IMODE,ISRG ) )
+		    LS1 = LEN_TRIM(NAMEJ)
+		    LS2 = 0
+		    DO I = 1, LS1
+		       IF(NAMEJ(I:I) .NE. ' ') THEN
+			  LS2 = LS2+1
+		       END IF
+		    END DO
+		    ISRGI = 0
+			
+                    IF(IAER .eq. LTRACER_ACC) THEN
+		       IAERI = LTRACER_AKN 
+		    ELSE
+		       IAERI = IAER
+		    END IF
+			
+		    LOOP_SRGI: DO ISRG2 = 1, NSRGAER( IAERI, 1 )
+			          NAMEI = CGRID2AQ_NAME( LSRGAER( IAERI,1,ISRG2 ) )
+			          LS3 = LEN_TRIM(NAMEI)
+		                  LS4 = 0
+		                  DO I = 1, LS3
+		                     IF(NAMEI(I:I) .NE. ' ') THEN
+			                LS4 = LS4+1
+			             END IF
+			          END DO
+			
+			          IF( TRIM(NAMEJ(1:LS2-1)) .EQ. TRIM(NAMEI(1:LS4-1)) ) THEN
+			             ISRGI = ISRG2
+			             EXIT LOOP_SRGI
+			          END IF
+			       END DO LOOP_SRGI
+			
+                 END IF 
+			
+                 IF( IAER .EQ. LPOA ) THEN
+		    IF(ISRGI .GT. 0) THEN
+		       CEND ( PNTR ) = (1.d0 - FRACPOA) * AEROSOL( IAER, IMODE ) * 
      &                               WSRGAER( IAER, IMODE, ISRG ) + FRACPOA * 
-     &                               AEROSOL(IAER, IMODE ) * WSRGAER( IAER, IMODE-1, ISRG )
+     &                               AEROSOL( IAER, IMODE ) * WSRGAER( IAERI, 1, ISRGI )
      
-                    REMOV( PNTR ) = (1.d0 - FRACPOA) * AERWDEP( IAER, IMODE ) * 
+                       REMOV( PNTR ) = (1.d0 - FRACPOA) * AERWDEP( IAER, IMODE ) * 
      &                               WSRGAER( IAER, IMODE, ISRG ) + FRACPOA * 
-     &                               AERWDEP(IAER, IMODE ) * WSRGAER( IAER, IMODE-1, ISRG )
-                 END IF
-		 
-		 IF( IAER .EQ. LPRI ) THEN
-		    CEND ( PNTR ) = (1.d0 - FRACPRI) * AEROSOL( IAER, IMODE ) * 
+     &                               AERWDEP( IAER, IMODE ) * WSRGAER( IAERI, 1, ISRGI )
+     
+                    ELSE
+		    
+		       CEND ( PNTR ) = (1.d0 - FRACPOA) * AEROSOL( IAER, IMODE ) * 
+     &                               WSRGAER( IAER, IMODE, ISRG ) 
+     
+                       REMOV( PNTR ) = (1.d0 - FRACPOA) * AERWDEP( IAER, IMODE ) * 
+     &                               WSRGAER( IAER, IMODE, ISRG ) 
+		    END IF
+		    
+                 ELSE IF ( IAER .EQ. LPRI ) THEN
+		    IF(ISRGI .GT. 0) THEN
+		       CEND ( PNTR ) = (1.d0 - FRACPRI) * AEROSOL( IAER, IMODE ) * 
      &                               WSRGAER( IAER, IMODE, ISRG ) + FRACPRI * 
-     &                               AEROSOL(IAER, IMODE ) * WSRGAER( IAER, IMODE-1, ISRG )
-                    REMOV( PNTR ) = (1.d0 - FRACPRI) * AERWDEP( IAER, IMODE ) * 
+     &                               AEROSOL( IAER, IMODE ) * WSRGAER( IAERI, 1, ISRGI )
+     
+                       REMOV( PNTR ) = (1.d0 - FRACPRI) * AERWDEP( IAER, IMODE ) * 
      &                               WSRGAER( IAER, IMODE, ISRG ) + FRACPRI * 
-     &                               AERWDEP(IAER, IMODE ) * WSRGAER( IAER, IMODE-1, ISRG )       
-                 END IF
-		 
-		 IF( IAER .EQ. LTRACER_ACC ) THEN
-		    CEND ( PNTR ) = (1.d0 - FRACTR) * AEROSOL( IAER, IMODE ) * 
+     &                               AERWDEP( IAER, IMODE ) * WSRGAER( IAERI, 1, ISRGI )
+     
+		    ELSE
+		    
+		       CEND ( PNTR ) = (1.d0 - FRACPRI) * AEROSOL( IAER, IMODE ) * 
+     &                               WSRGAER( IAER, IMODE, ISRG ) 
+     
+                       REMOV( PNTR ) = (1.d0 - FRACPRI) * AERWDEP( IAER, IMODE ) * 
+     &                               WSRGAER( IAER, IMODE, ISRG ) 
+		    END IF
+		   
+                 ELSE IF ( IAER .EQ. LTRACER_ACC ) THEN
+		    
+		    IF(ISRGI .GT. 0) THEN
+		       CEND ( PNTR ) = (1.d0 - FRACTR) * AEROSOL( IAER, IMODE ) * 
      &                               WSRGAER( IAER, IMODE, ISRG ) + FRACTR * 
-     &                               AEROSOL(IAER, IMODE ) * WSRGAER( IAER, IMODE-1, ISRG )
-                    REMOV( PNTR ) = (1.d0 - FRACTR) * AERWDEP( IAER, IMODE ) * 
+     &                               AEROSOL( IAER, IMODE ) * WSRGAER( IAERI, 1, ISRGI )
+     
+                       REMOV( PNTR ) = (1.d0 - FRACTR) * AERWDEP( IAER, IMODE ) * 
      &                               WSRGAER( IAER, IMODE, ISRG ) + FRACTR * 
-     &                               AERWDEP(IAER, IMODE ) * WSRGAER( IAER, IMODE-1, ISRG )     
-                 END IF
-              END IF
-            END DO
+     &                               AERWDEP( IAER, IMODE ) * WSRGAER( IAERI, 1, ISRGI )
+     
+                    ELSE
+		    
+		       CEND ( PNTR ) = (1.d0 - FRACTR) * AEROSOL( IAER, IMODE ) * 
+     &                               WSRGAER( IAER, IMODE, ISRG ) 
+     
+                       REMOV( PNTR ) = (1.d0 - FRACTR) * AERWDEP( IAER, IMODE ) * 
+     &                               WSRGAER( IAER, IMODE, ISRG ) 
+                    END IF
+                 END IF   
+	      END IF
+            
+	    END DO
           END IF 
         END DO
       END DO
