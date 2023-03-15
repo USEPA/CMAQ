@@ -43,7 +43,7 @@ C-----------------------------------------------------------------------
       Integer, Parameter :: ngas = 20   ! number of gas-phase species for AQCHEM
 !     Integer, Parameter :: naddaer = 7 ! number of additional aerosol surrogate species for AQCHEM
       Integer, Parameter :: naddaer = 2 ! number of additional aerosol surrogate species for AQCHEM
-      Integer, Parameter :: nadd_tx = 6 ! number of surrogates for HAPS aerosol species for AQCHEM
+      Integer, Parameter :: nadd_tx = 5 ! number of surrogates for HAPS aerosol species for AQCHEM
 
       Integer, Parameter :: max_naer = n_aerolist + naddaer +  nadd_tx ! max number aero surrogates
 
