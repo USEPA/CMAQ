@@ -316,6 +316,7 @@ C for sulfur tracking model
 
       Integer, Allocatable, Save :: nsrgaer( :,: )    ! # surrogates in CGRID for each aerosol
       Integer, Allocatable, Save :: lsrgaer( :,:,: )
+      Integer, Allocatable, Save :: aknsrg( :,: )
 
       Integer, Allocatable, Save :: cgrid2aq_map( : ) ! allocated in AQ_DATA_INIT
       Character( 16 ), Allocatable, Save :: cgrid2aq_name( : ) ! allocated in AQ_DATA_INIT
@@ -370,6 +371,8 @@ C Local Variable used to determine what optional TX to add to surrogates
       !Logical :: found_all_modes
       !Integer :: n_missing_tx
       !Integer :: n_which_txadd( nadd_tx )
+      CHARACTER(16) :: NAMEI, NAMEJ
+      INTEGER LS2, LS1, LS3, LS4, ISRG2, ISRGI, IAERI      
 
       Logical, Save :: Firstcall = .True.
       
@@ -443,6 +446,12 @@ C...Map aero species
       Allocate ( lsrgaer( naer,nmodes,mxsrg ), stat = ios )
       If ( ios .Ne. 0 ) Then
          xmsg = '*** Error allocating lsrgaer'
+         Call m3exit( 'aq_data_init', 0, 0, xmsg, xstat3 )
+      End If
+      
+      Allocate ( aknsrg( naer,mxsrg ), stat = ios )
+      If ( ios .Ne. 0 ) Then
+         xmsg = '*** Error allocating aknsrg'
          Call m3exit( 'aq_data_init', 0, 0, xmsg, xstat3 )
       End If
 
@@ -567,6 +576,7 @@ C...Create the pointers from CGRID to the gaseous species needed by AQCHEM
 
 C...Create the pointers from CGRID to the aerosol species needed by AQCHEM
       nsrgaer = 0
+      aknsrg = 0
       write(logdev, 1114)
       Do iaer = 1, naer
          Do n = 1, nmodes
@@ -586,17 +596,19 @@ C...Create the pointers from CGRID to the aerosol species needed by AQCHEM
                         Call m3exit( 'AQ_DATA', 0, 0, xmsg, xstat3 )
                      End If
                      lsrgaer( iaer,n,isrg ) = lsrg( isrg )
+			
 #ifdef verbose_cloud
                      write( logdev,1113 ) cgrid2aq_name( lsrgaer( iaer,n,isrg ) ),
      &               cgrid2aq_map( lsrgaer( iaer,n,isrg ) ), srgaer( iaer )%name( n ),
      &               iaer, lsrgaer( iaer,n,isrg )
-#endif                  
+#endif      		     
+                  
                   End Do
                End If
             End If
          End Do
       End Do
-
+            
 C...Create the pointers for required gas surrogate species needed by AQCHEM
       lso2   = findSgrGas( req_so2 )    ! Sulfur Dioxide
       lhno3  = findSgrGas( req_hno3 )   ! Nitric Acid
@@ -660,6 +672,49 @@ C...For sulfur tracking model
       End If
 
       mapped = .True.
+      
+C...Match ACC mode surrogate indices to their AKN mode counterparts
+     
+      DO IAER = 1, NAER
+	 DO ISRG = 1, NSRGAER( IAER,2 )		
+		        NAMEJ = CGRID2AQ_NAME( LSRGAER( IAER,2,ISRG ) )
+		        LS1 = LEN_TRIM(NAMEJ)
+		        LS2 = 0
+		        DO I = 1, LS1
+		           IF(NAMEJ(I:I) .NE. ' ') THEN
+			      LS2 = LS2+1
+		           END IF
+		        END DO
+		        ISRGI = 0
+			
+                        IF(IAER .EQ. LTRACER_ACC) THEN
+		          IAERI = LTRACER_AKN 
+		        ELSE
+		          IAERI = IAER
+		        END IF
+			
+		    LOOP_SRGI: DO ISRG2 = 1, NSRGAER( IAERI, 1 )
+			          NAMEI = CGRID2AQ_NAME( LSRGAER( IAERI,1,ISRG2 ) )
+			          LS3 = LEN_TRIM(NAMEI)
+		                  LS4 = 0
+		                  DO I = 1, LS3
+		                     IF(NAMEI(I:I) .NE. ' ') THEN
+			                LS4 = LS4+1
+			             END IF
+			          END DO
+			
+			          IF( TRIM(NAMEJ(1:LS2-1)) .EQ. TRIM(NAMEI(1:LS4-1)) ) THEN
+			             ISRGI = ISRG2
+			             EXIT LOOP_SRGI
+			          END IF
+			       END DO LOOP_SRGI	
+			       
+			
+			AKNSRG(IAER, ISRG) = ISRGI
+
+	 END DO
+      END DO
+
 
 #ifdef verbose_cloud
       Write( logdev,'( /5x, a )' ) 'AQCHEM gas surrogate species'
