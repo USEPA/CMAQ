@@ -565,7 +565,7 @@ c ISAM  unit conversion
       DO SPC = 1, NSPC_SA
         VAR = MAP_SAtoCGR(SPC)
 
-        IF ( VAR .EQ. (N_GC_SPC + 1) ) CYCLE    ! RHOJ 
+        IF ( VAR .EQ. RHOJ_LOC  ) CYCLE    ! RHOJ 
 
         IF ( VAR .LE. N_GC_SPC .OR. VAR .GE. NR_STRT ) THEN ! this is not an aerosol
           DO ITAG = 1, NTAG_SA
@@ -894,7 +894,7 @@ c ISAM  unit conversion
       DO SPC = 1, NSPC_SA
         VAR = MAP_SAtoCGR(SPC)
 
-        IF ( VAR .EQ. (N_GC_SPC + 1) ) CYCLE    ! RHOJ 
+        IF ( VAR .EQ. RHOJ_LOC ) CYCLE    ! RHOJ 
 
         IF ( VAR .LE. N_GC_SPC .OR. VAR .GE. NR_STRT ) THEN ! this is not an aerosol
           DO ITAG = 1, NTAG_SA
