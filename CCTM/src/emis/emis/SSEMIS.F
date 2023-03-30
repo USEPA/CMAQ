@@ -36,7 +36,7 @@ C-----------------------------------------------------------------------
       USE RUNTIME_VARS
       USE HGRD_DEFN
       USE AERO_DATA, ONLY: N_MODE
-      USE EMIS_VARS
+      USE DESID_VARS
 
       IMPLICIT NONE
 
@@ -304,32 +304,32 @@ C Map aerospc data
 C Populate Master Emissions Map Vector So That Diagnostics 
 C can be printed in EMIS_MAP
             NSSSPC = NSEA_SPC
-            Em_File_Surr( iseasrm )%len = nssspc*2
-            Allocate( Em_File_Surr( iseasrm )%arry ( nssspc*2 ) )
-            Allocate( Em_File_Surr( iseasrm )%units( nssspc*2 ) )
-            Allocate( Em_File_Surr( iseasrm )%mw   ( nssspc*2 ) )
-            Allocate( Em_File_Surr( iseasrm )%used ( nssspc*2 ) )
-            Allocate( Em_File_Surr( iseasrm )%conv ( nssspc*2 ) )
-            Allocate( Em_File_Surr( iseasrm )%basis( nssspc*2 ) )
-            Allocate( Em_File_Surr( iseasrm )%larea( nssspc*2 ) )
-            Allocate( Em_File_Surr( iseasrm )%lareaadj( nssspc*2 ) )
-            Em_File_Surr( iseasrm )%arry( : ) = 'NOT_AVAILABLE'
+            DESID_EMVAR( iseasrm )%len = nssspc*2
+            Allocate( DESID_EMVAR( iseasrm )%arry ( nssspc*2 ) )
+            Allocate( DESID_EMVAR( iseasrm )%units( nssspc*2 ) )
+            Allocate( DESID_EMVAR( iseasrm )%mw   ( nssspc*2 ) )
+            Allocate( DESID_EMVAR( iseasrm )%used ( nssspc*2 ) )
+            Allocate( DESID_EMVAR( iseasrm )%conv ( nssspc*2 ) )
+            Allocate( DESID_EMVAR( iseasrm )%basis( nssspc*2 ) )
+            Allocate( DESID_EMVAR( iseasrm )%larea( nssspc*2 ) )
+            Allocate( DESID_EMVAR( iseasrm )%lareaadj( nssspc*2 ) )
+            DESID_EMVAR( iseasrm )%arry( : ) = 'NOT_AVAILABLE'
             do i = 1,nssspc
               IF ( sea_spc( i )%spcfac(1) .NE. 0.0 .or. i .EQ. nssspc ) 
-     &           Em_File_Surr( iseasrm )%arry( i )  =
+     &           DESID_EMVAR( iseasrm )%arry( i )  =
      &                         "PMFINE_" // sea_spc(i)%name
               IF ( sea_spc( i )%spcfac(2) .NE. 0.0 .or. i .EQ. nssspc ) 
-     &           Em_File_Surr( iseasrm )%arry( i+nssspc )  =
+     &           DESID_EMVAR( iseasrm )%arry( i+nssspc )  =
      &                         "PMCOARSE_" // sea_spc(i)%name
-               Em_File_Surr( iseasrm )%mw   ( i ) = sea_spc(i)%mw
-               Em_File_Surr( iseasrm )%mw   ( i+nssspc ) = sea_spc(i)%mw
+               DESID_EMVAR( iseasrm )%mw   ( i ) = sea_spc(i)%mw
+               DESID_EMVAR( iseasrm )%mw   ( i+nssspc ) = sea_spc(i)%mw
             end do
-            Em_File_Surr( iseasrm )%units( : ) = 'G/S'
-            Em_File_Surr( iseasrm )%used ( : ) = .FALSE.
-            Em_File_Surr( iseasrm )%conv ( : ) = 1.0
-            Em_File_Surr( iseasrm )%basis( : ) = 'MASS'
-            Em_File_Surr( iseasrm )%larea( : ) = .FALSE.
-            Em_File_Surr( iseasrm )%lareaadj( : ) = .FALSE.
+            DESID_EMVAR( iseasrm )%units( : ) = 'G/S'
+            DESID_EMVAR( iseasrm )%used ( : ) = .FALSE.
+            DESID_EMVAR( iseasrm )%conv ( : ) = 1.0
+            DESID_EMVAR( iseasrm )%basis( : ) = 'MASS'
+            DESID_EMVAR( iseasrm )%larea( : ) = .FALSE.
+            DESID_EMVAR( iseasrm )%lareaadj( : ) = .FALSE.
  
 C Allocate SS arrays using NSSSPC value
             ALLOCATE ( SSOUTM( NSSSPC*2,NCOLS,NROWS ),

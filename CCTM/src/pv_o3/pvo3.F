@@ -42,7 +42,11 @@ C-----------------------------------------------------------------------
       USE SA_DEFN, ONLY: ISAM, N_SPCTAG, NTAG_SA, ITAG, OTHRTAG,
      &                   ISAM_PVO3_MAP, ISAM_SPEC, L_OZONE,
      &                   ISAMRGN_NUM, ISAMRGN_MAP, NSPC_SA
-      USE em_param_module, ONLY: EM_REG_FAC, N_EM_RGN
+      USE desid_param_module, ONLY: DESID_REG_FAC, DESID_N_REG
+#endif
+
+#ifdef sens
+      USE DDM3D_DEFN, ONLY : NP, NPMAX, SENGRID, IPT
 #endif
 
       IMPLICIT NONE
@@ -99,7 +103,7 @@ C..Scratch Local Variables:
 
       REAL, ALLOCATABLE, SAVE :: CSTARZ( :,: ) ! cstar at 58hPa estimated by polynomial fit
       REAL, ALLOCATABLE, SAVE :: CXX( :,: )    ! intermediate quadratic (< 0 for any lat.)
-      REAL PV( NCOLS,NROWS,NLAYS )             ! potential vorticity
+      REAL ::  PV( NCOLS,NROWS,NLAYS )   ! potential vorticity
       REAL PRES( NCOLS,NROWS,NLAYS )           ! Air pressure [ Pa ]
 
 #ifdef isam
@@ -204,25 +208,25 @@ C   of a 22-layer configuration
                  ISAM( C,R,L,S_O3,: ) = 1E-30
                  PVO3_STORE = 1.0
                  IF ( SUM( ISAM_PVO3_MAP(:) ) .EQ. 0 ) THEN  ! no PV tracking specified, toss it into OTHER
-                   ISAM( C,R,L,S_O3,OTHRTAG ) = PVO3_STORE
+                   ISAM( C,R,L,S_O3,OTHRTAG ) = CGRID( C,R,L,VO3 )
                  ELSE IF ( SUM( ISAM_PVO3_MAP(:) ) .GE. 1 ) THEN ! at least 1 PVO3 tag
                    DO ITAG = 1, NTAG_SA-3
                      IF( ISAM_PVO3_MAP(ITAG) .EQ. 1 ) THEN ! PV for this tag
                         IF ( ISAMRGN_NUM( ITAG ) .LT. 1 ) THEN ! full domain
-                          ISAM( C,R,L,S_O3,ITAG ) = PVO3_STORE
-                          PVO3_STORE = PVO3_STORE - ISAM( C,R,L,S_O3,ITAG )
+                          ISAM( C,R,L,S_O3,ITAG ) = CGRID( C,R,L,VO3 )
+                          PVO3_STORE = 0.0
                         ELSE ! split into regions and other
                           DO RGN = 1, ISAMRGN_NUM( ITAG )
                             ISAM( C,R,L,S_O3,ITAG ) = ISAM( C,R,L,S_O3,ITAG )
      &                            + CGRID( C,R,L,VO3 )
-     &                            * EM_REG_FAC(C,R,ISAMRGN_MAP(ITAG,RGN))
+     &                            * DESID_REG_FAC(C,R,ISAMRGN_MAP(ITAG,RGN))
                             PVO3_STORE = PVO3_STORE
-     &                            - EM_REG_FAC(C,R,ISAMRGN_MAP(ITAG,RGN))
+     &                            - DESID_REG_FAC(C,R,ISAMRGN_MAP(ITAG,RGN))
                           END DO
                         END IF 
                      END IF
                    END DO
-                   IF ( PVO3_STORE .LT. 1E-6 ) PVO3_STORE = 0.0 ! round off precision error
+                   IF ( PVO3_STORE .LT. 1E-6 .AND. PVO3_STORE .GT. 0.0 ) PVO3_STORE = 0.0 ! round off precision error
                    IF ( PVO3_STORE .GE. 0.0 ) THEN ! put the rest into OTHER tag
                      ISAM( C,R,L,S_O3,OTHRTAG ) = PVO3_STORE * CGRID( C,R,L,VO3 )
                    ELSE
@@ -236,6 +240,15 @@ C   of a 22-layer configuration
                  END IF
                END IF
 #endif
+
+#ifdef sens
+               DO NP = 1, NPMAX
+                  IF ( IPT( NP ) .EQ. 6 ) THEN
+                     SENGRID( C, R, L, NP, VO3 ) = CGRID( C, R, L, VO3 )
+                  END IF
+               END DO
+#endif
+
                IF ( VO3T .GT. 0 ) THEN
                   CGRID( C,R,L,VO3T ) = CGRID( C,R,L,VO3 )
                END IF

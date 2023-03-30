@@ -105,23 +105,23 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       DO 220 NRX = 1, NUSERAT( NCSP )
         NRK = NKUSERAT( NRX, NCSP )
         IF( NREACT( NRK ) .EQ. 1 ) THEN
-            ISP1 = IRM2( NRK, 1, NCS )
+            ISP1 = IRM2( 1, NRK, NCS )
             DO NCELL = 1, NUMCELLS
                RXRAT( NCELL, NRK ) = RK( NCELL, NRK )
      &                             * CNEW( NCELL, ISP1 )
             ENDDO
          ELSEIF( NREACT( NRK ) .EQ. 2 ) THEN
-            ISP1 = IRM2( NRK, 1, NCS )
-            ISP2 = IRM2( NRK, 2, NCS )
+            ISP1 = IRM2( 1, NRK, NCS )
+            ISP2 = IRM2( 2, NRK, NCS )
             DO NCELL = 1, NUMCELLS
                RXRAT( NCELL, NRK ) = RK( NCELL, NRK )
      &                             * CNEW( NCELL, ISP1 )
      &                             * CNEW( NCELL, ISP2 )
             ENDDO
          ELSEIF( NREACT( NRK ) .EQ. 3 ) THEN
-            ISP1 = IRM2( NRK, 1, NCS )
-            ISP2 = IRM2( NRK, 2, NCS )
-            ISP3 = IRM2( NRK, 3, NCS )
+            ISP1 = IRM2( 1, NRK, NCS )
+            ISP2 = IRM2( 2, NRK, NCS )
+            ISP3 = IRM2( 3, NRK, NCS )
             DO NCELL = 1, NUMCELLS
                RXRAT( NCELL, NRK ) = RK( NCELL, NRK )
      &                             * CNEW( NCELL, ISP1 )
@@ -138,7 +138,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  Subtract loss terms from gloss for this reaction 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          DO NR = 1, NREACT( NRK )
-            ISP1 = IRM2( NRK, NR, NCS )
+            ISP1 = IRM2( NR, NRK, NCS )
             DO NCELL = 1, NUMCELLS
                GLOSS( NCELL, ISP1 ) = GLOSS( NCELL, ISP1 )
      &                              - RXRAT( NCELL, NRK )
@@ -149,7 +149,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  Add production terms to gloss for this reaction
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
           DO NP = 1, NPRDCT( NRK )
-            ISP1 = IRM2( NRK, NP + 3, NCS )
+            ISP1 = IRM2( NP + 3, NRK, NCS )
             DO NCELL = 1, NUMCELLS
              GLOSS( NCELL, ISP1 ) = GLOSS( NCELL, ISP1 )
      &                            + REAL( SC( NRK, NP ), 8 ) * RXRAT( NCELL, NRK )

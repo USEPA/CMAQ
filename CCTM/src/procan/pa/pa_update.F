@@ -28,7 +28,7 @@
       USE PA_DEFN               ! Process Anaylsis control and data variables
       USE PAGRD_DEFN            ! PA horiz domain specs
       USE UTILIO_DEFN           ! inherits PARUTILIO
-      USE EMIS_VARS
+      USE DESID_VARS
       USE CENTRALIZED_IO_MODULE
       USE BUDGET_DEFN
 
@@ -727,9 +727,9 @@ C..get density x jacobian and layer heights
             CALL SUBST_DATA_COPY( AERO_NPF,  TNPF,  ICG )
             CALL SUBST_DATA_COPY( AERO_GROWTH, TGROW, ICG )
 #else
-            TCOAG = SUM( AERO_COAG( PA_BEGCOL:PA_ENDCOL,
+            TCOAG = AERO_COAG( PA_BEGCOL:PA_ENDCOL,
      &                         PA_BEGROW:PA_ENDROW,
-     &                         PA_BEGLEV:PA_ENDLEV, ICG,: ),4 )
+     &                         PA_BEGLEV:PA_ENDLEV, ICG )
             TCOND = AERO_COND( PA_BEGCOL:PA_ENDCOL,
      &                         PA_BEGROW:PA_ENDROW,
      &                         PA_BEGLEV:PA_ENDLEV, ICG )

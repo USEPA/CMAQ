@@ -20,6 +20,7 @@
 ! 040319 HOT Pye: IEPOX uptake now consumes inorganic sulfate
 ! 2-9-21 G Sarwar, added a reaction for CB6r5 and updated many rate constants and some yeilds following Ramboll Report to TCEQ (07/30/2020)
 ! 4-29-21 G Sarwar, added heterogeneous hydrolysis of ClNO3 on fine-mode aerosol (<HET_CLNO3_WAI>)
+! 3-3-22 G Sarwar, DMS chemistry (DMS1-DMS4)
 !---------------------------------
 CB6R5_AE7_AQ
 
@@ -554,6 +555,20 @@ REACTIONS[CM] =
 <HG4> HG + OH   = 0.5*HGIIAER + 0.5*HGIIGAS + OH      # 7.7E-14;
 <HG5> HG + CL  + M  = 0.5*HG + 0.5*HGIIGAS + M + CL   # 2.25E-33 @ -680.0;
 
+! DMS chemistry (IUPAC except DMS4 which is from Somariva and Glasow, 2012 )
+<DMS1>  DMS + OH           = SO2     + MEO2
+                                     + FORM           # 1.12E-11@250;
+<DMS2>  DMS + OH           = 0.75*SO2 + 0.25*MSA
+                                     + MEO2           # 1.99E-39@-5270
+                                                      & 1.26E-10@+340 &1.0 &1;
+<DMS3>  DMS + NO3          = SO2     + HNO3
+                                     + MEO2
+                                     + FORM           # 1.9E-13@-520;
+<DMS4>  DMS + CL           = 0.86*SO2 + MEO2
+                                     + 0.45*FORM
+                                     + 0.45*HCL
+                                     + 0.14*MSA
+                                     + 0.55*CLO       # 3.4E-13@-2081;
 
 END MECH
 

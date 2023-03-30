@@ -3,7 +3,8 @@
 C   Suboutine adds SS species data to RXCM and RXDT files
 
       USE MECHANISM_DATA
-      
+      USE BASIC_WRITE_ROUTINES
+
       IMPLICIT NONE
 
 C INPUTS
@@ -14,12 +15,9 @@ C INPUTS
 C FUNCTIONS
       INTEGER, EXTERNAL :: JUNIT
 
-
 C LOCAL VARIABLES
 
       CHARACTER(   1 ) :: XXX
-
-
 
       INTEGER SPC                   ! Loop index
       INTEGER IND                   ! Loop index
@@ -27,48 +25,6 @@ C LOCAL VARIABLES
 
       INTEGER         :: INTBUF( MAXRXNUM )   ! Temp buffer for integers
       REAL            :: REALBUF( MAXRXNUM )  ! Temp buffer for reals
-
-      INTERFACE
-        SUBROUTINE WRBF6( WRUNIT, AWPL, NEL, IVAR )
-         INTEGER, INTENT( IN ) ::  WRUNIT     ! logical write unit no.
-         INTEGER, INTENT( IN ) ::  AWPL       ! words per line (max at 10)
-         INTEGER, INTENT( IN ) ::  NEL        ! number of list elements
-         INTEGER, INTENT( IN ) ::  IVAR( : )  ! integer variable to write
-         END SUBROUTINE WRBF6
-        SUBROUTINE WRBF6_FORTRAN90( WRUNIT, AWPL, NEL, IVAR )
-         INTEGER, INTENT( IN ) ::  WRUNIT     ! logical write unit no.
-         INTEGER, INTENT( IN ) ::  AWPL       ! words per line (max at 10)
-         INTEGER, INTENT( IN ) ::  NEL        ! number of list elements
-         INTEGER, INTENT( IN ) ::  IVAR( : )  ! integer variable to write
-        END SUBROUTINE WRBF6_FORTRAN90      
-        SUBROUTINE WRBF12S ( WRUNIT, AWPL, NEL, VAR, AFMT )
-           INTEGER, INTENT( IN )         :: WRUNIT   ! logical write unit no.
-           INTEGER, INTENT( IN )         :: AWPL     ! words per line (max at 5)
-           INTEGER, INTENT( IN )         :: NEL                       ! number of list elements
-           REAL,    INTENT( IN )         :: VAR( : )   ! real variable to write
-           CHARACTER(  1 ), INTENT( IN ) :: AFMT   ! write format: E -> 1PE11.4, F -> F11.5
-        END SUBROUTINE WRBF12S
-        SUBROUTINE WRBF12S_FORTRAN90 ( WRUNIT, AWPL, NEL, VAR, AFMT )
-           INTEGER, INTENT( IN )         :: WRUNIT   ! logical write unit no.
-           INTEGER, INTENT( IN )         :: AWPL     ! words per line (max at 5)
-           INTEGER, INTENT( IN )         :: NEL                       ! number of list elements
-           REAL,    INTENT( IN )         :: VAR( : )   ! real variable to write
-           CHARACTER(  1 ), INTENT( IN ) :: AFMT   ! write format: E -> 1PE11.4, F -> F11.5
-        END SUBROUTINE WRBF12S_FORTRAN90
-        SUBROUTINE WRBF16C_FORTRAN90 ( WRUNIT, AWPL, NEL, VAR )
-          INTEGER,         INTENT( IN ) :: WRUNIT      ! logical write unit no.
-          INTEGER,         INTENT( IN ) :: AWPL        ! words per line (max at 5)
-          INTEGER,         INTENT( IN ) :: NEL         ! number of list elements
-          CHARACTER( 16 ), INTENT( IN ) :: VAR( : )  ! character variable to write
-        END SUBROUTINE WRBF16C_FORTRAN90 
-        SUBROUTINE WRBF16C ( WRUNIT, AWPL, NEL, VAR )
-          INTEGER,         INTENT( IN ) :: WRUNIT      ! logical write unit no.
-          INTEGER,         INTENT( IN ) :: AWPL        ! words per line (max at 5)
-          INTEGER,         INTENT( IN ) :: NEL         ! number of list elements
-          CHARACTER( 16 ), INTENT( IN ) :: VAR( : )  ! character variable to write
-        END SUBROUTINE WRBF16C
-      END INTERFACE
-
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c Write RXCM data
@@ -225,6 +181,4 @@ c..reacts with any other non-SS species
 
 
 
-      END
-
-
+      END SUBROUTINE WRSS_EXT_FORTRAN90

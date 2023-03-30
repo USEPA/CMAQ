@@ -42,17 +42,14 @@ C searchs to LENGTH for string NAME in string array LIST
 
       INTEGER INDX
 
-      INDX = 1
-101   CONTINUE
-      IF ( INDX .GT. LENGTH ) THEN         ! NAME is not in LIST
-         INDEX1 = 0
-         RETURN
-      END IF
-      IF ( NAME .EQ. LIST( INDX ) ) THEN   ! NAME is in LIST
-         INDEX1 = INDX
-         RETURN
-      END IF
-      INDX = INDX + 1
-      GO TO 101
+      DO INDX = 1,LENGTH
+         IF ( NAME .EQ. LIST( INDX ) ) THEN   ! NAME is in LIST
+            INDEX1 = INDX
+            RETURN
+         END IF
+      END DO
+
+      INDEX1 = 0
+      RETURN
 
       END

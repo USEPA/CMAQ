@@ -91,11 +91,11 @@ R4   &          PNEG( NUMB_MECH_SPC),
      &           DENSITY( MAX_CELLS_EBI ),
      &           HET    ( MAX_CELLS_EBI, NHETERO ), 
      &           RJIN   ( MAX_CELLS_EBI, NPHOTAB ), 
-     &           LAND   ( MAX_CELLS_EBI ) ,
+     &           SEAWATER  ( MAX_CELLS_EBI ) ,
      &           STAT = IOS )
 
        IF ( IOS .NE. 0 ) THEN
-          MSG = 'Error allocating ATMPRES, H2O, TEMP, HET, RJIN, LAND '
+          MSG = 'Error allocating ATMPRES, H2O, TEMP, HET, RJIN, SEAWATER '
           CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
        END IF
 

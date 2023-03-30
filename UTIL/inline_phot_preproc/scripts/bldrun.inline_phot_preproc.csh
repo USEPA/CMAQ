@@ -1,6 +1,6 @@
 #!/bin/csh -fx
 
-# ============ CSQY_TABLE_PROCESSOR_v5.3.x Build Script ================= #
+# ============ CSQY_TABLE_PROCESSOR_v5.4.x Build Script ================= #
 # Usage: bldrun_create_ebi.csh [compiler] >&! bldrun_create_ebi.log   #
 # Options for [compiler]: intel | gcc | pgi                           #
 #                                                                     #
@@ -78,7 +78,7 @@ unset echo
     setenv OUTDIR   ${WORKDIR}/output/${MECH}
  endif
 
- set VRSN =      v532                                 #> model version
+ set VRSN =      v54                                 #> model version
  setenv EXEC     CSQY_TABLE_PROCESSOR_${VRSN}.exe     #> executable name for this application
  setenv WORKREPO ${REPOROOT}
  setenv BLDIR    ${WORKDIR}/scripts/BLD_CSQY_TABLE_${VRSN}_${compilerString}
@@ -127,7 +127,7 @@ unset echo
 #>Number of Wavebands to write to output files starting from the band with the longest
 #>to shortest wavelength from the bands; can equal 1 to 18
 #>Waveband intervals come from FAST-JX version 6.8
-#>CMAQ version 5.3 uses seven bands and CMAQ-MPAS uses eleven bands
+#>CMAQ version 5.3+ uses seven bands and CMAQ-MPAS uses eleven bands
 setenv N_WAVEBANDS_OUT 7
 
 #>Compile the Executable

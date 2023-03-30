@@ -17,6 +17,7 @@
       REAL( 8 ), ALLOCATABLE :: DYDT( : )       ! time derivative of species
       REAL( 8 ), ALLOCATABLE :: JACOBIAN( :,: ) ! mechanism's jacobain matrix
 
+
       INTEGER, PARAMETER ::  MAX_NCELLS = 1
        
       CHARACTER( 16 ), ALLOCATABLE :: SPECIES( : )
@@ -65,6 +66,7 @@
       INTEGER :: DDM_LOG   = 6      ! Unit number of output log
       INTEGER :: ERROR_LOG = 6
       LOGICAL :: CHECK_MECHANISM  = .FALSE. ! write out Jacobian and derivatives values
+      LOGICAL :: CHECK_SORTING    = .FALSE. ! write out result of mechanism species sorting
       
 #ifdef verbose_ddm3d
       LOGICAL :: REPORT_CHART     = .TRUE.  ! write out species derivations and mechanism jacobian
@@ -84,8 +86,13 @@
 
       INTEGER,   ALLOCATABLE ::  JOLD2NEW( :,: )    ! YC species map
       INTEGER,   ALLOCATABLE ::  JNEW2OLD( :,: )    ! YC species map
+      INTEGER,   ALLOCATABLE ::  ISPECIES_REACTION( :,: ) ! species index for each reaction
       
-      LOGICAL,   ALLOCATABLE :: JACOBIAN_FILLED( :,:,: )
+      INTEGER  :: CHANGING_SPECIES = 0 ! mechanism species affected by reactions
+      INTEGER  :: STEADY_SPECIES   = 0 ! mechanism species not affected by reactions
+
+      LOGICAL,   ALLOCATABLE :: JACOBIAN_FILLED( :,:,: )    ! Is Jacobian position nonzero
+      
       LOGICAL                :: LSUNLIGHT  = .TRUE.
 
       REAL( 8 ), ALLOCATABLE, PRIVATE ::  ATMPRES ( : )     ! Cell pressure, Atm
@@ -96,8 +103,10 @@
       REAL( 8 ), ALLOCATABLE, PRIVATE ::  RJIN    ( :, : )  ! J-values for a cell
       LOGICAL,   ALLOCATABLE, PRIVATE ::  LAND    ( : )     ! land_zone value for specific cell
 
+      LOGICAL :: RESET_JACOBIAN = .FALSE.
+      
       CONTAINS
-        SUBROUTINE SET_MECHANISM( )
+        SUBROUTINE SET_MECHANISM(  )
 
           USE RXNS_DATA
           USE RXNS_FUNCTION
@@ -118,19 +127,36 @@ C..arguments:
 
 C..Parameters:
          
-         INTEGER :: I, J, RXN, IP, IPNEG, IL 
+         INTEGER :: I, J, RXN, IP, IPNEG, IL, ISPC
          INTEGER :: NCELL
          INTEGER :: IOS
          INTEGER :: C, L, R, S   ! Loop indices
          INTEGER :: SPC          ! array index
+         INTEGER :: MIN_NEW_SPECIES      ! Index holder for sort routine
+         INTEGER :: MIN_OLD_SPECIES      ! Index holder for sort routine
+         INTEGER :: MIN_COUNT      ! Current minimum number of PD terms in sort
+
+         INTEGER INEW, JNEW           ! Index for sorted species number
+         INTEGER IOLD, JOLD           ! Index for old species number
+         INTEGER IMINNEW              ! Index holder for sort routine
+         INTEGER IMINOLD              ! Index holder for sort routine
+         INTEGER MINVALU              ! Current number of PD terms in sort
+
          LOGICAL :: EXISTS 
          LOGICAL :: EFLAG 
+         LOGICAL :: SWAPPING
+
          LOGICAL, SAVE :: INITIALIZED = .FALSE.
 
          CHARACTER( 132 ) :: MSG           ! Message text
+         CHARACTER(  32 ) :: SWAPPED_NAME
          
          REAL              :: HEIGHT
          REAL( 8 )         :: FACTOR     ! conversion factor
+         
+         INTEGER,         ALLOCATABLE :: SORTED_COUNT  ( : ) ! # of Jacobain partial derivations  per species
+         INTEGER,         ALLOCATABLE :: JACOBIAN_COUNT( : ) ! # of Jacobain partial derivations  per species
+         CHARACTER( 32 ), ALLOCATABLE :: SWAPPED_NAMES( : )
          
          IF ( INITIALIZED ) RETURN
             EFLAG      = .FALSE.
@@ -174,17 +200,6 @@ C..Parameters:
                     WRITE(ERROR_LOG,*)TRIM(MSG)
                     EFLAG = .TRUE.
                END IF
-               ALLOCATE( JOLD2NEW( NUMB_MECH_SPC,1 ),
-     &                   JNEW2OLD( NUMB_MECH_SPC,1 ), STAT = IOS )
-               IF ( IOS .NE. 0 ) THEN
-                    MSG = 'Error allocating JOLD2NEW or JNEW2OLD'
-                    WRITE(ERROR_LOG,*)TRIM(MSG)
-                    EFLAG = .TRUE.
-               END IF
-               DO I = 1, NUMB_MECH_SPC
-                 JOLD2NEW( I,1 ) = I
-                 JNEW2OLD( I,1 ) = I
-               END DO
                ALLOCATE( RKI_SAV( NRXNS,MAX_NCELLS ), STAT = IOS )
                IF ( IOS .NE. 0 ) THEN
                     MSG = 'Error allocating RKI_SAV'
@@ -192,6 +207,51 @@ C..Parameters:
                     EFLAG = .TRUE.
                END IF
             END IF
+
+            ALLOCATE( JOLD2NEW( NUMB_MECH_SPC,1 ),
+     &                JNEW2OLD( NUMB_MECH_SPC,1 ), STAT = IOS )
+            IF ( IOS .NE. 0 ) THEN
+                 MSG = 'Error allocating JOLD2NEW or JNEW2OLD'
+                 WRITE(ERROR_LOG,*)TRIM(MSG)
+                 EFLAG = .TRUE.
+            ELSE
+                 MSG = 'JOLD2NEW or JNEW2OLD allocated'
+                 WRITE(ERROR_LOG,*)TRIM(MSG)
+            END IF
+            DO I = 1, NUMB_MECH_SPC
+              JOLD2NEW( I,1 ) = I
+              JNEW2OLD( I,1 ) = I
+            END DO
+
+            ALLOCATE( SORTED_COUNT(  NUMB_MECH_SPC),
+     &                JACOBIAN_COUNT( NUMB_MECH_SPC), STAT = IOS )
+            IF ( IOS .NE. 0 ) THEN
+                 MSG = 'Error allocating JACOBIAN_COUNT'
+                 WRITE(ERROR_LOG,*)TRIM(MSG)
+                 EFLAG = .TRUE.
+            END IF
+            JACOBIAN_COUNT = 0
+            SORTED_COUNT   = 0
+            
+            ALLOCATE( SWAPPED_NAMES( NUMB_MECH_SPC), STAT = IOS )
+            IF ( IOS .NE. 0 ) THEN
+                 MSG = 'Error allocating SWAPPED_NAMES'
+                 WRITE(ERROR_LOG,*)TRIM(MSG)
+                 EFLAG = .TRUE.
+            END IF
+            SWAPPED_NAMES = 'BLANK'
+            
+            ALLOCATE( ISPECIES_REACTION(MXPRD+3,NRXNS), STAT = IOS )
+            IF ( IOS .NE. 0 ) THEN
+                 MSG = 'Error allocating ISPECIES_REACTION'
+                 WRITE(ERROR_LOG,*)TRIM(MSG)
+                 EFLAG = .TRUE.
+            END IF
+            DO RXN = 1,NRXNS
+               DO SPC = 1,MXPRD+3
+                  ISPECIES_REACTION( SPC,RXN ) = IRR( RXN,SPC )
+               END DO
+            END DO
 
             ALLOCATE( DYDT( NUMB_MECH_SPC ), STAT = IOS )
             IF ( IOS .NE. 0 ) THEN
@@ -208,7 +268,142 @@ C..Parameters:
             
 ! map species time derivative and jacobian array
             CALL CHART_IRR
-                    
+
+!  Set the number of Partial derivative terms in the Jacobian and
+!  count the number of terms for each species
+             DO I = 1, NUMB_MECH_SPC 
+                DO  J = 1, NUMB_MECH_SPC
+                   IF ( JACOBIAN_FILLED( J,I,1 ) ) THEN
+                       JACOBIAN_COUNT( J ) = JACOBIAN_COUNT( J ) + 1
+                   END IF
+                END DO
+             END DO
+
+!  Sort the species, putting all with zero partial derivative 
+!  terms at the bottom and those with fewest PD terms at top.
+!  Set arrays for species with zero PD terms
+      STEADY_SPECIES = NUMB_MECH_SPC
+      DO JOLD = 1, NUMB_MECH_SPC
+         IF ( JACOBIAN_COUNT( JOLD ) .GT. 0 ) THEN
+            CHANGING_SPECIES = CHANGING_SPECIES + 1
+            JNEW = CHANGING_SPECIES
+            JNEW2OLD( JNEW,1 ) = JOLD
+            JOLD2NEW( JOLD,1 ) = JNEW
+         ELSE
+            JNEW2OLD( CHANGING_SPECIES,1 ) = JOLD
+            JOLD2NEW( JOLD,1 ) = STEADY_SPECIES
+            STEADY_SPECIES = STEADY_SPECIES - 1
+         END IF
+      END DO
+      STEADY_SPECIES = NUMB_MECH_SPC-CHANGING_SPECIES 
+      IF (CHECK_SORTING )THEN
+          WRITE( DDM_LOG,'(A)')'Initial Mechanism Species sorted based on their mechanism activity'
+          WRITE( DDM_LOG,'(A,2(I4,1X))')'Changeing Species, Steady State Species ',CHANGING_SPECIES,
+     &    STEADY_SPECIES          
+          WRITE( DDM_LOG,'(A16,1X,4(A16,1X))')'ISPECIES', 'Original','Sorted','Check','JCOUNT'
+          DO ISPC = 1, CHANGING_SPECIES
+             I = JOLD2NEW( ISPC,1 )
+             J = JNEW2OLD( I,1 )
+             WRITE(DDM_LOG,'(I4,13X,3(A16,1X),I16)')ISPC,
+     &       CHEMISTRY_SPC(ISPC),CHEMISTRY_SPC(I),CHEMISTRY_SPC(J),JACOBIAN_COUNT(I)     
+          END DO
+       END IF
+
+!  Now sort by number of PD terms, fewest at position 1, most at
+!  the end position. 
+      DO JNEW = 1, CHANGING_SPECIES
+c  Uncomment the following three lines to turn off species ordering;
+c  not recommended since computational efficiency reduced
+!        INEW2OLD( JNEW,NCS ) = JNEW
+!        IOLD2NEW( JNEW,NCS ) = JNEW
+!        IF ( JNEW .NE. 0 ) CYCLE
+         JOLD = JNEW2OLD( JNEW,1 )
+         MINVALU = JACOBIAN_COUNT( JOLD )
+         IMINOLD = JOLD
+         IMINNEW = JNEW
+
+         DO INEW = JNEW + 1, CHANGING_SPECIES
+            IOLD = JNEW2OLD( INEW,1 )
+           IF ( JACOBIAN_COUNT( IOLD ) .LT. MINVALU ) THEN
+               MINVALU = JACOBIAN_COUNT( IOLD )
+               IMINOLD = IOLD
+               IMINNEW = INEW
+           END IF
+         END DO
+
+         JNEW2OLD( IMINNEW,1 ) = JOLD
+         JNEW2OLD( JNEW,1 )    = IMINOLD
+         JOLD2NEW( JOLD,1 )    = IMINNEW
+         JOLD2NEW( IMINOLD,1 ) = JNEW
+
+      END DO
+      DO J = 1,NUMB_MECH_SPC
+         JNEW = JOLD2NEW( J,1 )
+         SORTED_COUNT(JNEW) = JACOBIAN_COUNT( J )
+      END DO
+      JACOBIAN_COUNT = SORTED_COUNT
+! Alternative method for sorting species for species names      
+!      SWAPPED_NAMES = CHEMISTRY_SPC
+!      DO J = CHANGING_SPECIES-1,1,-1
+!         SWAPPING = .FALSE.
+!         DO I = 1,J
+!            IF ( JACOBIAN_COUNT(I) .GT. JACOBIAN_COUNT(I+1) )THEN
+!                MINVALU             = JACOBIAN_COUNT(I+1)
+!                 JACOBIAN_COUNT(I+1) = JACOBIAN_COUNT(I)
+!                 JACOBIAN_COUNT(I)   = MINVALU
+!                 SWAPPED_NAME        = SWAPPED_NAMES(I+1)
+!                 SWAPPED_NAMES(I+1)  = SWAPPED_NAMES(I)
+!                 SWAPPED_NAMES(I)    = SWAPPED_NAME
+!                 SWAPPING            = .TRUE.
+!            END IF
+!         END DO
+!         IF( .NOT. SWAPPING ) EXIT
+!      END DO
+!      DO I = 1, NUMB_MECH_SPC
+!         WRITE(DDM_LOG,'(I4,1X,A)')I,SWAPPED_NAMES(I)
+!      END DO
+!      DO J = 1,CHANGING_SPECIES
+!         DO I = 1,CHANGING_SPECIES
+!            IF( TRIM(CHEMISTRY_SPC(J)) .EQ. TRIM( SWAPPED_NAMES(I) ) )THEN
+!               JOLD2NEW(J,1) = I
+!               JNEW2OLD(I,1) = J         
+!               WRITE(DDM_LOG,'(I4,1X,A,2(1X,I4))')J,CHEMISTRY_SPC(J),JOLD2NEW(J,1),JNEW2OLD(I,1)
+!            END IF   
+!         END DO
+!      END DO
+      IF (CHECK_SORTING )THEN
+! Write sorting results      
+          WRITE( DDM_LOG,'(A)')'Mechanism Species sorted based on their mechanism activity'
+          WRITE( DDM_LOG,'(A,2(I4,1X))')'Changeing Species, Steady State Species ',CHANGING_SPECIES,
+     &    STEADY_SPECIES          
+          WRITE( DDM_LOG,'(A16,1X,4(A16,1X))')'ISPECIES', 'Original','Sorted','Check','JCOUNT'
+          DO ISPC = 1, NUMB_MECH_SPC
+             I = JOLD2NEW( ISPC,1 )
+             J = JNEW2OLD( I,1 )
+             S = JNEW2OLD( ISPC,1 )
+             WRITE(DDM_LOG,'(I4,13X,3(A16,1X),I16)')ISPC,
+     &       CHEMISTRY_SPC(ISPC),CHEMISTRY_SPC(S),CHEMISTRY_SPC(J),JACOBIAN_COUNT(ISPC)
+     
+          END DO
+      END IF
+      
+      RESET_JACOBIAN = .TRUE.
+
+!  Reset the ISPECIES_REACTION array using the new species order developed above.
+      
+      DO RXN = 1, NRXNS
+          DO I = 1, NREACT( RXN )
+             J = ISPECIES_REACTION( I,RXN )
+             ISPECIES_REACTION( I,RXN ) = JOLD2NEW( J,1 )
+          END DO
+
+          DO I = 1, NPRDCT( RXN )
+             J = ISPECIES_REACTION( I+3,RXN )
+             ISPECIES_REACTION( I+3,RXN ) = JOLD2NEW( J,1 )
+         END DO
+      END DO
+      DEALLOCATE( JACOBIAN_COUNT, SORTED_COUNT )
+      
         IF( CHECK_MECHANISM )CHECK_MECHANISM = .FALSE. 
 
 95000   FORMAT(I4,1X,A16,' = ',4(ES12.4,', ')) 
@@ -291,7 +486,7 @@ C=======================================================
            CALL M3EXIT ( PNAME, 0, 0, MSG, XSTAT2 )
         END IF
         JACOBIAN_FILLED = .FALSE.
-        DO I = 1, NUMB_MECH_SPC
+        DO I = 1, NUMB_MECH_SPC  ! set diagonal to to true
            JACOBIAN_FILLED(I,I,1:2) = .TRUE.
         END DO
             
@@ -591,6 +786,7 @@ C..Local Variables:
       INTEGER NP             ! Loop index over partial derivation terms
       INTEGER IPART          ! index for partial derivation of reaction
       INTEGER NRK            ! Reaction number
+      INTEGER IOS
       
       REAL( 8 ) :: CR2           ! Temporary product for 3 reactant reaction
       REAL( 8 ) :: FRACN         ! Stoichiometric coefficient
@@ -598,8 +794,40 @@ C..Local Variables:
       
       LOGICAL, SAVE :: INITIALIZE = .TRUE.
 
+      INTEGER, ALLOCATABLE       :: JACOBIAN_COL( : )
+      INTEGER, ALLOCATABLE       :: JACOBIAN_ROW( : )
+      CHARACTER(16), ALLOCATABLE :: JACOBIAN_COL_SPECIES( : )
+      CHARACTER(16), ALLOCATABLE :: JACOBIAN_ROW_SPECIES( : )
+      
 C***********************************************************************
 
+      IF( RESET_JACOBIAN )THEN ! reroder row and columns of Jacobian
+                               ! using sorted species maps
+      
+          DO NRK = 1, NRXNS
+             DO NP = 1, REACTION_CHART( NRK )%JACOB_OCCURANCES             
+                JROW  = REACTION_CHART( NRK )%JACOB_PARTIAL_ROW( NP ) 
+                JCOL  = REACTION_CHART( NRK )%JACOB_PARTIAL_COL( NP ) 
+                JROW = JOLD2NEW( JROW,1 )
+                JCOL = JOLD2NEW( JCOL,1 )
+                REACTION_CHART( NRK )%JACOB_PARTIAL_ROW( NP ) = JROW
+                REACTION_CHART( NRK )%JACOB_PARTIAL_COL( NP ) = JCOL
+             END DO
+          END DO
+
+          DO NRK = 1, NRXNS
+             DO NP = 1,REACTION_CHART( NRK )%NREACTANTS
+                JR1 = JOLD2NEW( REACTION_CHART( NRK )%REACTANT( NP ),1 )
+                REACTION_CHART( NRK )%REACTANT( NP ) = JR1
+             END DO
+          END DO
+        
+          RESET_JACOBIAN = .FALSE.
+
+      END IF
+      IF( INITIALIZE )THEN
+          INITIALIZE = .FALSE.
+      END IF
 c...initialize Jacobian
       JAC( :,: )  = 0.0
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -635,14 +863,11 @@ c.....partial derivatives for reactions with 3 reactants
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  Add Reaction's Partial Derivative to Jacobian 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-          DO NP = 1, REACTION_CHART( NRK )%JACOB_OCCURANCES
-          
+          DO NP = 1, REACTION_CHART( NRK )%JACOB_OCCURANCES          
              JROW  = REACTION_CHART( NRK )%JACOB_PARTIAL_ROW( NP ) 
              JCOL  = REACTION_CHART( NRK )%JACOB_PARTIAL_COL( NP ) 
              FRACN = REACTION_CHART( NRK )%JACOB_PARTIAL_COEFF( NP )
              IPART = REACTION_CHART( NRK )%JACOB_PARTIAL_INDEX( NP )
-             !JROW = JOLD2NEW( JROW,1 )
-             !JCOL = JOLD2NEW( JCOL,1 )
              JAC( JROW, JCOL ) = JAC( JROW, JCOL ) + REAL(FRACN * EXPLIC( IPART ) )
           END DO
       END DO LOOP_REACTIONS
@@ -718,6 +943,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 !      YDOT = 0.0D0
       PROD = 0.0D0
       LOSS = 0.0D0   
+
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  Loop over reactions to calculate dc/dt
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc

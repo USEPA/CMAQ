@@ -50,7 +50,7 @@
        
        PRIVATE 
 
-       INTEGER, PARAMETER :: NUMB_AERO_RATES = 52
+       INTEGER, PARAMETER :: NUMB_AERO_RATES = 54
        
        CHARACTER( 16 ), PARAMETER :: NAMES_AERO_RATES( NUMB_AERO_RATES ) = 
      &                    (/ 'HETERO_N2O5IJ   ', 'HETERO_N2O5K    ', 
@@ -78,7 +78,8 @@
      &                       'HETERO_I2O4_AI  ', 'HETERO_I2O4_AJ  ',
      &                       'HETERO_INO3_CLJ ', 'HETERO_INO3_BRJ ',
      &                       'HETERO_INO2_CLJ ', 'HETERO_INO2_BRJ ',
-     &                       'HETERO_HOI_CLJ  ', 'HETERO_HOI_BRJ  '/)
+     &                       'HETERO_HOI_CLJ  ', 'HETERO_HOI_BRJ  ',
+     &                       'HETERO_ISO3NOSJ ', 'HETERO_ISO3OSJ  '/)
 
        INTEGER, PARAMETER  :: IA_N2O5IJ         =   1
        INTEGER, PARAMETER  :: IA_N2O5K          =   2
@@ -132,6 +133,9 @@
        INTEGER, PARAMETER  :: IA_INO2_BRJ       =   50
        INTEGER, PARAMETER  :: IA_HOI_CLJ        =   51
        INTEGER, PARAMETER  :: IA_HOI_BRJ        =   52
+       INTEGER, PARAMETER  :: IA_ISO3NOSJ       =   53
+       INTEGER, PARAMETER  :: IA_ISO3OSJ        =   54
+
 
        INTEGER, PARAMETER :: INDEX_AERO_RATES( NUMB_AERO_RATES ) = 
      &                    (/ IA_N2O5IJ   , IA_N2O5K    , 
@@ -159,7 +163,8 @@
      &                       IA_I2O4_AI  , IA_I2O4_AJ  ,
      &                       IA_INO3_CLJ , IA_INO3_BRJ ,
      &                       IA_INO2_CLJ , IA_INO2_BRJ ,
-     &                       IA_HOI_CLJ  , IA_HOI_BRJ  /)
+     &                       IA_HOI_CLJ  , IA_HOI_BRJ  ,
+     &                       IA_ISO3NOSJ , IA_ISO3OSJ  /)
 
        INTEGER               :: SELECTED_AERO_RATES
        INTEGER, ALLOCATABLE  :: WHICH_AERO_RATE( : )
@@ -245,6 +250,22 @@ C                 --------  -----------  ----------  -----   ------   ----------
      &   acid_cat('IMAE',   'ASO4J    ', 'HPLUS   ',   1,     2,       k_H_nuc,      'AIMOSJ'  ),
      &   acid_cat('IMAE',   'AH2OJ    ', 'HSO4    ',   2,     0,       k_HSO4_water, 'AIMGAJ'  ),
      &   acid_cat('IMAE',   'ASO4J    ', 'HSO4    ',   2,     2,       k_HSO4_nuc,   'AIMOSJ'  )/)
+
+C IEPOX uptake for CRACMM mechanism
+
+        INTEGER, PARAMETER       :: N_NUCPAIRS_CRCM = 6      ! NUMBER OF ACID/NUCLEOPHILE PAIRS
+
+        TYPE( ACID_CAT ), PARAMETER :: ACID_NUC_PAIRS_CRCM( N_NUCPAIRS_CRCM ) = (/
+
+C                  Parent   Nucleophile     Acid     Acid    Remove  Rate Constant  Product
+C                 (parent)    (nuc)        (acid)    Index   Index     (kchem)      (prod)
+C                 --------  -----------  ----------  -----   ------  -------------  --------
+     &   acid_cat('IEPOX',  'AH2OJ    ', 'HPLUS   ',   1,     0,       K_H_WATER,   'AISO3NOSJ' ),
+     &   acid_cat('IEPOX',  'ASO4J    ', 'HPLUS   ',   1,     2,       K_H_SO4,     'AISO3OSJ'  ),
+     &   acid_cat('IEPOX',  'ANO3J    ', 'HPLUS   ',   1,     0,       K_H_NUC,     'AISO3NOSJ' ),
+     &   acid_cat('IEPOX',  'AH2OJ    ', 'HSO4    ',   2,     0,       K_H_WATER,   'AISO3NOSJ' ),
+     &   acid_cat('IEPOX',  'ASO4J    ', 'HSO4    ',   2,     2,       K_H_SO4,     'AISO3OSJ'  ),
+     &   acid_cat('IEPOX',  'ANO3J    ', 'HSO4    ',   2,     0,       K_H_NUC,     'AISO3NOSJ' )/)
 
 
 C Mapping array for location of acid enhanced products and nucleophiles in aerospc_conc 
@@ -367,11 +388,11 @@ C-----------------------------------------------------------------------
       USE GRID_CONF             ! horizontal & vertical domain specifications
       USE RXNS_DATA
       USE AERO_DATA
-      USE AEROMET_DATA, ONLY: f6dpi
+      USE AEROMET_DATA, ONLY: f6dpi, airdens
       USE PRECURSOR_DATA
       USE SOA_DEFN
-      USE PMDIAG_DATA
-      USE PMDIAG_PROC
+      USE ELMO_DATA
+      !USE ELMO_PROC
       USE CENTRALIZED_IO_MODULE
 
       IMPLICIT NONE
@@ -648,7 +669,6 @@ C *** compute only on first pass
 
         CALL MAP_AERO()
         CALL MAP_PRECURSOR()
-        CALL MAP_PMDIAG()
 
         ALLOCATE( WHICH_AERO_RATE( NHETERO ) )
         
@@ -674,7 +694,7 @@ C     end of the gas-phase chemical driver
 
        ALLOCATE( KHETERO( SELECTED_AERO_RATES, NCOLS,NROWS,NLAYS ) )
        
-       IF ( L_PMDIAG ) THEN
+       IF ( L_ELMO ) THEN
           ALLOCATE( GAMMA_N2O5IJ( NCOLS,NROWS,NLAYS ) )
           ALLOCATE(  GAMMA_N2O5K( NCOLS,NROWS,NLAYS ) )
           ALLOCATE(  GAMMA_IEPOX( NCOLS,NROWS,NLAYS ) )
@@ -763,6 +783,11 @@ C ***  Map to acids/nucleophiles for epoxide uptake
              N_NUCPAIRS     = N_NUCPAIRS_AEI
              ALLOCATE ( ACID_NUC_PAIRS( N_NUCPAIRS ) )
              ACID_NUC_PAIRS = ACID_NUC_PAIRS_AEI
+          Else If ( (INDEX( MECHNAME, 'CRACMM1') .GT. 0) ) then
+             NUMVOC         = 1
+             N_NUCPAIRS     = N_NUCPAIRS_CRCM
+             ALLOCATE ( ACID_NUC_PAIRS( N_NUCPAIRS ) )
+             ACID_NUC_PAIRS = ACID_NUC_PAIRS_CRCM
           Else ! AERO6/7 (condensed IEPOX SOA)
              NUMVOC         = 1
              N_NUCPAIRS     = N_NUCPAIRS_AE
@@ -789,7 +814,7 @@ C ***  Map to acids/nucleophiles for epoxide uptake
 
       KHETERO = 0.0D0
       
-      IF ( L_PMDIAG ) THEN
+      IF ( L_ELMO ) THEN
          GAMMA_N2O5IJ = 0.0
          GAMMA_N2O5K  = 0.0
          YCLNO2IJ     = 0.0
@@ -814,6 +839,8 @@ C *** Calculate rate constants at each grid cell location
 #endif         
 C *** Extract aerosol concentrations and update aerosol volume, surface
 C     area and diameter values.
+               AIRDENS = DENS( C,R,L )
+
                CALL HETCHEM_EXTRACT_AERO( CGRID( C,R,L,: ), C, R, L,
      &               WET_M2, WET_M3, DE_WET )
 
@@ -883,10 +910,10 @@ C *** get KN2O5 rate constants YIELD_CLNO2 for each mode
 
                   IF ( N .LE. 2 ) THEN
                      GAMMA = N2O5_GAMMA( AIRTEMP, AIRRH, 0 )
-                     IF ( L_PMDIAG ) GAMMA_N2O5IJ( C,R,L ) = REAL( GAMMA, 4 )
+                     IF ( L_ELMO ) GAMMA_N2O5IJ( C,R,L ) = REAL( GAMMA, 4 )
                   ELSE IF ( N .EQ. 3 ) THEN
                      GAMMA = N2O5_GAMMA( AIRTEMP, AIRRH, 5 )
-                     IF ( L_PMDIAG ) GAMMA_N2O5K( C,R,L ) = REAL( GAMMA, 4 )
+                     IF ( L_ELMO ) GAMMA_N2O5K( C,R,L ) = REAL( GAMMA, 4 )
                   ELSE
                      GAMMA = 0.0D0
                   END IF
@@ -1041,9 +1068,9 @@ C *** set up variables needed for calculating K_BRONO2
                END IF
 
                ! Diagnostic information
-               IF ( L_PMDIAG ) GAMMA_IEPOX( C,R,L ) = REAL( GAMMAIEPOX,4 )
-               IF ( L_PMDIAG ) GAMMA_IMAE(  C,R,L ) = REAL( GAMMAIMAE, 4 )
-               IF ( L_PMDIAG ) KPARTIEPOX(  C,R,L ) = REAL( KPIEPOX,   4 )
+               IF ( L_ELMO ) GAMMA_IEPOX( C,R,L ) = REAL( GAMMAIEPOX,4 )
+               IF ( L_ELMO ) GAMMA_IMAE(  C,R,L ) = REAL( GAMMAIMAE, 4 )
+               IF ( L_ELMO ) KPARTIEPOX(  C,R,L ) = REAL( KPIEPOX,   4 )
 
                LOOP_RATES: DO IRATE = 1, SELECTED_AERO_RATES
  
@@ -1062,16 +1089,16 @@ C *** set up variables needed for calculating K_BRONO2
                      
                   CASE( IA_N2O5IJY )  
                      KHETERO( IRATE, C,R,L ) = 60.0D0 * YIELDIJ * ( KN2O5( 1 ) + KN2O5( 2 ) ) ! convert to min-1
-                     IF ( L_PMDIAG ) YCLNO2IJ( C,R,L ) = REAL( YIELDIJ, 4 )
+                     IF ( L_ELMO ) YCLNO2IJ( C,R,L ) = REAL( YIELDIJ, 4 )
 
                   CASE( IA_N2O5KY )  
                      KHETERO( IRATE, C,R,L ) = 60.0D0 * YIELD_CLNO2( 3 ) * KN2O5( 3 ) 
-                     IF ( L_PMDIAG ) YCLNO2K( C,R,L ) = REAL( YIELD_CLNO2( 3 ), 4 )
+                     IF ( L_ELMO ) YCLNO2K( C,R,L ) = REAL( YIELD_CLNO2( 3 ), 4 )
 
                   CASE( IA_H2NO3PAIJ )  
                      KHETERO( IRATE, C,R,L ) = 60.0D0 * AQUEOUS_FREQUENCY
      &                                       *  MAX( ( 1.0D0 - YIELDIJ ), 0.0D0 ) 
-                     IF ( L_PMDIAG ) YCLNO2IJ( C,R,L ) = REAL( YIELDIJ, 4 )
+                     IF ( L_ELMO ) YCLNO2IJ( C,R,L ) = REAL( YIELDIJ, 4 )
                      
                   CASE( IA_H2NO3PBIJ )  
                      IF ( YIELDIJ .GT. 0.0D0 ) THEN
@@ -1089,7 +1116,7 @@ C *** set up variables needed for calculating K_BRONO2
                      IF ( YIELD_CLNO2( 1 ) .GT. 0.0D0 ) THEN
                         KHETERO( IRATE, C,R,L ) = 60.0D0 * AQUEOUS_FREQUENCY
      &                                          * YIELD_CLNO2( 1 ) / CL_PPM( 1 ) ! (min*ppm)-1
-                        IF ( L_PMDIAG ) THEN
+                        IF ( L_ELMO ) THEN
                            FACTOR = CL_PPM( 1 ) / ( CL_PPM( 1 )+ CL_PPM( 2 ) )
                            YCLNO2IJ( C,R,L ) = REAL( FACTOR * YIELD_CLNO2( 1 ), 4 ) 
      &                                       + YCLNO2IJ( C,R,L )
@@ -1106,7 +1133,7 @@ C *** set up variables needed for calculating K_BRONO2
                      IF (  YIELD_CLNO2( 2 ) .GT. 0.0D0 ) THEN
                         KHETERO( IRATE, C,R,L ) =  60.0D0 * AQUEOUS_FREQUENCY
      &                                          *  YIELD_CLNO2( 2 ) / CL_PPM( 2 ) ! (min*ppm)-1
-                        IF ( L_PMDIAG ) THEN
+                        IF ( L_ELMO ) THEN
                            FACTOR = CL_PPM( 2 ) / ( CL_PPM( 1 )+ CL_PPM( 2 ) )
                            YCLNO2IJ( C,R,L ) = YCLNO2IJ( C,R,L ) + REAL( FACTOR * YIELD_CLNO2( 2 ), 4 ) 
                         END IF                               
@@ -1132,7 +1159,7 @@ C *** set up variables needed for calculating K_BRONO2
                      IF ( YIELD_CLNO2( 3 ) .GT. 0.0D0 ) THEN
                         KHETERO( IRATE, C,R,L ) = 60.0D0 * AQUEOUS_FREQUENCY
      &                                          * YIELD_CLNO2( 3 ) / CL_PPM( 3 ) ! (min*ppm)-1
-                        IF ( L_PMDIAG ) YCLNO2K( C,R,L ) = REAL( YIELD_CLNO2( 3 ), 4 ) 
+                        IF ( L_ELMO ) YCLNO2K( C,R,L ) = REAL( YIELD_CLNO2( 3 ), 4 ) 
                      ELSE
                         KHETERO( IRATE, C,R,L ) = 0.0D0
                      END IF 
@@ -1188,6 +1215,21 @@ C ***            Isoprene epoxide uptake
                      ELSE
                         KHETERO( IRATE, C,R,L ) = 0.0D0
                      END IF
+
+
+C *** CRACMM1 Implementation of sulfated and non-sulfated IEPOX-SOA
+
+                 CASE( IA_ISO3NOSJ )
+                     KHETERO( IRATE, C,R,L ) = 60.0D0 * AQUEOUS_FREQUENCY * FH2O( 1 )
+
+                 CASE( IA_ISO3OSJ )
+                     IF ( ASO4J_PPM .GT. 0.0D0 ) THEN
+                        KHETERO( IRATE, C,R,L ) = 60.0D0 * AQUEOUS_FREQUENCY
+     &                                          * FOS( 1 ) / ASO4J_PPM
+                     ELSE
+                        KHETERO( IRATE, C,R,L ) = 0.0D0
+                     END IF
+
 
                  CASE( IA_NO3 )
                      KHETERO( IRATE, C,R,L ) = 60.0D0 * ( KNO3( 1 ) + KNO3( 2 ) ) ! min-1
@@ -2377,6 +2419,10 @@ C        Store information with speciation for IEPOX
               kchemdim2( 1 ) = kchemdim2(1)  + kchem
             else if ( acid_nuc_pairs( i )%prod .eq. 'AIETETJ' ) then !ae6i
               kchemtet( 1 ) = kchemtet(1)  + kchem
+            else if ( acid_nuc_pairs( i )%prod .eq. 'AISO3OSJ' ) then !craccm1
+              kchemos( 1 )  = kchemos(1)   + kchem
+            else if ( acid_nuc_pairs( i )%prod .eq. 'AISO3NOSJ' ) then !craccm1
+              kchemtet( 1 )  = kchemtet(1)   + kchem
             else if ( acid_nuc_pairs( i )%prod .eq. 'AISO3J' ) then !lumped treatments
                if ( acid_nuc_pairs( i )%nuc .eq. 'ASO4J' ) then !organosulfate
                  kchemos( 1 )  = kchemos(1)   + kchem

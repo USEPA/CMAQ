@@ -125,6 +125,7 @@ C...modules
       USE CLOUD_OPTICS         ! data and routines for optics of cloud hydrometeors
       USE SEAS_STRAT_O3_MIN    ! monthly minimum fraction of ozone column density above Pressure TOP
       USE CENTRALIZED_IO_MODULE, ONLY : LAT, LON, HT
+      USE ELMO_DATA, ONLY : ELMO_AOD_550, ELMO_EXT_550
 
 #ifdef parallel
       USE SE_MODULES           ! stenex (using SE_UTIL_MODULE)
@@ -393,9 +394,7 @@ C...modules
 
          ALLOCATE( TOTAL_OC ( NCOLS,NROWS ) )
          ALLOCATE( TAU_AERO_550    ( NCOLS,NROWS ) )
-         ALLOCATE( ELMO_AOD_550    ( NCOLS,NROWS ) )
          TAU_AERO_550  = 0.0
-         ELMO_AOD_550  = 0.0
 
          IF ( PHOTDIAG ) THEN
 
@@ -611,11 +610,6 @@ C...modules
              CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
          
-         ALLOCATE ( ELMO_EXT_550( NCOLS,NROWS,NLAYS ), STAT = ALLOCSTAT )
-         IF ( ALLOCSTAT .NE. 0 ) THEN
-             XMSG = 'Failure allocating 3D ELMO_EXT_550'
-             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-         END IF
 !...set pointers to species O3 and NO2 in CGRID
 
          VARNM = 'O3'
@@ -777,7 +771,7 @@ C...modules
          END IF  ! if JTIME_CHK and PHOTDIAG
 
       ELSE  ! all cells not dark
-
+   
 !...MAIN loop over all rows and columns
          LOOP_ROWS: DO ROW = 1, NROWS
             LOOP_COLS: DO COL = 1, NCOLS
@@ -835,7 +829,7 @@ C...modules
                      CALL COLUMN_GAS( IGAS=LGC_O3, UNIT_FACTOR=MSCALE, COLUMN_DENSITY=TROPO_OC )                     
 !...get total ozone column based on OMI observations
                      CALL O3TOTCOL ( LAT( COL,ROW ), LON( COL,ROW ), MIDDATE, MIDTIME, TOTAL_OC( COL,ROW ) )
-                  END IF
+                  END IF   
 
                   CYCLE LOOP_COLS
 

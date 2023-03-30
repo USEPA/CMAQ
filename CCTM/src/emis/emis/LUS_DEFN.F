@@ -28,6 +28,7 @@ C    2 Feb 2019:  D. Wong - Implemented centralized I/O approach, removed all
 C                           MY_N clauses, with new re-structure of LUS_DEFN, 
 C                           most of the data declaration has been moved to 
 C                           lus_data_module (model_data_module.f)
+C    3 Mar 2022: J. Willison - Remove ctm_wbdust_beld option
 
       implicit none
 
@@ -58,7 +59,6 @@ C Includes:
          integer, save :: strtcol_01, endcol_01, strtrow_01, endrow_01
          integer, save :: strtcol_02, endcol_02, strtrow_02, endrow_02
 
-         character( 16 ) :: ctm_wbdust_beld = 'CTM_WBDUST_BELD'
          character( 16 ) :: pname = 'LUS_INIT'
          character( 128 ) :: vardesc = ' '
          character( 128 ) :: xmsg = ' '
@@ -68,109 +68,11 @@ C Includes:
 
          success = .true.
 
-         if ( .not. isbeld ) then   ! transform ladut & lut to %
             ladut = 100.0 * ladut   ! array assignment
             lut   = 100.0 * lut     ! array assignment
-         end if
 
 C Merge fractional landuse categories into 4 groups for dust transport factors
          select case( dust_land_scheme )
-
-            case( 'BELD3' )
-            do r = 1, nrows
-            do c = 1, ncols
-C           water & barren surrounding
-               uland( c,r,1 ) = lut( c,r,7 )   ! USGS_shrubland
-     &                        + lut( c,r,14 )  ! USGS_water
-     &                        + lut( c,r,16 )  ! USGS_sprsbarren
-     &                        + lut( c,r,18 )  ! USGS_mxtundra
-     &                        + lut( c,r,19 )  ! USGS_snowice
-C           grass & crop surrounding
-               uland( c,r,2 ) = lut( c,r,6 )   ! USGS_grassland
-     &                        + lut( c,r,8 )   ! USGS_shrubgrass
-     &                        + lut( c,r,9 )   ! USGS_savanna
-     &                        + lut( c,r,17 )  ! USGS_woodtundr
-     &                        + lut( c,r,2 )   ! USGS_drycrop
-     &                        + lut( c,r,3 )   ! USGS_irrcrop
-     &                        + lut( c,r,4 )   ! USGS_cropgrass
-     &                        + lut( c,r,5 )   ! USGS_cropwdlnd
-C           building surrounding
-               uland( c,r,3 ) = lut( c,r,1 )   ! USGS_urban
-C           forest surrounding
-               uland( c,r,4 ) = lut( c,r,10 )  ! USGS_decidforest
-     &                        + lut( c,r,11 )  ! USGS_evbrdleaf
-     &                        + lut( c,r,12 )  ! USGS_coniferfor
-     &                        + lut( c,r,13 )  ! USGS_mxforest
-     &                        + lut( c,r,15 )  ! USGS_wetwoods
-     &                        + lut( c,r,20 )  ! FOREST  (dust_lu_2)
-            end do
-            end do
-
-            case( 'BELD4' )   ! NLCD is national, MODIS is outside U.S.
-            do r = 1, nrows
-            do c = 1, ncols
-C           water & barren surrounding
-               uland( c,r,1 ) = lut( c,r,1 )   ! NLCD_11 Open Water
-     &                        + lut( c,r,2 )   ! NLCD_12 Perennial Ice/Snow
-     &                        + lut( c,r,7 )   ! NLCD_31 Barren Land (Rock/Sand/Clay)
-     &                        + lut( c,r,12 )  ! NLCD_51 Dwarf Scrub
-     &                        + lut( c,r,13 )  ! NLCD_52 Shrub/Scrub
-     &                        + lut( c,r,18 )  ! NLCD_75 Tundra
-     &                        + lut( c,r,31 )  ! MODIS_0 water
-     &                        + lut( c,r,46 )  ! MODIS_15 permanent snow and ice
-     &                        + lut( c,r,47 )  ! MODIS_16 barren or sparsely vegetated
-     &                        + lut( c,r,48 )  ! MODIS_17 IGBP water
-
-C           grass & crop surrounding
-               uland( c,r,2 ) = lut( c,r,14 )  ! NLCD_71 Grassland/Herbaceous
-     &                        + lut( c,r,15 )  ! NLCD_72 Sedge/Herbaceous
-     &                        + lut( c,r,16 )  ! NLCD_73 Lichens
-     &                        + lut( c,r,17 )  ! NLCD_74 Moss
-     &                        + lut( c,r,19 )  ! NLCD_81 Pasture/Hay
-     &                        + lut( c,r,20 )  ! NLCD_82 Cultivated Crops
-     &                        + lut( c,r,37 )  ! MODIS_6 closed shrublands
-     &                        + lut( c,r,38 )  ! MODIS_7 open shrublands
-     &                        + lut( c,r,40 )  ! MODIS_9 savannas
-     &                        + lut( c,r,41 )  ! MODIS_10 grasslands
-     &                        + lut( c,r,43 )  ! MODIS_12 croplands
-     &                        + lut( c,r,45 )  ! MODIS_14 cropland / natural vegetation mosaic
-
-C           building surrounding
-               uland( c,r,3 ) = lut( c,r,4 )   ! NLCD_22 Developed Low Intensity
-     &                        + lut( c,r,5 )   ! NLCD_23 Developed Medium Intensity
-     &                        + lut( c,r,6 )   ! NLCD_24 Developed High Intensity
-     &                        + lut( c,r,44 )  ! MODIS_13 urban and built up
-
-C           forest surrounding
-               uland( c,r,4 ) = lut( c,r,9 )   ! NLCD_41 Deciduous Forest
-     &                        + lut( c,r,10 )  ! NLCD_42 Evergreen Forest
-     &                        + lut( c,r,11 )  ! NLCD_43 Mixed Forest
-     &                        + lut( c,r,21 )  ! NLCD_90 Woody Wetlands
-     &                        + lut( c,r,22 )  ! NLCD_91 Palustrine Forested Wetland
-     &                        + lut( c,r,24 )  ! NLCD_93 Estuarine Forested Wetland
-     &                        + lut( c,r,32 )  ! MODIS_1 evergreen needleleaf forest
-     &                        + lut( c,r,33 )  ! MODIS_2 evergreen broadleaf forest
-     &                        + lut( c,r,34 )  ! MODIS_3 deciduous needleleaf forest
-     &                        + lut( c,r,35 )  ! MODIS_4 deciduous broadleaf forest
-     &                        + lut( c,r,36 )  ! MODIS_5 mixed forests
-     &                        + lut( c,r,39 )  ! MODIS_8 woody savannas
-     &                        + lut( c,r,42 )  ! MODIS_11 permanent wetlands
-
-C Not used:
-C               3  NLCD_21 Developed Open Space
-C               8  NLCD_32 Unconsolidated Shore
-C              23  NLCD_92 Palustrine Scrub/Shrub Wetland
-C              25  NLCD_94 Estuarine Scrub/Shrub Wetland
-C              26  NLCD_95 Emergent Herbaceous Wetlands
-C              27  NLCD_96 Palustrine Emergent Wetland
-C              28  NLCD_97 Estuarine Emergent Wetland
-C              29  NLCD_98 Palustrine Aquatic Bed
-C              30  NLCD_99 Estuarine Aquatic Bed
-C              49  MODIS_254 unclassified
-C              50  MODIS_255 fill value (normally ocean water)
-
-            end do
-            end do
 
             case( 'USGS24' )
             do r = 1, nrows

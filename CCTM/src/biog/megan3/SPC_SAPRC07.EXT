@@ -60,7 +60,7 @@ C=======================================================================
       DATA  MECH_SPC_SAPRC07( 33), MECH_MWT_SAPRC07( 33) / 'IPRD            ', 70.09   /
       DATA  MECH_SPC_SAPRC07( 34), MECH_MWT_SAPRC07( 34) / 'RNO3            ', 147.18  /
       DATA  MECH_SPC_SAPRC07( 35), MECH_MWT_SAPRC07( 35) / 'CO              ', 28.01   /
-      DATA  MECH_SPC_SAPRC07( 36), MECH_MWT_SAPRC07( 36) / 'SESO            ', 204.36  /
+      DATA  MECH_SPC_SAPRC07( 36), MECH_MWT_SAPRC07( 36) / 'SESQ            ', 204.36  /
       DATA  MECH_SPC_SAPRC07( 37), MECH_MWT_SAPRC07( 37) / 'HCN             ', 27.03   /
       DATA  MECH_SPC_SAPRC07( 38), MECH_MWT_SAPRC07( 38) / 'CH3BR           ', 94.94   /
       DATA  MECH_SPC_SAPRC07( 39), MECH_MWT_SAPRC07( 39) / 'CH3CL           ', 50.49   /

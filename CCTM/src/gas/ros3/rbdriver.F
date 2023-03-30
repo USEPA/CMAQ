@@ -65,6 +65,7 @@ C                    INIT_DEGRADE and FINAL_DEGRADE routines
 C                    02 Dec 14 B.Hutzell 1) added terrestrial data to conduct surface
 C                    dependent reactions and 2) modified the call CALC_RCONST routine
 C                    16 Sep 16 J.Young: update for inline procan (IRR)
+C                    21 Mar 22 G . Sarwar: updated simple halogen chemistry 
 C**********************************************************************
 
       USE RXNS_DATA
@@ -75,10 +76,17 @@ C**********************************************************************
       USE UTILIO_DEFN
       USE PHOT_MOD, Only: INIT_PHOT_SHARED, RJ     ! photolysis rate, in-line module
       USE AEROSOL_CHEMISTRY
-      USE DEGRADE_SETUP_TOX, ONLY : N_REACT, RXTANT_MAP
+!     USE DEGRADE_SETUP_TOX, ONLY : NCELLS, N_REACT, RXTANT_MAP, 
+      USE DEGRADE_ROUTINES,  ONLY : NCELLS, N_REACT, RXTANT_MAP, 
+     &                              ICELL_WRITE, WRITE_CELL, WRITE_BLOCK,
+     &                              FIND_DEGRADED, INIT_DEGRADE_BLK, FINAL_DEGRADE_BLK
       USE PA_DEFN, Only: LIRR   ! Process Anaylsis control and data variable
       USE PA_IRR_CLT
       USE CENTRALIZED_IO_MODULE, ONLY : INTERPOLATE_VAR, OCEAN, SZONE
+#ifdef sens
+      USE DDM3D_CHEM
+      Use DDM3D_DEFN, Only: DATENUM, STARTDATE, IPT, IDATE, HIGH, NP, NPMAX, CKTIME
+#endif
       
       IMPLICIT NONE 
 
@@ -150,6 +158,8 @@ C..Local Variables:
       INTEGER ROW             ! Row index
       INTEGER SPC             ! Species loop index
       INTEGER VAR             ! Variable number on I/O API file
+      
+      INTEGER NUMB_CELLS
 
       INTEGER, ALLOCATABLE, SAVE :: IRRCELL( : )   ! Cell No. of an IRR cell
        
@@ -161,7 +171,7 @@ C..Local Variables:
       REAL, ALLOCATABLE, SAVE :: QV     ( :, :, : )      ! Cell water vapor (Kg/Kg air)
       REAL, ALLOCATABLE, SAVE :: TA     ( :, :, : )      ! Cell temperature (K)
 
-      LOGICAL, ALLOCATABLE, SAVE :: LAND_ZONE   ( :,: )       ! Is the surface totally land?
+      REAL, ALLOCATABLE, SAVE :: SEAWATER_ZONE   ( :,: )          ! fractional area of OPEN+SURF  
 
 
       REAL( 8 ), ALLOCATABLE, SAVE :: BLKHET( :, : )
@@ -188,25 +198,6 @@ C..Local Variables:
             INTEGER,   INTENT( INOUT ) :: NIRRCLS
             INTEGER,   INTENT( IN ) :: IRRCELL( : )
          END SUBROUTINE RBSOLVER
-         SUBROUTINE FIND_DEGRADED( JDATE, JTIME, CALL_DEGRADE )
-           INTEGER, INTENT( IN )  :: JDATE        ! current model date , coded YYYYDDD
-           INTEGER, INTENT( IN )  :: JTIME        ! current model time , coded HHMMSS
-           LOGICAL, INTENT( OUT ) :: CALL_DEGRADE ! whether to call degradation routines
-         END SUBROUTINE FIND_DEGRADED
-         SUBROUTINE INIT_DEGRADE( CBLK, TCELL, DCELL, PHOTO_CELL, NUMCELLS,
-     &                         JDATE, JTIME, BLKID )
-           REAL( 8 ), INTENT( IN ) :: CBLK ( :,: )      !  species concentration in cell
-           REAL( 8 ), INTENT( IN ) :: TCELL( : )        !  cell temperature  [ k ]
-           REAL( 8 ), INTENT( IN ) :: DCELL( : )        !  cell air density  [ kg/m^3 ]
-           REAL( 8 ), INTENT( IN ) :: PHOTO_CELL( :,: ) ! Photolysis table for cell [1/s]
-           INTEGER,   INTENT( IN ) :: NUMCELLS  ! number of grid cells in block
-           INTEGER,   INTENT( IN ) :: JDATE     ! current model date , coded YYYYDDD
-           INTEGER,   INTENT( IN ) :: JTIME     ! current model time , coded HHMMSS
-           INTEGER,   INTENT( IN ) :: BLKID     ! number for the block
-         END SUBROUTINE INIT_DEGRADE      
-         SUBROUTINE FINAL_DEGRADE( CBLK )
-           REAL( 8 ), INTENT( INOUT ) :: CBLK( :,: ) ! species conc in cell
-         END SUBROUTINE FINAL_DEGRADE
          SUBROUTINE HETCHEM_UPDATE_AERO( CGRID )
            REAL, POINTER :: CGRID( :,:,:,: )    !  species concentration in cell
          END SUBROUTINE HETCHEM_UPDATE_AERO      
@@ -222,12 +213,6 @@ C**********************************************************************
       CALL M3EXIT( PNAME, JDATE, JTIME, MSG, XSTAT1 )
 #endif
 
-#ifdef sens
-      MSG = 'ERROR: Rosenbrock Chemistry Solver does not perform DDM3 calculation.'
-      WRITE(LOGDEV,'(A)')TRIM( MSG )
-      MSG = 'Must use the EBI solver for the chemical mechanism'
-      CALL M3EXIT( PNAME, JDATE, JTIME, MSG, XSTAT1 )
-#endif
 
       IF ( NUMB_MECH_SPC .EQ. 0 ) THEN
          CALL M3MESG( '*** WARNING: Gas-Chemistry processing bypassed!' )
@@ -261,15 +246,11 @@ C...Initialize and report data
          WRITE( LOGDEV, 92040 ) GLBL_RTOL, GLBL_ATOL
 
 C.. Get fractional seawater coverage from the OCEAN file.
-         ALLOCATE( LAND_ZONE( NCOLS, NROWS ) )
+         ALLOCATE( SEAWATER_ZONE( NCOLS, NROWS ) )
          
          DO ROW = 1, NROWS
-            DO COL = 1, NCOLS
-               IF( OCEAN( COL,ROW ) + SZONE( COL,ROW ) .GT. 0.0 )THEN
-                   LAND_ZONE( COL,ROW ) = .FALSE.
-               ELSE
-                   LAND_ZONE( COL,ROW ) = .TRUE.
-               END IF
+            DO COL = 1, NCOLS                
+                 SEAWATER_ZONE( COL,ROW ) =  OCEAN( COL,ROW ) + SZONE( COL,ROW )                  
              END DO
          END DO
 
@@ -354,6 +335,7 @@ C Determine whether DEGRADE rountines are needed.
             WRITE( LOGDEV, * ) 'DEGRADE ROUTINES USED'
             WRITE( LOGDEV, * ) 'Mechanism contains degraded species'
 #ifdef verbose_gas         
+            ALLOCATE( WRITE_CELLL( BLKSIZE ) )
          ELSE
             WRITE( LOGDEV, * ) 'DEGRADE ROUTINES not USED'
             WRITE( LOGDEV, * ) 'Mechanism contains NO degraded species'
@@ -365,6 +347,20 @@ C set up degradation array
 
          ALLOCATE( Y_DEGRADE( BLKSIZE, NSPCSD ) )
 
+#ifdef sens
+         CALL INIT_DDM3D_CHEM()
+
+C For higher order sensitivities
+         IF ( HIGH ) THEN
+            DO IRXN = 1, NRXNS
+               IF( NREACT( IRXN ) .LE. 1 ) THEN
+                  ORDER1( IRXN ) = .TRUE.
+               ELSE
+                  ORDER1( IRXN ) = .FALSE.
+               END IF
+            END DO
+         END IF
+#endif
       END IF      ! First call
 
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -405,6 +401,21 @@ C   appropriately updated after the solver finds a solution.
 
       CALL HETCHEM_RATES( TA, PRES, QV, CONC, DENS )
 
+#ifdef sens
+C Set the date and hour counters used in sensitivity calls
+      DATENUM = 1 + JDATE - STARTDATE 
+
+C For reaction rate sensitivities
+      DO NP = 1, NPMAX
+         IF ( IPT( NP ) .EQ. 5 ) THEN
+            CALL CKTIME( JDATE,JTIME,NP,RXNFLAG(NP) ) ! Rxnflag set to true if ipt=5 and time, date within bounds
+            IF ( IDATE( NP, DATENUM ) .NE. 1 ) RXNFLAG( NP ) = .FALSE.
+         ELSE
+            RXNFLAG( NP ) = .FALSE.
+         END IF
+      END DO
+#endif
+
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  Set flag for reordering of cells and put cells in sequential  
 c  order initially
@@ -436,7 +447,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C  Put the grid cell physical data in the block arrays, converting
 C  pressure to atmospheres, water vapor to ppm, emissions to ppm/min,
-C  setting to land if seaice coverage is nonzero 
+C  assigning seawater values  
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
          DO NCELL = 1, NUMCELLS
@@ -449,11 +460,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
             BLKSVOL( NCELL ) = 1.0 /  DENS( COL,ROW,LEV )
             BLKPRES( NCELL ) = REAL( PA2ATM * PRES( COL, ROW, LEV ), 8 )
             BLKCH2O( NCELL ) = REAL( MAX( QV_TO_PPM * QV( COL,ROW,LEV ), 0.0 ), 8)
-            IF( LAND_ZONE( COL,ROW ) .OR. SEAICE (COL,ROW) .GT. 0.0 )THEN
-                BLKLAND (NCELL) = .TRUE.
-            ELSE
-                BLKLAND (NCELL) = .FALSE.
-            END IF            
+            BLKSEAWATER (NCELL)  = MAX ( 0.0, ( SEAWATER_ZONE( COL,ROW ) - SEAICE (COL,ROW) ) )            
          END DO
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -496,7 +503,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
             END DO                         
          END DO
          
-         CALL CALC_RCONST( BLKTEMP, BLKPRES, BLKCH2O, RJBLK, BLKHET, LSUNLIGHT, BLKLAND, RKI, NUMCELLS )
+         CALL CALC_RCONST( BLKTEMP, BLKPRES, BLKCH2O, RJBLK, BLKHET, LSUNLIGHT, BLKSEAWATER, RKI, NUMCELLS )
 
          IF ( LSUNLIGHT ) THEN
             NCSP = NCS
@@ -519,10 +526,29 @@ C  update cell concentrations for degradation routines
                END DO
             END DO
 
-C initialize degradation routines
+! Use FPP flag to check results from species degrade routines
+#ifdef verbose_gas
+            WRITE_BLOCK = .FALSE.
+            ICELL_WRITE = 1
+            DO NCELL = 1, NUMCELLS
+                CELLNUM = NORDCELL( OFFSET + NCELL )
+                COL = CCOL( CELLNUM )
+                ROW = CROW( CELLNUM )
+                LEV = CLEV( CELLNUM )
+                IF( LEV .EQ. 1 .AND. ROW .EQ. 1 .AND. COL .EQ. 1 )THEN
+                    WRITE_BLOCK = .TRUE.
+                    ICELL_WRITE = NCELL
+                    WRITE_CELL( NCELL ) = .TRUE.
+                ELSE
+                    WRITE_CELL( NCELL ) = .FALSE.
+                END IF
+            END DO
+#endif
 
-            CALL INIT_DEGRADE( Y_DEGRADE, BLKTEMP, BLKDENS, RJBLK,
-     &                         NUMCELLS, JDATE, JTIME, BLKID )
+C..initialize degradation routines
+            NCELLS = NUMCELLS 
+            CALL INIT_DEGRADE_BLK( Y_DEGRADE, BLKTEMP, BLKDENS, BLKPRES, BLKCH2O, RJBLK, 
+     &                         JDATE, JTIME )
 
          END IF
 
@@ -565,19 +591,8 @@ C..Update concentrations
 
 
             IF ( CALL_DEG ) THEN
-
-C  Update degradation array with species treated by Rosenbach solver
-C
-C               DO ISP = 1, ISCHANG( NCS )
-C                  ISPOLD  = INEW2OLD( ISP, NCS )
-C                  DO NCELL = 1, NUMCELLS
-C                     Y_DEGRADE( NCELL,ISPOLD ) = Y( NCELL,ISP )
-C                  END DO
-C               END DO
-
-
 C  Update CGRID based on the degradation routines
-               CALL FINAL_DEGRADE( Y_DEGRADE )
+               CALL FINAL_DEGRADE_BLK( Y_DEGRADE )
                UPDATE_DEGRADED: DO ISP = 1, N_REACT
                   S = RXTANT_MAP( ISP )
                   IF( S .LE. 0 )CYCLE UPDATE_DEGRADED                  
@@ -593,6 +608,42 @@ C  Update CGRID based on the degradation routines
                   END DO
                END DO UPDATE_DEGRADED
             END IF            !WTH
+
+#ifdef sens
+
+            NUMB_CELLS = NUMCELLS
+            
+            DO NCELL = 1, NUMB_CELLS
+               DO IRXN = 1, NRXNS
+                  SRK( IRXN ) = RKI( NCELL,IRXN )
+                  IF ( HIGH ) THEN
+                     IF ( NREACT( IRXN ) .LE. 1 ) THEN
+                        SRK2( IRXN ) = 0.0
+                     ELSE IF ( NREACT( IRXN ) .EQ. 2 ) THEN
+                        SRK2( IRXN ) = REAL( RKI( NCELL,IRXN ), 4 )
+                     ELSE IF ( NREACT( IRXN ) .EQ. 3 ) THEN
+                        SRK2( IRXN ) = REAL( RKI( NCELL,IRXN ),4 )
+                     ELSE
+                        SRK2( IRXN ) = 0.0
+                     END IF
+                  END IF
+              END DO
+
+              DO ISP = 1,NUMB_MECH_SPC
+!                  ISPOLD = INEW2OLD( ISP,NCS )
+!                  YCDDM( ISPOLD ) = YAVE(NCELL,ISP)
+                  YCDDM( ISP ) = YAVE(NCELL,ISP)
+               END DO
+               CELLNUM = NORDCELL( OFFSET + NCELL )
+               COL = CCOL( CELLNUM )
+               ROW = CROW( CELLNUM )
+               LEV = CLEV( CELLNUM )
+
+!                CALL SOLVE_DDM3D_CHEM( COL,ROW,LEV,CHEMSTEP )
+               CALL SOLVE_DDM3D_CHEM( COL,ROW,LEV,CHEMSTEP,IOLD2NEW,INEW2OLD )
+            END DO
+            NUMCELLS = NUMB_CELLS
+#endif
 
 #ifdef rbstats
 

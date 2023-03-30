@@ -9,9 +9,9 @@
 # 11. Integrated Source Apportionment Method (CMAQ-ISAM)
 ## 11.1 Introduction
 
-The Integrated Source Apportionment Method (ISAM) calculates source attribution information for user specified ozone and particulate matter precursors within the CMAQ model.  CMAQ-ISAM has been substantially updated in the CMAQv5.3 release, and differs significantly from previous releases. The major changes to the ISAM chemistry solver are detailed in the [ISAM Chemistry Supplement](Supplement/CMAQ_ISAM_Chemistry_Supplemental_Equations.pdf). In addition, signifcant updates and multiple minor fixes were included in the  CMAQv5.3.2 release. The 5.3.2 CMAQ-ISAM version includes substantial updates to the gas-phase chemistry apportionment algorithms that improves both physical and numerical aspects of the method. Users of ISAM are strongly encouraged to update to CMAQv5.3.2.
+The Integrated Source Apportionment Method (ISAM) calculates source attribution information for user specified ozone and particulate matter precursors within the CMAQ model.  CMAQ-ISAM has been substantially updated starting with the CMAQv5.3 release, and now differs significantly from previous releases. The major changes to the ISAM chemistry solver are detailed in the [ISAM Chemistry Supplement](Supplement/CMAQ_ISAM_Chemistry_Supplemental_Equations.pdf). In addition, signifcant updates and multiple minor fixes were included in the  subsequent releases including substantial updates to the gas-phase chemistry apportionment algorithms that improve both physical and numerical aspects of the method. Users of CMAQ-ISAM are strongly encouraged to update to the latest available release of the model.
 
-The CMAQ model provides users the concentration and deposition fields of many pollutant species. These species are usually combinations of different types of primary emissions and secondary formation that have been physically and chemically transformed in the model. However, sometimes it is desirable to know specific source attribution information for the model outputs. For example, how much of the ozone in an urban area was formed due to nitrogen oxides emitted from motor vehicles in a neighboring state?
+The base CMAQ model provides users the concentration and deposition fields of many pollutant species. These species are usually combinations of different types of primary emissions and secondary formation that have been physically and chemically transformed in the model. However, sometimes it is desirable to know specific source attribution information for the model outputs. For example, how much of the ozone in an urban area was formed due to nitrogen oxides emitted from motor vehicles in a neighboring state?
 
 Answering this type of question often requires running an air quality model twice, once with the standard emissions scenario and once with the source of interest completely removed. The difference between the two runs is then assumed to be attributed to the removed source.  While this approach is reasonably straightforward to implement, it has some drawbacks.  For example, removing a large source from the system in a highly nonlinear chemical mixture can lead to some errors. Also, calculating source attribution of many sources can be logistically and computationally prohibitive.
 
@@ -47,6 +47,10 @@ If a user needs to use larger setting for MXFILE3 and MXVAR3 to support their ap
 This version is available as a zip file from the following address:
 
 https://www.cmascenter.org/ioapi/download/ioapi-3.2-large-2020220.tar.gz
+
+**A note about solver configuration**
+
+ISAM is currently only implemented for the EBI solver. For some CMAQ applications, the Rosenbrock solver is desirable and is set as the default in the sample runscripts. For example, this is the case when using the CB6R5M chemical mechanism for hemispheric simulations. In such cases, the bldit script needs to be modified to not select the Rosenbrock solver. While this may incur a performance penalty in terms of CPU time and increase the likelyhood of convergence warnings, it will allow the ISAM simulation to proceed in most cases.
 
 ## 11.3 Run Instructions
 
@@ -202,8 +206,10 @@ The CMAQ model allows several types of emissions that are calculated in-line or 
 | MGEGM | Marine Gas Emissions |
 | LTNG | Lightning NO Emissions |
 | ASEA | Sea Spray Aerosol Emissions |
-| DUST | Wind-Blown Dust Emissions |   
+| DUST | Wind-Blown Dust Emissions |
+| PVO3 | Potential Vorticity Incursion* |
 
+*Although it is not an emission stream, it is possible to tag the ozone incursions at the top of the simulated volume if the base model is compiled with potential vorticity module enabled.
 
 #### Interpretation of 'OTH' tag
 The OTH tag (e.g.“O3_OTH” in the ISAM benchmark) represents concentrations for that species attributed to 1) all other emissions streams, 2) precursor species not included in the specified tag class(es), and 3) other processes in the model.
@@ -216,14 +222,8 @@ For item 3), these are processes in the model that create a given species but no
 
 Finally, ISAM is an approximation for attribution. In the formulation, assumptions are made about which species are most important in the chemical formuation of the species being studied.  For example in cb6r3 based mechanisms, peroxyl radicals from aromatic compounds affect ozone production by a small amount so ISAM neglects their contribution. The contribution to ozone from species not included in the ISAM formulation will go into 'O3_OTH', even if the emission source of these species is included in the control file. 
 
-## 11.4 ISAM Benchmark data
-The input files for the CMAQv5.3.2 ISAM benchmark case are the same as the benchmark inputs for the base model, described in the [CMAQ Benchmark Tutorial](Tutorials/CMAQ_UG_tutorial_benchmark.md).  Output source apportionment files associated with the sample `isam_control.txt` provided in this release package are included in the benchmark outputs for the base model.  
-
-The CMAQ benchmark data can be downloaded from the [CMAS Center Data Warehouse SE53BENCH](https://drive.google.com/drive/folders/1wvz0jQuqnuT8RNj_EMuLec154-rFXucv) Google Drive folder.  The CMAQ benchmark test case is a two day simulation for July 1-2 2016 on a 100 column x 80 row x 35 layer 12-km resolution domain over the southeast U.S.  Input and output files for a two week case covering July 1-14, 2016 are also available within the same Google Drive folder.
-
-- Metadata for the CMAQ benchmark inputs: https://doi.org/10.15139/S3/IQVABD 
-- Metadata for the CMAQ benchmark outputs: https://doi.org/10.15139/S3/PDE4SS
-
+## 11.4 ISAM Benchmark 
+See the [CMAQ-ISAM Benchmark Tutorial](Tutorials/CMAQ_UG_tutorial_ISAM.md) for step-by-step instructions for running the 2 day benchmark case.  The input files for the CMAQv5.4 ISAM benchmark case are the same as the benchmark inputs for the base model. Output source apportionment files associated with the sample `isam_control.txt` provided in this release package are included in the benchmark outputs for the base model.  
 
 ## 11.5 References
 
@@ -245,6 +245,6 @@ Tonnesen, G.S. & Dennis, R.L. (2000b). Analysis of radical propagation efficienc
 <!-- BEGIN COMMENT -->
 
 [<< Previous Chapter](CMAQ_UG_ch10_HDDM-3D.md) - [Home](README.md) - [Next Chapter >>](CMAQ_UG_ch12_sulfur_tracking.md)<br>
-CMAQ User's Guide (c) 2020<br>
+CMAQ User's Guide (c) 2022<br>
 
 <!-- END COMMENT -->

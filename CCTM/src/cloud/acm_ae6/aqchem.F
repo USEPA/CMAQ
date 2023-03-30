@@ -2068,39 +2068,44 @@ C...  for S(IV), also limit by oxidants (except assume O2 in steady state)
           END IF
 
           IF ( DSIVDT( 1 ) .EQ. -MIN( TSIV, TH2O2 ) / DTW( 0 ) ) THEN
-            IF ( TSIV .LT. TH2O2 ) THEN
-              S_DSIVDT( NP, 1 ) = -S_TSIV( NP ) / DTW( 0 )
-            ELSE
-              S_DSIVDT( NP, 1 ) = -S_TH2O2( NP ) / DTW( 0 )
-            END IF
+              S_DSIVDT( NP, 1 ) = 0.D0
+c           IF ( TSIV .LT. TH2O2 ) THEN
+c             S_DSIVDT( NP, 1 ) = -S_TSIV( NP ) / DTW( 0 )
+c           ELSE
+c             S_DSIVDT( NP, 1 ) = -S_TH2O2( NP ) / DTW( 0 )
+c           END IF
           END IF
 
           IF ( DSIVDT( 2 ) .EQ. -MIN( TSIV, TO3   ) / DTW( 0 ) ) THEN
-            IF ( TSIV .LT. TO3 ) THEN
-              S_DSIVDT( NP, 2 ) = -S_TSIV( NP ) / DTW( 0 )
-            ELSE
-              S_DSIVDT( NP, 2 ) = -S_TO3( NP ) / DTW( 0 )
-            END IF
+              S_DSIVDT( NP, 2 ) = 0.D0
+c           IF ( TSIV .LT. TO3 ) THEN
+c             S_DSIVDT( NP, 2 ) = -S_TSIV( NP ) / DTW( 0 )
+c           ELSE
+c             S_DSIVDT( NP, 2 ) = -S_TO3( NP ) / DTW( 0 )
+c           END IF
           END IF
 
           IF ( DSIVDT( 3 ) .EQ. -TSIV / DTW( 0 ) ) THEN
-            S_DSIVDT( NP, 3 ) = -S_TSIV( NP ) / DTW( 0 )
+              S_DSIVDT( NP, 3 ) = 0.D0
+c           S_DSIVDT( NP, 3 ) = -S_TSIV( NP ) / DTW( 0 )
           END IF
 
           IF ( DSIVDT( 4 ) .EQ. -MIN( TSIV, TMHP  ) / DTW( 0 ) ) THEN
-            IF ( TSIV .LT. TMHP ) THEN
-              S_DSIVDT( NP, 4 ) = -S_TSIV( NP ) / DTW( 0 )
-            ELSE
-              S_DSIVDT( NP, 4 ) = -S_TMHP( NP ) / DTW( 0 )
-            END IF
+              S_DSIVDT( NP, 4 ) = 0.D0
+c           IF ( TSIV .LT. TMHP ) THEN
+c             S_DSIVDT( NP, 4 ) = -S_TSIV( NP ) / DTW( 0 )
+c           ELSE
+c             S_DSIVDT( NP, 4 ) = -S_TMHP( NP ) / DTW( 0 )
+c           END IF
           END IF
 
           IF ( DSIVDT( 5 ) .EQ. -MIN( TSIV, TPAA  ) / DTW( 0 ) ) THEN
-            IF ( TSIV .LT. TPAA ) THEN
-              S_DSIVDT( NP, 5 ) = -S_TSIV( NP ) / DTW( 0 )
-            ELSE
-              S_DSIVDT( NP, 5 ) = -S_TPAA( NP ) / DTW( 0 )
-            END IF
+              S_DSIVDT( NP, 5 ) = 0.D0
+c           IF ( TSIV .LT. TPAA ) THEN
+c             S_DSIVDT( NP, 5 ) = -S_TSIV( NP ) / DTW( 0 )
+c           ELSE
+c             S_DSIVDT( NP, 5 ) = -S_TPAA( NP ) / DTW( 0 )
+c           END IF
           END IF
 
         END DO

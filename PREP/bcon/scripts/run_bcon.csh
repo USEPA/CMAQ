@@ -1,6 +1,6 @@
 #!/bin/csh -f
 
-# ======================= BCONv5.3.X Run Script ======================== 
+# ======================= BCONv5.4.X Run Script ======================== 
 # Usage: run.bcon.csh >&! bcon.log &                                
 #
 # To report problems or request help with this script/program:        
@@ -28,7 +28,7 @@
  echo " "; echo " Input data path, CMAQ_DATA set to $CMAQ_DATA"; echo " "
 
 #> Set General Parameters for Configuring the Simulation
- set VRSN     = v532                    #> Code Version
+ set VRSN     = v54                    #> Code Version
  set APPL     = 2016_12SE1              #> Application Name
  set BCTYPE   = regrid                  #> Boundary condition type [profile|regrid]
 

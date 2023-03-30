@@ -13,6 +13,7 @@ C-----------------------------------------------------------------------
       
       Implicit None
 
+      Real(8), Allocatable, Save ::  YCHECK( : )  ! Concs used by DDM
       Real(8), Allocatable, Save ::  YCDDM( : )  ! Concs used by DDM
                                               ! (avg of pre- and post-chem,
                                               !  or mid-chemstep concs,
@@ -31,16 +32,20 @@ C-----------------------------------------------------------------------
       Real, Allocatable, Save :: PRD( : )
       Real, Allocatable, Save :: PRD_RATE( : )             ! Contribution to PRD from rxn rate sens
       Real, Allocatable, Save :: SOLD( : )
+
       Integer, Allocatable, Save :: IPVT ( : )             ! an integer vector of pivot indices.
+      Integer, Allocatable       :: SENS_INDEX( : )        ! CGRID_INDEX translated by JNEW2OLD
+      Integer, Allocatable       :: MECH_INDEX( : )        ! CGRID_INDEX translated by JNEW2OLD
 
 C Variables used for hddm-3d
-      Real*8, Allocatable, Save :: SRK2 ( : )              ! rate constants
+      Real(8), Allocatable, Save :: SRK2 ( : )             ! rate constants
       LOGICAL, Allocatable, Save :: ORDER1 ( : )           ! true if order 1; else, false
-      Real, Allocatable, Save :: PDT2( :, : )              ! Used for 2nd order call of JAC
-      Real, Allocatable, Save :: SMID( :, : )              ! SENGRID in middle of timestep
-      Real(8), Allocatable, Save :: SMIDJAC( : )              ! SMID for the relevant 1st order
-                                              ! sensitivity parameter
-      Real*8, Allocatable, Save :: RK ( : )
+      Real,    Allocatable, Save :: PDT2( :, : )           ! Used for 2nd order call of JAC
+      Real,    Allocatable, Save :: SMID( :, : )           ! SENGRID in middle of timestep
+      Real(8), Allocatable, Save :: SEND( :, : )           ! SENGRID at end of timestep
+      Real(8), Allocatable, Save :: SMIDJAC( : )           ! SMID for the relevant 1st order
+                                                           ! sensitivity parameter
+      Real(8), Allocatable, Save :: RK ( : )
 
       Integer N_EBI_MID            ! the midpoint ebi step; half of N_EBI_STEPS
       Logical ODD_STEPS            ! true if N_EBI_STEPS is odd
@@ -51,27 +56,35 @@ C Variables used for hddm-3d
 C-----------------------------------------------------------------------
       Subroutine INIT_DDM3D_CHEM
 
-      Use RXNS_DATA, Only: NUMB_MECH_SPC, NRXNS
+      Use RXNS_DATA, Only: NUMB_MECH_SPC, NRXNS, CGRID_INDEX
       Use UTILIO_DEFN                   ! IOAPI parameters and functions declarations
 
       Implicit None
 
       Character( 16 ), Save :: PNAME = 'INIT_DDM3D_CHEM'
-      Integer LOGDEV 
-      Character( 96 ) :: XMSG = ' '
-      Integer ALLOCSTAT
+      Integer               :: LOGDEV 
+      Character( 96 )       :: XMSG = ' '
+      Integer               :: ALLOCSTAT
+      Integer               :: ISPC
+
       LOGDEV = INIT3 ()
 
 
+      ALLOCATE( YCHECK ( NUMB_MECH_SPC), STAT = ALLOCSTAT )
+      IF ( ALLOCSTAT .NE. 0 ) THEN
+         XMSG = 'Failure allocating YCHECK'
+         CALL M3EXIT ( PNAME, 0, 0, XMSG, XSTAT2 )
+      END IF
+
       ALLOCATE( YCDDM ( NUMB_MECH_SPC), STAT = ALLOCSTAT )
       IF ( ALLOCSTAT .NE. 0 ) THEN
-         XMSG = 'Failure allocating DDM_CHECK'
+         XMSG = 'Failure allocating YCDDM'
          CALL M3EXIT ( PNAME, 0, 0, XMSG, XSTAT2 )
       END IF
 
       ALLOCATE( DDM_CHECK( NUMB_MECH_SPC), STAT = ALLOCSTAT )
       IF ( ALLOCSTAT .NE. 0 ) THEN
-         XMSG = 'Failure allocating YCDDM'
+         XMSG = 'Failure allocating  DDM_CHECK'
          CALL M3EXIT ( PNAME, 0, 0, XMSG, XSTAT2 )
       END IF
 
@@ -99,11 +112,18 @@ C-----------------------------------------------------------------------
          CALL M3EXIT ( PNAME, 0, 0, XMSG, XSTAT2 )
       END IF
 
-      ALLOCATE( SMID( NPMAX, NUMB_MECH_SPC ), STAT = ALLOCSTAT )
+      ALLOCATE( SMID( NUMB_MECH_SPC,NPMAX ), STAT = ALLOCSTAT )
       IF ( ALLOCSTAT .NE. 0 ) THEN
          XMSG = 'Failure allocating SMID'
          CALL M3EXIT ( PNAME, 0, 0, XMSG, XSTAT2 )
       END IF
+
+      ALLOCATE( SEND( 1,NUMB_MECH_SPC ), STAT = ALLOCSTAT )
+      IF ( ALLOCSTAT .NE. 0 ) THEN
+         XMSG = 'Failure allocating SEND'
+         CALL M3EXIT ( PNAME, 0, 0, XMSG, XSTAT2 )
+      END IF
+      SEND = 0.0D0
 
       ALLOCATE( PRD( NUMB_MECH_SPC ),
      &          SOLD( NUMB_MECH_SPC ),
@@ -115,16 +135,29 @@ C-----------------------------------------------------------------------
          CALL M3EXIT ( PNAME, 0, 0, XMSG, XSTAT2 )
       END IF
 
+      ALLOCATE( SENS_INDEX( NUMB_MECH_SPC ),
+     &          MECH_INDEX( NUMB_MECH_SPC ), STAT = ALLOCSTAT )
+      IF ( ALLOCSTAT .NE. 0 ) THEN
+         XMSG = 'Failure allocating SENS_INDEX or MECH_INDEX'
+         CALL M3EXIT ( PNAME, 0, 0, XMSG, XSTAT2 )
+      END IF
+      
+      DO ISPC = 1, NUMB_MECH_SPC
+         MECH_INDEX(ISPC) = CGRID_INDEX(ISPC)
+         SENS_INDEX(ISPC) = CGRID_INDEX(ISPC)
+      END DO
+
       Return
       End Subroutine INIT_DDM3D_CHEM
 
 C-----------------------------------------------------------------------
 
-      Subroutine SOLVE_DDM3D_CHEM( C,R,L, CHEMSTEP)
+      Subroutine SOLVE_DDM3D_CHEM( C,R,L,CHEMSTEP,OLD2NEW,NEW2OLD )
 
       Use DDM3D_DEFN, Only: SENGRID, NPMAX, NP, DATENUM, IPT, 
      &                      IDATE, HIGH, IREGION, IRXN, IPARM, STARTDATE
-      Use RXNS_DATA, Only: NRXNS, NREACT, NPRDCT, SC, IRR, CGRID_INDEX, NUMB_MECH_SPC
+      Use RXNS_DATA,  Only: NRXNS, NREACT, NPRDCT, SC, IRR, CGRID_INDEX, NUMB_MECH_SPC,
+     &                      RXLABEL, CHEMISTRY_SPC
 
       Use MECHANISM_FUNCTIONS  
 
@@ -134,18 +167,29 @@ C-----------------------------------------------------------------------
 
       Character( 16 ), Save :: PNAME = 'SOLVE_DDM3D_CHEM'
 
-      Integer C,R,L
-      Real( 8 )  CHEMSTEP
+      Integer,   Intent( In ) :: C,R,L
+      Real( 8 ), Intent( In ) :: CHEMSTEP
+      Integer,   Optional, Intent( In ) :: OLD2NEW( :,: )
+      Integer,   Optional, Intent( In ) :: NEW2OLD( :,: )
 
       Integer I,J,S,N
+      Integer JROW, JCOL
       Integer INFO                            ! see s_lu.F
-      Real SUM
+
+      Real(8) SUMAT
+      Real(8) SUMSP
+      Real(8) TOTAL
+      Real(8) DIFF
+      Real(8) DIFFSP
+      
       Real IREGTEMP                           ! Holds relevant value of IREGION
       Real KSTEP                              ! Holds k times timestep(in min)
       Real RXNMULT                            ! Holds product of concs of reactants
+      
       Integer NRCT                            ! Counter over reactants
       Integer NPROD                           ! Counter over products
-
+      Integer IREACT                          ! index for reaction reactant
+      Integer IPROD                           ! index for reaction produce
       Integer HIPARM( 2 )                     ! index numbers of the 1st order sens
                                               ! parameters to which
                                               ! we're taking
@@ -153,33 +197,124 @@ C-----------------------------------------------------------------------
       Integer HITMP1
       Integer HITMP2
 
-      Character( 96 ) :: XMSG = ' '
       Logical, Save :: FIRSTIME = .TRUE.
+      Logical, Save :: REORDER  = .TRUE. ! reorder YCDDM
       Integer, Save :: LOGDEV
 
-
+      Character( 96 ) :: XMSG = ' '
 
       IF ( FIRSTIME ) THEN
 
-         FIRSTIME = .FALSE.
-         LOGDEV = INIT3()
+         FIRSTIME  = .FALSE.
+         LOGDEV    = INIT3()
+         DDM_LOG   = LOGDEV
+         ERROR_LOG = LOGDEV
 
          CALL SET_MECHANISM( ) ! determine formulas for Mechanism Jacobain and Species Rate of Change
+  
 
+         IF( PRESENT( OLD2NEW ) .AND. PRESENT( OLD2NEW ) )THEN
+
+             REORDER = .FALSE. ! no reordering because YCDMM is already redeorderd by chemsolver
+             
+!             YCHECK = 0.0D0
+!             DO I = 1,NUMB_MECH_SPC
+!                S  = NEW2OLD( I,1 )
+!                YCHECK( S ) = YCDDM( I )
+!                SEND(1,I) = YCDDM( I )
+!                WRITE(LOGDEV,'(A,A,ES16.4)')' ORIG: ' // CHEMISTRY_SPC(I),' = ',YCHECK(S)
+!             END DO
+!             DO I = 1,NUMB_MECH_SPC
+!                S  = NEW2OLD( I,1 )
+!                WRITE(LOGDEV,'(A,A,2(ES16.4,1X))')' SORT: ' // CHEMISTRY_SPC(S),' = ',YCDDM( I ),YCHECK(S)-YCDDM( I )
+!             END DO
+!             CALL  EVALUATE_F_JAC_MECH( YCHECK, SRK, PDT2 ) ! Evaluate Jacobian based on YCDDM and SKR values
+
+! overwrite reordering using chemsolver conversing maps
+
+             JNEW2OLD(1:NUMB_MECH_SPC,1) = NEW2OLD(1:NUMB_MECH_SPC,1)
+             JOLD2NEW(1:NUMB_MECH_SPC,1) = OLD2NEW(1:NUMB_MECH_SPC,1)
+             RESET_JACOBIAN = .TRUE.
+             DO RXN = 1, NRXNS
+                DO NRCT = 1, NREACT( RXN )
+                   IREACT = ISPECIES_REACTION( NRCT,RXN )
+                   ISPECIES_REACTION( NRCT,RXN ) = OLD2NEW( IREACT,1 )
+                END DO
+
+                DO NPROD = 1, NPRDCT( RXN )
+                   IPROD = ISPECIES_REACTION( NPROD+3,RXN )
+                   ISPECIES_REACTION( NPROD+3,RXN ) = OLD2NEW( IPROD,1 )
+               END DO
+             END DO
+
+!             DO S = 1, NUMB_MECH_SPC
+!               MECH_INDEX(S) = CGRID_INDEX(JOLD2NEW(S,1))
+!               SENS_INDEX(S) = CGRID_INDEX(JNEW2OLD(S,1))
+!             END DO
+
+!         ELSE
+!
+!            DO S = 1, NUMB_MECH_SPC
+!               MECH_INDEX(S) = CGRID_INDEX(JOLD2NEW(S,1))
+!               SENS_INDEX(S) = CGRID_INDEX(JNEW2OLD(S,1))
+!            END DO
+!            DO I = 1,NUMB_MECH_SPC
+!               S  = JOLD2NEW( I,1 )
+!               YCHECK( S ) = YCDDM( I )
+!               WRITE(LOGDEV,'(A,A,ES16.4)')' SORT: ' // CHEMISTRY_SPC(I),' = ',YCHECK(S)
+!            END DO
+!            DO I = 1,NUMB_MECH_SPC
+!               S  = JNEW2OLD( I,1 )
+!               WRITE(LOGDEV,'(A,A,2(ES16.4,1X))')' ORIGINAL: ' // CHEMISTRY_SPC(S),' = ',YCDDM( S ),YCHECK(I)-YCDDM( S )
+!            END DO
+!            YCDDM = YCHECK
+         
+         END IF
+ 
+!             DO RXN = 1, NRXNS
+
+!                WRITE(LOGDEV,'(A,1X,I4,1X,A)')'For reaction number and label,',RXN,
+!     &                                         TRIM(RXLABEL(RXN))
+!                WRITE(LOGDEV,*)'Reactants'
+!                WRITE(LOGDEV,'(10X,40(A,", "))')
+!     &         (CHEMISTRY_SPC(JNEW2OLD(ISPECIES_REACTION( NRCT,RXN ),1)),NRCT = 1, NREACT( RXN ))
+
+!                WRITE(LOGDEV,*)'Products'
+!                WRITE(LOGDEV,'(10X,40(A,", "))')
+!     &         (CHEMISTRY_SPC(JNEW2OLD(ISPECIES_REACTION( NPROD+3,RXN ),1)),NPROD = 1, NPRDCT( RXN ))
+
+!             END DO
+!             WRITE(LOGDEV,*)'Original order: chemistry species, cgrid index'
+!             DO S = 1, NUMB_MECH_SPC
+!                WRITE(LOGDEV,'(A16,1X,I4)')CHEMISTRY_SPC(S),CGRID_INDEX(S)
+!             END DO
+!             WRITE(LOGDEV,*)'Sort ordered: chemistry species, cgrid index'
+!             DO S = 1, NUMB_MECH_SPC
+!                WRITE(LOGDEV,'(A16,1X,I4)')CHEMISTRY_SPC(JOLD2NEW(S,1)),MECH_INDEX(S)
+!             END DO
+
+      END IF
+      
+      IF ( REORDER ) THEN  ! reorder to speed-up LU decomposition of Jacobian
+
+            DO I = 1,NUMB_MECH_SPC
+               S  = JOLD2NEW( I,1 )
+               YCHECK( S ) = YCDDM( I )
+            END DO
+            YCDDM = YCHECK
+         
       END IF
 
       CALL  EVALUATE_F_JAC_MECH( YCDDM, SRK, PDT ) ! Evaluate Jacobian based on YCDDM and SKR values
 
       DO 433 J = 1, NUMB_MECH_SPC
          DO 434 I = 1, NUMB_MECH_SPC
-            A( I, J ) = 0.0
+            A( I, J )  = 0.0
             A1( I, J ) = 0.0
-            A( I, J ) = -0.5 * CHEMSTEP * PDT( I, J )
+            A( I, J )  = -0.5 * CHEMSTEP * PDT( I, J )
+            A1( I, J ) =  0.5 * CHEMSTEP * PDT( I, J )
             IF ( I .EQ. J ) THEN
-               A( I, J ) = 1.0 + A( I, J )
-            END IF
-            A1( I, J ) = 0.5 * CHEMSTEP * PDT( I, J )
-            IF ( I .EQ. J ) THEN
+               A( I, J )  = 1.0 + A( I, J )
                A1( I, J ) = 1.0 + A1( I, J )
             END IF
 434      CONTINUE
@@ -195,10 +330,9 @@ C Factor matrix A by Gaussian elimination
             DO S = 1, NUMB_MECH_SPC
                PRD( S ) = 0.0
                PRD_RATE( S ) = 0.0
-               SOLD(S) = SENGRID( C, R, L, NP, CGRID_INDEX(S) )
-               IF (ABS(SOLD( S )) .LT. 1.e-25 ) THEN
-                  SOLD(S) = 0.
-               END IF
+               J = JOLD2NEW(S,1)
+               SOLD(J) = SENGRID( C, R, L, NP,CGRID_INDEX(S))
+               IF ( ABS(SOLD( J )) .LT. 1.e-25 ) SOLD(J) = 0.0
             END DO
 
 C Begin code specific to reaction rate sensitivities
@@ -215,24 +349,24 @@ C Begin code specific to reaction rate sensitivities
                      ! and slots 4- are for products
                      IF ( NREACT( RXN ) .EQ. 1 ) THEN
                         RXNMULT = KSTEP
-     &                          * YCDDM( IRR( RXN, 1 ) )
+     &                          * YCDDM( ISPECIES_REACTION( 1,RXN ) )
                      ELSE IF ( NREACT( RXN ) .EQ. 2 ) THEN
                         RXNMULT = KSTEP
-     &                          * YCDDM( IRR( RXN, 1 ) )
-     &                          * YCDDM( IRR( RXN, 2 ) )
+     &                          * YCDDM( ISPECIES_REACTION( 1,RXN ) )
+     &                          * YCDDM( ISPECIES_REACTION( 2,RXN ) )
                      ELSE IF ( NREACT( RXN ) .EQ. 3 ) THEN
                         RXNMULT = KSTEP
-     &                          * YCDDM( IRR( RXN, 1 ) )
-     &                          * YCDDM( IRR( RXN, 2 ) )
-     &                          * YCDDM( IRR( RXN, 3 ) )
+     &                          * YCDDM( ISPECIES_REACTION( 1,RXN ) )
+     &                          * YCDDM( ISPECIES_REACTION( 2,RXN ) )
+     &                          * YCDDM( ISPECIES_REACTION( 3,RXN ) )
                      ELSE
                         XMSG = 'NREACT out of expected bounds of 1-3.'
                         CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
                      END IF
   
                      DO NRCT = 1, NREACT( RXN ) ! Loop over the reactants
-                        PRD_RATE( IRR( RXN, NRCT ) ) = PRD_RATE( IRR( RXN, NRCT ) )
-     &                                               - RXNMULT * IREGTEMP  ! Subtract RXNMULT from PRD_RATE for reactant species
+                        PRD_RATE( ISPECIES_REACTION( NRCT,RXN ) ) = PRD_RATE( ISPECIES_REACTION( NRCT,RXN ) )
+     &                                                            - RXNMULT * IREGTEMP  ! Subtract RXNMULT from PRD_RATE for reactant species
                      END DO
 
                      DO NPROD = 1, NPRDCT( RXN ) ! Loop over the products
@@ -244,35 +378,36 @@ C Begin code specific to reaction rate sensitivities
                         ! coefficients of products
                         !    and do not need the +3 (see
                         !    RXDT.EXT)
-                        PRD_RATE( IRR( RXN, 3+NPROD ) ) = PRD_RATE( IRR( RXN, 3+NPROD ) )
-     &                                                  + ( RXNMULT * SC( RXN, NPROD ) * IREGTEMP )
+                        PRD_RATE( ISPECIES_REACTION( 3+NPROD,RXN ) ) = PRD_RATE( ISPECIES_REACTION( 3+NPROD,RXN ) )
+     &                                                               + ( RXNMULT * SC( RXN, NPROD ) * IREGTEMP )
                      END DO
                   END IF
                END DO  ! RXN
             END IF  ! RXNFLAG
 C End code specific to reaction rate sensitivities
             DO S = 1, NUMB_MECH_SPC
-               SUM = 0.0
+               TOTAL = 0.0D0
                DO J = 1, NUMB_MECH_SPC
-                  SUM = SUM + A1( S, J ) * SOLD( J )
+                  TOTAL = TOTAL + A1( S, J ) * SOLD( J )
                END DO
 C edits by A.Digar
-                PRD( S ) = SUM + PRD_RATE( S )
+                PRD( S ) = TOTAL + PRD_RATE( S )
 C end edit
             END DO
 
             CALL SGESL( A, NUMB_MECH_SPC, NUMB_MECH_SPC, IPVT, PRD, 0 )
             DO S = 1, NUMB_MECH_SPC
+               J = CGRID_INDEX(JNEW2OLD(S,1))
                IF ( ABS ( PRD ( S ) ) .LT. 1.e-25 ) THEN
                   IF ( HIGH ) THEN
-                     SMID( NP, S ) = 0.5 * SENGRID( C, R, L, NP, CGRID_INDEX(S) )
+                      SMID( S,NP ) = 0.5 * SOLD(S)
                   END IF
-                  SENGRID( C, R, L, NP, CGRID_INDEX(S) ) = 0.
+                  SENGRID( C, R, L, NP,J )  = 0.0
                ELSE
                   IF ( HIGH ) THEN ! SMID is the average of SENGRID before and after chemistry
-                     SMID( NP, S ) = 0.5 * ( SENGRID( C, R, L, NP, CGRID_INDEX(S) ) + PRD( S) )
+                      SMID( S,NP ) = 0.5 * ( SOLD(S) + PRD( S) )
                   END IF
-                  SENGRID( C, R, L, NP, CGRID_INDEX(S) ) = PRD( S )
+                  SENGRID( C, R, L, NP,J  ) = PRD( S )
                END IF
             END DO
 
@@ -291,15 +426,14 @@ C end edit
             END DO
 
             DO S = 1, NUMB_MECH_SPC
-               SMIDJAC( S ) = SMID( HIPARM( 1 ), S )
+               SMIDJAC( S ) = SMID( S,HIPARM( 1 ) )
             END DO
 C Added by A.Digar
             DO S = 1, NUMB_MECH_SPC
-               PRD( S ) = 0.0
-               SOLD(S) = SENGRID( C, R, L,NP,CGRID_INDEX(S) )
-               IF (ABS(SOLD( S )) .LT. 1.e-25 ) THEN
-                  SOLD(S) = 0.
-               END IF
+               PROD(S) = 0.0
+               J = JOLD2NEW(S,1)
+               SOLD(J) = SENGRID( C, R, L, NP, CGRID_INDEX(S) ) 
+               IF (ABS(SOLD( J )) .LT. 1.e-25 ) SOLD(J) = 0.0
             END DO
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -310,6 +444,7 @@ C added by A.Digar
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
             HITMP1 = HIPARM( 1 )
             HITMP2 = HIPARM( 2 )
+
 
             DO N = 1, 2 ! loop for two 1st-order sens parameters
                IF ( ( IPT( HITMP1 ) .EQ. 5 ) .AND. ( RXNFLAG( HITMP1 ) ) ) THEN ! check for rate constant sens, date & time
@@ -327,7 +462,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
                   CALL  EVALUATE_F_JAC_MECH( YCDDM, RK, PDT ) ! Evaluate Jacobian based on YCDDM and RK values
                   DO S = 1, NUMB_MECH_SPC
                      DO J = 1, NUMB_MECH_SPC
-                        PRD( S ) = PRD( S ) + CHEMSTEP * PDT( S,J ) * SMID( HITMP2,J ) * IREGTEMP
+                        PRD( S ) = PRD( S ) + CHEMSTEP * PDT( S,J ) * SMID( J,HITMP2 ) * IREGTEMP
                      END DO
                   END DO
                   IF ( IPT( HITMP1 ) .eq. IPT( HITMP2 ) ) THEN
@@ -346,13 +481,13 @@ C End of modification by A.Digar
             CALL  EVALUATE_F_JAC_MECH( SMIDJAC, SRK2, PDT2 ) ! Evaluate Jacobian based on SMIDJAC and SKR2 values
 
             DO S = 1, NUMB_MECH_SPC
-               SUM = 0.0
+               TOTAL = 0.0
                DO J = 1, NUMB_MECH_SPC
-                  SUM = SUM + A1( S, J ) * SOLD( J )
-     &                + CHEMSTEP * PDT2( S,J ) * SMID( HIPARM( 2 ),J )
+                  TOTAL = TOTAL + A1( S, J ) * SOLD( J )
+     &                  + CHEMSTEP * PDT2( S,J ) * SMID( J,HIPARM( 2 ) )
                END DO
 C edits by A.Digar
-               PRD( S ) = SUM + PRD( S )
+               PRD( S ) = TOTAL + PRD( S )
 C end of edits
             END DO
 
@@ -360,9 +495,9 @@ C end of edits
  
             DO S = 1, NUMB_MECH_SPC
                IF ( ABS ( PRD ( S ) ) .LT. 1.e-25 ) THEN
-                  SENGRID( C, R, L, NP, CGRID_INDEX(S) ) = 0.
+                  SENGRID( C, R, L, NP, CGRID_INDEX(JNEW2OLD(S,1)) ) = 0.0
                ELSE
-                  SENGRID( C, R, L, NP, CGRID_INDEX(S) ) = PRD( S )
+                  SENGRID( C, R, L, NP, CGRID_INDEX(JNEW2OLD(S,1)) ) = PRD( S )
                END IF
             END DO
 

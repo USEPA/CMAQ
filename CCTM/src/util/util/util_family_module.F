@@ -33,28 +33,25 @@
       SAVE
 
       ! Define Chemical Family Variables
-      Integer                     :: NChemFamilies = 0
-      Character( 32 )             :: ChemFamilyName( 50 ) = ''
-      Integer                     :: ChemFamilyNum( 50 ) = 0
-      Character( 32 )             :: ChemFamilyMembers( 50,100 ) = ''
+      Integer                     :: N_Chem_Fams = 0
+      Integer                     :: Max_Chem_Fam_Members = 0
+      Character( 32 ),Allocatable :: ChemFamilyName( : ) 
+      Integer,Allocatable         :: ChemFamilyNum( : ) 
+      Character( 32 ),Allocatable :: ChemFamilyMembers( :,: ) 
 
       ! Define Stream Family Variables
-      Integer                     :: NStreamFamilies = 0
-      Character( 32 )             :: StreamFamilyName( 50 ) = ''
-      Integer                     :: StreamFamilyNum( 50 ) = 0
-      Character( 32 )             :: StreamFamilyMembers( 50,100 ) = ''
-
-      ! Define Process Family Variables
-      Integer                     :: NProcessFamilies = 0
-      Character( 32 )             :: ProcessFamilyName( 50 ) = ''
-      Integer                     :: ProcessFamilyNum( 50 ) = 0
-      Character( 32 )             :: ProcessFamilyMembers( 50,100 ) = ''
+      Integer                     :: Desid_N_Stream_Fams = 0
+      Integer                     :: Desid_Max_Stream_Fam_Members = 0
+      Character( 32 ),Allocatable :: StreamFamilyName( : ) 
+      Integer,Allocatable         :: StreamFamilyNum( : )
+      Character( 32 ),Allocatable :: StreamFamilyMembers( :,: )
 
       ! Define Region Family Variables
-      Integer                     :: NRegionFamilies = 0
-      Character( 32 )             :: RegionFamilyName( 50 ) = ''
-      Integer                     :: RegionFamilyNum( 50 ) = 0
-      Character( 32 )             :: RegionFamilyMembers( 50,100 ) = ''
+      Integer                     :: Desid_N_Reg_Fams = 0
+      Integer                     :: Desid_Max_Reg_Fam_Members = 0
+      Character( 32 ),Allocatable :: RegionFamilyName( : )
+      Integer,Allocatable         :: RegionFamilyNum( : )
+      Character( 32 ),Allocatable :: RegionFamilyMembers( :,: )
 
       ! Other Variables
       Logical                     :: linit = .FALSE.
@@ -63,42 +60,6 @@
 
           
 ! ----------------------------------------------------------------------
-      subroutine init_families
-! ----------------------------------------------------------------------
-!     Initialize all variables needed for tracking families of chemical
-!     species, emissions streams, processes and regions. These vairables
-!     are useful for inputs and outputs.
-! ----------------------------------------------------------------------
-
-      IMPLICIT NONE
-
-      if ( linit ) return
-      linit = .TRUE.
-
-      NChemFamilies = 0
-      ChemFamilyName = ''
-      ChemFamilyNum = 0
-      ChemFamilyMembers = ''
-
-      NStreamFamilies = 0
-      StreamFamilyName = ''
-      StreamFamilyNum = 0
-      StreamFamilyMembers = ''
-
-      NProcessFamilies = 0
-      ProcessFamilyName = ''
-      ProcessFamilyNum = 0
-      ProcessFamilyMembers = ''
-
-      NRegionFamilies = 0
-      RegionFamilyName = ''
-      RegionFamilyNum = 0
-      RegionFamilyMembers = ''
-
-      end subroutine init_families
-
-
-! ----------------------------------------------------------------------
       subroutine read_families
 ! ----------------------------------------------------------------------
 !     Load definitions for families from the Control File to these 
@@ -106,200 +67,341 @@
 !     
 ! ----------------------------------------------------------------------
 
-      use RUNTIME_VARS, only : EMISSCTRL, logdev, log_message, log_subheading
+      use RUNTIME_VARS, only : DESID_CTRL, MISC_CTRL, logdev, log_message, 
+     &                         log_subheading
       use UTILIO_DEFN
+      use desid_param_module, only : Desid_Max_Reg
+      use aero_data, only : n_aerospc, aerospc, n_mode, aero_missing
       
       IMPLICIT NONE
       
       ! Define Dummy Variables for Opening Emission Control Namelist
-      CHARACTER( 300 ) :: EQNAME, XMSG
-      INTEGER          :: EMCTRL_NML
-      INTEGER          :: STAT, IFAM, INUM
+      CHARACTER( 300 ) :: XMSG
+      INTEGER          :: FUNIT
+      INTEGER          :: STAT, IFAM, INUM, IOST, IAER, JAER, IM
       CHARACTER( 200 ) :: TMPLINE
 
 
-      ! Define Chemical Families
-      NAMELIST / ChemicalFamilies / NChemFamilies, ChemFamilyName, 
-     &           ChemFamilyNum, ChemFamilyMembers
+      ! Define Chemical Families           
+      NAMELIST / Chemical_FamVars / N_Chem_Fams, Max_Chem_Fam_Members
+      NAMELIST / ChemicalFamilies / ChemFamilyName, ChemFamilyMembers
 
       ! Define Stream Families
-      NAMELIST / StreamFamilies / NStreamFamilies, StreamFamilyName, 
-     &           StreamFamilyNum, StreamFamilyMembers
+      NAMELIST / Desid_StreamFamVars / Desid_N_Stream_Fams, Desid_Max_Stream_Fam_Members
+      NAMELIST / Desid_StreamFam     / StreamFamilyName, StreamFamilyMembers
 
       ! Define Region Families
-      NAMELIST / RegionFamilies / NRegionFamilies, RegionFamilyName, 
-     &           RegionFamilyNum, RegionFamilyMembers
+      NAMELIST / Desid_RegionDefVars / Desid_Max_Reg, Desid_N_Reg_Fams,
+     &                                 Desid_Max_Reg_Fam_Members
+      NAMELIST / Desid_RegionFam / RegionFamilyName, RegionFamilyMembers
  
-      ! Define Process Families
-      NAMELIST / ProcessFamilies / NProcessFamilies, ProcessFamilyName, 
-     &           ProcessFamilyNum, ProcessFamilyMembers
- 
-      ! Initialize Familiy Arrays
-      call init_families
-
       CALL LOG_SUBHEADING( LOGDEV, "Reading Family Definitions from Control File" )
 
-      ! Retrieve the Name of the Emission Control File
-      IF ( EMISSCTRL .EQ. "EMISSCTRL_NML" ) THEN
-          XMSG = 'You have chosen not to indicate the location of an' //
-     &              'Emission Control namelist file. You must give a value ' //
-     &              'for the EMISSCTRL variable in the CMAQ runscript.'
+      ! Retrieve the Name of the Misc. Control File
+      IF ( MISC_CTRL .EQ. "MISC_CTRL_NML" ) THEN
+          XMSG = 'You have chosen not to indicate the location of a' //
+     &              'Misc. Control namelist file. You must give a value ' //
+     &              'for the MISC_CTRL variable in the CMAQ runscript.'
           CALL M3EXIT( 'READ_FAMILIES',0,0,XMSG,1 )
       END IF
  
-      ! Open Emission Control Namelist File
-      EMCTRL_NML = JUNIT()
-      OPEN( FILE = EMISSCTRL, UNIT = EMCTRL_NML, STATUS = 'OLD',
+      ! Open Miscellaneous Control Namelist File
+      FUNIT = JUNIT()
+      OPEN( FILE = MISC_CTRL, UNIT = FUNIT, STATUS = 'OLD',
      &      POSITION = 'REWIND', FORM='FORMATTED', IOSTAT = STAT )
 
       ! Check for Error in File Open Process
       IF ( STAT .NE. 0 ) THEN
           WRITE( XMSG, '(A,A,A)' ),'ERROR: Could not read ',
-     &           'emissions control namelist file: ',TRIM( EMISSCTRL )
-          CALL M3EXIT( 'READ_EMISS_NAMELIST',0,0,XMSG,1 )
+     &           'miscellaneous control namelist file: ',TRIM( MISC_CTRL )
+          CALL M3EXIT( 'READ_FAMILIES',0,0,XMSG,1 )
       END IF
  
-      ! Read Chemical Family Specification Section
-      REWIND( EMCTRL_NML )
-      READ( NML = ChemicalFamilies, UNIT = EMCTRL_NML, IOSTAT=STAT )
+      ! Read Number of Chemical Families
+      REWIND( FUNIT )
+      READ( NML = Chemical_FamVars, UNIT = FUNIT, IOSTAT=STAT )
       IF ( STAT .EQ. -1 ) THEN
-          XMSG = 'Note: the ChemicalFamilies section of the Emissions Control ' //
+          XMSG = 'Note: the Chemical_FamVars section of the Misc. Control ' //
      &           'Namelist is missing. Default values for this section will be ' //
      &           'assumed.'
           CALL LOG_MESSAGE( LOGDEV, ' ' )
           CALL LOG_MESSAGE( LOGDEV, XMSG )
-          NChemFamilies      = 0
+          N_Chem_Fams          = 0
+          Max_Chem_Fam_Members = 120
+      ELSE IF ( STAT .NE. 0 ) THEN
+          ! Read Error Detected for MISC_CTRL
+          backspace( FUNIT )
+          read( FUNIT, fmt='(A)' ) tmpline
+          XMSG = 'ERROR: There was a syntax error reading the Chemical_FamVars '//
+     &           'variable for use by the families module. Please check the format of '//
+     &           'each line for syntax errors. The invalid line was likely: '
+          CALL LOG_MESSAGE( LOGDEV, ' ')
+          CALL LOG_MESSAGE( LOGDEV, XMSG )
+          WRITE( LOGDEV, '(8x,A)' ) TMPLINE
+          CALL M3EXIT ( 'Read_Families', 0, 0, 'CMAQ must Crash until you '//
+     &                  'fix the Chemical Families', 1 ) 
+ 
+      END IF
+ 
+      ! Read Chemical Family Specification Section
+      N_Chem_Fams = N_Chem_Fams + n_aerospc
+      ALLOCATE( ChemFamilyName( N_Chem_Fams),
+     &          ChemFamilyNum( N_Chem_Fams),
+     &          ChemFamilyMembers( N_Chem_Fams, Max_Chem_Fam_Members ),
+     &          STAT = IOST)
+      CALL CHECKMEM( IOST, 'ChemFamilies', 'Read_Families' )
+      ChemFamilyName = ''
+      ChemFamilyMembers = ''
+
+      REWIND( FUNIT )
+      READ( NML = ChemicalFamilies, UNIT = FUNIT, IOSTAT=STAT )
+      IF ( STAT .EQ. -1 ) THEN
+          XMSG = 'Note: the ChemicalFamilies section of the Misc. Control ' //
+     &           'Namelist is missing. Default values for this section will be ' //
+     &           'assumed.'
+          CALL LOG_MESSAGE( LOGDEV, ' ' )
+          CALL LOG_MESSAGE( LOGDEV, XMSG )
           ChemFamilyName     = ''
-          ChemFamilyNum      = 0
           ChemFamilyMembers  = ''
       ELSE IF ( STAT .NE. 0 ) THEN
           ! Read Error Detected for RGN_NML
-          backspace( EMCTRL_NML )
-          read( EMCTRL_NML, fmt='(A)' ) tmpline
+          backspace( FUNIT )
+          read( FUNIT, fmt='(A)' ) tmpline
           XMSG = 'ERROR: There was a syntax error reading the ChemicalFamilies '//
      &           'variable for use by the DESID module. Please check the format of '//
      &           'each line for syntax errors. The invalid line was likely: '
           CALL LOG_MESSAGE( LOGDEV, ' ')
           CALL LOG_MESSAGE( LOGDEV, XMSG )
           WRITE( LOGDEV, '(8x,A)' ) TMPLINE
-          CALL M3EXIT ( 'Read_Emiss_Namelist', 0, 0, 'CMAQ must Crash until you '//
+          CALL M3EXIT ( 'Read_Families', 0, 0, 'CMAQ must Crash until you '//
      &                  'fix the Chemical Families', 1 ) 
  
       END IF
-      ! Capitalize All Family and Member Names
-      DO IFAM = 1,NChemFamilies
-          CALL UPCASE( ChemFamilyName( IFAM ) )
-          DO INUM = 1,ChemFamilyNum ( IFAM )
-              CALL UPCASE( ChemFamilyMembers( IFAM,INUM ) )
-          END DO
+      ! Add Aerosol Species to Chemical Family List
+      DO IAER = 1,N_AEROSPC
+         JAER = INDEX1( AEROSPC(IAER)%BULKNAME,N_Chem_Fams,ChemFamilyName )
+         IF ( JAER .EQ. 0 ) THEN
+           ! Add Aerosol Bulkname to the end of the chemical family
+           ! list
+           DO IFAM = 1,N_Chem_Fams
+             if ( ChemFamilyName(ifam) .eq. '' ) then
+                  ChemFamilyName(ifam) = aerospc(iaer)%bulkname
+                inum = 0
+                do im = 1,n_mode
+                  if ( .not.aero_missing(iaer,im) ) then
+                     inum = inum + 1
+                     ChemFamilyMembers(ifam,inum) = aerospc(iaer)%name(im)
+                  end if
+                end do
+                exit
+             end if
+           END DO
+         END IF
       END DO
 
+      ! Populate and Error Check All Family and Member Names
+      DO IFAM = 1,N_Chem_Fams
+          IF ( ChemFamilyName(IFAM) .EQ. '' ) THEN
+             WRITE( XMSG, '(A,I3,A,A,A)' ),'ERROR: The number of Chemical Families ',
+     &              N_Chem_Fams, ' is larger than the number of fields ',
+     &              'provided in the ChemFamilyName array. Reduce N_Chem_Fams ',
+     &              'in the MISC_CTRL file or provide more Chemical Families.'
+             CALL M3EXIT( 'Read_Families',0,0,XMSG,1 )
+          END IF
+          CALL UPCASE( ChemFamilyName( IFAM ) )
+          ChemFamilyNum( IFAM ) = 0
+
+          DO INUM = 1,Max_Chem_Fam_Members
+              IF ( ChemFamilyMembers( IFAM,INUM ) .EQ. '' ) EXIT
+              CALL UPCASE( ChemFamilyMembers( IFAM,INUM ) )
+              ChemFamilyNum ( IFAM ) = INUM
+          END DO
+      END DO  
+      CLOSE( UNIT = FUNIT )
+ 
+      !!! Stream Families !!!
+      ! Retrieve the Name of the DESID Control File
+      IF ( DESID_CTRL .EQ. "DESID_CTRL_NML" ) THEN
+          XMSG = 'You have chosen not to indicate the location of a' //
+     &              'DESID Control namelist file. You must give a value ' //
+     &              'for the DESID_CTRL variable in the CMAQ runscript.'
+          CALL M3EXIT( 'READ_FAMILIES',0,0,XMSG,1 )
+      END IF
+ 
+      ! Open Emission Control Namelist File
+      FUNIT = JUNIT()
+      OPEN( FILE = DESID_CTRL, UNIT = FUNIT, STATUS = 'OLD',
+     &      POSITION = 'REWIND', FORM='FORMATTED', IOSTAT = STAT )
+
+      ! Check for Error in File Open Process
+      IF ( STAT .NE. 0 ) THEN
+          WRITE( XMSG, '(A,A,A)' ),'ERROR: Could not read ',
+     &           'DESID control namelist file: ',TRIM( DESID_CTRL )
+          CALL M3EXIT( 'READ_FAMILIES',0,0,XMSG,1 )
+      END IF
+ 
       ! Read Stream Family Specification Section
-      REWIND( EMCTRL_NML )
-      READ( NML = StreamFamilies, UNIT = EMCTRL_NML, IOSTAT=STAT )
+      REWIND( FUNIT )
+      READ( NML = Desid_StreamFamVars, UNIT = FUNIT, IOSTAT=STAT )
       IF ( STAT .EQ. -1 ) THEN
-          XMSG = 'Note: the StreamFamilies section of the Emissions Control ' //
+          XMSG = 'Note: the StreamFamilies section of the DESID Control ' //
      &           'Namelist is missing. Default values for this section will be ' //
      &           'assumed.'
           CALL LOG_MESSAGE( LOGDEV, ' ' )
           CALL LOG_MESSAGE( LOGDEV, XMSG )
-          NStreamFamilies      = 0
-          StreamFamilyName     = ''
-          StreamFamilyNum      = 0
-          StreamFamilyMembers  = ''
+          Desid_N_Stream_Fams  = 0
+          Desid_Max_Stream_Fam_Members = 0
       ELSE IF ( STAT .NE. 0 ) THEN
           ! Read Error Detected for RGN_NML
-          backspace( EMCTRL_NML )
-          read( EMCTRL_NML, fmt='(A)' ) tmpline
-          XMSG = 'ERROR: There was a syntax error reading the StreamFamilies '//
+          backspace( FUNIT )
+          read( FUNIT, fmt='(A)' ) tmpline
+          XMSG = 'ERROR: There was a syntax error reading the Desid_StreamFamVars '//
      &           'variable for use by the DESID module. Please check the format of '//
      &           'each line for syntax errors. The invalid line was likely: '
           CALL LOG_MESSAGE( LOGDEV, ' ')
           CALL LOG_MESSAGE( LOGDEV, XMSG )
           WRITE( LOGDEV, '(8x,A)' ) TMPLINE
-          CALL M3EXIT ( 'Read_Emiss_Namelist', 0, 0, 'CMAQ must Crash until you '//
+          CALL M3EXIT ( 'Read_Families', 0, 0, 'CMAQ must Crash until you '//
      &                  'fix the Stream Families', 1 ) 
  
       END IF
+
+      ALLOCATE( StreamFamilyName( Desid_N_Stream_Fams ),
+     &          StreamFamilyNum( Desid_N_Stream_Fams ),
+     &          StreamFamilyMembers( Desid_N_Stream_Fams, Desid_Max_Stream_Fam_Members ),
+     &          STAT = IOST )
+      CALL CHECKMEM( IOST, 'Stream Families', 'Read_Families' )
+      StreamFamilyName = ''
+      StreamFamilyMembers = ''
+
+      ! Read Stream Family Specification Section
+      REWIND( FUNIT )
+      READ( NML = Desid_StreamFam, UNIT = FUNIT, IOSTAT=STAT )
+      IF ( STAT .EQ. -1 ) THEN
+          XMSG = 'Note: the StreamFamilies section of the DESID Control ' //
+     &           'Namelist is missing. Default values for this section will be ' //
+     &           'assumed.'
+          CALL LOG_MESSAGE( LOGDEV, ' ' )
+          CALL LOG_MESSAGE( LOGDEV, XMSG )
+          StreamFamilyName     = ''
+          StreamFamilyMembers  = ''
+      ELSE IF ( STAT .NE. 0 ) THEN
+          ! Read Error Detected for RGN_NML
+          backspace( FUNIT )
+          read( FUNIT, fmt='(A)' ) tmpline
+          XMSG = 'ERROR: There was a syntax error reading the Desid_StreamFam '//
+     &           'variable for use by the DESID module. Please check the format of '//
+     &           'each line for syntax errors. The invalid line was likely: '
+          CALL LOG_MESSAGE( LOGDEV, ' ')
+          CALL LOG_MESSAGE( LOGDEV, XMSG )
+          WRITE( LOGDEV, '(8x,A)' ) TMPLINE
+          CALL M3EXIT ( 'Read_Families', 0, 0, 'CMAQ must Crash until you '//
+     &                  'fix the Stream Families', 1 ) 
+ 
+      END IF
+ 
       ! Capitalize All Family and Member Names
-      DO IFAM = 1,NStreamFamilies
+      DO IFAM = 1,Desid_N_Stream_Fams
+          IF ( StreamFamilyName(IFAM) .EQ. '' ) THEN
+             WRITE( XMSG, '(A,I3,A,A,A)' ),'ERROR: The number of Stream Families ',
+     &              Desid_N_Stream_Fams, ' is larger than the number of fields ',
+     &              'provided in StreamFamilyName array. Reduce Desid_N_Stream_Fams ',
+     &              'in the DESID_CTRL file or provide more Stream Families.'
+             CALL M3EXIT( 'Read_Families',0,0,XMSG,1 )
+          END IF
           CALL UPCASE( StreamFamilyName( IFAM ) )
-          DO INUM = 1,StreamFamilyNum( IFAM )
+          StreamFamilyNum( IFAM ) = 0
+
+          DO INUM = 1,Desid_Max_Stream_Fam_Members
+              IF ( StreamFamilyMembers(IFAM,INUM) .EQ. '' ) EXIT
               CALL UPCASE( StreamFamilyMembers( IFAM,INUM ) )
+              StreamFamilyNum( IFAM ) = INUM
           END DO
       END DO
+
  
+      !!! Region Families !!!
       ! Read Region Family Specification Section
-      REWIND( EMCTRL_NML )
-      READ( NML = RegionFamilies, UNIT = EMCTRL_NML, IOSTAT=STAT )
+      REWIND( FUNIT )
+      READ( NML = Desid_RegionDefVars, UNIT = FUNIT, IOSTAT=STAT )
       IF ( STAT .EQ. -1 ) THEN
-          XMSG = 'Note: the RegionFamilies section of the Emissions Control ' //
+          XMSG = 'Note: the Desid_Regoin_DefVars section of the DESID Control ' //
      &           'Namelist is missing. Default values for this section will be '//
      &           'assumed.'
           CALL LOG_MESSAGE( LOGDEV, ' ' )
           CALL LOG_MESSAGE( LOGDEV, XMSG )
-          NRegionFamilies      = 0
-          RegionFamilyName     = ''
-          RegionFamilyNum      = 0
-          RegionFamilyMembers  = ''
+          Desid_Max_Reg  = 0
+          Desid_N_Reg_Fams  = 0
+          Desid_Max_Reg_Fam_Members  = 0
       ELSE IF ( STAT .NE. 0 ) THEN
           ! Read Error Detected for RGN_NML
-          backspace( EMCTRL_NML )
-          read( EMCTRL_NML, fmt='(A)' ) tmpline
+          backspace( FUNIT )
+          read( FUNIT, fmt='(A)' ) tmpline
           XMSG = 'ERROR: There was a syntax error reading the RegionFamilies '//
      &           'variable for use by the DESID module. Please check the format of '//
      &           'each line for syntax errors. The invalid line was likely: '
           CALL LOG_MESSAGE( LOGDEV, ' ')
           CALL LOG_MESSAGE( LOGDEV, XMSG )
           WRITE( LOGDEV, '(8x,A)' ) TMPLINE
-          CALL M3EXIT ( 'Read_Emiss_Namelist', 0, 0, 'CMAQ must Crash until you '//
+          CALL M3EXIT ( 'Read_Families', 0, 0, 'CMAQ must Crash until you '//
      &                  'fix the Region Families', 1 ) 
  
       END IF
-      ! Capitalize All Family and Member Names
-      DO IFAM = 1,NRegionFamilies
-          CALL UPCASE( RegionFamilyName( IFAM ) )
-          DO INUM = 1,RegionFamilyNum( IFAM )
-              CALL UPCASE( RegionFamilyMembers( IFAM,INUM ) )
-          END DO
-      END DO
- 
-      ! Read Process Family Specification Section
-      REWIND( EMCTRL_NML )
-      READ( NML = ProcessFamilies, UNIT = EMCTRL_NML, IOSTAT=STAT )
+
+      ALLOCATE( RegionFamilyName( Desid_N_Reg_Fams ),
+     &          RegionFamilyNum( Desid_N_Reg_Fams ),
+     &          RegionFamilyMembers( Desid_N_Reg_Fams, Desid_Max_Reg_Fam_Members ),
+     &          STAT=IOST )
+      CALL CHECKMEM( IOST, 'Region Families','Read Families' )
+      RegionFamilyName = ''
+      RegionFamilyMembers = ''
+
+      REWIND( FUNIT )
+      READ( NML = Desid_RegionFam, UNIT = FUNIT, IOSTAT=STAT )
       IF ( STAT .EQ. -1 ) THEN
-          XMSG = 'Note: the ProcessFamilies section of the Emissions Control '//
+          XMSG = 'Note: the Desid_RegionFam section of the DESID Control ' //
      &           'Namelist is missing. Default values for this section will be '//
      &           'assumed.'
           CALL LOG_MESSAGE( LOGDEV, ' ' )
           CALL LOG_MESSAGE( LOGDEV, XMSG )
-          NProcessFamilies      = 0
-          ProcessFamilyName     = ''
-          ProcessFamilyNum      = 0
-          ProcessFamilyMembers  = ''
+          RegionFamilyName     = ''
+          RegionFamilyMembers  = ''
       ELSE IF ( STAT .NE. 0 ) THEN
           ! Read Error Detected for RGN_NML
-          backspace( EMCTRL_NML )
-          read( EMCTRL_NML, fmt='(A)' ) tmpline
-          XMSG = 'ERROR: There was a syntax error reading the ProcessFamilies '//
+          backspace( FUNIT )
+          read( FUNIT, fmt='(A)' ) tmpline
+          XMSG = 'ERROR: There was a syntax error reading the RegionFamilies '//
      &           'variable for use by the DESID module. Please check the format of '//
      &           'each line for syntax errors. The invalid line was likely: '
           CALL LOG_MESSAGE( LOGDEV, ' ')
           CALL LOG_MESSAGE( LOGDEV, XMSG )
           WRITE( LOGDEV, '(8x,A)' ) TMPLINE
-          CALL M3EXIT ( 'Read_Emiss_Namelist', 0, 0, 'CMAQ must Crash until you '//
-     &                  'fix the Process Families', 1 ) 
+          CALL M3EXIT ( 'Read_Families', 0, 0, 'CMAQ must Crash until you '//
+     &                  'fix the Region Families', 1 ) 
  
       END IF
+ 
       ! Capitalize All Family and Member Names
-      DO IFAM = 1,NProcessFamilies
-          CALL UPCASE( ProcessFamilyName( IFAM ) )
-          DO INUM = 1,ProcessFamilyNum( IFAM )
-              CALL UPCASE( ProcessFamilyMembers( IFAM,INUM ) )
+      DO IFAM = 1,Desid_N_Reg_Fams
+          IF ( RegionFamilyName(IFAM) .EQ. '' ) THEN
+             WRITE( XMSG, '(A,I3,A,A,A)' ),'ERROR: The number of Region Families ',
+     &              Desid_N_Reg_Fams, ' is larger than the number of fields ',
+     &              'provided in RegionFamilyName array. Reduce Desid_N_Reg_Fams ',
+     &              'in the DESID_CTRL file or provide more Region Families.'
+             CALL M3EXIT( 'Read_Families',0,0,XMSG,1 )
+          END IF
+          CALL UPCASE( RegionFamilyName( IFAM ) )
+          RegionFamilyNum( IFAM ) = 0
+
+          DO INUM = 1,Desid_Max_Reg_Fam_Members
+              IF ( RegionFamilyMembers( IFAM,INUM ) .EQ. '' ) EXIT
+              CALL UPCASE( RegionFamilyMembers( IFAM,INUM ) )
+              RegionFamilyNum( IFAM ) = INUM
           END DO
       END DO
  
-      CLOSE( UNIT = EMCTRL_NML )
+
+      CLOSE( UNIT = FUNIT )
 
       CALL LOG_MESSAGE( LOGDEV, ' ' ) ! Add a buffer space in the log file
 
@@ -343,7 +445,7 @@
       ELSE     
          ! Determine if the Species Label Refers to A Family and if So, 
          ! Apply the Rule to all members of that Family
-         IFAM = INDEX1( SPECIES, NChemFamilies, ChemFamilyName )
+         IFAM = INDEX1( SPECIES, N_Chem_Fams, ChemFamilyName )
          IF ( IFAM .EQ. 0 ) THEN
             NCHEM = 1
             CHEM_NAME(1) = SPECIES
@@ -369,8 +471,9 @@
                IF ( KDX .NE. 0 ) OUT_VEC( KDX ) = .TRUE.
              END DO
            ELSE
-             WRITE( LOGDEV, '(/,3A,/,A,/,A,/,A,/,A)' ),
-     &         'Species ',TRIM(SPECIES),' was used in the Emissions',
+             WRITE( LOGDEV, '(/,5A,/,A,/,A,/,A,/,A)' ),
+     &         'Species ',TRIM(SPECIES),':',TRIM(CHEM_NAME(ICHEM)),
+     &         ' was used in the Emissions',
      &         ' Control Instructions Namelist but it is not a valid CMAQ ',
      &         'transported species or family. Please add it to one of the ',
      &         'input chemical namelists (ie. GC, AE, etc). Note that aerosol',

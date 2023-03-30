@@ -34,6 +34,7 @@ C @(#)WREXTS.F	1.1 /project/mod3/MECH/src/driver/mech/SCCS/s.WREXTS.F 02 Jan 199
       SUBROUTINE WREXTS (EQNAME_MECH, DESCRP_MECH, NS, SPCLIS, SPC1RX,  SS1RX ) 
       
       USE MECHANISM_DATA
+      USE BASIC_WRITE_ROUTINES
       
       IMPLICIT NONE
 
@@ -87,20 +88,20 @@ c-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
 c                    12345678901234567890123456789012345678901234567
       EXHEAD_SPCS = 'Intermediate Species Definition CVS Table'
       WRITE( EXUNIT_SPCS, 1031 ) TRIM( EXHEAD_SPCS )
-1031  FORMAT( '#', 1X, 9('-'), 1X, A, 1X, 10('-') )
+1031  FORMAT( '!', 1X, 9('-'), 1X, A, 1X, 10('-') )
       CALL WRHDR1 ( EXUNIT_SPCS, EQNAME_SPCS, 108 )
       WRITE( EXUNIT_SPCS, 1027 )
-1027  FORMAT( '#', 1X, 'Generated from ...' )
+1027  FORMAT( '!', 1X, 'Generated from ...' )
       CALL WRHDR1 ( EXUNIT_SPCS, EQNAME_MECH, 108 )
       WRITE( EXUNIT_SPCS, 1033 ) TRIM( DESCRP_MECH )
-1033  FORMAT( '#', 1X, 'for Mechanism Name:', 1X, A )
+1033  FORMAT( '!', 1X, 'for Mechanism Name:', 1X, A )
       WRITE( EXUNIT_SPCS, 1035 )
-1035  FORMAT( /'#', 1X, 'The following data were determine by the CHEMMECH input',
+1035  FORMAT( /'!', 1X, 'The following data were determine by the CHEMMECH input',
      &              1X, 'INCLUDE file:'
-     &        /'#', 4X, 'Species  = species names used by mechanism reaction'
-     &        /'#', 4X, 'Phase    = GC for gaseous or AE for aerosol'
-     &        /'#', 4X, 'Mol.Wgth = nonzero if input include mechanism namelists',
-     &        /'#', 4X, 'The user has to fill in definition column' )
+     &        /'!', 4X, 'Species  = species names used by mechanism reaction'
+     &        /'!', 4X, 'Phase    = GC for gaseous or AE for aerosol'
+     &        /'!', 4X, 'Mol.Wgth = nonzero if input include mechanism namelists',
+     &        /'!', 4X, 'The user has to fill in definition column' )
 
 c_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
 c     NS

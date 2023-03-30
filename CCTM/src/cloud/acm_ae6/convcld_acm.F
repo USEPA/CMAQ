@@ -1985,10 +1985,10 @@ c               IF ( POLC( CSPC ) .GT. 1.0E-30 .AND. CEND( CSPC ) .GT. 1.0E-09) 
                 IF ( POLC( CSPC ) .GT. 1.0E-30 ) THEN
                   SA_CEND( SPC,ITAG ) = SA_POLC( SPC,ITAG )
      &                                * ( CEND( CSPC )
-     &                                  / POLC( CSPC ) )
+     &                                  / MAX( 1.0E-26,POLC( CSPC ) ) )
                   SA_REMOV( SPC,ITAG ) = SA_POLC( SPC, ITAG )
      &                                 * ( REMOV( CSPC )
-     &                                   / POLC( CSPC ) )
+     &                                   / MAX( 1.0E-25, POLC( CSPC ) ))
                 ELSE
                   SA_CEND( SPC,ITAG )  = 0.0
                   SA_REMOV( SPC,ITAG ) = 0.0

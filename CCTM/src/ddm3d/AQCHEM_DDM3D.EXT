@@ -1,5 +1,6 @@
 
 ! 16 Jul 13 S.Napelenok: initial version for ddm-3d implementation for cmaq5.0.1
+!  9 Sep 22 S.Napelenok: comment out currently unused variables
 
 c     REAL( 8 ) :: S_DEPSUM( NPMAX )
       REAL( 8 ) :: S_A( NPMAX )               ! iron's anion concentration
@@ -104,7 +105,7 @@ c     REAL( 8 ) :: S_NITAER( NPMAX )          ! total aerosol nitrate
       REAL( 8 ) :: S_NUMCOR( NPMAX )          ! coarse aerosol number in cloudwater (mol/liter)
 c     REAL( 8 ) :: S_O3H( NPMAX )             ! Henry's Law Constant for O3
       REAL( 8 ) :: S_O3L( NPMAX )             ! O3 conc in cloudwater (mol/liter)
-      REAL( 8 ) :: S_OH( NPMAX )              ! OH conc in cloudwater (mol/liter)
+c     REAL( 8 ) :: S_OH( NPMAX )              ! OH conc in cloudwater (mol/liter)
       REAL( 8 ) :: S_OHL( NPMAX )             ! OH radical conc in cloudwater (mol/liter)
       REAL( 8 ) :: S_SOA( NPMAX )             ! secondary organic aerosol in cloudwater (mol/liter)
       REAL( 8 ) :: S_ORGC( NPMAX )            ! cloud-produced SOA in cloudwater (treated as primary)
@@ -214,7 +215,7 @@ c     REAL( 8 ) :: S_DTW   ( NPMAX, 0:NUMOX ) ! cloud chemistry timestep (sec)
       REAL( 8 ) :: C1
       REAL( 8 ) :: C2
       REAL( 8 ) :: C3
-      REAL( 8 ) :: pwr1d
+      REAL( 8 ) :: pwr1D
       REAL( 8 ) :: pwr1
 
       INTEGER IP1, IP2

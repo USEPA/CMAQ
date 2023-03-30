@@ -59,7 +59,7 @@ C-----------------------------------------------------------------------
       USE UTILIO_DEFN
       USE AERO_DATA, ONLY : CHECK_AERO_ICBC, N_MODE
       Use CENTRALIZED_IO_MODULE, only : interpolate_var
-
+      USE RUNTIME_VARS, ONLY : IC_AERO_M2WET, IC_AERO_M2USE
       IMPLICIT NONE
 
       INCLUDE SUBST_CONST       ! constants
@@ -133,11 +133,10 @@ C for XTRACT3
       REAL,    ALLOCATABLE, SAVE :: ICBC_FAC( : ) ! Factor to be applied to ICs
       INTEGER      C, R, L, SPC, V, J         ! loop counters
       INTEGER      ASPC                       ! CGRID RHOJ pointer
-      INTEGER      STAT                       ! Status reported by Aerosol Dist Checker
+      INTEGER      STAT( N_MODE )             ! Status reported by Aerosol Dist Checker
 
-      INTEGER       :: LMODE    !Identifies the problematic mode from
-                                !the BC Check routine
-      REAL          :: AER_PAR( 2, N_MODE,5 )  !Modal parameter after the BC 
+      INTEGER       :: IMODE    
+      REAL          :: AER_PAR( 2, N_MODE,6 )  !Modal parameter after the BC 
                                                !check (N, dg, sg)
                                                !      (N, M2, M3) - Before
                                                !      (N, M2, M3) - After
@@ -156,7 +155,7 @@ C for XTRACT3
       CHARACTER( 34 ) :: ESTR3 = ' '
 
       LOGICAL, SAVE :: FIRSTIME = .TRUE.
-      LOGICAL       :: LSTAT
+      LOGICAL       :: L_WRITE_WARNING
 
 C-----------------------------------------------------------------------
 
@@ -431,10 +430,6 @@ C IOFDESC common now loaded with FNAME header
 
       END DO
  
-
-      !IF ( N_SPCS .NE. 0 ) WRITE( LOGDEV,'(/ 5X, A)' )
-      !&                            SPC_CAT // ' loaded into CGRID'
-
       IF ( SPC_CAT .EQ. 'RJ' ) THEN
 
 C Load RHOJ for transport and mixing ratio advection adjustment
@@ -450,54 +445,28 @@ C Load RHOJ for transport and mixing ratio advection adjustment
             END DO
          END DO
 
-         !WRITE( LOGDEV,'(/ 5X, A)' ) 'Density*Jacobian loaded into CGRID'
-
-
       END IF
 
       IF ( SPC_CAT .EQ. 'AE' ) THEN
          CALL LOG_SUBHEADING( LOGDEV, 'Check Aerosol IC Size Distributions' )
 
-         ! Check Aerosol Size Distributions and Warn the User if They Are Not Robust
+         ! Check Aerosol Size Distributions and Warn the User if They Are Not Robust.
+         ! Surface area is output from this routine consistent with the
+         ! specification in IC_AERO_M2WET.
          IF ( NEW_START ) THEN
            SPC_STRT = AE_STRT
            SPC_FINI = AE_STRT + N_AE_SPC - 1
-           LSTAT    = .FALSE.
+           L_WRITE_WARNING = .TRUE.
            DO L = 1, NLAYS
            DO R = 1, NROWS
            DO C = 1, NCOLS
               AECON( 1:N_AE_SPC ) = CGRID( C,R,L,SPC_STRT:SPC_FINI )
-              CALL CHECK_AERO_ICBC( AECON, .TRUE., STAT, AER_PAR, LMODE )
+              CALL CHECK_AERO_ICBC( AECON, IC_AERO_M2WET, IC_AERO_M2USE, 
+     &                              .FALSE., L_WRITE_WARNING, C,R,L )
               CGRID( C,R,L,SPC_STRT:SPC_FINI ) = AECON( 1:N_AE_SPC )
-              IF ( STAT .GT. 0 ) THEN
-                 LSTAT = .TRUE.
-#ifdef verbose_loadcgrid
-                 WRITE ( 6, '(7x,A55,I1,/,7x,A20,I1,A42,/,9x,A51,/,9x,A24,I3,2x,I3,2x,I2,/,
-     &                 9x,A19,1x,A3,8x,A2,8x,A2,8x,A2,8x,A2,/,
-     &                 27x,E8.1,1x,E8.1,1x,E8.1,1x,E8.1,4x,F4.1,/,
-     &                 9x,A19,1x,A3,8x,A2,8x,A2,8x,A2,8x,A2,/,
-     &                 27x,E8.1,1x,E8.1,1x,E8.1,1x,E8.1,4x,F4.1)'),
-     &               'Warning: Applying Aerosol Initial Conditions for mode ',LMODE,
-     &               'The Offending Mode (',LMODE,') had diameter and/or sigma out of bounds.',
-     &               'It was overwritten by changing the Num and SrfArea.',
-     &               'Grid Cell(Col,Row,Lay): ',C,R,L,
-     &               'Modal Props Before:','Num','M2','M3','Dg','Sg',(AER_PAR(1,LMODE,j),j=1,5),
-     &               'Modal Props After: ','Num','M2','M3','Dg','Sg',(AER_PAR(2,LMODE,j),j=1,5)
-#endif
-              ENDIF
            END DO
            END DO
            END DO
-
-           !Print warning if any aerosol ICs violated the size distribution parameters
-           IF ( LSTAT ) THEN    
-               WRITE( XMSG2, '(A)' ),
-     &            'ATTENTION: Applying fix to aerosol Initial' //
-     &            ' Conditions for aerosol modes.' //
-     &            ' Set verbose_loadcgrid preprocessor flag to' //
-     &            ' learn more.'
-               CALL LOG_MESSAGE( LOGDEV, XMSG2 )
-           END IF
          END IF
 
 C are ASO4J ICs available on the file?

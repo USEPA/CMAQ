@@ -40,7 +40,7 @@
       INTEGER, PARAMETER      :: BDGSAVE_ID = 0
 
       PUBLIC BUDGET_INIT, STORE_BUDGET, STORE_BUDGET_DDEP, 
-     &       WRITE_BUDGET, BDGC0_ID, BUDGETVARIABLES, N_BUDGET_VARS_REG
+     &       WRITE_BUDGET, BDGC0_ID, BUDGETVARIABLES, MAX_BUDGET_VARS_NML
 
 
       INTEGER, SAVE         :: BDG_UNIT
@@ -180,7 +180,7 @@ C-----------------------------------------------------------------------
           END IF
           
           ! Map Budget Variables to CGRID Species
-          N_BDG_REG = INDEX1( '', N_BUDGET_VARS_REG, BudgetVariables ) - 1
+          N_BDG_REG = INDEX1( '', MAX_BUDGET_VARS_NML, BudgetVariables ) - 1
           IF ( N_BDG_REG .LE. 0 ) THEN
              WRITE( LOGDEV, * )
              WRITE( XMSG, '(A,A)' ),
@@ -200,6 +200,9 @@ C-----------------------------------------------------------------------
              IF ( BDGVAR(1:1) .EQ. '*' ) THEN
                 Expand_Spec = .TRUE.
                 BDGVAR(1:15) = BDGVAR(2:16)
+             END IF
+             IF ( TRIM(BDGVAR) .EQ. 'ALL' ) THEN
+                Expand_Spec = .TRUE.
              END IF
 
              ! Retrieve logical vector, DIFF_VEC, indicating diffused species
