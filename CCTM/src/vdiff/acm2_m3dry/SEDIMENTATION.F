@@ -56,7 +56,9 @@ C for interpx
       integer, save :: strtcolmc3, endcolmc3, strtrowmc3, endrowmc3
       integer, allocatable, save :: map_sedi2cgrid( : )
       integer, save :: n_sedi_map   ! aero species, all modes
+#ifdef isam
       integer, save :: n_isam_sedi_map  ! isam aero species, all modes
+#endif
 
       contains
 
@@ -115,7 +117,7 @@ C Local Variables:
       integer, allocatable, save :: conc_map( : )
 #ifdef isam
       integer, allocatable, save :: isam_sedi_map( : )
-      integer, allocatable, save :: isam_conc_map( : )
+      integer, allocatable, save :: map_sedi_to_isam( : )
       real,    allocatable, save :: isam_dtsvsed ( : ) ! isam settling vel. factor
 #endif
       real       adts, dts, rdts
@@ -152,13 +154,13 @@ c conc_map - from cgrid to ae_trns species
          end if
 #ifdef isam
          allocate ( isam_sedi_map( nspc_sa_ae ),
-     &              isam_conc_map( nspc_sa_ae ),  stat = astat )
+     &              map_sedi_to_isam( nspc_sa_ae ),  stat = astat )
          if ( astat .ne. 0 ) then
-            xmsg = 'Failure allocating isam_conc_map or isam_sedi_map'
+            xmsg = 'Failure allocating map_sedi_to_isam or isam_sedi_map'
             call m3exit( pname, mdate, mtime, xmsg, xstat1 )
          end if
          isam_sedi_map = 0
-         isam_conc_map = 0
+         map_sedi_to_isam = 0
          n_isam_sedi_map = 0
 #endif
          map_sedi2cgrid = 0
@@ -177,7 +179,7 @@ c conc_map - from cgrid to ae_trns species
                   if(  isam_to_aero( s ) .eq. sedi_map( n_sedi_map ) ) then
                      n_isam_sedi_map =  n_isam_sedi_map + 1
                      isam_sedi_map(  n_isam_sedi_map ) = sedi_map( n_sedi_map )   
-                     isam_conc_map(  n_isam_sedi_map ) = sa_aero_indx( s )   
+                     map_sedi_to_isam(  n_isam_sedi_map ) = sa_aero_indx( s )   
                   end if
                end do
 #endif
@@ -187,13 +189,13 @@ c conc_map - from cgrid to ae_trns species
          do v = 1, n_sedi_map
             write( logdev,* ) v, sedi_map( v ), conc_map( v )
          end do
-#ifdef isam
+#if verbose_isam && isam
          write(logdev,'("ISAM Aerosol Sedimentation Mapping")')
          write( logdev,'( A4,1X,2(A16,1X),2(A8,1x) )' )"  N ","   Bulk AERO   ","    ISAM AERO   ",
      &   "SEDI_MAP", "CONC_MAP"
          do v = 1, n_isam_sedi_map
             write( logdev,'( I4,1X,2(A16,1X),2(I8,1x) )' ) v, ae_spc( isam_sedi_map( v ) ),
-     &      isam_spec( isam_conc_map( v ),1 ), isam_sedi_map( v ), isam_conc_map( v )
+     &      isam_spec( map_sedi_to_isam( v ),1 ), isam_sedi_map( v ), map_sedi_to_isam( v )
          end do
 #endif
 
@@ -259,7 +261,7 @@ C subset all the layers and species in cgrid for this grid cell
 
 #ifdef isam
          do v = 1,  n_isam_sedi_map
-            n = isam_conc_map( v )
+            n = map_sedi_to_isam( v )
             do l = 1, nlays
                do itag = 1,ntag_sa
 ! used upper case to not conflict with CCP flag
@@ -398,7 +400,7 @@ C subset all the layers and species in cgrid for this grid cell
          end do
 #ifdef isam
          do v = 1,  n_isam_sedi_map
-            n = isam_conc_map( v )
+            n = map_sedi_to_isam( v )
             do l = 1, nlays
                do itag = 1,ntag_sa
 ! used upper case to not conflict with CCP flag
@@ -407,14 +409,14 @@ C subset all the layers and species in cgrid for this grid cell
             end do
          end do
 #endif
-#ifdef isam
+#if isam && verbose_isam
          if( c .eq. 1 .and. r .eq. 1 )then
             write( logdev,'("ISAM Aerosol Sedimentation Results for col and row equal 1")')
             write( logdev,'( A4,1X,2(A16,1X),2(A12,1x) )' )"  N ","   Bulk AERO ","    ISAM AERO   ",
      &      "SUM_BULK ", "SUM_ISAM "
             do v = 1, n_isam_sedi_map
                write( logdev,'( I4,1X,2(A16,1X),2(ES12.4,1x) )' ) v, ae_spc( isam_sedi_map( v ) ),
-     &         isam_spec( isam_conc_map( v ),1 ), sum( conc( isam_sedi_map( v ),1:nlays ) ), 
+     &         isam_spec( map_sedi_to_isam( v ),1 ), sum( conc( isam_sedi_map( v ),1:nlays ) ), 
      &         sum(conc_isam( v,1:nlays,1:ntag_sa ))
             end do
          end if
