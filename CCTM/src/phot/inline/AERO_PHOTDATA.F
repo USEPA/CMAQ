@@ -40,9 +40,11 @@
       REAL, ALLOCATABLE :: AERO_ASYM_FAC ( :,: ) ! aerosol modal averaged asymmetry factor
       REAL, ALLOCATABLE :: AERO_EXTI_COEF( :,: ) ! aerosol modal averaged extinction coeff., 1/m
       REAL, ALLOCATABLE :: AERO_SCAT_COEF( :,: ) ! aerosol modal averaged scattering coeff., 1/m
+      REAL, ALLOCATABLE :: AERO_ABSO_COEF( :,: ) ! aerosol modal averaged sbsorption coeff., 1/m
       REAL, ALLOCATABLE :: AERO_EXTI_550  ( : )  ! aerosol modal averaged extinction coeff. at 550nm, 1/m
+      REAL, ALLOCATABLE :: AERO_ABSO_550  ( : )  ! aerosol modal averaged extinction coeff. at 550nm, 1/m
  
-      PUBLIC            :: AERO_ASYM_FAC, AERO_EXTI_COEF, AERO_SCAT_COEF,
+      PUBLIC            :: AERO_ASYM_FAC, AERO_EXTI_COEF, AERO_SCAT_COEF, AERO_ABSO_COEF,
      &                     INIT_AERO_DATA, GET_AERO_DATA, AERO_OPTICS_INTERNAL
 
       INTEGER,   ALLOCATABLE, PRIVATE :: REFRACT_INDX_MAP( : )  ! map array for refactive index
@@ -85,6 +87,8 @@ C Allocate and define arrays used to calculate aerosol optical properties
          USE CSQY_DATA, ONLY : NWL => NWL_REF, NUM_REFRACTIVE, REFRACTIVE_INDEX,
      &                         WAVELENGTH => EFFWL_REF
 
+         USE WRF_FAST_MIE
+
          IMPLICIT NONE
 
 C Arguments:
@@ -99,6 +103,12 @@ C Local:
          INTEGER          :: M, N, SPC, V   ! loop counters
       
          LOGICAL, SAVE    :: INITIALIZED  = .FALSE.
+
+         REAL    :: MIE_PARAMETER = 1.0E-3
+         COMPLEX :: REFINDX       = (1.0,0.0)
+
+         REAL :: EXTAER,SCATAER,GAER
+         REAL :: BSCOEF
 
 #ifdef verbose_phot
          character( 26 ), allocatable :: lambda_list( : )
@@ -186,17 +196,26 @@ C...Allocate needed arrays
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
 
+         ALLOCATE ( AERO_ABSO_COEF( NLAYS,NWL ), STAT = ALLOCSTAT )
+         IF ( ALLOCSTAT .NE. 0 ) THEN
+            XMSG = 'Failure allocating AERO_ABSO_FAC'
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         END IF
+
          AERO_SCAT_COEF = 0.0
          AERO_EXTI_COEF = 0.0
          AERO_ASYM_FAC  = 0.0
+         AERO_ABSO_COEF = 0.0
 
          IF( CALCULATE_EXT_550 )THEN
-            ALLOCATE ( AERO_EXTI_550( NLAYS ), STAT = ALLOCSTAT )
+            ALLOCATE ( AERO_EXTI_550( NLAYS ),
+     &                 AERO_ABSO_550( NLAYS ), STAT = ALLOCSTAT )
             IF ( ALLOCSTAT .NE. 0 ) THEN
                XMSG = 'Failure allocating AERO_EXTI_550'
                CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             END IF
             AERO_EXTI_550  = 0.0
+            AERO_ABSO_550  = 0.0
          END IF   
 
          CALL MAP_AERO()
@@ -268,6 +287,10 @@ C ***    Create map for refactive index for each species
             CALL M3MESG('For optics of aerosols with no core, FASTER_OPTICS used')
          ELSE
             CALL M3MESG('Using internal mixing model for aerosol and FASTER_OPTICS')
+         END IF
+
+         IF( FAST_MIE )THEN
+            CALL FAST_MIEAER_MODAL( MIE_PARAMETER,REFINDX,EXTAER,SCATAER,GAER,BSCOEF )
          END IF
 
          FORALL ( SPC = 1:N_MODE ) VOL_MINS( SPC ) = PI6 * AEROMODE( SPC )%MIN_M3CONC
@@ -405,6 +428,8 @@ C-----------------------------------------------------------------------
      &                       WAVELENGTH => EFFWL_REF
 
       USE CMAQ_RRTMG_AERO_OPTICAL_UTIL_MODULE, ONLY : AERO_OPTICAL2, AERO_OPTICAL_CS
+
+      USE WRF_FAST_MIE
 
       IMPLICIT NONE
 
@@ -748,7 +773,12 @@ C***  and contribution to the overall asymmetry factor
                ELSE IF ( VOL .GT. 0.0 ) THEN
 
 !*** FSB Internal Volume mixture case for optics 
-                  IF ( MIE_CALC ) THEN
+                  IF ( FAST_MIE ) THEN
+                      CALL AERO_OPTICS_TABULAR( MODE,V,NR_SHELL, VOL, DGN_SHELL,
+     &                                   XXLSG, BEXT_MODE, BSCAT_MODE, GBAR_MODE)
+
+                      VFAC  = 1.0 ! correction factor
+                  ELSE IF ( MIE_CALC ) THEN
                      IF ( SUCCESS ) CALL AERO_OPTICAL2( LAMDA_UM, NR_SHELL, VOL, 
      &                                   DGN_SHELL, XXLSG,
      &                                   BEXT_MODE, BSCAT_MODE, GBAR_MODE, SUCCESS )
@@ -839,6 +869,7 @@ C***  and contribution to the overall asymmetry factor
 
             AERO_SCAT_COEF( L,V ) = BSCAT
             AERO_EXTI_COEF( L,V ) = MAX( BEXT, 1.0E-30 )
+            AERO_ABSO_COEF( L,V ) = MAX( (BEXT-BSCAT), 1.0E-30 )
             AERO_ASYM_FAC ( L,V ) = G_BAR / MAX( BSCAT, 1.0E-30 )
 
 #ifdef verbose_phot_extra
@@ -873,6 +904,13 @@ C***  and contribution to the overall asymmetry factor
 !                AERO_EXTI_550( L ) =  EXP( AERO_EXTI_550( L ) )
                  AERO_EXTI_550( L ) =  AERO_EXTI_COEF( L,IWL_ANGSTROM_LOWER ) 
      &                              *  REAL( ANGSTROM_RATIO ** ANGSTROM_EXPONENT, 4 )
+                 ANGSTROM_EXPONENT  =  - REAL( LOG( AERO_SCAT_COEF( L,IWL_ANGSTROM_LOWER ) 
+     &                                         / AERO_SCAT_COEF( L,IWL_ANGSTROM_UPPER ) ), 8 )
+     &                              *  ANGSTROM_SPAN
+                 AERO_ABSO_550( L ) =  MAX( AERO_EXTI_550( L ) 
+     &                              -  AERO_SCAT_COEF( L,IWL_ANGSTROM_LOWER )
+     &                              *  REAL( ANGSTROM_RATIO ** ANGSTROM_EXPONENT, 4 ), 0.0 )
+
 !                 IF ( FIRSTCALL ) THEN
 !                     WRITE( LOGDEV,'(I3,A,7(ES12.4,1X))')L,
 !     &              ' AERO_EXT_LOWER,AERO_EXT_UPPER,EXPONENT,EXPONENT*LOG(RATIO),EXT_550_1,EXT_550_2: ',

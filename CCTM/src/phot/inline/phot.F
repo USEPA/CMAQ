@@ -297,6 +297,7 @@ C...modules
       REAL, ALLOCATABLE, SAVE :: TRANSMIS_DIRECT( :,: )  ! direct transmission coefficient at surface
       REAL, ALLOCATABLE, SAVE :: REFLECT_COEFF( :,: )    ! reflection coefficient at top of atmosphere
       REAL, ALLOCATABLE, SAVE :: TAU_AERO_WL ( :,:,: )   ! total aerosol optical depth
+      REAL, ALLOCATABLE, SAVE :: TAU_ABS_AERO( :,:,: )   ! aerosol absorpion optical depth
       REAL, ALLOCATABLE, SAVE :: TAU_CLOUD_WL( :,:,: )   ! total cloud optical depth
       REAL, ALLOCATABLE, SAVE :: CLR_TRANSMISSION( :,: ) ! diffuse transmission coefficient of clouds
       REAL, ALLOCATABLE, SAVE :: CLR_REFLECTION  ( :,: ) ! reflection coefficient of cloud
@@ -308,7 +309,7 @@ C...modules
       REAL, ALLOCATABLE, SAVE :: TAU_TOT_WL  ( :,:,: ) ! total optical depth
       REAL, ALLOCATABLE, SAVE :: TAUO3_TOP_WL( :,:,: ) ! optical depth of ozone above model domain
 
-      REAL, ALLOCATABLE, SAVE :: AERO_SSA  ( :,:,:,: ) ! aerosol single scattering albedo
+      REAL, ALLOCATABLE, SAVE :: AERO_SCAT ( :,:,:,: ) ! aerosol scattering for layer [1/Km]
       REAL, ALLOCATABLE, SAVE :: AERO_ASYM ( :,:,:,: ) ! aerosol asymmetry factor
       REAL, ALLOCATABLE, SAVE :: TOT_EXT   ( :,:,:,: ) ! total extinction for layer [1/Km]
       REAL, ALLOCATABLE, SAVE :: GAS_EXT   ( :,:,:,: ) ! clear sky extinction for layer [1/Km]
@@ -393,8 +394,10 @@ C...modules
          ALLOCATE( TAU_TOT  ( NLAYS,NWL ) )
 
          ALLOCATE( TOTAL_OC ( NCOLS,NROWS ) )
+         ALLOCATE( TAU_ABS_AERO_550( NCOLS,NROWS ) )
          ALLOCATE( TAU_AERO_550    ( NCOLS,NROWS ) )
-         TAU_AERO_550  = 0.0
+         TAU_AERO_550     = 0.0
+         TAU_ABS_AERO_550 = 0.0
 
          IF ( PHOTDIAG ) THEN
 
@@ -412,6 +415,7 @@ C...modules
             ALLOCATE( CLR_TRANS_DIRECT( NCOLS,NROWS ) )
             ALLOCATE( CLR_REFLECTION  ( NCOLS,NROWS ) )
             ALLOCATE( TAU_AERO_WL     ( NCOLS,NROWS,NWL ) )
+            ALLOCATE( TAU_ABS_AERO    ( NCOLS,NROWS,NWL ) )
             ALLOCATE( TAU_CLOUD_WL    ( NCOLS,NROWS,NWL ) )
 #ifdef phot_debug
             ALLOCATE( SSA_CLOUD_WL( NCOLS,NROWS,NWL ) )
@@ -428,6 +432,7 @@ C...modules
             SO2_COLUMN      = 0.0
             NO2_COLUMN      = 0.0
             HCHO_COLUMN     = 0.0
+            TAU_ABS_AERO    = 0.0
      
    
 !...write wavelength data to a character array
@@ -526,9 +531,9 @@ C...modules
                CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             END IF
 
-            ALLOCATE ( AERO_SSA( NCOLS,NROWS,NLAYS_DIAG,N_DIAG_WVL ), STAT = ALLOCSTAT )
+            ALLOCATE ( AERO_SCAT( NCOLS,NROWS,NLAYS_DIAG,N_DIAG_WVL ), STAT = ALLOCSTAT )
             IF ( ALLOCSTAT .NE. 0 ) THEN
-               XMSG = 'Failure allocating 3D AERO_SSA'
+               XMSG = 'Failure allocating 3D AERO_SCAT'
                CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             END IF
 
@@ -713,6 +718,7 @@ C...modules
          ETOT_SFC_WL  = 0.0
          AERO_EXT_550 = 0.0
          TAU_AERO_550 = 0.0
+         TAU_ABS_AERO_550 = 0.0
 
 !...Initialize ETOT_SFC, TAU_AERO, TAU_TOT, TAUO3_TOP to 0.0
 
@@ -722,6 +728,7 @@ C...modules
 
             TAUO3_TOP_WL = 0.0
             TAU_AERO_WL  = 0.0
+            TAU_ABS_AERO = 0.0
             TAU_CLOUD_WL = 0.0
 #ifdef phot_debug
             SSA_CLOUD_WL = 0.0
@@ -731,7 +738,7 @@ C...modules
             TOT_EXT      = 0.0
             GAS_EXT      = 0.0
             AERO_EXT     = 0.0
-            AERO_SSA     = 0.0
+            AERO_SCAT    = 0.0
             AERO_ASYM    = 0.0
             ACTINIC_FX   = 0.0
 
@@ -783,6 +790,7 @@ C...modules
 
                TAU_AERO_550( COL,ROW ) = 0.0
                AERO_EXT_550( COL,ROW,: ) = 0.0
+               TAU_ABS_AERO_550( COL,ROW ) = 0.0
                IF ( COSZEN .LE. 0.0 ) THEN
 !...the cell is dark: set variables to zero and cycle
                   RJ( COL,ROW, :,: ) = 0.0
@@ -793,6 +801,7 @@ C...modules
                   IF ( JTIME_CHK .AND. PHOTDIAG ) THEN
                      TAUO3_TOP_WL( COL,ROW, : ) = 0.0
                      TAU_AERO_WL ( COL,ROW, : ) = 0.0
+                     TAU_ABS_AERO( COL,ROW, : ) = 0.0
                      TAU_CLOUD_WL( COL,ROW, : ) = 0.0
 #ifdef phot_debug
                      SSA_CLOUD_WL( COL,ROW, : ) = 0.0
@@ -802,7 +811,7 @@ C...modules
                      TOT_EXT     ( COL,ROW, :,: ) = 0.0
                      GAS_EXT     ( COL,ROW, :,: ) = 0.0
                      AERO_EXT    ( COL,ROW, :,: ) = 0.0
-                     AERO_SSA    ( COL,ROW, :,: ) = 0.0
+                     AERO_SCAT   ( COL,ROW, :,: ) = 0.0
                      AERO_ASYM   ( COL,ROW, :,: ) = 0.0
                      ACTINIC_FX  ( COL,ROW, :,: ) = 0.0
 
@@ -960,6 +969,8 @@ C...modules
                DO LEV = 1, NLAYS
                   TAU_AERO_550 ( COL,ROW ) = TAU_AERO_550 ( COL,ROW )
      &                                     + AERO_EXTI_550( LEV ) * BLKDZ( LEV )
+                  TAU_ABS_AERO_550 ( COL,ROW ) = TAU_ABS_AERO_550 ( COL,ROW )
+     &                                         + AERO_ABSO_550( LEV ) * BLKDZ( LEV )
                END DO
 
                IF ( PHOTDIAG .AND. .NOT. STRATO3_MINS_MET ) THEN
@@ -982,6 +993,7 @@ C...modules
                   DO IWL = 1, NWL
                      TAUO3_TOP_WL( COL,ROW,IWL )     = TAUO3_TOP( IWL )
                      TAU_AERO_WL ( COL,ROW,IWL )     = TAUC_AERO( 1,IWL )
+                     TAU_ABS_AERO( COL,ROW,IWL )     = 0.0
                      TAU_TOT_WL  ( COL,ROW,IWL )     = TAU_TOT  ( 1,IWL )
                      TAU_CLOUD_WL( COL,ROW,IWL )     = TAU_CLOUD( 1,IWL )
 #ifdef phot_debug
@@ -990,6 +1002,12 @@ C...modules
 #endif
                   END DO
 
+                  DO IWL = 1, NWL
+                     DO LEV = 1, NLAYS
+                        TAU_ABS_AERO( COL,ROW,IWL ) = TAU_ABS_AERO( COL,ROW,IWL )
+     &                                              + AERO_ABSO_COEF( LEV,IWL ) * BLKDZ( LEV )
+                     END DO
+                  END DO
 
                   DO L = 1, N_DIAG_WVL
                      IWL = DIAG_WVL( L )
@@ -998,14 +1016,12 @@ C...modules
                         TOT_EXT ( COL,ROW,LEV,L )    = 1000.0 * EXTINCTION( LEV,IWL )
                         GAS_EXT ( COL,ROW,LEV,L )    = 1000.0 * GAS_EXTINCTION( LEV,IWL )
                         AERO_EXT( COL,ROW,LEV,L )    = 1000.0 * AERO_EXTI_COEF( LEV,IWL )
+                        AERO_SCAT ( COL,ROW,LEV,L )  = 1000.0 * AERO_SCAT_COEF( LEV,IWL )
                      END FORALL
                      FORALL ( LEV = 1:NLAYS_DIAG, AERO_EXTI_COEF( LEV,IWL ) .GT. EPSLON )
-                        AERO_SSA ( COL,ROW,LEV,L ) = AERO_SCAT_COEF( LEV,IWL )
-     &                                             / AERO_EXTI_COEF( LEV,IWL )
                         AERO_ASYM( COL,ROW,LEV,L ) = AERO_ASYM_FAC( LEV,IWL )
                      END FORALL
                      FORALL ( LEV = 1:NLAYS_DIAG, AERO_EXTI_COEF( LEV,IWL ) .LE. EPSLON )
-                        AERO_SSA ( COL,ROW,LEV,L ) = 1.0
                         AERO_ASYM( COL,ROW,LEV,L ) = 0.0
                      END FORALL
                   END DO
@@ -1329,6 +1345,13 @@ C...modules
                CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             END IF
 
+            VARNM = 'AOD_ABS_W' // WLTXT( IWL )
+            IF ( .NOT. WRITE3( CTM_RJ_1, VARNM, ODATE,
+     &                         OTIME, TAU_ABS_AERO( :,:,IWL ) ) ) THEN
+               XMSG = 'Error writing variable ' // VARNM
+               CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+            END IF
+
             VARNM = 'TAU_CLOUD_W' // WLTXT( IWL )
             IF ( .NOT. WRITE3( CTM_RJ_1, VARNM, ODATE,
      &                         OTIME, TAU_CLOUD_WL( :,:,IWL ) ) ) THEN
@@ -1381,6 +1404,12 @@ C...modules
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
 
+         VARNM = 'AAOD_W550_ANGST'
+         IF ( .NOT. WRITE3( CTM_RJ_1, VARNM, ODATE, OTIME, TAU_ABS_AERO_550 ) ) THEN
+            XMSG = 'Error writing variable ' // VARNM
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         END IF
+
          WRITE( LOGDEV, '( /5X, 3( A, :, 1X ), I8, ":", I6.6 )' )
      &          'Photolysis Surface Summary written to', CTM_RJ_1,
      &          'for date and time', ODATE, OTIME
@@ -1414,8 +1443,8 @@ C...modules
                CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             END IF
 
-            VARNM = 'AERO_SSA_W' // WLTXT( IWL )
-            IF ( .NOT. WRITE3( CTM_RJ_3, VARNM, ODATE, OTIME, AERO_SSA( :,:,:,L ) ) ) THEN
+            VARNM = 'AERO_SCAT_W' // WLTXT( IWL )
+            IF ( .NOT. WRITE3( CTM_RJ_3, VARNM, ODATE, OTIME, AERO_SCAT( :,:,:,L ) ) ) THEN
                XMSG = 'Error writing variable ' // VARNM
                CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             END IF
