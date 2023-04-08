@@ -164,6 +164,7 @@
       CHARACTER(16) :: WAVE_ENV(100)       ! Targeted wavelengths for diagnostic output
       LOGICAL :: CORE_SHELL= .FALSE.       ! flag for using core-shell mixing model for aerosol optics
       LOGICAL :: MIE_CALC  = .FALSE.       ! flag for using Mie Theory in aerosol optics calculation
+      LOGICAL :: FAST_MIE  = .FALSE.       ! flag for using Look-Up Tables of Mie Theory  in aerosol optics calculation
       REAL    :: GEAR_RTOL = 1.0E-3        ! Relative Tolerance for Gear Solver
       REAL    :: GEAR_MAX_ATOL = 1.0E-7    ! Upper Bound for Absolute Tolerance in Gear Solver (ppmV)
       REAL    :: GEAR_MIN_ATOL = 1.0E-9    ! Lower Bound for Absolute Tolerance in Gear Solver (ppmV)
@@ -617,8 +618,20 @@
       ! Get flag to use core-shell mixing model for aerosol optical properties
       CALL GET_ENV ( CORE_SHELL, 'CORE_SHELL_OPTICS', CORE_SHELL, VARDEV )
 
-      ! Get flag to use fast optics for volume mixing model for aerosol optical properties
+      ! Get flag to use mie calculations for volume mixing model for aerosol optical properties
       CALL GET_ENV ( MIE_CALC, 'OPTICS_MIE_CALC', MIE_CALC, VARDEV )
+
+      ! Get flag to use tabular method for volume mixing model for aerosol optical properties
+      CALL GET_ENV ( FAST_MIE, 'OPTICS_FAST_MIE', FAST_MIE, VARDEV )
+   
+      IF ( MIE_CALC .AND. FAST_MIE ) THEN
+!   override FAST_MIE  and set to false
+          FAST_MIE = .FALSE.
+          IF ( MYPE .EQ. 0 ) THEN
+             WRITE( OUTDEV, '(/,6x,A)' )'--BOTH MIE_CALC and FAST_MIE equal TRUE--'
+             WRITE( OUTDEV, '(6x,A,/)' )'--OVERRIDE FAST_MIE and SET TO FALSE.--'
+          END IF
+      END IF
 
       IF ( MYPE .EQ. 0 ) THEN
          WRITE( OUTDEV, '(/,6x,A,/)' )'--ATOL settings are in ppmV.--'
@@ -1123,6 +1136,67 @@
 
 
       END SUBROUTINE LOG_MESSAGE
+!.........................................................................
+      REAL( 8 ) FUNCTION SET_CPU_TIMING()
+
+! Function set cpu time
+      
+       IMPLICIT NONE
+
+#ifdef parallel
+      INCLUDE 'mpif.h'
+#endif
+      
+ ! local:      
+      REAL( 8 )  :: CPU_TIME_FINISH
+#ifndef parallel
+      REAL       :: REAL_TIME
+#endif
+       
+#ifdef parallel
+      SET_CPU_TIMING = MPI_WTIME()
+#else
+      CALL CPU_TIME( REAL_TIME )
+      SET_CPU_TIMING = REAL( REAL_TIME,8 )
+#endif
+          
+      END FUNCTION SET_CPU_TIMING
+!.........................................................................
+      SUBROUTINE TIMING_DELTA( CPU_TIME_START, CPU_TIME_DELTA )
+      
+         IMPLICIT NONE
+
+#ifdef parallel
+      INCLUDE 'mpif.h'
+#endif
+        REAL( 8 ), INTENT( INOUT ) :: CPU_TIME_START
+        REAL( 8 ), INTENT( INOUT ) :: CPU_TIME_DELTA
+      
+ ! local:      
+      REAL( 8 )  :: CPU_TIME_FINISH
+#ifndef parallel
+      REAL       :: REAL_TIME
+#endif
+
+!  This subroutine calculates and return elapsed time from CPU_TIME_START.
+!  It also resets CPU_TIME_START to current CPU time.
+
+#ifdef parallel
+      CPU_TIME_FINISH = MPI_WTIME()
+#else
+      CALL CPU_TIME( REAL_TIME )
+      CPU_TIME_FINISH = REAL( REAL_TIME,8 )
+#endif
+      CPU_TIME_DELTA = CPU_TIME_DELTA + (CPU_TIME_FINISH-CPU_TIME_START)
+
+#ifdef parallel      
+      CPU_TIME_START = MPI_WTIME()
+#else
+      CALL CPU_TIME( REAL_TIME )
+      CPU_TIME_START = REAL( REAL_TIME,8 )
+#endif
+      
+      END SUBROUTINE TIMING_DELTA
 
 !.........................................................................
       SUBROUTINE TIMING_SPLIT( CPU_TIME_START, IMSG, CPROCIN )
@@ -1137,13 +1211,15 @@
 #ifdef parallel
       INCLUDE 'mpif.h'
 #endif
-      REAL( 8 )        :: CPU_TIME_START
+      REAL( 8 ), INTENT( INOUT ) :: CPU_TIME_START
+      INTEGER,   INTENT( IN   )  :: IMSG   ! What kind of checkpoint this is
+      CHARACTER( * ), INTENT(IN), OPTIONAL :: CPROCIN
+      
+! local:      
       REAL( 8 )        :: CPU_TIME_FINISH
-      INTEGER          :: IMSG   ! What kind of checkpoint this is
                                  !  1 = 'PROCESS'
                                  !  2 = 'MASTER TIME STEP'
                                  !  3 = 'OUTPUT'
-      CHARACTER( * ), INTENT(IN), OPTIONAL :: CPROCIN
       CHARACTER( len=: ), ALLOCATABLE :: CPROC
       CHARACTER( 250 ) :: XMSG
 
@@ -1194,7 +1270,9 @@
           WRITE( LOGDEV, * )
 #ifndef twoway
           IF ( MYPE .EQ. 0 ) WRITE( OUTDEV, * )
+          
 #endif
+      CASE( 4 )
  
       END SELECT 
 
