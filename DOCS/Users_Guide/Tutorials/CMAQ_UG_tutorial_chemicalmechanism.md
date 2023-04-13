@@ -348,7 +348,7 @@ To view a summary of the changes you have made to your repo since your last comm
 #   (use "git checkout -- <file>..." to discard changes in working directory)
 #
 #       modified:   CCTM/src/MECHS/saprc07tic_ae7i_aq/AE_saprc07tic_ae7i_aq.nml
-#       modified:   CCTM/src/MECHS/saprc07tic_ae7i_aq/EmissCtrl_saprc07tic_ae7i_aq.nml
+#       modified:   CCTM/src/MECHS/saprc07tic_ae7i_aq/CMAQ_Control_DESID_saprc07tic_ae7i_aq.nml
 #       modified:   CCTM/src/MECHS/saprc07tic_ae7i_aq/GC_saprc07tic_ae7i_aq.nml
 #       modified:   CCTM/src/MECHS/saprc07tic_ae7i_aq/RXNS_DATA_MODULE.F90
 #       modified:   CCTM/src/MECHS/saprc07tic_ae7i_aq/RXNS_FUNC_MODULE.F90

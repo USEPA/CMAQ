@@ -13,7 +13,7 @@
 | BENZENE           | benzene                                                                      | 78.1                 | E                      |
 | BENZRO2           | counter species for aerosol from benzene+OH                                  | 127                  | L                      |
 | BUTADIENE13       | 1,3-butadiene                                                                | 54                   | E                      |
-| BZO2              | peroxy radical from beneze reactions with OH                                 | 159.1                | L                      |
+| BZO2              | peroxy radical from benzene reactions with OH                                 | 159.1                | L                      |
 | C2O3              | acetylperoxy radical                                                         | 75                   | E                      |
 | CAT1              | methyl catechols                                                             | 124.1                | L                      |
 | CL                | atomic chlorine                                                              | 35.5                 | E                      |
