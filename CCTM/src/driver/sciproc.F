@@ -314,7 +314,7 @@ C decouple CGRID for cloud and chemistry
 ! Print Summary Timing for Master time step      
       CALL TIMING_SPLIT ( CPU_TIME_START_MASTER, 2 )
 
-1002  FORMAT ( 2x, A15, ' completed... ', F6.1, ' seconds' )
+1002  FORMAT ( 2x, A15, ' completed... ', F12.3, ' seconds' )
 
       RETURN
       END

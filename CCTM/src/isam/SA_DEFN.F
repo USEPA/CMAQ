@@ -1092,7 +1092,8 @@ c----------------------------------------------------------
         ! Add Ozone if Requested
         IF ( INDEX( TAGCLASSES,'OZONE' ) .NE. 0 .OR. L_OZONE ) THEN
 
-          L_OZONE   = .TRUE.
+
+          L_OZONE   = .TRUE.      
           L_NO3     = .TRUE.
           L_VOC     = .TRUE.
           FOUND_SPECIES = .FALSE.

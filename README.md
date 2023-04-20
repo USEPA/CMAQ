@@ -1,17 +1,32 @@
-CMAQv5.4
-==========
+CMAQv5.4+
+===========
 
-US EPA Community Multiscale Air Quality Model (CMAQ) Website: https://www.epa.gov/cmaq
+Community Multiscale Air Quality Model US EPA CMAQ Website: (https://www.epa.gov/cmaq).
 
+The most recent publicly released CMAQ version may be cited using:
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.7218076.svg)](https://doi.org/10.5281/zenodo.7218076)
-
-CMAQ is an active open-source development project of the U.S. EPA's Office of Research and Development that consists of a suite of programs for conducting air quality model simulations.
-CMAQ is supported by the CMAS Center: http://www.cmascenter.org
 
 CMAQ combines current knowledge in atmospheric science and air quality modeling with multi-processor
 computing techniques in an open-source framework to deliver fast, technically sound estimates of ozone,
 particulates, toxics, and acid deposition.
 
+## CMAQ version 5.4+ Overview:
+CMAQv5.4+ is a continually evolving branch based on the most recent publicly released CMAQ version (5.4). It is intended to be used by researchers or other users who wish to adopt the most recent bugfixes or minor updates that improve model stability, efficiency, etc. CMAQv5.4+ has not been thoroughly evaluated or characterized so users must assume the risk of any unforeseen and undocumented impacts of code changes that have been incorporated since the most recent documented public release.
+
+### Proposing updates to a continually evolving branch
+Updates will be issued by the CMAQ development team or other users as Pull Requests to this branch. Please follow the default Pull Request template provided by the CMAQ team. Pull Requests will be reviewed by the CMAQ team and merged when and if they are deemed to contribute to the robustness of the model and improve predictions or performance.  
+
+### Examples of updates to a continually evolving branch  
+Potential updates include bugfixes that resolves runtime failures, segmentation faults, initialization issues, etc. Other updates could target algorithm inefficiencies that slow the model down. In these cases, it is expected that an improved algorithm would not change model results.  
+ 
+### Record of changes to CMAQv5.4+
+|      Tag        |   PR Number       |         PR Name          |   Merge Date     | Brief Description |
+| -------------- | ------------------ | ------------------------ | ---------------- | -----------------------|
+|[CMAQv5.4.0.1_7Dec2022](https://github.com/USEPA/CMAQ/releases/tag/CMAQv5.4.0.1_7Dec2022)|||||
+|  |[#183](https://github.com/USEPA/CMAQ/pull/183) | Enable DDM-3D and ISAM calculations and output for Potential Vorticity option| 2022-12-07 | Inadvertently, DDM-3D and ISAM code were not functioning with the CMAQ 5.4 release when the potential vorticity option was enabled during compilation. This pull request corrects both models.|
+|  |[#182](https://github.com/USEPA/CMAQ/pull/182) | Add precision to logfile process timing| 2022-12-02 | At high computational efficiency, the default precision provided for the timing metrics in the logfile was yielding 0.0. This PR adds 3 decimal places of precision to the timing output.|
+|  |  [#181](https://github.com/USEPA/CMAQ/pull/181)|Resolve time-stepping issue in ELMO when used within WRF-CMAQ and MPAS-CMAQ | 2022-12-02 | ELMO gives erroneous results in WRF-CMAQ and when using met inputs not aligned with hour time steps. This PR resolves the problem by adjusting the algorithm for identifying when the initial time step is hit for the simulation and synchronization cycles.|
+| | [#180](https://github.com/USEPA/CMAQ/pull/180)     | BDSNP fix  | 2022-12-02 | Online nitrogen deposition (NDEP) is erroneously enabled when using BDSNP in the released version of CMAQ 5.4. This PR corrects an IF statement that was meant to disable online nitrogen deposition. |
 
 ## CMAQ version 5.4 Overview:
 
