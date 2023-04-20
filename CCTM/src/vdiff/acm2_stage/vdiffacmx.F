@@ -689,7 +689,7 @@ C --------- END of HET HONO RX ----------
 
 C Pass selected N species to the BDSNP Soil NO emissions scheme
 
-                  IF ( BDSNP_MEGAN ) THEN
+                  IF ( MGN_ONLN_DEP ) THEN
 
                     IF(SPECLOG) then
                       IF( V .eq. N_SPC_DEPV)  THEN
