@@ -441,7 +441,7 @@ Sets if the CCTM will run in multi-processor or serial mode.
 <!-- END COMMENT -->
 
 -   `CTM_OCEAN_CHEM [default: True]`<a id=CTM_SS_AERO></a>   
-    Use Online Sea Spray Aerosol emissions and Halogen ozone chemistry. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#sea-spray) for further information.  
+    Use online sea spray aerosol emissions, halogen ozone chemistry, and enhanced ozone deposition over ocean waters. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#sea-spray) for further information.  
 -   `CTM_LTNG_NO [default: Y]`<a id=CTM_LING_NO></a>  
     Y/N setting to activate lightning NO emissions. Setting this variable to Y requires additional variables to define the configuration of the lightning NO emissions calculation. See the settings for `LTNGNO`, `LTNGPARAMS`, `NLDN_STRIKES`, and `LTNGDIAG` below. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#lightning-no) for further information.
 -   `KZMIN [default: Y]`<a id=KZMIN></a>  

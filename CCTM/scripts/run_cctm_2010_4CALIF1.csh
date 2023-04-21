@@ -148,7 +148,8 @@ setenv CTM_ADV_CFL 0.95      #> max CFL [ default: 0.75]
 #setenv RB_ATOL 1.0E-09      #> global ROS3 solver absolute tolerance [ default: 1.0E-07 ] 
 
 #> Science Options
-setenv CTM_OCEAN_CHEM Y      #> Flag for ocean halogen chemistry and sea spray aerosol emissions [ default: Y ]
+setenv CTM_OCEAN_CHEM Y      #> Flag for ocean halogen chemistry, sea spray aerosol emissions,
+                             #> and enhanced ozone deposition over ocean waters  [ default: Y ]
 setenv CTM_WB_DUST Y         #> use inline windblown dust emissions (only for use with PX) [ default: N ]
 setenv CTM_LTNG_NO N         #> turn on lightning NOx [ default: N ]
 setenv KZMIN Y               #> use Min Kz option in edyintb [ default: Y ], 
