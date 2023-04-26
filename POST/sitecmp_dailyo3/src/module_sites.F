@@ -19,7 +19,7 @@
       MODULE SITE_DATA
 
       TYPE SITE
-         character*9  ::  site_id
+         character*10 ::  site_id
          CHARACTER*25 ::  STATE
          CHARACTER*25 ::  COUNTY
          REAL         ::  LAT
