@@ -652,7 +652,7 @@ C  function to find the index number of a site
 
 
 C  function to return the site id from it's index number
-      Character*(10) Function getSiteId( siteNo ) result (siteId)
+      Character*(20) Function getSiteId( siteNo ) result (siteId)
 
       Integer siteNo
 
