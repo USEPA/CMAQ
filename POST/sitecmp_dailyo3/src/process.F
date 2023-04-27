@@ -433,7 +433,7 @@ C**********************************************************************
           
         Else
           If(siteno .le. 0 ) then
-           Write(*,'(''No site found for record = '',a)') record(1:12)
+           Write(*,'(''Site not found in SITE_FILE: '',a)') Trim(siteid)
           endif
          EndIf 
 
