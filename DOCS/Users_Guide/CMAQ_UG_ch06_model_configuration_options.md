@@ -24,6 +24,7 @@
 * [6.8 Dry Deposition/Air-surface exchange](#6.8_Dry_Dep/Air)
 	* [6.8.1 Dry Deposition - M3Dry](#6.8.1_Dry_Depm3dry)
 	* [6.8.2 Dry Deposition - STAGE](#6.8.2_Dry_STAGE)
+	* [6.8.3 Enhanced Ozone Deposition](#6.8.3_Enhanced_Ozone_Deposition)
 * [6.9 Emissions](#6.9_Emissions)
 	* [6.9.1 Emission Streams](#6.9.1_Emission_Streams)
 	* [6.9.2 Online Emission Streams](#6.9.2_Online_Emission)
@@ -280,7 +281,11 @@ setenv CTM_STAGE_S22 N
 ```
 CTM_STAGE_P22 is a tiled/land use specific [Pleim et al. (2022)](https://doi.org/10.1002/essoar.10510541.1) aerosol deposition option. CTM_STAGE_E20 is the tiled implementation of the [Emerson et al. (2020)](https://doi.org/10.1073/pnas.2014761117) aerosol deposition model. CTM_STAGE_S22 is the tiled version of [Shu et al. (2022)](https://doi.org/10.1016/j.atmosenv.2022.119343) aerosol deposition model (the same as the STAGE parameterization in CMAQ v5.3 STAGE). CTM_STAGE_E20 is the default option and will be used in model simulation unless one of the other options is specified. In v5.4, the user can modify land use and chemical species dependent variables used by STAGE by editing the [STAGE Control Namelist](https://github.com/kmfoley/CMAQ_Dev/blob/v5.4_documentation/DOCS/Users_Guide/CMAQ_UG_ch04_model_inputs.md#stagectrl_nml) to update model parameters without the need to recompile.
 
-<a id=6.9_Emissions></a>
+<a id=6.8.3_Enhanced_Ozone_Deposition></a>
+
+### 6.8.3 Enhanced Ozone Deposition
+
+The interaction of iodide in seawater with atmospheric ozone can enhance ozone deposition over seawater. CMAQ contains a scheme for enhanced ozone deposition over seawater ([Sarwar et al,. 2016](https://doi.org/10.1016/j.atmosenv.2016.06.072)). If the CTM_OCEAN_CHEM flag is set to N, then the model will not calculate the enhanced ozone deposition over seawater.  
 
 ## 6.9 Emissions
 
