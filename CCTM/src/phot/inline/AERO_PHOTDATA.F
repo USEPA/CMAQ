@@ -87,7 +87,7 @@ C Allocate and define arrays used to calculate aerosol optical properties
          USE CSQY_DATA, ONLY : NWL => NWL_REF, NUM_REFRACTIVE, REFRACTIVE_INDEX,
      &                         WAVELENGTH => EFFWL_REF
 
-         USE WRF_FAST_MIE
+         USE WRF_FAST_MIE, ONLY : FAST_MIEAER_MODAL
 
          IMPLICIT NONE
 
@@ -276,22 +276,23 @@ C ***    Create map for refactive index for each species
          write( logdev, 5001)(lambda_list( v ), v = 1, nwl)
 #endif 
 
-         IF ( MIE_CALC .AND. .NOT. CORE_SHELL ) THEN
-            CALL M3MESG('For optics of internally mixed aerosol, Mie calculation used')
+         CALL M3MESG('METHOD FOR AEROSOL OPTICAL PROPERTIES')
+         IF ( .NOT. CORE_SHELL ) THEN
             CALL M3MESG('Core-shell mixing model option is set to off')
-         ELSE IF ( MIE_CALC .AND. CORE_SHELL ) THEN
-            CALL M3MESG('For AERO mixing models, core-shell model is possible')
-            CALL M3MESG('For optics of aerosols with no core, Mie calculation used')
-         ELSE IF ( .NOT. MIE_CALC .AND. CORE_SHELL ) THEN
-            CALL M3MESG('For AERO mixing models, core-shell model is possible')
-            CALL M3MESG('For optics of aerosols with no core, FASTER_OPTICS used')
          ELSE
-            CALL M3MESG('Using internal mixing model for aerosol and FASTER_OPTICS')
+            CALL M3MESG('Core-shell mixing model used when aerosol mode has significant black carbon')
+            CALL M3MESG('When aerosol mode does not have significant black carbon')
          END IF
-
-         IF( FAST_MIE )THEN
-            CALL FAST_MIEAER_MODAL( MIE_PARAMETER,REFINDX,EXTAER,SCATAER,GAER,BSCOEF )
-         END IF
+         SELECT CASE ( VOLMIX_OPTICS )
+           CASE( 1 )
+             CALL M3MESG('     Volume mixing model and Tabular Mie Method used')
+             CALL FAST_MIEAER_MODAL( MIE_PARAMETER,REFINDX,EXTAER,SCATAER,GAER,BSCOEF )
+           CASE( 2 )
+             CALL M3MESG('     Volume mixing model and Mie calculation used')
+           CASE( 3 )
+             CALL M3MESG('     Volume mixing model and FAST_OPTICS used')
+             CALL M3MESG('     Approximations to Mie Theory based on size and refractive index ')
+         END SELECT
 
          FORALL ( SPC = 1:N_MODE ) VOL_MINS( SPC ) = PI6 * AEROMODE( SPC )%MIN_M3CONC
 
@@ -429,7 +430,7 @@ C-----------------------------------------------------------------------
 
       USE CMAQ_RRTMG_AERO_OPTICAL_UTIL_MODULE, ONLY : AERO_OPTICAL2, AERO_OPTICAL_CS
 
-      USE WRF_FAST_MIE
+      USE WRF_FAST_MIE, ONLY : AERO_OPTICS_TABULAR
 
       IMPLICIT NONE
 
@@ -773,17 +774,18 @@ C***  and contribution to the overall asymmetry factor
                ELSE IF ( VOL .GT. 0.0 ) THEN
 
 !*** FSB Internal Volume mixture case for optics 
-                  IF ( FAST_MIE ) THEN
+                SELECT CASE( VOLMIX_OPTICS )
+                  CASE( 1 )
                       CALL AERO_OPTICS_TABULAR( MODE,V,NR_SHELL, VOL, DGN_SHELL,
      &                                   XXLSG, BEXT_MODE, BSCAT_MODE, GBAR_MODE)
 
                       VFAC  = 1.0 ! correction factor
-                  ELSE IF ( MIE_CALC ) THEN
+                  CASE( 2 )
                      IF ( SUCCESS ) CALL AERO_OPTICAL2( LAMDA_UM, NR_SHELL, VOL, 
      &                                   DGN_SHELL, XXLSG,
      &                                   BEXT_MODE, BSCAT_MODE, GBAR_MODE, SUCCESS )
                      VFAC  = 1.0 ! correction factor 
-                  ELSE 
+                  CASE DEFAULT ! VOLMIX_OPTICS equals 3
 ! use old fast optics method
                      IF ( SUCCESS ) CALL FAST_OPTICS( AE_NR_SHELL( MODE, L, V ),  
      &                                       AE_NI_SHELL( MODE, L, V ), 
@@ -793,13 +795,12 @@ C***  and contribution to the overall asymmetry factor
 ! updated fast optics method; has problems from eposidically infinite values of aerosol optical depth
 !                    MIE_PARAMETER = PI * DGN_SHELL * INV_LAMBDA
 !     &                            * EXP( 3.0 * BLK_AE_LSG( MODE, L ) * BLK_AE_LSG( MODE, L ) )
-
 !                    IF( SUCCESS ) CALL FASTER_OPTICS( AE_NR_SHELL( MODE, L, V ),  
 !     &                                       AE_NI_SHELL( MODE, L, V ), 
 !     &                                       MIE_PARAMETER, BLK_AE_LSG( MODE, L ), 
 !     &                                       BEXT_MODE, BSCAT_MODE, GBAR_MODE )
 !                    VFAC  = VOL * INV_LAMBDA
-                  END IF
+                  END SELECT
                    
                   IF ( BEXT_MODE .LT. 0.0 .OR. BEXT_MODE .LT. BSCAT_MODE .OR. BSCAT_MODE .LT. 0.0 ) THEN
                      TROUBLE = .TRUE.
