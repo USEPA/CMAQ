@@ -57,7 +57,8 @@ C for interpx
       integer, allocatable, save :: map_sedi2cgrid( : )
       integer, save :: n_sedi_map   ! aero species, all modes
 #ifdef isam
-      integer, save :: n_isam_sedi_map  ! isam aero species, all modes
+      integer,              save :: n_isam_sedi_map  ! isam aero species, all modes
+      integer, allocatable, save :: isam_sedi_map( : )
 #endif
 
       contains
@@ -116,7 +117,6 @@ C Local Variables:
       integer, allocatable, save :: sedi_map( : )
       integer, allocatable, save :: conc_map( : )
 #ifdef isam
-      integer, allocatable, save :: isam_sedi_map( : )
       integer, allocatable, save :: map_sedi_to_isam( : )
       real,    allocatable, save :: isam_dtsvsed ( : ) ! isam settling vel. factor
 #endif
@@ -189,13 +189,14 @@ c conc_map - from cgrid to ae_trns species
          do v = 1, n_sedi_map
             write( logdev,* ) v, sedi_map( v ), conc_map( v )
          end do
-#if verbose_isam && isam
+#if defined(verbose_isam) && defined(isam)
          write(logdev,'("ISAM Aerosol Sedimentation Mapping")')
-         write( logdev,'( A4,1X,2(A16,1X),2(A8,1x) )' )"  N ","   Bulk AERO   ","    ISAM AERO   ",
-     &   "SEDI_MAP", "CONC_MAP"
+         write( logdev,'( A4,1X,2(A16,1X),3(A8,1x) )' )"  N ","   Bulk AERO   ","    ISAM AERO   ",
+     &   "SEDI_MAP", "CONC_MAP","MOLE_WGT"
          do v = 1, n_isam_sedi_map
-            write( logdev,'( I4,1X,2(A16,1X),2(I8,1x) )' ) v, ae_spc( isam_sedi_map( v ) ),
-     &      isam_spec( map_sedi_to_isam( v ),1 ), isam_sedi_map( v ), map_sedi_to_isam( v )
+            write( logdev,'( I4,1X,2(A16,1X),2(I8,1x),F8.2 )' ) v, ae_spc( isam_sedi_map( v ) ),
+     &      isam_spec( map_sedi_to_isam( v ),1 ), isam_sedi_map( v ), map_sedi_to_isam( v ),
+     &      CGRID_MW( MAP_SEDI2CGRID(isam_sedi_map( v )) )
          end do
 #endif
 
@@ -336,10 +337,9 @@ C subset all the layers and species in cgrid for this grid cell
 #ifdef isam
             do v = 1, n_isam_sedi_map
                s = isam_sedi_map( v )
-               isam_dtsvsed( l+1 ) = dtsvsed( s,l+1 )
                do itag = 1,ntag_sa
                   conc_isam( v,l,itag ) = conc_isam( v,l,itag )
-     &                                  + isam_dtsvsed( l+1 ) * conc_isam( v,l+1,itag ) * rrhodz( l )
+     &                                  + dtsvsed( s,l+1 ) * conc_isam( v,l+1,itag ) * rrhodz( l )
                end do
             end do
 #endif
@@ -354,11 +354,11 @@ C subset all the layers and species in cgrid for this grid cell
 #ifdef isam
                 do v = 1, n_isam_sedi_map
                    s = isam_sedi_map( v )
-                   isam_dtsvsed( 2:nlays-1 ) = dtsvsed( s,2:nlays-1 )
                    do itag = 1,ntag_sa
                       conc_isam( v,l,itag ) = conc_isam( v,l,itag )
-     &                                      + isam_dtsvsed( l+1 ) * conc_isam( v,l+1,itag ) * rrhodz( l )
-     &                                      - isam_dtsvsed( l )   * conc_isam( v,l,itag   ) * rrhodz( l )
+     &                                      + dtsvsed( s,l+1 ) * conc_isam( v,l+1,itag ) * rrhodz( l )
+     &                                      - dtsvsed( s,l )   * conc_isam( v,l,itag   ) * rrhodz( l )
+
                    end do
                 end do
 #endif
@@ -373,10 +373,9 @@ C subset all the layers and species in cgrid for this grid cell
 #ifdef isam
              do v = 1, n_isam_sedi_map
                 s = isam_sedi_map( v )
-                isam_dtsvsed( l ) = dtsvsed( s,l )
                 do itag = 1,ntag_sa
                    conc_isam( v,l,itag ) = conc_isam( v,l,itag )
-     &                                   - isam_dtsvsed( l ) * conc_isam( v,l,itag ) * rrhodz( l )
+     &                                   - dtsvsed( s,l ) * conc_isam( v,l,itag ) * rrhodz( l )
                 end do 
              end do
 #endif
@@ -409,7 +408,7 @@ C subset all the layers and species in cgrid for this grid cell
             end do
          end do
 #endif
-#if isam && verbose_isam
+#if defined(isam) && defined(verbose_isam)
          if( c .eq. 1 .and. r .eq. 1 )then
             write( logdev,'("ISAM Aerosol Sedimentation Results for col and row equal 1")')
             write( logdev,'( A4,1X,2(A16,1X),2(A12,1x) )' )"  N ","   Bulk AERO ","    ISAM AERO   ",
@@ -474,6 +473,7 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
          use cgrid_spcs          ! cgrd mechanism species
          use grid_conf        ! horizontal & vertical domain specifications
          use vdiff_map
+
 
          implicit none
 
