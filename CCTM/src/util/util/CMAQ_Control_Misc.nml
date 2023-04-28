@@ -19,9 +19,9 @@
 !    Definition of Fields:                                                     !
 !     ELMO_ACTIVATE - turn files on and off                                    !
 !        'INSTANT' - If .TRUE., then the instantaneous ELMO output file will   !
-!                    be output. If .FALSE. it will not.                       !
+!                    be output. If .FALSE. it will not.                        !
 !        'AVERAGE' - If .TRUE., then the average ELMO output file will         !
-!                    be output. If .FALSE. it will not.                       !
+!                    be output. If .FALSE. it will not.                        !
 !     ELMO_INST - set parameters for instantaneous output                      !
 !        'INST_LAYER_TOP' - highest CMAQ layer for instantaneous output        ! 
 !        'INST_LAYER_BOT' - lowest CMAQ layer for instantaneous output         !
@@ -67,7 +67,8 @@
 !                            (e.g. PM25_HBE, PM25_HNI, PM10_HDIESEL', etc      !
 !                                                                              !
 !     ELMO_AVRG - set parameters for average output                            !
-!        'AVRG_LAYER_TOP' - highest CMAQ layer for average output              ! 
+!        'AVRG_LAYER_TOP' - top CMAQ layer for average output. Enter '-1'      !
+!                           for the highest layer in the model domain          ! 
 !        'AVRG_LAYER_BOT' - lowest CMAQ layer for avergae output               !
 !        'AVRG_VARS_NML' - register of all variables requested by the user.    !
 !                          Options are equivalent to those for INST_VARS_NML   !
