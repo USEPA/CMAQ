@@ -93,8 +93,9 @@ C-----------------------------------------------------------------------
 #ifdef isam
       USE SA_DEFN, ONLY: ISAM, NSPC_SA, NTAG_SA, MAP_SAtoCGR, OTHRTAG, 
      &                   ISAM_SPEC, DEPSUM_SAVE, DS4_SAVE, REMOV_SAVE,
-     &                   ITAG
-
+     &                   ITAG,
+     &                   DEPSUM_AORGC_SAVE, DGLY1_SAVE, DMGLY1_SAVE,
+     &                   REMOV_AORGC_SAVE
 #endif
 
 #ifdef sens
@@ -213,6 +214,10 @@ C Latitude and longitude for zenith angle calculation: Golam Sarwar * July 1, 20
       REAL, ALLOCATABLE, SAVE :: SA_DS4    ( : )
       REAL                    :: SA_SUM
       REAL, ALLOCATABLE, SAVE :: SA_REMOV  ( :,: )
+      INTEGER, SAVE           :: S_GLY, S_MGLY, S_AORGCJ
+      INTEGER, SAVE           :: C_GLY, C_MGLY, C_AORGCJ
+      REAL, ALLOCATABLE, SAVE :: SA_DCSOA_GLY    ( : )
+      REAL, ALLOCATABLE, SAVE :: SA_DCSOA_MGLY   ( : )
 #endif
 
 C...........External Functions:
@@ -327,6 +332,17 @@ C...  the met timestep in hours
           XMSG = 'Failure allocating SA_POLC or SA_CEND'
           CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
         END IF
+
+        S_GLY    = INDEX1( 'GLY', NSPC_SA, ISAM_SPEC(:,OTHRTAG) )
+        S_MGLY   = INDEX1( 'MGLY', NSPC_SA, ISAM_SPEC(:,OTHRTAG) )
+        S_AORGCJ = INDEX1( 'AORGCJ', NSPC_SA, ISAM_SPEC(:,OTHRTAG) )
+
+        C_GLY    = INDEX1( 'GLY',   N_GC_SPC, GC_SPC )
+        C_MGLY   = INDEX1( 'MGLY', N_GC_SPC, GC_SPC )
+        C_AORGCJ = INDEX1( 'AORGCJ',  N_AE_SPC, AE_SPC ) + 1 + N_GC_SPC
+        ALLOCATE ( SA_DCSOA_GLY ( NTAG_SA ),
+     &             SA_DCSOA_MGLY ( NTAG_SA ),
+     &             STAT = ALLOCSTAT )
 #endif
 
 #ifdef sens
@@ -670,7 +686,6 @@ C...  mimic this for the ASO4GASJ tracking species
                   DO SPC = 1, NSPC_SA ! general case
                     CSPC = MAP_SAtoCGR(SPC)
                     DO ITAG = 1, NTAG_SA
-c                     IF ( POLC( CSPC ) .GT. 1.0E-30 .AND. CEND( CSPC ) .GT. 1.0E-09 ) THEN
                       IF ( POLC( CSPC ) .GT. 1.0E-30 ) THEN
                         SA_CEND( SPC, ITAG ) = SA_POLC( SPC,ITAG )
      &                                       * ( CEND( CSPC )
@@ -691,8 +706,6 @@ c                     IF ( POLC( CSPC ) .GT. 1.0E-30 .AND. CEND( CSPC ) .GT. 1.0
                       SA_DS4( ITAG ) = SA_POLC( S_SULF,ITAG )
                       SA_CEND( S_SULF,ITAG )  = 1.0E-30
                     END DO
-
-c                   DS4_SAVE = MAX( ( DS4_SAVE - SUM( SA_DS4 ) ), 0.0 ) !sulfate produced from SO2
 
                     DO ITAG = 1, NTAG_SA
                       SA_DS4( ITAG ) = SA_DS4( ITAG ) + DS4_SAVE ! total sulfate produced
@@ -715,6 +728,37 @@ c                   DS4_SAVE = MAX( ( DS4_SAVE - SUM( SA_DS4 ) ), 0.0 ) !sulfate
                       SA_CEND( S_SO4J,ITAG ) = MAX ( SA_CEND( S_SO4J,ITAG ), 1.0E-30 )
                     END DO
           
+                  END IF
+
+                  IF (S_AORGCJ .NE. 0 ) THEN ! AORGCJ case
+                    SA_DCSOA_GLY = 0.0
+                    SA_DCSOA_MGLY = 0.0
+                    DO ITAG = 1, NTAG_SA
+                      IF ( S_GLY .NE. 0 ) THEN
+                        SA_DCSOA_GLY( ITAG ) = DGLY1_SAVE
+     &                               * SA_POLC( S_GLY,ITAG )
+     &                               / MAX( 1.0E-25, SUM ( SA_POLC( S_GLY,: ) ) )
+                      END IF
+                      IF ( S_MGLY .NE. 0 ) THEN
+                        SA_DCSOA_MGLY( ITAG ) = DMGLY1_SAVE
+     &                               * SA_POLC( S_MGLY,ITAG )
+     &                               / MAX( 1.0E-25, SUM ( SA_POLC( S_MGLY,: ) ) )
+                      END IF
+                      SA_CEND( S_AORGCJ,ITAG ) = SA_POLC( S_AORGCJ,ITAG ) ! AORGCJ before removal
+     &                                         + SA_DCSOA_GLY( ITAG )
+     &                                         + SA_DCSOA_MGLY( ITAG )
+                    END DO
+                    SA_SUM = MAX( 1.0E-25, SUM ( SA_CEND( S_AORGCJ,: ) ) ) ! total apportioned AORGCJ before removal
+                    DO ITAG = 1, NTAG_SA ! final AORGCJ removal and concentration
+                      SA_REMOV( S_AORGCJ,ITAG ) = REMOV_AORGC_SAVE
+     &                                        * SA_CEND( S_AORGCJ,ITAG )
+     &                                        / SA_SUM
+                      SA_CEND( S_AORGCJ,ITAG ) = SA_CEND( S_AORGCJ,ITAG )
+     &                                       - DEPSUM_AORGC_SAVE
+     &                                       * SA_CEND( S_AORGCJ,ITAG )
+     &                                       / SA_SUM
+                      SA_CEND( S_AORGCJ,ITAG ) = MAX ( SA_CEND( S_AORGCJ,ITAG ), 1.0E-30 )
+                    END DO
                   END IF
 #endif
                 END IF
