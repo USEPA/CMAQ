@@ -22,6 +22,9 @@ Potential updates include bugfixes that resolves runtime failures, segmentation 
 ### Record of changes to CMAQv5.4+
 |      Tag        |   PR Number       |         PR Name          |   Merge Date     | Brief Description |
 | -------------- | ------------------ | ------------------------ | ---------------- | -----------------------|
+|[CMAQv5.4.0.2_4May2023](https://github.com/USEPA/CMAQ/releases/tag/CMAQv5.4.0.2_4May2023)|||||
+|  |[#189](https://github.com/USEPA/CMAQ/pull/189) | WRF-CMAQ Bugfix for UWIND and VWIND at Grid Cell Centers (mass points)  | 2023-05-04 | This fixes a bug that impacts all processes that use the u and v wind components at mass points in the WRF-CMAQ coupled model.|
+|  |[#186](https://github.com/USEPA/CMAQ/pull/186) | Isam update 21april2023 | 2023-04-28 |  This fixes several issues with CMAQ-ISAM as described in the PR documentation.|
 |[CMAQv5.4.0.1_7Dec2022](https://github.com/USEPA/CMAQ/releases/tag/CMAQv5.4.0.1_7Dec2022)|||||
 |  |[#183](https://github.com/USEPA/CMAQ/pull/183) | Enable DDM-3D and ISAM calculations and output for Potential Vorticity option| 2022-12-07 | Inadvertently, DDM-3D and ISAM code were not functioning with the CMAQ 5.4 release when the potential vorticity option was enabled during compilation. This pull request corrects both models.|
 |  |[#182](https://github.com/USEPA/CMAQ/pull/182) | Add precision to logfile process timing| 2022-12-02 | At high computational efficiency, the default precision provided for the timing metrics in the logfile was yielding 0.0. This PR adds 3 decimal places of precision to the timing output.|
