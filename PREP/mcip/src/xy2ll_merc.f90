@@ -26,6 +26,7 @@ SUBROUTINE xy2ll_merc (xx, yy, truelat1, lambda0, phi, lambda)
 !           by Frederick Pearson, II (1990), pp. 190-192.
 ! Revised:  18 Sep 2009  Original version.  (T. Otte)
 !           07 Sep 2011  Updated disclaimer.  (T. Otte)
+!           09 May 2023  Equation corrections based on PROJ documentation. (R. Espada)
 !-------------------------------------------------------------------------------
 
   USE const, ONLY: rearth
@@ -63,7 +64,7 @@ SUBROUTINE xy2ll_merc (xx, yy, truelat1, lambda0, phi, lambda)
 
   drearth = DBLE(rearth)
 
-  k0=DCOS(DBLE(truelat1))
+  k0=DCOS(DBLE(truelat1*deg2rad))
 !-------------------------------------------------------------------------------
 ! Set up geometric constants.
 !-------------------------------------------------------------------------------
@@ -75,7 +76,7 @@ SUBROUTINE xy2ll_merc (xx, yy, truelat1, lambda0, phi, lambda)
 ! Compute latitude (PHI).
 !-------------------------------------------------------------------------------
 
-  phirad  = ( 2.0d0 * DATAN ( DEXP(yyd/drearth/k0) ) ) - piover2
+  phirad  = piover2 - 2.0d0 * DATAN ( DEXP(- yyd/drearth/k0) ) 
   phi     = REAL( phirad * rad2deg )
 
 !-------------------------------------------------------------------------------

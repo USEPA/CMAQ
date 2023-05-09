@@ -27,6 +27,7 @@ SUBROUTINE ll2xy_merc (phi, lambda, truelat1, lambda0, xx, yy)
 ! Revised:  23 Sep 2009  Original version.  (T. Otte)
 !           12 Feb 2010  Removed unused variable FAC.  (T. Otte)
 !           07 Sep 2011  Updated disclaimer.  (T. Otte)
+!           09 May 2023  Equation corrections based on PROJ documentation. (R. Espada)
 !-------------------------------------------------------------------------------
 
   USE const, ONLY: rearth
