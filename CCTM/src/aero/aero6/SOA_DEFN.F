@@ -275,7 +275,12 @@ C-----------------------------------------------------------------------
      &                      n_nr_spc, nr_spc, n_nr_n2ae, nr_n2ae, nr_strt, nr_molwt, nr_n2ae_map,
      &                      n_ae_spc, ae_spc
       Use runtime_vars, only: logdev
+#ifndef mpas
       Use utilio_defn, only: index1, xstat3
+#else 
+      Use utilio_defn
+      use util_module, only : index1
+#endif
 
       Implicit None
 
@@ -582,6 +587,7 @@ C
 C SR  03/25/11 Replaced I/O API include files with UTILIO_DEFN
 C-----------------------------------------------------------------------
       Use RUNTIME_VARS, only : logdev
+
       Implicit None
 
       ! Arguments:

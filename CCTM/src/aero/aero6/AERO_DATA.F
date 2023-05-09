@@ -117,6 +117,7 @@ C extinction efficiency [m^2/g], see White, Atmos.Env., 294(10)(1990), pp 2673-1
 C and Malm, et al., JGR, 99(D1)(1994), pp 1347-1370
 C----------------------------------------------------------------------
       USE RUNTIME_VARS
+      Use utilio_defn
 #ifdef sens
       USE DDM3D_DEFN, ONLY : NP, NPMAX
       Use aero_ddm3d, ONLY : s_aerospc_conc, ae_ddm3d_ready,
@@ -856,8 +857,11 @@ C-----------------------------------------------------------------------
       Use rxns_data       ! chemical mechanism data
       Use cgrid_spcs      ! CGRID mechanism species
       Use aeromet_data
-      Use utilio_defn
       Use vdiff_data, only : n_spc_diff, diff_spc
+#ifdef mpas
+      Use util_module, only : index1
+#endif
+
       Implicit None
 
 C Local Variables:
@@ -1427,7 +1431,6 @@ C     4/2016: Updated for 2nd moment by H. Pye and B. Murphy
 C-----------------------------------------------------------------------
 
       Use aeromet_data, only : pi     ! fundamental constants, data type definitions, etc.
-      Use utilio_defn
 
       Implicit None
 
@@ -1519,8 +1522,6 @@ C  Revision History:
 C     First version was coded in April 2010 by Steve Howard with
 C     Prakash Bhave, Jeff Young, and Sergey Napelenok.
 C-----------------------------------------------------------------------
-
-      Use utilio_defn
 
       Implicit None
 
@@ -1722,10 +1723,12 @@ C-----------------------------------------------------------------------
       Use CGRID_SPCS, only : N_AE_TRNS, N_AE_SPC
       Use HGRD_DEFN, ONLY : NROWS, NCOLS
 
+#ifndef mpas
 #ifdef parallel
       USE SE_MODULES            ! stenex (using SE_COMM_MODULE, SE_UTIL_MODULE)
 #else
       USE NOOP_MODULES          ! stenex (using NOOP_COMM_MODULE, NOOP_UTIL_MODULE)
+#endif
 #endif
 
 
@@ -1798,9 +1801,11 @@ C Local variables:
       IF ( FIRST_TIME ) THEN
          FIRST_TIME = .FALSE.
 
+#ifndef mpas
          ! Retrieve Info about boundary cells
          CALL SUBST_HI_LO_BND_PE ( 'R', BNDY_PE_LOY, BNDY_PE_HIY )
          CALL SUBST_HI_LO_BND_PE ( 'C', BNDY_PE_LOX, BNDY_PE_HIX )
+#endif
          SFX = 0
          EFX = NCOLS + 1
          NFX = NCOLS + NROWS + 3
