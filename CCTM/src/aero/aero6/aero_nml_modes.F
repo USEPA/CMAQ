@@ -32,12 +32,7 @@ C-----------------------------------------------------------------------
           Use runtime_vars, only : log_message, log_subheading, logdev,
      &                             outdev, cmype
           Use cgrid_spcs_types
-#ifdef mpas
-          Use utilio_defn
-          Use util_module, only : index1
-#else
-          Use utilio_defn, only : index1, xstat2
-#endif
+          Use utilio_defn, only : index1, xstat2, m3exit, m3warn, m3mesg
 
           Implicit None
 

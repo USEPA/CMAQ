@@ -131,11 +131,7 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       USE SOA_DEFN, ONLY: EXTRACT_SOA, UPDATE_ORGVAPOR
       USE AEROMET_DATA, ONLY: AIRTEMP, AIRPRES, AIRQV, AIRDENS, AIRRH, 
      &                        H2OSATVP, H2OVP, MWWAT, MWAIR, SRFTEMP
-#ifndef mpas
-      USE UTILIO_DEFN, ONLY: XSTAT1, TIME2SEC, SEC2TIME
-#else
-      USE UTILIO_DEFN
-#endif
+      USE UTILIO_DEFN, ONLY: XSTAT1, TIME2SEC, SEC2TIME, index1, nextime
 #ifdef twoway
      &                       , INDEX1, XSTAT3
 #endif
@@ -155,10 +151,7 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       USE DDM3D_DEFN, ONLY : NP, NPMAX, SENGRID
       Use aero_ddm3d, ONLY : s_so4rate, s_precursor_conc, s_aerospc_conc, s_phg_rate
 #endif 
-#ifdef mpas
-      use mio_module
-      use util_module, only : index1, nextime, TIME2SEC, SEC2TIME
-#endif
+
 
       IMPLICIT NONE
 

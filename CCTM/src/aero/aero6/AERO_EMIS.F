@@ -171,12 +171,7 @@ C-----------------------------------------------------------------------
          USE PRECURSOR_DATA, ONLY: MAP_PRECURSOR
          USE RUNTIME_VARS, ONLY:  OCEAN_CHEM, WB_DUST
          USE SSEMIS, ONLY:    SSEMIS_INIT
-#ifndef mpas
          USE UTILIO_DEFN, ONLY: INDEX1, M3EXIT, LATGRD3, XSTAT1, XSTAT2
-#else
-         use util_module, only : index1
-         USE UTILIO_DEFN
-#endif
          USE VDIFF_MAP, ONLY : N_SPC_DIFF, DIFF_SPC
      
          INCLUDE SUBST_CONST     ! physical and mathematical constants
@@ -319,12 +314,7 @@ C-----------------------------------------------------------------------
        USE AERO_DATA, ONLY: DESID_AERO_REF, DESID_N_AERO_REF
        USE DESID_VARS, ONLY: DESID_SD_NML
        USE DESID_UTIL, ONLY: DESID_GET_RULE_STREAMS
-#ifndef mpas
-       USE UTILIO_DEFN, ONLY: INDEX1, XSTAT1
-#else
-       USE UTILIO_DEFN
-       use util_module, only : index1, upcase
-#endif
+       USE UTILIO_DEFN, ONLY: INDEX1, XSTAT1, M3EXIT, UPCASE
          
        IMPLICIT NONE
 
@@ -473,7 +463,6 @@ C
 C  Revision History:
 
 C   16 AUG 17 BMURPHY: Created
-C   01 MAY 23 DWONG: Fixed a bug by adding SAVE attribute for variable EMISM3
 C                      
 C ----------------------------------------------------------------------
 
@@ -483,9 +472,8 @@ C ----------------------------------------------------------------------
          USE DESID_VARS, ONLY: DESID_N_ISTR, IDUSTSRM, ISEASRM
          USE GRID_CONF, ONLY: NCOLS, NROWS
          USE SSEMIS, ONLY: SEA_FACTNUM, SEA_FACTSRF
-#ifdef mpas
+
          USE RUNTIME_VARS, ONLY: logdev
-#endif
 
          INTEGER, INTENT( IN ) :: ISRM, NL
          REAL, INTENT( INOUT ) :: VDEMIS ( :,:,:,: ) 
@@ -493,11 +481,7 @@ C ----------------------------------------------------------------------
          INTEGER :: N, S, IAERO, IM, ISD, ISTR   ! Looping Variables
          INTEGER :: ROW, COL, LAY, N_SD, INUM, ISRF
          REAL    :: FACNUM, FACSRF, MW_FAC
-#ifdef mpas
-         REAL, ALLOCATABLE, SAVE :: EMISM3( :,:,:,:,: ) 
-#else
          REAL, ALLOCATABLE       :: EMISM3( :,:,:,:,: ) 
-#endif
          REAL, ALLOCATABLE, SAVE :: GSFAC( :,:,: )
          REAL, ALLOCATABLE, SAVE :: DENS_FAC( : )
          REAL, PARAMETER   :: F6DPIM9 = 1.0E-9 * F6DPI  ! 1.0E-9 = Kg/ug
@@ -512,15 +496,10 @@ C *** Initialize Variables
              DO IAERO = 1,N_AEROSPC
                  DENS_FAC( IAERO ) = F6DPIM9 / AEROSPC( IAERO )%DENSITY
              END DO
-#ifdef mpas
-             ALLOCATE( EMISM3( DESID_LAYS,NCOLS,NROWS,N_MODE,N_SD ) )
-#endif
-         END IF
 
+         END IF
          N_SD   = DESID_STREAM_AERO( ISRM )%LEN 
-#ifndef mpas
          ALLOCATE( EMISM3( DESID_LAYS,NCOLS,NROWS,N_MODE,N_SD ) )
-#endif
          EMISM3 = 0.0
 
 C *** Calculate scaling factor for converting mass emissions into [ug/m3/s]

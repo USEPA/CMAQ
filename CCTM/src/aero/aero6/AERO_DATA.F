@@ -858,10 +858,6 @@ C-----------------------------------------------------------------------
       Use cgrid_spcs      ! CGRID mechanism species
       Use aeromet_data
       Use vdiff_data, only : n_spc_diff, diff_spc
-#ifdef mpas
-      Use util_module, only : index1
-#endif
-
       Implicit None
 
 C Local Variables:
