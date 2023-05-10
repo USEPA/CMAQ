@@ -290,7 +290,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
 
   #> Initial conditions
   if ($NEW_START == true || $NEW_START == TRUE ) then
-     setenv ICFILE ICON_v532_LISTOS4_cracmm_20180502.ncf
+     setenv ICFILE ICON_v532_LISTOS4_cracmm_20180502_NO_IEPOXP.ncf
      setenv INIT_MEDC_1 notused
      setenv INITIAL_RUN Y #related to restart soil information file
   else
@@ -354,7 +354,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
 
 
   #> Spatial Masks For Emissions Scaling
-  setenv CMAQ_MASKS ${LUpath}/ocean_file_LISTOS4.ncf #> horizontal grid-dependent surf zone file
+  setenv CMAQ_MASKS ${LUpath}/OCEAN_${MM}_L3m_MC_CHL_chlor_a_LISTOS4.nc #> horizontal grid-dependent surf zone file
 
   #> Determine Representative Emission Days
   set EMDATES = $INPDIR/emis/smk_dates/smk_merge_dates_${YYYYMM}.txt
