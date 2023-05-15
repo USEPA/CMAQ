@@ -234,7 +234,7 @@ setenv CTM_WVEL Y            #> save derived vertical velocity component to conc
 #> Input Directories and Filenames
 # =====================================================================
 
-set ICpath    = /work/MOD3DEV/bplace/icbc_cracmm_LISTOS_v2       #> initial conditions input directory 
+set ICpath    = ${INPDIR}/icbc/cracmm1              #> initial conditions input directory 
 set BCpath    = $ICpath                             #> boundary conditions input directory
 set EMISpath  = $INPDIR/emis/cracmmv0_21_20211001   #> emissions input directory
 set IN_PTpath = $EMISpath/cmaq_ready_point          #> point source emissions input directory
@@ -473,7 +473,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   endif
 
   #> In-line sea spray emissions configuration
-  setenv OCEAN_1 ${LUpath}/ocean_file_LISTOS4.ncf  #> horizontal grid-dependent surf zone file
+  setenv OCEAN_1 ${LUpath}/OCEAN_${MM}_L3m_MC_CHL_chlor_a_LISTOS4.nc  #> horizontal grid-dependent surf zone file
 
   #> Bidirectional ammonia configuration
   if ( $CTM_ABFLUX == 'Y' ) then
