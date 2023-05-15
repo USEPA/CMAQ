@@ -49,7 +49,7 @@ C-----------------------------------------------------------------------
       Integer, Parameter :: max_naer = n_aerolist + naddaer +  nadd_tx ! max number aero surrogates
 
       Integer, Save      :: naer        ! number of aerosol surrogate species for AQCHEM
-      Integer, Parameter :: nliqs = 63  ! number of liquid-phase species in AQCHEM
+      Integer, Parameter :: nliqs = 64  ! number of liquid-phase species in AQCHEM
       Integer, Parameter :: nmodes = 3  ! number of aerosol modes
       Integer, Parameter :: mxsrg = 70  ! maximum number of species for surrogate
 
@@ -310,6 +310,7 @@ C for sulfur tracking model
       Integer, Parameter :: ltracil = 61
       Integer, Parameter :: lpoail = 62
       Integer, Parameter :: lpriil = 63
+      Integer, Parameter :: lsoail = 64
 
       Integer    :: nsrggas( ngas )           ! # surrogates in CGRID for each gas
       Integer    :: lsrggas( ngas,mxsrg )
@@ -363,7 +364,7 @@ C Local Variables:
       Integer :: i
       Integer :: n
       Integer :: var
-      Logical :: new
+      Logical :: new, Jexist
       Integer :: lsrg( mxsrg )
       Integer :: n_cgrid2aq
       Integer :: ios
@@ -372,7 +373,7 @@ C Local Variable used to determine what optional TX to add to surrogates
       !Integer :: n_missing_tx
       !Integer :: n_which_txadd( nadd_tx )
       CHARACTER(16) :: NAMEI, NAMEJ
-      INTEGER LS2, LS1, LS3, LS4, ISRG2, ISRGI, IAERI      
+      INTEGER LS2, LS1, LS3, LS4, ISRG2, ISRGI, IAERI, SPCI      
 
       Logical, Save :: Firstcall = .True.
       
@@ -477,6 +478,7 @@ C...Initialize aerosol surrogate species from AERO_DATA table
 
          Do mode = 1, n_mode
             n = index1( aerospc( var )%name( mode ), n_ae_a2aq, aename )
+    
             If ( n .Gt. 0 ) Then
                ! Verify that surrogate is new
                new = .True. 
@@ -484,15 +486,41 @@ C...Initialize aerosol surrogate species from AERO_DATA table
                   If ( ae_a2aq( n ) .Eq. srgaer( i )%name( mode ) ) Then
                      new = .False.; Exit
                   End If
-               End Do
-               If ( new ) Then
-                  srgaer( spc )%name( mode ) = ae_a2aq( n )
-                  srgaer( spc )%density = aerospc( var )%density
-                  srgaer( spc )%molwt = aerospc_mw( var )
+                 
+		  Jexist = .false.            ! Does J mode exist for a new I mode species?	  
+		  If ( mode .eq. 1) then
+		     spci = spc
+		     ls1 = len_trim(ae_a2aq(n))
+		     ls2 = len_trim(srgaer(i)%name(2))
+		     namei = ae_a2aq(n)
+		     namei = namei(1:ls1-7)   ! Remove "_AITKEN" to get base name for I mode
+		     namej = srgaer(i)%name(2)
+		     namej = namej(1:ls2-6)   ! Remove "_ACCUM" to get base name for J mode
+		     If (trim(namei) .eq. trim(namej)) then
+		        spci = i
+		        Jexist = .true.; Exit
+		     End If
+		  End If	     
+		  
+               End Do	  
+	       
+	       If ( new ) Then
+	          
+		  If (Jexist) then 
+	             srgaer( spci )%name( mode ) = ae_a2aq( n )
+                     srgaer( spci )%density = aerospc( var )%density
+                     srgaer( spci )%molwt = aerospc_mw( var )
+		  Else
+                     srgaer( spc )%name( mode ) = ae_a2aq( n )
+                     srgaer( spc )%density = aerospc( var )%density
+                     srgaer( spc )%molwt = aerospc_mw( var ) 
+		  End If
+
                End If
            End If
          End Do   ! mode
       End Do   ! spc
+           
 
 C...Initialize aerosol moment surrogates (i.e.
 C   NUM_AITKEN, NUM_ACCUM, NUM_COARSE,
@@ -601,7 +629,7 @@ C...Create the pointers from CGRID to the aerosol species needed by AQCHEM
                      write( logdev,1113 ) cgrid2aq_name( lsrgaer( iaer,n,isrg ) ),
      &               cgrid2aq_map( lsrgaer( iaer,n,isrg ) ), srgaer( iaer )%name( n ),
      &               iaer, lsrgaer( iaer,n,isrg )
-#endif      		     
+#endif          		     
                   
                   End Do
                End If
@@ -674,6 +702,7 @@ C...For sulfur tracking model
       mapped = .True.
       
 C...Match ACC mode surrogate indices to their AKN mode counterparts
+
      
       DO IAER = 1, NAER
 	 DO ISRG = 1, NSRGAER( IAER,2 )		
@@ -710,7 +739,7 @@ C...Match ACC mode surrogate indices to their AKN mode counterparts
 			       END DO LOOP_SRGI	
 			       
 			
-			AKNSRG(IAER, ISRG) = ISRGI
+			AKNSRG(IAER, ISRG) = ISRGI		
 
 	 END DO
       END DO

@@ -48,7 +48,7 @@ C-----------------------------------------------------------------------
       Integer, Parameter :: max_naer = n_aerolist + naddaer +  nadd_tx ! max number aero surrogates
 
       Integer, Save      :: naer        ! number of aerosol surrogate species for AQCHEM
-      Integer, Parameter :: nliqs = 75  ! number of liquid-phase species in AQCHEM
+      Integer, Parameter :: nliqs = 76  ! number of liquid-phase species in AQCHEM
       Integer, Parameter :: nmodes = 3  ! number of aerosol modes
       Integer, Parameter :: mxsrg = 35  ! maximum number of species for surrogate
 
@@ -323,7 +323,8 @@ C mercuric compounds
       
       Integer, Parameter :: ltracil     = 73
       Integer, Parameter :: lpoail      = 74
-      Integer, Parameter :: lpriil      = 75    
+      Integer, Parameter :: lpriil      = 75
+      Integer, Parameter :: lsoail      = 76    
 
       Integer    :: nsrggas( ngas )           ! # surrogates in CGRID for each gas
       Integer    :: lsrggas( ngas,mxsrg )
@@ -377,7 +378,7 @@ C Local Variables:
       Integer :: i
       Integer :: n
       Integer :: var
-      Logical :: new
+      Logical :: new, Jexist
       Integer :: lsrg( mxsrg )
       Integer :: n_cgrid2aq
       Integer :: ios
@@ -386,7 +387,7 @@ C Local Variable used to determine what optional TX to add to surrogates
       Integer :: n_missing_tx
       Integer :: n_which_txadd( nadd_tx )
       CHARACTER(16) :: NAMEI, NAMEJ
-      INTEGER LS2, LS1, LS3, LS4, ISRG2, ISRGI, IAERI       
+      INTEGER LS2, LS1, LS3, LS4, ISRG2, ISRGI, IAERI, SPCI       
 
       Logical, Save :: Firstcall = .True.
       
@@ -499,11 +500,35 @@ C...Add missing optional aerosol surrogate species
                   If ( ae_a2aq( n ) .Eq. srgaer( i )%name( mode ) ) Then
                      new = .False.; Exit
                   End If
-               End Do
-               If ( new ) Then
-                  srgaer( spc )%name( mode ) = ae_a2aq( n )
-                  srgaer( spc )%density = aerospc( var )%density
-                  srgaer( spc )%molwt = aerospc_mw( var )
+		  Jexist = .false.            ! Does J mode exist for a new I mode species?	  
+		  If ( mode .eq. 1) then
+		     spci = spc
+		     ls1 = len_trim(ae_a2aq(n))
+		     ls2 = len_trim(srgaer(i)%name(2))
+		     namei = ae_a2aq(n)
+		     namei = namei(1:ls1-7)   ! Remove "_AITKEN" to get base name for I mode
+		     namej = srgaer(i)%name(2)
+		     namej = namej(1:ls2-6)   ! Remove "_ACCUM" to get base name for J mode
+		     If (trim(namei) .eq. trim(namej)) then
+		        spci = i
+		        Jexist = .true.; Exit
+		     End If
+		  End If	     
+		  
+               End Do	  
+	       
+	       If ( new ) Then
+	          
+		  If (Jexist) then 
+	             srgaer( spci )%name( mode ) = ae_a2aq( n )
+                     srgaer( spci )%density = aerospc( var )%density
+                     srgaer( spci )%molwt = aerospc_mw( var )
+		  Else
+                     srgaer( spc )%name( mode ) = ae_a2aq( n )
+                     srgaer( spc )%density = aerospc( var )%density
+                     srgaer( spc )%molwt = aerospc_mw( var ) 
+		  End If
+
                End If
            End If
 

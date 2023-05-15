@@ -415,7 +415,7 @@ C Local Variables:
       Integer :: i
       Integer :: n
       Integer :: var
-      Logical :: new
+      Logical :: new, Jexist
       Integer :: lsrg( mxsrg )
       Integer :: n_cgrid2aq
       Integer :: ios
@@ -424,7 +424,7 @@ C Local Variable used to determine what optional TX to add to surrogates
       !Integer :: n_missing_tx
       !Integer :: n_which_txadd( nadd_tx )
       CHARACTER(16) :: NAMEI, NAMEJ
-      INTEGER LS2, LS1, LS3, LS4, ISRG2, ISRGI, IAERI
+      INTEGER LS2, LS1, LS3, LS4, ISRG2, ISRGI, IAERI, SPCI
 
       Logical, Save :: Firstcall = .True.
       
@@ -545,11 +545,36 @@ C...Initialize aerosol surrogate species from AERO_DATA table
                   If ( ae_a2aq( n ) .Eq. srgaer( i )%name( mode ) ) Then
                      new = .False.; Exit
                   End If
-               End Do
-               If ( new ) Then
-                  srgaer( spc )%name( mode ) = ae_a2aq( n )
-                  srgaer( spc )%density = aerospc( var )%density
-                  srgaer( spc )%molwt = aerospc_mw( var )
+		  
+		  Jexist = .false.            ! Does J mode exist for a new I mode species?	  
+		  If ( mode .eq. 1) then
+		     spci = spc
+		     ls1 = len_trim(ae_a2aq(n))
+		     ls2 = len_trim(srgaer(i)%name(2))
+		     namei = ae_a2aq(n)
+		     namei = namei(1:ls1-7)   ! Remove "_AITKEN" to get base name for I mode
+		     namej = srgaer(i)%name(2)
+		     namej = namej(1:ls2-6)   ! Remove "_ACCUM" to get base name for J mode
+		     If (trim(namei) .eq. trim(namej)) then
+		        spci = i
+		        Jexist = .true.; Exit
+		     End If
+		  End If	     
+		  
+               End Do	  
+	       
+	       If ( new ) Then
+	          
+		  If (Jexist) then 
+	             srgaer( spci )%name( mode ) = ae_a2aq( n )
+                     srgaer( spci )%density = aerospc( var )%density
+                     srgaer( spci )%molwt = aerospc_mw( var )
+		  Else
+                     srgaer( spc )%name( mode ) = ae_a2aq( n )
+                     srgaer( spc )%density = aerospc( var )%density
+                     srgaer( spc )%molwt = aerospc_mw( var ) 
+		  End If
+
                End If
            End If
 
@@ -990,7 +1015,7 @@ C..Local Variables:
          aeconcmin( spc ) = aeromode_minNum( m ) * mwair * 1.0E-3
 
          spc = index1( aeromode( m )%srf_name, n_ae_spc, ae_spc )
-         aeconcmin( spc ) = aeromode_minM2( m ) * pi * mwair * 1.0E-3
+         aeconcmin( spc ) = aeromode_minM2( m ) * mwair * 1.0E-3
       End Do
 
       ! compute minimums for aerosol species

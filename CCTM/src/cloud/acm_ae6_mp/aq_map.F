@@ -140,7 +140,7 @@ C Local Variables (scalars):
       REAL( 8 ), ALLOCATABLE, SAVE  :: WSRGGAS( :, :)      ! weights for surrogate
       REAL( 8 ), ALLOCATABLE, SAVE  :: WSRGAER( :, :, :)   ! weights for surrogate
       
-      REAL( 8 ) :: FRACTR, FRACPOA, FRACPRI
+      REAL( 8 ) :: FRACTR, FRACPOA, FRACPRI, FRACSOA
       INTEGER IAERI
 
 C External Functions:
@@ -152,7 +152,7 @@ C External Functions:
         SUBROUTINE AQCHEM ( JDATE, JTIME, TEMP, PRES_PA, TAUCLD, PRCRATE,
      &                      WCAVG, WTAVG, AIRM, ALFA0, ALFA2, ALFA3, GAS,
      &                      AEROSOL, GASWDEP, AERWDEP, HPWDEP, BETASO4, DARK,
-     &                      FRACTR, FRACPOA, FRACPRI )
+     &                      FRACTR, FRACPOA, FRACPRI, FRACSOA )
            INTEGER,   INTENT( IN )  :: JDATE  ! current model date, coded YYYYDDD
            INTEGER,   INTENT( IN )  :: JTIME  ! current model time, coded HHMMSS
            REAL,      INTENT( IN )  :: AIRM      ! total air mass in cloudy layers (mol/m2)
@@ -174,6 +174,7 @@ C External Functions:
 	   REAL( 8 ), INTENT( OUT ) :: FRACTR    ! Fraction of J mode tracer scavenged from I mode
 	   REAL( 8 ), INTENT( OUT ) :: FRACPOA   ! Fraction of J mode POA scavenged from I mode
 	   REAL( 8 ), INTENT( OUT ) :: FRACPRI   ! Fraction of J mode PRI scavenged from I mode
+	   REAL( 8 ), INTENT( OUT ) :: FRACSOA   ! Fraction of J mode SOA scavenged from I mode
            LOGICAL,   INTENT( IN )    :: DARK           ! DARK = TRUE is night,  DARK = FALSE is day
         END SUBROUTINE AQCHEM
       END INTERFACE      
@@ -315,7 +316,7 @@ C...perform aqueous-phase chemistry calculations
       CALL AQCHEM ( JDATE, JTIME, TBARC, PBARC, TAUCLD, PRATE1,
      &              WCBAR, WTBAR, AIRM, ALFA0, ALFA2, ALFA3, GAS,
      &              AEROSOL, GASWDEP, AERWDEP, HPWDEP, BETASO4, DARK,
-     &              FRACTR, FRACPOA, FRACPRI )
+     &              FRACTR, FRACPOA, FRACPRI, FRACSOA )
 
 C...  compute the scavenging coefficient
       EALFA2T = EXP( -ALFA2 * TAUCLD )
@@ -408,6 +409,26 @@ C...Now, re-apportion mass back into cend/remov (cgrid-type) array
                        REMOV( PNTR ) = (1.d0 - FRACTR) * AERWDEP( IAER, IMODE ) * 
      &                               WSRGAER( IAER, IMODE, ISRG ) 
                     END IF
+		    
+                  ELSE IF ( IAER .EQ. LSOA ) THEN
+		    
+		    IF(AKNSRG(IAER,ISRG) .GT. 0) THEN
+		       CEND ( PNTR ) = (1.d0 - FRACSOA) * AEROSOL( IAER, IMODE ) * 
+     &                               WSRGAER( IAER, IMODE, ISRG ) + FRACSOA * 
+     &                               AEROSOL( IAER, IMODE ) * WSRGAER( IAERI, 1, AKNSRG(IAER,ISRG) )
+     
+                       REMOV( PNTR ) = (1.d0 - FRACSOA) * AERWDEP( IAER, IMODE ) * 
+     &                               WSRGAER( IAER, IMODE, ISRG ) + FRACSOA * 
+     &                               AERWDEP( IAER, IMODE ) * WSRGAER( IAERI, 1, AKNSRG(IAER,ISRG) )
+     
+                    ELSE
+		    
+		       CEND ( PNTR ) = (1.d0 - FRACSOA) * AEROSOL( IAER, IMODE ) * 
+     &                               WSRGAER( IAER, IMODE, ISRG ) 
+     
+                       REMOV( PNTR ) = (1.d0 - FRACSOA) * AERWDEP( IAER, IMODE ) * 
+     &                               WSRGAER( IAER, IMODE, ISRG ) 
+                    END IF   		    
                  END IF 		    
 	      END IF
 	      
