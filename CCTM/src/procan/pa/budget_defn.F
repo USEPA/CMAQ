@@ -148,7 +148,11 @@ C-----------------------------------------------------------------------
           ! Open Output tab-separated file and print header
           IF ( MYPE .EQ. 0 ) THEN
               IF ( BUDGET_FNAME .EQ. 'CCTM_BUDGET' ) THEN
-                 BDG_FILE = TRIM(OUTDIR) // "/CCTM_BUDGET_" // TRIM(APPL_NAME) // ".txt2"
+                 IF ( OUTDIR .EQ. '' ) THEN
+                   BDG_FILE = "CCTM_BUDGET_" // TRIM(APPL_NAME) // ".txt"
+                 ELSE
+                   BDG_FILE = TRIM(OUTDIR) // "/CCTM_BUDGET_" // TRIM(APPL_NAME) // ".txt"
+                 END IF
               ELSE
                  J = INDEX( BUDGET_FNAME, ".txt" ) 
                  IF ( J .NE. 0 ) THEN
