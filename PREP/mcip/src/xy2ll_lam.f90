@@ -92,8 +92,12 @@ SUBROUTINE xy2ll_lam (xx, yy, phi1, phi2, lambda0, phi0, phi, lambda)
   term1 = DTAN ( piover4 + phi1rad/2.0d0 )
   term2 = DTAN ( piover4 + phi2rad/2.0d0 )
 
-  sinphi0 = DLOG ( DCOS(phi1rad) / DCOS(phi2rad) )
-  sinphi0 = sinphi0 / DLOG (term2 / term1)
+  if ( ABS(phi1 - phi2) > 0.1) then
+        sinphi0 = DLOG ( DCOS(phi1rad) / DCOS(phi2rad) )
+        sinphi0 = sinphi0 / DLOG (term2 / term1)
+  else
+        sinphi0 = DSIN(phi1rad)
+  endif
 
   sinphi0inv = 1.0d0 / sinphi0
 
