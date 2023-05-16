@@ -30,7 +30,7 @@ c:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       Logical, Parameter, Private :: F = .false.
 
       LOGICAL, SAVE :: L_ELMO
-      INTEGER, SAVE :: ELMO_AVRG_STEP = 0
+      REAL,    SAVE :: ELMO_NSTEP = 0.
       INTEGER, SAVE :: NLAY_ELMO_INST
       INTEGER, SAVE :: NLAY_ELMO_AVRG
 

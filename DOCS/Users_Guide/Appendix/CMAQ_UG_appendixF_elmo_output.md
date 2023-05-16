@@ -27,7 +27,7 @@ CMAQv5.4 maintains the CONC and ACONC files - they are available for use identic
 If a user would like to continue using the COMBINE workflow to aggregate PM variables, they may output necessary variables like FPM25ACC to ELMO files and use those with CONC output. 
 Alternatively, a user may elect to rely exclusively on ELMO output files alone and set the CONC_SPCS and AVG_CONC_SPCS variables in the CMAQ runscript to just one variable (e.g. O3) to minimize their I/O time and storage space footprint. 
 
-<a id=FigureF-2></a> ![Figure F-2](../images/FigureF-2.png)  
+<a id=FigureF-2></a> ![Figure F-2](../images/FigureF-2b.png)  
 **Figure F-2. Schematic of data workflow in v5.3 and v5.4 with ELMO**
 
 There are several distinct advantages to using ELMO over post-processing CONC and ACONC output with COMBINE:
@@ -115,7 +115,7 @@ This and other ELMO keywords are defined in Table F-1.
 | **PM25TO10_SPECIES** | PM25TO10, PM25TO10_SO4, PM25TO10_NO3, PM25TO10_NH4, PM25TO10_CL, PM25TO10_NA |  
 | **OPTICAL**          | AOD_550, PM_EXT_550 |  
 | **FINE_ORG**         | PMF_POC, PMF_SOC, PMF_POA, PMF_SOA, PMF_NCOM, PMF_OMOC, PMF_OTOC, PMF_ASOA, PMF_BSOA, PMF_CLDGLY, PMF_ISOPSOA, PMF_IEPOXSOA, PMF_MTNSOA, PMF_MTSOA, PMF_OC, PMF_OA |   
-| **CUTOFF_FRACTIONS** | FPM01, FPM1, FFPM25, FPM10, FPM25TO10, FAMS |  
+| **CUTOFF_FRACTIONS** | FPM01, FPM1, FPM25, FPM10, FPM25TO10, FAMS |  
 | **TOXICS**           | PM25_HDIESEL, PM25_HBE, PM25_HCD, PM25_HCR3, PM25_HCR6, PM25_HCR, PM25_HPB, PM25_HMN, PM25_HNI, PM25_HAS, PM25_HG, PM10_HDIESEL, PM10_HBE, PM10_HCD, PM10_HCR3, PM10_HCR6, PM10_HCR, PM10_HPB, PM10_HMN, PM10_HNI, PM10_HAS, PM10_HG |  
 | **SIMPLE**           | PM25, PM10 |  
 | **AMS**              | PMAMS_CL, PMAMS_NH4, PMAMS_NO3, PMAMS_OA, PMAMS_SO4 |  
