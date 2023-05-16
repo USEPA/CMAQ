@@ -111,6 +111,8 @@ SUBROUTINE aqprep (grid, config_flags, t_phy_wrf, p_phy_wrf, rho_wrf,     &
 !           26 Jul 2022  (David Wong)
 !              -- Added a prefix tw_ for these variables: sc, ec, sr, er sc_d, ec_d,
 !                 sr_d, and er_d to avoid naming conflicts
+!           16 Mar 2023  (David Wong)
+!              -- fixed a bug in creating u and v components
 !===============================================================================
 
   USE module_domain                                ! WRF module
@@ -1206,11 +1208,6 @@ SUBROUTINE aqprep (grid, config_flags, t_phy_wrf, p_phy_wrf, rho_wrf,     &
 
         ENDDO
      ENDDO
-
-  metcro3d_data_wrf (:,:,1:nlays,15) = zf (:,:,1:nlays)
-
-  metcro3d_data_wrf (:,:,1:nlays,16) = zf (:,:,1:nlays)
-
   ENDDO
 
   metcro3d_data_wrf (:,:,1:nlays,14) = zf (:,:,1:nlays)

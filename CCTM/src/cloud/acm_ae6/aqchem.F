@@ -159,7 +159,9 @@ C-----------------------------------------------------------------------
       USE AERO_DATA
       USE UTILIO_DEFN
 #ifdef isam
-      USE SA_DEFN, ONLY: DEPSUM_SAVE, DS4_SAVE, REMOV_SAVE
+      USE SA_DEFN, ONLY: DEPSUM_SAVE, DS4_SAVE, REMOV_SAVE,
+     &                   DEPSUM_AORGC_SAVE, DGLY1_SAVE, DMGLY1_SAVE,
+     &                   REMOV_AORGC_SAVE
 #endif
 
 #ifdef sens
@@ -647,6 +649,11 @@ C...make initializations
       S_DGLY1  = 0.0D0
       S_DMGLY1 = 0.0D0
       S_DORGC  = 0.0D0
+#endif
+
+#ifdef isam
+      DGLY1_SAVE = 0.0D0
+      DMGLY1_SAVE = 0.0D0
 #endif
 
 C...compute fractional weights for several species
@@ -2168,6 +2175,12 @@ C...  and methylglyoxal is assumed
 
         DORGC = DORGC - ( 0.04D0 * ( DGLYDT + DMGLYDT ) * DTW( 0 ) )
 
+#ifdef isam
+        DGLY1_SAVE  = DGLY1_SAVE  - 0.04D0 * DGLYDT  * DTW( 0 )
+        DMGLY1_SAVE = DMGLY1_SAVE - 0.04D0 * DMGLYDT * DTW( 0 )
+#endif
+
+
 #ifdef sens
         DO NP = 1, NPMAX
 
@@ -2539,6 +2552,12 @@ C... store sulfate production/loss quantities
       DEPSUM_SAVE =        DEPSUM * XL * RECIPAP1
       DS4_SAVE    = -1.0 * DS4(0) * XL * RECIPAP1
       REMOV_SAVE  = WETDEP( LSO4ACCL ) + WETDEP( LHSO4ACCL )
+
+C... store AORGC production/loss quantities      
+      DEPSUM_AORGC_SAVE = WETDEP( LORGCL ) * XC1 * XL * RECIPAP1
+      DGLY1_SAVE        = DGLY1_SAVE  * XL * RECIPAP1
+      DMGLY1_SAVE       = DMGLY1_SAVE * XL * RECIPAP1
+      REMOV_AORGC_SAVE  = WETDEP( LORGCL )
 #endif
 
       RETURN
