@@ -114,8 +114,6 @@ c Cloud module variables
       REAL( 8 ), ALLOCATABLE, SAVE       :: S_GASWDEP( :,: )     ! gas phase wet dep array (mm mol/liter)
       REAL( 8 ), ALLOCATABLE, SAVE       :: S_AEROSOL( :,:,: )   ! aerosol conc (mol/mol)
       REAL( 8 ), ALLOCATABLE, SAVE       :: S_AERWDEP( :,:,: )   ! aerosol wet dep array (mm mol/liter)
-      REAL( 8 ), ALLOCATABLE, SAVE       :: S_WSRGGAS( :,:,: )   ! weights for surrogate
-      REAL( 8 ), ALLOCATABLE, SAVE       :: S_WSRGAER( :,:,:,: ) ! weights for surrogate
 
       REAL( 8 ), ALLOCATABLE, SAVE       :: S_CCR     ( :,:,: )
       REAL( 8 ), ALLOCATABLE, SAVE       :: S_CBELOW  ( :,: )

@@ -147,7 +147,8 @@ setenv CTM_ADV_CFL 0.95      #> max CFL [ default: 0.75]
 #setenv RB_ATOL 1.0E-09      #> global ROS3 solver absolute tolerance [ default: 1.0E-07 ] 
 
 #> Science Options
-setenv CTM_OCEAN_CHEM Y      #> Flag for ocean halogen chemistry and sea spray aerosol emissions [ default: Y ]
+setenv CTM_OCEAN_CHEM Y      #> Flag for ocean halogen chemistry, sea spray aerosol emissions,
+                             #> and enhanced ozone deposition over ocean waters  [ default: Y ]
 setenv CTM_WB_DUST Y         #> use inline windblown dust emissions (only for use with PX) [ default: N ]
 setenv CTM_LTNG_NO N         #> turn on lightning NOx [ default: N ]
 setenv KZMIN Y               #> use Min Kz option in edyintb [ default: Y ], 
@@ -509,35 +510,31 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
     endif
  endif
 
-#> CMAQ-DDM-3D
- setenv CTM_DDM3D N
- set NPMAX    = 1
+#> Decoupled Direct Method in 3D (DDM-3D) Options
+ setenv CTM_DDM3D N    # Sets up requisite script settings for DDM-3D (default is N/F)
+                       # Additionally requires for CCTM to be compiled for DDM-3D simulations
+
+ set NPMAX    = 1      # Number of sensitivity parameters defined in SEN_INPUT
  setenv SEN_INPUT ${WORKDIR}/sensinput.dat
 
- setenv DDM3D_HIGH N     # allow higher-order sensitivity parameters [ T | Y | F | N ] (default is N/F)
+ setenv DDM3D_HIGH N   # allow higher-order sensitivity parameters in SEN_INPUT [ T | Y | F | N ] (default is N/F)
 
  if ($NEW_START == true || $NEW_START == TRUE ) then
-    setenv DDM3D_RST N   # begins from sensitivities from a restart file [ T | Y | F | N ] (default is Y/T)
-    set S_ICpath =
+    setenv DDM3D_RST N # begins from sensitivities from a restart file [ T | Y | F | N ] (default is Y/T)
+    set S_ICpath =     # sensitivity fields are initialized to 0.0 on the first hour of the first day
     set S_ICfile =
  else
-    setenv DDM3D_RST Y
+    setenv DDM3D_RST Y # begins from sensitivities from a restart file [ T | Y | F | N ] (default is Y/T)  
     set S_ICpath = $OUTDIR
     set S_ICfile = CCTM_SENGRID_${RUNID}_${YESTERDAY}.nc
  endif
-
- setenv DDM3D_BCS F      # use sensitivity bc file for nested runs [ T | Y | F | N ] (default is N/F)
- set S_BCpath =
- set S_BCfile =
 
  setenv CTM_NPMAX       $NPMAX
  setenv CTM_SENS_1      "$OUTDIR/CCTM_SENGRID_${CTM_APPL}.nc -v"
  setenv A_SENS_1        "$OUTDIR/CCTM_ASENS_${CTM_APPL}.nc -v"
  setenv CTM_SWETDEP_1   "$OUTDIR/CCTM_SENWDEP_${CTM_APPL}.nc -v"
  setenv CTM_SDRYDEP_1   "$OUTDIR/CCTM_SENDDEP_${CTM_APPL}.nc -v"
- setenv CTM_NPMAX       $NPMAX
  setenv INIT_SENS_1     $S_ICpath/$S_ICfile
- setenv BNDY_SENS_1     $S_BCpath/$S_BCfile
  
 # =====================================================================
 #> Output Files

@@ -1,0 +1,17 @@
+---
+name: 'New Issue '
+about: Create a report to help us improve
+title: ''
+labels: ''
+assignees: ''
+
+---
+
+**Description**
+A clear and concise description of the issue or new feature suggestion.
+
+**Scope and Impact**
+A description of how other users might be impacted by this issue or utilize the new feature.
+
+**Additional context**
+Add any other context about the problem here.

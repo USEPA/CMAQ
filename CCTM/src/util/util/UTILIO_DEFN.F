@@ -43,6 +43,16 @@ C....................................................................
 
       MODULE UTILIO_DEFN
 
+#ifdef mpas
+        use prog_interrupt_module, M3WARN => prog_interrupt_warning,
+     &                             M3EXIT => prog_interrupt_exit,
+     &                             M3MESG => prog_interrupt_msg
+
+       INTEGER, PARAMETER :: XSTAT1 = 1
+       INTEGER, PARAMETER :: XSTAT2 = 1
+       INTEGER, PARAMETER :: XSTAT3 = 1
+#else
+
 #ifdef parallel
 
          USE M3UTILIO, EXCLUDE_INTERPB => INTERP3,
@@ -66,6 +76,8 @@ C....................................................................
 #endif
 #else
          USE M3UTILIO, INTERPB => INTERP3
+#endif
+
 #endif
 
       END MODULE UTILIO_DEFN

@@ -23,8 +23,8 @@ AE_SPECIES_DATA =
 'AMN'       , 54.90 ,F      ,T     ,F      ,''     ,'' ,-1     ,'' ,-1     ,'VMASS'     , 1  ,'PRI'        , 1  ,'MN'       ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!Manganese ions,L,DTXSID00167687,[Mn++]
 'ACORS'     ,100.00 ,F      ,F     ,T      ,''     ,'' ,-1     ,'' ,-1     ,'VMASS'     , 1  ,'PRI'        , 1  ,'ANTH'     ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!Coarse PM,L,NA,NA
 'ASOIL'     ,100.00 ,F      ,F     ,T      ,''     ,'' ,-1     ,'' ,-1     ,'VMASS'     , 1  ,'PRI'        , 1  ,'SOIL'     ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!Crustal species,L,NA,NA
-'NUM'       ,  1.00 ,T      ,T     ,T      ,''     ,'' ,-1     ,'' ,-1     ,'VNUM'      , 1  ,'NUM'        , 1  ,'NUM'      ,'Yes'   ,''      ,''      ,'Yes',!Aitken number,L,NA,NA
-'SRF'       ,  1.00 ,T      ,T     ,T      ,''     ,'' ,-1     ,'' ,-1     ,'VSRF'      , 1  ,'SRF'        , 1  ,'SRF'      ,'Yes'   ,''      ,''      ,'Yes',!Surface area of Aitken,L,NA,NA
+'NUM'       ,  1.00 ,T      ,T     ,T      ,''     ,'' ,-1     ,'' ,-1     ,'VNUM'      , 1  ,'NUM'        , 1  ,'NUM'      ,'Yes'   ,''      ,''      ,'Yes',!Number of particles,L,NA,NA
+'SRF'       ,  1.00 ,T      ,T     ,T      ,''     ,'' ,-1     ,'' ,-1     ,'VSRF'      , 1  ,'SRF'        , 1  ,'SRF'      ,'Yes'   ,''      ,''      ,'Yes',!Surface area of particles,L,NA,NA
 'AORGH2O'   , 18.00 ,F      ,T     ,F      ,''     ,'' ,-1     ,'' ,-1     ,'VMASS'     , 1  ,'H2O'        , 1  ,'H2O'      ,'Yes'   ,''      ,''      ,'Yes',!Water,E,DTXSID6026296,O
 'AH2O'      , 18.00 ,T      ,T     ,T      ,''     ,'' ,-1     ,'' ,-1     ,'VMASS'     , 1  ,'H2O'        , 1  ,'H2O'      ,'Yes'   ,''      ,''      ,'Yes',!Water,E,DTXSID6026296,O
 'AH3OP'     , 19.00 ,T      ,T     ,T      ,''     ,'' ,-1     ,'' ,-1     ,'VMASS'     , 1  ,''           ,-1  ,''         ,'Yes'   ,''      ,''      ,'Yes',!Hydronium ion,E,DTXSID20893597,[OH3+]

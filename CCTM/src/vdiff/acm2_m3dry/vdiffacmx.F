@@ -169,6 +169,7 @@ C ACM Local Variables
 
       REAL, ALLOCATABLE,SAVE :: SAFRAC( : )
       REAL, ALLOCATABLE,SAVE :: SA_NO2( : )      
+      REAL, ALLOCATABLE,SAVE :: SA_SUM( : )
 
       INTEGER, SAVE              :: ISAM_INDEX_NO2 = 0   ! ...Index locating NO2 in ISAM
       INTEGER, SAVE              :: ISAM_INDEX_NH3 = 0   ! ...Index locating NH3 in ISAM
@@ -289,6 +290,7 @@ C set auxiliary depv arrays
             CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
          END IF
          ALLOCATE (  SAFRAC ( N_SPCTAG ),
+     &               SA_SUM ( NSPC_SA ),
      &               ISAM_DEPV( N_SPCTAG ), STAT = ASTAT )
          IF ( ASTAT .NE. 0 ) THEN
             XMSG = 'Failure ISAM depv variables'
@@ -372,10 +374,10 @@ C set auxiliary depv arrays
               WRITE(LOGDEV,'(I2,3X,I4,8X,A16)')ITAG,JSPCTAG,'MISSING'
            END IF   
         END DO
-        WRITE(LOGDEV,* )'TAG_species, Default Partitioning Coeff.'
-        DO JSPCTAG = 1, N_SPCTAG
-          WRITE(LOGDEV,*)VNAM_SPCTAG( JSPCTAG ),' ,',SAFRAC( JSPCTAG )
-        END DO          
+c       WRITE(LOGDEV,* )'TAG_species, Default Partitioning Coeff.'
+c       DO JSPCTAG = 1, N_SPCTAG
+c         WRITE(LOGDEV,*)VNAM_SPCTAG( JSPCTAG ),' ,',SAFRAC( JSPCTAG )
+c       END DO          
         IF ( ABFLUX .AND. L_NH4 ) THEN
           ITAG = 0
           DO JSPCTAG = 1, N_SPCTAG
@@ -386,10 +388,10 @@ C set auxiliary depv arrays
             END IF
           END DO
 
-          DO ITAG = 1, NTAG_SA
-            JSPCTAG = INDEX_SA_NH3( ITAG )
-            SAFRAC( JSPCTAG ) = 0.0 ! to not double count the bi-di emmissions
-          END DO
+c         DO ITAG = 1, NTAG_SA
+c           JSPCTAG = INDEX_SA_NH3( ITAG )
+c           SAFRAC( JSPCTAG ) = 0.0 ! to not double count the bi-di emmissions
+c         END DO
         END IF
 #endif
 
@@ -544,6 +546,26 @@ C-----------------------------------------------------------------------
 #endif
 
 #ifdef isam
+         SA_SUM = 0.0
+         DO V = 1, NSPC_SA
+            DO ITAG = 1, NTAG_SA
+               SA_SUM( V ) = SA_SUM( V ) + ISAM( C,R,1,V,ITAG )
+            END DO
+            SA_SUM( V ) = MAX ( 1.0E-30, SA_SUM( V ) )
+         END DO
+
+         SAFRAC = 0.0
+         DO JSPCTAG = 1, N_SPCTAG
+            SAFRAC( JSPCTAG ) = SACONC( JSPCTAG,1 ) / SA_SUM ( S_SPCTAG( JSPCTAG )   ) 
+         END DO
+
+         IF ( ABFLUX .AND. L_NH4 ) THEN
+            DO ITAG = 1, NTAG_SA
+               JSPCTAG = INDEX_SA_NH3( ITAG )
+               SAFRAC( JSPCTAG ) = 0.0 ! to not double count the bi-di emmissions
+            END DO
+         END IF
+
          IF( L_NO3 .AND. SFC_HONO ) THEN
 ! compute the flux partitioning for HONO from NO2 surface reaction
             DO ITAG = 1, NTAG_SA
@@ -719,7 +741,7 @@ C --------- END of HET HONO RX ----------
 
 C Pass selected N species to the BDSNP Soil NO emissions scheme
 
-                  IF ( BDSNP_MEGAN ) THEN
+                  IF ( MGN_ONLN_DEP ) THEN
 
                     IF(SPECLOG) then
                       IF( V .eq. N_SPC_DEPV)  THEN
@@ -1027,6 +1049,12 @@ C Load into CGRID
 #endif
             END DO
             
+
+
+
+
+
+
             DO V = 1, N_SPC_DEPV
 
 C --------- HET HONO RX -----------------
