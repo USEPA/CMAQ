@@ -121,8 +121,15 @@
 
 !------------------------------------------------------------------------------!
 ! Emissions Scaling Family Definitions                                         !
-!    This component includes definitions for families of CMAQ chemical species,  !
-!    emission streams and region combinations.                                 !
+!    This component includes definitions for families of CMAQ chemical species !
+!    and emission variables.                                                   !
+!    Note that if you are defining a 'VOC' family to apply scaling to all VOC  !
+!    emissions, it is recommended that you define 'VOC' either in terms of the !
+!    emission variables (consistent with variable names on your emission file) !
+!    or with CMAQ species names. In order to use this family to scale VOC      !
+!    emissions via an emission rule, use the 'VOC' family for either the       !
+!    emission variable or CMAQ species, consistent with how you have defined it!
+!    here, and use the 'ALL' keyword for the other field.                      !
 !------------------------------------------------------------------------------!
 &Chemical_FamVars
  N_Chem_Fams = 0

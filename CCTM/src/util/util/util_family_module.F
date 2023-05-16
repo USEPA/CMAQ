@@ -481,15 +481,15 @@
                IF ( KDX .NE. 0 ) OUT_VEC( KDX ) = .TRUE.
              END DO
            ELSE
-             WRITE( LOGDEV, '(/,5A,/,A,/,A,/,A,/,A)' ),
-     &         'Species ',TRIM(SPECIES),':',TRIM(CHEM_NAME(ICHEM)),
-     &         ' was used in the Emissions',
-     &         ' Control Instructions Namelist but it is not a valid CMAQ ',
+             WRITE( LOGDEV, '(/,19A,A,1A,A,A,/,A,/,A,/,A,/,A,/,A,/,A)' ),
+     &         'Attention: Species ',TRIM(SPECIES),':',TRIM(CHEM_NAME(ICHEM)),
+     &         ' was used in the CMAQ Miscellaneous',
+     &         ' Control Instructions but it is not a valid CMAQ ',
      &         'transported species or family. Please add it to one of the ',
-     &         'input chemical namelists (ie. GC, AE, etc). Note that aerosol',
-     &         'Number and Surface Area Species are not valid for scaling.'
-             XMSG = 'Error in Emissions Map Processing.'
-             CALL M3EXIT( 'Map_Chem_Families', 0, 0, XMSG, XSTAT1 )
+     &         'input chemical namelists (ie. GC, AE, etc), if desired. If the ',
+     &         'variable is on an emission file and not a CMAQ species, no ',
+     &         'further action is required. Note that aerosol Number and Surface ',
+     &         'Area Species are not valid for scaling.'
             END IF
          END DO
       END IF 

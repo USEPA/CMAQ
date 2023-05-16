@@ -113,6 +113,10 @@
 !               construct.                                                     !   
 !      'Variable  - This label identifies the variable on the region file that !
 !        on File'   should be used to populate this particular region.         !
+!                                                                              !
+!      Note that the 'Region Label' and 'Variable on File' fields are case     !
+!      insensitive. It is required that region variable names on the file be   !
+!      capitalized. This requirement willl be relaxed in future CMAQ versions. !
 !------------------------------------------------------------------------------!
 &Desid_RegionDefVars
  Desid_Max_Reg    = 60           ! Maximum number of region definition rules

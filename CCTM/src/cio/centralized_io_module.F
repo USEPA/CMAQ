@@ -4910,7 +4910,7 @@ C   mminlu and num_land_cat are WRF global variables
       CHARACTER( 250)    :: XMSG
       REAL, ALLOCATABLE  :: REG_FACI(:,:), REG_FACJ(:,:)
       integer :: ldate, ltime, floc
-      CHARACTER( 16 ) :: lvname, lvname2
+      CHARACTER( 16 ) :: lvname
 
       ! Find the total number of regions to be processed
       N_REG_RULE = 0  ! The first region is the entire domain
@@ -5007,9 +5007,6 @@ C   mminlu and num_land_cat are WRF global variables
                         DO IVAR = 1,NVARS3D
                            lvname = vname3d( ivar )
 #endif
-                           lvname2 = lvname
-                           call upcase( lvname2 )
-
                            DESID_N_REG = DESID_N_REG + 1
                            IF ( DESID_N_REG .GT. DESID_MAX_REG ) THEN
                               XMSG = 'The number of DESID regions has exceeded '//
@@ -5017,8 +5014,8 @@ C   mminlu and num_land_cat are WRF global variables
      &                               'CMAQ_Control_DESID.nml file to a higher value.'
                               CALL M3EXIT( PNAME, SDATE3D, STIME3D, XMSG, XSTAT1 )
                            END IF
-                           DESID_REG( DESID_N_REG )%LABEL   = lvname2
-                           DESID_REG( DESID_N_REG )%VAR     = lvname2
+                           DESID_REG( DESID_N_REG )%LABEL   = lvname
+                           DESID_REG( DESID_N_REG )%VAR     = lvname
                            DESID_REG( DESID_N_REG )%FILE    = DESID_REG_READ( IREAD )%FILE
                            DESID_REG( DESID_N_REG )%FILENUM = DESID_REG_READ( IREAD )%FILENUM
 
@@ -5050,28 +5047,15 @@ C   mminlu and num_land_cat are WRF global variables
                      VNAME = DESID_REG_READ( IREAD )%VAR
 
 #ifdef mpas
-                     DO IVAR = 1, cio_emis_nvars(ifile)
-                        lvname = mio_file_data(floc)%var_name(ivar)
-                        lvname2 = lvname
-                        call upcase( lvname2 )
-                        if ( lvname2 .eq. VNAME ) 
-     &                       call mio_fread (FILENAMES(IFILE), lvname, DESID_REG_FAC(:,1,DESID_N_REG))
-                     END DO
+                     call mio_fread (FILENAMES(IFILE), vname, DESID_REG_FAC(:,1,DESID_N_REG))
 #else
-                     DO IVAR = 1,NVARS3D
-                        lvname = vname3d( ivar )
-                        lvname2 = lvname
-                        call upcase( lvname2 )
-                        IF ( lvname .eq. VNAME ) THEN
-                           IF ( .NOT. XTRACT3( FILENAMES( IFILE ), lvname, 1, 1,
-     &                                         STARTROW, ENDROW, STARTCOL, ENDCOL,
-     &                                         0, 0, DESID_REG_FAC( 1,1,DESID_N_REG ) ) ) Then
-                              XMSG = 'Could not read ' // VNAME //
-     &                               'from file ' // FILENAMES( IFILE ) 
-                              CALL M3WARN ( PNAME, 0, 0, XMSG )
-                           End If
-                        END IF
-                     END DO
+                     IF ( .NOT. XTRACT3( FILENAMES( IFILE ), vname, 1, 1,
+     &                                   STARTROW, ENDROW, STARTCOL, ENDCOL,
+     &                                   0, 0, DESID_REG_FAC( 1,1,DESID_N_REG ) ) ) Then
+                        XMSG = 'Could not read ' // VNAME //
+     &                         'from file ' // FILENAMES( IFILE ) 
+                        CALL M3WARN ( PNAME, 0, 0, XMSG )
+                     End If
 #endif
 
                   END IF
