@@ -16,8 +16,9 @@
 #> the repository. The user may also set their own preferred 
 #> directory.
 
- set CMAQ_HOME = /home/username/path
-
+ #set CMAQ_HOME = /home/username/path
+ set CMAQ_HOME = /home/bmurphy/cmaq_projects/elmo_benapy
+ 
 #> This section allows users to choose explicitly which tools
 #> to make available from the repo. For each selected tool,
 #> extract_scripts.csh will copy any build and run scripts

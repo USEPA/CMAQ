@@ -1361,6 +1361,18 @@
                N_VARS = 1
                CALL INIT_ELMO_COEFFS( IDG, N_VARS, 'ALL' )
                CALL SET_ELMO_COEFF_MAP( IDG, 1, 'GAS', 'BENAPY',8701.7 ) ! Scale by 1000*MW_BENAPY/MW_Air
+             
+             ! Map GAS_NH3 - Gas-Phase Benzo-a-Pyrene
+             CASE ( ID_GAS_NH3 ) 
+               N_VARS = 1
+               CALL INIT_ELMO_COEFFS( IDG, N_VARS, 'ALL' )
+               CALL SET_ELMO_COEFF_MAP( IDG, 1, 'GAS', 'NH3',587.0 ) ! Scale by 1000*MW_BENAPY/MW_Air
+ 
+             ! Map GAS_HNO3 - Gas-Phase Benzo-a-Pyrene
+             CASE ( ID_GAS_HNO3 ) 
+               N_VARS = 1
+               CALL INIT_ELMO_COEFFS( IDG, N_VARS, 'ALL' )
+               CALL SET_ELMO_COEFF_MAP( IDG, 1, 'GAS', 'HNO3',2175.6 ) ! Scale by 1000*MW_BENAPY/MW_Air
  
              
              !!!! AMS Parameters !!!!  
@@ -2041,6 +2053,7 @@
           IF ( ISPEC .GT. 0 ) THEN
              ! Found the Index. Save it!
              ELMO_COEFFS( IDG )%I_SPEC( IVAR ) = ISPEC
+             ELMO_COEFFS( IDG )%L_GAS( IVAR )  = .TRUE.
           ELSE
              ! Could not find the species in the CGRID Array. Print an
              ! Error and Warn
@@ -2152,7 +2165,9 @@
      &          'though it does appear to be an acceptable parameter on the ' //
      &          'ELMO_LIST. If you have added this parameter yourself, make ' //
      &          'sure it is being mapped to an actual calculation in CALC_ELMO ' //
-     &          'or MAP_ELMO_COEFFS.'
+     &          'or MAP_ELMO_COEFFS. If this parameter is needed for a different ' //
+     &          'aggregate parameter you requested, please add this parameter ' //
+     &          'explicitly as an ELMO requested output.'
          CALL LOG_MESSAGE( LOGDEV, XMSG )
          CALL M3EXIT( 'CALC_CONCOUT_AGG', 0, 0, '', XSTAT1 )
       END IF
