@@ -424,7 +424,13 @@ C...Now, re-apportion mass back into cend/remov (cgrid-type) array
               PNTR = CGRID2AQ_MAP( LSRGAER( IAER, IMODE, ISRG ) )
               CEND ( PNTR ) = AEROSOL( IAER, IMODE ) * WSRGAER( IAER, IMODE, ISRG )
               REMOV( PNTR ) = AERWDEP( IAER, IMODE ) * WSRGAER( IAER, IMODE, ISRG )
-	      
+#ifdef sens
+              DO NP = 1, NPMAX
+                S_CEND ( NP, PNTR ) = S_AEROSOL( NP, IAER, IMODE ) * WSRGAER( IAER, IMODE, ISRG )
+                S_REMOV( NP, PNTR ) = S_AERWDEP( NP, IAER, IMODE ) * WSRGAER( IAER, IMODE, ISRG )
+              ENDDO
+#endif
+
 	      IF( IMODE .EQ. 2 ) THEN
 			
                  IF( IAER .EQ. LPOA ) THEN
@@ -436,7 +442,17 @@ C...Now, re-apportion mass back into cend/remov (cgrid-type) array
                        REMOV( PNTR ) = (1.d0 - FRACPOA) * AERWDEP( IAER, IMODE ) * 
      &                               WSRGAER( IAER, IMODE, ISRG ) + FRACPOA * 
      &                               AERWDEP( IAER, IMODE ) * WSRGAER( IAERI, 1, AKNSRG(IAER,ISRG) )
+#ifdef sens
+                       DO NP = 1, NPMAX
+                         S_CEND ( NP, PNTR ) = (1.d0 - FRACPOA) * S_AEROSOL( NP, IAER, IMODE ) *
+     &                               WSRGAER( IAER, IMODE, ISRG ) + FRACPOA * 
+     &                               S_AEROSOL( NP, IAER, IMODE ) * WSRGAER( IAERI, 1, AKNSRG(IAER,ISRG) )
      
+                         S_REMOV( NP, PNTR ) = (1.d0 - FRACPOA) * S_AERWDEP( NP, IAER, IMODE ) * 
+     &                               WSRGAER( IAER, IMODE, ISRG ) + FRACPOA * 
+     &                               S_AERWDEP( NP, IAER, IMODE ) * WSRGAER( IAERI, 1, AKNSRG(IAER,ISRG) )
+                       ENDDO
+#endif
                     ELSE
 		    
 		       CEND ( PNTR ) = (1.d0 - FRACPOA) * AEROSOL( IAER, IMODE ) * 
@@ -444,6 +460,15 @@ C...Now, re-apportion mass back into cend/remov (cgrid-type) array
      
                        REMOV( PNTR ) = (1.d0 - FRACPOA) * AERWDEP( IAER, IMODE ) * 
      &                               WSRGAER( IAER, IMODE, ISRG ) 
+#ifdef sens
+                       DO NP = 1, NPMAX
+                         S_CEND ( NP, PNTR ) = (1.d0 - FRACPOA) * S_AEROSOL( NP, IAER, IMODE ) * 
+     &                               WSRGAER( IAER, IMODE, ISRG ) 
+     
+                         S_REMOV( NP, PNTR ) = (1.d0 - FRACPOA) * S_AERWDEP( NP, IAER, IMODE ) * 
+     &                               WSRGAER( IAER, IMODE, ISRG ) 
+                       END DO
+#endif
 		    END IF
 		    
                  ELSE IF ( IAER .EQ. LPRI ) THEN
@@ -455,7 +480,17 @@ C...Now, re-apportion mass back into cend/remov (cgrid-type) array
                        REMOV( PNTR ) = (1.d0 - FRACPRI) * AERWDEP( IAER, IMODE ) * 
      &                               WSRGAER( IAER, IMODE, ISRG ) + FRACPRI * 
      &                               AERWDEP( IAER, IMODE ) * WSRGAER( IAERI, 1, AKNSRG(IAER,ISRG) )
+#ifdef sens
+                       DO NP = 1, NPMAX
+                         S_CEND ( NP, PNTR ) = (1.d0 - FRACPRI) * S_AEROSOL( NP, IAER, IMODE ) * 
+     &                               WSRGAER( IAER, IMODE, ISRG ) + FRACPRI * 
+     &                               S_AEROSOL( NP, IAER, IMODE ) * WSRGAER( IAERI, 1, AKNSRG(IAER,ISRG) )
      
+                         S_REMOV( NP, PNTR ) = (1.d0 - FRACPRI) * S_AERWDEP( NP, IAER, IMODE ) * 
+     &                               WSRGAER( IAER, IMODE, ISRG ) + FRACPRI * 
+     &                               S_AERWDEP( NP, IAER, IMODE ) * WSRGAER( IAERI, 1, AKNSRG(IAER,ISRG) )
+                       END DO
+#endif
 		    ELSE
 		    
 		       CEND ( PNTR ) = (1.d0 - FRACPRI) * AEROSOL( IAER, IMODE ) * 
@@ -463,6 +498,15 @@ C...Now, re-apportion mass back into cend/remov (cgrid-type) array
      
                        REMOV( PNTR ) = (1.d0 - FRACPRI) * AERWDEP( IAER, IMODE ) * 
      &                               WSRGAER( IAER, IMODE, ISRG ) 
+#ifdef sens
+                       DO NP = 1, NPMAX
+                         S_CEND ( NP, PNTR ) = (1.d0 - FRACPRI) * S_AEROSOL( NP, IAER, IMODE ) * 
+     &                               WSRGAER( IAER, IMODE, ISRG ) 
+     
+                         S_REMOV( NP, PNTR ) = (1.d0 - FRACPRI) * S_AERWDEP( NP, IAER, IMODE ) * 
+     &                               WSRGAER( IAER, IMODE, ISRG )                        
+                       END DO
+#endif
 		    END IF
 		   
                  ELSE IF ( IAER .EQ. LTRACER_ACC ) THEN
@@ -475,7 +519,17 @@ C...Now, re-apportion mass back into cend/remov (cgrid-type) array
                        REMOV( PNTR ) = (1.d0 - FRACTR) * AERWDEP( IAER, IMODE ) * 
      &                               WSRGAER( IAER, IMODE, ISRG ) + FRACTR * 
      &                               AERWDEP( IAER, IMODE ) * WSRGAER( IAERI, 1, AKNSRG(IAER,ISRG) )
+#ifdef sens
+                       DO NP = 1, NPMAX
+                         S_CEND ( NP, PNTR ) = (1.d0 - FRACTR) * S_AEROSOL( NP, IAER, IMODE ) * 
+     &                               WSRGAER( IAER, IMODE, ISRG ) + FRACTR * 
+     &                               S_AEROSOL( NP,IAER, IMODE ) * WSRGAER( IAERI, 1, AKNSRG(IAER,ISRG) )
      
+                         S_REMOV( NP, PNTR ) = (1.d0 - FRACTR) * S_AERWDEP( NP, IAER, IMODE ) * 
+     &                               WSRGAER( IAER, IMODE, ISRG ) + FRACTR * 
+     &                               S_AERWDEP( NP, IAER, IMODE ) * WSRGAER( IAERI, 1, AKNSRG(IAER,ISRG) )
+                       END DO
+#endif     
                     ELSE
 		    
 		       CEND ( PNTR ) = (1.d0 - FRACTR) * AEROSOL( IAER, IMODE ) * 
@@ -483,6 +537,15 @@ C...Now, re-apportion mass back into cend/remov (cgrid-type) array
      
                        REMOV( PNTR ) = (1.d0 - FRACTR) * AERWDEP( IAER, IMODE ) * 
      &                               WSRGAER( IAER, IMODE, ISRG ) 
+#ifdef sens
+                       DO NP = 1, NPMAX
+                         S_CEND ( NP, PNTR ) = (1.d0 - FRACTR) * S_AEROSOL( NP, IAER, IMODE ) * 
+     &                               WSRGAER( IAER, IMODE, ISRG ) 
+     
+                         S_REMOV( NP,PNTR ) = (1.d0 - FRACTR) * S_AERWDEP( NP, IAER, IMODE ) * 
+     &                               WSRGAER( IAER, IMODE, ISRG ) 
+                       END DO
+#endif                       
                     END IF
 		    
 		 ELSE IF ( IAER .EQ. LSOA ) THEN
@@ -495,7 +558,17 @@ C...Now, re-apportion mass back into cend/remov (cgrid-type) array
                        REMOV( PNTR ) = (1.d0 - FRACSOA) * AERWDEP( IAER, IMODE ) * 
      &                               WSRGAER( IAER, IMODE, ISRG ) + FRACSOA * 
      &                               AERWDEP( IAER, IMODE ) * WSRGAER( IAERI, 1, AKNSRG(IAER,ISRG) )
+#ifdef sens
+                       DO NP = 1, NPMAX
+                         S_CEND ( NP,PNTR ) = (1.d0 - FRACSOA) * S_AEROSOL( NP, IAER, IMODE ) * 
+     &                               WSRGAER( IAER, IMODE, ISRG ) + FRACSOA * 
+     &                               S_AEROSOL( NP, IAER, IMODE ) * WSRGAER( IAERI, 1, AKNSRG(IAER,ISRG) )
      
+                         S_REMOV( NP,PNTR ) = (1.d0 - FRACSOA) * S_AERWDEP( NP, IAER, IMODE ) * 
+     &                               WSRGAER( IAER, IMODE, ISRG ) + FRACSOA * 
+     &                               S_AERWDEP( NP, IAER, IMODE ) * WSRGAER( IAERI, 1, AKNSRG(IAER,ISRG) )
+                       END DO     
+#endif                       
                     ELSE
 		    
 		       CEND ( PNTR ) = (1.d0 - FRACSOA) * AEROSOL( IAER, IMODE ) * 
@@ -503,17 +576,25 @@ C...Now, re-apportion mass back into cend/remov (cgrid-type) array
      
                        REMOV( PNTR ) = (1.d0 - FRACSOA) * AERWDEP( IAER, IMODE ) * 
      &                               WSRGAER( IAER, IMODE, ISRG ) 
-                    END IF   
-                 END IF 		    
-	      END IF	      
-		    
 #ifdef sens
-              DO NP = 1, NPMAX
-                S_CEND ( NP, PNTR ) = S_AEROSOL( NP, IAER, IMODE ) * WSRGAER( IAER, IMODE, ISRG )
-                S_REMOV( NP, PNTR ) = S_AERWDEP( NP, IAER, IMODE ) * WSRGAER( IAER, IMODE, ISRG )			 
-              ENDDO
+                       DO NP = 1, NPMAX
+                         S_CEND ( NP, PNTR ) = (1.d0 - FRACSOA) * S_AEROSOL( NP, IAER, IMODE ) * 
+     &                               WSRGAER( IAER, IMODE, ISRG ) 
+     
+                         S_REMOV( NP, PNTR ) = (1.d0 - FRACSOA) * S_AERWDEP( NP, IAER, IMODE ) * 
+     &                               WSRGAER( IAER, IMODE, ISRG ) 
+                       END DO
+#endif                       
+                    END IF   
+                 END IF    
+	      END IF      
 
-#endif
+cifdef sens
+c             DO NP = 1, NPMAX
+c               S_CEND ( NP, PNTR ) = S_AEROSOL( NP, IAER, IMODE ) * WSRGAER( IAER, IMODE, ISRG )
+c               S_REMOV( NP, PNTR ) = S_AERWDEP( NP, IAER, IMODE ) * WSRGAER( IAER, IMODE, ISRG )			 
+c             ENDDO
+cendif
             END DO
           END IF 
         END DO
