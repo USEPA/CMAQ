@@ -106,6 +106,16 @@
    'EVERYWHERE', 'ALL'         ,'XYOP'   ,'XYE'         ,'GAS'  ,1.  ,'UNIT','a',  
 
    ! Volatility resolved CRACMM gases (ignore in RACM2)
+   'EVERYWHERE', 'ALL'      ,'ROCN2ALK'   ,'VROCN2ALK'  ,'GAS'  ,1.  ,'UNIT','a',
+   'EVERYWHERE', 'ALL'      ,'ROCN1ALK'   ,'VROCN1ALK'  ,'GAS'  ,1.  ,'UNIT','a',
+   'EVERYWHERE', 'ALL'      ,'ROCP0ALK'   ,'VROCP0ALK'  ,'GAS'  ,1.  ,'UNIT','a',
+   'EVERYWHERE', 'ALL'      ,'ROCP1ALK'   ,'VROCP1ALK'  ,'GAS'  ,1.  ,'UNIT','a',
+   'EVERYWHERE', 'ALL'      ,'ROCP2ALK'   ,'VROCP2ALK'  ,'GAS'  ,1.  ,'UNIT','a',
+   'EVERYWHERE', 'ALL'      ,'ROCP3ALK'   ,'VROCP3ALK'  ,'GAS'  ,1.  ,'UNIT','a',
+   'EVERYWHERE', 'ALL'      ,'ROCP4ALK'   ,'VROCP4ALK'  ,'GAS'  ,1.  ,'UNIT','a',
+   'EVERYWHERE', 'ALL'      ,'ROCP5ALK'   ,'VROCP5ALK'  ,'GAS'  ,1.  ,'UNIT','a',
+   'EVERYWHERE', 'ALL'      ,'ROCP6ALK'   ,'VROCP6ALK'  ,'GAS'  ,1.  ,'UNIT','a',
+
    'EVERYWHERE', 'ALL'         ,'ROCN2'  ,'VROCN2ALK'   ,'GAS'  ,1   ,'UNIT','a',
    'EVERYWHERE', 'ALL'         ,'ROCN1'  ,'VROCN1ALK'   ,'GAS'  ,1   ,'UNIT','a',
    'EVERYWHERE', 'ALL'         ,'ROCP0'  ,'VROCP0ALK'   ,'GAS'  ,1   ,'UNIT','a',
