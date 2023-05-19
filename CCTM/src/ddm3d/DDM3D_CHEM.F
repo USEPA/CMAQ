@@ -430,7 +430,7 @@ C end edit
             END DO
 C Added by A.Digar
             DO S = 1, NUMB_MECH_SPC
-               PROD(S) = 0.0
+               PRD(S) = 0.0
                J = JOLD2NEW(S,1)
                SOLD(J) = SENGRID( C, R, L, NP, CGRID_INDEX(S) ) 
                IF (ABS(SOLD( J )) .LT. 1.e-25 ) SOLD(J) = 0.0
