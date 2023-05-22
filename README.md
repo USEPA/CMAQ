@@ -3,7 +3,7 @@ CMAQv5.4
 
 US EPA Community Multiscale Air Quality Model (CMAQ) Website: https://www.epa.gov/cmaq
 
-**Add DOI link**
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.7218076.svg)](https://doi.org/10.5281/zenodo.7218076)
 
 CMAQ is an active open-source development project of the U.S. EPA's Office of Research and Development that consists of a suite of programs for conducting air quality model simulations.
 CMAQ is supported by the CMAS Center: http://www.cmascenter.org
@@ -15,8 +15,8 @@ particulates, toxics, and acid deposition.
 
 ## CMAQ version 5.4 Overview:
 
-* [Frequently asked questions for upgrading to the latest CMAQ version](DOCS/Release_Notes/CMAQ_FAQ.md) **- Updated for v5.4 release.** 
-* [CMAQv5.4 Release Notes](https://github.com/USEPA/CMAQ/wiki/CMAQv5.4-Release-Notes) - Release Notes are available on the CMAQ GitHub wiki.
+* [Frequently asked questions for upgrading to the latest CMAQ version](https://github.com/USEPA/CMAQ/wiki/CMAQv5.4-Series-FAQ)) **- Updated for v5.4 release.** 
+* [CMAQv5.4 Release Notes](https://github.com/USEPA/CMAQ/wiki/CMAQ-Release-Notes) - Release Notes are available on the CMAQ GitHub wiki.
 * [Tutorials for setting up and running CMAQ](DOCS/Users_Guide/Tutorials/README.md) **- Tutorials on running CMAQ, CMAQ-ISAM, CMAQ-DDM, and WRF-CMAQ test cases.**
 
 ## New features in CMAQ version 5.4 include:
@@ -30,7 +30,7 @@ particulates, toxics, and acid deposition.
 * Expansion of emissions diagnostic output features
 * Introduction of a domain-wide Budget Reporting tool 
 * Online integration of common pollutant post-processing tasks (i.e. output total PM2.5 mass and more directly!)
-* Community Contribution: Incorporation of the Two-Dimensional Volatility Bases Set (2D-VBS) chemical mechanism
+* Community Contribution: Incorporation of the Two-Dimensional Volatility Bases Set [(2D-VBS)](https://github.com/USEPA/CMAQ/tree/2DVBS) chemical mechanism
 * **See the full list of CMAQv5.4 updates on our new CMAQ Wiki page. [**CMAQv5.4 Updates**](https://github.com/USEPA/CMAQ/wiki/CMAQv5.4-Series-FAQ#do-i-need-to-update-from-v533-to-v54)**
 
 ## Important update for WRF-CMAQ users
