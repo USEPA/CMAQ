@@ -381,5 +381,29 @@
           end do
 
         end subroutine get_envlist
+        function get_free_iounit() result ( iounit )
+
+! function finds and return a free IO unit
+! adapted from D.Wong's mio library
+
+           implicit none
+
+           integer :: iounit
+           logical :: found, opened
+
+           iounit = 99
+           found = .false.
+           do while ((.not. found) .and. (iounit .le. 100000))
+              inquire (unit=iounit, opened=opened)
+              if (.not. opened) then
+                 found = .true.
+              else
+                 iounit = iounit + 1
+              end if
+           end do
+
+
+        end function get_free_iounit
+
 
       end module get_env_module

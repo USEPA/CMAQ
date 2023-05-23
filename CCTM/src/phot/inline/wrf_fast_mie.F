@@ -9,11 +9,7 @@
        
        public fast_mieaer, aero_optics_tabular
        
-       integer, private :: logdev
-
-       real, allocatable, private :: sizeaer( : ),tauaer( :,: )
-       real, private :: l2,l3,l4,
-     &                  l5,l6,l7
+!      integer, private :: logdev
 
        real(8),parameter,private :: pii = 3.14159265358979323846264338327950288419716939937510582097494D0
        real,   parameter,private :: pi  = 3.14159265
@@ -123,8 +119,42 @@
          end Type
 
          Type(Optics_Tables_MP), Allocatable, Private :: Modal_Tables( : )
+         Type(Optics_Tables_MP), Allocatable, Private :: Modal_Tables_Check( : )
 
-         Logical, Private :: Create_Table = .True.
+         integer, parameter, private :: prefr=22,prefi=33
+         integer, parameter, private :: nsiz=200,nlog=30
+
+         integer, private :: nbin_a_maxd ! Max # of aerosol bins or modes
+         integer, private :: nspint      ! Num of spectral intervals across
+         integer, private :: ncoef=40    ! number of chebychev polynomials used
+         integer, private :: nrefr,nrefi ! number of step between max/min of real and imaginary refractive indices 
+
+!         integer, parameter :: nsizes(n_mode) = (/ 200,200,200 /)
+         integer, allocatable, private :: nsizes( : ) 
+         
+         real, private :: sback_bhmie ! aerosol backscattering coefficient
+         real, private :: refrmin     ! minimum of real part of refractive index
+         real, private :: refrmax     ! maximum of real part of refractive index
+         real, private :: refimin     ! minimum of imag part of refractive index
+         real, private :: refimax     ! maximum of imag part of refractive index
+         real, private :: drefr       ! increment in real part of refractive index
+         real, private :: drefi       ! increment in imag part of refractive index
+
+
+         real, private :: reciprocal_drefr  ! reciprocal of increment in real part of refractive index
+         real, private :: reciprocal_drefi  ! reciprocal of increment in  imag part of refractive index
+         real, private :: reciprocal_drefri ! reciprocal of real times imag increments of refractive index
+
+         real, allocatable, private :: wavmid( : ) ! wavelenghts, cm
+         real, allocatable, private :: refrtab(:) ! table of real refractive indices for aerosols
+         real, allocatable, private :: refitab(:) ! table of imag refractive indices for aerosols
+
+  
+  
+
+          logical :: BHMIE_SUCCESS      = .True.
+          Logical :: Create_Table       = .false.
+          Logical :: eflag_wrf_fast_mie = .false.
          
        contains
 
@@ -157,7 +187,8 @@
       real, intent(out)    :: gfac         ! assymetry factor for Mie and molecular scattering
 
       
-      
+       character( 32 ), parameter :: pname = 'aero_optics_tabular'
+       
 ! FSB define parameters 
        real, parameter :: integral_factor = three_pi_two * sqrtpi1 
 
@@ -256,7 +287,6 @@
 
       
 ! Integration code over modal volume distribution
-!      print*,'sqrt2, xlnsig = ',sqrt2, xlnsig
        aa1 = sqrt2 * lsigx
 ! This 1.0 / Sqrt( A ) in derivation of the integral where A = 1.0 / ( 2.0 * xlnsg**2 ) 
 
@@ -277,10 +307,6 @@
 
        
 ! fetch the effficiencies at zero point
-!      print*,'mie_tabular, alfaip, alfaim = ',alfaip, alfaim
-!        call fast_mieaer_modal( mode,iwave,dgv,crefin,qalfip_e,qalfip_s,gsalfp,bscoef )
-!      call fast_mieaer( iwave,dgv,crefin,qalfip_e,qalfip_s,gsalfp,bscoef )
-
 !       qalfip_e = 0.0
 !       qalfip_s = 0.0
 !       gsalfp   = 0.0
@@ -338,12 +364,13 @@
 
         subroutine fast_mieaer_modal( mie_parameter,refindx,extaer,scataer,gaer,bscoef )
 
-         USE UTILIO_DEFN
+!!!!!    USE UTILIO_DEFN
          USE AERO_DATA           ! aero variable data
          USE CSQY_DATA,  ONLY : NWL => NWL_REF, NUM_REFRACTIVE, REFRACTIVE_INDEX,
-     &                          WAVELENGTH => EFFWL_REF
+     &                          WAVELENGTH => EFFWL_REF, FIRST_DAY => NEW_START
 
-         USE bhmie_routine
+         use get_env_module
+!!!!!!   USE bhmie_routine
         
         IMPLICIT NONE
 !***********************************************************************
@@ -374,12 +401,11 @@
         real, intent(out) :: bscoef
 
 !local variables
-         real, allocatable ,save :: wavmid( : ) ! cm
-         real weighte, weights
-! various bookeeping variables
-         integer, save :: nbin_a_maxd ! Max # of aerosol bins or modes
-         integer, save :: nspint      ! Num of spectral intervals across
+         character( 32 ), parameter :: pname = 'fast_mieaer_modal'
          
+
+         real weighte, weights
+! various bookeeping variables         
          integer, parameter :: ltype = 1  ! total number of indicies of refraction
 
          real x
@@ -411,13 +437,13 @@
          integer, save :: isecfrm0 = 0
 
  
-         integer, save      :: numang=0,nmom=7,ipolzn=0,momdim=7
-         integer, save      :: nrefr,nrefi
-         integer, parameter :: prefr=22,prefi=33
-         integer, parameter :: nsizes(n_mode) = (/ 200,200,200 /)
-         integer, parameter :: nsiz=200,nlog=30,ncoef=40
-         integer            :: nsize
 
+
+         integer            :: ncoef_check   ! number of chebychev polynomials used
+         integer, save      :: numang=0,nmom=7,ipolzn=0,momdim=7
+         integer            :: nrefr_check,nrefi_check
+
+         integer            :: nsize
          integer            :: nr,ni
          
 !        
@@ -434,26 +460,10 @@
          logical, save :: first   = .true.
          logical, save :: TWO_STREAM = .true.
          logical       :: search
-!        
-!         real, allocatable :: p2( : ),p3( : )        
-!         real, allocatable :: p4( : ),p5( : )
-!         real, allocatable :: p6( : ),p7( : )
+         logical       :: exists
          
          real ::  aero_radius
 
-!--------------
-! Coefficients of Chebychev Polynomials
-         real cext(ncoef)
-         real casm(ncoef)
-         real cpmom2(ncoef)
-         real cscat(ncoef)                          ! JCB 2004/02/09
-!         real cpmom3(ncoef)
-!         real cpmom4(ncoef)
-!         real cpmom5(ncoef)
-!         real cpmom6(ncoef)
-!         real cpmom7(ncoef)
-         real cpsback2p(ncoef)                      ! JCB 2007/02/09  - backscatter
-         
          integer itab,jtab
          integer itabp,jtabp
          
@@ -471,6 +481,12 @@
          real, allocatable    :: qextr4( : ) !  extinction, real*4
          real, allocatable    :: rs( : )     ! surface mode radius (cm)
 
+         real, allocatable, save :: cext     (:)
+         real, allocatable, save :: casm     (:)
+         real, allocatable, save :: cpmom2   (:)
+         real, allocatable, save :: cscat    (:)                      
+         real, allocatable, save :: cpsback2p(:)                      
+
          real(8) :: thesize        ! 2 pi radpart / waveleng = size parameter
 
 !           specabs = absorption coeff / unit dry mass
@@ -485,7 +501,6 @@
          
          real, save :: xrmin,xrmax,xr
          real xrad      ! normalized aerosol radius
-         real ch(ncoef) ! chebychev polynomial
          
          real, save :: rhoh2o = 1.0     ! density of liquid water (g/cm3)
          
@@ -509,155 +524,176 @@
          real :: quadrature_factor
          real :: max_quad_point
 
-         real, save :: refrmin ! minimum of real part of refractive index
-         real, save :: refrmax ! maximum of real part of refractive index
-         real, save :: refimin ! minimum of imag part of refractive index
-         real, save :: refimax ! maximum of imag part of refractive index
-         real, save :: drefr   ! increment in real part of refractive index
-         real, save :: drefi   ! increment in imag part of refractive index
-         real, save :: refrtab(prefr) ! table of real refractive indices for aerosols
-         real, save :: refitab(prefi) ! table of imag refractive indices for aerosols
+         real :: reciprocal_drefr_check  ! reciprocal of increment in real part of refractive index
+         real :: reciprocal_drefi_check  ! reciprocal of increment in  imag part of refractive index
+         real :: reciprocal_drefri_check ! reciprocal of real times imag increments of refractive index
+         real :: refrmin_check ! minimum of real part of refractive index
+         real :: refrmax_check ! maximum of real part of refractive index
+         real :: refimin_check ! minimum of imag part of refractive index
+         real :: refimax_check ! maximum of imag part of refractive index
+         real :: drefr_check   ! increment in real part of refractive index
+         real :: drefi_check   ! increment in imag part of refractive index
 
-         real, save :: reciprocal_drefr  ! reciprocal of increment in real part of refractive index
-         real, save :: reciprocal_drefi  ! reciprocal of increment in  imag part of refractive index
-         real, save :: reciprocal_drefri ! reciprocal of real times imag increments of refractive index
-
+         real, allocatable :: refrtab_check(:) ! table of real refractive indices for aerosols
+         real, allocatable :: refitab_check(:) ! table of imag refractive indices for aerosols
+         real, allocatable, save :: ch(:)      ! values of chebychev polynomials
 
          real, parameter :: pie   = pi
          real, parameter :: third = 1.0/3.0
          
-         integer irams, jrams
+         integer :: irams, jrams
 ! diagnostic declarations
-         integer kcallmieaer2
-         integer ibin, imode
-         integer mie_unit
+         integer :: kcallmieaer2
+         integer :: ibin, imode
+         integer :: mie_unit
+         integer :: astat
          character(150) :: msg
+         CHARACTER(600) :: MIE_TABLE
 
-!      if(first)then
-       if( Create_Table )then
-           Create_Table = .False.
-           
+
+       if(first)then
+          
+          first = .false.
+          
 !       parameterize aerosol radiative properties in terms of
 !       relative humidity, surface mode wet radius, aerosol species,
 !       and wavelength
 !       first find min,max of real and imaginary parts of refractive index
-        crefw=cmplx(1.33,0.0)
-        refrmin=real(crefw)
-        refrmax=real(crefw)
+         crefw=cmplx(1.33,0.0)
+         refrmin=real(crefw)
+         refrmax=real(crefw)
 
 ! change Rahul's imaginary part of the refractive index from positive to negative
-        refimin=-imag(crefw)
-        refimax=-imag(crefw)
-        
-        do i=1,NUM_REFRACTIVE
-           refrmin = amin1( refrmin,MINVAL( REFRACTIVE_INDEX( i )%REAL_PART( :,: ) ))
-           refrmax = amax1( refrmax,MAXVAL( REFRACTIVE_INDEX( i )%REAL_PART( :,: ) ))
-           refimin = amin1( refimin,-MINVAL( REFRACTIVE_INDEX( i )%IMAG_PART( :,: ) ))  
-           refimax = amax1( refimax,-MAXVAL( REFRACTIVE_INDEX( i )%IMAG_PART( :,: ) ))
-        enddo
-        
-         rmax = amax1(rmax,60.0*MAXVAL(max_dg_wet))
-         rmin = amin1(rmin,40.0*MINVAL(min_dg_dry))
-         drefr=(refrmax-refrmin)
-         if(drefr.gt.1.e-4)then
-            nrefr=prefr
-            drefr=drefr/(nrefr-1)
-         else
-            nrefr=1
-         endif
-
-         drefi=(refimax-refimin)
-         if(drefi.gt.1.e-4)then
-            nrefi=prefi
-            drefi=drefi/(nrefi-1)
-         else
-            nrefi=1
-         endif
-
-         reciprocal_drefr  = 1.0/drefr
-         reciprocal_drefi  = 1.0/drefi
-         reciprocal_drefri = reciprocal_drefr * reciprocal_drefi
-
-         nbin_a_maxd = n_mode
-!
-         
-         bma=0.5*alog(rmax/rmin) ! JCB
-         bpa=0.5*alog(rmax*rmin) ! JCB
-         xrmin=alog(rmin)
-         xrmax=alog(rmax)
-
+         refimin=-imag(crefw)
+         refimax=-imag(crefw)
          nspint = nwl
          allocate( wavmid( nwl ) )
          wavmid(1:nwl) =  1.0e-7*wavelength(1:nwl)                         
 
+         allocate( nsizes( n_mode ) )
+         
+         nsizes = (/ 200,200,200 /)
+         
          allocate( Modal_Tables( N_MODE ) )
          
-          Select Case ( Quadrature_Points ) 
-            Case ( 1 )
-              max_quad_point = ghxi_1(1)
-            Case ( 3 )
-              max_quad_point = ghxi_3(3)
-            Case ( 5 )
-              max_quad_point = ghxi_5(5)
-            Case ( 9 )
-              max_quad_point = ghxi_9(9)
-          end select 
+         Select Case ( Quadrature_Points ) 
+         Case ( 1 )
+             max_quad_point = ghxi_1(1)
+         Case ( 3 )
+             max_quad_point = ghxi_3(3)
+         Case ( 5 )
+             max_quad_point = ghxi_5(5)
+         Case ( 9 )
+             max_quad_point = ghxi_9(9)
+         end select 
 
-          quadrature_factor = exp( sqrt2 * log( max_sigma_g ) * max_quad_point )
+         nbin_a_maxd = n_mode
          
-         do ns = 1,n_mode
-            Modal_Tables(ns)%nradii = nsizes(ns)
-            Modal_Tables(ns)%rmax = 60.0*max_dg_wet(ns)*quadrature_factor
-            Modal_Tables(ns)%rmax = 2.0*pi*Modal_Tables(ns)%rmax/minval( wavmid )
-            Modal_Tables(ns)%rmin = 40.0*min_dg_dry(ns)/quadrature_factor
-            Modal_Tables(ns)%rmin = 2.0*pi*Modal_Tables(ns)%rmin/maxval( wavmid )
-            Modal_Tables(ns)%bma=0.5*log(Modal_Tables(ns)%rmax/Modal_Tables(ns)%rmin)
-            Modal_Tables(ns)%bpa=0.5*log(Modal_Tables(ns)%rmax*Modal_Tables(ns)%rmin)
-            Modal_Tables(ns)%xrmin=log(Modal_Tables(ns)%rmin)
-            Modal_Tables(ns)%xrmax=log(Modal_Tables(ns)%rmax)
-            allocate( Modal_Tables(ns)%extp(ncoef,prefr,prefi),      
-     &                Modal_Tables(ns)%albp(ncoef,prefr,prefi),   
-     &                Modal_Tables(ns)%asmp(ncoef,prefr,prefi),   
-     &                Modal_Tables(ns)%ascat(ncoef,prefr,prefi),  
-!     &                Modal_Tables(ns)%pmom2(ncoef,prefr,prefi),  
-!     &                Modal_Tables(ns)%pmom3(ncoef,prefr,prefi),  
-!     &                Modal_Tables(ns)%pmom4(ncoef,prefr,prefi),  
-!     &                Modal_Tables(ns)%pmom5(ncoef,prefr,prefi),  
-!     &                Modal_Tables(ns)%pmom6(ncoef,prefr,prefi),  
-!     &                Modal_Tables(ns)%pmom7(ncoef,prefr,prefi),  
-     &                Modal_Tables(ns)%sback2p(ncoef,prefr,prefi) )
-         end do
+         call get_env( mie_table, 'MIE_TABLE', 'MIE_TABLE',logdev )
+         inquire( file=trim(mie_table),exist=exists)
+         if( .not. exists )then
+             Create_Table = .true.
+         else
+             Create_Table = .false.
+         endif
+
+         if( Create_Table )then
+
+            Create_table = .false.
+               
+            
+            do i=1,NUM_REFRACTIVE
+               refrmin = amin1( refrmin,MINVAL( REFRACTIVE_INDEX( i )%REAL_PART( :,: ) ))
+               refrmax = amax1( refrmax,MAXVAL( REFRACTIVE_INDEX( i )%REAL_PART( :,: ) ))
+               refimin = amin1( refimin,-MINVAL( REFRACTIVE_INDEX( i )%IMAG_PART( :,: ) ))  
+               refimax = amax1( refimax,-MAXVAL( REFRACTIVE_INDEX( i )%IMAG_PART( :,: ) ))
+            enddo
+            
+             rmax = amax1(rmax,60.0*MAXVAL(max_dg_wet))
+             rmin = amin1(rmin,40.0*MINVAL(min_dg_dry))
+             drefr=(refrmax-refrmin)
+             if(drefr.gt.1.e-4)then
+                nrefr=prefr
+                drefr=drefr/(nrefr-1)
+             else
+                nrefr=1
+             endif
+           
+             drefi=(refimax-refimin)
+             if(drefi.gt.1.e-4)then
+                nrefi=prefi
+                drefi=drefi/(nrefi-1)
+             else
+                nrefi=1
+             endif
+           
+           
+             reciprocal_drefr  = 1.0/drefr
+             reciprocal_drefi  = 1.0/drefi
+             reciprocal_drefri = reciprocal_drefr * reciprocal_drefi
+           
+!          
+             
+             bma=0.5*alog(rmax/rmin) ! JCB
+             bpa=0.5*alog(rmax*rmin) ! JCB
+             xrmin=alog(rmin)
+             xrmax=alog(rmax)
+           
+             quadrature_factor = exp( sqrt2 * log( max_sigma_g ) * max_quad_point )
+             
+             do ns = 1,n_mode
+                Modal_Tables(ns)%nradii = nsizes(ns)
+                Modal_Tables(ns)%rmax = 60.0*max_dg_wet(ns)*quadrature_factor
+! convert modal rmax into Mie Parameter            
+                Modal_Tables(ns)%rmax = 2.0*pi*Modal_Tables(ns)%rmax/minval( wavmid )
+                Modal_Tables(ns)%rmin = 40.0*min_dg_dry(ns)/quadrature_factor
+! convert modal rmin into Mie Parameter            
+                Modal_Tables(ns)%rmin = 2.0*pi*Modal_Tables(ns)%rmin/maxval( wavmid )
+                Modal_Tables(ns)%bma=0.5*log(Modal_Tables(ns)%rmax/Modal_Tables(ns)%rmin)
+                Modal_Tables(ns)%bpa=0.5*log(Modal_Tables(ns)%rmax*Modal_Tables(ns)%rmin)
+                Modal_Tables(ns)%xrmin=log(Modal_Tables(ns)%rmin)
+                Modal_Tables(ns)%xrmax=log(Modal_Tables(ns)%rmax)
+                allocate( Modal_Tables(ns)%extp(ncoef,prefr,prefi),      
+     &                    Modal_Tables(ns)%albp(ncoef,prefr,prefi),   
+     &                    Modal_Tables(ns)%asmp(ncoef,prefr,prefi),   
+     &                    Modal_Tables(ns)%ascat(ncoef,prefr,prefi),  
+     &                    Modal_Tables(ns)%sback2p(ncoef,prefr,prefi) )
+             end do
 
 ! check if coverage of mie parameter is continuous between Modal_Tables 
-         do ns = 2,n_mode
-         
-            if( Modal_Tables(ns-1)%rmax .ne. Modal_Tables(ns)%rmin )then
-                Modal_Tables(ns-1)%rmax  = Modal_Tables(ns)%rmin
-                Modal_Tables(ns-1)%xrmax = log(Modal_Tables(ns-1)%rmax)
-                Modal_Tables(ns-1)%bma=0.5*log(Modal_Tables(ns-1)%rmax/Modal_Tables(ns-1)%rmin)
-                Modal_Tables(ns-1)%bpa=0.5*log(Modal_Tables(ns-1)%rmax*Modal_Tables(ns-1)%rmin)
-            end if
-
-         end do
-
-         
-         nsize = MAXVAL( Modal_Tables(1:n_mode)%nradii )
-         
-         allocate( qext( nsize ),
-     &             qsca( nsize ),
-     &             gqsc( nsize ) )
-      
-         allocate( asymm( nsize ),
-     &              scat( nsize ),
-     &               sb2( nsize ),
-     &            qextr4( nsize ),
-     &                rs( nsize ) )          
-
-!          allocate( p2(nsize),p3(nsize),p4(nsize),p5(nsize) )
-!          allocate( p6(nsize),p7(nsize) )
+             do ns = 2,n_mode
+             
+                if( Modal_Tables(ns-1)%rmax .ne. Modal_Tables(ns)%rmin )then
+                    Modal_Tables(ns-1)%rmax  = Modal_Tables(ns)%rmin
+                    Modal_Tables(ns-1)%xrmax = log(Modal_Tables(ns-1)%rmax)
+                    Modal_Tables(ns-1)%bma=0.5*log(Modal_Tables(ns-1)%rmax/Modal_Tables(ns-1)%rmin)
+                    Modal_Tables(ns-1)%bpa=0.5*log(Modal_Tables(ns-1)%rmax*Modal_Tables(ns-1)%rmin)
+                end if
+            
+             end do
+            
+             
+             nsize = MAXVAL( Modal_Tables(1:n_mode)%nradii )
+             
+             allocate( qext( nsize ),
+     &                 qsca( nsize ),
+     &                 gqsc( nsize ) )
+            
+             allocate( asymm( nsize ),
+     &                  scat( nsize ),
+     &                   sb2( nsize ),
+     &                qextr4( nsize ),
+     &                    rs( nsize ) )          
+            
+!              allocate( p2(nsize),p3(nsize),p4(nsize),p5(nsize) )
+!              allocate( p6(nsize),p7(nsize) )
           
 !         calibrate parameterization with range of refractive indices 
 
+            allocate( refrtab(nrefr),
+     &                refitab(nrefi),
+     &                ch(ncoef))
+     
             do 120 ni=1,nrefi
               do 120 nr=1,nrefr                                        
 
@@ -666,7 +702,7 @@
                crefd=dcmplx(real(refrtab(nr),8),real(refitab(ni),8))
 !              mie calculations of optical efficiencies
                loop_modes: do imode = 1,n_mode
-                  nsize = nsizes( imode )
+                  nsize = Modal_Tables(imode)%nradii ! nsizes( imode )
                   do n=1,nsize
                   
                      xr=cos(pie*(real(n)-0.5)/real(nsize))
@@ -687,68 +723,247 @@
                      scat(n)  = qsca_bhmie*thesize_bhmie 
                      sback    = sback_bhmie
                      sb2(n)   = 4.0*sback*dconjg(sback)
-     &                            / (thesize_bhmie*thesize_bhmie) ! JCB 2007/02/01  
+     &                         / (thesize_bhmie*thesize_bhmie) ! JCB 2007/02/01  
                          
                   
                   enddo
   100             continue
 
                   call fitcurv(rs,qextr4,Modal_Tables(imode)%extp(:,nr,ni),ncoef,nsize)
-                  call fitcurv(rs,scat,Modal_Tables(imode)%ascat(:,nr,ni),ncoef,nsize) ! JCB 2004/02/07 - scattering efficiency
+                  call fitcurv(rs,scat,Modal_Tables(imode)%ascat(:,nr,ni),ncoef,nsize) 
                   call fitcurv(rs,asymm,Modal_Tables(imode)%asmp(:,nr,ni),ncoef,nsize)
-                  call fitcurv(rs,sb2,Modal_Tables(imode)%sback2p(:,nr,ni),ncoef,nsize) ! JCB 2007/02/01 - backscattering efficiency             
+                  call fitcurv(rs,sb2,Modal_Tables(imode)%sback2p(:,nr,ni),ncoef,nsize)           
                                        
                enddo loop_modes
 
 120         continue
 
-!        If( MYPE .eq. 0 )Then
+            If( MYPE .eq. 0 )Then
+            
+                mie_unit = get_free_iounit()
+                open(unit=mie_unit,file=trim(mie_table),form='FORMATTED',status='REPLACE',
+     &               iostat=astat)
+                if( astat .ne. 0 )then
+                  msg = 'Error creating Mie Lookup Table, ' // trim(mie_table)
+     &               // 'and new start is true.'  
+                  eflag_wrf_fast_mie = .True.
+                  return
+                endif
+                write(mie_unit,'(a)')'real and imaginary part of minimum refractive index '
+                write(mie_unit,'(a)')'imaginary part uses negative sign convention so reverse sign common value'
+                write(mie_unit,'(2(es12.4,1x))')refrtab(1),refitab(1)
+                write(mie_unit,'(a)')'real and imaginary part of maximum refractive index'
+                write(mie_unit,'(es12.4,1x,es12.4)')refrtab(nrefr),refitab(nrefi)
+                write(mie_unit,'(a)')'number real and imaginary parts'
+                write(mie_unit,'(i4,1x,i4)')nrefr,nrefi
+                write(mie_unit,'(a)')'minimum mie parameter for each mode '
+                write(mie_unit,'(3(es16.7,1x))')Modal_Tables(1:n_mode)%rmin
+                write(mie_unit,'(a)')'maximum mie parameters for each mode' 
+                write(mie_unit,'(3(es16.7,1x))'),Modal_Tables(1:n_mode)%rmax
+                write(mie_unit,'(a)')'number coefficients for chebyshev polynomials for each fit= '
+                write(mie_unit,'(i4)')ncoef
+                do ni=1,nrefi
+                   do nr=1,nrefr
+                     write(mie_unit,'(a,es12.4,a2,es12.4,a5)')'! refractive index = ( ',refrtab(nr),', ',refitab(ni),' ) '
+                     write(mie_unit,'(a)')'! ext, scat, asym, and backscat coefficients for chebyshev polynomials'
+                     do nc = 1,ncoef
+                        write(mie_unit,'(21(es16.7,1x))')
+     &                  (Modal_Tables(imode)%extp(nc,nr,ni),
+     &                   Modal_Tables(imode)%ascat(nc,nr,ni),
+     &                   Modal_Tables(imode)%asmp(nc,nr,ni),
+     &                   Modal_Tables(imode)%sback2p(nc,nr,ni),imode=1,n_mode)
+                     end do
+                   end do
+                 end do 
+                 close(mie_unit)
+            End If
+
+!! For checking mie_table
 !
-!       mie_unit = junit()
-!       open(unit=mie_unit,file='mie_table_coeffs_single.txt',form='FORMATTED',status='REPLACE')
-!       write(mie_unit,'(a,es12.4,a,es12.4,a)')'minimum refractive index = ( ',refrtab(1),', ',refitab(1),' ) '
-!       write(mie_unit,'(a,es12.4,a,es12.4,a)')'maximum refractive index = ( ',refrtab(nrefr),', ',refitab(nrefi),' ) '
-!       write(mie_unit,'(a,i4,a,i4,a)')'number real and imaginary parts = ( ',nrefr,', ',nrefi,' ) '
-!       write(mie_unit,'(a,3(es16.7,1x))')'minimum mie parameters = ',Modal_Tables(1:n_mode)%rmin
-!       write(mie_unit,'(a,3(es16.7,1x))')'maximum mie parameters = ',Modal_Tables(1:n_mode)%rmax
-!       write(mie_unit,'(a,i4)')'number coefficients for chebyshev polynomials = ',ncoef
-!       do ni=1,nrefi
-!          do nr=1,nrefr
-!            write(mie_unit,'(a,es12.4,a,es12.4,a)')'! refractive index = ( ',refrtab(nr),', ',refitab(ni),' ) '
-!            write(mie_unit,'(a)')'! ext, scat, asym, and backscat coefficients for chebyshev polynomials'
-!            do nc = 1,ncoef
-!               write(mie_unit,'(21(es16.7,1x))')
-!     &         (Modal_Tables(imode)%extp(nc,nr,ni),
-!     &          Modal_Tables(imode)%ascat(nc,nr,ni),
-!     &          Modal_Tables(imode)%asmp(nc,nr,ni),
-!     &          Modal_Tables(imode)%sback2p(nc,nr,ni),imode=1,n_mode)
+!         allocate( Modal_Tables_Check( N_MODE ) )
+!
+!           write(logdev,'(a)')'reading existing MIE_TABLE'
+!           write(6,'(a)')'reading existing MIE_TABLE'
+!           mie_unit = get_free_iounit()
+!           open(unit=mie_unit,file=trim(mie_table),form='FORMATTED',status='OLD')
+!           read(mie_unit,'(a)')msg
+!           read(mie_unit,'(a)')msg
+!           read(mie_unit,'(2(es12.4,1x))')refrmin_check,refimin_check
+!           read(mie_unit,'(a)')msg
+!           read(mie_unit,'(es12.4,1x,es12.4)')refrmax_check,refimax_check
+!           read(mie_unit,'(a)')msg
+!           read(mie_unit,'(i4,1x,i4)')nrefr_check,nrefi_check
+!           read(mie_unit,'(a)')msg
+!           read(mie_unit,'(3(es16.7,1x))')Modal_Tables_Check(1:n_mode)%rmin
+!           read(mie_unit,'(a)')msg
+!           read(mie_unit,'(3(es16.7,1x))'),Modal_Tables_Check(1:n_mode)%rmax
+!           read(mie_unit,'(a)')msg
+!           read(mie_unit,'(i4)')ncoef_check
+!
+!            do ns = 1,n_mode
+!               Modal_Tables_Check(ns)%nradii = nsizes(ns)
+!               Modal_Tables_Check(ns)%bma    =0.5*log(Modal_Tables_Check(ns)%rmax/Modal_Tables_Check(ns)%rmin)
+!               Modal_Tables_Check(ns)%bpa    =0.5*log(Modal_Tables_Check(ns)%rmax*Modal_Tables_Check(ns)%rmin)
+!               Modal_Tables_Check(ns)%xrmin  =log(Modal_Tables_Check(ns)%rmin)
+!               Modal_Tables_Check(ns)%xrmax  =log(Modal_Tables_Check(ns)%rmax)
+!               allocate( Modal_Tables_Check(ns)%extp   (ncoef,nrefr,nrefi),      
+!     &                   Modal_Tables_Check(ns)%albp   (ncoef,nrefr,nrefi),   
+!     &                   Modal_Tables_Check(ns)%asmp   (ncoef,nrefr,nrefi),   
+!     &                   Modal_Tables_Check(ns)%ascat  (ncoef,nrefr,nrefi),  
+!     &                   Modal_Tables_Check(ns)%sback2p(ncoef,nrefr,nrefi) )
 !            end do
-!          end do
-!        end do 
-!       close(mie_unit)
-!        End If
-
-
-         deallocate( qext,
-     &               qsca,
-     &               gqsc  )
-      
-         deallocate( asymm, 
-     &                scat, 
-     &                 sb2, 
-     &              qextr4, 
-     &                  rs  ) 
-     
-!        deallocate( p2,p3,p4,p5 )
-!        deallocate( p6,p7 )
-
-        if( first )then
+!
+!            allocate( refrtab_check(nrefr),
+!     &                refitab_check(nrefi))
+!     
+!            drefr_check=(refrmax_check-refrmin_check)
+!            if(drefr_check.gt.1.e-4)then
+!               drefr_check=drefr_check/(nrefr_check-1)
+!            endif
+!            
+!            drefi=(refimax-refimin)
+!            if(drefi.gt.1.e-4)then
+!               drefi_check=drefi_check/(nrefi_check-1)
+!            endif
+!            
+!            reciprocal_drefr_check  = 1.0/drefr_check
+!            reciprocal_drefi_check  = 1.0/drefi_check
+!            reciprocal_drefri_check = reciprocal_drefr_check * reciprocal_drefi_check
+!
+!            do ni=1,nrefi
+!              do nr=1,nrefr
+!                refrtab_check(nr)=refrmin_check+(nr-1)*drefr_check
+!                refitab_check(ni)=refimin_check+(ni-1)*drefi_check
+!                read(mie_unit,'(a)')msg
+!                read(mie_unit,'(a)')msg
+!                do nc = 1,ncoef
+!                   read(mie_unit,'(21(es16.7,1x))')
+!     &             (Modal_Tables_Check(imode)%extp(nc,nr,ni),
+!     &              Modal_Tables_Check(imode)%ascat(nc,nr,ni),
+!     &              Modal_Tables_Check(imode)%asmp(nc,nr,ni),
+!     &              Modal_Tables_Check(imode)%sback2p(nc,nr,ni),imode=1,n_mode)
+!                end do
+!               end do
+!            end do 
+!            close(mie_unit)
+!
+!            do ns = 1,n_mode
+!               Modal_Tables_Check(ns)%bma   = Modal_Tables_Check(ns)%bma  -Modal_Tables(ns)%bma  
+!               Modal_Tables_Check(ns)%bpa   = Modal_Tables_Check(ns)%bpa  -Modal_Tables(ns)%bpa  
+!               Modal_Tables_Check(ns)%xrmin = Modal_Tables_Check(ns)%xrmin-Modal_Tables(ns)%xrmin
+!               Modal_Tables_Check(ns)%xrmax = Modal_Tables_Check(ns)%xrmax-Modal_Tables(ns)%xrmax
+!               Modal_Tables_Check(ns)%extp    = Modal_Tables_Check(ns)%extp   -Modal_Tables(ns)%extp   
+!               Modal_Tables_Check(ns)%albp    = Modal_Tables_Check(ns)%albp   -Modal_Tables(ns)%albp   
+!               Modal_Tables_Check(ns)%asmp    = Modal_Tables_Check(ns)%asmp   -Modal_Tables(ns)%asmp   
+!               Modal_Tables_Check(ns)%ascat   = Modal_Tables_Check(ns)%ascat  -Modal_Tables(ns)%ascat  
+!               Modal_Tables_Check(ns)%sback2p = Modal_Tables_Check(ns)%sback2p-Modal_Tables(ns)%sback2p
+!            end do
+!
+!! end for checking
+            deallocate( qext,
+     &                  qsca,
+     &                  gqsc  )
           
-           first=.false.
-           Return
+            deallocate( asymm, 
+     &                   scat, 
+     &                    sb2, 
+     &                 qextr4, 
+     &                     rs  ) 
+     
+           
+        else ! read table from ascii file     
+
+!           write(logdev,'(i4,1x,a)')MyPe,'reading existing MIE_TABLE'
+!          write(6,'(i4,1x,a)')MyPe,'reading existing MIE_TABLE'
+           
+           inquire( file=trim(mie_table),exist=exists)
+           if( .not. exists )then
+              msg = 'Mie Lookup Table, ' // trim(mie_table)
+     &            // ' not found and new start is false.' 
+              eflag_wrf_fast_mie = .True.
+              return
+           end if
+           mie_unit = get_free_iounit()
+           open(unit=mie_unit,file=trim(mie_table),form='FORMATTED',status='OLD',
+     &          iostat=astat)
+           if( astat .ne. 0 )then
+              msg = 'Error reading Mie Lookup Table, ' // trim(mie_table) 
+              eflag_wrf_fast_mie = .True.
+              return
+           endif
+           read(mie_unit,'(a)')msg
+           read(mie_unit,'(a)')msg
+           read(mie_unit,'(2(es12.4,1x))')refrmin,refimin
+           read(mie_unit,'(a)')msg
+           read(mie_unit,'(es12.4,1x,es12.4)')refrmax,refimax
+           read(mie_unit,'(a)')msg
+           read(mie_unit,'(i4,1x,i4)')nrefr,nrefi
+           read(mie_unit,'(a)')msg
+           read(mie_unit,'(3(es16.7,1x))')Modal_Tables(1:n_mode)%rmin
+           read(mie_unit,'(a)')msg
+           read(mie_unit,'(3(es16.7,1x))'),Modal_Tables(1:n_mode)%rmax
+           read(mie_unit,'(a)')msg
+           read(mie_unit,'(i4)')ncoef
+
+            do ns = 1,n_mode
+               Modal_Tables(ns)%nradii = nsizes(ns)
+               Modal_Tables(ns)%bma=0.5*log(Modal_Tables(ns)%rmax/Modal_Tables(ns)%rmin)
+               Modal_Tables(ns)%bpa=0.5*log(Modal_Tables(ns)%rmax*Modal_Tables(ns)%rmin)
+               Modal_Tables(ns)%xrmin=log(Modal_Tables(ns)%rmin)
+               Modal_Tables(ns)%xrmax=log(Modal_Tables(ns)%rmax)
+               allocate( Modal_Tables(ns)%extp(ncoef,nrefr,nrefi),      
+     &                   Modal_Tables(ns)%albp(ncoef,nrefr,nrefi),   
+     &                   Modal_Tables(ns)%asmp(ncoef,nrefr,nrefi),   
+     &                   Modal_Tables(ns)%ascat(ncoef,nrefr,nrefi),  
+     &                   Modal_Tables(ns)%sback2p(ncoef,nrefr,nrefi) )
+            end do
+
+
+            drefr=(refrmax-refrmin)
+            if(drefr.gt.1.e-4)then
+               drefr=drefr/(nrefr-1)
+            endif
+            
+            drefi=(refimax-refimin)
+            if(drefi.gt.1.e-4)then
+               drefi=drefi/(nrefi-1)
+            endif
+            
+            reciprocal_drefr  = 1.0/drefr
+            reciprocal_drefi  = 1.0/drefi
+            reciprocal_drefri = reciprocal_drefr * reciprocal_drefi
+
+            allocate( refrtab(nrefr),
+     &                refitab(nrefi),
+     &                ch(ncoef))
+
+            do ni=1,nrefi
+              do nr=1,nrefr
+                refrtab(nr)=refrmin+(nr-1)*drefr
+                refitab(ni)=refimin+(ni-1)*drefi
+                read(mie_unit,'(a)')msg
+                read(mie_unit,'(a)')msg
+                do nc = 1,ncoef
+                   read(mie_unit,'(21(es16.7,1x))')
+     &             (Modal_Tables(imode)%extp(nc,nr,ni),
+     &              Modal_Tables(imode)%ascat(nc,nr,ni),
+     &              Modal_Tables(imode)%asmp(nc,nr,ni),
+     &              Modal_Tables(imode)%sback2p(nc,nr,ni),imode=1,n_mode)
+                end do
+               end do
+            end do 
+            close(mie_unit)
            
         end if
-         
+
+        allocate( cext     (ncoef), 
+     &            casm     (ncoef),
+     &            cpmom2   (ncoef),
+     &            cscat    (ncoef),
+     &            cpsback2p(ncoef))
+        
+        return
+                 
       endif ! end first call block
       
          aero_radius = mie_parameter 
@@ -759,14 +974,7 @@
          m = min(m,n_mode)
          
                gaer=0.0
-               sizeaer=0.0
                extaer=0.0
-               l2=0.0
-               l3=0.0
-               l4=0.0
-               l5=0.0
-               l6=0.0
-               l7=0.0
                bscoef=0.0        ! JCB 2007/02/01 - backscattering coefficient
 ! loop over the bins
                   sizem=aero_radius ! radius in cm
@@ -1095,5 +1303,287 @@
       enddo
       return
       end subroutine chebft             
+! ------------------------------------------------------------------
+      subroutine driver_bhmie_flexy(xx, crefin, qextalf, qscatalf, gscatalfg)
+           implicit none
+           
+           real, intent(in)     :: XX 
+           real, intent(out)    :: qextalf, qscatalf, gscatalfg
+           complex, intent(in)  :: CREFIN
+!local            
+           real( 8 ), parameter  :: one_third = 1.0d0 / 3.0d0
+           integer              :: NXX
+           integer              :: nstop, modulus
+           
+           real :: QEXTI, QSCA, QBACK, G_MIE, xx1
+           
+           real( 8 )    :: x
+           complex( 8 ) :: refractive_index
+           
+           x = real( XX, 8 )
+           refractive_index = dcmplx( real( CREFIN ), imag( CREFIN ) )
+           
+           modulus = int( abs( x * refractive_index ) )      
+           nstop = int( x + 4.0d0 * x**one_third + 2.0d0 )
+           
+           nxx = max( modulus, nstop ) + 15
+       
+           xx1 = 1.0 / XX
+           
+           CALL BHMIE_FLEXY(XX, NXX, NSTOP, CREFIN,QEXTI,QSCA,QBACK,G_MIE)
+           
+           qextalf   = QEXTI * xx1
+           qscatalf  = QSCA * xx1
+           gscatalfg = qscatalf * G_MIE
+           sback_bhmie = QBACK * xx1
+        
+!           write(6,'(a,12(ES12.4,1X))',advance='NO')'WRF BHMIE_FLEXY: XX, QEXT,QSCA,G_MIE = ',
+!    &      xx,qextalf,qscatalf,gscatalfg
+
+       end subroutine driver_bhmie_flexy
+! ------------------------------------------------------------------
+       SUBROUTINE BHMIE_FLEXY (X,  NMX, NSTOP, REFREL, QQEXT, QQSCA, QBACK, GSCA)
+
+! FSB Changed the call vector to return only QEXT, QSCAT QBACK GSCA
+!     and ignore NANG, S1 and S2 and all calculations for them
+
+          implicit none 
+
+! Arguments:
+          real,    intent(in) :: X        ! X = pi*particle_diameter / Wavelength
+          integer, intent(in) :: NMX      ! maximum number of terms in Mie series 
+          integer, intent(in) :: NSTOP    ! minumum number of terms in Mie series 
+          complex, intent(in) :: REFREL   ! refractive index
+
+!    REFREL = (complex refr. index of sphere)/(real index of medium)
+!    in the current use the index of refraction of the the medium
+!    i taken at 1.0 real.
+!
+!    Output
+
+       real,    intent(out) :: QQEXT, QQSCA, QBACK, GSCA
+
+!     QQEXT   Efficiency factor for extinction
+!     QQSCA   Efficiency factor for scattering
+!     QQBACK  Efficiency factor for back scatter
+!     GSCA    asymmetry factor <cos>
+!     SUCCESS flag for successful calculation
+! REFERENCE: 
+!  Bohren, Craig F. and Donald R. Huffman, Absorption and 
+!    Scattering of Light by Small Particles, Wiley-Interscience
+!    copyright 1983. Paperback Published 1998.
+! FSB
+!    This code was originally listed in Appendix A. pp 477-482.
+!    As noted below, the original code was subsequently 
+!    modified by Prof. Bruce T. Drain of Princetion University.
+!    The code was further modified for a specific application
+!    in a large three-dimensional code requiring as much 
+!    computational efficiency as possible. 
+!    Prof. Francis S. Binkowski of The University of North
+!    Carolina at Chapel Hill. 
+
+! Declare parameters:
+! Note: important that MXNANG be consistent with dimension of S1 and S2
+!       in calling routine!
+
+          integer, parameter    :: MXNANG=10, NMXX=150000   ! FSB new limits
+          integer, parameter    :: NANG  = 2
+!          real*8, parameter     :: PII = 3.1415916536D0
+          real*8, parameter     :: ONE = 1.0D0, TWO = 2.0D0
+!          real(8),parameter     :: ONE_THIRD = 1.0D0/3.0D0
+          complex*16, parameter :: COMPLEX_DZERO = (0.0D0,0.0D0)
+          complex,    parameter :: COMPLEX_ZERO  = (0.0,0.0)
+
+! Local variables:
+          integer    :: N, NN
+          real*8     :: QSCA, QEXT, DX1, DXX1      
+          real*8     :: CHI,CHI0,CHI1,DX,EN,P,PSI,PSI0,PSI1,XSTOP,YMOD               
+          real*8     :: TWO_N_M_ONE, TWO_N_P_ONE, EN1, FACTOR
+          complex*16 :: AN,AN1,BN,BN1,DREFRL,XI,XI1,Y, Y1, DREFRL1
+          complex*16 :: D(NMX)
+          complex*16 :: FAC1, FAC2
+          complex*16 :: XBACK
+
+
+!***********************************************************************
+! Subroutine BHMIE is the Bohren-Huffman Mie scattering subroutine
+!    to calculate scattering and absorption by a homogenous isotropic
+!    sphere.
+! Given:
+!    X = 2*pi*a/lambda
+!    REFREL = (complex refr. index of sphere)/(real index of medium)
+!    real refractive index of medium taken as 1.0 
+! Returns:
+!    QEXT  = efficiency factor for extinction
+!    QSCA  = efficiency factor for scattering
+!    QBACK = efficiency factor for backscatter
+!            see Bohren & Huffman 1983 p. 122
+!    GSCA = <cos> asymmetry for scattering
+!
+! Original program taken from Bohren and Huffman (1983), Appendix A
+! Modified by Prof. Bruce T.Draine, Princeton Univ. Obs., 90/10/26
+! in order to compute <cos(theta)>
+! 91/05/07 (BTD): Modified to allow NANG=1
+! 91/08/15 (BTD): Corrected error (failure to initialize P)
+! 91/08/15 (BTD): Modified to enhance vectorizability.
+! 91/08/15 (BTD): Modified to make NANG=2 if called with NANG=1
+! 91/08/15 (BTD): Changed definition of QBACK.
+! 92/01/08 (BTD): Converted to full double precision and double complex
+!                 eliminated 2 unneed lines of code
+!                 eliminated redundant variables (e.g. APSI,APSI0)
+!                 renamed RN -> EN = double precision N
+!                 Note that DOUBLE COMPLEX and DCMPLX are not part
+!                 of f77 standard, so this version may not be fully
+!                 portable.  In event that portable version is
+!                 needed, use src/bhmie_f77.f
+! 93/06/01 (BTD): Changed AMAX1 to generic function MAX
+! FSB April 09,2012 This code was modified by: 
+! Prof.  Francis S. Binkowski University of North Carolina at
+! Chapel Hill, Institue for the Environment.
+!
+! The modifications were made to enhance computation speed 
+! for use in a three-dimensional code. This was done by
+! removing code that calculated angular scattering. The method
+! of calculating QEXT, QBACK was also changed. 
+ 
+!***********************************************************************
+!*** Safety checks
+
+
+
+           BHMIE_SUCCESS = .TRUE.
+!           NANG = 2 ! FSB only this value 
+! IF(NANG.GT.MXNANG)STOP'***Error: NANG > MXNANG in bhmie'
+!         IF (NANG .LT. 2) NANG = 2
+
+          DX = REAL( X, 8 )
+! FSB D efine reciprocals so that divisions can be replaced by multiplications.      
+           DX1  = ONE / DX
+           DXX1 = DX1 * DX1
+           DREFRL = DCMPLX( REAL( REFREL ), IMAG( REFREL ) )
+           DREFRL1 = ONE / DREFRL
+           Y = DX * DREFRL
+           Y1 = ONE / Y
+!           YMOD = ABS(Y)
+ 
+!*** Series expansion terminated after NSTOP terms
+!    Logarithmic derivatives calculated from NMX on down
+!          XSTOP = X + 4.0 * X**0.3333 + 2.0
+!          NMX  = MAX(XSTOP,YMOD) + 15
+
+! BTD experiment 91/1/15: add one more term to series and compare results
+!      NMX=AMAX1(XSTOP,YMOD)+16
+! test: compute 7001 wavelengths between .0001 and 1000 micron
+! for a=1.0micron SiC grain.  When NMX increased by 1, only a single
+! computed number changed (out of 4*7001) and it only changed by 1/8387
+! conclusion: we are indeed retaining enough terms in series!
+
+          FACTOR = 1.0D0
+ 
+!          IF (NMX .GT. NMXX) THEN
+!             WRITE(6,*)'Error: NMX > NMXX=',NMXX,' for |m|x=',YMOD
+!             BHMIE_SUCCESS = .FALSE.
+!             RETURN
+!          END IF
+
+! FSB all code relating to scattering angles is removed out for
+!     reasons of efficiency when running in a three-dimensional 
+!     code. We only need QQSCA, QQEXT, GSCA AND QBACK
+
+ 
+!*** Logarithmic derivative D(J) calculated by downward recurrence
+!    beginning with initial value (0.,0.) 
+ 
+          D(NMX) = COMPLEX_DZERO
+          NN = NMX - 1
+          DO N = 1,NN
+             EN  = REAL( NMX - N + 1, 8 )
+! FSB In the following division by Y has been replaced by 
+!     multiplication by Y1, the reciprocal of Y.          
+             D(NMX-N) = ( EN * Y1 ) - (ONE / ( D(NMX-N+1) + EN * Y1)) 
+          END DO
+ 
+!*** Riccati-Bessel functions with real argument X
+!    calculated by upward recurrence
+ 
+          PSI0 =  COS(DX)
+          PSI1 =  SIN(DX)
+          CHI0 = -SIN(DX)
+          CHI1 =  PSI0
+          XI1  =  DCMPLX(PSI1,-CHI1)
+          QSCA =  0.0D0
+          GSCA =  0.0D0
+          QEXT =  0.0D0
+          P    = -ONE
+          XBACK = COMPLEX_DZERO
+
+! FSB Start main loop       
+          DO N = 1,NSTOP
+             EN        = REAL( N, 8 )
+             EN1       = ONE / EN
+             TWO_N_M_ONE = TWO * EN - ONE
+! for given N, PSI  = psi_n        CHI  = chi_n
+!              PSI1 = psi_{n-1}    CHI1 = chi_{n-1}
+!              PSI0 = psi_{n-2}    CHI0 = chi_{n-2}
+! Calculate psi_n and chi_n
+             PSI = TWO_N_M_ONE * PSI1 * DX1 - PSI0
+             CHI = TWO_N_M_ONE * CHI1 * DX1 - CHI0
+             XI  = DCMPLX(PSI,-CHI)
+ 
+!*** Compute AN and BN:
+! FSB Rearrange to get common terms
+             FAC1 = D(N) * DREFRL1 + EN * DX1 
+             AN   = (FAC1) * PSI - PSI1
+             AN   = AN / ( (FAC1 )* XI - XI1 )
+             FAC2 = ( DREFRL * D(N) + EN * DX1)
+             BN   = ( FAC2) * PSI -PSI1
+             BN   = BN / ((FAC2) * XI - XI1 )
+
+! FSB calculate sum for QEXT as done by Wiscombe
+!     get common factor
+             TWO_N_P_ONE = (TWO * EN + ONE)
+             QEXT = QEXT + (TWO_N_P_ONE) * (REAL(AN) + REAL(BN) ) 
+             QSCA = QSCA + (TWO_N_P_ONE) * ( ABS(AN)**2 + ABS(BN)**2 )
+          
+! FSB calculate XBACK from B & H Page 122          
+             FACTOR = -1.0d0 * FACTOR  ! calculate (-1.0 ** N)
+             XBACK  = XBACK + (TWO_N_P_ONE) * factor * (AN - BN)
+          
+! FSB calculate asymmetry factor   
+             
+             GSCA = GSCA + REAL((TWO_N_P_ONE)/(EN * (EN + ONE)) * 
+     &                (REAL(AN)*REAL(BN)+IMAG(AN)*IMAG(BN)))
+             
+              IF (N .GT. 1)THEN
+                GSCA = GSCA + REAL((EN - EN1) 
+     &                *  (REAL(AN1)*REAL(AN) + IMAG(AN1)*IMAG(AN) 
+     &                +   REAL(BN1)*REAL(BN) + IMAG(BN1)*IMAG(BN)))
+             ENDIF
+
+!*** Store previous values of AN and BN for use in computation of g=<cos(theta)>
+             AN1 = AN
+             BN1 = BN
+
+! FSB set up for next iteration
+             PSI0 = PSI1
+             PSI1 = PSI
+             CHI0 = CHI1
+             CHI1 = CHI
+             XI1  = DCMPLX(PSI1,-CHI1)
+          
+          END DO   ! main  loop on n
+ 
+!*** Have summed sufficient terms.
+
+!    Now compute QQSCA,QQEXT,QBACK,and GSCA
+          GSCA  = REAL( TWO / QSCA ) * GSCA
+
+! FSB in the following, divisions by DX * DX has been replaced by
+!      multiplication by DXX1 the reciprocal of 1.0 / (DX *DX)           
+          QQSCA = REAL( TWO * QSCA * DXX1 )
+          QQEXT = REAL( TWO * QEXT * DXX1 )
+          QBACK = REAL( REAL( 0.5D0 * XBACK * CONJG(XBACK), 8 ) * DXX1 ) ! B&H Page 122
+
+       END subroutine BHMIE_FLEXY
 
       end module wrf_fast_mie

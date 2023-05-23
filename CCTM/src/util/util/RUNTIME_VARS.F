@@ -163,9 +163,7 @@
       INTEGER :: NWAVE = 0                 ! Number of Diagnostic Wavelengths
       CHARACTER(16) :: WAVE_ENV(100)       ! Targeted wavelengths for diagnostic output
       LOGICAL :: CORE_SHELL= .FALSE.       ! flag for using core-shell mixing model for aerosol optics
-      LOGICAL :: MIE_CALC  = .FALSE.       ! flag for using Mie Theory in aerosol optics calculation
-      LOGICAL :: MIE_TAB   = .FALSE.       ! flag for using Look-Up Tables of Mie Theory  in aerosol optics calculation
-      INTEGER :: VOLMIX_OPTICS = 3         ! optics calculation method of volume mixture aerosols
+      INTEGER :: AEROSOL_OPTICS = 3        ! optics calculation method of volume mixture aerosols
       REAL    :: GEAR_RTOL = 1.0E-3        ! Relative Tolerance for Gear Solver
       REAL    :: GEAR_MAX_ATOL = 1.0E-7    ! Upper Bound for Absolute Tolerance in Gear Solver (ppmV)
       REAL    :: GEAR_MIN_ATOL = 1.0E-9    ! Lower Bound for Absolute Tolerance in Gear Solver (ppmV)
@@ -616,35 +614,17 @@
         CALL GET_ENV( 'NWAVE_PHOTDIAG', NWAVE, WAVE_ENV, VARDEV )
       END IF  
 
-      ! Get flag to use core-shell mixing model for aerosol optical properties
-      CALL GET_ENV ( CORE_SHELL, 'CORE_SHELL_OPTICS', CORE_SHELL, VARDEV )
+      CALL GET_ENV ( AEROSOL_OPTICS, 'AEROSOL_OPTICS', AEROSOL_OPTICS, VARDEV )
+      IF ( AEROSOL_OPTICS .GT. 3 ) THEN ! core-shell mixing model possible
+          CORE_SHELL = .TRUE.
+          AEROSOL_OPTICS = AEROSOL_OPTICS - 3
+      END IF
 
-      CALL GET_ENV ( VOLMIX_OPTICS, 'VOLMIX_OPTICS', VOLMIX_OPTICS, VARDEV )
-      IF ( VOLMIX_OPTICS .LT. 1 .OR. VOLMIX_OPTICS .GT. 3 ) THEN
-         XMSG = 'VOLMIX_OPTICS option must equal 1 to 3'
+      IF ( AEROSOL_OPTICS .LT. 1 .OR. AEROSOL_OPTICS .GT. 3 ) THEN
+         XMSG = 'AEROSOL_OPTICS option must equal 1 to 6'
          WRITE( OUTDEV, '(A)' )TRIM( XMSG )
          CALL M3EXIT ( PNAME, 0, 0, XMSG, XSTAT1 )
       END IF
-
-!     ! Get flag to use mie calculations for volume mixing model for aerosol optical properties
-!     CALL GET_ENV ( MIE_CALC, 'OPTICS_MIE_CALC', MIE_CALC, VARDEV )
-
-!     ! Get flag to use tabular method for volume mixing model for aerosol optical properties
-!     CALL GET_ENV ( MIE_TAB, 'OPTICS_MIE_TAB', MIE_TAB, VARDEV )
-   
-!     IF ( MIE_CALC .AND. MIE_TAB ) THEN
-!   override MIE_TAB  and set to false
-!         MIE_TAB = .FALSE.
-!         IF ( MYPE .EQ. 0 ) THEN
-!            WRITE( OUTDEV, '(/,6x,A)' )'--BOTH MIE_CALC and MIE_TAB equal TRUE--'
-!            WRITE( OUTDEV, '(6x,A,/)' )'--OVERRIDE MIE_TAB and SET TO FALSE.--'
-!         END IF
-!     END IF
-!     IF ( MIE_CALC )THEN
-!        VOLMIX_OPTICS = 2
-!     ELSE IF ( MIE_TAB ) THEN
-!        VOLMIX_OPTICS = 1
-!     END IF
 
       IF ( MYPE .EQ. 0 ) THEN
          WRITE( OUTDEV, '(/,6x,A,/)' )'--ATOL settings are in ppmV.--'
