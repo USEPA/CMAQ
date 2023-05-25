@@ -474,7 +474,7 @@ Sets if the CCTM will run in multi-processor or serial mode.
     Y/N setting to calculate biogenic emissions using BEIS. If this option is activated, several additional variables must be set (see the online biogenic emissions configuration settings). See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#biogenics) for further information.
 -   `CTM_BIOGEMIS_MEGAN [default: N]`<a id=CTM_BIOGEMIS_MEGAN></a>  
     Y/N setting to calculate biogenic emissions using MEGAN. If this option is activated, several additional variables must be set (see the online biogenic emissions configuration settings). See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#biogenics) for further information.
--   `AEROSOL_OPTICS  [default: 3]`<a id=AEROSOL_OPTICS></a>    
+-   `AEROSOL_OPTICS  [default: 3]`<a id=AEROSOL_OPTICS></a>  Determines how aerosol optical properies are calculated for the Inline Calculation of Photolysis Frequencies.      
     -- VALUES 1 thru 3 determined by using Uniformly Volume Mixed sphere for each aerosol mode   
     ---  1-Inline Tabular Method based on Mie Calculations over range of aerosol properties    
     ---  2-Solves Mie Theory using aerosol size distribution and mean refractive indices    
