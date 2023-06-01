@@ -159,7 +159,9 @@ C-----------------------------------------------------------------------
       USE AERO_DATA
       USE UTILIO_DEFN
 #ifdef isam
-      USE SA_DEFN, ONLY: DEPSUM_SAVE, DS4_SAVE, REMOV_SAVE
+      USE SA_DEFN, ONLY: DEPSUM_SAVE, DS4_SAVE, REMOV_SAVE,
+     &                   DEPSUM_AORGC_SAVE, DGLY1_SAVE, DMGLY1_SAVE,
+     &                   REMOV_AORGC_SAVE
 #endif
 
 #ifdef sens
@@ -647,6 +649,11 @@ C...make initializations
       S_DGLY1  = 0.0D0
       S_DMGLY1 = 0.0D0
       S_DORGC  = 0.0D0
+#endif
+
+#ifdef isam
+      DGLY1_SAVE = 0.0D0
+      DMGLY1_SAVE = 0.0D0
 #endif
 
 C...compute fractional weights for several species
@@ -2068,39 +2075,44 @@ C...  for S(IV), also limit by oxidants (except assume O2 in steady state)
           END IF
 
           IF ( DSIVDT( 1 ) .EQ. -MIN( TSIV, TH2O2 ) / DTW( 0 ) ) THEN
-            IF ( TSIV .LT. TH2O2 ) THEN
-              S_DSIVDT( NP, 1 ) = -S_TSIV( NP ) / DTW( 0 )
-            ELSE
-              S_DSIVDT( NP, 1 ) = -S_TH2O2( NP ) / DTW( 0 )
-            END IF
+              S_DSIVDT( NP, 1 ) = 0.D0
+c           IF ( TSIV .LT. TH2O2 ) THEN
+c             S_DSIVDT( NP, 1 ) = -S_TSIV( NP ) / DTW( 0 )
+c           ELSE
+c             S_DSIVDT( NP, 1 ) = -S_TH2O2( NP ) / DTW( 0 )
+c           END IF
           END IF
 
           IF ( DSIVDT( 2 ) .EQ. -MIN( TSIV, TO3   ) / DTW( 0 ) ) THEN
-            IF ( TSIV .LT. TO3 ) THEN
-              S_DSIVDT( NP, 2 ) = -S_TSIV( NP ) / DTW( 0 )
-            ELSE
-              S_DSIVDT( NP, 2 ) = -S_TO3( NP ) / DTW( 0 )
-            END IF
+              S_DSIVDT( NP, 2 ) = 0.D0
+c           IF ( TSIV .LT. TO3 ) THEN
+c             S_DSIVDT( NP, 2 ) = -S_TSIV( NP ) / DTW( 0 )
+c           ELSE
+c             S_DSIVDT( NP, 2 ) = -S_TO3( NP ) / DTW( 0 )
+c           END IF
           END IF
 
           IF ( DSIVDT( 3 ) .EQ. -TSIV / DTW( 0 ) ) THEN
-            S_DSIVDT( NP, 3 ) = -S_TSIV( NP ) / DTW( 0 )
+              S_DSIVDT( NP, 3 ) = 0.D0
+c           S_DSIVDT( NP, 3 ) = -S_TSIV( NP ) / DTW( 0 )
           END IF
 
           IF ( DSIVDT( 4 ) .EQ. -MIN( TSIV, TMHP  ) / DTW( 0 ) ) THEN
-            IF ( TSIV .LT. TMHP ) THEN
-              S_DSIVDT( NP, 4 ) = -S_TSIV( NP ) / DTW( 0 )
-            ELSE
-              S_DSIVDT( NP, 4 ) = -S_TMHP( NP ) / DTW( 0 )
-            END IF
+              S_DSIVDT( NP, 4 ) = 0.D0
+c           IF ( TSIV .LT. TMHP ) THEN
+c             S_DSIVDT( NP, 4 ) = -S_TSIV( NP ) / DTW( 0 )
+c           ELSE
+c             S_DSIVDT( NP, 4 ) = -S_TMHP( NP ) / DTW( 0 )
+c           END IF
           END IF
 
           IF ( DSIVDT( 5 ) .EQ. -MIN( TSIV, TPAA  ) / DTW( 0 ) ) THEN
-            IF ( TSIV .LT. TPAA ) THEN
-              S_DSIVDT( NP, 5 ) = -S_TSIV( NP ) / DTW( 0 )
-            ELSE
-              S_DSIVDT( NP, 5 ) = -S_TPAA( NP ) / DTW( 0 )
-            END IF
+              S_DSIVDT( NP, 5 ) = 0.D0
+c           IF ( TSIV .LT. TPAA ) THEN
+c             S_DSIVDT( NP, 5 ) = -S_TSIV( NP ) / DTW( 0 )
+c           ELSE
+c             S_DSIVDT( NP, 5 ) = -S_TPAA( NP ) / DTW( 0 )
+c           END IF
           END IF
 
         END DO
@@ -2162,6 +2174,12 @@ C...Calculate AORGC Production:  4% SOAcld (ORGC) yield from glyoxal
 C...  and methylglyoxal is assumed
 
         DORGC = DORGC - ( 0.04D0 * ( DGLYDT + DMGLYDT ) * DTW( 0 ) )
+
+#ifdef isam
+        DGLY1_SAVE  = DGLY1_SAVE  - 0.04D0 * DGLYDT  * DTW( 0 )
+        DMGLY1_SAVE = DMGLY1_SAVE - 0.04D0 * DMGLYDT * DTW( 0 )
+#endif
+
 
 #ifdef sens
         DO NP = 1, NPMAX
@@ -2534,6 +2552,12 @@ C... store sulfate production/loss quantities
       DEPSUM_SAVE =        DEPSUM * XL * RECIPAP1
       DS4_SAVE    = -1.0 * DS4(0) * XL * RECIPAP1
       REMOV_SAVE  = WETDEP( LSO4ACCL ) + WETDEP( LHSO4ACCL )
+
+C... store AORGC production/loss quantities      
+      DEPSUM_AORGC_SAVE = WETDEP( LORGCL ) * XC1 * XL * RECIPAP1
+      DGLY1_SAVE        = DGLY1_SAVE  * XL * RECIPAP1
+      DMGLY1_SAVE       = DMGLY1_SAVE * XL * RECIPAP1
+      REMOV_AORGC_SAVE  = WETDEP( LORGCL )
 #endif
 
       RETURN

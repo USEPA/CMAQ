@@ -116,6 +116,11 @@ c...Logical values for tagging species
       REAL, SAVE :: DS4_SAVE    = 0.0
       REAL, SAVE :: REMOV_SAVE  = 0.0
 
+      REAL, SAVE :: DEPSUM_AORGC_SAVE = 0.0
+      REAL, SAVE :: DGLY1_SAVE        = 0.0 
+      REAL, SAVE :: DMGLY1_SAVE       = 0.0  
+      REAL, SAVE :: REMOV_AORGC_SAVE  = 0.0
+
 c...Final, combined tags
       INTEGER                      :: N_SPCTAG
       INTEGER,         ALLOCATABLE :: S_SPCTAG( : )
@@ -489,31 +494,31 @@ c----------------------------------------------------------
 
         ! PRESCRIBE VOC SPECIES
         !CB6R3_AE7_AQ
-        ALLOCATE( ISAM_SPEC_VOC( 1 )%LIST( 27 ) )
+        ALLOCATE( ISAM_SPEC_VOC( 1 )%LIST( 28 ) )
         ISAM_SPEC_VOC( 1 )%LIST = (/'ALD2   ','ALDX   ','ETH    ',
      &          'ETHA   ','ETOH   ','FORM   ','IOLE   ','ISOP   ',
      &          'MEOH   ','OLE    ','PAR    ','TERP   ','TOL    ',
      &          'XYLMN  ','NAPH   ','ETHY   ','PRPA   ','ACET   ',
      &          'KET    ','GLY    ','BENZENE','GLYD   ','MEPX   ',
-     &          'APIN   ','SOAALK ','ECH4   ','CO     '/)
+     &          'APIN   ','SOAALK ','ECH4   ','CO     ','MGLY   '/)
 
         !CB6R5_AE7_AQ
-        ALLOCATE( ISAM_SPEC_VOC( 2 )%LIST( 27 ) )
+        ALLOCATE( ISAM_SPEC_VOC( 2 )%LIST( 28 ) )
         ISAM_SPEC_VOC( 2 )%LIST = (/'ALD2   ','ALDX   ','ETH    ',
      &          'ETHA   ','ETOH   ','FORM   ','IOLE   ','ISOP   ',
      &          'MEOH   ','OLE    ','PAR    ','TERP   ','TOL    ',
      &          'XYLMN  ','NAPH   ','ETHY   ','PRPA   ','ACET   ',
      &          'KET    ','GLY    ','BENZENE','GLYD   ','MEPX   ',
-     &          'APIN   ','SOAALK ','ECH4   ','CO     '/)
+     &          'APIN   ','SOAALK ','ECH4   ','CO     ','MGLY   '/)
 
         !CB6R5M_AE7_AQ
-        ALLOCATE( ISAM_SPEC_VOC( 3 )%LIST( 27 ) )
+        ALLOCATE( ISAM_SPEC_VOC( 3 )%LIST( 28 ) )
         ISAM_SPEC_VOC( 3 )%LIST = (/'ALD2   ','ALDX   ','ETH    ',
      &          'ETHA   ','ETOH   ','FORM   ','IOLE   ','ISOP   ',
      &          'MEOH   ','OLE    ','PAR    ','TERP   ','TOL    ',
      &          'XYLMN  ','NAPH   ','ETHY   ','PRPA   ','ACET   ',
      &          'KET    ','GLY    ','BENZENE','GLYD   ','MEPX   ',
-     &          'APIN   ','SOAALK ','ECH4   ','CO     '/)
+     &          'APIN   ','SOAALK ','ECH4   ','CO     ','MGLY   '/)
 
         !SAPRC07TC_AE6_AQ
         ALLOCATE( ISAM_SPEC_VOC( 4 )%LIST( 41 ) )
@@ -1087,6 +1092,7 @@ c----------------------------------------------------------
         ! Add Ozone if Requested
         IF ( INDEX( TAGCLASSES,'OZONE' ) .NE. 0 .OR. L_OZONE ) THEN
 
+          L_OZONE   = .TRUE.
           L_NO3     = .TRUE.
           L_VOC     = .TRUE.
           FOUND_SPECIES = .FALSE.

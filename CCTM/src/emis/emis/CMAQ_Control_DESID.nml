@@ -210,15 +210,17 @@
 &Desid_Diag
   
  ! Example 1: Print all streams individually to many diagnostic files of 2D 
- ! column sums. NO, NO2, and total NOX will all be on the file.
+ ! column sums. NO, NO2, total NOX (defined in the chemical family interface
+ ! in CMAQ_Control_Misc.nml), bulk ASO4 (all modes), and CO will all be on the 
+ ! file.
 
    ! Desid_Diag_Streams_Nml(1,:)= 'ALL'
-   ! Desid_Diag_Fmt_Nml(1)      = 'COLSUM'    ! Options: 2D, 2DCOL, 3D
+   ! Desid_Diag_Fmt_Nml(1)      = 'COLSUM'    ! Options: LAYER1, COLSUM, 3D
    ! Desid_Diag_Spec_Nml(1,:)   = 'NO','NO2','NOX','ASO4','CO'
  
 
  ! Example 2: Activate the sum of all streams using the keyword TOTAL. This file 
- ! will be 3D and will include three variables: 'AEC' = AECI + AECJ + AECK; 
+ ! will be 3D and will include six variables: 'AEC' = AECI + AECJ + AECK; 
  ! 'AECI'; 'NO2'; 'ACLK'; 'AMG' and 'TERP' if those variables are avilable on 
  ! the stream.
 
@@ -228,9 +230,9 @@
 
   
  ! Example 3: Create a diagnostic of the sum of the components of the PT_SOURCES 
- ! family (defined in the example above). This file will be column sums and will 
- ! include all the emitted species as long as they appear on at least one of the 
- ! streams within PT_SOURCES.
+ ! family (defined in the stream family section). This file will be column sums 
+ ! and will include all the emitted species as long as they appear on at least 
+ ! one of the streams within PT_SOURCES.
 
    ! Desid_Diag_Streams_Nml(3,:)= 'PT_SOURCES'
    ! Desid_Diag_Fmt_Nml(3)      = 'COLSUM'   

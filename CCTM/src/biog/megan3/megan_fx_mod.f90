@@ -2037,7 +2037,6 @@ CONTAINS    !!-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
       INTEGER  JDAY
       INTEGER  GSJULIAN_START
       INTEGER  GSJULIAN_END
-      OPEN(UNIT = 10, FILE = 'growseason_error_outoputs.txt')
 !-----------------------------------------------------------------------------
 !   NOTE: The use of "julian Day" to describe the day of tHE year is
 !     technically incorrect. 
@@ -3378,14 +3377,14 @@ SUBROUTINE MEGVEA(  LAYERS, JDATE, ZTIME,                &
          IF ( nmpmg .NE. INO ) then
            !...  Not NO
            tmper(nmpsp,:,:) = inper(nmpmg,:,:) * efmaps(:,:,nmpmg)  &
-                               * effs_all(nmpsp)
+                               * effs_all(s)
          ELSEIF ( nmpmg .EQ. INO ) then
 
 !!-----------------NO Stuff-----------------------
            IF ( .NOT. BDSNP_MEGAN ) THEN
 !     GAMNO is emission activity factor
               tmper(nmpsp,:,:) = GAMNO(:,:) * efmaps(:,:,INO)   &
-                                * effs_all(nmpsp)
+                                * effs_all(s)
            ELSE
 
 ! directly use BDSNP soil NO

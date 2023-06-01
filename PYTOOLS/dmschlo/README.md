@@ -31,7 +31,7 @@ allows CMAQ to create appropriate seasonally varying emissions.
 
 This processor is setup to make monthly OCEAN files with DMS and CHLO. The
 monthly Chlorophyll is provided [NASA MODIS-Aqua level-3 ocean color data](https://oceancolor.gsfc.nasa.gov)
-prodcuts, which can be climatological or year specific. The DMS is created
+products, which can be climatological or year specific. The DMS is created
 from monthly climatologies from the
 [Surface Ocean and Lower Atmosphere (SOLAS) project](https://www.bodc.ac.uk/solas_integration/).
 
@@ -40,16 +40,16 @@ In summary:
 * DMS concentrations and CHLO concentrations are required for cb6r5m, and
 * DMS and CHLO monthly inputs are readily available to make 12 OCEAN files.
 
-As input, this processor requires a CMAQ OCEAN file as an input. OCEAN is a
+This processor requires a CMAQ OCEAN file as an input. OCEAN is a
 time-independent I/O API file that identifies the fractional [0-1] coverage
 in each model grid cell allocated to open ocean (OPEN) or surf zone (SURF).
-This affects seasalt emissions, and is not relevant for DMS or halogens
-except indirectly via seasalt.
+This affects sea salt emissions, and is not relevant for DMS or halogens
+except indirectly via sea salt.
 
-For details on how to make a OCEAN file, see the [OCEAN File Tutorial](../../DOCS/Users_Guide/Tutorials/CMAQ_UG_tutorial_oceanfile.md)
+For details on how to make a OCEAN file, see the [OCEAN File Tutorial](../../DOCS/Users_Guide/Tutorials/CMAQ_UG_tutorial_oceanfile.md).
 
-DMS and CHLO have previously been provided by scripts maintained and run by
-Brett Gantt but was never released to the public. This tool uses similar inputs
+DMS and CHLO were previously provided by scripts maintained and run by
+Brett Gantt but were never released to the public. This tool uses similar inputs
 and processes, but has updated interpolation routines that improve the overall
 product.
 
@@ -62,7 +62,7 @@ the instructions.
 Instructions
 ------------
 
-Creating a fully function ocean file with OPEN, SURF, CHLO, and DMS requires 4
+Creating an OCEAN file with OPEN, SURF, CHLO, and DMS variables requires 4
 separate steps describe below. You will need an existing OCEAN file with OPEN
 and SURF. For some domains, the OCEAN file varies by month. In that case, you
 will need all the OCEAN files.
@@ -79,7 +79,7 @@ will need all the OCEAN files.
 Known Issues
 ------------
 
-1. Problems with Polar Resolution Remapping
+1. Problems with polar resolution remapping
   * Status: Resolved
   * Summary: When running for a polar stereographic domain, you require CDO v1.9.6+. Earlier versions did not support second-order flux conserving remapping.
   * Resolution: I have changed the prerequisite installation process to use conda. This allows a newer version of cdo.
