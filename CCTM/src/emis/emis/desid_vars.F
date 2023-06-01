@@ -150,7 +150,7 @@
           REAL            :: MW    ! Emissions Variable Molecular Weight [g mol-1]
       End Type desid_legend
       
-      Integer, Parameter :: Desid_N_Emvar_Table = 191
+      Integer, Parameter :: Desid_N_Emvar_Table = 193
       Type ( desid_legend ), Parameter :: 
      &  Desid_Emvar_Table( Desid_N_Emvar_Table ) = (/
      &    desid_legend( 'NO2          ' ,046.0 ),
@@ -179,6 +179,7 @@
      &    desid_legend( 'HC3          ' ,044.1 ),
      &    desid_legend( 'HC5          ' ,072.1 ),
      &    desid_legend( 'HC8          ' ,114.0 ),
+     &    desid_legend( 'HC10         ' ,142.28),
      &    desid_legend( 'OLT          ' ,042.0 ),
      &    desid_legend( 'OLI          ' ,070.1 ),
      &    desid_legend( 'ONIT         ' ,119.0 ),
@@ -228,6 +229,7 @@
      &    desid_legend( 'BEN          ' ,078.1 ),
      &    desid_legend( 'BENZENE      ' ,078.1 ),
      &    desid_legend( 'PHEN         ' ,110.1 ),
+     &    desid_legend( 'XYE          ' ,106.2 ),
      &    desid_legend( 'PROG         ' ,076.1 ),
      &    desid_legend( 'CRES         ' ,108.1 ),
      &    desid_legend( 'CSL          ' ,136.2 ),
@@ -323,7 +325,7 @@
      &    desid_legend( 'POCP1        ' ,380.75), ! CRACMM/ae8, "
      &    desid_legend( 'PNCOMP2      ' ,338.66), ! CRACMM/ae8, "
      &    desid_legend( 'POCP2        ' ,338.66),
-     &    desid_legend( 'ROCIOXY      ' ,247.0 ),
+     &    desid_legend( 'VROCIOXY     ' ,247.0 ),
      &    desid_legend( 'SLOWROC      ' ,075.4 ),
      &    desid_legend( 'ROCN2ALK     ' ,422.83),
      &    desid_legend( 'ROCN1ALK     ' ,408.8 ),
