@@ -1,3 +1,14 @@
+---
+name: 'New CRACMM Issue'
+about: Use this template to report any CRACM related development.
+title: ''
+labels: ''
+assignees: ''
+
+
+---
+
+
 **Motivation**
 Enter a concise description of why this development is being pursued. Consider indicating the role of emerging scientific information and/or model performance issues.
 
