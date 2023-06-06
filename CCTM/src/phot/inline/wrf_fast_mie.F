@@ -644,6 +644,7 @@
              do ns = 1,n_mode
                 Modal_Tables(ns)%nradii = nsizes(ns)
                 Modal_Tables(ns)%rmax = 60.0*max_dg_wet(ns)*quadrature_factor
+!                if( ns .eq. n_mode )Modal_Tables(ns)%rmax = 4.0*Modal_Tables(ns)%rmax
 ! convert modal rmax into Mie Parameter            
                 Modal_Tables(ns)%rmax = 2.0*pi*Modal_Tables(ns)%rmax/minval( wavmid )
                 Modal_Tables(ns)%rmin = 40.0*min_dg_dry(ns)/quadrature_factor
@@ -980,19 +981,19 @@
                   sizem=aero_radius ! radius in cm
 ! check against limits of mie parameter
                   if(aero_radius.le.Modal_Tables(m)%rmin)then
+                    aero_radius=1.01*Modal_Tables(m)%rmin
                     write( msg, '(a, 1x, es11.4, a, 1x, es11.4 )' )       
-     &              'AE Mode, WRF FAST mie: aerosol mie parameter set to ',
-     &              0.02*rmin, ' from ', mie_parameter
-                    aero_radius=rmin
+     &              'In ' // Trim( pname ) // ':aerosol mie parameter set to ',
+     &              aero_radius, ' from ', mie_parameter
                      write(logdev,'(a)')TRim( msg )
                   endif
 !
-                  if(aero_radius.gt.Modal_Tables(m)%rmax)then
+                  if(aero_radius.ge.Modal_Tables(m)%rmax)then
+                    aero_radius=0.99*Modal_Tables(m)%rmax
                     write( msg, '(a, 1x, es11.4, a, 1x, es11.4 )' )       
-     &              'AE Mode, WRF FAST mie: aerosol mie parameter set to ',
-     &              0.02*rmax, ' from ', mie_parameter
+     &              'In ' // Trim( pname ) // ':aerosol mie parameter set to ',
+     &              aero_radius, ' from ', mie_parameter
                      write(logdev,'(a)')Trim( msg )
-                     aero_radius=rmax
                   endif
 
 

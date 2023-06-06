@@ -881,7 +881,7 @@ C***  and contribution to the overall asymmetry factor
 
             END DO OPTICS_LOOP
 
-            AERO_SCAT_COEF( L,V ) = BSCAT
+            AERO_SCAT_COEF( L,V ) = MAX( BSCAT,1.0E-30 )
             AERO_EXTI_COEF( L,V ) = MAX( BEXT, 1.0E-30 )
             AERO_ABSO_COEF( L,V ) = MAX( (BEXT-BSCAT), 1.0E-30 )
             AERO_ASYM_FAC ( L,V ) = G_BAR / MAX( BSCAT, 1.0E-30 )
@@ -910,17 +910,20 @@ C***  and contribution to the overall asymmetry factor
 !         END IF
          LOOP_550NM: DO L = 1, NLAYS
               IF( USE_ANGSTROM_INTERP )THEN
-                 ANGSTROM_EXPONENT  =  - REAL( LOG( AERO_EXTI_COEF( L,IWL_ANGSTROM_LOWER ) 
-     &                                         / AERO_EXTI_COEF( L,IWL_ANGSTROM_UPPER ) ), 8 )
+!                ANGSTROM_EXPONENT  =  - REAL( LOG( AERO_EXTI_COEF( L,IWL_ANGSTROM_LOWER ) 
+!    &                                         / AERO_EXTI_COEF( L,IWL_ANGSTROM_UPPER ) ), 8 )
+
+                 ANGSTROM_EXPONENT  =  - REAL( LOG( MAX( AERO_EXTI_COEF( L,IWL_ANGSTROM_LOWER ),1.0E-30 )
+     &                              /               MAX( AERO_EXTI_COEF( L,IWL_ANGSTROM_UPPER ),1.0E-30 ) ), 8 )
      &                              *  ANGSTROM_SPAN
-!                AERO_EXTI_550( L ) = LOG( AERO_EXTI_COEF( L,IWL_ANGSTROM_LOWER ) )
-!    &                              + REAL( ANGSTROM_EXPONENT * LOG_ANGSTROM_RATIO, 4 )
-!                AERO_EXTI_550( L ) =  EXP( AERO_EXTI_550( L ) )
+
                  AERO_EXTI_550( L ) =  AERO_EXTI_COEF( L,IWL_ANGSTROM_LOWER ) 
      &                              *  REAL( ANGSTROM_RATIO ** ANGSTROM_EXPONENT, 4 )
-                 ANGSTROM_EXPONENT  =  - REAL( LOG( AERO_SCAT_COEF( L,IWL_ANGSTROM_LOWER ) 
-     &                                         / AERO_SCAT_COEF( L,IWL_ANGSTROM_UPPER ) ), 8 )
+
+                 ANGSTROM_EXPONENT  =  - REAL( LOG( MAX( AERO_SCAT_COEF( L,IWL_ANGSTROM_LOWER ),1.0E-30 )
+     &                              /               MAX( AERO_SCAT_COEF( L,IWL_ANGSTROM_UPPER ),1.0E-30 ) ), 8 )
      &                              *  ANGSTROM_SPAN
+
                  AERO_ABSO_550( L ) =  MAX( AERO_EXTI_550( L ) 
      &                              -  AERO_SCAT_COEF( L,IWL_ANGSTROM_LOWER )
      &                              *  REAL( ANGSTROM_RATIO ** ANGSTROM_EXPONENT, 4 ), 0.0 )
