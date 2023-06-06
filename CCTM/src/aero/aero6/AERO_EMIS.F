@@ -314,7 +314,7 @@ C-----------------------------------------------------------------------
        USE AERO_DATA, ONLY: DESID_AERO_REF, DESID_N_AERO_REF
        USE DESID_VARS, ONLY: DESID_SD_NML
        USE DESID_UTIL, ONLY: DESID_GET_RULE_STREAMS
-       USE UTILIO_DEFN, ONLY: INDEX1, XSTAT1
+       USE UTILIO_DEFN, ONLY: INDEX1, XSTAT1, M3EXIT, UPCASE
          
        IMPLICIT NONE
 
@@ -473,6 +473,8 @@ C ----------------------------------------------------------------------
          USE GRID_CONF, ONLY: NCOLS, NROWS
          USE SSEMIS, ONLY: SEA_FACTNUM, SEA_FACTSRF
 
+         USE RUNTIME_VARS, ONLY: logdev
+
          INTEGER, INTENT( IN ) :: ISRM, NL
          REAL, INTENT( INOUT ) :: VDEMIS ( :,:,:,: ) 
 
@@ -496,7 +498,6 @@ C *** Initialize Variables
              END DO
 
          END IF
-
          N_SD   = DESID_STREAM_AERO( ISRM )%LEN 
          ALLOCATE( EMISM3( DESID_LAYS,NCOLS,NROWS,N_MODE,N_SD ) )
          EMISM3 = 0.0
@@ -528,17 +529,19 @@ C *** Apply Aerosol Size Distribution
              ! except Dust and Sea Spray. For those streams, convert
              ! [g/m3/s] to [ug/m3/s]
              VDEMIS( ISTR,1:NL,:,: ) = VDEMIS( ISTR,1:NL,:,: )  * 1.0E6
+
              IF ( ISRM .NE. ISEASRM .AND. ISRM .NE. IDUSTSRM ) THEN
                 VDEMIS( ISTR,1:NL,:,: ) = VDEMIS( ISTR,1:NL,:,: ) * GSFAC( 1:NL,:,: ) 
              END IF
 
              ! Sum Total Volume of Mode N [m3/m3/s]
-             IF ( .NOT. AEROSPC( IAERO )%TRACER ) 
+             IF ( .NOT. AEROSPC( IAERO )%TRACER )
      &             EMISM3( 1:NL,:,:,IM,ISD ) = EMISM3( 1:NL,:,:,IM,ISD ) + 
      &                  VDEMIS( ISTR,1:NL,:,: ) * DENS_FAC( IAERO )
 
              ! Convert Mass Emission Rates from [ug/m3/s] to [umol/m3/s]
              VDEMIS( ISTR,1:NL,:,: ) = VDEMIS( ISTR,1:NL,:,: ) * AEROSPC_MWINV( IAERO )
+
          END DO          
 
 C *** Calculate the number emissions rate for each mode [1/m3/s], using 
