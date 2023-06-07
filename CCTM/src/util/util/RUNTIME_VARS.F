@@ -753,8 +753,8 @@
          WRITE( OUTDEV, '(6x,A)' ), REPEAT( '-',80 )
       END IF
 
-      ! CTM_VDIFF_DIAG_FILE
-      CALL GET_ENV ( VDIFFDIAG, 'CTM_VDIFF_DIAG_FILE', VDIFFDIAG, VARDEV )
+      ! Flag for writing vertical diffusion diagnostic file and possibly gravitational settling diagnostic file
+      CALL GET_ENV ( VDIFFDIAG, 'VDIFF_DIAG_FILE', VDIFFDIAG, VARDEV )
 
       ! Get Minimum Layer for Advection Time Step Adjustment
       CALL GET_ENV ( SIGST, 'SIGMA_SYNC_TOP', SIGST, VARDEV )
