@@ -65,6 +65,9 @@
 #> when using USELOCAL Y to shift from GMT to local time)
  setenv TZFILE ${REPO_HOME}/POST/bldoverlay/inputs/tz.csv
 
+ # You can use the old tz.csv file by uncommenting out this line
+ # setenv TZFILE ${REPO_HOME}/POST/bldoverlay/inputs/tz_legacy.csv
+
 #> partial day calculation (computes value for last day)
  setenv PARTIAL_DAY Y
 

@@ -124,6 +124,10 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
         do 
           read(lfn,'(a)',iostat=status) record
           if(status.ne.0) exit
+          if ( ADJUSTL(record(1:1)).eq.'#' ) then
+              write(*,*) '# Comments are not used', record
+              cycle
+          endif
 
           Call getField( record, ',', 1, field ) 
           read(field,'(i16)') npts   
@@ -185,6 +189,10 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
         do  
           read(lfn,'(a)',iostat=status) record
           if(status.ne.0) exit
+          if ( ADJUSTL(record(1:1)).eq.'#' ) then
+        !     write(*,*) '# Comments are not used', record
+              cycle
+          endif
           nlines = nlines+1
 
           Call getField( record, ',', 1, field ) 
