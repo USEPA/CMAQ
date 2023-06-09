@@ -23,7 +23,7 @@ Potential updates include bugfixes that resolves runtime failures, segmentation 
 |      Tag        |   PR Number       |         PR Name          |   Merge Date     | Brief Description |
 | -------------- | ------------------ | ------------------------ | ---------------- | -----------------------|
 |[CMAQv5.4.0.3_9June2023](https://github.com/USEPA/CMAQ/releases/tag/CMAQv5.4.0.3_9June2023)|||||
-|  |[#194](https://github.com/USEPA/CMAQ/pull/194) | DDM3D fix May2023  | 2023-06-09 | This fixes a bugs impacting 2nd order DDM sensitivities and dry deposition sensitivity output.|
+|  |[#194](https://github.com/USEPA/CMAQ/pull/194) | DDM3D fix May2023  | 2023-06-09 | This fixes bugs impacting 2nd order DDM sensitivities and dry deposition sensitivity output.|
 |[CMAQv5.4.0.2_4May2023](https://github.com/USEPA/CMAQ/releases/tag/CMAQv5.4.0.2_4May2023)|||||
 |  |[#189](https://github.com/USEPA/CMAQ/pull/189) | WRF-CMAQ Bugfix for UWIND and VWIND at Grid Cell Centers (mass points)  | 2023-05-04 | This fixes a bug that impacts all processes that use the u and v wind components at mass points in the WRF-CMAQ coupled model.|
 |  |[#186](https://github.com/USEPA/CMAQ/pull/186) | Isam update 21april2023 | 2023-04-28 |  This fixes several issues with CMAQ-ISAM as described in the PR documentation.|
