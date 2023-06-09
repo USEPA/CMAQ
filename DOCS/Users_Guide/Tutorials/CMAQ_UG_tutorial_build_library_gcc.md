@@ -57,7 +57,7 @@ tar -xzvf v4.8.1.tar.gz
 cd netcdf-c-4.8.1
 ```
 
-10. Review the installation instructions for netcdf-c-4.7.0 for building Classic netCDF
+10. Review the installation instructions for netcdf-c-4.7.0 for building netCDF
 
 ```
 more INSTALL.md
@@ -96,8 +96,15 @@ setenv CXX g++
 14. Run the configure command
 
 ```
+./configure --prefix=$cwd/../netcdf --disable-dap
+```
+Building netCDF without the compression capabilities of netCDF4 can be done using the command
+
+```
 ./configure --prefix=$cwd/../netcdf --disable-netcdf-4 --disable-dap
 ```
+
+This simpler installation can work for some applications, but the CMAQ ecosystem increasingly includes netCDF4 compression. For example, the cracmm1_aq 2018 benchmark and the MEGAN 3.2 preprocessor both require netCDF4. The error "Attempt to use feature that was not turned on when netCDF was built" suggests that your workflow requires netCDF4. 
 
 15. Check that the configure command worked correctly, then run the install command
 
@@ -313,8 +320,8 @@ setenv BIN Linux2_x86_64gfort_gcc_9.1.0
 
 ```
 cp Makeinclude.Linux2_x86_64gfort Makeinclude.Linux2_x86_64gfort_gcc_9.1.0
-```
 
+```
 
 7. Edit the Makeinclude.Linux2_x86_64gfort_gcc_9.1.0 to comment out OMPFLAG and OMPLIBS 
 settings.  This will remove the need to link the shared memory OPENMP libraries when compiling CMAQ and WRF-CMAQ.
