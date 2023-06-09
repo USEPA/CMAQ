@@ -300,6 +300,10 @@ C... start loop to read and process each variable
             Call sum06(hrValues, dayValues, offset, SPECVARS(n)%UNITS)
           endif
 
+          if( SPECVARS(n)%OPERATION .eq. 'TZ' ) then
+            dayValues(:,:) = REAL(tzoffset(:,:))
+          endif
+
           ! write daily values to output
           if(.not.write3('OUTFILE',SPECVARS(n)%NAME,curDate,000000,dayValues)) then
           Call m3err (PNAME, curDate, 0, 'Write Error for ' // SPECVARS(n)%NAME, .TRUE.)
