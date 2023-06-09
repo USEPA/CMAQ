@@ -315,13 +315,6 @@ setenv BIN Linux2_x86_64gfort_gcc_9.1.0
 cp Makeinclude.Linux2_x86_64gfort Makeinclude.Linux2_x86_64gfort_gcc_9.1.0
 ```
 
-:. Edit Makeinclude file to include ‘-DIOAPI_NCF4=1’ to the MFLAGS make-variable to avoid multiple definition of `nf_get_vara_int64_’
-
-```
-vi  Makeinclude.Linux2_x86_64gfort_gcc_9.1.0
-edit line 32
-MFLAGS    = -ffast-math -funroll-loops -m64 -DIOAPI_NCF4=1 #  -Wall -Wsurprising -march=native -mtune=native
-```
 
 7. Edit the Makeinclude.Linux2_x86_64gfort_gcc_9.1.0 to comment out OMPFLAG and OMPLIBS 
 settings.  This will remove the need to link the shared memory OPENMP libraries when compiling CMAQ and WRF-CMAQ.

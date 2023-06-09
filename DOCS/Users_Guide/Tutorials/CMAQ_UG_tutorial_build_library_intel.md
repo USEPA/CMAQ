@@ -286,8 +286,8 @@ cp Makeinclude.Linux2_x86_64ifort Makeinclude.Linux2_x86_64ifort_openmpi_3.1.4_i
 5. Edit the Makeinclude file, lines 27 and 28 to comment out the openmmp flag
 
 ```
-#OMPFLAGS  =  -qopenmp
-#OMPLIBS   =  -qopenmp
+OMPFLAGS  = # -qopenmp
+OMPLIBS   = # -qopenmp
 ```
 
 6. Set the environment variable BIN

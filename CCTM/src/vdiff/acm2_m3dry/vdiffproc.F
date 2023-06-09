@@ -163,6 +163,7 @@ C Local Variables
       INTEGER     MDATE, MTIME, MSTEP           ! internal simulation date&time
       CHARACTER(LEN=8), PARAMETER :: NAME_NH3_EMIS = 'NH3_Emis'
       CHARACTER(LEN=8), PARAMETER :: NAME_NH3_FLUX = 'NH3_Flux'
+      CHARACTER(LEN=16) :: SPCBASE
 
 #ifdef isam
       REAL NH3_SUM
@@ -549,7 +550,7 @@ C If last call this hour:  write accumulated depositions:
 
 #ifdef sens
                IF ( .NOT. OPEN3( CTM_SDRYDEP_1, FSNONIO, PNAME ) ) THEN
-                  XMSG = 'Could not open ' // TRIM(CTM_SDRYDEP_1`)
+                  XMSG = 'Could not open ' // TRIM(CTM_SDRYDEP_1)
                   CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
                END IF
 #endif 
@@ -758,15 +759,14 @@ C re-set dry deposition array to zero
 C WT - write out dry deposition sensitivities
          DO V = 1, N_SPC_DDEP
             S = DD2DV( V )
-            SPCNAME = DDEP_SPC( V )( 1:12 )                       ! <- these lines have to
             DO NP = 1, NPMAX
-               SPCNAME = TRIM( SPCNAME ) //'_' // SEN_PAR( NP )   ! <- match what is in opddep.F
+               SPCBASE = DDEP_SPC( V )( 1:12 )                    ! <- these lines have to
+               SPCNAME = TRIM( SPCBASE ) //'_' // SEN_PAR( NP )   ! <- match what is in opddep.F
                DO R = 1, NROWS
                   DO C = 1, NCOLS
                      WRDD( C,R ) = S_DDEP( S, C, R, NP )
                   ENDDO
                ENDDO
-
                IF ( .NOT. WRITE3( CTM_SDRYDEP_1, SPCNAME,
      &                 MDATE, MTIME, WRDD ) ) THEN
                   XMSG = 'Could not write ' // CTM_SDRYDEP_1 // ' file'
