@@ -15,7 +15,32 @@
 
 In the CCTM build option for inline calculation of photolysis frequencies, the aerosol optics method determine how the aerosol optic properties are calculated for the direct aerosol feedback. The fastest and default option (FastOptics) uses case approximations of Mie Scattering Theory for a uniformly mixed sphere whose refractive index is a volume weighted averaged of the aerosol modal component's refractive indices. The case are based the Mie Parameter ($2\pi r/\ \lambda$ ) and the average refractive index. In the current model, the two other options exist.  One is the Mie Solution (MieCalc) for uniformly mixed sphere. The other use a mixing model or representation of the internal structure where a uniformly mixed shell surrounds an black carbon core (CoreShell) if the aerosol mode has a black carbon component or the component's volume composes more than one billionth of the modal volume. Otherwise, an aerosol mode optical properites are determine by FastOptics or MieCalc based on setting of runtime options. Each method's computational expense follows an order as listed in Tables 2 and 3. How well each method represents aerosol optical properties also varies. FastOptics approximates MieCalc and has mean baises around 10% against MieCalc but also shows spatial pattern not predicted by MieCalc. CoreShell may better represent the internal structure of aerosols but model simulations do not show large differences against aerosol optics properties from MieCalc.
 
-The option selected affects model evaluation because the predicted aerosol optical depth (usually at 550 nm) is often compared against observations.
+The option selected affects model evaluation because the predicted aerosol optical depth (usually at 550 nm) is often compared against observations. Ideally, FastOptics should show small relative difference against the MieCalc of aerosol optical depth across wavelength. The below plot show how these differences vary between 5% to 15%.
+
+######   Hemospheric Domain June 25, 2018   
+
+![June_25_2018_FastOptics_vs_MieCalc_AOD_W310_June_25_2018_Layer1_ScatterDensity](https://github.com/bhutzell/CMAQ_Dev/assets/16845494/1fa2e3e8-017f-4030-bb40-9d6a36cd1af5)
+
+
+![Jun_25_2018_FastOptics_vs_MieCalc_AOD_W310_Jun_25_2018_Layer1_TilePlots_layer1](https://github.com/bhutzell/CMAQ_Dev/assets/16845494/5e35109b-920e-44c2-ad31-b736c1c37230)
+
+
+![June_25_2018_FastOptics_vs_MieCalc_AOD_W550_ANGST_June_25_2018_Layer1_ScatterDensity](https://github.com/bhutzell/CMAQ_Dev/assets/16845494/9db35e21-b124-470d-848c-2a53568d5b90)
+
+![Jun_25_2018_FastOptics_vs_MieCalc_AOD_W550_ANGST_Jun_25_2018_Layer1_TilePlots_layer1](https://github.com/bhutzell/CMAQ_Dev/assets/16845494/c2d9d936-439b-4f92-a6f8-e19b5f6199cf)
+
+
+#####  12US1 Domain June 25, 2018    
+
+![June_25_2018_FastOptics_vs_MieCalc_AOD_W310_June_25_2018_Layer1_ScatterDensity](https://github.com/bhutzell/CMAQ_Dev/assets/16845494/27d68dac-fd14-415f-accf-8225df7e103b)
+
+![June_25_2018_FastOptics_vs_MieCalc_AOD_W310_June_25_2018_Layer1_TilePlots_layer1](https://github.com/bhutzell/CMAQ_Dev/assets/16845494/2cd40642-6fa6-4a10-a6e4-daf3e495569d)
+
+![June_25_2018_FastOptics_vs_MieCalc_AOD_W550_ANGST_June_25_2018_Layer1_ScatterDensity](https://github.com/bhutzell/CMAQ_Dev/assets/16845494/db9fce5f-974a-4829-b483-ee6c5a475788)
+
+
+![June_25_2018_FastOptics_vs_MieCalc_AOD_W550_ANGST_June_25_2018_Layer1_TilePlots_layer1](https://github.com/bhutzell/CMAQ_Dev/assets/16845494/ec649c83-1876-4c76-92ed-e04868eb09bf)
+
 
 #### New Method for Aerosol Optical Properties.
 
