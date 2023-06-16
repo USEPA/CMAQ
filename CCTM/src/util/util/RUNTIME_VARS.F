@@ -1171,7 +1171,9 @@
       REAL       :: REAL_TIME
 #endif
 
-!  This subroutine calculates and return elapsed time from CPU_TIME_START.
+!  This subroutine calculates and returns elapsed time from CPU_TIME_START
+!  as an update to CPU_TIME_DELTA so total time expense can be determine
+!  for code block in a cyclng loop.
 !  It also resets CPU_TIME_START to current CPU time.
 
 #ifdef parallel
