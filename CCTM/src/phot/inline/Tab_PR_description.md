@@ -38,7 +38,7 @@ The option selected affects model evaluation because the predicted aerosol optic
 
 
 
-<center>Wavelength Dependence of Normalized Mean Bias</center>
+<center>Wavelength Dependence of Normalized Mean Bias</center>     
 <center> Aerosol Optical Depth FastOptics against Mie Calculation    
 
 | Wavelength (nm) | NMB: HEMI June 25, 2018 |  12US1 June 25, 2018 |    
@@ -68,10 +68,22 @@ The time savings is signicifant to total model runtime for the 108 hemispheric, 
 
 Why created the table inline? The table's data depends on information in the model code such as max/min geometric mean diameters allowed for each aerosol model or in the inputs such as the range of refractive indices of aerosol components. In general, the information does not change between model configuration or application but is still subject to change. Inline creation of the table insures a better fit to the configuration or application. 
 
-How does the new method (MieTab) compared to solutions to Mie Theory (MieCalc)? 
+How does the new method (MieTab) compared to solutions to Mie Theory (MieCalc)? The below plots show MieTab AOD better matches MieCalc AOD across wavelength than FastOptics but has small negative relative bias while FastOptics has a larger positive relative bias.
+
+##### Hemispheric June 25, 2018    
+![Jun_25_2018_MieTab_vs_MieCalc_AOD_W310_Jun_25_2018_Layer1_TilePlots_layer1](https://github.com/bhutzell/CMAQ_Dev/assets/16845494/1e70a3b7-c5cf-47e1-b904-379c2b8414c2)
+
+![Jun_25_2018_MieTab_vs_MieCalc_AOD_W550_ANGST_Jun_25_2018_Layer1_TilePlots_layer1](https://github.com/bhutzell/CMAQ_Dev/assets/16845494/2d717933-d134-4491-9aa7-e17448d012d5)
 
 
-<center>Wavelength Dependence of Normalized Mean Bias</center>
+##### 12US1 June 25, 2018
+
+![June_25_2018_MieTab_vs_MieCalc_AOD_W310_June_25_2018_Layer1_TilePlots_layer1](https://github.com/bhutzell/CMAQ_Dev/assets/16845494/593c1aa2-3364-46c8-adbb-914d80f8f2fb)
+
+![June_25_2018_MieTab_vs_MieCalc_AOD_W550_ANGST_June_25_2018_Layer1_TilePlots_layer1](https://github.com/bhutzell/CMAQ_Dev/assets/16845494/22d4b66f-0737-491a-8eee-d6e7782ad8c3)
+
+
+<center>Wavelength Dependence of Normalized Mean Bias</center>        
 <center> Aerosol Optical Depth MieTab against MieCalc    
 
 | Wavelength (nm) | NMB: HEMI June 25, 2018 |  12US1 June 25, 2018 |    
@@ -129,10 +141,29 @@ The Pull request replaces the two current runtime options, OPTICS_MIE_CALC and C
 
 #### Changes to Photolysis Diagnostic Files One and Three.
 
-The Pull Request adds to a new output variable to the diagnostic one file and replaces a variable in the diagnostic three file. The new output variable is aerosol absorption optical depth (AAOD) per wavelength. The information can support diagnosing how model aerosols affect photolysis reactions and help evaluating how model predictions compare to observations because the AERONET site reports AAOD from Aerosol Inversion Results and uses AAOD for calculating aerosol single scattering albedo (SSA) over a vertical column. In the photolysis diagnostic three file, the variable replacement switches aerosol single scattering albedo with aerosol scattering coefficient for a grid cell. The latter better allows comparing methods for aerosol optical properties because each method directly calculates the coefficient and not single scattering alobedo.
+The Pull Request adds to a new output variable to the diagnostic one file and replaces a variable in the diagnostic three file. The new output variable is aerosol absorption optical depth (AAOD) per wavelength. The information can support diagnosing how model aerosols affect photolysis reactions and help evaluating how model predictions compare to observations because the AERONET site reports AAOD from Aerosol Inversion Results and uses AAOD for calculating aerosol single scattering albedo (SSA) over a vertical column. In the photolysis diagnostic three file, the variable replacement switches aerosol single scattering albedo with aerosol scattering coefficient for a grid cell. The latter better allows comparing methods for aerosol optical properties because each method directly calculates the coefficient and not single scattering albedo.
 
+The below plots show how AAOD at 310 nm results compare against MieCalc for FastOptics and MieTab over Two Domains.
+
+##### Hemispheric June 25, 2018  
+
+######  FastOptics
+![Jun_25_2018_FastOptics_vs_MieCalc_AOD_ABS_W310_Jun_25_2018_Layer1_TilePlots_layer1](https://github.com/bhutzell/CMAQ_Dev/assets/16845494/f55d63db-f6e2-47b6-9008-12e96ff1c904)
+
+######  MieTab   
+
+![Jun_25_2018_MieTab_vs_MieCalc_AOD_ABS_W310_Jun_25_2018_Layer1_TilePlots_layer1](https://github.com/bhutzell/CMAQ_Dev/assets/16845494/87f17fcf-dc8e-4f69-b7cf-9052a694e856)
+
+##### 12US1 June 25, 2018  
+
+######  FastOptics
+![June_25_2018_FastOptics_vs_MieCalc_AOD_ABS_W310_June_25_2018_Layer1_TilePlots_layer1](https://github.com/bhutzell/CMAQ_Dev/assets/16845494/c5803234-fa71-4fd2-a7a7-a3564bc7dc17)
+
+######  MieTab   
+![June_25_2018_MieTab_vs_MieCalc_AOD_ABS_W310_June_25_2018_Layer1_TilePlots_layer1](https://github.com/bhutzell/CMAQ_Dev/assets/16845494/b9e69b50-e883-4506-bcf5-2198aeceedd5)
 
 #### References  
+
 
  Andrews, E., Ogren, J. A., Kinne, S., and Samset, B.: Comparison of AOD, AAOD and column single scattering albedo from AERONET retrievals and in situ profiling measurements, Atmos. Chem. Phys., 17, 6041–6072, https://doi.org/10.5194/acp-17-6041-2017, 2017. 
 
