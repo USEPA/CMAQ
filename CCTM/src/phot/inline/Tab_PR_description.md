@@ -137,3 +137,25 @@ The Pull Request adds to a new output variable to the diagnostic one file and re
  Andrews, E., Ogren, J. A., Kinne, S., and Samset, B.: Comparison of AOD, AAOD and column single scattering albedo from AERONET retrievals and in situ profiling measurements, Atmos. Chem. Phys., 17, 6041–6072, https://doi.org/10.5194/acp-17-6041-2017, 2017. 
 
  Fast, J. D., W. I. Gustafson Jr., R. C. Easter, R. A. Zaveri, J. C. Barnard, E. G. Chapman, G. A. Grell, and S. E. Peckham(2006), Evolution of ozone, particulates, and aerosol direct radiative forcing in the vicinity of Houston using a fully coupledmeteorology-chemistry-aerosol model,J. Geophys. Res.,111, D21305, doi:10.1029/2005JD006721
+ 
+--- 
+**Release Note - Must be filled out before PR is merged**  
+### [Inline Calculating of Photolysis Frequecies: New Method for Aerosol Optical Properties ]
+[[William T. Hutzell](mailto:hutzell.bill@epa.gov)], U.S. Environmental Protection Agency    
+**Type of update**: Science Update, Documentation, New Feature]   
+**Release Version/Date**:  ???
+**Description**: The update accomplish the below goals regarding the optical properties used in the the inline option for calculating photolysis frequencies.
+
+1. Add a new method for determining the optical properties. The new method should better match properties determined by solving Mie Scattering Theory for spherical particles than the default method (FastOptics) but produce comparable model runtimes.
+2. Simplify how the model runtime options set how aerosol optical properties are calculated. The change combines the two options currently used in one option.
+3. Change the contents in the photolysis diagnostic files one and three. The change intends to add a way evaluate the optical propertes against observations or theory.
+  
+**Significance and Impact**: The inline module for calculating photolysis frequencies has a new option for aerosol optics properties for their effect on the frequencies. The option better matches solving Mie Scattering Theory for uniformly mixed spherical aerosols but has a lower computational cost. The module's diagnostics provide an new output for evaluate model results. The update does not affect model result because FastOptics remain the default method. 
+
+**References**:    
+ Andrews, E., Ogren, J. A., Kinne, S., and Samset, B.: Comparison of AOD, AAOD and column single scattering albedo from AERONET retrievals and in situ profiling measurements, Atmos. Chem. Phys., 17, 6041–6072, https://doi.org/10.5194/acp-17-6041-2017, 2017. 
+
+ Fast, J. D., W. I. Gustafson Jr., R. C. Easter, R. A. Zaveri, J. C. Barnard, E. G. Chapman, G. A. Grell, and S. E. Peckham(2006), Evolution of ozone, particulates, and aerosol direct radiative forcing in the vicinity of Houston using a fully coupledmeteorology-chemistry-aerosol model,J. Geophys. Res.,111, D21305, doi:10.1029/2005JD006721
+
+
+**Internal PRs**: [PR#xxx](https://github.com/USEPA/CMAQ_Dev/pull/xxx)  
