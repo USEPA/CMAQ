@@ -3,7 +3,7 @@
 *Description* This pull request attempts to accomplish the below goals regarding the optical properties used in the the inline option for calculating photolysis frequencies.
 
 1. Add a new method for determining the optical properties. The new method should better match properties determined by solving Mie Scattering Theory for spherical particles than the default method (FastOptics) but produce comparable model runtimes.
-2. Simplify how the model runtime options set how aerosol optical properties are calculated. The change should condense the multiple option currently used in one option.
+2. Simplify how the model runtime options set how aerosol optical properties are calculated. The change combines the two options currently used in one option.
 3. Change the contents in the photolysis diagnostic files one and three. The change intends to add a way evaluate the optical propertes against observations or theory.
 
 *Significant:* The Pull Request induces a new option for aerosol optics properties for calculating photolysis frequencies. The method better matches solving Mie Scattering Theory for uniformly mixed spherical aerosols but has a lower computational cost.
@@ -13,35 +13,49 @@
 
 #### Background
 
-In the CCTM build option for inline calculation of photolysis frequencies, the aerosol optics method determine how the aerosol optic properties are calculated for the direct aerosol feedback. The fastest and default option (FastOptics) uses case approximations of Mie Scattering Theory for a uniformly mixed sphere whose refractive index is a volume weighted averaged of the aerosol modal component's refractive indices. The case are based the Mie Parameter ($2\pi r/\ \lambda$ ) and the average refractive index. In the current model, the two other options exist.  One is the Mie Solution (MieCalc) for uniformly mixed sphere. The other use a mixing model or representation of the internal structure where a uniformly mixed shell surrounds an black carbon core (CoreShell) if the aerosol mode has a black carbon component or the component's volume composes more than one billionth of the modal volume. Otherwise, an aerosol mode optical properites are determine by FastOptics or MieCalc based on setting of runtime options. Each method's computational expense follows an order as listed in Tables 2 and 3. How well each method represents aerosol optical properties also varies. FastOptics approximates MieCalc and has mean baises around 10% against MieCalc but also shows spatial pattern not predicted by MieCalc. CoreShell may better represent the internal structure of aerosols but model simulations do not show large differences against aerosol optics properties from MieCalc.
+In the CCTM build option for inline calculation of photolysis frequencies, the aerosol optics method determine how the aerosol optic properties are calculated for the direct aerosol feedback. The fastest and default option (FastOptics) uses case approximations of Mie Scattering Theory for a uniformly mixed sphere whose refractive index is a volume weighted averaged of the aerosol modal component's refractive indices. The cases are based on the Mie Parameter ($2\pi r/\ \lambda$ ) and the average refractive index. In the current model, the two other options exist.  One is the Mie Solution (MieCalc) for uniformly mixed sphere. The other use a mixing model or representation of the internal structure where a uniformly mixed shell surrounds an black carbon core (CoreShell) if the aerosol mode has a black carbon component or the component's volume composes more than one billionth of the modal volume. Otherwise, an aerosol mode optical properites are determine by FastOptics or MieCalc based on setting of runtime options. Each method's computational expense follows an order as listed in Tables 2 and 3. How well each method represents aerosol optical properties also varies. FastOptics approximates MieCalc and has mean baises around 10% against MieCalc but also shows spatial pattern not predicted by MieCalc. CoreShell may better represent the internal structure of aerosols but model simulations do not show large differences against aerosol optics properties from MieCalc.
 
 The option selected affects model evaluation because the predicted aerosol optical depth (usually at 550 nm) is often compared against observations. Ideally, FastOptics should show small relative difference against the MieCalc of aerosol optical depth across wavelength. The below plot show how these differences vary between 5% to 15%.
 
 ######   Hemospheric Domain June 25, 2018   
 
-![June_25_2018_FastOptics_vs_MieCalc_AOD_W310_June_25_2018_Layer1_ScatterDensity](https://github.com/bhutzell/CMAQ_Dev/assets/16845494/1fa2e3e8-017f-4030-bb40-9d6a36cd1af5)
-
 
 ![Jun_25_2018_FastOptics_vs_MieCalc_AOD_W310_Jun_25_2018_Layer1_TilePlots_layer1](https://github.com/bhutzell/CMAQ_Dev/assets/16845494/5e35109b-920e-44c2-ad31-b736c1c37230)
 
-
-![June_25_2018_FastOptics_vs_MieCalc_AOD_W550_ANGST_June_25_2018_Layer1_ScatterDensity](https://github.com/bhutzell/CMAQ_Dev/assets/16845494/9db35e21-b124-470d-848c-2a53568d5b90)
 
 ![Jun_25_2018_FastOptics_vs_MieCalc_AOD_W550_ANGST_Jun_25_2018_Layer1_TilePlots_layer1](https://github.com/bhutzell/CMAQ_Dev/assets/16845494/c2d9d936-439b-4f92-a6f8-e19b5f6199cf)
 
 
 #####  12US1 Domain June 25, 2018    
 
-![June_25_2018_FastOptics_vs_MieCalc_AOD_W310_June_25_2018_Layer1_ScatterDensity](https://github.com/bhutzell/CMAQ_Dev/assets/16845494/27d68dac-fd14-415f-accf-8225df7e103b)
 
 ![June_25_2018_FastOptics_vs_MieCalc_AOD_W310_June_25_2018_Layer1_TilePlots_layer1](https://github.com/bhutzell/CMAQ_Dev/assets/16845494/2cd40642-6fa6-4a10-a6e4-daf3e495569d)
-
-![June_25_2018_FastOptics_vs_MieCalc_AOD_W550_ANGST_June_25_2018_Layer1_ScatterDensity](https://github.com/bhutzell/CMAQ_Dev/assets/16845494/db9fce5f-974a-4829-b483-ee6c5a475788)
 
 
 ![June_25_2018_FastOptics_vs_MieCalc_AOD_W550_ANGST_June_25_2018_Layer1_TilePlots_layer1](https://github.com/bhutzell/CMAQ_Dev/assets/16845494/ec649c83-1876-4c76-92ed-e04868eb09bf)
 
 
+
+
+
+<center>Wavelength Dependence of Normalized Mean Bias</center>
+<center> Aerosol Optical Depth FastOptics against Mie Calculation    
+
+| Wavelength (nm) | NMB: HEMI June 25, 2018 |  12US1 June 25, 2018 |    
+|:----------------------:|:-------------------------------------:|:-------------------------------------:|    
+|   294 |  13.3%  | 19.4%  |     
+|   303   |  12.8%   | 17.8%  |   
+|   310  |  12.4%   | 16.4%   |    
+|   316  |  12.0%   | 15.1%   |  
+|   333 |  11.0%  | 11.8% |   
+|   381 |  7.8%  | 3.8%  |    
+|   550 (Interpolation via Angstrom Exponent)  |  -2.19%  | -7.8% |  
+|   607 |  -5.2%  | -11.2% |    
+
+
+ </center>
+ 
+ 
 #### New Method for Aerosol Optical Properties.
 
 The Pull Request adapts a look-up table and interpolation method (MieTab) for aerosol optical properteis described by Fast et al. (2005) and implemented in  [module_fastj_mie](https://github.com/wrf-model/WRF/blob/master/chem/module_fastj_mie.F) of the WRF-CHEM model version 4.5. Wavelength and aerosol refactive index are the independent variables of the table. The dependent variable is coefficients from curving fitting on Mie Scattering Solutions over aerosol radius for a fixed wavelength and refractive index. A bilinear interpolation estimates the fitting functions' coefficients at the aerosol refractive index during a model timestep and  specified wavelength.
@@ -54,7 +68,25 @@ The time savings is signicifant to total model runtime for the 108 hemispheric, 
 
 Why created the table inline? The table's data depends on information in the model code such as max/min geometric mean diameters allowed for each aerosol model or in the inputs such as the range of refractive indices of aerosol components. In general, the information does not change between model configuration or application but is still subject to change. Inline creation of the table insures a better fit to the configuration or application. 
 
-How does the new method prediction compared to the default method (FastOptics) and solutions to Mie Theory (MieCalc)? 
+How does the new method (MieTab) compared to solutions to Mie Theory (MieCalc)? 
+
+
+<center>Wavelength Dependence of Normalized Mean Bias</center>
+<center> Aerosol Optical Depth MieTab against MieCalc    
+
+| Wavelength (nm) | NMB: HEMI June 25, 2018 |  12US1 June 25, 2018 |    
+|:----------------------:|:-------------------------------------:|:-------------------------------------:|    
+|   294 |  -0.77%  | -.38%  |     
+|   303   | -0.92%   | -0.64%  |   
+|   310  | -0.99%   | -0.84%   |    
+|   316  |  -1.0%   | -1.0%   |  
+|   333 |  -0.99%  | -1.4% |   
+|   381 |  -0.18%  | -1.0%  |    
+|   550 (Interpolation via Angstrom Exponent)  |  -2.2%  | -0.53% |  
+|   607 |  -2.8%  | -0.38% |    
+
+
+ </center>
 
 #### Simpified Runtime Option to set the Method for Aerosol Optical Properties.
 
