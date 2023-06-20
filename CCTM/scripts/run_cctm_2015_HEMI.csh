@@ -171,7 +171,7 @@ setenv CTM_BIOGEMIS_BE N     #> calculate in-line biogenic emissions with BEIS [
 setenv CTM_BIOGEMIS_MG N     #> turns on MEGAN biogenic emission [ default: N ]
 setenv BDSNP_MEGAN N         #> turns on BDSNP soil NO emissions [ default: N ]
 
-setenv AEROSOL_OPTICS 5      #> sets method for determining aerosol optics affecting photolysis
+setenv AEROSOL_OPTICS 3      #> sets method for determining aerosol optics affecting photolysis
                              #> frequencies
                              #>  VALUES 1 thru 3 determined Uniformly Volume Mixed spherical
                              #>      (1-Tabular Mie; 2-Mie Calculation; 3-Case Approx to Mie Theory)
