@@ -4361,6 +4361,7 @@ C   mminlu and num_land_cat are WRF global variables
           USE UTILIO_DEFN
           use RUNTIME_VARS, only : logdev, USE_MEGAN_LAI, BDSNP_MEGAN,
      &                             MGN_ONLN_DEP
+          Use, intrinsic :: ieee_arithmetic, only: isnan => ieee_is_nan
         
           integer                    :: stat, i, megan_hr, megan_day, strtcol,
      &                                  endcol, strtrow, endrow, gxoff, gyoff 
@@ -4453,7 +4454,7 @@ C   mminlu and num_land_cat are WRF global variables
 
              end do
 
-             WHERE ( ctf .ne. ctf ) ctf = 0.0  ! ensure no NaNs
+             WHERE ( isnan( ctf ) ) ctf = 0.0  ! ensure no NaNs
 
              IF ( .NOT. OPEN3( MEGAN_EFS, FSREAD3, PNAME ) ) THEN
                 mesg = 'Open failure for ' // MEGAN_EFS
