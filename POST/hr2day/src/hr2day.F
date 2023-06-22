@@ -301,7 +301,7 @@ C... start loop to read and process each variable
           endif
 
           if( SPECVARS(n)%OPERATION .eq. 'TZ' ) then
-            dayValues(:,:) = REAL(tzoffset(:,:))
+            dayValues(:,:) = -REAL(tzoffset(:,:))
           endif
 
           ! write daily values to output
