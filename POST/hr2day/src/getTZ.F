@@ -252,17 +252,12 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
            ! check if point lies in line area
            if( nfound.ge.2 .and. lines(i)%ymin.le.latitude .and. latitude.le.lines(i)%ymax ) then
-             !write(*,*) 'BHH', nfound, lines(i)%name
              if( inArea( latitude, nfound, lat) ) then
                !write(*,'(''point lies in area'',i5)') i
                tzoffset = -lines(i)%offset
                return              
                endif
              endif
-
-           !BHH I think this is wrong. It should be in the if statement above.
-           !    by putting it here, you allow intersections where the latitude is not
-           !    in the range for this line
 
            ! add lat values to array
            do j=1,nfound
@@ -312,7 +307,7 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
              if(latitude.ge.xsec(i) .and. latitude.le.xsec(i+1)) then 
                if( ysec(i).eq.ysec(i+1) .and. xsec(i+1)-xsec(i).lt.2.0  ) then
                  tzoffset = -ysec(i)
-                 write(*,'(''point lies between areas'')')
+                 !write(*,'(''point lies between areas'')')
                  return
                  endif
                endif
@@ -325,7 +320,7 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
        long = abs(longitude)
        tzoffset = (long+7.5) / 15
        if(longitude.gt.0) tzoffset = -tzoffset
-       write(*,'(''offset computed by longitude'',F16.6,F6.2)') longitude,tzoffset
+       !write(*,'(''offset computed by longitude'',F16.6,F6.2)') longitude,tzoffset
        return
        end Function getTZ   
  
