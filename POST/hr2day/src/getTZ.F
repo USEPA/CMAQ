@@ -352,7 +352,8 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
          !      vertex. This violates the assumptions in inArea and leads
          !      to an odd number of intersections (one is a complete
          !      duplicate). Because inArea does not check for duplicates,
-         !      
+         !      double counting can potentially result in a incorrect
+         !      result.
          if( (xx.ge.x(i) .and. xx.lt.x(i+1)) .or.
      &       (xx.ge.x(i+1) .and. xx.lt.x(i)) ) then   
            nfound = nfound+1
