@@ -22,6 +22,8 @@ Potential updates include bugfixes that resolves runtime failures, segmentation 
 ### Record of changes to CMAQv5.4+
 |      Tag        |   PR Number       |         PR Name          |   Merge Date     | Brief Description |
 | -------------- | ------------------ | ------------------------ | ---------------- | -----------------------|
+|  |[#201](https://github.com/USEPA/CMAQ/pull/201) | Update config_cmaq.csh  | 2023-07-06 | _`Community Contribution`_ Fixes a typo in the config_cmaq.csh to address issue [#199](https://github.com/USEPA/CMAQ/issues/199).|
+|  |[#198](https://github.com/USEPA/CMAQ/pull/198) | Fix functionality of RBSTATS when using ROS3  | 2023-07-06 | _`Community Contribution`_ This fixes a bug in CCTM/src/gas/ros3/rbdriver.F that causes the model not to compile when using the conditional rbstats option.|
 |[CMAQv5.4.0.3_9June2023](https://github.com/USEPA/CMAQ/releases/tag/CMAQv5.4.0.3_9June2023)|||||
 |  |[#194](https://github.com/USEPA/CMAQ/pull/194) | DDM3D fix May2023  | 2023-06-09 | This fixes bugs impacting 2nd order DDM sensitivities and dry deposition sensitivity output.|
 |[CMAQv5.4.0.2_4May2023](https://github.com/USEPA/CMAQ/releases/tag/CMAQv5.4.0.2_4May2023)|||||
