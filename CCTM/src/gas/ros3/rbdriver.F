@@ -184,7 +184,7 @@ C..Local Variables:
       INTEGER, ALLOCATABLE, SAVE         :: STAT_SUM( :,:,:,: )
       INTEGER  EDATE, ETIME
 
-      REAL     ALLOCATABLE, SAVE         :: STATOUT( :, :, : )
+      REAL,    ALLOCATABLE, SAVE         :: STATOUT( :, :, : )
 
 #endif
 
@@ -745,8 +745,8 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
             IF ( .NOT. WRITE3( CTM_RBSTATS_1, VSTATS( S ),
      &            EDATE, ETIME, STATOUT ) ) THEN
-               XMSG = 'Could not write ' // CTM_RBSTATS_1 // ' file'
-               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+               MSG = 'Could not write ' // CTM_RBSTATS_1 // ' file'
+               CALL M3EXIT( PNAME, JDATE, JTIME, MSG, XSTAT1 )
             END IF  
 
          END DO
