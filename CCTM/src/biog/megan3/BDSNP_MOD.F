@@ -396,20 +396,20 @@ C            END IF !LANDTYPE check
 C            ENDDO
 
            !scale emissions
-           EMPOL = SOILNOX *  3600.0 * 10.0**-9![ng N/m2/s] *  s/hr * g/ng
-           BDSNP_NO(C,R) = SOILNOX / 14 ![nmol/m2/s]
+           EMPOL = SOILNOX *  3600.0 * 1.0e-9 ! [ng N/m2/s] *  s/hr * g/ng
+           BDSNP_NO(C,R) = SOILNOX / 14 ! [nmol/m2/s]
            ! sum various quantities for daily averaging
            EMPOLSUM = EMPOLSUM + EMPOL
-           BASESUM(C,R) = BASESUM(C,R) + ( A_BIOME(K) + A_FERT ) !don'tforget check paren when uncommenting
+           BASESUM(C,R) = BASESUM(C,R) + ( A_BIOME(K) + A_FERT ) 
      &             * ( TEMP_TERM * WET_TERM)
-     &             *  3600.0 * 10.0**-9 ![ng N/m2/s] *  s/hr * g/ng
-           PULSEAVG(C,R) = PULSEAVG(C,R) + ( A_BIOME(K) + A_FERT ) !don'tforget check paren when uncommenting
+     &             *  3600.0 * 1.0e-9 ! [ng N/m2/s] *  s/hr * g/ng
+           PULSEAVG(C,R) = PULSEAVG(C,R) + ( A_BIOME(K) + A_FERT ) 
      &             * ( TEMP_TERM * WET_TERM * PULSE )
-     &             *  3600.0 * 10.0**-9 ![ng N/m2/s] *  s/hr * g/ng
-           CRFAVG(C,R) = CRFAVG(C,R) + ( A_BIOME(K) + A_FERT ) !don'tforget check paren when uncommenting
+     &             *  3600.0 * 1.0e-9 ! [ng N/m2/s] *  s/hr * g/ng
+           CRFAVG(C,R) = CRFAVG(C,R) + ( A_BIOME(K) + A_FERT ) 
      &             * ( TEMP_TERM * WET_TERM )
      &             * ( 1.d0 - CRF_TERM  )
-     &             *  3600.0 * 10.0**-9 ![ng N/m2/s] *  s/hr * g/ng
+     &             *  3600.0 * 1.0e-9 ! [ng N/m2/s] *  s/hr * g/ng
 
 
 C--------- MORE DIAGNOSTICS  ---------------------------------
