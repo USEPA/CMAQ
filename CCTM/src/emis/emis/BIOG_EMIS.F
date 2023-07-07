@@ -67,9 +67,6 @@ C-----------------------------------------------------------------------
 C Subroutine arguments:
          LOGICAL SUCCESS
 
-C External Functions:
-         INTEGER,        EXTERNAL :: GETFLINE
-
 C Parameters:
 C (A line from the profile file is a record.)
          INTEGER,        PARAMETER :: NSEGS = 6  ! # of potential line segments (fields)
