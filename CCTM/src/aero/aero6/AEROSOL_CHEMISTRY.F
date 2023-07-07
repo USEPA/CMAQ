@@ -627,6 +627,11 @@ C *** parameters for calculating GAMMA of HBR ---> ABR, Sherwen et al., ACP, 201
       REAL( 8 ), PARAMETER :: INV_GAMMA_INO2  = 1.0D0 / 0.02D0                     ! Saiz-Lopez et al. 2014
 
 C *** Coefficients for the equation, ESATL defining saturation vapor pressure
+C *** values of AL, BL, and CL are from:
+C     Alduchov and Eskridge, "Improved Magnus Form Approximations of
+C                            Saturation Vapor Pressure,"
+C                            Jour. of Applied Meteorology, vol. 35,
+C                            pp 601-609, April, 1996.
       REAL( 8 ), PARAMETER :: AL = 610.94D0 
       REAL( 8 ), PARAMETER :: BL = 17.625D0
       REAL( 8 ), PARAMETER :: CL = 243.04D0
@@ -637,14 +642,7 @@ C *** Coefficients for the equation, ESATL defining saturation vapor pressure
        LOGICAL              :: DUMP_CELL
 #endif
 
-C *** values of AL, BL, and CL are from:
-C     Alduchov and Eskridge, "Improved Magnus Form Approximations of
-C                            Saturation Vapor Pressure,"
-C                            Jour. of Applied Meteorology, vol. 35,
-C                            pp 601-609, April, 1996.
 
-      INV_ESATL( TT ) = DL * DEXP( BL * ( 273.15D0 - TT ) / ( TT - 273.15D0 + CL ) )
-      
       INTERFACE
          SUBROUTINE GETPAR( FIXED_sg  )
            LOGICAL, INTENT( IN ) :: FIXED_sg    ! fix coarse and accum Sg's to the input value?
@@ -657,6 +655,8 @@ C                            pp 601-609, April, 1996.
          End Subroutine Hetchem_Extract_Aero
       END INTERFACE 
   
+      INV_ESATL( TT ) = DL * DEXP( BL * ( 273.15D0 - TT ) / ( TT - 273.15D0 + CL ) )
+      
 C-----------------------------------------------------------------------
 
       IF ( NHETERO .LT. 1 )RETURN
