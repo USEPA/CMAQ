@@ -266,8 +266,6 @@ C                            pp 601-609, April, 1996.
 
 C *** End Statement Function  ********
 
-      logical, save :: now = .true.
-
 #ifdef twoway
       INTERFACE
         SUBROUTINE FEEDBACK_WRITE (C, R, L, CGRID_DATA, O3_VALUE, JDATE, JTIME)
