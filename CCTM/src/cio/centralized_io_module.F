@@ -5022,7 +5022,7 @@ C   mminlu and num_land_cat are WRF global variables
 #ifdef mpas
                            call mio_fread (FILENAMES(IFILE), lvname, DESID_REG_FAC(:,1,DESID_N_REG))
 #else
-                           IF ( .NOT. XTRACT3( FILENAMES( IFILE ), VNAME3D(IVAR), 1, 1,
+                           IF ( .NOT. XTRACT3( FILENAMES( IFILE ), lvname, 1, 1,
      &                                         STARTROW, ENDROW, STARTCOL, ENDCOL,
      &                                         0, 0, DESID_REG_FAC( 1,1,DESID_N_REG ) ) ) Then
                               XMSG = 'Could not read ' // VNAME3D(IVAR) //
@@ -5047,9 +5047,9 @@ C   mminlu and num_land_cat are WRF global variables
                      VNAME = DESID_REG_READ( IREAD )%VAR
 
 #ifdef mpas
-                     call mio_fread (FILENAMES(IFILE), VNAME, DESID_REG_FAC(:,1,DESID_N_REG))
+                     call mio_fread (FILENAMES(IFILE), vname, DESID_REG_FAC(:,1,DESID_N_REG))
 #else
-                     IF ( .NOT. XTRACT3( FILENAMES( IFILE ), VNAME, 1, 1,
+                     IF ( .NOT. XTRACT3( FILENAMES( IFILE ), vname, 1, 1,
      &                                   STARTROW, ENDROW, STARTCOL, ENDCOL,
      &                                   0, 0, DESID_REG_FAC( 1,1,DESID_N_REG ) ) ) Then
                         XMSG = 'Could not read ' // VNAME //
