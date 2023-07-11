@@ -19,7 +19,7 @@
       MODULE SITE_DATA
 
       TYPE SITE
-         character*9  ::  site_id
+         character*20 ::  site_id
          CHARACTER*25 ::  STATE
          CHARACTER*25 ::  COUNTY
          REAL         ::  LAT
@@ -652,7 +652,7 @@ C  function to find the index number of a site
 
 
 C  function to return the site id from it's index number
-      Character*(10) Function getSiteId( siteNo ) result (siteId)
+      Character*(20) Function getSiteId( siteNo ) result (siteId)
 
       Integer siteNo
 
