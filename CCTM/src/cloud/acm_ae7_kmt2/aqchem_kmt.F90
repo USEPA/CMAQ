@@ -712,14 +712,14 @@ kron: DO WHILE (T < TEND)
       
       IF( AEROSOL(LPOA, ACC) .GT. 0.d0 ) THEN      
          FRACPOA = MIN(((POAIinit - AEROSOL(LPOA, AKN))*EXPWET) / &
-	 AEROSOL( LPOA, ACC ). 1.0D0) 
+	 AEROSOL( LPOA, ACC ), 1.0D0) 
       ELSE 
          FRACPOA = 0.d0
       END IF
       
       IF( AEROSOL(LPRI, ACC) .GT. 0.d0 ) THEN      
          FRACPRI = MIN(((PRIIinit - AEROSOL(LPRI, AKN))*EXPWET) / &
-	 AEROSOL( LPRI, ACC ), 1/0D0) 
+	 AEROSOL( LPRI, ACC ), 1.0D0) 
       ELSE 
          FRACPRI = 0.d0
       END IF
