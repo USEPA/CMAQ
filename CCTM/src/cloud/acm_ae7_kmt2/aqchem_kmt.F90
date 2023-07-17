@@ -704,25 +704,29 @@ kron: DO WHILE (T < TEND)
 		       
       
       IF( AEROSOL(LTRACER_ACC, ACC) .GT. 0.d0 ) THEN      
-         FRACTR = ((TRACIinit - AEROSOL(LTRACER_AKN, AKN))*EXPWET) / AEROSOL( LTRACER_ACC, ACC ) 
+         FRACTR = MIN(((TRACIinit - AEROSOL(LTRACER_AKN, AKN))*EXPWET) /  &
+	 AEROSOL( LTRACER_ACC, ACC ), 1.0D0) 
       ELSE 
          FRACTR = 0.d0
       END IF
       
       IF( AEROSOL(LPOA, ACC) .GT. 0.d0 ) THEN      
-         FRACPOA = ((POAIinit - AEROSOL(LPOA, AKN))*EXPWET) / AEROSOL( LPOA, ACC ) 
+         FRACPOA = MIN(((POAIinit - AEROSOL(LPOA, AKN))*EXPWET) / &
+	 AEROSOL( LPOA, ACC ). 1.0D0) 
       ELSE 
          FRACPOA = 0.d0
       END IF
       
       IF( AEROSOL(LPRI, ACC) .GT. 0.d0 ) THEN      
-         FRACPRI = ((PRIIinit - AEROSOL(LPRI, AKN))*EXPWET) / AEROSOL( LPRI, ACC ) 
+         FRACPRI = MIN(((PRIIinit - AEROSOL(LPRI, AKN))*EXPWET) / &
+	 AEROSOL( LPRI, ACC ), 1/0D0) 
       ELSE 
          FRACPRI = 0.d0
       END IF
       
       IF( AEROSOL(LSOA, ACC) .GT. 0.d0 ) THEN      
-         FRACSOA = ((SOAIinit - AEROSOL(LSOA, AKN))*EXPWET) / AEROSOL( LSOA, ACC ) 
+         FRACSOA = MIN(((SOAIinit - AEROSOL(LSOA, AKN))*EXPWET) / &
+	 AEROSOL( LSOA, ACC ), 1.0D0) 
       ELSE 
          FRACSOA = 0.d0
       END IF

@@ -2145,25 +2145,29 @@ C...Compute for Aerosol species in  TXHG Version
       AEROSOL( LPHG_COR, COR )    = HGCOR * XL * RECIPAP1
       
       IF( AEROSOL(LTRACER_ACC, ACC) .GT. 0.d0 ) THEN
-         FRACTR  = (TRACI  * XL * RECIPAP1) / AEROSOL(LTRACER_ACC, ACC) 
+         FRACTR  = MIN((TRACI  * XL * RECIPAP1) / 
+     &             AEROSOL(LTRACER_ACC, ACC), 1.0D0) 
       ELSE 
          FRACTR = 0.d0
       END IF
       
       IF( AEROSOL(LPOA, ACC) .GT. 0.d0 ) THEN
-         FRACPOA = (POAI  * XL * RECIPAP1) / AEROSOL(LPOA, ACC)
+         FRACPOA = MIN((POAI  * XL * RECIPAP1) / 
+     &             AEROSOL(LPOA, ACC), 1.0D0)
       ELSE 
          FRACPOA = 0.d0
       END IF 
       
       IF( AEROSOL(LSOA, ACC) .GT. 0.d0 ) THEN
-         FRACSOA = (SOAI  * XL * RECIPAP1) / AEROSOL(LSOA, ACC)
+         FRACSOA = MIN((SOAI  * XL * RECIPAP1) / 
+     &             AEROSOL(LSOA, ACC), 1.0D0)
       ELSE 
          FRACSOA = 0.d0
       END IF 
       
       IF( AEROSOL(LPRI, ACC) .GT. 0.d0 ) THEN
-         FRACPRI = (PRII  * XL * RECIPAP1) / AEROSOL(LPRI, ACC)
+         FRACPRI = MIN((PRII  * XL * RECIPAP1) / 
+     &             AEROSOL(LPRI, ACC), 1.0D0)
       ELSE 
          FRACPRI = 0.d0
       END IF 
