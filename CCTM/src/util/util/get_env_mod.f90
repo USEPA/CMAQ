@@ -36,8 +36,7 @@
                            get_env_float,    &
                            get_env_double,   &
                            get_env_char,     &
-                           get_env_logical,  &
-                           get_envlist
+                           get_env_logical
         end interface
 
         contains
@@ -127,7 +126,7 @@
 
           real (8), intent(out)     :: env_value
           character (*), intent(in) :: env_var
-          real, intent(in)          :: default_env_value
+          real (8), intent(in)          :: default_env_value
           integer, intent(in), optional :: logdev
 
           integer :: loc_logdev
