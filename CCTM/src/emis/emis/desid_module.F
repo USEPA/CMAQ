@@ -3151,9 +3151,7 @@ C stkemis_init.
         ! Create I/O Logicals and Populate with full Filepaths
         ALLOCATE( DESID_DIAG_LOGICAL( DESID_N_DIAG ) )
         DO IDIAG = 1,DESID_N_DIAG
-           IF ( OUTDIR .EQ. '' ) THEN
-             DESID_DIAG_FILENAME(IDIAG) = DESID_DIAG_FILENAME(IDIAG)
-           ELSE
+           IF ( OUTDIR .NE. '' ) THEN
              DESID_DIAG_FILENAME(IDIAG) = TRIM( OUTDIR ) // '/' // DESID_DIAG_FILENAME(IDIAG)
            END IF
            WRITE( DESID_DIAG_LOGICAL( IDIAG ),'( "DESID_",I3.3 )' ) IDIAG
