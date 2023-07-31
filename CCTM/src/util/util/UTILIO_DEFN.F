@@ -52,11 +52,12 @@ C....................................................................
      &                             M3MESG => prog_interrupt_msg,
      &                             M3MSG2 => prog_interrupt_msg,
      &                             m3parag => prog_interrupt_nmsgs
-       
+
+
        INTEGER, PARAMETER :: XSTAT1 = 1
        INTEGER, PARAMETER :: XSTAT2 = 1
        INTEGER, PARAMETER :: XSTAT3 = 1
-       INTEGER, PARAMETER :: LATGRD3 = 999
+
 #else
 
 #ifdef parallel

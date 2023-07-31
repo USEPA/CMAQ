@@ -66,6 +66,10 @@
       MODULE RUNTIME_VARS
 
       use get_env_module
+#ifdef mpas
+      use universal_data_module, only : logdev
+      use mydata_module
+#endif
 
       IMPLICIT NONE
 
@@ -74,7 +78,9 @@
       PUBLIC
 
       INTEGER :: OUTDEV = 6   ! File Unit for Standard Output
+#ifndef mpas
       INTEGER :: LOGDEV = -1  ! File Unit for Ascii Log File
+#endif
       INTEGER :: TOTPE  = 1   ! Number of Total Processors
       INTEGER :: NPROCS = 1   ! Number of Total Processors
       INTEGER :: MYPE   = -1  ! Processor Number
@@ -304,7 +310,11 @@
 !.........................................................................
 
       USE RXNS_DATA, ONLY : MECHNAME
+#ifdef mpas
+      use utilio_defn
+#else
       USE M3UTILIO
+#endif
 
       IMPLICIT NONE                         
 
@@ -769,7 +779,11 @@
       CALL GET_ENV ( MINKZ, 'KZMIN', MINKZ, VARDEV )
 
       ! CTM_WVEL
+#ifdef mpas
+      W_VEL = .FALSE.
+#else
       CALL GET_ENV ( W_VEL, 'CTM_WVEL', W_VEL, VARDEV )
+#endif
 
       ! CTM_GRAV_SETL
       CALL GET_ENV ( GRAV_SETL, 'CTM_GRAV_SETL', GRAV_SETL, VARDEV )
@@ -948,7 +962,7 @@
 #ifdef mpas
       call get_env (ncd_64bit_offset, 'ncd_64bit_offset', .false., vardev)
       call get_env( cell_num, 'cell_num', 1, vardev)
-#endif
+#else
 
 #ifdef twoway
       WRF_V4P = .TRUE.
@@ -1005,6 +1019,8 @@
       END IF
 #endif
 
+#endif
+
       END SUBROUTINE INIT_ENV_VARS
 
 !.........................................................................
@@ -1016,6 +1032,10 @@
 !  we would like to try limiting lines to 80 characters and a heading
 !  should probably just be one line.
 !.........................................................................
+
+#ifdef mpas
+      use util_module
+#endif
 
       IMPLICIT NONE
 
