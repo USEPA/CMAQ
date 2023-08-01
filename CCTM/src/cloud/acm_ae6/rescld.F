@@ -104,7 +104,9 @@ C-----------------------------------------------------------------------
      &                      S_TOTDEP
 #endif 
 
-
+#ifdef mpas
+      use util_module, only : nextime, sec2time, TIME2SEC, currstep
+#endif
 
       IMPLICIT NONE
 

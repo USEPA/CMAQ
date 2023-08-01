@@ -167,6 +167,10 @@ C-----------------------------------------------------------------------
      &                      S_CONDIS, DDM3D_CONCMINL
 #endif
 
+#ifdef mpas
+      use util_module, only : nextime, time2sec, sec2time, secsdiff, currstep
+#endif
+
       IMPLICIT NONE
 
 C...........INCLUDES
@@ -182,6 +186,10 @@ C...........Arguments
       INTEGER, INTENT( IN )    :: TSTEP( 3 )
       INTEGER, INTENT( IN )    :: N_SPC_WDEP
       INTEGER, INTENT( IN )    :: WDEP_MAP( : )
+
+#ifdef mpas
+      integer, save :: mpas_cmaq_freq
+#endif
       REAL,    INTENT( INOUT ) :: CONV_DEP( :,:,: )
       REAL,    INTENT( OUT )   :: SUBTRANS( :,:,: )
 #ifdef isam
@@ -190,12 +198,21 @@ C...........Arguments
 
 C...........Parameters
 
+
+#ifdef mpas
+C critical rel humidity for land (fraction)
+      REAL, ALLOCATABLE, SAVE      :: RCRITL(:,:)
+
+C critical rel humidity for water (fraction)
+      REAL, ALLOCATABLE, SAVE      :: RCRITW(:,:)
+#else
 C critical rel humidity for land (fraction)
       REAL, SAVE      :: RCRITL
 
 C critical rel humidity for water (fraction)
       REAL, SAVE      :: RCRITW
 
+#endif
 C intermediate factor
       REAL            :: XKM
 
@@ -555,7 +572,14 @@ C...  the met timestep in hours
         STIME = cio_model_stime
         MSTEP = file_tstep(f_met) 
 
+#ifdef mpas
+          call get_env (mpas_cmaq_freq, 'mpas_cmaq_freq', 1)
+          METSTEP = (FLOAT( TIME2SEC( MSTEP ) )/FLOAT(mpas_cmaq_freq)) / 3600.0
+          !metstep is coupling frequency but rain is per mpas time step
+#else
+
         METSTEP = FLOAT( TIME2SEC( MSTEP ) ) / 3600.0
+#endif
 
 C...check convective precipitation on met files to determine if WRF used
 C...  a convective parameterization
@@ -614,9 +638,26 @@ C...allocate saved arrays
 
 C...Calculate the Sundqvist et al. 1989 threshold humidities for cloud formation based on 
 C...Mocko and Cotton (1995)
+#ifdef mpas
+        ALLOCATE ( RCRITL( NCOLS,NROWS ),
+     &             RCRITW( NCOLS,NROWS ),
+     &             STAT = ALLOCSTAT )
+        IF ( ALLOCSTAT .NE. 0 ) THEN
+           XMSG = 'EXIT: Failure allocating RCRITL, RCRITW'
+           call prog_interrupt (PNAME, JDATE, JTIME, XMSG, 1)
+        END IF
+      DO ROW = 1, NROWS
+        DO COL = 1, NCOLS
+          XKM = (cell_area(COL,ROW)**0.5)/1000
+          RCRITW(COL,ROW) = 0.879 + SQRT( 1.0 / ( 100.0 + XKM * XKM  ))
+          RCRITL(COL,ROW) = 0.839 + SQRT( 1.0 / ( 50.0 + 0.5 * XKM ** 3 ) )
+        END DO
+      END DO
+#else
         XKM = REAL( XCELL_GD / 1000 )
         RCRITW = 0.879 + SQRT( 1.0 / ( 100.0 + XKM * XKM ) )
         RCRITL = 0.839 + SQRT( 1.0 / ( 50.0 + 0.5 * XKM ** 3 ) )
+#endif
 
 C...Sulfur tracking
         IF ( STM ) THEN
@@ -1232,11 +1273,19 @@ C...Now compute fractional coverage for either CNP or PFW:
 C...Now based on Sunqdvist et al. 1989 DOI: 10.1175/1520-0493(1989)117<1641:CACPSW>2.0.CO;2 
             FRAC = 0.0
             IF ( GRID_DATA%LWMASK( COL,ROW ) .EQ. 1.0 ) THEN   ! land
+#ifdef mpas
+               IF ( RLHSRC .GE. RCRITL(COL,ROW) )
+     &            FRAC = 1.0 - SQRT( ( 1.0 - RLHSRC ) / ( 1.0 - RCRITL(COL,ROW) ) )
+            ELSE   ! water
+               IF ( RLHSRC .GE. RCRITW(COL,ROW) )
+     &            FRAC = 1.0 - SQRT( ( 1.0 - RLHSRC ) / ( 1.0 - RCRITW(COL,ROW) ) )
+#else
                IF ( RLHSRC .GE. RCRITL )
      &            FRAC = 1.0 - SQRT( ( 1.0 - RLHSRC ) / ( 1.0 - RCRITL ) )
             ELSE   ! water
                IF ( RLHSRC .GE. RCRITW )
      &            FRAC = 1.0 - SQRT( ( 1.0 - RLHSRC ) / ( 1.0 - RCRITW ) )
+#endif
             END IF
             FRAC = MAX( 0.0, MIN( FRAC, 0.95 ) )
 
@@ -2011,7 +2060,7 @@ C...  mimic this for the ASO4GASJ tracking species
                 END IF
               END DO
             END DO
-            IF ( S_N2O5 .NE. 0 ) THEN   
+            IF ( S_N2O5 .NE. 0 ) THEN
               DO ITAG = 1, NTAG_SA
                 SA_CEND( S_N2O5,ITAG )  = 0.0
               END DO

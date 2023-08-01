@@ -38,6 +38,9 @@ C     species
 C-----------------------------------------------------------------------
       Use aero_data, Only: n_aerolist, n_aerospc, conmin
       Use runtime_vars
+#ifdef mpas
+      Use util_module, only : index1
+#endif
 
       Implicit None
 

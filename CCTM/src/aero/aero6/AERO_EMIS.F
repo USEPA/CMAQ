@@ -171,7 +171,7 @@ C-----------------------------------------------------------------------
          USE PRECURSOR_DATA, ONLY: MAP_PRECURSOR
          USE RUNTIME_VARS, ONLY:  OCEAN_CHEM, WB_DUST
          USE SSEMIS, ONLY:    SSEMIS_INIT
-         USE UTILIO_DEFN, ONLY: INDEX1, M3EXIT, LATGRD3, XSTAT1, XSTAT2
+         USE UTILIO_DEFN
          USE VDIFF_MAP, ONLY : N_SPC_DIFF, DIFF_SPC
      
          INCLUDE SUBST_CONST     ! physical and mathematical constants
