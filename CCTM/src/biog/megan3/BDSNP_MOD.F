@@ -36,7 +36,9 @@ C::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
   
       USE RUNTIME_VARS, ONLY: STTIME,STDATE,RUNLEN
+#ifdef twoway
       USE PHOT_MET_DATA, ONLY: CFRAC_2D
+#endif
 
       USE UTILIO_DEFN
 #ifdef parallel
@@ -308,11 +310,7 @@ C           check for negatives
          CFRAC = CFRAC_2D
        end if
 #else
-       if (.not. allocated(CFRAC_2D)) then
-         CFRAC = 0.
-       else
-         CFRAC = Met_Data%CFRAC
-       end if
+       CFRAC = Met_Data%CFRAC
 #endif 
 
    
