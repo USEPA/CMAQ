@@ -8,34 +8,6 @@
 #             http://www.cmascenter.org  (CMAS Website)
 # ===========================================================================  
 
-#> Simple Linux Utility for Resource Management System 
-#> (SLURM) - The following specifications are recommended 
-#> for executing the runscript on the cluster at the 
-#> National Computing Center used primarily by EPA.
-#SBATCH -t 168:00:00
-#SBATCH -n 256
-#SBATCH -J 2018_v54_12US1_STAGE_EM_CRACMM
-#SBATCH -p ord
-#SBATCH --gid=mod3dev
-#SBATCH -A mod3dev
-#SBATCH -o /work/MOD3DEV/sfarrell/CMAQv54_Wyat/CCTM/scripts/2018_12US1_%j.txt
-
-#> The following commands output information from the SLURM
-#> scheduler to the log files for traceability.
-   if ( $?SLURM_JOB_ID ) then
-      echo Job ID is $SLURM_JOB_ID
-      echo "Running on nodes `printenv SLURM_JOB_NODELIST`"
-      echo Host is $SLURM_SUBMIT_HOST
-      #> Switch to the working directory. By default,
-      #>   SLURM launches processes from your home directory.
-      echo Working directory is $SLURM_SUBMIT_DIR
-      cd $SLURM_SUBMIT_DIR
-   endif
-
-#> Configure the system environment and set up the module 
-#> capability
-   limit stacksize unlimited
-#
 
 # ===================================================================
 #> Runtime Environment Options
