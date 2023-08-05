@@ -36,9 +36,7 @@ C::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
   
       USE RUNTIME_VARS, ONLY: STTIME,STDATE,RUNLEN
-#ifdef twoway
-      USE PHOT_MET_DATA, ONLY: CFRAC_2D
-#endif
+      USE PHOT_MOD,     ONLY: CFRAC_2D_AVE
 
       USE UTILIO_DEFN
 #ifdef parallel
@@ -304,10 +302,10 @@ C           check for negatives
     
 #ifdef twoway
        ! CFRAC for offline comes from MCIP but that's unavailable in twoway mode
-       if (.not. allocated(CFRAC_2D)) then
+       if (.not. allocated(CFRAC_2D_AVE)) then
          CFRAC = 0.
        else
-         CFRAC = CFRAC_2D
+         CFRAC = CFRAC_2D_AVE
        end if
 #else
        CFRAC = Met_Data%CFRAC
