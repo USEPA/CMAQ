@@ -120,7 +120,7 @@ setenv STDOUT T                    #> Override I/O-API trying to write informati
                                    #>   logs and STDOUT [ options: T | F ]
 
 setenv GRID_NAME 12US1     #> check GRIDDESC file for GRID_NAME options
-setenv GRIDDESC /work/MOD3DATA/CMAQv53_TS/GRIDDESC   #> grid description file
+setenv GRIDDESC ${INPDIR}/GRIDDESC   #> grid description file
 
 #> Retrieve the number of columns, rows, and layers in this simulation
 set NZ = 35
@@ -130,10 +130,9 @@ set NCELLS = `echo "${NX} * ${NY} * ${NZ}" | bc -l`
 
 #> Output Species and Layer Options
    #> CONC file species; comment or set to "ALL" to write all species to CONC
-   setenv CONC_SPCS "CO SO2 O3 NO ANO3I ANO3J ANO3K NO2 NO3 N2O5 HONO HNO3 ISO GLY NH3 ANH4I ANH4J ANH4K ASO4I ASO4J ASO4K AALJ ASIJ ACAJ AFEJ ATIJ AECI AECJ PAN ONIT TRPN ISON NALD PPN MPAN APOCI APOCJ AISO3NOSJ AISO3OSJ AHOMJ AELHOMJ AGLYJ AORGCJ APNCOMI APNCOMJ ANAI ANAJ ACLI ACLJ AOTHRI AOTHRJ AMNJ AMGJ AKJ ASOATJ AOP3J AROCN2ALKI AROCN2ALKJ AROCN1ALKI AROCN1ALKJ AROCP0ALKI AROCP0ALKJ AROCP1ALKI AROCP1ALKJ AROCP3ALKJ AROCN2OXY2J AROCN2OXY4J AROCN2OXY8J AROCN1OXY1J AROCN1OXY3J AROCN1OXY6J AROCP0OXY2J AROCP0OXY4J AROCP1OXY1J AROCP1OXY3J AROCP2OXY2J AROCP3OXY2J AROCN2OXY2I AROCN2OXY4I AROCN2OXY8I AROCN1OXY1I AROCN1OXY3I AROCN1OXY6I AROCP0OXY2I AROCP0OXY4I AROCP1OXY1I AROCP1OXY3I AROCP2ALKJ"
-#  setenv CONC_SPCS "CO"
-#   setenv CONC_SPECIES "ALL"   
-   setenv CONC_BLEV_ELEV " 1 35" #> CONC file layer range; comment to write all layers to CONC
+   setenv CONC_SPCS "O3 NO ANO3I ANO3J NO2 FORM ISOP NH3 ANH4I ANH4J ASO4I ASO4J CO SO2"
+#   setenv CONC_SPCS "ALL"   
+   setenv CONC_BLEV_ELEV " 1 1" #> CONC file layer range; comment to write all layers to CONC
 
    #> ACONC file species; comment or set to "ALL" to write all species to ACONC
    #setenv AVG_CONC_SPCS "O3 NO CO NO2 ASO4I ASO4J NH3" 
@@ -152,7 +151,6 @@ setenv CTM_ADV_CFL 0.95      #> max CFL [ default: 0.75]
 #> Science Options
 setenv CTM_OCEAN_CHEM Y      #> Flag for ocean halogen chemistry and sea spray aerosol emissions [ default: Y ]
 setenv CTM_WB_DUST N         #> use inline windblown dust emissions [ default: Y ]
-setenv CTM_WBDUST_BELD BELD3 #> landuse database for identifying dust source regions
                              #>    [ default: BELD3 ]; ignore if CTM_WB_DUST = N
 setenv CTM_LTNG_NO Y         #> turn on lightning NOx [ default: N ]
 setenv KZMIN Y               #> use Min Kz option in edyintb [ default: Y ], 
@@ -215,16 +213,6 @@ setenv B3GTS_DIAG Y          #> BEIS mass emissions diagnostic file [ default: N
 setenv CTM_WVEL Y            #> save derived vertical velocity component to conc
                              #>    file [ default: Y ]
 
-#> MPI Optimization Flags
-setenv MPI_SM_POOL 16000     #> increase shared memory pool in case many MPI_SEND headers
-setenv MP_EAGER_LIMIT 65536  #> set MPI message passing buffer size to max
-setenv MP_SINGLE_THREAD yes  #> optimize for single threaded applications [ default: no ]
-setenv MP_STDOUTMODE ordered #> order output by the processor ID
-setenv MP_LABELIO yes        #> label output by processor ID [ default: no ]
-setenv MP_SHARED_MEMORY yes  #> force use of shared memory for tasks on same node [ default: no ]
-setenv MP_ADAPTER_USE shared #> share the MP adapter with other jobs
-setenv MP_CPU_USE multiple   #> share the node with multiple users/jobs
-setenv MP_CSS_INTERRUPT yes  #> specify whether arriving packets generate interrupts [ default: no ]
 
 # =====================================================================
 #> Input Directories and Filenames
@@ -740,7 +728,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   setenv gc_matrix_nml ${NMLpath}/GC_$MECH.nml
   setenv ae_matrix_nml ${NMLpath}/AE_$MECH.nml
   setenv nr_matrix_nml ${NMLpath}/NR_$MECH.nml
-  setenv tr_matrix_nml /work/MOD3DATA/CMAQv53_TS/misc/Species_Table_TR_EQUATES_12US1.nml
+  setenv tr_matrix_nml ${NMLpath}/Species_Table_TR_0.nml
 
   #> check for photolysis input data
   setenv CSQY_DATA ${NMLpath}/CSQY_DATA_$MECH
