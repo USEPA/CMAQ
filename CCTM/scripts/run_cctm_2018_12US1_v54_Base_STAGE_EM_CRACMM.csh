@@ -81,6 +81,13 @@ cd CCTM/scripts
 #> Set Timestepping Parameters
 set STTIME     = 000000            #> beginning GMT time (HHMMSS)
 set NSTEPS     = 240000            #> time duration (HHMMSS) for this run
+set TSTEP      = 010000            #> output time step interval (HHMMSS)
+
+
+#> Horizontal domain decomposition
+if ( $PROC == serial ) then
+   setenv NPCOL_NPROW "1 1"; set NPROCS   = 1 # single processor setting
+else
    @ NPCOL  =  16; @ NPROW = 16 
    @ NPROCS = $NPCOL * $NPROW
    setenv NPCOL_NPROW "$NPCOL $NPROW"; 
@@ -810,97 +817,6 @@ set RTMTOT = `echo "scale=2; ${RTMTOT} / 1" | bc -l`
 
 echo
 echo "=================================="
-echo "  ***** CMAQ TIMING REPORT *****"
-echo "=================================="
-echo "Start Day: ${START_DATE}"
-echo "End Day:   ${END_DATE}"
-echo "Number of Simulation Days: ${NDAYS}"
-echo "Domain Name:               ${GRID_NAME}"
-echo "Number of Grid Cells:      ${NCELLS}  (ROW x COL x LAY)"
-echo "Number of Layers:          ${NZ}"
-echo "Number of Processes:       ${NPROCS}"
-echo "   All times are in seconds."
-echo
-echo "Num  Day        Wall Time"
-set d = 0
-set day = ${START_DATE}
-foreach it ( `seq ${NDAYS}` )
-    # Set the right day and format it
-    set d = `echo "${d} + 1"  | bc -l`
-    set n = `printf "%02d" ${d}`
-
-    # Choose the correct time variables
-    set rt = `echo ${rtarray} | cut -d' ' -f${it}`
-
-    # Write out row of timing data
-    echo "${n}   ${day}   ${rt}"
-
-    # Increment day for next loop
-    set day = `date -ud "${day}+1days" +%Y-%m-%d`
-end
-echo "     Total Time = ${RTMTOT}"
-echo "      Avg. Time = ${RTMAVG}"
-
-exit
-#!/bin/csh -f
-
-# ============== CCTMv5.4.X STAGE EM CRACMM 12US1 Run Script ================
-# Usage: run.cctm >&! cctm_2018_12US1_CRACMM.log &                                
-#
-# To report problems or request help with this script/program:
-#             http://www.epa.gov/cmaq    (EPA CMAQ Website)
-#             http://www.cmascenter.org  (CMAS Website)
-# ===========================================================================  
-
-
-# ===================================================================
-#> Runtime Environment Options
-# ===================================================================
-
-echo 'Start Model Run At ' `date`
-
-#> Toggle Diagnostic Mode which will print verbose information to 
-#> standard output
- setenv CTM_DIAG_LVL 0
-
-#> Choose compiler and set up CMAQ environment with correct 
-#> libraries using config.cmaq. Options: intel | gcc | pgi
- if ( ! $?compiler ) then
-   setenv compiler intel
- endif
- if ( ! $?compilerVrsn ) then
-   setenv compilerVrsn Empty
- endif
-
-#> Source the config.cmaq file to set the build environment
-cd ../..
-
-source ./config_cmaq.csh $compiler $compilerVrsn
-
-cd CCTM/scripts
-
-#> Set General Parameters for Configuring the Simulation
- set VRSN      = v54               #> Code Version
- set PROC      = mpi               #> serial or mpi
- set MECH      = cracmm1_aq        #> Mechanism ID
- set EMIS      = WR705_2018gc2     #> Emission Inventory Details
- set APPL      = STAGE_EM_2018_12US1  #> Application Name (e.g. Gridname)
-
-#> Define RUNID as any combination of parameters above or others. By default,
-#> this information will be collected into this one string, $RUNID, for easy
-#> referencing in output binaries and log files as well as in other scripts.
- setenv RUNID  ${VRSN}_${MECH}_${EMIS}_${APPL}
-
-#> Set the build directory (this is where the CMAQ executable
-#> is located by default).
- set BLD       = ${CMAQ_HOME}/CCTM/scripts/BLD_CCTM_${VRSN}_${compilerString}
- set EXEC      = CCTM_${VRSN}.exe  
-
-#> Output Each line of Runscript to Log File
- if ( $CTM_DIAG_LVL != 0 ) set echo 
-
-#> Set Working, Input, and Output Directories
-
 echo "  ***** CMAQ TIMING REPORT *****"
 echo "=================================="
 echo "Start Day: ${START_DATE}"
