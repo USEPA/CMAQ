@@ -30,9 +30,7 @@ echo 'Start Model Run At ' `date`
 
 #> Source the config.cmaq file to set the build environment
 cd ../..
-
 source ./config_cmaq.csh $compiler $compilerVrsn
-
 cd CCTM/scripts
 
 #> Set General Parameters for Configuring the Simulation
@@ -41,21 +39,16 @@ cd CCTM/scripts
  set MECH      = cracmm1_aq        #> Mechanism ID
  set EMIS      = WR705_2018gc2     #> Emission Inventory Details
  set APPL      = STAGE_EM_2018_12US1  #> Application Name (e.g. Gridname)
-# set APPL_2017 = STAGE_EM_2017_12US1
 
 #> Define RUNID as any combination of parameters above or others. By default,
 #> this information will be collected into this one string, $RUNID, for easy
 #> referencing in output binaries and log files as well as in other scripts.
  setenv RUNID  ${VRSN}_${MECH}_${EMIS}_${APPL}
-# setenv RUNID_2017 ${VRSN}_${MECH}_${EMIS}_${APPL_2017}
-# setenv CMAQ_HOME  /home/kappel/CMAQ_Code/PROJECTS/CMAQ_v54_20220727
 
 #> Set the build directory (this is where the CMAQ executable
 #> is located by default).
  set BLD       = ${CMAQ_HOME}/CCTM/scripts/BLD_CCTM_${VRSN}_${compilerString}
-# set BLD	= ${CMAQ_HOME}/CCTM/scripts/BLD_CCTM_v531_intel18.0_M3Dry
  set EXEC      = CCTM_${VRSN}.exe  
-# set EXEC	= CCTM_v531.exe
 
 #> Output Each line of Runscript to Log File
  if ( $CTM_DIAG_LVL != 0 ) set echo 
@@ -64,7 +57,6 @@ cd CCTM/scripts
 
  setenv WORKDIR ${CMAQ_HOME}/CCTM/scripts       #> Working Directory. Where the runscript is.
  setenv OUTDIR  ${CMAQ_DATA}/output_CCTM_${RUNID} #> Output Directory
-# setenv OUTDIR_2017 /work/MOD3EVAL/wtt/CMAQ_v54_Dev/data/output_${RUNID_2017}
  setenv INPDIR  /work/MOD3DATA/2018_12US1  #Input Directory
  setenv LOGDIR  ${OUTDIR}/LOGS     #> Log Directory Location
  setenv NMLpath ${BLD}             #> Location of Namelists. Common places are: 
@@ -82,19 +74,13 @@ cd CCTM/scripts
 # =====================================================================
 
 #> Set Start and End Days for looping
- setenv NEW_START FALSE             #> Set to FALSE for model restart
+ setenv NEW_START TRUE             #> Set to FALSE for model restart
  set START_DATE = "2018-07-01"     #> beginning date (January 1, 2017)
  set END_DATE   = "2018-07-31"     #> ending date    (December 31, 2017)
 
 #> Set Timestepping Parameters
 set STTIME     = 000000            #> beginning GMT time (HHMMSS)
 set NSTEPS     = 240000            #> time duration (HHMMSS) for this run
-set TSTEP      = 010000            #> output time step interval (HHMMSS)
-
-#> Horizontal domain decomposition
-if ( $PROC == serial ) then
-   setenv NPCOL_NPROW "1 1"; set NPROCS   = 1 # single processor setting
-else
    @ NPCOL  =  16; @ NPROW = 16 
    @ NPROCS = $NPCOL * $NPROW
    setenv NPCOL_NPROW "$NPCOL $NPROW"; 
@@ -120,7 +106,7 @@ setenv STDOUT T                    #> Override I/O-API trying to write informati
                                    #>   logs and STDOUT [ options: T | F ]
 
 setenv GRID_NAME 12US1     #> check GRIDDESC file for GRID_NAME options
-setenv GRIDDESC /work/MOD3DATA/CMAQv53_TS/GRIDDESC   #> grid description file
+setenv GRIDDESC ${INPDIR}/GRIDDESC   #> grid description file
 
 #> Retrieve the number of columns, rows, and layers in this simulation
 set NZ = 35
@@ -130,10 +116,9 @@ set NCELLS = `echo "${NX} * ${NY} * ${NZ}" | bc -l`
 
 #> Output Species and Layer Options
    #> CONC file species; comment or set to "ALL" to write all species to CONC
-   setenv CONC_SPCS "CO SO2 O3 NO ANO3I ANO3J ANO3K NO2 NO3 N2O5 HONO HNO3 ISO GLY NH3 ANH4I ANH4J ANH4K ASO4I ASO4J ASO4K AALJ ASIJ ACAJ AFEJ ATIJ AECI AECJ PAN ONIT TRPN ISON NALD PPN MPAN APOCI APOCJ AISO3NOSJ AISO3OSJ AHOMJ AELHOMJ AGLYJ AORGCJ APNCOMI APNCOMJ ANAI ANAJ ACLI ACLJ AOTHRI AOTHRJ AMNJ AMGJ AKJ ASOATJ AOP3J AROCN2ALKI AROCN2ALKJ AROCN1ALKI AROCN1ALKJ AROCP0ALKI AROCP0ALKJ AROCP1ALKI AROCP1ALKJ AROCP3ALKJ AROCN2OXY2J AROCN2OXY4J AROCN2OXY8J AROCN1OXY1J AROCN1OXY3J AROCN1OXY6J AROCP0OXY2J AROCP0OXY4J AROCP1OXY1J AROCP1OXY3J AROCP2OXY2J AROCP3OXY2J AROCN2OXY2I AROCN2OXY4I AROCN2OXY8I AROCN1OXY1I AROCN1OXY3I AROCN1OXY6I AROCP0OXY2I AROCP0OXY4I AROCP1OXY1I AROCP1OXY3I AROCP2ALKJ"
-#  setenv CONC_SPCS "CO"
-#   setenv CONC_SPECIES "ALL"   
-   setenv CONC_BLEV_ELEV " 1 35" #> CONC file layer range; comment to write all layers to CONC
+   setenv CONC_SPCS "CO SO2 O3 NO ANO3I ANO3J  NO2 NO3 HNO3 ISO GLY NH3 ANH4I ANH4J ASO4I ASO4J"
+#   setenv CONC_SPCS "ALL"   
+   setenv CONC_BLEV_ELEV " 1 1" #> CONC file layer range; comment to write all layers to CONC
 
    #> ACONC file species; comment or set to "ALL" to write all species to ACONC
    #setenv AVG_CONC_SPCS "O3 NO CO NO2 ASO4I ASO4J NH3" 
@@ -152,8 +137,7 @@ setenv CTM_ADV_CFL 0.95      #> max CFL [ default: 0.75]
 #> Science Options
 setenv CTM_OCEAN_CHEM Y      #> Flag for ocean halogen chemistry and sea spray aerosol emissions [ default: Y ]
 setenv CTM_WB_DUST N         #> use inline windblown dust emissions [ default: Y ]
-setenv CTM_WBDUST_BELD BELD3 #> landuse database for identifying dust source regions
-                             #>    [ default: BELD3 ]; ignore if CTM_WB_DUST = N
+
 setenv CTM_LTNG_NO Y         #> turn on lightning NOx [ default: N ]
 setenv KZMIN Y               #> use Min Kz option in edyintb [ default: Y ], 
                              #>    otherwise revert to Kz0UT
@@ -215,16 +199,6 @@ setenv B3GTS_DIAG Y          #> BEIS mass emissions diagnostic file [ default: N
 setenv CTM_WVEL Y            #> save derived vertical velocity component to conc
                              #>    file [ default: Y ]
 
-#> MPI Optimization Flags
-setenv MPI_SM_POOL 16000     #> increase shared memory pool in case many MPI_SEND headers
-setenv MP_EAGER_LIMIT 65536  #> set MPI message passing buffer size to max
-setenv MP_SINGLE_THREAD yes  #> optimize for single threaded applications [ default: no ]
-setenv MP_STDOUTMODE ordered #> order output by the processor ID
-setenv MP_LABELIO yes        #> label output by processor ID [ default: no ]
-setenv MP_SHARED_MEMORY yes  #> force use of shared memory for tasks on same node [ default: no ]
-setenv MP_ADAPTER_USE shared #> share the MP adapter with other jobs
-setenv MP_CPU_USE multiple   #> share the node with multiple users/jobs
-setenv MP_CSS_INTERRUPT yes  #> specify whether arriving packets generate interrupts [ default: no ]
 
 # =====================================================================
 #> Input Directories and Filenames
@@ -740,7 +714,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   setenv gc_matrix_nml ${NMLpath}/GC_$MECH.nml
   setenv ae_matrix_nml ${NMLpath}/AE_$MECH.nml
   setenv nr_matrix_nml ${NMLpath}/NR_$MECH.nml
-  setenv tr_matrix_nml /work/MOD3DATA/CMAQv53_TS/misc/Species_Table_TR_EQUATES_12US1.nml
+  setenv tr_matrix_nml ${NMLpath}/Species_Table_TR_0.nml
 
   #> check for photolysis input data
   setenv CSQY_DATA ${NMLpath}/CSQY_DATA_$MECH
@@ -802,73 +776,6 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   echo "\\\\\=====\\\\\=====\\\\\=====\\\\\=====/////=====/////=====/////=====/////"
   echo
 
-  #> set up post-processing
-  #> the following steps should be performed by the post-processing setup:
-  #> 1) combine post-processing for ACONC (incl. PHOTDIAG1 column variables),
-  #>    DEP, and 3D CONC
-  #>    if it is the last day of a month, compute monthly averages for combined
-  #>    ACONC and 3D CONC and monthly sums for combined DEP
-  #>    ACONC requires CCTM_ACONC, METCRO3D, CCTM_APMDIAG, METCRO2D, and CCTM_PHOTDIAG1
-  #>    DEP requires CCTM_DRYDEP, CCTM_WETDEP1, and METCRO2D
-  #>    CONC requires CCTM_CONC and METCRO3D
-  #> 2) Run BCON for 12US1. This requires CCTM_CONC and METCRO3D
-  #> 3) Run ozonesonde site model profile extraction code. This requires CCTM_CONC
-  #>    and METCRO3D
-  #> 4) Archive and delete outputs (partially done by 1) - 3))
-
-  #> set up environment variables for postprocessing scripts
-
-  setenv START_DATE_H ${TODAYG}
-  setenv END_DATE_H ${TODAYG}
-  setenv APPL ${APPL}
-  setenv CCTMOUTDIR ${OUTDIR}
-  setenv POSTDIR ${OUTDIR}/PostProcess
-  setenv ASMDIR_OUTPUTS  "/asm/MOD3EVAL/CMAQ_v54_Dev/${VRSN}_${MECH}_${EMIS}_${APPL}/output/${MM}"
-  setenv ASMDIR_COMBINE1 "/asm/MOD3EVAL/CMAQ_v54_Dev/${VRSN}_${MECH}_${EMIS}_${APPL}/POST"
-  setenv ASMDIR_COMBINE2 "/asm/MOD3EVAL/CMAQ_v54_Dev/${VRSN}_${MECH}_${EMIS}_${APPL}/POST_3D/${MM}"
-  setenv METCRO2D_NAME ${MET_CRO_2D}
-  setenv METCRO3D_NAME ${MET_CRO_3D}
-  setenv CCTM_ACONC_NAME "CCTM_ACONC_${RUNID}"
-  setenv CCTM_CONC_NAME "CCTM_CONC_${RUNID}"
-  setenv CCTM_APMDIAG_NAME "CCTM_APMDIAG_${RUNID}"
-  setenv CCTM_WETDEP1_NAME "CCTM_WETDEP1_${RUNID}"
-  setenv CCTM_DRYDEP_NAME "CCTM_DRYDEP_${RUNID}"
-
-  if (! -e $ASMDIR_OUTPUTS ) then
-#   mkdir -p $ASMDIR_OUTPUTS
-  endif
-
-  if (! -e $ASMDIR_COMBINE1 ) then
-#   mkdir -p $ASMDIR_COMBINE1
-  endif
-
-  if (! -e $ASMDIR_COMBINE2 ) then
-#   mkdir -p $ASMDIR_COMBINE2
-  endif
-
-#  sbatch --export=ALL /work/MOD3EVAL/wtt/CMAQ_v54_Dev/post/combine_cmaqv54_aconc_dep_conc_cracmm_aq_batch.csh
-
-  setenv START_DATE ${TODAYG}
-  setenv END_DATE ${TODAYG}
-#  setenv MET_CRO_3D_CRS ${MET_CRO_3D}
-#  setenv MET_BDY_3D_FIN /asm/MOD3DATA/CMAQv53_TS/${YEAR}_12US1/met/mcip_v51_wrf_v411_noltng/METBDY3D_${YYYYMMDD}.nc4
-
-#  sbatch --export=ALL /work/MOD3APP/css/CMAQv53_TS/post/run_bcon_hcmaq_12us1_cmaqv53_ts.csh
-
-#  sbatch --export=ALL /work/MOD3APP/css/CMAQv53_TS/post/run_extract_o3sonde_sites_from_conc_hourly.csh
-
-#  rm -f ${OUTDIR}/CCTM_PHOTDIAG2_${CTM_APPL}.nc ${OUTDIR}/CCTM_PHOTDIAG3_${CTM_APPL}.nc
-
-  #> archive and delete files not needed by any postprocessing programs
-#  aput -q -d -retention=maximum -a ${ASMDIR_OUTPUTS} ${OUTDIR}/CCTM_PHOTDIAG2_${CTM_APPL}.nc \
-#                                                    ${OUTDIR}/CCTM_PHOTDIAG3_${CTM_APPL}.nc \
-#                                                    ${OUTDIR}/CCTM_LTNGHRLY_${CTM_APPL}.nc \
-#                                                    ${OUTDIR}/CCTM_MEDIA_CONC_${CTM_APPL}.nc \
-#                                                    ${OUTDIR}/CCTM_${CTM_APPL}.cfg
-
-  #> archive but do not delete required input files  (CGRID and SOILOUT)
-#  aput -q -retention=maximum -a ${ASMDIR_OUTPUTS} ${OUTDIR}/CCTM_CGRID_${CTM_APPL}.nc
-#  aput -q -retention=maximum -a ${ASMDIR_OUTPUTS} ${OUTDIR}/CCTM_BSOILOUT_${CTM_APPL}.nc
 
 # ===================================================================
 #> Finalize Run for This Day and Loop to Next Day
@@ -887,12 +794,6 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   set TODAYG = `date -ud "${TODAYG}+1days" +%Y-%m-%d` #> Add a day for tomorrow
   set TODAYJ = `date -ud "${TODAYG}" +%Y%j` #> Convert YYYY-MM-DD to YYYYJJJ
 
-   ### submit the site_cmp script to generate paired R object for the day
-#  if($YYYYMMDD > ${YYYY}0101) then
-#    set Anal_dir = /work/MOD3EVAL/dkj/Projects/EQUATES/analysis/jobs
-#    qsub -v "OUTDIR=$OUTDIR,RUNID=$RUNID,YYYYMMDD=$YYYYMMDD" $Anal_dir/job.buildInCMAQ532runscript.csh
-#  endif
-
 end  #Loop to the next Simulation Day
 
 # ===================================================================
@@ -909,6 +810,97 @@ set RTMTOT = `echo "scale=2; ${RTMTOT} / 1" | bc -l`
 
 echo
 echo "=================================="
+echo "  ***** CMAQ TIMING REPORT *****"
+echo "=================================="
+echo "Start Day: ${START_DATE}"
+echo "End Day:   ${END_DATE}"
+echo "Number of Simulation Days: ${NDAYS}"
+echo "Domain Name:               ${GRID_NAME}"
+echo "Number of Grid Cells:      ${NCELLS}  (ROW x COL x LAY)"
+echo "Number of Layers:          ${NZ}"
+echo "Number of Processes:       ${NPROCS}"
+echo "   All times are in seconds."
+echo
+echo "Num  Day        Wall Time"
+set d = 0
+set day = ${START_DATE}
+foreach it ( `seq ${NDAYS}` )
+    # Set the right day and format it
+    set d = `echo "${d} + 1"  | bc -l`
+    set n = `printf "%02d" ${d}`
+
+    # Choose the correct time variables
+    set rt = `echo ${rtarray} | cut -d' ' -f${it}`
+
+    # Write out row of timing data
+    echo "${n}   ${day}   ${rt}"
+
+    # Increment day for next loop
+    set day = `date -ud "${day}+1days" +%Y-%m-%d`
+end
+echo "     Total Time = ${RTMTOT}"
+echo "      Avg. Time = ${RTMAVG}"
+
+exit
+#!/bin/csh -f
+
+# ============== CCTMv5.4.X STAGE EM CRACMM 12US1 Run Script ================
+# Usage: run.cctm >&! cctm_2018_12US1_CRACMM.log &                                
+#
+# To report problems or request help with this script/program:
+#             http://www.epa.gov/cmaq    (EPA CMAQ Website)
+#             http://www.cmascenter.org  (CMAS Website)
+# ===========================================================================  
+
+
+# ===================================================================
+#> Runtime Environment Options
+# ===================================================================
+
+echo 'Start Model Run At ' `date`
+
+#> Toggle Diagnostic Mode which will print verbose information to 
+#> standard output
+ setenv CTM_DIAG_LVL 0
+
+#> Choose compiler and set up CMAQ environment with correct 
+#> libraries using config.cmaq. Options: intel | gcc | pgi
+ if ( ! $?compiler ) then
+   setenv compiler intel
+ endif
+ if ( ! $?compilerVrsn ) then
+   setenv compilerVrsn Empty
+ endif
+
+#> Source the config.cmaq file to set the build environment
+cd ../..
+
+source ./config_cmaq.csh $compiler $compilerVrsn
+
+cd CCTM/scripts
+
+#> Set General Parameters for Configuring the Simulation
+ set VRSN      = v54               #> Code Version
+ set PROC      = mpi               #> serial or mpi
+ set MECH      = cracmm1_aq        #> Mechanism ID
+ set EMIS      = WR705_2018gc2     #> Emission Inventory Details
+ set APPL      = STAGE_EM_2018_12US1  #> Application Name (e.g. Gridname)
+
+#> Define RUNID as any combination of parameters above or others. By default,
+#> this information will be collected into this one string, $RUNID, for easy
+#> referencing in output binaries and log files as well as in other scripts.
+ setenv RUNID  ${VRSN}_${MECH}_${EMIS}_${APPL}
+
+#> Set the build directory (this is where the CMAQ executable
+#> is located by default).
+ set BLD       = ${CMAQ_HOME}/CCTM/scripts/BLD_CCTM_${VRSN}_${compilerString}
+ set EXEC      = CCTM_${VRSN}.exe  
+
+#> Output Each line of Runscript to Log File
+ if ( $CTM_DIAG_LVL != 0 ) set echo 
+
+#> Set Working, Input, and Output Directories
+
 echo "  ***** CMAQ TIMING REPORT *****"
 echo "=================================="
 echo "Start Day: ${START_DATE}"
