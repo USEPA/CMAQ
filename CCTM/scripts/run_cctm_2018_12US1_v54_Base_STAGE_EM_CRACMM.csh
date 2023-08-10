@@ -57,7 +57,7 @@ cd CCTM/scripts
 
  setenv WORKDIR ${CMAQ_HOME}/CCTM/scripts       #> Working Directory. Where the runscript is.
  setenv OUTDIR  ${CMAQ_DATA}/output_CCTM_${RUNID} #> Output Directory
- setenv INPDIR  /work/MOD3DATA/2018_12US1  #Input Directory
+ setenv INPDIR  ${CMAQ_DATA}/2018_12US1  #Input Directory
  setenv LOGDIR  ${OUTDIR}/LOGS     #> Log Directory Location
  setenv NMLpath ${BLD}             #> Location of Namelists. Common places are: 
                                    #>   ${WORKDIR} | ${CCTM_SRC}/MECHS/${MECH} | ${BLD}
@@ -274,12 +274,8 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   #> Initial conditions
   if ($NEW_START == true || $NEW_START == TRUE ) then
      setenv ICFILE CCTM_CGRID_v54_cracmm1_aq_WR705_2018gc2_STAGE_EM_2018_12US1_${YESTERDAY}.nc 
-     setenv INIT_MEDC_1 $ICpath/CCTM_MEDIA_CONC_v54_cracmm1_aq_WR705_2018gc2_STAGE_EM_2018_12US1_${YESTERDAY}.nc
-     setenv BEIS_SOILINP    $ICpath/CCTM_BSOILOUT_v54_cracmm1_aq_WR705_2018gc2_STAGE_EM_2018_12US1_${YESTERDAY}.nc
-     setenv INITIAL_RUN N #related to restart soil information file
   else
      if (${TODAYG} == $START_DATE) then
-#        set ICpath = $ICpath
         setenv ICFILE CCTM_CGRID_v54_cracmm1_aq_WR705_2018gc2_STAGE_EM_2018_12US1_${YESTERDAY}.nc
         setenv INIT_MEDC_1 $ICpath/CCTM_MEDIA_CONC_v54_cracmm1_aq_WR705_2018gc2_STAGE_EM_2018_12US1_${YESTERDAY}.nc
      else
@@ -287,7 +283,6 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
         setenv ICFILE CCTM_CGRID_${RUNID}_${YESTERDAY}.nc
         setenv INIT_MEDC_1 $ICpath/CCTM_MEDIA_CONC_${RUNID}_${YESTERDAY}.nc
      endif
-     setenv INITIAL_RUN N
   endif
 
   #> Boundary conditions, use STAGE files if CCTM uses the stage option for depv
@@ -496,12 +491,6 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
                              #> Biogenic NO soil input file; ignore if INITIAL_RUN = Y
   endif
 
-  #> Windblown dust emissions configuration
-  if ( $CTM_WB_DUST == 'Y' ) then
-     # Input variables for BELD3 Landuse option
-     setenv DUST_LU_1 $LUpath/beld3_12US1_459X299_output_a.ncf
-     setenv DUST_LU_2 $LUpath/beld4_12US1_459X299_output_tot.ncf
-  endif
   
   #> In-line sea spray emissions configuration
 #  setenv OCEAN_1 /work/MOD3DATA/CMAQv53_TS/misc/12US1_surf.ncf
