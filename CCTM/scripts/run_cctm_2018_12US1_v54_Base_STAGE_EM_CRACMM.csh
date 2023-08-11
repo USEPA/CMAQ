@@ -216,12 +216,8 @@ set BCpath    = $INPDIR/icbc/CMAQv54_2018_108NHEMI_CRACCM1_FROM_CB6R5M_STAGE_EME
 set EMISpath  = $INPDIR/emis/WR705_2018gc2_cracmmv1/cmaq_ready/merged_nobeis_norwc #> surface emissions input directory
 set EMISpath2 = $INPDIR/emis/WR705_2018gc2_cracmmv1/premerged/rwc	#> surface residential wood combustion emissions directory
 set IN_PTpath = $INPDIR/emis/WR705_2018gc2_cracmmv1/cmaq_ready  #> elevated emissions input directory (in-line point only)
-#set EMISpath = /work/MOD3DEV/mroark/WR705/WR705_2018gc2/smoke_out/WR705_2018gc2/12US1/cmaq_cracmmv1/merged_nobeis_norwc
-#set EMISpath2 = /work/MOD3DEV/mroark/WR705/WR705_2018gc2/premerged/rwc
-#set IN_PTpath = /work/MOD3DEV/mroark/WR705/WR705_2018gc2/smoke_out/WR705_2018gc2/12US1/cmaq_cracmmv1
 set IN_LTpath = $INPDIR/nldn	          #> lightning NOx input directory
 set METpath   = $INPDIR/met/WRFv4.3.3_LTNG_MCIP5.3.3_compressed        #> meteorology input directory
-#set METpath	= $INPDIR/met/mcip_v51_wrf_v411_noltng
 #set JVALpath  = $INPDIR/jproc            #> offline photolysis rate table directory
 set OMIpath   = $BLD                      #> ozone column data for the photolysis model
 set LUpath    = $INPDIR/surface           #> BELD landuse data for windblown dust model
@@ -328,10 +324,9 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   #> + Emission Control (DESID) Documentation in the CMAQ User's Guide:
   #>   https://github.com/USEPA/CMAQ/blob/master/DOCS/Users_Guide/Appendix/CMAQ_UG_appendixB_emissions_control.md
   #>
-### Currently the DESID files are in Sara Farrell's repository
-### They will be moved to the USEPA/CMAQ_Dev repository at a later time
-  setenv DESID_CTRL_NML /work/MOD3DEV/sfarrell/PR_CRACMM/CCTM/scripts/BLD_CCTM_v54_intel18.0/CMAQ_Control_DESID.nml
-  setenv DESID_CHEM_CTRL_NML /work/MOD3DEV/sfarrell/PR_CRACMM/CCTM/scripts/BLD_CCTM_v54_intel18.0/CMAQ_Control_DESID_${MECH}.nml
+
+  setenv DESID_CTRL_NML ${BLD}/CMAQ_Control_DESID.nml
+  setenv DESID_CHEM_CTRL_NML ${BLD}/CMAQ_Control_DESID_${MECH}.nml
 
   #> The following namelist configures aggregated output (via the Explicit and Lumped
   #> Air Quality Model Output (ELMO) Module), domain-wide budget output, and chemical
