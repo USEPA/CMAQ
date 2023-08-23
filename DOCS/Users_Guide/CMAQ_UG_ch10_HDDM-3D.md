@@ -138,17 +138,18 @@ For each sensitivity:
 1. (mandatory) The first line is the name of the sensitivity parameter; any 3-character name of the user's choosing, no leading spaces
 2. (mandatory) The next line specifies the type of sensitivity (One leading space followed by 4 capitalized characters)
       * EMIS: Emissions 
-      * INIT: Initial Conditions
-      * BOUN: Boundary Conditions
+      * ICON: Initial Conditions
+      * BCON: Boundary Conditions
       * RATE: Reaction rate
       * HIGH: Higher-order sensitivity.
+      * PVO3: Potential vorticity
 3. (mandatory) For EMIS, the next line specifies the emissions streams to be used for this parameter. The comma-delimited list must have two leading spaces. The stream names must be defined in the run script. Alternatively, the key word 'TOTA' will use all model emissions for this parameter. 
 4. (mandatory)
-      * For EMIS, INIT, or BOUN sensitivity: The term ' SPECIES' (all-cap, one leading space) must appear next.
+      * For EMIS, ICON, BCON, or PVO3 sensitivity: The term ' SPECIES' (all-cap, one leading space) must appear next.
       * For RATE sensitivity: The term ' REACTION' (all-cap, one leading space) must appear next.
       * For HIGH sensitivity: The next 2 lines must each be one leading space followed by the name of the sensitivity to which we're taking higher order sensitivity. That name must have already been defined as the name of a sensitivity parameter. No further information should be defined for a higher-order sensitivity parameter.
 5. (mandatory)
-      * For EMIS, INIT, or BOUN sensitivity: Specify one or more species.  The comma-delimited species list must have two leading spaces and then exactly match a species from model species list. The keyword 'ALL' here allows for all model species instead.
+      * EMIS, ICON, BCON, or PVO3 sensitivity: Specify one or more species.  The comma-delimited species list must have two leading spaces and then exactly match a species from model species list. The keyword 'ALL' here allows for all model species instead. Note that only the species "O3" will result in a signal for PVO3 sensitivity.
       * For RATE sensitivity: Specify one or more reactions.  Names must have two leading spaces and then exactly match the _label_ from mech.def (also in RXDT.EXT).
 6. (optional) 
      * The term ' REGION' (all-cap, one leading space). If this term is used, the next line must be a comma-delimited list of region variables.
