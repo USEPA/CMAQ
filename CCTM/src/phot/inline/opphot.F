@@ -70,6 +70,7 @@ C...Local variables
       INTEGER N, L, JWL, INCR     ! loop variables
 C-----------------------------------------------------------------------
 
+#ifndef mpas
 C...Try to open existing file for update
 
       IF ( .NOT. OPEN3( CTM_RJ_1, FSRDWR3, PNAME ) ) THEN
@@ -552,6 +553,8 @@ C...Open the 3rd photolysis diagnostic file
          END IF
 
       END IF
+#endif
+
 99950    FORMAT('|Variable Name|Units|Description                                   |')         
 99951    FORMAT('|:----|:----:|:---------------------------------------------|')
 99952    FORMAT('|', A16, '|', A16, '|', A, '|')
