@@ -24,7 +24,11 @@ c:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       USE UTILIO_DEFN
 
       IMPLICIT NONE
-       
+
+#ifdef mpas
+      INTEGER, PARAMETER :: M3REAL  =   5
+#endif
+
       ! Define Logical values as T and F for the aerospc table
       Logical, Parameter, Private :: T = .true.
       Logical, Parameter, Private :: F = .false.

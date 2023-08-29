@@ -145,6 +145,9 @@
       INST_ACTIVE = INSTANT
       AVRG_ACTIVE = AVERAGE
       L_ELMO = ( INST_ACTIVE .OR. AVRG_ACTIVE )
+#ifdef mpas
+      L_ELMO = .false.  
+#endif
       
       IF ( .NOT. L_ELMO ) THEN
           DEALLOCATE( FAM_LIST ) 
@@ -2551,7 +2554,11 @@
             CALL CALC_ELMO( ID_PMF_H2O, 1, VAL2 )
 
             !PMF_PH = -1*LOG10(HPMOLAL)
+#ifdef mpas
+            OUTVAL = -9.999E36
+#else
             OUTVAL = BADVAL3
+#endif
             IF ( VAL2 .GT. 0.01 )
      &           OUTVAL = -1.0 * LOG10( VAL )
 
@@ -2885,7 +2892,11 @@
              IF ( L1 .EQ. 1 ) THEN
                  OUTVAL = ELMO_AOD_550( C1,R1 )
              ELSE
-                 OUTVAL = AMISS3
+#ifdef mpas
+            OUTVAL = -9.000E36
+#else
+            OUTVAL = AMISS3
+#endif
              END IF
 
          ! Retrieve Aerosol Extinction at 550 nm
@@ -3141,11 +3152,11 @@
          INIT_STEP = .TRUE.
       ELSE
          WSTEP = WSTEP + TIME2SEC( TSTEP( 2 ) )
-         IF ( WSTEP .GE. TIME2SEC( TSTEP( 1 ) ) ) 
+         IF ( WSTEP .GE. TIME2SEC( TSTEP( 1 ) ) )
      &        WRITE_STEP = .TRUE.
       END IF
       ELMO_NSTEP = ELMO_NSTEP + 1.0
-     
+
       ! Get Meteorological Variables
 
       ! pressure [Pa]
@@ -3172,7 +3183,11 @@
       if ( pv_avail ) then
            call interpolate_var ('PV', jdate, jtime, PVS)
       else
-           PVS = AMISS3
+#ifdef mpas
+            PVS = -9.000E36
+#else
+            PVS = AMISS3
+#endif
       end if
       
       ! retrieve layer midpoint heights. This is a mass weighted
@@ -3202,7 +3217,11 @@
              CFRAC= CFRACS( C,R ) 
          ELSE
              DZ   = ZF( C,R,L ) - ZF( C,R,L-1 )
-             CFRAC= AMISS3
+#ifdef mpas
+            CFRAC = -9.000E36
+#else
+            CFRAC = AMISS3
+#endif
          END IF
          ZH       = ZHS( C,R,L )
          PV       = PVS( C,R,L )
@@ -3267,7 +3286,7 @@
 
         INTEGER :: L          ! loop induction variables
         INTEGER :: MDATE, MTIME
-
+#ifndef mpas
       ! Define General Output File Parameters
       FTYPE3D = GRDDED3
       GDNAM3D = GRID_NAME  ! from HGRD_DEFN
@@ -3288,9 +3307,11 @@
       VGTOP3D = VGTOP_GD
       NTHIK3D =     1
 
+#endif
       ! Open Instantaneous PM Diagnostic File
       IF ( INST_ACTIVE ) THEN
         
+#ifndef mpas
          ! Try to open existing file for update
          IF ( .NOT. OPEN3( CTM_ELMO_1, FSRDWR3, PNAME ) ) THEN
 
@@ -3323,12 +3344,14 @@
             END IF
 
          END IF
+#endif
       END IF
  
 
       ! Open Average Output PM Diagnostic File
       IF ( AVRG_ACTIVE ) THEN
         
+#ifndef mpas
          ! Try to open existing file for update
          IF ( .NOT. OPEN3( CTM_AELMO_1, FSRDWR3, PNAME ) ) THEN
 
@@ -3364,6 +3387,7 @@
             END IF
  
          END IF
+#endif
       END IF
  
       END SUBROUTINE OPEN_ELMO 
@@ -3393,6 +3417,7 @@ C *** If IO Proceesor, then Write Data
 
 C *** Write data to the scalar output file.
          IF ( INST_ACTIVE ) THEN
+#ifndef mpas
             IF ( .NOT. WRITE3( CTM_ELMO_1, 
      &           ALLVAR3, MDATE, MTIME,
      &           ELMO_INST(:,:,:,:) ) ) THEN
@@ -3404,29 +3429,32 @@ C *** Write data to the scalar output file.
      &                     'Timestep written to', CTM_ELMO_1,
      &                     'for date and time', MDATE, MTIME
 
+#endif
          END IF
      
 C *** Write data to the average aerosol diagnostic file.
          IF ( .NOT.INIT_TIME ) THEN
+#ifndef mpas
            IF ( AVRG_ACTIVE ) THEN
-              IF ( .NOT. END_TIME ) THEN   ! ending time timestamp
-                 CALL NEXTIME ( MDATE, MTIME, -TSTEP(1) )
-              END IF
+            IF ( .NOT. END_TIME ) THEN   ! ending time timestamp
+               CALL NEXTIME ( MDATE, MTIME, -TSTEP(1) )
+            END IF
           
-              IF ( .NOT. WRITE3( CTM_AELMO_1, 
+            IF ( .NOT. WRITE3( CTM_AELMO_1, 
      &             ALLVAR3, MDATE, MTIME, 
      &             ELMO_AVRG(:,:,:,:) / 2.0 / 
      &             (ELMO_NSTEP-1.0) ) ) THEN
-                 XMSG = 'Could not write ' // CTM_AELMO_1 // ' file'
-                 CALL M3EXIT ( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
-              END IF
+               XMSG = 'Could not write ' // CTM_AELMO_1 // ' file'
+               CALL M3EXIT ( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
+            END IF
           
-              WRITE( LOGDEV, '( /5X, 3( A, :, 1X ), I8, ":", I6.6 )' )
+            WRITE( LOGDEV, '( /5X, 3( A, :, 1X ), I8, ":", I6.6 )' )
      &                       'Timestep written to', CTM_AELMO_1,
      &                       'for date and time', MDATE, MTIME
           
           
            END IF
+#endif
            ELMO_NSTEP = 0.
          END IF
       RETURN 
