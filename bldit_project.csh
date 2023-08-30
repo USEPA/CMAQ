@@ -16,7 +16,9 @@
 #> the repository. The user may also set their own preferred 
 #> directory.
 
+
  set CMAQ_HOME = /home/username/path
+
 
 #> This section allows users to choose explicitly which tools
 #> to make available from the repo. For each selected tool,
@@ -264,7 +266,7 @@
 #===============================================================================
  # Insert Job Scheduler Preface into Run Scripts for those working inside EPA
  if ( $IS_EPA ) then
-    source /work/MOD3DEV/cmaq_common/epa_scheduler.csh  #>>> Comment Out if not at EPA
+   source /work/MOD3DEV/cmaq_common/epa_scheduler.csh  #>>> Comment Out if not at EPA
  endif
 
 #===============================================================================
