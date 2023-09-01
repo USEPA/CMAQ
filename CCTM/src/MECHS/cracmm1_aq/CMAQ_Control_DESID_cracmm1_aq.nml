@@ -302,6 +302,47 @@
     'EVERYWHERE', 'PT_OILGAS'     ,'PMOCN2' ,'VROCP3OXY2'  ,'FINE',0.   ,'MASS','a', 
     'EVERYWHERE', 'PT_OILGAS'     ,'PMNCOMN2','VROCP3OXY2'  ,'FINE',0.   ,'MASS','a', 
 
+   ! Diesel Family Volatility Distribution (Mostly Onroad and Offroad Sources and CMV)
+    'EVERYWHERE', 'PT_CMV_C1C2'      ,'PMOCN2' ,'AROCN1ALK'  ,'FINE',0.187,'MASS','a',
+    'EVERYWHERE', 'PT_CMV_C1C2'     ,'PMNCOMN2','AROCN1ALK'  ,'FINE',0.187,'MASS','a',
+    'EVERYWHERE', 'PT_CMV_C1C2'      ,'PMOCN2' ,'AROCP0ALK'  ,'FINE',0.043,'MASS','a',
+    'EVERYWHERE', 'PT_CMV_C1C2'     ,'PMNCOMN2','AROCP0ALK'  ,'FINE',0.043,'MASS','a',
+    'EVERYWHERE', 'PT_CMV_C1C2'      ,'PMOCN2' ,'VROCP0ALK'  ,'GAS' ,0.043,'MASS','a',
+    'EVERYWHERE', 'PT_CMV_C1C2'     ,'PMNCOMN2','VROCP0ALK'  ,'GAS' ,0.043,'MASS','a',
+    'EVERYWHERE', 'PT_CMV_C1C2'      ,'PMOCN2' ,'VROCP1ALK'  ,'GAS' ,0.364,'MASS','a',
+    'EVERYWHERE', 'PT_CMV_C1C2'     ,'PMNCOMN2','VROCP1ALK'  ,'GAS' ,0.364,'MASS','a',
+    'EVERYWHERE', 'PT_CMV_C1C2'      ,'PMOCN2' ,'VROCP2ALK'  ,'GAS' ,0.363,'MASS','a',
+    'EVERYWHERE', 'PT_CMV_C1C2'     ,'PMNCOMN2','VROCP2ALK'  ,'GAS' ,0.363,'MASS','a',
+    'EVERYWHERE', 'PT_CMV_C1C2'      ,'PMOCN2' ,'VROCP3ALK'  ,'GAS' ,0.0  ,'MASS','a',
+    'EVERYWHERE', 'PT_CMV_C1C2'     ,'PMNCOMN2','VROCP3ALK'  ,'GAS' ,0.0  ,'MASS','a',
+
+    'EVERYWHERE', 'PT_CMV_C1C2'      ,'NMOG'   ,'VROCP3ALK'  ,'GAS' ,0.0536,'MASS','a',
+    'EVERYWHERE', 'PT_CMV_C1C2'      ,'NMOG'   ,'VROCP4ALK'  ,'GAS' ,0.1486,'MASS','a',
+    'EVERYWHERE', 'PT_CMV_C1C2'      ,'NMOG'   ,'VROCP5ALK'  ,'GAS' ,0.1869,'MASS','a',
+    'EVERYWHERE', 'PT_CMV_C1C2'      ,'NMOG'   ,'VROCP6ALK'  ,'GAS' ,0.1588,'MASS','a',
+    'EVERYWHERE', 'PT_CMV_C1C2'      ,'NMOG'   ,'VROCP5ARO'  ,'GAS' ,0.0043,'MASS','a',
+    'EVERYWHERE', 'PT_CMV_C1C2'      ,'NMOG'   ,'VROCP6ARO'  ,'GAS' ,0.0025,'MASS','a',
+
+    'EVERYWHERE', 'PT_CMV_C3'      ,'PMOCN2' ,'AROCN1ALK'  ,'FINE',0.187,'MASS','a',
+    'EVERYWHERE', 'PT_CMV_C3'     ,'PMNCOMN2','AROCN1ALK'  ,'FINE',0.187,'MASS','a',
+    'EVERYWHERE', 'PT_CMV_C3'      ,'PMOCN2' ,'AROCP0ALK'  ,'FINE',0.043,'MASS','a',
+    'EVERYWHERE', 'PT_CMV_C3'     ,'PMNCOMN2','AROCP0ALK'  ,'FINE',0.043,'MASS','a',
+    'EVERYWHERE', 'PT_CMV_C3'      ,'PMOCN2' ,'VROCP0ALK'  ,'GAS' ,0.043,'MASS','a',
+    'EVERYWHERE', 'PT_CMV_C3'     ,'PMNCOMN2','VROCP0ALK'  ,'GAS' ,0.043,'MASS','a',
+    'EVERYWHERE', 'PT_CMV_C3'      ,'PMOCN2' ,'VROCP1ALK'  ,'GAS' ,0.364,'MASS','a',
+    'EVERYWHERE', 'PT_CMV_C3'     ,'PMNCOMN2','VROCP1ALK'  ,'GAS' ,0.364,'MASS','a',
+    'EVERYWHERE', 'PT_CMV_C3'      ,'PMOCN2' ,'VROCP2ALK'  ,'GAS' ,0.363,'MASS','a',
+    'EVERYWHERE', 'PT_CMV_C3'     ,'PMNCOMN2','VROCP2ALK'  ,'GAS' ,0.363,'MASS','a',
+    'EVERYWHERE', 'PT_CMV_C3'      ,'PMOCN2' ,'VROCP3ALK'  ,'GAS' ,0.0  ,'MASS','a',
+    'EVERYWHERE', 'PT_CMV_C3'     ,'PMNCOMN2','VROCP3ALK'  ,'GAS' ,0.0  ,'MASS','a',
+
+    'EVERYWHERE', 'PT_CMV_C3'      ,'NMOG'   ,'VROCP3ALK'  ,'GAS' ,0.0536,'MASS','a',
+    'EVERYWHERE', 'PT_CMV_C3'      ,'NMOG'   ,'VROCP4ALK'  ,'GAS' ,0.1486,'MASS','a',
+    'EVERYWHERE', 'PT_CMV_C3'      ,'NMOG'   ,'VROCP5ALK'  ,'GAS' ,0.1869,'MASS','a',
+    'EVERYWHERE', 'PT_CMV_C3'      ,'NMOG'   ,'VROCP6ALK'  ,'GAS' ,0.1588,'MASS','a',
+    'EVERYWHERE', 'PT_CMV_C3'      ,'NMOG'   ,'VROCP5ARO'  ,'GAS' ,0.0043,'MASS','a',
+    'EVERYWHERE', 'PT_CMV_C3'      ,'NMOG'   ,'VROCP6ARO'  ,'GAS' ,0.0025,'MASS','a',
+
 
 
    ! --> Semivolatile POA - Use Woody et al. 2016 biomass burning for Fires
@@ -434,47 +475,6 @@
 !    'EVERYWHERE', 'GRIDDED_GASOLINE','NMOG'   ,'VROCP5ARO'  ,'GAS' ,0.0060,'MASS','a',
 !    'EVERYWHERE', 'GRIDDED_GASOLINE','NMOG'   ,'VROCP6ARO'  ,'GAS' ,0.0253,'MASS','a',
 
-   ! Diesel Family Volatility Distribution (Mostly Onroad and Offroad Sources and CMV)
-    'EVERYWHERE', 'PT_CMV_C1C2'      ,'PMOCN2' ,'AROCN1ALK'  ,'FINE',0.187,'MASS','a', 
-    'EVERYWHERE', 'PT_CMV_C1C2'     ,'PMNCOMN2','AROCN1ALK'  ,'FINE',0.187,'MASS','a', 
-    'EVERYWHERE', 'PT_CMV_C1C2'      ,'PMOCN2' ,'AROCP0ALK'  ,'FINE',0.043,'MASS','a', 
-    'EVERYWHERE', 'PT_CMV_C1C2'     ,'PMNCOMN2','AROCP0ALK'  ,'FINE',0.043,'MASS','a', 
-    'EVERYWHERE', 'PT_CMV_C1C2'      ,'PMOCN2' ,'VROCP0ALK'  ,'GAS' ,0.043,'MASS','a', 
-    'EVERYWHERE', 'PT_CMV_C1C2'     ,'PMNCOMN2','VROCP0ALK'  ,'GAS' ,0.043,'MASS','a', 
-    'EVERYWHERE', 'PT_CMV_C1C2'      ,'PMOCN2' ,'VROCP1ALK'  ,'GAS' ,0.364,'MASS','a', 
-    'EVERYWHERE', 'PT_CMV_C1C2'     ,'PMNCOMN2','VROCP1ALK'  ,'GAS' ,0.364,'MASS','a', 
-    'EVERYWHERE', 'PT_CMV_C1C2'      ,'PMOCN2' ,'VROCP2ALK'  ,'GAS' ,0.363,'MASS','a', 
-    'EVERYWHERE', 'PT_CMV_C1C2'     ,'PMNCOMN2','VROCP2ALK'  ,'GAS' ,0.363,'MASS','a', 
-    'EVERYWHERE', 'PT_CMV_C1C2'      ,'PMOCN2' ,'VROCP3ALK'  ,'GAS' ,0.0  ,'MASS','a', 
-    'EVERYWHERE', 'PT_CMV_C1C2'     ,'PMNCOMN2','VROCP3ALK'  ,'GAS' ,0.0  ,'MASS','a', 
-
-    'EVERYWHERE', 'PT_CMV_C1C2'      ,'NMOG'   ,'VROCP3ALK'  ,'GAS' ,0.0536,'MASS','a',
-    'EVERYWHERE', 'PT_CMV_C1C2'      ,'NMOG'   ,'VROCP4ALK'  ,'GAS' ,0.1486,'MASS','a',
-    'EVERYWHERE', 'PT_CMV_C1C2'      ,'NMOG'   ,'VROCP5ALK'  ,'GAS' ,0.1869,'MASS','a',
-    'EVERYWHERE', 'PT_CMV_C1C2'      ,'NMOG'   ,'VROCP6ALK'  ,'GAS' ,0.1588,'MASS','a',
-    'EVERYWHERE', 'PT_CMV_C1C2'      ,'NMOG'   ,'VROCP5ARO'  ,'GAS' ,0.0043,'MASS','a',
-    'EVERYWHERE', 'PT_CMV_C1C2'      ,'NMOG'   ,'VROCP6ARO'  ,'GAS' ,0.0025,'MASS','a',
-
-    'EVERYWHERE', 'PT_CMV_C3'      ,'PMOCN2' ,'AROCN1ALK'  ,'FINE',0.187,'MASS','a', 
-    'EVERYWHERE', 'PT_CMV_C3'     ,'PMNCOMN2','AROCN1ALK'  ,'FINE',0.187,'MASS','a', 
-    'EVERYWHERE', 'PT_CMV_C3'      ,'PMOCN2' ,'AROCP0ALK'  ,'FINE',0.043,'MASS','a', 
-    'EVERYWHERE', 'PT_CMV_C3'     ,'PMNCOMN2','AROCP0ALK'  ,'FINE',0.043,'MASS','a', 
-    'EVERYWHERE', 'PT_CMV_C3'      ,'PMOCN2' ,'VROCP0ALK'  ,'GAS' ,0.043,'MASS','a', 
-    'EVERYWHERE', 'PT_CMV_C3'     ,'PMNCOMN2','VROCP0ALK'  ,'GAS' ,0.043,'MASS','a', 
-    'EVERYWHERE', 'PT_CMV_C3'      ,'PMOCN2' ,'VROCP1ALK'  ,'GAS' ,0.364,'MASS','a', 
-    'EVERYWHERE', 'PT_CMV_C3'     ,'PMNCOMN2','VROCP1ALK'  ,'GAS' ,0.364,'MASS','a', 
-    'EVERYWHERE', 'PT_CMV_C3'      ,'PMOCN2' ,'VROCP2ALK'  ,'GAS' ,0.363,'MASS','a', 
-    'EVERYWHERE', 'PT_CMV_C3'     ,'PMNCOMN2','VROCP2ALK'  ,'GAS' ,0.363,'MASS','a', 
-    'EVERYWHERE', 'PT_CMV_C3'      ,'PMOCN2' ,'VROCP3ALK'  ,'GAS' ,0.0  ,'MASS','a', 
-    'EVERYWHERE', 'PT_CMV_C3'     ,'PMNCOMN2','VROCP3ALK'  ,'GAS' ,0.0  ,'MASS','a', 
-
-    'EVERYWHERE', 'PT_CMV_C3'      ,'NMOG'   ,'VROCP3ALK'  ,'GAS' ,0.0536,'MASS','a',
-    'EVERYWHERE', 'PT_CMV_C3'      ,'NMOG'   ,'VROCP4ALK'  ,'GAS' ,0.1486,'MASS','a',
-    'EVERYWHERE', 'PT_CMV_C3'      ,'NMOG'   ,'VROCP5ALK'  ,'GAS' ,0.1869,'MASS','a',
-    'EVERYWHERE', 'PT_CMV_C3'      ,'NMOG'   ,'VROCP6ALK'  ,'GAS' ,0.1588,'MASS','a',
-    'EVERYWHERE', 'PT_CMV_C3'      ,'NMOG'   ,'VROCP5ARO'  ,'GAS' ,0.0043,'MASS','a',
-    'EVERYWHERE', 'PT_CMV_C3'      ,'NMOG'   ,'VROCP6ARO'  ,'GAS' ,0.0025,'MASS','a',
- 
  
 !   ! Aircraft Family Turbine Engine Volatility Distribution
 !    'EVERYWHERE', 'AIRCRAFT'    ,'PMOCN2' ,'AROCN1ALK'  ,'FINE',0.149,'MASS','a', 
