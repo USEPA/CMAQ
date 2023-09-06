@@ -150,7 +150,7 @@
           REAL            :: MW    ! Emissions Variable Molecular Weight [g mol-1]
       End Type desid_legend
       
-      Integer, Parameter :: Desid_N_Emvar_Table = 193
+      Integer, Parameter :: Desid_N_Emvar_Table = 202
       Type ( desid_legend ), Parameter :: 
      &  Desid_Emvar_Table( Desid_N_Emvar_Table ) = (/
      &    desid_legend( 'NO2          ' ,046.0 ),
@@ -327,6 +327,15 @@
      &    desid_legend( 'POCP2        ' ,338.66),
      &    desid_legend( 'VROCIOXY     ' ,247.0 ),
      &    desid_legend( 'SLOWROC      ' ,075.4 ),
+     &    desid_legend( 'ROCN2        ' ,422.83),
+     &    desid_legend( 'ROCN1        ' ,408.8 ),
+     &    desid_legend( 'ROCP0        ' ,394.77),
+     &    desid_legend( 'ROCP1        ' ,380.75),
+     &    desid_legend( 'ROCP2        ' ,338.66),
+     &    desid_legend( 'ROCP3        ' ,296.58),
+     &    desid_legend( 'ROCP4        ' ,254.50),
+     &    desid_legend( 'ROCP5        ' ,198.39),
+     &    desid_legend( 'ROCP6        ' ,184.37),
      &    desid_legend( 'ROCN2ALK     ' ,422.83),
      &    desid_legend( 'ROCN1ALK     ' ,408.8 ),
      &    desid_legend( 'ROCP0ALK     ' ,394.77),
