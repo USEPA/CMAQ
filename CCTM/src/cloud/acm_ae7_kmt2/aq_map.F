@@ -141,6 +141,9 @@ C Local Variables (scalars):
       REAL( 8 ), ALLOCATABLE, SAVE  :: WSRGGAS( :, :)     ! weights for surrogate
       REAL( 8 ), ALLOCATABLE, SAVE  :: WSRGAER( :, :, :)  ! weights for surrogate
 
+      REAL( 8 ) :: FRACTR, FRACPOA, FRACPRI, FRACSOA
+      INTEGER IAERI
+
 C External Functions:
 
       INTEGER, EXTERNAL :: INDEXN           ! external func to get species pointers
@@ -149,7 +152,8 @@ C External Functions:
       INTERFACE
         SUBROUTINE AQCHEM ( JDATE, JTIME, TEMP, PRES_PA, TAUCLD, PRCRATE,
      &                      WCAVG, WTAVG, AIRM, ALFA0, ALFA2, ALFA3, GAS,
-     &                      AEROSOL, GASWDEP, AERWDEP, HPWDEP, BETASO4, COSZ )
+     &                      AEROSOL, GASWDEP, AERWDEP, HPWDEP, BETASO4, COSZ,
+     &                      FRACTR, FRACPOA, FRACPRI, FRACSOA )
            INTEGER,   INTENT( IN )  :: JDATE  ! current model date, coded YYYYDDD
            INTEGER,   INTENT( IN )  :: JTIME  ! current model time, coded HHMMSS
            REAL,      INTENT( IN )  :: AIRM      ! total air mass in cloudy layers (mol/m2)
@@ -168,6 +172,10 @@ C External Functions:
            REAL( 8 ), INTENT( INOUT ) :: AEROSOL( :,: ) ! aerosol concentrations (mol/molV)
            REAL( 8 ), INTENT( INOUT ) :: GASWDEP( : )   ! gas phase wet deposition array (mm mol/liter)
            REAL( 8 ), INTENT( INOUT ) :: AERWDEP( :,: ) ! aerosol wet deposition array (mm mol/liter)
+	   REAL( 8 ), INTENT( OUT ) :: FRACTR    ! Fraction of J mode tracer scavenged from I mode
+	   REAL( 8 ), INTENT( OUT ) :: FRACPOA   ! Fraction of J mode POA scavenged from I mode
+	   REAL( 8 ), INTENT( OUT ) :: FRACPRI   ! Fraction of J mode PRI scavenged from I mode	
+	   REAL( 8 ), INTENT( OUT ) :: FRACSOA   ! Fraction of J mode SOA scavenged from I mode   
 C           LOGICAL,   INTENT( IN )    :: DARK           ! DARK = TRUE is night,  DARK = FALSE is day
            REAL,      INTENT( IN )  :: COSZ
         END SUBROUTINE AQCHEM
@@ -309,7 +317,8 @@ C...perform aqueous-phase chemistry calculations
 
       CALL AQCHEM ( JDATE, JTIME, TBARC, PBARC, TAUCLD, PRATE1,
      &              WCBAR, WTBAR, AIRM, ALFA0, ALFA2, ALFA3, GAS,
-     &              AEROSOL, GASWDEP, AERWDEP, HPWDEP, BETASO4, COSZ )
+     &              AEROSOL, GASWDEP, AERWDEP, HPWDEP, BETASO4, COSZ,
+     &              FRACTR, FRACPOA, FRACPRI, FRACSOA )
 
 C...  compute the scavenging coefficient
       EALFA2T = EXP( -ALFA2 * TAUCLD )
@@ -330,12 +339,102 @@ C...Now, re-apportion mass back into cend/remov (cgrid-type) array
 
       DO IAER = 1, NAER
         DO IMODE = 1, NMODES
+	   
+	  IF(IAER .eq. LTRACER_ACC) THEN
+	     IAERI = LTRACER_AKN 
+          ELSE
+	     IAERI = IAER
+          END IF
+	  
           IF( SRGAER( IAER )%NAME( IMODE ) .NE. ' ' ) THEN
             DO ISRG = 1, NSRGAER( IAER, IMODE )
               PNTR = CGRID2AQ_MAP( LSRGAER( IAER, IMODE, ISRG ) )
               CEND ( PNTR ) = AEROSOL( IAER, IMODE ) * WSRGAER( IAER, IMODE, ISRG )
               REMOV( PNTR ) = AERWDEP( IAER, IMODE ) * WSRGAER( IAER, IMODE, ISRG )
-            END DO
+	      
+	      IF( IMODE .EQ. 2 ) THEN
+			
+                 IF( IAER .EQ. LPOA ) THEN
+		    IF( AKNSRG( IAER,ISRG ) .GT. 0 ) THEN
+		       CEND ( PNTR ) = (1.d0 - FRACPOA) * AEROSOL( IAER, IMODE ) * 
+     &                               WSRGAER( IAER, IMODE, ISRG ) + FRACPOA * 
+     &                               AEROSOL( IAER, IMODE ) * WSRGAER( IAERI, 1, AKNSRG(IAER,ISRG) )
+     
+                       REMOV( PNTR ) = (1.d0 - FRACPOA) * AERWDEP( IAER, IMODE ) * 
+     &                               WSRGAER( IAER, IMODE, ISRG ) + FRACPOA * 
+     &                               AERWDEP( IAER, IMODE ) * WSRGAER( IAERI, 1, AKNSRG(IAER,ISRG) )
+     
+                    ELSE
+		    
+		       CEND ( PNTR ) = (1.d0 - FRACPOA) * AEROSOL( IAER, IMODE ) * 
+     &                               WSRGAER( IAER, IMODE, ISRG ) 
+     
+                       REMOV( PNTR ) = (1.d0 - FRACPOA) * AERWDEP( IAER, IMODE ) * 
+     &                               WSRGAER( IAER, IMODE, ISRG ) 
+		    END IF
+		    
+                 ELSE IF ( IAER .EQ. LPRI ) THEN
+		    IF(AKNSRG(IAER,ISRG) .GT. 0) THEN
+		       CEND ( PNTR ) = (1.d0 - FRACPRI) * AEROSOL( IAER, IMODE ) * 
+     &                               WSRGAER( IAER, IMODE, ISRG ) + FRACPRI * 
+     &                               AEROSOL( IAER, IMODE ) * WSRGAER( IAERI, 1, AKNSRG(IAER,ISRG) )
+     
+                       REMOV( PNTR ) = (1.d0 - FRACPRI) * AERWDEP( IAER, IMODE ) * 
+     &                               WSRGAER( IAER, IMODE, ISRG ) + FRACPRI * 
+     &                               AERWDEP( IAER, IMODE ) * WSRGAER( IAERI, 1, AKNSRG(IAER,ISRG) )
+     
+		    ELSE
+		    
+		       CEND ( PNTR ) = (1.d0 - FRACPRI) * AEROSOL( IAER, IMODE ) * 
+     &                               WSRGAER( IAER, IMODE, ISRG ) 
+     
+                       REMOV( PNTR ) = (1.d0 - FRACPRI) * AERWDEP( IAER, IMODE ) * 
+     &                               WSRGAER( IAER, IMODE, ISRG ) 
+		    END IF
+		   
+                 ELSE IF ( IAER .EQ. LTRACER_ACC ) THEN
+		    
+		    IF(AKNSRG(IAER,ISRG) .GT. 0) THEN
+		       CEND ( PNTR ) = (1.d0 - FRACTR) * AEROSOL( IAER, IMODE ) * 
+     &                               WSRGAER( IAER, IMODE, ISRG ) + FRACTR * 
+     &                               AEROSOL( IAER, IMODE ) * WSRGAER( IAERI, 1, AKNSRG(IAER,ISRG) )
+     
+                       REMOV( PNTR ) = (1.d0 - FRACTR) * AERWDEP( IAER, IMODE ) * 
+     &                               WSRGAER( IAER, IMODE, ISRG ) + FRACTR * 
+     &                               AERWDEP( IAER, IMODE ) * WSRGAER( IAERI, 1, AKNSRG(IAER,ISRG) )
+     
+                    ELSE
+		    
+		       CEND ( PNTR ) = (1.d0 - FRACTR) * AEROSOL( IAER, IMODE ) * 
+     &                               WSRGAER( IAER, IMODE, ISRG ) 
+     
+                       REMOV( PNTR ) = (1.d0 - FRACTR) * AERWDEP( IAER, IMODE ) * 
+     &                               WSRGAER( IAER, IMODE, ISRG ) 
+                    END IF
+		    
+                  ELSE IF ( IAER .EQ. LSOA ) THEN
+		    
+		    IF(AKNSRG(IAER,ISRG) .GT. 0) THEN
+		       CEND ( PNTR ) = (1.d0 - FRACSOA) * AEROSOL( IAER, IMODE ) * 
+     &                               WSRGAER( IAER, IMODE, ISRG ) + FRACSOA * 
+     &                               AEROSOL( IAER, IMODE ) * WSRGAER( IAERI, 1, AKNSRG(IAER,ISRG) )
+     
+                       REMOV( PNTR ) = (1.d0 - FRACSOA) * AERWDEP( IAER, IMODE ) * 
+     &                               WSRGAER( IAER, IMODE, ISRG ) + FRACSOA * 
+     &                               AERWDEP( IAER, IMODE ) * WSRGAER( IAERI, 1, AKNSRG(IAER,ISRG) )
+     
+                    ELSE
+		    
+		       CEND ( PNTR ) = (1.d0 - FRACSOA) * AEROSOL( IAER, IMODE ) * 
+     &                               WSRGAER( IAER, IMODE, ISRG ) 
+     
+                       REMOV( PNTR ) = (1.d0 - FRACSOA) * AERWDEP( IAER, IMODE ) * 
+     &                               WSRGAER( IAER, IMODE, ISRG ) 
+                    END IF   
+                 END IF 		    
+	      END IF	      
+            
+	    END DO
           END IF 
         END DO
       END DO
@@ -349,7 +448,7 @@ C *** Calculate pseudo aerosol 3rd moment (ignore factors that cancel in the div
 C ... M3NEW is in units of m3/kmol_air
       M3NEW = 0.0
       Dens_wmean_new = 0.0
-      DO IMODE = 2, N_MODE
+      DO IMODE = 2, NMODES
 
         DO SPC = 1, N_AEROSPC
           IF (  AEROSPC( SPC )%TRACER ) CYCLE 
@@ -371,7 +470,7 @@ C...Update aerosol number
 
 C...check for minimums
 C...ug/m3*m3/mol_air*1e3 mol_air/kmol_air*1e-9kg/ug*m3/kg=> m3/kmol_air
-      DO IMODE = 2, N_MODE
+      DO IMODE = 2, NMODES
         IF ( M3NEW( IMODE ) .GT. 0.0D0 ) THEN  ! Dens_wmean_new will be .GT. 0 also
            Dens_wmean_new( IMODE ) = Dens_wmean_new( IMODE ) / M3NEW( IMODE )
            M3OLD( IMODE ) = MAX( M3OLD( IMODE ), CONMIND * 1.0d-6 / ( Dens_wmean_old( IMODE ) * AIRM / CTHK1 ) )
