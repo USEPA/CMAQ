@@ -208,8 +208,14 @@ C subset all the layers and species in cgrid for this grid cell
          end do
 
          do l = 1, nlays
+#ifdef mpas
+            rdl( l ) = alpha * Met_Data%rjacf( c,r,l ) * inv_cell_thickness(c, r, l)
+            rrhodz( l ) = Met_Data%rrhoj( c,r,l ) * inv_cell_thickness(c, r, l)
+#else
             rdl( l ) = alpha * Met_Data%rjacf( c,r,l ) * Grid_Data%rdx3f( l )
             rrhodz( l ) = Met_Data%rrhoj( c,r,l ) * Grid_Data%rdx3f( l )
+#endif
+
             ldens( l ) = Met_Data%dens( c,r,l )
          end do
 
