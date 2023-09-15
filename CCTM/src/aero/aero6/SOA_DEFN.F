@@ -71,6 +71,7 @@ C   29 Aug 18 G. Sarwar: updated for CB6R3M
 C 17 Jan 20 B.Hutzell -Added algorithm to handle tracer species and
 C                     -added benzo[a]pyrene to oa_list. Its cstar is based
 C                      on the subcooled vapor pressure in Lei et. al (2002)
+C   15 Sep 23 G. Sarwar: updated for CRACMM2
 C-----------------------------------------------------------------------
 #ifdef sens
       USE DDM3D_DEFN, ONLY : NP, NPMAX
@@ -420,7 +421,8 @@ C-----------------------------------------------------------------------
 
          ! Find indices of required species based on mechname
          If( index( mechname,'CRACMM1_AQ' ) .eq. 0 
-     &          .and. index( mechname,'CRACMM1AMORE_AQ') .eq. 0 ) Then
+     &          .and. index( mechname,'CRACMM2') .eq. 0 
+     &          .and. index( mechname,'CRACMM1AMORE_AQ') .eq. 0 ) then
              iso1_idx   = findVapor( req_sviso1, .True. )
              iso2_idx   = findVapor( req_sviso2, .True. )
              aiso1_idx  = findAero( req_aeiso1, .True. )
