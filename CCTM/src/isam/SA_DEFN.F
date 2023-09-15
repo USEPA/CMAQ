@@ -449,7 +449,7 @@ c----------------------------------------------------------
      &                    'CB6R5M_AE7_AQ     ', 
      &                    'SAPRC07TC_AE6_AQ  ', 'SAPRC07TIC_AE6I_AQ', 
      &                    'SAPRC07TIC_AE7I_AQ', 'RACM2_AE6_AQ      ',
-     &                    'CRACMM1_AQ        ', 'CRACMM2         '/ )  
+     &                    'CRACMM1_AQ        ', 'CRACMM2           '/ )  
 
         MERCURY_MECH = (/  .TRUE.,  .TRUE.,  
      &                     .TRUE.,  .FALSE., 
