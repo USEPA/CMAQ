@@ -648,9 +648,7 @@ C...  for the accumulation mode, add aqueous tracked species
             END IF
 
             IF ( ( AE6ISOA ) .OR.
-     &           ( INDEX( MECHNAME, 'CRACMM'     ) .GT. 0 ) .OR. 
      &           ( INDEX( MECHNAME, 'CB6R3_AE7'  ) .GT. 0 ) .OR.
-     &           ( INDEX( MECHNAME, 'CB6R5_AE7'  ) .GT. 0 ) .OR.
      &           ( INDEX( MECHNAME, 'CB6R5M_AE7' ) .GT. 0 ) ) THEN
     
 C...  for the accumulation mode, add aqueous tracked species
@@ -1941,15 +1939,19 @@ C...Finally, get in cloud pollutant concentrations in mol sp per mol air
 #ifdef isam
           DO SPC = 1, NSPC_SA
              CSPC = MAP_SAtoCGR(SPC)
+             SA_SUM = SUM ( SA_POLC( SPC,: ) )
 c            IF ( POLC( CSPC ) .GT. 1.0E-30 .AND. CEND( CSPC ) .GT. 1.0E-09 ) THEN
-             IF ( POLC( CSPC ) .GT. 1.0E-30 ) THEN 
+c            IF ( POLC( CSPC ) .GT. 1.0E-30 ) THEN 
+             IF ( SA_SUM .GT. 1.0E-25 ) THEN
                 DO ITAG = 1, NTAG_SA
                    SA_CEND( SPC, ITAG ) = SA_POLC( SPC, ITAG )
      &                                  * ( CEND( CSPC )
-     &                                    / POLC( CSPC ) )
+c    &                                    / POLC( CSPC ) )
+     &                                    / SA_SUM )
                    SA_REMOV( SPC, ITAG ) = SA_POLC( SPC, ITAG )
      &                                   * ( REMOV( CSPC )
-     &                                     / POLC( CSPC ) )
+c    &                                     / POLC( CSPC ) )
+     &                                     / SA_SUM )
                 END DO
              ELSE 
                 DO ITAG = 1, NTAG_SA
@@ -1999,14 +2001,18 @@ C...  mimic this for the ASO4GASJ tracking species
 #ifdef isam
             DO SPC = 1, NSPC_SA ! general case
               CSPC = MAP_SAtoCGR(SPC)
+              SA_SUM = SUM ( SA_POLC( SPC,: ) )
               DO ITAG = 1, NTAG_SA
-                IF ( POLC( CSPC ) .GT. 1.0E-30 ) THEN
+c               IF ( POLC( CSPC ) .GT. 1.0E-30 ) THEN
+                IF ( SA_SUM .GT. 1.0E-25 ) THEN
                   SA_CEND( SPC,ITAG ) = SA_POLC( SPC,ITAG )
      &                                * ( CEND( CSPC )
-     &                                  / MAX( 1.0E-26,POLC( CSPC ) ) )
+c    &                                  / MAX( 1.0E-26,POLC( CSPC ) ) )
+     &                                  / SA_SUM )
                   SA_REMOV( SPC,ITAG ) = SA_POLC( SPC, ITAG )
      &                                 * ( REMOV( CSPC )
-     &                                   / MAX( 1.0E-25, POLC( CSPC ) ))
+c    &                                   / MAX( 1.0E-25, POLC( CSPC ) ))
+     &                                   / SA_SUM )
                 ELSE
                   SA_CEND( SPC,ITAG )  = 0.0
                   SA_REMOV( SPC,ITAG ) = 0.0
