@@ -251,6 +251,419 @@
      7     1.1700E-02, 1.1900E-02, 1.2200E-02, 1.2400E-02, 1.2500E-02,
      +     1.2500E-02, 1.2500E-02, 1.2500E-02/
 
+! Glyoxal quantum yields at 296 K, JPL-19 Recommendation:
+!1) J. B. Burkholder, S. P. Sander, J. Abbatt, J. R. Barker, C. Cappa, J. D. Crounse, T. S. Dibble, R. E. Huie, C. E. Kolb,
+!   M. J. Kurylo, V. L. Orkin, C. J. Percival, D. M. Wilmouth, and P. H. Wine "Chemical Kinetics and Photochemical
+!   Data for Use in Atmospheric Studies, Evaluation No. 19," JPL Publication 19-5, Jet Propulsion Laboratory, Pasadena,
+!   2019 http://jpldataeval.jpl.nasa.gov.
+!   Values extracted from Table 4D-29-2 on page 690 (Labeled 4-144)
+!
+! Number of wavelengths for glyoxal quantum yield
+       INTEGER, PARAMETER :: N_QY_GLYOXAL = 40
+
+!  Wavelengths for (CHO)2 Quantum Yields (nm) 
+       REAL WV_GLYOXAL_QY( N_QY_GLYOXAL )
+       DATA WV_GLYOXAL_QY /
+     &                       225.0,
+     &                       230.0,
+     &                       235.0,
+     &                       240.0,
+     &                       245.0,
+     &                       250.0,
+     &                       255.0,
+     &                       260.0,
+     &                       265.0,
+     &                       270.0,
+     &                       275.0,
+     &                       280.0,
+     &                       285.0,
+     &                       290.0,
+     &                       295.0,
+     &                       300.0,
+     &                       305.0,
+     &                       310.0,
+     &                       315.0,
+     &                       320.0,
+     &                       325.0,
+     &                       330.0,
+     &                       335.0,
+     &                       340.0,
+     &                       345.0,
+     &                       350.0,
+     &                       355.0,
+     &                       360.0,
+     &                       365.0,
+     &                       370.0,
+     &                       375.0,
+     &                       380.0,
+     &                       385.0,
+     &                       390.0,
+     &                       395.0,
+     &                       400.0,
+     &                       405.0,
+     &                       410.0,
+     &                       415.0,
+     &                       420.0  /     
+
+! Quantum Yields for (HCO+HCO) channel       
+       REAL GLYOXAL_QY_RAD( N_QY_GLYOXAL )
+       DATA GLYOXAL_QY_RAD /
+     &                          0.156,    
+     &                          0.156,    
+     &                          0.156,    
+     &                          0.156,    
+     &                          0.156,    
+     &                          0.156,    
+     &                          0.156,    
+     &                          0.156,    
+     &                          0.156,    
+     &                          0.156,    
+     &                          0.156,    
+     &                          0.156,    
+     &                          0.156,    
+     &                          0.156,    
+     &                          0.167,    
+     &                          0.183,    
+     &                          0.208,    
+     &                          0.242,    
+     &                          0.282,    
+     &                          0.322,    
+     &                          0.358,    
+     &                          0.396,    
+     &                          0.403,    
+     &                          0.410,    
+     &                          0.408,    
+     &                          0.397,    
+     &                          0.379,    
+     &                          0.357,    
+     &                          0.329,    
+     &                          0.294,    
+     &                          0.253,    
+     &                          0.208,    
+     &                          0.164,    
+     &                          0.125,    
+     &                          0.093,    
+     &                          0.068,    
+     &                          0.049,    
+     &                          0.035,    
+     &                          0.023,    
+     &                          0.000   /
+   
+! Quantum Yields for (H2+CO) channel       
+       REAL GLYOXAL_QY_H2( N_QY_GLYOXAL )
+       DATA GLYOXAL_QY_H2 /
+     &                          0.645,    
+     &                          0.625,    
+     &                          0.599,    
+     &                          0.575,    
+     &                          0.553,    
+     &                          0.530,    
+     &                          0.510,    
+     &                          0.492,    
+     &                          0.475,    
+     &                          0.457,    
+     &                          0.440,    
+     &                          0.424,    
+     &                          0.414,    
+     &                          0.404,    
+     &                          0.382,    
+     &                          0.360,    
+     &                          0.332,    
+     &                          0.300,    
+     &                          0.266,    
+     &                          0.245,    
+     &                          0.234,    
+     &                          0.225,    
+     &                          0.210,    
+     &                          0.190,    
+     &                          0.170,    
+     &                          0.144,    
+     &                          0.053,    
+     &                          0.000,    
+     &                          0.000,    
+     &                          0.000,    
+     &                          0.000,    
+     &                          0.000,    
+     &                          0.000,    
+     &                          0.000,    
+     &                          0.000,    
+     &                          0.000,    
+     &                          0.000,    
+     &                          0.000,    
+     &                          0.000,    
+     &                          0.000    /
+    
+! Quantum Yields for (HCHO+CO) channel       
+       REAL GLYOXAL_QY_HCHO( N_QY_GLYOXAL )
+       DATA GLYOXAL_QY_HCHO /
+     &                          0.199,
+     &                          0.219,
+     &                          0.245,
+     &                          0.269,
+     &                          0.291,
+     &                          0.314,
+     &                          0.334,
+     &                          0.352,
+     &                          0.369,
+     &                          0.387,
+     &                          0.404,
+     &                          0.420,
+     &                          0.430,
+     &                          0.440,
+     &                          0.451,
+     &                          0.457,
+     &                          0.460,
+     &                          0.458,
+     &                          0.452,
+     &                          0.433,
+     &                          0.408,
+     &                          0.379,
+     &                          0.337,
+     &                          0.279,
+     &                          0.204,
+     &                          0.150,
+     &                          0.108,
+     &                          0.072,
+     &                          0.040,
+     &                          0.022,
+     &                          0.014,
+     &                          0.011,
+     &                          0.008,
+     &                          0.007,
+     &                          0.005,
+     &                          0.004,
+     &                          0.003,
+     &                          0.002,
+     &                          0.001,
+     &                          0.000   /          
+
+! PPN Absorption cross sections and Temperature coefficients:
+! JPL-19 Recommendation
+!1) Harwood, M. H.; Burkholder, J. B.; Ravishankara, A. R. Photodissociation of BrONO2 and N2O5: Quantum yields
+!   for NO3 production at 248, 308, and 352.5 nm. J. Phys. Chem. A 1998, 102, 1309-1317,
+!   doi:10.1021/jp9729829
+! copied from
+!2) J. B. Burkholder, S. P. Sander, J. Abbatt, J. R. Barker, C. Cappa, J. D. Crounse, T. S. Dibble, R. E. Huie, C. E. Kolb,
+!   M. J. Kurylo, V. L. Orkin, C. J. Percival, D. M. Wilmouth, and P. H. Wine "Chemical Kinetics and Photochemical
+!   Data for Use in Atmospheric Studies, Evaluation No. 19," JPL Publication 19-5, Jet Propulsion Laboratory, Pasadena,
+!   2019 http://jpldataeval.jpl.nasa.gov.
+!ln σ(λ, T) = ln σ(λ, 298 K) + B(λ)(T – 298)!PPN XC and linear coefficent for temperature correction
+!ln XC(Wlv, T) = ln XC(wlv, 296 K) + B(wlv)(T – 296)
+
+      INTEGER, PARAMETER :: N_PPN               =  66
+
+!T  in degree K
+!wlv(nm)
+      REAL               :: WV_PPN( N_PPN )
+      DATA WV_PPN /
+     &             210.0,	
+     &             212.0,	
+     &             214.0,	
+     &             216.0,	
+     &             218.0,	
+     &             220.0,	
+     &             222.0,	
+     &             224.0,	
+     &             226.0,	
+     &             228.0,	
+     &             230.0,	
+     &             232.0,	
+     &             234.0,	
+     &             236.0,	
+     &             238.0,	
+     &             240.0,	
+     &             242.0,	
+     &             244.0,	
+     &             246.0,	
+     &             248.0,	
+     &             250.0,	
+     &             252.0,	
+     &             254.0,	
+     &             256.0,	
+     &             258.0,	
+     &             260.0,	
+     &             262.0,	
+     &             264.0,	
+     &             266.0,	
+     &             268.0,	
+     &             270.0,	
+     &             272.0,	
+     &             274.0,	
+     &             276.0,	
+     &             278.0,	
+     &             280.0,	
+     &             282.0,	
+     &             284.0,	
+     &             286.0,	
+     &             288.0,	
+     &             290.0,	
+     &             292.0,	
+     &             294.0,	
+     &             296.0,	
+     &             298.0,	
+     &             300.0,	
+     &             302.0,	
+     &             304.0,	
+     &             306.0,	
+     &             308.0,	
+     &             310.0,	
+     &             312.0,	
+     &             314.0,	
+     &             316.0,	
+     &             318.0,	
+     &             320.0,	
+     &             322.0,	
+     &             324.0,	
+     &             326.0,	
+     &             328.0,	
+     &             330.0,	
+     &             332.0,	
+     &             334.0,	
+     &             336.0,	
+     &             338.0,	
+     &             340.0 /	
+
+! XC(cm2) at 296 K
+      REAL               :: PPN_XC_296K( N_PPN )
+      DATA PPN_XC_296K /
+     &                  174.00E-20,	          
+     &                  154.00E-20,	          
+     &                  135.00E-20,	          
+     &                  115.00E-20,	          
+     &                  99.900E-20,	        
+     &                  86.100E-20,	        
+     &                  74.700E-20,	        
+     &                  64.800E-20,	        
+     &                  56.900E-20,	        
+     &                  49.600E-20,	        
+     &                  43.600E-20,	        
+     &                  38.300E-20,	        
+     &                  33.600E-20,	        
+     &                  29.500E-20,	        
+     &                  25.800E-20,	        
+     &                  22.600E-20,	        
+     &                  19.800E-20,	        
+     &                  17.400E-20,	        
+     &                  15.300E-20,	        
+     &                  13.500E-20,	        
+     &                  11.900E-20,	        
+     &                  10.500E-20,	        
+     &                  9.2700E-20,	        
+     &                  8.2300E-20,	        
+     &                  7.2800E-20,	        
+     &                  6.4400E-20,	        
+     &                  5.6600E-20,	        
+     &                  4.9600E-20,	        
+     &                  4.3500E-20,	        
+     &                  3.8000E-20,	          
+     &                  3.3100E-20,	        
+     &                  2.8700E-20,	        
+     &                  2.4800E-20,	        
+     &                  2.1400E-20,	        
+     &                  1.8400E-20,	        
+     &                  1.5700E-20,	        
+     &                  1.3300E-20,	        
+     &                  1.1200E-20,	        
+     &                  0.9400E-20,	        
+     &                  0.7900E-20,	        
+     &                  0.6620E-20,	        
+     &                  0.5510E-20,	        
+     &                  0.4620E-20,	        
+     &                  0.3890E-20,	        
+     &                  0.3250E-20,	        
+     &                  0.2730E-20,	        
+     &                  0.2280E-20,	        
+     &                  0.1920E-20,	        
+     &                  0.1620E-20,	        
+     &                  0.1360E-20,	        
+     &                  0.1140E-20,	        
+     &                  0.0962E-20,	      
+     &                  0.0835E-20,	      
+     &                  0.0689E-20,	      
+     &                  0.0571E-20,	      
+     &                  0.0491E-20,	      
+     &                  0.0443E-20,	      
+     &                  0.0354E-20,	      
+     &                  0.0282E-20,	      
+     &                  0.0242E-20,	      
+     &                  0.0206E-20,	      
+     &                  0.0174E-20,	      
+     &                  0.0146E-20,	      
+     &                  0.0107E-20,	      
+     &                  0.0090E-20,	        
+     &                  0.0066E-20 /	      
+
+
+!  B(K-1)  
+      REAL               :: PPN_XC_EXP( N_PPN )
+      DATA PPN_XC_EXP /
+     &                 1.22E-3,          
+     &                 1.20E-3,           
+     &                 1.19E-3,          
+     &                 1.20E-3,           
+     &                 1.21E-3,          
+     &                 1.24E-3,          
+     &                 1.27E-3,          
+     &                 1.32E-3,          
+     &                 1.37E-3,          
+     &                 1.44E-3,          
+     &                 1.52E-3,          
+     &                 1.60E-3,           
+     &                 1.70E-3,           
+     &                 1.81E-3,          
+     &                 1.93E-3,          
+     &                 2.06E-3,          
+     &                 2.20E-3,           
+     &                 2.35E-3,          
+     &                 2.51E-3,          
+     &                 2.68E-3,          
+     &                 2.86E-3,          
+     &                 3.05E-3,          
+     &                 3.25E-3,          
+     &                 3.47E-3,          
+     &                 3.69E-3,          
+     &                 3.92E-3,          
+     &                 4.17E-3,          
+     &                 4.42E-3,          
+     &                 4.69E-3,          
+     &                 4.96E-3,          
+     &                 5.25E-3,          
+     &                 5.54E-3,          
+     &                 5.85E-3,          
+     &                 6.17E-3,          
+     &                 6.49E-3,          
+     &                 6.83E-3,          
+     &                 7.18E-3,          
+     &                 7.54E-3,          
+     &                 7.91E-3,          
+     &                 8.29E-3,          
+     &                 8.68E-3,          
+     &                 9.08E-3,          
+     &                 9.49E-3,          
+     &                 9.91E-3,          
+     &                 10.3E-3,          
+     &                 10.8E-3,          
+     &                 11.2E-3,          
+     &                 11.7E-3,          
+     &                 12.2E-3,          
+     &                 12.6E-3,          
+     &                 13.2E-3,          
+     &                 13.6E-3,          
+     &                 14.2E-3,          
+     &                 14.7E-3,          
+     &                 15.2E-3,          
+     &                 15.8E-3,          
+     &                 16.3E-3,          
+     &                 16.9E-3,          
+     &                 17.5E-3,          
+     &                 18.1E-3,          
+     &                 18.7E-3,          
+     &                 19.3E-3,          
+     &                 19.9E-3,          
+     &                 20.5E-3,          
+     &                 21.2E-3,          
+     &                 21.8E-3 /        
+
       INTEGER, PARAMETER :: N_CLONO2            = 119
 
       REAL               :: WV_CLONO2( N_CLONO2 )
@@ -1002,7 +1415,7 @@
 
 C***special information for acetone
 C***  Reference:
-C IUPAC Subcommittee on Gas Kinetic Data Evaluation � Data Sheet P7
+C IUPAC Subcommittee on Gas Kinetic Data Evaluation ? Data Sheet P7
 C! This datasheet updated: 19th December 2005.
 C! Website: http://www.iupac-kinetic.ch.cam.ac.uk/.
 C! IUPAC recommendations used for both absorption cross sections and quantum yields.
@@ -1648,6 +2061,7 @@ C Output by PHK.
       REAL, SAVE :: NO2_XCROSS_220K(kw), NO2_XCROSS_294K(kw)
       REAL, SAVE :: CLONO2_XCROSS0(kw), CLONO2_A1(kw), CLONO2_A2(kw)
       REAL, SAVE :: PAN_XCROSS(kw), PAN_XCROSS_B(KW)
+      REAL, SAVE :: PPN_XCROSS(kw), PPN_XCROSS_B(KW)
       REAL, SAVE :: CCHO_QUANT_INFIN(kw)
       REAL, SAVE :: CCHO_YIELD_COEFF(kw)
       REAL, SAVE :: O3_XCROSS_218K(kw),O3_XCROSS_293K(kw)
@@ -1665,6 +2079,7 @@ C Output by PHK.
       REAL, SAVE :: CH3ONO2_XCROSS_B(KW)
       REAL, SAVE :: CLNO2_XCROSS_A1(KW)
       REAL, SAVE :: CLNO2_XCROSS_A2(KW)
+      REAL, SAVE :: GLY_QYRAD_JPL19(kw), GLY_QYH2_JPL19(kw), GLY_QYHCHO_JPL19(kw)
 
       CONTAINS
 
@@ -1852,6 +2267,40 @@ C Output by PHK.
          CALL WVBIN_AVERAGE(WAVE, PAN_XC_EXP, NDUMB,  
      &   WAVE, XDUMB, NDUMB, 'C',
      &   WL, WU, NW, PAN_XCROSS_B, YDUMB )
+
+         J = J + 1 
+
+         XDUMB = 1.0
+         NDUMB = N_PPN
+         WAVE  = 0.0
+         WAVE( 1:NDUMB ) =  WV_PPN( 1:NDUMB )
+
+         CALL WVBIN_AVERAGE(WAVE, PPN_XC_296K, NDUMB,  
+     &   WAVE, XDUMB, NDUMB, 'C',
+     &   WL, WU, NW, PPN_XCROSS, YDUMB )
+
+         CALL WVBIN_AVERAGE(WAVE, PPN_XC_EXP, NDUMB,  
+     &   WAVE, XDUMB, NDUMB, 'C',
+     &   WL, WU, NW, PPN_XCROSS_B, YDUMB )
+
+         J = J + 1 
+
+         XDUMB = 1.0
+         NDUMB = N_QY_GLYOXAL
+         WAVE  = 0.0
+         WAVE( 1:NDUMB ) =  WV_GLYOXAL_QY( 1:NDUMB )
+
+         CALL WVBIN_AVERAGE(WAVE, GLYOXAL_QY_RAD, NDUMB,  
+     &   WAVE, XDUMB, NDUMB, 'C',
+     &   WL, WU, NW, GLY_QYRAD_JPL19, YDUMB )
+
+         CALL WVBIN_AVERAGE(WAVE, GLYOXAL_QY_H2, NDUMB,  
+     &   WAVE, XDUMB, NDUMB, 'C',
+     &   WL, WU, NW, GLY_QYH2_JPL19, YDUMB )
+
+         CALL WVBIN_AVERAGE(WAVE, GLYOXAL_QY_HCHO, NDUMB,  
+     &   WAVE, XDUMB, NDUMB, 'C',
+     &   WL, WU, NW, GLY_QYHCHO_JPL19, YDUMB )
 
          J = J + 1 
 

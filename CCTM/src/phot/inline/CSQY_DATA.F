@@ -173,6 +173,8 @@
       INTEGER :: LHNO3
       INTEGER :: LACETONE_CO
       INTEGER :: LACETONE_CH3CO
+      INTEGER :: LGLYH2
+      INTEGER :: LGLYF
 
       LOGICAL :: ACETONE_CHANNELS
 
@@ -196,8 +198,9 @@
             INTEGER, PARAMETER :: ACETONE_CH3CO          = 16
             INTEGER, PARAMETER :: GLYOXAL_IUPAC_2013     = 17
             INTEGER, PARAMETER :: CH3CHO_IUPAC2013       = 18
+            INTEGER, PARAMETER :: METHYL_VINYL_KETONE_JPL19 = 19
 
-            CHARACTER( 32 ) :: CSQY_ADJUSTMENTS( 0:18 )
+            CHARACTER( 32 ) :: CSQY_ADJUSTMENTS( 0:19 )
             DATA CSQY_ADJUSTMENTS /
      &                             'NO_ADJUSTMENT',
      &                             'ACETALDEHYDE',
@@ -217,7 +220,8 @@
      &                             'BIACETYL',
      &                             'ACETONE_CH3CO',
      &                             'GLYOXAL_IUPAC_2013',
-     &                             'CH3CHO_IUPAC2013'      /
+     &                             'CH3CHO_IUPAC2013',
+     &                             'METHYL_VINYL_KETONE_JPL19'      /
 
 ! integer pointer for density correction to a photolysis rates' cross-section
 ! and/or quantum yield values
@@ -230,6 +234,8 @@
             REAL,    ALLOCATABLE :: IPHIS_CH3CHO( : ) ! Reciprocal acetaldehyde Quantum Yields at surface pressure
             REAL,    ALLOCATABLE :: IPHI0_CH3CHO( : ) ! Reciprocal acetaldehyde Quantum Yields at zero pressure
             REAL,    ALLOCATABLE :: KCH3CHO     ( : ) ! Quenching Coefficient for acetaldehyde Quantum Yields
+! max of radical channel used to limit glyoxal Quantum Yields based on IUPAC 2013 recommendations
+            REAL,    ALLOCATABLE :: MAX_GLY_R   ( : ) 
 
 
 
@@ -616,6 +622,8 @@ C...begin read
       LHCHOR_06 = 0
       LH2O2     = 0
       LHNO3     = 0
+      LGLYH2    = 0
+      LGLYF     = 0
 
 ! initialized pointers and flag if specific acetone channel are used
       LACETONE_CO    = 0
@@ -675,6 +683,10 @@ C...begin read
                    LH2O2 = IPHOT
               CASE( 'HNO3', 'HNO3_IUPAC04', 'HNO3_IUPAC10', 'HNO3_RACM2' )
                    LHNO3 = IPHOT
+              CASE( 'GLYH2_JPL19' )
+                    LGLYH2 = IPHOT
+              CASE( 'GLYF_JPL19' )
+                    LGLYF = IPHOT
            END SELECT
 
 
@@ -1520,6 +1532,8 @@ C-----------------------------------------------------------------------
       REAL            :: ALPHA, BETA       ! scratch variables
       REAL            :: PHI_CO            ! CO channel of acetone QYZ
       REAL            :: PHI_CH3CO         ! CH3CO channel of acetone QYZ
+      REAL            :: QY_RAD0           ! scatch for uncorrected quantum yield
+
 
       LOGICAL, SAVE   :: FIRSTCALL = .TRUE.
 
@@ -1650,6 +1664,17 @@ C-----------------------------------------------------------------------
                      QYZ( LAYS, IWL, IPHOT ) = MAX( 0.0, MIN( 1.0, QYZ( LAYS, IWL, IPHOT ) ) )
                   END FORALL
                END FORALL
+           CASE ( METHYL_VINYL_KETONE_JPL19 )
+!***uses 
+!***  Gierczak, T., J. B. Burkholder, R. K. Talukdar, A. Mellouki, S. B. Barone,
+!***  and A. R. Ravishankara, Atmospheric fate of methyl vinyl ketone and methacrolein,
+!***  J. Photochem. Photobiol A: Chemistry, 110 1-10, 1997.
+!*** But density correction to quantum yield does not include SAPRC07T adjustment
+              FORALL( LAYS = 1:NLAYS, IWL = 1:NWL_REF )
+                     QYZ( LAYS, IWL, IPHOT ) = QYZ( LAYS, IWL, IPHOT ) *  27.678
+     &                                       / ( 5.5 + 4.6E-19 * DENS( LAYS ) )
+                     QYZ( LAYS, IWL, IPHOT ) = MAX(0.0, MIN( QYZ( LAYS, IWL, IPHOT ), 1.0 ) )
+              END FORALL
            CASE ( METHYL_VINYL_KETONE )
 !***quantum yield from
 !***  Gierczak, T., J. B. Burkholder, R. K. Talukdar, A. Mellouki, S. B. Barone,
@@ -1858,11 +1883,26 @@ C-----------------------------------------------------------------------
                 END DO
              END DO
          CASE( GLYOXAL_IUPAC_2013 )
+
+!               WRITE(LOGDEV,'(A3,2(1X,A7),15(1X,A12))')
+!     &         'IW','Lambda', 'TEMP','DENS','QY_GLYOXAL','QY_RAD','QY_RAD0','RQY_GLYOXAL','Used_Factor','MAX_GLY_RAD'
+
              DO IWL = 1, NWL_REF
                 DO LAYS = 1, NLAYS
+
+                   QY_RAD0 = QYZ( LAYS, IWL, IPHOT )
+
                    QYZ( LAYS, IWL, IPHOT ) = RQY_GLYOXAL( TEMP( LAYS ), DENS( LAYS ), IWL )
      &                                     * QYZ( LAYS, IWL, IPHOT )
-                   QYZ( LAYS, IWL, IPHOT ) = MAX( 0.0, MIN( 1.0, QYZ( LAYS, IWL, IPHOT ) ) )
+                   QYZ( LAYS, IWL, IPHOT ) = MAX( 0.0, MIN( MAX_GLY_R( IWL ), QYZ( LAYS, IWL, IPHOT ) ) )
+
+!                    FACTOR = QYZ( LAYS, IWL, IPHOT )/MAX( 1.0E-25,QY_RAD0 )
+!                    WRITE(LOGDEV,'(I3,2(1X,F7.2),15(1X,ES12.4))')
+!     &              IWL,WAVELENGTH( IWL ), TEMP( LAYS ), DENS( LAYS ),
+!     &              QY_GLYOXAL( TEMP( LAYS ), DENS( LAYS ),WAVELENGTH( IWL ) ),
+!     &              QYZ( LAYS, IWL, IPHOT ), QY_RAD0,
+!     &              RQY_GLYOXAL( TEMP( LAYS ), DENS( LAYS ), IWL ),FACTOR, MAX_GLY_R( IWL )
+
                 END DO
              END DO
          CASE (  KETONE_LEGACY  )
@@ -1953,6 +1993,8 @@ C-----------------------------------------------------------------------
                         CSQY_ADJUST( IPHOT ) = HIGHER_ALDEHYDES
                      CASE ( 'MVK_06' )
                         CSQY_ADJUST( IPHOT ) = METHYL_VINYL_KETONE
+                     CASE ( 'MVK_JPL19' )
+                        CSQY_ADJUST( IPHOT ) = METHYL_VINYL_KETONE_JPL19
                      CASE ( 'MACR_06', 'MACR_RACM2', 'MACR_MCMv32' )
                         CSQY_ADJUST( IPHOT ) = METHYL_ACROLEIN
                      CASE ( 'MEK_06', 'MEK_MCMv32' )
@@ -1983,8 +2025,25 @@ C-----------------------------------------------------------------------
                         CSQY_ADJUST( IPHOT ) = KETONE_RACM2
                      CASE ( 'GLYH2_RACM2', 'GLYF_RACM2', 'GLYHX_RACM2', 'MGLY_RACM2'  ) ! glyoxal treatement from W. Stockwell sbox
                         CSQY_ADJUST( IPHOT ) = GLYOXAL_RACM2
-                     CASE ( 'GLYOX_R_CRI', 'GLYOX_M_CRI', 'GLY_R_IUPAC10', 'GLY_R_IUPAC13'  ) ! glyoxal treatement based on IUPAC 2013 datasheet
+                     CASE ( 'GLYOX_R_CRI', 'GLYOX_M_CRI', 'GLY_R_IUPAC10', 'GLY_R_IUPAC13', 'GLYHX_JPL19'  ) ! glyoxal treatement based on IUPAC 2013 datasheet
                         CSQY_ADJUST( IPHOT ) = GLYOXAL_IUPAC_2013
+! estimate sum of nonradical channels based on observations assuming their independence
+! of temperature and pressure variations
+! then calculate maximum allowed value that radical grow to become so Total QY for Glyoxal is not greater then one. 
+                        ALLOCATE( MAX_GLY_R( NWL_REF ) )
+                        MAX_GLY_R = 1.0 ! mechanism ingores nonradical channels
+                        DO IWL = 1, NWL_REF
+                           IF( LGLYH2 .GT. 0 .AND. LGLYF .GT. 0 )THEN
+                               MAX_GLY_R( IWL ) =  1.0 - ( XXQY( 1, IWL, LGLYH2 ) + XXQY( 1, IWL, LGLYF ) )
+                           ELSE IF( LGLYH2 .GT. 0 .AND. LGLYF .LT. 1 )THEN
+                               MAX_GLY_R( IWL ) =  1.0 - XXQY( 1, IWL, LGLYH2 )
+                           ELSE IF( LGLYH2 .LT. 0 .AND. LGLYF .GT. 0 )THEN
+                               MAX_GLY_R( IWL ) =  1.0 - XXQY( 1, IWL, LGLYF )
+                           END IF
+                           MAX_GLY_R( IWL ) =  MAX( 0.0,MAX_GLY_R( IWL )  )
+!                           WRITE(LOGDEV, *)'Wavelength, Max QY Glyoxal Radical Channel = ',
+!     &                     WAVELENGTH( IWL ), MAX_GLY_R( IWL )   
+                        END DO
                      CASE (  'MGLY_ADJ',  'MGLY_ABS' )
                         CSQY_ADJUST( IPHOT ) = METHYL_GLYOXAL_LEGACY
                      CASE ( 'ACET_R2_CRI', 'CH3COCH3A_JPL19' )
@@ -2513,4 +2572,69 @@ C-----------------------------------------------------------------------
 
           RETURN
        END FUNCTION RQY_GLYOXAL
+       REAL FUNCTION QY_GLYOXAL( TEMP, DENS_NUMB, LAMBDA )
+
+!-----------------------------------------------------------------------
+! Computes total glyoxal (CHOCHO) quantum yield at (TEMP, DENS_NUMB)  
+!  IUPAC (2013) recommendation
+!  http://iupac.pole-ether.fr/htdocs/datasheets/pdf/P4_%28CHO%292+hv.pdf 
+! that is based on
+!  Salter, R. J., Blitz, M. A., Heard, D. E., Kovacs, T., Pilling, M. J., 
+!  Rickard, A. R. and Seakins, P. W. (2013), Quantum yields for the photolysis 
+!  of glyoxal below 350 nm and parameterisations for its photolysis rate in 
+!  the troposphere, Phys. Chem. Chem. Phys., 15, 4984-4994, 
+!  doi:10.1039/c3cp43597k.
+!-----------------------------------------------------------------------
+
+        IMPLICIT NONE
+
+!***arguments
+
+
+        REAL, INTENT(IN) :: TEMP        ! air temperature, K
+        REAL, INTENT(IN) :: DENS_NUMB   ! air number density, 1/cm^3
+        REAL, INTENT(IN) :: LAMBDA      ! wavelength, nm
+
+!***local
+        REAL, PARAMETER  :: ONE_OVER_295K  = 1.0 / 295.0  ! 1/K
+      
+        REAL( 8 ) TEMP_OVER_295K   ! temperature divided by 295 K
+
+        REAL( 8 ) AA           ! scratch variable for qy
+        REAL( 8 ) BB           ! scratch variable for qy
+        REAL( 8 ) A1           ! 2nd coef for qy
+        REAL( 8 ) A2           ! 3rd coef for qy
+        REAL( 8 ) A3           ! 4th coef for qy
+        REAL( 8 ) WN_OFFSET    ! adjusted wavenumber, 1/cm
+        REAL( 8 ) R8_DENS      ! air number density, 1/cm^3 
+      
+        TEMP_OVER_295K  = REAL( TEMP * ONE_OVER_295K, 8 )
+        WN_OFFSET       = REAL( 1.0E7 / LAMBDA - 23800.0, 8 )
+        R8_DENS         = REAL( DENS_NUMB, 8 )
+
+            AA = 6.48D-19 * TEMP_OVER_295K**(-1.83D0)
+            BB = 7.60D-04 * TEMP_OVER_295K**(-0.515D0)
+            A1 = AA * EXP( -BB * WN_OFFSET ) 
+
+            AA = 1.128D02 * TEMP_OVER_295K**(-1.53D0)
+            BB = 4.61D-03 * TEMP_OVER_295K**(-0.507D0)
+            A2 = AA * EXP( -BB * WN_OFFSET  ) 
+
+            AA = 2.25D-16 * TEMP_OVER_295K**(-9.18D0)
+            BB = 7.80D-04 * TEMP_OVER_295K**(-7.03D0)
+            A3 = AA * EXP( -BB * WN_OFFSET ) 
+
+
+!            WRITE(6,'(A,10(1X,ES12.4))')'GLYOXAL:Temp, Lambda, A1, A2, A3 = ', Temp, Lambda, 
+!     &      A1, A2, A3
+            QY_GLYOXAL =  REAL(  (1.0D0 + A2 + A3*R8_DENS )
+     &                 / ((1.0D0 + A1*R8_DENS + A2) * (1.0D0 + A3*R8_DENS)) )
+
+!            WRITE(6,'(A,10(1X,ES12.4))')'GLYOXAL:Temp, Lambda, A1, A2, A3 QY_GLYOXAL = ', Temp, Lambda, 
+!     &      A1, A2, A3, QY_GLYOXAL
+
+
+
+          RETURN
+       END FUNCTION QY_GLYOXAL
       END MODULE CSQY_DATA

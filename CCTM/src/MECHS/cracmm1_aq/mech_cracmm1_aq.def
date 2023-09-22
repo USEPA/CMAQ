@@ -169,10 +169,10 @@ REACTIONS[CM] =
                                        + 0.67*HCHO    # 1.0/<MACR_RACM2>;
 <R020>  MVK                = 0.3*MO2   + 0.3*MACP
                                        + 0.7*CO
-                                       + 0.7*UALD     # 1.0/<MVK_RACM2>;
-<R021>  GLY                =  2*CO                    # 1.0/<GLYH2_RACM2>;
-<R022>  GLY                =  HCHO     + CO           # 1.0/<GLYF_RACM2>;
-<R023>  GLY                =  2*HO2    + 2*CO         # 1.0/<GLYHX_RACM2>;
+                                       + 0.7*UALD     # 1.0/<MVK_JPL19>;
+<R021>  GLY                =  2*CO                    # 1.0/<GLYH2_JPL19>;
+<R022>  GLY                =  HCHO     + CO           # 1.0/<GLYF_JPL19>;
+<R023>  GLY                =  2*HO2    + 2*CO         # 1.0/<GLYHX_JPL19>;
 <R024>  MGLY               =  HO2      + ACO3       
                                        + CO           # 1.0/<MGLY_RACM2>;
 <R025>  DCB1               =  1.5*HO2  + 0.25*ACO3
@@ -185,8 +185,10 @@ REACTIONS[CM] =
                                        + CO
                                        + 0.5*GLY
                                        + 0.5*MGLY     # 1.0/<MGLY_RACM2>;
-<R027>  BALD               = CHO       + HO2
-                                       + CO           # 1.0/<BALD_RACM2>;
+<R027a> BALD               = BEN       + CO           # 1.0/<BALD1_CALVERT11>;
+<R027b> BALD               = BENP      + CO
+                                       + HO2          # 1.0/<BALD2_CALVERT11>;
+<R027c> BALD               = VROCN2OXY2               # 1.0/<BALD3_CALVERT11>;                                       
 <R028>  OP1                = HO        + HO2
                                        + HCHO         # 1.0/<OP1_RACM2>;
 <R029>  OP2                = HO        + HO2
@@ -198,9 +200,11 @@ REACTIONS[CM] =
 <R030>  PAA                = HO        + MO2          # 1.0/<PAA_RACM2>;
 <R031>  ONIT               = HO2       + NO2
                                        + 0.20*ALD 
-                                       + 0.80*KET     # 1.0/<ONIT_RACM2>;
-<R032>  PAN                = ACO3      + NO2          # 1.0/<PAN1_RACM2>;
-<R033>  PAN                = MO2       + NO3          # 1.0/<PAN2_RACM2>;
+                                       + 0.80*KET     # 1.0/<ONIT_CALVERT08>;
+<R032>  PAN                = ACO3      + NO2          # 1.0/<PAN1_JPL19>;
+<R033>  PAN                = MO2       + NO3          # 1.0/<PAN2_JPL19>;
+<R033a> PPN                = RCO3      + NO2          # 1.0/<PPN1_JPL19>;
+<R033b> PPN                = HC3P      + NO3          # 1.0/<PPN2_JPL19>;
 <R034>  O3   + HO          = HO2                      # 1.7E-12 @ 940.;
 <R035>  O3   + HO2         = HO                       # 1.0E-14 @ 490.;
 <R036>  O3   + NO          = NO2                      # 3.0E-12 @ 1500.;
