@@ -59,17 +59,17 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
          CHARACTER(LEN=16)  VARNAME
          CHARACTER(LEN=512) RECORD
          CHARACTER(LEN=5)   FIELD
-         CHARACTER(LEN=10)   opcode(13)
-         CHARACTER(LEN=16)  opname(13)
+         CHARACTER(LEN=10)   opcode(14)
+         CHARACTER(LEN=16)  opname(14)
 
          data opcode/'SUM', 'AVG', 'MIN', 'MAX', 'HR@MIN', 'HR@MAX', '@MAXT',
      &               'MAXDIF', '8HRMAX', 'W126', '@8HRMAXO3', 'HR@8HRMAX',
-     &               'SUM06'/ 
+     &               'SUM06', 'TZ'/ 
          data opname/'Daily-total', 'Daily-average', 'Min-hour', 'Max-hour',
      &               'Hour of Minimum', 'Hour of Maximum',
      &               'Value@Max-Temp', 'Max-hour-change',
      &               'Max-8-hour', 'W126', 'Value@8HrMax', 'Hour@8HrMax',
-     &               'Sum-06'/ 
+     &               'Sum-06', 'TIMEZONE'/ 
 
          !  allocate memory for SPECVARS array
          Allocate( SPECVARS( MXVARS3 ) )
