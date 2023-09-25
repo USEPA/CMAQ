@@ -224,7 +224,7 @@ C...........Local Variables
 
 C-------for ACM version - jp 2/05        REAL DPB
 #ifndef mpas
-     REAL, ALLOCATABLE, SAVE :: SIGF( : )
+      REAL, ALLOCATABLE, SAVE :: SIGF( : )
 #endif
 C-------------------------------------------
 

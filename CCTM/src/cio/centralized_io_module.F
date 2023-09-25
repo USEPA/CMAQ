@@ -5519,17 +5519,6 @@ C Read the various categories of normalized emissions
 
 ! -------------------------------------------------------------------------
         subroutine medc_file_setup
-#ifdef mpas
-                           call mio_fread (FILENAMES(IFILE), lvname, DESID_REG_FAC(:,1,DESID_N_REG))
-#else
-                           IF ( .NOT. XTRACT3( FILENAMES( IFILE ), lvname, 1, 1,
-     &                                         STARTROW, ENDROW, STARTCOL, ENDCOL,
-     &                                         0, 0, DESID_REG_FAC( 1,1,DESID_N_REG ) ) ) Then
-                              XMSG = 'Could not read ' // VNAME3D(IVAR) //
-     &                               'from file ' // FILENAMES( IFILE ) 
-                              CALL M3WARN ( PNAME, 0, 0, XMSG )
-                           End If
-#endif
 
           USE UTILIO_DEFN
           use bidi_mod
@@ -5537,17 +5526,6 @@ C Read the various categories of normalized emissions
           INCLUDE SUBST_FILES_ID             ! file name parameters
 
           Character( 40 ), parameter :: pname = 'medc_file_setup'
-#ifdef mpas
-                     call mio_fread (FILENAMES(IFILE), vname, DESID_REG_FAC(:,1,DESID_N_REG))
-#else
-                     IF ( .NOT. XTRACT3( FILENAMES( IFILE ), vname, 1, 1,
-     &                                   STARTROW, ENDROW, STARTCOL, ENDCOL,
-     &                                   0, 0, DESID_REG_FAC( 1,1,DESID_N_REG ) ) ) Then
-                        XMSG = 'Could not read ' // VNAME //
-     &                         'from file ' // FILENAMES( IFILE ) 
-                        CALL M3WARN ( PNAME, 0, 0, XMSG )
-                     End If
-#endif
 
           CHARACTER( 256 ) :: xmsg
           integer :: v
