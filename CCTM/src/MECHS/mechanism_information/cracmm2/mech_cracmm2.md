@@ -37,26 +37,22 @@ Information is based on the mech.def file.
 | R017   | KET ---->   1.5000\*ETHP +    0.5000\*ACO3 +    0.5000\*CO  | KET_JGR19 | Not Available<sup>1</sup> | 
 | R018   | HKET ----> HO2 + ACO3 + HCHO  | HKET_RACM2 | Not Available<sup>1</sup> | 
 | R019   | MACR ---->   0.3400\*HO +    0.6600\*HO2 +    0.6700\*ACO3 +    0.3300\*MACP +    0.3400\*XO2 +    0.6700\*CO +    0.6700\*HCHO  | MACR_RACM2 | Not Available<sup>1</sup> | 
-| R020   | MVK ---->   0.3000\*MO2 +    0.3000\*MACP +    0.7000\*CO +    0.7000\*UALD  | MVK_JPL19 | Not Available<sup>1</sup> | 
-| R021   | GLY ---->   2.0000\*CO  | GLYH2_JPL19 | Not Available<sup>1</sup> | 
-| R022   | GLY ----> HCHO + CO  | GLYF_JPL19 | Not Available<sup>1</sup> | 
-| R023   | GLY ---->   2.0000\*HO2 +    2.0000\*CO  | GLYHX_JPL19 | Not Available<sup>1</sup> | 
+| R020   | MVK ---->   0.3000\*MO2 +    0.3000\*MACP +    0.7000\*CO +    0.7000\*UALD  | MVK_RACM2 | Not Available<sup>1</sup> | 
+| R021   | GLY ---->   2.0000\*CO  | GLYH2_RACM2 | Not Available<sup>1</sup> | 
+| R022   | GLY ----> HCHO + CO  | GLYF_RACM2 | Not Available<sup>1</sup> | 
+| R023   | GLY ---->   2.0000\*HO2 +    2.0000\*CO  | GLYHX_RACM2 | Not Available<sup>1</sup> | 
 | R024   | MGLY ----> HO2 + ACO3 + CO  | MGLY_RACM2 | Not Available<sup>1</sup> | 
 | R025   | DCB1 ---->   1.5000\*HO2 +    0.2500\*ACO3 +    0.2000\*XO2 + CO +    0.5000\*GLY +    0.5000\*MGLY  | MGLY_RACM2 | Not Available<sup>1</sup> | 
 | R026   | DCB2 ---->   1.5000\*HO2 +    0.2500\*ACO3 +    0.2000\*XO2 + CO +    0.5000\*GLY +    0.5000\*MGLY  | MGLY_RACM2 | Not Available<sup>1</sup> | 
-| R027a   | BALD ----> BEN + CO  | BALD1_CALVERT11 | Not Available<sup>1</sup> | 
-| R027b   | BALD ----> BENP + CO + HO2  | BALD2_CALVERT11 | Not Available<sup>1</sup> | 
-| R027c   | BALD ----> VROCN2OXY2  | BALD3_CALVERT11 | Not Available<sup>1</sup> | 
+| R027   | BALD ----> CHO + HO2 + CO  | BALD_RACM2 | Not Available<sup>1</sup> | 
 | R028   | OP1 ----> HO + HO2 + HCHO  | OP1_RACM2 | Not Available<sup>1</sup> | 
 | R029   | OP2 ----> HO + HO2 + ALD  | OP1_RACM2 | Not Available<sup>1</sup> | 
 | TRP03   | OPB ----> HO + HO2 + ALD  | OP1_RACM2 | Not Available<sup>1</sup> | 
 | R029a   | OP3 ----> HO + HO2 + ALD  | OP1_RACM2 | Not Available<sup>1</sup> | 
 | R030   | PAA ----> HO + MO2  | PAA_RACM2 | Not Available<sup>1</sup> | 
-| R031   | ONIT ----> HO2 + NO2 +    0.2000\*ALD +    0.8000\*KET  | ONIT_CALVERT08 | Not Available<sup>1</sup> | 
-| R032   | PAN ----> ACO3 + NO2  | PAN1_JPL19 | Not Available<sup>1</sup> | 
-| R033   | PAN ----> MO2 + NO3  | PAN2_JPL19 | Not Available<sup>1</sup> | 
-| R033a   | PPN ----> RCO3 + NO2  | PPN1_JPL19 | Not Available<sup>1</sup> | 
-| R033b   | PPN ----> HC3P + NO3  | PPN2_JPL19 | Not Available<sup>1</sup> | 
+| R031   | ONIT ----> HO2 + NO2 +    0.2000\*ALD +    0.8000\*KET  | ONIT_RACM2 | Not Available<sup>1</sup> | 
+| R032   | PAN ----> ACO3 + NO2  | PAN1_RACM2 | Not Available<sup>1</sup> | 
+| R033   | PAN ----> MO2 + NO3  | PAN2_RACM2 | Not Available<sup>1</sup> | 
 | R034   | O3 + HO ----> HO2  |   1.70E-12e<sup>  -940.00/T</sup> |   7.2647E-14 |
 | R035   | O3 + HO2 ----> HO  |   1.00E-14e<sup>  -490.00/T</sup> |   1.9331E-15 |
 | R036   | O3 + NO ----> NO2  |   3.00E-12e<sup> -1500.00/T</sup> |   1.9596E-14 |
