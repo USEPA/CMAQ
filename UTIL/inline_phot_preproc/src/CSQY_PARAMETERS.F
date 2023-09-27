@@ -34,7 +34,6 @@
           INTEGER, PARAMETER :: KT = MXLEV	
 
           REAL,    PARAMETER :: T298K = 298.0     ! standard air temperature
-          REAL,    PARAMETER :: T296K = 296.0     ! air temperature Cross-Section for PPN data
           REAL,    PARAMETER :: DENS0 = 2.46E+19  ! approximate air number density at 1 Atm and 298K, molec/cm3 
                                                   ! should be 2.465E+19 but the original version of CSQY pre-processor
                                                   ! used 2.59E+19, a 3% difference
@@ -154,7 +153,6 @@
      &               // 'CSQY_DATA_' // TRIM( WORD )
 
 
-          print*,'opening: ',TRIM(JTABLE_NAME)
           OPEN(JTABLE_UNIT, FILE = JTABLE_NAME, STATUS = 'UNKNOWN')
 
           PHOT_DONE   = ' '

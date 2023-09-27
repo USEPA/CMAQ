@@ -103,7 +103,7 @@
       LOGICAL       :: RESET_WC
       LOGICAL       :: RESET_TD
 
-      REAL          :: SIG, ALPHA, BETA, TAU, UPSILON, CHI, PHI, PSI
+      REAL          :: SIG, ALPHA, BETA, CHI, PHI
       REAL          :: XCROSS( NZ, NW), QUANT( NZ,NW )
 
       REAL          :: PHI_CO_STP     ! CO branch of IUPAC (2013) acetone QYZ at STP
@@ -842,7 +842,7 @@
 
            REPLACE = .TRUE.
 
-         CASE(  'PAN1_RACM2', 'PAN2_RACM2', 'PAN1_JPL19', 'PAN2_JPL19'  )  ! 'PAN + hv -> PRODUCTS'
+         CASE(  'PAN1_RACM2', 'PAN2_RACM2'  )  ! 'PAN + hv -> PRODUCTS'
 
 
 ! temperature correction to cross-section 
@@ -857,98 +857,34 @@
 
 
            REPLACE = .TRUE.
-         CASE(  'PPN1_JPL19', 'PPN2_JPL19'  )  ! 'PPN + hv -> PRODUCTS'
-
-
-! temperature correction to cross-section 
-
-           DO IW = 1, NW
-               DO I = 1, NZ
-                    FACTOR    = EXP(PPN_XCROSS_B(IW)*(TLEV(I)-T296K))
-                    XC(I, IW) = FACTOR * XC(I, IW)
-                    SQ(I, IW) = XC(I,IW) * QY(I, IW)
-               ENDDO
-           ENDDO
-
-
-           REPLACE = .TRUE.
-         CASE( 'GLY_R_IUPAC10', 'GLYOX_R_CRI' )
+         CASE( 'GLY_R_IUPAC10', 'GLY_R_IUPAC13', 'GLYOX_R_CRI', 'GLYOX_M_CRI' )
 
 
            DO IW = 1, NW
                CHI = QY_GLYOXAL( T298K, DENS0, WC( IW ) )
                SIG = DENS0
-               WRITE(6,'(A3,2(1X,A7),15(1X,A12))')
-     &         'IW','Lambda', 'TEMP','DENS','QY_GLYOXAL','QYO_GLYOXAL','RQY_GLYOXAL','FACTOR',
-     &         'INIT_QY_RAD'
                DO I = 1, NZ
-                    TAU = QY(I, IW)
                     IF( CHI .GT. 0.0 )THEN
-                        PHI     = QY_GLYOXAL( TLEV( I ), DENS( I ), WC( IW ) ) 
-                        FACTOR  = PHI / CHI 
+                        FACTOR  = QY_GLYOXAL( TLEV( I ), DENS( I ), WC( IW ) )
+     &                          / CHI 
                     ELSE
                         FACTOR  = 1.0
                     END IF
                     QY(I, IW) = MIN(1.0, MAX(0.0, FACTOR * QY(I, IW)))
                     SQ(I, IW) = XC(I,IW) * QY(I, IW)
+#ifdef verbose
+                    WRITE(6,'(A,10(1X,ES12.4))')'SIG, WC( IW ), RQY_GLYOXAL( T298K, SIG, WC( IW ) ) = ',
+     &              SIG, WC( IW ), RQY_GLYOXAL( T298K, SIG, WC( IW ) ),QY_GLYOXAL( T298K, SIG, WC( IW ) )
+     &              /QY_GLYOXAL( T298K, DENS0, WC( IW ) )
 
-                    psi = QY_GLYOXAL( TLEV( I ), DENS( I ), WC( IW ) )
-                    WRITE(6,'(I3,2(1X,F7.2),15(1X,ES12.4))')
-     &              IW,WC( IW ), TLEV( I ), DENS( I ), 
-     &              PHI,CHI,
-     &              RQY_GLYOXAL( TLEV( I ), DENS( I ), WC( IW ) ),FACTOR,TAU
-
-!                    SIG = 0.90*SIG
+#endif
+                    SIG = 0.90*SIG
                ENDDO
            ENDDO
 
 
            REPLACE = .TRUE.
 
-
-         CASE( 'GLYHX_JPL19','GLY_R_IUPAC13' )
-
-
-           DO IW = 1, NW
-! compute radical channel based on JPL-19 conclusion that the nonradical channels
-! do not depend on temperature and pressure.
-               PSI     =  QY_GLYOXAL( T296K, DENS0, WC( IW ) )
-               UPSILON = ( GLY_QYH2_JPL19(IW)+GLY_QYHCHO_JPL19(IW) )
-               CHI = MAX( 0.0,(PSI-UPSILON) )
-               SIG = DENS0
-               WRITE(6,'(A3,2(1X,A7),15(1X,A12))')
-     &         'IW','Lambda', 'TEMP','DENS','QY_GLYOXAL','QY_RAD','QY_RAD0','RQY_GLYOXAL','FACTOR', 'OLD_FACT','MAX_GLY_RAD',
-     &         'INIT_QY_RAD'
-               DO I = 1, NZ
-                    TAU = QY(I, IW)
-                    IF( CHI .GT. 0.0 )THEN
-                        PHI = MAX( 0.0,  
-     &                        QY_GLYOXAL( TLEV( I ), DENS( I ), WC( IW ) ) 
-     &                      - UPSILON )
-                        FACTOR  = PHI /CHI 
-                    ELSE
-                        FACTOR  = 1.0
-                    END IF
-                    QY(I, IW) = MIN(1.0, MAX(0.0, FACTOR * QY(I, IW)))
-                    SQ(I, IW) = XC(I,IW) * QY(I, IW)
-
-
-                    IF( PSI .GT. 0.0 )THEN
-                        ALPHA  = QY_GLYOXAL( TLEV( I ), DENS( I ), WC( IW ) ) /PSI
-                    ELSE
-                        ALPHA  = 1.0
-                    END IF
-                    WRITE(6,'(I3,2(1X,F7.2),15(1X,ES12.4))')
-     &              IW,WC( IW ), TLEV( I ), DENS( I ), 
-     &              QY_GLYOXAL( TLEV( I ), DENS( I ), WC( IW ) ),PHI,CHI,RQY_GLYOXAL( TLEV( I ), DENS( I ), WC( IW ) ),
-     &              FACTOR,ALPHA,MAX(0.0,(1.0-CHI)),TAU
-
-!                    SIG = 0.90*SIG
-               ENDDO
-           ENDDO
-
-
-           REPLACE = .TRUE.
 
          CASE( 'NC3CHO_R_MCMv32', 'NC3CHO_M_MCMv32' )
 !Number density correction to quantum yield
@@ -1034,31 +970,6 @@
 
 
              REPLACE = .TRUE.
-
-         CASE( 'MVK_JPL19' )
-
-C quantum yield correction from
-C Gierczak, T., J. B. Burkholder, R. K. Talukdar, A. Mellouki, S. B. Barone,
-C and A. R. Ravishankara, Atmospheric fate of methyl vinyl ketone and methacrolein,
-C J. Photochem. Photobiol A: Chemistry, 110 1-10, 1997.
-C depends on pressure and wavelength, set upper limit to 1.0
-         DO IW = 1, NW
-            DO I = 1, NZ
-
-               FACTOR = (5.5 + 9.2E-19*2.465E+19)
-     &                / (5.5 + 9.2E-19*DENS(I))
-               
- 
-               QY(I, IW) = FACTOR * QY(I, IW)
-               QY(I, IW) = MIN(1.0, QY(I, IW))
-               QY(I, IW) = MAX(0.0, QY(I, IW))
-               SQ(I, IW) = XC(I,IW)* QY(I, IW)
-
-            ENDDO
-         ENDDO
-
-
-         REPLACE = .TRUE.
 
          CASE( 'MVK-06', 'ISPD', 'MVK_06', 'MVK_RACM2' )
 
@@ -2749,17 +2660,16 @@ C-----------------------------------------------------------------------
         REAL( 8 ) WN_OFFSET    ! adjusted wavenumber, 1/cm
         REAL( 8 ) R8_DENS      ! air number density, 1/cm^3 
 
-        REAL( 8 ) ONE_OVER_LAMBDA  ! wavenumber, 10E7/nm or 1/cm
-        REAL( 8 ) QY_DENS_NUMB     ! total qy at DENS_NUMB
-        REAL( 8 ) IQY_DENS0        ! reciporcal of total qy at DENS0
+        REAL ONE_OVER_LAMBDA  ! wavenumber, 10E7/nm or 1/cm
+        REAL QY_DENS_NUMB     ! total qy at DENS_NUMB
+        REAL IQY_DENS0        ! reciporcal of total qy at DENS0
       
         TEMP_OVER_295K  = REAL( TEMP * ONE_OVER_295K, 8 )
         WN_OFFSET       = REAL( 1.0E7 / LAMBDA - 23800.0, 8 )
         R8_DENS         = REAL( DENS_NUMB, 8 )
 
 
-!        IF( LAMBDA .LT. 650.0 .AND. LAMBDA .GT. 250.0 )THEN
-        IF( LAMBDA .LT. 425.0 .AND. LAMBDA .GT. 250.0 )THEN
+         IF( LAMBDA .LT. 650.0 .AND. LAMBDA .GT. 250.0 )THEN
             AA = 6.48D-19 * TEMP_OVER_295K**(-1.83D0)
             BB = 7.60D-04 * TEMP_OVER_295K**(-0.515D0)
             A1 = AA * EXP( -BB * WN_OFFSET ) 
@@ -2775,16 +2685,13 @@ C-----------------------------------------------------------------------
 !*** note that values are normalized by total qy at DENS = 0.0 but
 !    its values equals 1.0
 
-            IQY_DENS0 = (1.0D0 + A2 + A3*DENS0 ) 
-     &                / ((1.0D0 + A1*DENS0 + A2)*(1.0D0 + A3*DENS0))
+            IQY_DENS0 = REAL( (1.0 + A2 + A3*DENS0 ) 
+     &                / ((1.0 + A1*DENS0 + A2)*(1.0 + A3*DENS0)) )
 
-            QY_DENS_NUMB  = (1.0D0 + A2 + A3*R8_DENS ) 
-     &                / ((1.0D0 + A1*R8_DENS + A2)*(1.0D0 + A3*R8_DENS))
+            QY_DENS_NUMB  = REAL( (1.0 + A2 + A3*R8_DENS ) 
+     &                / ((1.0 + A1*R8_DENS + A2)*(1.0 + A3*R8_DENS)) )
 
-            RQY_GLYOXAL  = REAL( QY_DENS_NUMB * IQY_DENS0 )
-            
-!         WRITE(6,'(A,10(F13.6,1X))')'TEMP, LAMBDA, RQY_GLYOXAL,QY,1/QY0 = ', TEMP, LAMBDA, RQY_GLYOXAL,
-!     &   QY_DENS_NUMB,IQY_DENS0       
+            RQY_GLYOXAL  = QY_DENS_NUMB * IQY_DENS0
 
           ELSE
 
