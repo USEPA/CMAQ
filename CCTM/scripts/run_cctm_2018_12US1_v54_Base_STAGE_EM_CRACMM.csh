@@ -43,7 +43,7 @@ cd CCTM/scripts
 #> Define RUNID as any combination of parameters above or others. By default,
 #> this information will be collected into this one string, $RUNID, for easy
 #> referencing in output binaries and log files as well as in other scripts.
- setenv RUNID  ${VRSN}_${MECH}_${EMIS}_${APPL}
+ setenv RUNID  ${VRSN}_${compilerString}_${APPL}
 
 #> Set the build directory (this is where the CMAQ executable
 #> is located by default).
@@ -88,7 +88,7 @@ set TSTEP      = 010000            #> output time step interval (HHMMSS)
 if ( $PROC == serial ) then
    setenv NPCOL_NPROW "1 1"; set NPROCS   = 1 # single processor setting
 else
-   @ NPCOL  =  16; @ NPROW = 16 
+   @ NPCOL  =  16; @ NPROW = 8 
    @ NPROCS = $NPCOL * $NPROW
    setenv NPCOL_NPROW "$NPCOL $NPROW"; 
 endif
@@ -292,7 +292,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
 
   #> Initial conditions
   if ($NEW_START == true || $NEW_START == TRUE ) then
-     setenv ICFILE CCTM_CGRID_${RUNID}_${YESTERDAY}.nc #This needs to be replaced when there is a 6-30-2018 IC file SF 
+     setenv ICFILE CCTM_CGRID_${RUNID}_${YESTERDAY}.nc 
      setenv INIT_MEDC_1 notused
   else
      set ICpath = $OUTDIR
