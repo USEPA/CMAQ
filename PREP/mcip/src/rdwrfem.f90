@@ -2191,7 +2191,7 @@ SUBROUTINE rdwrfem (mcip_now)
             yyin = met_yyctr -  &
                    ( met_rjctr_dot - (FLOAT(j) + yoff) ) * met_resoln
 
-            CALL xy2ll_merc (xxin, yyin, met_proj_clon,  &
+            CALL xy2ll_merc (xxin, yyin, met_tru1, met_proj_clon,  &
                              latdot(i,j), londot(i,j))
 
             mapdot(i,j) = mapfac_merc (latdot(i,j))
@@ -2213,7 +2213,7 @@ SUBROUTINE rdwrfem (mcip_now)
               yyin = met_yyctr -  &
                      ( met_rjctr_dot - (FLOAT(j) + yoff) ) * met_resoln
 
-              CALL xy2ll_merc (xxin, yyin, met_proj_clon,  &
+              CALL xy2ll_merc (xxin, yyin, met_tru1, met_proj_clon,  &
                                latu(i,j), lonu(i,j))
 
               mapu(i,j) = mapfac_merc (latu(i,j))
@@ -2233,7 +2233,7 @@ SUBROUTINE rdwrfem (mcip_now)
               yyin = met_yyctr -  &
                      ( met_rjctr_dot - (FLOAT(j) + yoff) ) * met_resoln
 
-              CALL xy2ll_merc (xxin, yyin, met_proj_clon,  &
+              CALL xy2ll_merc (xxin, yyin, met_tru1, met_proj_clon,  &
                                latv(i,j), lonv(i,j))
 
               mapv(i,j) = mapfac_merc (latv(i,j))
