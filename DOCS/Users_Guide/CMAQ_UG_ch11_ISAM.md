@@ -74,7 +74,7 @@ To begin a CMAQ simulation with source apportionment enabled, the ISAM section o
 |ISAM_VOC_CASE| 1,2,3,4 (default is 4) | what tracked species are weighted when grid cell VOC limited ozone production. Only used if ISAM_O3_WEIGHT equal 5. | 
 |VOC_NOX_TRANS | >= 0.0 (default is 0.35)| value of Prod H2O2 over Prod HNO3 less than where ISAM_VOC_CASE weights are used. Otherwise, ISAM_NOX_CASE weights are used. VOC_NOX_TRANS only used if ISAM_O3_WEIGHT equal 5.|
 
-Additionally, ISAM can track emissions confined to geographic regions.  This functionality can be enabled through CMAQ's `RegionsRegistry` set in the `EmissCtrl` namelist (Appendix B.4) and is discussed further below.
+Additionally, ISAM can track emissions confined to geographic regions.  This functionality can be enabled through CMAQ's `RegionsRegistry` set in the `CMAQ_Control_DESID` namelist (Appendix B.4) and is discussed further below.
 
 
 
@@ -156,7 +156,7 @@ TAG NAME        |EGU
 
 It is recommended that the text string for the tag name be kept short (three characters or less) in order to accommodate the longer species names from some chemical mechanisms in the ISAM output files.  When a 'TAG NAME' is specified that is too long to accomodate every tagged CMAQ species name and the appended tag name, the resulting ISAM species name may not be able to be written to output files correctly, due to 16 character limit for variable names in IOAPI.  For example, 'BUTADIENE13_EGU' would work, because it is 15 characters, but 'BUTADIENE13_EGUT1' would fail at 17 characters.
 
-The second option is the comma delimited list of regions to track with this tag.  The keyword 'EVERYWHERE' is used to track domain-wide emissions.  To track region-constrained emissions, variable names from the regions file specified in the `EmissCtrl` namelist are used instead of the "EVERYWHERE' keyword. The regions file requirements are identical to the optional file used to scale emissions in predetermined geographical areas. See [Appendix B.4](Appendix/CMAQ_UG_appendixB_emissions_control.md#b4-applying-masks-for-spatial-dependence) for further details on the regions file, including how to download an example file.
+The second option is the comma delimited list of regions to track with this tag.  The keyword 'EVERYWHERE' is used to track domain-wide emissions.  To track region-constrained emissions, variable names from the regions file specified in the `CMAQ_Control_DESID` namelist are used instead of the "EVERYWHERE' keyword. The regions file requirements are identical to the optional file used to scale emissions in predetermined geographical areas. See [Appendix B.4](Appendix/CMAQ_UG_appendixB_emissions_control.md#b4-applying-masks-for-spatial-dependence) for further details on the regions file, including how to download an example file.
 
 ```
 REGION(S)       |EVERYWHERE
