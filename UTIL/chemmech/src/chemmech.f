@@ -755,6 +755,27 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          END IF
       END IF   ! not end of mechanism
 
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+C Check of all reaction have labels and whether any label
+C are repeated
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      DO IRX = 1,NR
+          IF( LABEL( IRX,1 ) .NE. '<<<<<<<<<<<<<<<<' ) THEN
+             DO NXX = IRX+1, NR
+                IF ( LABEL( NXX,1 ) .EQ. LABEL( IRX,1 ) ) THEN
+                   WRITE( LUNOUT, 1001 ) NXX,IRX,LABEL( IRX,1 )
+                END IF
+             END DO
+1001         FORMAT(  3X, 'WARNING: Reaction# ', I4,
+     &                1X, ' has the same label as an earlier ',
+     &                1X, 'Reaction# ', I4, ' labeled, ',A16 )
+            
+          ELSE
+            WRITE( LUNOUT, 1002 ) IRX
+1002        FORMAT(   3X,'WARNING: Reaction# ',I4,
+     &                ' has no label.' )
+          END IF
+      END DO
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C Resolve all reactions label references
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
