@@ -74,6 +74,7 @@ c..Variables for species to be dropped from mechanism
       INTEGER         :: N_DROP_SPC = 0
       CHARACTER( 16 ) :: DROP_SPC( MAXNLIST )
       LOGICAL         :: LERROR
+      LOGICAL         :: LWARN
       LOGICAL         :: READ_MECHNAME
       LOGICAL         :: KPP_DUMMY   = .FALSE.
       LOGICAL         :: FIRST_TERM  = .TRUE.
@@ -181,6 +182,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
       CALL INIT_MECH_DATA
 
+      LWARN = .FALSE.
       LABEL( 1:MAXRXNUM, 1) = '<<<<<<<<<<<<<<<<'
       LABEL( 1:MAXRXNUM, 2) = '>>>>>>>>>>>>>>>>'
      
@@ -764,6 +766,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
              DO NXX = IRX+1, NR
                 IF ( LABEL( NXX,1 ) .EQ. LABEL( IRX,1 ) ) THEN
                    WRITE( LUNOUT, 1001 ) NXX,IRX,LABEL( IRX,1 )
+                   LWARN = .TRUE.
                 END IF
              END DO
 1001         FORMAT(  3X, 'WARNING: Reaction# ', I4,
@@ -771,6 +774,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      &                1X, 'Reaction# ', I4, ' labeled, ',A16 )
             
           ELSE
+            LWARN = .TRUE.
             WRITE( LUNOUT, 1002 ) IRX
 1002        FORMAT(   3X,'WARNING: Reaction# ',I4,
      &                ' has no label.' )
@@ -1047,7 +1051,12 @@ C functions block
       CLOSE( IMECH )
 
 
-      WRITE( LUNOUT, * ) '   Normal Completion of CHEMMECH'
+      IF ( LWARN ) THEN
+         WRITE( LUNOUT, * ) '   CHEMMECH created output files but found problems.'
+         WRITE( LUNOUT, * ) '   Check run log for WARNING messages.'
+      ELSE
+         WRITE( LUNOUT, * ) '   Normal Completion of CHEMMECH'
+      END IF
       WRITE( LUNOUT, * )' Author is ', TRIM( AUTHOR )
 
 1993  FORMAT( / 5X, '*** ERROR: Special label already used'

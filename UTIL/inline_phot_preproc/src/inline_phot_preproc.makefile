@@ -30,7 +30,8 @@ else ifeq ($(compiler),pgi)
  f90_FLAGS = -Mfree  -Mextend -Mbounds -O0 -traceback -Mchkptr -Mchkstk -traceback -Ktrap=fp -I . -g
  F90_FLAGS = -Mfree  -Mextend -Mbounds -O0 -traceback -Mchkptr -Mchkstk -traceback -Ktrap=fp -I . -g
  C_FLAGS =  -O2  -DFLDMN=1
- LINK_FLAGS = -Bstatic
+ LINK_FLAGS =
+#LINK_FLAGS = -Bstatic
 #LINK_FLAGS = -Bstatic  -Bstatic_pgi
 
 else ifeq ($(compiler),nvhpc)
@@ -42,7 +43,7 @@ else ifeq ($(compiler),nvhpc)
  f90_FLAGS = -Mfree  -Mextend -Mbounds -O0 -traceback -Mchkptr -Mchkstk -traceback -Ktrap=fp -I . -g
  F90_FLAGS = -Mfree  -Mextend -Mbounds -O0 -traceback -Mchkptr -Mchkstk -traceback -Ktrap=fp -I . -g
  C_FLAGS =  -O2  -DFLDMN=1
- LINK_FLAGS = -Bstatic  -Bstatic-nvidia
+ LINK_FLAGS =
 #LINK_FLAGS = -Bstatic  -Bstatic_pgi
 
 else ifeq ($(compiler),gcc)
