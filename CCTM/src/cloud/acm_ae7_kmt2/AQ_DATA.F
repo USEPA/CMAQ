@@ -186,19 +186,20 @@ C                      -------------    -------------    -------------    ------
 !    & sur_aer_type((/'             ', '             ', 'A3FE         '/),   0.0,     55.8, 2000.0),
 !    & sur_aer_type((/'             ', '             ', 'B2MN         '/),   0.0,     54.9, 2000.0),
 !    & sur_aer_type((/'             ', '             ', 'K            '/),   0.0,     39.1, 2200.0),
-     & sur_aer_type((/'NUM_AITKEN   ', 'NUM_ACCUM    ', 'NUM_COARSE   '/),   0.0,      0.0,    1.0),
-     & sur_aer_type((/'SRF_AITKEN   ', 'SRF_ACCUM    ', 'SRF_COARSE   '/),   0.0,      0.0,    1.0)/)
+     & sur_aer_type((/'NUM_AITKEN    ', 'NUM_ACCUM     ', 'NUM_COARSE    '/),   0.0,      0.0,    1.0),
+     & sur_aer_type((/'SRF_AITKEN    ', 'SRF_ACCUM     ', 'SRF_COARSE    '/),   0.0,      0.0,    1.0)/)
 
-C...TX species added to Aerosol surrogate if not found in AE namelist file      
+C...TX and other species added to Aerosol surrogate if not found in AE namelist file      
       Type ( sur_aer_type ), private :: srgaer_addtx( nadd_tx ) = (/
 C                         Aitken           Accum            Coarse        Background MolWt  Density
 C                      -------------    -------------    -------------    ---------- -----  ------
-     & sur_aer_type((/'TRACER_AITKEN', '             ', '             '/),   0.0,    100.0, 2200.0),
-     & sur_aer_type((/'             ', 'TRACER_ACCUM ', '             '/),   0.0,    100.0, 2200.0),
-     & sur_aer_type((/'             ', '             ', 'TRACER_COARSE'/),   0.0,    100.0, 2200.0),
-     & sur_aer_type((/'PHG_AITKEN   ', '             ', '             '/),   0.0,    200.5, 2200.0),
-     & sur_aer_type((/'             ', 'PHG_ACCUM    ', '             '/),   0.0,    200.5, 2200.0),
-     & sur_aer_type((/'             ', '             ', 'PHG_COARSE   '/),   0.0,    200.5, 2200.0)/)
+     & sur_aer_type((/'TRACER_AITKEN ', '              ', '              '/),   0.0,    100.0, 2200.0),
+     & sur_aer_type((/'              ', 'TRACER_ACCUM  ', '              '/),   0.0,    100.0, 2200.0),
+     & sur_aer_type((/'              ', '              ', 'TRACER_COARSE '/),   0.0,    100.0, 2200.0),
+     & sur_aer_type((/'PHG_AITKEN    ', '              ', '              '/),   0.0,    200.5, 2200.0),
+     & sur_aer_type((/'              ', 'PHG_ACCUM     ', '              '/),   0.0,    200.5, 2200.0),
+     & sur_aer_type((/'              ', '              ', 'PHG_COARSE    '/),   0.0,    200.5, 2200.0)/)
+
      
 C...I species added to Aerosol surrogate if not found in AE namelist file      
       Type ( sur_aer_type ), private :: srgaer_addi( nadd_i ) = (/
@@ -276,6 +277,7 @@ C...Pointers for the AQCHEM array AEROSOL
 !     Integer :: lk       !  Potassium aerosol (Cl- tracked separately) (place holder)
       Integer :: lnum     !  Number
       Integer :: lsrf     !  Surface area
+      
 C...TXHG aersosols      
       Integer :: ltracer_akn  !  Tracer aerosols (Aitken)
       Integer :: ltracer_acc  !  Tracer aerosols (Accumulation)
@@ -366,6 +368,7 @@ C for TX version
 
       Integer, Allocatable, Save :: nsrgaer( :,: )    ! # surrogates in CGRID for each aerosol
       Integer, Allocatable, Save :: lsrgaer( :,:,: )
+      Integer, Allocatable, Save :: aknsrg( :,: )
 
       Integer, Allocatable, Save :: cgrid2aq_map( : ) ! allocated in AQ_DATA_INIT
       Character( 16 ), Allocatable, Save :: cgrid2aq_name( : ) ! allocated in AQ_DATA_INIT
@@ -412,7 +415,7 @@ C Local Variables:
       Integer :: i
       Integer :: n
       Integer :: var
-      Logical :: new
+      Logical :: new, Jexist
       Integer :: lsrg( mxsrg )
       Integer :: n_cgrid2aq
       Integer :: ios
@@ -420,6 +423,8 @@ C Local Variable used to determine what optional TX to add to surrogates
       !Logical :: found_all_modes
       !Integer :: n_missing_tx
       !Integer :: n_which_txadd( nadd_tx )
+      CHARACTER(16) :: NAMEI, NAMEJ
+      INTEGER LS2, LS1, LS3, LS4, ISRG2, ISRGI, IAERI, SPCI
 
       Logical, Save :: Firstcall = .True.
       
@@ -495,6 +500,12 @@ C...Map aero species
          xmsg = '*** Error allocating lsrgaer'
          Call m3exit( 'aq_data_init', 0, 0, xmsg, xstat3 )
       End If
+      
+      Allocate ( aknsrg( naer,mxsrg ), stat = ios )
+      If ( ios .Ne. 0 ) Then
+         xmsg = '*** Error allocating aknsrg'
+         Call m3exit( 'aq_data_init', 0, 0, xmsg, xstat3 )
+      End If
 
 C...Populate optional aerosol surrogate species (e.g.
 C   TRACER_AITKEN, TRACER_ACCUM, TRACER_COARSE, 
@@ -534,11 +545,36 @@ C...Initialize aerosol surrogate species from AERO_DATA table
                   If ( ae_a2aq( n ) .Eq. srgaer( i )%name( mode ) ) Then
                      new = .False.; Exit
                   End If
-               End Do
-               If ( new ) Then
-                  srgaer( spc )%name( mode ) = ae_a2aq( n )
-                  srgaer( spc )%density = aerospc( var )%density
-                  srgaer( spc )%molwt = aerospc_mw( var )
+		  
+		  Jexist = .false.            ! Does J mode exist for a new I mode species?	  
+		  If ( mode .eq. 1) then
+		     spci = spc
+		     ls1 = len_trim(ae_a2aq(n))
+		     ls2 = len_trim(srgaer(i)%name(2))
+		     namei = ae_a2aq(n)
+		     namei = namei(1:ls1-7)   ! Remove "_AITKEN" to get base name for I mode
+		     namej = srgaer(i)%name(2)
+		     namej = namej(1:ls2-6)   ! Remove "_ACCUM" to get base name for J mode
+		     If (trim(namei) .eq. trim(namej)) then
+		        spci = i
+		        Jexist = .true.; Exit
+		     End If
+		  End If	     
+		  
+               End Do	  
+	       
+	       If ( new ) Then
+	          
+		  If (Jexist) then 
+	             srgaer( spci )%name( mode ) = ae_a2aq( n )
+                     srgaer( spci )%density = aerospc( var )%density
+                     srgaer( spci )%molwt = aerospc_mw( var )
+		  Else
+                     srgaer( spc )%name( mode ) = ae_a2aq( n )
+                     srgaer( spc )%density = aerospc( var )%density
+                     srgaer( spc )%molwt = aerospc_mw( var ) 
+		  End If
+
                End If
            End If
 
@@ -606,6 +642,7 @@ C...CGRID map to aqueous species pointers for the tracers
       write(logdev, 1114)
 C...Create the pointers from CGRID to the gaseous species needed by AQCHEM
       nsrggas = 0
+      aknsrg = 0
       Do igas = 1, ngas
          nsrggas( igas ) = indexn( srggas( igas )%name, n_cgrid2aq, cgrid2aq, lsrg )
          If ( nsrggas( igas ) .Eq. 0 ) Then
@@ -722,6 +759,7 @@ C...Create the pointers for required aerosol surrogate species needed by AQCHEM
       limga  = findSgrAer( req_aimga )   !  2-Methylglyceric acid           
       limos  = findSgrAer( req_aimos )   !  MAE/HMML-derived-organosulfates 
       liso3  = findSgrAer( req_aiso3 )   !  2-Methyltetrols etc 
+      
 C...For TXHG version
       ltracer_akn    = findSgrAer( req_traceri  )   !  Tracer aitken mode 
       ltracer_acc    = findSgrAer( req_tracerj  )   !  Tracer accumation mode 
@@ -731,6 +769,49 @@ C...For TXHG version
       lphg_cor       = findSgrAer( req_phgk )       !  Mercuric coarse mode
 
       mapped = .True.
+      
+C...Match ACC mode surrogate indices to their AKN mode counterparts
+     
+      DO IAER = 1, NAER
+	 DO ISRG = 1, NSRGAER( IAER,2 )		
+		        NAMEJ = CGRID2AQ_NAME( LSRGAER( IAER,2,ISRG ) )
+		        LS1 = LEN_TRIM(NAMEJ)
+		        LS2 = 0
+		        DO I = 1, LS1
+		           IF(NAMEJ(I:I) .NE. ' ') THEN
+			      LS2 = LS2+1
+		           END IF
+		        END DO
+		        ISRGI = 0
+			
+                        IF(IAER .EQ. LTRACER_ACC) THEN
+		          IAERI = LTRACER_AKN 
+		        ELSE
+		          IAERI = IAER
+		        END IF
+			
+		    LOOP_SRGI: DO ISRG2 = 1, NSRGAER( IAERI, 1 )
+			          NAMEI = CGRID2AQ_NAME( LSRGAER( IAERI,1,ISRG2 ) )
+			          LS3 = LEN_TRIM(NAMEI)
+		                  LS4 = 0
+		                  DO I = 1, LS3
+		                     IF(NAMEI(I:I) .NE. ' ') THEN
+			                LS4 = LS4+1
+			             END IF
+			          END DO
+			
+			          IF( TRIM(NAMEJ(1:LS2-1)) .EQ. TRIM(NAMEI(1:LS4-1)) ) THEN
+			             ISRGI = ISRG2
+			             EXIT LOOP_SRGI
+			          END IF
+			       END DO LOOP_SRGI	
+			       
+			
+			AKNSRG(IAER, ISRG) = ISRGI
+
+	 END DO
+      END DO
+      
 
 #ifdef verbose_cloud
       Write( logdev,'( /5x, a )' ) 'AQCHEM gas surrogate species'
@@ -797,6 +878,7 @@ C...For TXHG version
       Write( logdev,'( 5x, a, i4 )' ) 'lphg_akn:     ', lphg_akn
       Write( logdev,'( 5x, a, i4 )' ) 'lphg_acc:     ', lphg_acc
       Write( logdev,'( 5x, a, i4 )' ) 'lphg_cor:     ', lphg_cor
+
 #endif
 
       Write( logdev,'( / 5x, a / )' ) ' --- AQCHEM Gas and Aerosol Species Mapped ---'
@@ -933,7 +1015,7 @@ C..Local Variables:
          aeconcmin( spc ) = aeromode_minNum( m ) * mwair * 1.0E-3
 
          spc = index1( aeromode( m )%srf_name, n_ae_spc, ae_spc )
-         aeconcmin( spc ) = aeromode_minM2( m ) * pi * mwair * 1.0E-3
+         aeconcmin( spc ) = aeromode_minM2( m ) * mwair * 1.0E-3
       End Do
 
       ! compute minimums for aerosol species

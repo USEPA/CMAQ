@@ -263,6 +263,7 @@
       INTEGER :: PA_ENDROW = 0       ! ending row for PA output
       INTEGER :: PA_BEGLEV = 0       ! Starting layer for PA output
       INTEGER :: PA_ENDLEV = 0       ! ending layer for PA output
+      CHARACTER( MAXLEN_CCTM_APPL ) :: BUDGET_FNAME  = 'CCTM_BUDGET' ! STAGE Deposition Control Filename
 
       ! Sulfur tracking
       LOGICAL :: STM        = .FALSE. ! flag for sulfur tracking option
@@ -753,8 +754,8 @@
          WRITE( OUTDEV, '(6x,A)' ), REPEAT( '-',80 )
       END IF
 
-      ! CTM_VDIFF_DIAG_FILE
-      CALL GET_ENV ( VDIFFDIAG, 'CTM_VDIFF_DIAG_FILE', VDIFFDIAG, VARDEV )
+      ! Flag for writing vertical diffusion diagnostic file and possibly gravitational settling diagnostic file
+      CALL GET_ENV ( VDIFFDIAG, 'VDIFF_DIAG_FILE', VDIFFDIAG, VARDEV )
 
       ! Get Minimum Layer for Advection Time Step Adjustment
       CALL GET_ENV ( SIGST, 'SIGMA_SYNC_TOP', SIGST, VARDEV )
@@ -936,6 +937,10 @@
          XMSG = 'Environment variable error for PA_BLEV_ELEV'
          CALL M3EXIT( 'INIT_ENV_VARS', JDATE, JTIME, XMSG, EXIT_STATUS )
       END IF
+
+      ! Get the Budget File Name
+      CALL GET_ENV ( BUDGET_FNAME, 'CTM_BUDGET', BUDGET_FNAME, VARDEV )
+
 
       IF ( OCEAN_CHEM ) THEN
        IF ( (INDEX( MECHNAME, 'CB6R5M_AE7_AQ') .GT. 0 ) .OR. 

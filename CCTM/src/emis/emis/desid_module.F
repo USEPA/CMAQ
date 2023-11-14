@@ -1041,26 +1041,30 @@ C-----------------------------------------------------------------------
             LAREA   = DESID_FAC( ISTR,ISRM )%AREA(IFAC )
             LAREAADJ= DESID_FAC( ISTR,ISRM )%AREAADJ(IFAC )
 
-            DO L = 1,NL
-             IF ( IRGN .EQ. REG_UNQ .OR.
-     &           DESID_REG_SUB( IRGN,REG_UNQ ) ) THEN
+            IF ( IRGN .EQ. REG_UNQ .OR.
+     &          DESID_REG_SUB( IRGN,REG_UNQ ) ) THEN
               !Apply scaling for region IRGN using DESID_FAC 
               IF ( OP .EQ. 1 ) THEN ! Add New Emission
-                  IF ( LAREA ) FAC = FAC * CELLAREA
-                  IF ( LAREAADJ ) FAC = FAC / MSFX2
-                  VDEMIS1( L,:,: ) = VDEMIS1( L,:,: ) +
-     &                 VDEMIS0( ISTR,L,:,: ) * FAC
+                 IF ( LAREA ) FAC = FAC * CELLAREA
+                 IF ( LAREAADJ ) FAC = FAC / MSFX2
+                 DO L = 1,NL
+                   VDEMIS1( L,:,: ) = VDEMIS1( L,:,: ) +
+     &                  VDEMIS0( ISTR,L,:,: ) * FAC
+                 END DO
 
               ELSE IF ( OP.EQ.2 ) THEN ! Multiply Emissions Rule
-                  VDEMIS1( L,:,: ) = VDEMIS1( L,:,: ) * FAC
+                 DO L = 1,NL
+                   VDEMIS1( L,:,: ) = VDEMIS1( L,:,: ) * FAC
+                 END DO
 
               ELSE IF ( OP.EQ.3 ) THEN ! Overwrite Existing Rule
-                  IF ( LAREA ) FAC = FAC * CELLAREA
-                  IF ( LAREAADJ ) FAC = FAC / MSFX2
-                  VDEMIS1( L,:,: ) = VDEMIS0( ISTR,L,:,: ) * FAC
-              END IF
+                 IF ( LAREA ) FAC = FAC * CELLAREA
+                 IF ( LAREAADJ ) FAC = FAC / MSFX2
+                 DO L = 1,NL
+                   VDEMIS1( L,:,: ) = VDEMIS0( ISTR,L,:,: ) * FAC
+                 END DO
              END IF
-            END DO
+            END IF
           END DO  ! End Loop through instruction stack
 
           ! Determine Region Mask to use for this Instruction
@@ -1806,26 +1810,31 @@ C and allowing the model to proceed.
                ! Family and if So, Apply the Rule to all members of that 
                ! Family
                IFAM = INDEX1( DESID_RULES_NML( IRULE )%EMVAR, N_Chem_Fams, ChemFamilyName )
-               IF ( IFAM .EQ. 0 ) THEN
-                  ! This Emission Variable Label Does not match any families.
-                  ! Just look for one variable
+               IAERO = 0
+               IF ( IFAM .GT. 0 ) 
+     &            IAERO= INDEX1( ChemFamilyName(IFAM), N_AEROSPC, AEROSPC(:)%BULKNAME )
+               IF ( IFAM .EQ. 0 .OR. IAERO .NE. 0 ) THEN
+                  ! This Emission Variable Label Does not match any families or this is an
+                  ! aerosol bulkname. Just look for one variable
                   DO ISRM = 1,DESID_N_SRM
                      IF ( .NOT.RULE_STREAM( ISRM ) ) CYCLE
                      IDX = INDEX1( DESID_RULES_NML( IRULE )%EMVAR, DESID_EMVAR( ISRM )%LEN, 
      &                             DESID_EMVAR( ISRM )%ARRY )
                      IF ( IDX .NE. 0 ) THEN
+                        ! A matching Emission variable has been found
                         RULE_EMVAR( ISRM )%ARRY( IDX ) = .TRUE.
                         LERROR = .FALSE.
                      END IF
                  END DO
-               ELSE
-                  ! Emission Variable Label is for a family. Loop through all
-                  ! the members to assign emission variables
+               END IF
+
+               IF ( IFAM .NE. 0 .AND. IAERO .EQ. 0 ) THEN
+                  ! This is not an aerosol bulkname. Loop through all the 
+                  ! members to assign emission variables
                   NCHEM = ChemFamilyNum( IFAM )
                   CHEM_NAME(1:NCHEM) = ChemFamilyMembers( IFAM,1:NCHEM )
                   LEMVAR_KEY = .TRUE.
- 
-                  LERROR = .FALSE.
+               
                   DO ICHEM = 1,NCHEM
                      LERROR3( ICHEM ) = .FALSE.
                      LERROR2 = .TRUE.
@@ -1840,12 +1849,14 @@ C and allowing the model to proceed.
                         END IF
                      END DO
                      IF ( LERROR2 ) THEN
+                         ! Store the index of the variables not found on
+                         ! any emission stream.
                          LERROR3( ICHEM ) = .TRUE.
-                         LERROR = .TRUE.
                      END IF
-                  END DO          
+                  END DO 
+                  IF ( .NOT. ANY( LERROR3 ) ) LERROR = .FALSE.
                END IF
- 
+               
             END IF
             
             IF ( LERROR ) THEN
@@ -3151,8 +3162,8 @@ C stkemis_init.
         ! Create I/O Logicals and Populate with full Filepaths
         ALLOCATE( DESID_DIAG_LOGICAL( DESID_N_DIAG ) )
         DO IDIAG = 1,DESID_N_DIAG
-           IF ( OUTDIR(1:8 ) .NE. 'OUTDIR' ) THEN
-                DESID_DIAG_FILENAME(IDIAG) = TRIM( OUTDIR ) // '/' // DESID_DIAG_FILENAME(IDIAG)
+           IF ( OUTDIR .NE. '' ) THEN
+             DESID_DIAG_FILENAME(IDIAG) = TRIM( OUTDIR ) // '/' // DESID_DIAG_FILENAME(IDIAG)
            END IF
            WRITE( DESID_DIAG_LOGICAL( IDIAG ),'( "DESID_",I3.3 )' ) IDIAG
            VALUE = SETENVVAR( DESID_DIAG_LOGICAL( IDIAG ), DESID_DIAG_FILENAME( IDIAG ) )
