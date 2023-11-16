@@ -20,7 +20,8 @@
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE AQCHEM ( JDATE, JTIME, TEMP, PRES_PA, TAUCLD, PRCRATE,
      &                    WCAVG, WTAVG, AIRM, ALFA0, ALFA2, ALFA3, GAS,
-     &                    AEROSOL, GASWDEP, AERWDEP, HPWDEP, BETASO4, DARK )
+     &                    AEROSOL, GASWDEP, AERWDEP, HPWDEP, BETASO4, DARK,
+     &                    FRACTR, FRACPOA, FRACPRI, FRACSOA )
 
 C-----------------------------------------------------------------------
 C  Description:
@@ -195,6 +196,10 @@ C...........Arguments:
       REAL( 8 ), INTENT( INOUT ) :: GASWDEP( : )   ! gas phase wet deposition array (mm mol/liter)
       REAL( 8 ), INTENT( INOUT ) :: AERWDEP( :,: ) ! aerosol wet deposition array (mm mol/liter)
       LOGICAL,   INTENT( IN )    :: DARK           ! DARK = TRUE is night,  DARK = FALSE is day
+      REAL( 8 ), INTENT( OUT ) :: FRACTR    ! Fraction of J mode tracer scavenged from I mode 
+      REAL( 8 ), INTENT( OUT ) :: FRACPOA   ! Fraction of J mode poa scavenged from I mode 
+      REAL( 8 ), INTENT( OUT ) :: FRACPRI   ! Fraction of J mode pri scavenged from I mode
+      REAL( 8 ), INTENT( OUT ) :: FRACSOA   ! Fraction of J mode soa scavenged from I mode  
 
 C...........Local Variables (scalars):
 
@@ -426,6 +431,8 @@ C...........Local Variables (scalars):
 
       REAL( 8 ) :: FE_SOL          ! Fractional Fe solubility, GS - July 1, 2011
       REAL( 8 ) :: MN_SOL          ! Fractional Mn solubility, GS - July 1, 2011
+      
+      REAL( 8 ) :: TRACI, POAI, PRII, SOAI
 
       REAL( 8 ), SAVE :: SOIL_FE_FAC  ! Fe molar fraction of ASOIL
       REAL( 8 ), SAVE :: CORS_FE_FAC  ! Fe molar fraction of ACORS
@@ -933,7 +940,7 @@ C...   = Initial amount - amount deposited  (mol/liter)
         K       = LOADING( LKACC,  ACC) - WETDEP( LKACCL  ) * XC1 + KCOR
         FE      = LOADING( LFEACC, ACC) - WETDEP( LFEACCL ) * XC1 + FECOR
         MN      = LOADING( LMNACC, ACC) - WETDEP( LMNACCL ) * XC1 + MNCOR
-        SOA     = LOADING( LSOA,  ACC ) - WETDEP( LSOAL  ) * XC1
+        SOA     = LOADING( LSOA,  ACC ) + LOADING( LSOA, AKN )  - WETDEP( LSOAL  ) * XC1
         ORGC    = LOADING( LORGC, ACC ) + DORGC - WETDEP( LORGCL ) * XC1             ! new in-cloud organic
         POA     = LOADING( LPOA,  ACC ) + LOADING( LPOA, AKN ) - WETDEP( LPOAL ) * XC1
         EC      = LOADING( LEC,   ACC ) + LOADING( LEC,   AKN ) - WETDEP( LECL   ) * XC1
@@ -942,6 +949,11 @@ C...   = Initial amount - amount deposited  (mol/liter)
         NUMCOR  = LOADING( LNUM,  COR ) - WETDEP( LNUMCORL  ) * XC1
 !       A       = 3.0D0 * FE
 !       B       = 2.0D0 * MN
+
+        TRACI = LOADING( LTRACER_AKN, AKN ) - WETDEP( LTRACIL ) * XC1
+	POAI = LOADING( LPOA, AKN ) - WETDEP( LPOAIL ) * XC1
+	PRII = LOADING( LPRI, AKN ) - WETDEP( LPRIIL ) * XC1
+	SOAI = LOADING( LSOA, AKN ) - WETDEP( LSOAIL ) * XC1
 
 !       FE_OX = 0.5D0 * 0.62D0 * FE      ! SLN 28March2011
 !       MN_OX = 1.0D0 * 0.84D0 * MN      ! SLN 28March2011
@@ -962,6 +974,11 @@ C...don't allow aerosol concentrations to go below zero
         PRIM    = MAX( PRIM,    0.0D0 )
 !       PRIMCOR = MAX( PRIMCOR, 0.0D0 )
         NUMCOR  = MAX( NUMCOR,  0.0D0 )
+	
+	TRACI    = MAX( TRACI,     0.0D0 )
+	POAI     = MAX( POAI,     0.0D0 )
+	PRII     = MAX( PRII,     0.0D0 )
+	SOAI     = MAX( SOAI,     0.0D0 )
 
         FE_OX = FE_III * FE_SOL * FE     ! GS 01July2011
         MN_OX = MN_II  * MN_SOL * MN     ! GS 01July2011
@@ -1562,6 +1579,11 @@ C...load the liquid concentration array with current values
         LIQUID( LSEASCL   ) = SEASCOR ! AE6 - SLN 16March2011
         LIQUID( LFEACCL   ) = FEACC   ! AE6 - SLN 22March2011
         LIQUID( LMNACCL   ) = MNACC   ! AE6 - SLN 22March2011
+	
+	LIQUID( LTRACIL ) = TRACI
+	LIQUID( LPOAIL ) = POAI
+	LIQUID( LPRIIL ) = PRII
+	LIQUID( LSOAIL ) = SOAI
 
 C...Load array variable TXHG Version
 
@@ -1996,6 +2018,7 @@ C...  to the accumulation mode particles
       AERWDEP( LPRI, AKN ) = 0.0D0
 
       AERWDEP( LPOA, AKN ) = 0.0D0
+      AERWDEP( LSOA, AKN ) = 0.0D0
 
       AERWDEP( LSO4, ACC ) = WETDEP( LSO4ACCL ) + WETDEP( LHSO4ACCL )
       AERWDEP( LNH4, ACC ) = WETDEP( LNH4ACCL )
@@ -2065,6 +2088,7 @@ C...aerosol concentrations (mol/molV)
       AEROSOL( LPRI, AKN ) = AEROSOL( LPRI, AKN ) * EALFA3T
 
       AEROSOL( LPOA, AKN ) = AEROSOL( LPOA, AKN ) * EALFA3T
+      AEROSOL( LSOA, AKN ) = AEROSOL( LSOA, AKN ) * EALFA3T
 
       AEROSOL( LSO4, ACC ) = TS6ACC * XL * RECIPAP1
       AEROSOL( LEC,  ACC ) = EC     * XL * RECIPAP1
@@ -2119,6 +2143,34 @@ C...Compute for Aerosol species in  TXHG Version
 
       AEROSOL( LPHG, ACC )        = HGII_FINE * XL * RECIPAP1
       AEROSOL( LPHG_COR, COR )    = HGCOR * XL * RECIPAP1
+      
+      IF( AEROSOL(LTRACER_ACC, ACC) .GT. 0.d0 ) THEN
+         FRACTR  = MIN((TRACI  * XL * RECIPAP1) / 
+     &             AEROSOL(LTRACER_ACC, ACC), 1.0D0) 
+      ELSE 
+         FRACTR = 0.d0
+      END IF
+      
+      IF( AEROSOL(LPOA, ACC) .GT. 0.d0 ) THEN
+         FRACPOA = MIN((POAI  * XL * RECIPAP1) / 
+     &             AEROSOL(LPOA, ACC), 1.0D0)
+      ELSE 
+         FRACPOA = 0.d0
+      END IF 
+      
+      IF( AEROSOL(LSOA, ACC) .GT. 0.d0 ) THEN
+         FRACSOA = MIN((SOAI  * XL * RECIPAP1) / 
+     &             AEROSOL(LSOA, ACC), 1.0D0)
+      ELSE 
+         FRACSOA = 0.d0
+      END IF 
+      
+      IF( AEROSOL(LPRI, ACC) .GT. 0.d0 ) THEN
+         FRACPRI = MIN((PRII  * XL * RECIPAP1) / 
+     &             AEROSOL(LPRI, ACC), 1.0D0)
+      ELSE 
+         FRACPRI = 0.d0
+      END IF 
 
 C...store the amount of hydrogen deposition
 
