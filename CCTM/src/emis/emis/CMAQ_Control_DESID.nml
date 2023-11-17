@@ -113,6 +113,10 @@
 !               construct.                                                     !   
 !      'Variable  - This label identifies the variable on the region file that !
 !        on File'   should be used to populate this particular region.         !
+!                                                                              !
+!      Note that the 'Region Label' and 'Variable on File' fields are case     !
+!      insensitive. It is required that region variable names on the file be   !
+!      capitalized. This requirement willl be relaxed in future CMAQ versions. !
 !------------------------------------------------------------------------------!
 &Desid_RegionDefVars
  Desid_Max_Reg    = 60           ! Maximum number of region definition rules
@@ -173,31 +177,26 @@
 !    This section allows users to specify individual species for output on     !
 !    emissions diagnostic output files.                                        !
 !  Definition of Fields:                                                       !
-!   NEmissDiag - the number of diagnostic 'instructions' that you are          !
-!                giving. It will very likely be different than the number      !
-!                of diagnostic emissions output files. For example, if you wish!
-!                to expand the streams using the ALL keyword, then all of the  !
-!                streams will have a file, but only one instruction is needed. !
-!   EmissDiagStreams(NEmissDiag,:) - The stream names that are to be exported. !
-!        In addition to the labels of individual streams, you may also use     !
-!        stream family names here to identify more than one stream at a time.  !
-!        By default, each stream family element will instruct CMAQ to sum all  !
-!        of the streams in that group. The keyword 'ALL' is available by       !
-!        default to expand a list of all streams individually. The keyword     !
-!        'TOTAL' is availble to select the sum of all streams. You may use a   !
-!        '*' at the beginning of a family name to instruct CMAQ to expand that !
-!        keyword and export files for all of the streams in that group.        !
-!   EmissDiagFmt(NEmissDiag) - the format of every stream created as a result  !
-!        of the instruction. Options are:                                      !
+!   Desid_Diag_Streams_Nml(1:Desid_N_Diag_Rules,:) - The stream names that are !
+!        to be exported. In addition to the labels of individual streams, you  !
+!        may also use stream family names here to identify more than one stream!
+!        at a time. By default, each stream family element will instruct CMAQ  !
+!        to sum all of the streams in that group. The keyword 'ALL' is         !
+!        available by default to expand a list of all streams individually. The!
+!        keyword 'TOTAL' is availble to select the sum of all streams. You may !
+!        use a '*' at the beginning of a family name to instruct CMAQ to expand!
+!        that keyword and export files for all of the streams in that group.   !
+!   Desid_Diag_Fmt_Nml(1:Desid_N_Diag_Rules) - the format of every stream      !
+!        created as a result of the instruction. Options are:                  !
 !              - COLSUM = the column-sum                                       !
 !              - 3D = 3D output                                                !
 !              - LAYER1 = Just the surface layer                               !
 !              - OFF = Turn Off File                                           !
-!   EmissDiagSpec(NEmissDiag,:) - The species to be added to each diagnostic   !
-!        file. Species will only appear on a diagnostic file if the relevant   !
-!        stream or group of streams for the file have that species present.    !
-!        The keyword 'ALL' may also be used to easily add all species of any   !
-!        stream.                                                               !
+!   Desid_Diag_Spec_Nml(1:Desid_N_Diag_Rules,:) - The species to be added to   !
+!        each diagnostic file. Species will only appear on a diagnostic file if!
+!        the relevant stream or group of streams for the file have that species!
+!        present. The keyword 'ALL' may also be used to easily add all species !
+!        of any stream.                                                        !
 !------------------------------------------------------------------------------!
 &Desid_DiagVars
   Desid_N_Diag_Rules = 0    ! Exact Number of Diagnostic Rules Below
