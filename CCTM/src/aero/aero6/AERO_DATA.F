@@ -132,7 +132,7 @@ C Define Logical values as T and F for the aerospc table
 
 C Number of aerosol species and modes
 
-      Integer, Parameter :: n_aerolist = 135    ! number of aero species
+      Integer, Parameter :: n_aerolist = 137    ! number of aero species
       Integer, Parameter :: n_mode = 3          ! number of modes:
       Integer, Parameter :: iait = 1            ! 1 = Aitken       
       Integer, Parameter :: iacc = 2            ! 2 = accumulation 
@@ -394,7 +394,11 @@ C                     ---------- - - - ------- ------- ---------- --------- ----
      & spcs_list_type('OSO4AQPAA ',T,T,T,cm_set,1800.0, '       ','       ',0.0  ,'NVL',F,T,  0,  0.0, 0.0,F, 'SOLUTE', 0.00), ! SO4 from aqueous PAA rxn loss to organosulfate
      & spcs_list_type('OSO4GAS   ',T,T,T,cm_set,1800.0, '       ','       ',0.0  ,'NVL',F,T,  0,  0.0, 0.0,F, 'SOLUTE', 0.00), ! SO4 from gas rxn loss to organosulfate
      & spcs_list_type('OSO4EMIS  ',T,T,T,cm_set,1800.0, '       ','       ',0.0  ,'NVL',F,T,  0,  0.0, 0.0,F, 'SOLUTE', 0.00), ! SO4 from emitted SO4 loss to organosulfate
-     & spcs_list_type('OSO4ICBC  ',T,T,T,cm_set,1800.0, '       ','       ',0.0  ,'NVL',F,T,  0,  0.0, 0.0,F, 'SOLUTE', 0.00)  ! SO4 from ICBCs loss to organosulfate
+     & spcs_list_type('OSO4ICBC  ',T,T,T,cm_set,1800.0, '       ','       ',0.0  ,'NVL',F,T,  0,  0.0, 0.0,F, 'SOLUTE', 0.00), ! SO4 from ICBCs loss to organosulfate
+     
+      ! Added for CRACMM2
+     & spcs_list_type('AISO4   ',F,T,F, cm_set, 1400.0, '       ','       ',0.0  ,'NVL',F,F,  0,  2.8, 6.1,T, 'DUST  ', 0.21), ! from heterogeneous uptake of IPC
+     & spcs_list_type('AISO5   ',F,T,F, cm_set, 1400.0, '       ','       ',0.0  ,'NVL',F,F,  0,  2.8, 6.1,T, 'DUST  ', 0.18)  ! from heterogeneous uptake of NALD
      & /)                                                 
  
 ! Define Reference Emissions Size Distributions

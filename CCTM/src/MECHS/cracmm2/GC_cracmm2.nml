@@ -116,8 +116,10 @@ GC_SPECIES_DATA =
 'ORAP'          , 91.0   ,''     ,-1     ,''     ,-1     ,''                 ,-1   ,''                ,-1  ,''             ,''        ,''    ,''    ,''    ,'Yes',!(carboxymethyl)peroxy,L,NA,[O]OCC(=O)O
 'PPN'           ,135.0   ,''     ,-1     ,''     ,-1     ,'VD_PPN'           , 1   ,'PPN'             , 1  ,''             ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',!Peroxypopionyl nitrate,E,DTXSID90206675,CCC(=O)OO[N+](=O)[O-]
 'MPAN'          ,147.1   ,''     ,-1     ,''     ,-1     ,'VD_MPAN'          , 1   ,'MPAN'            , 1  ,''             ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',!Peroxymethacryloyl nitrate,L,DTXSID10236878,O=N(=O)OOC(=O)C(=C)C
-'NALD'          ,105.0   ,''     ,-1     ,''     ,-1     ,'VD_NALD'          , 1   ,'2NITRO_1BUTNL'   , 1  ,''             ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',!1-(nitrooxy)acetaldehyde,E,NA,O=CCON(=O)=O
-'ISON'          ,147.0   ,''     ,-1     ,''     ,-1     ,'VD_ISON'          , 1   ,'2NITRO_1BUTNL'   , 1  ,'ISON'         ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',!2-methyl-2-(nitrooxy)but-3-en-1-ol,L,NA,OCC(C)(C=C)ON(=O)=O 
+'NALD'          ,195.1   ,''     ,-1     ,''     ,-1     ,'VD_NALD'          , 1   ,'NALDOPERA'       , 1  ,''             ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',!2-hydroperoxy-4-hydroxy-3-methyl-3-(nitrooxy)butanal,L,NA,CC(CO)(O[N+](=O)O)C(C=O)OO
+'INO2'          ,162.1   ,''     ,-1     ,''     ,-1     ,''                 , 1   ,''                , 1  ,''             ,''        ,''    ,''    ,''    ,'Yes',![(2E)-3-methyl-4-(nitrooxy)but-2-en-1-yl]peroxy,L,NA,C/C(=C\CO[O])CON(=O)=O
+'ISON'          ,147.0   ,''     ,-1     ,''     ,-1     ,'VD_ISON'          , 1   ,'2NITRO_1BUTNL'   , 1  ,'ISON'         ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',!2-methyl-2-(nitrooxy)but-3-en-1-ol,L,NA,OCC(C)(C=C)ON(=O)=O
+'IPC'           ,150.1   ,''     ,-1     ,''     ,-1     ,'VD_IPC'           , 1   ,'IPCOPERA'        , 1  ,''             ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',!3-(1-hydroperoxy-2-hydroxypropan-2-yl)oxiran-2-ol,L,NA,CC(O)(COO)C1OC1O
 'TRPN'          ,215.0   ,''     ,-1     ,''     ,-1     ,'VD_TRPN'          , 1   ,'2NITRO_1BUTNL'   , 1  ,'TRPN'         ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',!3-hydroxy-2;6;6-trimethylbicyclo[3.1.1]heptan-2-yl nitrate,L,NA,O=N(=O)OC1(C)C(O)CC2CC1C2(C)C
 'MCTP'          ,172.0   ,''     ,-1     ,''     ,-1     ,''                 ,-1   ,''                ,-1  ,''             ,''        ,''    ,''    ,''    ,'Yes',!C7H8O5 Biradical,L,NA,CC(/C=C\[C](O[O])O)=C/C(O)=O
 'OLNN'          ,136.0   ,''     ,-1     ,''     ,-1     ,''                 ,-1   ,''                ,-1  ,''             ,''        ,''    ,''    ,''    ,'Yes',![1-(nitrooxy)propan-2-yl]peroxy,L,NA,CC(O[O])CO[N+]([O-])=O
@@ -179,4 +181,5 @@ GC_SPECIES_DATA =
 'VROCP4OXY2'    ,158.2   ,''     ,-1     ,''     ,-1     ,'VD_VROCP4OXY2'     , 1   ,'VROCP4OXY2OPERA', 1 ,'VROCP4OXY2'   ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',!2-Ethylheptanoic Acid,L,DTXSID40880929,CCCCCC(CC)C(=O)O
 'VROCP5OXY1'    ,170.3   ,''     ,-1     ,''     ,-1     ,'VD_VROCP5OXY1'     , 1   ,'VROCP5OXY1OPERA', 1 ,'VROCP5OXY1'   ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',!Undecanal,L,DTXSID4021688,CCCCCCCCCCC=O
 'VROCP6OXY1'    ,142.2   ,''     ,-1     ,''     ,-1     ,'VD_VROCP6OXY1'     , 1   ,'VROCP6OXY1OPERA', 1 ,'VROCP6OXY1'   ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',!Nonanal,L,DTXSID9021639,CCCCCCCCC=O
+'ECH4'          ,16.0    ,''     ,-1    ,''      ,-1     ,'VD_METHANE'        , 1   ,'METHANE'        , 1  ,''            ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',!Methane,E,DTXSID8025545,C
 /

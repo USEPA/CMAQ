@@ -108,16 +108,18 @@
 ! - Alkane ROC (ROCALK) chemistry added per K. Seltzer
 ! - HC8 replaced with HC10 following ROCALK template by H. Pye
 ! - Aromatic chemistry (ROCARO, NAPH, BTX) added per H. Pye
+! - AMORE isoprene condensation from Woods Wiser and Faye McNeill implemented by B. Place
 !------------------------------------------------------------------------------ 
 ! 10-18-21 G. Sarwar
 !    updated rate constants for inorganic reactions and three organic reactions (R70-R71)
 !    added one photolysis reaction (R014a), updated reaction products for R016 and R017
 !    updated photolysis rate coefficients for CH3COCH3, MEK, KET, ALD, HCHO
+!------------------------------------------------------------------------------
+! CRACMM2 modifications
+! - Update AMORE isoprene condensation to AMORE v1.2
+! - Add ECH4 + HO reaction
+! - Add heterogeneous uptake of HO2 and NO3
 !------------------------------------------------------------------------------ 
-! 9-14-23 G. Sarwar
-!    Created CRACMM2 - no chemistry changes are made; just changed name
-!------------------------------------------------------------------------------ 
-
 CRACMM2
 
 ELIMINATE =
@@ -281,8 +283,60 @@ REACTIONS[CM] =
 <ROCARO51> XYM + HO        = 0.8300*XYMP + 0.1700*CSL
                                          + 0.1700*HO2 # 2.33E-11;
 <ROCARO61> XYE + HO        = 0.8200*XYEP + 0.1800*CSL
-                                         + 0.1800*HO2  # 7.16E-12;
-<R086>  ISO  + HO          = ISOP                     # 2.70E-11 @ -390.;
+                                         + 0.1800*HO2 #7.16E-12;
+!Isoprene AMORE mechanism
+<RAM01> ISO + O3           = 0.25*HO   + 0.25*HO2
+                                       + 0.4*MO2
+                                       + 0.018*ACO3
+                                       + 0.1*MACP
+                                       + 0.09*H2O2
+                                       + 0.22*CO
+                                       + HCHO
+                                       + 0.3*MACR
+                                       + 0.14*MVK
+                                       + 0.28*ORA1
+                                       + 0.153*OLT    # 1.58E-14 @ 2000;
+<RAM02> ISO + NO3          = 0.4*NO2   + 0.045*ISON
+                                       + 0.35*HCHO
+				       + 0.555*INO2 
+                                       + 0.26*MVK
+                                       + 0.028*MACR   # 2.95E-12 @ 450;
+<RAM03> ISO + HO           = 1.0*ISOP  + 0.25*HCHO
+                                       + 0.03*MACR
+                                       + 0.05*MGLY    # 2.69E-11 @ -390;
+<RAM04> ISOP + HO2         = 1.0*ISHP  + 0.07*HO2
+                                       + 0.5*HO       # 4.5E-13 @ -1300;
+<RAM05> ISOP + NO          = 0.13*ISON + 0.4*HCHO
+                                       + 0.88*HO2
+                                       + 0.87*NO2
+                                       + 0.18*MACR
+                                       + 0.51*MVK     # 6E-12 @ -350;
+<RAM06> ISHP + HO          = 1.0*ISOP                 # 4.6E-12 @ -200;
+<RAM07> ISHP + HO          = 0.04*MGLY + 0.02*GLY
+                                       + 0.13*MVK
+                                       + 0.44*IEPOX
+                                       + 0.11*ACO3
+                                       + 0.03*MACR
+                                       + 2.0*HO
+                                       + 0.34*HO2
+                                       + 0.14*IPC
+                                       + CO           # 2.97E-11 @ -390;
+<RAM08> INO2 + HO2         = 0.45*HO   + 0.95*NALD
+                                       + 0.02*IPC     # 3.14E-11 @ -580;
+<RAM09> INO2 + NO          = 0.15*MVK  + 0.65*NALD
+                                       + 0.05*ISON
+                                       + 0.2*HCHO
+                                       + 1.3*NO2      # 9.42E-12 @ -580;
+<RAM10> ISON + HO          = HO        + 0.35*NALD
+                                       + 0.17*IEPOX
+                                       + 0.65*NO2     # 2.4E-11 @ -390;
+<RAM11> HO + NALD          = 1.0*CO    + NO2
+                                       + 0.3*HO2
+                                       + HCHO         # 1.50E-11;
+<RAM12> ISON               = 1.0*HNO3                 # 4E-5;
+<RAM13> IPC + HO           = 0.57*MACR + 0.43*MVK     # 3E-12;
+! end AMORE isoprene chemistry
+
 <R087>  API  + HO          = 0.975*APIP1 + 0.025*APIP2  # 1.21E-11 @ -440.;
 <R088>  LIM  + HO          = 0.945*LIMP1 + 0.055*LIMP2  # 4.20E-11 @ -401.;
 <TRP04> PINAL  + HO        = 0.23*PINALP + 0.77*RCO3  # 5.20E-12 @ -600.;
@@ -338,13 +392,11 @@ REACTIONS[CM] =
 <TRP06> OPB  + HO          = 0.01*HO    + 0.44*HC10P
                                         + 0.07*XO2
                                         + 0.08*ALD
-                                        + 0.41*KET    # 3.40E-12 @ -190.0;
+                                        + 0.41*KET    # 3.40E-12 @ -190.0; 
 <R114a> OP3  + HO          = 0.01*HO    + 0.44*HC10P
                                         + 0.07*XO2
                                         + 0.08*ALD
                                         + 0.41*KET    # 3.40E-12 @ -190.0;
-<R115>  ISHP + HO          = HO         + MACR
-                                        + 0.904*IEPOX # 1.0E-10;                                                                              
 <R116>  MAHP + HO          = MACP                     # 3.0E-11;
 <R117>  ORA1 + HO          = HO2                      # 4.5E-13;
 <R118>  ORA2 + HO          = 0.64*MO2   + 0.36*ORAP   # 4.0E-14 @ -850.;
@@ -358,10 +410,6 @@ REACTIONS[CM] =
 <R122>  MPAN + HO          = NO2        + HKET        # 3.2E-11;
 <R123>  ONIT + HO          = HC3P       + NO2         # 5.31E-12 @ 260.;
 <TRP07> TRPN + HO          = HOM                      # 4.80E-12;
-<R124>  NALD + HO          = NO2        + XO2 
-                                        + HKET        # 5.6E-12 @ -270.;
-<R125>  ISON + HO          = NALD       + 0.07*HKET
-                                        + 0.07*HCHO   # 1.3E-11; 
 <R126>  ETE  + O3          = 0.08*HO    + 0.15*HO2
                                         + 0.43*CO
                                         + HCHO
@@ -402,17 +450,6 @@ REACTIONS[CM] =
                                         + 0.017*KET 
                                         + 0.044*HKET 
                                         + 0.017*ORA2  # 4.40E-15 @ 845.0; 
-<R130>  ISO  + O3          = 0.25*HO    + 0.25*HO2
-                                        + 0.08*MO2
-                                        + 0.1*ACO3
-                                        + 0.1*MACP
-                                        + 0.09*H2O2
-                                        + 0.14*CO
-                                        + 0.58*HCHO
-                                        + 0.461*MACR
-                                        + 0.189*MVK
-                                        + 0.28*ORA1
-                                        + 0.153*OLT   # 7.86E-15 @ 1913.;
 <R131>  API  + O3          = 0.90*HO    + 0.90*APIP1
                                         + 0.05*APIP2
                                         + 0.05*PINAL
@@ -429,7 +466,7 @@ REACTIONS[CM] =
                                         + 0.04*HO2
                                         + 0.20*CO     # 8.30E-18;
 <TRP09> TRPN  + O3         = HOM                      # 1.67E-16;
-<R132>  MACR + O3          = 0.19*HO    + 0.14*HO2
+<R133>  MACR + O3          = 0.19*HO    + 0.14*HO2
                                         + 0.10*ACO3 
                                         + 0.22*CO
                                         + 0.50*MGLY 
@@ -482,7 +519,6 @@ REACTIONS[CM] =
 <R141>  ETE  + NO3         = 0.80*OLNN  + 0.20*OLND   # 4.392E-13^2.0@2282.0; 
 <R142>  OLT  + NO3         = 0.43*OLNN  + 0.57*OLND   # 1.79E-13 @ 450.;
 <R143>  OLI  + NO3         = 0.11*OLNN  + 0.89*OLND   # 8.64E-13 @ -450.;
-<R145>  ISO  + NO3         =      ISON                # 3.03E-12 @ 446.;
 <R146>  API  + NO3         = 0.975*APINP1 + 0.025*APINP2  # 1.19E-12 @ -490.;
 <R147>  LIM  + NO3         = 0.945*LIMNP1 + 0.055*LIMNP2  # 1.22E-11;
 <TRP10> TRPN  + NO3        = HOM                      # 3.15E-14 @ 448.;
@@ -609,15 +645,6 @@ REACTIONS[CM] =
                          + 0.3651*MGLY
                          + 0.4564*FURANONE
                          + 0.4564*DCB2        # 2.7E-12 @ -360.;
-
-<R188>  ISOP + NO          = 0.880*HO2  + 0.880*NO2
-                                        + 0.200*HCHO
-                                        + 0.280*MACR
-                                        + 0.440*MVK        
-                                        + 0.120*ISON
-                                        + 0.021*GLY
-                                        + 0.029*HKET
-                                        + 0.027*ALD   # 2.43E-12 @ -360.;
 <R189>  APIP1 + NO         = 0.82*HO2   + 0.82*NO2 
                                         + 0.82*PINAL
                                         + 0.18*TRPN   # 4.0E-12;
@@ -716,8 +743,6 @@ REACTIONS[CM] =
 <ROCARO62> XYEP + HO2  = 0.0854*OP2
                          + 0.6341*OP3
                          + 0.2805*VROCP0OXY4          # 2.91E-13 @ -1300.;
-
-<R228>  ISOP + HO2         = ISHP                     # 2.05E-13 @ -1300.;
 <R229>  APIP1 + HO2        = OPB                      # 1.5E-11;
 <TRP21> APIP2 + HO2        = HOM                      # 1.5E-11;
 <TRP22> APINP1 + HO2       = TRPN                      # 1.5E-11;
@@ -1307,7 +1332,7 @@ REACTIONS[CM] =
 
 !
 ! SOA related reactions 
-<SA14>  IEPOX + HO        = HO                        # 5.78E-11@400; 
+<RAM17>  IEPOX + HO        = HO                       # 5.78E-11@400; 
 
 ! VROCIOXY added with behavior like ETHP
 ! 12.0% by mass (14.8% by mole) SOA yield added
@@ -1434,7 +1459,13 @@ REACTIONS[CM] =
 
 <HET_N2O5> N2O5 = 2.0*HNO3 # 1.0~<HETERO_N2O5IJ>;
 
-<HET_N02> NO2 = 0.5*HONO + 0.5*HNO3 # 1.0~<HETERO_NO2>;
+<HET_NO2> NO2 = 0.5*HONO + 0.5*HNO3 # 1.0~<HETERO_NO2>;
+
+! hetorogeneous uptake of HO2
+<HET_HO2> HO2 = # 1.0~<HETERO_HO2>;
+
+! heterogeneous ptake of NO3
+<HET_NO3>     NO3 = HNO3                 # 1.0~<HETERO_NO3>;
 
 ! Simplified ozone loss from oceanic halogens excluding chlorine
 
@@ -1444,6 +1475,9 @@ REACTIONS[CM] =
 <HET_ISO3TET> IEPOXP = AISO3NOSJ           # 1.0~<HETERO_ISO3NOSJ>;
 <HET_IEPOXOS> IEPOXP + ASO4J   = AISO3OSJ  # 1.0~<HETERO_ISO3OSJ>;
 
+! AMORE Heterogeneous reactions
+<HET_IPC>     IPC  = AISO4J              # 2.0~<HETERO_IEPOX>;
+<HET_NALD>    NALD = AISO5J + HNO3       # 0.5~<HETERO_IEPOX>;
 
 !<HET_IEPOX> IEPOX = AISO3J  # 1.0~<HETERO_IEPOX>;
 
@@ -1903,6 +1937,9 @@ REACTIONS[CM] =
       + 0.2266 * ACD + 0.2266 * ALD
       + 0.2266 * MO2 + 0.2266 * ETHP
       + 0.2266 * HC3P + 0.2266 * MEKP # 4.69e-11;
+
+! add ECH4
+<R364> ECH4  + HO          = MO2                      # 2.45E-12 @ 1775.;
 
 END MECH
 
