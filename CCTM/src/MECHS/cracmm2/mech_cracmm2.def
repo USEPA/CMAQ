@@ -116,9 +116,10 @@
 !    updated photolysis rate coefficients for CH3COCH3, MEK, KET, ALD, HCHO
 !------------------------------------------------------------------------------
 ! CRACMM2 modifications
-! - Update AMORE isoprene condensation to AMORE v1.2
-! - Add ECH4 + HO reaction
-! - Add heterogeneous uptake of HO2 and NO3
+! - Updated AMORE isoprene condensation to AMORE v1.2
+! - Added ECH4 + HO reaction
+! - Added heterogeneous uptake of HO2 and NO3
+! - Updated monoterpene chemistry based on Schwantes et al. ACP 2020 (note: so far just MT+OH RO2 + NO rxns)
 !------------------------------------------------------------------------------ 
 CRACMM2
 
@@ -645,19 +646,24 @@ REACTIONS[CM] =
                          + 0.3651*MGLY
                          + 0.4564*FURANONE
                          + 0.4564*DCB2        # 2.7E-12 @ -360.;
-<R189>  APIP1 + NO         = 0.82*HO2   + 0.82*NO2 
-                                        + 0.82*PINAL
-                                        + 0.18*TRPN   # 4.0E-12;
+<R189>  APIP1 + NO         = 0.237*TRPN + 0.763*HO2
+                                        + 0.763*NO2
+                                        + 0.195*PINAL
+                                        + 0.284*ALD
+                                        + 0.0865*ACT
+                                        + 0.1285*LIMAL
+                                        + 0.308*HCHO
+                                        + 0.0715*OPB
+                                        + 0.084*KET   # 2.7E-12 @ -360;
 <TRP13>  APIP2 + NO        = 0.82*HO    + 0.82*NO2
                                         + HOM         # 4.0E-12;
 <TRP14>  APINP1 + NO       = 2*NO2      + PINAL       # 4.0E-12;
 <TRP15>  APINP2 + NO       = 0.82*NO2   + 0.82*HO
                                         + HOM         # 4.0E-12;
-<R190>  LIMP1 + NO         = 0.77*HO2   + 0.77*NO2
-                                        + 0.49*LIMAL
-                                        + 0.28*HCHO
-                                        + 0.28*UALD
-                                        + 0.23*TRPN   # 4.0E-12;
+<R190>  LIMP1 + NO         = 0.23*TRPN  + 0.77*NO2
+                                        + 0.77*LIMAL
+                                        + 0.77*HO2
+                                        + 0.43*HCHO   # 2.7E-12 @ -360;
 <TRP16>  LIMP2 + NO        = 0.77*HO    + 0.77*NO2
                                         + HOM         # 4.0E-12;
 <TRP17>  LIMNP1 + NO       = 2*NO2      + LIMAL       # 4.0E-12;

@@ -27,7 +27,7 @@ C  PRECONDITIONS: For the CRACMM2 mechanism
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, Nov 20, 2023
+C  REVISION HISTORY: Created by EBI solver program, Nov 21, 2023
 C
 C***********************************************************************
       USE HRDATA
