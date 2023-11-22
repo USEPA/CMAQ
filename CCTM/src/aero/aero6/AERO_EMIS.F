@@ -479,15 +479,16 @@ C ----------------------------------------------------------------------
          REAL, INTENT( INOUT ) :: VDEMIS ( :,:,:,: ) 
 
          INTEGER :: N, S, IAERO, IM, ISD, ISTR   ! Looping Variables
-         INTEGER :: ROW, COL, LAY, N_SD, INUM, ISRF
+         INTEGER :: ROW, COL, LAY, N_SD, INUM, ISRF, MAX_N_SD
          REAL    :: FACNUM, FACSRF, MW_FAC
-         REAL, ALLOCATABLE       :: EMISM3( :,:,:,:,: ) 
+         REAL, ALLOCATABLE, SAVE :: EMISM3( :,:,:,:,: ) 
          REAL, ALLOCATABLE, SAVE :: GSFAC( :,:,: )
          REAL, ALLOCATABLE, SAVE :: DENS_FAC( : )
          REAL, PARAMETER   :: F6DPIM9 = 1.0E-9 * F6DPI  ! 1.0E-9 = Kg/ug
          LOGICAL, SAVE     :: FIRST_TIME = .TRUE.
 
 C *** Initialize Variables  
+         
          IF ( FIRST_TIME ) THEN
              FIRST_TIME = .FALSE.
              ALLOCATE( GSFAC ( DESID_LAYS,NCOLS,NROWS ) )
@@ -496,10 +497,13 @@ C *** Initialize Variables
              DO IAERO = 1,N_AEROSPC
                  DENS_FAC( IAERO ) = F6DPIM9 / AEROSPC( IAERO )%DENSITY
              END DO
+             
+             MAX_N_SD = MAXVAL( DESID_STREAM_AERO(:)%LEN )
+
+             ALLOCATE( EMISM3( DESID_LAYS,NCOLS,NROWS,N_MODE,MAX_N_SD ) )
 
          END IF
          N_SD   = DESID_STREAM_AERO( ISRM )%LEN 
-         ALLOCATE( EMISM3( DESID_LAYS,NCOLS,NROWS,N_MODE,N_SD ) )
          EMISM3 = 0.0
 
 C *** Calculate scaling factor for converting mass emissions into [ug/m3/s]
