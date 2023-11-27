@@ -112,6 +112,7 @@ C-----------------------------------------------------------------------
 
       SUCCESS = .TRUE.
 
+#ifndef mpas
       NC = NCOLS3D
       NR = NROWS3D
 
@@ -273,6 +274,7 @@ C Store initial grid information
          CALL M3MSG2( MESG )
 
       END IF
+#endif
 
       RETURN
 

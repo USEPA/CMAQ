@@ -325,7 +325,9 @@ C decouple CGRID for cloud and chemistry
       IF ( BUDGET_DIAG .OR. LIPR ) CALL PA_UPDATE_AERO ( CGRID, SDATE, STIME )
 #endif
       IF ( STM ) CALL STM_WRAP_AE ( CGRID, JDATE, JTIME )
+#ifndef mpas
       IF ( BUDGET_DIAG .OR. LIPR ) CALL PA_UPDATE_AERO ( CGRID, SDATE, STIME )
+#endif
       IF ( PRINT_PROC_TIME ) CALL TIMING_SPLIT ( CPU_TIME_START, 1, 'AERO' )
 
       CALL NEXTIME ( JDATE, JTIME, TSTEP( 2 ) )

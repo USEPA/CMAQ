@@ -645,6 +645,10 @@
           wspd10_avail = .true.
 
           P0 = 100000.0
+
+          QI_AVAIL     = .true.
+          QS_AVAIL     = .true.
+          JACOBF_AVAIL = .false.
 #else
 ! met grid cro 2d file
           IF ( .NOT. OPEN3( GRID_CRO_2D, FSREAD3, PNAME ) ) THEN
@@ -1923,19 +1927,18 @@
       USE UTILIO_DEFN
 #ifdef mpas
       USE util_module, only : index1, upcase
-#endif
-
-#ifdef sens
-      USE DDM3D_DEFN, ONLY: NP, NPMAX, S_NRGN, S_RGNLBL, IREGION
-#endif
-
-#ifndef mpas
+#else
 #ifdef parallel
       USE SE_MODULES   ! stenex (using SE_UTIL_MODULE,SE_DATA_COPY_MODULE)
 #else
       USE NOOP_MODULES ! stenex (using NOOP_UTIL_MODULE,NOOP_DATA_COPY_MODULE)
 #endif
 #endif
+
+#ifdef sens
+      USE DDM3D_DEFN, ONLY: NP, NPMAX, S_NRGN, S_RGNLBL, IREGION
+#endif
+
       IMPLICIT NONE
                                                      
       TYPE( DESID_REG_TYPE) :: DESID_REG_READ( DESID_MAX_REG )
@@ -2909,7 +2912,7 @@
 
              DDTTM = ' '   ! array
              DO I = 1, mxhrs
-                WRITE( VAR, '(A8,I2.2)' ) 'RAINFALL', I
+                WRITE ( VAR, '(A8,I2.2)' ) 'RAINFALL', I
 #ifdef mpas
                 loc_time_stamp = mio_file_data(fnumb)%timestamp(i)
 
@@ -2935,12 +2938,14 @@
           if (BIOGEMIS_MEGAN .and. .not. NEW_START .and. .not. IGNORE_SOILINP) then
 #ifdef mpas
              ! file will be opened automatically when it is indicated in FILE_INFO
-
-             call mio_fread (MSOILINP, 'PTYPE', pname, ptype(:,1))
-             call mio_fread (MSOILINP, 'PULSEDATE', pname, pulsedate(:,1))
-             call mio_fread (MSOILINP, 'PULSETIME', pname, pulsetime(:,1))
-             call mio_fread (MSOILINP, 'LAI', pname, lai_y(:,1))
              fnumm = mio_search (MSOILINP)
+             ! Use final time step of each variable
+             loc_time_stamp = mio_file_data(fnumm)%timestamp(24)
+             call mio_fread (MSOILINP, 'PTYPE', pname, ptype(:,1),loc_time_stamp)
+             call mio_fread (MSOILINP, 'PULSEDATE', pname,pulsedate(:,1),loc_time_stamp)
+             call mio_fread (MSOILINP, 'PULSETIME', pname,pulsetime(:,1),loc_time_stamp)
+             call mio_fread (MSOILINP, 'LAI', pname,LAI_y(:,1),loc_time_stamp)
+
 #else
              IF ( .NOT. OPEN3( MSOILINP, FSREAD3, PNAME ) ) THEN
                 mesg = 'Open failure for ' // MSOILINP
@@ -3018,10 +3023,19 @@
 #ifdef mpas
                 loc_time_stamp = mio_file_data(fnumm)%timestamp(i)
 
-                call mio_fread (MSOILINP, 'RAINFALL', pname,
-     &                          rainfall(:,1,i), loc_time_stamp)
-                call mio_fread (MSOILINP, 'T24', pname, t24y(:,1), loc_time_stamp)
-                call mio_fread (MSOILINP, 'SW24', pname, sw24y(:,1), loc_time_stamp)
+
+                   call mio_fread (MSOILINP, 'RAINFALL', pname,
+     &                             rainfall(:,1,i), loc_time_stamp)
+
+                   call mio_fread (MSOILINP, 'T24', pname,
+     &                             t24y(:,1), loc_time_stamp)
+
+
+
+                   call mio_fread (MSOILINP, 'SW24', pname,
+     &                             sw24y(:,1), loc_time_stamp)
+
+
 #else
                 IF ( .NOT. XTRACT3( MSOILINP, VAR, 1, 1,
      &                              STRTROWSTD, ENDROWSTD, STRTCOLSTD, ENDCOLSTD,  
@@ -3060,8 +3074,11 @@
              sw24y = sw24sum/mxhrs
              t24y  = t24sum/mxhrs
 
+
              if (BDSNP_MEGAN) then       ! BDSNP daily inputs
 #ifdef mpas
+                fnumm = mio_search (BDSNPINP)
+                loc_time_stamp = mio_file_data(fnumm)%timestamp(24)
                 call mio_fread (BDSNPINP, 'SOILMPREV', pname, SOILMPREV(:,1), loc_time_stamp)
                 call mio_fread (BDSNPINP, 'DRYPERIOD', pname, DRYPERIOD(:,1), loc_time_stamp)
                 call mio_fread (BDSNPINP, 'PFACTOR', pname, PFACTOR(:,1), loc_time_stamp)
@@ -3407,7 +3424,7 @@ C   mminlu and num_land_cat are WRF global variables
 
 ! -------------------------------------------------------------------------
 
-        subroutine megan_setup ! reads in variables from MEGAN_PARAMS (see file_inputs.txt and run script)
+        subroutine megan_setup ! reads in variables 
 
           use hgrd_defn, only : ncols,nrows
           use RUNTIME_VARS, only : logdev, USE_MEGAN_LAI, BDSNP_MEGAN,
@@ -3482,7 +3499,7 @@ C   mminlu and num_land_cat are WRF global variables
           nsteps = mxrec3d
 #endif
 
-          allocate (ctf(nsteps,ncols,nrows), stat = stat)
+          allocate (ctf(6,ncols,nrows), stat = stat)
  
           if (stat .ne. 0) then
             mesg = 'Failure allocating MEGAN input arrays'
@@ -3490,7 +3507,7 @@ C   mminlu and num_land_cat are WRF global variables
           end if
 
 #ifdef mpas
-          do I = 1, nsteps
+          do I = 1,6
              call mio_fread (MEGAN_CTS, 'CTS', pname, ctf(I,:,1), mio_file_data(fnum)%timestamp(i))
           end do 
 #else
@@ -3540,9 +3557,25 @@ C   mminlu and num_land_cat are WRF global variables
           end if
 
 #ifdef mpas
-          do i = 1, nvars
-             call mio_fread (MEGAN_EFS, mio_file_data(fnum)%var_name(i), pname, efmaps(:,1,i))
-          end do
+          call mio_fread ('MEGAN_EFS', 'EF_ISOP',    pname, efmaps(:,1, 1))
+          call mio_fread ('MEGAN_EFS', 'EF_MBO',     pname, efmaps(:,1, 2))
+          call mio_fread ('MEGAN_EFS', 'EF_MT_PINE', pname, efmaps(:,1, 3))
+          call mio_fread ('MEGAN_EFS', 'EF_MT_ACYC', pname, efmaps(:,1, 4))
+          call mio_fread ('MEGAN_EFS', 'EF_MT_CAMP', pname, efmaps(:,1, 5))
+          call mio_fread ('MEGAN_EFS', 'EF_MT_SABI', pname, efmaps(:,1, 6))
+          call mio_fread ('MEGAN_EFS', 'EF_MT_AROM', pname, efmaps(:,1, 7))
+          call mio_fread ('MEGAN_EFS', 'EF_NO',      pname, efmaps(:,1, 8))
+          call mio_fread ('MEGAN_EFS', 'EF_SQT_HR',  pname, efmaps(:,1, 9))
+          call mio_fread ('MEGAN_EFS', 'EF_SQT_LR',  pname, efmaps(:,1,10))
+          call mio_fread ('MEGAN_EFS', 'EF_MEOH',    pname, efmaps(:,1,11))
+          call mio_fread ('MEGAN_EFS', 'EF_ACTO',    pname, efmaps(:,1,12))
+          call mio_fread ('MEGAN_EFS', 'EF_ETOH',    pname, efmaps(:,1,13))
+          call mio_fread ('MEGAN_EFS', 'EF_ACID',    pname, efmaps(:,1,14))
+          call mio_fread ('MEGAN_EFS', 'EF_LVOC',    pname, efmaps(:,1,15))
+          call mio_fread ('MEGAN_EFS', 'EF_OXPROD',  pname, efmaps(:,1,16))
+          call mio_fread ('MEGAN_EFS', 'EF_STRESS',  pname, efmaps(:,1,17))
+          call mio_fread ('MEGAN_EFS', 'EF_OTHER',   pname, efmaps(:,1,18))
+          call mio_fread ('MEGAN_EFS', 'EF_CO',      pname, efmaps(:,1,19))
 #else
           call subhfile( megan_efs, gxoff, gyoff, strtcol, 
      &                   endcol, strtrow, endrow )  
@@ -3626,7 +3659,7 @@ C   mminlu and num_land_cat are WRF global variables
           nvars = nvars3d
 #endif
 
-          allocate (ldf(ncols,nrows,nvars), stat = stat)
+          allocate (ldf(ncols,nrows,4), stat = stat)
  
           if (stat .ne. 0) then
             mesg = 'Failure allocating MEGAN input arrays'
@@ -3634,8 +3667,9 @@ C   mminlu and num_land_cat are WRF global variables
           end if
 
 #ifdef mpas
-          do i = 1, nvars
-             call mio_fread (MEGAN_LDF, mio_file_data(fnum)%var_name(i), pname, LDF(:,1,i))
+          do i = 3,6
+            write( var, '(A3,I2.2)' ) 'LDF', i
+            call mio_fread ('MEGAN_LDF', var, pname, ldf(:,1,i-2))
           end do
 #else
           call subhfile( megan_ldf, gxoff, gyoff, strtcol, 

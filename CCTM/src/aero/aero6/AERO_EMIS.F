@@ -473,8 +473,6 @@ C ----------------------------------------------------------------------
          USE GRID_CONF, ONLY: NCOLS, NROWS
          USE SSEMIS, ONLY: SEA_FACTNUM, SEA_FACTSRF
 
-         USE RUNTIME_VARS, ONLY: logdev
-
          INTEGER, INTENT( IN ) :: ISRM, NL
          REAL, INTENT( INOUT ) :: VDEMIS ( :,:,:,: ) 
 
