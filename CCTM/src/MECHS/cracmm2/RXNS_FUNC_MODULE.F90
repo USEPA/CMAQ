@@ -348,14 +348,14 @@
 !  Reaction Label R033            
                 RKI( NCELL,   38) =  RJBLK( NCELL, IJ_PAN2_RACM2 )
 !  Reaction Label T20             
-                RKI( NCELL,  391) =  RJBLK( NCELL, IJ_ACRO_09 )
+                RKI( NCELL,  393) =  RJBLK( NCELL, IJ_ACRO_09 )
 
                 IF ( SEAWATER (NCELL) .GT. 0.001D0 ) THEN
 !  Reaction Label HAL_Ozone       
-                   RKI( NCELL,  422) = SEAWATER (NCELL) *  SFACT * HALOGEN_FALLOFF( BLKPRES( NCELL ),   6.7006D-11,   1.0743D+01,  & 
+                   RKI( NCELL,  424) = SEAWATER (NCELL) *  SFACT * HALOGEN_FALLOFF( BLKPRES( NCELL ),   6.7006D-11,   1.0743D+01,  & 
      &                                                           3.4153D-08,  -6.7130D-01,         2.0000D-06 )
                 ELSE
-                   RKI( NCELL,  422) = 0.0D0 
+                   RKI( NCELL,  424) = 0.0D0 
                 END IF
 
             END DO 
@@ -545,7 +545,7 @@
 !  Reaction Label TRP04           
              RKI( NCELL,  103) =  CFACT * ARRHENUIS_T03( INV_TEMP,  5.2000D-12,   6.0000D+02 )
 !  Reaction Label TRP05           
-             RKI( NCELL,  104) =   1.0000D-10 * CFACT 
+             RKI( NCELL,  104) =   1.1000D-10 * CFACT 
 !  Reaction Label R089            
              RKI( NCELL,  105) =  CFACT * ARRHENUIS_T03( INV_TEMP,  5.5000D-12,   1.2500D+02 )
 !  Reaction Label R090            
@@ -626,9 +626,9 @@
 !  Reaction Label R128            
              RKI( NCELL,  143) =  CFACT * ARRHENUIS_T03( INV_TEMP,  4.4000D-15,  -8.4500D+02 )
 !  Reaction Label R131            
-             RKI( NCELL,  144) =  CFACT * ARRHENUIS_T03( INV_TEMP,  5.0000D-16,  -5.3000D+02 )
+             RKI( NCELL,  144) =  CFACT * ARRHENUIS_T03( INV_TEMP,  8.0500D-16,  -6.4000D+02 )
 !  Reaction Label R132            
-             RKI( NCELL,  145) =  CFACT * ARRHENUIS_T03( INV_TEMP,  2.9500D-15,  -7.8300D+02 )
+             RKI( NCELL,  145) =  CFACT * ARRHENUIS_T03( INV_TEMP,  2.8000D-15,  -7.7000D+02 )
 !  Reaction Label TRP08           
              RKI( NCELL,  146) =   8.3000D-18 * CFACT 
 !  Reaction Label TRP09           
@@ -683,9 +683,9 @@
 !  Reaction Label R159            
              RKI( NCELL,  171) =  CFACT * ARRHENUIS_T03( INV_TEMP,  2.2000D-14,  -5.0000D+02 )
 !  Reaction Label TRP11           
-             RKI( NCELL,  172) =   1.0000D+00 * SFACT 
+             RKI( NCELL,  172) =   1.7000D-01 * SFACT 
 !  Reaction Label TRP12           
-             RKI( NCELL,  173) =   1.0000D+00 * SFACT 
+             RKI( NCELL,  173) =   2.8000D-01 * SFACT 
 !  Reaction Label R166            
              RKI( NCELL,  174) =  CFACT * FALLOFF_T10( INV_TEMP,  TEMPOT300,  CAIR, & 
      &                                                 9.7000D-29,   0.0000D+00,  -5.6000D+00,  & 
@@ -733,7 +733,7 @@
 !  Reaction Label TRP13           
              RKI( NCELL,  192) =   4.0000D-12 * CFACT 
 !  Reaction Label TRP14           
-             RKI( NCELL,  193) =   4.0000D-12 * CFACT 
+             RKI( NCELL,  193) =  CFACT * ARRHENUIS_T03( INV_TEMP,  2.7000D-12,   3.6000D+02 )
 !  Reaction Label TRP15           
              RKI( NCELL,  194) =   4.0000D-12 * CFACT 
 !  Reaction Label R190            
@@ -741,7 +741,7 @@
 !  Reaction Label TRP16           
              RKI( NCELL,  196) =   4.0000D-12 * CFACT 
 !  Reaction Label TRP17           
-             RKI( NCELL,  197) =   4.0000D-12 * CFACT 
+             RKI( NCELL,  197) =  CFACT * ARRHENUIS_T03( INV_TEMP,  2.7000D-12,   3.6000D+02 )
 !  Reaction Label TRP18           
              RKI( NCELL,  198) =   4.0000D-12 * CFACT 
 !  Reaction Label TRP19           
@@ -813,25 +813,25 @@
 !  Reaction Label ROCARO62        
              RKI( NCELL,  232) =  CFACT * ARRHENUIS_T03( INV_TEMP,  2.9100D-13,   1.3000D+03 )
 !  Reaction Label R229            
-             RKI( NCELL,  233) =   1.5000D-11 * CFACT 
+             RKI( NCELL,  233) =  CFACT * ARRHENUIS_T03( INV_TEMP,  2.6000D-13,   1.3000D+03 )
 !  Reaction Label TRP21           
              RKI( NCELL,  234) =   1.5000D-11 * CFACT 
 !  Reaction Label TRP22           
-             RKI( NCELL,  235) =   1.5000D-11 * CFACT 
+             RKI( NCELL,  235) =  CFACT * ARRHENUIS_T03( INV_TEMP,  2.7100D-13,   1.3000D+03 )
 !  Reaction Label TRP23           
              RKI( NCELL,  236) =   1.5000D-11 * CFACT 
 !  Reaction Label R230            
-             RKI( NCELL,  237) =   1.5000D-11 * CFACT 
+             RKI( NCELL,  237) =  CFACT * ARRHENUIS_T03( INV_TEMP,  2.6000D-13,   1.3000D+03 )
 !  Reaction Label TRP24           
              RKI( NCELL,  238) =   1.5000D-11 * CFACT 
 !  Reaction Label TRP25           
-             RKI( NCELL,  239) =   1.5000D-11 * CFACT 
+             RKI( NCELL,  239) =  CFACT * ARRHENUIS_T03( INV_TEMP,  2.7100D-13,   1.3000D+03 )
 !  Reaction Label TRP26           
              RKI( NCELL,  240) =   1.5000D-11 * CFACT 
 !  Reaction Label TRP27           
-             RKI( NCELL,  241) =  CFACT * ARRHENUIS_T03( INV_TEMP,  2.9100D-13,   1.3000D+03 )
+             RKI( NCELL,  241) =  CFACT * ARRHENUIS_T03( INV_TEMP,  2.6200D-13,   1.3000D+03 )
 !  Reaction Label TRP28           
-             RKI( NCELL,  242) =  CFACT * ARRHENUIS_T03( INV_TEMP,  2.9100D-13,   1.3000D+03 )
+             RKI( NCELL,  242) =  CFACT * ARRHENUIS_T03( INV_TEMP,  2.7000D-12,   3.6000D+02 )
 !  Reaction Label R231            
              RKI( NCELL,  243) =  CFACT * ARRHENUIS_T03( INV_TEMP,  4.3000D-13,   1.0400D+03 )
 !  Reaction Label R232            
@@ -891,19 +891,19 @@
 !  Reaction Label R264            
              RKI( NCELL,  271) =  CFACT * ARRHENUIS_T03( INV_TEMP,  3.4000D-14,   2.2100D+02 )
 !  Reaction Label R265            
-             RKI( NCELL,  272) =  CFACT * ARRHENUIS_T03( INV_TEMP,  3.5600D-14,   7.0800D+02 )
+             RKI( NCELL,  272) =   2.0000D-12 * CFACT 
 !  Reaction Label TRP29           
              RKI( NCELL,  273) =   1.0000D-10 * CFACT 
 !  Reaction Label TRP30           
-             RKI( NCELL,  274) =  CFACT * ARRHENUIS_T03( INV_TEMP,  3.5600D-14,   7.0800D+02 )
+             RKI( NCELL,  274) =   2.0000D-12 * CFACT 
 !  Reaction Label TRP31           
              RKI( NCELL,  275) =   1.0000D-10 * CFACT 
 !  Reaction Label R266            
-             RKI( NCELL,  276) =  CFACT * ARRHENUIS_T03( INV_TEMP,  3.5600D-14,   7.0800D+02 )
+             RKI( NCELL,  276) =   2.0000D-12 * CFACT 
 !  Reaction Label TRP32           
              RKI( NCELL,  277) =   1.0000D-10 * CFACT 
 !  Reaction Label TRP33           
-             RKI( NCELL,  278) =  CFACT * ARRHENUIS_T03( INV_TEMP,  3.5600D-14,   7.0800D+02 )
+             RKI( NCELL,  278) =   2.0000D-12 * CFACT 
 !  Reaction Label TRP34           
              RKI( NCELL,  279) =   1.0000D-10 * CFACT 
 !  Reaction Label R267            
@@ -965,19 +965,19 @@
 !  Reaction Label R300            
              RKI( NCELL,  308) =  CFACT * ARRHENUIS_T03( INV_TEMP,  8.4000D-14,   2.2100D+02 )
 !  Reaction Label R301            
-             RKI( NCELL,  309) =  CFACT * ARRHENUIS_T03( INV_TEMP,  7.4000D-13,   7.6500D+02 )
+             RKI( NCELL,  309) =  CFACT * ARRHENUIS_T03( INV_TEMP,  2.0000D-12,   5.0000D+02 )
 !  Reaction Label TRP35           
              RKI( NCELL,  310) =   1.0000D-10 * CFACT 
 !  Reaction Label TRP36           
-             RKI( NCELL,  311) =  CFACT * ARRHENUIS_T03( INV_TEMP,  7.4000D-13,   7.6500D+02 )
+             RKI( NCELL,  311) =  CFACT * ARRHENUIS_T03( INV_TEMP,  2.0000D-12,   5.0000D+02 )
 !  Reaction Label TRP37           
              RKI( NCELL,  312) =   1.0000D-10 * CFACT 
 !  Reaction Label R302            
-             RKI( NCELL,  313) =  CFACT * ARRHENUIS_T03( INV_TEMP,  7.4000D-13,   7.6500D+02 )
+             RKI( NCELL,  313) =  CFACT * ARRHENUIS_T03( INV_TEMP,  2.0000D-12,   5.0000D+02 )
 !  Reaction Label TRP38           
              RKI( NCELL,  314) =   1.0000D-10 * CFACT 
 !  Reaction Label TRP39           
-             RKI( NCELL,  315) =  CFACT * ARRHENUIS_T03( INV_TEMP,  7.4000D-13,   7.6500D+02 )
+             RKI( NCELL,  315) =  CFACT * ARRHENUIS_T03( INV_TEMP,  2.0000D-12,   5.0000D+02 )
 !  Reaction Label TRP40           
              RKI( NCELL,  316) =   1.0000D-10 * CFACT 
 !  Reaction Label R303            
@@ -1043,9 +1043,9 @@
 !  Reaction Label R338            
              RKI( NCELL,  347) =   1.2000D-12 * CFACT 
 !  Reaction Label R339            
-             RKI( NCELL,  348) =   1.2000D-12 * CFACT 
+             RKI( NCELL,  348) =   2.3000D-12 * CFACT 
 !  Reaction Label R340            
-             RKI( NCELL,  349) =   1.2000D-12 * CFACT 
+             RKI( NCELL,  349) =   2.3000D-12 * CFACT 
 !  Reaction Label R341            
              RKI( NCELL,  350) =   4.0000D-12 * CFACT 
 !  Reaction Label R342            
@@ -1116,270 +1116,274 @@
              RKI( NCELL,  383) =   1.0000D-10 * CFACT 
 !  Reaction Label TRP52           
              RKI( NCELL,  384) =   1.0000D-10 * CFACT 
+!  Reaction Label TRP53           
+             RKI( NCELL,  385) =   2.3000D-12 * CFACT 
+!  Reaction Label TRP54           
+             RKI( NCELL,  386) =   2.3000D-12 * CFACT 
 !  Reaction Label RAM17           
-             RKI( NCELL,  385) =  CFACT * ARRHENUIS_T03( INV_TEMP,  5.7800D-11,  -4.0000D+02 )
+             RKI( NCELL,  387) =  CFACT * ARRHENUIS_T03( INV_TEMP,  5.7800D-11,  -4.0000D+02 )
 !  Reaction Label R001c           
-             RKI( NCELL,  386) =   6.8900D-12 * CFACT 
+             RKI( NCELL,  388) =   6.8900D-12 * CFACT 
 !  Reaction Label R002c           
-             RKI( NCELL,  387) =   6.5500D-14 * CFACT 
+             RKI( NCELL,  389) =   6.5500D-14 * CFACT 
 !  Reaction Label T17             
-             RKI( NCELL,  388) =  CFACT * ARRHENUIS_T03( INV_TEMP,  8.0000D-12,   3.8000D+02 )
+             RKI( NCELL,  390) =  CFACT * ARRHENUIS_T03( INV_TEMP,  8.0000D-12,   3.8000D+02 )
 !  Reaction Label T18             
-             RKI( NCELL,  389) =   2.9000D-19 * CFACT 
+             RKI( NCELL,  391) =   2.9000D-19 * CFACT 
 !  Reaction Label T19             
-             RKI( NCELL,  390) =   3.4000D-15 * CFACT 
+             RKI( NCELL,  392) =   3.4000D-15 * CFACT 
 !  Reaction Label T10             
-             RKI( NCELL,  392) =  CFACT * ARRHENUIS_T03( INV_TEMP,  1.4800D-11,   4.4800D+02 )
+             RKI( NCELL,  394) =  CFACT * ARRHENUIS_T03( INV_TEMP,  1.4800D-11,   4.4800D+02 )
 !  Reaction Label T10a            
-             RKI( NCELL,  393) =   9.0500D-12 * CFACT 
+             RKI( NCELL,  395) =   9.0500D-12 * CFACT 
 !  Reaction Label T10b            
-             RKI( NCELL,  394) =   2.3000D-12 * CFACT 
+             RKI( NCELL,  396) =   2.3000D-12 * CFACT 
 !  Reaction Label T10c            
-             RKI( NCELL,  395) =   1.6100D-11 * CFACT 
+             RKI( NCELL,  397) =   1.6100D-11 * CFACT 
 !  Reaction Label T10d            
-             RKI( NCELL,  396) =   2.3900D-12 * CFACT 
+             RKI( NCELL,  398) =   2.3900D-12 * CFACT 
 !  Reaction Label T10e            
-             RKI( NCELL,  397) =   1.3700D-11 * CFACT 
+             RKI( NCELL,  399) =   1.3700D-11 * CFACT 
 !  Reaction Label T11             
-             RKI( NCELL,  398) =  CFACT * ARRHENUIS_T03( INV_TEMP,  1.3400D-14,  -2.2830D+03 )
+             RKI( NCELL,  400) =  CFACT * ARRHENUIS_T03( INV_TEMP,  1.3400D-14,  -2.2830D+03 )
 !  Reaction Label T12             
-             RKI( NCELL,  399) =   1.0000D-13 * CFACT 
+             RKI( NCELL,  401) =   1.0000D-13 * CFACT 
 !  Reaction Label R003c           
-             RKI( NCELL,  400) =   5.0100D-11 * CFACT 
+             RKI( NCELL,  402) =   5.0100D-11 * CFACT 
 !  Reaction Label R004c           
-             RKI( NCELL,  401) =  CFACT * ARRHENUIS_T03( INV_TEMP,  2.7000D-12,   3.6000D+02 )
+             RKI( NCELL,  403) =  CFACT * ARRHENUIS_T03( INV_TEMP,  2.7000D-12,   3.6000D+02 )
 !  Reaction Label R005c           
-             RKI( NCELL,  402) =  CFACT * ARRHENUIS_T03( INV_TEMP,  3.7500D-13,   9.8000D+02 )
+             RKI( NCELL,  404) =  CFACT * ARRHENUIS_T03( INV_TEMP,  3.7500D-13,   9.8000D+02 )
 !  Reaction Label R006c           
-             RKI( NCELL,  403) =   4.4000D-11 * CFACT 
+             RKI( NCELL,  405) =   4.4000D-11 * CFACT 
 !  Reaction Label R007c           
-             RKI( NCELL,  404) =   3.4300D-17 * CFACT 
+             RKI( NCELL,  406) =   3.4300D-17 * CFACT 
 !  Reaction Label R008c           
-             RKI( NCELL,  405) =   8.9900D-12 * CFACT 
+             RKI( NCELL,  407) =   8.9900D-12 * CFACT 
 !  Reaction Label R010c           
-             RKI( NCELL,  406) =   1.2000D-11 * CFACT 
+             RKI( NCELL,  408) =   1.2000D-11 * CFACT 
 !  Reaction Label R011c           
-             RKI( NCELL,  407) =   1.9000D-11 * CFACT 
+             RKI( NCELL,  409) =   1.9000D-11 * CFACT 
 !  Reaction Label R012c           
-             RKI( NCELL,  408) =  CFACT * ARRHENUIS_T03( INV_TEMP,  2.8400D-13,   1.3000D+03 )
+             RKI( NCELL,  410) =  CFACT * ARRHENUIS_T03( INV_TEMP,  2.8400D-13,   1.3000D+03 )
 !  Reaction Label R013c           
-             RKI( NCELL,  409) =  CFACT * ARRHENUIS_T03( INV_TEMP,  2.7000D-12,   3.6000D+02 )
+             RKI( NCELL,  411) =  CFACT * ARRHENUIS_T03( INV_TEMP,  2.7000D-12,   3.6000D+02 )
 !  Reaction Label R014c           
-             RKI( NCELL,  410) =   2.3000D-12 * CFACT 
+             RKI( NCELL,  412) =   2.3000D-12 * CFACT 
 !  Reaction Label R015c           
-             RKI( NCELL,  411) =   1.2000D-14 * CFACT 
+             RKI( NCELL,  413) =   1.2000D-14 * CFACT 
 !  Reaction Label R016c           
-             RKI( NCELL,  412) =   1.9700D-10 * CFACT 
+             RKI( NCELL,  414) =   1.9700D-10 * CFACT 
 !  Reaction Label R017c           
-             RKI( NCELL,  413) =  CFACT * ARRHENUIS_T03( INV_TEMP,  2.8400D-13,   1.3000D+03 )
+             RKI( NCELL,  415) =  CFACT * ARRHENUIS_T03( INV_TEMP,  2.8400D-13,   1.3000D+03 )
 !  Reaction Label R019c           
-             RKI( NCELL,  414) =   2.3000D-12 * CFACT 
+             RKI( NCELL,  416) =   2.3000D-12 * CFACT 
 !  Reaction Label R020c           
-             RKI( NCELL,  415) =  CFACT * ARRHENUIS_T03( INV_TEMP,  2.7000D-12,   3.6000D+02 )
+             RKI( NCELL,  417) =  CFACT * ARRHENUIS_T03( INV_TEMP,  2.7000D-12,   3.6000D+02 )
 !  Reaction Label HET_GLY         
-             RKI( NCELL,  416) =  BLKHET(  NCELL, IK_HETERO_GLY )
+             RKI( NCELL,  418) =  BLKHET(  NCELL, IK_HETERO_GLY )
 !  Reaction Label HET_MGLY        
-             RKI( NCELL,  417) =  BLKHET(  NCELL, IK_HETERO_MGLY )
+             RKI( NCELL,  419) =  BLKHET(  NCELL, IK_HETERO_MGLY )
 !  Reaction Label HET_N2O5        
-             RKI( NCELL,  418) =  BLKHET(  NCELL, IK_HETERO_N2O5IJ )
+             RKI( NCELL,  420) =  BLKHET(  NCELL, IK_HETERO_N2O5IJ )
 !  Reaction Label HET_NO2         
-             RKI( NCELL,  419) =  BLKHET(  NCELL, IK_HETERO_NO2 )
+             RKI( NCELL,  421) =  BLKHET(  NCELL, IK_HETERO_NO2 )
 !  Reaction Label HET_HO2         
-             RKI( NCELL,  420) =  BLKHET(  NCELL, IK_HETERO_HO2 )
+             RKI( NCELL,  422) =  BLKHET(  NCELL, IK_HETERO_HO2 )
 !  Reaction Label HET_NO3         
-             RKI( NCELL,  421) =  BLKHET(  NCELL, IK_HETERO_NO3 )
+             RKI( NCELL,  423) =  BLKHET(  NCELL, IK_HETERO_NO3 )
 !  Reaction Label HET_IEPOX       
-             RKI( NCELL,  423) =  BLKHET(  NCELL, IK_HETERO_IEPOX )
+             RKI( NCELL,  425) =  BLKHET(  NCELL, IK_HETERO_IEPOX )
 !  Reaction Label HET_ISO3TET     
-             RKI( NCELL,  424) =  BLKHET(  NCELL, IK_HETERO_ISO3NOSJ )
+             RKI( NCELL,  426) =  BLKHET(  NCELL, IK_HETERO_ISO3NOSJ )
 !  Reaction Label HET_IEPOXOS     
-             RKI( NCELL,  425) =  BLKHET(  NCELL, IK_HETERO_ISO3OSJ )
+             RKI( NCELL,  427) =  BLKHET(  NCELL, IK_HETERO_ISO3OSJ )
 !  Reaction Label HET_IPC         
-             RKI( NCELL,  426) =   2.0000D+00 * BLKHET( NCELL, IK_HETERO_IEPOX )
+             RKI( NCELL,  428) =   2.0000D+00 * BLKHET( NCELL, IK_HETERO_IEPOX )
 !  Reaction Label HET_NALD        
-             RKI( NCELL,  427) =   5.0000D-01 * BLKHET( NCELL, IK_HETERO_IEPOX )
+             RKI( NCELL,  429) =   5.0000D-01 * BLKHET( NCELL, IK_HETERO_IEPOX )
 !  Reaction Label ROCALK1c        
-             RKI( NCELL,  428) =   1.5300D-11 * CFACT 
+             RKI( NCELL,  430) =   1.5300D-11 * CFACT 
 !  Reaction Label ROCALK2c        
-             RKI( NCELL,  429) =   1.6800D-11 * CFACT 
+             RKI( NCELL,  431) =   1.6800D-11 * CFACT 
 !  Reaction Label ROCALK3c        
-             RKI( NCELL,  430) =   2.2400D-11 * CFACT 
+             RKI( NCELL,  432) =   2.2400D-11 * CFACT 
 !  Reaction Label ROCALK4c        
-             RKI( NCELL,  431) =   2.6700D-11 * CFACT 
+             RKI( NCELL,  433) =   2.6700D-11 * CFACT 
 !  Reaction Label ROCALK5c        
-             RKI( NCELL,  432) =   3.0900D-11 * CFACT 
+             RKI( NCELL,  434) =   3.0900D-11 * CFACT 
 !  Reaction Label ROCALK6c        
-             RKI( NCELL,  433) =   3.3800D-11 * CFACT 
+             RKI( NCELL,  435) =   3.3800D-11 * CFACT 
 !  Reaction Label HC1001          
-             RKI( NCELL,  434) =   1.1000D-11 * CFACT 
+             RKI( NCELL,  436) =   1.1000D-11 * CFACT 
 !  Reaction Label ROCALK7c        
-             RKI( NCELL,  435) =  CFACT * ARRHENUIS_T03( INV_TEMP,  2.7000D-12,   3.6000D+02 )
-!  Reaction Label ROCALK8c        
-             RKI( NCELL,  436) =  CFACT * ARRHENUIS_T03( INV_TEMP,  2.7000D-12,   3.6000D+02 )
-!  Reaction Label ROCALK9c        
              RKI( NCELL,  437) =  CFACT * ARRHENUIS_T03( INV_TEMP,  2.7000D-12,   3.6000D+02 )
-!  Reaction Label ROCALK10c       
+!  Reaction Label ROCALK8c        
              RKI( NCELL,  438) =  CFACT * ARRHENUIS_T03( INV_TEMP,  2.7000D-12,   3.6000D+02 )
-!  Reaction Label ROCALK11c       
+!  Reaction Label ROCALK9c        
              RKI( NCELL,  439) =  CFACT * ARRHENUIS_T03( INV_TEMP,  2.7000D-12,   3.6000D+02 )
-!  Reaction Label ROCALK12c       
+!  Reaction Label ROCALK10c       
              RKI( NCELL,  440) =  CFACT * ARRHENUIS_T03( INV_TEMP,  2.7000D-12,   3.6000D+02 )
-!  Reaction Label HC1002          
+!  Reaction Label ROCALK11c       
              RKI( NCELL,  441) =  CFACT * ARRHENUIS_T03( INV_TEMP,  2.7000D-12,   3.6000D+02 )
+!  Reaction Label ROCALK12c       
+             RKI( NCELL,  442) =  CFACT * ARRHENUIS_T03( INV_TEMP,  2.7000D-12,   3.6000D+02 )
+!  Reaction Label HC1002          
+             RKI( NCELL,  443) =  CFACT * ARRHENUIS_T03( INV_TEMP,  2.7000D-12,   3.6000D+02 )
 !  Reaction Label ROCALK13c       
-             RKI( NCELL,  442) =   2.3000D-12 * CFACT 
-!  Reaction Label ROCALK14c       
-             RKI( NCELL,  443) =   2.3000D-12 * CFACT 
-!  Reaction Label ROCALK15c       
              RKI( NCELL,  444) =   2.3000D-12 * CFACT 
-!  Reaction Label ROCALK16c       
+!  Reaction Label ROCALK14c       
              RKI( NCELL,  445) =   2.3000D-12 * CFACT 
-!  Reaction Label ROCALK17c       
+!  Reaction Label ROCALK15c       
              RKI( NCELL,  446) =   2.3000D-12 * CFACT 
-!  Reaction Label ROCALK18c       
+!  Reaction Label ROCALK16c       
              RKI( NCELL,  447) =   2.3000D-12 * CFACT 
-!  Reaction Label HC1003          
+!  Reaction Label ROCALK17c       
              RKI( NCELL,  448) =   2.3000D-12 * CFACT 
+!  Reaction Label ROCALK18c       
+             RKI( NCELL,  449) =   2.3000D-12 * CFACT 
+!  Reaction Label HC1003          
+             RKI( NCELL,  450) =   2.3000D-12 * CFACT 
 !  Reaction Label ROCALK19c       
-             RKI( NCELL,  449) =   2.1700D-11 * CFACT 
+             RKI( NCELL,  451) =   2.1700D-11 * CFACT 
 !  Reaction Label ROCALK20c       
-             RKI( NCELL,  450) =   2.2000D-11 * CFACT 
+             RKI( NCELL,  452) =   2.2000D-11 * CFACT 
 !  Reaction Label ROCALK21c       
-             RKI( NCELL,  451) =   2.2500D-11 * CFACT 
+             RKI( NCELL,  453) =   2.2500D-11 * CFACT 
 !  Reaction Label ROCALK22c       
-             RKI( NCELL,  452) =   2.2600D-11 * CFACT 
+             RKI( NCELL,  454) =   2.2600D-11 * CFACT 
 !  Reaction Label ROCALK23c       
-             RKI( NCELL,  453) =   2.2700D-11 * CFACT 
+             RKI( NCELL,  455) =   2.2700D-11 * CFACT 
 !  Reaction Label ROCALK24c       
-             RKI( NCELL,  454) =   2.2700D-11 * CFACT 
+             RKI( NCELL,  456) =   2.2700D-11 * CFACT 
 !  Reaction Label HC1004          
-             RKI( NCELL,  455) =  CFACT * ARRHENUIS_T03( INV_TEMP,  2.6600D-13,   1.3000D+03 )
+             RKI( NCELL,  457) =  CFACT * ARRHENUIS_T03( INV_TEMP,  2.6600D-13,   1.3000D+03 )
 !  Reaction Label ROCALK25c       
-             RKI( NCELL,  456) =   1.8800D-01 * SFACT 
-!  Reaction Label ROCALK26c       
-             RKI( NCELL,  457) =   1.8800D-01 * SFACT 
-!  Reaction Label ROCALK27c       
              RKI( NCELL,  458) =   1.8800D-01 * SFACT 
-!  Reaction Label ROCALK28c       
+!  Reaction Label ROCALK26c       
              RKI( NCELL,  459) =   1.8800D-01 * SFACT 
-!  Reaction Label ROCALK29c       
+!  Reaction Label ROCALK27c       
              RKI( NCELL,  460) =   1.8800D-01 * SFACT 
-!  Reaction Label ROCALK30c       
+!  Reaction Label ROCALK28c       
              RKI( NCELL,  461) =   1.8800D-01 * SFACT 
-!  Reaction Label HC1005          
+!  Reaction Label ROCALK29c       
              RKI( NCELL,  462) =   1.8800D-01 * SFACT 
+!  Reaction Label ROCALK30c       
+             RKI( NCELL,  463) =   1.8800D-01 * SFACT 
+!  Reaction Label HC1005          
+             RKI( NCELL,  464) =   1.8800D-01 * SFACT 
 !  Reaction Label ROCALK31c       
-             RKI( NCELL,  463) =  CFACT * ARRHENUIS_T03( INV_TEMP,  2.7000D-12,   3.6000D+02 )
-!  Reaction Label ROCALK32c       
-             RKI( NCELL,  464) =  CFACT * ARRHENUIS_T03( INV_TEMP,  2.7000D-12,   3.6000D+02 )
-!  Reaction Label ROCALK33c       
              RKI( NCELL,  465) =  CFACT * ARRHENUIS_T03( INV_TEMP,  2.7000D-12,   3.6000D+02 )
-!  Reaction Label ROCALK34c       
+!  Reaction Label ROCALK32c       
              RKI( NCELL,  466) =  CFACT * ARRHENUIS_T03( INV_TEMP,  2.7000D-12,   3.6000D+02 )
-!  Reaction Label ROCALK35c       
+!  Reaction Label ROCALK33c       
              RKI( NCELL,  467) =  CFACT * ARRHENUIS_T03( INV_TEMP,  2.7000D-12,   3.6000D+02 )
-!  Reaction Label ROCALK36c       
+!  Reaction Label ROCALK34c       
              RKI( NCELL,  468) =  CFACT * ARRHENUIS_T03( INV_TEMP,  2.7000D-12,   3.6000D+02 )
-!  Reaction Label HC1006          
+!  Reaction Label ROCALK35c       
              RKI( NCELL,  469) =  CFACT * ARRHENUIS_T03( INV_TEMP,  2.7000D-12,   3.6000D+02 )
+!  Reaction Label ROCALK36c       
+             RKI( NCELL,  470) =  CFACT * ARRHENUIS_T03( INV_TEMP,  2.7000D-12,   3.6000D+02 )
+!  Reaction Label HC1006          
+             RKI( NCELL,  471) =  CFACT * ARRHENUIS_T03( INV_TEMP,  2.7000D-12,   3.6000D+02 )
 !  Reaction Label ROCALK37c       
-             RKI( NCELL,  470) =   2.3000D-12 * CFACT 
-!  Reaction Label ROCALK38c       
-             RKI( NCELL,  471) =   2.3000D-12 * CFACT 
-!  Reaction Label ROCALK39c       
              RKI( NCELL,  472) =   2.3000D-12 * CFACT 
-!  Reaction Label ROCALK40c       
+!  Reaction Label ROCALK38c       
              RKI( NCELL,  473) =   2.3000D-12 * CFACT 
-!  Reaction Label ROCALK41c       
+!  Reaction Label ROCALK39c       
              RKI( NCELL,  474) =   2.3000D-12 * CFACT 
-!  Reaction Label ROCALK42c       
+!  Reaction Label ROCALK40c       
              RKI( NCELL,  475) =   2.3000D-12 * CFACT 
-!  Reaction Label HC1007          
+!  Reaction Label ROCALK41c       
              RKI( NCELL,  476) =   2.3000D-12 * CFACT 
+!  Reaction Label ROCALK42c       
+             RKI( NCELL,  477) =   2.3000D-12 * CFACT 
+!  Reaction Label HC1007          
+             RKI( NCELL,  478) =   2.3000D-12 * CFACT 
 !  Reaction Label ROCALK43c       
-             RKI( NCELL,  477) =   2.1700D-11 * CFACT 
+             RKI( NCELL,  479) =   2.1700D-11 * CFACT 
 !  Reaction Label ROCALK44c       
-             RKI( NCELL,  478) =   2.2000D-11 * CFACT 
+             RKI( NCELL,  480) =   2.2000D-11 * CFACT 
 !  Reaction Label ROCALK45c       
-             RKI( NCELL,  479) =   2.2500D-11 * CFACT 
+             RKI( NCELL,  481) =   2.2500D-11 * CFACT 
 !  Reaction Label ROCALK46c       
-             RKI( NCELL,  480) =   2.2600D-11 * CFACT 
+             RKI( NCELL,  482) =   2.2600D-11 * CFACT 
 !  Reaction Label ROCALK47c       
-             RKI( NCELL,  481) =   2.2700D-11 * CFACT 
+             RKI( NCELL,  483) =   2.2700D-11 * CFACT 
 !  Reaction Label ROCALK48c       
-             RKI( NCELL,  482) =   2.2700D-11 * CFACT 
+             RKI( NCELL,  484) =   2.2700D-11 * CFACT 
 !  Reaction Label HC1008          
-             RKI( NCELL,  483) =  CFACT * ARRHENUIS_T03( INV_TEMP,  2.6600D-13,   1.3000D+03 )
+             RKI( NCELL,  485) =  CFACT * ARRHENUIS_T03( INV_TEMP,  2.6600D-13,   1.3000D+03 )
 !  Reaction Label ROCARO01        
-             RKI( NCELL,  484) =   1.8100D-11 * CFACT 
+             RKI( NCELL,  486) =   1.8100D-11 * CFACT 
 !  Reaction Label ROCARO02        
-             RKI( NCELL,  485) =  CFACT * ARRHENUIS_T03( INV_TEMP,  2.9100D-13,   1.3000D+03 )
+             RKI( NCELL,  487) =  CFACT * ARRHENUIS_T03( INV_TEMP,  2.9100D-13,   1.3000D+03 )
 !  Reaction Label ROCARO03        
-             RKI( NCELL,  486) =  CFACT * ARRHENUIS_T03( INV_TEMP,  2.7000D-12,   3.6000D+02 )
+             RKI( NCELL,  488) =  CFACT * ARRHENUIS_T03( INV_TEMP,  2.7000D-12,   3.6000D+02 )
 !  Reaction Label ROCARO04        
-             RKI( NCELL,  487) =   2.3000D-12 * CFACT 
+             RKI( NCELL,  489) =   2.3000D-12 * CFACT 
 !  Reaction Label ROCARO05        
-             RKI( NCELL,  488) =  CFACT * ARRHENUIS_T03( INV_TEMP,  3.5600D-14,   7.0800D+02 )
+             RKI( NCELL,  490) =  CFACT * ARRHENUIS_T03( INV_TEMP,  3.5600D-14,   7.0800D+02 )
 !  Reaction Label ROCARO06        
-             RKI( NCELL,  489) =  CFACT * ARRHENUIS_T03( INV_TEMP,  7.4000D-13,   7.6500D+02 )
+             RKI( NCELL,  491) =  CFACT * ARRHENUIS_T03( INV_TEMP,  7.4000D-13,   7.6500D+02 )
 !  Reaction Label ROCARO11        
-             RKI( NCELL,  490) =   1.8100D-11 * CFACT 
+             RKI( NCELL,  492) =   1.8100D-11 * CFACT 
 !  Reaction Label ROCARO12        
-             RKI( NCELL,  491) =  CFACT * ARRHENUIS_T03( INV_TEMP,  2.9100D-13,   1.3000D+03 )
+             RKI( NCELL,  493) =  CFACT * ARRHENUIS_T03( INV_TEMP,  2.9100D-13,   1.3000D+03 )
 !  Reaction Label ROCARO13        
-             RKI( NCELL,  492) =  CFACT * ARRHENUIS_T03( INV_TEMP,  2.7000D-12,   3.6000D+02 )
+             RKI( NCELL,  494) =  CFACT * ARRHENUIS_T03( INV_TEMP,  2.7000D-12,   3.6000D+02 )
 !  Reaction Label ROCARO14        
-             RKI( NCELL,  493) =   2.3000D-12 * CFACT 
+             RKI( NCELL,  495) =   2.3000D-12 * CFACT 
 !  Reaction Label ROCARO15        
-             RKI( NCELL,  494) =  CFACT * ARRHENUIS_T03( INV_TEMP,  3.5600D-14,   7.0800D+02 )
+             RKI( NCELL,  496) =  CFACT * ARRHENUIS_T03( INV_TEMP,  3.5600D-14,   7.0800D+02 )
 !  Reaction Label ROCARO16        
-             RKI( NCELL,  495) =  CFACT * ARRHENUIS_T03( INV_TEMP,  7.4000D-13,   7.6500D+02 )
+             RKI( NCELL,  497) =  CFACT * ARRHENUIS_T03( INV_TEMP,  7.4000D-13,   7.6500D+02 )
 !  Reaction Label ROCARO21        
-             RKI( NCELL,  496) =   2.3100D-11 * CFACT 
+             RKI( NCELL,  498) =   2.3100D-11 * CFACT 
 !  Reaction Label ROCARO22        
-             RKI( NCELL,  497) =  CFACT * ARRHENUIS_T03( INV_TEMP,  2.9100D-13,   1.3000D+03 )
+             RKI( NCELL,  499) =  CFACT * ARRHENUIS_T03( INV_TEMP,  2.9100D-13,   1.3000D+03 )
 !  Reaction Label ROCARO23        
-             RKI( NCELL,  498) =  CFACT * ARRHENUIS_T03( INV_TEMP,  2.7000D-12,   3.6000D+02 )
+             RKI( NCELL,  500) =  CFACT * ARRHENUIS_T03( INV_TEMP,  2.7000D-12,   3.6000D+02 )
 !  Reaction Label ROCARO24        
-             RKI( NCELL,  499) =   2.3000D-12 * CFACT 
+             RKI( NCELL,  501) =   2.3000D-12 * CFACT 
 !  Reaction Label ROCARO25        
-             RKI( NCELL,  500) =  CFACT * ARRHENUIS_T03( INV_TEMP,  3.5600D-14,   7.0800D+02 )
+             RKI( NCELL,  502) =  CFACT * ARRHENUIS_T03( INV_TEMP,  3.5600D-14,   7.0800D+02 )
 !  Reaction Label ROCARO26        
-             RKI( NCELL,  501) =  CFACT * ARRHENUIS_T03( INV_TEMP,  7.4000D-13,   7.6500D+02 )
+             RKI( NCELL,  503) =  CFACT * ARRHENUIS_T03( INV_TEMP,  7.4000D-13,   7.6500D+02 )
 !  Reaction Label ROCOXY1c        
-             RKI( NCELL,  502) =   5.9000D-11 * CFACT 
+             RKI( NCELL,  504) =   5.9000D-11 * CFACT 
 !  Reaction Label ROCOXY2c        
-             RKI( NCELL,  503) =   6.0700D-11 * CFACT 
+             RKI( NCELL,  505) =   6.0700D-11 * CFACT 
 !  Reaction Label ROCOXY3c        
-             RKI( NCELL,  504) =   5.5400D-11 * CFACT 
+             RKI( NCELL,  506) =   5.5400D-11 * CFACT 
 !  Reaction Label ROCOXY4c        
-             RKI( NCELL,  505) =   5.6300D-11 * CFACT 
+             RKI( NCELL,  507) =   5.6300D-11 * CFACT 
 !  Reaction Label ROCOXY5c        
-             RKI( NCELL,  506) =   5.4600D-11 * CFACT 
+             RKI( NCELL,  508) =   5.4600D-11 * CFACT 
 !  Reaction Label ROCOXY6c        
-             RKI( NCELL,  507) =   4.5000D-11 * CFACT 
+             RKI( NCELL,  509) =   4.5000D-11 * CFACT 
 !  Reaction Label ROCOXY7c        
-             RKI( NCELL,  508) =   5.1700D-11 * CFACT 
+             RKI( NCELL,  510) =   5.1700D-11 * CFACT 
 !  Reaction Label ROCOXY8c        
-             RKI( NCELL,  509) =   4.7300D-11 * CFACT 
+             RKI( NCELL,  511) =   4.7300D-11 * CFACT 
 !  Reaction Label ROCOXY9c        
-             RKI( NCELL,  510) =   4.6000D-11 * CFACT 
+             RKI( NCELL,  512) =   4.6000D-11 * CFACT 
 !  Reaction Label ROCOXY10c       
-             RKI( NCELL,  511) =   3.8000D-11 * CFACT 
+             RKI( NCELL,  513) =   3.8000D-11 * CFACT 
 !  Reaction Label ROCOXY11c       
-             RKI( NCELL,  512) =   3.9300D-11 * CFACT 
+             RKI( NCELL,  514) =   3.9300D-11 * CFACT 
 !  Reaction Label ROCOXY12c       
-             RKI( NCELL,  513) =   3.5200D-11 * CFACT 
+             RKI( NCELL,  515) =   3.5200D-11 * CFACT 
 !  Reaction Label ROCOXY13c       
-             RKI( NCELL,  514) =   3.1200D-11 * CFACT 
+             RKI( NCELL,  516) =   3.1200D-11 * CFACT 
 !  Reaction Label ROCOXY14c       
-             RKI( NCELL,  515) =   2.4000D-11 * CFACT 
+             RKI( NCELL,  517) =   2.4000D-11 * CFACT 
 !  Reaction Label ROCOXY15c       
-             RKI( NCELL,  516) =   2.0500D-11 * CFACT 
+             RKI( NCELL,  518) =   2.0500D-11 * CFACT 
 !  Reaction Label ROCOXY16c       
-             RKI( NCELL,  517) =   4.6900D-11 * CFACT 
+             RKI( NCELL,  519) =   4.6900D-11 * CFACT 
 !  Reaction Label R364            
-             RKI( NCELL,  518) =  CFACT * ARRHENUIS_T03( INV_TEMP,  2.4500D-12,  -1.7750D+03 )
+             RKI( NCELL,  520) =  CFACT * ARRHENUIS_T03( INV_TEMP,  2.4500D-12,  -1.7750D+03 )
 
         END DO  
 !  Multiply rate constants by [M], [O2], [N2], [H2O], [H2], or [CH4]
@@ -1760,6 +1764,7 @@
              INDEX_MPAN        = IOLD2NEW( INDEX_MPAN       , 1 )
              INDEX_TRPN        = IOLD2NEW( INDEX_TRPN       , 1 )
              INDEX_HOM         = IOLD2NEW( INDEX_HOM        , 1 )
+             INDEX_HC10        = IOLD2NEW( INDEX_HC10       , 1 )
              INDEX_MCTP        = IOLD2NEW( INDEX_MCTP       , 1 )
              INDEX_OLNN        = IOLD2NEW( INDEX_OLNN       , 1 )
              INDEX_OLND        = IOLD2NEW( INDEX_OLND       , 1 )
@@ -1773,6 +1778,7 @@
              INDEX_FURANONE    = IOLD2NEW( INDEX_FURANONE   , 1 )
              INDEX_VROCP3OXY2  = IOLD2NEW( INDEX_VROCP3OXY2 , 1 )
              INDEX_VROCP0OXY4  = IOLD2NEW( INDEX_VROCP0OXY4 , 1 )
+             INDEX_HONIT       = IOLD2NEW( INDEX_HONIT      , 1 )
              INDEX_BAL1        = IOLD2NEW( INDEX_BAL1       , 1 )
              INDEX_BAL2        = IOLD2NEW( INDEX_BAL2       , 1 )
              INDEX_ELHOM       = IOLD2NEW( INDEX_ELHOM      , 1 )
@@ -1809,7 +1815,6 @@
              INDEX_VROCP2ALKP  = IOLD2NEW( INDEX_VROCP2ALKP , 1 )
              INDEX_VROCP1ALK   = IOLD2NEW( INDEX_VROCP1ALK  , 1 )
              INDEX_VROCP1ALKP  = IOLD2NEW( INDEX_VROCP1ALKP , 1 )
-             INDEX_HC10        = IOLD2NEW( INDEX_HC10       , 1 )
              INDEX_VROCP6ALKP2 = IOLD2NEW( INDEX_VROCP6ALKP2, 1 )
              INDEX_VROCP5ALKP2 = IOLD2NEW( INDEX_VROCP5ALKP2, 1 )
              INDEX_VROCP4ALKP2 = IOLD2NEW( INDEX_VROCP4ALKP2, 1 )

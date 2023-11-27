@@ -119,7 +119,7 @@
 ! - Updated AMORE isoprene condensation to AMORE v1.2
 ! - Added ECH4 + HO reaction
 ! - Added heterogeneous uptake of HO2 and NO3
-! - Updated monoterpene chemistry based on Schwantes et al. ACP 2020 (note: so far just MT+OH RO2 + NO rxns)
+! - Updated monoterpene chemistry based on Schwantes et al. ACP 2020
 !------------------------------------------------------------------------------ 
 CRACMM2
 
@@ -341,7 +341,7 @@ REACTIONS[CM] =
 <R087>  API  + HO          = 0.975*APIP1 + 0.025*APIP2  # 1.21E-11 @ -440.;
 <R088>  LIM  + HO          = 0.945*LIMP1 + 0.055*LIMP2  # 4.20E-11 @ -401.;
 <TRP04> PINAL  + HO        = 0.23*PINALP + 0.77*RCO3  # 5.20E-12 @ -600.;
-<TRP05> LIMAL  + HO        = 0.70*LIMALP + 0.30*RCO3  # 1.00E-10;
+<TRP05> LIMAL  + HO        = 0.83*LIMALP + 0.17*RCO3  # 1.10E-10;
 <R089>  HCHO + HO          = HO2       + CO           # 5.50E-12 @ -125.;                                         
 <R090>  ACD  + HO          = ACO3                     # 4.70E-12 @ -345.;                                         
 <R091>  ALD  + HO          = RCO3                     # 4.90E-12  @ -405.;          
@@ -451,21 +451,36 @@ REACTIONS[CM] =
                                         + 0.017*KET 
                                         + 0.044*HKET 
                                         + 0.017*ORA2  # 4.40E-15 @ 845.0; 
-<R131>  API  + O3          = 0.90*HO    + 0.90*APIP1
-                                        + 0.05*APIP2
-                                        + 0.05*PINAL
-                                        + 0.05*H2O2
-                                        + 0.14*CO     # 5.0E-16 @ 530.;
-<R132>  LIM  + O3          = 0.84*HO    + 0.84*LIMP1 
-                                        + 0.11*LIMP2
-                                        + 0.05*LIMAL
-                                        + 0.05*H2O2
-                                        + 0.14*CO     # 2.95E-15 @ 783.;
-<TRP08> LIMAL  + O3        = 0.04*HO    + 0.67*HC10P
-                                        + 0.79*HCHO
-                                        + 0.33*KET
-                                        + 0.04*HO2
-                                        + 0.20*CO     # 8.30E-18;
+<R131>  API  + O3          = 
+!                            a-pinene products
+                             0.5005*HO  + 0.2145*APIP1
+                                        + 0.1430*H2O2
+                                        + 0.2535*PINAL
+                                        + 0.0065*ORA2
+                                        + 0.1105*HO2
+                                        + 0.1105*CO
+                                        + 0.1755*HCHO
+                                        + 0.1755*RCO3
+!                            b-pinene products
+                                        + 0.1785*KET
+                                        + 0.1050*HO
+                                        + 0.1050*RCO3
+                                        + 0.1120*H2O2
+                                        + 0.0665*HC10
+                                        + 0.2835*HCHO
+                                        + 0.0385*OP1
+                                        + 0.0280*ORA1 # 8.05e-16 @ 640.;
+<R132>  LIM  + O3          = 0.66*HO    + 0.66*LIMAL
+                                        + 0.33*ACO3
+                                        + 0.33*HCHO
+                                        + 0.33*RCO3
+                                        + 0.33*H2O2
+                                        + 0.01*ORA1   # 2.8E-15 @ 770.;
+<TRP08> LIMAL  + O3        = 0.09*HO    + ALD
+                                        + 0.62*HCHO
+                                        + 0.23*OP1
+                                        + 0.02*H2O2
+                                        + 0.15*ORA1   # 8.30E-18;
 <TRP09> TRPN  + O3         = HOM                      # 1.67E-16;
 <R133>  MACR + O3          = 0.19*HO    + 0.14*HO2
                                         + 0.10*ACO3 
@@ -551,8 +566,8 @@ REACTIONS[CM] =
                                         + 0.4*HNO3    # 1.06E-12;
 <R158>  MCT  + NO3         = MCTO       + HNO3        # 2.01E-10;
 <R159>  MPAN + NO3         = MACP       + NO2         # 2.2E-14 @ 500.;
-<TRP11> PINALP             = HOM                      # 1.0;
-<TRP12> LIMALP             = HOM                      # 1.0;
+<TRP11> PINALP             = HOM                      # 0.17;
+<TRP12> LIMALP             = HOM                      # 0.28;
 <R166>  ACO3 + NO2         = PAN                      # 9.7E-29 ^ -5.6 &
                                                         9.3E-12 ^ -1.5;
 <R167>  PAN                = ACO3       + NO2         # 9.00E-29 @ -14000.0
@@ -646,37 +661,60 @@ REACTIONS[CM] =
                          + 0.3651*MGLY
                          + 0.4564*FURANONE
                          + 0.4564*DCB2        # 2.7E-12 @ -360.;
-<R189>  APIP1 + NO         = 0.237*TRPN + 0.763*HO2
-                                        + 0.763*NO2
-                                        + 0.195*PINAL
-                                        + 0.284*ALD
-                                        + 0.0865*ACT
-                                        + 0.1285*LIMAL
-                                        + 0.308*HCHO
-                                        + 0.0715*OPB
-                                        + 0.084*KET   # 2.7E-12 @ -360;
+<R189>  APIP1 + NO         = 
+!                            a-pinene products
+                             0.1495*TRPN + 0.5005*HO2
+                                         + 0.5005*NO2
+                                         + 0.1950*PINAL
+                                         + 0.1755*ALD
+                                         + 0.0585*ACT
+                                         + 0.0585*LIMAL
+                                         + 0.1365*HCHO
+                                         + 0.0715*OPB
+!                            b-pinene products
+                                         + 0.0280*ACT
+                                         + 0.1715*HCHO 
+                                         + 0.0700*LIMAL
+                                         + 0.0840*KET
+                                         + 0.0875*TRPN
+                                         + 0.1085*ALD
+                                         + 0.2625*HO2
+                                         + 0.2625*NO2   # 2.7E-12 @ -360.;
 <TRP13>  APIP2 + NO        = 0.82*HO    + 0.82*NO2
                                         + HOM         # 4.0E-12;
-<TRP14>  APINP1 + NO       = 2*NO2      + PINAL       # 4.0E-12;
+<TRP14>  APINP1 + NO       = 
+!                            a-pinene products
+                             1.2090*NO2 + 0.0455*TRPN
+                                        + 0.6045*PINAL
+!                            b-pinene products
+                                        + 0.1890*TRPN
+                                        + 0.4865*NO2
+                                        + 0.1540*ALD
+                                        + 0.0070*KET
+                                        + 0.0070*HCHO
+                                        + 0.1645*HO2  # 2.7E-12 @ -360.;
 <TRP15>  APINP2 + NO       = 0.82*NO2   + 0.82*HO
                                         + HOM         # 4.0E-12;
 <R190>  LIMP1 + NO         = 0.23*TRPN  + 0.77*NO2
                                         + 0.77*LIMAL
                                         + 0.77*HO2
-                                        + 0.43*HCHO   # 2.7E-12 @ -360;
+                                        + 0.43*HCHO   # 2.7E-12 @ -360.;
 <TRP16>  LIMP2 + NO        = 0.77*HO    + 0.77*NO2
                                         + HOM         # 4.0E-12;
-<TRP17>  LIMNP1 + NO       = 2*NO2      + LIMAL       # 4.0E-12;
+<TRP17>  LIMNP1 + NO       = 0.57*TRPN  + 1.36*NO2
+                                        + 0.43*LIMAL
+                                        + 0.5*HO2     # 2.7E-12 @ -360.;
 <TRP18>  LIMNP2 + NO       = 0.77*NO2   + 0.77*HO
                                         + HOM         # 4.0E-12;
-<TRP19>  PINALP + NO       = 0.95*HO2   + 0.95*NO2 
-                                        + 0.05*TRPN
-                                        + 0.95*HCHO
-                                        + 0.95*KET    # 2.7E-12 @ -360.;
-<TRP20>  LIMALP + NO       = 0.94*HO2   + 0.94*NO2
-                                        + 0.06*TRPN
-                                        + 0.94*HCHO
-                                        + 0.94*KET    # 2.7E-12 @ -360.;
+<TRP19>  PINALP + NO       = 0.17*TRPN  + 0.249*HONIT 
+                                        + 0.581*ACT
+                                        + 0.581*KET
+                                        + 0.581*ACO3
+                                        + 0.581*NO2   # 2.7E-12 @ -360.;
+<TRP20>  LIMALP + NO       = 0.3*TRPN   + 0.7*NO2
+                                        + 0.7*HO2
+                                        + 0.7*ALD
+                                        + 0.31*HCHO   # 2.7E-12 @ -360.;
 <R191>  ACO3 + NO          = MO2        + NO2         # 8.1E-12 @ -270.;
 <R192>  RCO3 + NO          = ETHP       + NO2         # 8.1E-12 @ -270.;
 <R193>  ACTP + NO          = ACO3       + NO2
@@ -749,16 +787,54 @@ REACTIONS[CM] =
 <ROCARO62> XYEP + HO2  = 0.0854*OP2
                          + 0.6341*OP3
                          + 0.2805*VROCP0OXY4          # 2.91E-13 @ -1300.;
-<R229>  APIP1 + HO2        = OPB                      # 1.5E-11;
+<R229>  APIP1 + HO2        = 
+!                          a-pinene products
+                             0.0390*ACT
+                             + 0.0390*ALD
+                             + 0.0520*HCHO
+                             + 0.4225*OPB
+                             + 0.3120*HO2
+                             + 0.1885*PINAL
+                             + 0.2275*HO
+!                          b-pinene products
+                             + 0.3395*OPB
+                             + 0.0105*HO
+                             + 0.0105*KET
+                             + 0.0105*HCHO
+                             + 0.0105*HO2             # 2.6E-13 @ -1300.;
 <TRP21> APIP2 + HO2        = HOM                      # 1.5E-11;
-<TRP22> APINP1 + HO2       = TRPN                      # 1.5E-11;
+<TRP22> APINP1 + HO2       = 
+!                            a-pinene products
+                             0.1950*TRPN
+                             + 0.4550*PINAL
+                             + 0.4550*NO2
+                             + 0.4550*HO
+!                            b-pinene products
+                             + 0.1645*HO
+                             + 0.2660*TRPN
+                             + 0.0770*ALD
+                             + 0.0070*KET
+                             + 0.0840*NO2
+                             + 0.0070*HCHO            # 2.71E-13 @ -1300.;
 <TRP23> APINP2 + HO2       = HOM                      # 1.5E-11;
-<R230>  LIMP1 + HO2        = OPB                      # 1.5E-11;
+<R230>  LIMP1 + HO2        = 0.9*OPB    + 0.1*LIMAL
+                                        + 0.1*HO
+                                        + 0.1*HO2
+                                        + 0.06*HCHO   # 2.6E-13 @ -1300.;
 <TRP24> LIMP2 + HO2        = HOM                      # 1.5E-11;
-<TRP25> LIMNP1 + HO2       = TRPN                      # 1.5E-11;
+<TRP25> LIMNP1 + HO2       = 0.77*TRPN  + 0.5*HO
+                                        + 0.23*LIMAL
+                                        + 0.23*NO2
+                                        + 0.27*HO2    # 2.71E-13 @ -1300.;
 <TRP26> LIMNP2 + HO2       = HOM                      # 1.5E-11;
-<TRP27> PINALP + HO2       = OPB                      # 2.91E-13 @ -1300.;
-<TRP28> LIMALP + HO2       = OPB                      # 2.91E-13 @ -1300.;
+<TRP27> PINALP + HO2       = 0.62*OPB   + 0.38*HO
+                                        + 0.38*ACT
+                                        + 0.38*KET
+                                        + 0.38*ACO3   # 2.62E-13 @ -1300.;
+<TRP28> LIMALP + HO2       = 0.9*OPB    + 0.1*HO
+                                        + 0.1*HO2
+                                        + 0.1*ALD
+                                        + 0.04*HCHO    # 2.7E-12 @ -360.;
 <R231>  ACO3 + HO2         = 0.44*HO    + 0.44*MO2
                                         + 0.15*ORA2
                                         + 0.41*PAA     # 4.3E-13 @ -1040.;
@@ -861,36 +937,58 @@ REACTIONS[CM] =
                                        + 0.023*ALD
                                        + 0.018*GLY
                                        + 0.016*HKET   # 3.4E-14 @ -221.;
-<R265>  APIP1 + MO2        = HO2       + 0.680*HCHO 
-                                       + 0.600*PINAL 
-                                       + 0.070*KET
-                                       + 0.320*MOH
-                                       + 0.250*ROH    # 3.56E-14 @ -708.;
+<R265>  APIP1 + MO2        = 
+!                            a-pinene products
+                             0.5395*HCHO
+                             + 0.0910*LIMAL
+                             + 0.2730*PINAL
+                             + 0.1300*ALD
+                             + 0.0845*OPB
+                             + 0.1105*MOH
+                             + 0.0715*KET
+                             + 0.0390*ACT
+                             + 0.7540*HO2
+!                            b-pinene products
+                             + 0.4900*HCHO
+                             + 0.1295*LIMAL
+                             + 0.1120*KET
+                             + 0.5250*HO2
+                             + 0.0280*ACT
+                             + 0.1085*ALD             # 2.00E-12;
 <TRP29> APIP2 + MO2        = HO2       + 0.750*HCHO
                                        + 0.250*MOH
                                        + HOM          # 1.00E-10;
-<TRP30> APINP1 + MO2       = 0.37*HO2  + 0.860*NO2
-                                       + 0.680*HCHO
-                                       + 0.860*PINAL
-                                       + 0.320*MOH
-                                       + 0.140*TRPN    # 3.56E-14 @ -708.;
+<TRP30> APINP1 + MO2       = 
+!                            a-pinene products
+                             0.1170*TRPN
+                             + 0.6175*HCHO
+                             + 0.0325*MOH
+                             + 0.5330*HO2
+                             + 0.5330*NO2
+                             + 0.5330*PINAL
+!                            b-pinene products
+                             + 0.2240*TRPN
+                             + 0.0070*KET
+                             + 0.1190*ALD
+                             + 0.1260*NO2
+                             + 0.3850*HO2
+                             + 0.3465*HCHO
+                             + 0.0105*MOH             # 2.00E-12;
 <TRP31> APINP2 + MO2       = 0.75*HO2  + 0.750*NO2
                                        + 0.250*MOH
                                        + 0.750*HCHO
                                        + HOM          # 1.00E-10;
-<R266>  LIMP1 + MO2        = HO2       + HCHO 
-                                       + 0.420*LIMAL
-                                       + 0.300*KET 
-                                       + 0.320*MOH
-                                       + 0.270*ROH    # 3.56E-14 @ -708.;
+<R266>  LIMP1 + MO2        = 0.25*MOH  + LIMAL
+                                       + 1.03*HCHO
+                                       + HO2          # 2.00E-12;
 <TRP32> LIMP2 + MO2        = HO2       + 0.750*HCHO
                                        + 0.250*MOH
                                        + HOM          # 1.00E-10;
-<TRP33> LIMNP1 + MO2       = 0.37*HO2  + 0.680*HCHO
-                                       + 0.700*LIMAL
-                                       + 0.700*NO2
-                                       + 0.320*MOH
-                                       + 0.300*TRPN    # 3.56E-14 @ -708.;
+<TRP33> LIMNP1 + MO2       = 0.69*TRPN + 0.91*HCHO
+                                       + 0.09*MOH
+                                       + 1.01*HO2
+                                       + 0.31*LIMAL
+                                       + 0.31*NO2     # 2.0E-12;
 <TRP34> LIMNP2 + MO2       = 0.75*HO2  + 0.750*HCHO
                                        + 0.750*NO2
                                        + 0.250*MOH
@@ -1040,34 +1138,52 @@ REACTIONS[CM] =
                                        + 0.219*MACR
                                        + 0.305*MVK 
                                        + 0.5*ORA2     # 8.4E-14 @ -221.;
-<R301>  APIP1 + ACO3       = 0.63*HO2  + 0.7*MO2 
-                                       + 0.6*PINAL
-                                       + 0.3*ORA2  
-                                       + 0.07*KET
-                                       + 0.25*ROH     # 7.4E-13 @ -765.;
+<R301>  APIP1 + ACO3       = 
+!                            a-pinene products
+                             0.2535*PINAL
+                             + 0.2275*ALD
+                             + 0.0910*OPB
+                             + 0.0780*ACT
+                             + 0.0780*LIMAL
+                             + 0.1755*HCHO
+                             + 0.65*HO2
+                             + 0.65*MO2
+!                            b-pinene products
+                             + 0.1120*KET
+                             + 0.0945*LIMAL
+                             + 0.1435*ALD
+                             + 0.0385*ACT
+                             + 0.2275*HCHO
+                             + 0.35*HO2
+                             + 0.35*MO2     # 2.0E-12 @ -500.;
 <TRP35> APIP2 + ACO3       = 0.5*HO    + 0.5*MO2
                                        + 0.5*ORA2
                                        + HOM          # 1.0E-10;
-<TRP36> APINP1 + ACO3      = 0.86*NO2  + 0.14*TRPN
-                                       + 0.86*PINAL
-                                       + 0.7*MO2
-                                       + 0.3*ORA2     # 7.4E-13 @ -765.;
+<TRP36> APINP1 + ACO3      = 
+!                            a-pinene products
+                             0.65*NO2  + 0.65*PINAL
+                                       + 0.65*MO2
+!                            b-pinene products
+                                       + 0.35*MO2
+                                       + 0.1750*NO2
+                                       + 0.1750*TRPN
+                                       + 0.1680*ALD
+                                       + 0.0070*KET
+                                       + 0.0070*HCHO
+                                       + 0.1750*HO2   # 2.0E-12 @ -500.;
 <TRP37> APINP2 + ACO3      = 0.5*NO2   + 0.5*MO2
                                        + 0.5*ORA2
                                        + HOM          # 1.0E-10;
-<R302>  LIMP1 + ACO3       = 0.63*HO2  + 0.7*MO2 
-                                       + 0.42*LIMAL
-                                       + 0.3*KET
-                                       + 0.3*ORA2
-                                       + 0.32*HCHO  
-                                       + 0.27*ROH     # 7.4E-13 @ -765.;
+<R302>  LIMP1 + ACO3       = LIMAL     + 0.56*HCHO
+                                       + HO2
+                                       + MO2          # 2.0E-12 @ -500.;
 <TRP38> LIMP2 + ACO3       = 0.5*HO    + 0.5*MO2
                                        + 0.5*ORA2
                                        + HOM          # 1.0E-10;
-<TRP39> LIMNP1 + ACO3      = 0.7*NO2   + 0.7*LIMAL
-                                       + 0.3*TRPN
-                                       + 0.7*MO2
-                                       + 0.3*ORA2     # 7.4E-13 @ -765.;
+<TRP39> LIMNP1 + ACO3      = MO2       + 0.46*NO2
+                                       + 0.46*LIMAL
+                                       + 0.54*TRPN
+                                       + 0.54*HO2     # 2.0E-12 @ -500.;
 <TRP40> LIMNP2 + ACO3      = 0.5*MO2   + 0.5*NO2
                                        + 0.5*ORA2
                                        + HOM          # 1.0E-10;
@@ -1206,13 +1322,26 @@ REACTIONS[CM] =
                                        + 0.024*GLY
                                        + 0.033*HKET
                                        + 0.031*ALD    # 1.2E-12;
-<R339>  APIP1 + NO3        = HO2       + NO2
-                                       + ALD 
-                                       + KET          # 1.2E-12;
+<R339>  APIP1 + NO3        = 
+!                            a-pinene products
+                             0.65*NO2 + 0.65*HO2
+                                      + 0.2535*PINAL
+                                      + 0.2275*ALD
+                                      + 0.0780*ACT
+                                      + 0.0780*LIMAL
+                                      + 0.1755*HCHO
+                                      + 0.0910*OPB
+!                            b-pinene products
+                                      + 0.0385*ACT
+                                      + 0.2275*HCHO
+                                      + 0.0945*LIMAL
+                                      + 0.1120*KET
+                                      + 0.1435*ALD
+                                      + 0.35*HO2
+                                      + 0.35*NO2      # 2.3E-12;
 <R340>  LIMP1 + NO3        = HO2       + NO2
-                                       + 0.385*OLI
-                                       + 0.385*HCHO
-                                       + 0.615*MACR   # 1.2E-12;
+                                       + LIMAL
+                                       + 0.56*HCHO    # 2.3E-12;
 <R341>  ACO3 + NO3         = MO2       + NO2          # 4.0E-12;
 <R342>  RCO3 + NO3         = ETHP      + NO2          # 4.0E-12;
 <R343>  ACTP + NO3         = ACO3      + NO2
@@ -1334,9 +1463,19 @@ REACTIONS[CM] =
                                        + 0.48*NO2
                                        + 0.48*HO2
                                        + 0.04*ELHOM   #1.00E-10;
+<TRP53> APINP1 + NO3       = 
+!                            a-pinene products
+                             1.3*NO2   + 0.65*PINAL
+!                            b-pinene products
+                                       + 0.5250*NO2
+                                       + 0.1750*TRPN
+                                       + 0.1680*ALD
+                                       + 0.0070*KET
+                                       + 0.0070*HCHO
+                                       + 0.1750*HO2   # 2.3E-12;
+<TRP54> LIMNP1 + NO3      = 1.46*NO2   + 0.46*LIMAL
+                                       + 0.54*HO2     # 2.3E-12;
 
-
-!
 ! SOA related reactions 
 <RAM17>  IEPOX + HO        = HO                       # 5.78E-11@400; 
 
