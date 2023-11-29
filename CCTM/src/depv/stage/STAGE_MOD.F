@@ -296,7 +296,7 @@ C Parameters specific to gas_x. Currently based on m3dry but subject to change
          Real, Parameter :: hplus_east = 1.0e-5     ! pH=5.0
          Real, Parameter :: hplus_h2o  = 7.94328e-9 ! 10.0**(-8.1)
          Real, Parameter :: hplus_west = 3.16228e-6 ! 10.0**(-5.5)
-C Fuller-Schettler-Giddings Diffusion Volume for air
+C Fuller-Schettler-Giddings (https://doi.org/10.1021/ie50677a007; Table I) Diffusion Volume for air 
          Real, Parameter :: Diff_Vol   = 20.1       ! cm3/mol
 
 ! Heterogeneous HONO
@@ -435,7 +435,8 @@ C Fuller-Schettler-Giddings Diffusion Volume for air
             if( s .eq. s_NH3 ) NH3_hit = .True.
             if( s .eq. s_O3 ) O3_hit  = .True.
             if( s .eq. s_Hg ) Hg_hit  = .True.
-! Following Fuller et al 1966 and EPA OnSite toolbox (https://www3.epa.gov/ceampubl/learn2model/part-two/onsite/ed-background.html). 
+! Following Fuller et al 1966 (https://doi.org/10.1021/ie50677a007) and using the FSG-LeBas method from the
+! EPA OnSite toolbox (https://www3.epa.gov/ceampubl/learn2model/part-two/onsite/ed-background.html). 
             dif_T     = 1.0e-7*temp_2m**1.75 * sqrt( 1.0/MWAIR + 1.0/molwt_all( s ) ) / 
      &                ( Diff_Vol**(1.0/3.0) + LeBasM( s )**(1.0/3.0) )**2 
             scc_pr_23 = ( ( k_vis / dif_T ) / pr ) ** twothirds
