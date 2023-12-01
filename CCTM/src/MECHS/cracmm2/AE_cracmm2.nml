@@ -56,4 +56,6 @@ AE_SPECIES_DATA =
 'AISO3OS'   ,216.20 ,F      ,T     ,F      ,''     ,'' ,-1     ,'' ,-1     ,'VMASS'     , 1  ,'ORG'        , 1  ,'SOA'      ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!(1;3;4-trihydroxy-2-methylbutan-2-yl)oxysulfonic acid,L,NA,C(O)C(OS(O)(=O)(=O))(C)C(O)CO
 'AISO4'     ,168.1  ,F      ,T     ,F      ,''     ,'' ,-1     ,'' ,-1     ,'VMASS'     , 1  ,'ORG'        , 1  ,'SOA'      ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!4-hydroperoxy-3-methylbutane-1;1;2;3-tetrol,L,NA,CC(O)(COO)C(O)C(O)O
 'AISO5'     ,150.1  ,F      ,T     ,F      ,''     ,'' ,-1     ,'' ,-1     ,'VMASS'     , 1  ,'ORG'        , 1  ,'SOA'      ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!2-hydroperoxy-3;4-dihydroxy-3-methylbutanal,L,NA,CC(O)(CO)C(OO)C=O
-/                        
+'ATRPN'     ,215.0  ,F      ,T     ,F      ,''     ,'' ,-1     ,'' ,-1     ,'VMASS'     , 1  ,'ORG'        , 1  ,'SOA'      ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!NA,NA,NA,NA
+'AHONIT'    ,265.0  ,F      ,T     ,F      ,''     ,'' ,-1     ,'' ,-1     ,'VMASS'     , 1  ,'ORG'        , 1  ,'SOA'      ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!NA,NA,NA,NA
+/   

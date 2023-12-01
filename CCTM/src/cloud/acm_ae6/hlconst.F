@@ -112,7 +112,7 @@ C...........INCLUDES and their descriptions
 
 C...........PARAMETERS and their descriptions:
 
-      INTEGER, PARAMETER :: MXSPCS = 273     ! Number of substances
+      INTEGER, PARAMETER :: MXSPCS = 272     ! Number of substances
       INTEGER, PARAMETER :: MXDSPCS = 19     ! Number of dissociating species
 
 C...pointers for the dissociation constants (array B and D)
@@ -452,7 +452,6 @@ C...  Atmospheric Chemistry and Physics, 1997
       DATA SUBNAME(270), A(270), E(270) / 'VROCP4ALKOPERA  ', 2.94E+01, 0.0E+00 /   ! CRACMM RepCmp value (OPERA SAR)
       DATA SUBNAME(271), A(271), E(271) / 'VROCP5ALKOPERA  ', 5.41E-02, 0.0E+00 /   ! CRACMM RepCmp value (OPERA SAR)
       DATA SUBNAME(272), A(272), E(272) / 'VROCP6ALKOPERA  ', 6.90E-03, 0.0E+00 /   ! CRACMM RepCmp value (OPERA SAR)
-      DATA SUBNAME(273), A(273), E(273) / 'HONITOPERA      ', 3.89E+04, 0.0E+00 /   ! CRACMM RepCmp value (OPERA SAR)
 
       DATA B( LSO2   ), D( LSO2   ) / 1.30E-02,  1.96E+03 /  ! SO2*H2O<=>HSO3+H     : Smith and Martell (1976)
       DATA B( LHSO3  ), D( LHSO3  ) / 6.60E-08,  1.50E+03 /  ! HSO3<=>SO3+H         : Smith and Martell (1976)

@@ -115,11 +115,12 @@
 !    added one photolysis reaction (R014a), updated reaction products for R016 and R017
 !    updated photolysis rate coefficients for CH3COCH3, MEK, KET, ALD, HCHO
 !------------------------------------------------------------------------------
-! CRACMM2 modifications
+! CRACMM2 modifications (N. Skipper, H. Pye)
 ! - Updated AMORE isoprene condensation to AMORE v1.2
 ! - Added ECH4 + HO reaction
 ! - Added heterogeneous uptake of HO2 and NO3
 ! - Updated monoterpene chemistry based on Schwantes et al. ACP 2020
+! - Updated monoterpene nitrate chemistry
 !------------------------------------------------------------------------------ 
 CRACMM2
 
@@ -208,6 +209,9 @@ REACTIONS[CM] =
                                        + 0.80*KET     # 1.0/<ONIT_RACM2>;
 <R032>  PAN                = ACO3      + NO2          # 1.0/<PAN1_RACM2>;
 <R033>  PAN                = MO2       + NO3          # 1.0/<PAN2_RACM2>;
+<TRP55> TRPN               = NO2       + 0.67*KET
+                                       + 0.33*UALD    # 1.0/<ONIT_RACM2>;
+<TRP56> HONIT              = HKET      + NO2          # 1.0/<ONIT_RACM2>;
 <R034>  O3   + HO          = HO2                      # 1.7E-12 @ 940.;
 <R035>  O3   + HO2         = HO                       # 1.0E-14 @ 490.;
 <R036>  O3   + NO          = NO2                      # 3.0E-12 @ 1500.;
@@ -410,7 +414,14 @@ REACTIONS[CM] =
                                         + HCHO        # 4.0E-14;
 <R122>  MPAN + HO          = NO2        + HKET        # 3.2E-11;
 <R123>  ONIT + HO          = HC3P       + NO2         # 5.31E-12 @ 260.;
-<TRP07> TRPN + HO          = HOM                      # 4.80E-12;
+<TRP07> TRPN + HO          = 0.33*HONIT + 0.67*NO2
+                                        + 0.27*PINAL
+                                        + 0.38*KET
+                                        + 0.21*HCHO
+                                        + 0.02*ALD    # 4.80E-12;
+<TRP57> HONIT + HO         = HKET       + NO3      %2 # 2.4E-14 @ -460 &
+                                                        2.7E-17 @ -2199 &
+                                                        6.5E-34 @ -1335;
 <R126>  ETE  + O3          = 0.08*HO    + 0.15*HO2
                                         + 0.43*CO
                                         + HCHO
@@ -481,7 +492,11 @@ REACTIONS[CM] =
                                         + 0.23*OP1
                                         + 0.02*H2O2
                                         + 0.15*ORA1   # 8.30E-18;
-<TRP09> TRPN  + O3         = HOM                      # 1.67E-16;
+<TRP09> TRPN  + O3         = 0.33*HONIT + 0.67*NO2
+                                        + 0.27*PINAL
+                                        + 0.38*KET
+                                        + 0.21*HCHO
+                                        + 0.02*ALD    # 1.67E-16;
 <R133>  MACR + O3          = 0.19*HO    + 0.14*HO2
                                         + 0.10*ACO3 
                                         + 0.22*CO
@@ -537,7 +552,11 @@ REACTIONS[CM] =
 <R143>  OLI  + NO3         = 0.11*OLNN  + 0.89*OLND   # 8.64E-13 @ -450.;
 <R146>  API  + NO3         = 0.975*APINP1 + 0.025*APINP2  # 1.19E-12 @ -490.;
 <R147>  LIM  + NO3         = 0.945*LIMNP1 + 0.055*LIMNP2  # 1.22E-11;
-<TRP10> TRPN  + NO3        = HOM                      # 3.15E-14 @ 448.;
+<TRP10> TRPN  + NO3        = 0.33*HONIT + 0.67*NO2
+                                        + 0.27*PINAL
+                                        + 0.38*KET
+                                        + 0.21*HCHO
+                                        + 0.02*ALD    # 3.15E-13 @ 448.;
 <R148>  HCHO + NO3         = HO2        + CO 
                                         + HNO3        # 2.0E-12 @ 2440.;
 <R149>  ACD  + NO3         = ACO3       + HNO3        # 1.4E-12 @ 1900.;
@@ -1342,6 +1361,18 @@ REACTIONS[CM] =
 <R340>  LIMP1 + NO3        = HO2       + NO2
                                        + LIMAL
                                        + 0.56*HCHO    # 2.3E-12;
+<TRP53> APINP1 + NO3       =
+!                            a-pinene products
+                             1.3*NO2   + 0.65*PINAL
+!                            b-pinene products
+                                       + 0.5250*NO2
+                                       + 0.1750*TRPN
+                                       + 0.1680*ALD
+                                       + 0.0070*KET
+                                       + 0.0070*HCHO
+                                       + 0.1750*HO2   # 2.3E-12;
+<TRP54> LIMNP1 + NO3      = 1.46*NO2   + 0.46*LIMAL
+                                       + 0.54*HO2     # 2.3E-12;
 <R341>  ACO3 + NO3         = MO2       + NO2          # 4.0E-12;
 <R342>  RCO3 + NO3         = ETHP      + NO2          # 4.0E-12;
 <R343>  ACTP + NO3         = ACO3      + NO2
@@ -1463,18 +1494,6 @@ REACTIONS[CM] =
                                        + 0.48*NO2
                                        + 0.48*HO2
                                        + 0.04*ELHOM   #1.00E-10;
-<TRP53> APINP1 + NO3       = 
-!                            a-pinene products
-                             1.3*NO2   + 0.65*PINAL
-!                            b-pinene products
-                                       + 0.5250*NO2
-                                       + 0.1750*TRPN
-                                       + 0.1680*ALD
-                                       + 0.0070*KET
-                                       + 0.0070*HCHO
-                                       + 0.1750*HO2   # 2.3E-12;
-<TRP54> LIMNP1 + NO3      = 1.46*NO2   + 0.46*LIMAL
-                                       + 0.54*HO2     # 2.3E-12;
 
 ! SOA related reactions 
 <RAM17>  IEPOX + HO        = HO                       # 5.78E-11@400; 
@@ -2083,8 +2102,12 @@ REACTIONS[CM] =
       + 0.2266 * MO2 + 0.2266 * ETHP
       + 0.2266 * HC3P + 0.2266 * MEKP # 4.69e-11;
 
-! add ECH4
+! ECH4 (emitted methane)
 <R364> ECH4  + HO          = MO2                      # 2.45E-12 @ 1775.;
+
+! monoterpene nitrate hydrolysis
+<TRP58> ATRPNJ  = AHOMJ + HNO3    # 9.26E-05;
+<TRP59> AHONITJ = AHOMJ + HNO3    # 9.26E-05;
 
 END MECH
 
