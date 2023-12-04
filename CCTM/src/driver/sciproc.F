@@ -231,8 +231,12 @@ C Synchronization Step Physical Processes Sequence
       IF ( BUDGET_DIAG .OR. LIPR ) CALL PA_UPDATE_PROC ( IPR_VDIF, CGRID, JDATE, JTIME, TSTEP, .FALSE. )
       IF ( PRINT_PROC_TIME ) CALL TIMING_SPLIT ( CPU_TIME_START, 1, 'VDIFF' )
 
+      SDATE = JDATE
+      STIME = JTIME
+      CALL NEXTIME ( SDATE, STIME, TSTEP( 2 ) )
 
       IF ( .NOT. COLUMN_MODEL ) THEN
+
 C couple CGRID for advection and horizontal diffusion
 C The COUPLE routine converts aerosol mass from ug/m3 to kg/m3. The 
 C DECOUPLE routine converts it back to ug/m3.
@@ -259,10 +263,6 @@ C DECOUPLE routine converts it back to ug/m3.
          IF ( PRINT_PROC_TIME ) CALL TIMING_SPLIT ( CPU_TIME_START, 1, 'HDIFF' )
 
 C decouple CGRID for cloud and chemistry
-
-         SDATE = JDATE
-         STIME = JTIME
-         CALL NEXTIME ( SDATE, STIME, TSTEP( 2 ) )
          
          CALL DECOUPLE ( CGRID, SDATE, STIME, TSTEP )
          IF ( CKSUM ) CALL CKSUMMER ( 'DECOUPLE', CGRID, JDATE, JTIME )
