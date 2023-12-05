@@ -1396,6 +1396,18 @@
              RKI( NCELL,  524) =   9.2600D-05 * SFACT 
 !  Reaction Label TRP59           
              RKI( NCELL,  525) =   9.2600D-05 * SFACT 
+!  Reaction Label ROCARO71        
+             RKI( NCELL,  526) =   5.8000D-11 * CFACT 
+!  Reaction Label ROCARO72        
+             RKI( NCELL,  527) =  CFACT * ARRHENUIS_T03( INV_TEMP,  2.9100D-12,   1.3000D+03 )
+!  Reaction Label ROCARO73        
+             RKI( NCELL,  528) =  CFACT * ARRHENUIS_T03( INV_TEMP,  2.7000D-12,   3.6000D+02 )
+!  Reaction Label ROCARO74        
+             RKI( NCELL,  529) =   2.3000D-12 * CFACT 
+!  Reaction Label ROCARO75        
+             RKI( NCELL,  530) =   2.5000D-13 * CFACT 
+!  Reaction Label ROCARO76        
+             RKI( NCELL,  531) =   2.5000D-13 * CFACT 
 
         END DO  
 !  Multiply rate constants by [M], [O2], [N2], [H2O], [H2], or [CH4]
@@ -1735,10 +1747,10 @@
              INDEX_TOL         = IOLD2NEW( INDEX_TOL        , 1 )
              INDEX_TOLP        = IOLD2NEW( INDEX_TOLP       , 1 )
              INDEX_CSL         = IOLD2NEW( INDEX_CSL        , 1 )
-             INDEX_XYM         = IOLD2NEW( INDEX_XYM        , 1 )
-             INDEX_XYMP        = IOLD2NEW( INDEX_XYMP       , 1 )
-             INDEX_XYE         = IOLD2NEW( INDEX_XYE        , 1 )
-             INDEX_XYEP        = IOLD2NEW( INDEX_XYEP       , 1 )
+             INDEX_XYL         = IOLD2NEW( INDEX_XYL        , 1 )
+             INDEX_XYLP        = IOLD2NEW( INDEX_XYLP       , 1 )
+             INDEX_EBZ         = IOLD2NEW( INDEX_EBZ        , 1 )
+             INDEX_EBZP        = IOLD2NEW( INDEX_EBZP       , 1 )
              INDEX_ISO         = IOLD2NEW( INDEX_ISO        , 1 )
              INDEX_ISON        = IOLD2NEW( INDEX_ISON       , 1 )
              INDEX_INO2        = IOLD2NEW( INDEX_INO2       , 1 )
@@ -1852,5 +1864,7 @@
              INDEX_ATRPNJ      = IOLD2NEW( INDEX_ATRPNJ     , 1 )
              INDEX_AHOMJ       = IOLD2NEW( INDEX_AHOMJ      , 1 )
              INDEX_AHONITJ     = IOLD2NEW( INDEX_AHONITJ    , 1 )
+             INDEX_STY         = IOLD2NEW( INDEX_STY        , 1 )
+             INDEX_STYP        = IOLD2NEW( INDEX_STYP       , 1 )
           END SUBROUTINE RESET_SPECIES_POINTERS
        END MODULE RXNS_FUNCTION

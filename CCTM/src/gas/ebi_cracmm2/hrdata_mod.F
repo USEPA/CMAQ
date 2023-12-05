@@ -27,7 +27,7 @@ C  PRECONDITIONS: For the CRACMM2 mechanism
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, Dec  1, 2023
+C  REVISION HISTORY: Created by EBI solver program, Dec  4, 2023
 C
 C   18 Jul 14 B.Hutzell: revised to use real(8) variables for solution
 C*************************************************************************
@@ -180,10 +180,10 @@ c..Species indices
       INTEGER, PARAMETER :: TOL              =   68
       INTEGER, PARAMETER :: TOLP             =   69
       INTEGER, PARAMETER :: CSL              =   70
-      INTEGER, PARAMETER :: XYM              =   71
-      INTEGER, PARAMETER :: XYMP             =   72
-      INTEGER, PARAMETER :: XYE              =   73
-      INTEGER, PARAMETER :: XYEP             =   74
+      INTEGER, PARAMETER :: XYL              =   71
+      INTEGER, PARAMETER :: XYLP             =   72
+      INTEGER, PARAMETER :: EBZ              =   73
+      INTEGER, PARAMETER :: EBZP             =   74
       INTEGER, PARAMETER :: ISO              =   75
       INTEGER, PARAMETER :: ISON             =   76
       INTEGER, PARAMETER :: INO2             =   77
@@ -297,5 +297,7 @@ c..Species indices
       INTEGER, PARAMETER :: ATRPNJ           =  185
       INTEGER, PARAMETER :: AHOMJ            =  186
       INTEGER, PARAMETER :: AHONITJ          =  187
+      INTEGER, PARAMETER :: STY              =  188
+      INTEGER, PARAMETER :: STYP             =  189
 
       END MODULE HRDATA

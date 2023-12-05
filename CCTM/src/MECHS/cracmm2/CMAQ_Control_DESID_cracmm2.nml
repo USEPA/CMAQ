@@ -103,9 +103,13 @@
    'EVERYWHERE', 'ALL'         ,'SLOWROC','SLOWROC'     ,'GAS'  ,1   ,'UNIT','a',
    'EVERYWHERE', 'ALL'         ,'TOL'    ,'TOL'         ,'GAS'  ,1.  ,'UNIT','a', 
    'EVERYWHERE', 'ALL'         ,'UALD'   ,'UALD'        ,'GAS'  ,1.  ,'UNIT','a', 
-   'EVERYWHERE', 'ALL'         ,'XYM'    ,'XYM'         ,'GAS'  ,1.  ,'UNIT','a', 
-   'EVERYWHERE', 'ALL'         ,'XYE'   ,'XYE'         ,'GAS'  ,1.  ,'UNIT','a',  
-
+   'EVERYWHERE', 'ALL'         ,'XYM'    ,'XYL'         ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'XYE'    ,'XYL'         ,'GAS'  ,1.  ,'UNIT','a',
+   ! Updated species for CRACMM2. Not currently used in emission input files but
+   ! will be in the future.
+!  'EVERYWHERE', 'ALL'         ,'XYL'    ,'XYL'         ,'GAS'  ,1.  ,'UNIT','a',
+!  'EVERYWHERE', 'ALL'         ,'EBZ'    ,'EBZ'         ,'GAS'  ,1.  ,'UNIT','a',  
+!  'EVERYWHERE', 'ALL'         ,'STY'    ,'STY'         ,'GAS'  ,1.  ,'UNIT','a',
 
    ! Volatility resolved CRACMM gases (ignore in RACM2)
    'EVERYWHERE', 'ALL'      ,'ROCN2ALK'   ,'VROCN2ALK'  ,'GAS'  ,1.  ,'UNIT','a',
@@ -345,5 +349,39 @@
    'EVERYWHERE', 'ALL'    ,'PMCOARSE_H2O','AH2O'      ,'COARSE',1.   ,'UNIT','a',
    'EVERYWHERE', 'ALL'   ,'PMCOARSE_SOIL','ASOIL'     ,'COARSE',1.   ,'UNIT','a',
    'EVERYWHERE', 'ALL' ,'PMCOARSE_SEACAT','ASEACAT'   ,'COARSE',1.   ,'UNIT','a',
+
+
+   ! Updated aromatic species for CRACMM2
+   !   EBZ is now explicit ethylbenzene; was lumped in XYE before.
+   !   XYL is now all xylenes and similar aromatics. Previously o- and p-xylenes
+   !   were included in XYE while m-xylene was included in XYM.
+   !   New species STY is explicit styrene. Styrene was previously included in XYM.
+
+   ! EBZ and XYE remapping
+   ! Generic scaling if not scaling by sector: 70% XYL; 30% EBZ
+   'EVERYWHERE', 'ALL'         ,'XYE'    ,'XYL'         ,'GAS'  ,0.70,'UNIT','m',
+   'EVERYWHERE', 'ALL'         ,'XYE'    ,'EBZ'         ,'GAS'  ,0.30,'UNIT','a',
+
+   ! STY and XYM remapping
+   ! Generic scaling if not scaling by sector: 93% XYL; 7% STY
+   'EVERYWHERE', 'ALL'         ,'XYM'    ,'XYL'         ,'GAS'  ,0.93,'UNIT','m',
+   'EVERYWHERE', 'ALL'         ,'XYM'    ,'STY'         ,'GAS'  ,0.07,'UNIT','a',
+   ! Source-specific scaling
+   ! gasoline: 99% XYL; 1% STY
+   !'EVERYWHERE', 'GRIDDED_GASOLINE','XYM'    ,'XYL'         ,'GAS'  ,0.99,'UNIT','m',
+   !'EVERYWHERE', 'GRIDDED_GASOLINE','XYM'    ,'STY'         ,'GAS'  ,0.01,'UNIT','a',
+   ! ptnonipm: 35% XYL; 65% STY
+   ! Need to remove ptnonipm emissions that are already counted from merged file
+   !    P_pt_other_nonfire (scale by -1).
+   ! Then need to add back the XYM from ptnonipm with the right XYL/STY percents.
+   !'EVERYWHERE', 'P_ptnonipm'   ,'ALL'    ,'ALL'         ,'ALL'  ,-1.0,'UNIT','m',
+   !'EVERYWHERE', 'P_ptnonipm'   ,'XYM'    ,'XYL'         ,'GAS'  ,0.35,'UNIT','a',
+   !'EVERYWHERE', 'P_ptnonipm'   ,'XYM'    ,'STY'         ,'GAS'  ,0.65,'UNIT','a',
+   ! fires (not including rwc): 78% XYM; 12% STY
+   !'EVERYWHERE', 'P_all_fire'   ,'XYM'    ,'XYL'         ,'GAS'  ,0.78,'UNIT','m',
+   !'EVERYWHERE', 'P_all_fire'   ,'XYM'    ,'STY'         ,'GAS'  ,0.12,'UNIT','a',
+   ! solvents (aka VCP): 94% XYL; 6% STY
+   !'EVERYWHERE', 'G_np_solvents','XYM'    ,'XYL'         ,'GAS'  ,0.94,'UNIT','m',
+   !'EVERYWHERE', 'G_np_solvents','XYM'    ,'STY'         ,'GAS'  ,0.06,'UNIT','a',
 
 /

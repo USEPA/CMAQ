@@ -29,7 +29,7 @@ C  RETURN VALUES: None
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, Dec  1, 2023
+C  REVISION HISTORY: Created by EBI solver program, Dec  4, 2023
 C   21 Jun 10 J.Young:   convert for Namelist redesign
 C   18 Jul 14 B.Hutzell: revised to use the RXNS_DATA and RXNS_FUNCTION
 C                        modules instead of include files
@@ -145,7 +145,7 @@ C***********************************************************************
 
 c..Allocate and define ebi species
 
-      N_EBISP  = 174
+      N_EBISP  = 176
       ALLOCATE( EBISP( N_EBISP ), STAT = IOS ) 
       IF ( IOS .NE. 0 ) THEN
          MSG = 'Error allocating EBISP' 
@@ -209,10 +209,10 @@ c..Allocate and define ebi species
       EBISP(  55 ) = TOL
       EBISP(  56 ) = TOLP
       EBISP(  57 ) = CSL
-      EBISP(  58 ) = XYM
-      EBISP(  59 ) = XYMP
-      EBISP(  60 ) = XYE
-      EBISP(  61 ) = XYEP
+      EBISP(  58 ) = XYL
+      EBISP(  59 ) = XYLP
+      EBISP(  60 ) = EBZ
+      EBISP(  61 ) = EBZP
       EBISP(  62 ) = ISO
       EBISP(  63 ) = ISON
       EBISP(  64 ) = INO2
@@ -326,6 +326,8 @@ c..Allocate and define ebi species
       EBISP( 172 ) = ATRPNJ
       EBISP( 173 ) = AHOMJ
       EBISP( 174 ) = AHONITJ
+      EBISP( 175 ) = STY
+      EBISP( 176 ) = STYP
 
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -401,10 +403,10 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       RTOL( TOL         ) = 5.0D-04
       RTOL( TOLP        ) = 5.0D-04
       RTOL( CSL         ) = 5.0D-04
-      RTOL( XYM         ) = 5.0D-04
-      RTOL( XYMP        ) = 5.0D-04
-      RTOL( XYE         ) = 5.0D-04
-      RTOL( XYEP        ) = 5.0D-04
+      RTOL( XYL         ) = 5.0D-04
+      RTOL( XYLP        ) = 5.0D-04
+      RTOL( EBZ         ) = 5.0D-04
+      RTOL( EBZP        ) = 5.0D-04
       RTOL( ISO         ) = 5.0D-04
       RTOL( ISON        ) = 5.0D-04
       RTOL( INO2        ) = 5.0D-04
@@ -518,6 +520,8 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       RTOL( ATRPNJ      ) = 5.0D-04
       RTOL( AHOMJ       ) = 5.0D-04
       RTOL( AHONITJ     ) = 5.0D-04
+      RTOL( STY         ) = 5.0D-04
+      RTOL( STYP        ) = 5.0D-04
 
 
       RETURN
