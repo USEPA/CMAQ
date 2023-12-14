@@ -562,7 +562,8 @@ C If last call this hour:  write accumulated depositions:
            DO R = 1, NROWS
                DO C = 1, NCOLS
                   NH3_FLUX(C,R) = DDEP( DD2DV(NH3_HIT),C,R )
-                  DDEP( DD2DV(NH3_HIT),C,R ) = NH3_EMIS(C,R)+NH3_FLUX(C,R)
+                  DDEP( DD2DV(NH3_HIT),C,R ) = NH3_DDEP(C,R)
+                  NH3_EMIS(C,R) = DDEP( DD2DV(NH3_HIT),C,R ) - NH3_FLUX(C,R)
                END DO
             END DO
 #ifdef isam
@@ -625,7 +626,7 @@ C Write extra arrays for NH3 emission and net flux for bidi
 ! the subdomain size for this PE. 
 !          WRITE( LOGDEV,*) ' NH3emis, drydep, flux=',NH3_EMIS(27,18),
 !    &                     DDEP_NH3(27,18),DDEP( DD2DV(NH3_HIT),27,18)
-         NH3_EMIS = 0.0
+         NH3_DDEP = 0.0
          END IF
 
          WRITE( LOGDEV, '( /5X, 3( A, :, 1X ), I8, ":", I6.6 )' )
