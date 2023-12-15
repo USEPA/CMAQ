@@ -46,7 +46,7 @@ set CopySrc                            #> copy the source files into the build d
 #set CopySrcTree                       #> copy the source files and directory tree into the build directory
 #set MakeFileOnly                      #> uncomment to build a Makefile, but do not compile; 
                                        #>   comment out to compile the model (default if not set)
-set build_mech                        #> uncomment to build mechanism source code files using the 
+#set build_mech                        #> uncomment to build mechanism source code files using the 
                                        #>   chemmech utility.
 
 #> Below are chemmech options for revising the mechanism definitions file. The option needs information on the
@@ -59,7 +59,7 @@ set build_mech                        #> uncomment to build mechanism source cod
 #>    If NAMELISTS_LIST_ATOMS equals F, an additional ASCII file contains the information.
       #setenv NAMELISTS_LIST_ATOMS T
 
-set clobber_mech                      #> when commented, the bldit_mech.csh script will halt if 
+#set clobber_mech                      #> when commented, the bldit_mech.csh script will halt if 
                                        #>   newly created mechanism files are attempting replace
                                        #>   existing ones. When uncommented, the existing files
                                        #>   will be overwritten.

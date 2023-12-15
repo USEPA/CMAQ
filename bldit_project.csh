@@ -16,7 +16,7 @@
 #> the repository. The user may also set their own preferred 
 #> directory.
 
- set CMAQ_HOME = /work/MOD3DEV/tskipper/cracmm_hcho/20231206_cracmm2_indoorHCHO
+ set CMAQ_HOME = /work/MOD3DEV/tskipper/cracmm_hcho/20231208_cracmm1_annual
 
 #> This section allows users to choose explicitly which tools
 #> to make available from the repo. For each selected tool,
