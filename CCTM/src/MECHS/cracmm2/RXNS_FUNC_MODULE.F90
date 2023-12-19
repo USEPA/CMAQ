@@ -839,7 +839,7 @@
 !  Reaction Label TRP27           
              RKI( NCELL,  244) =  CFACT * ARRHENUIS_T03( INV_TEMP,  2.6200D-13,   1.3000D+03 )
 !  Reaction Label TRP28           
-             RKI( NCELL,  245) =  CFACT * ARRHENUIS_T03( INV_TEMP,  2.7000D-12,   3.6000D+02 )
+             RKI( NCELL,  245) =  CFACT * ARRHENUIS_T03( INV_TEMP,  2.6800D-13,   1.3000D+03 )
 !  Reaction Label R231            
              RKI( NCELL,  246) =  CFACT * ARRHENUIS_T03( INV_TEMP,  4.3000D-13,   1.0400D+03 )
 !  Reaction Label R232            
@@ -1788,7 +1788,6 @@
              INDEX_ORAP        = IOLD2NEW( INDEX_ORAP       , 1 )
              INDEX_PPN         = IOLD2NEW( INDEX_PPN        , 1 )
              INDEX_MPAN        = IOLD2NEW( INDEX_MPAN       , 1 )
-             INDEX_HC10        = IOLD2NEW( INDEX_HC10       , 1 )
              INDEX_MCTP        = IOLD2NEW( INDEX_MCTP       , 1 )
              INDEX_OLNN        = IOLD2NEW( INDEX_OLNN       , 1 )
              INDEX_OLND        = IOLD2NEW( INDEX_OLND       , 1 )
@@ -1839,6 +1838,7 @@
              INDEX_VROCP2ALKP  = IOLD2NEW( INDEX_VROCP2ALKP , 1 )
              INDEX_VROCP1ALK   = IOLD2NEW( INDEX_VROCP1ALK  , 1 )
              INDEX_VROCP1ALKP  = IOLD2NEW( INDEX_VROCP1ALKP , 1 )
+             INDEX_HC10        = IOLD2NEW( INDEX_HC10       , 1 )
              INDEX_VROCP6ALKP2 = IOLD2NEW( INDEX_VROCP6ALKP2, 1 )
              INDEX_VROCP5ALKP2 = IOLD2NEW( INDEX_VROCP5ALKP2, 1 )
              INDEX_VROCP4ALKP2 = IOLD2NEW( INDEX_VROCP4ALKP2, 1 )
