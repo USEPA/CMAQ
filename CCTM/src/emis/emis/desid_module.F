@@ -1041,26 +1041,30 @@ C-----------------------------------------------------------------------
             LAREA   = DESID_FAC( ISTR,ISRM )%AREA(IFAC )
             LAREAADJ= DESID_FAC( ISTR,ISRM )%AREAADJ(IFAC )
 
-            DO L = 1,NL
-             IF ( IRGN .EQ. REG_UNQ .OR.
-     &           DESID_REG_SUB( IRGN,REG_UNQ ) ) THEN
+            IF ( IRGN .EQ. REG_UNQ .OR.
+     &          DESID_REG_SUB( IRGN,REG_UNQ ) ) THEN
               !Apply scaling for region IRGN using DESID_FAC 
               IF ( OP .EQ. 1 ) THEN ! Add New Emission
-                  IF ( LAREA ) FAC = FAC * CELLAREA
-                  IF ( LAREAADJ ) FAC = FAC / MSFX2
-                  VDEMIS1( L,:,: ) = VDEMIS1( L,:,: ) +
-     &                 VDEMIS0( ISTR,L,:,: ) * FAC
+                 IF ( LAREA ) FAC = FAC * CELLAREA
+                 IF ( LAREAADJ ) FAC = FAC / MSFX2
+                 DO L = 1,NL
+                   VDEMIS1( L,:,: ) = VDEMIS1( L,:,: ) +
+     &                  VDEMIS0( ISTR,L,:,: ) * FAC
+                 END DO
 
               ELSE IF ( OP.EQ.2 ) THEN ! Multiply Emissions Rule
-                  VDEMIS1( L,:,: ) = VDEMIS1( L,:,: ) * FAC
+                 DO L = 1,NL
+                   VDEMIS1( L,:,: ) = VDEMIS1( L,:,: ) * FAC
+                 END DO
 
               ELSE IF ( OP.EQ.3 ) THEN ! Overwrite Existing Rule
-                  IF ( LAREA ) FAC = FAC * CELLAREA
-                  IF ( LAREAADJ ) FAC = FAC / MSFX2
-                  VDEMIS1( L,:,: ) = VDEMIS0( ISTR,L,:,: ) * FAC
-              END IF
+                 IF ( LAREA ) FAC = FAC * CELLAREA
+                 IF ( LAREAADJ ) FAC = FAC / MSFX2
+                 DO L = 1,NL
+                   VDEMIS1( L,:,: ) = VDEMIS0( ISTR,L,:,: ) * FAC
+                 END DO
              END IF
-            END DO
+            END IF
           END DO  ! End Loop through instruction stack
 
           ! Determine Region Mask to use for this Instruction
