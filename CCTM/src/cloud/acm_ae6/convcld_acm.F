@@ -648,7 +648,9 @@ C...  for the accumulation mode, add aqueous tracked species
             END IF
 
             IF ( ( AE6ISOA ) .OR.
+     &           ( INDEX( MECHNAME, 'CRACMM'     ) .GT. 0 ) .OR. 
      &           ( INDEX( MECHNAME, 'CB6R3_AE7'  ) .GT. 0 ) .OR.
+     &           ( INDEX( MECHNAME, 'CB6R5_AE7'  ) .GT. 0 ) .OR.
      &           ( INDEX( MECHNAME, 'CB6R5M_AE7' ) .GT. 0 ) ) THEN
     
 C...  for the accumulation mode, add aqueous tracked species

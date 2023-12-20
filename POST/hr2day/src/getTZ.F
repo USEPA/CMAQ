@@ -22,7 +22,7 @@ C
 C  The routine requires file "tz.csv" for timezone data
 C  
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-      Integer Function getTZ(longitude, latitude) result(tzoffset)
+      Real Function getTZ(longitude, latitude) result(tzoffset)
 
       Implicit None
 
@@ -94,14 +94,14 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       Character*(32) field
       Integer npts
       Integer i, j, status
-      Real lat(15000), lon(15000), long  
+      Real lat(20000), lon(20000), long  
       Integer count(9), sizes(9)
       Integer nx, nfound, nsort
-      Real xsec(500), ysec(500), temp
+      Real xsec(1000), ysec(1000), temp
 
       Integer :: lfn=15
 
-      Data sizes/50,100,200,500,1000,2000,5000,10000,15000/
+      Data sizes/50,100,200,500,1000,2000,5000,10000,20000/
 
       if( firstime ) then
 
@@ -124,6 +124,10 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
         do 
           read(lfn,'(a)',iostat=status) record
           if(status.ne.0) exit
+          if ( ADJUSTL(record(1:1)).eq.'#' ) then
+              write(*,*) '# Comments are not used', record
+              cycle
+          endif
 
           Call getField( record, ',', 1, field ) 
           read(field,'(i16)') npts   
@@ -185,6 +189,10 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
         do  
           read(lfn,'(a)',iostat=status) record
           if(status.ne.0) exit
+          if ( ADJUSTL(record(1:1)).eq.'#' ) then
+        !     write(*,*) '# Comments are not used', record
+              cycle
+          endif
           nlines = nlines+1
 
           Call getField( record, ',', 1, field ) 
@@ -312,7 +320,7 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
        long = abs(longitude)
        tzoffset = (long+7.5) / 15
        if(longitude.gt.0) tzoffset = -tzoffset
-       !write(*,'(''offset computed by longitude'')')
+       !write(*,'(''offset computed by longitude'',F16.6,F6.2)') longitude,tzoffset
        return
        end Function getTZ   
  
@@ -337,9 +345,17 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
        nfound = 0
 
        do i=1,npts-1
-
+         ! BHH: Using same ordering exclusion to prevent double counting
+         !      For example, if a target point (xx, yy) shares an x position
+         !      with a vertex of the polygon, the old code would intersect
+         !      both the line segment coming to and going away from the
+         !      vertex. This violates the assumptions in inArea and leads
+         !      to an odd number of intersections (one is a complete
+         !      duplicate). Because inArea does not check for duplicates,
+         !      double counting can potentially result in a incorrect
+         !      result.
          if( (xx.ge.x(i) .and. xx.lt.x(i+1)) .or.
-     &       (xx.le.x(i) .and. xx.gt.x(i+1)) ) then   
+     &       (xx.ge.x(i+1) .and. xx.lt.x(i)) ) then   
            nfound = nfound+1
            slope = 1.0
            if( x(i).ne.x(i+1) ) slope = (y(i)-y(i+1)) / (x(i)-x(i+1))
@@ -398,12 +414,11 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
        ! local variables
        Integer nsort
-       Integer i
+       Integer i, ltv, gtv, eqv
        logical sorted
        Real temp
 
        result = .false.
- 
        ! sort the values
        nsort = nval
        do
@@ -419,11 +434,31 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
            enddo
            if(sorted) EXIT
          enddo  
-
        ! check if x is between values
        do i=1,nval-1,2
          if( x.ge.values(i) .and. x.le.values(i+1) ) result = .true.
          enddo
+
+       ! BHH: alternative method is to check for odd/even intersections
+       !      does not require sorting, but also requires only unique
+       !      vertices. Put in for posterity. Future revisions may choose
+       !      this method
+       !
+       !ltv = 0
+       !gtv = 0 
+       !do i=1,nval
+       !  if ( x.gt.values(i) ) gtv = gtv + 1
+       !  if ( x.lt.values(i) ) ltv = ltv + 1
+       !  if ( x.eq.values(i) ) eqv = ltv + 1
+       !enddo
+       !
+       ! odd intersections in both directions means inside.
+       ! even intersections in both directions means outside.
+       !if ( (MOD(gtv, 2).eq.1).and.(MOD(ltv, 2).eq.1) ) result = .true.
+       !
+       ! if on an exteror linearring abutting another, it could be assigned
+       ! to either polygon. This would assign true to both.
+       !if ( eqv.gt.0 ) result = .true.
 
         return
         end Function inArea
