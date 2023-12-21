@@ -587,8 +587,8 @@ REACTIONS[CM] =
                                         + 0.4*HNO3    # 1.06E-12;
 <R158>  MCT  + NO3         = MCTO       + HNO3        # 2.01E-10;
 <R159>  MPAN + NO3         = MACP       + NO2         # 2.2E-14 @ 500.;
-<TRP11> PINALP             = HOM                      # 0.17;
-<TRP12> LIMALP             = HOM                      # 0.28;
+<TRP11> PINALP             = HOM                      # 0.029;
+<TRP12> LIMALP             = HOM                      # 0.024;
 <R166>  ACO3 + NO2         = PAN                      # 9.7E-29 ^ -5.6 &
                                                         9.3E-12 ^ -1.5;
 <R167>  PAN                = ACO3       + NO2         # 9.00E-29 @ -14000.0
@@ -730,15 +730,12 @@ REACTIONS[CM] =
                                         + 0.5*HO2     # 2.7E-12 @ -360.;
 <TRP18>  LIMNP2 + NO       = 0.77*NO2   + 0.77*HO
                                         + HOM         # 4.0E-12;
-<TRP19>  PINALP + NO       = 0.17*TRPN  + 0.249*HONIT 
-                                        + 0.581*ACT
-                                        + 0.581*KET
-                                        + 0.581*ACO3
-                                        + 0.581*NO2   # 2.7E-12 @ -360.;
-<TRP20>  LIMALP + NO       = 0.3*TRPN   + 0.7*NO2
-                                        + 0.7*HO2
-                                        + 0.7*ALD
-                                        + 0.31*HCHO   # 2.7E-12 @ -360.;
+<TRP19>  PINALP + NO       = 0.36*TRPN  + 0.64*HOM 
+                                        + 0.64*NO2   # 2.7E-12 @ -360.;
+<TRP20>  LIMALP + NO       = 0.64*TRPN  + 0.36*NO2
+                                        + 0.36*HO2
+                                        + 0.36*HCHO
+                                        + 0.36*PAA    # 2.7E-12 @ -360.;
 <R191>  ACO3 + NO          = MO2        + NO2         # 8.1E-12 @ -270.;
 <R192>  RCO3 + NO          = ETHP       + NO2         # 8.1E-12 @ -270.;
 <R193>  ACTP + NO          = ACO3       + NO2
@@ -851,14 +848,12 @@ REACTIONS[CM] =
                                         + 0.23*NO2
                                         + 0.27*HO2    # 2.71E-13 @ -1300.;
 <TRP26> LIMNP2 + HO2       = HOM                      # 1.5E-11;
-<TRP27> PINALP + HO2       = 0.62*OPB   + 0.38*HO
-                                        + 0.38*ACT
-                                        + 0.38*KET
-                                        + 0.38*ACO3   # 2.62E-13 @ -1300.;
+<TRP27> PINALP + HO2       = 0.75*OPB   + 0.25*HO
+                                        + 0.25*HOM    # 2.71E-13 @ -1300.;
 <TRP28> LIMALP + HO2       = 0.9*OPB    + 0.1*HO
                                         + 0.1*HO2
-                                        + 0.1*ALD
-                                        + 0.04*HCHO   # 2.68E-13 @ -1300.;
+                                        + 0.1*HCHO
+                                        + 0.1*PAA     # 2.73E-13 @ -1300.;
 <R231>  ACO3 + HO2         = 0.44*HO    + 0.44*MO2
                                         + 0.15*ORA2
                                         + 0.41*PAA     # 4.3E-13 @ -1040.;
