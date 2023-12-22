@@ -150,7 +150,23 @@
           REAL            :: MW    ! Emissions Variable Molecular Weight [g mol-1]
       End Type desid_legend
       
+      !DATA SUBNAME(  1), A(  1), E(  1) / 'O3              ', 1.14E-02, 2.3E+03 / ! Kosak 1983
       Integer, Parameter :: Desid_N_Emvar_Table = 202
+      
+      character( 16 ), save :: d1( 2 )
+      real, save            :: d2( 2 ) 
+      data d1( 1 ), d2( 1 ) /'NO2   ', 46.0 /
+      data d1( 2 ), d2( 2 ) /'NO    ', 30.0 /
+
+      Type( desid_legend ), save :: d3( 2 )
+
+      d3( 1 ) = desid_legend( 'NO2      ' , 046.0 )
+      d3( 2 ) = desid_legend( 'NO       ' , 030.0 )
+
+
+      !data d3( 1 ) /'NO2      ' , 046.0 /
+      !data d3( 2 ) /'NO       ' , 030.0 /
+      
       Type ( desid_legend ), Parameter :: 
      &  Desid_Emvar_Table( Desid_N_Emvar_Table ) = (/
      &    desid_legend( 'NO2          ' ,046.0 ),
