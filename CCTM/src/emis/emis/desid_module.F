@@ -119,6 +119,9 @@ C-----------------------------------------------------------------------
 
          SUCCESS = .TRUE.
 
+         ! Initialize Emission Varibale Molecular Weights
+         CALL INIT_DESID_EMVAR_MW()
+
          ! Define Projected Gridd Cell Areas
          ALLOCATE( CELLAREA( NCOLS,NROWS ),STAT=STATUS )
          CALL CHECKMEM( STATUS, 'CELLAREA', PNAME )
