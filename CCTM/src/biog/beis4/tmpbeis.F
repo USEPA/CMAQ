@@ -403,10 +403,10 @@ C Speciate emissions
       END DO
 #endif
 
-      WSTEP   =   WSTEP + TIME2SEC( TSTEP( 2 ) )
-      LASTTIC = ( WSTEP .GE. TIME2SEC( TSTEP( 1 ) ) )
+      IF ( BEMIS_DIAG .AND. .NOT. L_DESID_DIAG ) THEN
+         WSTEP   =   WSTEP + TIME2SEC( TSTEP( 2 ) )
+         LASTTIC = ( WSTEP .GE. TIME2SEC( TSTEP( 1 ) ) )
 
-      IF ( BEMIS_DIAG ) THEN
          DO K = 1, NSEF
             DO S = 1, MSPCS
 ! Unit conversion for the emission and fraction of the sync time step to the output time step

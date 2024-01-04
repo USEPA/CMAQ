@@ -49,6 +49,10 @@ C                    12/04/02 by David Wong
 C                       -- modified the routine to accommodate worker and
 C                          I/O processors partition scheme
 C
+C                    01/04/23 by David Wong
+C                       -- modified routines to handle any level range setting
+C                          defined by PA_BLEV PA_ELEV in the run script properly
+C
 C Note:
 C
 C   se_[n]d[e]_data_copy where [n] denotes the dimensionality of the data
@@ -226,8 +230,8 @@ C --------------------------------------------------------------------------
         do i = 0, se_numworkers-1
            se_subgrid_send_ind(1,3,i) = se_my_subgrid_beglev
            se_subgrid_send_ind(2,3,i) = se_my_subgrid_endlev
-           se_subgrid_recv_ind(1,3,i) = se_my_subgrid_beglev
-           se_subgrid_recv_ind(2,3,i) = se_my_subgrid_endlev
+           se_subgrid_recv_ind(1,3,i) = 1
+           se_subgrid_recv_ind(2,3,i) = se_my_subgrid_endlev - se_my_subgrid_beglev + 1
         end do
 
         do sdir = 0, se_numworkers-1
@@ -293,8 +297,8 @@ C --------------------------------------------------------------------------
            se_subgrid_send_ind(1,4,i) = spc
            se_subgrid_send_ind(2,4,i) = spc
 
-           se_subgrid_recv_ind(1,3,i) = se_my_subgrid_beglev
-           se_subgrid_recv_ind(2,3,i) = se_my_subgrid_endlev
+           se_subgrid_recv_ind(1,3,i) = 1
+           se_subgrid_recv_ind(2,3,i) = se_my_subgrid_endlev - se_my_subgrid_beglev + 1
         end do
 
         do sdir = 0, se_numworkers-1
@@ -429,8 +433,8 @@ C --------------------------------------------------------------------------
            se_subgrid_send_ind(1,4,i) = spc
            se_subgrid_send_ind(2,4,i) = spc
 
-           se_subgrid_recv_ind(1,3,i) = se_my_subgrid_beglev
-           se_subgrid_recv_ind(2,3,i) = se_my_subgrid_endlev
+           se_subgrid_recv_ind(1,3,i) = 1
+           se_subgrid_recv_ind(2,3,i) = se_my_subgrid_endlev - se_my_subgrid_beglev + 1
            se_subgrid_recv_ind(1,4,i) = des
            se_subgrid_recv_ind(2,4,i) = des
         end do
