@@ -761,25 +761,28 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C Check of all reaction have labels and whether any label
 C are repeated
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      LERROR = .FALSE.
       DO IRX = 1,NR
           IF( LABEL( IRX,1 ) .NE. '<<<<<<<<<<<<<<<<' ) THEN
              DO NXX = IRX+1, NR
                 IF ( LABEL( NXX,1 ) .EQ. LABEL( IRX,1 ) ) THEN
-                   WRITE( LUNOUT, 1001 ) NXX,IRX,LABEL( IRX,1 )
-                   LWARN = .TRUE.
+                   WRITE( LUNOUT, 1001 ) NXX,IRX,TRIM( LABEL( IRX,1 ) )
+                   LERROR = .TRUE.
                 END IF
              END DO
-1001         FORMAT(  3X, 'WARNING: Reaction# ', I4,
+1001         FORMAT(  3X, 'ERROR: Reaction# ', I4,
      &                1X, ' has the same label as an earlier ',
-     &                1X, 'Reaction# ', I4, ' labeled, ',A16 )
+     &                1X, 'Reaction# ', I4, ' labeled, ',A,
+     &                1X, ' CHANGE ONE OF THESE LABELS.' )
             
           ELSE
-            LWARN = .TRUE.
+            LERROR = .TRUE.
             WRITE( LUNOUT, 1002 ) IRX
 1002        FORMAT(   3X,'WARNING: Reaction# ',I4,
      &                ' has no label.' )
           END IF
       END DO
+      IF( LERROR ) STOP ' *** CHEMMECH ERROR ***'
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C Resolve all reactions label references
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
