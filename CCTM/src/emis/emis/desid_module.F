@@ -2656,9 +2656,9 @@ C and allowing the model to proceed.
 
 
            ! Finally Print Every Instruction for this Stream
-           WRITE( LOGDEV, '(/,8x,A,5x,A,2x,A,9x,A,13x,A,1x,A,1x,A,1x,A)' ),
+           WRITE( LOGDEV, '(/,8x,A,5x,A,2x,A,9x,A,13x,A,2x,A,4x,A,2x,A)' ),
      &            'CMAQ Species','Phase/Mode','Em. Var. ','Region','Op','ScaleFac','Basis','FinalFac'
-           WRITE( LOGDEV, '(8x,A,5x,A,2x,A,9x,A,13x,A,1x,A,1x,A,1x,A)' ),
+           WRITE( LOGDEV, '(8x,A,5x,A,2x,A,9x,A,13x,A,2x,A,4x,A,2x,A)' ),
      &            '------------','----------','---------','------','--','--------','-----','--------'
 
            DO IDIFF = 1,N_SPC_DIFF
@@ -2669,7 +2669,7 @@ C and allowing the model to proceed.
                    IF ( LOCAL_SPEC( ISTR ) .EQ. DIFF_SPC( IDIFF ) .AND.
      &                  MAP_ISTRtoSD( ISTR,ISRM ) .EQ. ISD     ) THEN 
                      IF ( L_WDIFF ) THEN
-                        WRITE( LOGDEV, '(10x,A,1x,A,1x,A,1x,A,1x,A,2x,F6.3,4x,A,2x,F6.3)' ),
+                        WRITE( LOGDEV, '(10x,A,1x,A,1x,A,1x,A,1x,A,2x,ES9.2,4x,A,2x,ES9.2)' ),
      &                         LOCAL_SPEC( ISTR ),
      &                         DESID_STREAM_AERO( ISRM )%NAME( ISD )(1:10),
      &                         LOCAL_EMVAR( ISTR, ISRM ),
@@ -2681,7 +2681,7 @@ C and allowing the model to proceed.
                         L_WDIFF = .FALSE.
                         L_WISD  = .FALSE.
                       ELSE IF ( L_WISD ) THEN
-                        WRITE( LOGDEV, '(27x,A,1x,A,1x,A,1x,A,2x,F6.3,4x,A,2x,F6.3)' ),
+                        WRITE( LOGDEV, '(27x,A,1x,A,1x,A,1x,A,2x,ES9.2,4x,A,2x,ES9.2)' ),
      &                         DESID_STREAM_AERO( ISRM )%NAME( ISD )(1:10),
      &                         LOCAL_EMVAR( ISTR, ISRM ),
      &                         DESID_REG( DESID_FAC( ISTR,ISRM )%REG( 1 ) )%LABEL(1:18),
@@ -2690,7 +2690,7 @@ C and allowing the model to proceed.
      &                         DESID_FAC( ISTR,ISRM )%FAC( 1 )
                         L_WISD = .FALSE.
                       ELSE
-                        WRITE( LOGDEV, '(38x,A,1x,A,1x,A,2x,F6.3,4x,A,2x,F6.3)' ),
+                        WRITE( LOGDEV, '(38x,A,1x,A,1x,A,2x,ES9.2,4x,A,2x,ES9.2)' ),
      &                         LOCAL_EMVAR( ISTR, ISRM ),
      &                         DESID_REG( DESID_FAC( ISTR,ISRM )%REG( 1 ) )%LABEL(1:18),
      &                         LOCAL_OP( ISTR,ISRM,1 ), 
@@ -2700,7 +2700,7 @@ C and allowing the model to proceed.
 
                       IF ( DESID_FAC( ISTR,ISRM )%NFAC .GT. 1 ) THEN
                       DO IFAC = 2,DESID_FAC( ISTR,ISRM )%NFAC
-                         WRITE( LOGDEV, '(55x,A,1x,A,2x,F6.3,4x,A,2x,F6.3)' ),
+                         WRITE( LOGDEV, '(55x,A,1x,A,2x,ES9.2,4x,A,2x,ES9.2)' ),
      &                          DESID_REG( DESID_FAC( ISTR,ISRM )%REG( IFAC ) )%LABEL(1:18),
      &                          LOCAL_OP( ISTR,ISRM,IFAC ),
      &                          DESID_FAC( ISTR, ISRM )%BULK( IFAC ), LOCAL_BASIS( ISTR,ISRM,IFAC ),
