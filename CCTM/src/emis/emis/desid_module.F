@@ -1368,7 +1368,6 @@ C-----------------------------------------------------------------------
           INTEGER LAYS
           INTEGER JDATE, JTIME
           CHARACTER(200) :: XMSG
-          INTEGER XSTAT1
 
           DO IDIAG = 1,DESID_N_DIAG
 
