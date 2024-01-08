@@ -17,13 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header$
-
-C what(1) key, module and SID; SCCS file; date and time of last delta:
-C %W% %P% %G% %U%
-
-
       MODULE DEGRADE_SETUP_TOX
 C**********************************************************************
 C
@@ -114,7 +107,7 @@ C..saved blocked cells concentrations
       LOGICAL, ALLOCATABLE :: IS_AERO_ORGANIC( : )  ! is aerosol species as OA and not a tracer
 
 
-      INTEGER :: NCELLS                             ! number of cells in block
+      INTEGER :: NCELLS  = 0                        ! number of cells in block
 C.. variables used to write cell results
       INTEGER :: DEG_LAY = 0
       INTEGER :: DEG_ROW = 0
