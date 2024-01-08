@@ -580,8 +580,6 @@ C Notify non-I/O processors of failure
          END IF
 
          END FUNCTION PWRVEC
-#endif
-#endif
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
          SUBROUTINE WR_VEXT( CGRID, JDATE, JTIME, TSTEP )
@@ -596,9 +594,7 @@ C-----------------------------------------------------------------------
          USE GRID_CONF             ! horizontal & vertical domain specifications
          USE RUNTIME_VARS
          USE STD_CONC              ! standard CONC
-#ifndef mpas
          USE PIOMAPS_MODULE
-#endif
          USE UTILIO_DEFN
          USE ASX_DATA_MOD, Only: Met_Data
          USE WVEL_DEFN, Only : WVEL
@@ -634,7 +630,6 @@ C for INTERPX
 !        INTEGER, SAVE :: NVARS
 
 C-----------------------------------------------------------------------
-#ifndef mpas
          IF ( FIRSTIME ) THEN
 
             FIRSTIME = .FALSE.
@@ -735,10 +730,10 @@ C open vext file for update
          WRITE( LOGDEV, '( /5X, 3( A, :, 1X ), I8, ":", I6.6 )' )
      &         'Timestep written to', CTM_VEXT_1,
      &         'for date and time', JDATE, JTIME
-#endif
 
          END SUBROUTINE WR_VEXT
-
+#endif
+#endif
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
          SUBROUTINE GET_LONLAT(NVERT, VERTLON, VERTLAT)
 C-----------------------------------------------------------------------
