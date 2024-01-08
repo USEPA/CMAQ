@@ -348,7 +348,7 @@ C-----------------------------------------------------------------------
       CNGRD = VEMIS  * DT
       DO ICG = 1,N_CGRID_SPC
          IF ( CGRID_MASK_AERO( ICG ) ) 
-     &      CNGRD(:,:,:,ICG) = CNGRD(:,:,:,ICG) * DT *
+     &      CNGRD(:,:,:,ICG) = CNGRD(:,:,:,ICG) * 
      &                         DENS( :,:,: ) * PA_EMIS_CONV( ICG )
       END DO
       
