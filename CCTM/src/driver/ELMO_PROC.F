@@ -1430,9 +1430,12 @@
  
              ! Map PM1_NA - PM1 Sodium
              CASE ( ID_PM1_NA ) 
-               N_VARS = 1
+               N_VARS = 4
                CALL INIT_ELMO_COEFFS( IDG, N_VARS, 'PM1' )
                CALL SET_ELMO_COEFF_MAP( IDG, 1, 'AERO', 'ANA', 1.0 )
+               CALL SET_ELMO_COEFF_MAP( IDG, 2, 'AERO', 'ASEACAT', 0.8373 )
+               CALL SET_ELMO_COEFF_MAP( IDG, 3, 'AERO', 'ASOIL', 0.0626 )
+               CALL SET_ELMO_COEFF_MAP( IDG, 4, 'AERO', 'ACORS', 0.0023 )
  
              ! Map PM1_EC - PM1 Elemental Carbon
              CASE ( ID_PM1_EC ) 
@@ -1442,21 +1445,30 @@
  
              ! Map PM1_MG - PM1 Magnesium
              CASE ( ID_PM1_MG ) 
-               N_VARS = 1
+               N_VARS = 4
                CALL INIT_ELMO_COEFFS( IDG, N_VARS, 'PM1' )
                CALL SET_ELMO_COEFF_MAP( IDG, 1, 'AERO', 'AMG', 1.0 )
+               CALL SET_ELMO_COEFF_MAP( IDG, 2, 'AERO', 'ASEACAT', 0.0997 )
+               CALL SET_ELMO_COEFF_MAP( IDG, 3, 'AERO', 'ASOIL', 0.0170 )
+               CALL SET_ELMO_COEFF_MAP( IDG, 4, 'AERO', 'ACORS', 0.0032 )
  
              ! Map PM1_K - PM1 Potassium
              CASE ( ID_PM1_K ) 
-               N_VARS = 1
+               N_VARS = 4
                CALL INIT_ELMO_COEFFS( IDG, N_VARS, 'PM1' )
                CALL SET_ELMO_COEFF_MAP( IDG, 1, 'AERO', 'AK', 1.0 )
+               CALL SET_ELMO_COEFF_MAP( IDG, 2, 'AERO', 'ASEACAT', 0.0310 )
+               CALL SET_ELMO_COEFF_MAP( IDG, 3, 'AERO', 'ASOIL', 0.0242 )
+               CALL SET_ELMO_COEFF_MAP( IDG, 4, 'AERO', 'ACORS', 0.0176 )
  
              ! Map PM1_CA - PM1 Calcium
              CASE ( ID_PM1_CA ) 
-               N_VARS = 1
+               N_VARS = 4
                CALL INIT_ELMO_COEFFS( IDG, N_VARS, 'PM1' )
                CALL SET_ELMO_COEFF_MAP( IDG, 1, 'AERO', 'ACA', 1.0 )
+               CALL SET_ELMO_COEFF_MAP( IDG, 2, 'AERO', 'ASEACAT', 0.0320 )
+               CALL SET_ELMO_COEFF_MAP( IDG, 3, 'AERO', 'ASOIL', 0.0838 )
+               CALL SET_ELMO_COEFF_MAP( IDG, 4, 'AERO', 'ACORS', 0.0562 )
  
              ! Map PM1_Other - PM1 Other 
              CASE ( ID_PM1_OT ) 
@@ -1565,9 +1577,12 @@
  
              ! Map PM25_NA - PM2.5 Sodium
              CASE ( ID_PM25_NA ) 
-               N_VARS = 1
+               N_VARS = 4
                CALL INIT_ELMO_COEFFS( IDG, N_VARS, 'PM25' )
                CALL SET_ELMO_COEFF_MAP( IDG, 1, 'AERO', 'ANA', 1.0 )
+               CALL SET_ELMO_COEFF_MAP( IDG, 2, 'AERO', 'ASEACAT', 0.8373 )
+               CALL SET_ELMO_COEFF_MAP( IDG, 3, 'AERO', 'ASOIL', 0.0626 )
+               CALL SET_ELMO_COEFF_MAP( IDG, 4, 'AERO', 'ACORS', 0.0023 )
  
              ! Map PM25_EC - PM2.5 Elemental Carbon
              CASE ( ID_PM25_EC ) 
@@ -1577,21 +1592,30 @@
  
              ! Map PM25_MG - PM2.5 Magnesium
              CASE ( ID_PM25_MG ) 
-               N_VARS = 1
+               N_VARS = 4
                CALL INIT_ELMO_COEFFS( IDG, N_VARS, 'PM25' )
                CALL SET_ELMO_COEFF_MAP( IDG, 1, 'AERO', 'AMG', 1.0 )
+               CALL SET_ELMO_COEFF_MAP( IDG, 2, 'AERO', 'ASEACAT', 0.0997 )
+               CALL SET_ELMO_COEFF_MAP( IDG, 3, 'AERO', 'ASOIL', 0.0170 )
+               CALL SET_ELMO_COEFF_MAP( IDG, 4, 'AERO', 'ACORS', 0.0032 )
  
              ! Map PM25_K - PM2.5 Potassium
              CASE ( ID_PM25_K ) 
-               N_VARS = 1
+               N_VARS = 4
                CALL INIT_ELMO_COEFFS( IDG, N_VARS, 'PM25' )
                CALL SET_ELMO_COEFF_MAP( IDG, 1, 'AERO', 'AK', 1.0 )
+               CALL SET_ELMO_COEFF_MAP( IDG, 2, 'AERO', 'ASEACAT', 0.0310 )
+               CALL SET_ELMO_COEFF_MAP( IDG, 3, 'AERO', 'ASOIL', 0.0242 )
+               CALL SET_ELMO_COEFF_MAP( IDG, 4, 'AERO', 'ACORS', 0.0176 )
  
              ! Map PM25_CA - PM2.5 Calcium
              CASE ( ID_PM25_CA ) 
-               N_VARS = 1
+               N_VARS = 4
                CALL INIT_ELMO_COEFFS( IDG, N_VARS, 'PM25' )
                CALL SET_ELMO_COEFF_MAP( IDG, 1, 'AERO', 'ACA', 1.0 )
+               CALL SET_ELMO_COEFF_MAP( IDG, 2, 'AERO', 'ASEACAT', 0.0320 )
+               CALL SET_ELMO_COEFF_MAP( IDG, 3, 'AERO', 'ASOIL', 0.0838 )
+               CALL SET_ELMO_COEFF_MAP( IDG, 4, 'AERO', 'ACORS', 0.0562 )
  
              ! Map PM25_Other - PM25 Other 
              CASE ( ID_PM25_OT ) 
@@ -1701,9 +1725,12 @@
  
              ! Map PM25to10_NA - PM2.5-10.0 Sodium
              CASE ( ID_PM25to10_NA ) 
-               N_VARS = 1
+               N_VARS = 4
                CALL INIT_ELMO_COEFFS( IDG, N_VARS, 'PM25TO10' )
                CALL SET_ELMO_COEFF_MAP( IDG, 1, 'AERO', 'ANA', 1.0 )
+               CALL SET_ELMO_COEFF_MAP( IDG, 2, 'AERO', 'ASEACAT', 0.8373 )
+               CALL SET_ELMO_COEFF_MAP( IDG, 3, 'AERO', 'ASOIL', 0.0626 )
+               CALL SET_ELMO_COEFF_MAP( IDG, 4, 'AERO', 'ACORS', 0.0023 )
  
              !!!! Toxics !!!!  
  
