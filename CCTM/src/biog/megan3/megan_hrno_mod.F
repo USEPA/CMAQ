@@ -421,19 +421,19 @@ C Write soil NO rain data file
       RAINFALL( :,:,NDX ) = C_RAINFALL
       DO I = 1, RHOURS
          WRITE( VAR, '(A8,I2.2)' ) 'RAINFALL', I
-         IF ( .NOT. WRITE3( SOILOUT, VAR, NDATE, NTIME, RAINFALL( 1,1,I ) ) ) THEN
+         IF ( .NOT. WRITE3( SOILOUT, VAR, NDATE, NTIME, RAINFALL( :,:,I ) ) ) THEN
             MESG = 'Could not write "' // TRIM( VAR ) //
      &             '" to file "' // TRIM( SOILOUT ) // '"'
             CALL M3EXIT( PNAME, JDATE, JTIME, MESG, XSTAT2 )
          END IF
          WRITE( VAR, '(A2,I2.2)' ) 'SW', I
-         IF ( .NOT. WRITE3( SOILOUT, VAR, NDATE, NTIME, HRNO_SW( 1,1,I ) ) ) THEN
+         IF ( .NOT. WRITE3( SOILOUT, VAR, NDATE, NTIME, HRNO_SW( :,:,I ) ) ) THEN
             MESG = 'Could not write "' // TRIM( VAR ) //
      &             '" to file "' // TRIM( SOILOUT ) // '"'
             CALL M3EXIT( PNAME, JDATE, JTIME, MESG, XSTAT2 )
          END IF
          WRITE( VAR, '(A3,I2.2)' ) 'T2M', I
-         IF ( .NOT. WRITE3( SOILOUT, VAR, NDATE, NTIME, HRNO_T2M( 1,1,I ) ) ) THEN
+         IF ( .NOT. WRITE3( SOILOUT, VAR, NDATE, NTIME, HRNO_T2M( :,:,I ) ) ) THEN
             MESG = 'Could not write "' // TRIM( VAR ) //
      &             '" to file "' // TRIM( SOILOUT ) // '"'
             CALL M3EXIT( PNAME, JDATE, JTIME, MESG, XSTAT2 )

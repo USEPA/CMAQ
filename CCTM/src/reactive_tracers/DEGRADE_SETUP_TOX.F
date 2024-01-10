@@ -112,7 +112,7 @@ C.. variables used to write cell results
       INTEGER :: DEG_LAY = 0
       INTEGER :: DEG_ROW = 0
       INTEGER :: DEG_COL = 0
-C.. varaible used to write a cell in a block
+C.. variable used to write a cell in a block
       INTEGER :: ICELL_WRITE = 1
       LOGICAL :: WRITE_BLOCK = .FALSE.
       LOGICAL, ALLOCATABLE :: WRITE_CELL( : )       ! write cell value used for debugging and QA
@@ -255,8 +255,8 @@ C..Quality control on pairs of Reactant and Products
                IF ( VNAME( 1 ) == BICAUSE( K, I ) ) THEN
                   WRITE( XMSG,* ) 'ERROR: ',
      &                 TRIM( VNAME( 1 ) ), ' has same name'
-     &                 // ' same as a species causing its bimolecular loss.'
-     &                 // ' This brakes linear assumptions used.'
+     &                 // ' as a species causing its bimolecular loss.'
+     &                 // ' This breaks linear assumptions used.'
                   CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
                ENDIF
             ENDDO
@@ -267,7 +267,7 @@ C..Quality control on pairs of Reactant and Products
                   WRITE( XMSG,* ) 'ERROR: ',
      &                 TRIM( VNAME( 1 ) ), ' has same name as'
      &                 // ' a species causing its trimolecular loss.'
-     &                 // ' This brakes linear assumptions used.'
+     &                 // ' This breaks linear assumptions used.'
                   CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
                ENDIF
             ENDDO
@@ -277,7 +277,7 @@ C..Quality control on pairs of Reactant and Products
                   WRITE( XMSG,* ) 'ERROR: ',
      &                 VNAME( 1 )( 1:LEN_NAME ), ' has'
      &                 // ' same name as a species causing its Langmuir'
-     &                 // '-Hinshwood loss. This brakes linear assumptions used. '
+     &                 // '-Hinshwood loss. This breaks linear assumptions used. '
                   CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
                ENDIF
             ENDDO
