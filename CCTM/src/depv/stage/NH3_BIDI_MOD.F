@@ -23,7 +23,7 @@
 ! Contains the shared variables and subroutines needed for the bidirectional 
 ! NH3 flux model in CMAQ
 !
-! INIT_NH3_BiDi - Intitializes the NH3 flux routines, allocates arrays, reads in
+! INIT_NH3_BiDi - Initializes the NH3 flux routines, allocates arrays, reads in
 !                 initial soil NH3 & H concentrations, and fertilizer application
 !                 amounts and timing for the model run
 ! 
