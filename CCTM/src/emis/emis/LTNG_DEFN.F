@@ -421,7 +421,6 @@
          LOGICAL,     SAVE :: wrf_assim = .FALSE.
          INTEGER,     SAVE :: TOT_TSTEP
          LOGICAL,     SAVE :: FIRSTIME = .TRUE.
-         INTEGER           :: ADJ_LDATE, ADJ_LTIME
 
 C statement function for ERF approximation
          REAL              :: ERF                ! ERF approx. statement function
@@ -604,8 +603,6 @@ C statement function for ERF approximation
               TOT_TSTEP = TOT_TSTEP + TIME2SEC( TSTEP( 2 ) )
               LASTTIC = TOT_TSTEP .GE. LT_TSTEP
               IF ( LASTTIC ) THEN
-                 ADJ_LDATE = LDATE
-                 ADJ_LTIME = LTIME
                  MTICS = NTICS
                  NTICS = 0
                  TOT_TSTEP = 0

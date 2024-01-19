@@ -69,6 +69,8 @@ C  16 Feb 11 S.Roselle: replaced I/O API include files with UTILIO_DEFN
 C  26 Jan 16 J.Young: consolidated pio_init, flag for couple/decouple
 C  16 Sep 16 J.Young: update for inline procan
 C   7 Oct 16 J.Young: write domain re-decomp to log only on first call
+C  17 Jan 24 D. Wong: fixed a bug that IRR/IPR process alllows a subset of
+C                     level, a..b, where 1 <= a <= b <= NLAYS
 C-----------------------------------------------------------------------
 
       USE GRID_CONF             ! horizontal & vertical domain specifications
@@ -278,7 +280,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 !    &         size( irrout,4 ), size( tirrout,1 ), size( tirrout,2 ),
 !    &         size( tirrout,3 ), size( dbuff,1 ), size( dbuff,2 ),
 !    &         size( dbuff,3 ) 
-               CALL SUBST_DATA_COPY ( IRROUT, DBUFF, VARINDX )
+               CALL SUBST_DATA_COPY ( IRROUT, DBUFF, VARINDX, 1 )
 #else
                DBUFF = IRROUT( 1:MY_PACOLS,1:MY_PAROWS,1:PALEVS,VARINDX )
 #endif
@@ -297,12 +299,11 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          END DO
 
          DO NIRR = 1, NIRRVAR
+         DO L = 1, PALEVS
 #ifdef parallel
-         DO L = MY_IRR_BEGLEV, MY_IRR_ENDLEV
             DO R = MY_IRR_BEGROW, MY_IRR_ENDROW
                DO C = MY_IRR_BEGCOL, MY_IRR_ENDCOL
 #else
-         DO L = 1, PALEVS
             DO R = 1, MY_PAROWS
                DO C = 1, MY_PACOLS
 #endif

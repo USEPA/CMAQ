@@ -119,10 +119,10 @@ C-----------------------------------------------------------------------
 
          SUCCESS = .TRUE.
 
-         ! Initialize Emission Varibale Molecular Weights
+         ! Initialize Emission Variable Molecular Weights
          CALL INIT_DESID_EMVAR_MW()
 
-         ! Define Projected Gridd Cell Areas
+         ! Define Projected Grid Cell Areas
          ALLOCATE( CELLAREA( NCOLS,NROWS ),STAT=STATUS )
          CALL CHECKMEM( STATUS, 'CELLAREA', PNAME )
          ALLOCATE( CELLHGT( NLAYS ),STAT=STATUS )
@@ -278,11 +278,21 @@ C Return From Initialization
 !-----------------------------------------------------------------------
          SUBROUTINE DESID_DRIVER ( JDATE, JTIME, TSTEP, CGRID )
 !-----------------------------------------------------------------------
-!        This subroutine is meant to control whether GET_EMIS will be 
+!        DESID_DRIVER controls whether DESID_GET_EMIS will be 
 !        executed to process emissions for input back to vdiff or if 
-!        it's being run in diagnostic mode. This distinction allows 
-!        emission diagnostics to be written directly on the output timestep 
-!        instead of during the time step preceding the output timestep.
+!        it is being run in diagnostic mode to populate DESID diagnostic
+!        output files. 
+!        
+!        In typical operation, emissions used by CMAQ are calculated at 
+!        1/2 time step before the output time step, meaning that any
+!        diagnostics output using these values would be quantitatively 
+!        inconsistent with the emissions inputs, which are usually
+!        tabulated at the output time step (e.g., hourly). By allowing
+!        DESID_GET_EMIS to be called in diagnostic mode, with
+!        L_DESID_DIAG = .TRUE., DESID can recalculate emissions at
+!        exactly the the output time step and populate diagnostic output
+!        files with these values. These values are not actually used for
+!        emissions calculations within CMAQ. 
 !-----------------------------------------------------------------------
 
          USE UTILIO_DEFN
@@ -356,6 +366,13 @@ C Return From Initialization
          ! Step through all emission sub-modules for each stream
          ! (gridded and point offline, biog, SeaSalt, Dust, Lightning
          ! NO, etc.) and apply scaling factors, unit conversions, etc.
+
+         ! If L_DESID_DIAG = .FALSE. then this is a standard call of
+         ! DESID_GET_EMIS and emissions will be returned to VDIFF to
+         ! supply the CMAQ system with emissions. If L_DESID_DIAG =
+         ! .TRUE., then emissions are calculated and written out to
+         ! diagnostic files but not used by VDIFF or any other part of
+         ! CMAQ.
 
          USE CGRID_SPCS          ! CGRID mechanism species
          USE AERO_EMIS           ! inherits GRID_CONF
