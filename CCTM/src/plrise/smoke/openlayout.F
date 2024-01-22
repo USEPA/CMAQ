@@ -70,10 +70,10 @@ C Arguments:
       INTEGER,        INTENT( IN )  :: STIME    ! start time (HHMMSS)
       INTEGER,        INTENT( IN )  :: TSTEP    ! time step (HHMMSS)
       INTEGER,        INTENT( IN )  :: EMLAYS   ! number of emissions layers
-      REAL,           INTENT( IN )  :: VGLVSXG( 0:MXLAYS3 ) !  vertical coord values
+      REAL,           INTENT( IN )  :: VGLVSXG( 0: )      !  vertical coord values
       INTEGER,        INTENT( IN )  :: NPTGRPS  ! number of output files
-      INTEGER,        INTENT( IN )  :: MY_NSRC( NPTGRPS ) ! number of point sources
-      CHARACTER( * ), INTENT( OUT ) :: LNAME( NPTGRPS )   ! layer fractions logical file name
+      INTEGER,        INTENT( IN )  :: MY_NSRC( : ) ! number of point sources
+      CHARACTER( * ), INTENT( OUT ) :: LNAME( : )   ! layer fractions logical file name
 
 C Local variables:
 
@@ -91,6 +91,7 @@ C Local variables:
 
 C-----------------------------------------------------------------------
 
+#ifndef mpas
 C Set up and open diagnostic file(s)
 
       FTYPE3D = GRDDED3
@@ -166,6 +167,7 @@ C Set up and open diagnostic file(s)
          END IF
 
       END DO
+#endif
 
       RETURN
 

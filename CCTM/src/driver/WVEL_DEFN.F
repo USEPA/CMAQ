@@ -104,7 +104,9 @@ C-----------------------------------------------------------------------
             WY = 0.0
       END IF
  
-
+#ifdef mpas
+      WVEL = 0.0
+#else
       IF (JACOBF_AVAIL) THEN 
          ! Time-Dependent Part of Vertical Velocity Retrieval
          call interpolate_var ('JACOBF', jdate, jtime, JACF)
@@ -130,6 +132,7 @@ C-----------------------------------------------------------------------
          WVEL( :,:,LVL ) = JACF( :,:,LVL )
      &                     * MSFX2( :,: ) * WY( LVL,:,: )
       END DO 
+#endif
 
       END SUBROUTINE GET_WVEL    
 

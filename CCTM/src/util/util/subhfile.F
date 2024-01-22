@@ -86,6 +86,7 @@ C local variables:
 
 C-----------------------------------------------------------------------
 
+#ifndef mpas
       IF ( FIRSTIME ) THEN
          FIRSTIME = .FALSE.
 
@@ -294,6 +295,7 @@ C check the file against the processor setup (COORD.EXT), and get the offsets
       ENDCOL  = LOC_ENDCOL
       STRTROW = LOC_STRTROW
       ENDROW  = LOC_ENDROW
+#endif
 
       RETURN
       END SUBROUTINE SUBHFILE
