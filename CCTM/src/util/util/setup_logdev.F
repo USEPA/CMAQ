@@ -54,8 +54,36 @@ C   12 Aug 15 D.Wong:   Replaced SUBST_MPI with mpif.h
       CHARACTER( 90 ) :: CMAQ_HEADER( NHEAD )
       CHARACTER( 90 ) :: IOAPI_HEADER( NHEAD )
 
+      integer :: i
+      logical :: found, opened
+
       ! Fetch CMAQ Header
       CALL LOAD_HEADER( CMAQ_HEADER, NCMAQ_HEAD )
+
+#ifdef mpas
+      write ( cmype, '(I3.3)' ) mype
+      iologeq = 'CTM_LOG_' // cmype
+
+      i = 99
+      found = .false.
+      do while ((.not. found) .and. (i .le. 150))
+         inquire (unit=i, opened=opened)
+         if (.not. opened) then
+            found = .true.
+         else
+            i = i + 1
+         end if
+      end do
+
+      logdev = i
+
+      open ( unit    =  logdev,
+     &       iostat  =  iost,
+     &       file    =  iologeq,
+     &       status  =  'new',
+     &       access  =  'sequential')
+
+#else
 
       ! Create Log Filename using the processor rank and initialize
       ! I/O-API and Logs
@@ -96,16 +124,19 @@ C   12 Aug 15 D.Wong:   Replaced SUBST_MPI with mpif.h
       END DO
       REWIND( LOGDEV )
 #endif
+#endif
 
       ! Write CMAQ Header and then I/O-API Header
       DO IHEAD = 1,NCMAQ_HEAD
           WRITE( LOGDEV, '(A)' ) CMAQ_HEADER( IHEAD )
       END DO
       WRITE( LOGDEV, * )
+#ifndef mpas
 #ifndef twoway
       DO IHEAD = 1,NIOAPI_HEAD
           WRITE( LOGDEV, '(A)' ) IOAPI_HEADER( IHEAD )
       END DO
+#endif
 #endif
 
       END SUBROUTINE SETUP_LOGDEV 

@@ -64,10 +64,12 @@ C-----------------------------------------------------------------------
 
       USE GRID_CONF             ! horizontal & vertical domain specifications
       USE UTILIO_DEFN
+#ifndef mpas
 #ifdef parallel
       USE SE_MODULES            ! stenex (using SE_COMM_MODULE)
 #else
       USE NOOP_MODULES          ! stenex (using NOOP_COMM_MODULE)
+#endif
 #endif
       USE CENTRALIZED_IO_MODULE, only : interpolate_var, window
 !    &                              STRTCOLMC2,  ENDCOLMC2,  STRTROWMC2,  ENDROWMC2
@@ -134,6 +136,7 @@ C for INTERPX
 
 C-----------------------------------------------------------------------
 
+#ifndef mpas
       IF ( FIRSTIME ) THEN
          FIRSTIME = .FALSE.
 
@@ -323,13 +326,6 @@ C Compute horizontal divergence
       CALL SUBST_COMM ( UWIND, DSPL_N0_E1_S0_W0, DRCN_E_W )
       CALL SUBST_COMM ( VWIND, DSPL_N1_E0_S0_W0, DRCN_N_S )
 
-#ifdef parallel
-!     CALL SWAP3D( UWIND( 1,1,1 ), UWIND( NCOLS+1,1,1 ),
-!    &             1, NROWS+1, NLAYS, NCOLS+1, NROWS+1, EAST )
-!     CALL SWAP3D( VWIND( 1,1,1 ), VWIND( 1,NROWS+1,1 ),
-!    &             NCOLS+1, 1, NLAYS, NCOLS+1, NROWS+1, NORTH )
-#endif
-
       DO L = 1, NLAYS
          DO R = 1, NROWS
             R1 = R + 1
@@ -340,7 +336,7 @@ C Compute horizontal divergence
             END DO
          END DO
       END DO
-
+#endif
 
       RETURN
       END

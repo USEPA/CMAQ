@@ -138,7 +138,7 @@ C This function is expected to be called only once - at startup
 
             MYPE = MYID
 
-
+#ifndef mpas
 C With GRID_NAME (only input) retrieve all horizontal grid parameters from
 C the grid description file pointed to by the GRIDDESC env var:
             WRITE( LOGDEV, * )
@@ -153,6 +153,7 @@ C the grid description file pointed to by the GRIDDESC env var:
                CALL M3WARN ( 'HGRD_INIT', 0, 0, XMSG )
                SUCCESS = .FALSE.; RETURN
             END IF
+#endif
  
             IF ( GL_NROWS .LE. 1 .AND. GL_NCOLS .LE. 1 ) COLUMN_MODEL = .TRUE.
 

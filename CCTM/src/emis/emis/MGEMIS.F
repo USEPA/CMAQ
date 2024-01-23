@@ -39,6 +39,9 @@ C   03 Mar 22: D. Wong and G. Sarwar* updated for DMS emissions with cb6r5
       USE RUNTIME_VARS
       USE HGRD_DEFN
       USE DESID_VARS
+#ifdef mpas
+      use util_module
+#endif
 
       IMPLICIT NONE
 
@@ -266,8 +269,23 @@ C Local variables:
          CHARACTER( 96 ) :: XMSG = ' '
 
          INTEGER      V, L       ! loop induction variables
+         
+#ifdef mpas
+         integer :: io_mode
+#endif
 
 C-----------------------------------------------------------------------
+
+#ifdef mpas
+         if (ncd_64bit_offset) then
+            io_mode = ior (nf90_noclobber, nf90_64bit_offset)
+         else
+            io_mode = nf90_noclobber
+         end if
+
+         call mio_fcreate (CTM_MGEM_1, io_mode)
+
+#else
 
 C Try to open existing file for update
          IF ( .NOT. OPEN3( CTM_MGEM_1, FSRDWR3, PNAME ) ) THEN
@@ -326,6 +344,7 @@ C Open marine gas emissions diagnostic file
             END IF
 
          END IF
+#endif
 
          RETURN
 
@@ -446,11 +465,15 @@ C Local Variables:
             REAL, PARAMETER :: ONESIXHUNDREDS = 1.0 / 600.0    ! 1.0 / 600.0
 
             LOGICAL, SAVE   :: FIRST_TIME = .TRUE.
+#ifdef mpas
+            CHARACTER( 20 ) :: time_stamp
+#endif
 
 C----------------------------- Begin calc ------------------------------
 
            IF( FIRST_TIME ) THEN
 C calculate grid-cell area
+#ifndef mpas
              IF ( GDTYP_GD .EQ. LATGRD3 ) THEN
                 DX1 = DG2M * XCELL_GD ! in m.
                 DX2 = DG2M * YCELL_GD
@@ -460,6 +483,7 @@ C calculate grid-cell area
                 DX2 = YCELL_GD        ! in m.
              END IF
              A = DX1 * DX2                                      ! m2
+#endif
 
              FIRST_TIME = .FALSE.
            END IF
@@ -492,7 +516,11 @@ C Initialize marine gas output buffer
                 MARINE_AREA = ( OCEAN( C,R ) + SZONE( C,R ) )
                 IF ( MARINE_AREA .GT. 0.0 .AND. SEAICE( C, R ) .LE. 0.0) THEN
 !            convert area fraction to an actual area
+#ifdef mpas
+                     MARINE_AREA = MARINE_AREA * cell_area(c,1)
+#else
                      MARINE_AREA = MARINE_AREA * A
+#endif
 
                      CHLA      = MIN ( 1.0, CHLR ( C,R ) )
                      WSPD10    = U10( C,R )
@@ -624,13 +652,17 @@ C Then reset the MG emissions array and local write counter.
              WSTEP = WSTEP + TIME2SEC( TSTEP( 2 ) )
 
              IF ( WSTEP .GE. TIME2SEC( TSTEP( 1 ) ) ) THEN
+                IWSTEP = 1.0 / REAL( WSTEP )
+#ifdef mpas
+                call mio_time_format_conversion (jdate, jtime, time_stamp)
+#else
+
                 IF ( .NOT. CURRSTEP( JDATE, JTIME, STDATE, STTIME, TSTEP( 1 ),
      &                                MDATE, MTIME ) ) THEN
                      XMSG = 'Cannot get step date and time'
                      CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
                 END IF
                 CALL NEXTIME( MDATE, MTIME, TSTEP( 1 ) )
-                IWSTEP = 1.0 / REAL( WSTEP )
 #ifdef parallel_io
                 IF ( .NOT. IO_PE_INCLUSIVE ) THEN
                   IF ( .NOT. OPEN3( CTM_MGEM_1, FSREAD3, PNAME ) ) THEN
@@ -639,21 +671,32 @@ C Then reset the MG emissions array and local write counter.
                   END IF
                 END IF
 #endif
+#endif
                 DO V = 1, NMGDIAG
                    DO R = 1, NROWS
                       DO C = 1, NCOLS
                          WRMG( C,R ) = MGBF( V,C,R ) * IWSTEP
                       END DO
                    END DO
+#ifdef mpas
+                   call mio_fwrite (CTM_MGEM_1, WRMG_SPC(V), pname, WRMG(:,1), time_stamp)
+#else
                    IF ( .NOT. WRITE3( CTM_MGEM_1, WRMG_SPC( V ),
      &                        MDATE, MTIME, WRMG ) ) THEN
                      XMSG = 'Couldnt write ' // CTM_MGEM_1 // 'file'
                      CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
                    END IF
+#endif
                END DO
+#ifdef mpas
+               WRITE( LOGDEV, '( /5X, 3( A, :, 1X ), a19)')
+     &                      'Timestep written to', CTM_MGEM_1,
+     &                      'for time stamp', time_stamp
+#else
                WRITE( LOGDEV, '( /5X, 3( A, :, 1X ), I8, ":", I6.6 )')
      &                      'Timestep written to', CTM_MGEM_1,
      &                      'for date and time', MDATE, MTIME
+#endif
                WSTEP = 0
                MGBF = 0.0
              END IF

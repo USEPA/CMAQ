@@ -85,6 +85,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C  Check horizontal grid structure
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
+#ifndef mpas
 C...For DOT files only
       IF(INDEX( FNAME, '_DOT_' ) .NE. 0 ) THEN
 
@@ -297,6 +298,7 @@ C..Check vertical levels for 3D files only
          END IF
 
       END IF
+#endif
 
       RETURN
 

@@ -2447,7 +2447,9 @@
 
            INTEGER         :: YEAR
            INTEGER         :: DAY       ! julian day
+#ifndef mpas
            LOGICAL         :: LEAP_YEAR ! is a leap year
+#endif
            LOGICAL         :: FIRST_CALL  = .TRUE.
 
            CHARACTER( 32 )     :: PNAME = 'SEASONAL_STRAT_O3' 
@@ -2482,6 +2484,7 @@
             DAY  = MOD( JDATE, 1000 )
             YEAR = INT( 0.001 * REAL(JDATE) )
             
+#ifndef mpas
             LEAP_YEAR = ( ( MOD(YEAR,4) .EQ. 0 )
      &                      .AND. ( MOD(YEAR,100) .NE. 0 )
      &                           .OR. ( MOD(YEAR,400) .EQ. 0  ))
@@ -2491,6 +2494,15 @@
             ELSE
                TIME = REAL( DAY ) / 365.0
             ENDIF
+#else
+            IF( LEAP_YEAR(YEAR) )THEN
+               TIME = REAL( DAY ) / 366.0
+            ELSE
+               TIME = REAL( DAY ) / 365.0
+            ENDIF
+#endif
+
+           
 ! find where time is located in profile data
 ! interpolation over time considers the profile data to be cyclic
             IF( TIME .LT. TIME_PROFILE( 1 ) )THEN
@@ -2516,7 +2528,11 @@
             DTIME_UPPER   = ( TIME_UPPER - TIME )
             DTIME_LOWER   = ( TIME - TIME_LOWER )
                          
+#ifdef mpas
+            PTOP = MBAR_PER_PA * 1000.0   ! for simplicity, we have agreed to set VGTOP_GD to 1000.0
+#else
             PTOP = MBAR_PER_PA * VGTOP_GD
+#endif
 ! find where PTOP reside relative pressure level of ozone column profiles
             IF ( PTOP .GT. LEV_PROFILE( 1 ) )  THEN
                 ILEV = 0
