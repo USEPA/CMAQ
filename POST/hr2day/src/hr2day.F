@@ -58,7 +58,7 @@ C*******************************************************************************
       IMPLICIT NONE
 
 C External functions
-      integer getTZ
+      real getTZ
 
 C local variables
       integer status
@@ -78,6 +78,7 @@ C Array to store hourly input values
       real, allocatable :: hrValues (:, :, :)
       real, allocatable :: dayValues (:, :)
       integer, allocatable :: tzoffset(:,:)
+      real, allocatable :: ftzoffset(:,:)
       integer, allocatable :: offset(:,:)
 
 
@@ -178,11 +179,13 @@ C... create output file
 
 C... Allocate memory for data arrays
       Allocate( tzoffset(NCOLS3D, NROWS3D) )
+      Allocate( ftzoffset(NCOLS3D, NROWS3D) )
       Allocate( offset(NCOLS3D, NROWS3D) )
       Allocate( hrValues (-36:66, NCOLS3D, NROWS3D) )
       Allocate( dayValues (NCOLS3D, NROWS3D) )
 
       ! set tzoffset array values 
+      ftzoffset = 0
       tzoffset = 0
       if( useLocal ) then
         write(*,'(/,''Computing timezone offsets for grid cells'',/)')
@@ -210,7 +213,8 @@ C... Allocate memory for data arrays
              Call m3exit (PNAME, 0, 0, 'Grid projection not supported', xstat2)   
             endif
 
-            tzoffset(c,r) = getTZ(longitude, latitude)
+            ftzoffset(c,r) = getTZ(longitude, latitude)
+            tzoffset(c,r) = ftzoffset(c,r)
           enddo
         enddo
       endif
@@ -298,6 +302,10 @@ C... start loop to read and process each variable
 
           if( SPECVARS(n)%OPERATION .eq. 'SUM06' ) then
             Call sum06(hrValues, dayValues, offset, SPECVARS(n)%UNITS)
+          endif
+
+          if( SPECVARS(n)%OPERATION .eq. 'TZ' ) then
+            dayValues(:,:) = -REAL(ftzoffset(:,:))
           endif
 
           ! write daily values to output

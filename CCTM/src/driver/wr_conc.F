@@ -79,6 +79,7 @@ C Local variables:
 
 C-----------------------------------------------------------------------
 
+#ifndef mpas
       IF ( FIRSTIME ) THEN
 
          FIRSTIME = .FALSE.
@@ -194,6 +195,7 @@ C open conc file for update
       WRITE( LOGDEV, '( /5X, 3( A, :, 1X ), I8, ":", I6.6 )' )
      &      'Timestep written to', CTM_CONC_1,
      &      'for date and time', JDATE, JTIME
+#endif
 
       RETURN 
       END

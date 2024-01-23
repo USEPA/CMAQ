@@ -58,11 +58,13 @@ C-----------------------------------------------------------------------
      &                      N_TR_SPC, TR_STRT, TR_SPC
       USE RUNTIME_VARS, ONLY: LOGDEV, OUTDEV, CMYPE, APPL_NAME
 
-      USE UTILIO_DEFN, ONLY: GETEFILE
+      USE UTILIO_DEFN
+#ifndef mpas
 #ifdef parallel
       USE SE_MODULES          ! stenex (using SE_GLOBAL_SUM_MODULE)
 #else
       USE NOOP_MODULES        ! stenex (using NOOP_GLOBAL_SUM_MODULE)
+#endif
 #endif
 
       IMPLICIT NONE

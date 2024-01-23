@@ -38,6 +38,14 @@ C   JDATE:JTIME represented in GMT
 C Subroutines and Functions called:  none
  
 C Revision History:
+C Revision History:
+C   Prototype 12/95 by Carlie J Coats, Jr., adapted from UAM-BEIS
+C       subroutines SOLAR() and ZANGLE() for SMOKE-BEIS2:  produces
+C       COS( ZENITH )
+C
+C   Revised 8/96 by SL and CJC: algorithm change to match UAM BEIS2
+C       algorithm
+C
 C   11/99: by Jeff Vukovich taken from v4.2 SMOKE prototype
 C   10/06: yoj
 C   02/11: Shawn Roselle: Replaced I/O API include files with UTILIO_DEFN

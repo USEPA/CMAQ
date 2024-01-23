@@ -52,6 +52,10 @@ C-----------------------------------------------------------------------
       INTEGER, ALLOCATABLE, SAVE :: MY_COLBUFF( : )
       INTEGER, ALLOCATABLE, SAVE :: MY_ROWBUFF( : )
 
+      integer, allocatable :: my_nsrc_index(:,:)       ! point source location in the file belong to a processor
+      integer, allocatable :: my_nsrc_mesh_index(:,:)  ! point source position w.r.t. sub-domain mesh point sequence
+      real, allocatable :: my_nsrc_pressure(:,:,:)
+
       CONTAINS
 
          FUNCTION STK_PRMS_INIT ( STKPRMS ) RESULT ( SUCCESS )
@@ -79,10 +83,6 @@ C-----------------------------------------------------------------------
 C-----------------------------------------------------------------------
 
          SUCCESS = .TRUE.
-
-         M = MYPE + 1
-         SCOL = COLSX_PE( 1,M ); ECOL = COLSX_PE( 2,M )
-         SROW = ROWSX_PE( 1,M ); EROW = ROWSX_PE( 2,M )
 
          NGRPS = SIZE( STKPRMS )
 
@@ -127,6 +127,12 @@ C-----------------------------------------------------------------------
 
          ALLOCATE ( ACRES_BURNED( NGRPS ), STAT = ASTAT )
          CALL CHECKMEM( ASTAT, 'ACRES_BURNED', PNAME )
+
+         MY_NSRC = 0
+#ifndef mpas
+         M = MYPE + 1
+         SCOL = COLSX_PE( 1,M ); ECOL = COLSX_PE( 2,M )
+         SROW = ROWSX_PE( 1,M ); EROW = ROWSX_PE( 2,M )
 
          DO N = 1, NGRPS
 
@@ -271,6 +277,7 @@ C SOURCE maps STKEMIS read from stk emis file to local STKEM in GET_PT3D_EMIS.
            CALL CHECKMEM( ASTAT, 'MY_COLBUFF', PNAME )
          ALLOCATE( MY_ROWBUFF( MAXVAL( MY_NSRC(:) ) ) )
            CALL CHECKMEM( ASTAT, 'MY_ROWBUFF', PNAME )
+#endif
  
          RETURN
 
