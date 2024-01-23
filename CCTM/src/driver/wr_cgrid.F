@@ -38,10 +38,12 @@ C-----------------------------------------------------------------------
       USE GRID_CONF             ! horizontal & vertical domain specifications
       USE CGRID_SPCS            ! CGRID mechanism species
       USE UTILIO_DEFN
+#ifndef mpas
 #ifdef parallel
       USE SE_MODULES            ! stenex (using SE_UTIL_MODULE)
 #else
       USE NOOP_MODULES          ! stenex (using NOOP_UTIL_MODULE)
+#endif
 #endif
 
       IMPLICIT NONE
@@ -78,6 +80,7 @@ C Local variables:
 
 C-----------------------------------------------------------------------
 
+#ifndef mpas
       IF ( FIRSTIME ) THEN
 
          FIRSTIME = .FALSE.
@@ -312,6 +315,7 @@ C proc 0 has CTM_CONC_1 open
       WRITE( LOGDEV, '( /5X, 3( A, :, 1X ), I8, ":", I6.6 )' )
      &      'Timestep written to', S_CGRID,
      &      'for date and time', JDATE, JTIME
+#endif
 
       RETURN 
       END

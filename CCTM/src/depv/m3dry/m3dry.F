@@ -154,10 +154,14 @@ C-------------------------------------------------------------------------------
       USE DEPVVARS
       USE VGRD_DEFN      ! to get VGTYP_GD
       USE UTILIO_DEFN
+#ifdef mpas
+      Use util_module, only : secsdiff
+#else
 #ifdef parallel
       USE SE_MODULES     ! stenex (using SE_COMM_MODULE)
 #else
       USE NOOP_MODULES   ! stenex (using NOOP_COMM_MODULE)
+#endif     
 #endif     
       Use ABFlux_Mod     ! bidi NH3 exchange routines
       Use ASX_DATA_MOD   ! contains CONSTANTS include
@@ -305,6 +309,10 @@ C-------------------------------------------------------------------------------
             END IF
          END DO
 
+#ifdef mpas
+         xcent = 0.0
+         ycent = 0.0
+#else
          IF ( .NOT. desc3( met_cro_2d ) ) THEN
             xmsg = 'Could not get  met_cro_2d  file description'
             CALL m3exit( pname, jdate, jtime, xmsg, xstat2 )
@@ -312,6 +320,7 @@ C-------------------------------------------------------------------------------
 
          xcent = real( xcent3d, 4 )
          ycent = real( ycent3d, 4 )
+#endif
 
          IF ( abflux ) THEN
             CALL Init_ABFlux( jdate, jtime )
@@ -468,6 +477,9 @@ C-------------------------------------------------------------------------------
       ! Assign a pH for rain water based on longitude if US simulation.
       ! Otherwise use default pH.  Use pH value in HPLUS calculation.
 
+#ifdef mpas
+            hplus = hplus_def
+#else
             IF ( ( ycent .GE.   30.0 ) .AND. ( ycent .LE.  45.0 ) .AND.
      &           ( xcent .GE. -120.0 ) .AND. ( xcent .LE. -70.0 ) ) THEN
                IF ( GRID_DATA%LON( c,r ) .GT. -100.0 ) THEN
@@ -478,6 +490,7 @@ C-------------------------------------------------------------------------------
             ELSE
                hplus = hplus_def
             END IF
+#endif
 
          ELSE   ! water
       ! Calculate the water surface film temperature: wet bulb temperature.

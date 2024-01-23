@@ -60,6 +60,10 @@ C-----------------------------------------------------------------------
       USE AERO_DATA, ONLY : CHECK_AERO_ICBC, N_MODE
       Use CENTRALIZED_IO_MODULE, only : interpolate_var
       USE RUNTIME_VARS, ONLY : IC_AERO_M2WET, IC_AERO_M2USE
+#ifdef mpas
+      USE coupler_module
+#endif
+
       IMPLICIT NONE
 
       INCLUDE SUBST_CONST       ! constants
@@ -173,10 +177,19 @@ C-----------------------------------------------------------------------
             XMSG = 'ERROR allocating INDX or ICBC_FAC'
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
          END IF
+#ifdef mpas
+         ALLOCATE ( INDX_MPAS( MXSPC ), STAT = ASTAT )
+         IF ( ASTAT .NE. 0 ) THEN
+            XMSG = 'ERROR allocating INDX_MPAS '
+            call M3EXIT (PNAME, JDATE, JTIME, XMSG, 1)
+         END IF
+         INDX_MPAS = 0
+#endif
       END IF
 
       WRITE( CONCMIN,'(1PE9.2)' ) CMIN
 
+#ifndef mpas
       IF ( .NOT. OPEN3( FNAME, FSREAD3, PNAME ) ) THEN
          XMSG = 'Could not open ' // FNAME // ' file'
          CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
@@ -203,6 +216,7 @@ C-----------------------------------------------------------------------
          XMSG = 'Wrong number of layers in ' // FNAME // ' file'
          CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
       END IF
+#endif
 
       ESTR2 = ' in ' // TRIM( FNAME ) // '; Look for '
       ESTR3 = ' in ' // TRIM( FNAME ) // '; set to ' // TRIM( CONCMIN )
@@ -226,6 +240,7 @@ C Get INDX
          INDX( SPC ) = 0
       END DO
 
+      SPC_STRT = 0
       IF ( SPC_CAT .EQ. 'GC' ) THEN
          WRITE( XMSG,1009 ) 'transported gas-phase (reactive) species'
          WRITE( LOGDEV, * )
@@ -238,7 +253,11 @@ C is there a surrogate name?
             NDX = 0
             IF ( ISUR .NE. 0 ) THEN
 C is it on the IC file?
+#ifdef mpas
+               NDX = INDEX1( GC_IC( ISUR ), n_all_spc, all_spc )
+#else
                NDX = INDEX1( GC_IC( ISUR ), NVARS3D, VNAME3D )
+#endif
                IF ( NDX .NE. 0 ) THEN
 C if there`s a surrogate name, CGRID_SPCS handles setting GC_ICBC_FAC
                   INDX( SPC ) = NDX   ! index in the IC file
@@ -251,7 +270,11 @@ C if there`s a surrogate name, CGRID_SPCS handles setting GC_ICBC_FAC
             END IF
 C If there is no surrogate or it cannot be found, look for the (main) species name on the IC file
             If ( ISUR .EQ. 0 .OR. NDX .EQ. 0 .OR. (.NOT. NEW_START ) ) THEN
+#ifdef mpas
+               NDX = INDEX1( GC_SPC( SPC ), n_all_spc, all_spc )
+#else
                NDX = INDEX1( GC_SPC( SPC ), NVARS3D, VNAME3D )
+#endif
                IF ( NDX .NE. 0 ) THEN
                   INDX( SPC ) = NDX   ! index in the IC file
                   ICBC_FAC( SPC ) = 1.0
@@ -278,7 +301,11 @@ C is there a surrogate name?
             NDX = 0
             IF ( ISUR .NE. 0 ) THEN
 C is it on the IC file?
+#ifdef mpas
+               NDX = INDEX1( AE_IC( ISUR ), n_all_spc, all_spc )
+#else
                NDX = INDEX1( AE_IC( ISUR ), NVARS3D, VNAME3D )
+#endif
                IF ( NDX .NE. 0 ) THEN
                   INDX( SPC ) = NDX   ! index in the IC file
                   ICBC_FAC( SPC ) = AE_IC_FAC( ISUR )
@@ -290,7 +317,11 @@ C is it on the IC file?
             END IF
 C If there is no surrogate or it cant be found, look for the (main) species name on the IC file
             If ( ISUR .EQ. 0 .OR. NDX .EQ. 0 .OR. (.NOT. NEW_START ) ) THEN
+#ifdef mpas
+               NDX = INDEX1( AE_SPC( SPC ), n_all_spc, all_spc )
+#else
                NDX = INDEX1( AE_SPC( SPC ), NVARS3D, VNAME3D )
+#endif
                IF ( NDX .NE. 0 ) THEN
                   INDX( SPC ) = NDX
                   ICBC_FAC( SPC ) = 1.0
@@ -317,7 +348,11 @@ C is there a surrogate name?
             NDX = 0
             IF ( ISUR .NE. 0 ) THEN
 C is it on the IC file?
+#ifdef mpas
+               NDX = INDEX1( NR_IC( ISUR ), n_all_spc, all_spc )
+#else
                NDX = INDEX1( NR_IC( ISUR ), NVARS3D, VNAME3D )
+#endif
                IF ( NDX .NE. 0 ) THEN
                   INDX( SPC ) = NDX   ! index in the IC file
                   ICBC_FAC( SPC ) = NR_IC_FAC( ISUR )
@@ -329,7 +364,11 @@ C is it on the IC file?
             END IF
 C If there is no surrogate or it cant be found, look for the (main) species name on the IC file
             If ( ISUR .EQ. 0 .OR. NDX .EQ. 0 .OR. (.NOT. NEW_START ) ) THEN
+#ifdef mpas
+               NDX = INDEX1( NR_SPC( SPC ), n_all_spc, all_spc )
+#else
                NDX = INDEX1( NR_SPC( SPC ), NVARS3D, VNAME3D )
+#endif
                IF ( NDX .NE. 0 ) THEN
                   INDX( SPC ) = NDX
                   ICBC_FAC( SPC ) = 1.0
@@ -356,7 +395,11 @@ C is there a surrogate name?
             NDX = 0
             IF ( ISUR .NE. 0 ) THEN
 C is it on the IC file?
+#ifdef mpas
+               NDX = INDEX1( TR_IC( ISUR ), n_all_spc, all_spc )
+#else
                NDX = INDEX1( TR_IC( ISUR ), NVARS3D, VNAME3D )
+#endif
                IF ( NDX .NE. 0 ) THEN
                   INDX( SPC ) = NDX   ! index in the IC file
                   ICBC_FAC( SPC ) = TR_IC_FAC( ISUR )
@@ -368,7 +411,11 @@ C is it on the IC file?
             END IF
 C If there is no surrogate or it cant be found, look for the (main) species name on the IC file
             If ( ISUR .EQ. 0 .OR. NDX .EQ. 0 .OR. (.NOT. NEW_START ) ) THEN
+#ifdef mpas
+               NDX = INDEX1( TR_SPC( SPC ), n_all_spc, all_spc )
+#else
                NDX = INDEX1( TR_SPC( SPC ), NVARS3D, VNAME3D )
+#endif
                IF ( NDX .NE. 0 ) THEN
                   INDX( SPC ) = NDX
                   ICBC_FAC( SPC ) = 1.0
@@ -401,6 +448,7 @@ C IOFDESC common now loaded with FNAME header
          NDX = INDX( SPC )
 
          IF ( NDX .GT. 0 ) THEN
+#ifndef mpas
             call interpolate_var (VNAME3D ( NDX ), jdate, jtime, DBUFF)
 
             ! Add Non-Carbon Mass to Carbon Mass if any tracer is
@@ -425,6 +473,7 @@ C IOFDESC common now loaded with FNAME header
                   END DO
                END DO
             END DO
+#endif
 
          END IF   ! INDX .GT. 0
 
@@ -472,7 +521,11 @@ C Load RHOJ for transport and mixing ratio advection adjustment
 C are ASO4J ICs available on the file?
 
          VNAME = 'ASO4J'
+#ifdef mpas
+         NDX = INDEX1( VNAME, n_ae_spc, ae_spc )
+#else
          NDX = INDEX1( VNAME, NVARS3D, VNAME3D )
+#endif
      
          IF ( NDX .EQ. 0 ) THEN  ! ASO4J not on file
 

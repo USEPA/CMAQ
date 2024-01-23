@@ -32,7 +32,7 @@
 
       SAVE
       REAL,    ALLOCATABLE :: CELLAREA( :,: )
-      REAL,    ALLOCATABLE :: CELLHGT ( : )
+      REAL,    ALLOCATABLE :: CELLHGT ( :,:,: )
       REAL,    ALLOCATABLE :: CELLVOL ( :,:,: )
       REAL                 :: DX1, DX2
       REAL,    ALLOCATABLE :: VDEMIS_DIFF( :,:,:,: ) ! emissions array mapped to diffused species

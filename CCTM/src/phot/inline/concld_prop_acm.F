@@ -117,9 +117,14 @@ C-----------------------------------------------------------------------
       USE PHOT_MET_DATA, ONLY: USE_ACM_CLOUD, CLEAR_ACM_CLOUD, CAPTURE_ACM_CLOUD
       USE ASX_DATA_MOD,  ONLY: INIT_MET, GRID_DATA
       USE CENTRALIZED_IO_MODULE,  ONLY: RCA_AVAIL, cio_model_sdate,
+#ifdef mpas
+     &                                  cell_area,
+#endif
      &                                  cio_model_stime, 
      &                                  interpolate_var,
      &                                  file_tstep, f_met 
+
+     
 
       IMPLICIT NONE
 
@@ -137,11 +142,19 @@ C...........Arguments
 
 C...........Parameters
 
+#ifdef mpas
+C critical rel humidity for land (fraction)
+      REAL, ALLOCATABLE, SAVE      :: RCRITL(:,:)
+
+C critical rel humidity for water (fraction)
+      REAL, ALLOCATABLE, SAVE      :: RCRITW(:,:)
+#else
 C critical rel humidity for land (fraction)
       REAL, SAVE      :: RCRITL
 
 C critical rel humidity for water (fraction)
       REAL, SAVE      :: RCRITW
+#endif
 
 C intermediate factor
       REAL            :: XKM
@@ -210,7 +223,9 @@ C   SYNCCLD=.FALSE. : every hour on the half hour
 C...........Local Variables
 
 C-------for ACM version - jp 2/05        REAL DPB
+#ifndef mpas
       REAL, ALLOCATABLE, SAVE :: SIGF( : )
+#endif
 C-------------------------------------------
 
       LOGICAL, SAVE :: FIRSTIME = .TRUE. ! flag for first pass thru
@@ -429,7 +444,7 @@ C...  field if a convective parameterization was not used in the WRF simulation
         END IF
 
 C...allocate saved arrays
-
+#ifndef mpas
         ALLOCATE ( SIGF( 0:NLAYS ), STAT = ALLOCSTAT )
         IF ( ALLOCSTAT .NE. 0 ) THEN
           XMSG = 'Failure allocating SIGF'
@@ -440,7 +455,7 @@ C...allocate saved arrays
           SIGF( LAY ) = 1.0 - X3FACE_GD( LAY )
         END DO
         SIGF( 0 ) = 1.0
-
+#endif
         ALLOCATE ( QLQD   ( NLAYS ), 
      &             QICE   ( NLAYS ), 
      &             STAT = ALLOCSTAT )
@@ -453,9 +468,27 @@ C...allocate saved arrays
 
 C...Calculate the Sundqvist et al. 1989 threshold humidities for cloud formation based on 
 C...Mocko and Cotton (1995)
+#ifdef mpas
+       ALLOCATE ( RCRITL( NCOLS,NROWS ),
+     &             RCRITW( NCOLS,NROWS ),
+     &             STAT = ALLOCSTAT )
+          IF ( ALLOCSTAT .NE. 0 ) THEN
+             XMSG = 'EXIT: Failure allocating RCRITL, RCRITW'
+             call prog_interrupt (PNAME, JDATE, JTIME, XMSG, 1)
+          END IF
+        DO ROW = 1, NROWS
+          DO COL = 1, NCOLS
+            ! Reformulate using cell_area to replace XKM
+            RCRITW(COL,ROW) = 0.879 + SQRT( 1.0 / ( 100.0 + 1.0E-6*cell_area(col,row)  ))
+            RCRITL(COL,ROW) = 0.839 + SQRT( 1.0 / ( 50.0 + 0.5 * 1.0E-9*(cell_area(col,row))**1.5 ) )
+          END DO
+        END DO
+
+#else
         XKM = REAL( XCELL_GD / 1000 )
         RCRITW = 0.879 + SQRT( 1.0 / ( 100.0 + XKM * XKM ) )
         RCRITL = 0.839 + SQRT( 1.0 / ( 50.0 + 0.5 * XKM ** 3 ) )
+#endif
 
       END IF   ! Firstime
 
@@ -810,11 +843,21 @@ C...Now compute fractional coverage for either CNP or PFW:
 C...Now based on Sunqdvist et al. 1989 DOI: 10.1175/1520-0493(1989)117<1641:CACPSW>2.0.CO;2 
             FRAC = 0.0
             IF ( GRID_DATA%LWMASK( COL,ROW ) .EQ. 1.0 ) THEN   ! land
+#ifdef mpas
+               IF ( RLHSRC .GE. RCRITL( COL,ROW) )
+     &            FRAC = 1.0 - SQRT( ( 1.0 - RLHSRC ) / ( 1.0 - RCRITL( COL,ROW ) ) )
+#else
                IF ( RLHSRC .GE. RCRITL )
      &            FRAC = 1.0 - SQRT( ( 1.0 - RLHSRC ) / ( 1.0 - RCRITL ) )
+#endif
             ELSE   ! water
+#ifdef mpas
+               IF ( RLHSRC .GE. RCRITW( COL,ROW ) )
+     &            FRAC = 1.0 - SQRT( ( 1.0 - RLHSRC ) / ( 1.0 - RCRITW( COL,ROW ) ) )
+#else
                IF ( RLHSRC .GE. RCRITW )
      &            FRAC = 1.0 - SQRT( ( 1.0 - RLHSRC ) / ( 1.0 - RCRITW ) )
+#endif
             END IF
             FRAC = MAX( 0.0, MIN( FRAC, 0.95 ) )
 
