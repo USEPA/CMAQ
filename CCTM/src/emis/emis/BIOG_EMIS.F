@@ -61,6 +61,9 @@ C-----------------------------------------------------------------------
          USE RXNS_DATA, ONLY : MECHNAME
          USE UTILIO_DEFN
          USE CGRID_SPCS, ONLY : N_CGRID_SPC, CGRID_NAME, CGRID_MW
+#ifdef mpas
+         USE util_module, only : PROMPTFFILE, index1, str2real, sortic
+#endif
 
          IMPLICIT NONE
 
@@ -321,7 +324,11 @@ C Check if species is already stored for current pollutant, and if not, incremen
 C species-per-pollutant counter and add species to list.
             DO M = 1, NIPOS
                K   = NSPECA( IPOS( M ) )
+#ifdef mpas
+               NDX = INDEX1( SPECNM, K, TMPNAMES( :,IPOS( M ) ) )
+#else
                NDX = INDEX1( SPECNM, K, TMPNAMES( 1,IPOS( M ) ) )
+#endif
                IF ( NDX .LE. 0 ) THEN
                   K = K + 1
                   IF ( K .LE. MXSPPOL ) THEN
@@ -377,7 +384,11 @@ C and if so, store in the output species name list.
 C Process species in sorted order
                K = INDX1A( J )
 C Find species in list of valid species per pollutant
+#ifdef mpas
+               NDX = INDEX1( SPECNMA( K ), NSPECA( I ), TMPNAMES( :,I ) )
+#else
                NDX = INDEX1( SPECNMA( K ), NSPECA( I ), TMPNAMES( 1,I ) )
+#endif
                IF ( NDX .GT. 0 ) THEN
                   ICOUNT = ICOUNT + 1
                   SPCNAMES( ICOUNT, I ) = SPECNMA( K )

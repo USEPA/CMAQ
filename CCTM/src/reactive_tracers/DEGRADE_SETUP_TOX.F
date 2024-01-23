@@ -134,6 +134,9 @@ C
 C**********************************************************************
 
          USE RXNS_DATA
+#ifdef mpas
+      use util_module, only : index1, upcase
+#endif
 
          IMPLICIT NONE
 

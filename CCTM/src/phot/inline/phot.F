@@ -127,10 +127,15 @@ C...modules
       USE CENTRALIZED_IO_MODULE, ONLY : LAT, LON, HT
       USE ELMO_DATA, ONLY : ELMO_AOD_550, ELMO_EXT_550
 
+#ifdef mpas
+      use mio_module
+      use coupler_module
+#else
 #ifdef parallel
       USE SE_MODULES           ! stenex (using SE_UTIL_MODULE)
 #else
       USE NOOP_MODULES         ! stenex (using NOOP_UTIL_MODULE)
+#endif
 #endif
 
       IMPLICIT NONE
@@ -316,6 +321,20 @@ C...modules
       REAL, ALLOCATABLE, SAVE :: ACTINIC_FX( :,:,:,: ) ! net actinic flux [watts/m**2]
       REAL, ALLOCATABLE, SAVE :: OUTPUT_BUFF ( :,:,: ) ! output buffer for DIAG2 and DIAG3 files
 
+#ifdef mpas
+! this is for creating the output name list
+      character (512) :: fname
+      character (30), allocatable, save :: name_list(:)
+      character (30) :: oname
+      character (120) :: buf, buf2
+      integer, save :: loc_n
+      integer :: loc_nvars, stat, k, fnum
+      logical :: found
+      character (20) :: time_stamp
+
+      integer, save :: gcount = 0
+#endif
+
       INTERFACE
          SUBROUTINE O3TOTCOL ( LATITUDE, LONGITUDE, JDATE, JTIME, OZONE )
             INTEGER, INTENT( IN )    :: JDATE      ! Julian day of the year (yyyyddd)
@@ -342,8 +361,13 @@ C...modules
 !...Set flag to initialize calculating aerosol extinction at 550 nm via Angstrom Exponents
          CALCULATE_EXT_550 = .TRUE. !PHOTDIAG
 
+#ifdef mpas
+         PECOL_OFFSET = 0
+         PEROW_OFFSET = 0
+#else
          PECOL_OFFSET = COLSD_PE( 1, MYPE+1 ) - 1
          PEROW_OFFSET = ROWSD_PE( 1, MYPE+1 ) - 1
+#endif
 
          CALL INIT_PHOT_SHARED()
 
@@ -592,6 +616,7 @@ C...modules
          
 !...open the photolysis diagnostic files
             ODATE = START_DATE; OTIME = START_TIME; OSTEP = 0
+#ifndef mpas
 #ifdef phot_write_start
             IF ( IO_PE_INCLUSIVE ) CALL OPPHOT ( ODATE, OTIME, DTSTEP( 1 ) )
 #else
@@ -600,9 +625,12 @@ C...modules
 ! reset ODATE and OTIME for counting 
             ODATE = START_DATE; OTIME = START_TIME
 #endif
+#endif
 
          END IF  ! photdiag
+#ifndef mpas
          CALL SUBST_BARRIER
+#endif
 
          ALLOCATE ( AERO_EXT_550( NCOLS,NROWS,NLAYS ), STAT = ALLOCSTAT )
          IF ( ALLOCSTAT .NE. 0 ) THEN
@@ -625,6 +653,44 @@ C...modules
             XMSG = 'Could not find ' // VARNM // 'in species table'
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
          END IF
+
+#ifdef mpas
+! this is for creating the output name list
+         found = .false.
+         fnum = 0
+         do while ((.not. found) .and. (fnum < mio_outfile_def_info%num_of_file_definitions))
+            fnum = fnum + 1
+            if ('CTM_OUT' == mio_outfile_def_info%flist(fnum)%fname) then
+               found = .true.
+            end if
+         end do
+         if (.not. found) then
+            write (logdev, *) ' Abort: file CTM_OUT not on the file_input.txt'
+            stop
+         end if
+
+         loc_nvars = mio_outfile_def_info%flist(fnum)%nvars
+
+         loc_n = 0
+         if (found) then
+            allocate (name_list(loc_nvars), stat=stat)
+            do n = 1, loc_nvars
+               buf = mio_outfile_def_info%flist(fnum)%vlist(n)
+               found = .false.
+               k = 0
+               do while (.not. found)
+                  k = k + 1
+                  if (buf(k:k) == ' ') then
+                     found = .true.
+                  end if
+               end do
+               if (buf(1:3) == 'PD_') then
+                  loc_n = loc_n + 1
+                  name_list(loc_n) = buf(4:k-1)
+               end if
+            end do
+         end if
+#endif
 
 
       END IF  ! firstime
@@ -1183,6 +1249,27 @@ C...modules
       IF ( JTIME_CHK ) THEN
         IF ( PHOTDIAG ) THEN
 
+#ifdef mpas
+         if ((loc_n > 0) .and. mpas_diag) then
+            time_stamp = ctm_out_clock
+
+            oname = 'PD_AOD_W550_ANGST'
+            gcount = gcount + 1
+            call mio_fwrite ('CTM_OUT', oname, pname, TAU_AERO_550(:,1), TIME_STAMP)
+            TAU_AERO_550 = 0.0
+            oname = 'PD_TROP_O3_COLUMN'
+            call mio_fwrite ('CTM_OUT', oname, pname, TROPO_OC(:,1), TIME_STAMP)
+            oname = 'PD_CO_COLUMN'
+            call mio_fwrite ('CTM_OUT', oname, pname, CO_COLUMN(:,1), TIME_STAMP)
+            oname = 'PD_NO2_COLUMN'
+            call mio_fwrite ('CTM_OUT', oname, pname, NO2_COLUMN(:,1), TIME_STAMP)
+            oname = 'PD_HCHO_COLUMN'
+            call mio_fwrite ('CTM_OUT', oname, pname, HCHO_COLUMN(:,1), TIME_STAMP)
+            oname = 'PD_SO2_COLUMN'
+            call mio_fwrite ('CTM_OUT', oname, pname, SO2_COLUMN(:,1), TIME_STAMP)
+         end if
+#else
+
          VARNM = 'COSZENS'
          IF ( .NOT. WRITE3( CTM_RJ_1, VARNM, ODATE, OTIME,
      &                     COSINE_ZENITH ) ) THEN
@@ -1454,6 +1541,7 @@ C...modules
          WRITE( LOGDEV, '( /5X, 3( A, :, 1X ), I8, ":", I6.6 )' )
      &          'Radiative and Optical Data written to', CTM_RJ_3,
      &          'for date and time', ODATE, OTIME
+#endif
 
         END IF   ! PHOTDIAG
       END IF   ! if JTIME_CHK

@@ -149,7 +149,7 @@ C----------------------------------------------------------------------
       Use aero_data, only: ae6hg, aphgj_idx
       Use cgrid_spcs, only: n_gc_g2ae, gc_g2ae, gc_g2ae_map, gc_molwt, gc_strt,
      &                      n_nr_n2ae, nr_n2ae, nr_n2ae_map, nr_molwt, nr_strt
-      Use utilio_defn, only: index1, xstat3
+      Use utilio_defn, only: index1, xstat3, m3warn, m3exit
       Use runtime_vars, only: logdev, LOG_MESSAGE
 
       Implicit None
@@ -344,7 +344,7 @@ C SR  03/25/11 Replaced I/O API include files with UTILIO_DEFN
 C-----------------------------------------------------------------------
 
       Use aeromet_data, only: airdens, inv_mwair, min_gasconc
-      Use utilio_defn, only: xstat3
+      Use utilio_defn, only: xstat3, m3exit
       Use aero_data, only : COND_BUDGET, COAG_BUDGET, NPF_BUDGET, GROWTH_BUDGET
 
       Implicit None
@@ -421,6 +421,8 @@ C     Prakash Bhave, Jeff Young, and Sergey Napelenok.
 C
 C SR  03/25/11 Replaced I/O API include files with UTILIO_DEFN
 C-----------------------------------------------------------------------
+
+      use utilio_defn
 
       Implicit None
 

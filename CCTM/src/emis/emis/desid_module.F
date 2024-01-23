@@ -84,6 +84,8 @@ C-----------------------------------------------------------------------
          USE UTILIO_DEFN         ! I/O API
          USE AERO_EMIS           ! inherits GRID_CONF
          !USE AERO_DATA           ! access subroutine map_pmemis
+         USE CENTRALIZED_IO_MODULE, only : interpolate_var
+         USE ASX_DATA_MOD, only: MET_DATA
 
 #ifdef isam
          USE SA_DEFN, ONLY : SA_VDEMIS_DIFF, NTAG_SA, SA_VDEMIS_CONV, NSPC_SA,
@@ -95,7 +97,7 @@ C-----------------------------------------------------------------------
 #endif
 
 #ifdef mpas
-        USE COUPLER_MODULE, ONLY : MPAS_CELL_AREA => CELL_AREA
+        USE COUPLER_MODULE, ONLY : cell_thickness, cell_vol, MPAS_CELL_AREA => CELL_AREA
 #endif
          IMPLICIT NONE
 
@@ -122,12 +124,14 @@ C-----------------------------------------------------------------------
          ! Define Projected Gridd Cell Areas
          ALLOCATE( CELLAREA( NCOLS,NROWS ),STAT=STATUS )
          CALL CHECKMEM( STATUS, 'CELLAREA', PNAME )
-         ALLOCATE( CELLHGT( NLAYS ),STAT=STATUS )
+         ALLOCATE( CELLHGT( NCOLS, NROWS, NLAYS ),STAT=STATUS )
          CALL CHECKMEM( STATUS, 'CELLHGT', PNAME )
          ALLOCATE( CELLVOL( NCOLS,NROWS,NLAYS ),STAT=STATUS )
          CALL CHECKMEM( STATUS, 'CELLVOL', PNAME )
 #ifdef mpas
          CELLAREA(:,:) = MPAS_CELL_AREA(:,:)
+         CELLHGT( :,1,: ) = cell_thickness(:,1,:)
+         CELLVOL( :,1,: ) = cell_vol(:,1,:)
 #else
          IF ( GDTYP_GD .EQ. LATGRD3 ) THEN
             DX1 = DG2M * XCELL_GD ! in m.
@@ -139,13 +143,16 @@ C-----------------------------------------------------------------------
             DX2 = YCELL_GD        ! in m.
          END IF
          CELLAREA(:,:) = REAL( DX1 * DX2, 4 )
-#endif
          ! Get height of grid cell in each layer in sigma coordinates
          ! Multiply by grid area [m2] to obtain grid volume
+
+         !cellhgt = Met_Data%DZF ! for spatially varying height
+
          DO L = 1, NLAYS
-            CELLHGT( L ) = X3FACE_GD( L ) - X3FACE_GD( L-1 )
-            CELLVOL( :,:,L ) = CELLHGT( L ) * CELLAREA(:,:)
+            CELLHGT( :,:,L ) = X3FACE_GD( L ) - X3FACE_GD( L-1 )
+            CELLVOL( :,:,L ) = CELLHGT( :,:,L ) * CELLAREA(:,:)
          END DO
+#endif
  
          ! REMINDER: CELLAREA is projected grid cell area (e.g. 12 x 12
          ! km^2). To get real area on the Earth for a conformal grid, you
@@ -236,7 +243,11 @@ C or Print Warnings if Mistakes Are Made.
 
          CALL DESID_PROCESS_RULES( JDATE, JTIME )
          CALL DESID_INIT_DIAG
+#ifndef mpas
          IF ( IO_PE_INCLUSIVE ) CALL DESID_OPEN_DIAG( JDATE, JTIME, TSTEP )
+#else
+         CALL DESID_OPEN_DIAG( JDATE, JTIME, TSTEP )
+#endif
 
 C Allocate Space for Master Emissions Computation
          ALLOCATE ( VDEMIS_DIFF( N_SPC_DIFF,DESID_LAYS,NCOLS,NROWS ),STAT = STATUS )
@@ -283,18 +294,23 @@ C Return From Initialization
 !-----------------------------------------------------------------------
 
          USE UTILIO_DEFN
-
+         USE centralized_io_module
+#ifdef mpas
+         use util_module, only : time2sec, nextime
+#endif
          IMPLICIT NONE
 
          INTEGER, INTENT( IN ) :: JDATE, JTIME  ! date (YYYYDDD), time (HHMMSS)
          INTEGER, INTENT( IN ) :: TSTEP( 3 )    ! time step vector (HHMMSS)
          REAL, POINTER :: CGRID( :,:,:,: )
-         
+
          LOGICAL         :: L_DESID_DIAG
          LOGICAL         :: FIRST_TIME = .TRUE.
          INTEGER, SAVE   :: WSTEP, MDATE, MTIME
          LOGICAL         :: WRTIME
          CHARACTER( 200 ):: XMSG
+
+         INTEGER :: l
 
          CALL LOG_MESSAGE( LOGDEV, 'Beginning Emissions' )
          
@@ -343,6 +359,7 @@ C Return From Initialization
      &          '  and time: ',JTIME
            CALL LOG_MESSAGE( LOGDEV, XMSG )
            CALL LOG_MESSAGE( LOGDEV, '' )
+
          CALL DESID_GET_EMIS( JDATE, JTIME, TSTEP, CGRID, .FALSE. )
 
          END SUBROUTINE DESID_DRIVER
@@ -387,6 +404,10 @@ C Return From Initialization
      &                         STREAM_TO_SENS, SENS_PER_STREAM
          USE VDIFF_MAP, ONLY : DIFF_MAP
 #endif
+#ifdef mpas
+         use util_module, only : index1
+#endif
+         USE centralized_io_module
 
          IMPLICIT NONE
 
@@ -611,7 +632,6 @@ C Retrieve Emissions from All Stream Types
            END DO
            END DO
 
-
            SELECT CASE ( DESID_STREAM_ITYPE( ISRM ) )
              
              ! Retrieve Gridded and Tracer Emissions
@@ -619,7 +639,9 @@ C Retrieve Emissions from All Stream Types
                NL = DESID_GRID_LAYS( ISRM )
                CALL GR3D( JDATE, JTIME, TSTEP, DESID_STREAM_NAME( ISRM ), 
      &                        NL, ISRM, VDEMIS_READ, L_DESID_DIAG )
+
                CALL DESID_SCALING( VDEMIS_READ, ISRM, NL, VDEMIS_SCALED )
+
                CALL DESID_SIZE_DIST( ISRM, VDEMIS_SCALED, NL )
 
              ! Retrieve Point Source Emissions Streams
@@ -627,9 +649,11 @@ C Retrieve Emissions from All Stream Types
                NL = 1
                CALL GET_PT3D_EMIS ( JDATE, JTIME, TSTEP, LOCAL_EMVAR( :,ISRM ), 
      &                              ISRM, VDEMIS_READ, NL, L_DESID_DIAG )
+
                CALL DESID_SCALING( VDEMIS_READ, ISRM, NL, VDEMIS_SCALED )
+
                CALL DESID_SIZE_DIST( ISRM, VDEMIS_SCALED, NL )
-             
+
              CASE ( 4 )
                NL = 1
                CALL GET_BEIS ( JDATE, JTIME, TSTEP, L_DESID_DIAG )
@@ -642,9 +666,11 @@ C Retrieve Emissions from All Stream Types
              CASE ( 5 )
                NL = 1
                CALL GET_MGEMIS ( JDATE, JTIME, TSTEP, CGRID, L_DESID_DIAG )
+
                FORALL( ISTR = 1:DESID_N_ISTR, MAP_ISTRtoEMVAR( ISTR,ISRM ) .GT. 0 )
                   VDEMIS_READ( ISTR,1,:,: ) = VDEMIS_MG( MAP_ISTRtoEMVAR( ISTR,ISRM ),:,: ) 
                END FORALL
+
                CALL DESID_SCALING( VDEMIS_READ, ISRM, NL, VDEMIS_SCALED )
 
              ! Retrieve Lightning NO Emissions
@@ -662,18 +688,21 @@ C Retrieve Emissions from All Stream Types
              CASE ( 7 )
                NL = 1
                CALL GET_SSEMIS ( JDATE, JTIME, TSTEP, CELLVOL( :,:,1 ), 
-     &                           CELLHGT( 1 ), L_DESID_DIAG )
+     &                           CELLHGT( :,:,1 ), L_DESID_DIAG )
+
                FORALL( ISTR = 1:DESID_N_ISTR, MAP_ISTRtoEMVAR( ISTR,ISRM ) .GT. 0 )
                   VDEMIS_READ( ISTR,1,:,: ) = SSOUTM( MAP_ISTRtoEMVAR( ISTR,ISRM ),:,: ) 
                END FORALL
+
                CALL DESID_SCALING( VDEMIS_READ, ISRM, NL, VDEMIS_SCALED )
+
                CALL DESID_SIZE_DIST( ISRM, VDEMIS_SCALED, NL )
 
              ! Retrieve Wind-Blown Dust Emissions 
              CASE ( 8 )
                NL = 1
                CALL GET_DUST_EMIS ( JDATE, JTIME, TSTEP, Met_data%RJACM( :,:,1 ), 
-     &                              CELLHGT( 1 ), L_DESID_DIAG )
+     &                              CELLHGT( :,:,1 ), L_DESID_DIAG )
                FORALL( ISTR = 1:DESID_N_ISTR, MAP_ISTRtoEMVAR( ISTR,ISRM ) .GT. 0 )
                   VDEMIS_READ( ISTR,1,:,: ) = DUSTOUTM( MAP_ISTRtoEMVAR( ISTR,ISRM ),:,: ) 
                END FORALL
@@ -884,6 +913,9 @@ C------------------------------------------------------------------------------
       USE CGRID_SPCS          ! CGRID mechanism species
       USE ASX_DATA_MOD, ONLY: MET_DATA, GRID_DATA
       USE CENTRALIZED_IO_MODULE, ONLY: interpolate_var
+#ifdef mpas
+         use util_module, only : nextime
+#endif
 
       !USE EMIS_UTIL
       !USE UTILIO_DEFN
@@ -914,6 +946,11 @@ C------------------------------------------------------------------------------
       LOGICAL, SAVE :: FIRSTIME = .TRUE.
       INTEGER, ALLOCATABLE, SAVE :: LOC_STDATE(:)
       LOGICAL         :: L_NEWDAY
+
+      real*8 :: lDBL_CKSUM
+      real :: lsum
+      logical :: found
+      integer :: mycount
 
 !-----------------------------------------------------------------------
 
@@ -968,7 +1005,6 @@ C------------------------------------------------------------------------------
              VDEMIS( ISTR,DESID_LAYS,:,: ) = VDEMIS( ISTR,DESID_LAYS,:,: ) + BUFF( :,:,L )
           END DO
         END IF
-
       END DO   ! ISTR
 
       ! Reset the date of the gridded file if this is diagnostic mode
@@ -1044,9 +1080,12 @@ C-----------------------------------------------------------------------
             IF ( IRGN .EQ. REG_UNQ .OR.
      &          DESID_REG_SUB( IRGN,REG_UNQ ) ) THEN
               !Apply scaling for region IRGN using DESID_FAC 
+
               IF ( OP .EQ. 1 ) THEN ! Add New Emission
+#ifndef mpas
                  IF ( LAREA ) FAC = FAC * CELLAREA
                  IF ( LAREAADJ ) FAC = FAC / MSFX2
+#endif
                  DO L = 1,NL
                    VDEMIS1( L,:,: ) = VDEMIS1( L,:,: ) +
      &                  VDEMIS0( ISTR,L,:,: ) * FAC
@@ -1058,8 +1097,10 @@ C-----------------------------------------------------------------------
                  END DO
 
               ELSE IF ( OP.EQ.3 ) THEN ! Overwrite Existing Rule
+#ifndef mpas
                  IF ( LAREA ) FAC = FAC * CELLAREA
                  IF ( LAREAADJ ) FAC = FAC / MSFX2
+#endif
                  DO L = 1,NL
                    VDEMIS1( L,:,: ) = VDEMIS0( ISTR,L,:,: ) * FAC
                  END DO
@@ -1088,6 +1129,7 @@ C-----------------------------------------------------------------------
 
 
         END DO    ! End loop through unique regions
+
       END DO      ! End loop through instructions
 
       RETURN
@@ -1103,6 +1145,9 @@ C-----------------------------------------------------------------------
           
       USE ASX_DATA_MOD, ONLY: MET_DATA, GRID_DATA
       USE AERO_EMIS           ! inherits GRID_CONF
+#ifdef mpas
+      USE coupler_module, ONLY: inv_cell_vol
+#endif
 
       IMPLICIT NONE
 
@@ -1112,6 +1157,7 @@ C-----------------------------------------------------------------------
       REAL,       SAVE :: CNVTP                ! intermediate combined conv. factor
       REAL,ALLOCATABLE, SAVE :: CONVM( :,:,: ) ! Aerosol Mass and Surface Area conversion factor         
       REAL,ALLOCATABLE, SAVE :: CONVN( :,:,: ) ! Aerosol Number conversion factor       
+      REAL,ALLOCATABLE, SAVE :: CNVTI_M( :,:,: ) ! intermediate combined conv. factor
       REAL, PARAMETER  :: GPKG = 1.0E+03       ! g/kg
       REAL, PARAMETER  :: MWAIR = 28.9628      ! g/mol
       REAL, PARAMETER  :: AVO  = 6.0221367E23
@@ -1128,17 +1174,31 @@ C-----------------------------------------------------------------------
       IF ( FIRSTIME ) THEN
          FIRSTIME = .FALSE.
          ! Populate Persistent Variables
+#ifndef mpas
          CNVTP = 1.0E+06 * MWAIR / REAL( DX1 * DX2 ) !Conv. Factor for Gases 
+#endif
 
          ALLOCATE( CNVTI( DESID_LAYS ), CNVTC( DESID_LAYS,NCOLS,NROWS ), 
+#ifdef mpas
+     &             CNVTI_M( NCOLS,NROWS,DESID_LAYS ),
+#endif
      &             CONVM( DESID_LAYS,NCOLS,NROWS ),
      &             CONVN( DESID_LAYS,NCOLS,NROWS )  )
       END IF    !FirstTime
       
       ! Convert All Emissions to Units Appropriate for the Dispersion Solver
+#ifdef mpas
+      CNVTI_M( :,1,1:NL ) = 1.0E+06 * MWAIR * inv_cell_vol(:,1,1:NL)
+#else
       CNVTI( 1:NL ) = CNVTP * Grid_Data%RDX3F( 1:NL )
+#endif
+
       DO L = 1,NL
-        CNVTC( L,:,: ) = 1.0E-3 * CNVTI( L ) * Met_Data%RRHOJ( :,:,L )  ! Gas Moles:   mol/s -> ppmv/s
+#ifdef mpas
+        CNVTC( L,:,: ) = 1.0E-3 * CNVTI_M( :,:,L ) * Met_Data%RRHOJ( :,:,L )  ! Gas Moles:   mol/s -> ppmv/s
+#else
+        CNVTC( L,:,: ) = 1.0E-3 * CNVTI( L ) * Met_Data%RRHOJ( :,:,L )        ! Gas Moles:   mol/s -> ppmv/s
+#endif
         CONVM( L,:,: ) = MWAIR / GPKG / Met_Data%DENS( :,:,L ) !m3/mol  ! Aer. Mass:   umol/m3/s -> ppmv/s
       END DO                                                            ! m2/m3/s -> m2/mol/s
       CONVN( 1:NL,:,: ) = CONVM( 1:NL,:,: )                             ! Aer. Num:    N/m3/s -> N/mol/s
@@ -1241,6 +1301,9 @@ C-----------------------------------------------------------------------
      &                      DIFF_MASK_NUM, DIFF_MASK_SRF, DIFF_MW, DIFF_SPC,
      &                      DIFF_MASK_NR, DIFF_MASK_TRAC
       USE AERO_DATA, ONLY : GPKG
+#ifdef mpas
+      USE coupler_module, ONLY: inv_cell_vol
+#endif
 
       IMPLICIT NONE
          
@@ -1255,6 +1318,7 @@ C-----------------------------------------------------------------------
       REAL, PARAMETER :: RAVO = 1.0 / AVO
       REAL,ALLOCATABLE, SAVE :: CNVTC( :,:,: ) ! combined conversion factor
       REAL,ALLOCATABLE, SAVE :: CNVTI( : )     ! intermediate combined conv. factor
+      REAL,ALLOCATABLE, SAVE :: CNVTI_M( :,:,: ) ! intermediate combined conv. factor for mpas
       REAL,       SAVE :: CNVTP                ! intermediate combined conv. factor
       REAL,ALLOCATABLE, SAVE :: CONVM( :,:,: ) ! Aerosol Mass and Surface Area conversion factor         
       REAL,ALLOCATABLE, SAVE :: CONVN( :,:,: ) ! Aerosol Number conversion factor       
@@ -1268,10 +1332,15 @@ C-----------------------------------------------------------------------
       ! Get pressure info from ASX_DATA_MOD
       IF ( FIRST_TIME ) THEN
          FIRST_TIME = .FALSE.
+#ifndef mpas
          CNVTP = 1.0E+06 * MWAIR / REAL( DX1 * DX2 ) !Conv. Factor for Gases 
+#endif
 
          ALLOCATE( CNVTI( DESID_LAYS ), CNVTC( DESID_LAYS,NCOLS,NROWS ), 
      &             CONVM( DESID_LAYS,NCOLS,NROWS ),
+#ifdef mpas
+     &             CNVTI_M( NCOLS,NROWS,DESID_LAYS ),
+#endif
      &             CONVN( DESID_LAYS,NCOLS,NROWS ),
      &             VDEMIS( N_SPC_DIFF,DESID_LAYS,NCOLS,NROWS ),
      &             VDEMIS_OUT( NCOLS,NROWS,DESID_LAYS ) )
@@ -1281,9 +1350,17 @@ C-----------------------------------------------------------------------
       VDEMIS_OUT = 0.0
 
       ! Convert All Emissions to Units Appropriate for the Dispersion Solver
+#ifdef mpas
+      CNVTI_M( :, 1, 1:NL ) = 1.0E+06 * MWAIR * inv_cell_vol(:, 1, 1:NL)
+#else
       CNVTI( 1:NL ) = CNVTP * Grid_Data%RDX3F( 1:NL )
+#endif
       DO L = 1,NL
-        CNVTC( L,:,: ) = 1.0E3 / ( CNVTI( L ) * Met_Data%RRHOJ( :,:,L ) ) ! Gas Moles: ppmv/s -> mol/s
+#ifdef mpas
+        CNVTC( L,:,: ) = 1.0E3 / ( CNVTI_M( :,:,L ) * Met_Data%RRHOJ( :,:,L ) )   ! Gas Moles: ppmv/s -> mol/s
+#else
+        CNVTC( L,:,: ) = 1.0E3 / ( CNVTI( L ) * Met_Data%RRHOJ( :,:,L ) )         ! Gas Moles: ppmv/s -> mol/s
+#endif
         CONVM( L,:,: ) = (1.0 / MWAIR) * GPKG * Met_Data%DENS( :,:,L )    ! Aer. Mass: ppmv/s -> umol/s
      &                   / Met_Data%RJACM( :,:,L ) * CELLVOL( :,:,L )     ! m2/mol/s -> m2/s
       END DO                                                                
@@ -1338,11 +1415,13 @@ C-----------------------------------------------------------------------
               IF ( DESID_DIAG_N_STREAM( IDIAG ) .EQ. 1 ) THEN
                 ! Only this stream contributes. Write emisison
                 ! rates out directly
+#ifndef mpas
                 IF ( .NOT. WRITE3( DESID_DIAG_LOGICAL(IDIAG), DESID_DIAG_SPEC(IDIAG)%SPEC(ISPEC),
      &               JDATE, JTIME, VDEMIS_OUT( :,:,1:LAYS ) ) ) THEN
                    XMSG = 'Could not write ' // TRIM( DESID_DIAG_FILENAME(IDIAG) ) // ' file'
                    CALL M3EXIT( 'WRITE_EMISS_DIAG', JDATE, JTIME, XMSG, XSTAT1 )
                 END IF
+#endif
               ELSE
                 ! Other streams contribute as well. Sum these emission
                 ! rates to an aggregate array, VDEMIS_DIAG
@@ -1369,20 +1448,31 @@ C-----------------------------------------------------------------------
           INTEGER JDATE, JTIME
           CHARACTER(200) :: XMSG
 
+#ifdef mpas
+          CHARACTER (20) :: TIME_STAMP
+          call mio_time_format_conversion (jdate, jtime, time_stamp)
+#endif
+
           DO IDIAG = 1,DESID_N_DIAG
 
             IF ( DESID_DIAG_N_STREAM( IDIAG ) .GT. 1 ) THEN
                LAYS = DESID_DIAG_LAYS( IDIAG )
 
+
                DO ISPEC = 1,DESID_DIAG_SPEC( IDIAG )%NSPEC
                   ! Write out the emissions data for this aggregate
                   ! diagnostic
                   JSPEC = MAP_DIAGtoVDEMIS( ISPEC,IDIAG )
+#ifndef mpas
                   IF ( .NOT. WRITE3( DESID_DIAG_LOGICAL(IDIAG), DESID_DIAG_SPEC( IDIAG )%SPEC( ISPEC ),
      &                     JDATE, JTIME, VDEMIS_DIAG( JSPEC,:,:,1:LAYS ) ) ) THEN
                     XMSG = 'Could not write ' // TRIM( DESID_DIAG_FILENAME(IDIAG) ) // ' file'
                     CALL M3EXIT( 'WRITE_EMISS_DIAG', JDATE, JTIME, XMSG, XSTAT1 )
                   END IF
+#else
+             call mio_fwrite('EMIS_DIAG',DESID_DIAG_SPEC( IDIAG )%SPEC(ISPEC ), "write_emis",
+     &                             VDEMIS_DIAG( JSPEC,:,1,1 ) ,time_stamp)
+#endif
                END DO
             END IF
          END DO   
@@ -1415,6 +1505,9 @@ C-----------------------------------------------------------------------
      &                         DESID_STREAM_AERO, SD_SPLIT, DESID_INIT_SIZE_DIST
          USE UDTYPES,   only : CARRY1, LARRY1
          USE UTIL_FAMILY_MODULE
+#ifdef mpas
+         use util_module, only : index1, upcase
+#endif
 
          IMPLICIT NONE
 
@@ -2335,7 +2428,11 @@ C and allowing the model to proceed.
                      ! Check if IRGN and JRGN have a common Sub-Region 
                      ! and that that sub-region is not an active region
                      IF ( DESID_REG_SUB(I,K) .AND. DESID_REG_SUB(J,K) .AND.
+#ifndef mpas
      &                    INDEXINT1( K, NREG, REG_UNQ(1:NREG) ) .EQ. 0 ) THEN
+#else
+     &                    INDEX1( K, NREG, REG_UNQ(1:NREG) ) .EQ. 0 ) THEN
+#endif
                        ! Add Sub-Region K to Active Region List
                        NREG = NREG + 1
                        REG_UNQ( NREG ) = K
@@ -2727,6 +2824,10 @@ C and allowing the model to proceed.
 ! gridded and point stream file, i.e. Emissions File 10 is also known as
 ! Point Source file 2.
 !
+#ifdef mpas
+         use util_module, only : upcase
+#endif
+  
       IMPLICIT NONE
 
       INTEGER, INTENT(IN)  :: JDATE, JTIME
@@ -2980,6 +3081,10 @@ C stkemis_init.
 !       selected or ignored, and rates may be summed into columns, among
 !       other features.
 !-----------------------------------------------------------------------
+
+#ifdef mpas
+         use util_module, only : index1, upcase
+#endif
   
         IMPLICIT NONE
   
@@ -3165,7 +3270,9 @@ C stkemis_init.
              DESID_DIAG_FILENAME(IDIAG) = TRIM( OUTDIR ) // '/' // DESID_DIAG_FILENAME(IDIAG)
            END IF
            WRITE( DESID_DIAG_LOGICAL( IDIAG ),'( "DESID_",I3.3 )' ) IDIAG
+#ifndef mpas
            VALUE = SETENVVAR( DESID_DIAG_LOGICAL( IDIAG ), DESID_DIAG_FILENAME( IDIAG ) )
+#endif
         END DO
    
         ! Allocate Minimal Necessary Space for VDEMIS_DIAG
@@ -3202,6 +3309,10 @@ C                        removed deprecated TRIMLEN
       USE UTILIO_DEFN
       USE AERO_DATA, only : AEROMODE, N_MODE, MGPG, GPKG
       USE VDIFF_MAP, only : N_SPC_DIFF, DIFF_SPC, DIFF_MASK_AERO
+#ifdef mpas
+      use util_module, only : index1, upcase
+      use mio_module
+#endif
   
       IMPLICIT NONE
   
@@ -3223,7 +3334,11 @@ C Local variables:
       LOGICAL ::   WRFLG = .FALSE.
       INTEGER      STATUS, IOS
       INTEGER      V, N, S, ISRM, ITRAC, IGR, IVAR, X    
-  
+
+      integer :: floc, loc_nvars, loc_nlays, loc_date, loc_time
+      character (16), allocatable :: loc_vnames(:), loc_units(:)
+      logical :: file_exist
+
 C-----------------------------------------------------------------------
   
       CALL LOG_SUBHEADING( LOGDEV,'Open Gridded Emissions' )
@@ -3234,42 +3349,66 @@ C Open All Tracer Emission Files
       DO ISRM = 1,DESID_N_SRM
         IF ( DESID_STREAM_TYPE( ISRM ) .EQ. 'TRAC' ) THEN
            ITRAC = ITSRM( ISRM )
-  
+#ifdef mpas
+           floc = mio_search (DESID_STREAM_NAME( ISRM ))
+           if (floc > 0) then
+              file_exist = .true.
+              loc_nvars = mio_file_data(floc)%nvars
+              loc_nlays = mio_file_data(floc)%nlays
+              allocate (loc_vnames(loc_nvars), loc_units(loc_nvars), stat=status)
+              loc_vnames = mio_file_data(floc)%var_name
+              loc_units  = mio_file_data(floc)%units
+           else
+              file_exist = .false.
+           end if
+#else  
            IF ( .NOT. OPEN3( DESID_STREAM_NAME( ISRM ), FSREAD3, PNAME ) ) THEN
               XMSG = 'Could not open tracer file'
               CALL M3MESG( XMSG )
+              file_exist = .false.
            ELSE
-             ! Save Tracer Variables for Use in Emissions Species Check
-             ! Routine
-             DESID_EMVAR( ISRM )%LEN = NVARS3D
-             ALLOCATE ( DESID_EMVAR( ISRM )%ARRY( NVARS3D ), STAT = STATUS )
-             ALLOCATE ( DESID_EMVAR( ISRM )%UNITS( NVARS3D ), STAT = STATUS )
-             DESID_EMVAR( ISRM )%ARRY = VNAME3D( 1:NVARS3D )
-  
+              file_exist = .true.
              ! Assign Tracer Emissions Species
              IF ( .NOT. DESC3( DESID_STREAM_NAME( ISRM ) ) ) THEN
                 XMSG = 'Could not get '// DESID_STREAM_NAME( ISRM ) // ' file description'
                 CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
              END IF
   
+             loc_nvars = nvars3d
+             loc_nlays = nlays3d
+             allocate (loc_vnames(loc_nvars), loc_units(loc_nvars), stat=status)
+             loc_vnames = VNAME3d(1:loc_nvars)
+             loc_units  = UNITS3D(1:loc_nvars)
+           END IF
+#endif  
+
+           IF (FILE_EXIST) THEN
+             ! Save Tracer Variables for Use in Emissions Species Check
+             ! Routine
+             DESID_EMVAR( ISRM )%LEN = loc_nvars
+             ALLOCATE ( DESID_EMVAR( ISRM )%ARRY( loc_nvars ), STAT = STATUS )
+             ALLOCATE ( DESID_EMVAR( ISRM )%UNITS( loc_nvars ), STAT = STATUS )
+
+             DESID_EMVAR( ISRM )%ARRY = loc_vnames
+  
              ! Assign Layers to Common Vector
-             DESID_GRID_LAYS( ISRM ) = NLAYS3D
+             DESID_GRID_LAYS( ISRM ) = loc_nlays
               
              ! Check Units For Consistency
              UNITSCK = 'BLANK'
-             DO N = 1,NVARS3D
-                V = INDEX1( VNAME3D( N ), N_SPC_DIFF, DIFF_SPC )
+             DO N = 1, loc_nvars
+                V = INDEX1( loc_vnames( N ), N_SPC_DIFF, DIFF_SPC )
                 IF ( V .NE. 0 ) THEN
-                  IF ( UNITSCK .EQ. 'BLANK' ) UNITSCK = UNITS3D( N )
-                  IF ( UNITS3D( N ) .NE. UNITSCK ) THEN
+                  IF ( UNITSCK .EQ. 'BLANK' ) UNITSCK = loc_units( N )
+                  IF ( loc_units( N ) .NE. UNITSCK ) THEN
                      XMSG = 'Units not uniform on ' // DESID_STREAM_LAB( ISRM )
                      CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
                   END IF
                 END IF
-                DESID_EMVAR( ISRM )%UNITS( N ) = UNITS3D( N )
+                DESID_EMVAR( ISRM )%UNITS( N ) = loc_units( N )
              END DO 
            END IF
-  
+           deallocate (loc_vnames, loc_units) 
         END IF   ! tracer emissions
       END DO
   
@@ -3278,7 +3417,16 @@ C Open Gridded Emission Files (for gas chem, aerosols and non-reactive species)
       DO ISRM = 1,DESID_N_SRM
         IF ( DESID_STREAM_TYPE( ISRM ) .EQ. 'GRID' ) THEN
           IGR = IGSRM( ISRM )
-  
+
+#ifdef mpas 
+          floc = mio_search (DESID_STREAM_NAME( ISRM ))
+          call mio_timestamp_to_julian (mio_file_data(floc)%timestamp(1), loc_date, loc_time)
+          loc_nvars = mio_file_data(floc)%nvars
+          loc_nlays = mio_file_data(floc)%nlays
+          allocate (loc_vnames(loc_nvars), loc_units(loc_nvars), stat=status)
+          loc_vnames = mio_file_data(floc)%var_name
+          loc_units  = mio_file_data(floc)%units
+#else
           IF ( .NOT. OPEN3( DESID_STREAM_NAME( ISRM ), FSREAD3, PNAME ) ) THEN
               XMSG = 'Could not open file ' // DESID_STREAM_NAME( ISRM )
               CALL M3MESG( XMSG )
@@ -3288,31 +3436,39 @@ C Open Gridded Emission Files (for gas chem, aerosols and non-reactive species)
               XMSG = 'Could not get '// DESID_STREAM_NAME( ISRM ) // ' file description'
               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
             END IF
-            
-            ! Let the date for this emission stream come from the model
-            ! by default or the file if the user wishes to override the
-            ! default for representative day files
-            DESID_STREAM_DATE( ISRM ) = JDATE
-            IF ( DESID_STREAM_SYM_DATE( ISRM ) )  DESID_STREAM_DATE( ISRM ) = SDATE3D
-  
-            ! Save Area Source Species Names For Use in Emissions Species
-            ! Check Routine
-            DESID_EMVAR( ISRM )%LEN = NVARS3D
-            ALLOCATE ( DESID_EMVAR( ISRM )%ARRY( NVARS3D ), STAT = STATUS )
-            ALLOCATE ( DESID_EMVAR( ISRM )%UNITS( NVARS3D ), STAT = STATUS )
-            DESID_EMVAR( ISRM )%ARRY = VNAME3D( 1:NVARS3D )
-           
-            ! Assign Area Source Emission Species
-            DESID_GRID_LAYS( ISRM ) = NLAYS3D
-  
-            ! Assign Units
-            DO IVAR = 1,NVARS3D
-                  ! A match has been found
-                  UNITSCK = UNITS3D( IVAR )
-                  CALL UPCASE( UNITSCK )
-                  DESID_EMVAR( ISRM )%UNITS( IVAR ) = UNITS3D( IVAR )
-            END DO
           END IF
+          loc_nvars = NVARS3D
+          loc_nlays = nlays3d
+          allocate (loc_vnames(loc_nvars), loc_units(loc_nvars), stat=status)
+          loc_vnames = VNAME3d(1:loc_nvars)
+          loc_units  = UNITS3D(1:loc_nvars)
+          loc_date   = sdate3d
+#endif
+            
+          ! Let the date for this emission stream come from the model
+          ! by default or the file if the user wishes to override the
+          ! default for representative day files
+          DESID_STREAM_DATE( ISRM ) = JDATE
+          IF ( DESID_STREAM_SYM_DATE( ISRM ) )  DESID_STREAM_DATE( ISRM ) = loc_date
+ 
+          ! Save Area Source Species Names For Use in Emissions Species
+          ! Check Routine
+          DESID_EMVAR( ISRM )%LEN = loc_nvars
+          ALLOCATE ( DESID_EMVAR( ISRM )%ARRY( loc_nvars ), STAT = STATUS )
+          ALLOCATE ( DESID_EMVAR( ISRM )%UNITS( loc_nvars ), STAT = STATUS )
+          DESID_EMVAR( ISRM )%ARRY = loc_vnames
+         
+          ! Assign Area Source Emission Species
+          DESID_GRID_LAYS( ISRM ) = loc_nlays
+
+          ! Assign Units
+          DO IVAR = 1,loc_nvars
+                ! A match has been found
+                UNITSCK = loc_units( IVAR )
+                CALL UPCASE( UNITSCK )
+                DESID_EMVAR( ISRM )%UNITS( IVAR ) = loc_units( IVAR )
+          END DO
+          deallocate (loc_vnames, loc_units)
         END IF    ! (gridded emission file)
       END DO
   
@@ -3345,6 +3501,7 @@ C Open Gridded Emission Files (for gas chem, aerosols and non-reactive species)
   
       INTEGER :: IDIAG, IVAR, NLAYERS, V, ISPEC
       
+#ifndef mpas
       DO IDIAG = 1,DESID_N_DIAG
       
         ! Test whether or not each file should be opened
@@ -3404,10 +3561,13 @@ C Open Gridded Emission Files (for gas chem, aerosols and non-reactive species)
   
         END IF   ! DESID_STREAM_LDIAG?
       END DO     ! IDIAG
+#else
+         call mio_fcreate ('EMIS_DIAG',512 )
+#endif
   
   
       END SUBROUTINE DESID_OPEN_DIAG
-  
+
   
 C-----------------------------------------------------------------------
        END MODULE DESID_MODULE
