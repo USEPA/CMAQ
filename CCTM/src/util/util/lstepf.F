@@ -50,6 +50,7 @@ C-----------------------------------------------------------------------
 
 C open existing file for readonly access
 
+#ifndef mpas
       IF ( .NOT. OPEN3( FNAME, FSREAD3, PNAME ) ) THEN
          XMSG = 'Could not open '// FNAME
          CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
@@ -64,6 +65,7 @@ C open existing file for readonly access
       LDATE = SDATE3D
       LTIME = STIME3D
       CALL NEXTIME( LDATE, LTIME, LSTEP )
+#endif
  
       RETURN
       END

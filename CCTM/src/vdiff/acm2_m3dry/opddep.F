@@ -68,6 +68,7 @@ C Local variables:
 
 C-----------------------------------------------------------------------
 
+#ifndef mpas
 C Try to open existing file for update
 
       IF ( .NOT. OPEN3( CTM_DRY_DEP_1, FSRDWR3, PNAME ) ) THEN
@@ -186,6 +187,7 @@ C    Open dry deposition file
          END IF
 
       END IF
+#endif
 
 #ifdef sens
 CC..Create sensitivity dry deposition file
