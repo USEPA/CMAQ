@@ -9,6 +9,15 @@ This Fortran program creates gridded IOAPI files with daily values from gridded 
  USELOCAL      use local time when computing daily values (default N)
  USEDST        use daylight savings time when computing daily values (default N)
  TZFILE        location of time zone data file, tz.csv (this is a required input file)
+               The time zone file has a header record for each time zone followed by
+               the points in longitude/latitude that define its boundary polygon.
+                 * Header record (%d,%d,%s): n points in polygon,hour offset,description
+                 * Point records (%.4f,%.4f): longitude,latitude
+               Two time zone files are provided with hr2day:
+                 * tz_legacy.csv: Old file with unknown source and some known issues.
+                 * tz.csv was created 2023-06-09 by Barron H. Henderson from the
+                   the Natural Earth time zone shapefile (v4.1.0) at 10m resolution.
+                   Shapefil available from https://www.naturalearthdata.com/
  PARTIAL_DAY   allow use of partial days when computing daily values. If this is set to N, 
                the program will require at least 18 out of 24 values to be present in the 
                time zone of interest to compute a daily value (default N)
@@ -78,6 +87,7 @@ Defines the name, units, expression and daily operation for each variable in OUT
  @8HRMAXO3 - averages the value within the 8-hr-max ozone period
  HR@8HRMAX - Starting hour of the 8-hr-max period 
  SUM06 - computes the SUM06 ozone value
+ TZ - outputs the time zone offset used by hr2day. For example, a cell in Eastern Standard Time (UTC-0500) would output -5.
  
  examples:
                 
@@ -90,6 +100,11 @@ Defines the name, units, expression and daily operation for each variable in OUT
  setenv SPECIES_3 "ASO4J_MAX,ug/m3,ASO4J,MAX" (computes the daily maximum value of ASO4J from INFILE 
                                               (assumed to be in ug/m3) and writes the result to OUTFILE as 
                                               ASO4J_MAX with units ug/m3)
+ setenv SPECIES_4 "UTCOFFSET,hours since UTC,O3,TZ"  (hr2day assigns each grid cell a time zone offset in hours
+                                              since UTC from TZFILE. This writes the result to OUTFILE as
+                                              UTCOFFSET with units hours since UTC. Although TZ does not
+                                              use the expression (here O3), it must be a valid field to pass
+                                              input checking.)
 ```
 
 ## Compile hr2day source code:

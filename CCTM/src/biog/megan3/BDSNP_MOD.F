@@ -39,17 +39,21 @@ C::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       USE PHOT_MOD,     ONLY: CFRAC_2D_AVE
 
       USE UTILIO_DEFN
+#ifdef mpas
+      use mio_module
+      use util_module, only : TIME2SEC, secsdiff, nextime
+#else
 #ifdef parallel
       USE SE_MODULES            ! stenex (using SE_UTIL_MODULE)
 #else
       USE NOOP_MODULES          ! stenex (using NOOP_UTIL_MODULE)
+#endif
 #endif
 
 
       USE centralized_io_module, only: bdsnp_ndep,bdsnp_landtype,
      &                                 bdsnp_arid,bdsnp_nonarid,bdsnp_fert,
      &                                 soilmprev,ndepres,ndeprate,dryperiod,pfactor
-
      
       IMPLICIT NONE
 
@@ -195,8 +199,10 @@ C     ! make sure it only runs with PX version
          END IF
 
 C Allocate memory for data and read
-             output_step   = time2sec(tstep(1))
-             half_syn_step = time2sec(tstep(2)) / 2
+#ifdef mpas
+         output_step   = time2sec(tstep(1))
+         half_syn_step = time2sec(tstep(2)) / 2
+#endif
 
          ALLOCATE( FERT( NCOLS,NROWS ), STAT=IOS )
          CALL CHECKMEM( IOS, 'FERT', PNAME )
@@ -297,8 +303,11 @@ C           check for negatives
         END IF  ! initial run check
 
       END IF ! FIRSTIME
-
+#ifdef mpas
+      IF ( MOD((TIME2SEC( JTIME ) - half_syn_step), output_step) .EQ. 0 .and. .not. l_desid_diag) GOTO 9999
+#else
       IF (SECSDIFF(JDATE,JTIME,EDATE,ETIME) .LE. TIME2SEC(TSTEP(2)) .and. .not. L_DESID_DIAG) GOTO 9999
+#endif
     
 #ifdef twoway
        ! CFRAC for offline comes from MCIP but that's unavailable in twoway mode
@@ -422,6 +431,25 @@ C--------- MORE DIAGNOSTICS  ---------------------------------
 C -----------------------------------------------------
         END DO ! columns
       END DO ! rows
+#ifdef mpas
+        IF ( MOD( NTIME, 10000 ) .EQ. 0 ) THEN    ! at the hourly mark
+
+             call mio_time_format_conversion (jdate, jtime, time_stamp)
+
+             call mio_fwrite('BDSNP_DIAG','A_DIAG','BDSNP_MOD',
+     &                             a_diag(:,1),time_stamp)
+             call mio_fwrite('BDSNP_DIAG','AFERT_DIAG','BDSNP_MOD',
+     &                             afert_diag(:,1),time_stamp)
+             call mio_fwrite('BDSNP_DIAG','NRES_FERT_DIAG','BDSNP_MOD',
+     &                             nres_fert_diag(:,1),time_stamp)
+             call mio_fwrite('BDSNP_DIAG','NRES_DEP_DIAG','BDSNP_MOD',
+     &                             nres_dep_diag(:,1),time_stamp)
+             call mio_fwrite('BDSNP_DIAG','WET_DIAG','BDSNP_MOD',
+     &                             wet_diag(:,1),time_stamp)
+             call mio_fwrite('BDSNP_DIAG','TEMP_DIAG','BDSNP_MOD',
+     &                             temp_diag(:,1),time_stamp)
+       ENDIF
+#endif
 
       ELSE ! add things until it dies
       WRITE( MESG,*) 'BDSNP testing terms'
@@ -489,17 +517,17 @@ C Final timestamp
 #ifdef mpas
              call julian_to_mpas_date_time (jdate, jtime, time_stamp)
 
-             call mio_fwrite('BDSNP_OUTPUT','PFACTOR',
+             call mio_fwrite('BDSNPOUT','PFACTOR', pname,
      &                             PFACTOR(:,1),time_stamp)
-             call mio_fwrite('BDSNP_OUTPUT','DRYPERIOD',
+             call mio_fwrite('BDSNPOUT','DRYPERIOD', pname,
      &                             DRYPERIOD(:,1),time_stamp)
-             call mio_fwrite('BDSNP_OUTPUT','NDEPRES',
+             call mio_fwrite('BDSNPOUT','NDEPRES', pname,
      &                             NDEPRES(:,1),time_stamp)
-             call mio_fwrite('BDSNP_OUTPUT','SOILMPREV',
+             call mio_fwrite('BDSNPOUT','SOILMPREV', pname,
      &                             SOILMPREV(:,1),time_stamp)
-             call mio_fwrite('BDSNP_OUTPUT','NDEPRATE_DIAG',
+             call mio_fwrite('BDSNPOUT','NDEPRATE_DIAG', pname,
      &                           NDEPRATE(:,1),time_stamp)
-#endif
+#else
 !C Build description for, and create/open soil NO emissions output file
 
       FTYPE3D = GRDDED3
@@ -685,6 +713,7 @@ C Open NO rain data save file
         MESG = 'Error writing PULSEAVG to file: '//TRIM(MESG)
         CALL M3EXIT(PNAME,JDATE,JTIME,MESG,XSTAT2)
       ENDIF
+#endif
 
 
 C ------------------------------------------------------------------------------------
@@ -724,9 +753,15 @@ C-------------------------------------------------------------------------------
 !
 !  PFACTOR = PFACTOR * EXP( -0.068d0 * TSTEP(HOURS) )
 
+#ifdef mpas
+      use util_module, only : TIME2SEC
+#endif
+
          IMPLICIT NONE
 
+#ifndef mpas
          INTEGER, EXTERNAL       ::   TIME2SEC
+#endif
 
 C Function arguments:
          INTEGER, INTENT( IN )    :: TSTEP( 3 )        ! time step vector (HHMMSS)
@@ -787,12 +822,19 @@ C Get the deposition rate of the appropriate species for the appropriate timeste
 C Return reservoir amount.
 
 
+
          USE centralized_io_module, ONLY: ndeprate
          USE RUNTIME_VARS, ONLY:  MGN_ONLN_DEP
+#ifdef mpas
+         USE utilio_defn
+         use util_module, only : TIME2SEC
+#endif
 
          IMPLICIT NONE
 
+#ifndef mpas
          INTEGER, EXTERNAL       ::   TIME2SEC
+#endif
 
 C Function arguments:
 

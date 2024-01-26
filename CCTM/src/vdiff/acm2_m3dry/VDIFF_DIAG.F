@@ -58,10 +58,12 @@ C sedi sub-timestep counter
 !                          variables: CTM_GRAV_SETL and VDIFF_DIAG_FILE, in a robust way for
 !                          parallel I/O implementation
 
+#ifndef mpas
 #ifdef parallel
          use se_modules            ! stenex (using SE_UTIL_MODULE)
 #else
          use noop_modules          ! stenex (using NOOP_UTIL_MODULE)
+#endif
 #endif
 
          implicit none
@@ -75,6 +77,7 @@ C sedi sub-timestep counter
          integer i, j, k, v, ios
          integer, allocatable :: found( : )
 
+#ifndef mpas
          success = .true.
 
          if ( grvsetl ) then
@@ -274,6 +277,7 @@ C get CONC file header description
                call m3exit ( pname, jdate, jtime, xmsg, xstat2 )
             end if
          end if
+#endif
 #endif
 
          end function vdiff_diag_init
