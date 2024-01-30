@@ -39,7 +39,6 @@
 ! 03 Apr 19 H. Pye: Updated IEPOX to consume inorganic sulfate when OS are formed
 ! 11 Dec 20 G. Sarwar: Removed unused uptake cofficients and added few uptake cofficients for halogen species
 ! 23 Jun 21 G. Sarwar: Replaced CB6R3M with CB6R5M
-! 08 Nov 23 N. Skipper: Added heterogeneous uptake of HO2
 !-----------------------------------------------------------------------
 
        IMPLICIT NONE
@@ -323,7 +322,8 @@ c 03/24/16 - G. Sarwar - Heterogeneous uptake of BRONO2 on aerosols
 C 5/2016     H Pye - merged with AERO6i version (added NO3, GLY, MGLY, IMAE het rxn)
 c 07/17/18 - G. Sarwar - Heterogeneous uptakes of chlorine, bromine and iodine species on aerosols
 C 06/10/21 - G. Sarwar: Added CB6R5M_AE7_AQ
-c
+C 11/08/23 - N. Skipper: Added heterogeneous uptake of HO2
+C
 c  REFERENCES:
 c   1. Pleim, J.E., F.S. Binkowski, J.K.S. Ching, R.L. Dennis, and N.V.
 c      Gallani, An improved representation of the reaction of N2O5 on
@@ -389,6 +389,13 @@ C      composition in GEOS-CHEM: ACP, 16, 12239-12271, 2016
 C
 C  15. Deiber et al., Uptake of ClONO2 and BrONO2 by halide containing droplets
 C      ACP, 4, 1291-1299, 2004
+C
+C  16. Ivatt et al., Suppression of surface ozone by an aerosol-inhibited
+C      photochemical ozone regime, Nat. Geosci.,
+C      doi: 10.1038/s41561-022-00972-9, 2022
+C  17. Jacob, Heterogeneous chemistry and tropospheric ozone, Atm Env.,
+C      doi: 10.1016/S1352-2310(99)00462-8, 2000
+C
 C-----------------------------------------------------------------------
       USE RUNTIME_VARS
       USE GRID_CONF             ! horizontal & vertical domain specifications
@@ -434,10 +441,9 @@ C *** Parameters
       REAL( 8 ), PARAMETER :: COEF1           = 7.24382926227485D10 ! Molec/cc to ppm conv factor 
       REAL( 8 ), PARAMETER :: COEF2           = 2.14805198392421D13 ! convert air density [kg/m3] to number density [ppm]
 
-C     REAL( 8 ), PARAMETER :: GAMMA_NO3       = 1.0D-4 ! Mao et al. 2013
-      REAL( 8 ), PARAMETER :: GAMMA_NO3       = 1.0D-3 ! add reference
+      REAL( 8 ), PARAMETER :: GAMMA_NO3       = 1.0D-3 ! Jacob 2000
       REAL( 8 ), PARAMETER :: GAMMA_GLY       = 2.9D-3 ! Liggio et al. 2005
-      REAL( 8 ), PARAMETER :: GAMMA_HO2       = 0.2D+0 ! add reference
+      REAL( 8 ), PARAMETER :: GAMMA_HO2       = 0.2D+0 ! Ivatt et al. 2022
 
       REAL( 8 ), PARAMETER :: STD_DIFF_N2O5 = 0.0855D-4  ! N2O5 molecular diffusivity at 101325 Pa and 273.15 K [m2/sec]
       REAL( 8 ), PARAMETER :: STD_DIFF_CLNO3  = 0.1014D-4    ! CLNO3 molecular diffusivity at 101325 Pa and 273.15 K [m2/sec]   
