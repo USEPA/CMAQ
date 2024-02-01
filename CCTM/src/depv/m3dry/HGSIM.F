@@ -214,6 +214,10 @@ C--------------------------------------------------------------------------
 !         END SELECT
 
 C **** Read in saved surface layer concentrations
+#ifdef mpas
+         INIT_ASX = .FALSE.
+         INIT_ATX = .FALSE.
+#else
          IF ( .NOT. MEDC_AVAIL ) THEN
             INIT_ASX = .TRUE.
             INIT_ATX = .TRUE.
@@ -224,6 +228,7 @@ C **** Read in saved surface layer concentrations
             INIT_ATX = .FALSE.
 
          END IF ! load surface arrays
+#endif
 
          RETURN
 

@@ -29,6 +29,7 @@ C.......................................................................
 
       USE HGRD_DEFN             ! horizontal domain specifications
       USE VGRD_DEFN             ! vertical layer specifications
+      USE utilio_defn
 
       IMPLICIT NONE
 
@@ -56,6 +57,10 @@ C This function is expected to be called only once - at startup
             FIRSTIME = .FALSE.
             SUCCESS = .TRUE.
 
+#ifdef mpas
+            MXCELLS = NCOLS * NROWS * NLAYS
+            MXBLKS  = 1 + ( MXCELLS - 1 ) / BLKSIZE
+#else
 C Set up horizontal domain and calculate processor-to-subdomain maps
             IF ( .NOT. HGRD_INIT ( NPROCS, MYID ) ) THEN
                MSG = '*** Failure defining horizontal domain'
@@ -79,7 +84,7 @@ C define vertical layer structure
             MSG = 'Domain configuration already defined'
             CALL M3WARN ( 'GRID_INIT', 0, 0, MSG )
             SUCCESS = .FALSE.; RETURN
-
+#endif
             END IF   ! FIRSTIME
 
          RETURN

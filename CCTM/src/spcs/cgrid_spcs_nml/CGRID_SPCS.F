@@ -33,6 +33,9 @@ C 10 June 2021 G. Sarwar: Replacd CB6R3M_AE7_AQ with CB6R5M_AE7_AQ
 c-----------------------------------------------------------------------
       USE RUNTIME_VARS
       Use rxns_data, only: mechname       ! chemical mechanism data
+#ifdef mpas
+      use util_module, only : junit
+#endif
 
       implicit none
 
@@ -123,6 +126,12 @@ c control species
       CHARACTER( 256), ALLOCATABLE, SAVE :: CGRID_CONC_DESC ( : )
       INTEGER, ALLOCATABLE, SAVE :: MAP_DEPVtoCGRID( : )
 
+#ifdef mpas
+      character( 16 ), allocatable, save :: all_spc( : )
+      integer,                      save :: n_all_spc = 0
+
+      integer, allocatable :: indx_mpas(:)
+#endif
 
       type, public :: base_type
          private
@@ -166,7 +175,9 @@ c !! NO   and to populate the allocated arrays from the stnd gc_spc.ext  !!! NO
             logical :: order = .true., found = .true.
             character( 120 ) :: xmsg
             INTEGER :: ISPC, JSPC, IGRID, IDEPV
-
+#ifdef mpas
+            integer :: i1, i2, i3, i4   
+#endif
             TYPE (SPECIES_DATA_REG_1), ALLOCATABLE :: GC_SPECIES_DATA(:)
             TYPE (SPECIES_DATA_REG_1), ALLOCATABLE :: NR_SPECIES_DATA(:)
             TYPE (SPECIES_DATA_REG_3), ALLOCATABLE :: TR_SPECIES_DATA(:)
@@ -233,7 +244,14 @@ c-------------------------------------------------------------------------------
      &      gc_ddep( n_gc_spc+1 ), gc_ddep_map( n_gc_spc+1 ),
      &      gc_wdep( n_gc_spc+1 ), gc_wdep_map( n_gc_spc+1 ),
      &      gc_conc( n_gc_spc+1 ), gc_conc_map( n_gc_spc+1 ),
+#ifdef mpas
+     &      all_spc( spc_dim ),
+#endif
      &      stat = ios )
+
+#ifdef mpas
+            all_spc = bl
+#endif
 
             gc_spc = bl; gc_molwt = 0.0                        !  .
             gc_ic = bl;   gc_ic_map = 0;   gc_ic_fac = 0.0     !  .
@@ -517,9 +535,6 @@ c-------------------------------------------------------------------------------
                     N_AE_OPTICS = N_AE_OPTICS + 1
                     AE_OPTICS( IAE ) = AE_SPECIES_DATA( IAE )%OPTICS_SURR
                 END IF 
-!               write(logdev,'(i3,1x,A16,1x,a16,1x,a16,1x,i2)')iae,AE_SPC( IAE ),AE_SPECIES_DATA( IAE )%OPTICS_SURR, 
-!    &                AE_OPTICS( IAE ), LEN_TRIM( AE_OPTICS( IAE ) )
-                
                 
                 ! Aerosol Dry Deposition Surrogates
                 IF ( AE_SPECIES_DATA( IAE )%DEPV_SURR .NE. '' ) THEN
@@ -951,6 +966,29 @@ c-------------------------------------------------------------------------------
 
             ! Sum Up All Species Across Phases and Types
             NSPCSD = N_GC_SPCD + N_AE_SPC + N_NR_SPC + N_TR_SPC
+
+#ifdef mpas
+            n_all_spc = n_gc_spc + n_ae_spc + n_nr_spc + n_tr_spc
+            do i1 = 1, n_gc_spc
+               all_spc(i1) = gc_spc(i1)
+            end do
+
+            i1 = i1 - 1
+            do i2 = 1, n_ae_spc
+               all_spc(i1+i2) = ae_spc(i2)
+            end do
+
+            i1 = i1 + i2 - 1
+            do i3 = 1, n_nr_spc
+               all_spc(i1+i3) = nr_spc(i3)
+            end do
+
+            i1 = i1 + i3 - 1
+            do i4 = 1, n_tr_spc
+               all_spc(i1+i4) = nr_spc(i4)
+            end do
+#endif
+
             
             ! Move Data To CGRID_xxx Master Arrays
             N_CGRID_SPC = NSPCSD

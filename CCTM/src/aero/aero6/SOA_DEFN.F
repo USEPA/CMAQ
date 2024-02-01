@@ -526,7 +526,7 @@ C-----------------------------------------------------------------------
 
       Use aero_data, only : cond_budget, npf_budget
       Use aeromet_data, only: airdens, inv_mwair, min_gasconc
-      Use utilio_defn, only: xstat3
+      Use utilio_defn, only: xstat3, m3exit
 
       Implicit None
 
@@ -589,6 +589,8 @@ C
 C SR  03/25/11 Replaced I/O API include files with UTILIO_DEFN
 C-----------------------------------------------------------------------
       Use RUNTIME_VARS, only : logdev
+      Use utilio_defn
+
       Implicit None
 
       ! Arguments:

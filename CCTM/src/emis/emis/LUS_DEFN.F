@@ -37,7 +37,11 @@ C    3 Mar 2022: J. Willison - Remove ctm_wbdust_beld option
 
       contains
 
+#ifdef mpas
+         function lus_init( mminlu_in, landusef_in ) result ( success )
+#else
          function lus_init( jdate, jtime ) result ( success )
+#endif
 
          use hgrd_defn           ! horizontal domain specifications
 #ifdef twoway
@@ -48,11 +52,24 @@ C    3 Mar 2022: J. Willison - Remove ctm_wbdust_beld option
 
          implicit none
 
+#ifdef mpas
+         character (*), intent( in ) :: mminlu_in
+         real, intent( in ) :: landusef_in(:,:)
+
+         integer, allocatable :: lu_ind(:)
+         integer :: j
+         logical :: found
+
+         character (16) :: mminlu
+         integer :: num_land_cat
+#else
+         integer, intent( in ) :: jdate      ! current model date, coded YYYYDDD
+         integer, intent( in ) :: jtime      ! current model time, coded HHMMSS
+#endif
+
 C Includes:
          include SUBST_FILES_ID  ! file name parameters
 
-         integer, intent( in ) :: jdate      ! current model date, coded YYYYDDD
-         integer, intent( in ) :: jtime      ! current model time, coded HHMMSS
          logical :: success
 
          integer :: gxoff, gyoff             ! global origin offset from file
@@ -65,6 +82,16 @@ C Includes:
          character( 24 ) :: strg = 'incorrect num_land_cat, '
          real( 8 ) :: tland
          integer i, c, r, err
+
+#ifdef mpas
+         mminlu = mminlu_in
+         if (mminlu .eq. 'USGS') then
+            num_land_cat = 24
+         else if (mminlu .eq. 'NLCD40') then
+            num_land_cat = size(landusef_in,1)
+         end if
+         dust_land_scheme = mminlu_in
+#endif
 
          success = .true.
 

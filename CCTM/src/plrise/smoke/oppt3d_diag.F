@@ -75,6 +75,7 @@ C Local variables:
 
 C-----------------------------------------------------------------------
 
+#ifndef mpas
 C Set output file characteristics based on GRID_CONF module and open the 3D emis file
 
       FTYPE3D = GRDDED3
@@ -135,6 +136,7 @@ C create header
             CALL M3EXIT( PNAME, STDATE, STTIME, XMSG, XSTAT1 )
          END IF
       END IF
+#endif
 
       RETURN
 
