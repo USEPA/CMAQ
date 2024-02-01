@@ -16,7 +16,7 @@
 #> the repository. The user may also set their own preferred 
 #> directory.
 
- set CMAQ_HOME = /work/MOD3DEV/tskipper/cracmm_hcho/20240125_cracmm2_double_oilgas_nox_voc
+ set CMAQ_HOME = /home/username/path
 
 #> This section allows users to choose explicitly which tools
 #> to make available from the repo. For each selected tool,
@@ -25,14 +25,14 @@
  set EXT_CCTM    = Y
 
  #Utilities
- set EXT_JPROC = N 
+ set EXT_JPROC = Y 
  set EXT_MECH_BUILD = Y 
 
  # Pre-Processing Tools
- set EXT_BCON = N 
- set EXT_ICON = N 
- set EXT_MCIP = N 
- set EXT_CREATE_OMI = N
+ set EXT_BCON = Y 
+ set EXT_ICON = Y 
+ set EXT_MCIP = Y 
+ set EXT_CREATE_OMI = Y
 
  
  # Post-Processing Tools

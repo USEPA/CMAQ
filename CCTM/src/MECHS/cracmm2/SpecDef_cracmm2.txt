@@ -65,7 +65,7 @@ NO              ,ppbV      ,1000.0*NO[1]
 NO2             ,ppbV      ,1000.0*NO2[1]
 NOX             ,ppbV      ,1000.0*(NO[1] + NO2[1])
 ANO3_PPB        ,ppbV      ,(ANO3I[1]+ANO3J[1]+ANO3K[1])/(DENS[2]*(62.0/28.97))
-NTR             ,ppbV       ,1000.0*(ONIT[1]+ISON[1]+NALD[1]+IPC[1]+TRPN[1]+HONIT[1]), organic nitrates in RACM2
+NTR             ,ppbV       ,1000.0*(ONIT[1]+ISON[1]+NALD[1]+IPC[1]+TRPN[1]+HONIT[1]), organic nitrates
 PANS            ,ppbV      ,1000.0*(PAN[1]+PPN[1]+MPAN[1])
 NOY             ,ppbV      ,1000.0*(NO[1]+NO2[1]+NO3[1]+2*N2O5[1]+HONO[1] \
                                    +HNO3[1]+HNO4[1]+PAN[1]+PPN[1]+MPAN[1] \
@@ -147,7 +147,7 @@ VROC             ,ppbC      ,1000.0*(2.0*ACD[1]+2.0*ACE[1] \
                                     +6.0*PHEN[1]+3.0*PROG[1]  \
                                     +3.0*ROH[1]+15.0*SESQ[1]+2.1*SLOWROC[1] \
                                     +7.0*TOL[1]+5.0*UALD[1] \
-                                    +8.0*XYL[1]+8.0*EBZ[1] \         \
+                                    +8.0*XYL[1]+8.0*EBZ[1]+8.0*STY[1] \         \
                                     +2.0*PAA[1]+2.0*PAN[1]+3.0*PPN[1]+4.0*MPAN[1] \  
                                     +4.0*ONIT[1]+5.0*ISON[1] \
                                     +5.0*NALD[1]+5.0*IPC[1]+10.0*TRPN[1]+10.0*HONIT[1] ) \ 

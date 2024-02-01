@@ -27,6 +27,7 @@ CSL,Cresol and other hydroxy substituted aromatics
 DCB1,Unsaturated dicarbonyls
 DCB2,Unsaturated dicarbonyls
 DCB3,Unsaturated dicarbonyls
+EBZ,Ethylbenzene
 ELHOM,Extremely-low volatility highly oxygenated molecules from terpenes
 EOH,Ethanol
 ETE,ethene 
@@ -53,8 +54,12 @@ HNO4,Pernitric acid
 HO,Hydroxy radical
 HO2,Hydroperoxy radical
 HOM,Highly oxygenated molecules from terpenes
+HONIT,Second generation monoterpene nitrates
 HONO,Nitrous acid 
 IEPOX,isoprene epoxydiols 
+IEPOXP,IEPOX intermediate (tracking species)
+INO2,Isoprene nitrate-derived peroxy radicals
+IPC,Isoprene-derived hydroperoxyenals (HPALD)
 ISHP,Beta-hydroxy hydroperoxides from ISOP+HO2
 ISO,Isoprene 
 ISON,Beta-hydroxyalkylnitrates from ISOP+NO alkylnitrates from ISO+NO3
@@ -102,6 +107,7 @@ OLTP,Peroxy radicals formed from OLT
 ONIT,Organic nitrates
 OP1,Methyl hydrogen peroxide 
 OP2,Higher organic peroxides 
+OP3,Semivolatile organic peroxide
 OPB,Terpene-derived peroxides
 ORA1,Formic acid
 ORA2,Acetic acid and higher acids 
@@ -165,13 +171,12 @@ SULF,Sulfuric acid
 SULRXN,Precursor of Aerosol Sulfate (tracking species) 
 TOL,Toluene 
 TOLP,Peroxy radicals formed from TOL
+TRPN,First generation monoterpene nitrates
 UALD,Unsaturated aldehydes
 UALP,Peroxy radicals formed from UALD 
 XO2,Accounts for addition NO to NO2 conversions (tracking species)
-XYE,O- and p-xylene and other less reactive volatile aromatics with kOH < 1.46x10-11 cm3 s-1 
-XYEP,Peroxy radicals formed from XYE
-XYM,M-xylene and other more reactive volatile aromatics with kOH > 1.46x10-11 cm3 s-1 
-XYMP,Peroxy radicals formed from XYM
+XYL,Xylenes and other volatile aromatics 
+XYLP,Peroxy radicals formed from XYL
 HCL,Hydrochloric acid
 NH3,Ammonia
 ASO4,Total sulfur IV as sulfate
@@ -179,7 +184,6 @@ ANH4,Ammonium ion
 ANO3,Nitrate ion
 ASOAT,An empirical SOA
 AGLY,SOA from reactive uptake of glyoxal on particles
-TRPN,Terpene nitrates
 AORGC,SOA from cloud processing of GLY and MGLY
 AEC,Elemental carbon
 AOTHR,Primary unspeciated fine PM
@@ -203,13 +207,9 @@ APOC,Primary organic carbon (legacy)
 APNCOM,Primary non-carbon organic matter (legacy)
 AISO3NOS,Non-sulfated SOA from IEPOX uptake
 AISO3OS,Organosulfate SOA from IEPOX uptake
+AISO4,Product from heterogeneous uptake of IPC
+AISO5,Product from heterogeneous uptake of NALD
 NUM,Number of particles
 SRF,Surface area of particles
-OP3,Semivolatile organic peroxide
-IEPOXP,IEPOX intermediate (tracking species)
-ATRPN,TRPN and its hydrolysis products
-AISON,ISON and its hydrolysis products
-IHN,Isoprene-derived hydroxy nitrates
-INO2,Isoprene nitrate-derived peroxy radicals
-IPN,Isoprene-derived peroxy nitrates
-IPC,Isoprene-derived hydroperoxyenals (HPALD)
+ATRPN,SOA from TRPN
+AHONIT,SOA from HONIT
