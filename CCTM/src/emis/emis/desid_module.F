@@ -1447,9 +1447,9 @@ C-----------------------------------------------------------------------
      &                 ISTR, IEM, KDX, JSD, JEM, ISD,
      &                 IFAC, IRGN, ISTRN, NFAC, NREG, NCHEM, ICHEM, IFAM, 
      &                 IRGN2, N_EMVAR_CATCH, ICATCH, F, N_REG_RMDR, JRGN, K,
-     &                 KRGN, I, J
+     &                 KRGN, I, J, JFAC
          REAL       :: AERO_SPLIT, UNIT_FAC_1, UNIT_FAC_2, EMVAR_MW, 
-     &                 SPEC_MW, BASIS_FAC
+     &                 SPEC_MW, BASIS_FAC, FAC
 
          LOGICAL    :: LERROR, LFOUND, L_WDIFF, L_WISD, LTEST
          LOGICAL    :: LGAS_DIFF, LGAS_EMVAR, L_CATCH, LSUBSUB
@@ -2717,11 +2717,31 @@ C and allowing the model to proceed.
 
                       IF ( DESID_FAC( ISTR,ISRM )%NFAC .GT. 1 ) THEN
                       DO IFAC = 2,DESID_FAC( ISTR,ISRM )%NFAC
+                         ! Compute Final Factor taking into account all rules that apply to the
+                         ! region associated with each factor.
+                         FAC  = 0.0
+                         IRGN = DESID_FAC( ISTR,ISRM )%REG( IFAC )
+                         DO JFAC = 1,IFAC
+                           JRGN = DESID_FAC( ISTR,ISRM )%REG( JFAC )
+                           ! If region IRGN and JRGN are connected (i.e. one is a subregion of
+                           ! the other) then the final_fac should account for JFAC
+                           IF ( IFAC .EQ. JFAC .OR. DESID_REG_SUB( IRGN,JRGN ) 
+     &                                         .OR. DESID_REG_SUB( JRGN,IRGN ) ) THEN
+                              
+                             ! Decide how to modify FAC to account for JFAC
+                             IF ( DESID_FAC( ISTR,ISRM )%OP(JFAC) .EQ. 1 ) THEN
+                                 FAC = FAC + DESID_FAC( ISTR,ISRM )%FAC( JFAC )
+                             ELSE IF ( DESID_FAC( ISTR,ISRM )%OP(JFAC) .EQ. 2 ) THEN
+                                 FAC = FAC * DESID_FAC( ISTR,ISRM )%FAC( JFAC )
+                             ELSE IF ( DESID_FAC( ISTR,ISRM )%OP(JFAC) .EQ. 3 ) THEN
+                                 FAC = DESID_FAC( ISTR,ISRM )%FAC( JFAC )
+                             END IF
+                           END IF
+                         END DO
                          WRITE( LOGDEV, '(55x,A,1x,A,2x,ES9.2,4x,A,2x,ES9.2)' ),
      &                          DESID_REG( DESID_FAC( ISTR,ISRM )%REG( IFAC ) )%LABEL(1:18),
-     &                          LOCAL_OP( ISTR,ISRM,IFAC ),
-     &                          DESID_FAC( ISTR, ISRM )%BULK( IFAC ), LOCAL_BASIS( ISTR,ISRM,IFAC ),
-     &                          DESID_FAC( ISTR,ISRM )%FAC( IFAC )
+     &                          LOCAL_OP( ISTR,ISRM,IFAC ), DESID_FAC( ISTR, ISRM )%BULK( IFAC ), 
+     &                          LOCAL_BASIS( ISTR,ISRM,IFAC ), FAC
                       END DO
                       END IF
 
