@@ -46,7 +46,12 @@ Note, using this ioapi-large version is not required for the CMAQ-ISAM Benchmark
 If a user needs to use larger setting for MXFILE3 and MXVAR3 to support their application, note that the memory requirements will be increased.
 This version is available as a zip file from the following address:
 
-https://www.cmascenter.org/ioapi/download/ioapi-3.2-large-20200828.tar.gz
+
+[https://www.cmascenter.org/ioapi/download/ioapi-3.2-large-2020220.tar.gz](https://www.cmascenter.org/ioapi/download/ioapi-3.2-large-20200828.tar.gz)
+
+**A note about solver configuration**
+
+ISAM is currently only implemented for the EBI solver. For some CMAQ applications, the Rosenbrock solver is desirable and is set as the default in the sample runscripts. For example, this is the case when using the CB6R5M chemical mechanism for hemispheric simulations. In such cases, the bldit script needs to be modified to not select the Rosenbrock solver. While this may incur a performance penalty in terms of CPU time and increase the likelyhood of convergence warnings, it will allow the ISAM simulation to proceed in most cases.
 
 ## 11.3 Run Instructions
 
@@ -202,8 +207,10 @@ The CMAQ model allows several types of emissions that are calculated in-line or 
 | MGEGM | Marine Gas Emissions |
 | LTNG | Lightning NO Emissions |
 | ASEA | Sea Spray Aerosol Emissions |
-| DUST | Wind-Blown Dust Emissions |   
+| DUST | Wind-Blown Dust Emissions |
+| PVO3 | Potential Vorticity Incursion* |
 
+*Although it is not an emission stream, it is possible to tag the ozone incursions at the top of the simulated volume if the base model is compiled with potential vorticity module enabled.
 
 #### Interpretation of 'OTH' tag
 The OTH tag (e.g.“O3_OTH” in the ISAM benchmark) represents concentrations for that species attributed to 1) all other emissions streams, 2) precursor species not included in the specified tag class(es), and 3) other processes in the model.

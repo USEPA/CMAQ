@@ -32,6 +32,7 @@ C   S.Napelenok 26 Nov 2019 - create from opaconc.f for cmaq-ddm3d-v5.3.1
       USE GRID_CONF             ! horizontal & vertical domain specifications
       USE AVG_CONC              ! integral average CONC
       USE UTILIO_DEFN
+      USE RUNTIME_VARS
 #ifdef parallel
       USE SE_MODULES            ! stenex (using SE_UTIL_MODULE)
 #else
@@ -73,6 +74,17 @@ C   S.Napelenok 26 Nov 2019 - create from opaconc.f for cmaq-ddm3d-v5.3.1
       INTEGER VGTYP_RF
       REAL VGTOP_RF
 !-----------------------------------------------------------------------
+! Define N_ASENS_VARS when a subset of species is requested and it is
+! not defined elsewhere
+
+      IF ( N_ASENS_VARS .EQ. 0 ) THEN ! this happens when 'ALL' keyword
+                                      !is not specified in the run script
+         IF ( W_VEL ) THEN
+            N_ASENS_VARS = N_ACONC_VARS - 1
+         ELSE
+            N_ASENS_VARS = N_ACONC_VARS
+         END IF
+      END IF
 
 ! Change output date/time to starting date/time - e.g. timestamp 1995196:090000
 ! represents data computed from time 1995196:090000 to 1995196:100000

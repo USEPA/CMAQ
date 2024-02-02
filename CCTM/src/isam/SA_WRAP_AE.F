@@ -321,9 +321,11 @@ Ckrt Identify species index in ISAM array
                 DO L = 1,NLAYS
                    IF ( BULK_TRANS_SRC( C,R,L ) .LT. 0.0 ) THEN
                      ! Assume that net losses pull proportionally from water species
-                     SPEC_BULK0( C,R,L ) = SUM( ISAM0( C,R,L,JAER(IM),: ) )
-                     ISAM1( C,R,L,JAER(IM),: ) = ISAM0( C,R,L,JAER(IM),: ) *
+                     IF ( JAER(IM) .NE. 0 ) THEN
+                       SPEC_BULK0( C,R,L ) = SUM( ISAM0( C,R,L,JAER(IM),: ) )
+                       ISAM1( C,R,L,JAER(IM),: ) = ISAM0( C,R,L,JAER(IM),: ) *
      &                       ( 1.0 + BULK_TRANS_SRC( C,R,L )/SPEC_BULK0( C,R,L ) )
+                     END IF
                    ELSE
                      ! Assume that net gains are apportioned like current non-water aerosol
                      ! Determine the total non-water mass separating
@@ -334,13 +336,15 @@ Ckrt Identify species index in ISAM array
      &                            OMH2O .EQV. L_MASK_OM   .AND.
      &                            IM .EQ. L_MASK_IM   ) )
                      DO K = 1,NTAG_SA
-                        ISAM1( C,R,L,JAER(IM),K ) = ISAM0( C,R,L,JAER(IM),K ) +
+                       IF ( JAER(IM) .NE. 0 ) THEN
+                          ISAM1( C,R,L,JAER(IM),K ) = ISAM0( C,R,L,JAER(IM),K ) +
      &                      SUM( ISAM0( C,R,L,:,K ),
      &                          MASK = (L_MASK_AERO .AND. 
      &                                L_MASK_TYPE .NE. 'H2O'  .AND.
      &                                OMH2O .EQV. L_MASK_OM   .AND. 
      &                                IM .EQ. L_MASK_IM  ) )
      &                          /SPEC_BULK0( C,R,L ) * BULK_TRANS_SRC( C,R,L )
+                       END IF
                      END DO
                    END IF
                 END DO
