@@ -54,6 +54,9 @@ Note that for multiprocessor applications it is recommended that the Fortran MPI
 -   `CMAQ_DATA`<a id=CMAQ_DATA></a>
     Automatically set by config_cmaq.csh; note that this variable is M3DATA prior to CMAQv5.2
 
+-   `OUTDIR`<a id=OUTDIR></a>
+    Only necessary if the Budget Tool is activated. If this variable is unspecified, CMAQ will try to output the Budget Tool file to the root directory. This will be updated in future CMAQ versions to be consistent with other output files.  
+
 -   `CMAQ_LIB`<a id=CMAQ_LIB></a>
     Automatically set by config_cmaq.csh; note that this variable is M3LIB prior to CMAQv5.2
 
@@ -208,9 +211,9 @@ The following configuration settings may have multiple options. Select one optio
     -   `emis/emis`
 
 
--   `ModBiog: [default: biog/beis3]`<a id=ModBiog></a>  
-Calculate biogenic emissions online with the BEIS3 model. Online biogenic emissions are activated in the CCTM run script. Do not change this module setting. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#biogenics) for further information.
-    - `biog/beis3`
+-   `ModBiog: [default: biog/beis4]`<a id=ModBiog></a>  
+Calculate biogenic emissions online with the BEIS4 model. Online biogenic emissions are activated in the CCTM run script. Do not change this module setting. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#biogenics) for further information.
+    - `biog/beis4`
 -   `ModMegBiog: [default: biog/megan3]`<a id=ModMegBiog></a>  
 Calculate biogenic emissions online with the MEGAN3.1 model. Online biogenic emissions are activated in the CCTM run script. Do not change this module setting. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#biogenics) for further information.
     - `biog/megan3`
@@ -438,15 +441,19 @@ Sets if the CCTM will run in multi-processor or serial mode.
 <!-- END COMMENT -->
 
 -   `CTM_OCEAN_CHEM [default: True]`<a id=CTM_SS_AERO></a>   
-    Use Online Sea Spray Aerosol emissions and Halogen ozone chemistry. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#sea-spray) for further information.  
+    Use online sea spray aerosol emissions, halogen ozone chemistry, and enhanced ozone deposition over ocean waters. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#sea-spray) for further information.  
 -   `CTM_LTNG_NO [default: Y]`<a id=CTM_LING_NO></a>  
     Y/N setting to activate lightning NO emissions. Setting this variable to Y requires additional variables to define the configuration of the lightning NO emissions calculation. See the settings for `LTNGNO`, `LTNGPARAMS`, `NLDN_STRIKES`, and `LTNGDIAG` below. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#lightning-no) for further information.
 -   `KZMIN [default: Y]`<a id=KZMIN></a>  
     If KZMIN is set to Y, CCTM will read the urban land use fraction variable (PURB) from the GRID_CRO_2D meteorology file and use this information to determine the minimum eddy diffusivity in each grid cell. In CMAQv5, grid cells that are predominantly urban use a KZMIN value of 1.0 m<sup>2</sup>/s and non-urban cells use a value of 0.01 m<sup>2</sup>/s. If this variable is set to N, the PURB variable will not be used and a uniform KZMIN value of 1.0 m<sup>2</sup>/s will be used throughout the modeling domain.
 -   `CTM_MOSAIC [default N]`<a id=CTM_MOSAIC></a>  
     Y/N setting to ouput land use specific deposition velocities and fluxes. This option is only available when using the STAGE deposition module. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#682-dry-depostion---stage) for further information.
--   `CTM_FST [default: N]`<a id=CTM_FST></a>  
-   Y/N setting to output land-use specific stomatal flux. This option is only available when using the STAGE deposition module and when CTM_MOSAIC is set to Y. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#682-dry-depostion---stage) for further information.
+-   `CTM_STAGE_P22 [default: N]`<a id=CTM_FST></a>  
+   Y/N setting to select the land use specific implementation of the Pleim et al. 2022 and v5.4 M3Dry aerosol deposition parameterization in the STAGE deposition option. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#682-dry-depostion---stage) for further information.
+-   `CTM_STAGE_E20 [default: Y]`<a id=CTM_FST></a>  
+   Y/N setting to select the land use specific and modal implementation of the Emerson et al. 2020 aerosol deposition parameterization in the STAGE deposition option. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#682-dry-depostion---stage) for further information.
+-   `CTM_STAGE_S22 [default: N]`<a id=CTM_FST></a>  
+   Y/N setting to select the land use specific implementation of the Shu et al. 2022 and v5.3 STAGE aerosol deposition parameterization in the STAGE deposition option. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#682-dry-depostion---stage) for further information.   
 -   `PX_VERSION` <a id=PX_VERSION></a>
     Y/N setting to indicate whether the Pleim-Xiu land-surface model was used for the input meteorology. If this setting is set to Y the input meteorology data must include soil moisture (SOILM), soil temperature (SOILT), and soil type (ISLTYP) variables for use in the calculation of soil NO emissions. Additionally, the soil properties from PX will be used in the dust model and in the STAGE deposition module for calculating the soil compensation point for ammonia bidirectional exchange. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#682-dry-depostion---stage) for further information.
 -   `CLM_VERSION` <a id=CLM_VERSION></a>
@@ -630,10 +637,10 @@ Aerosol Diagnostics are now handled by the Explicit and Lumped Model Output modu
 
 <!-- END COMMENT -->
 
--   `SOILOUT [default: [Out Directory/CCTM_SOILOUT_$RUNID_$TODAY]`<a id=SOILOUT></a>  
+-   `BEIS_SOILOUT [default: [Out Directory/CCTM_BSOILOUT_$RUNID_$TODAY]`<a id=SOILOUT></a>  
     Directory path and file name of biogenic NO soil emissions output file. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#biogenics) for further information.   
 
--   `SOILINP [default: [Out Directory/CCTM_SOILOUT_$RUNID_$YESTERDAY]`<a id=SOILINP></a>  
+-   `BEIS_SOILINP [default: [Out Directory/CCTM_BSOILOUT_$RUNID_$YESTERDAY]`<a id=SOILINP></a>  
     Directory path and file name of biogenic NO soil emissions input file. If NEW_START is set to N or F, the soil NO emissions file from the previous day's simulation will be a required input file. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#biogenics) for further information.   
 
 Options for use with BEIS:
@@ -641,18 +648,9 @@ Options for use with BEIS:
 -   `GSPRO [default: Build Directory]`<a id=GSPRO></a>  
     Directory path and file name for input ASCII speciation profiles. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#biogenics) for further information. 
 
--   `B3GRD [default: None]`<a id=B3GRD></a>  
+-   `BEIS_NORM_EMIS [default: None]`<a id=BEIS_NORM_EMIS></a>  
     Grid-normalized biogenic emissions input netCDF file. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#biogenics) for further information.  
     
--   `BIOSW_YN [default: Y]`<a id=BIOSW_YN></a>  
-    Use the frost dates switch file to determine whether to use winter or summer biogenic emissions.  See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#biogenics) for further information.   
-
--   `BIOSEASON [default: False]`<a id=BIOSEASON></a>  
-    File name for the frost dates switch input netCDF file. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#biogenics) for further information.   
-
--   `SUMMER_YN [default: False]`<a id=SUMMER_YN></a>  
-    Toggle for summer season normalized biogenic emissions. This variable is ignored if BIOSW_YN is set to Y. Comment out or set to Y to select summer season biogenic emissions factors; set to N to turn off. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#biogenics) for further information.  
-
 -   `PX_VERSION [default: True]`<a id=PX_VERSION></a>  
     Setting to indicate whether the Pleim-Xiu land-surface model was used for the input meteorology. If this setting is set to Y the input meteorology data must include soil moisture (SOILM), soil temperature (SOILT), and soil type (ISLTYP) variables for use in the calculation of soil NO emissions.  
 
@@ -667,8 +665,14 @@ Options for use with MEGAN:
 -   `USE_MEGAN_LAI [default: N]`<a id=USE_MEGAN_LAI></a>
     By default MEGAN will use the same leaf area index information as the rest of CMAQ. Toggle if a separate LAI dataset is desired. When this option is enabled the user must also set the environment variable MEGAN_LAI. 
     
+-   `MEGAN_SOILOUT [default: [Out Directory/CCTM_MSOILOUT_$RUNID_$TODAY]`<a id=SOILOUT></a>  
+    Directory path and file name of MEGAN's biogenic NO soil emissions output file. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#biogenics) for further information.   
+
+-   `MEGAN_SOILINP [default: [Out Directory/CCTM_MSOILOUT_$RUNID_$YESTERDAY]`<a id=SOILINP></a>  
+    Directory path and file name of MEGAN's biogenic NO soil emissions input file. If NEW_START is set to N or F, or if IGNORE_SOILINP is set to F (Default), the soil NO emissions file from the previous day's simulation will be a required input file. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#biogenics) for further information.   
+    
 -   `IGNORE_SOILINP [default: N]`<a id=IGNORE_SOILINP></a>
-    Similar to the deprecated INITIAL_RUN option for BEIS, this option allows a user to perform a CMAQ restart without needing a SOILINP file for the previous day. Instanteous values of shortwave radiation and surface temperature will be used instead of the previous daily average, and soil NO variables are set to their initialization values as for a new run. 
+    Similar to the obsolete INITIAL_RUN option for BEIS, this option allows a user to perform a CMAQ restart without needing an MEGAN_SOILINP file for the previous day. Instanteous values of shortwave radiation and surface temperature will be used instead of the previous daily average, and soil NO variables are set to their initialization values as for a new run. 
 
 -   `USE_MEGAN_BDSNP [default: N ]`<a id=USE_MEGAN_BDSNP></a>
     Toggle to use the Berkeley-Dalhousie Soil NOx Parameterization (BDSNP) instead of the default option based on Yinger and Levy (1995). If the BDSNP option is activated, several additional variables must be set (see below). See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#biogenics) for further information.
@@ -685,20 +689,20 @@ Options for use with MEGAN:
 -   `MEGAN_LAI`<a id=MEGAN_CTS></a>
     Optional. Points to leaf area index file that was created using the MEGAN preprocessor.
 
--   `MEGAN_ARID`<a id=MEGAN_ARID></a>
+-   `BDSNP_AFILE`<a id=MEGAN_ARID></a>
     For BDSNP. Points to the ARID file that was created using the MEGAN preprocessor.
 
--   `MEGAN_NONARID`<a id=MEGAN_NONARID></a>
+-   `BDSNP_NAFILE`<a id=MEGAN_NONARID></a>
     For BDSNP. Points to the NONARID file that was created using the MEGAN preprocessor.
 
--   `MEGAN_FERT`<a id=MEGAN_FERT></a>
+-   `BDSNP_FFILE`<a id=MEGAN_FERT></a>
     For BDSNP. Points to the FERT file that was created using the MEGAN preprocessor.
 
--   `MEGAN_LANDTYPE`<a id=MEGAN_FERT></a>
+-   `BDSNP_LFILE`<a id=MEGAN_FERT></a>
     For BDSNP. Points to the LANDTYPE file that was created using the MEGAN preprocessor.
 
--   `MEGAN_NDF`<a id=MEGAN_NDF></a>
-    For BDSNP. Points to the NDF file that was created using the MEGAN preprocessor.
+-   `BDSNP_NFILE`<a id=MEGAN_NDF></a>
+    For BDSNP. Points to the nitrogen deposition file that was created using the MEGAN preprocessor.
 
 
 <a id=windblown_dust_config></a>
@@ -712,12 +716,12 @@ Options for use with MEGAN:
 <!-- END COMMENT -->
 
 -   `CTM_WB_DUST [default: False]`<a id=CTM_WB_DUST></a>  
-    Setting to calculate online windblown dust emissions in CCTM. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#wind-blown-dust) for further information.
+    Setting to calculate online windblown dust emissions in CCTM. Requires additional setting of environmental variable `PX_VERSION` to "Y". See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#wind-blown-dust) for further information.
     
 
 
 <!-- BEGIN COMMENT -->
 
 [<< Tables and Figures](../CMAQ_UG_tables_figures.md) - [Home](../README.md) - [Next Appendix >>](CMAQ_UG_appendixB_emissions_control.md)<br>
- CMAQ User's Guide (c) 2020<br>
+ CMAQ User's Guide (c) 2022<br>
  <!-- END COMMENT -->

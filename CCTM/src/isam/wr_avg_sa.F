@@ -309,7 +309,7 @@ c        CALL SUBST_BARRIER
          L = 0
          DO K = AISAM_BLEV, AISAM_ELEV
           L = L + 1
-          BUF4( :,:,L,SPC ) = AISAM( :,:,K, S_SPCTAG(SPC), T_SPCTAG(SPC) )
+          BUF4( :,:,L,SPC ) = AISAM( :,:,L, S_SPCTAG(SPC), T_SPCTAG(SPC) )
          ENDDO !
          IF ( .NOT. WRITE3( SA_ACONC_1, VNAM_SPCTAG( SPC ),
      &      MDATE, MTIME, BUF4( :,:,:,SPC ) ) ) THEN

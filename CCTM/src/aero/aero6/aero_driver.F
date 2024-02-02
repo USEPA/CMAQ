@@ -131,7 +131,7 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       USE SOA_DEFN, ONLY: EXTRACT_SOA, UPDATE_ORGVAPOR
       USE AEROMET_DATA, ONLY: AIRTEMP, AIRPRES, AIRQV, AIRDENS, AIRRH, 
      &                        H2OSATVP, H2OVP, MWWAT, MWAIR, SRFTEMP
-      USE UTILIO_DEFN, ONLY: XSTAT1, TIME2SEC, SEC2TIME
+      USE UTILIO_DEFN, ONLY: XSTAT1, TIME2SEC, SEC2TIME, index1, nextime
 #ifdef twoway
      &                       , INDEX1, XSTAT3
 #endif
@@ -139,8 +139,6 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 #ifdef twoway
      &                      , N_GC_CONC, GC_CONC, GC_STRT, GC_CONC_MAP
 #endif
-      USE PMDIAG_DATA, ONLY: L_PMDIAG, PMDIAG_AVRG_STEP
-      USE PMDIAG_PROC
       USE RUNTIME_VARS, ONLY: LOGDEV, END_TIME
       USE AERO_BUDGET, ONLY: AERO_COAG, AERO_COND, AERO_GROWTH, AERO_NPF
 
@@ -194,7 +192,6 @@ C *** Grid Description
 
 C *** Variable to set time step for writing visibility file
       INTEGER, SAVE :: WSTEP  = 0   ! local write counter
-      LOGICAL, SAVE :: WRITETIME = .FALSE. ! local write flag
 
 C *** meteorological variables
       REAL PRES   ( NCOLS,NROWS,NLAYS )  ! Atmospheric pressure [ Pa ]
@@ -307,30 +304,12 @@ C ------------------ begin body of AERO_DRIVER -------------------------
          END IF
 #endif
 
-C *** Open the aerosol parameters file (diameters and standard deviations).
-         IF ( L_PMDIAG .AND. IO_PE_INCLUSIVE ) THEN
-             CALL OPEN_PMDIAG ( JDATE, JTIME, TSTEP( 1 ) )
-             PMDIAG_AVRG_STEP = 0
-         END IF
-
       END IF    ! FIRSTIME
 
       MDATE  = JDATE
       MTIME  = JTIME
       MSTEP = TIME2SEC( TSTEP( 2 ) )
       CALL NEXTIME ( MDATE, MTIME, SEC2TIME( MSTEP / 2 ) )
-
-      ! Determine if this is a write step
-      WSTEP = WSTEP + TIME2SEC( TSTEP( 2 ) )
-      IF ( WSTEP .GE. TIME2SEC( TSTEP( 1 ) ) ) THEN
-           WRITETIME = .TRUE.
-           WSTEP = 0
-      END IF
-      
-      IF ( L_PMDIAG ) THEN 
-         IF ( PMDIAG_AVRG_STEP .EQ. 0 ) PMDIAG_AVRG = 0.0
-         PMDIAG_AVRG_STEP = PMDIAG_AVRG_STEP + 1
-      END IF
 
 C *** Set floating point synchronization time step:
       DT = FLOAT( MSTEP ) ! set time step in seconds
@@ -399,21 +378,41 @@ C     into aerospc_conc in aero_data module (set minimum)
 
 C *** Extract grid cell concentrations of gas precursors from CGRID (ppm)
 C     into precursr_conc in precursor_data
+#ifdef sens
+               CALL EXTRACT_PRECURSOR( CGRID( C,R,L,: ), SENGRID( C,R,L,:,: ) )
+#else
                CALL EXTRACT_PRECURSOR( CGRID( C,R,L,: ) )
+#endif
 
 C *** Calculate SO4RATE stored in module
                SO4RATE = REAL( PRECURSOR_CONC( SULPRD_IDX ), 4 ) / DT
- 
+#ifdef sens
+               DO NP = 1, NPMAX
+                  S_SO4RATE( NP ) =  S_PRECURSOR_CONC( SULPRD_IDX,NP ) / DT
+               END DO
+#endif
                IF ( PHGRXN_IDX .GT. 0 ) THEN
 C *** Calculate PHG_RATE stored in module
                   PHG_RATE = REAL( PRECURSOR_CONC( PHGRXN_IDX ), 4 ) / DT
+#ifdef sens
+                  DO NP = 1, NPMAX
+                     S_PHG_RATE( NP ) = S_PRECURSOR_CONC( PHGRXN_IDX,NP ) / DT
+                  END DO
+#endif
                ELSE
                   PHG_RATE = 0.0
-               END IF
+#ifdef sens
+                  S_PHG_RATE = 0.0
+#endif
+          END IF
 
 C *** Extract soa concentrations from CGRID and 
 C     convert M2 to wet
+#ifdef sens
+               CALL EXTRACT_SOA( CGRID( C,R,L,: ), SENGRID( C,R,L,:,: ), .TRUE. )
+#else
                CALL EXTRACT_SOA( CGRID( C,R,L,: ) )
+#endif
 
 C *** Aerosol process routines
                CALL AEROPROC( DT, C, R, L )
@@ -427,18 +426,23 @@ C     and convert M2 to dry and save as surface area
 #endif
 
 C *** Update precursor variables conc back into CGRID
+#ifdef sens
+               CALL UPDATE_PRECURSOR( CGRID( C,R,L,: ), SENGRID( C,R,L,:,: ) )
+#else
                CALL UPDATE_PRECURSOR( CGRID( C,R,L,: ) )
+#endif
 
 C *** Update gas soa concentrations back to CGRID
+#ifdef sens
+               CALL UPDATE_ORGVAPOR( CGRID( C,R,L,: ), SENGRID( C,R,L,:,: ) )
+#else
                CALL UPDATE_ORGVAPOR( CGRID( C,R,L,: ) )
+#endif
 
 C *** OUTPUT DIAGNOSTIC INFORMATION
 C *** Get wet moment info (dry will be converted to wet)
                CALL calcmoments( .true. )
                CALL GETPAR( FIXED_sg ) ! update AEROMODE_DIAM,DENS,SDEV
-
-C *** OUTPUT DIAGNOSTIC INFORMATION
-               CALL LOAD_PMDIAG( C,R,L, CGRID(C,R,L,:), WRITETIME )
 
 ! *** Calculate 2nd and 3rd moments of the "dry" aerosol distribution
 !     NOTE! "dry" aerosol excludes both H2O and SOA  (Jan 2004 --SJR)
@@ -465,12 +469,6 @@ C *** OUTPUT DIAGNOSTIC INFORMATION
             END DO ! loop on COLS
          END DO ! loop on ROWS
       END DO ! loop on NLAYS
-
-      IF ( L_PMDIAG .AND. WRITETIME ) THEN
-          CALL WRITE_PMDIAG( JDATE, JTIME, TSTEP )
-          PMDIAG_AVRG_STEP = 0
-          WRITETIME = .FALSE.
-      END IF
 
       RETURN
       END

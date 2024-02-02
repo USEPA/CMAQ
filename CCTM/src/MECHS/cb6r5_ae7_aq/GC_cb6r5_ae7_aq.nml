@@ -130,4 +130,6 @@ GC_SPECIES_DATA =
 'SVAVB2'       ,179.0  ,''   ,-1    ,''     ,-1     ,'VD_SVAVB2'       , 1   ,'SVAVB2'          , 1  ,'SVAVB2'     ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',
 'SVAVB3'       ,169.0  ,''   ,-1    ,''     ,-1     ,'VD_SVAVB3'       , 1   ,'SVAVB3'          , 1  ,'SVAVB3'     ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',
 'SVAVB4'       ,158.0  ,''   ,-1    ,''     ,-1     ,'VD_SVAVB4'       , 1   ,'SVAVB4'          , 1  ,'SVAVB4'     ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',
+'DMS'         , 62.0  ,''    ,-1    ,''     ,-1     ,'VD_DMS'          , 1   ,'DMS'             , 1  ,''           ,''        ,'Yes' ,''    ,''    ,'Yes',
+'MSA'         , 96.0  ,''    ,-1    ,''     ,-1     ,'VD_MSA'          , 1   ,'MSA'             , 1  ,''           ,''        ,'Yes' ,''    ,''    ,'Yes',
 /

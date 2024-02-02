@@ -69,7 +69,7 @@ C                   for input.
 C-----------------------------------------------------------------------
       use lus_defn
       use aero_data
-      use emis_vars
+      use desid_vars
 
       implicit none 
 
@@ -218,32 +218,32 @@ C-----------------------------------------------------------------------
 
 C...Populate Master Emissions Map Vector So That Diagnostics 
 C   can be printed in EMIS_MAP
-         Em_File_Surr( IDUSTSRM )%len = ndust_spc*2
-         Allocate( Em_File_Surr( IDUSTSRM )%arry( ndust_spc*2 ) )
-         Allocate( Em_File_Surr( IDUSTSRM )%units( ndust_spc*2 ) )
-         Allocate( Em_File_Surr( IDUSTSRM )%mw   ( ndust_spc*2 ) )
-         Allocate( Em_File_Surr( IDUSTSRM )%used ( ndust_spc*2 ) )
-         Allocate( Em_File_Surr( IDUSTSRM )%conv ( ndust_spc*2 ) )
-         Allocate( Em_File_Surr( IDUSTSRM )%basis( ndust_spc*2 ) )
-         Allocate( Em_File_Surr( IDUSTSRM )%larea( ndust_spc*2 ) )
-         Allocate( Em_File_Surr( IDUSTSRM )%lareaadj( ndust_spc*2 ) )
-         Em_File_Surr( IDUSTSRM )%arry( : ) = 'NOT_AVAILABLE'
+         DESID_EMVAR( IDUSTSRM )%len = ndust_spc*2
+         Allocate( DESID_EMVAR( IDUSTSRM )%arry( ndust_spc*2 ) )
+         Allocate( DESID_EMVAR( IDUSTSRM )%units( ndust_spc*2 ) )
+         Allocate( DESID_EMVAR( IDUSTSRM )%mw   ( ndust_spc*2 ) )
+         Allocate( DESID_EMVAR( IDUSTSRM )%used ( ndust_spc*2 ) )
+         Allocate( DESID_EMVAR( IDUSTSRM )%conv ( ndust_spc*2 ) )
+         Allocate( DESID_EMVAR( IDUSTSRM )%basis( ndust_spc*2 ) )
+         Allocate( DESID_EMVAR( IDUSTSRM )%larea( ndust_spc*2 ) )
+         Allocate( DESID_EMVAR( IDUSTSRM )%lareaadj( ndust_spc*2 ) )
+         DESID_EMVAR( IDUSTSRM )%arry( : ) = 'NOT_AVAILABLE'
          do i = 1,ndust_spc
             IF ( dust_spc( i )%spcfac(1) .NE. 0.0 ) 
-     &         Em_File_Surr( IDUSTSRM )%arry( i )  = 
+     &         DESID_EMVAR( IDUSTSRM )%arry( i )  = 
      &                    'PMFINE_' // dust_spc(i)%name
             IF ( dust_spc( i )%spcfac(2) .NE. 0.0 ) 
-     &         Em_File_Surr( IDUSTSRM )%arry( i+ndust_spc )  = 
+     &         DESID_EMVAR( IDUSTSRM )%arry( i+ndust_spc )  = 
      &                    'PMCOARSE_' // dust_spc(i)%name
-            Em_File_Surr( IDUSTSRM )%mw( i )  = dust_spc(i)%mw
-            Em_File_Surr( IDUSTSRM )%mw( i+ndust_spc )  = dust_spc(i)%mw
+            DESID_EMVAR( IDUSTSRM )%mw( i )  = dust_spc(i)%mw
+            DESID_EMVAR( IDUSTSRM )%mw( i+ndust_spc )  = dust_spc(i)%mw
          end do
-         Em_File_Surr( IDUSTSRM )%units( : ) = 'G/S'
-         Em_File_Surr( IDUSTSRM )%used ( : ) = .FALSE.
-         Em_File_Surr( IDUSTSRM )%conv ( : ) = 1.0
-         Em_File_Surr( IDUSTSRM )%basis( : ) = 'MASS'
-         Em_File_Surr( IDUSTSRM )%larea( : ) = .FALSE.
-         Em_File_Surr( IDUSTSRM )%lareaadj( : ) = .FALSE.
+         DESID_EMVAR( IDUSTSRM )%units( : ) = 'G/S'
+         DESID_EMVAR( IDUSTSRM )%used ( : ) = .FALSE.
+         DESID_EMVAR( IDUSTSRM )%conv ( : ) = 1.0
+         DESID_EMVAR( IDUSTSRM )%basis( : ) = 'MASS'
+         DESID_EMVAR( IDUSTSRM )%larea( : ) = .FALSE.
+         DESID_EMVAR( IDUSTSRM )%lareaadj( : ) = .FALSE.
  
 C...Count the number of mass emissions species
         n_mass_emissions = 0
@@ -281,11 +281,13 @@ C Allocate private arrays
          wmax   = 0.0   ! array assignment
          sd_ep  = 0.0   ! array assignment
 
+#ifndef mpas
 C Initialize land use/cover variables
          if ( .not. lus_init( jdate, jtime ) ) then
             xmsg = 'Failure initializing land use module'
             call m3exit( pname, jdate, jtime, xmsg, xstat2 )
          end if
+#endif
 
          if ( dustem_diag ) then    ! Open the emissions diagnostic file
 
@@ -396,7 +398,7 @@ C...append diagnostic variables with mass emissions species
                   if( dust_spc( i )%spcfac( j ) .eq. 0. ) cycle 
                     n = 0
                     do k = 1, idiag   ! determine if dust emissions is already added to diagnostic output
-                       if( trim( EM_FILE_SURR( IDUSTSRM )%ARRY( (j-1)*ndust_spc+i )) 
+                       if( trim( DESID_EMVAR( IDUSTSRM )%ARRY( (j-1)*ndust_spc+i )) 
      &                     .Eq. diagnm( k )%var ) Then
                          n = k
                          exit
@@ -405,7 +407,7 @@ C...append diagnostic variables with mass emissions species
                   if( n .gt. 0  ) cycle ! skip already added 
                   
                   idiag = idiag + 1
-                  diagnm( idiag )%var = EM_FILE_SURR( IDUSTSRM )%ARRY( (j-1)*ndust_spc+i ) 
+                  diagnm( idiag )%var = DESID_EMVAR( IDUSTSRM )%ARRY( (j-1)*ndust_spc+i ) 
                   diagnm( idiag )%units = 'g/m**3/s'
 
                   Select Case( j ) ! assumes only two aerosol modes dust emissions
@@ -497,6 +499,7 @@ C Local variables:
 
 C-----------------------------------------------------------------------
 
+#ifndef mpas
 C Try to open existing file for update
          if ( .not. open3( ctm_dust_emis_1, fsrdwr3, pname ) ) then
             xmsg = 'Could not open CTM_DUST_EMIS_1 for update - '
@@ -553,6 +556,7 @@ C Open windblown dust emissions diagnostic file
             end if
 
          end if
+#endif
 
          return
 
@@ -569,6 +573,9 @@ C=======================================================================
          use lus_data_module
          use centralized_io_module
          use RUNTIME_VARS, only: WRF_V4P
+#ifdef mpas
+         use util_module, only : index1, time2sec
+#endif
 
 C       8/18/11 D.Wong: incorporated twoway model implementation and change
 C                       RC -> RCA and RN -> RNA and made it backward compatible
@@ -579,7 +586,7 @@ C Arguments:
          integer, intent( in ) :: jtime        ! current model time, coded HHMMSS
          integer, intent( in ) :: tstep( 3 )   ! output time step, sync step, 2way step
          real,    intent( in ) :: rjacm( ncols,nrows ) ! reciprocal Jacobian [1/m]
-         real,    intent( in ) :: cellhgt      ! grid-cell height [sigma]
+         real,    intent( in ) :: cellhgt(:,:) ! grid-cell height [sigma]
          logical, intent( in ) :: l_desid_diag ! flag determining whether or not DESID 
                                                !   is in diagnostic mode
 
@@ -811,7 +818,7 @@ C --------- ###### Start Main Loop ###### ---------
                kvh ( c,r,m ) = 0.0
             end do
  
-            rlay1hgt = rjacm ( c,r ) / cellhgt
+            rlay1hgt = rjacm ( c,r ) / cellhgt(c,r)
 
 
 C--- Set Clay, coarse and fine/medium sand fractions.
@@ -1053,15 +1060,15 @@ C 2nd moment multiplied by PI to obtain the surface area emissions rate.
 
 ! Propagate Number and Surface Area Scaling Factors back to Emissions
 ! Module so that the dust emissions can be scaled appropriately            
-            ISD = INDEX1( 'FINE', EM_STREAM_SIZE( IDUSTSRM )%LEN, 
-     &                    EM_STREAM_SIZE( IDUSTSRM )%NAME )
-            EM_STREAM_SIZE( IDUSTSRM )%FACNUM( ISD,2 ) = FACTNUMJ
-            EM_STREAM_SIZE( IDUSTSRM )%FACSRF( ISD,2 ) = FACTSRFJ
+            ISD = INDEX1( 'FINE', DESID_STREAM_AERO( IDUSTSRM )%LEN, 
+     &                    DESID_STREAM_AERO( IDUSTSRM )%NAME )
+            DESID_STREAM_AERO( IDUSTSRM )%FACNUM( ISD,2 ) = FACTNUMJ
+            DESID_STREAM_AERO( IDUSTSRM )%FACSRF( ISD,2 ) = FACTSRFJ
             
-            ISD = INDEX1( 'COARSE', EM_STREAM_SIZE( IDUSTSRM )%LEN, 
-     &                    EM_STREAM_SIZE( IDUSTSRM )%NAME )
-            EM_STREAM_SIZE( IDUSTSRM )%FACNUM( ISD,3 ) = FACTNUMK
-            EM_STREAM_SIZE( IDUSTSRM )%FACSRF( ISD,3 ) = FACTSRFK
+            ISD = INDEX1( 'COARSE', DESID_STREAM_AERO( IDUSTSRM )%LEN, 
+     &                    DESID_STREAM_AERO( IDUSTSRM )%NAME )
+            DESID_STREAM_AERO( IDUSTSRM )%FACNUM( ISD,3 ) = FACTNUMK
+            DESID_STREAM_AERO( IDUSTSRM )%FACSRF( ISD,3 ) = FACTSRFK
 
 #ifdef verbose_wbdust
             if ( m3j .ne. 0.0 ) dusthit = dusthit + 1
@@ -1150,6 +1157,7 @@ C to get a timestep average.
      &                                       dusthit, (c-1)*(r-1)
 #endif
 
+#ifndef mpas
          if ( dustem_diag .and. .not. l_desid_diag ) then
 
 C If last call this hour, write out the windblown dust emissions dignostics.
@@ -1198,6 +1206,7 @@ C Then reset the emissions array and local write counter.
                dustbf = 0.0   ! array assignment
             end if   !  time to write
          end if   ! dustem_diag
+#endif
 
 2009     Format( '*** Erodible landuse incorrect ', 1pe13.5, 1x, 'at: ', 3i4 )
 2015     format( /5x, 'Total grid time-avg sum of dust emis variables at:',

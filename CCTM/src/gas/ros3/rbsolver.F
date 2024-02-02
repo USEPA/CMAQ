@@ -33,7 +33,7 @@ C
 C  Preconditions: None
 C
 C  Key Subroutines/Functions Called: 
-C                                    DEGRADE
+C                                    DEGRADE_BLK
 C
 C  Revision History: Prototype created by Jerry Gipson, August, 2004
 C                    Based on the solver described by Sandu et al
@@ -62,6 +62,7 @@ C**********************************************************************
       USE RBDATA                  ! ROS3 solver data
       USE CGRID_SPCS              ! CGRID mechanism species
       USE UTILIO_DEFN
+      USE DEGRADE_ROUTINES, ONLY: DEGRADE_BLK
       USE PA_IRR_MODULE
       
       IMPLICIT NONE 
@@ -185,13 +186,6 @@ c.....ROS3 intermediate variables
             REAL( 8 ), INTENT( INOUT ) :: YIN(  :, : )  ! Species concs, ppm
             REAL( 8 ), INTENT(   OUT ) :: YDOT( :, : )  ! Species rates of change, ppm/min
          END SUBROUTINE RBFEVAL
-         SUBROUTINE DEGRADE( CBLK, DT, JDATE, JTIME, BLKID )
-           REAL( 8 ), INTENT( IN ) :: CBLK( :,  : ) ! array holding species concentrations
-           REAL( 8 ), INTENT( IN ) :: DT            ! time step for integrations [sec]
-           INTEGER,   INTENT( IN ) :: JDATE         ! current model date , coded YYYYDDD
-           INTEGER,   INTENT( IN ) :: JTIME         ! current model time , coded HHMMSS
-           INTEGER,   INTENT( IN ) :: BLKID         ! ID number for the BLK
-         END SUBROUTINE DEGRADE
          SUBROUTINE RBSOLVE( NCSP, RHS )
            INTEGER,   INTENT( IN ) :: NCSP        ! Index of chem mech to use: 1=gas/day, 2=gas/night
            REAL( 8 ), INTENT( INOUT ) :: RHS( :,: )  ! Right hand side = {b}
@@ -344,6 +338,9 @@ c++++++++++++++++++++++++Debug section++++++++++++++++++++++++++++++++++
       END IF
 
 
+#ifdef sens
+       YAVE = 0.0D0
+#endif
       DO 100 WHILE ( TNOW .LT. CHEMSTEP )
 
          CALL RBFEVAL( NCSP, Y, YDOT )
@@ -468,6 +465,11 @@ c..Estimate error
 
             DO N = 1, NUMB_MECH_SPC
                DO NCELL = 1, NUMCELLS
+#ifdef sens
+                  YAVE( NCELL,N ) = YAVE( NCELL,N ) 
+     &                            + 0.5D0 * (Y( NCELL,N )+ MAX(YP( NCELL,N),CONMIN))
+     &                            * DT
+#endif
                   Y( NCELL,N ) = MAX( YP( NCELL,N ), CONMIN )
                END DO
             END DO
@@ -498,7 +500,7 @@ c..Estimate error
 
                NCALL_DEGRADE = NCALL_DEGRADE + 1
 
-               CALL DEGRADE( Y_DEGRADE, DT_DEGRADE, JDATE, JTIME, BLKID )
+               CALL DEGRADE_BLK( Y_DEGRADE, DT_DEGRADE, JDATE, JTIME, BLKID )
 
             END IF            !:WTH
 
@@ -586,6 +588,12 @@ c..write photolysis rates used in cell
 
 100   END DO  ! end time integration loop
 
+
+#ifdef sens
+!   complete calculation for YAVE
+       YAVE(1:NUMCELLS,1:NUMB_MECH_SPC) = YAVE(1:NUMCELLS,1:NUMB_MECH_SPC) / CHEMSTEP
+!        YAVE = 0.5D0*(YAVE+Y)
+#endif
       RETURN
 
 92100 FORMAT( '      Convergence failure ', 

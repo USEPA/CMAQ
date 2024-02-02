@@ -6,7 +6,7 @@
 
 
 ! --------- Photochemical Mechanism Reactions, Rates, etc. DAT ---------
-! Source file: /work/MOD3DEV/sgq/manage_git/research/condensed_chemistry/UTIL/chemmech/input/cb6r3_ae7_aq/mech_cb6r3_ae7_aq.def
+! Source file: /home/bmurphy/cmaq_projects/bicicle_1.7/UTIL/chemmech/input/cb6r3_ae7_aq/mech_cb6r3_ae7_aq.def
 ! for Mechanism Name: CB6R3_AE7_AQ                    
 
 ! This file is used to create mechanism data and functions
@@ -362,11 +362,11 @@
       & MEMBER("SOAALK          ",  100, "GC",  112.00D0, F), &
       & MEMBER("H2NO3PIJ        ",  101, "GC",   64.00D0, F), &
       & MEMBER("H2NO3PK         ",  102, "GC",   64.00D0, F), &
-      & MEMBER("ACLI            ",  167, "AE",   35.50D0, T), &
-      & MEMBER("ACLJ            ",  166, "AE",   35.50D0, T), &
-      & MEMBER("ACLK            ",  169, "AE",   35.50D0, T), &
+      & MEMBER("ACLI            ",  140, "AE",   35.50D0, T), &
+      & MEMBER("ACLJ            ",  141, "AE",   35.50D0, T), &
+      & MEMBER("ACLK            ",  142, "AE",   35.50D0, T), &
       & MEMBER("IEPOXP          ",   64, "GC",  118.10D0, F), &
-      & MEMBER("ASO4J           ",  129, "AE",   96.00D0, T), &
+      & MEMBER("ASO4J           ",  130, "AE",   96.00D0, T), &
       & MEMBER("AISO3J          ",  175, "AE",  168.20D0, T), &
       & MEMBER("AGLYJ           ",  178, "AE",   66.40D0, T), &
       & MEMBER("MTNO3           ",   69, "GC",  231.00D0, F), &
@@ -376,10 +376,10 @@
       & MEMBER("AOLGAJ          ",  176, "AE",  206.00D0, T), &
       & MEMBER("AAVB3J          ",  205, "AE",  169.00D0, T), &
       & MEMBER("AAVB4J          ",  206, "AE",  158.00D0, T), &
-      & MEMBER("AISO1J          ",  135, "AE",  132.00D0, T), &
+      & MEMBER("AISO1J          ",  143, "AE",  132.00D0, T), &
       & MEMBER("AOLGBJ          ",  177, "AE",  248.00D0, T), &
-      & MEMBER("AISO2J          ",  136, "AE",  133.00D0, T), &
-      & MEMBER("ASQTJ           ",  137, "AE",  273.00D0, T), &
+      & MEMBER("AISO2J          ",  144, "AE",  133.00D0, T), &
+      & MEMBER("ASQTJ           ",  145, "AE",  273.00D0, T), &
       & MEMBER("APOCI           ",  181, "AE",  220.00D0, T), &
       & MEMBER("APNCOMI         ",  183, "AE",  220.00D0, T), &
       & MEMBER("APOCJ           ",  182, "AE",  220.00D0, T), &
@@ -659,11 +659,11 @@
       DATA CGRID_INDEX( 102 ), SPECIES_TYPE( 102 ), CONVERT_CONC( 102 ) /  100, 'GC', F /  ! SOAALK
       DATA CGRID_INDEX( 103 ), SPECIES_TYPE( 103 ), CONVERT_CONC( 103 ) /  101, 'GC', F /  ! H2NO3PIJ
       DATA CGRID_INDEX( 104 ), SPECIES_TYPE( 104 ), CONVERT_CONC( 104 ) /  102, 'GC', F /  ! H2NO3PK
-      DATA CGRID_INDEX( 105 ), SPECIES_TYPE( 105 ), CONVERT_CONC( 105 ) /  167, 'AE', T /  ! ACLI
-      DATA CGRID_INDEX( 106 ), SPECIES_TYPE( 106 ), CONVERT_CONC( 106 ) /  166, 'AE', T /  ! ACLJ
-      DATA CGRID_INDEX( 107 ), SPECIES_TYPE( 107 ), CONVERT_CONC( 107 ) /  169, 'AE', T /  ! ACLK
+      DATA CGRID_INDEX( 105 ), SPECIES_TYPE( 105 ), CONVERT_CONC( 105 ) /  140, 'AE', T /  ! ACLI
+      DATA CGRID_INDEX( 106 ), SPECIES_TYPE( 106 ), CONVERT_CONC( 106 ) /  141, 'AE', T /  ! ACLJ
+      DATA CGRID_INDEX( 107 ), SPECIES_TYPE( 107 ), CONVERT_CONC( 107 ) /  142, 'AE', T /  ! ACLK
       DATA CGRID_INDEX( 108 ), SPECIES_TYPE( 108 ), CONVERT_CONC( 108 ) /   64, 'GC', F /  ! IEPOXP
-      DATA CGRID_INDEX( 109 ), SPECIES_TYPE( 109 ), CONVERT_CONC( 109 ) /  129, 'AE', T /  ! ASO4J
+      DATA CGRID_INDEX( 109 ), SPECIES_TYPE( 109 ), CONVERT_CONC( 109 ) /  130, 'AE', T /  ! ASO4J
       DATA CGRID_INDEX( 110 ), SPECIES_TYPE( 110 ), CONVERT_CONC( 110 ) /  175, 'AE', T /  ! AISO3J
       DATA CGRID_INDEX( 111 ), SPECIES_TYPE( 111 ), CONVERT_CONC( 111 ) /  178, 'AE', T /  ! AGLYJ
       DATA CGRID_INDEX( 112 ), SPECIES_TYPE( 112 ), CONVERT_CONC( 112 ) /   69, 'GC', F /  ! MTNO3
@@ -673,10 +673,10 @@
       DATA CGRID_INDEX( 116 ), SPECIES_TYPE( 116 ), CONVERT_CONC( 116 ) /  176, 'AE', T /  ! AOLGAJ
       DATA CGRID_INDEX( 117 ), SPECIES_TYPE( 117 ), CONVERT_CONC( 117 ) /  205, 'AE', T /  ! AAVB3J
       DATA CGRID_INDEX( 118 ), SPECIES_TYPE( 118 ), CONVERT_CONC( 118 ) /  206, 'AE', T /  ! AAVB4J
-      DATA CGRID_INDEX( 119 ), SPECIES_TYPE( 119 ), CONVERT_CONC( 119 ) /  135, 'AE', T /  ! AISO1J
+      DATA CGRID_INDEX( 119 ), SPECIES_TYPE( 119 ), CONVERT_CONC( 119 ) /  143, 'AE', T /  ! AISO1J
       DATA CGRID_INDEX( 120 ), SPECIES_TYPE( 120 ), CONVERT_CONC( 120 ) /  177, 'AE', T /  ! AOLGBJ
-      DATA CGRID_INDEX( 121 ), SPECIES_TYPE( 121 ), CONVERT_CONC( 121 ) /  136, 'AE', T /  ! AISO2J
-      DATA CGRID_INDEX( 122 ), SPECIES_TYPE( 122 ), CONVERT_CONC( 122 ) /  137, 'AE', T /  ! ASQTJ
+      DATA CGRID_INDEX( 121 ), SPECIES_TYPE( 121 ), CONVERT_CONC( 121 ) /  144, 'AE', T /  ! AISO2J
+      DATA CGRID_INDEX( 122 ), SPECIES_TYPE( 122 ), CONVERT_CONC( 122 ) /  145, 'AE', T /  ! ASQTJ
       DATA CGRID_INDEX( 123 ), SPECIES_TYPE( 123 ), CONVERT_CONC( 123 ) /  181, 'AE', T /  ! APOCI
       DATA CGRID_INDEX( 124 ), SPECIES_TYPE( 124 ), CONVERT_CONC( 124 ) /  183, 'AE', T /  ! APNCOMI
       DATA CGRID_INDEX( 125 ), SPECIES_TYPE( 125 ), CONVERT_CONC( 125 ) /  182, 'AE', T /  ! APOCJ

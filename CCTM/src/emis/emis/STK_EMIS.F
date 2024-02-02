@@ -32,7 +32,7 @@ C                          Yongtao Hu (Georgia Tech)
 C-----------------------------------------------------------------------
 
       USE UDTYPES, ONLY: RARRY1, CARRY1
-      USE EMIS_VARS
+      USE DESID_VARS
 
       IMPLICIT NONE
 
@@ -58,6 +58,9 @@ C-----------------------------------------------------------------------
 
          USE UTILIO_DEFN
          USE AERO_DATA, ONLY : MGPG, GPKG
+#ifdef mpas
+         USE mio_module
+#endif
 
          IMPLICIT NONE
 
@@ -65,7 +68,10 @@ C-----------------------------------------------------------------------
          INTEGER, INTENT( IN )         :: JDATE, JTIME
          LOGICAL SUCCESS
 
-         INTEGER I, J, N, NGRPS, LEN1, LEN2, ISRM, X
+         INTEGER I, J, N, NGRPS, LEN1, LEN2, ISRM, X, loc_sdate,
+     &           loc_nsrcs, loc_nvars, loc
+         integer :: loc_tflag(2), floc
+         character (16), allocatable :: loc_vname(:), loc_units(:)
 
          INTEGER ASTAT
          CHARACTER( 96 ) :: XMSG = ' '
@@ -99,6 +105,20 @@ C-----------------------------------------------------------------------
          DO N = 1, NGRPS
             ISRM = MAP_PTtoISRM( N )
 
+#ifdef mpas
+            floc = mio_search (STKENAME( N ))
+            call mio_time_format_conversion (mio_file_data(floc)%timestamp(1), loc_tflag(1), loc_tflag(2))
+
+            loc_sdate = loc_tflag(1)
+
+            loc_nsrcs = mio_file_data(floc)%gl_nrows
+            loc_nvars = mio_file_data(floc)%nvars
+
+            allocate (loc_vname(loc_nvars), loc_units(loc_nvars), stat=astat)
+            loc_vname = mio_file_data(floc)%var_name
+            loc_units = mio_file_data(floc)%units
+#else
+
             IF ( .NOT. OPEN3( STKENAME( N ), FSREAD3, PNAME ) ) THEN
                XMSG = 'Could not open '// TRIM( STKENAME( N ) ) // ' file'
                CALL M3MESG( XMSG )
@@ -113,19 +133,29 @@ C-----------------------------------------------------------------------
 
             ! Each file will use the default jdate, unless specified by the user 
             ! that the file is a representative day file
-            EM_FILE_DATE( ISRM ) = JDATE    
-            IF ( EM_FILE_SYM_DATE( ISRM ) ) EM_FILE_DATE( ISRM ) = SDATE3D
+            loc_sdate = JDATE
+            IF ( DESID_STREAM_SYM_DATE( ISRM ) ) loc_sdate = SDATE3D
 
-            NSRC_EMIS( N ) = NROWS3D
-            NVARS_EMIS( N ) = NVARS3D
+            loc_nsrcs = NROWS3D
+            loc_nvars = NVARS3D
+
+            allocate (loc_vname(loc_nvars), loc_units(loc_nvars), stat=astat)
+            loc_vname = vname3d(1:loc_nvars)
+            loc_units = units3d(1:loc_nvars)
+#endif
+
+            DESID_STREAM_DATE( ISRM ) = loc_sdate
+
+            NSRC_EMIS( N ) = loc_nsrcs
+            NVARS_EMIS( N ) = loc_nvars
             LEN1 = NSRC_EMIS( N )
             LEN2 = NVARS_EMIS( N )
             DO I = 1, LEN2
                ! Use HFLUX to determine Fire sources in PT3D_DEFN via
                ! the FIRENAM variable
-               IF ( VNAME3D( I ) .EQ. 'HFLUX' ) THEN
+               IF ( loc_vname( I ) .EQ. 'HFLUX' ) THEN
                    FIREFLAG( N ) = .TRUE.
-                   EM_FILE_FIRE( ISRM ) = .TRUE.
+                   DESID_STREAM_FIRE( ISRM ) = .TRUE.
                END IF
             END DO
             IF ( FIREFLAG( N ) ) THEN   ! subtract off 'HFLUX'
@@ -138,30 +168,31 @@ C-----------------------------------------------------------------------
             CALL CHECKMEM( ASTAT, 'STKEMIS', PNAME )
             STKEMIS( N )%ARRY = 0.0   ! array
 
-            EM_FILE_SURR( ISRM )%LEN = LEN2
-            ALLOCATE ( EM_FILE_SURR( ISRM )%ARRY( LEN2 ), STAT = ASTAT )
-            ALLOCATE ( EM_FILE_SURR( ISRM )%UNITS( LEN2 ), STAT = ASTAT )
-            CALL CHECKMEM( ASTAT, 'EM_FILE_SURR', PNAME )
+            DESID_EMVAR( ISRM )%LEN = LEN2
+            ALLOCATE ( DESID_EMVAR( ISRM )%ARRY( LEN2 ), STAT = ASTAT )
+            ALLOCATE ( DESID_EMVAR( ISRM )%UNITS( LEN2 ), STAT = ASTAT )
+            CALL CHECKMEM( ASTAT, 'DESID_EMVAR', PNAME )
 
             IF ( FIREFLAG( N ) ) THEN   ! subtract and save off 'HFLUX'
                ALLOCATE ( FIREVAR( N )%ARRY( LEN1 ), STAT = ASTAT )
                CALL CHECKMEM( ASTAT, 'FIREVAR', PNAME )
                I = 0
-               DO J = 1, NVARS3D
-                  IF ( VNAME3D( J ) .NE. 'HFLUX' ) THEN
+               DO J = 1, loc_nvars
+                  IF ( loc_vname( J ) .NE. 'HFLUX' ) THEN
                      I = I + 1
-                     EM_FILE_SURR( ISRM )%ARRY( I ) = VNAME3D( J )
-                     EM_FILE_SURR( ISRM )%UNITS( I )= UNITS3D( J )
+                     DESID_EMVAR( ISRM )%ARRY( I ) = loc_vname( J )
+                     DESID_EMVAR( ISRM )%UNITS( I )= loc_units( J )
                   END IF
                END DO
                FIREVAR( N )%LEN = LEN1
             ELSE
-               DO J = 1, EM_FILE_SURR( ISRM )%LEN
-                  EM_FILE_SURR( ISRM )%ARRY( J ) = VNAME3D( J )
-                  EM_FILE_SURR( ISRM )%UNITS( J )= UNITS3D( J )
+               DO J = 1, DESID_EMVAR( ISRM )%LEN
+                  DESID_EMVAR( ISRM )%ARRY( J ) = loc_vname( J )
+                  DESID_EMVAR( ISRM )%UNITS( J )= loc_units( J )
                END DO
             END IF
 
+            deallocate (loc_vname, loc_units)
          END DO
 
           ALLOCATE( STKBUFF( MAXVAL( NSRC_EMIS(:) ) ) )

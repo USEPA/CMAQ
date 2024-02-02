@@ -81,7 +81,7 @@ C------------------------------------------------------------------------
       IERR = 0
 
 C Start up MPI
-#ifndef twoway
+#if !defined(twoway) && !defined(mpas)
       CALL MPI_INIT( FLAG )
       IF ( FLAG .NE. 0 ) THEN
          WRITE( XMSG,'(I6, A)' ) FLAG, 'Error in MPI_INIT.'

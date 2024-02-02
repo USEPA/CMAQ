@@ -1,6 +1,6 @@
 #! /bin/csh -f
 
-# ===================== SITECMP_v5.3.X Run Script =====================
+# ===================== SITECMP_v5.4.X Run Script =====================
 # Usage: run.sitecmp.csh >&! sitecmp.log &
 #
 # To report problems or request help with this script/program:
@@ -20,7 +20,7 @@
  source ./config_cmaq.csh
 
 #> Set General Parameters for Configuring the Simulation
- set VRSN      = v532              #> Code Version
+ set VRSN      = v54               #> Code Version
  set PROC      = mpi               #> serial or mpi
  set MECH      = cb6r3_ae7_aq      #> Mechanism ID
  set APPL      = Bench_2016_12SE1        #> Application Name (e.g. Gridname)
@@ -91,7 +91,7 @@
  setenv GAS_20 ",,10*precip,mm/hr,precip"       
    
 #> PM2.5 Sharp Cutoff Species
-#> Requires preprocessing using CCTM_APMDIAG file
+#> Requires preprocessing using CCTM_AELMO file
  setenv GAS_21 "PM25,ug/m3,PM25_TOT,ug/m3,PM25_TOT"
  setenv GAS_22 "PM25,ug/m3,PM25_FRM,,PM25_FRM"     
 #>> End Species List <<#

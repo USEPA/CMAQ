@@ -121,6 +121,7 @@ C-------------------------------------------------------------------------------
          Real,    Allocatable :: PBL      ( :,: )  ! pbl height (m)
          Real,    Allocatable :: NACL_EMIS( :,: )  ! NACL mass emission rate of particles with d <10 um (g/m2/s)
          Real,    Allocatable :: COSZEN   ( :,: )  ! Cosine of the zenith angle
+         Real,    Allocatable :: CFRAC    ( :,: )  ! cloud fraction
 !> U and V wind components on the cross grid points
          Real,    Allocatable :: UWIND    ( :,:,: )  ! [m/s]
          Real,    Allocatable :: VWIND    ( :,:,: )  ! [m/s]                    
@@ -178,7 +179,7 @@ C Land use information:
          Real, Allocatable :: USTAR ( :,:,: )   ! surface friction velocity [m/s]
          Real, Allocatable :: LAI   ( :,:,: )   ! leaf area index [m**2/m**2]
          Real, Allocatable :: VEG   ( :,:,: )   ! vegetation fraction [ratio]
-         Real, Allocatable :: Z0    ( :,:,: )   ! vegetation fraction [ratio]
+         Real, Allocatable :: Z0    ( :,:,: )   ! momentum roughness length [m]
          Real, Allocatable :: DELTA ( :,:,: )   ! Surface wetness [ratio]
 !> Sub grid cell resistances
          Real, Allocatable :: RA    ( :,:,: )    ! aerodynamic resistance [s/m]
@@ -211,9 +212,9 @@ C Land use information:
       Real, Parameter :: svp3       = 29.65      ! from MM5 and WRF
       Real, Parameter :: rt25inK    = 1.0/(stdtemp + 25.0) ! 298.15K = 25C
       Real, Parameter :: twothirds  = 2.0 / 3.0
-      Real, Parameter :: betah      = 5.0       ! WRF 3.6 px uses Dyer
-      Real, Parameter :: gamah      = 16.0
-      Real, Parameter :: karman     = 0.40
+      Real, Parameter :: betah      = 5.0       ! MOST coefficient for stability correction for stable conditions 
+      Real, Parameter :: gamah      = 16.0      ! MOST coefficient for stability correction for unstable conditions
+      Real, Parameter :: karman     = 0.40      ! von Karman constant
 
       Logical, Save :: MET_INITIALIZED = .false.
       Real,    Save :: zsoil1             ! Layer 1 soil depth
@@ -328,6 +329,7 @@ C-----------------------------------------------------------------------
      &             Met_Data%PBL      ( NCOLS,NROWS ),
      &             Met_Data%NACL_EMIS( NCOLS,NROWS ),
      &             Met_Data%COSZEN   ( NCOLS,NROWS ),
+     &             Met_Data%CFRAC    ( NCOLS,NROWS ),
      &             Met_Data%UWIND    ( NCOLS+1,NROWS+1,NLAYS ),
      &             Met_Data%VWIND    ( NCOLS+1,NROWS+1,NLAYS ),
      &             Met_Data%KZMIN    ( NCOLS,NROWS,NLAYS ),
@@ -721,6 +723,8 @@ C Met_cro_2D variables that have recently changed due to MCIP or WRF/CMAQ
 
          call interpolate_var (vname_rc, jdate, jtime, Met_Data%RC)
 
+         call interpolate_var ('CFRAC', jdate, jtime, Met_Data%CFRAC)
+
          If ( WR_AVAIL ) Then
             call interpolate_var ('WR', jdate, jtime, Met_Data%WR)
          Else 
@@ -889,7 +893,7 @@ C read in land use specific meteorology from WRF Noah or Ruc mosaic options
          CALL CALC_LAI( JDATE, JTIME, MET_DATA%SOIT2, MET_DATA%LAI,
      &                  MET_DATA%VEG, MOSAIC_DATA%VEG, MOSAIC_DATA%LAI, MOSAIC_DATA%Z0 )
 
-         CALL ra_wrf( MET_DATA%MOL, MET_DATA%PBL, MET_DATA%MOLI, MET_DATA%ZH, MET_DATA%RA, MET_DATA%Z0, 
+         CALL ra_wrf( MET_DATA%MOLI, MET_DATA%ZH, MET_DATA%RA, MET_DATA%Z0, 
      &                MOSAIC_DATA%Z0, MET_DATA%USTAR, MOSAIC_DATA%USTAR,
      &                MOSAIC_DATA%RA, gamah, betah, karman )       
 

@@ -20,6 +20,9 @@ SUBROUTINE feedback_setup ( jdate, jtime, tstep )
 !                 variables in one place
 !           01 Aug 2019  (David Wong)
 !              -- updated abort message
+!           26 Jul 2022  (David Wong)
+!              -- Added a prefix tw_ for these variables: sc, ec, sr, er sc_d, ec_d, 
+!                 sr_d, and er_d to avoid naming conflicts
 !===============================================================================
 
   USE twoway_header_data_module
@@ -442,6 +445,9 @@ SUBROUTINE feedback_read (grid, jdate, jtime)
 !           25 Sep 2015  (David Wong)
 !             -- replace SUBST_MODULES with SE_MODULES
 !             -- removed ae_mass access
+!           08 Sep 2022  (David Wong)
+!              -- fixed a bug that caused by changed value of NLAYS3D in the
+!                 subsequent time step
 !===============================================================================
 
   USE module_domain           ! WRF module
@@ -481,6 +487,8 @@ SUBROUTINE feedback_read (grid, jdate, jtime)
 
   character (len = 4), save :: pe_str
 
+  integer, save :: loc_nlays
+
   tstep = tstep + 1
 
   if (firstime) then
@@ -519,6 +527,8 @@ SUBROUTINE feedback_read (grid, jdate, jtime)
         west_bndy_pe = .true.
      end if
 
+     loc_nlays = nlays3d
+
      firstime = .false.
 
   end if
@@ -535,14 +545,14 @@ SUBROUTINE feedback_read (grid, jdate, jtime)
                          cmaq_wrf_c_send_index_l, cmaq_wrf_c_recv_index_l, 6)
 
  if (north_bndy_pe) then
-    s = cmaq_c_domain_map(2,2,mype) - sr + 1
+    s = cmaq_c_domain_map(2,2,mype) - tw_sr + 1
     do r = cmaq_c_domain_map(2,2,mype)+1, wrf_c_domain_map(2,2,mype)
-       feedback_data_wrf(:,r-sr+1,:,:) = feedback_data_wrf(:,s,:,:)
+       feedback_data_wrf(:,r-tw_sr+1,:,:) = feedback_data_wrf(:,s,:,:)
     end do
  end if
 
  if (east_bndy_pe) then
-    s = cmaq_c_domain_map(2,1,mype) - sc + 1
+    s = cmaq_c_domain_map(2,1,mype) - tw_sc + 1
     d = wrf_c_domain_map(2,1,mype) - cmaq_c_domain_map(2,1,mype)
     do r = lbound(feedback_data_wrf,2), ubound(feedback_data_wrf,2)
        do c = s+1, s+d
@@ -565,71 +575,71 @@ SUBROUTINE feedback_read (grid, jdate, jtime)
     end do
  end if
 
-  do l = 1, nlays3d
-     do r = sr, er
-        do c = sc, ec
-           grid%mass_ws_i(c, l, r)  = feedback_data_wrf(c-sc+1,r-sr+1,l,1)
-           grid%mass_ws_j(c, l, r)  = feedback_data_wrf(c-sc+1,r-sr+1,l,2)
-           grid%mass_ws_k(c, l, r)  = feedback_data_wrf(c-sc+1,r-sr+1,l,3)
-           grid%mass_in_i(c, l, r)  = feedback_data_wrf(c-sc+1,r-sr+1,l,4)
-           grid%mass_in_j(c, l, r)  = feedback_data_wrf(c-sc+1,r-sr+1,l,5)
-           grid%mass_in_k(c, l, r)  = feedback_data_wrf(c-sc+1,r-sr+1,l,6)
-           grid%mass_ec_i(c, l, r)  = feedback_data_wrf(c-sc+1,r-sr+1,l,7)
-           grid%mass_ec_j(c, l, r)  = feedback_data_wrf(c-sc+1,r-sr+1,l,8)
-           grid%mass_ec_k(c, l, r)  = feedback_data_wrf(c-sc+1,r-sr+1,l,9)
-           grid%mass_ss_i(c, l, r)  = feedback_data_wrf(c-sc+1,r-sr+1,l,10)
-           grid%mass_ss_j(c, l, r)  = feedback_data_wrf(c-sc+1,r-sr+1,l,11)
-           grid%mass_ss_k(c, l, r)  = feedback_data_wrf(c-sc+1,r-sr+1,l,12)
-           grid%mass_h2o_i(c, l, r) = feedback_data_wrf(c-sc+1,r-sr+1,l,13)
-           grid%mass_h2o_j(c, l, r) = feedback_data_wrf(c-sc+1,r-sr+1,l,14)
-           grid%mass_h2o_k(c, l, r) = feedback_data_wrf(c-sc+1,r-sr+1,l,15)
-           grid%dgn_i(c, l, r)      = feedback_data_wrf(c-sc+1,r-sr+1,l,16)
-           grid%dgn_j(c, l, r)      = feedback_data_wrf(c-sc+1,r-sr+1,l,17)
-           grid%dgn_k(c, l, r)      = feedback_data_wrf(c-sc+1,r-sr+1,l,18)
-           grid%sig_i(c, l, r)      = feedback_data_wrf(c-sc+1,r-sr+1,l,19)
-           grid%sig_j(c, l, r)      = feedback_data_wrf(c-sc+1,r-sr+1,l,20)
-           grid%sig_k(c, l, r)      = feedback_data_wrf(c-sc+1,r-sr+1,l,21)
-           grid%ozone(c, l, r)      = feedback_data_wrf(c-sc+1,r-sr+1,l,22)
+  do l = 1, loc_nlays
+     do r = tw_sr, tw_er
+        do c = tw_sc, tw_ec
+           grid%mass_ws_i(c, l, r)  = feedback_data_wrf(c-tw_sc+1,r-tw_sr+1,l,1)
+           grid%mass_ws_j(c, l, r)  = feedback_data_wrf(c-tw_sc+1,r-tw_sr+1,l,2)
+           grid%mass_ws_k(c, l, r)  = feedback_data_wrf(c-tw_sc+1,r-tw_sr+1,l,3)
+           grid%mass_in_i(c, l, r)  = feedback_data_wrf(c-tw_sc+1,r-tw_sr+1,l,4)
+           grid%mass_in_j(c, l, r)  = feedback_data_wrf(c-tw_sc+1,r-tw_sr+1,l,5)
+           grid%mass_in_k(c, l, r)  = feedback_data_wrf(c-tw_sc+1,r-tw_sr+1,l,6)
+           grid%mass_ec_i(c, l, r)  = feedback_data_wrf(c-tw_sc+1,r-tw_sr+1,l,7)
+           grid%mass_ec_j(c, l, r)  = feedback_data_wrf(c-tw_sc+1,r-tw_sr+1,l,8)
+           grid%mass_ec_k(c, l, r)  = feedback_data_wrf(c-tw_sc+1,r-tw_sr+1,l,9)
+           grid%mass_ss_i(c, l, r)  = feedback_data_wrf(c-tw_sc+1,r-tw_sr+1,l,10)
+           grid%mass_ss_j(c, l, r)  = feedback_data_wrf(c-tw_sc+1,r-tw_sr+1,l,11)
+           grid%mass_ss_k(c, l, r)  = feedback_data_wrf(c-tw_sc+1,r-tw_sr+1,l,12)
+           grid%mass_h2o_i(c, l, r) = feedback_data_wrf(c-tw_sc+1,r-tw_sr+1,l,13)
+           grid%mass_h2o_j(c, l, r) = feedback_data_wrf(c-tw_sc+1,r-tw_sr+1,l,14)
+           grid%mass_h2o_k(c, l, r) = feedback_data_wrf(c-tw_sc+1,r-tw_sr+1,l,15)
+           grid%dgn_i(c, l, r)      = feedback_data_wrf(c-tw_sc+1,r-tw_sr+1,l,16)
+           grid%dgn_j(c, l, r)      = feedback_data_wrf(c-tw_sc+1,r-tw_sr+1,l,17)
+           grid%dgn_k(c, l, r)      = feedback_data_wrf(c-tw_sc+1,r-tw_sr+1,l,18)
+           grid%sig_i(c, l, r)      = feedback_data_wrf(c-tw_sc+1,r-tw_sr+1,l,19)
+           grid%sig_j(c, l, r)      = feedback_data_wrf(c-tw_sc+1,r-tw_sr+1,l,20)
+           grid%sig_k(c, l, r)      = feedback_data_wrf(c-tw_sc+1,r-tw_sr+1,l,21)
+           grid%ozone(c, l, r)      = feedback_data_wrf(c-tw_sc+1,r-tw_sr+1,l,22)
 ! begin: this is for indirect effect only, temporary blocked
 !          if (indirect_effect) then
 !             s = 0
 !             do d = 23, N_FEEDBACK_VAR-3
 !                s = s + 1
-!                grid%ae_mass(c, l, r, s) = feedback_data_wrf(c-sc+1,r-sr+1,l,d)
+!                grid%ae_mass(c, l, r, s) = feedback_data_wrf(c-tw_sc+1,r-tw_sr+1,l,d)
 !             end do
-!             grid%ae_num(c, l, r, 1:3) = feedback_data_wrf(c-sc+1,r-sr+1,l,N_FEEDBACK_VAR-2:N_FEEDBACK_VAR)
+!             grid%ae_num(c, l, r, 1:3) = feedback_data_wrf(c-tw_sc+1,r-tw_sr+1,l,N_FEEDBACK_VAR-2:N_FEEDBACK_VAR)
 !          end if
 ! end: this is for indirect effect only, temporary blocked
         end do
      end do
   end do
 
-  grid%mass_ws_i(:,nlays3d+1,:) = grid%mass_ws_i(:,nlays3d,:)
-  grid%mass_ws_j(:,nlays3d+1,:) = grid%mass_ws_j(:,nlays3d,:)
-  grid%mass_ws_k(:,nlays3d+1,:) = grid%mass_ws_k(:,nlays3d,:)
-  grid%mass_in_i(:,nlays3d+1,:) = grid%mass_in_i(:,nlays3d,:)
-  grid%mass_in_j(:,nlays3d+1,:) = grid%mass_in_j(:,nlays3d,:)
-  grid%mass_in_k(:,nlays3d+1,:) = grid%mass_in_k(:,nlays3d,:)
-  grid%mass_ec_i(:,nlays3d+1,:) = grid%mass_ec_i(:,nlays3d,:)
-  grid%mass_ec_j(:,nlays3d+1,:) = grid%mass_ec_j(:,nlays3d,:)
-  grid%mass_ec_k(:,nlays3d+1,:) = grid%mass_ec_k(:,nlays3d,:)
-  grid%mass_ss_i(:,nlays3d+1,:) = grid%mass_ss_i(:,nlays3d,:)
-  grid%mass_ss_j(:,nlays3d+1,:) = grid%mass_ss_j(:,nlays3d,:)
-  grid%mass_ss_k(:,nlays3d+1,:) = grid%mass_ss_k(:,nlays3d,:)
-  grid%mass_h2o_i(:,nlays3d+1,:) = grid%mass_h2o_i(:,nlays3d,:)
-  grid%mass_h2o_j(:,nlays3d+1,:) = grid%mass_h2o_j(:,nlays3d,:)
-  grid%mass_h2o_k(:,nlays3d+1,:) = grid%mass_h2o_k(:,nlays3d,:)
-  grid%dgn_i(:,nlays3d+1,:) = grid%dgn_i(:,nlays3d,:)
-  grid%dgn_j(:,nlays3d+1,:) = grid%dgn_j(:,nlays3d,:)
-  grid%dgn_k(:,nlays3d+1,:) = grid%dgn_k(:,nlays3d,:)
-  grid%sig_i(:,nlays3d+1,:) = grid%sig_i(:,nlays3d,:)
-  grid%sig_j(:,nlays3d+1,:) = grid%sig_j(:,nlays3d,:)
-  grid%sig_k(:,nlays3d+1,:) = grid%sig_k(:,nlays3d,:)
+  grid%mass_ws_i(:,loc_nlays+1,:) = grid%mass_ws_i(:,loc_nlays,:)
+  grid%mass_ws_j(:,loc_nlays+1,:) = grid%mass_ws_j(:,loc_nlays,:)
+  grid%mass_ws_k(:,loc_nlays+1,:) = grid%mass_ws_k(:,loc_nlays,:)
+  grid%mass_in_i(:,loc_nlays+1,:) = grid%mass_in_i(:,loc_nlays,:)
+  grid%mass_in_j(:,loc_nlays+1,:) = grid%mass_in_j(:,loc_nlays,:)
+  grid%mass_in_k(:,loc_nlays+1,:) = grid%mass_in_k(:,loc_nlays,:)
+  grid%mass_ec_i(:,loc_nlays+1,:) = grid%mass_ec_i(:,loc_nlays,:)
+  grid%mass_ec_j(:,loc_nlays+1,:) = grid%mass_ec_j(:,loc_nlays,:)
+  grid%mass_ec_k(:,loc_nlays+1,:) = grid%mass_ec_k(:,loc_nlays,:)
+  grid%mass_ss_i(:,loc_nlays+1,:) = grid%mass_ss_i(:,loc_nlays,:)
+  grid%mass_ss_j(:,loc_nlays+1,:) = grid%mass_ss_j(:,loc_nlays,:)
+  grid%mass_ss_k(:,loc_nlays+1,:) = grid%mass_ss_k(:,loc_nlays,:)
+  grid%mass_h2o_i(:,loc_nlays+1,:) = grid%mass_h2o_i(:,loc_nlays,:)
+  grid%mass_h2o_j(:,loc_nlays+1,:) = grid%mass_h2o_j(:,loc_nlays,:)
+  grid%mass_h2o_k(:,loc_nlays+1,:) = grid%mass_h2o_k(:,loc_nlays,:)
+  grid%dgn_i(:,loc_nlays+1,:) = grid%dgn_i(:,loc_nlays,:)
+  grid%dgn_j(:,loc_nlays+1,:) = grid%dgn_j(:,loc_nlays,:)
+  grid%dgn_k(:,loc_nlays+1,:) = grid%dgn_k(:,loc_nlays,:)
+  grid%sig_i(:,loc_nlays+1,:) = grid%sig_i(:,loc_nlays,:)
+  grid%sig_j(:,loc_nlays+1,:) = grid%sig_j(:,loc_nlays,:)
+  grid%sig_k(:,loc_nlays+1,:) = grid%sig_k(:,loc_nlays,:)
 
 ! begin: this is for indirect effect only, temporary blocked
 ! if (indirect_effect) then
-!    grid%ae_mass(:,nlays3d+1,:,:) = grid%ae_mass(:,nlays3d,:,:)
-!    grid%ae_num(:,nlays3d+1,:,:)  = grid%ae_num(:,nlays3d,:,:)
+!    grid%ae_mass(:,loc_nlays+1,:,:) = grid%ae_mass(:,loc_nlays,:,:)
+!    grid%ae_num(:,loc_nlays+1,:,:)  = grid%ae_num(:,loc_nlays,:,:)
 ! end if
 ! end: this is for indirect effect only, temporary blocked
 

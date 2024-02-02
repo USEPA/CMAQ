@@ -13,7 +13,7 @@
 | BENZENE           | benzene                                                                      | 78.1                 | E                      |
 | BENZRO2           | counter species for aerosol from benzene+OH                                  | 127                  | L                      |
 | BUTADIENE13       | 1,3-butadiene                                                                | 54                   | E                      |
-| BZO2              | peroxy radical from beneze reactions with OH                                 | 159.1                | L                      |
+| BZO2              | peroxy radical from benzene reactions with OH                                 | 159.1                | L                      |
 |BR                 | monoatomic bromine       |   79.9    | E | 
 |BR2                | molecular bromide       |  159.8    | E |
 |BRCL               | bromine chloride       |  115.4    | E |
@@ -118,7 +118,7 @@
 | PAHRO2            | counter species for aerosol from NAPH+OH                                     | 187.2                | L                      |
 | PAN               | peroxyacylnitrate                                                            | 121                  | E                      |
 | PANX              | peroxyacylnitrates with 3 or more carbons                                    | 135                  | L                      |
-| PAR               | carbon-carbon single bond                                                    | 72.1                 | L                      |
+| PAR               | carbon-carbon single bond                                                    | 14.0                 | L                      |
 | PCSOARXN          | counter species for potential aerosol from combustion (from PCVOC reactions) | 170                  | L                      |
 | PCVOC             | tracer for potential combustion SOA VOCs                                     | 170                  | L                      |
 | PNA               | peroxynitric acid                                                            | 79                   | E                      |

@@ -87,6 +87,9 @@ c...Allocatable arrays
       REAL( 8 ), ALLOCATABLE :: REVERSE_CONV( : )  ! CHEM to CGRID Species conversion factor
       REAL( 8 ), ALLOCATABLE :: Y( :,: )           ! Species concentrations
       REAL( 8 ), ALLOCATABLE :: Y_DEGRADE( :,: )   ! Concentration for degradation
+#ifdef sens
+      REAL( 8 ), ALLOCATABLE :: YAVE( :,: )        ! Species concentrations
+#endif
 
 c..Block variables
       INTEGER :: BLKID                           ! Block ID

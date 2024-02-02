@@ -91,6 +91,7 @@ C***********************************************************************
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  Set control parameters for output report options
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+#ifdef debug_gear
       LDEBUG = .FALSE.
       IF( LDEBUG ) THEN
          IRUNBUG  = 1 
@@ -152,6 +153,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          OPEN( UNIT = IUNCOUT, FILE = 'PROFILE.OUT', 
      &         FORM = 'UNFORMATTED')
       ENDIF
+#endif
    
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  Set some constants for the Gear solver
@@ -161,7 +163,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       HMAXDAY( NCS ) = 15.0D0
       HMAXNIT        = 5.0D0
       HMIN           = 1.0D-10
-      YLOW   ( NCS ) = REAL( GEAR_ATOL, 8 )
+      YLOW   ( NCS ) = REAL( GEAR_MIN_ATOL, 8 )
       ERRMAX ( NCS ) = REAL( GEAR_RTOL, 8 )
       FRACDEC        = 0.25D0
       CONCMIN        = 1.0D-30
@@ -179,6 +181,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
                CROW( NCOUNT ) = ROW
                CCOL( NCOUNT ) = COL
                CLEV( NCOUNT ) = LEV
+               IF( ROW .EQ. 1 .AND. COL .EQ. 1 .AND. LEV .EQ. 1 )NCELL1 = NCOUNT
             END DO
          END DO
       END DO

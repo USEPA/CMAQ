@@ -1,6 +1,6 @@
 #! /bin/csh -f
 
-# ====================== COMBINE_v5.3 Run Script ======================== 
+# ====================== COMBINE_v5.4 Run Script ======================== 
 # Usage: run.combine.uncoupled.csh >&! combine_v53_uncoupled.log &                                
 #
 # To report problems or request help with this script/program:     
@@ -15,7 +15,7 @@ set compiler        = intel
 set compilerVrsn    = 18.0
 set compilerString  = ${compiler}${compilerVrsn}
 
-set VRSN            = v53
+set VRSN            = v54
 
 set BINDIR          = $CMAQ_HOME/POST/combine/scripts/BLD_combine_${VRSN}_${compilerString}
 
@@ -26,8 +26,10 @@ setenv GENSPEC N
 #> Set the species definition file used for mechanism mapping
 
 setenv SPECIES_DEF SpecDef_racm_ae6_aq_derived_from_cb6r3m_ae7_kmtbr.txt
+#setenv SPECIES_DEF SpecDef_racm2_ae6_aq_derived_from_cb6r3m_ae7_kmtbr.txt
 #setenv SPECIES_DEF SpecDef_saprc07tc_ae6_aq_derived_from_cb6r3m_ae7_kmtbr.txt
 #setenv SPECIES_DEF SpecDef_saprc07tic_ae7i_aq_derived_from_cb6r3m_ae7_kmtbr.txt
+#setenv SPECIES_DEF SpecDef_cracmm1_aq_derived_from_cb6r3_ae7_kmtbr.txt
 
 #> Set the input file, e.g. the seasonal average H-CMAQ file 
 #> CCTM_CONC_v53beta2_intel17.0_HEMIS_cb6r3m_ae7_kmtbr_m3dry_2016_quarterly_av.nc
@@ -38,8 +40,10 @@ setenv INFILE1 ${CMAQ_DATA}/CCTM_CONC_v53beta2_intel17.0_HEMIS_cb6r3m_ae7_kmtbr_
 #> Set the output file containing the mapped species
 
 setenv OUTFILE ${CMAQ_DATA}/CCTM_CONC_v53beta2_intel17.0_HEMIS_racm_ae6_aq_derived_from_cb6r3m_ae7_kmtbr_m3dry_2016_quarterly_av.nc
+#setenv OUTFILE ${CMAQ_DATA}/CCTM_CONC_v53beta2_intel17.0_HEMIS_racm2_ae6_aq_derived_from_cb6r3m_ae7_kmtbr_m3dry_2016_quarterly_av.nc
 #setenv OUTFILE ${CMAQ_DATA}/CCTM_CONC_v53beta2_intel17.0_HEMIS_saprc07tc_ae6_aq_derived_from_cb6r3m_ae7_kmtbr_m3dry_2016_quarterly_av.nc
 #setenv OUTFILE ${CMAQ_DATA}/CCTM_CONC_v53beta2_intel17.0_HEMIS_saprc07tic_ae7i_aq_derived_from_cb6r3m_ae7_kmtbr_m3dry_2016_quarterly_av.nc
+#setenv OUTFILE ${CMAQ_DATA}/CCTM_CONC_v53beta2_intel17.0_HEMIS_craccm1_aq_derived_from_cb6r3m_ae7_kmtbr_m3dry_2016_quarterly_av.nc
 
 
 #> Executable call:

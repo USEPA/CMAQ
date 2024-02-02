@@ -567,8 +567,9 @@ C Calculate characteristic parameters
            Fhair = Fhair1 * (1-Fgrass) + Fhair2 * Fgrass
 ! Different formulations for vegetated and non-vegetated parts
            fveg = Met_Data%VEG(C,R)
+           IF ( NINT(GRID_DATA%LWMASK( c,r )).eq.0) fveg = 0.0
            LAIcr = max(Met_Data%LAI(C,R),1.0)
-           fnv = 1-Met_Data%VEG(C,R)
+           fnv = 1.-fveg
 !           if(c.eq.1.and.r.eq.1) Write(Logdev,*) 
 !     >         ' Aleaf,Ahair,fveg,fnv,fneedle=',Aleaf,Ahair,fveg,fnv,fneedle
 
@@ -645,7 +646,7 @@ C now do 2nd moment for the deposition of surface area
             Stoke = USTFAC * VGHAT2
             Eim = 10.**(-3./Stoke)
             RD2 = 1.0 / (  Met_Data%USTAR( C,R )*BAI*(Eb + EIM ) )
-            Vdnv = VGHAT0 / ( 1.0 - EXP( -VGHAT2 * ( Met_Data%RA( C,R ) + RD2 ) ) )
+            Vdnv = VGHAT2 / ( 1.0 - EXP( -VGHAT2 * ( Met_Data%RA( C,R ) + RD2 ) ) )
           endif
             VDEP( C,R,VDS( IM ) ) = fveg*Vdv + fnv*Vdnv
 C now do 3rd moment for the deposition of mass

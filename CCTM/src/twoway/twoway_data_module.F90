@@ -9,6 +9,9 @@
 !                 variables in one place
 !           01 Aug 2019  (David Wong)
 !              -- renamed convective_scheme to wrf_convective_scheme
+!           26 Jul 2022  (David Wong)
+!              -- Added a prefix tw_ for these variables: sc, ec, sr, er sc_d, ec_d,
+!                 sr_d, and er_d to avoid naming conflicts
 !===============================================================================
 
   module twoway_data_module
@@ -35,7 +38,7 @@
     integer :: wrf_c_col_dim
     integer :: wrf_c_row_dim
     integer :: delta_x, delta_y
-    integer :: wrf_cmaq_freq
+!   integer :: wrf_cmaq_freq
     integer :: cmaq_sdate, cmaq_stime, file_time_step
 
 ! cmaq_c stands for cmaq cross grid
@@ -60,17 +63,17 @@
     integer, pointer :: cmaq_wrf_c_send_index_g (:,:,:), cmaq_wrf_c_recv_index_g (:,:,:)
     integer, pointer :: cmaq_wrf_c_send_index_l (:,:,:), cmaq_wrf_c_recv_index_l (:,:,:)
 
-    INTEGER :: sc, ec, sr, er
-    INTEGER :: sc_d, ec_d, sr_d, er_d
+    INTEGER :: tw_sc, tw_ec, tw_sr, tw_er
+    INTEGER :: tw_sc_d, tw_ec_d, tw_sr_d, tw_er_d
 
     real :: WRF_LC_REF_LAT
 
     logical :: wrf_convective_scheme,     &
-               CMAQ_WRF_FEEDBACK,         &
+               cmaq_wrf_feedback,         &    ! flag to indicate CMAQ provides aerosol information back to WRF
                sd_time_series,            &
-               create_physical_file,      &
-               run_cmaq_driver,           &
-               wrf_restart,               &
+!              create_physical_file,      &
+!              run_cmaq_driver,           &
+!              wrf_restart,               &
                turn_on_pv
 
     logical :: wrf_lightning_assim = .false.
