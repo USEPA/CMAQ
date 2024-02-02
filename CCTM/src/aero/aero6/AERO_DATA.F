@@ -1897,7 +1897,7 @@ C Local variables:
          AER_PAR ( 1, IMODE, 8 ) = 0.    
 
          ! Begin Checking Aerosol Parameters. 
-         IF ( M3DRY .LT. 1.0e-30 .OR. M3WET .LT. 1.0e-30 ) THEN
+         IF ( M3DRY .LT. 1.1e-30 .OR. M3WET .LT. 1.1e-30 ) THEN
              ! Dry or Wet Mass is below limit -> reset distribution
              LSTAT( IMODE ) = 11
 
@@ -1935,7 +1935,7 @@ C Local variables:
              DGWET = ( M3WET / NUM * EXP( -4.5 * L2SG ) )  ** ( ONE_THIRD )
              M2WET = EXP( ONE_THIRD * LOG( NUM ) + TWO_THIRDS * LOG( M3WET ) - L2SG )
 
-         ELSE IF ( NUM .LT. 1.0e-30 ) THEN
+         ELSE IF ( NUM .LT. 1.1e-30 ) THEN
              ! Number is below limit -> reset Num and Surf with
              !  default dry diameter and default standard deviation
              LSTAT( IMODE ) = 12
@@ -1950,7 +1950,7 @@ C Local variables:
              DGWET = ( M3WET / NUM * EXP( -4.5 * L2SG ) )  ** ( ONE_THIRD )
              M2WET = EXP( ONE_THIRD * LOG( NUM ) + TWO_THIRDS * LOG( M3WET ) - L2SG )
 
-         ELSE IF ( M2 .LT. 1.0e-30 .OR. .NOT. USE_M2 ) THEN                
+         ELSE IF ( M2 .LT. 1.1e-30 .OR. .NOT. USE_M2 ) THEN                
              ! Mass and Number are valid. Surface area is either invalid
              ! or the user has issued an override. The mass and number
              ! concentrations specify the dry and wet diameters, and the
