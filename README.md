@@ -96,7 +96,7 @@ In addition, a full set of inputs for 2018 are provided for the 12US1 domain (29
 |v5.4 CB6|Output (13.9 Gb)| Northeast US| July 1 - 2, 2018|[Metadata, DOI, and download instructions ](https://doi.org/10.15139/S3/BWMI8X) <br />[Google Drive Link](https://drive.google.com/drive/folders/1AFUB-4kzIXXoZr4hOHNBqRvy9JQ9_MDp)  <br /> [AWS Link](https://cmaq-release-benchmark-data-for-easy-download.s3.amazonaws.com/index.html) |
 |v5.4 CB6 | Input | 12US1 | Jan 1 - Dec 31, 2018 | [Metadata, DOI, and links to data on AWS](https://doi.org/10.15139/S3/LDTWKH) |
 |v5.4 CRACMM | Input | 12US1 | Jan 1 - Dec 31, 2018 | [Metadata, DOI, and links to data on AWS](https://doi.org/10.15139/S3/9AV907) |
- 
+
 ## User Support
 * [Frequent CMAQ Questions](https://www.epa.gov/cmaq/frequent-cmaq-questions) are available on our website. 
 * [The CMAS User Forum](https://forum.cmascenter.org/) is available for users and developers to discuss issues related to using the CMAQ system.
