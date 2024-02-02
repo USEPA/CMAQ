@@ -148,7 +148,7 @@
         setenv WRF_ARCH # [1-75]   
   
         #> I/O API, netCDF, and MPI Library Locations -- used in CMAQ
-        setenv IOAPI_INCL_DIR   iopai_inc_gcc             #> I/O API include header files
+        setenv IOAPI_INCL_DIR   ioapi_inc_gcc             #> I/O API include header files
         setenv IOAPI_LIB_DIR    ioapi_lib_gcc             #> I/O API libraries
         setenv NETCDF_LIB_DIR   netcdf_lib_gcc            #> netCDF C directory path
         setenv NETCDF_INCL_DIR  netcdf_inc_gcc            #> netCDF C directory path
