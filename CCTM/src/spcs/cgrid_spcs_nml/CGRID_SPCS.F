@@ -33,6 +33,9 @@ C 10 June 2021 G. Sarwar: Replacd CB6R3M_AE7_AQ with CB6R5M_AE7_AQ
 c-----------------------------------------------------------------------
       USE RUNTIME_VARS
       Use rxns_data, only: mechname       ! chemical mechanism data
+#ifdef mpas
+      use util_module, only : junit
+#endif
 
       implicit none
 
@@ -104,13 +107,14 @@ c control species
      &                                      gc_conc_map( : ), ae_conc_map( : ), nr_conc_map( : ), tr_conc_map( : )
 
       LOGICAL :: LTRNS, LDDEP, LWDEP, LCONC, LADVC, LDIFF
+      LOGICAL, ALLOCATABLE :: LAIT(:), LACC(:), LCOR(:)
 
 
       INTEGER, SAVE              :: N_CGRID_SPC
       INTEGER, SAVE              :: N_SPC_WDEP
       INTEGER, SAVE              :: N_SPC_DEPV
       INTEGER, SAVE              :: RHOJ_LOC
-      CHARACTER( 16 ), ALLOCATABLE, SAVE :: CGRID_NAME     ( : )
+      CHARACTER( 16 ), ALLOCATABLE, SAVE :: CGRID_NAME( : )
       REAL,    ALLOCATABLE, SAVE :: CGRID_MW       ( : )
       CHARACTER( 16 ), ALLOCATABLE, SAVE :: CGRID_UNITS    ( : )
       LOGICAL, ALLOCATABLE, SAVE :: CGRID_MASK_GAS ( : )
@@ -119,9 +123,17 @@ c control species
       LOGICAL, ALLOCATABLE, SAVE :: CGRID_MASK_SRF ( : )
       LOGICAL, ALLOCATABLE, SAVE :: CGRID_MASK_NR  ( : )
       LOGICAL, ALLOCATABLE, SAVE :: CGRID_MASK_TRAC( : )
-      INTEGER, ALLOCATABLE, SAVE :: MAP_WDEPtoCGRID( : )
+      CHARACTER( 16 ), ALLOCATABLE, SAVE :: CGRID_CONC_UNIT ( : )
+      CHARACTER( 256), ALLOCATABLE, SAVE :: CGRID_CONC_DESC ( : )
       INTEGER, ALLOCATABLE, SAVE :: MAP_DEPVtoCGRID( : )
+      INTEGER, ALLOCATABLE, SAVE :: MAP_WDEPtoCGRID( : )
 
+#ifdef mpas
+      character( 16 ), allocatable, save :: all_spc( : )
+      integer,                      save :: n_all_spc = 0
+
+      integer, allocatable :: indx_mpas(:)
+#endif
 
       type, public :: base_type
          private
@@ -144,7 +156,7 @@ c control species
          character( 16 ) :: name
          integer         :: map
       end type
-
+      
       contains
 
 c init routine to allocate the above allocatables
@@ -153,6 +165,7 @@ c !! NO   and to populate the allocated arrays from the stnd gc_spc.ext  !!! NO
          function cgrid_spcs_init() result ( success )
             use UTILIO_DEFN
             use stm_vars
+            use cgrid_spcs_types
 
             implicit none
 
@@ -229,11 +242,13 @@ c namelist variables
 
  
  
+#ifdef mpas
+            integer :: i1, i2, i3, i4   
+#endif
             TYPE (SPECIES_DATA_REG_1), ALLOCATABLE :: GC_SPECIES_DATA(:)
-            TYPE (SPECIES_DATA_REG_2), ALLOCATABLE :: AE_SPECIES_DATA(:)
             TYPE (SPECIES_DATA_REG_1), ALLOCATABLE :: NR_SPECIES_DATA(:)
             TYPE (SPECIES_DATA_REG_3), ALLOCATABLE :: TR_SPECIES_DATA(:)
- 
+
             namelist / GC_NML / GC_SPECIES_DATA
             namelist / AE_NML / AE_SPECIES_DATA
             namelist / NR_NML / NR_SPECIES_DATA
@@ -296,7 +311,14 @@ c-------------------------------------------------------------------------------
      &      gc_ddep( n_gc_spc+1 ), gc_ddep_map( n_gc_spc+1 ),
      &      gc_wdep( n_gc_spc+1 ), gc_wdep_map( n_gc_spc+1 ),
      &      gc_conc( n_gc_spc+1 ), gc_conc_map( n_gc_spc+1 ),
+#ifdef mpas
+     &      all_spc( spc_dim ),
+#endif
      &      stat = ios )
+
+#ifdef mpas
+            all_spc = bl
+#endif
 
             gc_spc = bl; gc_molwt = 0.0                        !  .
             gc_ic = bl;   gc_ic_map = 0;   gc_ic_fac = 0.0     !  .
@@ -403,6 +425,7 @@ c-------------------------------------------------------------------------------
 
             GC_FINI   = GC_STRT + N_GC_SPC - 1
             N_GC_SPCD = GC_FINI + 1
+            GC_SPC( N_GC_SPCD ) = 'AIR_DENSITY'
             RHOJ_LOC  = N_GC_SPCD
 
 
@@ -410,6 +433,9 @@ c-------------------------------------------------------------------------------
             ALLOCATE( AE_SPECIES_DATA( SPC_DIM ), STAT=IOS )
             AE_SPECIES_DATA%SPECIES_NAME = ''
             AE_SPECIES_DATA%MOLWT = 0.
+            AE_SPECIES_DATA%LAIT = .False.
+            AE_SPECIES_DATA%LACC = .False.
+            AE_SPECIES_DATA%LCOR = .False.
             AE_SPECIES_DATA%IC_SURR = ''
             AE_SPECIES_DATA%IC_FAC = 0.
             AE_SPECIES_DATA%BC_SURR = ''
@@ -431,7 +457,12 @@ c-------------------------------------------------------------------------------
      &            status = 'old', position = 'rewind' )
             read( nml = AE_nml, unit = dev_ae_nml ) 
 
-            ! Determine Number of Gas Species
+            ! First Expand Aerosol Namelist to Add Modes for Each
+            ! Species based on Aitken, Accum, and Coarse columns in the AE
+            ! namelist
+            CALL AERO_NML_MODES()
+
+            ! Determine Number of Aerosol Species
             N_AE_SPC = 0
             DO IAE = 1,SPC_DIM
                 IF ( AE_SPECIES_DATA( IAE )%SPECIES_NAME .EQ. '' ) EXIT
@@ -475,7 +506,10 @@ c-------------------------------------------------------------------------------
 
                If ( ( Index( mechname, 'SAPRC07TIC_AE6I' ) .Gt. 0 ) .OR.
      &              ( Index( mechname, 'SAPRC07TIC_AE7I' ) .Gt. 0 ) .OR.
+     &              ( Index( mechname, 'CRACMM1_'        ) .Gt. 0 ) .OR.
+     &              ( Index( mechname, 'CRACMM1AMORE_'   ) .Gt. 0 ) .OR.
      &              ( Index( mechname, 'CB6R3_AE7'       ) .Gt. 0 ) .OR.
+     &              ( Index( mechname, 'CB6R5_AE7'       ) .Gt. 0 ) .OR.
      &              ( Index( mechname, 'CB6R5M_AE7'      ) .Gt. 0 ) ) Then
                      
                   ORGANOSULF = .TRUE.
@@ -567,9 +601,6 @@ c-------------------------------------------------------------------------------
                     N_AE_OPTICS = N_AE_OPTICS + 1
                     AE_OPTICS( IAE ) = AE_SPECIES_DATA( IAE )%OPTICS_SURR
                 END IF 
-!               write(logdev,'(i3,1x,A16,1x,a16,1x,a16,1x,i2)')iae,AE_SPC( IAE ),AE_SPECIES_DATA( IAE )%OPTICS_SURR, 
-!    &                AE_OPTICS( IAE ), LEN_TRIM( AE_OPTICS( IAE ) )
-                
                 
                 ! Aerosol Dry Deposition Surrogates
                 IF ( AE_SPECIES_DATA( IAE )%DEPV_SURR .NE. '' ) THEN
@@ -994,9 +1025,36 @@ c-------------------------------------------------------------------------------
             TR_STRT   = NR_FINI + 1
             TR_FINI   = TR_STRT + N_TR_SPC - 1
  
+            
+            !--------------------------------------------------------------
+            ! Process Chemical Namelist Informaiton to CGRID Vectors
+            !--------------------------------------------------------------
 
             ! Sum Up All Species Across Phases and Types
             NSPCSD = N_GC_SPCD + N_AE_SPC + N_NR_SPC + N_TR_SPC
+
+#ifdef mpas
+            n_all_spc = n_gc_spc + n_ae_spc + n_nr_spc + n_tr_spc
+            do i1 = 1, n_gc_spc
+               all_spc(i1) = gc_spc(i1)
+            end do
+
+            i1 = i1 - 1
+            do i2 = 1, n_ae_spc
+               all_spc(i1+i2) = ae_spc(i2)
+            end do
+
+            i1 = i1 + i2 - 1
+            do i3 = 1, n_nr_spc
+               all_spc(i1+i3) = nr_spc(i3)
+            end do
+
+            i1 = i1 + i3 - 1
+            do i4 = 1, n_tr_spc
+               all_spc(i1+i4) = nr_spc(i4)
+            end do
+#endif
+
             
             ! Move Data To CGRID_xxx Master Arrays
             N_CGRID_SPC = NSPCSD
@@ -1009,8 +1067,10 @@ c-------------------------------------------------------------------------------
      &                CGRID_MASK_SRF( N_CGRID_SPC ),
      &                CGRID_MASK_NR( N_CGRID_SPC ),
      &                CGRID_MASK_TRAC( N_CGRID_SPC ),
-     &                MAP_WDEPtoCGRID( N_CGRID_SPC ),
-     &                MAP_DEPVtoCGRID( N_CGRID_SPC ) )
+     &                CGRID_CONC_UNIT( N_CGRID_SPC ),
+     &                CGRID_CONC_DESC( N_CGRID_SPC ),
+     &                MAP_DEPVtoCGRID( N_CGRID_SPC ),
+     &                MAP_WDEPtoCGRID( N_CGRID_SPC ) )
             CGRID_NAME = ''
             CGRID_MW   = 0.
             CGRID_MASK_GAS = .FALSE.
@@ -1019,8 +1079,10 @@ c-------------------------------------------------------------------------------
             CGRID_MASK_SRF = .FALSE.
             CGRID_MASK_NR  = .FALSE.
             CGRID_MASK_TRAC= .FALSE.
-            MAP_WDEPtoCGRID= 0
+            CGRID_CONC_UNIT= ''
+            CGRID_CONC_DESC= ''
             MAP_DEPVtoCGRID= 0
+            MAP_WDEPtoCGRID= 0
             CGRID_UNITS = ''
 
             IGRID = 0
@@ -1032,19 +1094,21 @@ c-------------------------------------------------------------------------------
                 CGRID_NAME( IGRID ) = GC_SPC( ISPC )
                 CGRID_MW( IGRID )   = GC_MOLWT( ISPC )
                 CGRID_MASK_GAS( IGRID ) = .TRUE.
-                DO JSPC = 1,N_GC_WDEP
-                  IF ( GC_WDEP_MAP( JSPC ) .EQ. ISPC ) THEN
-                    IWDEP = IWDEP + 1
-                    MAP_WDEPtoCGRID( IWDEP ) = IGRID
-                  END IF
-                ENDDO
+                CGRID_CONC_UNIT( IGRID )  = 'ppmV'
+                CGRID_UNITS( IGRID ) = 'ppmV'
+                CGRID_CONC_DESC( IGRID )  = 'Molar Mixing Ratio of ' // CGRID_NAME(IGRID)
                 DO JSPC = 1,N_GC_DEPV
                   IF ( GC_DEPV_MAP( JSPC ) .EQ. ISPC ) THEN
                     IDEPV = IDEPV + 1
                     MAP_DEPVtoCGRID( IDEPV ) = IGRID
                   END IF
                 END DO
-                CGRID_UNITS( IGRID ) = 'ppmV'
+                DO JSPC = 1,N_GC_WDEP
+                  IF ( GC_WDEP_MAP( JSPC ) .EQ. ISPC ) THEN
+                    IWDEP = IWDEP + 1
+                    MAP_WDEPtoCGRID( IWDEP ) = IGRID
+                  END IF
+                ENDDO
             END DO
 
             ! Set Masks for Density x Jacobian/MSFX2
@@ -1059,20 +1123,30 @@ c-------------------------------------------------------------------------------
                 CGRID_NAME( IGRID ) = AE_SPC( ISPC )
                 CGRID_MW( IGRID )   = AE_MOLWT( ISPC )
                 CGRID_MASK_AERO( IGRID )   = .TRUE.
-                IF ( INDEX( AE_SPC( ISPC ),'NUM') .NE. 0 ) CGRID_MASK_NUM( IGRID )   = .TRUE.
-                IF ( INDEX( AE_SPC( ISPC ),'SRF') .NE. 0 ) CGRID_MASK_SRF( IGRID )   = .TRUE.
-                DO JSPC = 1,N_AE_WDEP
-                  IF ( AE_WDEP_MAP( JSPC ) .EQ. ISPC ) THEN
-                    IWDEP = IWDEP + 1
-                    MAP_WDEPtoCGRID( IWDEP ) = IGRID
-                  END IF
-                ENDDO
+                CGRID_CONC_UNIT( IGRID )  = 'ug m-3'
+                CGRID_CONC_DESC( IGRID )  = 'PM Mass Concentration of ' // CGRID_NAME(IGRID)
+                IF ( INDEX( AE_SPC( ISPC ),'NUM') .NE. 0 ) THEN
+                    CGRID_MASK_NUM( IGRID )   = .TRUE.
+                    CGRID_CONC_UNIT( IGRID )  = 'm-3'
+                    CGRID_CONC_DESC( IGRID )  = 'PM Number Concentration of ' // CGRID_NAME(IGRID)
+                END IF
+                IF ( INDEX( AE_SPC( ISPC ),'SRF') .NE. 0 ) THEN
+                    CGRID_MASK_SRF( IGRID )   = .TRUE.
+                    CGRID_CONC_UNIT( IGRID )  = 'm2 m-3'
+                    CGRID_CONC_DESC( IGRID )  = 'PM Surface Area Concentration of ' // CGRID_NAME(IGRID)
+                END IF
                 DO JSPC = 1,N_AE_DEPV
                   IF ( AE_DEPV_MAP( JSPC ) .EQ. ISPC ) THEN
                     IDEPV = IDEPV + 1
                     MAP_DEPVtoCGRID( IDEPV ) = IGRID
                   END IF
                 END DO
+                DO JSPC = 1,N_AE_WDEP
+                  IF ( AE_WDEP_MAP( JSPC ) .EQ. ISPC ) THEN
+                    IWDEP = IWDEP + 1
+                    MAP_WDEPtoCGRID( IWDEP ) = IGRID
+                  END IF
+                ENDDO
                 CGRID_UNITS( IGRID ) = 'ug m-3'
                 IF ( INDEX( AE_SPC( ISPC ),'NUM') .NE. 0 ) THEN 
                     CGRID_MASK_NUM( IGRID )   = .TRUE.
@@ -1091,19 +1165,21 @@ c-------------------------------------------------------------------------------
                 CGRID_UNITS( IGRID ) = 'ppmV'
                 CGRID_MW( IGRID )   = NR_MOLWT( ISPC )
                 CGRID_MASK_NR( IGRID )   = .TRUE.
-                DO JSPC = 1,N_NR_WDEP
-                  IF ( NR_WDEP_MAP( JSPC ) .EQ. ISPC ) THEN
-                    IWDEP = IWDEP + 1
-                    MAP_WDEPtoCGRID( IWDEP ) = IGRID
-                  END IF
-                ENDDO
+                CGRID_CONC_UNIT( IGRID )  = 'ppmV'
+                CGRID_UNITS( IGRID ) = 'ppmV'
+                CGRID_CONC_DESC( IGRID )  = 'Molar Mixing Ratio of ' // CGRID_NAME(IGRID)
                 DO JSPC = 1,N_NR_DEPV
                   IF ( NR_DEPV_MAP( JSPC ) .EQ. ISPC ) THEN
                     IDEPV = IDEPV + 1
                     MAP_DEPVtoCGRID( IDEPV ) = IGRID
                   END IF
                 END DO
-                CGRID_UNITS( IGRID ) = 'ppmV'
+                DO JSPC = 1,N_NR_WDEP
+                  IF ( NR_WDEP_MAP( JSPC ) .EQ. ISPC ) THEN
+                    IWDEP = IWDEP + 1
+                    MAP_WDEPtoCGRID( IWDEP ) = IGRID
+                  END IF
+                ENDDO
             END DO
 
             ! Set Masks for Tracers
@@ -1113,19 +1189,21 @@ c-------------------------------------------------------------------------------
                 CGRID_UNITS( IGRID ) = 'ppmV'
                 CGRID_MW( IGRID )   = TR_MOLWT( ISPC )
                 CGRID_MASK_TRAC( IGRID )   = .TRUE.
-                DO JSPC = 1,N_TR_WDEP
-                  IF ( TR_WDEP_MAP( JSPC ) .EQ. ISPC ) THEN
-                    IWDEP = IWDEP + 1
-                    MAP_WDEPtoCGRID( IWDEP ) = IGRID
-                  END IF
-                ENDDO
+                CGRID_CONC_UNIT( IGRID )  = 'ppmV'
+                CGRID_UNITS( IGRID ) = 'ppmV'
+                CGRID_CONC_DESC( IGRID )  = 'Molar Mixing Ratio of ' // CGRID_NAME(IGRID)
                 DO JSPC = 1,N_TR_DEPV
                   IF ( TR_DEPV_MAP( JSPC ) .EQ. ISPC ) THEN
                     IDEPV = IDEPV + 1
                     MAP_DEPVtoCGRID( IDEPV ) = IGRID
                   END IF
                 END DO
-                CGRID_UNITS( IGRID ) = 'ppmV'
+                DO JSPC = 1,N_TR_WDEP
+                  IF ( TR_WDEP_MAP( JSPC ) .EQ. ISPC ) THEN
+                    IWDEP = IWDEP + 1
+                    MAP_WDEPtoCGRID( IWDEP ) = IGRID
+                  END IF
+                ENDDO
             END DO
 
             N_SPC_WDEP = IWDEP

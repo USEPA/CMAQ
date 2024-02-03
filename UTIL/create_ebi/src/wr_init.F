@@ -13,7 +13,6 @@ C
 C**********************************************************************
       USE ENV_VARS
       USE GLOBAL_DATA
-      !!USE M3UTILIO ! IOAPI parameters and declarations
       USE RXNS_DATA
 
       IMPLICIT NONE
@@ -41,7 +40,7 @@ C..SCRATCH LOCAL VARIABLES:
       CHARACTER(  72 )  ::    CLINE                ! Line of c's
       CHARACTER(   7 )  ::    LOW_TOL = '1.0D+00'  ! Low tolerance            
       CHARACTER(   7 )  ::    STD_TOL = '5.0D-04'  ! Standard tolerance 
-      CHARACTER(   7 )  ::    HII_TOL = '1.0D-06'  ! High or tight tolerance
+      CHARACTER(   7 )  ::    HII_TOL = '1.0D-05'  ! High or tight tolerance
 
    
 

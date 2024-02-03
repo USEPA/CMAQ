@@ -57,6 +57,9 @@ C Arguments:
       REAL,    INTENT( INOUT ) :: CNGRD( :,:,:,: ) ! cgrid replacement
 #ifdef isam
       INTEGER IBGN, JSPCTAG
+      LOGICAL, SAVE :: ISAM_FIRSTIME = .TRUE.
+      LOGICAL, ALLOCATABLE, SAVE :: CONVERT_TAG_SPC ( : )
+      REAL,    ALLOCATABLE, SAVE :: CFAC_TAG_SPC   ( : )
 #endif
 
 C Parameters:
@@ -110,14 +113,28 @@ C Convert non-molar mixing ratio species and re-order CGRID
 
 #ifdef isam
       ! Convert PM Mass Only
+      IF( ISAM_FIRSTIME )THEN
+         ALLOCATE( CONVERT_TAG_SPC( N_SPCTAG ) )
+         ALLOCATE( CFAC_TAG_SPC   ( N_SPCTAG ) )
+         SET_CONV_SPCTAG: DO JSPCTAG = 1, N_SPCTAG
+            IBGN = INDEX( VNAM_SPCTAG( JSPCTAG ), '_', BACK = .TRUE. ) - 1
+            S = INDEX1( VNAM_SPCTAG( JSPCTAG )( 1:IBGN ), N_AE_SPC, AE_SPC )
+            IF ( S .GT. 0 ) THEN
+              CFAC_TAG_SPC( JSPCTAG )    = AE_MOLWT( S )
+              CONVERT_TAG_SPC( JSPCTAG ) = .TRUE.  
+            ELSE
+              CFAC_TAG_SPC( JSPCTAG )    = 1.0
+              CONVERT_TAG_SPC( JSPCTAG ) = .FALSE.
+            END IF
+         END DO SET_CONV_SPCTAG
+         ISAM_FIRSTIME = .FALSE.
+      END IF
       CONV_SPCTAG: DO JSPCTAG = 1, N_SPCTAG
-         IBGN = INDEX( VNAM_SPCTAG( JSPCTAG ), '_', .FALSE. ) - 1
-         S = INDEX1( VNAM_SPCTAG( JSPCTAG )( 1:IBGN ), N_AE_SPC, AE_SPC )
-         IF ( S .GT. 0 ) THEN
+         IF ( CONVERT_TAG_SPC( JSPCTAG ) ) THEN
             DO L = 1, NLAYS
                ISAM( :,:,L,S_SPCTAG( JSPCTAG ),T_SPCTAG( JSPCTAG ) ) =
      &            ISAM( :,:,L,S_SPCTAG( JSPCTAG ),T_SPCTAG( JSPCTAG ) )
-     &              * FAC1( :,:,L ) / AE_MOLWT( S )
+     &              * FAC1( :,:,L ) / CFAC_TAG_SPC( JSPCTAG ) 
             END DO 
          END IF
       END DO CONV_SPCTAG
@@ -158,13 +175,11 @@ C Revert non-molar mixing ratio species and re-order CGRID
 #ifdef isam
 Ckrt....JSPCTAG loop on PM mass only.....
       REV_SPCTAG: DO JSPCTAG = 1, N_SPCTAG
-         IBGN = INDEX( VNAM_SPCTAG( JSPCTAG ), '_', .FALSE. ) - 1
-         S = INDEX1( VNAM_SPCTAG( JSPCTAG )( 1:IBGN ), N_AE_SPC, AE_SPC )
-         IF ( S .GT. 0 ) THEN
+         IF ( CONVERT_TAG_SPC( JSPCTAG ) ) THEN
             DO L = 1, NLAYS
                 ISAM( :,:,L,S_SPCTAG( JSPCTAG ),T_SPCTAG( JSPCTAG ) ) =
      &             ISAM( :,:,L,S_SPCTAG( JSPCTAG ),T_SPCTAG( JSPCTAG ) )
-     &              * FAC1( :,:,L ) * AE_MOLWT( S )
+     &              * FAC1( :,:,L ) * CFAC_TAG_SPC( JSPCTAG ) 
             END DO
          END IF
       END DO REV_SPCTAG

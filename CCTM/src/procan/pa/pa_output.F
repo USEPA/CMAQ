@@ -74,10 +74,12 @@ C-----------------------------------------------------------------------
       USE GRID_CONF             ! horizontal & vertical domain specifications
       USE PAGRD_DEFN            ! PA horiz domain specs
       USE UTILIO_DEFN           ! inherits PARUTILIO
+#ifndef mpas
 #ifdef parallel
       USE SE_MODULES            ! stenex (using SE_UTIL_MODULE, SE_DATA_COPY_MODULE)
 #else
       USE NOOP_MODULES          ! stenex (using NOOP_UTIL_MODULE, NOOP_DATA_COPY_MODULE)
+#endif
 #endif
       USE PA_DEFN               ! Process Anaylsis control and data variables
 
@@ -97,8 +99,8 @@ C External Functions: None
 
 C Local Variables: 
       CHARACTER( 16 ), SAVE :: PNAME = 'PA_OUTPUT'
-      CHARACTER( 16 ), SAVE :: IPRFNAM( MXFILE3 )  ! IPR output file names
-      CHARACTER( 16 ), SAVE :: IRRFNAM( MXFILE3 )  ! IRR output file names
+      CHARACTER( 16 ), ALLOCATABLE, SAVE :: IPRFNAM( : )  ! IPR output file names
+      CHARACTER( 16 ), ALLOCATABLE, SAVE :: IRRFNAM( : )  ! IRR output file names
       INTEGER, SAVE :: NIPRFLS          ! Number of IPR output files
       INTEGER, SAVE :: NIRRFLS          ! Number of IRR output files
       LOGICAL, SAVE :: LFIRST = .TRUE.  ! Flag for first call
@@ -119,6 +121,7 @@ C Local Variables:
 #endif
       INTEGER VARINDX   ! Index for output variable
       INTEGER NVARINDX  ! number of output variable
+      INTEGER allocstat
      
 #ifdef parallel
       CHARACTER( 2 ) :: COLROW = 'CR'  ! col/row arg list order for pio_re_init
@@ -126,6 +129,13 @@ C Local Variables:
 #endif
 
 C-----------------------------------------------------------------------
+
+#ifndef mpas
+      if (.not. allocated(IPRFNAM)) then
+         allocate (IPRFNAM( MXFILE3 ),
+     $             IRRFNAM( MXFILE3 ),
+     $             stat=allocstat)
+      end if
 
 #ifdef parallel
       IF ( .NOT. LFIRST ) THEN
@@ -333,6 +343,7 @@ C Reset decomposition map
             RETURN
          END IF
       END IF
+#endif
 #endif
 
       IF ( LFIRST ) THEN

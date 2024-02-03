@@ -41,7 +41,7 @@ C     30 Sept 2021 G. Sarwar: added CB6R5_AE7_AQ
 C     04 Oct  2021 G. Sarwar: added CB6R5HAP_AE7_AQ
 C-----------------------------------------------------------------------
       USE RUNTIME_VARS
-      USE EMIS_VARS
+      USE DESID_VARS
       USE biog_emis_param_module
 
       IMPLICIT NONE
@@ -61,6 +61,9 @@ C-----------------------------------------------------------------------
          USE RXNS_DATA, ONLY : MECHNAME
          USE UTILIO_DEFN
          USE CGRID_SPCS, ONLY : N_CGRID_SPC, CGRID_NAME, CGRID_MW
+#ifdef mpas
+         USE util_module, only : PROMPTFFILE, index1, str2real, sortic
+#endif
 
          IMPLICIT NONE
 
@@ -75,7 +78,7 @@ C (A line from the profile file is a record.)
          INTEGER,        PARAMETER :: NSEGS = 6  ! # of potential line segments (fields)
          INTEGER,        PARAMETER :: MXLINES = 100 ! max lines for requested sppro name
          INTEGER,        PARAMETER :: MXSPPOL = 10  ! max no. spc per pollutant
-         INTEGER,        PARAMETER :: NMECHS  = 18  ! dimension for number of mechanisms considered
+         INTEGER,        PARAMETER :: NMECHS  = 20  ! dimension for number of mechanisms considered
          CHARACTER,      PARAMETER :: CINVHDR = '#' ! Indicator for inventory hdr fields
 !        REAL,           PARAMETER :: GM2TON  = 1.0 / 907184.74  ! grams to tons
 
@@ -150,7 +153,9 @@ C Local variables
      &         BIOG_MECH_TYPE( 'SAPRC07TIC_AE6I_AQ     ','B10SP   '),
      &         BIOG_MECH_TYPE( 'SAPRC07TIC_AE6I_AQKMTI ','B10SP   '),
      &         BIOG_MECH_TYPE( 'SAPRC07TIC_AE7I_AQ     ','B10SP   '),
-     &         BIOG_MECH_TYPE( 'SAPRC07TIC_AE7I_AQKMT2 ','B10SP   ') /)
+     &         BIOG_MECH_TYPE( 'SAPRC07TIC_AE7I_AQKMT2 ','B10SP   '),
+     &         BIOG_MECH_TYPE( 'CRACMM1_AQ             ','CRACMM1 '),
+     &         BIOG_MECH_TYPE( 'CRACMM1AMORE_AQ        ','CRACMM1 ') /)
  
          CHARACTER( 16 ) :: PNAME = 'BIOG_INIT'
 
@@ -322,7 +327,11 @@ C Check if species is already stored for current pollutant, and if not, incremen
 C species-per-pollutant counter and add species to list.
             DO M = 1, NIPOS
                K   = NSPECA( IPOS( M ) )
+#ifdef mpas
+               NDX = INDEX1( SPECNM, K, TMPNAMES( :,IPOS( M ) ) )
+#else
                NDX = INDEX1( SPECNM, K, TMPNAMES( 1,IPOS( M ) ) )
+#endif
                IF ( NDX .LE. 0 ) THEN
                   K = K + 1
                   IF ( K .LE. MXSPPOL ) THEN
@@ -378,7 +387,11 @@ C and if so, store in the output species name list.
 C Process species in sorted order
                K = INDX1A( J )
 C Find species in list of valid species per pollutant
+#ifdef mpas
+               NDX = INDEX1( SPECNMA( K ), NSPECA( I ), TMPNAMES( :,I ) )
+#else
                NDX = INDEX1( SPECNMA( K ), NSPECA( I ), TMPNAMES( 1,I ) )
+#endif
                IF ( NDX .GT. 0 ) THEN
                   ICOUNT = ICOUNT + 1
                   SPCNAMES( ICOUNT, I ) = SPECNMA( K )
@@ -427,37 +440,37 @@ C Find emitted CMAQ species names
          END DO
 
 C Save Species names in global array for mapping emissions
-         EM_FILE_SURR( IBIOSRM )%LEN = MSPCS
-         ALLOCATE( EM_FILE_SURR( IBIOSRM )%ARRY ( MSPCS ) )
-         ALLOCATE( EM_FILE_SURR( IBIOSRM )%UNITS( MSPCS ) )
-         ALLOCATE( EM_FILE_SURR( IBIOSRM )%MW   ( MSPCS ) )
-         ALLOCATE( EM_FILE_SURR( IBIOSRM )%USED ( MSPCS ) )
-         ALLOCATE( EM_FILE_SURR( IBIOSRM )%CONV ( MSPCS ) )
-         ALLOCATE( EM_FILE_SURR( IBIOSRM )%BASIS( MSPCS ) )
-         ALLOCATE( EM_FILE_SURR( IBIOSRM )%LAREA( MSPCS ) )
-         ALLOCATE( EM_FILE_SURR( IBIOSRM )%LAREAADJ( MSPCS ) )
+         DESID_EMVAR( IBIOSRM )%LEN = MSPCS
+         ALLOCATE( DESID_EMVAR( IBIOSRM )%ARRY ( MSPCS ) )
+         ALLOCATE( DESID_EMVAR( IBIOSRM )%UNITS( MSPCS ) )
+         ALLOCATE( DESID_EMVAR( IBIOSRM )%MW   ( MSPCS ) )
+         ALLOCATE( DESID_EMVAR( IBIOSRM )%USED ( MSPCS ) )
+         ALLOCATE( DESID_EMVAR( IBIOSRM )%CONV ( MSPCS ) )
+         ALLOCATE( DESID_EMVAR( IBIOSRM )%BASIS( MSPCS ) )
+         ALLOCATE( DESID_EMVAR( IBIOSRM )%LAREA( MSPCS ) )
+         ALLOCATE( DESID_EMVAR( IBIOSRM )%LAREAADJ( MSPCS ) )
 
-         EM_FILE_SURR( IBIOSRM )%ARRY  = EMSPC
-         EM_FILE_SURR( IBIOSRM )%UNITS = 'MOLES/S'
-         EM_FILE_SURR( IBIOSRM )%MW    = 1.0
-         EM_FILE_SURR( IBIOSRM )%USED  = .FALSE.
-         EM_FILE_SURR( IBIOSRM )%CONV  = 1.0
-         EM_FILE_SURR( IBIOSRM )%BASIS = 'MOLE'
-         EM_FILE_SURR( IBIOSRM )%LAREA = .FALSE.
-         EM_FILE_SURR( IBIOSRM )%LAREAADJ = .FALSE.
+         DESID_EMVAR( IBIOSRM )%ARRY  = EMSPC
+         DESID_EMVAR( IBIOSRM )%UNITS = 'MOLES/S'
+         DESID_EMVAR( IBIOSRM )%MW    = 1.0
+         DESID_EMVAR( IBIOSRM )%USED  = .FALSE.
+         DESID_EMVAR( IBIOSRM )%CONV  = 1.0
+         DESID_EMVAR( IBIOSRM )%BASIS = 'MOLE'
+         DESID_EMVAR( IBIOSRM )%LAREA = .FALSE.
+         DESID_EMVAR( IBIOSRM )%LAREAADJ = .FALSE.
 
          ! Populate the Molecular Weight Field by Matching Gas Species
          ! to the CMAQ mechanism species
          DO ISP = 1,MSPCS
              INDX = INDEX1( EMSPC( ISP ), N_CGRID_SPC, CGRID_NAME )
              IF ( INDX .NE. 0 ) THEN
-                 EM_FILE_SURR( IBIOSRM )%MW( ISP ) = CGRID_MW( INDX )
+                 DESID_EMVAR( IBIOSRM )%MW( ISP ) = CGRID_MW( INDX )
              ELSE
                  WRITE( MESG, '(A,A,A,A)' ) 'WARNING: BEIS emission species ',
      &               EMSPC( ISP ),' is not found in the Gas-Phase Mechanism. ',
-     &               'The surrogate molecular weight will be set to 1.0'
+     &               'The emission variable molecular weight will be set to 1.0'
                  CALL LOG_MESSAGE( LOGDEV, MESG )
-                 EM_FILE_SURR( IBIOSRM )%MW( ISP ) = 1.0
+                 DESID_EMVAR( IBIOSRM )%MW( ISP ) = 1.0
              END IF
 
          END DO

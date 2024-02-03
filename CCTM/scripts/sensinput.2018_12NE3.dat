@@ -1,0 +1,90 @@
+PPA
+ EMIS
+  PT_EGU
+ SPECIES
+  SO2
+ REGION
+  PA
+
+GNJ
+ EMIS
+  GRIDDED_EMIS
+ SPECIES
+  NO2, NO
+ REGION
+  NJ
+
+END
+
+
+
+
+
+
+
+For each sensitivity definition block:
+
+(mandatory) The first line is the name of the sensitivity parameter; any 3-character name of the user's choosing, no leading spaces
+(mandatory) The next line specifies the type of sensitivity (One leading space followed by 4 capitalized characters)
+EMIS: Emissions
+INIT: Initial Conditions
+BOUN: Boundary Conditions
+RATE: Reaction rate
+HIGH: Higher-order sensitivity.
+(mandatory) For EMIS, the next line specifies the emissions streams to be used for this parameter. The comma-delimited list must have two leading spaces. The stream names must be defined in the run script. Alternatively, the key word 'TOTA' will use all model emissions for this parameter.
+(mandatory)
+For EMIS, INIT, or BOUN sensitivity: The term ' SPECIES' (all-cap, one leading space) must appear next.
+For RATE sensitivity: The term ' REACTION' (all-cap, one leading space) must appear next.
+For HIGH sensitivity: The next 2 lines must each be one leading space followed by the name of the sensitivity to which we're taking higher order sensitivity. That name must have already been defined as the name of a sensitivity parameter. No further information should be defined for a higher-order sensitivity parameter.
+(mandatory)
+For EMIS, INIT, or BOUN sensitivity: Specify one or more species. The comma-delimited species list must have two leading spaces and then exactly match a species from model species list. The keyword 'ALL' here allows for all model species instead.
+For RATE sensitivity: Specify one or more reactions. Names must have two leading spaces and then exactly match the label from mech.def (also in RXDT.EXT).
+(optional)
+The term ' REGION' (all-cap, one leading space). If this term is used, the next line must be a comma-delimited list of region variables.
+
+NOTE1: This list must be consistent with the max # of sens parameters (NPMAX) set in the runscript.
+NOTE2: For better understanding of how this file is read, or to modify/add features, look at sinput.F in the code.
+
+After the final sensitivity definition block, the keyword 'END' is required.
+
+
+Examples:
+
+ES2     
+ EMIS
+  TOTA
+ SPECIES
+  SO2
+
+ENX     
+ EMIS
+  GRIDDEDEMIS, PT_EGU
+ SPECIES
+  NO, NO2
+
+EBI     
+ EMIS
+  BEIS
+ SPECIES
+  ISOP
+
+2NX
+ HIGH
+ EMISNOX
+ EMISNOX
+
+RT1
+ RATE
+ REACTION
+  1
+
+RG1
+ EMIS
+ SPECIES
+  NO, NO2
+ REGION
+  GA, NC
+
+
+
+

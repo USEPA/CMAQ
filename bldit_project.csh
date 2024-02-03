@@ -1,6 +1,6 @@
 #!/bin/csh -f
 
-# ================= CMAQv5.3.X Extraction Script ==================== #
+# ================= CMAQv5.4.X Extraction Script ==================== #
 # Requirements: CMAQ git source code repository                       #
 #                                                                     #
 # To report problems or request help with this script/program:        #
@@ -16,8 +16,9 @@
 #> the repository. The user may also set their own preferred 
 #> directory.
 
-#set CMAQ_HOME = [your_install_path]/openmpi_4.0.1_gcc_9.1.0_debug 
- set CMAQ_HOME = /home/username/CMAQ_Project
+
+ set CMAQ_HOME = /home/username/path
+
 
 
 #> This section allows users to choose explicitly which tools
@@ -39,9 +40,6 @@
  
  # Post-Processing Tools
  set EXT_COMBINE = Y 
- set EXT_APPENDWRF = Y 
- set EXT_BLDOVERLAY = Y 
- set EXT_BLOCK_EXTRACT = Y 
  set EXT_CALC_TMETRIC = Y 
  set EXT_HR2DAY = Y 
  set EXT_SITECMP = Y
@@ -102,16 +100,12 @@
     endif
     cp CCTM/scripts/bldit_cctm.csh $CMAQ_HOME/CCTM/scripts/bldit_cctm.csh
     cp CCTM/scripts/bldit_mech.csh $CMAQ_HOME/CCTM/scripts/bldit_mech.csh
-    cp CCTM/scripts/run_cctm_Bench_2011_12SE1.csh $CMAQ_HOME/CCTM/scripts/run_cctm_Bench_2011_12SE1.csh
-    cp CCTM/scripts/run_cctm_2010_4CALIF1.csh $CMAQ_HOME/CCTM/scripts/run_cctm_2010_4CALIF1.csh
-    cp CCTM/scripts/run_cctm_2011_12US1.csh $CMAQ_HOME/CCTM/scripts/run_cctm_2011_12US1.csh
-    cp CCTM/scripts/run_cctm_2014_12US1.csh $CMAQ_HOME/CCTM/scripts/run_cctm_2014_12US1.csh
-    cp CCTM/scripts/run_cctm_2015_HEMI.csh $CMAQ_HOME/CCTM/scripts/run_cctm_2015_HEMI.csh
-    cp CCTM/scripts/run_cctm_2016_12US1.csh $CMAQ_HOME/CCTM/scripts/run_cctm_2016_12US1.csh
     cp CCTM/scripts/lonlat.csv $CMAQ_HOME/CCTM/scripts/lonlat.csv
-    cp CCTM/scripts/isam_control.txt $CMAQ_HOME/CCTM/scripts/isam_control.txt
-    cp CCTM/scripts/sensinput.dat $CMAQ_HOME/CCTM/scripts/sensinput.dat
-    cp CCTM/scripts/run_cctm_Bench_2016_12SE1.csh $CMAQ_HOME/CCTM/scripts/run_cctm_Bench_2016_12SE1.csh
+    cp CCTM/scripts/isam_control.2018_12NE3.txt $CMAQ_HOME/CCTM/scripts/isam_control.2018_12NE3.txt
+    cp CCTM/scripts/isam_control.2016_12SE1.txt $CMAQ_HOME/CCTM/scripts/isam_control.2016_12SE1.txt
+    cp CCTM/scripts/sensinput.2018_12NE3.dat $CMAQ_HOME/CCTM/scripts/sensinput.2018_12NE3.dat
+    cp CCTM/scripts/sensinput.2016_12SE1.dat $CMAQ_HOME/CCTM/scripts/sensinput.2016_12SE1.dat
+    cp CCTM/scripts/run_cctm_*.csh $CMAQ_HOME/CCTM/scripts/
  endif
 
 #===============================================================================
@@ -215,39 +209,6 @@
  endif
 
 #===============================================================================
-#> Copy Appendwrf Post-Processor scripts
-#===============================================================================
- if ( $EXT_APPENDWRF == 'Y' ) then
-    if ( ! -e "$CMAQ_HOME/POST/appendwrf/scripts" ) then
-       mkdir -pv $CMAQ_HOME/POST/appendwrf/scripts
-    endif
-    cp POST/appendwrf/scripts/bldit_appendwrf.csh  $CMAQ_HOME/POST/appendwrf/scripts/bldit_appendwrf.csh
-    cp POST/appendwrf/scripts/run_appendwrf.csh    $CMAQ_HOME/POST/appendwrf/scripts/run_appendwrf.csh
- endif
-
-#===============================================================================
-#> Copy bldoverlay Post-Processor scripts
-#===============================================================================
- if ( $EXT_BLDOVERLAY == 'Y' ) then
-    if ( ! -e "$CMAQ_HOME/POST/bldoverlay/scripts" ) then
-       mkdir -pv $CMAQ_HOME/POST/bldoverlay/scripts
-    endif
-    cp POST/bldoverlay/scripts/bldit_bldoverlay.csh  $CMAQ_HOME/POST/bldoverlay/scripts/bldit_bldoverlay.csh
-    cp POST/bldoverlay/scripts/run_bldoverlay.csh    $CMAQ_HOME/POST/bldoverlay/scripts/run_bldoverlay.csh
- endif
-
-#===============================================================================
-#> Copy block_extract Post-Processor scripts
-#===============================================================================
- if ( $EXT_BLOCK_EXTRACT == 'Y' ) then
-    if ( ! -e "$CMAQ_HOME/POST/block_extract/scripts" ) then
-       mkdir -pv $CMAQ_HOME/POST/block_extract/scripts
-    endif
-    cp POST/block_extract/scripts/bldit_block_extract.csh  $CMAQ_HOME/POST/block_extract/scripts/bldit_block_extract.csh
-    cp POST/block_extract/scripts/run_block_extract.csh    $CMAQ_HOME/POST/block_extract/scripts/run_block_extract.csh
- endif
-
-#===============================================================================
 #> Copy calc_tmetric Post-Processor scripts
 #===============================================================================
  if ( $EXT_CALC_TMETRIC == 'Y' ) then
@@ -306,7 +267,7 @@
 #===============================================================================
  # Insert Job Scheduler Preface into Run Scripts for those working inside EPA
  if ( $IS_EPA ) then
-    source /work/MOD3DEV/cmaq_common/epa_scheduler.csh  #>>> Comment Out if not at EPA
+   source /work/MOD3DEV/cmaq_common/epa_scheduler.csh  #>>> Comment Out if not at EPA
  endif
 
 #===============================================================================

@@ -29,10 +29,12 @@
       USE GRID_CONF             ! horizontal & vertical domain specifications
       USE AVG_CONC              ! integral average CONC
       USE UTILIO_DEFN
+#ifndef mpas
 #ifdef parallel
       USE SE_MODULES            ! stenex (using SE_UTIL_MODULE)
 #else
       USE NOOP_MODULES          ! stenex (using NOOP_UTIL_MODULE)
+#endif
 #endif
 
       IMPLICIT NONE
@@ -71,7 +73,8 @@
 
 ! Change output date/time to starting date/time - e.g. timestamp 1995196:090000
 ! represents data computed from time 1995196:090000 to 1995196:100000
- 
+
+#ifndef mpas 
 ! Override default beginning time timestamp for ACONC?      
       IF ( END_TIME ) THEN   ! ending time timestamp
          MDATE = JDATE; MTIME = JTIME
@@ -325,5 +328,6 @@
          END IF
 
       END IF   ! .NOT. OPEN A_CONC_1
+#endif
 
       END SUBROUTINE OPACONC

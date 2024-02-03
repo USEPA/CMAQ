@@ -1,0 +1,22 @@
+# run: conda env create --file environment.yml
+name: cmaqpy
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python >=3.6
+  - anaconda
+  - pip
+  - jupyterlab
+  - setuptools
+  - importlib_metadata>=4.6
+  - numpy>=1.19.5
+  - pandas >= 1.1.5
+  - netCDF4>=1.5.4
+  - matplotlib>=3.3
+  - pyproj>=2.6
+  - cdo==1.9
+  - pip:
+    - pycno>=0.2.0
+    - pseudonetcdf>=3.2.2
+    - cdo==1.5.3

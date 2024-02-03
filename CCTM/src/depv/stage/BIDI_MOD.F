@@ -71,8 +71,12 @@ C... Local:
  
          Character( 16 ) :: PNAME = 'INIT_BIDI       '
          Integer         :: STATUS
+         Logical, SAVE   :: INITIALIZED = .FALSE.
          
 C--------------------------------------------------------------------------
+C Prevent initializing the code twice 
+         If ( INITIALIZED ) Return 
+         INITIALIZED = .TRUE.
 
          If ( ABFLUX .And. .Not. HGBIDI ) Then
          

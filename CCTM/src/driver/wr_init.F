@@ -37,10 +37,12 @@ C-----------------------------------------------------------------------
       USE WVEL_DEFN             ! derived vertical velocity component
       USE STD_CONC              ! standard CONC
       USE UTILIO_DEFN
+#ifndef mpas
 #ifdef parallel
       USE SE_MODULES            ! stenex (using SE_UTIL_MODULE)
 #else
       USE NOOP_MODULES          ! stenex (using NOOP_UTIL_MODULE)
+#endif
 #endif
       USE CENTRALIZED_IO_MODULE
       IMPLICIT NONE
@@ -79,6 +81,7 @@ C  environment variable description
 
 C-----------------------------------------------------------------------
 
+#ifndef mpas
 #ifdef parallel_io
       CALL SUBST_BARRIER
       IF ( .NOT. IO_PE_INCLUSIVE ) THEN
@@ -247,6 +250,7 @@ C (inital data assumed to be in correct output units)
       WRITE( LOGDEV, '(  5X,  A, 1X, I8, ":", I6.6 )' )
      &  'from timestep on initial data files for date and time',
      &   JDATE, JTIME
+#endif
 
       RETURN
       END SUBROUTINE WR_INIT

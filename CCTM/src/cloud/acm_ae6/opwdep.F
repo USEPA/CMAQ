@@ -89,6 +89,7 @@
 
         END IF
 
+#ifndef mpas
 C Try to open existing wet deposition file for update
 
         IF ( IO_PE_INCLUSIVE ) THEN
@@ -458,5 +459,6 @@ C...try to open the output file new
            END IF   ! CLD_DIAG
 
         END IF   ! IO_PE_INCLUSIVE
+#endif
 
       END SUBROUTINE OPWDEP

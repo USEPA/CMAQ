@@ -151,6 +151,10 @@ C Local Variables:
       REAL, ALLOCATABLE, SAVE :: SA_HALO_EAST( :,:,: )
       REAL, ALLOCATABLE, SAVE :: SA_HALO_WEST( :,:,: )
       REAL, ALLOCATABLE, SAVE :: SA_BUF_EW( :,:,: )
+      REAL, ALLOCATABLE, SAVE :: SA_F_LO_IN( : )
+      REAL, ALLOCATABLE, SAVE :: SA_F_LO_OUT( : )
+      REAL, ALLOCATABLE, SAVE :: SA_F_HI_IN( : )
+      REAL, ALLOCATABLE, SAVE :: SA_F_HI_OUT( : )
 #endif
 
 #endif
@@ -315,6 +319,12 @@ C Create global map to CGRID
      &             F_HI_IN(N_SPC_ADV),
      &             F_HI_OUT(N_SPC_ADV) )
 
+#ifdef isam
+         ALLOCATE( SA_F_LO_IN(N_SPCTAG),
+     &             SA_F_LO_OUT(N_SPCTAG),
+     &             SA_F_HI_IN(N_SPCTAG),
+     &             SA_F_HI_OUT(N_SPCTAG) )
+#endif
 
       END IF                    ! if firstime
 
@@ -540,7 +550,7 @@ C PPM scheme
 
 #ifdef isam
          CALL HPPM ( NCOLS, NROWS, SA_CONX, VELX, DT, DX1, 'C',
-     &               F_LO_IN, F_LO_OUT, F_HI_IN, F_HI_OUT )
+     &               SA_F_LO_IN, SA_F_LO_OUT, SA_F_HI_IN, SA_F_HI_OUT )
 #endif
 
          DO SPC = 1, N_SPC_ADV

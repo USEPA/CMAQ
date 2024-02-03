@@ -27,9 +27,9 @@ C..INCLUDES:
 C..ARGUMENTS: None
 
 C..PARAMETERS:
-      INTEGER, PARAMETER :: MAX_GRP_SPC = 20    ! Max no. species in group list
-C     INTEGER, PARAMETER :: N_LOW_TOL_SPC = 14  ! No. species w/ low tols
+      INTEGER, PARAMETER :: MAX_GRP_SPC   = 20  ! Max no. species in group list
       INTEGER, PARAMETER :: N_LOW_TOL_SPC = 28  ! No. species w/ low tols, revised by Golam Sarwar
+      INTEGER, PARAMETER :: N_HII_TOL_SPC =  4  ! No. species w/ strict rtols, revised by Golam Sarwar
 
 C..EXTERNAL FUNCTIONS:
 !      INTEGER    NAME_INDEX            !
@@ -39,8 +39,10 @@ C..SAVED LOCAL VARIABLES: None
 C..SCRATCH LOCAL VARIABLES:
       CHARACTER(  16 )  ::  PNAME = 'SET_GLBLDATA'    ! Program name
       CHARACTER(  16 )  ::  GRP_SPC( MAX_GRP_SPC )
-      CHARACTER(  16 )  ::  LOW_TOL_SPC( N_LOW_TOL_SPC )
       CHARACTER( 100 )  ::  MSG 
+      CHARACTER(  16 )  ::  LOW_TOL_SPC( N_LOW_TOL_SPC )
+      CHARACTER(  16 )  ::  HII_TOL_SPC( N_HII_TOL_SPC ) = 
+     &                      (/ 'I   ', 'IO  ', 'HOI ', 'INO3' /)
 
       INTEGER   ::  EOS           ! End of string position
       INTEGER   ::  N             ! Loop index
@@ -326,9 +328,14 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          L_HII_TOL_SPC = .FALSE.
 
          DO N = 1, N_SPECIES
-            IF( NAME_INDEX( SPECIES( N ), N_LOW_TOL_SPC, LOW_TOL_SPC )
-     &          .NE. 0 ) THEN
+            IF( NAME_INDEX( SPECIES(N),N_LOW_TOL_SPC,LOW_TOL_SPC ) .NE. 0 ) THEN
                 L_LOW_TOL_SPC( N ) = .TRUE.
+            END IF
+         END DO
+
+         DO N = 1, N_SPECIES
+            IF( NAME_INDEX( SPECIES(N),N_HII_TOL_SPC,HII_TOL_SPC ) .NE. 0 ) THEN
+                L_HII_TOL_SPC( N ) = .TRUE.
             END IF
          END DO
 

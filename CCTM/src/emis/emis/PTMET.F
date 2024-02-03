@@ -37,7 +37,7 @@ C                           poly-morphism feature
 C                         - Based on the condition of MY_NSRC ( > 0 or not) to 
 C                           determine execution of certain section of code or not
 C                         - fixed a bug of incorrect assignment:
-C                           PTMET_DATA%LEN1 = EMLAYS, PTMET_DATA%LEN2 = MSRC
+C                           PTMET_DATA%LEN1 = DESID_LAYS, PTMET_DATA%LEN2 = MSRC
 C     01 Feb 2019 D.Wong: - Implemented centralized I/O approach and removed 
 C                           ZSTATIC implementation
 C     05 Aug 2019 D.Wong: - Used met information in the cell where a point source resides
@@ -50,7 +50,7 @@ C                           need UWINDC_AVAIL/VWINDC_AVAIL
 C-----------------------------------------------------------------------
       USE RUNTIME_VARS
       USE UDTYPES, ONLY: PTMET_TYPE
-      USE EMIS_VARS, ONLY : EMLAYS
+      USE DESID_VARS, ONLY : DESID_LAYS
 
       IMPLICIT NONE
 
@@ -62,10 +62,10 @@ c        REAL,    POINTER :: HMIX( : )       ! mixing height [m]
 c        REAL,    POINTER :: TSFC( : )       ! surface temperature [degK]
 c        REAL,    POINTER :: USTAR( : )      ! friction velocity [m/s]
 c        REAL,    POINTER :: PRSFC( : )      ! surface pressure [Pa]
-C Allocatable temporary per-layer variables from 1:EMLAYS
+C Allocatable temporary per-layer variables from 1:DESID_LAYS
 c        REAL,    POINTER :: WSPD( : )       ! wind speed [m/s]
 c        REAL,    POINTER :: DTHDZ( : )      ! virtual pot temp gradient [degK/m]
-C Allocatable temporary per-layer variables from 0:EMLAYS
+C Allocatable temporary per-layer variables from 0:DESID_LAYS
 c        REAL,    POINTER :: PRESF( : )      ! pressure at full-levels
 c        REAL,    POINTER :: ZZF( : )        ! per src elevn at full-levels
 c Allocatable per-source and per layer meteorology variables.
@@ -97,7 +97,7 @@ C-----------------------------------------------------------------------
 
          FUNCTION PTMET_INIT ( ) RESULT ( SUCCESS )
 
-         USE M3UTILIO
+         USE UTILIO_DEFN
          USE STK_PRMS, ONLY: MY_NSRC         
 
          IMPLICIT NONE
@@ -114,7 +114,7 @@ C-----------------------------------------------------------------------
          DO N = 1, NPTGRPS
 
             MSRC = MY_NSRC( N )
-            PTMET_DATA(N)%LEN1 = EMLAYS; PTMET_DATA(N)%LEN2 = MSRC
+            PTMET_DATA(N)%LEN1 = DESID_LAYS; PTMET_DATA(N)%LEN2 = MSRC
 
             IF ( MY_NSRC( N ) .GT. 0 ) THEN
 C Allocate per-source arrays
@@ -130,37 +130,37 @@ C Allocate per-source arrays
                CALL CHECKMEM( IOS, 'PRSFC', PNAME )
 
 C Allocate per-source and per-layer arrays
-               ALLOCATE( PTMET_DATA( N )%DDZF ( EMLAYS,MSRC ), STAT=IOS )
+               ALLOCATE( PTMET_DATA( N )%DDZF ( DESID_LAYS,MSRC ), STAT=IOS )
                CALL CHECKMEM( IOS, 'DDZF', PNAME )
-               ALLOCATE( PTMET_DATA( N )%PRES ( EMLAYS,MSRC ), STAT=IOS )
+               ALLOCATE( PTMET_DATA( N )%PRES ( DESID_LAYS,MSRC ), STAT=IOS )
                CALL CHECKMEM( IOS, 'PRES', PNAME )
-               ALLOCATE( PTMET_DATA( N )%DENS ( EMLAYS,MSRC ), STAT=IOS )
+               ALLOCATE( PTMET_DATA( N )%DENS ( DESID_LAYS,MSRC ), STAT=IOS )
                CALL CHECKMEM( IOS, 'DENS', PNAME )
-               ALLOCATE( PTMET_DATA( N )%QV   ( EMLAYS,MSRC ), STAT=IOS )
+               ALLOCATE( PTMET_DATA( N )%QV   ( DESID_LAYS,MSRC ), STAT=IOS )
                CALL CHECKMEM( IOS, 'QV', PNAME )
-               ALLOCATE( PTMET_DATA( N )%TA   ( EMLAYS,MSRC ), STAT=IOS )
+               ALLOCATE( PTMET_DATA( N )%TA   ( DESID_LAYS,MSRC ), STAT=IOS )
                CALL CHECKMEM( IOS, 'TA', PNAME )
-               ALLOCATE( PTMET_DATA( N )%UWIND( EMLAYS,MSRC ), STAT=IOS )
+               ALLOCATE( PTMET_DATA( N )%UWIND( DESID_LAYS,MSRC ), STAT=IOS )
                CALL CHECKMEM( IOS, 'UWIND', PNAME )
-               ALLOCATE( PTMET_DATA( N )%VWIND( EMLAYS,MSRC ), STAT=IOS )
+               ALLOCATE( PTMET_DATA( N )%VWIND( DESID_LAYS,MSRC ), STAT=IOS )
                CALL CHECKMEM( IOS, 'VWIND', PNAME )
-               ALLOCATE( PTMET_DATA( N )%ZF   ( EMLAYS,MSRC ), STAT=IOS )
+               ALLOCATE( PTMET_DATA( N )%ZF   ( DESID_LAYS,MSRC ), STAT=IOS )
                CALL CHECKMEM( IOS, 'ZF', PNAME )
-               ALLOCATE( PTMET_DATA( N )%ZH   ( EMLAYS,MSRC ), STAT=IOS )
+               ALLOCATE( PTMET_DATA( N )%ZH   ( DESID_LAYS,MSRC ), STAT=IOS )
                CALL CHECKMEM( IOS, 'ZH', PNAME )
-               ALLOCATE( PTMET_DATA( N )%ZSTK ( EMLAYS,MSRC ), STAT=IOS )
+               ALLOCATE( PTMET_DATA( N )%ZSTK ( DESID_LAYS,MSRC ), STAT=IOS )
                CALL CHECKMEM( IOS, 'ZSTK', PNAME )
 
-C Allocate per-layer arrays from 1:EMLAYS
-               ALLOCATE( PTMET_DATA( N )%WSPD ( EMLAYS ), STAT=IOS )
+C Allocate per-layer arrays from 1:DESID_LAYS
+               ALLOCATE( PTMET_DATA( N )%WSPD ( DESID_LAYS ), STAT=IOS )
                CALL CHECKMEM( IOS, 'WSPD', PNAME )
-               ALLOCATE( PTMET_DATA( N )%DTHDZ( EMLAYS ), STAT=IOS )
+               ALLOCATE( PTMET_DATA( N )%DTHDZ( DESID_LAYS ), STAT=IOS )
                CALL CHECKMEM( IOS, 'DTHDZ', PNAME )
 
-C Allocate per-layer arrays from 0:EMLAYS
-               ALLOCATE( PTMET_DATA( N )%PRESF( 0:EMLAYS ), STAT=IOS )
+C Allocate per-layer arrays from 0:DESID_LAYS
+               ALLOCATE( PTMET_DATA( N )%PRESF( 0:DESID_LAYS ), STAT=IOS )
                CALL CHECKMEM( IOS, 'PRESF', PNAME )
-               ALLOCATE( PTMET_DATA( N )%ZZF  ( 0:EMLAYS ), STAT=IOS )
+               ALLOCATE( PTMET_DATA( N )%ZZF  ( 0:DESID_LAYS ), STAT=IOS )
                CALL CHECKMEM( IOS, 'ZZF', PNAME )
             END IF ! (MY_NSRC( N ) > 0)
 
@@ -168,6 +168,36 @@ C Allocate per-layer arrays from 0:EMLAYS
 
          END FUNCTION PTMET_INIT 
 
+C-----------------------------------------------------------------------
+#ifdef mpas
+         SUBROUTINE PTMET_CONVT_MPAS ( N )
+
+         USE STK_PRMS, ONLY: MY_NSRC, SOURCE, my_nsrc_mesh_index
+         USE stack_group_data_module, ONLY: STKHT
+         USE coupler_module
+
+         IMPLICIT NONE
+
+         integer, intent(in) :: n
+
+         INTEGER S
+
+         IF ( MY_NSRC( N ) .GT. 0 ) THEN
+            DO S = 1, MY_NSRC( N )
+               PTMET_DATA( N )%USTAR( S )  = g2ddata(my_nsrc_mesh_index(s, n),1,ustar_ind)
+               PTMET_DATA( N )%HFX( S )    = g2ddata(my_nsrc_mesh_index(s, n),1,hfx_ind)
+               PTMET_DATA( N )%HMIX( S )   = g2ddata(my_nsrc_mesh_index(s, n),1,pbl_ind)
+
+               PTMET_DATA( N )%TA( :,S )   = g3ddata(my_nsrc_mesh_index(s, n),1,:,temp_ind)
+               PTMET_DATA( N )%ZH( :,S )   = g3ddata(my_nsrc_mesh_index(s, n),1,:,zh_ind)
+               PTMET_DATA( N )%ZF( :,S )   = g3ddata(my_nsrc_mesh_index(s, n),1,:,zf_ind)
+               PTMET_DATA( N )%DENS( :,S ) = g3ddata(my_nsrc_mesh_index(s, n),1,:,dens_ind)
+            END DO
+         END IF
+
+         END SUBROUTINE PTMET_CONVT_MPAS
+
+#else
 C-----------------------------------------------------------------------
 
          SUBROUTINE PTMET_CONVT( JDATE, JTIME, N )
@@ -205,8 +235,8 @@ C-----------------------------------------------------------------------
          LOGICAL, SAVE :: INITIALIZE = .TRUE.
          
          INTERFACE
-            SUBROUTINE DELTA_ZS( EMLAYS, MY_NSRC, SRC_MAP, STKHT, ZF, ZSTK, DDZF )
-               INTEGER, INTENT( IN )  :: EMLAYS, MY_NSRC
+            SUBROUTINE DELTA_ZS( DESID_LAYS, MY_NSRC, SRC_MAP, STKHT, ZF, ZSTK, DDZF )
+               INTEGER, INTENT( IN )  :: DESID_LAYS, MY_NSRC
                INTEGER, INTENT( IN )  :: SRC_MAP( : )
                REAL,    INTENT( IN )  :: STKHT( : )
                REAL,    INTENT( IN )  :: ZF  ( :,: )
@@ -304,7 +334,7 @@ C-----------------------------------------------------------------------
             END DO
 
             IF ( MY_NSRC( N ) .GT. 0 ) THEN ! Compute ZSTK, DDZF
-               CALL DELTA_ZS( EMLAYS, MSRC,
+               CALL DELTA_ZS( DESID_LAYS, MSRC,
      &                        SOURCE( N )%ARRY, STKHT( N )%ARRY,
      &                        PTMET_DATA( N )%ZF,
      &                        PTMET_DATA( N )%ZSTK,
@@ -314,6 +344,7 @@ C-----------------------------------------------------------------------
          !END DO   ! NPTGRPS
 
          END SUBROUTINE PTMET_CONVT
+#endif
 
 C-----------------------------------------------------------------------
 

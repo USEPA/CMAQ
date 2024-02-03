@@ -1,0 +1,66 @@
+CH3COCH3A_JPL19
+! ACT + HV = ACO3 + MO2
+! Source: Chemical Kinetics and Photochemical Data for Use in Atmospheric Studies, Evaluation No.
+!         19," JPL Publication 19-5, Jet Propulsion Laboratory, Pasadena,
+!         2019 http://jpldataeval.jpl.nasa.gov
+! Absorption x-section from JPL-19/Acetone 298K (Table 4D-27-1)
+!    1)Gierczak, T.; Burkholder, J. B.; Bauerle, S.; Ravishankara, A. R. Photochemisty of acetone under
+!    atmospheric conditions. Chem. Phys. 1998, 231, 229-244, doi:10.1016/S0301-0104(98)00006-8.
+!    2)Burkholder, J. B., personal communication to the NASA JPL Panel.
+! Quantum yield - JPL-19/Acetone 295K and 1 atm for channel producing ACO3 + MO2
+!     Blitz, M. A., Heard, D. E., Pilling, M. J., Arnold S. R. and M. Chipperfield, Geophys. Res. Lett.
+!     L06111, doi:10.1029/2003GL018793, 2004.
+! Supplied by Drs. William Stockwell and Emily Saunders, reformatted by Dr. Golam Sarwar to make it compatible with CMAQ
+! 
+Points 
+! With FAC, units are (cm^2/molecule)
+FAC=1.0
+279	4.92E-20	0.4323
+280	4.91E-20	0.4231
+281	4.86E-20	0.4134
+282	4.79E-20	0.4033
+283	4.71E-20	0.3928
+284	4.62E-20	0.3820
+285	4.54E-20	0.3710
+286	4.44E-20	0.3598
+287	4.36E-20	0.3485
+288	4.28E-20	0.3371
+289	4.15E-20	0.3257
+290	4.06E-20	0.3144
+291	3.95E-20	0.3031
+292	3.82E-20	0.2919
+293	3.71E-20	0.2808
+294	3.57E-20	0.2699
+295	3.42E-20	0.2593
+296	3.26E-20	0.2488
+297	3.11E-20	0.2386
+298	2.98E-20	0.2287
+299	2.82E-20	0.2190
+300	2.67E-20	0.2096
+301	2.58E-20	0.2005
+302	2.45E-20	0.1917
+303	2.30E-20	0.1705
+304	2.18E-20	0.1446
+305	2.05E-20	0.1221
+306	1.89E-20	0.1027
+307	1.75E-20	0.0861
+308	1.61E-20	0.0720
+309	1.49E-20	0.0602
+310	1.36E-20	0.0502
+311	1.24E-20	0.0419
+312	1.14E-20	0.0350
+313	1.06E-20	0.0292
+314	9.44E-21	0.0244
+315	8.37E-21	0.0204
+316	7.60E-21	0.0171
+317	6.84E-21	0.0144
+318	5.98E-21	0.0121
+319	5.23E-21	0.0102
+320	4.55E-21	0.0086
+321	4.11E-21	0.0073
+322	3.48E-21	0.0061
+323	2.94E-21	0.0052
+324	2.48E-21	0.0044
+325	2.10E-21	0.0038
+326	1.74E-21	0.0032
+327	1.41E-21	0.0027

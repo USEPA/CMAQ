@@ -13,34 +13,19 @@
 C   Suboutine adds SS species data to RXCM and RXDT files
 
       USE MECHANISM_DATA
+      USE BASIC_WRITE_ROUTINES
       
       IMPLICIT NONE
 
 C INPUTS
-      INTEGER, INTENT ( IN )         :: NR                                 ! No. of reactions
-!      INTEGER, INTENT ( IN )         :: N_SS_SPC                           ! No. of input steady-state species
-!      CHARACTER( 16 ), INTENT ( IN ) :: SS_SPC( MAXNLIST )                  ! List of input steady-state species
-!      INTEGER, INTENT ( IN )         :: MAX_SS_LOSS          ! Max no of reactions for which 1 SS species
-                                                               ! appears as a reactant
-!      INTEGER, INTENT ( IN )         :: MAX_SS_PROD          ! Max no of reactions for which 1 SS species
-                                                               ! appears as a product
-!      INTEGER, INTENT ( IN )         :: N_LOSS_RXNS( MAXNLIST )             ! No. of loss rxns for each SS species
-!      INTEGER, INTENT ( IN )         :: N_PROD_RXNS( MAXNLIST )             ! No. of prod rxns for each SS species
-!      INTEGER, INTENT ( IN )         :: SS_LOSS_RXNS( MAXNLIST, MAXRXNUM )  ! List of rxns in which SS species is a reactant
-!      INTEGER, INTENT ( IN )         :: SS_PROD_RXNS( MAXNLIST, MAXRXNUM )  ! List of rxns in which SS species is a product
-!      INTEGER, INTENT ( IN )         :: SS_RCT_IND( MAXRXNUM )              ! Index of SS species that reacts 
-!      REAL,    INTENT ( IN )         :: SS_PROD_COEF( MAXNLIST, MAXRXNUM )   ! Yields for rxns producing a SS species
-
+      INTEGER, INTENT ( IN ) :: NR ! No. of reactions
 
 C FUNCTIONS
       INTEGER, EXTERNAL :: JUNIT
 
-
 C LOCAL VARIABLES
 
       CHARACTER(   1 ) :: XXX
-
-
 
       INTEGER SPC                   ! Loop index
       INTEGER IND                   ! Loop index
@@ -48,16 +33,6 @@ C LOCAL VARIABLES
 
       INTEGER         :: INTBUF( MAXRXNUM )   ! Temp buffer for integers
       REAL            :: REALBUF( MAXRXNUM )  ! Temp buffer for reals
-
-      INTERFACE
-        SUBROUTINE WRBF6 ( WRUNIT, AWPL, NEL, IVAR )
-         INTEGER, INTENT( IN ) ::  WRUNIT     ! logical write unit no.
-         INTEGER, INTENT( IN ) ::  AWPL       ! words per line (max at 10)
-         INTEGER, INTENT( IN ) ::  NEL        ! number of list elements
-         INTEGER, INTENT( IN ) ::  IVAR( : )  ! integer variable to write
-         END SUBROUTINE WRBF6 
-      END INTERFACE
-
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c Write RXCM data

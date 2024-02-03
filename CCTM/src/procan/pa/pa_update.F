@@ -28,14 +28,16 @@
       USE PA_DEFN               ! Process Anaylsis control and data variables
       USE PAGRD_DEFN            ! PA horiz domain specs
       USE UTILIO_DEFN           ! inherits PARUTILIO
-      USE EMIS_VARS
+      USE DESID_VARS
       USE CENTRALIZED_IO_MODULE
       USE BUDGET_DEFN
 
+#ifndef mpas
 #ifdef parallel
       USE SE_MODULES            ! stenex (using SE_UTIL_MODULE, SE_DATA_COPY_MODULE)
 #else
       USE NOOP_MODULES          ! stenex (using NOOP_UTIL_MODULE, NOOP_DATA_COPY_MODULE)
+#endif
 #endif
  
       PUBLIC PA_UPDATE_PROC, PA_UPDATE_EMIS, PA_UPDATE_DDEP,
@@ -727,9 +729,9 @@ C..get density x jacobian and layer heights
             CALL SUBST_DATA_COPY( AERO_NPF,  TNPF,  ICG )
             CALL SUBST_DATA_COPY( AERO_GROWTH, TGROW, ICG )
 #else
-            TCOAG = SUM( AERO_COAG( PA_BEGCOL:PA_ENDCOL,
+            TCOAG = AERO_COAG( PA_BEGCOL:PA_ENDCOL,
      &                         PA_BEGROW:PA_ENDROW,
-     &                         PA_BEGLEV:PA_ENDLEV, ICG,: ),4 )
+     &                         PA_BEGLEV:PA_ENDLEV, ICG )
             TCOND = AERO_COND( PA_BEGCOL:PA_ENDCOL,
      &                         PA_BEGROW:PA_ENDROW,
      &                         PA_BEGLEV:PA_ENDLEV, ICG )

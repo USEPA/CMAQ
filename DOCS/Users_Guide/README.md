@@ -7,17 +7,7 @@ Note: While this User's Guide is packaged with the code when it is downloaded or
 
 # Table of Contents
 
-[CMAQ Tutorials:](Tutorials/README.md) A series of short tutorials provide practical examples of how to set up and run CMAQ. Tutorials include: 
-* Running the CMAQ Test Case
-* Running the CMAQ-ISAM Test Case
-* Building CMAQ for GNU and Intel
-* Building WRF-CMAQ for GNU
-* Debugging tips
-* Prescribing Emissions Using the DESID Module 
-* Creating an OCEAN File
-* Adding an Inert Tracer Species
-* Creating IC/BCs from Seasonal Average Hemispheric CMAQ Output
-* Modifying a CMAQ Chemical Mechanism
+[CMAQ Tutorials:](Tutorials/README.md) A series of short tutorials provide practical examples of how to set up and run CMAQ. 
 
 [Chapter 1 (Overview):](CMAQ_UG_ch01_overview.md) CMAQ background, features, requirements and support resources.
 
@@ -35,7 +25,7 @@ Note: While this User's Guide is packaged with the code when it is downloaded or
 
 [Chapter 8 (Analysis Tools):](CMAQ_UG_ch08_analysis_tools.md) Post-processing, visualization and evaluation tools for CMAQ.
 
-[Chapter 9 (Process Analysis):](CMAQ_UG_ch09_process_analysis.md) Instrumented Models - Integrated Process Rates (IPR) and Integrated Reaction Rates (IRR).
+[Chapter 9 (Process Analysis and Budget):](CMAQ_UG_ch09_process_analysis.md) Instrumented Models - Integrated Process Rates (IPR), Integrated Reaction Rates (IRR), and Budget Tool.
 
 [Chapter 10 (HDDM-3D):](CMAQ_UG_ch10_HDDM-3D.md) Instrumented Models - Decoupled Direct Method in Three Dimensions (DDM-3D).
 
@@ -57,8 +47,8 @@ Note: While this User's Guide is packaged with the code when it is downloaded or
 
 [Appendix E (Configuring WRF):](Appendix/CMAQ_UG_appendixE_configuring_WRF.md) Configuring the Weather Research and Forecasting Model (WRF) for use with CMAQ
 
-[Appendix F (Importing bugfixes):](Appendix/CMAQ_UG_appendixF_importing_bugfixes.md) Directions on importing bugfixes from CMAQ GitHub Issues page
+[Appendix F (ELMO Module):](Appendix/CMAQ_UG_appendixF_elmo_output.md) Description of the Explicit and Lumped CMAQ Model Output Module
 
 ***
 
-CMAQ User's Guide (c) 2020<br>
+CMAQ User's Guide (c) 2022<br>

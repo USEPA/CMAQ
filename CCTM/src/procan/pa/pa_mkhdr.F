@@ -62,6 +62,7 @@ C Local Variables:
 
 C-----------------------------------------------------------------------
 
+#ifndef mpas
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C  Get file header description from GRID_CONF and reconfigure output domain
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -147,6 +148,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      &        'Incorrect process analysis type specified', 2 )
 
       END IF
+#endif
 
       RETURN
       END

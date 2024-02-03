@@ -36,7 +36,7 @@ C-----------------------------------------------------------------------
       INTEGER,              SAVE :: N_SPC_BIOG ! biogenics emissions species
       REAL,    ALLOCATABLE, SAVE :: VDEMIS_BI( :,:,: ) ! beis emis
       INTEGER, ALLOCATABLE, SAVE :: BEIS_MAP( : ) ! map to GC
-      CHARACTER( 16 ),      SAVE :: CTM_BIOGEMIS_BEIS = 'CTM_BIOGEMIS_BEIS'! env var for
+      CHARACTER( 16 ),      SAVE :: CTM_BIOGEMIS_BE = 'CTM_BIOGEMIS_BE'! env var for
 
       CONTAINS
 
@@ -101,8 +101,8 @@ C=======================================================================
 
          SUBROUTINE GET_BEIS ( JDATE, JTIME, TSTEP, L_DESID_DIAG )
 
-         USE EMIS_VARS, ONLY : N_EMIS_ISTR, IBIOSRM,
-     &                         MAP_EMtoSURR, MAP_EMtoDIFF
+         USE DESID_VARS, ONLY : DESID_N_ISTR, IBIOSRM,
+     &                         MAP_ISTRtoEMVAR, MAP_ISTRtoDIFF
          USE BIOG_EMIS, ONLY : MSPCS
              
          IMPLICIT NONE
@@ -112,31 +112,31 @@ C=======================================================================
          LOGICAL, INTENT( IN ) :: L_DESID_DIAG
 
          INTERFACE
-            SUBROUTINE TMPBEIS312 ( MDATE, MTIME, TSTEP, BEIS_MAP, 
+            SUBROUTINE TMPBEIS ( MDATE, MTIME, TSTEP, BEIS_MAP, 
      &                              VDEMIS_BI, L_DESID_DIAG )
                INTEGER, INTENT(  IN ) :: MDATE, MTIME, TSTEP( 3 )
                INTEGER, INTENT(  IN ) :: BEIS_MAP( : )
                REAL,    INTENT( OUT ) :: VDEMIS_BI( :,:,: )
                LOGICAL, INTENT(  IN ) :: L_DESID_DIAG
-            END SUBROUTINE TMPBEIS312
+            END SUBROUTINE TMPBEIS
          END INTERFACE
 
 C-----------------------------------------------------------------------
 
          IF ( FIRST_TIME ) THEN
-             ! Map out BEIS_MAP using MAP_EMtoSURR Array
+             ! Map out BEIS_MAP using MAP_ISTRtoEMVAR Array
              ALLOCATE( BEIS_MAP( MSPCS ) )
              BEIS_MAP = 0
-             DO ISTR = 1,N_EMIS_ISTR
-                 IF ( MAP_EMtoSURR( ISTR,IBIOSRM ) .GT. 0 ) 
-     &              BEIS_MAP( MAP_EMtoSURR( ISTR,IBIOSRM ) ) = 
-     &                     MAP_EMtoDIFF( ISTR )
+             DO ISTR = 1,DESID_N_ISTR
+                 IF ( MAP_ISTRtoEMVAR( ISTR,IBIOSRM ) .GT. 0 ) 
+     &              BEIS_MAP( MAP_ISTRtoEMVAR( ISTR,IBIOSRM ) ) = 
+     &                     MAP_ISTRtoDIFF( ISTR )
              END DO
 
              FIRST_TIME = .FALSE.
          END IF    
 
-         CALL TMPBEIS312( JDATE, JTIME, TSTEP, BEIS_MAP, VDEMIS_BI, L_DESID_DIAG )
+         CALL TMPBEIS( JDATE, JTIME, TSTEP, BEIS_MAP, VDEMIS_BI, L_DESID_DIAG )
 
          RETURN
 

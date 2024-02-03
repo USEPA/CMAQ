@@ -102,7 +102,7 @@ c these are allocated in pa_setpadefn.F
       LOGICAL, SAVE              :: BUDGET_DIAG = .FALSE.
       LOGICAL, SAVE              :: BUDGET_HPPM = .FALSE.
       CHARACTER( 16 ), ALLOCATABLE, SAVE :: BUDGETVARIABLES( : )
-      INTEGER, PARAMETER :: N_BUDGET_VARS_REG = 200
+      INTEGER, PARAMETER :: MAX_BUDGET_VARS_NML = 200
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  The following variables are used in the integrated reaction rate

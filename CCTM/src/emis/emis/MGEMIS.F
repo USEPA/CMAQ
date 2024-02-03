@@ -34,10 +34,14 @@ C   15 May 19: D. Wong: Replaced MGEM with USE_MARINE_GAS_EMISSION which is set 
 C   16 May 19: D. Wong: * Removed initialization of OCEAN, SZONE, CHLR, and DMSL. 
 C                       * Used LON directly to save space.
 C   04 Sep 20: G. Sarwar* Fixed bug for Kw
+C   03 Mar 22: D. Wong and G. Sarwar* updated for DMS emissions with cb6r5
 
       USE RUNTIME_VARS
       USE HGRD_DEFN
-      USE EMIS_VARS
+      USE DESID_VARS
+#ifdef mpas
+      use util_module
+#endif
 
       IMPLICIT NONE
 
@@ -63,6 +67,8 @@ C Variables for the marine gas diagnostic file
       CHARACTER( 16 ), ALLOCATABLE :: WRMG_SPC( : )   ! species names
 
       CHARACTER( 16 ) :: MG_SPC( NMGSPC)           ! emitted species
+
+      INTEGER :: MG_SPC_IND ( NMGSPC)              ! emitted species index
 
       DATA  MG_SPC  /  'MB3             ',
      &                 'MB2             ',
@@ -138,6 +144,7 @@ C Local Variables:
             CHARACTER(  16 ) :: VARNM
             INTEGER STATUS
             INTEGER S, N, L, K, V
+            INTEGER :: START_INDEX, END_INDEX
 
 C-----------------------------------------------------------------------
 
@@ -147,24 +154,24 @@ C flag for marine gas emissions; this flag is set in the subroutine EM_FILE_INIT
             IF ( .NOT. USE_MARINE_GAS_EMISSION ) RETURN
 
 C Allocate MG arrays using NMGSPC value
-            EM_FILE_SURR( IMGSRM )%LEN = NMGSPC
-            ALLOCATE( EM_FILE_SURR( IMGSRM )%ARRY ( NMGSPC ) )
-            ALLOCATE( EM_FILE_SURR( IMGSRM )%UNITS( NMGSPC ) )
-            ALLOCATE( EM_FILE_SURR( IMGSRM )%MW   ( NMGSPC ) )
-            ALLOCATE( EM_FILE_SURR( IMGSRM )%USED ( NMGSPC ) )
-            ALLOCATE( EM_FILE_SURR( IMGSRM )%CONV ( NMGSPC ) )
-            ALLOCATE( EM_FILE_SURR( IMGSRM )%BASIS( NMGSPC ) )
-            ALLOCATE( EM_FILE_SURR( IMGSRM )%LAREA( NMGSPC ) )
-            ALLOCATE( EM_FILE_SURR( IMGSRM )%LAREAADJ( NMGSPC ) )
+            DESID_EMVAR( IMGSRM )%LEN = NMGSPC
+            ALLOCATE( DESID_EMVAR( IMGSRM )%ARRY ( NMGSPC ) )
+            ALLOCATE( DESID_EMVAR( IMGSRM )%UNITS( NMGSPC ) )
+            ALLOCATE( DESID_EMVAR( IMGSRM )%MW   ( NMGSPC ) )
+            ALLOCATE( DESID_EMVAR( IMGSRM )%USED ( NMGSPC ) )
+            ALLOCATE( DESID_EMVAR( IMGSRM )%CONV ( NMGSPC ) )
+            ALLOCATE( DESID_EMVAR( IMGSRM )%BASIS( NMGSPC ) )
+            ALLOCATE( DESID_EMVAR( IMGSRM )%LAREA( NMGSPC ) )
+            ALLOCATE( DESID_EMVAR( IMGSRM )%LAREAADJ( NMGSPC ) )
             
-            EM_FILE_SURR( IMGSRM )%ARRY  = MG_SPC
-            EM_FILE_SURR( IMGSRM )%UNITS = 'MOLES/S'
-            EM_FILE_SURR( IMGSRM )%MW    = MG_MW
-            EM_FILE_SURR( IMGSRM )%USED  = .FALSE.
-            EM_FILE_SURR( IMGSRM )%CONV  = 1.0
-            EM_FILE_SURR( IMGSRM )%BASIS = 'MOLE'
-            EM_FILE_SURR( IMGSRM )%LAREA = .FALSE.
-            EM_FILE_SURR( IMGSRM )%LAREAADJ = .FALSE.
+            DESID_EMVAR( IMGSRM )%ARRY  = MG_SPC
+            DESID_EMVAR( IMGSRM )%UNITS = 'MOLES/S'
+            DESID_EMVAR( IMGSRM )%MW    = MG_MW
+            DESID_EMVAR( IMGSRM )%USED  = .FALSE.
+            DESID_EMVAR( IMGSRM )%CONV  = 1.0
+            DESID_EMVAR( IMGSRM )%BASIS = 'MOLE'
+            DESID_EMVAR( IMGSRM )%LAREA = .FALSE.
+            DESID_EMVAR( IMGSRM )%LAREAADJ = .FALSE.
 
             ALLOCATE ( VDEMIS_MG( NMGSPC,NCOLS,NROWS), STAT = STATUS )
             IF ( STATUS .NE. 0 ) THEN
@@ -207,10 +214,19 @@ C Allocate diagnostic arrays
                 END IF
 
 C Build diagnostic file write buffer (WRMG_SPC) array
+                IF (INDEX( MECHNAME, 'CB6R5M_AE7_AQ' ) .GT. 0) THEN
+                   START_INDEX = 1
+                   END_INDEX = 12
+                ELSE
+                   START_INDEX = 12
+                   END_INDEX = 12
+                END IF
+
                 NMGDIAG = 0
-                DO S = 1, NMGSPC
+                DO S = START_INDEX, END_INDEX
                    NMGDIAG = NMGDIAG + 1
                    WRMG_SPC( NMGDIAG ) = MG_SPC( S )
+                   MG_SPC_IND( NMGDIAG ) = S
                 END DO
 
 C Open the marine gas emission dignostic file
@@ -253,8 +269,23 @@ C Local variables:
          CHARACTER( 96 ) :: XMSG = ' '
 
          INTEGER      V, L       ! loop induction variables
+         
+#ifdef mpas
+         integer :: io_mode
+#endif
 
 C-----------------------------------------------------------------------
+
+#ifdef mpas
+         if (ncd_64bit_offset) then
+            io_mode = ior (nf90_noclobber, nf90_64bit_offset)
+         else
+            io_mode = nf90_noclobber
+         end if
+
+         call mio_fcreate (CTM_MGEM_1, io_mode)
+
+#else
 
 C Try to open existing file for update
          IF ( .NOT. OPEN3( CTM_MGEM_1, FSRDWR3, PNAME ) ) THEN
@@ -297,7 +328,7 @@ C Set output file characteristics based on COORD.EXT and open diagnostic file
                VTYPE3D( V ) = M3REAL
                VNAME3D( V ) = WRMG_SPC( V )
                UNITS3D( V ) = 'mol s-1'
-               VDESC3D( V ) = 'hourly ' // TRIM( VNAME3D( V ) )
+               VDESC3D( V ) = 'hourly ' // TRIM( VNAME3D( V ) )               
      &                     // ' marine gas emission rate'
             END DO
 
@@ -313,6 +344,7 @@ C Open marine gas emissions diagnostic file
             END IF
 
          END IF
+#endif
 
          RETURN
 
@@ -433,11 +465,15 @@ C Local Variables:
             REAL, PARAMETER :: ONESIXHUNDREDS = 1.0 / 600.0    ! 1.0 / 600.0
 
             LOGICAL, SAVE   :: FIRST_TIME = .TRUE.
+#ifdef mpas
+            CHARACTER( 20 ) :: time_stamp
+#endif
 
 C----------------------------- Begin calc ------------------------------
 
            IF( FIRST_TIME ) THEN
 C calculate grid-cell area
+#ifndef mpas
              IF ( GDTYP_GD .EQ. LATGRD3 ) THEN
                 DX1 = DG2M * XCELL_GD ! in m.
                 DX2 = DG2M * YCELL_GD
@@ -447,6 +483,7 @@ C calculate grid-cell area
                 DX2 = YCELL_GD        ! in m.
              END IF
              A = DX1 * DX2                                      ! m2
+#endif
 
              FIRST_TIME = .FALSE.
            END IF
@@ -479,7 +516,11 @@ C Initialize marine gas output buffer
                 MARINE_AREA = ( OCEAN( C,R ) + SZONE( C,R ) )
                 IF ( MARINE_AREA .GT. 0.0 .AND. SEAICE( C, R ) .LE. 0.0) THEN
 !            convert area fraction to an actual area
+#ifdef mpas
+                     MARINE_AREA = MARINE_AREA * cell_area(c,1)
+#else
                      MARINE_AREA = MARINE_AREA * A
+#endif
 
                      CHLA      = MIN ( 1.0, CHLR ( C,R ) )
                      WSPD10    = U10( C,R )
@@ -532,46 +573,48 @@ C.. calculate local hour
                      IF (LOCHR .LT.  0) LOCHR = LOCHR + 24
                      IF (LOCHR .GT. 23) LOCHR = LOCHR - 24
 
-                     DUMMY = 4.31E-8 * MARINE_AREA * FHRLY(LOCHR) * CHLA * SECS2HR
+                     IF (INDEX( MECHNAME, 'CB6R5M_AE7_AQ' ) .GT. 0) THEN
+                        DUMMY = 4.31E-8 * MARINE_AREA * FHRLY(LOCHR) * CHLA * SECS2HR
 
 C.. Calculate MB3 emission rate in mole/s
-                     VDEMIS_MG( IMB3, C, R ) = DUMMY * 2.00
+                        VDEMIS_MG( IMB3, C, R ) = DUMMY * 2.00
 
 C.. Calculate MB2 emission rate in mole/s
-                     VDEMIS_MG( IMB2, C, R ) = DUMMY * 0.50
+                        VDEMIS_MG( IMB2, C, R ) = DUMMY * 0.50
 
 C.. Calculate MBC emission rate in mole/s
-                     VDEMIS_MG( IMBC, C, R ) = DUMMY * 0.08
+                        VDEMIS_MG( IMBC, C, R ) = DUMMY * 0.08
 
 C.. Calculate MB2C emission rate in mole/s
-                     VDEMIS_MG( IMB2C, C, R ) = DUMMY * 0.12
+                        VDEMIS_MG( IMB2C, C, R ) = DUMMY * 0.12
 
 C.. Calculate MBC2 emission rate in mole/s
-                     VDEMIS_MG( IMBC2, C, R ) = DUMMY * 0.10
+                        VDEMIS_MG( IMBC2, C, R ) = DUMMY * 0.10
 
 C.. Calculate CH3I emission rate in mole/s
-                     VDEMIS_MG( ICH3I, C, R ) = DUMMY * 1.60
+                        VDEMIS_MG( ICH3I, C, R ) = DUMMY * 1.60
 
 C.. Calculate MIC emission rate in mole/s
-                     VDEMIS_MG( IMIC, C, R ) = DUMMY * 1.41
+                        VDEMIS_MG( IMIC, C, R ) = DUMMY * 1.41
 
 C.. Calculate MIB emission rate in mole/s
-                     VDEMIS_MG( IMIB, C, R ) = DUMMY * 0.42
+                        VDEMIS_MG( IMIB, C, R ) = DUMMY * 0.42
 
 C.. Calculate MI2 emission rate in mole/s
-                     VDEMIS_MG( IMI2, C, R ) = DUMMY * 0.46
+                        VDEMIS_MG( IMI2, C, R ) = DUMMY * 0.46
 
 C.. Calculate I2 emission rate in mole/s (Macdonald et al., ACP, 14, 5841-5852, 2014)
-                     DUMMY = O3 * (I_AQ**1.3) * (1.74E9 - 6.54E8*LOG(WSPD10_M5)) ! NMOL/M2/D
-                     DUMMY = MARINE_AREA * DUMMY * C_FACT
-                     VDEMIS_MG( II2, C, R ) = MAX( 0.0, DUMMY )
+                        DUMMY = O3 * (I_AQ**1.3) * (1.74E9 - 6.54E8*LOG(WSPD10_M5)) ! NMOL/M2/D
+                        DUMMY = MARINE_AREA * DUMMY * C_FACT
+                        VDEMIS_MG( II2, C, R ) = MAX( 0.0, DUMMY )
 
 C.. Calculate HOI emission rate in mole/s (Macdonald et al., ACP, 14, 5841-5852, 2014)
-                     DUMMY = SQRT(I_AQ)
-                     DUMMY = O3
-     &                     * ((4.15E5*DUMMY - 20.6)/WSPD10_M5 - 23600.0*DUMMY)  ! NMOL/M2/D
-                     DUMMY = MARINE_AREA * DUMMY * C_FACT
-                     VDEMIS_MG( IHOI, C, R ) = MAX( 0.0, DUMMY )
+                        DUMMY = SQRT(I_AQ)
+                        DUMMY = O3
+     &                        * ((4.15E5*DUMMY - 20.6)/WSPD10_M5 - 23600.0*DUMMY)  ! NMOL/M2/D
+                        DUMMY = MARINE_AREA * DUMMY * C_FACT
+                        VDEMIS_MG( IHOI, C, R ) = MAX( 0.0, DUMMY )
+                     END IF
 
 C .. Calculate DMS emission rate in mole/s
                      DUMMY = MARINE_AREA *  DMS_L * KT * 2.78E-12
@@ -593,7 +636,7 @@ C Update the MGBF array, for writing the diagnostic marine gas emission file
                    END DO
 
                    DO S = 1, NMGDIAG
-                      MGBF( S,C,R ) = MGBF( S,C,R ) + MGOUTD( S )
+                      MGBF( S,C,R ) = MGBF( S,C,R ) + MGOUTD( MG_SPC_IND (S) )
      &                              * REAL( TIME2SEC ( TSTEP( 2 ) ) )
                   END DO
                 END IF  ! MGEMDIAG
@@ -609,13 +652,17 @@ C Then reset the MG emissions array and local write counter.
              WSTEP = WSTEP + TIME2SEC( TSTEP( 2 ) )
 
              IF ( WSTEP .GE. TIME2SEC( TSTEP( 1 ) ) ) THEN
+                IWSTEP = 1.0 / REAL( WSTEP )
+#ifdef mpas
+                call mio_time_format_conversion (jdate, jtime, time_stamp)
+#else
+
                 IF ( .NOT. CURRSTEP( JDATE, JTIME, STDATE, STTIME, TSTEP( 1 ),
      &                                MDATE, MTIME ) ) THEN
                      XMSG = 'Cannot get step date and time'
                      CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
                 END IF
                 CALL NEXTIME( MDATE, MTIME, TSTEP( 1 ) )
-                IWSTEP = 1.0 / REAL( WSTEP )
 #ifdef parallel_io
                 IF ( .NOT. IO_PE_INCLUSIVE ) THEN
                   IF ( .NOT. OPEN3( CTM_MGEM_1, FSREAD3, PNAME ) ) THEN
@@ -624,21 +671,32 @@ C Then reset the MG emissions array and local write counter.
                   END IF
                 END IF
 #endif
+#endif
                 DO V = 1, NMGDIAG
                    DO R = 1, NROWS
                       DO C = 1, NCOLS
                          WRMG( C,R ) = MGBF( V,C,R ) * IWSTEP
                       END DO
                    END DO
+#ifdef mpas
+                   call mio_fwrite (CTM_MGEM_1, WRMG_SPC(V), pname, WRMG(:,1), time_stamp)
+#else
                    IF ( .NOT. WRITE3( CTM_MGEM_1, WRMG_SPC( V ),
      &                        MDATE, MTIME, WRMG ) ) THEN
                      XMSG = 'Couldnt write ' // CTM_MGEM_1 // 'file'
                      CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
                    END IF
+#endif
                END DO
+#ifdef mpas
+               WRITE( LOGDEV, '( /5X, 3( A, :, 1X ), a19)')
+     &                      'Timestep written to', CTM_MGEM_1,
+     &                      'for time stamp', time_stamp
+#else
                WRITE( LOGDEV, '( /5X, 3( A, :, 1X ), I8, ":", I6.6 )')
      &                      'Timestep written to', CTM_MGEM_1,
      &                      'for date and time', MDATE, MTIME
+#endif
                WSTEP = 0
                MGBF = 0.0
              END IF

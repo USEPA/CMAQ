@@ -43,6 +43,7 @@ C                    10 Aug 11 J.Young: Replaced I/O API include files
 C                                       with UTILIO_DEFN
 C                   15 Jul 14 B.Hutzell: 1) added variable to variable to converted
 C                   species concentration unit based on species type
+C                   21 Mar 22 G . Sarwar: changed BLKLAND to BLKSEAWATER
 C*************************************************************************
 
       USE GRID_CONF             ! horizontal & vertical domain specifications
@@ -86,6 +87,9 @@ c...Allocatable arrays
       REAL( 8 ), ALLOCATABLE :: REVERSE_CONV( : )  ! CHEM to CGRID Species conversion factor
       REAL( 8 ), ALLOCATABLE :: Y( :,: )           ! Species concentrations
       REAL( 8 ), ALLOCATABLE :: Y_DEGRADE( :,: )   ! Concentration for degradation
+#ifdef sens
+      REAL( 8 ), ALLOCATABLE :: YAVE( :,: )        ! Species concentrations
+#endif
 
 c..Block variables
       INTEGER :: BLKID                           ! Block ID
@@ -176,8 +180,8 @@ C Domain decomposition info from CONC file
       REAL( 8 ),  ALLOCATABLE :: RJBLK( :,: )     ! J-values for each cell in block
 
       LOGICAL :: CALL_DEG = .FALSE.               ! SWITCH for calling DEGRADE routine
-      
-      LOGICAL,  ALLOCATABLE :: BLKLAND( : )       ! Is the surface totally land?
+         
+      REAL( 8 ), ALLOCATABLE :: BLKSEAWATER( : )      ! fractional area of OPEN+SURF 
       
       LOGICAL :: PRINT_CELL
       INTEGER :: ROS3_LOG

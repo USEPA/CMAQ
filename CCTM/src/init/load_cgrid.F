@@ -59,6 +59,10 @@ C-----------------------------------------------------------------------
       USE UTILIO_DEFN
       USE AERO_DATA, ONLY : CHECK_AERO_ICBC, N_MODE
       Use CENTRALIZED_IO_MODULE, only : interpolate_var
+      USE RUNTIME_VARS, ONLY : IC_AERO_M2WET, IC_AERO_M2USE
+#ifdef mpas
+      USE coupler_module
+#endif
 
       IMPLICIT NONE
 
@@ -133,11 +137,10 @@ C for XTRACT3
       REAL,    ALLOCATABLE, SAVE :: ICBC_FAC( : ) ! Factor to be applied to ICs
       INTEGER      C, R, L, SPC, V, J         ! loop counters
       INTEGER      ASPC                       ! CGRID RHOJ pointer
-      INTEGER      STAT                       ! Status reported by Aerosol Dist Checker
+      INTEGER      STAT( N_MODE )             ! Status reported by Aerosol Dist Checker
 
-      INTEGER       :: LMODE    !Identifies the problematic mode from
-                                !the BC Check routine
-      REAL          :: AER_PAR( 2, N_MODE,5 )  !Modal parameter after the BC 
+      INTEGER       :: IMODE    
+      REAL          :: AER_PAR( 2, N_MODE,6 )  !Modal parameter after the BC 
                                                !check (N, dg, sg)
                                                !      (N, M2, M3) - Before
                                                !      (N, M2, M3) - After
@@ -156,7 +159,7 @@ C for XTRACT3
       CHARACTER( 34 ) :: ESTR3 = ' '
 
       LOGICAL, SAVE :: FIRSTIME = .TRUE.
-      LOGICAL       :: LSTAT
+      LOGICAL       :: L_WRITE_WARNING
 
 C-----------------------------------------------------------------------
 
@@ -174,10 +177,19 @@ C-----------------------------------------------------------------------
             XMSG = 'ERROR allocating INDX or ICBC_FAC'
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
          END IF
+#ifdef mpas
+         ALLOCATE ( INDX_MPAS( MXSPC ), STAT = ASTAT )
+         IF ( ASTAT .NE. 0 ) THEN
+            XMSG = 'ERROR allocating INDX_MPAS '
+            call M3EXIT (PNAME, JDATE, JTIME, XMSG, 1)
+         END IF
+         INDX_MPAS = 0
+#endif
       END IF
 
       WRITE( CONCMIN,'(1PE9.2)' ) CMIN
 
+#ifndef mpas
       IF ( .NOT. OPEN3( FNAME, FSREAD3, PNAME ) ) THEN
          XMSG = 'Could not open ' // FNAME // ' file'
          CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
@@ -204,6 +216,7 @@ C-----------------------------------------------------------------------
          XMSG = 'Wrong number of layers in ' // FNAME // ' file'
          CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
       END IF
+#endif
 
       ESTR2 = ' in ' // TRIM( FNAME ) // '; Look for '
       ESTR3 = ' in ' // TRIM( FNAME ) // '; set to ' // TRIM( CONCMIN )
@@ -227,6 +240,7 @@ C Get INDX
          INDX( SPC ) = 0
       END DO
 
+      SPC_STRT = 0
       IF ( SPC_CAT .EQ. 'GC' ) THEN
          WRITE( XMSG,1009 ) 'transported gas-phase (reactive) species'
          WRITE( LOGDEV, * )
@@ -239,7 +253,11 @@ C is there a surrogate name?
             NDX = 0
             IF ( ISUR .NE. 0 ) THEN
 C is it on the IC file?
+#ifdef mpas
+               NDX = INDEX1( GC_IC( ISUR ), n_all_spc, all_spc )
+#else
                NDX = INDEX1( GC_IC( ISUR ), NVARS3D, VNAME3D )
+#endif
                IF ( NDX .NE. 0 ) THEN
 C if there`s a surrogate name, CGRID_SPCS handles setting GC_ICBC_FAC
                   INDX( SPC ) = NDX   ! index in the IC file
@@ -252,7 +270,11 @@ C if there`s a surrogate name, CGRID_SPCS handles setting GC_ICBC_FAC
             END IF
 C If there is no surrogate or it cannot be found, look for the (main) species name on the IC file
             If ( ISUR .EQ. 0 .OR. NDX .EQ. 0 .OR. (.NOT. NEW_START ) ) THEN
+#ifdef mpas
+               NDX = INDEX1( GC_SPC( SPC ), n_all_spc, all_spc )
+#else
                NDX = INDEX1( GC_SPC( SPC ), NVARS3D, VNAME3D )
+#endif
                IF ( NDX .NE. 0 ) THEN
                   INDX( SPC ) = NDX   ! index in the IC file
                   ICBC_FAC( SPC ) = 1.0
@@ -279,7 +301,11 @@ C is there a surrogate name?
             NDX = 0
             IF ( ISUR .NE. 0 ) THEN
 C is it on the IC file?
+#ifdef mpas
+               NDX = INDEX1( AE_IC( ISUR ), n_all_spc, all_spc )
+#else
                NDX = INDEX1( AE_IC( ISUR ), NVARS3D, VNAME3D )
+#endif
                IF ( NDX .NE. 0 ) THEN
                   INDX( SPC ) = NDX   ! index in the IC file
                   ICBC_FAC( SPC ) = AE_IC_FAC( ISUR )
@@ -291,7 +317,11 @@ C is it on the IC file?
             END IF
 C If there is no surrogate or it cant be found, look for the (main) species name on the IC file
             If ( ISUR .EQ. 0 .OR. NDX .EQ. 0 .OR. (.NOT. NEW_START ) ) THEN
+#ifdef mpas
+               NDX = INDEX1( AE_SPC( SPC ), n_all_spc, all_spc )
+#else
                NDX = INDEX1( AE_SPC( SPC ), NVARS3D, VNAME3D )
+#endif
                IF ( NDX .NE. 0 ) THEN
                   INDX( SPC ) = NDX
                   ICBC_FAC( SPC ) = 1.0
@@ -318,7 +348,11 @@ C is there a surrogate name?
             NDX = 0
             IF ( ISUR .NE. 0 ) THEN
 C is it on the IC file?
+#ifdef mpas
+               NDX = INDEX1( NR_IC( ISUR ), n_all_spc, all_spc )
+#else
                NDX = INDEX1( NR_IC( ISUR ), NVARS3D, VNAME3D )
+#endif
                IF ( NDX .NE. 0 ) THEN
                   INDX( SPC ) = NDX   ! index in the IC file
                   ICBC_FAC( SPC ) = NR_IC_FAC( ISUR )
@@ -330,7 +364,11 @@ C is it on the IC file?
             END IF
 C If there is no surrogate or it cant be found, look for the (main) species name on the IC file
             If ( ISUR .EQ. 0 .OR. NDX .EQ. 0 .OR. (.NOT. NEW_START ) ) THEN
+#ifdef mpas
+               NDX = INDEX1( NR_SPC( SPC ), n_all_spc, all_spc )
+#else
                NDX = INDEX1( NR_SPC( SPC ), NVARS3D, VNAME3D )
+#endif
                IF ( NDX .NE. 0 ) THEN
                   INDX( SPC ) = NDX
                   ICBC_FAC( SPC ) = 1.0
@@ -357,7 +395,11 @@ C is there a surrogate name?
             NDX = 0
             IF ( ISUR .NE. 0 ) THEN
 C is it on the IC file?
+#ifdef mpas
+               NDX = INDEX1( TR_IC( ISUR ), n_all_spc, all_spc )
+#else
                NDX = INDEX1( TR_IC( ISUR ), NVARS3D, VNAME3D )
+#endif
                IF ( NDX .NE. 0 ) THEN
                   INDX( SPC ) = NDX   ! index in the IC file
                   ICBC_FAC( SPC ) = TR_IC_FAC( ISUR )
@@ -369,7 +411,11 @@ C is it on the IC file?
             END IF
 C If there is no surrogate or it cant be found, look for the (main) species name on the IC file
             If ( ISUR .EQ. 0 .OR. NDX .EQ. 0 .OR. (.NOT. NEW_START ) ) THEN
+#ifdef mpas
+               NDX = INDEX1( TR_SPC( SPC ), n_all_spc, all_spc )
+#else
                NDX = INDEX1( TR_SPC( SPC ), NVARS3D, VNAME3D )
+#endif
                IF ( NDX .NE. 0 ) THEN
                   INDX( SPC ) = NDX
                   ICBC_FAC( SPC ) = 1.0
@@ -402,6 +448,7 @@ C IOFDESC common now loaded with FNAME header
          NDX = INDX( SPC )
 
          IF ( NDX .GT. 0 ) THEN
+#ifndef mpas
             call interpolate_var (VNAME3D ( NDX ), jdate, jtime, DBUFF)
 
             ! Add Non-Carbon Mass to Carbon Mass if any tracer is
@@ -426,15 +473,12 @@ C IOFDESC common now loaded with FNAME header
                   END DO
                END DO
             END DO
+#endif
 
          END IF   ! INDX .GT. 0
 
       END DO
  
-
-      !IF ( N_SPCS .NE. 0 ) WRITE( LOGDEV,'(/ 5X, A)' )
-      !&                            SPC_CAT // ' loaded into CGRID'
-
       IF ( SPC_CAT .EQ. 'RJ' ) THEN
 
 C Load RHOJ for transport and mixing ratio advection adjustment
@@ -450,60 +494,38 @@ C Load RHOJ for transport and mixing ratio advection adjustment
             END DO
          END DO
 
-         !WRITE( LOGDEV,'(/ 5X, A)' ) 'Density*Jacobian loaded into CGRID'
-
-
       END IF
 
       IF ( SPC_CAT .EQ. 'AE' ) THEN
          CALL LOG_SUBHEADING( LOGDEV, 'Check Aerosol IC Size Distributions' )
 
-         ! Check Aerosol Size Distributions and Warn the User if They Are Not Robust
+         ! Check Aerosol Size Distributions and Warn the User if They Are Not Robust.
+         ! Surface area is output from this routine consistent with the
+         ! specification in IC_AERO_M2WET.
          IF ( NEW_START ) THEN
            SPC_STRT = AE_STRT
            SPC_FINI = AE_STRT + N_AE_SPC - 1
-           LSTAT    = .FALSE.
+           L_WRITE_WARNING = .TRUE.
            DO L = 1, NLAYS
            DO R = 1, NROWS
            DO C = 1, NCOLS
               AECON( 1:N_AE_SPC ) = CGRID( C,R,L,SPC_STRT:SPC_FINI )
-              CALL CHECK_AERO_ICBC( AECON, .TRUE., STAT, AER_PAR, LMODE )
+              CALL CHECK_AERO_ICBC( AECON, IC_AERO_M2WET, IC_AERO_M2USE, 
+     &                              .FALSE., L_WRITE_WARNING, C,R,L )
               CGRID( C,R,L,SPC_STRT:SPC_FINI ) = AECON( 1:N_AE_SPC )
-              IF ( STAT .GT. 0 ) THEN
-                 LSTAT = .TRUE.
-#ifdef verbose_loadcgrid
-                 WRITE ( 6, '(7x,A55,I1,/,7x,A20,I1,A42,/,9x,A51,/,9x,A24,I3,2x,I3,2x,I2,/,
-     &                 9x,A19,1x,A3,8x,A2,8x,A2,8x,A2,8x,A2,/,
-     &                 27x,E8.1,1x,E8.1,1x,E8.1,1x,E8.1,4x,F4.1,/,
-     &                 9x,A19,1x,A3,8x,A2,8x,A2,8x,A2,8x,A2,/,
-     &                 27x,E8.1,1x,E8.1,1x,E8.1,1x,E8.1,4x,F4.1)'),
-     &               'Warning: Applying Aerosol Initial Conditions for mode ',LMODE,
-     &               'The Offending Mode (',LMODE,') had diameter and/or sigma out of bounds.',
-     &               'It was overwritten by changing the Num and SrfArea.',
-     &               'Grid Cell(Col,Row,Lay): ',C,R,L,
-     &               'Modal Props Before:','Num','M2','M3','Dg','Sg',(AER_PAR(1,LMODE,j),j=1,5),
-     &               'Modal Props After: ','Num','M2','M3','Dg','Sg',(AER_PAR(2,LMODE,j),j=1,5)
-#endif
-              ENDIF
            END DO
            END DO
            END DO
-
-           !Print warning if any aerosol ICs violated the size distribution parameters
-           IF ( LSTAT ) THEN    
-               WRITE( XMSG2, '(A)' ),
-     &            'ATTENTION: Applying fix to aerosol Initial' //
-     &            ' Conditions for aerosol modes.' //
-     &            ' Set verbose_loadcgrid preprocessor flag to' //
-     &            ' learn more.'
-               CALL LOG_MESSAGE( LOGDEV, XMSG2 )
-           END IF
          END IF
 
 C are ASO4J ICs available on the file?
 
          VNAME = 'ASO4J'
+#ifdef mpas
+         NDX = INDEX1( VNAME, n_ae_spc, ae_spc )
+#else
          NDX = INDEX1( VNAME, NVARS3D, VNAME3D )
+#endif
      
          IF ( NDX .EQ. 0 ) THEN  ! ASO4J not on file
 
