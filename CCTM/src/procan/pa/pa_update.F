@@ -32,10 +32,12 @@
       USE CENTRALIZED_IO_MODULE
       USE BUDGET_DEFN
 
+#ifndef mpas
 #ifdef parallel
       USE SE_MODULES            ! stenex (using SE_UTIL_MODULE, SE_DATA_COPY_MODULE)
 #else
       USE NOOP_MODULES          ! stenex (using NOOP_UTIL_MODULE, NOOP_DATA_COPY_MODULE)
+#endif
 #endif
  
       PUBLIC PA_UPDATE_PROC, PA_UPDATE_EMIS, PA_UPDATE_DDEP,

@@ -33,7 +33,9 @@ C    16 Feb 2011 S.Roselle: replaced I/O API include files with M3UTILIO
 C-----------------------------------------------------------------------
 
       USE RUNTIME_VARS
+#ifndef mpas
       USE M3UTILIO
+#endif
 
       IMPLICIT NONE
 
@@ -51,6 +53,7 @@ C-----------------------------------------------------------------------
 
       SUCCESS = .TRUE.
 
+#ifndef mpas
       IF ( FIRSTIME ) THEN
          FIRSTIME = .FALSE.
       END If
@@ -60,6 +63,7 @@ C-----------------------------------------------------------------------
          WRITE( LOGDEV,* ) XMSG
          SUCCESS = .FALSE.
       END IF
+#endif
 
       RETURN
       END FUNCTION WRITE3_DISTR

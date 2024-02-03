@@ -191,6 +191,7 @@
          WRITE( SJDATE, '(I7)' ) JDATE
          READ( SJDATE, '(4X, I3)' ) CJDATE
 
+#ifndef mpas
 !C Is lightning NO production inline, or from a file?
          CALL UPCASE(LTNG_FNAME)
          IF ( LTNG_FNAME .EQ. "INLINE" ) THEN  ! inline lightning NO production
@@ -336,6 +337,7 @@
 
 
          END IF   ! IF ( LTNG_FNAME .EQ. "INLINE" ) inline or offline lightning NO production
+#endif
 
          LTLYRS = DESID_LAYS
 
@@ -367,8 +369,12 @@
      &                                     ICCG_SUM,
      &                                     ICCG_WIN,
      &                                     LT_NAME
+#ifdef mpas
+         use util_module, only : time2sec, nextime, upcase
+#else
 #ifdef twoway
          USE twoway_data_module
+#endif
 #endif
          IMPLICIT NONE
 
@@ -421,6 +427,8 @@
          LOGICAL,     SAVE :: wrf_assim = .FALSE.
          INTEGER,     SAVE :: TOT_TSTEP
          LOGICAL,     SAVE :: FIRSTIME = .TRUE.
+
+         REAL :: LOC_VGTOP_GD
 
 C statement function for ERF approximation
          REAL              :: ERF                ! ERF approx. statement function
@@ -537,17 +545,23 @@ C statement function for ERF approximation
                   SUM_FRAC = 0.0
                   LTEMIS = 0.0   ! array assignment
 
+#ifdef mpas
+                  LOC_VGTOP_GD = 1000.0    ! for simplicity, we have decided to set VGTOP_GD to 1000.0
+#else
+                  LOC_VGTOP_GD = VGTOP_GD
+#endif
+
                   DO LAY = 1, LTLYRS
 
 !C Get pressures: Use SIGMA values and surface pres.
 !p=sigma*(psfc-ptop)+ptop
                      BOTTOM = ( VGLVSLT( LAY-1 )
-     &                      * ( LTNG_PRSFC( COL,ROW ) - VGTOP_GD )
-     &                      + VGTOP_GD ) * CONVPA
+     &                      * ( LTNG_PRSFC( COL,ROW ) - LOC_VGTOP_GD )
+     &                      + LOC_VGTOP_GD ) * CONVPA
 !                           write( logdev,* ) "bottom: ", bottom
                      TOP    = ( VGLVSLT( LAY )
-     &                      * ( LTNG_PRSFC( COL,ROW ) - VGTOP_GD )
-     &                      + VGTOP_GD ) * CONVPA
+     &                      * ( LTNG_PRSFC( COL,ROW ) - LOC_VGTOP_GD )
+     &                      + LOC_VGTOP_GD ) * CONVPA
 
 !C Find the bottom and top of each layer, and calculate the fraction 
 !C of the column emissions for that layer
@@ -611,6 +625,8 @@ C statement function for ERF approximation
               END IF
             END IF
 
+#ifdef mpas
+#else
 !C Write lightning NO to the diagnostic file
             IF ( LTNGDIAG .AND. .NOT. L_DESID_DIAG ) THEN 
                VDEMIS_LTDIAG = VDEMIS_LTDIAG + VDEMIS_LT   ! array assignment
@@ -641,6 +657,7 @@ C statement function for ERF approximation
                END IF ! LASTTIC
 
             END IF  ! diagnostics turned on
+#endif
 
          ELSE  ! LTNGO is not "InLine", but instead specifies a file
 

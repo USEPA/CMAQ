@@ -42,6 +42,9 @@ C=======================================================================
          USE BIOG_EMIS           ! from beis
          USE centralized_io_module, only : soilinp_setup
          USE MEGAN_GSPRO
+#ifdef mpas
+         USE utilio_defn
+#endif
 
          IMPLICIT NONE
 
@@ -93,10 +96,14 @@ C biogenics to gas-phase species map
             END IF
 
 #ifdef mpas
-           call soilinp_setup
-#endif
-            CALL M3MSG2( XMSG )
+            call mio_setfile ('GR_EMIS_001')
 
+             call mio_fcreate ('MEGAN_OUTPUT',512 ) ! 512 means clobber+netcdf64
+          if (BDSNP_MEGAN) then
+             call mio_fcreate ('BDSNPOUT',512 ) ! 512 means clobber+netcdf64
+             call mio_fcreate ('BDSNP_DIAG',512 ) ! 512 means clobber+netcdf64
+          end if
+#endif
          END IF
 
          SUCCESS = .TRUE.; RETURN
@@ -152,16 +159,30 @@ C=======================================================================
 
          INTEGER, SAVE :: MGN_IHR       ! current simulation hour
          INTEGER          MGN_NDX       ! RAINFALL array timestep index
-#ifndef mpas 
 !        Calculate cell area. 
 !        Could be removed in favor of DESID changes
          REAL  DX1, DX2                            ! grid-cell width and length
-         REAL  CELL_AREA                            ! grid-cell area [m2]
+         REAL, ALLOCATABLE :: LOC_CELL_AREA(:,:)   ! grid-cell area [m2]
+         REAL  :: LOC_MSFX2(NCOLS,NROWS)
+         INTEGER :: STAT
 
+         if (.not. allocated(loc_cell_area)) then
+            allocate (loc_cell_area(ncols, nrows), stat=stat)
+         end if
+
+#ifdef mpas 
+         loc_msfx2 = 1.0
+         loc_cell_area = cell_area
+         !output_step   = time2sec(tstep(1))
+         !half_syn_step = time2sec(tstep(2)) / 2
          JDAY   = FLOAT( MOD( JDATE, 1000 ) )
          JYEAR  = FLOAT( JDATE / 1000  )       
          CURRHR = REAL ( TIME2SEC( JTIME ) ) / 3600.0
-         LAYERS = 5  ! canopy layers
+#else
+         JDAY   = FLOAT( MOD( JDATE, 1000 ) )
+         JYEAR  = FLOAT( JDATE / 1000  )       
+         CURRHR = REAL ( TIME2SEC( JTIME ) ) / 3600.0
+
          ! *** Get length and width of each grid cell
          IF ( GDTYP_GD .EQ. LATGRD3 ) THEN
             DX1 = DG2M * XCELL_GD ! in m
@@ -173,8 +194,11 @@ C=======================================================================
             DX2 = YCELL_GD        ! in m
          END IF
 
-         CELL_AREA = DX1 * DX2
+         LOC_CELL_AREA = DX1 * DX2
+         loc_msfx2 = msfx2
 #endif
+         non_dimgarma = 0.
+         LAYERS = 5  ! canopy layers
 
 
          ! This option is only included for users who wish to confirm
@@ -200,7 +224,7 @@ C=======================================================================
 
 ! MEGAN_HRNO is here so we have rainfall/pulse/PRECADJ, temp and radiation 
 ! for prev 24 hrs. Also used to get save daily LAI.
-          precadj=0 
+          precadj=0. 
           CALL MEGAN_HRNO( JDATE, JTIME, TSTEP, L_DESID_DIAG,PRECADJ)
 
 ! SOIL NITROGEN CALCULATION
@@ -241,9 +265,18 @@ C=======================================================================
         end if
 ! Units for use by EMIS_DEFN.F via vdemis_me: [moles/s/m2]
          do i=1,NMGNSPC
-           vdemis_me(i,:,:) = out_to_cmaq(i,:,:)*cell_area/msfx2
+           vdemis_me(i,:,:) = out_to_cmaq(i,:,:)*loc_cell_area/loc_msfx2
          end do
 
+#ifdef mpas
+             call mio_time_format_conversion (jdate, jtime, time_stamp)
+           IF (L_DESID_DIAG) THEN
+                do i=1,NMGNSPC
+                   call mio_fwrite('MEGAN_OUTPUT',trim(MEGAN_NAMES(i)), pname,
+     &                             out_to_cmaq(i,:,1),time_stamp)
+                end do
+             END IF
+#endif
 
          RETURN
          END SUBROUTINE GET_MEGAN

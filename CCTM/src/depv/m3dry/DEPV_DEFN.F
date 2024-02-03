@@ -457,6 +457,10 @@ C-----------------------------------------------------------------------
          USE DEPVVARS
          USE UTILIO_DEFN
          USE ASX_DATA_MOD, Only: GRID_DATA !, MOSAIC_DATA
+#ifdef mpas
+         Use util_module, only : time2sec, nextime, currstep
+         use mio_module
+#endif
 
          IMPLICIT NONE
 
@@ -494,6 +498,9 @@ C Local variables:
          INTEGER C, R, N, V, NDX, J
 
          LOGICAL, SAVE :: FIRSTIME = .TRUE.
+
+         CHARACTER (20) :: TIME_STAMP
+         integer :: year, month, day, hour, minute
 
 #ifdef Verbose
          integer cw, rw
@@ -663,6 +670,9 @@ C-----------------------------------------------------------------------
 
             IF ( WRITE_TIME ) THEN
 
+#ifdef mpas
+               call mio_time_format_conversion (wdate, wtime, time_stamp)
+#else
 #ifdef parallel_io
                IF ( FIRSTIME ) THEN
                   FIRSTIME = .FALSE.
@@ -676,6 +686,7 @@ C-----------------------------------------------------------------------
                   END IF
 
                END IF
+#endif
 #endif
 
                N = 0
@@ -691,12 +702,17 @@ C-----------------------------------------------------------------------
                         END DO
                      END DO
                      
+#ifdef mpas
+                     call mio_fwrite (CTM_DEPV_DIAG, UNIQUE_GDEPV( NDX), pname,
+     &                                real(DBUFF(:,1), 4), TIME_STAMP)
+#else
+
                      IF ( .NOT. WRITE3( CTM_DEPV_DIAG, UNIQUE_GDEPV( NDX ),
      &                                  WDATE, WTIME, DBUFF ) ) THEN
                          XMSG = 'Could not write ' // CTM_DEPV_DIAG // ' file'
                          CALL M3EXIT ( PNAME, WDATE, WTIME, XMSG, XSTAT1 )
                      END IF
-
+#endif
                   END IF
 
                END DO
@@ -712,11 +728,16 @@ C-----------------------------------------------------------------------
                            DBUFF( C,R ) = 100.0 * DEPV( N+N_AE_DEPV,C,R )   ! cm/sec
                         END DO
                      END DO
+#ifdef mpas
+                     call mio_fwrite (CTM_DEPV_DIAG, UNIQUE_GDEPV( NDX), pname,
+     &                                real(DBUFF(:,1), 4), TIME_STAMP)
+#else
                      IF ( .NOT. WRITE3( CTM_DEPV_DIAG, UNIQUE_GDEPV( NDX ),
      &                                  WDATE, WTIME, DBUFF ) ) THEN
                          XMSG = 'Could not write ' // CTM_DEPV_DIAG // ' file'
                          CALL M3EXIT ( PNAME, WDATE, WTIME, XMSG, XSTAT1 )
                      END IF
+#endif
 
                   END IF
 
@@ -731,11 +752,16 @@ C-----------------------------------------------------------------------
                         DBUFF( C,R ) = 100.0 * ADEPV( NDX,C,R )   ! cm/sec
                      END DO
                   END DO
+#ifdef mpas
+                  call mio_fwrite (CTM_DEPV_DIAG, UNIQUE_ADEPV( N ), pname,
+     &                             real(DBUFF(:,1), 4), TIME_STAMP)
+#else
                   IF ( .NOT. WRITE3( CTM_DEPV_DIAG, UNIQUE_ADEPV( N ),
      &                               WDATE, WTIME, DBUFF ) ) THEN
                       XMSG = 'Could not write ' // CTM_DEPV_DIAG // ' file'
                       CALL M3EXIT ( PNAME, WDATE, WTIME, XMSG, XSTAT1 )
                   END IF
+#endif
 
                END DO
 

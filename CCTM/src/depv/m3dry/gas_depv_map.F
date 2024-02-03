@@ -28,6 +28,9 @@ C----------------------------------------------------------------------
       USE CGRID_SPCS            ! CGRID mechanism species
       USE DEPVVARS
       USE UTILIO_DEFN
+#ifdef mpas
+      USE util_module, only : index1
+#endif
 
       IMPLICIT NONE
 

@@ -288,7 +288,7 @@
         end subroutine get_env_logical
 
 ! --------------------------------------------------------------------------------
-        subroutine get_envlist ( env_var, nvars, val_list, logdev )
+        subroutine get_envlist ( env_var, nvars, val_list, in_logdev )
 
 ! get a list env var (quoted string of items delimited by white space,
 ! commas or semi-colons) and parse out the items into variables. Two data
@@ -310,10 +310,14 @@
 ! 17 Jun 2016 J.Young: IOAPI's envgets.c BUFLEN has been increased to 10000.
 ! 20 Jun 2016 J.Young: Forget IOAPI's envgets.c: use Fortran GETENV
 
+#ifndef mpas
+          use utilio_defn
+#endif
+
           character( * ),  intent ( in )  :: env_var
           integer,         intent ( out ) :: nvars
           character( 16 ), intent ( out ) :: val_list( : )
-          integer, intent(in), optional :: logdev
+          integer, intent(in), optional :: in_logdev
 
           integer             :: max_len
           character( 16 )     :: pname = 'GET_ENVLIST'
@@ -326,8 +330,8 @@
 
           integer :: loc_logdev
  
-          if (present(logdev)) then
-             loc_logdev = logdev
+          if (present(in_logdev)) then
+             loc_logdev = in_logdev
           else
              loc_logdev = 6
           end if
@@ -338,7 +342,9 @@
 
           if ( env_var .eq. " " ) then
              xmsg = 'Environment variable ' // env_var // ' not set'
+#ifndef mpas
              call m3warn( pname, 0, 0, xmsg )
+#endif
              nvars = 0
              return
           end if
@@ -358,7 +364,9 @@
           ip = ip + 1
           if ( ip .gt. max_len ) then
              xmsg = 'Environment variable value too long'
+#ifndef mpas
              call m3exit( pname, 0, 0, xmsg, 2 )
+#endif
           end if
           chr = e_val( ip:ip )
           if ( chr .ne. ' ' .and.    &
