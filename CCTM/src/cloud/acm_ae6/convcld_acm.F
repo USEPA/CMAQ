@@ -178,8 +178,6 @@ C...........Arguments
       INTEGER, INTENT( IN )    :: JDATE
       INTEGER, INTENT( IN )    :: JTIME
       INTEGER, INTENT( IN )    :: TSTEP( 3 )
-      INTEGER, INTENT( IN )    :: N_SPC_WDEP
-      INTEGER, INTENT( IN )    :: WDEP_MAP( : )
 
 #ifdef mpas
       integer, save :: mpas_cmaq_freq

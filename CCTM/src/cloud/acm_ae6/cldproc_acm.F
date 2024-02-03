@@ -144,7 +144,6 @@ C...........Local Variables
       REAL, ALLOCATABLE, SAVE :: RESTRANS( :,: )   ! resolved cloud transmissivity
       REAL, ALLOCATABLE, SAVE :: SUBTRANS( :,:,: ) ! subgrid cloud transmissivity
 
-      REAL FAC                       ! temp conversion factor
       REAL CCMIN
 #ifdef mpas
       CHARACTER (20) :: TIME_STAMP               ! this is for mpas
