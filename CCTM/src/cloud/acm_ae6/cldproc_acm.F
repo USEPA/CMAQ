@@ -444,8 +444,7 @@ C...convert units on cgrid and pass data to local cgrd array
            ! Aerosol Surface Area: m2 m-3 -> m2 / mol air
            IF ( CGRID_MASK_NUM( I ) .OR.
      &          CGRID_MASK_SRF( I )  ) THEN
-             FAC( :,:,LAY ) = CNV2 / DENS( :,:,LAY )
-             CGRD( :,:,LAY,I) = MAX( CGRID( :,:,LAY, I )*FAC(:,:,LAY),1.0E-30 )
+             CGRD( :,:,LAY,I) = MAX( CGRID( :,:,LAY, I )*FAC1(:,:,LAY),1.0E-30 )
 #ifdef sens
              DO NP = 1, NPMAX
                 IF ( CGRD( :,:,LAY,I ) .LE. 1.0E-30 ) THEN
