@@ -115,9 +115,6 @@ C...........Arguments:
       INTEGER, INTENT( IN )    :: TSTEP( 3 )       ! model time steps, coded HHMMSS
       REAL,    INTENT( INOUT ) :: DEP( :,:,: )     ! wet deposition
       REAL,    INTENT( OUT )   :: RESTRANS( :,: )  ! resolved cloud transmissivity
-#ifdef isam
-      REAL,    INTENT( INOUT ) :: SA_DEP( :,:,:,: )
-#endif
 
       CHARACTER( 120 ) :: XMSG  = ' '    ! Exit status message
 

@@ -413,12 +413,14 @@ C...convert units on cgrid and pass data to local cgrd array
      &          CGRID_MASK_TRAC( I ) ) THEN
              CGRD( :, :, LAY, I ) = MAX( CGRID( :, :, LAY, I ) * 1.0E-6,  1.0E-36 )
 #ifdef sens
-             DO NP = 1, NPMAX
-               IF ( CGRD( :,:, LAY, I ) .LE. 1.0E-30 ) THEN
-                 SENGRID( :,:,LAY,NP,I ) = 0.0
-               ELSE
-                 SENGRID( :,:,LAY,NP,I ) = SENGRID( :,:,LAY,NP,I ) * 1.0E-6
-               END IF
+             DO ROW = 1,NROWS
+               DO COL = 1,NCOLS
+                 IF ( CGRD( COL,ROW, LAY, I ) .LE. 1.0E-30 ) THEN
+                   SENGRID( COL,ROW,LAY,:,I ) = 0.0
+                 ELSE
+                   SENGRID( COL,ROW,LAY,:,I ) = SENGRID( COL,ROW,LAY,:,I ) * 1.0E-6
+                 END IF
+               END DO
              END DO
 #endif
            END IF
@@ -430,12 +432,15 @@ C...convert units on cgrid and pass data to local cgrd array
              FAC( :,:,LAY ) = CNV1 / DENS( :,:,LAY) / CGRID_MW( I )
              CGRD( :,:,LAY,I ) = MAX( CGRID( :,:,LAY,I )*FAC(:,:,LAY), 1.0E-30 )
 #ifdef sens
-             DO NP = 1, NPMAX
-                IF ( CGRD( :,:,LAY,I ) .LE. 1.0E-30 ) THEN
-                   SENGRID( :,:,LAY,NP,I ) = 0.0
-                ELSE
-                   SENGRID( :,:,LAY,NP,I ) = FAC(:,:,LAY) * SENGRID( :,:,LAY,NP,I )
-                ENDIF
+             DO ROW = 1,NROWS
+               DO COL = 1,NCOLS
+                 IF ( CGRD( COL,ROW,LAY,I ) .LE. 1.0E-30 ) THEN
+                   SENGRID( COL,ROW,LAY,:,I ) = 0.0
+                 ELSE
+                   SENGRID( COL,ROW,LAY,:,I ) = FAC(COL,ROW,LAY) *
+     &                                          SENGRID( COL,ROW,LAY,:,I )
+                 ENDIF
+               END DO
              END DO
 #endif
            END IF
@@ -446,12 +451,15 @@ C...convert units on cgrid and pass data to local cgrd array
      &          CGRID_MASK_SRF( I )  ) THEN
              CGRD( :,:,LAY,I) = MAX( CGRID( :,:,LAY, I )*FAC1(:,:,LAY),1.0E-30 )
 #ifdef sens
-             DO NP = 1, NPMAX
-                IF ( CGRD( :,:,LAY,I ) .LE. 1.0E-30 ) THEN
-                   SENGRID( :,:,LAY,NP,I ) = 0.0
-                ELSE
-                   SENGRID( :,:,LAY,NP,I ) = FAC1(:,:,LAY) * SENGRID( :,:,LAY,NP,I )
-                ENDIF
+             DO ROW = 1,NROWS
+               DO COL = 1,NCOLS
+                 IF ( CGRD( COL,ROW,LAY,I ) .LE. 1.0E-30 ) THEN
+                    SENGRID( COL,ROW,LAY,:,I ) = 0.0
+                 ELSE
+                    SENGRID( COL,ROW,LAY,:,I ) = FAC1(COL,ROW,LAY) * 
+     &                                            SENGRID( COL,ROW,LAY,:,I )
+                 ENDIF
+               END DO
              END DO
 #endif
            END IF
@@ -728,7 +736,7 @@ c ISAM  unit conversion
 
         IF ( VAR .EQ. RHOJ_LOC ) CYCLE    ! RHOJ 
 
-        IF ( VAR .LE. N_GC_SPC .OR. VAR .GE. NR_STRT ) THEN ! this is not an aerosol
+        IF ( .NOT. CGRID_MASK_AERO( VAR ) ) THEN ! this is not an aerosol
           DO ITAG = 1, NTAG_SA
             DO LAY = 1, NLAYS
               DO ROW = 1, NROWS
@@ -743,11 +751,12 @@ c ISAM  unit conversion
           END DO
         ELSE ! this is an aerosol
           DO ITAG = 1, NTAG_SA
+            FAC(:,:,:) = CNV1I * DENS( :,:,: ) * CGRID_MW( VAR )
             DO LAY = 1, NLAYS
               DO ROW = 1, NROWS
                 DO COL = 1, NCOLS
-                  FAC = CNV1I * DENS( COL, ROW, LAY ) * AE_MOLWT( VAR - AE_STRT + 1 )
-                  ISAM( COL,ROW,LAY,SPC, ITAG ) = ISAM( COL,ROW,LAY,SPC,ITAG ) * FAC
+                  ISAM( COL,ROW,LAY,SPC,ITAG ) = ISAM( COL,ROW,LAY,SPC,ITAG ) * 
+     &                                           FAC( COL,ROW,LAY )
                   IF ( ISAM( COL,ROW,LAY,SPC, ITAG ) .LT. 1.0E-18 ) THEN
                     ISAM( COL,ROW,LAY,SPC, ITAG ) = 0.0
                   END IF
