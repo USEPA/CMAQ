@@ -171,7 +171,7 @@ setenv USE_MEGAN_LAI N       #> use separate LAI input file [ default: N ]
 setenv BDSNP_MEGAN N         #> turns on BDSNP soil NO emissions [ default: N ]
 
 setenv AEROSOL_OPTICS 3      #> sets method for determining aerosol optics affecting photolysis
-                             #> frequencies
+                             #> frequencies ( 3 is the default value )
                              #>  VALUES 1 thru 3 determined Uniformly Volume Mixed spherical
                              #>      (1-Tabular Mie; 2-Mie Calculation; 3-Case Approx to Mie Theory)
                              #>  VALUES 4 thru 6 attempts to use core-shell mixing model when the
