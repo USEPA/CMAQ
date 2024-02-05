@@ -7,7 +7,7 @@
        REAL( 8 ), PUBLIC :: CPU_TIME_DELTA2 = 0.0D0 ! Timing individual
        REAL( 8 ), PUBLIC :: CPU_TIME_DELTA3 = 0.0D0 ! Timing individual
        
-       public fast_mieaer, aero_optics_tabular
+       public fast_mieaer_modal, aero_optics_tabular
        
 !      integer, private :: logdev
 
@@ -307,14 +307,6 @@
 
        
 ! fetch the effficiencies at zero point
-!       qalfip_e = 0.0
-!       qalfip_s = 0.0
-!       gsalfp   = 0.0
-!       qalfim_e = 0.0
-!       qalfim_s = 0.0
-!       gsalfm   = 0.0
-!       bscoef   = 0.0
-       
         call fast_mieaer_modal( mie_volume_parameter,crefin,qalfip_e,qalfip_s,gsalfp,bscoef )
        
        sum_e  = wxi * qalfip_e
@@ -370,7 +362,6 @@
      &                          WAVELENGTH => EFFWL_REF, FIRST_DAY => NEW_START
 
          use get_env_module
-!!!!!!   USE bhmie_routine
         
         IMPLICIT NONE
 !***********************************************************************
@@ -488,9 +479,6 @@
          real, allocatable, save :: cpsback2p(:)                      
 
          real(8) :: thesize        ! 2 pi radpart / waveleng = size parameter
-
-!           specabs = absorption coeff / unit dry mass
-!           specscat = scattering coeff / unit dry mass
 
          complex(8)       :: crefin,crefd
          complex(8), save :: crefw
@@ -686,8 +674,6 @@
      &                qextr4( nsize ),
      &                    rs( nsize ) )          
             
-!              allocate( p2(nsize),p3(nsize),p4(nsize),p5(nsize) )
-!              allocate( p6(nsize),p7(nsize) )
           
 !         calibrate parameterization with range of refractive indices 
 
@@ -779,88 +765,6 @@
                  close(mie_unit)
             End If
 
-!! For checking mie_table
-!
-!         allocate( Modal_Tables_Check( N_MODE ) )
-!
-!           write(logdev,'(a)')'reading existing MIE_TABLE'
-!           write(6,'(a)')'reading existing MIE_TABLE'
-!           mie_unit = get_free_iounit()
-!           open(unit=mie_unit,file=trim(mie_table),form='FORMATTED',status='OLD')
-!           read(mie_unit,'(a)')msg
-!           read(mie_unit,'(a)')msg
-!           read(mie_unit,'(2(es12.4,1x))')refrmin_check,refimin_check
-!           read(mie_unit,'(a)')msg
-!           read(mie_unit,'(es12.4,1x,es12.4)')refrmax_check,refimax_check
-!           read(mie_unit,'(a)')msg
-!           read(mie_unit,'(i4,1x,i4)')nrefr_check,nrefi_check
-!           read(mie_unit,'(a)')msg
-!           read(mie_unit,'(3(es16.7,1x))')Modal_Tables_Check(1:n_mode)%rmin
-!           read(mie_unit,'(a)')msg
-!           read(mie_unit,'(3(es16.7,1x))'),Modal_Tables_Check(1:n_mode)%rmax
-!           read(mie_unit,'(a)')msg
-!           read(mie_unit,'(i4)')ncoef_check
-!
-!            do ns = 1,n_mode
-!               Modal_Tables_Check(ns)%nradii = nsizes(ns)
-!               Modal_Tables_Check(ns)%bma    =0.5*log(Modal_Tables_Check(ns)%rmax/Modal_Tables_Check(ns)%rmin)
-!               Modal_Tables_Check(ns)%bpa    =0.5*log(Modal_Tables_Check(ns)%rmax*Modal_Tables_Check(ns)%rmin)
-!               Modal_Tables_Check(ns)%xrmin  =log(Modal_Tables_Check(ns)%rmin)
-!               Modal_Tables_Check(ns)%xrmax  =log(Modal_Tables_Check(ns)%rmax)
-!               allocate( Modal_Tables_Check(ns)%extp   (ncoef,nrefr,nrefi),      
-!     &                   Modal_Tables_Check(ns)%albp   (ncoef,nrefr,nrefi),   
-!     &                   Modal_Tables_Check(ns)%asmp   (ncoef,nrefr,nrefi),   
-!     &                   Modal_Tables_Check(ns)%ascat  (ncoef,nrefr,nrefi),  
-!     &                   Modal_Tables_Check(ns)%sback2p(ncoef,nrefr,nrefi) )
-!            end do
-!
-!            allocate( refrtab_check(nrefr),
-!     &                refitab_check(nrefi))
-!     
-!            drefr_check=(refrmax_check-refrmin_check)
-!            if(drefr_check.gt.1.e-4)then
-!               drefr_check=drefr_check/(nrefr_check-1)
-!            endif
-!            
-!            drefi=(refimax-refimin)
-!            if(drefi.gt.1.e-4)then
-!               drefi_check=drefi_check/(nrefi_check-1)
-!            endif
-!            
-!            reciprocal_drefr_check  = 1.0/drefr_check
-!            reciprocal_drefi_check  = 1.0/drefi_check
-!            reciprocal_drefri_check = reciprocal_drefr_check * reciprocal_drefi_check
-!
-!            do ni=1,nrefi
-!              do nr=1,nrefr
-!                refrtab_check(nr)=refrmin_check+(nr-1)*drefr_check
-!                refitab_check(ni)=refimin_check+(ni-1)*drefi_check
-!                read(mie_unit,'(a)')msg
-!                read(mie_unit,'(a)')msg
-!                do nc = 1,ncoef
-!                   read(mie_unit,'(21(es16.7,1x))')
-!     &             (Modal_Tables_Check(imode)%extp(nc,nr,ni),
-!     &              Modal_Tables_Check(imode)%ascat(nc,nr,ni),
-!     &              Modal_Tables_Check(imode)%asmp(nc,nr,ni),
-!     &              Modal_Tables_Check(imode)%sback2p(nc,nr,ni),imode=1,n_mode)
-!                end do
-!               end do
-!            end do 
-!            close(mie_unit)
-!
-!            do ns = 1,n_mode
-!               Modal_Tables_Check(ns)%bma   = Modal_Tables_Check(ns)%bma  -Modal_Tables(ns)%bma  
-!               Modal_Tables_Check(ns)%bpa   = Modal_Tables_Check(ns)%bpa  -Modal_Tables(ns)%bpa  
-!               Modal_Tables_Check(ns)%xrmin = Modal_Tables_Check(ns)%xrmin-Modal_Tables(ns)%xrmin
-!               Modal_Tables_Check(ns)%xrmax = Modal_Tables_Check(ns)%xrmax-Modal_Tables(ns)%xrmax
-!               Modal_Tables_Check(ns)%extp    = Modal_Tables_Check(ns)%extp   -Modal_Tables(ns)%extp   
-!               Modal_Tables_Check(ns)%albp    = Modal_Tables_Check(ns)%albp   -Modal_Tables(ns)%albp   
-!               Modal_Tables_Check(ns)%asmp    = Modal_Tables_Check(ns)%asmp   -Modal_Tables(ns)%asmp   
-!               Modal_Tables_Check(ns)%ascat   = Modal_Tables_Check(ns)%ascat  -Modal_Tables(ns)%ascat  
-!               Modal_Tables_Check(ns)%sback2p = Modal_Tables_Check(ns)%sback2p-Modal_Tables(ns)%sback2p
-!            end do
-!
-!! end for checking
             deallocate( qext,
      &                  qsca,
      &                  gqsc  )
@@ -874,9 +778,6 @@
            
         else ! read table from ascii file     
 
-!           write(logdev,'(i4,1x,a)')MyPe,'reading existing MIE_TABLE'
-!          write(6,'(i4,1x,a)')MyPe,'reading existing MIE_TABLE'
-           
            inquire( file=trim(mie_table),exist=exists)
            if( .not. exists )then
               msg = 'Mie Lookup Table, ' // trim(mie_table)
