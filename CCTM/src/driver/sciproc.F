@@ -229,7 +229,7 @@ C-----------------------------------------------------------------------
       IF ( MYPE .EQ. 0 ) CALL LOG_MESSAGE( OUTDEV, XMSG )
       CALL LOG_MESSAGE( LOGDEV, XMSG )
 
-      ! Calculate Virtical Diffusion, Dry Deposition, and Emissions
+      ! Calculate Vertical Diffusion, Dry Deposition, and Emissions
       CALL VDIFF ( CGRID, JDATE, JTIME, TSTEP )
       IF ( CKSUM ) CALL CKSUMMER ( 'VDIFF', CGRID, JDATE, JTIME )
 #ifndef mpas
