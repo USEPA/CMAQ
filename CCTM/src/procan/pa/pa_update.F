@@ -596,7 +596,6 @@ C..get density x jacobian and layer heights
 
       REAL :: TXADV  ( MY_PACOLS,MY_PAROWS,PALEVS )  ! Computed emission rate
       REAL :: TYADV  ( MY_PACOLS,MY_PAROWS,PALEVS )  ! Computed emission rate
-      REAL,ALLOCATABLE,SAVE :: RHOJ   ( :,:,: )  ! Computed emission rate
 
       INTEGER :: IPRV
       INTEGER :: ICG, ISPC, IPRSPC, ISV
@@ -605,8 +604,6 @@ C..get density x jacobian and layer heights
 
       IF ( FIRSTIME ) THEN 
           FIRSTIME = .FALSE.
-          ALLOCATE( RHOJ( NCOLS,NROWS,NLAYS ),STAT=ASTAT )
-          CALL CHECKMEM( ASTAT, 'RHOJ', 'PA_UPDATE_HADV' )
       END IF
 
       ! Load scalars in local array 
