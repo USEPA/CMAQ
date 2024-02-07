@@ -112,7 +112,7 @@ C...........INCLUDES and their descriptions
 
 C...........PARAMETERS and their descriptions:
 
-      INTEGER, PARAMETER :: MXSPCS = 275     ! Number of substances
+      INTEGER, PARAMETER :: MXSPCS = 276     ! Number of substances
       INTEGER, PARAMETER :: MXDSPCS = 19     ! Number of dissociating species
 
 C...pointers for the dissociation constants (array B and D)
@@ -425,7 +425,7 @@ C...  Atmospheric Chemistry and Physics, 1997
       DATA SUBNAME(243), A(243), E(243) / 'MCTOPERA        ', 5.80E+03, 0.0E+00 /   ! CRACMM RepCmp value (OPERA SAR)
       DATA SUBNAME(244), A(244), E(244) / 'FURANONEOPERA   ', 7.87E+04, 0.0E+00 /   ! CRACMM RepCmp value (OPERA SAR)
       DATA SUBNAME(245), A(245), E(245) / 'IPCOPERA        ', 1.55E+07, 0.0E+00 /   ! CRACMM RepCMP value (OPERA SAR)
-      DATA SUBNAME(246), A(246), E(246) / 'NALDOPERA       ', 1.00E+05, 0.0E+00 /   ! CRACMM RepCMP value (OPERA SAR)
+      DATA SUBNAME(246), A(246), E(246) / 'IPNOPERA        ', 4.69E+04, 0.0E+00 /   ! CRACMM RepCMP value (OPERA SAR)
       DATA SUBNAME(247), A(247), E(247) / 'VROCN2OXY2OPERA ', 1.15E+05, 0.0E+00 /   ! CRACMM RepCMP value (OPERA SAR)
       DATA SUBNAME(248), A(248), E(248) / 'VROCN2OXY4OPERA ', 9.71E+05, 0.0E+00 /   ! CRACMM RepCMP value (OPERA SAR)
       DATA SUBNAME(249), A(249), E(249) / 'VROCN2OXY8OPERA ', 3.80E+06, 0.0E+00 /   ! CRACMM RepCMP value (OPERA SAR)
@@ -455,6 +455,7 @@ C...  Atmospheric Chemistry and Physics, 1997
       DATA SUBNAME(273), A(273), E(273) / 'STYOPERA        ', 3.89E-01, 0.0E+00 /   ! CRACMM RepCmp value (OPERA SAR)
       DATA SUBNAME(274), A(274), E(274) / 'EBZOPERA        ', 1.27E-01, 4.0E+03 /   ! O-xylene T dep from Staudinger and Roberts 1996, CRACMM RepCmp (OPERA SAR)
       DATA SUBNAME(275), A(275), E(275) / 'XYLOPERA        ', 0.14E+00, 0.0E+00 /   ! CRACMM RepCmp value (OPERA SAR)
+      DATA SUBNAME(276), A(266), E(266) / 'NALDOPERA       ', 1.00E+05, 0.0E+00 /   ! CRACMM RepCMP value (OPERA SAR)
 
       DATA B( LSO2   ), D( LSO2   ) / 1.30E-02,  1.96E+03 /  ! SO2*H2O<=>HSO3+H     : Smith and Martell (1976)
       DATA B( LHSO3  ), D( LHSO3  ) / 6.60E-08,  1.50E+03 /  ! HSO3<=>SO3+H         : Smith and Martell (1976)
