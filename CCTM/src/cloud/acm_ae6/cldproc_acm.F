@@ -454,7 +454,7 @@ C...convert units on cgrid and pass data to local cgrd array
                  IF ( CGRD( COL,ROW,LAY,I ) .LE. 1.0E-30 ) THEN
                     SENGRID( COL,ROW,LAY,:,I ) = 0.0
                  ELSE
-                    SENGRID( COL,ROW,LAY,:,I ) = FAC1(COL,ROW,LAY) * 
+                    SENGRID( COL,ROW,LAY,:,I ) = FAC(COL,ROW,LAY) * 
      &                                            SENGRID( COL,ROW,LAY,:,I )
                  ENDIF
                END DO
