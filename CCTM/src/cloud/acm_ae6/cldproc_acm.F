@@ -137,7 +137,6 @@ C...........Local Variables
 
       REAL, ALLOCATABLE, SAVE :: CGRD   ( :,:,:,: )! concentrations
       REAL, ALLOCATABLE, SAVE :: DENS    ( :,:,: ) ! air density (kg/m3)
-      REAL, ALLOCATABLE, SAVE :: FAC1    ( :,:,: ) ! conversion factor
       REAL, ALLOCATABLE, SAVE :: FAC     ( :,:,: ) ! conversion factor
       REAL, ALLOCATABLE, SAVE :: CONV_DEP( :,:,: ) ! convective wdep only
       REAL, ALLOCATABLE, SAVE :: TOT_DEP ( :,:,: ) ! total wdep
@@ -246,10 +245,9 @@ C...initialize the deposition array before processing clouds
            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
         END IF
         
-        ALLOCATE ( FAC1( NCOLS,NROWS,NLAYS ), 
-     &             FAC( NCOLS,NROWS,NLAYS ), STAT = ALLOCSTAT )
+        ALLOCATE ( FAC( NCOLS,NROWS,NLAYS ), STAT = ALLOCSTAT )
         IF ( ALLOCSTAT .NE. 0 ) THEN
-           XMSG = 'Failure allocating FAC1 conversion factor'
+           XMSG = 'Failure allocating FAC conversion factor'
            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
         END IF
         
@@ -400,7 +398,6 @@ Ckrt deposition arrays for tagged species.....
       MTIME = JTIME
 
       call interpolate_var ('DENS', mdate, mtime, DENS)  ! kg m-3
-      FAC1( :,:,: ) = MWAIR_SI / DENS( :,:,: )           ! m3 mol-1
       CGRD = CGRID
 
 C...convert units on cgrid and pass data to local cgrd array
@@ -430,7 +427,7 @@ C...convert units on cgrid and pass data to local cgrd array
      &           .NOT. CGRID_MASK_NUM( I ) .AND.
      &           .NOT. CGRID_MASK_SRF( I )  ) THEN
              FAC( :,:,LAY ) = CNV1 / DENS( :,:,LAY) / CGRID_MW( I )
-             CGRD( :,:,LAY,I ) = MAX( CGRID( :,:,LAY,I )*FAC(:,:,LAY), 1.0E-30 )
+             CGRD( :,:,LAY,I ) = FAC(:,:,LAY) * MAX( CGRID( :,:,LAY,I ),1.0E-30/FAC(:,:,LAY) )
 #ifdef sens
              DO ROW = 1,NROWS
                DO COL = 1,NCOLS
@@ -449,7 +446,8 @@ C...convert units on cgrid and pass data to local cgrd array
            ! Aerosol Surface Area: m2 m-3 -> m2 / mol air
            IF ( CGRID_MASK_NUM( I ) .OR.
      &          CGRID_MASK_SRF( I )  ) THEN
-             CGRD( :,:,LAY,I) = MAX( CGRID( :,:,LAY, I )*FAC1(:,:,LAY),1.0E-30 )
+             FAC(:,:,LAY) = CNV2 / DENS(:,:,LAY)
+             CGRD( :,:,LAY,I) = FAC(:,:,LAY) * MAX( CGRID( :,:,LAY, I ),1.0E-30/FAC(:,:,LAY) )
 #ifdef sens
              DO ROW = 1,NROWS
                DO COL = 1,NCOLS
@@ -489,7 +487,7 @@ c                 ENDIF
             END DO
           END DO
         ELSE ! this is an aerosol
-          FAC(:,:,:) = FAC1(:,:,:) * 1.0E-6 / AE_MOLWT( VAR - AE_STRT + 1 )
+          FAC(:,:,:) = CNV1 / DENS(:,:,:) / CGRID_MW( VAR ) 
           DO ITAG = 1, NTAG_SA
             DO LAY = 1, NLAYS
               DO ROW = 1, NROWS
@@ -704,11 +702,11 @@ C...  convert to ppmV gas
            IF ( CGRID_MASK_AERO( I ) .AND.
      &           .NOT. CGRID_MASK_NUM( I ) .AND.
      &           .NOT. CGRID_MASK_SRF( I )  ) THEN
-            FAC(:,:,LAY) = CNV1I * DENS( :,:,LAY ) * CGRID_MW( I )
-            CGRID( :,:,LAY,I ) = CGRD( :,:,LAY,I ) * FAC(:,:,LAY) 
+            FAC(:,:,LAY) = CNV1I * DENS( :,:,LAY )
+            CGRID( :,:,LAY,I ) = FAC(:,:,LAY) * CGRD( :,:,LAY,I ) * CGRID_MW(I)
 #ifdef sens
              DO NP = 1, NPMAX
-               SENGRID( :,:,LAY,NP,I ) = SENGRID( :,:,LAY,NP,I ) * FAC(:,:,LAY)
+               SENGRID( :,:,LAY,NP,I ) = FAC(:,:,LAY) * SENGRID( :,:,LAY,NP,I ) * CGRID_MW(I)
              END DO
 #endif
            END IF
@@ -718,10 +716,10 @@ C...  convert to ppmV gas
            IF ( CGRID_MASK_NUM( I ) .OR.
      &          CGRID_MASK_SRF( I )  ) THEN
              FAC(:,:,LAY) = CNV2I * DENS( :,:,LAY )
-             CGRID( :,:,LAY,I ) = CGRD( :,:,LAY,I ) * FAC(:,:,LAY)
+             CGRID( :,:,LAY,I ) = FAC(:,:,LAY) * CGRD( :,:,LAY,I )
 #ifdef sens
              DO NP = 1, NPMAX
-               SENGRID( :,:,LAY,NP,I ) = SENGRID( :,:,LAY,NP,I ) / FAC1(:,:,LAY)
+               SENGRID( :,:,LAY,NP,I ) = FAC(:,:,LAY) * SENGRID( :,:,LAY,NP,I )
              END DO
 #endif
            END IF
