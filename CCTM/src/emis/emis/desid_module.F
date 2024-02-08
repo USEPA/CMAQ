@@ -2821,15 +2821,18 @@ C and allowing the model to proceed.
                            JRGN = DESID_FAC( ISTR,ISRM )%REG( JFAC )
                            ! If region IRGN and JRGN are connected (i.e. one is a subregion of
                            ! the other) then the final_fac should account for JFAC
-                           IF ( IFAC .EQ. JFAC .OR. DESID_REG_SUB( IRGN,JRGN ) 
+                           IF ( IRGN .EQ. JRGN .OR. DESID_REG_SUB( IRGN,JRGN ) 
      &                                         .OR. DESID_REG_SUB( JRGN,IRGN ) ) THEN
                               
                              ! Decide how to modify FAC to account for JFAC
                              IF ( DESID_FAC( ISTR,ISRM )%OP(JFAC) .EQ. 1 ) THEN
+                                 ! Add Factor (a)
                                  FAC = FAC + DESID_FAC( ISTR,ISRM )%FAC( JFAC )
                              ELSE IF ( DESID_FAC( ISTR,ISRM )%OP(JFAC) .EQ. 2 ) THEN
+                                 ! Multiply Factor (m)
                                  FAC = FAC * DESID_FAC( ISTR,ISRM )%FAC( JFAC )
                              ELSE IF ( DESID_FAC( ISTR,ISRM )%OP(JFAC) .EQ. 3 ) THEN
+                                 ! Overwrite Factor (o)
                                  FAC = DESID_FAC( ISTR,ISRM )%FAC( JFAC )
                              END IF
                            END IF
