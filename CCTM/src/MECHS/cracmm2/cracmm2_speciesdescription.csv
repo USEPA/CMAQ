@@ -60,8 +60,9 @@ HONIT,Second generation monoterpene nitrates
 HONO,Nitrous acid 
 IEPOX,isoprene epoxydiols 
 IEPOXP,IEPOX intermediate (tracking species)
+INALD,Isoprene nitrates
 INO2,Isoprene nitrate-derived peroxy radicals
-IPC,Isoprene-derived hydroperoxyenals (HPALD)
+IPX,Isoprene tetrafunctional compounds
 ISHP,Beta-hydroxy hydroperoxides from ISOP+HO2
 ISO,Isoprene 
 ISON,Beta-hydroxyalkylnitrates from ISOP+NO alkylnitrates from ISO+NO3
@@ -91,7 +92,6 @@ MPAN,Peroxymethacryloylnitrate and other higher peroxyacylnitrates from isoprene
 MVK,Methyl vinyl ketone
 MVKP,Peroxy radicals formed from MVK
 N2O5,Dinitrogen pentoxide 
-NALD,Nitrooxyacetaldehyde 
 NAPH,Naphthalene and other PAHs
 NAPHP,Peroxy radicals from NAPH oxidation
 NO,Nitric oxide 
@@ -211,8 +211,8 @@ APOC,Primary organic carbon (legacy)
 APNCOM,Primary non-carbon organic matter (legacy)
 AISO3NOS,Non-sulfated SOA from IEPOX uptake
 AISO3OS,Organosulfate SOA from IEPOX uptake
-AISO4,Multifunctional product from heterogeneous uptake of IPC
-AISO5,Multifunctional product from heterogeneous uptake of NALD
+AISO4,Multifunctional product from heterogeneous uptake of IPX
+AISO5,Multifunctional product from heterogeneous uptake of INALD
 NUM,Number of particles
 SRF,Surface area of particles
 ATRPN,SOA from TRPN

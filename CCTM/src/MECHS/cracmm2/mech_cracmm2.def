@@ -329,22 +329,22 @@ REACTIONS[CM] =
                                        + 0.03*MACR
                                        + 2.0*HO
                                        + 0.34*HO2
-                                       + 0.14*IPC
+                                       + 0.14*IPX
                                        + CO           # 2.97E-11 @ -390;
-<RAM08> INO2 + HO2         = 0.45*HO   + 0.95*NALD
-                                       + 0.02*IPC     # 3.14E-11 @ -580;
-<RAM09> INO2 + NO          = 0.15*MVK  + 0.65*NALD
+<RAM08> INO2 + HO2         = 0.45*HO   + 0.95*INALD
+                                       + 0.02*IPX     # 3.14E-11 @ -580;
+<RAM09> INO2 + NO          = 0.15*MVK  + 0.65*INALD
                                        + 0.05*ISON
                                        + 0.2*HCHO
                                        + 1.3*NO2      # 9.42E-12 @ -580;
-<RAM10> ISON + HO          = HO        + 0.35*NALD
+<RAM10> ISON + HO          = HO        + 0.35*INALD
                                        + 0.17*IEPOX
                                        + 0.65*NO2     # 2.4E-11 @ -390;
-<RAM11> HO + NALD          = 1.0*CO    + NO2
+<RAM11> HO + INALD          = 1.0*CO    + NO2
                                        + 0.3*HO2
                                        + HCHO         # 1.50E-11;
 <RAM12> ISON               = 1.0*HNO3                 # 4E-5;
-<RAM13> IPC + HO           = 0.57*MACR + 0.43*MVK     # 3E-12;
+<RAM13> IPX + HO           = 0.57*MACR + 0.43*MVK     # 3E-12;
 ! end AMORE isoprene chemistry
 
 <R087>  API  + HO          = 0.975*APIP1 + 0.025*APIP2  # 1.21E-11 @ -440.;
@@ -1644,8 +1644,8 @@ REACTIONS[CM] =
 <HET_IEPOXOS> IEPOXP + ASO4J   = AISO3OSJ  # 1.0~<HETERO_ISO3OSJ>;
 
 ! AMORE Heterogeneous reactions
-<HET_IPC>     IPC  = AISO4J              # 2.0~<HETERO_IEPOX>;
-<HET_NALD>    NALD = AISO5J + HNO3       # 0.5~<HETERO_IEPOX>;
+<HET_IPX>     IPX  = AISO4J              # 2.0~<HETERO_IEPOX>;
+<HET_INALD>   INALD = AISO5J + HNO3      # 0.5~<HETERO_IEPOX>;
 
 !<HET_IEPOX> IEPOX = AISO3J  # 1.0~<HETERO_IEPOX>;
 

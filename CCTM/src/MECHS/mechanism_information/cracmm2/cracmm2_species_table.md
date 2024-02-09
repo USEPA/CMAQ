@@ -24,8 +24,8 @@ AH3OP|Hydronium ion tracer|P|19.0|E|Hydronium ion|[\[OH3+\]](https://comptox.epa
 AHONIT|SOA from HONIT|P|265.0||NA|
 AISO3NOS|Non-sulfated SOA from IEPOX uptake|P|136.2|L|2-methylbutane-1,2,3,4-tetrol|C\(O\)C\(O\)\(C\)C\(O\)CO
 AISO3OS|Organosulfate SOA from IEPOX uptake|P|216.2|L|(1,3,4-trihydroxy-2-methylbutan-2-yl)oxysulfonic acid|C\(O\)C\(OS\(O\)\(=O\)\(=O\)\)\(C\)C\(O\)CO
-AISO4|Multifunctional product from heterogeneous uptake of IPC|P|168.1|L|4-hydroperoxy-3-methylbutane-1,1,2,3-tetrol|CC\(O\)\(COO\)C\(O\)C\(O\)O
-AISO5|Multifunctional product from heterogeneous uptake of NALD|P|150.1|L|2-hydroperoxy-3,4-dihydroxy-3-methylbutanal|CC\(O\)\(CO\)C\(OO\)C=O
+AISO4|Multifunctional product from heterogeneous uptake of IPX|P|168.1|L|4-hydroperoxy-3-methylbutane-1,1,2,3-tetrol|CC\(O\)\(COO\)C\(O\)C\(O\)O
+AISO5|Multifunctional product from heterogeneous uptake of INALD|P|150.1|L|2-hydroperoxy-3,4-dihydroxy-3-methylbutanal|CC\(O\)\(CO\)C\(OO\)C=O
 AK|Potassium ion|P|39.1|E|Potassium ion|[\[K+\]](https://comptox.epa.gov/dashboard/chemical/details/DTXSID9042671)
 ALD|C3 and higher aldehydes|G|58.0|L|Propanal|[CCC=O](https://comptox.epa.gov/dashboard/chemical/details/DTXSID2021658)
 AMG|Magnesium ion|P|24.3|E|Magnesium ion|\[Mg++\]
@@ -98,8 +98,9 @@ HONIT|Second generation monoterpene nitrates|G|265.0|L|2-(3-hydroperoxy-4,5-dihy
 HONO|Nitrous acid |G|47.0|E|Nitrous acid|[N\(=O\)O](https://comptox.epa.gov/dashboard/chemical/details/DTXSID7064813)
 IEPOX|isoprene epoxydiols |G|118.1|E|Isoprene epoxydiol|OCC1OC1\(C\)CO
 IEPOXP|IEPOX intermediate (tracking species)|G|118.1||NA|
+INALD|Isoprene nitrates|G|195.1|L|2-hydroperoxy-4-hydroxy-3-methyl-3-(nitrooxy)butanal|CC\(CO\)\(O\[N+\]\(=O\)O\)C\(C=O\)OO
 INO2|Isoprene nitrate-derived peroxy radicals|G|162.1|L|[(2E)-3-methyl-4-(nitrooxy)but-2-en-1-yl]peroxy|C/C\(=C\CO\[O\]\)CON\(=O\)=O
-IPC|Isoprene-derived hydroperoxyenals (HPALD)|G|150.1|L|3-(1-hydroperoxy-2-hydroxypropan-2-yl)oxiran-2-ol|CC\(O\)\(COO\)C1OC1O
+IPX|Isoprene tetrafunctional compounds|G|150.1|L|3-(1-hydroperoxy-2-hydroxypropan-2-yl)oxiran-2-ol|CC\(O\)\(COO\)C1OC1O
 ISHP|Beta-hydroxy hydroperoxides from ISOP+HO2|G|118.0|L|2-hydroperoxy-2-methylbut-3-en-1-ol|C=CC\(OO\)\(CO\)C
 ISO|Isoprene |G|68.1|E|Isoprene|[CC\(=C\)C=C](https://comptox.epa.gov/dashboard/chemical/details/DTXSID2020761)
 ISON|Beta-hydroxyalkylnitrates from ISOP+NO alkylnitrates from ISO+NO3|G|147.0|L|2-methyl-2-(nitrooxy)but-3-en-1-ol|OCC\(C\)\(C=C\)ON\(=O\)=O
@@ -129,7 +130,6 @@ MPAN|Peroxymethacryloylnitrate and other higher peroxyacylnitrates from isoprene
 MVK|Methyl vinyl ketone|G|70.1|E|Methyl vinyl ketone|[CC\(=O\)C=C](https://comptox.epa.gov/dashboard/chemical/details/DTXSID3025671)
 MVKP|Peroxy radicals formed from MVK|G|119.0|L|(2-hydroxy-3-oxobutyl)peroxy|CC\(=O\)C\(O\)CO\[O\]
 N2O5|Dinitrogen pentoxide |G|108.0|E|Dinitrogen pentoxide|[\[N+\]\(=O\)\(\[O-\]\)O\[N+\]\(=O\)\[O-\]](https://comptox.epa.gov/dashboard/chemical/details/DTXSID90143672)
-NALD|Nitrooxyacetaldehyde |G|195.1|L|2-hydroperoxy-4-hydroxy-3-methyl-3-(nitrooxy)butanal|CC\(CO\)\(O\[N+\]\(=O\)O\)C\(C=O\)OO
 NAPH|Naphthalene and other PAHs|G|128.17|L|Naphthalene|[C1=CC2=CC=CC=C2C=C1](https://comptox.epa.gov/dashboard/chemical/details/DTXSID8020913)
 NAPHP|Peroxy radicals from NAPH oxidation|G|209.17|L|{8-hydroxy-10,11-dioxatricyclo[7.2.1.0^{2,7}]dodeca-2,4,6-trien-12-yl}peroxy|C12=CC=CC=C1C3OOC\(C3O\[O\]\)C2\(O\)
 NH3|Ammonia|G|17.0|E|Ammonia|[N](https://comptox.epa.gov/dashboard/chemical/details/DTXSID0023872)

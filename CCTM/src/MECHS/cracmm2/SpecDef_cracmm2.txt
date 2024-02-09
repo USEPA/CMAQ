@@ -65,11 +65,11 @@ NO              ,ppbV      ,1000.0*NO[1]
 NO2             ,ppbV      ,1000.0*NO2[1]
 NOX             ,ppbV      ,1000.0*(NO[1] + NO2[1])
 ANO3_PPB        ,ppbV      ,(ANO3I[1]+ANO3J[1]+ANO3K[1])/(DENS[2]*(62.0/28.97))
-NTR             ,ppbV       ,1000.0*(ONIT[1]+ISON[1]+NALD[1]+IPC[1]+TRPN[1]+HONIT[1]), organic nitrates
+NTR             ,ppbV       ,1000.0*(ONIT[1]+ISON[1]+INALD[1]+IPX[1]+TRPN[1]+HONIT[1]), organic nitrates
 PANS            ,ppbV      ,1000.0*(PAN[1]+PPN[1]+MPAN[1])
 NOY             ,ppbV      ,1000.0*(NO[1]+NO2[1]+NO3[1]+2*N2O5[1]+HONO[1] \
                                    +HNO3[1]+HNO4[1]+PAN[1]+PPN[1]+MPAN[1] \
-                                   +ISON[1]+NALD[1]+IPC[1]+TRPN[1]+ONIT[1]) \
+                                   +ISON[1]+INALD[1]+IPX[1]+TRPN[1]+ONIT[1]) \
                                    +HONIT[1]+ANO3_PPB[0]
 O3              ,ppbV      ,1000.0*O3[1]
 SO2             ,ppbV      ,1000.0*SO2[1]
@@ -152,7 +152,7 @@ VROC             ,ppbC      ,1000.0*(2.0*ACD[1]+2.0*ACE[1] \
                                     +8.0*XYL[1]+8.0*EBZ[1]+8.0*STY[1] \         \
                                     +2.0*PAA[1]+2.0*PAN[1]+3.0*PPN[1]+4.0*MPAN[1] \  
                                     +4.0*ONIT[1]+5.0*ISON[1] \
-                                    +5.0*NALD[1]+5.0*IPC[1]+10.0*TRPN[1]+10.0*HONIT[1] ) \ 
+                                    +5.0*INALD[1]+5.0*IPX[1]+10.0*TRPN[1]+10.0*HONIT[1] ) \ 
                                     +LSIVROC[0] ,
 !-------------------------------------------!
 !--------------- Particles -----------------!

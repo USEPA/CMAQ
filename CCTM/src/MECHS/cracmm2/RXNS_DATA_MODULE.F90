@@ -6,7 +6,7 @@
 
 
 ! --------- Photochemical Mechanism Reactions, Rates, etc. DAT ---------
-! Source file: /work/MOD3DEV/tskipper/cracmm_hcho/20240119_run_chemmech_cracmm2/UTIL/chemmech/input/cracmm2/mech_cracmm2.def
+! Source file: /work/MOD3DEV/tskipper/cracmm_hcho/20240209_build_testing/UTIL/chemmech/input/cracmm2/mech_cracmm2.def
 ! for Mechanism Name: CRACMM2                         
 
 ! This file is used to create mechanism data and functions
@@ -181,8 +181,8 @@
       DATA GAS_CHEM_SPC(  77 ) / 'ISOP            ' /
       DATA GAS_CHEM_SPC(  78 ) / 'ISHP            ' /
       DATA GAS_CHEM_SPC(  79 ) / 'IEPOX           ' /
-      DATA GAS_CHEM_SPC(  80 ) / 'IPC             ' /
-      DATA GAS_CHEM_SPC(  81 ) / 'NALD            ' /
+      DATA GAS_CHEM_SPC(  80 ) / 'IPX             ' /
+      DATA GAS_CHEM_SPC(  81 ) / 'INALD           ' /
       DATA GAS_CHEM_SPC(  82 ) / 'API             ' /
       DATA GAS_CHEM_SPC(  83 ) / 'APIP1           ' /
       DATA GAS_CHEM_SPC(  84 ) / 'APIP2           ' /
@@ -390,8 +390,8 @@
       & MEMBER("ISOP            ",   75, "GC",  117.00D0, F), &
       & MEMBER("ISHP            ",  108, "GC",  118.00D0, F), &
       & MEMBER("IEPOX           ",  109, "GC",  118.10D0, F), &
-      & MEMBER("IPC             ",  119, "GC",  150.10D0, F), &
-      & MEMBER("NALD            ",  116, "GC",  195.10D0, F), &
+      & MEMBER("IPX             ",  119, "GC",  150.10D0, F), &
+      & MEMBER("INALD           ",  116, "GC",  195.10D0, F), &
       & MEMBER("API             ",   76, "GC",  136.40D0, F), &
       & MEMBER("APIP1           ",   77, "GC",  185.00D0, F), &
       & MEMBER("APIP2           ",   78, "GC",  185.00D0, F), &
@@ -580,8 +580,8 @@
       DATA CHEMISTRY_SPC(  78 ), SPECIES_MOLWT(  78 ) / 'ISOP            ',  117.00D0 /
       DATA CHEMISTRY_SPC(  79 ), SPECIES_MOLWT(  79 ) / 'ISHP            ',  118.00D0 /
       DATA CHEMISTRY_SPC(  80 ), SPECIES_MOLWT(  80 ) / 'IEPOX           ',  118.10D0 /
-      DATA CHEMISTRY_SPC(  81 ), SPECIES_MOLWT(  81 ) / 'IPC             ',  150.10D0 /
-      DATA CHEMISTRY_SPC(  82 ), SPECIES_MOLWT(  82 ) / 'NALD            ',  195.10D0 /
+      DATA CHEMISTRY_SPC(  81 ), SPECIES_MOLWT(  81 ) / 'IPX             ',  150.10D0 /
+      DATA CHEMISTRY_SPC(  82 ), SPECIES_MOLWT(  82 ) / 'INALD           ',  195.10D0 /
       DATA CHEMISTRY_SPC(  83 ), SPECIES_MOLWT(  83 ) / 'API             ',  136.40D0 /
       DATA CHEMISTRY_SPC(  84 ), SPECIES_MOLWT(  84 ) / 'APIP1           ',  185.00D0 /
       DATA CHEMISTRY_SPC(  85 ), SPECIES_MOLWT(  85 ) / 'APIP2           ',  185.00D0 /
@@ -771,8 +771,8 @@
       DATA CGRID_INDEX(  78 ), SPECIES_TYPE(  78 ), CONVERT_CONC(  78 ) /   75, 'GC', F /  ! ISOP
       DATA CGRID_INDEX(  79 ), SPECIES_TYPE(  79 ), CONVERT_CONC(  79 ) /  108, 'GC', F /  ! ISHP
       DATA CGRID_INDEX(  80 ), SPECIES_TYPE(  80 ), CONVERT_CONC(  80 ) /  109, 'GC', F /  ! IEPOX
-      DATA CGRID_INDEX(  81 ), SPECIES_TYPE(  81 ), CONVERT_CONC(  81 ) /  119, 'GC', F /  ! IPC
-      DATA CGRID_INDEX(  82 ), SPECIES_TYPE(  82 ), CONVERT_CONC(  82 ) /  116, 'GC', F /  ! NALD
+      DATA CGRID_INDEX(  81 ), SPECIES_TYPE(  81 ), CONVERT_CONC(  81 ) /  119, 'GC', F /  ! IPX
+      DATA CGRID_INDEX(  82 ), SPECIES_TYPE(  82 ), CONVERT_CONC(  82 ) /  116, 'GC', F /  ! INALD
       DATA CGRID_INDEX(  83 ), SPECIES_TYPE(  83 ), CONVERT_CONC(  83 ) /   76, 'GC', F /  ! API
       DATA CGRID_INDEX(  84 ), SPECIES_TYPE(  84 ), CONVERT_CONC(  84 ) /   77, 'GC', F /  ! APIP1
       DATA CGRID_INDEX(  85 ), SPECIES_TYPE(  85 ), CONVERT_CONC(  85 ) /   78, 'GC', F /  ! APIP2
@@ -964,8 +964,8 @@
       INTEGER :: INDEX_ISOP        =   78
       INTEGER :: INDEX_ISHP        =   79
       INTEGER :: INDEX_IEPOX       =   80
-      INTEGER :: INDEX_IPC         =   81
-      INTEGER :: INDEX_NALD        =   82
+      INTEGER :: INDEX_IPX         =   81
+      INTEGER :: INDEX_INALD       =   82
       INTEGER :: INDEX_API         =   83
       INTEGER :: INDEX_APIP1       =   84
       INTEGER :: INDEX_APIP2       =   85
@@ -6901,7 +6901,7 @@
      &    'HET_GLY         ', 'HET_MGLY        ', 'HET_N2O5        ', & ! 0   
      &    'HET_NO2         ', 'HET_HO2         ', 'HET_NO3         ', & ! 1   
      &    'HAL_Ozone       ', 'HET_IEPOX       ', 'HET_ISO3TET     ', & ! 2   
-     &    'HET_IEPOXOS     ', 'HET_IPC         ', 'HET_NALD        ', & ! 3   
+     &    'HET_IEPOXOS     ', 'HET_IPX         ', 'HET_INALD       ', & ! 3   
      &    'ROCALK1c        ', 'ROCALK2c        ', 'ROCALK3c        ', & ! 4   
      &    'ROCALK4c        ', 'ROCALK5c        ', 'ROCALK6c        ', & ! 5   
      &    'HC1001          ', 'ROCALK7c        ', 'ROCALK8c        ', & ! 6   

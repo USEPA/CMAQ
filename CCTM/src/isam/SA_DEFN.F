@@ -613,7 +613,7 @@ c----------------------------------------------------------
      &    'EBZ       ','ELHOM     ','EOH       ','ETE       ','ETEG      ',
      &    'ETH       ','FURAN     ','FURANONE  ','GLY       ','HOM       ',
      &    'HC3       ','HC5       ','HC10      ','HCHO      ','HKET      ',
-     &    'HONIT     ','IEPOX     ','ISHP      ','IPC       ','ISO       ',
+     &    'HONIT     ','IEPOX     ','ISHP      ','IPX       ','ISO       ',
      &    'KET       ','LIM       ','LIMAL     ','MACR      ','MAHP      ',
      &    'MCT       ','MEK       ','MGLY      ','MOH       ','MVK       ',
      &    'NAPH      ','OLI       ','OLT       ','OP1       ','OP2       ',
@@ -700,7 +700,7 @@ c----------------------------------------------------------
         ALLOCATE( ISAM_SPEC_NO3( 9 )%LIST( 27 ) )
         ISAM_SPEC_NO3( 9 )%LIST = (/   'HNO3 ','NO   ','NO2  ','NO3  ','HONO ',
      &         'N2O5 ','PAN  ','HNO4 ','ONIT ','MPAN ','PPN  ','ISON ','TRPN ',
-     &         'NALD ','ACO3 ','MO2  ','HC3P ','HC5P ','HC10P','KETP ','ISOP ',
+     &         'INALD','ACO3 ','MO2  ','HC3P ','HC5P ','HC10P','KETP ','ISOP ',
      &         'ETHP ','RCO3 ','XYLP ','TR2  ','BENP ','ETEP '/ )
         
         !PRESCRIBE SPECIES RELEVANT FOR ASSIGNING BIAS TO VOCs

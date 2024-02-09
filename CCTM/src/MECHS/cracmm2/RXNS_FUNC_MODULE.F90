@@ -1206,9 +1206,9 @@
              RKI( NCELL,  429) =  BLKHET(  NCELL, IK_HETERO_ISO3NOSJ )
 !  Reaction Label HET_IEPOXOS     
              RKI( NCELL,  430) =  BLKHET(  NCELL, IK_HETERO_ISO3OSJ )
-!  Reaction Label HET_IPC         
+!  Reaction Label HET_IPX         
              RKI( NCELL,  431) =   2.0000D+00 * BLKHET( NCELL, IK_HETERO_IEPOX )
-!  Reaction Label HET_NALD        
+!  Reaction Label HET_INALD       
              RKI( NCELL,  432) =   5.0000D-01 * BLKHET( NCELL, IK_HETERO_IEPOX )
 !  Reaction Label ROCALK1c        
              RKI( NCELL,  433) =   1.5300D-11 * CFACT 
@@ -1757,8 +1757,8 @@
              INDEX_ISOP        = IOLD2NEW( INDEX_ISOP       , 1 )
              INDEX_ISHP        = IOLD2NEW( INDEX_ISHP       , 1 )
              INDEX_IEPOX       = IOLD2NEW( INDEX_IEPOX      , 1 )
-             INDEX_IPC         = IOLD2NEW( INDEX_IPC        , 1 )
-             INDEX_NALD        = IOLD2NEW( INDEX_NALD       , 1 )
+             INDEX_IPX         = IOLD2NEW( INDEX_IPX        , 1 )
+             INDEX_INALD       = IOLD2NEW( INDEX_INALD      , 1 )
              INDEX_API         = IOLD2NEW( INDEX_API        , 1 )
              INDEX_APIP1       = IOLD2NEW( INDEX_APIP1      , 1 )
              INDEX_APIP2       = IOLD2NEW( INDEX_APIP2      , 1 )

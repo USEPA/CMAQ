@@ -27,7 +27,7 @@ C  PRECONDITIONS: For the CRACMM2 mechanism
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, Jan 30, 2024
+C  REVISION HISTORY: Created by EBI solver program, Feb  9, 2024
 C
 C***********************************************************************
       USE HRDATA
@@ -153,9 +153,9 @@ C..NOTE: RXRAT commented out are not referenced by any routine
       RXRAT(     97 ) = RKI(    97 ) * YC(  INO2 ) * YC(  HO2 )
       RXRAT(     98 ) = RKI(    98 ) * YC(  INO2 ) * YC(  NO )
       RXRAT(     99 ) = RKI(    99 ) * YC(  ISON ) * YC(  HO )
-      RXRAT(    100 ) = RKI(   100 ) * YC(  HO ) * YC(  NALD )
+      RXRAT(    100 ) = RKI(   100 ) * YC(  HO ) * YC(  INALD )
       RXRAT(    101 ) = RKI(   101 ) * YC(  ISON )
-      RXRAT(    102 ) = RKI(   102 ) * YC(  IPC ) * YC(  HO )
+      RXRAT(    102 ) = RKI(   102 ) * YC(  IPX ) * YC(  HO )
       RXRAT(    103 ) = RKI(   103 ) * YC(  API ) * YC(  HO )
       RXRAT(    104 ) = RKI(   104 ) * YC(  LIM ) * YC(  HO )
       RXRAT(    105 ) = RKI(   105 ) * YC(  PINAL ) * YC(  HO )
@@ -484,8 +484,8 @@ C..NOTE: RXRAT commented out are not referenced by any routine
       RXRAT(    428 ) = RKI(   428 ) * YC(  IEPOX )
       RXRAT(    429 ) = RKI(   429 ) * YC(  IEPOXP )
       RXRAT(    430 ) = RKI(   430 ) * YC(  IEPOXP ) * YC(  ASO4J )
-      RXRAT(    431 ) = RKI(   431 ) * YC(  IPC )
-      RXRAT(    432 ) = RKI(   432 ) * YC(  NALD )
+      RXRAT(    431 ) = RKI(   431 ) * YC(  IPX )
+      RXRAT(    432 ) = RKI(   432 ) * YC(  INALD )
       RXRAT(    433 ) = RKI(   433 ) * YC(  VROCP6ALK ) * YC(  HO )
       RXRAT(    434 ) = RKI(   434 ) * YC(  VROCP5ALK ) * YC(  HO )
       RXRAT(    435 ) = RKI(   435 ) * YC(  VROCP4ALK ) * YC(  HO )

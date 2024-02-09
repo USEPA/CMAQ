@@ -399,8 +399,8 @@ C                     ---------- - - - ------- ------- ---------- --------- ----
      & spcs_list_type('OSO4ICBC  ',T,T,T,cm_set,1800.0, '       ','       ',0.0  ,'NVL',F,T,  0,  0.0, 0.0,F, 'SOLUTE', 0.00), ! SO4 from ICBCs loss to organosulfate
      
       ! The following species are associated with CRACMM2
-     & spcs_list_type('AISO4   ',F,T,F, cm_set, 1400.0, '       ','       ',0.0  ,'NVL',F,F,  0,  2.8, 6.1,T, 'DUST  ', 0.21), ! from heterogeneous uptake of IPC
-     & spcs_list_type('AISO5   ',F,T,F, cm_set, 1400.0, '       ','       ',0.0  ,'NVL',F,F,  0,  2.8, 6.1,T, 'DUST  ', 0.18), ! from heterogeneous uptake of NALD
+     & spcs_list_type('AISO4   ',F,T,F, cm_set, 1400.0, '       ','       ',0.0  ,'NVL',F,F,  0,  2.8, 6.1,T, 'DUST  ', 0.21), ! from heterogeneous uptake of IPX
+     & spcs_list_type('AISO5   ',F,T,F, cm_set, 1400.0, '       ','       ',0.0  ,'NVL',F,F,  0,  2.8, 6.1,T, 'DUST  ', 0.18), ! from heterogeneous uptake of INALD
      & spcs_list_type('ATRPN   ',F,T,F, cm_set, 1400.0, '       ','       ',0.0  ,'REV',F,F,  0,  2.8, 6.1,T, 'DUST  ', 0.10), ! SOA from first generation monoterpene nitrate
      & spcs_list_type('AHONIT  ',F,T,F, cm_set, 1400.0, '       ','       ',0.0  ,'REV',F,F,  0,  2.8, 6.1,T, 'DUST  ', 0.14)  ! SOA from second generation monoterpene nitrate
      & /)                                                 
