@@ -28,6 +28,8 @@ DCB1,Unsaturated dicarbonyls
 DCB2,Unsaturated dicarbonyls
 DCB3,Unsaturated dicarbonyls
 EBZ,Ethylbenzene
+EBZP,Peroxy radicals from EBZ
+ECH4,Methane
 ELHOM,Extremely-low volatility highly oxygenated molecules from terpenes
 EOH,Ethanol
 ETE,ethene 
@@ -166,7 +168,9 @@ SESQ,Sesquiterpenes
 SESQNRO2,Peroxy radicals from SESQ reaction with nitrate radicals
 SESQRO2,Peroxy radicals from SESQ reaction with OH
 SLOWROC,Slowly reacting ROC with kOH< 3.5x10-13 cm3 s-1 
-SO2,Sulfur dioxide 
+SO2,Sulfur dioxide
+STY,Styrene
+STYP,Peroxy radicals from STY
 SULF,Sulfuric acid
 SULRXN,Precursor of Aerosol Sulfate (tracking species) 
 TOL,Toluene 
@@ -207,8 +211,8 @@ APOC,Primary organic carbon (legacy)
 APNCOM,Primary non-carbon organic matter (legacy)
 AISO3NOS,Non-sulfated SOA from IEPOX uptake
 AISO3OS,Organosulfate SOA from IEPOX uptake
-AISO4,Product from heterogeneous uptake of IPC
-AISO5,Product from heterogeneous uptake of NALD
+AISO4,Multifunctional product from heterogeneous uptake of IPC
+AISO5,Multifunctional product from heterogeneous uptake of NALD
 NUM,Number of particles
 SRF,Surface area of particles
 ATRPN,SOA from TRPN

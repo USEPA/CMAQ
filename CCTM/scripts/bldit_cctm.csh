@@ -113,8 +113,8 @@ set make_options = "-j"                #> additional options for make command if
 
  set ModGrid   = grid/cartesian             #> grid configuration module 
  
-#set DepMod    = m3dry                      #> m3dry or stage
- set DepMod    = stage
+ set DepMod    = m3dry                      #> m3dry or stage
+#set DepMod    = stage
  set ModAdv    = wrf_cons                   #> 3-D Advection Scheme [Options: wrf_cons (default), local_cons]
  set ModHdiff  = hdiff/multiscale           #> horizontal diffusion module
  set ModVdiff  = vdiff/acm2_${DepMod}       #> vertical diffusion module (see $CMAQ_MODEL/CCTM/src/vdiff)
@@ -131,7 +131,7 @@ set make_options = "-j"                #> additional options for make command if
  set ModPhot   = phot/inline                #> photolysis calculation module 
                                             #>     (see $CMAQ_MODEL/CCTM/src/phot)
 
- setenv Mechanism cracmm2              #> chemical mechanism (see $CMAQ_MODEL/CCTM/src/MECHS) 
+ setenv Mechanism cb6r5_ae7_aq              #> chemical mechanism (see $CMAQ_MODEL/CCTM/src/MECHS) 
  set ModMech   = MECHS/${Mechanism}
 
  if ( ${Mechanism} =~ *ae7* ) then          #> ae7 family of aero and cloud chem

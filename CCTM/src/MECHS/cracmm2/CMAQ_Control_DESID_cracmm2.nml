@@ -68,8 +68,9 @@
    'EVERYWHERE', 'ALL'         ,'BEN'    ,'BEN'         ,'GAS'  ,1.  ,'UNIT','a',
    'EVERYWHERE', 'ALL'         ,'CSL'    ,'CSL'         ,'GAS'  ,1.  ,'UNIT','a', 
    'EVERYWHERE', 'ALL'         ,'DCB1'   ,'DCB1'        ,'GAS'  ,1.  ,'UNIT','a',
-   'EVERYWHERE', 'ALL'         ,'EOH'    ,'EOH'         ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'EBZ'    ,'EBZ'         ,'GAS'  ,1.  ,'UNIT','a',
    'EVERYWHERE', 'ALL'         ,'ECH4'   ,'ECH4'        ,'GAS'  ,1.  ,'UNIT','a',
+   'EVERYWHERE', 'ALL'         ,'EOH'    ,'EOH'         ,'GAS'  ,1.  ,'UNIT','a', 
    'EVERYWHERE', 'ALL'         ,'ETE'    ,'ETE'         ,'GAS'  ,1.  ,'UNIT','a', 
    'EVERYWHERE', 'ALL'         ,'ETEG'   ,'ETEG'        ,'GAS'  ,1.  ,'UNIT','a', 
    'EVERYWHERE', 'ALL'         ,'ETH'    ,'ETH'         ,'GAS'  ,1.  ,'UNIT','a', 
@@ -101,15 +102,10 @@
    'EVERYWHERE', 'ALL'         ,'ROH'    ,'ROH'         ,'GAS'  ,1.  ,'UNIT','a', 
    'EVERYWHERE', 'ALL'         ,'SESQ'   ,'SESQ'        ,'GAS'  ,1.  ,'UNIT','a', 
    'EVERYWHERE', 'ALL'         ,'SLOWROC','SLOWROC'     ,'GAS'  ,1   ,'UNIT','a',
+   'EVERYWHERE', 'ALL'         ,'STY'    ,'STY'         ,'GAS'  ,1.  ,'UNIT','a',
    'EVERYWHERE', 'ALL'         ,'TOL'    ,'TOL'         ,'GAS'  ,1.  ,'UNIT','a', 
    'EVERYWHERE', 'ALL'         ,'UALD'   ,'UALD'        ,'GAS'  ,1.  ,'UNIT','a', 
-   'EVERYWHERE', 'ALL'         ,'XYM'    ,'XYL'         ,'GAS'  ,1.  ,'UNIT','a', 
-   'EVERYWHERE', 'ALL'         ,'XYE'    ,'XYL'         ,'GAS'  ,1.  ,'UNIT','a',  
-   ! Updated species for CRACMM2. Not currently used in emission input files but
-   ! will be in the future.
-!  'EVERYWHERE', 'ALL'         ,'XYL'    ,'XYL'         ,'GAS'  ,1.  ,'UNIT','a',
-!  'EVERYWHERE', 'ALL'         ,'EBZ'    ,'EBZ'         ,'GAS'  ,1.  ,'UNIT','a',
-!  'EVERYWHERE', 'ALL'         ,'STY'    ,'STY'         ,'GAS'  ,1.  ,'UNIT','a',
+   'EVERYWHERE', 'ALL'         ,'XYL'    ,'XYL'         ,'GAS'  ,1.  ,'UNIT','a',  
 
 
    ! Volatility resolved CRACMM gases (ignore in RACM2)

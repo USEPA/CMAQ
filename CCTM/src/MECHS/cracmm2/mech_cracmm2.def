@@ -115,13 +115,16 @@
 !    added one photolysis reaction (R014a), updated reaction products for R016 and R017
 !    updated photolysis rate coefficients for CH3COCH3, MEK, KET, ALD, HCHO
 !------------------------------------------------------------------------------
-! CRACMM2 modifications (N. Skipper, H. Pye)
+! CRACMM2 modifications (N. Skipper, H. Pye) (Skipper et al. in prep for ACP in 2024)
 ! - Updated AMORE isoprene condensation to AMORE v1.2 (Woods Wiser, Faye McNeill)
-! - Added ECH4 + HO reaction
-! - Added heterogeneous uptake of HO2 and NO3
-! - Updated monoterpene chemistry based on Schwantes et al. ACP 2020
-! - Updated monoterpene nitrate chemistry
-! - Added styrene (STY) chemistry
+! - Added ECH4 + HO reaction for emissions of CH4 above background
+! - Added heterogeneous uptake of HO2 and NO3 same as Zhu et al. 2024 ACP
+! - Updated monoterpene chemistry based on Schwantes et al. ACP 2020 and assuming
+!      API is 65/35 a-pinene/b-pinene in emissions
+! - Updated monoterpene nitrate chemistry to include second generation monoterpene
+!      nitrate, hydrolysis losses, and photolysis losses. Also revised chemical
+!      reaction products to include some NOx cycling.
+! - Added styrene (STY) chemistry based on MCM
 ! - Updated xylene (XYL) and ethylbenzene (EBZ) species names (no chemistry changes)
 !------------------------------------------------------------------------------ 
 CRACMM2

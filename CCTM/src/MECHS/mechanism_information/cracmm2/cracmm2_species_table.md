@@ -24,8 +24,8 @@ AH3OP|Hydronium ion tracer|P|19.0|E|Hydronium ion|[\[OH3+\]](https://comptox.epa
 AHONIT|SOA from HONIT|P|265.0||NA|
 AISO3NOS|Non-sulfated SOA from IEPOX uptake|P|136.2|L|2-methylbutane-1,2,3,4-tetrol|C\(O\)C\(O\)\(C\)C\(O\)CO
 AISO3OS|Organosulfate SOA from IEPOX uptake|P|216.2|L|(1,3,4-trihydroxy-2-methylbutan-2-yl)oxysulfonic acid|C\(O\)C\(OS\(O\)\(=O\)\(=O\)\)\(C\)C\(O\)CO
-AISO4|Product from heterogeneous uptake of IPC|P|168.1|L|4-hydroperoxy-3-methylbutane-1,1,2,3-tetrol|CC\(O\)\(COO\)C\(O\)C\(O\)O
-AISO5|Product from heterogeneous uptake of NALD|P|150.1|L|2-hydroperoxy-3,4-dihydroxy-3-methylbutanal|CC\(O\)\(CO\)C\(OO\)C=O
+AISO4|Multifunctional product from heterogeneous uptake of IPC|P|168.1|L|4-hydroperoxy-3-methylbutane-1,1,2,3-tetrol|CC\(O\)\(COO\)C\(O\)C\(O\)O
+AISO5|Multifunctional product from heterogeneous uptake of NALD|P|150.1|L|2-hydroperoxy-3,4-dihydroxy-3-methylbutanal|CC\(O\)\(CO\)C\(OO\)C=O
 AK|Potassium ion|P|39.1|E|Potassium ion|[\[K+\]](https://comptox.epa.gov/dashboard/chemical/details/DTXSID9042671)
 ALD|C3 and higher aldehydes|G|58.0|L|Propanal|[CCC=O](https://comptox.epa.gov/dashboard/chemical/details/DTXSID2021658)
 AMG|Magnesium ion|P|24.3|E|Magnesium ion|\[Mg++\]
@@ -65,8 +65,8 @@ DCB1|Unsaturated dicarbonyls|G|98.0|L|2-methylbut-2-enedial|O=CC=C\(C\)C=O
 DCB2|Unsaturated dicarbonyls|G|112.1|L|2-methyl-4-oxopent-2-enal|O=CC\(=CC\(=O\)C\)C
 DCB3|Unsaturated dicarbonyls|G|84.0|L|but-2-enedial|O=CC=CC=O
 EBZ|Ethylbenzene|G|106.2|L|Ethylbenzene|[CCC1=CC=CC=C1](https://comptox.epa.gov/dashboard/chemical/details/DTXSID3020596)
-EBZP||G|187.17|L|{5-ethyl-8-hydroxy-6,7-dioxabicyclo[3.2.1]oct-3-en-2-yl}peroxy|\[O\]OC1C=CC2\(CC\)OOC1C2O
-ECH4||G|16.0|E|Methane|[C](https://comptox.epa.gov/dashboard/chemical/details/DTXSID8025545)
+EBZP|Peroxy radicals from EBZ|G|187.17|L|{5-ethyl-8-hydroxy-6,7-dioxabicyclo[3.2.1]oct-3-en-2-yl}peroxy|\[O\]OC1C=CC2\(CC\)OOC1C2O
+ECH4|Methane|G|16.0|E|Methane|[C](https://comptox.epa.gov/dashboard/chemical/details/DTXSID8025545)
 ELHOM|Extremely-low volatility highly oxygenated molecules from terpenes|GP|402.0|L|6-hydroperoxy-7-({3-hydroxy-2,6,6-trimethylbicyclo[3.1.1]heptan-2-yl}peroxy)-3,3,6-trimethyl-tetrahydro-3aH-1,2-benzodioxol-5-ol|OC1CC2C\(OOC2\(C\)C\)C\(OOC3\(C\)C4C\(C\)\(C\)C\(C4\)CC3O\)C1\(C\)OO
 EOH|Ethanol|G|46.1|E|Ethanol|[CCO](https://comptox.epa.gov/dashboard/chemical/details/DTXSID9020584)
 ETE|ethene |G|28.1|E|Ethylene|[C=C](https://comptox.epa.gov/dashboard/chemical/details/DTXSID1026378)
@@ -208,10 +208,10 @@ SESQ|Sesquiterpenes |G|204.4|L|b-caryophyllene|[C/C1=C/CCC\(=C\)C2CC\(C\)\(C\)C2
 SESQNRO2|Peroxy radicals from SESQ reaction with nitrate radicals|G|298.4|L|[4,11,11-trimethyl-8-methylidene-5-(nitrooxy)bicyclo[7.2.0]undecan-4-yl]peroxy|\[O\]OC1\(C\)CCC2C\(CC2\(C\)C\)C\(=C\)CCC1O\[N+\]\(=O\)\[O-\]
 SESQRO2|Peroxy radicals from SESQ reaction with OH|G|253.4|L|{5-hydroxy-4,11,11-trimethyl-8-methylidenebicyclo[7.2.0]undecan-4-yl}peroxy|\[O\]OC1\(C\)CCC2C\(CC2\(C\)C\)C\(=C\)CCC1O
 SLOWROC|Slowly reacting ROC with k<sub>OH</sub>< 3.5x10<sup>-13</sup> cm<sup>3</sup> s<sup>-1</sup> |G|75.4|L|Hydrogen cyanide|[C#N](https://comptox.epa.gov/dashboard/chemical/details/DTXSID9024148)
-SO2|Sulfur dioxide |G|64.0|E|Sulfur dioxide|[O=S=O](https://comptox.epa.gov/dashboard/chemical/details/DTXSID6029672)
+SO2|Sulfur dioxide|G|64.0|E|Sulfur dioxide|[O=S=O](https://comptox.epa.gov/dashboard/chemical/details/DTXSID6029672)
 SRF|Surface area of particles|P|1.0|L|Surface area of particles|
-STY||G|104.0|E|Styrene|[C=CC1=CC=CC=C1](https://comptox.epa.gov/dashboard/chemical/details/DTXSID2021284)
-STYP||G|153.0|E|(2-hydroxy-2-phenylethyl)peroxy|\[O\]OCC\(O\)C1=CC=CC=C1
+STY|Styrene|G|104.0|E|Styrene|[C=CC1=CC=CC=C1](https://comptox.epa.gov/dashboard/chemical/details/DTXSID2021284)
+STYP|Peroxy radicals from STY|G|153.0|E|(2-hydroxy-2-phenylethyl)peroxy|\[O\]OCC\(O\)C1=CC=CC=C1
 SULF|Sulfuric acid|G|98.0|E|Sulfuric acid|[OS\(=O\)\(=O\)O](https://comptox.epa.gov/dashboard/chemical/details/DTXSID5029683)
 SULRXN|Precursor of Aerosol Sulfate (tracking species) |G|98.0||NA|
 TOL|Toluene |G|92.14|E|Toluene|[CC1=CC=CC=C1](https://comptox.epa.gov/dashboard/chemical/details/DTXSID7021360)

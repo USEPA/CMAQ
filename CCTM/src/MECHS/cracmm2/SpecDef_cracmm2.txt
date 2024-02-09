@@ -97,7 +97,9 @@ ISOPRENE        ,ppbV      ,1000.0*ISO[1],            isoprene is ISO in RACM2
 FORMALDEHYDE    ,ppbV      ,1000.0*HCHO[1],           formaldehyde is HCHO RACM2
 MEKETONE        ,ppbV      ,1000.0*MEK[1]
 TOLUENE         ,ppbV      ,1000.0*TOL[1]
-XYLENES         ,ppbV      ,1000.0*XYL[1]
+XYLENES         ,ppbV      ,1000.0*(XYL[1]+EBZ[1]+STY[1])
+ETHB            ,ppbV      ,1000.0*EBZ[1]
+STYRENE         ,ppbV      ,1000.0*STY[1]
 HCPROPANES      ,ppbV      ,1000.0*(HC3[1])
 HCPENTANES      ,ppbV      ,1000.0*(HC5[1])
 HCDECANES       ,ppbV      ,1000.0*(HC10[1]), formerly HC8
