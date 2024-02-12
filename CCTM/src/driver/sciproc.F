@@ -303,14 +303,12 @@ C decouple CGRID for cloud and chemistry
       IF ( STM ) CALL STM_WRAP_GAS ( CGRID, JDATE, JTIME, .FALSE. )
       IF ( PRINT_PROC_TIME ) CALL TIMING_SPLIT ( CPU_TIME_START, 1, 'CHEM' )
 
-#ifdef potvorto3
-      CALL PVO3 ( CGRID, JDATE, JTIME )
+      IF ( LPVO3 ) CALL PVO3 ( CGRID, JDATE, JTIME )
       IF ( CKSUM ) CALL CKSUMMER ( 'PVO3', CGRID, JDATE, JTIME )
 #ifndef mpas
       IF ( BUDGET_DIAG .OR. LIPR ) CALL PA_UPDATE_PROC ( IPR_PVO3, CGRID, SDATE, STIME, TSTEP, .FALSE. )
 #endif
       IF ( PRINT_PROC_TIME ) CALL TIMING_SPLIT ( CPU_TIME_START, 1, 'PVO3' )
-#endif
 
 #ifdef isam
       CGRID0  = CGRID

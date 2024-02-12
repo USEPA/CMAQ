@@ -176,6 +176,7 @@
       REAL    :: GEAR_CONC_FLOOR = 1.0E-12 ! Lowest Concentration used determing ATOL in Gear Solver (ppmV)
       REAL    :: GLBL_ATOL = 1.0E-7        ! Absolute Tolerance for Rosenbrock Solver (ppmV)
       REAL    :: GLBL_RTOL = 1.0E-3        ! Relative Tolerance for Rosenbrock Solver
+      LOGICAL :: LPVO3     = .FALSE.       ! Activate Potential Vorticity Module (default=False)
 
       ! Aerosols
       LOGICAL :: IC_AERO_M2WET=.FALSE.! flag for specifying wet aerosol size parameters 
@@ -652,6 +653,9 @@
 
       ! Absolute Tolerance for RB Solver
       CALL GET_ENV ( GLBL_ATOL, 'RB_ATOL', GLBL_ATOL, VARDEV )
+      
+      ! Get photolysis rate diagnostic file flag
+      CALL GET_ENV ( LVPO3, 'CTM_PVO3', LPVO3, VARDEV )
  
       !-------------------------------------------------------------------------------------------------------
       !>> Aerosols
