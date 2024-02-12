@@ -522,10 +522,9 @@ C *** Apply Aerosol Size Distribution
              
              ! Look up Aerosol Species and Mode of Interest
              IAERO = MAP_ISTRtoAERO( ISTR )   !This maps to the CMAQ aerosol
-                                            !  species so we can retrieve density
+                                              !  species so we can retrieve density
              IM    = MAP_ISTRtoMODE( ISTR )   !This maps to the internal CMAQ modes 
-                                            !  (ie. I, J, and K)
-             !DENS_FAC = F6DPIM9 / AEROSPC( IAERO )%DENSITY 
+                                              !  (ie. I, J, and K)
 
              ! Convert Aerosol from [g/s] to [ug/m3/s] for all streams
              ! except Dust and Sea Spray. For those streams, convert

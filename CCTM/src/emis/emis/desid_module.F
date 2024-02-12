@@ -658,93 +658,131 @@ C Retrieve Emissions from All Stream Types
              CASE ( 1, 3 )
                NL = DESID_GRID_LAYS( ISRM )
                CALL GR3D( JDATE, JTIME, TSTEP, DESID_STREAM_NAME( ISRM ), 
-     &                        NL, ISRM, VDEMIS_READ, L_DESID_DIAG )
-
+     &                        NL, ISRM, VDEMIS_READ, L_DESID_DIAG ) ! mol/s and g/s
+               
+               ! Apply Rules from DESID_${mech} namelist
                CALL DESID_SCALING( VDEMIS_READ, ISRM, NL, VDEMIS_SCALED )
-
+               
+               ! Calculate Number and Surface Area Emissions for this
+               ! stream. Convert aerosol mass emissions from g/s to
+               ! ug/m3/s.
                CALL DESID_SIZE_DIST( ISRM, VDEMIS_SCALED, NL )
 
              ! Retrieve Point Source Emissions Streams
              CASE ( 2 )
                NL = 1
                CALL GET_PT3D_EMIS ( JDATE, JTIME, TSTEP, LOCAL_EMVAR( :,ISRM ), 
-     &                              ISRM, VDEMIS_READ, NL, L_DESID_DIAG )
+     &                              ISRM, VDEMIS_READ, NL, L_DESID_DIAG )! mol/s and g/s
 
+               ! Apply Rules from DESID_${mech} namelist
                CALL DESID_SCALING( VDEMIS_READ, ISRM, NL, VDEMIS_SCALED )
 
+               ! Calculate Number and Surface Area Emissions for this
+               ! stream. Convert aerosol mass emissions from g/s to
+               ! ug/m3/s.
                CALL DESID_SIZE_DIST( ISRM, VDEMIS_SCALED, NL )
 
              CASE ( 4 )
                NL = 1
-               CALL GET_BEIS ( JDATE, JTIME, TSTEP, L_DESID_DIAG )
+               CALL GET_BEIS ( JDATE, JTIME, TSTEP, L_DESID_DIAG ) ! mol/s
                FORALL( ISTR = 1:DESID_N_ISTR, MAP_ISTRtoEMVAR( ISTR,ISRM ) .GT. 0 )
                   VDEMIS_READ( ISTR,1,:,: ) = VDEMIS_BI( MAP_ISTRtoEMVAR( ISTR,ISRM ),:,: ) 
                END FORALL
+               
+               ! Apply Rules from DESID_${mech} namelist
                CALL DESID_SCALING( VDEMIS_READ, ISRM, NL, VDEMIS_SCALED )
 
              ! Retrieve Marine Gas Emissions
              CASE ( 5 )
                NL = 1
-               CALL GET_MGEMIS ( JDATE, JTIME, TSTEP, CGRID, L_DESID_DIAG )
+               CALL GET_MGEMIS ( JDATE, JTIME, TSTEP, CGRID, L_DESID_DIAG )! mol/s
 
                FORALL( ISTR = 1:DESID_N_ISTR, MAP_ISTRtoEMVAR( ISTR,ISRM ) .GT. 0 )
                   VDEMIS_READ( ISTR,1,:,: ) = VDEMIS_MG( MAP_ISTRtoEMVAR( ISTR,ISRM ),:,: ) 
                END FORALL
 
+               ! Apply Rules from DESID_${mech} namelist
                CALL DESID_SCALING( VDEMIS_READ, ISRM, NL, VDEMIS_SCALED )
 
              ! Retrieve Lightning NO Emissions
              CASE ( 6 )
                NL = DESID_LAYS
-               CALL GET_LTNG ( JDATE, JTIME, TSTEP, L_DESID_DIAG )
+               CALL GET_LTNG ( JDATE, JTIME, TSTEP, L_DESID_DIAG )  ! mol/s
                DO L = 1,NL
                   FORALL( ISTR = 1:DESID_N_ISTR, MAP_ISTRtoEMVAR( ISTR,ISRM ) .GT. 0 )
                      VDEMIS_READ( ISTR,L,:,: ) = VDEMIS_LT( :,:,L ) 
                   END FORALL
                END DO
+               
+               ! Apply Rules from DESID_${mech} namelist
                CALL DESID_SCALING( VDEMIS_READ, ISRM, NL, VDEMIS_SCALED )
 
              ! Retrieve Sea Spray Aerosol Emissions 
              CASE ( 7 )
                NL = 1
                CALL GET_SSEMIS ( JDATE, JTIME, TSTEP, CELLVOL( :,:,1 ), 
-     &                           CELLHGT( :,:,1 ), L_DESID_DIAG )
+     &                           CELLHGT( :,:,1 ), L_DESID_DIAG )  ! g/m3/s
 
                FORALL( ISTR = 1:DESID_N_ISTR, MAP_ISTRtoEMVAR( ISTR,ISRM ) .GT. 0 )
                   VDEMIS_READ( ISTR,1,:,: ) = SSOUTM( MAP_ISTRtoEMVAR( ISTR,ISRM ),:,: ) 
                END FORALL
 
+               ! Apply Rules from DESID_${mech} namelist
                CALL DESID_SCALING( VDEMIS_READ, ISRM, NL, VDEMIS_SCALED )
 
+               ! Calculate Number and Surface Area Emissions for this
+               ! stream. Convert aerosol mass emissions from g/m3/s to
+               ! ug/m3/s.
                CALL DESID_SIZE_DIST( ISRM, VDEMIS_SCALED, NL )
 
-             ! Retrieve Wind-Blown Dust Emissions 
+             ! Retrieve Wind-Blown Dust Emissions
              CASE ( 8 )
                NL = 1
                CALL GET_DUST_EMIS ( JDATE, JTIME, TSTEP, Met_data%RJACM( :,:,1 ), 
-     &                              CELLHGT( :,:,1 ), L_DESID_DIAG )
+     &                              CELLHGT( :,:,1 ), L_DESID_DIAG ) ! g/m3/s
                FORALL( ISTR = 1:DESID_N_ISTR, MAP_ISTRtoEMVAR( ISTR,ISRM ) .GT. 0 )
                   VDEMIS_READ( ISTR,1,:,: ) = DUSTOUTM( MAP_ISTRtoEMVAR( ISTR,ISRM ),:,: ) 
                END FORALL
+               
+               ! Apply Rules from DESID_${mech} namelist
                CALL DESID_SCALING( VDEMIS_READ, ISRM, NL, VDEMIS_SCALED )
+               
+               ! Calculate Number and Surface Area Emissions for this
+               ! stream. Convert aerosol mass emissions from g/m3/s to
+               ! ug/m3/s.
                CALL DESID_SIZE_DIST( ISRM, VDEMIS_SCALED, NL )
 
+             ! Retrieve MEGAN Emissions
              CASE ( 9 )
                NL = 1
-               CALL GET_MEGAN ( JDATE, JTIME, TSTEP, L_DESID_DIAG)
+               CALL GET_MEGAN ( JDATE, JTIME, TSTEP, L_DESID_DIAG) ! mol/s
                FORALL( ISTR = 1:DESID_N_ISTR, MAP_ISTRtoEMVAR( ISTR,ISRM ) .GT. 0 )
                   VDEMIS_READ( ISTR,1,:,: ) = VDEMIS_ME( MAP_ISTRtoEMVAR( ISTR,ISRM ),:,: ) 
                END FORALL
+               
+               ! Apply Rules from DESID_${mech} namelist
                CALL DESID_SCALING( VDEMIS_READ, ISRM, NL, VDEMIS_SCALED )
 
            END SELECT
            
-           ! Convert All Emissions to VDIFF Units, Check for negative
-           ! values, write out diagnostic file (if requested) and apply
-           ! emissions to output array
+           ! Convert All Emissions to VDIFF Units (ppmv/s for gas and
+           ! aerosol masses, m2/mol/s for aerosol surface area, and
+           ! N/mol/s for aerosol number)
            CALL DESID_CONV_UNITS( VDEMIS_SCALED, NL, VDEMIS_CONV )
+           
+           ! Write out diagnostic file (if requested in DESID control
+           ! namelist file). This subroutine will only be executed if
+           ! DESID is called in diagnostic mode, meaning all input,
+           ! scaling, and unit conversions are performed for input to
+           ! VDIFF, but values are converted back to mol/s (gas), g/s
+           ! (aerosol mass), m2/s (aerosol surface area), and N/s 
+           ! (aerosol number) before output.
            IF ( L_DESID_DIAG ) CALL DESID_CALC_DIAG( JDATE, JTIME, VDEMIS_CONV, ISRM, NL )
 
+           ! Tools like DDM3D has a need to calculate emissions from 
+           ! specific streams and then not apply them to VDIFF. They
+           ! should only be added if DESID_STREAM_LAPPLY is true for
+           ! this stream.
            IF ( DESID_STREAM_LAPPLY( ISRM ) ) 
      &          VDEMIS_DIFF( :,1:NL,:,: ) = VDEMIS_DIFF( :,1:NL,:,: ) + VDEMIS_CONV( :,1:NL,:,: )
 
@@ -914,9 +952,11 @@ C Subset the emissions array for DDM-3D (by species and region)
          END DO
 #endif
 
+         ! Check for Negative Emissions after scaling rules and unit
+         ! conversions are applied.
          ERROR_NEG     = DESID_CHECK_NEG( VDEMIS_DIFF, 1, DESID_LAYS )
          
-         ! Write Out the Sum of All Aggregate Diagnostic Emissions to Files
+         ! Write Out Aggregate Diagnostic Emissions to Files
          IF ( L_DESID_DIAG ) CALL DESID_WRITE_DIAG( JDATE, JTIME )
          
          END IF  ! DESID_N_SRM
@@ -1220,7 +1260,7 @@ C-----------------------------------------------------------------------
         CNVTC( L,:,: ) = 1.0E-3 * CNVTI( L ) * Met_Data%RRHOJ( :,:,L )        ! Gas Moles:   mol/s -> ppmv/s
 #endif
         CONVM( L,:,: ) = MWAIR / GPKG / Met_Data%DENS( :,:,L ) !m3/mol  ! Aer. Mass:   umol/m3/s -> ppmv/s
-      END DO                                                            ! m2/m3/s -> m2/mol/s
+      END DO                                                            ! Aer. Surf:   m2/m3/s -> m2/mol/s
       CONVN( 1:NL,:,: ) = CONVM( 1:NL,:,: )                             ! Aer. Num:    N/m3/s -> N/mol/s
 
       !MAKE SURE TO APPLY RELEVANT UNIT CONVERSION TO EACH
@@ -1382,9 +1422,9 @@ C-----------------------------------------------------------------------
         CNVTC( L,:,: ) = 1.0E3 / ( CNVTI( L ) * Met_Data%RRHOJ( :,:,L ) )         ! Gas Moles: ppmv/s -> mol/s
 #endif
         CONVM( L,:,: ) = (1.0 / MWAIR) * GPKG * Met_Data%DENS( :,:,L )    ! Aer. Mass: ppmv/s -> umol/s
-     &                   / Met_Data%RJACM( :,:,L ) * CELLVOL( :,:,L )     ! m2/mol/s -> m2/s
-      END DO                                                                
-      CONVN( 1:NL,:,: ) = CONVM( 1:NL,:,: )                               ! Aer. Num:  N/mol/s -> N/s
+     &                   / Met_Data%RJACM( :,:,L ) * CELLVOL( :,:,L )     ! Aer. Surf: m2/mol/s -> m2/s
+      END DO                                                              ! Aer. Num:  N/mol/s -> N/s  
+      CONVN( 1:NL,:,: ) = CONVM( 1:NL,:,: )                               
 
       !MAKE SURE TO APPLY RELEVANT UNIT CONVERSION TO EACH
       !TYPE OF VARIABLE (GAS, AEROSOL MASS, AEROSOL NUMBER,
