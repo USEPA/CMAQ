@@ -655,7 +655,7 @@
       CALL GET_ENV ( GLBL_ATOL, 'RB_ATOL', GLBL_ATOL, VARDEV )
       
       ! Get photolysis rate diagnostic file flag
-      CALL GET_ENV ( LVPO3, 'CTM_PVO3', LPVO3, VARDEV )
+      CALL GET_ENV ( LPVO3, 'CTM_PVO3', LPVO3, VARDEV )
  
       !-------------------------------------------------------------------------------------------------------
       !>> Aerosols

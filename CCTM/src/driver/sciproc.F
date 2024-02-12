@@ -59,7 +59,7 @@ C-----------------------------------------------------------------------
       USE RUNTIME_VARS, ONLY: LOGDEV, OUTDEV, MYPE, CKSUM, 
      &                        PRINT_PROC_TIME, WEEKDAY, 
      &                        LOG_MESSAGE, TIMING_SPLIT, STM,
-     &                        COLUMN_MODEL
+     &                        COLUMN_MODEL, LPVO3
 #ifndef mpas
 #ifdef parallel
       USE SE_MODULES            ! stenex (using SE_UTIL_MODULE)
