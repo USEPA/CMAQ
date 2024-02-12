@@ -84,9 +84,6 @@ set make_options = "-j"                #> additional options for make command if
 #set build_twoway                      #> uncomment to build WRF-CMAQ twoway; 
                                        #>   comment out for off-line chemistry 
 
-#> Potential vorticity free-troposphere O3 scaling
-#set potvortO3
-
 #> Working directory and Version IDs
  if ( $?ISAM_CCTM ) then
      set VRSN  = v54_ISAM             #> model configuration ID for CMAQ_ISAM
@@ -342,13 +339,6 @@ set make_options = "-j"                #> additional options for make command if
 #> Tracer configuration files
  set ModTrac = MECHS/$Tracer
 
-#> free trop. O3 potential vorticity scaling
- if ( $?potvortO3 ) then 
-    set POT = ( -Dpotvorto3 )
- else
-    set POT = ""
- endif 
-
 #> Set and create the "BLD" directory for checking out and compiling 
 #> source code. Move current directory to that build directory.
  if ( $?Debug_CCTM ) then
@@ -480,7 +470,7 @@ set Cfile = ${Bld}/${CFG}.bld      # Config Filename
  echo                                                              >> $Cfile
  echo "lib_4       ioapi/lib;"                                     >> $Cfile
  echo                                                              >> $Cfile
- set text = "$quote$CPP_FLAGS $PAR $SENS $PIO $cpp_depmod $POT $STX1 $STX2$quote;"
+ set text = "$quote$CPP_FLAGS $PAR $SENS $PIO $cpp_depmod $STX1 $STX2$quote;"
  echo "cpp_flags   $text"                                          >> $Cfile
  echo                                                              >> $Cfile
  echo "f_compiler  $FC;"                                           >> $Cfile
@@ -649,12 +639,10 @@ set Cfile = ${Bld}/${CFG}.bld      # Config Filename
  echo "Module ${ModTrac};"                                         >> $Cfile
  echo 
 
- if ( $?potvortO3 ) then
-    set text = "use potential vorticity free-troposphere O3 scaling"
-    echo "// options are" $text                                    >> $Cfile
-    echo "Module ${ModPvO3};"                                      >> $Cfile
-    echo                                                           >> $Cfile
- endif
+ set text = "use potential vorticity free-troposphere O3 scaling"
+ echo "// options are" $text                                    >> $Cfile
+ echo "Module ${ModPvO3};"                                      >> $Cfile
+ echo                                                           >> $Cfile
 
  set text = "aero6"
  echo "// options are" $text                                       >> $Cfile
