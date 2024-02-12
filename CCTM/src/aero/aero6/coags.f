@@ -164,7 +164,6 @@ C *** Local Variables:
       REAL( 8 ) :: COAGATAC0, COAGATAC3
       REAL( 8 ) :: COAGATAC2
       REAL( 8 ) :: COAGACAT2
-c     REAL( 8 ) :: XM2AT, XM3AT, XM2AC, XM3AC
 
 C *** correction factors for coagulation rates      
       REAL :: BM0    ( 10 )        ! M0 INTRAmodal FM - RPM values
@@ -1459,12 +1458,6 @@ C----------------------------------------------------------------------
       SQDGAT5 = DGAT2 * SQDGAT
       SQDGAC5 = DGAC2 * SQDGAC
       SQDGAT7 = DGAT3 * SQDGAT
-
-c     XM2AT = DGAT2 * ESAT16
-c     XM3AT = DGAT3 * ESAT36
-
-c     XM2AC = DGAC2 * ESAC16
-c     XM3AC = DGAC3 * ESAC36
 
 C *** For the free molecular regime:  Page H.3 of Whitby et al. (1991)
       R       = SQDGAC / SQDGAT

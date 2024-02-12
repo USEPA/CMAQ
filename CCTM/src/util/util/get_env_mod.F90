@@ -339,7 +339,6 @@
 
           call get_env( e_val, env_var, ' ', loc_logdev )
 
-!         if ( env_var .eq. " " ) then
           if ( e_val .eq. " " ) then
              xmsg = 'Environment variable ' // env_var // ' not set'
 #ifndef mpas
