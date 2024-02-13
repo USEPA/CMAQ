@@ -654,7 +654,7 @@
       ! Absolute Tolerance for RB Solver
       CALL GET_ENV ( GLBL_ATOL, 'RB_ATOL', GLBL_ATOL, VARDEV )
       
-      ! Get photolysis rate diagnostic file flag
+      ! Get option for scalng ozone in free-troposphere to potential vorticity
       CALL GET_ENV ( LPVO3, 'CTM_PVO3', LPVO3, VARDEV )
  
       !-------------------------------------------------------------------------------------------------------
