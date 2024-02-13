@@ -93,8 +93,15 @@ C-----------------------------------------------------------------------
 !      USE LSM_MOD, Only: n_lufrac
       USE SEDIMENTATION
       USE VDIFF_DIAG
+#ifdef mpas
+      use mio_module
+      use coupler_module
+      USE util_module, only : sec2time, time2sec, nextime, index1
+      USE centralized_io_module
+#else
       USE PA_UPDATE
       USE PA_DEFN, ONLY : LIPR, BUDGET_DIAG
+#endif
 
 #ifdef isam
       USE SA_DEFN, Only: ITAG, N_SPCTAG, VNAM_SPCTAG, SA_DDEP, SA_BIDI, ISAM, NTAG_SA, 
@@ -114,6 +121,7 @@ C-----------------------------------------------------------------------
 C Arguments:
 
       REAL, POINTER :: CGRID( :,:,:,: )              !  concentrations
+
       INTEGER      JDATE        ! current model date, coded YYYYDDD
       INTEGER      JTIME        ! current model time, coded HHMMSS
       INTEGER      TSTEP( 3 )   ! time step vector (HHMMSS)
@@ -158,6 +166,20 @@ C Local Variables:
       INTEGER, SAVE :: NH3_HIT
 
 C Local Variables
+#ifdef mpas
+      CHARACTER (20) :: TIME_STAMP
+#endif
+
+
+! this is for creating the output name list
+      character (512) :: fname
+      character (30), allocatable, save :: name_list(:)
+      character (30)  :: oname
+      character (120) :: buf, buf2
+      integer, save :: loc_n
+      integer :: loc_nvars, stat, n, k, fnum
+      logical :: found
+
       INTEGER     ASTAT
       INTEGER     C, R, L, S, V, I, J, OFF      ! loop induction variables
       INTEGER     MDATE, MTIME, MSTEP           ! internal simulation date&time
@@ -222,10 +244,12 @@ C-----------------------------------------------------------------------
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
 
+#ifndef mpas
          IF ( BUDGET_DIAG .OR. LIPR ) THEN
             ALLOCATE( NH3_EMIS0( NCOLS,NROWS), STAT = ASTAT )
             CALL CHECKMEM( ASTAT,'NH3_EMIS0',PNAME )
          END IF
+#endif
 
 C create global maps
          IF ( .NOT. VDIFF_MAP_INIT( ) ) THEN
@@ -300,6 +324,7 @@ C Allocate and initialize emissions
 C Set up for budget accumulation and process analysis
          CALL LOG_HEADING( LOGDEV, "Initialize Surface Exchange for Process Analysis" )
 
+#ifndef mpas
          IF ( BUDGET_DIAG .OR. LIPR ) THEN
             ALLOCATE ( EMIS_PA( NCOLS,NROWS,NLAYS,N_CGRID_SPC ), STAT = ASTAT )
             IF ( ASTAT .NE. 0 ) THEN
@@ -312,6 +337,8 @@ C Set up for budget accumulation and process analysis
                CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             END IF
          END IF
+#endif
+
 C Set up for grav. settling
          IF ( GRAV_SETL ) THEN
             CALL LOG_HEADING( LOGDEV, "Set Up Gravitational Settling" )
@@ -380,6 +407,43 @@ C Set up for grav. settling
         ENDIF
 #endif
 
+#ifdef mpas
+! this is for creating the output name list
+         found = .false.
+         fnum = 0
+         do while ((.not. found) .and. (fnum < mio_outfile_def_info%num_of_file_definitions))
+            fnum = fnum + 1
+            if ('CTM_OUT' == mio_outfile_def_info%flist(fnum)%fname) then
+               found = .true.
+            end if
+         end do
+         if (.not. found) then
+            write (logdev, *) ' Abort: file CTM_OUT not on the file_input.txt'
+            stop
+         end if
+
+         loc_nvars = mio_outfile_def_info%flist(fnum)%nvars
+         loc_n = 0
+         if (found) then
+            allocate (name_list(loc_nvars), stat=stat)
+            do n = 1, loc_nvars
+               buf = mio_outfile_def_info%flist(fnum)%vlist(n)
+               found = .false.
+               k = 0
+               do while (.not. found)
+                  k = k + 1
+                  if (buf(k:k) == ' ') then
+                     found = .true.
+                  end if
+               end do
+               if (buf(1:3) == 'DD_') then
+                  loc_n = loc_n + 1
+                  name_list(loc_n) = buf(4:k-1)
+               end if
+            end do
+         end if
+#endif
+
       END IF   !  if Firstime
 
       MDATE = JDATE
@@ -410,7 +474,9 @@ C read & interpolate met data
       CALL GET_MET ( MDATE, MTIME, MSTEP )
 
 C read & interpolate deposition velocities
+#ifndef mpas
       IF ( BUDGET_DIAG .OR. LIPR ) NH3_EMIS0 = NH3_EMIS
+#endif
       CALL GET_DEPV ( MDATE, MTIME, TSTEP, CGRID )      
 
       IF ( GRAV_SETL ) THEN
@@ -422,6 +488,17 @@ C Calculate the changes in the layer J-,K-mode aerosol concentrations
 
 C read & interpolate emissions data => VDEMIS_DIFF from EMIS_DEFN module
       CALL DESID_DRIVER ( MDATE, MTIME, TSTEP, CGRID )
+
+#ifdef mpas
+      DO R = 1, NROWS
+         DO C = 1, NCOLS
+            DO L = 1, NLAYS
+               SEDDY( L,C,R ) = g3ddata(C,R,L,eddy_ind)
+            END DO
+         END DO
+      END DO
+
+#else
 
       IF ( BUDGET_DIAG .OR. LIPR ) THEN
          EMIS_PA = 0.0
@@ -449,6 +526,7 @@ C EDDYV returned = Kz, where Kz is in m**2/sec
             END DO
          END DO
       END DO
+#endif
 
       IF ( WSTEP .EQ. 0 ) THEN
          DDEP = 0.0                      ! array assignment
@@ -459,11 +537,13 @@ C EDDYV returned = Kz, where Kz is in m**2/sec
       END IF
 
 C Store Deposition Change in Budget and Process Analysis Arrays
+
+#ifndef mpas
       IF ( BUDGET_DIAG .OR. LIPR ) DDEP0 = DDEP
+#endif
 
 C Calculate the change in concentration and dry dep from vertical diffusion and vsed
 C Note: cngrd is the argument keyword (from the INTERFACE); CNGRD is the actual argument
-
       CALL VDIFFACMX( DTSEC, SEDDY, DDEP, ICMP, CNGRD )
 
       IF ( VDIFFDIAG ) THEN
@@ -487,6 +567,7 @@ C Note: cngrd is the argument keyword (from the INTERFACE); CNGRD is the actual 
       END IF
  
 C Store Deposition Change in Budget and Process Analysis Arrays
+#ifndef mpas
       IF ( BUDGET_DIAG .OR. LIPR ) THEN
          DDEP_PA = 0.0
          DO V = 1, N_SPC_DEPV
@@ -510,6 +591,7 @@ C Store Deposition Change in Budget and Process Analysis Arrays
          END DO
          CALL PA_UPDATE_DDEP ( DDEP_PA, JDATE, JTIME, TSTEP )
       END IF
+#endif
  
 C Revert non-molar mixing ratio species and re-order CGRID
       CALL REV_CGRID ( CNGRD, MDATE, MTIME, CGRID )
@@ -538,6 +620,7 @@ C If last call this hour:  write accumulated depositions:
          CALL NEXTIME( MDATE, MTIME, TSTEP( 2 ) )
          WSTEP = 0
 
+#ifndef mpas
 #ifdef parallel_io
          IF ( WRITE_FIRSTIME ) THEN
             WRITE_FIRSTIME = .FALSE.
@@ -557,6 +640,7 @@ C If last call this hour:  write accumulated depositions:
 
             END IF   ! .NOT. IO_PE_INCLUSIVE
          END IF
+#endif
 #endif
          IF ( ABFLUX ) THEN
            DO R = 1, NROWS
@@ -594,8 +678,26 @@ C If last call this hour:  write accumulated depositions:
             END IF
 #endif
          ENDIF
+
+#ifdef mpas
+         call mio_time_format_conversion (mdate, mtime, time_stamp)
+
+         ctm_out_clock = time_stamp
+#endif
+
          DO V = 1, N_SPC_DDEP
             S = DD2DV( V )
+#ifdef mpas
+            if ((loc_n > 0) .and. mpas_diag) then
+               k = index1( DDEP_SPC( V ), loc_n, name_list)
+               if (k .gt. 0) then
+                  oname = 'DD_' // DDEP_SPC( V )
+                  call mio_fwrite ('CTM_OUT', oname, pname, DDEP( S,:,1), TIME_STAMP)
+               end if
+            end if
+
+#else
+
             DO R = 1, NROWS
                DO C = 1, NCOLS
                   WRDD( C,R ) = DDEP( S,C,R )
@@ -607,7 +709,10 @@ C If last call this hour:  write accumulated depositions:
                XMSG = 'Could not write ' // CTM_DRY_DEP_1 // ' file'
                CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
             END IF
+#endif
          END DO 
+
+#ifndef mpas
 C Write extra arrays for NH3 emission and net flux for bidi
          IF ( ABFLUX ) THEN
 
@@ -726,6 +831,7 @@ C Write other diagnostics
             NTICS = 0
 
          END IF
+#endif
          
          IF ( ABFLUX .OR. HGBIDI ) THEN    
             CALL WRASX_MEDIA( MDATE, MTIME )

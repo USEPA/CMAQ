@@ -57,6 +57,9 @@ C Pathname: $Source: /project/yoj/arc/CCTM/src/biog/beis3/checkmem.f,v $
 C Last updated: $Date: 2011/10/21 16:10:17 $ 
  
 C-----------------------------------------------------------------------
+#ifdef mpas
+      use utilio_defn
+#endif
  
       IMPLICIT NONE
 

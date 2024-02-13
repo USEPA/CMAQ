@@ -47,7 +47,7 @@
 | HCO3              | radical from HO2 reactions with formaldehyde                                 | 63                   | E                      |
 | HG                | elemental mercury                                                            | 200.6                | E                      |
 | HGIIAER           | precursor of aerosol divalent mercury                                        | 200.6                | E                      |
-| HGIIGAS           | divalent mercury                                                             | 200.6                | E                      |
+| HGIIGAS           | divalent mercury                                                             | 271.5                | E                      |
 | HNO3              | nitric acid                                                                  | 63                   | E                      |
 | HO2               | hydroperoxy radical                                                          | 33                   | E                      |
 | HOCL              | hypochlorous acid                                                            | 52.5                 | E                      |
