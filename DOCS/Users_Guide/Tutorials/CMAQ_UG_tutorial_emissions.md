@@ -249,14 +249,12 @@ Chemical families are defined by prescribing, via the [CMAQ Miscellaneous Contro
 
 &ChemicalFamilies
  ChemFamilyName(1)     = 'NOX'    
- ChemFamilyNum(1)      = 2  
  ChemFamilyMembers(1,:)= 'NO','NO2'  
  ChemFamilyName(2)     = 'POA'    
- ChemFamilyNum(2)      = 2  
  ChemFamilyMembers(2,:)= 'POC','PNCOM'  
 /
 ```  
-In this example, 2 chemical families, "NOX" and "POA", are defined with 2 members, "NO" and "NO2", and "POC" and "PNCOM".  
+In this example, 2 chemical families, "NOX" and "POA", are defined with 2 members, "NO" and "NO2", and "POC" and "PNCOM". Note that CMAQv5.3 required the variable ChemFamilyNum to be specified and this is value is internally calculated in CMAQv5.4. If the variable is provided, the model will crash. Also, it is required to ensure that no Chemical Family Name is identical to any emission species or CMAQ species. Currently, CMAQ will not detect a name conflict but results will be compromised. A future version of CMAQ will check for duplicative names, trigger an error, and stop the model.
 
 Stream families are defined analogously in the DESID Control File:  
 ```
@@ -351,6 +349,7 @@ CMAQ will use this rule to add POC and PNCOM surrogates together, multiply by 0.
 The way CMAQ uses chemical families for adding relationships with the 'a' is nuanced. The following logic is applied: 
 - If a chemical family is used for either the emission variable or the CMAQ-Species but not both, then connections are made between each member of the family and the prescribed single-species in the other column.  
 - If both columns include chemical families or the 'ALL' keyword, then each pair of members will be compared. If the names match exactly or a relationship already exists, then the 'a' operation will be applied. If not, then the pair will be ignored. This precaution is in place to protect against the case where a user prescribes an addition (i.e. 'a') rule with the keyword 'ALL' or very large chemical families in both the emission variable and CMAQ-Species columns. 
-Without the precaution in place, adding relationships for ALL surrogates to ALL model species would be an extremely large data structure and almost certainly not an intended use of CMAQ.   
+Without the precaution in place, adding relationships for ALL surrogates to ALL model species would be an extremely large data structure and almost certainly not an intended use of CMAQ.
 
-
+### 16. Miscellaneous Notes
+In the default emissions mapping configuration, sulfuric acid (SULF) mass is mapped to ASO4 (particulate sulfate). If these emissions are perturbed directly or as part of a broader sector- or region-wide scaling, it is recommended to confirm specifically that these emissions have been scaled as desired. For example, if a family named 'SOX' is defined that includes 'SO2' and 'SULF' and then 'SOX' is specified as the CMAQ species in a scaling rule, then the 'SULF' to 'ASO4' mapping would not be detected.
