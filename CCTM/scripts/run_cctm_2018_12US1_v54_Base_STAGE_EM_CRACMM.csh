@@ -660,7 +660,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
        echo "*** To overide, set CLOBBER_DATA = TRUE in run_cctm.csh ***"
        echo "*** and these files will be automatically deleted. ***"
        exit 1
-     endi
+     endif
      
      #> error if previous output files exist
      if ( "$out_test" != "" ) then
