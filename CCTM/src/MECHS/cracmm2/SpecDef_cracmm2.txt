@@ -65,7 +65,7 @@ NO              ,ppbV      ,1000.0*NO[1]
 NO2             ,ppbV      ,1000.0*NO2[1]
 NOX             ,ppbV      ,1000.0*(NO[1] + NO2[1])
 ANO3_PPB        ,ppbV      ,(ANO3I[1]+ANO3J[1]+ANO3K[1])/(DENS[2]*(62.0/28.97))
-NTR             ,ppbV       ,1000.0*(ONIT[1]+ISON[1]+INALD[1]+IPX[1]+TRPN[1]+HONIT[1]), organic nitrates
+NTR             ,ppbV      ,1000.0*(ONIT[1]+ISON[1]+INALD[1]+TRPN[1]+HONIT[1]), organic nitrates
 PANS            ,ppbV      ,1000.0*(PAN[1]+PPN[1]+MPAN[1])
 NOY             ,ppbV      ,1000.0*(NO[1]+NO2[1]+NO3[1]+2*N2O5[1]+HONO[1] \
                                    +HNO3[1]+HNO4[1]+PAN[1]+PPN[1]+MPAN[1] \
@@ -112,7 +112,7 @@ ALDX            ,ppbV      ,1000.0*ALD[1],            C3 and higher aldehydes is
 !NOZ             ,ppbV      ,NOY[0]-NOX[0]
 !SULF            ,ppbV      ,1000.0*SULF[1]
 ! LSIVROC: L/S/IVOC alk and oxy gas species
-LSIVROC           ,ppbC      ,1000.0* (9.5*VROCIOXY[1] \
+LSIVROC         ,ppbC      ,1000.0* (9.5*VROCIOXY[1] \
                                     +14.0*VROCP5ARO[1]+13.0*VROCP6ARO[1] \
                                     +30.0*VROCN2ALK[1]+29.0*VROCN1ALK[1] \
                                     +28.0*VROCP0ALK[1]+27.0*VROCP1ALK[1] \
