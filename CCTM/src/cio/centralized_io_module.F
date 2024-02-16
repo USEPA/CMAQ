@@ -595,7 +595,8 @@
           USE VGRD_DEFN, only : VGTYP_GD, nlays
           USE RUNTIME_VARS, only : N_FILE_GR,
      &                             STDATE, WB_DUST, ISAM_NEW_START,
-     &                             local_tstep, met_tstep, NLDNSTRIKE
+     &                             local_tstep, met_tstep, NLDNSTRIKE,
+     &                             LPVO3
           use LSM_Mod, only : LAND_SCHEME
           use cgrid_spcs, only : n_gc_spcd, n_ae_spc
 #ifdef mpas
@@ -819,7 +820,14 @@
           c3d_name(:,3) = 'm'    ! denote met variable
 
           CFRAC_3D_AVAIL = (INDEX1( 'CFRAC_3D', NVARS3D, VNAME3D ) .gt. 0)
+
           PV_AVAIL       = (INDEX1( 'PV', NVARS3D, VNAME3D ) .gt. 0)
+          IF ( .NOT. PV_AVAIL .AND. LPVO3 ) THEN
+             XMSG = 'PV, potential vorticity, not found in ' // MET_CRO_3D
+     &          //  ' but CTM_PVO3 option set to Yes in run-script'
+             CALL M3EXIT ( PNAME, 0, 0, XMSG, XSTAT1 )
+          END IF
+
           QI_AVAIL       = (INDEX1( 'QI', NVARS3D, VNAME3D ) .gt. 0)
           QS_AVAIL       = (INDEX1( 'QS', NVARS3D, VNAME3D ) .gt. 0)
           QG_AVAIL       = (INDEX1( 'QG', NVARS3D, VNAME3D ) .gt. 0)
