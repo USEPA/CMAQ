@@ -194,14 +194,14 @@ setenv CTM_BIDI_FERT_NH3     T   #> subtract fertilizer NH3 from emissions becau
 setenv CTM_HGBIDI            N   #> mercury bi-directional flux for in-line deposition velocities [ N ]
 setenv CTM_SFC_HONO          Y   #> surface HONO interaction [ Y ]
 setenv CTM_GRAV_SETL         Y   #> vdiff aerosol gravitational sedimentation [ Y ]
-setenv CTM_PVO3 N                #> consider potential vorticity module for O3 transport from the stratosphere
-                                 #>    [default: N]
+setenv CTM_PVO3              N   #> consider potential vorticity module for O3 transport from the stratosphere
+                                 #> In WRF-CMAQ model, option also can activate calculating potential vorticity
+                                 #> [default: N]
 
 setenv CTM_BIOGEMIS_BE Y         #> calculate in-line biogenic emissions with BEIS [ default: N ]
 setenv CTM_BIOGEMIS_MG N         #> turns on MEGAN biogenic emission [ default: N ]
 setenv BDSNP_MEGAN N             #> turns on BDSNP soil NO emissions [ default: N ]
 
-setenv CTM_TURN_ON_PV        N   # WRF-CMAQ ONLY turn on/off PV [ N -- make sure compiled with pv on ]
 
 #> Surface Tiled Aerosol and Gaseous Exchange Options
 #> Only active if DepMod=stage at compile time
