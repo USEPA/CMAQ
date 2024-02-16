@@ -844,14 +844,20 @@ C  subroutine to evaluate species expression (parses major fields (+-))
     
         If( field.eq.' ' ) Then
           value = 0.0D0
+          Write(6,'(2a)')'eval2 Error: Empty Field in expression,',Trim(Formula)
+          Stop
         else
           call eval3b( field, value)
         End If
 
         If( operator.eq.'+' ) Then
           buffer = buffer + value
-        else
+        else If( operator.eq.'-' ) Then
           buffer = buffer - value
+        else
+          Write(6,'(2a)')'Error: Unknown Operator, ' // Trim(operator) 
+     &    // ' in expression,',Trim(Formula)
+          Stop
         End If
 
         End Do
@@ -960,20 +966,19 @@ C  routine to compute a field of the expression (parses minor fields (*/^))
       Integer n, nflds
 
       Allocate ( specValue(isize) )
-!      nflds = getFldCount(trim(expression), '*/^')
       nflds = getFldCount(trim(expression), '*/')
+!     print*,Trim(expression)
       value = 1.0
          
+
       SpecValue = 0.0D0
       Do n=1,nflds
-!        call getFld( trim(expression), '*/^', n, operator, field ) 
         call getFld( trim(expression), '*/', n, operator, field ) 
         call eval4(field, specValue)
-!        call GetValue(field, specValue)
-!        print*,operator,value,specValue
 
-        If( operator.eq.'*' ) value = value * specValue
-        If( operator.eq.'/' )Then
+        If( operator.eq.'*' )Then
+           value = value * specValue
+        Else If( operator.eq.'/' )Then
           Where( specValue .Ne. 0.0 )
              value = value / specValue
              eflag = .false.
@@ -982,13 +987,14 @@ C  routine to compute a field of the expression (parses minor fields (*/^))
              eflag = .true.
           End Where
           If( Any( eflag ) )Then
-!            write(6,*) "Denominator, "
-!     &      // Trim( field ) // ", equals zero."
             write(emsg,*) "Denominator, "
      &      // Trim( field ) // ", equals zero."
           End If
+        Else
+          Write(6,'(2a)')'eval3b Error: Unknown Operator, ' // Trim(operator) 
+     &    // ' in expression,',Trim(Formula)
+          Stop
         End If
-!        If( operator.eq.'^' ) value = value ** specValue
 
       End Do
 
@@ -1040,6 +1046,7 @@ C  routine to compute a field of the expression (parses minor fields (*/^))
       call GetValue(field, specPower)
       Do 
          call getFld( trim(expression), '^', n, operator, field )
+
          n = n - 1
           If( field(1:1) .Eq. '-' )Then
             field  = field(2:)
@@ -1093,6 +1100,11 @@ C  routine to compute a field of the expression (parses minor fields (*/^))
             Factor = 1.0D0
         End If 
 
+        If( Len_Trim(field) .Le. 0 )Then 
+            Write(6,'(2a)')'GetValue Error: Empty Field in expression,',Trim(Formula)
+            Stop
+        End If
+
 !...check for buffer array
         If( index(field,'buffer[') .gt.0 ) Then
           Call getBuffer(field, Value)
@@ -1111,7 +1123,13 @@ C  routine to compute a field of the expression (parses minor fields (*/^))
           pos1 = index(field, '[')
           pos2 = index(field, ']',.true.)
           specName = field(pos1+1:pos2-1)
+          if( pos2 .lt. Len_Trim(Field) )Then
+             Write(6,'(5(a,1x))')'GetValue Error: Unknown operator and species ',Trim(Field(pos2+1:)),
+     &         ' in formula,',Trim(Formula)
+             Stop
+          end if
   
+!         Write(6,'(2a)')'specName = ',Trim(specName)
           read(specName,'(i16)',iostat=status) fnum
 
           If( status.eq.0 ) Then    !! number found
@@ -1130,6 +1148,7 @@ C  routine to compute a field of the expression (parses minor fields (*/^))
                 Value = Factor * Value
                 Return 
              End If
+!            Write(6,*)'**GetValue Error** Unknown Function: ',Trim(funcName)
           End If    !! contains '['
         End If
 !...try to read field as number
@@ -1139,10 +1158,13 @@ C  routine to compute a field of the expression (parses minor fields (*/^))
           value = Factor * constant
           Return
         Else
-             Write(*,'(''**Error** Invalid field encountered:'',a)') field
+             Write(*,1099)
+     &       Trim( field ),Trim( Formula )
              stop 
         End If
 
+1099    Format('**GetValue Error** Invalid field encountered:',a,
+     &         " in formula ",a)
       return
       end Subroutine GetValue
 
@@ -1229,7 +1251,6 @@ C  Routine to read species value array for given date and time
 
       !! call routine to read species values from file fnum
       status = 0
-      !! write(*,'(''reading values for '',a,'' at '',2i8)') TRIM(specName), kdate,ktime
       Call ReadValues( fnum, specName, ilayer, kdate, ktime, isize,    
      &                   specValue, status)
 
