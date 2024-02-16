@@ -332,7 +332,7 @@ C-----------------------------------------------------------------------
        CHARACTER( 20 )                  :: DESID_AERO_REF_CAPS( DESID_N_AERO_REF )
 
        INTEGER IRULE, ISUR, N, NLEN, ISD, IM, IEM, NRULE
-       LOGICAL   :: LREMOVE
+       LOGICAL   :: LREMOVE, LERROR
        
        ! Find Total Number of Size Distribution Registries
        N_SD_RULE = 0
@@ -366,7 +366,7 @@ C-----------------------------------------------------------------------
          LREMOVE = .FALSE.
          IF ( DESID_SD_NML( IRULE )%STREAM .EQ. '' ) CYCLE
          CALL DESID_GET_RULE_STREAMS( DESID_SD_NML( IRULE )%STREAM, IRULE, 
-     &                 RULE_STREAM, LREMOVE )
+     &                 RULE_STREAM, LREMOVE, LERROR )
          IF ( LREMOVE ) CYCLE
 
          ! Loop through streams, set defaults, and build map array

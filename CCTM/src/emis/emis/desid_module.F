@@ -1620,7 +1620,7 @@ C-----------------------------------------------------------------------
          REAL,  ALLOCATABLE          :: LOCAL_CONV( :,:,: )
          INTEGER, ALLOCATABLE :: LOCAL_REG( :,:,: )
          INTEGER              :: N_RULE, N_AREA
-         LOGICAL              :: LREMOVE
+         LOGICAL              :: LREMOVE, LERROR4
          INTEGER, ALLOCATABLE :: REG_UNQ( : )
          LOGICAL, ALLOCATABLE :: LSUB( : )
          LOGICAL              :: LREG_RMDR
@@ -1732,7 +1732,7 @@ C and allowing the model to proceed.
          DO IAREA = 1,N_AREA
             LREMOVE = .FALSE.
             CALL DESID_GET_RULE_STREAMS( DESID_AREA_NML( IAREA )%STREAM, 
-     &              IAREA, RULE_STREAM, LREMOVE )
+     &              IAREA, RULE_STREAM, LREMOVE, LERROR4 )
             IF ( LREMOVE ) CYCLE
 
             ! If the 'ALL' keyword was used, set all of the online
@@ -1935,7 +1935,7 @@ C and allowing the model to proceed.
             ! which identifies which streams are affected by this rule.
             LREMOVE = .FALSE.
             CALL DESID_GET_RULE_STREAMS( DESID_RULES_NML( IRULE )%STREAM, 
-     &              IRULE, RULE_STREAM, LREMOVE )
+     &              IRULE, RULE_STREAM, LREMOVE, LERROR4 )
             IF ( LREMOVE ) CYCLE
 
             !------   ------   ------   ------   ------   ----  
@@ -3183,6 +3183,7 @@ C stkemis_init.
         LOGICAL          :: STREAM_VECTOR_TMP( DESID_N_SRM ),
      &                      SPEC_VECTOR( N_SPC_DIFF )
         CHARACTER( 3)    :: CDIAG
+        LOGICAL          :: LERROR
    
         N_Diag_Nml = SIZE( Desid_Diag_Fmt_Nml )
         N_Buff = N_Diag_Nml * 20
@@ -3249,8 +3250,18 @@ C stkemis_init.
                  Expand_Stream = .TRUE.
              END IF
              CALL DESID_GET_RULE_STREAMS( Desid_Diag_Streams_Nml( IDIAG,I ),IDIAG,
-     &                                    STREAM_VECTOR, LREMOVE )
-   
+     &                                    STREAM_VECTOR, LREMOVE, LERROR )
+
+             ! Stop CMAQ if there was an error setting the emission streams
+             IF ( LERROR ) THEN
+               WRITE( LOGDEV, * )
+               WRITE( XMSG, '(A,A,A)' ),
+     &             'CMAQ will crash until an error specifying the ',
+     &             'DESID diagnostics is fixed. Detailed information is ',
+     &             'in the processor log files.'
+               CALL M3EXIT( 'Map_Emiss_Diag', 0, 0, XMSG, XSTAT1 )     
+             END IF
+
              ! Determine whether this diagnostic is a sum or not and
              ! assign name accordingly
              IF ( Expand_Stream ) THEN
