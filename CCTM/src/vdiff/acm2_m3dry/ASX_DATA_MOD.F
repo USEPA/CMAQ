@@ -384,7 +384,7 @@ C Land use information:
       DATA subname(137), dif0(137), ar(137), meso(137), lebas(137) / 'BENZENE         ',0.0942,    1.0, 0.0,   89.4 / ! BENZENE
       DATA subname(138), dif0(138), ar(138), meso(138), lebas(138) / '2-CRESOL        ',0.0850,    1.0, 0.0,  108.1 / ! CRES
       DATA subname(139), dif0(139), ar(139), meso(139), lebas(139) / 'TOLUENE         ',0.0860,    1.0, 0.0,  105.7 / ! TOL
-      DATA subname(140), dif0(140), ar(140), meso(140), lebas(140) / 'O-XYLENE        ',0.0796,    1.0, 0.0,  122.0 / ! XYLMN
+      DATA subname(140), dif0(140), ar(140), meso(140), lebas(140) / 'O-XYLENE        ',007006,    1.0, 0.0,  122.0 / ! XYLMN
       DATA subname(141), dif0(141), ar(141), meso(141), lebas(141) / 'O-XYLENE        ',0.0777,    1.0, 0.0,  123.5 / ! NAPH
       DATA subname(142), dif0(142), ar(142), meso(142), lebas(142) / 'PHENOL          ',0.0844,    1.0, 0.0,  102.6 / ! CAT1
       DATA subname(143), dif0(143), ar(143), meso(143), lebas(143) / 'PINENE          ',0.0545,    1.0, 0.0,  251.5 / ! SESQ
@@ -504,6 +504,13 @@ C Land use information:
       DATA subname(257), dif0(257), ar(257), meso(257), lebas(257) / 'ADIPIC_ACID     ',0.0489,    1.0,      0.0, 198.7/
       DATA subname(258), dif0(258), ar(258), meso(258), lebas(258) / 'IPNOPERA        ',0.0652,   86.6,      0.3, 104.8/ ! VD_IPN   
       DATA subname(259), dif0(259), ar(259), meso(259), lebas(259) / 'IPCOPERA        ',0.0687,    1.0,      0.3,  99.3/ ! VD_IPC       
+      DATA subname(260), dif0(260), ar(260), meso(260), lebas(260) / 'EBZOPERA        ',0.0636,    1.0,      0.0, 122.0/
+      DATA subname(261), dif0(261), ar(261), meso(261), lebas(261) / 'XYLOPERA        ',0.0636,    1.0,      0.0, 122.0/
+      DATA subname(262), dif0(262), ar(262), meso(262), lebas(262) / 'STYOPERA        ',0.0700,    1.0,      0.0, 115.4/
+      DATA subname(263), dif0(263), ar(263), meso(263), lebas(263) / 'IPXOPERA        ',0.0716,    1.0,      0.3,  99.3/
+      DATA subname(264), dif0(264), ar(264), meso(264), lebas(264) / 'INALDOPERA      ',0.0671,    1.0,      0.1,  78.0/
+      DATA subname(265), dif0(265), ar(265), meso(265), lebas(265) / '2NITRO_1BUTNL   ',0.0517,216903.,      0.1, 152.2/ ! HONIT
+
 
       CONTAINS
 

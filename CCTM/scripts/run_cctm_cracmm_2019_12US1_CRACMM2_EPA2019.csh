@@ -386,9 +386,12 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   #> + Emission Control (DESID) Documentation in the CMAQ User's Guide:
   #>   https://github.com/USEPA/CMAQ/blob/master/DOCS/Users_Guide/Appendix/CMAQ_UG_appendixB_emissions_control.md
   #>
-  setenv DESID_CTRL_NML ${BLD}/CMAQ_Control_DESID_cracmm2019.nml
+  # default DESID files
+ #setenv DESID_CTRL_NML ${BLD}/CMAQ_Control_DESID.nml
  #setenv DESID_CHEM_CTRL_NML ${BLD}/CMAQ_Control_DESID_${MECH}.nml
-  setenv DESID_CHEM_CTRL_NML ${BLD}/CMAQ_Control_DESID_${MECH}_for_ptnonipm.nml
+  # DESID files customized for EPA CRACMM2 2019 simulations
+  setenv DESID_CTRL_NML ${BLD}/CMAQ_Control_DESID_cracmm2019EPA.nml
+  setenv DESID_CHEM_CTRL_NML ${BLD}/CMAQ_Control_DESID_${MECH}_EPA2019.nml
 
   #> The following namelist configures aggregated output (via the Explicit and Lumped
   #> Air Quality Model Output (ELMO) Module), domain-wide budget output, and chemical
