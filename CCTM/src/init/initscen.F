@@ -74,13 +74,13 @@ C-----------------------------------------------------------------------
       USE UTILIO_DEFN
       USE ELMO_DATA, ONLY : L_ELMO, ELMO_NSTEP 
       USE ELMO_PROC, ONLY : OPEN_ELMO
+#ifndef mpas
 #ifdef parallel
       USE SE_MODULES            ! stenex (using SE_UTIL_MODULE)
+      USE VERTEXT_MODULE
 #else
       USE NOOP_MODULES          ! stenex (using NOOP_UTIL_MODULE)
 #endif
-#ifdef parallel
-      USE VERTEXT_MODULE
 #endif
 
 #ifdef isam
@@ -236,6 +236,7 @@ C *** Open the aerosol parameters file (diameters and standard deviations).
            ELMO_NSTEP = 0.0
       END IF
 
+#ifndef mpas
       IF ( .NOT. OPEN3( CTM_CONC_1, FSRDWR3, PNAME ) ) THEN
 
 #ifndef twoway
@@ -334,6 +335,7 @@ C Open SA_CONC_1 and SA_CGRID_1
       CALL SUBST_BARRIER
 
       CALL LOG_HEADING( LOGDEV, "Check Initial Concentrations" )
+#endif
 
       RETURN
       END

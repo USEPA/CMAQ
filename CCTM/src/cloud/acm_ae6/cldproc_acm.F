@@ -76,6 +76,12 @@ C-----------------------------------------------------------------------
      &                      S_TOTDEP, S_CONDEP, S_DEPWRT, SEN_PAR
 #endif
 
+#ifdef mpas
+      use util_module, only : nextime, index1, time2sec
+      use mio_module
+      use coupler_module
+#endif
+
       IMPLICIT NONE
 
 C...........INCLUDES
@@ -148,6 +154,20 @@ C...........Local Variables
 
       REAL FAC                       ! temp conversion factor
       REAL CCMIN
+#ifdef mpas
+      CHARACTER (20) :: TIME_STAMP               ! this is for mpas
+      integer :: year, month, day, hour, minute  ! this is for mpas
+
+! this is for creating the output name list
+      character (512) :: fname
+      character (30), allocatable, save :: name_list(:)
+      character (30) :: oname
+      character (120) :: buf, buf2
+      integer, save :: loc_n
+      integer :: loc_nvars, stat, n, k, fnum
+      logical :: found
+      character (16) :: wdep_spc(300)
+#endif
 
 #ifdef isam
       REAL, ALLOCATABLE, SAVE :: BUFF2 ( :,: )
@@ -395,6 +415,77 @@ Ckrt deposition arrays for tagged species.....
          END IF
 #endif
 
+#ifdef mpas
+! this is for creating the output name list
+         found = .false.
+         fnum = 0
+         do while ((.not. found) .and. (fnum < mio_outfile_def_info%num_of_file_definitions))
+            fnum = fnum + 1
+            if ('CTM_OUT' == mio_outfile_def_info%flist(fnum)%fname) then
+               found = .true.
+            end if
+         end do
+         if (.not. found) then
+            write (logdev, *) ' Abort: file CTM_OUT not on the file_input.txt'
+            stop
+         end if
+
+         loc_nvars = mio_outfile_def_info%flist(fnum)%nvars
+
+         loc_n = 0
+         if (found) then
+            allocate (name_list(loc_nvars), stat=stat)
+            do n = 1, loc_nvars
+               buf = mio_outfile_def_info%flist(fnum)%vlist(n)
+               found = .false.
+               k = 0
+               do while (.not. found)
+                  k = k + 1
+                  if (buf(k:k) == ' ') then
+                     found = .true.
+                  end if
+               end do
+               if (buf(1:3) == 'WD_') then
+                  loc_n = loc_n + 1
+                  name_list(loc_n) = buf(4:k-1)
+               end if
+            end do
+         end if
+
+
+         wdep_spc = ' '
+         SPC = 0
+         STRT = 1
+         FINI = N_GC_WDEP
+         DO VAR = STRT, FINI
+            SPC = SPC + 1
+            wdep_spc( VAR ) = GC_WDEP( SPC )
+         END DO
+
+         SPC = 0
+         STRT = N_GC_WDEP + 1
+         FINI = N_GC_WDEP + N_AE_WDEP
+         DO VAR = STRT, FINI
+            SPC = SPC + 1
+            wdep_spc ( VAR ) = AE_WDEP( SPC )
+         END DO
+
+         SPC = 0
+         STRT = N_GC_WDEP + N_AE_WDEP + 1
+         FINI = N_GC_WDEP + N_AE_WDEP + N_NR_WDEP
+         DO VAR = STRT, FINI
+            SPC = SPC + 1
+            wdep_spc ( VAR ) = NR_WDEP( SPC )
+         END DO
+
+         SPC = 0
+         STRT = N_GC_WDEP + N_AE_WDEP + N_NR_WDEP + 1
+         FINI = N_GC_WDEP + N_AE_WDEP + N_NR_WDEP + N_TR_WDEP
+         DO VAR = STRT, FINI
+            SPC = SPC + 1
+            wdep_spc ( VAR ) = TR_WDEP( SPC )
+         END DO
+#endif
       END IF   ! FIRSTIME
 
       MDATE = JDATE
@@ -564,6 +655,9 @@ C...determine no. of moles of tracer gas per moles of air by volume
 c ISAM  unit conversion
       DO SPC = 1, NSPC_SA
         VAR = MAP_SAtoCGR(SPC)
+
+        IF ( VAR .EQ. RHOJ_LOC  ) CYCLE    ! RHOJ 
+
         IF ( VAR .LE. N_GC_SPC .OR. VAR .GE. NR_STRT ) THEN ! this is not an aerosol
           DO ITAG = 1, NTAG_SA
             DO LAY = 1, NLAYS
@@ -675,6 +769,22 @@ Ckrt  for the tagged species as well....
         END DO ! n_spctag
 #endif
 
+#ifdef mpas
+
+         if ((loc_n > 0) .and. mpas_diag) then
+            time_stamp = ctm_out_clock
+
+            DO VAR = 1, N_SPC_WDEP
+               k = index1( WDEP_SPC( VAR ), loc_n, name_list)
+               if (k .gt. 0) then
+                  oname = 'WD_' // WDEP_SPC( VAR )
+                  call mio_fwrite ('CTM_OUT', oname, pname, TOT_DEP ( :,1, VAR ), TIME_STAMP)
+               end if
+            ENDDO
+         end if
+
+#else
+
 C...write data to the normal wet deposition file
 
         IF ( .NOT. WRITE3( CTM_WET_DEP_1, ALLVAR3, NDATE,
@@ -682,6 +792,7 @@ C...write data to the normal wet deposition file
           XMSG = 'Could not write ' // CTM_WET_DEP_1 // ' file'
           CALL M3EXIT ( PNAME, NDATE, NTIME, XMSG, XSTAT1 )
         END IF
+#endif
 
         WRITE( LOGDEV, '( /5X, 3( A, :, 1X ), I8, ":", I6.6 )' )
      &         'Timestep written to', CTM_WET_DEP_1,
@@ -713,12 +824,23 @@ c gas species
 C...write data to the diagnostic file if requested by the user
 
         IF ( CLD_DIAG ) THEN
+#ifdef mpas
+           if ((loc_n > 0) .and. mpas_diag) then
+              call mio_setfile (CTM_WET_DEP_2)
+
+              do spc = 1, mio_file_data(mio_cfile)%nvars
+                 VNAME = mio_file_data(mio_cfile)%var_name(spc)
+                 call mio_fwrite (CTM_WET_DEP_2, VNAME, pname, real(CONV_DEP(:,1,spc), 4), TIME_STAMP)
+              end do
+           end if
+#else
 
           IF ( .NOT. WRITE3( CTM_WET_DEP_2, ALLVAR3, NDATE,
      &                       NTIME, CONV_DEP ) ) THEN
           XMSG = 'Could not write ' // CTM_WET_DEP_2 // ' file'
             CALL M3EXIT ( PNAME, NDATE, NTIME, XMSG, XSTAT1 )
           END IF
+#endif
 
           WRITE( LOGDEV, '( /5X, 3( A, :, 1X ), I8, ":", I6.6 )' )
      &           'Timestep written to', CTM_WET_DEP_2,
@@ -890,6 +1012,9 @@ C...convert to ppmV tracer gas
 c ISAM  unit conversion
       DO SPC = 1, NSPC_SA
         VAR = MAP_SAtoCGR(SPC)
+
+        IF ( VAR .EQ. RHOJ_LOC ) CYCLE    ! RHOJ 
+
         IF ( VAR .LE. N_GC_SPC .OR. VAR .GE. NR_STRT ) THEN ! this is not an aerosol
           DO ITAG = 1, NTAG_SA
             DO LAY = 1, NLAYS

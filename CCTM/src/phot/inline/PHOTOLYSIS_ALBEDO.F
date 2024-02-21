@@ -108,10 +108,12 @@ C...        Function sets up arrays and data needed to calculate surface albedos
 C           use in radiative transfer calculation for actinic fluxes
 
             USE UTILIO_DEFN       ! IOAPI declaratiion and utilities
+#ifndef mpas
 #ifdef parallel
             USE SE_MODULES            ! stenex (using SE_UTIL_MODULE)
 #else
             USE NOOP_MODULES          ! stenex (using NOOP_UTIL_MODULE)
+#endif
 #endif
             USE PHOT_MOD          ! photolysis in-line module
             USE PCGRID_DEFN       ! get cgrid
@@ -556,10 +558,12 @@ C    latitudes and longitudes
 
             USE UTILIO_DEFN       ! IOAPI declaratiion and utilities
             USE PHOT_MOD          ! photolysis in-line module
+#ifndef mpas
 #ifdef parallel
             USE SE_MODULES        ! stenex (using SE_UTIL_MODULE)
 #else
             USE NOOP_MODULES      ! stenex (using NOOP_UTIL_MODULE)
+#endif
 #endif
             USE PCGRID_DEFN       ! get cgrid
             USE CENTRALIZED_IO_MODULE, only : interpolate_var, HAS_SEAICE

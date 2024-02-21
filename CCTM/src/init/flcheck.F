@@ -78,6 +78,7 @@ C Local Variables:
 
 C-----------------------------------------------------------------------
 
+#ifndef mpas
       CALL LOG_HEADING( LOGDEV, 'Check Input File Headers' )
 
       LERROR = .FALSE.
@@ -165,6 +166,7 @@ C-----------------------------------------------------------------------
          CALL LOG_MESSAGE( LOGDEV, 'No inconsistent header data found on input files' )
          WRITE( LOGDEV, * )
       END IF
+#endif
 
       RETURN
 

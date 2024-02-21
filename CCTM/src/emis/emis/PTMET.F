@@ -97,7 +97,7 @@ C-----------------------------------------------------------------------
 
          FUNCTION PTMET_INIT ( ) RESULT ( SUCCESS )
 
-         USE M3UTILIO
+         USE UTILIO_DEFN
          USE STK_PRMS, ONLY: MY_NSRC         
 
          IMPLICIT NONE
@@ -168,6 +168,36 @@ C Allocate per-layer arrays from 0:DESID_LAYS
 
          END FUNCTION PTMET_INIT 
 
+C-----------------------------------------------------------------------
+#ifdef mpas
+         SUBROUTINE PTMET_CONVT_MPAS ( N )
+
+         USE STK_PRMS, ONLY: MY_NSRC, SOURCE, my_nsrc_mesh_index
+         USE stack_group_data_module, ONLY: STKHT
+         USE coupler_module
+
+         IMPLICIT NONE
+
+         integer, intent(in) :: n
+
+         INTEGER S
+
+         IF ( MY_NSRC( N ) .GT. 0 ) THEN
+            DO S = 1, MY_NSRC( N )
+               PTMET_DATA( N )%USTAR( S )  = g2ddata(my_nsrc_mesh_index(s, n),1,ustar_ind)
+               PTMET_DATA( N )%HFX( S )    = g2ddata(my_nsrc_mesh_index(s, n),1,hfx_ind)
+               PTMET_DATA( N )%HMIX( S )   = g2ddata(my_nsrc_mesh_index(s, n),1,pbl_ind)
+
+               PTMET_DATA( N )%TA( :,S )   = g3ddata(my_nsrc_mesh_index(s, n),1,:,temp_ind)
+               PTMET_DATA( N )%ZH( :,S )   = g3ddata(my_nsrc_mesh_index(s, n),1,:,zh_ind)
+               PTMET_DATA( N )%ZF( :,S )   = g3ddata(my_nsrc_mesh_index(s, n),1,:,zf_ind)
+               PTMET_DATA( N )%DENS( :,S ) = g3ddata(my_nsrc_mesh_index(s, n),1,:,dens_ind)
+            END DO
+         END IF
+
+         END SUBROUTINE PTMET_CONVT_MPAS
+
+#else
 C-----------------------------------------------------------------------
 
          SUBROUTINE PTMET_CONVT( JDATE, JTIME, N )
@@ -314,6 +344,7 @@ C-----------------------------------------------------------------------
          !END DO   ! NPTGRPS
 
          END SUBROUTINE PTMET_CONVT
+#endif
 
 C-----------------------------------------------------------------------
 

@@ -1,8 +1,16 @@
 **Priority:**  
 high, medium, low
 
+
 **Description and/or issue being addressed**:  
 If this resolves a known issue, include the link to the GitHub Issue number.  
+
+**Does this PR resolve a known issue that should be posted as an Issue on the public CMAQ repo?**
+yes/no/maybe  
+(Note that selecting yes does not mean the issue will be posted immediately, but rather that we should discuss a plan for posting this issue.)
+
+**Is the model update in this PR targeted for the current bugfix ("+") branch on the public CMAQ repo?**
+yes/no/maybe
 
 **Impact on results:**   
 Description of how this change will impact model concentrations, change the format or structure of model outputs, etc.  

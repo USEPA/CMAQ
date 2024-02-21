@@ -35,7 +35,7 @@ echo 'Start Model Run At ' `date`
 #> Set General Parameters for Configuring the Simulation
  set VRSN      = v54               #> Code Version
  set PROC      = mpi               #> serial or mpi
- set MECH      = cracmm1_aq        #> Mechanism ID
+ set MECH      = cracmm2           #> Mechanism ID
  set EMIS      = 2018ff            #> Emission Inventory Details
  set APPL      = 4LISTOS1          #> Application Name (e.g. Gridname)
                                                        
@@ -148,7 +148,8 @@ setenv CTM_ADV_CFL 0.95      #> max CFL [ default: 0.75]
 #setenv RB_ATOL 1.0E-09      #> global ROS3 solver absolute tolerance [ default: 1.0E-07 ] 
 
 #> Science Options
-setenv CTM_OCEAN_CHEM Y      #> Flag for ocean halogen chemistry and sea spray aerosol emissions [ default: Y ]
+setenv CTM_OCEAN_CHEM Y      #> Flag for ocean halogen chemistry, sea spray aerosol emissions,
+                             #> and enhanced ozone deposition over ocean waters  [ default: Y ]
 setenv CTM_WB_DUST N         #> use inline windblown dust emissions [ default: Y ]
 setenv CTM_LTNG_NO N         #> turn on lightning NOx [ default: N ]
 setenv KZMIN Y               #> use Min Kz option in edyintb [ default: Y ], 
@@ -233,7 +234,7 @@ setenv CTM_WVEL Y            #> save derived vertical velocity component to conc
 #> Input Directories and Filenames
 # =====================================================================
 
-set ICpath    = /work/MOD3DEV/bplace/icbc_cracmm_LISTOS_v2       #> initial conditions input directory 
+set ICpath    = ${INPDIR}/icbc/cracmm1              #> initial conditions input directory 
 set BCpath    = $ICpath                             #> boundary conditions input directory
 set EMISpath  = $INPDIR/emis/cracmmv0_21_20211001   #> emissions input directory
 set IN_PTpath = $EMISpath/cmaq_ready_point          #> point source emissions input directory
@@ -289,7 +290,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
 
   #> Initial conditions
   if ($NEW_START == true || $NEW_START == TRUE ) then
-     setenv ICFILE ICON_v532_LISTOS4_cracmm_20180502.ncf
+     setenv ICFILE ICON_v532_LISTOS4_cracmm_20180502_NO_IEPOXP.ncf
      setenv INIT_MEDC_1 notused
      setenv INITIAL_RUN Y #related to restart soil information file
   else
@@ -353,7 +354,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
 
 
   #> Spatial Masks For Emissions Scaling
-  setenv CMAQ_MASKS ${LUpath}/ocean_file_LISTOS4.ncf #> horizontal grid-dependent surf zone file
+  setenv CMAQ_MASKS ${LUpath}/OCEAN_${MM}_L3m_MC_CHL_chlor_a_LISTOS4.nc #> horizontal grid-dependent surf zone file
 
   #> Determine Representative Emission Days
   set EMDATES = $INPDIR/emis/smk_dates/smk_merge_dates_${YYYYMM}.txt
@@ -472,7 +473,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   endif
 
   #> In-line sea spray emissions configuration
-  setenv OCEAN_1 ${LUpath}/ocean_file_LISTOS4.ncf  #> horizontal grid-dependent surf zone file
+  setenv OCEAN_1 ${LUpath}/OCEAN_${MM}_L3m_MC_CHL_chlor_a_LISTOS4.nc  #> horizontal grid-dependent surf zone file
 
   #> Bidirectional ammonia configuration
   if ( $CTM_ABFLUX == 'Y' ) then

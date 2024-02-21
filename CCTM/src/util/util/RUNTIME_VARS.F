@@ -66,6 +66,10 @@
       MODULE RUNTIME_VARS
 
       use get_env_module
+#ifdef mpas
+      use universal_data_module, only : logdev
+      use mydata_module
+#endif
 
       IMPLICIT NONE
 
@@ -74,7 +78,9 @@
       PUBLIC
 
       INTEGER :: OUTDEV = 6   ! File Unit for Standard Output
+#ifndef mpas
       INTEGER :: LOGDEV = -1  ! File Unit for Ascii Log File
+#endif
       INTEGER :: TOTPE  = 1   ! Number of Total Processors
       INTEGER :: NPROCS = 1   ! Number of Total Processors
       INTEGER :: MYPE   = -1  ! Processor Number
@@ -263,6 +269,7 @@
       INTEGER :: PA_ENDROW = 0       ! ending row for PA output
       INTEGER :: PA_BEGLEV = 0       ! Starting layer for PA output
       INTEGER :: PA_ENDLEV = 0       ! ending layer for PA output
+      CHARACTER( MAXLEN_CCTM_APPL ) :: BUDGET_FNAME  = 'CCTM_BUDGET' ! STAGE Deposition Control Filename
 
       ! Sulfur tracking
       LOGICAL :: STM        = .FALSE. ! flag for sulfur tracking option
@@ -304,7 +311,11 @@
 !.........................................................................
 
       USE RXNS_DATA, ONLY : MECHNAME
+#ifdef mpas
+      use utilio_defn
+#else
       USE M3UTILIO
+#endif
 
       IMPLICIT NONE                         
 
@@ -753,8 +764,8 @@
          WRITE( OUTDEV, '(6x,A)' ), REPEAT( '-',80 )
       END IF
 
-      ! CTM_VDIFF_DIAG_FILE
-      CALL GET_ENV ( VDIFFDIAG, 'CTM_VDIFF_DIAG_FILE', VDIFFDIAG, VARDEV )
+      ! Flag for writing vertical diffusion diagnostic file and possibly gravitational settling diagnostic file
+      CALL GET_ENV ( VDIFFDIAG, 'VDIFF_DIAG_FILE', VDIFFDIAG, VARDEV )
 
       ! Get Minimum Layer for Advection Time Step Adjustment
       CALL GET_ENV ( SIGST, 'SIGMA_SYNC_TOP', SIGST, VARDEV )
@@ -769,7 +780,11 @@
       CALL GET_ENV ( MINKZ, 'KZMIN', MINKZ, VARDEV )
 
       ! CTM_WVEL
+#ifdef mpas
+      W_VEL = .FALSE.
+#else
       CALL GET_ENV ( W_VEL, 'CTM_WVEL', W_VEL, VARDEV )
+#endif
 
       ! CTM_GRAV_SETL
       CALL GET_ENV ( GRAV_SETL, 'CTM_GRAV_SETL', GRAV_SETL, VARDEV )
@@ -937,6 +952,10 @@
          CALL M3EXIT( 'INIT_ENV_VARS', JDATE, JTIME, XMSG, EXIT_STATUS )
       END IF
 
+      ! Get the Budget File Name
+      CALL GET_ENV ( BUDGET_FNAME, 'CTM_BUDGET', BUDGET_FNAME, VARDEV )
+
+
       IF ( OCEAN_CHEM ) THEN
        IF ( (INDEX( MECHNAME, 'CB6R5M_AE7_AQ') .GT. 0 ) .OR. 
      &      (INDEX( MECHNAME, 'CB6R5_AE7_AQ' ) .GT. 0) ) then     
@@ -948,7 +967,7 @@
 #ifdef mpas
       call get_env (ncd_64bit_offset, 'ncd_64bit_offset', .false., vardev)
       call get_env( cell_num, 'cell_num', 1, vardev)
-#endif
+#else
 
 #ifdef twoway
       WRF_V4P = .TRUE.
@@ -1005,6 +1024,8 @@
       END IF
 #endif
 
+#endif
+
       END SUBROUTINE INIT_ENV_VARS
 
 !.........................................................................
@@ -1016,6 +1037,10 @@
 !  we would like to try limiting lines to 80 characters and a heading
 !  should probably just be one line.
 !.........................................................................
+
+#ifdef mpas
+      use util_module
+#endif
 
       IMPLICIT NONE
 
