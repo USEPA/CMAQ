@@ -135,11 +135,12 @@
    ! Used for BEIS and MEGAN
    'EVERYWHERE', 'ALL'        ,'VROCP6ARO','VROCP6ARO'  ,'GAS'  ,1   ,'UNIT','a',
    ! Used for MEGAN only
-   'EVERYWHERE', 'ALL'        ,'VROCP5ARO','VROCP5ARO'  ,'GAS'  ,1   ,'UNIT','a',
-   'EVERYWHERE', 'ALL'        ,'VROCP1ALK','VROCP1ALK'  ,'GAS'  ,1   ,'UNIT','a',
-   'EVERYWHERE', 'ALL'        ,'VROCP2ALK','VROCP2ALK'  ,'GAS'  ,1   ,'UNIT','a',
-   'EVERYWHERE', 'ALL'        ,'VROCP4ALK','VROCP4ALK'  ,'GAS'  ,1   ,'UNIT','a',
-   'EVERYWHERE', 'ALL'        ,'VROCP5ALK','VROCP5ALK'  ,'GAS'  ,1   ,'UNIT','a',
+   'EVERYWHERE', 'ALL'        ,'VROCP5ARO' ,'VROCP5ARO'  ,'GAS'  ,1   ,'UNIT','a',
+   'EVERYWHERE', 'ALL'        ,'VROCP1OXY1','VROCP1OXY1' ,'GAS'  ,1   ,'UNIT','a',
+   'EVERYWHERE', 'ALL'        ,'VROCP1OXY3','VROCP1OXY3' ,'GAS'  ,1   ,'UNIT','a',
+   'EVERYWHERE', 'ALL'        ,'VROCP2OXY2','VROCP2OXY2' ,'GAS'  ,1   ,'UNIT','a',
+   'EVERYWHERE', 'ALL'        ,'VROCP4ALK' ,'VROCP4ALK'  ,'GAS'  ,1   ,'UNIT','a',
+   'EVERYWHERE', 'ALL'        ,'VROCP5OXY1','VROCP5OXY1' ,'GAS'  ,1   ,'UNIT','a',
 
    ! Default Aerosols
    'EVERYWHERE', 'ALL'         ,'SULF'   ,'ASO4'        ,'FINE' ,1.  ,'MASS','a', 
