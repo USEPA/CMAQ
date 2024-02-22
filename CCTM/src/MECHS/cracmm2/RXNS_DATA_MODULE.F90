@@ -6,7 +6,7 @@
 
 
 ! --------- Photochemical Mechanism Reactions, Rates, etc. DAT ---------
-! Source file: /work/MOD3DEV/tskipper/cracmm_hcho/20240209_build_testing/UTIL/chemmech/input/cracmm2/mech_cracmm2.def
+! Source file: /work/MOD3DEV/tskipper/cracmm_hcho/20240209_cracmm2_delta_elements/UTIL/chemmech/input/cracmm2/mech_cracmm2.def
 ! for Mechanism Name: CRACMM2                         
 
 ! This file is used to create mechanism data and functions
