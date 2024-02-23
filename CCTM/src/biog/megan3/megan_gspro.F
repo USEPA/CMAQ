@@ -93,9 +93,6 @@
      &         MIOG_MECH_TYPE( 'CRACMM1_AQ             ','CRACMM1 '),
      &         MIOG_MECH_TYPE( 'CRACMM1AMORE_AQ        ','CRACMM1 '),
      &         MIOG_MECH_TYPE( 'CRACMM2                ','CRACMM2 ') /)
-     &         MIOG_MECH_TYPE( 'CRACMM1_AQ             ','CRACMM  '),
-     &         MIOG_MECH_TYPE( 'CRACMM2                ','CRACMM  '),
-     &         MIOG_MECH_TYPE( 'CRACMM1AMORE_AQ        ','CRACMM  ') /)
 
             INDX = INDEX1( MECHNAME, NMECHS, MIOG_MECH_MAP%CHEMMECH )
             MECHANISM = MIOG_MECH_MAP( INDX )%MIOGMECH
