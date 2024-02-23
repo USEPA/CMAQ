@@ -111,7 +111,7 @@ ABPINENES       ,ppbV      ,1000.0*(API[1])
 ALDX            ,ppbV      ,1000.0*ALD[1],            C3 and higher aldehydes is ALD in RACM2
 !NOZ             ,ppbV      ,NOY[0]-NOX[0]
 !SULF            ,ppbV      ,1000.0*SULF[1]
-! LSIVROC: L/S/IVOC alk and oxy gas species
+! SIGROC: S/IVOC alk and oxy gas species
 LSIVROC         ,ppbC      ,1000.0* (9.5*VROCIOXY[1] \
                                     +14.0*VROCP5ARO[1]+13.0*VROCP6ARO[1] \
                                     +30.0*VROCN2ALK[1]+29.0*VROCN1ALK[1] \

@@ -106,6 +106,10 @@
    'EVERYWHERE', 'ALL'         ,'TOL'    ,'TOL'         ,'GAS'  ,1.  ,'UNIT','a', 
    'EVERYWHERE', 'ALL'         ,'UALD'   ,'UALD'        ,'GAS'  ,1.  ,'UNIT','a', 
    'EVERYWHERE', 'ALL'         ,'XYL'    ,'XYL'         ,'GAS'  ,1.  ,'UNIT','a',  
+   'EVERYWHERE', 'ALL'         ,'TOL'    ,'TOL'         ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'UALD'   ,'UALD'        ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'XYM'    ,'XYM'         ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'XYE'   ,'XYE'         ,'GAS'  ,1.  ,'UNIT','a',  
 
 
    ! Volatility resolved CRACMM gases (ignore in RACM2)
