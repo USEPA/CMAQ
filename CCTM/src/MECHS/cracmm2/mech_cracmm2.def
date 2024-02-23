@@ -126,6 +126,19 @@
 !      reaction products to include some NOx cycling.
 ! - Added styrene (STY) chemistry based on MCM
 ! - Updated xylene (XYL) and ethylbenzene (EBZ) species names (no chemistry changes)
+!
+! Notes on elemental balance terms (DELTA_C, DELTA_N, DELTA_SI):
+! - DELTA_C, DELTA_N, and DELTA_SI appear in reactions where the number of carbons,
+!      nitrogens, or silicons are not balanced in the reactants and products.
+! - These species are ignored in the chemistry (see ELIMINATE block) and are only
+!      for informational purposes.
+! - The sign of DELTA_* indicates whether an element is being lost or produced in
+!      the reaction. Using DELTA_C as an example, -DELTA_C means the reaction has
+!      a net production of carbon (carbon needs to be subtracted to make the number
+!      of carbons in the products match the number of carbons in the reactants).
+!      +DELTA_C means the reaction has a net loss of carbon (carbon needs to be added
+!      to make the number carbons in the products match the number of carbons in
+!      the reactants).
 !------------------------------------------------------------------------------
 CRACMM2
 
@@ -134,12 +147,6 @@ DELTA_SI;
 DELTA_N;
 DELTA_C;
 END ELIMINATE
-
-
-
-
-
-
 
 REACTIONS[CM] =                                                                                                                                                                      
 
