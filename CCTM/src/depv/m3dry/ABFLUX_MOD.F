@@ -79,6 +79,7 @@ C-------------------------------------------------------------------------------
          Use UTILIO_DEFN         
          Use Bidi_Mod, Only: gamma1, gamma2, MHp1, MHp2
          Use depv_data_module
+         Use, intrinsic :: ieee_arithmetic, only: isnan => ieee_is_nan
 
          Implicit None 
 ! Includes
@@ -499,19 +500,5 @@ C-------------------------------------------------------------------------------
 
          Return        
          End Subroutine Get_Flux
-
-
-         Logical Function IsNaN( a ) ! required for Portland Group compiler (pgi)
-            Real :: a
-            If ( a .Eq. a ) Then   ! requires -Kieee flag for pgi
-!              write( *,* ) '==IsNaN false: ', a
-               IsNaN = .false.
-            Else
-!              write( *,* ) '==IsNaN true: ', a
-               IsNaN = .true.
-            End If
-            Return
-         End Function IsNaN  ! error, if pgf90
-!        End  ! error, if ifort
 
       End Module ABFlux_Mod
