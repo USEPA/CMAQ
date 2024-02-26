@@ -36,7 +36,7 @@ cd CCTM/scripts
 #> Set General Parameters for Configuring the Simulation
  set VRSN      = v54               #> Code Version
  set PROC      = mpi               #> serial or mpi
- set MECH      = cracmm1_aq        #> Mechanism ID
+ set MECH      = cracmm2           #> Mechanism ID
  set EMIS      = WR705_2018gc2     #> Emission Inventory Details
  set APPL      = STAGE_EM_2018_12US1  #> Application Name (e.g. Gridname)
 
