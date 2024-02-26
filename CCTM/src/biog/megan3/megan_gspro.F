@@ -40,7 +40,7 @@
             INCLUDE 'SPC_CB6_AE7.EXT'
             INCLUDE 'SPC_RACM2.EXT'        ! new in MEGAN3
             INCLUDE 'SPC_CRACMM1.EXT'        ! new in CMAQ 5.4
-            INCLUDE 'SPC_CRACMM2.EXT'        ! new in CMAQ 5.4
+            INCLUDE 'SPC_CRACMM2.EXT'        ! new in CMAQ 5.5
             INCLUDE 'MAP_CV2CB05.EXT'
             INCLUDE 'SPC_SAPRC07.EXT'      ! new in MEGAN3
             INCLUDE 'SPC_SAPRC07T.EXT'    ! new in MEGAN3
