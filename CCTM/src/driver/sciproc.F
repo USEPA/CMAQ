@@ -202,7 +202,7 @@ C-----------------------------------------------------------------------
       END IF
 #endif
 
-! Write Time Step Information to Summary Logfile
+      ! Calculate and Write Time Step Information to Summary Logfile
       IF ( MYPE .EQ. 0 ) WRITE( OUTDEV, * ) 
       WRITE( LOGDEV, * )
 
@@ -229,7 +229,7 @@ C-----------------------------------------------------------------------
       IF ( MYPE .EQ. 0 ) CALL LOG_MESSAGE( OUTDEV, XMSG )
       CALL LOG_MESSAGE( LOGDEV, XMSG )
 
-C Synchronization Step Physical Processes Sequence
+      ! Calculate Vertical Diffusion, Dry Deposition, and Emissions
       CALL VDIFF ( CGRID, JDATE, JTIME, TSTEP )
       IF ( CKSUM ) CALL CKSUMMER ( 'VDIFF', CGRID, JDATE, JTIME )
 #ifndef mpas
@@ -237,15 +237,16 @@ C Synchronization Step Physical Processes Sequence
 #endif
       IF ( PRINT_PROC_TIME ) CALL TIMING_SPLIT ( CPU_TIME_START, 1, 'VDIFF' )
 
+      ! Save time at end of the current time-step in SDATE and STIME
       SDATE = JDATE
       STIME = JTIME
       CALL NEXTIME ( SDATE, STIME, TSTEP( 2 ) )
 
       IF ( .NOT. COLUMN_MODEL ) THEN
-
-C couple CGRID for advection and horizontal diffusion
-C The COUPLE routine converts aerosol mass from ug/m3 to kg/m3. The 
-C DECOUPLE routine converts it back to ug/m3.
+         ! Calculate Horizontal Transport
+         ! couple CGRID for advection and horizontal diffusion
+         ! The COUPLE routine converts aerosol mass from ug/m3 to kg/m3. The 
+         ! DECOUPLE routine converts it back to ug/m3.
 
 #ifndef mpas
          CALL COUPLE ( CGRID, JDATE, JTIME, TSTEP )
@@ -270,9 +271,9 @@ C DECOUPLE routine converts it back to ug/m3.
          IF ( PRINT_PROC_TIME ) CALL TIMING_SPLIT ( CPU_TIME_START, 1, 'HDIFF' )
 #endif
 
-C decouple CGRID for cloud and chemistry
-         
 #ifndef mpas
+         ! Decouple CGRID for cloud and chemistry corresponding to conditions
+         ! at the end of the time step (i.e. SDATE, STIME)
          CALL DECOUPLE ( CGRID, SDATE, STIME, TSTEP )
          IF ( CKSUM ) CALL CKSUMMER ( 'DECOUPLE', CGRID, JDATE, JTIME )
          IF ( PRINT_PROC_TIME ) CALL TIMING_SPLIT ( CPU_TIME_START, 1, 'DECOUPLE' )
@@ -281,11 +282,12 @@ C decouple CGRID for cloud and chemistry
 
       END IF ! Not Column Model
       
-      
+      ! Calculate Photolysis Rates
       CALL PHOT ( CGRID, JDATE, JTIME, TSTEP )
       IF ( CKSUM ) CALL CKSUMMER ( 'PHOT', CGRID, JDATE, JTIME )
       IF ( PRINT_PROC_TIME ) CALL TIMING_SPLIT ( CPU_TIME_START, 1, 'PHOT' )
 
+      ! Calculate Cloud Scavening and Chemistry
       CALL CLDPROC ( CGRID, JDATE, JTIME, TSTEP )
       IF ( CKSUM ) CALL CKSUMMER ( 'CLDPROC', CGRID, JDATE, JTIME )
 #ifndef mpas
@@ -293,6 +295,7 @@ C decouple CGRID for cloud and chemistry
 #endif
       IF ( PRINT_PROC_TIME ) CALL TIMING_SPLIT ( CPU_TIME_START, 1, 'CLDPROC' )
 
+      ! Calculate Gas- and Particle-Phase Chemistry
       IF ( STM ) CALL STM_WRAP_GAS ( CGRID, JDATE, JTIME, .TRUE. )
       CALL CHEM ( CGRID, JDATE, JTIME, TSTEP )
       IF ( CKSUM ) CALL CKSUMMER ( 'CHEM', CGRID, JDATE, JTIME )
@@ -303,6 +306,7 @@ C decouple CGRID for cloud and chemistry
       IF ( PRINT_PROC_TIME ) CALL TIMING_SPLIT ( CPU_TIME_START, 1, 'CHEM' )
 
 #ifdef potvorto3
+      ! Calculate Impact of Potential Vorticity
       CALL PVO3 ( CGRID, JDATE, JTIME )
       IF ( CKSUM ) CALL CKSUMMER ( 'PVO3', CGRID, JDATE, JTIME )
 #ifndef mpas
@@ -312,9 +316,12 @@ C decouple CGRID for cloud and chemistry
 #endif
 
 #ifdef isam
+      ! Save ISAM concentration field to use for apportioning
+      ! aerosols and semivolatile gases after AERO is called
       CGRID0  = CGRID
 #endif
 
+      ! Calculate Aerosol Microphysics
       CALL AERO ( CGRID, JDATE, JTIME, TSTEP )
 #ifdef isam
       CALL SA_WRAP_AE( CGRID0, CGRID, JDATE, JTIME, TSTEP )
@@ -326,10 +333,11 @@ C decouple CGRID for cloud and chemistry
 #endif
       IF ( PRINT_PROC_TIME ) CALL TIMING_SPLIT ( CPU_TIME_START, 1, 'AERO' )
 
+      ! Advance Time Step
       CALL NEXTIME ( JDATE, JTIME, TSTEP( 2 ) )
       WRITE( LOGDEV,'(/ 5X, A, I8, I7.6)' ) NMSG, JDATE, JTIME
 
-! Print Summary Timing for Master time step      
+      ! Print Summary Timing for Master time step      
       CALL TIMING_SPLIT ( CPU_TIME_START_MASTER, 2 )
 
 1002  FORMAT ( 2x, A15, ' completed... ', F6.1, ' seconds' )
