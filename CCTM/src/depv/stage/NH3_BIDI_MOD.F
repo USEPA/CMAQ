@@ -59,6 +59,7 @@
 C                   J. Bash:   Nov   7 14:  Modified for the restructuring of vidff.
 !                   D. Wong:   Feb  10 19:  Implemented centralized I/O approach, removed all MY_N clauses
 C-------------------------------------------------------------------------------
+      Use, intrinsic :: ieee_arithmetic, only: isnan => ieee_is_nan
 
       Implicit None
 ! shared variables
@@ -66,7 +67,6 @@ C-------------------------------------------------------------------------------
 ! Private variables used in this module and subroutines     
       Real, Save,              Private :: C_gam           ! Canadian fertilizer facter   
       Real, Parameter,         Private :: maxgam   = 2.0e5 ! maximum soil gamm. It is assumed that any excess NH4 would from salts
-!      Real, Parameter,         Private :: natgam   = 20.0  ! Background soil gamma
 ! variables for STAGE bidi NH3
       Real, Save, Allocatable, Private :: frac_ag( :,: ) ! fraction of ag    
       Real, Save, Allocatable, Private :: knit1  ( :,: ) ! EPIC Grid nitrificaiton rate
@@ -196,14 +196,14 @@ C-------------------------------------------------------------------------------
 ! EPIC v1.4 does not always correctly write out m3badval in areas where there is no data. In these cases, 
 ! EPIC writes out large negative values which can cause issues with the bidirectional exchange numerics. 
 ! The following variables should always be positive and a floor of 0.0 is now set to mitigate numerical issues. 
-         Where( Nit1   .Ne. Nit1   ) Nit1   = 0.0
-         Where( Nit2   .Ne. Nit2   ) Nit2   = 0.0
-         Where( F1_NH4 .Ne. F1_NH4 ) F1_NH4 = 0.0
-         Where( F2_NH4 .Ne. F2_NH4 ) F2_NH4 = 0.0
-         Where( NH4ps1 .Ne. NH4ps1 ) NH4ps1 = 0.0
-         Where( NH4ps2 .Ne. NH4ps2 ) NH4ps2 = 0.0
-         Where( pHs1   .Ne. pHs1   ) pHs1   = 0.0
-         Where( pHs2   .Ne. pHs2   ) pHs2   = 0.0
+         Where( isnan( Nit1   ) ) Nit1   = 0.0
+         Where( isnan( Nit2   ) ) Nit2   = 0.0
+         Where( isnan( F1_NH4 ) ) F1_NH4 = 0.0
+         Where( isnan( F2_NH4 ) ) F2_NH4 = 0.0
+         Where( isnan( NH4ps1 ) ) NH4ps1 = 0.0
+         Where( isnan( NH4ps2 ) ) NH4ps2 = 0.0
+         Where( isnan( pHs1   ) ) pHs1   = 0.0
+         Where( isnan( pHs2   ) ) pHs2   = 0.0
          Where( Nit1   .Lt. 0.0 ) Nit1   = 0.0
          Where( Nit2   .Lt. 0.0 ) Nit2   = 0.0
          Where( F1_NH4 .Lt. 0.0 ) F1_NH4 = 0.0
@@ -667,7 +667,7 @@ C-------------------------------------------------------------------------------
             gamma2( C,R ) = gam
          End If
 
-         If ( IsNaN( gam ) ) Then
+         If ( isnan( gam ) ) Then
             xmsg = 'NaN in Gamma Calculation'
             Write( logdev,* ) 'MNHx   :', MNHx
             Write( logdev,* ) 'gam    :', gam
@@ -687,15 +687,5 @@ C-------------------------------------------------------------------------------
 
          Return
          End Subroutine Calc_Nitrif
-
-         Logical Function IsNaN( a ) ! required for Portland Group compiler (pgi)
-            Real :: a
-            If ( a .Eq. a ) Then   ! requires -Kieee flag for pgi
-               IsNaN = .false.
-            Else
-               IsNaN = .true.
-            End If
-            Return
-         End Function IsNaN  ! error, if pgf90
 
       End Module NH3_Bidi_Mod
