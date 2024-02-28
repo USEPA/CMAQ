@@ -42,6 +42,8 @@ SUBROUTINE wrfemopts (txt_cupa, txt_microphys, txt_lwrad, txt_swrad,  &
 !           18 Jun 2019  Updated for WRFv4.1 options.  Improved metadata to
 !                        annotate if radiative feedbacks were included in the
 !                        convective scheme.  (T. Spero)
+!           28 Feb 2024  Updated for options through WRFv4.5.2. Pulled options
+!                        from WRF Users Guide for v4.5. (T. Spero)
 !-------------------------------------------------------------------------------
 
   USE metinfo
@@ -74,7 +76,7 @@ SUBROUTINE wrfemopts (txt_cupa, txt_microphys, txt_lwrad, txt_swrad,  &
       IF ( ifcuradfdbk ) THEN  ! feedback with radiation
         txt_cupa = 'KF with radiative feedback'
       ELSE
-        txt_cupa = 'Kain-Fritsch (new Eta)'
+        txt_cupa = 'Kain-Fritsch'
       ENDIF
     CASE ( 2 )
       txt_cupa = 'Betts-Miller-Janjic'
@@ -89,7 +91,7 @@ SUBROUTINE wrfemopts (txt_cupa, txt_microphys, txt_lwrad, txt_swrad,  &
         txt_cupa = 'Grell-Devenyi'
       ENDIF
     CASE ( 4 )
-      txt_cupa = 'Simplified Arakawa-Schubert'
+      txt_cupa = 'Old Simpl. Arakawa-Schubert'
     CASE ( 5 )
       IF ( ifcuradfdbk ) THEN
         txt_cupa = 'Grell G3 w radiative feedback'
@@ -105,7 +107,7 @@ SUBROUTINE wrfemopts (txt_cupa, txt_microphys, txt_lwrad, txt_swrad,  &
     CASE ( 11 )
       txt_cupa = 'MSKF with radiative feedback'
     CASE ( 14 )
-      txt_cupa = 'New Simpl. Arakawa-Schubert'
+      txt_cupa = 'KIAPS Simpl. Arakawa-Schubert'
     CASE ( 16 )
       txt_cupa = 'Newer Tiedtke'
     CASE ( 84 )
@@ -136,11 +138,11 @@ SUBROUTINE wrfemopts (txt_cupa, txt_microphys, txt_lwrad, txt_swrad,  &
     CASE ( 4 )
       txt_microphys = 'WSM 5-Class'
     CASE ( 5 )
-      txt_microphys = 'Ferrier (new Eta) Hi-Res'
+      txt_microphys = 'Ferrier (Eta)'
     CASE ( 6 )
       txt_microphys = 'WSM 6-Class'
     CASE ( 7 )
-      txt_microphys = 'Goddard GCE'
+      txt_microphys = 'Goddard GCE (4 ice)'
     CASE ( 8 )
       txt_microphys = 'Thompson'
     CASE ( 9 )
@@ -175,6 +177,8 @@ SUBROUTINE wrfemopts (txt_cupa, txt_microphys, txt_lwrad, txt_swrad,  &
       txt_microphys = 'HUJI spectral bin -- fast'
     CASE ( 32 )
       txt_microphys = 'HUJI spectral bin -- full'
+    CASE ( 38 )
+      txt_microphys = 'Thompson Hail/Graupel/Aero'
     CASE ( 40 )
       txt_microphys = 'Morrison+CESM aerosol'
     CASE ( 50 )
@@ -183,8 +187,12 @@ SUBROUTINE wrfemopts (txt_cupa, txt_microphys, txt_lwrad, txt_swrad,  &
       txt_microphys = 'P3 1-cat + dbl-mom cld water'
     CASE ( 52 )
       txt_microphys = 'P3 2 ice'
+    CASE ( 53 )
+      txt_microphys = 'P3 3 ice'
     CASE ( 55 )
       txt_microphys = 'Jensen ISHMAEL'
+    CASE ( 56 )
+      txt_microphys = 'NTU'
     CASE ( 95 )
       txt_microphys = 'Ferrier (old Eta) NAM'
     CASE ( 98 )
@@ -211,7 +219,7 @@ SUBROUTINE wrfemopts (txt_cupa, txt_microphys, txt_lwrad, txt_swrad,  &
     CASE ( 3 )
       txt_lwrad = 'CAM'
     CASE ( 4 )
-      txt_lwrad = 'RRTMg'
+      txt_lwrad = 'RRTMG'
     CASE ( 5 )
       txt_lwrad = 'New Goddard'
     CASE ( 7 )
@@ -242,7 +250,7 @@ SUBROUTINE wrfemopts (txt_cupa, txt_microphys, txt_lwrad, txt_swrad,  &
     CASE ( 3 )
       txt_swrad = 'CAM'
     CASE ( 4 )
-      txt_swrad = 'RRTMg'
+      txt_swrad = 'RRTMG'
     CASE ( 5 )
       txt_swrad = 'New Goddard'
     CASE ( 7 )
@@ -271,7 +279,7 @@ SUBROUTINE wrfemopts (txt_cupa, txt_microphys, txt_lwrad, txt_swrad,  &
     CASE ( 2 )
       txt_pbl = 'Mellor-Yamada-Janjic (Eta) TKE'
     CASE ( 4 )
-      txt_pbl = 'QNSE'
+      txt_pbl = 'QNSE-EDMF'
     CASE ( 5 )
       txt_pbl = 'MYNN 2.5 level TKE'
     CASE ( 6 )
@@ -288,6 +296,10 @@ SUBROUTINE wrfemopts (txt_cupa, txt_microphys, txt_lwrad, txt_swrad,  &
       txt_pbl = 'Shin-Hong scale-aware scheme'
     CASE ( 12 )
       txt_pbl = 'Grenier-Bretherton-McCaa'
+    CASE ( 16 )
+      txt_pbl = 'EEPS'
+    CASE ( 17 )
+      txt_pbl = 'KEPS'
     CASE ( 94 )
       txt_pbl = 'Quasi-Normal Scale Elim'
     CASE ( 99 )
@@ -321,6 +333,8 @@ SUBROUTINE wrfemopts (txt_cupa, txt_microphys, txt_lwrad, txt_swrad,  &
       txt_sflay = 'Total Energy-Mass Flux (TEMF)'
     CASE ( 11 )
       txt_sflay = 'Revised MM5 (Jimenez)'
+    CASE ( 91 )
+      txt_sflay = 'MM5 Similarity'
     CASE DEFAULT
       txt_sflay = '*** Unknown ***'
   END SELECT
@@ -386,6 +400,10 @@ SUBROUTINE wrfemopts (txt_cupa, txt_microphys, txt_lwrad, txt_swrad,  &
       txt_shcu = 'UW Bretherton and Park (CESM)'
     CASE ( 3 )
       txt_shcu = 'GRIMS (YSU)'
+    CASE ( 4 )
+      txt_shcu = 'NSAS Shallow Scheme'
+    CASE ( 5 )
+      txt_shcu = 'Deng Shallow Scheme'
     CASE DEFAULT
       txt_shcu = '*** Unknown ***'
   END SELECT
