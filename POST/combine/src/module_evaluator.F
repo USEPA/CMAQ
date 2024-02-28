@@ -42,8 +42,10 @@ C***********************************************************************
       Integer, Private :: isize
       
       Logical, Allocatable, Private :: eflag( : )
-      Character( 256 ), Private :: emsg
-      Character*(EXP_LEN), Private :: formula
+
+      Character( 256 ),     Private :: emsg
+      Character*(EXP_LEN),  Private :: formula
+      Character( 16 ),      Private :: out_species
 
       Interface            
          Subroutine getFld( record, delimiter, nth, del, field, exception )
@@ -84,11 +86,12 @@ C***********************************************************************
 
 C  subroutine to evaluate species expression at date
 C  returns buffer array values
-      Subroutine evaluate(expression,jdate,jtime,jlayer,jsize,buffer)
+      Subroutine evaluate(species,expression,jdate,jtime,jlayer,jsize,buffer)
 
       IMPLICIT NONE
 
       ! arguments
+      Character*(*) species
       Character*(*) expression
       Integer jdate, jtime
       Integer jlayer
@@ -111,6 +114,8 @@ C  returns buffer array values
       ilayer   = jlayer
       isize    = jsize
     
+      ! copy output species name
+      out_species = Trim( Adjustl(species) )
       ! make copy of expression to modify
       formula   = expression
       expresscp = expression
@@ -844,7 +849,9 @@ C  subroutine to evaluate species expression (parses major fields (+-))
     
         If( field.eq.' ' ) Then
           value = 0.0D0
-          Write(6,'(2a)')'eval2 Error: Empty Field in expression,',Trim(Formula)
+          Write(6,'(3a)') 
+     &    'eval2 Error: Empty Field or Missing Input Species Name in expression,',
+     &    Trim(Formula),' for output species ' // Trim( out_species ) // '.'
           Stop
         else
           call eval3b( field, value)
@@ -855,8 +862,9 @@ C  subroutine to evaluate species expression (parses major fields (+-))
         else If( operator.eq.'-' ) Then
           buffer = buffer - value
         else
-          Write(6,'(2a)')'Error: Unknown Operator, ' // Trim(operator) 
-     &    // ' in expression,',Trim(Formula)
+          Write(6,'(2a)')'eval2 Error: Unknown Operator, ' // Trim(operator) 
+     &    // ' in expression,',Trim(Formula) // ' for output species ' // Trim( out_species )
+     &    // '. Allowed operators are +, -, *, /, and ^.'
           Stop
         End If
 
@@ -992,7 +1000,8 @@ C  routine to compute a field of the expression (parses minor fields (*/^))
           End If
         Else
           Write(6,'(2a)')'eval3b Error: Unknown Operator, ' // Trim(operator) 
-     &    // ' in expression,',Trim(Formula)
+     &    // ' in expression,',Trim(Formula) // ' for output species ' // Trim( out_species )
+     &    // '. Allowed operators are +, -, *, /, and ^.'
           Stop
         End If
 
@@ -1101,7 +1110,9 @@ C  routine to compute a field of the expression (parses minor fields (*/^))
         End If 
 
         If( Len_Trim(field) .Le. 0 )Then 
-            Write(6,'(2a)')'GetValue Error: Empty Field in expression,',Trim(Formula)
+            Write(6,'(3a)')
+     &      'GetValue Error: Empty Field or Missing Input Species Name in expression,',Trim(Formula),
+     &      ' for output species ' // Trim( out_species ) // '.'
             Stop
         End If
 
@@ -1124,8 +1135,9 @@ C  routine to compute a field of the expression (parses minor fields (*/^))
           pos2 = index(field, ']',.true.)
           specName = field(pos1+1:pos2-1)
           if( pos2 .lt. Len_Trim(Field) )Then
-             Write(6,'(5(a,1x))')'GetValue Error: Unknown operator and species ',Trim(Field(pos2+1:)),
-     &         ' in formula,',Trim(Formula)
+             Write(6,'(5(a,1x))')'GetValue Error: Unknown operator or input species ',Trim(Field(pos2+1:)),
+     &         ' in formula,',Trim(Formula) // ' for output species ' // Trim( out_species )
+     &      // '. Allowed operators are +, -, *, /, and ^.'
              Stop
           end if
   
@@ -1159,7 +1171,8 @@ C  routine to compute a field of the expression (parses minor fields (*/^))
           Return
         Else
              Write(*,1099)
-     &       Trim( field ),Trim( Formula )
+     &       Trim( field ),Trim( Formula ) // ' for output species ' 
+     &    // Trim( out_species ) // '. An operator may be missing or mistyped.'
              stop 
         End If
 
