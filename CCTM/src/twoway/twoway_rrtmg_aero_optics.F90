@@ -1482,7 +1482,7 @@ contains
 
        integer :: IFLAG,N,NSTOP
 
-       character (len = 100) :: mystr
+       character (len = 400) :: mystr
 
 !         -----------------------------------------------------------
 !              del is the inner sphere convergence criterion
