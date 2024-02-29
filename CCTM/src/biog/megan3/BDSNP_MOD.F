@@ -376,9 +376,11 @@ C     If False Dont do any calculations to test - replicate 0 output
             ! that accounts for soil pulsing
 C            PFACTOR( C,R ) = PULSING( THETA, TSTEP, THETAPREV,
 C     &                       PFACTOR( C,R ), DRYPERIOD( C,R ) )
-            PULSE = PULSING( THETA, TSTEP, THETAPREV,
-     &                       PFACTOR( C,R ), DRYPERIOD( C,R ) )
 
+            IF(.Not. L_DESID_DIAG) Then
+              PULSE = PULSING( THETA, TSTEP, THETAPREV,
+     &                         PFACTOR( C,R ), DRYPERIOD( C,R ) )
+            END IF
             A_FERT = FERTADD( FERT( C,R ) , NDEPRES( C,R ) ) !adds reservoirs returns emission rates
 
             ! Canopy reduction factor
@@ -481,9 +483,10 @@ C -----------------------------------------------------
             ! that accounts for soil pulsing
 C            PFACTOR( C,R ) = PULSING( THETA, TSTEP, THETAPREV,
 C     &                       PFACTOR( C,R ), DRYPERIOD( C,R ) )
-            PULSE = PULSING( THETA, TSTEP, THETAPREV,
-     &                       PFACTOR( C,R ), DRYPERIOD( C,R ) )
-
+            IF(.Not. L_DESID_DIAG) Then
+              PULSE = PULSING( THETA, TSTEP, THETAPREV,
+     &                         PFACTOR( C,R ), DRYPERIOD( C,R ) )
+            END IF
          END DO
          END DO
       END IF ! end do nothing test if
