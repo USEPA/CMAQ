@@ -39,6 +39,7 @@ C             emissions when in-line option is enabled with RACM2
 C     07 June 2021 G. Sarwar: replaced "B10RD" with "B3V10" for RACM2
 C     30 Sept 2021 G. Sarwar: added CB6R5_AE7_AQ
 C     04 Oct  2021 G. Sarwar: added CB6R5HAP_AE7_AQ
+C     14 Sep  2023 G. Sarwar: added CRACMM2
 C-----------------------------------------------------------------------
       USE RUNTIME_VARS
       USE DESID_VARS
@@ -78,7 +79,7 @@ C (A line from the profile file is a record.)
          INTEGER,        PARAMETER :: NSEGS = 6  ! # of potential line segments (fields)
          INTEGER,        PARAMETER :: MXLINES = 100 ! max lines for requested sppro name
          INTEGER,        PARAMETER :: MXSPPOL = 10  ! max no. spc per pollutant
-         INTEGER,        PARAMETER :: NMECHS  = 20  ! dimension for number of mechanisms considered
+         INTEGER,        PARAMETER :: NMECHS  = 21  ! dimension for number of mechanisms considered
          CHARACTER,      PARAMETER :: CINVHDR = '#' ! Indicator for inventory hdr fields
 !        REAL,           PARAMETER :: GM2TON  = 1.0 / 907184.74  ! grams to tons
 
@@ -154,6 +155,7 @@ C Local variables
      &         BIOG_MECH_TYPE( 'SAPRC07TIC_AE6I_AQKMTI ','B10SP   '),
      &         BIOG_MECH_TYPE( 'SAPRC07TIC_AE7I_AQ     ','B10SP   '),
      &         BIOG_MECH_TYPE( 'SAPRC07TIC_AE7I_AQKMT2 ','B10SP   '),
+     &         BIOG_MECH_TYPE( 'CRACMM2                ','CRACMM2 '),
      &         BIOG_MECH_TYPE( 'CRACMM1_AQ             ','CRACMM1 '),
      &         BIOG_MECH_TYPE( 'CRACMM1AMORE_AQ        ','CRACMM1 ') /)
  

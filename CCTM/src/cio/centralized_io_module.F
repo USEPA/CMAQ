@@ -3429,6 +3429,7 @@ C   mminlu and num_land_cat are WRF global variables
           use hgrd_defn, only : ncols,nrows
           use RUNTIME_VARS, only : logdev, USE_MEGAN_LAI, BDSNP_MEGAN,
      &                             MGN_ONLN_DEP
+          Use, intrinsic :: ieee_arithmetic, only: isnan => ieee_is_nan
           USE UTILIO_DEFN
 
 #ifdef mpas
@@ -3531,7 +3532,7 @@ C   mminlu and num_land_cat are WRF global variables
           end do
 #endif
 
-          WHERE ( ctf .ne. ctf ) ctf = 0.0  ! ensure no NaNs
+          WHERE ( isnan( ctf ) ) ctf = 0.0  ! ensure no NaNs
 
 #ifdef mpas
           fnum = mio_search (MEGAN_EFS)
