@@ -603,7 +603,7 @@ c        Iodide in sea-water based on SST  (mol /dm-3)
                   rcut = rcut0 * a0 / ar( l ) * ( 1.0 -rh_func) + rwetsfc * rh_func
                ELSE IF ( l .Eq. l_NH3 ) THEN
          !        rcut = 4000.0 * EXP( -0.054 * MET_DATA%RH( c,r ) )
-                  rcut = rwetsfc + 100.0-max(MET_DATA%RH2( c,r ),60.0) ! consistant with bidi
+                  rcut = rwetsfc + (100.0-max(MET_DATA%RH2( c,r ),60.0))*laicr ! consistant with bidi
                ELSE 
                   rcut = rcut0 * a0 / ar( l )
                END IF
