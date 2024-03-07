@@ -110,13 +110,13 @@ Information is based on the mech.def file.
 | RAM04   | ISOP + HO2 ----> ISHP +    0.0700\*HO2 +    0.5000\*HO  |   4.50E-13e<sup>  1300.00/T</sup> |   3.5224E-11 |
 | RAM05   | ISOP + NO ---->   0.1300\*ISON +    0.4000\*HCHO +    0.8800\*HO2 +    0.8700\*NO2 +    0.1800\*MACR +    0.5100\*MVK  |   6.00E-12e<sup>   350.00/T</sup> |   1.9408E-11 |
 | RAM06   | ISHP + HO ----> ISOP  |   4.60E-12e<sup>   200.00/T</sup> |   8.9967E-12 |
-| RAM07   | ISHP + HO ---->   0.0400\*MGLY +    0.0200\*GLY +    0.1300\*MVK +    0.4400\*IEPOX +    0.1100\*ACO3 +    0.0300\*MACR +    2.0000\*HO +    0.3400\*HO2 +    0.1400\*IPC + CO  |   2.97E-11e<sup>   390.00/T</sup> |   1.0986E-10 |
-| RAM08   | INO2 + HO2 ---->   0.4500\*HO +    0.9500\*NALD +    0.0200\*IPC  |   3.14E-11e<sup>   580.00/T</sup> |   2.1967E-10 |
-| RAM09   | INO2 + NO ---->   0.1500\*MVK +    0.6500\*NALD +    0.0500\*ISON +    0.2000\*HCHO +    1.3000\*NO2  |   9.42E-12e<sup>   580.00/T</sup> |   6.5902E-11 |
-| RAM10   | ISON + HO ----> HO +    0.3500\*NALD +    0.1700\*IEPOX +    0.6500\*NO2  |   2.40E-11e<sup>   390.00/T</sup> |   8.8776E-11 |
-| RAM11   | HO + NALD ----> CO + NO2 +    0.3000\*HO2 + HCHO  |   1.5000E-11 |   1.5000E-11 |
+| RAM07   | ISHP + HO ---->   0.0400\*MGLY +    0.0200\*GLY +    0.1300\*MVK +    0.4400\*IEPOX +    0.1100\*ACO3 +    0.0300\*MACR +    2.0000\*HO +    0.3400\*HO2 +    0.1400\*IPX + CO  |   2.97E-11e<sup>   390.00/T</sup> |   1.0986E-10 |
+| RAM08   | INO2 + HO2 ---->   0.4500\*HO +    0.9500\*INALD +    0.0200\*IPX  |   3.14E-11e<sup>   580.00/T</sup> |   2.1967E-10 |
+| RAM09   | INO2 + NO ---->   0.1500\*MVK +    0.6500\*INALD +    0.0500\*ISON +    0.2000\*HCHO +    1.3000\*NO2  |   9.42E-12e<sup>   580.00/T</sup> |   6.5902E-11 |
+| RAM10   | ISON + HO ----> HO +    0.3500\*INALD +    0.1700\*IEPOX +    0.6500\*NO2  |   2.40E-11e<sup>   390.00/T</sup> |   8.8776E-11 |
+| RAM11   | HO + INALD ----> CO + NO2 +    0.3000\*HO2 + HCHO  |   1.5000E-11 |   1.5000E-11 |
 | RAM12   | ISON ----> HNO3  |   4.0000E-05 |   4.0000E-05 |
-| RAM13   | IPC + HO ---->   0.5700\*MACR +    0.4300\*MVK  |   3.0000E-12 |   3.0000E-12 |
+| RAM13   | IPX + HO ---->   0.5700\*MACR +    0.4300\*MVK  |   3.0000E-12 |   3.0000E-12 |
 | R087   | API + HO ---->   0.9750\*APIP1 +    0.0250\*APIP2  |   1.21E-11e<sup>   440.00/T</sup> |   5.2930E-11 |
 | R088   | LIM + HO ---->   0.9450\*LIMP1 +    0.0550\*LIMP2  |   4.20E-11e<sup>   401.00/T</sup> |   1.6120E-10 |
 | TRP04   | PINAL + HO ---->   0.2300\*PINALP +    0.7700\*RCO3  |   5.20E-12e<sup>   600.00/T</sup> |   3.8903E-11 |
@@ -445,8 +445,8 @@ Information is based on the mech.def file.
 | HET_IEPOX   | IEPOX ----> IEPOXP  | HETERO_IEPOX | Not Available<sup>2</sup> | 
 | HET_ISO3TET   | IEPOXP ----> AISO3NOSJ  | HETERO_ISO3NOSJ | Not Available<sup>2</sup> | 
 | HET_IEPOXOS   | IEPOXP + ASO4J ----> AISO3OSJ  | HETERO_ISO3OSJ | Not Available<sup>2</sup> | 
-| HET_IPC   | IPC ----> AISO4J  |   2.0000E+00\*HETERO_IEPOX | Not Available<sup>2</sup> | 
-| HET_NALD   | NALD ----> AISO5J + HNO3  |   5.0000E-01\*HETERO_IEPOX | Not Available<sup>2</sup> | 
+| HET_IPX   | IPX ----> AISO4J  |   2.0000E+00\*HETERO_IEPOX | Not Available<sup>2</sup> | 
+| HET_INALD   | INALD ----> AISO5J + HNO3  |   5.0000E-01\*HETERO_IEPOX | Not Available<sup>2</sup> | 
 | ROCALK1c   | VROCP6ALK + HO ----> VROCP6ALKP  |   1.5300E-11 |   1.5300E-11 |
 | ROCALK2c   | VROCP5ALK + HO ----> VROCP5ALKP  |   1.6800E-11 |   1.6800E-11 |
 | ROCALK3c   | VROCP4ALK + HO ----> VROCP4ALKP  |   2.2400E-11 |   2.2400E-11 |
