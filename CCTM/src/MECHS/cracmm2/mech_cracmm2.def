@@ -148,6 +148,8 @@ DELTA_N;
 DELTA_C;
 END ELIMINATE
 
+
+
 REACTIONS[CM] =                                                                                                                                                                      
 
 <R001> O3 = O3P # 1.0/<O3O3P_NASA06>;
@@ -1369,8 +1371,8 @@ REACTIONS[CM] =
 <ROCARO74> STYP + NO3 = NO2 + HO2 + HCHO + BALD # 2.3E-12;
 <ROCARO75> STYP + MO2 = 1.370*HO2 + 1.680*HCHO + BALD + 0.320*MOH  
                       + 0.0000*DELTA_C # 2.5E-13;                      
-<ROCARO76> STYP + ACO3 = HO2 + HCHO + 0.700*MO2 + 0.300*ORA2  
-                       + 7.7000*DELTA_C # 2.5E-13;                       
+<ROCARO76> STYP + ACO3 = HO2 + HCHO + BALD + 0.700*MO2 + 0.300*ORA2  
+                       + 0.7000*DELTA_C # 2.5E-13;                       
 
 END MECH
 

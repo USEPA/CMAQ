@@ -28,7 +28,7 @@ C  PRECONDITIONS: For the CRACMM2 mechanism
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, Feb 23, 2024
+C  REVISION HISTORY: Created by EBI solver program, Mar  5, 2024
 C
 C   18 Jul 14 B.Hutzell: revised to use real(8) variables
 C**********************************************************************
@@ -400,7 +400,7 @@ c..Remaining HO2 production terms
      &   +                 RXRAT(   528 )      ! STYP+NO=HO2+NO2+HCHO+BALD
      &   +                 RXRAT(   529 )      ! STYP+NO3=HO2+NO2+HCHO+BALD
      &   +    1.3700D+00 * RXRAT(   530 )      ! STYP+MO2=0.1370D+01*HO2+...
-     &   +                 RXRAT(   531 )      ! STYP+ACO3=HO2+HCHO+0.7000D+...
+     &   +                 RXRAT(   531 )      ! STYP+ACO3=HO2+HCHO+BALD+...
 
       P5 = YC0( HO2 ) + P5 * DTC
 
