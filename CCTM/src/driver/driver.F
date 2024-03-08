@@ -219,7 +219,7 @@ C Local variables:
       REAL    DIVFAC      ! trapezoidal average factor
 
       LOGICAL, SAVE :: FIRST_RUN = .TRUE.  ! used for twoway model
-      LOGICAL       :: WFLG                ! turn on write subdmap in pio_init
+      LOGICAL       :: WFLG = .TRUE.       ! turn on write subdmap in pio_init
 
       INTEGER, SAVE :: myNREPS = 0
       INTEGER       :: STATUS

@@ -36,8 +36,7 @@
                            get_env_float,    &
                            get_env_double,   &
                            get_env_char,     &
-                           get_env_logical,  &
-                           get_envlist
+                           get_env_logical
         end interface
 
         contains
@@ -127,7 +126,7 @@
 
           real (8), intent(out)     :: env_value
           character (*), intent(in) :: env_var
-          real, intent(in)          :: default_env_value
+          real (8), intent(in)          :: default_env_value
           integer, intent(in), optional :: logdev
 
           integer :: loc_logdev
@@ -340,12 +339,13 @@
 
           call get_env( e_val, env_var, ' ', loc_logdev )
 
-          if ( env_var .eq. " " ) then
+          if ( e_val .eq. " " ) then
              xmsg = 'Environment variable ' // env_var // ' not set'
 #ifndef mpas
              call m3warn( pname, 0, 0, xmsg )
 #endif
              nvars = 0
+             val_list = ''
              return
           end if
 

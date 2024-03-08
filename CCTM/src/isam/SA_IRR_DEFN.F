@@ -1918,7 +1918,7 @@ c..Compute change in source concentrations for updating source concentrations
        IF ( WRITE_CELL ) THEN            
                    write(isam_log,'(A,2(ES12.4,1X))')
      &            'H2O2_Production/HNO3_Production, PH2O2_OVER_PHNO3  = ',
-     &             H2O2_Production/max(HNO3_Production,1.0e-30) ,PH2O2_OVER_PHNO3( RK,CONC )
+     &             H2O2_Production/max(HNO3_Production,1.0d-30) ,PH2O2_OVER_PHNO3( RK,CONC )
        END IF
 
 C...update SOLD using SOURCE_DELTA       

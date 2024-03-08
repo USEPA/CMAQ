@@ -401,10 +401,6 @@ C...........Statement Functions
       REAL             E               ! sat vapor pressure dummy arg
       REAL             P               ! pressure dummy arg
 
-      ESAT( T ) = VP0PA * EXP( C303 - ( C302 / T ) )
-
-      QSAT( E, P ) = MVOMA * ( E / ( P - E ) )
-
       INTERFACE
         SUBROUTINE ACMCLD ( NSP, NLAYS, F, C, DZH, CBELOW, CLBASE, CLTOP,
      &                      FRAC, TCLIFE, DTCLD )
@@ -446,6 +442,10 @@ C...........Statement Functions
           LOGICAL, INTENT( IN )    :: DARK            
         END SUBROUTINE AQ_MAP
       END INTERFACE
+
+      ESAT( T ) = VP0PA * EXP( C303 - ( C302 / T ) )
+
+      QSAT( E, P ) = MVOMA * ( E / ( P - E ) )
 
 C-----------------------------------------------------------------------
 C  begin body of subroutine CONVCLD_ACM

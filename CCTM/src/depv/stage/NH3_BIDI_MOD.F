@@ -17,18 +17,15 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-! RCS file, release, date & time of last delta, author, state, [and locker]
-! $Header: /project/work/rep/arc/CCTM/src/depv/m3dry/ABFLUX_MOD.F,v 1.11 2012/04/19 17:03:23 yoj Exp $
-
 !:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       Module NH3_Bidi_Mod
 
 ! Contains the shared variables and subroutines needed for the bidirectional 
 ! NH3 flux model in CMAQ
 !
-! INIT_ABFLUX - Intitializes the NH3 flux routines, allocates arrays, reads in
-!               intial soil NH3 & H concentrations, and fertilizer application
-!               amounts and timing for the model run
+! INIT_NH3_BiDi - Initializes the NH3 flux routines, allocates arrays, reads in
+!                 initial soil NH3 & H concentrations, and fertilizer application
+!                 amounts and timing for the model run
 ! 
 ! Revision History: J. Bash Dec 08 10:      Created
 !                   J. Bash May 11 11:      Updated for CMAQ 5.0
@@ -117,7 +114,7 @@ C-------------------------------------------------------------------------------
          Real,       Allocatable :: fagam1     ( :,: )   ! delta gamma due to fertilizer app and mineralization
          Real,       Allocatable :: fagam2     ( :,: )   ! delta gamma due to fertilizer app and mineralization           
  
-         Character( 16 ), Parameter :: pname = 'Init_ABFlux' 
+         Character( 16 ), Parameter :: pname = 'Init_NH3_Bidi' 
          Character( 96 )            :: xmsg = ' '
 
 ! Find the Canadian fertilizer factor based off of Sheppard et al 2010 Canadian J. Soil Sci. & 
@@ -587,7 +584,6 @@ C-------------------------------------------------------------------------------
          Real    :: Knit   ! EPIC combined nitrification rate
          Real    :: kn_max ! EPIC maximum nitrification rate
          Real    :: Kvs    ! Air-soil exchange rate for aqueous NH4+
-         Real    :: kvg    ! Air-soil exchange rate for gas phase NH3
          Real    :: MNHx   ! molar soil water NH4+ + NH3 conc.
          Real    :: pHsl   ! Soil pH
          Real    :: T_Soil ! Soil T
@@ -677,7 +673,6 @@ C-------------------------------------------------------------------------------
             Write( logdev,* ) 'wsat   :', GRID_DATA%WSAT( c,r )
             Write( logdev,* ) 'wfc    :', GRID_DATA%WFC( c,r )
             Write( logdev,* ) 'wwlt   :', GRID_DATA%WWLT( c,r )
-            Write( logdev,* ) 'kvg    :', kvg
             Write( logdev,* ) 'kvs    :', kvs
             Write( logdev,* ) 'kn     :', kn
             Write( logdev,* ) 'zsoil  :', zsoil
