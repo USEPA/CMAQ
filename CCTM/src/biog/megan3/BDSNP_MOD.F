@@ -35,8 +35,8 @@ C::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
      &                       BDSNP_NO )
 
   
-      USE RUNTIME_VARS, ONLY: STTIME,STDATE,RUNLEN
-      USE PHOT_MET_DATA, ONLY: CFRAC_2D
+      USE RUNTIME_VARS, ONLY: STTIME,STDATE,RUNLEN,LOGDEV
+      USE PHOT_MOD,     ONLY: CFRAC_2D_AVE
 
       USE UTILIO_DEFN
 #ifdef mpas
@@ -311,17 +311,15 @@ C           check for negatives
     
 #ifdef twoway
        ! CFRAC for offline comes from MCIP but that's unavailable in twoway mode
-       if (.not. allocated(CFRAC_2D)) then
-         CFRAC = 0.
+       if (.not. allocated(CFRAC_2D_AVE)) then
+         CFRAC = Met_Data%CFRAC
+!       write(6,'(a,es14.2)')'MaxVal cfrac = ',MAXVAL(cfrac)
+!       write(logdev,'(a,es14.2)')'MaxVal cfrac = ',MAXVAL(cfrac)
        else
-         CFRAC = CFRAC_2D
+         CFRAC = CFRAC_2D_AVE
        end if
 #else
-       if (.not. allocated(CFRAC_2D)) then
-         CFRAC = 0.
-       else
-         CFRAC = Met_Data%CFRAC
-       end if
+       CFRAC = Met_Data%CFRAC
 #endif 
 
    
