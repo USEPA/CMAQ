@@ -79,7 +79,7 @@ C... Local:
          Logical, SAVE   :: INITIALIZED = .FALSE.
          
 C--------------------------------------------------------------------------
-C Prevent initilializing the code twice 
+C Prevent initializing the code twice 
          If ( INITIALIZED ) Return 
 
          INITIALIZED = .TRUE.

@@ -88,7 +88,7 @@ C...........   LOCAL VARIABLES
 
 C.............................................................................
 C   begin subroutine PM3ERR
-
+      errcode = 1               ! arbitrary
 
 C.......  Construct new CALLER string.
       WRITE (PE_STR,'(A7)') ' on PE '

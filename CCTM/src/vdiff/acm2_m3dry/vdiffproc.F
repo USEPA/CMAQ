@@ -751,7 +751,7 @@ C Write vdiff diagnostics
                      END DO
                   END DO
                   IF ( .NOT. WRITE3( CTM_VSED_DIAG, VSED_NAME( V ),
-     &                               MDATE, MTIME, VSED_BUF( 1,1,1,V ) ) ) THEN
+     &                               MDATE, MTIME, VSED_BUF( :,:,:,V ) ) ) THEN
                      XMSG = 'Could not write ' // TRIM( VSED_NAME( V ) )
      &                    // ' to ' // CTM_VSED_DIAG
                      CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )

@@ -157,7 +157,7 @@ C On first call, get and save the output file names
 C Reset decomposition map
          IF ( .NOT. PIO_INIT( COLROW, PACOLS, PAROWS, PALEVS, NTHIK,
      &                        MY_PACOLS, MY_PAROWS, NPCOL, NPROW, NPCOL*NPROW,
-     &                        MYPE, wflg = WFLG ) ) THEN
+     &                        MYPE, WFLG = .TRUE. ) ) THEN
             XMSG = 'Failed to re-initialize parallel I/O library.'
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
             RETURN
@@ -337,7 +337,7 @@ C Reset decomposition map
       ELSE
          IF ( .NOT. PIO_INIT( COLROW, GL_NCOLS, GL_NROWS, NLAYS, NTHIK,
      &                        NCOLS, NROWS, NPCOL, NPROW, NPCOL*NPROW,
-     &                        MYPE, wflg = WFLG ) ) THEN
+     &                        MYPE, WFLG = .TRUE. ) ) THEN
             XMSG = 'Failed to re-initialize parallel I/O library.'
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
             RETURN

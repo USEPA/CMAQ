@@ -1447,7 +1447,7 @@ C-----------------------------------------------------------------------
           INTEGER LAYS
           INTEGER JDATE, JTIME
           CHARACTER(200) :: XMSG
-          INTEGER XSTAT1
+
 #ifdef mpas
           CHARACTER (20) :: TIME_STAMP
           call mio_time_format_conversion (jdate, jtime, time_stamp)
