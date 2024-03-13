@@ -376,11 +376,9 @@ C     If False Dont do any calculations to test - replicate 0 output
             ! that accounts for soil pulsing
 C            PFACTOR( C,R ) = PULSING( THETA, TSTEP, THETAPREV,
 C     &                       PFACTOR( C,R ), DRYPERIOD( C,R ) )
+            PULSE = PULSING( L_DESID_DIAG, THETA, TSTEP, THETAPREV,
+     &                       PFACTOR( C,R ), DRYPERIOD( C,R ) )
 
-            IF(.Not. L_DESID_DIAG) Then
-              PULSE = PULSING( THETA, TSTEP, THETAPREV,
-     &                         PFACTOR( C,R ), DRYPERIOD( C,R ) )
-            END IF
             A_FERT = FERTADD( FERT( C,R ) , NDEPRES( C,R ) ) !adds reservoirs returns emission rates
 
             ! Canopy reduction factor
@@ -483,10 +481,9 @@ C -----------------------------------------------------
             ! that accounts for soil pulsing
 C            PFACTOR( C,R ) = PULSING( THETA, TSTEP, THETAPREV,
 C     &                       PFACTOR( C,R ), DRYPERIOD( C,R ) )
-            IF(.Not. L_DESID_DIAG) Then
-              PULSE = PULSING( THETA, TSTEP, THETAPREV,
-     &                         PFACTOR( C,R ), DRYPERIOD( C,R ) )
-            END IF
+            PULSE = PULSING( L_DESID_DIAG, THETA, TSTEP, THETAPREV,
+     &                       PFACTOR( C,R ), DRYPERIOD( C,R ) )
+
          END DO
          END DO
       END IF ! end do nothing test if
@@ -733,7 +730,7 @@ C ------------------------------------------------------------------------------
       END SUBROUTINE HRNOBDSNP
 C----------------------------------------------------------------------------------
 
-         REAL FUNCTION PULSING( THETA, TSTEP, THETAPREV,
+         REAL FUNCTION PULSING( L_DESID_DIAG, THETA, TSTEP, THETAPREV,
      &                       PFACTOR, DRYPERIOD )!_____
 ! !DESCRIPTION: Function PULSING calculates the increase (or "pulse") of
 !  soil NOx emission that happens after preciptiation falls on dry soil.
@@ -770,6 +767,7 @@ C-------------------------------------------------------------------------------
 
 C Function arguments:
          INTEGER, INTENT( IN )    :: TSTEP( 3 )        ! time step vector (HHMMSS)
+         LOGICAL, INTENT( IN )    :: L_DESID_DIAG
          REAL,    INTENT( IN )    :: THETA, THETAPREV  ! only avilable if PX version
          REAL,    INTENT( INOUT ) :: DRYPERIOD
          REAL,    INTENT( INOUT ) :: PFACTOR
@@ -777,6 +775,9 @@ C Local Variables
          REAL MOISTDIFF
          REAL DTHOURS
          DTHOURS = TIME2SEC(TSTEP(2))/3600.0
+         IF (L_DESID_DIAG) then 
+            DTHOURS = 0.
+         END IF
          ! If soil moisture less than 0.3 and no pulse is taking place
          IF ( THETA < 0.3D0 .and. PFACTOR == 1.D0) THEN
 
