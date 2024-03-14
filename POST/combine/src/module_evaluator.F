@@ -582,54 +582,61 @@ C
         if(operator.ne.'?') badopr = .true.
         call eval1b( field, flags)
 
+        eflag = .False.
+        emsg = ''
         call getFld( expression, '?:', 2, operator, field1 ) 
         if(operator.ne.'?') badopr = .true.
         call eval2( field1, value1)
         eflag1 = eflag
         emsg1  = emsg
 
+        eflag = .False.
+        emsg = ''
         call getFld( expression, '?:', 3, operator, field2 ) 
         if(operator.ne.':') badopr = .true.
         call eval2( field2, value2)
         eflag2 = eflag
         emsg2  = emsg
+        eflag = .False.
 
         if( badopr ) then
           Write(*,'(/''**Error** Syntax error encountered in conditional expression in: '',a)') trim(formula)
           stop
-          endif
+        End if
 
         ! set buffer values 
         do i=1,isize
-          if( flags(i) ) then
+          If( flags(i) ) Then
             buffer(i) = value1(i)
             eflag(i)  = eflag1(i)
             field     = field1
-          else
+          Else
             buffer(i) = value2(i)
             eflag(i)   = eflag2(i)
-            field     = field2
-            endif 
-          enddo 
+            field   = field2
+          End If 
+        End Do 
        
+
         If( Any( eflag ) ) then
-          Write(*,'(//a)')"Problem evaluating: " 
+          Write(*,'(//a)')"Problem evaluating: "
      &    // Trim( formula )
           If( Any( eflag .And. eflag1 ) )Then
              Write(*,'(a//)')Trim(emsg1)
-          endif   
+          endif
           If( Any( eflag .And. eflag2 ) )Then
              Write(*,'(a//)')Trim(emsg2)
           endif
           If( .Not. Allow_BadValues )Then
             KSWIT = SHUT3()
             STOP
-          End IF  
-        endif
+          End IF
+        End IF
+
         Deallocate (flags, value1, value2)
         Deallocate (eflag1,eflag2)
         return
-        endif
+      End if ! conditional
 
       ! if no conditional
       if( nmajor.eq.1 ) then
@@ -849,10 +856,11 @@ C  subroutine to evaluate species expression (parses major fields (+-))
     
         If( field.eq.' ' ) Then
           value = 0.0D0
-          Write(6,'(3a)') 
-     &    'eval2 Error: Empty Field or Missing Input Species Name in expression,',
-     &    Trim(Formula),' for output species ' // Trim( out_species ) // '.'
-          Stop
+          If ( n .gt. 1 ) Then
+             Write(6,'(2a)')'eval2 Error: Empty Field in expression,',Trim(expression),
+     &       'of the formula, ',Trim(Formula)
+             Stop
+          End IF
         else
           call eval3b( field, value)
         End If
@@ -1172,7 +1180,7 @@ C  routine to compute a field of the expression (parses minor fields (*/^))
         Else
              Write(*,1099)
      &       Trim( field ),Trim( Formula ) // ' for output species ' 
-     &    // Trim( out_species ) // '. An operator may be missing or mistyped.'
+     &    // Trim( out_species ) // '. An operator may be missing.'
              stop 
         End If
 
