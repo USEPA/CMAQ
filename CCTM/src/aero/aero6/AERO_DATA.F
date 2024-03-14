@@ -1907,7 +1907,7 @@ C Local variables:
              IF ( IS_BC ) THEN
                 DO IT = 1,N_AE_TRNS
                   IF ( L_AETR_MODE( IMODE,IT ) .AND. L_AETR_MASS( IT ) ) 
-     &               IBCON(IT) = MAX( IBCON(IT), CONMIN )
+     &               IBCON(IT) = MAX( IBCON(IT), CONMIND )
                 END DO
                 M3DRY = SUM( IBCON( : ) * REAL(AEROCGRID_RHOINV * F6PI,8), 
      &                       MASK = ( L_AETR_MASS .AND. L_AETR_MODE( IMODE,: )  
@@ -1917,7 +1917,7 @@ C Local variables:
              ELSE
                 DO IS = 1,N_AE_SPC
                   IF ( L_AESP_MODE( IMODE,IS ) .AND. L_AESP_MASS( IS ) ) 
-     &               IBCON(IS) = MAX( IBCON(IS), CONMIN )
+     &               IBCON(IS) = MAX( IBCON(IS), CONMIND )
                 END DO
                 M3DRY = SUM( IBCON( : ) * REAL(AEROCGRID_RHOINV * F6PI,8), 
      &                       MASK = ( L_AESP_MASS .AND. L_AESP_MODE( IMODE,: )  

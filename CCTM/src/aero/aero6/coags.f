@@ -18,9 +18,6 @@
 !------------------------------------------------------------------------!
 
 
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/aero/aero5/coags.f,v 1.4 2011/10/21 16:10:13 yoj Exp $
-
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE GETCOAGS( LAMDA, KFMATAC, KFMAT, KFMAC, KNC, 
      &                     DGATK, DGACC, SGATK, SGACC, XXLSGAT, XXLSGAC, 
@@ -100,7 +97,7 @@ C *** Local Variables:
       REAL( 8 ) :: I1NC
       REAL( 8 ) :: I1
       
-      REAL( 8 ) :: CONST II
+      REAL( 8 ) :: CONSTII
       
       REAL( 8 ) :: KNGAT, KNGAC
 
@@ -153,7 +150,7 @@ C *** Local Variables:
       REAL( 8 ) :: SQDGAT, SQDGAC
       REAL( 8 ) :: SQDGAT5, SQDGAC5
       REAL( 8 ) :: SQDGAT7
-      REAL( 8 ) :: R, R2, R3, R4, R5, R6, R8
+      REAL( 8 ) :: R, R2, R3, R4, R6
       REAL( 8 ) :: RI1, RI2, RI3, RI4
       REAL( 8 ) :: RAT
       REAL( 8 ) :: COAGFM0, COAGNC0
@@ -167,7 +164,6 @@ C *** Local Variables:
       REAL( 8 ) :: COAGATAC0, COAGATAC3
       REAL( 8 ) :: COAGATAC2
       REAL( 8 ) :: COAGACAT2
-      REAL( 8 ) :: XM2AT, XM3AT, XM2AC, XM3AC
 
 C *** correction factors for coagulation rates      
       REAL :: BM0    ( 10 )        ! M0 INTRAmodal FM - RPM values
@@ -1463,20 +1459,12 @@ C----------------------------------------------------------------------
       SQDGAC5 = DGAC2 * SQDGAC
       SQDGAT7 = DGAT3 * SQDGAT
 
-      XM2AT = DGAT2 * ESAT16
-      XM3AT = DGAT3 * ESAT36
-
-      XM2AC = DGAC2 * ESAC16
-      XM3AC = DGAC3 * ESAC36
-
 C *** For the free molecular regime:  Page H.3 of Whitby et al. (1991)
       R       = SQDGAC / SQDGAT
       R2      = R * R
       R3      = R2 * R
       R4      = R2 * R2
-      R5      = R3 * R2
       R6      = R3 * R3
-      R8      = R4 * R4
       RI1     = ONE / R
       RI2     = ONE / R2
       RI3     = ONE / R3

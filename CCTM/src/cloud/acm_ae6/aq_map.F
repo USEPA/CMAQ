@@ -84,7 +84,7 @@ C-----------------------------------------------------------------------
 #endif 
 
       IMPLICIT NONE
-      INCLUDE SUBST_CONST   ! for DPI
+      INCLUDE SUBST_CONST   ! for PI
       
       CHARACTER( 120 ) :: XMSG = ' '    ! Exit status message
 
@@ -653,18 +653,18 @@ C...ug/m3*m3/mol_air*1e3 mol_air/kmol_air*1e-9kg/ug*m3/kg=> m3/kmol_air
 C...Update surface area
 
       CEND( AEROSRF_MAP( 1 ) ) = POLC( AEROSRF_MAP( 1 ) ) * EALFA2T
-      CEND( AEROSRF_MAP( 1 ) ) = MAX( CEND( AEROSRF_MAP( 1 ) ), aeromode_minM2( 1 ) * DPI / (AIRM/CTHK1) )
+      CEND( AEROSRF_MAP( 1 ) ) = MAX( CEND( AEROSRF_MAP( 1 ) ), aeromode_minM2( 1 ) * PI / (AIRM/CTHK1) )
       
       CEND( AEROSRF_MAP( 2 ) ) = POLC( AEROSRF_MAP( 2 ) )
      &                         * EXP( -BETASO4 * TAUCLD * ONETHIRD )
      &                         * ( M3NEW( 2 ) / M3OLD( 2 ) ) ** TWOTHIRDS
-      CEND( AEROSRF_MAP( 2 ) ) = MAX( CEND( AEROSRF_MAP( 2 ) ), aeromode_minM2( 2 ) * DPI / (AIRM/CTHK1) )
+      CEND( AEROSRF_MAP( 2 ) ) = MAX( CEND( AEROSRF_MAP( 2 ) ), aeromode_minM2( 2 ) * PI / (AIRM/CTHK1) )
 
       CEND( AEROSRF_MAP( 3 ) ) = POLC( AEROSRF_MAP( 3 ) )
      &                         * ( CEND( AERONUM_MAP( 3 ) )
      &                             / POLC( AERONUM_MAP( 3 ) ) ) ** ONETHIRD
      &                         * ( M3NEW( 3 ) / M3OLD( 3 ) ) ** TWOTHIRDS
-      CEND( AEROSRF_MAP( 3 ) ) = MAX( CEND( AEROSRF_MAP( 3 ) ), aeromode_minM2( 3 ) * DPI / (AIRM/CTHK1) )
+      CEND( AEROSRF_MAP( 3 ) ) = MAX( CEND( AEROSRF_MAP( 3 ) ), aeromode_minM2( 3 ) * PI / (AIRM/CTHK1) )
 
 #ifdef sens
 C... Remove surface area sensitivity calculations for now
