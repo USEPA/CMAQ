@@ -35,8 +35,8 @@ C::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
      &                       BDSNP_NO )
 
   
-      USE RUNTIME_VARS, ONLY: STTIME,STDATE,RUNLEN
-      USE PHOT_MET_DATA, ONLY: CFRAC_2D
+      USE RUNTIME_VARS, ONLY: STTIME,STDATE,RUNLEN,LOGDEV
+      USE PHOT_MOD,     ONLY: CFRAC_2D_AVE
 
       USE UTILIO_DEFN
 #ifdef mpas
@@ -311,17 +311,15 @@ C           check for negatives
     
 #ifdef twoway
        ! CFRAC for offline comes from MCIP but that's unavailable in twoway mode
-       if (.not. allocated(CFRAC_2D)) then
-         CFRAC = 0.
+       if (.not. allocated(CFRAC_2D_AVE)) then
+         CFRAC = Met_Data%CFRAC
+!       write(6,'(a,es14.2)')'MaxVal cfrac = ',MAXVAL(cfrac)
+!       write(logdev,'(a,es14.2)')'MaxVal cfrac = ',MAXVAL(cfrac)
        else
-         CFRAC = CFRAC_2D
+         CFRAC = CFRAC_2D_AVE
        end if
 #else
-       if (.not. allocated(CFRAC_2D)) then
-         CFRAC = 0.
-       else
-         CFRAC = Met_Data%CFRAC
-       end if
+       CFRAC = Met_Data%CFRAC
 #endif 
 
    
@@ -405,20 +403,20 @@ C            END IF !LANDTYPE check
 C            ENDDO
 
            !scale emissions
-           EMPOL = SOILNOX *  3600.0 * 10.0**-9![ng N/m2/s] *  s/hr * g/ng
-           BDSNP_NO(C,R) = SOILNOX / 14 ![nmol/m2/s]
+           EMPOL = SOILNOX *  3600.0 * 1.0e-9 ! [ng N/m2/s] *  s/hr * g/ng
+           BDSNP_NO(C,R) = SOILNOX / 14 ! [nmol/m2/s]
            ! sum various quantities for daily averaging
            EMPOLSUM = EMPOLSUM + EMPOL
-           BASESUM(C,R) = BASESUM(C,R) + ( A_BIOME(K) + A_FERT ) !don'tforget check paren when uncommenting
+           BASESUM(C,R) = BASESUM(C,R) + ( A_BIOME(K) + A_FERT ) 
      &             * ( TEMP_TERM * WET_TERM)
-     &             *  3600.0 * 10.0**-9 ![ng N/m2/s] *  s/hr * g/ng
-           PULSEAVG(C,R) = PULSEAVG(C,R) + ( A_BIOME(K) + A_FERT ) !don'tforget check paren when uncommenting
+     &             *  3600.0 * 1.0e-9 ! [ng N/m2/s] *  s/hr * g/ng
+           PULSEAVG(C,R) = PULSEAVG(C,R) + ( A_BIOME(K) + A_FERT ) 
      &             * ( TEMP_TERM * WET_TERM * PULSE )
-     &             *  3600.0 * 10.0**-9 ![ng N/m2/s] *  s/hr * g/ng
-           CRFAVG(C,R) = CRFAVG(C,R) + ( A_BIOME(K) + A_FERT ) !don'tforget check paren when uncommenting
+     &             *  3600.0 * 1.0e-9 ! [ng N/m2/s] *  s/hr * g/ng
+           CRFAVG(C,R) = CRFAVG(C,R) + ( A_BIOME(K) + A_FERT ) 
      &             * ( TEMP_TERM * WET_TERM )
      &             * ( 1.d0 - CRF_TERM  )
-     &             *  3600.0 * 10.0**-9 ![ng N/m2/s] *  s/hr * g/ng
+     &             *  3600.0 * 1.0e-9 ! [ng N/m2/s] *  s/hr * g/ng
 
 
 C--------- MORE DIAGNOSTICS  ---------------------------------

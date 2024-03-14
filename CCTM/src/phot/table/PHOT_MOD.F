@@ -29,6 +29,8 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       REAL, ALLOCATABLE  :: RJ    ( :, :, :, : ) ! average grid cell J-values (min-1)
       REAL, ALLOCATABLE  :: RJ_RES( :, :, :, : ) ! resolved cloud J-values (min-1)
       REAL, ALLOCATABLE  :: RJ_SUB( :, :, :, : ) ! subgrid cloud J-values (min-1)
+      REAL, ALLOCATABLE  :: CFRAC_2D_AVE( :,: )  ! layer averaged 3D fractional cloud coverage
+
 
 !      REAL, ALLOCATABLE  :: ETOT_SFC_WL ( :,:,: )  ! total downward irradiance at sfc [ Watts / m**2  ]
       
