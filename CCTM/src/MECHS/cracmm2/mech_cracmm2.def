@@ -150,6 +150,10 @@ END ELIMINATE
 
 
 
+
+
+
+
 REACTIONS[CM] =                                                                                                                                                                      
 
 <R001> O3 = O3P # 1.0/<O3O3P_NASA06>;
@@ -291,7 +295,7 @@ REACTIONS[CM] =
                   + 2.4000*DELTA_C # 2.4E-11 @ -390;                  
 <RAM11> HO + INALD = CO + NO2 + 0.300*HO2 + HCHO  + 3.0000*DELTA_C 
                    # 1.50E-11;                   
-<RAM12> ISON = HNO3  + 5.0000*DELTA_C # 4E-5;
+<RAM12> ISON = HNO3 + ROH  + 2.0000*DELTA_C # 4E-5;
 <RAM13> IPX + HO = 0.570*MACR + 0.430*MVK  + 1.0000*DELTA_C # 3E-12;
 ! end AMORE isoprene chemistry
 

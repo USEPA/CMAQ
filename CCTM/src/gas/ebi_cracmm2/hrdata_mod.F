@@ -27,7 +27,7 @@ C  PRECONDITIONS: For the CRACMM2 mechanism
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, Mar  5, 2024
+C  REVISION HISTORY: Created by EBI solver program, Mar 15, 2024
 C
 C   18 Jul 14 B.Hutzell: revised to use real(8) variables for solution
 C*************************************************************************
@@ -192,29 +192,29 @@ c..Species indices
       INTEGER, PARAMETER :: IEPOX            =   80
       INTEGER, PARAMETER :: IPX              =   81
       INTEGER, PARAMETER :: INALD            =   82
-      INTEGER, PARAMETER :: API              =   83
-      INTEGER, PARAMETER :: APIP1            =   84
-      INTEGER, PARAMETER :: APIP2            =   85
-      INTEGER, PARAMETER :: LIM              =   86
-      INTEGER, PARAMETER :: LIMP1            =   87
-      INTEGER, PARAMETER :: LIMP2            =   88
-      INTEGER, PARAMETER :: PINALP           =   89
-      INTEGER, PARAMETER :: RCO3             =   90
-      INTEGER, PARAMETER :: LIMALP           =   91
-      INTEGER, PARAMETER :: ACTP             =   92
-      INTEGER, PARAMETER :: MEKP             =   93
-      INTEGER, PARAMETER :: KETP             =   94
-      INTEGER, PARAMETER :: MCP              =   95
-      INTEGER, PARAMETER :: MVKP             =   96
-      INTEGER, PARAMETER :: UALP             =   97
-      INTEGER, PARAMETER :: DCB3             =   98
-      INTEGER, PARAMETER :: BALP             =   99
-      INTEGER, PARAMETER :: ADDC             =  100
-      INTEGER, PARAMETER :: MCT              =  101
-      INTEGER, PARAMETER :: MCTO             =  102
-      INTEGER, PARAMETER :: MOH              =  103
-      INTEGER, PARAMETER :: EOH              =  104
-      INTEGER, PARAMETER :: ROH              =  105
+      INTEGER, PARAMETER :: ROH              =   83
+      INTEGER, PARAMETER :: API              =   84
+      INTEGER, PARAMETER :: APIP1            =   85
+      INTEGER, PARAMETER :: APIP2            =   86
+      INTEGER, PARAMETER :: LIM              =   87
+      INTEGER, PARAMETER :: LIMP1            =   88
+      INTEGER, PARAMETER :: LIMP2            =   89
+      INTEGER, PARAMETER :: PINALP           =   90
+      INTEGER, PARAMETER :: RCO3             =   91
+      INTEGER, PARAMETER :: LIMALP           =   92
+      INTEGER, PARAMETER :: ACTP             =   93
+      INTEGER, PARAMETER :: MEKP             =   94
+      INTEGER, PARAMETER :: KETP             =   95
+      INTEGER, PARAMETER :: MCP              =   96
+      INTEGER, PARAMETER :: MVKP             =   97
+      INTEGER, PARAMETER :: UALP             =   98
+      INTEGER, PARAMETER :: DCB3             =   99
+      INTEGER, PARAMETER :: BALP             =  100
+      INTEGER, PARAMETER :: ADDC             =  101
+      INTEGER, PARAMETER :: MCT              =  102
+      INTEGER, PARAMETER :: MCTO             =  103
+      INTEGER, PARAMETER :: MOH              =  104
+      INTEGER, PARAMETER :: EOH              =  105
       INTEGER, PARAMETER :: ETEG             =  106
       INTEGER, PARAMETER :: MAHP             =  107
       INTEGER, PARAMETER :: ORA2             =  108

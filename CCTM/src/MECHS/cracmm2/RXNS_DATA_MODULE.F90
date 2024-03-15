@@ -6,7 +6,7 @@
 
 
 ! --------- Photochemical Mechanism Reactions, Rates, etc. DAT ---------
-! Source file: /work/MOD3DEV/tskipper/cracmm_hcho/20240305_fix_sty_aco3_rxn/UTIL/chemmech/input/cracmm2/mech_cracmm2.def
+! Source file: /work/MOD3DEV/tskipper/cracmm_hcho/20240315_run_chemmech/UTIL/chemmech/input/cracmm2/mech_cracmm2.def
 ! for Mechanism Name: CRACMM2                         
 
 ! This file is used to create mechanism data and functions
@@ -183,29 +183,29 @@
       DATA GAS_CHEM_SPC(  79 ) / 'IEPOX           ' /
       DATA GAS_CHEM_SPC(  80 ) / 'IPX             ' /
       DATA GAS_CHEM_SPC(  81 ) / 'INALD           ' /
-      DATA GAS_CHEM_SPC(  82 ) / 'API             ' /
-      DATA GAS_CHEM_SPC(  83 ) / 'APIP1           ' /
-      DATA GAS_CHEM_SPC(  84 ) / 'APIP2           ' /
-      DATA GAS_CHEM_SPC(  85 ) / 'LIM             ' /
-      DATA GAS_CHEM_SPC(  86 ) / 'LIMP1           ' /
-      DATA GAS_CHEM_SPC(  87 ) / 'LIMP2           ' /
-      DATA GAS_CHEM_SPC(  88 ) / 'PINALP          ' /
-      DATA GAS_CHEM_SPC(  89 ) / 'RCO3            ' /
-      DATA GAS_CHEM_SPC(  90 ) / 'LIMALP          ' /
-      DATA GAS_CHEM_SPC(  91 ) / 'ACTP            ' /
-      DATA GAS_CHEM_SPC(  92 ) / 'MEKP            ' /
-      DATA GAS_CHEM_SPC(  93 ) / 'KETP            ' /
-      DATA GAS_CHEM_SPC(  94 ) / 'MCP             ' /
-      DATA GAS_CHEM_SPC(  95 ) / 'MVKP            ' /
-      DATA GAS_CHEM_SPC(  96 ) / 'UALP            ' /
-      DATA GAS_CHEM_SPC(  97 ) / 'DCB3            ' /
-      DATA GAS_CHEM_SPC(  98 ) / 'BALP            ' /
-      DATA GAS_CHEM_SPC(  99 ) / 'ADDC            ' /
-      DATA GAS_CHEM_SPC( 100 ) / 'MCT             ' /
-      DATA GAS_CHEM_SPC( 101 ) / 'MCTO            ' /
-      DATA GAS_CHEM_SPC( 102 ) / 'MOH             ' /
-      DATA GAS_CHEM_SPC( 103 ) / 'EOH             ' /
-      DATA GAS_CHEM_SPC( 104 ) / 'ROH             ' /
+      DATA GAS_CHEM_SPC(  82 ) / 'ROH             ' /
+      DATA GAS_CHEM_SPC(  83 ) / 'API             ' /
+      DATA GAS_CHEM_SPC(  84 ) / 'APIP1           ' /
+      DATA GAS_CHEM_SPC(  85 ) / 'APIP2           ' /
+      DATA GAS_CHEM_SPC(  86 ) / 'LIM             ' /
+      DATA GAS_CHEM_SPC(  87 ) / 'LIMP1           ' /
+      DATA GAS_CHEM_SPC(  88 ) / 'LIMP2           ' /
+      DATA GAS_CHEM_SPC(  89 ) / 'PINALP          ' /
+      DATA GAS_CHEM_SPC(  90 ) / 'RCO3            ' /
+      DATA GAS_CHEM_SPC(  91 ) / 'LIMALP          ' /
+      DATA GAS_CHEM_SPC(  92 ) / 'ACTP            ' /
+      DATA GAS_CHEM_SPC(  93 ) / 'MEKP            ' /
+      DATA GAS_CHEM_SPC(  94 ) / 'KETP            ' /
+      DATA GAS_CHEM_SPC(  95 ) / 'MCP             ' /
+      DATA GAS_CHEM_SPC(  96 ) / 'MVKP            ' /
+      DATA GAS_CHEM_SPC(  97 ) / 'UALP            ' /
+      DATA GAS_CHEM_SPC(  98 ) / 'DCB3            ' /
+      DATA GAS_CHEM_SPC(  99 ) / 'BALP            ' /
+      DATA GAS_CHEM_SPC( 100 ) / 'ADDC            ' /
+      DATA GAS_CHEM_SPC( 101 ) / 'MCT             ' /
+      DATA GAS_CHEM_SPC( 102 ) / 'MCTO            ' /
+      DATA GAS_CHEM_SPC( 103 ) / 'MOH             ' /
+      DATA GAS_CHEM_SPC( 104 ) / 'EOH             ' /
       DATA GAS_CHEM_SPC( 105 ) / 'ETEG            ' /
       DATA GAS_CHEM_SPC( 106 ) / 'MAHP            ' /
       DATA GAS_CHEM_SPC( 107 ) / 'ORA2            ' /
@@ -392,6 +392,7 @@
       & MEMBER("IEPOX           ",  109, "GC",  118.10D0, F), &
       & MEMBER("IPX             ",  119, "GC",  150.10D0, F), &
       & MEMBER("INALD           ",  116, "GC",  195.10D0, F), &
+      & MEMBER("ROH             ",  106, "GC",   60.00D0, F), &
       & MEMBER("API             ",   76, "GC",  136.40D0, F), &
       & MEMBER("APIP1           ",   77, "GC",  185.00D0, F), &
       & MEMBER("APIP2           ",   78, "GC",  185.00D0, F), &
@@ -414,7 +415,6 @@
       & MEMBER("MCTO            ",  103, "GC",  123.00D0, F), &
       & MEMBER("MOH             ",  104, "GC",   32.00D0, F), &
       & MEMBER("EOH             ",  105, "GC",   46.10D0, F), &
-      & MEMBER("ROH             ",  106, "GC",   60.00D0, F), &
       & MEMBER("ETEG            ",  107, "GC",   62.10D0, F), &
       & MEMBER("MAHP            ",  111, "GC",  102.00D0, F), &
       & MEMBER("ORA2            ",  112, "GC",   60.20D0, F), &
@@ -582,29 +582,29 @@
       DATA CHEMISTRY_SPC(  80 ), SPECIES_MOLWT(  80 ) / 'IEPOX           ',  118.10D0 /
       DATA CHEMISTRY_SPC(  81 ), SPECIES_MOLWT(  81 ) / 'IPX             ',  150.10D0 /
       DATA CHEMISTRY_SPC(  82 ), SPECIES_MOLWT(  82 ) / 'INALD           ',  195.10D0 /
-      DATA CHEMISTRY_SPC(  83 ), SPECIES_MOLWT(  83 ) / 'API             ',  136.40D0 /
-      DATA CHEMISTRY_SPC(  84 ), SPECIES_MOLWT(  84 ) / 'APIP1           ',  185.00D0 /
-      DATA CHEMISTRY_SPC(  85 ), SPECIES_MOLWT(  85 ) / 'APIP2           ',  185.00D0 /
-      DATA CHEMISTRY_SPC(  86 ), SPECIES_MOLWT(  86 ) / 'LIM             ',  136.30D0 /
-      DATA CHEMISTRY_SPC(  87 ), SPECIES_MOLWT(  87 ) / 'LIMP1           ',  185.00D0 /
-      DATA CHEMISTRY_SPC(  88 ), SPECIES_MOLWT(  88 ) / 'LIMP2           ',  185.00D0 /
-      DATA CHEMISTRY_SPC(  89 ), SPECIES_MOLWT(  89 ) / 'PINALP          ',  199.00D0 /
-      DATA CHEMISTRY_SPC(  90 ), SPECIES_MOLWT(  90 ) / 'RCO3            ',   89.00D0 /
-      DATA CHEMISTRY_SPC(  91 ), SPECIES_MOLWT(  91 ) / 'LIMALP          ',  217.00D0 /
-      DATA CHEMISTRY_SPC(  92 ), SPECIES_MOLWT(  92 ) / 'ACTP            ',   89.00D0 /
-      DATA CHEMISTRY_SPC(  93 ), SPECIES_MOLWT(  93 ) / 'MEKP            ',  103.00D0 /
-      DATA CHEMISTRY_SPC(  94 ), SPECIES_MOLWT(  94 ) / 'KETP            ',  117.00D0 /
-      DATA CHEMISTRY_SPC(  95 ), SPECIES_MOLWT(  95 ) / 'MCP             ',  119.00D0 /
-      DATA CHEMISTRY_SPC(  96 ), SPECIES_MOLWT(  96 ) / 'MVKP            ',  119.00D0 /
-      DATA CHEMISTRY_SPC(  97 ), SPECIES_MOLWT(  97 ) / 'UALP            ',  133.00D0 /
-      DATA CHEMISTRY_SPC(  98 ), SPECIES_MOLWT(  98 ) / 'DCB3            ',   84.00D0 /
-      DATA CHEMISTRY_SPC(  99 ), SPECIES_MOLWT(  99 ) / 'BALP            ',  137.00D0 /
-      DATA CHEMISTRY_SPC( 100 ), SPECIES_MOLWT( 100 ) / 'ADDC            ',  125.00D0 /
-      DATA CHEMISTRY_SPC( 101 ), SPECIES_MOLWT( 101 ) / 'MCT             ',  124.10D0 /
-      DATA CHEMISTRY_SPC( 102 ), SPECIES_MOLWT( 102 ) / 'MCTO            ',  123.00D0 /
-      DATA CHEMISTRY_SPC( 103 ), SPECIES_MOLWT( 103 ) / 'MOH             ',   32.00D0 /
-      DATA CHEMISTRY_SPC( 104 ), SPECIES_MOLWT( 104 ) / 'EOH             ',   46.10D0 /
-      DATA CHEMISTRY_SPC( 105 ), SPECIES_MOLWT( 105 ) / 'ROH             ',   60.00D0 /
+      DATA CHEMISTRY_SPC(  83 ), SPECIES_MOLWT(  83 ) / 'ROH             ',   60.00D0 /
+      DATA CHEMISTRY_SPC(  84 ), SPECIES_MOLWT(  84 ) / 'API             ',  136.40D0 /
+      DATA CHEMISTRY_SPC(  85 ), SPECIES_MOLWT(  85 ) / 'APIP1           ',  185.00D0 /
+      DATA CHEMISTRY_SPC(  86 ), SPECIES_MOLWT(  86 ) / 'APIP2           ',  185.00D0 /
+      DATA CHEMISTRY_SPC(  87 ), SPECIES_MOLWT(  87 ) / 'LIM             ',  136.30D0 /
+      DATA CHEMISTRY_SPC(  88 ), SPECIES_MOLWT(  88 ) / 'LIMP1           ',  185.00D0 /
+      DATA CHEMISTRY_SPC(  89 ), SPECIES_MOLWT(  89 ) / 'LIMP2           ',  185.00D0 /
+      DATA CHEMISTRY_SPC(  90 ), SPECIES_MOLWT(  90 ) / 'PINALP          ',  199.00D0 /
+      DATA CHEMISTRY_SPC(  91 ), SPECIES_MOLWT(  91 ) / 'RCO3            ',   89.00D0 /
+      DATA CHEMISTRY_SPC(  92 ), SPECIES_MOLWT(  92 ) / 'LIMALP          ',  217.00D0 /
+      DATA CHEMISTRY_SPC(  93 ), SPECIES_MOLWT(  93 ) / 'ACTP            ',   89.00D0 /
+      DATA CHEMISTRY_SPC(  94 ), SPECIES_MOLWT(  94 ) / 'MEKP            ',  103.00D0 /
+      DATA CHEMISTRY_SPC(  95 ), SPECIES_MOLWT(  95 ) / 'KETP            ',  117.00D0 /
+      DATA CHEMISTRY_SPC(  96 ), SPECIES_MOLWT(  96 ) / 'MCP             ',  119.00D0 /
+      DATA CHEMISTRY_SPC(  97 ), SPECIES_MOLWT(  97 ) / 'MVKP            ',  119.00D0 /
+      DATA CHEMISTRY_SPC(  98 ), SPECIES_MOLWT(  98 ) / 'UALP            ',  133.00D0 /
+      DATA CHEMISTRY_SPC(  99 ), SPECIES_MOLWT(  99 ) / 'DCB3            ',   84.00D0 /
+      DATA CHEMISTRY_SPC( 100 ), SPECIES_MOLWT( 100 ) / 'BALP            ',  137.00D0 /
+      DATA CHEMISTRY_SPC( 101 ), SPECIES_MOLWT( 101 ) / 'ADDC            ',  125.00D0 /
+      DATA CHEMISTRY_SPC( 102 ), SPECIES_MOLWT( 102 ) / 'MCT             ',  124.10D0 /
+      DATA CHEMISTRY_SPC( 103 ), SPECIES_MOLWT( 103 ) / 'MCTO            ',  123.00D0 /
+      DATA CHEMISTRY_SPC( 104 ), SPECIES_MOLWT( 104 ) / 'MOH             ',   32.00D0 /
+      DATA CHEMISTRY_SPC( 105 ), SPECIES_MOLWT( 105 ) / 'EOH             ',   46.10D0 /
       DATA CHEMISTRY_SPC( 106 ), SPECIES_MOLWT( 106 ) / 'ETEG            ',   62.10D0 /
       DATA CHEMISTRY_SPC( 107 ), SPECIES_MOLWT( 107 ) / 'MAHP            ',  102.00D0 /
       DATA CHEMISTRY_SPC( 108 ), SPECIES_MOLWT( 108 ) / 'ORA2            ',   60.20D0 /
@@ -773,29 +773,29 @@
       DATA CGRID_INDEX(  80 ), SPECIES_TYPE(  80 ), CONVERT_CONC(  80 ) /  109, 'GC', F /  ! IEPOX
       DATA CGRID_INDEX(  81 ), SPECIES_TYPE(  81 ), CONVERT_CONC(  81 ) /  119, 'GC', F /  ! IPX
       DATA CGRID_INDEX(  82 ), SPECIES_TYPE(  82 ), CONVERT_CONC(  82 ) /  116, 'GC', F /  ! INALD
-      DATA CGRID_INDEX(  83 ), SPECIES_TYPE(  83 ), CONVERT_CONC(  83 ) /   76, 'GC', F /  ! API
-      DATA CGRID_INDEX(  84 ), SPECIES_TYPE(  84 ), CONVERT_CONC(  84 ) /   77, 'GC', F /  ! APIP1
-      DATA CGRID_INDEX(  85 ), SPECIES_TYPE(  85 ), CONVERT_CONC(  85 ) /   78, 'GC', F /  ! APIP2
-      DATA CGRID_INDEX(  86 ), SPECIES_TYPE(  86 ), CONVERT_CONC(  86 ) /   83, 'GC', F /  ! LIM
-      DATA CGRID_INDEX(  87 ), SPECIES_TYPE(  87 ), CONVERT_CONC(  87 ) /   84, 'GC', F /  ! LIMP1
-      DATA CGRID_INDEX(  88 ), SPECIES_TYPE(  88 ), CONVERT_CONC(  88 ) /   85, 'GC', F /  ! LIMP2
-      DATA CGRID_INDEX(  89 ), SPECIES_TYPE(  89 ), CONVERT_CONC(  89 ) /   82, 'GC', F /  ! PINALP
-      DATA CGRID_INDEX(  90 ), SPECIES_TYPE(  90 ), CONVERT_CONC(  90 ) /   92, 'GC', F /  ! RCO3
-      DATA CGRID_INDEX(  91 ), SPECIES_TYPE(  91 ), CONVERT_CONC(  91 ) /   89, 'GC', F /  ! LIMALP
-      DATA CGRID_INDEX(  92 ), SPECIES_TYPE(  92 ), CONVERT_CONC(  92 ) /   93, 'GC', F /  ! ACTP
-      DATA CGRID_INDEX(  93 ), SPECIES_TYPE(  93 ), CONVERT_CONC(  93 ) /   94, 'GC', F /  ! MEKP
-      DATA CGRID_INDEX(  94 ), SPECIES_TYPE(  94 ), CONVERT_CONC(  94 ) /   95, 'GC', F /  ! KETP
-      DATA CGRID_INDEX(  95 ), SPECIES_TYPE(  95 ), CONVERT_CONC(  95 ) /   96, 'GC', F /  ! MCP
-      DATA CGRID_INDEX(  96 ), SPECIES_TYPE(  96 ), CONVERT_CONC(  96 ) /   97, 'GC', F /  ! MVKP
-      DATA CGRID_INDEX(  97 ), SPECIES_TYPE(  97 ), CONVERT_CONC(  97 ) /   98, 'GC', F /  ! UALP
-      DATA CGRID_INDEX(  98 ), SPECIES_TYPE(  98 ), CONVERT_CONC(  98 ) /   99, 'GC', F /  ! DCB3
-      DATA CGRID_INDEX(  99 ), SPECIES_TYPE(  99 ), CONVERT_CONC(  99 ) /  100, 'GC', F /  ! BALP
-      DATA CGRID_INDEX( 100 ), SPECIES_TYPE( 100 ), CONVERT_CONC( 100 ) /  101, 'GC', F /  ! ADDC
-      DATA CGRID_INDEX( 101 ), SPECIES_TYPE( 101 ), CONVERT_CONC( 101 ) /  102, 'GC', F /  ! MCT
-      DATA CGRID_INDEX( 102 ), SPECIES_TYPE( 102 ), CONVERT_CONC( 102 ) /  103, 'GC', F /  ! MCTO
-      DATA CGRID_INDEX( 103 ), SPECIES_TYPE( 103 ), CONVERT_CONC( 103 ) /  104, 'GC', F /  ! MOH
-      DATA CGRID_INDEX( 104 ), SPECIES_TYPE( 104 ), CONVERT_CONC( 104 ) /  105, 'GC', F /  ! EOH
-      DATA CGRID_INDEX( 105 ), SPECIES_TYPE( 105 ), CONVERT_CONC( 105 ) /  106, 'GC', F /  ! ROH
+      DATA CGRID_INDEX(  83 ), SPECIES_TYPE(  83 ), CONVERT_CONC(  83 ) /  106, 'GC', F /  ! ROH
+      DATA CGRID_INDEX(  84 ), SPECIES_TYPE(  84 ), CONVERT_CONC(  84 ) /   76, 'GC', F /  ! API
+      DATA CGRID_INDEX(  85 ), SPECIES_TYPE(  85 ), CONVERT_CONC(  85 ) /   77, 'GC', F /  ! APIP1
+      DATA CGRID_INDEX(  86 ), SPECIES_TYPE(  86 ), CONVERT_CONC(  86 ) /   78, 'GC', F /  ! APIP2
+      DATA CGRID_INDEX(  87 ), SPECIES_TYPE(  87 ), CONVERT_CONC(  87 ) /   83, 'GC', F /  ! LIM
+      DATA CGRID_INDEX(  88 ), SPECIES_TYPE(  88 ), CONVERT_CONC(  88 ) /   84, 'GC', F /  ! LIMP1
+      DATA CGRID_INDEX(  89 ), SPECIES_TYPE(  89 ), CONVERT_CONC(  89 ) /   85, 'GC', F /  ! LIMP2
+      DATA CGRID_INDEX(  90 ), SPECIES_TYPE(  90 ), CONVERT_CONC(  90 ) /   82, 'GC', F /  ! PINALP
+      DATA CGRID_INDEX(  91 ), SPECIES_TYPE(  91 ), CONVERT_CONC(  91 ) /   92, 'GC', F /  ! RCO3
+      DATA CGRID_INDEX(  92 ), SPECIES_TYPE(  92 ), CONVERT_CONC(  92 ) /   89, 'GC', F /  ! LIMALP
+      DATA CGRID_INDEX(  93 ), SPECIES_TYPE(  93 ), CONVERT_CONC(  93 ) /   93, 'GC', F /  ! ACTP
+      DATA CGRID_INDEX(  94 ), SPECIES_TYPE(  94 ), CONVERT_CONC(  94 ) /   94, 'GC', F /  ! MEKP
+      DATA CGRID_INDEX(  95 ), SPECIES_TYPE(  95 ), CONVERT_CONC(  95 ) /   95, 'GC', F /  ! KETP
+      DATA CGRID_INDEX(  96 ), SPECIES_TYPE(  96 ), CONVERT_CONC(  96 ) /   96, 'GC', F /  ! MCP
+      DATA CGRID_INDEX(  97 ), SPECIES_TYPE(  97 ), CONVERT_CONC(  97 ) /   97, 'GC', F /  ! MVKP
+      DATA CGRID_INDEX(  98 ), SPECIES_TYPE(  98 ), CONVERT_CONC(  98 ) /   98, 'GC', F /  ! UALP
+      DATA CGRID_INDEX(  99 ), SPECIES_TYPE(  99 ), CONVERT_CONC(  99 ) /   99, 'GC', F /  ! DCB3
+      DATA CGRID_INDEX( 100 ), SPECIES_TYPE( 100 ), CONVERT_CONC( 100 ) /  100, 'GC', F /  ! BALP
+      DATA CGRID_INDEX( 101 ), SPECIES_TYPE( 101 ), CONVERT_CONC( 101 ) /  101, 'GC', F /  ! ADDC
+      DATA CGRID_INDEX( 102 ), SPECIES_TYPE( 102 ), CONVERT_CONC( 102 ) /  102, 'GC', F /  ! MCT
+      DATA CGRID_INDEX( 103 ), SPECIES_TYPE( 103 ), CONVERT_CONC( 103 ) /  103, 'GC', F /  ! MCTO
+      DATA CGRID_INDEX( 104 ), SPECIES_TYPE( 104 ), CONVERT_CONC( 104 ) /  104, 'GC', F /  ! MOH
+      DATA CGRID_INDEX( 105 ), SPECIES_TYPE( 105 ), CONVERT_CONC( 105 ) /  105, 'GC', F /  ! EOH
       DATA CGRID_INDEX( 106 ), SPECIES_TYPE( 106 ), CONVERT_CONC( 106 ) /  107, 'GC', F /  ! ETEG
       DATA CGRID_INDEX( 107 ), SPECIES_TYPE( 107 ), CONVERT_CONC( 107 ) /  111, 'GC', F /  ! MAHP
       DATA CGRID_INDEX( 108 ), SPECIES_TYPE( 108 ), CONVERT_CONC( 108 ) /  112, 'GC', F /  ! ORA2
@@ -966,29 +966,29 @@
       INTEGER :: INDEX_IEPOX       =   80
       INTEGER :: INDEX_IPX         =   81
       INTEGER :: INDEX_INALD       =   82
-      INTEGER :: INDEX_API         =   83
-      INTEGER :: INDEX_APIP1       =   84
-      INTEGER :: INDEX_APIP2       =   85
-      INTEGER :: INDEX_LIM         =   86
-      INTEGER :: INDEX_LIMP1       =   87
-      INTEGER :: INDEX_LIMP2       =   88
-      INTEGER :: INDEX_PINALP      =   89
-      INTEGER :: INDEX_RCO3        =   90
-      INTEGER :: INDEX_LIMALP      =   91
-      INTEGER :: INDEX_ACTP        =   92
-      INTEGER :: INDEX_MEKP        =   93
-      INTEGER :: INDEX_KETP        =   94
-      INTEGER :: INDEX_MCP         =   95
-      INTEGER :: INDEX_MVKP        =   96
-      INTEGER :: INDEX_UALP        =   97
-      INTEGER :: INDEX_DCB3        =   98
-      INTEGER :: INDEX_BALP        =   99
-      INTEGER :: INDEX_ADDC        =  100
-      INTEGER :: INDEX_MCT         =  101
-      INTEGER :: INDEX_MCTO        =  102
-      INTEGER :: INDEX_MOH         =  103
-      INTEGER :: INDEX_EOH         =  104
-      INTEGER :: INDEX_ROH         =  105
+      INTEGER :: INDEX_ROH         =   83
+      INTEGER :: INDEX_API         =   84
+      INTEGER :: INDEX_APIP1       =   85
+      INTEGER :: INDEX_APIP2       =   86
+      INTEGER :: INDEX_LIM         =   87
+      INTEGER :: INDEX_LIMP1       =   88
+      INTEGER :: INDEX_LIMP2       =   89
+      INTEGER :: INDEX_PINALP      =   90
+      INTEGER :: INDEX_RCO3        =   91
+      INTEGER :: INDEX_LIMALP      =   92
+      INTEGER :: INDEX_ACTP        =   93
+      INTEGER :: INDEX_MEKP        =   94
+      INTEGER :: INDEX_KETP        =   95
+      INTEGER :: INDEX_MCP         =   96
+      INTEGER :: INDEX_MVKP        =   97
+      INTEGER :: INDEX_UALP        =   98
+      INTEGER :: INDEX_DCB3        =   99
+      INTEGER :: INDEX_BALP        =  100
+      INTEGER :: INDEX_ADDC        =  101
+      INTEGER :: INDEX_MCT         =  102
+      INTEGER :: INDEX_MCTO        =  103
+      INTEGER :: INDEX_MOH         =  104
+      INTEGER :: INDEX_EOH         =  105
       INTEGER :: INDEX_ETEG        =  106
       INTEGER :: INDEX_MAHP        =  107
       INTEGER :: INDEX_ORA2        =  108
@@ -1464,35 +1464,35 @@
      &     47,   47,    6,   11,   11,   48,   14,    5,   51,   52, & ! 7   
      &     55,   57,   59,   61,   63,   65,   68,   71,   73,   75, & ! 8   
      &     75,   75,   78,   78,   79,   79,   77,   77,   76,    5, & ! 9   
-     &     76,   81,   83,   86,   23,   25,   13,   15,   17,   19, & ! O   
+     &     76,   81,   84,   87,   23,   25,   13,   15,   17,   19, & ! O   
      &     26,   22,   27,   28,   31,   21,   32,   33,   34,   35, & ! 1   
-     &     98,   36,   67,   70,  101,  103,  104,  105,  106,   38, & ! 2   
+     &     99,   36,   67,   70,  102,  104,  105,   83,  106,   38, & ! 2   
      &     39,   40,   41,  107,   64,  108,   42,   44,  110,  111, & ! 3   
-     &     43,   45,   46,   57,   59,   61,   83,   86,   25,   45, & ! 4   
-     &     28,   31,   21,   34,   35,   98,  102,   57,   59,   61, & ! 5   
-     &     83,   86,   45,   13,   15,   17,   28,   21,   32,   33, & ! 6   
-     &     67,   70,  101,  111,   89,   91,   20,   44,   90,  110, & ! 7   
+     &     43,   45,   46,   57,   59,   61,   84,   87,   25,   45, & ! 4   
+     &     28,   31,   21,   34,   35,   99,  103,   57,   59,   61, & ! 5   
+     &     84,   87,   45,   13,   15,   17,   28,   21,   32,   33, & ! 6   
+     &     67,   70,  102,  111,   90,   92,   20,   44,   91,  110, & ! 7   
      &     29,  111,   16,   18,   53,   56,   58,   60,   62,   66, & ! 8   
-     &     69,   72,   74,   84,   85,  115,  116,   87,   88,  117, & ! 9   
-     &    118,   89,   91,   20,   90,   92,   93,   94,   29,   95, & ! O   
-     &     96,   97,   99,  126,  100,  112,  109,  113,  114,  119, & ! 1   
-     &     30,  127,   37,  102,   16,   18,   53,   56,   58,   60, & ! 2   
-     &     62,   66,   69,   72,   74,   84,   85,  115,  116,   87, & ! 3   
-     &     88,  117,  118,   89,   91,   20,   90,   92,   93,   94, & ! 4   
-     &     29,   95,   96,   97,  100,   37,  112,  109,  113,  114, & ! 5   
+     &     69,   72,   74,   85,   86,  115,  116,   88,   89,  117, & ! 9   
+     &    118,   90,   92,   20,   91,   93,   94,   95,   29,   96, & ! O   
+     &     97,   98,  100,  126,  101,  112,  109,  113,  114,  119, & ! 1   
+     &     30,  127,   37,  103,   16,   18,   53,   56,   58,   60, & ! 2   
+     &     62,   66,   69,   72,   74,   85,   86,  115,  116,   88, & ! 3   
+     &     89,  117,  118,   90,   92,   20,   91,   93,   94,   95, & ! 4   
+     &     29,   96,   97,   98,  101,   37,  112,  109,  113,  114, & ! 5   
      &    119,   30,   16,   18,   53,   56,   58,   60,   62,   66, & ! 6   
-     &     69,   72,   74,   78,   84,   85,  115,  116,   87,   88, & ! 7   
-     &    117,  118,   20,   90,   92,   93,   94,   29,   95,   96, & ! 8   
-     &     97,   99,  126,  100,  112,  109,  113,  114,  119,   30, & ! 9   
+     &     69,   72,   74,   78,   85,   86,  115,  116,   88,   89, & ! 7   
+     &    117,  118,   20,   91,   93,   94,   95,   29,   96,   97, & ! 8   
+     &     98,  100,  126,  101,  112,  109,  113,  114,  119,   30, & ! 9   
      &     18,   53,   56,   58,   60,   62,   66,   69,   72,   74, & ! O   
-     &     78,   84,   85,  115,  116,   87,   88,  117,  118,   20, & ! 1   
-     &     90,   92,   93,   94,   29,   95,   96,   97,   99,  126, & ! 2   
-     &    100,  112,  109,  113,  114,  119,   30,   90,   16,   18, & ! 3   
+     &     78,   85,   86,  115,  116,   88,   89,  117,  118,   20, & ! 1   
+     &     91,   93,   94,   95,   29,   96,   97,   98,  100,  126, & ! 2   
+     &    101,  112,  109,  113,  114,  119,   30,   91,   16,   18, & ! 3   
      &     53,   56,   58,   60,   62,   66,   69,   72,   74,   78, & ! 4   
-     &     84,   87,  115,  117,   20,   90,   92,   93,   94,   29, & ! 5   
-     &     95,   96,   97,   99,  126,  100,  112,  109,  113,  114, & ! 6   
-     &    119,  113,  113,  114,   30,   30,   30,   85,   85,   85, & ! 7   
-     &     88,   88,   88,  116,  116,  116,  118,  118,  118,   80, & ! 8   
+     &     85,   88,  115,  117,   20,   91,   93,   94,   95,   29, & ! 5   
+     &     96,   97,   98,  100,  126,  101,  112,  109,  113,  114, & ! 6   
+     &    119,  113,  113,  114,   30,   30,   30,   86,   86,   86, & ! 7   
+     &     89,   89,   89,  116,  116,  116,  118,  118,  118,   80, & ! 8   
      &    129,  130,  131,  131,  131,  131,  132,  133,  133,  133, & ! 9   
      &    133,  133,  132,  132,  134,  135,  135,  123,  134,  134, & ! O   
      &    136,  137,  138,  138,  138,  137,  137,  140,  140,  140, & ! 1   
@@ -1543,12 +1543,12 @@
      &     20,   20,   20,   20,   20,   20,   20,   20,   20,   20, & ! O   
      &     20,   20,   20,   20,   20,   20,   20,   20,   20,   20, & ! 1   
      &     20,   20,   20,   20,   20,   20,   20,   20,   20,   20, & ! 2   
-     &     20,   20,   20,   20,   20,   20,   20,   90,    8,    8, & ! 3   
+     &     20,   20,   20,   20,   20,   20,   20,   91,    8,    8, & ! 3   
      &      8,    8,    8,    8,    8,    8,    8,    8,    8,    8, & ! 4   
      &      8,    8,    8,    8,    8,    8,    8,    8,    8,    8, & ! 5   
      &      8,    8,    8,    8,    8,    8,    8,    8,    8,    8, & ! 6   
-     &      8,  113,  114,  114,    8,   90,   30,   84,   87,   78, & ! 7   
-     &     84,   87,   78,   84,   87,   78,   84,   87,   78,    5, & ! 8   
+     &      8,  113,  114,  114,    8,   91,   30,   85,   88,   78, & ! 7   
+     &     85,   88,   78,   85,   88,   78,   85,   88,   78,    5, & ! 8   
      &      5,    5,    5,    1,    8,    0,    5,    7,    8,   12, & ! 9   
      &     16,   20,    1,    8,    5,    7,   12,    5,    1,    8, & ! O   
      &      5,    8,   12,    7,    8,    1,    5,   12,    8,    7, & ! 1   
@@ -1632,24 +1632,24 @@
      &      6,   10,   11,   12,    6,   12,   12,   16,   18,   53, & ! 7   
      &     56,   58,   60,   62,    5,   66,   69,   72,   74,    5, & ! 8   
      &      6,   78,   79,   76,   78,   33,    5,   31,    5,   14, & ! 9   
-     &     10,   28,   84,   87,   89,   91,   12,   20,   90,   92, & ! O   
-     &     93,   94,   12,   29,   96,   20,   12,   20,   12,   12, & ! 1   
-     &     12,   99,   54,   54,  102,   12,   12,   12,   12,    5, & ! 2   
+     &     10,   28,   85,   88,   90,   92,   12,   20,   91,   93, & ! O   
+     &     94,   95,   12,   29,   97,   20,   12,   20,   12,   12, & ! 1   
+     &     12,  100,   54,   54,  103,   12,   12,   12,   12,    5, & ! 2   
      &      5,    5,    5,   29,   12,   16,    5,   30,   30,    6, & ! 3   
      &     53,   46,   27,    5,    5,    5,    5,    5,    5,   46, & ! 4   
      &      5,    5,    5,    5,    5,    5,  112,  113,  113,  113, & ! 5   
-     &    115,  117,   46,   12,   20,   90,   13,   12,   12,   20, & ! 6   
-     &     54,   54,  102,   29,  120,  120,   44,   20,  110,   90, & ! 7   
+     &    115,  117,   46,   12,   20,   91,   13,   12,   12,   20, & ! 6   
+     &     54,   54,  103,   29,  120,  120,   44,   20,  110,   91, & ! 7   
      &    111,   29,   12,   12,   12,   12,   12,   12,   12,   43, & ! 8   
      &     43,   43,   43,   45,    5,    6,    6,   45,    5,   45, & ! 9   
      &      6,   45,   45,   16,   18,   20,   12,   12,   16,    6, & ! O   
-     &     12,   12,  126,  127,   12,  102,    6,    6,    6,    6, & ! 1   
+     &     12,   12,  126,  127,   12,  103,    6,    6,    6,    6, & ! 1   
      &      6,   43,   43,   43,   38,   39,   39,   39,   39,   39, & ! 2   
      &     39,   39,   39,   39,   39,   19,  120,   45,  120,   40, & ! 3   
      &    120,   45,  120,   40,   40,    5,    5,    5,   39,   39, & ! 4   
      &    107,  107,   39,   39,   39,   70,   39,   39,   43,   43, & ! 5   
      &     39,   39,   12,   12,   12,   12,   12,   12,   12,   13, & ! 6   
-     &     13,   13,   13,   12,   13,   12,   45,   12,  103,   12, & ! 7   
+     &     13,   13,   13,   12,   13,   12,   45,   12,  104,   12, & ! 7   
      &     45,   12,   12,   12,   12,   12,   12,   12,    6,   12, & ! 8   
      &     12,   12,   12,   12,   12,   13,   12,   12,   12,   12, & ! 9   
      &     12,   12,   12,   12,   12,   12,   16,   16,   16,   16, & ! O   
@@ -1662,7 +1662,7 @@
      &      6,   12,   12,    6,    6,   18,    0,  120,  120,  120, & ! 7   
      &    120,  120,  120,  120,  120,  120,  120,  120,  120,    5, & ! 8   
      &     18,   18,   29,   14,   13,   14,  133,   12,   12,   39, & ! 9   
-     &    103,   16,  131,  113,   34,   43,   39,   22,    5,    6, & ! O   
+     &    104,   16,  131,  113,   34,   43,   39,   22,    5,    6, & ! O   
      &     27,  138,  125,  124,  124,  124,  140,  141,  124,  142, & ! 1   
      &    143,  143,   10,    9,    0,   10,    0,  144,  145,  147, & ! 2   
      &    148,  149,  151,  153,  155,  157,  159,  161,   24,  163, & ! 3   
@@ -1688,11 +1688,11 @@
      &      8,    0,    0,    6,    0,   49,    0,    0,    0,   54, & ! 7   
      &     54,    0,    0,    0,   12,   67,   70,   70,   70,   12, & ! 8   
      &     76,   13,   12,   13,    0,   32,   82,   82,   82,    6, & ! 9   
-     &      0,   31,   85,   88,   90,   90,   14,    0,    0,    0, & ! O   
-     &      0,    0,   33,   95,    0,   97,   14,   14,   14,   14, & ! 1   
+     &     83,   31,   86,   89,   91,   91,   14,    0,    0,    0, & ! O   
+     &      0,    0,   33,   96,    0,   98,   14,   14,   14,   14, & ! 1   
      &     29,    0,   12,   12,    0,   13,   15,   17,   17,   16, & ! 2   
      &     53,   24,   24,    0,    0,  109,   20,    8,    8,   27, & ! 3   
-     &      6,    6,    8,   12,   12,   12,   89,   25,   17,    6, & ! 4   
+     &      6,    6,    8,   12,   12,   12,   90,   25,   17,    6, & ! 4   
      &     12,   12,   12,   12,   12,   12,    0,  114,  114,  114, & ! 5   
      &    116,  118,    6,   14,   10,   10,   29,   30,   14,   14, & ! 6   
      &     37,   37,   10,    6,    0,    0,    0,    6,    0,    6, & ! 7   
@@ -1707,17 +1707,17 @@
      &      0,    0,   13,   13,   16,   16,   13,   13,   13,   12, & ! 6   
      &     12,   12,   12,   13,   25,   13,   13,    6,   25,   13, & ! 7   
      &     13,   13,   16,   16,   20,   13,   13,   20,   12,   20, & ! 8   
-     &     14,  126,  127,   13,  102,   12,   13,    6,    6,   13, & ! 9   
+     &     14,  126,  127,   13,  103,   12,   13,    6,    6,   13, & ! 9   
      &     16,   16,   16,   16,   16,   16,   12,   12,   12,   12, & ! O   
      &     16,   17,   16,   23,   16,   13,   16,    6,    6,    0, & ! 1   
      &     18,   20,   16,   16,   16,   12,   16,   16,  126,  127, & ! 2   
      &     16,   16,   32,   16,    6,   16,    0,    0,   13,    6, & ! 3   
      &     16,   16,    6,   13,   17,   12,   12,   12,   12,    6, & ! 4   
      &     12,    6,   23,   25,    6,    6,    6,    6,    6,   20, & ! 5   
-     &     12,   20,    6,    6,    6,    6,  102,   32,    6,   13, & ! 6   
-     &     32,   43,    6,   13,    0,    0,    0,  105,  105,  105, & ! 7   
-     &    105,  105,  105,  105,  105,  105,  105,  105,  105,    0, & ! 8   
-     &     54,   54,   95,   12,   29,   12,   21,    6,    6,    0, & ! 9   
+     &     12,   20,    6,    6,    6,    6,  103,   32,    6,   13, & ! 6   
+     &     32,   43,    6,   13,    0,    0,    0,   83,   83,   83, & ! 7   
+     &     83,   83,   83,   83,   83,   83,   83,   83,   83,    0, & ! 8   
+     &     54,   54,   96,   12,   29,   12,   21,    6,    6,    0, & ! 9   
      &     13,  108,   14,  114,   12,    6,  123,   32,   17,   34, & ! O   
      &     17,    0,    0,    6,    6,  139,    0,    0,    0,  124, & ! 1   
      &      0,    0,    0,   10,    0,    0,    0,    0,    0,    0, & ! 2   
@@ -1746,12 +1746,12 @@
      &     13,   28,    5,   12,    0,   31,   81,   76,   80,   12, & ! 9   
      &      0,    0,    0,    0,    0,    0,    0,    0,    0,    0, & ! O   
      &      0,    0,    0,    0,    0,    0,    0,    0,   17,   26, & ! 1   
-     &     14,    0,  100,  100,    0,    0,    0,   15,    0,   13, & ! 2   
+     &     14,    0,  101,  101,    0,    0,    0,   15,    0,   13, & ! 2   
      &     30,   30,   30,    0,    0,    0,   30,   13,   13,    0, & ! 3   
      &      0,   23,    0,   14,   16,   16,    4,   20,   13,   23, & ! 4   
-     &     20,   20,   16,   90,   90,   14,    0,    0,    0,    0, & ! 5   
+     &     20,   20,   16,   91,   91,   14,    0,    0,    0,    0, & ! 5   
      &      0,    0,   23,   10,    0,    0,   30,   14,   10,   10, & ! 6   
-     &    100,  100,    0,    0,    0,    0,    0,    0,    0,    0, & ! 7   
+     &    101,  101,    0,    0,    0,    0,    0,    0,    0,    0, & ! 7   
      &      0,    0,   13,   15,   18,   18,   13,   13,   15,  122, & ! 8   
      &    122,  125,  125,    6,  120,   43,  120,   25,  120,    6, & ! 9   
      &    120,    6,   12,    0,    0,   13,   13,   30,    6,   13, & ! O   
@@ -1760,21 +1760,21 @@
      &      0,    0,    0,  125,  125,   13,    0,    6,    0,    5, & ! 3   
      &      0,   25,    0,  120,   12,  108,  108,   13,    0,    0, & ! 4   
      &      0,    0,    0,    0,    0,    0,    0,    0,    0,    0, & ! 5   
-     &      0,    0,  103,   15,   18,   18,   17,   17,   17,  103, & ! 6   
-     &    103,  103,  103,   28,   23,  103,  103,  103,   13,  103, & ! 7   
-     &    103,    6,   13,   13,   13,   34,   34,   14,   13,   30, & ! 8   
+     &      0,    0,  104,   15,   18,   18,   17,   17,   17,  104, & ! 6   
+     &    104,  104,  104,   28,   23,  104,  104,  104,   13,  104, & ! 7   
+     &    104,    6,   13,   13,   13,   34,   34,   14,   13,   30, & ! 8   
      &     13,   13,   13,   27,   13,   32,   43,   13,   13,    0, & ! 9   
      &     15,   18,   18,   13,   13,   17,  108,  108,  108,  108, & ! O   
      &     13,   40,  108,   16,  108,   12,  108,   25,  108,    0, & ! 1   
      &      0,   13,   13,   34,   20,   13,   20,   14,    0,    0, & ! 2   
-     &     27,  102,    0,   43,   13,    6,    0,    0,    6,   15, & ! 3   
+     &     27,  103,    0,   43,   13,    6,    0,    0,    6,   15, & ! 3   
      &     30,   18,   13,   12,   22,   36,   36,   36,   36,   13, & ! 4   
      &     23,   25,   45,   45,    0,    0,   13,   13,   34,   14, & ! 5   
      &     13,   30,   14,    0,    0,   27,    0,   12,   43,   17, & ! 6   
      &     39,    0,   13,   17,    0,    0,    0,   23,   25,   13, & ! 7   
      &     23,   25,   13,   23,   25,   13,   23,   25,   13,    0, & ! 8   
      &      0,    0,    0,    5,   30,   57,   12,  131,  131,    0, & ! 9   
-     &     12,   12,   12,  131,  135,  123,    5,   12,    0,   98, & ! O   
+     &     12,   12,   12,  131,  135,  123,    5,   12,    0,   99, & ! O   
      &     12,    0,    0,    0,    0,    0,    0,    0,    0,    6, & ! 1   
      &      0,    0,    0,    0,    0,    0,    0,    0,    0,    0, & ! 2   
      &      0,    0,    0,    0,    0,    0,    0,    0,    0,    6, & ! 3   
@@ -1783,8 +1783,8 @@
      &      0,    0,    0,    0,    0,    0,    0,  124,  166,  168, & ! 6   
      &    141,  171,   12,   22,   12,   12,   12,   12,   12,   12, & ! 7   
      &     12,    0,    0,    0,    0,    0,    0,    0,  121,  175, & ! 8   
-     &    176,   36,  103,  108,  124,  175,  175,  121,  103,  108, & ! 9   
-     &    124,  181,  181,  121,  103,  108,   34,  175,  175,  175, & ! O   
+     &    176,   36,  104,  108,  124,  175,  175,  121,  104,  108, & ! 9   
+     &    124,  181,  181,  121,  104,  108,   34,  175,  175,  175, & ! O   
      &    175,  175,  175,  175,  175,  175,  175,  175,  175,  139, & ! 1   
      &    176,  175,    0,    0,    0,    0,    0,   13,   13,   36, & ! 2   
      &     36/     !  3   
@@ -1816,9 +1816,9 @@
      &      0,    0,    0,    0,    0,   40,    0,    5,    0,   12, & ! 3   
      &      0,    6,    0,    0,   13,   42,   42,   39,    0,    0, & ! 4   
      &      0,    0,    0,    0,    0,    0,    0,    0,    0,    0, & ! 5   
-     &      0,    0,    0,  103,   30,   30,  103,   22,   22,   36, & ! 6   
+     &      0,    0,    0,  104,   30,   30,  104,   22,   22,   36, & ! 6   
      &     36,   36,   36,   31,   17,  120,   12,   13,   12,  120, & ! 7   
-     &     12,  103,  108,  108,  103,  103,  103,   13,   27,   13, & ! 8   
+     &     12,  104,  108,  108,  104,  104,  104,   13,   27,   13, & ! 8   
      &     17,    0,    0,   32,    0,    0,    0,   17,   32,    0, & ! 9   
      &    108,   30,   30,   17,   17,   22,   36,   36,   36,   36, & ! O   
      &     28,   19,  120,   45,  120,   16,  120,   45,  120,    0, & ! 1   
@@ -1842,7 +1842,7 @@
      &      6,   32,   36,   36,    0,    0,    6,   32,  121,  121, & ! 9   
      &      0,    0,    6,   32,  121,  121,   26,  122,  139,   34, & ! O   
      &    139,  139,  122,  139,  139,  139,  139,  139,  122,  122, & ! 1   
-     &    125,  122,    0,    0,    0,    0,    0,   36,   36,  103, & ! 2   
+     &    125,  122,    0,    0,    0,    0,    0,   36,   36,  104, & ! 2   
      &     16/     !  3   
 
       DATA ( IRR( IRXXN,  8 ), IRXXN = 1, NRXNS ) / & 
@@ -1858,9 +1858,9 @@
      &     31,    0,    0,   28,    0,   20,    0,    6,    0,    0, & ! 9   
      &      0,    0,    0,    0,    0,    0,    0,    0,    0,    0, & ! O   
      &      0,    0,    0,    0,    0,    0,    0,    0,   32,   33, & ! 1   
-     &     33,    0,  101,  101,    0,    0,    0,    0,    0,    0, & ! 2   
+     &     33,    0,  102,  102,    0,    0,    0,    0,    0,    0, & ! 2   
      &     22,   22,   22,    0,    0,    0,    0,    0,    0,    0, & ! 3   
-     &      0,   13,    0,   64,   53,   53,  108,   90,    4,   13, & ! 4   
+     &      0,   13,    0,   64,   53,   53,  108,   91,    4,   13, & ! 4   
      &     33,   14,   30,   14,   14,   34,    0,    0,    0,    0, & ! 5   
      &      0,    0,   13,    0,    0,    0,   10,   17,    0,    0, & ! 6   
      &     10,   10,    0,    0,    0,    0,    0,    0,    0,    0, & ! 7   
@@ -1872,9 +1872,9 @@
      &      0,    0,    0,    0,    0,   12,    0,   17,    0,   13, & ! 3   
      &      0,   12,    0,    0,   42,    0,    0,    0,    0,    0, & ! 4   
      &      0,    0,    0,    0,    0,    0,    0,    0,    0,    0, & ! 5   
-     &      0,    0,    0,  104,   13,   13,  106,  103,  103,   32, & ! 6   
-     &     32,   32,   32,  103,   40,    0,    6,  120,    0,    0, & ! 7   
-     &     25,  120,    0,    0,  105,  105,  105,  108,  103,   17, & ! 8   
+     &      0,    0,    0,  105,   13,   13,  106,  104,  104,   32, & ! 6   
+     &     32,   32,   32,  104,   40,    0,    6,  120,    0,    0, & ! 7   
+     &     25,  120,    0,    0,   83,   83,   83,  108,  104,   17, & ! 8   
      &     22,    0,    0,   39,    0,    0,    0,   22,   39,    0, & ! 9   
      &      0,   13,   13,  108,   22,  108,   32,   32,   32,   32, & ! O   
      &     31,   25,    0,   17,    0,    0,    0,   12,    0,    0, & ! 1   
@@ -1928,10 +1928,10 @@
      &      0,    0,    0,    0,    0,   23,    0,   22,    0,    0, & ! 3   
      &      0,    0,    0,    0,    0,    0,    0,    0,    0,    0, & ! 4   
      &      0,    0,    0,    0,    0,    0,    0,    0,    0,    0, & ! 5   
-     &      0,    0,    0,    0,   17,   17,    0,  105,  105,  123, & ! 6   
-     &     33,   33,   33,  105,  103,    0,   23,    0,    0,    0, & ! 7   
-     &      6,    0,    0,    0,  108,    0,    0,   16,  105,   33, & ! 8   
-     &     32,    0,    0,    0,    0,    0,    0,  103,   43,    0, & ! 9   
+     &      0,    0,    0,    0,   17,   17,    0,   83,   83,  123, & ! 6   
+     &     33,   33,   33,   83,  104,    0,   23,    0,    0,    0, & ! 7   
+     &      6,    0,    0,    0,  108,    0,    0,   16,   83,   33, & ! 8   
+     &     32,    0,    0,    0,    0,    0,    0,  104,   43,    0, & ! 9   
      &      0,   17,   17,    0,  108,    0,  123,   33,   33,   33, & ! O   
      &    108,   13,    0,   22,    0,    0,    0,    0,    0,    0, & ! 1   
      &      0,    0,    0,    0,    0,  108,   17,   22,    0,    0, & ! 2   
@@ -1986,13 +1986,13 @@
      &      0,    0,    0,    0,    0,    0,    0,    0,    0,    0, & ! 5   
      &      0,    0,    0,    0,   22,   22,    0,    0,    0,   35, & ! 6   
      &    123,  123,  123,   17,   22,    0,   22,    0,    0,    0, & ! 7   
-     &      0,    0,    0,    0,    0,    0,    0,  103,    0,  103, & ! 8   
-     &     33,    0,    0,    0,    0,    0,    0,  105,    0,    0, & ! 9   
+     &      0,    0,    0,    0,    0,    0,    0,  104,    0,  104, & ! 8   
+     &     33,    0,    0,    0,    0,    0,    0,   83,    0,    0, & ! 9   
      &      0,   22,   22,    0,    0,    0,   35,  123,  123,  123, & ! O   
      &      0,   12,    0,   13,    0,    0,    0,    0,    0,    0, & ! 1   
      &      0,    0,    0,    0,    0,    0,   33,   32,    0,    0, & ! 2   
      &      0,    0,    0,    0,    0,    0,    0,    0,    0,    0, & ! 3   
-     &     17,   17,    0,   19,   27,   98,   34,   35,   35,   27, & ! 4   
+     &     17,   17,    0,   19,   27,   99,   34,   35,   35,   27, & ! 4   
      &     13,    0,   12,    0,    0,    0,    0,    0,    0,    0, & ! 5   
      &      0,   33,   32,    0,    0,    0,    0,    0,    0,    0, & ! 6   
      &      0,    0,    0,    0,    0,    0,    0,    0,    0,  128, & ! 7   
@@ -2040,11 +2040,11 @@
      &      0,    0,    0,    0,    0,   22,    0,    0,    0,    0, & ! 3   
      &      0,    0,    0,    0,    0,    0,    0,    0,    0,    0, & ! 4   
      &      0,    0,    0,    0,    0,    0,    0,    0,    0,    0, & ! 5   
-     &      0,    0,    0,    0,   32,  103,    0,    0,    0,   98, & ! 6   
+     &      0,    0,    0,    0,   32,  104,    0,    0,    0,   99, & ! 6   
      &     34,   35,   35,   32,   19,    0,   17,    0,    0,    0, & ! 7   
-     &      0,    0,    0,    0,    0,    0,    0,  105,    0,  105, & ! 8   
-     &    103,    0,    0,    0,    0,    0,    0,   43,    0,    0, & ! 9   
-     &      0,   32,  108,    0,    0,    0,   98,   34,   35,   35, & ! O   
+     &      0,    0,    0,    0,    0,    0,    0,   83,    0,   83, & ! 8   
+     &    104,    0,    0,    0,    0,    0,    0,   43,    0,    0, & ! 9   
+     &      0,   32,  108,    0,    0,    0,   99,   34,   35,   35, & ! O   
      &      0,   16,    0,   12,    0,    0,    0,    0,    0,    0, & ! 1   
      &      0,    0,    0,    0,    0,    0,  108,   33,    0,    0, & ! 2   
      &      0,    0,    0,    0,    0,    0,    0,    0,    0,    0, & ! 3   
@@ -2084,7 +2084,7 @@
      &      0,    0,    0,    0,    0,    0,    0,    0,    0,    0, & ! 1   
      &      0,    0,    0,    0,    0,    0,    0,    0,    0,    0, & ! 2   
      &      0,    0,    0,    0,    0,    0,    0,    0,    0,    0, & ! 3   
-     &      0,    0,    0,    0,   51,   51,   90,    0,    0,    0, & ! 4   
+     &      0,    0,    0,    0,   51,   51,   91,    0,    0,    0, & ! 4   
      &      0,  108,   22,   39,   34,    0,    0,    0,    0,    0, & ! 5   
      &      0,    0,    0,    0,    0,    0,    0,    0,    0,    0, & ! 6   
      &      0,    0,    0,    0,    0,    0,    0,    0,    0,    0, & ! 7   
@@ -2096,10 +2096,10 @@
      &      0,    0,    0,    0,    0,    0,    0,    0,    0,    0, & ! 3   
      &      0,    0,    0,    0,    0,    0,    0,    0,    0,    0, & ! 4   
      &      0,    0,    0,    0,    0,    0,    0,    0,    0,    0, & ! 5   
-     &      0,    0,    0,    0,  103,  105,    0,    0,    0,    0, & ! 6   
+     &      0,    0,    0,    0,  104,   83,    0,    0,    0,    0, & ! 6   
      &      0,    0,    0,   27,   12,    0,    0,    0,    0,    0, & ! 7   
      &      0,    0,    0,    0,    0,    0,    0,    0,    0,  108, & ! 8   
-     &    105,    0,    0,    0,    0,    0,    0,    0,    0,    0, & ! 9   
+     &     83,    0,    0,    0,    0,    0,    0,    0,    0,    0, & ! 9   
      &      0,  108,    0,    0,    0,    0,    0,    0,    0,    0, & ! O   
      &      0,   22,    0,    0,    0,    0,    0,    0,    0,    0, & ! 1   
      &      0,    0,    0,    0,    0,    0,    0,  108,    0,    0, & ! 2   
@@ -2144,7 +2144,7 @@
      &      0,   17,   32,    0,   39,    0,    0,    0,    0,    0, & ! 5   
      &      0,    0,    0,    0,    0,    0,    0,    0,    0,    0, & ! 6   
      &      0,    0,    0,    0,    0,    0,    0,    0,    0,    0, & ! 7   
-     &      0,    0,    0,    0,   43,   19,    0,    0,    0,   98, & ! 8   
+     &      0,    0,    0,    0,   43,   19,    0,    0,    0,   99, & ! 8   
      &     34,   35,   35,   22,    0,    0,    0,    0,    0,    0, & ! 9   
      &      0,    0,    0,    0,    0,    0,    0,    0,    0,    0, & ! O   
      &      0,    0,    0,    0,    0,    0,    0,    0,    0,    0, & ! 1   
@@ -2152,7 +2152,7 @@
      &      0,    0,    0,    0,    0,    0,    0,    0,    0,    0, & ! 3   
      &      0,    0,    0,    0,    0,    0,    0,    0,    0,    0, & ! 4   
      &      0,    0,    0,    0,    0,    0,    0,    0,    0,    0, & ! 5   
-     &      0,    0,    0,    0,  105,    0,    0,    0,    0,    0, & ! 6   
+     &      0,    0,    0,    0,   83,    0,    0,    0,    0,    0, & ! 6   
      &      0,    0,    0,    0,    0,    0,    0,    0,    0,    0, & ! 7   
      &      0,    0,    0,    0,    0,    0,    0,    0,    0,    0, & ! 8   
      &      0,    0,    0,    0,    0,    0,    0,    0,    0,    0, & ! 9   
@@ -2176,7 +2176,7 @@
      &      0,    0,    0,    0,    0,    0,    0,    0,    0,    0, & ! 7   
      &      0,    0,    0,    0,    0,    0,    0,    0,    0,    0, & ! 8   
      &     35,    0,    0,    0,    0,    0,   35,    0,    0,    0, & ! 9   
-     &      0,    0,    0,    0,    0,    0,   93,  121,  142,   18, & ! O   
+     &      0,    0,    0,    0,    0,    0,   94,  121,  142,   18, & ! O   
      &    168,  142,   39,  142,  166,  142,  142,  168,  124,  166, & ! 1   
      &    182,   16,    0,    0,    0,    0,    0,    0,    0,    0, & ! 2   
      &      0/     !  3   
@@ -2288,7 +2288,7 @@
      &      0,    0,    0,    0,    0,    0,    0,    0,    0,    0, & ! 7   
      &      0,    0,    0,    0,    0,    0,    0,    0,    0,    0, & ! 8   
      &      0,    0,    0,    0,    0,    0,    0,    0,    0,    0, & ! 9   
-     &      0,    0,    0,    0,    0,    0,    0,   39,  166,   93, & ! O   
+     &      0,    0,    0,    0,    0,    0,    0,   39,  166,   94, & ! O   
      &    124,  166,   26,  166,  121,  166,  166,  124,  182,  121, & ! 1   
      &     41,   53,    0,    0,    0,    0,    0,    0,    0,    0, & ! 2   
      &      0/     !  3   
@@ -2346,7 +2346,7 @@
      &      0,    0,    0,    0,    0,    0,    0,    0,    0,    0, & ! 9   
      &      0,    0,    0,    0,    0,    0,    0,   34,  124,   56, & ! O   
      &    121,  124,   22,  124,  182,  124,  124,  121,  183,  182, & ! 1   
-     &     39,   93,    0,    0,    0,    0,    0,    0,    0,    0, & ! 2   
+     &     39,   94,    0,    0,    0,    0,    0,    0,    0,    0, & ! 2   
      &      0/     !  3   
 
       DATA ( IRR( IRXXN, 17 ), IRXXN = 1, NRXNS ) / & 
@@ -2681,7 +2681,7 @@
      &      0,    0,    0,    0,    0,    0,    0,    0,    0,    0, & ! 8   
      &      0,    0,    0,    0,    0,    0,    0,    0,    0,    0, & ! 9   
      &      0,    0,    0,    0,    0,    0,    0,   18,   27,    0, & ! O   
-     &     15,   34,   93,   27,   15,   34,   34,   27,   15,   26, & ! 1   
+     &     15,   34,   94,   27,   15,   34,   34,   27,   15,   26, & ! 1   
      &     16,    0,    0,    0,    0,    0,    0,    0,    0,    0, & ! 2   
      &      0/     !  3   
 
@@ -2792,8 +2792,8 @@
      &      0,    0,    0,    0,    0,    0,    0,    0,    0,    0, & ! 7   
      &      0,    0,    0,    0,    0,    0,    0,    0,    0,    0, & ! 8   
      &      0,    0,    0,    0,    0,    0,    0,    0,    0,    0, & ! 9   
-     &      0,    0,    0,    0,    0,    0,    0,   93,   15,    0, & ! O   
-     &     16,   26,   94,   15,   16,   26,   26,   15,   16,   17, & ! 1   
+     &      0,    0,    0,    0,    0,    0,    0,   94,   15,    0, & ! O   
+     &     16,   26,   95,   15,   16,   26,   26,   15,   16,   17, & ! 1   
      &     53,    0,    0,    0,    0,    0,    0,    0,    0,    0, & ! 2   
      &      0/     !  3   
 
@@ -2850,7 +2850,7 @@
      &      0,    0,    0,    0,    0,    0,    0,    0,    0,    0, & ! 9   
      &      0,    0,    0,    0,    0,    0,    0,   56,   17,    0, & ! O   
      &     18,   15,    0,   17,   18,   15,   15,   17,   18,   16, & ! 1   
-     &     93,    0,    0,    0,    0,    0,    0,    0,    0,    0, & ! 2   
+     &     94,    0,    0,    0,    0,    0,    0,    0,    0,    0, & ! 2   
      &      0/     !  3   
 
       DATA ( IRR( IRXXN, 26 ), IRXXN = 1, NRXNS ) / & 
@@ -2904,7 +2904,7 @@
      &      0,    0,    0,    0,    0,    0,    0,    0,    0,    0, & ! 7   
      &      0,    0,    0,    0,    0,    0,    0,    0,    0,    0, & ! 8   
      &      0,    0,    0,    0,    0,    0,    0,    0,    0,    0, & ! 9   
-     &      0,    0,    0,    0,    0,    0,    0,   94,   16,    0, & ! O   
+     &      0,    0,    0,    0,    0,    0,    0,   95,   16,    0, & ! O   
      &     53,   17,    0,   16,   53,   17,   17,   16,   53,   18, & ! 1   
      &     56,    0,    0,    0,    0,    0,    0,    0,    0,    0, & ! 2   
      &      0/     !  3   
@@ -2961,7 +2961,7 @@
      &      0,    0,    0,    0,    0,    0,    0,    0,    0,    0, & ! 8   
      &      0,    0,    0,    0,    0,    0,    0,    0,    0,    0, & ! 9   
      &      0,    0,    0,    0,    0,    0,    0,    0,   18,    0, & ! O   
-     &     93,   16,    0,   18,   93,   16,   16,   18,   93,   53, & ! 1   
+     &     94,   16,    0,   18,   94,   16,   16,   18,   94,   53, & ! 1   
      &      0,    0,    0,    0,    0,    0,    0,    0,    0,    0, & ! 2   
      &      0/     !  3   
 
@@ -3017,7 +3017,7 @@
      &      0,    0,    0,    0,    0,    0,    0,    0,    0,    0, & ! 8   
      &      0,    0,    0,    0,    0,    0,    0,    0,    0,    0, & ! 9   
      &      0,    0,    0,    0,    0,    0,    0,    0,   53,    0, & ! O   
-     &     56,   18,    0,   53,   56,   18,   18,   53,   56,   93, & ! 1   
+     &     56,   18,    0,   53,   56,   18,   18,   53,   56,   94, & ! 1   
      &      0,    0,    0,    0,    0,    0,    0,    0,    0,    0, & ! 2   
      &      0/     !  3   
 
@@ -3072,8 +3072,8 @@
      &      0,    0,    0,    0,    0,    0,    0,    0,    0,    0, & ! 7   
      &      0,    0,    0,    0,    0,    0,    0,    0,    0,    0, & ! 8   
      &      0,    0,    0,    0,    0,    0,    0,    0,    0,    0, & ! 9   
-     &      0,    0,    0,    0,    0,    0,    0,    0,   93,    0, & ! O   
-     &      0,   53,    0,   93,    0,   53,   53,   93,    0,   56, & ! 1   
+     &      0,    0,    0,    0,    0,    0,    0,    0,   94,    0, & ! O   
+     &      0,   53,    0,   94,    0,   53,   53,   94,    0,   56, & ! 1   
      &      0,    0,    0,    0,    0,    0,    0,    0,    0,    0, & ! 2   
      &      0/     !  3   
 
@@ -3129,7 +3129,7 @@
      &      0,    0,    0,    0,    0,    0,    0,    0,    0,    0, & ! 8   
      &      0,    0,    0,    0,    0,    0,    0,    0,    0,    0, & ! 9   
      &      0,    0,    0,    0,    0,    0,    0,    0,   56,    0, & ! O   
-     &      0,   93,    0,   56,    0,   93,   93,   56,    0,    0, & ! 1   
+     &      0,   94,    0,   56,    0,   94,   94,   56,    0,    0, & ! 1   
      &      0,    0,    0,    0,    0,    0,    0,    0,    0,    0, & ! 2   
      &      0/     !  3   
 
@@ -3683,7 +3683,7 @@
      &     5.3000D-01, 1.8000D-01, 1.7000D-01, 1.8000D-01, 2.5000D-01, & ! +   
      &     4.5000D-02, 2.5000D-01, 7.0000D-02, 4.0000D-01, 0.0000D+00, & ! 9   
      &     2.0000D-02, 9.5000D-01, 6.5000D-01, 3.5000D-01, 1.0000D+00, & ! +   
-     &     0.0000D+00, 4.3000D-01, 2.5000D-02, 5.5000D-02, 7.7000D-01, & ! O   
+     &     1.0000D+00, 4.3000D-01, 2.5000D-02, 5.5000D-02, 7.7000D-01, & ! O   
      &     1.7000D-01, 1.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
      &     0.0000D+00, 0.0000D+00, 1.0000D+00, 4.3000D-01, 0.0000D+00, & ! 1   
      &     6.8700D-01, 2.0000D+00, 1.0000D+00, 3.3000D-01, 3.3000D-01, & ! +   
@@ -6675,7 +6675,7 @@
      &      2,    1,    1,    2,    1,    3,    1,    1,    1,    2, & ! 7   
      &      2,    1,    1,    1,    5,    3,    3,    3,    3,   12, & ! 8   
      &      6,    4,    3,    6,    1,   10,    3,    5,    4,    4, & ! 9   
-     &      1,    2,    2,    2,    2,    2,    2,    1,    1,    1, & ! O   
+     &      2,    2,    2,    2,    2,    2,    2,    1,    1,    1, & ! O   
      &      1,    1,    2,    2,    1,    2,    2,    2,    6,    6, & ! 1   
      &      6,    1,    5,    5,    1,    2,    2,    3,    2,    3, & ! 2   
      &      5,    5,    5,    1,    1,    2,    4,    3,    3,    2, & ! 3   

@@ -115,7 +115,7 @@ Information is based on the mech.def file.
 | RAM09   | INO2 + NO ---->   0.1500\*MVK +    0.6500\*INALD +    0.0500\*ISON +    0.2000\*HCHO +    1.3000\*NO2  |   9.42E-12e<sup>   580.00/T</sup> |   6.5902E-11 |
 | RAM10   | ISON + HO ----> HO +    0.3500\*INALD +    0.1700\*IEPOX +    0.6500\*NO2  |   2.40E-11e<sup>   390.00/T</sup> |   8.8776E-11 |
 | RAM11   | HO + INALD ----> CO + NO2 +    0.3000\*HO2 + HCHO  |   1.5000E-11 |   1.5000E-11 |
-| RAM12   | ISON ----> HNO3  |   4.0000E-05 |   4.0000E-05 |
+| RAM12   | ISON ----> HNO3 + ROH  |   4.0000E-05 |   4.0000E-05 |
 | RAM13   | IPX + HO ---->   0.5700\*MACR +    0.4300\*MVK  |   3.0000E-12 |   3.0000E-12 |
 | R087   | API + HO ---->   0.9750\*APIP1 +    0.0250\*APIP2  |   1.21E-11e<sup>   440.00/T</sup> |   5.2930E-11 |
 | R088   | LIM + HO ---->   0.9450\*LIMP1 +    0.0550\*LIMP2  |   4.20E-11e<sup>   401.00/T</sup> |   1.6120E-10 |

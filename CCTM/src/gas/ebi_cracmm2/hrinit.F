@@ -29,7 +29,7 @@ C  RETURN VALUES: None
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, Mar  5, 2024
+C  REVISION HISTORY: Created by EBI solver program, Mar 15, 2024
 C   21 Jun 10 J.Young:   convert for Namelist redesign
 C   18 Jul 14 B.Hutzell: revised to use the RXNS_DATA and RXNS_FUNCTION
 C                        modules instead of include files
@@ -221,29 +221,29 @@ c..Allocate and define ebi species
       EBISP(  67 ) = IEPOX
       EBISP(  68 ) = IPX
       EBISP(  69 ) = INALD
-      EBISP(  70 ) = API
-      EBISP(  71 ) = APIP1
-      EBISP(  72 ) = APIP2
-      EBISP(  73 ) = LIM
-      EBISP(  74 ) = LIMP1
-      EBISP(  75 ) = LIMP2
-      EBISP(  76 ) = PINALP
-      EBISP(  77 ) = RCO3
-      EBISP(  78 ) = LIMALP
-      EBISP(  79 ) = ACTP
-      EBISP(  80 ) = MEKP
-      EBISP(  81 ) = KETP
-      EBISP(  82 ) = MCP
-      EBISP(  83 ) = MVKP
-      EBISP(  84 ) = UALP
-      EBISP(  85 ) = DCB3
-      EBISP(  86 ) = BALP
-      EBISP(  87 ) = ADDC
-      EBISP(  88 ) = MCT
-      EBISP(  89 ) = MCTO
-      EBISP(  90 ) = MOH
-      EBISP(  91 ) = EOH
-      EBISP(  92 ) = ROH
+      EBISP(  70 ) = ROH
+      EBISP(  71 ) = API
+      EBISP(  72 ) = APIP1
+      EBISP(  73 ) = APIP2
+      EBISP(  74 ) = LIM
+      EBISP(  75 ) = LIMP1
+      EBISP(  76 ) = LIMP2
+      EBISP(  77 ) = PINALP
+      EBISP(  78 ) = RCO3
+      EBISP(  79 ) = LIMALP
+      EBISP(  80 ) = ACTP
+      EBISP(  81 ) = MEKP
+      EBISP(  82 ) = KETP
+      EBISP(  83 ) = MCP
+      EBISP(  84 ) = MVKP
+      EBISP(  85 ) = UALP
+      EBISP(  86 ) = DCB3
+      EBISP(  87 ) = BALP
+      EBISP(  88 ) = ADDC
+      EBISP(  89 ) = MCT
+      EBISP(  90 ) = MCTO
+      EBISP(  91 ) = MOH
+      EBISP(  92 ) = EOH
       EBISP(  93 ) = ETEG
       EBISP(  94 ) = MAHP
       EBISP(  95 ) = ORA2
@@ -415,6 +415,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       RTOL( IEPOX       ) = 5.0D-04
       RTOL( IPX         ) = 5.0D-04
       RTOL( INALD       ) = 5.0D-04
+      RTOL( ROH         ) = 5.0D-04
       RTOL( API         ) = 5.0D-04
       RTOL( APIP1       ) = 5.0D-04
       RTOL( APIP2       ) = 5.0D-04
@@ -437,7 +438,6 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       RTOL( MCTO        ) = 5.0D-04
       RTOL( MOH         ) = 5.0D-04
       RTOL( EOH         ) = 5.0D-04
-      RTOL( ROH         ) = 5.0D-04
       RTOL( ETEG        ) = 5.0D-04
       RTOL( MAHP        ) = 5.0D-04
       RTOL( ORA2        ) = 5.0D-04
