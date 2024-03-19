@@ -17,8 +17,8 @@ DDEP_NO2           ,kg ha-1     ,NO2[1]
 WDEP_NO2           ,kg ha-1     ,NO2[2]
 DDEP_NO            ,kg ha-1     ,NO[1]
 WDEP_NO            ,kg ha-1     ,NO[2]
-DDEP_FORM          ,kg ha-1     ,HCHO[1] ! formaldehyde is HCHO RACM2
-WDEP_FORM          ,kg ha-1     ,HCHO[2] ! formaldehyde is HCHO RACM2
+DDEP_FORM          ,kg ha-1     ,HCHO[1], formaldehyde is HCHO RACM2
+WDEP_FORM          ,kg ha-1     ,HCHO[2], formaldehyde is HCHO RACM2
 DDEP_H2O2          ,kg ha-1     ,H2O2[1]
 WDEP_H2O2          ,kg ha-1     ,H2O2[2]
 DDEP_N2O5          ,kg ha-1     ,N2O5[1]
@@ -38,8 +38,8 @@ WDEP_NH3           ,kg ha-1     ,NH3[2]
 DDEP_SO2           ,kg ha-1     ,SO2[1]
 DDEP_O3            ,kg ha-1     ,O3[1]
 WDEP_O3            ,kg ha-1     ,O3[2]
-DDEP_PNA           ,kg ha-1     ,HNO4[1]   ! PeroxyNitric Acid
-WDEP_PNA           ,kg ha-1     ,HNO4[2]   ! PeroxyNitric Acid
+DDEP_PNA           ,kg ha-1     ,HNO4[1], PeroxyNitric Acid
+WDEP_PNA           ,kg ha-1     ,HNO4[2], PeroxyNitric Acid
 
 !---------------------------------------------------!
 !------------- Aerosol Deposition ------------------!
