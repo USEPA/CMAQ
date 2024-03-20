@@ -74,14 +74,14 @@ NOY             ,ppbV      ,1000.0*(NO[1]+NO2[1]+NO3[1]+2*N2O5[1]+HONO[1] \
 O3              ,ppbV      ,1000.0*O3[1]
 SO2             ,ppbV      ,1000.0*SO2[1]
 SO2_UGM3        ,ug m-3    ,1000.0*(SO2[1]*2.2118*DENS[2])
-TERP            ,ppbV      ,1000.0*(API[1]+LIM[1]),  a-pinene and limonene monoterpenes in RACM2
+TERP            ,ppbV      ,1000.0*(API[1]+LIM[1]),  a-pinene and limonene monoterpenes in CRACMM
 
 ! Deprecate these names in future
-ETH             ,ppbV      ,1000.0*ETE[1],            ethene is ETE in RACM2
-ETHA            ,ppbV      ,1000.0*ETH[1],            ethane is ETH in RACM2
-ALD2            ,ppbV      ,1000.0*ACD[1],            acetaldehyde is ACD in RACM2
-FORM            ,ppbV      ,1000.0*HCHO[1],           formaldehyde is HCHO RACM2
-ISOP            ,ppbV      ,1000.0*ISO[1],            isoprene is ISO in RACM2
+ETH             ,ppbV      ,1000.0*ETE[1],            ethene is ETE in CRACMM
+ETHA            ,ppbV      ,1000.0*ETH[1],            ethane is ETH in CRACMM
+ALD2            ,ppbV      ,1000.0*ACD[1],            acetaldehyde is ACD in CRACMM
+FORM            ,ppbV      ,1000.0*HCHO[1],           formaldehyde is HCHO in CRACMM
+ISOP            ,ppbV      ,1000.0*ISO[1],            isoprene is ISO in CRACMM
 TOL             ,ppbV      ,1000.0*TOL[1]
 
 ! Hydrocarbons for evaluation. Note an "s" on the end indicates a collection of species from AQS
@@ -91,10 +91,10 @@ ACROLEIN        ,ppbV      ,1000.0*ACRO[1]
 ACETONE         ,ppbV      ,1000.0*ACT[1]
 BUTADIENE13     ,ppbV      ,1000.0*BDE13[1]
 BENZENE         ,ppbV      ,1000.0*BEN[1]
-ETHYLENE        ,ppbV      ,1000.0*ETE[1],            ethene is ETE in RACM2
-ETHANE          ,ppbV      ,1000.0*ETH[1],            ethane is ETH in RACM2
-ISOPRENE        ,ppbV      ,1000.0*ISO[1],            isoprene is ISO in RACM2
-FORMALDEHYDE    ,ppbV      ,1000.0*HCHO[1],           formaldehyde is HCHO RACM2
+ETHYLENE        ,ppbV      ,1000.0*ETE[1],            ethene is ETE in CRACMM
+ETHANE          ,ppbV      ,1000.0*ETH[1],            ethane is ETH in CRACMM
+ISOPRENE        ,ppbV      ,1000.0*ISO[1],            isoprene is ISO in CRACMM
+FORMALDEHYDE    ,ppbV      ,1000.0*HCHO[1],           formaldehyde is HCHO in CRACMM
 MEKETONE        ,ppbV      ,1000.0*MEK[1]
 TOLUENE         ,ppbV      ,1000.0*TOL[1]
 XYLENES         ,ppbV      ,1000.0*(XYL[1]+EBZ[1]+STY[1])
@@ -108,7 +108,7 @@ ABPINENES       ,ppbV      ,1000.0*(API[1])
 
 !! Unused Gases. Presented Here for illustration. Users can uncomment
 !! them if they choose.
-ALDX            ,ppbV      ,1000.0*ALD[1],            C3 and higher aldehydes is ALD in RACM2
+ALDX            ,ppbV      ,1000.0*ALD[1],            C3 and higher aldehydes is ALD in CRACMM
 !NOZ             ,ppbV      ,NOY[0]-NOX[0]
 !SULF            ,ppbV      ,1000.0*SULF[1]
 ! SIGROC: S/IVOC alk and oxy gas species
@@ -149,7 +149,7 @@ VROC             ,ppbC      ,1000.0*(2.0*ACD[1]+2.0*ACE[1] \
                                     +6.0*PHEN[1]+3.0*PROG[1]  \
                                     +3.0*ROH[1]+15.0*SESQ[1]+2.1*SLOWROC[1] \
                                     +7.0*TOL[1]+5.0*UALD[1] \
-                                    +8.0*XYL[1]+8.0*EBZ[1]+8.0*STY[1] \         \
+                                    +8.0*XYL[1]+8.0*EBZ[1]+8.0*STY[1] \
                                     +2.0*PAA[1]+2.0*PAN[1]+3.0*PPN[1]+4.0*MPAN[1] \  
                                     +4.0*ONIT[1]+5.0*ISON[1] \
                                     +5.0*INALD[1]+5.0*IPX[1]+10.0*TRPN[1]+10.0*HONIT[1] ) \ 
