@@ -227,6 +227,7 @@
     'EVERYWHERE', 'GRIDDED_EMIS'     ,'PMOCN2' ,'VROCP3OXY2'  ,'FINE',0.   ,'MASS','a', 
     'EVERYWHERE', 'GRIDDED_EMIS'     ,'PMNCOMN2','VROCP3OXY2'  ,'FINE',0.   ,'MASS','a', 
 
+    ! GENERAL_POA volatility profile
     'EVERYWHERE', 'PT_NONEGU'     ,'PMOCN2'  ,'VROCN2OXY2'  ,'GAS' ,0.   ,'MASS','a', 
     'EVERYWHERE', 'PT_NONEGU'     ,'PMNCOMN2','VROCN2OXY2'  ,'GAS' ,0.   ,'MASS','a', 
     'EVERYWHERE', 'PT_NONEGU'     ,'PMOCN2' ,'VROCP0OXY2'  ,'GAS' ,0.175,'MASS','a', 
@@ -248,6 +249,7 @@
     'EVERYWHERE', 'PT_NONEGU'     ,'PMOCN2' ,'VROCP3OXY2'  ,'FINE',0.   ,'MASS','a', 
     'EVERYWHERE', 'PT_NONEGU'     ,'PMNCOMN2','VROCP3OXY2'  ,'FINE',0.   ,'MASS','a', 
 
+    ! GENERAL_POA volatility profile
     'EVERYWHERE', 'PT_EGU'     ,'PMOCN2'  ,'VROCN2OXY2'  ,'GAS' ,0.   ,'MASS','a', 
     'EVERYWHERE', 'PT_EGU'     ,'PMNCOMN2','VROCN2OXY2'  ,'GAS' ,0.   ,'MASS','a', 
     'EVERYWHERE', 'PT_EGU'     ,'PMOCN2' ,'VROCP0OXY2'  ,'GAS' ,0.175,'MASS','a', 
@@ -269,6 +271,7 @@
     'EVERYWHERE', 'PT_EGU'     ,'PMOCN2' ,'VROCP3OXY2'  ,'FINE',0.   ,'MASS','a', 
     'EVERYWHERE', 'PT_EGU'     ,'PMNCOMN2','VROCP3OXY2'  ,'FINE',0.   ,'MASS','a', 
 
+    ! GENERAL_POA volatility profile
     'EVERYWHERE', 'PT_OTHER'     ,'PMOCN2'  ,'VROCN2OXY2'  ,'GAS' ,0.   ,'MASS','a', 
     'EVERYWHERE', 'PT_OTHER'     ,'PMNCOMN2','VROCN2OXY2'  ,'GAS' ,0.   ,'MASS','a', 
     'EVERYWHERE', 'PT_OTHER'     ,'PMOCN2' ,'VROCP0OXY2'  ,'GAS' ,0.175,'MASS','a', 
@@ -290,6 +293,7 @@
     'EVERYWHERE', 'PT_OTHER'     ,'PMOCN2' ,'VROCP3OXY2'  ,'FINE',0.   ,'MASS','a', 
     'EVERYWHERE', 'PT_OTHER'     ,'PMNCOMN2','VROCP3OXY2'  ,'FINE',0.   ,'MASS','a', 
 
+    ! GENERAL_POA volatility profile
     'EVERYWHERE', 'PT_OILGAS'     ,'PMOCN2'  ,'VROCN2OXY2'  ,'GAS' ,0.   ,'MASS','a', 
     'EVERYWHERE', 'PT_OILGAS'     ,'PMNCOMN2','VROCN2OXY2'  ,'GAS' ,0.   ,'MASS','a', 
     'EVERYWHERE', 'PT_OILGAS'     ,'PMOCN2' ,'VROCP0OXY2'  ,'GAS' ,0.175,'MASS','a', 
@@ -333,6 +337,7 @@
     'EVERYWHERE', 'PT_CMV_C1C2'      ,'NMOG'   ,'VROCP5ARO'  ,'GAS' ,0.0043,'MASS','a',
     'EVERYWHERE', 'PT_CMV_C1C2'      ,'NMOG'   ,'VROCP6ARO'  ,'GAS' ,0.0025,'MASS','a',
 
+    ! Diesel volatility profile
     'EVERYWHERE', 'PT_CMV_C3'      ,'PMOCN2' ,'AROCN1ALK'  ,'FINE',0.187,'MASS','a',
     'EVERYWHERE', 'PT_CMV_C3'     ,'PMNCOMN2','AROCN1ALK'  ,'FINE',0.187,'MASS','a',
     'EVERYWHERE', 'PT_CMV_C3'      ,'PMOCN2' ,'AROCP0ALK'  ,'FINE',0.043,'MASS','a',
@@ -378,6 +383,7 @@
     'EVERYWHERE', 'PT_AGFIRES'         ,'PMOCN2' ,'VROCP3OXY2'  ,'FINE',0.   ,'MASS','a', 
     'EVERYWHERE', 'PT_AGFIRES'         ,'PMNCOMN2','VROCP3OXY2'  ,'FINE',0.   ,'MASS','a',
 
+    ! Biomass burning volatility profile
     'EVERYWHERE', 'PT_FIRES'         ,'PMOCN2'  ,'VROCN2OXY4'  ,'GAS' ,0.   ,'MASS','a', 
     'EVERYWHERE', 'PT_FIRES'         ,'PMNCOMN2','VROCN2OXY4'  ,'GAS' ,0.   ,'MASS','a', 
     'EVERYWHERE', 'PT_FIRES'         ,'PMOCN2' ,'VROCP0OXY4'  ,'GAS' ,0.05 ,'MASS','a', 
@@ -398,7 +404,8 @@
     'EVERYWHERE', 'PT_FIRES'         ,'PMNCOMN2','AROCP2OXY2'  ,'FINE',0.   ,'MASS','a', 
     'EVERYWHERE', 'PT_FIRES'         ,'PMOCN2' ,'VROCP3OXY2'  ,'FINE',0.   ,'MASS','a', 
     'EVERYWHERE', 'PT_FIRES'         ,'PMNCOMN2','VROCP3OXY2'  ,'FINE',0.   ,'MASS','a',
-   
+
+    ! Biomass burning volatility profile
     'EVERYWHERE', 'PT_RXFIRES'         ,'PMOCN2'  ,'VROCN2OXY4'  ,'GAS' ,0.   ,'MASS','a', 
     'EVERYWHERE', 'PT_RXFIRES'         ,'PMNCOMN2','VROCN2OXY4'  ,'GAS' ,0.   ,'MASS','a', 
     'EVERYWHERE', 'PT_RXFIRES'         ,'PMOCN2' ,'VROCP0OXY4'  ,'GAS' ,0.05 ,'MASS','a', 
@@ -420,6 +427,7 @@
     'EVERYWHERE', 'PT_RXFIRES'         ,'PMOCN2' ,'VROCP3OXY2'  ,'FINE',0.   ,'MASS','a', 
     'EVERYWHERE', 'PT_RXFIRES'         ,'PMNCOMN2','VROCP3OXY2'  ,'FINE',0.   ,'MASS','a',
    
+    ! Biomass burning volatility profile
     'EVERYWHERE', 'PT_OTHFIRES'         ,'PMOCN2'  ,'VROCN2OXY4'  ,'GAS' ,0.   ,'MASS','a', 
     'EVERYWHERE', 'PT_OTHFIRES'         ,'PMNCOMN2','VROCN2OXY4'  ,'GAS' ,0.   ,'MASS','a', 
     'EVERYWHERE', 'PT_OTHFIRES'         ,'PMOCN2' ,'VROCP0OXY4'  ,'GAS' ,0.05 ,'MASS','a', 
@@ -441,6 +449,7 @@
     'EVERYWHERE', 'PT_OTHFIRES'         ,'PMOCN2' ,'VROCP3OXY2'  ,'FINE',0.   ,'MASS','a', 
     'EVERYWHERE', 'PT_OTHFIRES'         ,'PMNCOMN2','VROCP3OXY2'  ,'FINE',0.   ,'MASS','a',
    
+    ! Biomass burning volatility profile
     'EVERYWHERE', 'GR_RES_FIRES'         ,'PMOCN2'  ,'VROCN2OXY4'  ,'GAS' ,0.   ,'MASS','a', 
     'EVERYWHERE', 'GR_RES_FIRES'         ,'PMNCOMN2','VROCN2OXY4'  ,'GAS' ,0.   ,'MASS','a', 
     'EVERYWHERE', 'GR_RES_FIRES'         ,'PMOCN2' ,'VROCP0OXY4'  ,'GAS' ,0.05 ,'MASS','a', 
