@@ -59,7 +59,7 @@ C-----------------------------------------------------------------------
       USE RUNTIME_VARS, ONLY: LOGDEV, OUTDEV, MYPE, CKSUM, 
      &                        PRINT_PROC_TIME, WEEKDAY, 
      &                        LOG_MESSAGE, TIMING_SPLIT, STM,
-     &                        COLUMN_MODEL
+     &                        COLUMN_MODEL, LPVO3
 #ifndef mpas
 #ifdef parallel
       USE SE_MODULES            ! stenex (using SE_UTIL_MODULE)
@@ -170,13 +170,11 @@ C Local Variables:
             INTEGER, INTENT( IN )     :: JDATE, JTIME
             INTEGER, INTENT( IN )     :: TSTEP( 3 )
          END SUBROUTINE CHEM
-#ifdef potvorto3
          SUBROUTINE PVO3 ( CGRID, JDATE, JTIME )
             IMPLICIT NONE
             REAL, POINTER             :: CGRID( :,:,:,: )
             INTEGER, INTENT( IN )     :: JDATE, JTIME
          END SUBROUTINE PVO3
-#endif
          SUBROUTINE AERO ( CGRID, JDATE, JTIME, TSTEP )
             REAL, POINTER             :: CGRID( :,:,:,: )
             INTEGER, INTENT( IN )     :: JDATE, JTIME
@@ -305,15 +303,14 @@ C-----------------------------------------------------------------------
       IF ( STM ) CALL STM_WRAP_GAS ( CGRID, JDATE, JTIME, .FALSE. )
       IF ( PRINT_PROC_TIME ) CALL TIMING_SPLIT ( CPU_TIME_START, 1, 'CHEM' )
 
-#ifdef potvorto3
-      ! Calculate Impact of Potential Vorticity
-      CALL PVO3 ( CGRID, JDATE, JTIME )
-      IF ( CKSUM ) CALL CKSUMMER ( 'PVO3', CGRID, JDATE, JTIME )
+      IF ( LPVO3 ) THEN
+         CALL PVO3 ( CGRID, JDATE, JTIME )
+         IF ( CKSUM ) CALL CKSUMMER ( 'PVO3', CGRID, JDATE, JTIME )
 #ifndef mpas
-      IF ( BUDGET_DIAG .OR. LIPR ) CALL PA_UPDATE_PROC ( IPR_PVO3, CGRID, SDATE, STIME, TSTEP, .FALSE. )
+         IF ( BUDGET_DIAG .OR. LIPR ) CALL PA_UPDATE_PROC ( IPR_PVO3, CGRID, SDATE, STIME, TSTEP, .FALSE. )
 #endif
-      IF ( PRINT_PROC_TIME ) CALL TIMING_SPLIT ( CPU_TIME_START, 1, 'PVO3' )
-#endif
+         IF ( PRINT_PROC_TIME ) CALL TIMING_SPLIT ( CPU_TIME_START, 1, 'PVO3' )
+      END IF
 
 #ifdef isam
       ! Save ISAM concentration field to use for apportioning

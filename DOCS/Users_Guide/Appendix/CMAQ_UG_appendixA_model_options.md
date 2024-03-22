@@ -478,6 +478,8 @@ Sets if the CCTM will run in multi-processor or serial mode.
      In the inline option for photolysis rates, solve Mie Theory to calculate the optical properties of the aerosol modes based on uniformly mixed spheres.
 -   `CORE_SHELL_OPTICS [default: N]`<a id=CORE_SHELL_OPTICS></a>    
      In the inline option for photolysis rates, solve Mie Theory to calculate the optical properties of the aerosol modes based on spheres with an elemental carbon core.
+-   `CTM_PVO3 [default: N]`<a id=CTM_PVO3></a>    
+     Y/N determines whether to scale ozone in free-troposphere to potential vorticity. Option requires that METCRO3D file has PV, potential vorticity. See [User Guide 6.13](../CMAQ_UG_ch06_model_configuration_options.md#613-potential-vorticity-scaling) for more information.
 
 <a id=Process_Analysis_Options></a>
 
