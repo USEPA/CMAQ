@@ -746,10 +746,10 @@ c----------------------------------------------------------
      &         'XYLP'/ )
 
         !CRACMM1_AQ
-        ALLOCATE( ISAM_BIAS_VOC( 8 )%LIST( 12 ) )
+        ALLOCATE( ISAM_BIAS_VOC( 8 )%LIST( 13 ) )
         ISAM_BIAS_VOC( 8 )%LIST = (/'HCHO ','ACD  ','ALD  ','UALD ',
      &      'KET  ','ACO3 ','HC3P ','HC5P ','HC10P','ISOP ','RCO3 ',
-     &      'XYLP '/ )
+     &      'XYEP ', 'XYMP '/ )
 
         !CRACMM2
         ALLOCATE( ISAM_BIAS_VOC( 9 )%LIST( 12 ) )
