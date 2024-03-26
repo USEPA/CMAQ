@@ -606,7 +606,7 @@ c----------------------------------------------------------
      &    'VROCP4OXY2','VROCP5OXY1','VROCP6OXY1'/ )
 
         !CRACMM2
-        ALLOCATE( ISAM_SPEC_VOC( 9 )%LIST( 96 ) )
+        ALLOCATE( ISAM_SPEC_VOC( 9 )%LIST( 97 ) )
         ISAM_SPEC_VOC( 9 )%LIST = (/'ACD       ','ACE       ','ACRO      ',
      &    'ACT       ','ALD       ','API       ','BALD      ','BDE13     ',
      &    'BEN       ','CSL       ','DCB1      ','DCB2      ','DCB3      ',
@@ -626,7 +626,7 @@ c----------------------------------------------------------
      &    'VROCP4ALK ','VROCP5ALK ','VROCP6ALK ','VROCN2OXY2','VROCN2OXY4',
      &    'VROCN2OXY8','VROCN1OXY1','VROCN1OXY3','VROCN1OXY6','VROCP0OXY2',
      &    'VROCP0OXY4','VROCP1OXY1','VROCP1OXY3','VROCP2OXY2','VROCP3OXY2',
-     &    'VROCP4OXY2','VROCP5OXY1','VROCP6OXY1'/ )
+     &    'VROCP4OXY2','VROCP5OXY1','VROCP6OXY1','ECH4   '/ )
 
         !PRESCRIBE NITRATE SPECIES
         !CB6R3_AE7_AQ
@@ -746,10 +746,10 @@ c----------------------------------------------------------
      &         'XYLP'/ )
 
         !CRACMM1_AQ
-        ALLOCATE( ISAM_BIAS_VOC( 8 )%LIST( 12 ) )
+        ALLOCATE( ISAM_BIAS_VOC( 8 )%LIST( 13 ) )
         ISAM_BIAS_VOC( 8 )%LIST = (/'HCHO ','ACD  ','ALD  ','UALD ',
      &      'KET  ','ACO3 ','HC3P ','HC5P ','HC10P','ISOP ','RCO3 ',
-     &      'XYLP '/ )
+     &      'XYEP ', 'XYMP '/ )
 
         !CRACMM2
         ALLOCATE( ISAM_BIAS_VOC( 9 )%LIST( 12 ) )
