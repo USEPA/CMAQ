@@ -270,7 +270,7 @@ C-------------------------------------------------------------------------------
 !------------------------------------------------------------------------------          
 
          Subroutine Get_Flux( cNH3, rwetsfc, rgw, r, c, l, pvd, lnh3,
-     &                         rb,rinc,rstom, delta,rgndc,femis,fdep)
+     &                         rb,rinc,rstom, delta,rgnd,femis,fdep)
          
          Use UTILIO_DEFN
          Use Bidi_Mod, Only: gamma1, gamma2, MHp1, MHp2
@@ -288,7 +288,7 @@ C-------------------------------------------------------------------------------
          Real,    Intent( IN )  :: rinc
          Real,    Intent( IN )  :: rstom
          Real,    Intent( IN )  :: delta
-         Real,    Intent( IN )  :: rgndc
+         Real,    Intent( IN )  :: rgnd
 
          Integer, Intent( IN )  :: r
          Integer, Intent( IN )  :: c
@@ -487,9 +487,8 @@ C-------------------------------------------------------------------------------
 
          End If  ! lai > 0.0
 
-!         ddd = ( 1.0 - delta ) / rgnd
-!     &       + delta / rgw
-         ddd = 1.0/(rgndc - rinc)
+         ddd = ( 1.0 - delta ) / rgnd
+     &       + delta / rgw
 
          vdg = 1.0 / ( MET_DATA%RA( c,r ) + rb + 1.0 / ddd )
 

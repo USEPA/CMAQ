@@ -499,7 +499,8 @@ C-------------------------------------------------------------------------------
 
             n = n + 1
 
-            IF ( ( NINT(GRID_DATA%LWMASK( c,r )) .EQ. 0 ) .OR. ( vegcr .EQ. 0.0 ) ) THEN  ! water
+!            IF ( ( NINT(GRID_DATA%LWMASK( c,r )) .EQ. 0 ) .OR. ( vegcr .EQ. 0.0 ) ) THEN  ! water
+            IF ( NINT(GRID_DATA%LWMASK( c,r )) .EQ. 0 ) THEN  ! water
 
                IF ( l .EQ. l_HG ) THEN  ! elemental mercury gas
 ! calculate and save Henry's constant for use in HGSIM
@@ -678,7 +679,7 @@ C--------------------------------------------------------------------------
                IF ( NINT( GRID_DATA%LWMASK( c,r ) ) .NE. 0 .and. ifsnow .EQ. 0 ) THEN  ! land
 
                   CALL Get_Flux( cnh3,rwetsfc,rgw,r,c,l,tpvd,lnh3, rbc, rinc, 
-     >                           rstom, delta(c,r),rgndc,femis,fdep )
+     >                           rstom, delta(c,r),rgnd,femis,fdep )
                    pvd( n,c,r ) = tpvd * 0.001 * MolAir / (MolNH3 * Met_Data%DENS1( C,R ))
                    nh3_ddep(c,r) = nh3_ddep(c,r) + fdep * dtsec * 1.0e-5  ! convert from microg/m2  to kg/ha
 !                   nh3_emis(c,r) =  nh3_emis(c,r) + depvel_gas( n,c,r ) * cnh3* dtsec * 1.0e-5
