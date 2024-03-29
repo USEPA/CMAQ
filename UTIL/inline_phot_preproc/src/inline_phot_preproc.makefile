@@ -22,14 +22,29 @@ C_FLAGS =  -O2  -DFLDMN=1
 LINK_FLAGS = 
 
 else ifeq ($(compiler),pgi)
+
  FC = pgf90
  CC = pgcc
- F_FLAGS   = -Mfixed -Mextend -Mbounds -O0 -traceback -Mchkfpstk -Mchkptr -Mchkstk -traceback -Ktrap=fp -I . -g
- f_FLAGS   = -Mfixed -Mextend -Mbounds -O0 -traceback -Mchkfpstk -Mchkptr -Mchkstk -traceback -Ktrap=fp -I . -g
- f90_FLAGS = -Mfree  -Mextend -Mbounds -O0 -traceback -Mchkfpstk -Mchkptr -Mchkstk -traceback -Ktrap=fp -I . -g
- F90_FLAGS = -Mfree  -Mextend -Mbounds -O0 -traceback -Mchkfpstk -Mchkptr -Mchkstk -traceback -Ktrap=fp -I . -g
+ F_FLAGS   = -Mfixed -Mextend -Mbounds -O0 -traceback -Mchkptr -Mchkstk -traceback -Ktrap=fp -I . -g
+ f_FLAGS   = -Mfixed -Mextend -Mbounds -O0 -traceback -Mchkptr -Mchkstk -traceback -Ktrap=fp -I . -g
+ f90_FLAGS = -Mfree  -Mextend -Mbounds -O0 -traceback -Mchkptr -Mchkstk -traceback -Ktrap=fp -I . -g
+ F90_FLAGS = -Mfree  -Mextend -Mbounds -O0 -traceback -Mchkptr -Mchkstk -traceback -Ktrap=fp -I . -g
  C_FLAGS =  -O2  -DFLDMN=1
- LINK_FLAGS = -Bstatic  -Bstatic_pgi
+ LINK_FLAGS =
+#LINK_FLAGS = -Bstatic
+#LINK_FLAGS = -Bstatic  -Bstatic_pgi
+
+else ifeq ($(compiler),nvhpc)
+
+ FC = nvfortran
+ CC = nvc
+ F_FLAGS   = -Mfixed -Mextend -Mbounds -O0 -traceback -Mchkptr -Mchkstk -traceback -Ktrap=fp -I . -g
+ f_FLAGS   = -Mfixed -Mextend -Mbounds -O0 -traceback -Mchkptr -Mchkstk -traceback -Ktrap=fp -I . -g
+ f90_FLAGS = -Mfree  -Mextend -Mbounds -O0 -traceback -Mchkptr -Mchkstk -traceback -Ktrap=fp -I . -g
+ F90_FLAGS = -Mfree  -Mextend -Mbounds -O0 -traceback -Mchkptr -Mchkstk -traceback -Ktrap=fp -I . -g
+ C_FLAGS =  -O2  -DFLDMN=1
+ LINK_FLAGS =
+#LINK_FLAGS = -Bstatic  -Bstatic_pgi
 
 else ifeq ($(compiler),gcc)
  FC    = gfortran

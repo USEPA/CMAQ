@@ -617,7 +617,7 @@
              RKI( NCELL,  138) =   8.3000D-18 * CFACT 
 !  Reaction Label TRP09           
              RKI( NCELL,  139) =   1.6700D-16 * CFACT 
-!  Reaction Label R132            
+!  Reaction Label R133            
              RKI( NCELL,  140) =  CFACT * ARRHENUIS_T03( INV_TEMP,  1.3600D-15,  -2.1120D+03 )
 !  Reaction Label R134            
              RKI( NCELL,  141) =  CFACT * ARRHENUIS_T03( INV_TEMP,  8.5000D-16,  -1.5200D+03 )

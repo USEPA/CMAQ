@@ -27,15 +27,30 @@ ifeq ($(compiler),intel)
   LINK_FLAGS = -static-intel
 
 else ifeq ($(compiler),pgi)
+
   FC = pgf90
   CC = pgcc
  
-  F_FLAGS   = -Mfixed -Mextend -Mbounds  -Mchkfpstk -Mchkptr -Mchkstk -traceback -Ktrap=fp -O0 -I . -g
-  F90_FLAGS = -Mfree -Mbounds  -Mchkfpstk -Mchkptr -Mchkstk -traceback -Ktrap=fp -O0 -I . -g
-  f90_FLAGS = -Mfree -Mbounds  -Mchkfpstk -Mchkptr -Mchkstk -traceback -Ktrap=fp -O0 -I . -g
+  F_FLAGS   = -Mfixed -Mextend -Mbounds  -Mchkptr -Mchkstk -traceback -Ktrap=fp -O0 -I . -g
+  F90_FLAGS = -Mfree -Mbounds  -Mchkptr -Mchkstk -traceback -Ktrap=fp -O0 -I . -g
+  f90_FLAGS = -Mfree -Mbounds  -Mchkptr -Mchkstk -traceback -Ktrap=fp -O0 -I . -g
   f_FLAGS   = -Mfixed -Mextend -Mbounds  -Mchkfpstk -Mchkptr -Mchkstk -traceback -Ktrap=fp -O0 -I . -g
   C_FLAGS   = -O2  -DFLDMN=1
-  LINK_FLAGS = -Bstatic  -Bstatic_pgi
+  LINK_FLAGS =
+# LINK_FLAGS = -Bstatic
+# LINK_FLAGS = -Bstatic  -Bstatic_pgi
+
+else ifeq ($(compiler),nvhpc)
+
+  FC = nvfortran
+  CC = nvc
+ 
+  F_FLAGS   = -Mfixed -Mextend -Mbounds  -Mchkptr -Mchkstk -traceback -Ktrap=fp -O0 -I . -g
+  F90_FLAGS = -Mfree -Mbounds  -Mchkptr -Mchkstk -traceback -Ktrap=fp -O0 -I . -g
+  f90_FLAGS = -Mfree -Mbounds  -Mchkptr -Mchkstk -traceback -Ktrap=fp -O0 -I . -g
+  f_FLAGS   = -Mfixed -Mextend -Mbounds  -Mchkfpstk -Mchkptr -Mchkstk -traceback -Ktrap=fp -O0 -I . -g
+  C_FLAGS   = -O2  -DFLDMN=1
+# LINK_FLAGS = -Bstatic  -Bstatic-nvidia
 
 else ifeq ($(compiler),gcc)
 

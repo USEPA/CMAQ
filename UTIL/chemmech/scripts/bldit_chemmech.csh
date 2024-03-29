@@ -85,6 +85,8 @@
 #> Copy Chemmech Source Code into new build folder and compile
 #============================================================================================
  cp ${REPOROOT}/src/* $Bld
+ sed -i 's/ compiler = intel/#compiler = intel/' ${Bld}/Makefile
+ sed -i 's/#compiler = '${compiler}'/ compiler = '${compiler}'/' ${Bld}/Makefile
 
  cd ${Bld}; make clean; make 
  if( ! ( -e CHEMMECH.exe ) )then
