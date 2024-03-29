@@ -16,10 +16,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/vdiff/acm2/vdiffacm2.F,v 1.13 2012/01/19 14:37:47 yoj Exp $
-
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE VDIFF ( CGRID, JDATE, JTIME, TSTEP )
 
@@ -524,7 +520,7 @@ C Write vdiff diagnostics
                      END DO
                   END DO
                   IF ( .NOT. WRITE3( CTM_VSED_DIAG, VSED_NAME( V ),
-     &                               MDATE, MTIME, VSED_BUF( 1,1,1,V ) ) ) THEN
+     &                               MDATE, MTIME, VSED_BUF( :,:,:,V ) ) ) THEN
                      XMSG = 'Could not write ' // TRIM( VSED_NAME( V ) )
      &                    // ' to ' // CTM_VSED_DIAG
                      CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )

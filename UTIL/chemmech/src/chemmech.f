@@ -74,6 +74,7 @@ c..Variables for species to be dropped from mechanism
       INTEGER         :: N_DROP_SPC = 0
       CHARACTER( 16 ) :: DROP_SPC( MAXNLIST )
       LOGICAL         :: LERROR
+      LOGICAL         :: LWARN
       LOGICAL         :: READ_MECHNAME
       LOGICAL         :: KPP_DUMMY   = .FALSE.
       LOGICAL         :: FIRST_TERM  = .TRUE.
@@ -181,6 +182,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
       CALL INIT_MECH_DATA
 
+      LWARN = .FALSE.
       LABEL( 1:MAXRXNUM, 1) = '<<<<<<<<<<<<<<<<'
       LABEL( 1:MAXRXNUM, 2) = '>>>>>>>>>>>>>>>>'
      
@@ -755,6 +757,32 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          END IF
       END IF   ! not end of mechanism
 
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+C Check of all reaction have labels and whether any label
+C are repeated
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      LERROR = .FALSE.
+      DO IRX = 1,NR
+          IF( LABEL( IRX,1 ) .NE. '<<<<<<<<<<<<<<<<' ) THEN
+             DO NXX = IRX+1, NR
+                IF ( LABEL( NXX,1 ) .EQ. LABEL( IRX,1 ) ) THEN
+                   WRITE( LUNOUT, 1001 ) NXX,IRX,TRIM( LABEL( IRX,1 ) )
+                   LERROR = .TRUE.
+                END IF
+             END DO
+1001         FORMAT(  3X, 'ERROR: Reaction# ', I4,
+     &                1X, ' has the same label as an earlier ',
+     &                1X, 'Reaction# ', I4, ' labeled, ',A,
+     &                1X, ' CHANGE ONE OF THESE LABELS.' )
+            
+          ELSE
+            LERROR = .TRUE.
+            WRITE( LUNOUT, 1002 ) IRX
+1002        FORMAT(   3X,'WARNING: Reaction# ',I4,
+     &                ' has no label.' )
+          END IF
+      END DO
+      IF( LERROR ) STOP ' *** CHEMMECH ERROR ***'
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C Resolve all reactions label references
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -1026,7 +1054,12 @@ C functions block
       CLOSE( IMECH )
 
 
-      WRITE( LUNOUT, * ) '   Normal Completion of CHEMMECH'
+      IF ( LWARN ) THEN
+         WRITE( LUNOUT, * ) '   CHEMMECH created output files but found problems.'
+         WRITE( LUNOUT, * ) '   Check run log for WARNING messages.'
+      ELSE
+         WRITE( LUNOUT, * ) '   Normal Completion of CHEMMECH'
+      END IF
       WRITE( LUNOUT, * )' Author is ', TRIM( AUTHOR )
 
 1993  FORMAT( / 5X, '*** ERROR: Special label already used'

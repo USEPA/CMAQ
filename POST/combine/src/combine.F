@@ -251,7 +251,7 @@ C...start time loop
 
         DO n = 1, numSpec
 
-          Call evaluate(specExpression(n), startDate, startTime,
+          Call evaluate(specName(n),specExpression(n), startDate, startTime,
      &                  Klayer, isize, buffer)
 
           ! write species record to outfile

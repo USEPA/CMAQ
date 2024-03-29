@@ -464,10 +464,11 @@ C Map Emissions streams to ISAM tags
             MAP_DIFFtoSA    = 0
             TAGSTREAMS      = 'empty'
 
-#ifdef potvorto3
-            ALLOCATE ( ISAM_PVO3_MAP( NTAG_SA ) )
-            ISAM_PVO3_MAP = 0
-#endif
+            IF ( LPVO3 ) THEN
+               ALLOCATE ( ISAM_PVO3_MAP( NTAG_SA ) )
+               ISAM_PVO3_MAP = 0
+            END IF
+
             DO ITAG = 1, NTAG_SA-3
 
 C Count the number of streams going to each ISAM tag
@@ -480,21 +481,20 @@ C Parse out the stream names the user wants tagged
 C Find emissions stream in the list of available streams
               DO ISRM = 1, TAGSTREAMS_NUM( ITAG )
                  IF ( TAGSTREAMS(ITAG,ISRM) .EQ. 'PVO3' ) THEN
-#ifdef potvorto3
-                    IF ( L_OZONE ) THEN
-                      ISAM_PVO3_MAP(ITAG) = 1
-                      CYCLE
+                    IF ( LPVO3 ) THEN 
+                       IF ( L_OZONE ) THEN
+                         ISAM_PVO3_MAP(ITAG) = 1
+                         CYCLE
+                       ELSE
+                         XMSG = " Must specifiy OZONE ISAM TAG CLASS" //
+     &                          " in isam_control to track PVO3 "
+                         CALL M3EXIT( 'ISAM_PVO3', 1, 1, XMSG, XSTAT1 )
+                       ENDIF
                     ELSE
-                      XMSG = " Must specifiy OZONE ISAM TAG CLASS" //
-     &                       " in isam_control to track PVO3 "
-                      CALL M3EXIT( 'ISAM_PVO3', 1, 1, XMSG, XSTAT1 )
-                    ENDIF
-#else
-                    XMSG = " To track PVO3, model must be compiled" //
-     &                     " with -Dpotvorto3 option. Check Makefile" //
-     &                     " and/or build script."
-                    CALL M3EXIT( 'ISAM_PVO3', 1, 1, XMSG, XSTAT1 )
-#endif
+                       XMSG = " To track PVO3, run-script must set CTM_LPVO3" //
+     &                        " to Y or T for Yes or True. Check run-script."
+                       CALL M3EXIT( 'ISAM_PVO3', 1, 1, XMSG, XSTAT1 )
+                    END IF 
                  ENDIF
 
                  IF ( TAGSTREAMS(ITAG,ISRM) .EQ. 'BIDIRECTIONALNH3' )THEN
@@ -1447,7 +1447,7 @@ C-----------------------------------------------------------------------
           INTEGER LAYS
           INTEGER JDATE, JTIME
           CHARACTER(200) :: XMSG
-          INTEGER XSTAT1
+
 #ifdef mpas
           CHARACTER (20) :: TIME_STAMP
           call mio_time_format_conversion (jdate, jtime, time_stamp)

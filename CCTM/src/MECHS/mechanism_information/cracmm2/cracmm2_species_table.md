@@ -21,7 +21,6 @@ AFE|Iron ion|P|55.8|E|Iron ion|[\[Fe++\]](https://comptox.epa.gov/dashboard/chem
 AGLY|SOA from reactive uptake of glyoxal on particles|P|66.4|L|2-(4,5-dihydroxy-1,3-dioxolan-2-yl)-1,3-dioxolane-4,5-diol|OC2OC\(C1OC\(O\)C\(O\)O1\)OC2O
 AH2O|Water associated with particulate inorganic compounds|P|18.0|E|Water|[O](https://comptox.epa.gov/dashboard/chemical/details/DTXSID6026296)
 AH3OP|Hydronium ion tracer|P|19.0|E|Hydronium ion|[\[OH3+\]](https://comptox.epa.gov/dashboard/chemical/details/DTXSID20893597)
-AHONIT|SOA from HONIT|P|265.0||NA|
 AISO3NOS|Non-sulfated SOA from IEPOX uptake|P|136.2|L|2-methylbutane-1,2,3,4-tetrol|C\(O\)C\(O\)\(C\)C\(O\)CO
 AISO3OS|Organosulfate SOA from IEPOX uptake|P|216.2|L|(1,3,4-trihydroxy-2-methylbutan-2-yl)oxysulfonic acid|C\(O\)C\(OS\(O\)\(=O\)\(=O\)\)\(C\)C\(O\)CO
 AISO4|Multifunctional product from heterogeneous uptake of IPX|P|168.1|L|4-hydroperoxy-3-methylbutane-1,1,2,3-tetrol|CC\(O\)\(COO\)C\(O\)C\(O\)O
@@ -49,7 +48,6 @@ ASO4|Total sulfur IV as sulfate|P|96.0|L|Sulfate ion|[\[O-\]S\(=O\)\(=O\)\[O-\]]
 ASOAT|An empirical SOA|P|200.0|L|3,4,5,6,7-Pentahydroxyheptan-2-one|[CC\(=O\)C\(C\(C\(C\(CO\)O\)O\)O\)O](https://comptox.epa.gov/dashboard/chemical/details/DTXSID80956455)
 ASOIL|Lumped crustal species|P|100.0|L|Crustal species|
 ATI|Titanium|P|47.9|E|Total Titanium|[\[Ti\]](https://comptox.epa.gov/dashboard/chemical/details/DTXSID3047764)
-ATRPN|SOA from TRPN|P|215.0||NA|
 BAL1|Peroxy radicals formed from BALD |G|123.0|L|(4-methylphenyl)peroxy|\[O\]OC1=CC=C\(C\)C=C1
 BAL2|Peroxy radicals formed from BALD |G|109.0|L|phenylperoxy|\[O\]OC1=CC=CC=C1
 BALD|Benzaldehyde and other aromatic aldehydes|G|106.0|L|Benzaldehyde|[O=CC1=CC=CC=C1](https://comptox.epa.gov/dashboard/chemical/details/DTXSID8039241)
@@ -94,7 +92,7 @@ HNO4|Pernitric acid |G|79.0|E|Hydroxy nitrate|[\[N+\]\(=O\)\(\[O-\]\)OO](https:/
 HO|Hydroxy radical|G|17.0|E|Hydroxyl radical|\[OH\]
 HO2|Hydroperoxy radical|G|33.0|E|Hydroperoxy|[O\[O-\]](https://comptox.epa.gov/dashboard/chemical/details/DTXSID30894777)
 HOM|Highly oxygenated molecules from terpenes|GP|250.0|L|6,7-dihydroperoxy-3,3,6-trimethyl-tetrahydro-3aH-1,2-benzodioxol-5-ol|OC1CC2C\(OOC2\(C\)C\)C\(OO\)C1\(C\)OO
-HONIT|Second generation monoterpene nitrates|G|265.0|L|2-(3-hydroperoxy-4,5-dihydroxy-4-methylcyclohexyl)propan-2-yl nitrate|CC\(C\)\(O\[N+\]\(\[O-\]\)=O\)C1CC\(O\)C\(C\)\(O\)C\(C1\)OO
+HONIT|Second generation monoterpene nitrates|GP|265.0|L|2-(3-hydroperoxy-4,5-dihydroxy-4-methylcyclohexyl)propan-2-yl nitrate|CC\(C\)\(O\[N+\]\(\[O-\]\)=O\)C1CC\(O\)C\(C\)\(O\)C\(C1\)OO
 HONO|Nitrous acid |G|47.0|E|Nitrous acid|[N\(=O\)O](https://comptox.epa.gov/dashboard/chemical/details/DTXSID7064813)
 IEPOX|isoprene epoxydiols |G|118.1|E|Isoprene epoxydiol|OCC1OC1\(C\)CO
 IEPOXP|IEPOX intermediate (tracking species)|G|118.1||NA|
@@ -216,7 +214,7 @@ SULF|Sulfuric acid|G|98.0|E|Sulfuric acid|[OS\(=O\)\(=O\)O](https://comptox.epa.
 SULRXN|Precursor of Aerosol Sulfate (tracking species) |G|98.0||NA|
 TOL|Toluene |G|92.14|E|Toluene|[CC1=CC=CC=C1](https://comptox.epa.gov/dashboard/chemical/details/DTXSID7021360)
 TOLP|Peroxy radicals formed from TOL|G|173.14|L|{8-hydroxy-5-methyl-6,7-dioxabicyclo[3.2.1]oct-3-en-2-yl}peroxy|\[O\]OC1C=CC2\(C\)OOC1C2O
-TRPN|First generation monoterpene nitrates|G|215.0|L|3-hydroxy-2,6,6-trimethylbicyclo[3.1.1]heptan-2-yl nitrate|O=N\(=O\)OC1\(C\)C\(O\)CC2CC1C2\(C\)C
+TRPN|First generation monoterpene nitrates|GP|215.0|L|3-hydroxy-2,6,6-trimethylbicyclo[3.1.1]heptan-2-yl nitrate|O=N\(=O\)OC1\(C\)C\(O\)CC2CC1C2\(C\)C
 UALD|Unsaturated aldehydes|G|84.1|L|2-Methylbut-2-enal|[CC=C\(C\)C=O](https://comptox.epa.gov/dashboard/chemical/details/DTXSID00859414)
 UALP|Peroxy radicals formed from UALD |G|133.0|L|(3-hydroxy-3-methyl-4-oxobutan-2-yl)peroxy|CC\(O\[O\]\)C\(C\)\(O\)C=O
 XO2|Accounts for addition NO to NO2 conversions (tracking species)|G|1.0||NA|
