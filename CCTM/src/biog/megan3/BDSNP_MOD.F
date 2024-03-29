@@ -295,6 +295,7 @@ C           check for negatives
             BASESUM = 0.0
             CRFAVG = 0.0
             PULSEAVG = 0.0
+            EMPOLSUM  = 0d0
            if (.not. MGN_ONLN_DEP) THEN 
              ndeprate = bdsnp_ndep(:,:,month)  ! For using offline NDEP
                                                ! instead of online NDEP
