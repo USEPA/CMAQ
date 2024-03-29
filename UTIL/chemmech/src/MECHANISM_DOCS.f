@@ -541,7 +541,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      &   "*Fall-off/pressure dependent reaction rate constants ([M] equals air number density):" /
      &   "**For rate constants with k<sub>o</sub>, k<sub>inf</sub>, n, F values: ",
      &       "k = [ k<sub>o</sub>[M]/(1+k<sub>o</sub>[M]/k<sub>inf</sub>)]F<sup>G</sup>, ",
-     &       "where G=(1+(log<sub>10</sub>(k<sub>o</sub>[M]/k<sub>inf</sub>)/n)<sup>2</sup>))<sup>-1</sup> " /
+     &       "where G=(1+(log<sub>10</sub>(k<sub>o</sub>[M]/k<sub>inf</sub>)/n)<sup>2</sup>)<sup>-1</sup> " /
      &   "**For rate constants with k<sub>1</sub>, k<sub>2</sub>: k = k<sub>1</sub> + k<sub>2</sub> [M]" / 
      &   "**For rate constants with k<sub>0</sub>, k<sub>2</sub>, k<sub>3</sub>: ",
      &       "k = k<sub>0</sub> + k<sub>3</sub>[M]/(1+k<sub>3</sub>[M]/k<sub>2</sub>)" /
@@ -1119,7 +1119,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      &   "* Fall-off or pressure dependent reaction rate constants (M equals air number density):" /
      &   " * For rate constants with k<sub>o</sub>, k<sub>inf</sub>, n, F values: ",
      &       "k = [ k<sub>o</sub>M/(1+k<sub>o</sub>M/k<sub>inf</sub>)]F<sup>G</sup>, ",
-     &       "where G=(1+(log<sub>10</sub>(k<sub>o</sub>M/k<sub>inf</sub>)/n)<sup>2</sup>))<sup>-1</sup> " /
+     &       "where G=(1+(log<sub>10</sub>(k<sub>o</sub>M/k<sub>inf</sub>)/n)<sup>2</sup>)<sup>-1</sup> " /
      &   " * For rate constants with k<sub>1</sub>, k<sub>2</sub>: k = k<sub>1</sub> + k<sub>2</sub>M" / 
      &   " * For rate constants with k<sub>0</sub>, k<sub>2</sub>, k<sub>3</sub>: ",
      &       "k = k<sub>0</sub> + k<sub>3</sub>M/(1+k<sub>3</sub>M/k<sub>2</sub>)" /
@@ -3474,7 +3474,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      &   "* Fall-off or pressure dependent reaction rate constants (M equals air number density):" /
      &   " * For rate constants with k<sub>o</sub>, k<sub>i</sub>, n, F values: ",
      &       "k = [ k<sub>o</sub>M/(1+k<sub>o</sub>M/k<sub>i</sub>)]F<sup>G</sup>, ",
-     &       "where G=(1+(log<sub>10</sub>(k<sub>o</sub>M/k<sub>i</sub>)/n)<sup>2</sup>))<sup>-1</sup> " /
+     &       "where G=(1+(log<sub>10</sub>(k<sub>o</sub>M/k<sub>i</sub>)/n)<sup>2</sup>)<sup>-1</sup> " /
      &   " * For rate constants with k<sub>1</sub>, k<sub>2</sub>: k = k<sub>1</sub> + k<sub>2</sub>M" / 
      &   " * For rate constants with k<sub>0</sub>, k<sub>2</sub>, k<sub>3</sub>: ",
      &       "k = k<sub>0</sub> + k<sub>3</sub>M/(1+k<sub>3</sub>M/k<sub>2</sub>)" /
