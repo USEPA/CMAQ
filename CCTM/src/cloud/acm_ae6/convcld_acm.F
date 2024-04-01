@@ -434,7 +434,7 @@ C-------------------------------------------
 C Gridded meteorology data: Golam Sarwar, July 1, 2011 
 C Latitude and longitude for zenith angle calculation:     
       REAL             COSZ                        ! local cosine of zenith angle
-      LOGICAL          DARK                        ! DARK = TRUE is night,  DARK = FALSE is day
+C      LOGICAL          DARK                        ! DARK = TRUE is night,  DARK = FALSE is day
 
       CHARACTER( 120 ) :: XMSG = ' '   ! Exit status message
 
@@ -505,15 +505,15 @@ C...........Statement Functions
 
         SUBROUTINE AQ_MAP( JDATE, JTIME, WTBAR, WCBAR, TBARC, PBARC,
      &                     CTHK1, AIRM, PRATE1, TAUCLD, POLC, CEND,
-     &                     REMOV, REMOVAC, ALFA0, ALFA2, ALFA3, DARK )
+     &                     REMOV, REMOVAC, ALFA0, ALFA2, ALFA3, COSZ )
           INTEGER, INTENT( IN )    :: JDATE, JTIME
           REAL,    INTENT( IN )    :: WTBAR, WCBAR, TBARC, PBARC,
      &                                CTHK1, AIRM, PRATE1, TAUCLD
           REAL,    INTENT( IN )    :: POLC ( : )
           REAL,    INTENT( INOUT ) :: CEND( : ), REMOV( : )
           REAL,    INTENT( INOUT ) :: REMOVAC
-          REAL,    INTENT( IN )    :: ALFA0, ALFA2, ALFA3
-          LOGICAL, INTENT( IN )    :: DARK            
+          REAL,    INTENT( IN )    :: ALFA0, ALFA2, ALFA3, COSZ
+C          LOGICAL, INTENT( IN )    :: DARK            
         END SUBROUTINE AQ_MAP
       END INTERFACE
 
@@ -2004,12 +2004,12 @@ C...  determine day or night from cosine of zenith angle for the cell; Golam Sar
             COSZ = MET_DATA%COSZEN( COL,ROW )
 
             IF ( COSZ .LE. 0.0 ) THEN
-              DARK = .TRUE.   ! night
+C              DARK = .TRUE.   ! night
 C...set mean photolysis rates to zero
               JH2O2_HYDROMETEORS = 0.0D0 
               JHNO3_HYDROMETEORS = 0.0D0
             ELSE
-              DARK = .FALSE.  ! day
+C              DARK = .FALSE.  ! day
 C...convert mean photolysis rates to 1/sec
               JH2O2_HYDROMETEORS = REAL( JH2O2_BAR * MINPERSEC, 8 ) 
               JHNO3_HYDROMETEORS = REAL( JHNO3_BAR * MINPERSEC, 8 )
@@ -2025,7 +2025,7 @@ C...  mimic this for the ASO4GASJ tracking species
 
             CALL AQ_MAP ( JDATE, JTIME, WTBAR, WCBAR, TBARC, PBARC,
      &                    CTHK1, AIRM, PRATE1, DTCLD, POLC, CEND,
-     &                    REMOV, REMOVAC, ALFA0, ALFA2, ALFA3, DARK )
+     &                    REMOV, REMOVAC, ALFA0, ALFA2, ALFA3, COSZ )
 
 
 #ifdef isam
