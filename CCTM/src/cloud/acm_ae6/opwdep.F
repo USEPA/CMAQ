@@ -53,9 +53,6 @@
 
 !...........PARAMETERS
 
-! # of wet deposition species
-      INTEGER, SAVE :: N_SPC_WDEP
-
 !...........ARGUMENTS
 
       INTEGER, INTENT (IN) :: JDATE            ! current model date, coded YYYYDDD
@@ -80,7 +77,6 @@
 !...for output in the wet deposition array, otherwise notify the user
 !...and return
 
-        N_SPC_WDEP = N_GC_WDEP + N_AE_WDEP + N_NR_WDEP + N_TR_WDEP
         IF ( N_SPC_WDEP .LE. 0 ) THEN
 
           XMSG = 'No species were specified for wet deposition ' //
