@@ -194,7 +194,7 @@ C Latitude and longitude for zenith angle calculation: Golam Sarwar * July 1, 20
       REAL          COSZ                            ! local cosine of zenith angle
       REAL          JH2O2                           ! H2O2 photolysis rate, 1/min 
       REAL          JHNO3                           ! HNO3 photolysis rate, 1/min 
-      LOGICAL       DARK                            ! DARK = TRUE is night,  DARK = FALSE is day
+C      LOGICAL       DARK                            ! DARK = TRUE is night,  DARK = FALSE is day
 
 #ifdef isam
       INTEGER, SAVE           :: S_SO2, S_SO4J, S_SULF
@@ -227,15 +227,15 @@ C...........External Functions:
         END SUBROUTINE SCAVWDEP
         SUBROUTINE AQ_MAP( JDATE, JTIME, WTBAR, WCBAR, TBARC, PBARC,
      &                     CTHK1, AIRM, PRATE1, TAUCLD, POLC, CEND,
-     &                     REMOV, REMOVAC, ALFA0, ALFA2, ALFA3, DARK )
+     &                     REMOV, REMOVAC, ALFA0, ALFA2, ALFA3, COSZ )
            INTEGER, INTENT( IN )    :: JDATE, JTIME
            REAL,    INTENT( IN )    :: WTBAR, WCBAR, TBARC, PBARC,
      &                                 CTHK1, AIRM, PRATE1, TAUCLD
            REAL,    INTENT( IN )    :: POLC ( : )
            REAL,    INTENT( INOUT ) :: REMOVAC
            REAL,    INTENT( INOUT ) :: CEND( : ), REMOV( : )
-           REAL,    INTENT( IN )    :: ALFA0, ALFA2, ALFA3
-           LOGICAL, INTENT( IN )    :: DARK                  !Golam Sarwar, July 1, 2011
+           REAL,    INTENT( IN )    :: ALFA0, ALFA2, ALFA3, COSZ	
+C           LOGICAL, INTENT( IN )    :: DARK                  !Golam Sarwar, July 1, 2011
         END SUBROUTINE AQ_MAP
       END INTERFACE
 C-----------------------------------------------------------------------
@@ -649,11 +649,11 @@ C...  calculate cosine of zenith angle for the cell and determine day or night; 
 
                   COSZ = MET_DATA%COSZEN( COL, ROW )
                   IF ( COSZ .LE. 0.0 ) THEN 
-                    DARK = .TRUE.   ! night
+C                    DARK = .TRUE.   ! night
                     JH2O2_HYDROMETEORS = 0.0D0
                     JHNO3_HYDROMETEORS = 0.0D0
                   ELSE
-                    DARK = .FALSE.  ! day
+C                    DARK = .FALSE.  ! day
                     JH2O2 = RJ_RES( COL, ROW, LAY, LH2O2 )
                     JHNO3 = RJ_RES( COL, ROW, LAY, LHNO3 )
                     JH2O2_HYDROMETEORS = REAL( JH2O2*PERMIN_TO_PERSEC, 8 )
@@ -671,7 +671,7 @@ C...  mimic this for the ASO4GASJ tracking species
                   CALL AQ_MAP ( JDATE, JTIME, WTBAR, WCBAR, TBARC,
      &                          PBARC, CTHK1, AIRM, PRATE1, TAUCLD,
      &                          POLC, CEND, REMOV, REMOVAC, ALFA0,
-     &                          ALFA2, ALFA3, DARK )
+     &                          ALFA2, ALFA3, COSZ )
 
 #ifdef isam
                   DO SPC = 1, NSPC_SA ! general case

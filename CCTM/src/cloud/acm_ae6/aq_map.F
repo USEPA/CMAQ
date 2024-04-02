@@ -20,7 +20,7 @@
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE AQ_MAP ( JDATE, JTIME, WTBAR, WCBAR, TBARC, PBARC,
      &                    CTHK1, AIRM, PRATE1, TAUCLD, POLC, CEND,
-     &                    REMOV, REMOVAC, ALFA0, ALFA2, ALFA3, DARK )
+     &                    REMOV, REMOVAC, ALFA0, ALFA2, ALFA3, COSZ )
 
 C-----------------------------------------------------------------------
 C  DESCRIPTION:  This is an interface processor between the cloud dynamics
@@ -70,7 +70,7 @@ C    REMOVAC    real    output  variable storing H+ deposition
 C    ALFA0      real     input  scav coef for aitken aerosol number
 C    ALFA2      real     input  scav coef for aitken aerosol surface area
 C    ALFA3      real     input  scav coef for aitken aerosol mass
-C    DARK       logical  input DARK = TRUE is night,  DARK = FALSE is day
+C    COSZ       real     input cosine solar zenith angle
 C-----------------------------------------------------------------------
 
       USE CGRID_SPCS     ! CGRID mechanism species
@@ -115,7 +115,8 @@ C Arguments:
       REAL,    INTENT( IN )    :: ALFA0     ! scav coef for aitken aerosol number
       REAL,    INTENT( IN )    :: ALFA2     ! scav coef for aitken aerosol sfc area
       REAL,    INTENT( IN )    :: ALFA3     ! scav coef for aitken aerosol mass
-      LOGICAL, INTENT( IN )    :: DARK      ! DARK = TRUE is night,  DARK = FALSE is day
+      REAL,    INTENT( IN )    :: COSZ      ! cosine solar zenith angle
+C      LOGICAL, INTENT( IN )    :: DARK      ! DARK = TRUE is night,  DARK = FALSE is day
 
 C Local Variables (scalars):
 
@@ -157,7 +158,7 @@ C External Functions:
       INTERFACE
         SUBROUTINE AQCHEM ( JDATE, JTIME, TEMP, PRES_PA, TAUCLD, PRCRATE,
      &                      WCAVG, WTAVG, AIRM, ALFA0, ALFA2, ALFA3, GAS,
-     &                      AEROSOL, GASWDEP, AERWDEP, HPWDEP, BETASO4, DARK,
+     &                      AEROSOL, GASWDEP, AERWDEP, HPWDEP, BETASO4, COSZ,
      &                      FRACTR, FRACPOA, FRACPRI, FRACSOA ) 
            INTEGER,   INTENT( IN )  :: JDATE  ! current model date, coded YYYYDDD
            INTEGER,   INTENT( IN )  :: JTIME  ! current model time, coded HHMMSS
@@ -181,7 +182,8 @@ C External Functions:
 	   REAL( 8 ), INTENT( OUT ) :: FRACPOA   ! Fraction of J mode POA scavenged from I mode
 	   REAL( 8 ), INTENT( OUT ) :: FRACPRI   ! Fraction of J mode PRI scavenged from I mode
 	   REAL( 8 ), INTENT( OUT ) :: FRACSOA   ! Fraction of J mode SOA scavenged from I mode
-           LOGICAL,   INTENT( IN )    :: DARK           ! DARK = TRUE is night,  DARK = FALSE is day
+C           LOGICAL,   INTENT( IN )    :: DARK           ! DARK = TRUE is night,  DARK = FALSE is day
+	   REAL,      INTENT( IN )  :: COSZ      ! cosine solar zenith angle
         END SUBROUTINE AQCHEM
       END INTERFACE      
 
@@ -379,7 +381,7 @@ C...perform aqueous-phase chemistry calculations
 
       CALL AQCHEM ( JDATE, JTIME, TBARC, PBARC, TAUCLD, PRATE1,
      &              WCBAR, WTBAR, AIRM, ALFA0, ALFA2, ALFA3, GAS,
-     &              AEROSOL, GASWDEP, AERWDEP, HPWDEP, BETASO4, DARK,
+     &              AEROSOL, GASWDEP, AERWDEP, HPWDEP, BETASO4, COSZ,
      &              FRACTR, FRACPOA, FRACPRI, FRACSOA  )
 
 C...  compute the scavenging coefficient
