@@ -67,6 +67,7 @@ C-----------------------------------------------------------------------
 
       USE RUNTIME_VARS    
       USE CSQY_DATA
+      USE PHOT_MET_DATA, ONLY: CFRAC_2D_AVE => CFRAC_2D
 
       IMPLICIT NONE
 

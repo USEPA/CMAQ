@@ -25,9 +25,10 @@ C Purpose:  Computes aerosol and gaseous air surface exchange for sub-
 C           grid land use categories. All gaseous species are treated 
 C           as having bidirectional exchange following the two layer 
 C           model from Nemitz et al. 2001 and aerosol species deposition 
-C           follows Binkowski and Shankar 1995. Note that the Nemitz et al.            2001 parameterization reduces to a standard deposition velocity
+C           follows Binkowski and Shankar 1995. Note that the Nemitz et al.            
+C           parameterization reduces to a standard deposition velocity
 C           if the pollutant concentration on the leaf, in the leaf stomata, 
-C           in and the soil are zero.
+C           and in the soil are zero.
 C 
 C References:
 C          Nemitz et al. 2001 Q. J. R. Meteorol. Soc DOI: 10.1002/qj.49712757306
@@ -103,7 +104,7 @@ C-----------------------------------------------------------------------
 
 C Arguments:
          Integer, Intent( IN ) :: JDATE, JTIME      ! internal simulation date&time
-         integer               :: c, r, l, n, s, v, n_diag_dep
+         integer               :: c, r, l, n, s, n_diag_dep
          CHARACTER( 16 ), PARAMETER :: pname      = 'INIT_STAGE'        
          CHARACTER( 16 )       :: gc_depv_name( dep_gas_all )
          CHARACTER( 16 )       :: gc_scav_name( dep_gas_all )
@@ -172,7 +173,7 @@ C Set the dep vel surrogate pointers
             IF ( N .NE. 0 ) THEN
                DEPV_SUR( S ) = N
             ELSE
-               XMSG = 'Could not find ' // AE_DEPV( V ) // ' in aerosol' //
+               XMSG = 'Could not find ' // AE_DEPV( S ) // ' in aerosol' //
      &                ' surrogate table. >>> Dep vel set to zero <<< '
                CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
                DEPV_SUR( S ) = 0
@@ -296,6 +297,8 @@ C Parameters specific to gas_x. Currently based on m3dry but subject to change
          Real, Parameter :: hplus_east = 1.0e-5     ! pH=5.0
          Real, Parameter :: hplus_h2o  = 7.94328e-9 ! 10.0**(-8.1)
          Real, Parameter :: hplus_west = 3.16228e-6 ! 10.0**(-5.5)
+C Fuller-Schettler-Giddings (https://doi.org/10.1021/ie50677a007; Table I) Diffusion Volume for air 
+         Real, Parameter :: Diff_Vol   = 20.1       ! cm3/mol
 
 ! Heterogeneous HONO
          Real            :: surf_bldg, surf_leaf    ! HONO building and leaf surface area/voluem (1/
@@ -421,7 +424,7 @@ C Parameters specific to gas_x. Currently based on m3dry but subject to change
          cp_air = CPD * ( 1.0 + 0.84 * q_2m )               ! [J/kg/K]
          tw     = ( ( 4.71e4 * cp_air / lv ) - 0.870 ) + stdtemp  ! [K]
          k_vis  = kvis*1.0e-4 * ( temp_2m/STDTEMP )**1.81 ! Following Massman 1999
-         dwat_T    = dwat*1.0e-4 * ( temp_2m/STDTEMP )**1.81 ! Following Massman 1999
+         dwat_T = dwat*1.0e-4 * ( temp_2m/STDTEMP )**1.81 ! Following Massman 1999
          n = 0
          n_diag = 0
          spc_loop: Do s = 1, dep_gas_all
@@ -433,9 +436,10 @@ C Parameters specific to gas_x. Currently based on m3dry but subject to change
             if( s .eq. s_NH3 ) NH3_hit = .True.
             if( s .eq. s_O3 ) O3_hit  = .True.
             if( s .eq. s_Hg ) Hg_hit  = .True.
-! Following Fuller et al 1966. Here we use the LeBas molar volume which is similar to Fuller's diffusive volume
+! Following Fuller et al 1966 (https://doi.org/10.1021/ie50677a007) and using the FSG-LeBas method from the
+! EPA OnSite toolbox (https://www3.epa.gov/ceampubl/learn2model/part-two/onsite/ed-background.html). 
             dif_T     = 1.0e-7*temp_2m**1.75 * sqrt( 1.0/MWAIR + 1.0/molwt_all( s ) ) / 
-     &                ( MOLVOL**(1.0/3.0) + LeBasM( s )**(1.0/3.0) )**2 
+     &                ( Diff_Vol**(1.0/3.0) + LeBasM( s )**(1.0/3.0) )**2 
             scc_pr_23 = ( ( k_vis / dif_T ) / pr ) ** twothirds
 
             c_atm = max( cgridl1( n ), 1.0e-30 )
@@ -518,7 +522,7 @@ C Get Ra
 C Calculate Rst
                   If( lai .Gt. 0.0 ) Then
 !-------------------------------------------------------------------------------------------------
-! Quazi Laminar Resistance to leaf 
+! Quasi Laminar Resistance to leaf 
 !-------------------------------------------------------------------------------------------------
                      Rb_leaf = Calc_Rb_leaf( k_vis, dif_T, ustar, l_leaf, lai )
 !-------------------------------------------------------------------------------------------------
@@ -544,7 +548,7 @@ C Calculate Rst
 ! Resistance to air-base soil exchange
 !-------------------------------------------------------------------------------------------------
                   If( ABFLUX .And. NH3_Hit ) Then
-                     Call Get_NH3_Comp( c_stom, c_ll, c_grnd, dif_T, r, c, l, l_ag )                                                                       ! Qauzi Laminar Boundary Layer resistance
+                     Call Get_NH3_Comp( c_stom, c_ll, c_grnd, dif_T, r, c, l, l_ag )  ! Quasi Laminar Boundary Layer resistance
                   End If ! ABFLUX and NH3
 
                   Rgc = Calc_Rg( dif_T, k_vis, rel_rx( s ), Ra, ustar, lai, temp_g, molwt_all( s ), M_ac( s ), 

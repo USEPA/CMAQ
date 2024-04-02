@@ -662,7 +662,7 @@ C Calculate Canopy Covered Soil Resistance Nemitz et al 2000 https://doi.org/10.
 ! Integration of lai(z)/hc u*(z) from 0 to hc.   
          veg_ustar = max((4.0 - (2.0 * lai + 4.0) * exp( -lai/2.0 )) * ustar, 1.0e-3) ! Replaces the constant 3 in Zhang et 2001
          ST        = Vghat * ustar / ( GRAV * l_width )
-         R1        = Exp( -SQRT( ST ) ) ! only apply to particles with diameter larger than 5 um Zhang et al 2001
+         R1        = max( Exp( -SQRT( ST ) ), 1.0e-20) ! only apply to particles with diameter larger than 5 um Zhang et al 2001
          EIB       = Calc_EIB_E20( SC )
          EIN       = EIN_Veg_E20( Dp, l_width ) * EINHAT
          EIM       = EIM_Veg_E20( ST, alpha )
@@ -692,11 +692,11 @@ C Calculate Canopy Covered Soil Resistance Nemitz et al 2000 https://doi.org/10.
          Real               :: EIB
          Real               :: R1
 
-         ST      = Vghat * ustar**2 / ( GRAV * nu )
-         R1      = Exp( -SQRT( ST ) ) ! only apply to particles with diameter larger than 5 cm
+         ustg    = max( ustar * exp( -lai/2.0 ), 0.001 )
+         ST      = Vghat * ustg**2 / ( GRAV * nu )
+         R1      = max( Exp( -SQRT( ST ) ), 1.0e-20) ! only apply to particles with diameter larger than 5 um Zhang et al 2001
          EIB     = Calc_EIB_E20( SC )
          EIM     = EIM_SMOOTH_E20( ST )
-         ustg    = max( ustar * exp( -lai/2.0 ), 0.001 )
          RD      = 1.0 / (        wet  * ( 3.0 * ustg * ( EIB + EIM ) ) +      ! Wet surface
      &                     (1.0 - wet) * ( 3.0 * ustg * ( EIB + EIM ) * R1 ) ) ! Dry Surface
 

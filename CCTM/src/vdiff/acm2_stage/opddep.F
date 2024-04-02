@@ -61,7 +61,7 @@ C Local variables:
       INTEGER,         SAVE :: N_BD_EMIS 
       CHARACTER( 16 ), SAVE :: BD_EMIS_SPC( 3 )
       INTEGER,         SAVE :: N_BD_FLUX 
-      CHARACTER( 16 ), SAVE :: BD_FLUX_SPC( 7 )
+      CHARACTER( 16 ), SAVE :: BD_FLUX_SPC( 1 )
 
       INTEGER      V, N, L     ! loop induction variables
       INTEGER      STRT, FINI  ! loop induction variables
@@ -77,14 +77,8 @@ C Try to open existing file for update
          If( ABFLUX ) Then
             N_BD_EMIS = N_BD_EMIS + 1
             BD_EMIS_SPC( N_BD_EMIS ) = 'NH3_Emis'
-            N_BD_FLUX = 7
+            N_BD_FLUX = 1
             BD_FLUX_SPC( 1 ) = 'NH3_Flux'
-            BD_FLUX_SPC( 2 ) = 'NH3_Stom'
-            BD_FLUX_SPC( 3 ) = 'NH3_Cut'
-            BD_FLUX_SPC( 4 ) = 'NH3_Soil'
-            BD_FLUX_SPC( 5 ) = 'NH3_Ag'
-            BD_FLUX_SPC( 6 ) = 'NH3_Nat'
-            BD_FLUX_SPC( 7 ) = 'NH3_Wat'              
          End If 
          If( HGBIDI ) Then
             N_BD_EMIS = N_BD_EMIS + 1

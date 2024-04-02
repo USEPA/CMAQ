@@ -167,6 +167,9 @@ setenv CTM_SFC_HONO Y        #> surface HONO interaction [ default: Y ]
                              #> for dependency on percent urban fraction dataset
 setenv CTM_GRAV_SETL Y       #> vdiff aerosol gravitational sedimentation [ default: Y ]
 
+setenv CTM_PVO3 Y            #> consider potential vorticity module for O3 transport from the stratosphere
+                             #>    [default: N]
+
 setenv CTM_BIOGEMIS_BE N     #> calculate in-line biogenic emissions with BEIS [ default: N ]
 setenv CTM_BIOGEMIS_MG N     #> turns on MEGAN biogenic emission [ default: N ]
 setenv BDSNP_MEGAN N         #> turns on BDSNP soil NO emissions [ default: N ]

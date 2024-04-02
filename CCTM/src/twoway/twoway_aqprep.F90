@@ -50,7 +50,7 @@ SUBROUTINE aqprep (grid, config_flags, t_phy_wrf, p_phy_wrf, rho_wrf,     &
 !                 change
 !           28 Dec 2015  (David Wong)
 !              -- added optional PV calculation which is dictated by an environment
-!                 variable CTM_TURN_ON_PV with default .false. value
+!                 variable CTM_PVO3 with default .false. value
 !           11 Jan 2016  (David Wong)
 !              -- removed mminlu
 !              -- resized the first dimension of the following arrays:
