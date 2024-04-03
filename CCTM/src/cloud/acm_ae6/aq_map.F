@@ -116,7 +116,6 @@ C Arguments:
       REAL,    INTENT( IN )    :: ALFA2     ! scav coef for aitken aerosol sfc area
       REAL,    INTENT( IN )    :: ALFA3     ! scav coef for aitken aerosol mass
       REAL,    INTENT( IN )    :: COSZ      ! cosine solar zenith angle
-C      LOGICAL, INTENT( IN )    :: DARK      ! DARK = TRUE is night,  DARK = FALSE is day
 
 C Local Variables (scalars):
 
@@ -182,7 +181,6 @@ C External Functions:
 	   REAL( 8 ), INTENT( OUT ) :: FRACPOA   ! Fraction of J mode POA scavenged from I mode
 	   REAL( 8 ), INTENT( OUT ) :: FRACPRI   ! Fraction of J mode PRI scavenged from I mode
 	   REAL( 8 ), INTENT( OUT ) :: FRACSOA   ! Fraction of J mode SOA scavenged from I mode
-C           LOGICAL,   INTENT( IN )    :: DARK           ! DARK = TRUE is night,  DARK = FALSE is day
 	   REAL,      INTENT( IN )  :: COSZ      ! cosine solar zenith angle
         END SUBROUTINE AQCHEM
       END INTERFACE      

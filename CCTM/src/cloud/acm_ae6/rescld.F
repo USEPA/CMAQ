@@ -194,7 +194,6 @@ C Latitude and longitude for zenith angle calculation: Golam Sarwar * July 1, 20
       REAL          COSZ                            ! local cosine of zenith angle
       REAL          JH2O2                           ! H2O2 photolysis rate, 1/min 
       REAL          JHNO3                           ! HNO3 photolysis rate, 1/min 
-C      LOGICAL       DARK                            ! DARK = TRUE is night,  DARK = FALSE is day
 
 #ifdef isam
       INTEGER, SAVE           :: S_SO2, S_SO4J, S_SULF
@@ -235,7 +234,6 @@ C...........External Functions:
            REAL,    INTENT( INOUT ) :: REMOVAC
            REAL,    INTENT( INOUT ) :: CEND( : ), REMOV( : )
            REAL,    INTENT( IN )    :: ALFA0, ALFA2, ALFA3, COSZ	
-C           LOGICAL, INTENT( IN )    :: DARK                  !Golam Sarwar, July 1, 2011
         END SUBROUTINE AQ_MAP
       END INTERFACE
 C-----------------------------------------------------------------------
@@ -649,11 +647,9 @@ C...  calculate cosine of zenith angle for the cell and determine day or night; 
 
                   COSZ = MET_DATA%COSZEN( COL, ROW )
                   IF ( COSZ .LE. 0.0 ) THEN 
-C                    DARK = .TRUE.   ! night
                     JH2O2_HYDROMETEORS = 0.0D0
                     JHNO3_HYDROMETEORS = 0.0D0
                   ELSE
-C                    DARK = .FALSE.  ! day
                     JH2O2 = RJ_RES( COL, ROW, LAY, LH2O2 )
                     JHNO3 = RJ_RES( COL, ROW, LAY, LHNO3 )
                     JH2O2_HYDROMETEORS = REAL( JH2O2*PERMIN_TO_PERSEC, 8 )
