@@ -2577,8 +2577,8 @@
             ! just carbon mass
             VAL = 0.0
             DO IOA = 1,N_OA_NotTracers
-                ! Just Select Secondary Species
-                IF ( .NOT. OASPC( IOA )%PRIMARY ) THEN  
+                ! Skip primary species and those with negative OM:OC
+                IF ( OASPC( IOA )%OMtoOC .GT. 0.0 .AND. .NOT. OASPC( IOA )%PRIMARY ) THEN
                       VAL = VAL + SUM( AEROSPC_CONC( MAP_OAtoAERO(IOA),: ),
      &                            MASK = AEROMODE(:)%FINE_MASK ) 
      &                          / OASPC( IOA )%OMtoOC
@@ -2592,9 +2592,12 @@
             ! just carbon mass
             VAL = 0.0
             DO IOA = 1,N_OA_NotTracers
-               VAL = VAL + SUM( AEROSPC_CONC( MAP_OAtoAERO(IOA),: ),
-     &                     MASK = AEROMODE(:)%FINE_MASK ) 
-     &                   / OASPC( IOA )%OMtoOC
+               ! Skip species with negative OM:OC
+               IF ( OASPC( IOA )%OMtoOC .GT. 0.0 ) THEN
+                  VAL = VAL + SUM( AEROSPC_CONC( MAP_OAtoAERO(IOA),: ),
+     &                        MASK = AEROMODE(:)%FINE_MASK ) 
+     &                      / OASPC( IOA )%OMtoOC
+               END IF
             END DO
             OUTVAL = VAL  
 
