@@ -42,8 +42,9 @@ SUBROUTINE wrfemopts (txt_cupa, txt_microphys, txt_lwrad, txt_swrad,  &
 !           18 Jun 2019  Updated for WRFv4.1 options.  Improved metadata to
 !                        annotate if radiative feedbacks were included in the
 !                        convective scheme.  (T. Spero)
-!           28 Feb 2024  Updated for options through WRFv4.5.2. Pulled options
-!                        from WRF Users Guide for v4.5. (T. Spero)
+!           09 Apr 2024  Updated for options through WRFv4.5.2. Pulled options
+!                        from WRF Users Guide for v4.5. Also included options
+!                        planned for WRFv4.6 from their Git packages. (T. Spero)
 !-------------------------------------------------------------------------------
 
   USE metinfo
@@ -138,7 +139,7 @@ SUBROUTINE wrfemopts (txt_cupa, txt_microphys, txt_lwrad, txt_swrad,  &
     CASE ( 4 )
       txt_microphys = 'WSM 5-Class'
     CASE ( 5 )
-      txt_microphys = 'Ferrier (Eta)'
+      txt_microphys = 'Ferrier (Eta) Hi-Res'
     CASE ( 6 )
       txt_microphys = 'WSM 6-Class'
     CASE ( 7 )
@@ -151,10 +152,14 @@ SUBROUTINE wrfemopts (txt_cupa, txt_microphys, txt_lwrad, txt_swrad,  &
       txt_microphys = 'Morrison 2-moment'
     CASE ( 11 )
       txt_microphys = 'CAM 5.1'
+    CASE ( 12 )
+      txt_microphys = 'Millbrandt'
     CASE ( 13 )
       txt_microphys = 'Stony Brook-Lin'
     CASE ( 14 )
       txt_microphys = 'WDM 5-class'
+    CASE ( 15 )
+      txt_microphys = 'Ferrier (Eta) Hi-Res Advect'
     CASE ( 16 )
       txt_microphys = 'WDM 6-class'
     CASE ( 17 )
@@ -195,6 +200,10 @@ SUBROUTINE wrfemopts (txt_cupa, txt_microphys, txt_lwrad, txt_swrad,  &
       txt_microphys = 'NTU'
     CASE ( 95 )
       txt_microphys = 'Ferrier (old Eta) NAM'
+    CASE ( 96 )
+      txt_microphys = 'MAD WRF'
+    CASE ( 97 )
+      txt_microphys = 'GSFC GCE'
     CASE ( 98 )
       IF ( met_release(1:4) >= "V3.1" ) THEN
         txt_microphys = 'old Thompson scheme'
@@ -203,6 +212,8 @@ SUBROUTINE wrfemopts (txt_cupa, txt_microphys, txt_lwrad, txt_swrad,  &
       ENDIF
     CASE ( 99 )
       txt_microphys = 'NCEP 5-Class'
+    CASE ( 106 )
+      txt_microphys = 'WSM 6-Class R'
     CASE DEFAULT
       txt_microphys = '*** Unknown ***'
   END SELECT
