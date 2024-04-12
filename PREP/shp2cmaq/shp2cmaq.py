@@ -40,13 +40,11 @@ Example Application
 
     # shp2cmaq file should be in run directory
     import shp2cmaq
-    shp2cmaq('cb_2022_us_state_500k.zip', 'STUSPS', '12US1')
+    shp2cmaq.shp2cmaq('cb_2022_us_state_500k.zip', 'STUSPS', '12US1')
 
 """
 import os
 import string
-import cmaqsatproc as csp
-import geopandas as gpd
 
 
 __version__ = '1.0'
@@ -83,6 +81,9 @@ def shp2cmaq(
     verbose : int
         Level of verbosity
     """
+    import cmaqsatproc as csp
+    import geopandas as gpd
+
     if prefix is None:
         prefix = f'{attrkey}_'
 
@@ -94,7 +95,8 @@ def shp2cmaq(
         if overwrite:
             print(f'INFO: Overwriting {outpath}.')
         else:
-            raise IOError(f'Remove {outpath} or set overwrite=True.')
+            print(f'Using cached {outpath}; set overwrite=True to remake.')
+            return outpath
 
     if verbose > 0:
         print(f'INFO: Running this will create {outpath}.')
