@@ -1,8 +1,5 @@
+cmaqsatproc
 geopandas
-shapely
-fiona
-pyproj
-pygeos
+xarray
 netcdf4
-pseudonetcdf
 pycno
