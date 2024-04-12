@@ -13,6 +13,35 @@ shp2cmaq : function
 
 Updates:
 - v1.0 : Barron H. Henderson converted code to a script.
+
+
+Installation Instructions
+-------------------------
+
+Requires Python3 and libraries cmaqsatproc, geopandas, xarray, netcdf4.
+
+.. code-block::bash
+
+    python -m pip install cmaqsatproc geopandas xarray netcdf4
+
+
+Example Application
+-------------------
+
+1. Download shapefile
+    https://www2.census.gov/geo/tiger/GENZ2022/shp/cb_2022_us_state_500k.zip
+2. Run tool:
+
+.. code-block::bash
+
+    python shp2cmaq.py cb_2022_us_state_500k.zip STUSPS 12US1
+
+.. code-block::python
+
+    # shp2cmaq file should be in run directory
+    import shp2cmaq
+    shp2cmaq('cb_2022_us_state_500k.zip', 'STUSPS', '12US1')
+
 """
 import os
 import string
