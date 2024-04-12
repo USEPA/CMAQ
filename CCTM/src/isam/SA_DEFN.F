@@ -599,34 +599,34 @@ c----------------------------------------------------------
      &    'TOL       ','UALD      ','XYM       ','XYE       ','PAA       ',
      &    'PAN       ','PPN       ','MPAN      ','ONIT      ','ISON      ',
      &    'TRPN      ','VROCIOXY  ','VROCP5ARO ','VROCP6ARO ','VROCN2ALK ',
-     &    'NROCN1ALK ','VROCP0ALK ','VROCP1ALK ','VROCP2ALK ','VROCP3ALK ',
+     &    'VROCN1ALK ','VROCP0ALK ','VROCP1ALK ','VROCP2ALK ','VROCP3ALK ',
      &    'VROCP4ALK ','VROCP5ALK ','VROCP6ALK ','VROCN2OXY2','VROCN2OXY4',
      &    'VROCN2OXY8','VROCN1OXY1','VROCN1OXY3','VROCN1OXY6','VROCP0OXY2',
      &    'VROCP0OXY4','VROCP1OXY1','VROCP1OXY3','VROCP2OXY2','VROCP3OXY2',
      &    'VROCP4OXY2','VROCP5OXY1','VROCP6OXY1'/ )
 
         !CRACMM2
-        ALLOCATE( ISAM_SPEC_VOC( 9 )%LIST( 96 ) )
-        ISAM_SPEC_VOC( 8 )%LIST = (/'ACD       ','ACE       ','ACRO      ',
+        ALLOCATE( ISAM_SPEC_VOC( 9 )%LIST( 97 ) )
+        ISAM_SPEC_VOC( 9 )%LIST = (/'ACD       ','ACE       ','ACRO      ',
      &    'ACT       ','ALD       ','API       ','BALD      ','BDE13     ',
      &    'BEN       ','CSL       ','DCB1      ','DCB2      ','DCB3      ',
-     &    'ELHOM     ','EOH       ','ETE       ','ETEG      ','ETH       ',
-     &    'FURAN     ','FURANONE  ','GLY       ','HOM       ','HC3       ',
-     &    'HC5       ','HC10      ','HCHO      ','HKET      ','IEPOX     ',
-     &    'ISHP      ','IPN       ','IHN       ','IPC       ','ISO       ',
+     &    'EBZ       ','ELHOM     ','EOH       ','ETE       ','ETEG      ',
+     &    'ETH       ','FURAN     ','FURANONE  ','GLY       ','HOM       ',
+     &    'HC3       ','HC5       ','HC10      ','HCHO      ','HKET      ',
+     &    'HONIT     ','IEPOX     ','ISHP      ','IPX       ','ISO       ',
      &    'KET       ','LIM       ','LIMAL     ','MACR      ','MAHP      ',
      &    'MCT       ','MEK       ','MGLY      ','MOH       ','MVK       ',
      &    'NAPH      ','OLI       ','OLT       ','OP1       ','OP2       ',
      &    'OP3       ','OPB       ','ORA1      ','ORA2      ','PINAL     ',
      &    'PHEN      ','PROG      ','ROH       ','SESQ      ','SLOWROC   ',
-     &    'TOL       ','UALD      ','XYM       ','XYE       ','PAA       ',
+     &    'STY       ','TOL       ','UALD      ','XYL       ','PAA       ',
      &    'PAN       ','PPN       ','MPAN      ','ONIT      ','ISON      ',
      &    'TRPN      ','VROCIOXY  ','VROCP5ARO ','VROCP6ARO ','VROCN2ALK ',
-     &    'NROCN1ALK ','VROCP0ALK ','VROCP1ALK ','VROCP2ALK ','VROCP3ALK ',
+     &    'VROCN1ALK ','VROCP0ALK ','VROCP1ALK ','VROCP2ALK ','VROCP3ALK ',
      &    'VROCP4ALK ','VROCP5ALK ','VROCP6ALK ','VROCN2OXY2','VROCN2OXY4',
      &    'VROCN2OXY8','VROCN1OXY1','VROCN1OXY3','VROCN1OXY6','VROCP0OXY2',
      &    'VROCP0OXY4','VROCP1OXY1','VROCP1OXY3','VROCP2OXY2','VROCP3OXY2',
-     &    'VROCP4OXY2','VROCP5OXY1','VROCP6OXY1'/ )
+     &    'VROCP4OXY2','VROCP5OXY1','VROCP6OXY1','ECH4      '/ )
 
         !PRESCRIBE NITRATE SPECIES
         !CB6R3_AE7_AQ
@@ -700,7 +700,7 @@ c----------------------------------------------------------
         ALLOCATE( ISAM_SPEC_NO3( 9 )%LIST( 27 ) )
         ISAM_SPEC_NO3( 9 )%LIST = (/   'HNO3 ','NO   ','NO2  ','NO3  ','HONO ',
      &         'N2O5 ','PAN  ','HNO4 ','ONIT ','MPAN ','PPN  ','ISON ','TRPN ',
-     &         'NALD ','ACO3 ','MO2  ','HC3P ','HC5P ','HC10P','KETP ','ISOP ',
+     &         'INALD','ACO3 ','MO2  ','HC3P ','HC5P ','HC10P','KETP ','ISOP ',
      &         'ETHP ','RCO3 ','XYLP ','TR2  ','BENP ','ETEP '/ )
         
         !PRESCRIBE SPECIES RELEVANT FOR ASSIGNING BIAS TO VOCs
@@ -746,10 +746,10 @@ c----------------------------------------------------------
      &         'XYLP'/ )
 
         !CRACMM1_AQ
-        ALLOCATE( ISAM_BIAS_VOC( 8 )%LIST( 12 ) )
+        ALLOCATE( ISAM_BIAS_VOC( 8 )%LIST( 13 ) )
         ISAM_BIAS_VOC( 8 )%LIST = (/'HCHO ','ACD  ','ALD  ','UALD ',
      &      'KET  ','ACO3 ','HC3P ','HC5P ','HC10P','ISOP ','RCO3 ',
-     &      'XYLP '/ )
+     &      'XYEP ', 'XYMP '/ )
 
         !CRACMM2
         ALLOCATE( ISAM_BIAS_VOC( 9 )%LIST( 12 ) )
