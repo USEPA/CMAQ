@@ -201,3 +201,27 @@ def shp2cmaq(
     os.makedirs(os.path.dirname(outpath), exist_ok=True)
     igf.to_netcdf(outpath, format=outformat)
     return outpath
+
+
+if __name__ == '__main__':
+    import argparse
+    prsr = argparse.ArgumentParser()
+    aa = prsr.add_argument
+    hstr = 'level of verbosity'
+    aa('--verbose', help=hstr, default=0, action='count')
+    hstr = 'Overwrite existing output'
+    aa('--overwrite', help=hstr, default=False, action='store_true')
+    hstr = 'NETCDF4_CLASSIC (smaller) or NETCDF3_CLASSIC (more compatible)'
+    aa('--outformat', help=hstr, default='NETCDF4_CLASSIC')
+    hstr = 'Variable names with be <prefix>_<attrvalue>'
+    aa('--prefix', help=hstr, default=None)
+    hstr = 'Anything other than intersection_area, uses srckey'
+    hstr += ' * intersection_area / shape_area'
+    aa('--srckey', help=hstr, default='intersection_area')
+    aa('--gdpath', help='GRIDDESC path', default=None)
+    aa('shppath', help='Path to shapefile or zip containing shapefile')
+    aa('attrkey', help='Attribute in shapefile')
+    aa('GDNAM', help='Grid definition name (must be in gdpath)')
+    aa('outpath', nargs='?', default=None)
+    args = prsr.parse_args()
+    shp2cmaq(vars(args))
