@@ -483,6 +483,8 @@ Sets if the CCTM will run in multi-processor or serial mode.
     ---  4-Inline Tabular Method based on Mie Calculations     
     ---  5-Solves Mie Theory    
     ---  6-Approximations to Mie Theory    
+-   `CTM_PVO3 [default: N]`<a id=CTM_PVO3></a>    
+     Y/N determines whether to scale ozone in free-troposphere to potential vorticity. Option requires that METCRO3D file has PV, potential vorticity. See [User Guide 6.13](../CMAQ_UG_ch06_model_configuration_options.md#613-potential-vorticity-scaling) for more information.
 
 <a id=Process_Analysis_Options></a>
 

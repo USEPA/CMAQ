@@ -1,0 +1,69 @@
+C=======================================================================
+C  SPC_CRACMM.EXT
+C  This include file contains CRACMM (CMAQ) species and their MW.
+C
+C  Mechanism Name: CRACMM (CMAQ)
+C  MEGAN v3
+C  INPUT version x.x
+C
+C  History:
+C  Who          When       What
+C  ---------------------------------------------------------------------
+C  Jeff Willison 05/17/22 - Created for MEGAN 3.2 in CMAQ
+C=======================================================================
+
+      CHARACTER*16   SPC_CRACMM2MECH
+      PARAMETER     (SPC_CRACMM2MECH = 'CRACMM2         ')
+
+      INTEGER        N_CRACMM2_SPC
+      PARAMETER     (N_CRACMM2_SPC = 46)
+
+      CHARACTER*16   MECH_SPC_CRACMM2( N_CRACMM2_SPC )  ! Mechanism species name
+      REAL           MECH_MWT_CRACMM2( N_CRACMM2_SPC )  ! Mechanism species molecular weight
+
+      DATA  MECH_SPC_CRACMM2( 1),  MECH_MWT_CRACMM2( 1)  / 'ISO             ',  68.10    /
+      DATA  MECH_SPC_CRACMM2( 2),  MECH_MWT_CRACMM2( 2)  / 'OLT             ',  42.00    /
+      DATA  MECH_SPC_CRACMM2( 3),  MECH_MWT_CRACMM2( 3)  / 'API             ',  136.40   /
+      DATA  MECH_SPC_CRACMM2( 4),  MECH_MWT_CRACMM2( 4)  / 'LIM             ',  136.30   /
+      DATA  MECH_SPC_CRACMM2( 5),  MECH_MWT_CRACMM2( 5)  / 'HC3             ',  44.10    /
+      DATA  MECH_SPC_CRACMM2( 6),  MECH_MWT_CRACMM2( 6)  / 'FURAN           ',  96.10    /
+      DATA  MECH_SPC_CRACMM2( 7),  MECH_MWT_CRACMM2( 7)  / 'XYL             ',  106.20   / 
+      DATA  MECH_SPC_CRACMM2( 8),  MECH_MWT_CRACMM2( 8)  / 'VROCP6ARO       ',  176.30   /
+      DATA  MECH_SPC_CRACMM2( 9),  MECH_MWT_CRACMM2( 9)  / 'NAPH            ',  128.17   /
+      DATA  MECH_SPC_CRACMM2( 10), MECH_MWT_CRACMM2( 10) / 'VROCIOXY        ',  247.00   / 
+      DATA  MECH_SPC_CRACMM2( 11), MECH_MWT_CRACMM2( 11) / 'KET             ',  86.00    /
+      DATA  MECH_SPC_CRACMM2( 12), MECH_MWT_CRACMM2( 12) / 'SESQ            ',  204.40   /
+      DATA  MECH_SPC_CRACMM2( 13), MECH_MWT_CRACMM2( 13) / 'VROCP5ARO       ',  190.33   / 
+      DATA  MECH_SPC_CRACMM2( 14), MECH_MWT_CRACMM2( 14) / 'VROCP1OXY1      ',  270.50   /
+      DATA  MECH_SPC_CRACMM2( 15), MECH_MWT_CRACMM2( 15) / 'VROCP1OXY3      ',  202.30   /
+      DATA  MECH_SPC_CRACMM2( 16), MECH_MWT_CRACMM2( 16) / 'VROCP2OXY2      ',  200.30   / 
+      DATA  MECH_SPC_CRACMM2( 17), MECH_MWT_CRACMM2( 17) / 'VROCP4ALK       ',  254.50   / 
+      DATA  MECH_SPC_CRACMM2( 18), MECH_MWT_CRACMM2( 18) / 'VROCP5OXY1      ',  170.30   /
+      DATA  MECH_SPC_CRACMM2( 19), MECH_MWT_CRACMM2( 19) / 'MOH             ',  32.00    /
+      DATA  MECH_SPC_CRACMM2( 20), MECH_MWT_CRACMM2( 20) / 'ACT             ',  58.00    /
+      DATA  MECH_SPC_CRACMM2( 21), MECH_MWT_CRACMM2( 21) / 'ACD             ',  44.00    /
+      DATA  MECH_SPC_CRACMM2( 22), MECH_MWT_CRACMM2( 22) / 'EOH             ',  46.10    /
+      DATA  MECH_SPC_CRACMM2( 23), MECH_MWT_CRACMM2( 23) / 'ORA2            ',  60.20    /
+      DATA  MECH_SPC_CRACMM2( 24), MECH_MWT_CRACMM2( 24) / 'ORA1            ',  46.00    /
+      DATA  MECH_SPC_CRACMM2( 25), MECH_MWT_CRACMM2( 25) / 'OLI             ',  70.10    /
+      DATA  MECH_SPC_CRACMM2( 26), MECH_MWT_CRACMM2( 26) / 'ETH             ',  30.10    /
+      DATA  MECH_SPC_CRACMM2( 27), MECH_MWT_CRACMM2( 27) / 'ETE             ',  28.10    /
+      DATA  MECH_SPC_CRACMM2( 28), MECH_MWT_CRACMM2( 28) / 'ALD             ',  58.00    /
+      DATA  MECH_SPC_CRACMM2( 29), MECH_MWT_CRACMM2( 29) / 'UALD            ',  84.10    /
+      DATA  MECH_SPC_CRACMM2( 30), MECH_MWT_CRACMM2( 30) / 'HCHO            ',  30.00    /
+      DATA  MECH_SPC_CRACMM2( 31), MECH_MWT_CRACMM2( 31) / 'MGLY            ',  72.00    /
+      DATA  MECH_SPC_CRACMM2( 32), MECH_MWT_CRACMM2( 32) / 'ROH             ',  60.00    /
+      DATA  MECH_SPC_CRACMM2( 33), MECH_MWT_CRACMM2( 33) / 'BALD            ',  106.00   /
+      DATA  MECH_SPC_CRACMM2( 34), MECH_MWT_CRACMM2( 34) / 'BEN             ',  78.11    /
+      DATA  MECH_SPC_CRACMM2( 35), MECH_MWT_CRACMM2( 35) / 'CSL             ',  136.20   /
+      DATA  MECH_SPC_CRACMM2( 36), MECH_MWT_CRACMM2( 36) / 'HC10            ',  142.28   / 
+      DATA  MECH_SPC_CRACMM2( 37), MECH_MWT_CRACMM2( 37) / 'SLOWROC         ',  75.40    /
+      DATA  MECH_SPC_CRACMM2( 38), MECH_MWT_CRACMM2( 38) / 'MACR            ',  70.00    /
+      DATA  MECH_SPC_CRACMM2( 39), MECH_MWT_CRACMM2( 39) / 'MVK             ',  70.10    /
+      DATA  MECH_SPC_CRACMM2( 40), MECH_MWT_CRACMM2( 40) / 'PHEN            ',  110.10   /
+      DATA  MECH_SPC_CRACMM2( 41), MECH_MWT_CRACMM2( 41) / 'TOL             ',  92.14    / 
+      DATA  MECH_SPC_CRACMM2( 42), MECH_MWT_CRACMM2( 42) / 'MEK             ',  72.10    /
+      DATA  MECH_SPC_CRACMM2( 43), MECH_MWT_CRACMM2( 43) / 'HC5             ',  72.10    /
+      DATA  MECH_SPC_CRACMM2( 44), MECH_MWT_CRACMM2( 44) / 'NO              ',  30.00    /
+      DATA  MECH_SPC_CRACMM2( 45), MECH_MWT_CRACMM2( 45) / 'ECH4            ',  16.04    /
+      DATA  MECH_SPC_CRACMM2( 46), MECH_MWT_CRACMM2( 46) / 'CO              ',  28.01    /

@@ -176,6 +176,7 @@
       REAL    :: GEAR_CONC_FLOOR = 1.0E-12 ! Lowest Concentration used determing ATOL in Gear Solver (ppmV)
       REAL    :: GLBL_ATOL = 1.0E-7        ! Absolute Tolerance for Rosenbrock Solver (ppmV)
       REAL    :: GLBL_RTOL = 1.0E-3        ! Relative Tolerance for Rosenbrock Solver
+      LOGICAL :: LPVO3     = .FALSE.       ! Activate Potential Vorticity Module (default=False)
 
       ! Aerosols
       LOGICAL :: IC_AERO_M2WET=.FALSE.! flag for specifying wet aerosol size parameters 
@@ -410,7 +411,7 @@
 
       ! Retrieve the domain decomposition processor array
       IF ( NPROCS .GT. 1 ) THEN
-         CALL GET_ENV ( 'NPCOL_NPROW', NV, V_LIST2, VARDEV )
+         CALL GET_ENVLIST ( 'NPCOL_NPROW', NV, V_LIST2, VARDEV )
          IF ( NV .NE. 2 ) THEN
             XMSG = 'Environment variable problem for NPCOL_NPROW'
      &           // ' using default 1X1'
@@ -455,13 +456,13 @@
       CALL GET_ENV ( END_TIME, 'AVG_FILE_ENDTIME', END_TIME, VARDEV )
       
       ! ACONC File Species List
-      CALL GET_ENV ( 'AVG_CONC_SPCS', N_ACONC_VARS, ACONC_FILE_SPCS, VARDEV )
+      CALL GET_ENVLIST ( 'AVG_CONC_SPCS', N_ACONC_VARS, ACONC_FILE_SPCS, VARDEV )
 
       ! CONC File Species List 
-      CALL GET_ENV ( 'CONC_SPCS', N_CONC_VARS, CONC_FILE_SPCS, VARDEV )
+      CALL GET_ENVLIST ( 'CONC_SPCS', N_CONC_VARS, CONC_FILE_SPCS, VARDEV )
  
       ! ACONC Layer Specification
-      CALL GET_ENV ( 'ACONC_BLEV_ELEV', NV, V_LIST2, VARDEV )
+      CALL GET_ENVLIST ( 'ACONC_BLEV_ELEV', NV, V_LIST2, VARDEV )
       IF ( NV .LE. 0 ) THEN   ! assume 1:NLAYS
          ACONC_BLEV = 1
          ACONC_ELEV = -1
@@ -477,7 +478,7 @@
       END IF
   
       ! CONC File Vertical Layer Range and Speciation
-      CALL GET_ENV ( 'CONC_BLEV_ELEV', NV, V_LIST2, VARDEV )
+      CALL GET_ENVLIST ( 'CONC_BLEV_ELEV', NV, V_LIST2, VARDEV )
       IF ( NV .LE. 0 ) THEN   ! assume 1:NLAYS
          CONC_BLEV = 1
          CONC_ELEV = -1
@@ -538,7 +539,7 @@
       CALL GET_ENV ( ISAM_NEW_START, 'ISAM_NEW_START', ISAM_NEW_START, VARDEV )
     
       ! SA_ACONC Layer Specification
-      CALL GET_ENV ( 'AISAM_BLEV_ELEV', NV, V_LIST2, VARDEV )
+      CALL GET_ENVLIST ( 'AISAM_BLEV_ELEV', NV, V_LIST2, VARDEV )
       IF ( NV .LE. 0 ) THEN   ! assume 1:NLAYS
          AISAM_BLEV = 1
          AISAM_ELEV = -1
@@ -554,7 +555,7 @@
       END IF
 
       ! SA_CONC File Vertical Layer Range and Speciation
-      CALL GET_ENV ( 'ISAM_BLEV_ELEV', NV, V_LIST2, VARDEV )
+      CALL GET_ENVLIST ( 'ISAM_BLEV_ELEV', NV, V_LIST2, VARDEV )
       IF ( NV .LE. 0 ) THEN   ! assume 1:NLAYS
          ISAM_BLEV = 1
          ISAM_ELEV = -1
@@ -622,7 +623,7 @@
          CALL GET_ENV ( NLAYS_DIAG, 'NLAYS_PHOTDIAG', NLAYS_DIAG, VARDEV )
 
       ! Get Desired Wavelengths for Diagnostic Output
-        CALL GET_ENV( 'NWAVE_PHOTDIAG', NWAVE, WAVE_ENV, VARDEV )
+        CALL GET_ENVLIST( 'NWAVE_PHOTDIAG', NWAVE, WAVE_ENV, VARDEV )
       END IF  
 
       CALL GET_ENV ( AEROSOL_OPTICS, 'AEROSOL_OPTICS', AEROSOL_OPTICS, VARDEV )
@@ -658,6 +659,9 @@
 
       ! Absolute Tolerance for RB Solver
       CALL GET_ENV ( GLBL_ATOL, 'RB_ATOL', GLBL_ATOL, VARDEV )
+      
+      ! Get option for scaling ozone in free-troposphere to potential vorticity
+      CALL GET_ENV ( LPVO3, 'CTM_PVO3', LPVO3, VARDEV )
  
       !-------------------------------------------------------------------------------------------------------
       !>> Aerosols
@@ -923,7 +927,7 @@
       CALL GET_ENV ( PROCAN, 'CTM_PROCAN', PROCAN, VARDEV )
        
       ! Get the Beginning and Ending Columns for Process Analysis
-      CALL GET_ENV ( 'PA_BCOL_ECOL', NV, V_LIST2, VARDEV )
+      CALL GET_ENVLIST ( 'PA_BCOL_ECOL', NV, V_LIST2, VARDEV )
       IF ( NV .LE. 0 ) THEN   
          PA_BEGCOL = 1; PA_ENDCOL = 0
       ELSE IF ( NV .EQ. 2 ) THEN
@@ -935,7 +939,7 @@
       END IF
 
       ! Get the Beginning and Ending Rows for Process Analysis
-      CALL GET_ENV ( 'PA_BROW_EROW', NV, V_LIST2, VARDEV )
+      CALL GET_ENVLIST ( 'PA_BROW_EROW', NV, V_LIST2, VARDEV )
       IF ( NV .LE. 0 ) THEN   
          PA_BEGROW = 1; PA_ENDROW = 0
       ELSE IF ( NV .EQ. 2 ) THEN
@@ -947,7 +951,7 @@
       END IF
 
       ! Get the Beginning and Ending Layers for Process Analysis
-      CALL GET_ENV ( 'PA_BLEV_ELEV', NV, V_LIST2, VARDEV )
+      CALL GET_ENVLIST ( 'PA_BLEV_ELEV', NV, V_LIST2, VARDEV )
       IF ( NV .LE. 0 ) THEN  
          PA_BEGLEV = 1; PA_ENDLEV = 0
       ELSE IF ( NV .EQ. 2 ) THEN

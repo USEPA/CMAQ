@@ -35,7 +35,7 @@ C     Prakash Bhave, Jeff Young, and Sergey Napelenok.
 
 C HS = Heather Simon; GS = Golam Sarwar; SH = Steve Howard; SR = Shawn Roselle;
 C JY = Jeff Young; HOTP = Havala Pye; KF = Kathleen Fahey, CGN = Chris Nolte;
-C PL = Peng Liu; BM = Ben Murphy; BH = Bill Hutzell
+C PL = Peng Liu; BM = Ben Murphy; BH = Bill Hutzell, NS = Nash Skipper
 
 C HS  01/24/11 Updated to initial AERO6; PMOTHR -> 9 species
 C GS  03/02/11 Revised parameters for Mg, K, and Ca
@@ -83,6 +83,7 @@ C SLN 12/30/2019 ddm-3d implementaiton for v 5.3.1
 C     10 Mar 2021 G. Sarwar: Changed CB6R3M_AE7_KMTBR to CB6R3M_AE7_AQ
 C     10 June 2021 G. Sarwar: Added CB6R5M_AE7_AQ
 C 23 Jun 21 G. Sarwar: Replaced CB6R3M with CB6R5M
+C NS 11/28/2023 CRACMM2 updates
 
 C References:
 C 1. Eddingsaas, N. C., Vandervelde, D. G., Wennberg, P. O., "Kinetics and
@@ -133,7 +134,7 @@ C Define Logical values as T and F for the aerospc table
 
 C Number of aerosol species and modes
 
-      Integer, Parameter :: n_aerolist = 135    ! number of aero species
+      Integer, Parameter :: n_aerolist = 139    ! number of aero species
       Integer, Parameter :: n_mode = 3          ! number of modes:
       Integer, Parameter :: iait = 1            ! 1 = Aitken       
       Integer, Parameter :: iacc = 2            ! 2 = accumulation 
@@ -395,7 +396,13 @@ C                     ---------- - - - ------- ------- ---------- --------- ----
      & spcs_list_type('OSO4AQPAA ',T,T,T,cm_set,1800.0, '       ','       ',0.0  ,'NVL',F,T,  0,  0.0, 0.0,F, 'SOLUTE', 0.00), ! SO4 from aqueous PAA rxn loss to organosulfate
      & spcs_list_type('OSO4GAS   ',T,T,T,cm_set,1800.0, '       ','       ',0.0  ,'NVL',F,T,  0,  0.0, 0.0,F, 'SOLUTE', 0.00), ! SO4 from gas rxn loss to organosulfate
      & spcs_list_type('OSO4EMIS  ',T,T,T,cm_set,1800.0, '       ','       ',0.0  ,'NVL',F,T,  0,  0.0, 0.0,F, 'SOLUTE', 0.00), ! SO4 from emitted SO4 loss to organosulfate
-     & spcs_list_type('OSO4ICBC  ',T,T,T,cm_set,1800.0, '       ','       ',0.0  ,'NVL',F,T,  0,  0.0, 0.0,F, 'SOLUTE', 0.00)  ! SO4 from ICBCs loss to organosulfate
+     & spcs_list_type('OSO4ICBC  ',T,T,T,cm_set,1800.0, '       ','       ',0.0  ,'NVL',F,T,  0,  0.0, 0.0,F, 'SOLUTE', 0.00), ! SO4 from ICBCs loss to organosulfate
+     
+      ! The following species are associated with CRACMM2
+     & spcs_list_type('AISO4   ',F,T,F, cm_set, 1400.0, '       ','       ',0.0  ,'NVL',F,F,  0,  2.8, 6.1,T, 'DUST  ', 0.21), ! from heterogeneous uptake of IPX
+     & spcs_list_type('AISO5   ',F,T,F, cm_set, 1400.0, '       ','       ',0.0  ,'NVL',F,F,  0,  2.8, 6.1,T, 'DUST  ', 0.18), ! from heterogeneous uptake of INALD
+     & spcs_list_type('ATRPN   ',F,T,F, cm_set, 1400.0, '       ','       ',0.0  ,'REV',F,F,  0,  2.8, 6.1,T, 'DUST  ', 0.10), ! SOA from first generation monoterpene nitrate
+     & spcs_list_type('AHONIT  ',F,T,F, cm_set, 1400.0, '       ','       ',0.0  ,'REV',F,F,  0,  2.8, 6.1,T, 'DUST  ', 0.14)  ! SOA from second generation monoterpene nitrate
      & /)                                                 
  
 ! Define Reference Emissions Size Distributions
@@ -1202,6 +1209,7 @@ C AORGH2O is not required, but highly recommended for aero7
          aso4icbc_idx   = findAero( req_so4icbc,   .True. )
          If ( ( ae6isoa ) .OR.
      &        ( Index( mechname, 'CRACMM1_'        ) .Gt. 0 ) .OR.
+     &        ( Index( mechname, 'CRACMM2'         ) .Gt. 0 ) .OR.
      &        ( Index( mechname, 'CRACMM1AMORE_'   ) .Gt. 0 ) .OR.
      &        ( Index( mechname, 'CB6R3_AE7'       ) .Gt. 0 ) .OR.
      &        ( Index( mechname, 'CB6R5_AE7'       ) .Gt. 0 ) .OR.
@@ -1897,7 +1905,7 @@ C Local variables:
          AER_PAR ( 1, IMODE, 8 ) = 0.    
 
          ! Begin Checking Aerosol Parameters. 
-         IF ( M3DRY .LT. 1.0e-30 .OR. M3WET .LT. 1.0e-30 ) THEN
+         IF ( M3DRY .LT. 1.1e-30 .OR. M3WET .LT. 1.1e-30 ) THEN
              ! Dry or Wet Mass is below limit -> reset distribution
              LSTAT( IMODE ) = 11
 
@@ -1906,7 +1914,7 @@ C Local variables:
              IF ( IS_BC ) THEN
                 DO IT = 1,N_AE_TRNS
                   IF ( L_AETR_MODE( IMODE,IT ) .AND. L_AETR_MASS( IT ) ) 
-     &               IBCON(IT) = MAX( IBCON(IT), CONMIN )
+     &               IBCON(IT) = MAX( IBCON(IT), CONMIND )
                 END DO
                 M3DRY = SUM( IBCON( : ) * REAL(AEROCGRID_RHOINV * F6PI,8), 
      &                       MASK = ( L_AETR_MASS .AND. L_AETR_MODE( IMODE,: )  
@@ -1916,7 +1924,7 @@ C Local variables:
              ELSE
                 DO IS = 1,N_AE_SPC
                   IF ( L_AESP_MODE( IMODE,IS ) .AND. L_AESP_MASS( IS ) ) 
-     &               IBCON(IS) = MAX( IBCON(IS), CONMIN )
+     &               IBCON(IS) = MAX( IBCON(IS), CONMIND )
                 END DO
                 M3DRY = SUM( IBCON( : ) * REAL(AEROCGRID_RHOINV * F6PI,8), 
      &                       MASK = ( L_AESP_MASS .AND. L_AESP_MODE( IMODE,: )  
@@ -1935,7 +1943,7 @@ C Local variables:
              DGWET = ( M3WET / NUM * EXP( -4.5 * L2SG ) )  ** ( ONE_THIRD )
              M2WET = EXP( ONE_THIRD * LOG( NUM ) + TWO_THIRDS * LOG( M3WET ) - L2SG )
 
-         ELSE IF ( NUM .LT. 1.0e-30 ) THEN
+         ELSE IF ( NUM .LT. 1.1e-30 ) THEN
              ! Number is below limit -> reset Num and Surf with
              !  default dry diameter and default standard deviation
              LSTAT( IMODE ) = 12
@@ -1950,7 +1958,7 @@ C Local variables:
              DGWET = ( M3WET / NUM * EXP( -4.5 * L2SG ) )  ** ( ONE_THIRD )
              M2WET = EXP( ONE_THIRD * LOG( NUM ) + TWO_THIRDS * LOG( M3WET ) - L2SG )
 
-         ELSE IF ( M2 .LT. 1.0e-30 .OR. .NOT. USE_M2 ) THEN                
+         ELSE IF ( M2 .LT. 1.1e-30 .OR. .NOT. USE_M2 ) THEN                
              ! Mass and Number are valid. Surface area is either invalid
              ! or the user has issued an override. The mass and number
              ! concentrations specify the dry and wet diameters, and the

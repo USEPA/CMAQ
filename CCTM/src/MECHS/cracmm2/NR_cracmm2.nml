@@ -1,0 +1,8 @@
+&NR_nml
+
+NR_SPECIES_DATA = 
+
+!SPECIES         ,MOLWT   ,IC     ,IC_FAC  ,BC     ,BC_FAC ,DRYDEP SURR       ,FAC  ,WET-SCAV SURR     ,FAC ,NR2AE SURR     ,NR2AQ SURR,TRNS  ,DDEP  ,WDEP  ,CONC ,!RepCmp,ExplicitorLumped,DTXSID,SMILES
+'NH3'            , 17.0   ,''     ,-1      ,''     ,-1     ,'VD_NH3'          , 1   ,'NH3'             , 1  ,'NH3'          ,'NH3'     ,'Yes' ,'Yes' ,'Yes' ,'Yes',!Ammonia,E,DTXSID0023872,N
+'HCL'            , 36.0   ,''     ,-1      ,''     ,-1     ,'VD_HCL'          , 1   ,'HCL'             , 1  ,'HCL'          ,'HCL'     ,'Yes' ,'Yes' ,'Yes' ,'Yes',!Hydrochloric acid,E,DTXSID2020711,Cl
+/

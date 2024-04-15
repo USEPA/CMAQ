@@ -35,7 +35,7 @@ echo 'Start Model Run At ' `date`
 #> Set General Parameters for Configuring the Simulation
  set VRSN      = v54               #> Code Version
  set PROC      = mpi               #> serial or mpi
- set MECH      = cracmm1_aq        #> Mechanism ID
+ set MECH      = cracmm2           #> Mechanism ID
  set EMIS      = 2018ff            #> Emission Inventory Details
  set APPL      = 4LISTOS1          #> Application Name (e.g. Gridname)
                                                        
@@ -165,6 +165,9 @@ setenv CTM_HGBIDI N          #> mercury bi-directional flux for in-line depositi
                              #>    velocities [ default: N ]
 setenv CTM_SFC_HONO Y        #> surface HONO interaction [ default: Y ]
 setenv CTM_GRAV_SETL Y       #> vdiff aerosol gravitational sedimentation [ default: Y ]
+setenv CTM_PVO3 N            #> consider potential vorticity module for O3 transport from the stratosphere
+                             #>    [default: N]
+
 setenv CTM_BIOGEMIS_BE Y     #> calculate in-line biogenic emissions [ default: N ]
 setenv CTM_BIOGEMIS_MG N     #> turns on MEGAN biogenic emission [ default: N ]
 setenv USE_MEGAN_LAI N       #> use separate LAI input file [ default: N ]

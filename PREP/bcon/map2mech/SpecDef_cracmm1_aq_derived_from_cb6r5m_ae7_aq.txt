@@ -15,11 +15,11 @@
 
 PRES            ,Pa              ,PRES[1], CRACMM mapping of PRES
 
-TA              ,m               ,TA[1], CRACMM mapping of ZH
+TA              ,K               ,TA[1], CRACMM mapping of TA
 
-RH              ,m               ,RH[1], CRACMM mapping of ZF
+RH              ,1               ,RH[1], CRACMM mapping of RH
 
-W_VEL           ,m               ,W_VEL[1], CRACMM mapping of ZF
+W_VEL           ,m s-1           ,W_VEL[1], CRACMM mapping of W_VEL
 
 NO2             ,ppmV            ,NO2[1], CRACMM mapping of NO2
 
@@ -149,7 +149,7 @@ TOL             ,ppmV            ,TOL[1], CRACMM mapping of TOL
 
 TOLP            ,ppmV            ,TO2[1], CRACMM mapping of TO2
 
-XYM             ,ppmV            ,XYLMN[1]*0.70, CRACCM splitting of XYLMN based on emissions
+XYM             ,ppmV            ,XYLMN[1]*0.70, CRACMM splitting of XYLMN based on emissions
 
 XYE             ,ppmV            ,XYLMN[1]*0.30, CRACMM splitting of XYLMN based on emissions
 
@@ -327,4 +327,4 @@ NH3             ,ppmV            ,NH3[1], CRACMM mapping of NH3
 
 HCL             ,ppmV            ,HCL[1], CRACMM mapping of HCL
 
-VROCP1OXY       ,ppmV            ,SVSQT[1], CRACMM mapping of SVSQT
+VROCP1OXY3      ,ppmV            ,SVSQT[1], CRACMM mapping of SVSQT

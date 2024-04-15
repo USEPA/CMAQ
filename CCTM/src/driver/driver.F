@@ -219,7 +219,7 @@ C Local variables:
       REAL    DIVFAC      ! trapezoidal average factor
 
       LOGICAL, SAVE :: FIRST_RUN = .TRUE.  ! used for twoway model
-      LOGICAL       :: WFLG                ! turn on write subdmap in pio_init
+      LOGICAL       :: WFLG = .TRUE.       ! turn on write subdmap in pio_init
 
       INTEGER, SAVE :: myNREPS = 0
       INTEGER       :: STATUS
@@ -725,6 +725,8 @@ C Get synchronization and advection time steps, TSTEP(2), ASTEP(L) and NREPS
 #endif if
          END DO
 #ifdef isam
+            IF ( AISAM_ELEV .EQ. -1 ) AISAM_ELEV = NLAYS
+
             DO ITAG = 1, NTAG_SA ! average isam
                DO V = 1, NSPC_SA
                   L = 0

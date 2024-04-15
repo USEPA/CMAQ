@@ -21,7 +21,7 @@ C RCS file, release, date & time of last delta, author, state, [and locker]
 C $Header: /project/work/rep/arc/CCTM/src/depv/m3dry/m3dry.F,v 1.12 2012/01/19 14:19:43 yoj Exp $
 
 C::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-      SUBROUTINE m3dry ( jdate, jtime, dtsec, cgridl1, depvel_gas, pvd, nh3_emis)
+      SUBROUTINE m3dry ( jdate, jtime, dtsec, cgridl1, depvel_gas, pvd, nh3_ddep)
 
 C-------------------------------------------------------------------------------
 C Name:     Models-3 Dry Deposition
@@ -190,7 +190,7 @@ C Arguments:
       REAL,        INTENT( IN )  :: cgridl1( :,:,: )    ! layer 1 concentrations
       REAL,        INTENT( OUT ) :: depvel_gas( :,:,: )
       REAL,        INTENT( OUT ) :: pvd( :,:,: )
-      REAL,        INTENT( OUT ) :: nh3_emis(:,:)
+      REAL,        INTENT( OUT ) :: nh3_ddep(:,:)
 
 C Local Variables:
 
@@ -239,7 +239,7 @@ C Local Variables:
       REAL                       :: rh_func              ! Simple RH function for the development of a water film on leaf cuticles 
       Real,            Parameter :: MolNH3   = 17.01     ! g/mol NH3  for NH3 bidi to convert to microg/m3
       Real,            Parameter :: MolAir   = 29.97     ! g/mol dry air
-      Real                       :: cnh3,tpvd,lnh3,femis
+      Real                       :: cnh3,tpvd,lnh3,femis,fdep
 
       REAL,    SAVE, ALLOCATABLE :: delta     ( :,: )
 
@@ -512,7 +512,8 @@ C-------------------------------------------------------------------------------
 
             n = n + 1
 
-            IF ( ( NINT(GRID_DATA%LWMASK( c,r )) .EQ. 0 ) .OR. ( vegcr .EQ. 0.0 ) ) THEN  ! water
+!            IF ( ( NINT(GRID_DATA%LWMASK( c,r )) .EQ. 0 ) .OR. ( vegcr .EQ. 0.0 ) ) THEN  ! water
+            IF ( NINT(GRID_DATA%LWMASK( c,r )) .EQ. 0 ) THEN  ! water
 
                IF ( l .EQ. l_HG ) THEN  ! elemental mercury gas
 ! calculate and save Henry's constant for use in HGSIM
@@ -616,7 +617,7 @@ c        Iodide in sea-water based on SST  (mol /dm-3)
                   rcut = rcut0 * a0 / ar( l ) * ( 1.0 -rh_func) + rwetsfc * rh_func
                ELSE IF ( l .Eq. l_NH3 ) THEN
          !        rcut = 4000.0 * EXP( -0.054 * MET_DATA%RH( c,r ) )
-                  rcut = rwetsfc + 100.0-max(MET_DATA%RH2( c,r ),60.0) ! consistant with bidi
+                  rcut = rwetsfc + (100.0-max(MET_DATA%RH2( c,r ),60.0))*laicr ! consistant with bidi
                ELSE 
                   rcut = rcut0 * a0 / ar( l )
                END IF
@@ -691,13 +692,14 @@ C--------------------------------------------------------------------------
                IF ( NINT( GRID_DATA%LWMASK( c,r ) ) .NE. 0 .and. ifsnow .EQ. 0 ) THEN  ! land
 
                   CALL Get_Flux( cnh3,rwetsfc,rgw,r,c,l,tpvd,lnh3, rbc, rinc, 
-     >                           rstom, delta(c,r),rgnd,femis )
+     >                           rstom, delta(c,r),rgnd,femis,fdep )
                    pvd( n,c,r ) = tpvd * 0.001 * MolAir / (MolNH3 * Met_Data%DENS1( C,R ))
-                   nh3_emis(c,r) = nh3_emis(c,r) + femis * dtsec * 1.0e-5  ! convert from microg/m2  to kg/ha
+                   nh3_ddep(c,r) = nh3_ddep(c,r) + fdep * dtsec * 1.0e-5  ! convert from microg/m2  to kg/ha
+!                   nh3_emis(c,r) =  nh3_emis(c,r) + depvel_gas( n,c,r ) * cnh3* dtsec * 1.0e-5
                    depvel_gas( n,c,r ) = lnh3
                ELSE   ! water or snow covered
 !                   ddep_nh3(c,r) = ddep_nh3(c,r) + depvel_gas( n,c,r ) * cnh3 * dt(2) * 1.0e-5
-                   nh3_emis(c,r) = 0.0
+                   nh3_ddep(c,r) = nh3_ddep(c,r) + depvel_gas( n,c,r ) * cnh3* dtsec * 1.0e-5
                END IF
             END IF   ! 'abflux'
 

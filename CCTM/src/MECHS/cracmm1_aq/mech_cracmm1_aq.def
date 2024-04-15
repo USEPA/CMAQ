@@ -425,7 +425,7 @@ REACTIONS[CM] =
                                         + 0.04*HO2
                                         + 0.20*CO     # 8.30E-18;
 <TRP09> TRPN  + O3         = HOM                      # 1.67E-16;
-<R132>  MACR + O3          = 0.19*HO    + 0.14*HO2
+<R133>  MACR + O3          = 0.19*HO    + 0.14*HO2
                                         + 0.10*ACO3 
                                         + 0.22*CO
                                         + 0.50*MGLY 
