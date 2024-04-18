@@ -86,10 +86,14 @@ def shp2cmaq(
 
     if prefix is None:
         prefix = f'{attrkey}_'
+    prefix = prefix.upper()
 
     if outpath is None:
-        rootname = os.path.splitext(os.path.basename(shppath))[0]
-        outpath = f'./{rootname}.{attrkey}.{gdnam}.IOAPI.nc'
+        if isinstance(shppath, str):
+            rootname = os.path.splitext(os.path.basename(shppath))[0]
+            outpath = f'./{rootname}.{attrkey}.{gdnam}.IOAPI.nc'
+        else:
+            raise ValueError('outpath is required when shppath is not a string.')
 
     if os.path.exists(outpath):
         if overwrite:
@@ -111,7 +115,16 @@ def shp2cmaq(
         bbox = gf.csp.geodf.envelope.to_crs(
             bcrs
         ).unary_union.envelope.buffer(1).bounds
-    shpf = gpd.read_file(shppath, bbox=bbox)
+
+    if isinstance(shppath, str):
+        shpf = gpd.read_file(shppath, bbox=bbox)
+    elif isinstance(shppath, gpd.GeoDataFrame):
+        shpf = shppath
+    else:
+        raise TypeError(
+            'shppath must be a path to a polygon file or a geopandas.'
+            + f'GeoDataFrame; got {type(shppath)}'
+        )
     if srckey != 'intersection_area':
         if srckey not in shpf.columns:
             raise KeyError(f'Cannot find {srckey}; found {shpf.columns}')
@@ -130,7 +143,7 @@ def shp2cmaq(
     dshpf = shpf.to_crs(gf.csp.geodf.crs)
     attrdefn = f'{attrkey} removing spaces and special characters'
     # Derive custom key from another existing key
-    dshpf['custom'] = prefix + dshpf[attrkey]
+    dshpf['custom'] = prefix + dshpf[attrkey].astype(str)
     # Cleanup names using a few common rules
     dshpf['custom'] = dshpf['custom'].str.upper().str.replace('-', '_')
     dshpf['custom'] = dshpf['custom'].str.replace('~', '_')
@@ -229,7 +242,9 @@ def shp2cmaq(
     file_version: 1.0
     tool_version: {__version__}
     """.ljust(80*60)[:60*80]
-    os.makedirs(os.path.dirname(outpath), exist_ok=True)
+    outdir = os.path.dirname(outpath)
+    if outdir != '':
+        os.makedirs(outdir, exist_ok=True)
     igf.to_netcdf(outpath, format=outformat)
     return outpath
 
