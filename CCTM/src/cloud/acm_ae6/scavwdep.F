@@ -97,7 +97,7 @@ C Number of species in CGRID
       INTEGER, SAVE :: MXSPCS
 
 C Number of species scavenged
-      INTEGER, SAVE :: N_CGRID_SCAV
+      INTEGER, SAVE :: N_SPC_SCAV
 
       REAL, PARAMETER :: TWOTHIRDS = 2.0 / 3.0
 
@@ -128,9 +128,16 @@ C...........Local Variables:
       LOGICAL, SAVE :: FIRSTIME = .TRUE.   ! flag for first pass thru
       CHARACTER( 16 ), SAVE :: PNAME = 'SCAVWDEP'  ! program name
 
-      CHARACTER( 16 ), ALLOCATABLE, SAVE :: CGRID_SCAV( : )  ! CGRID species scavenged
-      INTEGER, ALLOCATABLE, SAVE :: CGRID_SCAV_MAP( : ) ! CGRID map to scavenged spc
-      REAL, ALLOCATABLE,    SAVE :: CGRID_SCAV_FAC( : )  ! CGRID scav coef factors
+      CHARACTER( 16 ), ALLOCATABLE, SAVE :: SCAV_SPC( : )  ! CGRID species scavenged
+      INTEGER, ALLOCATABLE, SAVE :: SCAV_MAP( : ) ! CGRID map to scavenged spc
+      REAL, ALLOCATABLE,    SAVE :: SCAV_FAC( : )  ! CGRID scav coef factors
+      LOGICAL, ALLOCATABLE, SAVE :: SCAV_MASK_GAS( : )   ! Mask for Gases on Scav list
+      LOGICAL, ALLOCATABLE, SAVE :: SCAV_MASK_AERO( : )  ! Mask for Aerosols on Scav list
+      LOGICAL, ALLOCATABLE, SAVE :: SCAV_MASK_AITKEN( : )! Mask for Aitken PM on Scav list
+      LOGICAL, ALLOCATABLE, SAVE :: SCAV_MASK_NUM( : )   ! Mask for Aero Number on Scav list
+      LOGICAL, ALLOCATABLE, SAVE :: SCAV_MASK_SRF( : )   ! Mask for Aero Surface on Scav list
+      LOGICAL, ALLOCATABLE, SAVE :: SCAV_MASK_NR( : )    ! Mask for Non-Reactives on Scav list
+      LOGICAL, ALLOCATABLE, SAVE :: SCAV_MASK_TRAC( : )  ! Mask for Tracers on Scav list
       INTEGER, ALLOCATABLE, SAVE :: L_NUMAKN( : ) ! pointers to aitken aerosol #
       INTEGER, ALLOCATABLE, SAVE :: L_MASAKN( : ) ! pointers to aitken aerosols
       INTEGER, ALLOCATABLE, SAVE :: L_SRFAKN( : ) ! pntrs to aitken aerosol surface area
@@ -171,23 +178,30 @@ C...  event-statistics variables.  Open output files.
 
         FIRSTIME = .FALSE.
 
-        N_CGRID_SCAV = N_GC_SCAV + N_AE_SCAV + N_NR_SCAV + N_TR_SCAV
+        N_SPC_SCAV = N_GC_SCAV + N_AE_SCAV + N_NR_SCAV + N_TR_SCAV
 
 C...first check to make sure that some species in CGRID were specified
 C...  for scavenging, otherwise notify the user and return
 
-        IF ( N_CGRID_SCAV .LE. 0 ) THEN
+        IF ( N_SPC_SCAV .LE. 0 ) THEN
           XMSG = 'No species were specified for scavenging by cloud ' //
      &           'or rain water...SCAVENGING WILL NOT BE PERFORMED!'
           CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
           RETURN
         END IF
 
-        ALLOCATE ( CGRID_SCAV    ( N_CGRID_SCAV ),
-     &             CGRID_SCAV_MAP( N_CGRID_SCAV ),
-     &             CGRID_SCAV_FAC( N_CGRID_SCAV ), STAT = ASTAT )
+        ALLOCATE ( SCAV_SPC( N_SPC_SCAV ),
+     &             SCAV_MAP( N_SPC_SCAV ),
+     &             SCAV_FAC( N_SPC_SCAV ),
+     &             SCAV_MASK_GAS( N_SPC_SCAV ),
+     &             SCAV_MASK_AERO( N_SPC_SCAV ),
+     &             SCAV_MASK_AITKEN( N_SPC_SCAV ),
+     &             SCAV_MASK_NUM( N_SPC_SCAV ),
+     &             SCAV_MASK_SRF( N_SPC_SCAV ),
+     &             SCAV_MASK_NR( N_SPC_SCAV ),
+     &             SCAV_MASK_TRAC( N_SPC_SCAV ), STAT = ASTAT )
         IF ( ASTAT .NE. 0 ) THEN
-          XMSG = 'Failure allocating CGRID_SCAV, CGRID_SCAV_MAP or CGRID_SCAV_FAC'
+          XMSG = 'Failure allocating SCAV_SPC, SCAV_MAP or SCAV_FAC'
           CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
         END IF
 
@@ -202,60 +216,71 @@ C...  for scavenging, otherwise notify the user and return
         END IF
 
 C...prepare indices for scavenged species
+        SCAV_SPC = ''
+        SCAV_MAP = 0
+        SCAV_FAC = 0
+        SCAV_MASK_GAS = .FALSE.
+        SCAV_MASK_AERO = .FALSE.
+        SCAV_MASK_AITKEN = .FALSE.
+        SCAV_MASK_NUM = .FALSE.
+        SCAV_MASK_SRF = .FALSE.
+        SCAV_MASK_NR = .FALSE.
+        SCAV_MASK_TRAC = .FALSE.
 
 C...  load the CGRID to scavenged species pointers for the gases
-
         SPC = 0
         DO VAR=1, N_GC_SCAV
           SPC = SPC + 1
-          CGRID_SCAV( SPC ) = GC_SCAV( VAR )
-          CGRID_SCAV_MAP( SPC ) = GC_SCAV_MAP( VAR ) + GC_STRT - 1
-          CGRID_SCAV_FAC( SPC ) = GC_SCAV_FAC( VAR )
+          SCAV_SPC( SPC ) = GC_SCAV( VAR )
+          SCAV_MAP( SPC ) = GC_SCAV_MAP( VAR ) + GC_STRT - 1
+          SCAV_FAC( SPC ) = GC_SCAV_FAC( VAR )
+          SCAV_MASK_GAS( SPC ) = .TRUE.
         END DO
 
 C...  load the CGRID to scavenged species pointers for the aerosols
 
         DO VAR=1, N_AE_SCAV
           SPC = SPC + 1
-          CGRID_SCAV( SPC ) = AE_SCAV( VAR )
-          CGRID_SCAV_MAP( SPC ) = AE_SCAV_MAP( VAR ) + AE_STRT - 1
-          CGRID_SCAV_FAC( SPC ) = AE_SCAV_FAC( VAR )
+          SCAV_SPC( SPC ) = AE_SCAV( VAR )
+          SCAV_MAP( SPC ) = AE_SCAV_MAP( VAR ) + AE_STRT - 1
+          SCAV_FAC( SPC ) = AE_SCAV_FAC( VAR )
+          IF ( INDEX( SCAV_SPC( SPC ), 'NUM' ) .NE. 0 ) SCAV_MASK_NUM( SPC ) = .TRUE.
+          IF ( INDEX( SCAV_SPC( SPC ), 'SRF' ) .NE. 0 ) SCAV_MASK_SRF( SPC ) = .TRUE.
+          IF ( INDEX( SCAV_SPC( SPC ), 'AITKEN' ) .NE. 0 ) SCAV_MASK_AITKEN( SPC ) = .TRUE.
+          SCAV_MASK_AERO( SPC ) = .TRUE.
         END DO
 
 C...  load the CGRID to scavenged species pointers for the non-reactives
 
         DO VAR=1, N_NR_SCAV
           SPC = SPC + 1
-          CGRID_SCAV( SPC ) = NR_SCAV( VAR )
-          CGRID_SCAV_MAP( SPC ) = NR_SCAV_MAP( VAR ) + NR_STRT - 1
-          CGRID_SCAV_FAC( SPC ) = NR_SCAV_FAC( VAR )
+          SCAV_SPC( SPC ) = NR_SCAV( VAR )
+          SCAV_MAP( SPC ) = NR_SCAV_MAP( VAR ) + NR_STRT - 1
+          SCAV_FAC( SPC ) = NR_SCAV_FAC( VAR )
+          SCAV_MASK_NR( SPC ) = .TRUE.
         END DO
 
 C...  load the CGRID to scavenged species pointers for the tracers
 
         DO VAR=1, N_TR_SCAV
           SPC = SPC + 1
-          CGRID_SCAV( SPC ) = TR_SCAV( VAR )
-          CGRID_SCAV_MAP( SPC ) = TR_SCAV_MAP( VAR ) + TR_STRT - 1
-          CGRID_SCAV_FAC( SPC ) = TR_SCAV_FAC( VAR )
+          SCAV_SPC( SPC ) = TR_SCAV( VAR )
+          SCAV_MAP( SPC ) = TR_SCAV_MAP( VAR ) + TR_STRT - 1
+          SCAV_FAC( SPC ) = TR_SCAV_FAC( VAR )
+          SCAV_MASK_TRAC( SPC ) = .TRUE.
         END DO
 
 C...create the pointers from CGRID to the species needed by AQCHEM
-
-        N_NUMAKN = INDEXN( 'NUM_AITKEN      ', N_CGRID_SCAV, CGRID_SCAV,
-     &                     L_NUMAKN )
-        N_MASAKN = INDEXN( 'AITKEN', N_CGRID_SCAV, CGRID_SCAV, L_MASAKN )
-        N_SRFAKN = INDEXN( 'SRF_AITKEN      ', N_CGRID_SCAV, CGRID_SCAV,
-     &                     L_SRFAKN )
+        N_NUMAKN = INDEXN( 'NUM_AITKEN', N_SPC_SCAV, SCAV_SPC, L_NUMAKN )
+        N_MASAKN = INDEXN( 'AITKEN    ', N_SPC_SCAV, SCAV_SPC, L_MASAKN )
+        N_SRFAKN = INDEXN( 'SRF_AITKEN', N_SPC_SCAV, SCAV_SPC, L_SRFAKN )
 
       END IF
 
 C...for subsequent calls, check to make sure some species were
 C...  specified, otherwise there is no need to perform scavenging
 
-      IF ( N_CGRID_SCAV .LE. 0 ) THEN
-        RETURN
-      END IF
+      IF ( N_SPC_SCAV .LE. 0 ) RETURN
 
       RTCH = ( MOLVOL / STDTEMP ) * TBARC
       TWASH = WTBAR * 1000.0 * CTHK1 * 3600.0
@@ -277,7 +302,7 @@ C...compute total Aitken mode number (#/m3)
       NUMAKN = 0.0
 
       DO I = 1, N_NUMAKN
-        PNTR = CGRID_SCAV_MAP( L_NUMAKN( I ) )
+        PNTR = SCAV_MAP( L_NUMAKN( I ) )
         NUMAKN = NUMAKN + ( POLC( PNTR ) * AIRM / CTHK1 )
       END DO
 
@@ -286,13 +311,13 @@ C...compute total Aitken mode mass (ug/m3)
       MASAKN_D = 0.0D0
 
       DO I = 1, N_MASAKN
-        PNTR = CGRID_SCAV_MAP( L_MASAKN( I ) )
-        IF (( INDEX( CGRID_SCAV( L_MASAKN( I ) ), 'NUM' ) .EQ. 0 ) .AND.
-     &      ( INDEX( CGRID_SCAV( L_MASAKN( I ) ), 'SRF' ) .EQ. 0 ) .AND.
-     &      ( INDEX( CGRID_SCAV( L_MASAKN( I ) ), 'H2O' ) .EQ. 0 ) .AND.
-     &      ( INDEX( CGRID_SCAV( L_MASAKN( I ) ), 'TRACER' ) .EQ. 0 ) ) THEN
+        PNTR = SCAV_MAP( L_MASAKN( I ) )
+        IF (( INDEX( SCAV_SPC( L_MASAKN( I ) ), 'NUM' ) .EQ. 0 ) .AND.
+     &      ( INDEX( SCAV_SPC( L_MASAKN( I ) ), 'SRF' ) .EQ. 0 ) .AND.
+     &      ( INDEX( SCAV_SPC( L_MASAKN( I ) ), 'H2O' ) .EQ. 0 ) .AND.
+     &      ( INDEX( SCAV_SPC( L_MASAKN( I ) ), 'TRACER' ) .EQ. 0 ) ) THEN
           MASAKN_D = MASAKN_D + REAL( ( POLC( PNTR ) * AIRM / CTHK1
-     &           * AE_MOLWT( PNTR - AE_STRT + 1 )),8) * 1.0D6 
+     &           * CGRID_MW( PNTR ) ),8 ) * 1.0D6
         END IF
       END DO
 
@@ -303,7 +328,7 @@ C...compute total Aitken mode surface area (m2/m3)
       SRFAKN = 0.0
 
       DO I = 1, N_SRFAKN
-        PNTR = CGRID_SCAV_MAP( L_SRFAKN( I ) )
+        PNTR = SCAV_MAP( L_SRFAKN( I ) )
         SRFAKN = SRFAKN + ( POLC( PNTR ) * AIRM / CTHK1 )
       END DO
 
@@ -317,129 +342,67 @@ C...         time, but it should be added in the future!
       CALL GETALPHA ( NUMAKN, MASAKN, SRFAKN, WCBAR, TBARC, PBARC,
      &                RHOAIR, ALFA0, ALFA2, ALFA3 )
 
-C...gas scavenging and wet deposition
-
+      ! Compute Wet Scavenging Removal
       SPC = 0
+      DO SPC = 1, N_SPC_SCAV
+        IF ( SCAV_MASK_GAS( SPC ) .OR.
+     &       SCAV_MASK_NR( SPC )  .OR.
+     &       SCAV_MASK_TRAC( SPC ) ) THEN
 
-      DO VAR = 1, N_GC_SCAV
-        SPC = SPC + 1
-        PNTR = CGRID_SCAV_MAP( SPC )
-        KH = HLCONST( CGRID_SCAV( SPC ), TBARC, .TRUE., HPLUS )
-        IF ( KH .GT. 0.0 ) THEN
-          ALFA = CGRID_SCAV_FAC( SPC ) * ONE_OVER_TWASH / ( 1.0 + TWF / KH )
-          CEND ( PNTR ) = POLC( PNTR ) * EXP( -ALFA * TAUCLD )
-          REMOV( PNTR ) = ( POLC( PNTR ) - CEND( PNTR ) ) * AIRM
+          ! Gases, Non-Reactives, and Tracers
+          PNTR = SCAV_MAP( SPC )
+          KH = HLCONST( SCAV_SPC( SPC ), TBARC, .TRUE., HPLUS )
+          IF ( KH .GT. 0.0 ) THEN
+            ALFA = SCAV_FAC( SPC ) * ONE_OVER_TWASH / ( 1.0 + TWF / KH )
+            CEND ( PNTR ) = POLC( PNTR ) * EXP( -ALFA * TAUCLD )
+            REMOV( PNTR ) = ( POLC( PNTR ) - CEND( PNTR ) ) * AIRM
 #ifdef sens
-          DO NP = 1, NPMAX
-            S_CEND ( NP, PNTR ) = S_POLC( NP, PNTR ) * EXP( -ALFA * TAUCLD )
-            S_REMOV( NP, PNTR ) = ( S_POLC( NP, PNTR ) - S_CEND( NP, PNTR ) ) * AIRM
-          END DO
+            DO NP = 1, NPMAX
+              S_CEND ( NP, PNTR ) = S_POLC( NP, PNTR ) * EXP( -ALFA * TAUCLD )
+              S_REMOV( NP, PNTR ) = ( S_POLC( NP, PNTR ) - S_CEND( NP, PNTR ) ) * AIRM
+            END DO
 #endif
-        ELSE
-          ALFA = 0.0
-          CEND ( PNTR ) = POLC( PNTR )
-          REMOV( PNTR ) = 0.0
-#ifdef sens
-          DO NP = 1, NPMAX
-            S_CEND( NP, PNTR )  = S_POLC( NP, PNTR )
-            S_REMOV( NP, PNTR ) = 0.0
-          END DO
-#endif
-        END IF
-      END DO
-
-C...aerosol scavenging and wet deposition
-
-      DO VAR = 1, N_AE_SCAV
-        SPC = SPC + 1
-
-        PNTR = CGRID_SCAV_MAP( SPC )
-
-        IF ( INDEX( CGRID_SCAV( SPC ), 'AITKEN' ) .GT. 0 ) THEN
-          IF ( INDEX( CGRID_SCAV( SPC ), 'NUM' ) .GT. 0 ) THEN
-            ALFA = CGRID_SCAV_FAC( SPC ) * ALFA0
-          ELSE IF ( INDEX( CGRID_SCAV( SPC ), 'SRF' ) .GT. 0 ) THEN
-            ALFA = CGRID_SCAV_FAC( SPC ) * ALFA2
           ELSE
-            ALFA = CGRID_SCAV_FAC( SPC ) * ALFA3
+            ALFA = 0.0
+            CEND ( PNTR ) = POLC( PNTR )
+            REMOV( PNTR ) = 0.0
+#ifdef sens
+            DO NP = 1, NPMAX
+              S_CEND( NP, PNTR )  = S_POLC( NP, PNTR )
+              S_REMOV( NP, PNTR ) = 0.0
+            END DO
+#endif
           END IF
-        ELSE
-csjr          IF ( INDEX( CGRID_SCAV( SPC ), 'SRF' ) .EQ. 0 ) THEN
-            ALFA = CGRID_SCAV_FAC( SPC ) * ONE_OVER_TWASH
-csjr          ELSE
-csjr            ALFA = CGRID_SCAV_FAC( SPC ) * TWOTHIRDS * ONE_OVER_TWASH
-csjr          END IF
-        END IF
-
-        CEND ( PNTR ) = POLC( PNTR ) * EXP( -ALFA * TAUCLD )
-        REMOV( PNTR ) = ( POLC( PNTR ) - CEND( PNTR ) ) * AIRM
-
-#ifdef sens
-        DO NP = 1, NPMAX
-          S_CEND ( NP,PNTR ) = S_POLC( NP,PNTR ) * EXP( -ALFA * TAUCLD )
-          S_REMOV( NP,PNTR ) = ( S_POLC( NP,PNTR ) - S_CEND( NP, PNTR ) ) * AIRM
-        ENDDO
-#endif
-
-      END DO
-
-C...non-reactive scavenging and wet deposition
-
-      DO VAR = 1, N_NR_SCAV
-        SPC = SPC + 1
-        PNTR = CGRID_SCAV_MAP( SPC )
-        KH = HLCONST( CGRID_SCAV( SPC ), TBARC, .TRUE., HPLUS )
-        IF ( KH .GT. 0.0 ) THEN
-          ALFA = CGRID_SCAV_FAC( SPC ) * ONE_OVER_TWASH / ( 1.0 + TWF / KH )
+        ELSE  
+          ! Aerosol scavenging and wet deposition
+          PNTR = SCAV_MAP( SPC )
+          IF ( SCAV_MASK_AITKEN( SPC ) ) THEN
+            ! Aitken Mode Particles
+            IF ( SCAV_MASK_NUM( SPC ) ) THEN
+              ! Aitken Number
+              ALFA = SCAV_FAC( SPC ) * ALFA0 
+            ELSE IF ( SCAV_MASK_SRF( SPC ) ) THEN
+              ! Aitken Surface Area
+              ALFA = SCAV_FAC( SPC ) * ALFA2
+            ELSE
+              ! Aitken Mass
+              ALFA = SCAV_FAC( SPC ) * ALFA3
+            END IF
+          ELSE
+            ! Accumulation and Coarse Number, Surface Area and Mass
+            ALFA = SCAV_FAC( SPC ) * ONE_OVER_TWASH
+          END IF
+      
           CEND ( PNTR ) = POLC( PNTR ) * EXP( -ALFA * TAUCLD )
           REMOV( PNTR ) = ( POLC( PNTR ) - CEND( PNTR ) ) * AIRM
+      
 #ifdef sens
           DO NP = 1, NPMAX
-            S_CEND ( NP, PNTR ) = S_POLC( NP,PNTR ) * EXP( -ALFA * TAUCLD )
-            S_REMOV( NP, PNTR ) = ( S_POLC( NP,PNTR ) - S_CEND( NP, PNTR ) ) * AIRM
-          END DO
-#endif
-        ELSE
-          ALFA = 0.0
-          CEND ( PNTR ) = POLC( PNTR )
-          REMOV( PNTR ) = 0.0
-#ifdef sens
-          DO NP = 1, NPMAX
-            S_CEND( NP, PNTR )  = S_POLC( NP, PNTR )
-            S_REMOV( NP, PNTR ) = 0.0
-          END DO
+            S_CEND ( NP,PNTR ) = S_POLC( NP,PNTR ) * EXP( -ALFA * TAUCLD )
+            S_REMOV( NP,PNTR ) = ( S_POLC( NP,PNTR ) - S_CEND( NP, PNTR ) ) * AIRM
+          ENDDO
 #endif
         END IF
       END DO
-
-C...tracer scavenging and wet deposition
-
-      DO VAR = 1, N_TR_SCAV
-        SPC = SPC + 1
-        PNTR = CGRID_SCAV_MAP( SPC )
-        KH = HLCONST( CGRID_SCAV( SPC ), TBARC, .TRUE., HPLUS )
-        IF ( KH .GT. 0.0 ) THEN
-          ALFA = CGRID_SCAV_FAC( SPC ) * ONE_OVER_TWASH / ( 1.0 + TWF / KH )
-          CEND ( PNTR ) = POLC( PNTR ) * EXP( -ALFA * TAUCLD )
-          REMOV( PNTR ) = ( POLC( PNTR ) - CEND( PNTR ) ) * AIRM
-#ifdef sens
-          DO NP = 1, NPMAX
-            S_CEND ( NP, PNTR ) = S_POLC( NP,PNTR ) * EXP( -ALFA * TAUCLD )
-            S_REMOV( NP, PNTR ) = ( S_POLC( NP,PNTR ) - S_CEND( NP, PNTR ) ) * AIRM
-          END DO
-#endif
-        ELSE
-          ALFA = 0.0
-          CEND ( PNTR ) = POLC( PNTR )
-          REMOV( PNTR ) = 0.0
-#ifdef sens
-          DO NP = 1, NPMAX
-            S_CEND( NP, PNTR )  = S_POLC( NP, PNTR )
-            S_REMOV( NP, PNTR ) = 0.0
-          END DO
-#endif
-        END IF
-      END DO
-
       RETURN
       END

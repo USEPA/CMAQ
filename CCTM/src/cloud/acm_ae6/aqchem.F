@@ -20,7 +20,7 @@
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE AQCHEM ( JDATE, JTIME, TEMP, PRES_PA, TAUCLD, PRCRATE,
      &                    WCAVG, WTAVG, AIRM, ALFA0, ALFA2, ALFA3, GAS,
-     &                    AEROSOL, GASWDEP, AERWDEP, HPWDEP, BETASO4, DARK,
+     &                    AEROSOL, GASWDEP, AERWDEP, HPWDEP, BETASO4, COSZ,
      &                    FRACTR, FRACPOA, FRACPRI, FRACSOA )
 
 C-----------------------------------------------------------------------
@@ -206,7 +206,7 @@ C...........Arguments:
       REAL( 8 ), INTENT( INOUT ) :: AEROSOL( :,: ) ! aerosol concentrations (mol/molV)
       REAL( 8 ), INTENT( INOUT ) :: GASWDEP( : )   ! gas phase wet deposition array (mm mol/liter)
       REAL( 8 ), INTENT( INOUT ) :: AERWDEP( :,: ) ! aerosol wet deposition array (mm mol/liter)
-      LOGICAL,   INTENT( IN )    :: DARK           ! DARK = TRUE is night,  DARK = FALSE is day
+      REAL,      INTENT( IN )    :: COSZ     ! cosine solar zenith angle
       REAL( 8 ), INTENT( OUT ) :: FRACTR    ! Fraction of J mode tracer scavenged from I mode 
       REAL( 8 ), INTENT( OUT ) :: FRACPOA   ! Fraction of J mode poa scavenged from I mode 
       REAL( 8 ), INTENT( OUT ) :: FRACPRI   ! Fraction of J mode pri scavenged from I mode 
@@ -216,6 +216,7 @@ C...........Arguments:
 C...........Local Variables (scalars):
 
       LOGICAL, SAVE :: FIRSTIME = .TRUE. ! flag for first pass thru
+      LOGICAL :: DARK
 
       CHARACTER( 16 ), SAVE :: PNAME = 'AQCHEM'             ! driver program name
       CHARACTER( 16 ), SAVE :: MGLYSUR = 'METHYL_GLYOXAL  ' ! Henry's law surrogate for MGLY
@@ -558,6 +559,14 @@ C...check for bad temperature, cloud air mass, or pressure
         XMSG = 'MET DATA ERROR'
         CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
       END IF
+
+C...  determine day or night from cosine of zenith angle for the cell; Golam Sarwar
+
+            IF ( COSZ .LE. 0.0 ) THEN
+              DARK = .TRUE.   ! night
+            ELSE
+              DARK = .FALSE.  ! day
+            END IF
 
 C...initialize counters and compute several conversion factors
 
