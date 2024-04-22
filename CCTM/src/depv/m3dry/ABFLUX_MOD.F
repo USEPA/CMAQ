@@ -271,7 +271,7 @@ C-------------------------------------------------------------------------------
 !------------------------------------------------------------------------------          
 
          Subroutine Get_Flux( cNH3, rwetsfc, rgw, r, c, l, pvd, lnh3,
-     &                         rb,rinc,rstom, delta,rgnd,femis)
+     &                         rb,rinc,rstom, delta,rgnd,femis,fdep)
          
          Use UTILIO_DEFN
          Use Bidi_Mod, Only: gamma1, gamma2, MHp1, MHp2
@@ -298,6 +298,7 @@ C-------------------------------------------------------------------------------
          Real,    Intent( OUT ) :: pvd
          Real,    Intent( OUT ) :: lnh3
          Real,    Intent( OUT ) :: femis
+         Real,    Intent( OUT ) :: fdep
          
          Real( 8 )              :: aq           ! Quadradic equation variable
          Real( 8 )              :: bq           ! Quadradic equation variable
@@ -470,6 +471,11 @@ C-------------------------------------------------------------------------------
            
 ! if the compensation point less than zero reset it to zero
             cnh3c = max( cnh3c, 0.0 )   
+!-- Compute deposition part assuming cnh3g and cnh3s = 0
+            qq    = ga * cnh3
+            bq    = rwmb * gt + MET_DATA%LAI( c,r ) * ( 1.0 - delta ) - rwx * qq
+            cq    = -rwmb * qq
+            cnh3cdep = (-bq + sqrt( bq**2 - 4.0d0 * aq * cq))/(2.0d0 * aq) 
 
 !-- compute emission component using cnh3c from bidi flux for Rcut
 !         rcut = rwm + rwx*(cnh3c+1.) + (100.0-max(MET_DATA%RH( c,r ),60.0) + Rb) * MET_DATA%LAI( c,r )
@@ -490,6 +496,7 @@ C-------------------------------------------------------------------------------
          pvd  = cnh3c * ga * MET_DATA%VEG( c,r )                  ! microg/m2/s
          lnh3  = vdg + MET_DATA%VEG( c,r ) * ( ga - vdg )
          femis  = ga*(cnh3cemis)*MET_DATA%VEG( c,r ) 
+         fdep = lnh3*cnh3 - ga*cnh3cdep*MET_DATA%VEG( c,r ) 
 
 !         if(r.eq.18.and.c.eq.27) then
 !            Write(Logdev,*) ' Bidi-Epic conc'

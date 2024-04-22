@@ -504,6 +504,13 @@ C Land use information:
       DATA subname(257), dif0(257), ar(257), meso(257), lebas(257) / 'ADIPIC_ACID     ',0.0489,    1.0,      0.0, 198.7/
       DATA subname(258), dif0(258), ar(258), meso(258), lebas(258) / 'IPNOPERA        ',0.0652,   86.6,      0.3, 104.8/ ! VD_IPN   
       DATA subname(259), dif0(259), ar(259), meso(259), lebas(259) / 'IPCOPERA        ',0.0687,    1.0,      0.3,  99.3/ ! VD_IPC       
+      DATA subname(260), dif0(260), ar(260), meso(260), lebas(260) / 'EBZOPERA        ',0.0636,    1.0,      0.0, 122.0/
+      DATA subname(261), dif0(261), ar(261), meso(261), lebas(261) / 'XYLOPERA        ',0.0636,    1.0,      0.0, 122.0/
+      DATA subname(262), dif0(262), ar(262), meso(262), lebas(262) / 'STYOPERA        ',0.0700,    1.0,      0.0, 115.4/
+      DATA subname(263), dif0(263), ar(263), meso(263), lebas(263) / 'IPXOPERA        ',0.0716,    1.0,      0.3,  99.3/
+      DATA subname(264), dif0(264), ar(264), meso(264), lebas(264) / 'INALDOPERA      ',0.0671,    1.0,      0.1,  78.0/
+      DATA subname(265), dif0(265), ar(265), meso(265), lebas(265) / '2NITRO_1BUTNL   ',0.0517,216903.,      0.1, 152.2/ ! HONIT
+
 
       CONTAINS
 

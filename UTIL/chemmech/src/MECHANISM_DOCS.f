@@ -3655,7 +3655,7 @@ C Create name for output file
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
   
       FWIKI_OUT_FILE = TRIM( OUTDIR ) // '/' // 
-     &                 TRIM( MECHNAME_LOWER_CASE )  // 'AllRxns.m'
+     &                 TRIM( MECHNAME_LOWER_CASE )  // '_AllRxns.m'
       KFILE_OUT_FILE = TRIM( OUTDIR ) // '/'
      &               // TRIM( MECHNAME_LOWER_CASE )  // '_K.m'
       JFILE_OUT_FILE = TRIM( OUTDIR ) // '/' 
