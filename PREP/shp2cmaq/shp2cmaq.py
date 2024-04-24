@@ -154,14 +154,35 @@ def shp2cmaq(
 
     # Warn about weird names
     allowed_ascii = string.ascii_uppercase + string.digits + '_'
+    anywarning = 0
     for cat in dshpf['custom']:
+        if len(cat) > 15:
+            print(f'WARNING: {cat} is longer than 15 characters.')
+            anywarning += 1
         if cat[:1] not in string.ascii_uppercase:
-            print(f'WARNING: {cat} starts with non ascii')
+            print(f'WARNING: {cat} starts with non uppercase ascii.')
+            anywarning += 1
         for c in cat:
             if c not in allowed_ascii:
-                print(f'WARNING: {cat} has unallowed characters')
+                print(f'WARNING: {cat} has unallowed characters.')
+                anywarning += 1
                 break
-
+    if anywarning > 0:
+        msg = 'INFO: Using names longer than 15 characters, with non-uppercase'
+        msg += ' characters, or having special characters can cause issues'
+        msg += ' when used with CMAQ. To shorten names, try adding a'
+        msg += ' shorter than the attrkey. Or make a custom attribute'
+        msg += ' that is shorter before processing.'
+        print(msg)
+        msg = 'EXAMPLE: Trim off first 7 characters of geoid\n'
+        msg += '    import geopandas\n'
+        msg += '    from shp2cmaq import shp2cmaq\n\n'
+        msg += '    shppath = "acs2022_5yr_B01003_04000US21.shp"'
+        msg += '    shpf = gpd.read_file(shppath)\n'
+        msg += '    shpf["shortname"] = shpf["geoid"].str[7:]\n'
+        msg += '    shp2cmaq(shpf, "shortname", "36US3", srckey="B01003001")'
+        print(msg)
+        
     # only required if calculating weighted values
     dshpf['shape_area'] = dshpf.geometry.area
 
