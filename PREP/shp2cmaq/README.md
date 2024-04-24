@@ -4,7 +4,7 @@ Create CMAQ-Ready File from Shapefile
 ---
     author: Barron H. Henderson
     date: 2020-04-25
-    updated: 2024-04-18
+    updated: 2024-04-24
 ---
 
 This Notebook uses geopandas and cmaqsatproc to create IOAPI-like files for
@@ -37,7 +37,9 @@ variable STUSPS_DOM that uses numeric codes (in alphabetic order) to
 identify which STUSPS has the largest coverage of that cell. And, it will
 include a variable STUSPS_TOT with the total coverage of any STUSPS.
 
-1. Download https://www2.census.gov/geo/tiger/GENZ2022/shp/cb_2022_us_state_500k.zip
+1. Download
+    * https://www2.census.gov/geo/tiger/GENZ2022/shp/cb_2022_us_state_500k.zip
+    * If url doesn't work, download from census.gov
 2. Run tool:
 
 From SHELL:
@@ -60,12 +62,14 @@ create a variable (ADM0_A3_DOM) that uses numeric codes (in alphabetic order)
 to identify which ADM0_A3 has the largest coverage of that cell. And, it will
 include a variable ADM0_A3_TOT with the total coverage of any ADM0_A3.
 
-1. Download http://naturalearth.s3.amazonaws.com/110m_cultural/ne_110m_admin_0_countries.zip
+1. Download
+    * https://naciscdn.org/naturalearth/10m/cultural/ne_10m_admin_0_countries.zip
+    * If url doesn't work, download from naturalearth.org
 2. Run tool:
 
 From SHELL:
 ```bash
-python shp2cmaq.py ne_110m_admin_0_countries.zip ADM0_A3 108NHEMI2
+python shp2cmaq.py ne_10m_admin_0_countries.zip ADM0_A3 108NHEMI2
 ```
 
 In python:
@@ -84,7 +88,9 @@ to identify which iso_3166_2_DOM has the largest coverage of that cell. And,
 it will include a variable iso_3166_2_TOT with the total coverage of any
 iso_3166_2.
 
-1. Download https://www.naturalearthdata.com/http//www.naturalearthdata.com/download/10m/cultural/ne_10m_admin_1_states_provinces.zip
+1. Download
+    * https://naciscdn.org/naturalearth/10m/cultural/ne_10m_admin_1_states_provinces.zip
+    * If url doesn't work, download from naturalearth.org
 2. Run tool:
 
 From SHELL:
@@ -123,8 +129,8 @@ python shp2cmaq.py --srckey=B01003001 acs2022_5yr_B01003_04000US21/acs2022_5yr_B
 In python:
 ```python
 from shp2cmaq import shp2cmaq
-gdbpath = 'acs2022_5yr_B01003_04000US21/acs2022_5yr_B01003_04000US21.shp'
-shp2cmaq(gdbpath, 'geoid', '36US3', srckey='B01003001')
+shppath = 'acs2022_5yr_B01003_04000US21/acs2022_5yr_B01003_04000US21.shp'
+shp2cmaq(shppath, 'geoid', '36US3', srckey='B01003001')
 ```
 
 ### Custom GeoDataFrame
@@ -137,6 +143,11 @@ each region should be the same as adding the variables from states in the
 example from which this is derived (e.g., CLIMREG_W = STUSPS_CA + STUSPS_NV).
 
 This is a trivial example, but illustrates a general capability.
+
+1. Download
+    * https://www2.census.gov/geo/tiger/GENZ2022/shp/cb_2022_us_state_500k.zip
+    * If url doesn't work, download from census.gov
+2. Run tool:
 
 ```python
 from shp2cmaq import shp2cmaq
