@@ -3176,9 +3176,9 @@ C stkemis_init.
         CHARACTER( 200 ) :: XMSG
         INTEGER          :: VALUE
         LOGICAL          :: stream_vector( DESID_N_SRM )
-        INTEGER          :: N_Diag_Nml, N_Buff
+        INTEGER          :: N_Diag_Nml, N_Buff 
         INTEGER          :: IDIAG, NSTREAM, I, ISRM, J, JDIAG,
-     &                      NSUM, NSPEC, LAYS, ISPEC
+     &                      NSUM, NSPEC, LAYS, ISPEC, NPAIRS
         LOGICAL          :: LREMOVE, LFOUND, EXPAND_STREAM
         LOGICAL          :: STREAM_VECTOR_TMP( DESID_N_SRM ),
      &                      SPEC_VECTOR( N_SPC_DIFF )
@@ -3189,7 +3189,7 @@ C stkemis_init.
         N_Buff = N_Diag_Nml * 20
 
         ALLOCATE( DESID_DIAG_STREAM_MASK( DESID_N_SRM, N_Buff ) )
-        ALLOCATE( DESID_DIAG_SPEC ( N_Buff ) )
+        ALLOCATE( DESID_DIAG_SPEC_BUFF ( N_Buff ) )
         ALLOCATE( DESID_DIAG_N_STREAM ( N_Buff ) )
         ALLOCATE( DESID_DIAG_FORMAT ( N_Buff ) )
         ALLOCATE( DESID_DIAG_FILENAME ( N_Buff ) )
@@ -3331,15 +3331,37 @@ C stkemis_init.
            END DO
         END DO
         
+        ! Reduce size of each vector to length DESID_N_DIAG
         DESID_DIAG_N_STREAM    = DESID_DIAG_N_STREAM( 1:DESID_N_DIAG )
         DESID_DIAG_STREAM_MASK = DESID_DIAG_STREAM_MASK( :,1:DESID_N_DIAG )
         DESID_DIAG_FORMAT      = DESID_DIAG_FORMAT( 1:DESID_N_DIAG )
         DESID_DIAG_FILENAME    = DESID_DIAG_FILENAME( 1:DESID_N_DIAG )
-        DESID_DIAG_SPEC        = DESID_DIAG_SPEC( 1:DESID_N_DIAG )
         DESID_DIAG_LAB         = DESID_DIAG_LAB( 1:DESID_N_DIAG )
         DESID_DIAG_LAYS        = DESID_DIAG_LAYS( 1:DESID_N_DIAG )
         DESID_DIAG_SUM         = DESID_DIAG_SUM( 1:DESID_N_DIAG )
    
+        ! Populate DESID_DIAG_SPEC from DESID_DIAG_SPEC_BUFF
+        ALLOCATE( DESID_DIAG_SPEC( DESID_N_DIAG ) )
+        DO IDIAG = 1,DESID_N_DIAG
+           NSPEC  = DESID_DIAG_SPEC_BUFF(IDIAG)%NSPEC
+           NPAIRS = DESID_DIAG_SPEC_BUFF(IDIAG)%NPAIRS
+           DESID_DIAG_SPEC(IDIAG)%NSPEC  = NSPEC
+           DESID_DIAG_SPEC(IDIAG)%NPAIRS = NPAIRS
+
+           IF ( NSPEC .GT. 0 ) THEN
+               ALLOCATE( DESID_DIAG_SPEC( IDIAG )%SPEC( NSPEC ) )
+               ALLOCATE( DESID_DIAG_SPEC( IDIAG )%UNITS( NSPEC ) )
+               ALLOCATE( DESID_DIAG_SPEC( IDIAG )%MAP_toDIFF( NPAIRS ) )
+               ALLOCATE( DESID_DIAG_SPEC( IDIAG )%MAP_toDIAG( NPAIRS ) )
+        
+               DESID_DIAG_SPEC(IDIAG)%SPEC  = DESID_DIAG_SPEC_BUFF( JDIAG )%SPEC  
+               DESID_DIAG_SPEC(IDIAG)%UNITS = DESID_DIAG_SPEC_BUFF( JDIAG )%UNITS 
+               DESID_DIAG_SPEC(IDIAG)%MAP_toDIFF = DESID_DIAG_SPEC_BUFF( JDIAG )%MAP_toDIFF
+               DESID_DIAG_SPEC(IDIAG)%MAP_toDIAG = DESID_DIAG_SPEC_BUFF( JDIAG )%MAP_toDIAG
+           END IF
+        END DO
+        DEALLOCATE ( DESID_DIAG_SPEC_BUFF )
+
         ! Write Details of Diagnostic Output to Log File
         WRITE( LOGDEV, * )
         WRITE( LOGDEV, '(/,/,5x,A)' ),'|> EMISSIONS DIAGNOSTIC REPORT:'
