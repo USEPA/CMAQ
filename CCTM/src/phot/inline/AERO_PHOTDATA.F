@@ -40,10 +40,12 @@
       REAL, ALLOCATABLE :: AERO_ASYM_FAC ( :,: ) ! aerosol modal averaged asymmetry factor
       REAL, ALLOCATABLE :: AERO_EXTI_COEF( :,: ) ! aerosol modal averaged extinction coeff., 1/m
       REAL, ALLOCATABLE :: AERO_SCAT_COEF( :,: ) ! aerosol modal averaged scattering coeff., 1/m
+      REAL, ALLOCATABLE :: AERO_ABSO_COEF( :,: ) ! aerosol modal averaged sbsorption coeff., 1/m
       REAL, ALLOCATABLE :: AERO_EXTI_550  ( : )  ! aerosol modal averaged extinction coeff. at 550nm, 1/m
+      REAL, ALLOCATABLE :: AERO_ABSO_550  ( : )  ! aerosol modal averaged extinction coeff. at 550nm, 1/m
  
-      PUBLIC            :: AERO_ASYM_FAC, AERO_EXTI_COEF, AERO_SCAT_COEF,
-     &                     INIT_AERO_DATA, GET_AERO_DATA, AERO_OPTICS_INTERNAL
+      PUBLIC            :: AERO_ASYM_FAC, AERO_EXTI_COEF, AERO_SCAT_COEF, AERO_ABSO_COEF,
+     &                     INIT_AERO_DATA, GET_AERO_DATA
 
       INTEGER,   ALLOCATABLE, PRIVATE :: REFRACT_INDX_MAP( : )  ! map array for refactive index
 
@@ -83,7 +85,9 @@ C Allocate and define arrays used to calculate aerosol optical properties
          USE AEROMET_DATA        ! constants and met data
       
          USE CSQY_DATA, ONLY : NWL => NWL_REF, NUM_REFRACTIVE, REFRACTIVE_INDEX,
-     &                         WAVELENGTH => EFFWL_REF
+     &                         WAVELENGTH => EFFWL_REF !!! , FIRST_DAY => NEW_START
+
+         USE WRF_FAST_MIE, ONLY : FAST_MIEAER_MODAL, EFLAG_WRF_FAST_MIE
 
          IMPLICIT NONE
 
@@ -99,6 +103,12 @@ C Local:
          INTEGER          :: M, N, SPC, V   ! loop counters
       
          LOGICAL, SAVE    :: INITIALIZED  = .FALSE.
+
+         REAL    :: MIE_PARAMETER = 1.0E-3
+         COMPLEX :: REFINDX       = (1.0,0.0)
+
+         REAL :: EXTAER,SCATAER,GAER
+         REAL :: BSCOEF
 
 #ifdef verbose_phot
          character( 26 ), allocatable :: lambda_list( : )
@@ -186,17 +196,26 @@ C...Allocate needed arrays
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
 
+         ALLOCATE ( AERO_ABSO_COEF( NLAYS,NWL ), STAT = ALLOCSTAT )
+         IF ( ALLOCSTAT .NE. 0 ) THEN
+            XMSG = 'Failure allocating AERO_ABSO_FAC'
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         END IF
+
          AERO_SCAT_COEF = 0.0
          AERO_EXTI_COEF = 0.0
          AERO_ASYM_FAC  = 0.0
+         AERO_ABSO_COEF = 0.0
 
          IF( CALCULATE_EXT_550 )THEN
-            ALLOCATE ( AERO_EXTI_550( NLAYS ), STAT = ALLOCSTAT )
+            ALLOCATE ( AERO_EXTI_550( NLAYS ),
+     &                 AERO_ABSO_550( NLAYS ), STAT = ALLOCSTAT )
             IF ( ALLOCSTAT .NE. 0 ) THEN
                XMSG = 'Failure allocating AERO_EXTI_550'
                CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             END IF
             AERO_EXTI_550  = 0.0
+            AERO_ABSO_550  = 0.0
          END IF   
 
          CALL MAP_AERO()
@@ -257,18 +276,37 @@ C ***    Create map for refactive index for each species
          write( logdev, 5001)(lambda_list( v ), v = 1, nwl)
 #endif 
 
-         IF ( MIE_CALC .AND. .NOT. CORE_SHELL ) THEN
-            CALL M3MESG('For optics of internally mixed aerosol, Mie calculation used')
-            CALL M3MESG('Core-shell mixing model option is set to off')
-         ELSE IF ( MIE_CALC .AND. CORE_SHELL ) THEN
-            CALL M3MESG('For AERO mixing models, core-shell model is possible')
-            CALL M3MESG('For optics of aerosols with no core, Mie calculation used')
-         ELSE IF ( .NOT. MIE_CALC .AND. CORE_SHELL ) THEN
-            CALL M3MESG('For AERO mixing models, core-shell model is possible')
-            CALL M3MESG('For optics of aerosols with no core, FASTER_OPTICS used')
+         WRITE(LOGDEV,*)
+         CALL M3MESG('METHOD FOR AEROSOL OPTICAL PROPERTIES')
+         xmsg = 'METHOD FOR AEROSOL OPTICAL PROPERTIES'
+         IF ( .NOT. CORE_SHELL ) THEN
+            XMSG = 'CORE-SHELL mixing model option is set to off so'
+            WRITE(LOGDEV,'(A)')TRIM( XMSG )
          ELSE
-            CALL M3MESG('Using internal mixing model for aerosol and FASTER_OPTICS')
+            XMSG = 'CORE-SHELL mixing model used when aerosol mode has significant black carbon'
+            WRITE(LOGDEV,'(A)')TRIM( XMSG )
+            XMSG = 'When aerosol mode does not have significant black carbon,'
+            WRITE(LOGDEV,'(A)')TRIM( XMSG )
          END IF
+         SELECT CASE ( AEROSOL_OPTICS )
+           CASE( 1 )
+             XMSG = 'VOLUME MIXING model and Tabular Mie Method used'
+             WRITE(LOGDEV,'(A)')TRIM( XMSG )
+             CALL FAST_MIEAER_MODAL( MIE_PARAMETER,REFINDX,EXTAER,SCATAER,GAER,BSCOEF )
+             IF ( EFLAG_WRF_FAST_MIE ) THEN
+                XMSG = 'Above Failure Initializing Tabular Mie Method for aerosol optics'
+                CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+             END IF
+           CASE( 2 )
+             XMSG = 'VOLUME MIXING model and Mie calculation used'
+             WRITE(LOGDEV,'(A)')TRIM( XMSG )
+           CASE( 3 )
+             XMSG = 'VOLUME MIXING model and FAST_OPTICS used'
+             WRITE(LOGDEV,'(A)')TRIM( XMSG )
+             XMSG = '-Approximations to Mie Theory based on Mie paramter and refractive index '
+             WRITE(LOGDEV,'(A)')TRIM( XMSG )
+         END SELECT
+         WRITE(LOGDEV,*)
 
          FORALL ( SPC = 1:N_MODE ) VOL_MINS( SPC ) = PI6 * AEROMODE( SPC )%MIN_M3CONC
 
@@ -405,6 +443,8 @@ C-----------------------------------------------------------------------
      &                       WAVELENGTH => EFFWL_REF
 
       USE CMAQ_RRTMG_AERO_OPTICAL_UTIL_MODULE, ONLY : AERO_OPTICAL2, AERO_OPTICAL_CS
+
+      USE WRF_FAST_MIE, ONLY : AERO_OPTICS_TABULAR
 
       IMPLICIT NONE
 
@@ -748,12 +788,17 @@ C***  and contribution to the overall asymmetry factor
                ELSE IF ( VOL .GT. 0.0 ) THEN
 
 !*** FSB Internal Volume mixture case for optics 
-                  IF ( MIE_CALC ) THEN
+                SELECT CASE( AEROSOL_OPTICS )
+                  CASE( 1 )
+                      CALL AERO_OPTICS_TABULAR( MODE,V,NR_SHELL, VOL, DGN_SHELL,
+     &                                   XXLSG, BEXT_MODE, BSCAT_MODE, GBAR_MODE)
+                      VFAC  = 1.0 ! correction factor
+                  CASE( 2 )
                      IF ( SUCCESS ) CALL AERO_OPTICAL2( LAMDA_UM, NR_SHELL, VOL, 
      &                                   DGN_SHELL, XXLSG,
      &                                   BEXT_MODE, BSCAT_MODE, GBAR_MODE, SUCCESS )
                      VFAC  = 1.0 ! correction factor 
-                  ELSE 
+                  CASE DEFAULT ! AEROSOL_OPTICS equals 3
 ! use old fast optics method
                      IF ( SUCCESS ) CALL FAST_OPTICS( AE_NR_SHELL( MODE, L, V ),  
      &                                       AE_NI_SHELL( MODE, L, V ), 
@@ -763,13 +808,12 @@ C***  and contribution to the overall asymmetry factor
 ! updated fast optics method; has problems from eposidically infinite values of aerosol optical depth
 !                    MIE_PARAMETER = PI * DGN_SHELL * INV_LAMBDA
 !     &                            * EXP( 3.0 * BLK_AE_LSG( MODE, L ) * BLK_AE_LSG( MODE, L ) )
-
 !                    IF( SUCCESS ) CALL FASTER_OPTICS( AE_NR_SHELL( MODE, L, V ),  
 !     &                                       AE_NI_SHELL( MODE, L, V ), 
 !     &                                       MIE_PARAMETER, BLK_AE_LSG( MODE, L ), 
 !     &                                       BEXT_MODE, BSCAT_MODE, GBAR_MODE )
 !                    VFAC  = VOL * INV_LAMBDA
-                  END IF
+                  END SELECT
                    
                   IF ( BEXT_MODE .LT. 0.0 .OR. BEXT_MODE .LT. BSCAT_MODE .OR. BSCAT_MODE .LT. 0.0 ) THEN
                      TROUBLE = .TRUE.
@@ -837,8 +881,9 @@ C***  and contribution to the overall asymmetry factor
 
             END DO OPTICS_LOOP
 
-            AERO_SCAT_COEF( L,V ) = BSCAT
+            AERO_SCAT_COEF( L,V ) = MAX( BSCAT,1.0E-30 )
             AERO_EXTI_COEF( L,V ) = MAX( BEXT, 1.0E-30 )
+            AERO_ABSO_COEF( L,V ) = MAX( (BEXT-BSCAT), 1.0E-30 )
             AERO_ASYM_FAC ( L,V ) = G_BAR / MAX( BSCAT, 1.0E-30 )
 
 #ifdef verbose_phot_extra
@@ -865,14 +910,24 @@ C***  and contribution to the overall asymmetry factor
 !         END IF
          LOOP_550NM: DO L = 1, NLAYS
               IF( USE_ANGSTROM_INTERP )THEN
-                 ANGSTROM_EXPONENT  =  - REAL( LOG( AERO_EXTI_COEF( L,IWL_ANGSTROM_LOWER ) 
-     &                                         / AERO_EXTI_COEF( L,IWL_ANGSTROM_UPPER ) ), 8 )
+!                ANGSTROM_EXPONENT  =  - REAL( LOG( AERO_EXTI_COEF( L,IWL_ANGSTROM_LOWER ) 
+!    &                                         / AERO_EXTI_COEF( L,IWL_ANGSTROM_UPPER ) ), 8 )
+
+                 ANGSTROM_EXPONENT  =  - REAL( LOG( MAX( AERO_EXTI_COEF( L,IWL_ANGSTROM_LOWER ),1.0E-30 )
+     &                              /               MAX( AERO_EXTI_COEF( L,IWL_ANGSTROM_UPPER ),1.0E-30 ) ), 8 )
      &                              *  ANGSTROM_SPAN
-!                AERO_EXTI_550( L ) = LOG( AERO_EXTI_COEF( L,IWL_ANGSTROM_LOWER ) )
-!    &                              + REAL( ANGSTROM_EXPONENT * LOG_ANGSTROM_RATIO, 4 )
-!                AERO_EXTI_550( L ) =  EXP( AERO_EXTI_550( L ) )
+
                  AERO_EXTI_550( L ) =  AERO_EXTI_COEF( L,IWL_ANGSTROM_LOWER ) 
      &                              *  REAL( ANGSTROM_RATIO ** ANGSTROM_EXPONENT, 4 )
+
+                 ANGSTROM_EXPONENT  =  - REAL( LOG( MAX( AERO_SCAT_COEF( L,IWL_ANGSTROM_LOWER ),1.0E-30 )
+     &                              /               MAX( AERO_SCAT_COEF( L,IWL_ANGSTROM_UPPER ),1.0E-30 ) ), 8 )
+     &                              *  ANGSTROM_SPAN
+
+                 AERO_ABSO_550( L ) =  MAX( AERO_EXTI_550( L ) 
+     &                              -  AERO_SCAT_COEF( L,IWL_ANGSTROM_LOWER )
+     &                              *  REAL( ANGSTROM_RATIO ** ANGSTROM_EXPONENT, 4 ), 0.0 )
+
 !                 IF ( FIRSTCALL ) THEN
 !                     WRITE( LOGDEV,'(I3,A,7(ES12.4,1X))')L,
 !     &              ' AERO_EXT_LOWER,AERO_EXT_UPPER,EXPONENT,EXPONENT*LOG(RATIO),EXT_550_1,EXT_550_2: ',
@@ -910,376 +965,6 @@ C***  and contribution to the overall asymmetry factor
 
       RETURN
       END SUBROUTINE GET_AERO_DATA
-
-CC:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-      SUBROUTINE AERO_OPTICS_INTERNAL ( COL, ROW, NLAYS, CGRID )
-
-C-----------------------------------------------------------------------
-C  FUNCTION:  This subroutine calculates the volume, the natural logs of 
-C     geometric standard of all 3 modes. It assumes that aerosols have inner 
-C     core with an outer shell to compute a core and total diameter per mode.  
-C     The code also calculates the average modal aerosol refractive indices 
-C     for the inner core and outer shell.
-C
-C     Internally mixed wet aerosols are assumed.
-C
-C     NOTE
-C       2nd moment concentrations (M2) are passed into GETPAR in the
-C       CBLK array.  The GETPAR calculations implicitly assume
-C       that the input value of M2 is up to date.  
-C       If, for example, the input M2 value was calculated
-C       for a "dry" aerosol and the Wet_Moments_FLAG is .TRUE., GETPAR would
-C       incorrectly adjust the M2 concentrations!
-C
-C  KEY SUBROUTINES/FUNCTIONS CALLED:  EXTRACT_AERO, EXTRACT_SOA, GETPAR
-C                                     AERO_OPTICAL2, AERO_OPTICAL_CS  
-C  REVISION HISTORY
-C     06/13/13 B.Hutzell - initial version created for aero_photdata.F 
-C                          from version 5.01
-C     05/2016 H. Pye and B. Murphy - updated treatment of aerosol
-C                          moments
-C     05/23/16 D.Wong - replaced RRTMG_AERO_OPTICAL_UTIL_MODULE with
-C                       CMAQ_RRTMG_AERO_OPTICAL_UTIL_MODULE to avoid
-C                       duplication of the same module name on WRF side
-C                       of the two-way model
-C
-C  REFERENCES:
-C     Horvath, H., Size segrated light absorption coefficient for
-C     the atmospheric aerosol, Atmos. Environ., Vol. 29, No. 8,
-C     pp 875-883, 1995.
-C
-C     Beyer, K.D. A.R. Ravishankara, and E. R. Lovejoy, Meanurements
-C     of H2SO4/H2O and H2SO4/HNO3/H2O solutions, J. Geophys. Res. Vol.
-C     101, D9, pp 14519-14524, 1996.
-C
-C-----------------------------------------------------------------------
-
-!     USE GRID_CONF           ! horizontal & vertical domain specifications
-      USE RXNS_DATA
-      USE CGRID_SPCS          ! CGRID mechanism species
-      USE UTILIO_DEFN
-
-      USE AERO_DATA           ! aero variable data
-      USE SOA_DEFN            ! gas soa data
-      USE AEROMET_DATA        ! constants and met data
-      
-      USE CSQY_DATA, ONLY : NWL => NWL_REF, NUM_REFRACTIVE, REFRACTIVE_INDEX,
-     &                       WAVELENGTH => EFFWL_REF
-
-      USE CMAQ_RRTMG_AERO_OPTICAL_UTIL_MODULE, ONLY : AERO_OPTICAL2, AERO_OPTICAL_CS
-
-      IMPLICIT NONE
-
-C Includes:
-
-C Arguments:
-
-      INTEGER, INTENT( IN ) :: COL               ! specified column index
-      INTEGER, INTENT( IN ) :: ROW               ! specified row index
-      INTEGER, INTENT( IN ) :: NLAYS             ! # of vertical layers
-      REAL,    POINTER      :: CGRID( :,:,:,: )
-
-C Parameters:
-
-      REAL( 8 ), PARAMETER :: NEGLECT_FRAC = 1.0D-9      ! skip if below this volume fraction
-      REAL( 8 ), PARAMETER :: ONE_THIRD    = 1.0D0/3.0D0 
-      REAL,      PARAMETER :: ONE_OVER_PI  = 1.0 / PI
-
-C Local saved variables:
-
-      CHARACTER( 16 ), SAVE :: AE_VRSN                            ! Aerosol version name
-      CHARACTER( 32 ), SAVE :: PNAME = 'AERO_OPTICS_INTERNAL'            ! routine name
-
-C Local variables:
-
-      CHARACTER( 16 ) :: VNAME            ! varable name
-      CHARACTER( 96 ) :: XMSG = ' '
-
-      REAL( 8 ) :: FACTOR
-      REAL( 8 ) :: SUMRI_R
-      REAL( 8 ) :: SUMRI_I
-
-      REAL VOL            ! Total Modal aerosol volume
-      REAL DGN_SHELL      ! geometric mean diameters of aerosol core
-      REAL VOL_SHELL      ! Modal aerosol volume of aerosol core
-      REAL XXLSG          ! geometric standard deviation
-      REAL MIE_PARAMETER  ! Modal Mie parameter
-      REAL SUMRI_R_SHELL
-      REAL SUMRI_I_SHELL
-      REAL MOMENT3_PORTION
-
-C***  variables for calculating modal averaged properties per layer and lambda
-
-      COMPLEX NR_SHELL
-      COMPLEX NI_SHELL
-
-      REAL BEXT_MODE  ! total aerosol extinction coefficient [ 1/m ]
-      REAL BSCAT_MODE ! total aerosol scattering coefficient [ 1/m ]
-      REAL GBAR_MODE  ! total aerosol asymmetry factor
-      REAL BEXT       ! total aerosol extinction coefficient [ 1/m ]
-      REAL VFAC, BSC  ! unit correction factors
-      REAL BSCAT      ! total aerosol scattering coefficient [ 1/m ]
-      REAL G_BAR      ! total aerosol asymmetry factor
-      REAL INV_LAMBDA ! reciprocal of wavelength [ 1/m ]
-      REAL LAMDA_UM   ! wavelength  [ um ]
-
-      INTEGER L, V, N, M            ! loop counters
-      INTEGER SPC                   ! species loop counter
-      INTEGER MODE                  ! aerosol mode loop counter
-      LOGICAL SUCCESS
-
-#ifdef verbose_phot
-      character( 26 ), allocatable :: lambda_list( : )
-#endif
-
-C-----------------------------------------------------------------------
-
-      IF ( N_AE_SPC .LE. 0 ) RETURN
-
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-C  Put the grid cell physical data in the block arrays
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-
-
-C *** initialize internal and external dimensions of aerosols
-
-      CORE_MOMENT3  = 0.0D+0
-      SHELL_MOMENT3 = 0.0D+0
-      BLK_AE_VOL    = 0.0
-      BLK_AE_CONC   = 0.0
-      AE_DGN_SHELL  = 0.0
-      AE_DGN_CORE   = 0.0
-      SUCCESS       = .TRUE.
-
-      LAY_LOOP1: DO L = 1, NLAYS
-
-C *** extract grid cell concentrations of aero species from CGRID into aerospc_conc 
-C *** in aero_data module
-C     Also converts surface area to wet second moment
-#ifdef sens
-         CALL EXTRACT_AERO ( CGRID( COL,ROW,L,: ), .TRUE., CGRID( COL,ROW,:,: ), .FALSE. )
-#else
-         CALL EXTRACT_AERO ( CGRID( COL,ROW,L,: ), .TRUE. )
-#endif
-
-C *** extract soa concentrations from CGRID
-#ifdef sens
-         CALL EXTRACT_SOA ( CGRID( COL,ROW,L,: ), CGRID( COL,ROW,:,: ), .FALSE. )
-#else
-         CALL EXTRACT_SOA ( CGRID( COL,ROW,L,: ) )
-#endif
-
-C *** Calculate geometric mean diameters and standard deviations of "wet" size distribution
-         CALL GETPAR ( .FALSE. )
-
-#ifdef verbose_phot
-         if ( col .eq. 1 .and. row .eq. 1 .and. l .eq. 1 ) then
-            do m = 1, n_mode
-               write(logdev, 4999)l, m, aeromode_diam( m ),pi6*moment3_conc( m ),
-     &         aeromode_lnsg( m )
-4999           format('lay = ',i3,' mode = ',i3,' diam = ',es12.4,' pi6*moment3 = ', 
-     &         es12.4,' ae_lsg = ', es12.4)
-            end do
-         end if
-#endif
-
-         DIME_LOOP: DO MODE = 1, N_MODE
-            SPC_LOOP1: DO SPC = 1, N_AEROSPC
-               IF ( AEROSPC( SPC )%TRACER ) CYCLE              ! neglect tracer species
-               IF ( AERO_MISSING( SPC,MODE ) ) CYCLE  ! neglect undefined species
-               BLK_AE_CONC( SPC,MODE,L ) = AEROSPC_CONC( SPC,MODE )
-
-               MOMENT3_PORTION          = REAL( M3_FACTOR( SPC ) ) * AEROSPC_CONC( SPC,MODE )
-               SHELL_MOMENT3( MODE,L ) = SHELL_MOMENT3( MODE,L ) + REAL( MOMENT3_PORTION, 8 )
-#ifdef verbose_phot
-               if ( col .eq. 1 .and. row .eq. 1 .and. l .eq. 1 ) then
-                  write(logdev,5008)aerospc( spc )%name( mode ),moment3_portion, shell_moment3( mode, l )
-5008              format(a16,1x,'moment3_portion = ',es12.4,1x,'moment3_shell = ',es12.4)
-               end if
-#endif 
-            END DO SPC_LOOP1
-
-            BLK_AE_LSG  ( MODE,L ) = aeromode_lnsg( MODE )
-            AE_DGN_SHELL( MODE,L ) = AEROMODE_DIAM( MODE )
-                   
-            IF ( MOMENT3_CONC( MODE ) .GT. AEROMODE( MODE )%MIN_M3CONC ) THEN
-               BLK_AE_VOL( MODE,L ) = PI6 * MOMENT3_CONC( MODE )
-            END IF
-            
-#ifdef verbose_phot
-            if ( col .eq. 1 .and. row .eq. 1 .and. l .eq. 1 ) then
-               write(logdev, 5006)l, mode, ae_dgn_core( mode, l ), ae_dgn_shell( mode, l ),
-     &         blk_ae_vol( mode, l ),blk_ae_lsg( mode, l) 
-5006           format('lay = ',i3,' mode = ',i3,' dgn_core = ', es12.4, ' dgn_shell = ', 
-     &         es12.4,' ae_vol = ', es12.4,' ae_lsg = ', es12.4)
-            end if
-#endif
-
-         END DO DIME_LOOP
-      END DO LAY_LOOP1
-
-C *** Initialize refractive indices then compute
-      AE_NR_SHELL = 0.0
-      AE_NI_SHELL = 0.0
-         
-      LOOP_WAVE: DO V = 1, NWL
-         LAMDA_UM   = 1.0E-3 * WAVELENGTH( V ) ! convert to micro-meters
-         INV_LAMBDA = 1.0E9 / WAVELENGTH( V )
-
-         LAY_LOOP2: DO L = 1, NLAYS
-            REFRAC_LOOP: DO MODE = 1, N_MODE
-               SUMRI_R_SHELL = 0.0D0
-               SUMRI_I_SHELL = 0.0D0
-
-               IF ( SHELL_MOMENT3( MODE, L ) .LE. 0.0D0 ) CYCLE
-               SPC_LOOP2: DO SPC = 1, N_AEROSPC
-                  IF ( AEROSPC( SPC )%TRACER ) CYCLE     ! skip tracer species
-                  IF ( AERO_MISSING( SPC,MODE ) ) CYCLE  ! skip undefined species
-
-                  M = REFRACT_INDX_MAP( SPC )
-
-                  MOMENT3_PORTION  = REAL( M3_FACTOR( SPC ) ) * BLK_AE_CONC( SPC,MODE,L )
-
-                  SUMRI_R_SHELL = SUMRI_R_SHELL + MOMENT3_PORTION
-     &                          * REFRACTIVE_INDEX( M )%REAL_PART( MODE,V )
-                  SUMRI_I_SHELL = SUMRI_I_SHELL + MOMENT3_PORTION
-     &                          * REFRACTIVE_INDEX( M )%IMAG_PART( MODE,V )
-
-               END DO SPC_LOOP2
-C ***       Update output array values
-               VFAC = REAL( 1.0D0 / SHELL_MOMENT3( MODE,L ) ) 
-               AE_NR_SHELL ( MODE,L,V ) = SUMRI_R_SHELL * VFAC 
-               AE_NI_SHELL ( MODE,L,V ) = SUMRI_I_SHELL * VFAC
-            END DO REFRAC_LOOP
-
-C***loop over mode again for mean modal extinction and scattering properties
-
-            G_BAR = 0.0
-            BEXT  = 0.0
-            BSCAT = 0.0
-
-#ifdef verbose_phot_extra
-            if ( L .eq. 1 .and. V .eq. 1 ) then
-
-               write( LOGDEV, 9501) L, wavelength( V ), ae_dgn_core(  2, l ), ae_dgn_shell( 2, l ), 
-     &         ae_nr_shell( 2, L, V ), ae_ni_shell( 2, L, V ), ae_nr_core( 2, L, V ), 
-     &         ae_ni_core( 2, L, V )
-
-9501           format('layer = ',i2,' lambda  = ',es12.4,' dgn_core = ',es12.4,' dgn_shell = ',
-     &                 es12.4,' refract_shell(nr,ni) = ', 2(es12.4,1x),' refract_core = ', 
-     &                 2(es12.4,1x))
-
-            end if
-#endif            
-            
-
-            OPTICS_LOOP: DO MODE = 1, N_MODE
-
-               DGN_SHELL = AE_DGN_SHELL( MODE,L )
-               VOL = BLK_AE_VOL( MODE,L )
-               NR_SHELL = CMPLX( AE_NR_SHELL( MODE,L,V ), AE_NI_SHELL( MODE,L,V ) )
-
-!              IF ( AE_NR_SHELL( MODE,L,V ) .LE. 0.0 ) SUCCESS = .FALSE.
-!              IF ( AE_NI_SHELL( MODE,L,V ) .LE. 0.0 ) SUCCESS = .FALSE.
-        
-C***calculate the extinction and scattering coefficients in [ 1 / m ] and the asymmetry 
-C*** factor for aerosols.
-
-               IF ( VOL .GT. 0.0 ) THEN
-
-!*** FSB Internal Volume mixture case for optics 
-                  IF ( MIE_CALC ) THEN
-                     XXLSG = EXP( BLK_AE_LSG( MODE, L ) )
-                     IF( SUCCESS ) CALL AERO_OPTICAL2( LAMDA_UM, NR_SHELL, VOL, 
-     &                                   DGN_SHELL, XXLSG,
-     &                                   BEXT_MODE, BSCAT_MODE, GBAR_MODE, SUCCESS )
-                     VFAC  = 1.0 ! correction factor 
-                  ELSE 
-! use old fast optics method
-                     IF ( SUCCESS ) CALL FAST_OPTICS( AE_NR_SHELL( MODE,L,V ),  
-     &                                    AE_NI_SHELL( MODE,L,V ), 
-     &                                    WAVELENGTH( V ), DGN_SHELL, XXLSG, 
-     &                                    BEXT_MODE, BSCAT_MODE, GBAR_MODE )
-                     VFAC  = VOL * INV_LAMBDA
-! updated fast optics method; has problems from eposidically infinite values of aerosol optical depth
-!                    MIE_PARAMETER = PI * DGN_SHELL * INV_LAMBDA
-!     &                            * EXP( 3.0 * BLK_AE_LSG( MODE, L ) * BLK_AE_LSG( MODE, L ) )
-
-!                    IF( SUCCESS ) CALL FASTER_OPTICS( AE_NR_SHELL( MODE, L, V ),  
-!     &                                  AE_NI_SHELL( MODE, L, V ), 
-!     &                                  MIE_PARAMETER, BLK_AE_LSG( MODE, L ), 
-!     &                                  BEXT_MODE, BSCAT_MODE, GBAR_MODE )
-!                    VFAC  = VOL * INV_LAMBDA
-                  END IF
-
-                  IF ( .NOT. SUCCESS ) THEN
-
-                     WRITE( LOGDEV, 9504 ) L, MODE, WAVELENGTH( V ), 
-     &               AE_DGN_SHELL( MODE,L ), AE_NR_SHELL( MODE,L,V ),
-     &               AE_NI_SHELL( MODE,L,V ), BLK_AE_VOL( MODE,L ),
-     &               BLK_AE_LSG( MODE,L )
-
-                     XMSG =  'FAILURE IN AERO_OPTICAL2: shell only case '
-                     CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
-
-                  END IF
-
-C***sum to get total extinction and scattering
-C***  and contribution to the overall asymmetry factor
-
-                  BEXT  = BEXT + VFAC * BEXT_MODE
-                  BSC   = VFAC * BSCAT_MODE
-                  BSCAT = BSCAT + BSC
-                  G_BAR = G_BAR + BSC * GBAR_MODE
-
-               END IF       
-
-            END DO OPTICS_LOOP
-
-            AERO_SCAT_COEF( L,V ) = BSCAT
-            AERO_EXTI_COEF( L,V ) = BEXT
-            AERO_ASYM_FAC ( L,V ) = G_BAR / MAX( BSCAT, 1.0E-30 )
-
-#ifdef verbose_phot_extra
-            if ( l .eq. 1 .and. v .eq. 1 ) then
-               write(logdev, 9502)l, wavelength( V ), dgn_core, dgn_shell, bext_mode, 
-     &         bscat_mode, gbar_mode, ae_nr_shell( l, mode, v ), ae_ni_shell( v, mode, v ),
-     &         ae_nr_core( l, mode, iv ), ae_ni_core( l, mode, v )
-9502           format('layer = ',i2,' lambda  = ',es12.4,' dgn_core = ',es12.4,' dgn_shell = ',
-     &                 es12.4,' ae_bext = ',es12.4,' ae_bscat = ',es12.4,' ae_gbar = ',es12.4,
-     &                 ' refract_shell(nr,ni) = ', 2(es12.4,1x),' refract_core = ', 2(es12.4,1x))
-            end if
-#endif            
-
-         END DO LAY_LOOP2         
-
-      END DO LOOP_WAVE
-
-#ifdef verbose_phot
-      if ( col .eq. 1 .and. row .eq. 1 ) then
-         l = 1
-         v = 1
-         do mode = 1, n_mode
-            write(logdev, 5005)l, mode, v, ae_nr_core ( mode, l, v ), ae_ni_core ( mode, l, v ),
-     &      ae_nr_shell ( mode, l, v ), ae_ni_shell ( mode, l, v )
-5005        format('lay = ',i3,' mode = ',i3,' wlv index = ',i3,' ae_core(nr,ni) = ',
-     &      2(es12.4,1x), ' ae_shell(nr,ni) = ', 2(es12.4,1x))
-         end do
-      end if
-#endif
-
-
-9503  FORMAT('LAYER = ',I3,' MODE = ',I3,' LAMBDA(nm)  = ',ES12.4,' DGN_CORE(m) = ',ES12.4,
-     &       ' DGN_SHELL(m) = ', ES12.4 / ' REFRACT_IDX_SHELL(NR,NI) = ', 2(ES12.4,1X),
-     &       ' REFRACT_IDX_CORE(NR,NI) = ', 2(ES12.4,1X) / ' LN(GEO.STD.DEV.) = ',
-     &       ES12.4)
-9504  FORMAT('LAYER = ',I3,' MODE = ',I3,' LAMBDA(nm)  = ',ES12.4,' DGN(m) = ',ES12.4,
-     &       ' REFRACT_IDX(NR,NI) = ', 2(ES12.4,1X) / ' VOL.DENS. = ', ES12.4,
-     &       ' LN(GEO.STD.DEV.) = ', ES12.4)
-
-      RETURN
-      END SUBROUTINE AERO_OPTICS_INTERNAL 
-
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE FASTER_OPTICS ( NR, NI, ALPHV, XLNSIG, BETA_EXT, BETA_SCAT, G )
 C-----------------------------------------------------------------------
