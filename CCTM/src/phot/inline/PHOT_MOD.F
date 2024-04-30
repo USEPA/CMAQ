@@ -437,7 +437,6 @@ C-----------------------------------------------------------------------
 !***initialize BLKRJ and other layer variables
 
       BLKRJ          = 0.0
-      BLKDZ          = 0.0
       GAS_EXTINCTION = 0.0
       EXTINCTION     = 0.0
       ACTINIC_FLUX   = 0.0
@@ -478,6 +477,8 @@ C-----------------------------------------------------------------------
          TAU_RAY   = 0.0
          TROPO_O3_COLUMN = 0.0
          TROPO_O3_TOGGLE = 1.0
+!        BLKDZ           = 0.0
+         CALL SLANTPATH2 ( NLAYS, BLKZF, ZSFC, REARTH, SINZEN, BLKDZ, DSDH )
          RETURN
       END IF
 
@@ -507,6 +508,7 @@ C-----------------------------------------------------------------------
 
 !***get layer thicknesses and slantpath starting at the TOP
 
+!        BLKDZ = 0.0
          CALL SLANTPATH2 ( NLAYS, BLKZF, ZSFC, REARTH, SINZEN, BLKDZ, DSDH )
 
 !***get slantpath from ZTOM to ZTOA
