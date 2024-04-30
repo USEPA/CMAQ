@@ -48,13 +48,26 @@ For gases, usually this name is the same as the CMAQ species. For aerosols, it i
 - 'CMAQ-Species' - Internal Species Name. Set this field to 'ALL' to apply the rule to all CMAQ internal species.
 - 'Phase/Mode' - If the CMAQ-Species is a Gas, this field should equal 'Gas'. If the CMAQ-Species is an aerosol, this field should indicate one of the possible emission aerosol modes. Every stream by default is given a 'COARSE' and 'FINE' mode. The user may refer to these or define others above and refer to them as well. This level of specificity is needed so that aerosol number and surface area are calculated correctly, and so that any unit conversions between gases and aerosols can be handled correctly.  
 - 'Scale Factor' - Numerical adjustment factor to be applied to the mapping.
-- 'Basis' - Specifies whether the scaling option should directly apply, or if the operation should conserve moles or mass when performing scaling operations. CMAQ has a lookup table of molecular weights for known emission species and can use these to translate molar and mass emission rates from the input file to the CMAQ species. CMAQ determines the units of the emission species by reading the file header (i.e. it is important the units are accurate. Options for input are:
+- 'Basis' - Specifies whether the scaling option should apply with consideration of mass/mole conversions, or if the operation should ignore the units of the incoming variable and target CMAQ species. This parameter is ignored for multiply rules (i.e. the 'm' operator is specified) because unit conversion will have already been considered in the preceding add ('a') and/or overwrite ('o') rules. CMAQ includes a lookup table of molecular weights for known emission species (in desid_vars.F) and can use these to translate molar and mass emission rates from the input file to rates in units corresponding to the CMAQ internal species. CMAQ determines the units of the emission species by reading the file header (i.e. it is important the units are accurate). Options for input are:
   - 'MASS' - Conserve Mass. For example, if emissions of an aerosol are to be scaled to emissions of a gas species, it is common to want to conserve mass.
   - 'MOLE' - Conserve Moles. For example, if emissions of a gas-phase species are to be scaled to another gas, it is sometimes desired to conserve moles since gas emissions are provided on a mole basis.
   - 'UNIT' - Ignore molecular weight conversions and apply emission rate directly regardless of units.
+  - Example 1: Particle-phase variable Y (units in g/s) on the emission file is mapped to CMAQ gas-phase species X with a scale factor of B. Emissions for X are needed in mol/s.
+    - If Basis is set to UNIT, then EMIS(X) = EMIS(Y) * B
+    - If Basis is set to MASS, then EMIS(X) = EMIS(Y) * B * MW(X) 
+    - If Basis is set to MOLE, then EMIS(X) = EMIS(Y) * B / MW(Y) 
+  - Example 2: Gas-phase variable Y (units in mol/s) on the emission file is mapped to CMAQ gas-phase species X with a scale factor of B. Emissions for X are needed in mol/s.
+    - If Basis is set to UNIT, then EMIS(X) = EMIS(Y) * B
+    - If Basis is set to MASS, then EMIS(X) = EMIS(Y) * B * MW(Y) / MW(X) 
+    - If Basis is set to MOLE, then EMIS(X) = EMIS(Y) * B 
+  - Example 3: Particle-phase variable Y (units in g/s) on the emission file is mapped to CMAQ particle-phase species X with a scale factor of B. Emissions for X are needed in g/s.
+    - If Basis is set to UNIT, then EMIS(X) = EMIS(Y) * B 
+    - If Basis is set to MASS, then EMIS(X) = EMIS(Y) * B
+    - If Basis is set to MOLE, then EMIS(X) = EMIS(Y) * B / MW(Y) * MW(X)
+
 - 'Operation' - Specifies the kind of rule to be carried out. Options are:
   - 'a' - add the rule to existing instructions. This operation should be used for new entries, too.
-  - 'm' - find existing scaling instructions matching this rule's features (ie. species, streams, etc) and multiply them by the factor in this particular rule.
+  - 'm' - find existing scaling instructions matching this rule's features (ie. species, streams, etc) and multiply them by the factor in this particular rule. This operator ignores the 'BASIS' input parameter regardless of its value (UNIT, MASS or MOLES).  
   - 'o' - find existing scaling instructions matching this rule and overwrite them.  
 
 ### B.2.1 Default Rules

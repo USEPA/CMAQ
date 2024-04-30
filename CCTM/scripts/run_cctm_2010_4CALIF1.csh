@@ -640,7 +640,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
         #echo "Deleting output file: $file"
         /bin/rm -f $file  
      end
-     /bin/rm -f ${OUTDIR}/CCTM_DESID*${RUNID}_${YYYYMMDD}.nc
+     /bin/rm -f ${OUTDIR}/CCTM_DESID*${CTM_APPL}.nc
 
   else
      #> error if previous log files exist
