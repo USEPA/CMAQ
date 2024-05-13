@@ -207,8 +207,10 @@ C...compare grid values with input file
       IF ( TSTEP .NE. TSTEP3D ) KSWIT = .false.
       IF ( XCELL .NE. XCELL3D ) KSWIT = .false.
       IF ( YCELL .NE. YCELL3D ) KSWIT = .false.
-      IF ( ABS(XORIG-XORIG3D) .gt. 0.1 ) KSWIT = .false.
-      IF ( ABS(YORIG-YORIG3D) .gt. 0.1 ) KSWIT = .false.
+!!!   IF ( ABS(XORIG-XORIG3D) .gt. 0.1 ) KSWIT = .false.
+!!!   IF ( ABS(YORIG-YORIG3D) .gt. 0.1 ) KSWIT = .false.
+      IF ( DABS(XORIG-XORIG3D) > smallnum ) KSWIT = .false.
+      IF ( DABS(YORIG-YORIG3D) > smallnum ) KSWIT = .false.
 
       if( .NOT.KSWIT ) then
         WRITE( *, '(''**ERROR** Inconsistenece file parameters'',

@@ -113,6 +113,13 @@ SUBROUTINE aqprep (grid, config_flags, t_phy_wrf, p_phy_wrf, rho_wrf,     &
 !                 sr_d, and er_d to avoid naming conflicts
 !           16 Mar 2023  (David Wong)
 !              -- fixed a bug in creating u and v components
+!           30 Apr 2024  (Tanya Spero)
+!              -- Changed constraint on XORIG and YORIG for Lambert conformal
+!                 projections. Original constraint of 500 meters introduced an
+!                 error in calculating the lower-left corner that is more
+!                 noticeable at fine resolutions. Now using a constraint of
+!                 5 meters to allow for "neater" XORIG and YORIG values across
+!                 compilers.
 !===============================================================================
 
   USE module_domain                                ! WRF module
@@ -2020,12 +2027,12 @@ SUBROUTINE aq_header (ncols, nrows, gncols, gnrows, nlays, sdate, stime, dx, dy,
 ! IF ( wrf_lc_ref_lat > -999.0 ) THEN  ! adjust XORIG and YORIG
   IF ( moad_cen_lat > -999.0 ) THEN  ! adjust XORIG and YORIG
 
-    xtemp = xorig / 500.0
-    ytemp = yorig / 500.0
+    xtemp = xorig / 5.0
+    ytemp = yorig / 5.0
     xtemp = FLOAT(NINT(xtemp))
     ytemp = FLOAT(NINT(ytemp))
-    xorig = xtemp * 500.0
-    yorig = ytemp * 500.0
+    xorig = xtemp * 5.0
+    yorig = ytemp * 5.0
 
   ENDIF
 

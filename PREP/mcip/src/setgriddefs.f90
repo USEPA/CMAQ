@@ -164,11 +164,14 @@ SUBROUTINE setgriddefs
 !           21 Sep 2020  Corrected error in logic for processing meteorology
 !                        data at a time interval that is coarser than the
 !                        available data in the file.  (T. Spero)
-!           08 Aug 2023  Removed constraint on XORIG and YORIG for Lambert
-!                        conformal projections because it introduced an error
-!                        in placing the domain, particularly for domains with
-!                        a horizontal grid spacing that is not a multiple of
-!                        1 km.  (T. Spero)
+!           30 Apr 2024  Changed constraint on XORIG and YORIG for Lambert
+!                        conformal projections with user-specified runtime
+!                        reference latitude. Original constraint of 500 meters
+!                        introduced an error in calculating the location of the
+!                        lower-left corner in domains with a horizontal grid
+!                        spacing that is not a multiple of 1 km. Now using a
+!                        constraint of 5 meters to allow for "neater" XORIG
+!                        and YORIG values across compilers. (T. Spero)
 !-------------------------------------------------------------------------------
 
   USE mcipparm
@@ -515,26 +518,15 @@ SUBROUTINE setgriddefs
     xorig_ctm = met_xxctr - ( met_rictr_dot - FLOAT(x0+nthik) ) * met_resoln
     yorig_ctm = met_yyctr - ( met_rjctr_dot - FLOAT(y0+nthik) ) * met_resoln
 
-!---This block was introduced to force the XORIG and YORIG from WRF-generated
-!---files to align with definitions from MM5-generated files. It was established
-!---as a way to overcome some of the real number issues encountered in creating
-!---XORIG and YORIG within MCIP using different trigonometric functions. I now
-!---commented out this block because it is too restrictive for the flexibility
-!---in WRF for defining domains, and it introduces error in domains that do not
-!---have a grid spacing that is a multiple of 1 km. That is, for domains with
-!---a delta-x of 1.33 km or 0.44 km, this block creates erroneous changes to the
-!---XORIG and YORIG. There may be areas upstream that need to be corrected.
-!---TLS 8 August 2023
-
-!   IF ( ( gdtyp_gd == lamgrd3 ) .AND. ( wrf_lc_ref_lat > -900.0 ) ) THEN
-!     ! Force XORIG and YORIG to be even increments of 0.5*delta-X.
-!     xtemp = xorig_ctm / 500.0
-!     ytemp = yorig_ctm / 500.0
-!     xtemp = FLOAT(NINT(xtemp))
-!     ytemp = FLOAT(NINT(ytemp))
-!     xorig_ctm = xtemp * 500.0
-!     yorig_ctm = ytemp * 500.0
-!   ENDIF
+    IF ( ( gdtyp_gd == lamgrd3 ) .AND. ( wrf_lc_ref_lat > -900.0 ) ) THEN
+      ! Force XORIG and YORIG to be in increments of 5 meters.
+      xtemp = xorig_ctm / 5.0
+      ytemp = yorig_ctm / 5.0
+      xtemp = FLOAT(NINT(xtemp))
+      ytemp = FLOAT(NINT(ytemp))
+      xorig_ctm = xtemp * 5.0
+      yorig_ctm = ytemp * 5.0
+    ENDIF
       
   ENDIF
 
