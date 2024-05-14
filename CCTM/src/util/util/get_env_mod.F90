@@ -73,9 +73,9 @@
 
           if ( loc_logdev .gt. 0 ) then
              if (default) then
-                write( loc_logdev, '(A16,2x,A,2x,i10, 1x, a9)' ), env_var,'|', env_value, '(default)'
+                write( loc_logdev, '(A21,2x,A,2x,i10, 1x, a9)' ), env_var,'|', env_value, '(default)'
              else if (regular) then
-                write( loc_logdev, '(A16,2x,A,2x,i10)' ), env_var,'|', env_value
+                write( loc_logdev, '(A21,2x,A,2x,i10)' ), env_var,'|', env_value
              end if
           end if
 
@@ -113,9 +113,9 @@
 
           if ( loc_logdev .gt. 0 ) then
              if (default) then
-                write( loc_logdev, '(A16,2x,A,2x,e10.3, 1x, a9)' ), env_var,'|', env_value, '(default)'
+                write( loc_logdev, '(A21,2x,A,2x,e10.3, 1x, a9)' ), env_var,'|', env_value, '(default)'
              else if (regular) then
-                write( loc_logdev, '(A16,2x,A,2x,e10.3)' ), env_var,'|', env_value
+                write( loc_logdev, '(A21,2x,A,2x,e10.3)' ), env_var,'|', env_value
              end if
           end if
 
@@ -153,9 +153,9 @@
 
           if ( loc_logdev .gt. 0 ) then
              if (default) then
-                write( loc_logdev, '(A16,2x,A,2x,e10.3, 1x, a9)' ), env_var,'|', env_value, '(default)' 
+                write( loc_logdev, '(A21,2x,A,2x,e10.3, 1x, a9)' ), env_var,'|', env_value, '(default)' 
              else if (regular) then
-                write( loc_logdev, '(A16,2x,A,2x,e10.3)' ), env_var,'|', env_value
+                write( loc_logdev, '(A21,2x,A,2x,e10.3)' ), env_var,'|', env_value
              end if
           end if
 
@@ -196,13 +196,13 @@
              length = len_trim(env_value)
              if (default) then
                 if (length .eq. 0) then
-                   write( loc_logdev, '(A16, 2x, A, 13x, a9)') env_var, '|', '(default)'
+                   write( loc_logdev, '(A21, 2x, A, 13x, a9)') env_var, '|', '(default)'
                 else
-                   write (myfmt, '(a18, i3.3, a9)') '(A16, 2x, A, 2x, A', length, ', 1x, a9)'
+                   write (myfmt, '(a18, i3.3, a9)') '(A21, 2x, A, 2x, A', length, ', 1x, a9)'
                    write( loc_logdev, myfmt) env_var, '|', env_value, '(default)'
                 end if
              else if (regular) then
-                write (myfmt, '(a18, i3.3, a1)') '(A16, 2x, A, 2x, A', length, ')'
+                write (myfmt, '(a18, i3.3, a1)') '(A21, 2x, A, 2x, A', length, ')'
                 write( loc_logdev, myfmt) env_var,'|', env_value
              end if
           end if
@@ -278,9 +278,9 @@
 
           if ( loc_logdev .gt. 0 ) then
              if (default) then
-                write( loc_logdev, '(A16,2x,A,10x,L, 1x, a9)' ), env_var,'|', env_value, '(default)'
+                write( loc_logdev, '(A21,2x,A,10x,L, 1x, a9)' ), env_var,'|', env_value, '(default)'
              else if (regular) then
-                write( loc_logdev, '(A16,2x,A,10x,L)' ), env_var,'|', env_value
+                write( loc_logdev, '(A21,2x,A,10x,L)' ), env_var,'|', env_value
              end if
           end if
 
@@ -389,5 +389,29 @@
           end do
 
         end subroutine get_envlist
+        function get_free_iounit() result ( iounit )
+
+! function finds and return a free IO unit
+! adapted from D.Wong's mio library
+
+           implicit none
+
+           integer :: iounit
+           logical :: found, opened
+
+           iounit = 99
+           found = .false.
+           do while ((.not. found) .and. (iounit .le. 100000))
+              inquire (unit=iounit, opened=opened)
+              if (.not. opened) then
+                 found = .true.
+              else
+                 iounit = iounit + 1
+              end if
+           end do
+
+
+        end function get_free_iounit
+
 
       end module get_env_module

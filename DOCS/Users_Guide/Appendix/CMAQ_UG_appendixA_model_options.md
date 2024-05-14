@@ -474,10 +474,15 @@ Sets if the CCTM will run in multi-processor or serial mode.
     Y/N setting to calculate biogenic emissions using BEIS. If this option is activated, several additional variables must be set (see the online biogenic emissions configuration settings). See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#biogenics) for further information.
 -   `CTM_BIOGEMIS_MEGAN [default: N]`<a id=CTM_BIOGEMIS_MEGAN></a>  
     Y/N setting to calculate biogenic emissions using MEGAN. If this option is activated, several additional variables must be set (see the online biogenic emissions configuration settings). See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#biogenics) for further information.
--   `OPTICS_MIE_CALC  [default: N]`<a id=OPTICS_MIE_CALC></a>    
-     In the inline option for photolysis rates, solve Mie Theory to calculate the optical properties of the aerosol modes based on uniformly mixed spheres.
--   `CORE_SHELL_OPTICS [default: N]`<a id=CORE_SHELL_OPTICS></a>    
-     In the inline option for photolysis rates, solve Mie Theory to calculate the optical properties of the aerosol modes based on spheres with an elemental carbon core.
+-   `AEROSOL_OPTICS  [default: 3]`<a id=AEROSOL_OPTICS></a>  Determines how aerosol optical properies are calculated for the Inline Calculation of Photolysis Frequencies.      
+    -- VALUES 1 thru 3 determined by using Uniformly Volume Mixed sphere for each aerosol mode   
+    ---  1-Inline Tabular Method based on Mie Calculations over range of aerosol properties    
+    ---  2-Solves Mie Theory using aerosol size distribution and mean refractive indices    
+    ---  3-Approximations to Mie Theory based on Mie Parameters and mean refractive indices     
+    --  VALUES 4 thru 6 attempts to use core-shell mixing model when the aerosol mode has signficant black carbon core otherwise uses Volume Mixed model where optics determined as    
+    ---  4-Inline Tabular Method based on Mie Calculations     
+    ---  5-Solves Mie Theory    
+    ---  6-Approximations to Mie Theory    
 -   `CTM_PVO3 [default: N]`<a id=CTM_PVO3></a>    
      Y/N determines whether to scale ozone in free-troposphere to potential vorticity. Option requires that METCRO3D file has PV, potential vorticity. See [User Guide 6.13](../CMAQ_UG_ch06_model_configuration_options.md#613-potential-vorticity-scaling) for more information.
 

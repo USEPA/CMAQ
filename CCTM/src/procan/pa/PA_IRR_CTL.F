@@ -47,6 +47,8 @@ C                      domain specifications in one module (GRID_CONF)
 C   21 Jun 10 J.Young: convert for Namelist redesign
 C   16 Sep 16 J.Young: update for inline procan (IRR)
 C    1 Feb 19 David Wong: removed all MY_N clauses
+C   17 Jan 24 David Wong: fixed a bug that IRR/IPR process alllows a subset of
+C                         level, a..b, where 1 <= a <= b <= NLAYS
 C-----------------------------------------------------------------------
 
       CONTAINS
@@ -267,14 +269,14 @@ C-----------------------------------------------------------------------
 #ifdef parallel
                PC = COL
                PR = ROW
-               PL = LEV
 #else
 C -- serial case, calculations are shifted to the origin but not in
 C    parallel implementation
                PC = COL - MY_IRR_BEGCOL + 1
                PR = ROW - MY_IRR_BEGROW + 1
-               PL = LEV - MY_IRR_BEGLEV + 1
 #endif
+               PL = LEV - MY_IRR_BEGLEV + 1
+
                DO NIRR = 1, NIRRVAR
                   IRROUT( PC,PR,PL,NIRR ) = IRROUT( PC,PR,PL,NIRR )
      &                                    + IRRBLK( CELL,NIRR )      
@@ -308,14 +310,14 @@ C-----------------------------------------------------------------------
 #ifdef parallel
                PC = COL
                PR = ROW
-               PL = LEV
 #else
 C -- serial case, calculations are shifted to the origin but not in
 C    parallel implementation
                PC = COL - MY_IRR_BEGCOL + 1
                PR = ROW - MY_IRR_BEGROW + 1
-               PL = LEV - MY_IRR_BEGLEV + 1
 #endif
+               PL = LEV - MY_IRR_BEGLEV + 1
+
                DO NIRR = 1, NIRRVAR
                   IRROUT( PC,PR,PL,NIRR ) = IRROUT( PC,PR,PL,NIRR )
      &                                    + IRRSUM( NIRR )      
@@ -370,12 +372,11 @@ C    parallel implementation
 #ifdef parallel
             PC = COL
             PR = ROW
-            PL = LEV
 #else
             PC = COL - MY_IRR_BEGCOL + 1
             PR = ROW - MY_IRR_BEGROW + 1
-            PL = LEV - MY_IRR_BEGLEV + 1
 #endif
+            PL = LEV - MY_IRR_BEGLEV + 1
 
             DO NIRR = 1, NIRRVAR
                IRROUT( PC,PR,PL,NIRR ) = IRROUT( PC,PR,PL,NIRR )

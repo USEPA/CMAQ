@@ -332,7 +332,7 @@ C-----------------------------------------------------------------------
        CHARACTER( 20 )                  :: DESID_AERO_REF_CAPS( DESID_N_AERO_REF )
 
        INTEGER IRULE, ISUR, N, NLEN, ISD, IM, IEM, NRULE
-       LOGICAL   :: LREMOVE
+       LOGICAL   :: LREMOVE, LERROR
        
        ! Find Total Number of Size Distribution Registries
        N_SD_RULE = 0
@@ -366,7 +366,7 @@ C-----------------------------------------------------------------------
          LREMOVE = .FALSE.
          IF ( DESID_SD_NML( IRULE )%STREAM .EQ. '' ) CYCLE
          CALL DESID_GET_RULE_STREAMS( DESID_SD_NML( IRULE )%STREAM, IRULE, 
-     &                 RULE_STREAM, LREMOVE )
+     &                 RULE_STREAM, LREMOVE, LERROR )
          IF ( LREMOVE ) CYCLE
 
          ! Loop through streams, set defaults, and build map array
@@ -522,10 +522,9 @@ C *** Apply Aerosol Size Distribution
              
              ! Look up Aerosol Species and Mode of Interest
              IAERO = MAP_ISTRtoAERO( ISTR )   !This maps to the CMAQ aerosol
-                                            !  species so we can retrieve density
+                                              !  species so we can retrieve density
              IM    = MAP_ISTRtoMODE( ISTR )   !This maps to the internal CMAQ modes 
-                                            !  (ie. I, J, and K)
-             !DENS_FAC = F6DPIM9 / AEROSPC( IAERO )%DENSITY 
+                                              !  (ie. I, J, and K)
 
              ! Convert Aerosol from [g/s] to [ug/m3/s] for all streams
              ! except Dust and Sea Spray. For those streams, convert
