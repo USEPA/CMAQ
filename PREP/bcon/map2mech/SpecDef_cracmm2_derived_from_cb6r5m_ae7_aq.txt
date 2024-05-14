@@ -186,7 +186,7 @@ VROCN1OXY6      ,ppmV            ,VLVOO2[1], CRACMM mapping of VLVOO2
 
 VROCP0OXY4      ,ppmV            ,VSVOO1[1] + SVAVB2[1], CRACMM mapping of VSVOO1 and SVAVB2
 
-VROCP1OXY3      ,ppmV            ,VSVOO2[1] + SVAVB3[1], CRACMM mapping of VSVOO2 and SVAVB3
+VROCP1OXY3      ,ppmV            ,VSVOO2[1] + SVAVB3[1] + SVSQT[1], CRACMM mapping of VSVOO2, SVAVB3, SVSQT
 
 VROCP2OXY2      ,ppmV            ,VSVOO3[1] + SVAVB4[1], CRACMM mapping of VSVOO3 and SVAVB4
 
@@ -329,7 +329,5 @@ AHOMJ           ,ug m-3          ,AMTNO3J[1] + AMTHYDJ[1]+ AMT1J[1] + AMT2J[1] +
 NH3             ,ppmV            ,NH3[1], CRACMM mapping of NH3
 
 HCL             ,ppmV            ,HCL[1], CRACMM mapping of HCL
-
-VROCP1OXY3      ,ppmV            ,SVSQT[1], CRACMM mapping of SVSQT
 
 ECH4            ,ppmV            ,ECH4[1], CRACMM mapping of ECH4
