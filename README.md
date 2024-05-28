@@ -19,6 +19,7 @@ contributions from other research partners. CMAQv5.1 builds upon the beta versio
 modeling community in April 2015 by the U.S. EPA. Release notes provided below summarize the main enhancements to the 
 modeling system since the previous release, CMAQ v5.0.2. 
 
-CMAQv5.1 Release notes: https://www.airqualitymodeling.org/index.php/CMAQ_version_5.1_%28November_2015_release%29_Technical_Documentation
+CMAQv5.1 Release notes: [https://www.airqualitymodeling.org/index.php/CMAQ_version_5.1_%28November_2015_release%29_Technical_Documentation
+](https://cmascenter.org/cmaq/wiki/airqualitymodeling.org/index.php/CMAQ_version_5.1_(November_2015_release)_Technical_Documentation)
 
-Full documentation available at http://www.epa.gov/cmaq
+Additional documentation available at http://www.epa.gov/cmaq
