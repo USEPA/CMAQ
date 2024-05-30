@@ -1,7 +1,8 @@
 # Getting started with CRACMM
 
 Author: Havala Pye (pye.havala@epa.gov) | v5.4
-Update: Havala Pye (pye.havala@epa.gov) | 5.5
+
+Update: Havala Pye (pye.havala@epa.gov) | v5.5
 
 CRACMM was first introduced in CMAQv5.4 as two versions: CRACMM1 and CRACMM1AMORE. Those versions are retained in v5.5 and an updated version, CRACMM2, is released for the first time. CRACMM2 merges the CRACMM and CRACMM-AMORE lines of development into one path going forward. Thus, CRACMM2 is an update to both CRACMM1 and CRACMM1AMORE. CRACMM has a separate supporting repository at https://www.github.com/USEPA/CRACMM which contains additional information to facilitate use of CRACMM in CMAQ. This tutorial provides an overview of how to get starting running CRACMM in CMAQ.
 
@@ -27,10 +28,6 @@ CRACMM includes a set of rules for how individual organic species map to the mec
 These rules are distributed in python code and a PDF flowchart in the supporting repository. 
 In addition, the repository contains the mapping of individual organic species from the SPECIATE database, BEIS, and MEGAN to CRACMM species.
 CMAQ-ready emissions are generally prepared using the SMOKE model. 
-The CRACMM supporting repository contains inputs based on SPECIATE using EPA workflows for 
-Speciation Tool and SMOKE.
-
-We welcome feedback on the representativeness of mechanism species for emissions and the ease of mapping to the mechanism.
 
 ## How do I obtain initial and boundary conditions?
  
@@ -39,9 +36,9 @@ https://doi.org/10.1016/j.atmosenv.2017.04.009) for the impact of initial condit
 
 ## What does CRACMM assume about the volatility of primary organic aerosol and how to I prepare those emissions?
 
-Current EPA operational workflows with SPECIATE, Speciation Tool, and SMOKE assume POA is nonvolatile. A few volatility resolved profiles are in SPECIATE starting with v5.1, and work is underway to build volatility information for all relevant sources into future versions of SPECIATE. However, semivolatile profiles have never been propagated through SMOKE to CMAQ in EPA workflows. 
+The majority of speciation profiles in SPECIATE assume POA is nonvolatile. A few volatility resolved profiles are in SPECIATE starting with v5.1, and work is underway to build volatility information for all relevant sources into future versions of SPECIATE.  
 
-[S2S-Tool](https://github.com/USEPA/S2S-Tool) EPA workflows in place for CRACMM implement semivolatile POA parameterizations in the emission files. 
+[S2S-Tool](https://github.com/USEPA/S2S-Tool) workflows in place for CRACMM supplement the POA information in SPECIATE by implementing semivolatile POA profiles in the emission files. 
 Prior to S2S-Tool, workflows in place for CRACMM in v5.4 implemented semivoltile POA in the DESID control files by adding together PMOCN2 and PMNOCMN2 on the emission files to create a 
 total POA equivalent that is then distributed to different volatility species in the model based on the expected volatility of POA emissions. Your specific configuration will depend on when and how your emissions were prepared.
 
