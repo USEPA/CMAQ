@@ -49,6 +49,14 @@ C                    12/04/02 by David Wong
 C                       -- modified the routine to accommodate worker and
 C                          I/O processors partition scheme
 C
+C                    01/04/23 by David Wong
+C                       -- modified routines to handle any level range setting
+C                          defined by PA_BLEV PA_ELEV in the run script properly
+C
+C                    01/17/24 by David Wong
+C                       -- fixed a bug that IRR/IPR process alllows a subset of
+C                          level, a..b, where 1 <= a <= b <= NLAYS
+C
 C Note:
 C
 C   se_[n]d[e]_data_copy where [n] denotes the dimensionality of the data
@@ -226,8 +234,8 @@ C --------------------------------------------------------------------------
         do i = 0, se_numworkers-1
            se_subgrid_send_ind(1,3,i) = se_my_subgrid_beglev
            se_subgrid_send_ind(2,3,i) = se_my_subgrid_endlev
-           se_subgrid_recv_ind(1,3,i) = se_my_subgrid_beglev
-           se_subgrid_recv_ind(2,3,i) = se_my_subgrid_endlev
+           se_subgrid_recv_ind(1,3,i) = 1
+           se_subgrid_recv_ind(2,3,i) = se_my_subgrid_endlev - se_my_subgrid_beglev + 1
         end do
 
         do sdir = 0, se_numworkers-1
@@ -269,7 +277,7 @@ c             end if
         end subroutine se_3d_data_copy
 
 C --------------------------------------------------------------------------
-        subroutine se_3de_data_copy (data1, data2, spc)
+        subroutine se_3de_data_copy (data1, data2, spc, flag)
 
         use se_subgrid_info_ext
         use se_pe_info_ext
@@ -283,18 +291,29 @@ C --------------------------------------------------------------------------
         real, intent(in) :: data1(:, :, :, :)
         real, intent(out) :: data2(:, :, :)
         integer, intent(in) :: spc
+        integer, intent(in), optional :: flag
 
-        integer :: i, sdir, rdir, tag
+        integer :: i, sdir, rdir, tag, loc_beglev, loc_endlev
         integer :: request, status(MPI_STATUS_SIZE), error
 
+        if (present(flag)) then
+           ! this indicates data1 is in subset level configuration and
+           ! indiex starting from 1
+           loc_beglev = 1
+           loc_endlev = se_my_subgrid_endlev - se_my_subgrid_beglev + 1
+        else
+           loc_beglev = se_my_subgrid_beglev
+           loc_endlev = se_my_subgrid_endlev
+        end if
+
         do i = 0, se_numworkers-1
-           se_subgrid_send_ind(1,3,i) = se_my_subgrid_beglev
-           se_subgrid_send_ind(2,3,i) = se_my_subgrid_endlev
+           se_subgrid_send_ind(1,3,i) = loc_beglev
+           se_subgrid_send_ind(2,3,i) = loc_endlev
            se_subgrid_send_ind(1,4,i) = spc
            se_subgrid_send_ind(2,4,i) = spc
 
-           se_subgrid_recv_ind(1,3,i) = se_my_subgrid_beglev
-           se_subgrid_recv_ind(2,3,i) = se_my_subgrid_endlev
+           se_subgrid_recv_ind(1,3,i) = 1
+           se_subgrid_recv_ind(2,3,i) = se_my_subgrid_endlev - se_my_subgrid_beglev + 1
         end do
 
         do sdir = 0, se_numworkers-1
@@ -429,8 +448,8 @@ C --------------------------------------------------------------------------
            se_subgrid_send_ind(1,4,i) = spc
            se_subgrid_send_ind(2,4,i) = spc
 
-           se_subgrid_recv_ind(1,3,i) = se_my_subgrid_beglev
-           se_subgrid_recv_ind(2,3,i) = se_my_subgrid_endlev
+           se_subgrid_recv_ind(1,3,i) = 1
+           se_subgrid_recv_ind(2,3,i) = se_my_subgrid_endlev - se_my_subgrid_beglev + 1
            se_subgrid_recv_ind(1,4,i) = des
            se_subgrid_recv_ind(2,4,i) = des
         end do
