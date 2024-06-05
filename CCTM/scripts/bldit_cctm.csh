@@ -1,6 +1,6 @@
 #!/bin/csh -f
 
-# ======================= CCTMv5.4.X Build Script ========================= 
+# ======================= CCTMv5.5.X Build Script ========================= 
 # Usage: bldit.cctm >&! bldit.cctm.log                                   
 # Requirements: I/O API & netCDF libraries, a Fortran compiler,               
 #               and MPI for multiprocessor computing                     
@@ -86,11 +86,11 @@ set make_options = "-j"                #> additional options for make command if
 
 #> Working directory and Version IDs
  if ( $?ISAM_CCTM ) then
-     set VRSN  = v54_ISAM             #> model configuration ID for CMAQ_ISAM
+     set VRSN  = v55_ISAM             #> model configuration ID for CMAQ_ISAM
  else if ( $?DDM3D_CCTM ) then
-     set VRSN = v54_DDM3D             #> model configuration ID for CMAQ_DDM
+     set VRSN = v55_DDM3D             #> model configuration ID for CMAQ_DDM
  else
-     set VRSN = v54                   #> model configuration ID for CMAQ
+     set VRSN = v55                   #> model configuration ID for CMAQ
  endif
  
  set EXEC  = CCTM_${VRSN}.exe          #> executable name
@@ -784,7 +784,7 @@ set Cfile = ${Bld}/${CFG}.bld      # Config Filename
 
     cd $CMAQ_HOME/CCTM/scripts
   
-    # Downlad WRF repository from GitHub and put CMAQv5.4 into it
+    # Downlad WRF repository from GitHub and put CMAQv5.5 into it
     set WRF_BLD = BLD_WRF${WRF_VRSN}_CCTM_${VRSN}_${compilerString}
     setenv wrf_path ${CMAQ_HOME}/CCTM/scripts/${WRF_BLD}
     setenv WRF_CMAQ 1
