@@ -23,9 +23,9 @@ CRACMM is compatible and has been tested with both STAGE and M3DRY deposition mo
 ## How do I prepare emission inputs for CRACMM?
 
 CRACMM1 and CRACMM1AMORE use the same emissions since the two versions differ only in the representation of isoprene chemistry. 
-CRACMM2 emissions are slightly different than CRACMM1 as ethylbenzene and styrene are now explicit. CRACMM2 emissions may be used in CRACMM1/CRACMM1AMORE (and vice versa) using approximations (see the work of Skipper et al.).
+CRACMM2 emissions are slightly different than CRACMM1 as ethylbenzene and styrene are now explicit. CRACMM2 emissions may be used in CRACMM1/CRACMM1AMORE (and vice versa) using approximations (see the work of Skipper et al. and https://github.com/USEPA/CRACMM/tree/main/emissions).
 CRACMM includes a set of rules for how individual organic species map to the mechanism species. 
-These rules are distributed in python code and a PDF flowchart in the supporting repository. 
+These rules are distributed in python code in the supporting repository. 
 In addition, the repository contains the mapping of individual organic species from the SPECIATE database, BEIS, and MEGAN to CRACMM species.
 CMAQ-ready emissions are generally prepared using the SMOKE model. 
 
