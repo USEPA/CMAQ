@@ -47,7 +47,7 @@ where integers [start] and [end] are the starting and ending grid columns, rows,
 
 **Step 2: Ensure that output files are being written and that the output variables have been correctly specified**
 
-A PACM_REPORT file, with the name specified in Step 1, is output for every day of simulation, along with daily IRR or IPR files, depending on whether IRR or IPR was specified.  If there is a formatting error in the PACM_INPUT file, CMAQ will not run and the CMAQ log files must be checked to determine where the error occurred. The PACM_REPORT file will list the reactions that are used to interpret each of the reactions/families/cycles/operators specified by the user in the PACM_INPUT file.  For complex operations (such as those including families or cycles), the user must ensure that the output conveys the appropriate quantities.
+A PACM_REPORT file, with the name specified in Step 1, is output for every day of simulation, along with daily IRR or IPR files, depending on whether IRR or IPR was specified.  If there is a formatting error in the PACM_INPUT file, CMAQ will not run and the CMAQ log files must be checked to determine where the error occurred. The PACM_REPORT file will list the reactions that are used to interpret each of the reactions/families/cycles/operators specified by the user in the PACM_INPUT file.  For complex operations (such as those including families or cycles), the user must ensure that the output appropriately reflects the information provided in the process analysis input control file.
 
 The output files are specified in the CMAQ runscript by:
 
