@@ -28,7 +28,7 @@
 * [6.9 Emissions](#6.9_Emissions)
 	* [6.9.1 Emission Streams](#6.9.1_Emission_Streams)
 	* [6.9.2 Online Emission Streams](#6.9.2_Online_Emission)
-	* [6.9.3 Emission Compatability](#6.9.3_Emission_Compatability)
+	* [6.9.3 Emission Compatibility](#6.9.3_Emission_Compatibility)
 * [6.10 Gas Phase Chemistry](#6.10_Gas_Phase_Chem)
 	* [6.10.1 Gas Phase Chemical Mechanisms](#6.10.1_Gas_Phase_Mech)
 	* [6.10.2 Solvers](#6.10.2_Solver)
@@ -686,9 +686,9 @@ setenv USE_NLDN N
 setenv LTNGPARMS_FILE /home/user/path-to-file/LTNG_AllParms_12US1.nc
 ```
 
-<a id=6.9.3_Emission_Compatability></a>
+<a id=6.9.3_Emission_Compatibility></a>
 
-### 6.9.3 Emission Compatability for CMAQv5.3+
+### 6.9.3 Emission Compatibility for CMAQv5.3+
 
 <!-- BEGIN COMMENT -->
 
