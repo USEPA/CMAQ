@@ -19,7 +19,7 @@ Create namelist according to Table 4-2 in the [CMAQ User's Guide](../CMAQ_UG_ch0
 | 3 || Header ID | String |String to define data structure relating to namelist|{TR_SPECIES_DATA = }|
 | 5 |1| SPECIES | String |CMAQ Species name, i.e. NO, HNO<sub>3</sub>, PAR; dependent on chemical mechanism|-|
 ||2| MOLWT| Integer |Species Molecular Weight|-|
-|  |3| IC | String |IC/ surrogate species name for the CMAQ Species|{'Species name', ' '}|
+|  |3| IC | String |Initial conditions surrogate species name for the CMAQ Species|{'Species name', ' '}|
 |  |4| FAC | Integer |Scaling factor for the IC/BC concentration|{Any integer: default = -1 if IC is not specified}|
 |  |5| BC | String |surrogate species name for the CMAQ Species|{'Species name', ' '}|
 |  |6| FAC | Integer |Scaling factor for the IC/BC concentration|{Any integer: default = -1 if BC is not specified}|
@@ -27,8 +27,8 @@ Create namelist according to Table 4-2 in the [CMAQ User's Guide](../CMAQ_UG_ch0
 | |8| FAC | Integer |Scaling factor for the deposition velocity|{Any integer: default = -1 if SURR is not specified}|
 | |9| WET-SCAV SURR | String |Wet Deposition Scavenging surrogate species|-|
 | | 10 | FAC | Integer |Scaling factor for Scavenging|{Any integer: default = -1 if SURR is not specified}|
-|| 11 | TR2AE SURR | String |Gas-to-aerosol transformation species|Not currently functional in CMAQ|
-|| 12 | TR2AQ SURR | String |Gas-to-aqueous transformation species|Allows the tracer to participate in aqueous phase chemical reactions|
+|| 11 | TR2AE SURR | String |Surrogate species name for gas-to-aerosol transformation species|Not currently functional in CMAQ|
+|| 12 | TR2AQ SURR | String |Surrogate species name for aqueous phase reactions|Allows the tracer to participate in aqueous phase chemical reactions|
 || 13 | TRNS | String |Transport Switch. *NOTE: Instead of using one column labeled "TRNS" to turn/off both advection and diffusion for a pollutant, two separate columns labeled "ADV" and "DIFF" can be used to switch on/off advection and diffusion separately.|{YES/NO}|
 || 14 | DDEP | String |Dry deposition output file switch|{YES/NO}|
 || 15 | WDEP | Real |Wet deposition output file switch|{YES/NO}|
