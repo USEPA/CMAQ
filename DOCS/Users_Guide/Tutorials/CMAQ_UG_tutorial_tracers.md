@@ -27,7 +27,7 @@ Create namelist according to Table 4-2 in the [CMAQ User's Guide](../CMAQ_UG_ch0
 | |8| FAC | Integer |Scaling factor for the deposition velocity|{Any integer: default = -1 if SURR is not specified}|
 | |9| WET-SCAV SURR | String |Wet Deposition Scavenging surrogate species|-|
 | | 10 | FAC | Integer |Scaling factor for Scavenging|{Any integer: default = -1 if SURR is not specified}|
-|| 11 | TR2AE SURR | String |Gas-to-aerosol transformation species|-|
+|| 11 | TR2AE SURR | String |Gas-to-aerosol transformation species|Not currently functional in CMAQ|
 || 12 | TR2AQ SURR | String |Gas-to-aqueous transformation species|-|
 || 13 | TRNS | String |Transport Switch. *NOTE: Instead of using one column labeled "TRNS" to turn/off both advection and diffusion for a pollutant, two separate columns labeled "ADV" and "DIFF" can be used to switch on/off advection and diffusion separately.|{YES/NO}|
 || 14 | DDEP | String |Dry deposition output file switch|{YES/NO}|
