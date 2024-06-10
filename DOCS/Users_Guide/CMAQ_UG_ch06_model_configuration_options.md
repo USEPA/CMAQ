@@ -432,7 +432,7 @@ To calculate online biogenic emissions, CMAQ uses the [Biogenic Emission Invento
 
 #### BEIS
 
-BEIS calculates emissions resulting from biological activity from land-based vegetative species as well as nitric oxide emissions produced by microbial activity from certain soil types. This biogenic model is based on the same model that is included in SMOKE. User documentation for BEIS can be found in [Chapter 6.17 of the SMOKE manual](https://www.cmascenter.org/help/documentation.cfm?model=smoke&version=4.6). 
+BEIS calculates emissions resulting from biological activity from land-based vegetative species as well as nitric oxide emissions produced by microbial activity from certain soil types. This biogenic model is based on the same model that is included in SMOKE. User documentation for BEIS can be found in [Chapter 4.19 of the SMOKE manual](https://www.cmascenter.org/smoke/documentation/5.0/html/). 
 
 Speciation of biogenic emissions for BEIS is controlled by gspro_biogenics.txt under CCTM/src/biog/beis.
 
@@ -443,31 +443,10 @@ Running CMAQ with BEIS is controlled by the following RunScript flag:
 setenv CTM_BIOGEMIS_BE Y
 ```
 
-Running CMAQ with online BEIS requires a user-supplied, gridded normalized biogenic emissions input netCDF file, B3GRD.  This file is created with the [normbeis3](https://www.cmascenter.org/smoke/documentation/4.6/html/ch06s12.html) program in SMOKE prior to running the inline biogenic option in CMAQ and contains winter and summer normalized emissions and Leaf Area Indices. The location of the B3GRD file is set in the RunScript:
+Running CMAQ with online BEIS requires a user-supplied, gridded normalized biogenic emissions input netCDF file, B3GRD.  This file is created with the [normbeis4](https://www.cmascenter.org/smoke/documentation/5.0/html/ch04s13.html) program in SMOKE prior to running the inline biogenic option in CMAQ and contains winter and summer normalized emissions and Leaf Area Indices. [Starting with CMAQ v54](https://github.com/USEPA/CMAQ/wiki/CMAQ-Release-Notes:-Emissions-Updates:-BEIS-Biogenic-Emissions#beis-updates), the selection of summer vs. winter normalized emission factors when using the BEIS inline biogenic emission option in CMAQ is based on the 1 meter soil temperature following the WRF PX LSM representation of seasonality. The location of the B3GRD file is set in the RunScript:
 
 ```
 setenv B3GRD /home/user/path-to-file/b3grd.nc
-```
-
-For short simulations that span only summer months set the SUMMER_YN flag to Y and the BIOSW_YN flat to N in the RunScript so that biogenic emissions will be calculated using summer factors throughout the entire domain.  
-```
-setenv BIOSW_YN N
-```
-
-```
-setenv SUMMER_YN Y
-```
-
-For simulations that span only winter months, set the SUMMER_YN flag to N so that biogenic emissions will be calculated using winter factors throughout the entire domain.
-
-For simulations of spring or fall, or simulations covering multiple seasons, a user must set the BIOSW_YN to Y and provide a BIOSEASON file to enable an appropriate mixture of winter and summer emission values across the domain and simulation period.  The BIOSEASON file is created with the [metscan](https://www.cmascenter.org/smoke/documentation/4.0/html/ch05s03s10.html) program in SMOKE using the MCIP data for the modeling domain prior to running the inline biogenic option in CMAQ. It provides daily gridded values of an indicator variable derived from MCIP temperature fields to determine whether winter or summer biogenic emission values should be used for a given grid cell and day. To use the BIOSEASON file set the following two environment variables in the RunScript:
-
-```
-setenv BIOSW_YN Y
-```
-
-```
-setenv BIOSEASON /home/user/path-to-file/bioseason.nc
 ```
 
 Additionally, when using the inline biogenic option, the user must point to the SOILOUT file from one day’s simulation as the SOILINP file for the next day. The user must also decide whether to write over SOILOUT files from previous days or create a uniquely named SOILOUT file for each day. The latter approach is recommended if the user wishes to retain the capability to restart simulations in the middle of a sequence of simulations.
