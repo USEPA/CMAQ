@@ -13,7 +13,7 @@ Create namelist according to Table 4-2 in the [CMAQ User's Guide](../CMAQ_UG_ch0
 
 **Amended from Table 4-2 in the CMAQ User's Guide** 
 
-| **Line**| **Column** |**Name** | **Type**| **Description** |**Options for Syntax**:|
+| **Line**| **Column** |**Name** | **Type**| **Description** |**Comments/Options for Syntax**:|
 |-----|-----|----------------------|----------|--------------------------------------------|----------------------------|
 | 1 || File Type |String|String to delineate Gas Phase (GC), Aerosol (AE), Non-reactive (NR) and Tracer (TR) species namelist. This section is only applicable for "TR" format files.|{TR_nml}|
 | 3 || Header ID | String |String to define data structure relating to namelist|{TR_SPECIES_DATA = }|
