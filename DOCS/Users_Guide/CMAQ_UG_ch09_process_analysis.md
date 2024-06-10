@@ -207,9 +207,9 @@ To activate (or deactivate) the Budget Tool calculation and output, set the vari
 Alternatively or additionally, a list of species may be given, including names of chemical families, defined by the user in the &Chemical_FamVars section of the CMAQ_Control_Misc.nml file. 
 Lastly, if an aerosol species name is provided (e.g. 'ASO4', 'AEC') without the suffix denoting an aerosol mode, the Budget Tool will provide the sum of the process changes across all modes.
 
-![Figure 9-3: Contribution of model processes to O<sub>3<\sub> production and loss during a CMAQ simulation of the U.S. for 2016](./images/Figure9-3.png)
+![Figure 9-3: Contribution of model processes to O<sub>3</sub> production and loss during a CMAQ simulation of the U.S. for 2016](./images/Figure9-3.png)
 
-**Figure 9-3. Contribution of model processes to O<sub>3<\sub> production and loss during a CMAQ simulation of the U.S. for 2016**
+**Figure 9-3. Contribution of model processes to O<sub>3</sub> production and loss during a CMAQ simulation of the U.S. for 2016**
 
 
 ## 9.8 References
