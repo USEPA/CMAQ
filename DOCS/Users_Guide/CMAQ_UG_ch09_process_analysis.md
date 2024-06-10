@@ -35,7 +35,7 @@ Set this variable to Y to indicate that you want process analysis to be activate
  - setenv PACM_INFILE [filename]
  - setenv PACM_REPORT [filename]
 
-PACM_INFILE is the input file that specifies the desired output information (read by pa_read.F).  Gipson et al., (1999), details the types of equations and operators that can be used, with a brief summary here in Table 1.  PACM_REPORT is the output file that displays how CMAQ translates the variables listed in PACM_INFILE, and lists the reactions (including reactants, products and yields) that will be used in calculating the IPR and IRR values.  Users should check this file on the first iteration of a new PA simulation to ensure that CMAQ is interpreting the variables as the user intended.
+PACM_INFILE is the input file that specifies the desired output information (read by pa_read.F).  Gipson et al., (1999), details the types of equations and operators that can be used, with a brief summary here in Table 1. A standard input file is distributed with CMAQ for each chemical mechanism supported by that version of the model. PACM_REPORT is the output file that displays how CMAQ translates the variables listed in PACM_INFILE, and lists the reactions (including reactants, products and yields) that will be used in calculating the IPR and IRR values. Users should check this file on the first iteration of a new PA simulation to ensure that CMAQ is interpreting the variables as the user intended.
 
 The user can also specify an optional subdomain for the IPR/IRR output.  If these variables are not specified, the default domain is the entire CMAQ domain, however, the user may want to limit the portion of the domain where output is written because the files can get large. This is done using the variables:
 
