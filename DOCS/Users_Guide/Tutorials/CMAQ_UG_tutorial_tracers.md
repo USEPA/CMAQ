@@ -24,7 +24,7 @@ Create namelist according to Table 4-2 in the [CMAQ User's Guide](../CMAQ_UG_ch0
 |  |5| BC | String |Boundary conditions surrogate species name|{'Species name', ' '}|
 |  |6| FAC | Integer |Scaling factor for the boundary concentration|{Any integer: default = -1 if BC is not specified}|
 | |7| DRYDEP SURR | String |Surrogate specie name for dry deposition|-|
-| |8| FAC | Integer |Scaling factor for the deposition velocity|{Any integer: default = -1 if SURR is not specified}|
+| |8| FAC | Integer |Scaling factor for dry deposition velocity|{Any integer: default = -1 if SURR is not specified}|
 | |9| WET-SCAV SURR | String |Surrograte specie name for wet deposition|-|
 | | 10 | FAC | Integer |Scaling factor for wet scavenging|{Any integer: default = -1 if SURR is not specified}|
 || 11 | TR2AE SURR | String |Surrogate species name for gas-to-aerosol transformation species|Not currently functional in CMAQ|
