@@ -17,7 +17,7 @@ Full input datasets for 2016 over two domains are publically available to downlo
 |**Domain**|**Simulation Dates**|**Dataverse DOI**| 
 |:--------------:|:----:|:--------:|
 | Southeast US | July 1 - 14, 2016| https://doi.org/10.15139/S3/IQVABD |
-| CONUS | Jan 1 - Dec 31, 2016 | https://doi.org/10.15139/S3/MHNUNE |
+| Conterminous U.S. (CONUS) | Jan 1 - Dec 31, 2016 | https://doi.org/10.15139/S3/MHNUNE |
 
 
 ## 4.2 CMAQ Pre-processors 
