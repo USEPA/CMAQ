@@ -339,7 +339,7 @@ Sets if the CCTM will run in multi-processor or serial mode.
 <!-- END COMMENT -->
 
 -    `NZ [default: 35]`<a id=NZ></a>  
-      Set the number of vertical layers.  
+      Set the number of vertical layers. Script variable only, variable not used by CCTM model. Vertical extent inherited from MCIP model inputs. 
 
 <a id=Timestep_Config></a>
 
