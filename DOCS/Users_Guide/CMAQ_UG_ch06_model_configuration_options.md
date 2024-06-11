@@ -326,7 +326,7 @@ Depending on the nature of any stream and the information used to quantify its e
 CMAQ will calculate the emission rates from this source using information about local meteorology, land characteristics, etc. The streams that can be run online in CMAQ are: [biogenics (BEIS/MEGAN)](#BEIS/MEGAN),[ wind-blown dust](#Wind_Blown_Dust), [sea spray](#Sea_Spray), and [lightning NO](#Lightning_NO).
 
 #### Gridded Stream (offline):
-CMAQ will read emission rates from an input file, which is organized into an array that is identical in shape to the CMAQ model grid. Typically, these rates are stored at hourly time points and are then interpolated within CMAQ to each time step. These files may be 2D to represent just the surface layer emissions or they may be 3D. If 3D, the file may have the same number or fewer number of layers as the CMAQ grid. Some common examples of Gridded emissions include:
+CMAQ will read emission rates from an input file, which is organized into an array that is identical in shape to the CMAQ model grid. Typically, these rates are stored at hourly time points and are then interpolated within CMAQ to each time step. These files may be 2D to represent just the surface layer emissions or they may be 3D. If 3D, the file may have the same number or fewer number of layers as the CMAQ grid. Gridded emissions may be merged into a single stream or kept as separate types. Some common examples of Gridded emissions include:
 
 - Mobile sources such as passenger vehicles, trains, ships, scooters, etc.
 - Low-level point source emissions that are not large enough to be treated individually
@@ -414,7 +414,7 @@ Users should be careful with this variable, as it changes the default value for 
 
 If N_EMIS_PT is set 0, then CMAQ will run with no Inline emissions even if the values for STK_EMIS_XXX, STK_GRPS_XXX and STK_EMIS_LAB_XXX are all set.
 
-*Plume Rise* - Plume rise can be calculated inline within CMAQ using the Briggs solution as it is implemented in SMOKE and documented in the SMOKE user guide (https://www.cmascenter.org/smoke/documentation/4.6/html/ch06s03.html). It is required that emission files have been processed to include the necessary stack parameters (e.g. exit velocity, diameter, stack gas temperature, stack height, etc.). 
+*Plume Rise* - Plume rise can be calculated inline within CMAQ using the Briggs solution as it is implemented in SMOKE and documented in the SMOKE user guide (https://www.cmascenter.org/smoke/documentation/5.0/html/ch04s03.html#sect_programs_elevpoint_briggs). It is required that emission files have been processed to include the necessary stack parameters (e.g. exit velocity, diameter, stack gas temperature, stack height, etc.) for anthropogenic point sources. Wildland fires require heat flux and are to estimate plume rise (https://www.cmascenter.org/smoke/documentation/5.0/html/ch04s06.html#sect_programs_laypoint_plume_rise_fires).
 
 <a id=6.9.2_Online_Emission></a>
 
