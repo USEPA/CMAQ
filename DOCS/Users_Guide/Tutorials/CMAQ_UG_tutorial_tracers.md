@@ -114,7 +114,20 @@ TR_SPECIES_DATA =
   * will not be written to the DDEP and WDEP output files
   * will be written to the CONC output file  
 
-### STEP 2: Add tracers to initial condition, boundary condition, and/or emission files
+### STEP 2: Add tracers to DESID configuration files
+
+If the tracer has emissions then it must be included as part of the DESID configuration for CMAQ. If the tracers are only being added to the initial or boundary conditions file then this step is not necessary. 
+
+The CO_EMIS tracer is designed to track the fate of CO emissions without any influence from initial or boundary conditions and therefore no IC/BC surrogate was specified and no additional species needs to be added to the initial condition file for this tracer. However, it must be specified in the mechanism-specific CMAQ_Control_DESID file found under CCTM/src/MECHS/*{mechanism name}* in the CMAQ repository. For example if running the cb6r3_ae7_aq mechanism, edit the CMAQ_Control_DESID_cb6r3_ae7_aq.nml  file to include the following line after the Custom Mapping Examples in the Emissions Scaling Rules section: 
+
+```
+   ! Region      | Stream Label  |Emission | CMAQ-        |Phase/|Scale |Basis |Op
+   !  Label      |               |Species  | Species      |Mode  |Factor|      |
+   !Tracer
+   'EVERYWHERE'  , 'ALL'         ,'CO'     ,'CO_EMIS'      ,'GAS',1.    ,'UNIT','a',
+```
+
+### STEP 3: Add tracers to initial condition, boundary condition, and/or emission files
 
 Depending on the desired application, the emission surrogate and IC/BC surrogate defined in the tracer namelist for each tracer need to be added to the corresponding CMAQ input files, i.e. the emissions, initial condition, and/or boundary condition files.
 
@@ -125,7 +138,7 @@ Note that adding species (if any) to the initial condition file is only necessar
 
 #### Script to add O3_IC and ICT_50PPB to an existing initial condition file ####
 
-The run script below uses the [`combine`](../../../POST/combine) program to add species ICT_50PB to an existing initial condition file. . ICT_50PPB is set to a constant mixing ratio of 0.05 ppm for all grid cells. From the CMAQ Home directory run the following commands to build the combine executable: 
+The run script below uses the [`combine`](../../../POST/combine) program to add species ICT_50PB to an existing initial condition file. The ICT_50PPB specie is set to a constant mixing ratio of 0.05 ppm for all grid cells. From the CMAQ Home directory run the following commands to build the combine executable: 
 
 ```
 cd $CMAQ_HOME/POST/combine/scripts
@@ -224,18 +237,9 @@ Once the script is made, execute the run script with the following commands:
 ./run.{script_name}.csh |& tee run.combine.log
 ```
 
-The CO_EMIS tracer is designed to track the fate of CO emissions without any influence from initial or boundary conditions and therefore no IC/BC surrogate was specified and no additional species needs to be added to the initial condition file for this tracer. However, it must be specified in the mechanism-specific CMAQ_Control_DESID file found under CCTM/src/MECHS/*{mechanism name}* in the CMAQ repository. For example if running the cb6r3_ae7_aq mechanism, edit the CMAQ_Control_DESID_cb6r3_ae7_aq.nml  file to include the following line after the Custom Mapping Examples in the Emissions Scaling Rules section: 
-
-```
-   ! Region      | Stream Label  |Emission | CMAQ-        |Phase/|Scale |Basis |Op
-   !  Label      |               |Species  | Species      |Mode  |Factor|      |
-   !Tracer
-   'EVERYWHERE'  , 'ALL'         ,'CO'     ,'CO_EMIS'      ,'GAS',1.    ,'UNIT','a',
-```
-
 Further details on how to change and customize the emissions control file to the users specification outside the scope of this tutorial can be found in the [emissions tutorial](CMAQ_UG_tutorial_emissions.md). 
 
 
-### STEP 3: Modify CMAQ run script</strong>
+### STEP 4: Modify CMAQ run script</strong>
 
-In the CMAQ run script, replace the default tracer namelist file `Species_Table_TR_0.nml` with the custom tracer namelist file created in STEP 1. Also replace the original input files (initial conditions, boundary conditions, and/or emissions) with the modified input files created in Step 2.
+In the CMAQ run script, replace the default tracer namelist file `Species_Table_TR_0.nml` with the custom tracer namelist file created in STEP 1 and new DESID namelist file created in STEP 2 (if needed). Also replace the original input files (initial conditions, boundary conditions, and/or emissions) with the modified input files created in Step 3.
