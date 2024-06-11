@@ -67,25 +67,18 @@ grep -i 'error' slurm-*.out
 error while loading shared libraries  …  cannot open shared object file …
 ```
 
-Set the $LD_LIBRARY_PATH in your .cshrc to include the location of your netCDF and netCDFF library shared object files.   
-Note: your .cshrc file should be located in your home directory.  
-
-Change directories to your home directory.  
-```
-cd ~
-```
-View the contents of your .cshrc.  
-```
-more .cshrc
-```
-
-Edit your .cshrc to set the LD_LIBRARY_PATH to include the location of the netcdf libraries.  
-Note this path is dependent on what compiler you used, replace intel with gcc if you used gnu rather than the intel compiler.  
+This error indicates that the `LD_LIBRARY_PATH` environment variable is not properly set to include the path to all the required shared library object files. If this occurs, one solution is to edit the CCTM run script to add the path to the netCDF C (libnetcdf.so) and Fortran (libnetcdff.so) libraries to the `LD_LIBRARY_PATH` variable.  For example:
 ```
 setenv NCDIR ${CMAQ_HOME}/lib/x86_64/intel/netcdf
 setenv NCFDIR ${CMAQ_HOME}/lib/x86_64/intel/netcdff
-setenv LD_LIBRARY_PATH ${NCDIR}/lib:$NCFDIR/lib:${LD_LIBRARY_PATH}
+setenv LD_LIBRARY_PATH ${NCDIR}/lib:${NCFDIR}/lib:${LD_LIBRARY_PATH}
 ```
+Note this path is dependent on what compiler you used, replace intel with gcc if you used gnu rather than the intel compiler.  
+If this does not work, then cd to the build directory and use the command:
+```
+ldd CCTM*.exe
+```
+This will show the absolute path to the libraries used in compiling the model. Edit the `LD_LIBRARY_PATH` environment variable to include the *directories* where the libnetcdf.so and libnetcdff.so files are located.
 
 ### If the program did not complete successfully for another reason
 If the program did not complete successfully for another reason, you will need to check the per processor log files which begin with the name: CTM_LOG_\*.
