@@ -38,9 +38,7 @@ In this section, details on the routine CCTM output files are provided. All CMAQ
 |[CCTM_DUSTEMIS](#dust) <a id=dust_t></a>|GRDDED3|Hourly Instantaneous|XY
 |[CCTM_DESIDX](#desid) <a id=desid_t></a>|GRDDED3|Hourly Instantaneous|XYZ
 |[CCTM_DEPVMOS](#depv_mos) <a id=depv_mos_t></a>|GRDDED3|Hourly Instantaneous|XYW
-|[CCTM_DEPVFST](#depv_fst) <a id=depv_fst_t></a>|GRDDED3|Hourly Instantaneous|XYW
 |[CCTM_DDEP_MOS](#dry_dep_mos) <a id=dry_dep_mos_t></a>|GRDDED3|Hourly Cumulative|XYW
-|[CCTM_DDEP_FST](#dry_dep_fst) <a id=dry_dep_fst_t></a>|GRDDED3|Hourly Cumulative|XYW
 |[CCTM_LTNGHRLY](#ltngdiag1) <a id=ltngdiag1_t></a>|GRDDED3|Hourly Instantaneous|XYZ
 |[CCTM_LTNGCOL](#ltngdiag2) <a id=ltngdiag2_t></a>|GRDDED3|Hourly Instantaneous|XY
 |[CCTM_PHOTDIAG1](#ctm_rj_1) <a id=ctm_rj1_t></a>|GRDDED3|Hourly Instantaneous|XY
@@ -240,7 +238,7 @@ In CMAQv5.4, the destination folder of this output file must be specified with t
 [Return to Table 7-1](#b3gts_t)
 <!-- END COMMENT -->
 
-This optional 2-D CCTM hourly output file contains total hourly biogenic emissions in mass units calculated in-line by the CCTM when the CTM_BIOGEMIS environment variable is set to Y. This file is only created if the B3GTS_DIAG environment variable in the RunScript is set to Y (Default is Y).
+This optional 2-D CCTM hourly output file contains total hourly biogenic emissions in mass units calculated in-line by the CCTM when the CTM_BIOGEMIS environment variable is set to Y. This file is only created if the B3GTS_DIAG environment variable in the RunScript is set to Y (Default is Y) and only if BEIS is the selected biogenic emisisons model. 
 
 <a id=depv></a>
 
@@ -291,25 +289,6 @@ This optional 3-D CCTM file contains the deposition velocity (m s<sup>-1</sup>) 
 <!-- END COMMENT -->
 
 This optional 3-D CCTM file contains the total deposition (kg hectare<sup>-1</sup>) for the hour for each land use type within each grid cell. This output file is structured with the land use category being the 3rd dimension (i.e. equivalent to the layers in a concentration file). So, for model runs using the NLCD land use category system, the files will have 40 "layers". This file is only created if the ModDepv environment variable in the BuildScript is set to stage (rather than m3dry) and if the CTM_MOSAIC environment variable in the RunScript is set to Y (Default is N).
-
-
-<a id=depv_fst></a>
-
-**CCTM_DEPVFST: stomatal deposition velocity file**
-<!-- BEGIN COMMENT -->
-[Return to Table 7-1](#depv_fst_t)
-<!-- END COMMENT -->
-
-This optional 3-D CCTM file contains the deposition velocity (m s<sup>-1</sup>) through the stomatal pathway for the final time step of the hour for each land use type within a grid cell. This output file is structured with the land use category being the 3rd dimension (i.e. equivalent to the layers in a concentration file). So, for model runs using the NLCD land use category system, the files will have 40 "layers". This file is only created if the ModDepv environment variable in the BuildScript is set to stage (rather than m3dry) and if the CTM_FST environment variable in the RunScript is set to Y (Default is N).
-
-<a id=dry_dep_fst></a>
-
-**CCTM_DDFST: stomatal flux file**
-<!-- BEGIN COMMENT -->
-[Return to Table 7-1](#dry_dep_fst_t)
-<!-- END COMMENT -->
-
-This optional 3-D CCTM file contains the total deposition (kg hectare<sup>-1</sup>) through the stomatal pathway for the hour for each land use type within each grid cell. This output file is structured with the land use category being the 3rd dimension (i.e. equivalent to the layers in a concentration file). So, for model runs using the NLCD land use category system, the files will have 40 "layers". This file is only created if the ModDepv environment variable in the BuildScript is set to stage (rather than m3dry) and if the CTM_FST environment variable in the RunScript is set to Y (Default is N).
 
 <a id=ltngdiag1></a>
 
