@@ -99,7 +99,7 @@ The 2-D or 3-D CCTM integral average concentration file contains average model s
 [Return to Table 7-1](#ELMO_t)
 <!-- END COMMENT -->
 
-This optional 2-D or 3-D CCTM output file contains instantaneous information at the end of the output time step for user-specified variables including concentrations that would appear on CONC and ACONC files as well as aggregate variables like total mass of PM<sub>2.5</sub> and PM<sub>10<\sub>. 
+This optional 2-D or 3-D CCTM output file contains instantaneous information at the end of the output time step for user-specified variables including concentrations that would appear on CONC and ACONC files as well as aggregate variables like total mass of PM<sub>2.5</sub> and PM<sub>10</sub>. 
 Diagnostic parameters that were found on the PMDIAG file in previous CMAQ versions are also available for output on the ELMO file. 
 Thease include particle geometric mean diameters, geometric standard deviations, bulk densities, 2nd moments and 3rd moments for the lognormal modes. 
 It also includes the fraction of each mode that contributes to PM1, PM2.5, and PM10 and the AMS transmission factor for each mode. 
