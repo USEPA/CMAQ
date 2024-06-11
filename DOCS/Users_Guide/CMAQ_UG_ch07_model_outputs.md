@@ -240,7 +240,7 @@ In CMAQv5.4, the destination folder of this output file must be specified with t
 [Return to Table 7-1](#b3gts_t)
 <!-- END COMMENT -->
 
-This optional 2-D CCTM hourly output file contains total hourly biogenic emissions in mass units calculated in-line by the CCTM when the CTM_BIOGEMIS environment variable is set to Y. This file is only created if the B3GTS_DIAG environment variable in the RunScript is set to Y (Default is Y).
+This optional 2-D CCTM hourly output file contains total hourly biogenic emissions in mass units calculated in-line by the CCTM when the CTM_BIOGEMIS environment variable is set to Y. This file is only created if the B3GTS_DIAG environment variable in the RunScript is set to Y (Default is Y) and only if BEIS is the selected biogenic emisisons model. 
 
 <a id=depv></a>
 
