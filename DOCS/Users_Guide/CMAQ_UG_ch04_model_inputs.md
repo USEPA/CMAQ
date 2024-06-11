@@ -859,13 +859,14 @@ Used by: CCTM
 
 OMI ozone column data by latitude and longitude for use in the photolysis calculations. CMAQ is distributed with ozone columns from 1978 to 2019 (CCTM/src/phot/inline/OMI_1979_to_2019.dat). The data are 22.5°x10° gridded ozone columns in Dobson units. The [create_omi](../../PREP/create_omi/README.md) tool under the PREP folder can be used to create a data file to support simulations after 2019 or a data file with a finer spatial resolution.
 
-**: PHOT_OPTICS: Optical and related parameters 
+**PHOT_OPTICS: Optical and related parameters** 
 
 Wavelength, optical and surface albedo parameters for CMAQ in-line photolysis calculation. The values are determined by averaging technique over the above number of wavelength bins. This file is distributed with the CMAQ code. 
 
-**: CSQY: Absorption cross sections & quantum yields
+**CSQY: Absorption cross sections & quantum yields**
 
 Wavelength and photolysis rate parameters for CMAQ in-line photolysis calculation. This file is distributed with the CMAQ code and is chemical mechanism specific. 
+
 
 <!-- BEGIN COMMENT -->
  [<< Previous Chapter](CMAQ_UG_ch03_preparing_compute_environment.md) - [Home](README.md) - [Next Chapter >>](CMAQ_UG_ch05_running_a_simulation.md)
