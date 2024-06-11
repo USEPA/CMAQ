@@ -141,7 +141,7 @@ CMAQ v5.3 and later contains two build-time options for calculating dry depositi
 When the model is run with CTM_ABFLUX set to Y, the CCTM_DRYDEP file will contain additional NH3 flux components.  The variable names and definitions are defined in Table 7-2.  Note that these variables definitions may not agree with the definitions used in CMAQ versions prior to version 5.3.2.    
 
 <a id=Table7-2></a>
-**Table 7-2. NH3 Flux components in CCTM_DRYDEP Output files when ammonia bidirectional surface flus is enabled**
+**Table 7-2. NH3 Flux components in CCTM_DRYDEP Output files when ammonia bidirectional surface flux is enabled**
 
 |**Variable Name**|**Variable Description**|
 |:----:|:----------------------------:|
