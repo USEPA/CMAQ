@@ -414,7 +414,7 @@ Users should be careful with this variable, as it changes the default value for 
 
 If N_EMIS_PT is set 0, then CMAQ will run with no Inline emissions even if the values for STK_EMIS_XXX, STK_GRPS_XXX and STK_EMIS_LAB_XXX are all set.
 
-*Plume Rise* - Plume rise can be calculated inline within CMAQ using the Briggs solution as it is implemented in SMOKE and documented in the SMOKE user guide (https://www.cmascenter.org/smoke/documentation/5.0/html/ch04s03.html#sect_programs_elevpoint_briggs). It is required that emission files have been processed to include the necessary stack parameters (e.g. exit velocity, diameter, stack gas temperature, stack height, etc.) for anthropogenic point sources. Wildland fires require heat flux and are to estimate plume rise (https://www.cmascenter.org/smoke/documentation/5.0/html/ch04s06.html#sect_programs_laypoint_plume_rise_fires).
+*Plume Rise* - Plume rise can be calculated inline within CMAQ using the Briggs solution as it is implemented in SMOKE and documented in the SMOKE user guide [Chapter 4.3](https://www.cmascenter.org/smoke/documentation/5.0/html/ch04s03.html#sect_programs_elevpoint_briggs). It is required that emission files have been processed to include the necessary stack parameters (e.g. exit velocity, diameter, stack gas temperature, stack height, etc.) for anthropogenic point sources. Wildland fires require heat flux and are to estimate plume rise with Briggs using [the Pouliot-Godowitch method](https://www.cmascenter.org/smoke/documentation/5.0/html/ch04s06.html#sect_programs_laypoint_plume_rise_fires).
 
 <a id=6.9.2_Online_Emission></a>
 
@@ -615,7 +615,7 @@ Alternatively, users can also edit the emission control file by commenting out t
 <a id=DMS_emission></a>
 #### Dimethyl sulfide (DMS) and Halocarbon emissions
 
-DMS and hlocarbon emissions are needed for cb6r5m_ae7_aq. DMS emissions are also needed for cb6r5_ae7_aq and. DMS emissions are calculated using the monthly mean climatological DMS concentrations in seawater and halocarbon emissions are calculated using the monthly-average climatological chl-a concentrations derived from the Moderate Resolution Imaging Spectroradiometer (MODIS). Ocean file needs to include DMS and CHLO concentrations in seawater for cb6r5m_ae7_aq and DMS for cb6r5_ae7_aq. CTM_OCEAN_CHEM should be set to Y to include DMS and halocarbon emissions; otherwise CMAQ will not include any DMS or halocarbon emissions. The details of DMS emissions estimations method in CMAQ are described in Zhao et al. (2021) while the details of halocarbon emissions are described in Sarwar et al. (2015) and Sarwar et al. (2019). 
+DMS and halocarbon emissions are needed for cb6r5m_ae7_aq. DMS emissions are also needed for cb6r5_ae7_aq and. DMS emissions are calculated using the monthly mean climatological DMS concentrations in seawater and halocarbon emissions are calculated using the monthly-average climatological chl-a concentrations derived from the Moderate Resolution Imaging Spectroradiometer (MODIS). Ocean file needs to include DMS and CHLO concentrations in seawater for cb6r5m_ae7_aq and DMS for cb6r5_ae7_aq. CTM_OCEAN_CHEM should be set to Y to include DMS and halocarbon emissions; otherwise CMAQ will not include any DMS or halocarbon emissions. The details of DMS emissions estimations method in CMAQ are described in Zhao et al. (2021) while the details of halocarbon emissions are described in Sarwar et al. (2015) and Sarwar et al. (2019). 
 
 
 <a id=Lightning_NO></a>
@@ -677,7 +677,7 @@ setenv LTNGPARMS_FILE /home/user/path-to-file/LTNG_AllParms_12US1.nc
 
 <a id=PCSOA></a>
 #### Potential Combustion SOA
-Potential Combustion SOA (PCSOA) was added to CMAQv5.2 to account for missing PM2.5 from fossil-fuel combustion sources (Murphy et al., 2017).  PCSOA is not intended to be applied to non-fossil-fuel combustion sources such as residential wood combustion (RWC).  The new DECID option introduced in CMAQv5.3 introduces the ability to read multiple gridd emissions files, allowing RWC to be treated as an entirely separate emissions source from the rest of the gridded emissions.  Using DESID, PCSOA can be applied to the other gridded combustion sources, but should not be used for RWC. The CRACMM mechanism does not use PCSOA.  
+Potential Combustion SOA (PCSOA) was added to CMAQv5.2 to account for missing PM2.5 from fossil-fuel combustion sources (Murphy et al., 2017).  PCSOA is not intended to be applied to non-fossil-fuel combustion sources such as residential wood combustion (RWC).  The new DESID option introduced in CMAQv5.3 introduces the ability to read multiple gridded emissions files, allowing RWC to be treated as an entirely separate emissions source from the rest of the gridded emissions.  Using DESID, PCSOA can be applied to the other gridded combustion sources, but should not be used for RWC. The CRACMM mechanism does not use PCSOA.  
 
 [Jump to DESID Appendix](Appendix/CMAQ_UG_appendixB_emissions_control.md) for an introduction to using the Emissions Control Namelist for customization of emissions processing.
 
