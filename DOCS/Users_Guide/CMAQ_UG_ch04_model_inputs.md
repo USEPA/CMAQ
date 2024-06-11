@@ -143,8 +143,8 @@ This section describes each of the input files required by the various CMAQ prog
 |[STAGECTRL_NML](#stagectrl_nml) <a id=desidctrl_t></a>|ASCII|n/a|n/a|CMAQ repo|required|
 |**Photolysis** | | | |||
 |[OMI](#omi) <a id=omi_t></a>| ASCII | Daily | n/a |CMAQ repo or create_omi|required|
-|[OPTICS_DATA](#optics) <a id=opt_t></a>| ASCII | n/a | n/a |CMAQ repo|required|
-|[CSQY_DATA](#csqy) <a id=csqy_t></a>| ASCII | n/a | n/a |CMAQ repo|required|
+|[OPTICS_DATA](#omi) <a id=omi_t></a>| ASCII | n/a | n/a |CMAQ repo|required|
+|[CSQY_DATA](#omi) <a id=omi_t></a>| ASCII | n/a | n/a |CMAQ repo|required|
 
 *XXX - three-digit variable indicating emission stream number. Gridded and Inline Point emissions are numbered independently.
 
@@ -858,6 +858,14 @@ STAGE is a tiled surface exchange option that estimates deposition and emissions
 Used by: CCTM
 
 OMI ozone column data by latitude and longitude for use in the photolysis calculations. CMAQ is distributed with ozone columns from 1978 to 2019 (CCTM/src/phot/inline/OMI_1979_to_2019.dat). The data are 22.5°x10° gridded ozone columns in Dobson units. The [create_omi](../../PREP/create_omi/README.md) tool under the PREP folder can be used to create a data file to support simulations after 2019 or a data file with a finer spatial resolution.
+
+**: PHOT_OPTICS: Optical and related parameters 
+
+Wavelength, optical and surface albedo parameters for CMAQ in-line photolysis calculation. The values are determined by averaging technique over the above number of wavelength bins. This file is distributed with the CMAQ code. 
+
+**: CSQY: Absorption cross sections & quantum yields
+
+Wavelength and photolysis rate parameters for CMAQ in-line photolysis calculation. This file is distributed with the CMAQ code and is chemical mechanism specific. 
 
 <!-- BEGIN COMMENT -->
  [<< Previous Chapter](CMAQ_UG_ch03_preparing_compute_environment.md) - [Home](README.md) - [Next Chapter >>](CMAQ_UG_ch05_running_a_simulation.md)
