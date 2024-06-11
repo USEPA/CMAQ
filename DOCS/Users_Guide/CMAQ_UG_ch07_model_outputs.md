@@ -148,12 +148,7 @@ When the model is run with CTM_ABFLUX set to Y, the CCTM_DRYDEP file will contai
 |NH3|Downward Deposition Flux (always positive)  |	
 |NH3_Emis|Upward Emissions Flux (always positive)	   |  
 |NH3_Flux|Net Flux (positive if downward and negative if upward)  | 
-|NH3_Stom*|NH3 flux from leaf stomatal pathways (positive values are emissions and negative values are deposition) |
-|NH3_Cut*|NH3 flux from leaf cuticular pathways (positive values are emissions and negative values are deposition) |
-|NH3_Soil*|NH3 flux from soil pathways (positive values are emissions and negative values are deposition) |
-|NH3_Ag*|NH3 flux over agriculture land use (positive values are emissions and negative values are deposition)|
-|NH3_Nat*|NH3 flux over non-agriculture land use (positive values are emissions and negative values are deposition) |
-|NH3_Wat*|NH3 flux over water bodies (positive values are emissions and negative values are deposition) |
+
 
 \*Additional diagnostic deposition values available when using the STAGE dry deposition option with bi-directional ammonia flux enabled.
 
