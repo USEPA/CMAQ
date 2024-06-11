@@ -150,8 +150,6 @@ When the model is run with CTM_ABFLUX set to Y, the CCTM_DRYDEP file will contai
 |NH3_Flux|Net Flux (positive if downward and negative if upward)  | 
 
 
-\*Additional diagnostic deposition values available when using the STAGE dry deposition option with bi-directional ammonia flux enabled.
-
 <a id=wetdep></a>
 
 **CCTM_WETDEP1: hourly cumulative wet deposition file**
