@@ -143,7 +143,7 @@ This section describes each of the input files required by the various CMAQ prog
 |[STAGECTRL_NML](#stagectrl_nml) <a id=desidctrl_t></a>|ASCII|n/a|n/a|CMAQ repo|required|
 |**Photolysis** | | | |||
 |[OMI](#omi) <a id=omi_t></a>| ASCII | Daily | n/a |CMAQ repo or create_omi|required|
-|[OPT](#optics) <a id=opt_t></a>| ASCII | n/a | n/a |CMAQ repo|required|
+|[OPTICS_DATA](#optics) <a id=opt_t></a>| ASCII | n/a | n/a |CMAQ repo|required|
 
 *XXX - three-digit variable indicating emission stream number. Gridded and Inline Point emissions are numbered independently.
 
