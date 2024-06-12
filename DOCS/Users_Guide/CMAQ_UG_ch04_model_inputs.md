@@ -861,9 +861,13 @@ OMI ozone column data by latitude and longitude for use in the photolysis calcul
 
 **PHOT_OPTICS: Optical and related parameters** 
 
+Used by: CCTM
+
 Wavelength, optical and surface albedo parameters for CMAQ in-line photolysis calculation. The values are determined by averaging technique over the above number of wavelength bins. This file is distributed with the CMAQ code. 
 
 **CSQY: Absorption cross sections & quantum yields**
+
+Used by: CCTM
 
 Wavelength and photolysis rate parameters for CMAQ in-line photolysis calculation. This file is distributed with the CMAQ code and is chemical mechanism specific. 
 

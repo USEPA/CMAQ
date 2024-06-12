@@ -1,4 +1,4 @@
-<!-- BEGIN COMMENT -->
+![image](https://github.com/kmfoley/CMAQ_Dev/assets/15362904/ee418b62-60ef-4f41-b7ec-0553e135c744)<!-- BEGIN COMMENT -->
 
 [<< Previous Appendix](CMAQ_UG_appendixD_parallel_implementation.md) - [Home](../README.md) - [Next Appendix >>](CMAQ_UG_appendixF_elmo_output.md)
 
@@ -6,27 +6,40 @@
 
 # Appendix E: Configuring the Weather Research and Forecasting Model (WRF) for Use with Air Quality Models 
 
-## E.1 WRF version 4.3+
+## E.1 WRF for CMAQ & Output
 
 * **[WRF configuration guide for CMAQ applications](http://www2.mmm.ucar.edu/wrf/users/docs/PX-ACM.pdf)**
+* CMAQ is best connected to WRF that uses the P-X LSM with key variables in the output. Users can either forces these in the WRF output by modifying the Registry or use a run-time option.
+* WRF output variables can be specified in simple text file this single line "+:h:0:,RS,RA,ZNT_PX,VEGF_PX,LAI_PX,LANDUSEF,WFC_PX,WSAT_PX,WWLT_PX,CSAND_PX,FMSAND_PX,CLAY_PX"
+* P-X LSM variables (same as above) can be specified in output using Registry file $WRFDIR/Registry/Registry.EM_COMMON by adding "h" to the <IO> section of each P-X LSM variable entry 
+
+
+## E.2 WRF version 4.6
+
+* UPDATE: P-X LSM compatible with 61 class MODIS Local Climate Zone (LCZ) landuse option
+* UPDATE: Latent heat effect on ground temperature from the vegetated fraction of the grid cell and from wet canopy was added to P-X LSM.
+* UPDATE: NaN fix from a divide by zero because of a zero-value soil parameter when a water cell turns to sea ice.
+
+## E.3 WRF version 4.3+
+
 * UPDATE: Modified the ACM2 PBL height algorithm for stable conditions so that the Richardson number is computed using windspeed
 in layer k rather than wind speed difference between layer k and ksrc.
-* UPDATE: Added new pathway for evaporation from the ground in the vegetated fraction of the grid cell in PX LSM module.
-* UPDATE: Consolidated WRF PX LSM code with MPAS versions. The PX LSM code in WRFv4.3 is the exact same code as that for MPASv7.2+
+* UPDATE: Added new pathway for evaporation from the ground in the vegetated fraction of the grid cell in P-X LSM module.
+* UPDATE: Consolidated WRF P-X LSM code with MPAS versions. The P-X LSM code in WRFv4.3 is the exact same code as that for MPASv7.2+
 
 
-## E.2 WRF version 4.0
+## E.4 WRF version 4.0
 
 * WRF4.0 has updates to the ACM2 PBL model to account for the new default hybrid coordinate system. Our internal model runs suggest that the hybrid option (hybrid_opt =2) improves the model in areas where topographical variations are more extreme like the Rocky Mountains. As such, it is suggested, but not a requirement, to use this option in WRF that became the default in WRF4.0.
 
-* UPDATE: Added vegetation and leaf-area index option for Pleim-Xiu land-surface runs. Until this version, the PX LSM uses VEGFRA and LAI computed from the module_sf_pxlsm_data.F PX data table. This uses fractional landuse and these lookup values to compute the LAI and VEGFRA for each grid cell. The new option (pxlsm_modis_veg = 1) is activated using this option in the physics section of the namelist.input file. It uses the time-varying VEGFRA and LAI from the wrflowinp_d01 file instead of the look-up values in the PX data table. This allows use of more accurate high resolution MODIS that is now available in WPS in WRFv4+. Alternatively, users can process their own MODIS data for specific years and put in this same input file.
-* UPDATE: Also, the soil calculation in the PX LSM were modified to use analytical functions from Noilhan and Mahfouf (1996) for field capacity, saturation and wilting point based on fractional soil data. Also, variables for fractional clay, fine and coarse sand were added in PX for output to the CMAQ air quality model. This is an important update because these data are used for dust emissions in the air quality model along with the new soil properties (wilting, saturation and field capacity). SOILTYP was also updated in PX LSM so soil classes are consistent with the standard 16 soil types in the WRF system. Prior, PX only had 12 classes and classes 4-12 were not the same as those classes used by other LSMs.
+* UPDATE: Added vegetation and leaf-area index option for Pleim-Xiu land-surface runs. Until this version, the P-X LSM uses VEGFRA and LAI computed from the module_sf_pxlsm_data.F PX data table. This uses fractional landuse and these lookup values to compute the LAI and VEGFRA for each grid cell. The new option (pxlsm_modis_veg = 1) is activated using this option in the physics section of the namelist.input file. It uses the time-varying VEGFRA and LAI from the wrflowinp_d01 file instead of the look-up values in the P-X data table. This allows use of more accurate high resolution MODIS that is now available in WPS in WRFv4+. Alternatively, users can process their own MODIS data for specific years and put in this same input file.
+* UPDATE: Also, the soil calculation in the P-X LSM were modified to use analytical functions from Noilhan and Mahfouf (1996) for field capacity, saturation and wilting point based on fractional soil data. Also, variables for fractional clay, fine and coarse sand were added in P-X for output to the CMAQ air quality model. This is an important update because these data are used for dust emissions in the air quality model along with the new soil properties (wilting, saturation and field capacity). SOILTYP was also updated in P-X LSM so soil classes are consistent with the standard 16 soil types in the WRF system. Prior, P-X only had 12 classes and classes 4-12 were not the same as those classes used by other LSMs.
 
 
-## E.3 WRF version 3.7 
+## E.5 WRF version 3.7 
 * **[Section from WRFv3.7 Technical Documentation related to air quality modeling](http://www2.mmm.ucar.edu/wrf/users/docs/PX-ACM.pdf):** This 8 page pdf provides description and procedures for using the Pleim-Xiu LSM, ACM2 PBL and Pleim Surface Layer Scheme in WRF including best practices and namelist options.
 
-## E.4 WRF with lightning assimilation 
+## E.6 WRF with lightning assimilation 
 * **[WRF with Lightning Assimilation User's Guide](https://wcms.epa.gov/sites/production/files/2017-02/documents/wrf_with_ltga_userguide.pdf):** This 3 page pdf describes how to run WRF with the lightning assimilation technique described in Heath et al. (2016). 
 The assimilation method uses gridded lightning data to trigger and suppress sub-grid deep convection in Kain-Fritsch. 
 The gridded lightning data (variable name is ‘LNT’) is read in through auxinput8. The lightning data is grouped into 
@@ -35,7 +48,7 @@ All of the necessary code modifications and data are described in the document.
 
 * **[WRF with Lightning Assimilation Code](https://wcms.epa.gov/sites/production/files/2017-02/ltgda_wrf_16feb2017.zip):** This .zip file (ltgda_wrf_16feb2017.zip; 220K) contains the registry and FORTRAN files with the updates needed to run WRF with lightning assimilation, as well as a generic Python script to grid lightning data to your WRF domain.
 
-## E.5 Reference:
+## E.6 Reference:
 
 Noilhan, J., & Mahfouf, J. F. (1996). The ISBA land surface parameterization scheme. Global and planetary Change, 13(1-4), 145-159.
 
@@ -59,7 +72,7 @@ Heath, N. K., J. E. Pleim, R. C. Gilliam, & D. Kang (2016). A simple lightning a
 
 Gilliam, R. C., Herwehe, J. A., Bullock, Jr, O. R., Pleim, J. E., Ran, L., Campbell, P. C., & Foroutan, H. (2021). Establishing the suitability of the model for prediction across scales for global retrospective air quality modeling. Journal of Geophysical Research: Atmospheres, 126, e2020JD033588. https://doi.org/10.1029/2020JD033588
 
-
+Kang, D., Heath, N., Gilliam, R., Spero, T., and Pleim, J.: Lightning Assimilation in the Weather Research and Forecasting (WRF) Model Version 4.1.1: Technique Updates and Assessment of the Applications from Regional to Hemispheric Scales, EGUsphere [preprint], https://doi.org/10.5194/egusphere-2022-348, 2022.
 
 
 
