@@ -24,7 +24,7 @@ SULFATE      - ASO4J, ASO4I, SO2, SULF, SULRXN
 NITRATE      - ANO3J, ANO3I, HNO3, ANO3J, ANO3I, HNO3, NO, NO2, NO3, HONO, N2O5, PNA, PAN, PANX, NTR1, NTR2, INTR           
 AMMONIUM     - ANH4J, ANH4I, NH3       
 EC           - AECJ, AECI          
-OC           - APOCI, APOCJ, APNCOMI, APNCOMJ                
+OA_TOT       - Organic aerosol species
 VOC          - Various species depending on mechanism. Now includes CO. (see CCTM/src/isam/SA_DEFN.F for complete list)      
 PM_IONS      - ANAI, ANAJ, AMGJ, AKJ, ACAJ, AFEJ, AALJ, ASIJ, ATIJ, AMNJ, AOTHRI, AOTHRJ      
 OZONE        - all NITRATE species + all VOC species     
