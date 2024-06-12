@@ -9,7 +9,8 @@
 ## E.1 WRF for CMAQ & Output
 
 * **[WRF configuration guide for CMAQ applications](../PDF/PX-ACM-WRFV4.6-MPAS.pdf)**
-* CMAQ is best connected to WRF that uses the P-X LSM with key variables in the output (see WRF configuration guide above). 
+* CMAQ is best connected to WRF that uses the P-X LSM with key variables in the output (see WRF configuration guide above).
+* Variable names: RS, RA, ZNT_PX, VEGF_PX, LAI_PX, LANDUSEF, WFC_PX, WSAT_PX, WWLT_PX, CSAND_PX, FMSAND_PX, CLAY_PX
 * Method 1: Compiled into executable with directives in the Registry file.
 * Method 2: At run-time using a simple text file and namelist option.
 
