@@ -10,8 +10,8 @@
 
 * **[WRF configuration guide for CMAQ applications](../PDF/PX-ACM-WRFV4.6-MPAS.pdf)**
 * CMAQ is best connected to WRF that uses the P-X LSM with key variables in the output. Users can either forces these in the WRF output by modifying the Registry or use a run-time option.
-* WRF output variables can be specified in simple text file this single line "+:h:0:,RS,RA,ZNT_PX,VEGF_PX,LAI_PX,LANDUSEF,WFC_PX,WSAT_PX,WWLT_PX,CSAND_PX,FMSAND_PX,CLAY_PX"
-* P-X LSM variables (same as above) can be specified in output using Registry file $WRFDIR/Registry/Registry.EM_COMMON by adding "h" to the <IO> section of each P-X LSM variable entry 
+* WRF output variables can be specified using a simple text file (see WRF configuration guide using link above).
+* P-X LSM variables can be forced in WRF outputs by compiling directives via Registry file (see WRF configuration guide above).
 
 
 ## E.2 WRF version 4.6
