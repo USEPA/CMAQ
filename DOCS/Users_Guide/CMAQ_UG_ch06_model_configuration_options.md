@@ -784,7 +784,7 @@ or
  set ModPhot    = phot/table
 ``` 
 
-The in-line method (Binkowski et al., 2007) is the preferred option because it includes feedbacks from meteorology in addition to predicted ozone and aerosol concentrations. Starting CMAQv5.5, there are several in-line options toggled by the environmental variable "AEROSOL_OPTICS". The table below summarizes the in-line options: 
+The in-line method (Binkowski et al., 2007) is the preferred option because it includes feedbacks from meteorology in addition to predicted ozone and aerosol concentrations. Starting CMAQv5.5, all in-line photolysis options are toggled by the environmental variable "AEROSOL_OPTICS". The table below summarizes the in-line options: 
 
 | **Environmental Variable**|**In-line Photolysis Method**|**Description**|
 |:--------------:|:----:|:--------:|
