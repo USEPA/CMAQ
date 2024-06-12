@@ -6,7 +6,12 @@
 
 # Appendix E: Configuring the Weather Research and Forecasting Model (WRF) for Use with Air Quality Models 
 
-## E.1 WRF version 4.3+
+## E.1 WRF version 4.6
+
+* Placeholder
+* Placeholder
+
+## E.2 WRF version 4.3+
 
 * **[WRF configuration guide for CMAQ applications](http://www2.mmm.ucar.edu/wrf/users/docs/PX-ACM.pdf)**
 * UPDATE: Modified the ACM2 PBL height algorithm for stable conditions so that the Richardson number is computed using windspeed
@@ -15,7 +20,7 @@ in layer k rather than wind speed difference between layer k and ksrc.
 * UPDATE: Consolidated WRF PX LSM code with MPAS versions. The PX LSM code in WRFv4.3 is the exact same code as that for MPASv7.2+
 
 
-## E.2 WRF version 4.0
+## E.3 WRF version 4.0
 
 * WRF4.0 has updates to the ACM2 PBL model to account for the new default hybrid coordinate system. Our internal model runs suggest that the hybrid option (hybrid_opt =2) improves the model in areas where topographical variations are more extreme like the Rocky Mountains. As such, it is suggested, but not a requirement, to use this option in WRF that became the default in WRF4.0.
 
@@ -23,10 +28,10 @@ in layer k rather than wind speed difference between layer k and ksrc.
 * UPDATE: Also, the soil calculation in the PX LSM were modified to use analytical functions from Noilhan and Mahfouf (1996) for field capacity, saturation and wilting point based on fractional soil data. Also, variables for fractional clay, fine and coarse sand were added in PX for output to the CMAQ air quality model. This is an important update because these data are used for dust emissions in the air quality model along with the new soil properties (wilting, saturation and field capacity). SOILTYP was also updated in PX LSM so soil classes are consistent with the standard 16 soil types in the WRF system. Prior, PX only had 12 classes and classes 4-12 were not the same as those classes used by other LSMs.
 
 
-## E.3 WRF version 3.7 
+## E.4 WRF version 3.7 
 * **[Section from WRFv3.7 Technical Documentation related to air quality modeling](http://www2.mmm.ucar.edu/wrf/users/docs/PX-ACM.pdf):** This 8 page pdf provides description and procedures for using the Pleim-Xiu LSM, ACM2 PBL and Pleim Surface Layer Scheme in WRF including best practices and namelist options.
 
-## E.4 WRF with lightning assimilation 
+## E.5 WRF with lightning assimilation 
 * **[WRF with Lightning Assimilation User's Guide](https://wcms.epa.gov/sites/production/files/2017-02/documents/wrf_with_ltga_userguide.pdf):** This 3 page pdf describes how to run WRF with the lightning assimilation technique described in Heath et al. (2016). 
 The assimilation method uses gridded lightning data to trigger and suppress sub-grid deep convection in Kain-Fritsch. 
 The gridded lightning data (variable name is ‘LNT’) is read in through auxinput8. The lightning data is grouped into 
@@ -35,7 +40,7 @@ All of the necessary code modifications and data are described in the document.
 
 * **[WRF with Lightning Assimilation Code](https://wcms.epa.gov/sites/production/files/2017-02/ltgda_wrf_16feb2017.zip):** This .zip file (ltgda_wrf_16feb2017.zip; 220K) contains the registry and FORTRAN files with the updates needed to run WRF with lightning assimilation, as well as a generic Python script to grid lightning data to your WRF domain.
 
-## E.5 Reference:
+## E.6 Reference:
 
 Noilhan, J., & Mahfouf, J. F. (1996). The ISBA land surface parameterization scheme. Global and planetary Change, 13(1-4), 145-159.
 
@@ -59,7 +64,7 @@ Heath, N. K., J. E. Pleim, R. C. Gilliam, & D. Kang (2016). A simple lightning a
 
 Gilliam, R. C., Herwehe, J. A., Bullock, Jr, O. R., Pleim, J. E., Ran, L., Campbell, P. C., & Foroutan, H. (2021). Establishing the suitability of the model for prediction across scales for global retrospective air quality modeling. Journal of Geophysical Research: Atmospheres, 126, e2020JD033588. https://doi.org/10.1029/2020JD033588
 
-
+Kang, D., Heath, N., Gilliam, R., Spero, T., and Pleim, J.: Lightning Assimilation in the Weather Research and Forecasting (WRF) Model Version 4.1.1: Technique Updates and Assessment of the Applications from Regional to Hemispheric Scales, EGUsphere [preprint], https://doi.org/10.5194/egusphere-2022-348, 2022.
 
 
 
