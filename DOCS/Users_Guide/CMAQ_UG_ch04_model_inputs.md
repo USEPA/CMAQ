@@ -175,19 +175,13 @@ The grid description section consists of text records that indicate the grid nam
 
 An example of a GRIDDESC file is shown below:
 
-` ' '`
-
-` 'LAM_40N100W'`
-
-` 2 30.0 60.0 -100.0 -100.0 40.0`
-
-` ' '`
-
-` 'M_32_99TUT02'`
-
+` ' '                                                     `
+` 'LAM_40N100W'                                           `
+` 2 30.0 60.0 -100.0 -100.0 40.0                          `
+` ' '                                                     `
+` 'M_32_99TUT02'                                          `
 ` 'LAM_40N100W' 544000.0 -992000.0 32000.0 32000.0 38 38 1`
-
-` ' '`
+` ' '                                                     `
 
 The horizontal coordinate section (first section) in this example GRIDDESC file defines a horizontal coordinate named “LAM_40N100W”. The coordinate definition is for a Lambert conformal grid, keyed by the first column of the coordinate description line, which corresponds to the numeric code for the various I/O API-supported grid types (2 = Lambert). The next three parameters (P_ALP, P_BET, and P_GAM) have different definitions for different map projections. For Lambert conformal, P_ALP and P_BET are the true latitudes of the projection cone (30°N and 60°N in the example), and P_GAM (100°W in the example) is the central meridian of the projection. The last two parameters, XCENT and YCENT, are the reference longitude and latitude for the domain, which are 100°W and 40°N in the example.
 
@@ -500,7 +494,7 @@ The Detailed Emissions Scaling, Isolation and Diagnostics (DESID) module include
 
 The second namelist used for specifying DESID operations is the DESID Chemical Mapping Control namelist, named "CMAQ_Control_DESID_[mech]". By default, every mechanism has its own version of this namelist because each is preloaded with likely rules linking emissions of important CMAQ primary species to their typical surrogate names as output by SMOKE. By default, this namelist is stored in each chemical mechanism folder (e.g. MECHS/cb6r3_ae7_aq) and is copied into the user's build directory when bldit_cctm.csh is executed. If the user modifies the name or location of this namelist, then the following command in the RunScript should be updated as well:
 ```
-setenv DESID_CTRL_NML ${BLD}/CMAQ_Control_DESID_[mech].nml
+setenv DESID_CHEM_CTRL_NML ${BLD}/CMAQ_Control_DESID_[mech].nml
 ```
 
 This file contains only one section, the chemical mapping table, which link chemical variables on the emissions streams (external files or online processes) to CMAQ species, and offers scaling capabilities, geographic specicficity with the regions functionalities, size distribution customization, and the use of chemical families.
