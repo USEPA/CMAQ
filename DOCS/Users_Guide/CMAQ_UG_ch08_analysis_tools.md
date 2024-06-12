@@ -39,7 +39,7 @@ The combine utility relies on a chemical mechanism-specific "Species Definition"
 ```
 NOX             ,ppbV      ,1000.0*(NO[1] + NO2[1])
 ```
-where NO and NO2 are pulled from the [CCTM_ACONC](CMAQ_UG_ch07_model_outputs.md#aconc) model output file in units of ppmV. 
+where NO and NO2 are pulled from an hourly instantaneous [CCTM_CONC](CMAQ_UG_ch07_model_outputs.md#conc) or hourly average [CCTM_ACONC](CMAQ_UG_ch07_model_outputs.md#aconc) model output file in units of ppmV. 
 
 Note that some species aggregation is already happening within the CMAQ model. The CMAQ aerosol module explicitly represents a number of individual PM<sub>2.5</sub> species that need to be combined for comparisons to measured total PM<sub>2.5</sub> mass.  The Explicit and Lumped Model Output (ELMO) capability introduced in CMAQv5.4 presribes the calculation of aggregated aerosol species (e.g., PM<sub>1</sub>, PM<sub>2.5</sub>, and PM<sub>10</sub>),  as well as diagnostic values (e.g., aerosol surface area and number) and CMAQ calculates them online.  The species are then written to the [CCTM_ELMO](CMAQ_UG_ch07_model_outputs.md#ELMO) or [CCTM_AELMO](CMAQ_UG_ch07_model_outputs.md#AELMO) output files. See [Apendix F](Appendix/CMAQ_UG_appendixF_elmo_output.md) for more information about the calculation of ELMO output variables and how this relates to use of the *combine* tool.
 
