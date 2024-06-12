@@ -596,6 +596,9 @@ Aerosol Diagnostics are now handled by the Explicit and Lumped Model Output modu
 -   `GR_EM_SYM_DATE_### [default: False]`<a id=GR_EM_SYM_DATE_###></a>  
     Switch to indicate whether gridded emission is of representative day type for stream ###, where ### = 01, 02,…,N_EMIS_GR. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#inline-stream-offline) for further information.
     
+-   `N_EMIS_PT `<a id=N_EMIS_PT></a>
+    The number of offline Point emission streams to be used by the model. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#inline-stream-offline) for further information.
+  
 -   `STK_GRPS_### `<a id=STK_GRPS_###></a>  
     Directory path and file name of the stack groups file for sector ###, where ### = 001, 002,…,N_EMIS_PT. Each ### refers to one of the inline plume rise point-source sectors. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#inline-stream-offline) for further information. 
 
