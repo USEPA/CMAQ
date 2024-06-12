@@ -499,7 +499,7 @@ Sets if the CCTM will run in multi-processor or serial mode.
 <!-- END COMMENT -->
 
 -   `CTM_PROCAN [default: N]`<a id=CTM_PROCAN></a>  
-    Activate process analysis in the CCTM. Set the environment variable, PACM_FILE (Read below for more information), that defines the integrated process rate and integrated reaction rate outputs from CCTM. Additional process analysis output files will be created when this setting is activated.  
+    Activate process analysis in the CCTM. Set the environment variable, PACM_INFILE (Read below for more information), that defines the integrated process rate and integrated reaction rate outputs from CCTM. Additional process analysis output files will be created when this setting is activated.  
 -   `PA_BCOL_ECOL [default: 0]`<a id=PA_BCOL_ECOL></a>  
     Modeling grid domain column range for the process analysis calculations. Set to the two digits representing the beginning and ending column number bounding the process analysis domain.  
 -   `PA_BROW_EROW [default: 0]`<a id=PA_BROW_EROW></a>  
