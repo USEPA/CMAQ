@@ -264,7 +264,8 @@ This control file provides an interface to activate/deactivate and set parameter
 The final sections (&Chemical_FamVars and &ChemicalFamilies) allow users to define chemical families for output that can be referred to by ELMO, The Budget Tool or DESID. For example, 'NOX' may be defined as a chemical family containing 'NO' and 'NO2'. 
 The &Chemical_FamVars section should be used to define the total number of chemical families that will be specified (N_Chem_Fams) and the maximum number of chemical species among all defined chemical families (Max_Chem_Fam_Members). For example, if a user defined three chemical families including 'NOX','AROMATICS', and 'BSOA', then a chemical family entry could be written as follows:
 
-`&Chem_FamVars  
+```
+&Chem_FamVars  
   N_Chem_Fams = 3  
   Max_Chem_Fam_Members = 10  
  /  
@@ -277,7 +278,8 @@ The &Chemical_FamVars section should be used to define the total number of chemi
   
   ChemFamilyName(3) = 'DUST'
   ChemFamilyMembers(3,:) = 'ACORS','ASOIL','AECI','AECJ','AFEJ','AALJ','ATIJ','ASIJ','ACAJ','AMGJ','AKJ','AMNJ'  
- /  `
+ / 
+```
 
 <a id=init_conc_1></a>
 
