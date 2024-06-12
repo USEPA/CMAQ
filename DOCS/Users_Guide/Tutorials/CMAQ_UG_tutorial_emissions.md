@@ -31,8 +31,9 @@ residential heating, etc.
 - [13. Use a family of streams to scale emissions for a group of sources](#fam_stream)  
 - [14. Use a family of regions to scale emissions in a new location](#fam_region)  
 - [15. Use a family of species to scale emissions for a custom group of pollutants](#fam_chem)  
-- [A1. Appendix: Example Emission Control File](#appendix1)  
-- [A2. Appendix: Example Emissions Section of CCTM RunScript File](#appendix2)  
+- [Example DESID Control File](../../../CCTM/src/emis/emis/CMAQ_Control_DESID.nml)  
+- [Example DESID Scaling Rules File](../../../CCTM/src/MECHS/cracmm2/CMAQ_Control_DESID_cracmm2.nml)  
+- [Example Emissions Section of CCTM RunScript File](../../../CCTM/scripts/run_cctm_cracmm_2019_12US1_CRACMM2_EPA2019.csh#L100)   
 
 
 <a id=zero_out></a>
