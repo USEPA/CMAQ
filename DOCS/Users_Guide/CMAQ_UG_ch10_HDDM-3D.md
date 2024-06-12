@@ -26,7 +26,7 @@ Starting from CMAQv5.4, DDM-3D has been fully integrated into the base model and
 To use CMAQ-DDM-3D, follow the normal build process for CMAQ described in [Chapter 5](CMAQ_UG_ch05_running_a_simulation.md), but make sure to uncomment the following line in bldit_cctm.csh: 
 
 ```
- set DDM3D_CCTM                        #> uncomment to compile CCTM with DD3D activated
+ set DDM3D_CCTM                        #> uncomment to compile CCTM with DDM-3D activated
 ```
 
 **A note about I/O API installation for DDM applications**
