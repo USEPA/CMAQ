@@ -22,7 +22,7 @@ residential heating, etc.
 - [4. Scale emissions for one species on all streams](#scale_species)  
 - [5. Scale all gas phase emissions but leave aerosols alone](#scale_gases)  
 - [6. Scale all aerosols](#scale_aerosols)  
-- [7. Add or subtract emissions from one surrogate to existing emissions]([#add_surrogate)  
+- [7. Add or subtract emissions from one surrogate to existing emissions]([#scale_surrogate)  
 - [8. Overwrite the scale factor for a single stream or species](#overwrite)  
 - [9. Scale all species except one by a common factor](#scale_all_but_one)  
 - [10. Apply scaling while conserving moles or mass](#scale_moles_mass)  
@@ -30,10 +30,12 @@ residential heating, etc.
 - [12. Define families of streams, regions, or chemical species](#define_families) 
 - [13. Use a family of streams to scale emissions for a group of sources](#fam_stream)  
 - [14. Use a family of regions to scale emissions in a new location](#fam_region)  
-- [15. Use a family of species to scale emissions for a custom group of pollutants](#fam_chem)  
+- [15. Use a family of species to scale emissions for a custom group of pollutants](#fam_chem)
+- [16. Miscellaneous Notes](#misc_notes)
 - [Example DESID Control File](../../../CCTM/src/emis/emis/CMAQ_Control_DESID.nml)  
 - [Example DESID Scaling Rules File](../../../CCTM/src/MECHS/cracmm2/CMAQ_Control_DESID_cracmm2.nml)  
 - [Example Emissions Section of CCTM RunScript File](../../../CCTM/scripts/run_cctm_cracmm_2019_12US1_CRACMM2_EPA2019.csh#L420)   
+
 
 
 <a id=zero_out></a>
@@ -255,7 +257,7 @@ Chemical families are defined by prescribing, via the [CMAQ Miscellaneous Contro
  ChemFamilyMembers(2,:)= 'POC','PNCOM'  
 /
 ```  
-In this example, 2 chemical families, "NOX" and "POA", are defined with 2 members, "NO" and "NO2", and "POC" and "PNCOM". Note that CMAQv5.3 required the variable ChemFamilyNum to be specified and this is value is internally calculated in CMAQv5.4. If the variable is provided, the model will crash. Also, it is required to ensure that no Chemical Family Name is identical to any emission species or CMAQ species. Currently, CMAQ will not detect a name conflict but results will be compromised. A future version of CMAQ will check for duplicative names, trigger an error, and stop the model.
+In this example, 2 chemical families, "NOX" and "POA", are defined with 2 members, "NO" and "NO2", and "POC" and "PNCOM". Note that CMAQv5.3 required the variable ChemFamilyNum to be specified and this value is internally calculated in CMAQv5.4. If the variable is provided, the model will crash. Also, it is required to ensure that no Chemical Family Name is identical to any emission species or CMAQ species. Currently, CMAQ will not detect a name conflict but results will be compromised. A future version of CMAQ will check for duplicative names, trigger an error, and stop the model.
 
 Stream families are defined analogously in the DESID Control File:  
 ```
@@ -352,5 +354,6 @@ The way CMAQ uses chemical families for adding relationships with the 'a' is nua
 - If both columns include chemical families or the 'ALL' keyword, then each pair of members will be compared. If the names match exactly or a relationship already exists, then the 'a' operation will be applied. If not, then the pair will be ignored. This precaution is in place to protect against the case where a user prescribes an addition (i.e. 'a') rule with the keyword 'ALL' or very large chemical families in both the emission variable and CMAQ-Species columns. 
 Without the precaution in place, adding relationships for ALL surrogates to ALL model species would be an extremely large data structure and almost certainly not an intended use of CMAQ.
 
+<a id=misc_notes></a>
 ### 16. Miscellaneous Notes
 In the default emissions mapping configuration, sulfuric acid (SULF) mass is mapped to ASO4 (particulate sulfate). If these emissions are perturbed directly or as part of a broader sector- or region-wide scaling, it is recommended to confirm specifically that these emissions have been scaled as desired. For example, if a family named 'SOX' is defined that includes 'SO2' and 'SULF' and then 'SOX' is specified as the CMAQ species in a scaling rule, then the 'SULF' to 'ASO4' mapping would not be detected.
