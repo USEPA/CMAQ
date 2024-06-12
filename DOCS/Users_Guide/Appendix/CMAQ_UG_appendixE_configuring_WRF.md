@@ -9,9 +9,9 @@
 ## E.1 WRF for CMAQ & Output
 
 * **[WRF configuration guide for CMAQ applications](../PDF/PX-ACM-WRFV4.6-MPAS.pdf)**
-* CMAQ is best connected to WRF that uses the P-X LSM with key variables in the output. Users can either forces these in the WRF output by modifying the Registry or use a run-time option.
-* WRF output variables can be specified using a simple text file (see WRF configuration guide using link above).
-* P-X LSM variables can be forced in WRF outputs by compiling directives via Registry file (see WRF configuration guide above).
+* CMAQ is best connected to WRF that uses the P-X LSM with key variables in the output (see WRF configuration guide above). 
+* Method 1: Compiled into executable with directives in the Registry file.
+* Method 2: At run-time using a simple text file and namelist option.
 
 
 ## E.2 WRF version 4.6
