@@ -71,7 +71,7 @@ All streams can be zeroed by creating a rule that refers to 'All' streams. For e
 !  Label      |               |Surrogate| Species      |Mode  |Factor|      |
 'EVERYWHERE' , 'All'          ,'All'    ,'All'         ,'All' ,0.    ,'UNIT','o',
 ```
-Alternatively, individual streams can be zeroed by creating rules that refer to specific streams.
+Here, the 'o' operator regers to *overwrite* and will instruct DESID to change existing instructions that emission variables and CMAQ-species to the new Scale Factor. Additionally, individual streams can be zeroed by creating rules that refer to specific streams.
 ```
 ! Region      | Stream Label  |Emission | CMAQ-        |Phase/|Scale |Basis |Op  
 !  Label      |               |Surrogate| Species      |Mode  |Factor|      |
@@ -146,13 +146,13 @@ If instead, the user is interested in scaling all aerosol species by a factor of
 
 <a id=scale_surrogate></a>
 ### 7. Add or subtract emissions from one surrogate to existing emissions
-If the following rule is already present on the default emission control namelist,
+If the following rule is already present on the default emission control namelist. It maps, for all streams, the emission variable TOL (for toluene and possibly toluene-like compounds) to the CMAQ Species TOL.
 ```
 ! Region      | Stream Label  |Emission | CMAQ-        |Phase/|Scale |Basis |Op  
 !  Label      |               |Surrogate| Species      |Mode  |Factor|      |
 'EVERYWHERE'  , 'All'         ,'TOL'    ,'TOL'         ,'GAS' ,1.0  ,'UNIT','a',
 ```
-and the user wants to add or subtract toluene emissions based on the value of a different emission surrogate, CO for example, then this rule could be used:
+The user wants to add or subtract toluene emissions based on the value of a different emission surrogate, CO for example, then this rule could be used:
 ```
 ! Region      | Stream Label  |Emission | CMAQ-        |Phase/|Scale |Basis |Op  
 !  Label      |               |Surrogate| Species      |Mode  |Factor|      |
@@ -168,13 +168,13 @@ Note it is important to use the 'a' operator for these rules since the effects o
 
 <a id=overwrite></a>
 ### 8. Overwrite the scale factor for a single stream or species
-If the following rule is already present on the default emission control namelist,
+If the following rule is already present on the default emission control namelist. It maps, for all streams, the emission variable TOL (for toluene and possibly toluene-like compounds) to the CMAQ Species TOL.  
 ```
 ! Region      | Stream Label  |Emission | CMAQ-        |Phase/|Scale |Basis |Op  
 !  Label      |               |Surrogate| Species      |Mode  |Factor|      |
 'EVERYWHERE'  , 'All'         ,'TOL'    ,'TOL'         ,'GAS' ,1.0  ,'UNIT','a',
 ```
-and the user wants to overwrite the scale factor with a different one, 30% for example, use a rule of this form:
+The user wants to overwrite the scale factor with a different one, 30% for example, use a rule of this form:
 ```
 ! Region      | Stream Label  |Emission | CMAQ-        |Phase/|Scale |Basis |Op  
 !  Label      |               |Surrogate| Species      |Mode  |Factor|      |
@@ -201,9 +201,9 @@ The user may elect to conserve moles or mass instead of applying factors directl
 ```
 will add 15% of CO emissions to the emissions of fine-mode particulate nitrate, but the scale factor will also be adjusted by multiplying by the molecular weight of CO to conserve mass.
 
-Reminder: gas-phase emission rates are usually provided to CMAQ in molar units while particle emissions are usually provided in mass. Note that if the user scales a particle species to a gas surrogate, or vice-versa, it is important in most cases to choose either "MASS" or "MOLE" appropriately for the Basis to ensure proper unit conversions. 
+Reminder: gas-phase emission rates are usually provided to CMAQ in molar units while particle emissions are usually provided in mass. Note that if the user scales a particle species to a gas emission variable, or vice-versa, then there will likely be a mass to mole unit conversion necessary. It is important in most cases to choose either "MASS" or "MOLE" for the Basis to ensure that conservation of mass or conservation of moles is preserved, depending on user preference.  
 
-If the user is scaling one gas species to another gas surrogate, both will likely have molar emissions units. In this case, selecting "MOLE" as the basis will be equivalent to selecting "UNIT". In other words, there will be no modification of the user-defined scale factor due to unit conversion concerns. If, however, "MASS" is selected, then the scale factor will be modified by first multiplying by the molecular weight of the surrogate and then dividing by the molecular weight of the CMAQ species.
+If the user is scaling one gas species to another gas emission variable, both will likely have molar emissions units. In this case, selecting "MOLE" as the basis will be equivalent to selecting "UNIT". In other words, there will be no modification of the user-defined scale factor due to unit conversion concerns. If, however, "MASS" is selected, then DESID will adjust the scale factor by first multiplying by the molecular weight of the emission variable and then dividing by the molecular weight of the CMAQ species. These tasks do not need to be completed by the user.  
 ```
 ! Region      | Stream Label  |Emission | CMAQ-        |Phase/|Scale |Basis |Op  
 !  Label      |               |Surrogate| Species      |Mode  |Factor|      |
@@ -340,7 +340,7 @@ Because the 'm' operator is used, CMAQ will look for pre-existing relationships 
 ```  
 In this case, CMAQ is adding a relationship between NO and NO2 surrogates and model species. Thus families are most useful when using the 'm' or 'o' operators. 
 
-However, sometimes the 'a' operator is useful with chemical families. In the example below, a relationship is added between POA surrogates (defined in example 12 above) and CMAQ model species:  
+However, sometimes the 'a' operator is useful with chemical families. In the example below, a relationship is added between POA surrogates (defined in section 12 above) and CMAQ model species:  
 ```
 ! Region      | Stream Label |Emission | CMAQ-        |Phase/|Scale |Basis |Op  
 !  Label      |              |Surrogate| Species      |Mode  |Factor|      |
