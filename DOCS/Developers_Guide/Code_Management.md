@@ -912,8 +912,6 @@ setenv KZMIN Y               #> use Min Kz option in edyintb [ default: Y ],
                              #>    otherwise revert to Kz0UT
 setenv CTM_ILDEPV Y          #> calculate in-line deposition velocities [ default: Y ]
 setenv CTM_MOSAIC N          #> landuse specific deposition velocities [ default: N ]
-setenv CTM_FST N             #> mosaic method to get land-use specific stomatal flux
-                             #>    [ default: N ]
 setenv CTM_ABFLUX Y          #> ammonia bi-directional flux for in-line deposition
                              #>    velocities [ default: N ]; ignore if CTM_ILDEPV = N
 setenv CTM_HGBIDI N          #> mercury bi-directional flux for in-line deposition

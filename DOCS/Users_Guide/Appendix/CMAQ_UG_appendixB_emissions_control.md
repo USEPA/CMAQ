@@ -13,11 +13,11 @@
 
 ## B.1 Emissions Control with the Detailed Emissions Scaling, Isolation and Diagnostics Module (DESID)
 
-The Detailed Emissions Scaling, Isolation and Diagnostics (DESID) module included with CMAQv5.3+ provides comprehensive customization and transparency of emissions manipulation to the user. The customization of emissions is accomplished via ia series of Control Namelists, which contain sections of variables that modify the behavior of the emissions module. These include ***Emission Scaling Rules***, ***Size Distributions***, ***Regions Registry***, ***Chemical Families***, ***Region Families***, and ***Area Adjustments***.
+The Detailed Emissions Scaling, Isolation and Diagnostics (DESID) module included with CMAQv5.3+ provides comprehensive customization and transparency of emissions manipulation to the user. The customization of emissions is accomplished via a series of Control Namelists, which contain variables that modify the behavior of the emissions module. These include ***Emission Scaling Rules***, ***Size Distributions***, ***Regions Registry***, ***Chemical Families***, ***Region Families***, and ***Area Adjustments***.
 
-To determine its configuration, DESID makes use of input from primarily three files, the CMAQ runscript, the DESID Control file ([CMAQ_Control_DESID.nml](../../../CCTM/src/emis/emis/CMAQ_Control_DESID.nml)), and the DESID Chemical Mapping Control File (e.g. [CMAQ_Control_DESID_cb6r5_ae7_aq.nml](../../../CCTM/src/MECHS/cb6r5_ae7_aq/CMAQ_Control_DESID_cb6r5_ae7_aq.nml)). 
+To determine its configuration, DESID makes use of input primarily from four files: the CMAQ runscript, the CMAQ Miscellaneous Control File ([CMAQ_Control_Misc.nml](../../../CCTM/src/util/util/CMAQ_Control_Misc.nml)), the DESID Control file ([CMAQ_Control_DESID.nml](../../../CCTM/src/emis/emis/CMAQ_Control_DESID.nml)), and the DESID Chemical Mapping File (e.g. [CMAQ_Control_DESID_cb6r5_ae7_aq.nml](../../../CCTM/src/MECHS/cb6r5_ae7_aq/CMAQ_Control_DESID_cb6r5_ae7_aq.nml)). 
 A separate version of the chemical mapping control file exists for every mechanism because these namelists are preloaded with likely rules linking emissions of important CMAQ primary species to their typical emission species names as output by SMOKE. 
-By default, this namelist is stored in each chemical mechanism folder (e.g. MECHS/cb6r5_ae7_aq) and is copied into the user's build directory when bldit_cctm.csh is executed. If the user modifies the name or location of the DESID control or chemical mapping control files, then the following commands in the RunScript should be updated as well:
+By default, this namelist is stored in each chemical mechanism folder (e.g. MECHS/cb6r5_ae7_aq) and is copied into the user's build directory when bldit_cctm.csh is executed and a chemical mechanism is chosen. If the user modifies the name or location of the DESID control file or chemical mapping file, then the following commands in the RunScript should be updated as well:
 ```
 setenv DESID_CTRL_NML ${BLD}/CMAQ_Control_DESID.nml
 setenv DESID_CHEM_CTRL_NML ${BLD}/CMAQ_Control_DESID_${MECH}.nml
@@ -27,11 +27,11 @@ If the user does not provide a DESID Control Files or the path to the files in t
 
 
 ## B.2 Chemical Mapping Control
-The chemical mapping control namelist files contain emission scaling rules that allow the user to exert sophisticated, precise control over the emissions from specific streams, in specific geographic areas, and/or for specific compounds. 
-The set of rules used by CMAQ to interpret emissions shall be provided in one array called DESID_Rules_nml. It is necessary that every field (i.e. column) be populated for every rule. The fields are given and defined here and in the comment section of the Emission Control Namelist:
+The chemical mapping file contains emission scaling rules that allow the user to exert sophisticated, precise control over the emissions from specific streams, in specific geographic areas, and/or for specific compounds. 
+The set of rules used by CMAQ to interpret emissions shall be provided in one array called DESID_Rules_nml. It is necessary that every field (i.e. column) be populated for every rule. The fields are given and defined here:
 ```
 ! Region      | Stream Label  |Emission | CMAQ-        |Phase/|Scale |Basis |Op  
-!  Label      |               |Species  | Species      |Mode  |Factor|      |
+!  Label      |               |Surrogate| Species      |Mode  |Factor|      |
 ```
 - 'Region Label' - Apply scaling for specific regions of the domain. Set this field to "EVERYWHERE" to apply the rule to the entire domain.
 - 'Stream Label' - Short Name from Run Script (e.g. the value of GR_EMIS_01_LAB or STK_EMIS_01_LAB). There are a few reserved names that apply to online emissions streams. These are:
@@ -380,7 +380,7 @@ The keyword TOTAL may be used in place of ALL in the Streams variable to indicat
 ```
 &Desid_Diag
   EmissDiagStreams(1,:)= 'ALL'
-  EmissDiagFmt(1)      = 'COLSUM'    ! Options: 2D, 2DCOL, 3D
+  EmissDiagFmt(1)      = 'COLSUM'    ! Options: LAYER1, COLSUM, 3D
   EmissDiagSpec(1,:)   = 'NO','NO2','NOX','ASO4','CO'
 
   EmissDiagStreams(2,:)= 'TOTAL'

@@ -261,13 +261,15 @@ Calculate inline plume rise for large point sources using the Briggs algorithm a
 -   `ModCloud: [default: cloud/acm_ae6]`<a id=ModCloud></a>  
     CMAQ cloud module for modeling the impacts of clouds on deposition, mixing, photolysis, and aqueous chemistry. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#612-aqueous-chemistry-scavenging-and-wet-deposition) for further information.
     -   `cloud/acm_ae6`  
-    ACM cloud processor that uses the ACM methodology to compute convective mixing with heterogeneous chemistry for AERO6
+    ACM cloud processor that uses the ACM methodology to compute convective mixing with aqueous chemistry for AERO6
     -   `cloud/acm_ae6_mp`  
-    ACM cloud processor that uses the ACM methodology to compute convective mixing with heterogeneous chemistry for AERO6 and air toxics; this is the multipollutant mechanism in CMAQv5
-    -   `cloud/acm_ae6_kmt`  
-    ACM cloud processor that uses the ACM methodology to compute convective mixing with heterogeneous chemistry for AERO6 and aqueous chemistry with kinetic mass transfer and Rosenbrock solver
-    -   `cloud/acm_ae6i_kmti`  
-    ACM cloud processor that uses the ACM methodology to compute convective mixing with heterogeneous chemistry for AERO6 and aqueous chemistry with kinetic mass transfer and Rosenbrock solver with an extension to simulate the aqueous phase formation of SOA in cloud droplets, see: [CMAQv5.1 Aqueous Chemistry](https://www.airqualitymodeling.org/index.php/CMAQv5.1_Aqueous_Chemistry)
+    ACM cloud processor that uses the ACM methodology to compute convective mixing with aqueous chemistry for AERO6 and air toxics; this is the multipollutant mechanism in CMAQv5
+    -   `cloud/acm_ae7`  
+    ACM cloud processor that uses the ACM methodology to compute convective mixing with aqueous chemistry for AERO7
+    -   `cloud/acm_ae7_kmt2`  
+    ACM cloud processor that uses the ACM methodology to compute convective mixing with aqueous chemistry for AERO7. This cloud mechanism considers kinetic mass transfer and uses a Rosenbrock solver to simulate extended aqueous chemistry in cloud droplets
+    -   `cloud/acm_cracmm`  
+    ACM cloud processor that uses the ACM methodology to compute convective mixing with aqueous chemistry for CRACMM
 
 -   `ModUtil: [default: util]`<a id=ModUtil></a>  
     CMAQ utility modules. Do not change this module setting.
@@ -497,7 +499,7 @@ Sets if the CCTM will run in multi-processor or serial mode.
 <!-- END COMMENT -->
 
 -   `CTM_PROCAN [default: N]`<a id=CTM_PROCAN></a>  
-    Activate process analysis in the CCTM. Set this to Y and use $CMAQ_DATA/pacp/pacp.inp to configure the integrated process rate and integrated reaction rate settings for the CCTM.  Additional process analysis output files will be created when this setting is activated.  
+    Activate process analysis in the CCTM. Set the environment variable, PACM_INFILE (Read below for more information), that defines the integrated process rate and integrated reaction rate outputs from CCTM. Additional process analysis output files will be created when this setting is activated.  
 -   `PA_BCOL_ECOL [default: 0]`<a id=PA_BCOL_ECOL></a>  
     Modeling grid domain column range for the process analysis calculations. Set to the two digits representing the beginning and ending column number bounding the process analysis domain.  
 -   `PA_BROW_EROW [default: 0]`<a id=PA_BROW_EROW></a>  
