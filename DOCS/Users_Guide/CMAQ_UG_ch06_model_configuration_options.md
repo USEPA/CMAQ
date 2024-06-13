@@ -784,7 +784,7 @@ or
  set ModPhot    = phot/table
 ``` 
 
-The in-line method (Binkowski et al., 2007) is the preferred option because it includes feedbacks from meteorology in addition to predicted ozone and aerosol concentrations. Starting CMAQv5.5, the in-line methods includes options for calculating the aerosol optical properties used to calculated photolysis frequencies. The model run-script toggles by the environmental variable "AEROSOL_OPTICS". The table below summarizes these options: 
+The in-line method (Binkowski et al., 2007) is the preferred option because it includes feedbacks from meteorology in addition to predicted ozone and aerosol concentrations. Starting CMAQv5.5, the in-line methods includes options for calculating the aerosol optical properties used to calculated photolysis frequencies. The model RunScript toggles the environmental variable "AEROSOL_OPTICS". The table below summarizes these options: 
 
 | **AEROSOL_OPTICS value**|**In-line Photolysis Method**|**Description**|
 |:--------------:|:----:|:--------:|
