@@ -624,7 +624,7 @@ DMS and halocarbon emissions are needed for cb6r5m_ae7_aq. DMS emissions are als
 
 <a id=Lightning_NO></a>
 #### Lightning NO
-In retrospective applications over the continental U.S., National Lightning Detection Network (NLDN) lightning data can be used directly to generate NO produced by lightning in CMAQ. For real-time forecasts or other applications where lightning data are not available, lightning NO is produced based on statistical relationships with the simulated convective rainfall rate (Kang et al., 2019).
+In retrospective applications over the continental U.S., National Lightning Detection Network (NLDN) lightning data or the scaled World Wide Lightning Location Network (WWLLNs) lightning data (Kang et al., 2022) can be used directly to generate NO produced by lightning in CMAQ. For real-time forecasts or other applications where lightning data are not available, lightning NO is produced based on statistical relationships with the simulated convective rainfall rate (Kang et al., 2019).
 
 There are two options for including NO from lighting.  Both options require setting the CTM_LTNG_NO flag to Y in the RunScript.
 ```
@@ -632,9 +632,10 @@ setenv CTM_LTNG_NO Y
 ```
 
 
-##### Option 1 - Inline NO with NLDN Data -- user uses hourly NLDN lightning strike netCDF file.
+##### Option 1 - Inline NO with NLDN or WWLLNs Data -- user uses hourly NLDN or WWLLNs lightning strike netCDF file.
 
-Hourly NLDN lightning strike data can be purchased.
+Hourly NLDN lightning strike data can be purchased, and WWLLNs data is available at (https://dataverse.unc.edu/dataset.xhtml?persistentId=doi:10.15139/S3/NK3NCM  (instructions and metadata) and https://cmas-wwlln-lightning.s3.amazonaws.com/index.html#cmas-wwlln-lightning/  (Data folders)).
+
 In addition to the hourly lightning strike netCDF file, this option requires a lightning parameters netCDF file.  This file contains  the intercloud to cloud-to-ground flash ratios, which are the scaling factors for calculating flashes using the convective precipitation rate, land-ocean masks, and the moles of NO per flash (cloud-to-ground and intercloud).  The lightning parameters file for a domain over the continental US at 12km horizontal resolution (12US1) can be downloaded from the [CMAS Data Warehouse](https://drive.google.com/drive/folders/1R8ENVSpQiv4Bt4S0LFuUZWFzr3-jPEeY).  This file can be regridded to support other domains within the continental US. 
 
 
@@ -647,7 +648,7 @@ setenv LTNGNO INLINE
 setenv USE_NLDN Y
 ```
 ```
-setenv NLDN_STRIKES /home/user/path-to-file/nldn_hourly_ltng_strikes.nc
+setenv NLDN_STRIKES /home/user/path-to-file/nldn(or WWLLNs)_hourly_ltng_strikes.nc
 ```
 ```
 setenv LTNGPARMS_FILE /home/user/path-to-file/LTNG_AllParms_12US1.nc
@@ -1034,6 +1035,9 @@ Jacobson, M., & Turco, R.P. (1994) SMVGEAR: A sparse-matrix, vectorized Gear cod
 Jaeglé, L., Quinn, P.K., Bates, T.S., Alexander, B., & Lin, J.T. (2011). Global distribution of sea salt aerosols: new constraints from in situ and remote sensing observations. Atmos. Chem. Phys., 11, 3137–3157. [doi: 10.5194/acp-11-3137-2011](https://doi.org/10.5194/acp-11-3137-2011).
 
 Jiang, W., Smyth, S., Giroux, É., Roth, H., & Yin, D. (2006). Differences between CMAQ fine mode particle and PM2.5concentrations and their impact on model performance evaluation in the lower Fraser valley. Atmos. Environ., 40, 4973–4985.
+
+Kang, D., Hogrefe, C., Sarwar, G., East, J.D., Madden, J.M., Mathur, R., & Henderson, B.H. (2022). Assessing the Impact of Lightning NOx Emissions in CMAQ
+Using Lightning Flash Data from WWLLN over the Contiguous United States. Atmosphere 2022, 13, 1248. [doi:10.3390/atmos13081248](https://doi.org/10.3390/atmos13081248).
 
 Kang, D., Pickering, K., Allen, D., Foley, K., Wong, D., Mathur, R., & Roselle, S. (2019). Simulating lightning NOX production in CMAQv5.2: Evolution of scientific updates. Geosci. Model Dev. Discuss.,1-23. [doi:10.5194/gmd-2019-33](https://doi.org/10.5194/gmd-2019-33).
 
