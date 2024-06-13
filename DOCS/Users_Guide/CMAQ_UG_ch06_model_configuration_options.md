@@ -322,8 +322,8 @@ CMAQv5.3 introduced DESID so that the process of mapping emissions species to CM
 
 Depending on the nature of any stream and the information used to quantify its emissions, it may be treated as one of three types:
 
-#### Online Stream:
-CMAQ will calculate the emission rates from this source using information about local meteorology, land characteristics, etc. The streams that can be run online in CMAQ are: [biogenics (BEIS/MEGAN)](#BEIS/MEGAN),[ windblown dust](#Wind_Blown_Dust), [sea spray](#Sea_Spray), and [lightning NO](#Lightning_NO).
+#### Online Streams:
+CMAQ will calculate the emission rates from this source using information about local meteorology, land characteristics, etc. The streams that can be run online in CMAQ are: [biogenics (BEIS/MEGAN)](#BEIS/MEGAN),[ windblown dust](#Wind_Blown_Dust), [sea spray](#Sea_Spray), marine gas, and [lightning NO](#Lightning_NO).
 
 #### Gridded Stream (offline):
 CMAQ will read emission rates from an input file, which is organized into an array that is identical in shape to the CMAQ model grid. Typically, these rates are stored at hourly time points and are then interpolated within CMAQ to each time step. These files may be 2D to represent just the surface layer emissions or they may be 3D. If 3D, the file may have the same number or fewer number of layers as the CMAQ grid. Gridded emissions may be merged into a single stream or kept as separate types. Some common examples of Gridded emissions include:
@@ -369,14 +369,14 @@ Users should be careful with this variable, as it changes the default value for 
 
 If N_EMIS_GR is set 0, then CMAQ will run with no Gridded emissions even if the values for GR_EMIS_XXX and GR_EMIS_LAB_XXX are all set.
 
-#### Inline Stream (offline):
-For these streams, emission rates and stack characteristics are provided for many individual sources on the same file. CMAQ uses the stack information to calculate important quantities online like the injection height which is influenced by local meteorology. A specific latitude/longitude pair is given for each source to locate it in the CMAQ grid. Sources outside the CMAQ grid domain are ignored by CMAQ; thus the same files may be used for a large domain and a nest within that domain. Some common examples of Inline emissions include:
+#### Point Stream (offline):
+For these streams, emission rates and stack characteristics are provided for many individual sources on the same offline file. CMAQ uses the stack information to calculate important quantities online like the injection height which is influenced by local meteorology. A specific latitude/longitude pair is given for each source to locate it in the CMAQ grid. Sources outside the CMAQ grid domain are ignored by CMAQ; thus the same files may be used for a large domain and a nest within that domain. Some common examples of Point emissions include:
 
 - Stacks (electric generation units, industrial sources, manufacturing, etc.)
 - Forest fires
 - Large prescribed fire events  
 
-Users add Inline emissions to a simulation via the RunScript. First the variable N_EMIS_PT must be set to the number of Inline Streams to be used:
+Users add Point emission streams to a simulation via the RunScript. First the variable N_EMIS_PT must be set to the number of Point Streams to be used:
 
 ```
 setenv N_EMIS_PT 3
@@ -384,13 +384,13 @@ setenv N_EMIS_PT 3
 The RunScript must also specify the location of the input files using three-digit suffixes for the stream number:
 
 ```
-setenv STK_EMIS_002 /home/user/path-to-file/inline_emiss_stream_2_${DATE}.nc
+setenv STK_EMIS_002 /home/user/path-to-file/point_emiss_stream_2_${DATE}.nc
 ```
 
 The location to the "stack file" with static information about the properties of each source on the stream:
 
 ```
-setenv STK_GRPS_002 /home/user/path-to-file/inline_stack_groups_2.nc
+setenv STK_GRPS_002 /home/user/path-to-file/point_stack_groups_2.nc
 ```
 
 
@@ -412,9 +412,9 @@ setenv EM_SYM_DATE T #This changes the internal default of STK_EM_SYM_DATE, if n
 ```
 Users should be careful with this variable, as it changes the default value for all stack streams. If both EM_SYM_DATE and STK_EM_SYM_DATE_XXX are present, STK_EM_SYM_DATE_XXX takes precedent for that individual stream. Example: if STK_EM_SYM_DATE_001 is F and EM_SYM_DATE is T, the emissions module will see that stream 001 is not a symbolic data type, however, stream 002, if not set, will indicate that stream 002 is of symblic data type.
 
-If N_EMIS_PT is set 0, then CMAQ will run with no Inline emissions even if the values for STK_EMIS_XXX, STK_GRPS_XXX and STK_EMIS_LAB_XXX are all set.
+If N_EMIS_PT is set 0, then CMAQ will run with no Point emission streams even if the values for STK_EMIS_XXX, STK_GRPS_XXX and STK_EMIS_LAB_XXX are all set.
 
-*Plume Rise* - Plume rise can be calculated inline within CMAQ using the Briggs solution as it is implemented in SMOKE and documented in the SMOKE user guide [Chapter 4.3](https://www.cmascenter.org/smoke/documentation/5.0/html/ch04s03.html#sect_programs_elevpoint_briggs). It is required that emission files have been processed to include the necessary stack parameters (e.g. exit velocity, diameter, stack gas temperature, stack height, etc.) for anthropogenic point sources. Wildland fires require heat flux and are to estimate plume rise with Briggs using [the Pouliot-Godowitch method](https://www.cmascenter.org/smoke/documentation/5.0/html/ch04s06.html#sect_programs_laypoint_plume_rise_fires).
+*Plume Rise* - Plume rise can be calculated online within CMAQ using the Briggs solution as it is implemented in SMOKE and documented in the SMOKE user guide [Chapter 4.3](https://www.cmascenter.org/smoke/documentation/5.0/html/ch04s03.html#sect_programs_elevpoint_briggs). It is required that emission files have been processed to include the necessary stack parameters (e.g. exit velocity, diameter, stack gas temperature, stack height, etc.) for anthropogenic point sources. Wildland fires require heat flux and are to estimate plume rise with Briggs using [the Pouliot-Godowitch method](https://www.cmascenter.org/smoke/documentation/5.0/html/ch04s06.html#sect_programs_laypoint_plume_rise_fires).
 
 <a id=6.9.2_Online_Emission></a>
 
@@ -443,13 +443,13 @@ Running CMAQ with BEIS is controlled by the following RunScript flag:
 setenv CTM_BIOGEMIS_BE Y
 ```
 
-Running CMAQ with online BEIS requires a user-supplied, gridded normalized biogenic emissions input netCDF file, B3GRD.  This file is created with the [normbeis4](https://www.cmascenter.org/smoke/documentation/5.0/html/ch04s13.html) program in SMOKE prior to running the inline biogenic option in CMAQ and contains winter and summer normalized emissions and Leaf Area Indices. [Starting with CMAQ v54](https://github.com/USEPA/CMAQ/wiki/CMAQ-Release-Notes:-Emissions-Updates:-BEIS-Biogenic-Emissions#beis-updates), the selection of summer vs. winter normalized emission factors when using the BEIS inline biogenic emission option in CMAQ is based on the 1 meter soil temperature following the WRF PX LSM representation of seasonality. The location of the B3GRD file is set in the RunScript:
+Running CMAQ with online BEIS requires a user-supplied, gridded normalized biogenic emissions input netCDF file, B3GRD.  This file is created with the [normbeis4](https://www.cmascenter.org/smoke/documentation/5.0/html/ch04s13.html) program in SMOKE prior to running the online biogenic option in CMAQ and contains winter and summer normalized emissions and Leaf Area Indices. [Starting with CMAQ v54](https://github.com/USEPA/CMAQ/wiki/CMAQ-Release-Notes:-Emissions-Updates:-BEIS-Biogenic-Emissions#beis-updates), the selection of summer vs. winter normalized emission factors when using the BEIS online biogenic emission option in CMAQ is based on the 1 meter soil temperature following the WRF PX LSM representation of seasonality. The location of the B3GRD file is set in the RunScript:
 
 ```
 setenv B3GRD /home/user/path-to-file/b3grd.nc
 ```
 
-Additionally, when using the inline biogenic option, the user must point to the SOILOUT file from one day’s simulation as the SOILINP file for the next day. The user must also decide whether to write over SOILOUT files from previous days or create a uniquely named SOILOUT file for each day. The latter approach is recommended if the user wishes to retain the capability to restart simulations in the middle of a sequence of simulations.
+Additionally, when using the online biogenic option, the user must point to the SOILOUT file from one day’s simulation as the SOILINP file for the next day. The user must also decide whether to write over SOILOUT files from previous days or create a uniquely named SOILOUT file for each day. The latter approach is recommended if the user wishes to retain the capability to restart simulations in the middle of a sequence of simulations.
 
 Set the NEW_START variable in the RunScript to TRUE if this is the first time that biogenic NO soil emissions will be calculated. If there is a previously created file, set to FALSE.  When NEW_START is set to FALSE, the directory path and file name of biogenic NO soil emissions file must be set in the RunScript:
 
@@ -632,7 +632,7 @@ setenv CTM_LTNG_NO Y
 ```
 
 
-##### Option 1 - Inline NO with NLDN Data -- user uses hourly NLDN lightning strike netCDF file.
+##### Option 1 - Online NO with NLDN Data -- user uses hourly NLDN lightning strike netCDF file.
 
 Hourly NLDN lightning strike data can be purchased.
 In addition to the hourly lightning strike netCDF file, this option requires a lightning parameters netCDF file.  This file contains  the intercloud to cloud-to-ground flash ratios, which are the scaling factors for calculating flashes using the convective precipitation rate, land-ocean masks, and the moles of NO per flash (cloud-to-ground and intercloud).  The lightning parameters file for a domain over the continental US at 12km horizontal resolution (12US1) can be downloaded from the [CMAS Data Warehouse](https://drive.google.com/drive/folders/1R8ENVSpQiv4Bt4S0LFuUZWFzr3-jPEeY).  This file can be regridded to support other domains within the continental US. 
@@ -653,7 +653,7 @@ setenv NLDN_STRIKES /home/user/path-to-file/nldn_hourly_ltng_strikes.nc
 setenv LTNGPARMS_FILE /home/user/path-to-file/LTNG_AllParms_12US1.nc
 ```
 
-##### Option 2 - Inline NO without NLDN Data --  lightning NO is calculated within CCTM based on statistical relationships with the simulated convective rainfall rate.
+##### Option 2 - Online NO without NLDN Data --  lightning NO is calculated within CCTM based on statistical relationships with the simulated convective rainfall rate.
 
 This option also requires a lightning parameters netCDF file which contains the linear regression parameters for generating lightning NO.  The lightning parameters file for the continental US at 12km horizontal resolution can be downloaded from the [CMAS Data Warehouse](https://drive.google.com/drive/folders/1R8ENVSpQiv4Bt4S0LFuUZWFzr3-jPEeY). This file can be regridded to support other domains within the continental US. 
 
