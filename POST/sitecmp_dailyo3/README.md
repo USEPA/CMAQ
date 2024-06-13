@@ -103,5 +103,5 @@ Edit the sample run script (run.sitecmp_dailyo3), then run:
 ```
 Check the log file to ensure complete and correct execution without errors.
 
-Sample run scripts has been provided for matching model data to ozone observations from AQS and CASTNET. The formatted observation data files needed for running the sitecmp_dailyo3 utility are available for 2000 through 2014 from the CMAS Center Data Clearinghouse under the heading "2000-2014 North American Air Quality Observation Data": https://www.cmascenter.org/download/data.cfm.
+Sample run scripts has been provided for matching model data to ozone observations from AQS and CASTNET. The formatted observation data files needed for running the sitecmp_dailyo3 utility are available starting in 2000 from the CMAS Data Warehouse Google Drive: [North America Air Quaility Observation Files](https://drive.google.com/drive/folders/1QUlUXnHXvXz9qwePi5APzzHkiH5GWACw?usp=drive_link)
 

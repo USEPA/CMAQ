@@ -14,7 +14,7 @@ Starting with CMAQv5.3, a runtime diagnostic model option that provides detailed
 
 ## 12.2 Usage
 
-To activate the STM option, edit the CTM runscript and set the following environment variable to "Y" (the default is "N"):
+To activate the STM option, edit the CCTM runscript and set the following environment variable to "Y" (the default is "N"):
 
 - setenv STM_SO4TRACK Y
 
