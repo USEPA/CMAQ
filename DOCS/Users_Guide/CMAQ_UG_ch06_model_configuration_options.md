@@ -756,7 +756,7 @@ To solve the photochemistry, the model uses one of three numerical methods or so
  set ModGas    = gas/ebi_${Mechanism} 
 ``` 
  
-If a user creates new FORTRAN modules representing the photochemical mechanism or modifies the existing modules, they must create a new EBI solver by using the create_ebi utility.  Documentation on compiling and running create_ebi is available under the [UTIL/create_ebi](../../UTIL/create_ebi/README.md) folder. The remaining two solvers, SMVGEAR and ROS3, are more accurate and less prone to convergence errors. Both methods are labeled as “generalized” because they only require the mechanism’s namelist and FORTRAN modules representing the photochemical mechanism. Rosenbrock is preferred over SMVGEAR because it several times faster. To use either SMVGEAR and ROS3, the BuildScript defines ModGas as below. 
+If a user creates new FORTRAN modules representing the photochemical mechanism or modifies the existing modules, they must create a new EBI solver by using the create_ebi utility. Documentation on compiling and running create_ebi is available under the [UTIL/create_ebi](../../UTIL/create_ebi/README.md) folder. To examine if the newly created EBI solver is working properly, CMAQ results with the EBI solver can be compared to those obtained with the SMVGEAR or ROS3 solver for a few days. The remaining two solvers, SMVGEAR and ROS3, are more accurate and less prone to convergence errors. Both methods are labeled as “generalized” because they only require the mechanism’s namelist and FORTRAN modules representing the photochemical mechanism. Rosenbrock is preferred over SMVGEAR because it several times fasterr. To use either SMVGEAR and ROS3, the BuildScript defines ModGas as below. 
 
 ```
  set ModGas    = gas/smvgear
