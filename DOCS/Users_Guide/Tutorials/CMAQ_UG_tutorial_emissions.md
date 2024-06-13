@@ -220,7 +220,7 @@ The user may apply a scale factor to a specific area of the domain by identifyin
 !  Label      |               |Surrogate| Species      |Mode  |Factor|      |
 'KENTUCKY'    , 'All'         ,'All'    ,'All'         ,'All' ,1.50 ,'UNIT','m',
 ```
-The label for "KENTUCKY" should be linked to a specific gridded variable mask (of real numbers) using the "Desid_RegionDef" section on the [DESID Control Namelist](../../../CCTM/src/emis/emis/CMAQ_Control_DESID.nml).
+The label for "KENTUCKY" should be linked to a specific gridded variable mask (of real numbers) using the "Desid_RegionDef" section on the [DESID Control Namelist](../../../CCTM/src/emis/emis/CMAQ_Control_DESID.nml#L137).
 ```
 &Desid_RegionDef
  RGN_NML  =   
@@ -238,6 +238,7 @@ Two example mask files are available on the CMAS Data Warehouse: US states grid 
 * [Link to grid mask files on CMAS Data Warehouse Google Drive](https://drive.google.com/drive/folders/1x9mJUbKjJaMDFawgy2PUbETwEUopAQDl)
 * [Link to metadata for the grid mask files is posted on the CMAS Center Dataverse site](https://doi.org/10.15139/S3/XDYYB9)
 
+Custom mask files may also be made using the [shp2cmaq](../../../PREP/shp2cmaq/README.md) tool, which provides instructions for obtaining geospatial data via shape files and converting them to CMAQ gridded input files. One may also populate a CMAQ gridded input file with arbitrary geometric shapes (e.g. squares, diamonds, or other polygons) using the IOAPI library of tools and any common coding language (e.g. Fortran, R, or Python)
 
 <a id=define_families></a>
 ### 12.  Define families of streams, regions, or chemical species
