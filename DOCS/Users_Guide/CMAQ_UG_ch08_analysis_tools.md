@@ -63,10 +63,13 @@ The Atmospheric Model Evaluation Tool (AMET) was developed to aid in the evaluat
 
 There are separate modules in AMET for evaluating meteorological and air quality model output. This separation is necessary because both the observed and predicted meteorological and air quality data are quite different, utilizing different file formats for both the observed and model data. In addition, the observed meteorological and air quality data are often obtained from networks that use different sampling protocols, which can make pairing meteorological and air quality data together difficult. One advantage of separate meteorological and air quality modules in AMET is that the modules can be installed individually, allowing a user to reduce installation time and complexity if only meteorological or air quality analysis is required.
 
-A more detailed description of AMET can be found at https://www.epa.gov/cmaq/atmospheric-model-evaluation-tool, including a flow diagram of the AMET system and example output plots from the tool. The AMET github repository resides at https://github.com/USEPA/AMET. The repository includes the latest version of AMET, along with a complete description of the tool, a comprehensive User's Guide, an Installation Guide, and a Quick Start Guide. Finally, additional information regarding AMET (including how to download AMET-ready observation data files) can be found on the CMAS Center website: https://www.cmascenter.org/amet/.
+A more detailed description of AMET can be found at https://www.epa.gov/cmaq/atmospheric-model-evaluation-tool, including a flow diagram of the AMET system and example output plots from the tool. The AMET github repository resides at https://github.com/USEPA/AMET. The repository includes the latest version of AMET, along with a complete description of the tool, a User's Guide, an Installation Guide, and a Quick Start Guide. 
 
-The AMET repository includes a script to set up and execute multiple post-processing steps from a single file, including running *combine*, *sitecmp*, *sitecmp_dailyo3*, and "batch" AMET evaluation plots. After installing AMET, users can find this script under scripts_db/aqExample/aqProject_pre_and_post.csh.  Documenation for configuring this main evaluation script are provided in the AMET docs folder: [AMET aqProject Pre- and Post- Analysis Script Guide v1.5](https://github.com/USEPA/AMET/blob/1.5/docs/AMET_aqProject_Pre_and_Post_Analysis_Script_Guide_v15.md)
+#### Observation data for model evaluation
+AMET requires observation data to be in a specific format.  AMET-ready observation data files going back to 2000 are available on the CMAS Data Warehouse Google Drive:    
+[North America Air Quaility Observation Files](https://drive.google.com/drive/folders/1QUlUXnHXvXz9qwePi5APzzHkiH5GWACw?usp=drive_link)
 
+The network data available include: AERONET, AMON, AQS, CASTNET, CSN, FLUXNET, IMPROVE, NADP, NAPS, NOAA ESRL, SEARCH, and TOAR.
 
 ## 8.5 Visualization Environment for Rich Data Interpretation (VERDI)
 
