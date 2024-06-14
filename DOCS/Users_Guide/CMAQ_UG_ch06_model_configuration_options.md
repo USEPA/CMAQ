@@ -656,7 +656,7 @@ setenv NLDN_STRIKES /home/user/path-to-file/nldn(or WWLLNs)_hourly_ltng_strikes.
 setenv LTNGPARMS_FILE /home/user/path-to-file/LTNG_AllParms_12US1.nc
 ```
 
-##### Option 2 - Online NO without NLDN Data --  lightning NO is calculated within CCTM based on statistical relationships with the simulated convective rainfall rate.
+##### Option 2 - Inline NO without NLDN Data --  lightning NO is calculated within CCTM based on statistical relationships with the simulated convective rainfall rate.
 
 This option also requires a lightning parameters netCDF file which contains the linear regression parameters for generating lightning NO.  The lightning parameters file for the continental US at 12km horizontal resolution can be downloaded from the [CMAS Data Warehouse](https://drive.google.com/drive/folders/1R8ENVSpQiv4Bt4S0LFuUZWFzr3-jPEeY). This file can be regridded to support other domains within the continental US. 
 
