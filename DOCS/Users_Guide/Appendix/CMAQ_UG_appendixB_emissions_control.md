@@ -295,9 +295,9 @@ Alternatively, all the variables on the US_STATES file may be enabled at once:
                'ALL'         ,'US_STATES' ,'ALL',
 /
 ```
-Rather than listing out all variables on the file and explicitly linking them to "Region Labels", the user can invoke the "ALL" keyword in both the 'Region Label' and 'Variable on File' fields and all variables will be read and stored. These gridded mask files are read by CMAQ through environmental variables, which are identified in the RunScript. If variables from multiple mask files are used, each of these mask files needs to be defined in the RunScript. 
+Rather than listing out all variables on the file and explicitly linking them to "Region Labels", the user can invoke the "ALL" keyword in both the 'Region Label' and 'Variable on File' fields and all variables will be read and stored. Once either of these definitions are included in the &Desid_RegionDef section, region labels NC and SC can be used in emission scaling instructions as in the Kentucky example above.  
 
-Two example mask files are available on the CMAS Data Warehouse: US states grid mask file and NOAA climate regions grid mask file.  These mask files can be used with the 12US1 modeling grid domain (grid origin x = -2556000 m, y = -1728000 m; N columns = 459, N rows = 299).
+These gridded mask files are read by CMAQ through environmental variables, which are identified in the RunScript. If variables from multiple mask files are used, each of these mask files needs to be defined in the RunScript. Two example mask files are available on the CMAS Data Warehouse: US states grid mask file and NOAA climate regions grid mask file.  These mask files can be used with the 12US1 modeling grid domain (grid origin x = -2556000 m, y = -1728000 m; N columns = 459, N rows = 299).
 
 * [Link to grid mask files on CMAS Data Warehouse Google Drive](https://drive.google.com/drive/folders/1x9mJUbKjJaMDFawgy2PUbETwEUopAQDl)
 * [Link to metadata for the grid mask files is posted on the CMAS Center Dataverse site](https://doi.org/10.15139/S3/XDYYB9)
