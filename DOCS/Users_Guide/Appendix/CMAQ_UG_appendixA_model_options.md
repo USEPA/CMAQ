@@ -261,13 +261,15 @@ Calculate inline plume rise for large point sources using the Briggs algorithm a
 -   `ModCloud: [default: cloud/acm_ae6]`<a id=ModCloud></a>  
     CMAQ cloud module for modeling the impacts of clouds on deposition, mixing, photolysis, and aqueous chemistry. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#612-aqueous-chemistry-scavenging-and-wet-deposition) for further information.
     -   `cloud/acm_ae6`  
-    ACM cloud processor that uses the ACM methodology to compute convective mixing with heterogeneous chemistry for AERO6
+    ACM cloud processor that uses the ACM methodology to compute convective mixing with aqueous chemistry for AERO6
     -   `cloud/acm_ae6_mp`  
-    ACM cloud processor that uses the ACM methodology to compute convective mixing with heterogeneous chemistry for AERO6 and air toxics; this is the multipollutant mechanism in CMAQv5
-    -   `cloud/acm_ae6_kmt`  
-    ACM cloud processor that uses the ACM methodology to compute convective mixing with heterogeneous chemistry for AERO6 and aqueous chemistry with kinetic mass transfer and Rosenbrock solver
-    -   `cloud/acm_ae6i_kmti`  
-    ACM cloud processor that uses the ACM methodology to compute convective mixing with heterogeneous chemistry for AERO6 and aqueous chemistry with kinetic mass transfer and Rosenbrock solver with an extension to simulate the aqueous phase formation of SOA in cloud droplets, see: [CMAQv5.1 Aqueous Chemistry](https://www.airqualitymodeling.org/index.php/CMAQv5.1_Aqueous_Chemistry)
+    ACM cloud processor that uses the ACM methodology to compute convective mixing with aqueous chemistry for AERO6 and air toxics; this is the multipollutant mechanism in CMAQv5
+    -   `cloud/acm_ae7`  
+    ACM cloud processor that uses the ACM methodology to compute convective mixing with aqueous chemistry for AERO7
+    -   `cloud/acm_ae7_kmt2`  
+    ACM cloud processor that uses the ACM methodology to compute convective mixing with aqueous chemistry for AERO7. This cloud mechanism considers kinetic mass transfer and uses a Rosenbrock solver to simulate extended aqueous chemistry in cloud droplets
+    -   `cloud/acm_cracmm`  
+    ACM cloud processor that uses the ACM methodology to compute convective mixing with aqueous chemistry for CRACMM
 
 -   `ModUtil: [default: util]`<a id=ModUtil></a>  
     CMAQ utility modules. Do not change this module setting.
@@ -497,7 +499,7 @@ Sets if the CCTM will run in multi-processor or serial mode.
 <!-- END COMMENT -->
 
 -   `CTM_PROCAN [default: N]`<a id=CTM_PROCAN></a>  
-    Activate process analysis in the CCTM. Set this to Y and use $CMAQ_DATA/pacp/pacp.inp to configure the integrated process rate and integrated reaction rate settings for the CCTM.  Additional process analysis output files will be created when this setting is activated.  
+    Activate process analysis in the CCTM. Set the environment variable, PACM_INFILE (Read below for more information), that defines the integrated process rate and integrated reaction rate outputs from CCTM. Additional process analysis output files will be created when this setting is activated.  
 -   `PA_BCOL_ECOL [default: 0]`<a id=PA_BCOL_ECOL></a>  
     Modeling grid domain column range for the process analysis calculations. Set to the two digits representing the beginning and ending column number bounding the process analysis domain.  
 -   `PA_BROW_EROW [default: 0]`<a id=PA_BROW_EROW></a>  
@@ -594,6 +596,9 @@ Aerosol Diagnostics are now handled by the Explicit and Lumped Model Output modu
 -   `GR_EM_SYM_DATE_### [default: False]`<a id=GR_EM_SYM_DATE_###></a>  
     Switch to indicate whether gridded emission is of representative day type for stream ###, where ### = 01, 02,…,N_EMIS_GR. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#inline-stream-offline) for further information.
     
+-   `N_EMIS_PT `<a id=N_EMIS_PT></a>
+    The number of offline Point emission streams to be used by the model. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#inline-stream-offline) for further information.
+  
 -   `STK_GRPS_### `<a id=STK_GRPS_###></a>  
     Directory path and file name of the stack groups file for sector ###, where ### = 001, 002,…,N_EMIS_PT. Each ### refers to one of the inline plume rise point-source sectors. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#inline-stream-offline) for further information. 
 
@@ -626,7 +631,7 @@ Aerosol Diagnostics are now handled by the Explicit and Lumped Model Output modu
     Setting to define whether the lightning emissions calculation will be inline or off-line. This variable can be set to a gridded netCDF file of lightning NO emissions to use emissions calculated with a preprocessor outside of CCTM. Setting this variable to “inline” activates the inline emissions calculation in CCTM and requires the LTNGPARMS_FILE variable (see below) to provide parameters for generating inline lightning NO emissions. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#lightning-no) for further information.  
 
 -   `USE_NLDN [default: False]`<a id=USE_NLDN></a>  
-    Use hourly NLDN strikes file to compute inline lightning NO emissions. Activating this setting requires the NLDN_STRIKES input file.  If USE_NLDN is set to N and LTNGNO set to "InLine", lightning NO emissions will be generated using parameters provided in the LTNGPARMS_FILE.  
+    Use hourly NLDN or WWLLNs strikes data to compute inline lightning NO emissions. Activating this setting requires the NLDN_STRIKES input files (the files can be either NLDN hourly data or WWLLNs hourly data).  If USE_NLDN is set to N and LTNGNO set to "InLine", lightning NO emissions will be generated using parameters provided in the LTNGPARMS_FILE.  
     Lightning parameters netCDF file, which contains the linear regression parameters for generating lightning NO using the parameterization scheme when LTNGNO set to "InLine" and USE_NLDN set to N. In addition, it also contains the intercloud to cloud-to-ground flash ratios, scaling factors for calculating flashes using the convective precipitation rate, land-ocean masks, and the moles of NO per flash (cloud-to-ground and intercloud) which are used by both lightning production schemes (NLDN and parameterization). Ingore if LTINGNO set to an external input file. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#lightning-no) for further information.   
 
 -  `CTM_LTNGDIAG_1`<a id=LTNGOUT></a>  

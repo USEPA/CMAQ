@@ -1,6 +1,8 @@
 # Species List for sitecmp:  Matching model and observed variables
 
-The environment variables that control how CMAQ and observed values are matched using sitecmp will change depending on the observation network.  Sitecmp-ready observation files are available from the CMAS Center Data clearinghouse under the heading ["2000-2014 North American Air Quality Observation Data"](https://www.cmascenter.org/download/data.cfm).  The variable names in these observation files can change over time.  This README file provides the environment variables needed for the species list in the sitecmp run script for different networks and years. 
+The environment variables that control how CMAQ and observed values are matched using sitecmp will change depending on the observation network. Sitecmp requires observation data to be in a specific format. Sitecmp-ready observation data files going back to 2000 are available on the CMAS Data Warehouse Google Drive: [North America Air Quaility Observation Files](https://drive.google.com/drive/folders/1QUlUXnHXvXz9qwePi5APzzHkiH5GWACw?usp=drive_link). Data files are provided in AMET_OBSDATA_YYYY.tar.gz for year YYYY.  These should be used when setting environment variable IN_TABLE. A site meta data file (SITE_FILE) is also needed for sitecmp.  These can be found within the .tar.gz files under the *site_metadata_files* folder. 
+
+The variable names in these observation files can change over time.  This README file provides the environment variables needed for the species list in the sitecmp run script for different networks and years. 
 
 This species information was generated using the [Atmospheric Model Evaluation Tool (AMET)](https://github.com/USEPA/AMET) which is also available github.com/USEPA. For further information on the mapping of observation species from each network to CMAQ model species, please see the section **AQ Species List Input File** of the [AMETv1.4 User's Guide](https://github.com/USEPA/AMET/blob/1.4b/docs/AMET_Users_Guide_v14.md).
 
@@ -36,18 +38,10 @@ Note that the configuration options below are just for the species definition pa
 
 #>> End Species List <<#
 
-#> SITE FILE containing site-id, longitude, latitude, time zone (tab delimited)
-#> This file can be downloaded from the CMAS Center Data clearinghouse 
-#> under the heading "2000-2014 North American Air Quality Observation Data":
-#> https://www.cmascenter.org/download/data.cfm
-#> AQS site file is located in AMET12_SITE_FILES.tar.gz
+#> file containing meta data (e.g., site-id, longitude, latitude, time zone) about each site.
  setenv SITE_FILE AERONET_sites.txt
 
 #> input table containing site-id, time-period, and data fields
-#> AQS obs data in the format needed for sitecmp are available 
-#> from the CMAS Center Data clearinghouse under the heading "2000-2014 North American Air Quality Observation Data":
-#> https://www.cmascenter.org/download/data.cfm
-#> Hourly AQS observations are located in AMET12_OBSDATA_YYYY.tar.gz for year YYYY.
  setenv IN_TABLE AERONET_hourly_data_2011.csv
 
 # =====================================================================
@@ -76,18 +70,10 @@ Note that the configuration options below are just for the species definition pa
  
 #>> End Species List <<#
 
-#> SITE FILE containing site-id, longitude, latitude, time zone (tab delimited)
-#> This file can be downloaded from the CMAS Center Data clearinghouse 
-#> under the heading "2000-2014 North American Air Quality Observation Data":
-#> https://www.cmascenter.org/download/data.cfm
-#> AQS site file is located in AMET12_SITE_FILES.tar.gz
+#> file containing site-id, longitude, latitude, time zone (tab delimited)
  setenv SITE_FILE AMON_sites.txt
 
 #> input table containing site-id, time-period, and data fields
-#> AQS obs data in the format needed for sitecmp are available 
-#> from the CMAS Center Data clearinghouse under the heading "2000-2014 North American Air Quality Observation Data":
-#> https://www.cmascenter.org/download/data.cfm
-#> Hourly AQS observations are located in AMET12_OBSDATA_YYYY.tar.gz for year YYYY.
  setenv IN_TABLE AMON_data.csv
 
 # =====================================================================
@@ -121,18 +107,10 @@ Note that the configuration options below are just for the species definition pa
 # setenv GAS_7 "wind_direction,deg,WDIR10,deg,WDIR10"
 #>> End Species List <<#
 
-#> SITE FILE containing site-id, longitude, latitude, time zone (tab delimited)
-#> This file can be downloaded from the CMAS Center Data clearinghouse 
-#> under the heading "2000-2014 North American Air Quality Observation Data":
-#> https://www.cmascenter.org/download/data.cfm
-#> AQS site file is located in AMET12_SITE_FILES.tar.gz
+#> file containing site-id, longitude, latitude, time zone (tab delimited)
  setenv SITE_FILE CASTNET_sites.txt
 
 #> input table containing site-id, time-period, and data fields
-#> AQS obs data in the format needed for sitecmp are available 
-#> from the CMAS Center Data clearinghouse under the heading "2000-2014 North American Air Quality Observation Data":
-#> https://www.cmascenter.org/download/data.cfm
-#> Hourly AQS observations are located in AMET12_OBSDATA_YYYY.tar.gz for year YYYY.
  setenv IN_TABLE CASTNET_hourly_data_2011.csv
 
 # =====================================================================
@@ -186,18 +164,10 @@ Note that the configuration options below are just for the species definition pa
   
 #>> End Species List <<#
 
-#> SITE FILE containing site-id, longitude, latitude, time zone (tab delimited)
-#> This file can be downloaded from the CMAS Center Data clearinghouse 
-#> under the heading "2000-2014 North American Air Quality Observation Data":
-#> https://www.cmascenter.org/download/data.cfm
-#> AQS site file is located in AMET12_SITE_FILES.tar.gz
+#> file containing site-id, longitude, latitude, time zone (tab delimited)
  setenv SITE_FILE CASTNET_sites.txt
 
 #> input table containing site-id, time-period, and data fields
-#> AQS obs data in the format needed for sitecmp are available 
-#> from the CMAS Center Data clearinghouse under the heading "2000-2014 North American Air Quality Observation Data":
-#> https://www.cmascenter.org/download/data.cfm
-#> Hourly AQS observations are located in AMET12_OBSDATA_YYYY.tar.gz for year YYYY.
  setenv IN_TABLE CASTNET_weekly_data_2011.csv
 
 # =====================================================================
@@ -274,18 +244,10 @@ Note that the configuration options below are just for the species definition pa
 #>> End Species List <<#
 
 
-#> SITE FILE containing site-id, longitude, latitude, time zone (tab delimited)
-#> This file can be downloaded from the CMAS Center Data clearinghouse 
-#> under the heading "2000-2014 North American Air Quality Observation Data":
-#> https://www.cmascenter.org/download/data.cfm
-#> AQS site file is located in AMET12_SITE_FILES.tar.gz
+#> file containing site-id, longitude, latitude, time zone (tab delimited)
  setenv SITE_FILE AQS_sites.txt
 
 #> input table containing site-id, time-period, and data fields
-#> AQS obs data in the format needed for sitecmp are available 
-#> from the CMAS Center Data clearinghouse under the heading "2000-2014 North American Air Quality Observation Data":
-#> https://www.cmascenter.org/download/data.cfm
-#> Hourly AQS observations are located in AMET12_OBSDATA_YYYY.tar.gz for year YYYY.
  setenv IN_TABLE CSN_hourly_data_2009.csv
 ```
 
@@ -357,18 +319,10 @@ Note that the configuration options below are just for the species definition pa
  
 #>> End Species List <<#
 
-#> SITE FILE containing site-id, longitude, latitude, time zone (tab delimited)
-#> This file can be downloaded from the CMAS Center Data clearinghouse 
-#> under the heading "2000-2014 North American Air Quality Observation Data":
-#> https://www.cmascenter.org/download/data.cfm
-#> AQS site file is located in AMET12_SITE_FILES.tar.gz
+#> file containing site-id, longitude, latitude, time zone (tab delimited)
  setenv SITE_FILE AQS_sites.txt
 
 #> input table containing site-id, time-period, and data fields
-#> AQS obs data in the format needed for sitecmp are available 
-#> from the CMAS Center Data clearinghouse under the heading "2000-2014 North American Air Quality Observation Data":
-#> https://www.cmascenter.org/download/data.cfm
-#> Hourly AQS observations are located in AMET12_OBSDATA_YYYY.tar.gz for year YYYY.
  setenv IN_TABLE CSN_hourly_data_2010.csv
 ```
 
@@ -440,18 +394,10 @@ Note that the configuration options below are just for the species definition pa
   
 #>> End Species List <<#
 
-#> SITE FILE containing site-id, longitude, latitude, time zone (tab delimited)
-#> This file can be downloaded from the CMAS Center Data clearinghouse 
-#> under the heading "2000-2014 North American Air Quality Observation Data":
-#> https://www.cmascenter.org/download/data.cfm
-#> AQS site file is located in AMET12_SITE_FILES.tar.gz
+#> file containing site-id, longitude, latitude, time zone (tab delimited)
  setenv SITE_FILE AQS_sites.txt
 
 #> input table containing site-id, time-period, and data fields
-#> AQS obs data in the format needed for sitecmp are available 
-#> from the CMAS Center Data clearinghouse under the heading "2000-2014 North American Air Quality Observation Data":
-#> https://www.cmascenter.org/download/data.cfm
-#> Hourly AQS observations are located in AMET12_OBSDATA_YYYY.tar.gz for year YYYY.
  setenv IN_TABLE CSN_data_2011_VIEWS.csv
 ```
 
@@ -523,18 +469,10 @@ Note that the configuration options below are just for the species definition pa
   
 #>> End Species List <<#
 
-#> SITE FILE containing site-id, longitude, latitude, time zone (tab delimited)
-#> This file can be downloaded from the CMAS Center Data clearinghouse 
-#> under the heading "2000-2014 North American Air Quality Observation Data":
-#> https://www.cmascenter.org/download/data.cfm
-#> AQS site file is located in AMET12_SITE_FILES.tar.gz
+#> file containing site-id, longitude, latitude, time zone (tab delimited)
  setenv SITE_FILE AQS_sites.txt
 
 #> input table containing site-id, time-period, and data fields
-#> AQS obs data in the format needed for sitecmp are available 
-#> from the CMAS Center Data clearinghouse under the heading "2000-2014 North American Air Quality Observation Data":
-#> https://www.cmascenter.org/download/data.cfm
-#> Hourly AQS observations are located in AMET12_OBSDATA_YYYY.tar.gz for year YYYY.
  setenv IN_TABLE CSN_data_2011_VIEWS.csv
 
 # =====================================================================
@@ -601,18 +539,10 @@ Note that the configuration options below are just for the species definition pa
 #>> End Species List <<#
 
 
-#> SITE FILE containing site-id, longitude, latitude, time zone (tab delimited)
-#> This file can be downloaded from the CMAS Center Data clearinghouse 
-#> under the heading "2000-2014 North American Air Quality Observation Data":
-#> https://www.cmascenter.org/download/data.cfm
-#> AQS site file is located in AMET12_SITE_FILES.tar.gz
+#> file containing site-id, longitude, latitude, time zone (tab delimited)
  setenv SITE_FILE IMPROVE_sites.txt
 
 #> input table containing site-id, time-period, and data fields
-#> AQS obs data in the format needed for sitecmp are available 
-#> from the CMAS Center Data clearinghouse under the heading "2000-2014 North American Air Quality Observation Data":
-#> https://www.cmascenter.org/download/data.cfm
-#> Hourly AQS observations are located in AMET12_OBSDATA_YYYY.tar.gz for year YYYY.
  setenv IN_TABLE IMPROVE_data_2011.csv
 
 # =====================================================================
@@ -682,18 +612,10 @@ Note that the configuration options below are just for the species definition pa
  
 #>> End Species List <<#
 
-#> SITE FILE containing site-id, longitude, latitude, time zone (tab delimited)
-#> This file can be downloaded from the CMAS Center Data clearinghouse 
-#> under the heading "2000-2014 North American Air Quality Observation Data":
-#> https://www.cmascenter.org/download/data.cfm
-#> AQS site file is located in AMET12_SITE_FILES.tar.gz
+#> site containing site-id, longitude, latitude, time zone (tab delimited)
  setenv SITE_FILE NADP_sites.txt
 
 #> input table containing site-id, time-period, and data fields
-#> AQS obs data in the format needed for sitecmp are available 
-#> from the CMAS Center Data clearinghouse under the heading "2000-2014 North American Air Quality Observation Data":
-#> https://www.cmascenter.org/download/data.cfm
-#> Hourly AQS observations are located in AMET12_OBSDATA_YYYY.tar.gz for year YYYY.
  setenv IN_TABLE NADP_data_2011.csv
 
 
@@ -742,18 +664,11 @@ Note that the configuration options below are just for the species definition pa
  setenv AERO_12 "sr,w/m2,SOL_RAD,watts/m2,Solar_Rad"
  
 #>> End Species List <<#
-#> SITE FILE containing site-id, longitude, latitude, time zone (tab delimited)
-#> This file can be downloaded from the CMAS Center Data clearinghouse 
-#> under the heading "2000-2014 North American Air Quality Observation Data":
-#> https://www.cmascenter.org/download/data.cfm
-#> AQS site file is located in AMET12_SITE_FILES.tar.gz
+
+#> file containing site-id, longitude, latitude, time zone (tab delimited)
  setenv SITE_FILE SEARCH_sites.txt
 
 #> input table containing site-id, time-period, and data fields
-#> AQS obs data in the format needed for sitecmp are available 
-#> from the CMAS Center Data clearinghouse under the heading "2000-2014 North American Air Quality Observation Data":
-#> https://www.cmascenter.org/download/data.cfm
-#> Hourly AQS observations are located in AMET12_OBSDATA_YYYY.tar.gz for year YYYY.
  setenv IN_TABLE SEARCH_hourly_data_2004.csv
 
 ```
@@ -799,18 +714,10 @@ Note that the configuration options below are just for the species definition pa
  
 #>> End Species List <<#
 
-#> SITE FILE containing site-id, longitude, latitude, time zone (tab delimited)
-#> This file can be downloaded from the CMAS Center Data clearinghouse 
-#> under the heading "2000-2014 North American Air Quality Observation Data":
-#> https://www.cmascenter.org/download/data.cfm
-#> AQS site file is located in AMET12_SITE_FILES.tar.gz
+#> file containing site-id, longitude, latitude, time zone (tab delimited)
  setenv SITE_FILE SEARCH_sites.txt
 
 #> input table containing site-id, time-period, and data fields
-#> AQS obs data in the format needed for sitecmp are available 
-#> from the CMAS Center Data clearinghouse under the heading "2000-2014 North American Air Quality Observation Data":
-#> https://www.cmascenter.org/download/data.cfm
-#> Hourly AQS observations are located in AMET12_OBSDATA_YYYY.tar.gz for year YYYY.
  setenv IN_TABLE SEARCH_hourly_data_2005.csv
 ```
 
@@ -880,10 +787,6 @@ Note that the configuration options below are just for the species definition pa
  setenv SITE_FILE SEARCH_sites.txt
 
 #> input table containing site-id, time-period, and data fields
-#> AQS obs data in the format needed for sitecmp are available 
-#> from the CMAS Center Data clearinghouse under the heading "2000-2014 North American Air Quality Observation Data":
-#> https://www.cmascenter.org/download/data.cfm
-#> Hourly AQS observations are located in AMET12_OBSDATA_YYYY.tar.gz for year YYYY.
  setenv IN_TABLE SEARCH_hourly_data_2011.csv
 
 ```
@@ -932,18 +835,10 @@ Note that the configuration options below are just for the species definition pa
  
 #>> End Species List <<#
 
-#> SITE FILE containing site-id, longitude, latitude, time zone (tab delimited)
-#> This file can be downloaded from the CMAS Center Data clearinghouse 
-#> under the heading "2000-2014 North American Air Quality Observation Data":
-#> https://www.cmascenter.org/download/data.cfm
-#> AQS site file is located in AMET12_SITE_FILES.tar.gz
+#> site file containing site-id, longitude, latitude, time zone (tab delimited)
  setenv SITE_FILE SEARCH_sites.txt
 
 #> input table containing site-id, time-period, and data fields
-#> AQS obs data in the format needed for sitecmp are available 
-#> from the CMAS Center Data clearinghouse under the heading "2000-2014 North American Air Quality Observation Data":
-#> https://www.cmascenter.org/download/data.cfm
-#> Hourly AQS observations are located in AMET12_OBSDATA_YYYY.tar.gz for year YYYY.
  setenv IN_TABLE SEARCH_hourly_data_2013.csv
 
 
@@ -989,11 +884,7 @@ Note that the configuration options below are just for the species definition pa
   
 #>> End Species List <<#
 
-#> SITE FILE containing site-id, longitude, latitude, time zone (tab delimited)
-#> This file can be downloaded from the CMAS Center Data clearinghouse 
-#> under the heading "2000-2014 North American Air Quality Observation Data":
-#> https://www.cmascenter.org/download/data.cfm
-#> AQS site file is located in AMET12_SITE_FILES.tar.gz
+#> file containing site-id, longitude, latitude, time zone (tab delimited)
  setenv SITE_FILE SEARCH_sites.txt
 
 #> input table containing site-id, time-period, and data fields
@@ -1051,18 +942,10 @@ Note that the configuration options below are just for the species definition pa
   
 #>> End Species List <<#
 
-#> SITE FILE containing site-id, longitude, latitude, time zone (tab delimited)
-#> This file can be downloaded from the CMAS Center Data clearinghouse 
-#> under the heading "2000-2014 North American Air Quality Observation Data":
-#> https://www.cmascenter.org/download/data.cfm
-#> AQS site file is located in AMET12_SITE_FILES.tar.gz
+#> file containing site-id, longitude, latitude, time zone (tab delimited)
  setenv SITE_FILE SEARCH_sites.txt
 
 #> input table containing site-id, time-period, and data fields
-#> AQS obs data in the format needed for sitecmp are available 
-#> from the CMAS Center Data clearinghouse under the heading "2000-2014 North American Air Quality Observation Data":
-#> https://www.cmascenter.org/download/data.cfm
-#> Hourly AQS observations are located in AMET12_OBSDATA_YYYY.tar.gz for year YYYY.
  setenv IN_TABLE SEARCH_daily_data_2011.csv
 
 
