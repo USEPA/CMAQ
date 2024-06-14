@@ -251,14 +251,7 @@ Gridded masks are used to apply rules to specific areas of the domain. For examp
 ```
 will scale emissions of all species from all streams by +50% but only in grid cells in the state of Kentucky. One or more I/O API formatted input files containing geographic region definitions are required to take advantage of this option.  Such files should contain a separate variable for each spatial region of interest.  Each variable is a gridded field of real numbers from 0.0 to 1.0, with 0.0 outside of the region of interest and 1.0 completely inside the region. Region border grid cells should have the geographic fraction attributed to the region (for example, a grid cell that 35% in Kentucky and 65% in Tennessee would have have the number 0.35 for the variable representing the Kentucky mask.
 
-#### B.3.4.2 Defining Regions
-These mask files are read by CMAQ through environmental variables, which are identified in the RunScript. For example:
-
-```
-setenv US_STATES /home/${CMAQ_HOME}/CCTM/scripts/us_states.nc
-```
-
-If variables from multiple mask files are used, each of these mask files needs to be defined in the RunScript. 
+#### B.3.4.2 Defining Regions  
 
 The Desid_RegionDef section of the DESID Control Namelist maps each "Region Label" to specific variables on specific files. Here is the Desid_RegionDef section in the default namelist:
 ```
@@ -267,8 +260,6 @@ The Desid_RegionDef section of the DESID Control Namelist maps each "Region Labe
  !          | Region Label   | File_Label    | Variable on File
  !<Default>    'EVERYWHERE'  ,'N/A'          ,'N/A',
                'WATER'       ,'CMAQ_MASKS'   ,'OPEN',
-               'ALL'         ,'CMAQ_MASKS'   ,'ALL',
-               'ALL'         ,'ISAM_REGIONS' ,'ALL',
 /
 ```
 As indicated, the Region Label "EVERYWHERE" is active by default and returns a mask that operates uniformly across the entire domain. 
@@ -278,16 +269,40 @@ The "Variable on File" field identifies the variable on the input file that stor
 Examples are provided for two cases. 
 The variable Desid_Max_Reg in the Desid_RegionDefVars section must be greater than the number of regions that will be defined.
 
-In the first case, a region with label "WATER" is defined and referenced to the variable "OPEN" (which is short for *open water*) in the file 'CMAQ_MASKS' which needs to be defined in the RunScript. 
-Using this "WATER" region will apply a scaling rule only for open water grid cells and fractionally along coastlines. 
-The second example demonstrates a shortcut for files with many variables that are all desired (e.g. states of the Unites States). 
-Rather than listing out all variables on the file and explicitly linking them to "Region Labels", the user can invoke the "ALL" keyword and all variables will be read and stored with "Region Labels" that equal the names of the variables on the file.
+In this case, a region with label "WATER" is defined and referenced to the variable "OPEN" (which is short for *open water*) in the file 'CMAQ_MASKS' which needs to be defined in the RunScript. Using this "WATER" region will apply a scaling rule only for open water grid cells and fractionally along coastlines.  
+
+As an additional example, let's assume file us_states.nc is defined in the runscript as US_STATES as follows:
+```
+setenv US_STATES /home/${CMAQ_HOME}/CCTM/scripts/us_states.nc
+```
+and contains two variables called NC and SC, representing the fraction of each grid cell that is located in North Carolina and South Carolina, respectively." These two variables in the file can be assigned to region labels NC and SC using either of the following methods:
+```
+&Desid_RegionDef
+ Desid_Reg_nml  =   
+ !          | Region Label   | File_Label    | Variable on File
+ !<Default>    'EVERYWHERE'  ,'N/A'          ,'N/A',
+               'NC'          ,'US_STATES'    ,'NC',
+               'SC'          ,'US_STATES'    ,'SC',
+/
+```
+
+Alternatively, all the variables on the US_STATES file may be enabled at once:
+```
+&Desid_RegionDef
+ Desid_Reg_nml  =   
+ !          | Region Label   | File_Label    | Variable on File
+ !<Default>    'EVERYWHERE'  ,'N/A'          ,'N/A',
+               'ALL'         ,'US_STATES' ,'ALL',
+/
+```
+Rather than listing out all variables on the file and explicitly linking them to "Region Labels", the user can invoke the "ALL" keyword in both the 'Region Label' and 'Variable on File' fields and all variables will be read and stored. These gridded mask files are read by CMAQ through environmental variables, which are identified in the RunScript. If variables from multiple mask files are used, each of these mask files needs to be defined in the RunScript. 
 
 Two example mask files are available on the CMAS Data Warehouse: US states grid mask file and NOAA climate regions grid mask file.  These mask files can be used with the 12US1 modeling grid domain (grid origin x = -2556000 m, y = -1728000 m; N columns = 459, N rows = 299).
 
 * [Link to grid mask files on CMAS Data Warehouse Google Drive](https://drive.google.com/drive/folders/1x9mJUbKjJaMDFawgy2PUbETwEUopAQDl)
 * [Link to metadata for the grid mask files is posted on the CMAS Center Dataverse site](https://doi.org/10.15139/S3/XDYYB9)
 
+Custom mask files may also be made using the [shp2cmaq](../../../PREP/shp2cmaq/README.md) tool, which provides instructions for obtaining geospatial data via shape files and converting them to CMAQ gridded input files. One may also populate a CMAQ gridded input file with arbitrary geometric shapes (e.g. squares, diamonds, or other polygons) using the IOAPI library of tools and any common coding language (e.g. Fortran, R, or Python).
 
 #### B.3.4.3 Region Families
 Users can define families of regions to reduce the number emission rules needed to operate on a group of regions. 
