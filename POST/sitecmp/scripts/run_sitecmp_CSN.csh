@@ -162,7 +162,6 @@
 #> AQS obs data in the format needed for sitecmp are available.
 #> See the README.md file in this folder for the information on 
 #> where to download this file.
-#> Hourly AQS observations are located in AMET_OBSDATA_YYYY.tar.gz for year YYYY.
  setenv IN_TABLE AQS_CSN_data_2016.csv
 #> One EPA system:
 #  setenv IN_TABLE /work/MOD3EVAL/aq_obs/routine/2016/AQS_CSN_data_2016.csv
