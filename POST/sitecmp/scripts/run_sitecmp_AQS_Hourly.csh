@@ -146,7 +146,7 @@
 #  setenv SITE_FILE /work/MOD3EVAL/aq_obs/routine/site_metadata_files/AQS_full_site_list.csv
 
 #> input table containing site-id, time-period, and data fields
-#> AQS obs data in the format needed for sitecmp are available.
+#> AQS obs data in the format needed for sitecmp are available online.
 #> See the README.md file in this folder for the information on 
 #> where to download this file.
  setenv IN_TABLE AQS_hourly_data_2016.csv
