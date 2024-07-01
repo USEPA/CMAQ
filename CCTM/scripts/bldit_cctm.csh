@@ -78,7 +78,7 @@ set make_options = "-j"                #> additional options for make command if
 #set ISAM_CCTM                         #> uncomment to compile CCTM with ISAM activated
                                        #>   comment out to use standard process
 
-#set DDM3D_CCTM                        #> uncomment to compile CCTM with DD3D activated
+#set DDM3D_CCTM                        #> uncomment to compile CCTM with DDM-3D activated
                                        #>   comment out to use standard process
 #> Two-way WRF-CMAQ 
 #set build_twoway                      #> uncomment to build WRF-CMAQ twoway; 
