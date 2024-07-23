@@ -20,6 +20,18 @@ The following isam control file is provided in the CCTM/scripts directory when y
 isam_control.txt
 ```
 
+This file contains the following tag classes
+
+```
+TAG NAME        |EGU
+REGION(S)       |EVERYWHERE
+EMIS STREAM(S)  |PT_EGU
+
+TAG NAME        |BIO
+REGION(S)       |NY
+EMIS STREAM(S)  |BIOG
+```
+
 The following gridmask file is provided with the benchmark inputs in the 2018_12NE3_BENCH/2018_12NE3 directory (see step 10 below)
 
 ```
@@ -227,3 +239,40 @@ CCTM_SA_ACONC_v54_ISAM_gcc_Bench_2018_12NE3_2day_ISAM_20180702.nc
 CCTM_SA_CGRID_v54_ISAM_gcc_Bench_2018_12NE3_2day_ISAM_20180702.nc
 ```
 
+### Step 15: Compare the tagged species in `CCTM_SA_CONC` output file to the full species in `CCTM_CONC` output file
+
+```
+ncdump -h CCTM_SA_CONC_v55_ISAM_gcc_Bench_2018_12NE3_cracmm2_4x8_all_CONC_20180701.nc | grep SO2_
+```
+
+The following tagged species should add up to the total SO2 in the CONC file.
+
+	float SO2_EGU(TSTEP, LAY, ROW, COL) ;
+		SO2_EGU:long_name = "SO2_EGU         " ;
+		SO2_EGU:units = "ppmV            " ;
+		SO2_EGU:var_desc = "tracer conc.                                                                    " ;
+	float SO2_BIO(TSTEP, LAY, ROW, COL) ;
+		SO2_BIO:long_name = "SO2_BIO         " ;
+		SO2_BIO:units = "ppmV            " ;
+		SO2_BIO:var_desc = "tracer conc.                                                                    " ;
+	float SO2_BCO(TSTEP, LAY, ROW, COL) ;
+		SO2_BCO:long_name = "SO2_BCO         " ;
+		SO2_BCO:units = "ppmV            " ;
+		SO2_BCO:var_desc = "tracer conc.                                                                    " ;
+	float SO2_OTH(TSTEP, LAY, ROW, COL) ;
+		SO2_OTH:long_name = "SO2_OTH         " ;
+		SO2_OTH:units = "ppmV            " ;
+		SO2_OTH:var_desc = "tracer conc.                                                                    " ;
+	float SO2_ICO(TSTEP, LAY, ROW, COL) ;
+		SO2_ICO:long_name = "SO2_ICO         " ;
+		SO2_ICO:units = "ppmV            " ;
+		SO2_ICO:var_desc = "tracer conc.                    
+
+[1] = CONC
+[2] = SA_CONC
+
+```
+SO2_EGU[1] + SO2_BIO[1] + SO2_BCO[1] + SO2_OTH[1] + SO2_ICO[1] = SO2[2]
+```
+
+Both tagged species EGU and BIO contribute to the bulk concentration, therefore the sum of all tagged species including boundary conditions (BCO) and initial conditions (ICO) and other (all untagged emissions) (OTH)
