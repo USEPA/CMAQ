@@ -229,7 +229,7 @@ sbatch run_cctm_Bench_2018_12NE3.ISAM.csh
 
 ### Step 14: Compare output with the 2 day benchmark outputs provided on the google drive
 
-The following ISAM output files are generated in addition to the standard CMAQ output files.
+The following ISAM output files are generated in addition to the standard CMAQ output files. Note, the answers will not be comparible if emission scaling is used (Step 10 - optional)
 
 ```
 CCTM_SA_DRYDEP_v54_ISAM_gcc_Bench_2018_12NE3_2day_ISAM_20180702.nc
