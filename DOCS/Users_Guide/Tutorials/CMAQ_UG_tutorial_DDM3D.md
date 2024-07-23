@@ -20,16 +20,39 @@ The following  control file is provided in the CCTM/scripts directory when you o
 sensinput.2018_12NE3.dat
 ```
 
+The above file contains the following sensitivity definition block:
+
+```
+PPA
+ EMIS
+  PT_EGU
+ SPECIES
+  SO2
+ REGION
+  PA
+
+GNJ
+ EMIS
+  GRIDDED_EMIS
+ SPECIES
+  NO2, NO
+ REGION
+  NJ
+
+END
+```
+
 The following gridmask file is provided with the benchmark inputs in the 2018_12NE3_BENCH/2018_12NE3 directory (see step 10 below)
 
 ```
 GRIDMASK_STATES_12NE3.nc
 ```
 
-The instructions require the user to edit the DESID emissions control namelist file in the BLD directory (see step 9 below).
+The instructions require the user to edit the DESID emissions control namelist file and the DESID chemical control namelist file in the BLD directory. If you want to use emission scaling (independently from ISAM or DDM3D) you will also need to edit these files.
 
 ```
 CMAQ_Control_DESID.nml
+CMAQ_Control_DESID_${MECH}.nml
 ```
 
 
@@ -126,7 +149,24 @@ Add the Regions to the &Desid_RegionDef section of the control DESID namelist.
                 'NJ'        ,'CMAQ_MASKS'        , 'NJ',
 ```
 
-### Step 10: Install the CMAQ-DDM-3D reference input and output benchmark data
+### Step 10: Example of emissions scaling (Reduce the PT_EGU emissions in PA by 25%) (Optional step)
+
+edit the DESID chemical control namelist file, note please specify the mechanism or define the MECH environment variable.
+
+```
+gedit CMAQ_Control_DESID_${MECH}.nml
+```
+
+Add the following line at the bottom of the the namelist file (before the /)
+
+```
+   ! PT_EGU Emissions Scaling reduce PT_EGU emissions in Pennsylvania by 25%. Note, to reduce the emissions by 25% we use DESID to multiply what had been 100% emissions by .75, so that the resulting emissions is reduced by 25%.
+   'PA'  , 'PT_EGU'      ,'All'    ,'All'         ,'All' ,.75    ,'UNIT','o',
+
+```
+
+
+### Step 11: Install the CMAQ-DDM-3D reference input and output benchmark data
 
 Download the CMAQ two day reference input and output data from the [CMAS Center Data Warehouse Google Drive]([https://drive.google.com/file/d/1AFUB-4kzIXXoZr4hOHNBqRvy9JQ9_MDp/view?usp=sharing](https://drive.google.com/drive/folders/1AFUB-4kzIXXoZr4hOHNBqRvy9JQ9_MDp?usp=sharing). The CMAQ benchmark test case is a two day simulation for July 1-2 2018 on a 100 column x 105 row x 35 layer 12-km resolution domain over the northeast U.S that uses the CRACMM2 mechanism and the STAGE dry deposition scheme.  
 
@@ -147,7 +187,7 @@ tar xvzf CMAQv5.4_2018_12NE3_Benchmark_2Day_Output.tar.gz
 
 The input files for the CMAQv5.4 DDM-3D benchmark case are the same as the benchmark inputs for the base model. Output DDM files associated with the sample DDM control file sensinput.2018_12NE3.dat provided in this release package are included in the benchmark outputs for the base model.
     
-### Step 11: Edit the CMAQ-DDM3D runscript
+### Step 12: Edit the CMAQ-DDM3D runscript
 
 ```
 cp run_cctm_Bench_2018_12NE3_CRACMM2_STAGE.csh run_cctm_Bench_2018_12NE3_CRACMM2_STAGE_DDM3D.csh
@@ -181,7 +221,7 @@ OR (If using SLRUM)
 sbatch run_cctm_Bench_2018_12NE3_CRACMM2_STAGE_DDM3D.csh
 ```
 
-### Step 12: Verify that the run was successful
+### Step 13: Verify that the run was successful
    - look for the output directory
    
    ```
@@ -194,7 +234,7 @@ sbatch run_cctm_Bench_2018_12NE3_CRACMM2_STAGE_DDM3D.csh
    ```
    |>---   PROGRAM COMPLETED SUCCESSFULLY   ---<|
 
-### Step 13: Compare output with the 2 day benchmark outputs provided on the CMAS Center AWS Open Data Program
+### Step 14: Compare output with the 2 day benchmark outputs provided on the CMAS Center AWS Open Data Program
 
 
     https://drive.google.com/drive/u/1/folders/
@@ -207,3 +247,6 @@ CCTM_SENWDEP_v55_DDM3D_gcc_Bench_2018_12NE3_cracmm2_20180702.nc
 CCTM_SENGRID_v55_DDM3D_gcc_Bench_2018_12NE3_cracmm2_20180702.nc
 ```
 
+### Step 15: Compare sensitivities
+
+First order sensitivities should not be larger than bulk, second order should not be larger than first order.
