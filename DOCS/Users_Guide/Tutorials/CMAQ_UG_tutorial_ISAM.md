@@ -2,7 +2,7 @@
 
 ### Procedure to build and run the CMAQ-ISAM model using gnu compiler: ###
 
-### Step 1: Download and run the CMAQv5.4 benchmark case (without ISAM) to confirm that your model run is consistent with the provided benchmark output.
+### Step 1: Download and run the CMAQv5.5 benchmark case (without ISAM) to confirm that your model run is consistent with the provided benchmark output.
 - [CMAQ Benchmark Tutorial](CMAQ_UG_tutorial_benchmark.md)
 
 If you encounter any errors, try running the model in debug mode and refer to the CMAS User Forum to determine if any issues have been reported.
@@ -14,7 +14,7 @@ https://forum.cmascenter.org/
 
 Note: This benchmark is intended to demonstrate how to build and run CMAQ-ISAM with the provided input files:
 
-The following isam control file is provided in the CCTM/scripts directory when you obtain the CMAQv5.4 code from github (step 5 below):
+The following isam control file is provided in the CCTM/scripts directory when you obtain the CMAQv5.5 code from github (step 5 below):
 
 ```
 isam_control.txt
@@ -26,10 +26,11 @@ The following gridmask file is provided with the benchmark inputs in the 2018_12
 GRIDMASK_STATES_12NE3.nc
 ```
 
-The instructions require the user to edit the DESID emissions control namelist file in the BLD directory (see step 9 below).
+The instructions require the user to edit the DESID emissions control namelist file and the DESID chemical control namelist file in the BLD directory. If you want to use emission scaling (independently from ISAM or DDM3D) you will also need to edit these files. (see step 9 below).
 
 ```
 CMAQ_Control_DESID.nml
+CMAQ_Control_DESID_${MECH}.nml
 ```
 
 
@@ -65,7 +66,7 @@ In the top level of CMAQ_REPO, the bldit_project.csh script will automatically r
 Edit bldit_project.csh, to modify the variable $CMAQ_HOME to identify the folder that you would like to install the CMAQ package under. For example:
 
 ```
-set CMAQ_HOME = [your_install_path]/CMAQ_v5.4
+set CMAQ_HOME = [your_install_path]/CMAQ_v5.5
 ```
 
 Now execute the script.
@@ -77,7 +78,7 @@ Now execute the script.
 Change directories to the CMAQ_HOME directory
 
 ```
-cd [your_install_path]/CMAQ_v5.4
+cd [your_install_path]/CMAQ_v5.5
 ```
 
 
@@ -107,7 +108,7 @@ set ISAM_CCTM                         #> uncomment to compile CCTM with ISAM act
 
 Change directories to the build directory
 ```
-cd BLD_CCTM_v54_ISAM_gcc
+cd BLD_CCTM_v55_ISAM_gcc
 ```
 
 edit the DESID emissions namelist file
@@ -127,9 +128,26 @@ Uncomment the line that contains ISAM_REGIONS as the File Label
  !<Example>    'WATER'       ,'CMAQ_MASKS' ,'OPEN',
  !<Example>    'ALL'         ,'CMAQ_MASKS' ,'ALL',
  !<Example>    'ALL'         ,'ISAM_REGIONS','ALL',
+/
 ```
  
-### Step 10: Install the CMAQ-ISAM reference input and output benchmark data
+### Step 10: Example of emissions scaling (Reduce the PT_EGU emissions in PA by 25%) (Optional step)
+
+edit the DESID chemical control namelist file, note please specify the mechanism or define the MECH environment variable.
+
+```
+gedit CMAQ_Control_DESID_${MECH}.nml
+```
+
+Add the following line at the bottom of the the namelist file (before the /)
+
+```
+   ! PT_EGU Emissions Scaling reduce PT_EGU emissions in NY by 25%. Note, to reduce the emissions by 25% we use DESID to multiply what had been 100% emissions by .75, so that the resulting emissions is reduced by 25%.
+   'NY'  , 'PT_EGU'      ,'All'    ,'All'         ,'All' ,.75    ,'UNIT','o',
+
+```
+
+### Step 11: Install the CMAQ-ISAM reference input and output benchmark data
 
 Download the CMAQ two day reference input and output data from the [CMAS Center Data Warehouse Google Drive]([https://drive.google.com/file/d/1AFUB-4kzIXXoZr4hOHNBqRvy9JQ9_MDp/view?usp=sharing](https://drive.google.com/drive/folders/1AFUB-4kzIXXoZr4hOHNBqRvy9JQ9_MDp?usp=sharing). The CMAQ benchmark test case is a two day simulation for July 1-2 2018 on a 100 column x 105 row x 35 layer 12-km resolution domain over the northeast U.S.  
 
@@ -150,7 +168,7 @@ tar xvzf CMAQv5.4_2018_12NE3_Benchmark_2Day_Output.tar.gz
 
 The input files for the CMAQv5.4 ISAM benchmark case are the same as the benchmark inputs for the base model. Output source apportionment files associated with the sample isam_control.txt provided in this release package are included in the benchmark outputs for the base model.
     
-### Step 11: Edit the CMAQ-ISAM runscript
+### Step 12: Edit the CMAQ-ISAM runscript
 
 ```
 cp run_cctm_Bench_2018_12NE3.csh run_cctm_Bench_2018_12NE3.ISAM.csh
@@ -184,7 +202,7 @@ OR (If using SLRUM)
 sbatch run_cctm_Bench_2018_12NE3.ISAM.csh
 ```
 
-### Step 12: Verify that the run was successful
+### Step 13: Verify that the run was successful
    - look for the output directory
    
    ```
@@ -197,7 +215,7 @@ sbatch run_cctm_Bench_2018_12NE3.ISAM.csh
    ```
    |>---   PROGRAM COMPLETED SUCCESSFULLY   ---<|
 
-### Step 13: Compare output with the 2 day benchmark outputs provided on the google drive
+### Step 14: Compare output with the 2 day benchmark outputs provided on the google drive
 
 The following ISAM output files are generated in addition to the standard CMAQ output files.
 
