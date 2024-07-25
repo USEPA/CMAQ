@@ -1527,7 +1527,7 @@
                CALL SET_ELMO_COEFF_MAP( IDG, 3, 'AERO', 'ANO3', -1.0 )
                CALL SET_ELMO_COEFF_MAP( IDG, 4, 'AERO', 'ANH4', -1.0 )
                CALL SET_ELMO_COEFF_MAP( IDG, 5, 'AERO', 'ACL', -1.0 )          
-               CALL SET_ELMO_COEFF_MAP( IDG, 6, 'AERO', 'ANA', -1.0 )          
+               CALL SET_ELMO_COEFF_MAP( IDG, 6, 'AGG',  'PM1_NA', -1.0 )          
                CALL SET_ELMO_COEFF_MAP( IDG, 7, 'AERO', 'AEC', -1.0 )          
                CALL SET_ELMO_COEFF_MAP( IDG, 8, 'AGG',  'PM1_OC', -1.0 )          
                CALL SET_ELMO_COEFF_MAP( IDG, 9, 'AGG',  'PM1_SOIL', -1.0 )          
