@@ -34,7 +34,7 @@
 	* [6.10.2 Solvers](#6.10.2_Solver)
 	* [6.10.3 Photolysis](#6.10.3_Photolysis)
 	* [6.10.4 Nitrous Acid (HONO)](#6.10.4_HONO)
-	* [6.10.5 CRACMM v1](#6.10.5_CRACMM)
+	* [6.10.5 CRACMM](#6.10.5_CRACMM)
 * [6.11 Aerosol Dynamics and Chemistry](#6.11_Aerosol_Dynamics)
 * [6.12 Aqueous Chemistry, Scavenging and Wet Deposition](#6.12_Aqueous_Chemistry)
 * [6.13 Potential Vorticity Scaling](#6.13_Potential_Vort)
@@ -792,11 +792,25 @@ or
  set ModPhot    = phot/table
 ``` 
 
-The in-line method (Binkowski et al., 2007) is the preferred option because it includes feedbacks from meteorology in addition to predicted ozone and aerosol concentrations. Three ASCII files support the in-line method. **PHOT_OPTICS** describes the optical properties of clouds, aerosols, and the earth’s surface. The **OMI** file is used to determine how much light is absorbed by ozone above the model domain. Both files are included in the released version of CMAQ. Calculating photolysis rates uses one more file, the 
-`**CSQY_DATA_${Mechanism}**` 
-file, that depends on the mechanism used. It contains the cross sections and quantum yields of photolysis rates used by the mechanism. The files are provided for each mechanism in a released version of CMAQ. If a user creates a mechanism using new or additional photolysis rates, they have to create a new `**CSQY_DATA_${Mechanism}**` file. The [inline_phot_preproc utility](../../UTIL/inline_phot_preproc/README.md) produces this file based on the Fortran modules describing the mechanism and data files describing the absorption cross-section and quantum yields described for each photolysis reaction. The CCTM RunScript sets values for each file's path through the environment variables OPTICS_DATA, OMI, and CSQY_DATA.
+The in-line method (Binkowski et al., 2007) is the preferred option because it includes feedbacks from meteorology in addition to predicted ozone and aerosol concentrations. Starting CMAQv5.5, the in-line methods includes options for calculating the aerosol optical properties used to calculated photolysis frequencies. The model RunScript toggles between the options using the environmental variable "AEROSOL_OPTICS". The table below summarizes these options: 
 
-The other option uses look-up tables that contain photolysis rates under cloud free conditions based on a fixed meridional cross-section of atmospheric composition, temperature, density and aerosols. The values represent rates as a function of altitude, latitude and the hour angle of the sun on a specified Julian date. In model simulations, the method interpolates rates in the table for the date and corrects them to account for clouds described by the meteorology. Tables are dependent on the photochemical mechanism used. The [jproc utility](../../UTIL/jproc/README.md) creates them based on the photochemical mechanism's FORTRAN modules. The CCTM RunScript sets the value for a table's path with the environment variable XJ_DATA.
+| **AEROSOL_OPTICS value**|**In-line Photolysis Method**|**Description**|
+|:--------------:|:----:|:--------:|
+|  1 | Tabular Mie | Adapts a look-up table and interpolation method for aerosol optical properteis described by Fast et al. (2006). The table is created in-line and saved to an ASCII file when NEW_START equals true or when the ASCII file is missing. The model run-script controls the location of the table by the line, "setenv MIE_TABLE ${SOMELOCATION}". | 
+| 2 | MieCalc | Solution to Mie Scattering Theory for a uniformly mixed sphere whose refractive index is a volume weighted average of the aerosol modal component's refractive indicies (Bohren et al., 1998). |  
+| 3 | Fast Optics | The default option employed in Binkowski et al. (2007) uses case approximations of Mie Scattering Theory for a uniformly mixed sphere. |
+| 4 | Core-shell + Tabular Mie | Option where the internal structure of an aerosol is represented as a by a black carbon core surrounded by a shell with a volume-averaged refractive index. If the black carbon component of the aerosol modal volume makes up more than one billionth of the modal volume the Coreshell method is used, otherwise an aerosol mode's optical properties are determined by Tabular Mie. |
+| 5 | Core-shell + MieCalc | Option where the internal structure of an aerosol is represented as a by a black carbon core surrounded by a shell with a volume-averaged refractive index. If the black carbon component of the aerosol modal volume makes up more than one billionth of the modal volume the Coreshell method is used, otherwise an aerosol mode's optical properties are determined by MieCalc.|
+| 6 | Core-shell + Fast Optics | Option where the internal structure of an aerosol is represented as a by a black carbon core surrounded by a shell with a volume-averaged refractive index. If the black carbon component of the aerosol modal volume makes up more than one billionth of the modal volume the Coreshell method is used, otherwise an aerosol mode's optical properties are determined by Fast Optics. |
+
+**Selecting the value of AEROSOL_OPTICS is based on several factors**. _How important is light extinction by aerosols in determining photolysis frequencies_ and _how should the model represent the internal structure of aerosols for computing optical properties of aerosol?_ Aerosol concentrations may have large effects on photolysis where they are expected to be high such as fire episodes or polluted urban areas with large emissions of elemental carbon. To compute aerosol optical properties, the model may use an internal aerosol structure assuming a sphere with carbon core surrounded by a uniformly mixed shell. AEROSOL_OPTICS then has a value set to 4 through 6 where Core-shell (Bohren at al., 1998) is used. If such scenarios lack high emissions of elemental carbon, AEROSOL_OPTICS can equal 1 or 2 for more accurately calculating light absorption and scattering by aerosols. Tabular Mie and MieCalc options assume a uniformly mixed sphere to calculate aerosol optical properties. _How accurate do the computed properties need to be?_ If predicted optical properties are going to be compared to observations with large variability or small values such as aerosol scattering coefficient, asymmetry parameter, and absorption aerosol optical depth, the AEROSOL_OPTICS value should equal 2 or 4 that use exact solutions to Mie Scattering Theory. _What is the acceptable run-time of daily simulations?_ Exact solutions of Mie Scattering Theory increase model run-time. Option 2, MieCalc, can increase run-time between 50% to 100% while Core-shell options, 4 through 6, can increase run-time between 100% to 400%. The increase is measured against the oldest and default option, the Fast Optics. Tests indicate that the newest option, Tabular Mie, has similar run-times to Fast Optics but produces results closer to MieCal.
+
+
+Three other ASCII files support the in-line method. **PHOT_OPTICS** describes the optical properties of clouds, aerosols, and the earth’s surface. The **OMI** file is used to determine how much light is absorbed by ozone above the model domain. Both files are included in the released version of CMAQ. Calculating photolysis rates uses one more file, the 
+**CSQY_DATA_${Mechanism}** 
+file, that depends on the mechanism used. It contains the cross sections and quantum yields of photolysis rates used by the mechanism. The files are provided for each mechanism in a released version of CMAQ. If a user creates a mechanism using new or additional photolysis rates, they have to create a new **CSQY_DATA_${Mechanism}** file. The [inline_phot_preproc utility](../../UTIL/inline_phot_preproc/README.md) produces this file based on the Fortran modules describing the mechanism and data files describing the absorption cross-section and quantum yields described for each photolysis reaction. The CCTM RunScript sets values for each file's path through the environment variables OPTICS_DATA, OMI, and CSQY_DATA.
+
+The phot/table build option uses look-up tables that contain photolysis rates under cloud free conditions based on a fixed meridional cross-section of atmospheric composition, temperature, density and aerosols. The values represent rates as a function of altitude, latitude and the hour angle of the sun on a specified Julian date. In model simulations, the method interpolates rates in the table for the date and corrects them to account for clouds described by the meteorology. Tables are dependent on the photochemical mechanism used. The [jproc utility](../../UTIL/jproc/README.md) creates them based on the photochemical mechanism's FORTRAN modules. The CCTM RunScript sets the value for a table's path with the environment variable XJ_DATA.
 
 
 <a id=6.10.4_HONO></a>
@@ -820,18 +834,18 @@ CMAQ uses a default setting of Y to include the production of HONO from the hete
 The user can set it to N to exclude the heterogeneous production from the reaction. Note that the default setting for the inline deposition calculation (CTM_ILDEPV) flag is Y. If the flag is changed to N, then the production of HONO from the heterogeneous reaction on ground surface will not work properly. Additional description of the HONO chemistry in CMAQ can be found in Sarwar et al. (2008).
 
 <a id=6.10.5_CRACMM></a>
-### 6.10.5 CRACMM Version 1.0
+### 6.10.5 CRACMM Version 1.0-2.0
 
 The Community Regional Atmospheric Chemistry Multiphase Mechanism (CRACMM) builds on the history of the Regional Atmospheric Chemistry Mechanism, Version 2 (RACM2) and aims to couple gas- and particle-phase chemistry by treating the entire pool of atmospheric reactive organic carbon (ROC) relevant to present-day emissions. CRACMM species were developed to represent the total emissions of ROC, considering the OH reactivity, ability to form ozone and secondary organic aerosol (SOA), and other properties of individual emitted compounds. The chemistry of CRACMM, which includes autoxidation, multigenerational oxidation, and the treatment of semivolatile and intermediate volatility compounds, was built using a variety of sources including literature and other mechanisms (RACM2, MCM, GECKO, and SAPRC18/mechgen). 
 
-CRACMMv1 is available in two versions: base CRACMMv1 and CRACMMv1AMORE. The development of base CRACMMv1 is described by Pye et al. (2022) and the application of CRACMMv1 within CMAQ to the northeast U.S. in summer 2018 as well as comparison with other mechanisms is presented by Place et al. (2023). CRACMMv1AMORE replaces the base isoprene chemistry of CRACMMv1 (which was ported from RACM2) with a graph theory-based condensation of a detailed isoprene mechanism developed by Prof. Faye McNeill's team at Columbia University. The AMORE version is documented in work by Wiser et al. (2022).
+CRACMM is available in three versions: CRACMMv1 and CRACMMv1AMORE originally implemented in CMAQv5.4 and CRACMMv2 introduced in CMAQv5.5. The development of CRACMMv1 is described by Pye et al. (2023) and the application of CRACMMv1 within CMAQ to the northeast U.S. in summer 2018 as well as comparison with other mechanisms is presented by Place et al. (2023). CRACMMv1AMORE replaces the base isoprene chemistry of CRACMMv1 (which was ported from RACM2) with a graph theory-based condensation of a detailed isoprene mechanism developed by Prof. Faye McNeill's team at Columbia University (Wiser et al., 2023). CRACMMv2 is an update to both CRACMMv1 and CRACMMv1AMORE. Developments in CRACMMv2 targeted improvements to formaldehyde and resulted in updates in other systems as well (Skipper et al., 2024).
 
-When selected as the gas-phase mechanism, use of CRACMM1 (and CRACMM1AMORE) fully specifies CMAQ's aerosol treatment. CRACMM was designed as a multiphase mechanism and thus includes pathways to SOA and precursors to inorganic aerosol. The aero versioned by number no longer applies, and potential combustion SOA (pcSOA) is deprecated in CRACMM. Methane reaction with OH is considered and methane is set to a fixed concentration of 1.85 ppm by default, roughly mathching global conditions in the later part of the 2010s. Year or location specific [methane concentrations](https://gml.noaa.gov/ccgg/trends_ch4/) could be used (see the end of the mechanism definition file to make the update).
+When selected as the gas-phase mechanism, use of CRACMM fully specifies CMAQ's aerosol treatment. CRACMM was designed as a multiphase mechanism and thus includes pathways to SOA and precursors to inorganic aerosol. The aero versioned by number no longer applies, and potential combustion SOA (pcSOA) is deprecated in CRACMM. Methane reaction with OH is considered and background methane is set to a fixed concentration of 1.85 ppm by default, roughly mathching global conditions in the later part of the 2010s. Year or location specific [methane concentrations](https://gml.noaa.gov/ccgg/trends_ch4/) could be used (see the end of the mechanism definition file to make the update). Emissions of methane on top of background levels can also be considered in CRACMMv2.
 
 One feature of CRACMM is the specification of representative structures for all species in the mechanism. This information is available as metadata describing all gas, particulate, and nonreactive species. Metadata exists in (csv-separated) columns appended to the species namelist files and in a new species description file. The information is not used at runtime by the CMAQ simulation, but should be updated if CRACMM species are updated to facilitate communication of how mechanism species are conceptualized. The metadata is leveraged to determine conservation of mass across chemical reactions (see the CHEMMECH README in the UTIL directory), determination of species properties such as solubility, and to communicate how species are conceptualized. Supplemental code automatically processes the metadata into markdown files for the CMAQ code repository.
 
 #### CRACMM Species Description File
-Both cracmm1 mechanisms (cracmm1_aq and cracmm1amore_aq) share one species description file (located in MECHS/cracmm1_aq/cracmm1_speciesdescription.csv and linked for cracmm1amore) where the species in the mechanism are described. This file is a simple csv file with two values per line: 
+CRACMM mechanisms have a species description file (located in MECHS/cracmm1_aq/cracmm1_speciesdescription.csv and MECHS/cracmm2/cracmm2_speciesdescription.csv) where the species in the mechanism are described. This file is a simple csv file with two values per line: 
 
 - Species name (string): All the GC.nml, AE.nml, and NR.nml species excluding phase (V,A) and particle size mode (I,J,K) identifiers
 - Description (string): string describing the species
@@ -840,9 +854,9 @@ The description should reflect the lumped nature of the category if the species 
 
 - HC10,Alkanes and other species with HO rate constant greater than 6.8x10-12 cm3 s-1
 
-In the case of emitted species, the actual emitted individual species mapped to a mechanism species is based on a hierarchy of rules as described by Pye et al. (2022) with supporting code available on github at [USEPA/CRACMM](https://github.com/USEPA/CRACMM). For example, HC10 is one of the last species to be mapped to in the hierarchy and all semi and intermediate volatility compounds (S/IVOCs) as well as those with aromaticity or double bonds have already been mapped to other mechanism species. Consult the official hierarchy of emission mapping to get the full definition for emitted species.
+In the case of emitted species, the actual emitted individual species mapped to a mechanism species is based on a hierarchy of rules as described by Pye et al. (2023) with supporting code available on github at [USEPA/CRACMM](https://github.com/USEPA/CRACMM). For example, HC10 is one of the last species to be mapped to in the hierarchy and all semi and intermediate volatility compounds (S/IVOCs) as well as those with aromaticity or double bonds have already been mapped to other mechanism species. Consult the official hierarchy of emission mapping to get the full definition for emitted species.
 
-Note that CRACMM (both versions) include some species that can partition between the gas and aerosol phase and thus have both a gas-phase component (in the GC.nml) and particulate component (in the AE.nml). Rather than entering the same description for each phase, species that have multiphase components should be entered once and the phase identifier (V prepended on a gas species in GC.nml (if used) or A prepended on a particulate species in AE.nml) should not be included. In addition, separate entries are not needed for a species existing in multiple size modes. For example, this is the entry describing the species OP3 which exists in the GC.nml as OP3 and in the particle as AOP3J:
+Note that CRACMM mechanisms include some species that can partition between the gas and aerosol phase and thus have both a gas-phase component (in the GC.nml) and particulate component (in the AE.nml). Rather than entering the same description for each phase, species that have multiphase components should be entered once and the phase identifier (V prepended on a gas species in GC.nml (if used) or A prepended on a particulate species in AE.nml) should not be included. In addition, separate entries are not needed for a species existing in multiple size modes. For example, this is the entry describing the species OP3 which exists in the GC.nml as OP3 and in the particle as AOP3J:
 
 - OP3,Semivolatile organic peroxide
 
@@ -869,7 +883,7 @@ In general, molecular weights (MOLWT) in the namelists should match the represen
 For species that exist in multiple phases, the metadata should only be specified in the GC.nml.
 
 #### CRACMM supporting code archive
-A supporting code archive will be distributed at [USEPA/CRACMM](https://github.com/USEPA/CRACMM) to provide information that can be used by other models to implement CRACMM. This information includes documentation on how individual species map to the mechanism (available schematically and in python code), inputs to models such as Speciation Tool and SMOKE, and mapping of the SPECIATE database to CRACMM.
+A supporting code archive is distributed at [USEPA/CRACMM](https://github.com/USEPA/CRACMM) to provide information that can be used by other models to implement CRACMM. This information includes documentation on how individual species map to the mechanism (available schematically and in python code), inputs to models such as Speciation Tool and SMOKE, and mapping of the SPECIATE database to CRACMM.
 
 One of the python routines available in the archive combines the CRACMM species information from the CMAQ namelists and species description file to create the species markdown files in (MECHS/mechanism_information). The processor will automatically format the following strings in markdown if used in the species description file:
 
@@ -1006,6 +1020,8 @@ Binkowski, F.S., & Roselle, S.J. (2003). Models-3 Community Multiscale Air Quali
 
 Binkowski, F.S., & Shankar, U. (1995). The regional particulate model: Part I. Model description and preliminary results. J. Geophys. Res., 100, 26 191–26 209.
 
+C.F. Bohren, D.R. Huffman, Absorption and Scattering of Light by Small Particles (second ed.), Wiley, New York (1998), p. 530. ISBN 0-471-29340-7, ISBN 978-0-471-29340-8.
+
 Byun, D.W., & Ching, J.K.S. (1999). Science algorithms of the EPA models-3 Community Multiscale Air Quality (CMAQ) Modeling system. U. S. Environmental Protection Agency Rep. EPA 600/R 99/030, 727 pp. 
 
 Byun, D., & Schere, K.L. (2006). Review of the governing equations, computational algorithms, and other components of the Models-3 Community Multiscale Air Quality (CMAQ) modeling system. Appl. Mech. Rev., 59, 51–77. [doi:10.1115/1.212863](https://doi.org/10.1115/1.2128636). 
@@ -1021,6 +1037,8 @@ Danielsen, E. F. (1968). Stratospheric-tropospheric exchange based on radioactiv
 Donahue, N.M., et al. (2012). A two-dimensional volatility basis set – Part 2: Diagnostics of organic-aerosol evolution. Atmospheric Chemistry and Physics, 12(2), 615-634.
 
 Fahey, K.M., Carlton, A.G., Pye, H.O.T., Baek, J., Hutzell, W.T., Stanier, C.O., Baker, K.R., Appel, K.W., Jaoui, M., & Offenberg, J.H. (2017). A framework for expanding aqueous chemistry in the Community Multiscale Air Quality (CMAQ) model version 5.1. Geosci. Model Dev., 10, 1587-1605.
+
+Fast, J. D., W. I. Gustafson Jr., R. C. Easter, R. A. Zaveri, J. C. Barnard, E. G. Chapman, G. A. Grell, and S. E. Peckham (2006), Evolution of ozone, particulates, and aerosol direct radiative forcing in the vicinity of Houston using a fully coupledmeteorology-chemistry-aerosol model,J. Geophys. Res.,111, D21305, doi:10.1029/2005JD006721
 
 Foroutan, H., J. Young, S. Napelenok, L. Ran, K. W. Appel, R. C. Gilliam, and J. E. Pleim (2017), Development and evaluation of a physics-based windblown dust emission scheme implemented in the CMAQ modeling system, J. Adv. Model. Earth Syst., 9, 585–608, doi:10.1002/2016MS000823
 
@@ -1059,7 +1077,7 @@ Mathur, R. & Peters, L.K. (1990). Adjustment of wind fields for application in a
 
 Mathur, R., Xing, J., Gilliam, R., Sarwar, G., Hogrefe, C., Pleim, J., Pouliot, G., Roselle, S., Spero, T. L., Wong, D. C., and Young, J. (2017) Extending the Community Multiscale Air Quality (CMAQ) modeling system to hemispheric scales: overview of process considerations and initial applications, Atmos. Chem. Phys., 17, 12449-12474, [doi: 10.5194/acp-17-12449-2017](https://doi.org/10.5194/acp-17-12449-2017).
 
-Murphy, B.N., Woody, M.C., Jimenez, J.L., Carlton, A.M.G., Hayes, P.L., Liu, S., Ng, N.L., Russell, L.M., Setyan, A., Xu, L., Young, J., Zaveri, R.A., Zhang, Q., & Pye, H.O.T. (2017). Semivolatile POA and parameterized total combustion SOA in CMAQv5.2: impacts on source strength and partitioning. Atmospheric Chemistry and Physics Discussions, 1-44.
+Murphy, B.N., Woody, M.C., Jimenez, J.L., Carlton, A.M.G., Hayes, P.L., Liu, S., Ng, N.L., Russell, L.M., Setyan, A., Xu, L., Young, J., Zaveri, R.A., Zhang, Q., & Pye, H.O.T. (2017). Semivolatile POA and parameterized total combustion SOA in CMAQv5.2: impacts on source strength and partitioning. Atmospheric Chemistry and Physics, 17 (18), 11107-11133, [doi:10.5194/acp-17-11107-2017](https://doi.org/10.5194/acp-17-11107-2017).
 
 Nemitz, E., Milford, C., Sutton, M.A. (2001). A two-layer canopy compensation point model for describing bi-directional biosphere-atmosphere exchange of ammonia. Q. J. Roy. Meteor. Soc.,127, 815-833.
 
@@ -1067,7 +1085,7 @@ Odman, M.T., & Russell, A.G. (2000). Mass conservative coupling of non-hydrostat
 
 Ovadnevaite, J., Manders, A., de Leeuw, G., Ceburnis, D., Monahan, C., Partanen, A.I., Korhonen, H., & O'Dowd, C. D. (2014). A sea spray aerosol flux parameterization encapsulating wave state. Atmos. Chem. Phys., 14, 1837-1852.  [doi: 10.5194/acp-14-1837-2014](https://doi.org/10.5194/acp-14-1837-2014).
 
-Place, B. K., Hutzell, W. T., Appel, K. W., Farrell, S., Valin, L., Murphy, B. N., Seltzer, K. M., Sarwar, G., Allen, C., Piletic, I. R., D'Ambro, E. L., Saunders, E., Simon, H., Torres-Vasquez, A., Pleim, J., Schwantes, R. H., Coggon, M. M., Xu, L., Stockwell, W. R., and Pye, H. O. T.: Sensitivity of northeastern US surface ozone predictions to the representation of atmospheric chemistry in the Community Regional Atmospheric Chemistry Multiphase Mechanism (CRACMMv1.0), Atmos. Chem. Phys., 23, 9173–9190, https://doi.org/10.5194/acp-23-9173-2023, 2023.
+Place, B. K., Hutzell, W. T., Appel, K. W., Farrell, S., Valin, L., Murphy, B. N., Seltzer, K. M., Sarwar, G., Allen, C., Piletic, I. R., D'Ambro, E. L., Saunders, E., Simon, H., Torres-Vasquez, A., Pleim, J., Schwantes, R. H., Coggon, M. M., Xu, L., Stockwell, W. R., and Pye, H. O. T. (2023). Sensitivity of northeastern US surface ozone predictions to the representation of atmospheric chemistry in the Community Regional Atmospheric Chemistry Multiphase Mechanism (CRACMMv1.0), Atmospheric Chemistry and Physics, 23, 9173-9190, [doi:10.5194/acp-23-9173-2023](https://doi.org/10.5194/acp-23-9173-2023).
 
 Pleim, J., Venkatram, A., Yamartino, R. (1984). ADOM/TADAP Model development program: The dry deposition module. Ontario Ministry of the Environment, 4.
 
@@ -1081,7 +1099,7 @@ Pleim, J. E., Ran, L., Appel, W., Shephard, M.W., & Cady-Pereira K. (2019). New 
 
 Pye, H.O.T., Pinder, R.W., Piletic, I.R., Xie, Y., Capps, S.L., Lin, Y.H., Surratt, J.D., Zhang, Z.F., Gold, A., Luecken, D.J., Hutzell W.T., Jaoui, M., Offenberg, J.H., Kleindienst, T.E., Lewandowski, M., & Edney, E.O. (2013). Epoxide pathways improve model predictions of isoprene markers and reveal key role of acidity in aerosol formation. Environ. Sci. Technol., 47(19), 11056-11064.
 
-Pye, H. O. T., Place, B. K., Murphy, B. N., Seltzer, K. M., D'Ambro, E. L., Allen, C., Piletic, I. R., Farrell, S., Schwantes, R. H., Coggon, M. M., Saunders, E., Xu, L., Sarwar, G., Hutzell, W. T., Foley, K. M., Pouliot, G., Bash, J., & Stockwell, W. R. (2022). Linking gas, particulate, and toxic endpoints to air emissions in the Community Regional Atmospheric Chemistry Multiphase Mechanism (CRACMM) version 1.0, Atmos. Chem. Phys. Discuss. [preprint], https://doi.org/10.5194/acp-2022-695, in review.
+Pye, H. O. T., Place, B. K., Murphy, B. N., Seltzer, K. M., D'Ambro, E. L., Allen, C., Piletic, I. R., Farrell, S., Schwantes, R. H., Coggon, M. M., Saunders, E., Xu, L., Sarwar, G., Hutzell, W. T., Foley, K. M., Pouliot, G., Bash, J., & Stockwell, W. R. (2023). Linking gas, particulate, and toxic endpoints to air emissions in the Community Regional Atmospheric Chemistry Multiphase Mechanism (CRACMM), Atmospheric Chemistry and Physics, 23, 5043-5099, [doi:10.5194/acp-23-5043-2023](https://doi.org/10.5194/acp-23-5043-2023).
 
 Ran, L., Cooter, E., Benson, V., & He, Q. (2011). Chapter 36: Development of an agricultural fertilizer modeling system for bi-directional ammonia fluxes in the CMAQ model. In D. G. Steyn, & S. Trini Castelli (Eds.), air pollution modeling and its application XXI. Springer, 213-219.
 
@@ -1101,6 +1119,8 @@ Simon, H., & Bhave, P.V. (2012). Simulating the degree of oxidation in atmospher
 
 Skamarock, W.C., Klemp, J.B., Dudhia, J., Gill, D.O., Liu, Z., Berner, J., Wang, W., Powers, J.G., Duda, M.G., Barker, D.M., & Huang, X.Y. (2019). A description of the advanced research WRF version 4. NCAR Technical Note, NCAR/TN–556+STR.
 
+Skipper, T. N., D’Ambro, E. L., Wiser, F. C., McNeill, V. F., Schwantes, R. H., Henderson, B. H., Piletic, I. R., Baublitz, C. B., Bash, J. O., Whitehill, A. R., Valin, L. C., Mouat, A. P., Kaiser, J., Wolfe, G. M., St. Clair, J. M., Hanisco, T. F., Fried, A., Place, B. K., and Pye, H. O. T. (2024). Role of chemical production and depositional losses on formaldehyde in the Community Regional Atmospheric Chemistry Multiphase Mechanism (CRACMM), EGUsphere [preprint], [doi:10.5194/egusphere-2024-1680](https://doi.org/10.5194/egusphere-2024-1680).
+
 Slinn, W.G.N. (1982). Predictions for particle deposition to vegetative canopies, Atmos. Environ., 16, 1785-1794.
 
 Smagorinsky, J. (1963). General circulation experiments with the primitive equations. Mon. Wea. Rev., 91/3, 99-164.
@@ -1109,7 +1129,7 @@ Tan, Y., Perri, M.J., Seitzinger, S.P., & Turpin, B.J. (2009). Effects of precur
 
 Warneck, P. (1999). The relative importance of various pathways for the oxidation of sulfur dioxide and nitrogen dioxide in sunlit continental fair weather clouds. Phys. Chem. Chem. Phys., 1, 5471-5483.
 
-Wiser, F., Place, B., Sen, S., Pye, H. O. T., Yang, B., Westervelt, D. M., Henze, D. K., Fiore, A. M., & McNeill, V. F. (2022). AMORE-Isoprene v1.0: A new reduced mechanism for gas-phase isoprene oxidation, Geosci. Model Dev. Discuss. [preprint], https://doi.org/10.5194/gmd-2022-240, in review.
+Wiser, F., Place, B. K., Sen, S., Pye, H. O. T., Yang, B., Westervelt, D. M., Henze, D. K., Fiore, A. M., and McNeill, V. F. (2023). AMORE-Isoprene v1.0: a new reduced mechanism for gas-phase isoprene oxidation, Geosci. Model Dev., 16, 1801-1821, [doi:https://doi.org/10.5194/gmd-16-1801-2023](https://doi.org/10.5194/gmd-16-1801-2023).
 
 Xing, J., Mathur, R., Pleim, J., Hogrefe, C., Wang, J., Gan, C.M., Sarwar, G., Wong, D., & McKeen, S. (2016). Representing the effects of stratosphere-troposphere exchange on 3D O3 distributions in chemistry transport models using a potential vorticity based parameterization, Atmos. Chem. Phys., 16, 10865-10877,  [doi:10.5194/acp-16-10865-2016](https://doi.org/10.5194/acp-16-10865-2016).
 
