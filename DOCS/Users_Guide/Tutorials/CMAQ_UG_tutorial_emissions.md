@@ -66,7 +66,7 @@ To zero Lightning NO emissions,
 setenv CTM_LTNG_NO N
 ```
 
-##### b. Creating Rules in the Chemical Mapping Control Namelist
+##### b. Creating Rules in the Chemical Mapping Control Namelist (CMAQ_Control_DESID_${MECH}.nml)
 All streams can be zeroed by creating a rule that refers to 'All' streams. For example,
 ```
 ! Region      | Stream Label  |Emission | CMAQ-        |Phase/|Scale |Basis |Op  
@@ -260,7 +260,7 @@ Chemical families are defined by prescribing, via the [CMAQ Miscellaneous Contro
 ```  
 In this example, 2 chemical families, "NOX" and "POA", are defined with 2 members, "NO" and "NO2", and "POC" and "PNCOM". Note that CMAQv5.3 required the variable ChemFamilyNum to be specified and this value is internally calculated in CMAQv5.4. If the variable is provided, the model will crash. Also, it is required to ensure that no Chemical Family Name is identical to any emission species or CMAQ species. Currently, CMAQ will not detect a name conflict but results will be compromised. A future version of CMAQ will check for duplicative names, trigger an error, and stop the model.
 
-Stream families are defined analogously in the DESID Control File:  
+Stream families are defined analogously in the DESID Control File (CMAQ_Control_DESID.nml):  
 ```
 &Desid_StreamFamVars
  Desid_N_Stream_Fams = 3
