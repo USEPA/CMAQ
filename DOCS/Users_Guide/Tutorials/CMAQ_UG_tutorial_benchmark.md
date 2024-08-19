@@ -1,6 +1,6 @@
 # CMAQ Installation & Benchmarking Tutorial
 
-Purpose: This guide describes how to install and run the CMAQ test case, which serves two different purposes. The first being to familiarize the user with the CMAQ suite of programs and how they work together, and secondly to verify the installation of the software on your system via benchmarking. 
+Purpose: This guide describes how to install and run the CMAQ test case for the CRACMM2 mechanism, which serves two different purposes. The first being to familiarize the user with the CMAQ suite of programs and how they work together, and secondly to verify the installation of the software on your system via benchmarking. 
 
 Benchmarking refers to a simulation that is used to verify that the software is installed correctly.  Benchmarking CMAQ is recommended in the following circumstances:
 - Installation by a new user
@@ -16,7 +16,7 @@ The following support software are required for compiling and running CMAQ.
 1. Fortran and C compilers, e.g., [Intel](https://software.intel.com/en-us/fortran-compilers), [Portland Group](http://www.pgroup.com), [Gnu](https://gcc.gnu.org/wiki/GFortran)
 2. [Git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git)
 2. Message Passing Interface (MPI), e.g., [OpenMPI](https://www.open-mpi.org) or [MVAPICH2](http://www.mcs.anl.gov/research/projects/mpich2).
-3. Latest release of [netCDF-C](https://www.unidata.ucar.edu/software/netcdf/docs/getting_and_building_netcdf.html) and [netCDF-Fortran](https://www.unidata.ucar.edu/software/netcdf/docs/building_netcdf_fortran.html) **built without netCDF4, HDF5, HDF4, DAP client, PnetCDF, or zlib support** 
+3. Latest release of [netCDF-C](https://www.unidata.ucar.edu/software/netcdf/docs/getting_and_building_netcdf.html) and [netCDF-Fortran](https://www.unidata.ucar.edu/software/netcdf/docs/building_netcdf_fortran.html) **built with netCDF4, HDF5, HDF4, DAP client, PnetCDF, or zlib support** 
 4. [I/O API](https://www.cmascenter.org/download/software/ioapi/ioapi_3-2.cfm?DB=TRUE) version 3.2 **tagged 20200828**
 (note: if you have not installed the above libraries, please see the CMAQ_UG_tutorial_build_[gcc/intel/pgi].md tutorials available here: 
 https://github.com/USEPA/CMAQ/tree/main/DOCS/Users_Guide/Tutorials
@@ -29,7 +29,7 @@ The suggested hardware requirements for running the CMAQ Southeast Benchmark cas
 
 ## Install CMAQ and Required Libraries 
 
-In the directory where you would like to install CMAQ, create the directory issue the following command to clone the EPA GitHub repository for CMAQv5.4:
+In the directory where you would like to install CMAQ, create the directory issue the following command to clone the EPA GitHub repository for CMAQv5.5:
 
 ```
 git clone -b main https://github.com/USEPA/CMAQ.git CMAQ_REPO
@@ -54,8 +54,9 @@ In the top level of CMAQ_REPO, the bldit_project.csh script will automatically r
 
 In bldit_project.csh, modify the variable $CMAQ_HOME to identify the folder that you would like to install the CMAQ package under. For example:
 ```
-set CMAQ_HOME = [your_install_path]/CMAQ_v5.4
+set CMAQ_HOME = [your_install_path]/CMAQ_v5.5
 ```
+
 Now execute the script.
 ```
 ./bldit_project.csh
@@ -91,12 +92,12 @@ source config_cmaq.csh [compiler]
 ```
 You may also identify the version of the compiler if you wish it to be identified in build directory and executable names. This is optional. For example:
 ```
-source config_cmaq.csh gcc 9.1
+source config_cmaq.csh gcc 9.5
 ```
 
 ## Install the CMAQ reference input and output benchmark data
 
-Download the CMAQ two day reference input and output data from the [CMAS Center Data Warehouse Google Drive]([https://drive.google.com/file/d/1AFUB-4kzIXXoZr4hOHNBqRvy9JQ9_MDp/view?usp=sharing](https://drive.google.com/drive/folders/1AFUB-4kzIXXoZr4hOHNBqRvy9JQ9_MDp?usp=sharing). The CMAQ benchmark test case is a two day simulation for July 1-2 2018 on a 100 column x 105 row x 35 layer 12-km resolution domain over the northeast U.S.  
+Download the CMAQ two day reference input and output data for the CRACMM2 mechanism from the [CMAS Center Data Warehouse Google Drive]([https://drive.google.com/file/d/1AFUB-4kzIXXoZr4hOHNBqRvy9JQ9_MDp/view?usp=sharing](https://drive.google.com/drive/folders/1AFUB-4kzIXXoZr4hOHNBqRvy9JQ9_MDp?usp=sharing). The CMAQ benchmark test case is a two day simulation for July 1-2 2018 on a 100 column x 105 row x 35 layer 12-km resolution domain over the northeast U.S.  
 
   - Use the gdrive command to download the dataset.
   - If this is the first time that you are using gdrive, or if you have an issue with your token, please read the following instructions
@@ -109,8 +110,8 @@ Copy the data to `$CMAQ_DATA`. Navigate to the `$CMAQ_DATA` directory, unzip and
 
 ```
 cd $CMAQ_DATA
-tar xvzf CMAQv5.4_2018_12NE3_Benchmark_2Day_Input.tar.gz
-tar xvzf CMAQv5.4_2018_12NE3_Benchmark_2Day_Output.tar.gz
+tar xvzf CMAQv5.4_2018_12NE3_Benchmark_2Day_Input_CRACCM2.tar.gz
+tar xvzf CMAQv5.4_2018_12NE3_Benchmark_2Day_Output_CRACMM2.tar.gz
 ```
 
 ## Compiling CMAQ
@@ -143,20 +144,31 @@ The build directory parameters for the benchmark test case include the following
 -   Vertical diffusion: ACM2_M3Dry
 -   Deposition: M3Dry
 -   Chemistry solver: EBI
--   Aerosol module: AERO7
--   Cloud module: ACM_AE7
--   Mechanism: cb6r3_ae7_aq
--   Online biogenic emissions
+-   Aerosol module: cracmm
+-   Cloud module: acm_craccm
+-   Mechanism: cracmm2
+-   Inline biogenic emissions
 -   Inline plume rise
 
 To configure these parameters, the CCTM Science Modules within the bldit_cctm.csh need to be set. The comments within the script itself should help guide the user on the options for each variable and how to set them. Further information on variable names can be found in 
 [Appendix A](../Appendix/CMAQ_UG_appendixA_model_options.md).
 
+To keep the BLD directory name unique for each mechansim, modify the bldit_cctm script to use 
+
+```
+#> Set and create the "BLD" directory for checking out and compiling source code. Move current directory to that build directory.
+ if ( $?Debug_CCTM ) then
+    set Bld = $CMAQ_HOME/CCTM/scripts/BLD_CCTM_${VRSN}_${compilerString}_${Mechanism}_debug
+ else
+    set Bld = $CMAQ_HOME/CCTM/scripts/BLD_CCTM_${VRSN}_${compilerString}_${Mechanism}
+ endif
+```
+
 Following the requisite changes to the CCTM build script, use the following command to create the CCTM executable: 
 
 ```
 cd $CMAQ_HOME/CCTM/scripts
-./bldit_cctm.csh [compiler] [version] |& tee bldit.cctm.log
+./bldit_cctm_craccm.csh [compiler] [version] |& tee bldit_cctm_craccm.log
 ```
 
 ## Configure the CCTM script 
@@ -171,7 +183,7 @@ Edit the CCTM run script (run_cctm_Bench_2018_12NE3.csh) for the MPI configurati
 
 ```
 setenv compiler gcc
-setenv compilerVrsn 9.1
+setenv compilerVrsn 9.5
 setenv INPDIR  ${CMAQ_DATA}/2018_12NE3
 @ NPCOL 8 ; @ NPROW = 4
 ```
@@ -195,13 +207,13 @@ CCTM Science Configuration Options set to **Y** in the RunScript for the benchma
 -  ```CTM_GRAV_SETL``` - vdiff aerosol gravitational sedmentation
 -  ```CTM_BIOGEMIS``` - online biogenic emissions
 
-To configure these parameters, the Science Options within the $CMAQ_HOME/CCTM/scripts/run_cctm_Bench_2018_12NE3.csh need to be set. The comments within the script itself should help guide the user on the options for each variable and how to set them. Further information on variable names can be found in 
+To configure these parameters, the Science Options within the $CMAQ_HOME/CCTM/scripts/run_cctm_Bench_2018_12NE3_CRACMM2_STAGE.csh need to be set. The comments within the script itself should help guide the user on the options for each variable and how to set them. Further information on variable names can be found in 
 [Appendix A](../Appendix/CMAQ_UG_appendixA_model_options.md).
 
 After configuring the MPI settings for your Linux system, check the rest of the script to ensure the correct path, date and names are used for the input data files. Per the note above, different Linux systems have different requirements for submitting MPI jobs.  The command below is an example of how to submit the CCTM run script and may differ depending on the MPI requirements of your Linux system. 
 
 ```
-./run_cctm_Bench_2018_12NE3.csh |& tee cctm.log
+./run_cctm_Bench_2018_12NE3_CRACMM2_STAGE.csh |& tee cctm.log
 ```
 
 ## Confirm that the Benchmark Simulation Completed
