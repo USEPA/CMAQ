@@ -134,7 +134,7 @@ setenv Mechanism cracmm2              #> chemical mechanism (see $CMAQ_MODEL/CCT
 
 Change directories to the build directory
 ```
-cd BLD_CCTM_v55_ISAM_gcc
+cd BLD_CCTM_v55_ISAM_gcc_cracmm2_stage
 ```
 
 edit the DESID emissions namelist file
