@@ -157,6 +157,23 @@ Uncomment the line that contains ISAM_REGIONS as the File Label
 /
 ```
  
+### Step 10a: Edit the DESID chmeical control namelist file.
+
+Change to the BLD directory and add the following lines to the bottom of the CMAQ_Control_DESID_cracmm2.nml
+
+```
+! Re-Map CRACMM1 Aromatics to CRACMM2
+   ! EBZ and XYE remapping, STY and XYM remapping
+   ! Generic scaling if not scaling by sector: 70% XYL; 30% EBZ
+   ! EBZ = FAC1 * XYE; STY = FAC2 * XYM ; XYL = (1-FAC1)*XYE + (1-FAC2)*XYM
+   'EVERYWHERE', 'ALL'         ,'XYE'    ,'EBZ'         ,'GAS'  ,0.30,'UNIT','a',
+   'EVERYWHERE', 'ALL'         ,'XYE'    ,'XYL'         ,'GAS'  ,0.70,'UNIT','a',
+
+   ! Generic scaling if not scaling by sector: 93% XYL; 7% STY
+   'EVERYWHERE', 'ALL'         ,'XYM'    ,'STY'         ,'GAS'  ,0.07,'UNIT','a',
+   'EVERYWHERE', 'ALL'         ,'XYM'    ,'XYL'         ,'GAS'  ,0.93,'UNIT','a',
+```
+
 ### Step 11: Example of emissions scaling (Reduce the PT_EGU emissions in PA by 25%) (Optional step)
 
 edit the DESID chemical control namelist file, note please specify the mechanism or define the MECH environment variable.
