@@ -1,6 +1,6 @@
 # CMAQ Installation & Benchmarking Tutorial
 
-Purpose: This guide describes how to install and run the CMAQ test case for the CRACMM2 mechanism, which serves two different purposes. The first being to familiarize the user with the CMAQ suite of programs and how they work together, and secondly to verify the installation of the software on your system via benchmarking. 
+Purpose: This guide describes how to install and run the CMAQ test case for the CRACMM2 mechanism with the STAGE dry deposition scheme, which serves two different purposes. The first being to familiarize the user with the CMAQ suite of programs and how they work together, and secondly to verify the installation of the software on your system via benchmarking. 
 
 Benchmarking refers to a simulation that is used to verify that the software is installed correctly.  Benchmarking CMAQ is recommended in the following circumstances:
 - Installation by a new user
@@ -142,7 +142,7 @@ The build directory parameters for the benchmark test case include the following
 -   3-D Advection Scheme: wrf_cons
 -   Horizontal diffusion: Multiscale
 -   Vertical diffusion: ACM2_M3Dry
--   Deposition: M3Dry
+-   Deposition: STAGE
 -   Chemistry solver: EBI
 -   Aerosol module: cracmm
 -   Cloud module: acm_craccm
@@ -163,6 +163,11 @@ To keep the BLD directory name unique for each mechansim, modify the bldit_cctm 
     set Bld = $CMAQ_HOME/CCTM/scripts/BLD_CCTM_${VRSN}_${compilerString}_${Mechanism}
  endif
 ```
+
+#> Set Dry Deposition Scheme to Stage
+
+ set DepMod    = stage
+
 
 Following the requisite changes to the CCTM build script, use the following command to create the CCTM executable: 
 
