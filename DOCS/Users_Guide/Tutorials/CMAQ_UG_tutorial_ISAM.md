@@ -1,6 +1,6 @@
 ## CMAQ-ISAM Benchmark Tutorial ## 
 
-### Procedure to build and run the CMAQ-ISAM model using gnu compiler: ###
+### Procedure to build and run the CMAQ-ISAM model using gnu compiler for the CRACMM2 mechanism with the STAGE dry deposition scheme: ###
 
 ### Step 1: Download and run the CMAQv5.5 benchmark case (without ISAM) to confirm that your model run is consistent with the provided benchmark output.
 - [CMAQ Benchmark Tutorial](CMAQ_UG_tutorial_benchmark.md)
@@ -96,7 +96,7 @@ cd [your_install_path]/CMAQ_v5.5
 
 ### Step 6. Edit the config_cmaq.csh to specify the paths of the ioapi and netCDF libraries
 
-### Step 7: Modify the bldit_cctm.csh 
+### Step 7: Modify the bldit_cctm.csh to activate ISAM
 
 Change directory to CCTM/scripts
 
@@ -110,13 +110,27 @@ Comment out the following option to compile CCTM with ISAM:
 #> Integrated Source Apportionment Method (ISAM)
 set ISAM_CCTM                         #> uncomment to compile CCTM with ISAM activated
 ```
+### Step 8: Modify the bldit_cctm.csh to specify the CRACMM2 mechanism and the stage dry deposition scheme and update the BLD directory name.
 
-### Step 8: Run the bldit_cctm.csh script
+```
+set DepMod    = stage                 #> dry deposition scheme (m3dry or stage)
+setenv Mechanism cracmm2              #> chemical mechanism (see $CMAQ_MODEL/CCTM/src/MECHS) 
+
+#> Set and create the "BLD" directory for checking out and compiling 
+#> source code. Move current directory to that build directory.
+ if ( $?Debug_CCTM ) then
+    set Bld = $CMAQ_HOME/CCTM/scripts/BLD_CCTM_${VRSN}_${compilerString}_${Mechanism}_${DepMod}_debug
+ else
+    set Bld = $CMAQ_HOME/CCTM/scripts/BLD_CCTM_${VRSN}_${compilerString}_${Mechanism}_${DepMod}
+ endif
+```
+
+### Step 9: Run the bldit_cctm.csh script
 ```
 ./bldit_cctm.csh gcc |& tee bldit_cctm_isam.log
 ```
 
-### Step 9: Edit the Emission Control Namelist to recognize the CMAQ_REGIONS file 
+### Step 10: Edit the Emission Control Namelist to recognize the CMAQ_REGIONS file 
 
 Change directories to the build directory
 ```
@@ -143,7 +157,7 @@ Uncomment the line that contains ISAM_REGIONS as the File Label
 /
 ```
  
-### Step 10: Example of emissions scaling (Reduce the PT_EGU emissions in PA by 25%) (Optional step)
+### Step 11: Example of emissions scaling (Reduce the PT_EGU emissions in PA by 25%) (Optional step)
 
 edit the DESID chemical control namelist file, note please specify the mechanism or define the MECH environment variable.
 
@@ -159,7 +173,7 @@ Add the following line at the bottom of the the namelist file (before the /)
 
 ```
 
-### Step 11: Install the CMAQ-ISAM reference input and output benchmark data
+### Step 12: Install the CMAQ-ISAM reference input and output benchmark data
 
 Download the CMAQ two day reference input and output data from the [CMAS Center Data Warehouse Google Drive]([https://drive.google.com/file/d/1AFUB-4kzIXXoZr4hOHNBqRvy9JQ9_MDp/view?usp=sharing](https://drive.google.com/drive/folders/1AFUB-4kzIXXoZr4hOHNBqRvy9JQ9_MDp?usp=sharing). The CMAQ benchmark test case is a two day simulation for July 1-2 2018 on a 100 column x 105 row x 35 layer 12-km resolution domain over the northeast U.S.  
 
@@ -180,7 +194,7 @@ tar xvzf CMAQv5.4_2018_12NE3_Benchmark_2Day_Output.tar.gz
 
 The input files for the CMAQv5.4 ISAM benchmark case are the same as the benchmark inputs for the base model. Output source apportionment files associated with the sample isam_control.txt provided in this release package are included in the benchmark outputs for the base model.
     
-### Step 12: Edit the CMAQ-ISAM runscript
+### Step 13: Edit the CMAQ-ISAM runscript
 
 ```
 cp run_cctm_Bench_2018_12NE3.csh run_cctm_Bench_2018_12NE3.ISAM.csh
@@ -214,7 +228,7 @@ OR (If using SLRUM)
 sbatch run_cctm_Bench_2018_12NE3.ISAM.csh
 ```
 
-### Step 13: Verify that the run was successful
+### Step 14: Verify that the run was successful
    - look for the output directory
    
    ```
@@ -227,7 +241,7 @@ sbatch run_cctm_Bench_2018_12NE3.ISAM.csh
    ```
    |>---   PROGRAM COMPLETED SUCCESSFULLY   ---<|
 
-### Step 14: Compare output with the 2 day benchmark outputs provided on the google drive
+### Step 15: Compare output with the 2 day benchmark outputs provided on the google drive
 
 The following ISAM output files are generated in addition to the standard CMAQ output files. Note, the answers will not be comparible if emission scaling is used (Step 10 - optional)
 
@@ -239,7 +253,7 @@ CCTM_SA_ACONC_v54_ISAM_gcc_Bench_2018_12NE3_2day_ISAM_20180702.nc
 CCTM_SA_CGRID_v54_ISAM_gcc_Bench_2018_12NE3_2day_ISAM_20180702.nc
 ```
 
-### Step 15: Compare the tagged species in `CCTM_SA_CONC` output file to the full species in `CCTM_CONC` output file
+### Step 16: Compare the tagged species in `CCTM_SA_CONC` output file to the full species in `CCTM_CONC` output file
 
 ```
 ncdump -h CCTM_SA_CONC_v55_ISAM_gcc_Bench_2018_12NE3_cracmm2_4x8_all_CONC_20180701.nc | grep SO2_
