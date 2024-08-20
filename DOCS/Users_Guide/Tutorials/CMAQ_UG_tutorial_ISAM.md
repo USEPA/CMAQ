@@ -104,7 +104,7 @@ Change directory to CCTM/scripts
 cd CCTM/scripts
 ```
 
-Comment out the following option to compile CCTM with ISAM:
+Uncomment the following option to compile CCTM with ISAM (remove the # before set ISAM_CCTM):
 
 ```
 #> Integrated Source Apportionment Method (ISAM)
