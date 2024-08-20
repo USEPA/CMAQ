@@ -32,13 +32,13 @@ REGION(S)       |NY
 EMIS STREAM(S)  |BIOG
 ```
 
-The following gridmask file is provided with the benchmark inputs in the 2018_12NE3_BENCH/2018_12NE3 directory (see step 10 below)
+The following gridmask file is provided with the benchmark inputs in the 2018_12NE3_BENCH/2018_12NE3 directory (see step 11 below)
 
 ```
 GRIDMASK_STATES_12NE3.nc
 ```
 
-The instructions require the user to edit the DESID emissions control namelist file and the DESID chemical control namelist file in the BLD directory. If you want to use emission scaling (independently from ISAM or DDM3D) you will also need to edit these files. (see step 9 below).
+The instructions require the user to edit the DESID emissions control namelist file and the DESID chemical control namelist file in the BLD directory. If you want to use emission scaling (independently from ISAM or DDM3D) you will also need to edit these files. (see step 10 below).
 
 ```
 CMAQ_Control_DESID.nml
