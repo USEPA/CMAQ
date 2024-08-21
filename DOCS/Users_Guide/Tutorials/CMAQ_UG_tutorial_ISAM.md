@@ -221,7 +221,7 @@ gedit run_cctm_Bench_2018_12NE3.ISAM.csh
 Set General Parameters for Configuring the Simulation
 
 ```
-set VRSN = v54_ISAM
+set VRSN = v55_ISAM
 ```
 
 
