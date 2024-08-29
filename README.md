@@ -22,6 +22,7 @@ Potential updates include bugfixes that resolves runtime failures, segmentation 
 ### Record of changes to CMAQv5.4+
 |      Tag        |   PR Number       |         PR Name          |   Merge Date     | Brief Description |
 | -------------- | ------------------ | ------------------------ | ---------------- | -----------------------|
+| [CMAQv5.4.0.4_9April2024](https://github.com/USEPA/CMAQ/releases/tag/CMAQv5.4.0.4_9April2024)|[#215](https://github.com/USEPA/CMAQ/pull/215)|fix bug in calculation of PMF_OC | 2024-04-09 | This fixes a bug in the calculation of the ELMO parameter PMF_OC, which inadvertently subtracts off non-carbonaceous mass that should instead be skipped. Addresses issue [#213](https://github.com/USEPA/CMAQ/issues/213).|
 |  |[#201](https://github.com/USEPA/CMAQ/pull/201) | Update config_cmaq.csh  | 2023-07-06 | _`Community Contribution`_ Fixes a typo in the config_cmaq.csh to address issue [#199](https://github.com/USEPA/CMAQ/issues/199).|
 |  |[#198](https://github.com/USEPA/CMAQ/pull/198) | Fix functionality of RBSTATS when using ROS3  | 2023-07-06 | _`Community Contribution`_ This fixes a bug in CCTM/src/gas/ros3/rbdriver.F that causes the model not to compile when using the conditional rbstats option.|
 |[CMAQv5.4.0.3_9June2023](https://github.com/USEPA/CMAQ/releases/tag/CMAQv5.4.0.3_9June2023)|||||
@@ -63,7 +64,7 @@ This CMAQ Git archive is organized with each official public release stored as a
 a working directory on your server:
 
 ```
-git clone -b main https://github.com/USEPA/CMAQ.git CMAQ_REPO
+git clone -b 5.4+ https://github.com/USEPA/CMAQ.git CMAQ_REPO
 ```
 
 ## CMAQ Repository Guide
