@@ -40,7 +40,7 @@
 #> Horizontal grid definition 
  setenv GRID_NAME SE53BENCH               #> check GRIDDESC file for GRID_NAME options
 #setenv GRIDDESC $CMAQ_DATA/$APPL/met/mcip/GRIDDESC #> grid description file 
- setenv GRIDDESC /work/MOD3DATA/SE53BENCH/met/mcip/GRIDDESC
+ setenv GRIDDESC /work/MOD3DATA/SE53BENCH/met/mcipv4.5/GRIDDESC
  setenv IOAPI_ISPH 20                     #> GCTP spheroid, use 20 for WRF-based modeling
 
 #> I/O Controls
@@ -94,15 +94,15 @@
 #   setenv RUNLEN          240000
 
  if ( $BCON_TYPE == regrid ) then 
-    setenv CTM_CONC_1 /work/MOD3EVAL/sjr/CCTM_CONC_v53_intel18.0_2016_CONUS_test_${YYYYMMDD}.nc
+    setenv CTM_CONC_1 /work/MOD3EVAL/sjr/CCTM_CONC_v53beta2_intel17.0_HEMIS_cb6r3m_ae7_kmtbr_m3dry_2016_quarterly_av.nc
     setenv MET_CRO_3D_CRS /work/MOD3DATA/2016_12US1/met/mcip_v43_wrf_v381_ltng/METCRO3D.12US1.35L.${YYMMDD}
-    setenv MET_BDY_3D_FIN /work/MOD3DATA/SE53BENCH/met/mcip/METBDY3D_${YYMMDD}.nc
+    setenv MET_BDY_3D_FIN /work/MOD3DATA/SE53BENCH/met/mcipv4.5/METBDY3D_${YYMMDD}.nc
     setenv BNDY_CONC_1    "$OUTDIR/BCON_${VRSN}_${APPL}_${BCON_TYPE}_${YYYYMMDD} -v"
  endif
 
  if ( $BCON_TYPE == profile ) then
     setenv BC_PROFILE $BLD/avprofile_cb6r3m_ae7_kmtbr_hemi2016_v53beta2_m3dry_col051_row068.csv
-    setenv MET_BDY_3D_FIN /work/MOD3DATA/SE53BENCH/met/mcip/METBDY3D_${YYMMDD}.nc
+    setenv MET_BDY_3D_FIN /work/MOD3DATA/SE53BENCH/met/mcipv4.5/METBDY3D_${YYMMDD}.nc
     setenv BNDY_CONC_1    "$OUTDIR/BCON_${VRSN}_${APPL}_${BCON_TYPE}_${YYYYMMDD} -v"
  endif
 
