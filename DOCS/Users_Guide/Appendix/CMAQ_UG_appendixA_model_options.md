@@ -174,8 +174,6 @@ The following options are invoked by uncommenting the line in the CCTM build scr
 -   `build_twoway`<a id=build_twoway></a>  
     Uncomment to build WRF-CMAQ two way model with explicit meteorological-chemical feedbacks - to build a stand-alone CMAQ, comment this option out.  During run time, if you encounter any problem, please contact David Wong (wong.david@epa.gov) for specific instructions for building WRF-CMAQ.
 
--   `potvortO3`<a id=potvort03></a>   
-    Uncomment to build CMAQ with potential vorticity free-troposphere O<sub>3</sub> scaling. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#613-potential-vorticity-scaling) for futher information before invoking this option.
 
 The following configuration settings may have multiple options. Select one option in the CCTM build script.
 
