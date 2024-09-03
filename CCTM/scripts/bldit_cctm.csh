@@ -1,13 +1,13 @@
 #!/bin/csh -f
 
-# ======================= CCTMv5.4.X Build Script ========================= 
-# Usage: bldit.cctm >&! bldit.cctm.log                                   
+# ======================= CCTMv5.5.X Build Script ========================= 
+# Usage: bldit.cctm.csh <compiler> >&! bldit.cctm.log                                   
 # Requirements: I/O API & netCDF libraries, a Fortran compiler,               
 #               and MPI for multiprocessor computing                     
 #
 # To report problems or request help with this script/program:           
 #             http://www.cmascenter.org
-# ======================================================================= 
+# =========================================================================  
 
 #> Set Compiler Identity by User Input: Options -> intel | pgi | gcc
  if ( $#argv == 1 ) then
@@ -78,7 +78,7 @@ set make_options = "-j"                #> additional options for make command if
 #set ISAM_CCTM                         #> uncomment to compile CCTM with ISAM activated
                                        #>   comment out to use standard process
 
-#set DDM3D_CCTM                        #> uncomment to compile CCTM with DD3D activated
+#set DDM3D_CCTM                        #> uncomment to compile CCTM with DDM-3D activated
                                        #>   comment out to use standard process
 #> Two-way WRF-CMAQ 
 #set build_twoway                      #> uncomment to build WRF-CMAQ twoway; 
@@ -86,11 +86,11 @@ set make_options = "-j"                #> additional options for make command if
 
 #> Working directory and Version IDs
  if ( $?ISAM_CCTM ) then
-     set VRSN  = v54_ISAM             #> model configuration ID for CMAQ_ISAM
+     set VRSN  = v55_ISAM             #> model configuration ID for CMAQ_ISAM
  else if ( $?DDM3D_CCTM ) then
-     set VRSN = v54_DDM3D             #> model configuration ID for CMAQ_DDM
+     set VRSN = v55_DDM3D             #> model configuration ID for CMAQ_DDM
  else
-     set VRSN = v54                   #> model configuration ID for CMAQ
+     set VRSN = v55                   #> model configuration ID for CMAQ
  endif
  
  set EXEC  = CCTM_${VRSN}.exe          #> executable name
@@ -252,6 +252,10 @@ set make_options = "-j"                #> additional options for make command if
     set cpp_depmod = '-Dm3dry_opt'
  else if ($DepMod == stage) then
     set cpp_depmod = '-Dstage_opt'
+    if ( $?DDM3D_CCTM ) then
+       echo "*** DDM3D is not compatible with the STAGE deposition model"
+       exit 1
+    endif
  endif
 
 #> Set variables needed for multiprocessor and serial builds
@@ -769,6 +773,15 @@ set Cfile = ${Bld}/${CFG}.bld      # Config Filename
  endif
  mv ${CFG}.bld $Bld/${CFG}
 
+#> If a CRACMM mechanism is used and the compiler is gcc, remove trailing
+#>   comments in species namelist files (or else model will not run)
+ if ( ${Mechanism} =~ *cracmm* && ${compiler} == gcc ) then
+    echo "   >>> removing trailing comments from species namelists <<<"
+    sed -i 's/,\!.*/,/' $Bld/GC_${Mechanism}.nml
+    sed -i 's/,\!.*/,/' $Bld/AE_${Mechanism}.nml
+    sed -i 's/,\!.*/,/' $Bld/NR_${Mechanism}.nml
+ endif
+
 #> If Building WRF-CMAQ, download WRF, download auxillary files and build
 #> model
  if ( $?build_twoway ) then
@@ -784,7 +797,7 @@ set Cfile = ${Bld}/${CFG}.bld      # Config Filename
 
     cd $CMAQ_HOME/CCTM/scripts
   
-    # Downlad WRF repository from GitHub and put CMAQv5.4 into it
+    # Downlad WRF repository from GitHub and put CMAQv5.5 into it
     set WRF_BLD = BLD_WRF${WRF_VRSN}_CCTM_${VRSN}_${compilerString}
     setenv wrf_path ${CMAQ_HOME}/CCTM/scripts/${WRF_BLD}
     setenv WRF_CMAQ 1
