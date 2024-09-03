@@ -449,7 +449,7 @@ Sets if the CCTM will run in multi-processor or serial mode.
 -   `CTM_MOSAIC [default N]`<a id=CTM_MOSAIC></a>  
     Y/N setting to ouput land use specific deposition velocities and fluxes. This option is only available when using the STAGE deposition module. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#682-dry-depostion---stage) for further information.
 -   `CTM_STAGE_P22 [default: N]`<a id=CTM_FST></a>  
-   Y/N setting to select the land use specific implementation of the Pleim et al. 2022 and v5.4 M3Dry aerosol deposition parameterization in the STAGE deposition option. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#682-dry-depostion---stage) for further information.
+   Y/N setting to select the land use specific implementation of the Pleim et al. 2022 aerosol deposition parameterization in the STAGE deposition option. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#682-dry-depostion---stage) for further information.
 -   `CTM_STAGE_E20 [default: Y]`<a id=CTM_FST></a>  
    Y/N setting to select the land use specific and modal implementation of the Emerson et al. 2020 aerosol deposition parameterization in the STAGE deposition option. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#682-dry-depostion---stage) for further information.
 -   `CTM_STAGE_S22 [default: N]`<a id=CTM_FST></a>  
