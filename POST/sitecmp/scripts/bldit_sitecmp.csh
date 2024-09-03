@@ -1,6 +1,6 @@
 #! /bin/csh -f
 
-# ==================== SITECMPv5.4.X Build Script ===================== #
+# ==================== SITECMPv5.5.X Build Script ===================== #
 # Usage: bldit_sitecmp.csh >&! bldit_sitecmp.log                      #
 # Requirements: I/O API & netCDF libraries; a Fortran compiler        #
 #                                                                     #
@@ -46,7 +46,7 @@
 #===============================================================================
 
 #> User choices: working directory and application ID
- set VRSN     = v54                       #> model version
+ set VRSN     = v55                       #> model version
  set EXEC     = sitecmp_${VRSN}.exe        #> executable name for this application
  set CFG      = sitecmp_${VRSN}.cfg        #> BLDMAKE configuration file name
  setenv BLDER   ${CMAQ_HOME}/UTIL/bldmake/bldmake_${compilerString}.exe #> location of makefile builder executable 

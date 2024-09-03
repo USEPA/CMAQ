@@ -1,6 +1,6 @@
 #! /bin/csh -f
 
-# ================== CHEMMECHv5.4.x Build Script ==================== #
+# ================== CHEMMECHv5.5.x Build Script ==================== #
 # Usage: bldit_chemmech.csh >&! bldit_chemmech.log                    #
 # Requirements: None                                                  #
 #                                                                     #
@@ -57,7 +57,7 @@
 #===============================================================================
 
 #> User choices: working directory and application ID
- set VRSN     = v54                        #> model version
+ set VRSN     = v55                        #> model version
  setenv CFG     CHEMMECH_${VRSN}.cfg       #> BLDMAKE configuration file name!
  setenv CLEAR  "TRUE"                      #> delete build directory if exists
 
