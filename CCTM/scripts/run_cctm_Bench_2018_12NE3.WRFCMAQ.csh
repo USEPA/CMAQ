@@ -330,7 +330,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
 
   #> Initial conditions
   if ($NEW_START == true || $NEW_START == TRUE ) then
-     setenv ICFILE CCTM_ICON_${MECH}_12NE3_20180701.nc
+     setenv ICFILE CCTM_ICON_v54_${MECH}_12NE3_20180701.nc
      setenv INIT_MEDC_1 notused
 
      #> WRF-CMAQ Configuration
@@ -354,7 +354,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   endif
 
   #> Boundary conditions
-  set BCFILE = CCTM_BCON_${MECH}_12NE3_${YYYYMMDD}.nc
+  set BCFILE = CCTM_BCON_v54_${MECH}_12NE3_${YYYYMMDD}.nc
 
   #> Off-line photolysis rates 
   #set JVALfile  = JTABLE_${YYYYJJJ}
