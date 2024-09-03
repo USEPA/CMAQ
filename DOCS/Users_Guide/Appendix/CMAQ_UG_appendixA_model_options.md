@@ -154,7 +154,7 @@ The following options are invoked by uncommenting the line in the CCTM build scr
     Uncomment to use an existing BLDMAKE executable to build CCTM executable. If commented out, recompile BLDMAKE utility from the source.
 
 -   `CopySrc`<a id=CopySrc></a>  
-    Uncomment to copy the source code into a working build (BLD) directory. If commented, only the compiled object and executable files will be placed in the BLD directory.
+    Uncomment to copy the source code into a working build (BLD) directory. Currently, this option cannot be commented out to successfully compile the model. 
 
 -   `MakeFileOnly`<a id=MakeFileOnly></a>  
     Uncomment to build a Makefile but to not compile the executable. The Makefile will be located in the BLD directory and can subsequently be used to manually compile the executable by typing 'make' in the BLD direcotry. Comment out to both create a Makefile and compile the executable when invoking the bldit_cctm.csh script.
