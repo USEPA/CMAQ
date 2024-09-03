@@ -294,8 +294,8 @@ Calculate inline plume rise for large point sources using the Briggs algorithm a
 The environment variables listed below are invoked during execution of the CCTM and are set in the CCTM run script, run_cctm.csh located under the CCTM/scripts folder.
 
 -   `compiler [default: intel]`<a id=compiler></a>
--   `compilerVrsn [default: 13.1]`<a id=compilerVrsn></a>
--   `VRSN [default: v53]`<a id=VRSN></a>
+-   `compilerVrsn [default: Empty]`<a id=compilerVrsn></a>
+-   `VRSN [default: v55]`<a id=VRSN></a>
 -   `PROC [default: mpi]`<a id=PROC></a>   
 Sets if the CCTM will run in multi-processor or serial mode.
     - `mpi`  
@@ -304,13 +304,13 @@ Sets if the CCTM will run in multi-processor or serial mode.
     Run the CCTM in serial, single-processor mode.  
 -   `MECH [default: None]`<a id=MECH></a>  
     CMAQ chemical mechanism. Must match `Mechanism` variable setting in the CCTM build script. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#using-predefined-chemical-mechanisms) for further information.  
--   `APPL [default: SE53BENCH]`<a id=APPL></a>  
+-   `APPL [default: none]`<a id=APPL></a>  
     Application name used to label output binaries and log files.  
 -   `RUNID [default: $VRSN_compiler_APPL]`<a id=RUNID></a>  
     Run ID used to track version number, compiler, and application case name.  
 -   `BLD` <a id=BLD></a>  
     Directory path of the built CCTM executable  
--   `EXEC [default: CCTM_$APPL_$EXECID]`<a id=EXEC></a>  
+-   `EXEC [default: CCTM_$VRSN]`<a id=EXEC></a>  
     The name of the CCTM executable.  
 
 <a id=MPI_Config></a>
@@ -364,7 +364,7 @@ Sets if the CCTM will run in multi-processor or serial mode.
 -   `TSTEP [default: 010000]`<a id=TSTEP></a>   
     Simulation output time step interval (HHMMSS). Must be a mutiple of the run length. 
 -   `MET_TSTEP [default: time step of METCRO3D file]`<a id=MET_TSTEP></a>   
-    Meteorology input time step interval (HHMMSS). Users who wish to specify temporally coarser meteorology then their input meteorology may do so using this environment variable. The default value of MET_TSTEP is the time-step of the METCRO3D file (input meteorology data step). Users may however specify MET_TSTEP to be multiples of the input meterology time-step as long as they add up to the output time step (define as environmental variable TSTEP). Ex. If the meteorology files have data available at 10 minute intervals and a desired 1-hour output frequency, valid MET_STEPS are {10,20,30,30,60...} minutes. 
+    Meteorology input time step interval (HHMMSS). Users who wish to specify temporally coarser meteorology then their input meteorology may do so using this environment variable; this environmental variable is not included in our default runscripts. The default value of MET_TSTEP is the time-step of the METCRO3D file (input meteorology data step). Users may however specify MET_TSTEP to be multiples of the input meterology time-step as long as they add up to the output time step (define as environmental variable TSTEP). Ex. If the meteorology files have data available at 10 minute intervals and a desired 1-hour output frequency, valid MET_STEPS are {10,20,30,30,60...} minutes. 
 
 <a id=CCTM_Config_Options></a>
 
