@@ -272,7 +272,7 @@ setenv NOAH_VERSION Y
 ```
 Sets the correct soil hydrological properties and soil layer information needed to calculate soil NO emissions, NH<sub>3</sub> bidirectional exchange and O<sub>3</sub> deposition. These options are currently based on WRF 3.8.1 and earlier values for PX and CLM and WRF 4.0 for NOAH. If the land surface model is run with another look up table or parameterization, soil moisture will be constrained between saturation and residual water content from the parameterization in CMAQ. This is also the case for the m3dry deposition option, soil NO emissions, and windblown dust. 
 
-In CMAQ v5.4, the user can select one of three different aerosol deposition parameters within the STAGE deposition option. 
+In CMAQ v5.4 and beyond, the user can select one of three different aerosol deposition parameters within the STAGE deposition option. 
 
 ```
 setenv CTM_STAGE_P22 N       

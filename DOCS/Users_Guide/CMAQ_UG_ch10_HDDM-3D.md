@@ -182,7 +182,7 @@ Output Files Specific to DDM-3D Simulations
 
 
 ## 11.5 DDM-3D Benchmark Test Case
-See the [CMAQ-DDM-3D Benchmark Tutorial](Tutorials/CMAQ_UG_tutorial_DDM3D.md) for step-by-step instructions for running the 2 day benchmark case.  The input files for the CMAQv5.4 DDM-3D benchmark case are the same as the benchmark inputs for the base model. Output DDM files associated with the sample DDM control file `sensinput.2018_12NE3.dat` provided in this release package are included in the benchmark outputs for the base model.  
+See the [CMAQ-DDM-3D Benchmark Tutorial](Tutorials/CMAQ_UG_tutorial_DDM3D.md) for step-by-step instructions for running the 2 day benchmark case.  The input files for the DDM-3D benchmark case are the same as the benchmark inputs for the base model. Output DDM files associated with the sample DDM control file `sensinput.2018_12NE3.dat` provided in this release package are included in the benchmark outputs for the base model.  
 
 # 10.6 Summary
 

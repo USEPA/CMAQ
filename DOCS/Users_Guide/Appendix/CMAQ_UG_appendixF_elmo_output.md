@@ -19,11 +19,11 @@ Post-processing is still needed to concatenate days of output together onto mont
 <a id=FigureF-1></a> ![Figure F-1](../images/FigureF-1.png)
 **Figure F-1. Comprehensive list of diagnostic and aggregate variables currently available in ELMO. The table headings are just for presentation. They are not equivalent to ELMO Keywords, which are discussed in section F.4**
 
-Concentrations of scalar variables like NO, NO2, O3, ASO4J, and others are available for output to ELMO files as well. An aggregate variable for total VOC has not been provided for CMAQv5.4 because differences among chemical mechanisms are so significant. This capabality will be added in a future CMAQ version.
+Concentrations of scalar variables like NO, NO2, O3, ASO4J, and others are available for output to ELMO files as well. An aggregate variable for total VOC has not been provided because differences among chemical mechanisms are so significant. This capabality will be added in a future CMAQ version.
 
 ### F.2 Relationship to previous CMAQ versions
 Previously, aggregate parameters like PM<sub>2.5</sub> and Fine-mode Sulfate (ASO4I + ASO4J) were calculated offline through the COMBINE post-processing utility and documented via the species definition (SpecDef) input file for COMBINE, as depcited in Fig. F-2.  
-CMAQv5.4 maintains the CONC and ACONC files - they are available for use identically to CMAQv5.3.3. However, PMDIAG and APMDIAG files have been eliminated. 
+CMAQv5.5 maintains the CONC and ACONC files - they are available for use identically to CMAQv5.4. However, PMDIAG and APMDIAG files have been eliminated. 
 If a user would like to continue using the COMBINE workflow to aggregate PM variables, they may output necessary variables like FPM25ACC to ELMO files and use those with CONC output. 
 Alternatively, a user may elect to rely exclusively on ELMO output files alone and set the CONC_SPCS and AVG_CONC_SPCS variables in the CMAQ runscript to just one variable (e.g. O3) to minimize their I/O time and storage space footprint. 
 

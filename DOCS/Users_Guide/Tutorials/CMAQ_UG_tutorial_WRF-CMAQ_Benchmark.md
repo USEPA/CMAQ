@@ -25,7 +25,7 @@ The suggested hardware requirements for running the CMAQ Northeast Benchmark cas
 
 ## Installing WRF-CMAQ ##
 
-In the directory where you would like to install WRF-CMAQ, create the directory issue the following command to clone the EPA GitHub repository for CMAQv5.4:
+In the directory where you would like to install WRF-CMAQ, create the directory issuing the following command to clone the EPA GitHub repository for CMAQv5.5:
 
 ```
 git clone -b main https://github.com/USEPA/CMAQ.git CMAQ_REPO
@@ -45,7 +45,7 @@ In the top level of CMAQ_REPO, the bldit_project.csh script will automatically r
 
 In bldit_project.csh, modify the variable $CMAQ_HOME to identify the folder that you would like to install the CMAQ package under. For example:
 ```
-set CMAQ_HOME = [your_install_path]/CMAQv5.4
+set CMAQ_HOME = [your_install_path]/CMAQv5.5
 ```
 Now execute the script.
 ```
