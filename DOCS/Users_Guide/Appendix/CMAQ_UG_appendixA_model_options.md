@@ -233,7 +233,7 @@ Calculate inline plume rise for large point sources using the Briggs algorithm a
     -   `phot/table`  
     calculate clear-sky photolysis rates off-line using the CMAQ program JPROC; provide daily photolysis rate look-up tables to CCTM
 
--   `Mechanism: [default: cb05e51_ae6_aq`]<a id=Mechanism></a>  
+-   `Mechanism: [default: cb6r5_ae7_aq`]<a id=Mechanism></a>  
     Chemistry mechanism for gas, aerosol, and aqueous chemistry. See the [CMAQv5.3 Chemical Mechanisms Table](../../../CCTM/src/MECHS/README.md) for a listing of the mechanism choices that are available in CMAQv5.3. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#610-gas-phase-chemistry) for further information.
 -   `Tracer [default trac0] `<a id=Tracer></a>  
     Specifies tracer species. Invoking inert tracer species in CMAQ requires defining the tracers using namelist files and compiling the CMAQ programs with these files. The setting for this module corresponds to the directory name in the ``$CMAQ_HOME/CCTM/src/MECHS`` directory that contains the namelist files for the tracer configuration. The default setting does not use any tracers.
@@ -278,7 +278,7 @@ Calculate inline plume rise for large point sources using the Briggs algorithm a
      - `procan/pa`
 
 -   `ModPvO3: [default: pv_o3]`<a id=ModPvO3></a>
-    Potential vorticity parameterization for free-troposphere exchange of ozone. This option is configured using the potvorO3 variable in the CCTM build script. Do not change this module setting. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#613-potential-vorticity-scaling) for further information.
+    Potential vorticity parameterization for free-troposphere exchange of ozone. Do not change this module setting. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#613-potential-vorticity-scaling) for further information.
     - `pv_o3`
     
 <a id=run_cctm.csh></a>
