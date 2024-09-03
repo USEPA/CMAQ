@@ -272,8 +272,7 @@ Calculate inline plume rise for large point sources using the Briggs algorithm a
 -   `ModUtil: [default: util]`<a id=ModUtil></a>  
     CMAQ utility modules. Do not change this module setting.
     -  `util/util`
--
-`ModPa: [default: procan/pa]`<a id=ModPa></a>
+-`ModPa: [default: procan/pa]`<a id=ModPa></a>
     Process analysis is controlled in the CCTM run script. Do not change this module setting.
      - `procan/pa`
 
