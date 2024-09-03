@@ -98,7 +98,7 @@ GC_SPECIES_DATA =
 'CLO'          , 51.5  ,''   ,-1    ,''     ,-1     ,'VD_CLO'          , 1   ,'CLO'             , 1  ,''           ,''        ,'YES' ,''    ,''    ,'Yes',
 'FMCL'         , 64.5  ,''   ,-1    ,''     ,-1     ,'VD_FMCL'         , 1   ,'FMCL'            , 1  ,''           ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',
 'HCL'          , 36.5  ,''   ,-1    ,''     ,-1     ,'VD_HCL'          , 1   ,'HCL'             , 1  ,'HCL'        ,'HCL'     ,'Yes' ,'Yes' ,'Yes' ,'Yes',
-'CLNO2'        , 81.5  ,''   ,-1    ,''     ,-1     ,'VD_CLNO2'        , 1   ,'NITRYL_CHLORIDE' , 1  ,''           ,''        ,'Yes' ,'Yes' ,''    ,'Yes',
+'CLNO2'        , 81.5  ,''   ,-1    ,''     ,-1     ,'VD_CLNO2'        , 1   ,'NITRYL_CHLORIDE' , 1  ,''           ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',
 'CLNO3'        , 97.5  ,''   ,-1    ,''     ,-1     ,'VD_CLNO3'        , 1   ,'CLNO3'           , 1  ,'CLNO3'      ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',
 'SESQ'         ,204.0  ,''   ,-1    ,''     ,-1     ,'VD_SESQ'         , 1   ,'PINENE'          , 1  ,''           ,''        ,'Yes' ,'Yes' ,''    ,'Yes',
 'SESQRXN'      ,204.0  ,''   ,-1    ,''     ,-1     ,''                ,-1   ,''                ,-1  ,'SESQRXN'    ,''        ,''    ,''    ,''    ,''   ,

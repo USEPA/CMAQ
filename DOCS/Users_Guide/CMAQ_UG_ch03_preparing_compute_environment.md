@@ -13,7 +13,7 @@ In this chapter the user will learn basic hardware and software requirements to 
 
 ## 3.2 Hardware Requirements
 
-The suggested hardware requirements for running the CMAQ Southeast Benchmark case on a Linux workstation are:
+The suggested hardware requirements for running the CMAQ Northeast Benchmark case on a Linux workstation are:
 
 -   8 processors
 -   4 GB RAM
@@ -21,7 +21,7 @@ The suggested hardware requirements for running the CMAQ Southeast Benchmark cas
 
 However, to use CMAQ in a production environment where multiple iterations of the model will be executed for different spatial domains and/or emissions control strategies, either a cluster of multiprocessor PCs on a high-end network or an expandable rack-mounted Linux server is recommended.
 
-For example, the CMAQ team at the EPA uses a Dell cluster. The cluster consists 128 nodes and each node contain two Intel Xeon E5-2697A v4 16-core processors (with a total of 4096 processors), 256 GB memory (8 GB/core), EDR InfiniBand interconnect and runs on Red Hat Enterprise Linux 7 operating system.
+For example, the CMAQ team at the EPA uses a Dell cluster. The cluster consists 128 nodes and each node contain two Intel Xeon E5-2697A v4 16-core processors (with a total of 4096 processors), 256 GB memory (8 GB/core), EDR InfiniBand interconnect and runs on Red Hat Enterprise Linux 8 operating system.
 
 Table 3-1 provides a general snapshot of three different CMAQ setups for a day of simulation conducted at the EPA. The output only included: the concentration file (CONC), the average concentration file (ACONC), 3-D average concentration file (CGRID), hourly dry deposition file (DRYDEP), and wet deposition from the clouds file (WETDEP1). The run time and domain size are dictated by the system hardware. Furthermore, the run time may vary due to compiler choice and system load.
 
@@ -48,14 +48,14 @@ To build the CMAQ program suite, users must install these libraries in the order
 |**Software**|**Versions**|
 |:--------------:|:----:|
 | Intel Compiler | 18.0, 21.4  | 
-| GNU Compiler | 6.1.0, 9.1 | 
-| PGI Compiler | 17.4, 21.9  |
+| GNU Compiler | 6.1.0, 9.1, 12.2 | 
+| PGI Compiler | 17.4, 21.9, 22.11 |
 
-**NOTE: The CMAQ team recommends using a single compiler suite when building these libraries. Mixing compiler suites when building these libraries can cause unexpected behavior (e.g., mixing intel 18.0 to build netCDF C libraries and gcc 6.1.0 to build netCDF fortran libraries is not going to work).** 
+**NOTE: The CMAQ team recommends using a single compiler suite when building these libraries. Mixing compiler suites when building these libraries can cause unexpected behavior (e.g., mixing intel 18.0 to build netCDF C libraries and gcc 6.1.0 to build netCDF fortran libraries may lead to compile time errors).** 
 
 ### 3.3.1 Message Passing Interface (MPI) library
 
-CMAQ is a MPI based program that runs on parallel programming platforms. Various flavour of MPI libraries are available for users to choose. CMAQ has been tested with the [OpenMPI](https://www.open-mpi.org), [MPICH](https://www.mpich.org/downloads), [MVAPICH2](http://mvapich.cse.ohio-state.edu), and the [Intel MPI](https://software.intel.com/en-us/intel-mpi-library) libraries. The choice of MPI library may affect model run time. For example, if you have the Intel compiler suite available on your system, choose Intel MPI or if your system is using InfiniBand (IB) interconnects, choose MVAPICH2 which is tailored for IB.
+CMAQ is primarily a MPI based programming system that runs on parallel programming platforms. Many programs within the CMAQ system require a flavor of MPI installed on your machine. CMAQ has been tested with the [OpenMPI](https://www.open-mpi.org), [MPICH](https://www.mpich.org/downloads), [MVAPICH2](http://mvapich.cse.ohio-state.edu), and the [Intel MPI](https://software.intel.com/en-us/intel-mpi-library) libraries. The choice of MPI library may affect model run time. For example, if you have the Intel compiler suite available on your system, you may want to choose Intel MPI or if your system is using InfiniBand (IB) interconnects, choose MVAPICH2 which is tailored for IB.
 
 Users can download the MPI library source code from one of these sites and follow provided procedures for proper installation. **Versions Tested: IntelMPI 2017.0, 21.4 | MPICH 3.3.1 | MVAPICH2 2.3.1 | OpenMPI 2.1.0, 4.1.4**
 
@@ -67,7 +67,7 @@ Most of the CMAQ input files and all output files are in netCDF format (the rest
 
 The I/O API library provides an interface between the netCDF libraries and CMAQ, as well as WRF-CMAQ, to handle input and output (I/O) calls throughout the CMAQ code. The version of the I/O API library supported with CMAQv5.3.2+ (version 3.2 tagged 20200828) is available for download at https://github.com/cjcoats/ioapi-3.2/releases/tag/20200828. Users should note that the I/O API library requires netCDF files to be adhere to a strict formatting guidelines that can be found in the I/O API documentation. For simplicity, files following the IOAPI-netCDF formatting guidelines will be called "IOAPI FILES" from now on. **Versions Tested: IOAPI 3.2 tagged 20200828**
 
-The general steps for installation of I/O API libraries on a Linux system (with C-shell and GNU compilers) are below. These instructions are an example and we recommend using the latest release available at the time of your CMAQ installation.
+The general steps for installation of I/O API libraries on a Linux system (with C-shell and GNU compilers) are below. These instructions are an example. 
 
 The following is a procedure to install "basic" I/O API libraries (this is based on gfortran compiler, for other compilers, look for corresponding Linux2_x86_64*):
 
@@ -84,6 +84,9 @@ cd ioapi-3.2-20200828
 setenv BIN Linux2_x86_64gfort
 setenv BASEDIR $cwd
 setenv CPLMODE nocpl
+cp Makefile.template Makefile
+touch ioapi/Makefile
+touch m3tools/Makefile
 ```
 
 Edit the top level Makefile with the following steps:
@@ -117,6 +120,7 @@ There is also an I/O API version 3.2 "large" that is designed for applications w
 cp -r ioapi-3.2-20200828 ioapi-3.2-20200828_large
 cd ioapi-3.2-20200828_large/ioapi/fixed_src
 cp ../PARMS3-LARGE.EXT ./PARMS3.EXT
+mv ../PARMS3-LARGE.EXT ../PARMS3.EXT
 ```
 
 This version is also available as a zip file from the following address:

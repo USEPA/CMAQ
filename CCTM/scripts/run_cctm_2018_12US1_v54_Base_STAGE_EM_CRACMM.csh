@@ -157,8 +157,6 @@ setenv CTM_WB_DUST N         #> use inline windblown dust emissions [ default: Y
 setenv CTM_LTNG_NO Y         #> turn on lightning NOx [ default: N ]
 setenv KZMIN Y               #> use Min Kz option in edyintb [ default: Y ], 
                              #>    otherwise revert to Kz0UT
-setenv CTM_FST N             #> mosaic method to get land-use specific stomatal flux 
-                             #>    [ default: N ]
 setenv PX_VERSION Y          #> WRF PX LSM
 setenv CLM_VERSION N         #> WRF CLM LSM
 setenv NOAH_VERSION N        #> WRF NOAH LSM

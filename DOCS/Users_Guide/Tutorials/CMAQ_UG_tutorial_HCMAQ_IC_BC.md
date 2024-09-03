@@ -29,7 +29,7 @@ https://drive.google.com/file/d/15Vt6f5WuyN8RiLRjTlKeQUHjYbZ6QCrA/view?usp=shari
 
 **Daily average hemispheric CMAQ output**
 
-EPA distributes a series of monthly files containing daily average 3D species concentrations from a hemispheric CMAQ simulation performed for 2002 - 2017 over the northern hemisphere as part of the EPA's Air Quality Time Series (EQUATES) Project. These simulations were performed with a modified version of CMAQv5.3.2 using the following configuration:  
+EPA distributes a series of monthly files containing daily average 3D species concentrations from a hemispheric CMAQ simulation performed for 2002 - 2019 over the northern hemisphere as part of the EPA's Air Quality Time Series (EQUATES) Project. These simulations were performed with a modified version of CMAQv5.3.2 using the following configuration:  
 
 - Model version: CMAQv5.3.2 with modifications to halogen chemistry and O3-PV scaling  
 - Grid spacing: 108 x 108 km on a polar stereographic grid covering the northern hemisphere  
@@ -44,11 +44,11 @@ Metadata and DOI for EQUATES data:  https://doi.org/10.15139/S3/F2KJSK
 
 ### STEP 2 (optional): Time shift the downloaded seasonal or daily average hemispheric CMAQ output files </strong>
 
-If the time period for which initial and boundary conditions are to be generated does not fall between October 16, 2015 12:00 GMT and January 16, 2017 0:00 GMT when using the seasonal average file or between January 1, 2002 00:00 GMT and December 31, 2017 00:00 GMT when using the daily average files, the time stamps in the downloaded file(s) need to be adjusted to encompass the desired time period. This can be accomplished using a tool like `m3tshift` that is part of the `m3tools` utilities released with [I/O API](https://www.cmascenter.org/ioapi/). 
+If the time period for which initial and boundary conditions are to be generated does not fall between October 16, 2015 12:00 GMT and January 16, 2017 0:00 GMT when using the seasonal average file or between January 1, 2002 00:00 GMT and December 31, 2019 00:00 GMT when using the daily average files, the time stamps in the downloaded file(s) need to be adjusted to encompass the desired time period. This can be accomplished using a tool like `m3tshift` that is part of the `m3tools` utilities released with [I/O API](https://www.cmascenter.org/ioapi/). 
 
 The seasonal average concentration file contains six-time stamps (10/16/2015 12:00, 1/16/2016 0:00, 4/16/2016 12:00, 7/17/2016 0:00, 10/16/2016 12:00, and 1/16/2017 0:00) that represent fall, winter, spring, summer, fall, and winter seasonal average values, respectively. Fall was defined as September 1 - November 30, 2016, winter was defined as January 1 - February 29 and December 1 - December 31, 2016, spring was defined as March 1 - May 31, 2016, and summer was defined as June 1- August 31, 2016. Note that the concentration values associated with the first-time stamp are identical to those associated with the fifth time stamp since both represent fall, and the concentration values associated with the second time stamp are identical to those associated with the sixth time stamp since both represent winter.
 
-The monthly files with daily average concentrations contain daily (i.e. 24:00 hour) time stamps from 00:00 GMT on the first day of the month to 00:00 GMT on the first day of the following month. For example, the file `CCTM_CONC_v532_intel18.0_CMAQv53_TS_108NHEMI_201006_dailyav.nc` contains 31 time stamps from 6/1/2010 00:00 GMT to 7/1/2010 00:00 GMT with a time step of 24:00 hours. Note that the file for December 2017 only contains 31 time stamps, i.e. it does not contain values for 1/1/2018 00:00 GMT.
+The monthly files with daily average concentrations contain daily (i.e. 24:00 hour) time stamps from 00:00 GMT on the first day of the month to 00:00 GMT on the first day of the following month. For example, the file `CCTM_CONC_v532_intel18.0_CMAQv53_TS_108NHEMI_201006_dailyav.nc` contains 31 time stamps from 6/1/2010 00:00 GMT to 7/1/2010 00:00 GMT with a time step of 24:00 hours. Note that the file for December 2019 only contains 31 time stamps, i.e. it does not contain values for 1/1/2020 00:00 GMT.
 
 
 A sample script using `m3tshift` to shift all of the six-time stamps from the seasonal average concentration file back by two years to support the generation of initial and boundary conditions with ICON and BCON for a modeling period between October 16, 2013 12:00 GMT and January 17, 2015 0:00 GMT is shown below. Analogous scripts could be created to shift the time stamps in one or more of the monthly files with daily average concentrations to the desired time period outside the range covered by these files.
@@ -93,7 +93,7 @@ EOF
 
 ### STEP 3: (optional): Map to a different chemical mechanism </strong>
 
-If a chemical mechanism other than cb6r3_ae7_aq, cb6r5_ae7_aq, cb6r5_ae7_aqkmt2, or cb6r5m_ae7_aq will be used for the regional-scale CMAQ simulations, the species in the downloaded file need to be mapped to that other chemical mechanism. An example script for using the `combine` program to map from cb6r3m_ae7_kmtbr to racm_ae6_aq, racm2_ae6_aq, saprc07tc_ae6_aq, saprc07tic_ae7i_aq, or craccm1_aq is provided in a directory alongside the BCON and ICON [source code](../../../PREP/bcon/map2mech). Species definition files used for the mechanism mapping are also provided in that directory.
+If a chemical mechanism other than cb6r3_ae7_aq, cb6r5_ae7_aq, cb6r5_ae7_aqkmt2, or cb6r5m_ae7_aq will be used for the regional-scale CMAQ simulations, the species in the downloaded file need to be mapped to that other chemical mechanism. An example script for using the `combine` program to map from cb6r3m_ae7_kmtbr to racm_ae6_aq, racm2_ae6_aq, saprc07tc_ae6_aq, saprc07tic_ae7i_aq, craccm1_aq, or craccm2 is provided in a directory alongside the BCON and ICON [source code](../../../PREP/bcon/map2mech). Species definition files used for the mechanism mapping are also provided in that directory.
 
 ### STEP 4: Compile the ICON and BCON executables</strong>
 

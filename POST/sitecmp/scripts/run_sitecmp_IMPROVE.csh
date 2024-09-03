@@ -1,7 +1,7 @@
 #! /bin/csh -f
 
 # ===================== SITECMP_v5.5.X Run Script =====================
-# Usage: run_sitecmp_IMPROVED.csh >&! sitecmp_IMPROVE.log &
+# Usage: run_sitecmp_IMPROVE.csh >&! sitecmp_IMPROVE.log &
 #
 # To report problems or request help with this script/program:
 #             http://www.epa.gov/cmaq    (EPA CMAQ Website)
@@ -154,18 +154,17 @@
 #> stat_id, lon, and lat (case insensitive)
 #> The column headings for the optional variables need to be
 #> gmt_offset, state, county, and elevation (case insensitive)
-#> This file can be downloaded from
-#> https://github.com/USEPA/AMET/tree/master/obs/AQ/site_metadata_files
+#> See the README.md file in this folder for the information on 
+#> where to download this file.
  setenv SITE_FILE IMPROVE_full_site_list.csv
 #> On EPA system:
 #  setenv SITE_FILE /work/MOD3EVAL/aq_obs/routine/site_metadata_files/IMPROVE_full_site_list.csv
 
 
 #> input table containing site-id, time-period, and data fields
-#> AQS obs data in the format needed for sitecmp are available 
-#> from the CMAS Center Data clearinghouse under the heading "2000-2014 North American Air Quality Observation Data":
-#> https://www.cmascenter.org/download/data.cfm
-#> Hourly AQS observations are located in AMET12_OBSDATA_YYYY.tar.gz for year YYYY.
+#> AQS obs data in the format needed for sitecmp are available online.
+#> See the README.md file in this folder for the information on 
+#> where to download this file.
  setenv IN_TABLE IMPROVE_data_2016.csv
 #> One EPA system:
 #  setenv IN_TABLE /work/MOD3EVAL/aq_obs/routine/2016/IMPROVE_data_2016.csv

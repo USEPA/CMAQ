@@ -56,6 +56,11 @@
 
 # =====================================================================
 #> COMBINE Configuration Options
+#> The purpose of this example run script is to create two output files
+#> (COMBINE_ACONC and COMBINE_DEP) often used for model evaluation 
+#> purposes. This is accomplished by setting up two loops, each with
+#> its own definitions of SPECIES_DEF and day-specific input files before 
+#> calling the COMBINE executable. 
 # =====================================================================
 
 #> Set Start and End Days for looping
@@ -71,7 +76,9 @@
 
 
 # =====================================================================
-#> Begin Loop Through Simulation Days to Create ACONC File
+#> Begin First Loop Through Simulation Days to Create COMBINE_ACONC File
+#> Set up the SPECIES_DEF, INFILEx, and OUTFILE environment variables
+#> for COMBINE_ACONC processing
 # =====================================================================
 
 #> Set the species definition file for concentration species.
@@ -117,7 +124,9 @@
 
 
 # =====================================================================
-#> Begin Loop Through Simulation Days to Create DEP File
+#> Begin Second Loop Through Simulation Days to Create COMBINE_DEP File
+#> Set up the SPECIES_DEF, INFILEx, and OUTFILE environment variables
+#> for COMBINE_DEP processing
 # =====================================================================
 
 #> Set the species definition file for concentration species.

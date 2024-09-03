@@ -7,7 +7,7 @@
 #
 # To report problems or request help with this script/program:           
 #             http://www.cmascenter.org
-# ======================================================================= 
+# =========================================================================  
 
 #> Set Compiler Identity by User Input: Options -> intel | pgi | gcc
  if ( $#argv == 1 ) then
@@ -78,7 +78,7 @@ set make_options = "-j"                #> additional options for make command if
 #set ISAM_CCTM                         #> uncomment to compile CCTM with ISAM activated
                                        #>   comment out to use standard process
 
-#set DDM3D_CCTM                        #> uncomment to compile CCTM with DD3D activated
+#set DDM3D_CCTM                        #> uncomment to compile CCTM with DDM-3D activated
                                        #>   comment out to use standard process
 #> Two-way WRF-CMAQ 
 #set build_twoway                      #> uncomment to build WRF-CMAQ twoway; 
@@ -252,6 +252,10 @@ set make_options = "-j"                #> additional options for make command if
     set cpp_depmod = '-Dm3dry_opt'
  else if ($DepMod == stage) then
     set cpp_depmod = '-Dstage_opt'
+    if ( $?DDM3D_CCTM ) then
+       echo "*** DDM3D is not compatible with the STAGE deposition model"
+       exit 1
+    endif
  endif
 
 #> Set variables needed for multiprocessor and serial builds

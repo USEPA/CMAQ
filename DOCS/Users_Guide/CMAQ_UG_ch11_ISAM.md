@@ -17,18 +17,30 @@ Answering this type of question often requires running an air quality model twic
 
 Alternatively, running CMAQ with ISAM enabled allows the user the ability to calculate source attribution of a large number of sources directly by the model in one simulation.
 
-Note: While full model species list apportionment is in development, currently ISAM is limited to the following species classes in CMAQ:
+Full model species list apportionment is currently availabe in CMAQ-ISAM, but can be specified the following Tag Classes (depending on base model configuration):
 
 ```
-SULFATE   - ASO4J, ASO4I, SO2, SULF, SULRXN       
-NITRATE   - ANO3J, ANO3I, HNO3, ANO3J, ANO3I, HNO3, NO, NO2, NO3, HONO, N2O5, PNA, PAN, PANX, NTR1, NTR2, INTR           
-AMMONIUM  - ANH4J, ANH4I, NH3       
-EC        - AECJ, AECI          
-OC        - APOCI, APOCJ, APNCOMI, APNCOMJ                
-VOC       - Various species depending on mechanism. Now includes CO. (see CCTM/src/isam/SA_DEFN.F for complete list)      
-PM25_IONS - ANAI, ANAJ, AMGJ, AKJ, ACAJ, AFEJ, AALJ, ASIJ, ATIJ, AMNJ, AOTHRI, AOTHRJ      
-OZONE     - all NITRATE species + all VOC species     
-CHLORINE  - ACLI, ACLJ, HCL      
+SULFATE      - ASO4J, ASO4I, SO2, SULF, SULRXN       
+NITRATE      - ANO3J, ANO3I, HNO3, ANO3J, ANO3I, HNO3, NO, NO2, NO3, HONO, N2O5, PNA, PAN, PANX, NTR1, NTR2, INTR           
+AMMONIUM     - ANH4J, ANH4I, NH3       
+EC           - AECJ, AECI          
+OA_TOT       - Organic aerosol species
+VOC          - Various species depending on mechanism. Now includes CO. (see CCTM/src/isam/SA_DEFN.F for complete list)      
+PM_IONS      - ANAI, ANAJ, AMGJ, AKJ, ACAJ, AFEJ, AALJ, ASIJ, ATIJ, AMNJ, AOTHRI, AOTHRJ      
+OZONE        - all NITRATE species + all VOC species     
+CHLORINE     - ACLI, ACLJ, HCL
+NVPOA        - Non-Volatile Primary Organic Aerosol (APOC, APNCOM)
+PM_TOT       - all PM species
+HAP_GAS      - Gaseous Hazardous Air Pollutants
+HAP_AERO     - Aerosol Hazardous Air Pollutants
+HAP_TOT      - HAP_GAS and HAP_AERO
+URBAN_TOXICS - Classic Urban Air Toxics 
+PAH_TEQ      - NonReactive PAH tracers
+BENAPYRENE   - Gaseous and aerosol Benzo[a]Pyrene
+MERCURY      - Gaseous and aeroosl Mercury species
+ALL          - All model species
+
+    
 ```
 
 ## 11.2 Build Instructions
