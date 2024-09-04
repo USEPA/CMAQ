@@ -104,7 +104,7 @@ Download the CMAQ two day reference input and output data for the cb6r5 mechanis
   - [Tips to download data from CMAS Data Warehouse](https://docs.google.com/document/d/1e7B94zFkbKygVWfrhGwEZL51jF4fGXGXZbvi6KzXYQ4)
   - Text files are included that provide a list of the files in the benchmark input and output datasets.
 
-The benchmark data is also available from the [CMAS Center Data Warehouse Amazon Web Services S3 Bucket](https://cmas-cmaq.s3.amazonaws.com/index.html). 
+The benchmark data is also available from the [CMAS Center Data Warehouse Amazon Web Services S3 Bucket](https://cmaq-release-benchmark-data-for-easy-download.s3.amazonaws.com/v5_4/CMAQv5.4_2018_12NE3_Benchmark_2Day_Input.tar.gz). 
 
 Copy the data to `$CMAQ_DATA`. Navigate to the `$CMAQ_DATA` directory, unzip and untar the two day benchmark input and output files:
 
