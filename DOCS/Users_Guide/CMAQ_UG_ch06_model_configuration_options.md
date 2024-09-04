@@ -303,7 +303,7 @@ Mapping rules are prescribed in the DESID Chemical Mapping Control File, and def
 If the user does not provide a Chemical Mapping Control File or the path to the file in the RunScript is incorrect, then zero emissions will be assumed for every stream. However, the configuration of various other scientific options in the RunScript  (e.g. correcting for biderectional emission of fertilizer emissions) may conspire to create non-physical values for the emission rates. If the user would like all emissions set to 0, it is recommended that they use the syntax outlined in Appendix B and the DESID tutorial to do so.  
 
 <a id=Figure6-2></a>  
-![Figure 6-2](images/Figure6-1.png)  
+![Figure 6-2](images/Figure6-2.png)  
 **Figure 6-2. Offline and online emission streams pass pollutant emission rates to the core CMAQ model through the DESID interface.**
 
 CMAQv5.3 introduced DESID so that the process of mapping emissions species to CMAQ species would be more transparent and flexible (see [Appendix B: Emission Control with DESID](Appendix/CMAQ_UG_appendixB_emissions_control.md)). In fact, users can now toggle, modify, and augment emissions from all available streams in order to confidently customize their simulations to the science or policy questions they are asking CMAQ to help answer. For tutorials covering specific tasks, please see the [DESID tutorial page](Tutorials/CMAQ_UG_tutorial_emissions.md).  
