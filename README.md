@@ -44,9 +44,13 @@ a working directory on your server:
 git clone -b main https://github.com/USEPA/CMAQ.git CMAQ_REPO
 ```
 ### CMAQv5.4 Bug Fixes
-Users who wish to adopt the most recent bugfixes or minor updates to v5.4 should review the tagged versions of v5.4+.   
+Users who wish to adopt the most recent bugfixes or minor updates to v5.4 should review the tagged versions of v5.4+:  
 **[Record of changes to CMAQv5.4](https://github.com/USEPA/CMAQ/wiki/CMAQ-Bugfix-Branch#record-of-changes-to-cmaqv54)**
 
+To clone code with all of the CMAQv5.4 bug fixes issue the following command from within a working directory on your server:
+```
+ git clone -b CMAQv5.4.0.4_9April2024 https://github.com/USEPA/CMAQ.git CMAQ_5.4.0.4
+```
 
 ## CMAQ Repository Guide
 Source code and scripts are organized as follows:
