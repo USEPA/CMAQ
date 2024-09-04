@@ -1,13 +1,13 @@
 #!/bin/csh -f
 
 # ======================= CCTMv5.5.X Build Script ========================= 
-# Usage: bldit.cctm >&! bldit.cctm.log                                   
+# Usage: bldit_cctm.csh <compiler> >&! bldit.cctm.log                          
 # Requirements: I/O API & netCDF libraries, a Fortran compiler,               
 #               and MPI for multiprocessor computing                     
 #
 # To report problems or request help with this script/program:           
 #             http://www.cmascenter.org
-# ======================================================================= 
+# =========================================================================  
 
 #> Set Compiler Identity by User Input: Options -> intel | pgi | gcc
  if ( $#argv == 1 ) then
@@ -252,6 +252,10 @@ set make_options = "-j"                #> additional options for make command if
     set cpp_depmod = '-Dm3dry_opt'
  else if ($DepMod == stage) then
     set cpp_depmod = '-Dstage_opt'
+    if ( $?DDM3D_CCTM ) then
+       echo "*** DDM3D is not compatible with the STAGE deposition model"
+       exit 1
+    endif
  endif
 
 #> Set variables needed for multiprocessor and serial builds
@@ -768,6 +772,15 @@ set Cfile = ${Bld}/${CFG}.bld      # Config Filename
     mv $Bld/${CFG} $Bld/${CFG}.old
  endif
  mv ${CFG}.bld $Bld/${CFG}
+
+#> If a CRACMM mechanism is used and the compiler is gcc, remove trailing
+#>   comments in species namelist files (or else model will not run)
+ if ( ${Mechanism} =~ *cracmm* && ${compiler} == gcc ) then
+    echo "   >>> removing trailing comments from species namelists <<<"
+    sed -i 's/,\!.*/,/' $Bld/GC_${Mechanism}.nml
+    sed -i 's/,\!.*/,/' $Bld/AE_${Mechanism}.nml
+    sed -i 's/,\!.*/,/' $Bld/NR_${Mechanism}.nml
+ endif
 
 #> If Building WRF-CMAQ, download WRF, download auxillary files and build
 #> model
