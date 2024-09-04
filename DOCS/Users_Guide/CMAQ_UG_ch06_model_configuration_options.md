@@ -287,6 +287,7 @@ CTM_STAGE_P22 is a tiled/land use specific [Pleim et al. (2022)](https://doi.org
 
 The interaction of iodide in seawater with atmospheric ozone can enhance ozone deposition over seawater. CMAQ contains a scheme for enhanced ozone deposition over seawater ([Sarwar et al,. 2016](https://doi.org/10.1016/j.atmosenv.2016.06.072)). If the CTM_OCEAN_CHEM flag is set to N, then the model will not calculate the enhanced ozone deposition over seawater.  
 
+<a id=6.9_Emissions></a>
 ## 6.9 Emissions
 
 <!-- BEGIN COMMENT -->
