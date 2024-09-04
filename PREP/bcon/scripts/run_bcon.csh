@@ -96,13 +96,13 @@
  if ( $BCON_TYPE == regrid ) then 
     setenv CTM_CONC_1 /work/MOD3EVAL/sjr/CCTM_CONC_v53beta2_intel17.0_HEMIS_cb6r3m_ae7_kmtbr_m3dry_2016_quarterly_av.nc
     setenv MET_CRO_3D_CRS /work/MOD3DATA/2016_12US1/met/mcip_v43_wrf_v381_ltng/METCRO3D.12US1.35L.${YYMMDD}
-    setenv MET_BDY_3D_FIN /work/MOD3DATA/SE53BENCH/met/mcip/METBDY3D_${YYMMDD}.nc
+    setenv MET_BDY_3D_FIN /work/MOD3DATA/SE53BENCH/met/mcipv4.5/METBDY3D_${YYMMDD}.nc
     setenv BNDY_CONC_1    "$OUTDIR/BCON_${APPL}_${BCON_TYPE}_${YYYYMMDD} -v"
  endif
 
  if ( $BCON_TYPE == profile ) then
     setenv BC_PROFILE $BLD/avprofile_cb6r3m_ae7_kmtbr_hemi2016_v53beta2_m3dry_col051_row068.csv
-    setenv MET_BDY_3D_FIN /work/MOD3DATA/SE53BENCH/met/mcip/METBDY3D_${YYMMDD}.nc
+    setenv MET_BDY_3D_FIN /work/MOD3DATA/SE53BENCH/met/mcipv4.5/METBDY3D_${YYMMDD}.nc
     setenv BNDY_CONC_1    "$OUTDIR/BCON_${APPL}_${BCON_TYPE}_${YYYYMMDD} -v"
  endif
 
