@@ -154,7 +154,7 @@ The following options are invoked by uncommenting the line in the CCTM build scr
     Uncomment to use an existing BLDMAKE executable to build CCTM executable. If commented out, recompile BLDMAKE utility from the source.
 
 -   `CopySrc`<a id=CopySrc></a>  
-    Uncomment to copy the source code into a working build (BLD) directory. If commented, only the compiled object and executable files will be placed in the BLD directory.
+    Uncomment to copy the source code into a working build (BLD) directory. Currently, this option cannot be commented out to successfully compile the model. 
 
 -   `MakeFileOnly`<a id=MakeFileOnly></a>  
     Uncomment to build a Makefile but to not compile the executable. The Makefile will be located in the BLD directory and can subsequently be used to manually compile the executable by typing 'make' in the BLD direcotry. Comment out to both create a Makefile and compile the executable when invoking the bldit_cctm.csh script.
@@ -174,8 +174,6 @@ The following options are invoked by uncommenting the line in the CCTM build scr
 -   `build_twoway`<a id=build_twoway></a>  
     Uncomment to build WRF-CMAQ two way model with explicit meteorological-chemical feedbacks - to build a stand-alone CMAQ, comment this option out.  During run time, if you encounter any problem, please contact David Wong (wong.david@epa.gov) for specific instructions for building WRF-CMAQ.
 
--   `potvortO3`<a id=potvort03></a>   
-    Uncomment to build CMAQ with potential vorticity free-troposphere O<sub>3</sub> scaling. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#613-potential-vorticity-scaling) for futher information before invoking this option.
 
 The following configuration settings may have multiple options. Select one option in the CCTM build script.
 
@@ -235,7 +233,7 @@ Calculate inline plume rise for large point sources using the Briggs algorithm a
     -   `phot/table`  
     calculate clear-sky photolysis rates off-line using the CMAQ program JPROC; provide daily photolysis rate look-up tables to CCTM
 
--   `Mechanism: [default: cb05e51_ae6_aq`]<a id=Mechanism></a>  
+-   `Mechanism: [default: cb6r5_ae7_aq`]<a id=Mechanism></a>  
     Chemistry mechanism for gas, aerosol, and aqueous chemistry. See the [CMAQv5.3 Chemical Mechanisms Table](../../../CCTM/src/MECHS/README.md) for a listing of the mechanism choices that are available in CMAQv5.3. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#610-gas-phase-chemistry) for further information.
 -   `Tracer [default trac0] `<a id=Tracer></a>  
     Specifies tracer species. Invoking inert tracer species in CMAQ requires defining the tracers using namelist files and compiling the CMAQ programs with these files. The setting for this module corresponds to the directory name in the ``$CMAQ_HOME/CCTM/src/MECHS`` directory that contains the namelist files for the tracer configuration. The default setting does not use any tracers.
@@ -274,13 +272,13 @@ Calculate inline plume rise for large point sources using the Briggs algorithm a
 -   `ModUtil: [default: util]`<a id=ModUtil></a>  
     CMAQ utility modules. Do not change this module setting.
     -  `util/util`
--
-`ModPa: [default: procan/pa]`<a id=ModPa></a>
+
+-  `ModPa: [default: procan/pa]`<a id=ModPa></a>
     Process analysis is controlled in the CCTM run script. Do not change this module setting.
      - `procan/pa`
 
 -   `ModPvO3: [default: pv_o3]`<a id=ModPvO3></a>
-    Potential vorticity parameterization for free-troposphere exchange of ozone. This option is configured using the potvorO3 variable in the CCTM build script. Do not change this module setting. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#613-potential-vorticity-scaling) for further information.
+    Potential vorticity parameterization for free-troposphere exchange of ozone. Do not change this module setting. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#613-potential-vorticity-scaling) for further information.
     - `pv_o3`
     
 <a id=run_cctm.csh></a>
@@ -296,8 +294,8 @@ Calculate inline plume rise for large point sources using the Briggs algorithm a
 The environment variables listed below are invoked during execution of the CCTM and are set in the CCTM run script, run_cctm.csh located under the CCTM/scripts folder.
 
 -   `compiler [default: intel]`<a id=compiler></a>
--   `compilerVrsn [default: 13.1]`<a id=compilerVrsn></a>
--   `VRSN [default: v53]`<a id=VRSN></a>
+-   `compilerVrsn [default: Empty]`<a id=compilerVrsn></a>
+-   `VRSN [default: v55]`<a id=VRSN></a>
 -   `PROC [default: mpi]`<a id=PROC></a>   
 Sets if the CCTM will run in multi-processor or serial mode.
     - `mpi`  
@@ -306,13 +304,13 @@ Sets if the CCTM will run in multi-processor or serial mode.
     Run the CCTM in serial, single-processor mode.  
 -   `MECH [default: None]`<a id=MECH></a>  
     CMAQ chemical mechanism. Must match `Mechanism` variable setting in the CCTM build script. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#using-predefined-chemical-mechanisms) for further information.  
--   `APPL [default: SE53BENCH]`<a id=APPL></a>  
+-   `APPL [default: none]`<a id=APPL></a>  
     Application name used to label output binaries and log files.  
 -   `RUNID [default: $VRSN_compiler_APPL]`<a id=RUNID></a>  
     Run ID used to track version number, compiler, and application case name.  
 -   `BLD` <a id=BLD></a>  
     Directory path of the built CCTM executable  
--   `EXEC [default: CCTM_$APPL_$EXECID]`<a id=EXEC></a>  
+-   `EXEC [default: CCTM_$VRSN]`<a id=EXEC></a>  
     The name of the CCTM executable.  
 
 <a id=MPI_Config></a>
@@ -366,7 +364,7 @@ Sets if the CCTM will run in multi-processor or serial mode.
 -   `TSTEP [default: 010000]`<a id=TSTEP></a>   
     Simulation output time step interval (HHMMSS). Must be a mutiple of the run length. 
 -   `MET_TSTEP [default: time step of METCRO3D file]`<a id=MET_TSTEP></a>   
-    Meteorology input time step interval (HHMMSS). Users who wish to specify temporally coarser meteorology then their input meteorology may do so using this environment variable. The default value of MET_TSTEP is the time-step of the METCRO3D file (input meteorology data step). Users may however specify MET_TSTEP to be multiples of the input meterology time-step as long as they add up to the output time step (define as environmental variable TSTEP). Ex. If the meteorology files have data available at 10 minute intervals and a desired 1-hour output frequency, valid MET_STEPS are {10,20,30,30,60...} minutes. 
+    Meteorology input time step interval (HHMMSS). Users who wish to specify temporally coarser meteorology then their input meteorology may do so using this environment variable; this environmental variable is not included in our default runscripts. The default value of MET_TSTEP is the time-step of the METCRO3D file (input meteorology data step). Users may however specify MET_TSTEP to be multiples of the input meterology time-step as long as they add up to the output time step (define as environmental variable TSTEP). Ex. If the meteorology files have data available at 10 minute intervals and a desired 1-hour output frequency, valid MET_STEPS are {10,20,30,30,60...} minutes. 
 
 <a id=CCTM_Config_Options></a>
 
@@ -451,7 +449,7 @@ Sets if the CCTM will run in multi-processor or serial mode.
 -   `CTM_MOSAIC [default N]`<a id=CTM_MOSAIC></a>  
     Y/N setting to ouput land use specific deposition velocities and fluxes. This option is only available when using the STAGE deposition module. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#682-dry-depostion---stage) for further information.
 -   `CTM_STAGE_P22 [default: N]`<a id=CTM_FST></a>  
-   Y/N setting to select the land use specific implementation of the Pleim et al. 2022 and v5.4 M3Dry aerosol deposition parameterization in the STAGE deposition option. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#682-dry-depostion---stage) for further information.
+   Y/N setting to select the land use specific implementation of the Pleim et al. 2022 aerosol deposition parameterization in the STAGE deposition option. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#682-dry-depostion---stage) for further information.
 -   `CTM_STAGE_E20 [default: Y]`<a id=CTM_FST></a>  
    Y/N setting to select the land use specific and modal implementation of the Emerson et al. 2020 aerosol deposition parameterization in the STAGE deposition option. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#682-dry-depostion---stage) for further information.
 -   `CTM_STAGE_S22 [default: N]`<a id=CTM_FST></a>  
