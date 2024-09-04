@@ -829,7 +829,7 @@ The STAGE_DATA section allows for the user to add species that exist in GC,TR, o
 <sub>3</sub> Used in NH3 the bidirectional exchange option.
 <sub>4</sub> Used in Hg the bidirectional exchange option.
 
-STAGE is a tiled surface exchange option that estimates deposition and emissions by land use and area weights them to the grid cell. New in v5.4, is the option to develop custom land use mappings to reduce the redundancy in model calculations and allow the user to customize land use specific deposition for their specific ecosystem exposure or deposition needs. The MET_TO_STAGE_LU section of CMAQ_Control_STAGE namelist allows for the mapping of the meteorological model’s land use data to the user defined STAGE land use categories. These tables have been populated for WRF implimentations of MODIS, NLCD and USGS land use types and require no further modification for the default land use mapping. 
+STAGE is a tiled surface exchange option that estimates deposition and emissions by land use and area weights them to the grid cell. There is the option to develop custom land use mappings to reduce the redundancy in model calculations and allow the user to customize land use specific deposition for their specific ecosystem exposure or deposition needs. The MET_TO_STAGE_LU section of CMAQ_Control_STAGE namelist allows for the mapping of the meteorological model’s land use data to the user defined STAGE land use categories. These tables have been populated for WRF implimentations of MODIS, NLCD and USGS land use types and require no further modification for the default land use mapping. 
 
 **Table 4-8** Variables in the MET_TO_STAGE_LU section of STAGECTRL_NML.
 |**Variable Name**|**Description**|
