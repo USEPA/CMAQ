@@ -1,6 +1,6 @@
 #! /bin/csh -f
 
-# ======================= CREATE_OMI 5.4.X Run Script ========================
+# ======================= CREATE_OMI 5.5.X Run Script ========================
 # Usage: run_create_omi.csh >&! create_omi.log &
 #
 # To report problems or request help with this script/program:
@@ -38,7 +38,7 @@ set echo
 echo $compilerString
 
 #define executable and its path
- set VRSN  = v54                #> Code Version
+ set VRSN  = v55                #> Code Version
  set EXEC  = create_omi_${VRSN}.exe
 
 # uncomment if using executable compiled with debugging flags

@@ -1,12 +1,12 @@
 !!! CMAQ-ISAM tag definition control file
 !!!   (lines begining with !!! - three exclamation marks - are ignored by the text parser)!!!
 !!!
-!!!   Example file provided with CMAQ v5.4 release
+!!!   Example file provided with CMAQ v5.5 release
 !!!   14 September 2022: Sergey L. Napelenok
 !!!
 !!! The "TAG CLASSES" line defines the tag classes to track for the simulation. Species in NITRATE and VOC classes depend on the
 !!! the chemical mechanism used. The below definitions apply for the cb6r3_ae7_aq mechanism. These species will be tracked for
-!!! each user-defiend source.
+!!! each user-defined source.
 !!!   Choose any/all from the list:
 !!!   SULFATE   - ASO4, SO2, SULF, SULRXN
 !!!   NITRATE   - ANO3, HNO3, NO, NO2, NO3, HONO, N2O5, PNA, PAN, PANX, NTR1, NTR2, INTR, CLNO2, CLNO3

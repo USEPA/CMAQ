@@ -1,6 +1,6 @@
 #! /bin/csh -f
 
-# ==================== SITECMP_DAILYO3v5.4.X Build Script ============#
+# ==================== SITECMP_DAILYO3v5.5.X Build Script ============#
 # Usage: bldit_sitecmp_dailyo3.csh >&! bldit_sitecmp_dailyo3.log      #
 # Requirements: I/O API & netCDF libraries; a Fortran compiler        #
 #                                                                     #
@@ -45,7 +45,7 @@
 #===============================================================================
 
 #> User choices: working directory and application ID
- set VRSN     = v54                               #> model version
+ set VRSN     = v55                               #> model version
  set EXEC     = sitecmp_dailyo3_${VRSN}.exe        #> executable name for this application
  set CFG      = sitecmp_dailyo3_${VRSN}.cfg        #> BLDMAKE configuration file name
  setenv BLDER   ${CMAQ_HOME}/UTIL/bldmake/bldmake_${compilerString}.exe #> location of makefile builder executable 

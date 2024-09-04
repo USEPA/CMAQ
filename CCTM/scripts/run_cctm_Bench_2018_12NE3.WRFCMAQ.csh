@@ -40,7 +40,7 @@ echo 'Start Model Run At ' `date`
 setenv CTM_DIAG_LVL 0 
 
 #> Set General Parameters and Labels for Configuring the Simulation
-set VRSN        = ${wrfv}54          #> Code Version
+set VRSN        = ${wrfv}55          #> Code Version
 set PROC        = mpi                #> serial or mpi
 set MECH        = cb6r5_ae7_aq       #> Mechanism ID
 set APPL        = Bench_2018_12NE3   #> Application Name (e.g. Domain)
@@ -57,7 +57,7 @@ set EXEC      = wrf.exe
 
 # Set Working, Input, and Output Directories
 set WORKDIR     = ${PWD}                                  # Pathname of current Working Directory
-set WRF_DIR     = $WORKDIR/BLD_WRFv4.4_CCTM_v54_intel18.0 # Location of WRF-CMAQ Install
+set WRF_DIR     = $WORKDIR/BLD_WRFv4.4_CCTM_v55_intel18.0 # Location of WRF-CMAQ Install
 set INPDIR      = ${CMAQ_DATA}/2018_12NE3               # Input directory for WRF & CMAQ
 set OUTPUT_ROOT = $WORKDIR                                # output root directory
 set output_direct_name = WRFCMAQ-output-${version}        # Output Directory Name
