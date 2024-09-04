@@ -487,6 +487,10 @@ Sets if the CCTM will run in multi-processor or serial mode.
     ---  6-Approximations to Mie Theory    
 -   `CTM_PVO3 [default: N]`<a id=CTM_PVO3></a>    
      Y/N determines whether to scale ozone in free-troposphere to potential vorticity. Option requires that METCRO3D file has PV, potential vorticity. See [User Guide 6.13](../CMAQ_UG_ch06_model_configuration_options.md#613-potential-vorticity-scaling) for more information.
+-   `IC_AERO_M2USE [default: T]`<a id=IC_AERO_M2USE></a> Instructs CMAQ whether or not to use aerosol surface area from the Initial Condition file. If this option is set to false, then uniform diameter and standard deviation will be applied to each aerosol mode. If a particular simulation is a restart from a simulation preceeding in time (i.e. if this is any day after the first simulation day), then IC_AERO_M2USE is automatically set to True inside CMAQ.
+-   `IC_AERO_M2WET [default: F=dry]`<a id=IC_AERO_M2WET></a> Instructs CMAQ whether or not to assume the initial condition surface area is consistent with dry or wet diameter. Note that most air quality models assume mode parameters are dry, and then will calculate wet diameter when needed (e.g. for deposition).
+-   `BC_AERO_M2USE [default: T]`<a id=BC_AERO_M2USE></a> Instructs CMAQ whether or not to use aerosol surface area from the Boundary Condition file. If this option is set to false, then uniform diameter and standard deviation will be applied to each aerosol mode from the boundaries. 
+-   `BC_AERO_M2WET [default: F=dry]`<a id=BC_AERO_M2WET></a> Instructs CMAQ whether or not to assume the boundary condition surface area is consistent with dry or wet diameter. Note that most air quality models assume mode parameters are dry, and then will calculate wet diameter when needed (e.g. for deposition).
 
 <a id=Process_Analysis_Options></a>
 
