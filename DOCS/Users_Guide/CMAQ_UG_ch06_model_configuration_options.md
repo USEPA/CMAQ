@@ -581,7 +581,7 @@ Note that CMAQ employing Carbon Bond 6 version r5 with DMS and marine halogen ch
 
 Note that if the CTM_OCEAN_CHEM flag is set to N to indicate zero sea spray emissions, users should set the CTM_EMISCHK variable in the RunScript to FALSE to avoid crashing CMAQ when it cannot find species it is looking for from sea spray. 
 
-Alternatively, users can also edit the emission control file by commenting out the coarse and fine species expected for the sea spray module. The following species are emitted by the Dust module and may be referenced in the emission control file [Table 6-2](#Table6-2):
+Alternatively, users can also edit the emission control file by commenting out the coarse and fine species expected for the sea spray module. The following species are emitted by the Sea Spray module and may be referenced in the emission control file [Table 6-2](#Table6-2):
 
 <a id=Table6-2></a>
 **Table 6-2. Aerosol Species Predicted by the Sea-Spray Aerosol Module** 
