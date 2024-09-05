@@ -36,7 +36,7 @@
 	* [6.10.4 Nitrous Acid (HONO)](#6.10.4_HONO)
 	* [6.10.5 CRACMM](#6.10.5_CRACMM)
 * [6.11 Aerosol Dynamics and Chemistry](#6.11_Aerosol_Dynamics)
-    * [6.11.1 Aerosol Surface Area from Boundary Conditions](#6.11.1_Aero_BC)
+    * [6.11.1 Aerosol Boundary and Initial Conditions](#6.11.1_Aero_BC)
 * [6.12 Aqueous Chemistry, Scavenging and Wet Deposition](#6.12_Aqueous_Chemistry)
 * [6.13 Potential Vorticity Scaling](#6.13_Potential_Vort)
 * [6.14 References](#6.14_References)
@@ -978,6 +978,8 @@ This may be an attractive option if the values of M2 have become corrupted or un
 ((PICS))
 
 The initial conditions are not expected to have such large impact on model results because model output data are used to begin every model restart (e.g. at the end of a day). It is expected that the user will give ample model spin-up time so that the impact of initial conditions issues is unlikely. 
+
+It is recommended to set BC_AERO_M2USE to True if boundary conditions were created with CMAQv5.4 or later. If boundary or initial conditions were made with CMAQv5.3 or before, then the definition of M2 did not include semivolatile organic compounds and should not be trusted to be compatible with CMAQv5.5 and beyond. In this case, set BC_AERO_M2USE to False. 
 
 Users may also specify if the boundary or initial conditions provided are applicable to wet or dry particle size distributions (i.e. is water included in the calculation of M2?). The following environment variable toggles this selection:
 ```
