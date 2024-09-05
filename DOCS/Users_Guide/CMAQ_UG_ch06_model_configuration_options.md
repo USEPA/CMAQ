@@ -36,6 +36,7 @@
 	* [6.10.4 Nitrous Acid (HONO)](#6.10.4_HONO)
 	* [6.10.5 CRACMM](#6.10.5_CRACMM)
 * [6.11 Aerosol Dynamics and Chemistry](#6.11_Aerosol_Dynamics)
+    * [6.11.1 Aerosol Surface Area from Boundary Conditions](#6.11.1_Aero_BC)
 * [6.12 Aqueous Chemistry, Scavenging and Wet Deposition](#6.12_Aqueous_Chemistry)
 * [6.13 Potential Vorticity Scaling](#6.13_Potential_Vort)
 * [6.14 References](#6.14_References)
@@ -952,6 +953,38 @@ CMAQ can output the reduction in visual range caused by the presence of PM, perc
 For easier comparison of CMAQ's output PM values with measurements, time-dependent cutoff fractions may be output by the model (e.g. Jiang et al., 2006). These include quantities for describing the fraction of each mode that would be categorized as PM<sub>2.5</sub> (i.e. PM25AT, PM25AC, and PM25CO) and PM<sub>1.0</sub> (i.e. PM1AT, PM1AC, and PM1CO) as well as the fraction of particles from each mode that would be detected by an AMS (i.e AMSAT, AMSAC, and AMSCO). There is also a surface interaction module in the multipollutant version of CMAQ that calculates the flux of mercury to and from the surface (rather than just depositing mercury).
 
 Further discussion on the scientific improvements to the CMAQ PM treatment is available in the release notes.
+    
+<a id=6.11.1_Aero_BC></a>
+
+### 6.11.1 Aerosol Boundary and Initial Conditions
+
+<!-- BEGIN COMMENT -->
+
+[Return to Top](#Return_to_Top)
+
+<!-- END COMMENT -->
+
+The Modal Aerosol approach in CMAQ uses three parameters to describe the population density of particles in size space (i.e. to parameterize the log-normal size distirbutions). These parameters are the zeroth moment (M0), which is also the Number concentration (N), the second moment (M2), which is proportional to bulk particle surface area (S), and the third moment (M3), which is proportional to bulk particle volume (V) and thus mass (M). The third moment is specified in the initial and boundary condition files in terms of the individual mass concentrations of each particle species in each mode. These mass concentrations are summed up to get M and then converted to M3. The values for M0 and M2 from the boundary and initial conditions are then used to calculate the mean diamter and standard deviation of all three log-normal modes. Each moment, M0, M2, and the speciated mass concentrations, are then transported throughout the model domain.
+
+If number concentration is missing or zero from the boundary or initial conditions, then the mean diameter and standard deviation for that mode are set to a default and M0 and M2 are calculated based on these assumptions.  
+
+If number concentration is present and nonzero, but M2 is missing or zero, then the modal standard deviation is set to a default and the diameter is calculated to be consistent with the total mass and number concentrations. The user may explicitly direct CMAQ to ignore the M2 concentration from the boundary conditions by setting an environment variable to false:
+```
+setenv BC_AERO_M2USE F  #(default: T)
+setenv IC_AERO_M2USE F  #(default: T)
+```
+This may be an attractive option if the values of M2 have become corrupted or unstable to due to interpolation of boundary or initial conditions in space and time. The impact of this option on fine and coarse mode particle mass concentrations is shown below. There is a substantially larger impact on coarse-mode particles, especially near the boundaries.
+
+((PICS))
+
+The initial conditions are not expected to have such large impact on model results because model output data are used to begin every model restart (e.g. at the end of a day). It is expected that the user will give ample model spin-up time so that the impact of initial conditions issues is unlikely. 
+
+Users may also specify if the boundary or initial conditions provided are applicable to wet or dry particle size distributions (i.e. is water included in the calculation of M2?). The following environment variable toggles this selection:
+```
+setenv BC_AERO_M2WET F  #(default: F, consistent with dry particle size distribution)
+setenv IC_AERO_M2WET F  #(default: F, consistent with dry particle size distribution)
+```
+Unless specifically known otherwise, it is most often the case that M2 or particle surface area is calculated in terms of the dry particle size distribution.
 
 <a id=6.12_Aqueous_Chemistry></a>
 
