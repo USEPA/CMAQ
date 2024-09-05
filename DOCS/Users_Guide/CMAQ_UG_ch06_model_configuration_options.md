@@ -234,11 +234,12 @@ Deetails of each module are provided in the sections below.
 
 <!-- END COMMENT -->
 
-The M3Dry option for dry deposition and ammonia bidirectional surface flux in CMAQv5.4 is the next evolution of the dry deposition model that has been in CMAQ since its initial release and was originally based on the dry deposition model developed for the Acid Deposition and Oxidant Model (ADOM) (Pleim et al., 1984).  Dry deposition is computed by electrical resistance analogy where concentration gradients are analogous to voltage, flux is analogous to current, and deposition resistance is analogous to electrical resistance (Pleim and Ran, 2011).  In M3Dry, several key resistances, such as aerodynamic resistance and bulk stomatal resistance, and other related parameters, such as LAI, vegetation fraction, roughness length, friction velocity etc., are expected to be provided from the meteorological inputs.  Use of common model elements and parameters with the land surface model in the meteorology model ensures consistency between chemical surface fluxes and meteorological surface fluxes (moisture, heat, momentum).  While the M3Dry dry deposition model was designed to be used with the PX LSM option in WRF, any LSM can be used if the necessary parameters are output and then provided for input into CMAQ.  It features consideration of subgrid land-use fractions through aggregation of key model parameters, such as LAI, veg fraction, roughness length and minimum stomatal conductance, to the grid cell level. 
+The M3Dry option for dry deposition and ammonia bidirectional surface flux in CMAQv5.5 is the latest update of the dry deposition model that has been in CMAQ since its initial release and was originally based on the dry deposition model developed for the Acid Deposition and Oxidant Model (ADOM) (Pleim et al., 1984).  Changes from CMAQv5.4 involve only minor bug fixes.  Dry deposition is computed by electrical resistance analogy where concentration gradients are analogous to voltage, flux is analogous to current, and deposition resistance is analogous to electrical resistance (Pleim and Ran, 2011). In M3Dry, several key resistances, such as aerodynamic resistance and bulk stomatal resistance, and other related parameters, such as LAI, vegetation fraction, roughness length, friction velocity etc., are expected to be provided from the meteorological inputs. Use of common model elements and parameters with the land surface model in the meteorology model ensures consistency between chemical surface fluxes and meteorological surface fluxes (moisture, heat, momentum). While the M3Dry dry deposition model was designed to be used with the PX LSM option in WRF, any LSM can be used if the necessary parameters are output and then provided for input into CMAQ. It features consideration of subgrid land-use fractions through aggregation of key model parameters, such as LAI, veg fraction, roughness length and minimum stomatal conductance, to the grid cell level.  Dry deposition velocities and fluxes by landuse category for each grid cell can be computed and output for 13 major gas phase species by a postprocessor available on request.
 
-Upgrades for version 5.3 include larger surface resistances for deposition to snow and ice and reduced resistance for deposition to bare ground for ozone with dependence on surface soil moisture content.  The aerosol deposition has also been revised including a new dependence on LAI.  The ammonia bidirectional surface flux from croplands has been substantially revised from earlier versions.  The new version has close linkages with the EPIC agricultural ecosystem model.  Daily values of all soil parameters needed to compute the available soil ammonia concentrations (soil ammonia content, soil moisture, soil texture parameters, soil pH, and Cation Exchange Capacity (CEC)) for each of 21 agricultural production types that are either rainfed or irrigated (42 types total) are input to CMAQ.  Soil ammonia concentrations and soil pH are combined to derive the soil compensation concentration for the bidirectional flux calculation (Pleim et al., 2019).
+Upgrades for version 5.3 include larger surface resistances for deposition to snow and ice and reduced resistance for deposition to bare ground for ozone with dependence on surface soil moisture content. The aerosol deposition has also been revised including a new dependence on LAI. The ammonia bidirectional surface flux from croplands has been substantially revised from earlier versions. The new version has close linkages with the EPIC agricultural ecosystem model. Daily values of all soil parameters needed to compute the available soil ammonia concentrations (soil ammonia content, soil moisture, soil texture parameters, soil pH, and Cation Exchange Capacity (CEC)) for each of 21 agricultural production types that are either rainfed or irrigated (42 types total) are input to CMAQ. Soil ammonia concentrations and soil pH are combined to derive the soil compensation concentration for the bidirectional flux calculation (Pleim et al., 2019).
 
-The main upgrade for version 5.4 is the replacement of the aerosol dry deposition model with a new version that compares better to size-resolved observations, especially in forests, than the previous version and other models used in AQ modeling (Pleim et al 2022). The key innovations are dependence on leaf area index (LAI) for the vegetated part of the grid cell and two terms for inertial impaction for both macroscale obstacles (e.g., leaves and needles) and microscale obstacles (e.g., leaf hairs and microscale ridges).  When the modally integrated form is applied in CMAQ, the accumulation mode deposition velocities increase by more than an order of magnitude in highly forested areas resulting in lower concentrations of PM2.5.  
+The main upgrade for version 5.4 is the replacement of the aerosol dry deposition model with a new version that compares better to size-resolved observations, especially in forests, than the previous version and other models used in AQ modeling (Pleim et al 2022). The key innovations are dependence on leaf area index (LAI) for the vegetated part of the grid cell and two terms for inertial impaction for both macroscale obstacles (e.g., leaves and needles) and microscale obstacles (e.g., leaf hairs and microscale ridges). When the modally integrated form is applied in CMAQ, the accumulation mode deposition velocities increase by more than an order of magnitude in highly forested areas resulting in lower concentrations of PM2.5.
+
 
 <a id=6.8.2_Dry_STAGE></a>
 
@@ -272,7 +273,7 @@ setenv NOAH_VERSION Y
 ```
 Sets the correct soil hydrological properties and soil layer information needed to calculate soil NO emissions, NH<sub>3</sub> bidirectional exchange and O<sub>3</sub> deposition. These options are currently based on WRF 3.8.1 and earlier values for PX and CLM and WRF 4.0 for NOAH. If the land surface model is run with another look up table or parameterization, soil moisture will be constrained between saturation and residual water content from the parameterization in CMAQ. This is also the case for the m3dry deposition option, soil NO emissions, and windblown dust. 
 
-In CMAQ v5.4, the user can select one of three different aerosol deposition parameters within the STAGE deposition option. 
+In CMAQ v5.4 and beyond, the user can select one of three different aerosol deposition parameters within the STAGE deposition option. 
 
 ```
 setenv CTM_STAGE_P22 N       
@@ -287,6 +288,7 @@ CTM_STAGE_P22 is a tiled/land use specific [Pleim et al. (2022)](https://doi.org
 
 The interaction of iodide in seawater with atmospheric ozone can enhance ozone deposition over seawater. CMAQ contains a scheme for enhanced ozone deposition over seawater ([Sarwar et al,. 2016](https://doi.org/10.1016/j.atmosenv.2016.06.072)). If the CTM_OCEAN_CHEM flag is set to N, then the model will not calculate the enhanced ozone deposition over seawater.  
 
+<a id=6.9_Emissions></a>
 ## 6.9 Emissions
 
 <!-- BEGIN COMMENT -->
@@ -303,7 +305,7 @@ Mapping rules are prescribed in the DESID Chemical Mapping Control File, and def
 If the user does not provide a Chemical Mapping Control File or the path to the file in the RunScript is incorrect, then zero emissions will be assumed for every stream. However, the configuration of various other scientific options in the RunScript  (e.g. correcting for biderectional emission of fertilizer emissions) may conspire to create non-physical values for the emission rates. If the user would like all emissions set to 0, it is recommended that they use the syntax outlined in Appendix B and the DESID tutorial to do so.  
 
 <a id=Figure6-2></a>  
-![Figure 6-2](images/Figure6-1.png)  
+![Figure 6-2](images/Figure6-2.png)  
 **Figure 6-2. Offline and online emission streams pass pollutant emission rates to the core CMAQ model through the DESID interface.**
 
 CMAQv5.3 introduced DESID so that the process of mapping emissions species to CMAQ species would be more transparent and flexible (see [Appendix B: Emission Control with DESID](Appendix/CMAQ_UG_appendixB_emissions_control.md)). In fact, users can now toggle, modify, and augment emissions from all available streams in order to confidently customize their simulations to the science or policy questions they are asking CMAQ to help answer. For tutorials covering specific tasks, please see the [DESID tutorial page](Tutorials/CMAQ_UG_tutorial_emissions.md).  
@@ -580,7 +582,7 @@ Note that CMAQ employing Carbon Bond 6 version r5 with DMS and marine halogen ch
 
 Note that if the CTM_OCEAN_CHEM flag is set to N to indicate zero sea spray emissions, users should set the CTM_EMISCHK variable in the RunScript to FALSE to avoid crashing CMAQ when it cannot find species it is looking for from sea spray. 
 
-Alternatively, users can also edit the emission control file by commenting out the coarse and fine species expected for the sea spray module. The following species are emitted by the Dust module and may be referenced in the emission control file [Table 6-2](#Table6-2):
+Alternatively, users can also edit the emission control file by commenting out the coarse and fine species expected for the sea spray module. The following species are emitted by the Sea Spray module and may be referenced in the emission control file [Table 6-2](#Table6-2):
 
 <a id=Table6-2></a>
 **Table 6-2. Aerosol Species Predicted by the Sea-Spray Aerosol Module** 
@@ -835,6 +837,12 @@ The user can set it to N to exclude the heterogeneous production from the reacti
 
 <a id=6.10.5_CRACMM></a>
 ### 6.10.5 CRACMM Version 1.0-2.0
+
+<!-- BEGIN COMMENT -->
+
+[Return to Top](#Return_to_Top)
+
+<!-- END COMMENT -->
 
 The Community Regional Atmospheric Chemistry Multiphase Mechanism (CRACMM) builds on the history of the Regional Atmospheric Chemistry Mechanism, Version 2 (RACM2) and aims to couple gas- and particle-phase chemistry by treating the entire pool of atmospheric reactive organic carbon (ROC) relevant to present-day emissions. CRACMM species were developed to represent the total emissions of ROC, considering the OH reactivity, ability to form ozone and secondary organic aerosol (SOA), and other properties of individual emitted compounds. The chemistry of CRACMM, which includes autoxidation, multigenerational oxidation, and the treatment of semivolatile and intermediate volatility compounds, was built using a variety of sources including literature and other mechanisms (RACM2, MCM, GECKO, and SAPRC18/mechgen). 
 
@@ -1095,7 +1103,9 @@ Pleim, J.E. (2007b). A combined local and nonlocal closure model for the atmosph
 
 Pleim, J., & Ran, L. (2011). Surface flux modeling for air quality applications. Atmosphere, 2(3), 271-302.
 
-Pleim, J. E., Ran, L., Appel, W., Shephard, M.W., & Cady-Pereira K. (2019). New bidirectional ammonia flux model in an air quality model coupled with an agricultural model. JAMES in review.
+Pleim, J. E., Ran, L., Appel, W., Shephard, M.W., & Cady-Pereira K. (2019). New bidirectional ammonia flux model in an air quality model coupled with an agricultural model. Journal of Advances in Modeling Earth Systems, 11, 2934-2957, [doi: 10.1029/2019MS001728](https://doi.org/10.1029/2019MS001728).
+
+Pleim, J.E., Ran, L., Saylor, R.D., Willison, J. and Binkowski, F.S. (2022). A new aerosol dry deposition model for air quality and climate modeling. Journal of Advances in Modeling Earth Systems, 14(11), p.e2022MS003050, [doi: 10.1029/2022MS003050]( https://doi.org/10.1029/2022MS003050).
 
 Pye, H.O.T., Pinder, R.W., Piletic, I.R., Xie, Y., Capps, S.L., Lin, Y.H., Surratt, J.D., Zhang, Z.F., Gold, A., Luecken, D.J., Hutzell W.T., Jaoui, M., Offenberg, J.H., Kleindienst, T.E., Lewandowski, M., & Edney, E.O. (2013). Epoxide pathways improve model predictions of isoprene markers and reveal key role of acidity in aerosol formation. Environ. Sci. Technol., 47(19), 11056-11064.
 

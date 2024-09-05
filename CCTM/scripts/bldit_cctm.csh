@@ -1,7 +1,7 @@
 #!/bin/csh -f
 
 # ======================= CCTMv5.5.X Build Script ========================= 
-# Usage: bldit.cctm.csh <compiler> >&! bldit.cctm.log                                   
+# Usage: bldit_cctm.csh <compiler> >&! bldit.cctm.log                          
 # Requirements: I/O API & netCDF libraries, a Fortran compiler,               
 #               and MPI for multiprocessor computing                     
 #

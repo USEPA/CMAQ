@@ -1,6 +1,6 @@
 #! /bin/csh -f
 
-# ============ CREATE_EBI_SOLVERv5.4.x Build Script ================= #
+# ============ CREATE_EBI_SOLVERv5.5.x Build Script ================= #
 # Usage: bldrun_create_ebi.csh [compiler] >&! bldrun_create_ebi.log   #
 # Options for [compiler]: intel | gcc | pgi                           #
 #                                                                     #
@@ -78,7 +78,7 @@
     setenv OUTDIR  ${WORKDIR}/output/ebi_${MECH}
  endif 
 
- set VRSN =     v54                       #> model version
+ set VRSN =     v55                       #> model version
  setenv EXEC    CREATE_EBI_${VRSN}.exe     #> executable name for this application
  setenv BLDIR   ${WORKDIR}/scripts/BLD_create_ebi_${VRSN}_${compilerString}
 

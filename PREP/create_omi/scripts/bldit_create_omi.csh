@@ -1,7 +1,7 @@
 #! /bin/csh -f
 
-# ==================== COMBINEv5.4.X Build Script ===================== #
-# Usage: bldit_combine.csh >&! bldit_combine.log                      #
+# ================== CREATE_OMIv5.5.X Build Script ================== #
+# Usage: bldit_create_omi.csh >&! bldit_create_omi.log                #
 # Requirements: I/O API & netCDF libraries; a Fortran compiler        #
 #                                                                     #
 # To report problems or request help with this script/program:        #
@@ -51,7 +51,7 @@
 #===============================================================================
 
 #> User choices: working directory and application ID
- set VRSN     = v54                    #> version
+ set VRSN     = v55                    #> version
  set EXEC     = create_omi_${VRSN}.exe #> executable name for this application
  set CFG      = create_omi.cfg         #> bldmake configuration file name
 

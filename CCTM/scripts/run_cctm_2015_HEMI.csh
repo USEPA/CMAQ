@@ -1,7 +1,8 @@
 #!/bin/csh -f
 
-# ===================== CCTMv5.4.X Run Script ========================= 
-# Usage: run.cctm >&! cctm_2015_HEMI.log &                                
+# ==================== CCTMv5.5.X Run Script ======================== 
+# Usage: run_cctm_2015_HEMI.csh >&! run_cctm_2015_HEMI.log &                                
+# Slurm Usage: sbatch run_cctm_2015_HEMI.csh
 #
 # To report problems or request help with this script/program:     
 #             http://www.epa.gov/cmaq    (EPA CMAQ Website)
@@ -33,7 +34,7 @@ echo 'Start Model Run At ' `date`
  cd CCTM/scripts
 
 #> Set General Parameters for Configuring the Simulation
- set VRSN      = v54               #> Code Version
+ set VRSN      = v55               #> Code Version
  set PROC      = mpi               #> serial or mpi
  set MECH      = cb6r5m_ae7_aq     #> Mechanism ID
  set APPL      = 2015_HEMI         #> Application Name (e.g. Gridname)

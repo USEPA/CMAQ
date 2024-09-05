@@ -45,7 +45,7 @@ set echo
     setenv CMAQ_HOME $cwd/..
     setenv CMAQ_REPO ${CMAQ_HOME}
  endif
- set VRSN      = v54                #> Code Version
+ set VRSN      = v55                #> Code Version
 
 #> Check CCTM/src/MECHS for other values available for setting MECH
  if ( ! $?MECH ) then
