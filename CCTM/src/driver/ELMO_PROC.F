@@ -1082,6 +1082,12 @@
 !-------------------------------------------------------------------------
       USE CGRID_SPCS, ONLY : CGRID_NAME
       USE UTIL_FAMILY_MODULE, ONLY : CHEMFAMILYNUM, CHEMFAMILYMEMBERS
+      USE AERO_DATA, ONLY : ascat_na_fac, asoil_na_fac, acors_na_fac,
+     &                      ascat_mg_fac, asoil_mg_fac, acors_mg_fac,
+     &                      ascat_k_fac,  asoil_k_fac,  acors_k_fac,
+     &                      ascat_ca_fac, asoil_ca_fac, acors_ca_fac,
+     &                                    asoil_fe_fac, acors_fe_fac,
+     &                                    asoil_mn_fac, acors_mn_fac
 
       IMPLICIT NONE
 
@@ -1135,33 +1141,33 @@
              CASE ( ID_PMC_NA ) 
                N_VARS = 3
                CALL INIT_ELMO_COEFFS( IDG, N_VARS, 'COARSE' )
-               CALL SET_ELMO_COEFF_MAP( IDG, 1, 'AERO', 'ASEACAT', 0.8373 )
-               CALL SET_ELMO_COEFF_MAP( IDG, 2, 'AERO', 'ASOIL', 0.0626 )
-               CALL SET_ELMO_COEFF_MAP( IDG, 3, 'AERO', 'ACORS', 0.0023 )
+               CALL SET_ELMO_COEFF_MAP( IDG, 1, 'AERO', 'ASEACAT', real(ascat_na_fac) )
+               CALL SET_ELMO_COEFF_MAP( IDG, 2, 'AERO', 'ASOIL',   real(asoil_na_fac) )
+               CALL SET_ELMO_COEFF_MAP( IDG, 3, 'AERO', 'ACORS',   real(acors_na_fac) )
  
              ! Map PMC_MG - Coarse-Mode Magnesium
              CASE ( ID_PMC_MG ) 
                N_VARS = 3
                CALL INIT_ELMO_COEFFS( IDG, N_VARS, 'COARSE' )
-               CALL SET_ELMO_COEFF_MAP( IDG, 1, 'AERO', 'ASEACAT', 0.0997 )
-               CALL SET_ELMO_COEFF_MAP( IDG, 2, 'AERO', 'ASOIL', 0.0170 )
-               CALL SET_ELMO_COEFF_MAP( IDG, 3, 'AERO', 'ACORS', 0.0032 )
+               CALL SET_ELMO_COEFF_MAP( IDG, 1, 'AERO', 'ASEACAT', real(ascat_mg_fac) )
+               CALL SET_ELMO_COEFF_MAP( IDG, 2, 'AERO', 'ASOIL',   real(asoil_mg_fac) )
+               CALL SET_ELMO_COEFF_MAP( IDG, 3, 'AERO', 'ACORS',   real(acors_mg_fac) )
  
              ! Map PMC_K - Coarse-Mode Potassium
              CASE ( ID_PMC_K ) 
                N_VARS = 3
                CALL INIT_ELMO_COEFFS( IDG, N_VARS, 'COARSE' )
-               CALL SET_ELMO_COEFF_MAP( IDG, 1, 'AERO', 'ASEACAT', 0.0310 )
-               CALL SET_ELMO_COEFF_MAP( IDG, 2, 'AERO', 'ASOIL', 0.0242 )
-               CALL SET_ELMO_COEFF_MAP( IDG, 3, 'AERO', 'ACORS', 0.0176 )
+               CALL SET_ELMO_COEFF_MAP( IDG, 1, 'AERO', 'ASEACAT', real(ascat_k_fac) )
+               CALL SET_ELMO_COEFF_MAP( IDG, 2, 'AERO', 'ASOIL',   real(asoil_k_fac) )
+               CALL SET_ELMO_COEFF_MAP( IDG, 3, 'AERO', 'ACORS',   real(acors_k_fac) )
 
              ! Map PMC_CA - Coarse-Mode Calcium
              CASE ( ID_PMC_CA ) 
                N_VARS = 3
                CALL INIT_ELMO_COEFFS( IDG, N_VARS, 'COARSE' )
-               CALL SET_ELMO_COEFF_MAP( IDG, 1, 'AERO', 'ASEACAT', 0.0320 )
-               CALL SET_ELMO_COEFF_MAP( IDG, 2, 'AERO', 'ASOIL', 0.0838 )
-               CALL SET_ELMO_COEFF_MAP( IDG, 3, 'AERO', 'ACORS', 0.0562 )
+               CALL SET_ELMO_COEFF_MAP( IDG, 1, 'AERO', 'ASEACAT', real(ascat_ca_fac) )
+               CALL SET_ELMO_COEFF_MAP( IDG, 2, 'AERO', 'ASOIL',   real(asoil_ca_fac) )
+               CALL SET_ELMO_COEFF_MAP( IDG, 3, 'AERO', 'ACORS',   real(acors_ca_fac) )
 
              
              !!!! Fine-Mode Parameters !!!!  
@@ -1418,9 +1424,12 @@
  
              ! Map PM1_NA - PM1 Sodium
              CASE ( ID_PM1_NA ) 
-               N_VARS = 1
+               N_VARS = 4
                CALL INIT_ELMO_COEFFS( IDG, N_VARS, 'PM1' )
                CALL SET_ELMO_COEFF_MAP( IDG, 1, 'AERO', 'ANA', 1.0 )
+               CALL SET_ELMO_COEFF_MAP( IDG, 2, 'AERO', 'ASEACAT', real(ascat_na_fac) )
+               CALL SET_ELMO_COEFF_MAP( IDG, 3, 'AERO', 'ASOIL',   real(asoil_na_fac) )
+               CALL SET_ELMO_COEFF_MAP( IDG, 4, 'AERO', 'ACORS',   real(acors_na_fac) )
  
              ! Map PM1_EC - PM1 Elemental Carbon
              CASE ( ID_PM1_EC ) 
@@ -1430,21 +1439,30 @@
  
              ! Map PM1_MG - PM1 Magnesium
              CASE ( ID_PM1_MG ) 
-               N_VARS = 1
+               N_VARS = 4
                CALL INIT_ELMO_COEFFS( IDG, N_VARS, 'PM1' )
                CALL SET_ELMO_COEFF_MAP( IDG, 1, 'AERO', 'AMG', 1.0 )
+               CALL SET_ELMO_COEFF_MAP( IDG, 2, 'AERO', 'ASEACAT', real(ascat_mg_fac) )
+               CALL SET_ELMO_COEFF_MAP( IDG, 3, 'AERO', 'ASOIL',   real(asoil_mg_fac) )
+               CALL SET_ELMO_COEFF_MAP( IDG, 4, 'AERO', 'ACORS',   real(acors_mg_fac) )
  
              ! Map PM1_K - PM1 Potassium
              CASE ( ID_PM1_K ) 
-               N_VARS = 1
+               N_VARS = 4
                CALL INIT_ELMO_COEFFS( IDG, N_VARS, 'PM1' )
                CALL SET_ELMO_COEFF_MAP( IDG, 1, 'AERO', 'AK', 1.0 )
+               CALL SET_ELMO_COEFF_MAP( IDG, 2, 'AERO', 'ASEACAT', real(ascat_k_fac) )
+               CALL SET_ELMO_COEFF_MAP( IDG, 3, 'AERO', 'ASOIL',   real(asoil_k_fac) )
+               CALL SET_ELMO_COEFF_MAP( IDG, 4, 'AERO', 'ACORS',   real(acors_k_fac) )
  
              ! Map PM1_CA - PM1 Calcium
              CASE ( ID_PM1_CA ) 
-               N_VARS = 1
+               N_VARS = 4
                CALL INIT_ELMO_COEFFS( IDG, N_VARS, 'PM1' )
                CALL SET_ELMO_COEFF_MAP( IDG, 1, 'AERO', 'ACA', 1.0 )
+               CALL SET_ELMO_COEFF_MAP( IDG, 2, 'AERO', 'ASEACAT', real(ascat_ca_fac ))
+               CALL SET_ELMO_COEFF_MAP( IDG, 3, 'AERO', 'ASOIL',   real(asoil_ca_fac ))
+               CALL SET_ELMO_COEFF_MAP( IDG, 4, 'AERO', 'ACORS',   real(acors_ca_fac ))
  
              ! Map PM1_Other - PM1 Other 
              CASE ( ID_PM1_OT ) 
@@ -1454,9 +1472,11 @@
  
              ! Map PM1_FE - PM1 Iron
              CASE ( ID_PM1_FE ) 
-               N_VARS = 1
+               N_VARS = 3
                CALL INIT_ELMO_COEFFS( IDG, N_VARS, 'PM1' )
                CALL SET_ELMO_COEFF_MAP( IDG, 1, 'AERO', 'AFE', 1.0 )
+               CALL SET_ELMO_COEFF_MAP( IDG, 2, 'AERO', 'ASOIL',   real(asoil_fe_fac ))
+               CALL SET_ELMO_COEFF_MAP( IDG, 3, 'AERO', 'ACORS',   real(acors_fe_fac ))
  
              ! Map PM1_SI - PM1 Silicon
              CASE ( ID_PM1_SI ) 
@@ -1472,9 +1492,11 @@
  
              ! Map PM1_MN - PM1 Manganese
              CASE ( ID_PM1_MN ) 
-               N_VARS = 1
+               N_VARS = 3
                CALL INIT_ELMO_COEFFS( IDG, N_VARS, 'PM1' )
                CALL SET_ELMO_COEFF_MAP( IDG, 1, 'AERO', 'AMN', 1.0 )
+               CALL SET_ELMO_COEFF_MAP( IDG, 2, 'AERO', 'ASOIL',   real(asoil_mn_fac ))
+               CALL SET_ELMO_COEFF_MAP( IDG, 3, 'AERO', 'ACORS',   real(acors_mn_fac ))
  
              ! Map PM1_AL - PM1 Aluminum
              CASE ( ID_PM1_AL ) 
@@ -1505,7 +1527,7 @@
                CALL SET_ELMO_COEFF_MAP( IDG, 3, 'AERO', 'ANO3', -1.0 )
                CALL SET_ELMO_COEFF_MAP( IDG, 4, 'AERO', 'ANH4', -1.0 )
                CALL SET_ELMO_COEFF_MAP( IDG, 5, 'AERO', 'ACL', -1.0 )          
-               CALL SET_ELMO_COEFF_MAP( IDG, 6, 'AERO', 'ANA', -1.0 )          
+               CALL SET_ELMO_COEFF_MAP( IDG, 6, 'AGG',  'PM1_NA', -1.0 )          
                CALL SET_ELMO_COEFF_MAP( IDG, 7, 'AERO', 'AEC', -1.0 )          
                CALL SET_ELMO_COEFF_MAP( IDG, 8, 'AGG',  'PM1_OC', -1.0 )          
                CALL SET_ELMO_COEFF_MAP( IDG, 9, 'AGG',  'PM1_SOIL', -1.0 )          
@@ -1514,10 +1536,14 @@
              CASE ( ID_PM1_UN ) 
                N_VARS = 3
                CALL INIT_ELMO_COEFFS( IDG, N_VARS, 'PM1' )
-               CALL SET_ELMO_COEFF_MAP( IDG, 1, 'AERO', 'ASEACAT', 0.0 ) ! All Seaspray Cation mass has been 
-                                                                           ! apportined to Na, Mg, K, and Ca
-               CALL SET_ELMO_COEFF_MAP( IDG, 2, 'AERO', 'ASOIL', 0.8124 )
-               CALL SET_ELMO_COEFF_MAP( IDG, 3, 'AERO', 'ACORS', 0.9207 )
+               CALL SET_ELMO_COEFF_MAP( IDG, 1, 'AERO', 'ASEACAT', 1.0 - real( ascat_na_fac + ascat_mg_fac +  
+     &                                                                         ascat_k_fac  + ascat_ca_fac  )) 
+               CALL SET_ELMO_COEFF_MAP( IDG, 2, 'AERO', 'ASOIL',   1.0 - real( asoil_na_fac + asoil_mg_fac +
+     &                                                                         asoil_k_fac  + asoil_ca_fac +
+     &                                                                         asoil_mn_fac + asoil_fe_fac  ))
+               CALL SET_ELMO_COEFF_MAP( IDG, 3, 'AERO', 'ACORS',   1.0 - real( acors_na_fac + acors_mg_fac +
+     &                                                                         acors_k_fac  + acors_ca_fac +
+     &                                                                         acors_mn_fac + acors_fe_fac  ))
               
              ! Map PM1_HP - PM1.0 Hydronium Ion
              CASE ( ID_PM1_HP ) 
@@ -1553,9 +1579,12 @@
  
              ! Map PM25_NA - PM2.5 Sodium
              CASE ( ID_PM25_NA ) 
-               N_VARS = 1
+               N_VARS = 4
                CALL INIT_ELMO_COEFFS( IDG, N_VARS, 'PM25' )
                CALL SET_ELMO_COEFF_MAP( IDG, 1, 'AERO', 'ANA', 1.0 )
+               CALL SET_ELMO_COEFF_MAP( IDG, 2, 'AERO', 'ASEACAT', real(ascat_na_fac ))
+               CALL SET_ELMO_COEFF_MAP( IDG, 3, 'AERO', 'ASOIL',   real(asoil_na_fac ))
+               CALL SET_ELMO_COEFF_MAP( IDG, 4, 'AERO', 'ACORS',   real(acors_na_fac ))
  
              ! Map PM25_EC - PM2.5 Elemental Carbon
              CASE ( ID_PM25_EC ) 
@@ -1565,21 +1594,30 @@
  
              ! Map PM25_MG - PM2.5 Magnesium
              CASE ( ID_PM25_MG ) 
-               N_VARS = 1
+               N_VARS = 4
                CALL INIT_ELMO_COEFFS( IDG, N_VARS, 'PM25' )
                CALL SET_ELMO_COEFF_MAP( IDG, 1, 'AERO', 'AMG', 1.0 )
+               CALL SET_ELMO_COEFF_MAP( IDG, 2, 'AERO', 'ASEACAT', real(ascat_mg_fac ))
+               CALL SET_ELMO_COEFF_MAP( IDG, 3, 'AERO', 'ASOIL',   real(asoil_mg_fac ))
+               CALL SET_ELMO_COEFF_MAP( IDG, 4, 'AERO', 'ACORS',   real(acors_mg_fac ))
  
              ! Map PM25_K - PM2.5 Potassium
              CASE ( ID_PM25_K ) 
-               N_VARS = 1
+               N_VARS = 4
                CALL INIT_ELMO_COEFFS( IDG, N_VARS, 'PM25' )
                CALL SET_ELMO_COEFF_MAP( IDG, 1, 'AERO', 'AK', 1.0 )
+               CALL SET_ELMO_COEFF_MAP( IDG, 2, 'AERO', 'ASEACAT', real(ascat_k_fac ))
+               CALL SET_ELMO_COEFF_MAP( IDG, 3, 'AERO', 'ASOIL',   real(asoil_k_fac ))
+               CALL SET_ELMO_COEFF_MAP( IDG, 4, 'AERO', 'ACORS',   real(acors_k_fac ))
  
              ! Map PM25_CA - PM2.5 Calcium
              CASE ( ID_PM25_CA ) 
-               N_VARS = 1
+               N_VARS = 4
                CALL INIT_ELMO_COEFFS( IDG, N_VARS, 'PM25' )
                CALL SET_ELMO_COEFF_MAP( IDG, 1, 'AERO', 'ACA', 1.0 )
+               CALL SET_ELMO_COEFF_MAP( IDG, 2, 'AERO', 'ASEACAT', real(ascat_ca_fac ))
+               CALL SET_ELMO_COEFF_MAP( IDG, 3, 'AERO', 'ASOIL',   real(asoil_ca_fac ))
+               CALL SET_ELMO_COEFF_MAP( IDG, 4, 'AERO', 'ACORS',   real(acors_ca_fac ))
  
              ! Map PM25_Other - PM25 Other 
              CASE ( ID_PM25_OT ) 
@@ -1589,9 +1627,11 @@
  
              ! Map PM25_FE - PM2.5 Iron
              CASE ( ID_PM25_FE ) 
-               N_VARS = 1
+               N_VARS = 3
                CALL INIT_ELMO_COEFFS( IDG, N_VARS, 'PM25' )
                CALL SET_ELMO_COEFF_MAP( IDG, 1, 'AERO', 'AFE', 1.0 )
+               CALL SET_ELMO_COEFF_MAP( IDG, 2, 'AERO', 'ASOIL',   real(asoil_fe_fac ))
+               CALL SET_ELMO_COEFF_MAP( IDG, 3, 'AERO', 'ACORS',   real(acors_fe_fac ))
  
              ! Map PM25_SI - PM2.5 Silicon
              CASE ( ID_PM25_SI ) 
@@ -1607,9 +1647,11 @@
  
              ! Map PM25_MN - PM2.5 Manganese
              CASE ( ID_PM25_MN ) 
-               N_VARS = 1
+               N_VARS = 3
                CALL INIT_ELMO_COEFFS( IDG, N_VARS, 'PM25' )
                CALL SET_ELMO_COEFF_MAP( IDG, 1, 'AERO', 'AMN', 1.0 )
+               CALL SET_ELMO_COEFF_MAP( IDG, 2, 'AERO', 'ASOIL',   real(asoil_mn_fac ))
+               CALL SET_ELMO_COEFF_MAP( IDG, 3, 'AERO', 'ACORS',   real(acors_mn_fac ))
  
              ! Map PM25_AL - PM2.5 Aluminum
              CASE ( ID_PM25_AL ) 
@@ -1640,7 +1682,7 @@
                CALL SET_ELMO_COEFF_MAP( IDG, 3, 'AERO', 'ANO3', -1.0 )
                CALL SET_ELMO_COEFF_MAP( IDG, 4, 'AERO', 'ANH4', -1.0 )
                CALL SET_ELMO_COEFF_MAP( IDG, 5, 'AERO', 'ACL', -1.0 )          
-               CALL SET_ELMO_COEFF_MAP( IDG, 6, 'AERO', 'ANA', -1.0 )          
+               CALL SET_ELMO_COEFF_MAP( IDG, 6, 'AGG',  'PM25_NA', -1.0 )          
                CALL SET_ELMO_COEFF_MAP( IDG, 7, 'AERO', 'AEC', -1.0 )          
                CALL SET_ELMO_COEFF_MAP( IDG, 8, 'AGG',  'PM25_OC', -1.0 )          
                CALL SET_ELMO_COEFF_MAP( IDG, 9, 'AGG',  'PM25_SOIL', -1.0 )          
@@ -1649,10 +1691,14 @@
              CASE ( ID_PM25_UN ) 
                N_VARS = 3
                CALL INIT_ELMO_COEFFS( IDG, N_VARS, 'PM25' )
-               CALL SET_ELMO_COEFF_MAP( IDG, 1, 'AERO', 'ASEACAT', 0.0 ) ! All Seaspray Cation mass has been 
-                                                                           ! apportined to Na, Mg, K, and Ca
-               CALL SET_ELMO_COEFF_MAP( IDG, 2, 'AERO', 'ASOIL', 0.8124 )
-               CALL SET_ELMO_COEFF_MAP( IDG, 3, 'AERO', 'ACORS', 0.9207 )
+               CALL SET_ELMO_COEFF_MAP( IDG, 1, 'AERO', 'ASEACAT', 1.0 - real( ascat_na_fac + ascat_mg_fac +  
+     &                                                                         ascat_k_fac  + ascat_ca_fac  )) 
+               CALL SET_ELMO_COEFF_MAP( IDG, 2, 'AERO', 'ASOIL',   1.0 - real( asoil_na_fac + asoil_mg_fac +
+     &                                                                         asoil_k_fac  + asoil_ca_fac +
+     &                                                                         asoil_mn_fac + asoil_fe_fac  ))
+               CALL SET_ELMO_COEFF_MAP( IDG, 3, 'AERO', 'ACORS',   1.0 - real( acors_na_fac + acors_mg_fac +
+     &                                                                         acors_k_fac  + acors_ca_fac +
+     &                                                                         acors_mn_fac + acors_fe_fac  ))
  
              ! Map PM25_HP - PM2.5 Hydronium Ion
              CASE ( ID_PM25_HP ) 
@@ -1689,9 +1735,12 @@
  
              ! Map PM25to10_NA - PM2.5-10.0 Sodium
              CASE ( ID_PM25to10_NA ) 
-               N_VARS = 1
+               N_VARS = 4
                CALL INIT_ELMO_COEFFS( IDG, N_VARS, 'PM25TO10' )
                CALL SET_ELMO_COEFF_MAP( IDG, 1, 'AERO', 'ANA', 1.0 )
+               CALL SET_ELMO_COEFF_MAP( IDG, 2, 'AERO', 'ASEACAT', real(ascat_na_fac ))
+               CALL SET_ELMO_COEFF_MAP( IDG, 3, 'AERO', 'ASOIL',   real(asoil_na_fac ))
+               CALL SET_ELMO_COEFF_MAP( IDG, 4, 'AERO', 'ACORS',   real(acors_na_fac ))
  
              !!!! Toxics !!!!  
  
@@ -2041,6 +2090,7 @@
           IF ( ISPEC .GT. 0 ) THEN
              ! Found the Index. Save it!
              ELMO_COEFFS( IDG )%I_SPEC( IVAR ) = ISPEC
+             ELMO_COEFFS( IDG )%L_GAS( IVAR )  = .TRUE.
           ELSE
              ! Could not find the species in the CGRID Array. Print an
              ! Error and Warn
@@ -2577,8 +2627,10 @@
             ! just carbon mass
             VAL = 0.0
             DO IOA = 1,N_OA_NotTracers
+
                 ! Skip primary species and those with negative OM:OC
                 IF ( OASPC( IOA )%OMtoOC .GT. 0.0 .AND. .NOT. OASPC( IOA )%PRIMARY ) THEN
+
                       VAL = VAL + SUM( AEROSPC_CONC( MAP_OAtoAERO(IOA),: ),
      &                            MASK = AEROMODE(:)%FINE_MASK ) 
      &                          / OASPC( IOA )%OMtoOC
@@ -2692,7 +2744,7 @@
          CASE ( ID_PM1_OC )
             ! Save PM1 Fraction for each mode
             DO IMODE = 1,N_MODE
-                CALL GET_AERO_INLET( IPM1, IM, IWET, FRAC( IMODE ) ) 
+                CALL GET_AERO_INLET( IPM1, IMODE, IWET, FRAC( IMODE ) ) 
             END DO
             ! Sum up primary organic aerosol species normalized to
             ! just carbon mass
@@ -2708,7 +2760,7 @@
          CASE ( ID_PM1_OA )
             ! Save PM1 Fraction for each mode
             DO IMODE = 1,N_MODE
-                CALL GET_AERO_INLET( IPM1, IM, IWET, FRAC( IMODE ) ) 
+                CALL GET_AERO_INLET( IPM1, IMODE, IWET, FRAC( IMODE ) ) 
             END DO
             ! Sum up primary organic aerosol species
             VAL = 0.0
@@ -2721,7 +2773,7 @@
          CASE ( ID_PM25_OC )
             ! Save PM2.5 Fraction for each mode
             DO IMODE = 1,N_MODE
-                CALL GET_AERO_INLET( IPM25, IM, IWET, FRAC( IMODE ) ) 
+                CALL GET_AERO_INLET( IPM25, IMODE, IWET, FRAC( IMODE ) ) 
             END DO
             ! Sum up primary organic aerosol species normalized to
             ! just carbon mass
@@ -2737,7 +2789,7 @@
          CASE ( ID_PM25_OA )
             ! Save PM2.5 Fraction for each mode
             DO IMODE = 1,N_MODE
-                CALL GET_AERO_INLET( IPM25, IM, IWET, FRAC( IMODE ) ) 
+                CALL GET_AERO_INLET( IPM25, IMODE, IWET, FRAC( IMODE ) ) 
             END DO
             ! Sum up primary organic aerosol species
             VAL = 0.0
@@ -3144,11 +3196,11 @@
          INIT_STEP = .TRUE.
       ELSE
          WSTEP = WSTEP + TIME2SEC( TSTEP( 2 ) )
-         IF ( WSTEP .GE. TIME2SEC( TSTEP( 1 ) ) ) 
+         IF ( WSTEP .GE. TIME2SEC( TSTEP( 1 ) ) )
      &        WRITE_STEP = .TRUE.
       END IF
       ELMO_NSTEP = ELMO_NSTEP + 1.0
-     
+
       ! Get Meteorological Variables
 
       ! pressure [Pa]
@@ -3412,19 +3464,19 @@ C *** Write data to the scalar output file.
 C *** Write data to the average aerosol diagnostic file.
          IF ( .NOT.INIT_TIME ) THEN
            IF ( AVRG_ACTIVE ) THEN
-              IF ( .NOT. END_TIME ) THEN   ! ending time timestamp
-                 CALL NEXTIME ( MDATE, MTIME, -TSTEP(1) )
-              END IF
+            IF ( .NOT. END_TIME ) THEN   ! ending time timestamp
+               CALL NEXTIME ( MDATE, MTIME, -TSTEP(1) )
+            END IF
           
-              IF ( .NOT. WRITE3( CTM_AELMO_1, 
+            IF ( .NOT. WRITE3( CTM_AELMO_1, 
      &             ALLVAR3, MDATE, MTIME, 
      &             ELMO_AVRG(:,:,:,:) / 2.0 / 
      &             (ELMO_NSTEP-1.0) ) ) THEN
-                 XMSG = 'Could not write ' // CTM_AELMO_1 // ' file'
-                 CALL M3EXIT ( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
-              END IF
+               XMSG = 'Could not write ' // CTM_AELMO_1 // ' file'
+               CALL M3EXIT ( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
+            END IF
           
-              WRITE( LOGDEV, '( /5X, 3( A, :, 1X ), I8, ":", I6.6 )' )
+            WRITE( LOGDEV, '( /5X, 3( A, :, 1X ), I8, ":", I6.6 )' )
      &                       'Timestep written to', CTM_AELMO_1,
      &                       'for date and time', MDATE, MTIME
           
