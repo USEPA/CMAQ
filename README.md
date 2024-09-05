@@ -49,7 +49,7 @@ Users who wish to adopt the most recent bugfixes or minor updates to v5.4 should
 
 To clone code with all of the CMAQv5.4 bug fixes issue the following command from within a working directory on your server:
 ```
- git clone -b CMAQv5.4.0.4_9April2024 https://github.com/USEPA/CMAQ.git CMAQ_5.4.0.4
+ git clone -b CMAQv5.4.0.4_5Sept2024 https://github.com/USEPA/CMAQ.git CMAQ_5.4.0.5
 ```
 
 ## CMAQ Repository Guide
