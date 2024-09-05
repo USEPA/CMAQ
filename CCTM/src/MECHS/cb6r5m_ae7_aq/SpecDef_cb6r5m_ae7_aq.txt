@@ -113,7 +113,9 @@ XYL             ,ppbV      ,1000.0*XYLMN[1]
 !                           +2.0*ALD2[1] + 2.0*ETHA[1] + 4.0*IOLE[1] + 2.0*ALDX[1]  \
 !                           +5.0*ISOP[1] + 10.0*TERP[1]+ 10.0*NAPH[1] +10.*APIN[1])
 
-
+!! DMS and MSA. Users can uncomment them if they choose.
+DMS            ,ppbV      ,1000.0*DMS[1]
+MSA            ,ppbV      ,1000.0*MSA[1]
 
 !-------------------------------------------!
 !--------------- Particles -----------------!
@@ -155,10 +157,10 @@ AOCIJ           ,ugC m-3   ,PMF_OC[3]
 AOMIJ           ,ug m-3    ,PMF_OA[3]
 
 !!! Anthropogenic-VOC Derived Organic Aerosol
-AORGAJ          ,ug m-3    ,PMF_ASOA[3]
+AORGAIJ         ,ug m-3    ,PMF_ASOA[3]
 
 !!! Biogenic-VOC Derived Organic Aerosol
-AORGBJ          ,ug m-3    ,PMF_BSOA[3]
+AORGBIJ         ,ug m-3    ,PMF_BSOA[3]
 
 !!! Cloud-Processed  SOA
 AORGCJ          ,ug m-3    ,AORGCJ[1]
