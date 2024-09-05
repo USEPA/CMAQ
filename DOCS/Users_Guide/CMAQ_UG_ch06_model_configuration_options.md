@@ -1103,7 +1103,9 @@ Pleim, J.E. (2007b). A combined local and nonlocal closure model for the atmosph
 
 Pleim, J., & Ran, L. (2011). Surface flux modeling for air quality applications. Atmosphere, 2(3), 271-302.
 
-Pleim, J. E., Ran, L., Appel, W., Shephard, M.W., & Cady-Pereira K. (2019). New bidirectional ammonia flux model in an air quality model coupled with an agricultural model. JAMES in review.
+Pleim, J. E., Ran, L., Appel, W., Shephard, M.W., & Cady-Pereira K. (2019). New bidirectional ammonia flux model in an air quality model coupled with an agricultural model. Journal of Advances in Modeling Earth Systems, 11, 2934-2957, [doi: 10.1029/2019MS001728](https://doi.org/10.1029/2019MS001728).
+
+Pleim, J.E., Ran, L., Saylor, R.D., Willison, J. and Binkowski, F.S. (2022). A new aerosol dry deposition model for air quality and climate modeling. Journal of Advances in Modeling Earth Systems, 14(11), p.e2022MS003050, [doi: 10.1029/2022MS003050]( https://doi.org/10.1029/2022MS003050).
 
 Pye, H.O.T., Pinder, R.W., Piletic, I.R., Xie, Y., Capps, S.L., Lin, Y.H., Surratt, J.D., Zhang, Z.F., Gold, A., Luecken, D.J., Hutzell W.T., Jaoui, M., Offenberg, J.H., Kleindienst, T.E., Lewandowski, M., & Edney, E.O. (2013). Epoxide pathways improve model predictions of isoprene markers and reveal key role of acidity in aerosol formation. Environ. Sci. Technol., 47(19), 11056-11064.
 
