@@ -973,9 +973,13 @@ If number concentration is present and nonzero, but M2 is missing or zero, then 
 setenv BC_AERO_M2USE F  #(default: T)
 setenv IC_AERO_M2USE F  #(default: T)
 ```
-This may be an attractive option if the values of M2 have become corrupted or unstable to due to interpolation of boundary or initial conditions in space and time. The impact of this option on fine and coarse mode particle mass concentrations is shown below. There is a substantially larger impact on coarse-mode particles, especially near the boundaries.
+This may be an attractive option if the values of M2 have become corrupted or unstable to due to interpolation of boundary or initial conditions in space and time. The impact of this option on fine and coarse mode particle mass concentrations is shown below. There is a substantially larger impact on coarse particles than on fine particles, especially near the boundaries.
 
-((PICS))
+![image](https://github.com/user-attachments/assets/9f048187-ab68-4f64-9ba9-925cb6c6d218)  
+Deviation in total fine particle mass concentration in $\mu g \ m^{-3}$.
+
+![image](https://github.com/user-attachments/assets/80068a34-2643-49ac-bb0a-cce3e5859d41)  
+Deviation in total coarse particle mass concentration in $\mu g \ m^{-3}$.
 
 The initial conditions are not expected to have such large impact on model results because model output data are used to begin every model restart (e.g. at the end of a day). It is expected that the user will give ample model spin-up time so that the impact of initial conditions issues is unlikely. 
 
