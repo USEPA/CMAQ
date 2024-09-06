@@ -58,7 +58,7 @@ on population, roads, airports, railroads, and land use spatial data sets. The [
 
 **Regional masks** are used to specify regions such as states, counties, or countries within a gridded spatial domain. These regions are applied to regionally scale emissions as specified in section B.3.4 of the [DESID Appendix](CMAQ_UG_appendixB_emissions_control.md) and to track emissions by region in [ISAM](../Users_Guide/CMAQ_UG_ch11_ISAM.md) Masks can be created from a geospatial file of regions, such as county shapefile, with the [shp2cmaq](../../../PREP/shp2cmaq/README.md) tool or the Spatial Allocator.
 
-**Biogenic emissions** requires land use input including coverage of different tree species. The landcover for BELD3 and BELD4 may be generated using the Spatial Allocator's [BELD4 land cover tools](https://github.com/CMASCenter/Spatial-Allocator/blob/master/docs/User_Manual/SA_ch03_vector.md#processing-biogenic-emissions-land-use-data).
+**Biogenic emissions** requires land use input including coverage of different tree species. BELD data is released with the NEI ([BELD5 data from the 2020 NEI](https://gaftp.epa.gov/Air/emismod/2017/biogenics/)).
 
 **Sea spray emissions** require open ocean and surf zone (50m) buffer fractions for the modeling grid
  cells in an I/O API file. For most of North American domain, a SA Vector allocation tool can be used
