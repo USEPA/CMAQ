@@ -15,8 +15,8 @@ set echo
 #  Set directory for CMAQ Libraries 
 #  -------------------
 
-   mkdir /21dayscratch/scr/l/i/lizadams/CMAQ/LIBRARIES/build-hdf5
-   setenv INSTDIR /21dayscratch/scr/l/i/lizadams/CMAQ/LIBRARIES/build-hdf5
+   mkdir -p $cwd/CMAQv5.5/LIBRARIES
+   setenv INSTDIR $cwd/CMAQv5.5/LIBRARIES
 
 #  ----------------------
 # Build and install zlib
@@ -100,6 +100,8 @@ set echo
 #  ----------------------------------
 #  Download and build Parallel netCDF
 #  ----------------------------------
+#  NOTE: the openmpi directory path is hard coded on this script and needs to be updated for your local machine
+##
    cd  $INSTDIR
    wget https://parallel-netcdf.github.io/Release/pnetcdf-1.12.1.tar.gz
    tar xvf pnetcdf-1.12.1.tar.gz
