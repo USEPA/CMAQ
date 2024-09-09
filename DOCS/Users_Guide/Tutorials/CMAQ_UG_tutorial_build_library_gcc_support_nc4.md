@@ -468,12 +468,12 @@ ls -rlt m3xtract
 make test
 ```
 
-## Install CMAQv5.3.2.1
+## Install CMAQv55
 
-1. Download the CMAQv5.3.2.1 code using the following
+1. Download the CMAQv55 code using the following
 
 ```
-git clone -b 5.3.2.1 https://github.com/lizadams/cmaq.git CMAQ_REPO
+git clone -b 55 https://github.com/lizadams/cmaq.git CMAQ_REPO
 ```
 
 2. Build and run in a user-specified directory outside of the repository
@@ -481,7 +481,7 @@ In the top level of CMAQ_REPO, the bldit_project.csh script will automatically r
 
 In bldit_project.csh, modify the variable $CMAQ_HOME to identify the folder that you would like to install the CMAQ package under. For example:
 
-set CMAQ_HOME = [your_work_location]/CMAQv5.3.2.1
+set CMAQ_HOME = [your_work_location]/CMAQv55
 Now execute the script.
 
 ```
@@ -492,7 +492,7 @@ Now execute the script.
 3. Edit the config_cmaq.csh to specify the netCDF C, netCDF Fortran, and I/O API Library locations
 
 ```
-cd [your_work_location]/CMAQv5.3.2.1
+cd [your_work_location]/CMAQv55
 vi config_cmaq.csh
 ```
 
@@ -504,10 +504,10 @@ note, the paths need to be edited to match the location for your installation
     case gcc:
 
         #> I/O API and netCDF for WRF-CMAQ 
-        setenv NCDIR /proj/ie/proj/CMAS/EQUATES/LIBRARIES/netcdf-c-4.7.0-gcc9.1.0                  # C netCDF install path
-        setenv NFDIR  /proj/ie/proj/CMAS/EQUATES/LIBRARIES/netcdf-fortran-4.4.5-gcc9.1.0           # Fortran netCDF install path for CMAQ
-        setenv NETCDF netcdf_combined_directory_path # Note only for  WRF-CMAQ as it requires combining the netcdf C and netcdf F into a single directory. CMAQ users - don't change this setting
-        setenv IOAPI  /proj/ie/proj/CMAS/EQUATES/LIBRARIES/ioapi-3.2/   # I/O API 
+        setenv NCDIR /your_local_path/LIBRARIES/                  # C netCDF install path
+        setenv NFDIR /your_local_path/LIBRARIES/           # Fortran netCDF install path for CMAQ
+        setenv NETCDF /your_local_path/LIBRARIES/          # Note only for  WRF-CMAQ as it requires combining the netcdf C and netcdf F into a single directory. CMAQ users - don't change this setting
+        setenv IOAPI  /your_local_path/LIBRARIES/ioapi-3.2/   # I/O API 
         setenv WRF_ARCH 34                              # [1-75] Optional, ONLY for WRF-CMAQ  
 
         #> I/O API, netCDF, and MPI library locations
@@ -530,110 +530,93 @@ note, the paths need to be edited to match the location for your installation
 source config_cmaq.csh
 ```
 
-5. Copy the EQUATES build and run script from the EQUATES_BENCHMARK repository to the CMAQv5.3.2.1/CCTM/scripts directory
+5. Copy the buildit script
 
 ```
-cp bldit_cctm.csh /proj/ie/proj/CMAS/EQUATES/CMAQv5.3.2.1/CCTM/scripts
-cp run_cctm_2017_12US1_EQUATES_combine.csh /proj/ie/proj/CMAS/EQUATES/CMAQv5.3.2.1/CCTM/scripts
+cp bldit_cctm.csh bldit_cctmv55_cb6r5_m3dry/
 ```
 
-6. Build CMAQv5.3.2.1 to support the STAGE dry deposition option 
+6. Build CMAQv55 to support the cb6r5 and m3dry dry deposition option 
 
 ```
-./bldit_cctm.EQUATES.csh gcc |& tee ./bldit_cctm.EQUATES..gcc.log
+./bldit_cctmv55_cb6r5_m3dry.csh gcc | & tee ./bldit_cctmv55_cb6r5_m3dry.log
 ```
 
 7. Build the POST processing routines
 
 ```
-cd /proj/ie/proj/CMAS/EQUATES/CMAQv5.3.2.1/POST/combine/scripts
+cd POST/combine/
 ./bldit_combine.csh gcc |& tee ./bldit_combine.gcc.log
 ```
 
 ```
-cd /proj/ie/proj/CMAS/EQUATES/CMAQv5.3.2.1/POST/calc_tmetric/scripts
+cd POST/calc_tmetric/scripts
 ./bldit_calc_tmetric.csh gcc |& tee ./bldit_calc_tmetric.gcc.log
 ```
 
 ```
-cd /proj/ie/proj/CMAS/EQUATES/CMAQv5.3.2.1/POST/hr2day/scripts
+cd POST/hr2day/scripts
 ./bldit_hr2day.csh gcc |& tee ./bldit_hr2day.gcc.log
 ```
 
 ```
-cd /proj/ie/proj/CMAS/EQUATES/CMAQv5.3.2.1/POST/bldoverlay/scripts
+cd POST/bldoverlay/scripts
 ./bldit_bldoverlay.csh gcc |& tee ./bldit_bldoverlay.gcc.log
 ```
 
-8. Edit the SBATCH section of the EQUATES Benchmark run script to use the SLURM resources on your machine 
+8.  Edit the SBATCH section of the Benchmark run script to use the SLURM resources on your machine 
 and modify the CMAQ_HOME directory to specify your local path
 
 ```
-vi run_cctm_2017_12US1_EQUATES_combine.csh
+vi run_cctm_Bench_2018_12NE3.csh
 ```
 
- setenv CMAQ_HOME /proj/ie/proj/CMAS/EQUATES/CMAQv5.3.2.1
 
 
-## Download EQUATES Benchmark Input Data
+## Download Benchmark Input Data
 
-1. Download the gdrive script from the Google Drive by following the Gdrive section of this README
-
-
-https://docs.google.com/document/d/1e7B94zFkbKygVWfrhGwEZL51jF4fGXGXZbvi6KzXYQ4
-
-
-2. Download the EQUATES input data using the gdrive_scripts 
-
-Download emissions
-
-```
-cd ../gdrive_scripts/data/2017_12US1/emis
-./gdrive_download_equates_emis.csh
-```
-
-Download meteorology
-
-```
-cd ../gdrive_scripts/data/2017_12US1/met/mcip_v51_wrf_v411_noltng
-./gdrive_download_equates_mcip.csh
-```
-
-Download Initial and Boundary Conditions
-
-```
-cd ../gdrive_scripts/data/2017_12US1/icbc
-./gdrive_download_equates.icbc.csh
-```
 
 ## Update EQUATES Benchmark Run Script to specify path to downloaded input data
 
-1. Specify the 2017_12US1 as the input data directory in the CMAQv5.3.2.1 CCTM run script
+1. Specify the 2018_12US1 as the input data directory in the CMAQv55 CCTM run script
 
 ```
-cd /proj/ie/proj/CMAS/EQUATES/CMAQv5.3.2.1/CCTM/scripts
-vi run_cctm_2017_12US1_EQUATES_combine.csh
-
-modify to specify the location of the EQUATES input files downloaded from the Google Drive 
-setenv INPDIR  ${CMAQ_HOME}/2017_12US1  #Input Directory
+vi run_cctm_Bench_2018_12NE3.csh  
 ```
 
-## Modify EQUATES Benchmark Post-processing Scripts for your installation
-
-1. The POST/EQUATES directory is available under the CMAQv5.3.2.1 directory. 
-These scripts will be called by the run_cctm_2017_12US1_EQUATES_combine.csh script.
-If you are using a different version of CMAQ, ie CMAQv5.3.3, you will need to copy the POST/EQUATES scripts to your repository for the CMAQv5.3.3 version.
+verify the location of the 12NE3 benchmark input files
 
 ```
-cd /proj/ie/proj/CMAS/EQUATES/CMAQv5.3.2.1/POST
-cp -rp /proj/ie/proj/CMAS/EQUATES/EQUATES_BENCHMARK/POST/EQUATES .
+ setenv INPDIR  ${CMAQ_DATA}/2018_12NE3
 ```
 
-2. Edit the scripts under /proj/ie/proj/CMAS/EQUATES/CMAQv5.3.2.1/POST/EQUATES to specify your local WORKDIR and CMAQREPO
+## Modify Benchmark Post-processing Scripts for your installation
 
-## Run the equates run script
+1. The POST/combine directory is available under the CMAQv55 directory. 
+These scripts will need to be edited  
 
 ```
-cd /proj/ie/proj/CMAS/EQUATES/CMAQv5.3.2.1/CCTM/scripts
-sbatch run_cctm_2017_12US1_EQUATES_combine.csh
+run_combine.csh
+```
+
+
+2. Edit the scripts under to specify the APPL for this benchmark
+
+```
+ set APPL      = Bench_2018_12NE3        #> Application Name (e.g. Gridname)
+
+```
+
+3. Edit the start and end date.
+
+```
+ set START_DATE = "2016-07-01"     #> beginning date (July 1, 2016)
+ set END_DATE   = "2016-07-14"     #> ending date    (July 14, 2016)
+```
+
+
+## Run the combine run script
+
+```
+sbatch run_combine.csh
 ```
