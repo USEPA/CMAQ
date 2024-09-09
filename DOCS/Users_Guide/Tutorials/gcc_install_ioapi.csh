@@ -1,15 +1,15 @@
 #!/bin/csh -f
+# Build I/O API version that supports NCF4 
 set echo
 
 #  --------------------------------------
-#  Add /usr/local/lib to the library path
+#  Add  to the library path
 #  --------------------------------------
-#   if [ -z ${LD_LIBRARY_PATH} ]
-#   then
-#      export LD_LIBRARY_PATH=/usr/local/lib
-#   else
-#      export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/usr/local/lib
-#   fi
+   if (! $?LD_LIBRARY_PATH) then
+      setenv  LD_LIBRARY_PATH /21dayscratch/scr/l/i/lizadams/CMAQv5.5/LIBRARIES/lib
+   else
+     setenv  LD_LIBRARY_PATH ${LD_LIBRARY_PATH}:/21dayscratch/scr/l/i/lizadams/CMAQv5.5/LIBRARIES/lib
+   endif
 #  ----------------------
 #  Unpack and build IOAPI
 #  ----------------------
@@ -22,15 +22,23 @@ set echo
    setenv BIN Linux2_x86_64gfort
    mkdir $BASEDIR/$BIN
    setenv CPLMODE nocpl
-   # Edit Makefile or use syntax: make BIN=Linux2_x86_64pg  CPLMODE=pncf INSTALL=/foo/bar
+   # Edit Makefile or use syntax: make BIN=Linux2_x86_64pg  CPLMODE=nocpl INSTALL=$INSTDIR
    cd $BASEDIR/ioapi
-   cp Makefile.$CPLMODE  ${BASEDIR}/ioapi/Makefile
-   cp Makefile.$CPLMODE  ${BASEDIR}/m3tools/Makefile
+   # Copy the Makefile template
+   cp $BASEDIR/ioapi/Makefile.$CPLMODE  ${BASEDIR}/ioapi/Makefile
+   cp ${BASEDIR}/m3tools/Makefile.$CPLMODE  ${BASEDIR}/m3tools/Makefile
+   # Modify to specify the path of the netcdf libraries
+   sed -i 's/\-lnetcdff/\-L\$\{HOME\}\/lib \-lnetcdff/g' ${BASEDIR}/m3tools/Makefile
    # need updated Makefile to include ‘-DIOAPI_NCF4=1’ to the MFLAGS make-variable to avoid multiple definition of `nf_get_vara_int64_’
-   sed -i -e 's/m64/m64 -DIOAPI_NCF4=1/g' Makeinclude.Linux2_x86_64gfort 
+   # Makefile can be edited to use these options instead of the default options
+       VFLAG  = -DVERSION='3.2-nocpl-ncf4'
+       DEFINEFLAGS = -DIOAPI_NCF4=1 $(ARCHFLAGS) $(PARFLAGS)
+   #This will remove # from the start of line 102 or add it if it wasn't already there:
+   sed -i '102s/^#/\n/; 102s/^[^\n]/#&/; 102s/^\n//'
+   sed -i '100s/^#/\n/; 100s/^[^\n]/#&/; 100s/^\n//'
+   sed -i '109s/^#/\n/; 109s/^[^\n]/#&/; 109s/^\n//'
+   sed -i '111s/^#/\n/; 111s/^[^\n]/#&/; 111s/^\n//'
+   #sed -i -e 's/m64/m64 -DIOAPI_NCF4=1/g' Makeinclude.Linux2_x86_64gfort 
    make HOME=$INSTDIR | & tee make.log
    cd $INSTDIR/ioapi-3.2/m3tools
    make HOME=$INSTDIR | & tee make.log
-   #   cd $BASEDIR/m3tools
-   #cp $PDIR/Makefile.template Makefile
-   #make HOME=$DIR/install
