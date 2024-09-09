@@ -96,5 +96,6 @@ update their geogrid land cover data using the more accurate land cover data gen
 <!-- BEGIN COMMENT -->
 
 [<< Previous Appendix](CMAQ_UG_appendixB_emissions_control.md) - [Home](../README.md) - [Next Appendix >>](CMAQ_UG_appendixD_parallel_implementation.md)<br>
-CMAQ User's Guide (c) 2022<br>
+CMAQv5.5 User's Guide <br>
+
 <!-- END COMMENT -->

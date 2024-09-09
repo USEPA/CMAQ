@@ -366,6 +366,6 @@ This optional 3-D CCTM file contains vertical profiles of the concentration of m
 <!-- BEGIN COMMENT -->
 
 [<< Previous Chapter](CMAQ_UG_ch06_model_configuration_options.md) - [Home](README.md) - [Next Chapter >>](CMAQ_UG_ch08_analysis_tools.md)<br>
-CMAQ User's Guide (c) 2022<br>
+CMAQv5.5 User's Guide <br>
 
 <!-- END COMMENT -->

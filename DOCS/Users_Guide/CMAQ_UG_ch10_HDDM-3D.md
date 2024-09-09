@@ -210,6 +210,6 @@ Dunker, A. 1984: The decoupled direct method for calculating sensitivity coeffic
 <!-- BEGIN COMMENT -->
 
 [<< Previous Chapter](CMAQ_UG_ch09_process_analysis.md) - [Home](README.md) - [Next Chapter >>](CMAQ_UG_ch11_ISAM.md)<br>
-CMAQ User's Guide (c) 2022<br>
+CMAQv5.5 User's Guide <br>
 
 <!-- END COMMENT -->

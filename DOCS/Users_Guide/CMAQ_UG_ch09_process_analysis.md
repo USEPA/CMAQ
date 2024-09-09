@@ -226,6 +226,6 @@ Tonnesen, S., & Jeffries, H.E. (1994). Inhibition of odd oxygen production in th
 <!-- BEGIN COMMENT -->
 
 [<< Previous Chapter](CMAQ_UG_ch08_analysis_tools.md) - [Home](README.md) - [Next Chapter >>](CMAQ_UG_ch10_HDDM-3D.md)<br>
-CMAQ User's Guide (c) 2022<br>
+CMAQv5.5 User's Guide <br>
 
 <!-- END COMMENT -->

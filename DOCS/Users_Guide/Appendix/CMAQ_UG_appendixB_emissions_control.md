@@ -415,6 +415,6 @@ For this set of example, Desid_N_Diag_Rules in the Desid_DiagVars section should
 <!-- BEGIN COMMENT -->
 
 [<< Previous Appendix](CMAQ_UG_appendixA_model_options.md) - [Home](../README.md) - [Next Appendix >>](CMAQ_UG_appendixC_spatial_data.md)<br>
-CMAQ User's Guide (c) 2022<br>
+CMAQv5.5 User's Guide <br>
 
 <!-- END COMMENT -->

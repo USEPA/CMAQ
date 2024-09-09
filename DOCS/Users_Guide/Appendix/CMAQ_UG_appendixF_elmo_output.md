@@ -152,6 +152,6 @@ Follow the example of existing variables to prescribe the species to be added, t
 <!-- BEGIN COMMENT -->
 
 [<< Previous Appendix](CMAQ_UG_appendixE_configuring_WRF.md) - [Home](../README.md) <br>
-CMAQ User's Guide (c) 2022<br>
+CMAQv5.5 User's Guide<br>
 
 <!-- END COMMENT -->
