@@ -65,6 +65,16 @@
 !                                      FAMS                                    !
 !                 'TOXICS' - Species output by the toxics version of CMAQ      !
 !                            (e.g. PM25_HBE, PM25_HNI, PM10_HDIESEL', etc      !
+!                            In CMAQ v5.5 and earlier versions with ELMO output!
+!                            files, the TOXICS keyword group omits several     !
+!                            toxic aerosol species. The missing species include! 
+!                            PM10 for nickle as well as PM25, PM10, and        !
+!                            fraction aerosol for benzo[a]pyrene. To have the  !
+!                            variables in the ELMO output files, a user has to !
+!                            add PM10_HNI, PM25_BENAPY, PM10_BENAPY and        !
+!                            BENAPY_FAERO as well as the TOXICS keyword groups !
+!                            to CMAQ_Control_Misc.nml file in the CCTM build   !
+!                            directory.                                        !
 !                                                                              !
 !     ELMO_AVRG - set parameters for average output                            !
 !        'AVRG_LAYER_TOP' - top CMAQ layer for average output. Enter '-1'      !
