@@ -72,9 +72,15 @@ set echo
    # installation instructions
    tar xvf v4.5.4.tar.gz
    cd netcdf-fortran-4.5.4
-   setenv LIBS "-lnetcdf"
+   setenv FC gfortran
+   setenv F90 gfortran
+   setenv F77 gfortran
+   setenv CC gcc
+   setenv CXX g++
+   setenv LIBS " -lnetcdf -lhdf5_hl -lhdf5 -lm -ldl -lz -lcurl "
    setenv CPPFLAGS -I${INSTDIR}/include
    setenv LDFLAGS -L${INSTDIR}/lib
+   setenv LD_LIBRARY_PATH ${INSTDIR}/lib
    ./configure --with-pic  --disable-shared --prefix=${INSTDIR}
    make |& tee make.gcc9.log 
    make install
