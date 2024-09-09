@@ -97,21 +97,20 @@ source config_cmaq.csh gcc 9.5
 
 ## Install the CMAQ reference input and output benchmark data
 
-Download the CMAQ two day reference input and output data for the CRACMM2 mechanism from the [CMAS Center Data Warehouse Google Drive]([https://drive.google.com/file/d/1AFUB-4kzIXXoZr4hOHNBqRvy9JQ9_MDp/view?usp=sharing](https://drive.google.com/drive/folders/1AFUB-4kzIXXoZr4hOHNBqRvy9JQ9_MDp?usp=sharing). The CMAQ benchmark test case is a two day simulation for July 1-2 2018 on a 100 column x 105 row x 35 layer 12-km resolution domain over the northeast U.S.  
+Download the CMAQ two day reference input and output data for the cb6r5_ae7 mechanism (using inputs from CMAQv5.4 Benchmark release) from the [CMAS Center Data Warehouse Google Drive]([https://drive.google.com/file/d/1AFUB-4kzIXXoZr4hOHNBqRvy9JQ9_MDp/view?usp=sharing](https://drive.google.com/drive/folders/1AFUB-4kzIXXoZr4hOHNBqRvy9JQ9_MDp?usp=sharing), download the file CMAQv5.4_2018_12NE3_Benchmark_2Day_Input.tar.gz. The CMAQ benchmark test case is a two day simulation for July 1-2 2018 on a 100 column x 105 row x 35 layer 12-km resolution domain over the northeast U.S.  
 
   - Use the gdrive command to download the dataset.
   - If this is the first time that you are using gdrive, or if you have an issue with your token, please read the following instructions
   - [Tips to download data from CMAS Data Warehouse](https://docs.google.com/document/d/1e7B94zFkbKygVWfrhGwEZL51jF4fGXGXZbvi6KzXYQ4)
   - Text files are included that provide a list of the files in the benchmark input and output datasets.
 
-The benchmark data is also available from the [CMAS Center Data Warehouse Amazon Web Services S3 Bucket](https://cmas-cmaq.s3.amazonaws.com/index.html). 
+The benchmark data is also available from the [CMAS Center Data Warehouse Amazon Web Services S3 Bucket](https://cmaq-release-benchmark-data-for-easy-download.s3.amazonaws.com/v5_4/CMAQv5.4_2018_12NE3_Benchmark_2Day_Input.tar.gz). 
 
 Copy the data to `$CMAQ_DATA`. Navigate to the `$CMAQ_DATA` directory, unzip and untar the two day benchmark input and output files:
 
 ```
 cd $CMAQ_DATA
-tar xvzf CMAQv5.4_2018_12NE3_Benchmark_2Day_Input_CRACCM2.tar.gz
-tar xvzf CMAQv5.4_2018_12NE3_Benchmark_2Day_Output_CRACMM2.tar.gz
+tar -xzvf CMAQv5.4_2018_12NE3_Benchmark_2Day_Input.tar.gz
 ```
 
 ## Compiling CMAQ
@@ -153,7 +152,7 @@ The build directory parameters for the benchmark test case include the following
 To configure these parameters, the CCTM Science Modules within the bldit_cctm.csh need to be set. The comments within the script itself should help guide the user on the options for each variable and how to set them. Further information on variable names can be found in 
 [Appendix A](../Appendix/CMAQ_UG_appendixA_model_options.md).
 
-To keep the BLD directory name unique for each mechansim, modify the bldit_cctm script to use 
+To keep the BLD directory name unique for each mechansim, verify that the bldit_cctm script uses the following: 
 
 ```
 #> Set and create the "BLD" directory for checking out and compiling source code. Move current directory to that build directory.
@@ -164,11 +163,11 @@ To keep the BLD directory name unique for each mechansim, modify the bldit_cctm 
  endif
 ```
 
-Change the dry deposition scheme to use STAGE instead of M3DRY
+Verify that the dry deposition scheme to use M3DRY
 ```
-#> Set Dry Deposition Scheme to Stage
+#> Set Dry Deposition Scheme to m3dry 
 
- set DepMod    = stage
+ set DepMod    = m3dry
 ```
 
 Following the requisite changes to the CCTM build script, use the following command to create the CCTM executable: 
@@ -181,27 +180,14 @@ cd $CMAQ_HOME/CCTM/scripts
 Verify that the BLD directory contains a namelist called
 
 ```
-CMAQ_Control_STAGE.nml
+cd BLD_CCTM_v55_DDM3D_gcc_cb6r5_ae7_aq_m3dry
+ls CMAQ_Control_DESID_cb6r5_ae7_aq.nml
 ```
 
-Change to the BLD directory and add the following lines to the bottom of the CMAQ_Control_DESID_cracmm2.nml
-
-```
-   ! Re-Map CRACMM1 Aromatics to CRACMM2
-   ! EBZ and XYE remapping, STY and XYM remapping
-   ! Generic scaling if not scaling by sector: 70% XYL; 30% EBZ
-   ! EBZ = FAC1 * XYE; STY = FAC2 * XYM ; XYL = (1-FAC1)*XYE + (1-FAC2)*XYM
-   'EVERYWHERE', 'ALL'         ,'XYE'    ,'EBZ'         ,'GAS'  ,0.30,'UNIT','a',
-   'EVERYWHERE', 'ALL'         ,'XYE'    ,'XYL'         ,'GAS'  ,0.70,'UNIT','a',
-
-   ! Generic scaling if not scaling by sector: 93% XYL; 7% STY
-   'EVERYWHERE', 'ALL'         ,'XYM'    ,'STY'         ,'GAS'  ,0.07,'UNIT','a',
-   'EVERYWHERE', 'ALL'         ,'XYM'    ,'XYL'         ,'GAS'  ,0.93,'UNIT','a',
-```
 
 ## Configure the CCTM script 
 
-For an MPI configuration with 16 processors,
+For an MPI configuration with 32 processors,
 
 ```
 cd $CMAQ_HOME/CCTM/scripts

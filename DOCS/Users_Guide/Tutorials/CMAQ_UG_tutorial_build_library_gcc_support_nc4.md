@@ -15,6 +15,15 @@ set INSTALL_DIR = $cwd/CMAQv5.5/LIBRARIES
 mkdir -p $cwd/CMAQv5.5/LIBRARIES
 ```
 
+###
+###  unset environment variables that would conflict with this installation
+###
+
+```
+   unsetenv LDFLAGS
+   unsetenv CPPFLAGS
+```
+
 1. If your compute server uses modules use the following command to see what packages are available
 
 ```

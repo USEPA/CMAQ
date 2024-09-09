@@ -11,6 +11,13 @@ set echo
    module list | grep openmpi
    which mpirun
 
+#
+#  unset envioronment variables that would conflict with this installation
+#
+
+   unsetenv LDFLAGS
+   unsetenv CPPFLAGS
+
 #  --------------------
 #  Set directory for CMAQ Libraries 
 #  -------------------
@@ -22,18 +29,18 @@ set echo
 # Build and install zlib
 #  ---------------------
 
-  cd $INSTDIR
+  cd ${INSTDIR}
   wget https://sourceforge.net/projects/libpng/files/zlib/1.2.11/zlib-1.2.11.tar.gz
   tar -xzvf zlib-1.2.11.tar.gz
   cd zlib-1.2.11
-  ./configure --prefix=$INSTDIR/zlib-1.2.11/gcc_9.1.0
+  ./configure --prefix=${INSTDIR}/zlib-1.2.11/gcc_9.1.0
   make test |& tee make.test.log
   make install |& tee make.install.log
 
 #  -----------------------
 #  Download and build HDF5
 #  -----------------------
-   cd $INSTDIR
+   cd ${INSTDIR}
    wget https://support.hdfgroup.org/ftp/HDF5/releases/hdf5-1.10/hdf5-1.10.5/src/hdf5-1.10.5.tar.gz
    tar xvf hdf5-1.10.5.tar.gz
    rm -f hdf5-1.10.5.tar.gz
@@ -42,33 +49,33 @@ set echo
    setenv FFLAGS "-O3"
    setenv CXXFLAGS "-O3"
    setenv FCFLAGS "-O3"
-   ./configure --prefix=$INSTDIR --with-zlib=$INSTDIR/zlib-1.2.11/gcc_9.1.0/include,$INSTDIR/zlib-1.2.11/gcc_9.1.0/lib --enable-hl
+   ./configure --prefix=${INSTDIR} --with-zlib=${INSTDIR}/zlib-1.2.11/gcc_9.1.0/include,${INSTDIR}/zlib-1.2.11/gcc_9.1.0/lib --enable-hl
    make |& tee make.gcc9.log 
 #  make check > make.gcc9.check
    make install
 #  ---------------------------
 #  Download and build netCDF-C
 #  ---------------------------
-   cd  $INSTDIR
+   cd  ${INSTDIR}
    wget https://github.com/Unidata/netcdf-c/archive/refs/tags/v4.8.0.tar.gz
    #wget https://downloads.unidata.ucar.edu/netcdf-c/4.9.2/netcdf-c-4.9.2.zip
    tar xvf v4.8.0.tar.gz
    cd netcdf-c-4.8.0
-   ./configure --with-pic --enable-netcdf-4 --enable-shared --prefix=$INSTDIR
+   ./configure --with-pic --enable-netcdf-4 --disable-shared --prefix=${INSTDIR}
    make |& tee  make.gcc9.log
    make install
 #  ---------------------------------
 #  Download and build netCDF-Fortran
 #  ---------------------------------
-   cd  $INSTDIR
-   wget https://github.com/Unidata/netcdf-fortran/archive/refs/tags/v4.5.3.tar.gz
+   cd ${INSTDIR}
+   wget https://github.com/Unidata/netcdf-fortran/archive/refs/tags/v4.5.4.tar.gz
    # installation instructions
-   tar xvf v4.5.3.tar.gz
-   cd netcdf-fortran-4.5.3
+   tar xvf v4.5.4.tar.gz
+   cd netcdf-fortran-4.5.4
    setenv LIBS "-lnetcdf"
    setenv CPPFLAGS -I${INSTDIR}/include
    setenv LDFLAGS -L${INSTDIR}/lib
-   ./configure --with-pic  --enable-shared --prefix=$INSTDIR
+   ./configure --with-pic  --disable-shared --prefix=${INSTDIR}
    make |& tee make.gcc9.log 
    make install
 #  -----------------------------
@@ -78,7 +85,7 @@ set echo
    wget https://github.com/Unidata/netcdf-cxx4/archive/refs/tags/v4.3.1.tar.gz
    tar xvf v4.3.1.tar.gz
    cd netcdf-cxx4-4.3.1
-   ./configure --with-pic --enable-shared --prefix=$INSTDIR
+   ./configure --with-pic --disable-shared --prefix=$INSTDIR
    make |& tee  make.gcc9.log
    make install
 #  --------------------------
