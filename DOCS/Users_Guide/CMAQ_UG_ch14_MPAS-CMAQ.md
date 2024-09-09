@@ -1,6 +1,6 @@
 <!-- BEGIN COMMENT -->
 
-[<< Previous Chapter](CMAQ_UG_ch13_wrf-cmaq.md) - [Home](README.md) - [Tables and Figures >>](CMAQ_UG_tables_figures.md)
+[<< Previous Chapter](CMAQ_UG_ch13_WRF-CMAQ.md) - [Home](README.md) - [Tables and Figures >>](CMAQ_UG_tables_figures.md)
 
 <!-- END COMMENT -->
 
@@ -25,7 +25,7 @@
 
 <!-- BEGIN COMMENT -->
 
-[<< Previous Chapter](CMAQ_UG_ch13_wrf-cmaq.md) - [Home](README.md) - [Tables and Figures >>](CMAQ_UG_tables_figures.md)<br>
+[<< Previous Chapter](CMAQ_UG_ch13_WRF-CMAQ.md) - [Home](README.md) - [Tables and Figures >>](CMAQ_UG_tables_figures.md)<br>
 
 <!-- END COMMENT -->
 
