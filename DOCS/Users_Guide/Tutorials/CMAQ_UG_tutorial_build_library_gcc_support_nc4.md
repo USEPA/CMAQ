@@ -12,6 +12,7 @@ set install directory
 
 ```
 set INSTALL_DIR = $cwd/CMAQv5.5/LIBRARIES 
+mkdir -p $cwd/CMAQv5.5/LIBRARIES
 ```
 
 1. If your compute server uses modules use the following command to see what packages are available
