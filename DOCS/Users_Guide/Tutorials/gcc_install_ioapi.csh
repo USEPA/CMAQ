@@ -28,16 +28,16 @@ set echo
    cp $BASEDIR/ioapi/Makefile.$CPLMODE  ${BASEDIR}/ioapi/Makefile
    cp ${BASEDIR}/m3tools/Makefile.$CPLMODE  ${BASEDIR}/m3tools/Makefile
    # Modify to specify the path of the netcdf libraries
-   sed -i 's/\-lnetcdff/\-L\$\{HOME\}\/lib \-lnetcdff/g' ${BASEDIR}/m3tools/Makefile
+   sed -i 's/\-lnetcdff/\-L\$\{HOME\}\/lib \-lnetcdff \-lnetcdf \-lhdf5_hl \-lhdf5 \-lm \-ldl \-lz \-lcurl/g' ${BASEDIR}/m3tools/Makefile
    # need updated Makefile to include ‘-DIOAPI_NCF4=1’ to the MFLAGS make-variable to avoid multiple definition of `nf_get_vara_int64_’
    # Makefile can be edited to use these options instead of the default options
-       VFLAG  = -DVERSION='3.2-nocpl-ncf4'
-       DEFINEFLAGS = -DIOAPI_NCF4=1 $(ARCHFLAGS) $(PARFLAGS)
+   #    VFLAG  = -DVERSION='3.2-nocpl-ncf4'
+   #    DEFINEFLAGS = -DIOAPI_NCF4=1 $(ARCHFLAGS) $(PARFLAGS)
    #This will remove # from the start of line 102 or add it if it wasn't already there:
-   sed -i '102s/^#/\n/; 102s/^[^\n]/#&/; 102s/^\n//'
-   sed -i '100s/^#/\n/; 100s/^[^\n]/#&/; 100s/^\n//'
-   sed -i '109s/^#/\n/; 109s/^[^\n]/#&/; 109s/^\n//'
-   sed -i '111s/^#/\n/; 111s/^[^\n]/#&/; 111s/^\n//'
+   sed -i '102s/^#/\n/; 102s/^[^\n]/#&/; 102s/^\n//' Makefile
+   sed -i '100s/^#/\n/; 100s/^[^\n]/#&/; 100s/^\n//' Makefile
+   sed -i '109s/^#/\n/; 109s/^[^\n]/#&/; 109s/^\n//' Makefile
+   sed -i '111s/^#/\n/; 111s/^[^\n]/#&/; 111s/^\n//' Makefile
    #sed -i -e 's/m64/m64 -DIOAPI_NCF4=1/g' Makeinclude.Linux2_x86_64gfort 
    make HOME=$INSTDIR | & tee make.log
    cd $INSTDIR/ioapi-3.2/m3tools
