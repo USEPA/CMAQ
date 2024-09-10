@@ -240,7 +240,7 @@ sbatch run_cctm_Bench_2018_12NE3_cb6r5_m3dry_ddm.csh
 
 
     ```
-    wget 
+    wget https://cmaq-release-benchmark-data-for-easy-download.s3.amazonaws.com/v5_5/output_CCTM_v55_DDM3D_gcc_Bench_2018_12NE3_cb6r5_ae7_aq_m3dry.tar.gz 
     ```
 
     Note, the following DDM-3D output files are generated in addition to the standard CMAQ output files.
