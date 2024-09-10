@@ -69,7 +69,7 @@ Building on previous versions of the modeling system, numerous updates to the pr
    
 2. A new option for estimation of photolysis rates was included.  This option includes a new approach to estimate the effects of aerosol optical properties on photolysis rates. The approach provides a better match to optical properties determined by solving Mie scattering theory for spherical particles than the default method (FastOptics) but at comparable runtimes.
    
-3. The CMAQ-ISAM and CMAQ-DDM systems have been enhanced to support additional applications. CMAQ-ISAM now (1) includes detailed attribution of aerosol carbonaceous mass; (2) accounts for loss of aerosol mass from gravitational settling, thereby enabling the sum of K-mode tags to better match the bulk K-mode concentrations; (3) fixes a bug from v5.4 to allow for proper attribution of O3 from “stratospheric origin”. CMAQ-DDM was also corrected to properly estimate sensitivity of O3 to the PV-scaled O3 in the model top layers.  
+3. The CMAQ-ISAM and CMAQ-DDM systems have been enhanced to support additional applications. CMAQ-ISAM now (1) includes detailed attribution of aerosol carbonaceous mass; (2) accounts for loss of aerosol mass from gravitational settling, thereby enabling the sum of K-mode tags to better match the bulk K-mode concentrations; (3) incorporates a tag to attribute O3 to be of “stratospheric origin” based on the PV-scaling methodology. CMAQ-DDM was also corrected to properly estimate sensitivity of O3 to the PV-scaled O3 in the model top layers.  
 
 
 ## 1.5 System Recommendations
