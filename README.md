@@ -75,8 +75,8 @@ In addition, a full set of inputs for 2018 are provided for the 12US1 domain (29
 |v5.4 CRACMM Stage| Input | 12US1 | Jan 1 - Dec 31, 2018 | [Metadata, DOI, and links to data on AWS](https://doi.org/10.15139/S3/9AV907)  <br /> [AWS Link](https://cmas-cmaq-modeling-platform-2018.s3.amazonaws.com/index.html) |
 |v5.5 CRACMM2 Stage | Input (6.1 Gb) | 12NE3 |  July 1 - 2, 2018  | [Metadata, DOI, and links to data on AWS](https:  ) <br> /> [AWS Link](https://cmaq-release-benchmark-data-for-easy-download.s3.amazonaws.com/v5_5/CMAQv5.5_2018_12NE3_Benchmark_cracmm2_stage_2Day_Input.tar.gz) |
 |v5.5 CB6 Stage | Output (16 Gb) | 12NE3 | July 1 - 2, 2018 |  [Metadata, DOI, and links to data on AWS](https:  ) <br> /> [AWS Link](https://cmaq-release-benchmark-data-for-easy-download.s3.amazonaws.com/v5_5/output_CCTM_v55_gcc_Bench_2018_12NE3_cb6r5_ae7_aq_stage.tar.gz) |
-|v5.5-ISAM CRACMM2 Stage | Output (52 Gb) | 12NE3 |  July 1 - 2, 2018  | [Metadata, DOI, and links to data on AWS](https:  ) <br> /> [AWS Link](https://cmaq-release-benchmark-data-for-easy-download.s3.amazonaws.com/v5_5/output_CCTM_v55_ISAM_gcc_Bench_2018_12NE3_cracmm2_stage.tar.gz) |
-|v5.5-DDM3D CRACMM2 Stage | Output | 12NE3 |  July 1 - 2, 2018  | [Metadata, DOI, and links to data on AWS](https:  ) <br> /> [AWS Link](https://cmaq-release-benchmark-data-for-easy-download.s3.amazonaws.com/v5_5/output_CCTM_v55_DDM3D_gcc_Bench_2018_12NE3_cb6r5_ae7_aq_m3dry.tar.gz) |
+|v5.5-ISAM CB6 M3Dry | Output (52 Gb) | 12NE3 |  July 1 - 2, 2018  | [Metadata, DOI, and links to data on AWS](https:  ) <br> /> [AWS Link](https://cmaq-release-benchmark-data-for-easy-download.s3.amazonaws.com/v5_5/output_CCTM_v55_ISAM_gcc_Bench_2018_12NE3_cb6r5_aq_m3dry.tar.gz) |
+|v5.5-DDM3D CB6 M3Dry | Output | 12NE3 |  July 1 - 2, 2018  | [Metadata, DOI, and links to data on AWS](https:  ) <br> /> [AWS Link](https://cmaq-release-benchmark-data-for-easy-download.s3.amazonaws.com/v5_5/output_CCTM_v55_DDM3D_gcc_Bench_2018_12NE3_cb6r5_ae7_aq_m3dry.tar.gz) |
 
 ## Other Online Resources 
 * [Resources for Running CMAQ on Amazon Web Services](https://www.epa.gov/cmaq/cmaq-resourcesutilities-model-users#cmaq-on-the-cloud)
