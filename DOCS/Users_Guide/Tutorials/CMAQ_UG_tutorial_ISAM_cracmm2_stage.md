@@ -1,6 +1,6 @@
 ## CMAQ-ISAM Benchmark Tutorial ## 
 
-### Procedure to build and run the CMAQ-ISAM model using gnu compiler for the cb6r5_ae7_aq mechanism with the m3dry dry deposition scheme: ###
+### Procedure to build and run the CMAQ-ISAM model using gnu compiler for the CRACMM2 mechanism with the STAGE dry deposition scheme: ###
 
 ### Step 1: Download and run the CMAQv5.5 benchmark case (without ISAM) to confirm that your model run is consistent with the provided benchmark output.
 - [CMAQ Benchmark Tutorial](CMAQ_UG_tutorial_benchmark.md)
@@ -17,7 +17,7 @@ Note: This benchmark is intended to demonstrate how to build and run CMAQ-ISAM w
 The following isam control file is provided in the CCTM/scripts directory when you obtain the CMAQv5.5 code from github (step 5 below):
 
 ```
-cat isam_control.2018_12NE3.txt
+isam_control.txt
 ```
 
 This file contains the following tag classes
@@ -110,14 +110,11 @@ Uncomment the following option to compile CCTM with ISAM (remove the # before se
 #> Integrated Source Apportionment Method (ISAM)
 set ISAM_CCTM                         #> uncomment to compile CCTM with ISAM activated
 ```
-### Step 8: Modify the bldit_cctm.csh to specify the cb6r5_ae7_aq mechanism and the m3dry dry deposition scheme and update the BLD directory name.
+### Step 8: Modify the bldit_cctm.csh to specify the CRACMM2 mechanism and the stage dry deposition scheme and update the BLD directory name.
 
 ```
-set DepMod    = m3dry                 #> dry deposition scheme (m3dry or stage)
-setenv Mechanism cb6r5_ae7_aq              #> chemical mechanism (see $CMAQ_MODEL/CCTM/src/MECHS) 
-```
-
-Verify that the bldit_cctm.csh script uses the name of the mechanism and the dry deposition scheme in the BLD directory name:
+set DepMod    = stage                 #> dry deposition scheme (m3dry or stage)
+setenv Mechanism cracmm2              #> chemical mechanism (see $CMAQ_MODEL/CCTM/src/MECHS) 
 
 #> Set and create the "BLD" directory for checking out and compiling 
 #> source code. Move current directory to that build directory.
@@ -129,7 +126,6 @@ Verify that the bldit_cctm.csh script uses the name of the mechanism and the dry
 ```
 
 ### Step 9: Run the bldit_cctm.csh script
-
 ```
 ./bldit_cctm.csh gcc |& tee bldit_cctm_isam.log
 ```
@@ -138,7 +134,7 @@ Verify that the bldit_cctm.csh script uses the name of the mechanism and the dry
 
 Change directories to the build directory
 ```
-cd BLD_CCTM_v55_ISAM_gcc_cb6r5_ae7_aq_m3dry
+cd BLD_CCTM_v55_ISAM_gcc_cracmm2_stage
 ```
 
 edit the DESID emissions namelist file
@@ -154,13 +150,29 @@ Uncomment the line that contains ISAM_REGIONS as the File Label
  Desid_Reg_nml  =
  !            Region Label   | File_Label  | Variable on File
                'EVERYWHERE'  ,'N/A'        ,'N/A',
- !              'NY'          ,'CMAQ_MASKS', 'NY',
+               'NY'          ,'CMAQ_MASKS', 'NY',
  !<Example>    'WATER'       ,'CMAQ_MASKS' ,'OPEN',
  !<Example>    'ALL'         ,'CMAQ_MASKS' ,'ALL',
-               'ALL'         ,'ISAM_REGIONS','ALL',
+ !<Example>    'ALL'         ,'ISAM_REGIONS','ALL',
 /
 ```
  
+### Step 10a: Edit the DESID chmeical control namelist file.
+
+Change to the BLD directory and add the following lines to the bottom of the CMAQ_Control_DESID_cracmm2.nml
+
+```
+! Re-Map CRACMM1 Aromatics to CRACMM2
+   ! EBZ and XYE remapping, STY and XYM remapping
+   ! Generic scaling if not scaling by sector: 70% XYL; 30% EBZ
+   ! EBZ = FAC1 * XYE; STY = FAC2 * XYM ; XYL = (1-FAC1)*XYE + (1-FAC2)*XYM
+   'EVERYWHERE', 'ALL'         ,'XYE'    ,'EBZ'         ,'GAS'  ,0.30,'UNIT','a',
+   'EVERYWHERE', 'ALL'         ,'XYE'    ,'XYL'         ,'GAS'  ,0.70,'UNIT','a',
+
+   ! Generic scaling if not scaling by sector: 93% XYL; 7% STY
+   'EVERYWHERE', 'ALL'         ,'XYM'    ,'STY'         ,'GAS'  ,0.07,'UNIT','a',
+   'EVERYWHERE', 'ALL'         ,'XYM'    ,'XYL'         ,'GAS'  ,0.93,'UNIT','a',
+```
 
 ### Step 11: Example of emissions scaling (Reduce the PT_EGU emissions in PA by 25%) (Optional step)
 
@@ -187,7 +199,7 @@ Download the CMAQ two day reference input and output data from the [CMAS Center 
   - [Tips to download data from CMAS Data Warehouse](https://docs.google.com/document/d/1e7B94zFkbKygVWfrhGwEZL51jF4fGXGXZbvi6KzXYQ4)
   - Text files are included that provide a list of the files in the benchmark input and output datasets.
 
-The benchmark data is also available from the [CMAS Center Data Warehouse Amazon Web Services S3 Bucket](https://cmaq-release-benchmark-data-for-easy-download.s3.amazonaws.com/v5_5/CMAQv5.4_2018_12NE3_Benchmark_2Day_Input.tar.gz). 
+The benchmark data is also available from the [CMAS Center Data Warehouse Amazon Web Services S3 Bucket](https://cmas-cmaq.s3.amazonaws.com/index.html). 
 
 Copy the data to `$CMAQ_DATA`. Navigate to the `$CMAQ_DATA` directory, unzip and untar the two day benchmark input and output files:
 
@@ -202,8 +214,8 @@ The input files for the CMAQv5.4 ISAM benchmark case are the same as the benchma
 ### Step 13: Edit the CMAQ-ISAM runscript
 
 ```
-cp run_cctm_Bench_2018_12NE3.csh run_cctm_Bench_2018_12NE3_cb6r5_m3dry_ISAM.csh
-gedit run_cctm_Bench_2018_12NE3_cb6r5_m3dry_ISAM.csh
+cp run_cctm_Bench_2018_12NE3.csh run_cctm_Bench_2018_12NE3.ISAM.csh
+gedit run_cctm_Bench_2018_12NE3.ISAM.csh
 ```
 
 Set General Parameters for Configuring the Simulation
