@@ -121,6 +121,8 @@ Verify that the bldit_cctm.csh script uses the name of the mechanism and the dry
 
 #> Set and create the "BLD" directory for checking out and compiling 
 #> source code. Move current directory to that build directory.
+
+```
  if ( $?Debug_CCTM ) then
     set Bld = $CMAQ_HOME/CCTM/scripts/BLD_CCTM_${VRSN}_${compilerString}_${Mechanism}_${DepMod}_debug
  else
