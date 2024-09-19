@@ -22,39 +22,39 @@
 MODEL = mcip.exe
 
 #...Portland Group Fortran
-#...also need to setenv LM_LICENSE_FILE from /usr/local/apps/pgi
-#FC     = /usr/local/apps/pgi/linux86-64/19.10/bin/pgf90
-#NETCDF = /usr/local/apps/netcdf-4.7.4/pgi-19.10
-#IOAPI_ROOT = /usr/local/apps/ioapi-3.2_20200828/pgi-19.10
+###FC     = /usr/local/apps/nvidia/Linux_x86_64/22.11/compilers/bin/nvfortran
+###NETCDF = /usr/local/apps/netcdf-4.9.2/nvhpc-22.11
+###IOAPI_ROOT = /usr/local/apps/ioapi-3.2/nvhpc-22.11
 ###FFLAGS = -g -O0 -Ktrap=unf -Ktrap=ovf -Ktrap=divz -Ktrap=inv -Ktrap=fp  \
-###         -Ktrap=inexact -pc 32 -Mbounds -Mchkfpstk -Mchkptr -Kieee     \
-###         -Minform,inform -Mfree -byteswapio -I$(NETCDF)/include \
+###         -Ktrap=inexact -pc 32 -Mbounds -Mchkptr -Kieee  \
+###         -Minform,inform -Mfree -byteswapio -I$(NETCDF)/include  \
 ###         -I$(IOAPI_ROOT)/Linux2_x86_64pg
-#FFLAGS = -O4 -fastsse -pc 32 -Mfree -byteswapio -I$(NETCDF)/include \
-#         -I$(IOAPI_ROOT)/Linux2_x86_64pg
-#LIBS   = -L$(IOAPI_ROOT)/Linux2_x86_64pg -lioapi \
-#	 -L$(NETCDF)/lib -lnetcdff -lnetcdf
+###FFLAGS = -O4 -fastsse -pc 32 -Mfree -byteswapio -I$(NETCDF)/include \
+###         -I$(IOAPI_ROOT)/Linux2_x86_64pg
+###LIBS   = -L$(IOAPI_ROOT)/Linux2_x86_64pg -lioapi \
+###	 -L$(NETCDF)/lib -lnetcdff -lnetcdf
 
 #...gfortran
-#FC	= gfortran
-#NETCDF = /usr/local/apps/netcdf-4.6.3/gcc-6.1.0
-#IOAPI_ROOT = /usr/local/apps/ioapi-3.2_20181011/gcc-6.1.0
-#FFLAGS	= -O3 -I$(NETCDF)/include -I$(IOAPI_ROOT)/Linux2_x86_64
+###FC	= gfortran
+###NETCDF = /usr/local/apps/netcdf-4.9.2/gcc-8.5
+###IOAPI_ROOT = /usr/local/apps/ioapi-3.2/gcc-8.5
+###FFLAGS	= -O3 -I$(NETCDF)/include -I$(IOAPI_ROOT)/Linux2_x86_64
 ###FFLAGS	= -g -O0  \
 ###          -ffpe-trap='invalid','zero','overflow','underflow'  \
 ###          -I$(NETCDF)/include -I$(IOAPI_ROOT)/Linux2_x86_64
-#LIBS    = -L$(IOAPI_ROOT)/Linux2_x86_64 -lioapi  \
-#          -L$(NETCDF)/lib -lnetcdff -lnetcdf
+###LIBS    = -L$(IOAPI_ROOT)/Linux2_x86_64 -lioapi  \
+###          -L$(NETCDF)/lib -lnetcdff -lnetcdf
 
 #...Intel Fortran
 FC      = ifort
-NETCDF = /usr/local/apps/netcdf-4.7.3/intel-19.0
-IOAPI_ROOT = /usr/local/apps/ioapi-3.2_20181011/intel-19.0
+NETCDF = /usr/local/apps/netcdf-4.9.2/intel-21.4
+IOAPI_ROOT = /usr/local/apps/ioapi-3.2/intel-21.4
 ###FFLAGS  = -g -O0 -check all -C -traceback -FR -I$(NETCDF)/include  \
 ###          -I$(IOAPI_ROOT)/Linux2_x86_64ifort
-FFLAGS  = -O3 -traceback -FR -I$(NETCDF)/include -I$(IOAPI_ROOT)/Linux2_x86_64ifort
+FFLAGS  = -O3 -traceback -FR -I$(NETCDF)/include  \
+	  -I$(IOAPI_ROOT)/Linux2_x86_64ifort
 LIBS    = -L$(IOAPI_ROOT)/lib -lioapi \
-          -L$(NETCDF)/lib -lnetcdff -lnetcdf
+	  -L$(NETCDF)/lib -lnetcdff -lnetcdf
 
 DEFS   = 
 

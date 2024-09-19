@@ -1,6 +1,43 @@
 CHANGES for MCIP
 
 
+MCIP Version 5.5 (19 September 2024)
+
+- Changed constraint on XORIG and YORIG for Lambert conformal projections
+  with user-specified runtime reference latitude. Original constraint of
+  500 meters introduced an error in calculating the location of the
+  lower-left corner (i.e., XORIG and YORIG) in domains with a horizontal
+  grid spacing that is not a multiple of 1 km. Now using a constraint of
+  5 meters to allow for "neater" XORIG and YORIG values across compilers.
+
+  Changed files:  PREP/mcip/src/setgriddefs.f90
+
+
+- Updated WRF option translation for the MCIP metadata for new physics
+  introduced between WRFv4.1 and WRFv4.6.
+
+  Changed files:  PREP/mcip/src/wrfemopts.f90
+
+
+- Removed redundant NF90_OPEN/NF90_CLOSE couplet to improve efficiency.
+
+  Changed files:  PREP/mcip/src/rdwrfem.f90
+
+
+- Updated version stamp.
+
+  Changed files:  PREP/mcip/src/mcipparm_mod.f90
+
+--------------------------------------------------------------------------------
+
+MCIP Version 5.4 (12 July 2022)
+
+- Updated version stamp.
+
+  Changed files:  PREP/mcip/src/mcipparm_mod.f90
+
+--------------------------------------------------------------------------------
+
 MCIP Version 5.3.3 (30 June 2021)
 
 - Removed reliance on reading F (Coriolis parameter) from WRF output for

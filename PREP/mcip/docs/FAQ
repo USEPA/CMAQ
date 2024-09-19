@@ -1,13 +1,103 @@
 Frequently Asked Questions for MCIP
 
+MCIP Version 5.5 (19 September 2024)
+
+What are the changes in this release?
+
+  There are only three changes in this release.
+
+  1. MCIP calculates XORIG and YORIG (projection parameters used by the CMAQ
+     system) from the projection information used by WRF. Because the math
+     calculations can get messy with real and double-precision trigonometry,
+     the solutions are inexact. Prior versions of MCIP used a constraint to
+     round the XORIG and YORIG to multiples of 500 meters. This constraint was
+     introduced several years ago, when most groups were using horizontal grid
+     spacings that were evenly divisible by 1 kilometer.
+
+     This release changes the constraint on XORIG and YORIG to now be in
+     multiples of 5 meters (rather than 500 meters). This change allows domains
+     with horizontal grid spacings like 1.333 km and 4.25 km to be handled
+     correctly. In addition, there is consistency in XORIG and YORIG values
+     across compilers and optimizations.
+
+  2. The WRF physics option tokens were updated for the MCIP metadata to
+     reflect new physics introduced between WRFv4.1 and WRFv4.6.
+
+  3. The routine that reads WRF data was updated to remove a redundant
+     NF90_OPEN/NF90_CLOSE couplet that slightly slowed the MCIP processing.
+
+
+Is there an MCIPv5.4.1?
+
+  No. There were no updates to MCIP in the release of CMAQv5.4.1. MCIP was
+  not updated and remained at MCIPv5.4 for both CMAQv5.4 and CMAQv5.4.1.
+
+
+Do I need to update from MCIPv5.3.3 or MCIPv5.4 to work with CMAQv5.5?
+
+  Not necessarily. If you are starting new runs with CMAQv5.5, and if you do
+  not have MCIP files, then it is recommended that you use MCIPv5.5. However,
+  if you have MCIP files processed already *AND* if you are *not* using a 
+  horizontal grid spacing that is not a multiple of 1 km (e.g., 1.333 km or
+  4.25 km), then you can probably use your older MCIP files.
+
+
+I already pointed out something that needs to be corrected in MCIP, but I
+do not see the update here. What is going on?
+
+  There are a few corrections to MCIP that did not get incorporated into this
+  release due to timelines and competing priorities. They are in the queue for
+  the next release. Thank you for your patience.
+
+
+MCIP crashed, and I don't understand my error. What should I do?
+
+  Clean up the directory with your MCIP executable and compiled object (.o)
+  files by using "make clean". Then recompile with the debug options turned
+  on, ensuring that you have the "traceback" or equivalent directive for
+  your compiler. Then rerun, and you should have a more meaningful error
+  message that may point you to the subroutine and specific line of code
+  that is causing your error.
+
+
+I think there is a bug in MCIP. How can I report it?
+
+  You can use the CMAS Center Forum to report bugs, get help from the
+  community, and communicate with developers. You can use the "MCIP"
+  category (upper-left corner on the Forum) for issues that are strictly
+  related to MCIP. Before opening a new thread on the Forum, please search
+  the Forum to see if the issue has already been raised and addressed. If
+  not, please open a new thread rather than amending an existing thread.
+  https://forum.cmascenter.org 
+
+
+Where can I get more information on the CMAQ system?
+
+  Please visit https://www.epa.gov/cmaq 
+
+
+Where can I get training on how to use the CMAQ system?
+
+  The CMAS Center provides periodic training on the use and utility of the
+  CMAQ system. Please visit https://www.cmascenter.org
+
+
+Do you take user suggestions?
+
+  Yes! Please submit them via the CMAS Center Forum
+  https://forum.cmascenter.org
+
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+
 MCIP Version 5.4 (12 September 2022)
 
 What are the changes in this release?
 
-  None. MCIPv5.4 has not been updated since the previous release (v5.3.3). Note 
-  that, beginning with version 5.3.3, the versioning of MCIP is aligned with the 
-  numbering used for CMAQ.  Therefore, the MCIP version numbering is updated with 
-  the release of CMAQv5.4.
+  None. MCIPv5.4 has not been updated since the previous release (v5.3.3). Note
+  that, beginning with version v5.3.3, the versioning of MCIP is aligned with
+  the numbering used for CMAQ. Therefore, the MCIP version numbering is
+  updated with the release of CMAQv5.4.
 
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
