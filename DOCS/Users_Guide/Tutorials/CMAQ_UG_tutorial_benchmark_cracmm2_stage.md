@@ -1,4 +1,4 @@
-# CMAQ Installation & Benchmarking Tutorial for CRACMM2 and STAGE
+# CMAQ Installation & Benchmarking Tutorial
 
 Purpose: This guide describes how to install and run the CMAQ test case for the CRACMM2 mechanism with the STAGE dry deposition scheme, which serves two different purposes. The first being to familiarize the user with the CMAQ suite of programs and how they work together, and secondly to verify the installation of the software on your system via benchmarking. 
 
@@ -97,15 +97,7 @@ source config_cmaq.csh gcc 9.5
 
 ## Install the CMAQ reference input and output benchmark data
 
-Download the CMAQ two day reference input and output data for the CRACMM2 mechanism from the [CMAS Center Data Warehouse Google Drive]([https://drive.google.com/file/d/1AFUB-4kzIXXoZr4hOHNBqRvy9JQ9_MDp/view?usp=sharing](https://drive.google.com/drive/folders/1AFUB-4kzIXXoZr4hOHNBqRvy9JQ9_MDp?usp=sharing). The CMAQ benchmark test case is a two day simulation for July 1-2 2018 on a 100 column x 105 row x 35 layer 12-km resolution domain over the northeast U.S.  
-
-  - Use the gdrive command to download the dataset.
-  - If this is the first time that you are using gdrive, or if you have an issue with your token, please read the following instructions
-  - [Tips to download data from CMAS Data Warehouse](https://docs.google.com/document/d/1e7B94zFkbKygVWfrhGwEZL51jF4fGXGXZbvi6KzXYQ4)
-  - Text files are included that provide a list of the files in the benchmark input and output datasets.
-
-The benchmark data is also available from the [CMAS Center Data Warehouse Amazon Web Services S3 Bucket](https://cmas-cmaq.s3.amazonaws.com/index.html). 
-
+Download the CMAQ two day reference input and output data for the CRACMM2 mechanism from the [AWS CMAS Data Warehouse](https://cmaq-release-benchmark-data-for-easy-download.s3.amazonaws.com/v5_5/CMAQv5.5_2018_12NE3_Benchmark_cracmm2_stage_2Day_Input.tar.gz). The CMAQ benchmark test case is a two day simulation for July 1-2 2018 on a 100 column x 105 row x 35 layer 12-km resolution domain over the northeast U.S.  
 Copy the data to `$CMAQ_DATA`. Navigate to the `$CMAQ_DATA` directory, unzip and untar the two day benchmark input and output files:
 
 ```
@@ -153,7 +145,14 @@ The build directory parameters for the benchmark test case include the following
 To configure these parameters, the CCTM Science Modules within the bldit_cctm.csh need to be set. The comments within the script itself should help guide the user on the options for each variable and how to set them. Further information on variable names can be found in 
 [Appendix A](../Appendix/CMAQ_UG_appendixA_model_options.md).
 
-To keep the BLD directory name unique for each mechansim, modify the bldit_cctm script to use 
+
+Review the bldit script for this benchmark.
+
+```
+cat bldit_cctm_gnu_cracmm2_stage.csh 
+```
+
+Notice that the bldit script uses a unique BLD directory name mechansim and dry deposition scheme combination.  
 
 ```
 #> Set and create the "BLD" directory for checking out and compiling source code. Move current directory to that build directory.
@@ -164,7 +163,7 @@ To keep the BLD directory name unique for each mechansim, modify the bldit_cctm 
  endif
 ```
 
-Change the dry deposition scheme to use STAGE instead of M3DRY
+Verify that the dry deposition scheme to use STAGE instead of M3DRY
 ```
 #> Set Dry Deposition Scheme to Stage
 
@@ -175,28 +174,13 @@ Following the requisite changes to the CCTM build script, use the following comm
 
 ```
 cd $CMAQ_HOME/CCTM/scripts
-./bldit_cctm_craccm.csh [compiler] [version] |& tee bldit_cctm_craccm.log
+./bldit_cctm_gnu_cracmm2_stage.csh [compiler] [version] |& tee bldit_cctm_gnu_cracmm2_stage.log
 ```
 
 Verify that the BLD directory contains a namelist called
 
 ```
 CMAQ_Control_STAGE.nml
-```
-
-Change to the BLD directory and add the following lines to the bottom of the CMAQ_Control_DESID_cracmm2.nml
-
-```
-   ! Re-Map CRACMM1 Aromatics to CRACMM2
-   ! EBZ and XYE remapping, STY and XYM remapping
-   ! Generic scaling if not scaling by sector: 70% XYL; 30% EBZ
-   ! EBZ = FAC1 * XYE; STY = FAC2 * XYM ; XYL = (1-FAC1)*XYE + (1-FAC2)*XYM
-   'EVERYWHERE', 'ALL'         ,'XYE'    ,'EBZ'         ,'GAS'  ,0.30,'UNIT','a',
-   'EVERYWHERE', 'ALL'         ,'XYE'    ,'XYL'         ,'GAS'  ,0.70,'UNIT','a',
-
-   ! Generic scaling if not scaling by sector: 93% XYL; 7% STY
-   'EVERYWHERE', 'ALL'         ,'XYM'    ,'STY'         ,'GAS'  ,0.07,'UNIT','a',
-   'EVERYWHERE', 'ALL'         ,'XYM'    ,'XYL'         ,'GAS'  ,0.93,'UNIT','a',
 ```
 
 ## Configure the CCTM script 
@@ -207,7 +191,7 @@ For an MPI configuration with 16 processors,
 cd $CMAQ_HOME/CCTM/scripts
 ```
 
-Edit the CCTM run script (run_cctm_Bench_2018_12NE3.csh) for the MPI configuration and compiler that you will use:
+Edit the CCTM run script (run_cctm_Bench_2018_12NE3_CRACMM2_STAGE.csh) for the MPI configuration and compiler that you will use:
 
 ```
 setenv compiler gcc
@@ -241,31 +225,31 @@ To configure these parameters, the Science Options within the $CMAQ_HOME/CCTM/sc
 After configuring the MPI settings for your Linux system, check the rest of the script to ensure the correct path, date and names are used for the input data files. Per the note above, different Linux systems have different requirements for submitting MPI jobs.  The command below is an example of how to submit the CCTM run script and may differ depending on the MPI requirements of your Linux system. 
 
 ```
-./run_cctm_Bench_2018_12NE3_CRACMM2_STAGE.csh |& tee cctm.log
+./run_cctm_Bench_2018_12NE3_CRACMM2_STAGE.csh |& tee run_cctm_Bench_2018_12NE3_CRACMM2_STAGE.log 
 ```
 
 ## Confirm that the Benchmark Simulation Completed
 
-To confirm that the benchmark case ran to completion view the run.benchmark.log file. For MPI runs, check each of the CTM_LOG_[ProcessorID]*.log files. A successful run will contain the following line at the bottom of the log(s):
+To confirm that the benchmark case ran to completion view the run log file. For MPI runs, check each of the CTM_LOG_[ProcessorID]*.log files. A successful run will contain the following line at the bottom of the log(s):
 
 ``>>---->  Program completed successfully  <----<<``
 
 Note: If you are running on multiple processors the log file for each processor is also moved from the $CMAQ_HOME/CCTM/scripts directory to the benchmark output directory: 
 
 ```
-$CMAQ_DATA/output_CCTM_v54_[compiler]_Bench_2018_12NE3_2day
+$CMAQ_DATA/output_CCTM_v55_gcc_Bench_2018_12NE3_cracmm2_stage
 ```
 and these log files have the name convention: 
 
 ```
-CTM_LOG_[ProcessorID].v54_[compiler]_[APPL]_[YYYYMMDD]
-CTM_LOG_[ProcessorID].v54_gcc_Bench_2018_12NE3_2day_20180702
+CTM_LOG_[ProcessorID].v55_[compiler]_[APPL]_[YYYYMMDD]
+CTM_LOG_[ProcessorID].v55_gcc_Bench_2018_12NE3_2day_20180702
 ```
 
 The benchmark output results will have been placed in the directory: 
 
 ```
-$CMAQ_DATA/output_CCTM_v54_[compiler]_Bench_2018_12NE3_2day
+$CMAQ_DATA/output_CCTM_v55_gcc_Bench_2018_12NE3_cracmm2_stage
 ```
 
 and can include upto 23 netCDF-type files: ACONC, AOD_DIAG, AELMO, APMVIS, B3GTS_S, BSOILOUT, BUDGET, CGRID, CONC, DEPV, DRYDEP, DUSTEMIS, LTNGCOL, LTNGHRLY, MEDIA_CONC, PHOTDIAG1, PHOTDIAG2, ELMO, PMVIS, SOILOUT, SSEMIS, VDIFF, VSED, WETDEP1, and WETDEP2.
