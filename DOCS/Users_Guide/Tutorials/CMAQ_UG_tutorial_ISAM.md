@@ -500,6 +500,7 @@ List of POST Output files:
 VERDI can be used to compare the aggregated species in ACONC to the sum of the tagged aggregated species in the SA_ACONC file.
 
 ```
+cd CMAQ_v5.5/data/output_CCTM_v55_ISAM_gcc_Bench_2018_12NE3_cb6r5_ae7_aq_m3dry/POST
 verdi -f $cwd/COMBINE_ACONC_v55_ISAM_gcc_Bench_2018_12NE3_cb6r5_ae7_aq_m3dry_201807.nc -f $cwd/COMBINE_SA_ACONC_v55_ISAM_gcc_Bench_2018_12NE3_cb6r5_ae7_aq_m3dry_201807.nc -s "NOX[1]" -g tile -s "NOX_EGU[2]+NOX_BIO[2]+NOX_BCO[2]+NOX_ICO[2]+NOX_OTH[2]" -g tile 
 ```
 
