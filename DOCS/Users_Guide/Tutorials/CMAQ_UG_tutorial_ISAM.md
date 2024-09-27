@@ -211,7 +211,7 @@ wget https://cmaq-release-benchmark-data-for-easy-download.s3.amazonaws.com/v5_5
 cat run_cctm_Bench_2018_12NE3_cb6r5_m3dry_ISAM.csh
 ```
 
-Verify that the following settings.
+Verify the following settings in the run script for this ISAM benchmark.
 
 Verify the General Parameters for Configuring the Simulation
 
