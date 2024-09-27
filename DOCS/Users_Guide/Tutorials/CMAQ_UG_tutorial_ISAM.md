@@ -302,8 +302,10 @@ CCTM_SA_CGRID_v55_ISAM_gcc_Bench_2018_12NE3_cb6r5_ae7_aq_m3dry_20180702.nc
 ncdump -h CCTM_SA_CONC_v55_ISAM_gcc_Bench_2018_12NE3_cb6r5_ae7_aq_m3dry_20180701.nc | grep SO2_
 ```
 
+
 The following tagged species should add up to the total SO2 in the CONC file.
 
+```
 	float SO2_EGU(TSTEP, LAY, ROW, COL) ;
 		SO2_EGU:long_name = "SO2_EGU         " ;
 		SO2_EGU:units = "ppmV            " ;
@@ -324,17 +326,16 @@ The following tagged species should add up to the total SO2 in the CONC file.
 		SO2_ICO:long_name = "SO2_ICO         " ;
 		SO2_ICO:units = "ppmV            " ;
 		SO2_ICO:var_desc = "tracer conc.                    
-
 ```
 
 The sum of the tagged species in the SA_CONC file is equal to the species in the CONC file.
 
 ```
 SO2_EGU[1] + SO2_BIO[1] + SO2_BCO[1] + SO2_OTH[1] + SO2_ICO[1] = SO2[2]
-```
 
 [1] = SA_CONC
 [2] = CONC
+```
 
 Both tagged species EGU and BIO contribute to the bulk concentration, therefore the sum of all tagged species including boundary conditions (BCO) and initial conditions (ICO) and other (all untagged emissions) (OTH)
 
