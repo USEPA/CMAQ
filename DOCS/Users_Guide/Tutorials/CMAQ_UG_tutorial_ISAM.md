@@ -286,7 +286,7 @@ sbatch run_cctm_Bench_2018_12NE3_cb6r5_m3dry_ISAM.csh
 
 ### Step 15: Compare output with the 2 day benchmark outputs provided on the google drive
 
-The following ISAM output files are generated in addition to the standard CMAQ output files. Note, the answers will not be comparible if emission scaling is used (Step 11 - optional)
+The following ISAM output files are generated in addition to the standard CMAQ output files. Note, the ACONC files created for the  benchmark case without ISAM and this run will not be comparible if emission scaling is used (Step 11 - optional), but if emission scaling was not used, the files should be identical.
 
 ```
 CCTM_SA_CONC_v55_ISAM_gcc_Bench_2018_12NE3_cb6r5_ae7_aq_m3dry_20180702.nc
