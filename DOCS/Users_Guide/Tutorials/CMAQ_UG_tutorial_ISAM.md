@@ -265,7 +265,7 @@ Run or Submit the script to the batch queueing system
 ./run_cctm_Bench_2018_12NE3_cb6r5_m3dry_ISAM.csh
 ```
 
-OR (If using SLRUM)
+OR (If using SLRUM) edit the #SBATCH commands at the top of the script for your machine, then run using
 
 ```
 sbatch run_cctm_Bench_2018_12NE3_cb6r5_m3dry_ISAM.csh
