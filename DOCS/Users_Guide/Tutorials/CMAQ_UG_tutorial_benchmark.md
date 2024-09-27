@@ -239,19 +239,19 @@ To confirm that the benchmark case ran to completion view the run.benchmark.log 
 Note: If you are running on multiple processors the log file for each processor is also moved from the $CMAQ_HOME/CCTM/scripts directory to the benchmark output directory: 
 
 ```
-$CMAQ_DATA/output_CCTM_v54_[compiler]_Bench_2018_12NE3_2day
+$CMAQ_DATA/output_CCTM_v55_[compiler]_Bench_2018_12NE3_cb6r5_ae7_aq_m3dry
 ```
 and these log files have the name convention: 
 
 ```
-CTM_LOG_[ProcessorID].v54_[compiler]_[APPL]_[YYYYMMDD]
-CTM_LOG_[ProcessorID].v54_gcc_Bench_2018_12NE3_2day_20180702
+CTM_LOG_[ProcessorID].v55_[compiler]_[APPL]_[YYYYMMDD]
+CTM_LOG_[ProcessorID].v55_gcc_Bench_2018_12NE3_cb6r5_ae7_aq_m3dry_20180702
 ```
 
 The benchmark output results will have been placed in the directory: 
 
 ```
-$CMAQ_DATA/output_CCTM_v54_[compiler]_Bench_2018_12NE3_cb6r5_ae7_aq_m3dry
+$CMAQ_DATA/output_CCTM_v55_[compiler]_Bench_2018_12NE3_cb6r5_ae7_aq_m3dry
 ```
 
 and can include upto 23 netCDF-type files: ACONC, AOD_DIAG, AELMO, APMVIS, B3GTS_S, BSOILOUT, BUDGET, CGRID, CONC, DEPV, DRYDEP, DUSTEMIS, LTNGCOL, LTNGHRLY, MEDIA_CONC, PHOTDIAG1, PHOTDIAG2, ELMO, PMVIS, SOILOUT, SSEMIS, VDIFF, VSED, WETDEP1, and WETDEP2.

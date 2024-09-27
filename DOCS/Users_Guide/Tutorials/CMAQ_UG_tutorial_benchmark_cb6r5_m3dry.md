@@ -221,13 +221,13 @@ CCTM Science Configuration Options set to **Y** in the RunScript for the benchma
 -  ```CTM_GRAV_SETL``` - vdiff aerosol gravitational sedmentation
 -  ```CTM_BIOGEMIS``` - online biogenic emissions
 
-To configure these parameters, the Science Options within the $CMAQ_HOME/CCTM/scripts/run_cctm_Bench_2018_12NE3_CRACMM2_STAGE.csh need to be set. The comments within the script itself should help guide the user on the options for each variable and how to set them. Further information on variable names can be found in 
+To configure these parameters, the Science Options within the $CMAQ_HOME/CCTM/scripts/run_cctm_Bench_2018_12NE3_cb6r5_m3dry.csh need to be set. The comments within the script itself should help guide the user on the options for each variable and how to set them. Further information on variable names can be found in 
 [Appendix A](../Appendix/CMAQ_UG_appendixA_model_options.md).
 
 After configuring the MPI settings for your Linux system, check the rest of the script to ensure the correct path, date and names are used for the input data files. Per the note above, different Linux systems have different requirements for submitting MPI jobs.  The command below is an example of how to submit the CCTM run script and may differ depending on the MPI requirements of your Linux system. 
 
 ```
-./run_cctm_Bench_2018_12NE3_CRACMM2_STAGE.csh |& tee cctm.log
+./run_cctm_Bench_2018_12NE3_cb6r5_m3dry.csh |& tee cctm.log
 ```
 
 ## Confirm that the Benchmark Simulation Completed
@@ -239,19 +239,19 @@ To confirm that the benchmark case ran to completion view the run.benchmark.log 
 Note: If you are running on multiple processors the log file for each processor is also moved from the $CMAQ_HOME/CCTM/scripts directory to the benchmark output directory: 
 
 ```
-$CMAQ_DATA/output_CCTM_v54_[compiler]_Bench_2018_12NE3_2day
+$CMAQ_DATA/output_CCTM_v55_[compiler]_Bench_2018_12NE3_cb6r5_ae7_aq_m3dry
 ```
 and these log files have the name convention: 
 
 ```
-CTM_LOG_[ProcessorID].v54_[compiler]_[APPL]_[YYYYMMDD]
-CTM_LOG_[ProcessorID].v54_gcc_Bench_2018_12NE3_2day_20180702
+CTM_LOG_[ProcessorID].v55_[compiler]_[APPL]_[YYYYMMDD]
+CTM_LOG_[ProcessorID].v55_gcc_Bench_2018_12NE3_cb6r5_ae7_aq_m3dry_20180702
 ```
 
 The benchmark output results will have been placed in the directory: 
 
 ```
-$CMAQ_DATA/output_CCTM_v54_[compiler]_Bench_2018_12NE3_2day
+$CMAQ_DATA/output_CCTM_v55_[compiler]_Bench_2018_12NE3_cb6r5_ae7_aq_m3dry
 ```
 
 and can include upto 23 netCDF-type files: ACONC, AOD_DIAG, AELMO, APMVIS, B3GTS_S, BSOILOUT, BUDGET, CGRID, CONC, DEPV, DRYDEP, DUSTEMIS, LTNGCOL, LTNGHRLY, MEDIA_CONC, PHOTDIAG1, PHOTDIAG2, ELMO, PMVIS, SOILOUT, SSEMIS, VDIFF, VSED, WETDEP1, and WETDEP2.

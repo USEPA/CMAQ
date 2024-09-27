@@ -10,9 +10,9 @@ If you encounter any errors, try running the model in debug mode and refer to th
 https://forum.cmascenter.org/
 
 ### Step 2: Read the User Guide Chapter on Integrated Source Apportionment Method.
-- [CMAQ User's Guide Chapter on ISAM](../CMAQ_UG_ch11_ISAM.md)
+- [CMAQ User Guide Chapter on ISAM](../CMAQ_UG_ch11_ISAM.md)
 
-Note: This benchmark is intended to demonstrate how to build and run CMAQ-ISAM with the provided input files:
+Note: This benchmark is intended to demonstrate how to build and run CMAQ-ISAM with the provided input files
 
 The following isam control file is provided in the CCTM/scripts directory when you obtain the CMAQv5.5 code from github (step 5 below):
 
@@ -260,7 +260,7 @@ CCTM_SA_ACONC_v54_ISAM_gcc_Bench_2018_12NE3_2day_ISAM_20180702.nc
 CCTM_SA_CGRID_v54_ISAM_gcc_Bench_2018_12NE3_2day_ISAM_20180702.nc
 ```
 
-### Step 16: Compare the tagged species in `CCTM_SA_CONC` output file to the full species in `CCTM_CONC` output file
+### Step 16: Compare the tagged species in `CCTM_SA_CONC` output file to the species in `CCTM_CONC` output file
 
 ```
 ncdump -h CCTM_SA_CONC_v55_ISAM_gcc_Bench_2018_12NE3_cracmm2_4x8_all_CONC_20180701.nc | grep SO2_
@@ -297,3 +297,169 @@ SO2_EGU[1] + SO2_BIO[1] + SO2_BCO[1] + SO2_OTH[1] + SO2_ICO[1] = SO2[2]
 ```
 
 Both tagged species EGU and BIO contribute to the bulk concentration, therefore the sum of all tagged species including boundary conditions (BCO) and initial conditions (ICO) and other (all untagged emissions) (OTH)
+
+### Step 17: Obtain scripts and species definition files to post process CMAQ-ISAM 
+
+Note: we will be running each post processing routine twice, once for the tagged species found in the SA_ACONC, SA_DRYDEP, and SA_WETDEP output files, and again for the untagged species found in ACONC and the DRYDEP, WETDEP files. This will allow us to confirm that the sum of the tagged species is equal to the untagged species.
+
+Example species definition file and combine run script are provided to help users post-process the CMAQ-ISAM output to aggregate output from the SA_ACONC, SA_DRYDEP, and SA_WETDEP files.
+
+Download the run script and species definition files for this case from the AWS S3 Bucket.
+
+```
+cd CMAQ_v5.5/POST/combine/scripts
+
+SpecDef_ISAM_Conc_benchmark_cb6r5_ae7_aq.txt
+SpecDef_ISAM_Dep_benchmark_cb6r5_ae7_aq.txt
+run_combine_ISAM_sa_aconc+sa_dep_example_cb6r5_ae7_aq_12ne3_benchmark.csh
+run_combine_ISAM_aconc+dep_example_cb6r5_ae7_aq_12ne3_benchmark.csh
+```
+
+Copy these files to the POST/combine/scripts directory 
+
+### Step 18: Build and run combine
+
+Build the combine executable
+
+```
+cd CMAQ_v5.5/POST/combine/scripts
+./bldit_combine.csh gcc |& tee ./bldit_combine.log
+```
+
+Run combine to create a file with all hours for the time period of your ISAM simulation for each tagged aggregate species in the SA_ACONC output file and for another file with all hours of the time period in your ISAM simulation for the SA_DRYDEP and SA_WETDEP output files.
+
+```
+./run_combine_ISAM_sa_aconc+sa_dep_example_cb6r5_ae7_aq_12ne3_benchmark.csh gcc |& tee ./run_combine_ISAM_sa_aconc+sa_dep_example_cb6r5_ae7_aq_12ne3_benchmark.log
+```
+
+Run combine to create a file with all hours for the time period of your ISAM simulation for each aggregate species in the ACONC output file and for another file with all hours of the time period in your ISAM simulation for the DRYDEP and WETDEP output files.
+
+```
+./run_combine_ISAM_aconc+dep_example_cb6r5_ae7_aq_12ne3_benchmark.csh |& tee ./run_combine_ISAM_aconc+dep_example_cb6r5_ae7_aq_12ne3_benchmark.log
+```
+
+Examine the output files
+
+```
+ls -lrt ../../../data/output_CCTM_v55_ISAM_gcc_Bench_2018_12NE3_cb6r5_ae7_aq_m3dry/POST
+```
+
+You should see that four output files were created:
+
+```
+-rw-rw-r-- 1 lizadams rc_cep-emc_psx 223856976 Sep 26 15:32 COMBINE_ACONC_v55_ISAM_gcc_Bench_2018_12NE3_cb6r5_ae7_aq_m3dry_201807.nc
+-rw-rw-r-- 1 lizadams rc_cep-emc_psx 223857340 Sep 26 15:33 COMBINE_DEP_v55_ISAM_gcc_Bench_2018_12NE3_cb6r5_ae7_aq_m3dry_201807.nc
+-rw-rw-r-- 1 lizadams rc_cep-emc_psx 393254448 Sep 26 15:33 COMBINE_SA_ACONC_v55_ISAM_gcc_Bench_2018_12NE3_cb6r5_ae7_aq_m3dry_201807.nc
+-rw-rw-r-- 1 lizadams rc_cep-emc_psx 526353656 Sep 26 15:34 COMBINE_SA_DEP_v55_ISAM_gcc_Bench_2018_12NE3_cb6r5_ae7_aq_m3dry_201807.nc
+```
+
+### Step 19: Review the species definition files for the ISAM run.
+
+The species definition file calculates each of the tagged aggregate species. To see each tagged species definition for NOX, where NOX = NO + NO2, use the following grep command:.
+
+```
+grep  NOX_ SpecDef_ISAM_Conc_benchmark_cb6r5_ae7_aq.txt
+```
+
+Output:
+
+```
+NOX_EGU             ,ppbV      ,1000.0*(NO_EGU[1] + NO2_EGU[1])
+NOX_BIO             ,ppbV      ,1000.0*(NO_BIO[1] + NO2_BIO[1])
+NOX_BCO             ,ppbV      ,1000.0*(NO_BCO[1] + NO2_BCO[1])
+NOX_ICO             ,ppbV      ,1000.0*(NO_ICO[1] + NO2_ICO[1])
+NOX_OTH             ,ppbV      ,1000.0*(NO_OTH[1] + NO2_OTH[1])
+```
+ 
+
+### Step 20: Build and run calc_tmetric to calculate the average of all tagged species, and the average of all species for your ISAM run.
+
+Download the run scripts for calc_tmetric for the ISAM run and copy them to the calc_tmetric/scripts directory..
+
+```
+run_calc_tmetric_ISAM_sa_aconc.csh
+run_calc_tmetric_ISAM_aconc.csh
+```
+
+Build the calc_tmetric executable
+
+```
+cd CMAQ_v5.5/POST/calc_tmetric/scripts
+./bldit_calc_tmetric.csh gcc |& tee ./bldit_calc_tmetric.log
+```
+
+Run calc_tmetric
+
+```
+./run_calc_tmetric_ISAM_sa_aconc.csh gcc |& tee ./run_calc_tmetric_ISAM_sa_aconc.log
+./run_calc_tmetric_ISAM_aconc.csh gcc |& tee ./run_calc_tmetric_ISAM_aconc.log
+``` 
+
+### Step 21: Build and run hr2day to calculate the daily average concentration for each tagged and aggregated species.
+
+Download the run scripts for hr2day for the ISAM run and copy them to the hr2day/scripts directory.
+
+```
+run_hr2day_ISAM_sa_aconc.csh
+run_hr2day_ISAM_aconc.csh
+```
+
+Build the hr2day executable
+
+```
+cd CMAQ_v5.5/POST/hr2day/scripts
+./bldit_hr2day.csh gcc |& tee ./bldit_hr2day.log
+```
+
+Run hr2day for both the SA_ACONC and ACONC file
+
+```
+./run_hr2day_ISAM_sa_aconc.csh gcc |& tee ./run_hr2day_ISAM_sa_aconc.log
+./run_hr2day_ISAM_aconc.csh gcc |& tee ./run_hr2day_ISAM_aconc.log
+```
+
+Note, there are HR2DAY configuration options that were modified from the default settings, as this ISAM benchmark contains only two days of output, so it does not make sense to use the option to change from GMT time to local time, which is typically done to compare to observational data.
+
+The output data is set to be saved under the ISAM output directory.
+
+```
+cd CMAQ_v5.5/data/output_CCTM_v55_ISAM_gcc_Bench_2018_12NE3_cb6r5_ae7_aq_m3dry/POST
+ls -lrt
+```
+
+Output:
+
+```
+-rw-rw-r-- 1 lizadams rc_cep-emc_psx 223856976 Sep 26 15:32 COMBINE_ACONC_v55_ISAM_gcc_Bench_2018_12NE3_cb6r5_ae7_aq_m3dry_201807.nc
+-rw-rw-r-- 1 lizadams rc_cep-emc_psx 223857340 Sep 26 15:33 COMBINE_DEP_v55_ISAM_gcc_Bench_2018_12NE3_cb6r5_ae7_aq_m3dry_201807.nc
+-rw-rw-r-- 1 lizadams rc_cep-emc_psx 393254448 Sep 26 15:33 COMBINE_SA_ACONC_v55_ISAM_gcc_Bench_2018_12NE3_cb6r5_ae7_aq_m3dry_201807.nc
+-rw-rw-r-- 1 lizadams rc_cep-emc_psx 526353656 Sep 26 15:34 COMBINE_SA_DEP_v55_ISAM_gcc_Bench_2018_12NE3_cb6r5_ae7_aq_m3dry_201807.nc
+-rw-rw-r-- 1 lizadams rc_cep-emc_psx   8251888 Sep 27 14:07 AVG_COMBINE_SA_ACONC_v55_ISAM_gcc_Bench_2018_12NE3_cb6r5_ae7_aq_m3dry.nc
+-rw-rw-r-- 1 lizadams rc_cep-emc_psx    432268 Sep 27 14:13 dailyavg_SA_ACONC_v55_ISAM_gcc_Bench_2018_12NE3_cb6r5_ae7_aq_m3dry_201807.nc
+-rw-rw-r-- 1 lizadams rc_cep-emc_psx     95208 Sep 27 14:14 dailyavg_ACONC_v55_ISAM_gcc_Bench_2018_12NE3_cb6r5_ae7_aq_m3dry.nc
+```
+
+VERDI can be used to compare the aggregated species in ACONC to the sum of the tagged aggregated species in the SA_ACONC file.
+
+```
+verdi -f $cwd/COMBINE_ACONC_v55_ISAM_gcc_Bench_2018_12NE3_cb6r5_ae7_aq_m3dry_201807.nc -f $cwd/COMBINE_SA_ACONC_v55_ISAM_gcc_Bench_2018_12NE3_cb6r5_ae7_aq_m3dry_201807.nc -s "NOX[1]" -g tile -s "NOX_EGU[2]+NOX_BIO[2]+NOX_BCO[2]+NOX_ICO[2]+NOX_OTH[2]" -g tile 
+```
+
+VERDI can also be used to confirm that the average concentration of the aggregated species is equal to the sum of the tagged aggregated species, please note that this average is taken over two days, as the ISAM benchmark ran for two days, and two days were available in the combine output file.
+
+```
+verdi -f $cwd/AVG_COMBINE_ACONC_v55_ISAM_gcc_Bench_2018_12NE3_cb6r5_ae7_aq_m3dry.nc -f $cwd/AVG_COMBINE_SA_ACONC_v55_ISAM_gcc_Bench_2018_12NE3_cb6r5_ae7_aq_m3dry.nc -s "NOX[1]" -g tile -s "NOX_EGU_AVG[2]+NOX_BIO_AVG[2]+NOX_BCO_AVG[2]+NOX_ICO_AVG[2]+NOX_OTH_AVG[2]" -g tile
+```
+
+VERDI can also be used to confirm that the daily average concentration of the aggregated species is equal to the sum of the tagged aggregated species. Note, that there are two timesteps in each daily average file, one containing the average for day 1 and one containing the average for day 2
+
+```
+verdi -f $cwd/dailyavg_ACONC_v55_ISAM_gcc_Bench_2018_12NE3_cb6r5_ae7_aq_m3dry_201807.nc -f $cwd/dailyavg_SA_ACONC_v55_ISAM_gcc_Bench_2018_12NE3_cb6r5_ae7_aq_m3dry_201807.nc -s "NOX[1]" -g tile -s "NOX_EGU[2]+NOX_BIO[2]+NOX_BCO[2]+NOX_ICO[2]+NOX_OTH[2]" -g tile  
+```
+
+
+
+
+
+
+
