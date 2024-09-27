@@ -203,48 +203,83 @@ The input files for the CMAQv5.4 ISAM benchmark case are the same as the benchma
     
 ### Step 13: Edit the CMAQ-ISAM runscript
 
-```
-cp run_cctm_Bench_2018_12NE3.csh run_cctm_Bench_2018_12NE3_cb6r5_m3dry_ISAM.csh
-gedit run_cctm_Bench_2018_12NE3_cb6r5_m3dry_ISAM.csh
-```
-
-Set General Parameters for Configuring the Simulation
+Note: there is an example of the run script on the AWS S3 bucket.
 
 ```
-set VRSN = v55_ISAM
+cd CMAQ_v5.5/CCTM/scripts
+wget https://cmaq-release-benchmark-data-for-easy-download.s3.amazonaws.com/v5_5/ISAM_Benchmark/CCTM/scripts/run_cctm_Bench_2018_12NE3_cb6r5_m3dry_ISAM.csh
+cat run_cctm_Bench_2018_12NE3_cb6r5_m3dry_ISAM.csh
+```
+
+Verify that the following settings.
+
+Verify the General Parameters for Configuring the Simulation
+
+```
+ set VRSN = v55_ISAM
+ set PROC      = mpi               #> serial or mpi
+ set MECH      = cb6r5_ae7_aq      #> Mechanism ID
+ set APPL      = Bench_2018_12NE3_${MECH}_m3dry  #> Application Name (e.g. Gridname)
+```
+
+Verify the Build directory to include the dry deposition mechanism in the name
+
+```
+#> Set the build directory (this is where the CMAQ executable
+#> is located by default).
+ set BLD       = ${CMAQ_HOME}/CCTM/scripts/BLD_CCTM_${VRSN}_${compilerString}_${MECH}_m3dry
+```
+
+Verify the input data directory
+
+```
+#> Set Working, Input, and Output Directories
+ setenv WORKDIR ${CMAQ_HOME}/CCTM/scripts          #> Working Directory. Where the runscript is.
+ setenv OUTDIR  ${CMAQ_DATA}/output_CCTM_${RUNID}  #> Output Directory
+ setenv INPDIR  ${CMAQ_DATA}/CMAQv5.4_2018_12NE3_Benchmark_2Day_Input/2018_12NE3            #> Input Directory
+```
+
+Verify the start and end dates to match the input data for this benchmark.
+
+```
+#> Set Start and End Days for looping
+ setenv NEW_START TRUE             #> Set to FALSE for model restart
+ set START_DATE = "2018-07-01"     #> beginning date (July 1, 2016)
+ set END_DATE   = "2018-07-02"     #> ending date    (July 1, 2016)
 ```
 
 
-Turn on ISAM and uncomment the SA_IOLIST file and uncomment the ISAM regions file
+Verify that ISAM is turned on and that the SA_IOLIST file and ISAM regions file definitions are uncommented.
 
 ```
 setenv CTM_ISAM Y
 setenv SA_IOLIST ${WORKDIR}/isam_control.2018_12NE3.txt
 setenv ISAM_REGIONS $INPDIR/GRIDMASK_STATES_12NE3.nc
 ```
+
    
 Run or Submit the script to the batch queueing system
 
 ```
-./run_cctm_Bench_2018_12NE3.ISAM.csh
+./run_cctm_Bench_2018_12NE3_cb6r5_m3dry_ISAM.csh
 ```
 
 OR (If using SLRUM)
 
 ```
-sbatch run_cctm_Bench_2018_12NE3.ISAM.csh
+sbatch run_cctm_Bench_2018_12NE3_cb6r5_m3dry_ISAM.csh
 ```
 
 ### Step 14: Verify that the run was successful
    - look for the output directory
    
    ```
-   cd ../../data/output_CCTM_v54_ISAM_gcc_Bench_2018_12NE3_2day_ISAM
+   cd ../../data/output_CCTM_v55_ISAM_gcc_Bench_2018_12NE3_cb6r5_ae7_aq_m3dry
    ```
    If the run was successful you will see the following output
    
    ```
-   tail ./LOGS/CTM_LOG_000.v532_ISAM_gcc_Bench_2016_12SE1_20160702
+   tail ./LOGS/CTM_LOG_000.v55_ISAM_gcc_Bench_2018_12NE3_cb6r5_ae7_aq_m3dry_20180702
    ```
    |>---   PROGRAM COMPLETED SUCCESSFULLY   ---<|
 
@@ -253,17 +288,17 @@ sbatch run_cctm_Bench_2018_12NE3.ISAM.csh
 The following ISAM output files are generated in addition to the standard CMAQ output files. Note, the answers will not be comparible if emission scaling is used (Step 10 - optional)
 
 ```
-CCTM_SA_DRYDEP_v54_ISAM_gcc_Bench_2018_12NE3_2day_ISAM_20180702.nc
-CCTM_SA_WETDEP_v54_ISAM_gcc_Bench_2018_12NE3_2day_ISAM_20180702.nc
-CCTM_SA_CONC_v54_ISAM_gcc_Bench_2018_12NE3_2day_ISAM_20180702.nc
-CCTM_SA_ACONC_v54_ISAM_gcc_Bench_2018_12NE3_2day_ISAM_20180702.nc
-CCTM_SA_CGRID_v54_ISAM_gcc_Bench_2018_12NE3_2day_ISAM_20180702.nc
+CCTM_SA_CONC_v55_ISAM_gcc_Bench_2018_12NE3_cb6r5_ae7_aq_m3dry_20180702.nc
+CCTM_SA_WETDEP_v55_ISAM_gcc_Bench_2018_12NE3_cb6r5_ae7_aq_m3dry_20180702.nc
+CCTM_SA_DRYDEP_v55_ISAM_gcc_Bench_2018_12NE3_cb6r5_ae7_aq_m3dry_20180702.nc
+CCTM_SA_ACONC_v55_ISAM_gcc_Bench_2018_12NE3_cb6r5_ae7_aq_m3dry_20180702.nc
+CCTM_SA_CGRID_v55_ISAM_gcc_Bench_2018_12NE3_cb6r5_ae7_aq_m3dry_20180702.nc
 ```
 
 ### Step 16: Compare the tagged species in `CCTM_SA_CONC` output file to the species in `CCTM_CONC` output file
 
 ```
-ncdump -h CCTM_SA_CONC_v55_ISAM_gcc_Bench_2018_12NE3_cracmm2_4x8_all_CONC_20180701.nc | grep SO2_
+ncdump -h CCTM_SA_CONC_v55_ISAM_gcc_Bench_2018_12NE3_cb6r5_ae7_aq_m3dry_20180701.nc | grep SO2_
 ```
 
 The following tagged species should add up to the total SO2 in the CONC file.
@@ -289,12 +324,16 @@ The following tagged species should add up to the total SO2 in the CONC file.
 		SO2_ICO:units = "ppmV            " ;
 		SO2_ICO:var_desc = "tracer conc.                    
 
-[1] = CONC
-[2] = SA_CONC
+```
+
+The sum of the tagged species in the SA_CONC file is equal to the species in the CONC file.
 
 ```
 SO2_EGU[1] + SO2_BIO[1] + SO2_BCO[1] + SO2_OTH[1] + SO2_ICO[1] = SO2[2]
 ```
+
+[1] = SA_CONC
+[2] = CONC
 
 Both tagged species EGU and BIO contribute to the bulk concentration, therefore the sum of all tagged species including boundary conditions (BCO) and initial conditions (ICO) and other (all untagged emissions) (OTH)
 
@@ -308,14 +347,27 @@ Download the run script and species definition files for this case from the AWS 
 
 ```
 cd CMAQ_v5.5/POST/combine/scripts
+wget https://cmaq-release-benchmark-data-for-easy-download.s3.amazonaws.com/v5_5/ISAM_Benchmark/POST/combine/scripts/run_combine_ISAM_aconc%2Bdep_example_cb6r5_ae7_aq_12ne3_benchmark.csh
+wget https://cmaq-release-benchmark-data-for-easy-download.s3.amazonaws.com/v5_5/ISAM_Benchmark/POST/combine/scripts/run_combine_ISAM_sa_aconc%2Bsa_dep_example_cb6r5_ae7_aq_12ne3_benchmark.csh
+wget https://cmaq-release-benchmark-data-for-easy-download.s3.amazonaws.com/v5_5/ISAM_Benchmark/POST/combine/scripts/SpecDef_ISAM_Conc_benchmark_cb6r5_ae7_aq.txt
+wget https://cmaq-release-benchmark-data-for-easy-download.s3.amazonaws.com/v5_5/ISAM_Benchmark/POST/combine/scripts/SpecDef_ISAM_Dep_benchmark_cb6r5_ae7_aq.txt
+```
 
+List the files after they have been downloaded
+
+```
+ls -lrt
+```
+
+Output
+
+```
 SpecDef_ISAM_Conc_benchmark_cb6r5_ae7_aq.txt
 SpecDef_ISAM_Dep_benchmark_cb6r5_ae7_aq.txt
 run_combine_ISAM_sa_aconc+sa_dep_example_cb6r5_ae7_aq_12ne3_benchmark.csh
 run_combine_ISAM_aconc+dep_example_cb6r5_ae7_aq_12ne3_benchmark.csh
 ```
 
-Copy these files to the POST/combine/scripts directory 
 
 ### Step 18: Build and run combine
 
