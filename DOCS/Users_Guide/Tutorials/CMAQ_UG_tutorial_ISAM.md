@@ -503,6 +503,11 @@ VERDI can be used to compare the aggregated species in ACONC to the sum of the t
 cd CMAQ_v5.5/data/output_CCTM_v55_ISAM_gcc_Bench_2018_12NE3_cb6r5_ae7_aq_m3dry/POST
 verdi -f $cwd/COMBINE_ACONC_v55_ISAM_gcc_Bench_2018_12NE3_cb6r5_ae7_aq_m3dry_201807.nc -f $cwd/COMBINE_SA_ACONC_v55_ISAM_gcc_Bench_2018_12NE3_cb6r5_ae7_aq_m3dry_201807.nc -s "NOX[1]" -g tile -s "NOX_EGU[2]+NOX_BIO[2]+NOX_BCO[2]+NOX_ICO[2]+NOX_OTH[2]" -g tile 
 ```
+Note, the min and max of the two tile plots should be identical. The difference can also be calculated to verify that they are only different by numerical roundoff.
+
+```
+verdi -f $cwd/COMBINE_ACONC_v55_ISAM_gcc_Bench_2018_12NE3_cb6r5_ae7_aq_m3dry_201807.nc -f $cwd/COMBINE_SA_ACONC_v55_ISAM_gcc_Bench_2018_12NE3_cb6r5_ae7_aq_m3dry_201807.nc -s "NOX[1] - (NOX_EGU[2]+NOX_BIO[2]+NOX_BCO[2]+NOX_ICO[2]+NOX_OTH[2])" -g tile
+```
 
 VERDI can also be used to confirm that the average concentration of the aggregated species is equal to the sum of the tagged aggregated species, please note that this average is taken over two days, as the ISAM benchmark ran for two days, and two days were available in the combine output file.
 
