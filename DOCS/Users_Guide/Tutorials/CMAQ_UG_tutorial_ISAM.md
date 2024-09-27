@@ -440,9 +440,11 @@ cd CMAQ_v5.5/POST/calc_tmetric/scripts
 ./bldit_calc_tmetric.csh gcc |& tee ./bldit_calc_tmetric.log
 ```
 
-Run calc_tmetric
+Obtain and Run the calc_tmetric example scripts
 
 ```
+wget https://cmaq-release-benchmark-data-for-easy-download.s3.amazonaws.com/v5_5/ISAM_Benchmark/POST/calc_tmetric/scripts/run_calc_tmetric_ISAM_aconc.csh
+wget https://cmaq-release-benchmark-data-for-easy-download.s3.amazonaws.com/v5_5/ISAM_Benchmark/POST/calc_tmetric/scripts/run_calc_tmetric_ISAM_sa_aconc.csh
 ./run_calc_tmetric_ISAM_sa_aconc.csh gcc |& tee ./run_calc_tmetric_ISAM_sa_aconc.log
 ./run_calc_tmetric_ISAM_aconc.csh gcc |& tee ./run_calc_tmetric_ISAM_aconc.log
 ``` 
@@ -451,9 +453,11 @@ Run calc_tmetric
 
 Download the run scripts for hr2day for the ISAM run and copy them to the hr2day/scripts directory.
 
+
 ```
-run_hr2day_ISAM_sa_aconc.csh
-run_hr2day_ISAM_aconc.csh
+cd  CMAQ_v5.5/POST/hr2day/scripts
+wget https://cmaq-release-benchmark-data-for-easy-download.s3.amazonaws.com/v5_5/ISAM_Benchmark/POST/hr2day/scripts/run_hr2day_ISAM_aconc.csh
+wget https://cmaq-release-benchmark-data-for-easy-download.s3.amazonaws.com/v5_5/ISAM_Benchmark/POST/hr2day/scripts/run_hr2day_ISAM_sa_aconc.csh
 ```
 
 Build the hr2day executable
@@ -479,7 +483,7 @@ cd CMAQ_v5.5/data/output_CCTM_v55_ISAM_gcc_Bench_2018_12NE3_cb6r5_ae7_aq_m3dry/P
 ls -lrt
 ```
 
-Output:
+List of POST Output files:
 
 ```
 -rw-rw-r-- 1 lizadams rc_cep-emc_psx 223856976 Sep 26 15:32 COMBINE_ACONC_v55_ISAM_gcc_Bench_2018_12NE3_cb6r5_ae7_aq_m3dry_201807.nc
