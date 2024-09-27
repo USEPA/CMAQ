@@ -428,12 +428,6 @@ NOX_OTH             ,ppbV      ,1000.0*(NO_OTH[1] + NO2_OTH[1])
 
 ### Step 20: Build and run calc_tmetric to calculate the average of all tagged species, and the average of all species for your ISAM run.
 
-Download the run scripts for calc_tmetric for the ISAM run and copy them to the calc_tmetric/scripts directory..
-
-```
-run_calc_tmetric_ISAM_sa_aconc.csh
-run_calc_tmetric_ISAM_aconc.csh
-```
 
 Build the calc_tmetric executable
 
@@ -442,25 +436,22 @@ cd CMAQ_v5.5/POST/calc_tmetric/scripts
 ./bldit_calc_tmetric.csh gcc |& tee ./bldit_calc_tmetric.log
 ```
 
-Obtain and Run the calc_tmetric example scripts
+Download the run scripts for calc_tmetric for the ISAM run and copy them to the calc_tmetric/scripts directory..
 
 ```
+cd CMAQ_v5.5/POST/calc_tmetric/scripts
 wget https://cmaq-release-benchmark-data-for-easy-download.s3.amazonaws.com/v5_5/ISAM_Benchmark/POST/calc_tmetric/scripts/run_calc_tmetric_ISAM_aconc.csh
 wget https://cmaq-release-benchmark-data-for-easy-download.s3.amazonaws.com/v5_5/ISAM_Benchmark/POST/calc_tmetric/scripts/run_calc_tmetric_ISAM_sa_aconc.csh
+```
+
+Run the calc_tmetric scripts
+
+```
 ./run_calc_tmetric_ISAM_sa_aconc.csh gcc |& tee ./run_calc_tmetric_ISAM_sa_aconc.log
 ./run_calc_tmetric_ISAM_aconc.csh gcc |& tee ./run_calc_tmetric_ISAM_aconc.log
 ``` 
 
 ### Step 21: Build and run hr2day to calculate the daily average concentration for each tagged and aggregated species.
-
-Download the run scripts for hr2day for the ISAM run and copy them to the hr2day/scripts directory.
-
-
-```
-cd  CMAQ_v5.5/POST/hr2day/scripts
-wget https://cmaq-release-benchmark-data-for-easy-download.s3.amazonaws.com/v5_5/ISAM_Benchmark/POST/hr2day/scripts/run_hr2day_ISAM_aconc.csh
-wget https://cmaq-release-benchmark-data-for-easy-download.s3.amazonaws.com/v5_5/ISAM_Benchmark/POST/hr2day/scripts/run_hr2day_ISAM_sa_aconc.csh
-```
 
 Build the hr2day executable
 
@@ -468,6 +459,15 @@ Build the hr2day executable
 cd CMAQ_v5.5/POST/hr2day/scripts
 ./bldit_hr2day.csh gcc |& tee ./bldit_hr2day.log
 ```
+
+Download the run scripts for hr2day for the ISAM run
+
+```
+cd  CMAQ_v5.5/POST/hr2day/scripts
+wget https://cmaq-release-benchmark-data-for-easy-download.s3.amazonaws.com/v5_5/ISAM_Benchmark/POST/hr2day/scripts/run_hr2day_ISAM_aconc.csh
+wget https://cmaq-release-benchmark-data-for-easy-download.s3.amazonaws.com/v5_5/ISAM_Benchmark/POST/hr2day/scripts/run_hr2day_ISAM_sa_aconc.csh
+```
+
 
 Run hr2day for both the SA_ACONC and ACONC file
 
