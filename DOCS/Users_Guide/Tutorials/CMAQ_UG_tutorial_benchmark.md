@@ -122,6 +122,14 @@ Create the model executables for CCTM using the steps shown below.
 ##### Configuration for multi-processor runs (default):
 
 ```
+cd $CMAQ_HOME/CCTM/scripts
+cp bldit_cctm.csh bldit_cctm_cb6r5_ae7_aq_m3dry.csh
+```
+
+Edit the bldit_cctm_cb6r5_ae7_aq_m3dry.csh script to use the following settings:
+
+
+```
 set ParOpt #>  Option for MPI Runs
 ````
 
@@ -155,7 +163,7 @@ To configure these parameters, the CCTM Science Modules within the bldit_cctm.cs
 To keep the BLD directory name unique for each mechansim, verify that the bldit_cctm script uses the following: 
 
 ```
-#> Set and create the "BLD" directory for checking out and compiling source code. Move current directory to that build directory.
+#> Verify that the "BLD" directory for checking out and compiling source code uses the mechanism and deposition scheme in the name.
  if ( $?Debug_CCTM ) then
     set Bld = $CMAQ_HOME/CCTM/scripts/BLD_CCTM_${VRSN}_${compilerString}_${Mechanism}_${DepMod}_debug
  else
@@ -174,7 +182,7 @@ Following the requisite changes to the CCTM build script, use the following comm
 
 ```
 cd $CMAQ_HOME/CCTM/scripts
-./bldit_cctm_craccm.csh [compiler] [version] |& tee bldit_cctm_craccm.log
+./bldit_cctm_cb6r5_ae7_aq_m3dry [compiler] [version] |& tee bldit_cctm_cb6r5_ae7_aq_m3dry.log
 ```
 
 Verify that the BLD directory contains a namelist called
