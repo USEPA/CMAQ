@@ -175,7 +175,7 @@ Verify the Mechanism is set to cb6r5_ae7_aq
 ```
 
 
-Verify that a unique  BLD directory name for each combination of mechansim and dry deposition scheme.
+Verify that the bldit_cctm.csh script contains the following lines (creating a unique BLD directory name for each combination of mechansim and dry deposition scheme).
 
 #> Set and create the "BLD" directory for checking out and compiling source code. Move current directory to that build directory.
  if ( $?Debug_CCTM ) then
