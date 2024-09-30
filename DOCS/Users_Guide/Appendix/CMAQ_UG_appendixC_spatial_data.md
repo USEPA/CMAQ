@@ -56,9 +56,13 @@ Emission spatial allocation surrogates are required for generating anthropogenic
 spatially allocate county-based emission inventories to model grid cells. Emission surrogates can be based
 on population, roads, airports, railroads, and land use spatial data sets. The [Surrogate Tool](https://github.com/CEMPD/SurrogateToolsDB) can be used for to generate spatial surrogates for SMOKE.
 
-**Regional masks** are used to specify regions such as states, counties, or countries within a gridded spatial domain. These regions are applied to regionally scale emissions as specified in section B.3.4 of the [DESID Appendix](CMAQ_UG_appendixB_emissions_control.md) and to track emissions by region in [ISAM](../Users_Guide/CMAQ_UG_ch11_ISAM.md) Masks can be created from a geospatial file of regions, such as county shapefile, with the [shp2cmaq](../../../PREP/shp2cmaq/README.md) tool or the Spatial Allocator.
+**Regional masks** are used to specify regions such as states, counties, or countries within a gridded spatial domain. These regions are applied to regionally scale emissions as specified in section B.3.4 of the [DESID Appendix](CMAQ_UG_appendixB_emissions_control.md) and to track emissions by region in [ISAM](../Users_Guide/CMAQ_UG_ch11_ISAM.md) Masks can be created from a geospatial file of regions, such as county shapefile, with the [shp2cmaq](../../../PREP/shp2cmaq/README.md) tool.
 
-**Biogenic emissions** requires land use input including coverage of different tree species. The landcover for BELD3 and BELD4 may be generated using the Spatial Allocator's [BELD4 land cover tools](https://github.com/CMASCenter/Spatial-Allocator/blob/master/docs/User_Manual/SA_ch03_vector.md#processing-biogenic-emissions-land-use-data).
+**Biogenic emissions** requires land use input including coverage of different tree species. The Biogenic Emissions Landcover Dataset version 5 (BELD5) consists of 257 different landuse types at 1km horizontal resolution that covers all the contiguous United States, Mexico, most of Canada, parts of southern Alaska, and other Caribbean and
+Central American countries. BELDv5 data is available from the 2017 emissions modeling platform ftp site: [https://gaftp.epa.gov/Air/emismod/2017/biogenics/](https://gaftp.epa.gov/Air/emismod/2017/biogenics/). For more information on BELD5 landuse types see:
+[https://www.cmascenter.org/smoke/documentation/4.8/html/ch08s09.html#sect_input_source_beld5](https://www.cmascenter.org/smoke/documentation/4.8/html/ch08s09.html#sect_input_source_beld5)
+and see the EPA 2017 NEI Technical Support Documentation (section 4.6): [https://www.epa.gov/sites/production/files/2020-04/documents/nei2017_tsd_full_30apr2020.pdf](https://www.epa.gov/sites/production/files/2020-04/documents/nei2017_tsd_full_30apr2020.pdf). To aggregate the BELD5 to a coarser modeling domain with the same map projection use the SMOKE Utility Tool called AGGWNDW. The SMOKE User’s Manual has information on this tool here:
+[https://www.cmascenter.org/smoke/documentation/4.8/html/ch05s03s02.html](https://www.cmascenter.org/smoke/documentation/4.8/html/ch05s03s02.html).
 
 **Sea spray emissions** require open ocean and surf zone (50m) buffer fractions for the modeling grid
  cells in an I/O API file. For most of North American domain, a SA Vector allocation tool can be used
@@ -92,5 +96,6 @@ update their geogrid land cover data using the more accurate land cover data gen
 <!-- BEGIN COMMENT -->
 
 [<< Previous Appendix](CMAQ_UG_appendixB_emissions_control.md) - [Home](../README.md) - [Next Appendix >>](CMAQ_UG_appendixD_parallel_implementation.md)<br>
-CMAQ User's Guide (c) 2022<br>
+CMAQv5.5 User's Guide <br>
+
 <!-- END COMMENT -->

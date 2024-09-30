@@ -36,6 +36,7 @@
 	* [6.10.4 Nitrous Acid (HONO)](#6.10.4_HONO)
 	* [6.10.5 CRACMM](#6.10.5_CRACMM)
 * [6.11 Aerosol Dynamics and Chemistry](#6.11_Aerosol_Dynamics)
+    * [6.11.1 Aerosol Boundary and Initial Conditions](#6.11.1_Aero_BC)
 * [6.12 Aqueous Chemistry, Scavenging and Wet Deposition](#6.12_Aqueous_Chemistry)
 * [6.13 Potential Vorticity Scaling](#6.13_Potential_Vort)
 * [6.14 References](#6.14_References)
@@ -234,11 +235,12 @@ Deetails of each module are provided in the sections below.
 
 <!-- END COMMENT -->
 
-The M3Dry option for dry deposition and ammonia bidirectional surface flux in CMAQv5.4 is the next evolution of the dry deposition model that has been in CMAQ since its initial release and was originally based on the dry deposition model developed for the Acid Deposition and Oxidant Model (ADOM) (Pleim et al., 1984).  Dry deposition is computed by electrical resistance analogy where concentration gradients are analogous to voltage, flux is analogous to current, and deposition resistance is analogous to electrical resistance (Pleim and Ran, 2011).  In M3Dry, several key resistances, such as aerodynamic resistance and bulk stomatal resistance, and other related parameters, such as LAI, vegetation fraction, roughness length, friction velocity etc., are expected to be provided from the meteorological inputs.  Use of common model elements and parameters with the land surface model in the meteorology model ensures consistency between chemical surface fluxes and meteorological surface fluxes (moisture, heat, momentum).  While the M3Dry dry deposition model was designed to be used with the PX LSM option in WRF, any LSM can be used if the necessary parameters are output and then provided for input into CMAQ.  It features consideration of subgrid land-use fractions through aggregation of key model parameters, such as LAI, veg fraction, roughness length and minimum stomatal conductance, to the grid cell level. 
+The M3Dry option for dry deposition and ammonia bidirectional surface flux in CMAQv5.5 is the latest update of the dry deposition model that has been in CMAQ since its initial release and was originally based on the dry deposition model developed for the Acid Deposition and Oxidant Model (ADOM) (Pleim et al., 1984).  Changes from CMAQv5.4 involve only minor bug fixes.  Dry deposition is computed by electrical resistance analogy where concentration gradients are analogous to voltage, flux is analogous to current, and deposition resistance is analogous to electrical resistance (Pleim and Ran, 2011). In M3Dry, several key resistances, such as aerodynamic resistance and bulk stomatal resistance, and other related parameters, such as LAI, vegetation fraction, roughness length, friction velocity etc., are expected to be provided from the meteorological inputs. Use of common model elements and parameters with the land surface model in the meteorology model ensures consistency between chemical surface fluxes and meteorological surface fluxes (moisture, heat, momentum). While the M3Dry dry deposition model was designed to be used with the PX LSM option in WRF, any LSM can be used if the necessary parameters are output and then provided for input into CMAQ. It features consideration of subgrid land-use fractions through aggregation of key model parameters, such as LAI, veg fraction, roughness length and minimum stomatal conductance, to the grid cell level.  Dry deposition velocities and fluxes by landuse category for each grid cell can be computed and output for 13 major gas phase species by a postprocessor available on request.
 
-Upgrades for version 5.3 include larger surface resistances for deposition to snow and ice and reduced resistance for deposition to bare ground for ozone with dependence on surface soil moisture content.  The aerosol deposition has also been revised including a new dependence on LAI.  The ammonia bidirectional surface flux from croplands has been substantially revised from earlier versions.  The new version has close linkages with the EPIC agricultural ecosystem model.  Daily values of all soil parameters needed to compute the available soil ammonia concentrations (soil ammonia content, soil moisture, soil texture parameters, soil pH, and Cation Exchange Capacity (CEC)) for each of 21 agricultural production types that are either rainfed or irrigated (42 types total) are input to CMAQ.  Soil ammonia concentrations and soil pH are combined to derive the soil compensation concentration for the bidirectional flux calculation (Pleim et al., 2019).
+Upgrades for version 5.3 include larger surface resistances for deposition to snow and ice and reduced resistance for deposition to bare ground for ozone with dependence on surface soil moisture content. The aerosol deposition has also been revised including a new dependence on LAI. The ammonia bidirectional surface flux from croplands has been substantially revised from earlier versions. The new version has close linkages with the EPIC agricultural ecosystem model. Daily values of all soil parameters needed to compute the available soil ammonia concentrations (soil ammonia content, soil moisture, soil texture parameters, soil pH, and Cation Exchange Capacity (CEC)) for each of 21 agricultural production types that are either rainfed or irrigated (42 types total) are input to CMAQ. Soil ammonia concentrations and soil pH are combined to derive the soil compensation concentration for the bidirectional flux calculation (Pleim et al., 2019).
 
-The main upgrade for version 5.4 is the replacement of the aerosol dry deposition model with a new version that compares better to size-resolved observations, especially in forests, than the previous version and other models used in AQ modeling (Pleim et al 2022). The key innovations are dependence on leaf area index (LAI) for the vegetated part of the grid cell and two terms for inertial impaction for both macroscale obstacles (e.g., leaves and needles) and microscale obstacles (e.g., leaf hairs and microscale ridges).  When the modally integrated form is applied in CMAQ, the accumulation mode deposition velocities increase by more than an order of magnitude in highly forested areas resulting in lower concentrations of PM2.5.  
+The main upgrade for version 5.4 is the replacement of the aerosol dry deposition model with a new version that compares better to size-resolved observations, especially in forests, than the previous version and other models used in AQ modeling (Pleim et al 2022). The key innovations are dependence on leaf area index (LAI) for the vegetated part of the grid cell and two terms for inertial impaction for both macroscale obstacles (e.g., leaves and needles) and microscale obstacles (e.g., leaf hairs and microscale ridges). When the modally integrated form is applied in CMAQ, the accumulation mode deposition velocities increase by more than an order of magnitude in highly forested areas resulting in lower concentrations of PM2.5.
+
 
 <a id=6.8.2_Dry_STAGE></a>
 
@@ -505,8 +507,6 @@ In its windblown dust emission calculations, CMAQ uses time-varying vegetation c
 
 CMAQ windblown dust emissions are only computed for certain land use types defined as “desert” land, i.e. erodible, arid land. During the initial development of the CMAQ windblown dust module, three such “desert” land use types were defined and information about their fractional coverage was based on the Biogenic Emissions Landuse Database (BELD) and was provided to CMAQ through a separate input file. Later developments added the option to alternatively obtain land use information directly from MCIP (which in turn reflects the land use option selected for the WRF LSM, such as NCLD40 or MODIS), internally mapping “desert” types defined for the different WRF land use options to the three different BELD “desert” categories used in the CMAQ windblown dust algorithm. This supported the calculation of windblown dust emissions for areas outside North America where BELD is not available. As of version CMAQ version 5.4, the windblown dust module no longer supports reading a separate file with BELD land use data and always uses land use information contained in the MCIP files.
 
-The WRF configuration choices discussed above, i.e. land use and vegetation fraction, can have a pronounced impact on CMAQ windblown dust calculations. Recent tests with MODIS vs. NLCD40 land use and lookup table vs. satellite-derived vegetation fraction found that the lowest (MODIS land use with lookup table vegetation fraction) and highest (NLCD40 land use with satellite-derived vegetation fraction) estimates of  US annual total windblow dust emissions differed by a factor of 4-5. The estimates from the tests with MODIS land use were closer to estimates using the BELD land use configuration (used in Foroutan et al., 2017) than those from the tests with NLCD40 land use.
-
 Users are strongly encouraged to enable the windblown dust module only for configurations using WRF version 4+. Windblown dust may only be enabled when using PX LSM input (setenv PX_VERSION Y), since other LSMs calculate soil properties at depths that are not consistent with assumptions in the windblown dust module.
 
 The CMAQ windblown dust module is controlled by the following RunScript flag:
@@ -581,7 +581,7 @@ Note that CMAQ employing Carbon Bond 6 version r5 with DMS and marine halogen ch
 
 Note that if the CTM_OCEAN_CHEM flag is set to N to indicate zero sea spray emissions, users should set the CTM_EMISCHK variable in the RunScript to FALSE to avoid crashing CMAQ when it cannot find species it is looking for from sea spray. 
 
-Alternatively, users can also edit the emission control file by commenting out the coarse and fine species expected for the sea spray module. The following species are emitted by the Dust module and may be referenced in the emission control file [Table 6-2](#Table6-2):
+Alternatively, users can also edit the emission control file by commenting out the coarse and fine species expected for the sea spray module. The following species are emitted by the Sea Spray module and may be referenced in the emission control file [Table 6-2](#Table6-2):
 
 <a id=Table6-2></a>
 **Table 6-2. Aerosol Species Predicted by the Sea-Spray Aerosol Module** 
@@ -951,6 +951,44 @@ CMAQ can output the reduction in visual range caused by the presence of PM, perc
 For easier comparison of CMAQ's output PM values with measurements, time-dependent cutoff fractions may be output by the model (e.g. Jiang et al., 2006). These include quantities for describing the fraction of each mode that would be categorized as PM<sub>2.5</sub> (i.e. PM25AT, PM25AC, and PM25CO) and PM<sub>1.0</sub> (i.e. PM1AT, PM1AC, and PM1CO) as well as the fraction of particles from each mode that would be detected by an AMS (i.e AMSAT, AMSAC, and AMSCO). There is also a surface interaction module in the multipollutant version of CMAQ that calculates the flux of mercury to and from the surface (rather than just depositing mercury).
 
 Further discussion on the scientific improvements to the CMAQ PM treatment is available in the release notes.
+    
+<a id=6.11.1_Aero_BC></a>
+
+### 6.11.1 Aerosol Boundary and Initial Conditions
+
+<!-- BEGIN COMMENT -->
+
+[Return to Top](#Return_to_Top)
+
+<!-- END COMMENT -->
+
+The Modal Aerosol approach in CMAQ uses three parameters to describe the population density of particles in size space (i.e. to parameterize the log-normal size distirbutions). These parameters are the zeroth moment (M0), which is also the Number concentration (N), the second moment (M2), which is proportional to bulk particle surface area (S), and the third moment (M3), which is proportional to bulk particle volume (V) and thus mass (M). The third moment is specified in the initial and boundary condition files in terms of the individual mass concentrations of each particle species in each mode. These mass concentrations are summed up to get M and then converted to M3. The values for M0 and M2 from the boundary and initial conditions are then used to calculate the mean diamter and standard deviation of all three log-normal modes. Each moment, M0, M2, and the speciated mass concentrations, are then transported throughout the model domain.
+
+If number concentration is missing or zero from the boundary or initial conditions, then the mean diameter and standard deviation for that mode are set to a default and M0 and M2 are calculated based on these assumptions.  
+
+If number concentration is present and nonzero, but M2 is missing or zero, then the modal standard deviation is set to a default and the diameter is calculated to be consistent with the total mass and number concentrations. The user may explicitly direct CMAQ to ignore the M2 concentration from the boundary conditions by setting an environment variable to false:
+```
+setenv BC_AERO_M2USE F  #(default: T)
+setenv IC_AERO_M2USE F  #(default: T)
+```
+This may be an attractive option if the values of M2 have become corrupted or unstable to due to interpolation of boundary or initial conditions in space and time. The impact of this option on fine and coarse mode particle mass concentrations is shown below. There is a substantially larger impact on coarse particles than on fine particles, especially near the boundaries.
+
+![image](https://github.com/user-attachments/assets/9f048187-ab68-4f64-9ba9-925cb6c6d218)  
+Deviation in total fine particle mass concentration in $\mu g \ m^{-3}$.
+
+![image](https://github.com/user-attachments/assets/80068a34-2643-49ac-bb0a-cce3e5859d41)  
+Deviation in total coarse particle mass concentration in $\mu g \ m^{-3}$.
+
+The initial conditions are not expected to have such large impact on model results because model output data are used to begin every model restart (e.g. at the end of a day). It is expected that the user will give ample model spin-up time so that the impact of initial conditions issues is unlikely. 
+
+It is recommended to set BC_AERO_M2USE to True if boundary conditions were created with CMAQv5.4 or later. If boundary or initial conditions were made with CMAQv5.3 or before, then the definition of M2 did not include semivolatile organic compounds and should not be trusted to be compatible with CMAQv5.5 and beyond. In this case, set BC_AERO_M2USE to False. 
+
+Users may also specify if the boundary or initial conditions provided are applicable to wet or dry particle size distributions (i.e. is water included in the calculation of M2?). The following environment variable toggles this selection:
+```
+setenv BC_AERO_M2WET F  #(default: F, consistent with dry particle size distribution)
+setenv IC_AERO_M2WET F  #(default: F, consistent with dry particle size distribution)
+```
+Unless specifically known otherwise, it is most often the case that M2 or particle surface area is calculated in terms of the dry particle size distribution.
 
 <a id=6.12_Aqueous_Chemistry></a>
 
@@ -1102,7 +1140,9 @@ Pleim, J.E. (2007b). A combined local and nonlocal closure model for the atmosph
 
 Pleim, J., & Ran, L. (2011). Surface flux modeling for air quality applications. Atmosphere, 2(3), 271-302.
 
-Pleim, J. E., Ran, L., Appel, W., Shephard, M.W., & Cady-Pereira K. (2019). New bidirectional ammonia flux model in an air quality model coupled with an agricultural model. JAMES in review.
+Pleim, J. E., Ran, L., Appel, W., Shephard, M.W., & Cady-Pereira K. (2019). New bidirectional ammonia flux model in an air quality model coupled with an agricultural model. Journal of Advances in Modeling Earth Systems, 11, 2934-2957, [doi: 10.1029/2019MS001728](https://doi.org/10.1029/2019MS001728).
+
+Pleim, J.E., Ran, L., Saylor, R.D., Willison, J. and Binkowski, F.S. (2022). A new aerosol dry deposition model for air quality and climate modeling. Journal of Advances in Modeling Earth Systems, 14(11), p.e2022MS003050, [doi: 10.1029/2022MS003050]( https://doi.org/10.1029/2022MS003050).
 
 Pye, H.O.T., Pinder, R.W., Piletic, I.R., Xie, Y., Capps, S.L., Lin, Y.H., Surratt, J.D., Zhang, Z.F., Gold, A., Luecken, D.J., Hutzell W.T., Jaoui, M., Offenberg, J.H., Kleindienst, T.E., Lewandowski, M., & Edney, E.O. (2013). Epoxide pathways improve model predictions of isoprene markers and reveal key role of acidity in aerosol formation. Environ. Sci. Technol., 47(19), 11056-11064.
 
@@ -1148,7 +1188,7 @@ Zhao, J., Sarwar, G., Gantt, B., Foley, K., Kang, D., Fahey, K., Mathur, R., Hen
 
 [<< Previous Chapter](CMAQ_UG_ch05_running_a_simulation.md) - [Home](README.md) - [Next Chapter >>](CMAQ_UG_ch07_model_outputs.md)
 <br>
-CMAQ User's Guide (c) 2022<br>
+CMAQv5.5 User's Guide <br>
 
 <!-- END COMMENT -->
 

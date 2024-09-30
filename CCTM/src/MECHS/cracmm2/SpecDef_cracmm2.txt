@@ -30,7 +30,7 @@
 
 / File [1]: CMAQ conc/aconc file
 / File [2]: METCRO3D file
-/ File [3]: PMDIAG/APMDIAG file
+/ File [3]: ELMO/AELMO file
 / File [4]: METCRO2D file
 /
 /new species    ,units     ,expression
@@ -74,7 +74,7 @@ NOY             ,ppbV      ,1000.0*(NO[1]+NO2[1]+NO3[1]+2*N2O5[1]+HONO[1] \
 O3              ,ppbV      ,1000.0*O3[1]
 SO2             ,ppbV      ,1000.0*SO2[1]
 SO2_UGM3        ,ug m-3    ,1000.0*(SO2[1]*2.2118*DENS[2])
-TERP            ,ppbV      ,1000.0*(API[1]+LIM[1]),  a-pinene and limonene monoterpenes in CRACMM
+TERP            ,ppbV      ,1000.0*(API[1]+LIM[1]),  a-pinene and limonene monoterpenes in CRACMM2
 
 ! Deprecate these names in future
 ETH             ,ppbV      ,1000.0*ETE[1],            ethene is ETE in CRACMM
@@ -111,7 +111,7 @@ ABPINENES       ,ppbV      ,1000.0*(API[1])
 ALDX            ,ppbV      ,1000.0*ALD[1],            C3 and higher aldehydes is ALD in CRACMM
 !NOZ             ,ppbV      ,NOY[0]-NOX[0]
 !SULF            ,ppbV      ,1000.0*SULF[1]
-! SIGROC: S/IVOC alk and oxy gas species
+! SIGROC: L/S/IVOC alk and oxy gas species
 LSIVROC         ,ppbC      ,1000.0* (9.5*VROCIOXY[1] \
                                     +14.0*VROCP5ARO[1]+13.0*VROCP6ARO[1] \
                                     +30.0*VROCN2ALK[1]+29.0*VROCN1ALK[1] \
@@ -154,6 +154,7 @@ VROC             ,ppbC      ,1000.0*(2.0*ACD[1]+2.0*ACE[1] \
                                     +4.0*ONIT[1]+5.0*ISON[1] \
                                     +5.0*INALD[1]+5.0*IPX[1]+10.0*TRPN[1]+10.0*HONIT[1] ) \ 
                                     +LSIVROC[0] ,
+
 !-------------------------------------------!
 !--------------- Particles -----------------!
 !-------------------------------------------!
@@ -193,10 +194,10 @@ AOCIJ           ,ugC m-3   ,PMF_OC[3]
 AOMIJ           ,ug m-3    ,PMF_OA[3]
 
 !!! Anthropogenic-VOC Derived Organic Aerosol
-AORGAJ          ,ug m-3    ,PMF_ASOA[3]
+AORGAIJ         ,ug m-3    ,PMF_ASOA[3]
 
 !!! Biogenic-VOC Derived Organic Aerosol
-AORGBJ          ,ug m-3    ,PMF_BSOA[3]
+AORGBIJ         ,ug m-3    ,PMF_BSOA[3]
 
 !!! Cloud-Processed  SOA
 AORGCJ          ,ug m-3    ,AORGCJ[1]

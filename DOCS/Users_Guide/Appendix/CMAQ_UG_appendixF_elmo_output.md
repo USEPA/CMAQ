@@ -19,16 +19,18 @@ Post-processing is still needed to concatenate days of output together onto mont
 <a id=FigureF-1></a> ![Figure F-1](../images/FigureF-1.png)
 **Figure F-1. Comprehensive list of diagnostic and aggregate variables currently available in ELMO. The table headings are just for presentation. They are not equivalent to ELMO Keywords, which are discussed in section F.4**
 
-Concentrations of scalar variables like NO, NO2, O3, ASO4J, and others are available for output to ELMO files as well. An aggregate variable for total VOC has not been provided because differences among chemical mechanisms are so significant. This capabality will be added in a future CMAQ version.
+
+Concentrations of scalar variables like NO, NO2, O3, ASO4J, and others are available for output to ELMO files as well. An aggregate variable for total VOC has not been provided for CMAQv5.4 or v5.5 because differences among chemical mechanisms are so significant. This capabality will be added in a future CMAQ version.
 
 ### F.2 Relationship to previous CMAQ versions
 Previously, aggregate parameters like PM<sub>2.5</sub> and Fine-mode Sulfate (ASO4I + ASO4J) were calculated offline through the COMBINE post-processing utility and documented via the species definition (SpecDef) input file for COMBINE, as depcited in Fig. F-2.  
-CMAQv5.5 maintains the CONC and ACONC files - they are available for use identically to CMAQv5.4. However, PMDIAG and APMDIAG files have been eliminated. 
+CMAQ versions 5.4 and later, maintain the CONC and ACONC files - they are available for use identically to CMAQv5.3.3. However, PMDIAG and APMDIAG files have been eliminated. 
+
 If a user would like to continue using the COMBINE workflow to aggregate PM variables, they may output necessary variables like FPM25ACC to ELMO files and use those with CONC output. 
 Alternatively, a user may elect to rely exclusively on ELMO output files alone and set the CONC_SPCS and AVG_CONC_SPCS variables in the CMAQ runscript to just one variable (e.g. O3) to minimize their I/O time and storage space footprint. 
 
 <a id=FigureF-2></a> ![Figure F-2](../images/FigureF-2b.png)  
-**Figure F-2. Schematic of data workflow in v5.3 and v5.4 with ELMO**
+**Figure F-2. Schematic of data workflow in v5.3 and v5.4 with ELMO. (Note that v5.5 workflow is idential to v5.4.)**
 
 There are several distinct advantages to using ELMO over post-processing CONC and ACONC output with COMBINE:
 
@@ -41,8 +43,6 @@ Moreover, their interpretation may not be consistent across mechanisms (e.g. cb6
 This resolves a potential vulnerability where, for example, the OM:OC of organic species may become out of sync between the SpecDef and the SOA_DEFN table within the model. This could have potentially led to errors in the calculation of OC (organic carbon). With ELMO, there is no such risk.  
 
 - If a user is only interested in aggregate parameters like PM25 mass, they can avoid the I/O time and storage required saving the raw output of every PM variable and then post-processing with COMBINE. This can be particularly helpful when processing 3D data.
-
-- ELMO functionality will be critical in the future for applications like ISAM where there is a large runtime and storage penalty for outputting raw species concentrations for every emission source. This capacity is under development for CMAQv5.4.1.
 
 - New parameters are available that were not before like N10, N20, N40 and N100, the number of particles above 10, 20, 40 and 100 nm in diameter. AOD and extinction at 550 nm have also been supported as options; these were previously only available on the photolysis diagnostic file.  
 
@@ -152,6 +152,6 @@ Follow the example of existing variables to prescribe the species to be added, t
 <!-- BEGIN COMMENT -->
 
 [<< Previous Appendix](CMAQ_UG_appendixE_configuring_WRF.md) - [Home](../README.md) <br>
-CMAQ User's Guide (c) 2022<br>
+CMAQv5.5 User's Guide<br>
 
 <!-- END COMMENT -->

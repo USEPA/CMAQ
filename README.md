@@ -1,4 +1,4 @@
-CMAQv5.5
+![image](https://github.com/user-attachments/assets/1dd3bdbe-9750-41b2-8b39-f234d74b8ecf)CMAQv5.5
 ==========
 
 US EPA Community Multiscale Air Quality Model (CMAQ) Website: https://www.epa.gov/cmaq
@@ -21,7 +21,8 @@ particulates, toxics, and acid deposition.
 
 * Community Regional Atmospheric Chemistry Multiphase Mechanism (CRACMM) version 2 including updated formaldehyde chemistry impacting ozone and secondary organic aerosol formation
 * New support for running pre-configured global CMAQ simulations coupled with meteorology from the Model for Prediction Across Scales – Atmosphere (MPAS-A) 
-* Updates to source attribution estimates with the Integrated Source Apportionment Method (ISAM) model, mainly impacting coarse particles and secondary organic aerosols formed through cloud processes
+* Expanded capabilities of the Integrated Source Apportionment Method (ISAM) to quantify source contributions to total secondary organic aerosol (SOA) and individual species
+* Updates to ISAM source attribution estimates, mainly impacting coarse particles and secondary organic aerosols formed through cloud processes
 * Updates to the Decoupled Direct Method (DDM) to improve second order ozone sensitivities  
 * Updated chemistry to properly capture photolysis effects from sub-grid clouds
 * Revised algorithms for modeling dry deposition (M3DRY and STAGE updates)
@@ -30,6 +31,7 @@ particulates, toxics, and acid deposition.
 * Updates to Sulfur Tracking Model (STM) to properly attribute sulfate from gas phase chemistry
 * Updates to the Explicit and Lumped Model Output (ELMO) synthesizer to fix erroneous output for several PM aggregates including PMF_OC, PMF_NCOM, TNO3
 * New shp2cmaq python tool to convert GIS shapefiles into gridded netCDF mask files that can be used for defining regions and region families with DESID and using geographic source regions when running CMAQ-ISAM
+* Simplified workflows for easier CMAQ installation
 
 * **See the full list of CMAQv5.5 updates on our new CMAQ Wiki page. [**CMAQv5.5 Updates**](https://github.com/USEPA/CMAQ/wiki/CMAQv5.5-Series-FAQ#do-i-need-to-update-from-v54-to-v55)**
 

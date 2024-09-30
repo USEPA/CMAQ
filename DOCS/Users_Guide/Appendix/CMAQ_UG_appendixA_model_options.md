@@ -488,7 +488,7 @@ Sets if the CCTM will run in multi-processor or serial mode.
 -   `IC_AERO_M2USE [default: T]`<a id=IC_AERO_M2USE></a> Instructs CMAQ whether or not to use aerosol surface area from the Initial Condition file. If this option is set to false, then uniform diameter and standard deviation will be applied to each aerosol mode. If a particular simulation is a restart from a simulation preceeding in time (i.e. if this is any day after the first simulation day), then IC_AERO_M2USE is automatically set to True inside CMAQ.
 -   `IC_AERO_M2WET [default: F=dry]`<a id=IC_AERO_M2WET></a> Instructs CMAQ whether or not to assume the initial condition surface area is consistent with dry or wet diameter. Note that most air quality models assume mode parameters are dry, and then will calculate wet diameter when needed (e.g. for deposition).
 -   `BC_AERO_M2USE [default: T]`<a id=BC_AERO_M2USE></a> Instructs CMAQ whether or not to use aerosol surface area from the Boundary Condition file. If this option is set to false, then uniform diameter and standard deviation will be applied to each aerosol mode from the boundaries. 
--   `BC_AERO_M2WET [default: F=dry]`<a id=BC_AERO_M2WET></a> Instructs CMAQ whether or not to assume the boundary condition surface area is consistent with dry or wet diameter. Note that most air quality models assume mode parameters are dry, and then will calculate wet diameter when needed (e.g. for deposition).
+-   `BC_AERO_M2WET [default: F=dry]`<a id=BC_AERO_M2WET></a> Instructs CMAQ whether or not to assume the boundary condition surface area is consistent with dry or wet diameter. Note that most air quality models assume mode parameters are dry, and then will calculate wet diameter when needed (e.g. for deposition). For more information about the IC_AERO and BC_AERO options, please see [Chapter 6](CMAQ_UG_ch06_model_configuration_options.md#6.11.1_Aero_BC)
 
 <a id=Process_Analysis_Options></a>
 
@@ -737,5 +737,6 @@ Options for use with MEGAN:
 <!-- BEGIN COMMENT -->
 
 [<< Tables and Figures](../CMAQ_UG_tables_figures.md) - [Home](../README.md) - [Next Appendix >>](CMAQ_UG_appendixB_emissions_control.md)<br>
- CMAQ User's Guide (c) 2022<br>
+CMAQv5.5 User's Guide <br>
+
  <!-- END COMMENT -->

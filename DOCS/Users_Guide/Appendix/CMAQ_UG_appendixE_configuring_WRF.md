@@ -82,5 +82,6 @@ Kang, D., Heath, N., Gilliam, R., Spero, T., and Pleim, J.: Lightning Assimilati
 <!-- BEGIN COMMENT -->
 
 [<< Previous Appendix](CMAQ_UG_appendixD_parallel_implementation.md) - [Home](../README.md) - [Next Appendix >>](CMAQ_UG_appendixF_elmo_output.md) <br>
-CMAQ User's Guide (c) 2022<br>
+CMAQv5.5 User's Guide<br>
+
 <!-- END COMMENT -->

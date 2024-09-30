@@ -467,6 +467,6 @@ See the [CMAQ Installation and Benchmarking Tutorial](Tutorials/CMAQ_UG_tutorial
 <!-- BEGIN COMMENT -->
 
 [<< Previous Chapter](CMAQ_UG_ch04_model_inputs.md) - [Home](README.md) - [Next Chapter >>](CMAQ_UG_ch06_model_configuration_options.md)<br>
-CMAQ User's Guide (c) 2022<br>
+CMAQv5.5 User's Guide <br>
 
 <!-- END COMMENT -->
