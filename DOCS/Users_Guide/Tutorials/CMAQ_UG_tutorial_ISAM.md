@@ -120,7 +120,7 @@ set DepMod    = m3dry                 #> dry deposition scheme (m3dry or stage)
 setenv Mechanism cb6r5_ae7_aq              #> chemical mechanism (see $CMAQ_MODEL/CCTM/src/MECHS) 
 ```
 
-Verify that the bldit_cctm_isam.csh script uses the name of the mechanism and the dry deposition scheme in the BLD directory name:
+Verify that the bldit_cctm_isam.csh script contains the following lines: (the mechanism and the dry deposition scheme have been added to the BLD directory name):
 
 #> Set and create the "BLD" directory for checking out and compiling 
 #> source code. Move current directory to that build directory.
