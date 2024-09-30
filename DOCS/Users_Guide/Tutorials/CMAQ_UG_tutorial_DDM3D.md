@@ -106,7 +106,7 @@ cd [your_install_path]/CMAQ_v5.5
 
 ### Step 6. Edit the config_cmaq.csh to specify the paths of the ioapi and netCDF libraries
 
-### Step 7: Review the bldit_cctm_cb6r5_m3dry_ddm.csh bldit script
+### Step 7: Copy the bldit_cctm.csh script to a new bldit_cctm_cb6r5_m3dry_ddm.csh bldit script, and make the following edits:
 
 Change directory to CCTM/scripts
 
@@ -114,7 +114,7 @@ Change directory to CCTM/scripts
 cd CCTM/scripts
 ```
 
-Verify the following option is set to compile CCTM with DDM3D:
+Modify the following option to compile CCTM with DDM3D:
 
 ```
 set DDM3D_CCTM                        #> uncomment to compile CCTM with DD3D activated
