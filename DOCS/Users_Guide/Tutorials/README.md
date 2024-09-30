@@ -8,7 +8,7 @@ A series of short tutorials provide practical examples of how to set up and run 
 - [Script to install netCDF libraries to support netCDF4 compression](gcc_install_netcdf_for_nc4_compression.csh): This script installs prerequisite libraries for netCDF-4 to support compressed files.
 - [Script to install I/O API library to support netCDF4 compression](gcc_install_ioapi_for_nc4_compression.csh): This script installs I/O API library to support compressed files.
 - [Script to install CMAQv55 for cb6r5 and m3dry](gcc_install_cmaq55_cb6r5_m3dry.csh): This script installs CMAQv5.5 and uses libraries that support netCDF-4 compression.
-- [Building CMAQ for Intel](CMAQ_UG_tutorial_build_library_intel.md): This tutorial describes how to install netCDF and I/O API libraries and build CMAQ using the Intel compiler version 18.2. 
+- [Building CMAQ for Intel using libraries that disable netCDF4 compression](CMAQ_UG_tutorial_build_library_intel.md): This tutorial describes how to install netCDF and I/O API libraries and build CMAQ using the Intel compiler version 18.2. 
 - [Running the CMAQ Test Case for cracmm2 and stage](CMAQ_UG_tutorial_benchmark_cracmm2_stage.md): This tutorial describes how to prepare your Linux system for installing and running the CMAQ test case for cracmm2 and stage.
 - [Running the CMAQ Test Case for cb6r5 and stage](CMAQ_UG_tutorial_benchmark_cb6r5_stage.md): This tutorial describes how to prepare your Linux system for installing and running the CMAQ test case for the cb6r5_ae7_aq mecchanism and the stage dry deposition scheme. 
 - [Running the CMAQ Test Case for cb6r5 and m3dry](CMAQ_UG_tutorial_benchmark.md): This tutorial describes how to prepare your Linux system for installing and running the CMAQ test case for cb6r5_ae7_aq and m3dry.
