@@ -153,7 +153,7 @@ cp bldit_cctm.csh bldit_cctm_cracmm2_stage.csh
 vi bldit_cctm_cracmm2_stage.csh 
 ```
 
-Verify the bldit script uses a unique BLD directory name mechansim and dry deposition scheme combination.  
+Verify that the bldit_cctm_cracmm2_stage.csh script uses the name of the mechanism and the dry deposition scheme in the BLD directory name:
 
 ```
 #> Set and create the "BLD" directory for checking out and compiling source code. Move current directory to that build directory.
