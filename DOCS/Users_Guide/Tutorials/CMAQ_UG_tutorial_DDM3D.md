@@ -246,6 +246,14 @@ sbatch run_cctm_Bench_2018_12NE3_cb6r5_m3dry_ddm.csh
 
     Note, the following DDM-3D output files are generated in addition to the standard CMAQ output files.
 
+```
+ CCTM_SENWDEP_v55_DDM3D_gcc_Bench_2018_12NE3_cb6r5_ae7_aq_m3dry_20180701.nc
+ CCTM_SENDDEP_v55_DDM3D_gcc_Bench_2018_12NE3_cb6r5_ae7_aq_m3dry_20180701.nc
+ CCTM_SENGRID_v55_DDM3D_gcc_Bench_2018_12NE3_cb6r5_ae7_aq_m3dry_20180701.nc
+```
+
+
+
 
 ### Step 15: Compare sensitivities
 
