@@ -112,6 +112,7 @@ Change directory to CCTM/scripts
 
 ```
 cd CCTM/scripts
+cp bldit_cctm.csh bldit_cctm_cb6r5_m3dry_ddm.csh
 ```
 
 Modify the following option to compile CCTM with DDM3D:
