@@ -142,7 +142,7 @@ The build directory parameters for the benchmark test case include the following
 -   3-D Advection Scheme: wrf_cons
 -   Horizontal diffusion: Multiscale
 -   Vertical diffusion: ACM2_Stage
--   Deposition: M3Dry
+-   Deposition: Stage
 -   Chemistry solver: EBI
 -   Aerosol module: AERO7 
 -   Cloud module: ACM_AE7
