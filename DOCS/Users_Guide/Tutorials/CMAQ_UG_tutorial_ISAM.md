@@ -164,7 +164,7 @@ Uncomment the line that contains ISAM_REGIONS as the File Label
 ```
  
 
-### Step 11: Example of emissions scaling (Reduce the PT_EGU emissions in PA by 25%) (Optional step)
+### Step 11: Example of emissions scaling (Reduce the PT_EGU emissions in NY by 25%) (Optional step)
 
 edit the DESID chemical control namelist file, note please specify the mechanism or define the MECH environment variable.
 
