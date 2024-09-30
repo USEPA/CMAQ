@@ -1,7 +1,7 @@
 #!/bin/csh -f
 
 # ===================== CCTMv5.5.X Run Script ========================= 
-# Usage: run.cctm >&! cctm.log &                                
+# Usage: run.cctm >&! cctm_Bench.log &                                
 #
 # To report problems or request help with this script/program:     
 #             http://www.epa.gov/cmaq    (EPA CMAQ Website)

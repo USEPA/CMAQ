@@ -1,7 +1,7 @@
 #!/bin/csh -f
 
 # ===================== CCTMv5.5.X Run Script ========================= 
-# Usage: run.cctm >&! cctm_Bench_2018_12NE3.log &                                
+# Usage: run.cctm >&! cctm_Bench.log &                                
 # Slurm Usage: sbatch run_cctm_Bench_2018_12NE3.csh
 #
 # To report problems or request help with this script/program:     
