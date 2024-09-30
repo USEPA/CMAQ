@@ -120,6 +120,13 @@ tar xvzf CMAQv5.4_2018_12NE3_Benchmark_2Day_Output.tar.gz
 
 Create the model executables for CCTM using the steps shown below. 
 
+Use the bldit_cctm script that is set up to use the cb6r5 mechanism and the stage dry deposition scheme.
+
+Copy the bldit script to a new script for this benchmark
+
+```
+cp bldit_cctm.csh  bldit_cctm_cb6r5_stage.csh
+
 ##### Configuration for multi-processor runs (default):
 
 ```
@@ -152,14 +159,6 @@ The build directory parameters for the benchmark test case include the following
 
 To configure these parameters, the CCTM Science Modules within the bldit_cctm.csh need to be set. The comments within the script itself should help guide the user on the options for each variable and how to set them. Further information on variable names can be found in 
 [Appendix A](../Appendix/CMAQ_UG_appendixA_model_options.md).
-
-Use the bldit_cctm script that is set up to use the cb6r5 mechanism and the stage dry deposition scheme.
-
-Copy the bldit script to a new script for this benchmark
-
-```
-cp bldit_cctm.csh  bldit_cctm_cb6r5_stage.csh
-```
 
 
 Modify the dry deposition scheme uses STAGE instead of M3DRY
