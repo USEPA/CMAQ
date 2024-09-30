@@ -146,13 +146,14 @@ To configure these parameters, the CCTM Science Modules within the bldit_cctm.cs
 [Appendix A](../Appendix/CMAQ_UG_appendixA_model_options.md).
 
 
-Review the bldit script for this benchmark.
+Create a bldit script for this benchmark.
 
 ```
-cat bldit_cctm_gnu_cracmm2_stage.csh 
+cp bldit_cctm.csh bldit_cctm_cracmm2_stage.csh
+vi bldit_cctm_cracmm2_stage.csh 
 ```
 
-Notice that the bldit script uses a unique BLD directory name mechansim and dry deposition scheme combination.  
+Verify the bldit script uses a unique BLD directory name mechansim and dry deposition scheme combination.  
 
 ```
 #> Set and create the "BLD" directory for checking out and compiling source code. Move current directory to that build directory.
@@ -163,18 +164,25 @@ Notice that the bldit script uses a unique BLD directory name mechansim and dry 
  endif
 ```
 
-Verify that the dry deposition scheme to use STAGE instead of M3DRY
+Modify the dry deposition scheme to use STAGE instead of M3DRY
 ```
 #> Set Dry Deposition Scheme to Stage
 
  set DepMod    = stage
 ```
 
+Modify the Mechanism to use craccm2 instead of cb6r5
+
+```
+ setenv Mechanism cracmm2              #> chemical mechanism (see $CMAQ_MODEL/CCTM/src/MECHS)
+```
+
+
 Following the requisite changes to the CCTM build script, use the following command to create the CCTM executable: 
 
 ```
 cd $CMAQ_HOME/CCTM/scripts
-./bldit_cctm_gnu_cracmm2_stage.csh [compiler] [version] |& tee bldit_cctm_gnu_cracmm2_stage.log
+./bldit_cctm_cracmm2_stage.csh [compiler] [version] |& tee bldit_cctm_cracmm2_stage.log
 ```
 
 Verify that the BLD directory contains a namelist called
