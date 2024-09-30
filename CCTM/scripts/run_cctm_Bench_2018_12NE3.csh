@@ -1,8 +1,15 @@
 #!/bin/csh -f
+#SBATCH -J CMAQ
+#SBATCH --nodes=2
+#SBATCH --ntasks-per-node=16
+#SBATCH --time=2:00:00
+#SBATCH -p debug_queue
+##SBATCH -p 528_queue
+#SBATCH -o /proj/ie/proj/CMAS/CMAQ/CMAQv5.5_testing/CMAQ_v5.5/CCTM/scripts/cmaq_cb6r5_m3dry_%j.txt
+
 
 # ===================== CCTMv5.5.X Run Script ========================= 
-# Usage: run_cctm_Bench_2018_12NE3.csh >&! cctm_Bench_2018_12SE1.log &                                
-# Slurm Usage: sbatch run_cctm_Bench_2018_12NE3.csh
+# Usage: run.cctm >&! cctm_Bench_2018_12SE1.log &                                
 #
 # To report problems or request help with this script/program:     
 #             http://www.epa.gov/cmaq    (EPA CMAQ Website)
@@ -22,7 +29,7 @@ echo 'Start Model Run At ' `date`
 #> Choose compiler and set up CMAQ environment with correct 
 #> libraries using config.cmaq. Options: intel | gcc | pgi
  if ( ! $?compiler ) then
-   setenv compiler intel
+   setenv compiler gcc
  endif
  if ( ! $?compilerVrsn ) then
    setenv compilerVrsn Empty
@@ -34,10 +41,10 @@ echo 'Start Model Run At ' `date`
  cd CCTM/scripts
 
 #> Set General Parameters for Configuring the Simulation
- set VRSN      = v55               #> Code Version
+ set VRSN      = v55              #> Code Version
  set PROC      = mpi               #> serial or mpi
  set MECH      = cb6r5_ae7_aq      #> Mechanism ID
- set APPL      = Bench_2018_12NE3  #> Application Name (e.g. Gridname)
+ set APPL      = Bench_2018_12NE3_${MECH}_m3dry  #> Application Name (e.g. Gridname)
                                                        
 #> Define RUNID as any combination of parameters above or others. By default,
 #> this information will be collected into this one string, $RUNID, for easy
@@ -46,7 +53,7 @@ echo 'Start Model Run At ' `date`
 
 #> Set the build directory (this is where the CMAQ executable
 #> is located by default).
- set BLD       = ${CMAQ_HOME}/CCTM/scripts/BLD_CCTM_${VRSN}_${compilerString}
+ set BLD       = ${CMAQ_HOME}/CCTM/scripts/BLD_CCTM_${VRSN}_${compilerString}_${MECH}_m3dry
  set EXEC      = CCTM_${VRSN}.exe  
 
 #> Output Each line of Runscript to Log File
@@ -55,7 +62,7 @@ echo 'Start Model Run At ' `date`
 #> Set Working, Input, and Output Directories
  setenv WORKDIR ${CMAQ_HOME}/CCTM/scripts          #> Working Directory. Where the runscript is.
  setenv OUTDIR  ${CMAQ_DATA}/output_CCTM_${RUNID}  #> Output Directory
- setenv INPDIR  ${CMAQ_DATA}/2018_12NE3            #> Input Directory
+ setenv INPDIR  ${CMAQ_DATA}/CMAQv5.4_2018_12NE3_Benchmark_2Day_Input/2018_12NE3            #> Input Directory
  setenv LOGDIR  ${OUTDIR}/LOGS     #> Log Directory Location
  setenv NMLpath ${BLD}             #> Location of Namelists. Common places are: 
                                    #>   ${WORKDIR} | ${CCTM_SRC}/MECHS/${MECH} | ${BLD}
@@ -74,7 +81,7 @@ echo 'Start Model Run At ' `date`
 #> Set Start and End Days for looping
  setenv NEW_START TRUE             #> Set to FALSE for model restart
  set START_DATE = "2018-07-01"     #> beginning date (July 1, 2016)
- set END_DATE   = "2018-07-01"     #> ending date    (July 1, 2016)
+ set END_DATE   = "2018-07-02"     #> ending date    (July 1, 2016)
 
 #> Set Timestepping Parameters
 set STTIME     = 000000            #> beginning GMT time (HHMMSS)
@@ -130,8 +137,8 @@ set NCELLS = `echo "${NX} * ${NY} * ${NZ}" | bc -l`
 
 #> Output Species and Layer Options
    #> CONC file species; comment or set to "ALL" to write all species to CONC
-   setenv CONC_SPCS "O3 NO ANO3I ANO3J NO2 FORM ISOP NH3 ANH4I ANH4J ASO4I ASO4J" 
-   setenv CONC_BLEV_ELEV " 1 1" #> CONC file layer range; comment to write all layers to CONC
+   #   setenv CONC_SPCS "O3 NO ANO3I ANO3J NO2 FORM ISOP NH3 ANH4I ANH4J ASO4I ASO4J" 
+   #setenv CONC_BLEV_ELEV " 1 1" #> CONC file layer range; comment to write all layers to CONC
 
    #> ACONC file species; comment or set to "ALL" to write all species to ACONC
    #setenv AVG_CONC_SPCS "O3 NO CO NO2 ASO4I ASO4J NH3" 
@@ -292,7 +299,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
 
   #> Initial conditions
   if ($NEW_START == true || $NEW_START == TRUE ) then
-     setenv ICFILE CCTM_ICON_${MECH}_12NE3_20180701.nc
+     setenv ICFILE CCTM_ICON_v54_${MECH}_12NE3_20180701.nc
      setenv INIT_MEDC_1 notused
   else
      set ICpath = $OUTDIR
@@ -301,7 +308,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   endif
 
   #> Boundary conditions
-  set BCFILE = CCTM_BCON_${MECH}_12NE3_${YYYYMMDD}.nc
+  set BCFILE = CCTM_BCON_v54_${MECH}_12NE3_${YYYYMMDD}.nc
 
   #> Off-line photolysis rates 
   #set JVALfile  = JTABLE_${YYYYJJJ}
