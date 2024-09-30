@@ -38,6 +38,8 @@ The following gridmask file is provided with the benchmark inputs in the 2018_12
 GRIDMASK_STATES_12NE3.nc
 ```
 
+Note, all states are listed in the variable list in the header of the file, but the data only contains valid entries for the states in the 12NE3 domain. 
+
 The instructions require the user to edit the DESID emissions control namelist file and the DESID chemical control namelist file in the BLD directory. If you want to use emission scaling (independently from ISAM or DDM3D) you will also need to edit these files. (see step 10 below).
 
 ```
@@ -164,7 +166,7 @@ Uncomment the line that contains ISAM_REGIONS as the File Label
 ```
  
 
-### Step 11: Example of emissions scaling (Reduce the PT_EGU emissions in NY by 25%) (Optional step)
+### Step 11: Example of emissions scaling (Reduce the PT_EGU emissions in NY by 25%) (Optional step, described here, but not used)
 
 edit the DESID chemical control namelist file, note please specify the mechanism or define the MECH environment variable.
 
@@ -296,10 +298,10 @@ CCTM_SA_ACONC_v55_ISAM_gcc_Bench_2018_12NE3_cb6r5_ae7_aq_m3dry_20180702.nc
 CCTM_SA_CGRID_v55_ISAM_gcc_Bench_2018_12NE3_cb6r5_ae7_aq_m3dry_20180702.nc
 ```
 
-### Step 16: Compare the tagged species in `CCTM_SA_CONC` output file to the species in `CCTM_CONC` output file
+### Step 16: Compare the tagged species in `CCTM_SA_ACONC` output file to the species in `CCTM_ACONC` output file
 
 ```
-ncdump -h CCTM_SA_CONC_v55_ISAM_gcc_Bench_2018_12NE3_cb6r5_ae7_aq_m3dry_20180701.nc | grep SO2_
+ncdump -h CCTM_SA_ACONC_v55_ISAM_gcc_Bench_2018_12NE3_cb6r5_ae7_aq_m3dry_20180701.nc | grep SO2_
 ```
 
 
@@ -328,13 +330,13 @@ The following tagged species should add up to the total SO2 in the CONC file.
 		SO2_ICO:var_desc = "tracer conc.                    
 ```
 
-The sum of the tagged species in the SA_CONC file is equal to the species in the CONC file.
+The sum of the tagged species in the SA_ACONC file is equal to the species in the ACONC file.
 
 ```
 SO2_EGU[1] + SO2_BIO[1] + SO2_BCO[1] + SO2_OTH[1] + SO2_ICO[1] = SO2[2]
 
-[1] = SA_CONC
-[2] = CONC
+[1] = SA_ACONC
+[2] = ACONC
 ```
 
 Both tagged species EGU and BIO contribute to the bulk concentration, therefore the sum of all tagged species including boundary conditions (BCO) and initial conditions (ICO) and other (all untagged emissions) (OTH)
