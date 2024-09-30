@@ -491,9 +491,9 @@ set Cfile = ${Bld}/${CFG}.bld      # Config Filename
  echo "lib_4       ioapi/lib;"                                     >> $Cfile
  echo                                                              >> $Cfile
  if ( $?build_mpas_cmaq ) then
-    set text = "$quote$CPP_FLAGS $PAR $SENS $PIO $cpp_depmod $POT $quote;"
+    set text = "$quote$CPP_FLAGS $PAR $SENS $PIO $cpp_depmod $quote;"
  else
-    set text = "$quote$CPP_FLAGS $PAR $SENS $PIO $cpp_depmod $POT $STX1 $STX2$quote;"
+    set text = "$quote$CPP_FLAGS $PAR $SENS $PIO $cpp_depmod $STX1 $STX2$quote;"
  endif
  echo "cpp_flags   $text"                                          >> $Cfile
  echo                                                              >> $Cfile
