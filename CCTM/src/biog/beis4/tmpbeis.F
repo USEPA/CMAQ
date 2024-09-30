@@ -443,9 +443,10 @@ C Speciate emissions
             WSTEP = 0
             CALL NEXTIME( MDATE, MTIME, TSTEP( 1 ) )
          END IF
-      END IF
+         
 #endif
 
+      END IF
 C Save date
       LDATE = JDATE
 

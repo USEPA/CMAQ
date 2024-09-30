@@ -495,6 +495,9 @@ C-------------------------------------------------------------------------------
          ELSE   ! water
       ! Calculate the water surface film temperature: wet bulb temperature.
       ! Wet bulb temperature based on eqn in Fritschen and Gay (1979).
+#ifdef mpas
+            hplus = hplus_def
+#endif
 
             ctemp2 = temp2p0cr - stdtemp
             lv     = lv0 - dlvdt * ctemp2

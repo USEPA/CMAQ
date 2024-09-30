@@ -184,5 +184,5 @@ GC_SPECIES_DATA =
 'VROCP4OXY2'    ,158.2   ,''     ,-1     ,''     ,-1     ,'VD_VROCP4OXY2'     , 1   ,'VROCP4OXY2OPERA', 1 ,'VROCP4OXY2'   ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',!2-Ethylheptanoic Acid,L,DTXSID40880929,CCCCCC(CC)C(=O)O
 'VROCP5OXY1'    ,170.3   ,''     ,-1     ,''     ,-1     ,'VD_VROCP5OXY1'     , 1   ,'VROCP5OXY1OPERA', 1 ,'VROCP5OXY1'   ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',!Undecanal,L,DTXSID4021688,CCCCCCCCCCC=O
 'VROCP6OXY1'    ,142.2   ,''     ,-1     ,''     ,-1     ,'VD_VROCP6OXY1'     , 1   ,'VROCP6OXY1OPERA', 1 ,'VROCP6OXY1'   ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',!Nonanal,L,DTXSID9021639,CCCCCCCCC=O
-'ECH4'          ,16.0    ,''     ,-1    ,''      ,-1     ,'VD_METHANE'        , 1   ,'METHANE'        , 1  ,''            ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',!Methane,E,DTXSID8025545,C
+'ECH4'          ,16.0    ,''     ,-1     ,''     ,-1     ,'VD_METHANE'        , 1   ,'METHANE'        , 1  ,''            ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',!Methane,E,DTXSID8025545,C
 /

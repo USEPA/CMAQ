@@ -98,7 +98,7 @@ C biogenics to gas-phase species map
 #ifdef mpas
             call mio_setfile ('GR_EMIS_001')
 
-             call mio_fcreate ('MEGAN_OUTPUT',512 ) ! 512 means clobber+netcdf64
+!             call mio_fcreate ('MEGAN_OUTPUT',512 ) ! 512 means clobber+netcdf64
           if (BDSNP_MEGAN) then
              call mio_fcreate ('BDSNPOUT',512 ) ! 512 means clobber+netcdf64
              call mio_fcreate ('BDSNP_DIAG',512 ) ! 512 means clobber+netcdf64
@@ -268,15 +268,15 @@ C=======================================================================
            vdemis_me(i,:,:) = out_to_cmaq(i,:,:)*loc_cell_area/loc_msfx2
          end do
 
-#ifdef mpas
-             call mio_time_format_conversion (jdate, jtime, time_stamp)
-           IF (L_DESID_DIAG) THEN
-                do i=1,NMGNSPC
-                   call mio_fwrite('MEGAN_OUTPUT',trim(MEGAN_NAMES(i)), pname,
-     &                             out_to_cmaq(i,:,1),time_stamp)
-                end do
-             END IF
-#endif
+!#ifdef mpas
+!             call mio_time_format_conversion (jdate, jtime, time_stamp)
+!           IF (L_DESID_DIAG) THEN
+!                do i=1,NMGNSPC
+!                   call mio_fwrite('MEGAN_OUTPUT',trim(MEGAN_NAMES(i)), pname,
+!     &                             out_to_cmaq(i,:,1),time_stamp)
+!                end do
+!             END IF
+!#endif
 
          RETURN
          END SUBROUTINE GET_MEGAN
