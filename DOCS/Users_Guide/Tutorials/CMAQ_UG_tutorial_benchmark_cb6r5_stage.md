@@ -165,7 +165,7 @@ cp bldit_cctm.csh  bldit_cctm_cb6r5_stage.csh
 Modify the dry deposition scheme uses STAGE instead of M3DRY
 
 ```
- # set DepMod    = m3dry                      #> m3dry
+ # set DepMod    = m3dry                      #> m3dry or stage
  set DepMod    = stage  
 ```
 
