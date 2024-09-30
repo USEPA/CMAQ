@@ -155,14 +155,14 @@ To configure these parameters, the CCTM Science Modules within the bldit_cctm.cs
 
 Use the bldit_cctm script that is set up to use the cb6r5 mechanism and the stage dry deposition scheme.
 
-Review the bldit script
+Copy the bldit script to a new script for this benchmark
 
 ```
-more bldit_cctm_cb6r5_stage.csh
+cp bldit_cctm.csh  bldit_cctm_cb6r5_stage.csh
 ```
 
 
-Verify the dry deposition scheme uses STAGE instead of M3DRY
+Modify the dry deposition scheme uses STAGE instead of M3DRY
 
 ```
  # set DepMod    = m3dry                      #> m3dry
