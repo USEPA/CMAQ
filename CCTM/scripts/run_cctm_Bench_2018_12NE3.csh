@@ -1,12 +1,4 @@
 #!/bin/csh -f
-#SBATCH -J CMAQ
-#SBATCH --nodes=2
-#SBATCH --ntasks-per-node=16
-#SBATCH --time=2:00:00
-#SBATCH -p debug_queue
-##SBATCH -p 528_queue
-#SBATCH -o /proj/ie/proj/CMAS/CMAQ/CMAQv5.5_testing/CMAQ_v5.5/CCTM/scripts/cmaq_cb6r5_m3dry_%j.txt
-
 
 # ===================== CCTMv5.5.X Run Script ========================= 
 # Usage: run.cctm >&! cctm_Bench_2018_12SE1.log &                                
@@ -29,7 +21,7 @@ echo 'Start Model Run At ' `date`
 #> Choose compiler and set up CMAQ environment with correct 
 #> libraries using config.cmaq. Options: intel | gcc | pgi
  if ( ! $?compiler ) then
-   setenv compiler gcc
+   setenv compiler intel
  endif
  if ( ! $?compilerVrsn ) then
    setenv compilerVrsn Empty
