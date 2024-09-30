@@ -240,8 +240,10 @@ c..If emissions processing requested stop
 #endif
 C Define processor offsets
 
+#ifndef mpas
          PECOL_OFFSET = COLSD_PE( 1, MYPE+1 ) - 1
          PEROW_OFFSET = ROWSD_PE( 1, MYPE+1 ) - 1
+#endif
 
          ALLOCATE( SEAWATER_ZONE( NCOLS, NROWS ) )
          DO R = 1, NROWS

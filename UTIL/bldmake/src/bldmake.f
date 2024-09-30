@@ -42,6 +42,8 @@
 !                       when build_twoway is turned on
 !     jan 2020 D. Wong: indlucded a help message for option -twoway
 !     June 2021 F. Sidi: Restore reading of MPICH string from cfg for mpi libraries 
+!     Jan 2024 D. Wong: modified the code so it can build MPAS-CMAQ or
+!                       WRF-CMAQ coupled models
 !-------------------------------------------------------------------------------
 
       Program bldmake
@@ -73,8 +75,10 @@
       Call git_export( status )
 
 ! create Makefile
-      if (twoway) then
+      if (model_configuration == wrf_cmaq) then
          Open ( unit=lfn, file='Makefile.twoway', iostat=status )
+      else if (model_configuration == mpas_cmaq) then
+         Open ( unit=lfn, file='Makefile.mpas_cmaq', iostat=status )
       else
          Open ( unit=lfn, file='Makefile', iostat=status )
       end if
@@ -129,7 +133,7 @@
       isam_cctm = .False.
       checkout  = .False.
       makefo    = .False.
-      twoway    = .False.
+!     twoway    = .False.
       git_local = .False.
       repo      = ' '
       reporoot  = ' '
@@ -185,11 +189,20 @@
           serial = .True.; Cycle
         End If
 
-        If ( argv .Eq. '-TWOWAY' ) Then     ! WRF-CMAQ twoway CCTM
+        model_configuration = offline
+        If ( argv .Eq. '-TWOWAY' ) Then     ! WRF-CMAQ coupled model
            If ( .Not. serial ) Then
-              twoway = .True.; Cycle
+              model_configuration = wrf_cmaq; Cycle
            Else
-              stop ' TwoWay not available for Serial execution'
+              stop ' WRF-CMAQ not available for Serial execution'
+           End If
+        End If
+
+        If ( argv .Eq. '-MPASCMAQ' ) Then     ! MPAS-CMAQ coupled model
+           If ( .Not. serial ) Then
+              model_configuration = mpas_cmaq; Cycle
+           Else
+              stop ' MPAS-CMAQ not available for Serial execution'
            End If
         End If
 
@@ -260,6 +273,7 @@
       Write( *,'("  -debug_cctm Execute make with DEBUG option set to TRUE")' )
       Write( *,'("  -isam_cctm  Execute make with ISAM option set to TRUE")' )
       Write( *,'("  -twoway     Creates Makefile.twoway for coupled model purposes")' )
+      Write( *,'("  -mpascmaq   Creates Makefile.mpascmaq for MPAS-CMAQ coupled model purposes")' )
       Write( *,'(//)' )
 
       End Subroutine help_msg
@@ -298,7 +312,7 @@
       End If
 
 ! print header lines
-      if ( twoway) then
+      if ( model_configuration == wrf_cmaq) then
          write( lfn, *) 'IOAPI_PATH = $(IOAPI)/$(LIOAPI)'
          write( lfn, *) 'IOAPI_INC_PATH = $(IOAPI)/ioapi/fixed_src'
          write( lfn, *)
@@ -318,15 +332,67 @@
          write( lfn, *) '             -I ../external/esmf_time_f90'
          write( lfn, *)
          write( lfn, *) '#   Compiler flags'
-         write( lfn, *) 'f_FLAGS    = $(FORMAT_FIXED) $(EXTEND_FLAG) \'
+         write( lfn, *) 'add_flags  = -fno-alias -mp1 -fp-model source -ftz '
+         write( lfn, *) 'f_FLAGS    = $(add_flags) $(FORMAT_FIXED) $(EXTEND_FLAG) \'
          write( lfn, *) '             $(FCOPTIM) -I $(IOAPI_PATH) -I $(IOAPI_INC_PATH) $(WRF_MODULE) -I.'
-         write( lfn, *) 'F_FLAGS    = $(FORMAT_FIXED) $(EXTEND_FLAG) \'
+         write( lfn, *) 'F_FLAGS    = $(add_flags) $(FORMAT_FIXED) $(EXTEND_FLAG) \'
          write( lfn, *) '             $(FCOPTIM) -I $(IOAPI_PATH) -I $(IOAPI_INC_PATH) $(WRF_MODULE) -I.'
-         write( lfn, *) 'F90_FLAGS  = -c $(FORMAT_FREE) $(FCOPTIM) \'
+         write( lfn, *) 'F90_FLAGS  = -c $(add_flags) $(FORMAT_FREE) $(FCOPTIM) \'
          write( lfn, *) '             -I $(IOAPI_PATH) -I $(IOAPI_INC_PATH) $(WRF_MODULE) -I.'
-         write( lfn, *) 'f90_FLAGS  = -c $(FORMAT_FREE) $(FCOPTIM) \'
+         write( lfn, *) 'f90_FLAGS  = -c $(add_flags) $(FORMAT_FREE) $(FCOPTIM) \'
          write( lfn, *) '             -I $(IOAPI_PATH) -I $(IOAPI_INC_PATH) $(WRF_MODULE) -I.'
          write( lfn, *) 'C_FLAGS    = -O2  -DFLDMN -I /usr/include'
+         write( lfn, *)
+      else if ( model_configuration == mpas_cmaq) then
+         write( lfn, *) 'all: cmaq'
+         write( lfn, *)
+         write( lfn, *) 'include_path = $(FCINCLUDES) \'
+         write( lfn, *) '               -I../../framework \'
+         write( lfn, *) '               -I../../operators \'
+         write( lfn, *) '               -I../physics \'
+         write( lfn, *) '               -I../physics/physics_wrf \'
+         write( lfn, *) '               -I../../external/esmf_time_f90 \'
+         write( lfn, *) '               -I.'
+         write( lfn, *)
+
+         Write( lfn, '( " FSTD = ",a)' ) Trim( fstd )
+         Write( lfn, '( " DBG  = ",a)' ) Trim( dbg )
+
+         If( debug_cctm )Then
+            Write( lfn, '(/" ifndef debug")')
+            Write( lfn, '( "   debug = true")')
+            Write( lfn, '( " endif")')
+         End If
+
+         Write( lfn, '(/" ifneq (,$(filter $(debug), TRUE true True T ))")')
+         Write( lfn, '( "     DEBUG = TRUE")' )
+         Write( lfn, '( " endif")' )
+         
+         Write( lfn, '(/" ifneq (,$(filter $(DEBUG), TRUE true ))")')
+         Write( lfn, '( "     f_FLAGS   = ",a)' ) Trim( f_flags ) // " $(DBG) $(include_path)"
+         Write( lfn, '( "     f90_FLAGS = ",a)' ) Trim( f90_flags ) // " $(DBG) $(include_path)"
+
+         Write( lfn, '( " else")' )
+         Write( lfn, '( "     f_FLAGS   = ",a)' ) Trim( f_flags ) // " $(FSTD) $(include_path)"
+         Write( lfn, '( "     f90_FLAGS = ",a)' ) Trim( f90_flags ) // " $(FSTD) $(include_path)"
+
+         Write( lfn, '( " endif")' )
+
+         Write( lfn, '(/" F_FLAGS   = $(f_FLAGS)")' )
+         Write( lfn, '( " F90_FLAGS = $(f90_FLAGS)")' )
+
+         If ( serial ) Then
+            Write( lfn, '( " C_FLAGS   = ",a)' ) Trim( c_flags ) // "-I."
+         Else
+            Write( lfn, '( " C_FLAGS   = ",a)' ) Trim( c_flags ) // "$(LIB)/mpi/include -I."
+         End If
+
+         If ( verbose ) Then
+           Write( *, '("  Compilers defined")' )
+         End If
+
+         Write( lfn, '(/" LINKER     = ",a)' ) Trim( linker )
+         Write( lfn, '( " LINK_FLAGS = ",a)' ) Trim( link_flags )
          write( lfn, *)
       else
          If ( serial ) Then
@@ -447,7 +513,7 @@
 
       Call writeCPP( lfn )
 
-      if ( .not. twoway) then
+      if ( model_configuration == offline) then
          If ( verbose ) Then
            Write( *, '("  CPP Flags defined")' )
          End If
@@ -554,7 +620,7 @@
       Integer n
       Character( EXT_LEN ) :: field
 
-      if (.not. twoway) then
+      if (model_configuration == offline) then
          Write( lfn, '(/" CPP = "a)' ) Trim( cpp )
       end if
 
@@ -566,8 +632,12 @@
 
         Write( lfn, '(" cpp_flags =",$)')
 
-        if (twoway) then
+        if (model_configuration == wrf_cmaq) then
            Write( lfn, '(1x,a,/,2x,a,$)' ) backslash, '-Dtwoway'
+        end if
+
+        if (model_configuration == mpas_cmaq) then
+           Write( lfn, '(1x,a,/,2x,a,$)' ) backslash, '-Dmpas'
         end if
 
         ! print each field at a time
@@ -719,14 +789,15 @@
       Logical              :: hasPaths
 
       Character( EXT_LEN ) :: path
-      Integer :: adjustment         ! for the twoway model
+      Integer :: adjustment         ! for the WRF-CMAQ model
 
       If ( n_includes .Eq. 0 ) Return
 
       pathStr = ' '
       hasPaths = .False.
 
-      If ( twoway ) Then
+      if ((model_configuration == wrf_cmaq) .or. 
+     &    (model_configuration == mpas_cmaq)) then
         n_M = n_Mac - 1
 
 ! find path strings
@@ -822,14 +893,17 @@
           If ( pos .Gt. 0 .And. pathStr( i ) .Ne. ' ' ) Then
             pos2 = pos + Len_Trim( pathStr( i ) )
             If ( pos .Eq. 1 ) Then
-              if (twoway .and. (pathMacro(Map) == 'MPI_INC')) then
+              if (((model_configuration == wrf_cmaq) .or. 
+     &             (model_configuration == mpas_cmaq)) .and. 
+     &            (pathMacro(Map) == 'MPI_INC')) then
                  path = path( 3: )
               else
                  path = '$(' // Trim( pathMacro( Map ) ) // ')' // path( pos2: )
               end if
               Exit
             Else
-              If ( twoway ) Then
+              If (( model_configuration == wrf_cmaq ) .or.
+     &            ( model_configuration == mpas_cmaq )) Then
                 path = path( 1:pos-1 ) // '$('
      &                                 // Trim( pathMacro( i ) ) // ')'
               Else
@@ -876,7 +950,7 @@
       Integer :: nfiles
       Integer :: nfields
       Integer :: n
-      Integer :: i
+      Integer :: i, j, k
       Integer :: pos
       Character( FLD_LEN ) :: filename( MAX_FILES )
       Character( FLD_LEN ) :: modname
@@ -897,7 +971,7 @@
         Do i = 1, nfiles
           pos = Index( filename(i), '.' )
           If ( pos .Le. 0 ) Cycle
-          if (twoway .and. filename(i)(1:21) == 'complex_number_module') then
+          if ((model_configuration == wrf_cmaq) .and. filename(i)(1:21) == 'complex_number_module') then
              obj = ''
           else
              obj = filename(i)(1:pos) // 'o'
@@ -950,6 +1024,29 @@
               objStr = Trim( objStr ) // ' $(' // Trim( tobjStr ) // ')'
             End If
 
+            ! this block of code remove certain files that are not
+            ! needed in the MPAS-CMAQ coupled model, in specific MODULE
+            if (model_configuration == mpas_cmaq) then
+               if ((trim(modname) == 'PAR') .or.
+     &             (trim(modname) == 'DRIVER') .or.
+     &             (trim(modname) == 'HADV')) then
+                  j = 0
+                  do i = 1, nfiles
+                     if ((trim(filename(i)) .ne. 'distr_env.c') .and.
+     &                   (trim(filename(i)) .ne. 'hcontvel.F') .and.
+     &                   (trim(filename(i)) .ne. 'rdbcon.F') .and.
+     &                   (trim(filename(i)) .ne. 'x_ppm.F') .and.
+     &                   (trim(filename(i)) .ne. 'y_ppm.F') .and.
+     &                   (trim(filename(i)) .ne. 'advstep.F') .and.
+     &                   (trim(filename(i)) .ne. 'cmaq_main.F')) then
+                        j = j + 1
+                        filename(j) = filename(i)
+                     end if
+                  end do
+                  nfiles = j
+               end if
+            end if
+
             Do i = 1, nfiles
               pos = Index( filename(i), '.' )
               If ( pos .Le. 0 ) Cycle
@@ -972,6 +1069,24 @@
             End If
             objStr = Trim( objStr ) // ' $(' // Trim( modname ) // ')'
 
+            ! this block of code remove certain files that are not
+            ! needed in the MPAS-CMAQ coupled model, in specific MODULE
+            if (model_configuration == mpas_cmaq) then
+               if ((trim(modname) == 'PAR') .or.
+     &             (trim(modname) == 'DRIVER')) then
+                  j = 0
+                  do i = 1, nfiles
+                     if ((trim(filename(i)) .ne. 'distr_env.c') .and.
+     &                   (trim(filename(i)) .ne. 'advstep.F') .and.
+     &                   (trim(filename(i)) .ne. 'cmaq_main.F')) then
+                        j = j + 1
+                        filename(j) = filename(i)
+                     end if
+                  end do
+                  nfiles = j
+               end if
+            end if
+
             Do i = 1, nfiles
               pos = Index( filename(i), '.' )
               If ( pos .Le. 0 ) Cycle
@@ -984,6 +1099,15 @@
       End If
 
       Write( lfn, '(//"OBJS =",$)' )
+
+      if (model_configuration == mpas_cmaq) then
+         ! in the MPAS-CMAQ case, by adding this line, it will break the
+         ! fake circular dependency which was generated by bldmake due
+         ! to the fact that it does not able to recognize ifdef block,
+         ! at compile time between three files: get_env_mod.F90,
+         ! replacement_util_module.F, and UTILIO_DEFN.F
+         Write( lfn, '(1x,a/2x,a,$)' ) backslash, 'UTILIO_DEFN.o'
+      end if
 
       nfields = getNumberOfFields( objStr, ' ' )
       Do n = 1, nfields
@@ -1114,13 +1238,17 @@
       Character( FLD_LEN ) :: record
       Character( 1 )       :: tab = char( 9 )
 
-      if (twoway) then
+      if (model_configuration == wrf_cmaq) then
          Write( lfn, *)
          Write( lfn, *) 'LIBTARGET    = cmaq'
          Write( lfn, *) 'TARGETDIR    = ./'
          Write( lfn, *) '$(LIBTARGET) : $(OBJS)'
          Write( lfn, '(a,a, "$(AR) $(ARFLAGS) ../main/libcmaqlib.a $(OBJS)"/)' ) tab, tab
          Write( lfn, *) 'include ../configure.wrf'
+      else if (model_configuration == mpas_cmaq) then
+         Write( lfn, *)
+         Write( lfn, *) 'cmaq: $(OBJS)'
+         Write( lfn, '(a,a, "ar -ru libcmaq.a $(OBJS)"/)' ) tab, tab
       end if
 
 ! build SUFFIXES record
@@ -1132,7 +1260,7 @@
 
       Write( lfn, '(/,a)') Trim( record )
 
-      if (.not. twoway) then
+      if (model_configuration == offline) then
          Write( lfn, '(/"$(EXEC): $(OBJS)")' )
          Write( lfn, '(a,"$(LINKER) $(LINK_FLAGS) $(OBJS) $(LIBRARIES) -o $@"/)' ) tab
       end if

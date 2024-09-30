@@ -26,6 +26,7 @@
 !  routines under PARIO rather than under GLOBAL_MODULES by D. Wong (Aug 2015)
 !  Added netCDF Fortran Library Path. Makefile generated consistent with 
 !  netCDF library format. (July 2019)
+!  modified the code so it can build MPAS-CMAQ or WRF-CMAQ coupled models by D. Wong (Jan 2024)
 !-------------------------------------------------------------------------------
       Module ModelCfg
 
@@ -45,6 +46,10 @@
 ! source file extensions
       Character(4), Parameter :: extension(5) =
      &                          (/ '.F  ', '.f  ', '.c  ', '.F90', '.f90' /)
+
+      integer, parameter :: offline   = 0
+      integer, parameter :: wrf_cmaq  = 1
+      integer, parameter :: mpas_cmaq = 2
 
 ! user derived types for storing CFG data
 
@@ -76,9 +81,9 @@
       Logical :: serial      ! .true. = create Makefile for serial execution
       Logical :: makefo      ! .true. = only create Makefile
       Logical :: git_local   ! .true. = do not copy source files to BLD directory
-      Logical :: twoway      ! .true. = compile for WRF-CMAQ CCTM
       Logical, Save :: debug_cctm  ! .true. = execute make with debug option set to true
       Logical, Save :: isam_cctm  ! .true. = execute make with debug option set to true
+      integer :: model_configuration
 
 ! repository
       Character( FLN_LEN ) :: repo
@@ -453,13 +458,24 @@
         End If
 
         If ( key .Eq. 'MODULE' ) Then
-          n_modules = n_modules + 1
-          module( n_modules )%name = fields(2)
-          module( n_modules )%version = 'HEAD'
-          If ( Len_Trim( fields(3) ) .Gt. 0 ) Then
-            If ( fields(3) .Ne. 'release' )  module( n_modules )%version = fields(3)
-          End If
-          Cycle
+          if ((model_configuration == offline)    .or.
+     &        (model_configuration == wrf_cmaq)   .or.
+     &        ((model_configuration == mpas_cmaq) .and.
+!     &         ((fields(2)(1:6) .ne. "STENEX")    .and.
+     &          ((fields(2)(1:5) .ne. "PARIO")     .and.
+     &          (fields(2)(1:4) .ne. "isam")      .and.
+     &          (fields(2)(1:7) .ne. "couple/")   .and.
+!     &          (fields(2)(1:4) .ne. "hadv")      .and.
+     &          (fields(2)(1:4) .ne. "vadv")      .and.
+     &          (fields(2)(1:5) .ne. "hdiff")))) then
+             n_modules = n_modules + 1
+             module( n_modules )%name = fields(2)
+             module( n_modules )%version = 'HEAD'
+             If ( Len_Trim( fields(3) ) .Gt. 0 ) Then
+               If ( fields(3) .Ne. 'release' )  module( n_modules )%version = fields(3)
+             End If
+             Cycle
+          end if
         End If
 
         If ( key .Eq. 'MISC' ) Then
@@ -1125,39 +1141,36 @@
 
           If ( sorted ) Exit
         End Do    ! end of sort loop to put modules at top
+
 ! Sort module files where modules are before uses
-        do m = 1,nmodfiles
-        end do
-        Do
-          sorted = .True.
+        sorted = .false.
+        n = 1
+        do while ((.not. sorted) .and. (n < nmodfiles))
 
-          Do n = 1, nmodfiles-1       ! use name loop
-            Do m = n+1, nmodfiles     ! module name loop
+          sorted = .true.
 
-              modtemp = ':' // Trim(modname(m)) // ':'
-              If ( Index(usename(n), Trim(modtemp) ) .Gt. 0 ) Then
-                filetemp = filename(n)
-                modtemp  = modname(n)
-                usetemp  = usename(n)
+          Do m = n+1, nmodfiles     ! module name loop
 
-                filename(n) = filename(m)
-                modname(n)  = modname(m)
-                usename(n)  = usename(m)
+             modtemp = ':' // Trim(modname(m)) // ':'
+             If ( Index(usename(n), Trim(modtemp) ) .Gt. 0 ) Then
+               filetemp = filename(n)
+               modtemp  = modname(n)
+               usetemp  = usename(n)
 
-                filename(m) = filetemp
-                modname(m)  = modtemp
-                usename(m)  = usetemp
-                sorted = .False.
-                Exit
+               filename(n) = filename(m)
+               modname(n)  = modname(m)
+               usename(n)  = usename(m)
+
+               filename(m) = filetemp
+               modname(m)  = modtemp
+               usename(m)  = usetemp
+               sorted = .False.
               End If
-            End Do
-
-            If ( .Not.sorted ) Exit
           End Do
 
-          If ( sorted ) Exit
         End Do
       End If  ! contains module files
+
       Return
       End Subroutine orderfiles
 
