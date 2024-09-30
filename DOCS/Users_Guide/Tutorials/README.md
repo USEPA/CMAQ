@@ -3,7 +3,7 @@ CMAQ Tutorials
 
 A series of short tutorials provide practical examples of how to set up and run CMAQ, exercise different features in the software, and better understand the software system. Community members are encouraged to both suggest ideas for new tutorials and to contribute tutorials directly to this repository. [Contact the CMAS Center](cmas@unc.edu) with new tutorial ideas.
 
-- [Building CMAQ for GNU using Libraries that disable netCDF4 compression](CMAQ_UG_tutorial_build_library_gcc.md): This tutorial describes how to install netCDF and I/O API libraries and build CMAQ using the GNU GCC compiler version 9.1.0. 
+- [Building CMAQ for GNU using libraries that disable netCDF4 compression](CMAQ_UG_tutorial_build_library_gcc.md): This tutorial describes how to install netCDF and I/O API libraries and build CMAQ using the GNU GCC compiler version 9.1.0. 
 - [Building CMAQ for GNU using libraries that support compressed netCDF4](CMAQ_UG_tutorial_build_library_gcc_support_nc4.md): This tutorial describes how to install netCDF and I/O API libraries to support netCDF-4 compressed files.  
 - [Script to install netCDF libraries to support netCDF4 compression](gcc_install_netcdf_for_nc4_compression.csh): This script installs prerequisite libraries for netCDF-4 to support compressed files.
 - [Script to install I/O API library to support netCDF4 compression](gcc_install_ioapi_for_nc4_compression.csh): This script installs I/O API library to support compressed files.
