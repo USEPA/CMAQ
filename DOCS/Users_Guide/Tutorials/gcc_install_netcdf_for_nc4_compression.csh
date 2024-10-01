@@ -25,6 +25,18 @@ set echo
    mkdir -p $cwd/CMAQv5.5/LIBRARIES
    setenv INSTDIR $cwd/CMAQv5.5/LIBRARIES
 
+# ----------------------
+# Build and install curl
+# ---------------------
+
+ cd ${INSTDIR}
+ wget https://curl.se/download/curl-8.10.1.tar.gz
+ tar -xzvf curl-8.10.1.tar.gz
+ cd curl-8.10.1
+ ./configure --prefix=${INSTDIR} --with-openssl --without-libpsl
+ make |& tee make.curl.log
+ make install |& tee make.install.curl.log
+
 #  ----------------------
 # Build and install zlib
 #  ---------------------
@@ -33,7 +45,7 @@ set echo
   wget https://sourceforge.net/projects/libpng/files/zlib/1.2.11/zlib-1.2.11.tar.gz
   tar -xzvf zlib-1.2.11.tar.gz
   cd zlib-1.2.11
-  ./configure --prefix=${INSTDIR}/zlib-1.2.11/gcc_9.1.0
+  ./configure --prefix=${INSTDIR}
   make test |& tee make.test.log
   make install |& tee make.install.log
 
