@@ -153,17 +153,6 @@ cp bldit_cctm.csh bldit_cctm_cracmm2_stage.csh
 vi bldit_cctm_cracmm2_stage.csh 
 ```
 
-Verify that the bldit_cctm_cracmm2_stage.csh script uses the name of the mechanism and the dry deposition scheme in the BLD directory name:
-
-```
-#> Set and create the "BLD" directory for checking out and compiling source code. Move current directory to that build directory.
- if ( $?Debug_CCTM ) then
-    set Bld = $CMAQ_HOME/CCTM/scripts/BLD_CCTM_${VRSN}_${compilerString}_${Mechanism}_${DepMod}_debug
- else
-    set Bld = $CMAQ_HOME/CCTM/scripts/BLD_CCTM_${VRSN}_${compilerString}_${Mechanism}_${DepMod}
- endif
-```
-
 Modify the dry deposition scheme to use STAGE instead of M3DRY
 ```
 #> Set Dry Deposition Scheme to Stage
