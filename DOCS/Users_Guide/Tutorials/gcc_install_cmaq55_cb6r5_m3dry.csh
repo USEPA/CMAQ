@@ -46,7 +46,7 @@ cd $BUILD/../openmpi_gcc/CCTM/scripts/
  cp bldit_cctm.csh bldit_cctmv55_cb6r5_m3dry.csh
  # Add extra libs to support nc4 compression in config_cmaq.csh
  #  -lnetcdf -lhdf5_hl -lhdf5 -lm -ldl -lz -lcurl
-  setenv extra_lib "-lnetcdf -lhdf5_hl -lhdf5 -lm -ldl -lz -lcurl"
+  setenv extra_lib "-L $BUILD/lib -lnetcdf -lhdf5_hl -lhdf5 -lm -ldl -lz -L $BUILD/curl-8.10.1/gcc_9.1.0/lib -lcurl"
  # Add openmp flag to match what was used in I/O API in config_cmaq.csh
  # setenv myLINK_FLAG  "-fopenmp" # openMP not supported w/ CMAQ
 
