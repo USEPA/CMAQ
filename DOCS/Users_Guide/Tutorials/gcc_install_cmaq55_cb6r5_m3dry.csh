@@ -61,6 +61,9 @@ ls -rlt BLD_CCTM_v55_gcc_cb6r5_ae7_aq_m3dry/*.exe
 
 #Note, to run CMAQ, please create modules or set the LD_LIBRARY_PATH to include the directories for $BUILD/lib at run time.
 
-##see this tutorial for instructions: https://pcluster-cmaq.readthedocs.io/en/latest/user_guide_pcluster/developers_guide/cmaq-vm/install.html#create-custom-environment-module-for-libraries
+##see this tutorial for instructions to install modules: 
+##https://pcluster-cmaq.readthedocs.io/en/latest/user_guide_pcluster/developers_guide/cmaq-vm/install.html#install-environment-modules
+## If you have modules on your machine, you can create custom modules
+## https://pcluster-cmaq.readthedocs.io/en/latest/user_guide_pcluster/developers_guide/cmaq-vm/install.html#create-custom-environment-module-for-libraries
 
 
