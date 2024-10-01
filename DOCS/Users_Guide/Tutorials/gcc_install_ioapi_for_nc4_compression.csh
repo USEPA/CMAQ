@@ -1,5 +1,8 @@
 #!/bin/csh -f
 # Build I/O API version that supports NCF4 
+# Note - this script works for gcc 9.1, to use gcc 10 and above, use the  -fallow-argument-mismatch argument
+#  As of Aug. 28, 2020, there are now new BIN=Linux*gfort10* types and corresponding Makeinclude.Linux*gfort10* that incorporate this flag for the I/O API and M3Tools. 
+# The above information is from the I/O API documentation: https://www.cmascenter.org/ioapi/documentation/all_versions/html/AVAIL.html
 set echo
 
 
