@@ -252,7 +252,7 @@ The benchmark output results will have been placed in the directory:
 $CMAQ_DATA/output_CCTM_v55_[compiler]_Bench_2018_12NE3_cb6r5_ae7_aq_m3dry
 ```
 
-and can include upto 23 netCDF-type files: ACONC, AOD_DIAG, AELMO, APMVIS, B3GTS_S, BSOILOUT, BUDGET, CGRID, CONC, DEPV, DRYDEP, DUSTEMIS, LTNGCOL, LTNGHRLY, MEDIA_CONC, PHOTDIAG1, PHOTDIAG2, ELMO, PMVIS, SOILOUT, SSEMIS, VDIFF, VSED, WETDEP1, and WETDEP2.
+and can include upto 23 netCDF-type files: ACONC, AELMO, B3GTS_S, BSOILOUT, BUDGET, CGRID, CONC, DEPV, DRYDEP, DUSTEMIS, LTNGCOL, LTNGHRLY, MEDIA_CONC, PHOTDIAG1, PHOTDIAG2, ELMO, SOILOUT, SSEMIS, VDIFF, VSED, WETDEP1, and WETDEP2.
 
 
 Common errors in a CCTM simulation include the following:
