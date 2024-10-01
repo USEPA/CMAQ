@@ -112,6 +112,14 @@ tar xvzf CMAQv5.4_2018_12NE3_Benchmark_2Day_Output_CRACMM2.tar.gz
 
 Create the model executables for CCTM using the steps shown below. 
 
+Create a bldit_cctm script for this benchmark and verify or modify the settings listed below.
+
+```
+cp bldit_cctm.csh bldit_cctm_cracmm2_stage.csh
+vi bldit_cctm_cracmm2_stage.csh
+```
+
+
 ##### Configuration for multi-processor runs (default):
 
 ```
@@ -146,12 +154,6 @@ To configure these parameters, the CCTM Science Modules within the bldit_cctm.cs
 [Appendix A](../Appendix/CMAQ_UG_appendixA_model_options.md).
 
 
-Create a bldit script for this benchmark.
-
-```
-cp bldit_cctm.csh bldit_cctm_cracmm2_stage.csh
-vi bldit_cctm_cracmm2_stage.csh 
-```
 
 Modify the dry deposition scheme to use STAGE instead of M3DRY
 ```
