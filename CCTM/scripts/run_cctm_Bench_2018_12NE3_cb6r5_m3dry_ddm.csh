@@ -1,8 +1,7 @@
 #!/bin/csh -f
 
 # ===================== CCTMv5.5.X Run Script ========================= 
-# Usage: run_cctm_Bench_2018_12NE3.csh >&! cctm_Bench_2018_12NE3.log &                                
-# Slurm Usage: sbatch run_cctm_Bench_2018_12NE3.csh
+# Usage: run.cctm >&! cctm_Bench.log &                                
 #
 # To report problems or request help with this script/program:     
 #             http://www.epa.gov/cmaq    (EPA CMAQ Website)
@@ -34,10 +33,10 @@ echo 'Start Model Run At ' `date`
  cd CCTM/scripts
 
 #> Set General Parameters for Configuring the Simulation
- set VRSN      = v55              #> Code Version
+ set VRSN      = v55_DDM3D              #> Code Version
  set PROC      = mpi               #> serial or mpi
  set MECH      = cb6r5_ae7_aq      #> Mechanism ID, depends on the bldit_cctm.csh settings
- set DEP       = m3dry             #> m3dry or stage, depending on bldit_cctm.csh settings
+ set DEP       = m3dry             #> m3dry or stage, depending on bldit_cctm.csh settings 
  set APPL      = Bench_2018_12NE3_${MECH}_${DEP}  #> Application Name (e.g. Gridname)
                                                        
 #> Define RUNID as any combination of parameters above or others. By default,
@@ -131,8 +130,8 @@ set NCELLS = `echo "${NX} * ${NY} * ${NZ}" | bc -l`
 
 #> Output Species and Layer Options
    #> CONC file species; comment or set to "ALL" to write all species to CONC
-   #  setenv CONC_SPCS "O3 NO ANO3I ANO3J NO2 FORM ISOP NH3 ANH4I ANH4J ASO4I ASO4J" 
-   #  setenv CONC_BLEV_ELEV " 1 1" #> CONC file layer range; comment to write all layers to CONC
+   #   setenv CONC_SPCS "O3 NO ANO3I ANO3J NO2 FORM ISOP NH3 ANH4I ANH4J ASO4I ASO4J" 
+   #setenv CONC_BLEV_ELEV " 1 1" #> CONC file layer range; comment to write all layers to CONC
 
    #> ACONC file species; comment or set to "ALL" to write all species to ACONC
    #setenv AVG_CONC_SPCS "O3 NO CO NO2 ASO4I ASO4J NH3" 
@@ -542,10 +541,10 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
  endif
 
 #> Decoupled Direct Method in 3D (DDM-3D) Options
- setenv CTM_DDM3D N    # Sets up requisite script settings for DDM-3D (default is N/F)
+ setenv CTM_DDM3D Y    # Sets up requisite script settings for DDM-3D (default is N/F)
                        # Additionally requires for CCTM to be compiled for DDM-3D simulations
 
- set NPMAX    = 1      # Number of sensitivity parameters defined in SEN_INPUT
+ set NPMAX    = 2      # Number of sensitivity parameters defined in SEN_INPUT
  setenv SEN_INPUT ${WORKDIR}/sensinput.2018_12NE3.dat
 
  setenv DDM3D_HIGH N   # allow higher-order sensitivity parameters in SEN_INPUT [ T | Y | F | N ] (default is N/F)

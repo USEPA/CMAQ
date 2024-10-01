@@ -1,8 +1,8 @@
 #!/bin/csh -f
 
-# ===================== CCTMv5.5.X Run Script ========================= 
-# Usage: run_cctm_Bench_2018_12NE3.csh >&! cctm_Bench_2018_12NE3.log &                                
-# Slurm Usage: sbatch run_cctm_Bench_2018_12NE3.csh
+
+# ===================== CCTMv5.5.X STAGE CRACMM 12NE3 Run Script ========================= 
+# Usage: run_cctm_2018_12NE3_v54_Base_STAGE_CRACMM.csh >&! cctm_2018_12NE3_CRACMM.log &   
 #
 # To report problems or request help with this script/program:     
 #             http://www.epa.gov/cmaq    (EPA CMAQ Website)
@@ -22,7 +22,7 @@ echo 'Start Model Run At ' `date`
 #> Choose compiler and set up CMAQ environment with correct 
 #> libraries using config.cmaq. Options: intel | gcc | pgi
  if ( ! $?compiler ) then
-   setenv compiler intel
+   setenv compiler gcc 
  endif
  if ( ! $?compilerVrsn ) then
    setenv compilerVrsn Empty
@@ -34,10 +34,10 @@ echo 'Start Model Run At ' `date`
  cd CCTM/scripts
 
 #> Set General Parameters for Configuring the Simulation
- set VRSN      = v55              #> Code Version
+ set VRSN      = v55               #> Code Version
  set PROC      = mpi               #> serial or mpi
- set MECH      = cb6r5_ae7_aq      #> Mechanism ID, depends on the bldit_cctm.csh settings
- set DEP       = m3dry             #> m3dry or stage, depending on bldit_cctm.csh settings
+ set MECH      = cracmm2           #> Mechanism ID
+ set DEP       = stage
  set APPL      = Bench_2018_12NE3_${MECH}_${DEP}  #> Application Name (e.g. Gridname)
                                                        
 #> Define RUNID as any combination of parameters above or others. By default,
@@ -56,7 +56,7 @@ echo 'Start Model Run At ' `date`
 #> Set Working, Input, and Output Directories
  setenv WORKDIR ${CMAQ_HOME}/CCTM/scripts          #> Working Directory. Where the runscript is.
  setenv OUTDIR  ${CMAQ_DATA}/output_CCTM_${RUNID}  #> Output Directory
- setenv INPDIR  ${CMAQ_DATA}/CMAQv5.4_2018_12NE3_Benchmark_2Day_Input/2018_12NE3            #> Input Directory
+ setenv INPDIR  ${CMAQ_DATA}/CMAQv5.5_2018_12NE3_Benchmark_cracmm2_stage_2Day_Input/  #Input Directory
  setenv LOGDIR  ${OUTDIR}/LOGS     #> Log Directory Location
  setenv NMLpath ${BLD}             #> Location of Namelists. Common places are: 
                                    #>   ${WORKDIR} | ${CCTM_SRC}/MECHS/${MECH} | ${BLD}
@@ -131,8 +131,8 @@ set NCELLS = `echo "${NX} * ${NY} * ${NZ}" | bc -l`
 
 #> Output Species and Layer Options
    #> CONC file species; comment or set to "ALL" to write all species to CONC
-   #  setenv CONC_SPCS "O3 NO ANO3I ANO3J NO2 FORM ISOP NH3 ANH4I ANH4J ASO4I ASO4J" 
-   #  setenv CONC_BLEV_ELEV " 1 1" #> CONC file layer range; comment to write all layers to CONC
+   #setenv CONC_SPCS "O3 NO ANO3I ANO3J NO2 HCHO ISOP NH3 ANH4I ANH4J ASO4I ASO4J" 
+   #setenv CONC_BLEV_ELEV " 1 1" #> CONC file layer range; comment to write all layers to CONC
 
    #> ACONC file species; comment or set to "ALL" to write all species to ACONC
    #setenv AVG_CONC_SPCS "O3 NO CO NO2 ASO4I ASO4J NH3" 
@@ -293,7 +293,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
 
   #> Initial conditions
   if ($NEW_START == true || $NEW_START == TRUE ) then
-     setenv ICFILE CCTM_ICON_v54_${MECH}_12NE3_20180701.nc
+     setenv ICFILE CCTM_ICON_v55_CRACMM2_STAGE_12NE3_20180701.nc 
      setenv INIT_MEDC_1 notused
   else
      set ICpath = $OUTDIR
@@ -302,7 +302,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   endif
 
   #> Boundary conditions
-  set BCFILE = CCTM_BCON_v54_${MECH}_12NE3_${YYYYMMDD}.nc
+  set BCFILE = BCON_v55_CRACMM2_STAGE_2018_12NE3_${YYYYMMDD}.nc
 
   #> Off-line photolysis rates 
   #set JVALfile  = JTABLE_${YYYYJJJ}
@@ -355,16 +355,16 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
  
   #> Spatial Masks For Emissions Scaling
   #setenv CMAQ_MASKS $SZpath/OCEAN_${MM}_L3m_MC_CHL_chlor_a_12NE3.nc #> horizontal grid-dependent ocean file
-  setenv CMAQ_MASKS $INPDIR/GRIDMASK_STATES_12NE3.nc
+  setenv CMAQ_MASKS $INPDIR/surface/GRIDMASK_STATES_12NE3.nc
 
   #> Gridded Emissions Files 
   setenv N_EMIS_GR 2
-  set EMISfile  = emis_mole_all_${YYYYMMDD}_12NE3_nobeis_norwc_2018gc_cb6_18j.ncf
+  set EMISfile  = emis_mole_all_${YYYYMMDD}_12NE3_nobeis_norwc_WR705_2018gc2.ncf
   setenv GR_EMIS_001 ${EMISpath}/merged_nobeis_norwc/${EMISfile}
   setenv GR_EMIS_LAB_001 GRIDDED_EMIS
   setenv GR_EM_SYM_DATE_001 F # To change default behaviour please see Users Guide for EMIS_SYM_DATE
 
-  set EMISfile  = emis_mole_rwc_${YYYYMMDD}_12NE3_cmaq_cb6ae7_2018gc_cb6_18j.ncf
+  set EMISfile  = emis_mole_rwc_${YYYYMMDD}_12NE3_cmaq_cracmmv2_WR705_2018gc2.ncf
   setenv GR_EMIS_002 ${EMISpath}/rwc/${EMISfile}
   setenv GR_EMIS_LAB_002 GR_RES_FIRES
   setenv GR_EM_SYM_DATE_002 F # To change default behaviour please see Users Guide for EMIS_SYM_DATE
@@ -372,16 +372,16 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   #> In-line point emissions configuration
   setenv N_EMIS_PT 10          #> Number of elevated source groups
 
-  set STKCASEG = 12US1_2018gc_cb6_18j              # Stack Group Version Label
-  set STKCASEE = 12US1_cmaq_cb6ae7_2018gc_cb6_18j  # Stack Emission Version Label
+  set STKCASEE = 12US1_cmaq_cracmmv2_WR705_2018gc2  # In-line Emission Rate File Suffix
+  set STKCASEG = 12US1_WR705_2018gc2                # Stack parameter File Suffix
 
   # Time-Independent Stack Parameters for Inline Point Sources
   setenv STK_GRPS_001 $IN_PTpath/ptnonipm/stack_groups_ptnonipm_${STKCASEG}.ncf
   setenv STK_GRPS_002 $IN_PTpath/ptegu/stack_groups_ptegu_${STKCASEG}.ncf
   setenv STK_GRPS_003 $IN_PTpath/othpt/stack_groups_othpt_${STKCASEG}.ncf
   setenv STK_GRPS_004 $IN_PTpath/ptagfire/stack_groups_ptagfire_${YYYYMMDD}_${STKCASEG}.ncf
-  setenv STK_GRPS_005 $IN_PTpath/ptfire-rx/stack_groups_ptfire-rx_${YYYYMMDD}_${STKCASEG}.ncf
-  setenv STK_GRPS_006 $IN_PTpath/ptfire-wild/stack_groups_ptfire-wild_${YYYYMMDD}_${STKCASEG}.ncf
+  setenv STK_GRPS_005 $IN_PTpath/ptfire_grass/stack_groups_ptfire_grass_${YYYYMMDD}_${STKCASEG}.ncf
+  setenv STK_GRPS_006 $IN_PTpath/ptfire/stack_groups_ptfire_${YYYYMMDD}_${STKCASEG}.ncf
   setenv STK_GRPS_007 $IN_PTpath/ptfire_othna/stack_groups_ptfire_othna_${YYYYMMDD}_${STKCASEG}.ncf
   setenv STK_GRPS_008 $IN_PTpath/pt_oilgas/stack_groups_pt_oilgas_${STKCASEG}.ncf
   setenv STK_GRPS_009 $IN_PTpath/cmv_c3_12/stack_groups_cmv_c3_12_${STKCASEG}.ncf
@@ -392,8 +392,8 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   setenv STK_EMIS_002 $IN_PTpath/ptegu/inln_mole_ptegu_${YYYYMMDD}_${STKCASEE}.ncf
   setenv STK_EMIS_003 $IN_PTpath/othpt/inln_mole_othpt_${YYYYMMDD}_${STKCASEE}.ncf
   setenv STK_EMIS_004 $IN_PTpath/ptagfire/inln_mole_ptagfire_${YYYYMMDD}_${STKCASEE}.ncf
-  setenv STK_EMIS_005 $IN_PTpath/ptfire-rx/inln_mole_ptfire-rx_${YYYYMMDD}_${STKCASEE}.ncf
-  setenv STK_EMIS_006 $IN_PTpath/ptfire-wild/inln_mole_ptfire-wild_${YYYYMMDD}_${STKCASEE}.ncf
+  setenv STK_EMIS_005 $IN_PTpath/ptfire_grass/inln_mole_ptfire_grass_${YYYYMMDD}_${STKCASEE}.ncf
+  setenv STK_EMIS_006 $IN_PTpath/ptfire/inln_mole_ptfire_${YYYYMMDD}_${STKCASEE}.ncf
   setenv STK_EMIS_007 $IN_PTpath/ptfire_othna/inln_mole_ptfire_othna_${YYYYMMDD}_${STKCASEE}.ncf
   setenv STK_EMIS_008 $IN_PTpath/pt_oilgas/inln_mole_pt_oilgas_${YYYYMMDD}_${STKCASEE}.ncf
   setenv STK_EMIS_009 $IN_PTpath/cmv_c3_12/inln_mole_cmv_c3_12_${YYYYMMDD}_${STKCASEE}.ncf
@@ -405,7 +405,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   setenv STK_EMIS_LAB_003 PT_OTHER
   setenv STK_EMIS_LAB_004 PT_AGFIRES
   setenv STK_EMIS_LAB_005 PT_RXFIRES
-  setenv STK_EMIS_LAB_006 PT_WILDFIRES
+  setenv STK_EMIS_LAB_006 PT_FIRES
   setenv STK_EMIS_LAB_007 PT_OTHFIRES
   setenv STK_EMIS_LAB_008 PT_OILGAS
   setenv STK_EMIS_LAB_009 PT_CMV_C3
@@ -509,7 +509,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
        setenv SA_CGRID_1      "$OUTDIR/CCTM_SA_CGRID_${CTM_APPL}.nc -v"
 
        #> Set optional ISAM regions files
-       setenv ISAM_REGIONS $INPDIR/GRIDMASK_STATES_12NE3.nc
+       setenv ISAM_REGIONS $INPDIR/surface/GRIDMASK_STATES_12NE3.nc
 
        #> Options used to favor tracked species in reaction for Ozone-NOx chemistry
        setenv ISAM_O3_WEIGHTS 5   # weights for tracked species Default is 5
