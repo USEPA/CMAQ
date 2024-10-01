@@ -116,19 +116,19 @@ set echo
 #  ----------------------------------
 #  NOTE: the openmpi directory path is hard coded on this script and needs to be updated for your local machine
 ##
-   cd  $INSTDIR
-   wget https://parallel-netcdf.github.io/Release/pnetcdf-1.12.1.tar.gz
-   tar xvf pnetcdf-1.12.1.tar.gz
-   rm -f pnetcdf-1.12.1.tar.gz
-   cd pnetcdf-1.12.1
-   #export CFLAGS="-O3 -fPIC"
-   #export FFLAGS="-O3 -fPIC"
-   #export CXXFLAGS="-O3 -fPIC"
-   #export FCFLAGS="-O3 -fPIC"
-   #./configure --prefix=$INSTDIR MPIF77=mpif90 MPIF90=mpif90 MPICC=mpicc MPICXX=mpicxx --with-mpi=/nas/longleaf/apps/r/4.1.3/openmpi
-   ./configure --prefix=$INSTDIR MPIF77=mpif90 MPIF90=mpif90 MPICC=mpicc MPICXX=mpicxx --with-mpi=/nas/longleaf/apps-dogwood/mpi/gcc_9.1.0/openmpi_4.0.1
-   make |& tee make.gcc9.log
-   make install
+#cd  $INSTDIR
+#   wget https://parallel-netcdf.github.io/Release/pnetcdf-1.12.1.tar.gz
+#   tar xvf pnetcdf-1.12.1.tar.gz
+#   rm -f pnetcdf-1.12.1.tar.gz
+#   cd pnetcdf-1.12.1
+#   #export CFLAGS="-O3 -fPIC"
+#   #export FFLAGS="-O3 -fPIC"
+#   #export CXXFLAGS="-O3 -fPIC"
+#   #export FCFLAGS="-O3 -fPIC"
+#   #./configure --prefix=$INSTDIR MPIF77=mpif90 MPIF90=mpif90 MPICC=mpicc MPICXX=mpicxx --with-mpi=/nas/longleaf/apps/r/4.1.3/openmpi
+#   ./configure --prefix=$INSTDIR MPIF77=mpif90 MPIF90=mpif90 MPICC=mpicc MPICXX=mpicxx --with-mpi=/nas/longleaf/apps-dogwood/mpi/gcc_9.1.0/openmpi_4.0.1
+#   make |& tee make.gcc9.log
+#   make install
 #  ----------------------------------------
 #  Use tcsh 6.20 instead of the broken 6.21
 #  ----------------------------------------
