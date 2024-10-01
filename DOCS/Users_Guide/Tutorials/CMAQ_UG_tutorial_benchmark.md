@@ -160,7 +160,6 @@ The build directory parameters for the benchmark test case include the following
 To configure these parameters, the CCTM Science Modules within the bldit_cctm.csh need to be set. The comments within the script itself should help guide the user on the options for each variable and how to set them. Further information on variable names can be found in 
 [Appendix A](../Appendix/CMAQ_UG_appendixA_model_options.md).
 
-
 Verify that the dry deposition scheme to use M3DRY
 ```
 #> Set Dry Deposition Scheme to m3dry 
