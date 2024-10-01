@@ -160,16 +160,6 @@ The build directory parameters for the benchmark test case include the following
 To configure these parameters, the CCTM Science Modules within the bldit_cctm.csh need to be set. The comments within the script itself should help guide the user on the options for each variable and how to set them. Further information on variable names can be found in 
 [Appendix A](../Appendix/CMAQ_UG_appendixA_model_options.md).
 
-To keep the BLD directory name unique for each mechansim, verify that the bldit_cctm script uses the following: 
-
-```
-#> Verify that the "BLD" directory for checking out and compiling source code uses the mechanism and deposition scheme in the name.
- if ( $?Debug_CCTM ) then
-    set Bld = $CMAQ_HOME/CCTM/scripts/BLD_CCTM_${VRSN}_${compilerString}_${Mechanism}_${DepMod}_debug
- else
-    set Bld = $CMAQ_HOME/CCTM/scripts/BLD_CCTM_${VRSN}_${compilerString}_${Mechanism}_${DepMod}
- endif
-```
 
 Verify that the dry deposition scheme to use M3DRY
 ```
