@@ -244,7 +244,7 @@ set build_mpas_cmaq                   #> uncomment to build MPAS-CMAQ coupled mo
     set MakeFileOnly   
 #   set Modwrfcmaq = wrf_cmaq
     set Modwrfcmaq = twoway
-    set Modcoupler  = coupler
+#    set Modcoupler  = coupler
  endif
 
 #> If the MPAS-CMAQ coupled model is being built,
@@ -252,7 +252,7 @@ set build_mpas_cmaq                   #> uncomment to build MPAS-CMAQ coupled mo
  if ( $?build_mpas_cmaq ) then
     set MakeFileOnly   
     set Modmpascmaq = mpas_cmaq
-    set Modcoupler  = coupler
+#    set Modcoupler  = coupler
     set ModMio      = mio
  endif
 
@@ -558,14 +558,14 @@ set Cfile = ${Bld}/${CFG}.bld      # Config Filename
  if ( $?build_wrf_cmaq ) then
     echo "// option set for WRF-CMAQ coupled model"                >> $Cfile
     echo "Module ${Modwrfcmaq};"                                   >> $Cfile
-    echo "Module ${Modcoupler};"                                   >> $Cfile
+#    echo "Module ${Modcoupler};"                                   >> $Cfile
     echo                                                           >> $Cfile
  endif
 
  if ( $?build_mpas_cmaq ) then
     echo "// option set for MPAS-CMAQ coupled model"               >> $Cfile
     echo "Module ${Modmpascmaq};"                                  >> $Cfile
-    echo "Module ${Modcoupler};"                                   >> $Cfile
+#    echo "Module ${Modcoupler};"                                   >> $Cfile
     echo                                                           >> $Cfile
  endif
 
