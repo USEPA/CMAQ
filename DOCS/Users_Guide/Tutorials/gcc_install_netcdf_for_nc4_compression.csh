@@ -72,6 +72,7 @@ set echo
    # installation instructions
    tar xvf v4.5.4.tar.gz
    cd netcdf-fortran-4.5.4
+   ## Note, if non-standard locaions are used for the following compilers, you may need to specify their locations here: 
    setenv FC gfortran
    setenv F90 gfortran
    setenv F77 gfortran
