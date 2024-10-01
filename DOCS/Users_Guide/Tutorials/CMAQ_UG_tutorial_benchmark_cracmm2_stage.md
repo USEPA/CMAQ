@@ -1,6 +1,6 @@
-# CMAQ Installation & Benchmarking Tutorial for CB6R5 and M3DRY 
+# CMAQ Installation & Benchmarking Tutorial
 
-Purpose: This guide describes how to install and run the CMAQ test case for the CB6R5 mechanism with the M3DRY dry deposition scheme, which serves two different purposes. The first being to familiarize the user with the CMAQ suite of programs and how they work together, and secondly to verify the installation of the software on your system via benchmarking. 
+Purpose: This guide describes how to install and run the CMAQ test case for the CRACMM2 mechanism with the STAGE dry deposition scheme, which serves two different purposes. The first being to familiarize the user with the CMAQ suite of programs and how they work together, and secondly to verify the installation of the software on your system via benchmarking. 
 
 Benchmarking refers to a simulation that is used to verify that the software is installed correctly.  Benchmarking CMAQ is recommended in the following circumstances:
 - Installation by a new user
@@ -18,7 +18,7 @@ The following support software are required for compiling and running CMAQ.
 2. Message Passing Interface (MPI), e.g., [OpenMPI](https://www.open-mpi.org) or [MVAPICH2](http://www.mcs.anl.gov/research/projects/mpich2).
 3. Latest release of [netCDF-C](https://www.unidata.ucar.edu/software/netcdf/docs/getting_and_building_netcdf.html) and [netCDF-Fortran](https://www.unidata.ucar.edu/software/netcdf/docs/building_netcdf_fortran.html) **built with netCDF4, HDF5, HDF4, DAP client, PnetCDF, or zlib support** 
 4. [I/O API](https://www.cmascenter.org/download/software/ioapi/ioapi_3-2.cfm?DB=TRUE) version 3.2 **tagged 20200828**
-(note: if you have not installed the above libraries, please see the [CMAQ_UG_tutorial_build_library_gcc_support_nc4.md](https://github.com/USEPA/CMAQ/tree/main/DOCS/Users_Guide/Tutorials/CMAQ_UG_tutorial_build_library_gcc_support_nc4.md) tutorial available here: 
+(note: if you have not installed the above libraries, please see the CMAQ_UG_tutorial_build_[gcc/intel/pgi].md tutorials available here: 
 https://github.com/USEPA/CMAQ/tree/main/DOCS/Users_Guide/Tutorials
 
 The suggested hardware requirements for running the CMAQ Southeast Benchmark case on a Linux workstation are:
@@ -97,20 +97,13 @@ source config_cmaq.csh gcc 9.5
 
 ## Install the CMAQ reference input and output benchmark data
 
-Download the CMAQ two day reference input and output data for the cb6r5_ae7 mechanism (using inputs from CMAQv5.4 Benchmark release) from the [CMAS Center Data Warehouse Google Drive]([https://drive.google.com/file/d/1AFUB-4kzIXXoZr4hOHNBqRvy9JQ9_MDp/view?usp=sharing](https://drive.google.com/drive/folders/1AFUB-4kzIXXoZr4hOHNBqRvy9JQ9_MDp?usp=sharing), download the file CMAQv5.4_2018_12NE3_Benchmark_2Day_Input.tar.gz. The CMAQ benchmark test case is a two day simulation for July 1-2 2018 on a 100 column x 105 row x 35 layer 12-km resolution domain over the northeast U.S.  
-
-  - Use the gdrive command to download the dataset.
-  - If this is the first time that you are using gdrive, or if you have an issue with your token, please read the following instructions
-  - [Tips to download data from CMAS Data Warehouse](https://docs.google.com/document/d/1e7B94zFkbKygVWfrhGwEZL51jF4fGXGXZbvi6KzXYQ4)
-  - Text files are included that provide a list of the files in the benchmark input and output datasets.
-
-The benchmark data is also available from the [CMAS Center Data Warehouse Amazon Web Services S3 Bucket](https://cmaq-release-benchmark-data-for-easy-download.s3.amazonaws.com/v5_4/CMAQv5.4_2018_12NE3_Benchmark_2Day_Input.tar.gz). 
-
+Download the CMAQ two day reference input and output data for the CRACMM2 mechanism from the [AWS CMAS Data Warehouse](https://cmaq-release-benchmark-data-for-easy-download.s3.amazonaws.com/v5_5/CMAQv5.5_2018_12NE3_Benchmark_cracmm2_stage_2Day_Input.tar.gz). The CMAQ benchmark test case is a two day simulation for July 1-2 2018 on a 100 column x 105 row x 35 layer 12-km resolution domain over the northeast U.S.  
 Copy the data to `$CMAQ_DATA`. Navigate to the `$CMAQ_DATA` directory, unzip and untar the two day benchmark input and output files:
 
 ```
 cd $CMAQ_DATA
-tar -xzvf CMAQv5.4_2018_12NE3_Benchmark_2Day_Input.tar.gz
+tar xvzf CMAQv5.4_2018_12NE3_Benchmark_2Day_Input_CRACCM2.tar.gz
+tar xvzf CMAQv5.4_2018_12NE3_Benchmark_2Day_Output_CRACMM2.tar.gz
 ```
 
 ## Compiling CMAQ
@@ -119,15 +112,15 @@ tar -xzvf CMAQv5.4_2018_12NE3_Benchmark_2Day_Input.tar.gz
 
 Create the model executables for CCTM using the steps shown below. 
 
+Create a bldit_cctm script for this benchmark and verify or modify the settings listed below.
+
+```
+cp bldit_cctm.csh bldit_cctm_cracmm2_stage.csh
+vi bldit_cctm_cracmm2_stage.csh
+```
+
+
 ##### Configuration for multi-processor runs (default):
-
-```
-cd $CMAQ_HOME/CCTM/scripts
-cp bldit_cctm.csh bldit_cctm_cb6r5_ae7_aq_m3dry.csh
-```
-
-Edit the bldit_cctm_cb6r5_ae7_aq_m3dry.csh script to use the following settings:
-
 
 ```
 set ParOpt #>  Option for MPI Runs
@@ -148,49 +141,56 @@ The build directory parameters for the benchmark test case include the following
 -   Multiprocessor simulation 
 -   3-D Advection Scheme: wrf_cons
 -   Horizontal diffusion: Multiscale
--   Vertical diffusion: ACM2_M3Dry
--   Deposition: M3Dry
+-   Vertical diffusion: ACM2_Stage
+-   Deposition: STAGE
 -   Chemistry solver: EBI
--   Aerosol module: AERO7 
--   Cloud module: ACM_AE7
--   Mechanism: cb6r5_ae7_aq
+-   Aerosol module: cracmm
+-   Cloud module: acm_craccm
+-   Mechanism: cracmm2
 -   Inline biogenic emissions
 -   Inline plume rise
 
 To configure these parameters, the CCTM Science Modules within the bldit_cctm.csh need to be set. The comments within the script itself should help guide the user on the options for each variable and how to set them. Further information on variable names can be found in 
 [Appendix A](../Appendix/CMAQ_UG_appendixA_model_options.md).
 
-Verify that the dry deposition scheme to use M3DRY
-```
-#> Set Dry Deposition Scheme to m3dry 
 
- set DepMod    = m3dry
+
+Modify the dry deposition scheme to use STAGE instead of M3DRY
 ```
+#> Set Dry Deposition Scheme to Stage
+
+ set DepMod    = stage
+```
+
+Modify the Mechanism to use craccm2 instead of cb6r5
+
+```
+ setenv Mechanism cracmm2              #> chemical mechanism (see $CMAQ_MODEL/CCTM/src/MECHS)
+```
+
 
 Following the requisite changes to the CCTM build script, use the following command to create the CCTM executable: 
 
 ```
 cd $CMAQ_HOME/CCTM/scripts
-./bldit_cctm_cb6r5_ae7_aq_m3dry [compiler] [version] |& tee bldit_cctm_cb6r5_ae7_aq_m3dry.log
+./bldit_cctm_cracmm2_stage.csh [compiler] [version] |& tee bldit_cctm_cracmm2_stage.log
 ```
 
 Verify that the BLD directory contains a namelist called
 
 ```
-cd BLD_CCTM_v55_DDM3D_gcc_cb6r5_ae7_aq_m3dry
-ls CMAQ_Control_DESID_cb6r5_ae7_aq.nml
+CMAQ_Control_STAGE.nml
 ```
-
 
 ## Configure the CCTM script 
 
-For an MPI configuration with 32 processors,
+For an MPI configuration with 16 processors,
 
 ```
 cd $CMAQ_HOME/CCTM/scripts
 ```
 
-Edit the CCTM run script (run_cctm_Bench_2018_12NE3.csh) for the MPI configuration and compiler that you will use:
+Edit the CCTM run script (run_cctm_Bench_2018_12NE3_CRACMM2_STAGE.csh) for the MPI configuration and compiler that you will use:
 
 ```
 setenv compiler gcc
@@ -218,40 +218,40 @@ CCTM Science Configuration Options set to **Y** in the RunScript for the benchma
 -  ```CTM_GRAV_SETL``` - vdiff aerosol gravitational sedmentation
 -  ```CTM_BIOGEMIS``` - online biogenic emissions
 
-To configure these parameters, the Science Options within the $CMAQ_HOME/CCTM/scripts/run_cctm_Bench_2018_12NE3_cb6r5_m3dry.csh need to be set. The comments within the script itself should help guide the user on the options for each variable and how to set them. Further information on variable names can be found in 
+To configure these parameters, the Science Options within the $CMAQ_HOME/CCTM/scripts/run_cctm_Bench_2018_12NE3_CRACMM2_STAGE.csh need to be set. The comments within the script itself should help guide the user on the options for each variable and how to set them. Further information on variable names can be found in 
 [Appendix A](../Appendix/CMAQ_UG_appendixA_model_options.md).
 
 After configuring the MPI settings for your Linux system, check the rest of the script to ensure the correct path, date and names are used for the input data files. Per the note above, different Linux systems have different requirements for submitting MPI jobs.  The command below is an example of how to submit the CCTM run script and may differ depending on the MPI requirements of your Linux system. 
 
 ```
-./run_cctm_Bench_2018_12NE3_cb6r5_m3dry.csh |& tee cctm.log
+./run_cctm_Bench_2018_12NE3_CRACMM2_STAGE.csh |& tee run_cctm_Bench_2018_12NE3_CRACMM2_STAGE.log 
 ```
 
 ## Confirm that the Benchmark Simulation Completed
 
-To confirm that the benchmark case ran to completion view the run.benchmark.log file. For MPI runs, check each of the CTM_LOG_[ProcessorID]*.log files. A successful run will contain the following line at the bottom of the log(s):
+To confirm that the benchmark case ran to completion view the run log file. For MPI runs, check each of the CTM_LOG_[ProcessorID]*.log files. A successful run will contain the following line at the bottom of the log(s):
 
 ``>>---->  Program completed successfully  <----<<``
 
 Note: If you are running on multiple processors the log file for each processor is also moved from the $CMAQ_HOME/CCTM/scripts directory to the benchmark output directory: 
 
 ```
-$CMAQ_DATA/output_CCTM_v55_[compiler]_Bench_2018_12NE3_cb6r5_ae7_aq_m3dry
+$CMAQ_DATA/output_CCTM_v55_gcc_Bench_2018_12NE3_cracmm2_stage
 ```
 and these log files have the name convention: 
 
 ```
 CTM_LOG_[ProcessorID].v55_[compiler]_[APPL]_[YYYYMMDD]
-CTM_LOG_[ProcessorID].v55_gcc_Bench_2018_12NE3_cb6r5_ae7_aq_m3dry_20180702
+CTM_LOG_[ProcessorID].v55_gcc_Bench_2018_12NE3_2day_20180702
 ```
 
 The benchmark output results will have been placed in the directory: 
 
 ```
-$CMAQ_DATA/output_CCTM_v55_[compiler]_Bench_2018_12NE3_cb6r5_ae7_aq_m3dry
+$CMAQ_DATA/output_CCTM_v55_gcc_Bench_2018_12NE3_cracmm2_stage
 ```
 
-and can include upto 23 netCDF-type files: ACONC, AELMO, B3GTS_S, BSOILOUT, BUDGET, CGRID, CONC, DEPV, DRYDEP, DUSTEMIS, LTNGCOL, LTNGHRLY, MEDIA_CONC, PHOTDIAG1, PHOTDIAG2, ELMO, SOILOUT, SSEMIS, VDIFF, VSED, WETDEP1, and WETDEP2.
+and can include upto 23 netCDF-type files: ACONC, AOD_DIAG, AELMO, APMVIS, B3GTS_S, BSOILOUT, BUDGET, CGRID, CONC, DEPV, DRYDEP, DUSTEMIS, LTNGCOL, LTNGHRLY, MEDIA_CONC, PHOTDIAG1, PHOTDIAG2, ELMO, PMVIS, SOILOUT, SSEMIS, VDIFF, VSED, WETDEP1, and WETDEP2.
 
 
 Common errors in a CCTM simulation include the following:
