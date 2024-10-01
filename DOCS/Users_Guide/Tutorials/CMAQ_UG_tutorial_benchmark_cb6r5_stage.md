@@ -174,18 +174,6 @@ Verify the Mechanism is set to cb6r5_ae7_aq
  setenv Mechanism cb6r5_ae7_aq              #> chemical mechanism (see $CMAQ_MODEL/CCTM/src/MECHS)
 ```
 
-
-Verify that the bldit_cctm.csh script contains the following lines (creating a unique BLD directory name for each combination of mechansim and dry deposition scheme).
-
-#> Set and create the "BLD" directory for checking out and compiling source code. Move current directory to that build directory.
- if ( $?Debug_CCTM ) then
-    set Bld = $CMAQ_HOME/CCTM/scripts/BLD_CCTM_${VRSN}_${compilerString}_${Mechanism}_${DepMod}_debug
- else
-    set Bld = $CMAQ_HOME/CCTM/scripts/BLD_CCTM_${VRSN}_${compilerString}_${Mechanism}_${DepMod}
- endif
-```
-
-
 Following the requisite changes to the CCTM build script, use the following command to create the CCTM executable: 
 
 ```
