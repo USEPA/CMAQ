@@ -42,6 +42,10 @@ module load openmpi_4.0.1/gcc_9.1.0
  sed -i 's@netcdff_inc_gcc@$BUILD\/include@g' config_cmaq.csh
  sed -i 's@mpi_incl_gcc@$OPENMPI\/include@g' config_cmaq.csh
  sed -i 's@mpi_lib_gcc@$OPENMPI\/lib@g' config_cmaq.csh
+ #edit the config_cmaq.csh to use -fopenmp due to it being used by default for I/O API Library
+ sed -i '172i \       setenv myLINK_FLAG -fopenmp' config_cmaq.csh
+ #edit the config_cmaq.csh to add extra libraries
+ sed -i 's@-lnetcdf\"  #@-lnetcdf -lcurl -lhdf5 -lhdf5_hl \"  #@g'  config_cmaq.csh
 cd $BUILD/../openmpi_gcc/CCTM/scripts/
  cp bldit_cctm.csh bldit_cctmv55_cb6r5_m3dry.csh
  # Add extra libs to support nc4 compression in config_cmaq.csh
@@ -55,6 +59,11 @@ cd $BUILD/../openmpi_gcc/CCTM/scripts/
 ls -rlt BLD_CCTM_v55_gcc_cb6r5_ae7_aq_m3dry/*.exe
 
 
+#Note, to run CMAQ, please create modules or set the LD_LIBRARY_PATH to include the directories for $BUILD/lib at run time.
 
+##see this tutorial for instructions to install modules: 
+##https://pcluster-cmaq.readthedocs.io/en/latest/user_guide_pcluster/developers_guide/cmaq-vm/install.html#install-environment-modules
+## If you have modules on your machine, you can create custom modules
+## https://pcluster-cmaq.readthedocs.io/en/latest/user_guide_pcluster/developers_guide/cmaq-vm/install.html#create-custom-environment-module-for-libraries
 
 
