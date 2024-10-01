@@ -211,19 +211,17 @@ Verify that the Mechanism is set to cb6r5_ae7_aq.
 set MECH      = cb6r5_ae7_aq      #> Mechanism ID
 ```
 
+Verify that the Deposition is set to stage
+
+```
+set DEP       = stage             #>Depends on bldit_cctm.csh settings
+```
+
 Verify the APPL name specifies both the mechanism and the dry deposition scheme
 
 ```
- set APPL      = Bench_2018_12NE3_${MECH}_stage  #> Application Name (e.g. Gridname)
+ set APPL      = Bench_2018_12NE3_${MECH}_${DEP}  #> Application Name (e.g. Gridname)
 ```
-
-
-Verify that the BLD directory name specifies both the mechanism and the dry deposition scheme
-
-```
- set BLD       = ${CMAQ_HOME}/CCTM/scripts/BLD_CCTM_${VRSN}_${compilerString}_${MECH}_stage
-```
-
 
 
 Specify the MPI configuration and compiler and input directory that you will use:
@@ -232,7 +230,7 @@ Specify the MPI configuration and compiler and input directory that you will use
 ```
 setenv compiler gcc
 setenv compilerVrsn 9.5
-setenv INPDIR  ${CMAQ_DATA}/2018_12NE3
+setenv INPDIR  ${CMAQ_DATA}/CMAQv5.4_2018_12NE3_Benchmark_2Day_Input/2018_12NE3
 @ NPCOL 8 ; @ NPROW = 4
 ```
 
