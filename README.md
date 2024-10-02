@@ -1,4 +1,4 @@
-![image](https://github.com/user-attachments/assets/1dd3bdbe-9750-41b2-8b39-f234d74b8ecf)CMAQv5.5
+CMAQv5.5
 ==========
 
 US EPA Community Multiscale Air Quality Model (CMAQ) Website: https://www.epa.gov/cmaq
