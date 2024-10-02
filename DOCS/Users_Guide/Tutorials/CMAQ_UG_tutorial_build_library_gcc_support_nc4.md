@@ -1,15 +1,12 @@
-## Following these instructions
+##  Building with netCDF-4 and the Remote Data Client
 
- https://www.unidata.ucar.edu/software/netcdf/documentation/NUG/getting_and_building_netcdf.html
+This tutorial is based on these instructions: https://www.unidata.ucar.edu/software/netcdf/documentation/NUG/getting_and_building_netcdf.html
 
- Building with netCDF-4 and the Remote Data Client
-
- netCDF requires the HDF5, zlib, and curl libraries. 
-## This Tutorial is for the gcc 9.1.0 compiler. 
-## For gcc 10 and above, use the  -fallow-argument-mismatch argument
-## As of Aug. 28, 2020, there are now new BIN=Linux*gfort10* types and corresponding Makeinclude.Linux*gfort10* that incorporate this flag for the I/O API and M3Tools. 
-## The above information is from the I/O API documentation: https://www.cmascenter.org/ioapi/documentation/all_versions/html/AVAIL.html
-
+* netCDF requires the HDF5, zlib, and curl libraries. 
+* This Tutorial is for the gcc 9.1.0 compiler.   
+* For gcc 10 and above, use the  -fallow-argument-mismatch argument  
+  * As of Aug. 28, 2020, there are now new *BIN=Linux\*gfort10\** types and corresponding *Makeinclude.Linux\*gfort10\** that incorporate this flag for the I/O API and M3Tools.
+  * Source: I/O API documentation, https://www.cmascenter.org/ioapi/documentation/all_versions/html/AVAIL.html
 
 
 ## Versions required are at least HDF5 1.8.9, zlib 1.2.5, and curl 7.18.0 or later.
