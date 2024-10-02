@@ -1,4 +1,4 @@
-![image](https://github.com/user-attachments/assets/1dd3bdbe-9750-41b2-8b39-f234d74b8ecf)CMAQv5.5
+CMAQv5.5
 ==========
 
 US EPA Community Multiscale Air Quality Model (CMAQ) Website: https://www.epa.gov/cmaq
@@ -71,14 +71,16 @@ In addition, a full set of inputs for 2018 are provided for the 12US1 domain (29
 
 |**CMAQ Version**|**Data Type (Size)**|**Domain**|**Simulation Dates**|**Data Access**|**Tutorial**| 
 |:----:|:----:|:--------------:|:----:|:--------:|:----:|
-|v5.4 CB6r5 | Input (10.3 Gb)| Northeast US| July 1 - 2, 2018| [Metadata, DOI, and download instructions ](https://doi.org/10.15139/S3/BWMI8X) <br /> [Google Drive Link](https://drive.google.com/drive/folders/1AFUB-4kzIXXoZr4hOHNBqRvy9JQ9_MDp)  <br /> [AWS Link](https://cmaq-release-benchmark-data-for-easy-download.s3.amazonaws.com/v5_4/CMAQv5.4_2018_12NE3_Benchmark_2Day_Input.tar.gz)||
+|MPAS-CMAQ| Input (215 GB) | Global (uniform 120) | Jan 1, 2017|[Metadata, DOI, and links to data on AWS](https://doi.org/10.15139/S3/PAHQFO)  <br /> [AWS Link](https://mpas-cmaq.s3.amazonaws.com/index.html) |[Tutorial](https://github.com/USEPA/CMAQ/blob/MPAS_CMAQ/DOCS/Users_Guide/PDF/MPAS_CMAQ_guide.pdf)|
 |v5.4 CB6r5 | Input (6.1 TB) | 12US1 | Jan 1 - Dec 31, 2018 | [Metadata, DOI, and links to data on AWS](https://doi.org/10.15139/S3/LDTWKH)  <br /> [AWS Link](https://cmas-cmaq-modeling-platform-2018.s3.amazonaws.com/index.html) ||
+|v5.4 CB6r5 | Input (10.3 GB)| Northeast US| July 1 - 2, 2018| [Metadata, DOI, and download instructions ](https://doi.org/10.15139/S3/BWMI8X) <br /> [Google Drive Link](https://drive.google.com/drive/folders/1AFUB-4kzIXXoZr4hOHNBqRvy9JQ9_MDp)  <br /> [AWS Link](https://cmaq-release-benchmark-data-for-easy-download.s3.amazonaws.com/v5_4/CMAQv5.4_2018_12NE3_Benchmark_2Day_Input.tar.gz)||
 |v5.5 CRACMM2| Input (6 GB) | 12NE3 |  July 1 - 2, 2018  | [Metadata, DOI, and links to data on AWS]( https://doi.org/10.15139/S3/X5SZM2) <br>  [AWS Link](https://cmaq-release-benchmark-data-for-easy-download.s3.amazonaws.com/v5_5/CMAQv5.5_2018_12NE3_Benchmark_cracmm2_stage_2Day_Input.tar.gz) ||
 |v5.5 CRACMM2| Output (52 GB) | 12NE3 |  July 1 - 2, 2018  | [Metadata, DOI, and links to data on AWS]( https://doi.org/10.15139/S3/X5SZM2) <br>  [AWS Link](https://cmaq-release-benchmark-data-for-easy-download.s3.amazonaws.com/v5_5/output_CCTM_v55_ISAM_gcc_Bench_2018_12NE3_cracmm2_stage.tar.gz)[Tutorial](DOCS/Users_Guide/Tutorials/CMAQ_UG_tutorial_benchmark_cracmm2_stage.md)|
-|v5.5 CB6r5 M3Dry | Output (15 Gb) | 12NE3 | July 1 - 2, 2018 |  [Metadata, DOI, and links to data on AWS](https://doi.org/10.15139/S3/X5SZM2) <br>  [AWS Download Link](https://cmaq-release-benchmark-data-for-easy-download.s3.amazonaws.com/v5_5/output_CCTM_v55_gcc_Bench_2018_12NE3_cb6r5_ae7_aq_m3dry.tar.gz) |[Tutorial](DOCS/Users_Guide/Tutorials/CMAQ_UG_tutorial_benchmark.md)|
-|v5.5 CB6r5 STAGE | Output (16 Gb) | 12NE3 | July 1 - 2, 2018 |  [Metadata, DOI, and links to data on AWS](https://doi.org/10.15139/S3/X5SZM2) <br>  [AWS Download Link](https://cmaq-release-benchmark-data-for-easy-download.s3.amazonaws.com/v5_5/output_CCTM_v55_gcc_Bench_2018_12NE3_cb6r5_ae7_aq_stage.tar.gz) |[Modify the M3DRY Tutorial](DOCS/Users_Guide/Tutorials/CMAQ_UG_tutorial_benchmark.md)|
+|v5.5 CB6r5 M3Dry | Output (15 GB) | 12NE3 | July 1 - 2, 2018 |  [Metadata, DOI, and links to data on AWS](https://doi.org/10.15139/S3/X5SZM2) <br>  [AWS Download Link](https://cmaq-release-benchmark-data-for-easy-download.s3.amazonaws.com/v5_5/output_CCTM_v55_gcc_Bench_2018_12NE3_cb6r5_ae7_aq_m3dry.tar.gz) |[Tutorial](DOCS/Users_Guide/Tutorials/CMAQ_UG_tutorial_benchmark.md)|
+|v5.5 CB6r5 STAGE | Output (16 GB) | 12NE3 | July 1 - 2, 2018 |  [Metadata, DOI, and links to data on AWS](https://doi.org/10.15139/S3/X5SZM2) <br>  [AWS Download Link](https://cmaq-release-benchmark-data-for-easy-download.s3.amazonaws.com/v5_5/output_CCTM_v55_gcc_Bench_2018_12NE3_cb6r5_ae7_aq_stage.tar.gz) |[Modify the M3DRY Tutorial](DOCS/Users_Guide/Tutorials/CMAQ_UG_tutorial_benchmark.md)|
 |v5.5-ISAM CB6r5 M3Dry | Output (52 GB) | 12NE3 |  July 1 - 2, 2018  | [Metadata, DOI, and links to data on AWS](https://doi.org/10.15139/S3/X5SZM2) <br>  [AWS Link](https://cmaq-release-benchmark-data-for-easy-download.s3.amazonaws.com/v5_5/output_CCTM_v55_ISAM_gcc_Bench_2018_12NE3_cb6r5_ae7_aq_m3dry.tar.gz) |[Tutorial](DOCS/Users_Guide/Tutorials/CMAQ_UG_tutorial_ISAM.md)|
 |v5.5-DDM3D CB6r5 M3Dry | Output (16 GB) | 12NE3 |  July 1 - 2, 2018  | [Metadata, DOI, and links to data on AWS](https://doi.org/10.15139/S3/X5SZM2) <br>  [AWS Download Link](https://cmaq-release-benchmark-data-for-easy-download.s3.amazonaws.com/v5_5/output_CCTM_v55_DDM3D_gcc_Bench_2018_12NE3_cb6r5_ae7_aq_m3dry.tar.gz) |[Tutorial](DOCS/Users_Guide/Tutorials/CMAQ_UG_tutorial_DDM3D.md)|
+
 
 ## Other Online Resources 
 * [Resources for Running CMAQ on Amazon Web Services](https://www.epa.gov/cmaq/cmaq-resourcesutilities-model-users#cmaq-on-the-cloud)
