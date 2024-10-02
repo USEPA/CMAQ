@@ -1,4 +1,4 @@
-# CMAQ Installation & Benchmarking Tutorial
+# CMAQ Installation & Benchmarking Tutorial for CRACMM2
 
 Purpose: This guide describes how to install and run the CMAQ test case for the CRACMM2 mechanism with the STAGE dry deposition scheme, which serves two different purposes. The first being to familiarize the user with the CMAQ suite of programs and how they work together, and secondly to verify the installation of the software on your system via benchmarking. 
 
@@ -190,7 +190,7 @@ For an MPI configuration with 16 processors,
 cd $CMAQ_HOME/CCTM/scripts
 ```
 
-Edit the CCTM run script (run_cctm_Bench_2018_12NE3_CRACMM2_STAGE.csh) for the MPI configuration and compiler that you will use:
+Edit the CCTM run script (run_cctm_Bench_2018_12NE3_CRACMM2.csh) for the MPI configuration and compiler that you will use:
 
 ```
 setenv compiler gcc
@@ -218,13 +218,13 @@ CCTM Science Configuration Options set to **Y** in the RunScript for the benchma
 -  ```CTM_GRAV_SETL``` - vdiff aerosol gravitational sedmentation
 -  ```CTM_BIOGEMIS``` - online biogenic emissions
 
-To configure these parameters, the Science Options within the $CMAQ_HOME/CCTM/scripts/run_cctm_Bench_2018_12NE3_CRACMM2_STAGE.csh need to be set. The comments within the script itself should help guide the user on the options for each variable and how to set them. Further information on variable names can be found in 
+To configure these parameters, the Science Options within the $CMAQ_HOME/CCTM/scripts/run_cctm_Bench_2018_12NE3_CRACMM2.csh need to be set. The comments within the script itself should help guide the user on the options for each variable and how to set them. Further information on variable names can be found in 
 [Appendix A](../Appendix/CMAQ_UG_appendixA_model_options.md).
 
 After configuring the MPI settings for your Linux system, check the rest of the script to ensure the correct path, date and names are used for the input data files. Per the note above, different Linux systems have different requirements for submitting MPI jobs.  The command below is an example of how to submit the CCTM run script and may differ depending on the MPI requirements of your Linux system. 
 
 ```
-./run_cctm_Bench_2018_12NE3_CRACMM2_STAGE.csh |& tee run_cctm_Bench_2018_12NE3_CRACMM2_STAGE.log 
+./run_cctm_Bench_2018_12NE3_CRACMM2.csh |& tee run_cctm_Bench_2018_12NE3_CRACMM2_STAGE.log 
 ```
 
 ## Confirm that the Benchmark Simulation Completed

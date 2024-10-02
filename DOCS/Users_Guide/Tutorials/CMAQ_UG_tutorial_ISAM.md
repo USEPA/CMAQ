@@ -1,6 +1,6 @@
 ## CMAQ-ISAM Benchmark Tutorial ## 
 
-### Procedure to build and run the CMAQ-ISAM model using gnu compiler for the cb6r5_ae7_aq mechanism with the m3dry dry deposition scheme: ###
+Procedure to build and run the CMAQ-ISAM model using gnu compiler for the cb6r5_ae7_aq mechanism with the m3dry dry deposition scheme:
 
 ### Step 1: Download and run the CMAQv5.5 benchmark case (without ISAM) to confirm that your model run is consistent with the provided benchmark output.
 - [CMAQ Benchmark Tutorial](CMAQ_UG_tutorial_benchmark.md)
@@ -165,7 +165,7 @@ Uncomment the line that contains ISAM_REGIONS as the File Label
                'ALL'         ,'ISAM_REGIONS','ALL',
 /
 ```
- 
+
 
 ### Step 11: Example of emissions scaling (Reduce the PT_EGU emissions in NY by 25%) (Optional step, described here, but not used)
 
@@ -185,22 +185,15 @@ Add the following line at the bottom of the the namelist file (before the /)
 
 ### Step 12: Install the CMAQ-ISAM reference input and output benchmark data
 
-Download the CMAQ two day reference input and output data from the [CMAS Center Data Warehouse Google Drive]([https://drive.google.com/file/d/1AFUB-4kzIXXoZr4hOHNBqRvy9JQ9_MDp/view?usp=sharing](https://drive.google.com/drive/folders/1AFUB-4kzIXXoZr4hOHNBqRvy9JQ9_MDp?usp=sharing). The CMAQ benchmark test case is a two day simulation for July 1-2 2018 on a 100 column x 105 row x 35 layer 12-km resolution domain over the northeast U.S.  
+Download the CMAQ two day reference input and output data from the  [CMAS Center Data Warehouse Amazon Web Services S3 Bucket](https://cmaq-release-benchmark-data-for-easy-download.s3.amazonaws.com/index.html#v5_5/): CMAQv5.4_2018_12NE3_Benchmark_2Day_Input.tar.gz and output_CCTM_v55_ISAM_gcc_Bench_2018_12NE3_cracmm2_stage.tar.gz.
 
-  - Use the gdrive command to download the dataset.
-  - If this is the first time that you are using gdrive, or if you have an issue with your token, please read the following instructions
-  - [Tips to download data from CMAS Data Warehouse](https://docs.google.com/document/d/1e7B94zFkbKygVWfrhGwEZL51jF4fGXGXZbvi6KzXYQ4)
-  - Text files are included that provide a list of the files in the benchmark input and output datasets.
-
-The benchmark data is also available from the [CMAS Center Data Warehouse Amazon Web Services S3 Bucket](https://cmaq-release-benchmark-data-for-easy-download.s3.amazonaws.com/v5_5/CMAQv5.4_2018_12NE3_Benchmark_2Day_Input.tar.gz). 
-
-Copy the data to `$CMAQ_DATA`. Navigate to the `$CMAQ_DATA` directory, unzip and untar the two day benchmark input and output files:
+Download and copy the data to `$CMAQ_DATA`. Navigate to the `$CMAQ_DATA` directory, unzip and untar the two day benchmark input and output files:
 
 ```
 cd $CMAQ_DATA
 wget https://cmaq-release-benchmark-data-for-easy-download.s3.amazonaws.com/v5_5/CMAQv5.4_2018_12NE3_Benchmark_2Day_Input.tar.gz
+wget https://cmaq-release-benchmark-data-for-easy-download.s3.amazonaws.com/v5_5/output_CCTM_v55_ISAM_gcc_Bench_2018_12NE3_cb6r5_ae7_aq_m3dry.tar.gz
 tar xvzf CMAQv5.4_2018_12NE3_Benchmark_2Day_Input.tar.gz
-tar xvzf CMAQv5.4_2018_12NE3_Benchmark_2Day_Output.tar.gz
 ```
 
 The input files for the CMAQv5.4 ISAM benchmark case are the same as the benchmark inputs for the base model. Output source apportionment files associated with the sample isam_control.txt provided in this release package are included in the benchmark outputs for the base model.
@@ -249,7 +242,7 @@ Verify the start and end dates to match the input data for this benchmark.
 #> Set Start and End Days for looping
  setenv NEW_START TRUE             #> Set to FALSE for model restart
  set START_DATE = "2018-07-01"     #> beginning date (July 1, 2016)
- set END_DATE   = "2018-07-02"     #> ending date    (July 1, 2016)
+ set END_DATE   = "2018-07-02"     #> ending date    (July 2, 2016)
 ```
 
 
@@ -352,8 +345,8 @@ Download the run script and species definition files for this case from the AWS 
 
 ```
 cd CMAQ_v5.5/POST/combine/scripts
-wget https://cmaq-release-benchmark-data-for-easy-download.s3.amazonaws.com/v5_5/ISAM_Benchmark/POST/combine/scripts/run_combine_ISAM_aconc%2Bdep_example_cb6r5_ae7_aq_12ne3_benchmark.csh
-wget https://cmaq-release-benchmark-data-for-easy-download.s3.amazonaws.com/v5_5/ISAM_Benchmark/POST/combine/scripts/run_combine_ISAM_sa_aconc%2Bsa_dep_example_cb6r5_ae7_aq_12ne3_benchmark.csh
+wget https://cmaq-release-benchmark-data-for-easy-download.s3.amazonaws.com/v5_5/ISAM_Benchmark/POST/combine/scripts/run_combine_ISAM_aconc+dep_example_cb6r5_ae7_aq_12ne3_benchmark.csh
+wget https://cmaq-release-benchmark-data-for-easy-download.s3.amazonaws.com/v5_5/ISAM_Benchmark/POST/combine/scripts/run_combine_ISAM_sa_aconc+sa_dep_example_cb6r5_ae7_aq_12ne3_benchmark.csh
 wget https://cmaq-release-benchmark-data-for-easy-download.s3.amazonaws.com/v5_5/ISAM_Benchmark/POST/combine/scripts/SpecDef_ISAM_Conc_benchmark_cb6r5_ae7_aq.txt
 wget https://cmaq-release-benchmark-data-for-easy-download.s3.amazonaws.com/v5_5/ISAM_Benchmark/POST/combine/scripts/SpecDef_ISAM_Dep_benchmark_cb6r5_ae7_aq.txt
 ```

@@ -179,26 +179,30 @@ Users should look for the following message at the end of their bldit_cctm_twowa
 If the User sees this, the WRF-CMAQ model has been successfully compiled and built. If not, the User should double check the library paths above and try again. If it still fails, please reach post on the [CMAS Forum](https://forum.cmascenter.org/c/wrf-cmaq).
 
 
-### Install the WRF-CMAQ reference input and output benchmark data
+### Install the WRF-CMAQ reference input benchmark data
 
-Download the CMAQ two day reference input and output data from the [CMAS Center Data Warehouse Google Drive](https://drive.google.com/drive/folders/1AFUB-4kzIXXoZr4hOHNBqRvy9JQ9_MDp?usp=sharing) or from the [CMAS Center Data Warehouse Amazon Web Services S3 Bucket](https://cmas-cmaq.s3.amazonaws.com/index.html). The CMAQ benchmark test case is a two day simulation for July 1-2 2018 on a 100 column x 105 row x 35 layer 12-km resolution domain over the northeast U.S.  
 
-  - Use the gdrive command to download the dataset.
+Download the CMAQ two day reference input data from the [CMAS Center Data Warehouse Google Drive](https://drive.google.com/drive/folders/1AFUB-4kzIXXoZr4hOHNBqRvy9JQ9_MDp?usp=sharing) or from the [CMAS Center Data Warehouse Amazon Web Services S3 Bucket](https://cmaq-release-benchmark-data-for-easy-download.s3.amazonaws.com/index.html#v5_5/
+), file CMAQv5.4_2018_12NE3_Benchmark_2Day_Input.tar.gz. The CMAQ benchmark test case is a two day simulation for July 1-2 2018 on a 100 column x 105 row x 35 layer 12-km resolution domain over the northeast U.S.  
+
+  - Use the gdrive command if you are downloading the dataset from Google Drive.
   - If this is the first time that you are using gdrive, or if you have an issue with your token, please read the following instructions
   - [Tips to download data from CMAS Data Warehouse](https://docs.google.com/document/d/1e7B94zFkbKygVWfrhGwEZL51jF4fGXGXZbvi6KzXYQ4)
-  - Text files are included that provide a list of the files in the benchmark input and output datasets.
+  - Text files are included that provide a list of the files in the benchmark input datasets.
+  - wget can be used to download data from the CMAS Open Data Folder on AWS
+  - Reference output files for WRF-CMAQv5.5 will be provided at a later date.
 
-Copy the data to `$CMAQ_DATA`. Navigate to the `$CMAQ_DATA` directory, unzip and untar the two day benchmark input and output files:
+
+Copy the data to `$CMAQ_DATA`. Navigate to the `$CMAQ_DATA` directory, unzip and untar the two day benchmark input files:
 
 ```
 cd $CMAQ_DATA
+wget https://cmaq-release-benchmark-data-for-easy-download.s3.amazonaws.com/v5_5/CMAQv5.4_2018_12NE3_Benchmark_2Day_Input.tar.gz
 tar xvzf CMAQv5.4_2018_12NE3_Benchmark_2Day_Input.tar.gz
-tar xvzf CMAQv5.4_2018_12NE3_Benchmark_2Day_Output.tar.gz
 ```
 
-The input files for the WRF-CMAQ benchmark case are provided in the base model benchmark inputs .tar file. Output WRF-CMAQ files associated with the sample run script for the coupled WRF-CMAQ model in this release package are provided in the base model benchmark outputs .tar file.  
-    
-    
+The input files for the WRF-CMAQ benchmark case are provided in the base model benchmark inputs .tar file. Output WRF-CMAQ files associated with the sample run script for the coupled WRF-CMAQ model in this release package will be provided at a later date.  
+        
 ## Running the WRF-CMAQ model
 
 Note, in this new coupled model design, the namelist is used to modify settings for WRF.
@@ -222,7 +226,7 @@ The following commonly modified namelist options for WRF-CMAQ are specified in t
                             available in the WRF restart file or not)
                             
 * One sample run scripts is provided (run_cctm_Bench_2018_12NE3.WRFCMAQ.csh) for running the coupled
-  model with short wave radiation feedback turned on.  Reference benchmark output is provided for a test simulations with short wave radiation feedback turned on ("sf") and turned off ("nf"). 
+  model with short wave radiation feedback turned on.  Reference benchmark output will be provided for a test simulations with short wave radiation feedback turned on ("sf") and turned off ("nf"). 
 
 
   - Start with the run_cctm_Bench_2018_12NE3.WRFCMAQ.csh that specifies direct_sw_feedback = .true.
