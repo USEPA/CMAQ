@@ -97,20 +97,16 @@ source config_cmaq.csh gcc 9.5
 
 ## Install the CMAQ reference input and output benchmark data
 
-Download the CMAQ two day reference input and output data for the cb6r5_ae7 mechanism (using inputs from CMAQv5.4 Benchmark release) from the [CMAS Center Data Warehouse Google Drive]([https://drive.google.com/file/d/1AFUB-4kzIXXoZr4hOHNBqRvy9JQ9_MDp/view?usp=sharing](https://drive.google.com/drive/folders/1AFUB-4kzIXXoZr4hOHNBqRvy9JQ9_MDp?usp=sharing), download the file CMAQv5.4_2018_12NE3_Benchmark_2Day_Input.tar.gz. The CMAQ benchmark test case is a two day simulation for July 1-2 2018 on a 100 column x 105 row x 35 layer 12-km resolution domain over the northeast U.S.  
+Download the CMAQ two day reference input and output data for the cb6r5_ae7 mechanism (using inputs from CMAQv5.4 Benchmark release) from the [CMAS Center Data Warehouse Amazon Web Services S3 Bucket](https://cmaq-release-benchmark-data-for-easy-download.s3.amazonaws.com/index.html#v5_5/): CMAQv5.4_2018_12NE3_Benchmark_2Day_Input.tar.gz	and output_CCTM_v55_gcc_Bench_2018_12NE3_cb6r5_ae7_aq_m3dry.tar.gz. The CMAQ benchmark test case is a two day simulation for July 1-2 2018 on a 100 column x 105 row x 35 layer 12-km resolution domain over the northeast U.S.  
 
-  - Use the gdrive command to download the dataset.
-  - If this is the first time that you are using gdrive, or if you have an issue with your token, please read the following instructions
-  - [Tips to download data from CMAS Data Warehouse](https://docs.google.com/document/d/1e7B94zFkbKygVWfrhGwEZL51jF4fGXGXZbvi6KzXYQ4)
-  - Text files are included that provide a list of the files in the benchmark input and output datasets.
-
-The benchmark data is also available from the [CMAS Center Data Warehouse Amazon Web Services S3 Bucket](https://cmaq-release-benchmark-data-for-easy-download.s3.amazonaws.com/v5_4/CMAQv5.4_2018_12NE3_Benchmark_2Day_Input.tar.gz). 
-
-Copy the data to `$CMAQ_DATA`. Navigate to the `$CMAQ_DATA` directory, unzip and untar the two day benchmark input and output files:
+Download and copy the data to `$CMAQ_DATA`. Navigate to the `$CMAQ_DATA` directory, unzip and untar the two day benchmark input and output files:
 
 ```
 cd $CMAQ_DATA
+wget https://cmaq-release-benchmark-data-for-easy-download.s3.amazonaws.com/v5_5/CMAQv5.4_2018_12NE3_Benchmark_2Day_Input.tar.gz
+wget https://cmaq-release-benchmark-data-for-easy-download.s3.amazonaws.com/v5_5/output_CCTM_v55_gcc_Bench_2018_12NE3_cb6r5_ae7_aq_m3dry.tar.gz
 tar -xzvf CMAQv5.4_2018_12NE3_Benchmark_2Day_Input.tar.gz
+tar -xzvf output_CCTM_v55_gcc_Bench_2018_12NE3_cb6r5_ae7_aq_m3dry.tar.gz
 ```
 
 ## Compiling CMAQ
@@ -177,7 +173,7 @@ cd $CMAQ_HOME/CCTM/scripts
 Verify that the BLD directory contains a namelist called
 
 ```
-cd BLD_CCTM_v55_DDM3D_gcc_cb6r5_ae7_aq_m3dry
+cd BLD_CCTM_v55_gcc_cb6r5_ae7_aq_m3dry
 ls CMAQ_Control_DESID_cb6r5_ae7_aq.nml
 ```
 
@@ -224,7 +220,7 @@ To configure these parameters, the Science Options within the $CMAQ_HOME/CCTM/sc
 After configuring the MPI settings for your Linux system, check the rest of the script to ensure the correct path, date and names are used for the input data files. Per the note above, different Linux systems have different requirements for submitting MPI jobs.  The command below is an example of how to submit the CCTM run script and may differ depending on the MPI requirements of your Linux system. 
 
 ```
-./run_cctm_Bench_2018_12NE3_cb6r5_m3dry.csh |& tee cctm.log
+./run_cctm_Bench_2018_12NE3_CB6R5_M3DRY.csh |& tee cctm.log
 ```
 
 ## Confirm that the Benchmark Simulation Completed
@@ -267,9 +263,9 @@ To determine if CMAQ is correctly installed on your Linux system compare the res
 - Red Hat Enterprise Linux Server 7.3 (Maipo) (use command: cat /etc/os-release)
 - GNU GCC compiler version 9.1.0, 16 processors with OpenMPIv4.0.1 and I/O APIv3.2 tagged version 20200828
 - Debug mode turned off (```set Debug_CCTM``` commented out in $CMAQ_HOME/CCTM/scripts/bldit_cctm.csh)
-- CMAQv5.4
+- CMAQv5.5
 
-The CMAQv5.4 reference output data includes a set of CCTM_ACONC_\*.nc files with layer 1 average model species concentrations for each model hour for 226 variables and a set of CCTM_WETDEP1_\*.nc files with cumulative hourly wet deposition fluxes for an additional 136 variables. The CCTM_SA_ACONC_\*.nc, CCTM_SA_CGRID_\*.nc, CCTM_SA_CONC_\*.nc, CCTM_SA_WETDEP_\*.nc and CCTM_SA_DRYDEP_\*.nc are generated when you run the CMAQ-ISAM benchmark. See the [CMAQ-ISAM Tutorial](../Tutorials/CMAQ_UG_tutorial_ISAM.md) for more information.
+The CMAQv5.5 reference output data includes a set of CCTM_ACONC_\*.nc files with layer 1 average model species concentrations for each model hour for 226 variables and a set of CCTM_WETDEP1_\*.nc files with cumulative hourly wet deposition fluxes for an additional 136 variables. 
 
 Use your netCDF evaluation tool of choice to evaluate your benchmark results. For example, [VERDI](https://www.verdi-tool.org/) is a visualization tool to view CCTM results as tile plots. Statistical comparison of the results can be made with the I/O API Tools or R. 
 
