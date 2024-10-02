@@ -190,7 +190,7 @@ For an MPI configuration with 32 processors,
 cd $CMAQ_HOME/CCTM/scripts
 ```
 
-Edit the CCTM run script (run_cctm_Bench_2018_12NE3.csh) for the MPI configuration and compiler that you will use:
+Edit the CCTM run script (run_cctm_Bench_2018_12NE3_CB6R5.csh) for the MPI configuration and compiler that you will use:
 
 ```
 setenv compiler gcc
@@ -218,13 +218,13 @@ CCTM Science Configuration Options set to **Y** in the RunScript for the benchma
 -  ```CTM_GRAV_SETL``` - vdiff aerosol gravitational sedmentation
 -  ```CTM_BIOGEMIS``` - online biogenic emissions
 
-To configure these parameters, the Science Options within the $CMAQ_HOME/CCTM/scripts/run_cctm_Bench_2018_12NE3_cb6r5_m3dry.csh need to be set. The comments within the script itself should help guide the user on the options for each variable and how to set them. Further information on variable names can be found in 
+To configure these parameters, the Science Options within the $CMAQ_HOME/CCTM/scripts/run_cctm_Bench_2018_12NE3_CB6R5.csh need to be set. The comments within the script itself should help guide the user on the options for each variable and how to set them. Further information on variable names can be found in 
 [Appendix A](../Appendix/CMAQ_UG_appendixA_model_options.md).
 
 After configuring the MPI settings for your Linux system, check the rest of the script to ensure the correct path, date and names are used for the input data files. Per the note above, different Linux systems have different requirements for submitting MPI jobs.  The command below is an example of how to submit the CCTM run script and may differ depending on the MPI requirements of your Linux system. 
 
 ```
-./run_cctm_Bench_2018_12NE3_CB6R5_M3DRY.csh |& tee cctm.log
+./run_cctm_Bench_2018_12NE3_CB6R5.csh |& tee cctm.log
 ```
 
 ## Confirm that the Benchmark Simulation Completed
