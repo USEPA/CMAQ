@@ -108,6 +108,7 @@ mkdir ref_output
 cd ref_output
 wget https://cmaq-release-benchmark-data-for-easy-download.s3.amazonaws.com/v5_5/output_CCTM_v55_gcc_Bench_2018_12NE3_cracmm2_stage.tar.gz
 tar -xzvf output_CCTM_v55_gcc_Bench_2018_12NE3_cracmm2_stage.tar.gz
+
 ```
 
 ## Compiling CMAQ
@@ -228,7 +229,7 @@ To configure these parameters, the Science Options within the $CMAQ_HOME/CCTM/sc
 After configuring the MPI settings for your Linux system, check the rest of the script to ensure the correct path, date and names are used for the input data files. Per the note above, different Linux systems have different requirements for submitting MPI jobs.  The command below is an example of how to submit the CCTM run script and may differ depending on the MPI requirements of your Linux system. 
 
 ```
-./run_cctm_Bench_2018_12NE3_CRACMM2.csh |& tee run_cctm_Bench_2018_12NE3_CRACMM2_STAGE.log 
+./run_cctm_Bench_2018_12NE3_CRACMM2.csh |& tee run_cctm_Bench_2018_12NE3_CRACMM2.log 
 ```
 
 ## Confirm that the Benchmark Simulation Completed
@@ -271,9 +272,9 @@ To determine if CMAQ is correctly installed on your Linux system compare the res
 - Red Hat Enterprise Linux Server 7.3 (Maipo) (use command: cat /etc/os-release)
 - GNU GCC compiler version 9.1.0, 16 processors with OpenMPIv4.0.1 and I/O APIv3.2 tagged version 20200828
 - Debug mode turned off (```set Debug_CCTM``` commented out in $CMAQ_HOME/CCTM/scripts/bldit_cctm.csh)
-- CMAQv5.4
+- CMAQv5.5
 
-The CMAQv5.4 reference output data includes a set of CCTM_ACONC_\*.nc files with layer 1 average model species concentrations for each model hour for 226 variables and a set of CCTM_WETDEP1_\*.nc files with cumulative hourly wet deposition fluxes for an additional 136 variables. The CCTM_SA_ACONC_\*.nc, CCTM_SA_CGRID_\*.nc, CCTM_SA_CONC_\*.nc, CCTM_SA_WETDEP_\*.nc and CCTM_SA_DRYDEP_\*.nc are generated when you run the CMAQ-ISAM benchmark. See the [CMAQ-ISAM Tutorial](../Tutorials/CMAQ_UG_tutorial_ISAM.md) for more information.
+The CMAQv5.5 reference output data includes a set of CCTM_ACONC_\*.nc files with layer 1 average model species concentrations for each model hour for 226 variables and a set of CCTM_WETDEP1_\*.nc files with cumulative hourly wet deposition fluxes for an additional 136 variables. 
 
 Use your netCDF evaluation tool of choice to evaluate your benchmark results. For example, [VERDI](https://www.verdi-tool.org/) is a visualization tool to view CCTM results as tile plots. Statistical comparison of the results can be made with the I/O API Tools or R. 
 

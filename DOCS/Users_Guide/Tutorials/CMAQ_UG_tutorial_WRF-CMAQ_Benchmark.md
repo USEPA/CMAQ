@@ -190,8 +190,6 @@ Download the CMAQ two day reference input data from the [CMAS Center Data Wareho
   - [Tips to download data from CMAS Data Warehouse](https://docs.google.com/document/d/1e7B94zFkbKygVWfrhGwEZL51jF4fGXGXZbvi6KzXYQ4)
   - Text files are included that provide a list of the files in the benchmark input datasets.
   - wget can be used to download data from the CMAS Open Data Folder on AWS
-  - Reference output files for WRF-CMAQv5.5 will be provided at a later date.
-
 
 Copy the data to `$CMAQ_DATA`. Navigate to the `$CMAQ_DATA` directory, unzip and untar the two day benchmark input files:
 
