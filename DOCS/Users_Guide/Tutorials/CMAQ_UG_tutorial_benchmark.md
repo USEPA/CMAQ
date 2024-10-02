@@ -1,4 +1,4 @@
-# CMAQ Installation & Benchmarking Tutorial for CB6R5 and M3DRY 
+# CMAQ Installation & Benchmarking Tutorial for CB6R5 
 
 Purpose: This guide describes how to install and run the CMAQ test case for the CB6R5 mechanism with the M3DRY dry deposition scheme, which serves two different purposes. The first being to familiarize the user with the CMAQ suite of programs and how they work together, and secondly to verify the installation of the software on your system via benchmarking. 
 
@@ -109,6 +109,8 @@ tar -xzvf CMAQv5.4_2018_12NE3_Benchmark_2Day_Input.tar.gz
 tar -xzvf output_CCTM_v55_gcc_Bench_2018_12NE3_cb6r5_ae7_aq_m3dry.tar.gz
 ```
 
+*Note that there is also benchmark output data for CMAQv5.5 with CB6r5 and the STAGE dry deposition module. Look for output_CCTM_v55_gcc_Bench_2018_12NE3_cb6r5_ae7_aq_stage.tar.gz in the AWS link above.* 
+
 ## Compiling CMAQ
 
 *Before proceeding, it should be noted that building the ICON and BCON executables are optional steps when working specifically with the benchmark data. This is because the initial condition and boundary condition files have been provided for you within the benchmark data set. For further information on these preprocessors please reference [Chapter 4](../CMAQ_UG_ch04_model_inputs.md).*   
@@ -162,6 +164,8 @@ Verify that the dry deposition scheme to use M3DRY
 
  set DepMod    = m3dry
 ```
+
+*Note that there is reference benchmark output for both the M3DRY and STAGE dry deposition schemes.  To try a simulation using STAGE simply change this model setting to set DepMod  =stage.*
 
 Following the requisite changes to the CCTM build script, use the following command to create the CCTM executable: 
 
