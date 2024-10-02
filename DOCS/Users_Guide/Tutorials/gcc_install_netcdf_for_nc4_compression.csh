@@ -33,7 +33,7 @@ set echo
  wget https://curl.se/download/curl-8.10.1.tar.gz
  tar -xzvf curl-8.10.1.tar.gz
  cd curl-8.10.1
- ./configure --prefix=${INSTDIR} --with-openssl --without-libpsl
+ ./configure --prefix=${INSTDIR} --without-ssl
  make |& tee make.curl.log
  make install |& tee make.install.curl.log
 
@@ -73,28 +73,30 @@ set echo
    #wget https://downloads.unidata.ucar.edu/netcdf-c/4.9.2/netcdf-c-4.9.2.zip
    tar xvf v4.8.0.tar.gz
    cd netcdf-c-4.8.0
-   ./configure --with-pic --enable-netcdf-4 --disable-shared --prefix=${INSTDIR}
+   ./configure --with-pic --enable-netcdf-4 --enable-shared --prefix=${INSTDIR}
    make |& tee  make.gcc9.log
    make install
 #  ---------------------------------
 #  Download and build netCDF-Fortran
 #  ---------------------------------
    cd ${INSTDIR}
-   wget https://github.com/Unidata/netcdf-fortran/archive/refs/tags/v4.5.4.tar.gz
+   wget https://github.com/Unidata/netcdf-fortran/archive/refs/tags/v4.5.3.tar.gz
    # installation instructions
-   tar xvf v4.5.4.tar.gz
-   cd netcdf-fortran-4.5.4
+   tar xvf v4.5.3.tar.gz
+   cd netcdf-fortran-4.5.3
    ## Note, if non-standard locaions are used for the following compilers, you may need to specify their locations here: 
    setenv FC gfortran
    setenv F90 gfortran
    setenv F77 gfortran
    setenv CC gcc
    setenv CXX g++
-   setenv LIBS " -lnetcdf -lhdf5_hl -lhdf5 -lm -ldl -lz -lcurl "
+   #setenv LIBS " -lnetcdf -lhdf5_hl -lhdf5 -lm -ldl -lz -lcurl "
+   setenv NCDIR ${INSTDIR}
+   setenv LIBS "-lnetcdf"
    setenv CPPFLAGS -I${INSTDIR}/include
    setenv LDFLAGS -L${INSTDIR}/lib
-   setenv LD_LIBRARY_PATH ${INSTDIR}/lib
-   ./configure --with-pic  --disable-shared --prefix=${INSTDIR}
+   setenv LD_LIBRARY_PATH ${INSTDIR}/lib:${LD_LIBRARY_PATH}
+   ./configure --with-pic  --enable-shared --prefix=${INSTDIR}
    make |& tee make.gcc9.log 
    make install
 #  -----------------------------
@@ -104,7 +106,7 @@ set echo
    wget https://github.com/Unidata/netcdf-cxx4/archive/refs/tags/v4.3.1.tar.gz
    tar xvf v4.3.1.tar.gz
    cd netcdf-cxx4-4.3.1
-   ./configure --with-pic --disable-shared --prefix=$INSTDIR
+   ./configure --with-pic --enable-shared --prefix=$INSTDIR
    make |& tee  make.gcc9.log
    make install
 #  --------------------------

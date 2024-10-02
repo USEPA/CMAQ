@@ -165,7 +165,7 @@ Uncomment the line that contains ISAM_REGIONS as the File Label
                'ALL'         ,'ISAM_REGIONS','ALL',
 /
 ```
- 
+
 
 ### Step 11: Example of emissions scaling (Reduce the PT_EGU emissions in NY by 25%) (Optional step, described here, but not used)
 
@@ -242,7 +242,7 @@ Verify the start and end dates to match the input data for this benchmark.
 #> Set Start and End Days for looping
  setenv NEW_START TRUE             #> Set to FALSE for model restart
  set START_DATE = "2018-07-01"     #> beginning date (July 1, 2016)
- set END_DATE   = "2018-07-02"     #> ending date    (July 1, 2016)
+ set END_DATE   = "2018-07-02"     #> ending date    (July 2, 2016)
 ```
 
 
