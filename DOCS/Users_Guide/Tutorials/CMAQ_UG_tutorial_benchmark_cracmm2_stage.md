@@ -102,7 +102,9 @@ Copy the data to `$CMAQ_DATA`. Navigate to the `$CMAQ_DATA` directory, unzip and
 
 ```
 cd $CMAQ_DATA
+wget https://cmaq-release-benchmark-data-for-easy-download.s3.amazonaws.com/v5_5/CMAQv5.5_2018_12NE3_Benchmark_cracmm2_stage_2Day_Input.tar.gz
 tar xvzf CMAQv5.4_2018_12NE3_Benchmark_2Day_Input_CRACCM2.tar.gz
+wget https://cmaq-release-benchmark-data-for-easy-download.s3.amazonaws.com/v5_5/output_CCTM_v55_gcc_Bench_2018_12NE3_cracmm2_stage.tar.gz
 ```
 
 ## Compiling CMAQ
