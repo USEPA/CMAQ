@@ -98,12 +98,16 @@ source config_cmaq.csh gcc 9.5
 ## Install the CMAQ reference input and output benchmark data
 
 Download the CMAQ two day reference input and output data for the CRACMM2 mechanism from the [AWS CMAS Data Warehouse](https://cmaq-release-benchmark-data-for-easy-download.s3.amazonaws.com/v5_5/CMAQv5.5_2018_12NE3_Benchmark_cracmm2_stage_2Day_Input.tar.gz). The CMAQ benchmark test case is a two day simulation for July 1-2 2018 on a 100 column x 105 row x 35 layer 12-km resolution domain over the northeast U.S.  
-Copy the data to `$CMAQ_DATA`. Navigate to the `$CMAQ_DATA` directory, unzip and untar the two day benchmark input and output files:
+Copy the data to `$CMAQ_DATA`. Navigate to the `$CMAQ_DATA` directory, unzip and untar the two day benchmark input files:
 
 ```
 cd $CMAQ_DATA
+wget https://cmaq-release-benchmark-data-for-easy-download.s3.amazonaws.com/v5_5/CMAQv5.5_2018_12NE3_Benchmark_cracmm2_stage_2Day_Input.tar.gz
 tar xvzf CMAQv5.4_2018_12NE3_Benchmark_2Day_Input_CRACCM2.tar.gz
-tar xvzf CMAQv5.4_2018_12NE3_Benchmark_2Day_Output_CRACMM2.tar.gz
+mkdir ref_output
+cd ref_output
+wget https://cmaq-release-benchmark-data-for-easy-download.s3.amazonaws.com/v5_5/output_CCTM_v55_gcc_Bench_2018_12NE3_cracmm2_stage.tar.gz
+tar -xzvf output_CCTM_v55_gcc_Bench_2018_12NE3_cracmm2_stage.tar.gz
 ```
 
 ## Compiling CMAQ
