@@ -15,7 +15,7 @@ A series of short tutorials provide practical examples of how to set up and run 
  
 - **Directions for running CMAQ test cases**
   - [Running the CMAQ Base Model with CRACMM2 and STAGE](CMAQ_UG_tutorial_benchmark_cracmm2_stage.md)
-  - [Running the CMAQ Base Model with CB6r5 and M3DRY](CMAQ_UG_tutorial_benchmark.md)
+  - [Running the CMAQ Base Model with CB6r5 and M3DRY or STAGE](CMAQ_UG_tutorial_benchmark.md)
   - [Running the CMAQ-ISAM Test Case](CMAQ_UG_tutorial_ISAM.md)
   - [Running the CMAQ-DDM-3D Test Case](CMAQ_UG_tutorial_DDM3D.md)
   - [Running the WRF-CMAQ Test Case](CMAQ_UG_tutorial_WRF-CMAQ_Benchmark.md)
