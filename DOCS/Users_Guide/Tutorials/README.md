@@ -3,23 +3,28 @@ CMAQ Tutorials
 
 A series of short tutorials provide practical examples of how to set up and run CMAQ, exercise different features in the software, and better understand the software system. Community members are encouraged to both suggest ideas for new tutorials and to contribute tutorials directly to this repository. [Contact the CMAS Center](cmas@unc.edu) with new tutorial ideas.
 
-- [Building CMAQ for GNU using libraries that disable netCDF4 compression](CMAQ_UG_tutorial_build_library_gcc.md): This tutorial describes how to install netCDF and I/O API libraries and build CMAQ using the GNU GCC compiler version 9.1.0. 
-- [Building CMAQ for GNU using libraries that support compressed netCDF4](CMAQ_UG_tutorial_build_library_gcc_support_nc4.md): This tutorial describes how to install netCDF and I/O API libraries to support netCDF-4 compressed files.  
-- [Script to install netCDF libraries to support netCDF4 compression](gcc_install_netcdf_for_nc4_compression.csh): This script installs prerequisite libraries for netCDF-4 to support compressed files.
-- [Script to install I/O API library to support netCDF4 compression](gcc_install_ioapi_for_nc4_compression.csh): This script installs I/O API library to support compressed files.
-- [Script to install CMAQv55 for cb6r5 and m3dry](gcc_install_cmaq55_cb6r5_m3dry.csh): This script installs CMAQv5.5 and uses libraries that support netCDF-4 compression.
-- [Building CMAQ for Intel using libraries that disable netCDF4 compression](CMAQ_UG_tutorial_build_library_intel.md): This tutorial describes how to install netCDF and I/O API libraries and build CMAQ using the Intel compiler version 18.2. 
-- [Running the CMAQ Test Case for cracmm2 and stage](CMAQ_UG_tutorial_benchmark_cracmm2_stage.md): This tutorial describes how to prepare your Linux system for installing and running the CMAQ test case for cracmm2 and stage.
-- [Running the CMAQ Test Case for cb6r5 and stage](CMAQ_UG_tutorial_benchmark_cb6r5_stage.md): This tutorial describes how to prepare your Linux system for installing and running the CMAQ test case for the cb6r5_ae7_aq mecchanism and the stage dry deposition scheme. 
-- [Running the CMAQ Test Case for cb6r5 and m3dry](CMAQ_UG_tutorial_benchmark.md): This tutorial describes how to prepare your Linux system for installing and running the CMAQ test case for cb6r5_ae7_aq and m3dry.
-- [Running the CMAQ-ISAM Test Case for cb6r5 and m3dry](CMAQ_UG_tutorial_ISAM.md): This tutorial describes how to build and run the CMAQ-ISAM model using GNU GCC compiler for cb6r5_ae7_aq and m3dry.
-- [Running the CMAQ-DDM-3D Test Case for cb6r5 and m3dry](CMAQ_UG_tutorial_DDM3D.md): This tutorial describes how to build and run the CMAQ-DDM-3D model using GNU GCC compiler cb6r5_ae7_aq and m3dry.
-- [Running the WRF-CMAQ Test Case](CMAQ_UG_tutorial_WRF-CMAQ_Benchmark.md) This tutorial describes how to build and run the WRF-CMAQ model.
-- [Debugging Tips](CMAQ_UG_tutorial_debug.md): This tutorial describes how to examine log files and debug issues encountered when installing and running the CMAQ test case. 
-- [Using the Community Regional Atmospheric Chemistry Multiphase Mechanism (CRACMM)](CMAQ_UG_tutorial_CRACMM.md) This tutorial gives an overview and FAQ on how to run CMAQ with the new CRACMM mechanism.
-- [Prescribing Emissions Using the DESID Module](CMAQ_UG_tutorial_emissions.md): This tutorial describes how to use the Emission Control namelist to manipulate emission inputs, e.g. zero out emissions, scaling emissions, adding emissions for a new tracer.
-- [Creating an OCEAN file](CMAQ_UG_tutorial_oceanfile.md): This tutorial describes methods to a CMAQ Ocean file.
-- [Adding an Inert Tracer Species to CMAQ](CMAQ_UG_tutorial_tracers.md): This tutorial will step you through the process of adding chemically inert tracers to the CMAQ model.  
-- [Create Initial and Boundary Conditions from Seasonal Average Hemispheric CMAQ Output](CMAQ_UG_tutorial_HCMAQ_IC_BC.md): This tutorial will step the user through the process of creating initial and boundary conditions from a seasonal average hemispheric CMAQ output file distributed through the CMAS data warehouse.
-- [Modifying a CMAQ Chemical Mechanism](CMAQ_UG_tutorial_chemicalmechanism.md): This tutorial describes how to modify a chemical mechanism in CMAQ and reflect the changes in Github.
+- **Scripts to install software needed to run CMAQ**
+  - [Script to install I/O API library to support netCDF4 compression](gcc_install_ioapi_for_nc4_compression.csh)
+  - [Script to install netCDF libraries to support netCDF4 compression](gcc_install_netcdf_for_nc4_compression.csh)
+  - [Script to install CMAQv55 for CB6r5 and M3DRY](gcc_install_cmaq55_cb6r5_m3dry.csh)
 
+- **Directions on how to prepare your Linux system for installing and running CMAQ** (These directions are an alternative to the above helper scripts.)
+  - [Building CMAQ for GNU using libraries that disable netCDF4 compression](CMAQ_UG_tutorial_build_library_gcc.md)
+  - [Building CMAQ for GNU using libraries that support compressed netCDF4](CMAQ_UG_tutorial_build_library_gcc_support_nc4.md)
+  - [Building CMAQ for Intel using libraries that disable netCDF4 compression](CMAQ_UG_tutorial_build_library_intel.md)
+ 
+- **Directions for running CMAQ test cases**
+  - [Running the CMAQ Base Model with CRACMM2 and STAGE](CMAQ_UG_tutorial_benchmark_cracmm2_stage.md)
+  - [Running the CMAQ Base Model with CB6r5 and M3DRY or STAGE](CMAQ_UG_tutorial_benchmark.md)
+  - [Running the CMAQ-ISAM Test Case](CMAQ_UG_tutorial_ISAM.md)
+  - [Running the CMAQ-DDM-3D Test Case](CMAQ_UG_tutorial_DDM3D.md)
+  - [Running the WRF-CMAQ Test Case](CMAQ_UG_tutorial_WRF-CMAQ_Benchmark.md)
+ 
+- **Other Tutorials**
+  - [Debugging Tips](CMAQ_UG_tutorial_debug.md)
+  - [Using the Community Regional Atmospheric Chemistry Multiphase Mechanism (CRACMM)](CMAQ_UG_tutorial_CRACMM.md) 
+  - [Manipulate Emissions Inputs with the DESID Module](CMAQ_UG_tutorial_emissions.md)
+  - [Creating an OCEAN file](CMAQ_UG_tutorial_oceanfile.md)
+  - [Adding an Inert Tracer Species to CMAQ](CMAQ_UG_tutorial_tracers.md) 
+  - [Create Initial and Boundary Conditions from Seasonal Average Hemispheric CMAQ Output](CMAQ_UG_tutorial_HCMAQ_IC_BC.md)
+  - [Modifying a CMAQ Chemical Mechanism](CMAQ_UG_tutorial_chemicalmechanism.md)
