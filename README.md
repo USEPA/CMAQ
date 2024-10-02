@@ -1,6 +1,8 @@
 CMAQv5.5
 ==========
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.13883210.svg)](https://doi.org/10.5281/zenodo.13883210)
+
 US EPA Community Multiscale Air Quality Model (CMAQ) Website: https://www.epa.gov/cmaq
 
 CMAQ is an active open-source development project of the U.S. EPA's Office of Research and Development that consists of a suite of programs for conducting air quality model simulations.
@@ -13,7 +15,7 @@ particulates, toxics, and acid deposition.
 
 ## CMAQ version 5.5 Overview:
 
-* [Frequently asked questions for upgrading to the latest CMAQ version](https://github.com/USEPA/CMAQ/wiki/CMAQv5.5-Series-FAQ)) **- Updated for v5.5 release.** 
+* [Frequently asked questions for upgrading to the latest CMAQ version](https://github.com/USEPA/CMAQ/wiki/CMAQv5.5-Series-FAQ) **- Updated for v5.5 release.** 
 * [CMAQv5.5 Release Notes](https://github.com/USEPA/CMAQ/wiki/CMAQ-Release-Notes) - Release Notes are available on the CMAQ GitHub wiki.
 * [Tutorials for setting up and running CMAQ](DOCS/Users_Guide/Tutorials/README.md) **- Tutorials on running CMAQ, CMAQ-ISAM, CMAQ-DDM, and WRF-CMAQ test cases.**
 
