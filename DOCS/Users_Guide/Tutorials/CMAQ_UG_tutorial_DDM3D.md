@@ -179,8 +179,10 @@ Download and copy the data to `$CMAQ_DATA`. Navigate to the `$CMAQ_DATA` directo
 ```
 cd $CMAQ_DATA
 wget https://cmaq-release-benchmark-data-for-easy-download.s3.amazonaws.com/v5_5/CMAQv5.4_2018_12NE3_Benchmark_2Day_Input.tar.gz
-wget https://cmaq-release-benchmark-data-for-easy-download.s3.amazonaws.com/v5_5/output_CCTM_v55_DDM3D_gcc_Bench_2018_12NE3_cb6r5_ae7_aq_m3dry.tar.gz 
 tar xvzf CMAQv5.4_2018_12NE3_Benchmark_2Day_Input.tar.gz
+mkdir ref_output
+cd ref_output
+wget https://cmaq-release-benchmark-data-for-easy-download.s3.amazonaws.com/v5_5/output_CCTM_v55_DDM3D_gcc_Bench_2018_12NE3_cb6r5_ae7_aq_m3dry.tar.gz
 tar xvzf output_CCTM_v55_DDM3D_gcc_Bench_2018_12NE3_cb6r5_ae7_aq_m3dry.tar.gz
 ```
 
