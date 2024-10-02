@@ -26,12 +26,12 @@ Starting from CMAQv5.4, DDM-3D has been fully integrated into the base model and
 To use CMAQ-DDM-3D, follow the normal build process for CMAQ described in [Chapter 5](CMAQ_UG_ch05_running_a_simulation.md), but make sure to uncomment the following line in bldit_cctm.csh: 
 
 ```
- set DDM3D_CCTM                        #> uncomment to compile CCTM with DD3D activated
+ set DDM3D_CCTM                        #> uncomment to compile CCTM with DDM-3D activated
 ```
 
 **A note about I/O API installation for DDM applications**
 
-I/O APIv3.2  supports up to MXFILE3=64 open files, each with up to MXVARS3=2048. DDM applications configured to calculate sensitivity to a large number of parameters may exceed this upper limit of model variables, leading to a model crash. To avoid this issue, users may use I/O API version 3.2 "large" that increases MXFILE3 to 512 and MXVARS3 to 16384. Instructions to build this version are found in [Chapter 3](https://github.com/USEPA/CMAQ/blob/main/DOCS/Users_Guide/CMAQ_UG_ch03_preparing_compute_environment.md#333-io-api-library).
+I/O APIv3.2  supports up to MXFILE3=64 open files, each with up to MXVARS3=2048. DDM-3D applications configured to calculate sensitivity to a large number of parameters may exceed this upper limit of model variables, leading to a model crash. To avoid this issue, users may use I/O API version 3.2 "large" that increases MXFILE3 to 512 and MXVARS3 to 16384. Instructions to build this version are found in [Chapter 3](https://github.com/USEPA/CMAQ/blob/main/DOCS/Users_Guide/CMAQ_UG_ch03_preparing_compute_environment.md#333-io-api-library).
 
 # 10.3 CMAQ-DDM-3D Run Instructions
 
@@ -182,7 +182,7 @@ Output Files Specific to DDM-3D Simulations
 
 
 ## 11.5 DDM-3D Benchmark Test Case
-See the [CMAQ-DDM-3D Benchmark Tutorial](Tutorials/CMAQ_UG_tutorial_DDM3D.md) for step-by-step instructions for running the 2 day benchmark case.  The input files for the CMAQv5.4 DDM-3D benchmark case are the same as the benchmark inputs for the base model. Output DDM files associated with the sample DDM control file `sensinput.2018_12NE3.dat` provided in this release package are included in the benchmark outputs for the base model.  
+See the [CMAQ-DDM-3D Benchmark Tutorial](Tutorials/CMAQ_UG_tutorial_DDM3D.md) for step-by-step instructions for running the 2 day benchmark case.  The input files for the DDM-3D benchmark case are the same as the benchmark inputs for the base model. Output DDM files associated with the sample DDM control file `sensinput.2018_12NE3.dat` provided in this release package are included in the benchmark outputs for the base model.  
 
 # 10.6 Summary
 
@@ -210,6 +210,6 @@ Dunker, A. 1984: The decoupled direct method for calculating sensitivity coeffic
 <!-- BEGIN COMMENT -->
 
 [<< Previous Chapter](CMAQ_UG_ch09_process_analysis.md) - [Home](README.md) - [Next Chapter >>](CMAQ_UG_ch11_ISAM.md)<br>
-CMAQ User's Guide (c) 2022<br>
+CMAQv5.5 User's Guide <br>
 
 <!-- END COMMENT -->

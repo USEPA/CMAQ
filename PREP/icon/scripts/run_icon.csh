@@ -1,7 +1,7 @@
 #!/bin/csh -f
 
-# ======================= ICONv5.4.X Run Script ========================
-# Usage: run.icon.csh >&! icon.log &                                   
+# ======================= ICONv5.5.X Run Script ========================
+# Usage: run_icon.csh >&! icon.log &                                   
 #
 # To report problems or request help with this script/program:         
 #             http://www.cmascenter.org
@@ -28,7 +28,7 @@
  echo " "; echo " Input data path, CMAQ_DATA set to $CMAQ_DATA"; echo " "
 
 #> Set General Parameters for Configuring the Simulation
- set VRSN     = v54                     #> Code Version
+ set VRSN     = v55                     #> Code Version
  set APPL     = 2016_12SE1              #> Application Name
  set ICTYPE   = regrid                  #> Initial conditions type [profile|regrid]
 
@@ -40,7 +40,7 @@
 #> Horizontal grid definition 
  setenv GRID_NAME SE53BENCH               #> check GRIDDESC file for GRID_NAME options
 #setenv GRIDDESC $CMAQ_DATA/$APPL/met/mcip/GRIDDESC #> grid description file 
- setenv GRIDDESC /work/MOD3DATA/SE53BENCH/met/mcip/GRIDDESC
+ setenv GRIDDESC /work/MOD3DATA/SE53BENCH/met/mcipv4.5/GRIDDESC
  setenv IOAPI_ISPH 20                     #> GCTP spheroid, use 20 for WRF-based modeling
 
 #> I/O Controls
@@ -93,15 +93,15 @@
 #   setenv STIME           000000
 
  if ( $ICON_TYPE == regrid ) then
-    setenv CTM_CONC_1 /work/MOD3EVAL/sjr/CCTM_CONC_v53_intel18.0_2016_CONUS_test_${YYYYMMDD}.nc
+    setenv CTM_CONC_1 /work/MOD3EVAL/sjr/CCTM_CONC_v53beta2_intel17.0_HEMIS_cb6r3m_ae7_kmtbr_m3dry_2016_quarterly_av.nc
     setenv MET_CRO_3D_CRS /work/MOD3DATA/2016_12US1/met/mcip_v43_wrf_v381_ltng/METCRO3D.12US1.35L.${YYMMDD}
-    setenv MET_CRO_3D_FIN /work/MOD3DATA/SE53BENCH/met/mcip/METCRO3D_${YYMMDD}.nc
+    setenv MET_CRO_3D_FIN /work/MOD3DATA/SE53BENCH/met/mcipv4.5/METCRO3D_${YYMMDD}.nc
     setenv INIT_CONC_1    "$OUTDIR/ICON_${VRSN}_${APPL}_${ICON_TYPE}_${YYYYMMDD} -v"
  endif
 
  if ( $ICON_TYPE == profile ) then
     setenv IC_PROFILE $BLD/avprofile_cb6r3m_ae7_kmtbr_hemi2016_v53beta2_m3dry_col051_row068.csv
-    setenv MET_CRO_3D_FIN /work/MOD3DATA/SE53BENCH/met/mcip/METCRO3D_${YYMMDD}.nc
+    setenv MET_CRO_3D_FIN /work/MOD3DATA/SE53BENCH/met/mcipv4.5/METCRO3D_${YYMMDD}.nc
     setenv INIT_CONC_1    "$OUTDIR/ICON_${VRSN}_${APPL}_${ICON_TYPE}_${YYYYMMDD} -v"
  endif
  

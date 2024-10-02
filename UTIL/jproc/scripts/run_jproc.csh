@@ -1,7 +1,7 @@
 #!/bin/csh -f
 
-# ====================== JPROCv5.4 Run Script ======================= 
-# Usage: run.jproc >&! jproc_V5.log &                                 
+# ====================== JPROCv5.5 Run Script ======================= 
+# Usage: run_jproc.csh >&! jproc_V5.log &                                 
 #
 # To report problems or request help with this script/program:        
 #             http://www.cmascenter.org
@@ -31,8 +31,8 @@
     endif
  echo " "; echo " Input data path, CMAQ_REPO set to $CMAQ_REPO"; echo " "
 
- set VRSN     = v54 
- set MECH     = cb6r3_ae7_aq 
+ set VRSN     = v55 
+ set MECH     = cb6r5_ae7_aq 
 #set MECH     = saprc07tic_ae7i_aq 
  set APPL     = ${VRSN}_${MECH}
  set EXEC     = JPROC_${APPL}_${compiler}${compilerVrsn}    #> executable name

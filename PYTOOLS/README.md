@@ -17,5 +17,6 @@ For information about how to install, see the install folder.
 Tool Listing
 ============
 
-* [install](install/README.md) Describes preparing an environment for CMAQ/PYTOOLS
+* [install](install/README.md) Describes preparing an environment for CMAQ/PYTOOLS.
 * [dmschlo](dmschlo/README.md) Prepares DMS and Chlorophyll-A concentrations for CMAQ.
+* [shp2cmaq](../PYTOOLS/shp2cmaq/README.md) Creates a CMAQ-ready grid mask from a shape file that can be used for defining regions and region families with DESID and using geographic source regions when running CMAQ-ISAM. 

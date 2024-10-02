@@ -1,7 +1,7 @@
 #! /bin/csh -f
 
-# ==================== WRITESITE_v5.4.X Run Script ====================
-# Usage: run.writesite.csh >&! writesite.log &
+# ==================== WRITESITE_v5.5.X Run Script ====================
+# Usage: run_writesite.csh >&! writesite.log &
 #
 # To report problems or request help with this script/program:
 #             http://www.epa.gov/cmaq    (EPA CMAQ Website)
@@ -20,7 +20,7 @@
  source ./config_cmaq.csh
 
 #> Set General Parameters for Configuring the Simulation
- set VRSN      = v54               #> Code Version
+ set VRSN      = v55               #> Code Version
  set PROC      = mpi               #> serial or mpi
  set MECH      = cb6r3_ae7_aq      #> Mechanism ID
  set APPL      = Bench_2016_12SE1        #> Application Name (e.g. Gridname)
