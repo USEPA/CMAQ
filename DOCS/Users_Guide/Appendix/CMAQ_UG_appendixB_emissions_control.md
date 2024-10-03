@@ -13,11 +13,11 @@
 
 ## B.1 Emissions Control with the Detailed Emissions Scaling, Isolation and Diagnostics Module (DESID)
 
-The Detailed Emissions Scaling, Isolation and Diagnostics (DESID) module included with CMAQv5.3+ provides comprehensive customization and transparency of emissions manipulation to the user. The customization of emissions is accomplished via ia series of Control Namelists, which contain sections of variables that modify the behavior of the emissions module. These include ***Emission Scaling Rules***, ***Size Distributions***, ***Regions Registry***, ***Chemical Families***, ***Region Families***, and ***Area Adjustments***.
+The Detailed Emissions Scaling, Isolation and Diagnostics (DESID) module included with CMAQv5.3+ provides comprehensive customization and transparency of emissions manipulation to the user. The customization of emissions is accomplished via a series of Control Namelists, which contain variables that modify the behavior of the emissions module. These include ***Emission Scaling Rules***, ***Size Distributions***, ***Regions Registry***, ***Chemical Families***, ***Region Families***, and ***Area Adjustments***.
 
-To determine its configuration, DESID makes use of input from primarily three files, the CMAQ runscript, the DESID Control file ([CMAQ_Control_DESID.nml](../../../CCTM/src/emis/emis/CMAQ_Control_DESID.nml)), and the DESID Chemical Mapping Control File (e.g. [CMAQ_Control_DESID_cb6r5_ae7_aq.nml](../../../CCTM/src/MECHS/cb6r5_ae7_aq/CMAQ_Control_DESID_cb6r5_ae7_aq.nml)). 
+To determine its configuration, DESID makes use of input primarily from four files: the CMAQ runscript, the CMAQ Miscellaneous Control File ([CMAQ_Control_Misc.nml](../../../CCTM/src/util/util/CMAQ_Control_Misc.nml)), the DESID Control file ([CMAQ_Control_DESID.nml](../../../CCTM/src/emis/emis/CMAQ_Control_DESID.nml)), and the DESID Chemical Mapping File (e.g. [CMAQ_Control_DESID_cb6r5_ae7_aq.nml](../../../CCTM/src/MECHS/cb6r5_ae7_aq/CMAQ_Control_DESID_cb6r5_ae7_aq.nml)). 
 A separate version of the chemical mapping control file exists for every mechanism because these namelists are preloaded with likely rules linking emissions of important CMAQ primary species to their typical emission species names as output by SMOKE. 
-By default, this namelist is stored in each chemical mechanism folder (e.g. MECHS/cb6r5_ae7_aq) and is copied into the user's build directory when bldit_cctm.csh is executed. If the user modifies the name or location of the DESID control or chemical mapping control files, then the following commands in the RunScript should be updated as well:
+By default, this namelist is stored in each chemical mechanism folder (e.g. MECHS/cb6r5_ae7_aq) and is copied into the user's build directory when bldit_cctm.csh is executed and a chemical mechanism is chosen. If the user modifies the name or location of the DESID control file or chemical mapping file, then the following commands in the RunScript should be updated as well:
 ```
 setenv DESID_CTRL_NML ${BLD}/CMAQ_Control_DESID.nml
 setenv DESID_CHEM_CTRL_NML ${BLD}/CMAQ_Control_DESID_${MECH}.nml
@@ -27,11 +27,11 @@ If the user does not provide a DESID Control Files or the path to the files in t
 
 
 ## B.2 Chemical Mapping Control
-The chemical mapping control namelist files contain emission scaling rules that allow the user to exert sophisticated, precise control over the emissions from specific streams, in specific geographic areas, and/or for specific compounds. 
-The set of rules used by CMAQ to interpret emissions shall be provided in one array called DESID_Rules_nml. It is necessary that every field (i.e. column) be populated for every rule. The fields are given and defined here and in the comment section of the Emission Control Namelist:
+The chemical mapping file contains emission scaling rules that allow the user to exert sophisticated, precise control over the emissions from specific streams, in specific geographic areas, and/or for specific compounds. 
+The set of rules used by CMAQ to interpret emissions shall be provided in one array called DESID_Rules_nml. It is necessary that every field (i.e. column) be populated for every rule. The fields are given and defined here:
 ```
 ! Region      | Stream Label  |Emission | CMAQ-        |Phase/|Scale |Basis |Op  
-!  Label      |               |Species  | Species      |Mode  |Factor|      |
+!  Label      |               |Surrogate| Species      |Mode  |Factor|      |
 ```
 - 'Region Label' - Apply scaling for specific regions of the domain. Set this field to "EVERYWHERE" to apply the rule to the entire domain.
 - 'Stream Label' - Short Name from Run Script (e.g. the value of GR_EMIS_01_LAB or STK_EMIS_01_LAB). There are a few reserved names that apply to online emissions streams. These are:
@@ -251,14 +251,7 @@ Gridded masks are used to apply rules to specific areas of the domain. For examp
 ```
 will scale emissions of all species from all streams by +50% but only in grid cells in the state of Kentucky. One or more I/O API formatted input files containing geographic region definitions are required to take advantage of this option.  Such files should contain a separate variable for each spatial region of interest.  Each variable is a gridded field of real numbers from 0.0 to 1.0, with 0.0 outside of the region of interest and 1.0 completely inside the region. Region border grid cells should have the geographic fraction attributed to the region (for example, a grid cell that 35% in Kentucky and 65% in Tennessee would have have the number 0.35 for the variable representing the Kentucky mask.
 
-#### B.3.4.2 Defining Regions
-These mask files are read by CMAQ through environmental variables, which are identified in the RunScript. For example:
-
-```
-setenv US_STATES /home/${CMAQ_HOME}/CCTM/scripts/us_states.nc
-```
-
-If variables from multiple mask files are used, each of these mask files needs to be defined in the RunScript. 
+#### B.3.4.2 Defining Regions  
 
 The Desid_RegionDef section of the DESID Control Namelist maps each "Region Label" to specific variables on specific files. Here is the Desid_RegionDef section in the default namelist:
 ```
@@ -267,8 +260,6 @@ The Desid_RegionDef section of the DESID Control Namelist maps each "Region Labe
  !          | Region Label   | File_Label    | Variable on File
  !<Default>    'EVERYWHERE'  ,'N/A'          ,'N/A',
                'WATER'       ,'CMAQ_MASKS'   ,'OPEN',
-               'ALL'         ,'CMAQ_MASKS'   ,'ALL',
-               'ALL'         ,'ISAM_REGIONS' ,'ALL',
 /
 ```
 As indicated, the Region Label "EVERYWHERE" is active by default and returns a mask that operates uniformly across the entire domain. 
@@ -278,16 +269,40 @@ The "Variable on File" field identifies the variable on the input file that stor
 Examples are provided for two cases. 
 The variable Desid_Max_Reg in the Desid_RegionDefVars section must be greater than the number of regions that will be defined.
 
-In the first case, a region with label "WATER" is defined and referenced to the variable "OPEN" (which is short for *open water*) in the file 'CMAQ_MASKS' which needs to be defined in the RunScript. 
-Using this "WATER" region will apply a scaling rule only for open water grid cells and fractionally along coastlines. 
-The second example demonstrates a shortcut for files with many variables that are all desired (e.g. states of the Unites States). 
-Rather than listing out all variables on the file and explicitly linking them to "Region Labels", the user can invoke the "ALL" keyword and all variables will be read and stored with "Region Labels" that equal the names of the variables on the file.
+In this case, a region with label "WATER" is defined and referenced to the variable "OPEN" (which is short for *open water*) in the file 'CMAQ_MASKS' which needs to be defined in the RunScript. Using this "WATER" region will apply a scaling rule only for open water grid cells and fractionally along coastlines.  
 
-Two example mask files are available on the CMAS Data Warehouse: US states grid mask file and NOAA climate regions grid mask file.  These mask files can be used with the 12US1 modeling grid domain (grid origin x = -2556000 m, y = -1728000 m; N columns = 459, N rows = 299).
+As an additional example, let's assume file us_states.nc is defined in the runscript as US_STATES as follows:
+```
+setenv US_STATES /home/${CMAQ_HOME}/CCTM/scripts/us_states.nc
+```
+and contains two variables called NC and SC, representing the fraction of each grid cell that is located in North Carolina and South Carolina, respectively." These two variables in the file can be assigned to region labels NC and SC using either of the following methods:
+```
+&Desid_RegionDef
+ Desid_Reg_nml  =   
+ !          | Region Label   | File_Label    | Variable on File
+ !<Default>    'EVERYWHERE'  ,'N/A'          ,'N/A',
+               'NC'          ,'US_STATES'    ,'NC',
+               'SC'          ,'US_STATES'    ,'SC',
+/
+```
+
+Alternatively, all the variables on the US_STATES file may be enabled at once:
+```
+&Desid_RegionDef
+ Desid_Reg_nml  =   
+ !          | Region Label   | File_Label    | Variable on File
+ !<Default>    'EVERYWHERE'  ,'N/A'          ,'N/A',
+               'ALL'         ,'US_STATES' ,'ALL',
+/
+```
+Rather than listing out all variables on the file and explicitly linking them to "Region Labels", the user can invoke the "ALL" keyword in both the 'Region Label' and 'Variable on File' fields and all variables will be read and stored. Once either of these definitions are included in the &Desid_RegionDef section, region labels NC and SC can be used in emission scaling instructions as in the Kentucky example above.  
+
+These gridded mask files are read by CMAQ through environmental variables, which are identified in the RunScript. If variables from multiple mask files are used, each of these mask files needs to be defined in the RunScript. Two example mask files are available on the CMAS Data Warehouse: US states grid mask file and NOAA climate regions grid mask file.  These mask files can be used with the 12US1 modeling grid domain (grid origin x = -2556000 m, y = -1728000 m; N columns = 459, N rows = 299).
 
 * [Link to grid mask files on CMAS Data Warehouse Google Drive](https://drive.google.com/drive/folders/1x9mJUbKjJaMDFawgy2PUbETwEUopAQDl)
 * [Link to metadata for the grid mask files is posted on the CMAS Center Dataverse site](https://doi.org/10.15139/S3/XDYYB9)
 
+Custom mask files may also be made using the [shp2cmaq](../../../PREP/shp2cmaq/README.md) tool, which provides instructions for obtaining geospatial data via shape files and converting them to CMAQ gridded input files. One may also populate a CMAQ gridded input file with arbitrary geometric shapes (e.g. squares, diamonds, or other polygons) using the IOAPI library of tools and any common coding language (e.g. Fortran, R, or Python).
 
 #### B.3.4.3 Region Families
 Users can define families of regions to reduce the number emission rules needed to operate on a group of regions. 
@@ -380,7 +395,7 @@ The keyword TOTAL may be used in place of ALL in the Streams variable to indicat
 ```
 &Desid_Diag
   EmissDiagStreams(1,:)= 'ALL'
-  EmissDiagFmt(1)      = 'COLSUM'    ! Options: 2D, 2DCOL, 3D
+  EmissDiagFmt(1)      = 'COLSUM'    ! Options: LAYER1, COLSUM, 3D
   EmissDiagSpec(1,:)   = 'NO','NO2','NOX','ASO4','CO'
 
   EmissDiagStreams(2,:)= 'TOTAL'
@@ -400,6 +415,6 @@ For this set of example, Desid_N_Diag_Rules in the Desid_DiagVars section should
 <!-- BEGIN COMMENT -->
 
 [<< Previous Appendix](CMAQ_UG_appendixA_model_options.md) - [Home](../README.md) - [Next Appendix >>](CMAQ_UG_appendixC_spatial_data.md)<br>
-CMAQ User's Guide (c) 2022<br>
+CMAQv5.5 User's Guide <br>
 
 <!-- END COMMENT -->

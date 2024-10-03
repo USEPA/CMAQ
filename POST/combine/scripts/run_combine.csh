@@ -1,7 +1,7 @@
 #! /bin/csh -f
 
-# ====================== COMBINE_v5.4.X Run Script =================== 
-# Usage: run.combine.uncoupled.csh >&! combine.log &                                
+# ====================== COMBINE_v5.5.X Run Script =================== 
+# Usage: run_combine.csh >&! combine.log &                                
 #
 # To report problems or request help with this script/program:     
 #             http://www.epa.gov/cmaq    (EPA CMAQ Website)
@@ -21,9 +21,9 @@
  source ./config_cmaq.csh
        
 #> Set General Parameters for Configuring the Simulation
- set VRSN      = v54              #> Code Version
+ set VRSN      = v55               #> Code Version
  set PROC      = mpi               #> serial or mpi
- set MECH      = cb6r3_ae7_aq      #> Mechanism ID
+ set MECH      = cb6r5_ae7_aq      #> Mechanism ID
  set APPL      = Bench_2016_12SE1        #> Application Name (e.g. Gridname)
                                                       
 #> Define RUNID as any combination of parameters above or others. By default,
@@ -56,6 +56,11 @@
 
 # =====================================================================
 #> COMBINE Configuration Options
+#> The purpose of this example run script is to create two output files
+#> (COMBINE_ACONC and COMBINE_DEP) often used for model evaluation 
+#> purposes. This is accomplished by setting up two loops, each with
+#> its own definitions of SPECIES_DEF and day-specific input files before 
+#> calling the COMBINE executable. 
 # =====================================================================
 
 #> Set Start and End Days for looping
@@ -71,7 +76,9 @@
 
 
 # =====================================================================
-#> Begin Loop Through Simulation Days to Create ACONC File
+#> Begin First Loop Through Simulation Days to Create COMBINE_ACONC File
+#> Set up the SPECIES_DEF, INFILEx, and OUTFILE environment variables
+#> for COMBINE_ACONC processing
 # =====================================================================
 
 #> Set the species definition file for concentration species.
@@ -117,7 +124,9 @@
 
 
 # =====================================================================
-#> Begin Loop Through Simulation Days to Create DEP File
+#> Begin Second Loop Through Simulation Days to Create COMBINE_DEP File
+#> Set up the SPECIES_DEF, INFILEx, and OUTFILE environment variables
+#> for COMBINE_DEP processing
 # =====================================================================
 
 #> Set the species definition file for concentration species.

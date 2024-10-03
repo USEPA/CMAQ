@@ -35,6 +35,8 @@ Note: While this User's Guide is packaged with the code when it is downloaded or
 
 [Chapter 13 (WRF-CMAQ):](CMAQ_UG_ch13_WRF-CMAQ.md) WRF-CMAQ model for simulating interactions between chemistry and weather.
 
+[Chapter 14 (MPAS-CMAQ):](CMAQ_UG_ch14_MPAS-CMAQ.md) CMAQ is coulpled with the global Model for Prediction Across Scales (MPAS) allowing for seamless mesh refinement from global to local scales.
+
 [Tables and Figures:](CMAQ_UG_tables_figures.md) List of Tables and Figures.
 
 [Appendix A (Model Options):](Appendix/CMAQ_UG_appendixA_model_options.md) List of model options in configuration, compilation and run scripts.
@@ -51,4 +53,4 @@ Note: While this User's Guide is packaged with the code when it is downloaded or
 
 ***
 
-CMAQ User's Guide (c) 2022<br>
+CMAQv5.5 User's Guide <br>

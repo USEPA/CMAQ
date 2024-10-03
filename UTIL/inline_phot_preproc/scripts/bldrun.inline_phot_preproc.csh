@@ -1,6 +1,6 @@
 #!/bin/csh -fx
 
-# ============ CSQY_TABLE_PROCESSOR_v5.4.x Build Script ================= #
+# ============ CSQY_TABLE_PROCESSOR_v5.5.x Build Script ================= #
 # Usage: bldrun_create_ebi.csh [compiler] >&! bldrun_create_ebi.log   #
 # Options for [compiler]: intel | gcc | pgi                           #
 #                                                                     #
@@ -78,7 +78,7 @@ unset echo
     setenv OUTDIR   ${WORKDIR}/output/${MECH}
  endif
 
- set VRSN =      v54                                 #> model version
+ set VRSN =      v55                                 #> model version
  setenv EXEC     CSQY_TABLE_PROCESSOR_${VRSN}.exe     #> executable name for this application
  setenv WORKREPO ${REPOROOT}
  setenv BLDIR    ${WORKDIR}/scripts/BLD_CSQY_TABLE_${VRSN}_${compilerString}

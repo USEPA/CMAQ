@@ -1,7 +1,7 @@
 #!/bin/csh -f
 
-# ====================== BCONv5.4.X Build Script ====================== 
-# Usage: bldit_bcon.csh >&! bldit.bcon.log                                
+# ====================== BCONv5.5.X Build Script ====================== 
+# Usage: bldit_bcon.csh >&! bldit_bcon.log                                
 # Requirements: I/O API & netCDF libs and a Fortran compiler    
 # Note that this script is configured/tested for Red Hat Linux O/S    
 #
@@ -38,7 +38,7 @@
  setenv REPOROOT $BCON_SRC
 
 #> Working directory and Version IDs
- set VRSN  = v54                   #> Code Version
+ set VRSN  = v55                    #> Code Version
  set EXEC = BCON_${VRSN}.exe        #> executable name for this application
  set CFG  = BCON_${VRSN}.cfg        #> BLDMAKE configuration file name
 
