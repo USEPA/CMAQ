@@ -2,7 +2,7 @@ MPAS-CMAQ (built on CMAQ 5.5)
 
 This version of the Community Multiscale Air Quality (CMAQ) model supports coupling with the National Center for Atmospheric Research (NCAR) Model for Prediction Across Scales (MPAS). The coupled system has been evaluated for global domains across several years (Wong et al. 2024, preprint: https://gmd.copernicus.org/preprints/gmd-2024-52/gmd-2024-52.pdf).
 
-The MPAS-CMAQ branch includes additional directories *mpas_cmaq* and *mio* in *CCTM/src*. The mpas_cmaq directory contains the MPAS-CMAQ coupling code, and the mio directory contains the Model Input/Output (MIO) code for reading and writing MPAS data. Model inputs for 2017 on a 120 km resolution uniform mesh are available for download from Amazon Web Service. Please see the [MPAS-CMAQ](https://github.com/USEPA/CMAQ_Dev/blob/MPAS_CMAQ/DOCS/Users_Guide/PDF/MPAS_CMAQ_guide.pdf) for information on installing running MPAS-CMAQ.
+The MPAS-CMAQ branch includes additional directories *mpas_cmaq* and *mio* in *CCTM/src*. The mpas_cmaq directory contains the MPAS-CMAQ coupling code, and the mio directory contains the Model Input/Output (MIO) code for reading and writing MPAS data. Model inputs for 2017 on a 120 km resolution uniform mesh are available for download from Amazon Web Service. Please see the [MPAS-CMAQ](https://github.com/USEPA/CMAQ/blob/MPAS_CMAQ/DOCS/Users_Guide/PDF/MPAS_CMAQ_guide.pdf) for information on installing running MPAS-CMAQ.
 
 CMAQ is an active open-source development project of the U.S. EPA's Office of Research and Development that consists of a suite of programs for conducting air quality model simulations.
 CMAQ is supported by the CMAS Center: http://www.cmascenter.org
