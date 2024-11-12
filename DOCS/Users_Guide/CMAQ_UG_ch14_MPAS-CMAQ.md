@@ -14,7 +14,7 @@ The MPAS-CMAQ model described here cannot be run in a stand-alone mode, with met
 
 ## 14.2 Documentation
 
-MPAS and CMAQ code are available on the [EPA's MPAS GitHub repository](https://github.com/USEPA/MPAS) and as a branch on the [CMAQ GitHub repository](https://github.com/USEPA/CMAQ/tree/MPAS_CMAQ) respecitively. The MPAS-CMAQ User's Guide is available in the [documentation directory](https://github.com/USEPA/CMAQ/blob/MPAS-CMAQ/DOCS/Users_Guide/PDF/MPAS_CMAQ_guide.pdf) of the MPAS-CMAQ branch. The MPAS-CMAQ User's Guide provides detailed information on downloading, compiling, configuring, and running the model. 
+MPAS and CMAQ code are available on the [EPA's MPAS GitHub repository](https://github.com/USEPA/MPAS) and as a branch on the [CMAQ GitHub repository](https://github.com/USEPA/CMAQ/tree/MPAS_CMAQ) respecitively. The MPAS-CMAQ User's Guide is available in the [documentation directory](https://github.com/USEPA/CMAQ/blob/MPAS_CMAQ/DOCS/Users_Guide/PDF/MPAS_CMAQ_guide.pdf) of the MPAS-CMAQ branch. The MPAS-CMAQ User's Guide provides detailed information on downloading, compiling, configuring, and running the model. 
 
 ## 14.3 References of Interest
 
