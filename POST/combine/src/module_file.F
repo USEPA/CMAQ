@@ -52,6 +52,8 @@ C***********************************************************************
       REAL*8,  Public :: YORIG 
       REAL*8,  Public :: YCENT 
 
+      REAL*8,  Public, PARAMETER :: smallnum = 0.001d0
+
       Public :: canConvert, OPENFILE,    getDESC, WRF_DESC, OPEN_FILES, ReadValues,
      &          Rd_ioapi,     Rd_wrf, SetMapProj,   ToProj,       ToLL
       
@@ -192,10 +194,11 @@ C***********************************************************************
              endif   ! time independent file
 
            ! verify domain parameters
-           if( XCELL.ne.XCELL3D ) valid = .false.  ! width of cell
-           if( YCELL.ne.YCELL3D ) valid = .false.  ! height of cell
+
+           if( DABS(XCELL-XCELL3D) > smallnum ) valid = .false. ! delta-X
+           if( DABS(YCELL-YCELL3D) > smallnum ) valid = .false. ! delta-Y
            if( .NOT.valid ) then
-             Write( *, '(''**Error** Inconsistence file domain for ''
+             Write( *, '(''**Error** Inconsistent file domain for ''
      &             ,A)' ) M3FILENAME(n)
              N_M3FILES = 0
              return
@@ -205,17 +208,17 @@ C***********************************************************************
            convert(N) = .false.
            if( NROWS.ne.NROWS3D ) convert(N) = .true.
            if( NCOLS.ne.NCOLS3D ) convert(N) = .true.
-           if( ABS(XORIG-XORIG3D) .gt. 0.000001 ) convert(N) = .true.
-           if( ABS(YORIG-YORIG3D) .gt. 0.000001 ) convert(N) = .true.
+           if( DABS(XORIG-XORIG3D) > smallnum ) convert(N) = .true.
+           if( DABS(YORIG-YORIG3D) > smallnum ) convert(N) = .true.
 
            ! check if file can be converted
            if( convert(N) .and. (.NOT.canConvert()) ) then
-             Write( *, '(''**Error** Inconsistence file domain for ''
+             Write( *, '(''**Error** Inconsistent file domain for ''
      &             ,A)' ) M3FILENAME(n)
              write(*,'(''     NROWS='',2i8)') NROWS, NROWS3D
              write(*,'(''     NCOLS='',2i8)') NCOLS, NCOLS3D
-             write(*,'(''     XORIG='',2f12.2)') XORIG, XORIG3D
-             write(*,'(''     YORIG='',2f12.2)') YORIG, YORIG3D
+             write(*,'(''     XORIG='',2f12.2)') REAL(XORIG), REAL(XORIG3D)
+             write(*,'(''     YORIG='',2f12.2)') REAL(YORIG), REAL(YORIG3D)
              N_M3FILES = 0
              return
              endif
@@ -730,7 +733,7 @@ C******************************************************************************
          Integer jdate1,jtime1,jdate2,jtime2
          Real    tstep
          Real    cen_lat, cen_lon
-         Real    truelat1, truelat2, stand_lon, moad_cen_lat, wrf_ref_lat
+         Real    truelat1, truelat2, stand_lon, moad_cen_lat
          Real    dx, dy
          Real    x, y
          Real    Xoffset, Yoffset
@@ -743,6 +746,11 @@ C******************************************************************************
          Character*24 dateStr
          Integer xtype, ndims, natts
          Logical match
+         Integer ncdif, nrdif, mycelloff
+         Real    col_cent_cmaq, row_cent_cmaq, diflat, diflon
+         Real, Parameter :: centol = 0.0001
+         Real*8  xe_cent_cmaq, yn_cent_cmaq
+         Real    cen_lat_cmaq, cen_lon_cmaq
 
          Character*16 :: reqDimNa3D(4)=(/'west_east  ', 
      &                                   'south_north',
@@ -755,6 +763,18 @@ C******************************************************************************
          Integer      :: reqDimid2D(3)
          
          character*19, allocatable :: timestamp(:)
+
+         !! Check for very fine grid spacing. Tolerance and testing is
+         !! not set up to trap error conditions as grid spacing becomes
+         !! very small.
+
+         IF ( xcell3d <= 444.0 .OR. ycell3d <= 444.0 ) THEN
+                 WRITE(*,'(''**ERROR** Error traps not tested for '',
+     &                     '' domains with smaller DX than 444-km'')')
+           rstatus = .false.
+           RETURN
+         ENDIF
+
 
          !! set FTYPE3D to gridded
          FTYPE3D = 1
@@ -813,8 +833,6 @@ C******************************************************************************
            return
            endif
 
-         GDTYP3D = -1
-
          if( map_proj .eq. 1 ) then   !! Lambert
  
            GDTYP3D = 2   !! lambert
@@ -822,35 +840,12 @@ C******************************************************************************
            P_BET3D = DBLE(max(truelat1,truelat2))
            P_GAM3D = DBLE(stand_lon)
            XCENT3D = DBLE(stand_lon)   
-           wrf_ref_lat = real(YCENT,4) !use the information from the first (ioapi) file that was opened
-           moad_cen_lat = wrf_ref_lat 
-           YCENT3D = DBLE(wrf_ref_lat)
+           YCENT3D = YCENT  ! assign reference latitude from first IOAPI file
            
            XCELL3D = DBLE(dx)
            YCELL3D = DBLE(dy)
 
-           Call SetMapProj(GDTYP3D, real(P_ALP3D,4), real(P_BET3D,4), real(P_GAM3D,4), 
-     &                     real(XCENT3D,4), real(YCENT3D,4))
-
-           Call ToProj(GDTYP3D, cen_lon, cen_lat, Xoffset, Yoffset)
-           Call ToProj(GDTYP3D, stand_lon, moad_cen_lat, x, y)
-           Xoffset = Xoffset - x !offset (in km) of center of domain w.r.t center of projection
-           Yoffset = Yoffset - y !offset (in km) of center of domain w.r.t center of projection
-
-           XORIG3D = -NCOLS3D * XCELL3D * 0.5 + DBLE(Xoffset)
-           YORIG3D = -NROWS3D * YCELL3D * 0.5 + DBLE(Yoffset)
-
-           !! round origin to nearest 0.5 * DX,DY
-           xtemp = REAL(XORIG3D,4) / (0.5 * dx)
-           ytemp = REAL(YORIG3D,4) / (0.5 * dy)
-           xtemp = FLOAT(NINT(xtemp))
-           ytemp = FLOAT(NINT(ytemp))
-           XORIG3D = DBLE(xtemp) * (0.5 * dx)
-           YORIG3D = DBLE(ytemp) * (0.5 * dy)
-           
-         endif
-
-         if( map_proj .eq. 2 ) then   !! Polste
+         else if( map_proj .eq. 2 ) then   !! Polste
  
            GDTYP3D = 6   !! polste
            P_ALP3D = SIGN(1.0, cen_lat)
@@ -860,35 +855,73 @@ C******************************************************************************
 
            YCENT3D = DBLE( moad_cen_lat)
            
-           XCELL3D = dx
-           YCELL3D = dy
+           XCELL3D = DBLE(dx)
+           YCELL3D = DBLE(dy)
 
-           Call SetMapProj(GDTYP3D, real(P_ALP3D,4), real(P_BET3D,4), real(P_GAM3D,4), 
-     &                     real(XCENT3D,4), real(YCENT3D,4))
-
-           Call ToProj(GDTYP3D, cen_lon, cen_lat, Xoffset, Yoffset)
-           Call ToProj(GDTYP3D, stand_lon, moad_cen_lat, x, y)
-           Xoffset = Xoffset - x !offset (in km) of center of domain w.r.t center of projection
-           Yoffset = Yoffset - y !offset (in km) of center of domain w.r.t center of projection
-
-           XORIG3D = -NCOLS3D * XCELL3D * 0.5 + Xoffset
-           YORIG3D = -NROWS3D * YCELL3D * 0.5 + Yoffset
-
-           xtemp = REAL(XORIG3D,4) / (0.5 * dx)
-           ytemp = REAL(YORIG3D,4) / (0.5 * dy)
-           xtemp = FLOAT(NINT(xtemp))
-           ytemp = FLOAT(NINT(ytemp))
-           XORIG3D = DBLE(xtemp) * (0.5 * dx)
-           YORIG3D = DBLE(ytemp) * (0.5 * dy)
-           
-         endif
-
-         if( GDTYP3D .lt. 0 ) then
+         else
            write(*,*) map_proj
            write(*,'(''**ERROR** Unsupported map projection type for wrfout'')')
            rstatus = .false.
            return
-           endif
+         endif
+
+
+         ! Find latitude and longitude coordinates of center of the
+         ! CMAQ domain. Use these for comparison against the WRF
+         ! domain. It is expected that these coordinates are the same
+         ! as in the WRF domain because it is expected that the CMAQ
+         ! domain is a subset of the WRF domain with a symmetrical
+         ! perimeter removed. The latitude and longitude of the center
+         ! of the CMAQ domain are in CEN_LAT_CMAQ and CEN_LON_CMAQ.
+
+         col_cent_cmaq = FLOAT(ncols+1) * 0.5
+         row_cent_cmaq = FLOAT(nrows+1) * 0.5
+
+         xe_cent_cmaq = xorig + DBLE(col_cent_cmaq - 0.5) * xcell
+         yn_cent_cmaq = yorig + DBLE(row_cent_cmaq - 0.5) * ycell
+
+         Call SetMapProj(GDTYP3D, real(P_ALP3D), real(P_BET3D), 
+     &                   real(P_GAM3D), real(XCENT3D), real(YCENT3D))
+
+         Call ToLL(GDTYP3D, real(xe_cent_cmaq), real(yn_cent_cmaq),
+     &             cen_lon_cmaq, cen_lat_cmaq)
+
+
+         diflat = ABS(cen_lat - cen_lat_cmaq)
+         diflon = ABS(cen_lon - cen_lon_cmaq)
+
+         ! For polar stereographic grids that are centered at a pole,
+         ! the center longitude is irrelevant for this comparison.
+
+         IF ( ( gdtyp3d == 6 ) .AND. 
+     &        ( ( diflat == 0 ) .AND. ( ABS(NINT(cen_lat)) == 90 ) ) ) THEN
+            diflon = 0.0
+         ENDIF
+
+
+         ! Assume that the only time we are coming into this section
+         ! of code is for WRF files generated by the two-way model
+         ! when MCIP files are not handy for processing by Combine. In
+         ! that case, the "trim" perimeter for WRF should be
+         ! symmetrical.
+
+         ncdif = ncols3d - ncols
+         nrdif = nrows3d - nrows
+         IF ( ( ncdif == nrdif  ) .AND. ( MOD (nrdif, 2) == 0 ) .AND.
+     &        ( nrdif  >  0     ) .AND. 
+     &        ( diflat < centol ) .AND. ( diflon < centol ) ) THEN
+                 mycelloff = nrdif / 2
+         ELSE
+                 write(*,'(''**ERROR** Expecting centered WRF and ''
+     &                 ''CMAQ domains'')')
+                 rstatus = .false.
+                 return
+         ENDIF
+
+         xorig3d = xorig - mycelloff * xcell3d
+         yorig3d = yorig - mycelloff * ycell3d
+
+
 
          !! set vertical grid variables
          VGTYP3D = 7

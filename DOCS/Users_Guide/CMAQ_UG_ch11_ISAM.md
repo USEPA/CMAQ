@@ -17,18 +17,30 @@ Answering this type of question often requires running an air quality model twic
 
 Alternatively, running CMAQ with ISAM enabled allows the user the ability to calculate source attribution of a large number of sources directly by the model in one simulation.
 
-Note: While full model species list apportionment is in development, currently ISAM is limited to the following species classes in CMAQ:
+CMAQ-ISAM supports source apportionment for all modeled gas and aerosol species (depending on base model configuration). The selection of species for which source apportionment should be performed in a given simulation can be controlled through the following `TAG CLASSES`:
 
 ```
-SULFATE   - ASO4J, ASO4I, SO2, SULF, SULRXN       
-NITRATE   - ANO3J, ANO3I, HNO3, ANO3J, ANO3I, HNO3, NO, NO2, NO3, HONO, N2O5, PNA, PAN, PANX, NTR1, NTR2, INTR           
-AMMONIUM  - ANH4J, ANH4I, NH3       
-EC        - AECJ, AECI          
-OC        - APOCI, APOCJ, APNCOMI, APNCOMJ                
-VOC       - Various species depending on mechanism. Now includes CO. (see CCTM/src/isam/SA_DEFN.F for complete list)      
-PM25_IONS - ANAI, ANAJ, AMGJ, AKJ, ACAJ, AFEJ, AALJ, ASIJ, ATIJ, AMNJ, AOTHRI, AOTHRJ      
-OZONE     - all NITRATE species + all VOC species     
-CHLORINE  - ACLI, ACLJ, HCL      
+SULFATE      - ASO4J, ASO4I, SO2, SULF, SULRXN       
+NITRATE      - ANO3J, ANO3I, HNO3, ANO3J, ANO3I, HNO3, NO, NO2, NO3, HONO, N2O5, PNA, PAN, PANX, NTR1, NTR2, INTR           
+AMMONIUM     - ANH4J, ANH4I, NH3       
+EC           - AECJ, AECI          
+OA_TOT       - Organic aerosol species
+VOC          - Various species depending on mechanism. Now includes CO. (see CCTM/src/isam/SA_DEFN.F for complete list)      
+PM_IONS      - ANAI, ANAJ, AMGJ, AKJ, ACAJ, AFEJ, AALJ, ASIJ, ATIJ, AMNJ, AOTHRI, AOTHRJ      
+OZONE        - all NITRATE species + all VOC species     
+CHLORINE     - ACLI, ACLJ, HCL
+NVPOA        - Non-Volatile Primary Organic Aerosol (APOC, APNCOM)
+PM_TOT       - all PM species
+HAP_GAS      - Gaseous Hazardous Air Pollutants
+HAP_AERO     - Aerosol Hazardous Air Pollutants
+HAP_TOT      - HAP_GAS and HAP_AERO
+URBAN_TOXICS - Classic Urban Air Toxics 
+PAH_TEQ      - NonReactive PAH tracers
+BENAPYRENE   - Gaseous and aerosol Benzo[a]Pyrene
+MERCURY      - Gaseous and aeroosl Mercury species
+ALL          - All model species
+
+    
 ```
 
 ## 11.2 Build Instructions
@@ -47,6 +59,10 @@ If a user needs to use larger setting for MXFILE3 and MXVAR3 to support their ap
 This version is available as a zip file from the following address:
 
 https://www.cmascenter.org/ioapi/download/ioapi-3.2-large-20200828.tar.gz
+
+**A note about solver configuration**
+
+ISAM is currently only implemented for the EBI solver. For some CMAQ applications, the Rosenbrock solver is desirable and is set as the default in the sample runscripts. For example, this is the case when using the CB6R5M chemical mechanism for hemispheric simulations. In such cases, the bldit script needs to be modified to not select the Rosenbrock solver. While this may incur a performance penalty in terms of CPU time and increase the likelyhood of convergence warnings, it will allow the ISAM simulation to proceed in most cases.
 
 ## 11.3 Run Instructions
 
@@ -142,7 +158,7 @@ The runtime options, ISAM_NOX_CASE and ISAM_VOC_CASE, determine the two settings
 
 The ISAM `SA_IOLIST` is a text file used to configure which tag classes, emissions streams, and source regions the model will track.  An example of this file, `isam_control.txt`, is provided in $CMAQ_HOME/CCTM/scripts.  The order and formating of this file must be kept intact, but it does allow for insertion of comment lines.  
 
-Each ISAM simulation requires the specification of the `TAG CLASSES` that the user desires to apportion.  The current list includes the following choices `SULFATE, NITRATE, AMMONIUM, EC, OC, VOC, PM25_IONS, OZONE`.  Species associated with each of these are provided in section 11.1.  One or more of these tag classes must be specified in `SA_IOLIST`.  Multiple tag classes are comma delimited. Incorrectly specified choices for this field will cause a model crash.
+Each ISAM simulation requires the specification of the `TAG CLASSES` that the user desires to apportion.  The full list of available tag classes (e.g. `SULFATE`, `NITRATE`, `AMMONIUM`, `EC`, `OC`, `VOC`, `PM25_IONS`, `OZONE`, `OA_TOT`, or `PM_TOT`) and the species associated with each of these are provided in section 11.1.  One or more of these tag classes must be specified in `SA_IOLIST`.  Multiple tag classes are comma delimited. Incorrectly specified choices for this field will cause a model crash.
 
 ```
 TAG CLASSES     |OZONE, SULFATE
@@ -168,7 +184,7 @@ or
 REGION(S)       |NC, SC, GA
 ```
 
-Finally, the emissions streams labels are required as the third option in the control file.  Labels correspond to emissions and other input streams set in build and run scripts for the base CMAQ simulation. Additionally, it is possible to specify 'PVO3' as a stream label in order to track contribution to concentrations from upper layer injections due to potential vorticity calculations.  This option also requires model compilation with the appropriate options to support these calculations. 
+Finally, the emissions streams labels are required as the third option in the control file.  Labels correspond to emissions and other input streams set in build and run scripts for the base CMAQ simulation. Additionally, it is possible to specify 'PVO3' as a stream label in order to track contribution to concentrations from upper layer injections due to potential vorticity calculations.  This option also requires enabling the corresponding run script variable to support these calculations. 
 
 ```
 EMIS STREAM(S)  |PT_EGU, PT_NONEGU
@@ -180,7 +196,7 @@ The final line in the control file needs to be kept unchanged in order to aid th
 ENDLIST eof
 ```
 
-In addition to the user-specified list, ISAM will alway track and output three additional default tags with every simulation and the BID tag if the simultion includes both bidirectional NH<sub>3</sub> and the 'AMMONIUM' species class (note, that at least one valid user-specified tag must be defined, so a minimum of 4 tags are required):
+In addition to the user-specified list, ISAM will alway track and output three additional default tags with every simulation and the BID tag if the simulation includes both bidirectional NH<sub>3</sub> and the 'AMMONIUM' species class (note, that at least one valid user-specified tag must be defined, so a minimum of 4 tags are required):
 
 ```
 ICO - contribution from initial conditions specified for the first day of the simulation
@@ -193,7 +209,7 @@ Please, note that, currently, ISAM results for the same user defined tag may dif
 
 #### Defining ISAM Tags for In-line Sources.
  
-The CMAQ model allows several types of emissions that are calculated in-line or during a model simulation instead of provided by the user as inputs. A simulations can use all of these inline emissions and ISAM can calculate apportionment from these sources. The former is done by setting appropriate emissions options in the CMAQ runscript. For ISAM to calculate apportionment for an in-line source, the isam control file needs to define a tagname using the correct stream name.  The below table lists currently supported inline emissions streams in CMAQ:
+The CMAQ model allows several types of emissions that are calculated in-line or during a model simulation instead of provided by the user as inputs. A simulation can use all of these inline emissions and ISAM can calculate apportionment from these sources. The former is done by setting appropriate emissions options in the CMAQ runscript. For ISAM to calculate apportionment for an in-line source, the isam control file needs to define a tagname using the correct stream name.  The below table lists currently supported inline emissions streams in CMAQ:
  
 |**Emission Stream Name**|**Inline Emissions Source**|
 |-----------|------------------------|
@@ -202,22 +218,24 @@ The CMAQ model allows several types of emissions that are calculated in-line or 
 | MGEGM | Marine Gas Emissions |
 | LTNG | Lightning NO Emissions |
 | ASEA | Sea Spray Aerosol Emissions |
-| DUST | Wind-Blown Dust Emissions |   
+| DUST | Wind-Blown Dust Emissions |
+| PVO3 | Potential Vorticity Incursion* |
 
+*Although it is not an emission stream, it is possible to tag the ozone incursions at the top of the simulated volume if the potential vorticity option `CTM_PVO3` is activated in the run script.
 
 #### Interpretation of 'OTH' tag
 The OTH tag (e.g.“O3_OTH” in the ISAM benchmark) represents concentrations for that species attributed to 1) all other emissions streams, 2) precursor species not included in the specified tag class(es), and 3) other processes in the model.
 
 For item 1), this includes internally calculated emissions that a user decides to exclude from the control file (perhaps to reduce computational cost of running with tags that are not of interest to a particular application). These are things like online biogenics, online lightning, dust, etc.
 
-For item 2), these are some secondarily produced intermidiate species that have minor impact on ozone production.
+For item 2), these are some secondarily produced intermediate species that have minor impact on ozone production.
 
 For item 3), these are processes in the model that create a given species but not from the emissions streams that can be specified with the control file.  For example, 'O3_OTH' includes ozone that is produced from background methane that is specified in the model as a constant.
 
 Finally, ISAM is an approximation for attribution. In the formulation, assumptions are made about which species are most important in the chemical formuation of the species being studied.  For example in cb6r3 based mechanisms, peroxyl radicals from aromatic compounds affect ozone production by a small amount so ISAM neglects their contribution. The contribution to ozone from species not included in the ISAM formulation will go into 'O3_OTH', even if the emission source of these species is included in the control file. 
 
 ## 11.4 ISAM Benchmark 
-See the [CMAQ-ISAM Benchmark Tutorial](Tutorials/CMAQ_UG_tutorial_ISAM.md) for step-by-step instructions for running the 2 day benchmark case.  The input files for the CMAQv5.4 ISAM benchmark case are the same as the benchmark inputs for the base model. Output source apportionment files associated with the sample `isam_control.txt` provided in this release package are included in the benchmark outputs for the base model.  
+See the [CMAQ-ISAM Benchmark Tutorial](Tutorials/CMAQ_UG_tutorial_ISAM.md) for step-by-step instructions for running the 2 day benchmark case.  The input files for the CMAQv5.5 ISAM benchmark case are the same as the benchmark inputs for the base model. Output source apportionment files associated with the sample `isam_control.txt` provided in this release package are included in the benchmark outputs for the base model. The tutorial also provides example instructions for post-processing ISAM output for individual species contained in the SA_ACONC_1 output file into aggregate species like NOx or PM2.5 using the [`combine`](../../POST/combine/README.md) utility and customized `SPECIES_DEF` species definition files. Note that the [Explicit and Lumped Model Output (ELMO) module](./Appendix/CMAQ_UG_appendixF_elmo_output.md) available for aggregating base model concentrations does not currently support the aggregation of ISAM species within CMAQ, necessitating a customized post-processing workflow. 
 
 ## 11.5 References
 
@@ -239,6 +257,6 @@ Tonnesen, G.S. & Dennis, R.L. (2000b). Analysis of radical propagation efficienc
 <!-- BEGIN COMMENT -->
 
 [<< Previous Chapter](CMAQ_UG_ch10_HDDM-3D.md) - [Home](README.md) - [Next Chapter >>](CMAQ_UG_ch12_sulfur_tracking.md)<br>
-CMAQ User's Guide (c) 2022<br>
+CMAQv5.5 User's Guide <br>
 
 <!-- END COMMENT -->

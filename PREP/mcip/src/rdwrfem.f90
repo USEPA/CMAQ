@@ -188,6 +188,8 @@ SUBROUTINE rdwrfem (mcip_now)
 !                        parameter so that it does not rely on a non-standard
 !                        Fortran intrinsic (SIND), which is only available
 !                        for select compilers. (T. Spero)
+!           13 Dec 2023  Removed redundant NF90_OPEN/NF90_CLOSE couplet to
+!                        improve efficiency and memory management. (T. Spero)
 !-------------------------------------------------------------------------------
 
   USE date_pack
@@ -614,19 +616,8 @@ SUBROUTINE rdwrfem (mcip_now)
 
     fl = file_mm(m1count)
 
-    rcode = nf90_open (fl, nf90_nowrite, cdfid)
-    IF ( rcode /= nf90_noerr ) THEN
-      WRITE (*,f9900) TRIM(pname)
-      CALL graceful_stop (pname)
-    ENDIF
-
     findprev: DO
       IF ( newfilem1 ) THEN
-        rcode = nf90_close (cdfid)
-        IF ( rcode /= nf90_noerr ) THEN
-          WRITE (*,f9950) TRIM(pname)
-          CALL graceful_stop (pname)
-        ENDIF
         rcode = nf90_open (fl, nf90_nowrite, cdfid)
         IF ( rcode /= nf90_noerr ) THEN
           WRITE (*,f9900) TRIM(pname)
@@ -671,6 +662,11 @@ SUBROUTINE rdwrfem (mcip_now)
         ENDIF
       ENDDO
       IF ( i > n_times ) THEN
+        rcode = nf90_close (cdfid)
+        IF ( rcode /= nf90_noerr ) THEN
+          WRITE (*,f9950) TRIM(pname)
+          CALL graceful_stop (pname)
+        ENDIF
         newfilem1 = .TRUE.
         m1count   = m1count + 1
         IF ( m1count > max_mm ) THEN
@@ -740,6 +736,12 @@ SUBROUTINE rdwrfem (mcip_now)
 
     ENDIF  ! tipping bucket
 
+    rcode = nf90_close (cdfid)
+    IF ( rcode /= nf90_noerr ) THEN
+      WRITE (*,f9950) TRIM(pname)
+      CALL graceful_stop (pname)
+    ENDIF
+
   ENDIF
 
 !-------------------------------------------------------------------------------
@@ -748,19 +750,8 @@ SUBROUTINE rdwrfem (mcip_now)
 
   fl = file_mm(mmcount)
 
-  rcode = nf90_open (fl, nf90_nowrite, cdfid)
-  IF ( rcode /= nf90_noerr ) THEN
-    WRITE (*,f9900) TRIM(pname)
-    CALL graceful_stop (pname)
-  ENDIF
-
   findit: DO
     IF ( newfile ) THEN
-      rcode = nf90_close (cdfid)
-      IF ( rcode /= nf90_noerr ) THEN
-        WRITE (*,f9950) TRIM(pname)
-        CALL graceful_stop (pname)
-      ENDIF
       rcode = nf90_open (fl, nf90_nowrite, cdfid)
       IF ( rcode /= nf90_noerr ) THEN
         WRITE (*,f9900) TRIM(pname)
@@ -807,6 +798,11 @@ SUBROUTINE rdwrfem (mcip_now)
       ENDIF
     ENDDO
     IF ( i > n_times ) THEN
+      rcode = nf90_close (cdfid)
+      IF ( rcode /= nf90_noerr ) THEN
+        WRITE (*,f9950) TRIM(pname)
+        CALL graceful_stop (pname)
+      ENDIF
       newfile = .TRUE.
       mmcount = mmcount + 1
       IF ( mmcount > max_mm ) THEN
@@ -2029,13 +2025,6 @@ SUBROUTINE rdwrfem (mcip_now)
   CALL get_var_1d_real_cdf (cdfid, 'DZS', dzs, it, rcode)
   IF ( rcode /= nf90_noerr ) THEN
     WRITE (*,f9400) TRIM(pname), 'DZS', TRIM(nf90_strerror(rcode))
-    CALL graceful_stop (pname)
-  ENDIF
-
-
-  rcode = nf90_close (cdfid)
-  IF ( rcode /= nf90_noerr ) THEN
-    WRITE (*,f9950) TRIM(pname)
     CALL graceful_stop (pname)
   ENDIF
 

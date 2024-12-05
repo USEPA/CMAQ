@@ -43,10 +43,12 @@ C-----------------------------------------------------------------------
       USE AVG_CONC              ! integral average CONC
       USE UTILIO_DEFN
       USE RUNTIME_VARS
+#ifndef mpas
 #ifdef parallel
       USE SE_MODULES            ! stenex (using SE_UTIL_MODULE)
 #else
       USE NOOP_MODULES          ! stenex (using NOOP_UTIL_MODULE)
+#endif
 #endif
 
       IMPLICIT NONE
@@ -79,6 +81,7 @@ C-----------------------------------------------------------------------
 C Change output date/time to starting date/time - e.g. timestamp 1995196:090000
 C represents data computed from time 1995196:090000 to 1995196:100000
 
+#ifndef mpas
       IF ( FIRSTIME ) THEN
          FIRSTIME = .FALSE.
 
@@ -192,6 +195,7 @@ C Override default beginning time timestamp for ACONC?
       WRITE( LOGDEV, '( /5X, 3( A, :, 1X ), I8, ":", I6.6 )' )
      &      'Timestep written to', A_CONC_1,
      &      'for date and time', MDATE, MTIME
+#endif
 
       RETURN 
       END

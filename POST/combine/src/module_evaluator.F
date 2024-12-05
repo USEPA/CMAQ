@@ -42,8 +42,10 @@ C***********************************************************************
       Integer, Private :: isize
       
       Logical, Allocatable, Private :: eflag( : )
-      Character( 256 ), Private :: emsg
-      Character*(EXP_LEN), Private :: formula
+
+      Character( 256 ),     Private :: emsg
+      Character*(EXP_LEN),  Private :: formula
+      Character( 16 ),      Private :: out_species
 
       Interface            
          Subroutine getFld( record, delimiter, nth, del, field, exception )
@@ -84,11 +86,12 @@ C***********************************************************************
 
 C  subroutine to evaluate species expression at date
 C  returns buffer array values
-      Subroutine evaluate(expression,jdate,jtime,jlayer,jsize,buffer)
+      Subroutine evaluate(species,expression,jdate,jtime,jlayer,jsize,buffer)
 
       IMPLICIT NONE
 
       ! arguments
+      Character*(*) species
       Character*(*) expression
       Integer jdate, jtime
       Integer jlayer
@@ -111,6 +114,8 @@ C  returns buffer array values
       ilayer   = jlayer
       isize    = jsize
     
+      ! copy output species name
+      out_species = Trim( Adjustl(species) )
       ! make copy of expression to modify
       formula   = expression
       expresscp = expression
@@ -577,54 +582,61 @@ C
         if(operator.ne.'?') badopr = .true.
         call eval1b( field, flags)
 
+        eflag = .False.
+        emsg = ''
         call getFld( expression, '?:', 2, operator, field1 ) 
         if(operator.ne.'?') badopr = .true.
         call eval2( field1, value1)
         eflag1 = eflag
         emsg1  = emsg
 
+        eflag = .False.
+        emsg = ''
         call getFld( expression, '?:', 3, operator, field2 ) 
         if(operator.ne.':') badopr = .true.
         call eval2( field2, value2)
         eflag2 = eflag
         emsg2  = emsg
+        eflag = .False.
 
         if( badopr ) then
           Write(*,'(/''**Error** Syntax error encountered in conditional expression in: '',a)') trim(formula)
           stop
-          endif
+        End if
 
         ! set buffer values 
         do i=1,isize
-          if( flags(i) ) then
+          If( flags(i) ) Then
             buffer(i) = value1(i)
             eflag(i)  = eflag1(i)
             field     = field1
-          else
+          Else
             buffer(i) = value2(i)
             eflag(i)   = eflag2(i)
-            field     = field2
-            endif 
-          enddo 
+            field   = field2
+          End If 
+        End Do 
        
+
         If( Any( eflag ) ) then
-          Write(*,'(//a)')"Problem evaluating: " 
+          Write(*,'(//a)')"Problem evaluating: "
      &    // Trim( formula )
           If( Any( eflag .And. eflag1 ) )Then
              Write(*,'(a//)')Trim(emsg1)
-          endif   
+          endif
           If( Any( eflag .And. eflag2 ) )Then
              Write(*,'(a//)')Trim(emsg2)
           endif
           If( .Not. Allow_BadValues )Then
             KSWIT = SHUT3()
             STOP
-          End IF  
-        endif
+          End IF
+        End IF
+
         Deallocate (flags, value1, value2)
         Deallocate (eflag1,eflag2)
         return
-        endif
+      End if ! conditional
 
       ! if no conditional
       if( nmajor.eq.1 ) then
@@ -844,14 +856,24 @@ C  subroutine to evaluate species expression (parses major fields (+-))
     
         If( field.eq.' ' ) Then
           value = 0.0D0
+          If ( n .gt. 1 ) Then
+             Write(6,'(2a)')'eval2 Error: Empty Field in expression,',Trim(expression),
+     &       'of the formula, ',Trim(Formula)
+             Stop
+          End IF
         else
           call eval3b( field, value)
         End If
 
         If( operator.eq.'+' ) Then
           buffer = buffer + value
-        else
+        else If( operator.eq.'-' ) Then
           buffer = buffer - value
+        else
+          Write(6,'(2a)')'eval2 Error: Unknown Operator, ' // Trim(operator) 
+     &    // ' in expression,',Trim(Formula) // ' for output species ' // Trim( out_species )
+     &    // '. Allowed operators are +, -, *, /, and ^.'
+          Stop
         End If
 
         End Do
@@ -960,20 +982,19 @@ C  routine to compute a field of the expression (parses minor fields (*/^))
       Integer n, nflds
 
       Allocate ( specValue(isize) )
-!      nflds = getFldCount(trim(expression), '*/^')
       nflds = getFldCount(trim(expression), '*/')
+!     print*,Trim(expression)
       value = 1.0
          
+
       SpecValue = 0.0D0
       Do n=1,nflds
-!        call getFld( trim(expression), '*/^', n, operator, field ) 
         call getFld( trim(expression), '*/', n, operator, field ) 
         call eval4(field, specValue)
-!        call GetValue(field, specValue)
-!        print*,operator,value,specValue
 
-        If( operator.eq.'*' ) value = value * specValue
-        If( operator.eq.'/' )Then
+        If( operator.eq.'*' )Then
+           value = value * specValue
+        Else If( operator.eq.'/' )Then
           Where( specValue .Ne. 0.0 )
              value = value / specValue
              eflag = .false.
@@ -982,13 +1003,15 @@ C  routine to compute a field of the expression (parses minor fields (*/^))
              eflag = .true.
           End Where
           If( Any( eflag ) )Then
-!            write(6,*) "Denominator, "
-!     &      // Trim( field ) // ", equals zero."
             write(emsg,*) "Denominator, "
      &      // Trim( field ) // ", equals zero."
           End If
+        Else
+          Write(6,'(2a)')'eval3b Error: Unknown Operator, ' // Trim(operator) 
+     &    // ' in expression,',Trim(Formula) // ' for output species ' // Trim( out_species )
+     &    // '. Allowed operators are +, -, *, /, and ^.'
+          Stop
         End If
-!        If( operator.eq.'^' ) value = value ** specValue
 
       End Do
 
@@ -1040,6 +1063,7 @@ C  routine to compute a field of the expression (parses minor fields (*/^))
       call GetValue(field, specPower)
       Do 
          call getFld( trim(expression), '^', n, operator, field )
+
          n = n - 1
           If( field(1:1) .Eq. '-' )Then
             field  = field(2:)
@@ -1093,6 +1117,13 @@ C  routine to compute a field of the expression (parses minor fields (*/^))
             Factor = 1.0D0
         End If 
 
+        If( Len_Trim(field) .Le. 0 )Then 
+            Write(6,'(3a)')
+     &      'GetValue Error: Empty Field or Missing Input Species Name in expression,',Trim(Formula),
+     &      ' for output species ' // Trim( out_species ) // '.'
+            Stop
+        End If
+
 !...check for buffer array
         If( index(field,'buffer[') .gt.0 ) Then
           Call getBuffer(field, Value)
@@ -1111,7 +1142,14 @@ C  routine to compute a field of the expression (parses minor fields (*/^))
           pos1 = index(field, '[')
           pos2 = index(field, ']',.true.)
           specName = field(pos1+1:pos2-1)
+          if( pos2 .lt. Len_Trim(Field) )Then
+             Write(6,'(5(a,1x))')'GetValue Error: Unknown operator or input species ',Trim(Field(pos2+1:)),
+     &         ' in formula,',Trim(Formula) // ' for output species ' // Trim( out_species )
+     &      // '. Allowed operators are +, -, *, /, and ^.'
+             Stop
+          end if
   
+!         Write(6,'(2a)')'specName = ',Trim(specName)
           read(specName,'(i16)',iostat=status) fnum
 
           If( status.eq.0 ) Then    !! number found
@@ -1130,6 +1168,7 @@ C  routine to compute a field of the expression (parses minor fields (*/^))
                 Value = Factor * Value
                 Return 
              End If
+!            Write(6,*)'**GetValue Error** Unknown Function: ',Trim(funcName)
           End If    !! contains '['
         End If
 !...try to read field as number
@@ -1139,10 +1178,14 @@ C  routine to compute a field of the expression (parses minor fields (*/^))
           value = Factor * constant
           Return
         Else
-             Write(*,'(''**Error** Invalid field encountered:'',a)') field
+             Write(*,1099)
+     &       Trim( field ),Trim( Formula ) // ' for output species ' 
+     &    // Trim( out_species ) // '. An operator may be missing.'
              stop 
         End If
 
+1099    Format('**GetValue Error** Invalid field encountered:',a,
+     &         " in formula ",a)
       return
       end Subroutine GetValue
 
@@ -1229,7 +1272,6 @@ C  Routine to read species value array for given date and time
 
       !! call routine to read species values from file fnum
       status = 0
-      !! write(*,'(''reading values for '',a,'' at '',2i8)') TRIM(specName), kdate,ktime
       Call ReadValues( fnum, specName, ilayer, kdate, ktime, isize,    
      &                   specValue, status)
 

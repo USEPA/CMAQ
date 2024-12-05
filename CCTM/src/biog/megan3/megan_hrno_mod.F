@@ -42,10 +42,12 @@ C-----------------------------------------------------------------------
       USE BIOG_EMIS, ONLY: NSEF ! beis
       USE ASX_DATA_MOD
       USE UTILIO_DEFN
+#ifndef mpas
 #ifdef parallel
       USE SE_MODULES            ! stenex (using SE_UTIL_MODULE)
 #else
       USE NOOP_MODULES          ! stenex (using NOOP_UTIL_MODULE)
+#endif
 #endif
       USE centralized_io_module
 
@@ -59,6 +61,10 @@ C Arguments:
       INTEGER, INTENT( IN )  :: TSTEP( 3 )      ! time step vector (HHMMSS)
       LOGICAL, INTENT( IN )  :: L_DESID_DIAG
       REAL,    INTENT( OUT ) :: PRECADJ( :,: )  ! output precip adjustment
+#ifdef mpas
+      integer, save :: output_step, half_syn_step  ! values are in seconds
+#endif
+
 
 
 C External Functions
@@ -107,7 +113,6 @@ C Local Variables:
       INTEGER          SOILCAT            ! soil category
       INTEGER, SAVE :: MSTEPS             ! run no. of steps
       INTEGER          I, J, K, R, C, L   ! counters
-      LOGICAL          OK
       INTEGER          IOS                ! IO or memory allocation status
       INTEGER, SAVE :: METSTEP            ! met_cro_2d time step
       
@@ -116,6 +121,11 @@ C Local Variables:
       LOGICAL, SAVE :: FIRSTIME = .TRUE.
       CHARACTER( 256 ) :: MESG            ! message buffer
       CHARACTER( 16 )  :: PNAME = 'MEG_HRNO'  ! procedure name
+
+#ifdef mpas
+      integer :: io_mode
+      CHARACTER( 20 ) :: time_stamp
+#endif
 
       LOGICAL, EXTERNAL :: FLUSH3
 
@@ -133,6 +143,20 @@ C Determine last timestamp
          EDATE = STDATE; ETIME = STTIME
          CALL NEXTIME( EDATE, ETIME, RUNLEN )   ! end date & time
          MSTEPS = TIME2SEC( RUNLEN ) / TIME2SEC( TSTEP( 1 ) )
+
+#ifdef mpas
+         if (ncd_64bit_offset) then
+            io_mode = ior (nf90_noclobber, nf90_64bit_offset)
+         else
+            io_mode = nf90_noclobber
+         end if
+
+         call mio_fcreate (SOILOUT, io_mode)
+         METSTEP = TSTEP(3)
+
+         output_step   = time2sec(tstep(1))
+         half_syn_step = time2sec(tstep(2)) / 2
+#else
 
 C Open met file
          MNAME = PROMPTMFILE(
@@ -158,6 +182,7 @@ C Check that grid description matches B3GRD file
             CALL M3EXIT( PNAME, JDATE, JTIME, MESG, XSTAT2 )
 #endif
          END IF
+#endif
 
          ALLOCATE( RNTOT( NCOLS,NROWS ), STAT=IOS )
          CALL CHECKMEM( IOS, 'RNTOT', PNAME )
@@ -211,12 +236,20 @@ C data to compute precip adjustment
          C_RAINFALL = C_RAINFALL + MET_DATA%RN + MET_DATA%RC
          WRITE( DDTTM( NDX ),'(I8,":",I6.6)' ) RDATE, RTIME
 
+#ifdef mpas
+            call mio_time_format_conversion (ndate, ntime, time_stamp)
+#endif
          IF ( MOD( NTIME, 10000 ) .EQ. 0 ) THEN    ! at the hourly mark
             RAINFALL( :,:,NDX ) = C_RAINFALL
             C_RAINFALL = 0.0
             HRNO_SW( :,:,NDX )  = MET_DATA%RGRND
             HRNO_T2M( :,:,NDX ) = MET_DATA%TEMP2
             IHR = IHR + 1
+#ifdef mpas
+            call mio_fwrite ('MEGAN_SOILOUT', 'RAINFALL', pname,RAINFALL(:,1,ndx), time_stamp)
+            call mio_fwrite ('MEGAN_SOILOUT', 'T24', pname, HRNO_T2M(:,1,ndx),time_stamp)
+            call mio_fwrite ('MEGAN_SOILOUT', 'SW24', pname, HRNO_SW(:,1,ndx),time_stamp)
+#endif
          END IF
 
 !        CALL NEXTIME( RDATE, RTIME, TSTEP( 1 ) )
@@ -289,14 +322,24 @@ C-----------------------------------------------------------------------------
 C-----------------------------------------------------------------------------
 C--- Part 3: Writing to soilout file
 C-----------------------------------------------------------------------------
-
-      IF ( SECSDIFF( JDATE,JTIME, EDATE,ETIME ) .GT. TIME2SEC( TSTEP( 2 ) ) .OR. L_DESID_DIAG ) RETURN
+#ifdef mpas
+      IF ( MOD((TIME2SEC( JTIME ) - half_syn_step), output_step) .EQ. 0 .and. .not. l_desid_diag) then
+      ! at the hourly mark
+      ! continue to write
+      else
+        RETURN
+      end if
+#else
+       IF ( SECSDIFF( JDATE,JTIME, EDATE,ETIME ) .GT. TIME2SEC( TSTEP( 2 ) ) .OR. L_DESID_DIAG ) RETURN
+#endif
 
 
 C Create rain data file for soil NO
 
 C Final timestamp
       NDATE = EDATE; NTIME = ETIME
+
+#ifndef mpas
 
 C Build description for, and create/open soil NO emissions output file
       FTYPE3D = GRDDED3
@@ -421,19 +464,19 @@ C Write soil NO rain data file
       RAINFALL( :,:,NDX ) = C_RAINFALL
       DO I = 1, RHOURS
          WRITE( VAR, '(A8,I2.2)' ) 'RAINFALL', I
-         IF ( .NOT. WRITE3( SOILOUT, VAR, NDATE, NTIME, RAINFALL( 1,1,I ) ) ) THEN
+         IF ( .NOT. WRITE3( SOILOUT, VAR, NDATE, NTIME, RAINFALL( :,:,I ) ) ) THEN
             MESG = 'Could not write "' // TRIM( VAR ) //
      &             '" to file "' // TRIM( SOILOUT ) // '"'
             CALL M3EXIT( PNAME, JDATE, JTIME, MESG, XSTAT2 )
          END IF
          WRITE( VAR, '(A2,I2.2)' ) 'SW', I
-         IF ( .NOT. WRITE3( SOILOUT, VAR, NDATE, NTIME, HRNO_SW( 1,1,I ) ) ) THEN
+         IF ( .NOT. WRITE3( SOILOUT, VAR, NDATE, NTIME, HRNO_SW( :,:,I ) ) ) THEN
             MESG = 'Could not write "' // TRIM( VAR ) //
      &             '" to file "' // TRIM( SOILOUT ) // '"'
             CALL M3EXIT( PNAME, JDATE, JTIME, MESG, XSTAT2 )
          END IF
          WRITE( VAR, '(A3,I2.2)' ) 'T2M', I
-         IF ( .NOT. WRITE3( SOILOUT, VAR, NDATE, NTIME, HRNO_T2M( 1,1,I ) ) ) THEN
+         IF ( .NOT. WRITE3( SOILOUT, VAR, NDATE, NTIME, HRNO_T2M( :,:,I ) ) ) THEN
             MESG = 'Could not write "' // TRIM( VAR ) //
      &             '" to file "' // TRIM( SOILOUT ) // '"'
             CALL M3EXIT( PNAME, JDATE, JTIME, MESG, XSTAT2 )
@@ -445,6 +488,14 @@ C Write soil NO rain data file
      &             '" to file "' // TRIM( SOILOUT ) // '"'
             CALL M3EXIT( PNAME, JDATE, JTIME, MESG, XSTAT2 )
          END IF
+
+#else
+         ! write MPAS end of day variables ==jwilliso
+            call mio_fwrite ('MEGAN_SOILOUT', 'PTYPE', pname,PTYPE(:,1),time_stamp)
+            call mio_fwrite ('MEGAN_SOILOUT', 'PULSEDATE', pname, PULSEDATE(:,1),time_stamp)
+            call mio_fwrite ('MEGAN_SOILOUT', 'PULSETIME', pname, PULSETIME(:,1),time_stamp)
+            call mio_fwrite ('MEGAN_SOILOUT', 'LAI', pname,Met_data%LAI(:,1),time_stamp)
+#endif
 
       WRITE( LOGDEV,94040 )
      &      'Timestep written to', SOILOUT,

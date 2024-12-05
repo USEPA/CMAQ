@@ -22,7 +22,7 @@ residential heating, etc.
 - [4. Scale emissions for one species on all streams](#scale_species)  
 - [5. Scale all gas phase emissions but leave aerosols alone](#scale_gases)  
 - [6. Scale all aerosols](#scale_aerosols)  
-- [7. Add or subtract emissions from one surrogate to existing emissions]([#add_surrogate)  
+- [7. Add or subtract emissions from one surrogate to existing emissions]([#scale_surrogate)  
 - [8. Overwrite the scale factor for a single stream or species](#overwrite)  
 - [9. Scale all species except one by a common factor](#scale_all_but_one)  
 - [10. Apply scaling while conserving moles or mass](#scale_moles_mass)  
@@ -30,9 +30,12 @@ residential heating, etc.
 - [12. Define families of streams, regions, or chemical species](#define_families) 
 - [13. Use a family of streams to scale emissions for a group of sources](#fam_stream)  
 - [14. Use a family of regions to scale emissions in a new location](#fam_region)  
-- [15. Use a family of species to scale emissions for a custom group of pollutants](#fam_chem)  
-- [A1. Appendix: Example Emission Control File](#appendix1)  
-- [A2. Appendix: Example Emissions Section of CCTM RunScript File](#appendix2)  
+- [15. Use a family of species to scale emissions for a custom group of pollutants](#fam_chem)
+- [16. Miscellaneous Notes](#misc_notes)
+- [Example DESID Control File](../../../CCTM/src/emis/emis/CMAQ_Control_DESID.nml)  
+- [Example DESID Scaling Rules File](../../../CCTM/src/MECHS/cracmm2/CMAQ_Control_DESID_cracmm2.nml)  
+- [Example Emissions Section of CCTM RunScript File](../../../CCTM/scripts/run_cctm_cracmm_2019_12US1_CRACMM2_EPA2019.csh#L420)   
+
 
 
 <a id=zero_out></a>
@@ -63,14 +66,14 @@ To zero Lightning NO emissions,
 setenv CTM_LTNG_NO N
 ```
 
-##### b. Creating Rules in the Chemical Mapping Control Namelist
+##### b. Creating Rules in the Chemical Mapping Control Namelist (CMAQ_Control_DESID_${MECH}.nml)
 All streams can be zeroed by creating a rule that refers to 'All' streams. For example,
 ```
 ! Region      | Stream Label  |Emission | CMAQ-        |Phase/|Scale |Basis |Op  
 !  Label      |               |Surrogate| Species      |Mode  |Factor|      |
 'EVERYWHERE' , 'All'          ,'All'    ,'All'         ,'All' ,0.    ,'UNIT','o',
 ```
-Alternatively, individual streams can be zeroed by creating rules that refer to specific streams.
+Here, the 'o' operator regers to *overwrite* and will instruct DESID to change existing instructions that emission variables and CMAQ-species to the new Scale Factor. Additionally, individual streams can be zeroed by creating rules that refer to specific streams.
 ```
 ! Region      | Stream Label  |Emission | CMAQ-        |Phase/|Scale |Basis |Op  
 !  Label      |               |Surrogate| Species      |Mode  |Factor|      |
@@ -145,13 +148,13 @@ If instead, the user is interested in scaling all aerosol species by a factor of
 
 <a id=scale_surrogate></a>
 ### 7. Add or subtract emissions from one surrogate to existing emissions
-If the following rule is already present on the default emission control namelist,
+If the following rule is already present on the default emission control namelist. It maps, for all streams, the emission variable TOL (for toluene and possibly toluene-like compounds) to the CMAQ Species TOL.
 ```
 ! Region      | Stream Label  |Emission | CMAQ-        |Phase/|Scale |Basis |Op  
 !  Label      |               |Surrogate| Species      |Mode  |Factor|      |
 'EVERYWHERE'  , 'All'         ,'TOL'    ,'TOL'         ,'GAS' ,1.0  ,'UNIT','a',
 ```
-and the user wants to add or subtract toluene emissions based on the value of a different emission surrogate, CO for example, then this rule could be used:
+The user wants to add or subtract toluene emissions based on the value of a different emission surrogate, CO for example, then this rule could be used:
 ```
 ! Region      | Stream Label  |Emission | CMAQ-        |Phase/|Scale |Basis |Op  
 !  Label      |               |Surrogate| Species      |Mode  |Factor|      |
@@ -167,13 +170,13 @@ Note it is important to use the 'a' operator for these rules since the effects o
 
 <a id=overwrite></a>
 ### 8. Overwrite the scale factor for a single stream or species
-If the following rule is already present on the default emission control namelist,
+If the following rule is already present on the default emission control namelist. It maps, for all streams, the emission variable TOL (for toluene and possibly toluene-like compounds) to the CMAQ Species TOL.  
 ```
 ! Region      | Stream Label  |Emission | CMAQ-        |Phase/|Scale |Basis |Op  
 !  Label      |               |Surrogate| Species      |Mode  |Factor|      |
 'EVERYWHERE'  , 'All'         ,'TOL'    ,'TOL'         ,'GAS' ,1.0  ,'UNIT','a',
 ```
-and the user wants to overwrite the scale factor with a different one, 30% for example, use a rule of this form:
+The user wants to overwrite the scale factor with a different one, 30% for example, use a rule of this form:
 ```
 ! Region      | Stream Label  |Emission | CMAQ-        |Phase/|Scale |Basis |Op  
 !  Label      |               |Surrogate| Species      |Mode  |Factor|      |
@@ -200,9 +203,9 @@ The user may elect to conserve moles or mass instead of applying factors directl
 ```
 will add 15% of CO emissions to the emissions of fine-mode particulate nitrate, but the scale factor will also be adjusted by multiplying by the molecular weight of CO to conserve mass.
 
-Reminder: gas-phase emission rates are usually provided to CMAQ in molar units while particle emissions are usually provided in mass. Note that if the user scales a particle species to a gas surrogate, or vice-versa, it is important in most cases to choose either "MASS" or "MOLE" appropriately for the Basis to ensure proper unit conversions. 
+Reminder: gas-phase emission rates are usually provided to CMAQ in molar units while particle emissions are usually provided in mass. Note that if the user scales a particle species to a gas emission variable, or vice-versa, then there will likely be a mass to mole unit conversion necessary. It is important in most cases to choose either "MASS" or "MOLE" for the Basis to ensure that conservation of mass or conservation of moles is preserved, depending on user preference.  
 
-If the user is scaling one gas species to another gas surrogate, both will likely have molar emissions units. In this case, selecting "MOLE" as the basis will be equivalent to selecting "UNIT". In other words, there will be no modification of the user-defined scale factor due to unit conversion concerns. If, however, "MASS" is selected, then the scale factor will be modified by first multiplying by the molecular weight of the surrogate and then dividing by the molecular weight of the CMAQ species.
+If the user is scaling one gas species to another gas emission variable, both will likely have molar emissions units. In this case, selecting "MOLE" as the basis will be equivalent to selecting "UNIT". In other words, there will be no modification of the user-defined scale factor due to unit conversion concerns. If, however, "MASS" is selected, then DESID will adjust the scale factor by first multiplying by the molecular weight of the emission variable and then dividing by the molecular weight of the CMAQ species. These tasks do not need to be completed by the user.  
 ```
 ! Region      | Stream Label  |Emission | CMAQ-        |Phase/|Scale |Basis |Op  
 !  Label      |               |Surrogate| Species      |Mode  |Factor|      |
@@ -217,7 +220,7 @@ The user may apply a scale factor to a specific area of the domain by identifyin
 !  Label      |               |Surrogate| Species      |Mode  |Factor|      |
 'KENTUCKY'    , 'All'         ,'All'    ,'All'         ,'All' ,1.50 ,'UNIT','m',
 ```
-The label for "KENTUCKY" should be linked to a specific gridded variable mask (of real numbers) using the "Desid_RegionDef" section on the [DESID Control Namelist](../../../CCTM/src/emis/emis/CMAQ_Control_DESID.nml).
+The label for "KENTUCKY" should be linked to a specific gridded variable mask (of real numbers) using the "Desid_RegionDef" section on the [DESID Control Namelist](../../../CCTM/src/emis/emis/CMAQ_Control_DESID.nml#L137).
 ```
 &Desid_RegionDef
  RGN_NML  =   
@@ -235,6 +238,7 @@ Two example mask files are available on the CMAS Data Warehouse: US states grid 
 * [Link to grid mask files on CMAS Data Warehouse Google Drive](https://drive.google.com/drive/folders/1x9mJUbKjJaMDFawgy2PUbETwEUopAQDl)
 * [Link to metadata for the grid mask files is posted on the CMAS Center Dataverse site](https://doi.org/10.15139/S3/XDYYB9)
 
+Custom mask files may also be made using the [shp2cmaq](../../../PREP/shp2cmaq/README.md) tool, which provides instructions for obtaining geospatial data via shape files and converting them to CMAQ gridded input files. One may also populate a CMAQ gridded input file with arbitrary geometric shapes (e.g. squares, diamonds, or other polygons) using the IOAPI library of tools and any common coding language (e.g. Fortran, R, or Python)
 
 <a id=define_families></a>
 ### 12.  Define families of streams, regions, or chemical species
@@ -249,16 +253,14 @@ Chemical families are defined by prescribing, via the [CMAQ Miscellaneous Contro
 
 &ChemicalFamilies
  ChemFamilyName(1)     = 'NOX'    
- ChemFamilyNum(1)      = 2  
  ChemFamilyMembers(1,:)= 'NO','NO2'  
  ChemFamilyName(2)     = 'POA'    
- ChemFamilyNum(2)      = 2  
  ChemFamilyMembers(2,:)= 'POC','PNCOM'  
 /
 ```  
-In this example, 2 chemical families, "NOX" and "POA", are defined with 2 members, "NO" and "NO2", and "POC" and "PNCOM".  
+In this example, 2 chemical families, "NOX" and "POA", are defined with 2 members, "NO" and "NO2", and "POC" and "PNCOM". Note that CMAQv5.3 required the variable ChemFamilyNum to be specified and this value is internally calculated in CMAQv5.4. If the variable is provided, the model will crash. Also, it is required to ensure that no Chemical Family Name is identical to any emission species or CMAQ species. Currently, CMAQ will not detect a name conflict but results will be compromised. A future version of CMAQ will check for duplicative names, trigger an error, and stop the model.
 
-Stream families are defined analogously in the DESID Control File:  
+Stream families are defined analogously in the DESID Control File (CMAQ_Control_DESID.nml):  
 ```
 &Desid_StreamFamVars
  Desid_N_Stream_Fams = 3
@@ -341,7 +343,7 @@ Because the 'm' operator is used, CMAQ will look for pre-existing relationships 
 ```  
 In this case, CMAQ is adding a relationship between NO and NO2 surrogates and model species. Thus families are most useful when using the 'm' or 'o' operators. 
 
-However, sometimes the 'a' operator is useful with chemical families. In the example below, a relationship is added between POA surrogates (defined in example 12 above) and CMAQ model species:  
+However, sometimes the 'a' operator is useful with chemical families. In the example below, a relationship is added between POA surrogates (defined in section 12 above) and CMAQ model species:  
 ```
 ! Region      | Stream Label |Emission | CMAQ-        |Phase/|Scale |Basis |Op  
 !  Label      |              |Surrogate| Species      |Mode  |Factor|      |
@@ -351,6 +353,8 @@ CMAQ will use this rule to add POC and PNCOM surrogates together, multiply by 0.
 The way CMAQ uses chemical families for adding relationships with the 'a' is nuanced. The following logic is applied: 
 - If a chemical family is used for either the emission variable or the CMAQ-Species but not both, then connections are made between each member of the family and the prescribed single-species in the other column.  
 - If both columns include chemical families or the 'ALL' keyword, then each pair of members will be compared. If the names match exactly or a relationship already exists, then the 'a' operation will be applied. If not, then the pair will be ignored. This precaution is in place to protect against the case where a user prescribes an addition (i.e. 'a') rule with the keyword 'ALL' or very large chemical families in both the emission variable and CMAQ-Species columns. 
-Without the precaution in place, adding relationships for ALL surrogates to ALL model species would be an extremely large data structure and almost certainly not an intended use of CMAQ.   
+Without the precaution in place, adding relationships for ALL surrogates to ALL model species would be an extremely large data structure and almost certainly not an intended use of CMAQ.
 
-
+<a id=misc_notes></a>
+### 16. Miscellaneous Notes
+In the default emissions mapping configuration, sulfuric acid (SULF) mass is mapped to ASO4 (particulate sulfate). If these emissions are perturbed directly or as part of a broader sector- or region-wide scaling, it is recommended to confirm specifically that these emissions have been scaled as desired. For example, if a family named 'SOX' is defined that includes 'SO2' and 'SULF' and then 'SOX' is specified as the CMAQ species in a scaling rule, then the 'SULF' to 'ASO4' mapping would not be detected.

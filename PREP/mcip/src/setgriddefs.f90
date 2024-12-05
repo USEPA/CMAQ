@@ -164,6 +164,14 @@ SUBROUTINE setgriddefs
 !           21 Sep 2020  Corrected error in logic for processing meteorology
 !                        data at a time interval that is coarser than the
 !                        available data in the file.  (T. Spero)
+!           30 Apr 2024  Changed constraint on XORIG and YORIG for Lambert
+!                        conformal projections with user-specified runtime
+!                        reference latitude. Original constraint of 500 meters
+!                        introduced an error in calculating the location of the
+!                        lower-left corner in domains with a horizontal grid
+!                        spacing that is not a multiple of 1 km. Now using a
+!                        constraint of 5 meters to allow for "neater" XORIG
+!                        and YORIG values across compilers. (T. Spero)
 !-------------------------------------------------------------------------------
 
   USE mcipparm
@@ -511,13 +519,13 @@ SUBROUTINE setgriddefs
     yorig_ctm = met_yyctr - ( met_rjctr_dot - FLOAT(y0+nthik) ) * met_resoln
 
     IF ( ( gdtyp_gd == lamgrd3 ) .AND. ( wrf_lc_ref_lat > -900.0 ) ) THEN
-      ! Force XORIG and YORIG to be even increments of 0.5*delta-X.
-      xtemp = xorig_ctm / 500.0
-      ytemp = yorig_ctm / 500.0
+      ! Force XORIG and YORIG to be in increments of 5 meters.
+      xtemp = xorig_ctm / 5.0
+      ytemp = yorig_ctm / 5.0
       xtemp = FLOAT(NINT(xtemp))
       ytemp = FLOAT(NINT(ytemp))
-      xorig_ctm = xtemp * 500.0
-      yorig_ctm = ytemp * 500.0
+      xorig_ctm = xtemp * 5.0
+      yorig_ctm = ytemp * 5.0
     ENDIF
       
   ENDIF

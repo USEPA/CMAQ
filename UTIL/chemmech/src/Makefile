@@ -6,6 +6,7 @@ ifndef compiler
  compiler = intel
 #compiler = gcc
 #compiler = pgi
+#compiler = nvhpc
 endif
 
 ifeq "$(compiler)" "intel"
@@ -23,9 +24,20 @@ else ifeq "$(compiler)" "pgi"
 
  FC = pgf90
  CC = pgcc
- f_FLAGS   = -Mfixed -Mextend -Mbounds  -Mchkfpstk -Mchkptr -Mchkstk -traceback -Ktrap=fp -O0 -I . -g
+ f_FLAGS   = -Mfixed -Mextend -Mbounds  -Mchkptr -Mchkstk -traceback -Ktrap=fp -O0 -I . -g
  F_FLAGS   = $(f_FLAGS) 
- f90_FLAGS = -Mfree -Mextend -Mbounds  -Mchkfpstk -Mchkptr -Mchkstk -traceback -Ktrap=fp -O0 -I . -g
+ f90_FLAGS = -Mfree -Mextend -Mbounds -Mchkptr -Mchkstk -traceback -Ktrap=fp -O0 -I . -g
+ F90_FLAGS = $(f90_FLAGS)
+ C_FLAGS   =  -O2  -DFLDMN=1
+ LINK_FLAGS = 
+
+else ifeq "$(compiler)" "nvhpc"
+
+ FC = nvfortran
+ CC = nvc
+ f_FLAGS   = -Mfixed -Mextend -Mbounds  -Mchkptr -Mchkstk -traceback -Ktrap=fp -O0 -I . -g
+ F_FLAGS   = $(f_FLAGS) 
+ f90_FLAGS = -Mfree -Mextend -Mbounds  -Mchkptr -Mchkstk -traceback -Ktrap=fp -O0 -I . -g
  F90_FLAGS = $(f90_FLAGS)
  C_FLAGS   =  -O2  -DFLDMN=1
  LINK_FLAGS = 

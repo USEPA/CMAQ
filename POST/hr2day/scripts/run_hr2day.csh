@@ -1,6 +1,6 @@
 #! /bin/csh -f
 
-# ====================== HR2DAYv5.4.X Run Script ======================
+# ====================== HR2DAYv5.5.X Run Script ======================
 # Usage: run.hr2day.csh >&! hr2day.log &
 #
 # To report problems or request help with this script/program:
@@ -20,9 +20,9 @@
  source ./config_cmaq.csh
 
 #> Set General Parameters for Configuring the Simulation
- set VRSN      = v54              #> Code Version
+ set VRSN      = v55               #> Code Version
  set PROC      = mpi               #> serial or mpi
- set MECH      = cb6r3_ae7_aq      #> Mechanism ID
+ set MECH      = cb6r5_ae7_aq      #> Mechanism ID
  set APPL      = Bench_2016_12SE1        #> Application Name (e.g. Gridname)
                                                       
 #> Define RUNID as any combination of parameters above or others. By default,
@@ -63,7 +63,10 @@
 
 #> location of time zone data file, tz.csv (this is a required input file
 #> when using USELOCAL Y to shift from GMT to local time)
- setenv TZFILE ${REPO_HOME}/POST/bldoverlay/inputs/tz.csv
+ setenv TZFILE ${REPO_HOME}/POST/hr2day/inputs/tz.csv
+
+ # You can use the old tz.csv file by uncommenting out this line
+ # setenv TZFILE ${REPO_HOME}/POST/hr2day/inputs/tz_legacy.csv
 
 #> partial day calculation (computes value for last day)
  setenv PARTIAL_DAY Y

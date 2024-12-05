@@ -19,9 +19,9 @@
 !    Definition of Fields:                                                     !
 !     ELMO_ACTIVATE - turn files on and off                                    !
 !        'INSTANT' - If .TRUE., then the instantaneous ELMO output file will   !
-!                    be output. If .FALSE. it will not.                       !
+!                    be output. If .FALSE. it will not.                        !
 !        'AVERAGE' - If .TRUE., then the average ELMO output file will         !
-!                    be output. If .FALSE. it will not.                       !
+!                    be output. If .FALSE. it will not.                        !
 !     ELMO_INST - set parameters for instantaneous output                      !
 !        'INST_LAYER_TOP' - highest CMAQ layer for instantaneous output        ! 
 !        'INST_LAYER_BOT' - lowest CMAQ layer for instantaneous output         !
@@ -65,9 +65,20 @@
 !                                      FAMS                                    !
 !                 'TOXICS' - Species output by the toxics version of CMAQ      !
 !                            (e.g. PM25_HBE, PM25_HNI, PM10_HDIESEL', etc      !
+!                            In CMAQ v5.5 and earlier versions with ELMO output!
+!                            files, the TOXICS keyword group omits several     !
+!                            toxic aerosol species. The missing species include! 
+!                            PM10 for nickle as well as PM25, PM10, and        !
+!                            fraction aerosol for benzo[a]pyrene. To have the  !
+!                            variables in the ELMO output files, a user has to !
+!                            add PM10_HNI, PM25_BENAPY, PM10_BENAPY and        !
+!                            BENAPY_FAERO as well as the TOXICS keyword groups !
+!                            to CMAQ_Control_Misc.nml file in the CCTM build   !
+!                            directory.                                        !
 !                                                                              !
 !     ELMO_AVRG - set parameters for average output                            !
-!        'AVRG_LAYER_TOP' - highest CMAQ layer for average output              ! 
+!        'AVRG_LAYER_TOP' - top CMAQ layer for average output. Enter '-1'      !
+!                           for the highest layer in the model domain          ! 
 !        'AVRG_LAYER_BOT' - lowest CMAQ layer for avergae output               !
 !        'AVRG_VARS_NML' - register of all variables requested by the user.    !
 !                          Options are equivalent to those for INST_VARS_NML   !
@@ -120,8 +131,15 @@
 
 !------------------------------------------------------------------------------!
 ! Emissions Scaling Family Definitions                                         !
-!    This component includes definitions for families of CMAQ chemical species,  !
-!    emission streams and region combinations.                                 !
+!    This component includes definitions for families of CMAQ chemical species !
+!    and emission variables.                                                   !
+!    Note that if you are defining a 'VOC' family to apply scaling to all VOC  !
+!    emissions, it is recommended that you define 'VOC' either in terms of the !
+!    emission variables (consistent with variable names on your emission file) !
+!    or with CMAQ species names. In order to use this family to scale VOC      !
+!    emissions via an emission rule, use the 'VOC' family for either the       !
+!    emission variable or CMAQ species, consistent with how you have defined it!
+!    here, and use the 'ALL' keyword for the other field.                      !
 !------------------------------------------------------------------------------!
 &Chemical_FamVars
  N_Chem_Fams = 0

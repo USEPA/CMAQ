@@ -86,6 +86,9 @@ C-------------------------------------------------------------------------------
       Use LSM_MOD             ! Land surface data
       Use DEPVVARS, Only: ltotg
       Use CENTRALIZED_IO_MODULE
+#ifdef mpas
+      use coupler_module
+#endif
 
       Implicit None
 
@@ -119,6 +122,7 @@ C-------------------------------------------------------------------------------
          Real,    Allocatable :: Z0       ( :,: )  ! roughness length [m]
          Real,    Allocatable :: SOIM1    ( :,: )  ! 1 cm soil moisture [m**3/m**3]
          Real,    Allocatable :: SOIM2    ( :,: )  ! 1 m soil moisture  [m**3/m**3]
+         Real,    Allocatable :: CLDFRAC  ( :,: )  ! Total cloud fraction including cu
          Real,    Allocatable :: SOIT1    ( :,: )  ! 1 cm soil temperature [K]
          Real,    Allocatable :: SOIT2    ( :,: )  ! 1 m soil temperature [K]
          Real,    Allocatable :: SEAICE   ( :,: )  ! Sea ice coverage [%]
@@ -500,6 +504,13 @@ C Land use information:
       DATA subname(257), dif0(257), ar(257), meso(257), lebas(257) / 'ADIPIC_ACID     ',0.0489,    1.0,      0.0, 198.7/
       DATA subname(258), dif0(258), ar(258), meso(258), lebas(258) / 'IPNOPERA        ',0.0652,   86.6,      0.3, 104.8/ ! VD_IPN   
       DATA subname(259), dif0(259), ar(259), meso(259), lebas(259) / 'IPCOPERA        ',0.0687,    1.0,      0.3,  99.3/ ! VD_IPC       
+      DATA subname(260), dif0(260), ar(260), meso(260), lebas(260) / 'EBZOPERA        ',0.0636,    1.0,      0.0, 122.0/
+      DATA subname(261), dif0(261), ar(261), meso(261), lebas(261) / 'XYLOPERA        ',0.0636,    1.0,      0.0, 122.0/
+      DATA subname(262), dif0(262), ar(262), meso(262), lebas(262) / 'STYOPERA        ',0.0700,    1.0,      0.0, 115.4/
+      DATA subname(263), dif0(263), ar(263), meso(263), lebas(263) / 'IPXOPERA        ',0.0716,    1.0,      0.3,  99.3/
+      DATA subname(264), dif0(264), ar(264), meso(264), lebas(264) / 'INALDOPERA      ',0.0671,    1.0,      0.1,  78.0/
+      DATA subname(265), dif0(265), ar(265), meso(265), lebas(265) / '2NITRO_1BUTNL   ',0.0517,216903.,      0.1, 152.2/ ! HONIT
+
 
       CONTAINS
 
@@ -716,6 +727,7 @@ C-----------------------------------------------------------------------
             Write( LOGDEV,'(/5X, A, /)' ) XMSG
          End If
 
+#ifndef mpas
 !> Get sigma coordinate variables
          Do L = 1, NLAYS
             Grid_Data%DX3F( L )  = X3FACE_GD( L ) - X3FACE_GD( L-1 )
@@ -726,19 +738,35 @@ C-----------------------------------------------------------------------
             Grid_Data%RDX3M( L ) = 1.0 / ( BUFF1D( L+1 ) - BUFF1D( L ) )
          End Do
          Grid_Data%RDX3M( NLAYS ) = 0.0
+#endif
 
 !> reciprocal of msfx2**2
+#ifdef mpas
+         Grid_Data%RMSFX4 = 1.0
+         Grid_Data%PURB = g2ddata(:,:,purb_ind)
+         Grid_Data%SLTYP = INT( g2ddata(:,:,sltyp_ind) )
+         Grid_Data%LUFRAC = LUFRAC
+
+         DO R = 1, NROWS
+            DO C = 1, NCOLS
+               IF (Grid_Data%SLTYP(C,R) <=  N_SOIL_TYPE) THEN
+                  Grid_Data%WSAT( C,R ) = WSAT( Grid_Data%SLTYP( C,R ) )
+                  Grid_Data%WFC ( C,R ) = WFC ( Grid_Data%SLTYP( C,R ) )
+               ELSE
+                  Grid_Data%WSAT( C,R ) = WSAT( N_SOIL_TYPE )
+                  Grid_Data%WFC ( C,R ) = WFC ( N_SOIL_TYPE )
+               END IF
+            END DO
+         END DO
+
+#else
+
          Grid_Data%RMSFX4 = 1.0 / ( MSFX2**2 )
-
-         Grid_Data%LON = LON
-
-         Grid_Data%LAT = LAT
-
-         Grid_Data%LWMASK = LWMASK
 
          Grid_Data%PURB = PURB
 
          Grid_Data%SLTYP = NINT( SOILCAT_A )
+
          Grid_Data%LUFRAC = LUFRAC
 
          If ( (ABFLUX .or. HGBIDI .or. BIOGEMIS_MEGAN .or. BIOGEMIS_BEIS) .and. .not. PXSOIL_AVAIL) Then
@@ -760,6 +788,13 @@ C-----------------------------------------------------------------------
                Grid_Data%BSLP( C,R ) = BSLP( Grid_Data%SLTYP( C,R ) )
             End Forall
          End If
+#endif
+
+         Grid_Data%LON = LON
+
+         Grid_Data%LAT = LAT
+
+         Grid_Data%LWMASK = LWMASK
 
          Grid_Data%OCEAN = ocean
 
@@ -786,10 +821,12 @@ C-----------------------------------------------------------------------
 
          USE GRID_CONF       ! horizontal & vertical domain specifications
          Use UTILIO_DEFN
+#ifndef mpas
 #ifdef parallel
          USE SE_MODULES      ! stenex (using SE_COMM_MODULE)
 #else
          USE NOOP_MODULES    ! stenex (using NOOP_COMM_MODULE)
+#endif
 #endif
 
          Implicit None
@@ -835,6 +872,11 @@ C-------------------------------- MET_CRO_3D --------------------------------
 
          Met_Data%DENS1 = Met_Data%DENS( :,:,1 )
      
+#ifdef mpas
+         Met_Data%RJACM = 1.0
+
+         Met_Data%RJACF = 1.0
+#else
          call interpolate_var ('JACOBM', jdate, jtime, Met_Data%RJACM)
 
          Met_Data%RJACM = 1.0 / Met_Data%RJACM
@@ -842,6 +884,7 @@ C-------------------------------- MET_CRO_3D --------------------------------
          call interpolate_var ('JACOBF', jdate, jtime, Met_Data%RJACF)
 
          Met_Data%RJACF = 1.0 / Met_Data%RJACF
+#endif
 
          call interpolate_var ('DENSA_J', jdate, jtime, Met_Data%RRHOJ)
 
@@ -862,11 +905,17 @@ C Vegetation and surface vars
          call interpolate_var ('ZRUF', jdate, jtime, Met_Data%Z0)
 
 C Soil vars
+#ifdef mpas
+         Met_Data%SOIM1 = smois_data(:,:,1)
+         Met_Data%SOIM2 = smois_data(:,:,2)
+         Met_Data%CLDFRAC = g2ddata(:,:,cfrac2dt_ind) ! for BDSNP soil NO
+#else
          call interpolate_var ('SOIM1', jdate, jtime, Met_Data%SOIM1)
 
          If ( ABFLUX .or. BIOGEMIS_MEGAN) Then
             call interpolate_var ('SOIM2', jdate, jtime, Met_Data%SOIM2)
          End If
+#endif
 
          call interpolate_var ('SOIT1', jdate, jtime, Met_Data%SOIT1)
 
@@ -995,6 +1044,7 @@ C Met_cro_2D variables that have recently changed due to MCIP or WRF/CMAQ
      &                                 ( MET_DATA%TA - 273.15 + 243.04 ) ) )
          MET_DATA%RH = MIN( 0.9999, MAX( 0.001, MET_DATA%RH ) )
 
+#ifndef mpas
 C-------------------------------- MET_DOT_3D --------------------------------
          call interpolate_var (vname_uc, jdate, jtime, Met_Data%UWIND)
 
@@ -1003,6 +1053,7 @@ C-------------------------------- MET_DOT_3D --------------------------------
 C get ghost values for wind fields in case of free trop.
          CALL SUBST_COMM ( Met_Data%UWIND, DSPL_N0_E1_S0_W0, DRCN_E )
          CALL SUBST_COMM ( Met_Data%VWIND, DSPL_N1_E0_S0_W0, DRCN_N )
+#endif
 
 C-------------------------------- Calculated Variables --------------------------------
          Met_Data%DZF = Met_Data%ZF - EOSHIFT(Met_Data%ZF, Shift = -1, Boundary = 0.0, Dim = 3)
@@ -1023,9 +1074,14 @@ C-------------------------------- Calculated Variables -------------------------
          BUFF3D = Met_Data%TA * ( 1.0 + 0.608 * Met_Data%QV )
          Met_Data%THETAV = BUFF3D * ( P0 / Met_Data%PRES ) ** 0.286
 
+#ifdef mpas
+         Met_Data%MOL = 1./g2ddata(:,:,rmol_ind)
+#endif
+
 C------  Updating MOL, then WSTAR, MOLI, HOL 
          DO R = 1, NROWS
             DO C = 1, NCOLS
+#ifndef mpas
  !             CPAIR    = 1004.67 * ( 1.0 + 0.84 * Met_Data%QV( C,R,1 ) )   ! J/(K KG)
                CPAIR    = CPD * ( 1.0 + 0.84 * Met_Data%QV( C,R,1 ) )   ! J/(K KG)
                TMPFX    = Met_Data%HFX( C,R ) / ( CPAIR * Met_Data%DENS( C,R,1 ) )
@@ -1044,6 +1100,7 @@ C------  Updating MOL, then WSTAR, MOLI, HOL
                END IF
                Met_Data%MOL( C,R ) = Met_Data%THETAV( C,R,1 )
      &                             * Met_Data%USTAR( C,R ) ** 2 / ( karman * GRAV * TSTV )
+#endif
                IF ( Met_Data%MOL( C,R ) .LT. 0.0 ) THEN
                   Met_Data%WSTAR( C,R ) = Met_Data%USTAR( C,R ) * ( Met_Data%PBL( C,R )
      &                                  / ( karman * ABS( Met_Data%MOL( C,R ) ) ) ) ** 0.333333
@@ -1068,6 +1125,7 @@ C------
                END DO
 
                Met_Data%LPBL( C,R ) = LP
+#ifndef mpas
                If ( LP .Eq. 1 ) Then
                   FINT = ( Met_Data%PBL( C,R ) )
      &                 / ( Met_Data%ZF( C,R,LP ) )
@@ -1079,6 +1137,7 @@ C------
                   Met_Data%XPBL( C,R ) = FINT * ( X3FACE_GD( LP ) - X3FACE_GD( LP-1 ) )
      &                        + X3FACE_GD( LP-1 )
                End If
+#endif
             END DO
          END DO
          Where( Met_Data%THETAV( :,:,1 ) - Met_Data%THETAV( :,:,2 ) .Gt. EPS .And.

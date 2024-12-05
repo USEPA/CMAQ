@@ -30,7 +30,8 @@ C             PV estimated from NAM at ~100mb,  Rohit Mathur, Nov. 2008
 C             Incorporation in CMAQv4.7.1,  Rohit Mathur, Jan.2010
 C  12 Mar 2019 D. Wong: Implemented centralized I/O approach and removed all MY_N clauses
 C   1 Apr 2019 D. Wong: Remove call to SUBHFILE
-
+C   March 2023 R.Mathur: removed sigma-coordinate dependence in determing layers
+C               above which PV-scaling is applied
 C-----------------------------------------------------------------------
 
       USE CGRID_SPCS          ! CGRID mechanism species
@@ -42,7 +43,11 @@ C-----------------------------------------------------------------------
       USE SA_DEFN, ONLY: ISAM, N_SPCTAG, NTAG_SA, ITAG, OTHRTAG,
      &                   ISAM_PVO3_MAP, ISAM_SPEC, L_OZONE,
      &                   ISAMRGN_NUM, ISAMRGN_MAP, NSPC_SA
-      USE em_param_module, ONLY: EM_REG_FAC, N_EM_RGN
+      USE desid_param_module, ONLY: DESID_REG_FAC, DESID_N_REG
+#endif
+
+#ifdef sens
+      USE DDM3D_DEFN, ONLY : NP, NPMAX, SENGRID, IPT
 #endif
 
       IMPLICIT NONE
@@ -124,18 +129,12 @@ C Get number of species, and starting indices for CGRID array.
             WRITE( LOGDEV,92001 ) TR_STRT-1, N_TR_SPC, VO3T
          END IF
 
-C Determine first layer above PPVT to scale O3 to PV
-         DO L = 0, NLAYS
-            PLAY = PSFC - ( PSFC - VGTOP_GD ) * X3FACE_GD( L )
-            IF ( PLAY .LT. PPVT ) THEN
-               KPV = L; EXIT
-            END IF
-         END DO
 C Scale top 3 layers O3 to PV
 !        KPV = NLAYS - 2
 C Scale only top layer O3 to PV
 !        KPV = NLAYS
-         WRITE( LOGDEV,92002 ) KPV, X3FACE_GD( KPV )
+C        WRITE( LOGDEV,92002 ) KPV, X3FACE_GD( KPV )
+         WRITE( LOGDEV,92003 ) PPVT
 
          ALLOCATE ( CSTARZ( NCOLS,NROWS ),
      &              CXX( NCOLS,NROWS ), STAT = ALLOCSTAT )
@@ -190,9 +189,12 @@ C   of a 22-layer configuration
          END DO
       END DO
 
-      DO L = KPV, NLAYS
+C     DO L = KPV, NLAYS
+      DO L = 1, NLAYS
          DO R = 1, NROWS
             DO C = 1, NCOLS
+
+             IF (PRES(C,R,L).LT.PPVT ) THEN ! scale O3 above PPVT
 
                FC     = CSTARZ( C,R ) + ( PRES( C,R,L ) - 5856.0 ) * CXX( C,R )
 
@@ -204,25 +206,25 @@ C   of a 22-layer configuration
                  ISAM( C,R,L,S_O3,: ) = 1E-30
                  PVO3_STORE = 1.0
                  IF ( SUM( ISAM_PVO3_MAP(:) ) .EQ. 0 ) THEN  ! no PV tracking specified, toss it into OTHER
-                   ISAM( C,R,L,S_O3,OTHRTAG ) = PVO3_STORE
+                   ISAM( C,R,L,S_O3,OTHRTAG ) = CGRID( C,R,L,VO3 )
                  ELSE IF ( SUM( ISAM_PVO3_MAP(:) ) .GE. 1 ) THEN ! at least 1 PVO3 tag
                    DO ITAG = 1, NTAG_SA-3
                      IF( ISAM_PVO3_MAP(ITAG) .EQ. 1 ) THEN ! PV for this tag
                         IF ( ISAMRGN_NUM( ITAG ) .LT. 1 ) THEN ! full domain
-                          ISAM( C,R,L,S_O3,ITAG ) = PVO3_STORE
-                          PVO3_STORE = PVO3_STORE - ISAM( C,R,L,S_O3,ITAG )
+                          ISAM( C,R,L,S_O3,ITAG ) = CGRID( C,R,L,VO3 )
+                          PVO3_STORE = 0.0
                         ELSE ! split into regions and other
                           DO RGN = 1, ISAMRGN_NUM( ITAG )
                             ISAM( C,R,L,S_O3,ITAG ) = ISAM( C,R,L,S_O3,ITAG )
      &                            + CGRID( C,R,L,VO3 )
-     &                            * EM_REG_FAC(C,R,ISAMRGN_MAP(ITAG,RGN))
+     &                            * DESID_REG_FAC(C,R,ISAMRGN_MAP(ITAG,RGN))
                             PVO3_STORE = PVO3_STORE
-     &                            - EM_REG_FAC(C,R,ISAMRGN_MAP(ITAG,RGN))
+     &                            - DESID_REG_FAC(C,R,ISAMRGN_MAP(ITAG,RGN))
                           END DO
                         END IF 
                      END IF
                    END DO
-                   IF ( PVO3_STORE .LT. 1E-6 ) PVO3_STORE = 0.0 ! round off precision error
+                   IF ( PVO3_STORE .LT. 1E-6 .AND. PVO3_STORE .GT. 0.0 ) PVO3_STORE = 0.0 ! round off precision error
                    IF ( PVO3_STORE .GE. 0.0 ) THEN ! put the rest into OTHER tag
                      ISAM( C,R,L,S_O3,OTHRTAG ) = PVO3_STORE * CGRID( C,R,L,VO3 )
                    ELSE
@@ -236,9 +238,21 @@ C   of a 22-layer configuration
                  END IF
                END IF
 #endif
+
+#ifdef sens
+               DO NP = 1, NPMAX
+                  IF ( IPT( NP ) .EQ. 6 ) THEN
+                     SENGRID( C, R, L, NP, VO3 ) = CGRID( C, R, L, VO3 )
+                  END IF
+               END DO
+#endif
+
                IF ( VO3T .GT. 0 ) THEN
                   CGRID( C,R,L,VO3T ) = CGRID( C,R,L,VO3 )
                END IF
+
+             END IF ! check PPVT
+
             END DO
          END DO
       END DO
@@ -254,5 +268,6 @@ C   of a 22-layer configuration
      &        / 10X, 'Species index for O3PV tracer:         ', I4 )
 92002 FORMAT( / 10X, 'PV Scaling at Layers Starting from: ', I4
      &        / 10X, 'X3 coordinate value at starting layer: ', F10.7 / )
+92003 FORMAT( / 10X, 'PV Scaling applied above ', F10.2, 'Pa')
 
       END

@@ -88,6 +88,10 @@
    'EVERYWHERE', 'ALL'         ,'HGIIGAS','HGIIGAS'     ,'GAS'  ,1.  ,'UNIT','a', 
    'EVERYWHERE', 'ALL'         ,'SULF'   ,'SULF'        ,'GAS'  ,0.  ,'UNIT','a', 
 
+   ! Marine Halogen Chemistry
+   'EVERYWHERE', 'ALL'         ,'DMS'    ,'DMS'         ,'GAS'  ,1.  ,'UNIT','a',
+
+
    ! Optional Air Toxics in NR namelist, comment out species if the NR namelist
    ! does not include one or more of them.
    'EVERYWHERE', 'ALL' ,'ACRYLONITRILE','ACRY_NITRILE',     'GAS'  ,1.  ,'UNIT','a',

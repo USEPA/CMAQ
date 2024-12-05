@@ -237,7 +237,7 @@ C     Initial version - 6/5/19 - Shawn Roselle
 C-----------------------------------------------------------------------
 
       Use grid_conf, Only: ncols, nrows, nlays
-      Use utilio_defn, Only: xstat1
+      Use utilio_defn
       Use aero_data, Only : aso4_idx, aso4aqh2o2_idx, aso4aqo3_idx,
      &                      aso4aqfemn_idx, aso4aqmhp_idx, aso4aqpaa_idx,
      &                      aso4gas_idx, aso4emis_idx, aso4icbc_idx,

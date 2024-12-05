@@ -177,7 +177,9 @@
      &                  'fix the Chemical Families', 1 ) 
  
       END IF
-      ! Add Aerosol Species to Chemical Family List
+
+      ! Add Aerosol Species to Chemical Family List if they aren't
+      ! already there
       DO IAER = 1,N_AEROSPC
          JAER = INDEX1( AEROSPC(IAER)%BULKNAME,N_Chem_Fams,ChemFamilyName )
          IF ( JAER .EQ. 0 ) THEN
@@ -196,8 +198,16 @@
                 exit
              end if
            END DO
+         ELSE
+           N_Chem_Fams = N_Chem_Fams - 1
          END IF
       END DO
+
+      ! Reallocate Chemical Family Arrays in case N_Chem_Fams was
+      ! shortened due to aerosol bulknames being already present in the
+      ! user-defined family list.
+      ChemFamilyName = ChemFamilyName(1:N_Chem_Fams)
+      ChemFamilyMembers = ChemFamilyMembers(1:N_Chem_Fams,1:Max_Chem_Fam_Members)
 
       ! Populate and Error Check All Family and Member Names
       DO IFAM = 1,N_Chem_Fams
@@ -471,15 +481,15 @@
                IF ( KDX .NE. 0 ) OUT_VEC( KDX ) = .TRUE.
              END DO
            ELSE
-             WRITE( LOGDEV, '(/,5A,/,A,/,A,/,A,/,A)' ),
-     &         'Species ',TRIM(SPECIES),':',TRIM(CHEM_NAME(ICHEM)),
-     &         ' was used in the Emissions',
-     &         ' Control Instructions Namelist but it is not a valid CMAQ ',
+             WRITE( LOGDEV, '(/,19A,A,1A,A,A,/,A,/,A,/,A,/,A,/,A,/,A)' ),
+     &         'Attention: Species ',TRIM(SPECIES),':',TRIM(CHEM_NAME(ICHEM)),
+     &         ' was used in the CMAQ Miscellaneous',
+     &         ' Control Instructions but it is not a valid CMAQ ',
      &         'transported species or family. Please add it to one of the ',
-     &         'input chemical namelists (ie. GC, AE, etc). Note that aerosol',
-     &         'Number and Surface Area Species are not valid for scaling.'
-             XMSG = 'Error in Emissions Map Processing.'
-             CALL M3EXIT( 'Map_Chem_Families', 0, 0, XMSG, XSTAT1 )
+     &         'input chemical namelists (ie. GC, AE, etc), if desired. If the ',
+     &         'variable is on an emission file and not a CMAQ species, no ',
+     &         'further action is required. Note that aerosol Number and Surface ',
+     &         'Area Species are not valid for scaling.'
             END IF
          END DO
       END IF 

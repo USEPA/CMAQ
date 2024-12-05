@@ -55,20 +55,22 @@ C    16 Sep 16 J.Young: update for inline procan (IPR)
 C    10 July 19 F. Sidi: Renamed Couple_WRF to be couple
 C-----------------------------------------------------------------------
 
-      USE UTILIO_DEFN, ONLY: DT2STR, WKDAY
+      USE UTILIO_DEFN
       USE RUNTIME_VARS, ONLY: LOGDEV, OUTDEV, MYPE, CKSUM, 
      &                        PRINT_PROC_TIME, WEEKDAY, 
      &                        LOG_MESSAGE, TIMING_SPLIT, STM,
-     &                        COLUMN_MODEL
+     &                        COLUMN_MODEL, LPVO3
+#ifndef mpas
 #ifdef parallel
       USE SE_MODULES            ! stenex (using SE_UTIL_MODULE)
 #else
       USE NOOP_MODULES          ! stenex (using NOOP_UTIL_MODULE)
 #endif
+      USE PA_UPDATE
+#endif
       USE PA_DEFN, Only: LIPR, IPR_VDIF, IPR_ZADV, IPR_HDIF, IPR_CLDS, 
      &                   IPR_CHEM, IPR_PVO3,
      &                   BUDGET_DIAG ! Process Analysis control and data variables
-      USE PA_UPDATE
 #ifdef isam
       USE SA_DEFN, Only: ISAM
       USE GRID_CONF
@@ -120,6 +122,7 @@ C Local Variables:
             REAL, POINTER             :: CGRID( :,:,:,: )
             INTEGER, INTENT( IN )     :: JDATE, JTIME
          END SUBROUTINE CKSUMMER
+#ifndef mpas
          SUBROUTINE HADV ( CGRID, JDATE, JTIME, TSTEP, ASTEP )
             REAL, POINTER             :: CGRID( :,:,:,: )
             INTEGER, INTENT( IN )     :: JDATE, JTIME
@@ -146,6 +149,7 @@ C Local Variables:
             INTEGER, INTENT( IN )     :: JDATE, JTIME
             INTEGER, INTENT( IN )     :: TSTEP( 3 )
          END SUBROUTINE HDIFF
+#endif
          SUBROUTINE VDIFF ( CGRID, JDATE, JTIME, TSTEP )
             REAL, POINTER             :: CGRID( :,:,:,: )
             INTEGER, INTENT( IN )     :: JDATE, JTIME
@@ -166,13 +170,11 @@ C Local Variables:
             INTEGER, INTENT( IN )     :: JDATE, JTIME
             INTEGER, INTENT( IN )     :: TSTEP( 3 )
          END SUBROUTINE CHEM
-#ifdef potvorto3
          SUBROUTINE PVO3 ( CGRID, JDATE, JTIME )
             IMPLICIT NONE
             REAL, POINTER             :: CGRID( :,:,:,: )
             INTEGER, INTENT( IN )     :: JDATE, JTIME
          END SUBROUTINE PVO3
-#endif
          SUBROUTINE AERO ( CGRID, JDATE, JTIME, TSTEP )
             REAL, POINTER             :: CGRID( :,:,:,: )
             INTEGER, INTENT( IN )     :: JDATE, JTIME
@@ -198,15 +200,15 @@ C-----------------------------------------------------------------------
       END IF
 #endif
 
-! Write Time Step Information to Summary Logfile
+      ! Calculate and Write Time Step Information to Summary Logfile
       IF ( MYPE .EQ. 0 ) WRITE( OUTDEV, * ) 
       WRITE( LOGDEV, * )
 
 #ifdef parallel
-            CPU_TIME_START =  MPI_WTIME()
+      CPU_TIME_START =  MPI_WTIME()
 #else
-            CALL CPU_TIME( REAL_TIME )
-            CPU_TIME_START = REAL( REAL_TIME,8 )
+      CALL CPU_TIME( REAL_TIME )
+      CPU_TIME_START = REAL( REAL_TIME,8 )
 #endif
       CPU_TIME_START_MASTER = CPU_TIME_START
       WRITE( XMSG, '(A,I7.7,A,I6.6)' ), 'Processing Day/Time [YYYYDDD:HHMMSS]: ',JDATE, 
@@ -225,18 +227,26 @@ C-----------------------------------------------------------------------
       IF ( MYPE .EQ. 0 ) CALL LOG_MESSAGE( OUTDEV, XMSG )
       CALL LOG_MESSAGE( LOGDEV, XMSG )
 
-C Synchronization Step Physical Processes Sequence
+      ! Calculate Vertical Diffusion, Dry Deposition, and Emissions
       CALL VDIFF ( CGRID, JDATE, JTIME, TSTEP )
       IF ( CKSUM ) CALL CKSUMMER ( 'VDIFF', CGRID, JDATE, JTIME )
+#ifndef mpas
       IF ( BUDGET_DIAG .OR. LIPR ) CALL PA_UPDATE_PROC ( IPR_VDIF, CGRID, JDATE, JTIME, TSTEP, .FALSE. )
+#endif
       IF ( PRINT_PROC_TIME ) CALL TIMING_SPLIT ( CPU_TIME_START, 1, 'VDIFF' )
 
+      ! Save time at end of the current time-step in SDATE and STIME
+      SDATE = JDATE
+      STIME = JTIME
+      CALL NEXTIME ( SDATE, STIME, TSTEP( 2 ) )
 
       IF ( .NOT. COLUMN_MODEL ) THEN
-C couple CGRID for advection and horizontal diffusion
-C The COUPLE routine converts aerosol mass from ug/m3 to kg/m3. The 
-C DECOUPLE routine converts it back to ug/m3.
+         ! Calculate Horizontal Transport
+         ! couple CGRID for advection and horizontal diffusion
+         ! The COUPLE routine converts aerosol mass from ug/m3 to kg/m3. The 
+         ! DECOUPLE routine converts it back to ug/m3.
 
+#ifndef mpas
          CALL COUPLE ( CGRID, JDATE, JTIME, TSTEP )
          IF ( CKSUM ) CALL CKSUMMER ( 'COUPLE', CGRID, JDATE, JTIME )
          IF ( BUDGET_DIAG .OR. LIPR ) CALL PA_UPDATE_PROC ( IPR_ZADV, CGRID, JDATE, JTIME, TSTEP, .TRUE. )
@@ -257,61 +267,74 @@ C DECOUPLE routine converts it back to ug/m3.
          IF ( CKSUM ) CALL CKSUMMER ( 'HDIFF', CGRID, JDATE, JTIME )
          IF ( BUDGET_DIAG .OR. LIPR ) CALL PA_UPDATE_PROC ( IPR_HDIF, CGRID, JDATE, JTIME, TSTEP, .TRUE. )
          IF ( PRINT_PROC_TIME ) CALL TIMING_SPLIT ( CPU_TIME_START, 1, 'HDIFF' )
+#endif
 
-C decouple CGRID for cloud and chemistry
-
-         SDATE = JDATE
-         STIME = JTIME
-         CALL NEXTIME ( SDATE, STIME, TSTEP( 2 ) )
-         
+#ifndef mpas
+         ! Decouple CGRID for cloud and chemistry corresponding to conditions
+         ! at the end of the time step (i.e. SDATE, STIME)
          CALL DECOUPLE ( CGRID, SDATE, STIME, TSTEP )
          IF ( CKSUM ) CALL CKSUMMER ( 'DECOUPLE', CGRID, JDATE, JTIME )
          IF ( PRINT_PROC_TIME ) CALL TIMING_SPLIT ( CPU_TIME_START, 1, 'DECOUPLE' )
+         IF ( BUDGET_DIAG .OR. LIPR ) CALL PA_UPDATE_PROC ( IPR_ZADV, CGRID, SDATE, STIME, TSTEP, .FALSE. )
+#endif
 
-      END IF
+      END IF ! Not Column Model
       
-      IF ( BUDGET_DIAG .OR. LIPR ) CALL PA_UPDATE_PROC ( IPR_ZADV, CGRID, SDATE, STIME, TSTEP, .FALSE. )
-      
+      ! Calculate Photolysis Rates
       CALL PHOT ( CGRID, JDATE, JTIME, TSTEP )
       IF ( CKSUM ) CALL CKSUMMER ( 'PHOT', CGRID, JDATE, JTIME )
       IF ( PRINT_PROC_TIME ) CALL TIMING_SPLIT ( CPU_TIME_START, 1, 'PHOT' )
 
+      ! Calculate Cloud Scavening and Chemistry
       CALL CLDPROC ( CGRID, JDATE, JTIME, TSTEP )
       IF ( CKSUM ) CALL CKSUMMER ( 'CLDPROC', CGRID, JDATE, JTIME )
+#ifndef mpas
       IF ( BUDGET_DIAG .OR. LIPR ) CALL PA_UPDATE_PROC ( IPR_CLDS, CGRID, SDATE, STIME, TSTEP, .FALSE. )
+#endif
       IF ( PRINT_PROC_TIME ) CALL TIMING_SPLIT ( CPU_TIME_START, 1, 'CLDPROC' )
 
+      ! Calculate Gas- and Particle-Phase Chemistry
       IF ( STM ) CALL STM_WRAP_GAS ( CGRID, JDATE, JTIME, .TRUE. )
       CALL CHEM ( CGRID, JDATE, JTIME, TSTEP )
       IF ( CKSUM ) CALL CKSUMMER ( 'CHEM', CGRID, JDATE, JTIME )
+#ifndef mpas
       IF ( BUDGET_DIAG .OR. LIPR ) CALL PA_UPDATE_PROC ( IPR_CHEM, CGRID, SDATE, STIME, TSTEP, .FALSE. ) 
+#endif
       IF ( STM ) CALL STM_WRAP_GAS ( CGRID, JDATE, JTIME, .FALSE. )
       IF ( PRINT_PROC_TIME ) CALL TIMING_SPLIT ( CPU_TIME_START, 1, 'CHEM' )
 
-#ifdef potvorto3
-      CALL PVO3 ( CGRID, JDATE, JTIME )
-      IF ( CKSUM ) CALL CKSUMMER ( 'PVO3', CGRID, JDATE, JTIME )
-      IF ( BUDGET_DIAG .OR. LIPR ) CALL PA_UPDATE_PROC ( IPR_PVO3, CGRID, SDATE, STIME, TSTEP, .FALSE. )
-      IF ( PRINT_PROC_TIME ) CALL TIMING_SPLIT ( CPU_TIME_START, 1, 'PVO3' )
+      IF ( LPVO3 ) THEN
+         CALL PVO3 ( CGRID, JDATE, JTIME )
+         IF ( CKSUM ) CALL CKSUMMER ( 'PVO3', CGRID, JDATE, JTIME )
+#ifndef mpas
+         IF ( BUDGET_DIAG .OR. LIPR ) CALL PA_UPDATE_PROC ( IPR_PVO3, CGRID, SDATE, STIME, TSTEP, .FALSE. )
 #endif
+         IF ( PRINT_PROC_TIME ) CALL TIMING_SPLIT ( CPU_TIME_START, 1, 'PVO3' )
+      END IF
 
 #ifdef isam
+      ! Save ISAM concentration field to use for apportioning
+      ! aerosols and semivolatile gases after AERO is called
       CGRID0  = CGRID
 #endif
 
+      ! Calculate Aerosol Microphysics
       CALL AERO ( CGRID, JDATE, JTIME, TSTEP )
 #ifdef isam
       CALL SA_WRAP_AE( CGRID0, CGRID, JDATE, JTIME, TSTEP )
 #endif
       IF ( CKSUM ) CALL CKSUMMER ( 'AERO', CGRID, JDATE, JTIME )
-      IF ( BUDGET_DIAG .OR. LIPR ) CALL PA_UPDATE_AERO ( CGRID, SDATE, STIME )
       IF ( STM ) CALL STM_WRAP_AE ( CGRID, JDATE, JTIME )
+#ifndef mpas
+      IF ( BUDGET_DIAG .OR. LIPR ) CALL PA_UPDATE_AERO ( CGRID, SDATE, STIME )
+#endif
       IF ( PRINT_PROC_TIME ) CALL TIMING_SPLIT ( CPU_TIME_START, 1, 'AERO' )
 
+      ! Advance Time Step
       CALL NEXTIME ( JDATE, JTIME, TSTEP( 2 ) )
       WRITE( LOGDEV,'(/ 5X, A, I8, I7.6)' ) NMSG, JDATE, JTIME
 
-! Print Summary Timing for Master time step      
+      ! Print Summary Timing for Master time step      
       CALL TIMING_SPLIT ( CPU_TIME_START_MASTER, 2 )
 
 1002  FORMAT ( 2x, A15, ' completed... ', F6.1, ' seconds' )

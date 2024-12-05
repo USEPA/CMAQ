@@ -70,6 +70,7 @@ C...Local variables
       INTEGER N, L, JWL, INCR     ! loop variables
 C-----------------------------------------------------------------------
 
+#ifndef mpas
 C...Try to open existing file for update
 
       IF ( .NOT. OPEN3( CTM_RJ_1, FSRDWR3, PNAME ) ) THEN
@@ -259,7 +260,14 @@ C...assumes that lamba in nanometers is on order of 100 or less
             N = N + 1
             VNAME3D( N ) = 'AOD_W' // TRIM( LAMBDA )
             UNITS3D( N ) = ''
-            VDESC3D( N ) = 'Aerosol Optical Depth at '
+            VDESC3D( N ) = 'Total Aerosol Optical Depth at '
+     &                   // TRIM( LAMBDA ) // ' nm'
+            VTYPE3D( N ) = M3REAL
+
+            N = N + 1
+            VNAME3D( N ) = 'AOD_ABS_W' // TRIM( LAMBDA )
+            UNITS3D( N ) = ''
+            VDESC3D( N ) = 'Absorption Aerosol Optical Depth at '
      &                   // TRIM( LAMBDA ) // ' nm'
             VTYPE3D( N ) = M3REAL
 
@@ -312,7 +320,14 @@ C...assumes that lamba in nanometers is on order of 100 or less
          UNITS3D( N ) = ''
          VDESC3D( N ) = 'Aerosol Optical Depth at'
      &                // ' 550 nm based on an Angstrom Interpolation'
-            VTYPE3D( N ) = M3REAL
+         VTYPE3D( N ) = M3REAL
+
+         N = N + 1
+         VNAME3D( N ) = 'AAOD_W550_ANGST' 
+         UNITS3D( N ) = ''
+         VDESC3D( N ) = 'Aerosol Absorption Optical Depth at'
+     &                // ' 550 nm based on an Angstrom Interpolation'
+         VTYPE3D( N ) = M3REAL
 
          NVARS3D = N
 
@@ -475,9 +490,9 @@ C...assumes that lamba in nanometers is on order of 100 or less
             WRITE( LAMBDA,'(I3.3)' ) INT( WAVELENGTH( JWL ) )
 
             N = N + 1
-            VNAME3D( N ) = 'AERO_SSA_W' // TRIM( LAMBDA )
-            UNITS3D( N ) = '1'
-            VDESC3D( N ) = 'Aerosol Single Scattering Albedo at '
+            VNAME3D( N ) = 'AERO_SCAT_W' // TRIM( LAMBDA )
+            UNITS3D( N ) = 'Km-1'
+            VDESC3D( N ) = 'Aerosol Scattering of layer at '
      &                   // TRIM( LAMBDA ) // ' nm'
             VTYPE3D( N ) = M3REAL
 
@@ -552,6 +567,8 @@ C...Open the 3rd photolysis diagnostic file
          END IF
 
       END IF
+#endif
+
 99950    FORMAT('|Variable Name|Units|Description                                   |')         
 99951    FORMAT('|:----|:----:|:---------------------------------------------|')
 99952    FORMAT('|', A16, '|', A16, '|', A, '|')

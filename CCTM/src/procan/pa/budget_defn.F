@@ -30,10 +30,12 @@
       USE XY_BUDGET
 
 
+#ifndef mpas
 #ifdef parallel
       USE SE_MODULES            ! stenex (using SE_UTIL_MODULE, SE_DATA_COPY_MODULE)
 #else
       USE NOOP_MODULES          ! stenex (using NOOP_UTIL_MODULE, NOOP_DATA_COPY_MODULE)
+#endif
 #endif
 
       INTEGER, PARAMETER      :: BDGC0_ID = -1
@@ -75,7 +77,10 @@ C Key Subroutines/Functions Called: None
  
 C-----------------------------------------------------------------------
       USE UTIL_FAMILY_MODULE
-      
+#ifdef mpas
+      use util_module, only : junit, index1, nextime
+#endif
+ 
       IMPLICIT NONE 
 
       ! Includes:
@@ -146,8 +151,21 @@ C-----------------------------------------------------------------------
           DEALLOCATE( CONC )
           
           ! Open Output tab-separated file and print header
-          IF ( MYPE .EQ. 0 ) THEN 
-              BDG_FILE = TRIM(OUTDIR) // "/CCTM_BUDGET_" // TRIM(APPL_NAME) // ".txt"
+          IF ( MYPE .EQ. 0 ) THEN
+              IF ( BUDGET_FNAME .EQ. 'CCTM_BUDGET' ) THEN
+                 IF ( OUTDIR .EQ. '' ) THEN
+                   BDG_FILE = "CCTM_BUDGET_" // TRIM(APPL_NAME) // ".txt"
+                 ELSE
+                   BDG_FILE = TRIM(OUTDIR) // "/CCTM_BUDGET_" // TRIM(APPL_NAME) // ".txt"
+                 END IF
+              ELSE
+                 J = INDEX( BUDGET_FNAME, ".txt" ) 
+                 IF ( J .NE. 0 ) THEN
+                    BDG_FILE = BUDGET_FNAME(1:J+3)
+                 ELSE
+                    BDG_FILE = TRIM( BUDGET_FNAME ) // ".txt"
+                 END IF
+              END IF
               BDG_UNIT = JUNIT()
               OPEN( UNIT = BDG_UNIT, FILE = BDG_FILE, STATUS = "REPLACE" )
           
@@ -299,12 +317,16 @@ C-----------------------------------------------------------------------
       END IF
 
       ! Retrieve Cell Variables for converting concentrations to burden
+#ifdef mpas
+      CELLVOL( :,1,: ) = cell_vol(:,1,:)
+#else
       call interpolate_var ('ZF', jdate, jtime, ZF) ! height of layer top
       CELLVOL( :,:,1 ) = REAL( XCELL_GD * YCELL_GD, 4 ) * ZF( :,:,1 ) / MSFX2(:,:)
       DO L = 2,NLAYS
          CELLVOL( :,:,L ) = REAL( XCELL_GD * YCELL_GD,4) / MSFX2( :,: ) * 
      &                        ( ZF( :,:,L ) - ZF( :,:,L-1) )  ! m3
       END DO
+#endif
 
       ! Calculate Density for Conversion of Gases from ppm to kg. If 
       IF ( LCOUPLE ) THEN
@@ -313,7 +335,11 @@ C-----------------------------------------------------------------------
           ! general, the Jacobian usedin CMAQ includes the map scale 
           ! factor squared: JACOBM = J / msfx2
           ! Aerosols are in units of ug m-2
+#ifdef mpas
+          JACOBM = 1.0
+#else
           call interpolate_var ('JACOBM', jdate, jtime, JACOBM) ! Jacobian
+#endif
           DENS = 1.0 / MWAIR_SI * 1.0E-6 * 1.0E-3 ! mol kg-1 air
           CELLVOL = CELLVOL / JACOBM ! m2
           AERO_NORM = 1.0
@@ -406,6 +432,10 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  Write Budget Output to CSV File
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       SUBROUTINE WRITE_BUDGET( CONC, JDATE, JTIME, TSTEP )
+
+#ifdef mpas
+      use util_module, only : daymon
+#endif
 
       IMPLICIT NONE
 
@@ -506,6 +536,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      &             + ADV_FLUXES( MAP_toCGRID( I ),: )
       END DO
 
+#ifndef mpas
 #ifdef parallel
       ! Sum Changes Across All Processors
       DO J = 1,3
@@ -523,6 +554,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
            ADV_FLUXES_OUT(I,J) = SUBST_GLOBAL_SUM( ADV_FLUXES_OUT(I,J) )
          END DO
       END DO
+#endif
 #endif
 
       IF ( MYPE .EQ. 0 ) THEN

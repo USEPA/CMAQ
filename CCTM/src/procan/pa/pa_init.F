@@ -75,10 +75,12 @@ C-----------------------------------------------------------------------
       USE GRID_CONF             ! horizontal & vertical domain specifications
       USE PAGRD_DEFN            ! PA horiz domain specs
       USE UTILIO_DEFN
+#ifndef mpas
 #ifdef parallel
       USE SE_MODULES            ! stenex (using SE_UTIL_MODULE, SE_DATA_COPY_MODULE)
 #else
       USE NOOP_MODULES          ! stenex (using NOOP_UTIL_MODULE, NOOP_DATA_COPY_MODULE)
+#endif
 #endif
       USE PA_DEFN               ! Process Anaylsis control and data variables
 
@@ -128,6 +130,7 @@ C-----------------------------------------------------------------------
 
       LSTOP = .FALSE.         
 
+#ifndef mpas
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C  Open the Integrated Process Rates output file(s) if needed
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -261,6 +264,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          IRROUT = 0.0
 
       END IF   !   LIRR
+#endif
 
       RETURN
       END

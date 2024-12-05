@@ -4,10 +4,13 @@ Purpose: This guide describes how to examine log files and debug issues encounte
 This guide helps you to find and report errors to the CMAS Center Forum and follows the [best practices for posting new issues to the forum](https://forum.cmascenter.org/t/please-read-before-posting/1321).
 
 ## Building CMAQ
-### Prerequisite: Build Libraries and CMAQ using gcc and intel compilers
+### Prerequisite: Build Libraries and CMAQ using gcc or intel compilers
 Follow the CMAQ Build Tutorials for the appropriate compiler: 
+Uncompressed netCDF-4 library builds:
 * [Building CMAQ for GNU](CMAQ_UG_tutorial_build_library_gcc.md)
 * [Building CMAQ for Intel](CMAQ_UG_tutorial_build_library_intel.md)
+Compressed netCDF-4 Library builds:
+* [Building CMAQ using netCDF-4 compression for GNU](CMAQ_UG_tutorial_build_library_gcc_support_nc4.md)
 
 ### Verify that an executable was created
 ```
@@ -15,7 +18,7 @@ cd $CMAQ_HOME/CCTM/scripts
 ls */*.exe
 ```
 
-### Inspecting CMAQ Build log files:
+### Inspecting CMAQ Build log files
 ```
 grep -i error  bldit_cctm.log
 tail bldit_cctm.log
@@ -26,17 +29,17 @@ tail bldit_cctm.log
 * [Review the CMAQ FAQ](https://www.epa.gov/cmaq/frequent-cmaq-questions)
 
 If you don’t find an answer that solves the issue that you are having, create a new topic on the CMAS Center Forum.
-Submit a new topic issue, even if you are having an issue similar to another user.
+Please create a new topic in describing your issue, even if your issue is similar to that of another user.
 
 **See the instructions at the bottom of this tutorial for creating a new topic on the CMAS User Forum.**
 
-## Running CMAQ:
+## Running CMAQ
 ### Prerequisite: Run the CMAQ Benchmark case
 [Follow Benchmark Tutorial instructions](https://github.com/USEPA/CMAQ/blob/main/DOCS/Users_Guide/Tutorials/CMAQ_UG_tutorial_benchmark.md) 
-(does not require running ICON/BCON as inputs are provided in the Benchmark Input Data):
+(does not require running ICON/BCON as inputs are provided in the Benchmark Input Data).
 
 
-### Inspect the CMAQ  run log files:
+### Inspect the CMAQ run log files
 
 Check the output log file in the run directory to see if it has completed successfully. 
 ```
@@ -67,25 +70,18 @@ grep -i 'error' slurm-*.out
 error while loading shared libraries  …  cannot open shared object file …
 ```
 
-Set the $LD_LIBRARY_PATH in your .cshrc to include the location of your netCDF and netCDFF library shared object files.   
-Note: your .cshrc file should be located in your home directory.  
-
-Change directories to your home directory.  
-```
-cd ~
-```
-View the contents of your .cshrc.  
-```
-more .cshrc
-```
-
-Edit your .cshrc to set the LD_LIBRARY_PATH to include the location of the netcdf libraries.  
-Note this path is dependent on what compiler you used, replace intel with gcc if you used gnu rather than the intel compiler.  
+This error indicates that the `LD_LIBRARY_PATH` environment variable is not properly set to include the path to all the required shared library object files. If this occurs, one solution is to edit the CCTM run script to add the path to the netCDF C (libnetcdf.so) and Fortran (libnetcdff.so) libraries to the `LD_LIBRARY_PATH` variable.  For example:
 ```
 setenv NCDIR ${CMAQ_HOME}/lib/x86_64/intel/netcdf
 setenv NCFDIR ${CMAQ_HOME}/lib/x86_64/intel/netcdff
-setenv LD_LIBRARY_PATH ${NCDIR}/lib:$NCFDIR/lib:${LD_LIBRARY_PATH}
+setenv LD_LIBRARY_PATH ${NCDIR}/lib:${NCFDIR}/lib:${LD_LIBRARY_PATH}
 ```
+Note this path is dependent on what compiler you used, replace intel with gcc if you used gnu rather than the intel compiler.  
+If this does not work, then cd to the build directory and use the command:
+```
+ldd CCTM*.exe
+```
+This will show the absolute path to the libraries used in compiling the model. Edit the `LD_LIBRARY_PATH` environment variable to include the *directories* where the libnetcdf.so and libnetcdff.so files are located.
 
 ### If the program did not complete successfully for another reason
 If the program did not complete successfully for another reason, you will need to check the per processor log files which begin with the name: CTM_LOG_\*.
@@ -166,8 +162,8 @@ This stack trace indicates that the error occurred on line 503 of the file aero_
 
 * Or choose the [parent CMAQ category](https://forum.cmascenter.org/c/cmaq/7) 
 
-* Click on + New Topic in the upper right corner
-The Category will be pre-selected if you start a new topic request from within a category, if the category is “Uncategorized”, then use the pull-down menu to select the category for your topic.
+* Click on + New Topic in the upper right corner.
+The Category will be pre-selected if you start a new topic request from within a category. If the category is “Uncategorized”, then use the pull-down menu to select the category for your topic.
 
 
 ### Selecting a category for your issue
@@ -196,9 +192,9 @@ ls */*.exe
 ```
 cd $CMAQ_HOME/data/{YOUR_OUTPUT_DIR}/LOGS/
 ```
-* The following grep command -B NUM, prints NUM lines before the error statement is found.  
+* The grep argument -B NUM prints NUM lines before the matching text is found.  For example, this command will print out the 10 lines prior to each occurrence of the word "error" (case insensitive):
 ```
-grep -B
+grep -B 10 -i error CTM_LOG_000*
 ```
 
 #### Example of information to include in a new issue post:

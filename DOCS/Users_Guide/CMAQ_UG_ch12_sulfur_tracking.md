@@ -14,7 +14,7 @@ Starting with CMAQv5.3, a runtime diagnostic model option that provides detailed
 
 ## 12.2 Usage
 
-To activate the STM option, edit the CTM runscript and set the following environment variable to "Y" (the default is "N"):
+To activate the STM option, edit the CCTM runscript and set the following environment variable to "Y" (the default is "N"):
 
 - setenv STM_SO4TRACK Y
 
@@ -73,6 +73,6 @@ Note that several of the standard CMAQ output files (ACONC, CONC, CGRID, DDEP, a
 <!-- BEGIN COMMENT -->
 
 [<< Previous Chapter](CMAQ_UG_ch11_ISAM.md) - [Home](README.md) - [Next Chapter >>](CMAQ_UG_ch13_WRF-CMAQ.md) <br>
-CMAQ User's Guide (c) 2022<br>
+CMAQv5.5 User's Guide <br>
 
 <!-- END COMMENT -->

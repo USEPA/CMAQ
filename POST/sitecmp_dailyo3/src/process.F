@@ -74,7 +74,7 @@ C..SCRATCH LOCAL VARIABLES:
       CHARACTER*2560   HEADER3       ! third header line (units)
       CHARACTER*2560   tpRecord      ! time period record
 
-      Character*9     siteid, siteid2
+      Character*20    siteid, siteid2
       Character*2     cpoc
       Integer         poc, poc2
       REAL values(32), values2(24)
@@ -433,7 +433,7 @@ C**********************************************************************
           
         Else
           If(siteno .le. 0 ) then
-           Write(*,'(''No site found for record = '',a)') record(1:12)
+           Write(*,'(''Site not found in SITE_FILE: '',a)') Trim(siteid)
           endif
          EndIf 
 

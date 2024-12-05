@@ -105,6 +105,7 @@
       INTEGER,              SAVE :: MTICS = 0 ! temporary sub for NTICS before it set to 0 
       INTEGER,              SAVE :: LDATE     ! test date to update emissions diag avg
       INTEGER,              SAVE :: LTIME     ! test time to update emissions diag avg
+      INTEGER                    :: FDATE     ! Start date to Write to Diagnostic files
       INTEGER                    :: FTIME     ! Start time to Write to Diagnostic files
 
       INTEGER,              SAVE :: LT_TSTEP
@@ -190,6 +191,7 @@
          WRITE( SJDATE, '(I7)' ) JDATE
          READ( SJDATE, '(4X, I3)' ) CJDATE
 
+#ifndef mpas
 !C Is lightning NO production inline, or from a file?
          CALL UPCASE(LTNG_FNAME)
          IF ( LTNG_FNAME .EQ. "INLINE" ) THEN  ! inline lightning NO production
@@ -254,8 +256,10 @@
             IF ( LTNGDIAG ) THEN
 !C Build description for, and open lightning diagnostic file
 !C (all but variables-table and horizontal domain in description is borrowed from MNAME)
+               FDATE = STDATE
                FTIME = STTIME
-               SDATE3D = LDATE
+               CALL NEXTIME( FDATE, FTIME, TSTEP )
+               SDATE3D = FDATE
                STIME3D = FTIME
                TSTEP3D = TSTEP
 
@@ -333,6 +337,7 @@
 
 
          END IF   ! IF ( LTNG_FNAME .EQ. "INLINE" ) inline or offline lightning NO production
+#endif
 
          LTLYRS = DESID_LAYS
 
@@ -364,8 +369,12 @@
      &                                     ICCG_SUM,
      &                                     ICCG_WIN,
      &                                     LT_NAME
+#ifdef mpas
+         use util_module, only : time2sec, nextime, upcase
+#else
 #ifdef twoway
          USE twoway_data_module
+#endif
 #endif
          IMPLICIT NONE
 
@@ -418,7 +427,8 @@
          LOGICAL,     SAVE :: wrf_assim = .FALSE.
          INTEGER,     SAVE :: TOT_TSTEP
          LOGICAL,     SAVE :: FIRSTIME = .TRUE.
-         INTEGER           :: ADJ_LDATE, ADJ_LTIME
+
+         REAL :: LOC_VGTOP_GD
 
 C statement function for ERF approximation
          REAL              :: ERF                ! ERF approx. statement function
@@ -535,17 +545,23 @@ C statement function for ERF approximation
                   SUM_FRAC = 0.0
                   LTEMIS = 0.0   ! array assignment
 
+#ifdef mpas
+                  LOC_VGTOP_GD = 1000.0    ! for simplicity, we have decided to set VGTOP_GD to 1000.0
+#else
+                  LOC_VGTOP_GD = VGTOP_GD
+#endif
+
                   DO LAY = 1, LTLYRS
 
 !C Get pressures: Use SIGMA values and surface pres.
 !p=sigma*(psfc-ptop)+ptop
                      BOTTOM = ( VGLVSLT( LAY-1 )
-     &                      * ( LTNG_PRSFC( COL,ROW ) - VGTOP_GD )
-     &                      + VGTOP_GD ) * CONVPA
+     &                      * ( LTNG_PRSFC( COL,ROW ) - LOC_VGTOP_GD )
+     &                      + LOC_VGTOP_GD ) * CONVPA
 !                           write( logdev,* ) "bottom: ", bottom
                      TOP    = ( VGLVSLT( LAY )
-     &                      * ( LTNG_PRSFC( COL,ROW ) - VGTOP_GD )
-     &                      + VGTOP_GD ) * CONVPA
+     &                      * ( LTNG_PRSFC( COL,ROW ) - LOC_VGTOP_GD )
+     &                      + LOC_VGTOP_GD ) * CONVPA
 
 !C Find the bottom and top of each layer, and calculate the fraction 
 !C of the column emissions for that layer
@@ -601,8 +617,6 @@ C statement function for ERF approximation
               TOT_TSTEP = TOT_TSTEP + TIME2SEC( TSTEP( 2 ) )
               LASTTIC = TOT_TSTEP .GE. LT_TSTEP
               IF ( LASTTIC ) THEN
-                 ADJ_LDATE = LDATE
-                 ADJ_LTIME = LTIME
                  MTICS = NTICS
                  NTICS = 0
                  TOT_TSTEP = 0
@@ -611,6 +625,8 @@ C statement function for ERF approximation
               END IF
             END IF
 
+#ifdef mpas
+#else
 !C Write lightning NO to the diagnostic file
             IF ( LTNGDIAG .AND. .NOT. L_DESID_DIAG ) THEN 
                VDEMIS_LTDIAG = VDEMIS_LTDIAG + VDEMIS_LT   ! array assignment
@@ -619,21 +635,21 @@ C statement function for ERF approximation
                   DIVFAC = 1.0 / REAL( MTICS, 4 )
                   VDEMIS_LTDIAG = VDEMIS_LTDIAG * DIVFAC   ! array assignment
                   COLUMN_DIAG = COLUMN_DIAG*DIVFAC
-                  IF ( .NOT. WRITE3( CTM_LTNGDIAG_1, LTSPC, ADJ_LDATE, ADJ_LTIME, VDEMIS_LTDIAG ) )  THEN
+                  IF ( .NOT. WRITE3( CTM_LTNGDIAG_1, LTSPC, LDATE, LTIME, VDEMIS_LTDIAG ) )  THEN
                      XMSG = 'Could not write to ' // TRIM( CTM_LTNGDIAG_1 )
-                     CALL M3EXIT( PNAME, ADJ_LDATE, ADJ_LTIME, XMSG, XSTAT2 )
+                     CALL M3EXIT( PNAME, LDATE, LTIME, XMSG, XSTAT2 )
                   ELSE
                      WRITE( LOGDEV,94040 )
      &                    'Timestep written to', TRIM( CTM_LTNGDIAG_1 ),
-     &                    'for date and time', ADJ_LDATE, ADJ_LTIME
+     &                    'for date and time', LDATE, LTIME
                   END IF
-                  IF ( .NOT. WRITE3( CTM_LTNGDIAG_2, LTSPC, ADJ_LDATE, ADJ_LTIME, COLUMN_DIAG ) )  THEN
+                  IF ( .NOT. WRITE3( CTM_LTNGDIAG_2, LTSPC, LDATE, LTIME, COLUMN_DIAG ) )  THEN
                      XMSG = 'Could not write to ' // TRIM( CTM_LTNGDIAG_2 )
-                     CALL M3EXIT( PNAME, ADJ_LDATE, ADJ_LTIME, XMSG, XSTAT2 )
+                     CALL M3EXIT( PNAME, LDATE, LTIME, XMSG, XSTAT2 )
                   ELSE
                      WRITE( LOGDEV,94040 )
      &                    'Timestep written to', TRIM( CTM_LTNGDIAG_2 ),
-     &                    'for date and time', ADJ_LDATE, ADJ_LTIME
+     &                    'for date and time', LDATE, LTIME
                   END IF
 
                   VDEMIS_LTDIAG = 0.0   ! array assignment
@@ -641,6 +657,7 @@ C statement function for ERF approximation
                END IF ! LASTTIC
 
             END IF  ! diagnostics turned on
+#endif
 
          ELSE  ! LTNGO is not "InLine", but instead specifies a file
 

@@ -1,0 +1,61 @@
+&AE_nml
+
+AE_SPECIES_DATA = 
+
+!SPECIES    ,MOLWT  ,Aitken ,Accum ,Coarse ,OPTICS ,IC ,IC_FAC ,BC ,BC_FAC ,DRYDEP SURR ,FAC ,WET-SCAV SURR,FAC ,AE2AQ SURR ,TRNS    ,DDEP    ,WDEP    ,CONC,!RepCmp,ExplicitorLumped,DTXSID,SMILES
+'ASO4'      , 96.00 ,T      ,T     ,T      ,''     ,'' ,-1     ,'' ,-1     ,'VMASS'     , 1  ,'SO4'        , 1  ,'SO4'      ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!Sulfate ion,L,DTXSID3042425,[O-]S(=O)(=O)[O-]
+'ANH4'      , 18.00 ,T      ,T     ,T      ,''     ,'' ,-1     ,'' ,-1     ,'VMASS'     , 1  ,'NH4'        , 1  ,'NH4'      ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!Ammonium ion,E,DTXSID5043974,[NH4+]
+'ANO3'      , 62.00 ,T      ,T     ,T      ,''     ,'' ,-1     ,'' ,-1     ,'VMASS'     , 1  ,'NO3'        , 1  ,'NO3'      ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!Nitrate ion,E,DTXSID5024217,[N+](=O)([O-])[O-]
+'ASOAT'     ,200.00 ,F      ,T     ,F      ,''     ,'' ,-1     ,'' ,-1     ,'VMASS'     , 1  ,'ORG'        , 1  ,'SOA'      ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!3;4;5;6;7-Pentahydroxyheptan-2-one,L,DTXSID80956455,CC(=O)C(C(C(C(CO)O)O)O)O
+'AGLY'      , 66.40 ,F      ,T     ,F      ,''     ,'' ,-1     ,'' ,-1     ,'VMASS'     , 1  ,'ORG'        , 1  ,'SOA'      ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!2-(4;5-dihydroxy-1;3-dioxolan-2-yl)-1;3-dioxolane-4;5-diol,L,NA,OC2OC(C1OC(O)C(O)O1)OC2O
+'AHOM'      ,250.00 ,F      ,T     ,F      ,''     ,'' ,-1     ,'' ,-1     ,'VMASS'     , 1  ,'ORG'        , 1  ,'SOA'      ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!NA,NA,NA,NA
+'AELHOM'    ,402.00 ,F      ,T     ,F      ,''     ,'' ,-1     ,'' ,-1     ,'VMASS'     , 1  ,'ORG'        , 1  ,'SOA'      ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!NA,NA,NA,NA
+'AORGC'     ,177.00 ,F      ,T     ,F      ,''     ,'' ,-1     ,'' ,-1     ,'VMASS'     , 1  ,'ORG'        , 1  ,'AORGC'    ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!2-(4;5-dihydroxy-1;3-dioxolan-2-yl)-1;3-dioxolane-4;5-diol,L,NA,OC2OC(C1OC(O)C(O)O1)OC2O
+'AEC'       , 12.00 ,T      ,T     ,F      ,''     ,'' ,-1     ,'' ,-1     ,'VMASS'     , 1  ,'PRI'        , 1  ,'EC'       ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!Carbon,L,NA,[C]
+'AOTHR'     ,200.00 ,T      ,T     ,F      ,''     ,'' ,-1     ,'' ,-1     ,'VMASS'     , 1  ,'PRI'        , 1  ,'PRI'      ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!Unspeciated PM,L,NA,NA
+'AFE'       , 55.80 ,F      ,T     ,F      ,''     ,'' ,-1     ,'' ,-1     ,'VMASS'     , 1  ,'PRI'        , 1  ,'FE'       ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!Iron ion,E,DTXSID4042672,[Fe++]
+'AAL'       , 27.00 ,F      ,T     ,F      ,''     ,'' ,-1     ,'' ,-1     ,'VMASS'     , 1  ,'PRI'        , 1  ,'PRI'      ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!Aluminum ion,E,DTXSID70912343,[Al+3]
+'ASI'       , 28.10 ,F      ,T     ,F      ,''     ,'' ,-1     ,'' ,-1     ,'VMASS'     , 1  ,'PRI'        , 1  ,'PRI'      ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!Total Silicon,E,DTXSID0051441,[Si]
+'ATI'       , 47.90 ,F      ,T     ,F      ,''     ,'' ,-1     ,'' ,-1     ,'VMASS'     , 1  ,'PRI'        , 1  ,'PRI'      ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!Total Titanium,E,DTXSID3047764,[Ti]
+'ACA'       , 40.10 ,F      ,T     ,F      ,''     ,'' ,-1     ,'' ,-1     ,'VMASS'     , 1  ,'PRI'        , 1  ,'CA'       ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!Calcium ion,E,DTXSID7037638,[Ca++]
+'AMG'       , 24.30 ,F      ,T     ,F      ,''     ,'' ,-1     ,'' ,-1     ,'VMASS'     , 1  ,'PRI'        , 1  ,'MG'       ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!Magnesium ion,E,NA,[Mg++]
+'AK'        , 39.10 ,F      ,T     ,F      ,''     ,'' ,-1     ,'' ,-1     ,'VMASS'     , 1  ,'PRI'        , 1  ,'K'        ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!Potassium ion,E,DTXSID9042671,[K+]
+'AMN'       , 54.90 ,F      ,T     ,F      ,''     ,'' ,-1     ,'' ,-1     ,'VMASS'     , 1  ,'PRI'        , 1  ,'MN'       ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!Manganese ions,L,DTXSID00167687,[Mn++]
+'ACORS'     ,100.00 ,F      ,F     ,T      ,''     ,'' ,-1     ,'' ,-1     ,'VMASS'     , 1  ,'PRI'        , 1  ,'ANTH'     ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!Coarse PM,L,NA,NA
+'ASOIL'     ,100.00 ,F      ,F     ,T      ,''     ,'' ,-1     ,'' ,-1     ,'VMASS'     , 1  ,'PRI'        , 1  ,'SOIL'     ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!Crustal species,L,NA,NA
+'NUM'       ,  1.00 ,T      ,T     ,T      ,''     ,'' ,-1     ,'' ,-1     ,'VNUM'      , 1  ,'NUM'        , 1  ,'NUM'      ,'Yes'   ,''      ,''      ,'Yes',!Number of particles,L,NA,NA
+'SRF'       ,  1.00 ,T      ,T     ,T      ,''     ,'' ,-1     ,'' ,-1     ,'VSRF'      , 1  ,'SRF'        , 1  ,'SRF'      ,'Yes'   ,''      ,''      ,'Yes',!Surface area of particles,L,NA,NA
+'AORGH2O'   , 18.00 ,F      ,T     ,F      ,''     ,'' ,-1     ,'' ,-1     ,'VMASS'     , 1  ,'H2O'        , 1  ,'H2O'      ,'Yes'   ,''      ,''      ,'Yes',!Water,E,DTXSID6026296,O
+'AH2O'      , 18.00 ,T      ,T     ,T      ,''     ,'' ,-1     ,'' ,-1     ,'VMASS'     , 1  ,'H2O'        , 1  ,'H2O'      ,'Yes'   ,''      ,''      ,'Yes',!Water,E,DTXSID6026296,O
+'AH3OP'     , 19.00 ,T      ,T     ,T      ,''     ,'' ,-1     ,'' ,-1     ,'VMASS'     , 1  ,''           ,-1  ,''         ,'Yes'   ,''      ,''      ,'Yes',!Hydronium ion,E,DTXSID20893597,[OH3+]
+'ANA'       , 23.00 ,T      ,T     ,F      ,''     ,'' ,-1     ,'' ,-1     ,'VMASS'     , 1  ,'NA'         , 1  ,'NA'       ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!Sodium ion,E,DTXSID8037671,[Na+]
+'ACL'       , 35.50 ,T      ,T     ,T      ,''     ,'' ,-1     ,'' ,-1     ,'VMASS'     , 1  ,'CL'         , 1  ,'CL'       ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!Chloride ion,E,DTXSID6043969,[Cl-]
+'ASEACAT'   , 23.75 ,F      ,F     ,T      ,''     ,'' ,-1     ,'' ,-1     ,'VMASS'     , 1  ,'PRI'        , 1  ,'SEAS'     ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!Coarse sea spray cations,L,NA,NA
+'APOC'      ,220.00 ,T      ,T     ,F      ,''     ,'' ,-1     ,'' ,-1     ,'VMASS'     , 1  ,'ORG'        , 1  ,'POA'      ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!Organic carbon,L,NA,NA 
+'APNCOM'    ,220.00 ,T      ,T     ,F      ,''     ,'' ,-1     ,'' ,-1     ,'VMASS'     , 1  ,'ORG'        , 1  ,'POA'      ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!Non-carbon organic matter,L,NA,NA
+'AOP3'      ,176.2  ,F      ,T     ,F      ,''     ,'' ,-1     ,'' ,-1     ,'VMASS'     , 1  ,'ORG'        , 1  ,'SOA'      ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!NA,NA,NA,NA
+'AROCN2ALK' ,422.83 ,T      ,T     ,F      ,''     ,'' ,-1     ,'' ,-1     ,'VMASS'     , 1  ,'ORG'        , 1  ,'POA'      ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!NA,NA,NA,NA
+'AROCN1ALK' ,408.80 ,T      ,T     ,F      ,''     ,'' ,-1     ,'' ,-1     ,'VMASS'     , 1  ,'ORG'        , 1  ,'POA'      ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!NA,NA,NA,NA
+'AROCP0ALK' ,394.77 ,T      ,T     ,F      ,''     ,'' ,-1     ,'' ,-1     ,'VMASS'     , 1  ,'ORG'        , 1  ,'POA'      ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!NA,NA,NA,NA
+'AROCP1ALK' ,380.75 ,T      ,T     ,F      ,''     ,'' ,-1     ,'' ,-1     ,'VMASS'     , 1  ,'ORG'        , 1  ,'POA'      ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!NA,NA,NA,NA
+'AROCP2ALK' ,338.66 ,F      ,T     ,F      ,''     ,'' ,-1     ,'' ,-1     ,'VMASS'     , 1  ,'ORG'        , 1  ,'POA'      ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!NA,NA,NA,NA
+'AROCP3ALK' ,296.58 ,F      ,T     ,F      ,''     ,'' ,-1     ,'' ,-1     ,'VMASS'     , 1  ,'ORG'        , 1  ,'POA'      ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!NA,NA,NA,NA
+'AROCN2OXY2',282.4  ,T      ,T     ,F      ,''     ,'' ,-1     ,'' ,-1     ,'VMASS'     , 1  ,'ORG'        , 1  ,'SOA'      ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!NA,NA,NA,NA
+'AROCN2OXY4',232.3  ,T      ,T     ,F      ,''     ,'' ,-1     ,'' ,-1     ,'VMASS'     , 1  ,'ORG'        , 1  ,'SOA'      ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!NA,NA,NA,NA
+'AROCN2OXY8',194.2  ,T      ,T     ,F      ,''     ,'' ,-1     ,'' ,-1     ,'VMASS'     , 1  ,'ORG'        , 1  ,'SOA'      ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!NA,NA,NA,NA
+'AROCN1OXY1',312.5  ,T      ,T     ,F      ,''     ,'' ,-1     ,'' ,-1     ,'VMASS'     , 1  ,'ORG'        , 1  ,'SOA'      ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!NA,NA,NA,NA
+'AROCN1OXY3',230.3  ,T      ,T     ,F      ,''     ,'' ,-1     ,'' ,-1     ,'VMASS'     , 1  ,'ORG'        , 1  ,'SOA'      ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!NA,NA,NA,NA
+'AROCN1OXY6',190.2  ,T      ,T     ,F      ,''     ,'' ,-1     ,'' ,-1     ,'VMASS'     , 1  ,'ORG'        , 1  ,'SOA'      ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!NA,NA,NA,NA
+'AROCP0OXY2',242.4  ,T      ,T     ,F      ,''     ,'' ,-1     ,'' ,-1     ,'VMASS'     , 1  ,'ORG'        , 1  ,'SOA'      ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!NA,NA,NA,NA
+'AROCP0OXY4',202.3  ,T      ,T     ,F      ,''     ,'' ,-1     ,'' ,-1     ,'VMASS'     , 1  ,'ORG'        , 1  ,'SOA'      ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!NA,NA,NA,NA
+'AROCP1OXY1',270.5  ,T      ,T     ,F      ,''     ,'' ,-1     ,'' ,-1     ,'VMASS'     , 1  ,'ORG'        , 1  ,'SOA'      ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!NA,NA,NA,NA
+'AROCP1OXY3',202.3  ,T      ,T     ,F      ,''     ,'' ,-1     ,'' ,-1     ,'VMASS'     , 1  ,'ORG'        , 1  ,'SOA'      ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!NA,NA,NA,NA
+'AROCP2OXY2',200.3  ,F      ,T     ,F      ,''     ,'' ,-1     ,'' ,-1     ,'VMASS'     , 1  ,'ORG'        , 1  ,'SOA'      ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!NA,NA,NA,NA
+'AROCP3OXY2',186.3  ,F      ,T     ,F      ,''     ,'' ,-1     ,'' ,-1     ,'VMASS'     , 1  ,'ORG'        , 1  ,'SOA'      ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!NA,NA,NA,NA
+'AISO3NOS'  ,136.20 ,F      ,T     ,F      ,''     ,'' ,-1     ,'' ,-1     ,'VMASS'     , 1  ,'ORG'        , 1  ,'SOA'      ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!2-methylbutane-1;2;3;4-tetrol,L,NA,C(O)C(O)(C)C(O)CO
+'AISO3OS'   ,216.20 ,F      ,T     ,F      ,''     ,'' ,-1     ,'' ,-1     ,'VMASS'     , 1  ,'ORG'        , 1  ,'SOA'      ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!(1;3;4-trihydroxy-2-methylbutan-2-yl)oxysulfonic acid,L,NA,C(O)C(OS(O)(=O)(=O))(C)C(O)CO
+'AISO4'     ,168.1  ,F      ,T     ,F      ,''     ,'' ,-1     ,'' ,-1     ,'VMASS'     , 1  ,'ORG'        , 1  ,'SOA'      ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!4-hydroperoxy-3-methylbutane-1;1;2;3-tetrol,L,NA,CC(O)(COO)C(O)C(O)O
+'AISO5'     ,150.1  ,F      ,T     ,F      ,''     ,'' ,-1     ,'' ,-1     ,'VMASS'     , 1  ,'ORG'        , 1  ,'SOA'      ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!2-hydroperoxy-3;4-dihydroxy-3-methylbutanal,L,NA,CC(O)(CO)C(OO)C=O
+'ATRPN'     ,215.0  ,F      ,T     ,F      ,''     ,'' ,-1     ,'' ,-1     ,'VMASS'     , 1  ,'ORG'        , 1  ,'SOA'      ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!NA,NA,NA,NA
+'AHONIT'    ,265.0  ,F      ,T     ,F      ,''     ,'' ,-1     ,'' ,-1     ,'VMASS'     , 1  ,'ORG'        , 1  ,'SOA'      ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',!NA,NA,NA,NA
+/   
