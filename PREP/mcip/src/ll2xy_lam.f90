@@ -69,9 +69,9 @@ SUBROUTINE ll2xy_lam (phi, lambda, phi1, phi2, lambda0, phi0, xx, yy)
 !-------------------------------------------------------------------------------
 
   IF ( ABS( phi1 - phi2 ) < phitol ) THEN  ! tangent case
-    WRITE (*,f9000) TRIM(pname), phi1, phi2
-    CALL graceful_stop (pname)
-!   CALL ll2xy_lam_tan (phi, lambda, phi1, lambda0, xx, yy)
+!    WRITE (*,f9000) TRIM(pname), phi1, phi2
+!    CALL graceful_stop (pname)
+    CALL ll2xy_lam_tan (phi, lambda, phi1, phi2, lambda0, phi0, xx, yy)
   ELSE  ! secant case
     CALL ll2xy_lam_sec (phi, lambda, phi1, phi2, lambda0, phi0, xx, yy)
   ENDIF
