@@ -1,18 +1,45 @@
-CMAQv5.5
+CMAQv5.5+
 ==========
 
+The most recent publicly released CMAQ version may be cited using:
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.13883210.svg)](https://doi.org/10.5281/zenodo.13883210)
 
 US EPA Community Multiscale Air Quality Model (CMAQ) Website: https://www.epa.gov/cmaq
 
-CMAQ is an active open-source development project of the U.S. EPA's Office of Research and Development that consists of a suite of programs for conducting air quality model simulations.
-CMAQ is supported by the CMAS Center: http://www.cmascenter.org
+CMAQ is an active open-source development project of the U.S. EPA's Office of Research and Development that consists of a suite of programs for conducting air quality model simulations. CMAQ is supported by the CMAS Center: http://www.cmascenter.org
 
-CMAQ combines current knowledge in atmospheric science and air quality modeling with multi-processor
-computing techniques in an open-source framework to deliver fast, technically sound estimates of ozone,
+CMAQ combines current knowledge in atmospheric science and air quality modeling with multi-processor computing techniques in an open-source framework to deliver fast, technically sound estimates of ozone,
 particulates, toxics, and acid deposition.
 
 Please see our 'How to Cite CMAQ' page if you are interested in referencing one of our released model versions, scientific algorithms, or model output in your own publication: https://www.epa.gov/cmaq/how-cite-cmaq
+
+## CMAQ version 5.5+ Overview:
+CMAQv5.5+ is a continually evolving branch based on the most recent publicly released CMAQ version (5.5). It is intended to be used by researchers or other users who wish to adopt the most recent bugfixes or minor updates that improve model stability, efficiency, etc. CMAQv5.5+ has not been thoroughly evaluated or characterized so users must assume the risk of any unforeseen and undocumented impacts of code changes that have been incorporated since the most recent documented public release.
+
+### Proposing updates to a continually evolving branch
+Updates will be issued by the CMAQ development team or other users as Pull Requests to this branch. Please follow the default Pull Request template provided by the CMAQ team. Pull Requests will be reviewed by the CMAQ team and merged when and if they are deemed to contribute to the robustness of the model and improve predictions or performance.  
+
+### Examples of updates to a continually evolving branch  
+Potential updates include bugfixes that resolves runtime failures, segmentation faults, initialization issues, etc. Other updates could target algorithm inefficiencies that slow the model down. In these cases, it is expected that an improved algorithm would not change model results.  
+ 
+### Record of changes to CMAQv5.5+
+No new PRs have been merged into 5.5+.  This branch is currently identical to the 'main' branch for v5.5.
+
+|      Tag        |   PR Number       |         PR Name          |   Merge Date     | Brief Description |
+| -------------- | ------------------ | ------------------------ | ---------------- | -----------------------|
+||||||
+
+## Getting the CMAQ Repository
+This CMAQ Git archive is organized with each official public release stored as a branch on the main USEPA/CMAQ repository. The most recently released version of the the model will always be on the branch called 'main'. To clone code from the 5.5+ bugfix branch from the CMAQ Git archive, specify the branch (i.e. version number) and issue the following command from within a working directory on your server:
+
+```
+git clone -b 5.5+ https://github.com/USEPA/CMAQ.git CMAQ_REPO
+```
+
+or 
+```
+git clone -b 5.5+ git@github.com:USEPA/CMAQ.git CMAQ_REPO
+```
 
 ## CMAQ version 5.5 Overview:
 
@@ -47,7 +74,6 @@ This CMAQ Git archive is organized with each official public release stored as a
 ```
 git clone -b main https://github.com/USEPA/CMAQ.git CMAQ_REPO
 ```
-
 or
 ```
 git clone -b main git@github.com:USEPA/CMAQ.git CMAQ_REPO
