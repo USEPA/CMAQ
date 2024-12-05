@@ -488,13 +488,13 @@ SUBROUTINE setup_wrfem (cdfid, ctmlays)
                      met_xxctr, met_yyctr)
     
     CASE (3)  ! Mercator
-      met_p_alp_d  = 0.0                      ! lat of coord origin [deg]
+      met_p_alp_d  = met_tru1                 ! lat of coord origin [deg]
       met_p_bet_d  = 0.0                      ! (not used)
       met_p_gam_d  = met_proj_clon            ! lon of coord origin [deg]
       met_cone_fac = 0.0                      ! cone factor
       met_ref_lat  = -999.0                   ! not used
 
-      CALL ll2xy_merc (met_cen_lat, met_cen_lon, met_proj_clon,  &
+      CALL ll2xy_merc (met_cen_lat, met_cen_lon, met_tru1, met_proj_clon,  &
                        met_xxctr, met_yyctr)
     
     CASE DEFAULT
