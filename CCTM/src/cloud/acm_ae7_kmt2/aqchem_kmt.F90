@@ -20,7 +20,8 @@
 !:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE AQCHEM ( JDATE, JTIME, TEMP2, PRES_PA, TAUCLD, PRCRATE,   &
                           WCAVG, WTAVG, AIRM, ALFA0, ALFA2, ALFA3, GAS,    &
-                          AEROSOL, GASWDEP, AERWDEP, HPWDEP, BETASO4, COSZEN )      
+                          AEROSOL, GASWDEP, AERWDEP, HPWDEP, BETASO4, COSZEN, &
+                          FRACTR, FRACPOA, FRACPRI, FRACSOA )      
 !-----------------------------------------------------------------------
 !  Description:
 !    Compute concentration changes in cloud due to aqueous chemistry,
@@ -216,6 +217,11 @@
       REAL( 8 ), INTENT( INOUT ) :: GASWDEP( : )            ! gas phase wet deposition array (mm mol/liter)
       REAL( 8 ), INTENT( INOUT ) :: AERWDEP( :, : )         ! aerosol wet deposition array (mm mol/liter)
       
+      REAL( 8 ), INTENT( OUT ) :: FRACTR    ! Fraction of J mode tracer scavenged from I mode 
+      REAL( 8 ), INTENT( OUT ) :: FRACPOA   ! Fraction of J mode poa scavenged from I mode 
+      REAL( 8 ), INTENT( OUT ) :: FRACPRI   ! Fraction of J mode pri scavenged from I mode
+      REAL( 8 ), INTENT( OUT ) :: FRACSOA   ! Fraction of J mode soa scavenged from I mode       
+      
       REAL( 8 ), SAVE :: SOIL_FE_FAC                        ! Fe molar fraction of ASOIL
       REAL( 8 ), SAVE :: CORS_FE_FAC                        ! Fe molar fraction of ACORS
       REAL( 8 ), SAVE :: SOIL_MN_FAC                        ! Mn molar fraction of ASOIL
@@ -264,6 +270,8 @@
       
       REAL( 8 ) :: OLIGGLY, OLIGMGLY                        ! If considering oligomerization, fraction of GLY/MGLY that remains in aerosol 
                                                             ! upon droplet evaporation
+							    
+      REAL( 8 ) :: POAIinit, PRIIinit, TRACIinit, POAJinit, SOAIinit 
 
       REAL(kind=dp) :: T, DVAL(NSPEC)                       ! KPP integrator variables
       REAL(kind=dp) :: RSTATE(20)                           ! KPP integrator variables
@@ -489,6 +497,14 @@
            STARTM(3) = STARTM(3) + AEROSOL(LNH4, I)*14.007
            STARTM(4) = STARTM(4) + AEROSOL(LCL, I)*35.5
         ENDDO   
+	
+	POAIinit = AEROSOL(LPOA, AKN)	
+	PRIIinit = AEROSOL(LPRI, AKN)	
+	TRACIinit = AEROSOL(LTRACER_AKN, AKN)
+	SOAIinit = AEROSOL(LSOA, AKN)
+	
+	POAJinit = AEROSOL(LPOA, ACC)
+
      
 !...Initialize dynamic species, rel/abs tolerances, and other specifications before calling integrator
 
@@ -549,15 +565,14 @@ kron: DO WHILE (T < TEND)
       AEROSOL( LNUM, AKN ) = AEROSOL( LNUM, AKN ) * EXP(-ALFA0 * TAUCLD) 
       
 !...Simple treatment for Hg/toxic tracer species    
-
-      AEROSOL( LTRACER_AKN, AKN ) = AEROSOL( LTRACER_AKN, AKN ) * EXP(-ALFA3 * TAUCLD)  
-      AEROSOL( LPHG_AKN, AKN )    = AEROSOL( LPHG_AKN, AKN ) * EXP(-ALFA3 * TAUCLD)
       
       AEROSOL( LTRACER_ACC, ACC ) = AEROSOL( LTRACER_ACC, ACC ) + &
                                     AEROSOL( LTRACER_AKN, AKN ) * (1.d0-EXP(-ALFA3 * TAUCLD))  
       AEROSOL( LPHG_ACC, ACC )    = AEROSOL( LPHG_ACC, ACC ) + &
                                     AEROSOL( LPHG_AKN, AKN ) * (1.d0-EXP(-ALFA3 * TAUCLD))
-    
+				    
+      AEROSOL( LTRACER_AKN, AKN ) = AEROSOL( LTRACER_AKN, AKN ) * EXP(-ALFA3 * TAUCLD)  
+      AEROSOL( LPHG_AKN, AKN )    = AEROSOL( LPHG_AKN, AKN ) * EXP(-ALFA3 * TAUCLD)				       
       AERWDEP( LTRACER_ACC, ACC ) = AEROSOL( LTRACER_ACC,ACC ) * ( 1.d0 - EXPWET ) * CFACTOR 
       AERWDEP( LPHG_ACC, ACC )    = AEROSOL( LPHG_ACC,ACC ) * ( 1.d0 - EXPWET ) * CFACTOR  
       AERWDEP( LTRACER_COR, COR ) = AEROSOL( LTRACER_COR,COR ) * ( 1.d0 - EXPWET ) * CFACTOR 
@@ -567,8 +582,18 @@ kron: DO WHILE (T < TEND)
       AEROSOL( LPHG_ACC, ACC )    = AEROSOL( LPHG_ACC, ACC ) * EXPWET
       
       AEROSOL( LTRACER_COR, COR ) = AEROSOL( LTRACER_COR, COR ) * EXPWET
-      AEROSOL( LPHG_COR, COR )    = AEROSOL( LPHG_COR, COR ) * EXPWET      
+      AEROSOL( LPHG_COR, COR )    = AEROSOL( LPHG_COR, COR ) * EXPWET 
       
+      
+!...SOA (it now can have an AKN mode)
+            
+      AEROSOL( LSOA, ACC ) = AEROSOL( LSOA, ACC ) + &
+                                    AEROSOL( LSOA, AKN ) * (1.d0-EXP(-ALFA3 * TAUCLD))
+      AEROSOL( LSOA, AKN ) = AEROSOL( LSOA, AKN ) * EXP(-ALFA3 * TAUCLD)     
+      AERWDEP( LSOA, ACC ) = AEROSOL( LSOA, ACC ) * ( 1.d0 - EXPWET ) * CFACTOR 
+      AEROSOL( LSOA, ACC ) = AEROSOL( LSOA, ACC ) * EXPWET      
+   
+        
 ! As in standard "AQCHEM", the assumption is made here that final coarse mode
 ! concentrations are updated due to wet deposition alone (i.e., no mass
 ! change due to chemistry or phase transfer)           
@@ -592,13 +617,13 @@ kron: DO WHILE (T < TEND)
       AEROSOL( LSO4, COR )   = AEROSOL( LSO4, COR ) * EXPWET
       AEROSOL( LNH4, COR )   = AEROSOL( LNH4, COR ) * EXPWET
       AEROSOL( LNO3, COR )   = AEROSOL( LNO3, COR ) * EXPWET
-      AEROSOL( LCL, COR )    = AEROSOL( LCL, COR ) * EXPWET      
-            
+      AEROSOL( LCL, COR )    = AEROSOL( LCL, COR ) * EXPWET   
+
 !...AERWDEP species, accumulation mode 
 
-      AERWDEP( LSOA, ACC ) = AEROSOL( LSOA, ACC ) * ( 1 - EXPWET) * CFACTOR ! SOA is only impacted by wet dep process 
-                                                                            ! and not included in the list of dynamic 
-                                                                            ! species, VAR
+!      AERWDEP( LSOA, ACC ) = AEROSOL( LSOA, ACC ) * ( 1 - EXPWET) * CFACTOR ! SOA is only impacted by wet dep process 
+!                                                                            ! and not included in the list of dynamic 
+!                                                                            ! species, VAR      
       
       WDFECOR   = SOIL_FE_FAC * AERWDEP( LSOILC, COR ) + CORS_FE_FAC * AERWDEP( LANTHC, COR )
       WDMNCOR   = SOIL_MN_FAC * AERWDEP( LSOILC, COR ) + CORS_MN_FAC * AERWDEP( LANTHC, COR )     
@@ -672,10 +697,41 @@ kron: DO WHILE (T < TEND)
       AEROSOL( LEC, ACC )   = VAR( ind_L_PECACC ) * INVCFAC 
       AEROSOL( LORGC, ACC ) = VAR( ind_L_ORGC ) * INVCFAC 
       AEROSOL( LPOA, ACC )  = VAR( ind_L_POAACC ) * INVCFAC 
-      AEROSOL( LSOA, ACC )  = AEROSOL( LSOA, ACC ) * EXPWET   ! SOA is only impacted by wet dep process 
-                                                              ! and not included in the list of dynamic 
-                                                              ! species, VAR
-                       
+!      AEROSOL( LSOA, ACC )  = AEROSOL( LSOA, ACC ) * EXPWET   ! SOA is only impacted by wet dep process 
+!                                                              ! and not included in the list of dynamic 
+!                                                              ! species, VAR             
+		       
+		       
+      
+      IF( AEROSOL(LTRACER_ACC, ACC) .GT. 0.d0 ) THEN      
+         FRACTR = MIN(((TRACIinit - AEROSOL(LTRACER_AKN, AKN))*EXPWET) /  &
+	 AEROSOL( LTRACER_ACC, ACC ), 1.0D0) 
+      ELSE 
+         FRACTR = 0.d0
+      END IF
+      
+      IF( AEROSOL(LPOA, ACC) .GT. 0.d0 ) THEN      
+         FRACPOA = MIN(((POAIinit - AEROSOL(LPOA, AKN))*EXPWET) / &
+	 AEROSOL( LPOA, ACC ), 1.0D0) 
+      ELSE 
+         FRACPOA = 0.d0
+      END IF
+      
+      IF( AEROSOL(LPRI, ACC) .GT. 0.d0 ) THEN      
+         FRACPRI = MIN(((PRIIinit - AEROSOL(LPRI, AKN))*EXPWET) / &
+	 AEROSOL( LPRI, ACC ), 1.0D0) 
+      ELSE 
+         FRACPRI = 0.d0
+      END IF
+      
+      IF( AEROSOL(LSOA, ACC) .GT. 0.d0 ) THEN      
+         FRACSOA = MIN(((SOAIinit - AEROSOL(LSOA, AKN))*EXPWET) / &
+	 AEROSOL( LSOA, ACC ), 1.0D0) 
+      ELSE 
+         FRACSOA = 0.d0
+      END IF
+      
+
       IF(ISPC8 .gt. 0) THEN                                                                                               
          AEROSOL( LIETET, ACC ) = VAR( ind_L_IETET ) * INVCFAC
          AEROSOL( LIEOS, ACC )  = VAR( ind_L_IEOS ) * INVCFAC

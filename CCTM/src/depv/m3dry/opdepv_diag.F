@@ -68,6 +68,7 @@ C Local variables:
 
 C-----------------------------------------------------------------------
 
+#ifndef mpas
 C Try to open existing file for update
 
       IF ( IO_PE_INCLUSIVE ) THEN   ! open new
@@ -157,6 +158,7 @@ C Open diagnostic file, then close it for subsequent open by all processors
 
          END IF
       END IF   ! IO_PE_INCLUSIVE
+#endif
 
       RETURN
       END

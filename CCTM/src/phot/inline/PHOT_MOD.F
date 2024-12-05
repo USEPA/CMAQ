@@ -67,6 +67,7 @@ C-----------------------------------------------------------------------
 
       USE RUNTIME_VARS    
       USE CSQY_DATA
+      USE PHOT_MET_DATA, ONLY: CFRAC_2D_AVE => CFRAC_2D
 
       IMPLICIT NONE
 
@@ -130,6 +131,8 @@ C-----------------------------------------------------------------------
       ! Summary Aerosol Metrics Needed by the PM Diagnostic Module
       REAL, ALLOCATABLE, SAVE :: TAU_AERO_550( :,: )   ! total aerosol optical depth at 550 nm (Angstrom Interpolation)
       REAL, ALLOCATABLE, SAVE :: AERO_EXT_550( :,:,: ) ! aerosol extinction at 550 nm for layer [1/m]
+      REAL, ALLOCATABLE, SAVE :: TAU_ABS_AERO_550( :,: ) ! sbsorption aerosol optical depth at 550 nm (Angstrom Interpolation)
+      REAL, ALLOCATABLE, SAVE :: AERO_ABS_550( :,:,: )   ! aerosol absorption coeff at 550 nm for layer [1/m]
 
       LOGICAL            :: ONLY_SOLVE_RAD             ! only compute fluxes     
       LOGICAL            :: OBEY_STRATO3_MINS = .TRUE. ! Has stratospheric O3 column not violated 
@@ -434,7 +437,6 @@ C-----------------------------------------------------------------------
 !***initialize BLKRJ and other layer variables
 
       BLKRJ          = 0.0
-      BLKDZ          = 0.0
       GAS_EXTINCTION = 0.0
       EXTINCTION     = 0.0
       ACTINIC_FLUX   = 0.0
@@ -475,6 +477,8 @@ C-----------------------------------------------------------------------
          TAU_RAY   = 0.0
          TROPO_O3_COLUMN = 0.0
          TROPO_O3_TOGGLE = 1.0
+!        BLKDZ           = 0.0
+         CALL SLANTPATH2 ( NLAYS, BLKZF, ZSFC, REARTH, SINZEN, BLKDZ, DSDH )
          RETURN
       END IF
 
@@ -504,6 +508,7 @@ C-----------------------------------------------------------------------
 
 !***get layer thicknesses and slantpath starting at the TOP
 
+!        BLKDZ = 0.0
          CALL SLANTPATH2 ( NLAYS, BLKZF, ZSFC, REARTH, SINZEN, BLKDZ, DSDH )
 
 !***get slantpath from ZTOM to ZTOA

@@ -50,7 +50,7 @@ SUBROUTINE aqprep (grid, config_flags, t_phy_wrf, p_phy_wrf, rho_wrf,     &
 !                 change
 !           28 Dec 2015  (David Wong)
 !              -- added optional PV calculation which is dictated by an environment
-!                 variable CTM_TURN_ON_PV with default .false. value
+!                 variable CTM_PVO3 with default .false. value
 !           11 Jan 2016  (David Wong)
 !              -- removed mminlu
 !              -- resized the first dimension of the following arrays:
@@ -111,6 +111,15 @@ SUBROUTINE aqprep (grid, config_flags, t_phy_wrf, p_phy_wrf, rho_wrf,     &
 !           26 Jul 2022  (David Wong)
 !              -- Added a prefix tw_ for these variables: sc, ec, sr, er sc_d, ec_d,
 !                 sr_d, and er_d to avoid naming conflicts
+!           16 Mar 2023  (David Wong)
+!              -- fixed a bug in creating u and v components
+!           30 Apr 2024  (Tanya Spero)
+!              -- Changed constraint on XORIG and YORIG for Lambert conformal
+!                 projections. Original constraint of 500 meters introduced an
+!                 error in calculating the lower-left corner that is more
+!                 noticeable at fine resolutions. Now using a constraint of
+!                 5 meters to allow for "neater" XORIG and YORIG values across
+!                 compilers.
 !===============================================================================
 
   USE module_domain                                ! WRF module
@@ -1206,11 +1215,6 @@ SUBROUTINE aqprep (grid, config_flags, t_phy_wrf, p_phy_wrf, rho_wrf,     &
 
         ENDDO
      ENDDO
-
-  metcro3d_data_wrf (:,:,1:nlays,15) = zf (:,:,1:nlays)
-
-  metcro3d_data_wrf (:,:,1:nlays,16) = zf (:,:,1:nlays)
-
   ENDDO
 
   metcro3d_data_wrf (:,:,1:nlays,14) = zf (:,:,1:nlays)
@@ -2023,12 +2027,12 @@ SUBROUTINE aq_header (ncols, nrows, gncols, gnrows, nlays, sdate, stime, dx, dy,
 ! IF ( wrf_lc_ref_lat > -999.0 ) THEN  ! adjust XORIG and YORIG
   IF ( moad_cen_lat > -999.0 ) THEN  ! adjust XORIG and YORIG
 
-    xtemp = xorig / 500.0
-    ytemp = yorig / 500.0
+    xtemp = xorig / 5.0
+    ytemp = yorig / 5.0
     xtemp = FLOAT(NINT(xtemp))
     ytemp = FLOAT(NINT(ytemp))
-    xorig = xtemp * 500.0
-    yorig = ytemp * 500.0
+    xorig = xtemp * 5.0
+    yorig = ytemp * 5.0
 
   ENDIF
 

@@ -40,7 +40,7 @@ echo 'Start Model Run At ' `date`
 setenv CTM_DIAG_LVL 0 
 
 #> Set General Parameters and Labels for Configuring the Simulation
-set VRSN        = ${wrfv}54          #> Code Version
+set VRSN        = ${wrfv}55          #> Code Version
 set PROC        = mpi                #> serial or mpi
 set MECH        = cb6r5_ae7_aq       #> Mechanism ID
 set APPL        = Bench_2018_12NE3   #> Application Name (e.g. Domain)
@@ -57,7 +57,7 @@ set EXEC      = wrf.exe
 
 # Set Working, Input, and Output Directories
 set WORKDIR     = ${PWD}                                  # Pathname of current Working Directory
-set WRF_DIR     = $WORKDIR/BLD_WRFv4.4_CCTM_v54_intel18.0 # Location of WRF-CMAQ Install
+set WRF_DIR     = $WORKDIR/BLD_WRFv4.4_CCTM_v55_intel18.0 # Location of WRF-CMAQ Install
 set INPDIR      = ${CMAQ_DATA}/2018_12NE3               # Input directory for WRF & CMAQ
 set OUTPUT_ROOT = $WORKDIR                                # output root directory
 set output_direct_name = WRFCMAQ-output-${version}        # Output Directory Name
@@ -194,9 +194,22 @@ setenv CTM_BIDI_FERT_NH3     T   #> subtract fertilizer NH3 from emissions becau
 setenv CTM_HGBIDI            N   #> mercury bi-directional flux for in-line deposition velocities [ N ]
 setenv CTM_SFC_HONO          Y   #> surface HONO interaction [ Y ]
 setenv CTM_GRAV_SETL         Y   #> vdiff aerosol gravitational sedimentation [ Y ]
+setenv CTM_PVO3              N   #> consider potential vorticity module for O3 transport from the stratosphere
+                                 #> In WRF-CMAQ model, option also can activate calculating potential vorticity
+                                 #> [default: N]
+
 setenv CTM_BIOGEMIS_BE Y         #> calculate in-line biogenic emissions with BEIS [ default: N ]
 setenv CTM_BIOGEMIS_MG N         #> turns on MEGAN biogenic emission [ default: N ]
 setenv BDSNP_MEGAN N             #> turns on BDSNP soil NO emissions [ default: N ]
+
+setenv AEROSOL_OPTICS 3      #> sets method for determining aerosol optics affecting photolysis
+                             #> frequencies ( 3 is the default value )
+                             #>  VALUES 1 thru 3 determined Uniformly Volume Mixed spherical
+                             #>      (1-Tabular Mie; 2-Mie Calculation; 3-Case Approx to Mie Theory)
+                             #>  VALUES 4 thru 6 attempts to use core-shell mixing model when the
+                             #>      aerosol mode has signficant black carbon core otherwise use Volume Mixed
+                             #>      model where optics determined by
+                             #>      (4-Tabular Mie; 5-Mie Calculation; 6-Case Approx to Mie Theory)
 
 setenv CTM_TURN_ON_PV        N   # WRF-CMAQ ONLY turn on/off PV [ N -- make sure compiled with pv on ]
 
@@ -707,7 +720,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
         #echo "Deleting output file: $file"
         /bin/rm -f $file  
      end
-     /bin/rm -f ${OUTDIR}/CCTM_EMDIAG*${RUNID}_${YYYYMMDD}.nc
+     /bin/rm -f ${OUTDIR}/CCTM_DESID*${CTM_APPL}.nc
 
   else
      #> error if previous log files exist
@@ -738,6 +751,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   setenv INIT_CONC_1 $ICpath/$ICFILE
   setenv BNDY_CONC_1 $BCpath/$BCFILE
   setenv OMI $OMIpath/$OMIfile
+  setenv MIE_TABLE $OUTDIR/mie_table_coeffs_${compilerString}.txt
   setenv OPTICS_DATA $OMIpath/$OPTfile
  #setenv XJ_DATA $JVALpath/$JVALfile
   set TR_DVpath = $METpath

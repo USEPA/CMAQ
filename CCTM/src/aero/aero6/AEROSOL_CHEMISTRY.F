@@ -50,7 +50,7 @@
        
        PRIVATE 
 
-       INTEGER, PARAMETER :: NUMB_AERO_RATES = 54
+       INTEGER, PARAMETER :: NUMB_AERO_RATES = 55
        
        CHARACTER( 16 ), PARAMETER :: NAMES_AERO_RATES( NUMB_AERO_RATES ) = 
      &                    (/ 'HETERO_N2O5IJ   ', 'HETERO_N2O5K    ', 
@@ -79,7 +79,8 @@
      &                       'HETERO_INO3_CLJ ', 'HETERO_INO3_BRJ ',
      &                       'HETERO_INO2_CLJ ', 'HETERO_INO2_BRJ ',
      &                       'HETERO_HOI_CLJ  ', 'HETERO_HOI_BRJ  ',
-     &                       'HETERO_ISO3NOSJ ', 'HETERO_ISO3OSJ  '/)
+     &                       'HETERO_ISO3NOSJ ', 'HETERO_ISO3OSJ  ',
+     &                       'HETERO_HO2      '/)
 
        INTEGER, PARAMETER  :: IA_N2O5IJ         =   1
        INTEGER, PARAMETER  :: IA_N2O5K          =   2
@@ -135,6 +136,7 @@
        INTEGER, PARAMETER  :: IA_HOI_BRJ        =   52
        INTEGER, PARAMETER  :: IA_ISO3NOSJ       =   53
        INTEGER, PARAMETER  :: IA_ISO3OSJ        =   54
+       INTEGER, PARAMETER  :: IA_HO2            =   55
 
 
        INTEGER, PARAMETER :: INDEX_AERO_RATES( NUMB_AERO_RATES ) = 
@@ -164,7 +166,8 @@
      &                       IA_INO3_CLJ , IA_INO3_BRJ ,
      &                       IA_INO2_CLJ , IA_INO2_BRJ ,
      &                       IA_HOI_CLJ  , IA_HOI_BRJ  ,
-     &                       IA_ISO3NOSJ , IA_ISO3OSJ  /)
+     &                       IA_ISO3NOSJ , IA_ISO3OSJ  ,
+     &                       IA_HO2      /)
 
        INTEGER               :: SELECTED_AERO_RATES
        INTEGER, ALLOCATABLE  :: WHICH_AERO_RATE( : )
@@ -180,6 +183,8 @@ C *** Molecular weight
       REAL( 8 ), SAVE        :: CFACTOR_GLY   ! factor used for the mean molecular speed of GLY [m/(s^1*(deg K)^0.5)]
       REAL( 8 ), SAVE        :: MWTMGLY       ! molecular weight of MGLY [g/mol]
       REAL( 8 ), SAVE        :: CFACTOR_MGLY  ! factor used for the mean molecular speed of MGLY [m/(s^1*(deg K)^0.5)]
+      REAL( 8 ), SAVE        :: MWTHO2        ! molecular weight of HO2 [g/mol]
+      REAL( 8 ), SAVE        :: CFACTOR_HO2   ! factor used for the mean molecular speed of HO2 [m/(s^1*(deg K)^0.5)]
 
 C *** 2nd and 3rd moments with wet species
       REAL( 8 ), ALLOCATABLE :: WET_M3( : ) ! WET_M3_I,  WET_M3_J, WET_M3_K   ! M3 w.H2O, svOA
@@ -263,9 +268,9 @@ C                 --------  -----------  ----------  -----   ------  -----------
      &   acid_cat('IEPOX',  'AH2OJ    ', 'HPLUS   ',   1,     0,       K_H_WATER,   'AISO3NOSJ' ),
      &   acid_cat('IEPOX',  'ASO4J    ', 'HPLUS   ',   1,     2,       K_H_SO4,     'AISO3OSJ'  ),
      &   acid_cat('IEPOX',  'ANO3J    ', 'HPLUS   ',   1,     0,       K_H_NUC,     'AISO3NOSJ' ),
-     &   acid_cat('IEPOX',  'AH2OJ    ', 'HSO4    ',   2,     0,       K_H_WATER,   'AISO3NOSJ' ),
-     &   acid_cat('IEPOX',  'ASO4J    ', 'HSO4    ',   2,     2,       K_H_SO4,     'AISO3OSJ'  ),
-     &   acid_cat('IEPOX',  'ANO3J    ', 'HSO4    ',   2,     0,       K_H_NUC,     'AISO3NOSJ' )/)
+     &   acid_cat('IEPOX',  'AH2OJ    ', 'HSO4    ',   2,     0,       K_HSO4_WATER,   'AISO3NOSJ' ),
+     &   acid_cat('IEPOX',  'ASO4J    ', 'HSO4    ',   2,     2,       K_HSO4_NUC,     'AISO3OSJ'  ),
+     &   acid_cat('IEPOX',  'ANO3J    ', 'HSO4    ',   2,     0,       K_HSO4_NUC,     'AISO3NOSJ' )/)
 
 
 C Mapping array for location of acid enhanced products and nucleophiles in aerospc_conc 
@@ -317,7 +322,8 @@ c 03/24/16 - G. Sarwar - Heterogeneous uptake of BRONO2 on aerosols
 C 5/2016     H Pye - merged with AERO6i version (added NO3, GLY, MGLY, IMAE het rxn)
 c 07/17/18 - G. Sarwar - Heterogeneous uptakes of chlorine, bromine and iodine species on aerosols
 C 06/10/21 - G. Sarwar: Added CB6R5M_AE7_AQ
-c
+C 11/08/23 - N. Skipper: Added heterogeneous uptake of HO2
+C
 c  REFERENCES:
 c   1. Pleim, J.E., F.S. Binkowski, J.K.S. Ching, R.L. Dennis, and N.V.
 c      Gallani, An improved representation of the reaction of N2O5 on
@@ -383,6 +389,13 @@ C      composition in GEOS-CHEM: ACP, 16, 12239-12271, 2016
 C
 C  15. Deiber et al., Uptake of ClONO2 and BrONO2 by halide containing droplets
 C      ACP, 4, 1291-1299, 2004
+C
+C  16. Ivatt et al., Suppression of surface ozone by an aerosol-inhibited
+C      photochemical ozone regime, Nat. Geosci.,
+C      doi: 10.1038/s41561-022-00972-9, 2022
+C  17. Jacob, Heterogeneous chemistry and tropospheric ozone, Atm Env.,
+C      doi: 10.1016/S1352-2310(99)00462-8, 2000
+C
 C-----------------------------------------------------------------------
       USE RUNTIME_VARS
       USE GRID_CONF             ! horizontal & vertical domain specifications
@@ -428,8 +441,9 @@ C *** Parameters
       REAL( 8 ), PARAMETER :: COEF1           = 7.24382926227485D10 ! Molec/cc to ppm conv factor 
       REAL( 8 ), PARAMETER :: COEF2           = 2.14805198392421D13 ! convert air density [kg/m3] to number density [ppm]
 
-      REAL( 8 ), PARAMETER :: GAMMA_NO3       = 1.0D-4 ! Mao et al. 2013
+      REAL( 8 ), PARAMETER :: GAMMA_NO3       = 1.0D-3 ! Jacob 2000
       REAL( 8 ), PARAMETER :: GAMMA_GLY       = 2.9D-3 ! Liggio et al. 2005
+      REAL( 8 ), PARAMETER :: GAMMA_HO2       = 0.2D+0 ! Ivatt et al. 2022
 
       REAL( 8 ), PARAMETER :: STD_DIFF_N2O5 = 0.0855D-4  ! N2O5 molecular diffusivity at 101325 Pa and 273.15 K [m2/sec]
       REAL( 8 ), PARAMETER :: STD_DIFF_CLNO3  = 0.1014D-4    ! CLNO3 molecular diffusivity at 101325 Pa and 273.15 K [m2/sec]   
@@ -447,7 +461,7 @@ C *** Parameters
 !     REAL,      PARAMETER :: GPKG        = 1.0E+03                      ! g/kg unit conversion
       REAL,      PARAMETER :: CFACTOR     = 8.0 * GPKG  * RGASUNIV / PI  ! factor in cbar_coeff
       REAL,      PARAMETER :: PA2ATM      = 1.0 / STDATMPA               ! Pascal to atm conv fac
-      REAL,      PARAMETER :: WMASS2PPM   = 1.0E6 * MWAIR / MWWAT        ! H20 mixing ratio to ppm
+      REAL,      PARAMETER :: WMASS2PPM   = 1.0E6 * MWAIR / MWWAT        ! H2O mixing ratio to ppm
       REAL,      PARAMETER :: MAOMV       = MWAIR / MWWAT
       REAL,      PARAMETER :: CONCOFM     = 1.0E+06        ! conc. of M = 1E+06 ppm
       REAL,      PARAMETER :: INV_STDTEMP = 1.0 / STDTEMP
@@ -475,6 +489,7 @@ C *** Local Variables
       REAL( 8 )    :: KNO2             ! pseudo-first order rate constant, sec-1
       REAL( 8 )    :: KIEPOX           ! pseudo-first order rate constant for IEPOX uptake, sec-1
       REAL( 8 )    :: KIMAE            ! pseudo-first order rate constant for MAE uptake, sec-1
+      REAL( 8 )    :: KHO2(  N_MODE  ) ! pseudo-first order rate constant, sec-1
 
       REAL( 8 )    :: K1               ! pseudo-first order rate constant, sec-1 
       REAL( 8 )    :: K2               ! pseudo-first order rate constant, sec-1 
@@ -507,6 +522,7 @@ C *** Local Variables
       REAL( 8 )       :: CBARNO3          ! molecular velocity of NO3 (m/s)
       REAL( 8 )       :: CBARGLY          ! molecular velocity of GLY (m/s)
       REAL( 8 )       :: CBARMGLY         ! molecular velocity of MGLY (m/s)
+      REAL( 8 )       :: CBARHO2          ! molecular velocity of HO2 (m/s)
       REAL( 8 )       :: TETROL_PPM       ! accumulation mode aerosol tetrol in ppm
       REAL( 8 )       :: IEPOXOS_PPM      ! accumulation mode iepox organosulfate in ppm
       REAL( 8 )       :: ASO4J_PPM        ! accumulation mode inorganic sulfate in ppm
@@ -562,6 +578,7 @@ C *** Local Variables
       INTEGER, SAVE   :: GLY_IDX
       INTEGER, SAVE   :: MGLY_IDX
       INTEGER, SAVE   :: BR_IDX   
+      INTEGER, SAVE   :: HO2_IDX
 
 C *** variables for parameterization by Bertram and Thornton 
       REAL         :: ACL           ! i+j or k mode chloride, ug/m3 
@@ -570,7 +587,7 @@ C *** variables for parameterization by Bertram and Thornton
       REAL         :: POC           ! i or j mode primary organic carbon, ug/m3 
       REAL         :: PNCOM         ! i or j mode primary noncarbon organic matter, ug/m3          
       REAL,      SAVE :: MWCLH2O       ! ratio of MWCL/MWH2O 
-      REAL,      SAVE :: MWH2OCL       ! ratio of MWH20/MWCL 
+      REAL,      SAVE :: MWH2OCL       ! ratio of MWH2O/MWCL 
       REAL,      SAVE :: MWCLCLNO2     ! ratio of MWCL/MWCLNO2
       REAL( 8 ), SAVE :: INV_MWCL      ! ratio of 1.0D0/MWCL 
       REAL( 8 ), SAVE :: INV_MWBR      ! ratio of 1.0D0/MWBR   
@@ -627,6 +644,11 @@ C *** parameters for calculating GAMMA of HBR ---> ABR, Sherwen et al., ACP, 201
       REAL( 8 ), PARAMETER :: INV_GAMMA_INO2  = 1.0D0 / 0.02D0                     ! Saiz-Lopez et al. 2014
 
 C *** Coefficients for the equation, ESATL defining saturation vapor pressure
+C *** values of AL, BL, and CL are from:
+C     Alduchov and Eskridge, "Improved Magnus Form Approximations of
+C                            Saturation Vapor Pressure,"
+C                            Jour. of Applied Meteorology, vol. 35,
+C                            pp 601-609, April, 1996.
       REAL( 8 ), PARAMETER :: AL = 610.94D0 
       REAL( 8 ), PARAMETER :: BL = 17.625D0
       REAL( 8 ), PARAMETER :: CL = 243.04D0
@@ -637,14 +659,7 @@ C *** Coefficients for the equation, ESATL defining saturation vapor pressure
        LOGICAL              :: DUMP_CELL
 #endif
 
-C *** values of AL, BL, and CL are from:
-C     Alduchov and Eskridge, "Improved Magnus Form Approximations of
-C                            Saturation Vapor Pressure,"
-C                            Jour. of Applied Meteorology, vol. 35,
-C                            pp 601-609, April, 1996.
 
-      INV_ESATL( TT ) = DL * DEXP( BL * ( 273.15D0 - TT ) / ( TT - 273.15D0 + CL ) )
-      
       INTERFACE
          SUBROUTINE GETPAR( FIXED_sg  )
            LOGICAL, INTENT( IN ) :: FIXED_sg    ! fix coarse and accum Sg's to the input value?
@@ -657,6 +672,8 @@ C                            pp 601-609, April, 1996.
          End Subroutine Hetchem_Extract_Aero
       END INTERFACE 
   
+      INV_ESATL( TT ) = DL * DEXP( BL * ( 273.15D0 - TT ) / ( TT - 273.15D0 + CL ) )
+      
 C-----------------------------------------------------------------------
 
       IF ( NHETERO .LT. 1 )RETURN
@@ -774,6 +791,14 @@ C ***  Determine molecular weights
        END IF
        CFACTOR_MGLY = DSQRT( 8.0D3 * REAL( RGASUNIV, 8 ) / ( MWTMGLY * DPI ) )
 
+       HO2_IDX = INDEX1( 'HO2', NUMB_MECH_SPC, CHEMISTRY_SPC )
+       IF( HO2_IDX .GT. 0 )THEN
+           MWTHO2  = REAL( SPECIES_MOLWT( HO2_IDX ), 8 )
+       ELSE
+           MWTHO2  = 33.0D0
+       END IF
+       CFACTOR_HO2 = DSQRT( 8.0D3 * REAL( RGASUNIV, 8 ) / ( MWTHO2 * DPI ) )
+
 C ***  Map to acids/nucleophiles for epoxide uptake
        INDX =  INDEX1( NAMES_AERO_RATES( IA_IEPOX ), NHETERO, HETERO )   
        IF ( INDX .GT. 0 ) THEN ! Find indices for acid catalyzed species in IEPOX reaction
@@ -783,7 +808,8 @@ C ***  Map to acids/nucleophiles for epoxide uptake
              N_NUCPAIRS     = N_NUCPAIRS_AEI
              ALLOCATE ( ACID_NUC_PAIRS( N_NUCPAIRS ) )
              ACID_NUC_PAIRS = ACID_NUC_PAIRS_AEI
-          Else If ( (INDEX( MECHNAME, 'CRACMM1') .GT. 0) ) then
+          Else If ( (INDEX( MECHNAME, 'CRACMM1') .GT. 0)
+     &      .OR.    (INDEX( MECHNAME, 'CRACMM2') .GT. 0) ) then
              NUMVOC         = 1
              N_NUCPAIRS     = N_NUCPAIRS_CRCM
              ALLOCATE ( ACID_NUC_PAIRS( N_NUCPAIRS ) )
@@ -871,6 +897,7 @@ C *** calculate molecular speeds (m/s) using Eq 4 of Pleim et al (1995)
                CBARNO3 = CFACTOR_NO3 * DSQRT( AIRTEMP )
                CBARGLY = CFACTOR_GLY  * DSQRT( AIRTEMP )
                CBARMGLY = CFACTOR_MGLY * DSQRT( AIRTEMP )
+               CBARHO2 = CFACTOR_HO2 * DSQRT( AIRTEMP )
 
                CBAR_CLNO3 = CBAR_COEFF * INV_SQRT_MWCLNO3
                CBAR_HBR   = CBAR_COEFF * INV_SQRT_MWHBR
@@ -943,6 +970,14 @@ C *** get KN2O5 rate constants YIELD_CLNO2 for each mode
                   ELSE
                      KGLY( N ) = 0.0D0
                      KMGLY( N ) = 0.0D0
+                  END IF
+
+                  IF( GAMMA_HO2 .GT. 0.0D0) THEN
+                     KHO2( N ) = GAMMA_HO2 * WET_M2( N )
+     &                         / ( 4.0D0 + 0.5D0 * DE_WET( N ) * GAMMA_HO2
+     &                         * CBARHO2 * INV_DIFFUSIVITY ) * CBARHO2 * DPI
+                  ELSE
+                     KHO2( N ) = 0.0D0
                   END IF
 
 
@@ -1239,6 +1274,9 @@ C *** CRACMM1 Implementation of sulfated and non-sulfated IEPOX-SOA
 
                  CASE( IA_MGLY )
                      KHETERO( IRATE, C,R,L ) = 60.0D0 * (  KMGLY( 2 ) ) ! min-1
+                 
+                 CASE( IA_HO2 )
+                     KHETERO( IRATE, C,R,L ) = 60.0D0 * (  KHO2( 2 ) ) ! min-1
 
                  CASE( IA_NTR2 )
 C *** calculate gas-particle partitioning of NTR2
@@ -1472,11 +1510,13 @@ C hydrolysis
                WRITE( LOGDEV,9501 ) 'F_PART_NTR2 =  ', F_PART_NTR2, ' '
                WRITE( LOGDEV,9501 ) 'GAMMA_NO3= ', GAMMA_NO3, ' '
                WRITE( LOGDEV,9501 ) 'GAMMA_GLY= ', GAMMA_GLY, ' '
+               WRITE( LOGDEV,9501 ) 'GAMMA_HO2= ', GAMMA_HO2, ' '
                WRITE( LOGDEV,9501 ) 'KNO3(1)= ', KNO3( 1 ), ' '
                WRITE( LOGDEV,9501 ) 'KNO3(2)= ', KNO3( 2 ), ' '
                WRITE( LOGDEV,9501 ) 'KNO3(3)= ', KNO3( 3 ), ' '
                WRITE( LOGDEV,9501 ) 'KGLY(2)= ', KGLY( 2 ), ' '
                WRITE( LOGDEV,9501 ) 'KMGLY(2)= ', KMGLY( 2 ), ' '
+               WRITE( LOGDEV,9501 ) 'KHO2(2)= ', KHO2( 2 ), ' '
                DO N = 1, NHETERO
                   WRITE( LOGDEV,9501 ) HETERO( N ) // ' = ', KHETERO( N, C,R,L ),' '
                END DO

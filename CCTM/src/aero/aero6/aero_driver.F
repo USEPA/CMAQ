@@ -131,7 +131,7 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       USE SOA_DEFN, ONLY: EXTRACT_SOA, UPDATE_ORGVAPOR
       USE AEROMET_DATA, ONLY: AIRTEMP, AIRPRES, AIRQV, AIRDENS, AIRRH, 
      &                        H2OSATVP, H2OVP, MWWAT, MWAIR, SRFTEMP
-      USE UTILIO_DEFN, ONLY: XSTAT1, TIME2SEC, SEC2TIME
+      USE UTILIO_DEFN, ONLY: XSTAT1, TIME2SEC, SEC2TIME, index1, nextime
 #ifdef twoway
      &                       , INDEX1, XSTAT3
 #endif
@@ -265,8 +265,6 @@ C                            pp 601-609, April, 1996.
       ESATL( TT ) = AL * EXP( BL * ( TT - 273.15 ) / ( TT - 273.15 + CL ) )
 
 C *** End Statement Function  ********
-
-      logical, save :: now = .true.
 
 #ifdef twoway
       INTERFACE

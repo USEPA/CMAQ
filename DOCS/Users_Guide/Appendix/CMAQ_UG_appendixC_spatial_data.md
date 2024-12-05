@@ -12,17 +12,11 @@ Air quality modeling requires many spatial data to generate anthropogenic,
 biogenic, fire, sea salt, dust, and NH<sub>3</sub> emissions. In addition, land surface characteristics such as
 land cover types with vegetation leaf area index (LAI) and fraction, albedo, and soil types are required in
 modeling the exchanges of heat, moisture, and momentum between the land and atmosphere and dry deposition
-of trace chemicals (e.g. O<sub>3</sub> and NH<sub>3</sub>). It is important to use a consistent coordinate system for all the
-geospatial data used in emission, meteorology, and air quality modeling. Most of the geospatial data
-required for the Sparse Matrix Operator Kernel Emissions (SMOKE)/Weather Research and Forecasting
-(WRF)/CMAQ modeling can be generated using the Spatial Allocator (SA) that includes three components
-developed for specific applications: Vector, Raster, and Surrogate Tools.
+of trace chemicals (e.g. O<sub>3</sub> and NH<sub>3</sub>). It is important to use a consistent coordinate system for all the geospatial data used in emission, meteorology, and air quality modeling. Most of the geospatial data
+required for the Sparse Matrix Operator Kernel Emissions (SMOKE), Weather Research and Forecasting
+(WRF), and CMAQ modeling can be generated using the [Spatial Allocator (SA)](https://www.cmascenter.org/sa-tools/) or the [Surrogate Tool](https://github.com/CEMPD/SurrogateToolsDB).
 
-In using the spatial data, it is important to know the datum, which is a spheroidal (either spherical
- or ellipsoidal) surface that represents the surface of the earth, and the projection, which is a
- mathematic transformation that converts a location on the datum to the location on a flat plane.
- The following sections briefly describe the appropriate datum and projections to use with the CMAQ system
- and the methods for generating the needed spatial data in the correct form.
+In using the spatial data, it is important to know the datum, which is a spheroidal surface that represents the surface of the earth, and the projection, which is a mathematic transformation that converts a location on the datum to the location on a flat plane. The following sections briefly describe the appropriate datum and projections to use with the CMAQ system and the methods for generating the needed spatial data in the correct form.
 
 ## C.2 Geodetic datum
 
@@ -60,46 +54,15 @@ Geographic:  "+proj=latlong +a=6370000.0 +b=6370000.0"
 
 Emission spatial allocation surrogates are required for generating anthropogenic emissions by SMOKE to
 spatially allocate county-based emission inventories to model grid cells. Emission surrogates can be based
-on population, roads, airports, railroads, and land use spatial data sets. The SA Vector and Surrogate
-Tools can be used to generate all needed emission surrogates for SMOKE.
+on population, roads, airports, railroads, and land use spatial data sets. The [Surrogate Tool](https://github.com/CEMPD/SurrogateToolsDB) can be used for to generate spatial surrogates for SMOKE.
 
-- [SA Vector and Surrogate Tools](https://www.cmascenter.org/sa-tools/) 
+**Regional masks** are used to specify regions such as states, counties, or countries within a gridded spatial domain. These regions are applied to regionally scale emissions as specified in section B.3.4 of the [DESID Appendix](CMAQ_UG_appendixB_emissions_control.md) and to track emissions by region in [ISAM](../Users_Guide/CMAQ_UG_ch11_ISAM.md) Masks can be created from a geospatial file of regions, such as county shapefile, with the [shp2cmaq](../../../PREP/shp2cmaq/README.md) tool.
 
-**Biogenic emissions** require land use input including different tree species. There are two ways to
-compute the required input for the domain covering the continental U.S. (CONUS).
-
-1. The original method—re-grid Biogenic Emissions Landuse Database, Version 3 (BELD3) using a SA Vector
-allocation tool. The BELD3 data is generated from the early 1990s AVHRR land cover data and FIA tree
-species at the county level.
-2. The second method—use the SA Raster BELD4 land cover generation tool to generate model domain land use
- data with tree species. Then, a provided utility is used to convert the generated land cover data into
- an I/O API format for CMAQ input. The limitation for this tool is that the early 1990s county-level FIA tree species
- table is still used in allocating FIA tree species (this is also the case for the 1st approach).
-
-- [SA Vector and Surrogate Tools](https://www.cmascenter.org/sa-tools/) 
-- [SA Raster BELD4 land cover generation tool](https://www.cmascenter.org/sa-tools/documentation/4.2/Raster_Users_Guide_4_2.pdf) 
-
-**Fire emissions** require fire location, burned areas, and detailed fuel load information.
-Fire locations are available via satellite detections from the Hazard Mapping System (HMS) or ground
-level reports from the National Fire and Aviation Management web application.  Burn Area estimates can
-be obtained from GIS based sources such as the Geospatial Multi-Agency Coordination (GeoMac) website or
-the U.S. National Historical Fire Perimeters Data Basin Dataset.  Fuel loading is estimated using a
-geospatial dataset such as the US Forest Service Fuel Characteristic Classification System (FCCS).
-All these information sources can be used to estimate fire emissions. An example of a tool that can
-be used to generate fire emissions is the BlueSky modeling framework.  BlueSky modularly links a variety
-of independent models of fire information, fuel loading, fire consumption, fire emissions, and smoke
-dispersion.  Using these tools and estimating fire emissions can be quite complex so datasets of fire
-emissions have been created for the community. Examples of such datasets are the Fire INventory from
-the National Center for Atmospheric Research (FINN) or the Global Fire Emissions Database (GFED).
-
-- [Hazard Mapping System Fire and Smoke Product](https://www.ospo.noaa.gov/Products/land/hms.html)
-- [National Fire and Aviation Management Web Application](https://fam.nwcg.gov/fam-web/)
-- [Geospatial Multi-Agency Coordination website](https://www.geomac.gov/)
-- [U.S. National Historical Fire Perimeters Data Basin Dataset](https://www.arcgis.com/home/item.html?id=6b68271ebee147d99525e0b914823155) 
-- [US Forest Service Fuel Characteristic Classification System](https://www.fs.fed.us/pnw/fera/fft/fccsmodule.shtml)
-- [US Forest Service BlueSky Modeling Framework](https://sites.google.com/firenet.gov/wfaqrp-airfire-info/playground)  
-- [Fire INventory from the National Center for Atmospheric Research](https://www2.acom.ucar.edu/modeling/finn-fire-inventory-ncar)
-- [Global Fire Emissions Database](http://www.globalfiredata.org/)
+**Biogenic emissions** requires land use input including coverage of different tree species. The Biogenic Emissions Landcover Dataset version 5 (BELD5) consists of 257 different landuse types at 1km horizontal resolution that covers all the contiguous United States, Mexico, most of Canada, parts of southern Alaska, and other Caribbean and
+Central American countries. BELDv5 data is available from the 2017 emissions modeling platform ftp site: [https://gaftp.epa.gov/Air/emismod/2017/biogenics/](https://gaftp.epa.gov/Air/emismod/2017/biogenics/). For more information on BELD5 landuse types see:
+[https://www.cmascenter.org/smoke/documentation/4.8/html/ch08s09.html#sect_input_source_beld5](https://www.cmascenter.org/smoke/documentation/4.8/html/ch08s09.html#sect_input_source_beld5)
+and see the EPA 2017 NEI Technical Support Documentation (section 4.6): [https://www.epa.gov/sites/production/files/2020-04/documents/nei2017_tsd_full_30apr2020.pdf](https://www.epa.gov/sites/production/files/2020-04/documents/nei2017_tsd_full_30apr2020.pdf). To aggregate the BELD5 to a coarser modeling domain with the same map projection use the SMOKE Utility Tool called AGGWNDW. The SMOKE User’s Manual has information on this tool here:
+[https://www.cmascenter.org/smoke/documentation/4.8/html/ch05s03s02.html](https://www.cmascenter.org/smoke/documentation/4.8/html/ch05s03s02.html).
 
 **Sea spray emissions** require open ocean and surf zone (50m) buffer fractions for the modeling grid
  cells in an I/O API file. For most of North American domain, a SA Vector allocation tool can be used
@@ -121,7 +84,6 @@ using a utility program in FEST-C for CMAQ input. Note that the BELD4 data used 
 - [Fertilizer Emission Scenario Tool for CMAQ (FEST-C)](https://www.cmascenter.org/fest-c/) 
 - FEST-C reference: Ran, L., Yuan, Y., Cooter, E., Benson, V., Yang, D., Pleim, J., Wang, R. and Williams, J. (2019). An integrated agriculture, atmosphere, and hydrology modeling system for ecosystem assessments. Journal of Advances in Modeling Earth Systems, 11(12), 4645-4668. DOI: [https://doi.org/10.1029/2019MS001708](https://doi.org/10.1029/2019MS00170)
 
-
 **Land use and land cover data for surface flux modeling** in meteorology and air quality can be
 generated using WPS or the SA Raster Tools. It is important to use consistent land use data in both
 meteorology and air quality modeling. For the U.S., WPS contains re-gridded 9-arc
@@ -134,5 +96,6 @@ update their geogrid land cover data using the more accurate land cover data gen
 <!-- BEGIN COMMENT -->
 
 [<< Previous Appendix](CMAQ_UG_appendixB_emissions_control.md) - [Home](../README.md) - [Next Appendix >>](CMAQ_UG_appendixD_parallel_implementation.md)<br>
-CMAQ User's Guide (c) 2022<br>
+CMAQv5.5 User's Guide <br>
+
 <!-- END COMMENT -->

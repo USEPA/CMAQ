@@ -154,7 +154,7 @@ The following options are invoked by uncommenting the line in the CCTM build scr
     Uncomment to use an existing BLDMAKE executable to build CCTM executable. If commented out, recompile BLDMAKE utility from the source.
 
 -   `CopySrc`<a id=CopySrc></a>  
-    Uncomment to copy the source code into a working build (BLD) directory. If commented, only the compiled object and executable files will be placed in the BLD directory.
+    Uncomment to copy the source code into a working build (BLD) directory. Currently, this option cannot be commented out to successfully compile the model. 
 
 -   `MakeFileOnly`<a id=MakeFileOnly></a>  
     Uncomment to build a Makefile but to not compile the executable. The Makefile will be located in the BLD directory and can subsequently be used to manually compile the executable by typing 'make' in the BLD direcotry. Comment out to both create a Makefile and compile the executable when invoking the bldit_cctm.csh script.
@@ -174,8 +174,6 @@ The following options are invoked by uncommenting the line in the CCTM build scr
 -   `build_twoway`<a id=build_twoway></a>  
     Uncomment to build WRF-CMAQ two way model with explicit meteorological-chemical feedbacks - to build a stand-alone CMAQ, comment this option out.  During run time, if you encounter any problem, please contact David Wong (wong.david@epa.gov) for specific instructions for building WRF-CMAQ.
 
--   `potvortO3`<a id=potvort03></a>   
-    Uncomment to build CMAQ with potential vorticity free-troposphere O<sub>3</sub> scaling. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#613-potential-vorticity-scaling) for futher information before invoking this option.
 
 The following configuration settings may have multiple options. Select one option in the CCTM build script.
 
@@ -235,7 +233,7 @@ Calculate inline plume rise for large point sources using the Briggs algorithm a
     -   `phot/table`  
     calculate clear-sky photolysis rates off-line using the CMAQ program JPROC; provide daily photolysis rate look-up tables to CCTM
 
--   `Mechanism: [default: cb05e51_ae6_aq`]<a id=Mechanism></a>  
+-   `Mechanism: [default: cb6r5_ae7_aq`]<a id=Mechanism></a>  
     Chemistry mechanism for gas, aerosol, and aqueous chemistry. See the [CMAQv5.3 Chemical Mechanisms Table](../../../CCTM/src/MECHS/README.md) for a listing of the mechanism choices that are available in CMAQv5.3. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#610-gas-phase-chemistry) for further information.
 -   `Tracer [default trac0] `<a id=Tracer></a>  
     Specifies tracer species. Invoking inert tracer species in CMAQ requires defining the tracers using namelist files and compiling the CMAQ programs with these files. The setting for this module corresponds to the directory name in the ``$CMAQ_HOME/CCTM/src/MECHS`` directory that contains the namelist files for the tracer configuration. The default setting does not use any tracers.
@@ -261,24 +259,26 @@ Calculate inline plume rise for large point sources using the Briggs algorithm a
 -   `ModCloud: [default: cloud/acm_ae6]`<a id=ModCloud></a>  
     CMAQ cloud module for modeling the impacts of clouds on deposition, mixing, photolysis, and aqueous chemistry. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#612-aqueous-chemistry-scavenging-and-wet-deposition) for further information.
     -   `cloud/acm_ae6`  
-    ACM cloud processor that uses the ACM methodology to compute convective mixing with heterogeneous chemistry for AERO6
+    ACM cloud processor that uses the ACM methodology to compute convective mixing with aqueous chemistry for AERO6
     -   `cloud/acm_ae6_mp`  
-    ACM cloud processor that uses the ACM methodology to compute convective mixing with heterogeneous chemistry for AERO6 and air toxics; this is the multipollutant mechanism in CMAQv5
-    -   `cloud/acm_ae6_kmt`  
-    ACM cloud processor that uses the ACM methodology to compute convective mixing with heterogeneous chemistry for AERO6 and aqueous chemistry with kinetic mass transfer and Rosenbrock solver
-    -   `cloud/acm_ae6i_kmti`  
-    ACM cloud processor that uses the ACM methodology to compute convective mixing with heterogeneous chemistry for AERO6 and aqueous chemistry with kinetic mass transfer and Rosenbrock solver with an extension to simulate the aqueous phase formation of SOA in cloud droplets, see: [CMAQv5.1 Aqueous Chemistry](https://www.airqualitymodeling.org/index.php/CMAQv5.1_Aqueous_Chemistry)
+    ACM cloud processor that uses the ACM methodology to compute convective mixing with aqueous chemistry for AERO6 and air toxics; this is the multipollutant mechanism in CMAQv5
+    -   `cloud/acm_ae7`  
+    ACM cloud processor that uses the ACM methodology to compute convective mixing with aqueous chemistry for AERO7
+    -   `cloud/acm_ae7_kmt2`  
+    ACM cloud processor that uses the ACM methodology to compute convective mixing with aqueous chemistry for AERO7. This cloud mechanism considers kinetic mass transfer and uses a Rosenbrock solver to simulate extended aqueous chemistry in cloud droplets
+    -   `cloud/acm_cracmm`  
+    ACM cloud processor that uses the ACM methodology to compute convective mixing with aqueous chemistry for CRACMM
 
 -   `ModUtil: [default: util]`<a id=ModUtil></a>  
     CMAQ utility modules. Do not change this module setting.
     -  `util/util`
--
-`ModPa: [default: procan/pa]`<a id=ModPa></a>
+
+-  `ModPa: [default: procan/pa]`<a id=ModPa></a>
     Process analysis is controlled in the CCTM run script. Do not change this module setting.
      - `procan/pa`
 
 -   `ModPvO3: [default: pv_o3]`<a id=ModPvO3></a>
-    Potential vorticity parameterization for free-troposphere exchange of ozone. This option is configured using the potvorO3 variable in the CCTM build script. Do not change this module setting. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#613-potential-vorticity-scaling) for further information.
+    Potential vorticity parameterization for free-troposphere exchange of ozone. Do not change this module setting. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#613-potential-vorticity-scaling) for further information.
     - `pv_o3`
     
 <a id=run_cctm.csh></a>
@@ -294,8 +294,8 @@ Calculate inline plume rise for large point sources using the Briggs algorithm a
 The environment variables listed below are invoked during execution of the CCTM and are set in the CCTM run script, run_cctm.csh located under the CCTM/scripts folder.
 
 -   `compiler [default: intel]`<a id=compiler></a>
--   `compilerVrsn [default: 13.1]`<a id=compilerVrsn></a>
--   `VRSN [default: v53]`<a id=VRSN></a>
+-   `compilerVrsn [default: Empty]`<a id=compilerVrsn></a>
+-   `VRSN [default: v55]`<a id=VRSN></a>
 -   `PROC [default: mpi]`<a id=PROC></a>   
 Sets if the CCTM will run in multi-processor or serial mode.
     - `mpi`  
@@ -304,13 +304,13 @@ Sets if the CCTM will run in multi-processor or serial mode.
     Run the CCTM in serial, single-processor mode.  
 -   `MECH [default: None]`<a id=MECH></a>  
     CMAQ chemical mechanism. Must match `Mechanism` variable setting in the CCTM build script. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#using-predefined-chemical-mechanisms) for further information.  
--   `APPL [default: SE53BENCH]`<a id=APPL></a>  
+-   `APPL [default: none]`<a id=APPL></a>  
     Application name used to label output binaries and log files.  
 -   `RUNID [default: $VRSN_compiler_APPL]`<a id=RUNID></a>  
     Run ID used to track version number, compiler, and application case name.  
 -   `BLD` <a id=BLD></a>  
     Directory path of the built CCTM executable  
--   `EXEC [default: CCTM_$APPL_$EXECID]`<a id=EXEC></a>  
+-   `EXEC [default: CCTM_$VRSN]`<a id=EXEC></a>  
     The name of the CCTM executable.  
 
 <a id=MPI_Config></a>
@@ -339,7 +339,7 @@ Sets if the CCTM will run in multi-processor or serial mode.
 <!-- END COMMENT -->
 
 -    `NZ [default: 35]`<a id=NZ></a>  
-      Set the number of vertical layers.  
+      Set the number of vertical layers. Script variable only, variable not used by CCTM model. Vertical extent inherited from MCIP model inputs. 
 
 <a id=Timestep_Config></a>
 
@@ -364,7 +364,7 @@ Sets if the CCTM will run in multi-processor or serial mode.
 -   `TSTEP [default: 010000]`<a id=TSTEP></a>   
     Simulation output time step interval (HHMMSS). Must be a mutiple of the run length. 
 -   `MET_TSTEP [default: time step of METCRO3D file]`<a id=MET_TSTEP></a>   
-    Meteorology input time step interval (HHMMSS). Users who wish to specify temporally coarser meteorology then their input meteorology may do so using this environment variable. The default value of MET_TSTEP is the time-step of the METCRO3D file (input meteorology data step). Users may however specify MET_TSTEP to be multiples of the input meterology time-step as long as they add up to the output time step (define as environmental variable TSTEP). Ex. If the meteorology files have data available at 10 minute intervals and a desired 1-hour output frequency, valid MET_STEPS are {10,20,30,30,60...} minutes. 
+    Meteorology input time step interval (HHMMSS). Users who wish to specify temporally coarser meteorology then their input meteorology may do so using this environment variable; this environmental variable is not included in our default runscripts. The default value of MET_TSTEP is the time-step of the METCRO3D file (input meteorology data step). Users may however specify MET_TSTEP to be multiples of the input meterology time-step as long as they add up to the output time step (define as environmental variable TSTEP). Ex. If the meteorology files have data available at 10 minute intervals and a desired 1-hour output frequency, valid MET_STEPS are {10,20,30,30,60...} minutes. 
 
 <a id=CCTM_Config_Options></a>
 
@@ -449,7 +449,7 @@ Sets if the CCTM will run in multi-processor or serial mode.
 -   `CTM_MOSAIC [default N]`<a id=CTM_MOSAIC></a>  
     Y/N setting to ouput land use specific deposition velocities and fluxes. This option is only available when using the STAGE deposition module. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#682-dry-depostion---stage) for further information.
 -   `CTM_STAGE_P22 [default: N]`<a id=CTM_FST></a>  
-   Y/N setting to select the land use specific implementation of the Pleim et al. 2022 and v5.4 M3Dry aerosol deposition parameterization in the STAGE deposition option. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#682-dry-depostion---stage) for further information.
+   Y/N setting to select the land use specific implementation of the Pleim et al. 2022 aerosol deposition parameterization in the STAGE deposition option. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#682-dry-depostion---stage) for further information.
 -   `CTM_STAGE_E20 [default: Y]`<a id=CTM_FST></a>  
    Y/N setting to select the land use specific and modal implementation of the Emerson et al. 2020 aerosol deposition parameterization in the STAGE deposition option. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#682-dry-depostion---stage) for further information.
 -   `CTM_STAGE_S22 [default: N]`<a id=CTM_FST></a>  
@@ -474,10 +474,21 @@ Sets if the CCTM will run in multi-processor or serial mode.
     Y/N setting to calculate biogenic emissions using BEIS. If this option is activated, several additional variables must be set (see the online biogenic emissions configuration settings). See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#biogenics) for further information.
 -   `CTM_BIOGEMIS_MEGAN [default: N]`<a id=CTM_BIOGEMIS_MEGAN></a>  
     Y/N setting to calculate biogenic emissions using MEGAN. If this option is activated, several additional variables must be set (see the online biogenic emissions configuration settings). See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#biogenics) for further information.
--   `OPTICS_MIE_CALC  [default: N]`<a id=OPTICS_MIE_CALC></a>    
-     In the inline option for photolysis rates, solve Mie Theory to calculate the optical properties of the aerosol modes based on uniformly mixed spheres.
--   `CORE_SHELL_OPTICS [default: N]`<a id=CORE_SHELL_OPTICS></a>    
-     In the inline option for photolysis rates, solve Mie Theory to calculate the optical properties of the aerosol modes based on spheres with an elemental carbon core.
+-   `AEROSOL_OPTICS  [default: 3]`<a id=AEROSOL_OPTICS></a>  Determines how aerosol optical properies are calculated for the Inline Calculation of Photolysis Frequencies.      
+    -- VALUES 1 thru 3 determined by using Uniformly Volume Mixed sphere for each aerosol mode   
+    ---  1-Inline Tabular Method based on Mie Calculations over range of aerosol properties    
+    ---  2-Solves Mie Theory using aerosol size distribution and mean refractive indices    
+    ---  3-Approximations to Mie Theory based on Mie Parameters and mean refractive indices     
+    --  VALUES 4 thru 6 attempts to use core-shell mixing model when the aerosol mode has signficant black carbon core otherwise uses Volume Mixed model where optics determined as    
+    ---  4-Inline Tabular Method based on Mie Calculations     
+    ---  5-Solves Mie Theory    
+    ---  6-Approximations to Mie Theory    
+-   `CTM_PVO3 [default: N]`<a id=CTM_PVO3></a>    
+     Y/N determines whether to scale ozone in free-troposphere to potential vorticity. Option requires that METCRO3D file has PV, potential vorticity. See [User Guide 6.13](../CMAQ_UG_ch06_model_configuration_options.md#613-potential-vorticity-scaling) for more information.
+-   `IC_AERO_M2USE [default: T]`<a id=IC_AERO_M2USE></a> Instructs CMAQ whether or not to use aerosol surface area from the Initial Condition file. If this option is set to false, then uniform diameter and standard deviation will be applied to each aerosol mode. If a particular simulation is a restart from a simulation preceeding in time (i.e. if this is any day after the first simulation day), then IC_AERO_M2USE is automatically set to True inside CMAQ.
+-   `IC_AERO_M2WET [default: F=dry]`<a id=IC_AERO_M2WET></a> Instructs CMAQ whether or not to assume the initial condition surface area is consistent with dry or wet diameter. Note that most air quality models assume mode parameters are dry, and then will calculate wet diameter when needed (e.g. for deposition).
+-   `BC_AERO_M2USE [default: T]`<a id=BC_AERO_M2USE></a> Instructs CMAQ whether or not to use aerosol surface area from the Boundary Condition file. If this option is set to false, then uniform diameter and standard deviation will be applied to each aerosol mode from the boundaries. 
+-   `BC_AERO_M2WET [default: F=dry]`<a id=BC_AERO_M2WET></a> Instructs CMAQ whether or not to assume the boundary condition surface area is consistent with dry or wet diameter. Note that most air quality models assume mode parameters are dry, and then will calculate wet diameter when needed (e.g. for deposition). For more information about the IC_AERO and BC_AERO options, please see [Chapter 6](CMAQ_UG_ch06_model_configuration_options.md#6.11.1_Aero_BC)
 
 <a id=Process_Analysis_Options></a>
 
@@ -490,7 +501,7 @@ Sets if the CCTM will run in multi-processor or serial mode.
 <!-- END COMMENT -->
 
 -   `CTM_PROCAN [default: N]`<a id=CTM_PROCAN></a>  
-    Activate process analysis in the CCTM. Set this to Y and use $CMAQ_DATA/pacp/pacp.inp to configure the integrated process rate and integrated reaction rate settings for the CCTM.  Additional process analysis output files will be created when this setting is activated.  
+    Activate process analysis in the CCTM. Set the environment variable, PACM_INFILE (Read below for more information), that defines the integrated process rate and integrated reaction rate outputs from CCTM. Additional process analysis output files will be created when this setting is activated.  
 -   `PA_BCOL_ECOL [default: 0]`<a id=PA_BCOL_ECOL></a>  
     Modeling grid domain column range for the process analysis calculations. Set to the two digits representing the beginning and ending column number bounding the process analysis domain.  
 -   `PA_BROW_EROW [default: 0]`<a id=PA_BROW_EROW></a>  
@@ -587,6 +598,9 @@ Aerosol Diagnostics are now handled by the Explicit and Lumped Model Output modu
 -   `GR_EM_SYM_DATE_### [default: False]`<a id=GR_EM_SYM_DATE_###></a>  
     Switch to indicate whether gridded emission is of representative day type for stream ###, where ### = 01, 02,…,N_EMIS_GR. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#inline-stream-offline) for further information.
     
+-   `N_EMIS_PT `<a id=N_EMIS_PT></a>
+    The number of offline Point emission streams to be used by the model. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#inline-stream-offline) for further information.
+  
 -   `STK_GRPS_### `<a id=STK_GRPS_###></a>  
     Directory path and file name of the stack groups file for sector ###, where ### = 001, 002,…,N_EMIS_PT. Each ### refers to one of the inline plume rise point-source sectors. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#inline-stream-offline) for further information. 
 
@@ -619,7 +633,7 @@ Aerosol Diagnostics are now handled by the Explicit and Lumped Model Output modu
     Setting to define whether the lightning emissions calculation will be inline or off-line. This variable can be set to a gridded netCDF file of lightning NO emissions to use emissions calculated with a preprocessor outside of CCTM. Setting this variable to “inline” activates the inline emissions calculation in CCTM and requires the LTNGPARMS_FILE variable (see below) to provide parameters for generating inline lightning NO emissions. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#lightning-no) for further information.  
 
 -   `USE_NLDN [default: False]`<a id=USE_NLDN></a>  
-    Use hourly NLDN strikes file to compute inline lightning NO emissions. Activating this setting requires the NLDN_STRIKES input file.  If USE_NLDN is set to N and LTNGNO set to "InLine", lightning NO emissions will be generated using parameters provided in the LTNGPARMS_FILE.  
+    Use hourly NLDN or WWLLNs strikes data to compute inline lightning NO emissions. Activating this setting requires the NLDN_STRIKES input files (the files can be either NLDN hourly data or WWLLNs hourly data).  If USE_NLDN is set to N and LTNGNO set to "InLine", lightning NO emissions will be generated using parameters provided in the LTNGPARMS_FILE.  
     Lightning parameters netCDF file, which contains the linear regression parameters for generating lightning NO using the parameterization scheme when LTNGNO set to "InLine" and USE_NLDN set to N. In addition, it also contains the intercloud to cloud-to-ground flash ratios, scaling factors for calculating flashes using the convective precipitation rate, land-ocean masks, and the moles of NO per flash (cloud-to-ground and intercloud) which are used by both lightning production schemes (NLDN and parameterization). Ingore if LTINGNO set to an external input file. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#lightning-no) for further information.   
 
 -  `CTM_LTNGDIAG_1`<a id=LTNGOUT></a>  
@@ -723,5 +737,6 @@ Options for use with MEGAN:
 <!-- BEGIN COMMENT -->
 
 [<< Tables and Figures](../CMAQ_UG_tables_figures.md) - [Home](../README.md) - [Next Appendix >>](CMAQ_UG_appendixB_emissions_control.md)<br>
- CMAQ User's Guide (c) 2022<br>
+CMAQv5.5 User's Guide <br>
+
  <!-- END COMMENT -->

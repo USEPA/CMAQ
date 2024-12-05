@@ -20,7 +20,8 @@
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE AQCHEM ( JDATE, JTIME, TEMP, PRES_PA, TAUCLD, PRCRATE,
      &                    WCAVG, WTAVG, AIRM, ALFA0, ALFA2, ALFA3, GAS,
-     &                    AEROSOL, GASWDEP, AERWDEP, HPWDEP, BETASO4, DARK )
+     &                    AEROSOL, GASWDEP, AERWDEP, HPWDEP, BETASO4, COSZ,
+     &                    FRACTR, FRACPOA, FRACPRI, FRACSOA )
 
 C-----------------------------------------------------------------------
 C  Description:
@@ -159,7 +160,9 @@ C-----------------------------------------------------------------------
       USE AERO_DATA
       USE UTILIO_DEFN
 #ifdef isam
-      USE SA_DEFN, ONLY: DEPSUM_SAVE, DS4_SAVE, REMOV_SAVE
+      USE SA_DEFN, ONLY: DEPSUM_SAVE, DS4_SAVE, REMOV_SAVE,
+     &                   DEPSUM_AORGC_SAVE, DGLY1_SAVE, DMGLY1_SAVE,
+     &                   REMOV_AORGC_SAVE
 #endif
 
 #ifdef sens
@@ -203,11 +206,17 @@ C...........Arguments:
       REAL( 8 ), INTENT( INOUT ) :: AEROSOL( :,: ) ! aerosol concentrations (mol/molV)
       REAL( 8 ), INTENT( INOUT ) :: GASWDEP( : )   ! gas phase wet deposition array (mm mol/liter)
       REAL( 8 ), INTENT( INOUT ) :: AERWDEP( :,: ) ! aerosol wet deposition array (mm mol/liter)
-      LOGICAL,   INTENT( IN )    :: DARK           ! DARK = TRUE is night,  DARK = FALSE is day
+      REAL,      INTENT( IN )    :: COSZ     ! cosine solar zenith angle
+      REAL( 8 ), INTENT( OUT ) :: FRACTR    ! Fraction of J mode tracer scavenged from I mode 
+      REAL( 8 ), INTENT( OUT ) :: FRACPOA   ! Fraction of J mode poa scavenged from I mode 
+      REAL( 8 ), INTENT( OUT ) :: FRACPRI   ! Fraction of J mode pri scavenged from I mode 
+      REAL( 8 ), INTENT( OUT ) :: FRACSOA   ! Fraction of J mode soa scavenged from I mode
+      
 
 C...........Local Variables (scalars):
 
       LOGICAL, SAVE :: FIRSTIME = .TRUE. ! flag for first pass thru
+      LOGICAL :: DARK
 
       CHARACTER( 16 ), SAVE :: PNAME = 'AQCHEM'             ! driver program name
       CHARACTER( 16 ), SAVE :: MGLYSUR = 'METHYL_GLYOXAL  ' ! Henry's law surrogate for MGLY
@@ -442,6 +451,8 @@ C...for sulfur tracking
 
       REAL( 8 ) :: FE_SOL          ! Fractional Fe solubility, GS - July 1, 2011
       REAL( 8 ) :: MN_SOL          ! Fractional Mn solubility, GS - July 1, 2011
+					    
+      REAL( 8 ) :: TRACI, POAI, PRII, SOAI
 
       REAL( 8 ), SAVE :: SOIL_FE_FAC  ! Fe molar fraction of ASOIL
       REAL( 8 ), SAVE :: CORS_FE_FAC  ! Fe molar fraction of ACORS
@@ -549,6 +560,14 @@ C...check for bad temperature, cloud air mass, or pressure
         CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
       END IF
 
+C...  determine day or night from cosine of zenith angle for the cell; Golam Sarwar
+
+            IF ( COSZ .LE. 0.0 ) THEN
+              DARK = .TRUE.   ! night
+            ELSE
+              DARK = .FALSE.  ! day
+            END IF
+
 C...initialize counters and compute several conversion factors
 
       ICNTAQ     = 0
@@ -647,6 +666,11 @@ C...make initializations
       S_DGLY1  = 0.0D0
       S_DMGLY1 = 0.0D0
       S_DORGC  = 0.0D0
+#endif
+
+#ifdef isam
+      DGLY1_SAVE = 0.0D0
+      DMGLY1_SAVE = 0.0D0
 #endif
 
 C...compute fractional weights for several species
@@ -930,7 +954,7 @@ C...   = Initial amount - amount deposited  (mol/liter)
         K       = LOADING( LKACC,  ACC) - WETDEP( LKACCL  ) * XC1 + KCOR
         FE      = LOADING( LFEACC, ACC) - WETDEP( LFEACCL ) * XC1 + FECOR
         MN      = LOADING( LMNACC, ACC) - WETDEP( LMNACCL ) * XC1 + MNCOR
-        SOA     = LOADING( LSOA,  ACC ) - WETDEP( LSOAL  ) * XC1
+        SOA     = LOADING( LSOA,  ACC ) + LOADING( LSOA, AKN ) - WETDEP( LSOAL  ) * XC1
         ORGC    = LOADING( LORGC, ACC ) + DORGC - WETDEP( LORGCL ) * XC1             ! new in-cloud organic
         POA     = LOADING( LPOA,  ACC ) + LOADING( LPOA, AKN ) - WETDEP( LPOAL ) * XC1
         EC      = LOADING( LEC,   ACC ) + LOADING( LEC,   AKN ) - WETDEP( LECL   ) * XC1
@@ -939,6 +963,11 @@ C...   = Initial amount - amount deposited  (mol/liter)
         NUMCOR  = LOADING( LNUM,  COR ) - WETDEP( LNUMCORL  ) * XC1
 !       A       = 3.0D0 * FE
 !       B       = 2.0D0 * MN
+	
+        TRACI = LOADING( LTRACER_AKN, AKN ) - WETDEP( LTRACIL ) * XC1
+	POAI = LOADING( LPOA, AKN ) - WETDEP( LPOAIL ) * XC1
+	PRII = LOADING( LPRI, AKN ) - WETDEP( LPRIIL ) * XC1
+	SOAI = LOADING( LSOA, AKN ) - WETDEP( LSOAIL ) * XC1
 
 !       FE_OX = 0.5D0 * 0.62D0 * FE      ! SLN 28March2011
 !       MN_OX = 1.0D0 * 0.84D0 * MN      ! SLN 28March2011
@@ -969,12 +998,13 @@ C...   = Initial amount - amount deposited  (mol/liter)
           S_K(NP)       = S_LOADING( NP, LKACC,  ACC) - S_WETDEP( NP, LKACCL  ) * XC1 + S_KCOR( NP )
           S_FE(NP)      = S_LOADING( NP, LFEACC, ACC) - S_WETDEP( NP, LFEACCL ) * XC1 + S_FECOR( NP )
           S_MN(NP)      = S_LOADING( NP, LMNACC, ACC) - S_WETDEP( NP, LMNACCL ) * XC1 + S_MNCOR( NP )
-          S_SOA(NP)     = S_LOADING( NP, LSOA,  ACC ) - S_WETDEP( NP, LSOAL  ) * XC1
+          S_SOA(NP)     = S_LOADING( NP, LSOA,  ACC ) + S_LOADING( NP, LSOA, AKN ) - S_WETDEP( NP, LSOAL  ) * XC1
           S_ORGC(NP)    = S_LOADING( NP, LORGC, ACC ) + S_DORGC( NP ) - S_WETDEP( NP, LORGCL ) * XC1
           S_POA(NP)     = S_LOADING( NP, LPOA,  ACC ) + S_LOADING( NP, LPOA, AKN ) - S_WETDEP( NP, LPOAL ) * XC1
           S_EC(NP)      = S_LOADING( NP, LEC,   ACC ) + S_LOADING( NP, LEC,   AKN ) - S_WETDEP( NP, LECL   ) * XC1
           S_PRIM(NP)    = S_LOADING( NP, LPRI,  ACC ) + S_LOADING( NP, LPRI,  AKN ) - S_WETDEP( NP, LPRIML ) * XC1
           S_NUMCOR(NP)  = S_LOADING( NP, LNUM,  COR ) - S_WETDEP( NP, LNUMCORL  ) * XC1
+
         END DO
 #endif
 
@@ -1002,7 +1032,12 @@ C...don't allow aerosol concentrations to go below zero
         PRIM    = MAX( PRIM,    0.0D0 )
 !       PRIMCOR = MAX( PRIMCOR, 0.0D0 )
         NUMCOR  = MAX( NUMCOR,  0.0D0 )
-
+	
+	TRACI    = MAX( TRACI,     0.0D0 )
+	POAI     = MAX( POAI,     0.0D0 )
+	PRII     = MAX( PRII,     0.0D0 )
+	SOAI     = MAX( SOAI,     0.0D0 )
+	
         FE_OX = FE_III * FE_SOL * FE     ! GS 01July2011
         MN_OX = MN_II  * MN_SOL * MN     ! GS 01July2011
 
@@ -1643,7 +1678,13 @@ C...load the liquid concentration array with current values
         LIQUID( LSEASCL   ) = SEASCOR ! AE6 - SLN 16March2011
         LIQUID( LFEACCL   ) = FEACC   ! AE6 - SLN 22March2011
         LIQUID( LMNACCL   ) = MNACC   ! AE6 - SLN 22March2011
-        IF ( STM ) THEN
+	
+	LIQUID( LTRACIL ) = TRACI
+	LIQUID( LPOAIL ) = POAI
+	LIQUID( LPRIIL ) = PRII
+	LIQUID( LSOAIL ) = SOAI
+        
+	IF ( STM ) THEN
           LIQUID( LTS6AQH2O2L   ) = TS6AQH2O2
           LIQUID( LTS6AQO3L     ) = TS6AQO3
           LIQUID( LTS6AQFEMNL   ) = TS6AQFEMN
@@ -2168,6 +2209,12 @@ C...  and methylglyoxal is assumed
 
         DORGC = DORGC - ( 0.04D0 * ( DGLYDT + DMGLYDT ) * DTW( 0 ) )
 
+#ifdef isam
+        DGLY1_SAVE  = DGLY1_SAVE  - 0.04D0 * DGLYDT  * DTW( 0 )
+        DMGLY1_SAVE = DMGLY1_SAVE - 0.04D0 * DMGLYDT * DTW( 0 )
+#endif
+
+
 #ifdef sens
         DO NP = 1, NPMAX
 
@@ -2324,6 +2371,7 @@ C...  to the accumulation mode particles
       AERWDEP( LPRI, AKN ) = 0.0D0
 
       AERWDEP( LPOA, AKN ) = 0.0D0
+      AERWDEP( LSOA, AKN ) = 0.0D0
 
       AERWDEP( LSO4, ACC ) = WETDEP( LSO4ACCL ) + WETDEP( LHSO4ACCL )
       IF ( STM ) THEN
@@ -2384,6 +2432,7 @@ C...  to the accumulation mode particles
         S_AERWDEP( NP, LEC,  AKN )   = 0.0D0
         S_AERWDEP( NP, LPRI, AKN )   = 0.0D0
         S_AERWDEP( NP, LPOA, AKN )   = 0.0D0
+	S_AERWDEP( NP, LSOA, AKN )   = 0.0D0
         S_AERWDEP( NP, LSO4, ACC )   = S_WETDEP( NP, LSO4ACCL ) + S_WETDEP( NP, LHSO4ACCL )
         S_AERWDEP( NP, LNH4, ACC )   = S_WETDEP( NP, LNH4ACCL )
         S_AERWDEP( NP, LNO3, ACC )   = S_WETDEP( NP, LNO3ACCL )
@@ -2429,6 +2478,7 @@ C...aerosol concentrations (mol/molV)
       AEROSOL( LPRI, AKN ) = AEROSOL( LPRI, AKN ) * EALFA3T
 
       AEROSOL( LPOA, AKN ) = AEROSOL( LPOA, AKN ) * EALFA3T
+      AEROSOL( LSOA, AKN ) = AEROSOL( LSOA, AKN ) * EALFA3T
 
       AEROSOL( LSO4, ACC ) = TS6ACC * XL * RECIPAP1
       IF ( STM ) THEN
@@ -2486,6 +2536,7 @@ C...aerosol concentrations (mol/molV)
         S_AEROSOL( NP, LEC,  AKN )   = S_AEROSOL( NP, LEC,  AKN ) * EALFA3T
         S_AEROSOL( NP, LPRI, AKN )   = S_AEROSOL( NP, LPRI, AKN ) * EALFA3T
         S_AEROSOL( NP, LPOA, AKN )   = S_AEROSOL( NP, LPOA, AKN ) * EALFA3T
+	S_AEROSOL( NP, LSOA, AKN )   = S_AEROSOL( NP, LSOA, AKN ) * EALFA3T
         S_AEROSOL( NP, LSO4, ACC )   = S_TS6ACC( NP ) * XL * RECIPAP1
         S_AEROSOL( NP, LEC,  ACC )   = S_EC( NP )     * XL * RECIPAP1
         S_AEROSOL( NP, LPRI, ACC )   = S_PRIM( NP )   * XL * RECIPAP1
@@ -2524,6 +2575,34 @@ C...Compute for Aerosol species in  TXHG Version
       AEROSOL( LPHG_AKN, AKN )    = AEROSOL( LPHG_AKN, AKN ) * EALFA3T
       AEROSOL( LPHG_ACC, ACC )    = HGFINE * XL * RECIPAP1
       AEROSOL( LPHG_COR, COR )    = HGCOR * XL * RECIPAP1
+      
+      IF( AEROSOL(LTRACER_ACC, ACC) .GT. 0.d0 ) THEN
+         FRACTR  = MIN((TRACI  * XL * RECIPAP1) / 
+     &             AEROSOL(LTRACER_ACC, ACC), 1.0D0) 
+      ELSE 
+         FRACTR = 0.d0
+      END IF
+      
+      IF( AEROSOL(LPOA, ACC) .GT. 0.d0 ) THEN
+         FRACPOA = MIN((POAI  * XL * RECIPAP1) / 
+     &             AEROSOL(LPOA, ACC), 1.0D0)
+      ELSE 
+         FRACPOA = 0.d0
+      END IF 
+      
+      IF( AEROSOL(LPRI, ACC) .GT. 0.d0 ) THEN
+         FRACPRI = MIN((PRII  * XL * RECIPAP1) / 
+     &             AEROSOL(LPRI, ACC), 1.0D0)
+      ELSE 
+         FRACPRI = 0.d0
+      END IF 
+      
+      IF( AEROSOL(LSOA, ACC) .GT. 0.d0 ) THEN
+         FRACSOA = MIN((SOAI  * XL * RECIPAP1) / 
+     &             AEROSOL(LSOA, ACC), 1.0D0)
+      ELSE 
+         FRACSOA = 0.d0
+      END IF 
 
 C...store the amount of hydrogen deposition
 
@@ -2539,6 +2618,12 @@ C... store sulfate production/loss quantities
       DEPSUM_SAVE =        DEPSUM * XL * RECIPAP1
       DS4_SAVE    = -1.0 * DS4(0) * XL * RECIPAP1
       REMOV_SAVE  = WETDEP( LSO4ACCL ) + WETDEP( LHSO4ACCL )
+
+C... store AORGC production/loss quantities      
+      DEPSUM_AORGC_SAVE = WETDEP( LORGCL ) * XC1 * XL * RECIPAP1
+      DGLY1_SAVE        = DGLY1_SAVE  * XL * RECIPAP1
+      DMGLY1_SAVE       = DMGLY1_SAVE * XL * RECIPAP1
+      REMOV_AORGC_SAVE  = WETDEP( LORGCL )
 #endif
 
       RETURN

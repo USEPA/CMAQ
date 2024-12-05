@@ -112,7 +112,7 @@ C...........INCLUDES and their descriptions
 
 C...........PARAMETERS and their descriptions:
 
-      INTEGER, PARAMETER :: MXSPCS = 272     ! Number of substances
+      INTEGER, PARAMETER :: MXSPCS = 277     ! Number of substances
       INTEGER, PARAMETER :: MXDSPCS = 19     ! Number of dissociating species
 
 C...pointers for the dissociation constants (array B and D)
@@ -452,6 +452,11 @@ C...  Atmospheric Chemistry and Physics, 1997
       DATA SUBNAME(270), A(270), E(270) / 'VROCP4ALKOPERA  ', 2.94E+01, 0.0E+00 /   ! CRACMM RepCmp value (OPERA SAR)
       DATA SUBNAME(271), A(271), E(271) / 'VROCP5ALKOPERA  ', 5.41E-02, 0.0E+00 /   ! CRACMM RepCmp value (OPERA SAR)
       DATA SUBNAME(272), A(272), E(272) / 'VROCP6ALKOPERA  ', 6.90E-03, 0.0E+00 /   ! CRACMM RepCmp value (OPERA SAR)
+      DATA SUBNAME(273), A(273), E(273) / 'STYOPERA        ', 3.89E-01, 0.0E+00 /   ! CRACMM RepCmp value (OPERA SAR)
+      DATA SUBNAME(274), A(274), E(274) / 'EBZOPERA        ', 1.27E-01, 4.0E+03 /   ! O-xylene T dep from Staudinger and Roberts 1996, CRACMM RepCmp (OPERA SAR)
+      DATA SUBNAME(275), A(275), E(275) / 'XYLOPERA        ', 0.14E+00, 0.0E+00 /   ! CRACMM RepCmp value (OPERA SAR)
+      DATA SUBNAME(276), A(276), E(276) / 'INALDOPERA      ', 1.00E+05, 0.0E+00 /   ! CRACMM RepCMP value (OPERA SAR)
+      DATA SUBNAME(277), A(277), E(277) / 'IPXOPERA        ', 1.55E+07, 0.0E+00 /   ! CRACMM RepCMP value (OPERA SAR)
 
       DATA B( LSO2   ), D( LSO2   ) / 1.30E-02,  1.96E+03 /  ! SO2*H2O<=>HSO3+H     : Smith and Martell (1976)
       DATA B( LHSO3  ), D( LHSO3  ) / 6.60E-08,  1.50E+03 /  ! HSO3<=>SO3+H         : Smith and Martell (1976)

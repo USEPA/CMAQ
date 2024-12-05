@@ -104,6 +104,8 @@ C This function is expected to be called only once - at startup
                FIRSTIME = .FALSE.
                SUCCESS = .TRUE.
 
+#ifndef mpas
+
 C get vert layer definition from LAYER_FILE
 
                WRITE( LOGDEV, * )
@@ -151,6 +153,8 @@ C set layer layer thickenesses
             XMSG = 'Vertical layer structure already defined'
             CALL M3WARN ( 'VGRD_INIT', 0, 0, XMSG )
             SUCCESS = .FALSE.; RETURN
+
+#endif
 
             END IF   ! FIRSTIME
 

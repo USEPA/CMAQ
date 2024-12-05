@@ -35,21 +35,25 @@ C::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
      &                       BDSNP_NO )
 
   
-      USE RUNTIME_VARS, ONLY: STTIME,STDATE,RUNLEN
-      USE PHOT_MET_DATA, ONLY: CFRAC_2D
+      USE RUNTIME_VARS, ONLY: STTIME,STDATE,RUNLEN,LOGDEV
+      USE PHOT_MOD,     ONLY: CFRAC_2D_AVE
 
       USE UTILIO_DEFN
+#ifdef mpas
+      use mio_module
+      use util_module, only : TIME2SEC, secsdiff, nextime
+#else
 #ifdef parallel
       USE SE_MODULES            ! stenex (using SE_UTIL_MODULE)
 #else
       USE NOOP_MODULES          ! stenex (using NOOP_UTIL_MODULE)
+#endif
 #endif
 
 
       USE centralized_io_module, only: bdsnp_ndep,bdsnp_landtype,
      &                                 bdsnp_arid,bdsnp_nonarid,bdsnp_fert,
      &                                 soilmprev,ndepres,ndeprate,dryperiod,pfactor
-
      
       IMPLICIT NONE
 
@@ -195,8 +199,10 @@ C     ! make sure it only runs with PX version
          END IF
 
 C Allocate memory for data and read
-             output_step   = time2sec(tstep(1))
-             half_syn_step = time2sec(tstep(2)) / 2
+#ifdef mpas
+         output_step   = time2sec(tstep(1))
+         half_syn_step = time2sec(tstep(2)) / 2
+#endif
 
          ALLOCATE( FERT( NCOLS,NROWS ), STAT=IOS )
          CALL CHECKMEM( IOS, 'FERT', PNAME )
@@ -289,6 +295,7 @@ C           check for negatives
             BASESUM = 0.0
             CRFAVG = 0.0
             PULSEAVG = 0.0
+            EMPOLSUM  = 0d0
            if (.not. MGN_ONLN_DEP) THEN 
              ndeprate = bdsnp_ndep(:,:,month)  ! For using offline NDEP
                                                ! instead of online NDEP
@@ -297,22 +304,23 @@ C           check for negatives
         END IF  ! initial run check
 
       END IF ! FIRSTIME
-
+#ifdef mpas
+      IF ( MOD((TIME2SEC( JTIME ) - half_syn_step), output_step) .EQ. 0 .and. .not. l_desid_diag) GOTO 9999
+#else
       IF (SECSDIFF(JDATE,JTIME,EDATE,ETIME) .LE. TIME2SEC(TSTEP(2)) .and. .not. L_DESID_DIAG) GOTO 9999
+#endif
     
 #ifdef twoway
        ! CFRAC for offline comes from MCIP but that's unavailable in twoway mode
-       if (.not. allocated(CFRAC_2D)) then
-         CFRAC = 0.
+       if (.not. allocated(CFRAC_2D_AVE)) then
+         CFRAC = Met_Data%CFRAC
+!       write(6,'(a,es14.2)')'MaxVal cfrac = ',MAXVAL(cfrac)
+!       write(logdev,'(a,es14.2)')'MaxVal cfrac = ',MAXVAL(cfrac)
        else
-         CFRAC = CFRAC_2D
+         CFRAC = CFRAC_2D_AVE
        end if
 #else
-       if (.not. allocated(CFRAC_2D)) then
-         CFRAC = 0.
-       else
-         CFRAC = Met_Data%CFRAC
-       end if
+       CFRAC = Met_Data%CFRAC
 #endif 
 
    
@@ -367,7 +375,7 @@ C     If False Dont do any calculations to test - replicate 0 output
             ! that accounts for soil pulsing
 C            PFACTOR( C,R ) = PULSING( THETA, TSTEP, THETAPREV,
 C     &                       PFACTOR( C,R ), DRYPERIOD( C,R ) )
-            PULSE = PULSING( THETA, TSTEP, THETAPREV,
+            PULSE = PULSING( L_DESID_DIAG, THETA, TSTEP, THETAPREV,
      &                       PFACTOR( C,R ), DRYPERIOD( C,R ) )
 
             A_FERT = FERTADD( FERT( C,R ) , NDEPRES( C,R ) ) !adds reservoirs returns emission rates
@@ -396,20 +404,20 @@ C            END IF !LANDTYPE check
 C            ENDDO
 
            !scale emissions
-           EMPOL = SOILNOX *  3600.0 * 10.0**-9![ng N/m2/s] *  s/hr * g/ng
-           BDSNP_NO(C,R) = SOILNOX / 14 ![nmol/m2/s]
+           EMPOL = SOILNOX *  3600.0 * 1.0e-9 ! [ng N/m2/s] *  s/hr * g/ng
+           BDSNP_NO(C,R) = SOILNOX / 14 ! [nmol/m2/s]
            ! sum various quantities for daily averaging
            EMPOLSUM = EMPOLSUM + EMPOL
-           BASESUM(C,R) = BASESUM(C,R) + ( A_BIOME(K) + A_FERT ) !don'tforget check paren when uncommenting
+           BASESUM(C,R) = BASESUM(C,R) + ( A_BIOME(K) + A_FERT ) 
      &             * ( TEMP_TERM * WET_TERM)
-     &             *  3600.0 * 10.0**-9 ![ng N/m2/s] *  s/hr * g/ng
-           PULSEAVG(C,R) = PULSEAVG(C,R) + ( A_BIOME(K) + A_FERT ) !don'tforget check paren when uncommenting
+     &             *  3600.0 * 1.0e-9 ! [ng N/m2/s] *  s/hr * g/ng
+           PULSEAVG(C,R) = PULSEAVG(C,R) + ( A_BIOME(K) + A_FERT ) 
      &             * ( TEMP_TERM * WET_TERM * PULSE )
-     &             *  3600.0 * 10.0**-9 ![ng N/m2/s] *  s/hr * g/ng
-           CRFAVG(C,R) = CRFAVG(C,R) + ( A_BIOME(K) + A_FERT ) !don'tforget check paren when uncommenting
+     &             *  3600.0 * 1.0e-9 ! [ng N/m2/s] *  s/hr * g/ng
+           CRFAVG(C,R) = CRFAVG(C,R) + ( A_BIOME(K) + A_FERT ) 
      &             * ( TEMP_TERM * WET_TERM )
      &             * ( 1.d0 - CRF_TERM  )
-     &             *  3600.0 * 10.0**-9 ![ng N/m2/s] *  s/hr * g/ng
+     &             *  3600.0 * 1.0e-9 ! [ng N/m2/s] *  s/hr * g/ng
 
 
 C--------- MORE DIAGNOSTICS  ---------------------------------
@@ -424,6 +432,25 @@ C--------- MORE DIAGNOSTICS  ---------------------------------
 C -----------------------------------------------------
         END DO ! columns
       END DO ! rows
+#ifdef mpas
+        IF ( MOD( NTIME, 10000 ) .EQ. 0 ) THEN    ! at the hourly mark
+
+             call mio_time_format_conversion (jdate, jtime, time_stamp)
+
+             call mio_fwrite('BDSNP_DIAG','A_DIAG','BDSNP_MOD',
+     &                             a_diag(:,1),time_stamp)
+             call mio_fwrite('BDSNP_DIAG','AFERT_DIAG','BDSNP_MOD',
+     &                             afert_diag(:,1),time_stamp)
+             call mio_fwrite('BDSNP_DIAG','NRES_FERT_DIAG','BDSNP_MOD',
+     &                             nres_fert_diag(:,1),time_stamp)
+             call mio_fwrite('BDSNP_DIAG','NRES_DEP_DIAG','BDSNP_MOD',
+     &                             nres_dep_diag(:,1),time_stamp)
+             call mio_fwrite('BDSNP_DIAG','WET_DIAG','BDSNP_MOD',
+     &                             wet_diag(:,1),time_stamp)
+             call mio_fwrite('BDSNP_DIAG','TEMP_DIAG','BDSNP_MOD',
+     &                             temp_diag(:,1),time_stamp)
+       ENDIF
+#endif
 
       ELSE ! add things until it dies
       WRITE( MESG,*) 'BDSNP testing terms'
@@ -453,7 +480,7 @@ C -----------------------------------------------------
             ! that accounts for soil pulsing
 C            PFACTOR( C,R ) = PULSING( THETA, TSTEP, THETAPREV,
 C     &                       PFACTOR( C,R ), DRYPERIOD( C,R ) )
-            PULSE = PULSING( THETA, TSTEP, THETAPREV,
+            PULSE = PULSING( L_DESID_DIAG, THETA, TSTEP, THETAPREV,
      &                       PFACTOR( C,R ), DRYPERIOD( C,R ) )
 
          END DO
@@ -491,17 +518,17 @@ C Final timestamp
 #ifdef mpas
              call julian_to_mpas_date_time (jdate, jtime, time_stamp)
 
-             call mio_fwrite('BDSNP_OUTPUT','PFACTOR',
+             call mio_fwrite('BDSNPOUT','PFACTOR', pname,
      &                             PFACTOR(:,1),time_stamp)
-             call mio_fwrite('BDSNP_OUTPUT','DRYPERIOD',
+             call mio_fwrite('BDSNPOUT','DRYPERIOD', pname,
      &                             DRYPERIOD(:,1),time_stamp)
-             call mio_fwrite('BDSNP_OUTPUT','NDEPRES',
+             call mio_fwrite('BDSNPOUT','NDEPRES', pname,
      &                             NDEPRES(:,1),time_stamp)
-             call mio_fwrite('BDSNP_OUTPUT','SOILMPREV',
+             call mio_fwrite('BDSNPOUT','SOILMPREV', pname,
      &                             SOILMPREV(:,1),time_stamp)
-             call mio_fwrite('BDSNP_OUTPUT','NDEPRATE_DIAG',
+             call mio_fwrite('BDSNPOUT','NDEPRATE_DIAG', pname,
      &                           NDEPRATE(:,1),time_stamp)
-#endif
+#else
 !C Build description for, and create/open soil NO emissions output file
 
       FTYPE3D = GRDDED3
@@ -687,6 +714,7 @@ C Open NO rain data save file
         MESG = 'Error writing PULSEAVG to file: '//TRIM(MESG)
         CALL M3EXIT(PNAME,JDATE,JTIME,MESG,XSTAT2)
       ENDIF
+#endif
 
 
 C ------------------------------------------------------------------------------------
@@ -701,7 +729,7 @@ C ------------------------------------------------------------------------------
       END SUBROUTINE HRNOBDSNP
 C----------------------------------------------------------------------------------
 
-         REAL FUNCTION PULSING( THETA, TSTEP, THETAPREV,
+         REAL FUNCTION PULSING( L_DESID_DIAG, THETA, TSTEP, THETAPREV,
      &                       PFACTOR, DRYPERIOD )!_____
 ! !DESCRIPTION: Function PULSING calculates the increase (or "pulse") of
 !  soil NOx emission that happens after preciptiation falls on dry soil.
@@ -726,12 +754,19 @@ C-------------------------------------------------------------------------------
 !
 !  PFACTOR = PFACTOR * EXP( -0.068d0 * TSTEP(HOURS) )
 
+#ifdef mpas
+      use util_module, only : TIME2SEC
+#endif
+
          IMPLICIT NONE
 
+#ifndef mpas
          INTEGER, EXTERNAL       ::   TIME2SEC
+#endif
 
 C Function arguments:
          INTEGER, INTENT( IN )    :: TSTEP( 3 )        ! time step vector (HHMMSS)
+         LOGICAL, INTENT( IN )    :: L_DESID_DIAG
          REAL,    INTENT( IN )    :: THETA, THETAPREV  ! only avilable if PX version
          REAL,    INTENT( INOUT ) :: DRYPERIOD
          REAL,    INTENT( INOUT ) :: PFACTOR
@@ -739,6 +774,9 @@ C Local Variables
          REAL MOISTDIFF
          REAL DTHOURS
          DTHOURS = TIME2SEC(TSTEP(2))/3600.0
+         IF (L_DESID_DIAG) then 
+            DTHOURS = 0.
+         END IF
          ! If soil moisture less than 0.3 and no pulse is taking place
          IF ( THETA < 0.3D0 .and. PFACTOR == 1.D0) THEN
 
@@ -789,12 +827,19 @@ C Get the deposition rate of the appropriate species for the appropriate timeste
 C Return reservoir amount.
 
 
+
          USE centralized_io_module, ONLY: ndeprate
          USE RUNTIME_VARS, ONLY:  MGN_ONLN_DEP
+#ifdef mpas
+         USE utilio_defn
+         use util_module, only : TIME2SEC
+#endif
 
          IMPLICIT NONE
 
+#ifndef mpas
          INTEGER, EXTERNAL       ::   TIME2SEC
+#endif
 
 C Function arguments:
 

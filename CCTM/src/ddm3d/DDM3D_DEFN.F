@@ -145,7 +145,7 @@ c VDIFF module variables
 
 c Emissisons module variables
       Integer, Allocatable, Save         :: S_NSTREAMS( : )           ! Number of emissions streams per parameter
-      Character( 16 ), Allocatable, Save :: S_STREAMLBL( :,: )        ! Emissions stream names per parameter (max = 99)
+      Character( 32 ), Allocatable, Save :: S_STREAMLBL( :,: )        ! Emissions stream names per parameter (max = 99)
       Integer, Allocatable, Save         :: S_NRGN( : )               ! Number of emissions streams per parameter
       Character( 16 ), Allocatable, Save :: S_RGNLBL( :,: )           ! Emissions stream names per parameter (max = 99)
       Character( 16 ), Allocatable, Save :: S_SPCLIST( :,: )          ! User-specified species list

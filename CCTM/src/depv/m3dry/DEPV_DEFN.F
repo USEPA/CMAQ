@@ -76,7 +76,7 @@ C model-oriented bi-directional production [ppm-m/s]
 
 C  Dry dep flux of NH3 for bidi [kg/ha hr]
       REAL,    ALLOCATABLE, SAVE :: NH3_EMIS( :,: )
-
+      REAL,    ALLOCATABLE, SAVE :: NH3_DDEP( :,: )
 !C flag for mosaic - luc specific deposition - within in-lining depv
 !      LOGICAL, SAVE :: MOSAIC = .FALSE.
 
@@ -88,7 +88,7 @@ C  Dry dep flux of NH3 for bidi [kg/ha hr]
 !     &             DEPV_INIT, GET_DEPV
 
       PUBLIC DEPV, N_SPC_DEPV, DD_CONV, PLDV, N_GAS_DEPV,
-     &             DEPV_INIT, GET_DEPV, NH3_EMIS
+     &             DEPV_INIT, GET_DEPV, NH3_EMIS, NH3_DDEP
       
       PRIVATE
 
@@ -404,7 +404,8 @@ C Identify and remove multiple occurrences of aerosol deposition velocities
 
             ALLOCATE ( CGRIDL1( N_GAS_DEPV,NCOLS,NROWS ),
      &                 PVD    ( N_GAS_DEPV,NCOLS,NROWS ), 
-     &                 NH3_EMIS( NCOLS,NROWS),STAT = ALLOCSTAT )
+     &                 NH3_EMIS( NCOLS,NROWS),
+     &                 NH3_DDEP(NCOLS,NROWS), STAT = ALLOCSTAT )
             IF ( ALLOCSTAT .NE. 0 ) THEN
                XMSG = 'Failure allocating CGRIDL1, CMP or PVD arrays'
                CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
@@ -412,6 +413,7 @@ C Identify and remove multiple occurrences of aerosol deposition velocities
             END IF
             CGRIDL1 = 0.0   ! array assignment (PVD initalized in m3dry)
             NH3_EMIS = 0.0
+            NH3_DDEP = 0.0
 
 #ifdef sens
                ALLOCATE ( S_CGRIDL1( NPMAX,N_GAS_DEPV,NCOLS,NROWS ),
@@ -457,6 +459,10 @@ C-----------------------------------------------------------------------
          USE DEPVVARS
          USE UTILIO_DEFN
          USE ASX_DATA_MOD, Only: GRID_DATA !, MOSAIC_DATA
+#ifdef mpas
+         Use util_module, only : time2sec, nextime, currstep
+         use mio_module
+#endif
 
          IMPLICIT NONE
 
@@ -495,6 +501,9 @@ C Local variables:
 
          LOGICAL, SAVE :: FIRSTIME = .TRUE.
 
+         CHARACTER (20) :: TIME_STAMP
+         integer :: year, month, day, hour, minute
+
 #ifdef Verbose
          integer cw, rw
 #endif
@@ -511,11 +520,11 @@ C Local variables:
                REAL,    INTENT( OUT ) :: CGRIDL1( :,:,: )
             END SUBROUTINE CGRID_DEPV
             SUBROUTINE M3DRY ( JDATE, JTIME, DTSEC, 
-     &                         CGRIDL1, DEPVEL_GAS, PVD, NH3_EMIS)
+     &                         CGRIDL1, DEPVEL_GAS, PVD, NH3_DDEP)
                INTEGER, INTENT( IN )  :: JDATE, JTIME
                REAL,    INTENT( IN )  :: dtsec
                REAL,    INTENT( IN )  :: CGRIDL1( :,:,: )
-               REAL,    INTENT( OUT ) :: DEPVEL_GAS( :,:,: ), PVD( :,:,: ),NH3_EMIS(:,:)
+               REAL,    INTENT( OUT ) :: DEPVEL_GAS( :,:,: ), PVD( :,:,: ),NH3_DDEP(:,:)
             END SUBROUTINE M3DRY
             SUBROUTINE AERO_DEPV ( CGRID, JDATE, JTIME, TSTEP, ADEPV )
                REAL, POINTER          :: CGRID( :,:,:,: )
@@ -532,7 +541,7 @@ C-----------------------------------------------------------------------
 
          DTSEC = FLOAT( TIME2SEC( TSTEP( 2 ) ) )
          CALL M3DRY ( JDATE, JTIME, DTSEC, 
-     &                CGRIDL1, DEPVEL_GAS, PVD, NH3_EMIS )
+     &                CGRIDL1, DEPVEL_GAS, PVD, NH3_DDEP )
 
 #ifdef Verbose
          cw = ncols/2; rw = nrows/2
@@ -663,6 +672,9 @@ C-----------------------------------------------------------------------
 
             IF ( WRITE_TIME ) THEN
 
+#ifdef mpas
+               call mio_time_format_conversion (wdate, wtime, time_stamp)
+#else
 #ifdef parallel_io
                IF ( FIRSTIME ) THEN
                   FIRSTIME = .FALSE.
@@ -676,6 +688,7 @@ C-----------------------------------------------------------------------
                   END IF
 
                END IF
+#endif
 #endif
 
                N = 0
@@ -691,12 +704,17 @@ C-----------------------------------------------------------------------
                         END DO
                      END DO
                      
+#ifdef mpas
+                     call mio_fwrite (CTM_DEPV_DIAG, UNIQUE_GDEPV( NDX), pname,
+     &                                real(DBUFF(:,1), 4), TIME_STAMP)
+#else
+
                      IF ( .NOT. WRITE3( CTM_DEPV_DIAG, UNIQUE_GDEPV( NDX ),
      &                                  WDATE, WTIME, DBUFF ) ) THEN
                          XMSG = 'Could not write ' // CTM_DEPV_DIAG // ' file'
                          CALL M3EXIT ( PNAME, WDATE, WTIME, XMSG, XSTAT1 )
                      END IF
-
+#endif
                   END IF
 
                END DO
@@ -712,11 +730,16 @@ C-----------------------------------------------------------------------
                            DBUFF( C,R ) = 100.0 * DEPV( N+N_AE_DEPV,C,R )   ! cm/sec
                         END DO
                      END DO
+#ifdef mpas
+                     call mio_fwrite (CTM_DEPV_DIAG, UNIQUE_GDEPV( NDX), pname,
+     &                                real(DBUFF(:,1), 4), TIME_STAMP)
+#else
                      IF ( .NOT. WRITE3( CTM_DEPV_DIAG, UNIQUE_GDEPV( NDX ),
      &                                  WDATE, WTIME, DBUFF ) ) THEN
                          XMSG = 'Could not write ' // CTM_DEPV_DIAG // ' file'
                          CALL M3EXIT ( PNAME, WDATE, WTIME, XMSG, XSTAT1 )
                      END IF
+#endif
 
                   END IF
 
@@ -731,11 +754,16 @@ C-----------------------------------------------------------------------
                         DBUFF( C,R ) = 100.0 * ADEPV( NDX,C,R )   ! cm/sec
                      END DO
                   END DO
+#ifdef mpas
+                  call mio_fwrite (CTM_DEPV_DIAG, UNIQUE_ADEPV( N ), pname,
+     &                             real(DBUFF(:,1), 4), TIME_STAMP)
+#else
                   IF ( .NOT. WRITE3( CTM_DEPV_DIAG, UNIQUE_ADEPV( N ),
      &                               WDATE, WTIME, DBUFF ) ) THEN
                       XMSG = 'Could not write ' // CTM_DEPV_DIAG // ' file'
                       CALL M3EXIT ( PNAME, WDATE, WTIME, XMSG, XSTAT1 )
                   END IF
+#endif
 
                END DO
 

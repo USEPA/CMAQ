@@ -66,6 +66,10 @@
       MODULE RUNTIME_VARS
 
       use get_env_module
+#ifdef mpas
+      use universal_data_module, only : logdev
+      use mydata_module
+#endif
 
       IMPLICIT NONE
 
@@ -74,7 +78,9 @@
       PUBLIC
 
       INTEGER :: OUTDEV = 6   ! File Unit for Standard Output
+#ifndef mpas
       INTEGER :: LOGDEV = -1  ! File Unit for Ascii Log File
+#endif
       INTEGER :: TOTPE  = 1   ! Number of Total Processors
       INTEGER :: NPROCS = 1   ! Number of Total Processors
       INTEGER :: MYPE   = -1  ! Processor Number
@@ -158,16 +164,19 @@
       CHARACTER(256) :: TR_NAMELIST = '' ! Tracer Species Namelist
      
       ! Chemistry and Photolysis
-      LOGICAL :: PHOTDIAG  = .FALSE. ! Flag for PHOTDIAG file
-      INTEGER :: NLAYS_DIAG = 0      ! Number of Diagnostic Layers to write out for photolysis
-      INTEGER :: NWAVE = 0           ! Number of Diagnostic Wavelengths
-      CHARACTER(16) :: WAVE_ENV(100) ! Targeted wavelengths for diagnostic output
-      LOGICAL :: CORE_SHELL= .FALSE. ! flag for using core-shell mixing model for aerosol optics
-      LOGICAL :: MIE_CALC  = .FALSE. ! flag for using Mie Theory in aerosol optics calculation
-      REAL    :: GEAR_ATOL = 1.0E-9  ! Absolute Tolerance for Gear Solver
-      REAL    :: GEAR_RTOL = 1.0E-3  ! Relative Tolerance for Gear Solver
-      REAL    :: GLBL_ATOL = 1.0E-7  ! Absolute Tolerance for Rosenbrock Solver
-      REAL    :: GLBL_RTOL = 1.0E-3  ! Relative Tolerance for Rosenbrock Solver
+      LOGICAL :: PHOTDIAG  = .FALSE.       ! Flag for PHOTDIAG file
+      INTEGER :: NLAYS_DIAG = 0            ! Number of Diagnostic Layers to write out for photolysis
+      INTEGER :: NWAVE = 0                 ! Number of Diagnostic Wavelengths
+      CHARACTER(16) :: WAVE_ENV(100)       ! Targeted wavelengths for diagnostic output
+      LOGICAL :: CORE_SHELL= .FALSE.       ! flag for using core-shell mixing model for aerosol optics
+      INTEGER :: AEROSOL_OPTICS = 3        ! optics calculation method of volume mixture aerosols
+      REAL    :: GEAR_RTOL = 1.0E-3        ! Relative Tolerance for Gear Solver
+      REAL    :: GEAR_MAX_ATOL = 1.0E-7    ! Upper Bound for Absolute Tolerance in Gear Solver (ppmV)
+      REAL    :: GEAR_MIN_ATOL = 1.0E-9    ! Lower Bound for Absolute Tolerance in Gear Solver (ppmV)
+      REAL    :: GEAR_CONC_FLOOR = 1.0E-12 ! Lowest Concentration used determing ATOL in Gear Solver (ppmV)
+      REAL    :: GLBL_ATOL = 1.0E-7        ! Absolute Tolerance for Rosenbrock Solver (ppmV)
+      REAL    :: GLBL_RTOL = 1.0E-3        ! Relative Tolerance for Rosenbrock Solver
+      LOGICAL :: LPVO3     = .FALSE.       ! Activate Potential Vorticity Module (default=False)
 
       ! Aerosols
       LOGICAL :: IC_AERO_M2WET=.FALSE.! flag for specifying wet aerosol size parameters 
@@ -261,6 +270,7 @@
       INTEGER :: PA_ENDROW = 0       ! ending row for PA output
       INTEGER :: PA_BEGLEV = 0       ! Starting layer for PA output
       INTEGER :: PA_ENDLEV = 0       ! ending layer for PA output
+      CHARACTER( MAXLEN_CCTM_APPL ) :: BUDGET_FNAME  = 'CCTM_BUDGET' ! STAGE Deposition Control Filename
 
       ! Sulfur tracking
       LOGICAL :: STM        = .FALSE. ! flag for sulfur tracking option
@@ -302,7 +312,11 @@
 !.........................................................................
 
       USE RXNS_DATA, ONLY : MECHNAME
+#ifdef mpas
+      use utilio_defn
+#else
       USE M3UTILIO
+#endif
 
       IMPLICIT NONE                         
 
@@ -397,7 +411,7 @@
 
       ! Retrieve the domain decomposition processor array
       IF ( NPROCS .GT. 1 ) THEN
-         CALL GET_ENV ( 'NPCOL_NPROW', NV, V_LIST2, VARDEV )
+         CALL GET_ENVLIST ( 'NPCOL_NPROW', NV, V_LIST2, VARDEV )
          IF ( NV .NE. 2 ) THEN
             XMSG = 'Environment variable problem for NPCOL_NPROW'
      &           // ' using default 1X1'
@@ -442,13 +456,13 @@
       CALL GET_ENV ( END_TIME, 'AVG_FILE_ENDTIME', END_TIME, VARDEV )
       
       ! ACONC File Species List
-      CALL GET_ENV ( 'AVG_CONC_SPCS', N_ACONC_VARS, ACONC_FILE_SPCS, VARDEV )
+      CALL GET_ENVLIST ( 'AVG_CONC_SPCS', N_ACONC_VARS, ACONC_FILE_SPCS, VARDEV )
 
       ! CONC File Species List 
-      CALL GET_ENV ( 'CONC_SPCS', N_CONC_VARS, CONC_FILE_SPCS, VARDEV )
+      CALL GET_ENVLIST ( 'CONC_SPCS', N_CONC_VARS, CONC_FILE_SPCS, VARDEV )
  
       ! ACONC Layer Specification
-      CALL GET_ENV ( 'ACONC_BLEV_ELEV', NV, V_LIST2, VARDEV )
+      CALL GET_ENVLIST ( 'ACONC_BLEV_ELEV', NV, V_LIST2, VARDEV )
       IF ( NV .LE. 0 ) THEN   ! assume 1:NLAYS
          ACONC_BLEV = 1
          ACONC_ELEV = -1
@@ -464,7 +478,7 @@
       END IF
   
       ! CONC File Vertical Layer Range and Speciation
-      CALL GET_ENV ( 'CONC_BLEV_ELEV', NV, V_LIST2, VARDEV )
+      CALL GET_ENVLIST ( 'CONC_BLEV_ELEV', NV, V_LIST2, VARDEV )
       IF ( NV .LE. 0 ) THEN   ! assume 1:NLAYS
          CONC_BLEV = 1
          CONC_ELEV = -1
@@ -525,7 +539,7 @@
       CALL GET_ENV ( ISAM_NEW_START, 'ISAM_NEW_START', ISAM_NEW_START, VARDEV )
     
       ! SA_ACONC Layer Specification
-      CALL GET_ENV ( 'AISAM_BLEV_ELEV', NV, V_LIST2, VARDEV )
+      CALL GET_ENVLIST ( 'AISAM_BLEV_ELEV', NV, V_LIST2, VARDEV )
       IF ( NV .LE. 0 ) THEN   ! assume 1:NLAYS
          AISAM_BLEV = 1
          AISAM_ELEV = -1
@@ -541,7 +555,7 @@
       END IF
 
       ! SA_CONC File Vertical Layer Range and Speciation
-      CALL GET_ENV ( 'ISAM_BLEV_ELEV', NV, V_LIST2, VARDEV )
+      CALL GET_ENVLIST ( 'ISAM_BLEV_ELEV', NV, V_LIST2, VARDEV )
       IF ( NV .LE. 0 ) THEN   ! assume 1:NLAYS
          ISAM_BLEV = 1
          ISAM_ELEV = -1
@@ -609,17 +623,33 @@
          CALL GET_ENV ( NLAYS_DIAG, 'NLAYS_PHOTDIAG', NLAYS_DIAG, VARDEV )
 
       ! Get Desired Wavelengths for Diagnostic Output
-        CALL GET_ENV( 'NWAVE_PHOTDIAG', NWAVE, WAVE_ENV, VARDEV )
+        CALL GET_ENVLIST( 'NWAVE_PHOTDIAG', NWAVE, WAVE_ENV, VARDEV )
       END IF  
 
-      ! Get flag to use core-shell mixing model for aerosol optical properties
-      CALL GET_ENV ( CORE_SHELL, 'CORE_SHELL_OPTICS', CORE_SHELL, VARDEV )
+      CALL GET_ENV ( AEROSOL_OPTICS, 'AEROSOL_OPTICS', AEROSOL_OPTICS, VARDEV )
+      IF ( AEROSOL_OPTICS .GT. 3 ) THEN ! core-shell mixing model possible
+          CORE_SHELL = .TRUE.
+          AEROSOL_OPTICS = AEROSOL_OPTICS - 3
+      END IF
 
-      ! Get flag to use fast optics for volume mixing model for aerosol optical properties
-      CALL GET_ENV ( MIE_CALC, 'OPTICS_MIE_CALC', MIE_CALC, VARDEV )
+      IF ( AEROSOL_OPTICS .LT. 1 .OR. AEROSOL_OPTICS .GT. 3 ) THEN
+         XMSG = 'AEROSOL_OPTICS option must equal 1 to 6'
+         WRITE( OUTDEV, '(A)' )TRIM( XMSG )
+         CALL M3EXIT ( PNAME, 0, 0, XMSG, XSTAT1 )
+      END IF
 
-      !Absolute Tolerance for SMVGEAR
-      CALL GET_ENV ( GEAR_ATOL, 'GEAR_ATOL', GEAR_ATOL, VARDEV )
+      IF ( MYPE .EQ. 0 ) THEN
+         WRITE( OUTDEV, '(/,6x,A,/)' )'--ATOL settings are in ppmV.--'
+      END IF
+
+      ! Upper Bound for Absolute Tolerance for Gear Solver
+      CALL GET_ENV ( GEAR_MAX_ATOL, 'GEAR_MAX_ATOL', GEAR_MAX_ATOL, VARDEV )
+      
+      ! Lower Bound for Absolute Tolerance for Gear Solver
+      CALL GET_ENV ( GEAR_MIN_ATOL, 'GEAR_MIN_ATOL', GEAR_MIN_ATOL, VARDEV )
+      
+      ! Lowest Concentration used determing ATOL for Gear Solver
+      CALL GET_ENV ( GEAR_CONC_FLOOR, 'GEAR_CONC_FLOOR', GEAR_CONC_FLOOR, VARDEV )
       
       !Relative Tolerance for SMVGEAR
       CALL GET_ENV ( GEAR_RTOL, 'GEAR_RTOL', GEAR_RTOL, VARDEV )
@@ -629,6 +659,9 @@
 
       ! Absolute Tolerance for RB Solver
       CALL GET_ENV ( GLBL_ATOL, 'RB_ATOL', GLBL_ATOL, VARDEV )
+      
+      ! Get option for scaling ozone in free-troposphere to potential vorticity
+      CALL GET_ENV ( LPVO3, 'CTM_PVO3', LPVO3, VARDEV )
  
       !-------------------------------------------------------------------------------------------------------
       !>> Aerosols
@@ -741,8 +774,8 @@
          WRITE( OUTDEV, '(6x,A)' ), REPEAT( '-',80 )
       END IF
 
-      ! CTM_VDIFF_DIAG_FILE
-      CALL GET_ENV ( VDIFFDIAG, 'CTM_VDIFF_DIAG_FILE', VDIFFDIAG, VARDEV )
+      ! Flag for writing vertical diffusion diagnostic file and possibly gravitational settling diagnostic file
+      CALL GET_ENV ( VDIFFDIAG, 'VDIFF_DIAG_FILE', VDIFFDIAG, VARDEV )
 
       ! Get Minimum Layer for Advection Time Step Adjustment
       CALL GET_ENV ( SIGST, 'SIGMA_SYNC_TOP', SIGST, VARDEV )
@@ -757,7 +790,11 @@
       CALL GET_ENV ( MINKZ, 'KZMIN', MINKZ, VARDEV )
 
       ! CTM_WVEL
+#ifdef mpas
+      W_VEL = .FALSE.
+#else
       CALL GET_ENV ( W_VEL, 'CTM_WVEL', W_VEL, VARDEV )
+#endif
 
       ! CTM_GRAV_SETL
       CALL GET_ENV ( GRAV_SETL, 'CTM_GRAV_SETL', GRAV_SETL, VARDEV )
@@ -890,7 +927,7 @@
       CALL GET_ENV ( PROCAN, 'CTM_PROCAN', PROCAN, VARDEV )
        
       ! Get the Beginning and Ending Columns for Process Analysis
-      CALL GET_ENV ( 'PA_BCOL_ECOL', NV, V_LIST2, VARDEV )
+      CALL GET_ENVLIST ( 'PA_BCOL_ECOL', NV, V_LIST2, VARDEV )
       IF ( NV .LE. 0 ) THEN   
          PA_BEGCOL = 1; PA_ENDCOL = 0
       ELSE IF ( NV .EQ. 2 ) THEN
@@ -902,7 +939,7 @@
       END IF
 
       ! Get the Beginning and Ending Rows for Process Analysis
-      CALL GET_ENV ( 'PA_BROW_EROW', NV, V_LIST2, VARDEV )
+      CALL GET_ENVLIST ( 'PA_BROW_EROW', NV, V_LIST2, VARDEV )
       IF ( NV .LE. 0 ) THEN   
          PA_BEGROW = 1; PA_ENDROW = 0
       ELSE IF ( NV .EQ. 2 ) THEN
@@ -914,7 +951,7 @@
       END IF
 
       ! Get the Beginning and Ending Layers for Process Analysis
-      CALL GET_ENV ( 'PA_BLEV_ELEV', NV, V_LIST2, VARDEV )
+      CALL GET_ENVLIST ( 'PA_BLEV_ELEV', NV, V_LIST2, VARDEV )
       IF ( NV .LE. 0 ) THEN  
          PA_BEGLEV = 1; PA_ENDLEV = 0
       ELSE IF ( NV .EQ. 2 ) THEN
@@ -924,6 +961,10 @@
          XMSG = 'Environment variable error for PA_BLEV_ELEV'
          CALL M3EXIT( 'INIT_ENV_VARS', JDATE, JTIME, XMSG, EXIT_STATUS )
       END IF
+
+      ! Get the Budget File Name
+      CALL GET_ENV ( BUDGET_FNAME, 'CTM_BUDGET', BUDGET_FNAME, VARDEV )
+
 
       IF ( OCEAN_CHEM ) THEN
        IF ( (INDEX( MECHNAME, 'CB6R5M_AE7_AQ') .GT. 0 ) .OR. 
@@ -936,7 +977,7 @@
 #ifdef mpas
       call get_env (ncd_64bit_offset, 'ncd_64bit_offset', .false., vardev)
       call get_env( cell_num, 'cell_num', 1, vardev)
-#endif
+#else
 
 #ifdef twoway
       WRF_V4P = .TRUE.
@@ -993,6 +1034,8 @@
       END IF
 #endif
 
+#endif
+
       END SUBROUTINE INIT_ENV_VARS
 
 !.........................................................................
@@ -1004,6 +1047,10 @@
 !  we would like to try limiting lines to 80 characters and a heading
 !  should probably just be one line.
 !.........................................................................
+
+#ifdef mpas
+      use util_module
+#endif
 
       IMPLICIT NONE
 
@@ -1111,6 +1158,69 @@
 
 
       END SUBROUTINE LOG_MESSAGE
+!.........................................................................
+      REAL( 8 ) FUNCTION SET_CPU_TIMING()
+
+! Function set cpu time
+      
+       IMPLICIT NONE
+
+#ifdef parallel
+      INCLUDE 'mpif.h'
+#endif
+      
+ ! local:      
+      REAL( 8 )  :: CPU_TIME_FINISH
+#ifndef parallel
+      REAL       :: REAL_TIME
+#endif
+       
+#ifdef parallel
+      SET_CPU_TIMING = MPI_WTIME()
+#else
+      CALL CPU_TIME( REAL_TIME )
+      SET_CPU_TIMING = REAL( REAL_TIME,8 )
+#endif
+          
+      END FUNCTION SET_CPU_TIMING
+!.........................................................................
+      SUBROUTINE TIMING_DELTA( CPU_TIME_START, CPU_TIME_DELTA )
+      
+         IMPLICIT NONE
+
+#ifdef parallel
+      INCLUDE 'mpif.h'
+#endif
+        REAL( 8 ), INTENT( INOUT ) :: CPU_TIME_START
+        REAL( 8 ), INTENT( INOUT ) :: CPU_TIME_DELTA
+      
+ ! local:      
+      REAL( 8 )  :: CPU_TIME_FINISH
+#ifndef parallel
+      REAL       :: REAL_TIME
+#endif
+
+!  This subroutine calculates and returns elapsed time from CPU_TIME_START
+!  as an update to CPU_TIME_DELTA so total time expense can be determine
+!  for code block in a cyclng loop.
+!  It also resets CPU_TIME_START to current CPU time.
+
+#ifdef parallel
+      CPU_TIME_FINISH = MPI_WTIME()
+#else
+      CALL CPU_TIME( REAL_TIME )
+      CPU_TIME_FINISH = REAL( REAL_TIME,8 )
+#endif
+      CPU_TIME_DELTA = CPU_TIME_DELTA + (CPU_TIME_FINISH-CPU_TIME_START)
+
+#ifdef parallel      
+      CPU_TIME_START = MPI_WTIME()
+#else
+      CALL CPU_TIME( REAL_TIME )
+      CPU_TIME_START = REAL( REAL_TIME,8 )
+#endif
+      
+      END SUBROUTINE TIMING_DELTA
 
 !.........................................................................
       SUBROUTINE TIMING_SPLIT( CPU_TIME_START, IMSG, CPROCIN )
@@ -1125,13 +1235,15 @@
 #ifdef parallel
       INCLUDE 'mpif.h'
 #endif
-      REAL( 8 )        :: CPU_TIME_START
+      REAL( 8 ), INTENT( INOUT ) :: CPU_TIME_START
+      INTEGER,   INTENT( IN   )  :: IMSG   ! What kind of checkpoint this is
+      CHARACTER( * ), INTENT(IN), OPTIONAL :: CPROCIN
+      
+! local:      
       REAL( 8 )        :: CPU_TIME_FINISH
-      INTEGER          :: IMSG   ! What kind of checkpoint this is
                                  !  1 = 'PROCESS'
                                  !  2 = 'MASTER TIME STEP'
                                  !  3 = 'OUTPUT'
-      CHARACTER( * ), INTENT(IN), OPTIONAL :: CPROCIN
       CHARACTER( len=: ), ALLOCATABLE :: CPROC
       CHARACTER( 250 ) :: XMSG
 
@@ -1160,7 +1272,7 @@
       CASE ( 1 )
           ! Write Out The Time to Complete Each Sub-Process
           WRITE( XMSG, 1002 ),TRIM( CPROC ), CPU_TIME_FINISH-CPU_TIME_START
-1002      FORMAT ( 2x, A15, ' completed... ', F6.1, ' seconds' )
+1002      FORMAT ( 2x, A15, ' completed... ', F12.4, ' seconds' )
 
       CASE ( 2 ) 
           ! Write out the time to complete the entire master time step
@@ -1169,20 +1281,22 @@
 #ifndef twoway
           IF ( MYPE .EQ. 0 ) CALL LOG_MESSAGE( OUTDEV, XMSG )
 #endif
-          WRITE( XMSG, '(7x,A24,F6.1,A8)' ),'Processing completed... ',
+          WRITE( XMSG, '(7x,A24,F12.4,A8)' ),'Processing completed... ',
      &                     (CPU_TIME_FINISH-CPU_TIME_START),' seconds'
           CALL LOG_MESSAGE( LOGDEV, XMSG )
           WRITE( LOGDEV, * )
 
       CASE ( 3 ) 
           ! Write out the time to complete the output procedure
-          WRITE( XMSG, '(1x,A32,F4.1,A)' ), '=--> Data Output completed...   ',
+          WRITE( XMSG, '(1x,A32,F10.4,A)' ), '=--> Data Output completed...   ',
      &                     (CPU_TIME_FINISH-CPU_TIME_START),' seconds'
           CALL LOG_MESSAGE( LOGDEV, XMSG )
           WRITE( LOGDEV, * )
 #ifndef twoway
           IF ( MYPE .EQ. 0 ) WRITE( OUTDEV, * )
+          
 #endif
+      CASE( 4 )
  
       END SELECT 
 

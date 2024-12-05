@@ -190,6 +190,17 @@ C Local Variables:
                REAL,    INTENT( OUT ) :: ZSTK( :,: )
                REAL,    INTENT( OUT ) :: DDZF( :,: )
             END SUBROUTINE DELTA_ZS
+            SUBROUTINE OPENLAYOUT( NDATE, NTIME, TSTEP, EMLAYS, VGLVSXG, NPTGRPS,
+     &                             MY_NSRC, PLAYNAME )
+               INTEGER,        INTENT( IN )  :: NDATE
+               INTEGER,        INTENT( IN )  :: NTIME
+               INTEGER,        INTENT( IN )  :: TSTEP
+               INTEGER,        INTENT( IN )  :: EMLAYS
+               REAL,           INTENT( IN )  :: VGLVSXG( 0: )
+               INTEGER,        INTENT( IN )  :: NPTGRPS
+               INTEGER,        INTENT( IN )  :: MY_NSRC( : )
+               CHARACTER( * ), INTENT( OUT ) :: PLAYNAME( : )
+            END SUBROUTINE OPENLAYOUT
          END INTERFACE
 
 C-----------------------------------------------------------------------
@@ -232,6 +243,7 @@ C get diagnostic files options
          END IF
 
          CALL M3MSG2( XMSG )
+#ifndef mpas
 #ifdef srcid
          IF ( PT3DFRAC ) THEN   ! save local source id's
             ALLOCATE ( LDEV( NPTGRPS ), STAT = IOS )
@@ -374,6 +386,7 @@ C Get stack data
 !           CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
 !           SUCCESS = .FALSE.; RETURN
 !        END IF
+#endif
 
 #ifdef srcid
          IF ( PT3DFRAC ) THEN
@@ -476,7 +489,11 @@ C Allocate and set stack parameters
                STK_VEL( N )%LEN = MY_NSRC( N )
  
                DO S = 1, MY_NSRC( N )
+#ifdef mpas
+                  SRC = S
+#else
                   SRC = SOURCE( N )%ARRY( S )
+#endif
                   STK_DM( N )%ARRY( S )  = STKDIAM( N )%ARRY( SRC )
                   STK_HT( N )%ARRY( S )  = STKHT( N )%ARRY( SRC )
                   STK_TK( N )%ARRY( S )  = STKTK( N )%ARRY( SRC )
@@ -492,7 +509,11 @@ C If wildfires, allocate fire parameters
                   ACRES( N )%LEN = MY_NSRC( N )
 
                   DO S = 1, MY_NSRC( N )
+#ifdef mpas
+                     SRC = S
+#else
                      SRC = SOURCE( N )%ARRY( S )
+#endif
                      ACRES( N )%ARRY( S ) = ACRES_BURNED( N )%ARRY( SRC )
                   END DO
 
@@ -531,14 +552,23 @@ C=======================================================================
          USE GRID_CONF, ONLY:  NCOLS, NROWS, IO_PE_INCLUSIVE
          USE STK_PRMS, ONLY :  MY_NSRC, MY_STRT_SRC, MY_END_SRC, 
      &                         MY_STKCOL, MY_STKROW, SOURCE,
-     &                         MY_STKBUFF, MY_COLBUFF, MY_ROWBUFF 
+#ifdef mpas
+     &                         MY_STKBUFF, MY_COLBUFF, MY_ROWBUFF, my_nsrc_mesh_index
+#else
+     &                         MY_STKBUFF, MY_COLBUFF, MY_ROWBUFF
+#endif
          USE STK_EMIS, ONLY :  IPSRM, DESID_N_ISTR, DESID_EMVAR, DESID_STREAM_DATE, 
      &                         STKBUFF, NSRC_EMIS
-         USE PTMET, ONLY    :  DESID_LAYS, PTMET_CONVT
          USE PRECURSOR_DATA, ONLY : PRECURSOR_MW, SULF_IDX
          USE RUNTIME_VARS, ONLY : LOGDEV, PT3DDIAG, PT3DFRAC, STDATE, STTIME
-         USE CENTRALIZED_IO_MODULE, only : interpolate_var
+         USE CENTRALIZED_IO_MODULE
          USE UTILIO_DEFN
+#ifdef mpas
+         use util_module, only : nextime
+         USE PTMET, ONLY    :  DESID_LAYS, PTMET_CONVT_MPAS
+#else
+         USE PTMET, ONLY    :  DESID_LAYS, PTMET_CONVT
+#endif
 
          IMPLICIT NONE
 
@@ -673,7 +703,11 @@ C Initialize Output Array
          N = IPSRM( ISRM )
 
 C Convert pt source met data to bi-linear interpolated data
+#ifdef mpas
+         CALL PTMET_CONVT_MPAS ( N )
+#else
          CALL PTMET_CONVT( JDATE, JTIME, N )
+#endif
 
          PTLAYS = 1       ! Initialize Point Layers at lowest possible value
 
@@ -700,47 +734,56 @@ C Ensure that the model and stack groups emissions timestamp dates stay synchron
 
 C Allocate Array to Store the Layer Heights of All Stacks (i.e. sources)
 C from this Point Group (i.e. ptgrp)
-         ALLOCATE( TFRAC( DESID_LAYS,MY_NSRC( N ) ), STAT = IOS )
-         CALL CHECKMEM( IOS, 'TFRAC', PNAME )
-         TFRAC = 0.0   ! array
+         IF (MY_NSRC( N ) .GT. 0) THEN
+            ALLOCATE( TFRAC( DESID_LAYS,MY_NSRC( N ) ), STAT = IOS )
+            CALL CHECKMEM( IOS, 'TFRAC', PNAME )
+            TFRAC = 0.0   ! array
 
 C Calculate Plume Heights for All Point Sources on this File
-         CALL CALC_PLUME_HEIGHT( DESID_STREAM_DATE( ISRM ), JDATE, JTIME, WRTIME, N   )
+            CALL CALC_PLUME_HEIGHT( DESID_STREAM_DATE( ISRM ), JDATE, JTIME, WRTIME, N   )
 
-         ! Floor TFRAC to zero in case there are negatives and 
-         ! renormalize positive values so the sum is 1.0
-         If ( MINVAL( TFRAC ) .LT. 0.0 ) THEN
+            ! Floor TFRAC to zero in case there are negatives and 
+            ! renormalize positive values so the sum is 1.0
+            If ( MINVAL( TFRAC ) .LT. 0.0 ) THEN
 
-             WHERE ( TFRAC( :,: ) .LT. 0.0 ) TFRAC( :,: ) = 0.0
+                WHERE ( TFRAC( :,: ) .LT. 0.0 ) TFRAC( :,: ) = 0.0
 
-             DO S = 1,MY_NSRC( N )
-                TFRAC( :,S ) = TFRAC( :,S ) / SUM( TFRAC(:,S) )
-             END DO
+                DO S = 1,MY_NSRC( N )
+                   TFRAC( :,S ) = TFRAC( :,S ) / SUM( TFRAC(:,S) )
+                END DO
+            END IF
+
+            ! Calculate Maximum Layer Height across all source Plumes
+            DO L = DESID_LAYS,1,-1
+                PTLAYS = L
+                IF ( COUNT( TFRAC(L,:) .EQ. 0.0 ) .LT. MY_NSRC( N ) ) EXIT
+            END DO
          END IF
-
-         ! Calculate Maximum Layer Height across all source Plumes
-         DO L = DESID_LAYS,1,-1
-             PTLAYS = L
-             IF ( COUNT( TFRAC(L,:) .EQ. 0.0 ) .LT. MY_NSRC( N ) ) EXIT
-         END DO
 
 C Read Emissions for all sources on File N            
          DO ISPC = 1, DESID_N_ISTR
             VNAME = EMVAR_PT( ISPC )
             IF ( VNAME .EQ. '' ) CYCLE
+
             call interpolate_var (STKENAME(N), VNAME, DESID_STREAM_DATE( ISRM ), JTIME, STKBUFF(1:NSRC_EMIS(N)) )
 
+            MY_STKEMIS( 1:PTLAYS,:,: ) = 0.0
+
             DO S = 1,MY_NSRC( N )
+#ifdef mpas
+                C = my_nsrc_mesh_index( S, N )
+                R = 1
+                MY_STKBUFF( S ) = STKBUFF( S )
+#else
                 SRC = SOURCE( N )%ARRY( S )
                 MY_STKBUFF( S ) = STKBUFF( SRC )
                 MY_COLBUFF( S ) = MY_STKCOL( N )%ARRY( S )
                 MY_ROWBUFF( S ) = MY_STKROW( N )%ARRY( S )
-            END DO
 
-            MY_STKEMIS( 1:PTLAYS,:,: ) = 0.0
-            DO S = 1,MY_NSRC( N )
                 C = MY_COLBUFF( S )
                 R = MY_ROWBUFF( S )
+#endif
+
                 MY_STKEMIS( 1:PTLAYS,C,R ) = MY_STKEMIS( 1:PTLAYS,C,R )
      &                     +  MY_STKBUFF( S ) * TFRAC( 1:PTLAYS,S )
             END DO
@@ -750,7 +793,7 @@ C Read Emissions for all sources on File N
 
          END DO ! End Loop on Species
 
-         DEALLOCATE( TFRAC )
+         IF (MY_NSRC( N ) .GT. 0) DEALLOCATE( TFRAC )
          
          ! Reset the date of the gridded file if this is diagnostic mode
          ! and the day has advanced
@@ -835,11 +878,19 @@ C-----------------------------------------------------------------------
 
       USE VGRD_DEFN, ONLY : VGTOP_GD
       USE STK_EMIS, ONLY : FIREVAR, FIREFLAG
+#ifdef mpas
+      USE STK_PRMS, ONLY : MY_STRT_SRC, MY_END_SRC, MY_NSRC, SOURCE, my_nsrc_pressure, my_nsrc_mesh_index
+#else
       USE STK_PRMS, ONLY : MY_STRT_SRC, MY_END_SRC, MY_NSRC, SOURCE
+#endif
       USE PTMET, ONLY : DESID_LAYS, P_D => PTMET_DATA
       USE RUNTIME_VARS, ONLY : LOGDEV, IPVERT, PT3DFRAC, REP_LAYR, LOG_MESSAGE
-      USE UTILIO_DEFN, ONLY : CRLF, XSTAT2
+      USE UTILIO_DEFN
       USE CENTRALIZED_IO_MODULE, only : interpolate_var
+#ifdef mpas
+      USE coupler_module
+      USE util_module, only : crlf
+#endif
 
       IMPLICIT NONE
 
@@ -851,6 +902,10 @@ C Includes:
          
       LOGICAL, INTENT( IN ) :: WRTIME
       INTEGER, INTENT( IN ) :: N       ! Point Source File Number
+
+#ifdef mpas
+      INTEGER, PARAMETER :: DEG = 3
+#endif
 
       CHARACTER( 16 ) :: PNAME = 'CALC_PLUME_HEIGHT'   ! procedure name
       CHARACTER( 16 ) :: VNAME 
@@ -879,8 +934,15 @@ C Includes:
       INTEGER          LPBL       ! first L: ZF(L) above mixing layer - ONLY for REPORT
       INTEGER          LSTK       ! first L: ZF(L) > STKHT
 
-      INTEGER :: S, L, SRC
+      INTEGER :: S, L, SRC, M, STAT
       INTEGER :: LTOP, LACRESBURNED
+      REAL    :: DELZ, DELFH
+      REAL, ALLOCATABLE, SAVE :: TV( : )   ! Virtual temperature
+      REAL, ALLOCATABLE, SAVE :: TF( : )   ! Full-layer height temperatures
+      real, allocatable :: tdata(:)
+      LOGICAL :: DETERMINED
+      REAL    :: THV1
+      REAL    :: THVK
 
       INTERFACE
            SUBROUTINE PREPLM( FIREFLG, DESID_LAYS, HMIX, HTS, PSFC, TS, DDZF, QV,
@@ -960,14 +1022,36 @@ C Includes:
            END SUBROUTINE PLSPRD
        END INTERFACE
       
+#ifdef mpas
+       IF (.NOT. ALLOCATED(TV)) THEN
+          ALLOCATE (TV(DESID_LAYS),
+     &              TF(DESID_LAYS),
+     &              STAT=STAT)
+       END IF
+#endif
+
       ! If The Point File is for Fires, read and save the H-Flux Data in a
       ! Dedicated Variable, BFLUX
       LACRESBURNED = 0
       IF ( FIREFLAG( N ) ) THEN
-         call interpolate_var (STKENAME(N), 'HFLUX', LOC_STKDATE, JTIME, FIREVAR(N)%ARRY)
+#ifdef mpas
+         allocate (tdata(MY_NSRC( N )), stat=stat)
+         call interpolate_var (STKENAME(N), 'HFLUX', LOC_STKDATE, JTIME, tdata)
 
          DO S = 1, MY_NSRC( N )
+            FIREVAR(N)%ARRY(S) = tdata(s)
+         END DO
+         deallocate (tdata)
+#else
+         call interpolate_var (STKENAME(N), 'HFLUX', LOC_STKDATE, JTIME, FIREVAR(N)%ARRY)
+#endif
+
+         DO S = 1, MY_NSRC( N )
+#ifdef mpas
+            SRC = S
+#else
             SRC = SOURCE( N )%ARRY( S )
+#endif
             BFLUX( N )%ARRY( S ) = FIREVAR( N )%ARRY( SRC ) * BTU2M4PS3
          END DO
 
@@ -990,6 +1074,70 @@ C Loop through sources and compute plume rise
          P_D( N )%ZZF( 1:DESID_LAYS ) = P_D( N )%ZF( 1:DESID_LAYS,S )  ! array of layers
 
 C Get pressures: Use SIGMA values and surface pres. p=sigma*(psfc-ptop)+ptop
+#ifdef mpas
+         PSFC = my_nsrc_pressure(1,s,n)
+
+         P_D( N )%PRESF( 0 ) = 0.0
+         P_D( N )%PRESF( 1:DESID_LAYS ) = my_nsrc_pressure(1:DESID_LAYS,s,n)
+
+         IF ( FIREFLAG( N ) ) THEN
+            LSTK = 1
+         ELSE
+            P_D( N )%ZSTK( :,S ) = P_D( N )%ZF( :,S ) - STK_HT( N )%ARRY(S)
+            L = 1
+            DETERMINED = .FALSE.
+            DO WHILE ((.NOT. DETERMINED) .AND. (L .LE. DESID_LAYS))
+               IF ( P_D( N )%ZF( L,S ) .GT. STK_HT( N )%ARRY( S )) THEN
+                  LSTK = L
+                  DETERMINED = .TRUE.
+               ELSE
+                  L = L + 1
+               END IF
+            END DO
+         END IF
+
+         P_D( N )%WSPD = g3ddata(my_nsrc_mesh_index(s, n),1,:,wspd_ind)
+
+         P_D( N )%DDZF( 1,S ) = 1.0 / P_D( N )%ZF( 1,S )
+         DO L = 2, DESID_LAYS
+            P_D( N )%DDZF( L,S ) = 1.0 / ( P_D( N )%ZF( L,S ) - P_D( N )%ZF( L-1,S ) )
+         END DO
+
+         IF ( FIREFLAG( N ) ) THEN
+            TSTK = g2ddata(my_nsrc_mesh_index(s, n),1,temp2_ind)
+            WSTK = P_D( N )%WSPD (1)
+         ELSE
+            m = MAX( 1, LSTK - DEG - 1 )
+            TSTK = g3ddata(my_nsrc_mesh_index(s, n),1,m,temp_ind)
+            WSTK = P_D( N )%WSPD (m)
+         END IF
+
+         DO L = 1, DESID_LAYS
+            TV( L ) = P_D( N )%TA( L,S ) * ( 1.0 + 0.622 *
+     &                (   g3ddata(my_nsrc_mesh_index(s, n),1,L,qv_ind)
+     &                  / ( 1.0 + g3ddata(my_nsrc_mesh_index(s, n),1,L,qv_ind) ) ) )
+         END DO
+
+         DO L = 1, DESID_LAYS - 1
+            DELZ  = g3ddata(my_nsrc_mesh_index(s, n),1,L+1,zh_ind) - g3ddata(my_nsrc_mesh_index(s, n),1,L,zh_ind)
+            DELFH = g3ddata(my_nsrc_mesh_index(s, n),1,L,zf_ind) - g3ddata(my_nsrc_mesh_index(s, n),1,L,zh_ind)
+            TF( L ) = TV( L ) + ( TV( L+1 ) - TV( L ) ) * DELFH / DELZ
+         END DO
+         L = DESID_LAYS
+         DELZ  = g3ddata(my_nsrc_mesh_index(s, n),1,L,zh_ind) - g3ddata(my_nsrc_mesh_index(s, n),1,L-1,zh_ind)
+         DELFH = g3ddata(my_nsrc_mesh_index(s, n),1,L,zf_ind) - g3ddata(my_nsrc_mesh_index(s, n),1,L,zh_ind)
+         TF( L ) = TV( L ) + ( TV( L ) - TV( L-1 ) ) * DELFH / DELZ
+
+         THV1  = TF( 1 ) * ( 1000.0 / P_D( N )%PRESF( 1 ) ) ** 0.286
+         DO L = 2, DESID_LAYS
+            THVK = TF( L ) * ( 1000.0 / P_D( N )%PRESF( L ) ) ** 0.286
+            P_D( N )%DTHDZ( L ) = P_D( N )%DDZF( L,S ) * ( THVK - THV1 )
+            THV1 = THVK
+         END DO
+         P_D( N )%DTHDZ( 1 ) = P_D( N )%DTHDZ( 2 )
+
+#else
+
          PSFC = P_D( N )%PRSFC( S )
          DO L = 0, DESID_LAYS
             P_D( N )%PRESF( L ) = ( VGLVSXG( L ) * ( PSFC - VGTOP_GD )
@@ -1008,6 +1156,7 @@ C Compute derived met vars needed before layer assignments
      &                P_D( N )%ZH( :,S ),    P_D( N )%ZF( :,S ),
      &                P_D( N )%PRESF, LSTK,  LPBL, TSTK, WSTK,
      &                P_D( N )%DTHDZ,        P_D( N )%WSPD )
+#endif
 
 C Trap USTAR at a minimum realistic value
          USTMP = MAX( P_D( N )%USTAR( S ), USTARMIN )
@@ -1207,13 +1356,14 @@ C calculate smoldering fraction:
             ZPLUM( S,1 ) = ZPLM
          END IF
 
+#ifndef mpas
 C Possible report to REPRTLAY
          IF ( LTOP .GE. REP_LAYR .AND. RDEV( N ) .GT. 0 .AND. WRTIME ) THEN
               WRITE( RDEV( N ),93048 ) S, STK_HT( N )%ARRY( S ), LPBL,
      &                                     LBOT, LTOP, STK_VEL( N )%ARRY( S ), WSTK,
      &                                     STK_TK( N )%ARRY( S ), TSTK
          END IF
-
+#endif
 
       END DO    ! end loop on sources S
 
@@ -1224,7 +1374,6 @@ C Possible report to REPRTLAY
            call log_message( logdev, xmsg )
       END IF
      
-
 94010 FORMAT( 12( A, :, I8, :, 1X ) )
 94020 FORMAT( 10( A, :, I7, :, 1X ) )
 93048 FORMAT( I6, F8.2, 3I4, 4F10.2 )
@@ -1234,7 +1383,9 @@ C Possible report to REPRTLAY
 
 C-----------------------------------------------------------------------
 
+#ifndef mpas
          SUBROUTINE RETRIEVE_IOAPI_HEADER( FNAME, JDATE, JTIME )
+
 
             USE UTILIO_DEFN, ONLY : DESC3, XSTAT2
 
@@ -1255,6 +1406,7 @@ C-----------------------------------------------------------------------
             RETURN
 
          END SUBROUTINE RETRIEVE_IOAPI_HEADER
+#endif
 
 C-----------------------------------------------------------------------
 

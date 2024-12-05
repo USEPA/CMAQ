@@ -198,10 +198,10 @@ AOCIJ           ,ugC m-3   ,PMF_OC[3]
 AOMIJ           ,ug m-3    ,PMF_OA[3]
 
 !!! Anthropogenic-VOC Derived Organic Aerosol
-AORGAJ          ,ug m-3    ,PMF_ASOA[3]
+AORGAIJ         ,ug m-3    ,PMF_ASOA[3]
 
 !!! Biogenic-VOC Derived Organic Aerosol
-AORGBJ          ,ug m-3    ,PMF_BSOA[3]
+AORGBIJ         ,ug m-3    ,PMF_BSOA[3]
 
 !!! Cloud-Processed  SOA
 AORGCJ          ,ug m-3    ,AORGCJ[1]

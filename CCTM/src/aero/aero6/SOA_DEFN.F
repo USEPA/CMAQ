@@ -71,6 +71,8 @@ C   29 Aug 18 G. Sarwar: updated for CB6R3M
 C 17 Jan 20 B.Hutzell -Added algorithm to handle tracer species and
 C                     -added benzo[a]pyrene to oa_list. Its cstar is based
 C                      on the subcooled vapor pressure in Lei et. al (2002)
+C   15 Sep 23 G. Sarwar: updated for CRACMM2
+C 28 Nov 23 N. Skipper: added new species for CRACMM2
 C-----------------------------------------------------------------------
 #ifdef sens
       USE DDM3D_DEFN, ONLY : NP, NPMAX
@@ -82,7 +84,7 @@ C-----------------------------------------------------------------------
       Logical, Parameter, Private :: T = .true.
       Logical, Parameter, Private :: F = .false.
 
-      Integer, Parameter :: n_oa_list = 81   ! # of potential partitioning SVOCs
+      Integer, Parameter :: n_oa_list = 85   ! # of potential partitioning SVOCs
       Integer, Save      :: n_oa             ! Total # of simulated SOA vapors
       Integer, Save      :: n_oa_NotTracers  ! # of simulated SOA vapors that are not tracers
       Integer, Save      :: n_oa_tracers      ! # of simulated SOA vapors that are tracers
@@ -190,7 +192,11 @@ C-----------------------------------------------------------------------
      & oa_type('AROCP1OXY3','VROCP1OXY3','        ',0.0000,   1.e+1,  81.0E3, .300,1.54, F,  T,  F,  F ),
      & oa_type('AROCP2OXY2','VROCP2OXY2','        ',0.0000,   1.e+2,  77.0E3, .200,1.42, F,  T,  F,  F ),
      & oa_type('AROCP3OXY2','VROCP3OXY2','        ',0.0000,   1.e+3,  73.0E3, .200,1.42, F,  T,  F,  F ),
-     & oa_type('ABENAPY', 'BENAPY  ', '        ',  0.0000,   0.0396, 105.0E3, .000,1.00, F,  T,  F,  F ) /)
+     & oa_type('ABENAPY', 'BENAPY  ', '        ',  0.0000,   0.0396, 105.0E3, .000,1.00, F,  T,  F,  F ),
+     & oa_type('AISO4  ','         ','         ',     0.0,   1.e-10,   1.0E0,  1.2,2.80, F,  F,  T,  T ),
+     & oa_type('AISO5  ','         ','         ',     0.0,   1.e-10,   1.0E0,  1.0,2.50, F,  F,  T,  T ),
+     & oa_type('ATRPN  ','TRPN     ','         ',     0.0,   1410.0,  89.1E3, .400,1.79, F,  F,  T,  F ),
+     & oa_type('AHONIT ','HONIT    ','         ',     0.0,   0.0413, 121.0E3, .700,2.21, F,  F,  T,  F ) /)
       ! Table Comments:
       ! *Reaction Counters are only needed if the vapor species is not formed
       !  directly in the gas-phase chemistry mechanism.
@@ -420,7 +426,8 @@ C-----------------------------------------------------------------------
 
          ! Find indices of required species based on mechname
          If( index( mechname,'CRACMM1_AQ' ) .eq. 0 
-     &          .and. index( mechname,'CRACMM1AMORE_AQ') .eq. 0 ) Then
+     &          .and. index( mechname,'CRACMM2') .eq. 0 
+     &          .and. index( mechname,'CRACMM1AMORE_AQ') .eq. 0 ) then
              iso1_idx   = findVapor( req_sviso1, .True. )
              iso2_idx   = findVapor( req_sviso2, .True. )
              aiso1_idx  = findAero( req_aeiso1, .True. )
@@ -519,7 +526,7 @@ C-----------------------------------------------------------------------
 
       Use aero_data, only : cond_budget, npf_budget
       Use aeromet_data, only: airdens, inv_mwair, min_gasconc
-      Use utilio_defn, only: xstat3
+      Use utilio_defn, only: xstat3, m3exit
 
       Implicit None
 
@@ -582,6 +589,8 @@ C
 C SR  03/25/11 Replaced I/O API include files with UTILIO_DEFN
 C-----------------------------------------------------------------------
       Use RUNTIME_VARS, only : logdev
+      Use utilio_defn
+
       Implicit None
 
       ! Arguments:

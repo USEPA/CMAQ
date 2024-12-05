@@ -31,7 +31,7 @@
 
 !-----------------------------------------------------------------------
       SUBROUTINE DESID_GET_RULE_STREAMS( RULE_STREAM_NML0, IRULE, 
-     &              RULE_STREAM, LREMOVE )
+     &              RULE_STREAM, LREMOVE, LERROR )
 !
 ! This subroutine analyzes the part of a rule identifying which streams
 ! to affect and searches for the individual streams, or, if the rule uses
@@ -51,6 +51,7 @@
       INTEGER, INTENT( IN )       :: IRULE
       LOGICAL, INTENT( INOUT )    :: RULE_STREAM( DESID_N_SRM )
       LOGICAL, INTENT( INOUT )    :: LREMOVE
+      LOGICAL, INTENT( INOUT )    :: LERROR
 
       INTEGER ISRM, IDX, NSRM, IFAM
       CHARACTER( 200 ) :: XMSG
@@ -66,6 +67,7 @@
       CALL UPCASE( RULE_STREAM_NML )
 
       LREMOVE = .FALSE.
+      LERROR  = .FALSE.
 
       IF ( RULE_STREAM_NML .EQ. 'ALL' .OR. RULE_STREAM_NML .EQ. 'TOTAL' ) THEN
          ! Special Case Where the Stream Identifier in the rule equals
@@ -108,13 +110,16 @@
              RULE_STREAM( IDX ) = .TRUE.
            ELSE 
              ! Print warning that this stream is being ignored
-             WRITE( LOGDEV, '(/,5x,3A,I3,/,5x,2A,4(/,5x,A))' ),
-     &         'ATTENTION: The Emissions Stream Label (',TRIM( RULE_STREAM_NML ),
-     &         ') applied for Rule ',IRULE,'in the Emissions Control ',
-     &         'Namelist does not match any of the emissions streams ',
-     &         'labels or families provided to CMAQ. Please check the ',
+             WRITE( LOGDEV, '(/,5x,3A,I3,/,5x,A,3(/,5x,A))' ),
+     &         'Warning: The Emissions Stream Label (',TRIM( RULE_STREAM_NML ),
+     &         ') applied for Rule ',IRULE,
+     &         ' does not match any of the emissions stream labels or ',
+     &         'members of stream families provided to CMAQ. Please check the ',
      &         'runscript against your emissions control inputs',
      &         'confirm that this stream should be ignored.'
+
+             ! Confirm an Error
+             LERROR = .TRUE.
 
              ! Remove this rule from the list of rules
              LREMOVE = .TRUE.
@@ -245,27 +250,27 @@
          END IF
       END DO
 
-      DESID_DIAG_SPEC( JDIAG )%NSPEC = NSPEC
-      DESID_DIAG_SPEC( JDIAG )%NPAIRS = NPAIRS 
+      DESID_DIAG_SPEC_BUFF( JDIAG )%NSPEC = NSPEC
+      DESID_DIAG_SPEC_BUFF( JDIAG )%NPAIRS = NPAIRS 
       IF ( NSPEC .GT. 0 ) THEN
-        IF ( ALLOCATED( DESID_DIAG_SPEC( JDIAG )%SPEC ) )
-     &      DEALLOCATE( DESID_DIAG_SPEC( JDIAG )%SPEC )
-        IF ( ALLOCATED( DESID_DIAG_SPEC( JDIAG )%UNITS ) )
-     &      DEALLOCATE( DESID_DIAG_SPEC( JDIAG )%UNITS )
-        IF ( ALLOCATED( DESID_DIAG_SPEC( JDIAG )%MAP_toDIFF ) )
-     &      DEALLOCATE( DESID_DIAG_SPEC( JDIAG )%MAP_toDIFF )
-        IF ( ALLOCATED( DESID_DIAG_SPEC( JDIAG )%MAP_toDIAG ) ) 
-     &      DEALLOCATE( DESID_DIAG_SPEC( JDIAG )%MAP_toDIAG )
+        IF ( ALLOCATED( DESID_DIAG_SPEC_BUFF( JDIAG )%SPEC ) )
+     &      DEALLOCATE( DESID_DIAG_SPEC_BUFF( JDIAG )%SPEC )
+        IF ( ALLOCATED( DESID_DIAG_SPEC_BUFF( JDIAG )%UNITS ) )
+     &      DEALLOCATE( DESID_DIAG_SPEC_BUFF( JDIAG )%UNITS )
+        IF ( ALLOCATED( DESID_DIAG_SPEC_BUFF( JDIAG )%MAP_toDIFF ) )
+     &      DEALLOCATE( DESID_DIAG_SPEC_BUFF( JDIAG )%MAP_toDIFF )
+        IF ( ALLOCATED( DESID_DIAG_SPEC_BUFF( JDIAG )%MAP_toDIAG ) ) 
+     &      DEALLOCATE( DESID_DIAG_SPEC_BUFF( JDIAG )%MAP_toDIAG )
 
-        ALLOCATE( DESID_DIAG_SPEC( JDIAG )%SPEC( NSPEC ) )
-        ALLOCATE( DESID_DIAG_SPEC( JDIAG )%UNITS( NSPEC ) )
-        ALLOCATE( DESID_DIAG_SPEC( JDIAG )%MAP_toDIFF( NPAIRS ) )
-        ALLOCATE( DESID_DIAG_SPEC( JDIAG )%MAP_toDIAG( NPAIRS ) )
+        ALLOCATE( DESID_DIAG_SPEC_BUFF( JDIAG )%SPEC( NSPEC ) )
+        ALLOCATE( DESID_DIAG_SPEC_BUFF( JDIAG )%UNITS( NSPEC ) )
+        ALLOCATE( DESID_DIAG_SPEC_BUFF( JDIAG )%MAP_toDIFF( NPAIRS ) )
+        ALLOCATE( DESID_DIAG_SPEC_BUFF( JDIAG )%MAP_toDIAG( NPAIRS ) )
 
-        DESID_DIAG_SPEC( JDIAG )%SPEC  = DIAGSPEC( 1:NSPEC )
-        DESID_DIAG_SPEC( JDIAG )%UNITS = UNITS( 1:NSPEC )
-        DESID_DIAG_SPEC( JDIAG )%MAP_toDIFF = MAP_toDIFF( 1:NPAIRS )
-        DESID_DIAG_SPEC( JDIAG )%MAP_toDIAG = MAP_toDIAG( 1:NPAIRS )
+        DESID_DIAG_SPEC_BUFF( JDIAG )%SPEC  = DIAGSPEC( 1:NSPEC )
+        DESID_DIAG_SPEC_BUFF( JDIAG )%UNITS = UNITS( 1:NSPEC )
+        DESID_DIAG_SPEC_BUFF( JDIAG )%MAP_toDIFF = MAP_toDIFF( 1:NPAIRS )
+        DESID_DIAG_SPEC_BUFF( JDIAG )%MAP_toDIAG = MAP_toDIAG( 1:NPAIRS )
       END IF
 
       END SUBROUTINE DESID_DIAG_MAP_SPEC
@@ -378,6 +383,9 @@
 
 ! This subroutine checks for invalid values of the operation parameter 
 ! in the rules from the emission control list
+
+         use utilio_defn
+
 
          IMPLICIT NONE
 
@@ -650,6 +658,8 @@
 ! This subroutine checks for invalid values of the operation parameter 
 ! in the rules from the emission control list
 
+         use utilio_defn
+
          IMPLICIT NONE
 
          CHARACTER( 1 )        :: OP
@@ -676,6 +686,8 @@
 
 ! This subroutine checks for invalid values of the operation parameter 
 ! in the rules from the emission control list
+
+         use utilio_defn
 
          IMPLICIT NONE
 

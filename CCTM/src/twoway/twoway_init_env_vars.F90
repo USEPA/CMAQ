@@ -50,7 +50,7 @@
 
           call get_env (cmaq_stime, 'CTM_STTIME', 0)
 
-          call get_env (turn_on_pv, 'CTM_TURN_ON_PV', .false.)
+          call get_env (turn_on_pv, 'CTM_PVO3', .false.)
 
           call get_env (wrf_lc_ref_lat, 'WRF_LC_REF_LAT', 0.0)
 

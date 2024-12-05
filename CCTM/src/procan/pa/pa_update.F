@@ -32,10 +32,12 @@
       USE CENTRALIZED_IO_MODULE
       USE BUDGET_DEFN
 
+#ifndef mpas
 #ifdef parallel
       USE SE_MODULES            ! stenex (using SE_UTIL_MODULE, SE_DATA_COPY_MODULE)
 #else
       USE NOOP_MODULES          ! stenex (using NOOP_UTIL_MODULE, NOOP_DATA_COPY_MODULE)
+#endif
 #endif
  
       PUBLIC PA_UPDATE_PROC, PA_UPDATE_EMIS, PA_UPDATE_DDEP,
@@ -263,6 +265,8 @@ C-----------------------------------------------------------------------
       INCLUDE SUBST_EMISPRM     ! Emissions processing control parameters
       
       REAL                  :: VEMIS ( :,:,:,: )  ! Emission rates (g/s)
+                                                  ! layer dimension
+                                                  ! corresponds to NLAYS
       INTEGER, INTENT( IN ) :: JDATE       !  current date,    format YYYYDDD
       INTEGER, INTENT( IN ) :: JTIME       !  current time,    format HHMMSS
       INTEGER, INTENT( IN ) :: TSTEP( 3 )  ! time step vector (HHMMSS)
@@ -279,7 +283,7 @@ C-----------------------------------------------------------------------
       ! ae_conversion factors
       REAL, ALLOCATABLE, SAVE :: PA_EMIS_CONV( : )
 
-      REAL :: DENS    ( NCOLS,NROWS,NLAYS )  ! Density of air
+      REAL :: DENS    ( NCOLS,NROWS,NLAYS )           ! Density of air
       REAL :: TVEMIS  ( MY_PACOLS,MY_PAROWS,PALEVS )  ! Computed emission rate
        
       INTEGER ASTAT     ! Allocate status code
@@ -346,7 +350,8 @@ C-----------------------------------------------------------------------
       CNGRD = VEMIS  * DT
       DO ICG = 1,N_CGRID_SPC
          IF ( CGRID_MASK_AERO( ICG ) ) 
-     &      CNGRD(:,:,:,ICG) = CNGRD(:,:,:,ICG) * DENS( :,:,: ) * PA_EMIS_CONV( ICG )
+     &      CNGRD(:,:,:,ICG) = CNGRD(:,:,:,ICG) * 
+     &                         DENS( :,:,: ) * PA_EMIS_CONV( ICG )
       END DO
       
       ! Save Changes in Budget Array
@@ -363,37 +368,35 @@ C-----------------------------------------------------------------------
          ! Get air density
          call interpolate_var ('DENS', mdate, mtime, DENS)
       
-         ! Convert Aerosol Emissions To Correct Units and Apply Species
-         ! Coefficients. ug m-3 | N m-3 | and m2 m-3
-         VEMIS = VEMIS  * DT
          DO ICG = 1,N_CGRID_SPC
             IF ( CGRID_MASK_AERO( ICG ) ) 
-     &         VEMIS(:,:,:,ICG) = VEMIS(:,:,:,ICG) * DENS( :,:,: ) * PA_EMIS_CONV( ICG )
+     &         VEMIS(:,:,:,ICG) = VEMIS(:,:,:,ICG) * DT *
+     &                            PA_EMIS_CONV(ICG) * DENS( :,:,: )
          END DO
- 
+          
          DO IPRV = 1,NIPRVAR
             IF ( MASK_IPR_PROC( IPRV,IPR_VDIF ) .OR. 
      &           MASK_IPR_PROC( IPRV,IPR_EMIS ) ) THEN
                ! Either VDIF or EMIS are needed for this IPR Variable.
                IPRSPC = MAP_IPRVARtoSPC( IPRV ) 
-
+         
                DO ISPC = 1, NCGRID( IPRSPC )       ! foreach species in the family
                   ICG = MAP_IPRtoCGRID( IPRSPC,ISPC )     ! CTM species index in the family
-
+         
                   ! Retrieve Emissions for this Time Step
-#ifdef parallel
+#ifdef parallel   
                   CALL SUBST_DATA_COPY ( VEMIS, TVEMIS, ICG )
-#else
+#else           
                   TVEMIS( :,:,: ) = VEMIS( PA_BEGROW:PA_ENDROW,
      &                                  PA_BEGCOL:PA_ENDCOL,
      &                                  PA_BEGLEV:PA_ENDLEV,
      &                                  ICG )
-#endif
+#endif          
                   ! Add up Emissions and/or Vdiff depending on the process mask
                   IF ( MASK_IPR_PROC( IPRV,IPR_EMIS ) )
      &               DELC( :,:,:,IPRV ) = DELC( :,:,:,IPRV ) 
      &                                  + TVEMIS( :,:,: ) * SPCOEF( IPRSPC,ISPC )
-               
+                
                   IF ( MASK_IPR_PROC( IPRV,IPR_VDIF ) )
      &               DELC( :,:,:,IPRV ) = DELC( :,:,:,IPRV ) 
      &                                  - TVEMIS( :,:,: ) * SPCOEF( IPRSPC,ISPC )
@@ -593,7 +596,6 @@ C..get density x jacobian and layer heights
 
       REAL :: TXADV  ( MY_PACOLS,MY_PAROWS,PALEVS )  ! Computed emission rate
       REAL :: TYADV  ( MY_PACOLS,MY_PAROWS,PALEVS )  ! Computed emission rate
-      REAL,ALLOCATABLE,SAVE :: RHOJ   ( :,:,: )  ! Computed emission rate
 
       INTEGER :: IPRV
       INTEGER :: ICG, ISPC, IPRSPC, ISV
@@ -602,8 +604,6 @@ C..get density x jacobian and layer heights
 
       IF ( FIRSTIME ) THEN 
           FIRSTIME = .FALSE.
-          ALLOCATE( RHOJ( NCOLS,NROWS,NLAYS ),STAT=ASTAT )
-          CALL CHECKMEM( ASTAT, 'RHOJ', 'PA_UPDATE_HADV' )
       END IF
 
       ! Load scalars in local array 

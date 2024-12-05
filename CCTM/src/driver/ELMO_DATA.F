@@ -24,13 +24,17 @@ c:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       USE UTILIO_DEFN
 
       IMPLICIT NONE
-       
+
+#ifdef mpas
+      INTEGER, PARAMETER :: M3REAL  =   5
+#endif
+
       ! Define Logical values as T and F for the aerospc table
       Logical, Parameter, Private :: T = .true.
       Logical, Parameter, Private :: F = .false.
 
       LOGICAL, SAVE :: L_ELMO
-      INTEGER, SAVE :: ELMO_AVRG_STEP = 0
+      REAL,    SAVE :: ELMO_NSTEP = 0.
       INTEGER, SAVE :: NLAY_ELMO_INST
       INTEGER, SAVE :: NLAY_ELMO_AVRG
 
@@ -229,6 +233,8 @@ c:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       INTEGER, PARAMETER :: ID_PV    =      185
       INTEGER, PARAMETER :: ID_DENS  =      186
       INTEGER, PARAMETER :: ID_RHOJ  =      187
+      INTEGER, PARAMETER :: ID_GAS_HNO3 =   188
+      INTEGER, PARAMETER :: ID_GAS_NH3  =   189
 
       TYPE ELDTP
         CHARACTER (LEN = 16) :: NAME      !Parameter Name
@@ -239,7 +245,7 @@ c:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
         CHARACTER (LEN = 80) :: DESC      !Description
       END TYPE ELDTP
 
-      INTEGER, PARAMETER :: N_ELMO_LIST = 187
+      INTEGER, PARAMETER :: N_ELMO_LIST = 189
 
       TYPE (ELDTP), PARAMETER :: ELMO_LIST( N_ELMO_LIST ) = (/
      &ELDTP( 'STDEV        ',ID_STDEV,      M3REAL, T, '      ', 'Mode standard deviation (dry and wet)' ),
@@ -422,6 +428,8 @@ c:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
      &ELDTP( 'PMF_BENAPY   ',ID_PMF_BENAPY,  M3REAL,F, 'ug m-3', 'Fine-Mode Benzo-a-Pyrene' ),
      &ELDTP( 'GAS_BENAPY   ',ID_GAS_BENAPY,  M3REAL,F, 'ug m-3', 'Gas-Phase Benzo-a-Pyrene' ),
      &ELDTP( 'BENAPY_FAERO ',ID_BENAPY_FAERO,M3REAL,F, '',       'Benzo-a-Pyrene Aerosol-Phase Fraction' ),
+     &ELDTP( 'GAS_HNO3     ',ID_GAS_HNO3,    M3REAL,F, 'ug m-3', 'Gas-Phase Nitric Acid' ),
+     &ELDTP( 'GAS_NH3      ',ID_GAS_NH3,     M3REAL,F, 'ug m-3', 'Gas-Phase Ammonia' ),
 
       ! Other Special Variables and Properties
      &ELDTP( 'TNO3         ',ID_TNO3,       M3REAL, F, 'ug m-3', 'Total Nitrate only Including Inorganics' ),

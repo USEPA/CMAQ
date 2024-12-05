@@ -56,6 +56,7 @@ C--------------------------------------------------------------------
       USE HGRD_DEFN, ONLY: NCOLS, NROWS, GL_NCOLS, GL_NROWS, COLSX_PE, ROWSX_PE, MYPE
       USE VGRD_DEFN, ONLY: NLAYS
       USE RXNS_DATA, ONLY: NRXNS
+      USE RUNTIME_VARS, ONLY: LPVO3
 
       IMPLICIT NONE
 
@@ -210,7 +211,13 @@ CCCCCCC Sensitivity to Emissions CCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
 CCCCCCC Sensitivity to vorticity CCCCCCCCCCCCCCCCCCCCC
         ELSE IF ( INDEX( TXT, 'PVO3' ) .NE. 0 ) THEN
-          IPT( NPSEN ) = 6
+          IF ( LPVO3 ) THEN
+             IPT( NPSEN ) = 6
+          ELSE
+            XMSG = 'Set CTM_PVO3 option to Y in the runscript ' //
+     &             'to calculate potential vorticity sensitivity'
+            CALL M3EXIT( PNAME,STDATE,STTIME,XMSG,XSTAT1 )
+          END IF
 
           READ( JVUNIT, '(A80)', END = 999 ) TXT
 

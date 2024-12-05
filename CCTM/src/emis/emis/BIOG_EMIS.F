@@ -39,6 +39,7 @@ C             emissions when in-line option is enabled with RACM2
 C     07 June 2021 G. Sarwar: replaced "B10RD" with "B3V10" for RACM2
 C     30 Sept 2021 G. Sarwar: added CB6R5_AE7_AQ
 C     04 Oct  2021 G. Sarwar: added CB6R5HAP_AE7_AQ
+C     14 Sep  2023 G. Sarwar: added CRACMM2
 C-----------------------------------------------------------------------
       USE RUNTIME_VARS
       USE DESID_VARS
@@ -61,21 +62,21 @@ C-----------------------------------------------------------------------
          USE RXNS_DATA, ONLY : MECHNAME
          USE UTILIO_DEFN
          USE CGRID_SPCS, ONLY : N_CGRID_SPC, CGRID_NAME, CGRID_MW
+#ifdef mpas
+         USE util_module, only : PROMPTFFILE, index1, str2real, sortic
+#endif
 
          IMPLICIT NONE
 
 C Subroutine arguments:
          LOGICAL SUCCESS
 
-C External Functions:
-         INTEGER,        EXTERNAL :: GETFLINE
-
 C Parameters:
 C (A line from the profile file is a record.)
          INTEGER,        PARAMETER :: NSEGS = 6  ! # of potential line segments (fields)
          INTEGER,        PARAMETER :: MXLINES = 100 ! max lines for requested sppro name
          INTEGER,        PARAMETER :: MXSPPOL = 10  ! max no. spc per pollutant
-         INTEGER,        PARAMETER :: NMECHS  = 20  ! dimension for number of mechanisms considered
+         INTEGER,        PARAMETER :: NMECHS  = 21  ! dimension for number of mechanisms considered
          CHARACTER,      PARAMETER :: CINVHDR = '#' ! Indicator for inventory hdr fields
 !        REAL,           PARAMETER :: GM2TON  = 1.0 / 907184.74  ! grams to tons
 
@@ -151,6 +152,7 @@ C Local variables
      &         BIOG_MECH_TYPE( 'SAPRC07TIC_AE6I_AQKMTI ','B10SP   '),
      &         BIOG_MECH_TYPE( 'SAPRC07TIC_AE7I_AQ     ','B10SP   '),
      &         BIOG_MECH_TYPE( 'SAPRC07TIC_AE7I_AQKMT2 ','B10SP   '),
+     &         BIOG_MECH_TYPE( 'CRACMM2                ','CRACMM2 '),
      &         BIOG_MECH_TYPE( 'CRACMM1_AQ             ','CRACMM1 '),
      &         BIOG_MECH_TYPE( 'CRACMM1AMORE_AQ        ','CRACMM1 ') /)
  
@@ -324,7 +326,11 @@ C Check if species is already stored for current pollutant, and if not, incremen
 C species-per-pollutant counter and add species to list.
             DO M = 1, NIPOS
                K   = NSPECA( IPOS( M ) )
+#ifdef mpas
+               NDX = INDEX1( SPECNM, K, TMPNAMES( :,IPOS( M ) ) )
+#else
                NDX = INDEX1( SPECNM, K, TMPNAMES( 1,IPOS( M ) ) )
+#endif
                IF ( NDX .LE. 0 ) THEN
                   K = K + 1
                   IF ( K .LE. MXSPPOL ) THEN
@@ -380,7 +386,11 @@ C and if so, store in the output species name list.
 C Process species in sorted order
                K = INDX1A( J )
 C Find species in list of valid species per pollutant
+#ifdef mpas
+               NDX = INDEX1( SPECNMA( K ), NSPECA( I ), TMPNAMES( :,I ) )
+#else
                NDX = INDEX1( SPECNMA( K ), NSPECA( I ), TMPNAMES( 1,I ) )
+#endif
                IF ( NDX .GT. 0 ) THEN
                   ICOUNT = ICOUNT + 1
                   SPCNAMES( ICOUNT, I ) = SPECNMA( K )

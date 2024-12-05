@@ -141,10 +141,15 @@ C-----------------------------------------------------------------------
       USE BIOG_EMIS, ONLY: NSEF ! beis
       USE ASX_DATA_MOD
       USE UTILIO_DEFN
+#ifdef mpas
+      use mio_module
+      USE util_module, only : NEXTIME, TIME2SEC, SECSDIFF, CURRSTEP, julian
+#else
 #ifdef parallel
       USE SE_MODULES            ! stenex (using SE_UTIL_MODULE)
 #else
       USE NOOP_MODULES          ! stenex (using NOOP_UTIL_MODULE)
+#endif
 #endif
       USE centralized_io_module
 
@@ -229,6 +234,10 @@ C for INTERPX
       CHARACTER( 16 ), SAVE :: VNAME_RC, VNAME_RN
       INTEGER :: SPC
 
+#ifdef mpas
+      integer :: io_mode
+#endif
+
       LOGICAL, EXTERNAL :: FLUSH3
 
 #ifdef verbose_hrno
@@ -241,10 +250,24 @@ C-----------------------------------------------------------------------
       IF ( FIRSTIME ) THEN
 !        FIRSTIME = .FALSE.
 
+#ifdef mpas
+         if (ncd_64bit_offset) then
+            io_mode = ior (nf90_noclobber, nf90_64bit_offset)
+         else
+            io_mode = nf90_noclobber
+         end if
+
+         call mio_fcreate ('SOILOUT', io_mode)
+#endif
+
 C Determine last timestamp
          EDATE = STDATE; ETIME = STTIME
          CALL NEXTIME( EDATE, ETIME, RUNLEN )   ! end date & time
          MSTEPS = TIME2SEC( RUNLEN ) / TIME2SEC( TSTEP( 1 ) )
+
+#ifdef mpas
+         METSTEP = tstep(3)
+#else
 
 C Open met file
          MNAME = PROMPTMFILE(
@@ -270,6 +293,7 @@ C Check that grid description matches MET_CRO_2D file
             CALL M3EXIT( PNAME, JDATE, JTIME, MESG, XSTAT2 )
 #endif
          END IF
+#endif
 
          ALLOCATE( RNTOT( NCOLS,NROWS ), STAT=IOS )
          CALL CHECKMEM( IOS, 'RNTOT', PNAME )
@@ -533,6 +557,22 @@ C Calculate NO emissions by going thru temperature cases
 
       IF ( SECSDIFF( JDATE,JTIME, EDATE,ETIME ) .GT. TIME2SEC( TSTEP( 2 ) ) .OR. L_DESID_DIAG ) RETURN
 
+#ifdef mpas
+      var = 'PTYPE'
+      call mio_fwrite ('SOILOUT', var, pname, ptype)
+
+      var = 'PULSEDATE'
+      call mio_fwrite ('SOILOUT', var, pname, pulsedate)
+
+      var = 'PULSETIME'
+      call mio_fwrite ('SOILOUT', var, pname, pulsetime)
+
+      do i = 1, rhours
+         write( var, '(a8,i2.2)' ) 'RAINFALL', I
+         call mio_fwrite ('SOILOUT', var, pname, rainfall(1,1,i))
+      end do
+#else
+
 C Create rain data file for soil NO
 
 C Final timestamp
@@ -652,7 +692,7 @@ C Write soil NO rain data file
       RAINFALL( :,:,NDX ) = C_RAINFALL
       DO I = 1, RHOURS
          WRITE( VAR, '(A8,I2.2)' ) 'RAINFALL', I
-         IF ( .NOT. WRITE3( SOILOUT, VAR, NDATE, NTIME, RAINFALL( 1,1,I ) ) ) THEN
+         IF ( .NOT. WRITE3( SOILOUT, VAR, NDATE, NTIME, RAINFALL( :,:,I ) ) ) THEN
             MESG = 'Could not write "' // TRIM( VAR ) //
      &             '" to file "' // TRIM( SOILOUT ) // '"'
             CALL M3EXIT( PNAME, JDATE, JTIME, MESG, XSTAT2 )
@@ -662,6 +702,7 @@ C Write soil NO rain data file
       WRITE( LOGDEV,94040 )
      &      'Timestep written to', SOILOUT,
      &      'for date and time', NDATE, NTIME
+#endif
 
       RETURN
 

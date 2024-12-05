@@ -487,15 +487,15 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      &           '|-'
              CASE( -1 )
                  WRITE(TABLE_UNIT,'(A,  A, A, A, A / A)')' || ', 'Not Available',
-     &           ' || ', 'Not Available', ' || Heteorogeneous Reaction;Depends predicted concentrations || ',  '|-'
+     &           ' || ', 'Not Available', ' || Heterogeneous Reaction; depends on predicted concentrations || ',  '|-'
              CASE( 11 )
                  WRITE(TABLE_UNIT,'(A,  A, A, A, A / A)')' || ', 'Not Available',
-     &           ' || ', 'Not Available', ' || Rate constant an Operator;Depends predicted concentrations || ',  '|-'
+     &           ' || ', 'Not Available', ' || Rate constant an Operator; depends on predicted concentrations || ',  '|-'
              CASE( 12 )
                  WRITE(TABLE_UNIT,'(A,  ES12.4, A, ES12.4, 2A / A)')' || ', RATE_CONSTANT( 1, NXX),
      &           ' || ', RATE_CONSTANT( 2, NXX), 
-     &           ' || Set to zero if sun is below the horizon. SEAWATER equals surface fraction covered by ice'
-     &           // ' free open ocean plus surf zones.',
+     &           ' || Set to zero if sun is below the horizon. SEAWATER equals fraction of '
+     &           // ' ocean plus surf zones not covered by seaice.',
      &           ' P equals air pressure in atmospheres || ',  '|-'
              CASE( 13 )
                 IF( RATE_CONSTANT( 1, NXX) .LT. 0.0 .OR. RATE_CONSTANT( 1, NXX) .LT. 0.0 )THEN
@@ -541,7 +541,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      &   "*Fall-off/pressure dependent reaction rate constants ([M] equals air number density):" /
      &   "**For rate constants with k<sub>o</sub>, k<sub>inf</sub>, n, F values: ",
      &       "k = [ k<sub>o</sub>[M]/(1+k<sub>o</sub>[M]/k<sub>inf</sub>)]F<sup>G</sup>, ",
-     &       "where G=(1+(log<sub>10</sub>(k<sub>o</sub>[M]/k<sub>inf</sub>)/n)<sup>2</sup>))<sup>-1</sup> " /
+     &       "where G=(1+(log<sub>10</sub>(k<sub>o</sub>[M]/k<sub>inf</sub>)/n)<sup>2</sup>)<sup>-1</sup> " /
      &   "**For rate constants with k<sub>1</sub>, k<sub>2</sub>: k = k<sub>1</sub> + k<sub>2</sub> [M]" / 
      &   "**For rate constants with k<sub>0</sub>, k<sub>2</sub>, k<sub>3</sub>: ",
      &       "k = k<sub>0</sub> + k<sub>3</sub>[M]/(1+k<sub>3</sub>[M]/k<sub>2</sub>)" /
@@ -550,7 +550,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      & / "*For rate constants with the form A<''Reference''>, k equals A times a reference that represents photolysis rate, ", 
      &   "a heteorogeneous rate constant, rate constant for the given reaction or an operator. A equals one if not given." /
      & / "*In the mechanism definition file, the rate is formatted as" 
-     & / "**A~<''HETEOROGENEOUS''>"
+     & / "**A~<''HETEROGENEOUS''>"
      & / "**A*K<''REACTION''>"
      & / "**A/<''PHOTOLYSIS''>"
      & / "**A?<'OPERATOR''>" /)
@@ -1066,15 +1066,15 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      &           ' | ', 'Not Available', ' | Photolysis Reaction;depends on radiation and predicted concentrations | |'
              CASE( -1 )
                  WRITE(TABLE_UNIT,'(A,  A, A, A, A , A)')' | ', 'Not Available',
-     &           ' | ', 'Not Available', ' | Heteorogeneous Reaction;Depends predicted concentrations | |'
+     &           ' | ', 'Not Available', ' | Heterogeneous Reaction; depends on predicted concentrations | |'
              CASE( 11 )
                  WRITE(TABLE_UNIT,'(A,  A, A, A, A , A)')' | ', 'Not Available',
-     &           ' | ', 'Not Available', ' | Rate constant an Operator;Depends predicted concentrations | |'
+     &           ' | ', 'Not Available', ' | Rate constant an Operator; depends on predicted concentrations | |'
              CASE( 12 )
                  WRITE(TABLE_UNIT,'(A,  ES12.4, A, ES12.4, 2A , A)')' | ', RATE_CONSTANT( 1, NXX),
      &           ' | ', RATE_CONSTANT( 2, NXX), 
-     &           ' | Set to zero if sun is below the horizon. SEAWATER equals surface fraction covered'
-     &           // ' by ice free open ocean plus surf zones.;',
+     &           ' | Set to zero if sun is below the horizon. SEAWATER fraction of'
+     &           // ' ocean plus surf zones not covered by seaice.;',
      &           ' P equals air pressure in atmospheres | | '
              CASE( 13 )
                 IF( RATE_CONSTANT( 1, NXX) .LT. 0.0 .OR. RATE_CONSTANT( 1, NXX) .LT. 0.0 )THEN
@@ -1119,7 +1119,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      &   "* Fall-off or pressure dependent reaction rate constants (M equals air number density):" /
      &   " * For rate constants with k<sub>o</sub>, k<sub>inf</sub>, n, F values: ",
      &       "k = [ k<sub>o</sub>M/(1+k<sub>o</sub>M/k<sub>inf</sub>)]F<sup>G</sup>, ",
-     &       "where G=(1+(log<sub>10</sub>(k<sub>o</sub>M/k<sub>inf</sub>)/n)<sup>2</sup>))<sup>-1</sup> " /
+     &       "where G=(1+(log<sub>10</sub>(k<sub>o</sub>M/k<sub>inf</sub>)/n)<sup>2</sup>)<sup>-1</sup> " /
      &   " * For rate constants with k<sub>1</sub>, k<sub>2</sub>: k = k<sub>1</sub> + k<sub>2</sub>M" / 
      &   " * For rate constants with k<sub>0</sub>, k<sub>2</sub>, k<sub>3</sub>: ",
      &       "k = k<sub>0</sub> + k<sub>3</sub>M/(1+k<sub>3</sub>M/k<sub>2</sub>)" /
@@ -1128,7 +1128,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      & / "* For rate constants with the form A<_Reference_>, k equals A times a reference that represents photolysis rate, ", 
      &   "a heteorogeneous rate constant, rate constant for the given reaction or an operator. A equals one if not given." /
      & / "* In the mechanism definition file, the rate is formatted as" 
-     & / " * A~<_HETEOROGENEOUS_>"
+     & / " * A~<_HETEROGENEOUS_>"
      & / " * A*K<_REACTION_>"
      & / " * A/<_PHOTOLYSIS_>"
      & / " * A?<_OPERATOR_>" /)
@@ -2122,15 +2122,15 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      &           ', ', 'Not Available', ', Photolysis Reaction;depends on radiation and predicted concentrations , ,'
              CASE( -1 )
                  WRITE(TABLE_UNIT,'(A,  A, A, A, A , A)')', ', 'Not Available',
-     &           ', ', 'Not Available', ', Heteorogeneous Reaction;Depends predicted concentrations , ,'
+     &           ', ', 'Not Available', ', Heterogeneous Reaction; depends on predicted concentrations , ,'
              CASE( 11 )
                  WRITE(TABLE_UNIT,'(A,  A, A, A, A , A)')', ', 'Not Available',
-     &           ', ', 'Not Available', ', Rate constant an Operator;Depends predicted concentrations , ,'
+     &           ', ', 'Not Available', ', Rate constant an Operator; depends on predicted concentrations , ,'
              CASE( 12 )
                  WRITE(TABLE_UNIT,'(A,  ES12.4, A, ES12.4, 2A , A)')', ', RATE_CONSTANT( 1, NXX),
      &           ', ', RATE_CONSTANT( 2, NXX), 
      &           ',  Set to zero if sun is below the horizon. ',
-     &           ' SEAWATER equals surface fraction covered by ice free open ocean plus surf zones.;',
+     &           ' SEAWATER equals fraction of ocean and surface zones not covered by seaice.;',
      &           ' P equals air pressure in atmospheres, ,  '
              CASE( 13 )
                 IF( RATE_CONSTANT( 1, NXX) .LT. 0.0 .OR. RATE_CONSTANT( 1, NXX) .LT. 0.0 )THEN
@@ -2183,7 +2183,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      & / "* For rate constants with the form A<Reference>, k equals A times a reference that represents photolysis rate, ", 
      &   "a heteorogeneous rate constant, rate constant for the given reaction or an operator. A equals one if not given." /
      & / "* In the mechanism definition file, the rate is formatted as" 
-     & / " ** A~<HETEOROGENEOUS>"
+     & / " ** A~<HETEROGENEOUS>"
      & / " ** A*K<REACTION>"
      & / " ** A/<PHOTOLYSIS>"
      & / " ** A?<OPERATOR>" /)
@@ -2672,12 +2672,12 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
              CASE( -1 )
                 WRITE(TABLE_UNIT,1004)'Not Available'
                 WRITE(TABLE_UNIT,1004)'Not Available'
-                WRITE(TABLE_UNIT,1004)'Heteorogeneous Reaction;Depends predicted concentrations'
+                WRITE(TABLE_UNIT,1004)'Heterogeneous Reaction; depends on predicted concentrations'
                 WRITE(TABLE_UNIT,1004)'Check routine AEROSOL_CHEMISTRY.F for calculation'
              CASE( 11 )
                 WRITE(TABLE_UNIT,1004)'Not Available'
                 WRITE(TABLE_UNIT,1004)'Not Available'
-                WRITE(TABLE_UNIT,1004)'Rate constant an Operator;Depends predicted concentrations'
+                WRITE(TABLE_UNIT,1004)'Rate constant an Operator; depends on predicted concentrations'
                 WRITE(TABLE_UNIT,1004)' '
              CASE( 13 )
                 IF( RATE_CONSTANT( 1, NXX) .LT. 0.0 .OR. RATE_CONSTANT( 1, NXX) .LT. 0.0 )THEN
@@ -2696,7 +2696,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
                 WRITE(TABLE_UNIT,1005)RATE_CONSTANT( 1, NXX),RATE_CONSTANT( 1, NXX)
                 WRITE(TABLE_UNIT,1005)RATE_CONSTANT( 2, NXX),RATE_CONSTANT( 2, NXX)
                 WRITE(TABLE_UNIT,1004)'Set to zero if sun is below the horizon.'
-     &                            // ' SEAWATER equals surface fraction covered by ice free open ocean plus surf zones.'
+     &                            // ' SEAWATER equals fraction of ocean and surface zones not covered by seaice.'
      &                            // ' P equals air pressure in atmospheres'
                 WRITE(TABLE_UNIT,1004)' '
              CASE( 6 )
@@ -2857,7 +2857,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      &        'or an operator. A equals one if not given.')
 69107 FORMAT( 'In the mechanism definition file, the rate is formatted as</p>')
 69108 FORMAT( '<ul>'
-     & / '<li><font size="3" style="font-size: 12pt">A~&lt;HETEOROGENEOUS&gt;</li>',
+     & / '<li><font size="3" style="font-size: 12pt">A~&lt;HETEROGENEOUS&gt;</li>',
      & / '<li><font size="3" style="font-size: 12pt">A*K&lt;REACTION&gt;</li>',
      & / '<li><font size="3" style="font-size: 12pt">A/&lt;PHOTOLYSIS&gt;</li>',
      & / '<li><font size="3" style="font-size: 12pt">A?&lt;OPERATOR&gt;</li>',
@@ -2994,7 +2994,7 @@ c..Variables for species to be dropped from mechanism
 
 
       LOGICAL :: PHOT_NOTE   = .FALSE.
-      LOGICAL :: HETEOR_NOTE = .FALSE.
+      LOGICAL :: HETER_NOTE = .FALSE.
       LOGICAL :: OPERAT_NOTE = .FALSE.
       LOGICAL :: HALO_NOTE   = .FALSE.
       LOGICAL :: EVALU_NOTE  = .FALSE.
@@ -3007,7 +3007,7 @@ C     Set flags to write table footnotes
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
       PHOT_NOTE   = .FALSE.
-      HETEOR_NOTE = .FALSE.
+      HETER_NOTE = .FALSE.
       OPERAT_NOTE = .FALSE.
       HALO_NOTE   = .FALSE.
       EVALU_NOTE  = .FALSE.
@@ -3389,7 +3389,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
              CASE( -1 )
                  WRITE(TABLE_UNIT,'(A,  A, A, A, A , A)')' | ', 'Not Available<sup>2</sup>',
      &           ' | '
-                  HETEOR_NOTE = .TRUE.
+                  HETER_NOTE = .TRUE.
              CASE( 11 )
                  WRITE(TABLE_UNIT,'(A,  A, A, A, A , A)')' | ', 'Not Available<sup>3</sup>',
      &           ' | '
@@ -3423,7 +3423,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
       WRITE(TABLE_UNIT,95109)(TEMP(LPOINT),CAIR(LPOINT),PRES(LPOINT),LPOINT=1,1)
       IF(  PHOT_NOTE   )WRITE(TABLE_UNIT,95101)
-      IF(  HETEOR_NOTE )WRITE(TABLE_UNIT,95102)
+      IF(  HETER_NOTE )WRITE(TABLE_UNIT,95102)
       IF(  OPERAT_NOTE )WRITE(TABLE_UNIT,95103)
       IF(  HALO_NOTE   )WRITE(TABLE_UNIT,95104)
       IF(  EVALU_NOTE  )WRITE(TABLE_UNIT,95105)
@@ -3474,7 +3474,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      &   "* Fall-off or pressure dependent reaction rate constants (M equals air number density):" /
      &   " * For rate constants with k<sub>o</sub>, k<sub>i</sub>, n, F values: ",
      &       "k = [ k<sub>o</sub>M/(1+k<sub>o</sub>M/k<sub>i</sub>)]F<sup>G</sup>, ",
-     &       "where G=(1+(log<sub>10</sub>(k<sub>o</sub>M/k<sub>i</sub>)/n)<sup>2</sup>))<sup>-1</sup> " /
+     &       "where G=(1+(log<sub>10</sub>(k<sub>o</sub>M/k<sub>i</sub>)/n)<sup>2</sup>)<sup>-1</sup> " /
      &   " * For rate constants with k<sub>1</sub>, k<sub>2</sub>: k = k<sub>1</sub> + k<sub>2</sub>M" / 
      &   " * For rate constants with k<sub>0</sub>, k<sub>2</sub>, k<sub>3</sub>: ",
      &       "k = k<sub>0</sub> + k<sub>3</sub>M/(1+k<sub>3</sub>M/k<sub>2</sub>)" /
@@ -3483,7 +3483,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      & / "* For rate constants with the form A<_Reference_>, k equals A times a reference that represents photolysis rate, ", 
      &   "a heteorogeneous rate constant, rate constant for the given reaction or an operator. A equals one if not given." /
      & / "* In the mechanism definition file, the rate is formatted as" 
-     & / " * A~<_HETEOROGENEOUS_>"
+     & / " * A~<_HETEROGENEOUS_>"
      & / " * A*K<_REACTION_>"
      & / " * A/<_PHOTOLYSIS_>"
      & / " * A?<_OPERATOR_>" /)
@@ -3536,15 +3536,15 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 5121   FORMAT(  '|Label|Reaction            |Rate Constant Formula| Value<br> molecules/(sec*cm<sup>3</sup>)|   ',
      &        / '|:---|:-------------------|:--------------------|:----:|   ')
 95109   FORMAT(  /, "<sup>0</sup>Units molecules/(sec*cm<sup>3</sup>); Value at ",F6.2," K; ", ES12.4,
-     &           " molcules/cm<sup>3</sup>; ", F6.2," Atm.     ")
+     &           " molecules/cm<sup>3</sup>; ", F6.2," Atm.     ")
 
 95100  FORMAT(2X,A16,' = 0.0D0')        
 
 95101     FORMAT("<sup>1</sup>Photolysis Reaction;depends on radiation and predicted concentrations     ")
-95102     FORMAT("<sup>2</sup>Heteorogeneous Reaction;Depends predicted concentrations                ")
-95103     FORMAT("<sup>3</sup>Rate constant an Operator;Depends predicted concentrations              ")
-95104     FORMAT("<sup>4</sup>Set to zero if sun is below the horizon. SEAWATER equals surface fraction covered by ",
-     &           "ice free open ocean plus surf zones. P equals air pressure in atmospheres.         ")
+95102     FORMAT("<sup>2</sup>Heterogeneous Reaction; depends on predicted concentrations                ")
+95103     FORMAT("<sup>3</sup>Rate constant an Operator; depends on predicted concentrations              ")
+95104     FORMAT("<sup>4</sup>Set to zero if sun is below the horizon. SEAWATER equals fraction of",
+     &           " ocean plus surf zones not covered by seaice. P equals air pressure in atmospheres.         ")
 95105     FORMAT("<sup>5</sup>Rate constant entered as a character string;",
      &           " CHEMMECH evaluator routine failed to compute value.",
      &           " Check Functions Table if formula use an entry.    ")
@@ -3655,7 +3655,7 @@ C Create name for output file
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
   
       FWIKI_OUT_FILE = TRIM( OUTDIR ) // '/' // 
-     &                 TRIM( MECHNAME_LOWER_CASE )  // 'AllRxns.m'
+     &                 TRIM( MECHNAME_LOWER_CASE )  // '_AllRxns.m'
       KFILE_OUT_FILE = TRIM( OUTDIR ) // '/'
      &               // TRIM( MECHNAME_LOWER_CASE )  // '_K.m'
       JFILE_OUT_FILE = TRIM( OUTDIR ) // '/' 

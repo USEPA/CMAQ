@@ -83,10 +83,14 @@ C-----------------------------------------------------------------------
       USE centralized_io_module, only : AVGEMIS, interpolate_var
       Use ASX_DATA_MOD, only: MET_DATA
 
+#ifdef mpas
+      USE util_module, only : hhmmss, time2sec
+#else
 #ifdef parallel
       USE SE_MODULES            ! stenex (using SE_UTIL_MODULE)
 #else
       USE NOOP_MODULES          ! stenex (using NOOP_UTIL_MODULE)
+#endif
 #endif
 
       IMPLICIT NONE
@@ -192,6 +196,7 @@ C Allocate seasonality array
          CALL CHECKMEM( IOS, 'FSEAS', PNAME )
          FSEAS = 0   ! array
 
+#ifndef mpas
 C Ensure met data time and grid for this run match beis emissions data files
          MNAME = PROMPTMFILE( 
      &           'Enter name for gridded met input file',
@@ -272,6 +277,7 @@ C Open mass output file (tons/hour)
             END IF
 
          END IF
+#endif
 
 C Allocate memory for arrays
          
@@ -303,6 +309,7 @@ C Allocate memory for arrays
          CALL CHECKMEM( IOS, 'RX', PNAME )
 #endif
 
+#ifndef mpas
          IF ( BEMIS_DIAG ) THEN
             EMISS = 0.0   ! array
 #ifdef parallel_io
@@ -314,6 +321,7 @@ C Allocate memory for arrays
             END IF
 #endif
          END IF
+#endif
 
       END IF   ! FIRSTIME
 
@@ -348,12 +356,14 @@ C calculate fseas based on deep soil temperature following WRF 3.8.1 PX
       WRITE( MESG,94030 ) HHMMSS( JTIME )
       CALL M3MSG2( MESG )
 
+#ifndef mpas
 C repopulate the met_cro_2d variable attributes
       IF ( .NOT. DESC3( MNAME ) ) THEN
          MESG = 'Could not get description of file "'
      &           // TRIM( MNAME ) // '"'
          CALL M3EXIT( PNAME, JDATE, JTIME, MESG, XSTAT2 )
       END IF
+#endif
 
 C Calculate temporal non-speciated beis emissions
       CALL BEIS( JDATE, JTIME, NCOLS, NROWS, MSPCS, SEMIS, BIPOL )
@@ -403,10 +413,11 @@ C Speciate emissions
       END DO
 #endif
 
-      WSTEP   =   WSTEP + TIME2SEC( TSTEP( 2 ) )
-      LASTTIC = ( WSTEP .GE. TIME2SEC( TSTEP( 1 ) ) )
+      IF ( BEMIS_DIAG .AND. .NOT. L_DESID_DIAG ) THEN
+         WSTEP   =   WSTEP + TIME2SEC( TSTEP( 2 ) )
+         LASTTIC = ( WSTEP .GE. TIME2SEC( TSTEP( 1 ) ) )
 
-      IF ( BEMIS_DIAG ) THEN
+#ifndef mpas
          DO K = 1, NSEF
             DO S = 1, MSPCS
 ! Unit conversion for the emission and fraction of the sync time step to the output time step
@@ -433,6 +444,7 @@ C Speciate emissions
             CALL NEXTIME( MDATE, MTIME, TSTEP( 1 ) )
          END IF
       END IF
+#endif
 
 C Save date
       LDATE = JDATE

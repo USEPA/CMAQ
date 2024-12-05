@@ -1,6 +1,6 @@
 #!/bin/csh -f
 
-# ================= CMAQv5.4.X Configuration Script ================= #
+# ================= CMAQv5.5.X Configuration Script ================= #
 # Requirements: I/O API & netCDF libraries                            #
 #               PGI, Intel, or Gnu Fortran compiler                   #
 #               MPICH for multiprocessor computing                    #
@@ -22,7 +22,7 @@
  setenv CMAQ_HOME $cwd
 
  # CMAQ_REPO - this is always the location of the CMAQ repository that
- # the user will pull from to create exectuables. If the user is building
+ # the user will pull from to create executables. If the user is building
  # CMAQ inside the repository then it will be equal to CMAQ_HOME. If not,
  # the user must supply an alternative folder locaiton.
  setenv CMAQ_REPO $CMAQ_HOME
@@ -163,7 +163,7 @@
         setenv myCC gcc
         setenv myFSTD "-O3 -funroll-loops -finit-character=32 -Wtabs -Wsurprising -ftree-vectorize -ftree-loop-if-convert -finline-limit=512"
         setenv myDBG  "-Wall -O0 -g -fcheck=all -ffpe-trap=invalid,zero,overflow -fbacktrace"
-        setenv myFFLAGS "-ffixed-form -ffixed-line-length-132 -funroll-loops -finit-character=32"
+        setenv myFFLAGS "-ffixed-form -ffixed-line-length-132 -funroll-loops -finit-character=32 -std=legacy"
         setenv myFRFLAGS "-ffree-form -ffree-line-length-none -funroll-loops -finit-character=32"
         setenv myCFLAGS "-O2"
         setenv myLINK_FLAG # "-fopenmp" openMP not supported w/ CMAQ
@@ -181,7 +181,7 @@
 #> Apply Specific Module and Library Location Settings for those working inside EPA
  # source /work/MOD3DEV/cmaq_common/cmaq_env.csh  #>>> UNCOMMENT if at EPA
 
-#> Add The Complier Version Number to the Compiler String if it's not empty
+#> Add the Compiler Version Number to the Compiler String if it's not empty
  setenv compilerString ${compiler}
  if ( $compilerVrsn != "Empty" ) then
     setenv compilerString ${compiler}${compilerVrsn}
