@@ -23,11 +23,11 @@ Updates will be issued by the CMAQ development team or other users as Pull Reque
 Potential updates include bugfixes that resolves runtime failures, segmentation faults, initialization issues, etc. Other updates could target algorithm inefficiencies that slow the model down. In these cases, it is expected that an improved algorithm would not change model results.  
  
 ### Record of changes to CMAQv5.5+
-No new PRs have been merged into 5.5+.  This branch is currently identical to the 'main' branch for v5.5.
 
 |      Tag        |   PR Number       |         PR Name          |   Merge Date     | Brief Description |
 | -------------- | ------------------ | ------------------------ | ---------------- | -----------------------|
-||||||
+| |[#226](https://github.com/USEPA/CMAQ/pull/226)|Fix bug preventing CMAQ from running using SAPRC mechanisms  | 2024-12-06 | The fix is to specify that CLNO2 does undergo dry deposition to avoid a model crash when using any of the SAPRC07 mechanisms.|
+| |[#222](https://github.com/USEPA/CMAQ/pull/222)|Corrected NLCD to BELD3 mapping for shrub/scrub and dwarf scrub| 2024-12-06 | Corrects an error in NLCD40 land use mapping for inline windblown dust calculations. Addresses issues [#220](https://github.com/USEPA/CMAQ/issues/220).|
 
 ## Getting the CMAQ Repository
 This CMAQ Git archive is organized with each official public release stored as a branch on the main USEPA/CMAQ repository. The most recently released version of the the model will always be on the branch called 'main'. To clone code from the 5.5+ bugfix branch from the CMAQ Git archive, specify the branch (i.e. version number) and issue the following command from within a working directory on your server:
