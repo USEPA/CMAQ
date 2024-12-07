@@ -27,6 +27,9 @@
 !                     to map dust categories from LUFRAC. **NOTE land use type
 !                     with no mapped index has a dummy -999 value.** 
 !  31 Mar 2022 J. Willison Removed BELD as wbdust input 
+!  18 Sep 2024 C. Hogrefe Corrected erroneous mapping of NLCD40 and NLCD50
+!                         shrub/scrub and dwarf scrub to BELD3 barren rather
+!                         than BELD3 shrubland 
 !------------------------------------------------------------------------!
 
           module lus_data_module
@@ -215,8 +218,8 @@
      &           (/ 0.50,    ! shrubland
      &              0.50,    ! shrubland
      &              0.75,    ! barrenland
-     &              0.75,    ! barrenland
-     &              0.75,    ! barrenland
+     &              0.50,    ! shrubland
+     &              0.50,    ! shrubland
      &              0.75,    ! barrenland
      &              0.75 /)  ! barrenland
 
@@ -224,8 +227,8 @@
      &           (/ 1,       ! shrubland
      &              1,       ! shrubland
      &              3,       ! barrenland
-     &              3,       ! barrenland
-     &              3,       ! barrenland
+     &              1,       ! shrubland
+     &              1,       ! shrubland
      &              3,       ! barrenland
      &              3,       ! barrenland
      &              3 /)     ! ag landuse surrogate
@@ -299,16 +302,16 @@
      &           (/ 0.50,    ! shrubland
      &              0.50,    ! shrubland
      &              0.75,    ! barrenland
-     &              0.75,    ! barrenland
-     &              0.75,    ! barrenland
+     &              0.50,    ! shrubland
+     &              0.50,    ! shrubland
      &              0.75 /)  ! barrenland
 
             integer :: dmap_nlcd40( n_dlcat_nlcd40+1 ) = ! land use type desert map to BELD3
      &           (/ 1,       ! shrubland
      &              1,       ! shrubland
      &              3,       ! barrenland
-     &              3,       ! barrenland
-     &              3,       ! barrenland
+     &              1,       ! shrubland
+     &              1,       ! shrubland
      &              3,       ! barrenland
      &              3 /)     ! ag landuse surrogate
 
