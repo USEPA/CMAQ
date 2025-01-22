@@ -30,7 +30,7 @@ In this section, details on the routine CCTM output files are provided. All CMAQ
 |[CCTM_MEDIA_CONC](#media)<a id=media_conc_t></a>|GRDDED3|Hourly Instantaneous|XY
 |[CCTM_BSOILOUT](#soilout) <a id=soilout_t></a>|GRDDED3|n/a (see detailed file description below)|XY
 |[CCTM_MSOILOUT](#soilout) <a id=soilout_t></a>|GRDDED3|n/a (see detailed file description below)|XY
-|[CCTM_BDSNPOUT](#bdsnpout) <a id=soilout_t></a>|GRDDED3|n/a (see detailed file description below)|XY
+|[CCTM_BDSNPOUT](#bdsnpout) <a id=bdnspout_t></a>|GRDDED3|n/a (see detailed file description below)|XY
 |**Diagnostic and Advanced**| | | |
 |[CCTM_B3GTS_S](#b3gts) <a id=b3gts_t></a>|GRDDED3|Hourly Instantaneous| XY
 |[CCTM_BUDGET](#budget) <a id=budget_t></a>|ASCII|Hourly Instantaneous| Domain-Wide
@@ -193,10 +193,11 @@ The 2-D "soilout" file contains hourly total rainfall information for subsequent
  *MEGAN*
  
 As with BEIS, the file set by the environmental variable MEGAN_SOILOUT contains rainfall information that is needed for the calculation of soil NO emissions when CTM_BIOGEMIS_MG is set to Y (Default is N). When enabling in-line MEGAN this file will also contains LAI, temperature, and radiation information that is used to calculate biogenic emissions. The input file from the previous day is identified by the environmental variable MEGAN_SOILINP in the run script.
- 
+
+ <a id=bdsnpout></a>
 **CCTM_BDSNPOUT**
 <!-- BEGIN COMMENT -->
-[Return to Table 7-1](#bdsnpout)
+[Return to Table 7-1](#bdsnpout_t)
 <!-- END COMMENT -->
  
 This file is required when setting both CTM_BIOGEMIS_MG to Y and BDSNP_MEGAN to Y, since the BDSNP soil NO model requires information about the previous day's meteorology and nitrogen deposition reservoir. The output file is created at the end of the simulation day and its name is defined by setting the environmental variable BDSNPOUT. The input file for the previous day is defined by setting the environmental variable BDSNPINP. 
@@ -308,7 +309,7 @@ This optional 3-D CCTM file contains hourly lightning NO emissions (mol/s) calcu
 
 This optional 2-D CCTM file contains hourly column-total lightning NO emissions (mol/s) calculated in-line by the CCTM when setting the CTM_LTNG_NO environment variable to Y. This file is only created if the CTM_LTNGDIAG_2 environment variable in the RunScript is set to Y (Default is N).
 
-<a id=ctm_rj1></a>
+<a id=ctm_rj_1></a>
 
 **CCTM_PHOTDIAG1: In-line photolysis inputs and outputs - summary file**
 <!-- BEGIN COMMENT -->
@@ -318,7 +319,7 @@ This optional 2-D CCTM file contains hourly column-total lightning NO emissions 
 This optional 2-D CCTM file contains general summary information for the photolysis calculation including the surface albedo, 
 select photolysis rates and flux values.  This file is only created if the CTM_PHOTDIAG environment variable in the RunScript is set to Y (Default is N).
 
-<a id=ctm_rj2></a>
+<a id=ctm_rj_2></a>
 
 **CCTM_PHOTDIAG2_2: In-line photolysis output – gridded photolysis rates**
 <!-- BEGIN COMMENT -->
@@ -327,7 +328,7 @@ select photolysis rates and flux values.  This file is only created if the CTM_P
 
 This optional 3-D CCTM file contains the photolysis rates calculated in-line by the CCTM.  The number of layers is set by the  NLAYS_PHOTDIAG environment variable (Default is all layers). This file is only created if the CTM_PHOTDIAG environment variable in the RunScript is set to T (Default is N).
 
-<a id=ctm_rj3></a>
+<a id=ctm_rj_3></a>
 
 **CCTM_PHOTDIAG3: In-line photolysis inputs and outputs – detailed**
 <!-- BEGIN COMMENT -->
