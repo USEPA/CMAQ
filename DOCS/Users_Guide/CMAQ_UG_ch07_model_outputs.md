@@ -30,7 +30,7 @@ In this section, details on the routine CCTM output files are provided. All CMAQ
 |[CCTM_MEDIA_CONC](#media)<a id=media_conc_t></a>|GRDDED3|Hourly Instantaneous|XY
 |[CCTM_BSOILOUT](#soilout) <a id=soilout_t></a>|GRDDED3|n/a (see detailed file description below)|XY
 |[CCTM_MSOILOUT](#soilout) <a id=soilout_t></a>|GRDDED3|n/a (see detailed file description below)|XY
-|[CCTM_BDSNPOUT](#bdsnpout) <a id=bdnspout_t></a>|GRDDED3|n/a (see detailed file description below)|XY
+|[CCTM_BDSNPOUT](#bdsnpout) <a id=bdsnpout_t></a>|GRDDED3|n/a (see detailed file description below)|XY
 |**Diagnostic and Advanced**| | | |
 |[CCTM_B3GTS_S](#b3gts) <a id=b3gts_t></a>|GRDDED3|Hourly Instantaneous| XY
 |[CCTM_BUDGET](#budget) <a id=budget_t></a>|ASCII|Hourly Instantaneous| Domain-Wide
@@ -195,6 +195,7 @@ The 2-D "soilout" file contains hourly total rainfall information for subsequent
 As with BEIS, the file set by the environmental variable MEGAN_SOILOUT contains rainfall information that is needed for the calculation of soil NO emissions when CTM_BIOGEMIS_MG is set to Y (Default is N). When enabling in-line MEGAN this file will also contains LAI, temperature, and radiation information that is used to calculate biogenic emissions. The input file from the previous day is identified by the environmental variable MEGAN_SOILINP in the run script.
 
  <a id=bdsnpout></a>
+ 
 **CCTM_BDSNPOUT**
 <!-- BEGIN COMMENT -->
 [Return to Table 7-1](#bdsnpout_t)
