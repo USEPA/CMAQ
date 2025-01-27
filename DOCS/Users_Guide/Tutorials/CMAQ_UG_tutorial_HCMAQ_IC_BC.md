@@ -1,4 +1,4 @@
-## CMAQ Tutorial ##
+![image](https://github.com/user-attachments/assets/c1239e4a-3bcd-43a2-b4b9-5c29a6545d95)## CMAQ Tutorial ##
 ### Create Initial and Boundary Conditions from Seasonal or Daily Average Hemispheric CMAQ Output ###
 Purpose: This tutorial will step the user through the process of creating initial and boundary conditions from seasonal or daily average hemispheric CMAQ output files distributed through the CMAS Data Warehouse. It assumes that the user already generated MCIP files for their target modeling domain.
 
@@ -93,7 +93,7 @@ EOF
 
 ### STEP 3: (optional): Map to a different chemical mechanism </strong>
 
-If a chemical mechanism other than cb6r3_ae7_aq, cb6r5_ae7_aq, cb6r5_ae7_aqkmt2, or cb6r5m_ae7_aq will be used for the regional-scale CMAQ simulations, the species in the downloaded file need to be mapped to that other chemical mechanism. An example script for using the `combine` program to map from cb6r3m_ae7_kmtbr to racm_ae6_aq, racm2_ae6_aq, saprc07tc_ae6_aq, saprc07tic_ae7i_aq, craccm1_aq, or craccm2 is provided in a directory alongside the BCON and ICON [source code](../../../PREP/bcon/map2mech). Species definition files used for the mechanism mapping are also provided in that directory.
+If a chemical mechanism other than cb6r3_ae7_aq, cb6r5_ae7_aq, cb6r5_ae7_aqkmt2, or cb6r5m_ae7_aq will be used for the regional-scale CMAQ simulations, the species in the downloaded file need to be mapped to that other chemical mechanism. An example script for using the `combine` program to map from cb6r3m_ae7_kmtbr to racm_ae6_aq, racm2_ae6_aq, saprc07tc_ae6_aq, saprc07tic_ae7i_aq, craccm1_aq, or craccm2 is provided in a directory alongside the BCON and ICON [source code](https://github.com/USEPA/CMAQ/tree/main/PREP/bcon/map2mech). Species definition files used for the mechanism mapping are also provided in that directory.
 
 ### STEP 4: Compile the ICON and BCON executables</strong>
 
