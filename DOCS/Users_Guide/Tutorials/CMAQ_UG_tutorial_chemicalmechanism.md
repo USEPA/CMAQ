@@ -29,7 +29,7 @@ Goal: Modify the gas- and aerosol-phase chemical mechanisms in CMAQ, create new 
 
 <a id=modifychem></a>
 ## 1. Modifying the chemical mechanism inputs ##
-### 1.1 See the [git instructions](#github) below if you would like to propagate the chemical mechanism changes in your Github repository. If you are assigning a new name to your mechanism, create a new folder under /$CMAQ_REPO/CCTM/src/MECHS and copy and update the names of all chemical namelist files, the mech_*.def file, the CMAQ_Control_DESID_*.nml namelist, and the SpecDef_*.txt file, if desired.  
+### 1.1 See the git instructions below (Section 3) if you would like to propagate the chemical mechanism changes in your Github repository. If you are assigning a new name to your mechanism, create a new folder under /$CMAQ_REPO/CCTM/src/MECHS and copy and update the names of all chemical namelist files, the mech_*.def file, the CMAQ_Control_DESID_*.nml namelist, and the SpecDef_*.txt file, if desired.  
 
 
 <a id=mech_def></a>
