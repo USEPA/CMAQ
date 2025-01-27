@@ -1,4 +1,4 @@
-![image](https://github.com/user-attachments/assets/c1239e4a-3bcd-43a2-b4b9-5c29a6545d95)## CMAQ Tutorial ##
+## CMAQ Tutorial ##
 ### Create Initial and Boundary Conditions from Seasonal or Daily Average Hemispheric CMAQ Output ###
 Purpose: This tutorial will step the user through the process of creating initial and boundary conditions from seasonal or daily average hemispheric CMAQ output files distributed through the CMAS Data Warehouse. It assumes that the user already generated MCIP files for their target modeling domain.
 
