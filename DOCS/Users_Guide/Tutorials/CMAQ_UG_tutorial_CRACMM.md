@@ -8,7 +8,7 @@ CRACMM was first introduced in CMAQv5.4 as two versions: CRACMM1 and CRACMM1AMOR
 
 ## How is running CRACMM different than running other chemical mechanisms in CMAQ?
 
-Running CRACMM is just like running other mechanisms in CMAQ. No matter what mechanism you choose, CMAQ will require several inputs that are mechanism specific (including the gas and aerosol species lists, initial conditions, boundary conditions, and emissions) as well as other inputs that are mechanism independent (meteorology, land use files, grid description file). Some of these inputs are distributed with CMAQ while others are generated from separate tools. See [Chapter 4 of the CMAQ Users' Guide](https://github.com/USEPA/CMAQ/blob/main/DOCS/Users_Guide/CMAQ_UG_ch04_model_inputs.md) for a complete list of CMAQ inputs.
+Running CRACMM is just like running other mechanisms in CMAQ. No matter what mechanism you choose, CMAQ will require several inputs that are mechanism specific (including the gas and aerosol species lists, initial conditions, boundary conditions, and emissions) as well as other inputs that are mechanism independent (meteorology, land use files, grid description file). Some of these inputs are distributed with CMAQ while others are generated from separate tools. See [Chapter 4 of the CMAQ Users' Guide](../CMAQ_UG_ch04_model_inputs.md) for a complete list of CMAQ inputs.
 
 ## How do I select CRACMM?
 
@@ -47,7 +47,7 @@ For emissions to be properly ingested by CMAQ, three files need to be customized
 * The DESID mechanism-specific namelist. This is where species on the emission files are mapped to model species. For older workflows, PMOCN2 and PMNCOMN2 can be mapped to species of different volatility.
 * The DESID mechanism-independent control file. This is where emission files can be grouped so that multiple sources can be treated the same (e.g., wildland fires, prescribed burning, and residential wood burning can have the same volatility profile).
 
-**The main CMAQ log file and the log file for at least one processor should be checked for any initial run.** Warnings about potential emission problems will be displayed in those logs. More guidance on using DESID is available in a [CMAQ tutorial](https://github.com/USEPA/CMAQ/tree/main/DOCS/Users_Guide/Tutorials).
+**The main CMAQ log file and the log file for at least one processor should be checked for any initial run.** Warnings about potential emission problems will be displayed in those logs. More guidance on using DESID is available in a [CMAQ tutorial](./Tutorial/README.md).
 
 CRACMM mechanisms currently allow traditional nonvolatile 'APOC' and 'ANCOM' as legacy species in the model. The species can be transported and removed but do not undergo any heterogeneous or other chemistry. This species will be removed in a future version. To use the model species 'APOC' and 'ANCOM', the DESID control file would need to include their mappings.
 
