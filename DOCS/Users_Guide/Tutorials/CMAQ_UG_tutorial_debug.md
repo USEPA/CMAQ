@@ -35,7 +35,7 @@ Please create a new topic in describing your issue, even if your issue is simila
 
 ## Running CMAQ
 ### Prerequisite: Run the CMAQ Benchmark case
-[Follow Benchmark Tutorial instructions](https://github.com/USEPA/CMAQ/blob/main/DOCS/Users_Guide/Tutorials/CMAQ_UG_tutorial_benchmark.md) 
+[Follow Benchmark Tutorial instructions](./CMAQ_UG_tutorial_benchmark.md) 
 (does not require running ICON/BCON as inputs are provided in the Benchmark Input Data).
 
 
