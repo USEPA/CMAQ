@@ -68,7 +68,7 @@ and see the EPA 2017 NEI Technical Support Documentation (section 4.6): [https:/
  cells in an I/O API file. For most of North American domain, a SA Vector allocation tool can be used
  to generate the surf zone and open ocean file from a polygon shapefile with land, surf zone buffer,
  and open ocean in SA data directory. For areas outside U.S., users have to generate a surf zone polygon
- shapefile with has the same attribute as the file in the SA to use the tool.  See the [CMAQ Tutorial on creating an ocean file](Appendix/CMAQ_UG_tutorial_oceanfile.md) for step by step instructions on creating this CMAQ input file. [Chapter 6](CMAQ_UG_ch06_model_configuration_options.md#sea-spray) has additional information on sea spray module in CMAQ.
+ shapefile with has the same attribute as the file in the SA to use the tool.  See the [CMAQ Tutorial on creating an ocean file](../Tutorials/CMAQ_UG_tutorial_oceanfile.md) for step by step instructions on creating this CMAQ input file. [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#sea-spray) has additional information on sea spray module in CMAQ.
  
 **DMS and halocarbon emissions** are calculated in-line and require the presence of DMS and CHLO in the ocean file. 
  A Python note book can be used to add DMS and CHLO to an existing ocean file. See the [CMAQ Tutorial on creating an ocean file](Appendix/CMAQ_UG_tutorial_oceanfile.md) for step by step instructions on creating an ocean file and for adding DMS and CHLO to the ocean file. 
