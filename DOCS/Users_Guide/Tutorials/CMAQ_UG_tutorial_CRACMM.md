@@ -47,7 +47,7 @@ For emissions to be properly ingested by CMAQ, three files need to be customized
 * The DESID mechanism-specific namelist. This is where species on the emission files are mapped to model species. For older workflows, PMOCN2 and PMNCOMN2 can be mapped to species of different volatility.
 * The DESID mechanism-independent control file. This is where emission files can be grouped so that multiple sources can be treated the same (e.g., wildland fires, prescribed burning, and residential wood burning can have the same volatility profile).
 
-**The main CMAQ log file and the log file for at least one processor should be checked for any initial run.** Warnings about potential emission problems will be displayed in those logs. More guidance on using DESID is available in a [CMAQ tutorial](./Tutorial/README.md).
+**The main CMAQ log file and the log file for at least one processor should be checked for any initial run.** Warnings about potential emission problems will be displayed in those logs. More guidance on using DESID is available in a [CMAQ tutorial](./Tutorials/README.md).
 
 CRACMM mechanisms currently allow traditional nonvolatile 'APOC' and 'ANCOM' as legacy species in the model. The species can be transported and removed but do not undergo any heterogeneous or other chemistry. This species will be removed in a future version. To use the model species 'APOC' and 'ANCOM', the DESID control file would need to include their mappings.
 
