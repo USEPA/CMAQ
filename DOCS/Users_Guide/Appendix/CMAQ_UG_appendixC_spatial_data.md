@@ -34,7 +34,7 @@ introducing spatial misalignment issues in the model datasets.
 
 ## C.3 Spatial Data Projection
 
-CCTM can use any of the [four map projections defined for WRF.](http://www2.mmm.ucar.edu/wrf/users/docs/user_guide_V3/users_guide_chap3.htm) 
+CCTM can use any of the [four map projections defined for WRF.](https://www2.mmm.ucar.edu/wrf/users/docs/user_guide_v4/v4.4/users_guide_chap3.html)
 The four map projection coordinate systems are regular latitude-longitude geographic, Lambert conformal conic, Mercator, and Polar
 stereographic. However, users should note that several of the PREP and POST tools that are part of the CMAQ system do not currently support the Mercator projection.  These include ICON, BCON, sitecmp, sitecmp_dailyo3, bldoverlay, hr2day and writesite.
 
