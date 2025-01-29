@@ -9,7 +9,7 @@ The following support software are required for compiling and running WRF-CMAQ.
 1. Fortran and C compilers, e.g., [Intel](https://software.intel.com/en-us/fortran-compilers), [Portland Group](http://www.pgroup.com), [Gnu](https://gcc.gnu.org/wiki/GFortran)
 2. [Git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git)
 2. Message Passing Interface (MPI), e.g., [OpenMPI](https://www.open-mpi.org) or [MVAPICH2](http://www.mcs.anl.gov/research/projects/mpich2).
-3. Latest release of [netCDF-C](https://www.unidata.ucar.edu/software/netcdf/docs/getting_and_building_netcdf.html) and [netCDF-Fortran](https://www.unidata.ucar.edu/software/netcdf/docs/building_netcdf_fortran.html)
+3. Latest release of [netCDF-C](https://docs.unidata.ucar.edu/nug/current/getting_and_building_netcdf.html) and [netCDF-Fortran](https://www.unidata.ucar.edu/software/netcdf/docs/building_netcdf_fortran.html)
 4. [I/O API](https://www.cmascenter.org/download/software/ioapi/ioapi_3-2.cfm?DB=TRUE) version 3.2 **tagged 20200828 without OpenMP support**
 5. [C-Shell](https://github.com/tcsh-org/tcsh) 
 
