@@ -80,7 +80,7 @@ The Chemical Mapping Control Namelists provided with the CMAQ repo have default 
 Many rules are needed in order to properly link every emitted pollutant to a CMAQ species. Rules are needed for gas- and aerosol-phase species. Additional rules also exist for online aerosol modules like wind-blown dust and sea spray because the names of aerosol emission species from these modules are different than those typically used for SMOKE output. For example, fine-mode aerosol sulfate is commonly called PSO4 in SMOKE, but is PMFINE_SO4 from dust and sea spray.
 
 ### B.2.2 Modifying Default rules
-The user can modify any default rule to change the scale factor applied, the spatial area to be considered, or the streams to be applied to. Alternatively, the user can add new rules after the default rules to customize the emissions. Typical modifications may include multiplying the emissions of a particular species from a particular stream by a factor of 2, zeroing out emissions of all species from a particular stream, etc. Please see the tutorial on [Prescribing Emissions with DESID](../Tutorials/CMAQ_UG_appendixB_emissions_control.md) for specific examples of modifications and the syntax used to invoke them.
+The user can modify any default rule to change the scale factor applied, the spatial area to be considered, or the streams to be applied to. Alternatively, the user can add new rules after the default rules to customize the emissions. Typical modifications may include multiplying the emissions of a particular species from a particular stream by a factor of 2, zeroing out emissions of all species from a particular stream, etc. Please see the tutorial on [Prescribing Emissions with DESID](../Tutorials/CMAQ_UG_tutorial_emissions.md) for specific examples of modifications and the syntax used to invoke them.
 
 #### B.2.2.1 Supporting the Volatility Basis Set
 The *Volatility Basis Set* for treating the semivolatile partitioning of primary organic emissions is an example of a model feature that is well-supported by DESID. The approach involves distributing the emissions of total primary organic aerosol (carbon and noncarbon mass, or POC and PNCOM) among a series of aerosol and gas species of varying volatility.
@@ -302,7 +302,7 @@ These gridded mask files are read by CMAQ through environmental variables, which
 * [Link to grid mask files on CMAS Data Warehouse Google Drive](https://drive.google.com/drive/folders/1x9mJUbKjJaMDFawgy2PUbETwEUopAQDl)
 * [Link to metadata for the grid mask files is posted on the CMAS Center Dataverse site](https://doi.org/10.15139/S3/XDYYB9)
 
-Custom mask files may also be made using the [shp2cmaq](../../../PREP/shp2cmaq/README.md) tool, which provides instructions for obtaining geospatial data via shape files and converting them to CMAQ gridded input files. One may also populate a CMAQ gridded input file with arbitrary geometric shapes (e.g. squares, diamonds, or other polygons) using the IOAPI library of tools and any common coding language (e.g. Fortran, R, or Python).
+Custom mask files may also be made using the [shp2cmaq](../../../PYTOOLS/shp2cmaq/README.md) tool, which provides instructions for obtaining geospatial data via shape files and converting them to CMAQ gridded input files. One may also populate a CMAQ gridded input file with arbitrary geometric shapes (e.g. squares, diamonds, or other polygons) using the IOAPI library of tools and any common coding language (e.g. Fortran, R, or Python).
 
 #### B.3.4.3 Region Families
 Users can define families of regions to reduce the number emission rules needed to operate on a group of regions. 
@@ -353,7 +353,7 @@ Example 2 (set Desid_N_Steam_Fams=3 in Desid_StreamFamVars):
 The variable Desid_Max_Stream_Fam_Members should be set higher than the maximum number of stream members for any stream family.
 
 ### B.3.6 Chemical Families
-Chemical families are defined analogously to stream and region families but in the CMAQ Miscellaneous Control file. This is because they are useful to modules beyond DESID, including [ELMO](CMAQ_UG_appendixG_elmo_output.md) and the [Budget Tool](../CMAQ_UG_ch09_process_analysis.md). 
+Chemical families are defined analogously to stream and region families but in the CMAQ Miscellaneous Control file. This is because they are useful to modules beyond DESID, including [ELMO](CMAQ_UG_appendixF_elmo_output.md) and the [Budget Tool](../CMAQ_UG_ch09_process_analysis.md). 
 See the [Miscellaneous Control File Description](../CMAQ_UG_ch04_model_inputs.md#miscctrl) in Chapter 4 for details. 
 
 One additional note: if a chemical familiy is defined for use in an emission scaling rule, the user should be careful about confirming that the members of that family are present on the emission input file or the CMAQ model species list, depending on which the user is trying to modify. Since the names on the input files are often different than those on the CMAQ model species list, care is advised. DESID will print warnings to the CMAQ log file when it cannot find species that it is looking for from a chemical family on an input file or in the list of CMAQ model species. Please confirm that the model is operating as you expect.  

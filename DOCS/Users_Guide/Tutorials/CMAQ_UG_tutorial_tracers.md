@@ -140,7 +140,7 @@ Note that adding species (if any) to the initial condition file is only necessar
 
 #### Script to add O3_IC and ICT_50PPB to an existing initial condition file ####
 
-The run script below uses the [`combine`](../../../POST/combine) program to add species ICT_50PB to an existing initial condition file. The ICT_50PPB specie is set to a constant mixing ratio of 0.05 ppm for all grid cells. From the CMAQ Home directory run the following commands to build the combine executable: 
+The run script below uses the [`combine`](../../../POST/combine/README.md) program to add species ICT_50PB to an existing initial condition file. The ICT_50PPB specie is set to a constant mixing ratio of 0.05 ppm for all grid cells. From the CMAQ Home directory run the following commands to build the combine executable: 
 
 ```
 cd $CMAQ_HOME/POST/combine/scripts

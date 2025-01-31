@@ -29,7 +29,7 @@ Goal: Modify the gas- and aerosol-phase chemical mechanisms in CMAQ, create new 
 
 <a id=modifychem></a>
 ## 1. Modifying the chemical mechanism inputs ##
-### 1.1 See the [git instructions](#github) below if you would like to propagate the chemical mechanism changes in your Github repository. If you are assigning a new name to your mechanism, create a new folder under /$CMAQ_REPO/CCTM/src/MECHS and copy and update the names of all chemical namelist files, the mech_*.def file, the CMAQ_Control_DESID_*.nml namelist, and the SpecDef_*.txt file, if desired.  
+### 1.1 See the git instructions below (Section 3) if you would like to propagate the chemical mechanism changes in your Github repository. If you are assigning a new name to your mechanism, create a new folder under /$CMAQ_REPO/CCTM/src/MECHS and copy and update the names of all chemical namelist files, the mech_*.def file, the CMAQ_Control_DESID_*.nml namelist, and the SpecDef_*.txt file, if desired.  
 
 
 <a id=mech_def></a>
@@ -111,7 +111,7 @@ PM1_TOT_MP      ,ug m-3    ,ATOTI[0]*PM1AT[3]+ATOTJ_MP[0]*PM1AC[3]+ATOTK[0]*PM1C
 ```
 To update the OC variables or the deposition of OC variables in the SpecDef_Dep_{mechanism}.txt file, you must know the OM:OC ratios of the new organic aerosol species.
 
-In CMAQv5.5, the new Explicit and Lumped CMAQ Model Output (ELMO) module performs all of the aerosol processing online in CMAQ, so that variables like organic aerosol mass and PM<sub>2.5</sub> mass are output directly from the model to files with prefixes CCTM_ELMO_ and CCTM_AELMO_, for instantaneous and averaged values respectively. FOr more information, see the [ELMO documentation](../Appendix/CMAQ_UG_appendixG_elmo_output.md).
+In CMAQv5.5, the new Explicit and Lumped CMAQ Model Output (ELMO) module performs all of the aerosol processing online in CMAQ, so that variables like organic aerosol mass and PM<sub>2.5</sub> mass are output directly from the model to files with prefixes CCTM_ELMO_ and CCTM_AELMO_, for instantaneous and averaged values respectively. FOr more information, see the [ELMO documentation](../Appendix/CMAQ_UG_appendixF_elmo_output.md).
 
 
 
@@ -173,7 +173,7 @@ Dry deposition surrogates may also be added, but are not covered in this tutoria
 
 <a id=elmo></a>
 ### 1.11 Check ELMO Processing
-The [Explicit and Lumped CMAQ Model Output (ELMO)](../Appendix/CMAQ_UG_appendixG_elmo_output.md) module outputs comprehensive aggregate variables directly from CMAQ. One major goal of ELMO is to lower the barrier to making minor mechanism changes/updates like changing the names of organic aerosol (OA) species and needing to then update offline OA calculations. Users should feel confident that most ELMO variables like PM25 mass and OA mass will be handled correctly regardless of the changes they make, but it is recommended to check CCTM/src/driver/ELMO_PROC.F if large changes are made to the species names in the mechanism, especially gas-phase species liken HNO3.
+The [Explicit and Lumped CMAQ Model Output (ELMO)](../Appendix/CMAQ_UG_appendixF_elmo_output.md) module outputs comprehensive aggregate variables directly from CMAQ. One major goal of ELMO is to lower the barrier to making minor mechanism changes/updates like changing the names of organic aerosol (OA) species and needing to then update offline OA calculations. Users should feel confident that most ELMO variables like PM25 mass and OA mass will be handled correctly regardless of the changes they make, but it is recommended to check CCTM/src/driver/ELMO_PROC.F if large changes are made to the species names in the mechanism, especially gas-phase species liken HNO3.
 
 
 ## 2. Build CMAQ Code with New Mechanism
@@ -294,7 +294,7 @@ If the mechanism does not already exist, then clobber_mech will have no effect, 
 <a id=github></a>
 ## 3. Reflecting the changes in Github ##
 ### 3.1 Fork from USEPA CMAQ.
-On the [CMAQ Github page](../../../README.md), fork the main branch to your personal repository using the Fork button in the upper right.
+On the [CMAQ Github page](https://github.com/USEPA/CMAQ), fork the main branch to your personal repository using the Fork button in the upper right.
 
 ### 3.2 Clone.
 Clone your repository to your remote account. For example:

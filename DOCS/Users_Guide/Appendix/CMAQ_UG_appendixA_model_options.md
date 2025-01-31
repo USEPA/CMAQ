@@ -383,11 +383,11 @@ Sets if the CCTM will run in multi-processor or serial mode.
 -   `CTM_APPL [default: ${RUNID}_${YYYYMMDD}]`<a id=CTM_APPL></a>  
     CCTM log and output file naming extension.      
 -   `CONC_SPCS [if commented out, all species]`<a id=CONC_SPCS></a>  
-    Model species to be written to the CCTM_CONC file, including temperature, relative humidity and pressure. See [Chapter 6](../CMAQ_UG_ch07_model_outputs.md#72-cctm-output-files) for further information.
+    Model species to be written to the CCTM_CONC file, including temperature, relative humidity and pressure. See [Chapter 7](../CMAQ_UG_ch07_model_outputs.md#72-cctm-output-files) for further information.
 -   `CONC_BLEV_ELEV [if commented out, all layers]`<a id=CONC_BLEV_ELEV></a>  
     Vertical model layer range for the CCTM_CONC file concentrations; this variable sets the lower and upper layers over which to output the CCTM_CONC file. In the example script, BLEV and ELEV are both set to 1, so concentrations will only be written for the first layer.
 -   `AVG_CONC_SPCS [if commented out, output all species]`<a id=AVG_CONC_SPCS></a>  
-    Model species for calculating integral average concentrations for each output time step. Options can be any of the standard output species that are written to the CCTM_CONC file, including temperature, relative humidity and pressure. The species in this list will be written to the CCTM_ACONC output file. See [Chapter 6](../CMAQ_UG_ch07_model_outputs.md#72-cctm-output-files) for further information.
+    Model species for calculating integral average concentrations for each output time step. Options can be any of the standard output species that are written to the CCTM_CONC file, including temperature, relative humidity and pressure. The species in this list will be written to the CCTM_ACONC output file. See [Chapter 7](../CMAQ_UG_ch07_model_outputs.md#72-cctm-output-files) for further information.
 -   `ACONC_BLEV_ELEV [default: if commented out, all layers]`<a id=ACONC_BLEV_ELEV></a>  
     Vertical model layer range for integral average concentrations; this variable sets the lower and upper layers over which to calculate integral average concentrations. For example, setting this variable to “1 5” will produce integral average concentrations for model layers 1 through 5.
 -   `AVG_FILE_END_TIME [default: N]`<a id=AVG_FILE_END_TIME></a>  
@@ -488,7 +488,7 @@ Sets if the CCTM will run in multi-processor or serial mode.
 -   `IC_AERO_M2USE [default: T]`<a id=IC_AERO_M2USE></a> Instructs CMAQ whether or not to use aerosol surface area from the Initial Condition file. If this option is set to false, then uniform diameter and standard deviation will be applied to each aerosol mode. If a particular simulation is a restart from a simulation preceeding in time (i.e. if this is any day after the first simulation day), then IC_AERO_M2USE is automatically set to True inside CMAQ.
 -   `IC_AERO_M2WET [default: F=dry]`<a id=IC_AERO_M2WET></a> Instructs CMAQ whether or not to assume the initial condition surface area is consistent with dry or wet diameter. Note that most air quality models assume mode parameters are dry, and then will calculate wet diameter when needed (e.g. for deposition).
 -   `BC_AERO_M2USE [default: T]`<a id=BC_AERO_M2USE></a> Instructs CMAQ whether or not to use aerosol surface area from the Boundary Condition file. If this option is set to false, then uniform diameter and standard deviation will be applied to each aerosol mode from the boundaries. 
--   `BC_AERO_M2WET [default: F=dry]`<a id=BC_AERO_M2WET></a> Instructs CMAQ whether or not to assume the boundary condition surface area is consistent with dry or wet diameter. Note that most air quality models assume mode parameters are dry, and then will calculate wet diameter when needed (e.g. for deposition). For more information about the IC_AERO and BC_AERO options, please see [Chapter 6](CMAQ_UG_ch06_model_configuration_options.md#6.11.1_Aero_BC)
+-   `BC_AERO_M2WET [default: F=dry]`<a id=BC_AERO_M2WET></a> Instructs CMAQ whether or not to assume the boundary condition surface area is consistent with dry or wet diameter. Note that most air quality models assume mode parameters are dry, and then will calculate wet diameter when needed (e.g. for deposition). For more information about the IC_AERO and BC_AERO options, please see [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#6.11.1_Aero_BC)
 
 <a id=Process_Analysis_Options></a>
 
@@ -542,7 +542,7 @@ Sets if the CCTM will run in multi-processor or serial mode.
 
 <!-- END COMMENT -->
 
-Aerosol Diagnostics are now handled by the Explicit and Lumped Model Output module (ELMO), which is directed by the Emission Control Interface (ECI). See [Appendix B.6: ELMO](Appendix/CMAQ_UG_appendixB_emissions_control.md) 
+Aerosol Diagnostics are now handled by the Explicit and Lumped Model Output module (ELMO), which is directed by the Emission Control Interface (ECI). See [Appendix B.6: ELMO](./CMAQ_UG_appendixB_emissions_control.md) 
 
 <a id=Diagnostic_Output_Flags></a>
 
