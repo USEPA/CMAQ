@@ -1,7 +1,7 @@
 CMAQ Tutorials
 ==============
 
-A series of short tutorials provide practical examples of how to set up and run CMAQ, exercise different features in the software, and better understand the software system. Community members are encouraged to both suggest ideas for new tutorials and to contribute tutorials directly to this repository. [Contact the CMAS Center](cmas@unc.edu) with new tutorial ideas.
+A series of short tutorials provide practical examples of how to set up and run CMAQ, exercise different features in the software, and better understand the software system. Community members are encouraged to both suggest ideas for new tutorials and to contribute tutorials directly to this repository. [Contact the CMAS Center](https://www.cmascenter.org/other/conact.cfm) with new tutorial ideas.
 
 - **Scripts to install software needed to run CMAQ**
   - [Script to install I/O API library to support netCDF4 compression](gcc_install_ioapi_for_nc4_compression.csh)
