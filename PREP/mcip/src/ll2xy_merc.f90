@@ -16,7 +16,7 @@
 !  subject to their copyright restrictions.                                    !
 !------------------------------------------------------------------------------!
 
-SUBROUTINE ll2xy_merc (phi, lambda, lambda0, xx, yy)
+SUBROUTINE ll2xy_merc (phi, lambda, truelat1, lambda0, xx, yy)
 
 !-------------------------------------------------------------------------------
 ! Name:     Latitude-Longitude to (X,Y) for Mercator Projection
@@ -45,7 +45,9 @@ SUBROUTINE ll2xy_merc (phi, lambda, lambda0, xx, yy)
   REAL(8)                      :: piover4 ! pi/4
   REAL,          INTENT(OUT)   :: xx      ! X-coordinate from origin
   REAL,          INTENT(OUT)   :: yy      ! Y-coordinate from origin
-
+  REAL(8)                      :: k0
+  REAL,          INTENT(IN)    :: truelat1
+  REAL(8)                      :: truelat1rad
 !-------------------------------------------------------------------------------
 ! Compute constants.
 !-------------------------------------------------------------------------------
@@ -64,7 +66,8 @@ SUBROUTINE ll2xy_merc (phi, lambda, lambda0, xx, yy)
   lambdarad  = DBLE(lambda)  * deg2rad  ! convert degrees to radians
   lambda0rad = DBLE(lambda0) * deg2rad  ! convert degrees to radians
 
-  xx  = REAL( drearth * (lambdarad - lambda0rad) )
-  yy  = REAL( drearth * DLOG( DTAN( piover4 + (phirad/2.0d0) ) ) )
+  k0=DCOS(DBLE(truelat1rad))
 
+  xx  =  REAL( k0 * drearth * (lambdarad - lambda0rad) )
+  yy  =  REAL( k0 * drearth * DLOG( DTAN( piover4 + (phirad/2.0d0) ) ) )
 END SUBROUTINE ll2xy_merc
