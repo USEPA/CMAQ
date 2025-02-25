@@ -270,7 +270,7 @@ fatal: unable to connect to github.com:
 Need to use ssh instead of https, follow these instructions to obtain the required files:
 
 ```
-cd MPAS/src/core_atmosphere/physics/physics_wrf/files
+cd ./src/core_atmosphere/physics/physics_wrf/files
 git clone --branch v7.0 -n --depth=1 --filter=tree:0 ssh://github.com/MPAS-Dev/MPAS-Data
 cd MPAS-Data
 git sparse-checkout set --no-cone /atmosphere/physics_wrf/files
@@ -281,7 +281,7 @@ mv atmosphere/physics_wrf/files/* ../
 Now the files should be available and the using VERSION number 7.0, so recompile MPAS-CMAQ
 
 ```
-cd ../../../../../
+cd ../../../../../..
 make ifort CORE=atmosphere USE_PIO2=true
 ```
 
