@@ -281,6 +281,7 @@ mv atmosphere/physics_wrf/files/* ../
 Now the files should be available and the using VERSION number 7.0, so recompile MPAS-CMAQ
 
 ```
+#change directories back to the MPAS directory 
 cd ../../../../../..
 make ifort CORE=atmosphere USE_PIO2=true
 ```
