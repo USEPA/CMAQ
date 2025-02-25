@@ -162,6 +162,7 @@ setenv myFC mpiifort
 setenv myFC mpifort
 ```
 
+Run the build script to generate the Makefile
 
 ```
 cd [your_install_path]/MPAS-CMAQ/CMAQ_5.5/CCTM/scripts
