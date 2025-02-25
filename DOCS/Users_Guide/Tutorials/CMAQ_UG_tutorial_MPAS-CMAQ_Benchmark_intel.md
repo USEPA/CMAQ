@@ -326,16 +326,24 @@ cd /your-path/MPAS-CMAQ
 aws s3 --no-sign-request cp --recursive --region=us-east-1 --dryrun s3://mpas-cmaq/120_uniform ./120_uniform
 # This will obtain both the mpas_inputs and cmas_inputs folders
 # extract the *.tar.gz files
+cd 120_uniform/cmaq_inputs/emissions
+tar -xvjf one_day.tar.bz2
+tar -xvjf 2017_120km.tar.bz2
 ```
 
 The input files for the MPAS-CMAQ benchmark case are provided in the 120_uniform directory . Output MPAS-CMAQ files associated with the sample run script for the coupled MPAS-CMAQ model in this release package are also available.
 
 ## Link the input data to a directory
 
+```
 setenv local_dir /work/users/l/i/lizadams/MPAS-CMAQ//120_uniform
 ln -s ${local_dir}/cmaq_inputs/other/* .
-ln -s ${local_dir}/120_uniform/mpas_inputs/* .
-ln -s ${local_dir}/cmas_inputs/emissions/2017_120km/* .
+ln -s ${local_dir}//mpas_inputs/* .
+# for a one day run
+ln -s ${local_dir}/cmaq_inputs/emissions/one_day/* .
+# for up to a year long run
+ln -s ${local_dir}/cmaq_inputs/emissions/2017_120km/* .
+```
 
 ## Running the MPAS-CMAQ model
 
