@@ -302,6 +302,8 @@ cd MPAS/src
 vi Makefile
 add the following libraries to the end of the compile command (need to figure out where to add these options to the Makefile)
 -lnetcdf -lnetcdff -lhdf5_hl -lhdf5 -lz -lpnetcdf -lnetcdf
+cd src`
+mpifort -O3 -o atmosphere_model driver/*.o -L. -ldycore -lops -lframework -L/21dayscratch/scr/l/i/lizadams/MPAS-CMAQ/build/LIBRARIES_intel/18.2//lib -lpiof -lpioc -lnetcdf -lnetcdff -lhdf5_hl -lhdf5 -lz -lpnetcdf -lnetcdf -I./external/esmf_time_f90 -L./external/esmf_time_f90 -lesmf_time
 ```
 
 
@@ -323,6 +325,7 @@ cd /your-path/MPAS-CMAQ
 # note remove the --dryrun command from the following line after you have tested the following script
 aws s3 --no-sign-request cp --recursive --region=us-east-1 --dryrun s3://mpas-cmaq/120_uniform ./120_uniform
 # This will obtain both the mpas_inputs and cmas_inputs folders
+# extract the *.tar.gz files
 ```
 
 The input files for the MPAS-CMAQ benchmark case are provided in the 120_uniform directory . Output MPAS-CMAQ files associated with the sample run script for the coupled MPAS-CMAQ model in this release package are also available.
