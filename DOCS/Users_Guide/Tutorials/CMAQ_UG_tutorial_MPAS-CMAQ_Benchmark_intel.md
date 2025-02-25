@@ -209,7 +209,7 @@ cp -rp ../CMAQ_5.5/CCTM/scripts/BLD_CCTM_v55_intel_cracmm2_m3dry/ ./src/core_atm
 
 Edit Makefile
 ```
-#change mpiifort to mpifort
+#change mpiifort to mpifort in lines 140-142
         "FC_PARALLEL = mpifort" \
         "CC_PARALLEL = mpicc" \
         "CXX_PARALLEL = mpicpc" \
