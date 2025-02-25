@@ -362,10 +362,16 @@ Modify the following section to specify your local paths:
     set MPAS_path_output    = /your-path/MPAS-CMAQ/MPAS/output_retest
 ```
 
+Edit the location of the executable
+
+```
+set MPASEXE=${MPAS_root}/src/atmosphere_model
+```
+
 Set the number of processors to run MPAS-CMAQ
 
 ```
-    setenv NPROCS 24
+    setenv NPROCS 64
 ```
 
 Load the environment modules
