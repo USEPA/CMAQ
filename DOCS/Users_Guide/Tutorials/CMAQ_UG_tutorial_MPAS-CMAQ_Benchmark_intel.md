@@ -327,7 +327,10 @@ aws s3 --no-sign-request cp --recursive --region=us-east-1 --dryrun s3://mpas-cm
 # This will obtain both the mpas_inputs and cmas_inputs folders
 # extract the *.tar.gz files
 cd 120_uniform/cmaq_inputs/emissions
+# to extract data for a one day run
 tar -xvjf one_day.tar.bz2
+# to extract enough data for an annual run
+# this may take 8 hours
 tar -xvjf 2017_120km.tar.bz2
 ```
 
@@ -342,6 +345,7 @@ ln -s ${local_dir}//mpas_inputs/* .
 # for a one day run
 ln -s ${local_dir}/cmaq_inputs/emissions/one_day/* .
 # for up to a year long run
+# be sure that the extraction is complete before linking the files
 ln -s ${local_dir}/cmaq_inputs/emissions/2017_120km/* .
 ```
 
