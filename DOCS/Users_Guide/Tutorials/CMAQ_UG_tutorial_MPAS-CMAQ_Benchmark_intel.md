@@ -103,7 +103,7 @@ module-whatis "This module adds mpas-cmaq-iolib/intel-20.2 to your path\n"
 set basedir "/work/users/l/i/lizadams/MPAS-CMAQ/build/LIBRARIES_intel/20.2"
 prepend-path PATH "${basedir}/bin"
 prepend-path LD_LIBRARY_PATH "${basedir}/lib"
-module load 
+module load openmpi/4.1.4-intel_20.2
 ```
 
 
@@ -151,10 +151,26 @@ Now execute the script.
 
 ### Configuring the MPAS-CMAQ Build Environment
 
+# edit the config_cmaq.csh to change mpiifort to mpifort
+#        setenv myFC mpifort
+
+```
+cd [your_install_path]/MPAS-CMAQ/CMAQ_5.5
+vi config_cmaq.csh
+#change line 99
+setenv myFC mpiifort
+#to
+setenv myFC mpifort
+```
+
+
 ```
 cd [your_install_path]/MPAS-CMAQ/CMAQ_5.5/CCTM/scripts
 # note that the following environment variable has been uncommented in the bldit_cctm.csh: set build_mpas_cmaq
+# edit the config_cmaq.csh to change mpiifort to mpifort
+#        setenv myFC mpifort
 ./bldit_cctm.csh intel |& tee ./bldit_cctm.log
+# note that this will not create an executable file, see next steps
 ```
 
 ### Review Makefile created for MPAS-CMAQ
@@ -191,11 +207,19 @@ cp -rp ../CMAQ_5.5/CCTM/scripts/BLD_CCTM_v55_intel_cracmm2_m3dry/ ./src/core_atm
 
 ### Compile MPAS-CMAQ
 
+Edit Makefile
+```
+#change mpiifort to mpifort
+        "FC_PARALLEL = mpifort" \
+        "CC_PARALLEL = mpicc" \
+        "CXX_PARALLEL = mpicpc" \
+```
+
 ```
 # return to the top level MPAS directory
 cd ../MPAS
 # compile MPAS with CMAQ code
-make gfortran CORE=atmosphere USE_PIO2=true
+make ifort CORE=atmosphere USE_PIO2=true
 ```
 
 ### Examine the error message
@@ -229,7 +253,7 @@ Set the following environment variable to allow the pio libraries to be found
 ### Recompile MPAS
 
 ```
-make gfortran CORE=atmosphere USE_PIO2=true
+make ifort CORE=atmosphere USE_PIO2=true
 ```
 
 ### Examine the log for additional errors
@@ -257,99 +281,8 @@ mv atmosphere/physics_wrf/files/* ../
 Now the files should be available and the using VERSION number 7.0, so recompile MPAS-CMAQ
 
 ```
-make gfortran CORE=atmosphere USE_PIO2=true
-```
-
-## next error
-
-
-gfortran: error: unrecognized command-line option ‘-traceback’
-
-
-```
-#Edit the Makefile in the physics directory
-vi /work/users/l/i/lizadams/MPAS-CMAQ/MPAS/src/core_atmosphere/physics/Makefile
-#replace -traceback with -fbacktrace
-```
-
-### Recompile
-
-```
-make gfortran CORE=atmosphere USE_PIO2=true
-```
-
-
-### Another error
-
-
-```
-Error: BOZ literal constant at (1) is neither a data-stmt-constant nor an actual argument to INT, REAL, DBLE, or CMPLX intrinsic function [see ‘-fno-allow-invalid-boz’]
-```
-
-Edit the Makefile to add the option -fallow-invalid-boz
-```
-vi MPAS/Makefile
-#add the following option
--fallow-invalid-boz
-"FFLAGS_OPT = -O3 -m64 -ffree-line-length-none -fconvert=big-endian -ffree-form -fallow-invalid-boz -fallow-argument-mismatch"
-```
-
-### Another error
-
-```
-module_sf_pxlsm.F:430:34:
-
-  430 |       READ(ANAL_INTERVALC(1:2),'(i)') HH
-      |                                  1
-Error: Nonnegative width required in format string at (1)
-module_sf_pxlsm.F:431:34:
-
-  431 |       READ(ANAL_INTERVALC(4:5),'(i)') MM
-      |                                  1
-Error: Nonnegative width required in format string at (1)
-module_sf_pxlsm.F:432:34:
-
-  432 |       READ(ANAL_INTERVALC(7:8),'(i)') SS
-      |                                  1
-Error: Nonnegative width required in format string at (1)
-```
-
-
-### change the format i to i2:
-
-```
-
-      ! New MPAS Code. Convert MPAS Char string of soilndg interval to
-      READ(ANAL_INTERVALC(1:2),'(i2)') HH
-      READ(ANAL_INTERVALC(4:5),'(i2)') MM
-      READ(ANAL_INTERVALC(7:8),'(i2)') SS
-      ANAL_INTERVAL = (HH * 3600) + (MM * 60) + (SS)
-```
-
-see https://stackoverflow.com/questions/11037954/error-nonnegative-width-required-in-format-string-at-1
-
-### Error
-
-```
-mio_gather_data_mod.F90:1100:34:
-
- 1080 |                    call mpi_recv (who, 1, mpi_integer, mpi_any_source,    &
-      |                                  2
-......
- 1100 |                    call mpi_recv (recv_buf, recv_size, mpi_int, who,      &
-      |                                  1
-Error: Rank mismatch between actual argument at (1) and actual argument at (2) (scalar and rank-1)
-```
-
-
-```
-# add the following option to the makefile
--fallow-argument-mismatch
-cd ./src/core_atmosphere/cmaq/
-vi Makefile
-
- FSTD = -O3 -funroll-loops -finit-character=32 -Wtabs -Wsurprising -ftree-vectorize -ftree-loop-if-convert -finline-limit=512 -fallow-argument-mismatch
- DBG  = -Wall -O0 -g -fcheck=all -ffpe-trap=invalid,zero,overflow -fbacktrace -fallow-argument-mismatch
+cd ../../../../../
+make ifort CORE=atmosphere USE_PIO2=true
 ```
 
 ### Error
@@ -367,7 +300,7 @@ Add the missing libraries to the end of the link statement:
 cd MPAS/src
 vi Makefile
 add the following libraries to the end of the compile command (need to figure out where to add these options to the Makefile)
--lnetcdf -lnetcdff -lhdf5_hl -lhdf5 -ll:libz.a -lpnetcdf -lnetcdf
+-lnetcdf -lnetcdff -lhdf5_hl -lhdf5 -lz -lpnetcdf -lnetcdf
 ```
 
 
@@ -389,10 +322,16 @@ cd /your-path/MPAS-CMAQ
 # note remove the --dryrun command from the following line after you have tested the following script
 aws s3 --no-sign-request cp --recursive --region=us-east-1 --dryrun s3://mpas-cmaq/120_uniform ./120_uniform
 # This will obtain both the mpas_inputs and cmas_inputs folders
-
 ```
 
 The input files for the MPAS-CMAQ benchmark case are provided in the 120_uniform directory . Output MPAS-CMAQ files associated with the sample run script for the coupled MPAS-CMAQ model in this release package are also available.
+
+## Link the input data to a directory
+
+setenv local_dir /work/users/l/i/lizadams/MPAS-CMAQ//120_uniform
+ln -s ${local_dir}/cmaq_inputs/other/* .
+ln -s ${local_dir}/120_uniform/mpas_inputs/* .
+ln -s ${local_dir}/cmas_inputs/emissions/2017_120km/* .
 
 ## Running the MPAS-CMAQ model
 
