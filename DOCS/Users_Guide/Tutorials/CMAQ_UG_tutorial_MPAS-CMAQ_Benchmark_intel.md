@@ -151,8 +151,7 @@ Now execute the script.
 
 ### Configuring the MPAS-CMAQ Build Environment
 
-# edit the config_cmaq.csh to change mpiifort to mpifort
-#        setenv myFC mpifort
+Edit the config_cmaq.csh to change mpiifort to mpifort
 
 ```
 cd [your_install_path]/MPAS-CMAQ/CMAQ_5.5
