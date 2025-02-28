@@ -257,7 +257,7 @@ AORGAIJ         ,ug m-3     ,AORGAI[0] + AORGAJ[0]
 
 !!! Biogenic-VOC Derived Organic Aerosol
 AORGBIJ         ,ug m-3    ,AISO3NOSJ[1] +AISO3OSJ[1] +AHOMJ[1] + AELHOMJ[1] \
-                           +AISO4J[1]    +AISO5J[1]   +ATRNPJ[1]+AHONITJ[1]
+                           +AISO4J[1]    +AISO5J[1]   +ATRPNJ[1]+AHONITJ[1]
 
 !!! Cloud-Processed  SOA
 AORGCJ          ,ug m-3    ,AORGCJ[1]
