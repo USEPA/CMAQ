@@ -45,7 +45,7 @@ There is also a hard coded path for the openmpi library.
 
 Use the command:
 
-which mpirun to find the path to the mpi library, note the path depands on the compiler and whether openmpi or intel mpi is used
+`which mpirun` to find the path to the mpi library, note the path depands on the compiler and whether openmpi or intel mpi is used
 
 On my system the path was:
 
