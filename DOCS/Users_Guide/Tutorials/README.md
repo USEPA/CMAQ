@@ -12,6 +12,7 @@ A series of short tutorials provide practical examples of how to set up and run 
   - [Building CMAQ for GNU using libraries that disable netCDF4 compression](CMAQ_UG_tutorial_build_library_gcc.md)
   - [Building CMAQ for GNU using libraries that support compressed netCDF4](CMAQ_UG_tutorial_build_library_gcc_support_nc4.md)
   - [Building CMAQ for Intel using libraries that disable netCDF4 compression](CMAQ_UG_tutorial_build_library_intel.md)
+  - [Building CMAQ for Intel using libraries that support compressed netCDF4](CMAQ_UG_tutorial_build_library_intel_support_nc4.md)
  
 - **Directions for running CMAQ test cases**
   - [Running the CMAQ Base Model with CRACMM2 and STAGE](CMAQ_UG_tutorial_benchmark_cracmm2_stage.md)
@@ -19,6 +20,11 @@ A series of short tutorials provide practical examples of how to set up and run 
   - [Running the CMAQ-ISAM Test Case](CMAQ_UG_tutorial_ISAM.md)
   - [Running the CMAQ-DDM-3D Test Case](CMAQ_UG_tutorial_DDM3D.md)
   - [Running the WRF-CMAQ Test Case](CMAQ_UG_tutorial_WRF-CMAQ_Benchmark.md)
+
+- **Directions for building and running MPAS-CMAQ test cases**
+  - [Build and run the MPAS-CMAQ Test Case using gcc](CMAQ_UG_tutorial_MPAS-CMAQ_Benchmark_gcc.md)
+  - [Build and run the MPAS-CMAQ Test Case using intel](CMAQ_UG_tutorial_MPAS-CMAQ_Benchmark_intel.md)
+
  
 - **Other Tutorials**
   - [Debugging Tips](CMAQ_UG_tutorial_debug.md)
