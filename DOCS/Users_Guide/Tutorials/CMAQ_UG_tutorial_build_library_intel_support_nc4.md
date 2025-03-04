@@ -131,11 +131,12 @@ mkdir -p $cwd/Modules/modulefiles/ioapi-3.2
 
 Edit the module name file to specify the PATH and LD_LIBARY_PATH.
 
-Next, create the module file and save it to the ioapi-3.2 directory 
+Next, create the module file named intel-2024 and save it to the ioapi-3.2 directory 
 
 Example:
+cat cat intel-2024
+
 ```
-cat intel-2024 
 #%Module
   
 proc ModulesHelp { } {
