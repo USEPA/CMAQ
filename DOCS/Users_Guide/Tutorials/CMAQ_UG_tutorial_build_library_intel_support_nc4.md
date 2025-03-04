@@ -7,7 +7,7 @@ This tutorial is based on these instructions: https://www.unidata.ucar.edu/softw
 
 ## netCDF requires the HDF5, zlib, and curl libraries, these instructions use HDF5 1.14.3, zlib 1.3, and curl 8.11.1. 
 
-This Tutorial uses libarary install scripts that were created for the intel 2024.2.1 compiler that uses ifx instead of ifort, there are also scripts for gcc 11.2. These install scripts assume that you have environment modules available on your system, and that you can use a module load command to load the compiler and openmpi version. Different scripts are provided, as different options are required, such as for gcc 10 and above, requires using the  -fallow-argument-mismatch argument <br>
+This Tutorial uses library install scripts that were created for the intel 2024.2.1 compiler that uses ifx instead of ifort, there are also scripts for gcc 11.2. These install scripts assume that you have environment modules available on your system, and that you can use a module load command to load the compiler and openmpi version. Different scripts are provided, as different options are required, such as for gcc 10 and above, requires using the  -fallow-argument-mismatch argument <br>
 
 The libraries can be installed using install scripts that are provided.
 
