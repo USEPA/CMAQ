@@ -192,7 +192,7 @@ module use --append /proj/ie/proj/CMAS/CMAQ/CMAQv5.5/build/Modules/modulefiles
 
 ```
 module avail
-module load netcdf-4.5.3-for_nc4/ifort-syc-2024.2.1 ioapi-3.2/intel-2024
+module load netcdf-4.5.3-for_nc4/ifort-2024.2.1 ioapi-3.2/intel-2024
 ```
 
 Now you should see 3 modules loaded.
@@ -204,7 +204,7 @@ module list
 Output:
 ```
 Currently Loaded Modules:
-  1) intel/2024.2.1   2) netcdf-4.5.3-for_nc4/ifort-syc-2024.2.1   3) ioapi-3.2/intel-2024
+  1) intel/2024.2.1   2) netcdf-4.5.3-for_nc4/ifort-2024.2.1   3) ioapi-3.2/intel-2024
 
 ```
 
