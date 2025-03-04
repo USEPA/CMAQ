@@ -134,8 +134,11 @@ Edit the module name file to specify the PATH and LD_LIBARY_PATH.
 Next, create the module file named intel-2024 and save it to the ioapi-3.2 directory 
 
 Example:
-cat cat intel-2024
 
+```
+cat intel-2024
+```
+output:
 ```
 #%Module
   
@@ -160,6 +163,9 @@ Next, create the module file and save it to the netcdf-4.5.3-for_nc4 directory
 
 ```
 cat  ifort-2024.2.1
+```
+output:
+```
 #%Module
 proc ModulesHelp { } {
    puts stderr "This module adds netcdf-4.5.3-for_nc4/ifort-2024.2.1 to your path"
@@ -182,7 +188,7 @@ Now that the module files have been created, add the following line to your .csh
 module use --append /proj/ie/proj/CMAS/CMAQ/CMAQv5.5/build/Modules/modulefiles
 ```
 
-### Use module avail to see private modules
+### Use module avail to see private modules, and then load them
 
 ```
 module avail
@@ -191,7 +197,9 @@ module load netcdf-4.5.3-for_nc4/ifort-syc-2024.2.1 ioapi-3.2/intel-2024
 
 Now you should see 3 modules loaded.
 
+```
 module list
+```
 
 Output:
 ```
@@ -202,7 +210,7 @@ Currently Loaded Modules:
 
 ### Install CMAQ
 
-Edit the script to specify the correct local paths for HOME and openmpi and then run
+Edit the script to specify the correct local paths for HOME and mpirun and then run
 
 ```
 ./intel_2024_install_cmaq55_cb6r5_m3dry.csh
@@ -246,6 +254,7 @@ The following instructions go over the steps that were performed in the scripts 
 module avail
 ```
 2. Load module environment for a compiler (Intel|GCC|PGI) and mpi package corresponding to that compiler (e.g. openmpi).
+Note, that mpirun is available with the intel 2024 compiler, so there isn't another module that needs to be loaded.
 
 ```
 module load intel/2024.2.1 
