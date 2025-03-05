@@ -12,7 +12,8 @@ Benchmarking refers to a simulation that is used to verify that the software is 
 ## Install CMAQ and libraries and configure the linux environment following instructions here:  
 
 [Build libraries and CMAQ](CMAQ_UG_tutorial_configure_linux_environment.md)
-Note, you will need to set the CMAQ_HOME environment variable to specify your local directory
+
+<br>Note, you will need to set the CMAQ_HOME environment variable to specify your local directory
 
 ```
 setenv CMAQ_HOME /your_local_path/CMAQv5.5
