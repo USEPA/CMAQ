@@ -5,7 +5,8 @@ set echo
 #  Install used tcsh and gcc/gfortran version 9.1.0 and openmpi
 #
 
-   module load openmpi_4.0.1/gcc_9.1.0
+#module load openmpi_4.0.1/gcc_9.1.0
+module load openmpi_5.0.5/gcc_11.4.1
    /bin/tcsh --version
    gcc --version
    gfortran --version

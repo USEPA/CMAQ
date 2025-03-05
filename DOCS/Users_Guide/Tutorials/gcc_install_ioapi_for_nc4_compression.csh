@@ -24,7 +24,7 @@ set echo
    cd ioapi-3.2
    git checkout -b 20200828
    setenv BASEDIR $INSTDIR/ioapi-3.2
-   setenv BIN Linux2_x86_64gfort
+   setenv BIN Linux2_x86_64gfort10
    mkdir $BASEDIR/$BIN
    setenv CPLMODE nocpl
    # Edit Makefile or use syntax: make BIN=Linux2_x86_64pg  CPLMODE=nocpl INSTALL=$INSTDIR
