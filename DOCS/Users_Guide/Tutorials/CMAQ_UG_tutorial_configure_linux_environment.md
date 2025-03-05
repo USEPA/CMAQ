@@ -1,7 +1,8 @@
+# Building CMAQ and the required libraries (netCDF and I/O API)
 
-## Follow these  instructions to install the libraries. 
 
-There are two ways to build netCDF libraries, 
+There are two ways to build netCDF libraries, and it is critical to use a consistent set of builds, when building netCDF classic, then build I/O API using that version of netCDF, and then build CMAQ. 
+It is recommended to use the module environment to avoid mixing and matching with other library build configuations.
 
 ### Building libraries to support netCDF classic 
 
@@ -12,7 +13,7 @@ netCDF classic is based on the classic data model and defines a storage format w
 netCDF4 is based on the enhanced data model and uses HDF5 as its backend storage format
 
 
-#### Do you have netcdf4 compressed (*.nc4) or classic netCDF (*.nc) input files
+### Do you have netcdf4 compressed (*.nc4) or classic netCDF (*.nc) input files
 
 The EQUATES data that is provided uses netCDF4 compressed (*.nc4) input data
 
