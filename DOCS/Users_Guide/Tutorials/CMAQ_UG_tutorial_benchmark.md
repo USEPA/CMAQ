@@ -1,6 +1,6 @@
 # CMAQ Installation & Benchmarking Tutorial for CB6R5 
 
-Purpose: This guide describes how to install and run the CMAQ test case for the CB6R5 mechanism with the M3DRY dry deposition scheme, which serves two different purposes. The first being to familiarize the user with the CMAQ suite of programs and how they work together, and secondly to verify the installation of the software on your system via benchmarking. 
+Purpose: This guide describes how to run the CMAQ test case for the CB6R5 mechanism with the M3DRY dry deposition scheme, which serves two different purposes. The first being to familiarize the user with the CMAQ suite of programs and how they work together, and secondly to verify the installation of the software on your system via benchmarking. 
 
 Benchmarking refers to a simulation that is used to verify that the software is installed correctly.  Benchmarking CMAQ is recommended in the following circumstances:
 - Installation by a new user
@@ -12,6 +12,12 @@ Benchmarking refers to a simulation that is used to verify that the software is 
 ## Install CMAQ and libraries and configure the linux environment following instructions here:  
 
 [Build libraries and CMAQ](CMAQ_UG_tutorial_configure_linux_environment.md)
+Note, you will need to set the CMAQ_HOME environment variable to specify your local directory
+
+```
+setenv CMAQ_HOME /your_local_path/CMAQv5.5
+setenv CMAQ_DATA /your_local_path/CMAQv5.5/data
+```
 
 ## Install the CMAQ reference input and output benchmark data
 
