@@ -3,12 +3,12 @@
 This tutorial is based on these instructions: https://www.unidata.ucar.edu/software/netcdf/documentation/NUG/getting_and_building_netcdf.html
 
 * netCDF requires the HDF5, zlib, and curl libraries. 
-* This Tutorial is for the gcc 9.1.0 compiler.   
+* This Tutorial is for the gcc 11.4.1 compiler.   
 * For gcc 10 and above, use the  -fallow-argument-mismatch argument (see alternative script and instructions for gcc 10 and above) 
 
 ## netCDF requires the HDF5, zlib, and curl libraries, these instructions use HDF5 1.10.5, zlib 1.3, and curl 8.11.0. 
 
-This Tutorial uses libarary install scripts that were created for the gcc 9.1.0 compiler, there are also scripts for gcc 11.2 and intel 17.2. These install scripts assume that you have environment modules available on your system, and that you can use a module load command to load the compiler and openmpi version. Different scripts are provided, as different options are required, such as for gcc 10 and above, requires using the  -fallow-argument-mismatch argument <br>
+This Tutorial uses libarary install scripts that were created for the gcc 11.4 compiler, there are also scripts for intel 18.2 and intel 2024. These install scripts assume that you have environment modules available on your system, and that you can use a module load command to load the compiler and openmpi version. Different scripts are provided, as different options are required, such as for gcc 10 and above, requires using the  -fallow-argument-mismatch argument <br>
 
 When building I/O API, as of Aug. 28, 2020, there are now new <b>BIN=Linux\*gfort10\*</b> types and corresponding <b>Makeinclude.Linux\*gfort10\*</b> that incorporate this flag for the I/O API and M3Tools. Please see the I/O API documentation: https://www.cmascenter.org/ioapi/documentation/all_versions/html/AVAIL.html <br>
 
@@ -23,37 +23,40 @@ Install the netCDF libraries and their prerequisites for the compiler version th
 mkdir -p $cwd/CMAQv5.5/build
 ```
 
-### Download the install scripts for the gcc version 9.1 compiler.
+### Download the install scripts for the gcc version 11.4 compiler.
 
 ```
 cd $cwd/CMAQv5.5/build
-wget https://cmaq-release-benchmark-data-for-easy-download.s3.amazonaws.com/v5_5/scripts/gcc_install_netcdf_for_nc4_compression.csh
-wget https://cmaq-release-benchmark-data-for-easy-download.s3.amazonaws.com/v5_5/scripts/gcc_install_ioapi_for_nc4_compression.csh
-wget https://cmaq-release-benchmark-data-for-easy-download.s3.amazonaws.com/v5_5/scripts/gcc_install_cmaq55_cb6r5_m3dry.csh
-
+wget https://cmaq-release-benchmark-data-for-easy-download.s3.amazonaws.com/v5_5/scripts/gcc_11.4_install_netcdf_for_nc4_compression.csh
+wget https://cmaq-release-benchmark-data-for-easy-download.s3.amazonaws.com/v5_5/scripts/gcc_11.4_install_ioapi_for_nc4_compression.csh
+wget https://cmaq-release-benchmark-data-for-easy-download.s3.amazonaws.com/v5_5/scripts/gcc_11.4_install_cmaq55_cb6r5_m3dry_for_nc4_compression.csh
 ```
 
-Note, there are install scripts for gcc 11.2 and intel compiler in the same location.
 
 ### Edit the CMAQ install scripts 
 Modify any hard coded paths, grep for proj and replace the hardcoded path to a hardcoded path on your system
-Note, I installed the libraries under the following directory
 
+Change this hard coded path to your local installation directory
 ```
 /proj/ie/proj/CMAS/CMAQ/CMAQv5.5/build
 ```
 
-The gcc_install_cmaq55_cb6r5_m3dry.csh script uses this in a sed command, so it needs to be edited to reflect the absolute path on your system.
+The gcc_11.4_install_cmaq55_cb6r5_m3dry_for_nc4_compression.csh script uses this in a sed command, so it needs to be edited to reflect the absolute path on your system.
 There is also a hard coded path for the openmpi library.
 
 Use the command:
 
 which mpirun to find the path to the library, note the path depands on the openmpi module that is used.
 
-On my system for the gcc 9.1.0 compiler and the openmpi 4.0.1 the path was:
 
 ```
-/nas/longleaf/apps-dogwood/mpi/gcc_9.1.0/openmpi_4.0.1/
+module load openmpi
+which mpirun
+```
+
+Output
+```
+/nas/sycamore/apps/openmpi/5.0.5/bin/mpirun
 ```
 
 Modify the scripts to use the path on your system.
@@ -61,19 +64,19 @@ Modify the scripts to use the path on your system.
 Load the modules for your compiler and openmpi version and then run the library install script for the netcdf libraries.
 
 ```
-module load  gcc/9.1.0 openmpi_4.0.1/gcc_9.1.0
+module load openmpi_5.0.5/gcc_11.4.1 
 ```
 
 ### Run script to install the netcdf libraries:
 
 ```
-./gcc_install_netcdf_for_nc4_compression.csh
+./gcc_11.4_install_netcdf_for_nc4_compression.csh
 ```
 
 ### Run script to install the I/O API Library
 
 ```
-./gcc_install_ioapi_for_nc4_compression.csh
+./gcc_11.4_install_ioapi_for_nc4_compression.csh
 ```
 
 Note, if you obtain the following error:
@@ -84,8 +87,13 @@ Cloning into 'ioapi-3.2'...
 fatal: unable to access 'https://github.com/cjcoats/ioapi-3.2/': Protocol "https" not supported
 ```
 
-Then you will need to logout and then log back in, and do not load any modules. Then the git clone command should work.<br>
+Then use module purge as there is a conflict with the modules being loaded.
 
+```
+module purge
+```
+
+Re-run the git clone
 ```
 cd LIBRARIES_gcc
 git clone https://github.com/cjcoats/ioapi-3.2
@@ -129,14 +137,14 @@ Next, create the module file and save it to the ioapi-3.2 directory
 
 Example:
 ```
-cat  gcc-9.1
+cat  gcc-11.4
 #%Module
   
 proc ModulesHelp { } {
-   puts stderr "This module adds ioapi-3.2/gcc-9.1 to your path"
+   puts stderr "This module adds ioapi-3.2/gcc-11.4 to your path"
 }
 
-module-whatis "This module adds ioapi-3.2/gcc-9.1 to your path\n"
+module-whatis "This module adds ioapi-3.2/gcc-11.4 to your path\n"
 
 set basedir "/proj/ie/proj/CMAS/CMAQ/CMAQv5.5/build/LIBRARIES_gcc/ioapi-3.2"
 prepend-path PATH "${basedir}/Linux2_x86_64gfort"
@@ -152,14 +160,14 @@ mkdir -p $cwd/Modules/modulefiles/netcdf-4.5.3-for_nc4
 Next, create the module file and save it to the netcdf-4.5.3-for_nc4 directory
 
 ```
-cat gcc-9.1
+cat gcc-11.4
 #%Module
   
 proc ModulesHelp { } {
-   puts stderr "This module adds netcdf-4.5.3-for_nc4/gcc-9.1 to your path"
+   puts stderr "This module adds netcdf-4.5.3-for_nc4/gcc-11.4 to your path"
 }
 
-module-whatis "This module adds netcdf-4.5.3-for_nc4/gcc-9.1 to your path\n"
+module-whatis "This module adds netcdf-4.5.3-for_nc4/gcc-11.4 to your path\n"
 
 set basedir "/proj/ie/proj/CMAS/CMAQ/WRF-CMAQv5.5/build/LIBRARIES_gcc"
 prepend-path PATH "${basedir}/bin"
@@ -178,7 +186,7 @@ module use --append /proj/ie/proj/CMAS/CMAQ/CMAQv5.5/build/Modules/modulefiles
 
 ```
 module avail
-module load netcdf-4.5.3-for_nc4/gcc-9.1 ioapi-3.2/gcc-9.1   
+module load netcdf-4.5.3-for_nc4/gcc-11.4 ioapi-3.2/gcc-11.4
 ```
 
 Now you should see 4 modules loaded.
@@ -188,7 +196,7 @@ module list
 Output:
 ```
 Currently Loaded Modules:
-  1) gcc/9.1.0   2) openmpi_4.0.1/gcc_9.1.0   3) netcdf-4.5.3-for_nc4/gcc-9.1   4) ioapi-3.2/gcc-9.1
+  1) openmpi_5.0.5/gcc_11.4.1   2) netcdf-4.5.3-for_nc4/gcc-11.4   3) ioapi-3.2/gcc-11.4
 ```
 
 ### Install CMAQ
@@ -196,7 +204,7 @@ Currently Loaded Modules:
 Edit the script to specify the correct local paths for HOME and openmpi and then run
 
 ```
-./gcc_install_cmaq55_cb6r5_m3dry.csh
+./gcc_11.4_install_cmaq55_cb6r5_m3dry_for_nc4_compression.csh
 ```
 
 ### Confirm that the CMAQv5.5 cb6r5 mechanism and m3dry deposition scheme has been built
@@ -239,8 +247,7 @@ module avail
 2. Load module environment for a compiler (Intel|GCC|PGI) and mpi package corresponding to that compiler (e.g. openmpi).
 
 ```
-module load gcc9.1.0
-module load openmpi_4.0.1/gcc_9.1.0
+module load openmpi_5.0.5/gcc_11.4.1
 ```
 
 
@@ -308,9 +315,9 @@ tar -xzvf curl-8.11.0.tar.gz
    setenv CXXFLAGS "-O3"
    setenv FCFLAGS "-O3"
    ./configure --prefix=${INSTDIR} --enable-fortran --enable-cxx --with-zlib=${INSTDIR}/include,${INSTDIR}/lib -enable-shared --enable-hl
-   make -j 4 |& tee make.gcc9.log
-#  make check > make.gcc9.check
-   make install |& tee make.gcc9.log
+   make -j 4 |& tee make.gcc.log
+#  make check > make.gcc.check
+   make install |& tee make.gcc.log
 ```
 
 ## Install netCDF-C
@@ -679,8 +686,8 @@ note, the paths need to be edited to match the location for your installation
             setenv NETCDFF_INCL_DIR ${NFDIR}/include                   #> netCDF Fortran directory path
         endif
 
-        setenv MPI_INCL_DIR      /nas/longleaf/apps-dogwood/mpi/gcc_9.1.0/openmpi_4.0.1/include #> MPI Include directory path
-        setenv MPI_LIB_DIR      /nas/longleaf/apps-dogwood/mpi/gcc_9.1.0/openmpi_4.0.1/lib               #> MPI Lib directory path
+        setenv MPI_INCL_DIR      /nas/sycamore/apps/openmpi/5.0.5/include #> MPI Include directory path
+        setenv MPI_LIB_DIR      /nas/sycamore/apps/openmpi/5.0.5/lib               #> MPI Lib directory path
 ```
 
 4. Source the config_cmaq.csh to create the lib directory

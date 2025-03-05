@@ -26,21 +26,19 @@ mkdir -p $cwd/CMAQv5.5/build
 cd $cwd/CMAQv5.5/build
 wget https://cmaq-release-benchmark-data-for-easy-download.s3.amazonaws.com/v5_5/scripts/intel_2024_install_netcdf_for_nc4_compression.csh
 wget https://cmaq-release-benchmark-data-for-easy-download.s3.amazonaws.com/v5_5/scripts/intel_2024_install_ioapi_for_nc4_compression.csh
-wget https://cmaq-release-benchmark-data-for-easy-download.s3.amazonaws.com/v5_5/scripts/intel_2024_install_cmaq55_cb6r5_m3dry.csh
+wget https://cmaq-release-benchmark-data-for-easy-download.s3.amazonaws.com/v5_5/scripts/intel_2024_install_cmaq55_cb6r5_m3dry_for_nc4_compression.csh
 
 ```
 
-Note, there are install scripts for gcc 11.2 compiler in the same location.
-
 ### Edit the CMAQ install scripts 
 Modify any hard coded paths, grep for proj and replace the hardcoded path to a hardcoded path on your system
-Note, I installed the libraries under the following directory
 
+Replace the following path the local path
 ```
 /proj/ie/proj/CMAS/CMAQ/CMAQv5.5/build
 ```
 
-The intel_2024_install_cmaq55_cb6r5_m3dry.csh script uses this in a sed command, so it needs to be edited to reflect the absolute path on your system.
+The intel_2024_install_cmaq55_cb6r5_m3dry_for_nc4_compression.csh script uses this in a sed command, so it needs to be edited to reflect the absolute path on your system.
 There is also a hard coded path for the openmpi library.
 
 Use the command:
