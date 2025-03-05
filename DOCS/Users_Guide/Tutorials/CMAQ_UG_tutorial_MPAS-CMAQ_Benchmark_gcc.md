@@ -55,7 +55,7 @@ cd $cwd/MPAS-CMAQ/build/LIBRARIES_gcc11.4.1
 ## Obtain and run libraries install script
 
 ```
-wget https://mpas-cmaq.s3.amazonaws.com/scripts/iolib_installation_gcc11.4.1.sh
+wget https://github.com/USEPA/CMAQ/blob/main/DOCS/Users_Guide/Tutorials/scripts/mpas-cmaq_libraries/iolib_installation_gcc11.4.1.sh
 # change permission of the script so that it can be executed
 chmod 755 iolib_installation_gcc11.4.1.sh
 # run the library installation script

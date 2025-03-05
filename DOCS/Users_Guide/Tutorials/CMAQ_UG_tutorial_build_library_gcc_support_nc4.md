@@ -27,9 +27,9 @@ mkdir -p $cwd/CMAQv5.5/build
 
 ```
 cd $cwd/CMAQv5.5/build
-wget https://cmaq-release-benchmark-data-for-easy-download.s3.amazonaws.com/v5_5/scripts/gcc_11.4_install_netcdf_for_nc4_compression.csh
-wget https://cmaq-release-benchmark-data-for-easy-download.s3.amazonaws.com/v5_5/scripts/gcc_11.4_install_ioapi_for_nc4_compression.csh
-wget https://cmaq-release-benchmark-data-for-easy-download.s3.amazonaws.com/v5_5/scripts/gcc_11.4_install_cmaq55_cb6r5_m3dry_for_nc4_compression.csh
+wget https://github.com/USEPA/CMAQ/blob/main/DOCS/Users_Guide/Tutorials/scripts/cmaq_libraries/gcc_11.4_install_netcdf_for_nc4_compression.csh
+wget https://github.com/USEPA/CMAQ/blob/main/DOCS/Users_Guide/Tutorials/scripts/cmaq_libraries/gcc_11.4_install_ioapi_for_nc4_compression.csh
+wget https://github.com/USEPA/CMAQ/blob/main/DOCS/Users_Guide/Tutorials/scripts/cmaq_libraries/gcc_11.4_install_cmaq55_cb6r5_m3dry_for_nc4_compression.csh
 ```
 
 
