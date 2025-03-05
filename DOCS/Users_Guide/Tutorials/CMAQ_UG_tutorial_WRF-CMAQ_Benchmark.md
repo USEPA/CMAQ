@@ -13,7 +13,9 @@ The following support software are required for compiling and running WRF-CMAQ.
 4. [I/O API](https://www.cmascenter.org/download/software/ioapi/ioapi_3-2.cfm?DB=TRUE) version 3.2 **tagged 20200828 without OpenMP support**
 5. [C-Shell](https://github.com/tcsh-org/tcsh) 
 
-**Note: if you have not installed the above libraries, please see the CMAQ_UG_tutorial_build_[gcc/intel/pgi].md tutorials available here: 
+**Note: if you have not installed the above libraries, please see the tutorials available here: 
+[Build libraries and CMAQ](CMAQ_UG_tutorial_configure_linux_environment.md)
+
 (need to use the compressed netCDF4 library build to run the benchmark case)
 https://github.com/USEPA/CMAQ/tree/main/DOCS/Users_Guide/Tutorials/CMAQ_UG_tutorial_build_library_gcc_support_nc4.md
 
