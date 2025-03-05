@@ -24,15 +24,11 @@ Determine the format of an input file with an *.nc extension
 
 Output for file created with the netCDF3 libraries:
 
-```
-classic
-```
+`classic`
 
 Output that is identical to classic netcdf:
 
-```
-64-bit offset
-```
+`64-bit offset`
 
 Determine the format of an input file with an *.nc4 extension
 
@@ -42,9 +38,7 @@ Determine the format of an input file with an *.nc4 extension
 
 Output for files created with the netCDF4 libraries:
 
-```
-netCDF-4 classic model
-```
+`netCDF-4 classic model`
 
 ### Build Method
 
