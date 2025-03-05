@@ -11,7 +11,7 @@ Benchmarking refers to a simulation that is used to verify that the software is 
 
 ## Install CMAQ and libraries and configure the linux environment following instructions here:  
 
-(Build libraries and CMAQ)[CMAQ_UG_tutorial_configure_linux_environment.md]
+[Build libraries and CMAQ](CMAQ_UG_tutorial_configure_linux_environment.md)
 
 ## Install the CMAQ reference input and output benchmark data
 
