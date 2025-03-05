@@ -12,7 +12,7 @@ netCDF classic is based on the classic data model and defines a storage format w
 netCDF4 is based on the enhanced data model and uses HDF5 as its backend storage format
 
 
-### Are the input files netcdf4 compressed (*.nc4) or classic netCDF (*.nc)?
+### Are your input files netcdf4 compressed (*.nc4) or classic netCDF (*.nc)?
 
 The EQUATES data that is provided uses netCDF4 compressed (*.nc4) input data
 
