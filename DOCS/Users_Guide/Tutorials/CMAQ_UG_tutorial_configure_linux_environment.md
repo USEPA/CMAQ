@@ -1,5 +1,22 @@
 # Building CMAQ and the required libraries (netCDF and I/O API)
 
+## System Checks
+
+The following support software are required for compiling and running CMAQ.
+
+1. Fortran and C compilers, e.g., [Intel](https://software.intel.com/en-us/fortran-compilers), [Portland Group](http://www.pgroup.com), [Gnu](https://gcc.gnu.org/wiki/GFortran)
+2. [Git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git)
+2. Message Passing Interface (MPI), e.g., [OpenMPI](https://www.open-mpi.org) or [MVAPICH2](http://www.mcs.anl.gov/research/projects/mpich2).
+3. Latest release of [netCDF-C](https://www.unidata.ucar.edu/software/netcdf/docs/getting_and_building_netcdf.html) and [netCDF-Fortran](https://www.unidata.ucar.edu/software/netcdf/docs/building_netcdf_fortran.html) **built with netCDF4, HDF5, HDF4, DAP client, PnetCDF, or zlib support**
+4. [I/O API](https://www.cmascenter.org/download/software/ioapi/ioapi_3-2.cfm?DB=TRUE) version 3.2 **tagged 20200828**
+(note: if you have not installed the above libraries, please see the tutorials available below)
+
+The suggested hardware requirements for running the CMAQ Southeast Benchmark case on a Linux workstation are:
+
+1. Linux environment with a 16 processors
+2. 16 GB RAM
+3. 400 GB hard drive storage
+
 
 There are two ways to build netCDF libraries, and it is critical to use a consistent set of builds.  
 
