@@ -62,12 +62,14 @@ Instructions for editing and running these install scripts are available in the 
 - **Directions on how to prepare your Linux system for installing CMAQ** (These instructions use a subset of the install scripts available below)
 
 For netCDF classic
-  - [Building CMAQ for GNU using libraries that disable netCDF4 compression](CMAQ_UG_tutorial_build_library_gcc.md)
-  - [Building CMAQ for Intel using libraries that disable netCDF4 compression](CMAQ_UG_tutorial_build_library_intel.md)
+  - [Tutorial for building CMAQ with GNU using libraries that disable netCDF4 compression](CMAQ_UG_tutorial_build_library_gcc.md)
+  - [Tutorial for building CMAQ with Intel using libraries that disable netCDF4 compression](CMAQ_UG_tutorial_build_library_intel.md)
 
 for netcdf4
-  - [Building CMAQ for GNU using libraries that support compressed netCDF4](CMAQ_UG_tutorial_build_library_gcc_support_nc4.md)
-  - [Building CMAQ for Intel using libraries that support compressed netCDF4](CMAQ_UG_tutorial_build_library_intel_support_nc4.md)
+  - [Tutorial for building CMAQ with GNU using libraries that support compressed netCDF4](CMAQ_UG_tutorial_build_library_gcc_support_nc4.md)
+  - [Tutorial for building CMAQ for Intel using libraries that support compressed netCDF4](CMAQ_UG_tutorial_build_library_intel_support_nc4.md)
+
+Note, CMAQ built using libraries for compressed netCDF4 can read and use the netCDF classic input files.
 
 After successfull completion of this tutorial, the user is now ready to proceed to the CMAQ Installation & Benchmarking Tutorial
 
