@@ -40,6 +40,20 @@ Confirm that the modules are loaded
 module list
 ```
 
+Check that the following are available in your path
+
+```
+which mpirun
+which m3xtract
+which ncdump
+```
+
+Confirm that the CMAQ executable has been compiled successfully
+
+```
+cd $CMAQ_HOME/CMAQv5.5/CCTM/scripts
+ls -lrt */*.exe
+```
 
 
 ## Install the CMAQ reference input and output benchmark data
