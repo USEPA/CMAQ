@@ -88,7 +88,7 @@ for netcdf4
 
 Note, CMAQ built using libraries for compressed netCDF4 can read and use the netCDF classic input files.
 
-After successfull completion of this tutorial, the user is now ready to proceed to the CMAQ Installation & Benchmarking Tutorial
+After successfull completion of this tutorial, the user is now ready to proceed to the [CMAQ Benchmark Tutorial](CMAQ_UG_tutorial_benchmark.md)
 
 If you have a different compiler than what was used in the tutorials above, then you can use the scripts below.
 Note, you will need to edit the scripts to replace hard coded paths with your local file system path as described in the tutorials above.
