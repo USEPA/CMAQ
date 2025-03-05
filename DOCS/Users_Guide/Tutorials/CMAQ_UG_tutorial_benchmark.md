@@ -13,74 +13,6 @@ Benchmarking refers to a simulation that is used to verify that the software is 
 
 (Build libraries and CMAQ)[CMAQ_UG_tutorial_configure_linux_environment.md]
 
-## Install CMAQ and Required Libraries 
-
-In the directory where you would like to install CMAQ, create the directory issue the following command to clone the EPA GitHub repository for CMAQv5.5:
-
-```
-git clone -b main https://github.com/USEPA/CMAQ.git CMAQ_REPO
-```
-
-For instructions on installing CMAQ from Zip files, see [Chapter 5](../CMAQ_UG_ch05_running_a_simulation.md).
-
-## Check Out a new Branch in the CMAQ Repository 
-
-Checking out a new branch is a good idea even if you are not doing code development, per se. It is likely that you will want to retrieve new updates in the future, and an easy way to do this is through the main branch in the git repo. Thus, it is beneficial to leave it unperturbed if possible.
-```
-cd CMAQ_REPO
-git checkout -b my_branch
-```
-
-## Configure the CMAQ build environment
-
-The user has two options for building an environment. She or he may build and run CMAQ components directly in the repository structure (object files and executables will be ignored with .gitignore), or they may extract the build and run scripts out of the repository and work in a separate location. If you would like to build directly in the repository, skip to "Link the CMAQ Libraries" below.
-
-### Build and run in a user-specified directory outside of the repository
-In the top level of CMAQ_REPO, the bldit_project.csh script will automatically replicate the CMAQ folder structure and copy every build and run script out of the repository so that you may modify them freely without version control.
-
-In bldit_project.csh, modify the variable $CMAQ_HOME to identify the folder that you would like to install the CMAQ package under. For example:
-```
-set CMAQ_HOME = [your_install_path]/CMAQ_v5.5
-```
-
-Now execute the script.
-```
-./bldit_project.csh
-```
-
-## Link the CMAQ Libraries
-The CMAQ build scripts require the following libraries and INCLUDE files to be available in the CMAQ_LIB directory (Note: the CMAQ_LIB gets set automatically by the config_cmaq.csh script, where `CMAQ_LIB = $CMAQ_HOME/lib`): 
-
-- netCDF C library files are located in the `$CMAQ_LIB/netcdf/lib` directory
-- netCDF Fortran library files are located in the `$CMAQ_LIB/netcdff/lib` directory
-- I/O API library, include files and module files are located in the `$CMAQ_LIB/ioapi` directory
-- MPI library and INCLUDE files are located in the `$CMAQ_LIB/mpi` directory
-
-The config_cmaq.csh script will automatically link the required libraries into the CMAQ_LIB directory. Set the locations of the netCDF, I/O API, and MPI installations on your Linux system with the following config_cmaq.csh environment variables:
-
-- `setenv IOAPI_INCL_DIR`: the location of the I/O API include header files on your system.
-- `setenv IOAPI_LIB_DIR`: the location of compiled I/O API libraries on your system.
-- `setenv NETCDF_LIB_DIR`: the location of the netCDF C library installation on your system.
-- `setenv NETCDF_INCL_DIR`: the location of the netCDF C include files on your system.
-- `setenv NETCDFF_LIB_DIR`: the location of the netCDF Fortran library installation on your system.
-- `setenv NETCDFF_INCL_DIR`: the location of the netCDF Fortran include files on your system.
-- `setenv MPI_LIB_DIR`: the location of the MPI (OpenMPI or MVAPICH) on your system.
-
-For example, if your netCDF C libraries are installed in /usr/local/netcdf/lib, set `NETCDF_LIB_DIR` to /usr/local/netcdf/lib. Similarly, if your I/O API library is installed in /home/cmaq/ioapi/Linux2_x86_64gfort, set `IOAPI_LIB_DIR` to /home/cmaq/ioapi/Linux2_x86_64gfort. 
-
-*1.* Check the names of the I/O API and netCDF libraries using the `ioapi_lib` and `netcdf_lib` script variables.
-
-*2.* Check the name of the MPI library using the `mpi_lib` script variable. For MVAPICH use `-lmpich`; for openMPI use `-lmpi`.
-
-Links to these libraries will automatically be created when you run any of the build or run scripts. To manually create these libraries (this is optional), execute the config_cmaq.csh script, identifying the compiler in the command line [intel | gcc | pgi]:
-```
-source config_cmaq.csh [compiler] 
-```
-You may also identify the version of the compiler if you wish it to be identified in build directory and executable names. This is optional. For example:
-```
-source config_cmaq.csh gcc 9.5
-```
-
 ## Install the CMAQ reference input and output benchmark data
 
 Download the CMAQ two day reference input and output data for the cb6r5_ae7 mechanism (using inputs from CMAQv5.4 Benchmark release) from the [CMAS Center Data Warehouse Amazon Web Services S3 Bucket](https://cmaq-release-benchmark-data-for-easy-download.s3.amazonaws.com/index.html#v5_5/): CMAQv5.4_2018_12NE3_Benchmark_2Day_Input.tar.gz	and output_CCTM_v55_gcc_Bench_2018_12NE3_cb6r5_ae7_aq_m3dry.tar.gz. The CMAQ benchmark test case is a two day simulation for July 1-2 2018 on a 100 column x 105 row x 35 layer 12-km resolution domain over the northeast U.S.  
@@ -99,7 +31,7 @@ tar -xzvf output_CCTM_v55_gcc_Bench_2018_12NE3_cb6r5_ae7_aq_m3dry.tar.gz
 
 *Note that there is also benchmark output data for CMAQv5.5 with CB6r5 and the STAGE dry deposition module. Look for output_CCTM_v55_gcc_Bench_2018_12NE3_cb6r5_ae7_aq_stage.tar.gz in the AWS link above.* 
 
-## Compiling CMAQ
+## Compiling CMAQ (note this was already done in the install script, but if you would like a different option, then you would need to follow these instructions to recompile)
 
 *Before proceeding, it should be noted that building the ICON and BCON executables are optional steps when working specifically with the benchmark data. This is because the initial condition and boundary condition files have been provided for you within the benchmark data set. For further information on these preprocessors please reference [Chapter 4](../CMAQ_UG_ch04_model_inputs.md).*   
 
