@@ -48,7 +48,7 @@ In addition to two different methods of building libraries, the libraries can be
 
 It is recommended to use the module environment to avoid mixing and matching other library build configuations.
 
-Instructions will be provided for both intel and GNU compilers.
+Instructions will be provided for both Intel and GNU compilers.
 
 ### Three install scripts are provided to build CMAQ and the underlying libraries:
 
@@ -92,7 +92,7 @@ Using the GNU 11.4 compiler (gcc/gfortran)
   - [Script to install I/O API library to support netCDF4 compression](./scripts/cmaq_libraries/gcc_11.4_install_ioapi_for_nc4_compression.csh)
   - [Script to install CMAQv55 for CB6r5 and M3DRY](./scripts/cmaq_libraries/gcc_11.4_install_cmaq55_cb6r5_m3dry_for_nc4_compression.csh)
 
-Using the intel 18.2 compiler (ifort/icc)
+Using the Intel 18.2 compiler (ifort/icc)
 
   - [Script to install netCDF libraries to support netCDF4 compression](./scripts/intel_18.2_install_netcdf_for_nc4_compression.csh)
   - [Script to install I/O API library to support netCDF4 compression](./scripts/intel_18.2_install_ioapi_for_nc4_compression.csh)
