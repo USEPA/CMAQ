@@ -16,7 +16,7 @@ netCDF4 is based on the enhanced data model and uses HDF5 as its backend storage
 
 The EQUATES data that is provided uses netCDF4 compressed (*.nc4) input data
 
-The following command can be used to determine the format of an input file
+Determine the format of an input file with an *.nc extension
 
 ``` 
  ncdump -k file_name.nc
@@ -28,11 +28,13 @@ Output for file created with the netCDF3 libraries:
 classic
 ```
 
-Identical to classic
+Output that is identical to classic netcdf
 
 ```
 64-bit offset
 ```
+
+Determine the format of an input file with an *.nc4 extension
 
 ```
  ncdump -k file_name.nc4
