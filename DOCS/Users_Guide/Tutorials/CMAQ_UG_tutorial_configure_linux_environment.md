@@ -14,7 +14,7 @@ netCDF4 is based on the enhanced data model and uses HDF5 as its backend storage
 
 ### Are your input files netcdf4 compressed (*.nc4) or classic netCDF (*.nc)?
 
-The EQUATES data that is provided uses netCDF4 compressed (*.nc4) input data
+The EQUATES data uses netCDF4 compressed (*.nc4) input data
 
 Determine the format of an input file with an *.nc extension
 
