@@ -1,7 +1,7 @@
 # Building CMAQ and the required libraries (netCDF and I/O API)
 
 
-There are two ways to build netCDF libraries, and it is critical to use a consistent set of builds, when building netCDF classic, then build I/O API using that version of netCDF, and then build CMAQ. 
+There are two ways to build netCDF libraries, and it is critical to use a consistent set of builds, when building netCDF, then build I/O API using that version of netCDF, and then build CMAQ. 
 It is recommended to use the module environment to avoid mixing and matching with other library build configuations.
 
 ### Building libraries to support netCDF classic 
@@ -51,17 +51,14 @@ In addition to two different methods of building libraries, the libraries can be
 
 Instructions will be provided for both intel and GNU compilers.
 
-There are three different install scripts to build CMAQ and the underlying libraries:
+### Three install scripts are used to build CMAQ and the underlying libraries:
 
 1. netCDF-C and netCDF-Fortran install script
 2. I/O API install script
 3. CMAQ install script for cb6r5 mechanism and m3dry dry deposition scheme
 
-After successfull completion of this tutorial, the user is now ready to proceed to the CMAQ Installation & Benchmarking Tutorial
 
 Instructions for running these install scripts are available in the following tutorials
-
-
 
 - **Directions on how to prepare your Linux system for installing CMAQ** (These instructions use a subset of the install scripts available below)
 
@@ -73,6 +70,9 @@ for netcdf4
   - [Building CMAQ for GNU using libraries that support compressed netCDF4](CMAQ_UG_tutorial_build_library_gcc_support_nc4.md)
   - [Building CMAQ for Intel using libraries that support compressed netCDF4](CMAQ_UG_tutorial_build_library_intel_support_nc4.md)
 
+After successfull completion of this tutorial, the user is now ready to proceed to the CMAQ Installation & Benchmarking Tutorial
+
+If you have a different compiler than what was used in the tutorials above, then you can use the scripts below.
 
 ### Install scripts for classic NetCDF
 
