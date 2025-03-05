@@ -20,6 +20,28 @@ setenv CMAQ_HOME /your_local_path/CMAQv5.5
 setenv CMAQ_DATA /your_local_path/CMAQv5.5/data
 ```
 
+### Use module avail to see private modules that were built using the above tutorial
+
+```
+module avail
+```
+
+Load the modules for ioapi, netcdf and openmpi
+
+(Note, the module names will be different depending on what compiler and version was used
+
+```
+module load compiler ioapi netcdf openmpi
+```
+
+Confirm that the modules are loaded
+
+```
+module list
+```
+
+
+
 ## Install the CMAQ reference input and output benchmark data
 
 Download the CMAQ two day reference input and output data for the cb6r5_ae7 mechanism (using inputs from CMAQv5.4 Benchmark release) from the [CMAS Center Data Warehouse Amazon Web Services S3 Bucket](https://cmaq-release-benchmark-data-for-easy-download.s3.amazonaws.com/index.html#v5_5/): CMAQv5.4_2018_12NE3_Benchmark_2Day_Input.tar.gz	and output_CCTM_v55_gcc_Bench_2018_12NE3_cb6r5_ae7_aq_m3dry.tar.gz. The CMAQ benchmark test case is a two day simulation for July 1-2 2018 on a 100 column x 105 row x 35 layer 12-km resolution domain over the northeast U.S.  
