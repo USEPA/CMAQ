@@ -6,7 +6,7 @@
 # NOTE - please change the BUILD, CMAQ_HOME and OPENMPI directory to your local paths
 # To find the openmpi path, search for mpirun, and then look for the include and lib directories
 # > which mpirun
-setenv BUILD $cwd/LIBRARIES_gcc_9.1
+setenv BUILD $cwd/LIBRARIES_gcc
 setenv IOAPI_DIR $BUILD/ioapi-3.2/Linux2_x86_64gfort
 setenv NETCDF_DIR $BUILD/lib
 setenv NETCDFF_DIR $BUILD/lib
@@ -32,7 +32,7 @@ mkdir $BUILD/../openmpi_gcc_9.1
 module load openmpi_4.0.1/gcc_9.1
  # edit config_cmaq.csh to specify the library locations
  cd $BUILD/../openmpi_gcc_9.1/
- sed -i '144i \       setenv BUILD /proj/ie/proj/CMAS/CMAQ/WRF-CMAQv5.5/build/LIBRARIES_gcc_9.1' config_cmaq.csh
+ sed -i '144i \       setenv BUILD /proj/ie/proj/CMAS/CMAQ/WRF-CMAQv5.5/build/LIBRARIES_gcc' config_cmaq.csh
  sed -i '145i \       setenv OPENMPI /nas/longleaf/apps-dogwood/mpi/gcc_9.1/openmpi-4.0.1' config_cmaq.csh
  sed -i 's@ioapi_inc_gcc@$BUILD\/ioapi-3.2\/ioapi\/fixed_src@g' config_cmaq.csh
  sed -i 's@ioapi_lib_gcc@$BUILD\/ioapi-3.2\/Linux2_x86_64gfort@g' config_cmaq.csh
