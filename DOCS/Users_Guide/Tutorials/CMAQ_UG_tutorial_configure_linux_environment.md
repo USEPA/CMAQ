@@ -30,8 +30,8 @@ The following support software are required for compiling and running CMAQ.
    - Building netCDF4 libraries that disable compression with INTEL compiler ([Tutorial](CMAQ_UG_tutorial_build_library_intel.md))
    - Building netCDF4 libraries that enable compression with GNU compiler ([Tutorial](CMAQ_UG_tutorial_build_library_gcc_support_nc4.md) | [Script](./scripts/cmaq_libraries/gcc_11.4_install_netcdf_for_nc4_compression.csh))
    - Building netCDF4 libraries that enable compression with INTEL compiler ([Tutorial](CMAQ_UG_tutorial_build_library_intel_support_nc4.md) | [Script](./scripts/intel_18.2_install_netcdf_for_nc4_compression.csh))
-5. [I/O API](https://www.cmascenter.org/download/software/ioapi/ioapi_3-2.cfm?DB=TRUE)
-   - Building I/O API libraries with INTEL compiler ([Tutorial](CMAQ_UG_tutorial_build_library_intel_support_nc4.md) | [Script](./scripts/intel_18.2_install_netcdf_for_nc4_compression.csh))
+5. [I/O API](https://github.com/cjcoats/ioapi-3.2)
+   - Building I/O API libraries ([Intel Compiler Script](./scripts/intel_18.2_install_netcdf_for_nc4_compression.csh) | [GNU Compiler Script](./scripts/cmaq_libraries/gcc_11.4_install_ioapi_for_nc4_compression.csh))
 
 
 
