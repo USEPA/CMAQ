@@ -3,14 +3,11 @@
 This tutorial is based on these instructions: https://www.unidata.ucar.edu/software/netcdf/documentation/NUG/getting_and_building_netcdf.html
 
 * netCDF requires the HDF5, zlib, and curl libraries. 
-* This Tutorial is for the gcc 11.4.1 compiler.   
-* For gcc 10 and above, use the  -fallow-argument-mismatch argument (see alternative script and instructions for gcc 10 and above) 
+* This Tutorial is for the intel 2024.2.1 compiler.   
 
-## netCDF requires the HDF5, zlib, and curl libraries, these instructions use HDF5 1.10.5, zlib 1.3, and curl 8.11.0. 
+## netCDF requires the HDF5, zlib, and curl libraries, these instructions use HDF5 1.14.3, zlib 1.3, and curl 8.11.1. 
 
-This Tutorial uses libarary install scripts that were created for the gcc 11.4 compiler, there are also scripts for intel 18.2 and intel 2024. These install scripts assume that you have environment modules available on your system, and that you can use a module load command to load the compiler and openmpi version. Different scripts are provided, as different options are required, such as for gcc 10 and above, requires using the  -fallow-argument-mismatch argument <br>
-
-When building I/O API, as of Aug. 28, 2020, there are now new <b>BIN=Linux\*gfort10\*</b> types and corresponding <b>Makeinclude.Linux\*gfort10\*</b> that incorporate this flag for the I/O API and M3Tools. Please see the I/O API documentation: https://www.cmascenter.org/ioapi/documentation/all_versions/html/AVAIL.html <br>
+This Tutorial uses library install scripts that were created for the intel 2024.2.1 compiler that uses ifx instead of ifort, there are also scripts for gcc 11.2. These install scripts assume that you have environment modules available on your system, and that you can use a module load command to load the compiler and openmpi version. Different scripts are provided, as different options are required, such as for gcc 10 and above, requires using the  -fallow-argument-mismatch argument <br>
 
 The libraries can be installed using install scripts that are provided.
 
@@ -23,60 +20,55 @@ Install the netCDF libraries and their prerequisites for the compiler version th
 mkdir -p $cwd/CMAQv5.5/build
 ```
 
-### Download the install scripts for the gcc version 11.4 compiler.
+### Download the install scripts for the intel 2024 compiler.
 
 ```
 cd $cwd/CMAQv5.5/build
-wget https://github.com/USEPA/CMAQ/blob/main/DOCS/Users_Guide/Tutorials/scripts/cmaq_libraries/gcc_11.4_install_netcdf_for_nc4_compression.csh
-wget https://github.com/USEPA/CMAQ/blob/main/DOCS/Users_Guide/Tutorials/scripts/cmaq_libraries/gcc_11.4_install_ioapi_for_nc4_compression.csh
-wget https://github.com/USEPA/CMAQ/blob/main/DOCS/Users_Guide/Tutorials/scripts/cmaq_libraries/gcc_11.4_install_cmaq55_cb6r5_m3dry_for_nc4_compression.csh
-```
+wget https://github.com/USEPA/CMAQ/blob/main/DOCS/Users_Guide/Tutorials/scripts/cmaq_libraries/intel_2024_install_netcdf_for_nc4_compression.csh
+wget https://github.com/USEPA/CMAQ/blob/main/DOCS/Users_Guide/Tutorials/scripts/cmaq_libraries/intel_2024_install_ioapi_for_nc4_compression.csh
+wget https://github.com/USEPA/CMAQ/blob/main/DOCS/Users_Guide/Tutorials/scripts/cmaq_libraries/intel_2024_install_cmaq55_cb6r5_m3dry_for_nc4_compression.csh
 
+```
 
 ### Edit the CMAQ install scripts 
 Modify any hard coded paths, grep for proj and replace the hardcoded path to a hardcoded path on your system
 
-Change this hard coded path to your local installation directory
+Replace the following path the local path
 ```
 /proj/ie/proj/CMAS/CMAQ/CMAQv5.5/build
 ```
 
-The gcc_11.4_install_cmaq55_cb6r5_m3dry_for_nc4_compression.csh script uses this in a sed command, so it needs to be edited to reflect the absolute path on your system.
+The intel_2024_install_cmaq55_cb6r5_m3dry_for_nc4_compression.csh script uses this in a sed command, so it needs to be edited to reflect the absolute path on your system.
 There is also a hard coded path for the openmpi library.
 
 Use the command:
 
-which mpirun to find the path to the library, note the path depands on the openmpi module that is used.
+`which mpirun` to find the path to the mpi library, note the path depands on the compiler and whether openmpi or intel mpi is used
 
+On my system the path was:
 
 ```
-module load openmpi
-which mpirun
-```
-
-Output
-```
-/nas/sycamore/apps/openmpi/5.0.5/bin/mpirun
+/nas/sycamore/apps/intel/2024.2.1/intel/oneapi/mpi/latest
 ```
 
 Modify the scripts to use the path on your system.
 
-Load the modules for your compiler and openmpi version and then run the library install script for the netcdf libraries.
+Load the modules for your compiler then run the library install script for the netcdf libraries.
 
 ```
-module load openmpi_5.0.5/gcc_11.4.1 
+module load intel/2024.2.1  
 ```
 
 ### Run script to install the netcdf libraries:
 
 ```
-./gcc_11.4_install_netcdf_for_nc4_compression.csh
+./intel_2024_install_netcdf_for_nc4_compression.csh
 ```
 
 ### Run script to install the I/O API Library
 
 ```
-./gcc_11.4_install_ioapi_for_nc4_compression.csh
+./intel_2024_install_ioapi_for_nc4_compression.csh
 ```
 
 Note, if you obtain the following error:
@@ -87,31 +79,35 @@ Cloning into 'ioapi-3.2'...
 fatal: unable to access 'https://github.com/cjcoats/ioapi-3.2/': Protocol "https" not supported
 ```
 
-Then use module purge as there is a conflict with the modules being loaded.
+Then you will unload any modules using module purge. Then the git clone command should work.<br>
 
 ```
 module purge
+cd LIBRARIES_intel
+git clone https://github.com/cjcoats/ioapi-3.2
+cd ..
 ```
 
-Re-run the git clone
+After the git clone has been successful then reload the modules
+
 ```
-cd LIBRARIES_gcc
-git clone https://github.com/cjcoats/ioapi-3.2
-cd ../
+module load intel/2024.2.1 
 ```
 
 Then re-run the install script above.
 
 ```
-./gcc_install_ioapi_for_nc4_compression.csh
+./intel_2024_install_ioapi_for_nc4_compression.csh
 ```
 
 If this is successful, you will see a stream of log messages including the m3tools program wrfwndw being compiled.
 
 Output
 ```
-cd /21dayscratch/scr/l/i/lizadams/WRF-CMAQ/CMAQv5.5/build/LIBRARIES_gcc/ioapi-3.2/Linux2_x86_64gfort; gfortran -I/21dayscratch/scr/l/i/lizadams/WRF-CMAQ/CMAQv5.5/build/LIBRARIES_gcc/ioapi-3.2/ioapi -I/21dayscratch/scr/l/i/lizadams/WRF-CMAQ/CMAQv5.5/build/LIBRARIES_gcc/ioapi-3.2/Linux2_x86_64gfort -DAUTO_ARRAYS=1 -DF90=1 -DFLDMN=1 -DFSTR_L=int -DIOAPI_NO_STDOUT=1 -DNEED_ARGS=1 -O3 -ffast-math -funroll-loops -m64   -DAUTO_ARRAYS=1 -DF90=1 -DFLDMN=1 -DFSTR_L=int -DIOAPI_NO_STDOUT=1 -DNEED_ARGS=1 -c /21dayscratch/scr/l/i/lizadams/WRF-CMAQ/CMAQv5.5/build/LIBRARIES_gcc/ioapi-3.2/m3tools/wrfwndw.f90
-cd /21dayscratch/scr/l/i/lizadams/WRF-CMAQ/CMAQv5.5/build/LIBRARIES_gcc/ioapi-3.2/Linux2_x86_64gfort; gfortran  wrfwndw.o -L/21dayscratch/scr/l/i/lizadams/WRF-CMAQ/CMAQv5.5/build/LIBRARIES_gcc/ioapi-3.2/Linux2_x86_64gfort -lioapi -L/21dayscratch/scr/l/i/lizadams/WRF-CMAQ/CMAQv5.5/build/LIBRARIES_gcc/lib -lnetcdff -lnetcdf -lhdf5_hl -lhdf5 -lm -ldl -lz -lcurl -lnetcdf -fopenmp -dynamic -L/usr/lib64 -lm -lpthread -lc  -o wrfwndw
+cd /proj/ie/proj/CMAS/CMAQ/CMAQv5.5/build_sycamore/LIBRARIES_intel/ioapi-3.2/Linux2_x86_64ifx; ifx -auto -warn notruncated_source -Bstatic -static-intel -I/proj/ie/proj/CMAS/CMAQ/CMAQv5.5/build_sycamore/LIBRARIES_intel/ioapi-3.2/ioapi -I/proj/ie/proj/CMAS/CMAQ/CMAQv5.5/build_sycamore/LIBRARIES_intel/ioapi-3.2/Linux2_x86_64ifx -DIOAPI_NCF4=1 -DAUTO_ARRAYS=1 -DF90=1 -DFLDMN=1 -DFSTR_L=int -DIOAPI_NO_STDOUT=1 -DAVOID_FLUSH=1 -DBIT32=1 -O3 -unroll -stack-temps -safe-cray-ptr -convert big_endian -assume byterecl  -traceback                                           -DIOAPI_NCF4=1 -DAUTO_ARRAYS=1 -DF90=1 -DFLDMN=1 -DFSTR_L=int -DIOAPI_NO_STDOUT=1 -DAVOID_FLUSH=1 -DBIT32=1 -c /proj/ie/proj/CMAS/CMAQ/CMAQv5.5/build_sycamore/LIBRARIES_intel/ioapi-3.2/m3tools/wrfwndw.f90
+cd /proj/ie/proj/CMAS/CMAQ/CMAQv5.5/build_sycamore/LIBRARIES_intel/ioapi-3.2/Linux2_x86_64ifx; ifx -auto -warn notruncated_source -Bstatic -static-intel  wrfwndw.o -L/proj/ie/proj/CMAS/CMAQ/CMAQv5.5/build_sycamore/LIBRARIES_intel/ioapi-3.2/Linux2_x86_64ifx -lioapi -L/proj/ie/proj/CMAS/CMAQ/CMAQv5.5/build_sycamore/LIBRARIES_intel/lib -lnetcdff -lnetcdf -lhdf5_hl -lhdf5 -lm -lcurl -lz -lsz -ldl -lm  -lnetcdf -qopenmp -shared-intel   -o wrfwndw
+ifx: command line warning #10121: overriding '-static-intel' with '-shared-intel'
+
 ```
 
 
@@ -133,21 +129,25 @@ mkdir -p $cwd/Modules/modulefiles/ioapi-3.2
 
 Edit the module name file to specify the PATH and LD_LIBARY_PATH.
 
-Next, create the module file and save it to the ioapi-3.2 directory 
+Next, create the module file named intel-2024 and save it to the ioapi-3.2 directory 
 
 Example:
+
 ```
-cat  gcc-11.4
+cat intel-2024
+```
+output:
+```
 #%Module
   
 proc ModulesHelp { } {
-   puts stderr "This module adds ioapi-3.2/gcc-11.4 to your path"
+   puts stderr "This module adds ioapi-3.2/intel-2024 to your path"
 }
 
-module-whatis "This module adds ioapi-3.2/gcc-11.4 to your path\n"
+module-whatis "This module adds ioapi-3.2/intel-2024 to your path\n"
 
-set basedir "/proj/ie/proj/CMAS/CMAQ/CMAQv5.5/build/LIBRARIES_gcc/ioapi-3.2"
-prepend-path PATH "${basedir}/Linux2_x86_64gfort"
+set basedir "/proj/ie/proj/CMAS/CMAQ/CMAQv5.5/build_sycamore/LIBRARIES_intel/ioapi-3.2"
+prepend-path PATH "${basedir}/Linux2_x86_64ifx"
 prepend-path LD_LIBRARY_PATH "${basedir}/ioapi/fixed_src"
 ```
 
@@ -160,18 +160,22 @@ mkdir -p $cwd/Modules/modulefiles/netcdf-4.5.3-for_nc4
 Next, create the module file and save it to the netcdf-4.5.3-for_nc4 directory
 
 ```
-cat gcc-11.4
+cat  ifort-2024.2.1
+```
+output:
+```
 #%Module
-  
 proc ModulesHelp { } {
-   puts stderr "This module adds netcdf-4.5.3-for_nc4/gcc-11.4 to your path"
+   puts stderr "This module adds netcdf-4.5.3-for_nc4/ifort-2024.2.1 to your path"
 }
 
-module-whatis "This module adds netcdf-4.5.3-for_nc4/gcc-11.4 to your path\n"
+module-whatis "This module adds netcdf-4.5.3-for_nc4/ifort-2024.2.1 to your path\n"
 
-set basedir "/proj/ie/proj/CMAS/CMAQ/WRF-CMAQv5.5/build/LIBRARIES_gcc"
+set basedir "/proj/ie/proj/CMAS/CMAQ/CMAQv5.5/build_sycamore/LIBRARIES_intel/"
 prepend-path PATH "${basedir}/bin"
 prepend-path LD_LIBRARY_PATH "${basedir}/lib"
+module load intel/2024.2.1
+
 ```
 
 
@@ -182,35 +186,38 @@ Now that the module files have been created, add the following line to your .csh
 module use --append /proj/ie/proj/CMAS/CMAQ/CMAQv5.5/build/Modules/modulefiles
 ```
 
-### Use module avail to see private modules
+### Use module avail to see private modules, and then load them
 
 ```
 module avail
-module load netcdf-4.5.3-for_nc4/gcc-11.4 ioapi-3.2/gcc-11.4
+module load netcdf-4.5.3-for_nc4/ifort-2024.2.1 ioapi-3.2/intel-2024
 ```
 
-Now you should see 4 modules loaded.
+Now you should see 3 modules loaded.
 
+```
 module list
+```
 
 Output:
 ```
 Currently Loaded Modules:
-  1) openmpi_5.0.5/gcc_11.4.1   2) netcdf-4.5.3-for_nc4/gcc-11.4   3) ioapi-3.2/gcc-11.4
+  1) intel/2024.2.1   2) netcdf-4.5.3-for_nc4/ifort-2024.2.1   3) ioapi-3.2/intel-2024
+
 ```
 
 ### Install CMAQ
 
-Edit the script to specify the correct local paths for HOME and openmpi and then run
+Edit the script to specify the correct local paths for HOME and mpirun and then run
 
 ```
-./gcc_11.4_install_cmaq55_cb6r5_m3dry_for_nc4_compression.csh
+./intel_2024_install_cmaq55_cb6r5_m3dry.csh
 ```
 
 ### Confirm that the CMAQv5.5 cb6r5 mechanism and m3dry deposition scheme has been built
 
 ```
-ls $cwd/openmpi_gcc/CCTM/scripts/BLD_CCTM_v55_gcc_cb6r5_ae7_aq_m3dry/CCTM_v55.exe
+ls $cwd/cmaq_intel/CCTM/scripts/BLD_CCTM_v55_intel_cb6r5_ae7_aq_m3dry/CCTM_v55.exe
 ```
 
 ### To build and run for the CRACMM2 mechanism and stage dry deposition scheme see the following tutorial
@@ -245,16 +252,17 @@ The following instructions go over the steps that were performed in the scripts 
 module avail
 ```
 2. Load module environment for a compiler (Intel|GCC|PGI) and mpi package corresponding to that compiler (e.g. openmpi).
+Note, that mpirun is available with the intel 2024 compiler, so there isn't another module that needs to be loaded.
 
 ```
-module load openmpi_5.0.5/gcc_11.4.1
+module load intel/2024.2.1 
 ```
 
 
 ## Install zlib
 
 ```
-setenv INSTDIR $cwd/LIBRARIES_gcc
+setenv INSTDIR $cwd/LIBRARIES_intel
 cd $INSTDIR
 ```
 
@@ -315,9 +323,9 @@ tar -xzvf curl-8.11.0.tar.gz
    setenv CXXFLAGS "-O3"
    setenv FCFLAGS "-O3"
    ./configure --prefix=${INSTDIR} --enable-fortran --enable-cxx --with-zlib=${INSTDIR}/include,${INSTDIR}/lib -enable-shared --enable-hl
-   make -j 4 |& tee make.gcc.log
-#  make check > make.gcc.check
-   make install |& tee make.gcc.log
+   make -j 4 |& tee make.intel.log
+#  make check > make.intel.check
+   make install |& tee make.intel.log
 ```
 
 ## Install netCDF-C
@@ -358,9 +366,9 @@ more INSTALL.md
 
 Make sure these compilers can be found.
 ```
-which gfortran
-which gcc
-which g++
+which icx
+which ifx
+which icpx
 ```
 
 If they are found, proceed to set the environment variables.
@@ -368,9 +376,9 @@ The paths will be dependent on your compute environment
 If they are not found, reload your module (see above), or ask your system administrator for the paths to a compiler
 
 ```
-setenv FC gfortran
-setenv CC gcc
-setenv CXX g++
+setenv FC ifx
+setenv CC icx
+setenv CXX icpx
 ```
 
 8. Specify the CPPFLAGS and LDFLAGS to tell netCDF where to obtain the underlying libraries, without this, netCDF may be built with a different version of the underlying libraries, leading to an error when using netCDF. 
@@ -389,7 +397,7 @@ setenv CXX g++
 9. Check that the configure command worked correctly, then run the install command
 
 ```
-make |& tee  make.gcc9.log
+make |& tee  make.intel.log
 make install
 ```
 
@@ -429,16 +437,16 @@ cd netcdf-fortran-4.5.3
 5. Review the installation document http://www.unidata.ucar.edu/software/netcdf/docs/building_netcdf_fortran.html
 
 
-6. Set the CC environment variable to use the gcc and gfortran compilers
+6. Set the CC environment variable to use the ifx and icx (intel 2024) compilers
 
 ```
-which gfortran
-which gcc
-which g++
+which ifx
+which icx
+which icpx
 
-setenv FC gfortran
-setenv CC gcc
-setenv CXX g++
+setenv FC ifx
+setenv CC icx
+setenv CXX icpx
 ```
 
 7. Set your LD_LIBRARY_PATH to include the netcdf-C library path for netCDF build
@@ -559,10 +567,10 @@ cp Makefile.nocpl Makefile
 7. Set the BIN environment variable 
 
 ```
-setenv BIN Linux2_x86_64gfort
+setenv BIN Linux2_x86_64ifort
 ```
 
-8. Edit the Makeinclude.Linux2_x86_64gfort to comment out OMPFLAG and OMPLIBS 
+8. Edit the Makeinclude.Linux2_x86_64ifort to comment out OMPFLAG and OMPLIBS 
 settings.  This will remove the need to link the shared memory OPENMP libraries when compiling CMAQ and WRF-CMAQ.
 
 ```
@@ -662,32 +670,45 @@ cd [your_work_location]/CMAQv55
 vi config_cmaq.csh
 ```
 
-Edit the case gcc section 
+Edit the case intel section 
 note, the paths need to be edited to match the location for your installation
 
 ```
-#>  gfortran compiler............................................................
-    case gcc:
+#>  Intel fortran compiler......................................................
+    case intel:
+       setenv BUILD /proj/ie/proj/CMAS/CMAQ/CMAQv5.5/build_sycamore/LIBRARIES_intel
+       setenv MPI /nas/sycamore/apps/intel/2024.2.1/intel/oneapi/mpi/latest
 
-        #> I/O API and netCDF for WRF-CMAQ 
-        setenv NCDIR /your_local_path/LIBRARIES/                  # C netCDF install path
-        setenv NFDIR /your_local_path/LIBRARIES/           # Fortran netCDF install path for CMAQ
-        setenv NETCDF /your_local_path/LIBRARIES/          # Note only for  WRF-CMAQ as it requires combining the netcdf C and netcdf F into a single directory. CMAQ users - dont change this setting
-        setenv IOAPI  /your_local_path/LIBRARIES/ioapi-3.2/   # I/O API 
-        setenv WRF_ARCH 34                              # [1-75] Optional, ONLY for WRF-CMAQ  
 
-        #> I/O API, netCDF, and MPI library locations
-        setenv IOAPI_INCL_DIR   ${IOAPI}/ioapi/fixed_src    #> I/O API include header files
-        setenv IOAPI_LIB_DIR    ${IOAPI}/Linux2_x86_64gfort    #> I/O API libraries
-        if ( $NETCDF == "netcdf_combined_directory_path" ) then
-            setenv NETCDF_LIB_DIR   ${NCDIR}/lib                       #> netCDF C directory path
-            setenv NETCDF_INCL_DIR  ${NCDIR}/include                   #> netCDF C directory path
-            setenv NETCDFF_LIB_DIR  ${NFDIR}/lib                       #> netCDF Fortran directory path
-            setenv NETCDFF_INCL_DIR ${NFDIR}/include                   #> netCDF Fortran directory path
-        endif
+        #> I/O API, netCDF Library Locations -- used in WRF-CMAQ
+        setenv NETCDF netcdf_root_intel # Note please combine netCDF-C & Fortran Libraries 
+        setenv IOAPI  ioapi_root_intel
+        setenv WRF_ARCH # [1-75]  
 
-        setenv MPI_INCL_DIR      /nas/sycamore/apps/openmpi/5.0.5/include #> MPI Include directory path
-        setenv MPI_LIB_DIR      /nas/sycamore/apps/openmpi/5.0.5/lib               #> MPI Lib directory path
+        #> I/O API, netCDF, and MPI Library Locations -- used in CMAQ
+        setenv IOAPI_INCL_DIR   $BUILD/ioapi-3.2/ioapi/fixed_src             #> I/O API include header files
+        setenv IOAPI_LIB_DIR    $BUILD/ioapi-3.2/Linux2_x86_64ifx             #> I/O API libraries
+        setenv NETCDF_LIB_DIR   $BUILD/lib            #> netCDF C directory path
+        setenv NETCDF_INCL_DIR  $BUILD/include            #> netCDF C directory path
+        setenv NETCDFF_LIB_DIR  $BUILD/lib           #> netCDF Fortran directory path
+        setenv NETCDFF_INCL_DIR $BUILD/include           #> netCDF Fortran directory path
+        setenv MPI_INCL_DIR     $MPI/include              #> MPI Include directory path
+        setenv MPI_LIB_DIR      $MPI/lib               #> MPI Lib directory path
+
+        #> Compiler Aliases and Flags
+        #> set the compiler flag -qopt-report=5 to get a model optimization report in the build directory with the optrpt extension
+        setenv myFC mpiifx
+        setenv myCC icx
+        #setenv myFSTD "-O3 -fno-alias -mp1 -fp-model source -ftz -simd -align all -xHost -vec-guard-write -unroll-aggressive"
+        setenv myFSTD "-O3 -fno-strict-aliasing"
+        setenv myDBG  "-O0 -g -check bounds -check uninit -fpe0 -fno-alias -ftrapuv -traceback"
+        setenv myLINK_FLAG #"-qopenmp-simd" openMP not supported w/ CMAQ
+        setenv myFFLAGS "-fixed -132"
+        setenv myFRFLAGS "-free"
+        setenv myCFLAGS "-O2"
+        setenv extra_lib "-lhdf5_hl -lhdf5 -lm -lzip -lcurl -lz -lsz -ldl -lm -fpp -auto -qopenmp"
+
+        breaksw
 ```
 
 4. Source the config_cmaq.csh to create the lib directory
@@ -705,29 +726,29 @@ cp bldit_cctm.csh bldit_cctmv55_cb6r5_m3dry/
 6. Build CMAQv55 to support the cb6r5 and m3dry dry deposition option 
 
 ```
-./bldit_cctmv55_cb6r5_m3dry.csh gcc | & tee ./bldit_cctmv55_cb6r5_m3dry.log
+./bldit_cctmv55_cb6r5_m3dry.csh intel | & tee ./bldit_cctmv55_cb6r5_m3dry.log
 ```
 
 7. Build the POST processing routines
 
 ```
 cd POST/combine/
-./bldit_combine.csh gcc |& tee ./bldit_combine.gcc.log
+./bldit_combine.csh intel |& tee ./bldit_combine.intel.log
 ```
 
 ```
 cd POST/calc_tmetric/scripts
-./bldit_calc_tmetric.csh gcc |& tee ./bldit_calc_tmetric.gcc.log
+./bldit_calc_tmetric.csh intel |& tee ./bldit_calc_tmetric.intel.log
 ```
 
 ```
 cd POST/hr2day/scripts
-./bldit_hr2day.csh gcc |& tee ./bldit_hr2day.gcc.log
+./bldit_hr2day.csh intel |& tee ./bldit_hr2day.intel.log
 ```
 
 ```
 cd POST/bldoverlay/scripts
-./bldit_bldoverlay.csh gcc |& tee ./bldit_bldoverlay.gcc.log
+./bldit_bldoverlay.csh intel |& tee ./bldit_bldoverlay.intel.log
 ```
 
 ## Modify Benchmark Post-processing Scripts for your installation

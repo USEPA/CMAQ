@@ -6,7 +6,7 @@
 set echo
 
 
-   setenv INSTDIR /21dayscratch/scr/l/i/lizadams/CMAQv5.5/LIBRARIES
+   setenv INSTDIR $cwd/LIBRARIES_gcc
    cd $INSTDIR
 
 #  --------------------------------------
@@ -43,7 +43,8 @@ set echo
    sed -i '100s/^#/\n/; 100s/^[^\n]/#&/; 100s/^\n//' Makefile
    sed -i '109s/^#/\n/; 109s/^[^\n]/#&/; 109s/^\n//' Makefile
    sed -i '111s/^#/\n/; 111s/^[^\n]/#&/; 111s/^\n//' Makefile
-   #sed -i -e 's/m64/m64 -DIOAPI_NCF4=1/g' Makeinclude.Linux2_x86_64gfort 
+   sed -i -e 's/-m64/-DIOAPI_NCF4=1/g' Makeinclude.Linux2_x86_64gfort 
+   sed -i -e 's/-openmp/#-openmp/g' Makeinclude.Linux2_x86_64ifort
    make HOME=$INSTDIR | & tee make.ioapi.log
    cd $INSTDIR/ioapi-3.2/m3tools
    make HOME=$INSTDIR | & tee make.m3tools.log

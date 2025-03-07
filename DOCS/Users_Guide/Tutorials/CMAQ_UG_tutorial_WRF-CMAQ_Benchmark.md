@@ -2,19 +2,22 @@
 
 **Purpose**: This guide describes how to install and run the WRF-CMAQ test case, which serves two different purposes. The first being to familiarize the user with the WRF-CMAQ suite of programs and how they work together, and secondly to verify the installation of the software on your system via benchmarking. 
 
-Users are highly encouraged to work through the [CMAQ Benchmark Tutorial](./CMAQ_UG_tutorial_benchmark.md) and [WRF Installation Guide](https://www2.mmm.ucar.edu/wrf/users/) to familiarize themselves with the individuals program components.
+Users are highly encouraged to work through the [CMAQ Benchmark Tutorial](../CMAQ_UG_tutorial_benchmark.md) and [WRF Installation Guide](https://www2.mmm.ucar.edu/wrf/users/) to familiarize themselves with the individuals program components.
 
 The following support software are required for compiling and running WRF-CMAQ.  
 
 1. Fortran and C compilers, e.g., [Intel](https://software.intel.com/en-us/fortran-compilers), [Portland Group](http://www.pgroup.com), [Gnu](https://gcc.gnu.org/wiki/GFortran)
 2. [Git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git)
 2. Message Passing Interface (MPI), e.g., [OpenMPI](https://www.open-mpi.org) or [MVAPICH2](http://www.mcs.anl.gov/research/projects/mpich2).
-3. Latest release of [netCDF-C](https://docs.unidata.ucar.edu/nug/current/getting_and_building_netcdf.html) and [netCDF-Fortran](https://www.unidata.ucar.edu/software/netcdf/docs/building_netcdf_fortran.html)
+3. Latest release of [netCDF-C](https://docs.unidata.ucar.edu/netcdf-c/current/) and [netCDF-Fortran](https://docs.unidata.ucar.edu/netcdf-fortran/current/)
 4. [I/O API](https://www.cmascenter.org/download/software/ioapi/ioapi_3-2.cfm?DB=TRUE) version 3.2 **tagged 20200828 without OpenMP support**
 5. [C-Shell](https://github.com/tcsh-org/tcsh) 
 
-**Note: if you have not installed the above libraries, please see the CMAQ_UG_tutorial_build_[gcc/intel/pgi].md tutorials available here: 
-https://github.com/USEPA/CMAQ/tree/main/DOCS/Users_Guide/Tutorials**
+**Note: if you have not installed the above libraries, please see the tutorials available here: 
+[Build libraries and CMAQ](CMAQ_UG_tutorial_configure_linux_environment.md)
+
+(need to use the compressed netCDF4 library build to run the benchmark case)
+https://github.com/USEPA/CMAQ/tree/main/DOCS/Users_Guide/Tutorials/CMAQ_UG_tutorial_build_library_gcc_support_nc4.md
 
 The suggested hardware requirements for running the CMAQ Northeast Benchmark case on a Linux workstation are:
 
@@ -24,6 +27,8 @@ The suggested hardware requirements for running the CMAQ Northeast Benchmark cas
 
 
 ## Installing WRF-CMAQ ##
+
+If you followed the CMAQ_UG_tutorial_build_library_gcc_support_nc4.md tutorial then you have installed the required netCDF-C and netCDF-Fortran libraries in to a combined folder, and you can skip to the section Configuring the WRF-CMAQ environment.
 
 In the directory where you would like to install WRF-CMAQ, create the directory issuing the following command to clone the EPA GitHub repository for CMAQv5.5:
 
@@ -54,35 +59,30 @@ Now execute the script.
 
 CMAQ_HOME will be the location of your newly created WRF_CMAQ project directory (where you will compile and run WRF-CMAQ).
 
-## Configuring the WRF-CMAQ Environment
+## Combining the netCDF-C and netCDF-Fortran libraries
 
 Compiling WRF-CMAQ requires several libraries and include files to be made avialable. Because these libraries and include files are not expected to be in standard locations, users need to explicitly provide the path to this via environmental variables. 
 
 The environmental variables that need to be set are located in the config_cmaq.csh script, located at the root of the WRF-CMAQ project directory. 
 
-Note: WRF source code expects that you have already collated the netCDF-C and netCDF-Fortran libraires into one directory. If you have done so, please follow the example instructions: 
+Note: WRF source code expects that you have already collated the netCDF-C and netCDF-Fortran libraires into one directory. If you have not done so, please follow the example instructions: 
 
 ```
-   cd /[your_install_path]/LIBRARIES
+   cd /[your_install_path]/LIBRARIES_gcc
    mkdir netcdf_combined
    cp -rp ./netcdf-fortran-4.4.5-gcc9.1.0/* ./netcdf_combined/
    cp -rp ./netcdf-c-4.7.0-gcc9.1.0/* ./netcdf_combined/
 ```
 
-Once netCDF collation is completed, navigate back to your WRF-CMAQ project directory and edit the config_cmaq.csh script like the following example: 
+### Configuring the WRF-CMAQ Environment
 
-If you are using netCDF classic - no HDF5 compression then set the following environment variable
-
-```
-setenv NETCDF_classic 1 
-```
+Navigate to the compiler of your choice to compile WRF-CMAQ using distributed memory parallel (dmpar). 
+For example, for GNU based compilers go to line 148 of the config_cmaq.csh. Then set the paths for NETCDF and IOAPI and the WRF_ARCH to 34. 
 
 ```
-Navigate to the compiler of your choice for. For example, for GNU based compilers go to section 148 of the script. Then set the 
-
 #> I/O API and netCDF for WRF-CMAQ 
-setenv NETCDF [your_install_path]/LIBRARIES/netcdf_combined 
-setenv IOAPI  [your_install_path]/LIBRARIES/ioapi-3.2  
+setenv NETCDF [your_install_path]/LIBRARIES_gcc
+setenv IOAPI  [your_install_path]/LIBRARIES_gcc/ioapi-3.2  
 setenv WRF_ARCH 34              # [1-75]  WRF 64 Bit Linux_x86 Compiler/Architecture options
 ```
 
@@ -129,14 +129,55 @@ Navigate to the WRF-CMAQ project directory and from there navigate to the CCTM/s
 
 ```
 cd CCTM/scripts
+cp bldit_cctm.csh bldit_wrf4.5.1_cctmv55.csh
 ```
 
-Edit bldit_cctm.csh and uncomment the option to build WRF-CMAQ twoway:   
+Edit bldit_wrf4.5.1_cctmv55.csh and uncomment the option to build WRF-CMAQ twoway:   
       
 ```
 #> Two-way WRF-CMAQ 
 set build_twoway                      #> uncomment to build WRF-CMAQ twoway; 
 ```
+
+Verify that WRF_CMAQ environment variable is set to 1:
+
+```
+grep WRF_CMAQ bldit_wrf4.5.1_cctmv55.csh
+```
+
+Output:
+
+```
+    setenv WRF_CMAQ 1
+```
+
+Set the WRF version to 4.5.1
+
+```
+ if ( $?build_twoway ) then            # WRF Version used for WRF-CMAQ Model (must be v4.4+)
+    set WRF_VRSN = v4.5.1
+ endif
+```
+
+Set the BLD directory name to add wrf to it, so that when the script copies the BLD directory, that it does not copy an existing direectory.
+
+```
+#> Set and create the "BLD" directory for checking out and compiling 
+#> source code. Move current directory to that build directory.
+ if ( $?Debug_CCTM ) then
+     set Bld = $CMAQ_HOME/CCTM/scripts/BLD_CCTM_${VRSN}_${compilerString}_${Mechanism}_${DepMod}_wrfcmaq_debug
+ else
+     set Bld = $CMAQ_HOME/CCTM/scripts/BLD_CCTM_${VRSN}_${compilerString}_${Mechanism}_${DepMod}_wrfcmaq
+ endif
+```
+
+If you are using an older version of git, you need to modify the git clone command to add --recurse-submodule flag to obtain the noahmp submodule, and to also use ssh instead of https:
+
+```
+git clone --recurse-submodule --branch ${WRF_VRSN} ssh://github.com/wrf-model/WRF.git ./$WRF_BLD >& /dev/null
+```
+
+Note, if you use https then the git clone will fail due to conflicts with the environment modules, you can log out and then log in and then retry the git clone command, and then reload the modules, but the better method is to switch to ssh.<br>
 
 Configure CMAQ benchmark Science Modules:
 
@@ -157,12 +198,12 @@ The build directory parameters for the benchmark test case include the following
 To configure these parameters, the CCTM Science Modules within the bldit_cctm.csh need to be modified from set defaults. The comments within the script itself should help guide the user on the options for each variable and how to set them. Further information on variable names can be found in 
 [Appendix A](../Appendix/CMAQ_UG_appendixA_model_options.md).
 
-### Run the bldit_cctm.csh script
+### Run the build script
 
 ```
-./bldit_cctm.csh gcc |& tee bldit_cctm_twoway.log
+./bldit_wrf4.5.1_cctmv55.csh gcc |& tee bldit_wrf4.5.1_cctmv55.log
 ```
-Users should look for the following message at the end of their bldit_cctm_twoway.log: 
+Users should look for the following message at the end of their bldit_wrf4.5.1_cctmv55.log: 
 
 ```
 --->                  Executables successfully built                  <---
@@ -176,7 +217,72 @@ Users should look for the following message at the end of their bldit_cctm_twowa
 
 ```
 
-If the User sees this, the WRF-CMAQ model has been successfully compiled and built. If not, the User should double check the library paths above and try again. If it still fails, please reach post on the [CMAS Forum](https://forum.cmascenter.org/c/wrf-cmaq).
+If the User sees this, the WRF-CMAQ model has been successfully compiled and built. If not, the User should double check the library paths above and try again. 
+
+If you get this error:
+------------------------------------------------------------------------------
+Error Error Error NoahMP submodule files not populating WRF directories
+------------------------------------------------------------------------------
+ 
+make: *** [wrf] Error 31
+
+This is because of a conflict between git clone and the environment modules.
+
+Try the following commands:
+
+```
+cd /21dayscratch/scr/l/i/lizadams/WRF-CMAQ/CMAQv5.5/build/openmpi_gcc/CCTM/scripts/BLD_WRFv4.5.1_CCTM_v55_gcc/phys
+git clone ssh://github.com/NCAR/noahmp/
+cd ..
+./compile em_real |& compile.again.log
+```
+
+If you get this error:
+
+gfortran: error: libcmaqlib.a: No such file or directory
+
+Then try the following commands to recompile the cmaq executable, and then retry building WRF-CMAQ
+
+```
+cd cmaq
+make -f Makefile.twoway
+cd ..
+./compile em_real |& compile.again.log
+```
+
+If you get this error 
+
+```
+name2fid.f:(.text+0x17): undefined reference to `GOMP_critical_name_start'
+```
+
+Edit the configure.wrf to remove the commented out -fopenmp flags.
+
+Change
+
+```
+OMP             =       # -fopenmp
+OMPCC           =       # -fopenmp
+```
+
+to
+
+```
+OMP             =        -fopenmp
+OMPCC           =        -fopenmp
+```
+
+Recompile
+
+```
+./compile em_real | & tee ./compile.again.3rd.log
+```
+
+
+
+
+If it still fails, please reach post on the [CMAS Forum](https://forum.cmascenter.org/c/wrf-cmaq).
+
 
 
 ### Install the WRF-CMAQ reference input benchmark data
@@ -190,6 +296,8 @@ Download the CMAQ two day reference input data from the [CMAS Center Data Wareho
   - [Tips to download data from CMAS Data Warehouse](https://docs.google.com/document/d/1e7B94zFkbKygVWfrhGwEZL51jF4fGXGXZbvi6KzXYQ4)
   - Text files are included that provide a list of the files in the benchmark input datasets.
   - wget can be used to download data from the CMAS Open Data Folder on AWS
+  - Reference output files for WRF-CMAQv5.5 will be provided at a later date.
+
 
 Copy the data to `$CMAQ_DATA`. Navigate to the `$CMAQ_DATA` directory, unzip and untar the two day benchmark input files:
 
@@ -199,7 +307,7 @@ wget https://cmaq-release-benchmark-data-for-easy-download.s3.amazonaws.com/v5_5
 tar xvzf CMAQv5.4_2018_12NE3_Benchmark_2Day_Input.tar.gz
 ```
 
-The input files for the WRF-CMAQ benchmark case are provided in the base model benchmark inputs .tar file. Output WRF-CMAQ files associated with the sample run script for the coupled WRF-CMAQ model in this release package will be provided at a later date.  
+The input files for the WRF-CMAQ benchmark case are provided in the base model benchmark inputs .tar file. Output WRF-CMAQ files associated with the sample run script for the coupled WRF-CMAQ model in this release package are also available.  
         
 ## Running the WRF-CMAQ model
 
@@ -237,12 +345,33 @@ The following commonly modified namelist options for WRF-CMAQ are specified in t
 
    - For example, one option may include manually editing the existing VEGPARM.TBL (found in WRF-CMAQ Build Directory) with the fix seen on the [WRF Repository](https://github.com/wrf-model/WRF/pull/1733/files). 
 
-  Now, modify the following section to specify your local paths:
+
+  Edit the run script
 
   ```
+    vi run_cctm_Bench_2018_12NE3.WRFCMAQ.csh
+  ```
+
+  Change end date to run for two days
+
+
+  ```
+     set START_DATE = "2018-07-01"     # beginning date (July 1, 2016)
+     set END_DATE   = "2018-07-02"     # ending date    (July 14, 2016)
+  ```
+
+   Set the WRF version number
+
+  ```
+     set wrfv    = 4.5.1
+  ```
+
+   Now, modify the following section to specify your local paths: 
+
+   ```
      set WORKDIR     = ${PWD}
-     set WRF_DIR     = $WORKDIR/BLD_WRFv4.4_CCTM_v54_intel18.0  # WRF source code directory
-     set INPDIR      = ${CMAQ_DATA}/2018_12NE3
+     set WRF_DIR     = $WORKDIR/BLD_WRFv4.5.1_CCTM_v55_gcc  # WRF source code directory
+     set INPDIR      = ${CMAQ_DATA}/CMAQv5.4_2018_12NE3_Benchmark_2Day_Input/2018_12NE3
      set OUTPUT_ROOT = $WORKDIR  # output root directory
      set output_direct_name = WRFCMAQ-output-${version}        # Output Directory Name
      setenv OUTDIR $OUTPUT_ROOT/$output_direct_name   # output files and directories
@@ -250,13 +379,20 @@ The following commonly modified namelist options for WRF-CMAQ are specified in t
 
   ```
 
-   - Verify the following settings
+   - Set the number of processors to run WRF-CMAQ 
+
     ```
     set NPROCS =    32
     ```
 
+  - Load the environment modules 
+
+    ```
+    module load  gcc/9.1.0   openmpi_4.0.1/gcc_9.1.0   netcdf-4.5.3-for_nc4/gcc-9.1 ioapi-3.2/gcc-9.1
+    ```
     
   - Run the job (if you have a batch queuing system such as SLURM use sbatch): 
+
   ```
   ./run_cctm_Bench_2018_12NE3.WRFCMAQ.csh
   ```
@@ -272,4 +408,14 @@ The following commonly modified namelist options for WRF-CMAQ are specified in t
    ```
    tail ./2018182/rsl.out.0000
    ```
-   |>---   PROGRAM COMPLETED SUCCESSFULLY   ---<|
+
+       |>---   PROGRAM COMPLETED SUCCESSFULLY   ---<|
+
+### Compare the output to what is available on the S3 bucket
+
+    ```
+     cd $CMAQ_DATA
+     wget https://cmaq-release-benchmark-data-for-easy-download.s3.amazonaws.com/v5_5/WRF-CMAQ/WRFv4.5.1-CMAQv55-output-sw_feedback_gcc.tar.gz
+     tar xvzf WRFv4.5.1-CMAQv55-output-sw_feedback_gcc.tar.gz
+     ```
+
