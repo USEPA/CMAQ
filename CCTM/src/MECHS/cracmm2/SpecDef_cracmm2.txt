@@ -184,6 +184,7 @@ ANH4IJ          ,ug m-3    ,PMF_NH4[3]
 ANH4K           ,ug m-3    ,PMC_NH4[3]
 ASO4IJ          ,ug m-3    ,PMF_SO4[3]
 ASO4K           ,ug m-3    ,PMC_SO4[3]
+ACLK            ,ug m-3    ,ACKL[1]
 
 !! Organic Particle Species
 APOCIJ          ,ugC m-3   ,PMF_POC[3]
