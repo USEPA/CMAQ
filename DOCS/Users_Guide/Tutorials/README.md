@@ -3,22 +3,9 @@ CMAQ Tutorials
 
 A series of short tutorials provide practical examples of how to set up and run CMAQ, exercise different features in the software, and better understand the software system. Community members are encouraged to both suggest ideas for new tutorials and to contribute tutorials directly to this repository. [Contact the CMAS Center](mailto:cmas@unc.edu) with new tutorial ideas.
 
-- **Scripts to install software needed to run CMAQ**
-  - [Script to install I/O API library to support netCDF4 compression][link_tut_ioapi]
-  - [Script to install netCDF libraries to support netCDF4 compression][link_tut_netcdf]
-  - [Script to install CMAQv55 for CB6r5 and M3DRY][link_tut_medry]
+- **[Directions for building libraries and configuring your linux environment for CMAQ](CMAQ_UG_tutorial_configure_linux_environment.md)**
 
-- **Directions on how to prepare your Linux system for installing and running CMAQ** (These directions are an alternative to the above helper scripts.)
-  - [Building CMAQ for GNU using libraries that disable netCDF4 compression](CMAQ_UG_tutorial_build_library_gcc.md)
-  - [Building CMAQ for GNU using libraries that support compressed netCDF4](CMAQ_UG_tutorial_build_library_gcc_support_nc4.md)
-  - [Building CMAQ for Intel using libraries that disable netCDF4 compression](CMAQ_UG_tutorial_build_library_intel.md)
- 
-- **Directions for running CMAQ test cases**
-  - [Running the CMAQ Base Model with CRACMM2 and STAGE](CMAQ_UG_tutorial_benchmark_cracmm2_stage.md)
-  - [Running the CMAQ Base Model with CB6r5 and M3DRY or STAGE](CMAQ_UG_tutorial_benchmark.md)
-  - [Running the CMAQ-ISAM Test Case](CMAQ_UG_tutorial_ISAM.md)
-  - [Running the CMAQ-DDM-3D Test Case](CMAQ_UG_tutorial_DDM3D.md)
-  - [Running the WRF-CMAQ Test Case](CMAQ_UG_tutorial_WRF-CMAQ_Benchmark.md)
+- **[Directions for running CMAQ test cases](CMAQ_UG_tutorial_running_benchmarks.md)**
  
 - **Other Tutorials**
   - [Debugging Tips](CMAQ_UG_tutorial_debug.md)
@@ -29,14 +16,4 @@ A series of short tutorials provide practical examples of how to set up and run 
   - [Create Initial and Boundary Conditions from Seasonal Average Hemispheric CMAQ Output](CMAQ_UG_tutorial_HCMAQ_IC_BC.md)
   - [Modifying a CMAQ Chemical Mechanism](CMAQ_UG_tutorial_chemicalmechanism.md)
 
-[](relative_links_start)  
 
-[link_tut_ioapi]: gcc_install_ioapi_for_nc4_compression.csh 
-[link_tut_netcdf]: gcc_install_netcdf_for_nc4_compression.csh
-[link_tut_medry]: gcc_install_cmaq55_cb6r5_m3dry.csh
-
-[](hardcode_links)  
-
-[link_tut_ioapi]: https://github.com/USEPA/CMAQ/blob/main/DOCS/Users_Guide/Tutorials/gcc_install_ioapi_for_nc4_compression.csh 
-[link_tut_netcdf]: https://github.com/USEPA/CMAQ/blob/main/DOCS/Users_Guide/Tutorials/gcc_install_netcdf_for_nc4_compression.csh
-[link_tut_medry]: https://github.com/USEPA/CMAQ/blob/main/DOCS/Users_Guide/Tutorials/gcc_install_cmaq55_cb6r5_m3dry.csh

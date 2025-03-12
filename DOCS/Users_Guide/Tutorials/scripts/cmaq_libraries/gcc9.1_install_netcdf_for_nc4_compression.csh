@@ -5,11 +5,29 @@ set echo
 #  Install used tcsh and gcc/gfortran version 9.1.0 and openmpi
 #
 
+   module load openmpi_4.0.1/gcc_9.1.0
    /bin/tcsh --version
    gcc --version
    gfortran --version
    module list | grep openmpi
    which mpirun
+   
+# compilers
+setenv SERIAL_FC gfortran
+setenv SERIAL_F77 gfortran
+setenv SERIAL_CC gcc
+setenv SERIAL_CXX g++
+setenv MPI_FC mpifort
+setenv MPI_F77 mpifort
+setenv MPI_CC mpicc
+setenv MPI_CXX mpic++
+setenv CC $SERIAL_CC
+setenv CXX $SERIAL_CXX
+setenv F77 $SERIAL_F77
+setenv FC $SERIAL_FC
+unsetenv F90  # This seems to be set by default on NCAR's Cheyenne and is problematic
+unsetenv F90FLAGS
+
 
 #
 #  unset envioronment variables that would conflict with this installation
@@ -22,18 +40,18 @@ set echo
 #  Set directory for CMAQ Libraries 
 #  -------------------
 
-   mkdir -p $cwd/CMAQv5.5/LIBRARIES
-   setenv INSTDIR $cwd/CMAQv5.5/LIBRARIES
+   mkdir -p $cwd/LIBRARIES_gcc
+   setenv INSTDIR $cwd/LIBRARIES_gcc
 
 # ----------------------
 # Build and install curl
 # ---------------------
 
  cd ${INSTDIR}
- wget https://curl.se/download/curl-8.10.1.tar.gz
- tar -xzvf curl-8.10.1.tar.gz
- cd curl-8.10.1
- ./configure --prefix=${INSTDIR} --without-ssl
+ wget https://github.com/curl/curl/releases/download/curl-8_11_0/curl-8.11.0.tar.gz
+ tar -xzvf curl-8.11.0.tar.gz
+ cd curl-8.11.0
+ ./configure --prefix=${INSTDIR} --without-ssl --without-libpsl
  make |& tee make.curl.log
  make install |& tee make.install.curl.log
 
@@ -42,11 +60,12 @@ set echo
 #  ---------------------
 
   cd ${INSTDIR}
-  wget https://sourceforge.net/projects/libpng/files/zlib/1.2.11/zlib-1.2.11.tar.gz
-  tar -xzvf zlib-1.2.11.tar.gz
-  cd zlib-1.2.11
+  wget https://github.com/madler/zlib/releases/download/v1.3/zlib-1.3.tar.gz 
+  tar -xzvf zlib-1.3.tar.gz
+  cd zlib-1.3
   ./configure --prefix=${INSTDIR}
-  make test |& tee make.test.log
+  make -j 4
+  #make test |& tee make.test.log
   make install |& tee make.install.log
 
 #  -----------------------
@@ -57,24 +76,27 @@ set echo
    tar xvf hdf5-1.10.5.tar.gz
    rm -f hdf5-1.10.5.tar.gz
    cd hdf5-1.10.5
+   setenv LDFLAGS "-L${INSTDIR}/lib"
+   setenv CPPFLAGS "-I${INSTDIR}/include"
    setenv CFLAGS "-O3"
    setenv FFLAGS "-O3"
    setenv CXXFLAGS "-O3"
    setenv FCFLAGS "-O3"
-   ./configure --prefix=${INSTDIR} --with-zlib=${INSTDIR}/zlib-1.2.11/gcc_9.1.0/include,${INSTDIR}/zlib-1.2.11/gcc_9.1.0/lib --enable-hl
-   make |& tee make.gcc9.log 
+   ./configure --prefix=${INSTDIR} --enable-fortran --enable-cxx --with-zlib=${INSTDIR}/include,${INSTDIR}/lib -enable-shared --enable-hl
+   make -j 4 |& tee make.gcc9.log
 #  make check > make.gcc9.check
-   make install
+   make install |& tee make.gcc9.log
 #  ---------------------------
 #  Download and build netCDF-C
 #  ---------------------------
    cd  ${INSTDIR}
-   wget https://github.com/Unidata/netcdf-c/archive/refs/tags/v4.8.0.tar.gz
-   #wget https://downloads.unidata.ucar.edu/netcdf-c/4.9.2/netcdf-c-4.9.2.zip
-   tar xvf v4.8.0.tar.gz
-   cd netcdf-c-4.8.0
+   wget https://github.com/Unidata/netcdf-c/archive/refs/tags/v4.8.1.tar.gz
+   tar xvf v4.8.1.tar.gz
+   cd netcdf-c-4.8.1
+   setenv LDFLAGS "-L${INSTDIR}/lib"
+   setenv CPPFLAGS "-I${INSTDIR}/include"
    ./configure --with-pic --enable-netcdf-4 --enable-shared --prefix=${INSTDIR}
-   make |& tee  make.gcc9.log
+   make -j 4 |& tee  make.gcc9.log
    make install
 #  ---------------------------------
 #  Download and build netCDF-Fortran
@@ -83,32 +105,28 @@ set echo
    wget https://github.com/Unidata/netcdf-fortran/archive/refs/tags/v4.5.3.tar.gz
    # installation instructions
    tar xvf v4.5.3.tar.gz
+   #tar xzvf v4.4.5.tar.gz
    cd netcdf-fortran-4.5.3
+   #cd netcdf-fortran-4.4.5
    ## Note, if non-standard locaions are used for the following compilers, you may need to specify their locations here: 
-   setenv FC gfortran
-   setenv F90 gfortran
-   setenv F77 gfortran
-   setenv CC gcc
-   setenv CXX g++
-   #setenv LIBS " -lnetcdf -lhdf5_hl -lhdf5 -lm -ldl -lz -lcurl "
+   setenv LIBS "-L${INSTDIR}/lib -lnetcdf -lhdf5_hl -lhdf5 -lhdf5_fortran -lhdf5hl_fortran -lm -ldl -lz -lcurl "
    setenv NCDIR ${INSTDIR}
-   setenv LIBS "-lnetcdf"
-   setenv CPPFLAGS -I${INSTDIR}/include
-   setenv LDFLAGS -L${INSTDIR}/lib
+   setenv CPPFLAGS "-I${INSTDIR}/include"
+   setenv LDFLAGS "-L${INSTDIR}/lib"
    setenv LD_LIBRARY_PATH ${INSTDIR}/lib:${LD_LIBRARY_PATH}
    ./configure --with-pic  --enable-shared --prefix=${INSTDIR}
    make |& tee make.gcc9.log 
-   make install
+   make install |& tee make.gcc9.log
 #  -----------------------------
 #  Download and build netCDF-CXX
 #  -----------------------------
-   cd  $INSTDIR
-   wget https://github.com/Unidata/netcdf-cxx4/archive/refs/tags/v4.3.1.tar.gz
-   tar xvf v4.3.1.tar.gz
-   cd netcdf-cxx4-4.3.1
-   ./configure --with-pic --enable-shared --prefix=$INSTDIR
-   make |& tee  make.gcc9.log
-   make install
+#   cd  $INSTDIR
+#   wget https://github.com/Unidata/netcdf-cxx4/archive/refs/tags/v4.3.1.tar.gz
+#   tar xvf v4.3.1.tar.gz
+#   cd netcdf-cxx4-4.3.1
+#   ./configure --enable-shared --prefix=$INSTDIR
+#   make |& tee  make.gcc9.log
+#   make install
 #  --------------------------
 #  Download and build OpenMPI
 #  --------------------------
@@ -173,4 +191,4 @@ set echo
    whereis h5diff
    nc-config --version
    nf-config --version
-   ncxx4-config --version
+   #   ncxx4-config --version
