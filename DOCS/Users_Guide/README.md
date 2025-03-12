@@ -5,7 +5,7 @@ The CMAQ User's Guide is designed to support the installation, configuration, an
 
 Note: While this User's Guide is packaged with the code when it is downloaded or cloned, users are encouraged to go [online](https://github.com/USEPA/CMAQ/blob/main/DOCS/Users_Guide/README.md) for the latest version.
 
-# Table of Contents
+## Table of Contents
 
 [CMAQ Tutorials:](Tutorials/README.md) A series of short tutorials provide practical examples of how to set up and run CMAQ. 
 
@@ -54,3 +54,5 @@ Note: While this User's Guide is packaged with the code when it is downloaded or
 ***
 
 CMAQv5.5 User's Guide <br>
+
+

@@ -8,7 +8,7 @@
 
 ## E.1 WRF for CMAQ & Output
 
-* **[WRF configuration guide for CMAQ applications](../PDF/PX-ACM-WRFV4.6-MPAS.pdf)**
+* **[WRF configuration guide for CMAQ applications][link_E_pdf]**
 * CMAQ is best connected to WRF that uses the P-X LSM with key variables in the output (see WRF configuration guide above).
 * Variable names: RS, RA, ZNT_PX, VEGF_PX, LAI_PX, LANDUSEF, WFC_PX, WSAT_PX, WWLT_PX, CSAND_PX, FMSAND_PX, CLAY_PX
 * Method 1: Compiled into executable with directives in the Registry file.
@@ -39,6 +39,15 @@ in layer k rather than wind speed difference between layer k and ksrc.
 
 ## E.5 WRF version 3.7 
 * **[Section from WRFv3.7 Technical Documentation related to air quality modeling](http://www2.mmm.ucar.edu/wrf/users/docs/PX-ACM.pdf):** This 8 page pdf provides description and procedures for using the Pleim-Xiu LSM, ACM2 PBL and Pleim Surface Layer Scheme in WRF including best practices and namelist options.
+
+## E.6 WRF with lightning assimilation 
+* **[WRF with Lightning Assimilation User's Guide](https://wcms.epa.gov/sites/production/files/2017-02/documents/wrf_with_ltga_userguide.pdf):** This 3 page pdf describes how to run WRF with the lightning assimilation technique described in Heath et al. (2016). 
+The assimilation method uses gridded lightning data to trigger and suppress sub-grid deep convection in Kain-Fritsch. 
+The gridded lightning data (variable name is ‘LNT’) is read in through auxinput8. The lightning data is grouped into 
+30-min intervals and treated as simple zeros (no lightning) or ones (lightning) for the assimilation method. 
+All of the necessary code modifications and data are described in the document.
+
+* **[WRF with Lightning Assimilation Code](https://wcms.epa.gov/sites/production/files/2017-02/ltgda_wrf_16feb2017.zip):** This .zip file (ltgda_wrf_16feb2017.zip; 220K) contains the registry and FORTRAN files with the updates needed to run WRF with lightning assimilation, as well as a generic Python script to grid lightning data to your WRF domain.
 
 ## E.6 Reference:
 
@@ -76,3 +85,11 @@ Kang, D., Heath, N., Gilliam, R., Spero, T., and Pleim, J.: Lightning Assimilati
 CMAQv5.5 User's Guide<br>
 
 <!-- END COMMENT -->
+
+[](relative_links_start)  
+
+[link_E_pdf]: ../PDF/PX-ACM-WRFV4.6-MPAS.pdf
+
+[](hardcode_links)  
+
+[link_E_pdf]: https://github.com/USEPA/CMAQ/blob/main/DOCS/Users_Guide/PDF/PX-ACM-WRFV4.6-MPAS.pdf  

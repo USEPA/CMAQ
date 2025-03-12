@@ -23,18 +23,18 @@ Goal: Modify the gas- and aerosol-phase chemical mechanisms in CMAQ, create new 
 12. ELMO_PROC.F
 
 ### Key Utilities  
-1. chemmech (see [documentation](../../../UTIL/chemmech/README.md))
-2. create_ebi (see [documentation](../../../UTIL/create_ebi/README.md))
+1. chemmech (see [documentation][link_1])
+2. create_ebi (see [documentation][link_2])
 *Note that these utilities are automatically run by the Autochem feature of the bldit_cctm.csh script, if it is activated.
 
 <a id=modifychem></a>
 ## 1. Modifying the chemical mechanism inputs ##
-### 1.1 See the git instructions below (Section 3) if you would like to propagate the chemical mechanism changes in your Github repository. If you are assigning a new name to your mechanism, create a new folder under /$CMAQ_REPO/CCTM/src/MECHS and copy and update the names of all chemical namelist files, the mech_*.def file, the CMAQ_Control_DESID_*.nml namelist, and the SpecDef_*.txt file, if desired.  
+### 1.1 See the [git instructions](#github) below if you would like to propagate the chemical mechanism changes in your Github repository. If you are assigning a new name to your mechanism, create a new folder under /$CMAQ_REPO/CCTM/src/MECHS and copy and update the names of all chemical namelist files, the mech_*.def file, the CMAQ_Control_DESID_*.nml namelist, and the SpecDef_*.txt file, if desired.  
 
 
 <a id=mech_def></a>
 ### 1.2 Edit mech_*.def.
-The mech_*.def file lists all of CMAQ chemical reactions and is located at /$CMAQ_REPO/CCTM/src/MECHS/${mechanism}/mech_/${mechanism}.def. The [chemmech documentation](../../../UTIL/chemmech/README.md) describes formats for reaction rate constants dependent on temperature, atmospheric number density, water vapor, sunlight, model species and constants such as oxygen and methane mixing ratios. The documentation also gives a more detailed explanation of the mech.def (mechanism definitions) sections and formatting rules.
+The mech_*.def file lists all of CMAQ chemical reactions and is located at /$CMAQ_REPO/CCTM/src/MECHS/${mechanism}/mech_/${mechanism}.def. The [chemmech documentation][link_1] describes formats for reaction rate constants dependent on temperature, atmospheric number density, water vapor, sunlight, model species and constants such as oxygen and methane mixing ratios. The documentation also gives a more detailed explanation of the mech.def (mechanism definitions) sections and formatting rules.
 - All reactions must begin with a name in < > brackets.
 - All reactions must end with # followed by a reaction rate constant with units of cm<sup>3</sup>/(molecules s)
 - In this tutorial, all reactions regenerate the oxidant.
@@ -111,7 +111,7 @@ PM1_TOT_MP      ,ug m-3    ,ATOTI[0]*PM1AT[3]+ATOTJ_MP[0]*PM1AC[3]+ATOTK[0]*PM1C
 ```
 To update the OC variables or the deposition of OC variables in the SpecDef_Dep_{mechanism}.txt file, you must know the OM:OC ratios of the new organic aerosol species.
 
-In CMAQv5.5, the new Explicit and Lumped CMAQ Model Output (ELMO) module performs all of the aerosol processing online in CMAQ, so that variables like organic aerosol mass and PM<sub>2.5</sub> mass are output directly from the model to files with prefixes CCTM_ELMO_ and CCTM_AELMO_, for instantaneous and averaged values respectively. FOr more information, see the [ELMO documentation](../Appendix/CMAQ_UG_appendixF_elmo_output.md).
+In CMAQv5.5, the new Explicit and Lumped CMAQ Model Output (ELMO) module performs all of the aerosol processing online in CMAQ, so that variables like organic aerosol mass and PM<sub>2.5</sub> mass are output directly from the model to files with prefixes CCTM_ELMO_ and CCTM_AELMO_, for instantaneous and averaged values respectively. FOr more information, see the [ELMO documentation](../Appendix/CMAQ_UG_appendixG_elmo_output.md).
 
 
 
@@ -173,7 +173,7 @@ Dry deposition surrogates may also be added, but are not covered in this tutoria
 
 <a id=elmo></a>
 ### 1.11 Check ELMO Processing
-The [Explicit and Lumped CMAQ Model Output (ELMO)](../Appendix/CMAQ_UG_appendixF_elmo_output.md) module outputs comprehensive aggregate variables directly from CMAQ. One major goal of ELMO is to lower the barrier to making minor mechanism changes/updates like changing the names of organic aerosol (OA) species and needing to then update offline OA calculations. Users should feel confident that most ELMO variables like PM25 mass and OA mass will be handled correctly regardless of the changes they make, but it is recommended to check CCTM/src/driver/ELMO_PROC.F if large changes are made to the species names in the mechanism, especially gas-phase species liken HNO3.
+The [Explicit and Lumped CMAQ Model Output (ELMO)](../Appendix/CMAQ_UG_appendixG_elmo_output.md) module outputs comprehensive aggregate variables directly from CMAQ. One major goal of ELMO is to lower the barrier to making minor mechanism changes/updates like changing the names of organic aerosol (OA) species and needing to then update offline OA calculations. Users should feel confident that most ELMO variables like PM25 mass and OA mass will be handled correctly regardless of the changes they make, but it is recommended to check CCTM/src/driver/ELMO_PROC.F if large changes are made to the species names in the mechanism, especially gas-phase species liken HNO3.
 
 
 ## 2. Build CMAQ Code with New Mechanism
@@ -294,7 +294,7 @@ If the mechanism does not already exist, then clobber_mech will have no effect, 
 <a id=github></a>
 ## 3. Reflecting the changes in Github ##
 ### 3.1 Fork from USEPA CMAQ.
-On the [CMAQ Github page](https://github.com/USEPA/CMAQ), fork the main branch to your personal repository using the Fork button in the upper right.
+On the [CMAQ Github page](../../../README.md), fork the main branch to your personal repository using the Fork button in the upper right.
 
 ### 3.2 Clone.
 Clone your repository to your remote account. For example:
@@ -396,4 +396,12 @@ git push dev_push_repo newchem
 You should now be able to see these changes in Github online.
 
 
+[](relative_links_start)  
 
+[link_1]: ../../../UTIL/chemmech/
+[link_2]: ../../../UTIL/create_ebi/
+
+[](hardcode_links)  
+
+[link_1]: https://github.com/USEPA/CMAQ/blob/main/UTIL/chemmech/
+[link_2]: https://github.com/USEPA/CMAQ/blob/main/UTIL/create_ebi/ 

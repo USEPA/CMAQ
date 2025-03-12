@@ -140,7 +140,7 @@ Note that adding species (if any) to the initial condition file is only necessar
 
 #### Script to add O3_IC and ICT_50PPB to an existing initial condition file ####
 
-The run script below uses the [`combine`](../../../POST/combine/README.md) program to add species ICT_50PB to an existing initial condition file. The ICT_50PPB specie is set to a constant mixing ratio of 0.05 ppm for all grid cells. From the CMAQ Home directory run the following commands to build the combine executable: 
+The run script below uses the [`combine`][link_1] program to add species ICT_50PB to an existing initial condition file. The ICT_50PPB specie is set to a constant mixing ratio of 0.05 ppm for all grid cells. From the CMAQ Home directory run the following commands to build the combine executable: 
 
 ```
 cd $CMAQ_HOME/POST/combine/scripts
@@ -245,3 +245,11 @@ Further details on how to change and customize the emissions control file to the
 ### STEP 4: Modify CMAQ run script</strong>
 
 In the CMAQ run script, replace the default tracer namelist file `Species_Table_TR_0.nml` with the custom tracer namelist file created in STEP 1 and new DESID namelist file created in STEP 2 (if needed). Also replace the original input files (initial conditions, boundary conditions, and/or emissions) with the modified input files created in Step 3.
+
+[](relative_links_start)  
+
+[link_1]: ../../../POST/combine/
+
+[](hardcode_links)  
+
+[link_1]: https://github.com/USEPA/CMAQ/blob/main/POST/combine/ 

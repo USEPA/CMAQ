@@ -9,7 +9,7 @@
 # 11. Integrated Source Apportionment Method (CMAQ-ISAM)
 ## 11.1 Introduction
 
-The Integrated Source Apportionment Method (ISAM) calculates source attribution information for user specified ozone and particulate matter precursors within the CMAQ model.  CMAQ-ISAM has been substantially updated starting with the CMAQv5.3 release, and now differs significantly from previous releases. The major changes to the ISAM chemistry solver are detailed in the [ISAM Chemistry Supplement](Supplement/CMAQ_ISAM_Chemistry_Supplemental_Equations.pdf). In addition, signifcant updates and multiple minor fixes were included in the  subsequent releases including substantial updates to the gas-phase chemistry apportionment algorithms that improve both physical and numerical aspects of the method. Users of CMAQ-ISAM are strongly encouraged to update to the latest available release of the model.
+The Integrated Source Apportionment Method (ISAM) calculates source attribution information for user specified ozone and particulate matter precursors within the CMAQ model.  CMAQ-ISAM has been substantially updated starting with the CMAQv5.3 release, and now differs significantly from previous releases. The major changes to the ISAM chemistry solver are detailed in the [ISAM Chemistry Supplement][link_11_pdf]. In addition, signifcant updates and multiple minor fixes were included in the  subsequent releases including substantial updates to the gas-phase chemistry apportionment algorithms that improve both physical and numerical aspects of the method. Users of CMAQ-ISAM are strongly encouraged to update to the latest available release of the model.
 
 The base CMAQ model provides users the concentration and deposition fields of many pollutant species. These species are usually combinations of different types of primary emissions and secondary formation that have been physically and chemically transformed in the model. However, sometimes it is desirable to know specific source attribution information for the model outputs. For example, how much of the ozone in an urban area was formed due to nitrogen oxides emitted from motor vehicles in a neighboring state?
 
@@ -53,7 +53,7 @@ set ISAM_CCTM
 
 **A note about I/O API installation for ISAM applications**
 
-I/O APIv3.2  supports up to MXFILE3=256 open files, each with up to MXVARS3=2048. ISAM applications configured to calculate source attribution of a large number of sources may exceed this upper limit of model variables, leading to a model crash. To avoid this issue, users may use I/O API version 3.2 "large" that increases MXFILE3 to 512 and MXVARS3 to 16384. Instructions to build this version are found in [Chapter 3](./CMAQ_UG_ch03_preparing_compute_environment.md#333-io-api-library).
+I/O APIv3.2  supports up to MXFILE3=256 open files, each with up to MXVARS3=2048. ISAM applications configured to calculate source attribution of a large number of sources may exceed this upper limit of model variables, leading to a model crash. To avoid this issue, users may use I/O API version 3.2 "large" that increases MXFILE3 to 512 and MXVARS3 to 16384. Instructions to build this version are found in [Chapter 3](https://github.com/USEPA/CMAQ/blob/main/DOCS/Users_Guide/CMAQ_UG_ch03_preparing_compute_environment.md#333-io-api-library).
 Note, using this ioapi-large version is not required for the CMAQ-ISAM Benchmark Case. 
 If a user needs to use larger setting for MXFILE3 and MXVAR3 to support their application, note that the memory requirements will be increased.
 This version is available as a zip file from the following address:
@@ -260,3 +260,11 @@ Tonnesen, G.S. & Dennis, R.L. (2000b). Analysis of radical propagation efficienc
 CMAQv5.5 User's Guide <br>
 
 <!-- END COMMENT -->
+
+[](relative_links_start)  
+
+[link_11_pdf]: ./Supplement/CMAQ_ISAM_Chemistry_Supplemental_Equations.pdf 
+
+[](hardcode_links)  
+
+[link_11_pdf]: https://github.com/USEPA/CMAQ/blob/main/DOCS/Users_Guide/Supplement/CMAQ_ISAM_Chemistry_Supplemental_Equations.pdf

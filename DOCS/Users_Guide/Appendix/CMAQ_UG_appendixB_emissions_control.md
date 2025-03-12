@@ -15,7 +15,7 @@
 
 The Detailed Emissions Scaling, Isolation and Diagnostics (DESID) module included with CMAQv5.3+ provides comprehensive customization and transparency of emissions manipulation to the user. The customization of emissions is accomplished via a series of Control Namelists, which contain variables that modify the behavior of the emissions module. These include ***Emission Scaling Rules***, ***Size Distributions***, ***Regions Registry***, ***Chemical Families***, ***Region Families***, and ***Area Adjustments***.
 
-To determine its configuration, DESID makes use of input primarily from four files: the CMAQ runscript, the CMAQ Miscellaneous Control File ([CMAQ_Control_Misc.nml](../../../CCTM/src/util/util/CMAQ_Control_Misc.nml)), the DESID Control file ([CMAQ_Control_DESID.nml](../../../CCTM/src/emis/emis/CMAQ_Control_DESID.nml)), and the DESID Chemical Mapping File (e.g. [CMAQ_Control_DESID_cb6r5_ae7_aq.nml](../../../CCTM/src/MECHS/cb6r5_ae7_aq/CMAQ_Control_DESID_cb6r5_ae7_aq.nml)). 
+To determine its configuration, DESID makes use of input primarily from four files: the CMAQ runscript, the CMAQ Miscellaneous Control File ([CMAQ_Control_Misc.nml][link_B.1_misc]), the DESID Control file ([CMAQ_Control_DESID.nml][link_B.1_desis]), and the DESID Chemical Mapping File (e.g. [CMAQ_Control_DESID_cb6r5_ae7_aq.nml][link_B.1_desid]). 
 A separate version of the chemical mapping control file exists for every mechanism because these namelists are preloaded with likely rules linking emissions of important CMAQ primary species to their typical emission species names as output by SMOKE. 
 By default, this namelist is stored in each chemical mechanism folder (e.g. MECHS/cb6r5_ae7_aq) and is copied into the user's build directory when bldit_cctm.csh is executed and a chemical mechanism is chosen. If the user modifies the name or location of the DESID control file or chemical mapping file, then the following commands in the RunScript should be updated as well:
 ```
@@ -80,7 +80,7 @@ The Chemical Mapping Control Namelists provided with the CMAQ repo have default 
 Many rules are needed in order to properly link every emitted pollutant to a CMAQ species. Rules are needed for gas- and aerosol-phase species. Additional rules also exist for online aerosol modules like wind-blown dust and sea spray because the names of aerosol emission species from these modules are different than those typically used for SMOKE output. For example, fine-mode aerosol sulfate is commonly called PSO4 in SMOKE, but is PMFINE_SO4 from dust and sea spray.
 
 ### B.2.2 Modifying Default rules
-The user can modify any default rule to change the scale factor applied, the spatial area to be considered, or the streams to be applied to. Alternatively, the user can add new rules after the default rules to customize the emissions. Typical modifications may include multiplying the emissions of a particular species from a particular stream by a factor of 2, zeroing out emissions of all species from a particular stream, etc. Please see the tutorial on [Prescribing Emissions with DESID](../Tutorials/CMAQ_UG_tutorial_emissions.md) for specific examples of modifications and the syntax used to invoke them.
+The user can modify any default rule to change the scale factor applied, the spatial area to be considered, or the streams to be applied to. Alternatively, the user can add new rules after the default rules to customize the emissions. Typical modifications may include multiplying the emissions of a particular species from a particular stream by a factor of 2, zeroing out emissions of all species from a particular stream, etc. Please see the tutorial on [Prescribing Emissions with DESID](../Tutorials/CMAQ_UG_appendixB_emissions_control.md) for specific examples of modifications and the syntax used to invoke them.
 
 #### B.2.2.1 Supporting the Volatility Basis Set
 The *Volatility Basis Set* for treating the semivolatile partitioning of primary organic emissions is an example of a model feature that is well-supported by DESID. The approach involves distributing the emissions of total primary organic aerosol (carbon and noncarbon mass, or POC and PNCOM) among a series of aerosol and gas species of varying volatility.
@@ -183,7 +183,7 @@ In CMAQv5.3 and beyond, users link particle emission species to CMAQ particle sp
 'EVERYWHERE'  , 'ALL'         ,'PNH4'   ,'ANH4'        ,'FINE',1.0   ,'UNIT','a',
 'EVERYWHERE'  , 'ALL'         ,'PNO3'   ,'ANO3'        ,'FINE',1.0   ,'UNIT','a',
 ```
-The CMAQ-Species field should be populated with bulk chemical names (e.g. ASO4, AEC, AK, ACA, etc). In other words, the 'i','j', or 'k' which usually designates the mode of the aerosol species name should be omitted. A list of the valid aerosol bulknames exists in the source file "[AERO_DATA.F](../../../CCTM/src/aero/aero6/AERO_DATA.F)" in the array named "aerolist". The user should also identify the aerosol mode to be populated using the "Phase/Mode" field. In the example above, all of the rules identify the "FINE" mode as the destination mode. CMAQ uses this value to look up the size distribution parameters (diameter and standard deviation) to apply for this particular emission.
+The CMAQ-Species field should be populated with bulk chemical names (e.g. ASO4, AEC, AK, ACA, etc). In other words, the 'i','j', or 'k' which usually designates the mode of the aerosol species name should be omitted. A list of the valid aerosol bulknames exists in the source file "[AERO_DATA.F][link_B.3_aero]" in the array named "aerolist". The user should also identify the aerosol mode to be populated using the "Phase/Mode" field. In the example above, all of the rules identify the "FINE" mode as the destination mode. CMAQ uses this value to look up the size distribution parameters (diameter and standard deviation) to apply for this particular emission.
 
 Aerosol mode keywords from the DESID_Scaling section are linked to reference mode labels in the Desid_SizeDist section of the DESID Control Namelist. These assignments can be made for all streams at once, as demonstrated by the first two default entries initializing the 'FINE' and 'COARSE' modes, or they can be made on a stream-by-stream basis as shown below for Wind-Blown Dust and Sea Spray aerosol.
 ```
@@ -201,7 +201,7 @@ Aerosol mode keywords from the DESID_Scaling section are linked to reference mod
                                                           ! and AIR_COARSE to the data structure
                                                           ! em_aero_ref in AERO_DATA.
 ```
-The 'Ref. Mode Labels' are used to lookup size distribution parameters in [AERO_DATA.F](../../../CCTM/src/aero/aero6/AERO_DATA.F). The following reference modes are defined in this file:
+The 'Ref. Mode Labels' are used to lookup size distribution parameters in [AERO_DATA.F][link_B.3_aero]. The following reference modes are defined in this file:
 ```
 TYPE em_aero
     Character( 20 ) :: name
@@ -302,7 +302,7 @@ These gridded mask files are read by CMAQ through environmental variables, which
 * [Link to grid mask files on CMAS Data Warehouse Google Drive](https://drive.google.com/drive/folders/1x9mJUbKjJaMDFawgy2PUbETwEUopAQDl)
 * [Link to metadata for the grid mask files is posted on the CMAS Center Dataverse site](https://doi.org/10.15139/S3/XDYYB9)
 
-Custom mask files may also be made using the [shp2cmaq](../../../PYTOOLS/shp2cmaq/README.md) tool, which provides instructions for obtaining geospatial data via shape files and converting them to CMAQ gridded input files. One may also populate a CMAQ gridded input file with arbitrary geometric shapes (e.g. squares, diamonds, or other polygons) using the IOAPI library of tools and any common coding language (e.g. Fortran, R, or Python).
+Custom mask files may also be made using the [shp2cmaq][link_B.3] tool, which provides instructions for obtaining geospatial data via shape files and converting them to CMAQ gridded input files. One may also populate a CMAQ gridded input file with arbitrary geometric shapes (e.g. squares, diamonds, or other polygons) using the IOAPI library of tools and any common coding language (e.g. Fortran, R, or Python).
 
 #### B.3.4.3 Region Families
 Users can define families of regions to reduce the number emission rules needed to operate on a group of regions. 
@@ -353,7 +353,7 @@ Example 2 (set Desid_N_Steam_Fams=3 in Desid_StreamFamVars):
 The variable Desid_Max_Stream_Fam_Members should be set higher than the maximum number of stream members for any stream family.
 
 ### B.3.6 Chemical Families
-Chemical families are defined analogously to stream and region families but in the CMAQ Miscellaneous Control file. This is because they are useful to modules beyond DESID, including [ELMO](CMAQ_UG_appendixF_elmo_output.md) and the [Budget Tool](../CMAQ_UG_ch09_process_analysis.md). 
+Chemical families are defined analogously to stream and region families but in the CMAQ Miscellaneous Control file. This is because they are useful to modules beyond DESID, including [ELMO](CMAQ_UG_appendixG_elmo_output.md) and the [Budget Tool](../CMAQ_UG_ch09_process_analysis.md). 
 See the [Miscellaneous Control File Description](../CMAQ_UG_ch04_model_inputs.md#miscctrl) in Chapter 4 for details. 
 
 One additional note: if a chemical familiy is defined for use in an emission scaling rule, the user should be careful about confirming that the members of that family are present on the emission input file or the CMAQ model species list, depending on which the user is trying to modify. Since the names on the input files are often different than those on the CMAQ model species list, care is advised. DESID will print warnings to the CMAQ log file when it cannot find species that it is looking for from a chemical family on an input file or in the list of CMAQ model species. Please confirm that the model is operating as you expect.  
@@ -418,3 +418,19 @@ For this set of example, Desid_N_Diag_Rules in the Desid_DiagVars section should
 CMAQv5.5 User's Guide <br>
 
 <!-- END COMMENT -->
+
+[](relative_links_start)  
+
+[link_B.3]: ../../../PYTOOLS/shp2cmaq/
+[link_B.1_misc]: ../../../CCTM/src/util/util/CMAQ_Control_Misc.nml
+[link_B.1_desis]: ../../../CCTM/src/emis/emis/CMAQ_Control_DESID.nml
+[link_B.1_desid]: ../../../CCTM/src/MECHS/cb6r5_ae7_aq/CMAQ_Control_DESID_cb6r5_ae7_aq.nml
+[link_B.3_aero]:  ../../../CCTM/src/aero/aero6/AERO_DATA.F
+
+[](hardcode_links)  
+
+[link_B.3]: https://github.com/USEPA/CMAQ/blob/main/PYTOOLS/shp2cmaq/ 
+[link_B.1_misc]: https://github.com/USEPA/CMAQ/blob/main/CCTM/src/util/util/CMAQ_Control_Misc.nml
+[link_B.1_desis]: https://github.com/USEPA/CMAQ/blob/main/CCTM/src/emis/emis/CMAQ_Control_DESID.nml
+[link_B.1_desid]: https://github.com/USEPA/CMAQ/blob/main/CCTM/src/MECHS/cb6r5_ae7_aq/CMAQ_Control_DESID_cb6r5_ae7_aq.nml
+[link_B.3_aero]: https://github.com/USEPA/CMAQ/blob/main/CCTM/src/aero/aero6/AERO_DATA.F
