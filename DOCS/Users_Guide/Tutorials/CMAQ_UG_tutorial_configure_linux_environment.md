@@ -26,12 +26,12 @@ The following support software are required for compiling and running CMAQ.
 2. [Git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git)
 2. Message Passing Interface (MPI), e.g., [OpenMPI](https://www.open-mpi.org) or [MVAPICH2](http://www.mcs.anl.gov/research/projects/mpich2).
 3. Latest release of [netCDF-C](https://docs.unidata.ucar.edu/nug/current/getting_and_building_netcdf.html) and [netCDF-Fortran](https://www.unidata.ucar.edu/software/netcdf/docs/building_netcdf_fortran.html).
-   - Building netCDF4 libraries that disable compression with GNU compiler ([Tutorial](CMAQ_UG_tutorial_build_library_gcc.md) | [Script](./scripts/gcc_11.4_install_netcdf_classic.csh))
+   - Building netCDF4 libraries that disable compression with GNU compiler ([Tutorial](CMAQ_UG_tutorial_build_library_gcc.md) | [Script](./scripts/cmaq_libraries/gcc_11.4_install_netcdf_classic.csh))
    - Building netCDF4 libraries that disable compression with INTEL compiler ([Tutorial](CMAQ_UG_tutorial_build_library_intel.md))
    - Building netCDF4 libraries that enable compression with GNU compiler ([Tutorial](CMAQ_UG_tutorial_build_library_gcc_support_nc4.md) | [Script](./scripts/cmaq_libraries/gcc_11.4_install_netcdf_for_nc4_compression.csh))
-   - Building netCDF4 libraries that enable compression with INTEL compiler ([Tutorial](CMAQ_UG_tutorial_build_library_intel_support_nc4.md) | [Script](./scripts/intel_18.2_install_netcdf_for_nc4_compression.csh))
+   - Building netCDF4 libraries that enable compression with INTEL compiler ([Tutorial](CMAQ_UG_tutorial_build_library_intel_support_nc4.md) | [Script](./scripts/cmaq_libraries/intel_18.2_install_netcdf_for_nc4_compression.csh))
 5. [I/O API](https://github.com/cjcoats/ioapi-3.2)
-   - Building I/O API libraries ([Intel Compiler Script](./scripts/intel_18.2_install_netcdf_for_nc4_compression.csh) | [GNU Compiler Script](./scripts/cmaq_libraries/gcc_11.4_install_ioapi_for_nc4_compression.csh))
+   - Building I/O API libraries ([Intel Compiler Script](./scripts/cmaq_libraries/intel_18.2_install_netcdf_for_nc4_compression.csh) | [GNU Compiler Script](./scripts/cmaq_libraries/gcc_11.4_install_ioapi_for_nc4_compression.csh))
 
 
 
