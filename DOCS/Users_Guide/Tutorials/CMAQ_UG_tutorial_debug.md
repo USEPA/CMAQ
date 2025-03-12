@@ -153,6 +153,36 @@ CCTM_s07tic_noche  0000000000406CA9  Unknown               Unknown  Unknown
 ```
 This stack trace indicates that the error occurred on line 503 of the file aero_driver.F.
 
+To rebuild a debug version
+
+```
+cp bldit_cctm.csh bldit_cctmv55_debug.csh
+vi bldit_cctmv55_debug.csh
+```
+
+uncomment the following line 
+
+```
+#set Debug_CCTM 
+```
+
+change to 
+
+```
+set Debug_CCTM 
+```
+
+Rerun the build script
+
+```
+./bldit_cctmv55_debug.csh gcc |& tee ./bldit_cctmv55_debug.log
+```
+
+Edit your run script to use the newly compiled debug version that is in a BLD directory with the following extension `_debug`
+
+Re-run using the debug version
+
+
 ## Submit a new topic issue on the CMAS User Forum
 
 
