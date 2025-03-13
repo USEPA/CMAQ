@@ -289,7 +289,7 @@ setenv CTM_STAGE_P22 N
 setenv CTM_STAGE_E20 Y       
 setenv CTM_STAGE_S22 N       
 ```
-CTM_STAGE_P22 is a tiled/land use specific [Pleim et al. (2022)](https://doi.org/10.1002/essoar.10510541.1) aerosol deposition option. CTM_STAGE_E20 is the tiled implementation of the [Emerson et al. (2020)](https://doi.org/10.1073/pnas.2014761117) aerosol deposition model. CTM_STAGE_S22 is the tiled version of [Shu et al. (2022)](https://doi.org/10.1016/j.atmosenv.2022.119343) aerosol deposition model (the same as the STAGE parameterization in CMAQ v5.3 STAGE). CTM_STAGE_E20 is the default option and will be used in model simulation unless one of the other options is specified. In v5.4, the user can modify land use and chemical species dependent variables used by STAGE by editing the [STAGE Control Namelist](https://github.com/kmfoley/CMAQ_Dev/blob/v5.4_documentation/DOCS/Users_Guide/CMAQ_UG_ch04_model_inputs.md#stagectrl_nml) to update model parameters without the need to recompile.
+CTM_STAGE_P22 is a tiled/land use specific [Pleim et al. (2022)](https://doi.org/10.1002/essoar.10510541.1) aerosol deposition option. CTM_STAGE_E20 is the tiled implementation of the [Emerson et al. (2020)](https://doi.org/10.1073/pnas.2014761117) aerosol deposition model. CTM_STAGE_S22 is the tiled version of [Shu et al. (2022)](https://doi.org/10.1016/j.atmosenv.2022.119343) aerosol deposition model (the same as the STAGE parameterization in CMAQ v5.3 STAGE). CTM_STAGE_E20 is the default option and will be used in model simulation unless one of the other options is specified. In v5.4, the user can modify land use and chemical species dependent variables used by STAGE by editing the [STAGE Control Namelist](CMAQ_UG_ch04_model_inputs.md#stagectrl_nml) to update model parameters without the need to recompile.
 
 <a id=6.8.3_Enhanced_Ozone_Deposition></a>
 
@@ -701,7 +701,7 @@ Potential Combustion SOA (PCSOA) was added to CMAQv5.2 to account for missing PM
 
 <a id=a-pinene></a>
 #### &#945;-Pinene separated from other monoterpenes
-If using chemical mechanism CB6r3 or CB6r5 and aerosol module AERO7 (cb6r3_ae7_aq or cb6r5_ae7_aq) with offline biogenic emissions, &#945;-pinene should be separated from all other monoterpenes. This will prevent overestimation in PM2.5 SOA as &#945;-pinene should not make SOA through nitrate radical reaction.  Users can use biogenic emission files created for older model versions by updating the emission control file to separate &#945;-pinene. No action is required for aerosol module AERO6 (any mechanism), in-line biogenics (any mechanism, any aerosol module), or aero7 with SAPRC mechanisms. See the [AERO7 overview release notes](../Release_Notes/CMAQv5.3_aero7_overview.md) for further details. 
+If using chemical mechanism CB6r3 or CB6r5 and aerosol module AERO7 (cb6r3_ae7_aq or cb6r5_ae7_aq) with offline biogenic emissions, &#945;-pinene should be separated from all other monoterpenes. This will prevent overestimation in PM2.5 SOA as &#945;-pinene should not make SOA through nitrate radical reaction.  Users can use biogenic emission files created for older model versions by updating the emission control file to separate &#945;-pinene. No action is required for aerosol module AERO6 (any mechanism), in-line biogenics (any mechanism, any aerosol module), or aero7 with SAPRC mechanisms. See the [AERO7 overview release notes](https://github.com/USEPA/CMAQ/blob/5.3/DOCS/Release_Notes/aero7_overview.md) for further details. 
 
 <a id=6.10_Gas_Phase_Chem></a>
 
