@@ -61,7 +61,7 @@ Users can download the MPI library source code from one of these sites and follo
 
 ### 3.3.2 netCDF library
 
-Most of the CMAQ input files and all output files are in netCDF format (the rest are in ASCII format). Hence the netCDF library is an essential component of the CMAQ model. The netCDF library is available for download at http://www.unidata.ucar.edu/software/netcdf/; users should follow the instructions for proper installation of **both** netCDF-C and netCDF-Fortran libraries. After successful installation, check the environment PATH & LD_LIBRARY_PATH to ensure that the paths have been updated to include the path of the netCDF C and Fortran libraries and bin. Note you may have to set these paths manually if not set, and these paths must be loaded every time you start a new shell. For additional installation resources plesae see the [CMAQ Tutorial Page](./Tutorials). **Versions Tested: NetCDF-C 4.2, 4.8.1 | NetCDF-Fortran 4.4.2, 4.5.3**
+Most of the CMAQ input files and all output files are in netCDF format (the rest are in ASCII format). Hence the netCDF library is an essential component of the CMAQ model. The netCDF library is available for download at http://www.unidata.ucar.edu/software/netcdf/; users should follow the instructions for proper installation of **both** netCDF-C and netCDF-Fortran libraries. After successful installation, check the environment PATH & LD_LIBRARY_PATH to ensure that the paths have been updated to include the path of the netCDF C and Fortran libraries and bin. Note you may have to set these paths manually if not set, and these paths must be loaded every time you start a new shell. For additional installation resources plesae see the [CMAQ Tutorial Page](./Tutorials/README.md). **Versions Tested: NetCDF-C 4.2, 4.8.1 | NetCDF-Fortran 4.4.2, 4.5.3**
 
 ### 3.3.3 I/O API library
 
@@ -141,7 +141,7 @@ Installation instructions for I/O API v3.2-large are provided in README.txt in t
 |**Software**|**Description**|     **Source**    |
 |------------|-------------------------------|---------------------------------------------|
 |***Evaluation and visualization tools***| | |
-|VERDI|Visualization Environment for Rich Data Interpretation for graphical analysis of netCDF gridded data|[<http://www.verdi-tool.org>](http://www.verdi-tool.org/)|
+|VERDI|Visualization Environment for Rich Data Interpretation for graphical analysis of netCDF gridded data|[<https://www.cmascenter.org/verdi/>](https://www.cmascenter.org/verdi/)|
 |PAVE|Package for Analysis and Visualization of Environmental data for graphical analysis of netCDF gridded data|[<http://www.cmascenter.org>](http://www.cmascenter.org/)|
 |IDV|Integrated Data Viewer for 3-D graphical analysis of netCDF gridded data|[<http://www.unidata.ucar.edu/software/idv/>](http://www.unidata.ucar.edu/software/idv/)|
 |I/O API Tools|Postprocessing tools for manipulating data in the I/O API/netCDF format|[<https://www.cmascenter.org/ioapi/>](https://www.cmascenter.org/ioapi/)|
