@@ -353,7 +353,7 @@ Example 2 (set Desid_N_Steam_Fams=3 in Desid_StreamFamVars):
 The variable Desid_Max_Stream_Fam_Members should be set higher than the maximum number of stream members for any stream family.
 
 ### B.3.6 Chemical Families
-Chemical families are defined analogously to stream and region families but in the CMAQ Miscellaneous Control file. This is because they are useful to modules beyond DESID, including [ELMO](CMAQ_UG_appendixG_elmo_output.md) and the [Budget Tool](../CMAQ_UG_ch09_process_analysis.md). 
+Chemical families are defined analogously to stream and region families but in the CMAQ Miscellaneous Control file. This is because they are useful to modules beyond DESID, including [ELMO](CMAQ_UG_appendixF_elmo_output.md) and the [Budget Tool](../CMAQ_UG_ch09_process_analysis.md). 
 See the [Miscellaneous Control File Description](../CMAQ_UG_ch04_model_inputs.md#miscctrl) in Chapter 4 for details. 
 
 One additional note: if a chemical familiy is defined for use in an emission scaling rule, the user should be careful about confirming that the members of that family are present on the emission input file or the CMAQ model species list, depending on which the user is trying to modify. Since the names on the input files are often different than those on the CMAQ model species list, care is advised. DESID will print warnings to the CMAQ log file when it cannot find species that it is looking for from a chemical family on an input file or in the list of CMAQ model species. Please confirm that the model is operating as you expect.  
