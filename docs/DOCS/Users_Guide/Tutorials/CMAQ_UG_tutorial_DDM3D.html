@@ -1,0 +1,786 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link href="../../../_static/CMAQ_Logo_2_inch.png" sizes="600x593" rel="icon" type="image/png">
+    <title>CMAQ-DDM3D Benchmark Tutorial &#8212; CMAQ 5.5+ documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../../_static/documentation_options.js?v=eec9c716"></script>
+    <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'DOCS/Users_Guide/Tutorials/CMAQ_UG_tutorial_DDM3D';</script>
+    <link rel="canonical" href="https://jbrunto.github.io/CMAQ_Docs_v55/DOCS/Users_Guide/Tutorials/CMAQ_UG_tutorial_DDM3D.html" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../_static/CMAQ_Logo_2_inch.png" class="logo__image only-light" alt="CMAQ 5.5+ documentation - Home"/>
+    <img src="../../../_static/CMAQ_Logo_2_inch.png" class="logo__image only-dark pst-js-only" alt="CMAQ 5.5+ documentation - Home"/>
+  
+  
+</a></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/USEPA/CMAQ" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://www.epa.gov/cmaq" title="CMAQ - EPA Site" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../../_static/epa_seal_w-ring_RGB-sm.png" class="icon-link-image" alt="CMAQ - EPA Site"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://forum.cmascenter.org/" title="User Forum" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../../_static/cmas_logo.png" class="icon-link-image" alt="User Forum"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://usepa.github.io/CMAQ/" title="CRACMM" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../../_static/CRACMM_1.png" class="icon-link-image" alt="CRACMM"/></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../_static/CMAQ_Logo_2_inch.png" class="logo__image only-light" alt="CMAQ 5.5+ documentation - Home"/>
+    <img src="../../../_static/CMAQ_Logo_2_inch.png" class="logo__image only-dark pst-js-only" alt="CMAQ 5.5+ documentation - Home"/>
+  
+  
+</a></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/USEPA/CMAQ" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://www.epa.gov/cmaq" title="CMAQ - EPA Site" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../../_static/epa_seal_w-ring_RGB-sm.png" class="icon-link-image" alt="CMAQ - EPA Site"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://forum.cmascenter.org/" title="User Forum" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../../_static/cmas_logo.png" class="icon-link-image" alt="User Forum"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://usepa.github.io/CMAQ/" title="CRACMM" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../../_static/CRACMM_1.png" class="icon-link-image" alt="CRACMM"/></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../Getting_Started.html">Getting Started</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../README.html">CMAQ User’s Guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../CMAQ_UG_ch01_overview.html">1. Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../CMAQ_UG_ch02_program_structure.html">2. Program Structure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../CMAQ_UG_ch03_preparing_compute_environment.html">3. Preparing Compute Environment for CMAQ Simulations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../CMAQ_UG_ch04_model_inputs.html">4. Model Input Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../CMAQ_UG_ch05_running_a_simulation.html">5. Running a CMAQ Simulation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../CMAQ_UG_ch06_model_configuration_options.html">6. Model Configuration Options</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../CMAQ_UG_ch07_model_outputs.html">7. Model Output Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../CMAQ_UG_ch08_analysis_tools.html">8. Analysis Tools for CMAQ output</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../CMAQ_UG_ch09_process_analysis.html">9. Process Analysis and Budget</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../CMAQ_UG_ch10_HDDM-3D.html">10. Decoupled Direct Method in Three Dimensions (CMAQ-DDM-3D)</a></li>
+
+
+
+
+<li class="toctree-l2"><a class="reference internal" href="../CMAQ_UG_ch11_ISAM.html">11. Integrated Source Apportionment Method (CMAQ-ISAM)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../CMAQ_UG_ch12_sulfur_tracking.html">12. Sulfur Tracking Method</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../CMAQ_UG_ch13_WRF-CMAQ.html">13. WRF-CMAQ Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../CMAQ_UG_ch14_MPAS-CMAQ.html">14. MPAS-CMAQ Model</a></li>
+
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="README.html">CMAQ Tutorials</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="CMAQ_UG_tutorial_configure_linux_environment.html">Configuring your compute environment for CMAQ simulations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="CMAQ_UG_tutorial_running_benchmarks.html">CMAQ Benchmark Tutorials</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../Release_Notes/README.html">Release Notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../Release_Notes/CMAQ-Release-Notes%3A-Instrumented-Models.html">Instrumented Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../Release_Notes/CMAQ-Release-Notes%3A-MPAS-CMAQ-Coupled-Model.html">MPAS-CMAQ Coupled Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../Release_Notes/CMAQ-Release-Notes%3A-WRF-CMAQ-Coupled-Model.html">Compatibility issues with WRF versions 4.5.2 and later</a></li>
+
+
+
+<li class="toctree-l2"><a class="reference internal" href="../../Release_Notes/CMAQ-Release-Notes%3A-Chemistry.html">Chemistry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../Release_Notes/CMAQ-Release-Notes%3A-Transport-Processes.html">Transport Processes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../Release_Notes/CMAQ-Release-Notes%3A-Dry-Deposition-Air-Surface-Exchange.html">Dry Deposition/Air-Surface Exchange</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../Release_Notes/CMAQ-Release-Notes%3A-Emissions-Updates.html">Emissions Updates</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../Release_Notes/CMAQ-Release-Notes%3A-Process-Analysis-%26-Sulfur-Tracking-Model-%28STM%29.html">Fix to option for Sulfur Tracking Model</a></li>
+
+
+
+<li class="toctree-l2"><a class="reference internal" href="../../Release_Notes/CMAQ-Release-Notes%3A-Structural-Improvements.html">GNU build flag update to enable compilation with GNU versions 10+</a></li>
+
+
+
+<li class="toctree-l2"><a class="reference internal" href="../../Release_Notes/CMAQ-Release-Notes%3A-Diagnostic-Options.html">Remove Uninitialized Variable in Column Model</a></li>
+
+
+
+
+
+<li class="toctree-l2"><a class="reference internal" href="../../Release_Notes/CMAQ-Release-Notes%3A-Preprocessors.html">MCIP</a></li>
+
+
+
+<li class="toctree-l2"><a class="reference internal" href="../../Release_Notes/CMAQ-Release-Notes%3A-PYTOOLS.html"><span class="xref myst">shp2cmaq: Create CMAQ-Ready File from Shapefile</span></a></li>
+
+<li class="toctree-l2"><a class="reference internal" href="../../Release_Notes/CMAQ-Release-Notes%3A-Postprocessors.html"><span class="xref myst">calc_tmetric</span></a></li>
+
+
+
+
+
+<li class="toctree-l2"><a class="reference internal" href="../../Release_Notes/CMAQ-Release-Notes%3A-Utilities.html">Update Chemistry Utilities for More Recent Versions of pgi Compilers</a></li>
+
+
+
+
+<li class="toctree-l2"><a class="reference internal" href="../../Release_Notes/CMAQ-Release-Notes%3A-Stratospheric%E2%80%90Tropospheric-Exchange-%28STE%29.html">Potential Vorticity Scaling of Ozone (PVO3) a Runtime Option</a></li>
+
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../Release_FAQ/README.html">FAQs</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../Release_FAQ/CMAQv5.5-Series-FAQ.html">Frequently Asked Questions for Upgrading to the Latest CMAQ Version</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../Release_FAQ/CMAQv5.4-Series-FAQ.html">Frequently Asked Questions for Upgrading to the Latest CMAQ Version</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Community_Support.html">Community Support</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">CMAQ-DDM3D Benchmark Tutorial</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="cmaq-ddm3d-benchmark-tutorial">
+<h1>CMAQ-DDM3D Benchmark Tutorial<a class="headerlink" href="#cmaq-ddm3d-benchmark-tutorial" title="Link to this heading">#</a></h1>
+<section id="procedure-to-build-and-run-the-cmaq-ddm3d-model-using-cb6r5-mechanism-and-m3dry-dry-deposition-scheme-using-gnu-compiler">
+<h2>Procedure to build and run the CMAQ-DDM3D model using cb6r5 mechanism and m3dry dry deposition scheme using gnu compiler:<a class="headerlink" href="#procedure-to-build-and-run-the-cmaq-ddm3d-model-using-cb6r5-mechanism-and-m3dry-dry-deposition-scheme-using-gnu-compiler" title="Link to this heading">#</a></h2>
+</section>
+<section id="step-1-download-and-run-the-cmaqv5-5-cb6r5-benchmark-case-without-ddm3d-to-confirm-that-your-model-run-is-consistent-with-the-provided-benchmark-output">
+<h2>Step 1: Download and run the CMAQv5.5 cb6r5 benchmark case (without DDM3D) to confirm that your model run is consistent with the provided benchmark output.<a class="headerlink" href="#step-1-download-and-run-the-cmaqv5-5-cb6r5-benchmark-case-without-ddm3d-to-confirm-that-your-model-run-is-consistent-with-the-provided-benchmark-output" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="CMAQ_UG_tutorial_benchmark.html"><span class="std std-doc">CMAQ Benchmark Tutorial</span></a></p></li>
+</ul>
+<p>If you encounter any errors, try running the model in debug mode and refer to the CMAS User Forum to determine if any issues have been reported.</p>
+<p>https://forum.cmascenter.org/</p>
+</section>
+<section id="step-2-read-the-user-guide-chapter-on-the-decoupled-direct-method-in-three-dimensions">
+<h2>Step 2: Read the User Guide Chapter on the Decoupled Direct Method in Three Dimensions<a class="headerlink" href="#step-2-read-the-user-guide-chapter-on-the-decoupled-direct-method-in-three-dimensions" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="../CMAQ_UG_ch10_HDDM-3D.html"><span class="std std-doc">CMAQ User’s Guide Chapter on DDM-3D</span></a></p></li>
+</ul>
+<p>Note: This benchmark is intended to demonstrate how to build and run CMAQ-DDM-3D with the provided input files:</p>
+<p>The following  control file is provided in the CCTM/scripts directory when you obtain the CMAQv5.5 code from github (step 5 below):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sensinput</span><span class="mf">.2018_12</span><span class="n">NE3</span><span class="o">.</span><span class="n">dat</span>
+</pre></div>
+</div>
+<p>The above file contains the following sensitivity definition block:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">PPA</span>
+ <span class="n">EMIS</span>
+  <span class="n">PT_EGU</span>
+ <span class="n">SPECIES</span>
+  <span class="n">SO2</span>
+ <span class="n">REGION</span>
+  <span class="n">PA</span>
+
+<span class="n">GNJ</span>
+ <span class="n">EMIS</span>
+  <span class="n">GRIDDED_EMIS</span>
+ <span class="n">SPECIES</span>
+  <span class="n">NO2</span><span class="p">,</span> <span class="n">NO</span>
+ <span class="n">REGION</span>
+  <span class="n">NJ</span>
+
+<span class="n">END</span>
+</pre></div>
+</div>
+<p>The following gridmask file is provided with the <a class="reference external" href="https://cmaq-release-benchmark-data-for-easy-download.s3.amazonaws.com/index.html#v5_5/" rel="noreferrer" target="_blank">5.5 benchmark inputs <svg version="1.1" width="1.0em" height="1.0em" viewBox="0 0 16 16" aria-hidden="true" style="display: inline-block; vertical-align: middle; fill: currentColor;"><path d="M3.75 2h3.5a.75.75 0 0 1 0 1.5h-3.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-3.5a.75.75 0 0 1 1.5 0v3.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5C2 2.784 2.784 2 3.75 2Zm6.854-1h4.146a.25.25 0 0 1 .25.25v4.146a.25.25 0 0 1-.427.177L13.03 4.03 9.28 7.78a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042l3.75-3.75-1.543-1.543A.25.25 0 0 1 10.604 1Z"></path></svg></a> tar file CMAQv5.4_2018_12NE3_Benchmark_2Day_Input.tar.gz. (See step 10 below.)</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">GRIDMASK_STATES_12NE3</span><span class="o">.</span><span class="n">nc</span>
+</pre></div>
+</div>
+<p>The instructions require the user to edit the DESID emissions control namelist file and the DESID chemical control namelist file in the BLD directory. If you want to use emission scaling (independently from ISAM or DDM3D) you will also need to edit these files.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>CMAQ_Control_DESID.nml
+CMAQ_Control_DESID_${MECH}.nml
+</pre></div>
+</div>
+</section>
+<section id="step-3-optional-choose-your-compiler-and-load-it-using-the-module-command-if-it-is-available-on-your-system">
+<h2>Step 3 (optional): choose your compiler, and load it using the module command if it is available on your system<a class="headerlink" href="#step-3-optional-choose-your-compiler-and-load-it-using-the-module-command-if-it-is-available-on-your-system" title="Link to this heading">#</a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">module</span> <span class="n">avail</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">module</span> <span class="n">load</span> <span class="n">openmpi_4</span><span class="mf">.0.1</span><span class="o">/</span><span class="n">gcc_9</span><span class="mf">.1.0</span> 
+</pre></div>
+</div>
+</section>
+<section id="step-4-optional-install-i-o-api-note-this-assumes-you-have-already-installed-netcdf-c-and-fortran-libraries">
+<h2>Step 4 (optional): Install I/O API (note, this assumes you have already installed netCDF C and Fortran Libraries)<a class="headerlink" href="#step-4-optional-install-i-o-api-note-this-assumes-you-have-already-installed-netcdf-c-and-fortran-libraries" title="Link to this heading">#</a></h2>
+<p>I/O APIv3.2 supports up to MXFILE3=256 open files, each with up to MXVARS3=2048. DDM-3D applications configured to calculate sensitivities to a large number of parameters may exceed this upper limit of model variables, leading to a model crash. To avoid this issue, users may use I/O API version 3.2 “large” that increases MXFILE3 to 512 and MXVARS3 to 16384. Instructions to build this version are found in Chapter 3. Note, using this ioapi-large version is <b>NOT REQUIRED</b> for the CMAQ-DDM Benchmark Case. If a user needs to use these larger setting for MXFILE3 and MXVAR3 to support their application, the memory requirements will be increased. If needed, this version is available as a zip file from the following address:</p>
+<p>https://www.cmascenter.org/ioapi/download/ioapi-3.2-large-20200828.tar.gz</p>
+<p>Otherwise, use the I/O API version available here:
+https://www.cmascenter.org/ioapi/download/ioapi-3.2-20200828.tar.gz</p>
+</section>
+<section id="step-5-install-cmaq-with-ddm-3d">
+<h2>Step 5: Install CMAQ with DDM-3D<a class="headerlink" href="#step-5-install-cmaq-with-ddm-3d" title="Link to this heading">#</a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">clone</span> <span class="o">-</span><span class="n">b</span> <span class="n">main</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">USEPA</span><span class="o">/</span><span class="n">CMAQ</span><span class="o">.</span><span class="n">git</span> <span class="n">CMAQ_REPO</span>
+</pre></div>
+</div>
+<p>Build and run in a user-specified directory outside of the repository</p>
+<p>In the top level of CMAQ_REPO, the bldit_project.csh script will automatically replicate the CMAQ folder structure and copy every build and run script out of the repository so that you may modify them freely without version control.</p>
+<p>Edit bldit_project.csh, to modify the variable $CMAQ_HOME to identify the folder that you would like to install the CMAQ package under. For example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nb">set</span> <span class="n">CMAQ_HOME</span> <span class="o">=</span> <span class="p">[</span><span class="n">your_install_path</span><span class="p">]</span><span class="o">/</span><span class="n">CMAQ_v5</span><span class="mf">.5</span>
+</pre></div>
+</div>
+<p>Now execute the script.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">./</span><span class="n">bldit_project</span><span class="o">.</span><span class="n">csh</span>
+</pre></div>
+</div>
+<p>Change directories to the CMAQ_HOME directory</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="p">[</span><span class="n">your_install_path</span><span class="p">]</span><span class="o">/</span><span class="n">CMAQ_v5</span><span class="mf">.5</span>
+</pre></div>
+</div>
+</section>
+<section id="step-6-edit-the-config-cmaq-csh-to-specify-the-paths-of-the-ioapi-and-netcdf-libraries">
+<h2>Step 6. Edit the config_cmaq.csh to specify the paths of the ioapi and netCDF libraries<a class="headerlink" href="#step-6-edit-the-config-cmaq-csh-to-specify-the-paths-of-the-ioapi-and-netcdf-libraries" title="Link to this heading">#</a></h2>
+</section>
+<section id="step-7-copy-the-bldit-cctm-csh-script-to-a-new-bldit-cctm-cb6r5-m3dry-ddm-csh-bldit-script-and-make-the-following-edits">
+<h2>Step 7: Copy the bldit_cctm.csh script to a new bldit_cctm_cb6r5_m3dry_ddm.csh bldit script, and make the following edits:<a class="headerlink" href="#step-7-copy-the-bldit-cctm-csh-script-to-a-new-bldit-cctm-cb6r5-m3dry-ddm-csh-bldit-script-and-make-the-following-edits" title="Link to this heading">#</a></h2>
+<p>Change directory to CCTM/scripts</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="n">CCTM</span><span class="o">/</span><span class="n">scripts</span>
+<span class="n">cp</span> <span class="n">bldit_cctm</span><span class="o">.</span><span class="n">csh</span> <span class="n">bldit_cctm_cb6r5_m3dry_ddm</span><span class="o">.</span><span class="n">csh</span>
+</pre></div>
+</div>
+<p>Modify the following option to compile CCTM with DDM3D:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nb">set</span> <span class="n">DDM3D_CCTM</span>                        <span class="c1">#&gt; uncomment to compile CCTM with DD3D activated</span>
+</pre></div>
+</div>
+</section>
+<section id="step-8-run-the-bldit-cctm-csh-script">
+<h2>Step 8: Run the bldit_cctm.csh script<a class="headerlink" href="#step-8-run-the-bldit-cctm-csh-script" title="Link to this heading">#</a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">./</span><span class="n">bldit_cctm_cb6r5_m3dry_ddm</span><span class="o">.</span><span class="n">csh</span> <span class="n">gcc</span> <span class="o">|&amp;</span> <span class="n">tee</span> <span class="n">bldit_cctm_cb6r5_m3dry_ddm</span><span class="o">.</span><span class="n">log</span>
+</pre></div>
+</div>
+</section>
+<section id="step-9-edit-the-emission-control-namelist-to-recognize-the-cmaq-regions-file">
+<h2>Step 9: Edit the Emission Control Namelist to recognize the CMAQ_REGIONS file<a class="headerlink" href="#step-9-edit-the-emission-control-namelist-to-recognize-the-cmaq-regions-file" title="Link to this heading">#</a></h2>
+<p>Change directories to the build directory</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="n">BLD_CCTM_v55_DDM3D_gcc_cb6r5_ae7_aq_m3dry</span>
+</pre></div>
+</div>
+<p>edit the Control_DESID namelist file</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">gedit</span> <span class="n">CMAQ_Control_DESID</span><span class="o">.</span><span class="n">nml</span>
+</pre></div>
+</div>
+<p>Add the Regions to the &amp;Desid_RegionDef section of the control DESID namelist.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>&amp;Desid_RegionDef
+ Desid_Reg_nml  =
+ !            Region Label   | File_Label  | Variable on File
+               &#39;EVERYWHERE&#39;  ,&#39;N/A&#39;        ,&#39;N/A&#39;,
+                &#39;PA&#39;        ,&#39;CMAQ_MASKS&#39;        , &#39;PA&#39;,
+                &#39;NJ&#39;        ,&#39;CMAQ_MASKS&#39;        , &#39;NJ&#39;,
+/
+</pre></div>
+</div>
+</section>
+<section id="step-10-example-of-emissions-scaling-reduce-the-pt-egu-emissions-in-pa-by-25-optional-step">
+<h2>Step 10: Example of emissions scaling (Reduce the PT_EGU emissions in PA by 25%) (Optional step)<a class="headerlink" href="#step-10-example-of-emissions-scaling-reduce-the-pt-egu-emissions-in-pa-by-25-optional-step" title="Link to this heading">#</a></h2>
+<p>edit the DESID chemical control namelist file, note please specify the mechanism or define the MECH environment variable.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">#gedit CMAQ_Control_DESID_${MECH}.nml</span>
+<span class="n">gedit</span> <span class="n">CMAQ_Control_DESID_cb6r5_ae7_aq</span><span class="o">.</span><span class="n">nml</span>
+</pre></div>
+</div>
+<p>Add the following line at the bottom of the the namelist file (before the /)</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>   ! PT_EGU Emissions Scaling reduce PT_EGU emissions in Pennsylvania by 25%. Note, to reduce the emissions by 25% we use DESID to multiply what had been 100% emissions by .75, so that the resulting emissions is reduced by 25%.
+   &#39;PA&#39;  , &#39;PT_EGU&#39;      ,&#39;All&#39;    ,&#39;All&#39;         ,&#39;All&#39; ,.75    ,&#39;UNIT&#39;,&#39;o&#39;,
+
+</pre></div>
+</div>
+</section>
+<section id="step-11-install-the-cmaq-ddm-3d-reference-input-and-output-benchmark-data">
+<h2>Step 11: Install the CMAQ-DDM-3D reference input and output benchmark data<a class="headerlink" href="#step-11-install-the-cmaq-ddm-3d-reference-input-and-output-benchmark-data" title="Link to this heading">#</a></h2>
+<p>Download the CMAQ two day reference input and output data from the <a class="reference external" href="https://cmaq-release-benchmark-data-for-easy-download.s3.amazonaws.com/index.html#v5_5/" rel="noreferrer" target="_blank">CMAS Center Data Warehouse Amazon Web Services S3 Bucket <svg version="1.1" width="1.0em" height="1.0em" viewBox="0 0 16 16" aria-hidden="true" style="display: inline-block; vertical-align: middle; fill: currentColor;"><path d="M3.75 2h3.5a.75.75 0 0 1 0 1.5h-3.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-3.5a.75.75 0 0 1 1.5 0v3.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5C2 2.784 2.784 2 3.75 2Zm6.854-1h4.146a.25.25 0 0 1 .25.25v4.146a.25.25 0 0 1-.427.177L13.03 4.03 9.28 7.78a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042l3.75-3.75-1.543-1.543A.25.25 0 0 1 10.604 1Z"></path></svg></a>: CMAQv5.4_2018_12NE3_Benchmark_2Day_Input.tar.gz	and output_CCTM_v55_DDM3D_gcc_Bench_2018_12NE3_cb6r5_ae7_aq_m3dry.tar.gz. The CMAQ benchmark test case is a two day simulation for July 1-2 2018 on a 100 column x 105 row x 35 layer 12-km resolution domain over the northeast U.S that uses the cb6r5_ae7_aq mechanism and the m3dry dry deposition scheme.</p>
+<p>Download and copy the data to <code class="docutils literal notranslate"><span class="pre">$CMAQ_DATA</span></code>. Navigate to the <code class="docutils literal notranslate"><span class="pre">$CMAQ_DATA</span></code> directory, unzip and untar the two day benchmark input and output files:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>cd $CMAQ_DATA
+wget https://cmaq-release-benchmark-data-for-easy-download.s3.amazonaws.com/v5_5/CMAQv5.4_2018_12NE3_Benchmark_2Day_Input.tar.gz
+tar xvzf CMAQv5.4_2018_12NE3_Benchmark_2Day_Input.tar.gz
+mkdir ref_output
+cd ref_output
+wget https://cmaq-release-benchmark-data-for-easy-download.s3.amazonaws.com/v5_5/output_CCTM_v55_DDM3D_gcc_Bench_2018_12NE3_cb6r5_ae7_aq_m3dry.tar.gz
+tar xvzf output_CCTM_v55_DDM3D_gcc_Bench_2018_12NE3_cb6r5_ae7_aq_m3dry.tar.gz
+</pre></div>
+</div>
+</section>
+<section id="step-12-review-the-cmaq-ddm3d-runscript">
+<h2>Step 12: Review the CMAQ-DDM3D runscript<a class="headerlink" href="#step-12-review-the-cmaq-ddm3d-runscript" title="Link to this heading">#</a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">gedit</span> <span class="n">run_cctm_Bench_2018_12NE3_cb6r5_m3dry_ddm</span><span class="o">.</span><span class="n">csh</span>
+</pre></div>
+</div>
+<p>Verify General Parameters for Configuring the Simulation</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span> <span class="nb">set</span> <span class="n">VRSN</span>      <span class="o">=</span> <span class="n">v55_DDM3D</span>
+</pre></div>
+</div>
+<p>Verify that script turns on DDM3D, uncomments SEN_INPUT file and sets the number of sensitivity parameter to match the SEN_INPUT</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span> setenv CTM_DDM3D Y  
+ setenv SEN_INPUT ${WORKDIR}/sensinput.2018_12NE3.dat
+ set NPMAX    = 2      # Number of sensitivity parameters defined in SEN_INPUT
+</pre></div>
+</div>
+<p>Run or Submit the script to the batch queueing system</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">./</span><span class="n">run_cctm_Bench_2018_12NE3_cb6r5_m3dry_ddm</span><span class="o">.</span><span class="n">csh</span>
+</pre></div>
+</div>
+<p>OR (If using SLRUM)</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sbatch</span> <span class="n">run_cctm_Bench_2018_12NE3_cb6r5_m3dry_ddm</span><span class="o">.</span><span class="n">csh</span>
+</pre></div>
+</div>
+</section>
+<section id="step-13-verify-that-the-run-was-successful">
+<h2>Step 13: Verify that the run was successful<a class="headerlink" href="#step-13-verify-that-the-run-was-successful" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>look for the output directory</p></li>
+</ul>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="o">../../</span><span class="n">data</span><span class="o">/</span><span class="mi">2018_12</span><span class="n">NE3_BENCH</span><span class="o">/</span><span class="n">output_CCTM_v55_DDM3D_gcc_Bench_2018_12NE3_cb6r5_ae7_aq_m3dry</span>
+</pre></div>
+</div>
+<p>If the run was successful you will see the following output</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">tail</span> <span class="o">./</span><span class="n">LOGS</span><span class="o">/</span><span class="n">CTM_LOG_000</span><span class="o">.</span><span class="n">v55_DDM3D_gcc_Bench_2018_12NE3_cracmm2_20180702</span>
+</pre></div>
+</div>
+<p>|&gt;—   PROGRAM COMPLETED SUCCESSFULLY   —&lt;|</p>
+</section>
+<section id="step-14-compare-output-with-the-2-day-benchmark-outputs-provided-on-the-cmas-center-aws-open-data-program">
+<h2>Step 14: Compare output with the 2 day benchmark outputs provided on the CMAS Center AWS Open Data Program<a class="headerlink" href="#step-14-compare-output-with-the-2-day-benchmark-outputs-provided-on-the-cmas-center-aws-open-data-program" title="Link to this heading">#</a></h2>
+<p>Note, the following DDM-3D output files are generated in addition to the standard CMAQ output files.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span> <span class="n">CCTM_SENWDEP_v55_DDM3D_gcc_Bench_2018_12NE3_cb6r5_ae7_aq_m3dry_20180701</span><span class="o">.</span><span class="n">nc</span>
+ <span class="n">CCTM_SENDDEP_v55_DDM3D_gcc_Bench_2018_12NE3_cb6r5_ae7_aq_m3dry_20180701</span><span class="o">.</span><span class="n">nc</span>
+ <span class="n">CCTM_SENGRID_v55_DDM3D_gcc_Bench_2018_12NE3_cb6r5_ae7_aq_m3dry_20180701</span><span class="o">.</span><span class="n">nc</span>
+</pre></div>
+</div>
+</section>
+<section id="step-15-compare-sensitivities">
+<h2>Step 15: Compare sensitivities<a class="headerlink" href="#step-15-compare-sensitivities" title="Link to this heading">#</a></h2>
+<p>First order sensitivities should not be larger than bulk, second order should not be larger than first order.</p>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#procedure-to-build-and-run-the-cmaq-ddm3d-model-using-cb6r5-mechanism-and-m3dry-dry-deposition-scheme-using-gnu-compiler">Procedure to build and run the CMAQ-DDM3D model using cb6r5 mechanism and m3dry dry deposition scheme using gnu compiler:</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-1-download-and-run-the-cmaqv5-5-cb6r5-benchmark-case-without-ddm3d-to-confirm-that-your-model-run-is-consistent-with-the-provided-benchmark-output">Step 1: Download and run the CMAQv5.5 cb6r5 benchmark case (without DDM3D) to confirm that your model run is consistent with the provided benchmark output.</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-2-read-the-user-guide-chapter-on-the-decoupled-direct-method-in-three-dimensions">Step 2: Read the User Guide Chapter on the Decoupled Direct Method in Three Dimensions</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-3-optional-choose-your-compiler-and-load-it-using-the-module-command-if-it-is-available-on-your-system">Step 3 (optional): choose your compiler, and load it using the module command if it is available on your system</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-4-optional-install-i-o-api-note-this-assumes-you-have-already-installed-netcdf-c-and-fortran-libraries">Step 4 (optional): Install I/O API (note, this assumes you have already installed netCDF C and Fortran Libraries)</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-5-install-cmaq-with-ddm-3d">Step 5: Install CMAQ with DDM-3D</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-6-edit-the-config-cmaq-csh-to-specify-the-paths-of-the-ioapi-and-netcdf-libraries">Step 6. Edit the config_cmaq.csh to specify the paths of the ioapi and netCDF libraries</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-7-copy-the-bldit-cctm-csh-script-to-a-new-bldit-cctm-cb6r5-m3dry-ddm-csh-bldit-script-and-make-the-following-edits">Step 7: Copy the bldit_cctm.csh script to a new bldit_cctm_cb6r5_m3dry_ddm.csh bldit script, and make the following edits:</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-8-run-the-bldit-cctm-csh-script">Step 8: Run the bldit_cctm.csh script</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-9-edit-the-emission-control-namelist-to-recognize-the-cmaq-regions-file">Step 9: Edit the Emission Control Namelist to recognize the CMAQ_REGIONS file</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-10-example-of-emissions-scaling-reduce-the-pt-egu-emissions-in-pa-by-25-optional-step">Step 10: Example of emissions scaling (Reduce the PT_EGU emissions in PA by 25%) (Optional step)</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-11-install-the-cmaq-ddm-3d-reference-input-and-output-benchmark-data">Step 11: Install the CMAQ-DDM-3D reference input and output benchmark data</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-12-review-the-cmaq-ddm3d-runscript">Step 12: Review the CMAQ-DDM3D runscript</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-13-verify-that-the-run-was-successful">Step 13: Verify that the run was successful</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-14-compare-output-with-the-2-day-benchmark-outputs-provided-on-the-cmas-center-aws-open-data-program">Step 14: Compare output with the 2 day benchmark outputs provided on the CMAS Center AWS Open Data Program</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-15-compare-sensitivities">Step 15: Compare sensitivities</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

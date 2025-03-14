@@ -1,0 +1,639 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link href="../../../_static/CMAQ_Logo_2_inch.png" sizes="600x593" rel="icon" type="image/png">
+    <title>Appendix E: Configuring the Weather Research and Forecasting Model (WRF) for Use with Air Quality Models &#8212; CMAQ 5.5+ documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../../_static/documentation_options.js?v=eec9c716"></script>
+    <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'DOCS/Users_Guide/Appendix/CMAQ_UG_appendixE_configuring_WRF';</script>
+    <link rel="canonical" href="https://jbrunto.github.io/CMAQ_Docs_v55/DOCS/Users_Guide/Appendix/CMAQ_UG_appendixE_configuring_WRF.html" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../_static/CMAQ_Logo_2_inch.png" class="logo__image only-light" alt="CMAQ 5.5+ documentation - Home"/>
+    <img src="../../../_static/CMAQ_Logo_2_inch.png" class="logo__image only-dark pst-js-only" alt="CMAQ 5.5+ documentation - Home"/>
+  
+  
+</a></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/USEPA/CMAQ" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://www.epa.gov/cmaq" title="CMAQ - EPA Site" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../../_static/epa_seal_w-ring_RGB-sm.png" class="icon-link-image" alt="CMAQ - EPA Site"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://forum.cmascenter.org/" title="User Forum" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../../_static/cmas_logo.png" class="icon-link-image" alt="User Forum"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://usepa.github.io/CMAQ/" title="CRACMM" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../../_static/CRACMM_1.png" class="icon-link-image" alt="CRACMM"/></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../_static/CMAQ_Logo_2_inch.png" class="logo__image only-light" alt="CMAQ 5.5+ documentation - Home"/>
+    <img src="../../../_static/CMAQ_Logo_2_inch.png" class="logo__image only-dark pst-js-only" alt="CMAQ 5.5+ documentation - Home"/>
+  
+  
+</a></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/USEPA/CMAQ" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://www.epa.gov/cmaq" title="CMAQ - EPA Site" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../../_static/epa_seal_w-ring_RGB-sm.png" class="icon-link-image" alt="CMAQ - EPA Site"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://forum.cmascenter.org/" title="User Forum" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../../_static/cmas_logo.png" class="icon-link-image" alt="User Forum"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://usepa.github.io/CMAQ/" title="CRACMM" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../../_static/CRACMM_1.png" class="icon-link-image" alt="CRACMM"/></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../Getting_Started.html">Getting Started</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../README.html">CMAQ User’s Guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../CMAQ_UG_ch01_overview.html">1. Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../CMAQ_UG_ch02_program_structure.html">2. Program Structure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../CMAQ_UG_ch03_preparing_compute_environment.html">3. Preparing Compute Environment for CMAQ Simulations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../CMAQ_UG_ch04_model_inputs.html">4. Model Input Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../CMAQ_UG_ch05_running_a_simulation.html">5. Running a CMAQ Simulation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../CMAQ_UG_ch06_model_configuration_options.html">6. Model Configuration Options</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../CMAQ_UG_ch07_model_outputs.html">7. Model Output Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../CMAQ_UG_ch08_analysis_tools.html">8. Analysis Tools for CMAQ output</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../CMAQ_UG_ch09_process_analysis.html">9. Process Analysis and Budget</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../CMAQ_UG_ch10_HDDM-3D.html">10. Decoupled Direct Method in Three Dimensions (CMAQ-DDM-3D)</a></li>
+
+
+
+
+<li class="toctree-l2"><a class="reference internal" href="../CMAQ_UG_ch11_ISAM.html">11. Integrated Source Apportionment Method (CMAQ-ISAM)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../CMAQ_UG_ch12_sulfur_tracking.html">12. Sulfur Tracking Method</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../CMAQ_UG_ch13_WRF-CMAQ.html">13. WRF-CMAQ Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../CMAQ_UG_ch14_MPAS-CMAQ.html">14. MPAS-CMAQ Model</a></li>
+
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../Tutorials/README.html">CMAQ Tutorials</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../Tutorials/CMAQ_UG_tutorial_configure_linux_environment.html">Configuring your compute environment for CMAQ simulations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Tutorials/CMAQ_UG_tutorial_running_benchmarks.html">CMAQ Benchmark Tutorials</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../Release_Notes/README.html">Release Notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../Release_Notes/CMAQ-Release-Notes%3A-Instrumented-Models.html">Instrumented Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../Release_Notes/CMAQ-Release-Notes%3A-MPAS-CMAQ-Coupled-Model.html">MPAS-CMAQ Coupled Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../Release_Notes/CMAQ-Release-Notes%3A-WRF-CMAQ-Coupled-Model.html">Compatibility issues with WRF versions 4.5.2 and later</a></li>
+
+
+
+<li class="toctree-l2"><a class="reference internal" href="../../Release_Notes/CMAQ-Release-Notes%3A-Chemistry.html">Chemistry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../Release_Notes/CMAQ-Release-Notes%3A-Transport-Processes.html">Transport Processes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../Release_Notes/CMAQ-Release-Notes%3A-Dry-Deposition-Air-Surface-Exchange.html">Dry Deposition/Air-Surface Exchange</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../Release_Notes/CMAQ-Release-Notes%3A-Emissions-Updates.html">Emissions Updates</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../Release_Notes/CMAQ-Release-Notes%3A-Process-Analysis-%26-Sulfur-Tracking-Model-%28STM%29.html">Fix to option for Sulfur Tracking Model</a></li>
+
+
+
+<li class="toctree-l2"><a class="reference internal" href="../../Release_Notes/CMAQ-Release-Notes%3A-Structural-Improvements.html">GNU build flag update to enable compilation with GNU versions 10+</a></li>
+
+
+
+<li class="toctree-l2"><a class="reference internal" href="../../Release_Notes/CMAQ-Release-Notes%3A-Diagnostic-Options.html">Remove Uninitialized Variable in Column Model</a></li>
+
+
+
+
+
+<li class="toctree-l2"><a class="reference internal" href="../../Release_Notes/CMAQ-Release-Notes%3A-Preprocessors.html">MCIP</a></li>
+
+
+
+<li class="toctree-l2"><a class="reference internal" href="../../Release_Notes/CMAQ-Release-Notes%3A-PYTOOLS.html"><span class="xref myst">shp2cmaq: Create CMAQ-Ready File from Shapefile</span></a></li>
+
+<li class="toctree-l2"><a class="reference internal" href="../../Release_Notes/CMAQ-Release-Notes%3A-Postprocessors.html"><span class="xref myst">calc_tmetric</span></a></li>
+
+
+
+
+
+<li class="toctree-l2"><a class="reference internal" href="../../Release_Notes/CMAQ-Release-Notes%3A-Utilities.html">Update Chemistry Utilities for More Recent Versions of pgi Compilers</a></li>
+
+
+
+
+<li class="toctree-l2"><a class="reference internal" href="../../Release_Notes/CMAQ-Release-Notes%3A-Stratospheric%E2%80%90Tropospheric-Exchange-%28STE%29.html">Potential Vorticity Scaling of Ozone (PVO3) a Runtime Option</a></li>
+
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../Release_FAQ/README.html">FAQs</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../Release_FAQ/CMAQv5.5-Series-FAQ.html">Frequently Asked Questions for Upgrading to the Latest CMAQ Version</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../Release_FAQ/CMAQv5.4-Series-FAQ.html">Frequently Asked Questions for Upgrading to the Latest CMAQ Version</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Community_Support.html">Community Support</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Appendix E: Configuring the Weather Research and Forecasting Model (WRF) for Use with Air Quality Models</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <!-- BEGIN COMMENT -->
+<p><a class="reference internal" href="CMAQ_UG_appendixD_parallel_implementation.html"><span class="std std-doc">&lt;&lt; Previous Appendix</span></a> - <a class="reference internal" href="../README.html"><span class="std std-doc">Home</span></a> - <a class="reference internal" href="CMAQ_UG_appendixF_elmo_output.html"><span class="std std-doc">Next Appendix &gt;&gt;</span></a></p>
+<!-- END COMMENT -->
+<section id="appendix-e-configuring-the-weather-research-and-forecasting-model-wrf-for-use-with-air-quality-models">
+<h1>Appendix E: Configuring the Weather Research and Forecasting Model (WRF) for Use with Air Quality Models<a class="headerlink" href="#appendix-e-configuring-the-weather-research-and-forecasting-model-wrf-for-use-with-air-quality-models" title="Link to this heading">#</a></h1>
+<section id="e-1-wrf-for-cmaq-output">
+<h2>E.1 WRF for CMAQ &amp; Output<a class="headerlink" href="#e-1-wrf-for-cmaq-output" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><strong><a class="reference external" href="https://github.com/USEPA/CMAQ/blob/main/DOCS/Users_Guide/PDF/PX-ACM-WRFV4.6-MPAS.pdf" rel="noreferrer" target="_blank">WRF configuration guide for CMAQ applications <svg version="1.1" width="1.0em" height="1.0em" viewBox="0 0 16 16" aria-hidden="true" style="display: inline-block; vertical-align: middle; fill: currentColor;"><path d="M3.75 2h3.5a.75.75 0 0 1 0 1.5h-3.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-3.5a.75.75 0 0 1 1.5 0v3.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5C2 2.784 2.784 2 3.75 2Zm6.854-1h4.146a.25.25 0 0 1 .25.25v4.146a.25.25 0 0 1-.427.177L13.03 4.03 9.28 7.78a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042l3.75-3.75-1.543-1.543A.25.25 0 0 1 10.604 1Z"></path></svg></a></strong></p></li>
+<li><p>CMAQ is best connected to WRF that uses the P-X LSM with key variables in the output (see WRF configuration guide above).</p></li>
+<li><p>Variable names: RS, RA, ZNT_PX, VEGF_PX, LAI_PX, LANDUSEF, WFC_PX, WSAT_PX, WWLT_PX, CSAND_PX, FMSAND_PX, CLAY_PX</p></li>
+<li><p>Method 1: Compiled into executable with directives in the Registry file.</p></li>
+<li><p>Method 2: At run-time using a simple text file and namelist option.</p></li>
+</ul>
+</section>
+<section id="e-2-wrf-version-4-6">
+<h2>E.2 WRF version 4.6<a class="headerlink" href="#e-2-wrf-version-4-6" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>UPDATE: P-X LSM compatible with 61 class MODIS Local Climate Zone (LCZ) landuse option</p></li>
+<li><p>UPDATE: Latent heat effect on ground temperature from the vegetated fraction of the grid cell and from wet canopy was added to P-X LSM.</p></li>
+<li><p>UPDATE: NaN fix from a divide by zero because of a zero-value soil parameter when a water cell turns to sea ice.</p></li>
+</ul>
+</section>
+<section id="e-3-wrf-version-4-3">
+<h2>E.3 WRF version 4.3+<a class="headerlink" href="#e-3-wrf-version-4-3" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>UPDATE: Modified the ACM2 PBL height algorithm for stable conditions so that the Richardson number is computed using windspeed
+in layer k rather than wind speed difference between layer k and ksrc.</p></li>
+<li><p>UPDATE: Added new pathway for evaporation from the ground in the vegetated fraction of the grid cell in P-X LSM module.</p></li>
+<li><p>UPDATE: Consolidated WRF P-X LSM code with MPAS versions. The P-X LSM code in WRFv4.3 is the exact same code as that for MPASv7.2+</p></li>
+</ul>
+</section>
+<section id="e-4-wrf-version-4-0">
+<h2>E.4 WRF version 4.0<a class="headerlink" href="#e-4-wrf-version-4-0" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>WRF4.0 has updates to the ACM2 PBL model to account for the new default hybrid coordinate system. Our internal model runs suggest that the hybrid option (hybrid_opt =2) improves the model in areas where topographical variations are more extreme like the Rocky Mountains. As such, it is suggested, but not a requirement, to use this option in WRF that became the default in WRF4.0.</p></li>
+<li><p>UPDATE: Added vegetation and leaf-area index option for Pleim-Xiu land-surface runs. Until this version, the P-X LSM uses VEGFRA and LAI computed from the module_sf_pxlsm_data.F PX data table. This uses fractional landuse and these lookup values to compute the LAI and VEGFRA for each grid cell. The new option (pxlsm_modis_veg = 1) is activated using this option in the physics section of the namelist.input file. It uses the time-varying VEGFRA and LAI from the wrflowinp_d01 file instead of the look-up values in the P-X data table. This allows use of more accurate high resolution MODIS that is now available in WPS in WRFv4+. Alternatively, users can process their own MODIS data for specific years and put in this same input file.</p></li>
+<li><p>UPDATE: Also, the soil calculation in the P-X LSM were modified to use analytical functions from Noilhan and Mahfouf (1996) for field capacity, saturation and wilting point based on fractional soil data. Also, variables for fractional clay, fine and coarse sand were added in P-X for output to the CMAQ air quality model. This is an important update because these data are used for dust emissions in the air quality model along with the new soil properties (wilting, saturation and field capacity). SOILTYP was also updated in P-X LSM so soil classes are consistent with the standard 16 soil types in the WRF system. Prior, P-X only had 12 classes and classes 4-12 were not the same as those classes used by other LSMs.</p></li>
+</ul>
+</section>
+<section id="e-5-wrf-version-3-7">
+<h2>E.5 WRF version 3.7<a class="headerlink" href="#e-5-wrf-version-3-7" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><strong><a class="reference external" href="http://www2.mmm.ucar.edu/wrf/users/docs/PX-ACM.pdf" rel="noreferrer" target="_blank">Section from WRFv3.7 Technical Documentation related to air quality modeling <svg version="1.1" width="1.0em" height="1.0em" viewBox="0 0 16 16" aria-hidden="true" style="display: inline-block; vertical-align: middle; fill: currentColor;"><path d="M3.75 2h3.5a.75.75 0 0 1 0 1.5h-3.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-3.5a.75.75 0 0 1 1.5 0v3.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5C2 2.784 2.784 2 3.75 2Zm6.854-1h4.146a.25.25 0 0 1 .25.25v4.146a.25.25 0 0 1-.427.177L13.03 4.03 9.28 7.78a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042l3.75-3.75-1.543-1.543A.25.25 0 0 1 10.604 1Z"></path></svg></a>:</strong> This 8 page pdf provides description and procedures for using the Pleim-Xiu LSM, ACM2 PBL and Pleim Surface Layer Scheme in WRF including best practices and namelist options.</p></li>
+</ul>
+</section>
+<section id="e-6-wrf-with-lightning-assimilation">
+<h2>E.6 WRF with lightning assimilation<a class="headerlink" href="#e-6-wrf-with-lightning-assimilation" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>EPA typically runs WRF simulations using a Lightning Assimilation method described in Heath et al. (2016) and Kang et al. (2022).  The assimilation method uses gridded lightning data to trigger and suppress sub-grid deep convection in WRF’s Kain-Fritsch scheme.  For information on the WRF code modifications and required data files please contact <a class="reference external" href="mailto:kang&#46;daiwen&#37;&#52;&#48;epa&#46;gov" rel="noreferrer" target="_blank">Daiwen Kang <svg version="1.1" width="1.0em" height="1.0em" viewBox="0 0 16 16" aria-hidden="true" style="display: inline-block; vertical-align: middle; fill: currentColor;"><path d="M3.75 2h3.5a.75.75 0 0 1 0 1.5h-3.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-3.5a.75.75 0 0 1 1.5 0v3.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5C2 2.784 2.784 2 3.75 2Zm6.854-1h4.146a.25.25 0 0 1 .25.25v4.146a.25.25 0 0 1-.427.177L13.03 4.03 9.28 7.78a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042l3.75-3.75-1.543-1.543A.25.25 0 0 1 10.604 1Z"></path></svg></a>, U.S. Environmental Protection Agency.</p></li>
+<li><p><strong><a class="reference external" href="https://wcms.epa.gov/sites/production/files/2017-02/ltgda_wrf_16feb2017.zip" rel="noreferrer" target="_blank">WRF with Lightning Assimilation Code <svg version="1.1" width="1.0em" height="1.0em" viewBox="0 0 16 16" aria-hidden="true" style="display: inline-block; vertical-align: middle; fill: currentColor;"><path d="M3.75 2h3.5a.75.75 0 0 1 0 1.5h-3.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-3.5a.75.75 0 0 1 1.5 0v3.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5C2 2.784 2.784 2 3.75 2Zm6.854-1h4.146a.25.25 0 0 1 .25.25v4.146a.25.25 0 0 1-.427.177L13.03 4.03 9.28 7.78a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042l3.75-3.75-1.543-1.543A.25.25 0 0 1 10.604 1Z"></path></svg></a>:</strong> This .zip file (ltgda_wrf_16feb2017.zip; 220K) contains the registry and FORTRAN files with the updates needed to run WRF with lightning assimilation, as well as a generic Python script to grid lightning data to your WRF domain.</p></li>
+</ul>
+</section>
+<section id="e-6-reference">
+<h2>E.6 Reference:<a class="headerlink" href="#e-6-reference" title="Link to this heading">#</a></h2>
+<p>Noilhan, J., &amp; Mahfouf, J. F. (1996). The ISBA land surface parameterization scheme. Global and planetary Change, 13(1-4), 145-159.</p>
+<p>Noilan, J., and S. Planton, 1989: A simple parameterization of land surface processes for meteorological models. Mon. Wea. Rev., 117, 536-549.</p>
+<p>Pleim, J. E., and A. Xiu, 1995: Development and testing of a surface flux and planetary boundary layer model for application in mesoscale models. J. Appl. Meteor., 34, 16-32.</p>
+<p>Xiu, Aijun, and J. E. Pleim, 2001: Development of a Land Surface Model. Part I: Application in a Mesoscale Meteorological Model. J. Appl. Meteor., 40, 192–209.</p>
+<p>Pleim, J. E., and A. Xiu, 2003: Development of a land surface model. Part II: Data assimilation. J. Appl. Meteor., 42, 1811-1822.</p>
+<p>Pleim, J. E., 2006: A simple, efficient solution of flux-profile relationships in the atmospheric surface layer, J. Appl. Meteor. and Clim., 45, 341–347.</p>
+<p>Pleim, Jonathan E., 2007: A Combined Local and Nonlocal Closure Model for the Atmospheric Boundary Layer. Part I: Model Description and Testing. J. Appl. Meteor. Climatol.,46, 1383–1395.</p>
+<p>Pleim, J. E., and R. Gilliam, 2009: An indirect data assimilation scheme for deep soil temperature in the Pleim-Xiu land surface model. J. Appl. Meteor. Climatol., 48, 1362-1376.</p>
+<p>Gilliam, R. C., and J. E. Pleim, 2010: Performance assessment of new land-surface and planetary boundary layer physics in the WRF-ARW. J. App. Meteor. Climatol., 49(4), 760-774.</p>
+<p>Heath, N. K., J. E. Pleim, R. C. Gilliam, &amp; D. Kang (2016). A simple lightning assimilation technique for improving retrospective WRF simulations, J. Adv. Model. Earth Syst., 8, 1806 – 1824, http://dx.doi.org/10.1002/2016MS000735.</p>
+<p>Gilliam, R. C., Herwehe, J. A., Bullock, Jr, O. R., Pleim, J. E., Ran, L., Campbell, P. C., &amp; Foroutan, H. (2021). Establishing the suitability of the model for prediction across scales for global retrospective air quality modeling. Journal of Geophysical Research: Atmospheres, 126, e2020JD033588. https://doi.org/10.1029/2020JD033588</p>
+<p>Kang, D., H. K. Heath, R. C. Gilliam, T. L. Spero, and J. E. Pleim (2022), Lightning assimilation in the WRF model (Version 4.1. 1): technique updates and assessment of the applications from regional to hemispheric scales, Geosci. Model Dev., 15, 8561–8579, https://doi.org/10.5194/gmd-15-8561-2022, 2022.</p>
+<!-- BEGIN COMMENT -->
+<p><a class="reference internal" href="CMAQ_UG_appendixD_parallel_implementation.html"><span class="std std-doc">&lt;&lt; Previous Appendix</span></a> - <a class="reference internal" href="../README.html"><span class="std std-doc">Home</span></a> - <a class="reference internal" href="CMAQ_UG_appendixF_elmo_output.html"><span class="std std-doc">Next Appendix &gt;&gt;</span></a> <br>
+CMAQv5.5 User’s Guide<br></p>
+<!-- END COMMENT -->
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#e-1-wrf-for-cmaq-output">E.1 WRF for CMAQ &amp; Output</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#e-2-wrf-version-4-6">E.2 WRF version 4.6</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#e-3-wrf-version-4-3">E.3 WRF version 4.3+</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#e-4-wrf-version-4-0">E.4 WRF version 4.0</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#e-5-wrf-version-3-7">E.5 WRF version 3.7</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#e-6-wrf-with-lightning-assimilation">E.6 WRF with lightning assimilation</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#e-6-reference">E.6 Reference:</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

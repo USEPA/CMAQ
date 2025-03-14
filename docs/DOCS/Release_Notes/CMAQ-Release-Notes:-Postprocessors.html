@@ -1,0 +1,771 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link href="../../_static/CMAQ_Logo_2_inch.png" sizes="600x593" rel="icon" type="image/png">
+    <title>calc_tmetric &#8212; CMAQ 5.5+ documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../_static/documentation_options.js?v=eec9c716"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'DOCS/Release_Notes/CMAQ-Release-Notes:-Postprocessors';</script>
+    <link rel="canonical" href="https://jbrunto.github.io/CMAQ_Docs_v55/DOCS/Release_Notes/CMAQ-Release-Notes%3A-Postprocessors.html" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Update Chemistry Utilities for More Recent Versions of pgi Compilers" href="CMAQ-Release-Notes%3A-Utilities.html" />
+    <link rel="prev" title="shp2cmaq: Create CMAQ-Ready File from Shapefile" href="CMAQ-Release-Notes%3A-PYTOOLS.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../_static/CMAQ_Logo_2_inch.png" class="logo__image only-light" alt="CMAQ 5.5+ documentation - Home"/>
+    <img src="../../_static/CMAQ_Logo_2_inch.png" class="logo__image only-dark pst-js-only" alt="CMAQ 5.5+ documentation - Home"/>
+  
+  
+</a></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/USEPA/CMAQ" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://www.epa.gov/cmaq" title="CMAQ - EPA Site" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../_static/epa_seal_w-ring_RGB-sm.png" class="icon-link-image" alt="CMAQ - EPA Site"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://forum.cmascenter.org/" title="User Forum" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../_static/cmas_logo.png" class="icon-link-image" alt="User Forum"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://usepa.github.io/CMAQ/" title="CRACMM" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../_static/CRACMM_1.png" class="icon-link-image" alt="CRACMM"/></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../_static/CMAQ_Logo_2_inch.png" class="logo__image only-light" alt="CMAQ 5.5+ documentation - Home"/>
+    <img src="../../_static/CMAQ_Logo_2_inch.png" class="logo__image only-dark pst-js-only" alt="CMAQ 5.5+ documentation - Home"/>
+  
+  
+</a></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/USEPA/CMAQ" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://www.epa.gov/cmaq" title="CMAQ - EPA Site" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../_static/epa_seal_w-ring_RGB-sm.png" class="icon-link-image" alt="CMAQ - EPA Site"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://forum.cmascenter.org/" title="User Forum" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../_static/cmas_logo.png" class="icon-link-image" alt="User Forum"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://usepa.github.io/CMAQ/" title="CRACMM" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../_static/CRACMM_1.png" class="icon-link-image" alt="CRACMM"/></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <ul class="current nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../Getting_Started.html">Getting Started</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../Users_Guide/README.html">CMAQ User’s Guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../Users_Guide/CMAQ_UG_ch01_overview.html">1. Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Users_Guide/CMAQ_UG_ch02_program_structure.html">2. Program Structure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Users_Guide/CMAQ_UG_ch03_preparing_compute_environment.html">3. Preparing Compute Environment for CMAQ Simulations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Users_Guide/CMAQ_UG_ch04_model_inputs.html">4. Model Input Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Users_Guide/CMAQ_UG_ch05_running_a_simulation.html">5. Running a CMAQ Simulation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Users_Guide/CMAQ_UG_ch06_model_configuration_options.html">6. Model Configuration Options</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Users_Guide/CMAQ_UG_ch07_model_outputs.html">7. Model Output Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Users_Guide/CMAQ_UG_ch08_analysis_tools.html">8. Analysis Tools for CMAQ output</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Users_Guide/CMAQ_UG_ch09_process_analysis.html">9. Process Analysis and Budget</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Users_Guide/CMAQ_UG_ch10_HDDM-3D.html">10. Decoupled Direct Method in Three Dimensions (CMAQ-DDM-3D)</a></li>
+
+
+
+
+<li class="toctree-l2"><a class="reference internal" href="../Users_Guide/CMAQ_UG_ch11_ISAM.html">11. Integrated Source Apportionment Method (CMAQ-ISAM)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Users_Guide/CMAQ_UG_ch12_sulfur_tracking.html">12. Sulfur Tracking Method</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Users_Guide/CMAQ_UG_ch13_WRF-CMAQ.html">13. WRF-CMAQ Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Users_Guide/CMAQ_UG_ch14_MPAS-CMAQ.html">14. MPAS-CMAQ Model</a></li>
+
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../Users_Guide/Tutorials/README.html">CMAQ Tutorials</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../Users_Guide/Tutorials/CMAQ_UG_tutorial_configure_linux_environment.html">Configuring your compute environment for CMAQ simulations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Users_Guide/Tutorials/CMAQ_UG_tutorial_running_benchmarks.html">CMAQ Benchmark Tutorials</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="README.html">Release Notes</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="CMAQ-Release-Notes%3A-Instrumented-Models.html">Instrumented Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="CMAQ-Release-Notes%3A-MPAS-CMAQ-Coupled-Model.html">MPAS-CMAQ Coupled Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="CMAQ-Release-Notes%3A-WRF-CMAQ-Coupled-Model.html">Compatibility issues with WRF versions 4.5.2 and later</a></li>
+
+
+
+<li class="toctree-l2"><a class="reference internal" href="CMAQ-Release-Notes%3A-Chemistry.html">Chemistry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="CMAQ-Release-Notes%3A-Transport-Processes.html">Transport Processes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="CMAQ-Release-Notes%3A-Dry-Deposition-Air-Surface-Exchange.html">Dry Deposition/Air-Surface Exchange</a></li>
+<li class="toctree-l2"><a class="reference internal" href="CMAQ-Release-Notes%3A-Emissions-Updates.html">Emissions Updates</a></li>
+<li class="toctree-l2"><a class="reference internal" href="CMAQ-Release-Notes%3A-Process-Analysis-%26-Sulfur-Tracking-Model-%28STM%29.html">Fix to option for Sulfur Tracking Model</a></li>
+
+
+
+<li class="toctree-l2"><a class="reference internal" href="CMAQ-Release-Notes%3A-Structural-Improvements.html">GNU build flag update to enable compilation with GNU versions 10+</a></li>
+
+
+
+<li class="toctree-l2"><a class="reference internal" href="CMAQ-Release-Notes%3A-Diagnostic-Options.html">Remove Uninitialized Variable in Column Model</a></li>
+
+
+
+
+
+<li class="toctree-l2"><a class="reference internal" href="CMAQ-Release-Notes%3A-Preprocessors.html">MCIP</a></li>
+
+
+
+<li class="toctree-l2"><a class="reference internal" href="CMAQ-Release-Notes%3A-PYTOOLS.html"><span class="xref myst">shp2cmaq: Create CMAQ-Ready File from Shapefile</span></a></li>
+
+<li class="toctree-l2 current active"><a class="current reference internal" href="#"><span class="xref myst">calc_tmetric</span></a></li>
+
+
+
+
+
+<li class="toctree-l2"><a class="reference internal" href="CMAQ-Release-Notes%3A-Utilities.html">Update Chemistry Utilities for More Recent Versions of pgi Compilers</a></li>
+
+
+
+
+<li class="toctree-l2"><a class="reference internal" href="CMAQ-Release-Notes%3A-Stratospheric%E2%80%90Tropospheric-Exchange-%28STE%29.html">Potential Vorticity Scaling of Ozone (PVO3) a Runtime Option</a></li>
+
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../Release_FAQ/README.html">FAQs</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../Release_FAQ/CMAQv5.5-Series-FAQ.html">Frequently Asked Questions for Upgrading to the Latest CMAQ Version</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Release_FAQ/CMAQv5.4-Series-FAQ.html">Frequently Asked Questions for Upgrading to the Latest CMAQ Version</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../Community_Support.html">Community Support</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="README.html" class="nav-link">CMAQ Release Notes</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis"><span class="xref myst">calc_tmetric</span></span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="calc-tmetric">
+<h1><a class="reference internal" href="../../POST/calc_tmetric/README.html"><span class="std std-doc">calc_tmetric</span></a><a class="headerlink" href="#calc-tmetric" title="Link to this heading">#</a></h1>
+<p>No changes were made to this tool in CMAQv5.5.</p>
+</section>
+<section id="combine">
+<h1><a class="reference internal" href="../../POST/combine/README.html"><span class="std std-doc">combine</span></a><a class="headerlink" href="#combine" title="Link to this heading">#</a></h1>
+<section id="improve-checks-on-formulas-used-by-combine">
+<h2>Improve Checks on Formulas Used by COMBINE<a class="headerlink" href="#improve-checks-on-formulas-used-by-combine" title="Link to this heading">#</a></h2>
+<p><a class="reference external" href="mailto:Hutzell&#46;Bill&#37;&#52;&#48;epa&#46;gov" rel="noreferrer" target="_blank">William T<span>&#46;</span> Hutzell <svg version="1.1" width="1.0em" height="1.0em" viewBox="0 0 16 16" aria-hidden="true" style="display: inline-block; vertical-align: middle; fill: currentColor;"><path d="M3.75 2h3.5a.75.75 0 0 1 0 1.5h-3.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-3.5a.75.75 0 0 1 1.5 0v3.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5C2 2.784 2.784 2 3.75 2Zm6.854-1h4.146a.25.25 0 0 1 .25.25v4.146a.25.25 0 0 1-.427.177L13.03 4.03 9.28 7.78a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042l3.75-3.75-1.543-1.543A.25.25 0 0 1 10.604 1Z"></path></svg></a>, U.S. Environmental Protection Agency<br />
+<strong>Type of update</strong>: Bug Fix<br />
+<strong>Release Version/Date</strong>: CMAQv5.5<br />
+<strong>Description</strong>: The update to COMBINE detects and reports syntax errors in a species definitions files listed below. Error messages list the syntax error so the user can more easily correct the definitions file. Note that COMBINE stops at the first detected error so correcting a species definitions file is an iterative process if the file contains several errors.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">O3_ERROR1</span> <span class="p">,</span> <span class="n">ppmV</span><span class="p">,</span> <span class="n">O3</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">/</span>       
+<span class="n">O3_ERROR2</span> <span class="p">,</span> <span class="n">ppmV</span><span class="p">,</span> <span class="n">O3</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>\<span class="o">*</span>    
+<span class="n">O3_ERROR3</span> <span class="p">,</span> <span class="n">ppmV</span><span class="p">,</span> <span class="n">O3</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span>
+<span class="n">O3_ERROR4</span> <span class="p">,</span> <span class="n">ppmV</span><span class="p">,</span> <span class="n">O3</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="mf">.1000</span><span class="o">.</span>   
+<span class="n">O3_ERROR5</span> <span class="p">,</span> <span class="n">ppmV</span><span class="p">,</span> <span class="n">O3</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="n">y1000</span><span class="o">.</span>
+<span class="n">O3_ERROR5</span> <span class="p">,</span> <span class="n">ppmV</span><span class="p">,</span> <span class="n">O3</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="n">O3</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>    
+</pre></div>
+</div>
+<p><strong>Significance and Impact</strong>: Prevents Errors in Results from Postprocessing by COMBINE</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head text-center"><p>Merge Commit</p></th>
+<th class="head text-center"><p>Internal record</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td class="text-center"><p><a class="reference external" href="https://github.com/USEPA/CMAQ/commit/b4ff5c9631caa1361593656c38b70715211e11f7" rel="noreferrer" target="_blank">Merge for PR#1091 <svg version="1.1" width="1.0em" height="1.0em" viewBox="0 0 16 16" aria-hidden="true" style="display: inline-block; vertical-align: middle; fill: currentColor;"><path d="M3.75 2h3.5a.75.75 0 0 1 0 1.5h-3.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-3.5a.75.75 0 0 1 1.5 0v3.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5C2 2.784 2.784 2 3.75 2Zm6.854-1h4.146a.25.25 0 0 1 .25.25v4.146a.25.25 0 0 1-.427.177L13.03 4.03 9.28 7.78a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042l3.75-3.75-1.543-1.543A.25.25 0 0 1 10.604 1Z"></path></svg></a></p></td>
+<td class="text-center"><p><a class="reference external" href="https://github.com/USEPA/CMAQ_Dev/pull/1091" rel="noreferrer" target="_blank">PR#1091 <svg version="1.1" width="1.0em" height="1.0em" viewBox="0 0 16 16" aria-hidden="true" style="display: inline-block; vertical-align: middle; fill: currentColor;"><path d="M3.75 2h3.5a.75.75 0 0 1 0 1.5h-3.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-3.5a.75.75 0 0 1 1.5 0v3.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5C2 2.784 2.784 2 3.75 2Zm6.854-1h4.146a.25.25 0 0 1 .25.25v4.146a.25.25 0 0 1-.427.177L13.03 4.03 9.28 7.78a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042l3.75-3.75-1.543-1.543A.25.25 0 0 1 10.604 1Z"></path></svg></a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="corrected-deposition-species-definition-specdef-dep-files-for-missing-nitrogen-species">
+<h2>Corrected Deposition Species Definition (SpecDef_Dep) files for missing nitrogen species<a class="headerlink" href="#corrected-deposition-species-definition-specdef-dep-files-for-missing-nitrogen-species" title="Link to this heading">#</a></h2>
+<p><a class="reference external" href="mailto:Bash&#46;Jesse&#37;&#52;&#48;epa&#46;gov" rel="noreferrer" target="_blank">Jesse Bash <svg version="1.1" width="1.0em" height="1.0em" viewBox="0 0 16 16" aria-hidden="true" style="display: inline-block; vertical-align: middle; fill: currentColor;"><path d="M3.75 2h3.5a.75.75 0 0 1 0 1.5h-3.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-3.5a.75.75 0 0 1 1.5 0v3.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5C2 2.784 2.784 2 3.75 2Zm6.854-1h4.146a.25.25 0 0 1 .25.25v4.146a.25.25 0 0 1-.427.177L13.03 4.03 9.28 7.78a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042l3.75-3.75-1.543-1.543A.25.25 0 0 1 10.604 1Z"></path></svg></a>, U.S. Environmental Protection Agency<br />
+<strong>Type of update</strong>: Bug Fix<br />
+<strong>Release Version/Date</strong>: CMAQv5.5<br />
+<strong>Description</strong>: There are a couple of issues with the SpecDef_Dep files resulting in the underestimation of total nitrogen deposition. The following changes were made to be more consistent with new NADP wet deposition and field scale dry deposition measurements:</p>
+<ol class="arabic simple">
+<li><p>HNO4 (PNA) was missing from oxidized dry deposition</p></li>
+<li><p>NO3 radicle was omitted from oxidized dry and wet deposition</p></li>
+<li><p>CLNO2 and CLNO3 were omitted from oxidized dry and wet deposition</p></li>
+<li><p>cb6 was missing MTNO3J in the organic N deposition</p></li>
+<li><p>PANT was not added to the organic N deposition</p></li>
+</ol>
+<p><strong>Significance and Impact</strong>: This does not change model results and only modifies post processing. The impact on post processed wet deposition results are minimal. The omissions from the dry deposition variables can amount to about a 1% increase in the post processed results. However, the largest increases are in remote vegetated and coastal areas which tend to be more sensitive to nitrogen loading.</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head text-center"><p>Merge Commit</p></th>
+<th class="head text-center"><p>Internal record</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td class="text-center"><p><a class="reference external" href="https://github.com/USEPA/CMAQ/commit/24c0840315978f94541d8b6288163e7a54c8694d" rel="noreferrer" target="_blank">Merge for PR#1063 <svg version="1.1" width="1.0em" height="1.0em" viewBox="0 0 16 16" aria-hidden="true" style="display: inline-block; vertical-align: middle; fill: currentColor;"><path d="M3.75 2h3.5a.75.75 0 0 1 0 1.5h-3.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-3.5a.75.75 0 0 1 1.5 0v3.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5C2 2.784 2.784 2 3.75 2Zm6.854-1h4.146a.25.25 0 0 1 .25.25v4.146a.25.25 0 0 1-.427.177L13.03 4.03 9.28 7.78a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042l3.75-3.75-1.543-1.543A.25.25 0 0 1 10.604 1Z"></path></svg></a></p></td>
+<td class="text-center"><p><a class="reference external" href="https://github.com/USEPA/CMAQ_Dev/pull/1063" rel="noreferrer" target="_blank">PR#1063 <svg version="1.1" width="1.0em" height="1.0em" viewBox="0 0 16 16" aria-hidden="true" style="display: inline-block; vertical-align: middle; fill: currentColor;"><path d="M3.75 2h3.5a.75.75 0 0 1 0 1.5h-3.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-3.5a.75.75 0 0 1 1.5 0v3.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5C2 2.784 2.784 2 3.75 2Zm6.854-1h4.146a.25.25 0 0 1 .25.25v4.146a.25.25 0 0 1-.427.177L13.03 4.03 9.28 7.78a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042l3.75-3.75-1.543-1.543A.25.25 0 0 1 10.604 1Z"></path></svg></a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="cracmm-specdef-deposition-updates-for-hno4-and-clno2">
+<h2>CRACMM SpecDef Deposition Updates for HNO4 and CLNO2<a class="headerlink" href="#cracmm-specdef-deposition-updates-for-hno4-and-clno2" title="Link to this heading">#</a></h2>
+<p><a class="reference external" href="mailto:Pye&#46;Havala&#37;&#52;&#48;epa&#46;gov" rel="noreferrer" target="_blank">Havala Pye <svg version="1.1" width="1.0em" height="1.0em" viewBox="0 0 16 16" aria-hidden="true" style="display: inline-block; vertical-align: middle; fill: currentColor;"><path d="M3.75 2h3.5a.75.75 0 0 1 0 1.5h-3.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-3.5a.75.75 0 0 1 1.5 0v3.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5C2 2.784 2.784 2 3.75 2Zm6.854-1h4.146a.25.25 0 0 1 .25.25v4.146a.25.25 0 0 1-.427.177L13.03 4.03 9.28 7.78a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042l3.75-3.75-1.543-1.543A.25.25 0 0 1 10.604 1Z"></path></svg></a>, U.S. Environmental Protection Agency<br />
+<strong>Type of update</strong>: Bug Fix<br />
+<strong>Release Version/Date</strong>: CMAQv5.5<br />
+<strong>Description</strong>: Removes any formulas that include “CLNO2”, CRACMM does not have “CLNO2”. Fixes any formulas that contain “PNA”, which is named “HNO4” in CRACMM.<br />
+<strong>Significance and Impact</strong>: Enables automated post processing of deposition via combine. Does not affect model results.</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head text-center"><p>Merge Commit</p></th>
+<th class="head text-center"><p>Internal record</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td class="text-center"><p><a class="reference external" href="https://github.com/USEPA/CMAQ/commit/1433cdb44cdc64b4f8209cf388c034510b18856e" rel="noreferrer" target="_blank">Merge for PR#966 <svg version="1.1" width="1.0em" height="1.0em" viewBox="0 0 16 16" aria-hidden="true" style="display: inline-block; vertical-align: middle; fill: currentColor;"><path d="M3.75 2h3.5a.75.75 0 0 1 0 1.5h-3.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-3.5a.75.75 0 0 1 1.5 0v3.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5C2 2.784 2.784 2 3.75 2Zm6.854-1h4.146a.25.25 0 0 1 .25.25v4.146a.25.25 0 0 1-.427.177L13.03 4.03 9.28 7.78a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042l3.75-3.75-1.543-1.543A.25.25 0 0 1 10.604 1Z"></path></svg></a></p></td>
+<td class="text-center"><p><a class="reference external" href="https://github.com/USEPA/CMAQ_Dev/pull/966" rel="noreferrer" target="_blank">PR#966 <svg version="1.1" width="1.0em" height="1.0em" viewBox="0 0 16 16" aria-hidden="true" style="display: inline-block; vertical-align: middle; fill: currentColor;"><path d="M3.75 2h3.5a.75.75 0 0 1 0 1.5h-3.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-3.5a.75.75 0 0 1 1.5 0v3.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5C2 2.784 2.784 2 3.75 2Zm6.854-1h4.146a.25.25 0 0 1 .25.25v4.146a.25.25 0 0 1-.427.177L13.03 4.03 9.28 7.78a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042l3.75-3.75-1.543-1.543A.25.25 0 0 1 10.604 1Z"></path></svg></a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+</section>
+<section id="hr2day">
+<h1><a class="reference internal" href="../../POST/hr2day/README.html"><span class="std std-doc">hr2day</span></a><a class="headerlink" href="#hr2day" title="Link to this heading">#</a></h1>
+<section id="updating-tz-csv-to-natural-earth">
+<h2>Updating tz.csv to Natural Earth<a class="headerlink" href="#updating-tz-csv-to-natural-earth" title="Link to this heading">#</a></h2>
+<p><strong>Primary Contact</strong>: <a class="reference external" href="mailto:henderson&#46;barron&#37;&#52;&#48;epa&#46;gov" rel="noreferrer" target="_blank">Barron Henderson <svg version="1.1" width="1.0em" height="1.0em" viewBox="0 0 16 16" aria-hidden="true" style="display: inline-block; vertical-align: middle; fill: currentColor;"><path d="M3.75 2h3.5a.75.75 0 0 1 0 1.5h-3.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-3.5a.75.75 0 0 1 1.5 0v3.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5C2 2.784 2.784 2 3.75 2Zm6.854-1h4.146a.25.25 0 0 1 .25.25v4.146a.25.25 0 0 1-.427.177L13.03 4.03 9.28 7.78a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042l3.75-3.75-1.543-1.543A.25.25 0 0 1 10.604 1Z"></path></svg></a>, U.S. Environmental Protection Agency<br />
+<strong>Type of update</strong>: Change in input file<br />
+<strong>Release Version/Date</strong>: CMAQv5.5</p>
+<p><strong>Description</strong>: The tz.csv file is used to assign a time zone offset to each CMAQ grid cell.  This is then used by hr2day to calculate daily metrics in Local Standard Time (LST).  The previous tz.csv seems to have unrealistic boundaries and what must be typos in other places. In addition, the tz.csv file has origins that are lost to history. We do not know on what database it was founded on or how it was converted.</p>
+<p>The previous tz.csv file was compared to two other time zone databases: tz_world.geojson [1] and Natural Earth [2]. The other databases were found to be more consistent in terms of the time zone boundaries. In addition, there were several locations in the western US in the previous tz.csv file with an offset of -5 UTC in otherwise Mountain time zones, which were likely typos.</p>
+<p>A new tz.csv file was created from the Natural Earth 10m time zone shapefile (v4.1.0)[2]. The new tz.csv file is 2.5 MB, compared to the 4 MB original. The new file is smaller because it does not attempt to hug coastal boundaries, but instead allows for time zones that extend into the water to do so.</p>
+<p><strong>Significance and Impact</strong>: This will not affect model concentrations, but it will impact h2day calculations because small areas have updated time zones. This tends to matter most along the edges of time zones.  The original, new, and difference in “TZ hours behind UTC” are shown below.</p>
+<img width="523" alt="image" src="https://github.com/user-attachments/assets/cf3ab1fb-fa09-48c9-ba7e-c21a18434121">
+<p><strong>References</strong>:<br />
+[1] http://efele.net/maps/tz/world/<br />
+[2] https://www.naturalearthdata.com/downloads/10m-cultural-vectors/timezones/</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head text-center"><p>Merge Commit</p></th>
+<th class="head text-center"><p>Internal record</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td class="text-center"><p><a class="reference external" href="https://github.com/USEPA/CMAQ/commit/d7d24f8f2ca536353fc9983fd4301319da8fbead" rel="noreferrer" target="_blank">Merge for PR#1017 <svg version="1.1" width="1.0em" height="1.0em" viewBox="0 0 16 16" aria-hidden="true" style="display: inline-block; vertical-align: middle; fill: currentColor;"><path d="M3.75 2h3.5a.75.75 0 0 1 0 1.5h-3.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-3.5a.75.75 0 0 1 1.5 0v3.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5C2 2.784 2.784 2 3.75 2Zm6.854-1h4.146a.25.25 0 0 1 .25.25v4.146a.25.25 0 0 1-.427.177L13.03 4.03 9.28 7.78a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042l3.75-3.75-1.543-1.543A.25.25 0 0 1 10.604 1Z"></path></svg></a></p></td>
+<td class="text-center"><p><a class="reference external" href="https://github.com/USEPA/CMAQ_Dev/pull/1017" rel="noreferrer" target="_blank">PR#1017 <svg version="1.1" width="1.0em" height="1.0em" viewBox="0 0 16 16" aria-hidden="true" style="display: inline-block; vertical-align: middle; fill: currentColor;"><path d="M3.75 2h3.5a.75.75 0 0 1 0 1.5h-3.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-3.5a.75.75 0 0 1 1.5 0v3.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5C2 2.784 2.784 2 3.75 2Zm6.854-1h4.146a.25.25 0 0 1 .25.25v4.146a.25.25 0 0 1-.427.177L13.03 4.03 9.28 7.78a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042l3.75-3.75-1.543-1.543A.25.25 0 0 1 10.604 1Z"></path></svg></a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="clarification-of-w126-daily-index-computation-and-minor-code-corrections">
+<h2>Clarification of W126 Daily Index Computation and Minor Code Corrections<a class="headerlink" href="#clarification-of-w126-daily-index-computation-and-minor-code-corrections" title="Link to this heading">#</a></h2>
+<p><a class="reference external" href="mailto:hogrefe&#46;christian&#37;&#52;&#48;epa&#46;gov" rel="noreferrer" target="_blank">Christian Hogrefe <svg version="1.1" width="1.0em" height="1.0em" viewBox="0 0 16 16" aria-hidden="true" style="display: inline-block; vertical-align: middle; fill: currentColor;"><path d="M3.75 2h3.5a.75.75 0 0 1 0 1.5h-3.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-3.5a.75.75 0 0 1 1.5 0v3.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5C2 2.784 2.784 2 3.75 2Zm6.854-1h4.146a.25.25 0 0 1 .25.25v4.146a.25.25 0 0 1-.427.177L13.03 4.03 9.28 7.78a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042l3.75-3.75-1.543-1.543A.25.25 0 0 1 10.604 1Z"></path></svg></a>, U.S. Environmental Protection Agency<br />
+<strong>Type of update</strong>: documentation, minor bug fix<br />
+<strong>Release Version/Date</strong>: CMAQv5.4<br />
+<strong>Description</strong>: Updated the README and inline code documentation to clarify that the W126 option computes the W126 daily index value as a weighted average of ozone concentrations between 8am &amp; 7pm and that these daily index values are only an intermediate step in computing the W126 metric for secondary ozone standard analyses. These daily index values can then be used to calculate annual W126 values for the secondary ozone standard by using different tools to first compute 3-month sums of daily W126 index values and then determine the consecutive three month period with the largest 3-month sum of daily W126 values. There were also minor code corrections that fixed two issues that may have caused problems for certain compilers in debug mode but did not affect the results of the computations in the tests conducted.<br />
+<strong>Significance and Impact</strong>: No impact on results for the cases tested.</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head text-center"><p>Merge Commit</p></th>
+<th class="head text-center"><p>Internal record</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td class="text-center"><p><a class="reference external" href="https://github.com/USEPA/CMAQ/commit/3fbf66df2a123de5d4cc4c75352c08016a1123d2" rel="noreferrer" target="_blank">Merge for PR#859 <svg version="1.1" width="1.0em" height="1.0em" viewBox="0 0 16 16" aria-hidden="true" style="display: inline-block; vertical-align: middle; fill: currentColor;"><path d="M3.75 2h3.5a.75.75 0 0 1 0 1.5h-3.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-3.5a.75.75 0 0 1 1.5 0v3.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5C2 2.784 2.784 2 3.75 2Zm6.854-1h4.146a.25.25 0 0 1 .25.25v4.146a.25.25 0 0 1-.427.177L13.03 4.03 9.28 7.78a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042l3.75-3.75-1.543-1.543A.25.25 0 0 1 10.604 1Z"></path></svg></a></p></td>
+<td class="text-center"><p><a class="reference external" href="https://github.com/USEPA/CMAQ_Dev/pull/859" rel="noreferrer" target="_blank">PR#859 <svg version="1.1" width="1.0em" height="1.0em" viewBox="0 0 16 16" aria-hidden="true" style="display: inline-block; vertical-align: middle; fill: currentColor;"><path d="M3.75 2h3.5a.75.75 0 0 1 0 1.5h-3.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-3.5a.75.75 0 0 1 1.5 0v3.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5C2 2.784 2.784 2 3.75 2Zm6.854-1h4.146a.25.25 0 0 1 .25.25v4.146a.25.25 0 0 1-.427.177L13.03 4.03 9.28 7.78a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042l3.75-3.75-1.543-1.543A.25.25 0 0 1 10.604 1Z"></path></svg></a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+</section>
+<section id="sitecmp">
+<h1><a class="reference internal" href="../../POST/sitecmp/README.html"><span class="std std-doc">sitecmp</span></a><a class="headerlink" href="#sitecmp" title="Link to this heading">#</a></h1>
+<p>No changes were made to this tool in CMAQv5.5.</p>
+</section>
+<section id="sitecmp-dailyo3">
+<h1><a class="reference internal" href="../../POST/sitecmp_dailyo3/README.html"><span class="std std-doc">sitecmp_dailyo3</span></a><a class="headerlink" href="#sitecmp-dailyo3" title="Link to this heading">#</a></h1>
+<section id="increase-of-station-id-character-limit">
+<h2>Increase of station ID character limit<a class="headerlink" href="#increase-of-station-id-character-limit" title="Link to this heading">#</a></h2>
+<p><a class="reference external" href="mailto:hogrefe&#46;christian&#37;&#52;&#48;epa&#46;gov" rel="noreferrer" target="_blank">Christian Hogrefe <svg version="1.1" width="1.0em" height="1.0em" viewBox="0 0 16 16" aria-hidden="true" style="display: inline-block; vertical-align: middle; fill: currentColor;"><path d="M3.75 2h3.5a.75.75 0 0 1 0 1.5h-3.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-3.5a.75.75 0 0 1 1.5 0v3.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5C2 2.784 2.784 2 3.75 2Zm6.854-1h4.146a.25.25 0 0 1 .25.25v4.146a.25.25 0 0 1-.427.177L13.03 4.03 9.28 7.78a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042l3.75-3.75-1.543-1.543A.25.25 0 0 1 10.604 1Z"></path></svg></a>, U.S. Environmental Protection Agency<br />
+<strong>Type of update</strong>: expand code functionality<br />
+<strong>Release Version/Date</strong>: CMAQv5.5<br />
+<strong>Description</strong>: The previous version of sitecmp_dailyo3 code imposed a maximum station ID character limit of 9. While sufficient for all observational networks previously processed through sitecmp_dailyo3, this constraint caused problems when processing emerging networks with hourly data which had station IDs exceeding that limit. The increase of the maximum station ID length to 20 remedies this problem and makes the limit consistent with the one being used in sitecmp.<br />
+<strong>Significance and Impact</strong>:
+There is no impact on results for stations with IDs not exceeding 9 characters. When the previous code encountered a station ID with more than 9 characters, each such site was processed and written out 24 times per day (rather than just once), and the observed daily metrics were missing for each of these 24 output records per day. The modeled daily metrics were correct and repeated for each of the 24 output records written for each day. Due to this 24-fold repetition of matched records for each day in such cases, the output files created with the previous code were substantially larger than they should have been, and they also contained no valid observed metrics at such stations. The updated code corrects this behavior.</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head text-center"><p>Merge Commit</p></th>
+<th class="head text-center"><p>Internal record</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td class="text-center"><p><a class="reference external" href="https://github.com/USEPA/CMAQ/commit/8d67a79d9cfd45bf421fcc864f3c0c70960df17b" rel="noreferrer" target="_blank">Merge for PR#987 <svg version="1.1" width="1.0em" height="1.0em" viewBox="0 0 16 16" aria-hidden="true" style="display: inline-block; vertical-align: middle; fill: currentColor;"><path d="M3.75 2h3.5a.75.75 0 0 1 0 1.5h-3.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-3.5a.75.75 0 0 1 1.5 0v3.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5C2 2.784 2.784 2 3.75 2Zm6.854-1h4.146a.25.25 0 0 1 .25.25v4.146a.25.25 0 0 1-.427.177L13.03 4.03 9.28 7.78a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042l3.75-3.75-1.543-1.543A.25.25 0 0 1 10.604 1Z"></path></svg></a></p></td>
+<td class="text-center"><p><a class="reference external" href="https://github.com/USEPA/CMAQ_Dev/pull/987" rel="noreferrer" target="_blank">PR#987 <svg version="1.1" width="1.0em" height="1.0em" viewBox="0 0 16 16" aria-hidden="true" style="display: inline-block; vertical-align: middle; fill: currentColor;"><path d="M3.75 2h3.5a.75.75 0 0 1 0 1.5h-3.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-3.5a.75.75 0 0 1 1.5 0v3.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5C2 2.784 2.784 2 3.75 2Zm6.854-1h4.146a.25.25 0 0 1 .25.25v4.146a.25.25 0 0 1-.427.177L13.03 4.03 9.28 7.78a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042l3.75-3.75-1.543-1.543A.25.25 0 0 1 10.604 1Z"></path></svg></a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+</section>
+<section id="removal-of-appendwrf-bldoverlay-and-blockextract">
+<h1>Removal of appendwrf, bldoverlay and blockextract<a class="headerlink" href="#removal-of-appendwrf-bldoverlay-and-blockextract" title="Link to this heading">#</a></h1>
+<p><strong>Type of update</strong>: Model Clean-up<br />
+<strong>Release Version/Date</strong>: CMAQv5.4<br />
+<strong>Description</strong>:
+The POST tools appendwrf, bldoverlay, and blockextract are no longer maintained and have been removed from the CMAQ code repository beginning with version 5.4. These tools can still be accessed through previous CMAQ versions.</p>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="CMAQ-Release-Notes%3A-PYTOOLS.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title"><span class="xref myst">shp2cmaq: Create CMAQ-Ready File from Shapefile</span></p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="CMAQ-Release-Notes%3A-Utilities.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Update Chemistry Utilities for More Recent Versions of pgi Compilers</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#"><span class="xref myst">calc_tmetric</span></a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#combine"><span class="xref myst">combine</span></a><ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#improve-checks-on-formulas-used-by-combine">Improve Checks on Formulas Used by COMBINE</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#corrected-deposition-species-definition-specdef-dep-files-for-missing-nitrogen-species">Corrected Deposition Species Definition (SpecDef_Dep) files for missing nitrogen species</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cracmm-specdef-deposition-updates-for-hno4-and-clno2">CRACMM SpecDef Deposition Updates for HNO4 and CLNO2</a></li>
+</ul>
+</li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#hr2day"><span class="xref myst">hr2day</span></a><ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#updating-tz-csv-to-natural-earth">Updating tz.csv to Natural Earth</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#clarification-of-w126-daily-index-computation-and-minor-code-corrections">Clarification of W126 Daily Index Computation and Minor Code Corrections</a></li>
+</ul>
+</li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#sitecmp"><span class="xref myst">sitecmp</span></a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#sitecmp-dailyo3"><span class="xref myst">sitecmp_dailyo3</span></a><ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#increase-of-station-id-character-limit">Increase of station ID character limit</a></li>
+</ul>
+</li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#removal-of-appendwrf-bldoverlay-and-blockextract">Removal of appendwrf, bldoverlay and blockextract</a></li>
+</ul>
+
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

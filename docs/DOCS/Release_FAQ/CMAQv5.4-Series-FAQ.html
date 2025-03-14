@@ -1,0 +1,812 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link href="../../_static/CMAQ_Logo_2_inch.png" sizes="600x593" rel="icon" type="image/png">
+    <title>Frequently Asked Questions for Upgrading to the Latest CMAQ Version &#8212; CMAQ 5.5+ documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../_static/documentation_options.js?v=eec9c716"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'DOCS/Release_FAQ/CMAQv5.4-Series-FAQ';</script>
+    <link rel="canonical" href="https://jbrunto.github.io/CMAQ_Docs_v55/DOCS/Release_FAQ/CMAQv5.4-Series-FAQ.html" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Community Support" href="../Community_Support.html" />
+    <link rel="prev" title="Frequently Asked Questions for Upgrading to the Latest CMAQ Version" href="CMAQv5.5-Series-FAQ.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../_static/CMAQ_Logo_2_inch.png" class="logo__image only-light" alt="CMAQ 5.5+ documentation - Home"/>
+    <img src="../../_static/CMAQ_Logo_2_inch.png" class="logo__image only-dark pst-js-only" alt="CMAQ 5.5+ documentation - Home"/>
+  
+  
+</a></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/USEPA/CMAQ" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://www.epa.gov/cmaq" title="CMAQ - EPA Site" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../_static/epa_seal_w-ring_RGB-sm.png" class="icon-link-image" alt="CMAQ - EPA Site"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://forum.cmascenter.org/" title="User Forum" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../_static/cmas_logo.png" class="icon-link-image" alt="User Forum"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://usepa.github.io/CMAQ/" title="CRACMM" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../_static/CRACMM_1.png" class="icon-link-image" alt="CRACMM"/></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../_static/CMAQ_Logo_2_inch.png" class="logo__image only-light" alt="CMAQ 5.5+ documentation - Home"/>
+    <img src="../../_static/CMAQ_Logo_2_inch.png" class="logo__image only-dark pst-js-only" alt="CMAQ 5.5+ documentation - Home"/>
+  
+  
+</a></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/USEPA/CMAQ" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://www.epa.gov/cmaq" title="CMAQ - EPA Site" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../_static/epa_seal_w-ring_RGB-sm.png" class="icon-link-image" alt="CMAQ - EPA Site"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://forum.cmascenter.org/" title="User Forum" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../_static/cmas_logo.png" class="icon-link-image" alt="User Forum"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://usepa.github.io/CMAQ/" title="CRACMM" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../_static/CRACMM_1.png" class="icon-link-image" alt="CRACMM"/></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <ul class="current nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../Getting_Started.html">Getting Started</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../Users_Guide/README.html">CMAQ User’s Guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../Users_Guide/CMAQ_UG_ch01_overview.html">1. Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Users_Guide/CMAQ_UG_ch02_program_structure.html">2. Program Structure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Users_Guide/CMAQ_UG_ch03_preparing_compute_environment.html">3. Preparing Compute Environment for CMAQ Simulations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Users_Guide/CMAQ_UG_ch04_model_inputs.html">4. Model Input Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Users_Guide/CMAQ_UG_ch05_running_a_simulation.html">5. Running a CMAQ Simulation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Users_Guide/CMAQ_UG_ch06_model_configuration_options.html">6. Model Configuration Options</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Users_Guide/CMAQ_UG_ch07_model_outputs.html">7. Model Output Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Users_Guide/CMAQ_UG_ch08_analysis_tools.html">8. Analysis Tools for CMAQ output</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Users_Guide/CMAQ_UG_ch09_process_analysis.html">9. Process Analysis and Budget</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Users_Guide/CMAQ_UG_ch10_HDDM-3D.html">10. Decoupled Direct Method in Three Dimensions (CMAQ-DDM-3D)</a></li>
+
+
+
+
+<li class="toctree-l2"><a class="reference internal" href="../Users_Guide/CMAQ_UG_ch11_ISAM.html">11. Integrated Source Apportionment Method (CMAQ-ISAM)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Users_Guide/CMAQ_UG_ch12_sulfur_tracking.html">12. Sulfur Tracking Method</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Users_Guide/CMAQ_UG_ch13_WRF-CMAQ.html">13. WRF-CMAQ Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Users_Guide/CMAQ_UG_ch14_MPAS-CMAQ.html">14. MPAS-CMAQ Model</a></li>
+
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../Users_Guide/Tutorials/README.html">CMAQ Tutorials</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../Users_Guide/Tutorials/CMAQ_UG_tutorial_configure_linux_environment.html">Configuring your compute environment for CMAQ simulations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Users_Guide/Tutorials/CMAQ_UG_tutorial_running_benchmarks.html">CMAQ Benchmark Tutorials</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../Release_Notes/README.html">Release Notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../Release_Notes/CMAQ-Release-Notes%3A-Instrumented-Models.html">Instrumented Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Release_Notes/CMAQ-Release-Notes%3A-MPAS-CMAQ-Coupled-Model.html">MPAS-CMAQ Coupled Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Release_Notes/CMAQ-Release-Notes%3A-WRF-CMAQ-Coupled-Model.html">Compatibility issues with WRF versions 4.5.2 and later</a></li>
+
+
+
+<li class="toctree-l2"><a class="reference internal" href="../Release_Notes/CMAQ-Release-Notes%3A-Chemistry.html">Chemistry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Release_Notes/CMAQ-Release-Notes%3A-Transport-Processes.html">Transport Processes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Release_Notes/CMAQ-Release-Notes%3A-Dry-Deposition-Air-Surface-Exchange.html">Dry Deposition/Air-Surface Exchange</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Release_Notes/CMAQ-Release-Notes%3A-Emissions-Updates.html">Emissions Updates</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Release_Notes/CMAQ-Release-Notes%3A-Process-Analysis-%26-Sulfur-Tracking-Model-%28STM%29.html">Fix to option for Sulfur Tracking Model</a></li>
+
+
+
+<li class="toctree-l2"><a class="reference internal" href="../Release_Notes/CMAQ-Release-Notes%3A-Structural-Improvements.html">GNU build flag update to enable compilation with GNU versions 10+</a></li>
+
+
+
+<li class="toctree-l2"><a class="reference internal" href="../Release_Notes/CMAQ-Release-Notes%3A-Diagnostic-Options.html">Remove Uninitialized Variable in Column Model</a></li>
+
+
+
+
+
+<li class="toctree-l2"><a class="reference internal" href="../Release_Notes/CMAQ-Release-Notes%3A-Preprocessors.html">MCIP</a></li>
+
+
+
+<li class="toctree-l2"><a class="reference internal" href="../Release_Notes/CMAQ-Release-Notes%3A-PYTOOLS.html"><span class="xref myst">shp2cmaq: Create CMAQ-Ready File from Shapefile</span></a></li>
+
+<li class="toctree-l2"><a class="reference internal" href="../Release_Notes/CMAQ-Release-Notes%3A-Postprocessors.html"><span class="xref myst">calc_tmetric</span></a></li>
+
+
+
+
+
+<li class="toctree-l2"><a class="reference internal" href="../Release_Notes/CMAQ-Release-Notes%3A-Utilities.html">Update Chemistry Utilities for More Recent Versions of pgi Compilers</a></li>
+
+
+
+
+<li class="toctree-l2"><a class="reference internal" href="../Release_Notes/CMAQ-Release-Notes%3A-Stratospheric%E2%80%90Tropospheric-Exchange-%28STE%29.html">Potential Vorticity Scaling of Ozone (PVO3) a Runtime Option</a></li>
+
+</ul>
+</details></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="README.html">FAQs</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="CMAQv5.5-Series-FAQ.html">Frequently Asked Questions for Upgrading to the Latest CMAQ Version</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Frequently Asked Questions for Upgrading to the Latest CMAQ Version</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../Community_Support.html">Community Support</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="README.html" class="nav-link">FAQ Pages</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Frequently Asked Questions for Upgrading to the Latest CMAQ Version</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="frequently-asked-questions-for-upgrading-to-the-latest-cmaq-version">
+<h1>Frequently Asked Questions for Upgrading to the Latest CMAQ Version<a class="headerlink" href="#frequently-asked-questions-for-upgrading-to-the-latest-cmaq-version" title="Link to this heading">#</a></h1>
+<section id="table-of-contents">
+<h2>Table of Contents:<a class="headerlink" href="#table-of-contents" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="#why_update_v533_v54"><span class="xref myst">Do I need to update from v5.3.3 to v5.4?</span></a></p></li>
+<li><p><a class="reference internal" href="#update_v533_v54"><span class="xref myst">What do I need to do to update from v5.3.3 to v5.4?</span></a></p>
+<ul>
+<li><p><a class="reference internal" href="#diff_v533_v54_input_files"><span class="xref myst">What differences should I expect in the required model input files?</span></a></p></li>
+<li><p><a class="reference internal" href="#diff_v533_v54_ouput_files"><span class="xref myst">What differences should I expect in my model output files?</span></a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#diff_v533_v54_model_results"><span class="xref myst">What differences should I expect in my model results with v5.4 compared to v5.3.3?</span></a></p></li>
+<li><p><a class="reference internal" href="#additional_faq"><span class="xref myst">Additional FAQ</span></a></p></li>
+<li><p><a class="reference internal" href="#tech_support"><span class="xref myst">Technical support for CMAQ</span></a></p></li>
+</ul>
+<p><a id=why_update_v533_v54></a></p>
+</section>
+<section id="do-i-need-to-update-from-v5-3-3-to-v5-4">
+<h2>Do I need to update from v5.3.3 to v5.4?<a class="headerlink" href="#do-i-need-to-update-from-v5-3-3-to-v5-4" title="Link to this heading">#</a></h2>
+<p>CMAQv5.4 is a major update from version 5.3.3 including many scientific enhancements and new features. See the v5.4 Release Notes for a description of each change.</p>
+<section id="instrumented-models">
+<h3>Instrumented Models<a class="headerlink" href="#instrumented-models" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>CMAQ-ISAM now includes the added flexibility for the user to define how secondarily formed gaseous species (inorganic and organic) are assigned to sources of parent reactants. In addition, several tagclasses were added to CMAQ-ISAM to track the source contributions for HAP. <a class="reference internal" href="../Release_Notes/CMAQ-Release-Notes%3A-Instrumented-Models%3A-CMAQ-ISAM.html#cmaq-isam-version-54"><span class="std std-ref">CMAQ-ISAM Release Notes</span></a></p></li>
+<li><p>CMAQ-DDM-3D has been fully integrated into the base model. There is no longer a separate repository, and the sensitivity calculations are accessed through compiler flags set in the build script and by completing the appropriate sections of the run script. <a class="reference internal" href="../Release_Notes/CMAQ-Release-Notes%3A-Instrumented-Models%3A-CMAQ-DDM3D.html#cmaq-ddm-3d-version-54"><span class="std std-ref">CMAQ-DDM-3D Release Notes</span></a></p></li>
+</ul>
+</section>
+<section id="wrf-cmaq-coupled-model">
+<h3>WRF-CMAQ Coupled Model<a class="headerlink" href="#wrf-cmaq-coupled-model" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>The code used to couple the WRFv4.4-CMAQv5.4 models is now released as part of the CMAQ Github Repository. Users can construct the coupled model with any version of WRF (v4.4 or later) and any version of CMAQ (v5.4 or later). A bug was identified within the CMAQ to WRF coupling routine in the CMAQv5.3 series. <strong>Users of WRF-CMAQ are strongly encouraged to update to CMAQv5.4.  See the <a class="reference internal" href="../Release_Notes/CMAQ-Release-Notes%3A-WRF-CMAQ-Coupled-Model.html#new-wrf-cmaq-model-using-wrfv44-and-cmaqv54"><span class="std std-ref">WRF-CMAQ Release Notes</span></a> for more information.</strong></p></li>
+</ul>
+</section>
+<section id="chemistry">
+<h3>Chemistry<a class="headerlink" href="#chemistry" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Updates to three versions of the Carbon Bond (CB6) chemical mechanisms as well as bug fix updates to SAPRC and RACM:</p>
+<ul>
+<li><p><a class="reference internal" href="../Release_Notes/CMAQ-Release-Notes%3A-Chemistry%3A-Carbon-Bond-6-Mechanism-%28CB6%29.html#carbon-bond-chemical-mechanism-version-6-release-5--cb6r5"><span class="std std-ref">CB6r5 Release Notes (including updates to halogen and DMS chemistry)</span></a></p></li>
+<li><p><a class="reference internal" href="../Release_Notes/CMAQ-Release-Notes%3A-Chemistry%3A-Carbon-Bond-6-Mechanism-%28CB6%29-with-Detailed-Marine-Halogen-Chemistry.html#detailed-halogen-chemistry-update"><span class="std std-ref">CB6r5m (detailed marine halogen chemistry mechanism) Release Note</span></a></p></li>
+<li><p><a class="reference internal" href="../Release_Notes/CMAQ-Release-Notes%3A-Chemistry%3A-Carbon-Bond-6-Mechanism-%28CB6%29-with-Hazardous-Air-Pollutants.html#multi-pollutant-version-of-the-cb6r5hap_ae7_aq-mechanism"><span class="std std-ref">CB6r5hap (hazardous air pollutants mechanism) Release Note</span></a></p></li>
+<li><p><a class="reference internal" href="../Release_Notes/CMAQ-Release-Notes%3A-Chemistry%3A-State-Air-Pollution-Research-Center-%28SAPRC%29.html#removal-of-saprc07tic_ae6i_aq-and-saprc07tic_ae6i_aqkmti-mechanisms"><span class="std std-ref">State Air Pollution Research Center (SAPRC) Release Note</span></a></p></li>
+<li><p><a class="reference internal" href="../Release_Notes/CMAQ-Release-Notes%3A-Chemistry%3A-Regional-Atmospheric-Chemistry-Mechanism-%28RACM%29.html#bug-fixes-to-regional-atmospheric-chemistry-mechanism-version-2-racm2"><span class="std std-ref">Regional and Atmospheric Chemistry (RACM) Release Notes</span></a></p></li>
+</ul>
+</li>
+<li><p>The Community Regional Atmospheric Chemistry Multiphase Mechanism (CRACMM) is a new chemical mechanism available for the first time in CMAQv5.4. More information about the motivation of CRACMM is available on an <a class="reference external" href="https://www.epa.gov/cmaq/cmaq-fact-sheets" rel="noreferrer" target="_blank">EPA Fact Sheet <svg version="1.1" width="1.0em" height="1.0em" viewBox="0 0 16 16" aria-hidden="true" style="display: inline-block; vertical-align: middle; fill: currentColor;"><path d="M3.75 2h3.5a.75.75 0 0 1 0 1.5h-3.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-3.5a.75.75 0 0 1 1.5 0v3.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5C2 2.784 2.784 2 3.75 2Zm6.854-1h4.146a.25.25 0 0 1 .25.25v4.146a.25.25 0 0 1-.427.177L13.03 4.03 9.28 7.78a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042l3.75-3.75-1.543-1.543A.25.25 0 0 1 10.604 1Z"></path></svg></a>. CRACMM includes new parameterizations for both the gas and particle species. <a class="reference internal" href="../Release_Notes/CMAQ-Release-Notes%3A-Chemistry%3A-Community-Regional-Atmospheric-Chemistry-Multiphase-Mechanism-%28CRACMM%29.html#the-community-regional-atmospheric-chemistry-multiphase-mechanism-cracmm-version-10"><span class="std std-ref">CRACMM Release Note</span></a></p></li>
+<li><p>Community partners from Tsinghua University have contributed a research-grade chemical mechanism that implements the Two-Dimensional Volatility Basis Set (2D-VBS) for SOA formation and aging. It is built upon the SAPRC07 gas-phase mechanism and is available from the Github repo via a dedicated branch <a class="reference external" href="https://github.com/USEPA/CMAQ/tree/2DVBS" rel="noreferrer" target="_blank">(‘2DVBS’) <svg version="1.1" width="1.0em" height="1.0em" viewBox="0 0 16 16" aria-hidden="true" style="display: inline-block; vertical-align: middle; fill: currentColor;"><path d="M3.75 2h3.5a.75.75 0 0 1 0 1.5h-3.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-3.5a.75.75 0 0 1 1.5 0v3.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5C2 2.784 2.784 2 3.75 2Zm6.854-1h4.146a.25.25 0 0 1 .25.25v4.146a.25.25 0 0 1-.427.177L13.03 4.03 9.28 7.78a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042l3.75-3.75-1.543-1.543A.25.25 0 0 1 10.604 1Z"></path></svg></a>.</p></li>
+<li><p>Multiple bug fixes and science updates to aerosol dynamics.</p>
+<ul>
+<li><p>New two-moment option for particle coagulation. <a class="reference internal" href="../Release_Notes/CMAQ-Release-Notes%3A-Chemistry%3A-Aerosol-Dynamics.html#two-moment-option-for-particle-coagulation"><span class="std std-ref">Release Note</span></a></p></li>
+<li><p>Bug fix to implementation of  sulfuric acid mass transfer from the gas to particle phase in the VOLINORG subroutine. <a class="reference internal" href="../Release_Notes/CMAQ-Release-Notes%3A-Chemistry%3A-Aerosol-Dynamics.html#sulfuric-acid-conservation-in-volinorg"><span class="std std-ref">Release Note</span></a></p></li>
+<li><p>Bug fix and science update to the aero_check_icbc routine in AERO_DATA.F which checks to make sure that the total aerosol mass, number and surface area are above zero and that they combine to give appropriate modal diameter and standard deviation. <a class="reference internal" href="../Release_Notes/CMAQ-Release-Notes%3A-Chemistry%3A-Aerosol-Dynamics.html#update-aerosol-size-distribution-check-for-ics-and-bcs"><span class="std std-ref">Release Note</span></a></p></li>
+<li><p>Reclassification of all SOA species as ‘dry’ aerosol. <a class="reference internal" href="../Release_Notes/CMAQ-Release-Notes%3A-Chemistry%3A-Aerosol-Dynamics.html#reclassify-all-soa-species-as-dry-aerosol"><span class="std std-ref">Release Note</span></a></p></li>
+<li><p>Simplification of the aerosol chemical namelist. <a class="reference internal" href="../Release_Notes/CMAQ-Release-Notes%3A-Chemistry%3A-Aerosol-Dynamics.html#simplify-aerosol-chemical-namelist"><span class="std std-ref">Release Note</span></a></p></li>
+</ul>
+</li>
+<li><p>Updates to the Euler Backward Iterative (EBI) gas-phase chemistry solver. <a class="reference internal" href="../Release_Notes/CMAQ-Release-Notes%3A-Chemistry%3A-Gas-Phase-Chem-Solvers.html#ebi-solver-update"><span class="std std-ref">EBI Release Note</span></a></p></li>
+</ul>
+</section>
+<section id="dry-deposition-air-surface-exchange">
+<h3>Dry Deposition/Air Surface Exchange<a class="headerlink" href="#dry-deposition-air-surface-exchange" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>New aerosol deposition model implemented in the M3Dry option for dry deposition. <a class="reference internal" href="../Release_Notes/CMAQ-Release-Notes%3A-Dry-Deposition-Air-Surface-Exchange%3A-M3DRY.html#new-aerosol-deposition-model-aero_depv"><span class="std std-ref">M3DRY Release Note</span></a></p></li>
+<li><p>Structural and aerosol dry deposition updates to the STAGE dry deposition option. <a class="reference internal" href="../Release_Notes/CMAQ-Release-Notes%3A-Dry-Deposition-Air-Surface-Exchange%3A-Surface-Tiled-Aerosol-and-Gaseous-Exchange-%28STAGE%29.html#land-use-and-deposition-species-mapping"><span class="std std-ref">STAGE Release Notes</span></a></p></li>
+</ul>
+</section>
+<section id="emissions">
+<h3>Emissions<a class="headerlink" href="#emissions" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Restructuring and other updates to functionality and features of the Detailed Emissions Scaling Isolation and Diagnostics Module. <a class="reference internal" href="../Release_Notes/CMAQ-Release-Notes%3A-Emissions-Updates%3A-Detailed-Emissions-Scaling-Isolation-and-Diagnostics-Module-%28DESID%29.html#restructuring-and-miscellaneous-updates-to-the-desid-interface-and-processing-features"><span class="std std-ref">DESID Release Note</span></a></p></li>
+<li><p>The Biogenic Emission Inventory System (BEIS) has been updated with new, highly detailed land parameters from the Biogenic Emissions Landuse Database (BELD) version 6. <a class="reference internal" href="../Release_Notes/CMAQ-Release-Notes%3A-Emissions-Updates%3A-BEIS-Biogenic-Emissions.html#beis-updates"><span class="std std-ref">BEIS4/BELD6 Release Note</span></a></p></li>
+<li><p>New biogenic emissions option, the Model of Emissions of Gases and Aerosols from Nature (MEGAN) allows for estimation of biogenic emissions during the CMAQ simulation for any spatial domain. <a class="reference internal" href="../Release_Notes/CMAQ-Release-Notes%3A-Emissions-Updates%3A-Model-of-Emissions-of-Gases-and-Aerosols-from-Nature-%28MEGAN%29-Biogenic-Emissions.html#new-biogenic-emissions-option-the-model-of-emissions-of-gases-and-aerosols-from-nature-megan"><span class="std std-ref">MEGAN Release Note</span></a></p></li>
+<li><p>The windblown dust routine has been streamlined. In addition a bug fix has a substantial impact on estimated dust emissions. <a class="reference internal" href="../Release_Notes/CMAQ-Release-Notes%3A-Emissions-Updates%3A-Wind-Blown-Dust-Emissions.html#windblown-dust-emissions"><span class="std std-ref">Windblown Dust Release Note</span></a></p></li>
+<li><p>A minor bug fix to the time steps of lightning NOx diagnostic files.  The change in the format of the diagnostic file has no impact on model results. <a class="reference internal" href="../Release_Notes/CMAQ-Release-Notes%3A-Emissions-Updates%3A-Lightning-Emissions.html#lightning-emissions"><span class="std std-ref">Lightning Emissions Release Note</span></a></p></li>
+</ul>
+</section>
+<section id="process-analysis">
+<h3>Process Analysis<a class="headerlink" href="#process-analysis" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>A new Budget Reporting Tool is available to quantify the impact of individual model processes on each atmospheric species across the modeling domain. <a class="reference internal" href="../Release_Notes/CMAQ-Release-Notes%3A-Process-Analysis-%26-Sulfur-Tracking-Model-%28STM%29.html#introduction-of-budget-reporting-tool"><span class="std std-ref">Budget Reporting Tool Release Notes</span></a></p></li>
+<li><p>A bug fix resolves the omission of organic condensable vapors from aerosol process analysis which impacts use of ISAM and the Budget Reporting Tool. <a class="reference internal" href="../Release_Notes/CMAQ-Release-Notes%3A-Process-Analysis-%26-Sulfur-Tracking-Model-%28STM%29.html#resolve-omission-of-organic-condensable-vapors-from-aerosol-process-analysis"><span class="std std-ref">Process Analysis Bug Fix Release Note</span></a></p></li>
+</ul>
+</section>
+<section id="structural-improvements">
+<h3>Structural Improvements<a class="headerlink" href="#structural-improvements" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Improvement of Logfile output and error reporting. <a class="reference internal" href="../Release_Notes/CMAQ-Release-Notes%3A-Structural-Improvements.html#improvement-of-logfile-output-and-error-reporting"><span class="std std-ref">Logfile Release Note</span></a></p></li>
+</ul>
+</section>
+<section id="diagnostic-options">
+<h3>Diagnostic Options<a class="headerlink" href="#diagnostic-options" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Introduction of the Explicit and Lumped air quality Model Output module (ELMO) <a class="reference internal" href="../Release_Notes/CMAQ-Release-Notes%3A-Diagnostic-Options.html#introduction-of-the-explicit-and-lumped-air-quality-model-output-module-elmo"><span class="std std-ref">ELMO Release Note</span></a></p></li>
+</ul>
+</section>
+<section id="pre-processors-and-utilities">
+<h3>Pre-processors and Utilities<a class="headerlink" href="#pre-processors-and-utilities" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>A bug fix and script enhancement was made to the create_omi tool which supports the calculation of photolysis rates during the CMAQ simulation. <a class="reference internal" href="../Release_Notes/CMAQ-Release-Notes%3A-Preprocessors.html#create-omi"><span class="std std-ref">Create OMI Release Note</span></a></p></li>
+<li><p>A new Python tool, DMSCHLO, to supplement the ‘Ocean’ file with temporal dimethyl sulfide (DMS) and chlorophyll-a (CHLO) concentrations to support CMAQ chemical mechanisms that include DMS and halogen chemistry.  More information on the updated Ocean file is provided below. <a class="reference internal" href="../Release_Notes/CMAQ-Release-Notes%3A-PYTOOLS.html#dmschlo"><span class="std std-ref">DMSCHLO Release Note</span></a></p></li>
+</ul>
+</section>
+<section id="post-processors">
+<h3>Post-processors<a class="headerlink" href="#post-processors" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Removal of appendwrf, bldoverlay and blockextract post-processing tools.</p></li>
+<li><p>Clarification of W126 Daily Index Computation and Minor Code Corrections in the hr2day post-processing tool. <a class="reference internal" href="../Release_Notes/CMAQ-Release-Notes%3A-Postprocessors.html#clarification-of-w126-daily-index-computation-and-minor-code-corrections"><span class="std std-ref">HR2DAY Release Note</span></a></p></li>
+</ul>
+</section>
+<section id="utilities">
+<h3>Utilities<a class="headerlink" href="#utilities" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Minor bug fix to create_ebi and inline_phot_prerproc to avoid problems on Window and Macintosh Operating Systems. <a class="reference internal" href="../Release_Notes/CMAQ-Release-Notes%3A-Utilities.html#remove-conflicting-filenames-on-window-and-macintosh-operating-systems"><span class="std std-ref">Utilities Bug Fix Release Note</span></a></p></li>
+<li><p>Introduction of the Autochem utility script that processes new chemical mechanism files, including EBI files if necessary, for user-defined mechanisms when mech.def and chemical namelist files are provided. <a class="reference internal" href="../Release_Notes/CMAQ-Release-Notes%3A-Utilities.html#autochem"><span class="std std-ref">Autochem Release Note</span></a></p></li>
+<li><p>New output files and runtime options for the chemical mechanism processor (CHEMMECH) which allows altering a photochemical mechanisms or using a different mechanism in the CMAQ model. <a class="reference internal" href="../Release_Notes/CMAQ-Release-Notes%3A-Utilities.html#new-output-files-and-runtime-options-for-chemmech"><span class="std std-ref">CHEMMECH Release Note</span></a></p></li>
+</ul>
+<p><a id=update_v533_v54></a></p>
+</section>
+</section>
+<section id="what-do-i-need-to-do-to-update-from-v5-3-3-to-v5-4">
+<h2>What do I need to do to update from v5.3.3 to v5.4?<a class="headerlink" href="#what-do-i-need-to-do-to-update-from-v5-3-3-to-v5-4" title="Link to this heading">#</a></h2>
+<p><a id=diff_v533_v54_input_files></a></p>
+<section id="what-differences-should-i-expect-in-the-required-model-input-files">
+<h3>What differences should I expect in the required model input files?<a class="headerlink" href="#what-differences-should-i-expect-in-the-required-model-input-files" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>The CMAQ sea spray emissions module requires the input of an ocean mask file (OCEAN) containing two variables to specify the fractional [0-1] coverage in each model grid cell allocated to open ocean (OPEN) or surf zone (SURF). Two new mechanisms in CMAQv5.4, cb6r5_ae7 and cb6r5m_ae7, require additional variables to be added to the OCEAN file.  See the <a class="reference internal" href="../Release_Notes/CMAQ-Release-Notes%3A-Chemistry.html"><span class="doc std std-doc">v5.4 Release Notes</span></a> and the <a class="reference internal" href="../Users_Guide/Tutorials/CMAQ_UG_tutorial_oceanfile.html"><span class="std std-doc">CMAQ User’s Guide ocean file tutorial</span></a> for further information.</p></li>
+<li><p>The information needed to configure DESID that was contained in a single mechanism-dependent “EmissCtrl” namelist file in CMAQ 5.3 is contained in three separate namelist files in CMAQ 5.4. The new mechanism-dependent namelist file CMAQ_Control_DESID_${mechanism} controls the mapping of emitted species to model species and applies any emission scaling rules desired by the user. The new mechanism-independent namelist file CMAQ_Control_DESID controls DESID behavior for size distributions, definitions of regions, region families, and stream families, the optional emission area normalization feature, and the configuration of optional diagnostic emission output files. The CMAQ_Control_Misc namelist file can be used to define chemical families referenced in the CMAQ_Control_DESID_${mechanism} file and also contains information controlling the behavior of ELMO and the new budget tool. Further documentation can be found in <a class="reference internal" href="../Users_Guide/Appendix/CMAQ_UG_appendixB_emissions_control.html"><span class="std std-doc">Appendix B of the Users Guide</span></a>. Like the single mechanism-dependent “EmissCtrl” namelist file in CMAQ 5.3, reviewing and potentially updating these files should be thought of as an integral parts of configuring CCTM for each new application, just like reviewing and updating the run script.</p></li>
+<li><p>A new CMAQ_Control_STAGE namelist file allows users to add deposition processes to any modeled species without the need to recompile CMAQ. See <a class="reference internal" href="../Users_Guide/CMAQ_UG_ch06_model_configuration_options.html#682-dry-depostion---stage"><span class="std std-ref">Chapter 6 of the CMAQ User’s Guide</span></a> for more information.</p></li>
+<li><p>CRACMM requires specific emissions. More information on Getting Started with CRACMM is available in <a class="reference internal" href="../Users_Guide/Tutorials/CMAQ_UG_tutorial_CRACMM.html"><span class="std std-doc">a tutorial</span></a>.</p></li>
+<li><p>The option of using BELD3 as a windblown dust input has been removed. BELD3 is outdated and in CMAQ 5.3 the windblown dust module did not support BELD4 or BELD5. Beginning in CMAQ 5.4 the necessary land use information for windblown dust is taken from MCIP input files or WRF. For CMAQ 5.4 we strongly recommend the use of WRFv4.1+ and the PX LSM when enabling windblown dust emissions.</p></li>
+<li><p>The new CCTM online MEGAN biogenic emissions option requires a number of additional input files that need to be generated by the MEGAN preprocessor code. For additional information on these files, see <a class="reference internal" href="../Users_Guide/CMAQ_UG_ch04_model_inputs.html"><span class="std std-doc">Chapter 4 of the Users Guide</span></a>.</p></li>
+</ul>
+<p><a id=diff_v533_v54_ouput_files></a></p>
+</section>
+<section id="what-differences-should-i-expect-in-my-model-output-files">
+<h3>What differences should I expect in my model output files?<a class="headerlink" href="#what-differences-should-i-expect-in-my-model-output-files" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Two new key output files are generated by the Explicit and Lumped CMAQ Model Output (ELMO) Module. These files are prefixed with CCTM_ELMO and CCTM_AELMO for instantaneous and average files, respectively. The new ELMO files allow users to directly output CMAQ scalars (e.g. O3, SO2, NO, ASO4J, AECJ, etc.) and aggregates (e.g. PM25, PMF_OA, etc.). The existing concentration output files (CCTM_CONC and CCTM_ACONC) are still provided to support your existing workflows, but they will be deprecated and removed in future releases.  HEA
+Please see <a class="reference internal" href="../Users_Guide/CMAQ_UG_ch07_model_outputs.html#ELMO"><span class="std std-ref">Chapter 7</span></a> and <a class="reference internal" href="../Users_Guide/Appendix/CMAQ_UG_appendixF_elmo_output.html"><span class="std std-doc">Appendix F</span></a>  of the CMAQ User’s Guide for detailed information.</p></li>
+<li><p>A new ascii file for output of Budget information (CCTM_BUDGET_xxx.txt) reports domain-wide process magnitudes. The destination folder must be specified in the RunScript with $OUTDIR or the file will be written to the root directory. Please see <a class="reference internal" href="../Users_Guide/CMAQ_UG_ch09_process_analysis.html"><span class="std std-doc">Chapter 9 of the CMAQ User’s Guide</span></a> for more information on the Budget tool.</p></li>
+<li><p>The SOILOUT output file for the CCTM online BEIS biogenic emissions option has been renamed to CCTM_BSOILOUT_*. The new CCTM online MEGAN biogenic emissions option SOILOUT file is called CCTM_MSOILOUT_*.  When using the the BDSNP option in MEGAN (i.e., environment variable BDSNP_MEGAN set to Y) there is an additional output file called CCTM_BDNSP_*.   Please see <a class="reference internal" href="../Users_Guide/CMAQ_UG_ch07_model_outputs.html#soilout"><span class="std std-ref">Chapter 7 of the CMAQ User’s Guide</span></a> for more information on BEIS and MEGAN output files.</p></li>
+</ul>
+<p><a id=diff_v533_v54_model_results></a></p>
+</section>
+</section>
+<section id="what-differences-should-i-expect-in-my-model-results-with-v5-4-compared-to-v5-3-3">
+<h2>What differences should I expect in my model results with v5.4 compared to v5.3.3?<a class="headerlink" href="#what-differences-should-i-expect-in-my-model-results-with-v5-4-compared-to-v5-3-3" title="Link to this heading">#</a></h2>
+<p>The following summary is based on our testing of CMAQv5.3.3 and CMAQv5.4 base configurations and two CMAQv5.4 science options (MEGAN inline biogenic emissions and CRACMM1 chemical mechanism) using annual 2018 simulations performed over both the northern hemisphere (108 km horizontal grid spacing, 44 vertical layers) and the CONUS (12 km horizontal grid resolution, 35 vertical layers). The 108 km simulations were used to generate lateral boundary conditions for the 12 km simulations, with science options (except chemical mechanisms) matching across both domains. All CMAQv5.4 108 km simulations used the cb6r5m_ae7_aq chemical mechanism that includes a detailed representation of halogen chemistry while the 12 km simulations used either the cb6r5_ae7_aq (simplified halogen chemistry) or cracmm1 chemical mechanism. CMAQv5.3 simulations used cb6r3m_ae7_kmtbr for the 108 km domain and cb6r3_ae7_aq for the 12km domain. The updates made to the representation of aerosol dry deposition in CMAQv5.4 differ markedly between the M3Dry and STAGE dry deposition schemes. CMAQv5.4 M3Dry updates are based on on Pleim et al., 2022 (<a class="reference internal" href="../Release_Notes/CMAQ-Release-Notes%3A-Dry-Deposition-Air-Surface-Exchange%3A-M3DRY.html#new-aerosol-deposition-model-aero_depv"><span class="std std-ref">see M3DRY release notes</span></a>) and STAGE updates in its default configuration are based on Emerson et al., 2020 (<a class="reference internal" href="../Release_Notes/CMAQ-Release-Notes%3A-Dry-Deposition-Air-Surface-Exchange%3A-Surface-Tiled-Aerosol-and-Gaseous-Exchange-%28STAGE%29.html"><span class="doc std std-doc">see STAGE release notes</span></a>). Because of these differences, the impacts of switching from CMAQv5.3.3 to CMAQv5.4 differ depending on whether users select the M3Dry or STAGE dry deposition scheme. Therefore, all simulations comparing the base configurations and the MEGAN and CRACMM1 science options available in CMAQv5.4 were performed for both M3Dry and STAGE and results for both schemes are summarized below.</p>
+<section id="natural-emissions">
+<h3>Natural Emissions<a class="headerlink" href="#natural-emissions" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>BEIS inline biogenic VOC and soil NO emissions: The update from BEIS3/BELD5 used in CMAQv5.3.3 to BEIS4/BELD6 used in CMAQv5.4 to calculate biogenic VOC and soil NO inline in CCTM caused the following changes to annual domain-total emissions in our 2018 CONUS simulations: isoprene emissions changed from 13.8 to 16.9 Tg, monoterpene emissions changed from 4.3 to 4.0 Tg, sesquiterpene emissions changed from 0.6 Tg to 0.5 Tg, methanol emissions changed from 1.3 to 1.4 Tg, CO emissions changed from 5.3 to 4.2 Tg, and soil NO emissions remained essentially unchanged at 1.1 Tg.</p></li>
+<li><p>MEGAN3.2 inline biogenic VOC and soil NO emissions: In our 2018 CONUS simulations with CMAQv5.4, using MEGAN3.2 with its default Yienger-Levy option to calculate biogenic VOC and soil NO inline in CCTM caused the following changes to annual domain-total emissions compared to using BEIS4/BELD6 to calculate biogenic VOC and soil NO inline in CCTM: isoprene emissions changed from 16.9 to 18.2 Tg, monoterpene emissions changed from to 4.0 to 8.9 Tg, sesquiterpene emissions changed from 0.5 to 1.2 Tg, methanol emissions changed from 2.3 to 4.0 Tg, CO emissions changed from 4.2 to 2.2 Tg, and soil NO emissions changed from 1.1 to 0.9 Tg. In our 2018 northern hemispheric simulations with CMAQv5.4, using MEGAN3.2 with its default Yienger-Levy option to calculate biogenic VOC and soil NO inline in CCTM caused the following changes to annual domain-total emissions compared to using offline biogenic VOC and soil NO emissions from CAMS: isoprene emissions changed from 254 Tg to 230 Tg, monoterpene emissions changed from 38 Tg to 121 Tg, sesquiterpene emissions changed from 10.8 Tg to 17.3 Tg, methanol emissions changed from 71.0 to 43.6 Tg, CO emissions changed from 46.5 to 24.2 Tg, and soil NO emissions changed from 10.8 Tg to 6.1 Tg. When using the MEGAN3.2 BDSNP option instead of the Yienger-Levy option to estimate soil NO emissions for our 2018 northern hemisphere simulations, the annual domain-total soil NO emissions were 20.9 Tg.</p></li>
+<li><p>Windblown dust emission: the impacts of fixing a bug in soil indexing when using WRFv4+ runs with the Pleim-Xiu land-surface model as input to the CCTM inline windblown dust emissions scheme vary spatially and temporally. The net impact on our 108 km hemispheric domain was an increase of domain-total annual fine PM emissions from 36 Tg to 98 Tg. We did not enable the windblown dust option in our CMAQv5.4 testing simulations over the 12 km CONUS domain.</p></li>
+</ul>
+</section>
+<section id="ozone">
+<h3>Ozone<a class="headerlink" href="#ozone" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Widespread increases in seasonal mean ozone from CMAQv5.3.3 to CMAQv5.4 in the base configuration over most of the domain. Increases range from 1-4 ppbV during winter, 1-7 ppbV during spring, and 1-2.5 ppbV during fall. During summer, increases of 1-2.5 ppbV are more localized over the Eastern U.S. and northwestern portion of the CONUS modeling domain.</p></li>
+<li><p>Much of this increase is due to updates of the detailed halogen chemistry used for the 108 km hemispheric domain that led to less ozone depletion by halogens outside of the summer season. Therefore, the largest ozone increases in the 12 km CONUS domain are seen in regions most directly affected by ozone inflow from the boundaries, i.e. the western and northern portions of the modeling domain. Separate incremental tests performed over shorter time periods for two other science updates in CMAQv5.4 (BEIS4 inline biogenic emissions with BELD6 land use and chemical mechanism update from cb6r3_ae7_aq to cb6r5_ae7_aq) showed that these updates had only smaller and more localized impacts on ozone mixing ratios.</p></li>
+<li><p>Using CMAQv5.4 inline MEGAN to estimate biogenic VOC and soil NO (Yienger-Levy approach) decreases ozone by 1 – 7 ppbV compared to the CMAQv5.4 base configuration (offline CAMS for the 108 km domain and inline BEIS4 for the 12 km domain). The decrease is most pronounced during summer and fall.</p></li>
+<li><p>Using CRACMM1 instead of cb6r5_ae7 for the CMAQv5.4 caused changes of less than +/- 0.8 ppbV during spring, fall, and winter over almost all land grid cells in the modeling domain. During summer, small increases ranging from 1 – 2.5 ppbV were found over the southwestern, central, northeastern, and coastal southeastern portions of the modeling domain.</p></li>
+<li><p>All of the ozone comparisons discussed above (CMAQv5.4 vs. CMAQv5.3.3 base configuration and CMAQv5.4 MEGAN and CRACMM1 science options vs. CMAQv5.4 base configuration) generally hold true for both the M3Dry and STAGE dry deposition schemes.</p></li>
+<li><p><strong>Summary</strong>: Large-scale ozone estimates increase by 1-7 ppbV during non-summer seasons in CMAQv5.4 compared to CMAQv5.3.3 when using detailed halogen chemistry.  Using inline MEGAN on both the 108 km and 12 km domains decreases ozone by 1-7 ppbV relative to the CMAQv5.4 base configuration for biogenic VOC and soil NO, depending on season and region. Using CRACMM1 on the 12 km domain causes little change in seasonal mean ozone relative to the CMAQv5.4 base configuration, with only smaller increases of 1 – 2.5 ppbV during summertime over portions of the modeling domain</p></li>
+</ul>
+</section>
+<section id="pm2-5">
+<h3>PM2.5<a class="headerlink" href="#pm2-5" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>PM2.5 mass and species concentrations were affected by several updates in CMAQv5.4 relative to CMAQv5.3.3:  updates to aerosol dry deposition in both M3Dry and STAGE (though updates differ between the schemes), increased wind-blown dust emissions causing increased long-range transport in the 108 km domain and inflow to the 12 km domain, increased isoprene and decreased monoterpene emissions from BEIS4/BELD6, and the addition of DMS in cb6r5. No annual unit tests were performed to quantify the impacts of each individual factor on seasonal average PM2.5 concentrations.</p></li>
+<li><p>In our 12 km simulations with the M3Dry dry deposition option, there were wide-spread decreases of total PM2.5 from CMAQv5.3.3 to CMAQv5.4 in the portions of the domain with the highest vegetation coverage, i.e. the northwestern, northern, and eastern portions of the domain. This suggests that increased aerosol dry deposition dominated over other effects in these regions. Decreases in seasonal average concentrations reached 1-2 µg/m3 during summer and were smaller during other seasons. The only exception to this general pattern of PM2.5 decreases was springtime over the Southwestern U.S. where the effects of the increased inflow appeared to outweigh the effects of the increased aerosol dry deposition and seasonal mean PM2.5 increased by about 0.5 µg/m3 in CMAQv5.4</p></li>
+<li><p>In our 12 km simulations with the STAGE dry deposition option, there were regions of both increases and decreases of 0.5 – 1 µg/m3 in all seasons going from CMAQv5.3.3 to CMAQv5.4 except for winter when there were only limited regions with small increases. The largest decreases occurred over the northwestern and northern portions of the modeling domain as well as regions along the Gulf Coast. The largest increases occurred over the Southwestern region during spring and parts of the Southeast and Midwest during summer.</p></li>
+<li><p>Using CMAQv5.4 inline MEGAN to estimate biogenic VOC and soil NO (Yienger-Levy approach) increases summertime organic aerosol mass by 1-2 µg/m3 over the Southeastern U.S. compared to the CMAQv5.4 base configuration (offline CAMS for the 108 km domain and inline BEIS4 for the 12 km domain), likely driven by the significant increase in estimated monoterpene emissions. The simulated organic aerosol and total PM2.5 increases are larger in forested equatorial regions of the 108 km domain.</p></li>
+<li><p>Using CRACMM1 instead of cb6r5_ae7 for the CMAQv5.4 simulations caused small but fairly wide-spread PM2.5 increases of about 0.5 µg/m3 in most seasons for both M3Dry and STAGE, with hardly any regions showing decreases of more than 0.25 µg/m3 in any season.</p></li>
+<li><p><strong>Summary</strong>: When using M3Dry, there were wide-spread decreases of total PM2.5 from CMAQv5.3.3 to CMAQv5.4, with the largest decreases (1-2 µg/m3) occuring during summer over vegetated regions. When using STAGE, there were regions of both increases and decreases of 0.5 – 1 µg/m3 in all seasons except winter going from CMAQv5.3.3 to CMAQv5.4. Using CMAQv5.4 inline MEGAN to estimate biogenic VOC and soil NO (Yienger-Levy approach) increases summertime organic aerosol mass by 1-2 µg/m3 over the Southeastern U.S. compared to the CMAQv5.4 base configuration. Using CRACMM1 instead of cb6r5_ae7 for the CMAQv5.4 simulations caused small but fairly wide-spread PM2.5 increases of about 0.5 µg/m3 in most seasons using both M3Dry and STAGE.</p></li>
+</ul>
+</section>
+<section id="deposition">
+<h3>Deposition<a class="headerlink" href="#deposition" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>When using M3Dry, total N dry deposition increased by about 10-40% from CMAQv5.3.3 to CMAQv5.4 over large portions of the domain during all seasons. Conversely, total N wet deposition decreased by 10-20% over large portions of the domain during all seasons. Combined wet+dry deposition of total N showed more limited changes, with changes of less than +/-5% across a large portion of the domain in all seasons. Increases of 10-30% in combined wet+dry deposition of total N were seen for limited areas in the western and northern portions of the modeling domain. Results for total S deposition were qualitatively similar to the results for total N deposition (increases in dry deposition, decreases in wet deposition, and less pronounced and more variable changes for combined wet+dry deposition). The contrast between dry and wet deposition is consistent with the notion of increased aerosol dry deposition velocities in M3Dry being the main driver of these changes, with increased dry deposition velocities increasing dry deposition fluxes and in turn reducing ambient concentrations and aerosol mass available for wet deposition through scavenging.</p></li>
+<li><p>When using STAGE, the changes in wet, dry, and combined wet+dry deposition of total N and S going from CMAQv5.3.3 to CMAQv5.4 show more variability across regions and seasons, with all of these variables showing both increases and decreases in all seasons. Moreover, some regions and seasons experienced increases in dry, wet, and wet+dry N and S deposition, indicating that changes in these deposition fluxes were not always dominated by changes to aerosol dry deposition velocities.</p></li>
+<li><p>Using CMAQv5.4 inline MEGAN to estimate biogenic VOC and soil NO (Yienger-Levy approach) instead of CAMS (108 km domain) or CMAQv5.4 inline BEIS (12 km domain) did not have any significant impacts on simulated wet, dry, and combined wet+dry deposition of total N and S.</p></li>
+<li><p>Using CRACMM1 instead of cb6r5_ae7 for the CMAQv5.4 simulations caused relatively small (&lt;15%) decreases in dry, wet, and wet+dry N deposition especially during winter, changes of generally less than +/-5% for dry S deposition, and more widespread deceases of 10-20% for wet and wet+dry S deposition over the Eastern U.S during spring, fall, and especially summer.</p></li>
+<li><p><strong>Summary</strong>: For M3Dry, going from CMAQv5.3.3 to CMAQv5.4 leads to consistent increases of 10-40% in total N dry deposition, general decreases of 10-20% in total N wet deposition, and more limited and variable changes in combined wet+dry total N deposition, with qualitatively similar changes for total S deposition. For STAGE, changes in all variables show more variability across regions and seasons. The use of CRACMM1 results in small decreases in N deposition especially during winter and 10-20% decreases for wet and wet+dry S deposition over the Eastern U.S. especially during summer.</p></li>
+</ul>
+<p><a id=additional_faq></a></p>
+</section>
+</section>
+<section id="additional-faq">
+<h2>Additional FAQ<a class="headerlink" href="#additional-faq" title="Link to this heading">#</a></h2>
+<p>A more general list of Frequent CMAQ Questions can be found on our website: https://www.epa.gov/cmaq/frequent-cmaq-questions</p>
+<p><a id=tech_support></a></p>
+</section>
+<section id="technical-support-for-cmaq">
+<h2>Technical support for CMAQ<a class="headerlink" href="#technical-support-for-cmaq" title="Link to this heading">#</a></h2>
+<p>Technical support for CMAQ, including questions about model inputs, downloading, compiling, and running the model,
+and pre- and post-processing utilities, should be directed to the <a class="reference external" href="https://forum.cmascenter.org/" rel="noreferrer" target="_blank">CMAS Center User Forum <svg version="1.1" width="1.0em" height="1.0em" viewBox="0 0 16 16" aria-hidden="true" style="display: inline-block; vertical-align: middle; fill: currentColor;"><path d="M3.75 2h3.5a.75.75 0 0 1 0 1.5h-3.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-3.5a.75.75 0 0 1 1.5 0v3.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5C2 2.784 2.784 2 3.75 2Zm6.854-1h4.146a.25.25 0 0 1 .25.25v4.146a.25.25 0 0 1-.427.177L13.03 4.03 9.28 7.78a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042l3.75-3.75-1.543-1.543A.25.25 0 0 1 10.604 1Z"></path></svg></a>.
+<a class="reference external" href="https://forum.cmascenter.org/t/please-read-before-posting/1321" rel="noreferrer" target="_blank"><strong>Please read and follow these steps</strong> <svg version="1.1" width="1.0em" height="1.0em" viewBox="0 0 16 16" aria-hidden="true" style="display: inline-block; vertical-align: middle; fill: currentColor;"><path d="M3.75 2h3.5a.75.75 0 0 1 0 1.5h-3.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-3.5a.75.75 0 0 1 1.5 0v3.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5C2 2.784 2.784 2 3.75 2Zm6.854-1h4.146a.25.25 0 0 1 .25.25v4.146a.25.25 0 0 1-.427.177L13.03 4.03 9.28 7.78a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042l3.75-3.75-1.543-1.543A.25.25 0 0 1 10.604 1Z"></path></svg></a> prior to submitting new questions to the User Forum.</p>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="CMAQv5.5-Series-FAQ.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Frequently Asked Questions for Upgrading to the Latest CMAQ Version</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="../Community_Support.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Community Support</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#table-of-contents">Table of Contents:</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#do-i-need-to-update-from-v5-3-3-to-v5-4">Do I need to update from v5.3.3 to v5.4?</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#instrumented-models">Instrumented Models</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#wrf-cmaq-coupled-model">WRF-CMAQ Coupled Model</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#chemistry">Chemistry</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#dry-deposition-air-surface-exchange">Dry Deposition/Air Surface Exchange</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#emissions">Emissions</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#process-analysis">Process Analysis</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#structural-improvements">Structural Improvements</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#diagnostic-options">Diagnostic Options</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pre-processors-and-utilities">Pre-processors and Utilities</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#post-processors">Post-processors</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#utilities">Utilities</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#what-do-i-need-to-do-to-update-from-v5-3-3-to-v5-4">What do I need to do to update from v5.3.3 to v5.4?</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#what-differences-should-i-expect-in-the-required-model-input-files">What differences should I expect in the required model input files?</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#what-differences-should-i-expect-in-my-model-output-files">What differences should I expect in my model output files?</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#what-differences-should-i-expect-in-my-model-results-with-v5-4-compared-to-v5-3-3">What differences should I expect in my model results with v5.4 compared to v5.3.3?</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#natural-emissions">Natural Emissions</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ozone">Ozone</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pm2-5">PM2.5</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#deposition">Deposition</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#additional-faq">Additional FAQ</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#technical-support-for-cmaq">Technical support for CMAQ</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

@@ -1,0 +1,1056 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link href="../../../_static/CMAQ_Logo_2_inch.png" sizes="600x593" rel="icon" type="image/png">
+    <title>MPAS-CMAQ Benchmarking Tutorial &#8212; CMAQ 5.5+ documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../../_static/documentation_options.js?v=eec9c716"></script>
+    <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'DOCS/Users_Guide/Tutorials/CMAQ_UG_tutorial_MPAS-CMAQ_Benchmark_gcc';</script>
+    <link rel="canonical" href="https://jbrunto.github.io/CMAQ_Docs_v55/DOCS/Users_Guide/Tutorials/CMAQ_UG_tutorial_MPAS-CMAQ_Benchmark_gcc.html" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../_static/CMAQ_Logo_2_inch.png" class="logo__image only-light" alt="CMAQ 5.5+ documentation - Home"/>
+    <img src="../../../_static/CMAQ_Logo_2_inch.png" class="logo__image only-dark pst-js-only" alt="CMAQ 5.5+ documentation - Home"/>
+  
+  
+</a></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/USEPA/CMAQ" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://www.epa.gov/cmaq" title="CMAQ - EPA Site" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../../_static/epa_seal_w-ring_RGB-sm.png" class="icon-link-image" alt="CMAQ - EPA Site"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://forum.cmascenter.org/" title="User Forum" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../../_static/cmas_logo.png" class="icon-link-image" alt="User Forum"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://usepa.github.io/CMAQ/" title="CRACMM" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../../_static/CRACMM_1.png" class="icon-link-image" alt="CRACMM"/></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../_static/CMAQ_Logo_2_inch.png" class="logo__image only-light" alt="CMAQ 5.5+ documentation - Home"/>
+    <img src="../../../_static/CMAQ_Logo_2_inch.png" class="logo__image only-dark pst-js-only" alt="CMAQ 5.5+ documentation - Home"/>
+  
+  
+</a></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/USEPA/CMAQ" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://www.epa.gov/cmaq" title="CMAQ - EPA Site" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../../_static/epa_seal_w-ring_RGB-sm.png" class="icon-link-image" alt="CMAQ - EPA Site"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://forum.cmascenter.org/" title="User Forum" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../../_static/cmas_logo.png" class="icon-link-image" alt="User Forum"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://usepa.github.io/CMAQ/" title="CRACMM" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../../_static/CRACMM_1.png" class="icon-link-image" alt="CRACMM"/></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../Getting_Started.html">Getting Started</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../README.html">CMAQ User’s Guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../CMAQ_UG_ch01_overview.html">1. Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../CMAQ_UG_ch02_program_structure.html">2. Program Structure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../CMAQ_UG_ch03_preparing_compute_environment.html">3. Preparing Compute Environment for CMAQ Simulations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../CMAQ_UG_ch04_model_inputs.html">4. Model Input Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../CMAQ_UG_ch05_running_a_simulation.html">5. Running a CMAQ Simulation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../CMAQ_UG_ch06_model_configuration_options.html">6. Model Configuration Options</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../CMAQ_UG_ch07_model_outputs.html">7. Model Output Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../CMAQ_UG_ch08_analysis_tools.html">8. Analysis Tools for CMAQ output</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../CMAQ_UG_ch09_process_analysis.html">9. Process Analysis and Budget</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../CMAQ_UG_ch10_HDDM-3D.html">10. Decoupled Direct Method in Three Dimensions (CMAQ-DDM-3D)</a></li>
+
+
+
+
+<li class="toctree-l2"><a class="reference internal" href="../CMAQ_UG_ch11_ISAM.html">11. Integrated Source Apportionment Method (CMAQ-ISAM)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../CMAQ_UG_ch12_sulfur_tracking.html">12. Sulfur Tracking Method</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../CMAQ_UG_ch13_WRF-CMAQ.html">13. WRF-CMAQ Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../CMAQ_UG_ch14_MPAS-CMAQ.html">14. MPAS-CMAQ Model</a></li>
+
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="README.html">CMAQ Tutorials</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="CMAQ_UG_tutorial_configure_linux_environment.html">Configuring your compute environment for CMAQ simulations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="CMAQ_UG_tutorial_running_benchmarks.html">CMAQ Benchmark Tutorials</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../Release_Notes/README.html">Release Notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../Release_Notes/CMAQ-Release-Notes%3A-Instrumented-Models.html">Instrumented Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../Release_Notes/CMAQ-Release-Notes%3A-MPAS-CMAQ-Coupled-Model.html">MPAS-CMAQ Coupled Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../Release_Notes/CMAQ-Release-Notes%3A-WRF-CMAQ-Coupled-Model.html">Compatibility issues with WRF versions 4.5.2 and later</a></li>
+
+
+
+<li class="toctree-l2"><a class="reference internal" href="../../Release_Notes/CMAQ-Release-Notes%3A-Chemistry.html">Chemistry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../Release_Notes/CMAQ-Release-Notes%3A-Transport-Processes.html">Transport Processes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../Release_Notes/CMAQ-Release-Notes%3A-Dry-Deposition-Air-Surface-Exchange.html">Dry Deposition/Air-Surface Exchange</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../Release_Notes/CMAQ-Release-Notes%3A-Emissions-Updates.html">Emissions Updates</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../Release_Notes/CMAQ-Release-Notes%3A-Process-Analysis-%26-Sulfur-Tracking-Model-%28STM%29.html">Fix to option for Sulfur Tracking Model</a></li>
+
+
+
+<li class="toctree-l2"><a class="reference internal" href="../../Release_Notes/CMAQ-Release-Notes%3A-Structural-Improvements.html">GNU build flag update to enable compilation with GNU versions 10+</a></li>
+
+
+
+<li class="toctree-l2"><a class="reference internal" href="../../Release_Notes/CMAQ-Release-Notes%3A-Diagnostic-Options.html">Remove Uninitialized Variable in Column Model</a></li>
+
+
+
+
+
+<li class="toctree-l2"><a class="reference internal" href="../../Release_Notes/CMAQ-Release-Notes%3A-Preprocessors.html">MCIP</a></li>
+
+
+
+<li class="toctree-l2"><a class="reference internal" href="../../Release_Notes/CMAQ-Release-Notes%3A-PYTOOLS.html"><span class="xref myst">shp2cmaq: Create CMAQ-Ready File from Shapefile</span></a></li>
+
+<li class="toctree-l2"><a class="reference internal" href="../../Release_Notes/CMAQ-Release-Notes%3A-Postprocessors.html"><span class="xref myst">calc_tmetric</span></a></li>
+
+
+
+
+
+<li class="toctree-l2"><a class="reference internal" href="../../Release_Notes/CMAQ-Release-Notes%3A-Utilities.html">Update Chemistry Utilities for More Recent Versions of pgi Compilers</a></li>
+
+
+
+
+<li class="toctree-l2"><a class="reference internal" href="../../Release_Notes/CMAQ-Release-Notes%3A-Stratospheric%E2%80%90Tropospheric-Exchange-%28STE%29.html">Potential Vorticity Scaling of Ozone (PVO3) a Runtime Option</a></li>
+
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../Release_FAQ/README.html">FAQs</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../Release_FAQ/CMAQv5.5-Series-FAQ.html">Frequently Asked Questions for Upgrading to the Latest CMAQ Version</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../Release_FAQ/CMAQv5.4-Series-FAQ.html">Frequently Asked Questions for Upgrading to the Latest CMAQ Version</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Community_Support.html">Community Support</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">MPAS-CMAQ Benchmarking Tutorial</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="mpas-cmaq-benchmarking-tutorial">
+<h1>MPAS-CMAQ Benchmarking Tutorial<a class="headerlink" href="#mpas-cmaq-benchmarking-tutorial" title="Link to this heading">#</a></h1>
+<p><strong>Purpose</strong>: This guide describes how to install and run the MPAS-CMAQ test case, which serves two different purposes. The first being to familiarize the user with the MPAS-CMAQ suite of programs and how they work together, and secondly to verify the installation of the software on your system via benchmarking.</p>
+<p>Users are highly encouraged to work through the <a class="reference external" href="https://github.com/USEPA/CMAQ/blob/MPAS-CMAQ/DOCS/Users_Guide/PDF/MPAS-CMAQ.pdf" rel="noreferrer" target="_blank">MPAS-CMAQ User Guide <svg version="1.1" width="1.0em" height="1.0em" viewBox="0 0 16 16" aria-hidden="true" style="display: inline-block; vertical-align: middle; fill: currentColor;"><path d="M3.75 2h3.5a.75.75 0 0 1 0 1.5h-3.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-3.5a.75.75 0 0 1 1.5 0v3.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5C2 2.784 2.784 2 3.75 2Zm6.854-1h4.146a.25.25 0 0 1 .25.25v4.146a.25.25 0 0 1-.427.177L13.03 4.03 9.28 7.78a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042l3.75-3.75-1.543-1.543A.25.25 0 0 1 10.604 1Z"></path></svg></a> and the <a class="reference external" href="https://github.com/lizadams/CMAQ_CMAS/blob/5.5_testing/DOCS/Users_Guide/CMAQ_UG_ch14_MPAS-CMAQ.md" rel="noreferrer" target="_blank">MPAS-CMAQ Chapter within the CMAQ User Guide <svg version="1.1" width="1.0em" height="1.0em" viewBox="0 0 16 16" aria-hidden="true" style="display: inline-block; vertical-align: middle; fill: currentColor;"><path d="M3.75 2h3.5a.75.75 0 0 1 0 1.5h-3.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-3.5a.75.75 0 0 1 1.5 0v3.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5C2 2.784 2.784 2 3.75 2Zm6.854-1h4.146a.25.25 0 0 1 .25.25v4.146a.25.25 0 0 1-.427.177L13.03 4.03 9.28 7.78a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042l3.75-3.75-1.543-1.543A.25.25 0 0 1 10.604 1Z"></path></svg></a> to familiarize themselves with the individuals program components.</p>
+<p>The following support software are required for compiling and running MPAS-CMAQ.</p>
+<ol class="arabic simple">
+<li><p>Fortran and C compilers, e.g., <a class="reference external" href="https://software.intel.com/en-us/fortran-compilers" rel="noreferrer" target="_blank">Intel <svg version="1.1" width="1.0em" height="1.0em" viewBox="0 0 16 16" aria-hidden="true" style="display: inline-block; vertical-align: middle; fill: currentColor;"><path d="M3.75 2h3.5a.75.75 0 0 1 0 1.5h-3.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-3.5a.75.75 0 0 1 1.5 0v3.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5C2 2.784 2.784 2 3.75 2Zm6.854-1h4.146a.25.25 0 0 1 .25.25v4.146a.25.25 0 0 1-.427.177L13.03 4.03 9.28 7.78a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042l3.75-3.75-1.543-1.543A.25.25 0 0 1 10.604 1Z"></path></svg></a>, <a class="reference external" href="http://www.pgroup.com" rel="noreferrer" target="_blank">Portland Group <svg version="1.1" width="1.0em" height="1.0em" viewBox="0 0 16 16" aria-hidden="true" style="display: inline-block; vertical-align: middle; fill: currentColor;"><path d="M3.75 2h3.5a.75.75 0 0 1 0 1.5h-3.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-3.5a.75.75 0 0 1 1.5 0v3.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5C2 2.784 2.784 2 3.75 2Zm6.854-1h4.146a.25.25 0 0 1 .25.25v4.146a.25.25 0 0 1-.427.177L13.03 4.03 9.28 7.78a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042l3.75-3.75-1.543-1.543A.25.25 0 0 1 10.604 1Z"></path></svg></a>, <a class="reference external" href="https://gcc.gnu.org/wiki/GFortran" rel="noreferrer" target="_blank">Gnu <svg version="1.1" width="1.0em" height="1.0em" viewBox="0 0 16 16" aria-hidden="true" style="display: inline-block; vertical-align: middle; fill: currentColor;"><path d="M3.75 2h3.5a.75.75 0 0 1 0 1.5h-3.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-3.5a.75.75 0 0 1 1.5 0v3.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5C2 2.784 2.784 2 3.75 2Zm6.854-1h4.146a.25.25 0 0 1 .25.25v4.146a.25.25 0 0 1-.427.177L13.03 4.03 9.28 7.78a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042l3.75-3.75-1.543-1.543A.25.25 0 0 1 10.604 1Z"></path></svg></a></p></li>
+<li><p><a class="reference external" href="https://git-scm.com/book/en/v2/Getting-Started-Installing-Git" rel="noreferrer" target="_blank">Git <svg version="1.1" width="1.0em" height="1.0em" viewBox="0 0 16 16" aria-hidden="true" style="display: inline-block; vertical-align: middle; fill: currentColor;"><path d="M3.75 2h3.5a.75.75 0 0 1 0 1.5h-3.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-3.5a.75.75 0 0 1 1.5 0v3.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5C2 2.784 2.784 2 3.75 2Zm6.854-1h4.146a.25.25 0 0 1 .25.25v4.146a.25.25 0 0 1-.427.177L13.03 4.03 9.28 7.78a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042l3.75-3.75-1.543-1.543A.25.25 0 0 1 10.604 1Z"></path></svg></a></p></li>
+<li><p>Message Passing Interface (MPI), e.g., <a class="reference external" href="https://www.open-mpi.org" rel="noreferrer" target="_blank">OpenMPI <svg version="1.1" width="1.0em" height="1.0em" viewBox="0 0 16 16" aria-hidden="true" style="display: inline-block; vertical-align: middle; fill: currentColor;"><path d="M3.75 2h3.5a.75.75 0 0 1 0 1.5h-3.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-3.5a.75.75 0 0 1 1.5 0v3.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5C2 2.784 2.784 2 3.75 2Zm6.854-1h4.146a.25.25 0 0 1 .25.25v4.146a.25.25 0 0 1-.427.177L13.03 4.03 9.28 7.78a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042l3.75-3.75-1.543-1.543A.25.25 0 0 1 10.604 1Z"></path></svg></a> or <a class="reference external" href="http://www.mcs.anl.gov/research/projects/mpich2" rel="noreferrer" target="_blank">MVAPICH2 <svg version="1.1" width="1.0em" height="1.0em" viewBox="0 0 16 16" aria-hidden="true" style="display: inline-block; vertical-align: middle; fill: currentColor;"><path d="M3.75 2h3.5a.75.75 0 0 1 0 1.5h-3.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-3.5a.75.75 0 0 1 1.5 0v3.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5C2 2.784 2.784 2 3.75 2Zm6.854-1h4.146a.25.25 0 0 1 .25.25v4.146a.25.25 0 0 1-.427.177L13.03 4.03 9.28 7.78a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042l3.75-3.75-1.543-1.543A.25.25 0 0 1 10.604 1Z"></path></svg></a>.</p></li>
+<li><p>Zlib, Curl, HDF5, 3. Parallel-netCDF, netCDF (C library), netCDF (Fortran interface library), sources for these libraries are obtained from http://www2.mmm.ucar.edu/people/duda/files/mpas/sources/</p></li>
+<li><p>Information about latest release of <a class="reference external" href="https://docs.unidata.ucar.edu/netcdf-c/current/" rel="noreferrer" target="_blank">netCDF-C <svg version="1.1" width="1.0em" height="1.0em" viewBox="0 0 16 16" aria-hidden="true" style="display: inline-block; vertical-align: middle; fill: currentColor;"><path d="M3.75 2h3.5a.75.75 0 0 1 0 1.5h-3.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-3.5a.75.75 0 0 1 1.5 0v3.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5C2 2.784 2.784 2 3.75 2Zm6.854-1h4.146a.25.25 0 0 1 .25.25v4.146a.25.25 0 0 1-.427.177L13.03 4.03 9.28 7.78a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042l3.75-3.75-1.543-1.543A.25.25 0 0 1 10.604 1Z"></path></svg></a> and <a class="reference external" href="https://docs.unidata.ucar.edu/netcdf-fortran/current/" rel="noreferrer" target="_blank">netCDF-Fortran <svg version="1.1" width="1.0em" height="1.0em" viewBox="0 0 16 16" aria-hidden="true" style="display: inline-block; vertical-align: middle; fill: currentColor;"><path d="M3.75 2h3.5a.75.75 0 0 1 0 1.5h-3.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-3.5a.75.75 0 0 1 1.5 0v3.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5C2 2.784 2.784 2 3.75 2Zm6.854-1h4.146a.25.25 0 0 1 .25.25v4.146a.25.25 0 0 1-.427.177L13.03 4.03 9.28 7.78a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042l3.75-3.75-1.543-1.543A.25.25 0 0 1 10.604 1Z"></path></svg></a></p></li>
+<li><p>Parallel I/O Library (PIO) https://github.com/NCAR/ParallelIO</p></li>
+<li><p><a class="reference external" href="https://github.com/tcsh-org/tcsh" rel="noreferrer" target="_blank">C-Shell <svg version="1.1" width="1.0em" height="1.0em" viewBox="0 0 16 16" aria-hidden="true" style="display: inline-block; vertical-align: middle; fill: currentColor;"><path d="M3.75 2h3.5a.75.75 0 0 1 0 1.5h-3.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-3.5a.75.75 0 0 1 1.5 0v3.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5C2 2.784 2.784 2 3.75 2Zm6.854-1h4.146a.25.25 0 0 1 .25.25v4.146a.25.25 0 0 1-.427.177L13.03 4.03 9.28 7.78a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042l3.75-3.75-1.543-1.543A.25.25 0 0 1 10.604 1Z"></path></svg></a></p></li>
+<li><p>Environment Modules https://modules.sourceforge.net/</p></li>
+</ol>
+<p><strong>Note: To install the above libraries, please edit and use the following install scripts, depending on what compiler type and version you have on your system.</strong></p>
+<p>Library install scripts are available for the following compiler versions, but this tutorial uses the compiler version gcc-11.4.1:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">gcc</span><span class="o">-</span><span class="mf">9.1</span>
+<span class="n">gcc</span><span class="o">-</span><span class="mf">11.4.1</span>
+<span class="n">ifort</span><span class="o">-</span><span class="mf">18.0.2</span>
+<span class="n">ifort</span><span class="o">-</span><span class="mi">2024</span>
+</pre></div>
+</div>
+<p>Using environment modules, it is possible to use multiple compilers and compiler versions to compile the libraries and then MPAS-CMAQ.</p>
+<p>The suggested hardware requirements for running the CMAQ-MPAS 120km Uniform Grid Benchmark case on a Linux workstation are:</p>
+<ol class="arabic simple">
+<li><p>Linux environment with a 32 processors</p></li>
+<li><p>16 GB RAM</p></li>
+<li><p>400 GB hard drive storage</p></li>
+</ol>
+<section id="install-the-mpas-cmaq-i-o-libraries-using-the-gcc-11-4-1-compiler">
+<h2>Install the MPAS-CMAQ I/O Libraries using the GCC 11.4.1 compiler<a class="headerlink" href="#install-the-mpas-cmaq-i-o-libraries-using-the-gcc-11-4-1-compiler" title="Link to this heading">#</a></h2>
+<p>Load the environment modules for gcc and openmpi</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">module</span> <span class="n">load</span> <span class="n">openmpi_5</span><span class="mf">.0.5</span><span class="o">/</span><span class="n">gcc_11</span><span class="mf">.4.1</span>
+</pre></div>
+</div>
+</section>
+<section id="create-directory-for-libraries">
+<h2>Create directory for libraries<a class="headerlink" href="#create-directory-for-libraries" title="Link to this heading">#</a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>#change directories to the location where you would like to install MPAS-CMAQ
+mkdir -p $cwd/MPAS-CMAQ/build/LIBRARIES_gcc11.4.1
+cd $cwd/MPAS-CMAQ/build/LIBRARIES_gcc11.4.1
+</pre></div>
+</div>
+</section>
+<section id="obtain-and-run-libraries-install-script">
+<h2>Obtain and run libraries install script<a class="headerlink" href="#obtain-and-run-libraries-install-script" title="Link to this heading">#</a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">wget</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">USEPA</span><span class="o">/</span><span class="n">CMAQ</span><span class="o">/</span><span class="n">blob</span><span class="o">/</span><span class="n">main</span><span class="o">/</span><span class="n">DOCS</span><span class="o">/</span><span class="n">Users_Guide</span><span class="o">/</span><span class="n">Tutorials</span><span class="o">/</span><span class="n">scripts</span><span class="o">/</span><span class="n">mpas</span><span class="o">-</span><span class="n">cmaq_libraries</span><span class="o">/</span><span class="n">iolib_installation_gcc11</span><span class="mf">.4.1</span><span class="o">.</span><span class="n">sh</span>
+<span class="c1"># change permission of the script so that it can be executed</span>
+<span class="n">chmod</span> <span class="mi">755</span> <span class="n">iolib_installation_gcc11</span><span class="mf">.4.1</span><span class="o">.</span><span class="n">sh</span>
+<span class="c1"># run the library installation script</span>
+<span class="o">./</span><span class="n">iolib_installation_gcc11</span><span class="mf">.4.1</span><span class="o">.</span><span class="n">sh</span> <span class="o">|&amp;</span> <span class="n">tee</span> <span class="o">./</span><span class="n">iolib_installation_gcc11</span><span class="mf">.4.1</span><span class="o">.</span><span class="n">log</span>
+</pre></div>
+</div>
+</section>
+<section id="review-the-log-file-to-verify-that-the-libraries-were-installed-successfully">
+<h2>Review the log file to verify that the libraries were installed successfully<a class="headerlink" href="#review-the-log-file-to-verify-that-the-libraries-were-installed-successfully" title="Link to this heading">#</a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">grep</span> <span class="o">-</span><span class="n">i</span> <span class="n">error</span> <span class="n">iolib_installation_gcc11</span><span class="mf">.4.1</span><span class="o">.</span><span class="n">log</span>
+</pre></div>
+</div>
+<section id="verify-the-libraries-are-installed">
+<h3>Verify the libraries are installed<a class="headerlink" href="#verify-the-libraries-are-installed" title="Link to this heading">#</a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ls</span> <span class="n">lib</span><span class="o">/*</span>
+<span class="n">lib</span><span class="o">/</span><span class="n">libcurl</span><span class="o">.</span><span class="n">a</span>   <span class="n">lib</span><span class="o">/</span><span class="n">libcurl</span><span class="o">.</span><span class="n">so</span><span class="mf">.4</span>      <span class="n">lib</span><span class="o">/</span><span class="n">libhdf5_hl</span><span class="o">.</span><span class="n">a</span>   <span class="n">lib</span><span class="o">/</span><span class="n">libhdf5</span><span class="o">.</span><span class="n">settings</span>  <span class="n">lib</span><span class="o">/</span><span class="n">libnetcdff</span><span class="o">.</span><span class="n">la</span>       <span class="n">lib</span><span class="o">/</span><span class="n">libpioc</span><span class="o">.</span><span class="n">a</span>        <span class="n">lib</span><span class="o">/</span><span class="n">libpnetcdf</span><span class="o">.</span><span class="n">a</span>   <span class="n">lib</span><span class="o">/</span><span class="n">libpnetcdf</span><span class="o">.</span><span class="n">so</span><span class="mf">.6</span>
+<span class="n">lib</span><span class="o">/</span><span class="n">libcurl</span><span class="o">.</span><span class="n">la</span>  <span class="n">lib</span><span class="o">/</span><span class="n">libcurl</span><span class="o">.</span><span class="n">so</span><span class="mf">.4.8.0</span>  <span class="n">lib</span><span class="o">/</span><span class="n">libhdf5_hl</span><span class="o">.</span><span class="n">la</span>  <span class="n">lib</span><span class="o">/</span><span class="n">libnetcdf</span><span class="o">.</span><span class="n">a</span>       <span class="n">lib</span><span class="o">/</span><span class="n">libnetcdf</span><span class="o">.</span><span class="n">la</span>        <span class="n">lib</span><span class="o">/</span><span class="n">libpiof</span><span class="o">.</span><span class="n">a</span>        <span class="n">lib</span><span class="o">/</span><span class="n">libpnetcdf</span><span class="o">.</span><span class="n">la</span>  <span class="n">lib</span><span class="o">/</span><span class="n">libpnetcdf</span><span class="o">.</span><span class="n">so</span><span class="mf">.6.0.0</span>
+<span class="n">lib</span><span class="o">/</span><span class="n">libcurl</span><span class="o">.</span><span class="n">so</span>  <span class="n">lib</span><span class="o">/</span><span class="n">libhdf5</span><span class="o">.</span><span class="n">a</span>         <span class="n">lib</span><span class="o">/</span><span class="n">libhdf5</span><span class="o">.</span><span class="n">la</span>     <span class="n">lib</span><span class="o">/</span><span class="n">libnetcdff</span><span class="o">.</span><span class="n">a</span>      <span class="n">lib</span><span class="o">/</span><span class="n">libnetcdf</span><span class="o">.</span><span class="n">settings</span>  <span class="n">lib</span><span class="o">/</span><span class="n">libpio</span><span class="o">.</span><span class="n">settings</span>  <span class="n">lib</span><span class="o">/</span><span class="n">libpnetcdf</span><span class="o">.</span><span class="n">so</span>  <span class="n">lib</span><span class="o">/</span><span class="n">libz</span><span class="o">.</span><span class="n">a</span>
+
+</pre></div>
+</div>
+</section>
+</section>
+<section id="configure-private-environment-modules">
+<h2>Configure Private Environment Modules<a class="headerlink" href="#configure-private-environment-modules" title="Link to this heading">#</a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>mkdir -p $cwd/Modules/modulefiles/mpas-cmaq-iolib
+</pre></div>
+</div>
+<p>Edit the module name file to specify the PATH and LD_LIBARY_PATH.</p>
+<p>Next, create the module file and save it to the mpas-cmaq-iolib directory</p>
+<p>Example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">vi</span>  <span class="n">gcc</span><span class="o">-</span><span class="mf">11.4.1</span>
+<span class="c1"># add the following contents to the gcc-11.4.1 file, and edit the basedir to specify your local directory path</span>
+<span class="c1">#%Module</span>
+
+<span class="n">proc</span> <span class="n">ModulesHelp</span> <span class="p">{</span> <span class="p">}</span> <span class="p">{</span>
+   <span class="n">puts</span> <span class="n">stderr</span> <span class="s2">&quot;This module adds mpas-cmaq-iolib/gcc-11.4.1 to your path&quot;</span>
+<span class="p">}</span>
+
+<span class="n">module</span><span class="o">-</span><span class="n">whatis</span> <span class="s2">&quot;This module adds mpas-cmaq-iolib/gcc-11.4.1 to your path</span><span class="se">\n</span><span class="s2">&quot;</span>
+
+<span class="nb">set</span> <span class="n">basedir</span> <span class="s2">&quot;/work/users/l/i/lizadams/MPAS-CMAQ/build/LIBRARIES_gcc11.4.1/&quot;</span>
+<span class="n">prepend</span><span class="o">-</span><span class="n">path</span> <span class="n">PATH</span> <span class="s2">&quot;$</span><span class="si">{basedir}</span><span class="s2">/bin&quot;</span>
+<span class="n">prepend</span><span class="o">-</span><span class="n">path</span> <span class="n">LD_LIBRARY_PATH</span> <span class="s2">&quot;$</span><span class="si">{basedir}</span><span class="s2">/lib&quot;</span>
+<span class="n">module</span> <span class="n">load</span> <span class="n">openmpi_5</span><span class="mf">.0.5</span><span class="o">/</span><span class="n">gcc_11</span><span class="mf">.4.1</span>
+</pre></div>
+</div>
+<section id="add-the-following-command-to-your-cshrc-then-logout-and-log-back-in">
+<h3>Add the following command to your .cshrc, then logout and log back in.<a class="headerlink" href="#add-the-following-command-to-your-cshrc-then-logout-and-log-back-in" title="Link to this heading">#</a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">module</span> <span class="n">use</span> <span class="o">--</span><span class="n">append</span> <span class="o">/</span><span class="n">work</span><span class="o">/</span><span class="n">users</span><span class="o">/</span><span class="n">l</span><span class="o">/</span><span class="n">i</span><span class="o">/</span><span class="n">lizadams</span><span class="o">/</span><span class="n">MPAS</span><span class="o">-</span><span class="n">CMAQ</span><span class="o">/</span><span class="n">build</span><span class="o">/</span><span class="n">Modules</span><span class="o">/</span><span class="n">modulefiles</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="load-private-environment-modules">
+<h2>Load Private Environment Modules<a class="headerlink" href="#load-private-environment-modules" title="Link to this heading">#</a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">## check that your private module can be found</span>
+<span class="n">module</span> <span class="nb">list</span>
+<span class="c1">## load the private module</span>
+<span class="n">module</span> <span class="n">load</span> <span class="n">mpas</span><span class="o">-</span><span class="n">cmaq</span><span class="o">-</span><span class="n">iolib</span><span class="o">/</span><span class="n">gcc</span><span class="o">-</span><span class="mf">11.4.1</span>
+<span class="c1">## verify the module was loaded</span>
+<span class="n">module</span> <span class="nb">list</span>
+</pre></div>
+</div>
+</section>
+<section id="build-mpas-cmaq-these-instructions-follow-the-mpas-cmaq-user-manual">
+<h2>Build MPAS-CMAQ - these instructions follow the <a class="reference external" href="https://github.com/USEPA/CMAQ/blob/MPAS-CMAQ/DOCS/Users_Guide/PDF/MPAS-CMAQ.pdf" rel="noreferrer" target="_blank">MPAS-CMAQ User Manual <svg version="1.1" width="1.0em" height="1.0em" viewBox="0 0 16 16" aria-hidden="true" style="display: inline-block; vertical-align: middle; fill: currentColor;"><path d="M3.75 2h3.5a.75.75 0 0 1 0 1.5h-3.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-3.5a.75.75 0 0 1 1.5 0v3.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5C2 2.784 2.784 2 3.75 2Zm6.854-1h4.146a.25.25 0 0 1 .25.25v4.146a.25.25 0 0 1-.427.177L13.03 4.03 9.28 7.78a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042l3.75-3.75-1.543-1.543A.25.25 0 0 1 10.604 1Z"></path></svg></a><a class="headerlink" href="#build-mpas-cmaq-these-instructions-follow-the-mpas-cmaq-user-manual" title="Link to this heading">#</a></h2>
+</section>
+<section id="clone-the-mpas-cmaq-branch-from-the-usepa-github-repository">
+<h2>Clone the MPAS-CMAQ Branch from the USEPA GitHub Repository<a class="headerlink" href="#clone-the-mpas-cmaq-branch-from-the-usepa-github-repository" title="Link to this heading">#</a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">mkdir</span> <span class="n">MPAS</span><span class="o">-</span><span class="n">CMAQ</span>
+<span class="n">cd</span> <span class="n">MPAS</span><span class="o">-</span><span class="n">CMAQ</span>
+<span class="n">git</span> <span class="n">clone</span> <span class="o">-</span><span class="n">b</span> <span class="n">MPAS_CMAQ</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">USEPA</span><span class="o">/</span><span class="n">CMAQ</span><span class="o">.</span><span class="n">git</span> <span class="n">CMAQ_REPO</span>
+</pre></div>
+</div>
+</section>
+<section id="building-and-running-in-a-user-specified-directory-outside-of-the-repository">
+<h2>Building and running in a user-specified directory outside of the repository<a class="headerlink" href="#building-and-running-in-a-user-specified-directory-outside-of-the-repository" title="Link to this heading">#</a></h2>
+<p>In the top level of CMAQ_REPO, the bldit_project.csh script will automatically replicate the CMAQ folder structure and copy every build and run script out of the repository so that you may modify them freely without version control.</p>
+<p>In bldit_project.csh, modify the variable $CMAQ_HOME to identify the folder that you would like to install the CMAQ package under. For example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nb">set</span> <span class="n">CMAQ_HOME</span> <span class="o">=</span> <span class="p">[</span><span class="n">your_install_path</span><span class="p">]</span><span class="o">/</span><span class="n">MPAS</span><span class="o">-</span><span class="n">CMAQ</span><span class="o">/</span><span class="n">CMAQ_5</span><span class="mf">.5</span>
+</pre></div>
+</div>
+<p>Now execute the script.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">./</span><span class="n">bldit_project</span><span class="o">.</span><span class="n">csh</span>
+</pre></div>
+</div>
+<section id="configuring-the-mpas-cmaq-build-environment">
+<h3>Configuring the MPAS-CMAQ Build Environment<a class="headerlink" href="#configuring-the-mpas-cmaq-build-environment" title="Link to this heading">#</a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="p">[</span><span class="n">your_install_path</span><span class="p">]</span><span class="o">/</span><span class="n">MPAS</span><span class="o">-</span><span class="n">CMAQ</span><span class="o">/</span><span class="n">CMAQ_5</span><span class="mf">.5</span><span class="o">/</span><span class="n">CCTM</span><span class="o">/</span><span class="n">scripts</span>
+<span class="c1"># note that the following environment variable has been uncommented in the bldit_cctm.csh: set build_mpas_cmaq</span>
+<span class="o">./</span><span class="n">bldit_cctm</span><span class="o">.</span><span class="n">csh</span> <span class="n">gcc</span> <span class="o">|&amp;</span> <span class="n">tee</span> <span class="o">./</span><span class="n">bldit_cctm</span><span class="o">.</span><span class="n">log</span>
+</pre></div>
+</div>
+</section>
+<section id="review-makefile-created-for-mpas-cmaq">
+<h3>Review Makefile created for MPAS-CMAQ<a class="headerlink" href="#review-makefile-created-for-mpas-cmaq" title="Link to this heading">#</a></h3>
+<p>Note that the config_cmaq.csh compiler settings are not utilized in the Makefile that is created by running the bldit_cctm.csh script.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="n">BLD_CCTM_v55_gcc_cracmm2_m3dry</span>
+<span class="n">vi</span> <span class="n">Makefile</span><span class="o">.</span><span class="n">mpas_cmaq</span>
+</pre></div>
+</div>
+<p>Successful execution of this script creates a BLD* directory with CMAQ code and a Makefile. The CMAQ code is now ready to be compiled as part of the MPAS model.</p>
+<p>If this step fails, please reach post on the <a class="reference external" href="https://forum.cmascenter.org/c/wrf-cmaq" rel="noreferrer" target="_blank">CMAS Forum <svg version="1.1" width="1.0em" height="1.0em" viewBox="0 0 16 16" aria-hidden="true" style="display: inline-block; vertical-align: middle; fill: currentColor;"><path d="M3.75 2h3.5a.75.75 0 0 1 0 1.5h-3.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-3.5a.75.75 0 0 1 1.5 0v3.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5C2 2.784 2.784 2 3.75 2Zm6.854-1h4.146a.25.25 0 0 1 .25.25v4.146a.25.25 0 0 1-.427.177L13.03 4.03 9.28 7.78a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042l3.75-3.75-1.543-1.543A.25.25 0 0 1 10.604 1Z"></path></svg></a>.</p>
+</section>
+<section id="change-directories-to-the-top-level-mpas-cmaq-directory">
+<h3>Change directories to the top level MPAS-CMAQ directory<a class="headerlink" href="#change-directories-to-the-top-level-mpas-cmaq-directory" title="Link to this heading">#</a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="o">/</span><span class="n">your</span><span class="o">-</span><span class="n">path</span><span class="o">/</span><span class="n">MPAS</span><span class="o">-</span><span class="n">CMAQ</span>
+</pre></div>
+</div>
+</section>
+<section id="download-mpas">
+<h3>Download MPAS<a class="headerlink" href="#download-mpas" title="Link to this heading">#</a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">clone</span> <span class="o">-</span><span class="n">b</span> <span class="n">MPAS7</span><span class="mf">.0</span> <span class="n">git</span><span class="nd">@github</span><span class="o">.</span><span class="n">com</span><span class="p">:</span><span class="n">USEPA</span><span class="o">/</span><span class="n">MPAS</span><span class="o">.</span><span class="n">git</span> <span class="n">MPAS</span>
+<span class="n">cd</span> <span class="n">MPAS</span>
+</pre></div>
+</div>
+</section>
+<section id="copy-the-cmaq-build-directory-from-the-previous-section-to-the-mpas-src-core-atmosphere-directory-and-re-name-it-cmaq">
+<h3>Copy the CMAQ build directory from the previous section to the MPAS src/core atmosphere directory and re-name it “cmaq.”<a class="headerlink" href="#copy-the-cmaq-build-directory-from-the-previous-section-to-the-mpas-src-core-atmosphere-directory-and-re-name-it-cmaq" title="Link to this heading">#</a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cp</span> <span class="o">-</span><span class="n">rp</span> <span class="o">../</span><span class="n">CMAQ_5</span><span class="mf">.5</span><span class="o">/</span><span class="n">CCTM</span><span class="o">/</span><span class="n">scripts</span><span class="o">/</span><span class="n">BLD_CCTM_v55_gcc_cracmm2_m3dry</span><span class="o">/</span> <span class="o">./</span><span class="n">src</span><span class="o">/</span><span class="n">core_atmosphere</span><span class="o">/</span><span class="n">cmaq</span>
+</pre></div>
+</div>
+</section>
+<section id="compile-mpas-cmaq">
+<h3>Compile MPAS-CMAQ<a class="headerlink" href="#compile-mpas-cmaq" title="Link to this heading">#</a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># return to the top level MPAS directory</span>
+<span class="n">cd</span> <span class="o">../</span><span class="n">MPAS</span>
+<span class="c1"># compile MPAS with CMAQ code</span>
+<span class="n">make</span> <span class="n">gfortran</span> <span class="n">CORE</span><span class="o">=</span><span class="n">atmosphere</span> <span class="n">USE_PIO2</span><span class="o">=</span><span class="n">true</span>
+</pre></div>
+</div>
+</section>
+<section id="examine-the-error-message">
+<h3>Examine the error message<a class="headerlink" href="#examine-the-error-message" title="Link to this heading">#</a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">************</span> <span class="n">ERROR</span> <span class="o">************</span>
+<span class="n">Failed</span> <span class="n">to</span> <span class="nb">compile</span> <span class="n">a</span> <span class="n">PIO</span> <span class="n">test</span> <span class="n">program</span>
+<span class="n">Please</span> <span class="n">ensure</span> <span class="n">the</span> <span class="n">PIO</span> <span class="n">environment</span> <span class="n">variable</span> <span class="ow">is</span> <span class="nb">set</span> <span class="n">to</span> <span class="n">the</span> <span class="n">PIO</span> <span class="n">installation</span> <span class="n">directory</span>
+<span class="o">************</span> <span class="n">ERROR</span> <span class="o">************</span>
+<span class="n">make</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span> <span class="o">***</span> <span class="p">[</span><span class="n">Makefile</span><span class="p">:</span><span class="mi">747</span><span class="p">:</span> <span class="n">pio_test</span><span class="p">]</span> <span class="n">Error</span> <span class="mi">1</span>
+<span class="n">make</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span> <span class="n">Leaving</span> <span class="n">directory</span> <span class="s1">&#39;/work/users/l/i/lizadams/MPAS-CMAQ/MPAS&#39;</span>
+<span class="n">make</span><span class="p">:</span> <span class="o">***</span> <span class="p">[</span><span class="n">Makefile</span><span class="p">:</span><span class="mi">214</span><span class="p">:</span> <span class="n">gfortran</span><span class="p">]</span> <span class="n">Error</span> <span class="mi">2</span>
+</pre></div>
+</div>
+</section>
+<section id="recommend-commending-out-lpio-from-the-makefile-at-line-462-and-setting-the-pio-environment-variable">
+<h3>Recommend commending out -lpio from the Makefile at line 462 and setting the PIO environment variable<a class="headerlink" href="#recommend-commending-out-lpio-from-the-makefile-at-line-462-and-setting-the-pio-environment-variable" title="Link to this heading">#</a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">vi</span> <span class="n">Makfile</span>
+<span class="c1"># comment out -lpio, as we only have -lpiof and -lpioc</span>
+<span class="c1">#       LIBS += -lpio</span>
+</pre></div>
+</div>
+<p>Set the following environment variable to allow the pio libraries to be found</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span> <span class="n">setenv</span> <span class="n">PIO</span> <span class="o">/</span><span class="n">work</span><span class="o">/</span><span class="n">users</span><span class="o">/</span><span class="n">l</span><span class="o">/</span><span class="n">i</span><span class="o">/</span><span class="n">lizadams</span><span class="o">/</span><span class="n">MPAS</span><span class="o">-</span><span class="n">CMAQ</span><span class="o">/</span><span class="n">build</span><span class="o">/</span><span class="n">LIBRARIES_gcc11</span><span class="mf">.4.1</span><span class="o">/</span>
+</pre></div>
+</div>
+</section>
+<section id="recompile-mpas">
+<h3>Recompile MPAS<a class="headerlink" href="#recompile-mpas" title="Link to this heading">#</a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">make</span> <span class="n">gfortran</span> <span class="n">CORE</span><span class="o">=</span><span class="n">atmosphere</span> <span class="n">USE_PIO2</span><span class="o">=</span><span class="n">true</span>
+</pre></div>
+</div>
+</section>
+<section id="examine-the-log-for-additional-errors">
+<h3>Examine the log for additional errors<a class="headerlink" href="#examine-the-log-for-additional-errors" title="Link to this heading">#</a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">***</span> <span class="n">No</span> <span class="n">compatible</span> <span class="n">version</span> <span class="n">of</span> <span class="n">WRF</span> <span class="n">physics</span> <span class="n">tables</span> <span class="n">found</span><span class="p">;</span> <span class="n">attempting</span> <span class="n">to</span> <span class="n">download</span> <span class="n">compatible</span> <span class="n">tables</span> <span class="o">***</span>
+<span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="nb">bin</span><span class="o">/</span><span class="n">git</span>
+<span class="o">***</span> <span class="n">Trying</span> <span class="n">git</span> <span class="n">to</span> <span class="n">obtain</span> <span class="n">WRF</span> <span class="n">physics</span> <span class="n">tables</span> <span class="o">***</span>
+<span class="n">Cloning</span> <span class="n">into</span> <span class="s1">&#39;MPAS-Data&#39;</span><span class="o">...</span>
+<span class="n">fatal</span><span class="p">:</span> <span class="n">unable</span> <span class="n">to</span> <span class="n">connect</span> <span class="n">to</span> <span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="p">:</span>
+</pre></div>
+</div>
+<p>Need to use ssh instead of https, follow these instructions to obtain the required files:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="n">MPAS</span><span class="o">/</span><span class="n">src</span><span class="o">/</span><span class="n">core_atmosphere</span><span class="o">/</span><span class="n">physics</span><span class="o">/</span><span class="n">physics_wrf</span><span class="o">/</span><span class="n">files</span>
+<span class="n">git</span> <span class="n">clone</span> <span class="o">--</span><span class="n">branch</span> <span class="n">v7</span><span class="mf">.0</span> <span class="o">-</span><span class="n">n</span> <span class="o">--</span><span class="n">depth</span><span class="o">=</span><span class="mi">1</span> <span class="o">--</span><span class="nb">filter</span><span class="o">=</span><span class="n">tree</span><span class="p">:</span><span class="mi">0</span> <span class="n">ssh</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">MPAS</span><span class="o">-</span><span class="n">Dev</span><span class="o">/</span><span class="n">MPAS</span><span class="o">-</span><span class="n">Data</span>
+<span class="n">cd</span> <span class="n">MPAS</span><span class="o">-</span><span class="n">Data</span>
+<span class="n">git</span> <span class="n">sparse</span><span class="o">-</span><span class="n">checkout</span> <span class="nb">set</span> <span class="o">--</span><span class="n">no</span><span class="o">-</span><span class="n">cone</span> <span class="o">/</span><span class="n">atmosphere</span><span class="o">/</span><span class="n">physics_wrf</span><span class="o">/</span><span class="n">files</span>
+<span class="n">git</span> <span class="n">checkout</span>
+<span class="n">mv</span> <span class="n">atmosphere</span><span class="o">/</span><span class="n">physics_wrf</span><span class="o">/</span><span class="n">files</span><span class="o">/*</span> <span class="o">../</span>
+</pre></div>
+</div>
+<p>Now the files should be available and the using VERSION number 7.0, so recompile MPAS-CMAQ</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">make</span> <span class="n">gfortran</span> <span class="n">CORE</span><span class="o">=</span><span class="n">atmosphere</span> <span class="n">USE_PIO2</span><span class="o">=</span><span class="n">true</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="next-error">
+<h2>next error<a class="headerlink" href="#next-error" title="Link to this heading">#</a></h2>
+<p>gfortran: error: unrecognized command-line option ‘-traceback’</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">#Edit the Makefile in the physics directory</span>
+<span class="n">vi</span> <span class="o">/</span><span class="n">work</span><span class="o">/</span><span class="n">users</span><span class="o">/</span><span class="n">l</span><span class="o">/</span><span class="n">i</span><span class="o">/</span><span class="n">lizadams</span><span class="o">/</span><span class="n">MPAS</span><span class="o">-</span><span class="n">CMAQ</span><span class="o">/</span><span class="n">MPAS</span><span class="o">/</span><span class="n">src</span><span class="o">/</span><span class="n">core_atmosphere</span><span class="o">/</span><span class="n">physics</span><span class="o">/</span><span class="n">Makefile</span>
+<span class="c1">#replace -traceback with -fbacktrace</span>
+</pre></div>
+</div>
+<section id="recompile">
+<h3>Recompile<a class="headerlink" href="#recompile" title="Link to this heading">#</a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">make</span> <span class="n">gfortran</span> <span class="n">CORE</span><span class="o">=</span><span class="n">atmosphere</span> <span class="n">USE_PIO2</span><span class="o">=</span><span class="n">true</span>
+</pre></div>
+</div>
+</section>
+<section id="another-error">
+<h3>Another error<a class="headerlink" href="#another-error" title="Link to this heading">#</a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>Error: BOZ literal constant at (1) is neither a data-stmt-constant nor an actual argument to INT, REAL, DBLE, or CMPLX intrinsic function [see ‘-fno-allow-invalid-boz’]
+</pre></div>
+</div>
+<p>Edit the Makefile to add the option -fallow-invalid-boz</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">vi</span> <span class="n">MPAS</span><span class="o">/</span><span class="n">Makefile</span>
+<span class="c1">#add the following option</span>
+<span class="o">-</span><span class="n">fallow</span><span class="o">-</span><span class="n">invalid</span><span class="o">-</span><span class="n">boz</span>
+<span class="s2">&quot;FFLAGS_OPT = -O3 -m64 -ffree-line-length-none -fconvert=big-endian -ffree-form -fallow-invalid-boz -fallow-argument-mismatch&quot;</span>
+</pre></div>
+</div>
+</section>
+<section id="id1">
+<h3>Another error<a class="headerlink" href="#id1" title="Link to this heading">#</a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">module_sf_pxlsm</span><span class="o">.</span><span class="n">F</span><span class="p">:</span><span class="mi">430</span><span class="p">:</span><span class="mi">34</span><span class="p">:</span>
+
+  <span class="mi">430</span> <span class="o">|</span>       <span class="n">READ</span><span class="p">(</span><span class="n">ANAL_INTERVALC</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="mi">2</span><span class="p">),</span><span class="s1">&#39;(i)&#39;</span><span class="p">)</span> <span class="n">HH</span>
+      <span class="o">|</span>                                  <span class="mi">1</span>
+<span class="n">Error</span><span class="p">:</span> <span class="n">Nonnegative</span> <span class="n">width</span> <span class="n">required</span> <span class="ow">in</span> <span class="nb">format</span> <span class="n">string</span> <span class="n">at</span> <span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">module_sf_pxlsm</span><span class="o">.</span><span class="n">F</span><span class="p">:</span><span class="mi">431</span><span class="p">:</span><span class="mi">34</span><span class="p">:</span>
+
+  <span class="mi">431</span> <span class="o">|</span>       <span class="n">READ</span><span class="p">(</span><span class="n">ANAL_INTERVALC</span><span class="p">(</span><span class="mi">4</span><span class="p">:</span><span class="mi">5</span><span class="p">),</span><span class="s1">&#39;(i)&#39;</span><span class="p">)</span> <span class="n">MM</span>
+      <span class="o">|</span>                                  <span class="mi">1</span>
+<span class="n">Error</span><span class="p">:</span> <span class="n">Nonnegative</span> <span class="n">width</span> <span class="n">required</span> <span class="ow">in</span> <span class="nb">format</span> <span class="n">string</span> <span class="n">at</span> <span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">module_sf_pxlsm</span><span class="o">.</span><span class="n">F</span><span class="p">:</span><span class="mi">432</span><span class="p">:</span><span class="mi">34</span><span class="p">:</span>
+
+  <span class="mi">432</span> <span class="o">|</span>       <span class="n">READ</span><span class="p">(</span><span class="n">ANAL_INTERVALC</span><span class="p">(</span><span class="mi">7</span><span class="p">:</span><span class="mi">8</span><span class="p">),</span><span class="s1">&#39;(i)&#39;</span><span class="p">)</span> <span class="n">SS</span>
+      <span class="o">|</span>                                  <span class="mi">1</span>
+<span class="n">Error</span><span class="p">:</span> <span class="n">Nonnegative</span> <span class="n">width</span> <span class="n">required</span> <span class="ow">in</span> <span class="nb">format</span> <span class="n">string</span> <span class="n">at</span> <span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="change-the-format-i-to-i2">
+<h3>change the format i to i2:<a class="headerlink" href="#change-the-format-i-to-i2" title="Link to this heading">#</a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>
+      ! New MPAS Code. Convert MPAS Char string of soilndg interval to
+      READ(ANAL_INTERVALC(1:2),&#39;(i2)&#39;) HH
+      READ(ANAL_INTERVALC(4:5),&#39;(i2)&#39;) MM
+      READ(ANAL_INTERVALC(7:8),&#39;(i2)&#39;) SS
+      ANAL_INTERVAL = (HH * 3600) + (MM * 60) + (SS)
+</pre></div>
+</div>
+<p>see https://stackoverflow.com/questions/11037954/error-nonnegative-width-required-in-format-string-at-1</p>
+</section>
+<section id="error">
+<h3>Error<a class="headerlink" href="#error" title="Link to this heading">#</a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">mio_gather_data_mod</span><span class="o">.</span><span class="n">F90</span><span class="p">:</span><span class="mi">1100</span><span class="p">:</span><span class="mi">34</span><span class="p">:</span>
+
+ <span class="mi">1080</span> <span class="o">|</span>                    <span class="n">call</span> <span class="n">mpi_recv</span> <span class="p">(</span><span class="n">who</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">mpi_integer</span><span class="p">,</span> <span class="n">mpi_any_source</span><span class="p">,</span>    <span class="o">&amp;</span>
+      <span class="o">|</span>                                  <span class="mi">2</span>
+<span class="o">......</span>
+ <span class="mi">1100</span> <span class="o">|</span>                    <span class="n">call</span> <span class="n">mpi_recv</span> <span class="p">(</span><span class="n">recv_buf</span><span class="p">,</span> <span class="n">recv_size</span><span class="p">,</span> <span class="n">mpi_int</span><span class="p">,</span> <span class="n">who</span><span class="p">,</span>      <span class="o">&amp;</span>
+      <span class="o">|</span>                                  <span class="mi">1</span>
+<span class="n">Error</span><span class="p">:</span> <span class="n">Rank</span> <span class="n">mismatch</span> <span class="n">between</span> <span class="n">actual</span> <span class="n">argument</span> <span class="n">at</span> <span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="ow">and</span> <span class="n">actual</span> <span class="n">argument</span> <span class="n">at</span> <span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="p">(</span><span class="n">scalar</span> <span class="ow">and</span> <span class="n">rank</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># add the following option to the makefile</span>
+<span class="o">-</span><span class="n">fallow</span><span class="o">-</span><span class="n">argument</span><span class="o">-</span><span class="n">mismatch</span>
+<span class="n">cd</span> <span class="o">./</span><span class="n">src</span><span class="o">/</span><span class="n">core_atmosphere</span><span class="o">/</span><span class="n">cmaq</span><span class="o">/</span>
+<span class="n">vi</span> <span class="n">Makefile</span>
+
+ <span class="n">FSTD</span> <span class="o">=</span> <span class="o">-</span><span class="n">O3</span> <span class="o">-</span><span class="n">funroll</span><span class="o">-</span><span class="n">loops</span> <span class="o">-</span><span class="n">finit</span><span class="o">-</span><span class="n">character</span><span class="o">=</span><span class="mi">32</span> <span class="o">-</span><span class="n">Wtabs</span> <span class="o">-</span><span class="n">Wsurprising</span> <span class="o">-</span><span class="n">ftree</span><span class="o">-</span><span class="n">vectorize</span> <span class="o">-</span><span class="n">ftree</span><span class="o">-</span><span class="n">loop</span><span class="o">-</span><span class="k">if</span><span class="o">-</span><span class="n">convert</span> <span class="o">-</span><span class="n">finline</span><span class="o">-</span><span class="n">limit</span><span class="o">=</span><span class="mi">512</span> <span class="o">-</span><span class="n">fallow</span><span class="o">-</span><span class="n">argument</span><span class="o">-</span><span class="n">mismatch</span>
+ <span class="n">DBG</span>  <span class="o">=</span> <span class="o">-</span><span class="n">Wall</span> <span class="o">-</span><span class="n">O0</span> <span class="o">-</span><span class="n">g</span> <span class="o">-</span><span class="n">fcheck</span><span class="o">=</span><span class="nb">all</span> <span class="o">-</span><span class="n">ffpe</span><span class="o">-</span><span class="n">trap</span><span class="o">=</span><span class="n">invalid</span><span class="p">,</span><span class="n">zero</span><span class="p">,</span><span class="n">overflow</span> <span class="o">-</span><span class="n">fbacktrace</span> <span class="o">-</span><span class="n">fallow</span><span class="o">-</span><span class="n">argument</span><span class="o">-</span><span class="n">mismatch</span>
+</pre></div>
+</div>
+</section>
+<section id="id2">
+<h3>Error<a class="headerlink" href="#id2" title="Link to this heading">#</a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>mpif90 -O3 -m64 -o atmosphere_model driver/*.o -L. -ldycore -lops -lframework -L/work/users/l/i/lizadams/MPAS-CMAQ/build/LIBRARIES_gcc11.4.1//lib -lpiof -lpioc -I./external/esmf_time_f90 -L./external/esmf_time_f90 -lesmf_time
+/usr/bin/ld: ./libdycore.a(mio_fcreate_mod.o): in function `__mio_fcreate_module_MOD_mio_fcreate&#39;:
+mio_fcreate_mod.F90:(.text+0x240d): undefined reference to `__netcdf_MOD_nf90_create&#39;
+/usr/bin/ld: mio_fcreate_mod.F90:(.text+0x2549): undefined reference to `__netcdf_MOD_nf90_strerror&#39;
+</pre></div>
+</div>
+<p>Add the missing libraries to the end of the link statement:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="n">MPAS</span><span class="o">/</span><span class="n">src</span>
+<span class="n">vi</span> <span class="n">Makefile</span>
+<span class="n">add</span> <span class="n">the</span> <span class="n">following</span> <span class="n">libraries</span> <span class="n">to</span> <span class="n">the</span> <span class="n">end</span> <span class="n">of</span> <span class="n">the</span> <span class="nb">compile</span> <span class="n">command</span> <span class="p">(</span><span class="n">need</span> <span class="n">to</span> <span class="n">figure</span> <span class="n">out</span> <span class="n">where</span> <span class="n">to</span> <span class="n">add</span> <span class="n">these</span> <span class="n">options</span> <span class="n">to</span> <span class="n">the</span> <span class="n">Makefile</span><span class="p">)</span>
+<span class="o">-</span><span class="n">lnetcdf</span> <span class="o">-</span><span class="n">lnetcdff</span> <span class="o">-</span><span class="n">lhdf5_hl</span> <span class="o">-</span><span class="n">lhdf5</span> <span class="o">-</span><span class="n">ll</span><span class="p">:</span><span class="n">libz</span><span class="o">.</span><span class="n">a</span> <span class="o">-</span><span class="n">lpnetcdf</span> <span class="o">-</span><span class="n">lnetcdf</span>
+</pre></div>
+</div>
+</section>
+<section id="verify-that-you-have-created-the-executable">
+<h3>Verify that you have created the executable<a class="headerlink" href="#verify-that-you-have-created-the-executable" title="Link to this heading">#</a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ls</span> <span class="o">-</span><span class="n">rlt</span> <span class="n">atmosphere_model</span>
+<span class="o">-</span><span class="n">rwxrwxr</span><span class="o">-</span><span class="n">x</span> <span class="mi">1</span> <span class="n">lizadams</span> <span class="n">rc_cep</span><span class="o">-</span><span class="n">emc_psx</span> <span class="mi">157259272</span> <span class="n">Jan</span> <span class="mi">30</span> <span class="mi">18</span><span class="p">:</span><span class="mi">37</span> <span class="n">atmosphere_model</span>
+</pre></div>
+</div>
+</section>
+<section id="install-the-mpas-cmaq-reference-input-benchmark-data-using-the-aws-command-line">
+<h3>Install the MPAS-CMAQ reference input benchmark data using the aws command line<a class="headerlink" href="#install-the-mpas-cmaq-reference-input-benchmark-data-using-the-aws-command-line" title="Link to this heading">#</a></h3>
+<p><a href="https://mpas-cmaq.s3.amazonaws.com/index.html">MPAS-CMAQ S3 Bucket</a></p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="o">/</span><span class="n">your</span><span class="o">-</span><span class="n">path</span><span class="o">/</span><span class="n">MPAS</span><span class="o">-</span><span class="n">CMAQ</span>
+<span class="c1"># note remove the --dryrun command from the following line after you have tested the following script</span>
+<span class="n">aws</span> <span class="n">s3</span> <span class="o">--</span><span class="n">no</span><span class="o">-</span><span class="n">sign</span><span class="o">-</span><span class="n">request</span> <span class="n">cp</span> <span class="o">--</span><span class="n">recursive</span> <span class="o">--</span><span class="n">region</span><span class="o">=</span><span class="n">us</span><span class="o">-</span><span class="n">east</span><span class="o">-</span><span class="mi">1</span> <span class="o">--</span><span class="n">dryrun</span> <span class="n">s3</span><span class="p">:</span><span class="o">//</span><span class="n">mpas</span><span class="o">-</span><span class="n">cmaq</span><span class="o">/</span><span class="mi">120</span><span class="n">_uniform</span> <span class="o">./</span><span class="mi">120</span><span class="n">_uniform</span>
+<span class="c1"># This will obtain both the mpas_inputs and cmas_inputs folders</span>
+
+</pre></div>
+</div>
+<p>The input files for the MPAS-CMAQ benchmark case are provided in the 120_uniform directory . Output MPAS-CMAQ files associated with the sample run script for the coupled MPAS-CMAQ model in this release package are also available.</p>
+</section>
+</section>
+<section id="link-input-files">
+<h2>Link input files<a class="headerlink" href="#link-input-files" title="Link to this heading">#</a></h2>
+<p>It may be helpful aggregate all input  les into a common directory by linking to their full paths.  mkdir links</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="n">links</span>
+<span class="n">ln</span> <span class="o">-</span><span class="n">s</span> <span class="p">[</span><span class="n">full</span><span class="o">/</span><span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">mpas_inputs</span><span class="o">/*</span><span class="p">]</span> <span class="o">.</span>
+<span class="n">ln</span> <span class="o">-</span><span class="n">s</span> <span class="p">[</span><span class="n">full</span><span class="o">/</span><span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">cmaq_inputs</span><span class="o">/</span><span class="n">emissions</span><span class="o">/</span><span class="n">one_day</span><span class="o">/*</span><span class="p">]</span> <span class="o">.</span>
+<span class="n">ln</span> <span class="o">-</span><span class="n">s</span> <span class="p">[</span><span class="n">full</span><span class="o">/</span><span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">//</span><span class="n">cmaq_inputs</span><span class="o">/</span><span class="n">other</span><span class="o">/*</span><span class="p">]</span> <span class="o">.</span>
+</pre></div>
+</div>
+</section>
+<section id="running-the-mpas-cmaq-model">
+<h2>Running the MPAS-CMAQ model<a class="headerlink" href="#running-the-mpas-cmaq-model" title="Link to this heading">#</a></h2>
+<p>One sample run scripts is provided (MPAS/run/run.csh)</p>
+<p>Edit the slurm optins for your machine</p>
+<p>Edit the run script</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>    <span class="n">cd</span> <span class="n">MPAS</span><span class="o">/</span><span class="n">run</span><span class="o">/</span>
+    <span class="n">vi</span> <span class="n">run</span><span class="o">.</span><span class="n">csh</span>
+</pre></div>
+</div>
+<p>Change end date to run for two days</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span> <span class="nb">set</span> <span class="n">START_DATE</span> <span class="o">=</span> <span class="s2">&quot;2017-01-01&quot;</span>     <span class="c1">#&gt; beginning date (Jan 1, 2017)</span>
+ <span class="nb">set</span> <span class="n">END_DATE</span>   <span class="o">=</span> <span class="s2">&quot;2017-01-02&quot;</span>     <span class="c1">#&gt; ending date    (Jan 2, 2017)</span>
+</pre></div>
+</div>
+<p>Modify the following section to specify your local paths:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>    <span class="nb">set</span> <span class="n">input_path</span>        <span class="o">=</span> <span class="o">/</span><span class="n">your</span><span class="o">-</span><span class="n">path</span><span class="o">/</span><span class="n">MPAS</span><span class="o">-</span><span class="n">CMAQ</span><span class="o">/</span><span class="n">MPAS</span><span class="o">/</span><span class="n">links</span>
+    <span class="nb">set</span> <span class="n">MPAS_path_output</span>    <span class="o">=</span> <span class="o">/</span><span class="n">your</span><span class="o">-</span><span class="n">path</span><span class="o">/</span><span class="n">MPAS</span><span class="o">-</span><span class="n">CMAQ</span><span class="o">/</span><span class="n">MPAS</span><span class="o">/</span><span class="n">output_retest</span>
+</pre></div>
+</div>
+<p>Set the number of processors to run MPAS-CMAQ</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>    <span class="n">setenv</span> <span class="n">NPROCS</span> <span class="mi">24</span>
+</pre></div>
+</div>
+<p>Load the environment modules</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>    <span class="n">module</span> <span class="n">load</span> <span class="n">openmpi_5</span><span class="mf">.0.5</span><span class="o">/</span><span class="n">gcc_11</span><span class="mf">.4.1</span>  <span class="n">mpas</span><span class="o">-</span><span class="n">cmaq</span><span class="o">-</span><span class="n">iolib</span><span class="o">/</span><span class="n">gcc</span><span class="o">-</span><span class="mf">11.4.1</span>
+</pre></div>
+</div>
+<p>Submit the job to the slurm queue</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>  <span class="n">sbatch</span> <span class="n">run</span><span class="o">.</span><span class="n">csh</span>
+</pre></div>
+</div>
+<section id="verify-that-the-run-was-successful">
+<h3>Verify that the run was successful<a class="headerlink" href="#verify-that-the-run-was-successful" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>look for the output directory</p></li>
+</ul>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="o">../</span><span class="n">output</span>
+</pre></div>
+</div>
+<p>If the run was successful you will see the following output, with the log files saved in the 20170101 directory</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">-</span><span class="n">rw</span><span class="o">-</span><span class="n">rw</span><span class="o">-</span><span class="n">r</span><span class="o">--</span> <span class="mi">1</span> <span class="n">lizadams</span> <span class="n">rc_cep</span><span class="o">-</span><span class="n">emc_psx</span>        <span class="mi">2917</span> <span class="n">Nov</span> <span class="mi">20</span> <span class="mi">04</span><span class="p">:</span><span class="mi">33</span> <span class="n">namelist</span><span class="o">.</span><span class="n">atmosphere</span>
+<span class="o">-</span><span class="n">rw</span><span class="o">-</span><span class="n">rw</span><span class="o">-</span><span class="n">r</span><span class="o">--</span> <span class="mi">1</span> <span class="n">lizadams</span> <span class="n">rc_cep</span><span class="o">-</span><span class="n">emc_psx</span>    <span class="mi">87014088</span> <span class="n">Nov</span> <span class="mi">20</span> <span class="mi">05</span><span class="p">:</span><span class="mi">00</span> <span class="n">diag</span><span class="mf">.2017</span><span class="o">-</span><span class="mi">01</span><span class="o">-</span><span class="mf">01.</span><span class="n">nc</span>
+<span class="o">-</span><span class="n">rw</span><span class="o">-</span><span class="n">rw</span><span class="o">-</span><span class="n">r</span><span class="o">--</span> <span class="mi">1</span> <span class="n">lizadams</span> <span class="n">rc_cep</span><span class="o">-</span><span class="n">emc_psx</span> <span class="mi">56977988792</span> <span class="n">Nov</span> <span class="mi">20</span> <span class="mi">05</span><span class="p">:</span><span class="mi">07</span> <span class="n">history</span><span class="mf">.2017</span><span class="o">-</span><span class="mi">01</span><span class="o">-</span><span class="mf">01.</span><span class="n">nc</span>
+<span class="o">-</span><span class="n">rw</span><span class="o">-</span><span class="n">rw</span><span class="o">-</span><span class="n">r</span><span class="o">--</span> <span class="mi">1</span> <span class="n">lizadams</span> <span class="n">rc_cep</span><span class="o">-</span><span class="n">emc_psx</span>   <span class="mi">554322016</span> <span class="n">Nov</span> <span class="mi">20</span> <span class="mi">05</span><span class="p">:</span><span class="mi">07</span> <span class="n">CCTM_EMIS_DIAG_20170101</span><span class="o">.</span><span class="n">nc</span>
+<span class="o">-</span><span class="n">rw</span><span class="o">-</span><span class="n">rw</span><span class="o">-</span><span class="n">r</span><span class="o">--</span> <span class="mi">1</span> <span class="n">lizadams</span> <span class="n">rc_cep</span><span class="o">-</span><span class="n">emc_psx</span>   <span class="mi">527939604</span> <span class="n">Nov</span> <span class="mi">20</span> <span class="mi">05</span><span class="p">:</span><span class="mi">07</span> <span class="n">CCTM_OUT20170101</span><span class="o">.</span><span class="n">nc</span>
+<span class="o">-</span><span class="n">rw</span><span class="o">-</span><span class="n">rw</span><span class="o">-</span><span class="n">r</span><span class="o">--</span> <span class="mi">1</span> <span class="n">lizadams</span> <span class="n">rc_cep</span><span class="o">-</span><span class="n">emc_psx</span>    <span class="mi">40311788</span> <span class="n">Nov</span> <span class="mi">20</span> <span class="mi">05</span><span class="p">:</span><span class="mi">07</span> <span class="n">CCTM_SOILOUT_20170101</span><span class="o">.</span><span class="n">nc</span>
+<span class="o">-</span><span class="n">rw</span><span class="o">-</span><span class="n">rw</span><span class="o">-</span><span class="n">r</span><span class="o">--</span> <span class="mi">1</span> <span class="n">lizadams</span> <span class="n">rc_cep</span><span class="o">-</span><span class="n">emc_psx</span>    <span class="mi">31299892</span> <span class="n">Nov</span> <span class="mi">20</span> <span class="mi">05</span><span class="p">:</span><span class="mi">07</span> <span class="n">CCTM_BDSNPOUT_20170101</span><span class="o">.</span><span class="n">nc</span>
+<span class="o">-</span><span class="n">rw</span><span class="o">-</span><span class="n">rw</span><span class="o">-</span><span class="n">r</span><span class="o">--</span> <span class="mi">1</span> <span class="n">lizadams</span> <span class="n">rc_cep</span><span class="o">-</span><span class="n">emc_psx</span>   <span class="mi">199418764</span> <span class="n">Nov</span> <span class="mi">20</span> <span class="mi">05</span><span class="p">:</span><span class="mi">08</span> <span class="n">CCTM_BDSNPDIAG_20170101</span><span class="o">.</span><span class="n">nc</span>
+<span class="o">-</span><span class="n">rw</span><span class="o">-</span><span class="n">rw</span><span class="o">-</span><span class="n">r</span><span class="o">--</span> <span class="mi">1</span> <span class="n">lizadams</span> <span class="n">rc_cep</span><span class="o">-</span><span class="n">emc_psx</span>  <span class="mi">6613956148</span> <span class="n">Nov</span> <span class="mi">20</span> <span class="mi">05</span><span class="p">:</span><span class="mi">09</span> <span class="n">restart</span><span class="mf">.2017</span><span class="o">-</span><span class="mi">01</span><span class="o">-</span><span class="mf">02_00.00.00</span><span class="o">.</span><span class="n">nc</span>
+<span class="o">-</span><span class="n">rw</span><span class="o">-</span><span class="n">rw</span><span class="o">-</span><span class="n">r</span><span class="o">--</span> <span class="mi">1</span> <span class="n">lizadams</span> <span class="n">rc_cep</span><span class="o">-</span><span class="n">emc_psx</span>  <span class="mi">2529702504</span> <span class="n">Nov</span> <span class="mi">20</span> <span class="mi">05</span><span class="p">:</span><span class="mi">09</span> <span class="n">history</span><span class="mf">.2017</span><span class="o">-</span><span class="mi">01</span><span class="o">-</span><span class="mf">02.</span><span class="n">nc</span>
+<span class="o">-</span><span class="n">rw</span><span class="o">-</span><span class="n">rw</span><span class="o">-</span><span class="n">r</span><span class="o">--</span> <span class="mi">1</span> <span class="n">lizadams</span> <span class="n">rc_cep</span><span class="o">-</span><span class="n">emc_psx</span>    <span class="mi">29011864</span> <span class="n">Nov</span> <span class="mi">20</span> <span class="mi">05</span><span class="p">:</span><span class="mi">09</span> <span class="n">diag</span><span class="mf">.2017</span><span class="o">-</span><span class="mi">01</span><span class="o">-</span><span class="mf">02.</span><span class="n">nc</span>
+<span class="o">-</span><span class="n">rw</span><span class="o">-</span><span class="n">rw</span><span class="o">-</span><span class="n">r</span><span class="o">--</span> <span class="mi">1</span> <span class="n">lizadams</span> <span class="n">rc_cep</span><span class="o">-</span><span class="n">emc_psx</span>          <span class="mi">21</span> <span class="n">Nov</span> <span class="mi">20</span> <span class="mi">05</span><span class="p">:</span><span class="mi">09</span> <span class="n">restart_timestamp</span>
+<span class="o">-</span><span class="n">rw</span><span class="o">-</span><span class="n">rw</span><span class="o">-</span><span class="n">r</span><span class="o">--</span> <span class="mi">1</span> <span class="n">lizadams</span> <span class="n">rc_cep</span><span class="o">-</span><span class="n">emc_psx</span>        <span class="mi">2385</span> <span class="n">Nov</span> <span class="mi">20</span> <span class="mi">05</span><span class="p">:</span><span class="mi">09</span> <span class="n">CCTM_BUDGET_APPL</span><span class="o">.</span><span class="n">txt</span>
+<span class="n">drwxrwxr</span><span class="o">-</span><span class="n">x</span> <span class="mi">2</span> <span class="n">lizadams</span> <span class="n">rc_cep</span><span class="o">-</span><span class="n">emc_psx</span>        <span class="mi">8393</span> <span class="n">Nov</span> <span class="mi">20</span> <span class="mi">05</span><span class="p">:</span><span class="mi">09</span> <span class="mi">20170101</span>
+
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="n">MPAS</span><span class="o">-</span><span class="n">CMAQ</span><span class="o">/</span><span class="n">MPAS</span><span class="o">/</span><span class="n">output_288_36x8</span><span class="o">/</span><span class="mi">20170101</span>
+<span class="n">tail</span> <span class="o">-</span><span class="n">n</span> <span class="mi">5</span> <span class="n">CTM_LOG_000</span>
+
+     <span class="n">After</span> <span class="n">NEXTIME</span><span class="p">:</span> <span class="n">returned</span> <span class="n">JDATE</span><span class="p">,</span> <span class="n">JTIME</span> <span class="mi">2017001</span> <span class="mi">235230</span>
+            <span class="n">Master</span> <span class="n">Time</span> <span class="n">Step</span>
+            <span class="n">Processing</span> <span class="n">completed</span><span class="o">...</span>       <span class="mf">3.8486</span> <span class="n">seconds</span>
+
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">tail</span> <span class="o">-</span><span class="n">n</span> <span class="mi">8</span> <span class="n">log</span><span class="o">.</span><span class="n">atmosphere</span><span class="mf">.0000</span><span class="o">.</span><span class="n">out</span>
+
+ <span class="o">-----------------------------------------</span>
+ <span class="n">Total</span> <span class="n">log</span> <span class="n">messages</span> <span class="n">printed</span><span class="p">:</span>
+    <span class="n">Output</span> <span class="n">messages</span> <span class="o">=</span>                <span class="mi">57411</span>
+    <span class="ne">Warning</span> <span class="n">messages</span> <span class="o">=</span>                 <span class="mi">197</span>
+    <span class="n">Error</span> <span class="n">messages</span> <span class="o">=</span>                     <span class="mi">0</span>
+    <span class="n">Critical</span> <span class="n">error</span> <span class="n">messages</span> <span class="o">=</span>            <span class="mi">0</span>
+ <span class="o">-----------------------------------------</span>
+ <span class="n">Logging</span> <span class="n">complete</span><span class="o">.</span>  <span class="n">Closing</span> <span class="n">file</span> <span class="n">at</span> <span class="mi">2024</span><span class="o">/</span><span class="mi">11</span><span class="o">/</span><span class="mi">20</span> <span class="mi">05</span><span class="p">:</span><span class="mi">09</span><span class="p">:</span><span class="mi">20</span>
+</pre></div>
+</div>
+</section>
+<section id="compare-the-output-to-what-is-available-on-the-s3-bucket">
+<h3>Compare the output to what is available on the S3 bucket<a class="headerlink" href="#compare-the-output-to-what-is-available-on-the-s3-bucket" title="Link to this heading">#</a></h3>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>```
+ cd $CMAQ_DATA
+ wget  https://mpas-cmaq.s3.amazonaws.com/output/MPAS-CMAQ.120km_uniform_grid_gcc_output_288_36x8.tar.gz
+ tar xvzf  MPAS-CMAQ.120km_uniform_grid_gcc_output_288_36x8.tar.gz
+ ```
+</pre></div>
+</div>
+</section>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#install-the-mpas-cmaq-i-o-libraries-using-the-gcc-11-4-1-compiler">Install the MPAS-CMAQ I/O Libraries using the GCC 11.4.1 compiler</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#create-directory-for-libraries">Create directory for libraries</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#obtain-and-run-libraries-install-script">Obtain and run libraries install script</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#review-the-log-file-to-verify-that-the-libraries-were-installed-successfully">Review the log file to verify that the libraries were installed successfully</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#verify-the-libraries-are-installed">Verify the libraries are installed</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#configure-private-environment-modules">Configure Private Environment Modules</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#add-the-following-command-to-your-cshrc-then-logout-and-log-back-in">Add the following command to your .cshrc, then logout and log back in.</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#load-private-environment-modules">Load Private Environment Modules</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#build-mpas-cmaq-these-instructions-follow-the-mpas-cmaq-user-manual">Build MPAS-CMAQ - these instructions follow the MPAS-CMAQ User Manual</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#clone-the-mpas-cmaq-branch-from-the-usepa-github-repository">Clone the MPAS-CMAQ Branch from the USEPA GitHub Repository</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#building-and-running-in-a-user-specified-directory-outside-of-the-repository">Building and running in a user-specified directory outside of the repository</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#configuring-the-mpas-cmaq-build-environment">Configuring the MPAS-CMAQ Build Environment</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#review-makefile-created-for-mpas-cmaq">Review Makefile created for MPAS-CMAQ</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#change-directories-to-the-top-level-mpas-cmaq-directory">Change directories to the top level MPAS-CMAQ directory</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#download-mpas">Download MPAS</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#copy-the-cmaq-build-directory-from-the-previous-section-to-the-mpas-src-core-atmosphere-directory-and-re-name-it-cmaq">Copy the CMAQ build directory from the previous section to the MPAS src/core atmosphere directory and re-name it “cmaq.”</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compile-mpas-cmaq">Compile MPAS-CMAQ</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#examine-the-error-message">Examine the error message</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#recommend-commending-out-lpio-from-the-makefile-at-line-462-and-setting-the-pio-environment-variable">Recommend commending out -lpio from the Makefile at line 462 and setting the PIO environment variable</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#recompile-mpas">Recompile MPAS</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#examine-the-log-for-additional-errors">Examine the log for additional errors</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#next-error">next error</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#recompile">Recompile</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#another-error">Another error</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">Another error</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#change-the-format-i-to-i2">change the format i to i2:</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#error">Error</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id2">Error</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#verify-that-you-have-created-the-executable">Verify that you have created the executable</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#install-the-mpas-cmaq-reference-input-benchmark-data-using-the-aws-command-line">Install the MPAS-CMAQ reference input benchmark data using the aws command line</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#link-input-files">Link input files</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#running-the-mpas-cmaq-model">Running the MPAS-CMAQ model</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#verify-that-the-run-was-successful">Verify that the run was successful</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compare-the-output-to-what-is-available-on-the-s3-bucket">Compare the output to what is available on the S3 bucket</a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>
