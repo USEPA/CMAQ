@@ -6,7 +6,7 @@ CSV2NML and NML2CSV are used to convert the species definition files from CSV fo
 
 #### CSV2NML input files & NML2CSV output files
 
-Detailed descriptions of the formats of the files shown in [Table 3-4](../../DOCS/Users_Guide/CMAQ_UG_ch04_model_inputs.md#Table3-4) are provided in [Chapter 4](../../DOCS/Users_Guide/CMAQ_UG_ch04_model_inputs.md#Table3-4). 
+Detailed descriptions of the formats of the files shown in [Table 4-1](../../DOCS/Users_Guide/CMAQ_UG_ch04_model_inputs.md#Table4-1) are provided in [Chapter 4](../../DOCS/Users_Guide/CMAQ_UG_ch04_model_inputs.md#Table4-1). 
 
 <a id=Table1></a>
 
