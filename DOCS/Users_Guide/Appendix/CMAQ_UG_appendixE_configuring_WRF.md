@@ -41,11 +41,7 @@ in layer k rather than wind speed difference between layer k and ksrc.
 * **[Section from WRFv3.7 Technical Documentation related to air quality modeling](http://www2.mmm.ucar.edu/wrf/users/docs/PX-ACM.pdf):** This 8 page pdf provides description and procedures for using the Pleim-Xiu LSM, ACM2 PBL and Pleim Surface Layer Scheme in WRF including best practices and namelist options.
 
 ## E.6 WRF with lightning assimilation 
-* **[WRF with Lightning Assimilation User's Guide](https://wcms.epa.gov/sites/production/files/2017-02/documents/wrf_with_ltga_userguide.pdf):** This 3 page pdf describes how to run WRF with the lightning assimilation technique described in Heath et al. (2016). 
-The assimilation method uses gridded lightning data to trigger and suppress sub-grid deep convection in Kain-Fritsch. 
-The gridded lightning data (variable name is ‘LNT’) is read in through auxinput8. The lightning data is grouped into 
-30-min intervals and treated as simple zeros (no lightning) or ones (lightning) for the assimilation method. 
-All of the necessary code modifications and data are described in the document.
+* EPA typically runs WRF simulations using a Lightning Assimilation method described in Heath et al. (2016) and Kang et al. (2022).  The assimilation method uses gridded lightning data to trigger and suppress sub-grid deep convection in WRF's Kain-Fritsch scheme.  For information on the WRF code modifications and required data files please contact [Daiwen Kang](mailto:kang.daiwen@epa.gov), U.S. Environmental Protection Agency.
 
 * **[WRF with Lightning Assimilation Code](https://wcms.epa.gov/sites/production/files/2017-02/ltgda_wrf_16feb2017.zip):** This .zip file (ltgda_wrf_16feb2017.zip; 220K) contains the registry and FORTRAN files with the updates needed to run WRF with lightning assimilation, as well as a generic Python script to grid lightning data to your WRF domain.
 
@@ -73,9 +69,7 @@ Heath, N. K., J. E. Pleim, R. C. Gilliam, & D. Kang (2016). A simple lightning a
 
 Gilliam, R. C., Herwehe, J. A., Bullock, Jr, O. R., Pleim, J. E., Ran, L., Campbell, P. C., & Foroutan, H. (2021). Establishing the suitability of the model for prediction across scales for global retrospective air quality modeling. Journal of Geophysical Research: Atmospheres, 126, e2020JD033588. https://doi.org/10.1029/2020JD033588
 
-Kang, D., Heath, N., Gilliam, R., Spero, T., and Pleim, J.: Lightning Assimilation in the Weather Research and Forecasting (WRF) Model Version 4.1.1: Technique Updates and Assessment of the Applications from Regional to Hemispheric Scales, EGUsphere [preprint], https://doi.org/10.5194/egusphere-2022-348, 2022.
-
-
+Kang, D., H. K. Heath, R. C. Gilliam, T. L. Spero, and J. E. Pleim (2022), Lightning assimilation in the WRF model (Version 4.1. 1): technique updates and assessment of the applications from regional to hemispheric scales, Geosci. Model Dev., 15, 8561–8579, https://doi.org/10.5194/gmd-15-8561-2022, 2022.
 
 
 
