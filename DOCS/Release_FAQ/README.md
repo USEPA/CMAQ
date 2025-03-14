@@ -6,8 +6,8 @@
 <!--
 ```{toctree}
 :hidden:
-CMAQv5.5-Series-FAQ.md
-CMAQv5.4-Series-FAQ.md
+FAQ v5.5 <CMAQv5.5-Series-FAQ.md>
+FAQ v5.4 <CMAQv5.4-Series-FAQ.md>
 ```
 END_OF_COMMENT
 -->
