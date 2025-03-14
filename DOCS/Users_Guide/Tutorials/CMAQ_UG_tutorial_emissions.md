@@ -22,7 +22,7 @@ residential heating, etc.
 - [4. Scale emissions for one species on all streams](#scale_species)  
 - [5. Scale all gas phase emissions but leave aerosols alone](#scale_gases)  
 - [6. Scale all aerosols](#scale_aerosols)  
-- [7. Add or subtract emissions from one surrogate to existing emissions]([#scale_surrogate)  
+- [7. Add or subtract emissions from one surrogate to existing emissions](#scale_surrogate)  
 - [8. Overwrite the scale factor for a single stream or species](#overwrite)  
 - [9. Scale all species except one by a common factor](#scale_all_but_one)  
 - [10. Apply scaling while conserving moles or mass](#scale_moles_mass)  
@@ -34,7 +34,7 @@ residential heating, etc.
 - [16. Miscellaneous Notes](#misc_notes)
 - [Example DESID Control File](../../../CCTM/src/emis/emis/CMAQ_Control_DESID.nml)  
 - [Example DESID Scaling Rules File](../../../CCTM/src/MECHS/cracmm2/CMAQ_Control_DESID_cracmm2.nml)  
-- [Example Emissions Section of CCTM RunScript File](../../../CCTM/scripts/run_cctm_cracmm_2019_12US1_CRACMM2_EPA2019.csh#L420)   
+- [Example Emissions Section of CCTM RunScript File](../../../CCTM/scripts/run_cctm_Bench_2018_12NE3_CRACMM2.csh#L327)   
 
 
 
@@ -238,7 +238,7 @@ Two example mask files are available on the CMAS Data Warehouse: US states grid 
 * [Link to grid mask files on CMAS Data Warehouse Google Drive](https://drive.google.com/drive/folders/1x9mJUbKjJaMDFawgy2PUbETwEUopAQDl)
 * [Link to metadata for the grid mask files is posted on the CMAS Center Dataverse site](https://doi.org/10.15139/S3/XDYYB9)
 
-Custom mask files may also be made using the [shp2cmaq](../../../PREP/shp2cmaq/README.md) tool, which provides instructions for obtaining geospatial data via shape files and converting them to CMAQ gridded input files. One may also populate a CMAQ gridded input file with arbitrary geometric shapes (e.g. squares, diamonds, or other polygons) using the IOAPI library of tools and any common coding language (e.g. Fortran, R, or Python)
+Custom mask files may also be made using the [shp2cmaq](../../../PYTOOLS/shp2cmaq/README.md) tool, which provides instructions for obtaining geospatial data via shape files and converting them to CMAQ gridded input files. One may also populate a CMAQ gridded input file with arbitrary geometric shapes (e.g. squares, diamonds, or other polygons) using the IOAPI library of tools and any common coding language (e.g. Fortran, R, or Python)
 
 <a id=define_families></a>
 ### 12.  Define families of streams, regions, or chemical species
