@@ -70,15 +70,3 @@ UTIL/inline_phot_preproc/bldrun.log
 #unique to user; below section unlikely to add and commit to repository
 bldit_project.csh
 
-SPHINX/
-.ipynb_checkpoints/
-CCTM/
-POST/
-PREP/
-PYTOOLS/
-UTIL/
-DOCS/
-README.md
-bldit_project.csh
-config_cmaq.csh
-
