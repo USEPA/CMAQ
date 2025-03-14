@@ -18,7 +18,7 @@ Many software programs are freely available for pre- and post-processing, evalua
 |**Software**|**Description**|     **Source**    |
 |------------|-------------------------------|---------------------------------------------|
 |***Post-processing***|||
-|CMAQ POST Tools|Programs released with CMAQ source code to prepare output data for model evaluation|[https://github.com/USEPA/CMAQ](../../POST)|
+|CMAQ POST Tools|Programs released with CMAQ source code to prepare output data for model evaluation|[https://github.com/USEPA/CMAQ/blob/main/POST/README.md](https://github.com/USEPA/CMAQ/blob/main/POST/README.md)|
 |I/O API Tools|Postprocessing tools for manipulating data in the I/O API/netCDF format|[https://www.cmascenter.org/ioapi](https://www.cmascenter.org/ioapi)|
 |NCO|netCDF Operators: Postprocessing tools for manipulating data in the netCDF format|[http://nco.sourceforge.net](http://nco.sourceforge.net)
 |***Evaluation/Visualization***| | |
