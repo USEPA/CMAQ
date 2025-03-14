@@ -30,7 +30,7 @@ In this section, details on the routine CCTM output files are provided. All CMAQ
 |[CCTM_MEDIA_CONC](#media)<a id=media_conc_t></a>|GRDDED3|Hourly Instantaneous|XY
 |[CCTM_BSOILOUT](#soilout) <a id=soilout_t></a>|GRDDED3|n/a (see detailed file description below)|XY
 |[CCTM_MSOILOUT](#soilout) <a id=soilout_t></a>|GRDDED3|n/a (see detailed file description below)|XY
-|[CCTM_BDSNPOUT](#bdsnpout) <a id=soilout_t></a>|GRDDED3|n/a (see detailed file description below)|XY
+|[CCTM_BDSNPOUT](#bdsnpout) <a id=bdsnpout_t></a>|GRDDED3|n/a (see detailed file description below)|XY
 |**Diagnostic and Advanced**| | | |
 |[CCTM_B3GTS_S](#b3gts) <a id=b3gts_t></a>|GRDDED3|Hourly Instantaneous| XY
 |[CCTM_BUDGET](#budget) <a id=budget_t></a>|ASCII|Hourly Instantaneous| Domain-Wide
@@ -41,9 +41,9 @@ In this section, details on the routine CCTM output files are provided. All CMAQ
 |[CCTM_DDEP_MOS](#dry_dep_mos) <a id=dry_dep_mos_t></a>|GRDDED3|Hourly Cumulative|XYW
 |[CCTM_LTNGHRLY](#ltngdiag1) <a id=ltngdiag1_t></a>|GRDDED3|Hourly Instantaneous|XYZ
 |[CCTM_LTNGCOL](#ltngdiag2) <a id=ltngdiag2_t></a>|GRDDED3|Hourly Instantaneous|XY
-|[CCTM_PHOTDIAG1](#ctm_rj_1) <a id=ctm_rj1_t></a>|GRDDED3|Hourly Instantaneous|XY
-|[CCTM_PHOTDIAG2](#ctm_rj_2) <a id=ctm_rj2_t></a>|GRDDED3|Hourly Instantaneous|XYZ'
-|[CCTM_PHOTDIAG3](#ctm_rj_3) <a id=ctm_rj3_t></a>|GRDDED3|Hourly Instantaneous|XYZ'
+|[CCTM_PHOTDIAG1](#ctm_rj1) <a id=ctm_rj1_t></a>|GRDDED3|Hourly Instantaneous|XY
+|[CCTM_PHOTDIAG2](#ctm_rj2) <a id=ctm_rj2_t></a>|GRDDED3|Hourly Instantaneous|XYZ'
+|[CCTM_PHOTDIAG3](#ctm_rj3) <a id=ctm_rj3_t></a>|GRDDED3|Hourly Instantaneous|XYZ'
 |[CCTM_SSEMIS](#ssemis) <a id=ssemis_t></a>|GRDDED3|Hourly Instantaneous|XY
 |[CCTM_WETDEP2](#wetdep2) <a id=wetdep2_t></a>|GRDDED3|Hourly Cumulative|XY
 |[CCTM_VEXT](#vext) <a id=vext_t></a>|GRDDED3|Hourly Instantaneous|WZ
@@ -196,7 +196,7 @@ As with BEIS, the file set by the environmental variable MEGAN_SOILOUT contains 
  
 **CCTM_BDSNPOUT**
 <!-- BEGIN COMMENT -->
-[Return to Table 7-1](#bdsnpout)
+[Return to Table 7-1](#bdsnpout_t)
 <!-- END COMMENT -->
  
 This file is required when setting both CTM_BIOGEMIS_MG to Y and BDSNP_MEGAN to Y, since the BDSNP soil NO model requires information about the previous day's meteorology and nitrogen deposition reservoir. The output file is created at the end of the simulation day and its name is defined by setting the environmental variable BDSNPOUT. The input file for the previous day is defined by setting the environmental variable BDSNPINP. 
