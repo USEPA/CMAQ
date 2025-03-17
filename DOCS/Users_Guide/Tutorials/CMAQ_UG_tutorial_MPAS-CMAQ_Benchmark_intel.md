@@ -355,7 +355,7 @@ ln -s ${local_dir}/cmaq_inputs/emissions/one_day/* .
 ln -s ${local_dir}/cmaq_inputs/emissions/2017_120km/* .
 ```
 
-## Running the MPAS-CMAQ model
+## Run the MPAS-CMAQ model
 
 One sample run scripts is provided (MPAS/run/run.csh)
 
