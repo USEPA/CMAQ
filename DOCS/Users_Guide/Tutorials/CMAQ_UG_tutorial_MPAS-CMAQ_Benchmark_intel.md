@@ -130,7 +130,7 @@ module list
 
 These instructions follow the [MPAS-CMAQ User Manual](https://github.com/USEPA/CMAQ/blob/MPAS-CMAQ/DOCS/Users_Guide/PDF/MPAS-CMAQ.pdf)
 
-**Clone the MPAS-CMAQ Branch from the USEPA GitHub Repository**
+### Clone the MPAS-CMAQ Branch
 
 ```
 mkdir MPAS-CMAQ
