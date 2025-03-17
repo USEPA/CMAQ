@@ -6,11 +6,17 @@ This guide helps you to find and report errors to the CMAS Center Forum and foll
 ## Building CMAQ
 ### Prerequisite: Build Libraries and CMAQ using gcc or intel compilers
 Follow the CMAQ Build Tutorials for the appropriate compiler: 
-Uncompressed netCDF-4 library builds:
+
+Uncompressed netCDF-4 library builds:<br>
+
 * [Building CMAQ for GNU](CMAQ_UG_tutorial_build_library_gcc.md)
 * [Building CMAQ for Intel](CMAQ_UG_tutorial_build_library_intel.md)
-Compressed netCDF-4 Library builds:
+
+<br>
+Compressed netCDF-4 Library builds:<br>
+
 * [Building CMAQ using netCDF-4 compression for GNU](CMAQ_UG_tutorial_build_library_gcc_support_nc4.md)
+* [Building CMAQ using netCDF-4 compression for Intel](CMAQ_UG_tutorial_build_library_intel_support_nc4.md)
 
 ### Verify that an executable was created
 ```
