@@ -46,7 +46,7 @@ Load the environment modules for intel
 module load intel/20.2 openmpi/4.1.4-intel_20.2
 ```
 
-Create directory for libraries
+**Create directory for libraries**
 
 ```
 #change directories to the location where you would like to install MPAS-CMAQ
@@ -54,7 +54,7 @@ mkdir -p $cwd/MPAS-CMAQ/build/LIBRARIES_intel/20.2
 cd $cwd/MPAS-CMAQ/build/LIBRARIES_intel/20.2
 ```
 
-Obtain and run libraries install script
+**Obtain and run libraries install script**
 
 ```
 wget https://github.com/USEPA/CMAQ/blob/main/DOCS/Users_Guide/Tutorials/scripts/mpas-cmaq_libraries/iolib_installation_intel_20.2.sh
@@ -70,7 +70,7 @@ Review the log file to verify that the libraries were installed successfully
 grep -i error iolib_installation_intel_20.2.log
 ```
 
-Verify the libraries are installed
+**Verify the libraries are installed**
 
 ```
 ls lib/*
@@ -80,7 +80,7 @@ lib/libcurl.so  lib/libhdf5.a         lib/libhdf5.la     lib/libnetcdff.a      l
 
 ```
 
-## Configure Private Environment Modules
+##Configure Private Environment Modules
 
 ```
 mkdir -p $cwd/Modules/modulefiles/mpas-cmaq-iolib
@@ -130,7 +130,7 @@ module list
 
 These instructions follow the [MPAS-CMAQ User Manual](https://github.com/USEPA/CMAQ/blob/MPAS-CMAQ/DOCS/Users_Guide/PDF/MPAS-CMAQ.pdf)
 
-Clone the MPAS-CMAQ Branch from the USEPA GitHub Repository
+**Clone the MPAS-CMAQ Branch from the USEPA GitHub Repository**
 
 ```
 mkdir MPAS-CMAQ
@@ -153,7 +153,7 @@ Now execute the script.
 ```
 
 
-Configuring the MPAS-CMAQ Build Environment
+**Configuring the MPAS-CMAQ Build Environment**
 
 Edit the config_cmaq.csh to change mpiifort to mpifort
 
@@ -166,7 +166,7 @@ setenv myFC mpiifort
 setenv myFC mpifort
 ```
 
-Run the build script to generate the Makefile and CMAQ scource code
+**Run the build script to generate the Makefile and CMAQ scource code**
 
 ```
 cd [your_install_path]/MPAS-CMAQ/CMAQ_5.5/CCTM/scripts
@@ -177,7 +177,7 @@ cd [your_install_path]/MPAS-CMAQ/CMAQ_5.5/CCTM/scripts
 # note that this will not create an executable file, see next steps
 ```
 
-Review Makefile created for MPAS-CMAQ
+**Review Makefile created for MPAS-CMAQ**
 
 Note that the config_cmaq.csh compiler settings are not utilized in the Makefile that is created by running the bldit_cctm.csh script.
 
@@ -190,13 +190,13 @@ Successful execution of this script creates a BLD* directory with CMAQ code and 
 
 If this step fails, please reach post on the [CMAS Forum](https://forum.cmascenter.org/c/wrf-cmaq).
 
-Change directories to the top level MPAS-CMAQ directory
+**Change directories to the top level MPAS-CMAQ directory**
 
 ```
 cd /your-path/MPAS-CMAQ
 ```
 
-## Download MPAS model
+##Download MPAS model
 
 ```
 git clone -b MPAS7.0 git@github.com:USEPA/MPAS.git MPAS
@@ -311,7 +311,7 @@ mpifort -O3 -o atmosphere_model driver/*.o -L. -ldycore -lops -lframework -L/21d
 ```
 
 
-Verify that you have created the executable
+**Verify that you have created the executable**
 
 ```
 ls -rlt atmosphere_model
@@ -319,7 +319,7 @@ ls -rlt atmosphere_model
 ```
 
 
-## Install MPAS-CMAQ input data 
+##Install MPAS-CMAQ input data 
 
 Use the aws command line
 
@@ -408,7 +408,7 @@ Submit the job to the slurm queue
   sbatch run.csh
 ```
 
-## Verify that the run was successful
+Verify that the run was successful
    - look for the output directory
 
    ```
