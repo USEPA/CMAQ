@@ -36,7 +36,9 @@ The suggested hardware requirements for running the CMAQ-MPAS 120km Uniform Grid
 3. 400 GB hard drive storage
 
 
-Install the MPAS-CMAQ I/O Libraries using the intel/20.2 compiler
+##Install MPAS-CMAQ I/O Libraries 
+
+This tutorial uses scripts developed with the intel/20.2 compiler.
 
 Load the environment modules for intel
 
@@ -125,6 +127,7 @@ module list
 ```
 
 ##Build MPAS-CMAQ
+
 These instructions follow the [MPAS-CMAQ User Manual](https://github.com/USEPA/CMAQ/blob/MPAS-CMAQ/DOCS/Users_Guide/PDF/MPAS-CMAQ.pdf)
 
 Clone the MPAS-CMAQ Branch from the USEPA GitHub Repository
@@ -163,7 +166,7 @@ setenv myFC mpiifort
 setenv myFC mpifort
 ```
 
-Run the build script to generate the Makefile
+Run the build script to generate the Makefile and CMAQ scource code
 
 ```
 cd [your_install_path]/MPAS-CMAQ/CMAQ_5.5/CCTM/scripts
@@ -193,7 +196,7 @@ Change directories to the top level MPAS-CMAQ directory
 cd /your-path/MPAS-CMAQ
 ```
 
-## Download MPAS
+## Download MPAS model
 
 ```
 git clone -b MPAS7.0 git@github.com:USEPA/MPAS.git MPAS
