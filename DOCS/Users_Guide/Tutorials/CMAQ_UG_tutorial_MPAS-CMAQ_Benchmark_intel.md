@@ -36,7 +36,7 @@ The suggested hardware requirements for running the CMAQ-MPAS 120km Uniform Grid
 3. 400 GB hard drive storage
 
 
-##Install MPAS-CMAQ I/O Libraries 
+## Install MPAS-CMAQ I/O Libraries 
 
 This tutorial uses scripts developed with the intel/20.2 compiler.
 
@@ -80,7 +80,7 @@ lib/libcurl.so  lib/libhdf5.a         lib/libhdf5.la     lib/libnetcdff.a      l
 
 ```
 
-##Configure Private Environment Modules
+## Configure Private Environment Modules
 
 ```
 mkdir -p $cwd/Modules/modulefiles/mpas-cmaq-iolib
@@ -126,7 +126,7 @@ module load mpas-cmaq-iolib/intel-20.2
 module list
 ```
 
-##Build MPAS-CMAQ
+## Build MPAS-CMAQ
 
 These instructions follow the [MPAS-CMAQ User Manual](https://github.com/USEPA/CMAQ/blob/MPAS-CMAQ/DOCS/Users_Guide/PDF/MPAS-CMAQ.pdf)
 
@@ -196,7 +196,7 @@ If this step fails, please reach post on the [CMAS Forum](https://forum.cmascent
 cd /your-path/MPAS-CMAQ
 ```
 
-##Download MPAS model
+## Download MPAS model
 
 ```
 git clone -b MPAS7.0 git@github.com:USEPA/MPAS.git MPAS
@@ -319,7 +319,7 @@ ls -rlt atmosphere_model
 ```
 
 
-##Install MPAS-CMAQ input data 
+## Install MPAS-CMAQ input data 
 
 Use the aws command line
 
