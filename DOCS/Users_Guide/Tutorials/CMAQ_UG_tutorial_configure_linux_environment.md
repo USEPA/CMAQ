@@ -24,18 +24,21 @@ The following support software are required for compiling and running CMAQ.
 
 1. Fortran and C compilers, e.g., [Intel](https://software.intel.com/en-us/fortran-compilers), [Portland Group](http://www.pgroup.com), [Gnu](https://gcc.gnu.org/wiki/GFortran)
 2. [Git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git)
-2. Message Passing Interface (MPI), e.g., [OpenMPI](https://www.open-mpi.org) or [MVAPICH2](http://www.mcs.anl.gov/research/projects/mpich2).
-3. Latest release of [netCDF-C](https://docs.unidata.ucar.edu/nug/current/getting_and_building_netcdf.html).
-4. Latest release of [netCDF-Fortran](https://www.unidata.ucar.edu/software/netcdf/docs/building_netcdf_fortran.html). 
-5. [I/O API](https://github.com/cjcoats/ioapi-3.2).
+3. Message Passing Interface (MPI), e.g., [OpenMPI](https://www.open-mpi.org) or [MVAPICH2](http://www.mcs.anl.gov/research/projects/mpich2).
+4. Latest release of [netCDF-C](https://docs.unidata.ucar.edu/nug/current/getting_and_building_netcdf.html).
+5. Latest release of [netCDF-Fortran](https://www.unidata.ucar.edu/software/netcdf/docs/building_netcdf_fortran.html). 
+6. [I/O API](https://github.com/cjcoats/ioapi-3.2).
+
+Tutorials for building libraries and CMAQ
+
 
    - Building netCDF and I/O API libraries that disable compression with GNU compiler ([Tutorial](CMAQ_UG_tutorial_build_library_gcc.md) 
 
      | Install script using gcc 11.4           |   script location | 
      |  ----              |  ------     |
-     | netCDF    | ./scripts/cmaq_libraries/gcc_11.4_install_netcdf_classic.csh |
-     | I/O API   | ./scripts/cmaq_libraries/gcc_11.4_install_ioapi_classic.csh | 
-     | CMAQv5.5  | ./scripts/cmaq_libraries/gcc_11.4_install_cmaq55_cb6r5_m3dry_classic.csh |
+     | netCDF    | [gcc_11.4_install_netcdf_classic.csh](./scripts/cmaq_libraries/gcc_11.4_install_netcdf_classic.csh) |
+     | I/O API   | [gcc_11.4_install_ioapi_classic.csh](./scripts/cmaq_libraries/gcc_11.4_install_ioapi_classic.csh) | 
+     | CMAQv5.5  | [gcc_11.4_install_cmaq55_cb6r5_m3dry_classic.csh](./scripts/cmaq_libraries/gcc_11.4_install_cmaq55_cb6r5_m3dry_classic.csh) |
 
    - Building netCDF and I/O API libraries that disable compression with INTEL compiler ([Tutorial](CMAQ_UG_tutorial_build_library_intel.md))
 
