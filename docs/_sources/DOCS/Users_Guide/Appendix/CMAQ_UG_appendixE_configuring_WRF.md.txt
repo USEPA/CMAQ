@@ -40,10 +40,6 @@ in layer k rather than wind speed difference between layer k and ksrc.
 ## E.5 WRF version 3.7 
 * **[Section from WRFv3.7 Technical Documentation related to air quality modeling](http://www2.mmm.ucar.edu/wrf/users/docs/PX-ACM.pdf):** This 8 page pdf provides description and procedures for using the Pleim-Xiu LSM, ACM2 PBL and Pleim Surface Layer Scheme in WRF including best practices and namelist options.
 
-## E.6 WRF with lightning assimilation 
-* EPA typically runs WRF simulations using a Lightning Assimilation method described in Heath et al. (2016) and Kang et al. (2022).  The assimilation method uses gridded lightning data to trigger and suppress sub-grid deep convection in WRF's Kain-Fritsch scheme.  For information on the WRF code modifications and required data files please contact [Daiwen Kang](mailto:kang.daiwen@epa.gov), U.S. Environmental Protection Agency.
-
-* **[WRF with Lightning Assimilation Code](https://wcms.epa.gov/sites/production/files/2017-02/ltgda_wrf_16feb2017.zip):** This .zip file (ltgda_wrf_16feb2017.zip; 220K) contains the registry and FORTRAN files with the updates needed to run WRF with lightning assimilation, as well as a generic Python script to grid lightning data to your WRF domain.
 
 ## E.6 Reference:
 

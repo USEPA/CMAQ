@@ -2,7 +2,7 @@
 
 **Purpose**: This guide describes how to install and run the MPAS-CMAQ test case, which serves two different purposes. The first being to familiarize the user with the MPAS-CMAQ suite of programs and how they work together, and secondly to verify the installation of the software on your system via benchmarking. 
 
-Users are highly encouraged to work through the [MPAS-CMAQ User Guide](https://github.com/USEPA/CMAQ/blob/MPAS-CMAQ/DOCS/Users_Guide/PDF/MPAS-CMAQ.pdf) and the [MPAS-CMAQ Chapter within the CMAQ User Guide](https://github.com/lizadams/CMAQ_CMAS/blob/5.5_testing/DOCS/Users_Guide/CMAQ_UG_ch14_MPAS-CMAQ.md) to familiarize themselves with the individuals program components.
+Users are highly encouraged to work through the [MPAS-CMAQ User Guide][link_MPAS_PDF] and the [MPAS-CMAQ Chapter within the CMAQ User Guide](../CMAQ_UG_ch14_MPAS-CMAQ.md) to familiarize themselves with the individuals program components.
 
 The following support software are required for compiling and running MPAS-CMAQ.
 
@@ -124,7 +124,7 @@ module load mpas-cmaq-iolib/gcc-11.4.1
 module list
 ```
 
-## Build MPAS-CMAQ - these instructions follow the [MPAS-CMAQ User Manual](https://github.com/USEPA/CMAQ/blob/MPAS-CMAQ/DOCS/Users_Guide/PDF/MPAS-CMAQ.pdf)
+## Build MPAS-CMAQ - these instructions follow the [MPAS-CMAQ User Manual][link_MPAS_PDF]
 
 ## Clone the MPAS-CMAQ Branch from the USEPA GitHub Repository
 
@@ -510,3 +510,7 @@ tail -n 8 log.atmosphere.0000.out
      tar xvzf  MPAS-CMAQ.120km_uniform_grid_gcc_output_288_36x8.tar.gz
      ```
 
+
+ 
+
+[link_MPAS_PDF]: https://github.com/USEPA/CMAQ/blob/MPAS_CMAQ/DOCS/Users_Guide/PDF/MPAS_CMAQ_guide.pdf
