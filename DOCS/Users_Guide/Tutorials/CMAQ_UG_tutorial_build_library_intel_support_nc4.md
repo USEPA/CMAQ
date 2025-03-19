@@ -774,9 +774,4 @@ run_combine.csh
  set END_DATE   = "2016-07-14"     #> ending date    (July 14, 2016)
 ```
 
-
-## Run the combine run script
-
-```
-sbatch run_combine.csh
-```
+After successfull completion of this tutorial, the user is now ready to proceed to the [CMAQ Installation & Benchmarking Tutorial](./CMAQ_UG_tutorial_benchmark.md).
