@@ -48,6 +48,10 @@ set echo
 # ---------------------
 
  cd ${INSTDIR}
+ # had issues building curl with intel 18.2 compiler on dogwood
+ # easy.c(91): error: a value of type "int" cannot be used to initialize an entity of type "atomic_int"
+ #  static curl_simple_lock s_lock = CURL_SIMPLE_LOCK_INIT;
+ # only solution was to move to longleaf and use intel 20.2 compiler
  wget https://curl.se/download/curl-8.11.1.tar.gz
  tar -xzvf curl-8.11.1.tar.gz
  cd curl-8.11.1
