@@ -1,1 +1,0 @@
-../../../../CCTM/src/MECHS/cracmm1_aq/SpecDef_cracmm1_aq.txt
