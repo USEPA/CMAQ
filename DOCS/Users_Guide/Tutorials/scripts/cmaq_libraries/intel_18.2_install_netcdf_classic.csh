@@ -3,6 +3,7 @@ set echo
 
 #
 #  Install used tcsh and intel version 18.2 and openmpi
+#  for classic version of netCDF library 
 #
 
 module load openmpi_3.1.4/intel_18.2
@@ -64,10 +65,12 @@ unsetenv F90FLAGS
    tar xvf v4.5.3.tar.gz
    cd netcdf-fortran-4.5.3
    #cd netcdf-fortran-4.4.5
+   # Edit configure to remove -qversion
+   sed -i -e 's/-qversion//g'
    ## Note, if non-standard locaions are used for the following compilers, you may need to specify their locations here: 
    setenv LDFLAGS "-L${INSTDIR}/lib"
    setenv CPPFLAGS "-I${INSTDIR}/include"
-   setenv LIBS "-L${INSTDIR}/lib -lnetcdf -lm -lzip -lcurl"
+   setenv LIBS "-L${INSTDIR}/lib -lnetcdf"
    setenv NCDIR ${INSTDIR}
    setenv CPPFLAGS "-I${INSTDIR}/include"
    setenv LDFLAGS "-L${INSTDIR}/lib"
