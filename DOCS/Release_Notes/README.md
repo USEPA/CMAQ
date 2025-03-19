@@ -18,5 +18,8 @@ The following links provide Release Notes for CMAQv5.4 onward.  Links for Releas
    * [Utilities](./CMAQ-Release-Notes:-Utilities.md)
    * [Stratospheric-Tropospheric Exchange (STE)](./CMAQ-Release-Notes:-Stratospheric‐Tropospheric-Exchange-(STE).md)
 
+## CMAQv5.5 Bug Fixes
+Users who wish to adopt the most recent bugfixes or minor updates to v5.5 should review the tagged versions of v5.5+:  
+**[Record of changes to CMAQv5.5](CMAQ-Bugfix-Branch.md)**
 
-For a high level summary and comparison to previous versions please see the [Release FAQ pages](../Release_FAQ/README.md).
+
