@@ -16,4 +16,6 @@ The following documents are available for each CMAQ release:
 
 - **[Developers' Guide](Developers_Guide/CMAQ_Dev_Guide.md)**: A guide to version control practices and expectations adopted by the CMAQ development team and enforced on itself and any other collaborators who wish to contribute code.
 
+- **[CMAQ logos](Logos)**: .png and .pdf files of the CMAQ logo. 
+
 
