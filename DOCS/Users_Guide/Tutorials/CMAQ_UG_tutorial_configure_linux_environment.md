@@ -29,9 +29,7 @@ The following support software are required for compiling and running CMAQ.
 5. Latest release of [netCDF-Fortran](https://www.unidata.ucar.edu/software/netcdf/docs/building_netcdf_fortran.html). 
 6. [I/O API](https://github.com/cjcoats/ioapi-3.2).
 
-Tutorials and scripts for building libraries and CMAQ<br>
-note, please review the tutorials prior to attempting to use the install scripts, as the CMAQ install script need to be edited for your local path prior to use.<br>
-Recommend use of environment modules to manage the library versions.<br>
+## Tutorials and scripts for building libraries and CMAQ
 
 
    - Building netCDF and I/O API libraries that disable compression with GNU compiler ([Tutorial](CMAQ_UG_tutorial_build_library_gcc.md))
@@ -73,7 +71,8 @@ Recommend use of environment modules to manage the library versions.<br>
      | I/O API | [intel_2024_install_ioapi_for_nc4_compression.csh](./scripts/cmaq_libraries/intel_2024_install_ioapi_for_nc4_compression.csh) |
      | CMAQv5.5 | [intel_2024_install_cmaq55_cb6r5_m3dry_for_nc4_compression.csh](./scripts/cmaq_libraries/intel_2024_install_cmaq55_cb6r5_m3dry_for_nc4_compression.csh) |
 
-
+note, please review the tutorials prior to attempting to use the install scripts, as the CMAQ install script need to be edited for your local path prior to use.<br>
+Recommend use of environment modules to manage the library versions.<br>
 
 
 
